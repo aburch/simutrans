@@ -661,7 +661,7 @@ bool stadt_t::maybe_build_road(koord k)
 	}
 
 	if (best_strasse.found()) {
-		bool success = baue_strasse(best_strasse.get_pos(), NULL, false);
+		bool success = build_road(best_strasse.get_pos(), NULL, false);
 		INT_CHECK("simcity 5095");
 		return success;
 	}
@@ -3358,7 +3358,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 									continue;
 								}
 
-								bool success = baue_strasse(k, NULL, true);
+								bool success = build_road(k, NULL, true);
 
 								assert(success);
 							}
@@ -3579,21 +3579,21 @@ void stadt_t::check_bau_townhall(bool new_town)
 		if (neugruendung || umziehen) {
 			// build the road in front of the townhall
 			if (road0!=road1) {
-				wegbauer_t bauigel(NULL);
-				bauigel.route_fuer(wegbauer_t::strasse, welt->get_city_road(), NULL, NULL);
+				way_builder_t bauigel(NULL);
+				bauigel.init_builder(way_builder_t::strasse, welt->get_city_road(), NULL, NULL);
 				bauigel.set_build_sidewalk(true);
 				bauigel.calc_straight_route(welt->lookup_kartenboden(best_pos + road0)->get_pos(), welt->lookup_kartenboden(best_pos + road1)->get_pos());
 				bauigel.build();
 			}
 			else {
-				baue_strasse(best_pos + road0, NULL, true);
+				build_road(best_pos + road0, NULL, true);
 			}
 			townhall_road = best_pos + road0;
 		}
 		if (umziehen  &&  alte_str != koord::invalid) {
 			// build street from former City Hall to new one.
-			wegbauer_t bauer(NULL);
-			bauer.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, welt->get_city_road());
+			way_builder_t bauer(NULL);
+			bauer.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, welt->get_city_road());
 			bauer.calc_route(welt->lookup_kartenboden(alte_str)->get_pos(), welt->lookup_kartenboden(townhall_road)->get_pos());
 			bauer.build();
 			
@@ -3753,7 +3753,7 @@ static int layout_to_orientations[] = {
 	9   //SW
 };
 
-void process_city_street(grund_t& gr, const weg_desc_t* cr)
+void process_city_street(grund_t& gr, const way_desc_t* cr)
 {
 	weg_t* const weg = gr.get_weg(road_wt);
 	if(  weg == NULL  ) {
@@ -4241,7 +4241,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 	{
 		grund_t* gr = welt->lookup(gb->get_pos());
 		way = gr ? gr->get_weg((waytype_t)i) : NULL;
-		if((way && (wegbauer_t::bautyp_t)way->get_desc()->get_wtyp() & wegbauer_t::elevated_flag) || (gr && gr->ist_bruecke()))
+		if((way && (way_builder_t::bautyp_t)way->get_desc()->get_wtyp() & way_builder_t::elevated_flag) || (gr && gr->ist_bruecke()))
 		{ 
 			// Limit this if any elevated way or bridge is found.
 			max_level = welt->get_settings().get_max_elevated_way_building_level();
@@ -4485,7 +4485,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 	 * "bridge_success_percentage" is the percent of the time when bridges should *succeed*.
 	 * --neroden
 	 */
-	if(  simrand(100, "stadt_t::baue_strasse() (bridge check)") >= bridge_success_percentage  ) {
+	if(  simrand(100, "stadt_t::build_road() (bridge check)") >= bridge_success_percentage  ) {
 		return false;
 	}
 	const char *err = NULL;
@@ -4509,7 +4509,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 	bool successfully_built_past_end = false;
 	// Build a road past the end of the future bridge (even if it has no connections yet)
 	// This may fail, in which case we shouldn't build the bridge
-	successfully_built_past_end = baue_strasse( (end+zv).get_2d(), NULL, true);
+	successfully_built_past_end = build_road( (end+zv).get_2d(), NULL, true);
 
 	if (!successfully_built_past_end) {
 		return false;
@@ -4518,7 +4518,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 	bridge_builder_t::build_bridge(NULL, bd->get_pos(), end, zv, bridge_height, bridge, welt->get_city_road());
 	// Now connect the bridge to the road we built
 	// (Is there an easier way?)
-	baue_strasse( (end+zv).get_2d(), NULL, false );
+	build_road( (end+zv).get_2d(), NULL, false );
 
 	// Attempt to expand the city repeatedly in the bridge direction
 	bool reached_end_plus_2=false;
@@ -4602,7 +4602,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
  *
  * @author Hj. Malthaner, V. Meyer
  */
-bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
+bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 {
 	grund_t* bd = welt->lookup_kartenboden(k);
 
@@ -4660,7 +4660,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 			allowed_dir = ribi_t::doubles( ribi_t::layout_to_ribi[gb->get_tile()->get_layout() & 1] );
 		}
 		else {
-			dbg->error("stadt_t::baue_strasse()", "building on road with not directions at %i,%i?!?", k.x, k.y );
+			dbg->error("stadt_t::build_road()", "building on road with not directions at %i,%i?!?", k.x, k.y );
 		}
 	}
 
@@ -4722,7 +4722,7 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 							}
 						}
 						else {
-							dbg->error("stadt_t::baue_strasse()", "building on road with not directions at %i,%i?!?", k.x, k.y );
+							dbg->error("stadt_t::build_road()", "building on road with not directions at %i,%i?!?", k.x, k.y );
 						}
 					}
 					else if(bd2->get_depot() || bd2->get_signalbox()) {
@@ -4730,8 +4730,8 @@ bool stadt_t::baue_strasse(const koord k, player_t* player_, bool forced)
 					}
 					else {
 						// check slopes
-						wegbauer_t bauer( NULL );
-						bauer.route_fuer( wegbauer_t::strasse | wegbauer_t::terraform_flag, welt->get_city_road() );
+						way_builder_t bauer( NULL );
+						bauer.init_builder( way_builder_t::strasse | way_builder_t::terraform_flag, welt->get_city_road() );
 						if(  bauer.check_slope( bd, bd2 )  ) {
 							// allowed ...
 							connection_roads |= ribi_t::nsew[r];

@@ -13,7 +13,7 @@ class tree_desc_t;
 class building_desc_t;
 class building_tile_desc_t;
 class ware_desc_t;
-class weg_desc_t;
+class way_desc_t;
 
 namespace script_api {
 
@@ -72,7 +72,7 @@ namespace script_api {
 	declare_desc_param(tree_desc_t, "tree_desc_x");
 	declare_desc_param(ware_desc_t, "good_desc_x");
 	declare_desc_param(building_desc_t, "building_desc_x");
-	declare_desc_param(weg_desc_t, "way_desc_x");
+	declare_desc_param(way_desc_t, "way_desc_x");
 
 	// only push the building_desc_t-pointer
 	declare_desc_param(building_tile_desc_t, "building_desc_x");

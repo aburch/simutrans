@@ -128,7 +128,7 @@ leitung_t::leitung_t(typ type, koord3d pos, player_t *player) : obj_t(type, pos)
 	image = IMG_EMPTY;
 	set_net(NULL);
 	set_owner( player );
-	set_desc(wegbauer_t::leitung_desc);
+	set_desc(way_builder_t::leitung_desc);
 	modified_production_delta_t = welt->calc_adjusted_monthly_figure(PRODUCTION_DELTA_T);
 }
 
@@ -141,7 +141,7 @@ leitung_t::leitung_t(koord3d pos, player_t *player) : obj_t(pos)
 	image = IMG_EMPTY;
 	set_net(NULL);
 	set_owner( player );
-	set_desc(wegbauer_t::leitung_desc);
+	set_desc(way_builder_t::leitung_desc);
 	modified_production_delta_t = welt->calc_adjusted_monthly_figure(PRODUCTION_DELTA_T);
 }
 
@@ -522,18 +522,18 @@ void leitung_t::rdwr(loadsave_t *file)
 				file->rdwr_str(bname, lengthof(bname));
 				if(bname[0] == '~')
 				{
-					set_desc(wegbauer_t::leitung_desc);					
+					set_desc(way_builder_t::leitung_desc);					
 					return;
 				}
 
-				const weg_desc_t *desc = wegbauer_t::get_desc(bname);
+				const way_desc_t *desc = way_builder_t::get_desc(bname);
 				if(desc==NULL) 
 				{
-					desc = wegbauer_t::get_desc(translator::compatibility_name(bname));
+					desc = way_builder_t::get_desc(translator::compatibility_name(bname));
 					if(desc==NULL) 
 					{
 						welt->add_missing_paks( bname, karte_t::MISSING_WAY );
-						desc = wegbauer_t::leitung_desc;
+						desc = way_builder_t::leitung_desc;
 					}
 					dbg->warning("leitung_t::rdwr()", "Unknown powerline %s replaced by %s", bname, desc->get_name() );
 				}
@@ -544,7 +544,7 @@ void leitung_t::rdwr(loadsave_t *file)
 		{
 			if (file->is_loading()) 
 			{
-				set_desc(wegbauer_t::leitung_desc);
+				set_desc(way_builder_t::leitung_desc);
 			}
 		}
 	}

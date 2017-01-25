@@ -62,7 +62,7 @@ class sync_steppable;
 class tool_t;
 class scenario_t;
 class message_t;
-class weg_desc_t;
+class way_desc_t;
 class tunnel_desc_t;
 class network_world_command_t;
 class ware_desc_t;
@@ -722,7 +722,7 @@ private:
 	/**
 	 * May change due to timeline.
 	 */
-	const weg_desc_t *city_road;
+	const way_desc_t *city_road;
 
 	// Data for maintaining industry density even
 	// after industries close
@@ -1682,7 +1682,7 @@ public:
 	 * prissi: current city road.
 	 * @note May change due to timeline.
 	 */
-	const weg_desc_t* get_city_road() const { return city_road; }
+	const way_desc_t* get_city_road() const { return city_road; }
 
 	/**
 	 * Number of steps elapsed since the map was generated.
@@ -2528,7 +2528,7 @@ public:
 	uint32 get_generic_road_time_per_tile_city() const { return generic_road_time_per_tile_city; }
 	uint32 get_generic_road_time_per_tile_intercity() const { return generic_road_time_per_tile_intercity; };
 
-	sint32 calc_generic_road_time_per_tile(const weg_desc_t* desc);
+	sint32 calc_generic_road_time_per_tile(const way_desc_t* desc);
 
 	uint32 get_max_road_check_depth() const { return max_road_check_depth; }
 

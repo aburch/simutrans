@@ -710,7 +710,7 @@ void player_t::ai_bankrupt()
 								}
 								else {
 									weg_t *way = (weg_t *)obj;
-									const weg_desc_t* mothballed_type = wegbauer_t::way_search_mothballed(way->get_waytype(), (systemtype_t)way->get_desc()->get_styp());
+									const way_desc_t* mothballed_type = way_builder_t::way_search_mothballed(way->get_waytype(), (systemtype_t)way->get_desc()->get_styp());
 									if(mothballed_type && way->get_waytype())
 									{
 										way->set_desc(mothballed_type);

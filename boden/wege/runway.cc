@@ -12,7 +12,7 @@
 
 #include "runway.h"
 
-const weg_desc_t *runway_t::default_runway=NULL;
+const way_desc_t *runway_t::default_runway=NULL;
 
 
 runway_t::runway_t() : schiene_t(air_wt)
@@ -54,21 +54,21 @@ void runway_t::rdwr(loadsave_t *file)
 	{
 		char bname[128];
 		file->rdwr_str(bname, lengthof(bname));
-		const weg_desc_t *desc = wegbauer_t::get_desc(bname);
+		const way_desc_t *desc = way_builder_t::get_desc(bname);
 
 #ifndef SPECIAL_RESCUE_12_3
-		const weg_desc_t* loaded_replacement_way = NULL;
+		const way_desc_t* loaded_replacement_way = NULL;
 		if(file->get_experimental_version() >= 12)
 		{
 			char rbname[128];
 			file->rdwr_str(rbname, lengthof(rbname));
-			loaded_replacement_way = wegbauer_t::get_desc(rbname);
+			loaded_replacement_way = way_builder_t::get_desc(rbname);
 		}
 #endif
 
 		int old_max_speed=get_max_speed();
 		if(desc==NULL) {
-			desc = wegbauer_t::weg_search(air_wt,old_max_speed>0 ? old_max_speed : 20, 0, (systemtype_t)(old_max_speed>250) );
+			desc = way_builder_t::weg_search(air_wt,old_max_speed>0 ? old_max_speed : 20, 0, (systemtype_t)(old_max_speed>250) );
 			if(desc==NULL) {
 				desc = default_runway;
 				welt->add_missing_paks( bname, karte_t::MISSING_WAY );

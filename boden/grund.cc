@@ -385,7 +385,7 @@ void grund_t::rdwr(loadsave_t *file)
 					case tram_wt:
 						weg = new schiene_t(file);
 						if(weg->get_desc()->get_styp()!=type_tram) {
-							weg->set_desc(wegbauer_t::weg_search(tram_wt,weg->get_max_speed(),0,type_tram), true);
+							weg->set_desc(way_builder_t::weg_search(tram_wt,weg->get_max_speed(),0,type_tram), true);
 						}
 						break;
 
@@ -2367,7 +2367,7 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 				diversion_checker->set_owner(welt->get_public_player());
 				test_driver_t *driver = diversion_checker;
 				driver = public_driver_t::apply(driver);
-				const weg_desc_t* default_road = welt->get_city(w->get_pos().get_2d()) ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month()) : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
+				const way_desc_t* default_road = welt->get_city(w->get_pos().get_2d()) ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month()) : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
 				if(default_road == NULL) // If, for some reason, the default road is not defined
 				{
 					default_road = w->get_desc();

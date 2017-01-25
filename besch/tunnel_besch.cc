@@ -107,5 +107,5 @@ void tunnel_desc_t::calc_checksum(checksum_t *chk) const
 
 waytype_t tunnel_desc_t::get_finance_waytype() const
 {
-	return ((get_weg_desc() && (get_weg_desc()->get_styp() == type_tram)) ? tram_wt : get_waytype()) ;
+	return ((get_way_desc() && (get_way_desc()->get_styp() == type_tram)) ? tram_wt : get_waytype()) ;
 }

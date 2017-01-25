@@ -25,10 +25,10 @@
 
 class koord3d;
 class koord;
-class wegbauer_t;
+class way_builder_t;
 class building_desc_t;
 class roadsign_desc_t;
-class weg_desc_t;
+class way_desc_t;
 class route_t;
 class way_obj_desc_t;
 
@@ -258,17 +258,17 @@ public:
 
 class tool_build_way_t : public two_click_tool_t {
 public: 
-	static const weg_desc_t *defaults[18];	// default ways for all types
+	static const way_desc_t *defaults[18];	// default ways for all types
 private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 
 protected:
-	const weg_desc_t *desc;
+	const way_desc_t *desc;
 
-	virtual weg_desc_t const* get_desc(uint16, bool) const;
-	void calc_route( wegbauer_t &bauigel, const koord3d &, const koord3d & );
+	virtual way_desc_t const* get_desc(uint16, bool) const;
+	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
 
 public:
 	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), desc() {}
@@ -288,7 +288,7 @@ private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 public:
 	tool_build_cityroad() : tool_build_way_t(TOOL_BUILD_CITYROAD | GENERAL_TOOL) {}
-	weg_desc_t const* get_desc(uint16, bool) const OVERRIDE;
+	way_desc_t const* get_desc(uint16, bool) const OVERRIDE;
 	image_id get_icon(player_t* const player) const OVERRIDE { return tool_t::get_icon(player); }
 	bool is_selected() const OVERRIDE { return tool_t::is_selected(); }
 	bool is_init_network_save() const OVERRIDE { return true; }
@@ -298,13 +298,13 @@ public:
 class tool_build_bridge_t : public two_click_tool_t {
 private:
 	ribi_t::ribi ribi;
-	const weg_desc_t* weg_desc;
+	const way_desc_t* way_desc;
 
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 public:
-	tool_build_bridge_t() : two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) { weg_desc = NULL; }
+	tool_build_bridge_t() : two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) { way_desc = NULL; }
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
@@ -316,9 +316,9 @@ public:
 
 class tool_build_tunnel_t : public two_click_tool_t {
 private:
-	const weg_desc_t* weg_desc;
+	const way_desc_t* way_desc;
 
-	void calc_route( wegbauer_t &bauigel, const koord3d &, const koord3d &);
+	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d &);
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;

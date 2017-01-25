@@ -16,7 +16,7 @@
 
 
 class karte_t;
-class weg_desc_t;
+class way_desc_t;
 class cbuffer_t;
 class player_t;
 class signal_t;
@@ -84,7 +84,7 @@ private:
 	* Way type description
 	* @author Hj. Malthaner
 	*/
-	const weg_desc_t * desc;
+	const way_desc_t * desc;
 
 	/**
 	* Richtungsbits für den Weg. Norden ist oben rechts auf dem Monitor.
@@ -182,7 +182,7 @@ protected:
 	 * NULL = do not replace.
 	 * @author: jamespetts
 	 */
-	const weg_desc_t *replacement_way;
+	const way_desc_t *replacement_way;
 
 	/* 
 	 * Degrade the way owing to excessive wear without renewal.
@@ -254,8 +254,8 @@ public:
 	* worth of description and updates the maintenance cost.
 	* @author Hj. Malthaner
 	*/
-	void set_desc(const weg_desc_t *b, bool from_saved_game = false);
-	const weg_desc_t *get_desc() const { return desc; }
+	void set_desc(const way_desc_t *b, bool from_saved_game = false);
+	const way_desc_t *get_desc() const { return desc; }
 
 	// returns a way with the matching type
 	static weg_t *alloc(waytype_t wt);
@@ -429,7 +429,7 @@ public:
 	 */
 	void wear_way(uint32 wear); 
 
-	void set_replacement_way(const weg_desc_t* replacement) { replacement_way = replacement; }
+	void set_replacement_way(const way_desc_t* replacement) { replacement_way = replacement; }
 
 	/**
 	 * Renew the way automatically when it is worn out.

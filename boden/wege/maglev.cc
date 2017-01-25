@@ -4,7 +4,7 @@
 
 #include "maglev.h"
 
-const weg_desc_t *maglev_t::default_maglev=NULL;
+const way_desc_t *maglev_t::default_maglev=NULL;
 
 
 
@@ -25,7 +25,7 @@ void maglev_t::rdwr(loadsave_t *file)
 	if(get_desc()->get_wtyp()!=maglev_wt) {
 		int old_max_speed = get_max_speed();
 		int old_max_axle_load = get_max_axle_load();
-		const weg_desc_t *desc = wegbauer_t::weg_search( maglev_wt, (old_max_speed>0 ? old_max_speed : 120), (old_max_axle_load > 0 ? old_max_axle_load : 10), 0, (systemtype_t)((get_desc()->get_styp()==type_elevated)*type_elevated), 1);
+		const way_desc_t *desc = way_builder_t::weg_search( maglev_wt, (old_max_speed>0 ? old_max_speed : 120), (old_max_axle_load > 0 ? old_max_axle_load : 10), 0, (systemtype_t)((get_desc()->get_styp()==type_elevated)*type_elevated), 1);
 		if (desc==NULL) {
 			dbg->fatal("maglev_t::rwdr()", "No maglev way available");
 		}

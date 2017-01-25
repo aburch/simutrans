@@ -21,7 +21,7 @@
 #include "../../vehicle/simvehicle.h" /* for calc_direction */
 #include "../../obj/wayobj.h"
 
-const weg_desc_t *strasse_t::default_strasse=NULL;
+const way_desc_t *strasse_t::default_strasse=NULL;
 
 
 void strasse_t::set_gehweg(bool janein)
@@ -95,15 +95,15 @@ void strasse_t::rdwr(loadsave_t *file)
 	{
 		char bname[128];
 		file->rdwr_str(bname, lengthof(bname));
-		const weg_desc_t *desc = wegbauer_t::get_desc(bname);
+		const way_desc_t *desc = way_builder_t::get_desc(bname);
 
 #ifndef SPECIAL_RESCUE_12_3
-		const weg_desc_t* loaded_replacement_way = NULL;
+		const way_desc_t* loaded_replacement_way = NULL;
 		if(file->get_experimental_version() >= 12)
 		{
 			char rbname[128];
 			file->rdwr_str(rbname, lengthof(rbname));
-			loaded_replacement_way = wegbauer_t::get_desc(rbname);
+			loaded_replacement_way = way_builder_t::get_desc(rbname);
 		}
 #endif
 
@@ -111,7 +111,7 @@ void strasse_t::rdwr(loadsave_t *file)
 		const uint32 old_max_axle_load = get_max_axle_load();
 		const uint32 old_bridge_weight_limit = get_bridge_weight_limit();
 		if(desc==NULL) {
-			desc = wegbauer_t::get_desc(translator::compatibility_name(bname));
+			desc = way_builder_t::get_desc(translator::compatibility_name(bname));
 			if(desc==NULL) {
 				desc = default_strasse;
 				welt->add_missing_paks( bname, karte_t::MISSING_WAY );

@@ -16,7 +16,7 @@
 class karte_ptr_t;
 class player_t;               // Hajo: 22-Nov-01: Added forward declaration
 class tunnel_desc_t;
-class weg_desc_t;
+class way_desc_t;
 class tool_selector_t;
 
 /**
@@ -31,8 +31,8 @@ class tunnel_builder_t {
 private:
 	static karte_ptr_t welt;
 
-	static bool build_tunnel(player_t *player, koord3d pos, koord3d end, koord zv, const tunnel_desc_t *desc, const weg_desc_t *weg_desc = NULL);
-	static void build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const weg_desc_t *weg_desc, sint64 &cost);
+	static bool build_tunnel(player_t *player, koord3d pos, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc = NULL);
+	static void build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, sint64 &cost);
 
 	tunnel_builder_t() {} // private -> no instance please
 
@@ -49,7 +49,7 @@ public:
 
 	static void fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, sint16 sound_ok);
 
-	static const char *build( player_t *player, koord pos, const tunnel_desc_t *desc, bool full_tunnel, const weg_desc_t *weg_desc = NULL  );
+	static const char *build( player_t *player, koord pos, const tunnel_desc_t *desc, bool full_tunnel, const way_desc_t *way_desc = NULL  );
 
 	static const char *remove(player_t *player, koord3d pos, waytype_t wegtyp, bool all);
 };

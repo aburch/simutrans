@@ -205,7 +205,7 @@ void bruecke_t::finish_rd()
 	// change maintenance
 	if(desc->get_waytype()!=powerline_wt) {
 		weg_t *weg = gr->get_weg(desc->get_waytype());
-		const weg_desc_t* weg_desc = weg->get_desc();
+		const way_desc_t* way_desc = weg->get_desc();
 		if(weg==NULL) {
 			dbg->error("bruecke_t::finish_rd()","Bridge without way at(%s)!", gr->get_pos().get_str() );
 			weg = weg_t::alloc( desc->get_waytype() );
@@ -217,16 +217,16 @@ void bruecke_t::finish_rd()
 			const uint slope_height = (hang & 7) ? 1 : 2;
 			if(slope_height == 1)
 			{
-				weg->set_max_speed(min(desc->get_topspeed_gradient_1(), weg_desc->get_topspeed_gradient_1()));
+				weg->set_max_speed(min(desc->get_topspeed_gradient_1(), way_desc->get_topspeed_gradient_1()));
 			}
 			else
 			{
-				weg->set_max_speed(min(desc->get_topspeed_gradient_2(), weg_desc->get_topspeed_gradient_2()));
+				weg->set_max_speed(min(desc->get_topspeed_gradient_2(), way_desc->get_topspeed_gradient_2()));
 			}
 		}
 		else
 		{
-			weg->set_max_speed(min(desc->get_topspeed(), weg_desc->get_topspeed()));
+			weg->set_max_speed(min(desc->get_topspeed(), way_desc->get_topspeed()));
 		}
 		weg->set_bridge_weight_limit(desc->get_max_weight());
 		
@@ -265,23 +265,23 @@ void bruecke_t::cleanup( player_t *player2 )
 	if(gr) {
 		weg_t *weg = gr->get_weg( desc->get_waytype() );
 		if(weg) {
-			const weg_desc_t* const weg_desc = weg->get_desc();
+			const way_desc_t* const way_desc = weg->get_desc();
 			const slope_t::type hang = gr ? gr->get_weg_hang() : slope_t::flat;
 			if(hang != slope_t::flat) 
 				{
 					const uint slope_height = (hang & 7) ? 1 : 2;
 					if(slope_height == 1)
 					{
-						weg->set_max_speed(min(desc->get_topspeed_gradient_1(), weg_desc->get_topspeed_gradient_1()));
+						weg->set_max_speed(min(desc->get_topspeed_gradient_1(), way_desc->get_topspeed_gradient_1()));
 					}
 					else
 					{
-						weg->set_max_speed(min(desc->get_topspeed_gradient_2(), weg_desc->get_topspeed_gradient_2()));
+						weg->set_max_speed(min(desc->get_topspeed_gradient_2(), way_desc->get_topspeed_gradient_2()));
 					}
 				}
 				else
 				{
-					weg->set_max_speed(min(desc->get_topspeed(), weg_desc->get_topspeed()));
+					weg->set_max_speed(min(desc->get_topspeed(), way_desc->get_topspeed()));
 				}
 			player_t::add_maintenance( player,  weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype());
 			// reset offsets

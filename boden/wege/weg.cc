@@ -142,7 +142,7 @@ const char *weg_t::waytype_to_string(waytype_t wt)
 }
 
 
-void weg_t::set_desc(const weg_desc_t *b, bool from_saved_game)
+void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 {
 	if(desc)
 	{
@@ -536,7 +536,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		bool is_current = !time || replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month();
 		if(!is_current)
 		{
-			buf.append(translator::translate(wegbauer_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity())->get_name()));
+			buf.append(translator::translate(way_builder_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity())->get_name()));
 		}
 		else
 		{
@@ -1098,7 +1098,7 @@ bool weg_t::renew()
 			way_constraints_of_vehicle_t constraints;
 			constraints.set_permissive(desc->get_way_constraints().get_permissive());
 			constraints.set_prohibitive(desc->get_way_constraints().get_prohibitive());
-			replacement_way = wegbauer_t::weg_search(wt, replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity(), constraints);
+			replacement_way = way_builder_t::weg_search(wt, replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity(), constraints);
 		}
 		
 		if(!replacement_way)
@@ -1136,7 +1136,7 @@ void weg_t::degrade()
 			const stadt_t* city = welt->get_city(get_pos().get_2d()); 
 			if (!initially_unowned && welt->get_timeline_year_month())
 			{
-				const weg_desc_t* wb = city ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month()) : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
+				const way_desc_t* wb = city ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month()) : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
 				set_desc(wb ? wb : desc);
 			}
 			else
@@ -1167,7 +1167,7 @@ void weg_t::degrade()
 			// Totally worn out: impassable. 
 			max_speed = 0;
 			degraded = true;
-			const weg_desc_t* mothballed_type = wegbauer_t::way_search_mothballed(get_waytype(), (systemtype_t)desc->get_styp()); 
+			const way_desc_t* mothballed_type = way_builder_t::way_search_mothballed(get_waytype(), (systemtype_t)desc->get_styp()); 
 			if(mothballed_type)
 			{
 				set_desc(mothballed_type);

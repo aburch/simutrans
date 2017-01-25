@@ -23,7 +23,7 @@
 
 #include "schiene.h"
 
-const weg_desc_t *schiene_t::default_schiene=NULL;
+const way_desc_t *schiene_t::default_schiene=NULL;
 bool schiene_t::show_reservations = false;
 
 
@@ -210,22 +210,22 @@ void schiene_t::rdwr(loadsave_t *file)
 		file->rdwr_str(bname, lengthof(bname));
 
 #ifndef SPECIAL_RESCUE_12_3
-		const weg_desc_t* loaded_replacement_way = NULL;
+		const way_desc_t* loaded_replacement_way = NULL;
 		if(file->get_experimental_version() >= 12)
 		{
 			char rbname[128];
 			file->rdwr_str(rbname, lengthof(rbname));
-			loaded_replacement_way = wegbauer_t::get_desc(rbname);
+			loaded_replacement_way = way_builder_t::get_desc(rbname);
 		}
 #endif
 
 		sint32 old_max_speed=get_max_speed();
 		uint32 old_max_axle_load = get_max_axle_load();
 		uint32 old_bridge_weight_limit = get_bridge_weight_limit();
-		const weg_desc_t *desc = wegbauer_t::get_desc(bname);
+		const way_desc_t *desc = way_builder_t::get_desc(bname);
 		if(desc==NULL) {
 			int old_max_speed=get_max_speed();
-			desc = wegbauer_t::get_desc(translator::compatibility_name(bname));
+			desc = way_builder_t::get_desc(translator::compatibility_name(bname));
 			if(desc==NULL) {
 				desc = default_schiene;
 				welt->add_missing_paks( bname, karte_t::MISSING_WAY );

@@ -82,39 +82,39 @@
 // lookup also return route and take the better of the two
 #define REVERSE_CALC_ROUTE_TOO
 
-karte_ptr_t wegbauer_t::welt;
+karte_ptr_t way_builder_t::welt;
 
-const weg_desc_t *wegbauer_t::leitung_desc = NULL;
+const way_desc_t *way_builder_t::leitung_desc = NULL;
 
-static stringhashtable_tpl <weg_desc_t *> alle_wegtypen;
+static stringhashtable_tpl <way_desc_t *> desc_table;
 
-stringhashtable_tpl <weg_desc_t *> * wegbauer_t::get_all_ways()
+stringhashtable_tpl <way_desc_t *> * way_builder_t::get_all_ways()
 {
-	return &alle_wegtypen;
+	return &desc_table;
 }
 
-static void set_default(weg_desc_t const*& def, waytype_t const wtyp, sint32 const speed_limit = 1)
+static void set_default(way_desc_t const*& def, waytype_t const wtyp, sint32 const speed_limit = 1)
 {
-	def = wegbauer_t::weg_search(wtyp, speed_limit, 0, type_flat);
+	def = way_builder_t::weg_search(wtyp, speed_limit, 0, type_flat);
 }
 
 
-static void set_default(weg_desc_t const*& def, waytype_t const wtyp, systemtype_t const system_type, sint32 const speed_limit = 1)
+static void set_default(way_desc_t const*& def, waytype_t const wtyp, systemtype_t const system_type, sint32 const speed_limit = 1)
 {
 	set_default(def, wtyp, speed_limit);
 	if (def) {
 		return;
 	}
-	def = wegbauer_t::weg_search(wtyp, 1, 0, system_type);
+	def = way_builder_t::weg_search(wtyp, 1, 0, system_type);
 }
 
 
-bool wegbauer_t::alle_wege_geladen()
+bool way_builder_t::successfully_loaded()
 {
 	// some defaults to avoid hardcoded values
 	set_default(strasse_t::default_strasse,         road_wt,        type_flat, 50);
 	if(  strasse_t::default_strasse == NULL ) {
-		dbg->fatal( "wegbauer_t::alle_wege_geladen()", "No road found at all!" );
+		dbg->fatal( "way_builder_t::successfully_loaded()", "No road found at all!" );
 		return false;
 	}
 
@@ -124,19 +124,19 @@ bool wegbauer_t::alle_wege_geladen()
 	set_default(narrowgauge_t::default_narrowgauge, narrowgauge_wt);
 	set_default(kanal_t::default_kanal,             water_wt,       type_all); // Also find hidden rivers.
 	set_default(runway_t::default_runway,           air_wt);
-	set_default(wegbauer_t::leitung_desc,          powerline_wt);
+	set_default(way_builder_t::leitung_desc,          powerline_wt);
 
 	return true;
 }
 
 
-bool wegbauer_t::register_desc(weg_desc_t *desc)
+bool way_builder_t::register_desc(way_desc_t *desc)
 {
-	DBG_DEBUG("wegbauer_t::register_desc()", desc->get_name());
-	const weg_desc_t *old_desc = alle_wegtypen.get(desc->get_name());
+	DBG_DEBUG("way_builder_t::register_desc()", desc->get_name());
+	const way_desc_t *old_desc = desc_table.get(desc->get_name());
 	if(  old_desc  ) {
-		alle_wegtypen.remove(desc->get_name());
-		dbg->warning( "wegbauer_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		desc_table.remove(desc->get_name());
+		dbg->warning( "way_builder_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 		tool_t::general_tool.remove( old_desc->get_builder() );
 		delete old_desc->get_builder();
 		delete old_desc;
@@ -154,17 +154,17 @@ bool wegbauer_t::register_desc(weg_desc_t *desc)
 	else {
 		desc->set_builder( NULL );
 	}
-	alle_wegtypen.put(desc->get_name(), desc);
+	desc_table.put(desc->get_name(), desc);
 	return true;
 }
 
-const vector_tpl<const weg_desc_t *>&  wegbauer_t::get_way_list(const waytype_t wtyp, systemtype_t styp)
+const vector_tpl<const way_desc_t *>&  way_builder_t::get_way_list(const waytype_t wtyp, systemtype_t styp)
 {
-	static vector_tpl<const weg_desc_t *> dummy;
+	static vector_tpl<const way_desc_t *> dummy;
 	dummy.clear();
 	const uint16 time = welt->get_timeline_year_month();
-	FOR(stringhashtable_tpl<weg_desc_t*>, & i, alle_wegtypen) {
-		weg_desc_t const* const test = i.value;
+	FOR(stringhashtable_tpl<way_desc_t*>, & i, desc_table) {
+		way_desc_t const* const test = i.value;
 		if (test->get_wtyp() == wtyp  &&  test->get_styp() == styp  &&  test->is_available(time) && test->get_builder()) {
 			dummy.append(test);
 		}
@@ -180,12 +180,12 @@ const vector_tpl<const weg_desc_t *>&  wegbauer_t::get_way_list(const waytype_t 
  * The timeline is also respected.
  * @author prissi, gerw
  */
-const weg_desc_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint16 time, const systemtype_t system_type)
+const way_desc_t* way_builder_t::weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint16 time, const systemtype_t system_type)
 {
-	const weg_desc_t* best = NULL;
+	const way_desc_t* best = NULL;
 	bool best_allowed = false; // Does the best way fulfill the timeline?
-	FOR(stringhashtable_tpl<weg_desc_t *>, const& i, alle_wegtypen) {
-		weg_desc_t const* const test = i.value;
+	FOR(stringhashtable_tpl<way_desc_t *>, const& i, desc_table) {
+		way_desc_t const* const test = i.value;
 		if(  ((test->get_wtyp()==wtyp  &&
 			(test->get_styp()==system_type  ||  system_type==type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==type_tram  &&  wtyp==tram_wt))
 			&&  test->get_cursor()->get_image_id(1)!=IMG_EMPTY  ) 
@@ -211,13 +211,13 @@ const weg_desc_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spee
 // Finds a way with a given speed *and* weight limit
 // for a given way type.
 // @author: jamespetts (slightly adapted from the standard version with just speed limit)
-const weg_desc_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const systemtype_t system_type, const uint32 wear_capacity_limit, way_constraints_of_vehicle_t way_constraints)
+const way_desc_t* way_builder_t::weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const systemtype_t system_type, const uint32 wear_capacity_limit, way_constraints_of_vehicle_t way_constraints)
 {
-	const weg_desc_t* best = NULL;
+	const way_desc_t* best = NULL;
 	bool best_allowed = false; // Does the best way fulfill the timeline?
-	FOR(stringhashtable_tpl<weg_desc_t*>, const& iter, alle_wegtypen)
+	FOR(stringhashtable_tpl<way_desc_t*>, const& iter, desc_table)
 	{
-		const weg_desc_t* const test = iter.value;
+		const way_desc_t* const test = iter.value;
 		if(((test->get_wtyp() == wtyp
 			&& (test->get_styp() == system_type ||
 				 system_type == type_all)) || 
@@ -259,11 +259,11 @@ const weg_desc_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 spee
 	return best;
 }
 
-const weg_desc_t *wegbauer_t::way_search_mothballed(const waytype_t wtyp, const systemtype_t system_type)
+const way_desc_t *way_builder_t::way_search_mothballed(const waytype_t wtyp, const systemtype_t system_type)
 {
-	FOR(stringhashtable_tpl<weg_desc_t*>, const& iter, alle_wegtypen)
+	FOR(stringhashtable_tpl<way_desc_t*>, const& iter, desc_table)
 	{
-		const weg_desc_t* const test = iter.value;
+		const way_desc_t* const test = iter.value;
 		if(test->get_wtyp() == wtyp && (test->get_styp()==system_type || system_type==type_all) && test->is_mothballed())
 		{
 			return test;
@@ -273,11 +273,11 @@ const weg_desc_t *wegbauer_t::way_search_mothballed(const waytype_t wtyp, const 
 	return NULL;
 }
 
-const weg_desc_t *wegbauer_t::get_earliest_way(const waytype_t wtyp)
+const way_desc_t *way_builder_t::get_earliest_way(const waytype_t wtyp)
 {
-	const weg_desc_t *desc = NULL;
-	FOR(stringhashtable_tpl<weg_desc_t*>, const& i, alle_wegtypen) {
-		weg_desc_t const* const test = i.value;
+	const way_desc_t *desc = NULL;
+	FOR(stringhashtable_tpl<way_desc_t*>, const& i, desc_table) {
+		way_desc_t const* const test = i.value;
 		if(  test->get_wtyp()==wtyp  &&  (desc==NULL  ||  test->get_intro_year_month()<desc->get_intro_year_month())  ) {
 			desc = test;
 		}
@@ -287,11 +287,11 @@ const weg_desc_t *wegbauer_t::get_earliest_way(const waytype_t wtyp)
 
 
 
-const weg_desc_t *wegbauer_t::get_latest_way(const waytype_t wtyp)
+const way_desc_t *way_builder_t::get_latest_way(const waytype_t wtyp)
 {
-	const weg_desc_t *desc = NULL;
-	FOR(stringhashtable_tpl<weg_desc_t*>, const& i, alle_wegtypen) {
-		weg_desc_t const* const test = i.value;
+	const way_desc_t *desc = NULL;
+	FOR(stringhashtable_tpl<way_desc_t*>, const& i, desc_table) {
+		way_desc_t const* const test = i.value;
 		if(  test->get_wtyp()==wtyp  &&  (desc==NULL  ||  test->get_retire_year_month()>desc->get_retire_year_month())  ) {
 			desc = test;
 		}
@@ -301,14 +301,14 @@ const weg_desc_t *wegbauer_t::get_latest_way(const waytype_t wtyp)
 
 
 // true if the way is available with timely
-bool wegbauer_t::waytype_available( const waytype_t wtyp, uint16 time )
+bool way_builder_t::waytype_available( const waytype_t wtyp, uint16 time )
 {
 	if(  time==0  ) {
 		return true;
 	}
 
-	FOR(stringhashtable_tpl<weg_desc_t*>, const& i, alle_wegtypen) {
-		weg_desc_t const* const test = i.value;
+	FOR(stringhashtable_tpl<way_desc_t*>, const& i, desc_table) {
+		way_desc_t const* const test = i.value;
 		if(  test->get_wtyp()==wtyp  &&  test->get_intro_year_month()<=time  &&  test->get_retire_year_month()>time  ) {
 			return true;
 		}
@@ -318,14 +318,14 @@ bool wegbauer_t::waytype_available( const waytype_t wtyp, uint16 time )
 
 
 
-const weg_desc_t * wegbauer_t::get_desc(const char * way_name, const uint16 time)
+const way_desc_t * way_builder_t::get_desc(const char * way_name, const uint16 time)
 {
-//DBG_MESSAGE("wegbauer_t::get_desc","return desc for %s in (%i)",way_name, time/12);
+//DBG_MESSAGE("way_builder_t::get_desc","return desc for %s in (%i)",way_name, time/12);
 	if(!way_name)
 	{
 		return NULL;
 	}
-	const weg_desc_t *desc = alle_wegtypen.get(way_name);
+	const way_desc_t *desc = desc_table.get(way_name);
 	if(  desc  &&  desc->is_available(time)  ) {
 		return desc;
 	}
@@ -335,14 +335,14 @@ const weg_desc_t * wegbauer_t::get_desc(const char * way_name, const uint16 time
 
 
 // generates timeline message
-void wegbauer_t::new_month()
+void way_builder_t::new_month()
 {
 	const uint16 current_month = welt->get_timeline_year_month();
 	if(current_month!=0) {
 		// check, what changed
-		slist_tpl <const weg_desc_t *> matching;
-		FOR(stringhashtable_tpl<weg_desc_t *>, const& i, alle_wegtypen) {
-			weg_desc_t const* const desc = i.value;
+		slist_tpl <const way_desc_t *> matching;
+		FOR(stringhashtable_tpl<way_desc_t *>, const& i, desc_table) {
+			way_desc_t const* const desc = i.value;
 			cbuffer_t buf;
 
 			const uint16 intro_month = desc->get_intro_year_month();
@@ -362,7 +362,7 @@ void wegbauer_t::new_month()
 }
 
 
-static bool compare_ways(const weg_desc_t* a, const weg_desc_t* b)
+static bool compare_ways(const way_desc_t* a, const way_desc_t* b)
 {
 	int cmp = a->get_topspeed() - b->get_topspeed();
 	if(cmp==0) {
@@ -379,7 +379,7 @@ static bool compare_ways(const weg_desc_t* a, const weg_desc_t* b)
  * Fill menu with icons of given waytype, return number of added entries
  * @author Hj. Malthaner/prissi/dariok
  */
-void wegbauer_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, const systemtype_t styp, sint16 /*ok_sound*/)
+void way_builder_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, const systemtype_t styp, sint16 /*ok_sound*/)
 {
 	// check if scenario forbids this
 	const waytype_t rwtyp = wtyp!=track_wt  || styp!=type_tram  ? wtyp : tram_wt;
@@ -390,10 +390,10 @@ void wegbauer_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp,
 	const uint16 time = welt->get_timeline_year_month();
 
 	// list of matching types (sorted by speed)
-	vector_tpl<weg_desc_t*> matching;
+	vector_tpl<way_desc_t*> matching;
 
-	FOR(stringhashtable_tpl<weg_desc_t *>, const& i, alle_wegtypen) {
-		weg_desc_t* const desc = i.value;
+	FOR(stringhashtable_tpl<way_desc_t *>, const& i, desc_table) {
+		way_desc_t* const desc = i.value;
 		if (  desc->get_styp()==styp &&  desc->get_wtyp()==wtyp  &&  desc->get_builder()  &&  desc->is_available(time)  ) {
 				matching.append(desc);
 		}
@@ -401,7 +401,7 @@ void wegbauer_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp,
 	std::sort(matching.begin(), matching.end(), compare_ways);
 
 	// now add sorted ways ...
-	FOR(vector_tpl<weg_desc_t*>, const i, matching) {
+	FOR(vector_tpl<way_desc_t*>, const i, matching) {
 		tool_selector->add_tool_selector(i->get_builder());
 	}
 }
@@ -410,7 +410,7 @@ void wegbauer_t::fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp,
 /* allow for railroad crossing
  * @author prissi
  */
-bool wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wtyp0, const player_t *player) const
+bool way_builder_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wtyp0, const player_t *player) const
 {
 	const waytype_t wtyp = wtyp0==tram_wt ? track_wt : wtyp0;
 	// nothing to cross here
@@ -476,7 +476,7 @@ bool wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wty
 /* crossing of powerlines, or no powerline
  * @author prissi
  */
-bool wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
+bool way_builder_t::check_powerline(const koord zv, const grund_t *bd) const
 {
 	if(zv==koord(0,0)) {
 		return true;
@@ -503,7 +503,7 @@ bool wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
 
 
 // allowed slope?
-bool wegbauer_t::check_slope( const grund_t *from, const grund_t *to )
+bool way_builder_t::check_slope( const grund_t *from, const grund_t *to )
 {
 	const koord from_pos=from->get_pos().get_2d();
 	const koord to_pos=to->get_pos().get_2d();
@@ -534,7 +534,7 @@ bool wegbauer_t::check_slope( const grund_t *from, const grund_t *to )
 
 
 // allowed owner?
-bool wegbauer_t::check_owner( const player_t *player1, const player_t *player2 ) const
+bool way_builder_t::check_owner( const player_t *player1, const player_t *player2 ) const
 {
 	// unowned, mine or public property or superuser ... ?
 	return player1==NULL  ||  player1==player2  ||  player1==welt->get_public_player()  ||  player2==welt->get_public_player();
@@ -544,7 +544,7 @@ bool wegbauer_t::check_owner( const player_t *player1, const player_t *player2 )
 /* do not go through depots, station buildings etc. ...
  * direction results from layout
  */
-bool wegbauer_t::check_building( const grund_t *to, const koord dir ) const
+bool way_builder_t::check_building( const grund_t *to, const koord dir ) const
 {
 	if(dir==koord(0,0)) {
 		return true;
@@ -595,7 +595,7 @@ bool wegbauer_t::check_building( const grund_t *to, const koord dir ) const
  * B) if allowed, calculate the cost for the step from from to to
  * @author prissi
  */
-bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, sint32 *costs )
+bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sint32 *costs )
 {
 	const koord from_pos=from->get_pos().get_2d();
 	const koord to_pos=to->get_pos().get_2d();
@@ -666,7 +666,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, sint32
 	{
 		if( to->hat_weg(air_wt)  || 
 			welt->lookup_hgt( to_pos ) < welt->get_water_hgt( to_pos )  ||  
-			!check_for_leitung( zv, to )  ||  
+			!check_powerline( zv, to )  ||  
 			(!to->ist_karten_boden()  &&  to->get_typ() != grund_t::monorailboden)  ||  
 			to->get_typ() == grund_t::brueckenboden  ||  
 			to->get_typ() == grund_t::tunnelboden  ) {
@@ -786,7 +786,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, sint32
 
 	// universal check for building under powerlines
 	if ((bautyp&bautyp_mask)!=leitung) {
-		if (!check_for_leitung(zv,to)  ||  !check_for_leitung(-zv,from)) {
+		if (!check_powerline(zv,to)  ||  !check_powerline(-zv,from)) {
 			return false;
 		}
 	}
@@ -952,7 +952,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, sint32
 				// calculate costs
 				if(ok) {
 					// prefer existing rivers:
-					*costs = to->hat_weg(water_wt) ? 10 : 10+simrand(s.way_count_90_curve, "bool wegbauer_t::is_allowed_step");
+					*costs = to->hat_weg(water_wt) ? 10 : 10+simrand(s.way_count_90_curve, "bool way_builder_t::is_allowed_step");
 					if(to->get_weg_hang()!=0  &&  !to_flat) {
 						*costs += s.way_count_slope * 10;
 					}
@@ -977,7 +977,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, sint32
 }
 
 
-bool wegbauer_t::check_terraforming( const grund_t *from, const grund_t *to, uint8* new_from_slope, uint8* new_to_slope)
+bool way_builder_t::check_terraforming( const grund_t *from, const grund_t *to, uint8* new_from_slope, uint8* new_to_slope)
 {
 	// only for normal green tiles
 	const slope_t::type from_slope = from->get_weg_hang();
@@ -1082,7 +1082,7 @@ bool wegbauer_t::check_terraforming( const grund_t *from, const grund_t *to, uin
 	return false;
 }
 
-void wegbauer_t::do_terraforming()
+void way_builder_t::do_terraforming()
 {
 	uint32 last_terraformed = terraform_index.get_count();
 
@@ -1164,7 +1164,7 @@ void wegbauer_t::do_terraforming()
 	}
 }
 
-void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* from, const vector_tpl<koord3d> &ziel)
+void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* from, const vector_tpl<koord3d> &ziel)
 {
 	// wrong starting slope or tile already occupied with a way ...
 	if (!slope_t::is_way(from->get_grund_hang())) {
@@ -1225,16 +1225,16 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 	}
 
 	// ok, so now we do a closer investigation
-	if(  bruecke_desc  && (  ribi_type(from->get_grund_hang()) == ribi_t::backward(ribi_type(zv))  ||  from->get_grund_hang() == 0  )
+	if(  bridge_desc  && (  ribi_type(from->get_grund_hang()) == ribi_t::backward(ribi_type(zv))  ||  from->get_grund_hang() == 0  )
 		&&  bridge_builder_t::can_place_ramp(player, from, desc->get_wtyp(),ribi_t::backward(ribi_type(zv)))  ) {
 		// Try a bridge.
-		const sint32 cost_difference=desc->get_wartung()>0 ? (bruecke_desc->get_wartung()*4l+3l)/desc->get_wartung() : 16;
+		const sint32 cost_difference=desc->get_wartung()>0 ? (bridge_desc->get_wartung()*4l+3l)/desc->get_wartung() : 16;
 		// try eight possible lengths ..
 		uint32 min_length = 1;
 		for (uint8 i = 0; i < 8 && min_length <= welt->get_settings().way_max_bridge_len; ++i) {
 			sint8 bridge_height;
 			const char *error = NULL;
-			koord3d end = bridge_builder_t::find_end_pos( player, from->get_pos(), zv, bruecke_desc, error, bridge_height, true, min_length );
+			koord3d end = bridge_builder_t::find_end_pos( player, from->get_pos(), zv, bridge_desc, error, bridge_height, true, min_length );
 			const grund_t* gr_end = welt->lookup(end);
 			if(  gr_end == NULL) {
 				// no valid end point found
@@ -1270,10 +1270,10 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 }
 
 
-wegbauer_t::wegbauer_t(player_t* player_) : next_gr(32)
+way_builder_t::way_builder_t(player_t* player_) : next_gr(32)
 {
 	player     = player_;
-	bautyp = strasse;   // kann mit route_fuer() gesetzt werden
+	bautyp = strasse;   // kann mit init_builder() gesetzt werden
 	maximum = 2000;// CA $ PER TILE
 
 	keep_existing_ways = false;
@@ -1289,40 +1289,40 @@ wegbauer_t::wegbauer_t(player_t* player_) : next_gr(32)
  * of the former way be kept or replaced (true == keep)
  * @author Hj. Malthaner
  */
-void wegbauer_t::set_keep_existing_ways(bool yesno)
+void way_builder_t::set_keep_existing_ways(bool yesno)
 {
 	keep_existing_ways = yesno;
 	keep_existing_faster_ways = false;
 }
 
 
-void wegbauer_t::set_keep_existing_faster_ways(bool yesno)
+void way_builder_t::set_keep_existing_faster_ways(bool yesno)
 {
 	keep_existing_ways = false;
 	keep_existing_faster_ways = yesno;
 }
 
 
-void wegbauer_t::route_fuer(bautyp_t wt, const weg_desc_t *b, const tunnel_desc_t *tunnel, const bridge_desc_t *br)
+void way_builder_t::init_builder(bautyp_t wt, const way_desc_t *b, const tunnel_desc_t *tunnel, const bridge_desc_t *br)
 {
 	bautyp = wt;
 	desc = b;
-	bruecke_desc = br;
+	bridge_desc = br;
 	tunnel_desc = tunnel;
 	if(wt&tunnel_flag  &&  tunnel==NULL) {
-		dbg->fatal("wegbauer_t::route_fuer()","needs a tunnel description for an underground route!");
+		dbg->fatal("way_builder_t::init_builder()","needs a tunnel description for an underground route!");
 	}
 	if((wt&bautyp_mask)==luft) {
 		wt &= bautyp_mask | bot_flag;
 	}
 	if(player==NULL) {
-		bruecke_desc = NULL;
+		bridge_desc = NULL;
 		tunnel_desc = NULL;
 	}
 	else if(  bautyp != river  ) {
 #ifdef AUTOMATIC_BRIDGES
-		if(  bruecke_desc == NULL  ) {
-			bruecke_desc = bridge_builder_t::find_bridge(b->get_wtyp(), 25, welt->get_timeline_year_month());
+		if(  bridge_desc == NULL  ) {
+			bridge_desc = bridge_builder_t::find_bridge(b->get_wtyp(), 25, welt->get_timeline_year_month());
 		}
 #endif
 #ifdef AUTOMATIC_TUNNELS
@@ -1331,11 +1331,11 @@ void wegbauer_t::route_fuer(bautyp_t wt, const weg_desc_t *b, const tunnel_desc_
 		}
 #endif
 	}
-  DBG_MESSAGE("wegbauer_t::route_fuer()",
-         "setting way type to %d, desc=%s, bruecke_desc=%s, tunnel_desc=%s",
+  DBG_MESSAGE("way_builder_t::init_builder()",
+         "setting way type to %d, desc=%s, bridge_desc=%s, tunnel_desc=%s",
          bautyp,
          desc ? desc->get_name() : "NULL",
-         bruecke_desc ? bruecke_desc->get_name() : "NULL",
+         bridge_desc ? bridge_desc->get_name() : "NULL",
          tunnel_desc ? tunnel_desc->get_name() : "NULL"
          );
 }
@@ -1368,7 +1368,7 @@ void get_mini_maxi( const vector_tpl<koord3d> &ziel, koord3d &mini, koord3d &max
  * beware: change the cost and you will mess up the system!
  * (but you can try, look at simuconf.tab)
  */
-sint32 wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
+sint32 way_builder_t::intern_calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
 {
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
@@ -1418,7 +1418,7 @@ sint32 wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vec
 		// is valid ground?
 		sint32 dummy;
 		if( !gr || !is_allowed_step(gr,gr,&dummy) ) {
-			// DBG_MESSAGE("wegbauer_t::intern_calc_route()","cannot start on (%i,%i,%i)",start.x,start.y,start.z);
+			// DBG_MESSAGE("way_builder_t::intern_calc_route()","cannot start on (%i,%i,%i)",start.x,start.y,start.z);
 			continue;
 		}
 		tmp = &(nodes[step]);
@@ -1629,7 +1629,7 @@ DBG_DEBUG("insert to open","(%i,%i,%i)  f=%i",to->get_pos().x,to->get_pos().y,to
 	} while (!queue.empty() && step < route_t::MAX_STEP);
 
 #ifdef DEBUG_ROUTES
-DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u",step,route_t::MAX_STEP,queue.get_count(),tmp->g);
+DBG_DEBUG("way_builder_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u",step,route_t::MAX_STEP,queue.get_count(),tmp->g);
 #endif
 	INT_CHECK("wegbauer 194");
 
@@ -1639,7 +1639,7 @@ DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %
 	if(  !ziel.is_contained(gr->get_pos())  ||  tmp->parent==NULL  ) {
 	}
 	else if(  step>=route_t::MAX_STEP  ) {
-		dbg->warning("wegbauer_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,route_t::MAX_STEP);
+		dbg->warning("way_builder_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,route_t::MAX_STEP);
 	}
 	else {
 		cost = tmp->g;
@@ -1659,7 +1659,7 @@ DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %
 }
 
 
-void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
+void way_builder_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 {
 	bool ok=true;
 
@@ -1791,13 +1791,13 @@ void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d z
 		if (do_terraform) {
 			terraform_index.append(route.get_count()-2);
 		}
-		DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %s = %i",koord(diff).get_str(),ok);
+		DBG_MESSAGE("way_builder_t::calc_straight_route()","step %s = %i",koord(diff).get_str(),ok);
 	}
 	ok = ok && ( target_3d ? pos==ziel : pos.get_2d()==ziel.get_2d() );
 
 	// we can built a straight route?
 	if(ok) {
-DBG_MESSAGE("wegbauer_t::intern_calc_straight_route()","found straight route max_n=%i",get_count()-1);
+DBG_MESSAGE("way_builder_t::intern_calc_straight_route()","found straight route max_n=%i",get_count()-1);
 	}
 	else {
 		route.clear();
@@ -1807,7 +1807,7 @@ DBG_MESSAGE("wegbauer_t::intern_calc_straight_route()","found straight route max
 
 
 // special for starting/landing runways
-bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
+bool way_builder_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
 {
 	route.clear();
 	terraform_index.clear();
@@ -1888,9 +1888,9 @@ bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d
 /*
  * calc_straight_route (maximum one curve, including diagonals)
  */
-void wegbauer_t::calc_straight_route(koord3d start, const koord3d ziel)
+void way_builder_t::calc_straight_route(koord3d start, const koord3d ziel)
 {
-	DBG_MESSAGE("wegbauer_t::calc_straight_route()","from %d,%d,%d to %d,%d,%d",start.x,start.y,start.z, ziel.x,ziel.y,ziel.z );
+	DBG_MESSAGE("way_builder_t::calc_straight_route()","from %d,%d,%d to %d,%d,%d",start.x,start.y,start.z, ziel.x,ziel.y,ziel.z );
 	if(bautyp==luft  &&  desc->get_styp()==type_runway) {
 		// these are straight anyway ...
 		intern_calc_route_runways(start, ziel);
@@ -1904,7 +1904,7 @@ void wegbauer_t::calc_straight_route(koord3d start, const koord3d ziel)
 }
 
 
-void wegbauer_t::calc_route(const koord3d &start, const koord3d &ziel)
+void way_builder_t::calc_route(const koord3d &start, const koord3d &ziel)
 {
 	vector_tpl<koord3d> start_vec(1), ziel_vec(1);
 	start_vec.append(start);
@@ -1915,7 +1915,7 @@ void wegbauer_t::calc_route(const koord3d &start, const koord3d &ziel)
 /* calc_route
  *
  */
-void wegbauer_t::calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
+void way_builder_t::calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
 {
 #ifdef DEBUG_ROUTES
 uint32 ms = dr_time();
@@ -1972,9 +1972,9 @@ DBG_MESSAGE("calc_route::calc_route", "took %i ms",dr_time()-ms);
 #endif
 }
 
-void wegbauer_t::baue_tunnel_und_bruecken()
+void way_builder_t::build_tunnel_and_bridges()
 {
-	if(bruecke_desc==NULL  &&  tunnel_desc==NULL) {
+	if(bridge_desc==NULL  &&  tunnel_desc==NULL) {
 		return;
 	}
 	// check for bridges and tunnels (no tunnel/bridge at last/first tile)
@@ -1986,11 +1986,11 @@ void wegbauer_t::baue_tunnel_und_bruecken()
 		if(d.x > 1 || d.y > 1 || d.x < -1 || d.y < -1) {
 
 			if(d.x*d.y!=0) {
-				dbg->error("wegbauer_t::baue_tunnel_und_bruecken()","cannot built a bridge between %s (n=%i, max_n=%i) and %s", route[i].get_str(),i,get_count()-1,route[i+1].get_str());
+				dbg->error("way_builder_t::build_tunnel_and_bridges()","cannot built a bridge between %s (n=%i, max_n=%i) and %s", route[i].get_str(),i,get_count()-1,route[i+1].get_str());
 				continue;
 			}
 
-			DBG_MESSAGE("wegbauer_t::baue_tunnel_und_bruecken", "built bridge %p between %s and %s", bruecke_desc, route[i].get_str(), route[i + 1].get_str());
+			DBG_MESSAGE("way_builder_t::build_tunnel_and_bridges", "built bridge %p between %s and %s", bridge_desc, route[i].get_str(), route[i + 1].get_str());
 
 			const grund_t* start = welt->lookup(route[i]);
 			const grund_t* end   = welt->lookup(route[i + 1]);
@@ -2006,7 +2006,7 @@ void wegbauer_t::baue_tunnel_und_bruecken()
 
 			if(start->get_grund_hang()==0  ||  start->get_grund_hang()==slope_type(zv*(-1))) {
 				// bridge here, since the route is saved backwards, we have to build it at the posterior end
-				bridge_builder_t::build( player, route[i+1], bruecke_desc);
+				bridge_builder_t::build( player, route[i+1], bridge_desc);
 			}
 			else {
 				// tunnel
@@ -2033,10 +2033,10 @@ void wegbauer_t::baue_tunnel_und_bruecken()
 					// we are the owner
 					if(  h != slope_type(zv)  ) {
 						// its a bridge
-						if( bruecke_desc ) {
+						if( bridge_desc ) {
 							wi->set_ribi(ribi_type(h));
 							wi1->set_ribi(ribi_type(slope_t::opposite(h)));
-							bridge_builder_t::build( player, route[i], bruecke_desc);
+							bridge_builder_t::build( player, route[i], bridge_desc);
 						}
 					}
 					else if( tunnel_desc ) {
@@ -2057,7 +2057,7 @@ void wegbauer_t::baue_tunnel_und_bruecken()
  * returns the amount needed to built this way
  * author prissi
  */
-sint64 wegbauer_t::calc_costs()
+sint64 way_builder_t::calc_costs()
 {
 	if(desc->is_mothballed())
 	{
@@ -2236,7 +2236,7 @@ sint64 wegbauer_t::calc_costs()
 				}
 				if(start->get_grund_hang()==0  ||  start->get_grund_hang()==slope_type(zv*(-1))) {
 					// bridge
-					costs += bruecke_desc->get_preis()*(sint64)(koord_distance(route[i], route[i+1])+1);
+					costs += bridge_desc->get_preis()*(sint64)(koord_distance(route[i], route[i+1])+1);
 					continue;
 				}
 				else {
@@ -2248,13 +2248,13 @@ sint64 wegbauer_t::calc_costs()
 		}
 	}
 
-	DBG_MESSAGE("wegbauer_t::calc_costs()","construction estimate: %f",costs/100.0);
+	DBG_MESSAGE("way_builder_t::calc_costs()","construction estimate: %f",costs/100.0);
 	return costs;
 }
 
 
 // Builds the inside of tunnels
-bool wegbauer_t::baue_tunnelboden()
+bool way_builder_t::build_tunnel_tile()
 {
 	sint64 cost = 0;
 	for(uint32 i=0; i<get_count(); i++) {
@@ -2263,12 +2263,12 @@ bool wegbauer_t::baue_tunnelboden()
 
 		if (desc == NULL)
 		{
-			desc = tunnel_desc->get_weg_desc();
+			desc = tunnel_desc->get_way_desc();
 		}
 		if(desc ==NULL) {
 			// now we search a matching way for the tunnels top speed
 			// ignore timeline to get consistent results
-			desc = wegbauer_t::weg_search( tunnel_desc->get_waytype(), tunnel_desc->get_topspeed(), 0, type_flat );
+			desc = way_builder_t::weg_search( tunnel_desc->get_waytype(), tunnel_desc->get_topspeed(), 0, type_flat );
 		}
 
 		if(gr==NULL) {
@@ -2390,7 +2390,7 @@ bool wegbauer_t::baue_tunnelboden()
 
 
 
-void wegbauer_t::baue_elevated()
+void way_builder_t::build_elevated()
 {
 	FOR(koord3d_vector_t, & i, route) {
 		planquadrat_t* const plan = welt->access(i.get_2d());
@@ -2411,7 +2411,7 @@ void wegbauer_t::baue_elevated()
 
 
 
-void wegbauer_t::baue_strasse()
+void way_builder_t::build_road()
 {
 	// This is somewhat strange logic --neroden
 	if ( player != NULL && build_sidewalk && player->is_public_service() ) {
@@ -2457,7 +2457,7 @@ void wegbauer_t::baue_strasse()
 					||  (  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  )
 					) {
 					//nothing to be done
-	//DBG_MESSAGE("wegbauer_t::baue_strasse()","nothing to do at (%i,%i)",k.x,k.y);
+	//DBG_MESSAGE("way_builder_t::build_road()","nothing to do at (%i,%i)",k.x,k.y);
 				}
 				else
 				{
@@ -2538,7 +2538,7 @@ void wegbauer_t::baue_strasse()
 }
 
 
-void wegbauer_t::baue_schiene()
+void way_builder_t::build_track()
 {
 	if(get_count() > 1) {
 		// init undo
@@ -2670,7 +2670,7 @@ void wegbauer_t::baue_schiene()
 
 
 
-void wegbauer_t::baue_leitung()
+void way_builder_t::build_powerline()
 {
 	if(  get_count() < 1  ) {
 		return;
@@ -2733,7 +2733,7 @@ class fluss_test_driver_t : public test_driver_t
 
 
 // make a river
-void wegbauer_t::baue_fluss()
+void way_builder_t::build_river()
 {
 	/* since the constraints of the wayfinder ensures that a river flows always downwards
 	 * we can assume that the first tiles are the ocean.
@@ -2818,14 +2818,14 @@ void wegbauer_t::baue_fluss()
 					int type;
 					for(  type=env_t::river_types-1;  type>0;  type--  ) {
 						// lookup type
-						if(  w->get_desc()==alle_wegtypen.get(env_t::river_type[type])  ) {
+						if(  w->get_desc()==desc_table.get(env_t::river_type[type])  ) {
 							break;
 						}
 					}
 					// still room to expand
 					if(  type>0  ) {
 						// thus we enlarge
-						w->set_desc( alle_wegtypen.get(env_t::river_type[type-1]) );
+						w->set_desc( desc_table.get(env_t::river_type[type-1]) );
 						if(w->get_desc()->get_max_axle_load() > 0)
 						{
 							// It does not make sense for unnavigable rivers to be public rights of way.
@@ -2841,14 +2841,14 @@ void wegbauer_t::baue_fluss()
 
 
 
-void wegbauer_t::build()
+void way_builder_t::build()
 {
 	if(get_count()<2  ||  get_count() > maximum) {
-DBG_MESSAGE("wegbauer_t::build()","called, but no valid route.");
+DBG_MESSAGE("way_builder_t::build()","called, but no valid route.");
 		// no valid route here ...
 		return;
 	}
-	DBG_MESSAGE("wegbauer_t::build()", "type=%d max_n=%d start=%d,%d end=%d,%d", bautyp, get_count() - 1, route.front().x, route.front().y, route.back().x, route.back().y);
+	DBG_MESSAGE("way_builder_t::build()", "type=%d max_n=%d start=%d,%d end=%d,%d", bautyp, get_count() - 1, route.front().x, route.front().y, route.back().x, route.back().y);
 
 #ifdef DEBUG_ROUTES
 long ms=dr_time();
@@ -2862,13 +2862,13 @@ long ms=dr_time();
 		}
 		// first add all new underground tiles ... (and finished if successful)
 		if(bautyp&tunnel_flag) {
-			baue_tunnelboden();
+			build_tunnel_tile();
 			return;
 		}
 
 		// add elevated ground for elevated tracks
 		if(bautyp&elevated_flag) {
-			baue_elevated();
+			build_elevated();
 		}
 	}
 
@@ -2882,30 +2882,30 @@ INT_CHECK("simbau 1072");
 		case maglev:
 		case narrowgauge:
 		case luft:
-			DBG_MESSAGE("wegbauer_t::build", "schiene");
-			baue_schiene();
+			DBG_MESSAGE("way_builder_t::build", "schiene");
+			build_track();
 			break;
 		case strasse:
-			baue_strasse();
-			DBG_MESSAGE("wegbauer_t::build", "strasse");
+			build_road();
+			DBG_MESSAGE("way_builder_t::build", "strasse");
 			break;
 		case leitung:
-			baue_leitung();
+			build_powerline();
 			break;
 		case river:
-			baue_fluss();
+			build_river();
 			break;
 		default:
 			break;
 	}
 
 	INT_CHECK("simbau 1087");
-	baue_tunnel_und_bruecken();
+	build_tunnel_and_bridges();
 
 	INT_CHECK("simbau 1087");
 
 #ifdef DEBUG_ROUTES
-DBG_MESSAGE("wegbauer_t::build", "took %u ms", dr_time() - ms );
+DBG_MESSAGE("way_builder_t::build", "took %u ms", dr_time() - ms );
 #endif
 }
 
@@ -2917,7 +2917,7 @@ DBG_MESSAGE("wegbauer_t::build", "took %u ms", dr_time() - ms );
  * The result is already weighted according to
  * welt->get_settings().get_way_count_{straight,slope}().
  */
-uint32 wegbauer_t::calc_distance( const koord3d &pos, const koord3d &mini, const koord3d &maxi )
+uint32 way_builder_t::calc_distance( const koord3d &pos, const koord3d &mini, const koord3d &maxi )
 {
 	uint32 dist = 0;
 	if( pos.x < mini.x ) {
@@ -2940,7 +2940,7 @@ uint32 wegbauer_t::calc_distance( const koord3d &pos, const koord3d &mini, const
 	return dist;
 }
 
-bool wegbauer_t::check_access(const weg_t* way, const player_t* player) const
+bool way_builder_t::check_access(const weg_t* way, const player_t* player) const
 {
 	return way && (way->is_public_right_of_way() || way->get_owner() == NULL || way->get_owner() == player || player == NULL || way->get_owner()->allows_access_to(player->get_player_nr()));
 }

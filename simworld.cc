@@ -836,7 +836,7 @@ void karte_t::set_scenario(scenario_t *s)
 void karte_t::create_rivers( sint16 number )
 {
 	// First check, wether there is a canal:
-	const weg_desc_t* river_desc = wegbauer_t::get_desc( env_t::river_type[env_t::river_types-1], 0 );
+	const way_desc_t* river_desc = way_builder_t::get_desc( env_t::river_type[env_t::river_types-1], 0 );
 	if(  river_desc == NULL  ) {
 		// should never reaching here ...
 		dbg->warning("karte_t::create_rivers()","There is no river defined!\n");
@@ -892,8 +892,8 @@ void karte_t::create_rivers( sint16 number )
 		for(  sint32 i=0;  i<512  &&  !valid_water_tiles.empty();  i++  ) {
 			koord const end = pick_any(valid_water_tiles);
 			valid_water_tiles.remove( end );
-			wegbauer_t riverbuilder(players[1]);
-			riverbuilder.route_fuer(wegbauer_t::river, river_desc);
+			way_builder_t riverbuilder(players[1]);
+			riverbuilder.init_builder(way_builder_t::river, river_desc);
 			sint16 dist = koord_distance(start,end);
 			riverbuilder.set_maximum( dist*50 );
 			riverbuilder.calc_route( lookup_kartenboden(end)->get_pos(), lookup_kartenboden(start)->get_pos() );
@@ -1030,7 +1030,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 				}
 			}
 			// streets since when?
-			game_start = max( game_start, wegbauer_t::get_earliest_way(road_wt)->get_intro_year_month() );
+			game_start = max( game_start, way_builder_t::get_earliest_way(road_wt)->get_intro_year_month() );
 
 			uint32 original_start_year = current_month;
 			uint32 original_industry_gorwth = settings.get_industry_increase_every();
@@ -1097,15 +1097,15 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 
 		// Hajo: connect some cities with roads
 		ls.set_what(translator::translate("Connecting cities ..."));
-		weg_desc_t const* desc = settings.get_intercity_road_type(get_timeline_year_month());
+		way_desc_t const* desc = settings.get_intercity_road_type(get_timeline_year_month());
 		if(desc == NULL || !settings.get_use_timeline()) 
 		{
 			// Hajo: try some default (might happen with timeline ... )
-			desc = wegbauer_t::weg_search(road_wt, 80, 8, type_flat);
+			desc = way_builder_t::weg_search(road_wt, 80, 8, type_flat);
 		}
 
-		wegbauer_t bauigel (NULL);
-		bauigel.route_fuer(wegbauer_t::strasse | wegbauer_t::terraform_flag, desc, tunnel_builder_t::get_tunnel_desc(road_wt,15,get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,15,get_timeline_year_month()) );
+		way_builder_t bauigel (NULL);
+		bauigel.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, desc, tunnel_builder_t::get_tunnel_desc(road_wt,15,get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,15,get_timeline_year_month()) );
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(env_t::intercity_road_length);
 
@@ -2887,11 +2887,11 @@ void karte_t::set_scale()
 	}
 
 	// Ways
-	stringhashtable_tpl <weg_desc_t *> * ways = wegbauer_t::get_all_ways();
+	stringhashtable_tpl <way_desc_t *> * ways = way_builder_t::get_all_ways();
 
 	if(ways != NULL)
 	{
-		FOR(stringhashtable_tpl<weg_desc_t *>, & info, *ways)
+		FOR(stringhashtable_tpl<way_desc_t *>, & info, *ways)
 		{
 			info.value->set_scale(scale_factor);
 		}
@@ -4832,7 +4832,7 @@ void karte_t::new_month()
 		INT_CHECK("simworld 1299");
 	}
 
-	wegbauer_t::new_month();
+	way_builder_t::new_month();
 	INT_CHECK("simworld 1299");
 
 	hausbauer_t::new_month();
@@ -5020,17 +5020,17 @@ void karte_t::recalc_average_speed()
 		}
 
 		// city road (try to use always a timeline)
-		if (weg_desc_t const* city_road_test = settings.get_city_road_type(current_month) ) {
+		if (way_desc_t const* city_road_test = settings.get_city_road_type(current_month) ) {
 			city_road = city_road_test;
 		}
 		else {
 			DBG_MESSAGE("karte_t::new_month()","Month %d has started", last_month);
-			city_road = wegbauer_t::weg_search(road_wt, 50, get_timeline_year_month(), type_flat);
+			city_road = way_builder_t::weg_search(road_wt, 50, get_timeline_year_month(), type_flat);
 		}
 	}
 	else {
 		// defaults
-		city_road = wegbauer_t::weg_search(road_wt, 50, get_timeline_year_month(), 5, type_flat, 25000000);
+		city_road = way_builder_t::weg_search(road_wt, 50, get_timeline_year_month(), 5, type_flat, 25000000);
 	}
 }
 
@@ -10205,16 +10205,16 @@ void karte_t::calc_generic_road_time_per_tile_intercity()
 	// checking is turned off.
 	
 	// Adapted from the method used to build city roads in the first place, written by Hajo.
-	const weg_desc_t* desc = settings.get_intercity_road_type(get_timeline_year_month());
+	const way_desc_t* desc = settings.get_intercity_road_type(get_timeline_year_month());
 	if(desc == NULL) 
 	{
 		// Hajo: try some default (might happen with timeline ... )
-		desc = wegbauer_t::weg_search(road_wt, get_timeline_year_month(), 5, get_timeline_year_month(),type_flat, 25000000);
+		desc = way_builder_t::weg_search(road_wt, get_timeline_year_month(), 5, get_timeline_year_month(),type_flat, 25000000);
 	}
 	generic_road_time_per_tile_intercity = (uint16)calc_generic_road_time_per_tile(desc);
 }
 
-sint32 karte_t::calc_generic_road_time_per_tile(const weg_desc_t* desc)
+sint32 karte_t::calc_generic_road_time_per_tile(const way_desc_t* desc)
 {
 	sint32 speed_average = citycar_speed_average;
 	if(desc)
@@ -10252,11 +10252,11 @@ sint32 karte_t::calc_generic_road_time_per_tile(const weg_desc_t* desc)
 void karte_t::calc_max_road_check_depth()
 {
 	sint32 max_road_speed = 0;
-	stringhashtable_tpl <weg_desc_t *> * ways = wegbauer_t::get_all_ways();
+	stringhashtable_tpl <way_desc_t *> * ways = way_builder_t::get_all_ways();
 
 	if(ways != NULL)
 	{
-		FOR(stringhashtable_tpl <weg_desc_t *>, const& iter, *ways)
+		FOR(stringhashtable_tpl <way_desc_t *>, const& iter, *ways)
 		{
 			if(iter.value->get_wtyp() != road_wt || iter.value->get_intro_year_month() > current_month || iter.value->get_retire_year_month() > current_month)
 			{

@@ -37,7 +37,7 @@ class checksum_t;
  *
  * @author  Volker Meyer, Hj. Malthaner
  */
-class weg_desc_t : public obj_desc_transport_infrastructure_t {
+class way_desc_t : public obj_desc_transport_infrastructure_t {
 	friend class way_reader_t;
 
 private:
@@ -172,13 +172,13 @@ public:
 			default:
 				return IMG_EMPTY;
 		}
-		image_id hang_img = get_child<image_list_t>(n)->get_image_id(nr);
-		if(  nr > 3  &&  hang_img == IMG_EMPTY  &&  get_child<image_list_t>(n)->get_count()<=4  ) {
+		image_id slope_img = get_child<image_list_t>(n)->get_image_id(nr);
+		if(  nr > 3  &&  slope_img == IMG_EMPTY  &&  get_child<image_list_t>(n)->get_count()<=4  ) {
 			// hack for old ways without double height images to use single slope images for both
 			nr -= 4;
-			hang_img = get_child<image_list_t>(n)->get_image_id(nr);
+			slope_img = get_child<image_list_t>(n)->get_image_id(nr);
 		}
-		return hang_img;
+		return slope_img;
 	}
 
 	image_id get_diagonal_image_id(ribi_t::ribi ribi, uint8 season, bool front = false) const
@@ -229,7 +229,7 @@ public:
 	 *
 	 * The logic is trivial and should be inlined.
 	 */
-	bool is_at_least_as_good_as(weg_desc_t const * other) const {
+	bool is_at_least_as_good_as(way_desc_t const * other) const {
 		if(  other == NULL  ) {
 			// This should not happen
 			return false;
