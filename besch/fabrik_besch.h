@@ -190,17 +190,17 @@ public:
  *      Volker Meyer
  *
  *  Description:
- *      Jetzt endlich die Ganze Fabrik
+ *      Factory.
  *
  *  Child nodes:
- *	0   Haus
- *	1   Rauch
- *	2   Lieferant 1
- *	3   Lieferant 2
+ *	0   House descriptor
+ *	1   Smoke descriptor
+ *	2   Supplier descriptor 1
+ *	3   Supplier descriptor 2
  *	... ...
- *	n+1 Lieferant n
- *	n+2 Produkt 1
- *	n+3 Produkt 2
+ *	n+1 Supplier descriptor n
+ *	n+2 Consumer descriptor 1
+ *	n+3 Consumer descriptor 2
  *	... ...
  */
 class factory_desc_t : public obj_desc_t {
@@ -213,7 +213,7 @@ private:
 	site_t placement; //"placement" (Babelfish)
 	uint16 productivity; //"productivity" (Babelfish)
 	uint16 range; //"range" (Babelfish)
-	uint16 chance;	// Wie wahrscheinlich soll der Bau sein? ("How likely will the building be?" (Google)). 
+	uint16 chance;	// probability of construction of this factory
 	uint8 color; //"identification colour code" (Babelfish)
 	uint16 supplier_count; //"supplier" (Babelfish)
 	uint16 product_count; //"products" (Babelfish)
@@ -237,9 +237,7 @@ private:
 	uint16 max_distance_to_consumer;
 
 public:
-	/*
-	* Name und Copyright sind beim Gebäude gespeichert!
-	*/
+
 	const char *get_name() const { return get_building()->get_name(); }
 	const char *get_copyright() const { return get_building()->get_copyright(); }
 	building_desc_t  const* get_building()  const { return get_child<building_desc_t>(0); }

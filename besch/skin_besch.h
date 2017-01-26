@@ -17,7 +17,7 @@
  *      Volker Meyer
  *
  *  Description:
- *      Skin ist im wesentlichen erstmal eine Image-list.
+ *      An image list, with name and author attributes. Mostly used for gui purposes.
  *
  *  Child nodes:
  *	0   Name

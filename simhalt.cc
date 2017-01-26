@@ -1193,7 +1193,7 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 			if (c.is_bound()
 				&& (c->get_state() == convoi_t::LOADING || c->get_state() == convoi_t::REVERSING || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE)
 				&& ((get_halt(c->get_pos(), owner) == self) 
-					|| (c->get_vehikel(0)->get_waytype() == water_wt 
+					|| (c->get_vehicle(0)->get_waytype() == water_wt 
 					&& c->get_state() == convoi_t::LOADING 
 					&& get_halt(c->get_schedule()->get_current_eintrag().pos, owner) == self)))
 			{

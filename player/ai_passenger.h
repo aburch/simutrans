@@ -31,7 +31,7 @@ private:
 	state state;
 
 	// we will use this vehicle!
-	const vehikel_desc_t *road_vehicle;
+	const vehicle_desc_t *road_vehicle;
 
 	// and the convoi will run on this track:
 	const way_desc_t *road_weg ;
@@ -59,7 +59,7 @@ private:
 	 * @author prissi
 	 */
 	koord find_harbour_pos(karte_t* welt, const stadt_t *s );
-	bool create_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos);
+	bool create_water_transport_vehicle(const stadt_t* start_stadt, const koord target_pos);
 
 	// builds a simple 3x3 three stop airport with town connection road
 	halthandle_t build_airport(const stadt_t* city, koord pos, int rotate);
@@ -67,7 +67,7 @@ private:
 	/* builts airports and planes
 	 * @author prissi
 	 */
-	bool create_air_transport_vehikel(const stadt_t *start_stadt, const stadt_t *end_stadt);
+	bool create_air_transport_vehicle(const stadt_t *start_stadt, const stadt_t *end_stadt);
 
 	// helper function for bus stops intown
 	void walk_city(linehandle_t line, grund_t* start, int limit);
@@ -75,7 +75,7 @@ private:
 	// tries to cover a city with bus stops that does not overlap much and cover as much as possible
 	void cover_city_with_bus_route(koord start_pos, int number_of_stops);
 
-	void create_bus_transport_vehikel(koord startpos,int anz_vehikel,koord *stops,int count,bool do_wait);
+	void create_bus_transport_vehicle(koord startpos,int anz_vehicle,koord *stops,int count,bool do_wait);
 
 public:
 	ai_passenger_t(karte_t *wl, uint8 nr);

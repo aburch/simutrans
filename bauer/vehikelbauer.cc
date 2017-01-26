@@ -25,11 +25,11 @@
 
 #include "../tpl/stringhashtable_tpl.h"
 
-static stringhashtable_tpl< vehikel_desc_t*> name_fahrzeuge;
+static stringhashtable_tpl< vehicle_desc_t*> name_fahrzeuge;
 
 // index 0 aur, 1...8 at normal waytype index
 #define GET_WAYTYPE_INDEX(wt) ((int)(wt)>8 ? 0 : (wt))
-static slist_tpl<vehikel_desc_t*> typ_fahrzeuge[9];
+static slist_tpl<vehicle_desc_t*> typ_fahrzeuge[9];
 
 class bonus_record_t {
 public:
@@ -129,7 +129,7 @@ sint32 vehicle_builder_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 		// needs to do it the old way => iterate over all vehicles with this type ...
 		const int wtidx = GET_WAYTYPE_INDEX(wt);
 		if(  !typ_fahrzeuge[wtidx].empty()  ) {
-			FOR(slist_tpl<vehikel_desc_t *>, info, typ_fahrzeuge[wtidx]) 
+			FOR(slist_tpl<vehicle_desc_t *>, info, typ_fahrzeuge[wtidx]) 
 			{
 				if(info->get_power()>0  &&  info->is_available(monthyear)) {
 					speed_sum += info->get_geschw();
@@ -166,7 +166,7 @@ void vehicle_builder_t::rdwr_speedbonus(loadsave_t *file)
 }
 
 
-vehicle_t* vehicle_builder_t::build(koord3d k, player_t* player, convoi_t* cnv, const vehikel_desc_t* vb, bool upgrade, uint16 livery_scheme_index )
+vehicle_t* vehicle_builder_t::build(koord3d k, player_t* player, convoi_t* cnv, const vehicle_desc_t* vb, bool upgrade, uint16 livery_scheme_index )
 {
 	vehicle_t* v;
 	static karte_ptr_t welt;
@@ -246,11 +246,11 @@ vehicle_t* vehicle_builder_t::build(koord3d k, player_t* player, convoi_t* cnv, 
 
 
 
-bool vehicle_builder_t::register_desc(vehikel_desc_t *desc)
+bool vehicle_builder_t::register_desc(vehicle_desc_t *desc)
 {
 	// register waytype list
 	const int idx = GET_WAYTYPE_INDEX( desc->get_waytype() );
-	vehikel_desc_t *old_desc = name_fahrzeuge.get( desc->get_name() );
+	vehicle_desc_t *old_desc = name_fahrzeuge.get( desc->get_name() );
 	if(  old_desc  ) {
 		dbg->warning( "vehicle_builder_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 		name_fahrzeuge.remove( desc->get_name() );
@@ -262,7 +262,7 @@ bool vehicle_builder_t::register_desc(vehikel_desc_t *desc)
 }
 
 
-static bool compare_vehikel_desc(const vehikel_desc_t* a, const vehikel_desc_t* b)
+static bool compare_vehicle_desc(const vehicle_desc_t* a, const vehicle_desc_t* b)
 {
 	// Sort by:
 	//  1. cargo category
@@ -281,8 +281,8 @@ static bool compare_vehikel_desc(const vehikel_desc_t* a, const vehikel_desc_t* 
 			cmp = a->get_capacity() - b->get_capacity();
 			if (cmp == 0) {
 				// to handle tender correctly
-				uint8 b_engine = (a->get_capacity() + a->get_power() == 0 ? (uint8)vehikel_desc_t::steam : a->get_engine_type());
-				uint8 a_engine = (b->get_capacity() + b->get_power() == 0 ? (uint8)vehikel_desc_t::steam : b->get_engine_type());
+				uint8 b_engine = (a->get_capacity() + a->get_power() == 0 ? (uint8)vehicle_desc_t::steam : a->get_engine_type());
+				uint8 a_engine = (b->get_capacity() + b->get_power() == 0 ? (uint8)vehicle_desc_t::steam : b->get_engine_type());
 				cmp = b_engine - a_engine;
 				if (cmp == 0) {
 					cmp = a->get_geschw() - b->get_geschw();
@@ -311,18 +311,18 @@ bool vehicle_builder_t::successfully_loaded()
 	// first: check for bonus tables
 	DBG_MESSAGE("vehicle_builder_t::sort_lists()","called");
 	for(  int wt_idx=0;  wt_idx<9;  wt_idx++  ) {
-		slist_tpl<vehikel_desc_t*>& typ_liste = typ_fahrzeuge[wt_idx];
+		slist_tpl<vehicle_desc_t*>& typ_liste = typ_fahrzeuge[wt_idx];
 		uint count = typ_liste.get_count();
 		if (count == 0) {
 			continue;
 		}
-		vehikel_desc_t** const tmp     = new vehikel_desc_t*[count];
-		vehikel_desc_t** const tmp_end = tmp + count;
-		for(  vehikel_desc_t** tmpptr = tmp;  tmpptr != tmp_end;  tmpptr++  ) {
+		vehicle_desc_t** const tmp     = new vehicle_desc_t*[count];
+		vehicle_desc_t** const tmp_end = tmp + count;
+		for(  vehicle_desc_t** tmpptr = tmp;  tmpptr != tmp_end;  tmpptr++  ) {
 			*tmpptr = typ_liste.remove_first();
 		}
-		std::sort(tmp, tmp_end, compare_vehikel_desc);
-		for(  vehikel_desc_t** tmpptr = tmp;  tmpptr != tmp_end;  tmpptr++  ) {
+		std::sort(tmp, tmp_end, compare_vehicle_desc);
+		for(  vehicle_desc_t** tmpptr = tmp;  tmpptr != tmp_end;  tmpptr++  ) {
 			typ_liste.append(*tmpptr);
 		}
 		delete [] tmp;
@@ -332,12 +332,12 @@ bool vehicle_builder_t::successfully_loaded()
 
 
 
-const vehikel_desc_t *vehicle_builder_t::get_info(const char *name)
+const vehicle_desc_t *vehicle_builder_t::get_info(const char *name)
 {
 	return name_fahrzeuge.get(name);
 }
 
-slist_tpl<vehikel_desc_t*>& vehicle_builder_t::get_info(waytype_t typ)
+slist_tpl<vehicle_desc_t*>& vehicle_builder_t::get_info(waytype_t typ)
 {
 	return typ_fahrzeuge[GET_WAYTYPE_INDEX(typ)];
 }
@@ -347,7 +347,7 @@ slist_tpl<vehikel_desc_t*>& vehicle_builder_t::get_info(waytype_t typ)
  * tries to get best with but adds a little random action
  * @author prissi
  */
-const vehikel_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uint16 month_now, const uint32 target_weight, const sint32 target_speed, const ware_desc_t * target_freight, bool include_electric, bool not_obsolete )
+const vehicle_desc_t *vehicle_builder_t::vehicle_search( waytype_t wt, const uint16 month_now, const uint32 target_weight, const sint32 target_speed, const ware_desc_t * target_freight, bool include_electric, bool not_obsolete )
 {
 	if(  (target_freight!=NULL  ||  target_weight!=0)  &&  !typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)].empty()  ) 
 	{
@@ -358,8 +358,8 @@ const vehikel_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
 		} best, test;
 		best.index = -100000;
 
-		const vehikel_desc_t *desc = NULL;
-		FOR(slist_tpl<vehikel_desc_t *>, const test_desc, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]) 
+		const vehicle_desc_t *desc = NULL;
+		FOR(slist_tpl<vehicle_desc_t *>, const test_desc, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]) 
 		{
 			// no constricts allow for rail vehicles concerning following engines
 			if(wt==track_wt  &&  !test_desc->can_follow_any()  ) 
@@ -375,7 +375,7 @@ const vehikel_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
 			// engine, but not allowed to lead a convoi, or no power at all or no electrics allowed
 			if(target_weight) 
 			{
-				if(test_desc->get_power()==0  ||  !test_desc->can_follow(NULL)  ||  (!include_electric  &&  test_desc->get_engine_type()==vehikel_desc_t::electric) ) 
+				if(test_desc->get_power()==0  ||  !test_desc->can_follow(NULL)  ||  (!include_electric  &&  test_desc->get_engine_type()==vehicle_desc_t::electric) ) 
 				{
 					continue;
 				}
@@ -424,11 +424,11 @@ const vehikel_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
 					}
 				}
 				// ok, final check
-				if(  desc==NULL  ||  difference<(int)simrand(25, "vehicle_builder_t::vehikel_search")    ) {
+				if(  desc==NULL  ||  difference<(int)simrand(25, "vehicle_builder_t::vehicle_search")    ) {
 					// then we want this vehicle!
 					desc = test_desc;
 					best = test;
-					DBG_MESSAGE( "vehicle_builder_t::vehikel_search","Found car %s", desc ? desc->get_name() : "null");
+					DBG_MESSAGE( "vehicle_builder_t::vehicle_search","Found car %s", desc ? desc->get_name() : "null");
 				}
 			}
 			else {
@@ -450,12 +450,12 @@ const vehikel_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
 				if(  max_weight < target_weight+test_desc->get_weight()  ) {
 					test.index += max_weight - (sint32)(target_weight+test_desc->get_weight());
 				}
-				test.index += simrand(100, "vehicle_builder_t::vehikel_search");
+				test.index += simrand(100, "vehicle_builder_t::vehicle_search");
 				if(  test.index > best.index  ) {
 					// then we want this vehicle!
 					desc = test_desc;
 					best = test;
-					DBG_MESSAGE( "vehicle_builder_t::vehikel_search","Found engine %s",desc->get_name());
+					DBG_MESSAGE( "vehicle_builder_t::vehicle_search","Found engine %s",desc->get_name());
 				}
 			}
 		}
@@ -465,7 +465,7 @@ const vehikel_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
 		}
 	}
 	// no vehicle found!
-	DBG_MESSAGE( "vehicle_builder_t::vehikel_search()","could not find a suitable vehicle! (speed %i, weight %i)",target_speed,target_weight);
+	DBG_MESSAGE( "vehicle_builder_t::vehicle_search()","could not find a suitable vehicle! (speed %i, weight %i)",target_speed,target_weight);
 	return NULL;
 }
 
@@ -476,14 +476,14 @@ const vehikel_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
  * if prev_desc==NULL, then the convoi must be able to lead a convoi
  * @author prissi
  */
-const vehikel_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const sint32 target_speed, const ware_desc_t * target_freight, bool not_obsolete, const vehikel_desc_t *prev_veh, bool is_last )
+const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const sint32 target_speed, const ware_desc_t * target_freight, bool not_obsolete, const vehicle_desc_t *prev_veh, bool is_last )
 {
-	const vehikel_desc_t *desc = NULL;
+	const vehicle_desc_t *desc = NULL;
 	sint32 desc_index =- 100000;
 
 	if(  !typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)].empty()  ) 
 	{
-		FOR(slist_tpl<vehikel_desc_t *>, const test_desc, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)])
+		FOR(slist_tpl<vehicle_desc_t *>, const test_desc, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)])
 		{
 			if(target_power>0  &&  test_desc->get_power()==0) 
 			{
@@ -511,7 +511,7 @@ const vehikel_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 			}
 
 			// ignore vehicles that need electrification
-			if(test_desc->get_power()>0  &&  test_desc->get_engine_type()==vehikel_desc_t::electric) {
+			if(test_desc->get_power()>0  &&  test_desc->get_engine_type()==vehicle_desc_t::electric) {
 				continue;
 			}
 

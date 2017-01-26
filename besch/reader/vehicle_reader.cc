@@ -14,7 +14,7 @@
 
 void vehicle_reader_t::register_obj(obj_desc_t *&data)
 {
-	vehikel_desc_t *desc = static_cast<vehikel_desc_t *>(data);
+	vehicle_desc_t *desc = static_cast<vehicle_desc_t *>(data);
 	vehicle_builder_t::register_desc(desc);
 	obj_for_xref(get_type(), desc->get_name(), data);
 
@@ -34,7 +34,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, desc_buf, node.size);
 
-	vehikel_desc_t *desc = new vehikel_desc_t();
+	vehicle_desc_t *desc = new vehicle_desc_t();
 
 	// Hajo: Read data
 	fread(desc_buf, node.size, 1, fp);
@@ -207,7 +207,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->available_only_as_upgrade = decode_uint8(p);
 				desc->brake_force = BRAKE_FORCE_UNKNOWN;
 				desc->minimum_runway_length = 10;
-				desc->rolling_resistance = vehikel_desc_t::get_rolling_default(desc->wt) / float32e8_t::tenthousand;
+				desc->rolling_resistance = vehicle_desc_t::get_rolling_default(desc->wt) / float32e8_t::tenthousand;
 				if(experimental_version == 1)
 				{
 					desc->base_fixed_cost = decode_uint16(p);
@@ -240,7 +240,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else
 				{
-					desc->air_resistance = vehikel_desc_t::get_air_default(desc->wt) / float32e8_t::hundred;
+					desc->air_resistance = vehicle_desc_t::get_air_default(desc->wt) / float32e8_t::hundred;
 					desc->can_be_at_rear = true;
 					desc->increase_maintenance_after_years = 0;
 					desc->increase_maintenance_by_percent = 0;
@@ -351,7 +351,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else
 				{
-					desc->air_resistance = vehikel_desc_t::get_air_default(desc->wt) / float32e8_t::hundred;
+					desc->air_resistance = vehicle_desc_t::get_air_default(desc->wt) / float32e8_t::hundred;
 					desc->can_be_at_rear = true;
 					desc->increase_maintenance_after_years = 0;
 					desc->increase_maintenance_by_percent = 0;
@@ -384,7 +384,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else
 				{
-					desc->rolling_resistance = vehikel_desc_t::get_rolling_default(desc->wt) / float32e8_t::tenthousand;
+					desc->rolling_resistance = vehicle_desc_t::get_rolling_default(desc->wt) / float32e8_t::tenthousand;
 					desc->brake_force = BRAKE_FORCE_UNKNOWN;
 					desc->minimum_runway_length = 10;
 				}
@@ -518,13 +518,13 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(version<2) {
 		// steam eangines usually have a sound of 3
 		// electric engines will be overridden further down ...
-		desc->engine_type = (desc->sound==3) ? vehikel_desc_t::steam : vehikel_desc_t::diesel;
+		desc->engine_type = (desc->sound==3) ? vehicle_desc_t::steam : vehicle_desc_t::diesel;
 	}
 
 	//change the vehicle type
 	if(version<4) {
 		if(desc->wt==4) {
-			desc->engine_type = vehikel_desc_t::electric;
+			desc->engine_type = vehicle_desc_t::electric;
 			desc->wt = 1;
 		}
 		// convert to new standard
@@ -589,8 +589,8 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			break;
 		}
 
-		desc->air_resistance = vehikel_desc_t::get_air_default(desc->wt) / float32e8_t::hundred;
-		desc->rolling_resistance = vehikel_desc_t::get_rolling_default(desc->wt) / float32e8_t::tenthousand;
+		desc->air_resistance = vehicle_desc_t::get_air_default(desc->wt) / float32e8_t::hundred;
+		desc->rolling_resistance = vehicle_desc_t::get_rolling_default(desc->wt) / float32e8_t::tenthousand;
 		desc->upgrades = 0;
 		desc->base_upgrade_price = desc->base_cost;
 		desc->available_only_as_upgrade = false;

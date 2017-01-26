@@ -22,7 +22,7 @@
 
 static bool _is_electrified(const karte_t* welt, const convoihandle_t& cnv)
 {
-	vehicle_t *veh = cnv->get_vehikel(0);
+	vehicle_t *veh = cnv->get_vehicle(0);
 	grund_t* gr = welt->lookup(veh->get_pos());
 	weg_t* way = gr->get_weg(veh->get_waytype());
 	return way ? way->is_electrified() : false;
@@ -44,7 +44,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	lb_n_sell(NULL, SYSCOL_TEXT, gui_label_t::left),
 	lb_n_skip(NULL, SYSCOL_TEXT, gui_label_t::left),
 	convoy_assembler(
-		cnv->get_vehikel(0)->get_desc()->get_waytype(),  
+		cnv->get_vehicle(0)->get_desc()->get_waytype(),  
 		cnv->get_owner()->get_player_nr(), 
 		_is_electrified(welt, cnv))
 {	
@@ -93,7 +93,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	add_component(&numinp[state_skip]);
 	add_component(&lb_n_skip);
 
-	const vehicle_t *lead_vehicle = cnv->get_vehikel(0);
+	const vehicle_t *lead_vehicle = cnv->get_vehicle(0);
 	const waytype_t wt = lead_vehicle->get_waytype();
 	const weg_t *way = welt->lookup(lead_vehicle->get_pos())->get_weg(wt);
 	const bool weg_electrified = way == NULL ? false : way->is_electrified();
@@ -107,11 +107,11 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	}
 	else
 	{
-		vector_tpl<const vehikel_desc_t*> *existing_vehicles = new vector_tpl<const vehikel_desc_t*>();
+		vector_tpl<const vehicle_desc_t*> *existing_vehicles = new vector_tpl<const vehicle_desc_t*>();
 		uint8 count = cnv->get_vehicle_count();
 		for(uint8 i = 0; i < count; i ++)
 		{
-			existing_vehicles->append(cnv->get_vehikel(i)->get_desc());
+			existing_vehicles->append(cnv->get_vehicle(i)->get_desc());
 		}
 		convoy_assembler.set_vehicles(existing_vehicles);
 	}
@@ -636,17 +636,17 @@ sint64 replace_frame_t::calc_total_cost()
 	vector_tpl<uint16> keep_vehicles;
 	for(uint8 i = 0; i < cnv->get_vehicle_count(); i ++)
 	{
-		current_vehicles.append(cnv->get_vehikel(i));
+		current_vehicles.append(cnv->get_vehicle(i));
 	}
 	ITERATE((*convoy_assembler.get_vehicles()),j)
 	{
-		const vehikel_desc_t* veh = NULL;
-		//const vehikel_desc_t* test_new_vehicle = (*convoy_assembler.get_vehicles())[j]; // unused
+		const vehicle_desc_t* veh = NULL;
+		//const vehicle_desc_t* test_new_vehicle = (*convoy_assembler.get_vehicles())[j]; // unused
 		// First - check whether there are any of the required vehicles already
 		// in the convoy (free)
 		ITERATE(current_vehicles,k)
 		{
-			//const vehikel_desc_t* test_old_vehicle = current_vehicles[k]->get_desc(); // unused
+			//const vehicle_desc_t* test_old_vehicle = current_vehicles[k]->get_desc(); // unused
 			if(!keep_vehicles.is_contained(k) && current_vehicles[k]->get_desc() == (*convoy_assembler.get_vehicles())[j])
 			{
 				veh = current_vehicles[k]->get_desc();
@@ -670,7 +670,7 @@ sint64 replace_frame_t::calc_total_cost()
 				{	
 					for(uint8 c = 0; c < current_vehicles[l]->get_desc()->get_upgrades_count(); c ++)
 					{
-						//const vehikel_desc_t* possible_upgrade_test = current_vehicles[l]->get_desc()->get_upgrades(c); // unused
+						//const vehicle_desc_t* possible_upgrade_test = current_vehicles[l]->get_desc()->get_upgrades(c); // unused
 						if(!keep_vehicles.is_contained(l) && (*convoy_assembler.get_vehicles())[j] == current_vehicles[l]->get_desc()->get_upgrades(c))
 						{
 							veh = current_vehicles[l]->get_desc();

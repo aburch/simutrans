@@ -6,11 +6,11 @@
  *  node structure:
  *  0   Name
  *  1   Copyright
- *  2   Image-list Hintergrund
- *  3   Image-list Vordergrund
+ *  2   Image-list Background
+ *  3   Image-list Foreground
  *  4   cursor(image 0) and icon (image 1)
- *[ 5   Image-list Hintergrund - snow ] (if present)
- *[ 6   Image-list Vordergrund - snow ] (if present)
+ *[ 5   Image-list Background - snow ] (if present)
+ *[ 6   Image-list Foreground - snow ] (if present)
  *[ 7 (or 5 if no snow image) underground way ] (if present)
  */
 

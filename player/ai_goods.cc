@@ -353,10 +353,10 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 /* builts dock and ships
  * @author prissi
  */
-bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
+bool ai_goods_t::create_ship_transport_vehicle(fabrik_t *qfab, int anz_vehicle)
 {
 	// pak64 has barges ...
-	const vehikel_desc_t *v_second = NULL;
+	const vehicle_desc_t *v_second = NULL;
 	if(ship_vehicle->get_power()==0) {
 		v_second = ship_vehicle;
 		if(v_second->get_leader_count()==0  ||  v_second->get_leader(0)==NULL) {
@@ -372,7 +372,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 			ship_vehicle = v_second->get_leader(0);
 		}
 	}
-	DBG_MESSAGE( "ai_goods_t::create_ship_transport_vehikel()", "for %i ships", anz_vehikel );
+	DBG_MESSAGE( "ai_goods_t::create_ship_transport_vehicle()", "for %i ships", anz_vehicle );
 
 	if(  convoihandle_t::is_exhausted()  ) {
 		// too many convois => cannot do anything about this ...
@@ -422,7 +422,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	delete schedule;
 
 	// now create all vehicles as convois
-	for(int i=0;  i<anz_vehikel;  i++) {
+	for(int i=0;  i<anz_vehicle;  i++) {
 		if(  convoihandle_t::is_exhausted()  ) {
 			// too many convois => cannot do anything about this ...
 			return i>0;
@@ -431,12 +431,12 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		convoi_t* cnv = new convoi_t(this);
 		// V.Meyer: give the new convoi name from first vehicle
 		cnv->set_name(v->get_desc()->get_name());
-		cnv->add_vehikel( v );
+		cnv->add_vehicle( v );
 
 		// two part consist
 		if(v_second!=NULL) {
 			v = vehicle_builder_t::build( qfab->get_pos(), this, NULL, v_second );
-			cnv->add_vehikel( v );
+			cnv->add_vehicle( v );
 		}
 
 		welt->sync.add( cnv );
@@ -454,7 +454,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 /* changed to use vehicles searched before
  * @author prissi
  */
-void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
+void ai_goods_t::create_road_transport_vehicle(fabrik_t *qfab, int anz_vehicle)
 {
 	const building_desc_t* fh = hausbauer_t::get_random_station(building_desc_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	// succeed in frachthof creation
@@ -486,7 +486,7 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		delete schedule;
 
 		// now create all vehicles as convois
-		for(int i=0;  i<anz_vehikel;  i++) {
+		for(int i=0;  i<anz_vehicle;  i++) {
 			if(  convoihandle_t::is_exhausted()  ) {
 				// too many convois => cannot do anything about this ...
 				return;
@@ -495,7 +495,7 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 			convoi_t* cnv = new convoi_t(this);
 			// V.Meyer: give the new convoi name from first vehicle
 			cnv->set_name(v->get_desc()->get_name());
-			cnv->add_vehikel( v );
+			cnv->add_vehicle( v );
 
 			welt->sync.add( cnv );
 			cnv->set_line(line);
@@ -509,7 +509,7 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 /* now obeys timeline and use "more clever" scheme for vehicle selection *
  * @author prissi
  */
-void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord platz2, int anz_vehikel, int minimum_loading)
+void ai_goods_t::create_rail_transport_vehicle(const koord platz1, const koord platz2, int anz_vehicle, int minimum_loading)
 {
 	schedule_t *schedule;
 	if(  convoihandle_t::is_exhausted()  ) {
@@ -521,7 +521,7 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 	koord3d pos2 = welt->lookup_kartenboden(platz2)->get_pos();
 
 	// probably need to electrify the track?
-	if(  rail_engine->get_engine_type()==vehikel_desc_t::electric  ) {
+	if(  rail_engine->get_engine_type()==vehicle_desc_t::electric  ) {
 		// we need overhead wires
 		const way_obj_desc_t *e = wayobj_t::get_overhead_line(track_wt,welt->get_timeline_year_month());
 		tool_build_wayobj_t tool;
@@ -537,17 +537,17 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 
 	// V.Meyer: give the new convoi name from first vehicle
 	cnv->set_name(rail_engine->get_name());
-	cnv->add_vehikel( v );
+	cnv->add_vehicle( v );
 
-	DBG_MESSAGE( "ai_goods_t::create_rail_transport_vehikel","for %i cars",anz_vehikel);
+	DBG_MESSAGE( "ai_goods_t::create_rail_transport_vehicle","for %i cars",anz_vehicle);
 
 	/* now we add cars:
 	 * check here also for introduction years
 	 */
-	for(int i = 0; i < anz_vehikel; i++) {
+	for(int i = 0; i < anz_vehicle; i++) {
 		// use the vehicle we searched before
 		vehicle_t* v = vehicle_builder_t::build(start_pos, this, NULL, rail_vehicle);
-		cnv->add_vehikel( v );
+		cnv->add_vehicle( v );
 	}
 
 	schedule = cnv->front()->generate_new_schedule();
@@ -568,9 +568,9 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
  * Can fail even though check has been done before
  * @author prissi
  */
-int ai_goods_t::baue_bahnhof(const koord* p, int anz_vehikel)
+int ai_goods_t::baue_bahnhof(const koord* p, int anz_vehicle)
 {
-	int laenge = max(((rail_vehicle->get_length()*anz_vehikel)+rail_engine->get_length()+CARUNITS_PER_TILE-1)/CARUNITS_PER_TILE,1);
+	int laenge = max(((rail_vehicle->get_length()*anz_vehicle)+rail_engine->get_length()+CARUNITS_PER_TILE-1)/CARUNITS_PER_TILE,1);
 
 	int baulaenge = 0;
 	ribi_t::ribi ribi = welt->lookup_kartenboden(*p)->get_weg_ribi(track_wt);
@@ -623,7 +623,7 @@ int ai_goods_t::baue_bahnhof(const koord* p, int anz_vehikel)
 		}
 	}
 
-	laenge = min( anz_vehikel, (baulaenge*CARUNITS_PER_TILE - rail_engine->get_length())/rail_vehicle->get_length() );
+	laenge = min( anz_vehicle, (baulaenge*CARUNITS_PER_TILE - rail_engine->get_length())/rail_vehicle->get_length() );
 //DBG_MESSAGE("ai_goods_t::baue_bahnhof","Final station at (%i,%i) with %i tiles for %i cars",p->x,p->y,baulaenge,laenge);
 	return laenge;
 }
@@ -820,7 +820,7 @@ void ai_goods_t::step()
 			}
 
 			if(  get_factory_tree_lowest_missing(root)  ) {
-				if(  start->get_desc()->get_placement()!=factory_desc_t::Water  ||  vehikel_search( water_wt, 0, 10, freight, false)!=NULL  ) {
+				if(  start->get_desc()->get_placement()!=factory_desc_t::Water  ||  vehicle_search( water_wt, 0, 10, freight, false)!=NULL  ) {
 					DBG_MESSAGE("ai_goods_t::do_ki", "Consider route from %s (%i,%i) to %s (%i,%i)", start->get_name(), start->get_pos().x, start->get_pos().y, ziel->get_name(), ziel->get_pos().x, ziel->get_pos().y );
 					state = NR_BAUE_ROUTE1;
 				}
@@ -870,7 +870,7 @@ void ai_goods_t::step()
 			// is rail transport allowed?
 			if(rail_transport) {
 				// any rail car that transport this good (actually this weg_t the largest)
-				rail_vehicle = vehikel_search( track_wt, 0, best_rail_speed,  freight, true);
+				rail_vehicle = vehicle_search( track_wt, 0, best_rail_speed,  freight, true);
 			}
 			rail_engine = NULL;
 			rail_weg = NULL;
@@ -879,7 +879,7 @@ DBG_MESSAGE("do_ki()","rail vehicle %p",rail_vehicle);
 			// is road transport allowed?
 			if(road_transport) {
 				// any road car that transport this good (actually this returns the largest)
-				road_vehicle = vehikel_search( road_wt, 10, best_road_speed, freight, false);
+				road_vehicle = vehicle_search( road_wt, 10, best_road_speed, freight, false);
 			}
 			road_weg = NULL;
 DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
@@ -887,7 +887,7 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 			ship_vehicle = NULL;
 			if(start->get_desc()->get_placement()==factory_desc_t::Water) {
 				// largest ship available
-				ship_vehicle = vehikel_search( water_wt, 0, 20, freight, false);
+				ship_vehicle = vehicle_search( water_wt, 0, 20, freight, false);
 			}
 
 			INT_CHECK("simplay 1265");
@@ -914,7 +914,7 @@ DBG_MESSAGE("do_ki()","check railway");
 				// assume the engine weight 100 tons for power needed calcualtion
 				int total_weight = count_rail*( rail_vehicle->get_capacity()*freight->get_weight_per_unit() + rail_vehicle->get_weight() );
 //				sint32 power_needed = (long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->get_weight()+rail_vehicle->get_capacity()*freight->get_weight_per_unit()*0.001)));
-				rail_engine = vehikel_search( track_wt, total_weight/1000, best_rail_speed, NULL, wayobj_t::default_oberleitung!=NULL);
+				rail_engine = vehicle_search( track_wt, total_weight/1000, best_rail_speed, NULL, wayobj_t::default_oberleitung!=NULL);
 				if(  rail_engine!=NULL  ) {
 					best_rail_speed = min(rail_engine->get_geschw(),rail_vehicle->get_geschw());
 					// find cheapest track with that speed (and no monorail/elevated/tram tracks, please)
@@ -1073,7 +1073,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				// just remember the position, where the harbour will be built
 				harbour=platz1;
 				int ships_needed = 1 + (prod*shortest_distance(harbour,start->get_pos().get_2d())) / (ship_vehicle->get_capacity()*max(20,ship_vehicle->get_geschw()));
-				if(create_ship_transport_vehikel(start,ships_needed)) {
+				if(create_ship_transport_vehicle(start,ships_needed)) {
 					bool already_connected = false;
 					const planquadrat_t* pl = welt->access(harbour);
 					for(  uint8 i=0;  i<pl->get_boden_count();  i++  ) {
@@ -1123,12 +1123,12 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 						int best_rail_speed = min(51, rail_vehicle->get_geschw());
 						// for engine: gues number of cars
 						sint32 power_needed=(sint32)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*( (rail_vehicle->get_weight()+rail_vehicle->get_capacity()*freight->get_weight_per_unit())*0.001 )));
-						const vehikel_desc_t *v=vehikel_search( track_wt, power_needed, best_rail_speed, NULL, false);
+						const vehicle_desc_t *v=vehicle_search( track_wt, power_needed, best_rail_speed, NULL, false);
 						if(v->get_running_cost(welt)<rail_engine->get_running_cost(welt)) {
 							rail_engine = v;
 						}
 					}
-					create_rail_transport_vehikel( platz1, platz2, count_rail, 100 );
+					create_rail_transport_vehicle( platz1, platz2, count_rail, 100 );
 					state = NR_RAIL_SUCCESS;
 				}
 				else {
@@ -1173,7 +1173,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 				state = ship_vehicle ? NR_BAUE_CLEAN_UP : CHECK_CONVOI;
 			}
 			else if(create_simple_road_transport(platz1,size1,platz2,size2,road_weg)) {
-				create_road_transport_vehikel(start, count_road );
+				create_road_transport_vehicle(start, count_road );
 				state = NR_ROAD_SUCCESS;
 			}
 			else {

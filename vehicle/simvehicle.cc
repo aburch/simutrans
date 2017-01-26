@@ -1028,7 +1028,7 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
  * @return true if still space for more cargo
  * @author Hj. Malthaner
  */
-bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehikels)
+bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehicles)
 {
 	const uint16 total_capacity = desc->get_capacity() + (overcrowd ? desc->get_overcrowded_capacity() : 0);
 	if(total_freight < total_capacity)
@@ -1037,7 +1037,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 		const uint16 hinein = total_capacity - total_freight; //hinein = inside (Google)
 		slist_tpl<ware_t> capacity; //"Payload" (Google)
 
-		*skip_vehikels = halt->fetch_goods(capacity, desc->get_ware(), hinein, schedule, cnv->get_owner(), cnv, overcrowd);
+		*skip_vehicles = halt->fetch_goods(capacity, desc->get_ware(), hinein, schedule, cnv->get_owner(), cnv, overcrowd);
 		if(!capacity.empty())
 		{
 			cnv->invalidate_weight_summary();
@@ -1234,10 +1234,10 @@ void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
 
 
 #ifdef INLINE_OBJ_TYPE
-vehicle_t::vehicle_t(typ type, koord3d pos, const vehikel_desc_t* desc, player_t* player) :
+vehicle_t::vehicle_t(typ type, koord3d pos, const vehicle_desc_t* desc, player_t* player) :
 	vehicle_base_t(type, pos)
 #else
-vehicle_t::vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player) :
+vehicle_t::vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player) :
 	vehicle_base_t(pos)
 #endif
 {
@@ -1860,7 +1860,7 @@ void vehicle_t::make_smoke() const
 	// does it smoke at all?
 	if(  smoke  &&  desc->get_smoke()  ) {
 		// Hajo: only produce smoke when heavily accelerating or steam engine
-		if(  cnv->get_akt_speed() < (sint32)((cnv->get_vehicle_summary().max_sim_speed * 7u) >> 3)  ||  desc->get_engine_type() == vehikel_desc_t::steam  ) {
+		if(  cnv->get_akt_speed() < (sint32)((cnv->get_vehicle_summary().max_sim_speed * 7u) >> 3)  ||  desc->get_engine_type() == vehicle_desc_t::steam  ) {
 			grund_t* const gr = welt->lookup( get_pos() );
 			if(  gr  ) {
 				wolke_t* const abgas = new wolke_t( get_pos(), get_xoff() + ((dx * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8), get_yoff() + ((dy * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8) + get_hoff(), desc->get_smoke() );
@@ -1937,12 +1937,12 @@ void vehicle_t::discard_cargo()
 	sum_weight =  desc->get_weight();
 }
 
-uint16 vehicle_t::load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehikels)
+uint16 vehicle_t::load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehicles)
 {
 	const uint16 start_freight = total_freight;
 	if(halt.is_bound()  &&  halt->gibt_ab(desc->get_ware()))
 	{
-		*skip_convois = load_freight_internal(halt, overcrowd, skip_vehikels);
+		*skip_convois = load_freight_internal(halt, overcrowd, skip_vehicles);
 	}
 	else
 	{
@@ -2630,7 +2630,7 @@ void vehicle_t::before_delete()
 }
 
 
-road_vehicle_t::road_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cn) :
+road_vehicle_t::road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cn) :
 #ifdef INLINE_OBJ_TYPE
     vehicle_t(obj_t::automobil, pos, desc, player)
 #else
@@ -2664,7 +2664,7 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) 
 	rdwr_from_convoi(file);
 
 	if(  file->is_loading()  ) {
-		static const vehikel_desc_t *last_desc = NULL;
+		static const vehicle_desc_t *last_desc = NULL;
 
 		if(is_leading) {
 			last_desc = NULL;
@@ -2728,7 +2728,7 @@ bool road_vehicle_t::check_next_tile(const grund_t *bd) const
 	}
 	if(!is_checker)
 	{
-		bool electric = cnv != NULL ? cnv->needs_electrification() : desc->get_engine_type() == vehikel_desc_t::electric;
+		bool electric = cnv != NULL ? cnv->needs_electrification() : desc->get_engine_type() == vehicle_desc_t::electric;
 		if(electric  &&  !str->is_electrified()) {
 			return false;
 		}
@@ -3228,7 +3228,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 						// not overtaking/being overtake: we need to make a more thought test!
 						if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(obj)  ) {
 							convoi_t* const ocnv = car->get_convoi();
-							if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 :  ocnv->get_akt_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
+							if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 :  ocnv->get_akt_speed()), ocnv->get_length_in_steps()+ocnv->get_vehicle(0)->get_steps())  ) {
 								return true;
 							}
 						}
@@ -3341,7 +3341,7 @@ rail_vehicle_t::rail_vehicle_tloadsave_t *file, bool is_leading, bool is_last) :
 	rail_vehicle_t::rdwr_from_convoi(file);
 	
 	if(  file->is_loading()  ) {
-		static const vehikel_desc_t *last_desc = NULL;
+		static const vehicle_desc_t *last_desc = NULL;
 
 		if(is_leading) {
 			last_desc = NULL;
@@ -3379,7 +3379,7 @@ DBG_MESSAGE("rail_vehicle_t::rail_vehicle_t()","replaced by %s",desc->get_name()
 }
 
 #ifdef INLINE_OBJ_TYPE
-rail_vehicle_t::rail_vehicle_t(typ type, koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cn) :
+rail_vehicle_t::rail_vehicle_t(typ type, koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cn) :
     vehicle_t(type, pos, desc, player)
 {
     cnv = cn;
@@ -3387,7 +3387,7 @@ rail_vehicle_t::rail_vehicle_t(typ type, koord3d pos, const vehikel_desc_t* desc
 }
 #endif
 
-rail_vehicle_t::rail_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cn) :
+rail_vehicle_t::rail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cn) :
 #ifdef INLINE_OBJ_TYPE
     vehicle_t(obj_t::rail_vehicle, pos, desc, player)
 #else
@@ -3497,7 +3497,7 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 
 	// Hajo: diesel and steam engines can use electrified track as well.
 	// also allow driving on foreign tracks ...
-	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : desc->get_engine_type() == vehikel_desc_t::electric);
+	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : desc->get_engine_type() == vehicle_desc_t::electric);
 
 	if((!needs_no_electric  &&  !sch->is_electrified())  || (sch->get_max_speed() == 0 && speed_limit < INT_MAX) || !check_way_constraints(*sch))
 	{
@@ -3934,7 +3934,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			const koord3d ground_pos = gr->get_pos();
 			for(sint32 i = 0; i < c->get_vehicle_count(); i ++)
 			{
-				if(c->get_vehikel(i)->get_pos() == ground_pos)
+				if(c->get_vehicle(i)->get_pos() == ground_pos)
 				{
 					cnv->set_state(convoi_t::EMERGENCY_STOP);
 					cnv->set_wait_lock(emergency_stop_duration + 500); // We add 500 to what we assume is the rear train to ensure that the front train starts first.
@@ -6116,7 +6116,7 @@ schedule_t * narrowgauge_rail_vehicle_t::generate_new_schedule() const
 }
 
 
-water_vehicle_t::water_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cn) :
+water_vehicle_t::water_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cn) :
 #ifdef INLINE_OBJ_TYPE
     vehicle_t(obj_t::water_vehicle, pos, desc, player)
 #else
@@ -6136,7 +6136,7 @@ water_vehicle_t::water_vehicle_t(loadsave_t *file, bool is_leading, bool is_last
 	vehicle_t::rdwr_from_convoi(file);
 
 	if(  file->is_loading()  ) {
-		static const vehikel_desc_t *last_desc = NULL;
+		static const vehicle_desc_t *last_desc = NULL;
 
 		if(is_leading) {
 			last_desc = NULL;
@@ -6214,7 +6214,7 @@ bool water_vehicle_t::check_next_tile(const grund_t *bd) const
 		{
 			for(sint32 i = 0; i < convoy_vehicle_count; i++)
 			{
-				if(!cnv->get_vehikel(i)->check_way_constraints(*w))
+				if(!cnv->get_vehicle(i)->check_way_constraints(*w))
 				{
 					can_clear_way_constraints = false;
 					break;
@@ -7218,7 +7218,7 @@ air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) :
 	runway_too_short = false;
 
 	if(  file->is_loading()  ) {
-		static const vehikel_desc_t *last_desc = NULL;
+		static const vehicle_desc_t *last_desc = NULL;
 
 		if(is_leading) {
 			last_desc = NULL;
@@ -7239,7 +7239,7 @@ air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) :
 }
 
 
-air_vehicle_t::air_vehicle_t(koord3d pos, const vehikel_desc_t* desc, player_t* player, convoi_t* cn) :
+air_vehicle_t::air_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cn) :
 #ifdef INLINE_OBJ_TYPE
     vehicle_t(obj_t::air_vehicle, pos, desc, player)
 #else

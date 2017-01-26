@@ -13,7 +13,7 @@ The <strong>load</strong> window opens from the <a href="new_world.txt">create n
 The window lists all the saved games (which are stored in a simutrans subfolder in your "My Documents" or /home directory depending on the operating system).
 </p>
 <p>
-The pakset is listed to the right: usually, games saved with one pakset active cannot be loaded with another pakset active. The saved games from the current pakset are at the top of the list.
+The pakset is listd to the right: usually, games saved with one pakset active cannot be loaded with another pakset active. The saved games from the current pakset are at the top of the list.
 </p>
 <p>
 Click the name of a saved game in the list or enter the name manually into the box at the top of the window and click "OK" to load a game.

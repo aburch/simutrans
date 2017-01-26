@@ -156,7 +156,7 @@ public:
 
 	// static routines from here
 private:
-	static vector_tpl<roadsign_desc_t *> liste;
+	static vector_tpl<roadsign_desc_t *> list;
 	static stringhashtable_tpl<const roadsign_desc_t *> table;
 
 protected:

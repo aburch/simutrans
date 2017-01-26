@@ -1660,6 +1660,7 @@
   <ItemGroup>
     <ClCompile Include="besch\fabrik_besch.cc" />
     <ClCompile Include="besch\obj_besch_std_name.cc" />
+    <ClCompile Include="besch\vehikel_besch.cc" />
     <ClCompile Include="besch\weg_besch.cc" />
     <ClCompile Include="clipboard_w32.cc" />
     <ClCompile Include="dataobj\environment.cc" />
@@ -2089,7 +2090,6 @@
     <ClCompile Include="boden\tunnelboden.cc" />
     <ClCompile Include="unicode.cc" />
     <ClCompile Include="besch\reader\vehicle_reader.cc" />
-    <ClCompile Include="besch\vehikel_besch.cc" />
     <ClCompile Include="bauer\vehikelbauer.cc" />
     <ClCompile Include="music\w32_midi.cc" />
     <ClCompile Include="besch\ware_besch.cc" />

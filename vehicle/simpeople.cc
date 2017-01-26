@@ -21,7 +21,7 @@
 
 static uint32 const strecke[] = { 6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000 };
 
-static weighted_vector_tpl<const pedestrian_desc_t*> liste; // All pedestrians
+static weighted_vector_tpl<const pedestrian_desc_t*> list; // All pedestrians
 static weighted_vector_tpl<const pedestrian_desc_t*> current_pedestrians; // Only those allowed on the current timeline
 stringhashtable_tpl<const pedestrian_desc_t *> pedestrian_t::table;
 
@@ -45,7 +45,7 @@ bool pedestrian_t::register_desc(const pedestrian_desc_t *desc)
 
 bool pedestrian_t::successfully_loaded()
 {
-	liste.resize(table.get_count());
+	list.resize(table.get_count());
 	if (table.empty()) {
 		DBG_MESSAGE("pedestrian_t", "No pedestrians found - feature disabled");
 	}
@@ -56,7 +56,7 @@ bool pedestrian_t::successfully_loaded()
 			temp_liste.insert_ordered(i.value, compare_fussgaenger_desc);
 		}
 		FOR(vector_tpl<pedestrian_desc_t const*>, const i, temp_liste) {
-			liste.append(i, i->get_chance());
+			list.append(i, i->get_chance());
 		}
 	}
 	return true;
@@ -127,8 +127,8 @@ void pedestrian_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s, lengthof(s));
 		desc = table.get(s);
 		// unknown pedestrian => create random new one
-		if(desc == NULL  &&  !liste.empty()  ) {
-			desc = pick_any_weighted(liste);
+		if(desc == NULL  &&  !list.empty()  ) {
+			desc = pick_any_weighted(list);
 		}
 	}
 
@@ -289,7 +289,7 @@ void pedestrian_t::hop(grund_t *gr)
 void pedestrian_t::check_timeline_pedestrians()
 {
 	current_pedestrians.clear();
-	FOR(weighted_vector_tpl<const pedestrian_desc_t*>, fd, liste)
+	FOR(weighted_vector_tpl<const pedestrian_desc_t*>, fd, list)
 	{
 		if (fd->is_available(world()->get_timeline_year_month()))
 		{

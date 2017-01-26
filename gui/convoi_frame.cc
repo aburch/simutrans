@@ -124,7 +124,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 	if(  get_filter(convoi_filter_frame_t::ware_filter)  ) {
 		unsigned i;
 		for(  i = 0; i < cnv->get_vehicle_count(); i++) {
-			const ware_desc_t *wb = cnv->get_vehikel(i)->get_cargo_type();
+			const ware_desc_t *wb = cnv->get_vehicle(i)->get_cargo_type();
 			if(  wb->get_catg()!=0  ) {
 				wb = warenbauer_t::get_info_catg(wb->get_catg());
 			}

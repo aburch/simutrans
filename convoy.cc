@@ -93,7 +93,7 @@ void adverse_summary_t::add_vehicle(const vehicle_t &v)
 }
 
 
-void adverse_summary_t::add_vehicle(const vehikel_desc_t &b, bool is_leading)
+void adverse_summary_t::add_vehicle(const vehicle_desc_t &b, bool is_leading)
 {
 	if (br.is_zero())
 	{
@@ -142,7 +142,7 @@ void adverse_summary_t::add_vehicle(const vehikel_desc_t &b, bool is_leading)
 
 /******************************************************************************/
 
-void freight_summary_t::add_vehicle(const vehikel_desc_t &b)
+void freight_summary_t::add_vehicle(const vehicle_desc_t &b)
 {
 	const sint32 payload = b.get_capacity();
 	if (payload > 0)
@@ -487,7 +487,7 @@ void potential_convoy_t::update_freight_summary(freight_summary_t &freight)
 	freight.clear();
 	for (uint32 i = vehicles.get_count(); i-- > 0; )
 	{
-		const vehikel_desc_t &b = *vehicles[i];
+		const vehicle_desc_t &b = *vehicles[i];
 		freight.add_vehicle(b);
 	}
 }
@@ -497,7 +497,7 @@ float32e8_t potential_convoy_t::get_brake_summary(/*const float32e8_t &speed*/ /
 	float32e8_t force = 0;
 	for (uint32 i = vehicles.get_count(); i-- > 0; )
 	{
-		const vehikel_desc_t &b = *vehicles[i];
+		const vehicle_desc_t &b = *vehicles[i];
 		uint16 bf = b.get_brake_force();
 		if (bf != BRAKE_FORCE_UNKNOWN)
 		{
@@ -558,7 +558,7 @@ sint16 potential_convoy_t::get_current_friction()
 // Bernd Gabriel, Dec, 25 2009
 sint16 existing_convoy_t::get_current_friction()
 {
-	return convoy.get_vehicle_count() > 0 ? get_friction_of_waytype(convoy.get_vehikel(0)->get_waytype()) : 0;
+	return convoy.get_vehicle_count() > 0 ? get_friction_of_waytype(convoy.get_vehicle(0)->get_waytype()) : 0;
 }
 
 void existing_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
@@ -567,11 +567,11 @@ void existing_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 	uint32 count = convoy.get_vehicle_count();
 	for (uint32 i = count; i-- > 0; )
 	{
-		vehicle.add_vehicle(*convoy.get_vehikel(i)->get_desc());
+		vehicle.add_vehicle(*convoy.get_vehicle(i)->get_desc());
 	}
 	if (count > 0)
 	{
-		vehicle.update_summary(convoy.get_vehikel(count-1)->get_desc()->get_length());
+		vehicle.update_summary(convoy.get_vehicle(count-1)->get_desc()->get_length());
 	}
 }
 
@@ -582,7 +582,7 @@ void existing_convoy_t::update_adverse_summary(adverse_summary_t &adverse)
 	uint16 count = convoy.get_vehicle_count();
 	for (uint16 i = count; i-- > 0; )
 	{
-		vehicle_t &v = *convoy.get_vehikel(i);
+		vehicle_t &v = *convoy.get_vehicle(i);
 		adverse.add_vehicle(v);
 	}
 	if (count > 0)
@@ -597,7 +597,7 @@ void existing_convoy_t::update_freight_summary(freight_summary_t &freight)
 	freight.clear();
 	for (uint16 i = convoy.get_vehicle_count(); i-- > 0; )
 	{
-		const vehikel_desc_t &b = *convoy.get_vehikel(i)->get_desc();
+		const vehicle_desc_t &b = *convoy.get_vehicle(i)->get_desc();
 		freight.add_vehicle(b);
 	}
 }
@@ -608,7 +608,7 @@ void existing_convoy_t::update_weight_summary(weight_summary_t &weight)
 	weight.clear();
 	for (uint16 i = convoy.get_vehicle_count(); i-- > 0; )
 	{
-		vehicle_t &v = *convoy.get_vehikel(i);
+		vehicle_t &v = *convoy.get_vehicle(i);
 		weight.add_vehicle(v);
 	}
 }
@@ -619,7 +619,7 @@ float32e8_t existing_convoy_t::get_brake_summary(/*const float32e8_t &speed*/ /*
 	float32e8_t force = 0;
 	for (uint16 i = convoy.get_vehicle_count(); i-- > 0; )
 	{
-		vehicle_t &v = *convoy.get_vehikel(i);
+		vehicle_t &v = *convoy.get_vehicle(i);
 		const uint16 bf = v.get_desc()->get_brake_force();
 		if (bf != BRAKE_FORCE_UNKNOWN)
 		{
@@ -642,7 +642,7 @@ float32e8_t existing_convoy_t::get_force_summary(const float32e8_t &speed /* in 
 	sint32 v = speed;
 	for (uint16 i = convoy.get_vehicle_count(); i-- > 0; )
 	{
-		force += convoy.get_vehikel(i)->get_desc()->get_effective_force_index(v);
+		force += convoy.get_vehicle(i)->get_desc()->get_effective_force_index(v);
 	}
 	return power_index_to_power(force, welt->get_settings().get_global_force_factor_percent());
 }
@@ -654,7 +654,7 @@ float32e8_t existing_convoy_t::get_power_summary(const float32e8_t &speed /* in 
 	sint32 v = speed;
 	for (uint16 i = convoy.get_vehicle_count(); i-- > 0; )
 	{
-		power += convoy.get_vehikel(i)->get_desc()->get_effective_power_index(v);
+		power += convoy.get_vehicle(i)->get_desc()->get_effective_power_index(v);
 	}
 	return power_index_to_power(power, welt->get_settings().get_global_power_factor_percent());
 }

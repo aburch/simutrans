@@ -1180,10 +1180,10 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 				city_flag[0]=conn_comp;
 			}
 
-			// get a default vehikel
+			// get a default vehicle
 			route_t verbindung;
 			vehicle_t* test_driver;
-			vehikel_desc_t test_drive_desc(road_wt, 500, vehikel_desc_t::diesel );
+			vehicle_desc_t test_drive_desc(road_wt, 500, vehicle_desc_t::diesel );
 			test_driver = vehicle_builder_t::build(koord3d(), players[1], NULL, &test_drive_desc);
 			test_driver->set_flag( obj_t::not_on_map );
 
@@ -2879,7 +2879,7 @@ void karte_t::set_scale()
 	{
 		if(&vehicle_builder_t::get_info((waytype_t)i) != NULL)
 		{
-			FOR(slist_tpl<vehikel_desc_t*>, & info, vehicle_builder_t::get_info((waytype_t)i))
+			FOR(slist_tpl<vehicle_desc_t*>, & info, vehicle_builder_t::get_info((waytype_t)i))
 			{
 				info->set_scale(scale_factor, get_settings().get_way_wear_power_factor_rail_type(), get_settings().get_way_wear_power_factor_road_type(), get_settings().get_standard_axle_load());
 			}
@@ -4982,7 +4982,7 @@ void karte_t::recalc_average_speed()
 			}
 			vehicle_type = translator::translate( vehicle_type );
 
-			FOR(slist_tpl<vehikel_desc_t *>, const info, vehicle_builder_t::get_info((waytype_t)i)) 
+			FOR(slist_tpl<vehicle_desc_t *>, const info, vehicle_builder_t::get_info((waytype_t)i)) 
 			{
 				const uint16 intro_month = info->get_intro_year_month();
 				if(intro_month == current_month) 
@@ -8472,7 +8472,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 	DBG_MESSAGE("karte_t::load()", "prepare for %i factories", fabs);
 
 	for(sint32 i = 0; i < fabs; i++) {
-		// liste in gleicher reihenfolge wie vor dem speichern wieder aufbauen
+		// list in gleicher reihenfolge wie vor dem speichern wieder aufbauen
 		fabrik_t *fab = new fabrik_t(file);
 		if(fab->get_desc()) {
 			fab_list.append(fab);

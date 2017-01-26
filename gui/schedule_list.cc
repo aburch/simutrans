@@ -552,8 +552,8 @@ void schedule_list_gui_t::display(scr_coord pos)
 				convoys_with_trip_data++;
 			}
 			for (unsigned j = 0; j<cnv->get_vehicle_count(); j++) {
-				capacity += cnv->get_vehikel(j)->get_cargo_max();
-				load += cnv->get_vehikel(j)->get_total_cargo();
+				capacity += cnv->get_vehicle(j)->get_cargo_max();
+				load += cnv->get_vehicle(j)->get_total_cargo();
 			}
 		}
 	}

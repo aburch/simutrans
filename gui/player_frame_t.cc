@@ -41,7 +41,7 @@
 
 
 ki_kontroll_t::ki_kontroll_t() :
-	gui_frame_t( translator::translate("Spielerliste") )
+	gui_frame_t( translator::translate("Spielerlist") )
 {
 	scr_coord cursor = scr_coord ( D_MARGIN_LEFT, D_MARGIN_TOP );
 

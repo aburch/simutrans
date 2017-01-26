@@ -43,10 +43,10 @@ private:
 	const ware_desc_t *freight;
 
 	// we will use this vehicle!
-	const vehikel_desc_t *rail_vehicle;
-	const vehikel_desc_t *rail_engine;
-	const vehikel_desc_t *road_vehicle;
-	const vehikel_desc_t *ship_vehicle;
+	const vehicle_desc_t *rail_vehicle;
+	const vehicle_desc_t *rail_engine;
+	const vehicle_desc_t *road_vehicle;
+	const vehicle_desc_t *ship_vehicle;
 
 	// and the convoi will run on this track:
 	const way_desc_t *rail_weg;
@@ -98,14 +98,14 @@ private:
 
 	bool suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length);
 
-	int baue_bahnhof(const koord* p, int anz_vehikel);
+	int baue_bahnhof(const koord* p, int anz_vehicle);
 
 	bool create_simple_rail_transport();
 
 	// create way and stops for these routes
-	bool create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
-	void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
-	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int minimum_loading);
+	bool create_ship_transport_vehicle(fabrik_t *qfab, int anz_vehicle);
+	void create_road_transport_vehicle(fabrik_t *qfab, int anz_vehicle);
+	void create_rail_transport_vehicle(const koord pos1,const koord pos2, int anz_vehicle, int minimum_loading);
 
 public:
 	ai_goods_t(karte_t *wl, uint8 nr);

@@ -15,7 +15,7 @@ livery_scheme_t::livery_scheme_t(const char* n, const uint16 date)
 }
 
 
-const char* livery_scheme_t::get_latest_available_livery(uint16 date, const vehikel_desc_t* desc) const
+const char* livery_scheme_t::get_latest_available_livery(uint16 date, const vehicle_desc_t* desc) const
 {
 	if(liveries.empty())
 	{

@@ -1017,13 +1017,13 @@ const building_desc_t* hausbauer_t::get_headquarter(int level, uint16 time)
 
 
 // get a random object
-const building_desc_t *hausbauer_t::get_random_desc(vector_tpl<const building_desc_t *> &liste, uint16 time, bool ignore_retire, climate cl)
+const building_desc_t *hausbauer_t::get_random_desc(vector_tpl<const building_desc_t *> &list, uint16 time, bool ignore_retire, climate cl)
 {
 	//"select from list" (Google)
-	if (!liste.empty()) {
+	if (!list.empty()) {
 		// previously just returned a random object; however, now we look at the chance entry
 		weighted_vector_tpl<const building_desc_t *> auswahl(16);
-		FOR(vector_tpl<building_desc_t const*>, const desc, liste) {
+		FOR(vector_tpl<building_desc_t const*>, const desc, list) {
 			if((cl==MAX_CLIMATES  ||  desc->is_allowed_climate(cl))  &&  desc->get_chance()>0  &&  (time==0  ||  (desc->get_intro_year_month()<=time  &&  (ignore_retire  ||  desc->get_retire_year_month()>time)  )  )  ) {
 //				DBG_MESSAGE("hausbauer_t::get_random_desc()","appended %s at %i", desc->get_name(), thislevel );
 				auswahl.append(desc, desc->get_chance());

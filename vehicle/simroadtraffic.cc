@@ -149,7 +149,7 @@ grund_t* road_user_t::hop()
 		return NULL;
 	}
 
-	grund_t *liste[4];
+	grund_t *list[4];
 	int count = 0;
 
 	// 1) find the allowed directions
@@ -176,7 +176,7 @@ grund_t* road_user_t::hop()
 			// check, if this is just a single tile deep
 			int next_ribi =  to->get_weg(road_wt)->get_ribi_unmasked();
 			if((ribi&next_ribi)!=0  ||  !ribi_t::is_single(next_ribi)) {
-				liste[count++] = to;
+				list[count++] = to;
 			}
 		}
 	}
@@ -185,13 +185,13 @@ grund_t* road_user_t::hop()
 #ifdef DEBUG_SIMRAND_CALLS
 		char buf[256];
 		sprintf(buf, "road_user_t::hop() %s", typeid(*this).name());
-		pos_next = liste[simrand(count, buf)]->get_pos();
+		pos_next = list[simrand(count, buf)]->get_pos();
 #else
-		pos_next = liste[simrand(count, "road_user_t::hop()")]->get_pos();
+		pos_next = list[simrand(count, "road_user_t::hop()")]->get_pos();
 #endif
 		direction = calc_set_direction(get_pos(), pos_next);
 	} else if(count==1) {
-		pos_next = liste[0]->get_pos();
+		pos_next = list[0]->get_pos();
 		direction = calc_set_direction(get_pos(), pos_next);
 	}
 	else {
@@ -683,7 +683,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 								// otherwise the overtaken car would stop for us ...
 								if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(dt)  ) {
 									convoi_t* const ocnv = car->get_convoi();
-									if(  ocnv==NULL  ||  !can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
+									if(  ocnv==NULL  ||  !can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehicle(0)->get_steps())  ) {
 										frei = false;
 									}
 								} else if(  private_car_t* const caut = obj_cast<private_car_t>(dt)  ) {

@@ -54,7 +54,7 @@ private:
 	 * Liefert einen zufälligen Eintrag aus der Liste.
 	 * @author V. Meyer
 	 */
-	static const building_desc_t* get_random_desc(vector_tpl<const building_desc_t*>& liste, uint16 time, bool ignore_retire, climate cl);
+	static const building_desc_t* get_random_desc(vector_tpl<const building_desc_t*>& list, uint16 time, bool ignore_retire, climate cl);
 
 public:
 	/**

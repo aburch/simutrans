@@ -2351,7 +2351,7 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 		grund_t* way_gr = welt->lookup(w->get_pos());
 		koord3d start = koord3d::invalid;
 		koord3d end;
-		vehikel_desc_t diversion_check_type(w->get_waytype(), kmh_to_speed(w->get_max_speed()), vehikel_desc_t::petrol, w->get_max_axle_load());
+		vehicle_desc_t diversion_check_type(w->get_waytype(), kmh_to_speed(w->get_max_speed()), vehicle_desc_t::petrol, w->get_max_axle_load());
 		minivec_tpl<route_t> diversionary_routes;
 		uint32 successful_diversions = 0;
 		uint32 necessary_diversions = 0;

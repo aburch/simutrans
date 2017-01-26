@@ -46,8 +46,8 @@ void goods_stats_t::update_goodslist( uint16 *g, int b, int l, uint32 d, uint8 c
 	comfort = c;
 	catering_level = ct;
 	way_type = wt;
-	listed_goods = l;
-	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, listed_goods * (LINESPACE+1) ) );
+	listd_goods = l;
+	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, listd_goods * (LINESPACE+1) ) );
 }
 
 
@@ -65,7 +65,7 @@ void goods_stats_t::draw(scr_coord offset)
 	// Pre-111.1 in case current does not work.
 	/*for(  uint16 i=0;  i<warenbauer_t::get_count()-1u;  i++  )*/
 
-	for(  uint16 i=0;  i<listed_goods;  i++  )
+	for(  uint16 i=0;  i<listd_goods;  i++  )
 	{
 		const ware_desc_t * wtyp = warenbauer_t::get_info(goodslist[i]);
 

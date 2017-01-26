@@ -100,7 +100,7 @@ bool obj_reader_t::load(const char *path, const char *message)
 		}
 	}
 	else {
-		// Keine dat-file? dann ist liste ein Verzeichnis?
+		// Keine dat-file? dann ist list ein Verzeichnis?
 		// step is a bitmask to decide when it's time to update the progress bar.
 		// It takes the biggest power of 2 less than the number of elements and
 		// divides it in 256 sub-steps at most (the -7 comes from here)

@@ -48,7 +48,7 @@
 const roadsign_desc_t *roadsign_t::default_signal=NULL;
 
 stringhashtable_tpl<const roadsign_desc_t *> roadsign_t::table;
-vector_tpl<roadsign_desc_t*> roadsign_t::liste;
+vector_tpl<roadsign_desc_t*> roadsign_t::list;
 
 
 #ifdef INLINE_OBJ_TYPE
@@ -742,7 +742,7 @@ bool roadsign_t::register_desc(roadsign_desc_t *desc)
 	}
 
 	roadsign_t::table.put(desc->get_name(), desc);
-	roadsign_t::liste.append(desc);
+	roadsign_t::list.append(desc);
 
 	if(  desc->get_wtyp()==track_wt  &&  desc->get_flags()==roadsign_desc_t::SIGN_SIGNAL  ) {
 		default_signal = desc;
@@ -874,7 +874,7 @@ const roadsign_desc_t* roadsign_t::find_best_upgrade(bool underground)
  void roadsign_t::set_scale(uint16 scale_factor)
 {
 	// Called from the world's set_scale method so as to avoid having to export the internal data structures of this class.
-	FOR(vector_tpl<roadsign_desc_t *>, sign, liste)
+	FOR(vector_tpl<roadsign_desc_t *>, sign, list)
 	{
 		sign->set_scale(scale_factor); 
 	}

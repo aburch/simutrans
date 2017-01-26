@@ -3353,10 +3353,10 @@ bool tool_wayremover_t::calc_route( route_t &verbindung, player_t *player, const
 		}
 	}
 	else {
-		// get a default vehikel
+		// get a default vehicle
 		test_driver_t* test_driver;
 		if(  wt!=powerline_wt  ) {
-			vehikel_desc_t remover_desc(wt, 500, vehikel_desc_t::diesel );
+			vehicle_desc_t remover_desc(wt, 500, vehicle_desc_t::diesel );
 			vehicle_t *driver = vehicle_builder_t::build(start, player, NULL, &remover_desc);
 			driver->set_flag( obj_t::not_on_map );
 			test_driver = driver;
@@ -3690,8 +3690,8 @@ bool tool_build_wayobj_t::init( player_t *player )
 
 bool tool_build_wayobj_t::calc_route( route_t &verbindung, player_t *player, const koord3d& start, const koord3d& to )
 {
-	// get a default vehikel
-	vehikel_desc_t remover_desc( wt, 500, vehikel_desc_t::diesel );
+	// get a default vehicle
+	vehicle_desc_t remover_desc( wt, 500, vehicle_desc_t::diesel );
 	vehicle_t* test_vehicle = vehicle_builder_t::build(start, player, NULL, &remover_desc);
 	test_vehicle->set_flag( obj_t::not_on_map );
 	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
@@ -5493,8 +5493,8 @@ uint8 tool_build_roadsign_t::is_valid_pos( player_t *player, const koord3d &pos,
 
 bool tool_build_roadsign_t::calc_route( route_t &verbindung, player_t *player, const koord3d& start, const koord3d& to )
 {
-	// get a default vehikel
-	vehikel_desc_t rs_desc( desc->get_wtyp(), 500, vehikel_desc_t::diesel );
+	// get a default vehicle
+	vehicle_desc_t rs_desc( desc->get_wtyp(), 500, vehicle_desc_t::diesel );
 	vehicle_t* test_vehicle = vehicle_builder_t::build(start, player, NULL, &rs_desc);
 	test_vehicle->set_flag(obj_t::not_on_map);
 	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);
@@ -8207,7 +8207,7 @@ bool tool_change_line_t::init( player_t *player )
 							sint64 old_sum_capacity = 0;
 							FOR(vector_tpl<convoihandle_t>,cnv,cnvs) {
 								for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
-									old_sum_capacity += cnv->get_vehikel(i)->get_desc()->get_capacity();
+									old_sum_capacity += cnv->get_vehicle(i)->get_desc()->get_capacity();
 								}
 							}
 							/* now we have the total capacity. We will now remove convois until this capacity
@@ -8223,7 +8223,7 @@ bool tool_change_line_t::init( player_t *player )
 								convoihandle_t cnv = line->get_convoy(j);
 								if(  cnv->get_loading_level() == 0  ||  cnv->get_state() == convoi_t::INITIAL  ) {
 									for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
-										old_sum_capacity -= cnv->get_vehikel(i)->get_desc()->get_capacity();
+										old_sum_capacity -= cnv->get_vehicle(i)->get_desc()->get_capacity();
 									}
 									cnv->self_destruct();
 									destroyed ++;
@@ -8234,7 +8234,7 @@ bool tool_change_line_t::init( player_t *player )
 								convoihandle_t cnv = line->get_convoy(j);
 								if(  cnv->get_state() != convoi_t::SELF_DESTRUCT  ) {
 									for(  int i=0;  i<cnv->get_vehicle_count();  i++  ) {
-										old_sum_capacity -= cnv->get_vehikel(i)->get_desc()->get_capacity();
+										old_sum_capacity -= cnv->get_vehicle(i)->get_desc()->get_capacity();
 									}
 									cnv->self_destruct();
 									destroyed ++;
@@ -8320,11 +8320,11 @@ bool tool_change_line_t::init( player_t *player )
  * 'c' : copies this convoy
  * 'd' : dissassembles convoy
  * 's' : sells convoy
- * 'a' : appends a vehicle (+vehikel_name) uses the oldest
- * 'i' : inserts a vehicle in front (+vehikel_name) uses the oldest
- * 's' : sells a vehikel (+vehikel_name) uses the newest
- * 'r' : removes a vehikel (+number in convoi)
- * 'R' : removes all vehikels including (+number in convoi) to end
+ * 'a' : appends a vehicle (+vehicle_name) uses the oldest
+ * 'i' : inserts a vehicle in front (+vehicle_name) uses the oldest
+ * 's' : sells a vehicle (+vehicle_name) uses the newest
+ * 'r' : removes a vehicle (+number in convoi)
+ * 'R' : removes all vehicles including (+number in convoi) to end
  */
 bool tool_change_depot_t::init( player_t *player )
 {
@@ -8440,7 +8440,7 @@ bool tool_change_depot_t::init( player_t *player )
 
 					// find end
 					while(nr<cnv->get_vehicle_count()) {
-						const vehikel_desc_t *info = cnv->get_vehikel(nr)->get_desc();
+						const vehicle_desc_t *info = cnv->get_vehicle(nr)->get_desc();
 						nr ++;
 						if(info->get_trailer_count()!=1) {
 							break;
@@ -8462,12 +8462,12 @@ bool tool_change_depot_t::init( player_t *player )
 			}
 			else {
 				// create and append it
-				const vehikel_desc_t *info = vehicle_builder_t::get_info( p );
+				const vehicle_desc_t *info = vehicle_builder_t::get_info( p );
 				// we have a valid vehicle there => now check for details
 				if(  info  ) {
 					// we buy/sell all vehicles together!
-					slist_tpl<const vehikel_desc_t *>new_vehicle_info;
-					const vehikel_desc_t *start_info = info;
+					slist_tpl<const vehicle_desc_t *>new_vehicle_info;
+					const vehicle_desc_t *start_info = info;
 
 					if(tool!='a') {
 						// start of composition
@@ -8529,7 +8529,7 @@ bool tool_change_depot_t::init( player_t *player )
 								// insert/append needs reverse order
 								unsigned nr = (tool=='i') ? new_vehicle_info.get_count()-i-1 : i;
 								// We add the oldest vehicle - newer stay for selling
-								const vehikel_desc_t* vb = new_vehicle_info.at(nr);
+								const vehicle_desc_t* vb = new_vehicle_info.at(nr);
 								vehicle_t* veh = depot->find_oldest_newest(vb, true);
 								if (veh == NULL && tool != 'u')
 								{

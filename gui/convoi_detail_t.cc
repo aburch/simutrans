@@ -135,13 +135,13 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;
 
-		vehicle_t* v1 = cnv->get_vehikel(0); 
+		vehicle_t* v1 = cnv->get_vehicle(0); 
 
 		if(v1->get_waytype() == track_wt || v1->get_waytype() == maglev_wt || v1->get_waytype() == tram_wt || v1->get_waytype() == narrowgauge_wt || v1->get_waytype() == monorail_wt)
 		{
 			// Current working method
 			rail_vehicle_t* rv1 = (rail_vehicle_t*)v1;
-			rail_vehicle_t* rv2 = (rail_vehicle_t*)cnv->get_vehikel(cnv->get_vehicle_count() - 1);
+			rail_vehicle_t* rv2 = (rail_vehicle_t*)cnv->get_vehicle(cnv->get_vehicle_count() - 1);
 			buf.clear();
 			buf.printf("%s: %s", translator::translate("Current working method"), translator::translate(rv1->is_leading() ? roadsign_t::get_working_method_name(rv1->get_working_method()) : roadsign_t::get_working_method_name(rv2->get_working_method()))); 
 			display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
@@ -163,7 +163,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 
 			uint32 percentage = 0;
 			for (uint16 i = 0; i < count; i++) {
-				percentage += cnv->get_vehikel(i)->get_desc()->calc_running_cost(welt, 10000);
+				percentage += cnv->get_vehicle(i)->get_desc()->calc_running_cost(welt, 10000);
 			}
 			percentage = percentage / (count * 100) - 100;
 			if (percentage > 0)
@@ -179,7 +179,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 			uint32 run_actual = 0, run_nominal = 0, run_percent = 0;
 			uint32 mon_actual = 0, mon_nominal = 0, mon_percent = 0;
 			for (uint16 i = 0; i < count; i++) {
-				const vehikel_desc_t *desc = cnv->get_vehikel(i)->get_desc();
+				const vehicle_desc_t *desc = cnv->get_vehicle(i)->get_desc();
 				run_nominal += desc->get_running_cost();
 				run_actual  += desc->get_running_cost(welt);
 				mon_nominal += welt->calc_adjusted_monthly_figure(desc->get_fixed_cost());
@@ -340,7 +340,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 		static cbuffer_t freight_info;
 		for(unsigned veh=0;  veh<cnv->get_vehicle_count(); veh++ ) {
-			vehicle_t *v=cnv->get_vehikel(veh);
+			vehicle_t *v=cnv->get_vehicle(veh);
 			int returns = 0;
 			freight_info.clear();
 

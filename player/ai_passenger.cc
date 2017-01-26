@@ -64,7 +64,7 @@ bool ai_passenger_t::set_active(bool new_state)
 {
 	// only activate, when there are buses available!
 	if(  new_state  ) {
-		new_state = NULL!=vehikel_search( road_wt, 50, 80, warenbauer_t::passagiere, false);
+		new_state = NULL!=vehicle_search( road_wt, 50, 80, warenbauer_t::passagiere, false);
 	}
 	return player_t::set_active( new_state );
 }
@@ -178,9 +178,9 @@ koord ai_passenger_t::find_harbour_pos(karte_t* welt, const stadt_t *s )
 }
 
 
-bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos)
+bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, const koord target_pos)
 {
-	const vehikel_desc_t *v_desc = vehikel_search(water_wt, 10, 40, warenbauer_t::passagiere, false);
+	const vehicle_desc_t *v_desc = vehicle_search(water_wt, 10, 40, warenbauer_t::passagiere, false);
 	if(v_desc==NULL  ) {
 		// no ship there
 		return false;
@@ -271,8 +271,8 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 
 	// now we must check, if these two seas are connected
 	{
-		// we use the free own vehikel_desc_t
-		vehikel_desc_t remover_desc( water_wt, 500, vehikel_desc_t::diesel );
+		// we use the free own vehicle_desc_t
+		vehicle_desc_t remover_desc( water_wt, 500, vehicle_desc_t::diesel );
 		vehicle_t* test_driver = vehicle_builder_t::build( koord3d( start_harbour - start_dx, welt->get_water_hgt( start_harbour - start_dx ) ), this, NULL, &remover_desc );
 		test_driver->set_flag( obj_t::not_on_map );
 		route_t verbindung;
@@ -437,7 +437,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	vehicle_t* v = vehicle_builder_t::build( koord3d( start_pos, welt->get_water_hgt( start_pos ) ), this, NULL, v_desc );
 	convoi_t* cnv = new convoi_t(this);
 	cnv->set_name(v->get_desc()->get_name());
-	cnv->add_vehikel( v );
+	cnv->add_vehicle( v );
 	welt->sync.add( cnv );
 	cnv->set_line(line);
 	cnv->start();
@@ -445,13 +445,13 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	// eventually build a shuttle bus ...
 	if(start_connect_hub.is_bound()  &&  start_connect_hub!=start_hub) {
 		koord stops[2] = { start_harbour+start_dx, start_connect_hub->get_basis_pos() };
-		create_bus_transport_vehikel( stops[1], 1, stops, 2, false );
+		create_bus_transport_vehicle( stops[1], 1, stops, 2, false );
 	}
 
 	// eventually build a airport shuttle bus ...
 	if(end_connect_hub.is_bound()  &&  end_connect_hub!=end_hub) {
 		koord stops[2] = { end_harbour+end_dx, end_connect_hub->get_basis_pos() };
-		create_bus_transport_vehikel( stops[1], 1, stops, 2, false );
+		create_bus_transport_vehicle( stops[1], 1, stops, 2, false );
 	}
 
 	return true;
@@ -617,9 +617,9 @@ static koord find_airport_pos(karte_t* welt, const stadt_t *s )
 /* builts airports and planes
  * @author prissi
  */
-bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, const stadt_t *end_stadt)
+bool ai_passenger_t::create_air_transport_vehicle(const stadt_t *start_stadt, const stadt_t *end_stadt)
 {
-	const vehikel_desc_t *v_desc = vehikel_search(air_wt, 10, 900, warenbauer_t::passagiere, false);
+	const vehicle_desc_t *v_desc = vehicle_search(air_wt, 10, 900, warenbauer_t::passagiere, false);
 	if(v_desc==NULL) {
 		// no aircraft there
 		return false;
@@ -757,7 +757,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 	vehicle_t* v = vehicle_builder_t::build( start->get_pos(), this, NULL, v_desc);
 	convoi_t* cnv = new convoi_t(this);
 	cnv->set_name(v->get_desc()->get_name());
-	cnv->add_vehikel( v );
+	cnv->add_vehicle( v );
 	welt->sync.add( cnv );
 	cnv->set_line(line);
 	cnv->start();
@@ -765,13 +765,13 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 	// eventually build a airport shuttle bus ...
 	if(start_connect_hub.is_bound()  &&  start_connect_hub!=start_hub) {
 		koord stops[2] = { start_hub->get_basis_pos(), start_connect_hub->get_basis_pos() };
-		create_bus_transport_vehikel( stops[1], 1, stops, 2, false );
+		create_bus_transport_vehicle( stops[1], 1, stops, 2, false );
 	}
 
 	// eventually build a airport shuttle bus ...
 	if(end_connect_hub.is_bound()  &&  end_connect_hub!=end_hub) {
 		koord stops[2] = { end_hub->get_basis_pos(), end_connect_hub->get_basis_pos() };
-		create_bus_transport_vehikel( stops[1], 1, stops, 2, false );
+		create_bus_transport_vehicle( stops[1], 1, stops, 2, false );
 	}
 
 	return true;
@@ -781,9 +781,9 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 /* creates a more general road transport
  * @author prissi
  */
-void ai_passenger_t::create_bus_transport_vehikel(koord startpos2d,int anz_vehikel,koord *stops,int count,bool do_wait)
+void ai_passenger_t::create_bus_transport_vehicle(koord startpos2d,int anz_vehicle,koord *stops,int count,bool do_wait)
 {
-DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpos2d.x,startpos2d.y);
+DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehicle()","bus at (%i,%i)",startpos2d.x,startpos2d.y);
 	// now start all vehicle one field before, so they load immediately
 	koord3d startpos = welt->lookup_kartenboden(startpos2d)->get_pos();
 
@@ -799,7 +799,7 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 	delete schedule;
 
 	// now create all vehicles as convois
-	for(int i=0;  i<anz_vehikel;  i++) {
+	for(int i=0;  i<anz_vehicle;  i++) {
 		vehicle_t* v = vehicle_builder_t::build(startpos, this, NULL, road_vehicle);
 		if(  convoihandle_t::is_exhausted()  ) {
 			// too many convois => cannot do anything about this ...
@@ -808,7 +808,7 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 		convoi_t* cnv = new convoi_t(this);
 		// V.Meyer: give the new convoi name from first vehicle
 		cnv->set_name(v->get_desc()->get_name());
-		cnv->add_vehikel( v );
+		cnv->add_vehicle( v );
 
 		welt->sync.add( cnv );
 		cnv->set_line(line);
@@ -922,14 +922,14 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 	walk_city( line, start, number_of_stops );
 	line->get_schedule()->finish_editing();
 
-	road_vehicle = vehikel_search( road_wt, 1, 50, warenbauer_t::passagiere, false);
+	road_vehicle = vehicle_search( road_wt, 1, 50, warenbauer_t::passagiere, false);
 	if( line->get_schedule()->get_count()>1  ) {
 		// success: add a bus to the line
 		vehicle_t* v = vehicle_builder_t::build(start->get_pos(), this, NULL, road_vehicle);
 		convoi_t* cnv = new convoi_t(this);
 
 		cnv->set_name(v->get_desc()->get_name());
-		cnv->add_vehikel( v );
+		cnv->add_vehicle( v );
 
 		welt->sync.add( cnv );
 		cnv->set_line(line);
@@ -1125,7 +1125,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","no suitable hub found");
 		// wait for construction semaphore
 		{
 			// we want the fastest we can get!
-			road_vehicle = vehikel_search( road_wt, 50, 80, warenbauer_t::passagiere, false);
+			road_vehicle = vehicle_search( road_wt, 50, 80, warenbauer_t::passagiere, false);
 			if(road_vehicle!=NULL) {
 				// find the best => AI will never survive
 //				road_weg = way_builder_t::weg_search( road_wt, road_vehicle->get_geschw(), welt->get_timeline_year_month(),type_flat );
@@ -1172,7 +1172,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				if(ok) {
 					koord list[2]={ platz1, platz2 };
 					// wait only, if target is not a hub but an attraction/factory
-					create_bus_transport_vehikel(platz1,1,list,2,end_stadt==NULL);
+					create_bus_transport_vehicle(platz1,1,list,2,end_stadt==NULL);
 					state = NR_SUCCESS;
 					// tell the player
 					cbuffer_t buf;
@@ -1205,7 +1205,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				break;
 			}
 			if(  end_ausflugsziel == NULL  &&  ship_transport  &&
-					create_water_transport_vehikel(start_stadt, end_stadt ? end_stadt->get_pos() : ziel->get_pos().get_2d())) {
+					create_water_transport_vehicle(start_stadt, end_stadt ? end_stadt->get_pos() : ziel->get_pos().get_2d())) {
 				// add two intown routes
 				cover_city_with_bus_route( get_our_hub(start_stadt)->get_basis_pos(), 6);
 				if(end_stadt!=NULL) {
@@ -1234,7 +1234,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		case NR_BAUE_AIRPORT_ROUTE:
 			// try airline (if we are wealthy enough) ...
 			if(  !air_transport  ||  finance->get_history_com_month(1, ATC_CASH) < finance->get_starting_money()  ||
-			     !end_stadt  ||  !create_air_transport_vehikel( start_stadt, end_stadt )  ) {
+			     !end_stadt  ||  !create_air_transport_vehicle( start_stadt, end_stadt )  ) {
 				state = NR_BAUE_CLEAN_UP;
 			}
 			else 
@@ -1307,7 +1307,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 							// now try to finde new vehicle
 							vehicle_t              const& v       = *line->get_convoy(0)->front();
 							waytype_t              const  wt      = v.get_waytype();
-							vehikel_desc_t const* const  v_desc = vehicle_builder_t::vehikel_search(wt, welt->get_current_month(), 50, welt->get_average_speed(wt), warenbauer_t::passagiere, false, true);
+							vehicle_desc_t const* const  v_desc = vehicle_builder_t::vehicle_search(wt, welt->get_current_month(), 50, welt->get_average_speed(wt), warenbauer_t::passagiere, false, true);
 							if (!v_desc->is_retired(welt->get_current_month()) && v_desc != v.get_desc()) {
 								// there is a newer one ...
 								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=v_desc->get_capacity()) {
@@ -1318,7 +1318,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 									vehicle_t* v = vehicle_builder_t::build( line->get_schedule()->entries[0].pos, this, NULL, v_desc  );
 									convoi_t* new_cnv = new convoi_t(this);
 									new_cnv->set_name( v->get_desc()->get_name() );
-									new_cnv->add_vehikel( v );
+									new_cnv->add_vehicle( v );
 									welt->sync.add( new_cnv );
 									new_cnv->set_line(line);
 									new_cnv->start();
@@ -1349,7 +1349,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 					vehicle_t* const v = vehicle_builder_t::build(line->get_schedule()->entries[0].pos, this, NULL, line->get_convoy(0)->front()->get_desc());
 					convoi_t* new_cnv = new convoi_t(this);
 					new_cnv->set_name( v->get_desc()->get_name() );
-					new_cnv->add_vehikel( v );
+					new_cnv->add_vehicle( v );
 					welt->sync.add( new_cnv );
 					new_cnv->set_line( line );
 					// on waiting line, wait at alternating stations for load balancing
@@ -1466,7 +1466,7 @@ void ai_passenger_t::report_vehicle_problem(convoihandle_t cnv,const koord3d zie
 
 void ai_passenger_t::load_finished()
 {
-	road_vehicle = vehikel_search( road_wt, 50, 80, warenbauer_t::passagiere, false);
+	road_vehicle = vehicle_search( road_wt, 50, 80, warenbauer_t::passagiere, false);
 	if (road_vehicle == NULL) {
 		// reset state
 		end_stadt = NULL;

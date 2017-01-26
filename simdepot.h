@@ -16,7 +16,7 @@
 class karte_t;
 class vehicle_t;
 class depot_frame_t;
-class vehikel_desc_t;
+class vehicle_desc_t;
 class gui_convoy_assembler;
 
 
@@ -43,7 +43,7 @@ protected:
 	slist_tpl<vehicle_t *> vehicles;
 	slist_tpl<convoihandle_t> convois;
 
-	void rdwr_vehikel(slist_tpl<vehicle_t*> &list, loadsave_t *file);
+	void rdwr_vehicle(slist_tpl<vehicle_t*> &list, loadsave_t *file);
 
 	static slist_tpl<depot_t *> all_depots;
 
@@ -168,11 +168,11 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	vehicle_t* buy_vehicle(const vehikel_desc_t* info, uint16 livery_scheme_index);
+	vehicle_t* buy_vehicle(const vehicle_desc_t* info, uint16 livery_scheme_index);
 
 	// This upgrades a vehicle in the convoy to the type specified.
 	// @author: jamespetts, February 2010
-	void upgrade_vehicle(convoihandle_t cnv, const vehikel_desc_t* vb);
+	void upgrade_vehicle(convoihandle_t cnv, const vehicle_desc_t* vb);
 
 	/**
 	 * Sell a vehicle from the vehicle list.
@@ -185,7 +185,7 @@ public:
 	 * Access to vehicle types which can be bought in the depot.
 	 * @author Volker Meyer
 	 */
-	slist_tpl<vehikel_desc_t*> & get_vehicle_type();
+	slist_tpl<vehicle_desc_t*> & get_vehicle_type();
 
 	/**
 	 * Returns the waytype for a certain vehicle; only way to distinguish differnt depots ...
@@ -219,7 +219,7 @@ public:
 	 * @return NULL if no vehicle is found
 	 * @author hsiegeln (stolen from Hajo)
 	 */
-	vehicle_t* get_oldest_vehicle(const vehikel_desc_t* desc);
+	vehicle_t* get_oldest_vehicle(const vehicle_desc_t* desc);
 
 	/**
 	 * Sets/gets the line that was selected the last time in the depot dialog
@@ -230,10 +230,10 @@ public:
 	/*
 	 * Find the oldest/newest vehicle in the depot
 	 */
-	vehicle_t* find_oldest_newest(const vehikel_desc_t* desc, bool old, vector_tpl<vehicle_t*> *avoid = NULL);
+	vehicle_t* find_oldest_newest(const vehicle_desc_t* desc, bool old, vector_tpl<vehicle_t*> *avoid = NULL);
 
 	// true if already stored here
-	bool is_contained(const vehikel_desc_t *info);
+	bool is_contained(const vehicle_desc_t *info);
 
 	/**
 	* new month
@@ -298,7 +298,7 @@ public:
 
 	virtual simline_t::linetype get_line_type() const { return simline_t::trainline; }
 
-	void rdwr_vehicles(loadsave_t *file) { depot_t::rdwr_vehikel(vehicles,file); }
+	void rdwr_vehicles(loadsave_t *file) { depot_t::rdwr_vehicle(vehicles,file); }
 
 	virtual waytype_t get_wegtyp() const {return track_wt;}
 #ifdef INLINE_OBJ_TYPE

@@ -41,7 +41,7 @@ class depot_t;
 class karte_ptr_t;
 class player_t;
 class vehicle_t;
-class vehikel_desc_t;
+class vehicle_desc_t;
 class schedule_t;
 class cbuffer_t;
 class ware_t;
@@ -323,7 +323,7 @@ private:
 	char name_and_id[128];
 
 	/**
-	* Alle vehikel-fahrplanzeiger zeigen hierauf
+	* Alle vehicle-fahrplanzeiger zeigen hierauf
 	* @author Hj. Malthaner
 	*/
 	schedule_t *schedule;
@@ -437,7 +437,7 @@ private:
 	* Number of vehicles in this convoi.
 	* @author Hj. Malthaner
 	*/
-	uint8 anz_vehikel;
+	uint8 anz_vehicle;
 
 	/* Number of steps the current convoi did already
 	 * (only needed for leaving/entering depot)
@@ -589,7 +589,7 @@ private:
 	*/
 	void set_erstes_letztes();
 
-	// returns the index of the vehikel at position length (16=1 tile)
+	// returns the index of the vehicle at position length (16=1 tile)
 	int get_vehicle_at_length(uint16);
 
 	/**
@@ -1113,12 +1113,12 @@ public:
 	* @return Vehicle count
 	* @author Hj. Malthaner
 	*/
-	inline uint8 get_vehicle_count() const { return anz_vehikel; }
+	inline uint8 get_vehicle_count() const { return anz_vehicle; }
 
 	/**
 	 * @return Vehicle at position i
 	 */
-	inline vehicle_t* get_vehikel(uint16 i) const { return vehicle[i]; }
+	inline vehicle_t* get_vehicle(uint16 i) const { return vehicle[i]; }
 
 	// Upgrades a vehicle in the convoy.
 	// @author: jamespetts, February 2010
@@ -1126,23 +1126,23 @@ public:
 
 	vehicle_t* front() const { return *vehicle.begin(); }
 
-	vehicle_t* back() const { return vehicle.begin()[anz_vehikel - 1]; }
+	vehicle_t* back() const { return vehicle.begin()[anz_vehicle - 1]; }
 
 	typedef array_tpl<vehicle_t*>::const_iterator const_iterator;
 	inline array_tpl<vehicle_t*>::const_iterator begin() const { return vehicle.begin(); }
-	inline array_tpl<vehicle_t*>::const_iterator end() const { return vehicle.begin() + anz_vehikel; }
+	inline array_tpl<vehicle_t*>::const_iterator end() const { return vehicle.begin() + anz_vehicle; }
 
 	/**
 	* Adds a vehicel at the start or end of the convoi.
 	* @author Hj. Malthaner
 	*/
-	bool add_vehikel(vehicle_t *v, bool infront = false);
+	bool add_vehicle(vehicle_t *v, bool infront = false);
 
 	/**
 	* Removes vehicles at position i
 	* @author Hj. Malthaner
 	*/
-	vehicle_t * remove_vehikel_bei(unsigned short i);
+	vehicle_t * remove_vehicle_bei(unsigned short i);
 
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 

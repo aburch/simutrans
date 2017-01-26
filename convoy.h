@@ -119,7 +119,7 @@ struct vehicle_summary_t
 		max_speed = KMH_SPEED_UNLIMITED; // if there is no vehicle, there is no speed limit!
 	}
 
-	inline void add_vehicle(const vehikel_desc_t &b)
+	inline void add_vehicle(const vehicle_desc_t &b)
 	{
 		length += b.get_length();
 		weight += b.get_weight();
@@ -153,7 +153,7 @@ struct adverse_summary_t
 	}
 
 	void add_vehicle(const vehicle_t &v);
-	void add_vehicle(const vehikel_desc_t &b, bool is_leading);
+	void add_vehicle(const vehicle_desc_t &b, bool is_leading);
 };
 
 /******************************************************************************/
@@ -169,7 +169,7 @@ struct freight_summary_t
 		min_freight_weight = max_freight_weight = 0;
 	}
 
-	void add_vehicle(const vehikel_desc_t &b);
+	void add_vehicle(const vehicle_desc_t &b);
 };
 
 /******************************************************************************/
@@ -553,7 +553,7 @@ public:
 class potential_convoy_t : public lazy_convoy_t
 {
 private:
-	vector_tpl<const vehikel_desc_t *> &vehicles;
+	vector_tpl<const vehicle_desc_t *> &vehicles;
 protected:
 	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
@@ -562,7 +562,7 @@ protected:
 	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */);
 	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */);
 public:
-	potential_convoy_t(vector_tpl<const vehikel_desc_t *> &desc) : lazy_convoy_t(), vehicles(desc)
+	potential_convoy_t(vector_tpl<const vehicle_desc_t *> &desc) : lazy_convoy_t(), vehicles(desc)
 	{
 	}
 	virtual sint16 get_current_friction();
@@ -575,9 +575,9 @@ public:
 class vehicle_as_potential_convoy_t : public potential_convoy_t
 {
 private:
-	vector_tpl<const vehikel_desc_t *> vehicles;
+	vector_tpl<const vehicle_desc_t *> vehicles;
 public:
-	vehicle_as_potential_convoy_t(const vehikel_desc_t &desc) : potential_convoy_t(vehicles)
+	vehicle_as_potential_convoy_t(const vehicle_desc_t &desc) : potential_convoy_t(vehicles)
 	{
 		vehicles.append(&desc);
 	}

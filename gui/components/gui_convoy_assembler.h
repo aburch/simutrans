@@ -80,10 +80,10 @@ class gui_convoy_assembler_t :
 	static class karte_ptr_t welt;
 
 	// The selected convoy so far...
-	vector_tpl<const vehikel_desc_t *> vehicles;
+	vector_tpl<const vehicle_desc_t *> vehicles;
 
 	// Last changed vehicle (added/deleted)
-	const vehikel_desc_t *last_changed_vehicle;
+	const vehicle_desc_t *last_changed_vehicle;
 
 	// If this is used for a depot, which depot_frame manages, else NULL
 	class depot_frame_t *depot_frame;
@@ -191,7 +191,7 @@ class gui_convoy_assembler_t :
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	typedef ptrhashtable_tpl<vehikel_desc_t const*, gui_image_list_t::image_data_t*> vehicle_image_map;
+	typedef ptrhashtable_tpl<vehicle_desc_t const*, gui_image_list_t::image_data_t*> vehicle_image_map;
 	vehicle_image_map vehicle_map;
 
 	/**
@@ -208,7 +208,7 @@ class gui_convoy_assembler_t :
 	void image_from_storage_list(gui_image_list_t::image_data_t* image_data);
 
 	// add a single vehicle (helper function)
-	void add_to_vehicle_list(const vehikel_desc_t *info);
+	void add_to_vehicle_list(const vehicle_desc_t *info);
 
 	static const sint16 VINFO_HEIGHT = 186 + 14;
 
@@ -266,19 +266,19 @@ public:
 	inline void clear_convoy() {vehicles.clear();}
 
 	inline void remove_vehicle_at(sint32 n) {vehicles.remove_at(n);}
-	inline void append_vehicle(const vehikel_desc_t* vb, bool in_front) {vehicles.insert_at(in_front?0:vehicles.get_count(),vb);}
+	inline void append_vehicle(const vehicle_desc_t* vb, bool in_front) {vehicles.insert_at(in_front?0:vehicles.get_count(),vb);}
 
 	/* Getter/setter methods */
 
-	inline const vehikel_desc_t *get_last_changed_vehicle() const {return last_changed_vehicle;}
+	inline const vehicle_desc_t *get_last_changed_vehicle() const {return last_changed_vehicle;}
 
 	inline void set_depot_frame(depot_frame_t *df) {depot_frame=df;}
 	inline void set_replace_frame(replace_frame_t *rf) {replace_frame=rf;}
 
-	inline vector_tpl<const vehikel_desc_t *>* get_vehicles() {return &vehicles;}
+	inline vector_tpl<const vehicle_desc_t *>* get_vehicles() {return &vehicles;}
 	inline const vector_tpl<gui_image_list_t::image_data_t* >* get_convoi_pics() const { return &convoi_pics; }
 	void set_vehicles(convoihandle_t cnv);
-	void set_vehicles(const vector_tpl<const vehikel_desc_t *>* vv);
+	void set_vehicles(const vector_tpl<const vehicle_desc_t *>* vv);
 
 	inline void set_convoy_tabs_skip(sint32 skip) {convoy_tabs_skip=skip;}
 

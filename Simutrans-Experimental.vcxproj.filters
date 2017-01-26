@@ -549,9 +549,6 @@
     <ClCompile Include="besch\reader\vehicle_reader.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="besch\vehikel_besch.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="bauer\vehikelbauer.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -982,6 +979,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gui\schedule_gui.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\vehikel_besch.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1425,9 +1425,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="besch\obj_besch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="besch\obj_besch_std_name.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="besch\writer\obj_node.h">
@@ -2205,6 +2202,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\schedule_gui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\obj_desc_std_name.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
