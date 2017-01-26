@@ -1252,7 +1252,7 @@ void vehicle_t::make_smoke() const
  * @return income total for last hop
  * @author Hj. Malthaner
  */
-sint64 vehicle_t::calc_revenue(koord start, koord end) const
+sint64 vehicle_t::calc_revenue(const koord3d& start, const koord3d& end) const
 {
 	// may happen when waiting in station
 	if (start == end || fracht.empty()) {
@@ -1284,9 +1284,14 @@ sint64 vehicle_t::calc_revenue(koord start, koord end) const
 				// pay distance traveled to next transfer stop
 
 				// now only use the real gain in difference for the revenue (may as well be negative!)
-				const koord &zwpos = ware.get_zwischenziel().is_bound()? ware.get_zwischenziel()->get_basis_pos() : end;
-				// cast of koord_distance to sint32 is necessary otherwise the r-value would be interpreted as unsigned, leading to overflows
-				dist = (sint32)koord_distance( zwpos, start ) - (sint32)koord_distance( end, zwpos );
+				if (ware.get_zwischenziel().is_bound()) {
+					const koord &zwpos = ware.get_zwischenziel()->get_basis_pos();
+					// cast of koord_distance to sint32 is necessary otherwise the r-value would be interpreted as unsigned, leading to overflows
+					dist = (sint32)koord_distance( zwpos, start ) - (sint32)koord_distance( end, zwpos );
+				}
+				else {
+					dist = koord_distance( end, start );
+				}
 				break;
 			}
 			case settings_t::TO_DESTINATION: {

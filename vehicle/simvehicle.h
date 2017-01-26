@@ -400,7 +400,7 @@ public:
 	* @return income total for last hop
 	* @author Hj. Malthaner
 	*/
-	sint64  calc_revenue(koord start, koord end) const;
+	sint64 calc_revenue(const koord3d& start, const koord3d& end) const;
 
 	// sets or query begin and end of convois
 	void set_leading(bool janein) {leading = janein;}

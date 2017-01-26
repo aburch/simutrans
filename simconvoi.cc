@@ -2784,7 +2784,7 @@ void convoi_t::calc_gewinn()
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		vehicle_t* v = fahr[i];
 		sint64 tmp;
-		gewinn += tmp = v->calc_revenue(v->last_stop_pos.get_2d(), v->get_pos().get_2d() );
+		gewinn += tmp = v->calc_revenue(v->last_stop_pos, v->get_pos() );
 		// get_schedule is needed as v->get_waytype() returns track_wt for trams (instead of tram_wt
 		owner_p->book_revenue(tmp, fahr[0]->get_pos().get_2d(), get_schedule()->get_waytype(), v->get_cargo_type()->get_index() );
 		v->last_stop_pos = v->get_pos();
@@ -2880,7 +2880,7 @@ station_tile_search_ready: ;
 		if(  v->last_stop_pos != v->get_pos()  ) {
 			sint64 tmp;
 			// calc_revenue
-			gewinn += tmp = v->calc_revenue(v->last_stop_pos.get_2d(), v->get_pos().get_2d() );
+			gewinn += tmp = v->calc_revenue(v->last_stop_pos, v->get_pos() );
 			owner_p->book_revenue(tmp, fahr[0]->get_pos().get_2d(), get_schedule()->get_waytype(), v->get_cargo_type()->get_index());
 			v->last_stop_pos = v->get_pos();
 		}
