@@ -253,11 +253,11 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 				order = price[0] - price[1];
 //=======
 //			{
-//				const sint32 grundwert1281 = w1->get_preis() * goods_frame_t::welt->get_settings().get_bonus_basefactor();
-//				const sint32 grundwert_bonus1 = w1->get_preis()*(1000l+(relative_speed_change-100l)*w1->get_speed_bonus());
+//				const sint32 grundwert1281 = w1->get_value() * goods_frame_t::welt->get_settings().get_bonus_basefactor();
+//				const sint32 grundwert_bonus1 = w1->get_value()*(1000l+(relative_speed_change-100l)*w1->get_speed_bonus());
 //				const sint32 price1 = (grundwert1281>grundwert_bonus1 ? grundwert1281 : grundwert_bonus1);
-//				const sint32 grundwert1282 = w2->get_preis() * goods_frame_t::welt->get_settings().get_bonus_basefactor();
-//				const sint32 grundwert_bonus2 = w2->get_preis()*(1000l+(relative_speed_change-100l)*w2->get_speed_bonus());
+//				const sint32 grundwert1282 = w2->get_value() * goods_frame_t::welt->get_settings().get_bonus_basefactor();
+//				const sint32 grundwert_bonus2 = w2->get_value()*(1000l+(relative_speed_change-100l)*w2->get_speed_bonus());
 //				const sint32 price2 = (grundwert1282>grundwert_bonus2 ? grundwert1282 : grundwert_bonus2);
 //				order = price1-price2;
 //>>>>>>> v111.3

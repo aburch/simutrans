@@ -1776,7 +1776,7 @@ sint64 grund_t::remove_trees()
 	}
 	// remove all groundobjs ...
 	while (groundobj_t* const d = find<groundobj_t>(0)) {
-		cost += d->get_desc()->get_preis();
+		cost += d->get_desc()->get_value();
 		delete d;
 	}
 	return cost;
@@ -1940,7 +1940,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 				}
 			}
 		}
-		sint32 costs = (weg->get_desc()->get_preis() / 2); // Costs for removal are half construction costs.
+		sint32 costs = (weg->get_desc()->get_value() / 2); // Costs for removal are half construction costs.
 		weg->cleanup( NULL );
 		delete weg;
 
@@ -2535,13 +2535,13 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 			if (roadsign_t* const sign = obj_cast<roadsign_t>(obj)) {
 				// roadsigns: check dir: dirs changed => delete
 				if (sign->get_desc()->get_wtyp() == wt && (sign->get_dir() & ~add) != 0) {
-					costs -= sign->get_desc()->get_preis();
+					costs -= sign->get_desc()->get_value();
 					delete sign;
 				}
 			} else if (signal_t* const signal = obj_cast<signal_t>(obj)) {
 				// signal: not on crossings => remove all
 				if (signal->get_desc()->get_wtyp() == wt) {
-					costs -= signal->get_desc()->get_preis();
+					costs -= signal->get_desc()->get_value();
 					delete signal;
 				}
 			} else if (wayobj_t* const wayobj = obj_cast<wayobj_t>(obj)) {
@@ -2553,7 +2553,7 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 						wayobj->set_dir(new_dir);
 					}
 					else {
-						costs -= wayobj->get_desc()->get_preis();
+						costs -= wayobj->get_desc()->get_value();
 						delete wayobj;
 					}
 				}

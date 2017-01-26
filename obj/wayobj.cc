@@ -240,7 +240,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 void wayobj_t::cleanup(player_t *player)
 {
 	if(desc) {
-		player_t::book_construction_costs(player, -desc->get_preis(), get_pos().get_2d(), desc->get_wtyp());
+		player_t::book_construction_costs(player, -desc->get_value(), get_pos().get_2d(), desc->get_wtyp());
 	}
 }
 
@@ -487,7 +487,7 @@ const char *wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi
 				to->calc_image();
 			}
 		}
-		player_t::book_construction_costs( owner,  -desc->get_preis(), pos.get_2d(), desc->get_wtyp());
+		player_t::book_construction_costs( owner,  -desc->get_value(), pos.get_2d(), desc->get_wtyp());
 
 		for( uint8 i = 0; i < 4; i++ ) {
 		// Extend wayobjects around the new one, that aren't already connected.

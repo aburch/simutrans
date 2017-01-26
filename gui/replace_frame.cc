@@ -685,7 +685,7 @@ end_loop:
 			if(veh == NULL)
 			{
 				// Third - if all else fails, buy from new (expensive).
-				total_cost += (*convoy_assembler.get_vehicles())[j]->get_preis();
+				total_cost += (*convoy_assembler.get_vehicles())[j]->get_value();
 			}
 		}
 	}

@@ -3460,7 +3460,7 @@ void convoi_t::reverse_order(bool rev)
 				first++;
 				second++;
 			}
-			if (anz_vehikel > 1 && vehicle[1]->get_desc()->get_power() == 0 && vehicle[1]->get_desc()->get_trailer_count() == 1 && vehicle[1]->get_desc()->get_trailer(0) && vehicle[1]->get_desc()->get_trailer(0)->get_power() == 0 && vehicle[1]->get_desc()->get_trailer(0)->get_preis() == 0)
+			if (anz_vehikel > 1 && vehicle[1]->get_desc()->get_power() == 0 && vehicle[1]->get_desc()->get_trailer_count() == 1 && vehicle[1]->get_desc()->get_trailer(0) && vehicle[1]->get_desc()->get_trailer(0)->get_power() == 0 && vehicle[1]->get_desc()->get_trailer(0)->get_value() == 0)
 			{
 				// Multiple tenders or Garretts with powered front units.
 				a ++;
@@ -5904,7 +5904,7 @@ sint64 convoi_t::get_purchase_cost() const
 {
 	sint64 purchase_cost = 0;
 	for(  unsigned i = 0;  i < get_vehicle_count();  i++  ) {
-		purchase_cost += vehicle[i]->get_desc()->get_preis();
+		purchase_cost += vehicle[i]->get_desc()->get_value();
 	}
 	return purchase_cost;
 }

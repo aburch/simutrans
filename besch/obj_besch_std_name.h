@@ -99,7 +99,7 @@ public:
 
 	inline sint32 get_base_cost() const { return base_cost; }
 	inline sint32 get_base_price() const { return base_cost; }
-	inline sint32 get_preis() const { return cost; }
+	inline sint32 get_value() const { return cost; }
 
 	inline uint32 get_base_way_only_cost() const { return base_way_only_cost; }
 	inline uint32 get_way_only_cost() const { return way_only_cost; }

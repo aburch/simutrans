@@ -46,7 +46,7 @@ bruecke_t::bruecke_t(koord3d pos, player_t *player, const bridge_desc_t *desc, b
 	this->desc = desc;
 	this->img = img;
 	set_owner( player );
-	player_t::book_construction_costs( get_owner(), -desc->get_preis(), get_pos().get_2d(), desc->get_waytype());
+	player_t::book_construction_costs( get_owner(), -desc->get_value(), get_pos().get_2d(), desc->get_waytype());
 }
 
 
@@ -292,7 +292,7 @@ void bruecke_t::cleanup( player_t *player2 )
 		}
 	}
 	player_t::add_maintenance( player,  -desc->get_wartung(), desc->get_finance_waytype() );
-	player_t::book_construction_costs( player2, -desc->get_preis(), get_pos().get_2d(), desc->get_waytype() );
+	player_t::book_construction_costs( player2, -desc->get_value(), get_pos().get_2d(), desc->get_waytype() );
 }
 
 

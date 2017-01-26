@@ -154,7 +154,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * @returns cost to buy or build on piece or tile of this thing.
 	 */
-	register_method(vm, &obj_desc_transport_related_t::get_preis, "get_cost");
+	register_method(vm, &obj_desc_transport_related_t::get_value, "get_cost");
 	/**
 	 * @returns way type, can be @ref wt_invalid.
 	 */

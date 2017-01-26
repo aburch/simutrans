@@ -46,15 +46,12 @@ struct fare_stage_t
  *  Child nodes:
  *	0   Name
  *	1   Copyright
- *	2   Text Maﬂeinheit
+ *	2   Text: Name of measurement unit
  */
 class ware_desc_t : public obj_desc_std_name_t {
 	friend class good_reader_t;
 	friend class warenbauer_t;
 
-	/*
-	* The base value is the one for multiplier 1000.
-	*/
 	vector_tpl<fare_stage_t> values;
 	vector_tpl<fare_stage_t> base_values;
 	vector_tpl<fare_stage_t> scaled_values;

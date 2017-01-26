@@ -353,7 +353,7 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 		return err;
 	}
 
-	if(player && !player->can_afford(desc->get_preis()))
+	if(player && !player->can_afford(desc->get_value()))
 	{
 		return "That would exceed\nyour credit limit.";
 	}
@@ -504,7 +504,7 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 		tunnel->set_flag(grund_t::dirty);
 		assert(!tunnel->ist_karten_boden());
 		player_t::add_maintenance( player, desc->get_wartung(), desc->get_finance_waytype() );
-		cost += desc->get_preis();
+		cost += desc->get_value();
 		pos = pos + zv;
 	}
 
@@ -572,7 +572,7 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 		tunnel->set_flag(grund_t::dirty);
 		assert(!tunnel->ist_karten_boden());
 		player_t::add_maintenance( player,  desc->get_wartung(), desc->get_finance_waytype() );
-		cost += desc->get_preis();
+		cost += desc->get_value();
 	}
 
 	player_t::book_construction_costs(player, -cost, start.get_2d(), desc->get_waytype());
@@ -695,7 +695,7 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 	}
 
 	player_t::add_maintenance( player,  desc->get_wartung(), desc->get_finance_waytype() );
-	cost += (sint64)desc->get_preis();
+	cost += (sint64)desc->get_value();
 }
 
 

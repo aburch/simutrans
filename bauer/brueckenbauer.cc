@@ -125,7 +125,7 @@ const bridge_desc_t *bridge_builder_t::find_bridge(const waytype_t wtyp, const s
 				((find_desc->get_topspeed()<min_speed  &&  find_desc->get_topspeed()<desc->get_topspeed())  &&
 				(find_desc->get_max_weight()<max_weight  &&  find_desc->get_topspeed()<desc->get_max_weight()))  ||
 				(desc->get_topspeed()>=min_speed && desc->get_max_weight()>=max_weight  &&  (desc->get_wartung()<find_desc->get_wartung() ||
-				(desc->get_wartung()==find_desc->get_wartung() &&  desc->get_preis()<find_desc->get_preis())))
+				(desc->get_wartung()==find_desc->get_wartung() &&  desc->get_value()<find_desc->get_value())))
 			) {
 				find_desc = desc;
 			}
@@ -858,7 +858,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 					weg->add_way_constraints(way_object->get_desc()->get_way_constraints());
 				}
 			}
-			player_t::book_construction_costs( player, -start_gr->neuen_weg_bauen( weg, ribi, player ) -weg->get_desc()->get_preis(), end.get_2d(), weg->get_waytype());
+			player_t::book_construction_costs( player, -start_gr->neuen_weg_bauen( weg, ribi, player ) -weg->get_desc()->get_value(), end.get_2d(), weg->get_waytype());
 		}
 		start_gr->calc_image();
 	}
@@ -988,7 +988,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 						weg->add_way_constraints(way_object->get_desc()->get_way_constraints());
 					}
 				}
-				player_t::book_construction_costs( player, -gr->neuen_weg_bauen( weg, ribi, player ) -weg->get_desc()->get_preis(), end.get_2d(), weg->get_waytype());
+				player_t::book_construction_costs( player, -gr->neuen_weg_bauen( weg, ribi, player ) -weg->get_desc()->get_value(), end.get_2d(), weg->get_waytype());
 			}
 			gr->calc_image();
 		}
@@ -996,7 +996,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 			leitung_t *lt = gr->get_leitung();
 			if(  lt==NULL  ) {
 				lt = new leitung_t(end, player );
-				player_t::book_construction_costs(player, -way_desc->get_preis(), gr->get_pos().get_2d(), powerline_wt);
+				player_t::book_construction_costs(player, -way_desc->get_value(), gr->get_pos().get_2d(), powerline_wt);
 				gr->obj_add(lt);
 				lt->set_desc(way_desc);
 				lt->finish_rd();

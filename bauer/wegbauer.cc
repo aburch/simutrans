@@ -244,7 +244,7 @@ const way_desc_t* way_builder_t::weg_search(const waytype_t wtyp, const sint32 s
 						(test_max_axle_load <= weight_limit && best->get_max_axle_load() < test_max_axle_load) ||
 						(test->get_wear_capacity() <= wear_capacity_limit && best->get_wear_capacity() < test->get_wear_capacity())) ||
 
-						((best->get_preis() > test->get_preis() && test_topspeed >= speed_limit && test_max_axle_load >= weight_limit && test->get_wear_capacity() >= wear_capacity_limit) ||		
+						((best->get_value() > test->get_value() && test_topspeed >= speed_limit && test_max_axle_load >= weight_limit && test->get_wear_capacity() >= wear_capacity_limit) ||		
 						((best->get_maintenance() > test->get_maintenance() && test_topspeed >= speed_limit && test_max_axle_load >= weight_limit && test_wear_capacity >= wear_capacity_limit))) ||	
 
 						(time !=0 && !best_allowed && test_allowed)
@@ -2118,10 +2118,10 @@ sint64 way_builder_t::calc_costs()
 					continue; // Nothing to pay on this tile.
 				}
 				old_playerseedlimit = tunnel->get_desc()->get_topspeed();
-				single_cost = tunnel_desc->get_preis();
+				single_cost = tunnel_desc->get_value();
 			}
 			else {
-				single_cost = desc->get_preis();
+				single_cost = desc->get_value();
 				if(  desc->get_wtyp() == powerline_wt  ) {
 					if( leitung_t *lt=gr->get_leitung() ) {
 						old_playerseedlimit = lt->get_desc()->get_topspeed();
@@ -2129,7 +2129,7 @@ sint64 way_builder_t::calc_costs()
 				}
 				else {
 					if (weg_t const* const weg = gr->get_weg(desc->get_wtyp())) {
-						replace_cost = weg->get_desc()->get_upgrade_group() == desc->get_upgrade_group() ? desc->get_way_only_cost() : desc->get_preis(); 
+						replace_cost = weg->get_desc()->get_upgrade_group() == desc->get_upgrade_group() ? desc->get_way_only_cost() : desc->get_value(); 
 						upgrading = true;
 						if( weg->get_desc() == desc ) {
 							continue; // Nothing to pay on this tile.
@@ -2198,7 +2198,7 @@ sint64 way_builder_t::calc_costs()
 						costs -= welt->get_settings().cst_remove_tree;
 						break;
 					case obj_t::groundobj:
-						costs += ((groundobj_t *)obj)->get_desc()->get_preis();
+						costs += ((groundobj_t *)obj)->get_desc()->get_value();
 						break;
 					default: break;
 				}
@@ -2211,7 +2211,7 @@ sint64 way_builder_t::calc_costs()
 		else if(!gr)
 		{
 			// No ground -building a new elevated way. Do not add the land value as it is still possible to build underneath an elevated way.
-			costs += (welt->get_settings().get_forge_cost(desc->get_waytype()) + desc->get_preis());
+			costs += (welt->get_settings().get_forge_cost(desc->get_waytype()) + desc->get_value());
 		}
 		else
 		{
@@ -2236,12 +2236,12 @@ sint64 way_builder_t::calc_costs()
 				}
 				if(start->get_grund_hang()==0  ||  start->get_grund_hang()==slope_type(zv*(-1))) {
 					// bridge
-					costs += bridge_desc->get_preis()*(sint64)(koord_distance(route[i], route[i+1])+1);
+					costs += bridge_desc->get_value()*(sint64)(koord_distance(route[i], route[i+1])+1);
 					continue;
 				}
 				else {
 					// tunnel
-					costs += tunnel_desc->get_preis()*(sint64)(koord_distance(route[i], route[i+1])+1);
+					costs += tunnel_desc->get_value()*(sint64)(koord_distance(route[i], route[i+1])+1);
 					continue;
 				}
 			}
@@ -2308,7 +2308,7 @@ bool way_builder_t::build_tunnel_tile()
 				player_t::add_maintenance( player, -lt->get_desc()->get_wartung(), powerline_wt);
 			}
 			tunnel->calc_image();
-			cost -= tunnel_desc->get_preis();
+			cost -= tunnel_desc->get_value();
 			player_t::add_maintenance( player,  tunnel_desc->get_wartung(), tunnel_desc->get_finance_waytype() );
 		}
 		else if(gr->get_typ()==grund_t::tunnelboden) {
@@ -2332,7 +2332,7 @@ bool way_builder_t::build_tunnel_tile()
 					}
 					gr->calc_image();
 
-					cost -= tunnel_desc->get_preis();
+					cost -= tunnel_desc->get_value();
 				}
 			} else {
 				leitung_t *lt = gr->get_leitung();
@@ -2380,7 +2380,7 @@ bool way_builder_t::build_tunnel_tile()
 				// respect speed limit of crossing
 				weg->count_sign();
 
-				cost -= tunnel_desc->get_preis();
+				cost -= tunnel_desc->get_value();
 			}
 		}
 	}
@@ -2468,7 +2468,7 @@ void way_builder_t::build_road()
 					else
 					{
 						// Cost of downgrading is the cost of the inferior way (was previously the higher of the two costs in 10.15 and earlier, from Standard).
-						cost = desc->get_preis();
+						cost = desc->get_value();
 					}
 
 					weg->set_desc(desc);
@@ -2510,7 +2510,7 @@ void way_builder_t::build_road()
 					str->set_gehweg(build_sidewalk);
 					str->set_public_right_of_way();
 				}
-				cost -= gr->neuen_weg_bauen(str, route.get_short_ribi(i), player, &route) + desc->get_preis();
+				cost -= gr->neuen_weg_bauen(str, route.get_short_ribi(i), player, &route) + desc->get_value();
 				// respect speed limit of crossing
 				str->count_sign();
 				// prissi: into UNDO-list, so we can remove it later
@@ -2603,7 +2603,7 @@ void way_builder_t::build_track()
 					if(  change_desc  ) {
 						// we take ownership => we take care to maintain the roads completely ...
 						player_t *p = weg->get_owner();
-						cost -= weg->get_desc()->get_upgrade_group() == desc->get_upgrade_group() ? desc->get_way_only_cost() : desc->get_preis();
+						cost -= weg->get_desc()->get_upgrade_group() == desc->get_upgrade_group() ? desc->get_way_only_cost() : desc->get_value();
 						weg->set_desc(desc);
 						if(desc->is_mothballed())
 						{
@@ -2637,7 +2637,7 @@ void way_builder_t::build_track()
 					{
 						sch->add_way_constraints(wayobj->get_desc()->get_way_constraints());
 					}
-					cost = gr->neuen_weg_bauen(sch, ribi, player, &route) - desc->get_preis();
+					cost = gr->neuen_weg_bauen(sch, ribi, player, &route) - desc->get_value();
 					// respect speed limit of crossing
 					sch->count_sign();
 					// connect canals to sea
@@ -2707,7 +2707,7 @@ void way_builder_t::build_powerline()
 		}
 		if (build_powerline) {
 			lt->set_desc(desc);
-			player_t::book_construction_costs(player, -desc->get_preis(), gr->get_pos().get_2d(), powerline_wt);
+			player_t::book_construction_costs(player, -desc->get_value(), gr->get_pos().get_2d(), powerline_wt);
 			// this adds maintenance
 			lt->leitung_t::finish_rd();
 			reliefkarte_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );

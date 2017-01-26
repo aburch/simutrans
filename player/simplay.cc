@@ -1068,7 +1068,7 @@ sint64 player_t::undo()
 			leitung_t* lt = gr->get_leitung();
 			if (lt)
 			{
-				cost += lt->get_desc()->get_preis();
+				cost += lt->get_desc()->get_value();
 				lt->cleanup(NULL);
 				delete lt;
 			}

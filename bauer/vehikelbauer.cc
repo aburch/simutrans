@@ -237,7 +237,7 @@ vehicle_t* vehicle_builder_t::build(koord3d k, player_t* player, convoi_t* cnv, 
 	}
 	else
 	{
-		price = vb->get_preis();
+		price = vb->get_value();
 	}
 	player->book_new_vehicle(-price, k.get_2d(), vb->get_waytype() );
 
@@ -417,7 +417,7 @@ const vehikel_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
 					// it is faster? (although we support only up to 120km/h for goods)
 					difference += (desc->get_geschw() < test_desc->get_geschw())? -10 : 10;
 					// it is cheaper? (not so important)
-					difference += (desc->get_preis() > test_desc->get_preis())? -5 : 5;
+					difference += (desc->get_value() > test_desc->get_value())? -5 : 5;
 					// add some malus for obsolete vehicles
 					if(test_desc->is_retired(month_now)) {
 						difference += 5;
@@ -441,7 +441,7 @@ const vehikel_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
 				uint32 max_weight = test.power/( (speed*speed)/2500 + 1 );
 
 				// we found a useful engine
-				test.index = (test.power*100)/max(test_desc->get_running_cost(), 1) + test_desc->get_geschw() - (sint16)test_desc->get_weight() - (sint32)(test_desc->get_preis()/25000);
+				test.index = (test.power*100)/max(test_desc->get_running_cost(), 1) + test_desc->get_geschw() - (sint16)test_desc->get_weight() - (sint32)(test_desc->get_value()/25000);
 				// too slow?
 				if(speed < target_speed) {
 					test.index -= 250;
@@ -551,7 +551,7 @@ const vehikel_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 					// it is faster? (although we support only up to 120km/h for goods)
 					difference += (desc->get_geschw() < test_desc->get_geschw())? -10 : 10;
 					// it is cheaper? (not so important)
-					difference += (desc->get_preis() > test_desc->get_preis())? -5 : 5;
+					difference += (desc->get_value() > test_desc->get_value())? -5 : 5;
 					// add some malus for obsolete vehicles
 					if(test_desc->is_retired(month_now))
 					{
@@ -572,7 +572,7 @@ const vehikel_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 				uint32 max_weight = power/( (speed*speed)/2500 + 1 );
 
 				// we found a useful engine
-				sint32 current_index = (power * 100) / (1 + test_desc->get_running_cost()) + test_desc->get_geschw() - (sint16)test_desc->get_weight() - (sint32)(test_desc->get_preis()/25000);
+				sint32 current_index = (power * 100) / (1 + test_desc->get_running_cost()) + test_desc->get_geschw() - (sint16)test_desc->get_weight() - (sint32)(test_desc->get_value()/25000);
 				// too slow?
 				if(speed < target_speed) {
 					current_index -= 250;

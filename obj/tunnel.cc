@@ -252,7 +252,7 @@ void tunnel_t::cleanup( player_t *player2 )
 		}
 		player_t::add_maintenance( player,  -desc->get_wartung(), desc->get_finance_waytype() );
 	}
-	player_t::book_construction_costs(player2, -desc->get_preis(), get_pos().get_2d(), desc->get_finance_waytype() );
+	player_t::book_construction_costs(player2, -desc->get_value(), get_pos().get_2d(), desc->get_finance_waytype() );
 }
 
 

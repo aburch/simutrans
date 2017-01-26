@@ -692,7 +692,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 			const vehikel_desc_t *desc = vehicles.get_element(i);
 			const ware_desc_t* const ware = desc->get_ware();
 
-			total_cost += desc->get_preis();
+			total_cost += desc->get_value();
 			total_power += desc->get_power();
 			total_force += desc->get_tractive_effort();
  			maint_per_km += desc->get_running_cost();
@@ -1445,7 +1445,7 @@ void gui_convoy_assembler_t::update_data()
 				// Only flag as too expensive that which could be purchased but for its price.
 				if(upgrade == u_buy)
 				{
-					if(!player->can_afford(info->get_preis()))
+					if(!player->can_afford(info->get_value()))
 					{
 						img.lcolor = COL_DARK_ORANGE;
 						img.rcolor = COL_DARK_ORANGE;
@@ -1858,7 +1858,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		}
 		
 		char tmp[128];
-		money_to_string( tmp, veh_type->get_preis() / 100.0, false );
+		money_to_string( tmp, veh_type->get_value() / 100.0, false );
 		// These two lines differ from the Standard translation texts, as Standard does not have a monthly cost.
 		n += sprintf( buf + n, translator::translate("Cost: %8s\n"), tmp);
 		n += sprintf( buf + n, translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), veh_type->get_running_cost() / 100.0, veh_type->get_adjusted_monthly_fixed_cost(welt)/100.0);

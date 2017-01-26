@@ -202,11 +202,11 @@ void leitung_t::cleanup(player_t *player) //"remove".
 	}
 	if(player == get_owner())
 	{
-		player_t::book_construction_costs(player, -desc->get_preis() / 2 - land_value, get_pos().get_2d(), powerline_wt);
+		player_t::book_construction_costs(player, -desc->get_value() / 2 - land_value, get_pos().get_2d(), powerline_wt);
 	}
 	else
 	{
-		player_t::book_construction_costs(player, -desc->get_preis() / 2, get_pos().get_2d(), powerline_wt);
+		player_t::book_construction_costs(player, -desc->get_value() / 2, get_pos().get_2d(), powerline_wt);
 		player_t::book_construction_costs(get_owner(), -land_value, get_pos().get_2d(), powerline_wt);
 	}
 	mark_image_dirty( image, 0 );
