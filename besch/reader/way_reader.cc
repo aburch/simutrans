@@ -55,7 +55,7 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->intro_date = DEFAULT_INTRO_DATE*12;
 		desc->obsolete_date = DEFAULT_RETIRE_DATE*12;
 		desc->wt = road_wt;
-		desc->styp = 0;
+		desc->styp = type_flat;
 		desc->draw_as_obj = false;
 		desc->number_seasons = 0;
 	}
@@ -210,12 +210,12 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	// some internal corrections to pay for previous confusion with two waytypes
 	if(desc->wt==tram_wt) {
-		desc->styp = 7;
+		desc->styp = type_tram;
 		desc->wt = track_wt;
 	}
 	else if(desc->styp==5  &&  desc->wt==track_wt) {
 		desc->wt = monorail_wt;
-		desc->styp = 0;
+		desc->styp = type_flat;
 	}
 	else if(desc->wt==128) {
 		desc->wt = powerline_wt;
@@ -223,7 +223,7 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	
 	if(version<=2  &&  desc->wt==air_wt  &&  desc->topspeed>=250) {
 		// runway!
-		desc->styp = 1;
+		desc->styp = type_runway;
 	}
 
 	// front images from version 5 on

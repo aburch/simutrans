@@ -107,6 +107,9 @@ public:
 	*/
 	uint8 get_styp() const { return styp; }
 
+	// This fails to compile for some reason.
+	//systemtype_t get_styp() const { return (systemtype_t)styp; }
+
 	bool is_tram() const { return wt == track_wt  &&  styp == type_tram; }
 
 	image_id get_image_id(ribi_t::ribi ribi, uint8 season, bool front = false) const
