@@ -211,7 +211,7 @@ void factory_builder_t::register_desc(factory_desc_t *desc)
 {
 	uint16 p=desc->get_productivity();
 	if(p&0x8000) {
-		koord k=desc->get_building()->get_groesse();
+		koord k=desc->get_building()->get_size();
 
 		// to be compatible with old factories, since new code only steps once per factory, not per tile
 		desc->set_productivity( (p&0x7FFF)*k.x*k.y );
@@ -401,7 +401,7 @@ void factory_builder_t::distribute_attractions(int max_number)
 		}
 
 		int	rotation=simrand(attraction->get_all_layouts()-1, "void factory_builder_t::distribute_attractions");
-		pos = find_random_construction_site(pos.get_2d(), 20, attraction->get_groesse(rotation),false,attraction,false,0x0FFFFFFF);	// so far -> land only
+		pos = find_random_construction_site(pos.get_2d(), 20, attraction->get_size(rotation),false,attraction,false,0x0FFFFFFF);	// so far -> land only
 		if(welt->lookup(pos)) {
 			// Platz gefunden ...
 			gebaeude_t* gb = hausbauer_t::build(welt->get_public_player(), pos, rotation, attraction);
@@ -472,7 +472,7 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 	// make all water station
 	if(info->get_placement() == factory_desc_t::Water) {
 		const building_desc_t *desc = info->get_building();
-		koord dim = desc->get_groesse(rotate);
+		koord dim = desc->get_size(rotate);
 
 		// create water halt
 		halthandle_t halt = haltestelle_t::create(pos.get_2d(), welt->get_public_player());
@@ -500,7 +500,7 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 	else {
 		// connect factory to stations
 		// search for nearby stations and connect factory to them
-		koord k, dim = info->get_building()->get_groesse(rotate);
+		koord k, dim = info->get_building()->get_size(rotate);
 
 		for(  k.x=pos.x;  k.x<pos.x+dim.x;  k.x++  ) {
 			for(  k.y=pos.y;  k.y<pos.y+dim.y;  k.y++  ) {
@@ -595,7 +595,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 	// Industries in town needs different place search
 	if (info->get_placement() == factory_desc_t::City) {
 
-		koord size=info->get_building()->get_groesse(0);
+		koord size=info->get_building()->get_size(0);
 
 		// build consumer (factory) in town
 		stadt_t *city = welt->suche_naechste_stadt(pos->get_2d());
@@ -710,7 +710,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 	}
 
 	// how much do we need?
-	sint32 consumption = our_fab->get_base_production() * supplier->get_verbrauch();
+	sint32 consumption = our_fab->get_base_production() * supplier->get_consumption();
 
 	slist_tpl<fabs_to_crossconnect_t> factories_to_correct;
 	slist_tpl<fabrik_t *> new_factories;	      // since the cross-correction must be done later
@@ -752,7 +752,7 @@ DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need 
 							fabrik_t* const zfab = fabrik_t::get_fab(i);
 							for(int zz=0;  zz<zfab->get_desc()->get_supplier_count();  zz++) {
 								if(zfab->get_desc()->get_supplier(zz)->get_ware()==ware) {
-									production_left -= zfab->get_base_production()*zfab->get_desc()->get_supplier(zz)->get_verbrauch();
+									production_left -= zfab->get_base_production()*zfab->get_desc()->get_supplier(zz)->get_consumption();
 									break;
 								}
 							}
@@ -823,7 +823,7 @@ DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need 
 
 			INT_CHECK("fabrikbauer 697");
 
-			koord3d k = find_random_construction_site( our_fab->get_pos().get_2d(), min(max_factory_spacing_general, producer_d->get_max_distance_to_consumer()), producer_d->get_building()->get_groesse(rotate),producer_d->get_placement()==factory_desc_t::Water, producer_d->get_building(), ignore_climates, 20000 );
+			koord3d k = find_random_construction_site( our_fab->get_pos().get_2d(), min(max_factory_spacing_general, producer_d->get_max_distance_to_consumer()), producer_d->get_building()->get_size(rotate),producer_d->get_placement()==factory_desc_t::Water, producer_d->get_building(), ignore_climates, 20000 );
 			if(  k == koord3d::invalid  ) {
 				// this factory cannot build in the desired vincinity
 				producer.remove( producer_d );
@@ -946,7 +946,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 				const vector_tpl<koord> suppliers = fab->get_suppliers();
 				
 				// Check how much of this product that the current factory needs
-				const sint32 consumption_level = fab->get_base_production() * supplier_type->get_verbrauch();
+				const sint32 consumption_level = fab->get_base_production() * supplier_type->get_consumption();
 				
 				FOR(vector_tpl<koord>, supplier_koord, suppliers)
 				{
@@ -976,7 +976,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 									const ware_desc_t* wcc = consumer_type->get_ware();
 									if(wcc == wp)
 									{
-										used_output += competing_consumer->get_base_production() * competing_consumer->get_desc()->get_supplier(x)->get_verbrauch();
+										used_output += competing_consumer->get_base_production() * competing_consumer->get_desc()->get_supplier(x)->get_consumption();
 									}
 								}
 								const sint32 remaining_output = total_output - used_output;
@@ -1136,13 +1136,13 @@ next_ware_check:
 				int rotation = simrand(fab->get_building()->get_all_layouts()-1, "factory_builder_t::increase_industry_density()");
 				if(!in_city) {
 					// find somewhere on the map
-					pos = find_random_construction_site( koord(welt->get_size().x/2,welt->get_size().y/2), welt->get_size_max()/2, fab->get_building()->get_groesse(rotation),fab->get_placement()==factory_desc_t::Water,fab->get_building(),ignore_climates,10000);
+					pos = find_random_construction_site( koord(welt->get_size().x/2,welt->get_size().y/2), welt->get_size_max()/2, fab->get_building()->get_size(rotation),fab->get_placement()==factory_desc_t::Water,fab->get_building(),ignore_climates,10000);
 				}
 				else {
 					// or within the city limit
 					const stadt_t *city = pick_any_weighted(welt->get_staedte());
 					koord diff = city->get_rechtsunten()-city->get_linksoben();
-					pos = find_random_construction_site( city->get_center(), max(diff.x,diff.y)/2, fab->get_building()->get_groesse(rotation),fab->get_placement()==factory_desc_t::Water,fab->get_building(),ignore_climates, 1000);
+					pos = find_random_construction_site( city->get_center(), max(diff.x,diff.y)/2, fab->get_building()->get_size(rotation),fab->get_placement()==factory_desc_t::Water,fab->get_building(),ignore_climates, 1000);
 				}
 				if(welt->lookup(pos)) {
 					// Space found...

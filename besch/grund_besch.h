@@ -28,7 +28,7 @@
 class grund_t;
 class karte_t;
 
-class ground_desc_t : public obj_desc_std_name_t {
+class ground_desc_t : public obj_named_desc_t {
 private:
 	static karte_t *welt;
 

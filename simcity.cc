@@ -1072,7 +1072,7 @@ void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered)
 	{
 		
 		const building_tile_desc_t* tile = gb->get_tile();
-		koord size = tile->get_desc()->get_groesse(tile->get_layout());
+		koord size = tile->get_desc()->get_size(tile->get_layout());
 		const koord pos = gb->get_pos().get_2d() - tile->get_offset();
 		koord k;
 
@@ -2181,7 +2181,7 @@ void stadt_t::finish_rd()
 		// guess road tile based on current orientation
 		gebaeude_t const* const gb = obj_cast<gebaeude_t>(welt->lookup_kartenboden(pos)->first_obj());
 		if(  gb  &&  gb->is_townhall()  ) {
-			koord k(gb->get_tile()->get_desc()->get_groesse(gb->get_tile()->get_layout()));
+			koord k(gb->get_tile()->get_desc()->get_size(gb->get_tile()->get_layout()));
 			switch (gb->get_tile()->get_layout()) {
 				default:
 				case 0:
@@ -2488,7 +2488,7 @@ void stadt_t::calc_traffic_level()
 
 	// We need to calculate the traffic level here, as this determines the vehicle occupancy, which is necessary for the calculation of congestion.
 	// Manual assignment of traffic level modifiers, since I could not find a suitable mathematical formula.
-	switch(s.get_verkehr_level())
+	switch(s.get_traffic_level())
 	{
 	case 0:
 		traffic_level = 0;
@@ -3006,7 +3006,7 @@ void stadt_t::add_road_connexion(uint32 journey_time_per_tile, const gebaeude_t*
 		return;
 	}
 	const building_desc_t *bdsc = attraction->get_tile()->get_desc();
-	const koord attraction_size = bdsc->get_groesse(attraction->get_tile()->get_layout());
+	const koord attraction_size = bdsc->get_size(attraction->get_tile()->get_layout());
 	koord k;	
 
 	for(k.y = 0; k.y < attraction_size.y; k.y ++) 
@@ -3130,7 +3130,7 @@ void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 		{
 			const building_tile_desc_t* tile = gb->get_tile();
 			const building_desc_t *bdsc = tile->get_desc();
-			koord size = bdsc->get_groesse(tile->get_layout());
+			koord size = bdsc->get_size(tile->get_layout());
 
 			if(size != koord(1,1))
 			{
@@ -3424,7 +3424,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 					corner_offset = koord(-corner_offset.y, corner_offset.x);
 				}
 			}
-			koord groesse_alt = desc_alt->get_groesse(old_layout);
+			koord groesse_alt = desc_alt->get_size(old_layout);
 
 			// do we need to move
 			if(  old_layout<=desc->get_all_layouts()  &&  desc->get_x(old_layout) <= groesse_alt.x  &&  desc->get_y(old_layout) <= groesse_alt.y  ) {

@@ -225,12 +225,12 @@ private:
  *
  * @author Hj. Malthaner
  */
-class zugschedule_t : public schedule_t
+class train_schedule_t : public schedule_t
 {
 public:
-	zugschedule_t() {}
-	zugschedule_t(loadsave_t* const file) : schedule_t(file) {}
-	schedule_t* copy() { schedule_t *s = new zugschedule_t(); s->copy_from(this); return s; }
+	train_schedule_t() {}
+	train_schedule_t(loadsave_t* const file) : schedule_t(file) {}
+	schedule_t* copy() { schedule_t *s = new train_schedule_t(); s->copy_from(this); return s; }
 	const char *get_error_msg() const { return "Zughalt muss auf\nSchiene liegen!\n"; }
 
 	schedule_type get_type() const { return train_schedule; }
@@ -241,12 +241,12 @@ public:
 /* the schedule for monorail ...
  * @author Hj. Malthaner
  */
-class tramschedule_t : public zugschedule_t
+class tram_schedule_t : public train_schedule_t
 {
 public:
-	tramschedule_t() {}
-	tramschedule_t(loadsave_t* const file) : zugschedule_t(file) {}
-	schedule_t* copy() { schedule_t *s = new tramschedule_t(); s->copy_from(this); return s; }
+	tram_schedule_t() {}
+	tram_schedule_t(loadsave_t* const file) : train_schedule_t(file) {}
+	schedule_t* copy() { schedule_t *s = new tram_schedule_t(); s->copy_from(this); return s; }
 
 	schedule_type get_type() const { return tram_schedule; }
 
@@ -260,12 +260,12 @@ public:
  *
  * @author Hj. Malthaner
  */
-class autoschedule_t : public schedule_t
+class truck_schedule_t : public schedule_t
 {
 public:
-	autoschedule_t() {}
-	autoschedule_t(loadsave_t* const file) : schedule_t(file) {}
-	schedule_t* copy() { schedule_t *s = new autoschedule_t(); s->copy_from(this); return s; }
+	truck_schedule_t() {}
+	truck_schedule_t(loadsave_t* const file) : schedule_t(file) {}
+	schedule_t* copy() { schedule_t *s = new truck_schedule_t(); s->copy_from(this); return s; }
 	const char *get_error_msg() const { return "Autohalt muss auf\nStrasse liegen!\n"; }
 
 	schedule_type get_type() const { return truck_schedule; }
@@ -280,12 +280,12 @@ public:
  *
  * @author Hj. Malthaner
  */
-class schiffschedule_t : public schedule_t
+class ship_schedule_t : public schedule_t
 {
 public:
-	schiffschedule_t() {}
-	schiffschedule_t(loadsave_t* const file) : schedule_t(file) {}
-	schedule_t* copy() { schedule_t *s = new schiffschedule_t(); s->copy_from(this); return s; }
+	ship_schedule_t() {}
+	ship_schedule_t(loadsave_t* const file) : schedule_t(file) {}
+	schedule_t* copy() { schedule_t *s = new ship_schedule_t(); s->copy_from(this); return s; }
 	const char *get_error_msg() const { return "Schiffhalt muss im\nWasser liegen!\n"; }
 
 	schedule_type get_type() const { return ship_schedule; }
@@ -297,12 +297,12 @@ public:
 /* the schedule for air ...
  * @author Hj. Malthaner
  */
-class airschedule_t : public schedule_t
+class airplane_schedule_ : public schedule_t
 {
 public:
-	airschedule_t() {}
-	airschedule_t(loadsave_t* const file) : schedule_t(file) {}
-	schedule_t* copy() { schedule_t *s = new airschedule_t(); s->copy_from(this); return s; }
+	airplane_schedule_() {}
+	airplane_schedule_(loadsave_t* const file) : schedule_t(file) {}
+	schedule_t* copy() { schedule_t *s = new airplane_schedule_(); s->copy_from(this); return s; }
 	const char *get_error_msg() const { return "Flugzeughalt muss auf\nRunway liegen!\n"; }
 
 	schedule_type get_type() const { return airplane_schedule; }
@@ -313,12 +313,12 @@ public:
 /* the schedule for monorail ...
  * @author Hj. Malthaner
  */
-class monorailschedule_t : public schedule_t
+class monorail_schedule_t : public schedule_t
 {
 public:
-	monorailschedule_t() {}
-	monorailschedule_t(loadsave_t* const file) : schedule_t(file) {}
-	schedule_t* copy() { schedule_t *s = new monorailschedule_t(); s->copy_from(this); return s; }
+	monorail_schedule_t() {}
+	monorail_schedule_t(loadsave_t* const file) : schedule_t(file) {}
+	schedule_t* copy() { schedule_t *s = new monorail_schedule_t(); s->copy_from(this); return s; }
 	const char *get_error_msg() const { return "Monorailhalt muss auf\nMonorail liegen!\n"; }
 
 	schedule_type get_type() const { return monorail_schedule; }
@@ -329,12 +329,12 @@ public:
 /* the schedule for maglev ...
  * @author Hj. Malthaner
  */
-class maglevschedule_t : public schedule_t
+class maglev_schedule_t : public schedule_t
 {
 public:
-	maglevschedule_t() {}
-	maglevschedule_t(loadsave_t* const file) : schedule_t(file) {}
-	schedule_t* copy() { schedule_t *s = new maglevschedule_t(); s->copy_from(this); return s; }
+	maglev_schedule_t() {}
+	maglev_schedule_t(loadsave_t* const file) : schedule_t(file) {}
+	schedule_t* copy() { schedule_t *s = new maglev_schedule_t(); s->copy_from(this); return s; }
 	const char *get_error_msg() const { return "Maglevhalt muss auf\nMaglevschiene liegen!\n"; }
 
 	schedule_type get_type() const { return maglev_schedule; }
@@ -345,12 +345,12 @@ public:
 /* and narrow guage ...
  * @author Hj. Malthaner
  */
-class narrowgaugeschedule_t : public schedule_t
+class narrowgauge_schedule_t : public schedule_t
 {
 public:
-	narrowgaugeschedule_t() {}
-	narrowgaugeschedule_t(loadsave_t* const file) : schedule_t(file) {}
-	schedule_t* copy() { schedule_t *s = new narrowgaugeschedule_t(); s->copy_from(this); return s; }
+	narrowgauge_schedule_t() {}
+	narrowgauge_schedule_t(loadsave_t* const file) : schedule_t(file) {}
+	schedule_t* copy() { schedule_t *s = new narrowgauge_schedule_t(); s->copy_from(this); return s; }
 	const char *get_error_msg() const { return "On narrowgauge track only!\n"; }
 
 	schedule_type get_type() const { return narrowgauge_schedule; }

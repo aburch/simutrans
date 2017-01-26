@@ -223,15 +223,15 @@ void export_global_constants(HSQUIRRELVM vm)
 	/// city car - not player owned
 	enum_slot(vm, "mo_city_car", obj_t::road_user);
 	/// road vehicle
-	enum_slot(vm, "mo_car", obj_t::automobil);
+	enum_slot(vm, "mo_car", obj_t::road_vehicle);
 	/// rail vehicle
 	enum_slot(vm, "mo_train", obj_t::rail_vehicle);
 	/// monorail vehicle
-	enum_slot(vm, "mo_monorail", obj_t::monorailwaggon);
+	enum_slot(vm, "mo_monorail", obj_t::monorail_vehicle);
 	/// maglev vehicle
-	enum_slot(vm, "mo_maglev", obj_t::maglevwaggon);
+	enum_slot(vm, "mo_maglev", obj_t::maglev_vehicle);
 	/// narrowgauge vehicle
-	enum_slot(vm, "mo_narrowgauge", obj_t::narrowgaugewaggon);
+	enum_slot(vm, "mo_narrowgauge", obj_t::narrowgauge_vehicle);
 	/// ship
 	enum_slot(vm, "mo_ship", obj_t::water_vehicle);
 	/// airplane

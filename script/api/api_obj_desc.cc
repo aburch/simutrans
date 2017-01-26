@@ -38,7 +38,7 @@ SQInteger get_ware_desc_index(HSQUIRRELVM vm)
 }
 
 
-bool are_equal(const obj_desc_std_name_t* a, const obj_desc_std_name_t* b)
+bool are_equal(const obj_named_desc_t* a, const obj_named_desc_t* b)
 {
 	return (a==b);
 }
@@ -98,13 +98,13 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Base class of all object descriptors.
 	 */
-	create_class<const obj_desc_std_name_t*>(vm, "obj_desc_x", "extend_get");
+	create_class<const obj_named_desc_t*>(vm, "obj_desc_x", "extend_get");
 
 	/**
 	 * @return raw (untranslated) name
 	 * @typemask string()
 	 */
-	register_method(vm, &obj_desc_std_name_t::get_name, "get_name");
+	register_method(vm, &obj_named_desc_t::get_name, "get_name");
 	/**
 	 * Checks if two object descriptor are equal.
 	 * @param other
@@ -187,7 +187,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * @param rotation
 	 * @return size of building in the given @p rotation
 	 */
-	register_method(vm, &building_desc_t::get_groesse, "get_size");
+	register_method(vm, &building_desc_t::get_size, "get_size");
 	/**
 	 * @return monthly maintenance cost
 	 */

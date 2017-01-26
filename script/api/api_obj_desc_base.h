@@ -6,7 +6,7 @@
 #include "../api_param.h"
 #include "../api_class.h"
 
-class obj_desc_std_name_t;
+class obj_named_desc_t;
 class obj_desc_timelined_t;
 class obj_desc_transport_related_t;
 class tree_desc_t;
@@ -60,8 +60,8 @@ namespace script_api {
 		} \
 	}
 
-	declare_specialized_param(const obj_desc_std_name_t*, "t|x|y", "obj_desc_x");
-	declare_param_mask(obj_desc_std_name_t*, "t|x|y", "obj_desc_x");
+	declare_specialized_param(const obj_named_desc_t*, "t|x|y", "obj_desc_x");
+	declare_param_mask(obj_named_desc_t*, "t|x|y", "obj_desc_x");
 
 	declare_specialized_param(const obj_desc_timelined_t*, "t|x|y", "obj_desc_time_x");
 	declare_param_mask(obj_desc_timelined_t*, "t|x|y", "obj_desc_time_x");

@@ -48,7 +48,7 @@ struct fare_stage_t
  *	1   Copyright
  *	2   Text: Name of measurement unit
  */
-class ware_desc_t : public obj_desc_std_name_t {
+class ware_desc_t : public obj_named_desc_t {
 	friend class good_reader_t;
 	friend class warenbauer_t;
 

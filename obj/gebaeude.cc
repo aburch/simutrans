@@ -285,7 +285,7 @@ void gebaeude_t::check_road_tiles(bool del)
 {
 	const building_desc_t *bdsc = tile->get_desc();
 	const koord3d pos = get_pos() - koord3d(tile->get_offset(), 0);
-	koord size = bdsc->get_groesse(tile->get_layout());
+	koord size = bdsc->get_size(tile->get_layout());
 	koord k;
 	grund_t* gr_this;
 
@@ -1492,7 +1492,7 @@ void gebaeude_t::cleanup(player_t *player)
 		// (A player putting a marker on the tile will have to pay to buy the land again).
 		// If the player does already own the building, the player is refunded the empty tile cost, as bulldozing a tile with a building
 		// means that the player no longer owns the tile, and will have to pay again to purcahse it.
-		const sint64 land_value = welt->get_land_value(get_pos()) * desc->get_groesse().x * desc->get_groesse().y;
+		const sint64 land_value = welt->get_land_value(get_pos()) * desc->get_size().x * desc->get_size().y;
 		cost = player == get_owner() ? bulldoze_cost : bulldoze_cost + land_value; // land_valueand bulldoze_cost are *both* negative numbers.
 		player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
 		if(player != get_owner())
@@ -1516,7 +1516,7 @@ void gebaeude_t::cleanup(player_t *player)
 		cost /= 2;
 		
 		// However, the land value is restored to the player who, by bulldozing, is relinquishing ownership of the land if there are not already ways on the land.
-		const sint64 land_value = welt->get_land_value(get_pos()) * desc->get_groesse().x * desc->get_groesse().y;
+		const sint64 land_value = welt->get_land_value(get_pos()) * desc->get_size().x * desc->get_size().y;
 		if(welt->lookup(get_pos()) && !welt->lookup(get_pos())->get_weg_nr(0))
 		{
 			if(player == get_owner())

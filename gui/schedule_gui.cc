@@ -1004,8 +1004,8 @@ void schedule_gui_t::rdwr(loadsave_t *file)
 	// schedules
 	if(  file->is_loading()  ) {
 		// dummy types
-		old_fpl = new autoschedule_t();
-		schedule = new autoschedule_t();
+		old_fpl = new truck_schedule_t();
+		schedule = new truck_schedule_t();
 	}
 	old_fpl->rdwr(file);
 	schedule->rdwr(file);

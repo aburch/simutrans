@@ -1250,7 +1250,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 		sets.set_city_count(1);
 		sets.set_factory_count(3);
 		sets.set_tourist_attractions(1);
-		sets.set_verkehr_level(7);
+		sets.set_traffic_level(7);
 		welt->init(&sets,0);
 		//  start in June ...
 		intr_set(welt, view);

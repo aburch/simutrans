@@ -37,7 +37,7 @@ implement_desc_param(way_desc_t, "way_desc_x", &my_get_desc);
 	}
 
 // use the macro to obtain the interface of some abstract classes
-implement_class_with_tag(obj_desc_std_name_t);
+implement_class_with_tag(obj_named_desc_t);
 implement_class_with_tag(obj_desc_timelined_t);
 implement_class_with_tag(obj_desc_transport_related_t);
 

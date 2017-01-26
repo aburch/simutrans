@@ -21,7 +21,7 @@
  */
 uint8 building_tile_desc_t::get_layout() const
 {
-	koord size = get_desc()->get_groesse();
+	koord size = get_desc()->get_size();
 	return index / (size.x * size.y);
 }
 
@@ -39,7 +39,7 @@ uint8 building_tile_desc_t::get_layout() const
 koord building_tile_desc_t::get_offset() const
 {
 	const building_desc_t *desc = get_desc();
-	koord size = desc->get_groesse(get_layout());	// ggf. gedreht ("rotated" - Google)
+	koord size = desc->get_size(get_layout());	// ggf. gedreht ("rotated" - Google)
 	return koord( index % size.x, (index / size.x) % size.y );
 }
 
@@ -107,7 +107,7 @@ bool building_desc_t::is_connected_with_town() const
 const building_tile_desc_t *building_desc_t::get_tile(int layout, int x, int y) const
 {
 	layout = adjust_layout(layout);
-	koord dims = get_groesse(layout);
+	koord dims = get_size(layout);
 
 	if(layout < 0  ||  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_x(layout)  ||  y >= get_y(layout)) {
 	dbg->fatal("building_tile_desc_t::get_tile()",

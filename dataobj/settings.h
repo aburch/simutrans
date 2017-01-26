@@ -723,8 +723,8 @@ public:
 	void set_mean_einwohnerzahl( sint32 n ) {mean_einwohnerzahl = n;}
 	sint32 get_mean_einwohnerzahl() const {return mean_einwohnerzahl;} // Median town size
 
-	void set_verkehr_level(sint32 l) {traffic_level=l;}
-	sint32 get_verkehr_level() const {return traffic_level;}
+	void set_traffic_level(sint32 l) {traffic_level=l;}
+	sint32 get_traffic_level() const {return traffic_level;}
 
 	void set_show_pax(bool yesno) {show_pax=yesno;}
 	bool get_show_pax() const {return show_pax != 0;}

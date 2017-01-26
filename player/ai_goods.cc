@@ -313,7 +313,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 			}
 		}
 		if( !ok ) {
-			ok = suche_platz(start, start_size, ziel, qfab->get_desc()->get_building()->get_groesse(qfab->get_rotate()) );
+			ok = suche_platz(start, start_size, ziel, qfab->get_desc()->get_building()->get_size(qfab->get_rotate()) );
 		}
 	}
 	else {
@@ -323,7 +323,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 
 	if( ok && !has_ziel ) {
 		// found a place, search for target
-		ok = suche_platz(ziel, ziel_size, start, zfab->get_desc()->get_building()->get_groesse(zfab->get_rotate()) );
+		ok = suche_platz(ziel, ziel_size, start, zfab->get_desc()->get_building()->get_size(zfab->get_rotate()) );
 	}
 
 	INT_CHECK("simplay 1729");
@@ -392,7 +392,7 @@ bool ai_goods_t::create_ship_transport_vehicle(fabrik_t *qfab, int anz_vehicle)
 
 	// sea pos (and not on harbour ... )
 	halthandle_t halt = haltestelle_t::get_halt(gr->get_pos(),this);
-	koord pos1 = platz1 - koord(gr->get_grund_hang())*h->get_groesse().y;
+	koord pos1 = platz1 - koord(gr->get_grund_hang())*h->get_size().y;
 	koord best_pos = pos1;
 	uint16 const cov = welt->get_settings().get_station_coverage_factories();
 	for (int y = pos1.y - cov; y <= pos1.y + cov; ++y) {
@@ -413,7 +413,7 @@ bool ai_goods_t::create_ship_transport_vehicle(fabrik_t *qfab, int anz_vehicle)
 	}
 
 	// since 86.01 we use lines for vehicles ...
-	schedule_t *schedule=new schiffschedule_t();
+	schedule_t *schedule=new ship_schedule_t();
 	schedule->append( welt->lookup_kartenboden(best_pos), 0 );
 	schedule->append( welt->lookup(qfab->get_pos()), 100 );
 	schedule->set_aktuell( 1 );
@@ -477,7 +477,7 @@ void ai_goods_t::create_road_transport_vehicle(fabrik_t *qfab, int anz_vehicle)
 		startpos = welt->lookup_kartenboden(koord(startpos.get_2d())+koord(w_ribi))->get_pos();
 
 		// since 86.01 we use lines for road vehicles ...
-		schedule_t *schedule=new autoschedule_t();
+		schedule_t *schedule=new truck_schedule_t();
 		schedule->append(welt->lookup(pos1), start_location == 0 ? 100 : 0);
 		schedule->append(welt->lookup(pos2), start_location == 1 ? 100 : 0);
 		schedule->set_aktuell( start_location );

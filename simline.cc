@@ -100,14 +100,14 @@ simline_t::~simline_t()
 void simline_t::create_schedule()
 {
 	switch(type) {
-		case simline_t::truckline:       set_schedule(new autoschedule_t()); break;
-		case simline_t::trainline:       set_schedule(new zugschedule_t()); break;
-		case simline_t::shipline:        set_schedule(new schiffschedule_t()); break;
-		case simline_t::airline:         set_schedule(new airschedule_t()); break;
-		case simline_t::monorailline:    set_schedule(new monorailschedule_t()); break;
-		case simline_t::tramline:        set_schedule(new tramschedule_t()); break;
-		case simline_t::maglevline:      set_schedule(new maglevschedule_t()); break;
-		case simline_t::narrowgaugeline: set_schedule(new narrowgaugeschedule_t()); break;
+		case simline_t::truckline:       set_schedule(new truck_schedule_t()); break;
+		case simline_t::trainline:       set_schedule(new train_schedule_t()); break;
+		case simline_t::shipline:        set_schedule(new ship_schedule_t()); break;
+		case simline_t::airline:         set_schedule(new airplane_schedule_()); break;
+		case simline_t::monorailline:    set_schedule(new monorail_schedule_t()); break;
+		case simline_t::tramline:        set_schedule(new tram_schedule_t()); break;
+		case simline_t::maglevline:      set_schedule(new maglev_schedule_t()); break;
+		case simline_t::narrowgaugeline: set_schedule(new narrowgauge_schedule_t()); break;
 		default:
 			dbg->fatal( "simline_t::create_schedule()", "Cannot create default schedule!" );
 	}

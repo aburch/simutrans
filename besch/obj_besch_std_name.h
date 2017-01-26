@@ -10,7 +10,7 @@ class tool_t;
  * Common base class for all object descriptors, which get their name and
  * copyright information from child 0 and 1
  */
-class obj_desc_std_name_t : public obj_desc_t {
+class obj_named_desc_t : public obj_desc_t {
 	public:
 		const char* get_name() const
 		{
@@ -29,14 +29,14 @@ class obj_desc_std_name_t : public obj_desc_t {
 /**
  * Base class for all stuff that depends on timeline.
  */
-class obj_desc_timelined_t : public obj_desc_std_name_t {
+class obj_desc_timelined_t : public obj_named_desc_t {
 
 protected:
 	uint16 intro_date;    ///< this thing is available from this date
 	uint16 obsolete_date; ///< this thing is available until this date
 
 public:
-	obj_desc_timelined_t() : obj_desc_std_name_t(),
+	obj_desc_timelined_t() : obj_named_desc_t(),
 		intro_date(0), obsolete_date(0) {}
 
 	uint16 get_intro_year_month() const { return intro_date; }

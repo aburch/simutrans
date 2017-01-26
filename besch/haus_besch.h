@@ -246,7 +246,7 @@ class building_desc_t : public obj_desc_timelined_t {
 
 public:
 
-	koord get_groesse(int layout = 0) const {
+	koord get_size(int layout = 0) const {
 		return (layout & 1) ? koord(size.y, size.x) : size;
 	}
 

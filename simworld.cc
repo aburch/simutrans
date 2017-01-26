@@ -1130,7 +1130,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 					bool ok = false;
 					if(  gb  &&  gb->is_townhall()  ) {
 						koord k_check = stadt[i]->get_pos() + koord(-1,-1);
-						const koord size = gb->get_tile()->get_desc()->get_groesse(gb->get_tile()->get_layout());
+						const koord size = gb->get_tile()->get_desc()->get_size(gb->get_tile()->get_layout());
 						koord inc(1,0);
 						// scan all adjacent tiles, take the first that has a road
 						for(sint32 i=0; i<2*size.x+2*size.y+4  &&  !ok; i++) {
@@ -5634,7 +5634,7 @@ sint32 karte_t::get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const pla
 {
 	const building_tile_desc_t* tile = gb->get_tile();
 	const building_desc_t *bdsc = tile->get_desc();
-	const koord size = bdsc->get_groesse(tile->get_layout());
+	const koord size = bdsc->get_size(tile->get_layout());
 	if(size == koord(1,1))
 	{
 		// A single tiled building - just add the single tile.

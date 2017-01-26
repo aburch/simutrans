@@ -3658,18 +3658,18 @@ void convoi_t::rdwr(loadsave_t *file)
 			}
 			else {
 				switch(typ) {
-					case obj_t::old_automobil:
-					case obj_t::automobil: v = new road_vehicle_t(file, first, last);  break;
+					case obj_t::old_road_vehicle:
+					case obj_t::road_vehicle: v = new road_vehicle_t(file, first, last);  break;
 					case obj_t::old_waggon:
 					case obj_t::rail_vehicle:    v = new rail_vehicle_t(file, first, last);     break;
 					case obj_t::old_schiff:
 					case obj_t::water_vehicle:    v = new water_vehicle_t(file, first, last);     break;
 					case obj_t::old_aircraft:
 					case obj_t::air_vehicle:    v = new air_vehicle_t(file, first, last);     break;
-					case obj_t::old_monorailwaggon:
-					case obj_t::monorailwaggon:    v = new monorail_rail_vehicle_t(file, first, last);     break;
-					case obj_t::maglevwaggon:         v = new maglev_rail_vehicle_t(file, first, last);     break;
-					case obj_t::narrowgaugewaggon:    v = new narrowgauge_rail_vehicle_t(file, first, last);     break;
+					case obj_t::old_monorail_vehicle:
+					case obj_t::monorail_vehicle:    v = new monorail_rail_vehicle_t(file, first, last);     break;
+					case obj_t::maglev_vehicle:         v = new maglev_rail_vehicle_t(file, first, last);     break;
+					case obj_t::narrowgauge_vehicle:    v = new narrowgauge_rail_vehicle_t(file, first, last);     break;
 					default:
 						dbg->fatal("convoi_t::convoi_t()","Can't load vehicle type %d", typ);
 				}
@@ -3772,9 +3772,9 @@ void convoi_t::rdwr(loadsave_t *file)
 		// but no vehicle so we can't determine the exact type of
 		// schedule needed. This hack is safe because convois
 		// without vehicles get deleted right after loading.
-		// Since generic schedules are not allowed, we use a zugschedule_t
+		// Since generic schedules are not allowed, we use a train_schedule_t
 		if(schedule == 0) {
-			schedule = new zugschedule_t();
+			schedule = new train_schedule_t();
 		}
 
 		// Hajo: now read the schedule, we have one for sure here

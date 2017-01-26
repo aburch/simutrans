@@ -241,7 +241,7 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 	 * this is needed, since each building is build of separate tiles,
 	 * even if it is part of the same description (building_desc_t)
 	 */
-	const int max_index = const_desc->get_all_layouts() * const_desc->get_groesse().x * const_desc->get_groesse().y;
+	const int max_index = const_desc->get_all_layouts() * const_desc->get_size().x * const_desc->get_size().y;
 	for( int i=0;  i<max_index;  i++  ) 
 	{
 		const_cast<building_tile_desc_t *>(desc->get_tile(i))->set_desc(const_desc);
@@ -313,7 +313,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 
 	// get startpos and size
 	const koord3d pos = gb->get_pos() - koord3d( tile->get_offset(), 0 );
-	koord size = tile->get_desc()->get_groesse( layout );
+	koord size = tile->get_desc()->get_size( layout );
 	koord k;
 
 	if( tile->get_desc()->get_type() == building_desc_t::headquarter ) {
@@ -489,7 +489,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 	koord dim;
 
 	uint8 layout = desc->adjust_layout(org_layout);
-	dim = desc->get_groesse(org_layout);
+	dim = desc->get_size(org_layout);
 	bool needs_ground_recalc = false;
 
 	for(k.y = 0; k.y < dim.y; k.y ++) {

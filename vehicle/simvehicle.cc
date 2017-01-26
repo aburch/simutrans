@@ -2632,7 +2632,7 @@ void vehicle_t::before_delete()
 
 road_vehicle_t::road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cn) :
 #ifdef INLINE_OBJ_TYPE
-    vehicle_t(obj_t::automobil, pos, desc, player)
+    vehicle_t(obj_t::road_vehicle, pos, desc, player)
 #else
     vehicle_t(pos, desc, player)
 #endif
@@ -2644,7 +2644,7 @@ road_vehicle_t::road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t
 
 road_vehicle_t::road_vehicle_t() : 
 #ifdef INLINE_OBJ_TYPE
-    vehicle_t(obj_t::automobil)
+    vehicle_t(obj_t::road_vehicle)
 #else
     vehicle_t()
 #endif
@@ -2656,7 +2656,7 @@ road_vehicle_t::road_vehicle_t() :
 
 road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : 
 #ifdef INLINE_OBJ_TYPE
-    vehicle_t(obj_t::automobil)
+    vehicle_t(obj_t::road_vehicle)
 #else
     vehicle_t()
 #endif
@@ -2901,7 +2901,7 @@ bool road_vehicle_t::choose_route( sint32 &restart_speed, ribi_t::ribi start_dir
 
 			// check if there is a free position
 			// this is much faster than waysearch
-			if(  !target_halt->find_free_position(road_wt,cnv->self,obj_t::automobil  )) {
+			if(  !target_halt->find_free_position(road_wt,cnv->self,obj_t::road_vehicle  )) {
 				restart_speed = 0;
 				target_halt = halthandle_t();
 				return false;
@@ -2996,7 +2996,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 							// check if there is a free position
 							// this is much faster than waysearch
-							if(!target_halt->find_free_position(road_wt,cnv->self,obj_t::automobil)) {
+							if(!target_halt->find_free_position(road_wt,cnv->self,obj_t::road_vehicle)) {
 								restart_speed = 0;
 								target_halt = halthandle_t();
 								//DBG_MESSAGE("road_vehicle_t::can_enter_tile()","cnv=%d nothing free found!",cnv->self.get_id());
@@ -3157,7 +3157,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 										// check if there is a free position
 										// this is much faster than waysearch
-										if (!target_halt->find_free_position(road_wt, cnv->self, obj_t::automobil)) {
+										if (!target_halt->find_free_position(road_wt, cnv->self, obj_t::road_vehicle)) {
 											restart_speed = 0;
 											target_halt = halthandle_t();
 											//DBG_MESSAGE("road_vehicle_t::can_enter_tile()","cnv=%d nothing free found!",cnv->self.get_id());
@@ -3279,7 +3279,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 
 schedule_t * road_vehicle_t::generate_new_schedule() const
 {
-  return new autoschedule_t();
+  return new truck_schedule_t();
 }
 
 
@@ -6094,25 +6094,25 @@ void rail_vehicle_t::enter_tile(grund_t* gr)
 
 schedule_t * rail_vehicle_t::generate_new_schedule() const
 {
-	return desc->get_waytype()==tram_wt ? new tramschedule_t() : new zugschedule_t();
+	return desc->get_waytype()==tram_wt ? new tram_schedule_t() : new train_schedule_t();
 }
 
 
 schedule_t * monorail_rail_vehicle_t::generate_new_schedule() const
 {
-	return new monorailschedule_t();
+	return new monorail_schedule_t();
 }
 
 
 schedule_t * maglev_rail_vehicle_t::generate_new_schedule() const
 {
-	return new maglevschedule_t();
+	return new maglev_schedule_t();
 }
 
 
 schedule_t * narrowgauge_rail_vehicle_t::generate_new_schedule() const
 {
-	return new narrowgaugeschedule_t();
+	return new narrowgauge_schedule_t();
 }
 
 
@@ -6329,7 +6329,7 @@ bool water_vehicle_t::check_tile_occupancy(const grund_t* gr)
 
 schedule_t * water_vehicle_t::generate_new_schedule() const
 {
-  return new schiffschedule_t();
+  return new ship_schedule_t();
 }
 
 
@@ -7327,7 +7327,7 @@ air_vehicle_t::set_convoi(convoi_t *c)
 
 schedule_t * air_vehicle_t::generate_new_schedule() const
 {
-	return new airschedule_t();
+	return new airplane_schedule_();
 }
 
 void rail_vehicle_t::rdwr_from_convoi(loadsave_t* file)

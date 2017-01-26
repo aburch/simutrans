@@ -1048,8 +1048,8 @@ bool fabrik_t::add_random_field(uint16 probability)
 	// pick a coordinate to use - create a list of valid locations and choose a random one
 	slist_tpl<grund_t *> build_locations;
 	do {
-		for(sint32 xoff = -radius; xoff < radius + get_desc()->get_building()->get_groesse().x ; xoff++) {
-			for(sint32 yoff =-radius ; yoff < radius + get_desc()->get_building()->get_groesse().y; yoff++) {
+		for(sint32 xoff = -radius; xoff < radius + get_desc()->get_building()->get_size().x ; xoff++) {
+			for(sint32 yoff =-radius ; yoff < radius + get_desc()->get_building()->get_size().y; yoff++) {
 				// if we can build on this tile then add it to the list
 				grund_t *gr = welt->lookup_kartenboden(pos.get_2d()+koord(xoff,yoff));
 				if (gr != NULL &&
@@ -1063,8 +1063,8 @@ bool fabrik_t::add_random_field(uint16 probability)
 					assert(gr->find<field_t>() == NULL);
 				}
 				// skip inside of rectange (already checked earlier)
-				if(radius > 1 && yoff == -radius && (xoff > -radius && xoff < radius + get_desc()->get_building()->get_groesse().x - 1)) {
-					yoff = radius + get_desc()->get_building()->get_groesse().y - 2;
+				if(radius > 1 && yoff == -radius && (xoff > -radius && xoff < radius + get_desc()->get_building()->get_size().x - 1)) {
+					yoff = radius + get_desc()->get_building()->get_size().y - 2;
 				}
 			}
 		}
@@ -1294,7 +1294,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	if(  file->is_loading()  ) {
 		// take care of old files
 		if(  file->get_version() < 86001  ) {
-			koord k = desc ? desc->get_building()->get_groesse() : koord(1,1);
+			koord k = desc ? desc->get_building()->get_size() : koord(1,1);
 			DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 			// since we step from 86.01 per factory, not per tile!
 			prodbase *= k.x*k.y*2;
@@ -1479,7 +1479,7 @@ void fabrik_t::smoke() const
 {
 	const smoke_desc_t *rada = desc->get_smoke();
 	if(rada) {
-		const koord size = desc->get_building()->get_groesse(0)-koord(1,1);
+		const koord size = desc->get_building()->get_size(0)-koord(1,1);
 		const uint8 rot = (4-rotate)%desc->get_building()->get_all_layouts();
 		koord ro = rada->get_pos_off(size,rot);
 		grund_t *gr = welt->lookup_kartenboden(pos_origin.get_2d()+ro);
@@ -1689,7 +1689,7 @@ void fabrik_t::step(uint32 delta_t)
 				{
 					continue;
 				}
-				const uint32 vb = desc->get_supplier(index)->get_verbrauch();
+				const uint32 vb = desc->get_supplier(index)->get_consumption();
 				const uint32 v = max(1,(menge*vb) >> 8);
 
 				if(  (uint32)eingang[index].menge > v + 1  ) {
@@ -1725,7 +1725,7 @@ void fabrik_t::step(uint32 delta_t)
 				{
 					continue;
 				}
-				const uint32 vb = desc->get_supplier(index)->get_verbrauch();
+				const uint32 vb = desc->get_supplier(index)->get_consumption();
 				const uint32 n = eingang[index].menge * 256 / vb;
 
 				if(  n < min_menge  ) {
@@ -1777,7 +1777,7 @@ void fabrik_t::step(uint32 delta_t)
 				{
 					continue;
 				}
-				const uint32 vb = desc->get_supplier(index)->get_verbrauch();
+				const uint32 vb = desc->get_supplier(index)->get_consumption();
 				const uint32 v = (consumed_menge*vb) >> 8;
 
 				if(  (uint32)eingang[index].menge > v + 1  ) {
@@ -2274,7 +2274,7 @@ void fabrik_t::new_month()
 					if(	fab != NULL && fab->is_electricity_producer() == desc->is_electricity_producer() &&
 						fab->get_building()->get_x() == desc->get_building()->get_x() &&
 						fab->get_building()->get_y() == desc->get_building()->get_y() &&
-						fab->get_building()->get_groesse() == desc->get_building()->get_groesse() &&
+						fab->get_building()->get_size() == desc->get_building()->get_size() &&
 						fab->get_building()->get_intro_year_month() <= welt->get_timeline_year_month() &&
 						fab->get_building()->get_retire_year_month() >= welt->get_timeline_year_month() &&
 						adjusted_density < (max_density + (100 / fab->get_chance())))
@@ -2664,7 +2664,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 					eingang[index].max_transit,
 					(eingang[index].max >> fabrik_t::precision_bits),
 					translator::translate(eingang[index].get_typ()->get_mass()),
-					(sint32)(0.5+(desc->get_supplier(index)->get_verbrauch()*100l)/256.0)
+					(sint32)(0.5+(desc->get_supplier(index)->get_consumption()*100l)/256.0)
 				);
 			}
 			else {
@@ -2674,7 +2674,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 					eingang[index].get_in_transit(),
 					(eingang[index].max >> fabrik_t::precision_bits),
 					translator::translate(eingang[index].get_typ()->get_mass()),
-					(sint32)(0.5+(desc->get_supplier(index)->get_verbrauch()*100l)/256.0)
+					(sint32)(0.5+(desc->get_supplier(index)->get_consumption()*100l)/256.0)
 				);
 			}
 		}
@@ -3060,7 +3060,7 @@ void fabrik_t::get_tile_list( vector_tpl<koord> &tile_list ) const
 	{
 		return;
 	}
-	koord size = building_desc->get_groesse(this->get_rotate());
+	koord size = building_desc->get_size(this->get_rotate());
 	koord test;
 	// Which tiles belong to the fab?
 	for( test.x = 0; test.x < size.x; test.x++ ) {
@@ -3211,7 +3211,7 @@ uint32 fabrik_t::get_time_to_consume_stock(uint32 index)
 	// rounding errors result in monthly consumption that is too high
 	// in some cases (especially where the base production figure is low).
 	const factory_supplier_desc_t* flb = desc->get_supplier(index);
-	const uint32 vb = flb ? flb->get_verbrauch() : 0;
+	const uint32 vb = flb ? flb->get_consumption() : 0;
 	const sint32 base_production = get_current_production();
 	const sint32 consumed_per_month = max(((base_production * vb) >> 8), 1);
 

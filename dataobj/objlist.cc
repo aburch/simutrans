@@ -775,7 +775,7 @@ obj_t *objlist_t::get_convoi_vehicle() const
 	else {
 		for(  uint8 i=0;  i < top;  i++  ) {
 			uint8 typ = obj.some[i]->get_typ();
-			if(  typ >= obj_t::automobil  &&  typ <= obj_t::air_vehicle  ) {
+			if(  typ >= obj_t::road_vehicle  &&  typ <= obj_t::air_vehicle  ) {
 				return obj.some[i];
 			}
 		}

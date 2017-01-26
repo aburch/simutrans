@@ -62,7 +62,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 	vehicle_t const* const tdriver = cnv->front();
 	if(  get_filter(convoi_filter_frame_t::typ_filter)  ) {
 		switch(tdriver->get_typ()) {
-			case obj_t::automobil:
+			case obj_t::road_vehicle:
 				if(!get_filter(convoi_filter_frame_t::lkws_filter)) {
 					return false;
 				}
@@ -88,17 +88,17 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 					return false;
 				}
 				break;
-			case obj_t::monorailwaggon:
+			case obj_t::monorail_vehicle:
 				if(!get_filter(convoi_filter_frame_t::monorail_filter)) {
 					return false;
 				}
 				break;
-			case obj_t::maglevwaggon:
+			case obj_t::maglev_vehicle:
 				if(!get_filter(convoi_filter_frame_t::maglev_filter)) {
 					return false;
 				}
 				break;
-			case obj_t::narrowgaugewaggon:
+			case obj_t::narrowgauge_vehicle:
 				if(!get_filter(convoi_filter_frame_t::narrowgauge_filter)) {
 					return false;
 				}

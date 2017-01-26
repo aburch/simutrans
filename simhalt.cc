@@ -1935,7 +1935,7 @@ void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halth
 	const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos());
 	const gebaeude_t* gb = gr->find<gebaeude_t>();
 	const building_desc_t *desc = gb ? gb->get_tile()->get_desc() : NULL;
-	const koord size = desc ? desc->get_groesse() : koord(1,1);
+	const koord size = desc ? desc->get_size() : koord(1,1);
 
 	if(fab || size.x > 1 || size.y > 1)
 	{

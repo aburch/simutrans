@@ -92,8 +92,8 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// dummy types
-		old_fpl = new autoschedule_t();
-		schedule = new autoschedule_t();
+		old_fpl = new truck_schedule_t();
+		schedule = new truck_schedule_t();
 	}
 	size.rdwr( file );
 	file->rdwr_byte( player_nr );

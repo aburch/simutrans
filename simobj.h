@@ -157,11 +157,11 @@ public:
 		// reserved values for vehicles: 64 to 95
 		pedestrian=64,
 		road_user=65,
-		automobil=66,
+		road_vehicle=66,
 		rail_vehicle=67,
-		monorailwaggon=68,
-		maglevwaggon=69,
-		narrowgaugewaggon=70,
+		monorail_vehicle=68,
+		maglev_vehicle=69,
+		narrowgauge_vehicle=70,
 		water_vehicle=80,
 		air_vehicle=81,
 		movingobj=82,
@@ -170,8 +170,8 @@ public:
 		// lagerhaus = 24, (never really used)
 		// gebaeude_alt=6,	(very, very old?)
 		old_gebaeudefundament=11,	// wall below buildings, not used any more
-		old_automobil=32, old_waggon=33,
-		old_schiff=34, old_aircraft=35, old_monorailwaggon=36,
+		old_road_vehicle=32, old_waggon=33,
+		old_schiff=34, old_aircraft=35, old_monorail_vehicle=36,
 		old_verkehr=41,
 		old_fussgaenger=42,
 		old_choosesignal = 95,

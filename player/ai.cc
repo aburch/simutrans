@@ -370,7 +370,7 @@ bool ai_t::built_update_headquarter()
 				grund_t *gr = welt->lookup_kartenboden(place);
 				gebaeude_t *prev_hq = gr->find<gebaeude_t>();
 				// other size?
-				if(  desc->get_groesse()!=prev_hq->get_tile()->get_desc()->get_groesse()  ) {
+				if(  desc->get_size()!=prev_hq->get_tile()->get_desc()->get_size()  ) {
 					// needs new place
 					place = koord::invalid;
 				}
