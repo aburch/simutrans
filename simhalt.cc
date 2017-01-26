@@ -1378,6 +1378,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 		uint16 const halt_id = e.get_id();
 		halt_data[ halt_id ].best_weight = 65535u;
 		halt_data[ halt_id ].destination = 1u;
+		halt_data[ halt_id ].depth       = 1u; // to distinct them from start halts
 		markers[ halt_id ] = current_marker;
 	}
 
@@ -1407,7 +1408,6 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 		start_data.depth       = 0;
 		start_data.overcrowded = false; // start halt overcrowding is handled by routines calling this one
 		start_data.transfer    = halthandle_t();
-		overcrowded_nodes     += start_data.overcrowded;
 
 		markers[ start_halt.get_id() ] = current_marker;
 	}
@@ -1521,9 +1521,10 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 				}
 
 			}	// if not processed before
-			else if(  halt_data[ reachable_halt_id ].best_weight!=0  ) {
+			else if(  halt_data[ reachable_halt_id ].best_weight!=0  &&  halt_data[ reachable_halt_id ].depth>0) {
 				// Case : processed before but not in closed list : that is, in open list
 				//			--> can only be destination halt or transfer halt
+				//			    or start halt (filter the latter out with the condition depth>0)
 
 				uint16 total_weight = current_halt_data.best_weight + current_conn.weight;
 
