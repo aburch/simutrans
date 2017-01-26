@@ -2142,16 +2142,16 @@ dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer
 	}
 
 	// not near enough => we need to do a re-routing
+	halthandle_t old_target = ware.get_ziel();
+
 	search_route_resumable(ware);
 	if (!ware.get_ziel().is_bound()) {
-		DBG_MESSAGE("haltestelle_t::liefere_an()","%s: delivered goods (%d %s) to ??? via ??? could not be routed to their destination!",get_name(), ware.menge, translator::translate(ware.get_name()) );
 		// target halt no longer there => delete and remove from fab in transit
 		fabrik_t::update_transit( &ware, false );
 		return ware.menge;
 	}
-	// passt das zu bereits wartender ware ?
-	if(vereinige_waren(ware)) {
-		// dann sind wir schon fertig;
+	// try to join with existing freight only if target has changed
+	if(old_target != ware.get_ziel()  &&  vereinige_waren(ware)) {
 		return ware.menge;
 	}
 	// add to internal storage
