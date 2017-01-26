@@ -1395,7 +1395,7 @@ int haltestelle_t::search_route( const halthandle_t *const start_halts, const ui
 
 		uint16 start_conn_comp = start_halt->all_links[ware_catg_idx].catg_connected_component;
 
-		if (!end_conn_comp_undefined   &&  start_conn_comp != 0xffff  &&  !end_conn_comp.is_contained( start_conn_comp  )){
+		if (!end_conn_comp_undefined   &&  start_conn_comp != UNDECIDED_CONNECTED_COMPONENT  &&  !end_conn_comp.is_contained( start_conn_comp  )){
 			// this start halt will not lead to any target
 			continue;
 		}
