@@ -84,7 +84,10 @@ halt_detail_t::~halt_detail_t()
 	}
 }
 
-
+bool compare_connection(haltestelle_t::connection_t const& a, haltestelle_t::connection_t const& b)
+{
+	return strcmp(a.halt->get_name(), b.halt->get_name()) <=0;
+}
 
 void halt_detail_t::halt_detail_info()
 {
@@ -285,8 +288,15 @@ void halt_detail_t::halt_detail_info()
 			buf.append(":\n");
 			offset_y += LINESPACE;
 
+			vector_tpl<haltestelle_t::connection_t> sorted;
 			FOR(vector_tpl<haltestelle_t::connection_t>, const& conn, connections) {
 				if(  conn.halt.is_bound()  ) {
+					sorted.insert_unique_ordered(conn, compare_connection);
+				}
+			}
+			FOR(vector_tpl<haltestelle_t::connection_t>, const& conn, sorted) {
+				{
+
 
 					has_stops = true;
 
