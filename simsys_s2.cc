@@ -1,8 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- */
+* Copyright (c) 1997 - 2001 Hansjörg Malthaner
+*
+* This file is part of the Simutrans project under the artistic license.
+*
+* It contains the code to use the SDL2 backend for simutrans displayu
+*
+*/
 
 #include <SDL2/SDL.h>
 
@@ -105,8 +108,8 @@ static SDL_Cursor *hourglass;
 static SDL_Cursor *blank;
 
 
-int x_scale = 36;
-int y_scale = 36;
+int x_scale = 32;
+int y_scale = 32;
 
 
 // no autoscaling yet
@@ -712,7 +715,7 @@ static void internal_GetEvents(bool const wait)
 		break;
 	}
 	}
-	}
+}
 
 
 void GetEvents()
@@ -797,4 +800,3 @@ int main(int argc, char **argv)
 #endif
 	return sysmain(argc, argv);
 }
-
