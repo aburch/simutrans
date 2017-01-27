@@ -1680,7 +1680,6 @@ void *step_passengers_and_mail_threaded(void* args)
 		else if (karte_t::passenger_generation_thread_number == 0)
 		{
 			next_step_passenger_this_thread += karte_t::world->next_step_passenger % (karte_t::world->get_parallel_operations());
-
 		}
 
 		if (next_step_mail_this_thread < karte_t::world->mail_step_interval && karte_t::world->next_step_mail > karte_t::world->mail_step_interval)
