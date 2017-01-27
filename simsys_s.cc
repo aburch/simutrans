@@ -109,8 +109,8 @@ void* redraw_thread( void* ptr )
 	while(true) {
 		simthread_barrier_wait( &redraw_barrier );	// wait to start
 		pthread_mutex_lock( &redraw_mutex );
-		if (((redraw_param_t*)ptr)->ready) {
-			pthread_mutex_unlock(&redraw_mutex);
+		if ( ((redraw_param_t*)ptr)->ready ) {
+			pthread_mutex_unlock( &redraw_mutex );
 			break;
 		}
 		display_flush_buffer();
@@ -267,6 +267,10 @@ void dr_os_close()
 #ifdef MULTI_THREAD
 	// signal thread to return
 	pthread_mutex_lock( &redraw_mutex );
+	redraw_param.ready = true;
+	pthread_mutex_unlock( &redraw_mutex );
+	// .. and join
+	pthread_join(redraw_param.thread, NULL);
 #endif
 	SDL_FreeCursor(hourglass);
 	SDL_FreeCursor(blank);
@@ -281,10 +285,6 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 {
 #ifdef MULTI_THREAD
 	pthread_mutex_lock( &redraw_mutex );
-	redraw_param.ready = true;
-	pthread_mutex_unlock(&redraw_mutex);
-	// .. and join
-	pthread_join(redraw_param.thread, NULL);
 #endif
 	if(  use_hw  ) {
 		SDL_UnlockSurface( screen );
@@ -438,6 +438,7 @@ int dr_screenshot(const char *filename, int x, int y, int w, int h)
 		return 1;
 	}
 #endif
+	(void)(x+y+w+h);
 	return SDL_SaveBMP(SDL_GetVideoSurface(), filename) == 0 ? 1 : -1;
 }
 
@@ -704,15 +705,6 @@ void dr_stop_textinput()
 void dr_notify_input_pos(int, int)
 {
 }
-
-#ifdef _MSC_VER
-// Needed for MS Visual C++ with /SUBSYSTEM:CONSOLE to work , if /SUBSYSTEM:WINDOWS this function is compiled but unreachable
-#undef main
-int main()
-{
-   return WinMain(NULL,NULL,NULL,NULL);
-}
-#endif
 
 #ifdef _MSC_VER
 // Needed for MS Visual C++ with /SUBSYSTEM:CONSOLE to work , if /SUBSYSTEM:WINDOWS this function is compiled but unreachable
