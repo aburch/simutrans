@@ -1660,6 +1660,7 @@ void *step_passengers_and_mail_threaded(void* args)
 		total_units_passenger = 0;
 		total_units_mail = 0;
 
+#ifndef FIXED_PASSENGER_NUMBERS_PER_STEP_FOR_TESTING
 		next_step_passenger_this_thread = karte_t::world->next_step_passenger / (karte_t::world->get_parallel_operations());
 
 		next_step_mail_this_thread = karte_t::world->next_step_mail / (karte_t::world->get_parallel_operations());
@@ -1728,6 +1729,13 @@ void *step_passengers_and_mail_threaded(void* args)
 
 			} while (karte_t::world->mail_step_interval <= next_step_mail_this_thread);
 		}
+#else
+		for (uint32 i = 0; i < 2; i++)
+		{	
+			karte_t::world->generate_passengers_or_mail(warenbauer_t::passagiere);
+			karte_t::world->generate_passengers_or_mail(warenbauer_t::post);
+		}
+#endif
 
 		simthread_barrier_wait(&step_passengers_and_mail_barrier); // Having three of these is intentional.
 		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
