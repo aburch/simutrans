@@ -324,26 +324,7 @@ public:
 	void add_control_tower() { control_towers ++; }
 	void remove_control_tower() { if(control_towers > 0) control_towers --; }
 
-	/**
-	 * directly reachable halt with its connection weight
-	 * @author Knightly
-	 */
-	struct connection_t
-	{
-		/// directly reachable halt
-		halthandle_t halt;
-		/// best connection weight to reach this destination
-		uint16 weight:15;
-		/// is halt a transfer halt
-		bool is_transfer:1;
 
-		connection_t() : weight(0), is_transfer(false) { }
-		connection_t(halthandle_t _halt, uint16 _weight=0) : halt(_halt), weight(_weight), is_transfer(false) { }
-
-		bool operator == (const connection_t &other) const { return halt == other.halt; }
-		bool operator != (const connection_t &other) const { return halt != other.halt; }
-		static bool compare(const connection_t &a, const connection_t &b) { return a.halt.get_id() < b.halt.get_id(); }
-	};
 
 	bool is_transfer(const uint8 catg) const { return non_identical_schedules[catg] > 1u; }
 //	bool is_transfer(const uint8 catg) const { return all_links[catg].is_transfer; }
@@ -374,63 +355,7 @@ private:
 	 * @author Knightly
 	 */
 	uint8 *non_identical_schedules;
-//=======
-	/**
-	 * Stores information about link to cargo network of a certain category
-	 */
-	struct link_t {
-		/// List of all directly reachable halts with their respective connection weights
-		vector_tpl<connection_t> connections;
 
-		/**
-		 * A transfer/interchange is a halt whereby ware can change line or lineless convoy.
-		 * Thus, if a halt is served by 2 or more schedules (of lines or lineless convoys)
-		 * for a particular ware type, it is a transfer/interchange for that ware type.
-		 * Route searching is accelerated by differentiating transfer and non-transfer halts.
-		 * @author Knightly
-		 */
-		bool is_transfer;
-
-		/**
-		 * Id of connected component in link graph.
-		 * Two halts are connected if and only if they belong to the same connected component.
-		 * Exception: if value == UNDECIDED_CONNECTED_COMPONENT, then we are in the middle of
-		 * recalculating the link graph.
-		 *
-		 * The id of the component has to be equal to the halt-id of one of its halts.
-		 * This ensures that we always have unique component ids.
-		 */
-		uint16 catg_connected_component;
-
-#		define UNDECIDED_CONNECTED_COMPONENT (0xffff)
-
-		link_t() { clear(); }
-
-		void clear()
-		{
-			connections.clear();
-			is_transfer = false;
-			catg_connected_component = UNDECIDED_CONNECTED_COMPONENT;
-		}
-	};
-
-	/// All links to networks of all freight categories, filled by rebuild_connected_components.
-	//link_t* all_links;
-
-	/**
-	 * Fills in catg_connected_component values for all halts and all categories.
-	 * Uses depth-first search.
-	 */
-	static void rebuild_connected_components();
-
-	/**
-	 * Helper method: This halt (and all its connected neighbors) belong
-	 * to the same component.
-	 * Also sets connection_t::is_transfer.
-	 * @param catg category of cargo network
-	 * @param comp number of component
-	 */
-	void fill_connected_component(uint8 catg, uint16 comp);
 
 	// Array with different categries that contains all waiting goods at this stop
 	vector_tpl<ware_t> **waren;

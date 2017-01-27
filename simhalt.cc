@@ -157,79 +157,8 @@ halthandle_t haltestelle_t::get_halt(const koord pos, const player_t *player )
 	return halthandle_t();
 }
 
-//	static vector_tpl<halthandle_t>::iterator iter( alle_haltestellen.begin() );
-//	if (alle_haltestellen.empty()) {
-//		return;
-//	}
-//	const uint8 schedule_counter = welt->get_schedule_counter();
-//	if (reconnect_counter != schedule_counter) {
-//		// always start with reconnection, rerouting will happen after complete reconnection
-//		status_step = RECONNECTING;
-//		reconnect_counter = schedule_counter;
-//		iter = alle_haltestellen.begin();
-//	}
-
 static vector_tpl<convoihandle_t>stale_convois;
 static vector_tpl<linehandle_t>stale_lines;
-
-
-//void haltestelle_t::reset_routing()
-//{
-//	reconnect_counter = welt->get_schedule_counter()-1;
-//}
-//
-//
-//void haltestelle_t::step_all()
-//{
-//	// tell all stale convois to reroute their goods
-//	if(  !stale_convois.empty()  ) {
-//		convoihandle_t cnv = stale_convois.pop_back();
-//		if(  cnv.is_bound()  ) {
-//			cnv->check_freight();
-//		}
-//	}
-//	// same for stale lines
-//	if(  !stale_lines.empty()  ) {
-//		linehandle_t line = stale_lines.pop_back();
-//		if(  line.is_bound()  ) {
-//			line->check_freight();
-//		}
-//	}
-//
-//	static slist_tpl<halthandle_t>::iterator iter( alle_haltestellen.begin() );
-//	if (alle_haltestellen.empty()) {
-//		return;
-//	}
-//	const uint8 schedule_counter = welt->get_schedule_counter();
-//	if (reconnect_counter != schedule_counter) {
-//		// always start with reconnection, rerouting will happen after complete reconnection
-//		status_step = RECONNECTING;
-//		reconnect_counter = schedule_counter;
-//		iter = alle_haltestellen.begin();
-//	}
-//
-//	sint16 units_remaining = 128;
-//	for (; iter != alle_haltestellen.end(); ++iter) {
-//		if (units_remaining <= 0) return;
-//
-//		// iterate until the specified number of units were handled
-//		if(  !(*iter)->step(status_step, units_remaining)  ) {
-//			// too much rerouted => needs to continue at next round!
-//			return;
-//		}
-//	}
-//
-//	if (status_step == RECONNECTING) {
-//		// reconnecting finished, compute connected components in one sweep
-//		rebuild_connected_components();
-//		// reroute in next call
-//		status_step = REROUTING;
-//	}
-//	else if (status_step == REROUTING) {
-//		status_step = 0;
-//	}
-//	iter = alle_haltestellen.begin();
-//}
 
 
 void haltestelle_t::start_load_game()

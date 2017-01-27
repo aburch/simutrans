@@ -86,8 +86,6 @@ halt_detail_t::~halt_detail_t()
 	}
 }
 
-
-
 void halt_detail_t::halt_detail_info()
 {
 	if (!halt.is_bound()) {
