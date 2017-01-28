@@ -1664,7 +1664,17 @@ void *step_passengers_and_mail_threaded(void* args)
 		next_step_passenger_this_thread = karte_t::world->next_step_passenger / (karte_t::world->get_parallel_operations());
 
 		next_step_mail_this_thread = karte_t::world->next_step_mail / (karte_t::world->get_parallel_operations());
-		
+
+#ifdef FORBID_PARALLELL_PASSENGER_GENERATION
+		if (karte_t::passenger_generation_thread_number == 0)
+		{
+			next_step_passenger_this_thread = karte_t::world->next_step_passenger;
+		}
+		else
+		{
+			next_step_passenger_this_thread = 0;
+		}
+#else
 
 		if (next_step_passenger_this_thread < karte_t::world->passenger_step_interval && karte_t::world->next_step_passenger > karte_t::world->passenger_step_interval)
 		{
@@ -1699,6 +1709,7 @@ void *step_passengers_and_mail_threaded(void* args)
 		{
 			next_step_mail_this_thread += karte_t::world->next_step_mail % (karte_t::world->get_parallel_operations());
 		}
+#endif
 			
 		if (karte_t::world->passenger_step_interval <= next_step_passenger_this_thread)
 		{
@@ -6683,6 +6694,9 @@ no_route:
 					if(walking_time <= tolerance)
 					{
 						return_on_foot = true;
+#ifdef MULTI_THREAD
+						pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+#endif
 						goto return_on_foot;
 					}
 					else

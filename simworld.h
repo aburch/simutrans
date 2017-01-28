@@ -80,14 +80,15 @@ class records_t;
 #endif
 
 #ifndef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
-//#define FORBID_SYNC_OBJECTS // The desync is in the actual numbers of passengers that end up at any given stop, so this does not assist.
-//#define FORBID_PRIVATE_CARS // This does not cause the desync, but causes it to be detected more quickly. This should not be defined.
-//#define FORBID_PEDESTRIANS // This does not cause the desync, but causes it to be detected more quickly. This should not be defined.
-//#define FORBID_CONGESTION_EFFECTS // This appears to make no difference.
-//#define DISABLE_JOB_EFFECTS // This appears to make no difference
-//#define FORBID_PUBLIC_TRANSPORT // Desyncs without this defined.
-//#define FORBID_RETURN_TRIPS // This appears to make no difference
-//#define DISABLE_GLOBAL_WAITING_LIST // Will desync without this enabled
+//#define FORBID_SYNC_OBJECTS // Has no effect on rare desync (January 2017)
+//#define FORBID_PRIVATE_CARS  // Has no effect on rare desync (January 2017)
+//#define FORBID_PEDESTRIANS // Has no effect on rare desync (January 2017)
+//#define FORBID_CONGESTION_EFFECTS //  Has no effect on rare desync (January 2017)
+//#define DISABLE_JOB_EFFECTS // Has no effect on rare desync (January 2017)
+//#define FORBID_PUBLIC_TRANSPORT // This appears to prevent the rare desync when enabled (January 2017)
+//#define FORBID_RETURN_TRIPS // This appears to prevent the rare desync when enabled (January 2017)
+//#define DISABLE_GLOBAL_WAITING_LIST // Has no effect on rare desync (January 2017)
+//#define FORBID_PARALLELL_PASSENGER_GENERATION // This prevents the desync (January 2017)
 #endif
 
 struct checklist_t
