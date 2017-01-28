@@ -20,30 +20,30 @@ using std::string;
  */
 static uint8 get_engine_type(const char* engine_type, tabfileobj_t& obj)
 {
-	uint16 uv8 = vehikel_desc_t::diesel;
+	uint16 uv8 = vehicle_desc_t::diesel;
 
 	if (!STRICMP(engine_type, "diesel")) {
-		uv8 = vehikel_desc_t::diesel;
+		uv8 = vehicle_desc_t::diesel;
 	} else if (!STRICMP(engine_type, "electric")) {
-		uv8 = vehikel_desc_t::electric;
+		uv8 = vehicle_desc_t::electric;
 	} else if (!STRICMP(engine_type, "steam")) {
-		uv8 = vehikel_desc_t::steam;
+		uv8 = vehicle_desc_t::steam;
 	} else if (!STRICMP(engine_type, "bio")) {
-		uv8 = vehikel_desc_t::bio;
+		uv8 = vehicle_desc_t::bio;
 	} else if (!STRICMP(engine_type, "sail")) {
-		uv8 = vehikel_desc_t::sail;
+		uv8 = vehicle_desc_t::sail;
 	} else if (!STRICMP(engine_type, "fuel_cell")) {
-		uv8 = vehikel_desc_t::fuel_cell;
+		uv8 = vehicle_desc_t::fuel_cell;
 	} else if (!STRICMP(engine_type, "hydrogene")) {
-		uv8 = vehikel_desc_t::hydrogene;
+		uv8 = vehicle_desc_t::hydrogene;
 	} else if (!STRICMP(engine_type, "battery")) {
-		uv8 = vehikel_desc_t::battery;
+		uv8 = vehicle_desc_t::battery;
 	} else if (!STRICMP(engine_type, "petrol")) {
-		uv8 = vehikel_desc_t::petrol;
+		uv8 = vehicle_desc_t::petrol;
 	} else if (!STRICMP(engine_type, "turbine")) {
-		uv8 = vehikel_desc_t::turbine;
+		uv8 = vehicle_desc_t::turbine;
 	} else if (!STRICMP(engine_type, "unknown")) {
-		uv8 = vehikel_desc_t::unknown;
+		uv8 = vehicle_desc_t::unknown;
 	}
 
 	return uv8;

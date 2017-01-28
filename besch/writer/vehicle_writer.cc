@@ -20,32 +20,32 @@ using std::string;
 /**
  * Calculate numeric engine type from engine type string
  */
-static vehikel_desc_t::engine_t get_engine_type(char const* const engine_type)
+static vehicle_desc_t::engine_t get_engine_type(char const* const engine_type)
 {
-	vehikel_desc_t::engine_t uv8 = vehikel_desc_t::diesel;
+	vehicle_desc_t::engine_t uv8 = vehicle_desc_t::diesel;
 
 	if (!STRICMP(engine_type, "diesel")) {
-		uv8 = vehikel_desc_t::diesel;
+		uv8 = vehicle_desc_t::diesel;
 	} else if (!STRICMP(engine_type, "electric")) {
-		uv8 = vehikel_desc_t::electric;
+		uv8 = vehicle_desc_t::electric;
 	} else if (!STRICMP(engine_type, "steam")) {
-		uv8 = vehikel_desc_t::steam;
+		uv8 = vehicle_desc_t::steam;
 	} else if (!STRICMP(engine_type, "bio")) {
-		uv8 = vehikel_desc_t::bio;
+		uv8 = vehicle_desc_t::bio;
 	} else if (!STRICMP(engine_type, "sail")) {
-		uv8 = vehikel_desc_t::sail;
+		uv8 = vehicle_desc_t::sail;
 	} else if (!STRICMP(engine_type, "fuel_cell")) {
-		uv8 = vehikel_desc_t::fuel_cell;
+		uv8 = vehicle_desc_t::fuel_cell;
 	} else if (!STRICMP(engine_type, "hydrogene")) {
-		uv8 = vehikel_desc_t::hydrogene;
+		uv8 = vehicle_desc_t::hydrogene;
 	} else if (!STRICMP(engine_type, "battery")) {
-		uv8 = vehikel_desc_t::battery;
+		uv8 = vehicle_desc_t::battery;
 	} else if (!STRICMP(engine_type, "petrol")) {
-		uv8 = vehikel_desc_t::petrol;
+		uv8 = vehicle_desc_t::petrol;
 	} else if (!STRICMP(engine_type, "turbine")) {
-		uv8 = vehikel_desc_t::turbine;
+		uv8 = vehicle_desc_t::turbine;
 	} else if (!STRICMP(engine_type, "unknown")) {
-		uv8 = vehikel_desc_t::unknown;
+		uv8 = vehicle_desc_t::unknown;
 	}
 
 	// printf("Engine type %s -> %d\n", engine_type, uv8);
@@ -229,7 +229,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// engine
 	if (waytype == overheadlines_wt) {
 		// Hajo: compatibility for old style DAT files
-		uv8 = vehikel_desc_t::electric;
+		uv8 = vehicle_desc_t::electric;
 	}
 	else {
 		const char* engine_type = obj.get("engine_type");
@@ -855,7 +855,7 @@ end:
 
 	// Air resistance
 	// @author: jamespetts & Bernd Gabriel
-	uint16 air_default = vehikel_desc_t::get_air_default(waytype);
+	uint16 air_default = vehicle_desc_t::get_air_default(waytype);
 
 	uint16 air_resistance_hundreds = obj.get_int("air_resistance", air_default);
 	node.write_uint16(fp, air_resistance_hundreds, pos);
@@ -901,7 +901,7 @@ end:
 	node.write_uint16(fp, max_loading_time, pos);
 	pos += sizeof(uint16);
 
-	uint16 rolling_default = vehikel_desc_t::get_rolling_default(waytype);
+	uint16 rolling_default = vehicle_desc_t::get_rolling_default(waytype);
 
 	uint16 rolling_resistance_tenths_thousands = obj.get_int("rolling_resistance", rolling_default);
 	node.write_uint16(fp, rolling_resistance_tenths_thousands, pos);
