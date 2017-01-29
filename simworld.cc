@@ -6733,7 +6733,7 @@ no_route:
 				// Now try to add them to the target halt
 				ware_t test_passengers;
 				test_passengers.set_ziel(start_halts[best_bad_start_halt].halt);
-#ifdef FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS
+#ifndef FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS
 				const bool overcrowded_route = ret_halt->find_route(test_passengers) < UINT32_MAX_VALUE;
 #else
 				const bool overcrowded_route = false;
@@ -6752,7 +6752,7 @@ no_route:
 						return_pax.set_zielpos(origin_pos.get_2d());
 						return_pax.set_ziel(start_halt);
 						return_pax.is_commuting_trip = trip == commuting_trip;
-#ifdef FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS
+#ifndef FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS
 						if(ret_halt->find_route(return_pax) < UINT32_MAX_VALUE)
 #else
 						if(true)
