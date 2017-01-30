@@ -232,7 +232,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	//HACK: I have no idea why the above does not work.
-	if (experimental && v == 49928)
+	if (experimental && (v == 49928 && version == 8) || (v == 49929 && version == 9))
 	{
 		experimental_version = 3;
 	}

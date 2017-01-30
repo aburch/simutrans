@@ -149,7 +149,8 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const building_tile_desc_t
 
 	if(tile->get_desc()->get_type() == building_desc_t::city_res)
 	{
-		people.population = tile->get_desc()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_desc()->get_level() * welt->get_settings().get_population_per_level() : tile->get_desc()->get_population_and_visitor_demand_capacity();
+		const uint16 population = tile->get_desc()->get_population_and_visitor_demand_capacity();
+		people.population = population == 65535 ? tile->get_desc()->get_level() * welt->get_settings().get_population_per_level() : population;
 		adjusted_people.population = welt->calc_adjusted_monthly_figure(people.population);
 		if(people.population > 0 && adjusted_people.population == 0)
 		{
@@ -166,7 +167,8 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const building_tile_desc_t
 	}
 	else
 	{
-		people.visitor_demand = tile->get_desc()->get_population_and_visitor_demand_capacity() == 65535 ? tile->get_desc()->get_level() * welt->get_settings().get_visitor_demand_per_level() : tile->get_desc()->get_population_and_visitor_demand_capacity();
+		const uint16 population_and_visitor_demand_capacity = tile->get_desc()->get_population_and_visitor_demand_capacity();
+		people.visitor_demand = population_and_visitor_demand_capacity == 65535 ? tile->get_desc()->get_level() * welt->get_settings().get_visitor_demand_per_level() : population_and_visitor_demand_capacity;
 		adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
 		if(people.visitor_demand > 0 && adjusted_people.visitor_demand == 0)
 		{
@@ -470,15 +472,11 @@ void gebaeude_t::set_stadt(stadt_t *s)
 }
 
 
-
-
 /* make this building without construction */
 void gebaeude_t::add_alter(sint64 a)
 {
 	purchase_time -= min(a,purchase_time);
 }
-
-
 
 
 void gebaeude_t::set_tile( const building_tile_desc_t *new_tile, bool start_with_construction )
