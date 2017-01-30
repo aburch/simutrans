@@ -3258,7 +3258,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 void stadt_t::check_bau_spezial(bool new_town)
 {
 	// touristenattraktion bauen
-	const building_desc_t* desc = hausbauer_t::get_special(has_townhall ? bev : 0, building_desc_t::townhall, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos));
+	const building_desc_t* desc = hausbauer_t::get_special(has_townhall ? bev : 0, building_desc_t::attraction_city, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos));
 	if (desc != NULL) {
 		if (simrand(100, "void stadt_t::check_bau_spezial") < (uint)desc->get_chance()) {
 			// build was immer es ist

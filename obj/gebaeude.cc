@@ -147,7 +147,9 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const building_tile_desc_t
 		player_t::add_maintenance(get_owner(), maint, tile->get_desc()->get_finance_waytype() );
 	}
 
-	if(tile->get_desc()->get_type() == building_desc_t::city_res)
+	const building_desc_t::btype type = tile->get_desc()->get_type();
+
+	if(type == building_desc_t::city_res)
 	{
 		const uint16 population = tile->get_desc()->get_population_and_visitor_demand_capacity();
 		people.population = population == 65535 ? tile->get_desc()->get_level() * welt->get_settings().get_population_per_level() : population;
@@ -157,7 +159,7 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const building_tile_desc_t
 			adjusted_people.population = 1;
 		}
 	}
-	else if(tile->get_desc()->get_type() == building_desc_t::city_ind)
+	else if(type == building_desc_t::city_ind)
 	{
 		people.visitor_demand = adjusted_people.visitor_demand = 0;
 	}
@@ -176,7 +178,7 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const building_tile_desc_t
 		}
 	}
 	
-	jobs = tile->get_desc()->get_employment_capacity() == 65535 ? (is_monument() || tile->get_desc()->get_type() == building_desc_t::city_res) ? 0 : tile->get_desc()->get_level() * welt->get_settings().get_jobs_per_level() : tile->get_desc()->get_employment_capacity();
+	jobs = tile->get_desc()->get_employment_capacity() == 65535 ? (is_monument() || type == building_desc_t::city_res) ? 0 : tile->get_desc()->get_level() * welt->get_settings().get_jobs_per_level() : tile->get_desc()->get_employment_capacity();
 	mail_demand = tile->get_desc()->get_mail_demand_and_production_capacity() == 65535 ? is_monument() ? 0 : tile->get_desc()->get_level() * welt->get_settings().get_mail_per_level() : tile->get_desc()->get_mail_demand_and_production_capacity();
 
 	adjusted_jobs = welt->calc_adjusted_monthly_figure(jobs);

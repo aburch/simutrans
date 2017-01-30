@@ -227,14 +227,8 @@ public:
 
 	void get_description(cbuffer_t & buf) const;
 
-	/**
-	* Town hall
-	*/
 	bool is_townhall() const;
 
-	/**
-	* "Head office" (Google)
-	*/
 	bool is_headquarter() const;
 
 	bool is_monument() const;
