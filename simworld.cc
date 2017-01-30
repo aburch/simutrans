@@ -5751,7 +5751,7 @@ void karte_t::check_transferring_cargoes()
 	const sint64 current_time = ticks;
 	ware_t ware;
 #ifdef MULTI_THREAD
-	sint32 po = get_parallel_operations();;
+	sint32 po = get_parallel_operations();
 #else
 	sint32 po = 1;
 #endif
@@ -6425,7 +6425,6 @@ uint32 karte_t::generate_passengers_or_mail(const ware_desc_t * wtyp)
 				tolerance -= best_journey_time;
 				quasi_tolerance -= best_journey_time;
 			}
-			pax.arrival_time = get_zeit_ms();
 			pax.set_origin(start_halt);
 			start_halt->starte_mit_route(pax, origin_pos.get_2d());
 #ifdef MULTI_THREAD
@@ -6693,14 +6692,14 @@ no_route:
 			bool return_in_private_car = route_status == private_car;
 			bool return_on_foot = route_status == on_foot;
 
-			if(!return_in_private_car && !return_on_foot)
+			if (!return_in_private_car && !return_on_foot)
 			{
-				if(!ret_halt.is_bound())
+				if (!ret_halt.is_bound())
 				{
 #ifdef FORBID_SWITCHING_TO_RETURN_ON_FOOT
-					if(false)
+					if (false)
 #else
-					if(walking_time <= tolerance)
+					if (walking_time <= tolerance)
 #endif
 					{
 						return_on_foot = true;
@@ -6716,99 +6715,119 @@ no_route:
 						continue;
 					}
 				}
-				
-				bool found = false;
-				FOR(vector_tpl<nearby_halt_t>, const nearby_halt, start_halts)
-				{
-					halthandle_t test_halt = nearby_halt.halt;
-				
-					if(test_halt->is_enabled(wtyp) && (start_halt == test_halt || test_halt->get_connexions(wtyp->get_catg_index())->get(start_halt) != NULL))
-					{
-						found = true;
-						start_halt = test_halt;
-						break;
-					}
-				}
+
+				bool found_alternative_return_route = false;				
 
 				// Now try to add them to the target halt
-				ware_t test_passengers;
-				test_passengers.set_ziel(start_halts[best_bad_start_halt].halt);
-#ifndef FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_1
-				const bool overcrowded_route = ret_halt->find_route(test_passengers) < UINT32_MAX_VALUE;
-#else
-				const bool overcrowded_route = false;
-#endif
-				if(!ret_halt->is_overcrowded(wtyp->get_index()) || !overcrowded_route)
-				{
-					// prissi: not overcrowded and can recieve => add them
-					// Only mark the passengers as unable to get to their destination
-					// due to overcrowding if they could get to their destination
-					// if the stop was not overcroweded.
-					if(found) 
-					{
-						ware_t return_pax(wtyp, ret_halt);
-						return_pax.menge = units_this_step;
+				const bool return_halt_is_overcrowded = ret_halt->is_overcrowded(wtyp->get_index());
 
-						return_pax.set_zielpos(origin_pos.get_2d());
-						return_pax.set_ziel(start_halt);
-						return_pax.is_commuting_trip = trip == commuting_trip;
-#ifndef FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_2
-						if(ret_halt->find_route(return_pax) < UINT32_MAX_VALUE)
-#else
-						if(true)
+				bool direct_return_available = false;
+				ware_t return_passengers(wtyp, ret_halt);
+
+#ifndef FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_1
+				return_passengers.menge = units_this_step;
+				// Overcrowding at the origin stop does not prevent a return to this stop.
+				// best_bad_start_halt is actually the best start halt irrespective of overcrowding:
+				// if the start halt is not overcrowded, this will be the actual start halt.
+				return_passengers.set_ziel(start_halts[best_bad_start_halt].halt); 
+				return_passengers.set_zielpos(origin_pos.get_2d());
+				return_passengers.is_commuting_trip = trip == commuting_trip;
+
+				// Passengers will always use the same return route as the route out if available.
+				// (Passengers in real life are lazy, and this reduces compuational load)
+				// We still need to do this even if the return halt is overcrowded so that we can
+				// have accurate statistics. 
+				direct_return_available = ret_halt->find_route(return_passengers) < UINT32_MAX_VALUE;
 #endif
+				if (!direct_return_available)
+				{
+					// Try to return to one of the other halts near the origin (now the destination)
+					uint32 return_journey_time = UINT32_MAX;
+					FOR(vector_tpl<nearby_halt_t>, const nearby_halt, start_halts)
+					{
+						halthandle_t test_halt = nearby_halt.halt;
+						haltestelle_t::connexion* cnx = test_halt->get_connexions(wtyp->get_catg_index())->get(ret_halt);
+						const uint32 jt = cnx ? cnx->journey_time : UINT32_MAX_VALUE;
+
+						if (test_halt->is_enabled(wtyp) && (ret_halt == test_halt || jt < return_journey_time))
 						{
-							return_pax.arrival_time = get_zeit_ms();
-#ifndef FORBID_STARTE_MIT_ROUTE_FOR_RETURNING_PASSENGERS
-							ret_halt->starte_mit_route(return_pax, pax.get_zielpos());
-#endif
-						}
-						if(current_destination.type == factory && (trip == commuting_trip || trip == mail_trip))
-						{
-							// This is somewhat anomalous, as we are recording that the passengers have departed, not arrived, whereas for cities, we record
-							// that they have successfully arrived. However, this is not easy to implement for factories, as passengers do not store their ultimate
-							// origin, so the origin factory is not known by the time that the passengers reach the end of their journey.
-#ifdef MULTI_THREAD
-							pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
-#endif
-							current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
-#ifdef MULTI_THREAD
-							pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
-#endif
+							found_alternative_return_route = true;
+							return_journey_time = jt;
+							start_halt = test_halt;
 						}
 					}
-					else 
+				}
+				
+				bool can_return = direct_return_available;
+
+				// Only mark the passengers as being unable to get to their 
+				// destination due to overcrowding if they could get to 
+				// their destination if the stop were not overcrowded.
+				if(direct_return_available || found_alternative_return_route)
+				{					
+					if (!direct_return_available)
 					{
-						// no route back
-						if(walking_time <= tolerance)
+						return_passengers.set_ziel(start_halt);
+
+#ifndef FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_2
+						can_return = ret_halt->find_route(return_passengers) < UINT32_MAX_VALUE;
+					}
+#endif
+					if (can_return)
+					{
+						if (!return_halt_is_overcrowded)
 						{
-							return_on_foot = true;
+#ifndef FORBID_STARTE_MIT_ROUTE_FOR_RETURNING_PASSENGERS
+							ret_halt->starte_mit_route(return_passengers, pax.get_zielpos());
+#endif
+							if (current_destination.type == factory && (trip == commuting_trip || trip == mail_trip))
+							{
+								// This is somewhat anomalous, as we are recording that the passengers have departed, not arrived, whereas for cities, we record
+								// that they have successfully arrived. However, this is not easy to implement for factories, as passengers do not store their ultimate
+								// origin, so the origin factory is not known by the time that the passengers reach the end of their journey.
+#ifdef MULTI_THREAD
+								pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+#endif
+								current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
+#ifdef MULTI_THREAD
+								pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+#endif
+							}
 						}
 						else
-						{	
+						{
+							// Return halt crowded. Either return on foot or mark unhappy.
+							if (walking_time <= tolerance)
+							{
+								return_on_foot = true;
+							}
+							else
+							{
 #ifdef MULTI_THREAD
-							pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+								pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 #endif
-							ret_halt->add_pax_no_route(units_this_step);
+								ret_halt->add_pax_unhappy(units_this_step);
 #ifdef MULTI_THREAD
-							pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+								pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 #endif
+							}
 						}
 					}
 				}
 				else
 				{
-					// Return halt crowded. Either return on foot or mark unhappy.
+					// No route back by public transport.
+					// Either walk or mark as no route.
 					if(walking_time <= tolerance)
 					{
 						return_on_foot = true;
 					}
-					else if(overcrowded_route)
+					else
 					{
 #ifdef MULTI_THREAD
 						pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 #endif
-						ret_halt->add_pax_unhappy(units_this_step);
+						ret_halt->add_pax_no_route(units_this_step);
 #ifdef MULTI_THREAD
 						pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 #endif

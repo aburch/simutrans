@@ -1199,15 +1199,15 @@ void haltestelle_t::step()
 	}
 	categories_to_refresh_next_step.clear();
 
+	check_transferring_cargoes();
+
 	recalc_status();
 
 	if(status_color == COL_RED || old_status_color != status_color)
 	{
 		// The transfer time needs recalculating if the stop is overcrowded.
 		calc_transfer_time();
-	}
-
-	check_transferring_cargoes();
+	}	
 
 	// Every 256 steps - check whether passengers/goods have been waiting too long.
 	// Will overflow at 255.
@@ -2062,7 +2062,11 @@ uint32 haltestelle_t::find_route(ware_t &ware, const uint32 previous_journey_tim
 void haltestelle_t::add_pax_happy(int n)
 {
 	book(n, HALT_HAPPY);
-	recalc_status();
+	// The below is probably not thread-safe for multiplayer
+	if (!env_t::networkmode)
+	{
+		recalc_status();
+	}
 }
 
 /**
@@ -2072,7 +2076,11 @@ void haltestelle_t::add_pax_happy(int n)
 void haltestelle_t::add_pax_unhappy(int n)
 {
 	book(n, HALT_UNHAPPY);
-	recalc_status();
+	// The below is probably not thread-safe for multiplayer
+	if (!env_t::networkmode)
+	{
+		recalc_status();
+	}
 }
 
 // Found a route, but too slow.
