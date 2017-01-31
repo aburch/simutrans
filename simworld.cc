@@ -6703,10 +6703,6 @@ no_route:
 #endif
 					{
 						return_on_foot = true;
-#ifdef MULTI_THREAD
-						// This mutex lock is necessary because the goto command jumps to a section protected by a lock.
-						pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
-#endif
 						goto return_on_foot;
 					}
 					else
@@ -6835,11 +6831,11 @@ no_route:
 				}
 			}
 		
-#ifdef MULTI_THREAD
-			pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
-#endif
 			if(return_in_private_car)
 			{
+#ifdef MULTI_THREAD
+				pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+#endif
 				if(car_minutes < UINT32_MAX_VALUE)
 				{
 					// Do not check tolerance, as they must come back!
@@ -6886,10 +6882,16 @@ no_route:
 						city->merke_passagier_ziel(origin_pos.get_2d(), COL_DARK_ORANGE);
 					}
 				}
+#ifdef MULTI_THREAD
+				pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+#endif
 			}
 return_on_foot:
 			if(return_on_foot)
 			{
+#ifdef MULTI_THREAD
+				pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+#endif
 				if(wtyp == warenbauer_t::passagiere)
 				{
 					if (settings.get_random_pedestrians())
@@ -6927,10 +6929,11 @@ return_on_foot:
 				{
 					current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
 				}
-			}
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 #endif
+			}
+
 		} // Set return trip
 	} // Onward journeys (for loop)
 	return units_this_step;
