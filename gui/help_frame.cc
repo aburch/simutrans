@@ -146,7 +146,7 @@ help_frame_t::help_frame_t(char const* const filename) :
 	add_helpfile( how_to_play, NULL, "station.txt", false, 0 );
 	add_helpfile( how_to_play, NULL, "station_details.txt", false, 1 );
 	add_helpfile( how_to_play, NULL, "industry_info.txt", false, 0 );
-	add_helpfile( how_to_play, "Spielerlist", "players.txt", false, 0 );
+	add_helpfile( how_to_play, "Spielerliste", "players.txt", false, 0 );
 	add_helpfile( how_to_play, "Finanzen", "finances.txt", false, 1 );
 	add_helpfile( how_to_play, "Farbe", "color.txt", false, 1 );
 //		add_helpfile( how_to_play, "Scenario", "scenario.txt", false, 1 );
