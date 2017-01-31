@@ -2910,7 +2910,7 @@ bool road_vehicle_t::choose_route( sint32 &restart_speed, ribi_t::ribi start_dir
 			// now it make sense to search a route
 			route_t target_rt;
 			koord3d next3d = rt->at(index);
-			if(  !target_rt.find_route(welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), start_direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 33, route_t::choose_signal )  ) {
+			if(  !target_rt.find_route(welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), start_direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 33, cnv->has_tall_vehicles(), route_t::choose_signal )  ) {
 				// nothing empty or not route with less than 33 tiles
 				target_halt = halthandle_t();
 				restart_speed = 0;
@@ -3167,7 +3167,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 										// now it make sense to search a route
 										route_t target_rt;
 										koord3d next3d = r.at(test_index);
-										if (!target_rt.find_route(welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), curr_90direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 33, route_t::choose_signal)) {
+										if (!target_rt.find_route(welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), curr_90direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 33, cnv->has_tall_vehicles(), route_t::choose_signal)) {
 											// nothing empty or not route with less than 33 tiles
 											target_halt = halthandle_t();
 											restart_speed = 0;
