@@ -1792,7 +1792,7 @@ void *step_convoys_threaded(void* args)
 
 void* step_individual_convoy_threaded(void* args)
 {
-	pthread_cleanup_push(&route_t::TERM_NODES, NULL);
+	//pthread_cleanup_push(&route_t::TERM_NODES, NULL);
 	const uint32* thread_number_ptr = (const uint32*)args;
 	const uint32 thread_number = *thread_number_ptr;
 	delete thread_number_ptr;
@@ -1815,7 +1815,8 @@ void* step_individual_convoy_threaded(void* args)
 		simthread_barrier_wait(&step_convoys_barrier_internal);
 	} while (!karte_t::world->is_terminating_threads());
 	
-	pthread_cleanup_pop(1); 
+	//pthread_cleanup_pop(1); 
+	route_t::TERM_NODES(); 
 
 	pthread_exit(NULL);
 	return args;
