@@ -305,7 +305,7 @@ private:
 
 
 	// Array with different categories that contains all waiting goods at this stop
-	vector_tpl<ware_t> **goods;
+	vector_tpl<ware_t> **cargo;
 
 	/**
 	 * Liste der angeschlossenen Fabriken
@@ -622,7 +622,7 @@ public:
 	uint32 get_ware_fuer_zwischenziel(const goods_desc_t *warentyp, const halthandle_t zwischenziel) const;
 
 	// true, if we accept/deliver this kind of good
-	bool gibt_ab(const goods_desc_t *warentyp) const { return goods[warentyp->get_catg_index()] != NULL; }
+	bool gibt_ab(const goods_desc_t *warentyp) const { return cargo[warentyp->get_catg_index()] != NULL; }
 
 	/* retrieves a ware packet for any destination in the list
 	 * needed, if the factory in question wants to remove something
