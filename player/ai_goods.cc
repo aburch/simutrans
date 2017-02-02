@@ -146,7 +146,7 @@ bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 			fabrik_t* const qfab = fabrik_t::get_fab(q);
 			const factory_desc_t* const fd = qfab->get_desc();
 			for(  uint qq = 0;  qq < fd->get_product_count();  qq++  ) {
-				if(  fd->get_product(qq)->get_ware() == ware  &&
+				if(  fd->get_product(qq)->get_output_type() == ware  &&
 					 !is_forbidden(qfab, fab, ware)  &&
 					 !is_connected(q, fab->get_pos().get_2d(), ware)  ) {
 					// find out how much is there
@@ -202,7 +202,7 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 			if( !is_forbidden( qfab, fab, ware ) ) {
 				const factory_desc_t* const fd = qfab->get_desc();
 				for (uint qq = 0; qq < fd->get_product_count(); qq++) {
-					if (fd->get_product(qq)->get_ware() == ware ) {
+					if (fd->get_product(qq)->get_output_type() == ware ) {
 						int n = get_factory_tree_missing_count( qfab );
 						if(n>=0) {
 							complete = true;

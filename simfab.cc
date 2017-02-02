@@ -583,7 +583,7 @@ void fabrik_t::recalc_storage_capacities()
 			FOR(array_tpl<ware_production_t>, & g, ausgang) {
 				for(  uint b=0;  b<desc->get_product_count();  ++b  ) {
 					const factory_product_desc_t *const output = desc->get_product(b);
-					if (g.get_typ() == output->get_ware()) {
+					if (g.get_typ() == output->get_output_type()) {
 						// Outputs are now normalized to factory production.
 						uint32 prod_factor = output->get_factor();
 						g.max = (sint32)((((sint64)((output->get_capacity() << precision_bits) + share) << DEFAULT_PRODUCTION_FACTOR_BITS) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
@@ -609,7 +609,7 @@ void fabrik_t::recalc_storage_capacities()
 		FOR(array_tpl<ware_production_t>, & g, ausgang) {
 			for(  uint b=0;  b<desc->get_product_count();  ++b  ) {
 				const factory_product_desc_t *const output = desc->get_product(b);
-				if (g.get_typ() == output->get_ware()) {
+				if (g.get_typ() == output->get_output_type()) {
 					// Outputs are now normalized to factory production.
 					uint32 prod_factor = output->get_factor();
 					g.max = (sint32)(((((sint64)output->get_capacity() * (sint64)prodbase) << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / ((sint64)desc->get_productivity() * (sint64)prod_factor));
@@ -814,7 +814,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* fabesch,
 	ausgang.resize( fabesch->get_product_count() );
 	for(  uint g=0;  g<fabesch->get_product_count();  ++g  ) {
 		const factory_product_desc_t *const product = fabesch->get_product(g);
-		ausgang[g].set_typ( product->get_ware() );
+		ausgang[g].set_typ( product->get_output_type() );
 	}
 
 	recalc_storage_capacities();

@@ -37,7 +37,7 @@ void factory_product_desc_t::calc_checksum(checksum_t *chk) const
 {
 	chk->input(capacity);
 	chk->input(factor);
-	chk->input(get_ware()->get_name());
+	chk->input(get_output_type()->get_name());
 }
 
 

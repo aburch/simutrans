@@ -233,9 +233,9 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 				buf.append("\n");
 				for (uint i = 0; i < fac_desc->get_product_count(); i++) {
 					buf.append(" - ");
-					buf.append( translator::translate(fac_desc->get_product(i)->get_ware()->get_name()) );
+					buf.append( translator::translate(fac_desc->get_product(i)->get_output_type()->get_name()) );
 					buf.append( " (" );
-					buf.append( translator::translate(fac_desc->get_product(i)->get_ware()->get_catg_name()) );
+					buf.append( translator::translate(fac_desc->get_product(i)->get_output_type()->get_catg_name()) );
 					buf.append( ")\n" );
 				}
 				buf.append("\n");

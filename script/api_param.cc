@@ -426,7 +426,7 @@ namespace script_api {
 				const ware_production_t& out = fab->get_ausgang()[i];
 				const factory_product_desc_t* desc = fab->get_desc()->get_product(i);
 				// sanity check
-				if (desc  &&  desc->get_ware() == out.get_typ()) {
+				if (desc  &&  desc->get_output_type() == out.get_typ()) {
 					return desc;
 				}
 			}
