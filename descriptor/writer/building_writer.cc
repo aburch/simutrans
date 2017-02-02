@@ -1,7 +1,7 @@
 #include <string>
 #include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
-#include "../haus_besch.h"
+#include "../building_desc.h"
 #include "obj_pak_exception.h"
 #include "obj_node.h"
 #include "text_writer.h"

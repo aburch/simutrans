@@ -10,7 +10,7 @@
 #include "../simcolor.h"
 #include "../gui/simwin.h"
 #include "../simmenu.h"
-#include "../besch/skin_besch.h"
+#include "../besch/skin_desc.h"
 #include "../dataobj/translator.h"
 #include "../obj/label.h"
 #include "../player/simplay.h"

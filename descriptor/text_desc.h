@@ -7,7 +7,7 @@
 #ifndef __TEXT_BESCH_H
 #define __TEXT_BESCH_H
 
-#include "obj_besch.h"
+#include "obj_desc.h"
 
 
 /*

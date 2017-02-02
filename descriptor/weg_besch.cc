@@ -1,5 +1,5 @@
 /*
- * weg_besch.cc
+ * way_desc.cc
  *
  * Copyright (c) 1997 - 2012 Hj. Malthaner and
  *        the simutrans development team
@@ -8,7 +8,7 @@
  * (see license.txt)
  */
 
-#include "weg_besch.h"
+#include "way_desc.h"
 #include "../network/checksum.h"
 
 

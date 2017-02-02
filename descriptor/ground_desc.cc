@@ -16,7 +16,7 @@
 #include "../display/simgraph.h"
 #include "../simconst.h"
 #include "spezial_obj_tpl.h"
-#include "grund_besch.h"
+#include "ground_desc.h"
 #include "../dataobj/environment.h"
 
 //const int totalslopes_single = 16;

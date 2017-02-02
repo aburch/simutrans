@@ -18,7 +18,7 @@
 
 #include "../boden/grund.h"
 
-#include "../besch/baum_besch.h"
+#include "../besch/tree_desc.h"
 
 #include "../obj/groundobj.h"
 

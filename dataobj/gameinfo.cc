@@ -16,7 +16,7 @@
 #include "../simworld.h"
 #include "../simcity.h"
 #include "../simhalt.h"
-#include "../besch/grund_besch.h"
+#include "../besch/ground_desc.h"
 #include "../player/simplay.h"
 #include "../gui/karte.h"
 #include "../utils/simrandom.h"

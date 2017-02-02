@@ -1,6 +1,6 @@
 #include "../../dataobj/tabfile.h"
 
-#include "../ware_besch.h"
+#include "../goods_desc.h"
 #include "obj_node.h"
 #include "text_writer.h"
 

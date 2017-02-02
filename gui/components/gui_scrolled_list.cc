@@ -19,7 +19,7 @@
 
 #include "../../display/simgraph.h"
 #include "../../simcolor.h"
-#include "../../besch/skin_besch.h"
+#include "../../besch/skin_desc.h"
 #include "../../simskin.h"
 
 

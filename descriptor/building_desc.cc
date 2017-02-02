@@ -7,7 +7,7 @@
 
 #include "../simworld.h"
 
-#include "haus_besch.h"
+#include "building_desc.h"
 #include "../network/checksum.h"
 
 
@@ -179,7 +179,7 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 
 
 /**
-* @station get functions - see haus_besch.h for variable information
+* @station get functions - see building_desc.h for variable information
 * @author jamespetts
 */
 

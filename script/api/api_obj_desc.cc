@@ -8,10 +8,10 @@
 #include "get_next.h"
 #include "../api_class.h"
 #include "../api_function.h"
-#include "../../besch/bruecke_besch.h"
-#include "../../besch/haus_besch.h"
-#include "../../besch/vehikel_besch.h"
-#include "../../besch/ware_besch.h"
+#include "../../besch/bridge_desc.h"
+#include "../../besch/building_desc.h"
+#include "../../besch/vehicle_desc.h"
+#include "../../besch/goods_desc.h"
 #include "../../bauer/brueckenbauer.h"
 #include "../../bauer/hausbauer.h"
 #include "../../bauer/tunnelbauer.h"
@@ -36,7 +36,7 @@ SQInteger get_next_ware_desc(HSQUIRRELVM vm)
 }
 
 
-SQInteger get_ware_besch_index(HSQUIRRELVM vm)
+SQInteger get_goods_desc_index(HSQUIRRELVM vm)
 {
 	uint32 index = param<uint32>::get(vm, -1);
 
@@ -556,7 +556,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Meta-method to be used in foreach loops. Do not call them directly.
 	 */
-	register_function(vm, get_ware_besch_index, "_get",    2, "xi");
+	register_function(vm, get_goods_desc_index, "_get",    2, "xi");
 
 	end_class(vm);
 

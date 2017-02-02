@@ -35,8 +35,8 @@
 #include "../boden/grund.h"
 #include "../boden/wege/weg.h"
 
-#include "../besch/stadtauto_besch.h"
-#include "../besch/roadsign_besch.h"
+#include "../besch/citycar_desc.h"
+#include "../besch/roadsign_desc.h"
 
 
 #include "../utils/cbuffer_t.h"

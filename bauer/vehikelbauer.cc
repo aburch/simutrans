@@ -16,7 +16,7 @@
 #include "../dataobj/tabfile.h"
 #include "../dataobj/loadsave.h"
 
-#include "../besch/vehikel_besch.h"
+#include "../besch/vehicle_desc.h"
 
 #include "vehikelbauer.h"
 

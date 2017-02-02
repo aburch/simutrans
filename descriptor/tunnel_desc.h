@@ -19,10 +19,10 @@
 
 #include "../display/simimg.h"
 #include "../simtypes.h"
-#include "obj_besch_std_name.h"
-#include "skin_besch.h"
+#include "obj_desc_std_name.h"
+#include "skin_desc.h"
 #include "bildliste2d_besch.h"
-#include "weg_besch.h"
+#include "way_desc.h"
 
 
 class tunnel_desc_t : public obj_desc_transport_infrastructure_t {

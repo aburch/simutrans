@@ -4,10 +4,10 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __fussgaenger_besch_h
-#define __fussgaenger_besch_h
+#ifndef __pedestrian_desc_h
+#define __pedestrian_desc_h
 
-#include "obj_besch_std_name.h"
+#include "obj_desc_std_name.h"
 #include "bildliste_besch.h"
 #include "../dataobj/ribi.h"
 #include "../network/checksum.h"

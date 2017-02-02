@@ -12,7 +12,7 @@
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"
-#include "../besch/baum_besch.h"
+#include "../besch/tree_desc.h"
 #include "../simcolor.h"
 #include "../dataobj/environment.h"
 

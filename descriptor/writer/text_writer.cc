@@ -1,5 +1,5 @@
 #include <string.h>
-#include "../text_besch.h"
+#include "../text_desc.h"
 #include "obj_node.h"
 #include "text_writer.h"
 

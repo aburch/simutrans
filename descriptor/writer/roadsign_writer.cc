@@ -1,6 +1,6 @@
 #include <string>
 #include "../../dataobj/tabfile.h"
-#include "../roadsign_besch.h"
+#include "../roadsign_desc.h"
 #include "obj_node.h"
 #include "text_writer.h"
 #include "imagelist_writer.h"

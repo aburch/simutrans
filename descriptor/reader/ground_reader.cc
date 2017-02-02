@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "../grund_besch.h"
+#include "../ground_desc.h"
 #include "ground_reader.h"
 
 

@@ -5,7 +5,7 @@
 #include "../../simdebug.h"
 #include "../../display/simimg.h"
 
-#include "../bild_besch.h"
+#include "../image.h"
 #include "image_reader.h"
 #include "../obj_node_info.h"
 

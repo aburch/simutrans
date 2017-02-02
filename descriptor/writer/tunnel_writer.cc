@@ -1,7 +1,7 @@
 #include <string>
 #include "../../dataobj/tabfile.h"
 #include "../../dataobj/ribi.h"
-#include "../tunnel_besch.h"
+#include "../tunnel_desc.h"
 #include "obj_node.h"
 #include "text_writer.h"
 #include "xref_writer.h"

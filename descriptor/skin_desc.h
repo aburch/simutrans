@@ -8,7 +8,7 @@
 #define __SKIN_BESCH_H
 
 #include "../display/simimg.h"
-#include "obj_besch_std_name.h"
+#include "obj_desc_std_name.h"
 #include "bildliste2d_besch.h"
 
 

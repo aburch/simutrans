@@ -4,8 +4,8 @@
 #include "../obj/bruecke.h"
 #include "../bauer/brueckenbauer.h"
 
-#include "../besch/grund_besch.h"
-#include "../besch/bruecke_besch.h"
+#include "../besch/ground_desc.h"
+#include "../besch/bridge_desc.h"
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/environment.h"

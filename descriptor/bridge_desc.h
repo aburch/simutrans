@@ -15,9 +15,9 @@
 #define __BRUECKE_BESCH_H
 
 
-#include "skin_besch.h"
+#include "skin_desc.h"
 #include "bildliste_besch.h"
-#include "text_besch.h"
+#include "text_desc.h"
 #include "../simtypes.h"
 #include "../display/simimg.h"
 

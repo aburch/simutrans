@@ -9,7 +9,7 @@
 
 #include "../display/simgraph.h"
 #include "../display/simimg.h"
-#include "obj_besch.h"
+#include "obj_desc.h"
 
 
 // number of special colors
@@ -75,7 +75,7 @@ public:
 
 	image_id get_id() const { return imageid; }
 
-	/* rotate_image_data - produces a (rotated) bild_besch
+	/* rotate_image_data - produces a (rotated) image
 	 * only rotates by 90 degrees or multiples thereof, and assumes a square image
 	 * Otherwise it will only succeed for angle=0;
 	 */

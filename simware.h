@@ -3,7 +3,7 @@
 
 #include "halthandle_t.h"
 #include "dataobj/koord.h"
-#include "besch/ware_besch.h"
+#include "besch/goods_desc.h"
 
 class goods_manager_t;
 class karte_t;

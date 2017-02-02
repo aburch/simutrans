@@ -101,7 +101,7 @@
 #include "bauer/hausbauer.h"
 #include "bauer/vehikelbauer.h"
 
-#include "besch/grund_besch.h"
+#include "besch/ground_desc.h"
 
 #include "player/simplay.h"
 #include "player/finance.h"

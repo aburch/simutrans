@@ -10,9 +10,9 @@
 #ifndef __ROADSIGN_BESCH_H
 #define __ROADSIGN_BESCH_H
 
-#include "obj_besch_std_name.h"
+#include "obj_desc_std_name.h"
 #include "bildliste_besch.h"
-#include "skin_besch.h"
+#include "skin_desc.h"
 #include "../dataobj/ribi.h"
 #include "../simtypes.h"
 #include "../network/checksum.h"

@@ -7,8 +7,8 @@
 
 #include <string.h>
 
-#include "../besch/haus_besch.h"
-#include "../besch/skin_besch.h"
+#include "../besch/building_desc.h"
+#include "../besch/skin_desc.h"
 #include "../besch/spezial_obj_tpl.h"
 
 #include "../boden/boden.h"

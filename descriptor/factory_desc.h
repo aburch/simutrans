@@ -7,10 +7,10 @@
 #ifndef __FABRIK_BESCH_H
 #define __FABRIK_BESCH_H
 
-#include "obj_besch.h"
-#include "haus_besch.h"
-#include "skin_besch.h"
-#include "ware_besch.h"
+#include "obj_desc.h"
+#include "building_desc.h"
+#include "skin_desc.h"
+#include "goods_desc.h"
 #include "../dataobj/koord.h"
 #include "../tpl/weighted_vector_tpl.h"
 

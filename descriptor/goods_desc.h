@@ -7,7 +7,7 @@
 #ifndef __WARE_BESCH_H
 #define __WARE_BESCH_H
 
-#include "obj_besch_std_name.h"
+#include "obj_desc_std_name.h"
 #include "../simcolor.h"
 #include "../network/checksum.h"
 

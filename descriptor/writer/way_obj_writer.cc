@@ -2,7 +2,7 @@
 #include "../../dataobj/tabfile.h"
 #include "obj_node.h"
 #include "obj_pak_exception.h"
-#include "../way_obj_besch.h"
+#include "../way_obj_desc.h"
 #include "text_writer.h"
 #include "imagelist_writer.h"
 #include "skin_writer.h"

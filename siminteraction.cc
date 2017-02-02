@@ -22,7 +22,7 @@
 #include "simticker.h"
 #include "gui/simwin.h"
 #include "simworld.h"
-#include "besch/sound_besch.h"
+#include "besch/sound_desc.h"
 #include "obj/zeiger.h"
 #include "display/viewport.h"
 

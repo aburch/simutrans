@@ -7,7 +7,7 @@
 #ifndef __BILDLISTE_BESCH_H
 #define __BILDLISTE_BESCH_H
 
-#include "bild_besch.h"
+#include "image.h"
 
 /*
  *  Author:

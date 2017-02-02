@@ -16,7 +16,7 @@
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../bauer/wegbauer.h"
-#include "../besch/weg_besch.h"
+#include "../besch/way_desc.h"
 #include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 #include "../vehicle/simvehicle.h"

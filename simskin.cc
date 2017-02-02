@@ -1,4 +1,4 @@
-#include "besch/skin_besch.h"
+#include "besch/skin_desc.h"
 #include "besch/spezial_obj_tpl.h"
 #include "simskin.h"
 

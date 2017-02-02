@@ -10,7 +10,7 @@
 
 #include "../simobj.h"
 #include "../simtypes.h"
-#include "../besch/roadsign_besch.h"
+#include "../besch/roadsign_desc.h"
 #include "../ifc/sync_steppable.h"
 #include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"

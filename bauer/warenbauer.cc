@@ -6,7 +6,7 @@
  */
 
 #include "../simdebug.h"
-#include "../besch/ware_besch.h"
+#include "../besch/goods_desc.h"
 #include "../besch/spezial_obj_tpl.h"
 #include "../simware.h"
 #include "../simcolor.h"

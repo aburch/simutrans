@@ -5,8 +5,8 @@
 #include "../../dataobj/ribi.h"
 
 #include "../intro_dates.h"
-#include "../tunnel_besch.h"
-#include "../obj_besch.h"
+#include "../tunnel_desc.h"
+#include "../obj_desc.h"
 #include "../obj_node_info.h"
 #include "tunnel_reader.h"
 

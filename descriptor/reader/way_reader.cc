@@ -2,7 +2,7 @@
 #include "../../simdebug.h"
 #include "../../utils/simstring.h"
 
-#include "../weg_besch.h"
+#include "../way_desc.h"
 #include "../intro_dates.h"
 #include "../../bauer/wegbauer.h"
 

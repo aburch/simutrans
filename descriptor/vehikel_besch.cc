@@ -1,5 +1,5 @@
-#include "vehikel_besch.h"
-#include "xref_besch.h"
+#include "vehicle_desc.h"
+#include "xref_desc.h"
 #include "../network/checksum.h"
 
 void vehicle_desc_t::calc_checksum(checksum_t *chk) const

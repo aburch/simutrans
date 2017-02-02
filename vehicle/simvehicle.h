@@ -18,7 +18,7 @@
 #include "../convoihandle_t.h"
 #include "../ifc/simtestdriver.h"
 #include "../boden/grund.h"
-#include "../besch/vehikel_besch.h"
+#include "../besch/vehicle_desc.h"
 #include "../vehicle/overtaker.h"
 #include "../tpl/slist_tpl.h"
 

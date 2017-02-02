@@ -8,7 +8,7 @@
 #define __BAUM_BESCH_H
 
 #include "../simtypes.h"
-#include "obj_besch_std_name.h"
+#include "obj_desc_std_name.h"
 #include "bildliste2d_besch.h"
 
 #include "../network/checksum.h"

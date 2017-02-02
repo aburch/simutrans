@@ -9,8 +9,8 @@
 
 #include <assert.h>
 #include "bildliste2d_besch.h"
-#include "obj_besch_std_name.h"
-#include "skin_besch.h"
+#include "obj_desc_std_name.h"
+#include "skin_desc.h"
 #include "../dataobj/koord.h"
 
 class building_desc_t;

@@ -1,4 +1,4 @@
-#include "ware_besch.h"
+#include "goods_desc.h"
 
 
 static const char * catg_names[32] = {

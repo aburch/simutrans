@@ -6,7 +6,7 @@
 
 #include "../simconst.h"
 
-#include "../besch/grund_besch.h"
+#include "../besch/ground_desc.h"
 #include "../dataobj/loadsave.h"
 
 #include "grund.h"

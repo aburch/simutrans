@@ -19,7 +19,7 @@
 // for depot tools
 #include "../../simconvoi.h"
 #include "../../simmenu.h"
-#include "../../besch/vehikel_besch.h"
+#include "../../besch/vehicle_desc.h"
 
 
 using namespace script_api;

@@ -13,7 +13,7 @@
 #include "../simtypes.h"
 
 #include "../boden/grund.h"
-#include "../besch/groundobj_besch.h"
+#include "../besch/groundobj_desc.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"

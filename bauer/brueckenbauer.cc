@@ -24,7 +24,7 @@
 #include "../gui/tool_selector.h"
 #include "../gui/karte.h"
 
-#include "../besch/bruecke_besch.h"
+#include "../besch/bridge_desc.h"
 
 #include "../dataobj/marker.h"
 #include "../dataobj/scenario.h"

@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 #include "../dataobj/ribi.h"
-#include "tunnel_besch.h"
+#include "tunnel_desc.h"
 
 
 int tunnel_desc_t::slope_indices[81] = {

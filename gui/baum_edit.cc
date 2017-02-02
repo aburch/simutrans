@@ -18,8 +18,8 @@
 #include "../dataobj/translator.h"
 
 
-#include "../besch/bild_besch.h"
-#include "../besch/grund_besch.h"
+#include "../besch/image.h"
+#include "../besch/ground_desc.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simrandom.h"

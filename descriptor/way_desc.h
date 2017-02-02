@@ -8,8 +8,8 @@
 #define __WEG_BESCH_H
 
 #include "bildliste_besch.h"
-#include "obj_besch_std_name.h"
-#include "skin_besch.h"
+#include "obj_desc_std_name.h"
+#include "skin_desc.h"
 #include "../dataobj/ribi.h"
 
 class checksum_t;

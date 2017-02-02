@@ -25,8 +25,8 @@
 #include "simhalt.h"
 #include "simware.h"
 #include "simworld.h"
-#include "besch/haus_besch.h"
-#include "besch/ware_besch.h"
+#include "besch/building_desc.h"
+#include "besch/goods_desc.h"
 #include "player/simplay.h"
 
 #include "simintr.h"
@@ -41,7 +41,7 @@
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 
-#include "besch/fabrik_besch.h"
+#include "besch/factory_desc.h"
 #include "bauer/hausbauer.h"
 #include "bauer/warenbauer.h"
 #include "bauer/fabrikbauer.h"

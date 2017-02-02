@@ -18,7 +18,7 @@
 #include "../simplan.h"
 #include "../simmenu.h"
 #include "../player/simplay.h"
-#include "../besch/grund_besch.h"
+#include "../besch/ground_desc.h"
 #include "../boden/wasser.h"
 #include "../dataobj/environment.h"
 #include "../obj/zeiger.h"

@@ -33,7 +33,7 @@
 #include "gui/karte.h"
 #include "gui/city_info.h"
 
-#include "besch/haus_besch.h"
+#include "besch/building_desc.h"
 
 #include "simintr.h"
 #include "simdebug.h"

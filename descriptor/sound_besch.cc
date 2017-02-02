@@ -19,8 +19,8 @@
 #include "../tpl/stringhashtable_tpl.h"
 
 #include "spezial_obj_tpl.h"
-#include "sound_besch.h"
-#include "grund_besch.h"
+#include "sound_desc.h"
+#include "ground_desc.h"
 
 /* sound of the program *
  * @author prissi

@@ -6,7 +6,7 @@
 #include "root_writer.h"
 #include "obj_node.h"
 #include "obj_pak_exception.h"
-#include "../bild_besch.h"
+#include "../image.h"
 #include "../../macros.h"
 #include "../../utils/dr_rdpng.h"
 #include "../../utils/simstring.h"

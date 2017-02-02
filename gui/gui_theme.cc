@@ -16,7 +16,7 @@
 #include "../dataobj/tabfile.h"
 #include "components/gui_button.h"
 #include "components/gui_tab_panel.h"
-#include "../besch/skin_besch.h"
+#include "../besch/skin_desc.h"
 #include "../besch/reader/obj_reader.h"
 
 /**

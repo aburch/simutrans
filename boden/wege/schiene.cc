@@ -16,7 +16,7 @@
 
 #include "../../utils/cbuffer_t.h"
 
-#include "../../besch/weg_besch.h"
+#include "../../besch/way_desc.h"
 #include "../../bauer/wegbauer.h"
 
 #include "schiene.h"

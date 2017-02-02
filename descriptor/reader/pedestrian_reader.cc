@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 #include "../../vehicle/simpeople.h"
-#include "../fussgaenger_besch.h"
+#include "../pedestrian_desc.h"
 #include "../obj_node_info.h"
 
 #include "pedestrian_reader.h"

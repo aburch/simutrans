@@ -13,7 +13,7 @@
 
 #include "../bauer/brueckenbauer.h"
 
-#include "../besch/bruecke_besch.h"
+#include "../besch/bridge_desc.h"
 
 #include "../boden/grund.h"
 

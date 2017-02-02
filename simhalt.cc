@@ -34,7 +34,7 @@
 #include "bauer/hausbauer.h"
 #include "bauer/warenbauer.h"
 
-#include "besch/ware_besch.h"
+#include "besch/goods_desc.h"
 
 #include "boden/boden.h"
 #include "boden/grund.h"

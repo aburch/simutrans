@@ -2,7 +2,7 @@
 #define obj_pillar_h
 
 #include "../simobj.h"
-#include "../besch/bruecke_besch.h"
+#include "../besch/bridge_desc.h"
 
 /**
  * Bridge piece (visible)

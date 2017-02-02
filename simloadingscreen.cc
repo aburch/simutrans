@@ -8,8 +8,8 @@
 #include "simloadingscreen.h"
 
 #include "simsys.h"
-#include "besch/bild_besch.h"
-#include "besch/skin_besch.h"
+#include "besch/image.h"
+#include "besch/skin_desc.h"
 #include "simskin.h"
 #include "display/simgraph.h"
 #include "simevent.h"

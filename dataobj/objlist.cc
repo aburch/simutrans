@@ -38,8 +38,8 @@
 #include "../vehicle/simpeople.h"
 #include "../vehicle/movingobj.h"
 
-#include "../besch/haus_besch.h"
-#include "../besch/groundobj_besch.h"
+#include "../besch/building_desc.h"
+#include "../besch/groundobj_desc.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/freelist.h"
 #include "../dataobj/environment.h"

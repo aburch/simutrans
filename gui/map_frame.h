@@ -19,7 +19,7 @@
 #include "components/gui_button.h"
 #include "components/gui_combobox.h"
 #include "components/gui_label.h"
-#include "../besch/fabrik_besch.h"
+#include "../besch/factory_desc.h"
 #include "../tpl/stringhashtable_tpl.h"
 #include "../player/simplay.h"
 #include "../simline.h"

@@ -54,10 +54,10 @@
 
 #include "../gui/karte.h"
 
-#include "../besch/stadtauto_besch.h"
-#include "../besch/ware_besch.h"
-#include "../besch/skin_besch.h"
-#include "../besch/roadsign_besch.h"
+#include "../besch/citycar_desc.h"
+#include "../besch/goods_desc.h"
+#include "../besch/skin_desc.h"
+#include "../besch/roadsign_desc.h"
 
 #include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"

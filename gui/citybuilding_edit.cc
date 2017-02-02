@@ -17,7 +17,7 @@
 
 #include "../bauer/hausbauer.h"
 
-#include "../besch/grund_besch.h"
+#include "../besch/ground_desc.h"
 #include "../besch/intro_dates.h"
 
 #include "../dataobj/translator.h"

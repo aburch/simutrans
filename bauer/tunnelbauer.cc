@@ -17,7 +17,7 @@
 #include "../player/simplay.h"
 #include "../simtool.h"
 
-#include "../besch/tunnel_besch.h"
+#include "../besch/tunnel_desc.h"
 
 #include "../boden/tunnelboden.h"
 

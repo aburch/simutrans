@@ -19,11 +19,11 @@
 
 #include "../bauer/wegbauer.h"
 
-#include "../besch/grund_besch.h"
-#include "../besch/haus_besch.h"
-#include "../besch/kreuzung_besch.h"
-#include "../besch/tunnel_besch.h"
-#include "../besch/weg_besch.h"
+#include "../besch/ground_desc.h"
+#include "../besch/building_desc.h"
+#include "../besch/crossing_desc.h"
+#include "../besch/tunnel_desc.h"
+#include "../besch/way_desc.h"
 
 #include "../dataobj/freelist.h"
 #include "../dataobj/loadsave.h"

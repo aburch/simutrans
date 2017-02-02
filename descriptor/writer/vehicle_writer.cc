@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
-#include "../vehikel_besch.h"
-#include "../sound_besch.h"
+#include "../vehicle_desc.h"
+#include "../sound_desc.h"
 #include "obj_pak_exception.h"
 #include "obj_node.h"
 #include "text_writer.h"

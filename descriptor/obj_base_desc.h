@@ -1,7 +1,7 @@
 #ifndef OBJ_BESCH_STD_NAME_H
 #define OBJ_BESCH_STD_NAME_H
 
-#include "text_besch.h"
+#include "text_desc.h"
 
 class checksum_t;
 class tool_t;

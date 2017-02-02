@@ -3,7 +3,7 @@
 #include "../../utils/simstring.h"
 #include "obj_node.h"
 #include "obj_pak_exception.h"
-#include "../weg_besch.h"
+#include "../way_desc.h"
 #include "text_writer.h"
 #include "imagelist_writer.h"
 #include "skin_writer.h"

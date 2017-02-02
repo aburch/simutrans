@@ -1,4 +1,4 @@
-#include "bild_besch.h"
+#include "image.h"
 #include "../display/simgraph.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
@@ -337,7 +337,7 @@ image_t* image_t::create_single_pixel()
 }
 
 
-/* rotate_image_data - produces a (rotated) bild_besch
+/* rotate_image_data - produces a (rotated) image
  * only rotates by 90 degrees or multiples thereof, and assumes a square image
  * Otherwise it will only succeed for angle=0;
 */

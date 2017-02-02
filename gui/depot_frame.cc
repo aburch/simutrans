@@ -37,7 +37,7 @@
 #include "depot_frame.h"
 #include "schedule_list.h"
 
-#include "../besch/ware_besch.h"
+#include "../besch/goods_desc.h"
 #include "../besch/intro_dates.h"
 #include "../bauer/vehikelbauer.h"
 #include "../dataobj/schedule.h"

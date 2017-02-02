@@ -2,7 +2,7 @@
 #include "../../simdebug.h"
 
 #include "../../bauer/brueckenbauer.h"
-#include "../bruecke_besch.h"
+#include "../bridge_desc.h"
 #include "../intro_dates.h"
 
 #include "bridge_reader.h"

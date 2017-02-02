@@ -8,8 +8,8 @@
 #include "../../simtypes.h"
 #include "../../simloadingscreen.h"
 
-#include "../skin_besch.h"	// just for the logo
-#include "../grund_besch.h"	// for the error message!
+#include "../skin_desc.h"	// just for the logo
+#include "../ground_desc.h"	// for the error message!
 #include "../../simskin.h"
 
 // normal stuff
@@ -24,7 +24,7 @@
 #include "../../tpl/stringhashtable_tpl.h"
 #include "../../simdebug.h"
 
-#include "../obj_besch.h"
+#include "../obj_desc.h"
 #include "../obj_node_info.h"
 
 #include "obj_reader.h"

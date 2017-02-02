@@ -14,7 +14,7 @@
 #include "../simversion.h"
 #include "../display/simgraph.h"
 #include "../macros.h"
-#include "../besch/skin_besch.h"
+#include "../besch/skin_desc.h"
 #include "../dataobj/environment.h"
 
 #include "simwin.h"

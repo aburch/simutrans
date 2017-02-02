@@ -1,7 +1,7 @@
 #include "../simdebug.h"
 
-#include "bruecke_besch.h"
-#include "grund_besch.h"
+#include "bridge_desc.h"
+#include "ground_desc.h"
 #include "../network/checksum.h"
 
 

@@ -3,7 +3,7 @@
 #include "../../simunits.h"
 #include "../../vehicle/simvehicle.h"
 #include "../../vehicle/simroadtraffic.h"
-#include "../stadtauto_besch.h"
+#include "../citycar_desc.h"
 #include "../intro_dates.h"
 
 #include "citycar_reader.h"

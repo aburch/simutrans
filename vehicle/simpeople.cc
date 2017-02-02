@@ -16,7 +16,7 @@
 #include "../dataobj/loadsave.h"
 
 #include "simpeople.h"
-#include "../besch/fussgaenger_besch.h"
+#include "../besch/pedestrian_desc.h"
 
 static uint32 const strecke[] = { 6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000 };
 

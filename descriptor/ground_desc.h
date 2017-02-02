@@ -7,7 +7,7 @@
 #ifndef __GRUND_BESCH_H
 #define __GRUND_BESCH_H
 
-#include "obj_besch_std_name.h"
+#include "obj_desc_std_name.h"
 #include "bildliste2d_besch.h"
 #include "../simtypes.h"
 #include "../dataobj/ribi.h"

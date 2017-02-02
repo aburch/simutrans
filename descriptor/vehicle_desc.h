@@ -7,12 +7,12 @@
 #ifndef __VEHIKEL_BESCH_H
 #define __VEHIKEL_BESCH_H
 
-#include "obj_besch_std_name.h"
-#include "ware_besch.h"
+#include "obj_desc_std_name.h"
+#include "goods_desc.h"
 #include "bildliste_besch.h"
 #include "bildliste2d_besch.h"
-#include "skin_besch.h"
-#include "sound_besch.h"
+#include "skin_desc.h"
+#include "sound_desc.h"
 #include "../dataobj/ribi.h"
 #include "../simtypes.h"
 #include "../simunits.h"

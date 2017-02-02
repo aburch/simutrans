@@ -1,7 +1,7 @@
 #include "../../simtypes.h"
 #include <string.h>
 #include "../../utils/simstring.h"	// for STRICMP
-#include "../grund_besch.h"
+#include "../ground_desc.h"
 #include "../../dataobj/tabfile.h"
 
 
