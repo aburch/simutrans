@@ -103,11 +103,11 @@ public:
 		topspeed = speed;
 	}
 
-	goods_desc_t const* get_ware() const { return get_child<goods_desc_t>(2); }
+	goods_desc_t const* get_freight_type() const { return get_child<goods_desc_t>(2); }
 
 	skin_besch_t const* get_smoke() const { return get_child<skin_besch_t>(3); }
 
-	image_id get_base_image() const { return get_image_id(ribi_t::dir_south, get_ware() ); }
+	image_id get_base_image() const { return get_image_id(ribi_t::dir_south, get_freight_type() ); }
 
 	// returns the number of different directions
 	uint8 get_dirs() const { return get_child<image_list_t>(4)->get_image(4) ? 8 : 4; }

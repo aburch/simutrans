@@ -600,7 +600,7 @@ void depot_frame_t::add_to_vehicle_list(const vehicle_desc_t *info)
 	// prissi: and retirement date
 
 	// Check if vehicle should be filtered
-	const goods_desc_t *freight = info->get_ware();
+	const goods_desc_t *freight = info->get_freight_type();
 	// Only filter when required and never filter engines
 	if (depot->selected_filter > 0 && info->get_capacity() > 0) {
 		if (depot->selected_filter == VEHICLE_FILTER_RELEVANT) {
@@ -631,11 +631,11 @@ void depot_frame_t::add_to_vehicle_list(const vehicle_desc_t *info)
 
 	gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(info->get_name(), info->get_base_image());
 
-	if(  info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_ware()==goods_manager_t::passagiere  ||  info->get_ware()==goods_manager_t::post)  ) {
+	if(  info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_freight_type()==goods_manager_t::passagiere  ||  info->get_freight_type()==goods_manager_t::post)  ) {
 		electrics_vec.append(img_data);
 	}
 	// since they come "pre-sorted" for the vehikelbauer, we have to do nothing to keep them sorted
-	else if(info->get_ware()==goods_manager_t::passagiere  ||  info->get_ware()==goods_manager_t::post) {
+	else if(info->get_freight_type()==goods_manager_t::passagiere  ||  info->get_freight_type()==goods_manager_t::post) {
 		pas_vec.append(img_data);
 	}
 	else if(info->get_power() > 0  ||  info->get_capacity()==0) {
@@ -1320,7 +1320,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 				for(  uint32 j=0;  j<goods_manager_t::get_count();  j++  ) {
 					const goods_desc_t *ware = goods_manager_t::get_info(j);
 
-					if(  desc->get_ware()->get_catg_index() == ware->get_catg_index()  ) {
+					if(  desc->get_freight_type()->get_catg_index() == ware->get_catg_index()  ) {
 						max_weight = max(max_weight, (uint32)ware->get_weight_per_unit());
 						min_weight = min(min_weight, (uint32)ware->get_weight_per_unit());
 
@@ -1348,7 +1348,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 				total_max_weight += desc->get_weight() + max_weight * desc->get_capacity();
 				total_min_weight += desc->get_weight() + min_weight * desc->get_capacity();
 
-				const goods_desc_t* const ware = desc->get_ware();
+				const goods_desc_t* const ware = desc->get_freight_type();
 				switch(  ware->get_catg_index()  ) {
 					case goods_manager_t::INDEX_PAS: {
 						total_pax += desc->get_capacity();
@@ -1623,8 +1623,8 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		if(  veh_type->get_capacity() > 0  ) { // must translate as "Capacity: %3d%s %s\n"
 			buf.printf( translator::translate("Capacity: %d%s %s\n"),
 				veh_type->get_capacity(),
-				translator::translate( veh_type->get_ware()->get_mass() ),
-				veh_type->get_ware()->get_catg()==0 ? translator::translate( veh_type->get_ware()->get_name() ) : translator::translate( veh_type->get_ware()->get_catg_name() )
+				translator::translate( veh_type->get_freight_type()->get_mass() ),
+				veh_type->get_freight_type()->get_catg()==0 ? translator::translate( veh_type->get_freight_type()->get_name() ) : translator::translate( veh_type->get_freight_type()->get_catg_name() )
 				);
 		}
 		else {

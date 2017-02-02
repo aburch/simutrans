@@ -331,7 +331,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * @returns freight that can be transported (or null)
 	 */
-	register_method(vm, &vehicle_desc_t::get_ware, "get_freight");
+	register_method(vm, &vehicle_desc_t::get_freight_type, "get_freight");
 	/**
 	 * @returns capacity
 	 */

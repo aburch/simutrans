@@ -214,10 +214,10 @@ static bool compare_vehikel_desc(const vehicle_desc_t* a, const vehicle_desc_t* 
 	//  5. power
 	//  6. intro date
 	//  7. name
-	int cmp = a->get_ware()->get_catg() - b->get_ware()->get_catg();
+	int cmp = a->get_freight_type()->get_catg() - b->get_freight_type()->get_catg();
 	if (cmp == 0) {
-		if (a->get_ware()->get_catg() == 0) {
-			cmp = a->get_ware()->get_index() - b->get_ware()->get_index();
+		if (a->get_freight_type()->get_catg() == 0) {
+			cmp = a->get_freight_type()->get_index() - b->get_freight_type()->get_index();
 		}
 		if (cmp == 0) {
 			cmp = a->get_capacity() - b->get_capacity();
@@ -331,7 +331,7 @@ const vehicle_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
 		uint32 power = (test_desc->get_power()*test_desc->get_gear())/64;
 		if(target_freight) {
 			// this is either a railcar/trailer or a truck/boat/plane
-			if(  test_desc->get_capacity()==0  ||  !test_desc->get_ware()->is_interchangeable(target_freight)  ) {
+			if(  test_desc->get_capacity()==0  ||  !test_desc->get_freight_type()->is_interchangeable(target_freight)  ) {
 				continue;
 			}
 
@@ -453,7 +453,7 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 		uint32 power = (test_desc->get_power()*test_desc->get_gear())/64;
 		if(target_freight) {
 			// this is either a railcar/trailer or a truck/boat/plane
-			if(  test_desc->get_capacity()==0  ||  !test_desc->get_ware()->is_interchangeable(target_freight)  ) {
+			if(  test_desc->get_capacity()==0  ||  !test_desc->get_freight_type()->is_interchangeable(target_freight)  ) {
 				continue;
 			}
 

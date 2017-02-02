@@ -371,7 +371,7 @@ public:
 	/**
 	* get the type of cargo this vehicle can transport
 	*/
-	const goods_desc_t* get_cargo_type() const { return desc->get_ware(); }
+	const goods_desc_t* get_cargo_type() const { return desc->get_freight_type(); }
 
 	/**
 	* Get the maximum capacity

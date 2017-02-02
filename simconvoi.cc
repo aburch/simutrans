@@ -2633,7 +2633,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			const vehicle_t* v = fahr[i];
 
 			// first add to capacity indicator
-			const goods_desc_t* ware_desc = v->get_desc()->get_ware();
+			const goods_desc_t* ware_desc = v->get_desc()->get_freight_type();
 			const uint16 menge = v->get_desc()->get_capacity();
 			if(menge>0  &&  ware_desc!=goods_manager_t::nichts) {
 				max_loaded_waren[ware_desc->get_index()] += menge;
@@ -3000,12 +3000,12 @@ void convoi_t::calc_speedbonus_kmh()
 			const vehicle_desc_t* const desc = fahr[i]->get_desc();
 			total_max_weight += desc->get_weight();
 			total_weight += fahr[i]->get_total_weight(); // convoi_t::sum_gesamweight may not be updated yet when this method is called...
-			if(  desc->get_ware() == goods_manager_t::nichts  ) {
+			if(  desc->get_freight_type() == goods_manager_t::nichts  ) {
 				; // nothing
 			}
-			else if(  desc->get_ware()->get_catg() == 0  ) {
+			else if(  desc->get_freight_type()->get_catg() == 0  ) {
 				// use full weight for passengers, post, and special goods
-				total_max_weight += desc->get_ware()->get_weight_per_unit() * desc->get_capacity();
+				total_max_weight += desc->get_freight_type()->get_weight_per_unit() * desc->get_capacity();
 			}
 			else {
 				// use actual weight for regular goods
