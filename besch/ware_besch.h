@@ -50,8 +50,10 @@ class goods_desc_t : public obj_named_desc_t {
 	*/
 	uint8 catg_index;
 
-	// used for inderect index (saves 3 bytes per ware_t!)
-	// assinged during registration
+	/**
+	 * index of the type,
+	 * assinged during registration
+	 */
 	uint8 goods_index;
 
 	COLOR_VAL color;
