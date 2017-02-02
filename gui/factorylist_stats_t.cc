@@ -23,7 +23,7 @@
 #include "gui_frame.h"
 #include "components/gui_button.h"
 
-#include "../bauer/warenbauer.h"
+#include "../bauer/goods_manager.h"
 #include "../descriptor/skin_desc.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"

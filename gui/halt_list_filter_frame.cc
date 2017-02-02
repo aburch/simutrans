@@ -16,7 +16,7 @@
 #include "../simcolor.h"
 
 #include "../descriptor/goods_desc.h"
-#include "../bauer/warenbauer.h"
+#include "../bauer/goods_manager.h"
 #include "../dataobj/translator.h"
 
 scr_coord halt_list_filter_frame_t::filter_buttons_pos[FILTER_BUTTONS];

@@ -43,7 +43,7 @@
 
 #include "descriptor/factory_desc.h"
 #include "bauer/hausbauer.h"
-#include "bauer/warenbauer.h"
+#include "bauer/goods_manager.h"
 #include "bauer/fabrikbauer.h"
 
 #include "gui/fabrik_info.h"

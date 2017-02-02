@@ -15,7 +15,7 @@
 #include "components/gui_scrollpane.h"
 
 
-#include "../bauer/warenbauer.h"
+#include "../bauer/goods_manager.h"
 #include "../descriptor/goods_desc.h"
 #include "../dataobj/translator.h"
 

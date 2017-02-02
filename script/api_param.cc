@@ -3,7 +3,7 @@
 
 #include "../simcity.h"
 #include "../simfab.h"
-#include "../bauer/warenbauer.h"
+#include "../bauer/goods_manager.h"
 #include "../dataobj/schedule.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/scenario.h"

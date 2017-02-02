@@ -10,7 +10,7 @@
 #include "../descriptor/spezial_obj_tpl.h"
 #include "../simware.h"
 #include "../simcolor.h"
-#include "warenbauer.h"
+#include "goods_manager.h"
 #include "../dataobj/translator.h"
 
 

@@ -16,7 +16,7 @@
 #include "../../bauer/hausbauer.h"
 #include "../../bauer/tunnelbauer.h"
 #include "../../bauer/vehikelbauer.h"
-#include "../../bauer/warenbauer.h"
+#include "../../bauer/goods_manager.h"
 #include "../../bauer/wegbauer.h"
 #include "../../simhalt.h"
 #include "../../simware.h"

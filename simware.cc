@@ -19,7 +19,7 @@
 #include "dataobj/koord.h"
 
 #include "descriptor/goods_desc.h"
-#include "bauer/warenbauer.h"
+#include "bauer/goods_manager.h"
 
 
 

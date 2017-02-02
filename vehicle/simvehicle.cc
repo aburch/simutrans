@@ -23,7 +23,7 @@
 #include "../boden/wege/monorail.h"
 #include "../boden/wege/strasse.h"
 
-#include "../bauer/warenbauer.h"
+#include "../bauer/goods_manager.h"
 
 #include "../simworld.h"
 #include "../simdebug.h"

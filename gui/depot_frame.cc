@@ -50,7 +50,7 @@
 #include "../utils/cbuffer_t.h"
 #include "../utils/simrandom.h"
 
-#include "../bauer/warenbauer.h"
+#include "../bauer/goods_manager.h"
 
 #include "../boden/wege/weg.h"
 

@@ -4,7 +4,7 @@
 #include "../../bauer/hausbauer.h"
 #include "../../bauer/tunnelbauer.h"
 #include "../../bauer/vehikelbauer.h"
-#include "../../bauer/warenbauer.h"
+#include "../../bauer/goods_manager.h"
 #include "../../bauer/wegbauer.h"
 #include "../../descriptor/bridge_desc.h"
 #include "../../descriptor/tunnel_desc.h"

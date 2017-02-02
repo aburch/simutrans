@@ -23,7 +23,7 @@
 #include "../display/viewport.h"
 #include "../simcolor.h"
 #include "../bauer/fabrikbauer.h"
-#include "../bauer/warenbauer.h"
+#include "../bauer/goods_manager.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/koord.h"

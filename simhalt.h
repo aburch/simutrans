@@ -16,7 +16,7 @@
 #include "display/simgraph.h"
 #include "simtypes.h"
 
-#include "bauer/warenbauer.h"
+#include "bauer/goods_manager.h"
 
 #include "descriptor/goods_desc.h"
 

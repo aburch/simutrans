@@ -420,7 +420,7 @@
     <ClCompile Include="bauer\vehikelbauer.cc" />
     <ClCompile Include="music\w32_midi.cc" />
     <ClCompile Include="descriptor\goods_desc.cc" />
-    <ClCompile Include="bauer\warenbauer.cc" />
+    <ClCompile Include="bauer\goods_manager.cc" />
     <ClCompile Include="boden\wasser.cc" />
     <ClCompile Include="descriptor\reader\way_obj_reader.cc" />
     <ClCompile Include="descriptor\reader\way_reader.cc" />
@@ -757,7 +757,7 @@
     <ClInclude Include="descriptor\vehicle_desc.h" />
     <ClInclude Include="bauer\vehikelbauer.h" />
     <ClInclude Include="descriptor\goods_desc.h" />
-    <ClInclude Include="bauer\warenbauer.h" />
+    <ClInclude Include="bauer\goods_manager.h" />
     <ClInclude Include="boden\wasser.h" />
     <ClInclude Include="descriptor\way_obj_desc.h" />
     <ClInclude Include="descriptor\reader\way_obj_reader.h" />

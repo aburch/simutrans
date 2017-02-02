@@ -32,7 +32,7 @@
 #include "simware.h"
 
 #include "bauer/hausbauer.h"
-#include "bauer/warenbauer.h"
+#include "bauer/goods_manager.h"
 
 #include "descriptor/goods_desc.h"
 

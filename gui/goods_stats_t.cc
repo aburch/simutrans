@@ -17,7 +17,7 @@
 #include "../simcolor.h"
 #include "../simworld.h"
 
-#include "../bauer/warenbauer.h"
+#include "../bauer/goods_manager.h"
 #include "../descriptor/goods_desc.h"
 
 #include "../dataobj/translator.h"

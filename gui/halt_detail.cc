@@ -15,7 +15,7 @@
 #include "../simconvoi.h"
 
 #include "../descriptor/goods_desc.h"
-#include "../bauer/warenbauer.h"
+#include "../bauer/goods_manager.h"
 
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
