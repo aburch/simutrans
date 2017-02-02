@@ -135,7 +135,7 @@ void tunnel_t::finish_rd()
 	player_t *player=get_owner();
 
 	if(desc==NULL) {
-		// find a matching besch
+		// find a matching desc
 		if (gr->get_weg_nr(0)==NULL) {
 			// no way? underground powerline
 			if (gr->get_leitung()) {

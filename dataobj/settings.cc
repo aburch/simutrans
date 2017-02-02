@@ -996,7 +996,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 					p++;
 				}
 				tstrncpy( city_roads[num_city_roads].name, test, (unsigned)(p-test)+1 );
-				// default her: intro/retire=0 -> set later to intro/retire of way-besch
+				// default her: intro/retire=0 -> set later to intro/retire of way-desc
 				city_roads[num_city_roads].intro = 0;
 				city_roads[num_city_roads].retire = 0;
 				if(  *p==','  ) {
@@ -1049,7 +1049,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 					p++;
 				}
 				tstrncpy( intercity_roads[num_intercity_roads].name, test, (unsigned)(p-test)+1 );
-				// default her: intro/retire=0 -> set later to intro/retire of way-besch
+				// default her: intro/retire=0 -> set later to intro/retire of way-desc
 				intercity_roads[num_intercity_roads].intro = 0;
 				intercity_roads[num_intercity_roads].retire = 0;
 				if(  *p==','  ) {

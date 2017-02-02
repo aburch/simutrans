@@ -19,7 +19,7 @@ private:
 	static const goods_desc_t *index_to_desc[256];
 
 public:
-	/// type of good, used as index into index_to_besch
+	/// type of good, used as index into goods-types array
 	uint32 index: 8;
 
 	/// amount of goods

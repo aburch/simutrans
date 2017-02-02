@@ -964,7 +964,6 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 					if(groundobj->get_desc() == NULL) {
 						// do not remove from this position, since there will be nothing
 						groundobj->set_flag(obj_t::not_on_map);
-						// not use entferne, since it would try to lookup besch
 						delete groundobj;
 					}
 					else {

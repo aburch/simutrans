@@ -35,7 +35,7 @@ public:
 		UNDEFINED     = 255
 	};
 	uint8 flag;
-	// name of and info about besch
+	// name of and info about descriptor
 	char *name;
 	checksum_t *chk;
 	void clear() { name = NULL; chk = NULL; }

@@ -129,7 +129,7 @@ public:
 	static uint32 create_forest(koord center, koord size );
 	static void fill_trees(int dichte);
 
-	// return list to beschs
+	// return list to descriptors
 	static vector_tpl<tree_desc_t const*> const& get_all_desc() { return tree_list; }
 
 	static const tree_desc_t *random_tree_for_climate(climate cl) { uint16 b = random_tree_for_climate_intern(cl);  return b!=0xFFFF ? tree_list[b] : NULL; }

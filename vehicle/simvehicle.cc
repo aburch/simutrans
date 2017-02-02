@@ -2368,7 +2368,7 @@ DBG_MESSAGE("rail_vehicle_t::rail_vehicle_t()","replaced by %s",desc->get_name()
 				fracht.remove_first();
 			}
 		}
-		// update last besch
+		// update last desc
 		if(  desc  ) {
 			last_desc = desc;
 		}
@@ -3163,7 +3163,7 @@ water_vehicle_t::water_vehicle_t(loadsave_t *file, bool is_first, bool is_last) 
 				calc_image();
 			}
 		}
-		// update last besch
+		// update last desc
 		if(  desc  ) {
 			last_desc = desc;
 		}
@@ -3945,7 +3945,7 @@ air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : ve
 				calc_image();
 			}
 		}
-		// update last besch
+		// update last desc
 		if(  desc  ) {
 			last_desc = desc;
 		}

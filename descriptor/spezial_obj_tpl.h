@@ -1,5 +1,5 @@
 /*
- * Routines to manage special object descriptors (beschs) lists used in the program.
+ * Routines to manage special object descriptors lists used in the program.
  */
 
 #ifndef __SPEZIAL_OBJ_TPL_H
@@ -11,7 +11,7 @@
 
 
 /**
- * Descriptors (beschs) of required objects. The following functions manage
+ * Descriptors of required objects. The following functions manage
  * the list. The list is "{NULL, NULL}" terminated.
  */
 template<class desc_t> struct spezial_obj_tpl {
