@@ -196,3 +196,8 @@ weg_besch,way_desc
 xref_besch,xref_desc
 besch\\/,descriptor/
 ground_besch,ground_desc
+_BESCH_H,_DESC_H
+GETBESCHFUNC,GETDESCFUNC
+begin_besch_class,begin_desc_class
+export_besch,export_desc
+_besch_,_desc_

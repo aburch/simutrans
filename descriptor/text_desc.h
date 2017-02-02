@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __TEXT_BESCH_H
-#define __TEXT_BESCH_H
+#ifndef __TEXT_DESC_H
+#define __TEXT_DESC_H
 
 #include "obj_desc.h"
 

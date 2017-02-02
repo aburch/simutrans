@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __SKIN_BESCH_H
-#define __SKIN_BESCH_H
+#ifndef __SKIN_DESC_H
+#define __SKIN_DESC_H
 
 #include "../display/simimg.h"
 #include "obj_base_desc.h"

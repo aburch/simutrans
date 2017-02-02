@@ -6,8 +6,8 @@
  *  Modulbeschreibung:
  *      This files describes way objects like a electrifications
  */
-#ifndef __WAY_OBJ_BESCH_H
-#define __WAY_OBJ_BESCH_H
+#ifndef __WAY_OBJ_DESC_H
+#define __WAY_OBJ_DESC_H
 
 #include "image_list.h"
 #include "obj_base_desc.h"

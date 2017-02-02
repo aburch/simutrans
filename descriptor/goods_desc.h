@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __WARE_BESCH_H
-#define __WARE_BESCH_H
+#ifndef __WARE_DESC_H
+#define __WARE_DESC_H
 
 #include "obj_base_desc.h"
 #include "../simcolor.h"

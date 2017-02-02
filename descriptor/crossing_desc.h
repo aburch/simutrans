@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __KREUZUNG_BESCH_H
-#define __KREUZUNG_BESCH_H
+#ifndef __KREUZUNG_DESC_H
+#define __KREUZUNG_DESC_H
 
 #include "obj_base_desc.h"
 #include "image.h"

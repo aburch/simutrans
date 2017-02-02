@@ -1,5 +1,5 @@
-#ifndef XREF_BESCH_H
-#define XREF_BESCH_H
+#ifndef XREF_DESC_H
+#define XREF_DESC_H
 
 #include "obj_desc.h"
 #include "objversion.h"

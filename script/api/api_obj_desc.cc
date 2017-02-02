@@ -1,10 +1,10 @@
 #include "api.h"
 
-/** @file api_obj_desc.cc exports goods descriptors - *_besch_t. */
+/** @file api_obj_desc.cc exports goods descriptors - *_desc_t. */
 
 #include "api_obj_desc_base.h"
 #include "api_simple.h"
-#include "export_besch.h"
+#include "export_desc.h"
 #include "get_next.h"
 #include "../api_class.h"
 #include "../api_function.h"
@@ -303,7 +303,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Vehicle descriptors
 	 */
-	begin_besch_class(vm, "vehicle_desc_x", "obj_desc_transport_x", (GETBESCHFUNC)param<const vehicle_desc_t*>::getfunc());
+	begin_desc_class(vm, "vehicle_desc_x", "obj_desc_transport_x", (GETDESCFUNC)param<const vehicle_desc_t*>::getfunc());
 	/**
 	 * @returns true if this vehicle can lead a convoy
 	 */
@@ -364,13 +364,13 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Object descriptors for trees.
 	 */
-	begin_besch_class(vm, "tree_desc_x", "obj_desc_x", (GETBESCHFUNC)param<const tree_desc_t*>::getfunc());
+	begin_desc_class(vm, "tree_desc_x", "obj_desc_x", (GETDESCFUNC)param<const tree_desc_t*>::getfunc());
 	end_class(vm);
 
 	/**
 	 * Object descriptors for buildings: houses, attractions, stations and extensions, depots, harbours.
 	 */
-	begin_besch_class(vm, "building_desc_x", "obj_desc_time_x", (GETBESCHFUNC)param<const building_desc_t*>::getfunc());
+	begin_desc_class(vm, "building_desc_x", "obj_desc_time_x", (GETDESCFUNC)param<const building_desc_t*>::getfunc());
 
 	/**
 	 * @returns whether building is an attraction
@@ -480,7 +480,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Object descriptors for ways.
 	 */
-	begin_besch_class(vm, "way_desc_x", "obj_desc_transport_x", (GETBESCHFUNC)param<const way_desc_t*>::getfunc());
+	begin_desc_class(vm, "way_desc_x", "obj_desc_transport_x", (GETDESCFUNC)param<const way_desc_t*>::getfunc());
 	/**
 	 * @returns true if this way can be build on the steeper (double) slopes.
 	 */
@@ -503,7 +503,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Object descriptors for tunnels.
 	 */
-	begin_besch_class(vm, "tunnel_desc_x", "obj_desc_transport_x", (GETBESCHFUNC)param<const tunnel_desc_t*>::getfunc());
+	begin_desc_class(vm, "tunnel_desc_x", "obj_desc_transport_x", (GETDESCFUNC)param<const tunnel_desc_t*>::getfunc());
 	/**
 	 * Returns a list with available tunnel types.
 	 */
@@ -513,7 +513,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Object descriptors for bridges.
 	 */
-	begin_besch_class(vm, "bridge_desc_x", "obj_desc_transport_x", (GETBESCHFUNC)param<const bridge_desc_t*>::getfunc());
+	begin_desc_class(vm, "bridge_desc_x", "obj_desc_transport_x", (GETDESCFUNC)param<const bridge_desc_t*>::getfunc());
 	/**
 	 * @return true if this bridge can raise two level from flat terrain
 	 */
@@ -563,7 +563,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Descriptor of goods and freight types.
 	 */
-	begin_besch_class(vm, "good_desc_x", "obj_desc_x", (GETBESCHFUNC)param<const goods_desc_t*>::getfunc());
+	begin_desc_class(vm, "good_desc_x", "obj_desc_x", (GETDESCFUNC)param<const goods_desc_t*>::getfunc());
 
 	// dummy entry to create documentation of constructor
 	/**

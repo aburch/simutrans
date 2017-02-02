@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __OBJ_BESCH_H
-#define __OBJ_BESCH_H
+#ifndef __OBJ_DESC_H
+#define __OBJ_DESC_H
 
 #include <cstddef>
 #include "../simtypes.h"

@@ -11,8 +11,8 @@
  *	4   Background-images - snow
  */
 
-#ifndef __BRUECKE_BESCH_H
-#define __BRUECKE_BESCH_H
+#ifndef __BRUECKE_DESC_H
+#define __BRUECKE_DESC_H
 
 
 #include "skin_desc.h"

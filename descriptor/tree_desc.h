@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __BAUM_BESCH_H
-#define __BAUM_BESCH_H
+#ifndef __BAUM_DESC_H
+#define __BAUM_DESC_H
 
 #include "../simtypes.h"
 #include "obj_base_desc.h"

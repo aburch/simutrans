@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __STADTAUTO_BESCH_H
-#define __STADTAUTO_BESCH_H
+#ifndef __STADTAUTO_DESC_H
+#define __STADTAUTO_DESC_H
 
 #include "obj_base_desc.h"
 #include "image_list.h"

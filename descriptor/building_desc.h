@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __HAUS_BESCH_H
-#define __HAUS_BESCH_H
+#ifndef __HAUS_DESC_H
+#define __HAUS_DESC_H
 
 #include <assert.h>
 #include "image_array.h"

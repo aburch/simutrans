@@ -20,7 +20,7 @@ class way_desc_t;
 
 namespace script_api {
 
-#define declare_besch_param(T, sqtype) \
+#define declare_desc_param(T, sqtype) \
 	template<> \
 	struct param<const T*> { \
 		\
@@ -44,7 +44,7 @@ namespace script_api {
 		declare_types("t|x|y", sqtype); \
 	};
 
-#define implement_besch_param(T, sqtype, func) \
+#define implement_desc_param(T, sqtype, func) \
 	param<const T*>::GETFUNC param<const T*>::getfunc() \
 	{ \
 		return func; \
@@ -72,16 +72,16 @@ namespace script_api {
 	declare_specialized_param(const obj_desc_transport_related_t*, "t|x|y", "obj_desc_transport_x");
 	declare_param_mask(obj_desc_transport_related_t*, "t|x|y", "obj_desc_transport_x");
 
-	declare_besch_param(tree_desc_t, "tree_desc_x");
-	declare_besch_param(goods_desc_t, "good_desc_x");
-	declare_besch_param(building_desc_t, "building_desc_x");
-	declare_besch_param(way_desc_t, "way_desc_x");
-	declare_besch_param(vehicle_desc_t, "vehicle_desc_x");
-	declare_besch_param(tunnel_desc_t, "tunnel_desc_x");
-	declare_besch_param(bridge_desc_t, "bridge_desc_x");
+	declare_desc_param(tree_desc_t, "tree_desc_x");
+	declare_desc_param(goods_desc_t, "good_desc_x");
+	declare_desc_param(building_desc_t, "building_desc_x");
+	declare_desc_param(way_desc_t, "way_desc_x");
+	declare_desc_param(vehicle_desc_t, "vehicle_desc_x");
+	declare_desc_param(tunnel_desc_t, "tunnel_desc_x");
+	declare_desc_param(bridge_desc_t, "bridge_desc_x");
 
 	// only push the building_desc_t-pointer
-	declare_besch_param(building_tile_desc_t, "building_desc_x");
+	declare_desc_param(building_tile_desc_t, "building_desc_x");
 };
 
 #endif

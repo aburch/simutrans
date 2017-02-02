@@ -14,8 +14,8 @@
  *[ 7 (or 5 if no snow image) underground way ] (if present)
  */
 
-#ifndef __TUNNEL_BESCH_H
-#define __TUNNEL_BESCH_H
+#ifndef __TUNNEL_DESC_H
+#define __TUNNEL_DESC_H
 
 #include "../display/simimg.h"
 #include "../simtypes.h"

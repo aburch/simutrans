@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __VEHIKEL_BESCH_H
-#define __VEHIKEL_BESCH_H
+#ifndef __VEHIKEL_DESC_H
+#define __VEHIKEL_DESC_H
 
 #include "obj_base_desc.h"
 #include "goods_desc.h"

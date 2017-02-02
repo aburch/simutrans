@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __BILD_BESCH_H
-#define __BILD_BESCH_H
+#ifndef __BILD_DESC_H
+#define __BILD_DESC_H
 
 #include "../display/simgraph.h"
 #include "../display/simimg.h"

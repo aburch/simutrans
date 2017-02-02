@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __WEG_BESCH_H
-#define __WEG_BESCH_H
+#ifndef __WEG_DESC_H
+#define __WEG_DESC_H
 
 #include "image_list.h"
 #include "obj_base_desc.h"

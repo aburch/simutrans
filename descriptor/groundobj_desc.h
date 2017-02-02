@@ -3,8 +3,8 @@
  * 2004-2008 by Markus Pristovsek
  *
  */
-#ifndef __GROUNDOBJ_BESCH_H
-#define __GROUNDOBJ_BESCH_H
+#ifndef __GROUNDOBJ_DESC_H
+#define __GROUNDOBJ_DESC_H
 
 #include "../simtypes.h"
 #include "obj_base_desc.h"

@@ -7,8 +7,8 @@
  *      signs on roads and other ways
  */
 
-#ifndef __ROADSIGN_BESCH_H
-#define __ROADSIGN_BESCH_H
+#ifndef __ROADSIGN_DESC_H
+#define __ROADSIGN_DESC_H
 
 #include "obj_base_desc.h"
 #include "image_list.h"

@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __FABRIK_BESCH_H
-#define __FABRIK_BESCH_H
+#ifndef __FABRIK_DESC_H
+#define __FABRIK_DESC_H
 
 #include "obj_desc.h"
 #include "building_desc.h"

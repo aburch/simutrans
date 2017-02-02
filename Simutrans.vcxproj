@@ -210,7 +210,7 @@
     <ClCompile Include="script\dynamic_string.cc" />
     <ClCompile Include="dataobj\settings.cc" />
     <ClCompile Include="gui\enlarge_map_frame_t.cc" />
-    <ClCompile Include="script\api\export_besch.cc" />
+    <ClCompile Include="script\api\export_desc.cc" />
     <ClCompile Include="script\export_objs.cc" />
     <ClCompile Include="gui\extend_edit.cc" />
     <ClCompile Include="besch\factory_desc.cc" />
