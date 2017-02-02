@@ -17,7 +17,7 @@
  *      Volker Meyer
  *
  *  Description:
- *	Automatisch generierte Autos, die in der City umherfahren.
+ *	Pedestrians.
  *
  *  Child nodes:
  *	0   Name
