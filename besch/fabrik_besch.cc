@@ -29,7 +29,7 @@ void factory_supplier_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(capacity);
 	chk->input(supplier_count);
 	chk->input(consumption);
-	chk->input(get_ware()->get_name());
+	chk->input(get_input_type()->get_name());
 }
 
 

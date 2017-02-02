@@ -572,7 +572,7 @@ void fabrik_t::recalc_storage_capacities()
 			FOR(array_tpl<ware_production_t>, & g, eingang) {
 				for(  int b=0;  b<desc->get_supplier_count();  ++b  ) {
 					const factory_supplier_desc_t *const input = desc->get_supplier(b);
-					if (g.get_typ() == input->get_ware()) {
+					if (g.get_typ() == input->get_input_type()) {
 						// Inputs are now normalized to factory production.
 						uint32 prod_factor = input->get_consumption();
 						g.max = (sint32)((((sint64)((input->get_capacity() << precision_bits) + share) << DEFAULT_PRODUCTION_FACTOR_BITS) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
@@ -598,7 +598,7 @@ void fabrik_t::recalc_storage_capacities()
 		FOR(array_tpl<ware_production_t>, & g, eingang) {
 			for(  int b=0;  b<desc->get_supplier_count();  ++b  ) {
 				const factory_supplier_desc_t *const input = desc->get_supplier(b);
-				if (g.get_typ() == input->get_ware()) {
+				if (g.get_typ() == input->get_input_type()) {
 					// Inputs are now normalized to factory production.
 					uint32 prod_factor = input->get_consumption();
 					g.max = (sint32)(((((sint64)input->get_capacity() * (sint64)prodbase) << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / ((sint64)desc->get_productivity() * (sint64)prod_factor));
@@ -807,7 +807,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* fabesch,
 	eingang.resize( fabesch->get_supplier_count() );
 	for(  int g=0;  g<fabesch->get_supplier_count();  ++g  ) {
 		const factory_supplier_desc_t *const input = fabesch->get_supplier(g);
-		eingang[g].set_typ( input->get_ware() );
+		eingang[g].set_typ( input->get_input_type() );
 	}
 
 	// create output information
@@ -2253,7 +2253,7 @@ void fabrik_t::step(uint32 delta_t)
 			// compute power demand
 			uint64 pd = ((uint64)scaled_electric_amount * (uint64)boost * (uint64)work) >> (DEFAULT_PRODUCTION_FACTOR_BITS + WORK_BITS);
 			set_power_demand((uint32)pd);
-			
+
 			break;
 		}
 		default: {
@@ -3108,7 +3108,7 @@ void fabrik_t::add_all_suppliers()
 {
 	for(int i=0; i < desc->get_supplier_count(); i++) {
 		const factory_supplier_desc_t *supplier = desc->get_supplier(i);
-		const goods_desc_t *ware = supplier->get_ware();
+		const goods_desc_t *ware = supplier->get_input_type();
 
 		FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 			// connect to an existing one, if this is an producer
@@ -3129,7 +3129,7 @@ bool fabrik_t::add_supplier(fabrik_t* fab)
 {
 	for(int i=0; i < desc->get_supplier_count(); i++) {
 		const factory_supplier_desc_t *supplier = desc->get_supplier(i);
-		const goods_desc_t *ware = supplier->get_ware();
+		const goods_desc_t *ware = supplier->get_input_type();
 
 			// connect to an existing one, if this is an producer
 			if(  fab!=this  &&  fab->vorrat_an(ware) > -1  ) {

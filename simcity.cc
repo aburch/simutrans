@@ -1750,7 +1750,7 @@ void stadt_t::calc_growth()
 			for(  int i=0;  i<desc->get_supplier_count();  i++  ) {
 				city_history_month[0][HIST_GOODS_NEEDED] ++;
 				city_history_year[0][HIST_GOODS_NEEDED] ++;
-				if(  fab->input_vorrat_an( desc->get_supplier(i)->get_ware() )>0  ) {
+				if(  fab->input_vorrat_an( desc->get_supplier(i)->get_input_type() )>0  ) {
 					city_history_month[0][HIST_GOODS_RECIEVED] ++;
 					city_history_year[0][HIST_GOODS_RECIEVED] ++;
 				}

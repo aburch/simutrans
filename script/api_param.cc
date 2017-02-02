@@ -403,7 +403,7 @@ namespace script_api {
 				const ware_production_t& in = fab->get_eingang()[i];
 				const factory_supplier_desc_t* desc = fab->get_desc()->get_supplier(i);
 				// sanity check
-				if (desc  &&  desc->get_ware() == in.get_typ()) {
+				if (desc  &&  desc->get_input_type() == in.get_typ()) {
 					return desc;
 				}
 			}

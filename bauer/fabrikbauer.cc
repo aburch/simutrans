@@ -231,10 +231,10 @@ bool factory_builder_t::successfully_loaded()
 		// check for crossconnects
 		for(  int j=0;  j < current->get_supplier_count();  j++  ) {
 			weighted_vector_tpl<const factory_desc_t *>producer;
-			find_producer( producer, current->get_supplier(j)->get_ware(), 0 );
+			find_producer( producer, current->get_supplier(j)->get_input_type(), 0 );
 			if(  producer.is_contained(current)  ) {
 				// must not happen else
-				dbg->fatal( "factory_builder_t::build_link()", "Factory %s output %s cannot be its own input!", i.key, current->get_supplier(j)->get_ware()->get_name() );
+				dbg->fatal( "factory_builder_t::build_link()", "Factory %s output %s cannot be its own input!", i.key, current->get_supplier(j)->get_input_type()->get_name() );
 			}
 		}
 		checksum_t *chk = new checksum_t();
@@ -520,7 +520,7 @@ bool factory_builder_t::can_factory_tree_rotate( const factory_desc_t *desc )
 	// now check all suppliers if they can rotate
 	for(  int i=0;  i<desc->get_supplier_count();  i++   ) {
 
-		const goods_desc_t *ware = desc->get_supplier(i)->get_ware();
+		const goods_desc_t *ware = desc->get_supplier(i)->get_input_type();
 
 		// unfortunately, for every for iteration we have to check all factories ...
 		FOR(stringhashtable_tpl<factory_desc_t const*>, const& t, desc_table) {
@@ -683,7 +683,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 	 * We must take care to add capacity for cross-connected factories!
 	 */
 	const factory_supplier_desc_t *supplier = info->get_supplier(supplier_nr);
-	const goods_desc_t *ware = supplier->get_ware();
+	const goods_desc_t *ware = supplier->get_input_type();
 	const int producer_count=count_producers( ware, welt->get_timeline_year_month() );
 
 	if(producer_count==0) {
@@ -730,7 +730,7 @@ DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need 
 							if (production_left <= 0) break;
 							fabrik_t* const zfab = fabrik_t::get_fab(i);
 							for(int zz=0;  zz<zfab->get_desc()->get_supplier_count();  zz++) {
-								if(zfab->get_desc()->get_supplier(zz)->get_ware()==ware) {
+								if(zfab->get_desc()->get_supplier(zz)->get_input_type()==ware) {
 									production_left -= zfab->get_base_production()*zfab->get_desc()->get_supplier(zz)->get_consumption();
 									break;
 								}
@@ -897,7 +897,7 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 		// ok, found consumer
 		if(  last_built_consumer  ) {
 			for(  int i=0;  i < last_built_consumer->get_desc()->get_supplier_count();  i++  ) {
-				goods_desc_t const* const w = last_built_consumer->get_desc()->get_supplier(i)->get_ware();
+				goods_desc_t const* const w = last_built_consumer->get_desc()->get_supplier(i)->get_input_type();
 				FOR(vector_tpl<koord>, const& j, last_built_consumer->get_suppliers()) {
 					factory_desc_t const* const fd = fabrik_t::get_fab(j)->get_desc();
 					for (uint32 k = 0; k < fd->get_product_count(); k++) {

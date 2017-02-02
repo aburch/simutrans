@@ -146,7 +146,7 @@ private:
 	uint16  consumption;
 
 public:
-	goods_desc_t const* get_ware() const { return get_child<goods_desc_t>(0); }
+	goods_desc_t const* get_input_type() const { return get_child<goods_desc_t>(0); }
 	uint16 get_capacity() const { return capacity; }
 	uint16 get_supplier_count() const { return supplier_count; }
 	uint16 get_consumption() const { return consumption; }
