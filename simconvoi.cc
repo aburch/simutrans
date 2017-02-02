@@ -3004,7 +3004,7 @@ void convoi_t::calc_speedbonus_kmh()
 				; // nothing
 			}
 			else if(  desc->get_freight_type()->get_catg() == 0  ) {
-				// use full weight for passengers, post, and special goods
+				// use full weight for passengers, mail, and special goods
 				total_max_weight += desc->get_freight_type()->get_weight_per_unit() * desc->get_capacity();
 			}
 			else {

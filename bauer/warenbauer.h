@@ -35,7 +35,7 @@ public:
 	enum { INDEX_PAS=0, INDEX_MAIL=1, INDEX_NONE=2 };
 
 	static const goods_desc_t *passengers;
-	static const goods_desc_t *post;
+	static const goods_desc_t *mail;
 	static const goods_desc_t *none;
 
 	static bool successfully_loaded();

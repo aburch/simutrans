@@ -111,7 +111,7 @@ void halt_list_stats_t::draw(scr_coord offset)
 			display_color_img(skinverwaltung_t::passengers->get_image_id(0), left, pos_y, 0, false, true);
 			left += 10;
 		}
-		if (halt->get_post_enabled()) {
+		if (halt->get_mail_enabled()) {
 			display_color_img(skinverwaltung_t::mail->get_image_id(0), left, pos_y, 0, false, true);
 			left += 10;
 		}

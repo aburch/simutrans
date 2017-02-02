@@ -173,7 +173,7 @@ static bool passes_filter_out(haltestelle_t const& s)
 		if (ware == goods_manager_t::passengers) {
 			if (s.get_pax_enabled()) return true;
 		} else if (ware == goods_manager_t::mail) {
-			if (s.get_post_enabled()) return true;
+			if (s.get_mail_enabled()) return true;
 		} else if (ware != goods_manager_t::none) {
 			// Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
 			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
@@ -208,7 +208,7 @@ static bool passes_filter_in(haltestelle_t const& s)
 		if (ware == goods_manager_t::passengers) {
 			if (s.get_pax_enabled()) return true;
 		} else if (ware == goods_manager_t::mail) {
-			if (s.get_post_enabled()) return true;
+			if (s.get_mail_enabled()) return true;
 		} else if (ware != goods_manager_t::none) {
 			// Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
 			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge

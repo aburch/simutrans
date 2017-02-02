@@ -184,13 +184,13 @@ void curiositylist_stats_t::draw(scr_coord offset)
 
 		// is connected? => decide on indicatorfarbe (indicator color)
 		int indicatorfarbe;
-		bool post=false;
+		bool mail=false;
 		bool pax=false;
 		bool all_crowded=true;
 		bool some_crowded=false;
 		const planquadrat_t *plan = welt->access(geb->get_pos().get_2d());
 		const halthandle_t *halt_list = plan->get_haltlist();
-		for(  unsigned h=0;  (post&pax)==0  &&  h<plan->get_haltlist_count();  h++ ) {
+		for(  unsigned h=0;  (mail&pax)==0  &&  h<plan->get_haltlist_count();  h++ ) {
 			halthandle_t halt = halt_list[h];
 			if (halt->get_pax_enabled()) {
 				pax = true;
@@ -201,8 +201,8 @@ void curiositylist_stats_t::draw(scr_coord offset)
 					all_crowded = false;
 				}
 			}
-			if (halt->get_post_enabled()) {
-				post = true;
+			if (halt->get_mail_enabled()) {
+				mail = true;
 				if (halt->get_pax_unhappy() > 40) {
 					some_crowded |= true;
 				}
@@ -216,10 +216,10 @@ void curiositylist_stats_t::draw(scr_coord offset)
 			indicatorfarbe = all_crowded ? COL_RED : COL_ORANGE;
 		}
 		else if(pax) {
-			indicatorfarbe = post ? COL_TURQUOISE : COL_DARK_GREEN;
+			indicatorfarbe = mail ? COL_TURQUOISE : COL_DARK_GREEN;
 		}
 		else {
-			indicatorfarbe = post ? COL_BLUE : COL_YELLOW;
+			indicatorfarbe = mail ? COL_BLUE : COL_YELLOW;
 		}
 
 		display_fillbox_wh_clip(xoff+7, yoff+2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indicatorfarbe, true);

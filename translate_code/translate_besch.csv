@@ -159,3 +159,14 @@ ware_besch_t,goods_desc_t
 good_reader_t,goods_reader_t
 good_writer_t,goods_writer_t
 warenbauer_t,goods_manager_t
+load_passagiere,load_passengers
+load_post,load_mail
+load_nichts,load_none
+\\<waren\\>,goods
+:post,:mail
+\\<passagiere\\>,passengers
+\\<nichts\\>,none
+ware_index,goods_index
+get_post_enabled,get_mail_enabled
+\\<post\\>,mail
+mail-p,post-p

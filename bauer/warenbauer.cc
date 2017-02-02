@@ -134,7 +134,7 @@ bool goods_manager_t::register_desc(goods_desc_t *desc)
 	if(desc==passengers) {
 		desc->goods_index = INDEX_PAS;
 		load_passengers = desc;
-	} else if(desc==post) {
+	} else if(desc==mail) {
 		desc->goods_index = INDEX_MAIL;
 		load_mail = desc;
 	} else if(desc != none) {

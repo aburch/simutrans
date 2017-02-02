@@ -232,7 +232,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 10;
 		}
-		if (halt->get_post_enabled()) {
+		if (halt->get_mail_enabled()) {
 			display_color_img(skinverwaltung_t::mail->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 10;
 		}
@@ -292,7 +292,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			// here only for separate capacities
 			display_color_img(skinverwaltung_t::passengers->get_image_id(0), left, top, 0, false, false);
 			left += 10;
-			// post
+			// mail
 			info_buf.clear();
 			info_buf.printf(",  %u", halt->get_capacity(1));
 			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);

@@ -101,7 +101,7 @@ public:
 	/// @name icons used to show which halt serves passengers / mail / freight
 	/// @{
 	static const skin_besch_t *passengers;
-	static const skin_besch_t *post;
+	static const skin_besch_t *mail;
 	static const skin_besch_t *goods;
 	/// @}
 

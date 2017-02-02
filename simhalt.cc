@@ -2569,7 +2569,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	if(file->get_version()<=88005) {
 		bool dummy;
 		file->rdwr_bool(dummy); // pax
-		file->rdwr_bool(dummy); // post
+		file->rdwr_bool(dummy); // mail
 		file->rdwr_bool(dummy);	// ware
 	}
 
@@ -2829,12 +2829,12 @@ void haltestelle_t::recalc_status()
 		}
 	}
 
-	if(get_post_enabled()) {
+	if(get_mail_enabled()) {
 		const uint32 max_ware = get_capacity(1);
-		const uint32 post = get_ware_summe(goods_manager_t::mail);
-		total_sum += post;
-		if(post>max_ware) {
-			status_bits |= post>max_ware+200 ? 2 : 1;
+		const uint32 mail = get_ware_summe(goods_manager_t::mail);
+		total_sum += mail;
+		if(mail>max_ware) {
+			status_bits |= mail>max_ware+200 ? 2 : 1;
 			overcrowded[0] |= 2;
 		}
 	}

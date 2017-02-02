@@ -461,11 +461,11 @@ int gebaeude_t::get_passagier_level() const
 int gebaeude_t::get_mail_level() const
 {
 	koord dim = tile->get_desc()->get_size();
-	sint32 post = tile->get_desc()->get_mail_level();
+	sint32 mail = tile->get_desc()->get_mail_level();
 	if(  !is_factory  &&  ptr.stadt != NULL  ) {
-		return ((post + 5) >> 2) * welt->get_settings().get_passenger_factor() / 16;
+		return ((mail + 5) >> 2) * welt->get_settings().get_passenger_factor() / 16;
 	}
-	return post*dim.x*dim.y;
+	return mail*dim.x*dim.y;
 }
 
 

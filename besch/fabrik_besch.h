@@ -269,7 +269,7 @@ public:
 	uint16 get_productivity() const { return productivity; }
 	uint16 get_range() const { return range; }
 
-	/* level for post and passenger generation */
+	/* level for mail and passenger generation */
 	uint16 get_pax_level() const { return pax_level; }
 
 	bool is_electricity_producer() const { return electricity_producer; }

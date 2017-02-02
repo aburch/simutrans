@@ -762,7 +762,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		case MAP_MAIL:
 			if(  plan->get_haltlist_count()>0  ) {
 				halthandle_t halt = plan->get_haltlist()[0];
-				if (halt->get_post_enabled() && !halt->get_mail_connections().empty()) {
+				if (halt->get_mail_enabled() && !halt->get_mail_connections().empty()) {
 					set_relief_farbe( k, halt->get_owner()->get_player_color1() + 3 );
 				}
 			}
@@ -1349,7 +1349,7 @@ void reliefkarte_t::draw(scr_coord pos)
 	if(  mode & MAP_MODE_HALT_FLAGS  &&  stop_cache.empty()  ) {
 		if(  mode & MAP_ORIGIN  ) {
 			FOR( const vector_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
-				if(  halt->get_pax_enabled()  ||  halt->get_post_enabled()  ) {
+				if(  halt->get_pax_enabled()  ||  halt->get_mail_enabled()  ) {
 					stop_cache.append( halt );
 				}
 			}
@@ -1427,7 +1427,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			radius = number_to_radius( abs(waiting_diff) );
 		}
 		else if( mode & MAP_ORIGIN  ) {
-			if(  !station->get_pax_enabled()  &&  !station->get_post_enabled()  ) {
+			if(  !station->get_pax_enabled()  &&  !station->get_mail_enabled()  ) {
 				continue;
 			}
 			const sint32 pax_origin = (sint32)(station->get_finance_history( 1, HALT_HAPPY ) + station->get_finance_history( 1, HALT_UNHAPPY ) + station->get_finance_history( 1, HALT_NOROUTE ));
