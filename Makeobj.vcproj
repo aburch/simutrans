@@ -171,23 +171,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\besch\image.cc"
+				RelativePath=".\descriptor\image.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\bridge_writer.cc"
+				RelativePath=".\descriptor\writer\bridge_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\building_writer.cc"
+				RelativePath=".\descriptor\writer\building_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\citycar_writer.cc"
+				RelativePath=".\descriptor\writer\citycar_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\crossing_writer.cc"
+				RelativePath=".\descriptor\writer\crossing_writer.cc"
 				>
 			</File>
 			<File
@@ -195,7 +195,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\factory_writer.cc"
+				RelativePath=".\descriptor\writer\factory_writer.cc"
 				>
 			</File>
 			<File
@@ -203,35 +203,35 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\get_climate.cc"
+				RelativePath=".\descriptor\writer\get_climate.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\get_waytype.cc"
+				RelativePath=".\descriptor\writer\get_waytype.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\good_writer.cc"
+				RelativePath=".\descriptor\writer\good_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\ground_writer.cc"
+				RelativePath=".\descriptor\writer\ground_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\groundobj_writer.cc"
+				RelativePath=".\descriptor\writer\groundobj_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\image_writer.cc"
+				RelativePath=".\descriptor\writer\image_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\imagelist2d_writer.cc"
+				RelativePath=".\descriptor\writer\imagelist2d_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\imagelist_writer.cc"
+				RelativePath=".\descriptor\writer\imagelist_writer.cc"
 				>
 			</File>
 			<File
@@ -243,23 +243,23 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\obj_node.cc"
+				RelativePath=".\descriptor\writer\obj_node.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\obj_writer.cc"
+				RelativePath=".\descriptor\writer\obj_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\pedestrian_writer.cc"
+				RelativePath=".\descriptor\writer\pedestrian_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\roadsign_writer.cc"
+				RelativePath=".\descriptor\writer\roadsign_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\root_writer.cc"
+				RelativePath=".\descriptor\writer\root_writer.cc"
 				>
 			</File>
 			<File
@@ -267,7 +267,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\sim_writer.cc"
+				RelativePath=".\descriptor\writer\sim_writer.cc"
 				>
 			</File>
 			<File
@@ -287,11 +287,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\skin_writer.cc"
+				RelativePath=".\descriptor\writer\skin_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\sound_writer.cc"
+				RelativePath=".\descriptor\writer\sound_writer.cc"
 				>
 			</File>
 			<File
@@ -299,31 +299,31 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\text_writer.cc"
+				RelativePath=".\descriptor\writer\text_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\tree_writer.cc"
+				RelativePath=".\descriptor\writer\tree_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\tunnel_writer.cc"
+				RelativePath=".\descriptor\writer\tunnel_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\vehicle_writer.cc"
+				RelativePath=".\descriptor\writer\vehicle_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\way_obj_writer.cc"
+				RelativePath=".\descriptor\writer\way_obj_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\way_writer.cc"
+				RelativePath=".\descriptor\writer\way_writer.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\xref_writer.cc"
+				RelativePath=".\descriptor\writer\xref_writer.cc"
 				>
 			</File>
 		</Filter>
@@ -333,39 +333,39 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\besch\tree_desc.h"
+				RelativePath=".\descriptor\tree_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\image.h"
+				RelativePath=".\descriptor\image.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\image_array.h"
+				RelativePath=".\descriptor\image_array.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\image_list.h"
+				RelativePath=".\descriptor\image_list.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\bridge_writer.h"
+				RelativePath=".\descriptor\writer\bridge_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\bridge_desc.h"
+				RelativePath=".\descriptor\bridge_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\building_writer.h"
+				RelativePath=".\descriptor\writer\building_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\citycar_writer.h"
+				RelativePath=".\descriptor\writer\citycar_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\crossing_writer.h"
+				RelativePath=".\descriptor\writer\crossing_writer.h"
 				>
 			</File>
 			<File
@@ -373,11 +373,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\factory_desc.h"
+				RelativePath=".\descriptor\factory_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\factory_writer.h"
+				RelativePath=".\descriptor\writer\factory_writer.h"
 				>
 			</File>
 			<File
@@ -385,59 +385,59 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\pedestrian_desc.h"
+				RelativePath=".\descriptor\pedestrian_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\get_climate.h"
+				RelativePath=".\descriptor\writer\get_climate.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\get_waytype.h"
+				RelativePath=".\descriptor\writer\get_waytype.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\good_writer.h"
+				RelativePath=".\descriptor\writer\good_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\ground_writer.h"
+				RelativePath=".\descriptor\writer\ground_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\groundobj_desc.h"
+				RelativePath=".\descriptor\groundobj_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\groundobj_writer.h"
+				RelativePath=".\descriptor\writer\groundobj_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\ground_desc.h"
+				RelativePath=".\descriptor\ground_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\building_desc.h"
+				RelativePath=".\descriptor\building_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\image_writer.h"
+				RelativePath=".\descriptor\writer\image_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\imagelist2d_writer.h"
+				RelativePath=".\descriptor\writer\imagelist2d_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\imagelist_writer.h"
+				RelativePath=".\descriptor\writer\imagelist_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\intro_dates.h"
+				RelativePath=".\descriptor\intro_dates.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\crossing_desc.h"
+				RelativePath=".\descriptor\crossing_desc.h"
 				>
 			</File>
 			<File
@@ -445,47 +445,47 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\obj_desc.h"
+				RelativePath=".\descriptor\obj_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\obj_base_desc.h"
+				RelativePath=".\descriptor\obj_base_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\obj_node.h"
+				RelativePath=".\descriptor\writer\obj_node.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\obj_node_info.h"
+				RelativePath=".\descriptor\obj_node_info.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\obj_pak_exception.h"
+				RelativePath=".\descriptor\writer\obj_pak_exception.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\obj_writer.h"
+				RelativePath=".\descriptor\writer\obj_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\objversion.h"
+				RelativePath=".\descriptor\objversion.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\pedestrian_writer.h"
+				RelativePath=".\descriptor\writer\pedestrian_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\roadsign_desc.h"
+				RelativePath=".\descriptor\roadsign_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\roadsign_writer.h"
+				RelativePath=".\descriptor\writer\roadsign_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\root_writer.h"
+				RelativePath=".\descriptor\writer\root_writer.h"
 				>
 			</File>
 			<File
@@ -509,27 +509,27 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\skin_desc.h"
+				RelativePath=".\descriptor\skin_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\skin_writer.h"
+				RelativePath=".\descriptor\writer\skin_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\sound_desc.h"
+				RelativePath=".\descriptor\sound_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\sound_writer.h"
+				RelativePath=".\descriptor\writer\sound_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\spezial_obj_tpl.h"
+				RelativePath=".\descriptor\spezial_obj_tpl.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\citycar_desc.h"
+				RelativePath=".\descriptor\citycar_desc.h"
 				>
 			</File>
 			<File
@@ -537,59 +537,59 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\text_desc.h"
+				RelativePath=".\descriptor\text_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\text_writer.h"
+				RelativePath=".\descriptor\writer\text_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\tree_writer.h"
+				RelativePath=".\descriptor\writer\tree_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\tunnel_desc.h"
+				RelativePath=".\descriptor\tunnel_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\tunnel_writer.h"
+				RelativePath=".\descriptor\writer\tunnel_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\vehicle_writer.h"
+				RelativePath=".\descriptor\writer\vehicle_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\vehicle_desc.h"
+				RelativePath=".\descriptor\vehicle_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\goods_desc.h"
+				RelativePath=".\descriptor\goods_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\way_obj_desc.h"
+				RelativePath=".\descriptor\way_obj_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\way_obj_writer.h"
+				RelativePath=".\descriptor\writer\way_obj_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\way_writer.h"
+				RelativePath=".\descriptor\writer\way_writer.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\way_desc.h"
+				RelativePath=".\descriptor\way_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\xref_desc.h"
+				RelativePath=".\descriptor\xref_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\writer\xref_writer.h"
+				RelativePath=".\descriptor\writer\xref_writer.h"
 				>
 			</File>
 		</Filter>
