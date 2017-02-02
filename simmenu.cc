@@ -333,8 +333,8 @@ void tool_t::read_menu(const std::string &objfilename)
 		const char* type;
 		uint16 count;
 		vector_tpl<tool_t *> &tools;
-		const skin_besch_t *icons;
-		const skin_besch_t *cursor;
+		const skin_desc_t *icons;
+		const skin_desc_t *cursor;
 		bool with_sound;
 
 	};
@@ -371,7 +371,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					while(  str[i]!=0  &&  str[i]!=','  ) {
 						i++;
 					}
-					const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
+					const skin_desc_t *s=skinverwaltung_t::get_extra(str,i-1);
 					tool->icon = s ? s->get_image_id(0) : IMG_EMPTY;
 				}
 				else {
@@ -487,7 +487,7 @@ void tool_t::read_menu(const std::string &objfilename)
 						while(  str[i]!=0  &&  str[i]!=','  ) {
 							i++;
 						}
-						const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
+						const skin_desc_t *s=skinverwaltung_t::get_extra(str,i-1);
 						icon = s ? s->get_image_id(0) : IMG_EMPTY;
 					}
 					else {

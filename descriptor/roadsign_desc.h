@@ -61,7 +61,7 @@ public:
 
 	uint16 get_count() const { return get_child<image_list_t>(2)->get_count(); }
 
-	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(3); }
+	skin_desc_t const* get_cursor() const { return get_child<skin_desc_t>(3); }
 
 	uint16 get_min_speed() const { return min_speed; }
 

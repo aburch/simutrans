@@ -105,7 +105,7 @@ public:
 
 	goods_desc_t const* get_freight_type() const { return get_child<goods_desc_t>(2); }
 
-	skin_besch_t const* get_smoke() const { return get_child<skin_besch_t>(3); }
+	skin_desc_t const* get_smoke() const { return get_child<skin_desc_t>(3); }
 
 	image_id get_base_image() const { return get_image_id(ribi_t::dir_south, get_freight_type() ); }
 

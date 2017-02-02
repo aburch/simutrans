@@ -24,7 +24,7 @@
  *	1   Copyright
  *	2   Image list
  */
-class skin_besch_t : public obj_named_desc_t {
+class skin_desc_t : public obj_named_desc_t {
 public:
 	image_t const* get_image(uint16 i) const { return get_child<image_list_t>(2)->get_image(i); }
 

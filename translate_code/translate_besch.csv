@@ -170,3 +170,5 @@ ware_index,goods_index
 get_post_enabled,get_mail_enabled
 \\<post\\>,mail
 mail-p,post-p
+skin_besch_t,skin_desc_t
+xref_besch_t,xref_desc_t

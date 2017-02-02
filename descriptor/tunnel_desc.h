@@ -69,7 +69,7 @@ public:
 		return desc != NULL ? desc->get_id() :IMG_EMPTY;
 	}
 
-	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(4); }
+	skin_desc_t const* get_cursor() const { return get_child<skin_desc_t>(4); }
 
 	waytype_t get_finance_waytype() const;
 

@@ -17,7 +17,7 @@
 class checksum_t;
 
 /* Knightly : this desc will store data specific to each class of fields
- * Fields are xref'ed from skin_besch_t
+ * Fields are xref'ed from skin_desc_t
  */
 class field_class_desc_t : public obj_desc_t {
 	friend class factory_field_class_reader_t;
@@ -30,7 +30,7 @@ private:
 	uint16 spawn_weight;
 
 public:
-	skin_besch_t const* get_images() const { return get_child<skin_besch_t>(0); }
+	skin_desc_t const* get_images() const { return get_child<skin_desc_t>(0); }
 	const char *get_name() const { return get_images()->get_name(); }
 	const char *get_copyright() const { return get_images()->get_copyright(); }
 
@@ -103,7 +103,7 @@ private:
 public:
 	const char *get_name() const { return get_images()->get_name(); }
 	const char *get_copyright() const { return get_images()->get_copyright(); }
-	skin_besch_t const* get_images() const { return get_child<skin_besch_t>(0); }
+	skin_desc_t const* get_images() const { return get_child<skin_desc_t>(0); }
 
 	// get the tile with the smoke
 	koord get_pos_off( koord size, uint8 rotation) const {

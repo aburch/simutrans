@@ -58,7 +58,7 @@ public:
 	const char *get_name() const { return get_cursor()->get_name(); }
 	const char *get_copyright() const { return get_cursor()->get_copyright(); }
 
-	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(2 + offset); }
+	skin_desc_t const* get_cursor() const { return get_child<skin_desc_t>(2 + offset); }
 
 	image_id get_background(img_t img, uint8 season) const 	{
 		const image_t *image = NULL;

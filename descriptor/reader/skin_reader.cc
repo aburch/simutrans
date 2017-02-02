@@ -13,7 +13,7 @@
 
 void skin_reader_t::register_obj(obj_desc_t *&data)
 {
-	skin_besch_t* desc = static_cast<skin_besch_t*>(data);
+	skin_desc_t* desc = static_cast<skin_desc_t*>(data);
 
 	if(get_skintype() != skinverwaltung_t::nothing) {
 		skinverwaltung_t::register_desc(get_skintype(), desc);
@@ -37,5 +37,5 @@ bool skin_reader_t::successfully_loaded() const
 
 obj_desc_t* skin_reader_t::read_node(FILE*, obj_node_info_t& info)
 {
-	return obj_reader_t::read_node<skin_besch_t>(info);
+	return obj_reader_t::read_node<skin_desc_t>(info);
 }

@@ -311,8 +311,8 @@ public:
 	* Skin: cursor (index 0) and icon (index 1)
 	* @author Hj. Malthaner
 	*/
-	const skin_besch_t * get_cursor() const {
-		return flags & FLAG_HAS_CURSOR ? get_child<skin_besch_t>(2 + size.x * size.y * layouts) : 0;
+	const skin_desc_t * get_cursor() const {
+		return flags & FLAG_HAS_CURSOR ? get_child<skin_desc_t>(2 + size.x * size.y * layouts) : 0;
 	}
 
 	// the right house for this area?

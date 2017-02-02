@@ -17,11 +17,11 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(trailer_count);
 	chk->input(engine_type);
 	// freight
-	const xref_besch_t *xref = get_child<xref_besch_t>(2);
+	const xref_desc_t *xref = get_child<xref_desc_t>(2);
 	chk->input(xref ? xref->get_name() : "NULL");
 	// vehicle constraints
 	for(uint16 i=0; i<leader_count+trailer_count; i++) {
-		const xref_besch_t *xref = get_child<xref_besch_t>(6+i);
+		const xref_desc_t *xref = get_child<xref_desc_t>(6+i);
 		chk->input(xref ? xref->get_name() : "NULL");
 	}
 }

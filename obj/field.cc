@@ -58,7 +58,7 @@ void field_t::cleanup(player_t *player)
 // return the  right month graphic for factories
 image_id field_t::get_image() const
 {
-	const skin_besch_t *s=desc->get_images();
+	const skin_desc_t *s=desc->get_images();
 	uint16 count=s->get_count() - desc->has_snow_image();
 	if(  desc->has_snow_image()  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate)  ) {
 		// last images will be shown above snowline

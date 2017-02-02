@@ -218,8 +218,8 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 	}
 
 	// probably needs a tool if it has a cursor
-	const skin_besch_t *sb = desc->get_cursor();
-	if(  sb  &&  sb->get_image_id(1)!=IMG_EMPTY) {
+	const skin_desc_t *sd = desc->get_cursor();
+	if(  sd  &&  sd->get_image_id(1)!=IMG_EMPTY) {
 		tool_t *tool;
 		if(  desc->get_type()==building_desc_t::depot  ) {
 			tool = new tool_build_depot_t();

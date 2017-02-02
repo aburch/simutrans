@@ -208,9 +208,9 @@ public:
 	* Skin: cursor (index 0) and icon (index 1)
 	* @author Hj. Malthaner
 	*/
-	const skin_besch_t * get_cursor() const
+	const skin_desc_t * get_cursor() const
 	{
-		return get_child<skin_besch_t>(5);
+		return get_child<skin_desc_t>(5);
 	}
 
 	void calc_checksum(checksum_t *chk) const;

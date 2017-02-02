@@ -5,7 +5,7 @@
 #include "objversion.h"
 
 
-class xref_besch_t : public obj_desc_t
+class xref_desc_t : public obj_desc_t
 {
 	public:
 		const char* get_name() const { return name; }

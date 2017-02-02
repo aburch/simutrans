@@ -15,17 +15,17 @@ class karte_t;
 class wolke_t : public obj_no_info_t, public sync_steppable
 {
 private:
-	static vector_tpl<const skin_besch_t *>all_clouds;
+	static vector_tpl<const skin_desc_t *>all_clouds;
 
 	uint16 insta_zeit;	// clouds vanish when insta_zeit>2500 => maximum 5 images ...
 	sint8 base_y_off;
 	sint8 cloud_nr;
 
 public:
-	static bool register_desc(const skin_besch_t *desc);
+	static bool register_desc(const skin_desc_t *desc);
 
 	wolke_t(loadsave_t *file);
-	wolke_t(koord3d pos, sint8 xoff, sint8 yoff, const skin_besch_t *cloud );
+	wolke_t(koord3d pos, sint8 xoff, sint8 yoff, const skin_desc_t *cloud );
 	~wolke_t();
 
 	sync_result sync_step(uint32 delta_t);
