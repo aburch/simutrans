@@ -14,8 +14,8 @@
 
 #include "boden.h"
 
-#include "../besch/ground_desc.h"
-#include "../besch/skin_desc.h"
+#include "../descriptor/ground_desc.h"
+#include "../descriptor/skin_desc.h"
 
 
 

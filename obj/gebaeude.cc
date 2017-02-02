@@ -33,10 +33,10 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../boden/grund.h"
 
 
-#include "../besch/building_desc.h"
-#include "../besch/intro_dates.h"
+#include "../descriptor/building_desc.h"
+#include "../descriptor/intro_dates.h"
 
-#include "../besch/ground_desc.h"
+#include "../descriptor/ground_desc.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simrandom.h"

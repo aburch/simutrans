@@ -8,7 +8,7 @@
 #ifndef HAUSBAUER_H
 #define HAUSBAUER_H
 
-#include "../besch/building_desc.h"
+#include "../descriptor/building_desc.h"
 #include "../dataobj/koord3d.h"
 #include "../simtypes.h"
 #include "../tpl/vector_tpl.h"

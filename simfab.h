@@ -14,7 +14,7 @@
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/array_tpl.h"
-#include "besch/factory_desc.h"
+#include "descriptor/factory_desc.h"
 #include "halthandle_t.h"
 #include "simworld.h"
 #include "utils/plainstring.h"

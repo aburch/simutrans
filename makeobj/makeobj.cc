@@ -8,9 +8,9 @@ int debuglevel = 2;
 #include "../simtypes.h"
 #include "../simversion.h"
 #include "../utils/simstring.h"
-#include "../besch/writer/obj_pak_exception.h"
-#include "../besch/writer/root_writer.h"
-#include "../besch/writer/image_writer.h"
+#include "../descriptor/writer/obj_pak_exception.h"
+#include "../descriptor/writer/root_writer.h"
+#include "../descriptor/writer/image_writer.h"
 
 
 // Needed to avoid linking problems

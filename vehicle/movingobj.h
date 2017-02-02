@@ -10,7 +10,7 @@
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
-#include "../besch/groundobj_desc.h"
+#include "../descriptor/groundobj_desc.h"
 #include "../simcolor.h"
 #include "../ifc/sync_steppable.h"
 

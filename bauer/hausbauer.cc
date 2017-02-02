@@ -7,9 +7,9 @@
 
 #include <string.h>
 
-#include "../besch/building_desc.h"
-#include "../besch/skin_desc.h"
-#include "../besch/spezial_obj_tpl.h"
+#include "../descriptor/building_desc.h"
+#include "../descriptor/skin_desc.h"
+#include "../descriptor/spezial_obj_tpl.h"
 
 #include "../boden/boden.h"
 #include "../boden/wasser.h"

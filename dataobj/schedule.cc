@@ -11,7 +11,7 @@
 
 #include "../utils/cbuffer_t.h"
 #include "../gui/messagebox.h"
-#include "../besch/building_desc.h"
+#include "../descriptor/building_desc.h"
 #include "../boden/grund.h"
 #include "../obj/gebaeude.h"
 #include "../player/simplay.h"

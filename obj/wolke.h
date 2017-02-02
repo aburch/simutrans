@@ -1,7 +1,7 @@
 #ifndef obj_wolke_t
 #define obj_wolke_t
 
-#include "../besch/skin_desc.h"
+#include "../descriptor/skin_desc.h"
 #include "../ifc/sync_steppable.h"
 #include "../tpl/vector_tpl.h"
 #include "../display/simimg.h"

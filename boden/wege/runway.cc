@@ -7,7 +7,7 @@
 
 #include "../../simworld.h"
 #include "../../bauer/wegbauer.h"
-#include "../../besch/way_desc.h"
+#include "../../descriptor/way_desc.h"
 #include "../../dataobj/loadsave.h"
 
 #include "runway.h"

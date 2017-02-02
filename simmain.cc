@@ -64,9 +64,9 @@
 #include "dataobj/translator.h"
 #include "network/pakset_info.h"
 
-#include "besch/reader/obj_reader.h"
-#include "besch/sound_desc.h"
-#include "besch/ground_desc.h"
+#include "descriptor/reader/obj_reader.h"
+#include "descriptor/sound_desc.h"
+#include "descriptor/ground_desc.h"
 
 #include "music/music.h"
 #include "sound/sound.h"

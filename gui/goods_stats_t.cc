@@ -18,7 +18,7 @@
 #include "../simworld.h"
 
 #include "../bauer/warenbauer.h"
-#include "../besch/goods_desc.h"
+#include "../descriptor/goods_desc.h"
 
 #include "../dataobj/translator.h"
 #include "../utils/cbuffer_t.h"

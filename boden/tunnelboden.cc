@@ -12,9 +12,9 @@
 #include "../dataobj/translator.h"
 #include "../obj/tunnel.h"
 
-#include "../besch/ground_desc.h"
-#include "../besch/skin_desc.h"
-#include "../besch/tunnel_desc.h"
+#include "../descriptor/ground_desc.h"
+#include "../descriptor/skin_desc.h"
+#include "../descriptor/tunnel_desc.h"
 
 #include "../utils/cbuffer_t.h"
 

@@ -11,7 +11,7 @@
 #include "../../display/simimg.h"
 #include "../../simtypes.h"
 #include "../../simobj.h"
-#include "../../besch/way_desc.h"
+#include "../../descriptor/way_desc.h"
 #include "../../dataobj/koord3d.h"
 
 

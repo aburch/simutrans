@@ -10,11 +10,11 @@
 #include <ctype.h>
 
 #ifdef MAKEOBJ
-#include "../besch/writer/obj_writer.h"
+#include "../descriptor/writer/obj_writer.h"
 #endif
 
 #include "../simdebug.h"
-#include "../besch/image.h"
+#include "../descriptor/image.h"
 #include "koord.h"
 #include "tabfile.h"
 

@@ -22,8 +22,8 @@
 
 #include "../obj/gebaeude.h"
 
-#include "../besch/building_desc.h"
-#include "../besch/skin_desc.h"
+#include "../descriptor/building_desc.h"
+#include "../descriptor/skin_desc.h"
 
 #include "../dataobj/translator.h"
 

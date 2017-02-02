@@ -24,10 +24,10 @@
 #include "brueckenbauer.h"
 #include "tunnelbauer.h"
 
-#include "../besch/way_desc.h"
-#include "../besch/tunnel_desc.h"
-#include "../besch/building_desc.h"
-#include "../besch/crossing_desc.h"
+#include "../descriptor/way_desc.h"
+#include "../descriptor/tunnel_desc.h"
+#include "../descriptor/building_desc.h"
+#include "../descriptor/crossing_desc.h"
 
 #include "../boden/wege/strasse.h"
 #include "../boden/wege/schiene.h"

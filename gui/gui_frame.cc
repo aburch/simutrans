@@ -19,8 +19,8 @@
 #include "../simworld.h"
 #include "../player/simplay.h"
 
-#include "../besch/reader/obj_reader.h"
-#include "../besch/skin_desc.h"
+#include "../descriptor/reader/obj_reader.h"
+#include "../descriptor/skin_desc.h"
 #include "../simskin.h"
 
 karte_ptr_t gui_frame_t::welt;

@@ -12,7 +12,7 @@
 #include "../simobj.h"
 #include "../display/simimg.h"
 
-#include "../besch/crossing_desc.h"
+#include "../descriptor/crossing_desc.h"
 
 #include "../boden/grund.h"
 #include "../boden/wege/weg.h"

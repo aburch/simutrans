@@ -14,7 +14,7 @@
 #include <string.h>
 #include "macros.h"
 #include "music/music.h"
-#include "besch/sound_desc.h"
+#include "descriptor/sound_desc.h"
 #include "sound/sound.h"
 #include "simsound.h"
 #include "simsys.h"

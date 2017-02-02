@@ -19,8 +19,8 @@
 #include "../simtool.h"
 #include "../simworld.h"
 
-#include "../besch/roadsign_desc.h"
-#include "../besch/skin_desc.h"
+#include "../descriptor/roadsign_desc.h"
+#include "../descriptor/skin_desc.h"
 
 #include "../boden/grund.h"
 #include "../boden/wege/strasse.h"

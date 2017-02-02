@@ -16,7 +16,7 @@
 #include "player/simplay.h"
 #include "simconst.h"
 #include "macros.h"
-#include "besch/ground_desc.h"
+#include "descriptor/ground_desc.h"
 #include "boden/grund.h"
 #include "boden/boden.h"
 #include "boden/fundament.h"

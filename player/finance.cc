@@ -7,7 +7,7 @@
 #include <assert.h>
 
 #include "../simworld.h"
-#include "../besch/building_desc.h"
+#include "../descriptor/building_desc.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/scenario.h"
 #include "simplay.h"

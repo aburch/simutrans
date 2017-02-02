@@ -32,8 +32,8 @@
 #include "boden/grund.h"
 #include "boden/wege/schiene.h"	// for railblocks
 
-#include "besch/vehicle_desc.h"
-#include "besch/roadsign_desc.h"
+#include "descriptor/vehicle_desc.h"
+#include "descriptor/roadsign_desc.h"
 
 #include "dataobj/schedule.h"
 #include "dataobj/route.h"

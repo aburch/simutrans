@@ -18,7 +18,7 @@
 
 #include "../dataobj/translator.h"
 
-#include "../besch/skin_desc.h"
+#include "../descriptor/skin_desc.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"

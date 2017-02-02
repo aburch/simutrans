@@ -12,7 +12,7 @@
 #include "../display/simimg.h"
 #include "../simobj.h"
 #include "../dataobj/ribi.h"
-#include "../besch/way_obj_desc.h"
+#include "../descriptor/way_obj_desc.h"
 #include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 

@@ -40,7 +40,7 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/tabfile.h"
 
-#include "../besch/skin_desc.h"
+#include "../descriptor/skin_desc.h"
 
 #include "../obj/zeiger.h"
 

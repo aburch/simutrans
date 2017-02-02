@@ -14,7 +14,7 @@
 
 #include "translator.h"
 
-#include "../besch/crossing_desc.h"
+#include "../descriptor/crossing_desc.h"
 
 #include "../utils/cbuffer_t.h"
 

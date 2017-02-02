@@ -39,8 +39,8 @@
 #include "../../utils/cbuffer_t.h"
 #include "../../dataobj/translator.h"
 #include "../../dataobj/loadsave.h"
-#include "../../besch/way_desc.h"
-#include "../../besch/roadsign_desc.h"
+#include "../../descriptor/way_desc.h"
+#include "../../descriptor/roadsign_desc.h"
 
 #include "../../tpl/slist_tpl.h"
 

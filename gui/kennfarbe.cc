@@ -13,7 +13,7 @@
 #include "../simevent.h"
 #include "../display/simimg.h"
 #include "../simworld.h"
-#include "../besch/skin_desc.h"
+#include "../descriptor/skin_desc.h"
 #include "../simskin.h"
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"

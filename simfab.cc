@@ -25,8 +25,8 @@
 #include "simhalt.h"
 #include "simware.h"
 #include "simworld.h"
-#include "besch/building_desc.h"
-#include "besch/goods_desc.h"
+#include "descriptor/building_desc.h"
+#include "descriptor/goods_desc.h"
 #include "player/simplay.h"
 
 #include "simintr.h"
@@ -41,7 +41,7 @@
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 
-#include "besch/factory_desc.h"
+#include "descriptor/factory_desc.h"
 #include "bauer/hausbauer.h"
 #include "bauer/warenbauer.h"
 #include "bauer/fabrikbauer.h"
@@ -1122,7 +1122,7 @@ char const* fabrik_t::get_name() const
 void fabrik_t::set_name(const char *new_name)
 {
 	if(new_name==NULL  ||  strcmp(new_name, translator::translate(desc->get_name(), welt->get_settings().get_name_language_id()))==0) {
-		// new name is equal to name given by besch/translation -> set name to NULL
+		// new name is equal to name given by descriptor/translation -> set name to NULL
 		name = NULL;
 	}
 	else {

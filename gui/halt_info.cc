@@ -34,7 +34,7 @@
 
 #include "../utils/simstring.h"
 
-#include "../besch/skin_desc.h"
+#include "../descriptor/skin_desc.h"
 
 
 

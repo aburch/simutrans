@@ -2,7 +2,7 @@
 while IFS=, read from to
 do
 	echo "Replace $from by $to"
-	REPLACE="s/$from/$to/g"
+	REPLACE="s#$from#$to#g"
 
 	find ../ -name "*.cc" -or -name "*.h" -or -name "Makefile"  -or -name "*.*proj" | while read fname; do
 

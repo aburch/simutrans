@@ -10,7 +10,7 @@
 #include "strasse.h"
 #include "../../simworld.h"
 #include "../../dataobj/loadsave.h"
-#include "../../besch/way_desc.h"
+#include "../../descriptor/way_desc.h"
 #include "../../bauer/wegbauer.h"
 #include "../../dataobj/translator.h"
 

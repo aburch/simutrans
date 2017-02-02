@@ -16,7 +16,7 @@
 #include "../pathes.h"
 #include "../display/simimg.h"
 #include "../simskin.h"
-#include "../besch/skin_desc.h"
+#include "../descriptor/skin_desc.h"
 #include "sprachen.h"
 
 #include "../display/font.h"

@@ -11,7 +11,7 @@
 #include "../simskin.h"
 #include "../simworld.h"
 
-#include "../besch/skin_desc.h"
+#include "../descriptor/skin_desc.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 #include "message_option_t.h"

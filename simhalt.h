@@ -18,7 +18,7 @@
 
 #include "bauer/warenbauer.h"
 
-#include "besch/goods_desc.h"
+#include "descriptor/goods_desc.h"
 
 #include "dataobj/koord.h"
 

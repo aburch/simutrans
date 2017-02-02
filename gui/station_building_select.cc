@@ -18,7 +18,7 @@
 #include "station_building_select.h"
 #include "components/gui_button.h"
 
-#include "../besch/building_desc.h"
+#include "../descriptor/building_desc.h"
 
 
 static const char label_text[4][64] = {

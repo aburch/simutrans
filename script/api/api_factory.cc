@@ -7,7 +7,7 @@
 #include "../api_function.h"
 #include "../../dataobj/scenario.h"
 #include "../../simfab.h"
-#include "../../besch/factory_desc.h"
+#include "../../descriptor/factory_desc.h"
 
 using namespace script_api;
 

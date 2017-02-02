@@ -194,3 +194,4 @@ ware_besch,goods_desc
 way_obj_besch,way_obj_desc
 weg_besch,way_desc
 xref_besch,xref_desc
+besch\\/,descriptor/

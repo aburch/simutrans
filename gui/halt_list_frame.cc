@@ -24,7 +24,7 @@
 #include "../simware.h"
 #include "../simfab.h"
 #include "../gui/simwin.h"
-#include "../besch/skin_desc.h"
+#include "../descriptor/skin_desc.h"
 
 #include "../bauer/warenbauer.h"
 

@@ -16,7 +16,7 @@
 #include "../simsys.h"
 #include "../simmem.h"
 #include "../simdebug.h"
-#include "../besch/image.h"
+#include "../descriptor/image.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../unicode.h"
