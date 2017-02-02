@@ -341,11 +341,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\bildliste2d_besch.h"
+				RelativePath=".\besch\image_array.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\bildliste_besch.h"
+				RelativePath=".\besch\image_list.h"
 				>
 			</File>
 			<File
@@ -449,7 +449,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\obj_desc_std_name.h"
+				RelativePath=".\besch\obj_base_desc.h"
 				>
 			</File>
 			<File

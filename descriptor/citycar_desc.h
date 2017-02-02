@@ -7,8 +7,8 @@
 #ifndef __STADTAUTO_BESCH_H
 #define __STADTAUTO_BESCH_H
 
-#include "obj_desc_std_name.h"
-#include "bildliste_besch.h"
+#include "obj_base_desc.h"
+#include "image_list.h"
 #include "../dataobj/ribi.h"
 #include "../simtypes.h"
 #include "../network/checksum.h"

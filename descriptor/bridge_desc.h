@@ -16,7 +16,7 @@
 
 
 #include "skin_desc.h"
-#include "bildliste_besch.h"
+#include "image_list.h"
 #include "text_desc.h"
 #include "../simtypes.h"
 #include "../display/simimg.h"

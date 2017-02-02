@@ -7,7 +7,7 @@
 #ifndef __sound_desc_t
 #define __sound_desc_t
 
-#include "obj_desc_std_name.h"
+#include "obj_base_desc.h"
 #include "../simtypes.h"
 
 #define NO_SOUND (sint16)(0xFFFFu)

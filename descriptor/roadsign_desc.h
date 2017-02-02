@@ -10,8 +10,8 @@
 #ifndef __ROADSIGN_BESCH_H
 #define __ROADSIGN_BESCH_H
 
-#include "obj_desc_std_name.h"
-#include "bildliste_besch.h"
+#include "obj_base_desc.h"
+#include "image_list.h"
 #include "skin_desc.h"
 #include "../dataobj/ribi.h"
 #include "../simtypes.h"

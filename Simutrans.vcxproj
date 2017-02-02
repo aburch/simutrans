@@ -123,7 +123,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="besch\obj_desc_std_name.cc" />
+    <ClCompile Include="besch\obj_base_desc.cc" />
     <ClCompile Include="besch\way_desc.cc" />
     <ClCompile Include="dataobj\height_map_loader.cc" />
     <ClCompile Include="dataobj\records.cc" />
@@ -473,8 +473,8 @@
     <ClInclude Include="gui\baum_edit.h" />
     <ClInclude Include="sucher\bauplatz_sucher.h" />
     <ClInclude Include="besch\image.h" />
-    <ClInclude Include="besch\bildliste2d_besch.h" />
-    <ClInclude Include="besch\bildliste_besch.h" />
+    <ClInclude Include="besch\image_array.h" />
+    <ClInclude Include="besch\image_list.h" />
     <ClInclude Include="tpl\binary_heap_tpl.h" />
     <ClInclude Include="boden\boden.h" />
     <ClInclude Include="besch\reader\bridge_reader.h" />
@@ -623,7 +623,7 @@
     <ClInclude Include="network\network_packet.h" />
     <ClInclude Include="network\network_socket_list.h" />
     <ClInclude Include="besch\obj_desc.h" />
-    <ClInclude Include="besch\obj_desc_std_name.h" />
+    <ClInclude Include="besch\obj_base_desc.h" />
     <ClInclude Include="besch\obj_node_info.h" />
     <ClInclude Include="besch\reader\obj_reader.h" />
     <ClInclude Include="besch\objversion.h" />

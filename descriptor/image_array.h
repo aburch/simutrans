@@ -7,7 +7,7 @@
 #ifndef __BILDLISTE2D_BESCH_H
 #define __BILDLISTE2D_BESCH_H
 
-#include "bildliste_besch.h"
+#include "image_list.h"
 
 /*
  *  Author:

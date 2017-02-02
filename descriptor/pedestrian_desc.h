@@ -7,8 +7,8 @@
 #ifndef __pedestrian_desc_h
 #define __pedestrian_desc_h
 
-#include "obj_desc_std_name.h"
-#include "bildliste_besch.h"
+#include "obj_base_desc.h"
+#include "image_list.h"
 #include "../dataobj/ribi.h"
 #include "../network/checksum.h"
 

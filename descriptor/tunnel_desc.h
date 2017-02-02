@@ -19,9 +19,9 @@
 
 #include "../display/simimg.h"
 #include "../simtypes.h"
-#include "obj_desc_std_name.h"
+#include "obj_base_desc.h"
 #include "skin_desc.h"
-#include "bildliste2d_besch.h"
+#include "image_array.h"
 #include "way_desc.h"
 
 

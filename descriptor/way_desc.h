@@ -7,8 +7,8 @@
 #ifndef __WEG_BESCH_H
 #define __WEG_BESCH_H
 
-#include "bildliste_besch.h"
-#include "obj_desc_std_name.h"
+#include "image_list.h"
+#include "obj_base_desc.h"
 #include "skin_desc.h"
 #include "../dataobj/ribi.h"
 

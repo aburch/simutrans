@@ -7,9 +7,9 @@
 #ifndef __KREUZUNG_BESCH_H
 #define __KREUZUNG_BESCH_H
 
-#include "obj_desc_std_name.h"
+#include "obj_base_desc.h"
 #include "image.h"
-#include "bildliste_besch.h"
+#include "image_list.h"
 #include "../simtypes.h"
 #include "../network/checksum.h"
 
