@@ -3,7 +3,7 @@
  *
  * This file is part of the Simutrans project under the artistic licence.
  *
- *  Modulbeschreibung:
+ *  Description:
  *      This files describes way objects like a electrifications
  */
 #ifndef __WAY_OBJ_DESC_H

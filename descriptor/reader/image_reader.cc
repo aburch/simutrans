@@ -21,17 +21,17 @@
 
 obj_desc_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, besch_buf, node.size);
+	ALLOCA(char, desc_buf, node.size);
 	image_t* desc=NULL;
 
 	// Hajo: Read data
-	fread(besch_buf, node.size, 1, fp);
-	char * p = besch_buf+6;
+	fread(desc_buf, node.size, 1, fp);
+	char * p = desc_buf+6;
 
 	// always zero in old version, since length was always less than 65535
 	// because a node could not hold more data
 	uint8 version = decode_uint8(p);
-	p = besch_buf;
+	p = desc_buf;
 
 #if COLOUR_DEPTH != 0
 	desc = new image_t();
@@ -54,7 +54,7 @@ obj_desc_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		//DBG_DEBUG("image_t::read_node()","x,y=%d,%d  w,h=%d,%d, len=%i",desc->x,desc->y,desc->w,desc->h, desc->len);
 
 		uint16* dest = desc->data;
-		p = besch_buf+12;
+		p = desc_buf+12;
 
 		if (desc->h > 0) {
 			for (uint i = 0; i < desc->len; i++) {

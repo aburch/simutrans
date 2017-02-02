@@ -57,11 +57,11 @@ obj_desc_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(node.size>0) {
 		// newer versioned node
-		ALLOCA(char, besch_buf, node.size);
+		ALLOCA(char, desc_buf, node.size);
 
-		fread(besch_buf, node.size, 1, fp);
+		fread(desc_buf, node.size, 1, fp);
 
-		char * p = besch_buf;
+		char * p = desc_buf;
 
 		const uint16 v = decode_uint16(p);
 		const int version = v & 0x8000 ? v & 0x7FFF : 0;

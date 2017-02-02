@@ -4,7 +4,7 @@
  *
  * This file is part of the Simutrans project under the artistic licence.
  *
- *  Modulbeschreibung:
+ *  Description:
  *      Calculates the ground for different levels using the textures here
  *
  */

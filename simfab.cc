@@ -433,12 +433,12 @@ void fabrik_t::update_scaled_pax_demand()
 {
 	// first, scaling based on current production base
 	const sint64 prod = desc->get_productivity();
-	const sint64 besch_pax_demand = ( desc->get_pax_demand()==65535 ? desc->get_pax_level() : desc->get_pax_demand() );
-	// formula : besch_pax_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
-	const uint32 pax_demand = (uint32)( ( besch_pax_demand * (sint64)prodbase + (prod >> 1) ) / prod );
+	const sint64 desc_pax_demand = ( desc->get_pax_demand()==65535 ? desc->get_pax_level() : desc->get_pax_demand() );
+	// formula : desc_pax_demand * (current_production_base / desc_production_base); (prod >> 1) is for rounding
+	const uint32 pax_demand = (uint32)( ( desc_pax_demand * (sint64)prodbase + (prod >> 1) ) / prod );
 	// then, scaling based on month length
 	scaled_pax_demand = (uint32)welt->scale_with_month_length(pax_demand);
-	if(  scaled_pax_demand == 0  &&  besch_pax_demand > 0  ) {
+	if(  scaled_pax_demand == 0  &&  desc_pax_demand > 0  ) {
 		scaled_pax_demand = 1;	// since desc pax demand > 0 -> ensure no less than 1
 	}
 	// pax demand for fixed period length
@@ -450,12 +450,12 @@ void fabrik_t::update_scaled_mail_demand()
 {
 	// first, scaling based on current production base
 	const sint64 prod = desc->get_productivity();
-	const sint64 besch_mail_demand = ( desc->get_mail_demand()==65535 ? (desc->get_pax_level()>>2) : desc->get_mail_demand() );
-	// formula : besch_mail_demand * (current_production_base / besch_production_base); (prod >> 1) is for rounding
-	const uint32 mail_demand = (uint32)( ( besch_mail_demand * (sint64)prodbase + (prod >> 1) ) / prod );
+	const sint64 desc_mail_demand = ( desc->get_mail_demand()==65535 ? (desc->get_pax_level()>>2) : desc->get_mail_demand() );
+	// formula : desc_mail_demand * (current_production_base / desc_production_base); (prod >> 1) is for rounding
+	const uint32 mail_demand = (uint32)( ( desc_mail_demand * (sint64)prodbase + (prod >> 1) ) / prod );
 	// then, scaling based on month length
 	scaled_mail_demand = (uint32)welt->scale_with_month_length(mail_demand);
-	if(  scaled_mail_demand == 0  &&  besch_mail_demand > 0  ) {
+	if(  scaled_mail_demand == 0  &&  desc_mail_demand > 0  ) {
 		scaled_mail_demand = 1;	// since desc mail demand > 0 -> ensure no less than 1
 	}
 	// mail demand for fixed period length
@@ -482,7 +482,7 @@ void fabrik_t::update_prodfactor_pax()
 		prodfactor_pax = desc->get_pax_boost();
 	}
 	else {
-		// pro-rata boost : (pax_arrived / pax_demand) * besch_pax_boost; (pax_demand >> 1) is for rounding
+		// pro-rata boost : (pax_arrived / pax_demand) * desc_pax_boost; (pax_demand >> 1) is for rounding
 		prodfactor_pax = (sint32)( ( (sint64)pax_arrived * (sint64)(desc->get_pax_boost()) + (sint64)(pax_demand >> 1) ) / (sint64)pax_demand );
 	}
 	set_stat(prodfactor_pax, FAB_BOOST_PAX);
@@ -508,7 +508,7 @@ void fabrik_t::update_prodfactor_mail()
 		prodfactor_mail = desc->get_mail_boost();
 	}
 	else {
-		// pro-rata boost : (mail_arrived / mail_demand) * besch_mail_boost; (mail_demand >> 1) is for rounding
+		// pro-rata boost : (mail_arrived / mail_demand) * desc_mail_boost; (mail_demand >> 1) is for rounding
 		prodfactor_mail = (sint32)( ( (sint64)mail_arrived * (sint64)(desc->get_mail_boost()) + (sint64)(mail_demand >> 1) ) / (sint64)mail_demand );
 	}
 	set_stat(prodfactor_mail, FAB_BOOST_MAIL);
@@ -775,8 +775,8 @@ fabrik_t::fabrik_t(loadsave_t* file)
 }
 
 
-fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* fabesch, sint32 initial_prod_base) :
-	desc(fabesch),
+fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* factory_desc, sint32 initial_prod_base) :
+	desc(factory_desc),
 	pos(pos_)
 {
 	this->pos.z = welt->max_hgt(pos.get_2d());
@@ -804,16 +804,16 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* fabesch,
 	lieferziele_active_last_month = 0;
 
 	// create input information
-	eingang.resize( fabesch->get_supplier_count() );
-	for(  int g=0;  g<fabesch->get_supplier_count();  ++g  ) {
-		const factory_supplier_desc_t *const input = fabesch->get_supplier(g);
+	eingang.resize( factory_desc->get_supplier_count() );
+	for(  int g=0;  g<factory_desc->get_supplier_count();  ++g  ) {
+		const factory_supplier_desc_t *const input = factory_desc->get_supplier(g);
 		eingang[g].set_typ( input->get_input_type() );
 	}
 
 	// create output information
-	ausgang.resize( fabesch->get_product_count() );
-	for(  uint g=0;  g<fabesch->get_product_count();  ++g  ) {
-		const factory_product_desc_t *const product = fabesch->get_product(g);
+	ausgang.resize( factory_desc->get_product_count() );
+	for(  uint g=0;  g<factory_desc->get_product_count();  ++g  ) {
+		const factory_product_desc_t *const product = factory_desc->get_product(g);
 		ausgang[g].set_typ( product->get_output_type() );
 	}
 

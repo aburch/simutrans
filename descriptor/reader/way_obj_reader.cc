@@ -29,13 +29,13 @@ bool way_obj_reader_t::successfully_loaded() const
 
 obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, besch_buf, node.size);
+	ALLOCA(char, desc_buf, node.size);
 
 	way_obj_desc_t *desc = new way_obj_desc_t();
 
 	// Hajo: Read data
-	fread(besch_buf, node.size, 1, fp);
-	char * p = besch_buf;
+	fread(desc_buf, node.size, 1, fp);
+	char * p = desc_buf;
 
 	// Hajo: old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.

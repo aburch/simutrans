@@ -29,13 +29,13 @@ uint16 rescale_probability(const uint16 p)
 
 obj_desc_t *factory_field_class_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, besch_buf, node.size);
+	ALLOCA(char, desc_buf, node.size);
 
 	field_class_desc_t *desc = new field_class_desc_t();
 
 	// Hajo: Read data
-	fread(besch_buf, node.size, 1, fp);
-	char * p = besch_buf;
+	fread(desc_buf, node.size, 1, fp);
+	char * p = desc_buf;
 
 	uint16 v = decode_uint16(p);
 	if(  v==0x8001  ) {
@@ -57,13 +57,13 @@ obj_desc_t *factory_field_class_reader_t::read_node(FILE *fp, obj_node_info_t &n
 
 obj_desc_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, besch_buf, node.size);
+	ALLOCA(char, desc_buf, node.size);
 
 	field_group_desc_t *desc = new field_group_desc_t();
 
 	// Hajo: Read data
-	fread(besch_buf, node.size, 1, fp);
-	char * p = besch_buf;
+	fread(desc_buf, node.size, 1, fp);
+	char * p = desc_buf;
 
 	uint16 v = decode_uint16(p);
 	if(  v==0x8003  ) {
@@ -135,13 +135,13 @@ void factory_field_group_reader_t::register_obj(obj_desc_t *&data)
 
 obj_desc_t *factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, besch_buf, node.size);
+	ALLOCA(char, desc_buf, node.size);
 
 	smoke_desc_t *desc = new smoke_desc_t();
 
 	// Hajo: Read data
-	fread(besch_buf, node.size, 1, fp);
-	char * p = besch_buf;
+	fread(desc_buf, node.size, 1, fp);
+	char * p = desc_buf;
 
 	sint16 x = decode_sint16(p);
 	sint16 y = decode_sint16(p);
@@ -162,13 +162,13 @@ obj_desc_t *factory_smoke_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 obj_desc_t *factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	// DBG_DEBUG("factory_product_reader_t::read_node()", "called");
-	ALLOCA(char, besch_buf, node.size);
+	ALLOCA(char, desc_buf, node.size);
 
 	factory_supplier_desc_t *desc = new factory_supplier_desc_t();
 
 	// Hajo: Read data
-	fread(besch_buf, node.size, 1, fp);
-	char * p = besch_buf;
+	fread(desc_buf, node.size, 1, fp);
+	char * p = desc_buf;
 
 	// Hajo: old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
@@ -196,14 +196,14 @@ obj_desc_t *factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node
 obj_desc_t *factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	// DBG_DEBUG("factory_product_reader_t::read_node()", "called");
-	ALLOCA(char, besch_buf, node.size);
+	ALLOCA(char, desc_buf, node.size);
 
 	factory_product_desc_t *desc = new factory_product_desc_t();
 
 	// Hajo: Read data
-	fread(besch_buf, node.size, 1, fp);
+	fread(desc_buf, node.size, 1, fp);
 
-	char * p = besch_buf;
+	char * p = desc_buf;
 
 	// Hajo: old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
@@ -230,14 +230,14 @@ obj_desc_t *factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	// DBG_DEBUG("factory_reader_t::read_node()", "called");
-	ALLOCA(char, besch_buf, node.size);
+	ALLOCA(char, desc_buf, node.size);
 
 	factory_desc_t *desc = new factory_desc_t();
 
 	// Hajo: Read data
-	fread(besch_buf, node.size, 1, fp);
+	fread(desc_buf, node.size, 1, fp);
 
-	char * p = besch_buf;
+	char * p = desc_buf;
 
 	// Hajo: old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.

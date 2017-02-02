@@ -3,7 +3,7 @@
  *
  * This file is part of the Simutrans project under the artistic licence.
  *
- *  Modulbeschreibung:
+ *  Description:
  *		Statische Instanzen alle writer_t Klassen die für Simutrans benötigt
  *		werden
  */

@@ -33,14 +33,14 @@ bool citycar_reader_t::successfully_loaded() const
 
 obj_desc_t * citycar_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, besch_buf, node.size);
+	ALLOCA(char, desc_buf, node.size);
 
 	citycar_desc_t *desc = new citycar_desc_t();
 
 	// Hajo: Read data
-	fread(besch_buf, node.size, 1, fp);
+	fread(desc_buf, node.size, 1, fp);
 
-	char * p = besch_buf;
+	char * p = desc_buf;
 
 	// Hajo: old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.

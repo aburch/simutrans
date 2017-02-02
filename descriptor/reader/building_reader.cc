@@ -22,14 +22,14 @@ struct old_gtyp
 
 obj_desc_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, besch_buf, node.size);
+	ALLOCA(char, desc_buf, node.size);
 
 	building_tile_desc_t *desc = new building_tile_desc_t();
 
 	// Hajo: Read data
-	fread(besch_buf, node.size, 1, fp);
+	fread(desc_buf, node.size, 1, fp);
 
-	char * p = besch_buf;
+	char * p = desc_buf;
 
 	// Hajo: old versions of PAK files have no version stamp.
 	// But we know, the highest bit was always cleared.
@@ -203,14 +203,14 @@ bool building_reader_t::successfully_loaded() const
 
 obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, besch_buf, node.size);
+	ALLOCA(char, desc_buf, node.size);
 
 	building_desc_t *desc = new building_desc_t();
 
 	// Hajo: Read data
-	fread(besch_buf, node.size, 1, fp);
+	fread(desc_buf, node.size, 1, fp);
 
-	char * p = besch_buf;
+	char * p = desc_buf;
 	// Hajo: old versions of PAK files have no version stamp.
 	// But we know, the highest bit was always cleared.
 	const uint16 v = decode_uint16(p);

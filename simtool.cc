@@ -2100,7 +2100,7 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
 			desc = baum_t::random_tree_for_climate( welt->get_climate( k ) );
 		}
 		else {
-			// parse default_param: bbbesch_nr b=1 ignore climate b=1 random age
+			// parse default_param: bbdesc_nr b=1 ignore climate b=1 random age
 			check_climates = default_param[0]=='0';
 			random_age = default_param[1]=='1';
 			desc = baum_t::find_tree(default_param+3);

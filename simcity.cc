@@ -2471,8 +2471,8 @@ void stadt_t::check_bau_townhall(bool new_town)
 
 		if(  umziehen  ) {
 
-			const building_desc_t* besch_alt = gb->get_tile()->get_desc();
-			if (besch_alt->get_level() == desc->get_level()) {
+			const building_desc_t* desc_old = gb->get_tile()->get_desc();
+			if (desc_old->get_level() == desc->get_level()) {
 				DBG_MESSAGE("check_bau_townhall()", "town hall already ok.");
 				return; // Rathaus ist schon okay
 			}
@@ -2480,14 +2480,14 @@ void stadt_t::check_bau_townhall(bool new_town)
 			const sint8 old_z = gb->get_pos().z;
 			koord pos_alt = best_pos = gr->get_pos().get_2d() - gb->get_tile()->get_offset();
 			// guess layout for broken townhall's
-			if(besch_alt->get_x() != besch_alt->get_y()  &&  besch_alt->get_all_layouts()==1) {
+			if(desc_old->get_x() != desc_old->get_y()  &&  desc_old->get_all_layouts()==1) {
 				// test all layouts
-				koord corner_offset(besch_alt->get_x()-1, besch_alt->get_y()-1);
+				koord corner_offset(desc_old->get_x()-1, desc_old->get_y()-1);
 				for(uint8 test_layout = 0; test_layout<4; test_layout++) {
 					// is there a part of our townhall in this corner
 					grund_t *gr0 = welt->lookup_kartenboden(pos + corner_offset);
 					gebaeude_t const* const gb0 = gr0 ? obj_cast<gebaeude_t>(gr0->first_obj()) : 0;
-					if (gb0  &&  gb0->is_townhall()  &&  gb0->get_tile()->get_desc()==besch_alt  &&  gb0->get_stadt()==this) {
+					if (gb0  &&  gb0->is_townhall()  &&  gb0->get_tile()->get_desc()==desc_old  &&  gb0->get_stadt()==this) {
 						old_layout = test_layout;
 						pos_alt = best_pos = gr->get_pos().get_2d() + koord(test_layout%3!=0 ? corner_offset.x : 0, test_layout&2 ? corner_offset.y : 0);
 						break;
@@ -2495,7 +2495,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 					corner_offset = koord(-corner_offset.y, corner_offset.x);
 				}
 			}
-			koord groesse_alt = besch_alt->get_size(old_layout);
+			koord groesse_alt = desc_old->get_size(old_layout);
 
 			// do we need to move
 			if(  old_layout<=desc->get_all_layouts()  &&  desc->get_x(old_layout) <= groesse_alt.x  &&  desc->get_y(old_layout) <= groesse_alt.y  ) {
@@ -2509,7 +2509,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 						if (grund_t *gr = welt->lookup(koord3d(k,0)+pos)) {
 							if(gebaeude_t *gb_part = gr->find<gebaeude_t>()) {
 								// there may be buildings with holes, so we only remove our building!
-								if(gb_part->get_tile()  ==  besch_alt->get_tile(old_layout, k.x, k.y)) {
+								if(gb_part->get_tile()  ==  desc_old->get_tile(old_layout, k.x, k.y)) {
 									ok = true;
 								}
 							}
@@ -2533,12 +2533,12 @@ void stadt_t::check_bau_townhall(bool new_town)
 					alte_str = townhall_road;
 				}
 				else {
-					koord k = pos + (old_layout==0 ? koord(0, besch_alt->get_y()) : koord(besch_alt->get_x(),0) );
+					koord k = pos + (old_layout==0 ? koord(0, desc_old->get_y()) : koord(desc_old->get_x(),0) );
 					if (welt->lookup_kartenboden(k)->hat_weg(road_wt)) {
 						alte_str = k;
 					}
 					else {
-						k = pos - (old_layout==0 ? koord(0, besch_alt->get_y()) : koord(besch_alt->get_x(),0) );
+						k = pos - (old_layout==0 ? koord(0, desc_old->get_y()) : koord(desc_old->get_x(),0) );
 						if (welt->lookup_kartenboden(k)->hat_weg(road_wt)) {
 							alte_str = k;
 						}

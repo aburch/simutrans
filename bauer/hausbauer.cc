@@ -819,10 +819,10 @@ static const building_desc_t* get_city_building_from_list(const vector_tpl<const
 	weighted_vector_tpl<const building_desc_t *> selections(16);
 
 //	DBG_MESSAGE("hausbauer_t::get_aus_liste()","target level %i", level );
-	const building_desc_t *besch_at_least=NULL;
+	const building_desc_t *desc_at_least=NULL;
 	FOR(vector_tpl<building_desc_t const*>, const desc, list) {
 		if(  desc->is_allowed_climate(cl)  &&  desc->get_chance()>0  &&  desc->is_available(time)  ) {
-				besch_at_least = desc;
+				desc_at_least = desc;
 		}
 
 		const int thislevel = desc->get_level();
@@ -863,7 +863,7 @@ static const building_desc_t* get_city_building_from_list(const vector_tpl<const
 
 	if(selections.get_sum_weight()==0) {
 		// this is some level below, but at least it is something
-		return besch_at_least;
+		return desc_at_least;
 	}
 	if(selections.get_count()==1) {
 		return selections.front();

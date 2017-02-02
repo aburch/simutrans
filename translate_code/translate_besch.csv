@@ -201,3 +201,11 @@ GETBESCHFUNC,GETDESCFUNC
 begin_besch_class,begin_desc_class
 export_besch,export_desc
 _besch_,_desc_
+besch_alt,besch_old
+fabesch,factory_desc
+besch1,desc1
+besch2,desc2
+besch_vorgaenger,desc_leader
+besch_nachfolger,desc_trailer
+Modulbeschreibung,Description
+besch_,desc_

@@ -294,7 +294,7 @@ slist_tpl<vehicle_desc_t const*> const & vehicle_builder_t::get_info(waytype_t c
 const vehicle_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uint16 month_now, const uint32 target_weight, const sint32 target_speed, const goods_desc_t * target_freight, bool include_electric, bool not_obsolete )
 {
 	const vehicle_desc_t *desc = NULL;
-	sint32 besch_index = -100000;
+	sint32 desc_index = -100000;
 
 	if(  target_freight==NULL  &&  target_weight==0  ) {
 		// no power, no freight => no vehicle to search
@@ -381,10 +381,10 @@ const vehicle_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
 				current_index += max_weight - (sint32)(target_weight+test_desc->get_weight()/1000);
 			}
 			current_index += simrand(100);
-			if(  current_index > besch_index  ) {
+			if(  current_index > desc_index  ) {
 				// then we want this vehicle!
 				desc = test_desc;
-				besch_index = current_index;
+				desc_index = current_index;
 				DBG_MESSAGE( "vehicle_builder_t::vehikel_search","Found engine %s",desc->get_name());
 			}
 		}
@@ -406,7 +406,7 @@ const vehicle_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
 const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const sint32 target_speed, const goods_desc_t * target_freight, bool not_obsolete, const vehicle_desc_t *prev_veh, bool is_last )
 {
 	const vehicle_desc_t *desc = NULL;
-	sint32 besch_index = -100000;
+	sint32 desc_index = -100000;
 
 	FOR(slist_tpl<vehicle_desc_t const*>, const test_desc, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]) {
 		if(target_power>0  &&  test_desc->get_power()==0) {
@@ -498,10 +498,10 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 				current_index += max_weight - (sint32)(target_weight+test_desc->get_weight()/1000);
 			}
 			current_index += 50;
-			if(  current_index > besch_index  ) {
+			if(  current_index > desc_index  ) {
 				// then we want this vehicle!
 				desc = test_desc;
-				besch_index = current_index;
+				desc_index = current_index;
 				DBG_MESSAGE( "vehicle_builder_t::get_best_matching","Found engine %s",desc->get_name());
 			}
 		}

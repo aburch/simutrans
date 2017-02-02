@@ -157,9 +157,9 @@ bool can_be_last(const vehicle_desc_t *desc)
 	return desc->can_lead(NULL);
 }
 
-bool is_coupling_allowed(const vehicle_desc_t *besch1, const vehicle_desc_t *besch2)
+bool is_coupling_allowed(const vehicle_desc_t *desc1, const vehicle_desc_t *desc2)
 {
-	return besch1->can_lead(besch2)  &&  besch2->can_follow(besch1);
+	return desc1->can_lead(desc2)  &&  desc2->can_follow(desc1);
 }
 
 const vector_tpl<const vehicle_desc_t*>& get_predecessors(const vehicle_desc_t *desc)

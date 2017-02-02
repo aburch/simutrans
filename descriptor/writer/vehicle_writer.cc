@@ -285,14 +285,14 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	//
 	// Vorgänger/Nachfolgerbedingungen
 	//
-	uint8 besch_vorgaenger = 0;
+	uint8 desc_leader = 0;
 	bool found;
 	do {
 		char buf[40];
 
 		// Hajodoc: Constraints for previous vehicles
 		// Hajoval: string, "none" means only suitable at front of an convoi
-		sprintf(buf, "constraint[prev][%d]", besch_vorgaenger);
+		sprintf(buf, "constraint[prev][%d]", desc_leader);
 
 		str = obj.get(buf);
 		found = !str.empty();
@@ -301,17 +301,17 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 				str = "";
 			}
 			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
-			besch_vorgaenger++;
+			desc_leader++;
 		}
 	} while (found);
 
-	uint8 besch_nachfolger = 0;
+	uint8 desc_trailer = 0;
 	do {
 		char buf[40];
 
 		// Hajodoc: Constraints for successing vehicles
 		// Hajoval: string, "none" to disallow any followers
-		sprintf(buf, "constraint[next][%d]", besch_nachfolger);
+		sprintf(buf, "constraint[next][%d]", desc_trailer);
 
 		str = obj.get(buf);
 		found = !str.empty();
@@ -320,7 +320,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 				str = "";
 			}
 			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
-			besch_nachfolger++;
+			desc_trailer++;
 		}
 	} while (found);
 
@@ -351,9 +351,9 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		xref_writer_t::instance()->write_obj(fp, node, obj_good, freight, false);
 	}
 
-	node.write_sint8(fp, besch_vorgaenger, pos);
+	node.write_sint8(fp, desc_leader, pos);
 	pos += sizeof(uint8);
-	node.write_sint8(fp, besch_nachfolger, pos);
+	node.write_sint8(fp, desc_trailer, pos);
 	pos += sizeof(uint8);
 	node.write_uint8(fp, (uint8) freight_max, pos);
 	pos += sizeof(uint8);
