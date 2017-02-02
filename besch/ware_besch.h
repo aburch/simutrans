@@ -52,7 +52,7 @@ class goods_desc_t : public obj_named_desc_t {
 
 	// used for inderect index (saves 3 bytes per ware_t!)
 	// assinged during registration
-	uint8 ware_index;
+	uint8 goods_index;
 
 	COLOR_VAL color;
 
@@ -99,7 +99,7 @@ public:
 	* @return internal index (just a number, passenger, then mail, then something ... )
 	* @author prissi
 	*/
-	uint8 get_index() const { return ware_index; }
+	uint8 get_index() const { return goods_index; }
 
 	/**
 	* @return weight in KG per unit of the good

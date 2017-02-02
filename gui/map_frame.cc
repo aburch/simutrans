@@ -252,11 +252,11 @@ map_frame_t::map_frame_t() :
 		int count = 0;
 		viewable_freight_types[count++] = NULL;
 		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("All"), SYSCOL_TEXT) );
-		viewable_freight_types[count++] = goods_manager_t::passagiere;
+		viewable_freight_types[count++] = goods_manager_t::passengers;
 		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passagiere"), SYSCOL_TEXT) );
-		viewable_freight_types[count++] = goods_manager_t::post;
+		viewable_freight_types[count++] = goods_manager_t::mail;
 		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Post"), SYSCOL_TEXT) );
-		viewable_freight_types[count++] = goods_manager_t::nichts; // for all freight ...
+		viewable_freight_types[count++] = goods_manager_t::none; // for all freight ...
 		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Fracht"), SYSCOL_TEXT) );
 		for(  int i = 0;  i < goods_manager_t::get_max_catg_index();  i++  ) {
 			const goods_desc_t *freight_type = goods_manager_t::get_info_catg(i);

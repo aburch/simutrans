@@ -22,11 +22,11 @@ class goods_manager_t
 {
 private:
 	static stringhashtable_tpl<const goods_desc_t *> desc_table;
-	static vector_tpl<goods_desc_t *> waren;
+	static vector_tpl<goods_desc_t *> goods;
 
-	static goods_desc_t *load_passagiere;
-	static goods_desc_t *load_post;
-	static goods_desc_t *load_nichts;
+	static goods_desc_t *load_passengers;
+	static goods_desc_t *load_mail;
+	static goods_desc_t *load_none;
 
 	// number of different good classes;
 	static uint8 max_catg_index;
@@ -34,9 +34,9 @@ private:
 public:
 	enum { INDEX_PAS=0, INDEX_MAIL=1, INDEX_NONE=2 };
 
-	static const goods_desc_t *passagiere;
+	static const goods_desc_t *passengers;
 	static const goods_desc_t *post;
-	static const goods_desc_t *nichts;
+	static const goods_desc_t *none;
 
 	static bool successfully_loaded();
 	static bool register_desc(goods_desc_t *desc);
@@ -53,9 +53,9 @@ public:
 	*/
 	static const goods_desc_t *get_info(const char* name);
 
-	static const goods_desc_t *get_info(uint16 idx) { return waren[idx]; }
+	static const goods_desc_t *get_info(uint16 idx) { return goods[idx]; }
 
-	static uint8 get_count() { return (uint8)waren.get_count(); }
+	static uint8 get_count() { return (uint8)goods.get_count(); }
 
 	// good by catg
 	static const goods_desc_t *get_info_catg(const uint8 catg);

@@ -6837,8 +6837,8 @@ const vector_tpl<const goods_desc_t*> &karte_t::get_goods_list()
 			}
 			delete produced_goods;
 		}
-		goods_in_game.insert_at(0, goods_manager_t::passagiere);
-		goods_in_game.insert_at(1, goods_manager_t::post);
+		goods_in_game.insert_at(0, goods_manager_t::passengers);
+		goods_in_game.insert_at(1, goods_manager_t::mail);
 	}
 
 	return goods_in_game;

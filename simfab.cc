@@ -1610,14 +1610,14 @@ sint32 fabrik_t::vorrat_an(const goods_desc_t *typ)
 
 sint32 fabrik_t::liefere_an(const goods_desc_t *typ, sint32 menge)
 {
-	if(  typ==goods_manager_t::passagiere  ) {
+	if(  typ==goods_manager_t::passengers  ) {
 		// book pax arrival and recalculate pax boost
 		book_stat(menge, FAB_PAX_ARRIVED);
 		arrival_stats_pax.book_arrival(menge);
 		update_prodfactor_pax();
 		return menge;
 	}
-	else if(  typ==goods_manager_t::post  ) {
+	else if(  typ==goods_manager_t::mail  ) {
 		// book mail arrival and recalculate mail boost
 		book_stat(menge, FAB_MAIL_ARRIVED);
 		arrival_stats_mail.book_arrival(menge);

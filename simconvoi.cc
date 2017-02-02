@@ -1649,7 +1649,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		// Add good_catg_index:
 		if(v->get_cargo_max() != 0) {
 			const goods_desc_t *ware=v->get_cargo_type();
-			if(ware!=goods_manager_t::nichts  ) {
+			if(ware!=goods_manager_t::none  ) {
 				goods_catg_index.append_unique( ware->get_catg_index() );
 			}
 		}
@@ -1743,7 +1743,7 @@ void convoi_t::recalc_catg_index()
 			continue;
 		}
 		const goods_desc_t *ware=get_vehikel(i)->get_cargo_type();
-		if(ware!=goods_manager_t::nichts  ) {
+		if(ware!=goods_manager_t::none  ) {
 			goods_catg_index.append_unique( ware->get_catg_index() );
 		}
 	}
@@ -2635,7 +2635,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			// first add to capacity indicator
 			const goods_desc_t* ware_desc = v->get_desc()->get_freight_type();
 			const uint16 menge = v->get_desc()->get_capacity();
-			if(menge>0  &&  ware_desc!=goods_manager_t::nichts) {
+			if(menge>0  &&  ware_desc!=goods_manager_t::none) {
 				max_loaded_waren[ware_desc->get_index()] += menge;
 			}
 
@@ -3000,7 +3000,7 @@ void convoi_t::calc_speedbonus_kmh()
 			const vehicle_desc_t* const desc = fahr[i]->get_desc();
 			total_max_weight += desc->get_weight();
 			total_weight += fahr[i]->get_total_weight(); // convoi_t::sum_gesamweight may not be updated yet when this method is called...
-			if(  desc->get_freight_type() == goods_manager_t::nichts  ) {
+			if(  desc->get_freight_type() == goods_manager_t::none  ) {
 				; // nothing
 			}
 			else if(  desc->get_freight_type()->get_catg() == 0  ) {

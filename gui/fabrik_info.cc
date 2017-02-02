@@ -180,22 +180,22 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 			x_prod_pos += skinverwaltung_t::electricity->get_image(0)->get_pic()->w+4;
 		}
 	}
-	if(  skinverwaltung_t::passagiere->get_image_id(0)!=IMG_EMPTY  ) {
+	if(  skinverwaltung_t::passengers->get_image_id(0)!=IMG_EMPTY  ) {
 		if(  fab->get_prodfactor_pax()>0  ) {
-			display_color_img(skinverwaltung_t::passagiere->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
-			x_view_pos += skinverwaltung_t::passagiere->get_image(0)->get_pic()->w+4;
+			display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
+			x_view_pos += skinverwaltung_t::passengers->get_image(0)->get_pic()->w+4;
 		}
 		if(  fab->get_desc()->get_pax_boost()  ) {
-			display_color_img( skinverwaltung_t::passagiere->get_image_id(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
-			x_prod_pos += skinverwaltung_t::passagiere->get_image(0)->get_pic()->w+4;
+			display_color_img( skinverwaltung_t::passengers->get_image_id(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
+			x_prod_pos += skinverwaltung_t::passengers->get_image(0)->get_pic()->w+4;
 		}
 	}
-	if(  skinverwaltung_t::post->get_image_id(0)!=IMG_EMPTY  ) {
+	if(  skinverwaltung_t::mail->get_image_id(0)!=IMG_EMPTY  ) {
 		if(  fab->get_prodfactor_mail()>0  ) {
-			display_color_img(skinverwaltung_t::post->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
+			display_color_img(skinverwaltung_t::mail->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
 		}
 		if(  fab->get_desc()->get_mail_boost()  ) {
-			display_color_img( skinverwaltung_t::post->get_image_id(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
+			display_color_img( skinverwaltung_t::mail->get_image_id(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
 		}
 	}
 }
@@ -311,7 +311,7 @@ void gui_fabrik_info_t::draw(scr_coord offset)
 		yoff += LINESPACE;
 		FOR(  const vector_tpl<koord>, k, fab->get_lieferziele() ) {
 			if(  fab->is_active_lieferziel(k)  ) {
-				display_color_img(skinverwaltung_t::waren->get_image_id(0), xoff, yoff, 0, false, true);
+				display_color_img(skinverwaltung_t::goods->get_image_id(0), xoff, yoff, 0, false, true);
 			}
 			yoff += LINESPACE;
 		}
@@ -323,7 +323,7 @@ void gui_fabrik_info_t::draw(scr_coord offset)
 		FOR(  const vector_tpl<koord>, k, fab->get_suppliers() ) {
 			if(  const fabrik_t *src = fabrik_t::get_fab(k)  ) {
 				if(  src->is_active_lieferziel(fab->get_pos().get_2d())  ) {
-					display_color_img(skinverwaltung_t::waren->get_image_id(0), xoff, yoff, 0, false, true);
+					display_color_img(skinverwaltung_t::goods->get_image_id(0), xoff, yoff, 0, false, true);
 				}
 			}
 			yoff += LINESPACE;
@@ -347,13 +347,13 @@ void gui_fabrik_info_t::draw(scr_coord offset)
 			buf.printf("%i", pax_entry->supply);
 			w = proportional_string_width( buf );
 			display_proportional_clip( xoff+18+(w>21?w-21:0), yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true );
-			display_color_img(skinverwaltung_t::passagiere->get_image_id(0), xoff+20+1+(w>21?w-21:0), yoff, 0, false, true);
+			display_color_img(skinverwaltung_t::passengers->get_image_id(0), xoff+20+1+(w>21?w-21:0), yoff, 0, false, true);
 
 			buf.clear();
 			buf.printf("%i", mail_entry->supply);
 			w = proportional_string_width( buf );
 			display_proportional_clip( xoff+62+(w>21?w-21:0), yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true );
-			display_color_img(skinverwaltung_t::post->get_image_id(0), xoff+64+1+(w>21?w-21:0), yoff, 0, false, true);
+			display_color_img(skinverwaltung_t::mail->get_image_id(0), xoff+64+1+(w>21?w-21:0), yoff, 0, false, true);
 
 			display_proportional_clip(xoff + 90, yoff, c->get_name(), ALIGN_LEFT, SYSCOL_TEXT, true);
 			yoff += LINESPACE;

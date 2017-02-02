@@ -49,9 +49,9 @@ const skin_besch_t* skinverwaltung_t::pausesymbol        = NULL;
 
 const skin_besch_t* skinverwaltung_t::electricity        = NULL;
 const skin_besch_t* skinverwaltung_t::intown             = NULL;
-const skin_besch_t* skinverwaltung_t::passagiere         = NULL;
-const skin_besch_t* skinverwaltung_t::post               = NULL;
-const skin_besch_t* skinverwaltung_t::waren              = NULL;
+const skin_besch_t* skinverwaltung_t::passengers         = NULL;
+const skin_besch_t* skinverwaltung_t::mail               = NULL;
+const skin_besch_t* skinverwaltung_t::goods              = NULL;
 const skin_besch_t* skinverwaltung_t::station_type       = NULL;
 const skin_besch_t* skinverwaltung_t::seasons_icons      = NULL;
 const skin_besch_t* skinverwaltung_t::message_options    = NULL;
@@ -115,9 +115,9 @@ static spezial_obj_tpl<skin_besch_t> const symbol_objekte[] = {
 	{ &skinverwaltung_t::meldungsymbol,      "Message"        },
 	{ &skinverwaltung_t::electricity,        "Electricity"    },
 	{ &skinverwaltung_t::intown,             "InTown"         },
-	{ &skinverwaltung_t::passagiere,         "Passagiere"     },
-	{ &skinverwaltung_t::post,               "Post"           },
-	{ &skinverwaltung_t::waren,              "Waren"          },
+	{ &skinverwaltung_t::passengers,         "Passagiere"     },
+	{ &skinverwaltung_t::mail,               "Post"           },
+	{ &skinverwaltung_t::goods,              "Waren"          },
 	{ NULL, NULL }
 };
 

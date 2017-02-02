@@ -170,11 +170,11 @@ static bool passes_filter_out(haltestelle_t const& s)
 		goods_desc_t const* const ware = goods_manager_t::get_info(i);
 		if (!halt_list_frame_t::get_ware_filter_ab(ware)) continue;
 
-		if (ware == goods_manager_t::passagiere) {
+		if (ware == goods_manager_t::passengers) {
 			if (s.get_pax_enabled()) return true;
-		} else if (ware == goods_manager_t::post) {
+		} else if (ware == goods_manager_t::mail) {
 			if (s.get_post_enabled()) return true;
-		} else if (ware != goods_manager_t::nichts) {
+		} else if (ware != goods_manager_t::none) {
 			// Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
 			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
 			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
@@ -205,11 +205,11 @@ static bool passes_filter_in(haltestelle_t const& s)
 		goods_desc_t const* const ware = goods_manager_t::get_info(i);
 		if (!halt_list_frame_t::get_ware_filter_an(ware)) continue;
 
-		if (ware == goods_manager_t::passagiere) {
+		if (ware == goods_manager_t::passengers) {
 			if (s.get_pax_enabled()) return true;
-		} else if (ware == goods_manager_t::post) {
+		} else if (ware == goods_manager_t::mail) {
 			if (s.get_post_enabled()) return true;
-		} else if (ware != goods_manager_t::nichts) {
+		} else if (ware != goods_manager_t::none) {
 			// Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
 			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
 			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
@@ -471,7 +471,7 @@ void halt_list_frame_t::draw(scr_coord pos, scr_size size)
 
 void halt_list_frame_t::set_ware_filter_ab(const goods_desc_t *ware, int mode)
 {
-	if(ware != goods_manager_t::nichts) {
+	if(ware != goods_manager_t::none) {
 		if(get_ware_filter_ab(ware)) {
 			if(mode != 1) {
 				waren_filter_ab.remove(ware);
@@ -488,7 +488,7 @@ void halt_list_frame_t::set_ware_filter_ab(const goods_desc_t *ware, int mode)
 
 void halt_list_frame_t::set_ware_filter_an(const goods_desc_t *ware, int mode)
 {
-	if(ware != goods_manager_t::nichts) {
+	if(ware != goods_manager_t::none) {
 		if(get_ware_filter_an(ware)) {
 			if(mode != 1) {
 				waren_filter_an.remove(ware);

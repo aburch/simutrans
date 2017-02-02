@@ -1401,7 +1401,7 @@ void vehicle_t::calc_image()
 
 image_id vehicle_t::get_loaded_image() const
 {
-	return desc->get_image_id(ribi_t::dir_south, fracht.empty() ?  goods_manager_t::nichts  : fracht.front().get_desc());
+	return desc->get_image_id(ribi_t::dir_south, fracht.empty() ?  goods_manager_t::none  : fracht.front().get_desc());
 }
 
 
@@ -1429,7 +1429,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		fracht_count = fracht.get_count();
 		// we try to have one freight count to guess the right freight
 		// when no desc is given
-		if(fracht_count==0  &&  desc->get_freight_type()!=goods_manager_t::nichts  &&  desc->get_capacity()>0) {
+		if(fracht_count==0  &&  desc->get_freight_type()!=goods_manager_t::none  &&  desc->get_capacity()>0) {
 			fracht_count = 1;
 		}
 	}
@@ -1826,7 +1826,7 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 		}
 		// try to find a matching vehicle
 		if(desc==NULL) {
-			const goods_desc_t* w = (!fracht.empty() ? fracht.front().get_desc() : goods_manager_t::passagiere);
+			const goods_desc_t* w = (!fracht.empty() ? fracht.front().get_desc() : goods_manager_t::passengers);
 			dbg->warning("road_vehicle_t::road_vehicle_t()","try to find a fitting vehicle for %s.",  w->get_name() );
 			desc = vehicle_builder_t::get_best_matching(road_wt, 0, (fracht.empty() ? 0 : 50), is_first?50:0, speed_to_kmh(speed_limit), w, true, last_desc, is_last );
 			if(desc) {
@@ -2345,8 +2345,8 @@ rail_vehicle_t::rail_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 		}
 		// try to find a matching vehicle
 		if(desc==NULL) {
-			int power = (is_first || fracht.empty() || fracht.front() == goods_manager_t::nichts) ? 500 : 0;
-			const goods_desc_t* w = fracht.empty() ? goods_manager_t::nichts : fracht.front().get_desc();
+			int power = (is_first || fracht.empty() || fracht.front() == goods_manager_t::none) ? 500 : 0;
+			const goods_desc_t* w = fracht.empty() ? goods_manager_t::none : fracht.front().get_desc();
 			dbg->warning("rail_vehicle_t::rail_vehicle_t()","try to find a fitting vehicle for %s.", power>0 ? "engine": w->get_name() );
 			if(last_desc!=NULL  &&  last_desc->can_follow(last_desc)  &&  last_desc->get_freight_type()==w  &&  (!is_last  ||  last_desc->get_trailer(0)==NULL)) {
 				// same as previously ...
@@ -2354,7 +2354,7 @@ rail_vehicle_t::rail_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 			}
 			else {
 				// we have to search
-				desc = vehicle_builder_t::get_best_matching(get_waytype(), 0, w!=goods_manager_t::nichts?5000:0, power, speed_to_kmh(speed_limit), w, false, last_desc, is_last );
+				desc = vehicle_builder_t::get_best_matching(get_waytype(), 0, w!=goods_manager_t::none?5000:0, power, speed_to_kmh(speed_limit), w, false, last_desc, is_last );
 			}
 			if(desc) {
 DBG_MESSAGE("rail_vehicle_t::rail_vehicle_t()","replaced by %s",desc->get_name());
@@ -3157,8 +3157,8 @@ water_vehicle_t::water_vehicle_t(loadsave_t *file, bool is_first, bool is_last) 
 		}
 		// try to find a matching vehicle
 		if(desc==NULL) {
-			dbg->warning("water_behicle_t::water_behicle_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
-			desc = vehicle_builder_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht.front().get_desc() : goods_manager_t::passagiere, true, last_desc, is_last );
+			dbg->warning("water_behicle_t::water_behicle_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passengers");
+			desc = vehicle_builder_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht.front().get_desc() : goods_manager_t::passengers, true, last_desc, is_last );
 			if(desc) {
 				calc_image();
 			}
@@ -3939,8 +3939,8 @@ air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : ve
 		}
 		// try to find a matching vehicle
 		if(desc==NULL) {
-			dbg->warning("aircraft_t::aircraft_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
-			desc = vehicle_builder_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht.front().get_desc() : goods_manager_t::passagiere, true, last_desc, is_last );
+			dbg->warning("aircraft_t::aircraft_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passengers");
+			desc = vehicle_builder_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht.front().get_desc() : goods_manager_t::passengers, true, last_desc, is_last );
 			if(desc) {
 				calc_image();
 			}

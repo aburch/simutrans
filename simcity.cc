@@ -1830,7 +1830,7 @@ void stadt_t::step_passagiere()
 {
 	// decide whether to generate passengers or mail
 	const bool ispass = simrand(GENERATE_RATIO_PASS + GENERATE_RATIO_MAIL) < GENERATE_RATIO_PASS;
-	const goods_desc_t *const wtyp = ispass ? goods_manager_t::passagiere : goods_manager_t::post;
+	const goods_desc_t *const wtyp = ispass ? goods_manager_t::passengers : goods_manager_t::mail;
 	const uint32 history_type = ispass ? HIST_BASE_PASS : HIST_BASE_MAIL;
 	factory_set_t &target_factories = ispass ? target_factories_pax : target_factories_mail;
 
@@ -1981,7 +1981,7 @@ void stadt_t::step_passagiere()
 				uint32 pax_return = pax_left_to_do;
 
 				// apply return modifiers
-				if(  will_return != city_return  &&  wtyp == goods_manager_t::post  ) {
+				if(  will_return != city_return  &&  wtyp == goods_manager_t::mail  ) {
 					// attractions and factories return more mail than they receive
 					pax_return *= MAIL_RETURN_MULTIPLIER_PRODUCERS;
 				}
@@ -2114,7 +2114,7 @@ void stadt_t::step_passagiere()
 			uint32 pax_return = num_pax;
 
 			// apply return modifiers
-			if(  will_return != city_return  &&  wtyp == goods_manager_t::post  ) {
+			if(  will_return != city_return  &&  wtyp == goods_manager_t::mail  ) {
 				// attractions and factories return more mail than they receive
 				pax_return *= MAIL_RETURN_MULTIPLIER_PRODUCERS;
 			}

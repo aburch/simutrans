@@ -124,21 +124,21 @@ public:
 		if(freight_image_type>0  &&  ware!=NULL) {
 			// more freight images and a freight: find the right one
 
-			sint8 ware_index=0; // freight images: if not found use first freight
+			sint8 goods_index=0; // freight images: if not found use first freight
 
 			for( sint8 i=0;  i<freight_image_type;  i++  ) {
 				if (ware == get_child<goods_desc_t>(6 + trailer_count + leader_count + i)) {
-					ware_index = i;
+					goods_index = i;
 					break;
 				}
 			}
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
 			image_array_t const* const list2d = get_child<image_array_t>(5);
-			image=list2d->get_image(dir, ware_index);
+			image=list2d->get_image(dir, goods_index);
 			if(!image) {
 				if(dir>3) {
-					image = list2d->get_image(dir - 4, ware_index);
+					image = list2d->get_image(dir - 4, goods_index);
 				}
 			}
 			if (image != NULL) return image->get_id();

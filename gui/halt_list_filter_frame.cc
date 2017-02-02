@@ -116,7 +116,7 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 	int n=0;
 	for(  int i=0;  i<goods_manager_t::get_count();  i++  ) {
 		const goods_desc_t *ware = goods_manager_t::get_info(i);
-		if(  ware != goods_manager_t::nichts  ) {
+		if(  ware != goods_manager_t::none  ) {
 			ware_item_t *item = new ware_item_t(this, NULL, ware);
 			item->init(button_t::square, translator::translate(ware->get_name()), scr_coord(5, D_BUTTON_HEIGHT*n++));
 			ware_cont_an.add_component(item);
@@ -142,7 +142,7 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 	n=0;
 	for(  int i=0;  i<goods_manager_t::get_count();  i++  ) {
 		const goods_desc_t *ware = goods_manager_t::get_info(i);
-		if(  ware != goods_manager_t::nichts  ) {
+		if(  ware != goods_manager_t::none  ) {
 		ware_item_t *item = new ware_item_t(this, ware, NULL);
 		item->init(button_t::square, translator::translate(ware->get_name()), scr_coord(5, D_BUTTON_HEIGHT*n++));
 			ware_cont_ab.add_component(item);

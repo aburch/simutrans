@@ -119,7 +119,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 	ware_t* wlist = MALLOCN( ware_t, warray.get_count() );
 
 	FOR(vector_tpl<ware_t>, const& ware, warray) {
-		if(  ware.get_desc() == goods_manager_t::nichts  ||  ware.menge == 0  ) {
+		if(  ware.get_desc() == goods_manager_t::none  ||  ware.menge == 0  ) {
 			continue;
 		}
 		wlist[pos] = ware;
@@ -161,7 +161,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		std::sort( wlist, wlist + pos, compare_ware );
 
 		// print the ware's list to buffer - it should be in sortorder by now!
-		int last_ware_index = -1;
+		int last_goods_index = -1;
 		int last_ware_catg = -1;
 
 		for(  int j = 0;  j < pos;  j++  ) {
@@ -174,13 +174,13 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			}
 
 			ware_t const& ware = wlist[j];
-			if(  last_ware_index!=ware.get_index()  &&  last_ware_catg!=ware.get_catg()  ) {
+			if(  last_goods_index!=ware.get_index()  &&  last_ware_catg!=ware.get_catg()  ) {
 				sint32 sum = 0;
-				last_ware_index = ware.get_index();
+				last_goods_index = ware.get_index();
 				last_ware_catg = (ware.get_catg()!=0) ? ware.get_catg() : -1;
 				for(  int i=j;  i<pos;  i++  ) {
 					ware_t const& sumware = wlist[i];
-					if(  last_ware_index != sumware.get_index()  ) {
+					if(  last_goods_index != sumware.get_index()  ) {
 						if(  last_ware_catg != sumware.get_catg()  ) {
 							break;	// next category reached ...
 						}
@@ -199,7 +199,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					// ok, we have a list of freights
 					while(  full_i != full_end  ) {
 						ware_t const& current = *full_i++;
-						if(  last_ware_index==current.get_index()  ||  last_ware_catg==current.get_catg()  ) {
+						if(  last_goods_index==current.get_index()  ||  last_ware_catg==current.get_catg()  ) {
 							add_ware_heading( buf, sum, current.menge, &current, what_doing );
 							break;
 						}

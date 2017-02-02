@@ -573,8 +573,8 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	// register_function( .., "constructor", .. )
 
-	create_slot(vm, "passenger", goods_manager_t::passagiere, true);
-	create_slot(vm, "mail",      goods_manager_t::post,       true);
+	create_slot(vm, "passenger", goods_manager_t::passengers, true);
+	create_slot(vm, "mail",      goods_manager_t::mail,       true);
 #ifdef DOXYGEN
 	static good_desc_x passenger; ///< descriptor for passenger
 	static good_desc_x mail;      ///< descriptor for mail

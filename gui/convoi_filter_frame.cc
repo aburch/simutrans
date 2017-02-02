@@ -138,7 +138,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 	int n=0;
 	for(  int i=0;  i < goods_manager_t::get_count();  i++  ) {
 		const goods_desc_t *ware = goods_manager_t::get_info(i);
-		if(  ware == goods_manager_t::nichts  ) {
+		if(  ware == goods_manager_t::none  ) {
 			continue;
 		}
 		if(  ware->get_catg() == 0  ) {

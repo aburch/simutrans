@@ -232,10 +232,10 @@ void factorylist_stats_t::draw(scr_coord offset)
 				display_color_img(skinverwaltung_t::electricity->get_image_id(0), xoff+4+D_INDICATOR_WIDTH, yoff, 0, false, true);
 			}
 			if(  fab->get_prodfactor_pax()>0  ) {
-				display_color_img(skinverwaltung_t::passagiere->get_image_id(0), xoff+4+8+D_INDICATOR_WIDTH, yoff, 0, false, true);
+				display_color_img(skinverwaltung_t::passengers->get_image_id(0), xoff+4+8+D_INDICATOR_WIDTH, yoff, 0, false, true);
 			}
 			if(  fab->get_prodfactor_mail()>0  ) {
-				display_color_img(skinverwaltung_t::post->get_image_id(0), xoff+4+18+D_INDICATOR_WIDTH, yoff, 0, false, true);
+				display_color_img(skinverwaltung_t::mail->get_image_id(0), xoff+4+18+D_INDICATOR_WIDTH, yoff, 0, false, true);
 			}
 
 			// show text

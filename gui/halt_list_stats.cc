@@ -108,15 +108,15 @@ void halt_list_stats_t::draw(scr_coord offset)
 		pos_y = pos.y+offset.y+14;
 		left = pos.x+offset.x+2;
 		if (halt->get_pax_enabled()) {
-			display_color_img(skinverwaltung_t::passagiere->get_image_id(0), left, pos_y, 0, false, true);
+			display_color_img(skinverwaltung_t::passengers->get_image_id(0), left, pos_y, 0, false, true);
 			left += 10;
 		}
 		if (halt->get_post_enabled()) {
-			display_color_img(skinverwaltung_t::post->get_image_id(0), left, pos_y, 0, false, true);
+			display_color_img(skinverwaltung_t::mail->get_image_id(0), left, pos_y, 0, false, true);
 			left += 10;
 		}
 		if (halt->get_ware_enabled()) {
-			display_color_img(skinverwaltung_t::waren->get_image_id(0), left, pos_y, 0, false, true);
+			display_color_img(skinverwaltung_t::goods->get_image_id(0), left, pos_y, 0, false, true);
 			left += 10;
 		}
 

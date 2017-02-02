@@ -1699,13 +1699,13 @@ void reliefkarte_t::rdwr(loadsave_t *file)
 bool reliefkarte_t::is_matching_freight_catg(const minivec_tpl<uint8> &goods_catg_index)
 {
 	// does this line/convoi has a matching freight
-	if(  freight_type_group_index_showed_on_map == goods_manager_t::passagiere  ) {
+	if(  freight_type_group_index_showed_on_map == goods_manager_t::passengers  ) {
 		return goods_catg_index.is_contained(goods_manager_t::INDEX_PAS);
 	}
-	else if(  freight_type_group_index_showed_on_map == goods_manager_t::post  ) {
+	else if(  freight_type_group_index_showed_on_map == goods_manager_t::mail  ) {
 		return goods_catg_index.is_contained(goods_manager_t::INDEX_MAIL);
 	}
-	else if(  freight_type_group_index_showed_on_map == goods_manager_t::nichts  ) {
+	else if(  freight_type_group_index_showed_on_map == goods_manager_t::none  ) {
 		// all freights but not pax or mail
 		for(  uint8 i = 0;  i < goods_catg_index.get_count();  i++  ) {
 			if(  goods_catg_index[i] > goods_manager_t::INDEX_NONE  ) {
