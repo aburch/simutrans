@@ -305,7 +305,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					extra_y += LINESPACE;
 				}
 
-				ware_besch_t const& g    = *v->get_cargo_type();
+				goods_desc_t const& g    = *v->get_cargo_type();
 				char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
 				freight_info.printf("%u/%u%s %s\n", v->get_total_cargo(), v->get_cargo_max(), translator::translate(v->get_cargo_mass()), name);
 				v->get_cargo_info(freight_info);

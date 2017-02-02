@@ -126,7 +126,7 @@ void halt_detail_t::halt_detail_info()
 	buf.clear();
 
 	const slist_tpl<fabrik_t *> & fab_list = halt->get_fab_list();
-	slist_tpl<const ware_besch_t *> nimmt_an;
+	slist_tpl<const goods_desc_t *> nimmt_an;
 
 	sint16 offset_y = LINESPACE;
 	buf.append(translator::translate("Fabrikanschluss"));
@@ -149,7 +149,7 @@ void halt_detail_t::halt_detail_info()
 			offset_y += LINESPACE;
 
 			FOR(array_tpl<ware_production_t>, const& i, fab->get_eingang()) {
-				ware_besch_t const* const ware = i.get_typ();
+				goods_desc_t const* const ware = i.get_typ();
 				if(!nimmt_an.is_contained(ware)) {
 					nimmt_an.append(ware);
 				}
@@ -171,8 +171,8 @@ void halt_detail_t::halt_detail_info()
 	offset_y += LINESPACE;
 
 	if (!nimmt_an.empty()  &&  halt->get_ware_enabled()) {
-		for(uint32 i=0; i<warenbauer_t::get_count(); i++) {
-			const ware_besch_t *ware = warenbauer_t::get_info(i);
+		for(uint32 i=0; i<goods_manager_t::get_count(); i++) {
+			const goods_desc_t *ware = goods_manager_t::get_info(i);
 			if(nimmt_an.is_contained(ware)) {
 
 				buf.append(" - ");
@@ -270,14 +270,14 @@ void halt_detail_t::halt_detail_info()
 
 	bool has_stops = false;
 
-	for (uint i=0; i<warenbauer_t::get_max_catg_index(); i++){
+	for (uint i=0; i<goods_manager_t::get_max_catg_index(); i++){
 		vector_tpl<haltestelle_t::connection_t> const& connections = halt->get_connections(i);
 		if(  !connections.empty()  ) {
 			buf.append("\n");
 			offset_y += LINESPACE;
 
 			buf.append(" ·");
-			const ware_besch_t* info = warenbauer_t::get_info_catg_index(i);
+			const goods_desc_t* info = goods_manager_t::get_info_catg_index(i);
 			// If it is a special freight, we display the name of the good, otherwise the name of the category.
 			buf.append( translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()) );
 #if DEBUG>=4

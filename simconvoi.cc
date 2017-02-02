@@ -1648,8 +1648,8 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		freight_info_resort = true;
 		// Add good_catg_index:
 		if(v->get_cargo_max() != 0) {
-			const ware_besch_t *ware=v->get_cargo_type();
-			if(ware!=warenbauer_t::nichts  ) {
+			const goods_desc_t *ware=v->get_cargo_type();
+			if(ware!=goods_manager_t::nichts  ) {
 				goods_catg_index.append_unique( ware->get_catg_index() );
 			}
 		}
@@ -1742,8 +1742,8 @@ void convoi_t::recalc_catg_index()
 		if(get_vehikel(i)->get_cargo_max() == 0) {
 			continue;
 		}
-		const ware_besch_t *ware=get_vehikel(i)->get_cargo_type();
-		if(ware!=warenbauer_t::nichts  ) {
+		const goods_desc_t *ware=get_vehikel(i)->get_cargo_type();
+		if(ware!=goods_manager_t::nichts  ) {
 			goods_catg_index.append_unique( ware->get_catg_index() );
 		}
 	}
@@ -2625,7 +2625,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		// rebuilt the list with goods ...
 		vector_tpl<ware_t> total_fracht;
 
-		size_t const n = warenbauer_t::get_count();
+		size_t const n = goods_manager_t::get_count();
 		ALLOCA(uint32, max_loaded_waren, n);
 		MEMZERON(max_loaded_waren, n);
 
@@ -2633,9 +2633,9 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			const vehicle_t* v = fahr[i];
 
 			// first add to capacity indicator
-			const ware_besch_t* ware_desc = v->get_desc()->get_ware();
+			const goods_desc_t* ware_desc = v->get_desc()->get_ware();
 			const uint16 menge = v->get_desc()->get_capacity();
-			if(menge>0  &&  ware_desc!=warenbauer_t::nichts) {
+			if(menge>0  &&  ware_desc!=goods_manager_t::nichts) {
 				max_loaded_waren[ware_desc->get_index()] += menge;
 			}
 
@@ -2666,8 +2666,8 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		// apend info on total capacity
 		slist_tpl <ware_t>capacity;
 		for (size_t i = 0; i != n; ++i) {
-			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) {
-				ware_t ware(warenbauer_t::get_info(i));
+			if(max_loaded_waren[i]>0  &&  i!=goods_manager_t::INDEX_NONE) {
+				ware_t ware(goods_manager_t::get_info(i));
 				ware.menge = max_loaded_waren[i];
 				// append to category?
 				slist_tpl<ware_t>::iterator j   = capacity.begin();
@@ -3000,7 +3000,7 @@ void convoi_t::calc_speedbonus_kmh()
 			const vehicle_desc_t* const desc = fahr[i]->get_desc();
 			total_max_weight += desc->get_weight();
 			total_weight += fahr[i]->get_total_weight(); // convoi_t::sum_gesamweight may not be updated yet when this method is called...
-			if(  desc->get_ware() == warenbauer_t::nichts  ) {
+			if(  desc->get_ware() == goods_manager_t::nichts  ) {
 				; // nothing
 			}
 			else if(  desc->get_ware()->get_catg() == 0  ) {

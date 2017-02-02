@@ -306,7 +306,7 @@ void fabrik_t::arrival_statistics_t::book_arrival(const uint16 amount)
 
 void fabrik_t::update_transit( const ware_t *ware, bool add )
 {
-	if(  ware->index > warenbauer_t::INDEX_NONE  ) {
+	if(  ware->index > goods_manager_t::INDEX_NONE  ) {
 		// only for freights
 		fabrik_t *fab = get_fab( ware->get_zielpos() );
 		if(  fab  ) {
@@ -317,7 +317,7 @@ void fabrik_t::update_transit( const ware_t *ware, bool add )
 
 void fabrik_t::apply_transit( const ware_t *ware )
 {
-	if(  ware->index > warenbauer_t::INDEX_NONE  ) {
+	if(  ware->index > goods_manager_t::INDEX_NONE  ) {
 		// only for freights
 		fabrik_t *fab = get_fab( ware->get_zielpos() );
 		if(  fab  ) {
@@ -1202,7 +1202,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 
 		if(  file->is_loading()  ) {
 
-			ware.set_typ( warenbauer_t::get_info(ware_name) );
+			ware.set_typ( goods_manager_t::get_info(ware_name) );
 			guarded_free(const_cast<char *>(ware_name));
 
 			// Maximum in-transit is always 0 on load.
@@ -1274,7 +1274,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 		ware.rdwr( file );
 		if(  file->is_loading()  ) {
-			ware.set_typ( warenbauer_t::get_info(ware_name) );
+			ware.set_typ( goods_manager_t::get_info(ware_name) );
 			guarded_free(const_cast<char *>(ware_name));
 
 			// Outputs used to be with respect to actual units of production. They now are normalized with respect to factory production so require conversion.
@@ -1578,7 +1578,7 @@ sint32 fabrik_t::get_power_satisfaction() const
 }
 
 
-sint32 fabrik_t::input_vorrat_an(const ware_besch_t *typ)
+sint32 fabrik_t::input_vorrat_an(const goods_desc_t *typ)
 {
 	sint32 menge = -1;
 
@@ -1593,7 +1593,7 @@ sint32 fabrik_t::input_vorrat_an(const ware_besch_t *typ)
 }
 
 
-sint32 fabrik_t::vorrat_an(const ware_besch_t *typ)
+sint32 fabrik_t::vorrat_an(const goods_desc_t *typ)
 {
 	sint32 menge = -1;
 
@@ -1608,16 +1608,16 @@ sint32 fabrik_t::vorrat_an(const ware_besch_t *typ)
 }
 
 
-sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
+sint32 fabrik_t::liefere_an(const goods_desc_t *typ, sint32 menge)
 {
-	if(  typ==warenbauer_t::passagiere  ) {
+	if(  typ==goods_manager_t::passagiere  ) {
 		// book pax arrival and recalculate pax boost
 		book_stat(menge, FAB_PAX_ARRIVED);
 		arrival_stats_pax.book_arrival(menge);
 		update_prodfactor_pax();
 		return menge;
 	}
-	else if(  typ==warenbauer_t::post  ) {
+	else if(  typ==goods_manager_t::post  ) {
 		// book mail arrival and recalculate mail boost
 		book_stat(menge, FAB_MAIL_ARRIVED);
 		arrival_stats_mail.book_arrival(menge);
@@ -1674,7 +1674,7 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 }
 
 
-sint8 fabrik_t::is_needed(const ware_besch_t *typ) const
+sint8 fabrik_t::is_needed(const goods_desc_t *typ) const
 {
 	FOR(array_tpl<ware_production_t>, const& i, eingang) {
 		if(  i.get_typ() == typ  ) {
@@ -2776,7 +2776,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		buf.append(translator::translate("Produktion"));
 
 		for (uint32 index = 0; index < ausgang.get_count(); index++) {
-			const ware_besch_t * type = ausgang[index].get_typ();
+			const goods_desc_t * type = ausgang[index].get_typ();
 			const sint64 pfactor = (sint64)desc->get_product(index)->get_factor();
 
 			if(  welt->get_settings().get_just_in_time() >= 2  ) {
@@ -3108,7 +3108,7 @@ void fabrik_t::add_all_suppliers()
 {
 	for(int i=0; i < desc->get_supplier_count(); i++) {
 		const factory_supplier_desc_t *supplier = desc->get_supplier(i);
-		const ware_besch_t *ware = supplier->get_ware();
+		const goods_desc_t *ware = supplier->get_ware();
 
 		FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 			// connect to an existing one, if this is an producer
@@ -3129,7 +3129,7 @@ bool fabrik_t::add_supplier(fabrik_t* fab)
 {
 	for(int i=0; i < desc->get_supplier_count(); i++) {
 		const factory_supplier_desc_t *supplier = desc->get_supplier(i);
-		const ware_besch_t *ware = supplier->get_ware();
+		const goods_desc_t *ware = supplier->get_ware();
 
 			// connect to an existing one, if this is an producer
 			if(  fab!=this  &&  fab->vorrat_an(ware) > -1  ) {
@@ -3161,9 +3161,9 @@ void fabrik_t::get_tile_list( vector_tpl<koord> &tile_list ) const
 
 // Returns a list of goods produced by this factory. The caller must delete
 // the list when done
-slist_tpl<const ware_besch_t*> *fabrik_t::get_produced_goods() const
+slist_tpl<const goods_desc_t*> *fabrik_t::get_produced_goods() const
 {
-	slist_tpl<const ware_besch_t*> *goods = new slist_tpl<const ware_besch_t*>();
+	slist_tpl<const goods_desc_t*> *goods = new slist_tpl<const goods_desc_t*>();
 
 	FOR(array_tpl<ware_production_t>, const& i, ausgang) {
 		goods->append(i.get_typ());

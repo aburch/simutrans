@@ -112,7 +112,7 @@ sint64 convert_boost(sint64 value);
 class ware_production_t
 {
 private:
-	const ware_besch_t *type;
+	const goods_desc_t *type;
 	// Knightly : statistics for each goods
 	sint64 statistics[MAX_MONTH][MAX_FAB_GOODS_STAT];
 	sint64 weighted_sum_storage;
@@ -129,8 +129,8 @@ public:
 		init_stats();
 	}
 
-	const ware_besch_t* get_typ() const { return type; }
-	void set_typ(const ware_besch_t *t) { type=t; }
+	const goods_desc_t* get_typ() const { return type; }
+	void set_typ(const goods_desc_t *t) { type=t; }
 
 	// Knightly : functions for manipulating goods statistics
 	void roll_stats(uint32 factor, sint64 aggregate_weight);
@@ -583,8 +583,8 @@ public:
 	 *   -1 wenn typ nicht produziert wird
 	 *   sonst die gelagerte menge
 	 */
-	sint32 input_vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
-	sint32 vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
+	sint32 input_vorrat_an(const goods_desc_t *ware);        // Vorrat von Warentyp
+	sint32 vorrat_an(const goods_desc_t *ware);        // Vorrat von Warentyp
 
 	// true, if there was production requiring power in the last step
 	bool is_currently_producing() const { return currently_producing; }
@@ -604,9 +604,9 @@ public:
 	 * 0 wenn Produktionsstopp,
 	 * -1 wenn Ware nicht verarbeitet wird
 	 */
-	sint8 is_needed(const ware_besch_t *) const;
+	sint8 is_needed(const goods_desc_t *) const;
 
-	sint32 liefere_an(const ware_besch_t *, sint32 menge);
+	sint32 liefere_an(const goods_desc_t *, sint32 menge);
 
 	/**
 	 * Calculate the JIT2 logic power boost amount using the currently attached transformer.
@@ -724,7 +724,7 @@ public:
 	bool is_end_consumer() const { return (ausgang.empty() && !desc->is_electricity_producer()); }
 
 	// Returns a list of goods produced by this factory.
-	slist_tpl<const ware_besch_t*> *get_produced_goods() const;
+	slist_tpl<const goods_desc_t*> *get_produced_goods() const;
 };
 
 #endif

@@ -90,7 +90,7 @@ SQInteger halt_export_line_list(HSQUIRRELVM vm)
 }
 
 
-uint32 halt_get_capacity(const haltestelle_t *halt, const ware_besch_t *desc)
+uint32 halt_get_capacity(const haltestelle_t *halt, const goods_desc_t *desc)
 {
 	// passenger has index 0, mail 1, everything else >=2
 	return halt  &&  desc  ?  halt->get_capacity(min( desc->get_catg_index(), 2 )) : 0;
@@ -99,7 +99,7 @@ uint32 halt_get_capacity(const haltestelle_t *halt, const ware_besch_t *desc)
 // 0: not connected
 // 1: connected
 // -1: undecided
-sint8 is_halt_connected(const haltestelle_t *a, halthandle_t b, const ware_besch_t *desc)
+sint8 is_halt_connected(const haltestelle_t *a, halthandle_t b, const goods_desc_t *desc)
 {
 	if (desc == 0  ||  a == NULL  ||  !b.is_bound()) {
 		return 0;
@@ -182,7 +182,7 @@ void export_halt(HSQUIRRELVM vm)
 	 * @param freight_type freight type
 	 * @returns the answer to this question
 	 */
-	register_method<bool (haltestelle_t::*)(const ware_besch_t*) const>(vm, &haltestelle_t::is_enabled, "accepts_good", false);
+	register_method<bool (haltestelle_t::*)(const goods_desc_t*) const>(vm, &haltestelle_t::is_enabled, "accepts_good", false);
 
 	/**
 	 * Get monthly statistics of number of arrived goods.

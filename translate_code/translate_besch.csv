@@ -155,3 +155,7 @@ is_hintergrund_phases,is_background_animated
 vehikel_besch_t,vehicle_desc_t
 \\<liste\\>,list
 \\<liste2d\\>,list2d
+ware_besch_t,goods_desc_t
+good_reader_t,goods_reader_t
+good_writer_t,goods_writer_t
+warenbauer_t,goods_manager_t

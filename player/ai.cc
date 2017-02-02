@@ -86,7 +86,7 @@ halthandle_t ai_t::get_halt(const koord pos ) const
  * if there is already a connection
  * @author prissi
  */
-bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const ware_besch_t *wtyp ) const
+bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const goods_desc_t *wtyp ) const
 {
 	// Dario: Check if there's a stop near destination
 	const planquadrat_t* start_plan = welt->access(start_pos);
@@ -577,7 +577,7 @@ void ai_t::rdwr(loadsave_t *file)
 }
 
 
-const vehicle_desc_t *ai_t::vehikel_search(waytype_t typ, const uint32 target_power, const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric)
+const vehicle_desc_t *ai_t::vehikel_search(waytype_t typ, const uint32 target_power, const sint32 target_speed, const goods_desc_t * target_freight, bool include_electric)
 {
 	bool obsolete_allowed = welt->get_settings().get_allow_buying_obsolete_vehicles();
 	return vehicle_builder_t::vehikel_search(typ, welt->get_timeline_year_month(), target_power, target_speed, target_freight, include_electric, !obsolete_allowed);

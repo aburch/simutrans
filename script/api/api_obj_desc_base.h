@@ -13,7 +13,7 @@ class tree_desc_t;
 class bridge_desc_t;
 class building_desc_t;
 class building_tile_desc_t;
-class ware_besch_t;
+class goods_desc_t;
 class tunnel_desc_t;
 class vehicle_desc_t;
 class way_desc_t;
@@ -73,7 +73,7 @@ namespace script_api {
 	declare_param_mask(obj_desc_transport_related_t*, "t|x|y", "obj_desc_transport_x");
 
 	declare_besch_param(tree_desc_t, "tree_desc_x");
-	declare_besch_param(ware_besch_t, "good_desc_x");
+	declare_besch_param(goods_desc_t, "good_desc_x");
 	declare_besch_param(building_desc_t, "building_desc_x");
 	declare_besch_param(way_desc_t, "way_desc_x");
 	declare_besch_param(vehicle_desc_t, "vehicle_desc_x");

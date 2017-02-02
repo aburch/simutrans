@@ -70,7 +70,7 @@ convoi_filter_frame_t::filter_flag_t convoi_filter_frame_t::filter_buttons_types
 	obsolete_filter
 };
 
-slist_tpl<const ware_besch_t *>convoi_filter_frame_t::active_ware;
+slist_tpl<const goods_desc_t *>convoi_filter_frame_t::active_ware;
 char convoi_filter_frame_t::name_filter_text[] = "";
 
 
@@ -136,9 +136,9 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 
 	all_ware.clear();
 	int n=0;
-	for(  int i=0;  i < warenbauer_t::get_count();  i++  ) {
-		const ware_besch_t *ware = warenbauer_t::get_info(i);
-		if(  ware == warenbauer_t::nichts  ) {
+	for(  int i=0;  i < goods_manager_t::get_count();  i++  ) {
+		const goods_desc_t *ware = goods_manager_t::get_info(i);
+		if(  ware == goods_manager_t::nichts  ) {
 			continue;
 		}
 		if(  ware->get_catg() == 0  ) {
@@ -151,11 +151,11 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 		}
 	}
 	// now add other good categories
-	for(  int i=1;  i < warenbauer_t::get_max_catg_index();  i++  ) {
-		if(  warenbauer_t::get_info_catg(i)->get_catg() != 0  ) {
-			ware_item_t *item = new ware_item_t(this, warenbauer_t::get_info_catg(i));
-			item->init(button_t::square_state, translator::translate(warenbauer_t::get_info_catg(i)->get_catg_name()), scr_coord(5, D_BUTTON_HEIGHT*n++));
-			item->pressed = active_ware.is_contained(warenbauer_t::get_info_catg(i));
+	for(  int i=1;  i < goods_manager_t::get_max_catg_index();  i++  ) {
+		if(  goods_manager_t::get_info_catg(i)->get_catg() != 0  ) {
+			ware_item_t *item = new ware_item_t(this, goods_manager_t::get_info_catg(i));
+			item->init(button_t::square_state, translator::translate(goods_manager_t::get_info_catg(i)->get_catg_name()), scr_coord(5, D_BUTTON_HEIGHT*n++));
+			item->pressed = active_ware.is_contained(goods_manager_t::get_info_catg(i));
 			ware_cont.add_component(item);
 			all_ware.append(item);
 		}
@@ -223,9 +223,9 @@ void convoi_filter_frame_t::sort_list()
 /*			uint8 catg = wi->ware->get_catg();
 			if(  catg  ) {
 				// now all goods of this category
-				for(  int i=1;  i<warenbauer_t::get_max_catg_index();  i++   ) {
-					if(  warenbauer_t::get_info(i)->get_catg()==catg  ) {
-						active_ware.append( warenbauer_t::get_info(i) );
+				for(  int i=1;  i<goods_manager_t::get_max_catg_index();  i++   ) {
+					if(  goods_manager_t::get_info(i)->get_catg()==catg  ) {
+						active_ware.append( goods_manager_t::get_info(i) );
 					}
 				}
 			}

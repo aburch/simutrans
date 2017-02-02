@@ -124,9 +124,9 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 	if(  get_filter(convoi_filter_frame_t::ware_filter)  ) {
 		unsigned i;
 		for(  i = 0; i < cnv->get_vehicle_count(); i++) {
-			const ware_besch_t *wb = cnv->get_vehikel(i)->get_cargo_type();
+			const goods_desc_t *wb = cnv->get_vehikel(i)->get_cargo_type();
 			if(  wb->get_catg()!=0  ) {
-				wb = warenbauer_t::get_info_catg(wb->get_catg());
+				wb = goods_manager_t::get_info_catg(wb->get_catg());
 			}
 			if(  waren_filter->is_contained(wb)  ) {
 				return true;
@@ -196,7 +196,7 @@ void convoi_frame_t::sort_list()
 }
 
 
-void convoi_frame_t::sort_list( char *name, uint32 filter, const slist_tpl<const ware_besch_t *> *wares )
+void convoi_frame_t::sort_list( char *name, uint32 filter, const slist_tpl<const goods_desc_t *> *wares )
 {
 	name_filter = name;
 	waren_filter = wares;

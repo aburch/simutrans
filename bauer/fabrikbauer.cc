@@ -245,7 +245,7 @@ bool factory_builder_t::successfully_loaded()
 }
 
 
-int factory_builder_t::count_producers(const ware_besch_t *ware, uint16 timeline)
+int factory_builder_t::count_producers(const goods_desc_t *ware, uint16 timeline)
 {
 	int count=0;
 
@@ -268,7 +268,7 @@ DBG_MESSAGE("factory_builder_t::count_producers()","%i producer for good '%s' fo
  * Finds a random producer producing @p ware.
  * @param timeline the current time(months)
  */
-void factory_builder_t::find_producer(weighted_vector_tpl<const factory_desc_t *> &producer, const ware_besch_t *ware, uint16 timeline )
+void factory_builder_t::find_producer(weighted_vector_tpl<const factory_desc_t *> &producer, const goods_desc_t *ware, uint16 timeline )
 {
 	// find all producers
 	producer.clear();
@@ -520,7 +520,7 @@ bool factory_builder_t::can_factory_tree_rotate( const factory_desc_t *desc )
 	// now check all suppliers if they can rotate
 	for(  int i=0;  i<desc->get_supplier_count();  i++   ) {
 
-		const ware_besch_t *ware = desc->get_supplier(i)->get_ware();
+		const goods_desc_t *ware = desc->get_supplier(i)->get_ware();
 
 		// unfortunately, for every for iteration we have to check all factories ...
 		FOR(stringhashtable_tpl<factory_desc_t const*>, const& t, desc_table) {
@@ -683,7 +683,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 	 * We must take care to add capacity for cross-connected factories!
 	 */
 	const factory_supplier_desc_t *supplier = info->get_supplier(supplier_nr);
-	const ware_besch_t *ware = supplier->get_ware();
+	const goods_desc_t *ware = supplier->get_ware();
 	const int producer_count=count_producers( ware, welt->get_timeline_year_month() );
 
 	if(producer_count==0) {
@@ -897,7 +897,7 @@ int factory_builder_t::increase_industry_density( bool tell_me )
 		// ok, found consumer
 		if(  last_built_consumer  ) {
 			for(  int i=0;  i < last_built_consumer->get_desc()->get_supplier_count();  i++  ) {
-				ware_besch_t const* const w = last_built_consumer->get_desc()->get_supplier(i)->get_ware();
+				goods_desc_t const* const w = last_built_consumer->get_desc()->get_supplier(i)->get_ware();
 				FOR(vector_tpl<koord>, const& j, last_built_consumer->get_suppliers()) {
 					factory_desc_t const* const fd = fabrik_t::get_fab(j)->get_desc();
 					for (uint32 k = 0; k < fd->get_product_count(); k++) {

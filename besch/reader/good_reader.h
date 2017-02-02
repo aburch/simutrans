@@ -4,15 +4,15 @@
 #include "obj_reader.h"
 
 
-class good_reader_t : public obj_reader_t {
-	static good_reader_t the_instance;
+class goods_reader_t : public obj_reader_t {
+	static goods_reader_t the_instance;
 
-	good_reader_t() { register_reader(); }
+	goods_reader_t() { register_reader(); }
 protected:
 	void register_obj(obj_desc_t*&) OVERRIDE;
 	bool successfully_loaded() const OVERRIDE;
 public:
-	static good_reader_t*instance() { return &the_instance; }
+	static goods_reader_t*instance() { return &the_instance; }
 
 	obj_type get_type() const OVERRIDE { return obj_good; }
 	char const* get_type_name() const OVERRIDE { return "good"; }

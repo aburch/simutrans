@@ -14,29 +14,29 @@
 #include "../dataobj/translator.h"
 
 
-stringhashtable_tpl<const ware_besch_t *> warenbauer_t::desc_table;
+stringhashtable_tpl<const goods_desc_t *> goods_manager_t::desc_table;
 
-vector_tpl<ware_besch_t *> warenbauer_t::waren;
+vector_tpl<goods_desc_t *> goods_manager_t::waren;
 
-uint8 warenbauer_t::max_catg_index = 0;
+uint8 goods_manager_t::max_catg_index = 0;
 
-const ware_besch_t *warenbauer_t::passagiere = NULL;
-const ware_besch_t *warenbauer_t::post = NULL;
-const ware_besch_t *warenbauer_t::nichts = NULL;
+const goods_desc_t *goods_manager_t::passagiere = NULL;
+const goods_desc_t *goods_manager_t::post = NULL;
+const goods_desc_t *goods_manager_t::nichts = NULL;
 
-ware_besch_t *warenbauer_t::load_passagiere = NULL;
-ware_besch_t *warenbauer_t::load_post = NULL;
-ware_besch_t *warenbauer_t::load_nichts = NULL;
+goods_desc_t *goods_manager_t::load_passagiere = NULL;
+goods_desc_t *goods_manager_t::load_post = NULL;
+goods_desc_t *goods_manager_t::load_nichts = NULL;
 
-static spezial_obj_tpl<ware_besch_t> const special_objects[] = {
-	{ &warenbauer_t::passagiere,    "Passagiere" },
-	{ &warenbauer_t::post,	    "Post" },
-	{ &warenbauer_t::nichts,	    "None" },
+static spezial_obj_tpl<goods_desc_t> const special_objects[] = {
+	{ &goods_manager_t::passagiere,    "Passagiere" },
+	{ &goods_manager_t::post,	    "Post" },
+	{ &goods_manager_t::nichts,	    "None" },
 	{ NULL, NULL }
 };
 
 
-bool warenbauer_t::successfully_loaded()
+bool goods_manager_t::successfully_loaded()
 {
 	if(!::successfully_loaded(special_objects)) {
 		return false;
@@ -51,7 +51,7 @@ bool warenbauer_t::successfully_loaded()
 	waren.insert_at(0,load_passagiere);
 
 	if(waren.get_count()>=255) {
-		dbg->fatal("warenbauer_t::successfully_loaded()","Too many different goods %i>255",waren.get_count()-1 );
+		dbg->fatal("goods_manager_t::successfully_loaded()","Too many different goods %i>255",waren.get_count()-1 );
 	}
 
 	// assign indexes
@@ -62,7 +62,7 @@ bool warenbauer_t::successfully_loaded()
 	// now assign unique category indexes for unique categories
 	max_catg_index = 0;
 	// first assign special freight (which always needs an own category)
-	FOR(vector_tpl<ware_besch_t*>, const i, waren) {
+	FOR(vector_tpl<goods_desc_t*>, const i, waren) {
 		if (i->get_catg() == 0) {
 			i->catg_index = max_catg_index++;
 		}
@@ -70,7 +70,7 @@ bool warenbauer_t::successfully_loaded()
 	// mapping of waren_t::catg to catg_index, map[catg] = catg_index
 	uint8 map[255] = {0};
 
-	FOR(vector_tpl<ware_besch_t*>, const i, waren) {
+	FOR(vector_tpl<goods_desc_t*>, const i, waren) {
 		uint8 const catg = i->get_catg();
 		if(  catg > 0  ) {
 			if(  map[catg] == 0  ) { // We didn't found this category yet -> just create new index.
@@ -106,26 +106,26 @@ bool warenbauer_t::successfully_loaded()
 	// however, some place do need the dummy ...
 	ware_t::index_to_desc[2] = NULL;
 
-	DBG_MESSAGE("warenbauer_t::successfully_loaded()","total goods %i, different kind of categories %i", waren.get_count(), max_catg_index );
+	DBG_MESSAGE("goods_manager_t::successfully_loaded()","total goods %i, different kind of categories %i", waren.get_count(), max_catg_index );
 
 	return true;
 }
 
 
-static bool compare_ware_desc(const ware_besch_t* a, const ware_besch_t* b)
+static bool compare_ware_desc(const goods_desc_t* a, const goods_desc_t* b)
 {
 	int diff = strcmp(a->get_name(), b->get_name());
 	return diff < 0;
 }
 
-bool warenbauer_t::register_desc(ware_besch_t *desc)
+bool goods_manager_t::register_desc(goods_desc_t *desc)
 {
 	desc->value = desc->base_value;
 	::register_desc(special_objects, desc);
 	// avoid duplicates with same name
-	ware_besch_t *old_desc = const_cast<ware_besch_t *>(desc_table.get(desc->get_name()));
+	goods_desc_t *old_desc = const_cast<goods_desc_t *>(desc_table.get(desc->get_name()));
 	if(  old_desc  ) {
-		dbg->warning( "warenbauer_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		dbg->warning( "goods_manager_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 		desc_table.remove(desc->get_name());
 		waren.remove( old_desc );
 	}
@@ -148,22 +148,22 @@ bool warenbauer_t::register_desc(ware_besch_t *desc)
 }
 
 
-const ware_besch_t *warenbauer_t::get_info(const char* name)
+const goods_desc_t *goods_manager_t::get_info(const char* name)
 {
-	const ware_besch_t *ware = desc_table.get(name);
+	const goods_desc_t *ware = desc_table.get(name);
 	if(  ware==NULL  ) {
 		ware = desc_table.get(translator::compatibility_name(name));
 	}
 	if(  ware == NULL  ) {
 		// to avoid crashed with NULL pointer in skripts return good NONE
-		dbg->error( "warenbauer_t::get_info()", "No desc for %s", name );
-		ware = warenbauer_t::nichts;
+		dbg->error( "goods_manager_t::get_info()", "No desc for %s", name );
+		ware = goods_manager_t::nichts;
 	}
 	return ware;
 }
 
 
-const ware_besch_t *warenbauer_t::get_info_catg(const uint8 catg)
+const goods_desc_t *goods_manager_t::get_info_catg(const uint8 catg)
 {
 	if(catg>0) {
 		for(unsigned i=0;  i<get_count();  i++  ) {
@@ -172,12 +172,12 @@ const ware_besch_t *warenbauer_t::get_info_catg(const uint8 catg)
 			}
 		}
 	}
-	dbg->warning("warenbauer_t::get_info()", "No info for good catg %d available, set to passengers", catg);
+	dbg->warning("goods_manager_t::get_info()", "No info for good catg %d available, set to passengers", catg);
 	return waren[0];
 }
 
 
-const ware_besch_t *warenbauer_t::get_info_catg_index(const uint8 catg_index)
+const goods_desc_t *goods_manager_t::get_info_catg_index(const uint8 catg_index)
 {
 	for(unsigned i=0;  i<get_count();  i++  ) {
 		if(waren[i]->get_catg_index()==catg_index) {
@@ -190,9 +190,9 @@ const ware_besch_t *warenbauer_t::get_info_catg_index(const uint8 catg_index)
 
 
 // adjuster for dummies ...
-void warenbauer_t::set_multiplier(sint32 multiplier)
+void goods_manager_t::set_multiplier(sint32 multiplier)
 {
-//DBG_MESSAGE("warenbauer_t::set_multiplier()","new factor %i",multiplier);
+//DBG_MESSAGE("goods_manager_t::set_multiplier()","new factor %i",multiplier);
 	for(unsigned i=0;  i<get_count();  i++  ) {
 		sint32 long_base_value = waren[i]->base_value;
 		waren[i]->value = (uint16)((long_base_value*multiplier)/1000l);

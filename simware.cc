@@ -23,7 +23,7 @@
 
 
 
-const ware_besch_t *ware_t::index_to_desc[256];
+const goods_desc_t *ware_t::index_to_desc[256];
 
 
 
@@ -35,7 +35,7 @@ ware_t::ware_t() : ziel(), zwischenziel(), zielpos(-1, -1)
 }
 
 
-ware_t::ware_t(const ware_besch_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -1)
+ware_t::ware_t(const goods_desc_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -1)
 {
 	menge = 0;
 	index = wtyp->get_index();
@@ -48,7 +48,7 @@ ware_t::ware_t(loadsave_t *file)
 }
 
 
-void ware_t::set_desc(const ware_besch_t* type)
+void ware_t::set_desc(const goods_desc_t* type)
 {
 	index = type->get_index();
 }
@@ -87,10 +87,10 @@ void ware_t::rdwr(loadsave_t *file)
 	else {
 		char typ[256];
 		file->rdwr_str(typ, lengthof(typ));
-		const ware_besch_t *type = warenbauer_t::get_info(typ);
+		const goods_desc_t *type = goods_manager_t::get_info(typ);
 		if(type==NULL) {
 			dbg->warning("ware_t::rdwr()","unknown ware of catg %d!",catg);
-			index = warenbauer_t::get_info_catg(catg)->get_index();
+			index = goods_manager_t::get_info_catg(catg)->get_index();
 			menge = 0;
 		}
 		else {
@@ -179,7 +179,7 @@ void ware_t::update_factory_target()
 }
 
 
-sint64 ware_t::calc_revenue(const ware_besch_t* desc, waytype_t wt, sint32 speedkmh)
+sint64 ware_t::calc_revenue(const goods_desc_t* desc, waytype_t wt, sint32 speedkmh)
 {
 	static karte_ptr_t welt;
 

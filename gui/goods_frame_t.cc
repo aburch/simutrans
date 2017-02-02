@@ -113,7 +113,7 @@ goods_frame_t::goods_frame_t() :
 
 	sort_list();
 
-	int h = (warenbauer_t::get_count()+1)*(LINESPACE+1)+y;
+	int h = (goods_manager_t::get_count()+1)*(LINESPACE+1)+y;
 	if(h>450) {
 		h = y+27*(LINESPACE+1)+D_TITLEBAR_HEIGHT+1;
 	}
@@ -127,8 +127,8 @@ goods_frame_t::goods_frame_t() :
 
 bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 {
-	ware_besch_t const* const w1 = warenbauer_t::get_info(a);
-	ware_besch_t const* const w2 = warenbauer_t::get_info(b);
+	goods_desc_t const* const w1 = goods_manager_t::get_info(a);
+	goods_desc_t const* const w2 = goods_manager_t::get_info(b);
 
 	int order = 0;
 
@@ -170,11 +170,11 @@ void goods_frame_t::sort_list()
 	sorteddir.set_text(sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
 	// Fetch the list of goods produced by the factories that exist in the current game
-	const vector_tpl<const ware_besch_t*> &goods_in_game = welt->get_goods_list();
+	const vector_tpl<const goods_desc_t*> &goods_in_game = welt->get_goods_list();
 
 	int n=0;
-	for(unsigned int i=0; i<warenbauer_t::get_count(); i++) {
-		const ware_besch_t * wtyp = warenbauer_t::get_info(i);
+	for(unsigned int i=0; i<goods_manager_t::get_count(); i++) {
+		const goods_desc_t * wtyp = goods_manager_t::get_info(i);
 
 		// Hajo: we skip goods that don't generate income
 		//       this should only be true for the special good 'None'

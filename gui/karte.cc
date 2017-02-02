@@ -1356,13 +1356,13 @@ void reliefkarte_t::draw(scr_coord pos)
 		}
 		else if(  mode & MAP_TRANSFER  ) {
 			FOR( const vector_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
-				if(  halt->is_transfer(warenbauer_t::INDEX_PAS)  ||  halt->is_transfer(warenbauer_t::INDEX_MAIL)  ) {
+				if(  halt->is_transfer(goods_manager_t::INDEX_PAS)  ||  halt->is_transfer(goods_manager_t::INDEX_MAIL)  ) {
 					stop_cache.append( halt );
 				}
 				else {
 					// good transfer?
 					bool transfer = false;
-					for(  int i=warenbauer_t::INDEX_NONE+1  &&  !transfer;  i<=warenbauer_t::get_max_catg_index();  i ++  ) {
+					for(  int i=goods_manager_t::INDEX_NONE+1  &&  !transfer;  i<=goods_manager_t::get_max_catg_index();  i ++  ) {
 						transfer = halt->is_transfer( i );
 					}
 					if(  transfer  ) {
@@ -1699,16 +1699,16 @@ void reliefkarte_t::rdwr(loadsave_t *file)
 bool reliefkarte_t::is_matching_freight_catg(const minivec_tpl<uint8> &goods_catg_index)
 {
 	// does this line/convoi has a matching freight
-	if(  freight_type_group_index_showed_on_map == warenbauer_t::passagiere  ) {
-		return goods_catg_index.is_contained(warenbauer_t::INDEX_PAS);
+	if(  freight_type_group_index_showed_on_map == goods_manager_t::passagiere  ) {
+		return goods_catg_index.is_contained(goods_manager_t::INDEX_PAS);
 	}
-	else if(  freight_type_group_index_showed_on_map == warenbauer_t::post  ) {
-		return goods_catg_index.is_contained(warenbauer_t::INDEX_MAIL);
+	else if(  freight_type_group_index_showed_on_map == goods_manager_t::post  ) {
+		return goods_catg_index.is_contained(goods_manager_t::INDEX_MAIL);
 	}
-	else if(  freight_type_group_index_showed_on_map == warenbauer_t::nichts  ) {
+	else if(  freight_type_group_index_showed_on_map == goods_manager_t::nichts  ) {
 		// all freights but not pax or mail
 		for(  uint8 i = 0;  i < goods_catg_index.get_count();  i++  ) {
-			if(  goods_catg_index[i] > warenbauer_t::INDEX_NONE  ) {
+			if(  goods_catg_index[i] > goods_manager_t::INDEX_NONE  ) {
 				return true;
 			}
 		}
@@ -1724,10 +1724,10 @@ bool reliefkarte_t::is_matching_freight_catg(const minivec_tpl<uint8> &goods_cat
 	}
 	// NULL show all but obey modes
 	if(  mode & MAP_PASSENGER  ) {
-		return goods_catg_index.is_contained(warenbauer_t::INDEX_PAS);
+		return goods_catg_index.is_contained(goods_manager_t::INDEX_PAS);
 	}
 	else if(  mode & MAP_MAIL  ) {
-		return goods_catg_index.is_contained(warenbauer_t::INDEX_MAIL);
+		return goods_catg_index.is_contained(goods_manager_t::INDEX_MAIL);
 	}
 	else if(  mode & MAP_FREIGHT  ) {
 		// all freights but not pax or mail

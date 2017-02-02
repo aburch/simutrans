@@ -7,7 +7,7 @@
 #include "good_writer.h"
 
 
-void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
+void goods_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	obj_node_t	node(this, 10, &parent);
 

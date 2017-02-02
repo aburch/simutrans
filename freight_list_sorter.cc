@@ -100,7 +100,7 @@ void freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32
 		// convois
 		buf.printf("/%u", max);
 	}
-	ware_besch_t const& desc = *ware->get_desc();
+	goods_desc_t const& desc = *ware->get_desc();
 	char const*  const  unit = translator::translate(desc.get_mass());
 	// special freight (catg == 0) needs own name
 	char const*  const  name = translator::translate(ware->get_catg() != 0 ? desc.get_catg_name() : desc.get_name());
@@ -119,7 +119,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 	ware_t* wlist = MALLOCN( ware_t, warray.get_count() );
 
 	FOR(vector_tpl<ware_t>, const& ware, warray) {
-		if(  ware.get_desc() == warenbauer_t::nichts  ||  ware.menge == 0  ) {
+		if(  ware.get_desc() == goods_manager_t::nichts  ||  ware.menge == 0  ) {
 			continue;
 		}
 		wlist[pos] = ware;
@@ -210,7 +210,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				}
 			}
 			// detail amount
-			ware_besch_t const& desc = *ware.get_desc();
+			goods_desc_t const& desc = *ware.get_desc();
 			buf.printf("  %u%s %s > ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()));
 			// the target name is not correct for the via sort
 			const bool is_factory_going = ( sortby!=by_via_sum  &&  ware.to_factory );	// exclude merged packets

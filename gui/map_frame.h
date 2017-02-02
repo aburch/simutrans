@@ -78,7 +78,7 @@ private:
 	/**
 	 * FIXME: is there a smaller limit of good categories types?
 	 */
-	const ware_besch_t *viewable_freight_types[255];
+	const goods_desc_t *viewable_freight_types[255];
 
 	gui_container_t filter_container, scale_container, directory_container;
 

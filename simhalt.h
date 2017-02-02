@@ -429,8 +429,8 @@ public:
 
 	void make_public_and_join( player_t *player );
 
-	vector_tpl<connection_t> const& get_pax_connections()  const { return all_links[warenbauer_t::INDEX_PAS].connections;  }
-	vector_tpl<connection_t> const& get_mail_connections() const { return all_links[warenbauer_t::INDEX_MAIL].connections; }
+	vector_tpl<connection_t> const& get_pax_connections()  const { return all_links[goods_manager_t::INDEX_PAS].connections;  }
+	vector_tpl<connection_t> const& get_mail_connections() const { return all_links[goods_manager_t::INDEX_MAIL].connections; }
 
 	// returns the matching warenziele (goods objectives/destinations)
 	vector_tpl<connection_t> const& get_connections(uint8 const catg_index) const { return all_links[catg_index].connections; }
@@ -535,17 +535,17 @@ public:
 
 	// check, if we accepts this good
 	// often called, thus inline ...
-	bool is_enabled( const ware_besch_t *wtyp ) const {
+	bool is_enabled( const goods_desc_t *wtyp ) const {
 		return is_enabled(wtyp->get_catg_index());
 	}
 
 	// a separate version for checking with goods category index
 	bool is_enabled( const uint8 catg_index ) const
 	{
-		if (catg_index == warenbauer_t::INDEX_PAS) {
+		if (catg_index == goods_manager_t::INDEX_PAS) {
 			return enables&PAX;
 		}
-		else if(catg_index == warenbauer_t::INDEX_MAIL) {
+		else if(catg_index == goods_manager_t::INDEX_MAIL) {
 			return enables&POST;
 		}
 		return enables&WARE;
@@ -607,22 +607,22 @@ public:
 	 * gibt Gesamtmenge derware vom typ typ zurück
 	 * @author Hj. Malthaner
 	 */
-	uint32 get_ware_summe(const ware_besch_t *warentyp) const;
+	uint32 get_ware_summe(const goods_desc_t *warentyp) const;
 
 	/**
 	 * returns total number for a certain position (since more than one factory might connect to a stop)
 	 * @author Hj. Malthaner
 	 */
-	uint32 get_ware_fuer_zielpos(const ware_besch_t *warentyp, const koord zielpos) const;
+	uint32 get_ware_fuer_zielpos(const goods_desc_t *warentyp, const koord zielpos) const;
 
 	/**
 	 * total amount of freight with specified next hop
 	 * @author prissi
 	 */
-	uint32 get_ware_fuer_zwischenziel(const ware_besch_t *warentyp, const halthandle_t zwischenziel) const;
+	uint32 get_ware_fuer_zwischenziel(const goods_desc_t *warentyp, const halthandle_t zwischenziel) const;
 
 	// true, if we accept/deliver this kind of good
-	bool gibt_ab(const ware_besch_t *warentyp) const { return waren[warentyp->get_catg_index()] != NULL; }
+	bool gibt_ab(const goods_desc_t *warentyp) const { return waren[warentyp->get_catg_index()] != NULL; }
 
 	/* retrieves a ware packet for any destination in the list
 	 * needed, if the factory in question wants to remove something
@@ -638,7 +638,7 @@ public:
 	 * @param sp Company that's requesting the fetch.
 	 * @author Dwachs
 	 */
-	void fetch_goods( slist_tpl<ware_t> &load, const ware_besch_t *good_category, uint32 requested_amount, const schedule_t *schedule, const player_t *player );
+	void fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const schedule_t *schedule, const player_t *player );
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach

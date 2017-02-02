@@ -32,7 +32,7 @@ using namespace script_api;
 
 SQInteger get_next_ware_desc(HSQUIRRELVM vm)
 {
-	return generic_get_next(vm, warenbauer_t::get_count());
+	return generic_get_next(vm, goods_manager_t::get_count());
 }
 
 
@@ -41,8 +41,8 @@ SQInteger get_ware_besch_index(HSQUIRRELVM vm)
 	uint32 index = param<uint32>::get(vm, -1);
 
 	const char* name = "None"; // fall-back
-	if (index < warenbauer_t::get_count()) {
-		name = warenbauer_t::get_info(index)->get_name();
+	if (index < goods_manager_t::get_count()) {
+		name = goods_manager_t::get_info(index)->get_name();
 	}
 	return push_instance(vm, "good_desc_x",  name);
 }
@@ -106,7 +106,7 @@ const vector_tpl<const building_desc_t*>& get_building_list(building_desc_t::bty
 }
 
 
-const vector_tpl<const building_desc_t*>& get_available_stations(building_desc_t::btype type, waytype_t wt, const ware_besch_t *freight)
+const vector_tpl<const building_desc_t*>& get_available_stations(building_desc_t::btype type, waytype_t wt, const goods_desc_t *freight)
 {
 	static vector_tpl<const building_desc_t*> dummy;
 	dummy.clear();
@@ -120,8 +120,8 @@ const vector_tpl<const building_desc_t*>& get_available_stations(building_desc_t
 	// translate freight to enables-flags
 	uint8 enables = haltestelle_t::WARE;
 	switch(freight->get_catg_index()) {
-		case warenbauer_t::INDEX_PAS:  enables = haltestelle_t::PAX;  break;
-		case warenbauer_t::INDEX_MAIL: enables = haltestelle_t::POST; break;
+		case goods_manager_t::INDEX_PAS:  enables = haltestelle_t::PAX;  break;
+		case goods_manager_t::INDEX_MAIL: enables = haltestelle_t::POST; break;
 		default: ;
 	}
 	if (type == building_desc_t::depot) {
@@ -563,7 +563,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Descriptor of goods and freight types.
 	 */
-	begin_besch_class(vm, "good_desc_x", "obj_desc_x", (GETBESCHFUNC)param<const ware_besch_t*>::getfunc());
+	begin_besch_class(vm, "good_desc_x", "obj_desc_x", (GETBESCHFUNC)param<const goods_desc_t*>::getfunc());
 
 	// dummy entry to create documentation of constructor
 	/**
@@ -573,8 +573,8 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	// register_function( .., "constructor", .. )
 
-	create_slot(vm, "passenger", warenbauer_t::passagiere, true);
-	create_slot(vm, "mail",      warenbauer_t::post,       true);
+	create_slot(vm, "passenger", goods_manager_t::passagiere, true);
+	create_slot(vm, "mail",      goods_manager_t::post,       true);
 #ifdef DOXYGEN
 	static good_desc_x passenger; ///< descriptor for passenger
 	static good_desc_x mail;      ///< descriptor for mail
@@ -582,17 +582,17 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * @return freight category. 0=Passengers, 1=Mail, 2=None, >=3 anything else
 	 */
-	register_method(vm, &ware_besch_t::get_catg_index, "get_catg_index");
+	register_method(vm, &goods_desc_t::get_catg_index, "get_catg_index");
 
 	/**
 	 * Checks if this good can be interchanged with the other, in terms of
 	 * transportability.
 	 */
-	register_method(vm, &ware_besch_t::is_interchangeable, "is_interchangeable");
+	register_method(vm, &goods_desc_t::is_interchangeable, "is_interchangeable");
 	/**
 	 * @returns weight of one unit of this freight
 	 */
-	register_method(vm, &ware_besch_t::get_weight_per_unit, "get_weight_per_unit"); // in kg
+	register_method(vm, &goods_desc_t::get_weight_per_unit, "get_weight_per_unit"); // in kg
 
 	/**
 	 * Calculates transport revenue per tile and freight unit.

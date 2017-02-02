@@ -252,23 +252,23 @@ map_frame_t::map_frame_t() :
 		int count = 0;
 		viewable_freight_types[count++] = NULL;
 		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("All"), SYSCOL_TEXT) );
-		viewable_freight_types[count++] = warenbauer_t::passagiere;
+		viewable_freight_types[count++] = goods_manager_t::passagiere;
 		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passagiere"), SYSCOL_TEXT) );
-		viewable_freight_types[count++] = warenbauer_t::post;
+		viewable_freight_types[count++] = goods_manager_t::post;
 		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Post"), SYSCOL_TEXT) );
-		viewable_freight_types[count++] = warenbauer_t::nichts; // for all freight ...
+		viewable_freight_types[count++] = goods_manager_t::nichts; // for all freight ...
 		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Fracht"), SYSCOL_TEXT) );
-		for(  int i = 0;  i < warenbauer_t::get_max_catg_index();  i++  ) {
-			const ware_besch_t *freight_type = warenbauer_t::get_info_catg(i);
+		for(  int i = 0;  i < goods_manager_t::get_max_catg_index();  i++  ) {
+			const goods_desc_t *freight_type = goods_manager_t::get_info_catg(i);
 			const int index = freight_type->get_catg_index();
-			if(  index == warenbauer_t::INDEX_NONE  ||  freight_type->get_catg()==0  ) {
+			if(  index == goods_manager_t::INDEX_NONE  ||  freight_type->get_catg()==0  ) {
 				continue;
 			}
 			freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(freight_type->get_catg_name()), SYSCOL_TEXT));
 			viewable_freight_types[count++] = freight_type;
 		}
-		for(  int i=0;  i < warenbauer_t::get_count();  i++  ) {
-			const ware_besch_t *ware = warenbauer_t::get_info(i);
+		for(  int i=0;  i < goods_manager_t::get_count();  i++  ) {
+			const goods_desc_t *ware = goods_manager_t::get_info(i);
 			if(  ware->get_catg() == 0  &&  ware->get_index() > 2  ) {
 				// Special freight: Each good is special
 				viewable_freight_types[count++] = ware;

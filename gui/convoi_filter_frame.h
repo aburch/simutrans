@@ -23,7 +23,7 @@
 
 class convoi_frame_t;
 class player_t;
-class ware_besch_t;
+class goods_desc_t;
 
 class convoi_filter_frame_t : public gui_frame_t , private action_listener_t
 {
@@ -69,10 +69,10 @@ private:
 	class ware_item_t : public button_t
 	{
 	public:
-		const ware_besch_t *ware;
+		const goods_desc_t *ware;
 		convoi_filter_frame_t *parent;
 
-		ware_item_t(convoi_filter_frame_t *parent, const ware_besch_t *ware)
+		ware_item_t(convoi_filter_frame_t *parent, const goods_desc_t *ware)
 		{
 			this->ware = ware;
 			this->parent = parent;
@@ -90,7 +90,7 @@ private:
 	};
 
 	slist_tpl<ware_item_t *>all_ware;
-	static slist_tpl<const ware_besch_t *>active_ware;
+	static slist_tpl<const goods_desc_t *>active_ware;
 
 	static scr_coord filter_buttons_pos[FILTER_BUTTONS];
 	static filter_flag_t filter_buttons_types[FILTER_BUTTONS];

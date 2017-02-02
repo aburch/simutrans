@@ -46,7 +46,7 @@ cursorskin_reader_t cursorskin_reader_t::the_instance;
 symbolskin_reader_t symbolskin_reader_t::the_instance;
 miscimages_reader_t miscimages_reader_t::the_instance;
 
-good_reader_t good_reader_t::the_instance;
+goods_reader_t goods_reader_t::the_instance;
 
 ground_reader_t ground_reader_t::the_instance;
 groundobj_reader_t groundobj_reader_t::the_instance;

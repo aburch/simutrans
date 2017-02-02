@@ -40,7 +40,7 @@ private:
 	// actual route to be built between those
 	fabrik_t *start;
 	fabrik_t *ziel;
-	const ware_besch_t *freight;
+	const goods_desc_t *freight;
 
 	// we will use this vehicle!
 	const vehicle_desc_t *rail_vehicle;
@@ -69,10 +69,10 @@ private:
 		friend class ai_goods_t;
 		fabrik_t *fab1;
 		fabrik_t *fab2;	// koord1 must be always "smaller" than koord2
-		const ware_besch_t *ware;
+		const goods_desc_t *ware;
 
 	public:
-		fabconnection_t( fabrik_t *k1=0, fabrik_t *k2=0, const ware_besch_t *w=0 ) : fab1(k1), fab2(k2), ware(w) {}
+		fabconnection_t( fabrik_t *k1=0, fabrik_t *k2=0, const goods_desc_t *w=0 ) : fab1(k1), fab2(k2), ware(w) {}
 		void rdwr( loadsave_t *file );
 
 		bool operator != (const fabconnection_t & k) { return fab1 != k.fab1 || fab2 != k.fab2 || ware != k.ware; }
@@ -83,7 +83,7 @@ private:
 	slist_tpl<fabconnection_t*> forbidden_connections;
 
 	// return true, if this a route to avoid (i.e. we did a construction without sucess here ...)
-	bool is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const ware_besch_t *w ) const;
+	bool is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const goods_desc_t *w ) const;
 
 	/* recursive lookup of a factory tree:
 	 * sets start and ziel to the next needed supplier

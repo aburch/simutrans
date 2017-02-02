@@ -57,7 +57,7 @@ cursorskin_writer_t cursorskin_writer_t::the_instance;
 symbolskin_writer_t symbolskin_writer_t::the_instance;
 miscimages_writer_t miscimages_writer_t::the_instance;
 
-good_writer_t good_writer_t::the_instance;
+goods_writer_t goods_writer_t::the_instance;
 
 ground_writer_t ground_writer_t::the_instance;
 

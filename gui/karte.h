@@ -17,7 +17,7 @@ class stadt_t;
 class player_t;
 class schedule_t;
 class loadsave_t;
-class ware_besch_t;
+class goods_desc_t;
 
 
 #define MAX_SEVERITY_COLORS 10
@@ -169,7 +169,7 @@ public:
 
 	int player_showed_on_map;
 	int transport_type_showed_on_map;
-	const ware_besch_t *freight_type_group_index_showed_on_map;
+	const goods_desc_t *freight_type_group_index_showed_on_map;
 
 	/**
 	 * returns a color based on an amount (high amount/scale -> color shifts from green to red)

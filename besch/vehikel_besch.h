@@ -103,7 +103,7 @@ public:
 		topspeed = speed;
 	}
 
-	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(2); }
+	goods_desc_t const* get_ware() const { return get_child<goods_desc_t>(2); }
 
 	skin_besch_t const* get_smoke() const { return get_child<skin_besch_t>(3); }
 
@@ -116,7 +116,7 @@ public:
 	// beware, there are three class of vehicles
 	// vehicles with and without freight images, and vehicles with different freight images
 	// they can have 4 or 8 directions ...
-	image_id get_image_id(ribi_t::dir dir, const ware_besch_t *ware) const
+	image_id get_image_id(ribi_t::dir dir, const goods_desc_t *ware) const
 	{
 		const image_t *image=0;
 		const image_list_t *list=0;
@@ -127,7 +127,7 @@ public:
 			sint8 ware_index=0; // freight images: if not found use first freight
 
 			for( sint8 i=0;  i<freight_image_type;  i++  ) {
-				if (ware == get_child<ware_besch_t>(6 + trailer_count + leader_count + i)) {
+				if (ware == get_child<goods_desc_t>(6 + trailer_count + leader_count + i)) {
 					ware_index = i;
 					break;
 				}

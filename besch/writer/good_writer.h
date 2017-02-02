@@ -6,11 +6,11 @@
 #include "../objversion.h"
 
 
-class good_writer_t : public obj_writer_t {
+class goods_writer_t : public obj_writer_t {
 	private:
-		static good_writer_t the_instance;
+		static goods_writer_t the_instance;
 
-		good_writer_t() { register_writer(true); }
+		goods_writer_t() { register_writer(true); }
 
 	protected:
 		virtual std::string get_node_name(FILE* fp) const { return name_from_next_node(fp); }

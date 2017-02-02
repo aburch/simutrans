@@ -1255,11 +1255,11 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	snowline = sets->get_winter_snowline() + grundwasser;
 
 	if(sets->get_beginner_mode()) {
-		warenbauer_t::set_multiplier(settings.get_beginner_price_factor());
+		goods_manager_t::set_multiplier(settings.get_beginner_price_factor());
 		settings.set_just_in_time( 0 );
 	}
 	else {
-		warenbauer_t::set_multiplier( 1000 );
+		goods_manager_t::set_multiplier( 1000 );
 	}
 
 	recalc_season_snowline(false);
@@ -2012,7 +2012,7 @@ karte_t::karte_t() :
 	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL );;
 
 	// standard prices
-	warenbauer_t::set_multiplier( 1000 );
+	goods_manager_t::set_multiplier( 1000 );
 
 	zeiger = 0;
 	plan = 0;
@@ -5134,10 +5134,10 @@ void karte_t::load(loadsave_t *file)
 		}
 	}
 	if (settings.get_beginner_mode()) {
-		warenbauer_t::set_multiplier(settings.get_beginner_price_factor());
+		goods_manager_t::set_multiplier(settings.get_beginner_price_factor());
 	}
 	else {
-		warenbauer_t::set_multiplier( 1000 );
+		goods_manager_t::set_multiplier( 1000 );
 	}
 
 	grundwasser = (sint8)(settings.get_grundwasser());
@@ -6812,7 +6812,7 @@ void karte_t::network_disconnect()
 }
 
 
-static bool sort_ware_by_name(const ware_besch_t* a, const ware_besch_t* b)
+static bool sort_ware_by_name(const goods_desc_t* a, const goods_desc_t* b)
 {
 	int diff = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));
 	return diff < 0;
@@ -6820,7 +6820,7 @@ static bool sort_ware_by_name(const ware_besch_t* a, const ware_besch_t* b)
 
 
 // Returns a list of goods produced by factories that exist in current game
-const vector_tpl<const ware_besch_t*> &karte_t::get_goods_list()
+const vector_tpl<const goods_desc_t*> &karte_t::get_goods_list()
 {
 	if (goods_in_game.empty()) {
 		// Goods list needs to be rebuilt
@@ -6831,14 +6831,14 @@ const vector_tpl<const ware_besch_t*> &karte_t::get_goods_list()
 		}
 
 		FOR(slist_tpl<fabrik_t*>, const factory, get_fab_list()) {
-			slist_tpl<ware_besch_t const*>* const produced_goods = factory->get_produced_goods();
-			FOR(slist_tpl<ware_besch_t const*>, const good, *produced_goods) {
+			slist_tpl<goods_desc_t const*>* const produced_goods = factory->get_produced_goods();
+			FOR(slist_tpl<goods_desc_t const*>, const good, *produced_goods) {
 				goods_in_game.insert_unique_ordered(good, sort_ware_by_name);
 			}
 			delete produced_goods;
 		}
-		goods_in_game.insert_at(0, warenbauer_t::passagiere);
-		goods_in_game.insert_at(1, warenbauer_t::post);
+		goods_in_game.insert_at(0, goods_manager_t::passagiere);
+		goods_in_game.insert_at(1, goods_manager_t::post);
 	}
 
 	return goods_in_game;

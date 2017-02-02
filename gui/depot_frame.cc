@@ -600,13 +600,13 @@ void depot_frame_t::add_to_vehicle_list(const vehicle_desc_t *info)
 	// prissi: and retirement date
 
 	// Check if vehicle should be filtered
-	const ware_besch_t *freight = info->get_ware();
+	const goods_desc_t *freight = info->get_ware();
 	// Only filter when required and never filter engines
 	if (depot->selected_filter > 0 && info->get_capacity() > 0) {
 		if (depot->selected_filter == VEHICLE_FILTER_RELEVANT) {
 			if(freight->get_catg_index() >= 3) {
 				bool found = false;
-				FOR(vector_tpl<ware_besch_t const*>, const i, welt->get_goods_list()) {
+				FOR(vector_tpl<goods_desc_t const*>, const i, welt->get_goods_list()) {
 					if (freight->get_catg_index() == i->get_catg_index()) {
 						found = true;
 						break;
@@ -621,7 +621,7 @@ void depot_frame_t::add_to_vehicle_list(const vehicle_desc_t *info)
 			// Filter on specific selected good
 			uint32 goods_index = depot->selected_filter - VEHICLE_FILTER_GOODS_OFFSET;
 			if (goods_index < welt->get_goods_list().get_count()) {
-				const ware_besch_t *selected_good = welt->get_goods_list()[goods_index];
+				const goods_desc_t *selected_good = welt->get_goods_list()[goods_index];
 				if (freight->get_catg_index() != selected_good->get_catg_index()) {
 					return; // This vehicle can't transport the selected good
 				}
@@ -631,11 +631,11 @@ void depot_frame_t::add_to_vehicle_list(const vehicle_desc_t *info)
 
 	gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(info->get_name(), info->get_base_image());
 
-	if(  info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)  ) {
+	if(  info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_ware()==goods_manager_t::passagiere  ||  info->get_ware()==goods_manager_t::post)  ) {
 		electrics_vec.append(img_data);
 	}
 	// since they come "pre-sorted" for the vehikelbauer, we have to do nothing to keep them sorted
-	else if(info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post) {
+	else if(info->get_ware()==goods_manager_t::passagiere  ||  info->get_ware()==goods_manager_t::post) {
 		pas_vec.append(img_data);
 	}
 	else if(info->get_power() > 0  ||  info->get_capacity()==0) {
@@ -938,7 +938,7 @@ void depot_frame_t::update_data()
 	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), SYSCOL_TEXT));
 	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Relevant"), SYSCOL_TEXT));
 
-	FOR(vector_tpl<ware_besch_t const*>, const i, welt->get_goods_list()) {
+	FOR(vector_tpl<goods_desc_t const*>, const i, welt->get_goods_list()) {
 		vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(i->get_name()), SYSCOL_TEXT));
 	}
 
@@ -1317,8 +1317,8 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 				uint32 max_weight = 0;
 				uint32 min_weight = 100000;
 				bool sel_found = false;
-				for(  uint32 j=0;  j<warenbauer_t::get_count();  j++  ) {
-					const ware_besch_t *ware = warenbauer_t::get_info(j);
+				for(  uint32 j=0;  j<goods_manager_t::get_count();  j++  ) {
+					const goods_desc_t *ware = goods_manager_t::get_info(j);
 
 					if(  desc->get_ware()->get_catg_index() == ware->get_catg_index()  ) {
 						max_weight = max(max_weight, (uint32)ware->get_weight_per_unit());
@@ -1326,7 +1326,7 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 
 						// find number of goods in in this category. TODO: gotta be a better way...
 						uint8 catg_count = 0;
-						FOR(vector_tpl<ware_besch_t const*>, const i, welt->get_goods_list()) {
+						FOR(vector_tpl<goods_desc_t const*>, const i, welt->get_goods_list()) {
 							if(  ware->get_catg_index() == i->get_catg_index()  ) {
 								catg_count++;
 							}
@@ -1348,13 +1348,13 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 				total_max_weight += desc->get_weight() + max_weight * desc->get_capacity();
 				total_min_weight += desc->get_weight() + min_weight * desc->get_capacity();
 
-				const ware_besch_t* const ware = desc->get_ware();
+				const goods_desc_t* const ware = desc->get_ware();
 				switch(  ware->get_catg_index()  ) {
-					case warenbauer_t::INDEX_PAS: {
+					case goods_manager_t::INDEX_PAS: {
 						total_pax += desc->get_capacity();
 						break;
 					}
-					case warenbauer_t::INDEX_MAIL: {
+					case goods_manager_t::INDEX_MAIL: {
 						total_mail += desc->get_capacity();
 						break;
 					}

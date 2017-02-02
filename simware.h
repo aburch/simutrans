@@ -5,18 +5,18 @@
 #include "dataobj/koord.h"
 #include "besch/ware_besch.h"
 
-class warenbauer_t;
+class goods_manager_t;
 class karte_t;
 class player_t;
 
 /** Class to handle goods packets (and their destinations) */
 class ware_t
 {
-	friend class warenbauer_t;
+	friend class goods_manager_t;
 
 private:
 	/// private lookup table to speedup
-	static const ware_besch_t *index_to_desc[256];
+	static const goods_desc_t *index_to_desc[256];
 
 public:
 	/// type of good, used as index into index_to_besch
@@ -67,7 +67,7 @@ public:
 	void set_zielpos(const koord zielpos) { this->zielpos = zielpos; }
 
 	ware_t();
-	ware_t(const ware_besch_t *typ);
+	ware_t(const goods_desc_t *typ);
 	ware_t(loadsave_t *file);
 
 	/**
@@ -79,8 +79,8 @@ public:
 	uint8 get_catg() const { return get_desc()->get_catg(); }
 	uint8 get_index() const { return index; }
 
-	const ware_besch_t* get_desc() const { return index_to_desc[index]; }
-	void set_desc(const ware_besch_t* type);
+	const goods_desc_t* get_desc() const { return index_to_desc[index]; }
+	void set_desc(const goods_desc_t* type);
 
 	void rdwr(loadsave_t *file);
 
@@ -121,7 +121,7 @@ public:
 	 * @param wt waytype of vehicle
 	 * @param speedkmh actual achieved speed in km/h
 	 */
-	static sint64 calc_revenue(const ware_besch_t* desc, waytype_t wt, sint32 speedkmh);
+	static sint64 calc_revenue(const goods_desc_t* desc, waytype_t wt, sint32 speedkmh);
 };
 
 #endif

@@ -23,7 +23,7 @@ static const way_desc_t *my_get_desc(const char *name)
 
 implement_besch_param(tree_desc_t, "tree_desc_x", &baum_t::find_tree);
 implement_besch_param(building_desc_t, "building_desc_x", &hausbauer_t::get_desc);
-implement_besch_param(ware_besch_t, "good_desc_x", (const ware_besch_t* (*)(const char*))(&warenbauer_t::get_info) );
+implement_besch_param(goods_desc_t, "good_desc_x", (const goods_desc_t* (*)(const char*))(&goods_manager_t::get_info) );
 implement_besch_param(way_desc_t, "way_desc_x", &my_get_desc);
 implement_besch_param(vehicle_desc_t, "vehicle_desc_x", &vehicle_builder_t::get_info);
 implement_besch_param(tunnel_desc_t, "tunnel_desc_x", &tunnel_builder_t::get_desc);

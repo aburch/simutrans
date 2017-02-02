@@ -291,7 +291,7 @@ slist_tpl<vehicle_desc_t const*> const & vehicle_builder_t::get_info(waytype_t c
  * tries to get best with but adds a little random action
  * @author prissi
  */
-const vehicle_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uint16 month_now, const uint32 target_weight, const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric, bool not_obsolete )
+const vehicle_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uint16 month_now, const uint32 target_weight, const sint32 target_speed, const goods_desc_t * target_freight, bool include_electric, bool not_obsolete )
 {
 	const vehicle_desc_t *desc = NULL;
 	sint32 besch_index = -100000;
@@ -403,7 +403,7 @@ const vehicle_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
  * if prev_desc==NULL, then the convoi must be able to lead a convoi
  * @author prissi
  */
-const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const sint32 target_speed, const ware_besch_t * target_freight, bool not_obsolete, const vehicle_desc_t *prev_veh, bool is_last )
+const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const sint32 target_speed, const goods_desc_t * target_freight, bool not_obsolete, const vehicle_desc_t *prev_veh, bool is_last )
 {
 	const vehicle_desc_t *desc = NULL;
 	sint32 besch_index = -100000;

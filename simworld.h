@@ -47,7 +47,7 @@ class scenario_t;
 class message_t;
 class way_desc_t;
 class network_world_command_t;
-class ware_besch_t;
+class goods_desc_t;
 class memory_rw_t;
 class viewport_t;
 class records_t;
@@ -282,7 +282,7 @@ private:
 	/**
 	 * Stores a list of goods produced by factories currently in the game;
 	 */
-	vector_tpl<const ware_besch_t*> goods_in_game;
+	vector_tpl<const goods_desc_t*> goods_in_game;
 
 	weighted_vector_tpl<gebaeude_t *> ausflugsziele;
 
@@ -1525,7 +1525,7 @@ public:
 	/**
 	 * Returns a list of goods produced by factories that exist in current game.
 	 */
-	const vector_tpl<const ware_besch_t*> &get_goods_list();
+	const vector_tpl<const goods_desc_t*> &get_goods_list();
 
 	/**
 	 * Seaches and returns the closest city
