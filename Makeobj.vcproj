@@ -171,7 +171,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\besch\bild_besch.cc"
+				RelativePath=".\besch\image.cc"
 				>
 			</File>
 			<File
@@ -333,11 +333,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\besch\baum_besch.h"
+				RelativePath=".\besch\tree_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\bild_besch.h"
+				RelativePath=".\besch\image.h"
 				>
 			</File>
 			<File
@@ -353,7 +353,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\bruecke_besch.h"
+				RelativePath=".\besch\bridge_desc.h"
 				>
 			</File>
 			<File
@@ -373,7 +373,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\fabrik_besch.h"
+				RelativePath=".\besch\factory_desc.h"
 				>
 			</File>
 			<File
@@ -385,7 +385,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\fussgaenger_besch.h"
+				RelativePath=".\besch\pedestrian_desc.h"
 				>
 			</File>
 			<File
@@ -405,7 +405,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\groundobj_besch.h"
+				RelativePath=".\besch\groundobj_desc.h"
 				>
 			</File>
 			<File
@@ -413,11 +413,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\grund_besch.h"
+				RelativePath=".\besch\ground_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\haus_besch.h"
+				RelativePath=".\besch\building_desc.h"
 				>
 			</File>
 			<File
@@ -437,7 +437,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\kreuzung_besch.h"
+				RelativePath=".\besch\crossing_desc.h"
 				>
 			</File>
 			<File
@@ -445,11 +445,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\obj_besch.h"
+				RelativePath=".\besch\obj_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\obj_besch_std_name.h"
+				RelativePath=".\besch\obj_desc_std_name.h"
 				>
 			</File>
 			<File
@@ -477,7 +477,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\roadsign_besch.h"
+				RelativePath=".\besch\roadsign_desc.h"
 				>
 			</File>
 			<File
@@ -509,7 +509,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\skin_besch.h"
+				RelativePath=".\besch\skin_desc.h"
 				>
 			</File>
 			<File
@@ -517,7 +517,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\sound_besch.h"
+				RelativePath=".\besch\sound_desc.h"
 				>
 			</File>
 			<File
@@ -529,7 +529,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\stadtauto_besch.h"
+				RelativePath=".\besch\citycar_desc.h"
 				>
 			</File>
 			<File
@@ -537,7 +537,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\text_besch.h"
+				RelativePath=".\besch\text_desc.h"
 				>
 			</File>
 			<File
@@ -549,7 +549,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\tunnel_besch.h"
+				RelativePath=".\besch\tunnel_desc.h"
 				>
 			</File>
 			<File
@@ -561,15 +561,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\vehikel_besch.h"
+				RelativePath=".\besch\vehicle_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\ware_besch.h"
+				RelativePath=".\besch\goods_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\way_obj_besch.h"
+				RelativePath=".\besch\way_obj_desc.h"
 				>
 			</File>
 			<File
@@ -581,11 +581,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\weg_besch.h"
+				RelativePath=".\besch\way_desc.h"
 				>
 			</File>
 			<File
-				RelativePath=".\besch\xref_besch.h"
+				RelativePath=".\besch\xref_desc.h"
 				>
 			</File>
 			<File
