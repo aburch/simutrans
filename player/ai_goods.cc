@@ -1392,7 +1392,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 		// what freight?
 		const char *s = freight ? freight->get_name() : NULL;
 		file->rdwr_str( s );
-		// vehicles besch
+		// vehicles desc
 		s = rail_engine ? rail_engine->get_name() : NULL;
 		file->rdwr_str( s );
 		s = rail_vehicle ? rail_vehicle->get_name() : NULL;

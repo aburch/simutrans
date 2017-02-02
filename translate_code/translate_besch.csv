@@ -209,3 +209,5 @@ besch_vorgaenger,desc_leader
 besch_nachfolger,desc_trailer
 Modulbeschreibung,Description
 besch_,desc_
+besch\\\\,descriptor\\\\
+\\<besch\\>,desc

@@ -86,8 +86,8 @@ obj_desc_t *factory_field_group_reader_t::read_node(FILE *fp, obj_node_info_t &n
 	}
 	else if(  v==0x8001  ) {
 		/* Knightly :
-		 *   leave shared, common data in field besch
-		 *   field class specific data goes to field class besch
+		 *   leave shared, common data in field desc
+		 *   field class specific data goes to field class desc
 		 */
 		field_class_desc_t *const field_class_desc = new field_class_desc_t();
 
@@ -120,7 +120,7 @@ void factory_field_group_reader_t::register_obj(obj_desc_t *&data)
 {
 	field_group_desc_t *const desc = static_cast<field_group_desc_t *>(data);
 
-	// Knightly : check if we need to continue with the construction of field class besch
+	// Knightly : check if we need to continue with the construction of field class desc
 	if (field_class_desc_t *const field_class_desc = incomplete_field_class_desc) {
 		// we *must* transfer the obj_desc_t array and not just the desc object itself
 		// as xref reader has already logged the address of the array element for xref resolution

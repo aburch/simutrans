@@ -2492,7 +2492,7 @@ waytype_t tool_build_bridge_t::get_waytype() const
 bool tool_build_bridge_t::init( player_t *player )
 {
 	two_click_tool_t::init( player );
-	// now get current besch
+	// now get current desc
 	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
 	if(  desc  &&  !desc->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()  ) {
 		return false;
@@ -2767,7 +2767,7 @@ waytype_t tool_build_tunnel_t::get_waytype() const
 bool tool_build_tunnel_t::init( player_t *player )
 {
 	two_click_tool_t::init( player );
-	// now get current besch
+	// now get current desc
 	const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
 	if(  desc  &&  !desc->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()  ) {
 		return false;
