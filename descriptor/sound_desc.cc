@@ -84,7 +84,7 @@ DBG_MESSAGE("sound_desc_t::init()","assigned system sound %d to sound %s (id=%i)
 		forest_sound = get_sound_id( "forest.wav" );
 		for(  int i=0;  i<MAX_CLIMATES;  i++  ) {
 			char name[64];
-			sprintf( name, "%s.wav", ground_besch_t::get_climate_name_from_bit((climate)i) );
+			sprintf( name, "%s.wav", ground_desc_t::get_climate_name_from_bit((climate)i) );
 			climate_sounds[i] = get_sound_id( name );
 		}
 	}

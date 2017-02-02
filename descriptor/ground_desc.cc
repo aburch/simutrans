@@ -403,12 +403,12 @@ static image_t* create_alpha_tile(const image_t* bild_lightmap, slope_t::type sl
 * the real textures are registered/calculated below
 */
 
-karte_t *ground_besch_t::welt = NULL;
+karte_t *ground_desc_t::welt = NULL;
 
 
 /* convert double to single slopes
  */
-const uint8 ground_besch_t::slopetable[80] =
+const uint8 ground_desc_t::slopetable[80] =
 {
 	0,	1,	0xFF,	2,	3,	0xFF,	0xFF,	0xFF,	0xFF,	4,
 	5, 	0xFF,	6,	7,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,	0xFF,
@@ -434,38 +434,38 @@ uint16 doubleslope_to_imgnr[81];
 
 
 // how many animation stages we got for waves
-uint16 ground_besch_t::water_animation_stages = 1;
-sint16 ground_besch_t::water_depth_levels = 0;
+uint16 ground_desc_t::water_animation_stages = 1;
+sint16 ground_desc_t::water_depth_levels = 0;
 
 // are double_grounds available in this pakset ?
-bool ground_besch_t::double_grounds = true;
+bool ground_desc_t::double_grounds = true;
 
-static const ground_besch_t* boden_texture            = NULL;
-static const ground_besch_t* light_map                = NULL;
-static const ground_besch_t* transition_water_texture = NULL;
-static const ground_besch_t* transition_slope_texture = NULL;
-const ground_besch_t *ground_besch_t::shore = NULL;
-const ground_besch_t *ground_besch_t::fundament = NULL;
-const ground_besch_t *ground_besch_t::slopes = NULL;
-const ground_besch_t *ground_besch_t::fences = NULL;
-const ground_besch_t *ground_besch_t::marker = NULL;
-const ground_besch_t *ground_besch_t::borders = NULL;
-const ground_besch_t *ground_besch_t::sea = NULL;
-const ground_besch_t *ground_besch_t::outside = NULL;
+static const ground_desc_t* boden_texture            = NULL;
+static const ground_desc_t* light_map                = NULL;
+static const ground_desc_t* transition_water_texture = NULL;
+static const ground_desc_t* transition_slope_texture = NULL;
+const ground_desc_t *ground_desc_t::shore = NULL;
+const ground_desc_t *ground_desc_t::fundament = NULL;
+const ground_desc_t *ground_desc_t::slopes = NULL;
+const ground_desc_t *ground_desc_t::fences = NULL;
+const ground_desc_t *ground_desc_t::marker = NULL;
+const ground_desc_t *ground_desc_t::borders = NULL;
+const ground_desc_t *ground_desc_t::sea = NULL;
+const ground_desc_t *ground_desc_t::outside = NULL;
 
-static spezial_obj_tpl<ground_besch_t> const grounds[] = {
-    { &ground_besch_t::shore,    "Shore" },
+static spezial_obj_tpl<ground_desc_t> const grounds[] = {
+    { &ground_desc_t::shore,    "Shore" },
     { &boden_texture,	    "ClimateTexture" },
     { &light_map,	    "LightTexture" },
     { &transition_water_texture,    "ShoreTrans" },
     { &transition_slope_texture,    "SlopeTrans" },
-    { &ground_besch_t::fundament,    "Basement" },
-    { &ground_besch_t::slopes,    "Slopes" },
-    { &ground_besch_t::fences,   "Fence" },
-    { &ground_besch_t::marker,   "Marker" },
-    { &ground_besch_t::borders,   "Borders" },
-    { &ground_besch_t::sea,   "Water" },
-    { &ground_besch_t::outside,   "Outside" },
+    { &ground_desc_t::fundament,    "Basement" },
+    { &ground_desc_t::slopes,    "Slopes" },
+    { &ground_desc_t::fences,   "Fence" },
+    { &ground_desc_t::marker,   "Marker" },
+    { &ground_desc_t::borders,   "Borders" },
+    { &ground_desc_t::sea,   "Water" },
+    { &ground_desc_t::outside,   "Outside" },
     { NULL, NULL }
 };
 
@@ -477,7 +477,7 @@ static const char* const climate_names[MAX_CLIMATES] =
 
 // from this number on there will be all ground images
 // i.e. 15 times slopes + 7
-image_id ground_besch_t::image_offset = IMG_EMPTY;
+image_id ground_desc_t::image_offset = IMG_EMPTY;
 static const uint8 number_of_climates = 7;
 static slist_tpl<image_t *> ground_image_list;
 static image_id climate_image[32], water_image;
@@ -489,11 +489,11 @@ image_id alpha_water_image[totalslopes * 15];
  *      called every time an object is read
  *      the object will be assigned according to its name
  */
-bool ground_besch_t::register_desc(const ground_besch_t *desc)
+bool ground_desc_t::register_desc(const ground_desc_t *desc)
 {
 	if(strcmp("Outside", desc->get_name())==0) {
 		image_t const* const image = desc->get_child<image_array_t>(2)->get_image(0,0);
-		dbg->message("ground_besch_t::register_desc()", "setting raster width to %i", image->get_pic()->w);
+		dbg->message("ground_desc_t::register_desc()", "setting raster width to %i", image->get_pic()->w);
 		display_set_base_raster_width(image->get_pic()->w);
 	}
 	// find out water animation stages
@@ -521,24 +521,24 @@ bool ground_besch_t::register_desc(const ground_besch_t *desc)
  * however, we have to calculate all textures
  * and put them into images
  */
-bool ground_besch_t::successfully_loaded()
+bool ground_desc_t::successfully_loaded()
 {
-	DBG_MESSAGE("ground_besch_t::successfully_loaded()","boden");
+	DBG_MESSAGE("ground_desc_t::successfully_loaded()","boden");
 	return ::successfully_loaded(grounds+1);
 }
 
 
 /* returns the untranslated name of the matching climate
  */
-char const* ground_besch_t::get_climate_name_from_bit(climate n)
+char const* ground_desc_t::get_climate_name_from_bit(climate n)
 {
 	return n<MAX_CLIMATES ? climate_names[n] : NULL;
 }
 
 
-void ground_besch_t::init_ground_textures(karte_t *w)
+void ground_desc_t::init_ground_textures(karte_t *w)
 {
-	ground_besch_t::welt = w;
+	ground_desc_t::welt = w;
 
 	printf("Calculating textures ...");
 
@@ -553,7 +553,7 @@ void ground_besch_t::init_ground_textures(karte_t *w)
 #endif
 
 	// not the wrong tile size?
-	assert(boden_texture->get_image_ptr(0)->get_pic()->w == ground_besch_t::outside->get_image_ptr(0)->get_pic()->w);
+	assert(boden_texture->get_image_ptr(0)->get_pic()->w == ground_desc_t::outside->get_image_ptr(0)->get_pic()->w);
 
 	// create rotations of the mixer
 	image_t *all_rotations_beach[totalslopes]; // water->sand->texture
@@ -926,7 +926,7 @@ void ground_besch_t::init_ground_textures(karte_t *w)
 
 	// from here one the images are generated by us => deletion also by us then
 	image_offset = get_image_count();
-	DBG_MESSAGE("ground_besch_t::init_ground_textures()","image_offset=%d", image_offset );
+	DBG_MESSAGE("ground_desc_t::init_ground_textures()","image_offset=%d", image_offset );
 
 	// water images for water and overlay
 	water_image = image_offset;
@@ -1005,7 +1005,7 @@ void ground_besch_t::init_ground_textures(karte_t *w)
 		delete all_rotations_beach[slope];
 	}
 #endif
-	//dbg->message("ground_besch_t::calc_water_level()", "Last image nr %u", final_tile->get_pic()->imageid);
+	//dbg->message("ground_desc_t::calc_water_level()", "Last image nr %u", final_tile->get_pic()->imageid);
 	printf("done\n");
 }
 
@@ -1018,7 +1018,7 @@ void ground_besch_t::init_ground_textures(karte_t *w)
  * Since not all of the climates are used in their numerical order, we use a
  * private (static table "height_to_texture_climate" for lookup)
  */
-image_id ground_besch_t::get_ground_tile(grund_t *gr)
+image_id ground_desc_t::get_ground_tile(grund_t *gr)
 {
 	slope_t::type slope = gr->get_grund_hang();
 	sint16 height = gr->get_hoehe();
@@ -1040,37 +1040,37 @@ image_id ground_besch_t::get_ground_tile(grund_t *gr)
 }
 
 
-image_id ground_besch_t::get_water_tile(slope_t::type slope)
+image_id ground_desc_t::get_water_tile(slope_t::type slope)
 {
 	return water_image + doubleslope_to_imgnr[slope];
 }
 
 
-image_id ground_besch_t::get_climate_tile(climate cl, slope_t::type slope)
+image_id ground_desc_t::get_climate_tile(climate cl, slope_t::type slope)
 {
 	return climate_image[cl <= 0 ? 0 : cl - 1] + doubleslope_to_imgnr[slope];
 }
 
 
-image_id ground_besch_t::get_snow_tile(slope_t::type slope)
+image_id ground_desc_t::get_snow_tile(slope_t::type slope)
 {
 	return climate_image[number_of_climates] + doubleslope_to_imgnr[slope];
 }
 
 
-image_id ground_besch_t::get_beach_tile(slope_t::type slope, uint8 corners)
+image_id ground_desc_t::get_beach_tile(slope_t::type slope, uint8 corners)
 {
 	return alpha_water_image[slope * 15 + corners - 1];
 }
 
 
-image_id ground_besch_t::get_alpha_tile(slope_t::type slope, uint8 corners)
+image_id ground_desc_t::get_alpha_tile(slope_t::type slope, uint8 corners)
 {
 	return alpha_corners_image[slope * 15 + corners - 1];
 }
 
 
-image_id ground_besch_t::get_alpha_tile(slope_t::type slope)
+image_id ground_desc_t::get_alpha_tile(slope_t::type slope)
 {
 	return alpha_image[slope];
 }

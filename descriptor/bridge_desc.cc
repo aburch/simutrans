@@ -40,7 +40,7 @@ bridge_desc_t::img_t bridge_desc_t::get_pillar(ribi_t::ribi ribi)
 bridge_desc_t::img_t bridge_desc_t::get_start(slope_t::type slope) const
 {
 	// if double heights enabled and desc has 2 height images present then use these
-	if(  ground_besch_t::double_grounds  &&  get_background(N_Start2, 0) != IMG_EMPTY  ) {
+	if(  ground_desc_t::double_grounds  &&  get_background(N_Start2, 0) != IMG_EMPTY  ) {
 		switch(  slope  ) {
 			case slope_t::north: return N_Start;
 			case slope_t::south: return S_Start;
@@ -73,7 +73,7 @@ bridge_desc_t::img_t bridge_desc_t::get_start(slope_t::type slope) const
  */
 bridge_desc_t::img_t bridge_desc_t::get_ramp(slope_t::type slope) const
 {
-	if(  ground_besch_t::double_grounds  &&  has_double_ramp()  ) {
+	if(  ground_desc_t::double_grounds  &&  has_double_ramp()  ) {
 		switch(  slope  ) {
 			case slope_t::north: return S_Ramp;
 			case slope_t::south: return N_Ramp;

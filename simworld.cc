@@ -2043,7 +2043,7 @@ karte_t::karte_t() :
 	records = new records_t(this->msg);
 
 	// generate ground textures once
-	ground_besch_t::init_ground_textures(this);
+	ground_desc_t::init_ground_textures(this);
 
 	// set single instance
 	world = this;
@@ -2325,7 +2325,7 @@ void karte_t::prepare_raise(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw
 	const sint8 hneu = min( min( hn_sw, hn_se ), min( hn_ne, hn_nw ) );
 	const sint8 hmaxneu = max( max( hn_sw, hn_se ), max( hn_ne, hn_nw ) );
 
-	const uint8 max_hdiff = ground_besch_t::double_grounds ? 2 : 1;
+	const uint8 max_hdiff = ground_desc_t::double_grounds ? 2 : 1;
 
 	bool ok = (hmaxneu - hneu <= max_hdiff); // may fail on water tiles since lookup_hgt might be modified from previous raise_to calls
 	if(  !ok  &&  !gr->ist_wasser()  ) {
@@ -2399,7 +2399,7 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 	const sint8 hneu = min( min( hn_sw, hn_se ), min( hn_ne, hn_nw ) );
 	const sint8 hmaxneu = max( max( hn_sw, hn_se ), max( hn_ne, hn_nw ) );
 
-	const uint8 max_hdiff = ground_besch_t::double_grounds ? 2 : 1;
+	const uint8 max_hdiff = ground_desc_t::double_grounds ? 2 : 1;
 	const sint8 disp_hneu = max( hneu, water_hgt );
 	const sint8 disp_hn_sw = max( hn_sw, water_hgt );
 	const sint8 disp_hn_se = max( hn_se, water_hgt );
@@ -2456,7 +2456,7 @@ void karte_t::raise_grid_to(sint16 x, sint16 y, sint8 h)
 		if(  grid_hgts[offset] < h  ) {
 			grid_hgts[offset] = h;
 
-			const sint8 hh = h - (ground_besch_t::double_grounds ? 2 : 1);
+			const sint8 hh = h - (ground_desc_t::double_grounds ? 2 : 1);
 
 			// set new height of neighbor grid points
 			raise_grid_to(x-1, y-1, hh);
@@ -2487,8 +2487,8 @@ int karte_t::grid_raise(const player_t *player, koord k, const char*&err)
 
 		sint8 hsw, hse, hne, hnw;
 		if(  !gr->ist_wasser()  ) {
-			const sint8 f = ground_besch_t::double_grounds ?  2 : 1;
-			const sint8 o = ground_besch_t::double_grounds ?  1 : 0;
+			const sint8 f = ground_desc_t::double_grounds ?  2 : 1;
+			const sint8 o = ground_desc_t::double_grounds ?  1 : 0;
 
 			hsw = hgt - o + scorner_sw( corner_to_raise ) * f;
 			hse = hgt - o + scorner_se( corner_to_raise ) * f;
@@ -2532,7 +2532,7 @@ void karte_t::prepare_lower(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw
 	const sint8 h0_ne = gr->ist_wasser() ? min( water_hgt, lookup_hgt_nocheck(x,y+1) )   : h0 + corner_ne( gr->get_grund_hang() );
 	const sint8 h0_nw = gr->ist_wasser() ? min( water_hgt, lookup_hgt_nocheck(x,y) )     : h0 + corner_nw( gr->get_grund_hang() );
 
-	const uint8 max_hdiff = ground_besch_t::double_grounds ?  2 : 1;
+	const uint8 max_hdiff = ground_desc_t::double_grounds ?  2 : 1;
 
 	// sw
 	if (h0_sw > hsw) {
@@ -2813,8 +2813,8 @@ int karte_t::grid_lower(const player_t *player, koord k, const char*&err)
 		const sint16 y = gr->get_pos().y;
 		const sint8 hgt = gr->get_hoehe(corner_to_lower);
 
-		const sint8 f = ground_besch_t::double_grounds ?  2 : 1;
-		const sint8 o = ground_besch_t::double_grounds ?  1 : 0;
+		const sint8 f = ground_desc_t::double_grounds ?  2 : 1;
+		const sint8 o = ground_desc_t::double_grounds ?  1 : 0;
 		const sint8 hsw = hgt + o - scorner_sw( corner_to_lower ) * f;
 		const sint8 hse = hgt + o - scorner_se( corner_to_lower ) * f;
 		const sint8 hne = hgt + o - scorner_ne( corner_to_lower ) * f;
@@ -4328,7 +4328,7 @@ uint8 karte_t::recalc_natural_slope( const koord k, sint8 &new_height ) const
 		return slope_t::flat;
 	}
 	else {
-		const sint8 max_hdiff = ground_besch_t::double_grounds ? 2 : 1;
+		const sint8 max_hdiff = ground_desc_t::double_grounds ? 2 : 1;
 
 		sint8 corner_height[4];
 
@@ -6731,7 +6731,7 @@ void karte_t::announce_server(int status)
 			// Pakset version
 			buf.append( "&pak=" );
 			// Announce pak set, ideally get this from the copyright field of ground.Outside.pak
-			char const* const copyright = ground_besch_t::outside->get_copyright();
+			char const* const copyright = ground_desc_t::outside->get_copyright();
 			if (copyright && STRICMP("none", copyright) != 0) {
 				// construct from outside object copyright string
 				encode_URI( buf, copyright );

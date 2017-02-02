@@ -123,14 +123,14 @@ DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbo
 
 		loadingscreen_t ls( message, max, true );
 
-		if(  ground_besch_t::outside==NULL  ) {
+		if(  ground_desc_t::outside==NULL  ) {
 			// defining the pak tile witdh ....
 			read_file((name+"ground.Outside.pak").c_str());
-			if(ground_besch_t::outside==NULL) {
+			if(ground_desc_t::outside==NULL) {
 				dbg->warning("obj_reader_t::load()","ground.Outside.pak not found, cannot guess tile size! (driving on left will not work!)");
 			}
 			else {
-				if (char const* const copyright = ground_besch_t::outside->get_copyright()) {
+				if (char const* const copyright = ground_desc_t::outside->get_copyright()) {
 					ls.set_info(copyright);
 				}
 			}

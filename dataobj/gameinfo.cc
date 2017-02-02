@@ -92,7 +92,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	file_name = s.get_filename();
 
 	// comment currently not used
-	char const* const copyright = ground_besch_t::outside->get_copyright();
+	char const* const copyright = ground_desc_t::outside->get_copyright();
 	if (copyright && STRICMP("none", copyright) != 0) {
 		// construct from outside object copyright string
 		pak_name = copyright;

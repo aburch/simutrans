@@ -23,7 +23,7 @@ bool wasser_t::change_stage = false;
 void wasser_t::prepare_for_refresh()
 {
 	if(!welt->is_fast_forward()  &&  env_t::water_animation>0) {
-		int new_stage = (welt->get_zeit_ms() / env_t::water_animation) % ground_besch_t::water_animation_stages;
+		int new_stage = (welt->get_zeit_ms() / env_t::water_animation) % ground_desc_t::water_animation_stages;
 		wasser_t::change_stage = (new_stage != stage);
 		wasser_t::stage = new_stage;
 	}
@@ -47,7 +47,7 @@ void wasser_t::calc_image_internal(const bool calc_only_snowline_change)
 			set_image(IMG_EMPTY);
 		}
 		else {
-			set_image( min( height - zpos, ground_besch_t::water_depth_levels ) /*ground_besch_t::get_ground_tile(0,zpos)*/ );
+			set_image( min( height - zpos, ground_desc_t::water_depth_levels ) /*ground_desc_t::get_ground_tile(0,zpos)*/ );
 		}
 
 		// test tiles to north, south, east and west and add to ribi if water

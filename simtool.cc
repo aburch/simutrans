@@ -1030,7 +1030,7 @@ const char *tool_restoreslope_t::check_pos( player_t *, koord3d pos)
 
 const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos, int new_slope )
 {
-	if(  !ground_besch_t::double_grounds  ) {
+	if(  !ground_desc_t::double_grounds  ) {
 		// translate old single slope parameter to new double slope
 		if(  0 < new_slope  &&  new_slope < ALL_UP_SLOPE_SINGLE  ) {
 			new_slope = scorner_sw(new_slope) + scorner_se(new_slope) * 3 + scorner_ne(new_slope) * 9 + scorner_nw(new_slope) * 27;
@@ -1057,7 +1057,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 
 		sint8 water_hgt = welt->get_water_hgt( k );
 
-		const uint8 max_hdiff = ground_besch_t::double_grounds ?  2 : 1;
+		const uint8 max_hdiff = ground_desc_t::double_grounds ?  2 : 1;
 
 		// at least a pixel away from the border?
 		if(  pos.z < water_hgt  &&  !gr1->ist_tunnel()  ) {
@@ -1732,7 +1732,7 @@ const char *tool_change_city_size_t::work( player_t *, koord3d pos )
 const char *tool_set_climate_t::get_tooltip(player_t const*) const
 {
 	char temp[1024];
-	sprintf( temp, translator::translate( "Set tile climate" ), translator::translate( ground_besch_t::get_climate_name_from_bit((climate)atoi(default_param)) ) );
+	sprintf( temp, translator::translate( "Set tile climate" ), translator::translate( ground_desc_t::get_climate_name_from_bit((climate)atoi(default_param)) ) );
 	return tooltip_with_price( temp,  welt->get_settings().cst_alter_climate );
 }
 
@@ -1761,8 +1761,8 @@ void tool_set_climate_t::mark_tiles(player_t *, const koord3d &start, const koor
 			const uint8 weg_hang = gr->get_weg_hang();
 			const uint8 hang = max( corner_sw(grund_hang), corner_sw(weg_hang) ) + 3 * max( corner_se(grund_hang), corner_se(weg_hang) ) + 9 * max( corner_ne(grund_hang), corner_ne(weg_hang) ) + 27 * max( corner_nw(grund_hang), corner_nw(weg_hang) );
 			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
-			marker->set_foreground_image( ground_besch_t::marker->get_image( grund_hang % 27 ) );
-			marker->set_image( ground_besch_t::marker->get_image( back_hang ) );
+			marker->set_foreground_image( ground_desc_t::marker->get_image( grund_hang % 27 ) );
+			marker->set_image( ground_desc_t::marker->get_image( back_hang ) );
 
 			marker->mark_image_dirty( marker->get_image(), 0 );
 			gr->obj_add( marker );
@@ -5808,8 +5808,8 @@ void tool_forest_t::mark_tiles(  player_t *, const koord3d &start, const koord3d
 					9 * max( corner_ne(grund_hang), corner_ne(weg_hang)) +
 					27 * max( corner_nw(grund_hang), corner_nw(weg_hang));
 			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
-			marker->set_foreground_image( ground_besch_t::marker->get_image( grund_hang % 27 ) );
-			marker->set_image( ground_besch_t::marker->get_image( back_hang ) );
+			marker->set_foreground_image( ground_desc_t::marker->get_image( grund_hang % 27 ) );
+			marker->set_image( ground_desc_t::marker->get_image( back_hang ) );
 
 			marker->mark_image_dirty( marker->get_image(), 0 );
 			gr->obj_add( marker );

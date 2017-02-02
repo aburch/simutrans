@@ -42,7 +42,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	sets = sets_par;
 
 	// Water level
-	water_level.init( sets->get_grundwasser(), -10*(ground_besch_t::double_grounds?2:1), 0, gui_numberinput_t::AUTOLINEAR, false );
+	water_level.init( sets->get_grundwasser(), -10*(ground_desc_t::double_grounds?2:1), 0, gui_numberinput_t::AUTOLINEAR, false );
 	water_level.set_pos( scr_coord(L_COLUMN_EDIT,cursor.y) );
 	water_level.set_size( scr_size(edit_width, D_EDIT_HEIGHT) );
 	water_level.add_listener( this );
@@ -120,7 +120,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 		if(sets->get_climate_borders()[i+1]>arctic) {
 			arctic = sets->get_climate_borders()[i+1];
 		}
-		numberinput_lbl[labelnr].init( ground_besch_t::get_climate_name_from_bit((climate)(i+1)), cursor );
+		numberinput_lbl[labelnr].init( ground_desc_t::get_climate_name_from_bit((climate)(i+1)), cursor );
 		numberinput_lbl[labelnr].set_width(label_width);
 		numberinput_lbl[labelnr].align_to(&climate_borders_ui[i],ALIGN_CENTER_V);
 		add_component( numberinput_lbl+labelnr );
