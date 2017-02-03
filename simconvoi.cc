@@ -2897,6 +2897,10 @@ station_tile_search_ready: ;
 	bool changed_loading_level = false;
 	uint32 time = WTT_LOADING;	// min time for loading/unloading
 	sint64 gewinn = 0;
+
+	// cargo type of previous vehicle that could not be filled
+	const goods_desc_t* cargo_type_prev = NULL;
+
 	for(unsigned i=0; i<vehicles_loading; i++) {
 		vehicle_t* v = fahr[i];
 
@@ -2910,10 +2914,19 @@ station_tile_search_ready: ;
 		}
 
 		uint16 amount = v->unload_cargo(halt);
-		if(  !no_load  ) {
-			// load
-			amount += v->load_cargo(halt, destination_halts);
+
+		if(  !no_load  &&  v->get_total_cargo() < v->get_cargo_max()) {
+			// load if: unloaded something (might go back) or previous non-filled car requested different cargo type
+			if (amount>0  ||  cargo_type_prev==NULL  ||  !cargo_type_prev->is_interchangeable(v->get_cargo_type())) {
+				// load
+				amount += v->load_cargo(halt, destination_halts);
+			}
+			if (v->get_total_cargo() < v->get_cargo_max()) {
+				// not full
+				cargo_type_prev = v->get_cargo_type();
+			}
 		}
+
 		if(  amount  ) {
 			time = max( time, (amount*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );
 			v->calc_image();
