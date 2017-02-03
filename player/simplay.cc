@@ -44,6 +44,7 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/schedule.h"
 
 #include "../obj/bruecke.h"
 #include "../obj/gebaeude.h"
@@ -957,7 +958,17 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stucked!", cnv->get_n
 		
 		case convoi_t::OUT_OF_RANGE:
 			{
-				const uint16 distance = (shortest_distance(cnv->get_pos().get_2d(), ziel.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
+				koord destination = ziel.get_2d();
+				while(!haltestelle_t::get_halt(destination, this).is_bound() && (welt->lookup_kartenboden(destination) == NULL || !welt->lookup_kartenboden(destination)->get_depot()))
+				{
+					// Make sure that we are not incorrectly calculating the distance to a waypoint.
+					schedule_t* const sch = cnv->get_schedule();
+					bool rev = cnv->is_reversed();
+					uint8 index = sch->get_aktuell();
+					sch->increment_index(&index, &rev);
+					destination = sch->entries.get_element(index).pos.get_2d(); 
+				}
+				const uint16 distance = (shortest_distance(cnv->get_pos().get_2d(), destination) * welt->get_settings().get_meters_per_tile()) / 1000u;
 				const uint16 excess = distance - cnv->get_min_range();
 				DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s cannot travel %ikm to (%i,%i) because it would exceed its range of %i by %ikm", cnv->get_name(), distance, ziel.x, ziel.y, cnv->get_min_range(), excess);
 				if(this == welt->get_active_player())

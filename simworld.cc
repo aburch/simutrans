@@ -6130,7 +6130,7 @@ uint32 karte_t::generate_passengers_or_mail(const ware_desc_t * wtyp)
 				continue;
 			}
 
-			// Check for a suitable stop within range of the destination.
+			// Check for a suitable stop within walking distance of the destination.
 
 			// Note that, although factories are only *connected* now if they are within the smaller factory radius
 			// (default: 1), they can take passengers within the wider square of the passenger radius. This is intended,
