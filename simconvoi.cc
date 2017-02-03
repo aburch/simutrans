@@ -1518,7 +1518,6 @@ void convoi_t::start()
 			fahr[i]->set_driven();
 			restwert_delta += fahr[i]->calc_sale_value();
 			fahr[i]->clear_flag( obj_t::not_on_map );
-			fahr[i]->load_cargo( halthandle_t() );
 		}
 		fahr[0]->set_leading( true );
 		fahr[anz_vehikel-1]->set_last( true );
@@ -2868,6 +2867,31 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 station_tile_search_ready: ;
 	}
 
+	// prepare a list of all destination halts in the schedule
+	vector_tpl<halthandle_t> destination_halts(schedule->get_count());
+	if (!no_load) {
+		const uint8 count = schedule->get_count();
+		for(  uint8 i=1;  i<count;  i++  ) {
+			const uint8 wrap_i = (i + schedule->get_current_stop()) % count;
+
+			const halthandle_t plan_halt = haltestelle_t::get_halt(schedule->entries[wrap_i].pos, owner_p);
+			if(plan_halt == halt) {
+				// we will come later here again ...
+				break;
+			}
+			else if(  !plan_halt.is_bound()  ) {
+				if(  grund_t *gr = welt->lookup( schedule->entries[wrap_i].pos )  ) {
+					if(  gr->get_depot()  ) {
+						// do not load for stops after a depot
+						break;
+					}
+				}
+				continue;
+			}
+			destination_halts.append(plan_halt);
+		}
+	}
+
 	// only load vehicles in station
 	// don't load when vehicle is being withdrawn
 	bool changed_loading_level = false;
@@ -2888,7 +2912,7 @@ station_tile_search_ready: ;
 		uint16 amount = v->unload_cargo(halt);
 		if(  !no_load  ) {
 			// load
-			amount += v->load_cargo(halt);
+			amount += v->load_cargo(halt, destination_halts);
 		}
 		if(  amount  ) {
 			time = max( time, (amount*v->get_desc()->get_loading_time()) / max(v->get_cargo_max(), 1) );

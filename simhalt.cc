@@ -1873,7 +1873,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 
 
 
-void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const schedule_t *schedule, const player_t *player )
+void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const vector_tpl<halthandle_t>& destination_halts)
 {
 	// prissi: first iterate over the next stop, then over the ware
 	// might be a little slower, but ensures that passengers to nearest stop are served first
@@ -1881,26 +1881,8 @@ void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *go
 	vector_tpl<ware_t> *warray = cargo[good_category->get_catg_index()];
 
 	if(  warray  &&  !warray->empty()  ) {
-		// da wir schon an der aktuellem haltestelle halten
-		// startet die schleife ab 1, d.h. dem naechsten halt
-		const uint8 count = schedule->get_count();
-		for(  uint8 i=1;  i<count;  i++  ) {
-			const uint8 wrap_i = (i + schedule->get_current_stop()) % count;
-
-			const halthandle_t plan_halt = haltestelle_t::get_halt(schedule->entries[wrap_i].pos, player);
-			if(plan_halt == self) {
-				// we will come later here again ...
-				break;
-			}
-			else if(  !plan_halt.is_bound()  ) {
-				if(  grund_t *gr = welt->lookup( schedule->entries[wrap_i].pos )  ) {
-					if(  gr->get_depot()  ) {
-						// do not load for stops after a depot
-						break;
-					}
-				}
-			}
-			else {
+		for(  uint32 i=0; i < destination_halts.get_count();  i++  ) {
+			halthandle_t plan_halt = destination_halts[i];
 
 				// The random offset will ensure that all goods have an equal chance to be loaded.
 				uint32 offset = simrand(warray->get_count());
@@ -1961,7 +1943,6 @@ void haltestelle_t::fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *go
 				}
 
 				// nothing there to load
-			}
 		}
 	}
 }

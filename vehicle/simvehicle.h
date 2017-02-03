@@ -424,7 +424,7 @@ public:
 	 * Load freight from halt
 	 * @return amount loaded
 	 */
-	uint16 load_cargo(halthandle_t halt);
+	uint16 load_cargo(halthandle_t halt, const vector_tpl<halthandle_t>& destination_halts);
 
 	/**
 	* Remove freight that no longer can reach it's destination
