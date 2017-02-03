@@ -1308,7 +1308,7 @@ bool convoi_t::prepare_for_routing()
 		if (min_range > 0)
 		{
 			int count = 0;
-			const uint8 original_aktuell = schedule->get_aktuell();
+			const uint8 original_index = schedule->get_aktuell();
 			const grund_t* gr = welt->lookup(ziel);
 			const depot_t* depot = gr ? gr->get_depot() : NULL;
 			while (count < schedule->get_count() && !haltestelle_t::get_halt(ziel, owner).is_bound() && !depot)
@@ -1318,8 +1318,19 @@ bool convoi_t::prepare_for_routing()
 				ziel = schedule->get_current_eintrag().pos;
 				count++;
 			}
-			const uint16 distance = (shortest_distance(start.get_2d(), ziel.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
-			schedule->set_aktuell(original_aktuell);
+			uint16 distance;
+			if (original_index == schedule->get_count() - 1 && schedule->is_mirrored())
+			{
+				// We do not want the distance from the end to the start in this case, but the distance from
+				// end to the immediately previous stop
+				
+				distance = (shortest_distance(schedule->entries[schedule->get_count() - 1].pos.get_2d(), schedule->entries[schedule->get_count() - 2].pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
+			}
+			else
+			{
+				distance = (shortest_distance(start.get_2d(), ziel.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
+			}
+			schedule->set_aktuell(original_index);
 			ziel = original_ziel;
 			if (distance > min_range)
 			{
