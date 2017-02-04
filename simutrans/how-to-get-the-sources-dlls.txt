@@ -1,0 +1,1 @@
+These .dlls are part of the Msys2 (http://www.msys2.org/) project. The source files for them should be here: https://github.com/msys2
