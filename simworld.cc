@@ -1782,6 +1782,10 @@ void *step_convoys_threaded(void* args)
 				simthread_barrier_wait(&step_convoys_barrier_internal); 
 				simthread_barrier_wait(&step_convoys_barrier_internal); // The multiples of these is intentional: we must stop the individual threads before the clear() command is executed.
 				convoys_next_step.clear();
+				if (world->is_terminating_threads())
+				{
+					break;
+				}
 			}
 		}
 		simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
@@ -1884,11 +1888,14 @@ void karte_t::start_path_explorer()
 		return;
 	}
 	pthread_mutex_lock(&path_explorer_mutex);
-	if (path_explorer_step_progress != 0)
+	if (path_explorer_step_progress > 0)
 	{
 		simthread_barrier_wait(&start_path_explorer_barrier);
 	}
-	simthread_barrier_wait(&start_path_explorer_barrier);
+	if(path_explorer_step_progress > -1)
+	{
+		simthread_barrier_wait(&start_path_explorer_barrier);
+	}
 	pthread_mutex_unlock(&path_explorer_mutex);
 #endif 
 }

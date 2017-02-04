@@ -63,10 +63,13 @@ void sve_info_t::rdwr(loadsave_t *file)
 {
 	const char *s = strdup(pak.c_str());
 	file->rdwr_str(s);
-	if (file->is_loading()) {
+	if (file->is_loading() && s) {
 		pak = s;
 	}
-	free(const_cast<char *>(s));
+	if (s)
+	{
+		free(const_cast<char *>(s));
+	}
 	file->rdwr_longlong(mod_time);
 	file->rdwr_long(file_size);
 	if (file->get_experimental_version() >= 12 )
