@@ -351,13 +351,32 @@ void dr_flush()
 
 void dr_textur(int xp, int yp, int w, int h)
 {
-	// make really sure we are not beyond screen coordinates
-	int xscr = (xp*x_scale)/32;
-	int yscr = (yp*y_scale)/32;
-	w = min( xp+w, AllDib->bmiHeader.biWidth ) - xp;
-	h = min( yp+h, AllDib->bmiHeader.biHeight ) - yp;
-	if(  h>1  &&  w>0  ) {
-		StretchDIBits(hdc, xscr, yscr, (w*x_scale)/32, (h*y_scale)/32, xp, yp+h+1, w, -h, AllDibData, AllDib, DIB_RGB_COLORS, SRCCOPY);
+	if(   x_scale==32  &&  y_scale==32  ) {
+		// make really sure we are not beyond screen coordinates
+		w = min( xp+w, AllDib->bmiHeader.biWidth ) - xp;
+		h = min( yp+h, AllDib->bmiHeader.biHeight ) - yp;
+		if(  h>1  &&  w>0  ) {
+			StretchDIBits(hdc, xp, yp, w, h, xp, yp+h+1, w, -h, AllDibData, AllDib, DIB_RGB_COLORS, SRCCOPY);
+		}
+	}
+	else {
+		// align on 32 border to avoid rounding errors
+		w += (xp % 32);
+		h += (yp % 32);
+		w = (w+31) & 0xFFE0;
+		h = (h+31) & 0xFFE0;
+		xp &= 0xFFE0;
+		yp &= 0xFFE0;
+		int xscr = (xp/32)*x_scale;
+		int yscr = (yp/32)*y_scale;
+		// make really sure we are not beyond screen coordinates
+		w = min( xp+w, AllDib->bmiHeader.biWidth ) - xp;
+		h = min( yp+h, AllDib->bmiHeader.biHeight ) - yp;
+		if(  h>1  &&  w>0  ) {
+			SetStretchBltMode( hdc, HALFTONE );
+			SetBrushOrgEx( hdc, 0, 0, NULL );
+			StretchDIBits(hdc, xscr, yscr, (w*x_scale)/32, (h*y_scale)/32, xp, yp+h+1, w, -h, AllDibData, AllDib, DIB_RGB_COLORS, SRCCOPY);
+		}
 	}
 }
 
