@@ -27,6 +27,7 @@
 *.diagsession
 *.iobj
 *.ipdb
+*.TMP
 settings-experimental-debug.xml
 ipch
 /Debug
@@ -50,7 +51,8 @@ PAK*
 settings.xml
 /simutrans-experimental
 /Debug-makeobj
-Simutrans-Experimental.exe
+simutrans-experimental*
+simexstrip
 _UpgradeReport_Files*
 /.build
 *.orig
