@@ -467,7 +467,7 @@ void vehicle_base_t::calc_height(grund_t *gr)
 		// slope changed below a moving thing?!?
 		return;
 	}
-	else if(  gr->ist_tunnel()  &&  gr->ist_karten_boden()  ) {
+	else if(  gr->ist_tunnel()  &&  gr->ist_karten_boden()  &&  !is_flying() ) {
 		use_calc_height = true; // to avoid errors if underground mode is switched
 		if(  grund_t::underground_mode == grund_t::ugm_none  ||
 			(grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() < grund_t::underground_level)

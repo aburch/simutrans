@@ -168,6 +168,8 @@ public:
 	vehicle_base_t();
 
 	vehicle_base_t(koord3d pos);
+
+	virtual bool is_flying() const { return false; }
 };
 
 
@@ -770,6 +772,8 @@ public:
 	bool is_on_ground() const { return flying_height==0  &&  !(state==circling  ||  state==flying); }
 
 	const char *is_deletable(const player_t *player);
+
+	virtual bool is_flying() const { return !is_on_ground(); }
 };
 
 #endif

@@ -82,6 +82,8 @@ public:
 
 	const groundobj_desc_t* get_desc() const { return movingobj_typen[movingobjtype]; }
 
+	virtual bool is_flying() const { return get_desc()->get_waytype()==air_wt; }
+
 	void * operator new(size_t s);
 	void operator delete(void *p);
 };
