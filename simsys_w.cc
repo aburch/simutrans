@@ -255,23 +255,23 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 		w = 16;
 	}
 
-	int img_w = ((w*32)/x_scale+15)&0x7FF0;
-	int img_h = (h*32)/y_scale;
+	int img_w = w;
+	int img_h = h;
 
-	if(  w > MaxSize.right  ||  h >= MaxSize.bottom  ) {
+	if(  w > (MaxSize.right/x_scale)*32  ||  h >= (MaxSize.bottom/y_scale)*32  ) {
 		// since the query routines that return the desktop data do not take into account a change of resolution
 		free(AllDibData);
 		AllDibData = NULL;
-		MaxSize.right = w;
-		MaxSize.bottom = h+1;
+		MaxSize.right = (w*32)/x_scale;
+		MaxSize.bottom = ((h+1)*32)/y_scale;
 		AllDibData = MALLOCN(PIXVAL, img_w * img_h);
 		*textur = (unsigned short*)AllDibData;
 	}
 
 	AllDib->bmiHeader.biWidth  = img_w;
 	AllDib->bmiHeader.biHeight = img_h;
-	WindowSize.right           = w;
-	WindowSize.bottom          = h;
+	WindowSize.right           = (w*32)/x_scale;
+	WindowSize.bottom          = (h*32)/y_scale;
 
 #ifdef MULTI_THREAD
 	LeaveCriticalSection( &redraw_underway );
