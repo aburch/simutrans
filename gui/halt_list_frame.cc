@@ -34,6 +34,8 @@
 
 
 
+#define HALT_SCROLL_START (D_MARGIN_TOP + LINESPACE + D_V_SPACE + D_BUTTON_HEIGHT)
+
 /**
  * All filter and sort settings are static, so the old settings are
  * used when the window is reopened.
@@ -207,9 +209,11 @@ static bool passes_filter_in(haltestelle_t const& s)
 
 		if (ware == goods_manager_t::passengers) {
 			if (s.get_pax_enabled()) return true;
-		} else if (ware == goods_manager_t::mail) {
+		}
+		else if (ware == goods_manager_t::mail) {
 			if (s.get_mail_enabled()) return true;
-		} else if (ware != goods_manager_t::none) {
+		}
+		else if (ware != goods_manager_t::none) {
 			// Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
 			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
 			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
@@ -277,7 +281,7 @@ halt_list_frame_t::halt_list_frame_t(player_t *player) :
 	display_list();
 
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_DEFAULT_HEIGHT));
-	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+3*(28)+31+1));
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+3*(28)+HALT_SCROLL_START));
 
 	set_resizemode(diagonal_resize);
 	resize (scr_coord(0,0));
@@ -354,8 +358,8 @@ bool halt_list_frame_t::infowin_event(const event_t *ev)
 		// (and sometime even not then ... )
 		return vscroll.infowin_event(ev);
 	}
-	else if(  (IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx<get_windowsize().w-xr  ) {
-		const int y = (ev->my-47)/28 + vscroll.get_knob_offset();
+	else if(  (IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>HALT_SCROLL_START+D_TITLEBAR_HEIGHT  &&  ev->mx<get_windowsize().w-xr  &&  !stops.empty()  ) {
+		const int y = (ev->my-HALT_SCROLL_START-D_TITLEBAR_HEIGHT)/stops[0].get_size().h + vscroll.get_knob_offset();
 
 		if(  y<num_filtered_stops  ) {
 			// find the 'y'th filtered stop in the unfiltered stops list
@@ -412,17 +416,18 @@ bool halt_list_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* 
 void halt_list_frame_t::resize(const scr_coord size_change)
 {
 	gui_frame_t::resize(size_change);
-	scr_size size = get_windowsize()-scr_size(0,47);
+	scr_size size = get_windowsize()-scr_size(0,D_TITLEBAR_HEIGHT+HALT_SCROLL_START);
 	vscroll.set_visible(false);
 	remove_component(&vscroll);
-	vscroll.set_knob( size.h/28, num_filtered_stops );
-	if(  num_filtered_stops<=size.h/28  ) {
+	int halt_h = (stops.empty() ? 28 : stops[0].get_size().h);
+	vscroll.set_knob( size.h/halt_h, num_filtered_stops );
+	if(  num_filtered_stops<=size.h/halt_h  ) {
 		vscroll.set_knob_offset(0);
 	}
 	else {
 		add_component(&vscroll);
 		vscroll.set_visible(true);
-		vscroll.set_pos(scr_coord(size.w-D_SCROLLBAR_WIDTH, 47-D_TITLEBAR_HEIGHT-1));
+		vscroll.set_pos(scr_coord(size.w-D_SCROLLBAR_WIDTH, HALT_SCROLL_START));
 		vscroll.set_size(size-D_SCROLLBAR_SIZE);
 		vscroll.set_scroll_amount( 1 );
 	}
@@ -457,7 +462,7 @@ void halt_list_frame_t::draw(scr_coord pos, scr_size size)
 			num_filtered_stops++;
 			if(  num_filtered_stops>start  &&  yoffset<size.h+margin_top  ) {
 				i.draw(pos + scr_coord(0, yoffset));
-				yoffset += 28;
+				yoffset += i.get_size().h;
 			}
 		}
 	}
