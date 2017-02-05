@@ -122,7 +122,7 @@ ifneq ($(MULTI_THREAD),)
 #use lpthreadGC2d for debug alternatively
 #		Disabled, as this does not work for cross-compiling
 #      LDFLAGS += -lpthreadGC2
-	   LDFLAGS += -lpthread
+	   LDFLAGS += -static -lpthread
     else
       ifneq ($(OSTYPE),haiku)
         LDFLAGS += -lpthread

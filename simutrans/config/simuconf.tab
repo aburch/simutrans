@@ -25,6 +25,10 @@
 #
 # Do not delete these comment line! (Needed for installer)
 
+progdir_overrides_savegame_settings = 0
+pak_overrides_savegame_settings = 0
+userdir_overrides_savegame_settings = 0
+
 # Default pak file path
 # which graphics you want to play?
 # Nothing means automatic selection
@@ -857,7 +861,7 @@ server_frames_between_checks = 32
 #server_infurl = http://your.domain/server-info.html
 
 # Pause server when no clients are connected
-#pause_server_no_clients = 1
+pause_server_no_clients = 0
 
 # Nickname when joining network games
 #nickname = John Doe
@@ -867,6 +871,15 @@ server_save_game_on_quit = 0
 
 # Chat window transparency (0=off, 25, 50 75 are possible)
 chat_transparency = 75
+
+# The number of game months before a player making no changes
+# to its company is unlocked automatically to allow other players
+# to take over.
+unprotect_abandoned_player_months = 120
+
+# The number of game months before a player that has never built
+# anything substantive is deleted automatically.
+remove_dummy_player_months = 24
 
 # Here you can add a message about your server (It will read this file on each joining anew)
 #server_motd_filename =
