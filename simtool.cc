@@ -2389,8 +2389,9 @@ const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month, bool r
 image_id tool_build_way_t::get_icon(player_t *) const
 {
 	const way_desc_t *desc = way_builder_t::get_desc(default_param,0);
-	const bool is_tram = desc ? (desc->get_wtyp()==tram_wt) || (desc->get_styp() == type_tram) : false;
-	return (grund_t::underground_mode==grund_t::ugm_all && !is_tram ) ? IMG_EMPTY : icon;
+	//const bool is_tram = desc ? (desc->get_wtyp()==tram_wt) || (desc->get_styp() == type_tram) : false;
+	bool const elevated = desc ? desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt : false;
+	return (grund_t::underground_mode == grund_t::ugm_all && elevated) ? IMG_EMPTY : icon;
 }
 
 const char* tool_build_way_t::get_tooltip(const player_t *) const
