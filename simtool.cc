@@ -2389,7 +2389,6 @@ const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month, bool r
 image_id tool_build_way_t::get_icon(player_t *) const
 {
 	const way_desc_t *desc = way_builder_t::get_desc(default_param,0);
-	//const bool is_tram = desc ? (desc->get_wtyp()==tram_wt) || (desc->get_styp() == type_tram) : false;
 	bool const elevated = desc ? desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt : false;
 	return (grund_t::underground_mode == grund_t::ugm_all && elevated) ? IMG_EMPTY : icon;
 }
@@ -2760,8 +2759,9 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 		koord3d end2 = bridge_builder_t::find_end_pos(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
 		assert(end2 == end); (void)end2;
 		waytype_t wt = desc->get_waytype();
-		if (way_desc == NULL)
+		if (way_desc == NULL || (way_desc->get_styp() == type_elevated  &&  way_desc->get_wtyp() != air_wt))
 		{
+			// Cannot build an elevated way on top of a bridge
 			way_desc = desc->get_way_desc();
 		}
 		bridge_builder_t::build_bridge( player, start, end, zv, bridge_height, desc, way_desc ? way_desc : way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat));

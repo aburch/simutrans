@@ -802,10 +802,13 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 	if (!env_t::networkmode)
 	{
 		// The last selected way will not have been set if this is not in network mode.
-		const way_desc_t* wb = tool_build_way_t::defaults[desc->get_waytype() & 63];
-		if (wb)
+		const way_desc_t* wd = tool_build_way_t::defaults[desc->get_waytype() & 63];
+		if (wd)
 		{
-			way_desc = wb;
+			if (wd->get_styp() == type_flat)
+			{
+				way_desc = wd;
+			}
 		}
 	}
 

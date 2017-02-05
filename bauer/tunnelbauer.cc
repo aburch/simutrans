@@ -438,7 +438,7 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 		way_desc = tool_build_way_t::defaults[waytyp & 63];
 	}
 
-	if(way_desc == NULL)
+	if(way_desc == NULL || way_desc->get_styp() != type_flat)
 	{
 		way_desc = way_builder_t::weg_search(waytyp, desc->get_topspeed(), desc->get_max_axle_load(), welt->get_timeline_year_month(), type_flat, desc->get_wear_capacity());
 	}
