@@ -456,9 +456,10 @@ DownloadInstallZipWithoutSimutransDo:
 #  inetc::get $downloadlink "$Temp\$archievename"
 #  Pop $R0 ;Get the return value
 #  StrCmp $R0 "OK" +3
-  NSISdl::download $downloadlink "$TEMP\$archievename"
-  Pop $R0 ;Get the return value
-  StrCmp $R0 "success" +3
+;  NSISdl::download $downloadlink "$TEMP\$archievename"
+  inetc::get /WEAKSECURITY $downloadlink "$Temp\$archievename" /END
+  POP $0
+  StrCmp $0 "OK" +3
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
