@@ -4,6 +4,7 @@
 #ifndef _MSC_VER
 #include <dirent.h>
 #else
+#define NOMINMAX
 #include <Windows.h>
 #include <io.h>
 #endif

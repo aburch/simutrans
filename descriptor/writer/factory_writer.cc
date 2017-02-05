@@ -1,14 +1,17 @@
 #include <string>
+#include <stdlib.h>
 #include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
 #include "obj_node.h"
 #include "../skin_desc.h"
 #include "../factory_desc.h"
+#include "../sound_desc.h"
 #include "text_writer.h"
 #include "building_writer.h"
 #include "factory_writer.h"
 #include "xref_writer.h"
 
+using std::string;
 
 void factory_field_class_writer_t::write_obj(FILE* outfp, obj_node_t& parent, const char* field_name, int snow_image, int production, int capacity, int weight)
 {
@@ -168,8 +171,32 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	electric_amount              =  obj.get_int("electricity_demand", electric_amount);
 	uint16 const pax_demand      =  obj.get_int("passenger_demand",   65535);
 	uint16 const mail_demand     =  obj.get_int("mail_demand",        65535);
+	// how long between sounds
+	uint32 const sound_interval   =  obj.get_int("sound_interval",     0xFFFFFFFFul );
 
-	obj_node_t node(this, 38, &parent);
+	uint16 total_len = 43;
+
+	// prissi: must be done here, since it may affect the len of the header!
+	string sound_str = ltrim( obj.get("sound") );
+	sint8 sound_id=NO_SOUND;
+	if (!sound_str.empty()) {
+		// ok, there is some sound
+		sound_id = atoi(sound_str.c_str());
+		if (sound_id == 0 && sound_str[0] == '0') {
+			sound_id = 0;
+			sound_str = "";
+		}
+		else if (sound_id != 0) {
+			// old style id
+			sound_str = "";
+		}
+		if (!sound_str.empty()) {
+			sound_id = LOAD_SOUND;
+			total_len += sound_str.size() + 1;
+		}
+	}
+
+	obj_node_t node(this, total_len, &parent);
 
 	obj.put("type", "fac");
 
@@ -234,7 +261,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 
 	// new version with pax_level
-	node.write_uint16(fp, 0x8003,              0); // version
+	node.write_uint16(fp, 0x8004,              0); // version
 	node.write_uint16(fp, placement,           2);
 	node.write_uint16(fp, productivity,        4);
 	node.write_uint16(fp, range,               6);
@@ -254,6 +281,15 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, electric_amount,    32);
 	node.write_uint16(fp, pax_demand,         34);
 	node.write_uint16(fp, mail_demand,        36);
+	node.write_uint32(fp, sound_interval,     38);
+	node.write_uint8 (fp, sound_id,           42);
+
+	// this should ne always at the end
+	sint8 sound_str_len = sound_str.size();
+	if (sound_str_len > 0) {
+		node.write_sint8  (fp, sound_str_len, 43);
+		node.write_data_at(fp, sound_str.c_str(), 44, sound_str_len);
+	}
 
 	node.write(fp);
 }

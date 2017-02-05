@@ -230,6 +230,8 @@ private:
 	uint16 electric_amount;
 	uint16 pax_demand;
 	uint16 mail_demand;
+	sint8 sound_id;
+	sint32 sound_intervall;
 
 public:
 	const char *get_name() const { return get_building()->get_name(); }
@@ -285,6 +287,10 @@ public:
 	uint16 get_electric_amount() const { return electric_amount; }
 	uint16 get_pax_demand() const { return pax_demand; }
 	uint16 get_mail_demand() const { return mail_demand; }
+
+	// more effects when producing
+	sint8 get_sound() const { return sound_id; }
+	sint32 get_sound_intervall_ms() const { return sound_intervall; }
 
 	void calc_checksum(checksum_t *chk) const;
 };

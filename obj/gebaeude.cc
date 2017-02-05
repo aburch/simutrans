@@ -249,7 +249,7 @@ void gebaeude_t::set_tile( const building_tile_desc_t *new_tile, bool start_with
 
 	zeige_baugrube = !new_tile->get_desc()->no_construction_pit()  &&  start_with_construction;
 	if(sync) {
-		if(new_tile->get_phases()<=1  &&  !zeige_baugrube) {
+		if(  new_tile->get_phases()<=1  &&  !zeige_baugrube  ) {
 			// need to stop animation
 #ifdef MULTI_THREAD
 			pthread_mutex_lock( &sync_mutex );
@@ -262,7 +262,7 @@ void gebaeude_t::set_tile( const building_tile_desc_t *new_tile, bool start_with
 #endif
 		}
 	}
-	else if(new_tile->get_phases()>1  ||  zeige_baugrube) {
+	else if(  new_tile->get_phases()>1  &&  (!is_factory  ||  get_fabrik()->is_currently_producing())  ||  zeige_baugrube  ) {
 		// needs now animation
 #ifdef MULTI_THREAD
 		pthread_mutex_lock( &sync_mutex );
@@ -296,34 +296,36 @@ sync_result gebaeude_t::sync_step(uint32 delta_t)
 		}
 	}
 	else {
-		// normal animated building
-		anim_time += delta_t;
-		if(  anim_time > tile->get_desc()->get_animation_time()  ) {
-			anim_time -= tile->get_desc()->get_animation_time();
+		if(  !is_factory  ||  get_fabrik()->is_currently_producing()  ) {
+			// normal animated building
+			anim_time += delta_t;
+			if(  anim_time > tile->get_desc()->get_animation_time()  ) {
+				anim_time -= tile->get_desc()->get_animation_time();
 
-			// old positions need redraw
-			if(  background_animated  ) {
-				set_flag( obj_t::dirty );
-				mark_images_dirty();
-			}
-			else {
-				// try foreground
-				image_id image = tile->get_foreground( anim_frame, season );
-				mark_image_dirty( image, 0 );
-			}
+				// old positions need redraw
+				if(  background_animated  ) {
+					set_flag( obj_t::dirty );
+					mark_images_dirty();
+				}
+				else {
+					// try foreground
+					image_id image = tile->get_foreground( anim_frame, season );
+					mark_image_dirty( image, 0 );
+				}
 
-			anim_frame++;
-			if(  anim_frame >= tile->get_phases()  ) {
-				anim_frame = 0;
-			}
+				anim_frame++;
+				if(  anim_frame >= tile->get_phases()  ) {
+					anim_frame = 0;
+				}
 
-			if(  !background_animated  ) {
-				// next phase must be marked dirty too ...
-				image_id image = tile->get_foreground( anim_frame, season );
-				mark_image_dirty( image, 0 );
-			}
- 		}
- 	}
+				if(  !background_animated  ) {
+					// next phase must be marked dirty too ...
+					image_id image = tile->get_foreground( anim_frame, season );
+					mark_image_dirty( image, 0 );
+				}
+ 			}
+		}
+	}
 	return SYNC_OK;
 }
 
