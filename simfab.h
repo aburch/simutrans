@@ -349,6 +349,8 @@ private:
 	// true, if the factory did produce enough in the last step to require power
 	bool currently_producing;
 
+	sint32 last_sound_ms;
+
 	uint32 total_input, total_transit, total_output;
 	uint8 status;
 

@@ -27,6 +27,7 @@
 #include "simworld.h"
 #include "descriptor/building_desc.h"
 #include "descriptor/goods_desc.h"
+#include "descriptor/sound_desc.h"
 #include "player/simplay.h"
 
 #include "simintr.h"
@@ -772,6 +773,7 @@ fabrik_t::fabrik_t(loadsave_t* file)
 	status = nothing;
 	currently_producing = false;
 	transformer = NULL;
+	last_sound_ms = welt->get_zeit_ms();
 }
 
 
@@ -852,6 +854,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* factory_
 		}
 	}
 
+	last_sound_ms = welt->get_zeit_ms();
 	init_stats();
 	arrival_stats_pax.init();
 	arrival_stats_mail.init();
@@ -1494,6 +1497,10 @@ void fabrik_t::smoke() const
 		wolke_t *smoke =  new wolke_t(gr->get_pos(), offsetx, offsety, rada->get_images() );
 		gr->obj_add(smoke);
 		welt->sync_way_eyecandy.add( smoke );
+	}
+	// maybe sound?
+	if(  desc->get_sound()!=NO_SOUND  &&  	welt->get_zeit_ms()>last_sound_ms+desc->get_sound_intervall_ms()  ) {
+		welt->play_sound_area_clipped( get_pos().get_2d(), desc->get_sound() );
 	}
 }
 
