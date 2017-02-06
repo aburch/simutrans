@@ -41,14 +41,7 @@ marker_t& marker_t::instance(int world_size_x,int world_size_y)
 
 marker_t::~marker_t()
 {
-	if (bits)
-	{
-		delete[] bits;
-	}
-	else
-	{
-		dbg->warning("marker_t::~marker_t()", "Calling destructor on a marker with NULL bits");
-	}
+	delete[] bits;
 }
 
 void marker_t::unmark_all()
