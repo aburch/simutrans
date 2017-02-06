@@ -158,6 +158,18 @@ void display_set_clip_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL  CLIP_NUM_DE
 {
 }
 
+void display_push_clip_wh(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL  CLIP_NUM_DEF_NOUSE)
+{
+}
+
+void display_swap_clip_wh(CLIP_NUM_DEF_NOUSE0)
+{
+}
+
+void display_pop_clip_wh(CLIP_NUM_DEF_NOUSE0)
+{
+}
+
 void display_scroll_band(const KOORD_VAL, const KOORD_VAL, const KOORD_VAL)
 {
 }

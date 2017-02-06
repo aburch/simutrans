@@ -252,6 +252,9 @@ public:
 static MSVC_ALIGN(64) struct {
 	// current clipping rectangle
 	clip_dimension clip_rect;
+	// clipping rectangle to be swapped by display_clip_wh_toggle
+	clip_dimension clip_rect_swap;
+	bool swap_active;
 	// poly clipping variables
 	int number_of_clips;
 	uint8 active_ribi;
@@ -264,6 +267,9 @@ static MSVC_ALIGN(64) struct {
  * Hajo: Current clipping rectangle
  */
 static clip_dimension clip_rect;
+// clipping rectangle to be swapped by display_clip_wh_toggle
+clip_dimension clip_rect_swap;
+bool swap_active;
 
 // and the variables for polygon clipping
 static int number_of_clips =0;
@@ -875,6 +881,58 @@ void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h  CLI
 	clip_rect.xx = x + w; // watch out, clips to KOORD_VAL max
 	clip_rect.yy = y + h; // watch out, clips to KOORD_VAL max
 #endif
+}
+
+void display_push_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h  CLIP_NUM_DEF)
+{
+#ifdef MULTI_THREAD
+	clip_dimension &rect = clips[clip_num].clip_rect;
+	clip_dimension &swap = clips[clip_num].clip_rect_swap;
+	bool &active = clips[clip_num].swap_active;
+#else
+	clip_dimension &rect = clip_rect;
+	clip_dimension &swap = clip_rect_swap;
+	bool &active = swap_active;
+#endif
+	assert(!active);
+	swap = rect;
+	display_set_clip_wh(x, y, w, h  CLIP_NUM_PAR);
+	active = true;
+}
+
+void display_swap_clip_wh(CLIP_NUM_DEF0)
+{
+#ifdef MULTI_THREAD
+	clip_dimension &rect = clips[clip_num].clip_rect;
+	clip_dimension &swap = clips[clip_num].clip_rect_swap;
+	bool &active = clips[clip_num].swap_active;
+#else
+	clip_dimension &rect = clip_rect;
+	clip_dimension &swap = clip_rect_swap;
+	bool &active = swap_active;
+#endif
+	if (active) {
+		clip_dimension save = rect;
+		rect = swap;
+		swap = save;
+	}
+}
+
+void display_pop_clip_wh(CLIP_NUM_DEF0)
+{
+#ifdef MULTI_THREAD
+	clip_dimension &rect = clips[clip_num].clip_rect;
+	clip_dimension &swap = clips[clip_num].clip_rect_swap;
+	bool &active = clips[clip_num].swap_active;
+#else
+	clip_dimension &rect = clip_rect;
+	clip_dimension &swap = clip_rect_swap;
+	bool &active = swap_active;
+#endif
+	if (active) {
+		rect = swap;
+		active = false;
+	}
 }
 
 /*

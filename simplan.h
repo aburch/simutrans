@@ -244,6 +244,8 @@ public:
 	void display_tileoverlay(sint16 xpos, sint16 ypos, const sint8 hmin, const sint8 hmax) const;
 
 	void display_overlay(sint16 xpos, sint16 ypos) const;
+
+	static void toggle_horizontal_clip(CLIP_NUM_DEF0);
 };
 
 #endif

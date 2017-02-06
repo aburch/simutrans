@@ -407,6 +407,11 @@ void draw_bezier_rgb(KOORD_VAL Ax, KOORD_VAL Ay, KOORD_VAL Bx, KOORD_VAL By, KOO
 void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
 clip_dimension display_get_clip_wh(CLIP_NUM_DEF0 CLIP_NUM_DEFAULT_ZERO);
 
+void display_push_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
+void display_swap_clip_wh(CLIP_NUM_DEF0);
+void display_pop_clip_wh(CLIP_NUM_DEF0);
+
+
 void display_snapshot( int x, int y, int w, int h );
 
 #if COLOUR_DEPTH != 0
