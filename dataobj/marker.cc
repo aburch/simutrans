@@ -41,7 +41,10 @@ marker_t& marker_t::instance(int world_size_x,int world_size_y)
 
 marker_t::~marker_t()
 {
-	delete[] bits;
+	if (this)
+	{
+		delete[] bits;
+	}
 }
 
 void marker_t::unmark_all()
