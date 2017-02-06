@@ -128,11 +128,7 @@ static void show_times(karte_t *welt, main_view_t *view)
 
 	uint32 ms = dr_time();
 	for (i = 0;  i < 6000000;  i++) {
-#ifdef MULTI_THREAD
- 		display_img( img, 50, 50, 1, 0);
-#else
- 		display_img( img, 50, 50, 1);
-#endif
+		display_img_aux( img, 50, 50, 1, 0, true  CLIP_NUM_DEFAULT);
 	}
 	dbg->message( "display_img()", "%i iterations took %li ms", i, dr_time() - ms );
 

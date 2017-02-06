@@ -186,11 +186,6 @@ void display_img_aligned( const image_id n, scr_rect area, int align, const int 
 
 // display image with day and night change
 void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty  CLIP_NUM_DEF);
-#ifdef MULTI_THREAD
-#define display_img( n, x, y, d, c ) display_img_aux( (n), (x), (y), 0, true, (d), (c) )
-#else
-#define display_img( n, x, y, d ) display_img_aux( (n), (x), (y), 0, true, (d) )
-#endif
 
 /**
  * draws the images with alpha, either blended or as outline
