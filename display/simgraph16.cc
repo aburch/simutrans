@@ -4545,7 +4545,7 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
 	display_vline_wh_clip_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, color_idx_to_rgb(ddd_farbe + 1), dirty  CLIP_NUM_PAR );
 	display_vline_wh_clip_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, color_idx_to_rgb(ddd_farbe - 1), dirty  CLIP_NUM_PAR );
 
-	display_text_proportional_len_clip( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, dirty, -1  CLIP_NUM_PAR);
+	display_text_proportional_len_clip( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, dirty, -1);
 }
 
 
