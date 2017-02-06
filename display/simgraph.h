@@ -259,27 +259,15 @@ void display_blend_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, 
 
 void display_fillbox_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty);
 #define display_fillbox_wh(xp,yp,w,h,color,dirty) display_fillbox_wh_rgb( xp,yp,w,h,specialcolormap_all_day[(color)&0xFF],dirty)
-#ifdef MULTI_THREAD
-void display_fillbox_wh_clip_cl_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty, const sint8 clip_num);
-#define display_fillbox_wh_clip_rgb( x, y, w, h, c, d ) display_fillbox_wh_clip_cl_rgb( (x), (y), (w), (h), (c), (d), 0 )
-#define display_fillbox_wh_clip_cl( x, y, w, h, c, d, num ) display_fillbox_wh_clip_cl( (x), (y), (w), (h), specialcolormap_all_day[(color)&0xFF], (d), num )
-#define display_fillbox_wh_clip( x, y, w, h, c, d ) display_fillbox_wh_clip_cl_rgb( (x), (y), (w), (h), specialcolormap_all_day[(c)&0xFF], (d), 0 )
-#else
-void display_fillbox_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty);
-#define display_fillbox_wh_clip(xp,yp,w,h,color,dirty) display_fillbox_wh_clip_rgb( xp,yp,w,h,specialcolormap_all_day[(color)&0xFF],dirty)
-#endif
+
+void display_fillbox_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
+#define display_fillbox_wh_clip( x, y, w, h, c, d ) display_fillbox_wh_clip_rgb( (x), (y), (w), (h), specialcolormap_all_day[(c)&0xFF], (d))
 
 void display_vline_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PIXVAL color, bool dirty);
 #define display_vline_wh(xp,yp,h,color,dirty) display_vline_wh_rgb( xp,yp,h,specialcolormap_all_day[(color)&0xFF],dirty)
-#ifdef MULTI_THREAD
-void display_vline_wh_clip_cl_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PIXVAL c, bool dirty, const sint8 clip_num);
-#define display_vline_wh_clip_rgb( x, y, h, c, d ) display_vline_wh_clip_cl_rgb( (x), (y), (h), (c), (d), 0 )
-#define display_vline_wh_clip_cl( x, y, h, c, d, num ) display_vline_wh_clip_cl_rgb( (x), (y), (h), specialcolormap_all_day[(color)&0xFF], (d), num )
-#define display_vline_wh_clip( x, y, h, c, d ) display_vline_wh_clip_cl_rgb( (x), (y), (h), specialcolormap_all_day[(c)&0xFF], (d), 0 )
-#else
-void display_vline_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PIXVAL c, bool dirty);
-#define display_vline_wh_clip( x, y, h, c, d ) display_vline_wh_clip_rgb( (x), (y), (h), specialcolormap_all_day[(c)&0xFF], (d) )
-#endif
+
+void display_vline_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, PIXVAL c, bool dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
+#define display_vline_wh_clip( x, y, h, c, d ) display_vline_wh_clip_rgb( (x), (y), (h), specialcolormap_all_day[(c)&0xFF], (d))
 
 void display_clear();
 
@@ -364,7 +352,6 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 #define display_proportional(                  x, y, txt, align, c, dirty)            display_text_proportional_len_clip_rgb(x, y, txt, align,           specialcolormap_all_day[(c)&0xFF], dirty, -1)
 #define display_proportional_clip(             x, y, txt, align, c, dirty)            display_text_proportional_len_clip_rgb(x, y, txt, align | DT_CLIP, specialcolormap_all_day[(c)&0xFF], dirty, -1)
 #define display_text_proportional_len_clip(    x, y, txt, align, c, dirty, len )      display_text_proportional_len_clip_rgb( (x), (y), (txt), (align) | DT_CLIP,  specialcolormap_all_day[(c)&0xFF], (dirty), (len))
-#define display_text_proportional_len_clip_cl( x, y, txt, align, c, dirty, len, num ) display_text_proportional_len_clip_rgb( (x), (y), (txt), (align) | DT_CLIP,  specialcolormap_all_day[(c)&0xFF], (dirty), (len), (num) )
 #define display_proportional_rgb(              x, y, txt, align, color, dirty)        display_text_proportional_len_clip_rgb(x, y, txt, align,           color, dirty, -1)
 
 
@@ -377,12 +364,9 @@ KOORD_VAL display_proportional_ellipse_rgb( scr_rect r, const char *text, int al
 #define display_proportional_ellipse( r, txt, align, c, dirty) display_proportional_ellipse_rgb( r, txt, align, specialcolormap_all_day[(c)&0xFF], dirty )
 
 void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe,const char *text, int dirty);
-#ifdef MULTI_THREAD
-void display_ddd_proportional_clip_cl(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty, const sint8 clip_num);
-#define display_ddd_proportional_clip( x, y, w, h, ddd, t, txt, d ) display_ddd_proportional_clip_cl( (x), (y), (w), (h), (ddd), (t), (txt), (d), 0 )
-#else
-void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty);
-#endif
+
+void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt,PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty  CLIP_NUM_DEF CLIP_NUM_DEFAULT_ZERO);
+
 
 int display_multiline_text_rgb(KOORD_VAL x, KOORD_VAL y, const char *inbuf, PIXVAL color);
 #define display_multiline_text( x, y, buf, c ) display_multiline_text_rgb( (x), (y), (buf), specialcolormap_all_day[(c)&0xFF] )

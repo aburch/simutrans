@@ -240,11 +240,7 @@ void display_fillbox_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_C
 }
 
 
-#ifdef MULTI_THREAD
-void display_fillbox_wh_clip_cl_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, bool CLIP_NUM_DEF_NOUSE)
-#else
-void display_fillbox_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool )
-#endif
+void display_fillbox_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
@@ -252,11 +248,7 @@ void display_vline_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, boo
 {
 }
 
-#ifdef MULTI_THREAD
-void display_vline_wh_clip_cl_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool  CLIP_NUM_DEF_NOUSE)
-#else
-void display_vline_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool)
-#endif
+void display_vline_wh_clip_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, bool  CLIP_NUM_DEF_NOUSE)
 {
 }
 
@@ -338,11 +330,7 @@ void display_ddd_proportional(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER
 {
 }
 
-#ifdef MULTI_THREAD
-void display_ddd_proportional_clip_cl(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int  CLIP_NUM_DEF_NOUSE)
-#else
-void display_ddd_proportional_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int)
-#endif
+void display_ddd_proportional_clip(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int  CLIP_NUM_DEF_NOUSE)
 {
 }
 

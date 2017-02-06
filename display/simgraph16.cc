@@ -3928,7 +3928,7 @@ void display_fillbox_wh_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h
 }
 
 
-void display_fillbox_wh_clip_cl_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty  CLIP_NUM_DEF)
+void display_fillbox_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PIXVAL color, bool dirty  CLIP_NUM_DEF)
 {
 	display_fb_internal( xp, yp, w, h, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy );
 }
@@ -3959,17 +3959,10 @@ void display_vline_wh_rgb(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const P
 }
 
 
-#ifdef MULTI_THREAD
-void display_vline_wh_clip_cl_rgb(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PIXVAL color, bool dirty  CLIP_NUM_DEF)
+void display_vline_wh_clip_rgb(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PIXVAL color, bool dirty  CLIP_NUM_DEF)
 {
 	display_vl_internal( xp, yp, h, color, dirty, CR.clip_rect.x, CR.clip_rect.xx, CR.clip_rect.y, CR.clip_rect.yy );
 }
-#else
-void display_vline_wh_clip_rgb(const KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL h, const PIXVAL color, bool dirty)
-{
-	display_vl_internal( xp, yp, h, color, dirty, clip_rect.x, clip_rect.xx, clip_rect.y, clip_rect.yy );
-}
-#endif
 
 
 /**
@@ -4541,34 +4534,18 @@ void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, K
  * display text in 3d box with clipping
  * @author: hsiegeln
  */
-#ifdef MULTI_THREAD
-void display_ddd_proportional_clip_cl(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty  CLIP_NUM_DEF)
+void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty  CLIP_NUM_DEF)
 {
 	int halfheight = large_font_total_height / 2 + 1;
 
-	display_fillbox_wh_clip_cl_rgb( xpos - 2, ypos - halfheight - 1 - hgt, width, 1,              color_idx_to_rgb(ddd_farbe + 1), dirty  CLIP_NUM_PAR );
-	display_fillbox_wh_clip_cl_rgb( xpos - 2, ypos - halfheight - hgt,     width, halfheight * 2, color_idx_to_rgb(ddd_farbe),     dirty  CLIP_NUM_PAR );
-	display_fillbox_wh_clip_cl_rgb( xpos - 2, ypos + halfheight - hgt,     width, 1,              color_idx_to_rgb(ddd_farbe - 1), dirty  CLIP_NUM_PAR );
+	display_fillbox_wh_clip_rgb( xpos - 2, ypos - halfheight - 1 - hgt, width, 1,              color_idx_to_rgb(ddd_farbe + 1), dirty  CLIP_NUM_PAR );
+	display_fillbox_wh_clip_rgb( xpos - 2, ypos - halfheight - hgt,     width, halfheight * 2, color_idx_to_rgb(ddd_farbe),     dirty  CLIP_NUM_PAR );
+	display_fillbox_wh_clip_rgb( xpos - 2, ypos + halfheight - hgt,     width, 1,              color_idx_to_rgb(ddd_farbe - 1), dirty  CLIP_NUM_PAR );
 
-	display_vline_wh_clip_cl_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, color_idx_to_rgb(ddd_farbe + 1), dirty  CLIP_NUM_PAR );
-	display_vline_wh_clip_cl_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, color_idx_to_rgb(ddd_farbe - 1), dirty  CLIP_NUM_PAR );
+	display_vline_wh_clip_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, color_idx_to_rgb(ddd_farbe + 1), dirty  CLIP_NUM_PAR );
+	display_vline_wh_clip_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, color_idx_to_rgb(ddd_farbe - 1), dirty  CLIP_NUM_PAR );
 
-	display_text_proportional_len_clip_cl( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, dirty, -1, clip_num);
-
-#else
-void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, PLAYER_COLOR_VAL ddd_farbe, PLAYER_COLOR_VAL text_farbe, const char *text, int dirty)
-{
-	int halfheight = large_font_total_height / 2 + 1;
-
-	display_fillbox_wh_clip_rgb( xpos - 2, ypos - halfheight - 1 - hgt, width, 1,              color_idx_to_rgb(ddd_farbe + 1), dirty );
-	display_fillbox_wh_clip_rgb( xpos - 2, ypos - halfheight - hgt,     width, halfheight * 2, color_idx_to_rgb(ddd_farbe),     dirty );
-	display_fillbox_wh_clip_rgb( xpos - 2, ypos + halfheight - hgt,     width, 1,              color_idx_to_rgb(ddd_farbe - 1), dirty );
-
-	display_vline_wh_clip_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 1, color_idx_to_rgb(ddd_farbe + 1), dirty );
-	display_vline_wh_clip_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 1, color_idx_to_rgb(ddd_farbe - 1), dirty );
-
-	display_text_proportional_len_clip( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, dirty, -1);
-#endif
+	display_text_proportional_len_clip( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, dirty, -1  CLIP_NUM_PAR);
 }
 
 
