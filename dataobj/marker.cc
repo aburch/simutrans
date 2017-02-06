@@ -45,6 +45,10 @@ marker_t::~marker_t()
 	{
 		delete[] bits;
 	}
+	else
+	{
+		dbg->warning("marker_t::~marker_t()", "Calling destructor on a marker with NULL bits");
+	}
 }
 
 void marker_t::unmark_all()
