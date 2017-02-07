@@ -980,17 +980,17 @@ sint16 tool_raise_t::get_drag_height(koord k)
 
 const char *tool_raise_t::check_pos(player_t *player, koord3d pos )
 {
-	// check for underground mode
-	if (is_dragging  &&  drag_height-1 > grund_t::underground_level) {
+		// check for underground mode
+	if(  is_dragging  &&  drag_height-1 > grund_t::underground_level  ) {
 		is_dragging = false;
 		return "";
 	}
-	if (! welt->is_within_grid_limits(pos.get_2d())) {
+	if(  !welt->is_within_grid_limits(pos.get_2d())  ) {
 		return "";
 	}
 	sint8 h = (sint8) get_drag_height(pos.get_2d());
-	if (h > grund_t::underground_level) {
-			return "Terraforming not possible\nhere in underground view";
+	if(  h > grund_t::underground_level  ) {
+		return "Terraforming not possible\nhere in underground view";
 	}
 	const sint64 cost = welt->get_settings().cst_alter_land;
 	if(! player_t::can_afford(player, -cost) )
@@ -7572,7 +7572,7 @@ bool tool_show_underground_t::init( player_t * )
 				ok = false;
 			}
 			break;
-			// decrease slice level
+		// decrease slice level
 		case 'D':
 			if (grund_t::underground_mode == grund_t::ugm_level) {
 				if (grund_t::underground_level > welt->min_height) {

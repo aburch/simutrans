@@ -8292,9 +8292,7 @@ void karte_t::load(loadsave_t *file)
 	}
 
 	grundwasser = (sint8)(settings.get_grundwasser());
-
 	min_height = max_height = grundwasser;
-
 	DBG_DEBUG("karte_t::load()","grundwasser %i",grundwasser);
 
 	if (file->get_version() < 112007) {
@@ -9652,6 +9650,37 @@ void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 	else {
 		set_pause(pause_);
 	}
+}
+
+const char* karte_t::call_work(tool_t *tool, player_t *player, koord3d pos, bool &suspended)
+{
+	const char *err = NULL;
+	if (!env_t::networkmode || tool->is_work_network_save() || tool->is_work_here_network_save(player, pos)) {
+		// do the work
+		tool->flags |= tool_t::WFL_LOCAL;
+		// check allowance by scenario
+		if ((tool->flags & tool_t::WFL_NO_CHK) == 0 && get_scenario()->is_scripted()) {
+			if (!get_scenario()->is_tool_allowed(player, tool->get_id(), tool->get_waytype())) {
+				err = "";
+			}
+			else {
+				err = get_scenario()->is_work_allowed_here(player, tool->get_id(), tool->get_waytype(), pos);
+			}
+		}
+		if (err == NULL) {
+			err = tool->work(player, pos);
+		}
+		suspended = false;
+	}
+	else {
+		// queue tool for network
+		nwc_tool_t *nwc = new nwc_tool_t(player, tool, pos, get_steps(), get_map_counter(), false);
+		network_send_server(nwc);
+		suspended = true;
+		// reset tool
+		tool->init(player);
+	}
+	return err;
 }
 
 

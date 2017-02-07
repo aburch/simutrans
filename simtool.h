@@ -82,6 +82,7 @@ public:
 	 * it sends work commands over network itself
 	 */
 	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
+	bool move_has_effects() const OVERRIDE { return true; }
 
 	bool is_init_network_save() const OVERRIDE { return true; }
 	/**
