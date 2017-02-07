@@ -32,8 +32,8 @@ else
         CFLAGS  += -I/usr/include/mingw -mwin32
       else
         ifeq ($(OSTYPE),mingw)
-          CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -static
-		  LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware -static
+          CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
+          LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware
           LIBS    += -lmingw32
         endif
       endif
@@ -499,11 +499,7 @@ ifeq ($(BACKEND),sdl)
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-    ifeq ($(OSTYPE),mingw)
-		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
-	else
-	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
-	endif
+    SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)
@@ -549,11 +545,7 @@ ifeq ($(BACKEND),mixer_sdl)
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-	ifeq ($(OSTYPE),mingw)
-		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
-	else
-	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
-	endif
+	SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
  
   endif
   CFLAGS += $(SDL_CFLAGS)
@@ -580,11 +572,7 @@ ifeq ($(BACKEND),opengl)
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-    ifeq ($(OSTYPE),mingw)
-		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
-	else
-	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
-	endif
+    SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)

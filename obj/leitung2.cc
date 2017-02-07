@@ -849,6 +849,7 @@ void senke_t::step(uint32 delta_t)
 			// an equal share, then check those that do.
 
 			const powernet_t* net = substation->get_net();
+
 			supply = net->get_supply() - (net->get_demand() - shared_power_demand);
 
 			if(supply < (shared_power_demand / (city_substations_number - checked_substations.get_count())))
