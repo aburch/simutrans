@@ -1045,7 +1045,7 @@ grund_t* vehicle_t::hop_check()
 		return bd;
 	}
 	else {
-		// this is needed since in convoi_t::vorfahren the flag ist_erstes is set to null
+		// this is needed since in convoi_t::vorfahren the flag 'leading' is set to null
 		if(check_for_finish) {
 			return NULL;
 		}
