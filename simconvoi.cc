@@ -1104,7 +1104,6 @@ bool convoi_t::drive_to()
 
 						if(  looped  ) {
 							// proceed upto the waypoint before the loop. Will pause there for a new route search.
-							schedule_target = koord3d::invalid;
 							break;
 						}
 						else {
