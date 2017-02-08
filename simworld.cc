@@ -153,7 +153,7 @@ static pthread_cond_t path_explorer_conditional_end = PTHREAD_COND_INITIALIZER;
 bool karte_t::threads_initialised = false;
 
 thread_local uint32 karte_t::passenger_generation_thread_number;
-thread_local uint32 karte_t::marker_index;
+thread_local uint32 karte_t::marker_index = UINT32_MAX_VALUE;
 
 sint32 karte_t::cities_to_process = 0;
 vector_tpl<convoihandle_t> convoys_next_step;
