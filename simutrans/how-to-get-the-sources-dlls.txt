@@ -1,0 +1,5 @@
+Sources (and up to date binaries) for pthreadGC2-w32.dll can be found here:
+
+https://sourceforge.net/projects/mingw-w64/files/External%20binary%20packages%20(Win64%20hosted)/pthreads/
+
+Pthreads is distributed under the terms of the Lesser GNU General Public Licence: see LGPL.txt. 
