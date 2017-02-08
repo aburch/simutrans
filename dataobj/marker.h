@@ -40,9 +40,13 @@ class marker_t {
 	 */
 	void init(int world_size_x,int world_size_y);
 
-	/// the instance
-	static marker_t thread_local the_instance;
+	/// the instance (single threaded only)
+	static marker_t the_instance;
+
 public:
+
+	/// For running multi-threadedly
+	static marker_t* markers;
 
 	marker_t() : bits(NULL) { init(0, 0); }
 	~marker_t();
@@ -53,7 +57,7 @@ public:
 	 * @param world_size_y y-size of map
 	 * @returns handle to the singleton instance
 	 */
-	static marker_t& instance(int world_size_x,int world_size_y);
+	static marker_t& instance(int world_size_x, int world_size_y, uint32 thread_number);
 
 	/**
 	 * Marks tile as visited.

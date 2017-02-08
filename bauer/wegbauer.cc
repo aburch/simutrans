@@ -1400,7 +1400,7 @@ sint32 way_builder_t::intern_calc_route(const vector_tpl<koord3d> &start, const 
 	uint8 ni = route_t::GET_NODES(&nodes);
 
 	// initialize marker field
-	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
+	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y, karte_t::individual_convoy_thread_number);
 
 	// clear the queue (should be empty anyhow)
 	queue.clear();

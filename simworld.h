@@ -978,7 +978,6 @@ private:
 	static vector_tpl<convoihandle_t> convoys_next_step;
 	public:
 	static sint32 path_explorer_step_progress;
-	static bool unreserve_route_running;
 	static bool threads_initialised; 
 	
 	// These are both intended to be arrays of vectors
@@ -986,7 +985,10 @@ private:
 	static vector_tpl<pedestrian_t*> *pedestrians_added_threaded;
 
 	static thread_local uint32 passenger_generation_thread_number;
+	static thread_local uint32 individual_convoy_thread_number;
 	private:
+#else
+	static const uint32 individual_convoy_thread_number = UINT32_MAX_VALUE;
 #endif
 
 public:

@@ -96,6 +96,7 @@
 #include "dataobj/environment.h"
 #include "dataobj/powernet.h"
 #include "dataobj/records.h"
+#include "dataobj/marker.h"
 
 #include "utils/cbuffer_t.h"
 #include "utils/simstring.h"
@@ -124,34 +125,42 @@
 
 #ifdef MULTI_THREAD
 #include "utils/simthread.h"
+
 static vector_tpl<pthread_t> private_car_route_threads;
 static vector_tpl<pthread_t> unreserve_route_threads;
 static vector_tpl<pthread_t> step_passengers_and_mail_threads;
-static vector_tpl<pthread_t> individual_convoi_step_threads;
+static vector_tpl<pthread_t> individual_convoy_step_threads;
 static vector_tpl<pthread_t> path_explorer_threads;
-static pthread_t convoi_step_master_thread;
+static pthread_t convoy_step_master_thread;
 static pthread_t path_explorer_thread;
+
 static pthread_attr_t thread_attributes;
+
 static pthread_mutex_t private_car_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t karte_t::step_passengers_and_mail_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t path_explorer_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t path_explorer_conditional_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t karte_t::unreserve_route_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 static simthread_barrier_t private_car_barrier;
-bool karte_t::threads_initialised = false;
-vector_tpl<pedestrian_t*> *karte_t::pedestrians_added_threaded;
-vector_tpl<private_car_t*> *karte_t::private_cars_added_threaded;
-thread_local uint32 karte_t::passenger_generation_thread_number;
 simthread_barrier_t karte_t::unreserve_route_barrier;
 static simthread_barrier_t step_passengers_and_mail_barrier;
 static simthread_barrier_t start_path_explorer_barrier;
 static simthread_barrier_t step_convoys_barrier_internal;
 simthread_barrier_t karte_t::step_convoys_barrier_external;
+
 static pthread_cond_t path_explorer_conditional_end = PTHREAD_COND_INITIALIZER;
+
+bool karte_t::threads_initialised = false;
+
+thread_local uint32 karte_t::passenger_generation_thread_number;
+thread_local uint32 karte_t::individual_convoy_thread_number;
+
 sint32 karte_t::cities_to_process = 0;
-vector_tpl<convoihandle_t> convoys_next_step; 
+vector_tpl<convoihandle_t> convoys_next_step;
 sint32 karte_t::path_explorer_step_progress = -1;
-bool karte_t::unreserve_route_running = false;
+
+vector_tpl<pedestrian_t*> *karte_t::pedestrians_added_threaded;
+vector_tpl<private_car_t*> *karte_t::private_cars_added_threaded;
 #endif
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -1798,7 +1807,7 @@ void* step_individual_convoy_threaded(void* args)
 {
 	//pthread_cleanup_push(&route_t::TERM_NODES, NULL);
 	const uint32* thread_number_ptr = (const uint32*)args;
-	const uint32 thread_number = *thread_number_ptr;
+	karte_t::individual_convoy_thread_number = *thread_number_ptr;
 	delete thread_number_ptr;
 
 	do
@@ -1808,9 +1817,9 @@ void* step_individual_convoy_threaded(void* args)
 		{
 			break;
 		}
-		if (convoys_next_step.get_count() > thread_number)
+		if (convoys_next_step.get_count() > karte_t::individual_convoy_thread_number)
 		{
-			convoihandle_t cnv = convoys_next_step[thread_number];
+			convoihandle_t cnv = convoys_next_step[karte_t::individual_convoy_thread_number];
 			if (cnv.is_bound())
 			{
 				cnv->threaded_step();
@@ -1916,7 +1925,6 @@ void* unreserve_route_threaded(void* args)
 		}
 		if (convoi_t::current_unreserver == 0)
 		{
-			karte_t::unreserve_route_running = false;
 			pthread_mutex_unlock(&karte_t::unreserve_route_mutex);
 			continue;
 		}
@@ -1948,6 +1956,8 @@ void* unreserve_route_threaded(void* args)
 
 void karte_t::init_threads()
 {
+	individual_convoy_thread_number = UINT32_MAX_VALUE;
+
 	sint32 rc;
 
 	const sint32 parallel_operations = max(get_parallel_operations(), env_t::num_threads - 1); 
@@ -1955,6 +1965,7 @@ void karte_t::init_threads()
 	private_cars_added_threaded = new vector_tpl<private_car_t*>[parallel_operations];
 	pedestrians_added_threaded = new vector_tpl<pedestrian_t*>[parallel_operations];
 	transferring_cargoes = new vector_tpl<transferring_cargo_t>[parallel_operations];
+	marker_t::markers = new marker_t[parallel_operations]; 
 
 	pthread_attr_init(&thread_attributes);
 	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
@@ -2016,12 +2027,12 @@ void karte_t::init_threads()
 		}
 		else
 		{
-			individual_convoi_step_threads.append(thread);
+			individual_convoy_step_threads.append(thread);
 		}
 #endif 
 	}
 #ifdef MULTI_THREAD_CONVOYS
-	rc = pthread_create(&convoi_step_master_thread, &thread_attributes, &step_convoys_threaded, (void*)this);
+	rc = pthread_create(&convoy_step_master_thread, &thread_attributes, &step_convoys_threaded, (void*)this);
 	if (rc)
 	{
 		dbg->fatal("void karte_t::init_threads()", "Failed to create convoy master thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
@@ -2065,9 +2076,9 @@ void karte_t::destroy_threads()
 		pthread_join(path_explorer_thread, 0);
 #endif
 #ifdef MULTI_THREAD_CONVOYS
-		pthread_join(convoi_step_master_thread, 0);
-		clean_threads(&individual_convoi_step_threads);
-		individual_convoi_step_threads.clear();
+		pthread_join(convoy_step_master_thread, 0);
+		clean_threads(&individual_convoy_step_threads);
+		individual_convoy_step_threads.clear();
 #endif
 
 		clean_threads(&private_car_route_threads);
@@ -2101,6 +2112,8 @@ void karte_t::destroy_threads()
 	pedestrians_added_threaded = NULL;
 	delete[] transferring_cargoes;
 	transferring_cargoes = NULL;
+	delete[] marker_t::markers;
+	marker_t::markers = NULL;
 
 	threads_initialised = false;
 	terminating_threads = false;

@@ -9,8 +9,8 @@
 #include "../boden/grund.h"
 #include "marker.h"
 
-marker_t thread_local marker_t::the_instance;
-
+marker_t marker_t::the_instance;
+marker_t* marker_t::markers; 
 
 void marker_t::init(int world_size_x,int world_size_y)
 {
@@ -33,10 +33,24 @@ void marker_t::init(int world_size_x,int world_size_y)
 	unmark_all();
 }
 
-marker_t& marker_t::instance(int world_size_x,int world_size_y)
+marker_t& marker_t::instance(int world_size_x, int world_size_y, uint32 thread_number)
 {
-	the_instance.init(world_size_x, world_size_y);
-	return the_instance;
+	if (thread_number == UINT32_MAX_VALUE)
+	{
+		the_instance.init(world_size_x, world_size_y);
+		return the_instance;
+	}
+	else
+	{
+#ifdef MULTI_THREAD
+		markers[thread_number].init(world_size_x, world_size_y);
+		return markers[thread_number];
+#else
+		dbg->fatal("marker_t& marker_t::instance(int world_size_x, int world_size_y, uint32 thread_number)", "Attempting to instantiate threaded marker in a single-threaded build");
+		return NULL;
+#endif
+	}
+	
 }
 
 marker_t::~marker_t()

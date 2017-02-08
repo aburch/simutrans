@@ -911,7 +911,7 @@ void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_st
 	}
 
 	// nothing in lists
-	marker = &marker_t::instance(welt->get_size().x, welt->get_size().y);
+	marker = &marker_t::instance(welt->get_size().x, welt->get_size().y, karte_t::individual_convoy_thread_number);
 
 	// and init all stuff for recursion
 	grund_t *start = welt->lookup_kartenboden(start_pos);
