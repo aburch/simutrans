@@ -153,7 +153,7 @@ static pthread_cond_t path_explorer_conditional_end = PTHREAD_COND_INITIALIZER;
 bool karte_t::threads_initialised = false;
 
 thread_local uint32 karte_t::passenger_generation_thread_number;
-thread_local uint32 karte_t::individual_convoy_thread_number;
+thread_local uint32 karte_t::marker_index;
 
 sint32 karte_t::cities_to_process = 0;
 vector_tpl<convoihandle_t> convoys_next_step;
@@ -1602,11 +1602,15 @@ DBG_DEBUG("karte_t::init()","built timeline");
 #ifdef MULTI_THREAD
 void *check_road_connexions_threaded(void *args)
 {
-	karte_t* world = (karte_t*)args;
+	const uint32* thread_number_ptr = (const uint32*)args;
+	const uint32 thread_number = *thread_number_ptr;
+	delete thread_number_ptr;
+
+	karte_t::marker_index = thread_number + world()->get_parallel_operations(); 
 
 	do
 	{
-		if (world->is_terminating_threads())
+		if (world()->is_terminating_threads())
 		{
 			break;
 		}
@@ -1614,7 +1618,7 @@ void *check_road_connexions_threaded(void *args)
 		if (karte_t::cities_to_process > 0)
 		{
 			stadt_t* city;
-			city = world->cities_awaiting_private_car_route_check.remove_first();
+			city = world()->cities_awaiting_private_car_route_check.remove_first();
 			karte_t::cities_to_process--;
 			pthread_mutex_unlock(&private_car_route_mutex);
 
@@ -1631,7 +1635,7 @@ void *check_road_connexions_threaded(void *args)
 		pthread_mutex_unlock(&private_car_route_mutex);
 		// Having two barrier waits here is intentional.
 		simthread_barrier_wait(&private_car_barrier);
-	} while (!world->is_terminating_threads());
+	} while (!world()->is_terminating_threads());
 
 	pthread_exit(NULL);
 	return args;
@@ -1807,7 +1811,8 @@ void* step_individual_convoy_threaded(void* args)
 {
 	//pthread_cleanup_push(&route_t::TERM_NODES, NULL);
 	const uint32* thread_number_ptr = (const uint32*)args;
-	karte_t::individual_convoy_thread_number = *thread_number_ptr;
+	const uint32 thread_number = *thread_number_ptr; 
+	karte_t::marker_index = thread_number;
 	delete thread_number_ptr;
 
 	do
@@ -1817,9 +1822,9 @@ void* step_individual_convoy_threaded(void* args)
 		{
 			break;
 		}
-		if (convoys_next_step.get_count() > karte_t::individual_convoy_thread_number)
+		if (convoys_next_step.get_count() > thread_number)
 		{
-			convoihandle_t cnv = convoys_next_step[karte_t::individual_convoy_thread_number];
+			convoihandle_t cnv = convoys_next_step[thread_number];
 			if (cnv.is_bound())
 			{
 				cnv->threaded_step();
@@ -1956,7 +1961,7 @@ void* unreserve_route_threaded(void* args)
 
 void karte_t::init_threads()
 {
-	individual_convoy_thread_number = UINT32_MAX_VALUE;
+	marker_index = UINT32_MAX_VALUE;
 
 	sint32 rc;
 
@@ -1965,7 +1970,7 @@ void karte_t::init_threads()
 	private_cars_added_threaded = new vector_tpl<private_car_t*>[parallel_operations];
 	pedestrians_added_threaded = new vector_tpl<pedestrian_t*>[parallel_operations];
 	transferring_cargoes = new vector_tpl<transferring_cargo_t>[parallel_operations];
-	marker_t::markers = new marker_t[parallel_operations]; 
+	marker_t::markers = new marker_t[parallel_operations * 2]; 
 
 	pthread_attr_init(&thread_attributes);
 	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
@@ -1979,9 +1984,11 @@ void karte_t::init_threads()
 	
 	pthread_t thread;
 	
-	for (sint32 i = 0; i < parallel_operations; i++)
+	for (uint32 i = 0; i < parallel_operations; i++)
 	{
-		rc = pthread_create(&thread, &thread_attributes, &check_road_connexions_threaded, (void*)this);
+		uint32* thread_number_checker = new uint32;
+		*thread_number_checker = i;
+		rc = pthread_create(&thread, &thread_attributes, &check_road_connexions_threaded, (void*)thread_number_checker);
 		if (rc)
 		{
 			dbg->fatal("void karte_t::init_threads()", "Failed to create private car thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
@@ -2018,7 +2025,7 @@ void karte_t::init_threads()
 #endif
 
 #ifdef MULTI_THREAD_CONVOYS
-		sint32* thread_number_cnv = new sint32;
+		uint32* thread_number_cnv = new uint32;
 		*thread_number_cnv = i;
 		rc = pthread_create(&thread, &thread_attributes, &step_individual_convoy_threaded, (void*)thread_number_cnv);
 		if (rc)

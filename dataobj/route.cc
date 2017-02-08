@@ -203,7 +203,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	}
 
 	// nothing in lists
-	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y, karte_t::individual_convoy_thread_number);
+	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y, karte_t::marker_index);
 
 	// there are several variant for maintaining the open list
 	// however, only binary heap and HOT queue with binary heap are worth considering
@@ -619,7 +619,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 	tmp->jps_ribi  = ribi_t::all;
 
 	// nothing in lists
-	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y, karte_t::individual_convoy_thread_number);
+	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y, karte_t::marker_index);
 
 	const grund_t* avoid_ground = welt->lookup(avoid_tile);
 	marker.mark(avoid_ground);

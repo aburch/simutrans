@@ -985,10 +985,10 @@ private:
 	static vector_tpl<pedestrian_t*> *pedestrians_added_threaded;
 
 	static thread_local uint32 passenger_generation_thread_number;
-	static thread_local uint32 individual_convoy_thread_number;
+	static thread_local uint32 marker_index;
 	private:
 #else
-	static const uint32 individual_convoy_thread_number = UINT32_MAX_VALUE;
+	static const uint32 marker_index = UINT32_MAX_VALUE;
 #endif
 
 public:

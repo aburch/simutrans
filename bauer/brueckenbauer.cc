@@ -1123,7 +1123,7 @@ void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ri
 
 const char *bridge_builder_t::remove(player_t *player, koord3d pos_start, waytype_t wegtyp)
 {
-	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y, karte_t::individual_convoy_thread_number);
+	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y, karte_t::marker_index);
 	slist_tpl<koord3d> end_list;
 	slist_tpl<koord3d> part_list;
 	slist_tpl<koord3d> tmp_list;

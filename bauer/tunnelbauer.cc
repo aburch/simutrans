@@ -701,7 +701,7 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 
 const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t waytyp, bool remove_all )
 {
-	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y, karte_t::individual_convoy_thread_number);
+	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y, karte_t::marker_index);
 	slist_tpl<koord3d>  end_list;
 	slist_tpl<koord3d>  part_list;
 	slist_tpl<koord3d>  tmp_list;
