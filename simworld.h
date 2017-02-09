@@ -988,6 +988,7 @@ private:
 	static thread_local uint32 marker_index;
 	private:
 #else
+	public:
 	static const uint32 marker_index = UINT32_MAX_VALUE;
 #endif
 
