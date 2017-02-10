@@ -297,7 +297,7 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 			MEMZERO(buf);
 			if(  BZ2_bzRead( &fd->bse, fd->bzfp, buf, sizeof(SAVEGAME_PREFIX) )==sizeof(SAVEGAME_PREFIX)  &&  fd->bse==BZ_OK  ) {
 				// get the rest of the string
-				for(  int i=sizeof(SAVEGAME_PREFIX);  (uint8)buf[i-1] >= 32  &&  i<79;  i++  ) {
+				for (int i = sizeof(SAVEGAME_PREFIX); (uint8)buf[i - 1] >= 32 && i<511; i++) {
 					buf[i] = lsgetc();
 				}
 				ok = fd->bse==BZ_OK;
@@ -479,16 +479,16 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 		char str[8192];
 		size_t len;
 		if(  version<=102002  ) {
-			len = sprintf( str, SAVEGAME_PREFIX "%s%s%s\n", savegame_version, "zip", pakset_string);
+			len = sprintf(str, SAVEGAME_PREFIX "%s%s%s\n", savegame_ver.c_str(), "zip", pakset_string);
 		}
 		else {
-			len = sprintf( str, SAVEGAME_PREFIX "%s-%s\n", savegame_version, pakset_string);
+			len = sprintf(str, SAVEGAME_PREFIX "%s-%s\n", savegame_ver.c_str(), pakset_string);
 		}
 		write( str, len );
 	}
 	else {
 		char str[4096];
-		int n = sprintf( str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", savegame_version, pakset_string);
+		int n = sprintf(str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", savegame_ver.c_str(), pakset_string);
 		write( str, n );
 		ident = 1;
 	}
