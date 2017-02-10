@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <string>
 #include <ctype.h>
 #include <assert.h>
 #include <errno.h>
@@ -15,14 +14,14 @@
 #include "../utils/plainstring.h"
 #include "loadsave.h"
 
-#include "../besch/grund_besch.h"
-
 #include "../utils/simstring.h"
 
-#include <zlib.h> 
+#include <zlib.h>
 #include <bzlib.h>
 
 #define INVALID_RDWR_ID (-1)
+
+//#undef MULTI_THREAD
 
 // buffer size for read/write - bzip2 gains up to 8M for non-threaded, 1M for threaded. binary, zipped ok with 256K or smaller.
 #define LS_BUF_SIZE (1024*1024)
@@ -44,54 +43,139 @@ typedef struct{
 } loadsave_param_t;
 static loadsave_param_t ls;
 
-
-void *loadsave_thread( void *ptr )
+/*
+ * Multi-threaded loading:
+ * more complicated synchronization due to different sources of errors
+ * - less data available than needed (noticed within load_thread)
+ * - more data available than needed (main thread finishes reading but load_thread still waits)
+ *
+ * Communication of error by variable readdata_flag, protected by readdata_mutex
+ *
+ * Intended program flow:
+ *
+ * main                                                      load_thread
+ * (data processing)                        (finalize)       fill_buffer
+ * < --  thread_barrier_wait ------------------------------------------------>
+ * (error handling)                                          pthread_cond_wait
+ * if readdata_flag < 0
+ *       load_thread already exited
+ *       not enough data -> fatal error
+ *
+ * readdata_flag = 1                        readdata_flag = -1
+ * pthread_cond_broadcast --------------------------------------------------->
+ * repeat                                                            (error handling)
+ *                                                           if readdata_flag < 0
+ *                                                         <------ end thread
+ *                                                           if error occured during previous fill_buffer
+ *                                                                 readdata_flag = -1
+ *                                          (join threads) <------ end thread
+ *                                                           repeat
+ */
+void *load_thread( void *ptr )
 {
 	loadsave_param_t *lsp = reinterpret_cast<loadsave_param_t *>(ptr);
 	int buf = 1;
 
 	while(true) {
-		if(  lsp->loadsave_routine->is_saving()  ) {
-			// wait to sync with main thread before flushing the buffer
-			simthread_barrier_wait(&loadsave_barrier);
+		int res = lsp->loadsave_routine->fill_buffer(buf);
 
-			buf = (buf+1)&1;
-			if(  lsp->loadsave_routine->get_buf_pos(buf)==0  ) {
-				// empty buffer after sync - signal to exit
-				break;
-			}
-			lsp->loadsave_routine->flush_buffer(buf);
+		// always wait to sync with main thread before filling the next buffer
+		pthread_mutex_lock(&readdata_mutex);
+		simthread_barrier_wait(&loadsave_barrier);
+
+		while(  readdata_flag == 0  ) {
+			pthread_cond_wait(&readdata_cond, &readdata_mutex);
 		}
-		else {
-			int res = lsp->loadsave_routine->fill_buffer(buf);
-			// always wait to sync with main thread before filling the next buffer
-			pthread_mutex_lock(&readdata_mutex);
-			simthread_barrier_wait(&loadsave_barrier);
-
-			while(  readdata_flag == 0  ) {
-				pthread_cond_wait(&readdata_cond, &readdata_mutex);
-			}
-			if (readdata_flag < 0) {
-				// leave if  no more data needed
-				pthread_mutex_unlock(&readdata_mutex);
-				break;
-			}
-			if (res <= 0) {
-				// nothing read into buffer, or error occured
-				// flag error to main thread
-				readdata_flag = -1;
-				pthread_mutex_unlock(&readdata_mutex);
-				break;
-			}
-			readdata_flag = 0;
+		if (readdata_flag < 0) {
+			// leave if  no more data needed
 			pthread_mutex_unlock(&readdata_mutex);
- 
-			// switch buffer
-			buf = (buf+1)&1;
+			break;
 		}
+		if (res <= 0) {
+			// nothing read into buffer, or error occured
+			// flag error to main thread
+			readdata_flag = -1;
+			pthread_mutex_unlock(&readdata_mutex);
+			break;
+		}
+		readdata_flag = 0;
+		pthread_mutex_unlock(&readdata_mutex);
+
+		// switch buffer
+		buf = (buf+1)&1;
 	}
 	return ptr;
 }
+
+void loading_trigger_fill_buffer()
+{
+	// sync with other thread, tell to read more data
+	simthread_barrier_wait(&loadsave_barrier);
+
+	pthread_mutex_lock(&readdata_mutex);
+	if (readdata_flag < 0) {
+		pthread_mutex_unlock(&readdata_mutex);
+		// reading thread exited due to error
+		dbg->fatal("loadsave_t::read","savegame corrupt, not enough data");
+		return;
+	}
+	readdata_flag = 1; // more data please
+
+	pthread_cond_broadcast(&readdata_cond);
+	pthread_mutex_unlock(&readdata_mutex);
+}
+
+void loading_finalize()
+{
+	simthread_barrier_wait(&loadsave_barrier);
+	// reader thread waits, signal end of loadingdata
+	pthread_mutex_lock(&readdata_mutex);
+	readdata_flag = -1; // no more data
+
+	pthread_cond_broadcast(&readdata_cond);
+	pthread_mutex_unlock(&readdata_mutex);
+}
+/*
+ * Multi-threaded saving:
+ *
+ * - synchronization is done with barriers
+ * - end-of-saving is signaled to thread with get_buf_pos(buf)==0,
+ *   which is protected by loadsave_mutex
+ */
+
+void *save_thread( void *ptr )
+{
+	loadsave_param_t *lsp = reinterpret_cast<loadsave_param_t *>(ptr);
+	int buf = 1;
+
+	while(true) {
+		// wait to sync with main thread before flushing the buffer
+		simthread_barrier_wait(&loadsave_barrier);
+
+		buf = (buf+1)&1;
+		if(  lsp->loadsave_routine->get_buf_pos(buf)==0  ) {
+			// empty buffer after sync - signal to exit
+			break;
+		}
+		lsp->loadsave_routine->flush_buffer(buf);
+	}
+	return ptr;
+}
+
+void saving_trigger_flush()
+{
+	// sync with thread to flush the buffer
+	simthread_barrier_wait(&loadsave_barrier);
+}
+
+void saving_finalize()
+{
+	// first sync with thread causes buffer to be flushed
+	simthread_barrier_wait(&loadsave_barrier);
+	// second sync with empty buffer signals thread to exit
+	simthread_barrier_wait(&loadsave_barrier);
+}
+
 #endif
 
 
@@ -146,7 +230,7 @@ void loadsave_t::set_buffered(bool enable)
 
 			ls.loadsave_routine = this;
 
-			pthread_create(&ls_thread, &attr, loadsave_thread, (void *)&ls);
+			pthread_create(&ls_thread, &attr, saving ? save_thread : load_thread, (void *)&ls);
 
 			pthread_attr_destroy(&attr);
 #endif
@@ -156,24 +240,14 @@ void loadsave_t::set_buffered(bool enable)
 		if(  buffered  ) {
 			if(  saving  &&  buf_pos[curr_buff]>0  ) {
 #ifdef MULTI_THREAD
-				// first sync with thread causes buffer to be flushed
-				simthread_barrier_wait(&loadsave_barrier);
-				// second sync with empty buffer signals thread to exit
-				simthread_barrier_wait(&loadsave_barrier);
+				saving_finalize();
 #else
 				flush_buffer(curr_buff);
 #endif
 			}
 #ifdef MULTI_THREAD
-
 			if(  !saving  ) {
-				simthread_barrier_wait(&loadsave_barrier);
-				// reader thread waits, signal end of loadingdata
-				pthread_mutex_lock(&readdata_mutex);
-				readdata_flag = -1; // no more data
-
-				pthread_cond_broadcast(&readdata_cond);
-				pthread_mutex_unlock(&readdata_mutex);
+				loading_finalize();
 			}
 			pthread_join(ls_thread,NULL);
 
@@ -199,7 +273,7 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 	mode = zipped;
 	experimental_version = 0;
 	experimental_revision = 0;
-	fd->fp = fopen(filename, "rb");
+	fd->fp = fopen( filename, "rb");
 	if(  fd->fp==NULL  ) {
 		// most likely not existing
 		return false;
@@ -223,7 +297,7 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 			MEMZERO(buf);
 			if(  BZ2_bzRead( &fd->bse, fd->bzfp, buf, sizeof(SAVEGAME_PREFIX) )==sizeof(SAVEGAME_PREFIX)  &&  fd->bse==BZ_OK  ) {
 				// get the rest of the string
-				for( int i=sizeof(SAVEGAME_PREFIX); (uint8)buf[i-1] >= 32 && i<511; i++ ) {
+				for(  int i=sizeof(SAVEGAME_PREFIX);  (uint8)buf[i-1] >= 32  &&  i<79;  i++  ) {
 					buf[i] = lsgetc();
 				}
 				ok = fd->bse==BZ_OK;
@@ -304,9 +378,8 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 		strcpy( pak_extension, "(unknown)" );
 	}
 	this->filename = filename;
-
 #ifndef SPECIAL_RESCUE_12_6
-	if(experimental_version >= 12)
+	if (experimental_version >= 12)
 	{
 		rdwr_long(experimental_revision);
 	}
@@ -321,21 +394,22 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 }
 
 void loadsave_t::rdwr_string(std::string &s) {
-        if (saving) {
-                const char* name = s.c_str();
-                rdwr_str(name);
-        } else {
-                const char *name = NULL;
-                rdwr_str(name);
-                s = name;
-                free(const_cast<char *>(name));
-        } 
+	if (saving) {
+		const char* name = s.c_str();
+		rdwr_str(name);
+	}
+	else {
+		const char *name = NULL;
+		rdwr_str(name);
+		s = name;
+		free(const_cast<char *>(name));
+	}
 }
 
+
 bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex, const char* savegame_revision_ex)
- 
 {
-	mode = m; 
+	mode = m;
 	close();
 
 	const char *filename = dr_utf8_to_system_filename( filename_utf8, true );
@@ -376,10 +450,10 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 	const char *start = pak_extension;
 	const char *end = pak_extension + strlen(pak_extension)-1;
 	const char *c = pak_extension;
-	
+
 	// Add Experimental version numbering.
 	std::string savegame_ver = savegame_version;
-	if(savegame_version_ex && savegame_version_ex != savegame_version)
+	if (savegame_version_ex && savegame_version_ex != savegame_version)
 	{
 		savegame_ver.append(savegame_version_ex);
 	}
@@ -396,37 +470,37 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 	// delete trailing path separator
 	this->pak_extension[strlen(this->pak_extension)-1] = 0;
 
-	loadsave_t::combined_version combined_version = int_version(savegame_version, NULL, NULL );
+	loadsave_t::combined_version combined_version = int_version(savegame_version, NULL, NULL);
 	version = combined_version.version;
-
+	
 	const char* pakset_string = this->pak_extension;
 
 	if(  !is_xml()  ) {
 		char str[8192];
 		size_t len;
-		if(  version<102002  ) {
-			len = sprintf( str, SAVEGAME_PREFIX "%s%s%s\n", savegame_ver.c_str(), "zip", pakset_string );
+		if(  version<=102002  ) {
+			len = sprintf( str, SAVEGAME_PREFIX "%s%s%s\n", savegame_version, "zip", pakset_string);
 		}
 		else {
-			len = sprintf( str, SAVEGAME_PREFIX "%s-%s\n", savegame_ver.c_str(), pakset_string );
+			len = sprintf( str, SAVEGAME_PREFIX "%s-%s\n", savegame_version, pakset_string);
 		}
 		write( str, len );
 	}
 	else {
 		char str[4096];
-		int n = sprintf( str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", savegame_ver.c_str(), pakset_string );
+		int n = sprintf( str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", savegame_version, pakset_string);
 		write( str, n );
 		ident = 1;
 	}
 
-	loadsave_t::combined_version versions = int_version(savegame_ver.c_str(), NULL, NULL );
+	loadsave_t::combined_version versions = int_version(savegame_ver.c_str(), NULL, NULL);
 	version = versions.version;
 	experimental_version = versions.experimental_version;
 	experimental_revision = versions.experimental_revision;
 
 	this->filename = filename;
 
-	if(experimental_version >= 12)
+	if (experimental_version >= 12)
 	{
 		rdwr_long(experimental_revision);
 	}
@@ -566,8 +640,7 @@ size_t loadsave_t::write(const void *buf, size_t len)
 			}
 
 #ifdef MULTI_THREAD
-			// sync with thread to flush the buffer
-			simthread_barrier_wait(&loadsave_barrier);
+			saving_trigger_flush();
 
 			// switch buffers
 			curr_buff = (curr_buff+1)&1;
@@ -648,20 +721,7 @@ size_t loadsave_t::read(void *buf, size_t len)
 				}
 			}
 #ifdef MULTI_THREAD
-			// sync with other thread, tell to read more data
-			simthread_barrier_wait(&loadsave_barrier);
-
-			pthread_mutex_lock(&readdata_mutex);
-			if (readdata_flag < 0) {
-				pthread_mutex_unlock(&readdata_mutex);
-				// reading thread exited due to error
-				dbg->fatal("loadsave_t::read","savegame corrupt, not enough data");
-				return 0;
-			}
-			readdata_flag = 1; // more data please
-
-			pthread_cond_broadcast(&readdata_cond);
-			pthread_mutex_unlock(&readdata_mutex);
+			loading_trigger_fill_buffer();
 
 			// switch buffers
 			curr_buff = (curr_buff+1)&1;
@@ -908,7 +968,7 @@ void loadsave_t::rdwr_bool(bool &i)
 			read( buffer, 5 );
 			buffer[5] = 0;
 			if(  strcmp("bool>",buffer)!=0  ) {
-				dbg->fatal( "loadsave_t::rdwr_str()","expected \"<bool>\", got \"<%s\"", buffer );
+				dbg->fatal( "loadsave_t::rdwr_bool()","expected \"<bool>\", got \"<%s\"", buffer );
 			}
 			read( buffer, 4 );
 			buffer[4] = 0;
@@ -917,7 +977,7 @@ void loadsave_t::rdwr_bool(bool &i)
 			read( buffer, 6 );
 			buffer[6] = 0;
 			if(  strcmp("/bool>",buffer)!=0  ) {
-				dbg->fatal( "loadsave_t::rdwr_str()","expected \"</bool>\", got \"<%s\"", buffer );
+				dbg->fatal( "loadsave_t::rdwr_bool()","expected \"</bool>\", got \"<%s\"", buffer );
 			}
 		}
 	}
@@ -941,7 +1001,7 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 		read( buffer, len );
 		buffer[len] = 0;
 		if(  strcmp(typ,buffer)!=0  ) {
-			dbg->fatal( "loadsave_t::rdwr_str()","expected \"<%s>\", got \"<%s>\"", typ, buffer );
+			dbg->fatal( "loadsave_t::rdwr_xml_number()","expected \"<%s>\", got \"<%s>\"", typ, buffer );
 		}
 		while(  lsgetc()!='>'  )  ;
 		// read number;
@@ -984,7 +1044,7 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 		read( buffer, len );
 		buffer[6] = 0;
 		if(  strcmp(typ,buffer)!=0  ) {
-			dbg->fatal( "loadsave_t::rdwr_str()","expected \"</%s>\", got \"</%s>\"", typ, buffer );
+			dbg->fatal( "loadsave_t::rdwr_xml_number()","expected \"</%s>\", got \"</%s>\"", typ, buffer );
 		}
 		while(  lsgetc()!='>'  )  ;
 	}
@@ -1182,8 +1242,8 @@ void loadsave_t::start_tag(const char *tag)
 			char buf[256];
 			// find start of tag
 			while(  lsgetc()!='<'  ) { /* nothing */ }
-			read(buf, strlen(tag));
-			if (!strstart(buf, tag)) {
+			read( buf, strlen(tag) );
+			if(  !strstart(buf, tag)  ) {
 				dbg->fatal( "loadsave_t::start_tag()","expected \"%s\", got \"%s\"", tag, buf );
 			}
 			while(  lsgetc()!='>'  )  ;
@@ -1308,7 +1368,8 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 	uint32 experimental_version = 0;
 	// major number (0..)
 	uint32 v0 = atoi(version_text);
-	while(*version_text && *version_text++ != '.');
+	while(*version_text  &&  *version_text++ != '.')
+		;
 	if(!*version_text) {
 		dbg->fatal( "loadsave_t::int_version()","Really broken version string!" );
 		combined_version dud;
@@ -1319,7 +1380,8 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 
 	// middle number (.99.)
 	uint32 v1 = atoi(version_text);
-	while(*version_text && *version_text++ != '.');
+	while(*version_text  &&  *version_text++ != '.')
+		;
 	if(!*version_text) {
 		dbg->fatal( "loadsave_t::int_version()","Really broken version string!" );
 		combined_version dud;
@@ -1333,33 +1395,33 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 
 	// Experimental version
 	uint16 count = 0;
-	while(*version_text && *version_text++ != '.')
+	while (*version_text && *version_text++ != '.')
 	{
 		count++;
 	}
-	if(!*version_text) 
+	if (!*version_text)
 	{
 		// Decrement the pointer if this is not an Experimental version.
 		//*version_text -= count;
-		while(count > 0)
+		while (count > 0)
 		{
-			version_text --;
+			version_text--;
 			count--;
 		}
 	}
 	else
 	{
 		experimental_version = atoi(version_text);
-		while(count > 0)
+		while (count > 0)
 		{
-			version_text --;
+			version_text--;
 			count--;
 		}
 	}
 
 	uint32 version = v0 * 1000000 + v1 * 1000 + v2;
 
-	while(  isdigit(*version_text) || *version_text == '.'  ) {
+	while(*version_text  &&  isdigit(*version_text)) {
 		version_text++;
 	}
 
@@ -1376,6 +1438,7 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 		}
 		else if(  *version_text  ) {
 			// illegal version ...
+			strcpy(pak_extension_str,"(broken)");
 			version = 999999999;
 		}
 	}
@@ -1399,6 +1462,7 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 		}
 		*pak_extension_str = 0;
 	}
+
 	combined_version loadsave_version;
 	loadsave_version.version = version;
 	loadsave_version.experimental_version = experimental_version;
