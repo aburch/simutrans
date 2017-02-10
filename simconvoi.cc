@@ -356,7 +356,8 @@ void convoi_t::unreserve_route_range(route_range_specification range)
 void convoi_t::unreserve_route()
 {
 	// Clears all reserved tiles on the whole map belonging to this convoy.
-#ifdef MULTI_THREAD
+#ifdef MULTI_THREAD_ROUTE_UNRESERVER
+
 	current_unreserver = self.get_id();
 	current_waytype = front()->get_waytype();
 
