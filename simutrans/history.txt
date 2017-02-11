@@ -1,3 +1,5 @@
+
+Release of 120.2: (r8077 on 12-Feb-2016):
 	FIX: sorting according to displayed name in house/cur/industry building lists
 	ADD: scriptable AI players (folder AI which contains sqai now with distribution)
 	ADD: (jk271) switch to load heightmaps with more height levels

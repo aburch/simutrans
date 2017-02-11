@@ -4,7 +4,7 @@ CFG ?= default
 
 BACKENDS      = allegro gdi opengl sdl sdl2 mixer_sdl posix
 COLOUR_DEPTHS = 0 16
-OSTYPES       = amiga beos cygwin freebsd haiku linux mingw mac
+OSTYPES       = amiga beos cygwin freebsd haiku linux mingw64 mac
 
 ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
   $(error Unkown BACKEND "$(BACKEND)", must be one of "$(BACKENDS)")
@@ -27,11 +27,11 @@ else
   ifeq ($(OSTYPE),beos)
     LIBS += -lnet
   else
-    ifneq ($(findstring $(OSTYPE), cygwin mingw),)
+    ifneq ($(findstring $(OSTYPE), cygwin mingw64),)
       ifeq ($(OSTYPE),cygwin)
         CFLAGS  += -I/usr/include/mingw -mwin32
       else
-        ifeq ($(OSTYPE),mingw)
+        ifeq ($(OSTYPE),mingw64)
           CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
           LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware
           LIBS    += -lmingw32
@@ -59,7 +59,7 @@ else
   endif
 endif
 
-ifeq ($(OSTYPE),mingw)
+ifeq ($(OSTYPE),mingw64)
   SOURCES += clipboard_w32.cc
 else
   SOURCES += clipboard_internal.cc
@@ -111,9 +111,11 @@ endif
 ifneq ($(MULTI_THREAD),)
   ifeq ($(shell expr $(MULTI_THREAD) \>= 1), 1)
     CFLAGS += -DMULTI_THREAD
-    ifeq ($(OSTYPE),mingw)
+    ifeq ($(OSTYPE),mingw64)
 #use lpthreadGC2d for debug alternatively
-      LDFLAGS += -lpthreadGC2
+#      LDFLAGS += -lpthreadGC2
+# MinGW64 mag die nicht mehr, muss die Posix Threads nehmen
+      LDFLAGS += -lpthread
     else
       ifneq ($(OSTYPE),haiku)
         LDFLAGS += -lpthread

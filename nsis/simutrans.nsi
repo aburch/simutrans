@@ -37,20 +37,20 @@ finishGDIexe:
   ;WriteUninstaller $INSTDIR\uninstaller.exe
 FunctionEnd
 
-Section "Executable (GDI, Unicode)" GDIexe
-  AddSize 11203
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/120-1-3/simuwin-120-1-3.zip"
-  StrCpy $archievename "simuwin-120-1-3.zip"
+Section "Executable (GDI, run one more computers)" GDIexe
+  AddSize 11780
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/120-2/simuwin-120-2.zip"
+  StrCpy $archievename "simuwin-120-2.zip"
   StrCpy $downloadname "Simutrans Executable (GDI)"
   Call DownloadInstallZip
   Call PostExeInstall
 SectionEnd
 
-Section /o "Executable (SDL, better sound)" SDLexe
-  AddSize 11688
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/120-1-3/simuwin-sdl-120-1-3.zip"
-  StrCpy $archievename "simuwin-sdl-120-1-3.zip"
-  StrCpy $downloadname "Simutrans Executable (SDL)"
+Section /o "Executable (SDL2, better sound)" SDLexe
+  AddSize 12823
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/120-2/simuwin-sdl-120-2.zip"
+  StrCpy $archievename "simuwin-sdl-120-2.zip"
+  StrCpy $downloadname "Simutrans Executable (SDL2)"
   Call DownloadInstallZip
   Call PostExeInstall
 SectionEnd
