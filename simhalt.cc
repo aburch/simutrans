@@ -1291,7 +1291,7 @@ void haltestelle_t::step()
 								passengers_walked = true;
 							}
 
-							if(shortest_distance(get_next_pos(tmp.get_zwischenziel()->get_basis_pos()), get_next_pos(tmp.get_zwischenziel()->get_basis_pos())) <= max_walking_distance)
+							if(tmp.get_zwischenziel().is_bound() && shortest_distance(get_next_pos(tmp.get_zwischenziel()->get_basis_pos()), get_next_pos(tmp.get_zwischenziel()->get_basis_pos())) <= max_walking_distance)
 							{
 								// Passengers can walk to their next transfer.
 								pedestrian_t::generate_pedestrians_at(get_basis_pos3d(), tmp.menge);
