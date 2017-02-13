@@ -262,7 +262,7 @@ void gebaeude_t::set_tile( const building_tile_desc_t *new_tile, bool start_with
 #endif
 		}
 	}
-	else if(  new_tile->get_phases()>1  &&  (!is_factory  ||  get_fabrik()->is_currently_producing())  ||  zeige_baugrube  ) {
+	else if(  (new_tile->get_phases()>1  &&  (!is_factory  ||  get_fabrik()->is_currently_producing()) ) ||  zeige_baugrube  ) {
 		// needs now animation
 #ifdef MULTI_THREAD
 		pthread_mutex_lock( &sync_mutex );
