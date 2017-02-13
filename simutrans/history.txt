@@ -28,7 +28,7 @@ Release of 120.2: (r8077 on 12-Feb-2016):
 	ADD: support service names for ports in network URNs
 	CHG: cities can now build on tiles with bridge pillars, matching the logic that pillared bridges can be placed over city buildings
 	FIX: incorrect scaling of electricity revenue with respect to month length
-	FIX: electricity related information now accuratly reflects the last tick of the network
+	FIX: electricity related information now accurately reflects the last tick of the network
 	FIX: electricity networks are no longer prone to arithmetic overflow which could result in incorrect graphics or income
 	FIX: electricity networks no longer skip a power tick or lose revenue accumulators during a save/load cycle
 	CHG: simplified transformer information UI removing redundant or meaningless values

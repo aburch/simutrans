@@ -55,7 +55,7 @@ Section /o "Executable (SDL2, better sound)" SDLexe
   Call PostExeInstall
 SectionEnd
 
-Section /o "Chinese Font" wenquanyi_font
+Section "Chinese Font" wenquanyi_font
   AddSize 3169
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/wenquanyi_9pt-font-bdf.zip"
   StrCpy $archievename "wenquanyi_9pt-font-bdf.zip"
@@ -82,6 +82,7 @@ SectionGroupEnd
 Function .onSelChange
 
   ; radio button macro does not work as intended now => do it yourself
+  SectionSetFlags ${wenquanyi_font} ${SF_SELECTED}
   SectionGetFlags ${SDLexe} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} +1 test_for_pak
@@ -99,13 +100,10 @@ Function .onSelChange
   Goto test_for_pak
 
 select_SDL:
-  ; ok SDL was selected => deselect chines font and GDI
+  ; ok SDL was selected
   SectionGetFlags ${GDIexe} $R0
   IntOp $R0 $R0 & ${SECTION_OFF}
   SectionSetFlags ${GDIexe} $R0
-  SectionGetFlags ${wenquanyi_font} $R0
-  IntOp $R0 $R0 & ${SECTION_OFF}
-  SectionSetFlags ${wenquanyi_font} $R0
 
 test_for_pak:
   ; save last state of SDLexe selection
