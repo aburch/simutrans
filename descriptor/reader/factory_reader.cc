@@ -271,7 +271,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->electric_amount = decode_uint16(p);
 		desc->pax_demand = decode_uint16(p);
 		desc->mail_demand = decode_uint16(p);
-		desc->sound_intervall = decode_sint32(p);
+		desc->sound_intervall = decode_uint32(p);
 		desc->sound_id = decode_sint8(p);
 		DBG_DEBUG("factory_reader_t::read_node()","version=4, platz=%i, supplier_count=%i, pax=%i, sound_intervall=%li, sound_id=%i", desc->placement, desc->supplier_count, desc->pax_level, desc->sound_intervall, desc->sound_id );
 	}
