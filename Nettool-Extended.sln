@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Nettool", "Nettool.vcxproj", "{F6C54DC9-69F2-4897-87E9-2A4A9FB9F643}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F6C54DC9-69F2-4897-87E9-2A4A9FB9F643}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F6C54DC9-69F2-4897-87E9-2A4A9FB9F643}.Debug|Win32.Build.0 = Debug|Win32
+		{F6C54DC9-69F2-4897-87E9-2A4A9FB9F643}.Release|Win32.ActiveCfg = Release|Win32
+		{F6C54DC9-69F2-4897-87E9-2A4A9FB9F643}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
