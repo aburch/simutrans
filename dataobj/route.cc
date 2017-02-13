@@ -278,8 +278,8 @@ ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 		next_ribi[0] = (ziel.y>gr_pos.y) ? ribi_t::south : ribi_t::north;
 		next_ribi[1] = (ziel.x>gr_pos.x) ? ribi_t::east : ribi_t::west;
 	}
-	next_ribi[2] = ribi_t::backward( next_ribi[1] );
-	next_ribi[3] = ribi_t::backward( next_ribi[0] );
+	next_ribi[2] = ribi_t::reverse_single( next_ribi[1] );
+	next_ribi[3] = ribi_t::reverse_single( next_ribi[0] );
 	return next_ribi;
 }
 
@@ -415,7 +415,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				weg_t *w = to->get_weg(wegtyp);
 				// Do not go on a tile, where a oneway sign forbids going.
 				// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
-				if (w  &&  w->get_ribi_maske()  &&  ribi_t::backward(next_ribi[r]) == w->get_ribi()) {
+				if (w  &&  w->get_ribi_maske()  &&  ribi_t::reverse_single(next_ribi[r]) == w->get_ribi()) {
 					// there is a signal, and the only direction leaving the next tile
 					// is back to our position
 					continue;
