@@ -494,7 +494,7 @@ public:
 	virtual void set_convoi(convoi_t *c);
 
 	// how expensive to go here (for way search)
-	virtual int get_cost(const grund_t *, const sint32, koord) const;
+	virtual int get_cost(const grund_t *gr, const weg_t *w, const sint32 max_speed, ribi_t::ribi from) const;
 
 	virtual uint32 get_cost_upslope() const { return 15; }
 
@@ -542,7 +542,7 @@ public:
 	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
 	// how expensive to go here (for way search)
-	virtual int get_cost(const grund_t *, const sint32, koord) const;
+	virtual int get_cost(const grund_t *gr, const weg_t *w, const sint32 max_speed, ribi_t::ribi from) const;
 
 	virtual uint32 get_cost_upslope() const { return 25; }
 
@@ -645,7 +645,7 @@ class water_vehicle_t : public vehicle_t
 {
 protected:
 	// how expensive to go here (for way search)
-	virtual int get_cost(const grund_t *, const sint32, koord) const { return 1; }
+	virtual int get_cost(const grund_t *, const weg_t*, const sint32, ribi_t::ribi) const { return 1; }
 
 	void calc_friction(const grund_t *gr);
 
@@ -731,7 +731,7 @@ public:
 	virtual ribi_t::ribi get_ribi(const grund_t* ) const;
 
 	// how expensive to go here (for way search)
-	virtual int get_cost(const grund_t *, const sint32, koord) const;
+	virtual int get_cost(const grund_t *gr, const weg_t *w, const sint32 max_speed, ribi_t::ribi from) const;
 
 	virtual bool can_enter_tile(const grund_t *gr_next, sint32 &restart_speed, uint8);
 

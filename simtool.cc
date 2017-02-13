@@ -2951,7 +2951,7 @@ class electron_t : public test_driver_t {
 	bool check_next_tile(const grund_t* gr) const { return gr->get_leitung()!=NULL; }
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_leitung()->get_ribi(); }
 	virtual waytype_t get_waytype() const { return invalid_wt; }
-	virtual int get_cost(const grund_t *, const sint32, koord) const { return 1; }
+	virtual int get_cost(const grund_t *, const weg_t *, const sint32, ribi_t::ribi) const { return 1; }
 	virtual bool is_target(const grund_t *,const grund_t *) const { return false; }
 };
 
@@ -2983,7 +2983,7 @@ private:
 	bool check_next_tile(const grund_t* gr) const { return other->check_next_tile(gr)  &&  scenario->is_work_allowed_here(player, id, other->get_waytype(), gr->get_pos())==NULL;}
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return other->get_ribi(gr); }
 	virtual waytype_t get_waytype() const { return other->get_waytype(); }
-	virtual int get_cost(const grund_t *gr, const sint32 c, koord p) const { return other->get_cost(gr,c,p); }
+	virtual int get_cost(const grund_t *gr, const weg_t *w, const sint32 max_speed, ribi_t::ribi from) const { return other->get_cost(gr, w, max_speed, from); }
 	virtual bool is_target(const grund_t *gr,const grund_t *gr2) const { return other->is_target(gr,gr2); }
 };
 

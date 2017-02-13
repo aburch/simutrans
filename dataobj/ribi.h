@@ -82,12 +82,6 @@ public:
 	static bool is_way_ns(type x)  { return (flags[x] & way_ns) != 0; }
 	/// Returns if way in e/w direction can be build on this slope.
 	static bool is_way_ew(type x)  { return (flags[x] & way_ew) != 0; }
-
-	/**
-	 * Check if the slope is upwards, relative to the previous tile.
-	 * @returns 1 for single upwards and 2 for double upwards
-	 */
-	static sint16 get_sloping_upwards(const type slope, const sint16 relative_pos_x, const sint16 relative_pos_y);
 };
 
 
@@ -236,6 +230,12 @@ public:
  */
 slope_t::type slope_type(koord dir);
 slope_t::type slope_type(ribi_t::ribi);
+
+/**
+ * Check if the slope is upwards, relative to the previous tile.
+ * @returns 1 for single upwards and 2 for double upwards
+ */
+sint16 get_sloping_upwards(const slope_t::type slope, const ribi_t::ribi from);
 
 /**
  * Calculate direction bit from coordinate differences.
