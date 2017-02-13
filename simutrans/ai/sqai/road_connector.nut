@@ -266,7 +266,7 @@ class road_connector_t extends manager_t
 		local t = tile_x(start.x, start.y, start.z)
 
 		// follow the road up to the next crossing
-		// check whether depo can be built next to road
+		// check whether depot can be built next to road
 		local d = t.get_way_dirs(wt_road)
 		if (!dir.is_single(d)) {
 			d = d	& dir.southeast // only s or e

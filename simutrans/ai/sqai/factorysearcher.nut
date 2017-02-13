@@ -306,11 +306,14 @@ class factorysearcher_t extends manager_t
 					best_supply = supply
 				}
 			}
-			// plan this connection
-			plan_connection(best.supplier, fdest, freight)
 			// go down in tree
 			foreach(good, supplier_slot in best.inputs) {
 				planned += plan_consumption_connection(supplier_slot, best.supplier, good, indent + "  ")
+			}
+			// plan this connection
+			if (planned==0) {
+				plan_connection(best.supplier, fdest, freight)
+				planned++
 			}
 			// disable this tree
 			needed -= best_supply
