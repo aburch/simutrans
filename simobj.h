@@ -182,7 +182,7 @@ public:
 		old_monoraildepot=100,
 		old_tramdepot=101,
 
-		// Experimental specific objects (e.g. signalboxes)
+		// Extended specific objects (e.g. signalboxes)
 		// Should be negative numbers <= -10
 
 		signalbox = -10

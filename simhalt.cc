@@ -1186,7 +1186,7 @@ void haltestelle_t::step()
 #endif
 #endif
 	// Knightly : update status
-	//   There is no idle state in Experimental
+	//   There is no idle state in Extended
 	//   as rerouting requests may be sent via
 	//   refresh_routing() instead of
 	//   karte_t::set_schedule_counter()
@@ -1311,7 +1311,7 @@ void haltestelle_t::step()
 							fabrik_t::update_transit(tmp, false);
 						}
 
-						// Experimental 7.2 - if they are discarded, a refund is due.
+						// Extended 7.2 - if they are discarded, a refund is due.
 
 						if(!passengers_walked && tmp.get_origin().is_bound() && get_owner()->get_finance()->get_account_balance() > 0)
 						{
@@ -2055,7 +2055,7 @@ uint32 haltestelle_t::find_route(ware_t &ware, const uint32 previous_journey_tim
 /**
  * Found route and station uncrowded
  * @author Hj. Malthaner
- * As of Simutrans-Experimental 7.2,
+ * As of Simutrans-Extended 7.2,
  * this method is called instead when
  * passengers *arrive* at their destination.
  */
@@ -3438,7 +3438,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			uint16 halt_id;
 			file->rdwr_short(halt_id);
 			self.set_id(halt_id);
-			if((file->get_experimental_version() >= 10 || file->get_experimental_version() == 0) && halt_id != 0)
+			if((file->get_extended_version() >= 10 || file->get_extended_version() == 0) && halt_id != 0)
 			{
 				self = halthandle_t(this, halt_id);
 			}
@@ -3519,7 +3519,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	uint8 max_catg_count_game = warenbauer_t::get_max_catg_index();
 	uint8 max_catg_count_file = max_catg_count_game;
 
-	if(file->get_experimental_version() >= 11)
+	if(file->get_extended_version() >= 11)
 	{
 		// Version 11 and above - the maximum category count is saved with the game.
 		file->rdwr_byte(max_catg_count_file);
@@ -3539,7 +3539,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				s = "y";	// needs to be non-empty
 				file->rdwr_str(s);
 				bool has_uint16_count;
-				if(file->get_version() <= 112002 || file->get_experimental_version() <= 10)
+				if(file->get_version() <= 112002 || file->get_extended_version() <= 10)
 				{
 					const uint32 count = warray->get_count();
 					uint16 short_count = min(count, 65535);
@@ -3548,7 +3548,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				}
 				else
 				{
-					// Experimental version 11 and above - very large/busy halts might
+					// Extended version 11 and above - very large/busy halts might
 					// have a count > 65535, so use the proper uint32 value.
 
 					// In previous versions, the use of "short" lead to corrupted saved
@@ -3601,7 +3601,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s, lengthof(s));
 		while(*s) {
 			uint32 count;
-			if(  file->get_version() <= 112002  || (file->get_experimental_version() > 0 && file->get_experimental_version() <= 10) ) {
+			if(  file->get_version() <= 112002  || (file->get_extended_version() > 0 && file->get_extended_version() <= 10) ) {
 				// Older versions stored only 16-bit count values.
 				uint16 scount;
 				file->rdwr_short(scount);
@@ -3677,7 +3677,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 #endif
 	}
 
-	if(file->get_experimental_version() >= 5)
+	if(file->get_extended_version() >= 5)
 	{
 		for (int j = 0; j < 8 /*MAX_HALT_COST*/; j++)
 		{
@@ -3697,7 +3697,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				if(j == 7)
 				{
 					// Walked passengers in Standard
-					// (Experimental stores these in cities, not stops)
+					// (Extended stores these in cities, not stops)
 					if(file->get_version() >= 111001)
 					{
 						sint64 dummy = 0;
@@ -3723,7 +3723,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(file->get_experimental_version() >= 2)
+	if(file->get_extended_version() >= 2)
 	{
 		for(int i = 0; i < max_catg_count_file; i ++)
 		{
@@ -3738,7 +3738,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				{
 					uint16 id = iter.key;
 
-					if(file->get_experimental_version() >= 10)
+					if(file->get_extended_version() >= 10)
 					{
 						file->rdwr_short(id);
 					}
@@ -3758,7 +3758,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					ITERATE(iter.value.times, i)
 					{
 						// Store each waiting time
-						if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
+						if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 14)
 						{
 							uint32 current_time = iter.value.times.get_element(i);
 							file->rdwr_long(current_time);
@@ -3779,7 +3779,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						}
 					}
 
-					if(file->get_experimental_version() >= 9)
+					if(file->get_extended_version() >= 9)
 					{
 						waiting_time_set wt = iter.value;
 						file->rdwr_byte(wt.month);
@@ -3796,13 +3796,13 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				uint16 id = 0;
 				for(uint16 k = 0; k < halts_count; k ++)
 				{
-					if(file->get_experimental_version() >= 10)
+					if(file->get_extended_version() >= 10)
 					{
 						file->rdwr_short(id);
 					}
 					else
 					{
-						// Experimental versions 2-9, loading
+						// Extended versions 2-9, loading
 						koord halt_position;
 						halt_position.rdwr(file);
 						const planquadrat_t* plan = welt->access(halt_position);
@@ -3827,7 +3827,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					for(uint8 j = 0; j < waiting_time_count; j ++)
 					{
 						uint32 current_time;
-						if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
+						if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 14)
 						{
 							file->rdwr_long(current_time);
 						}
@@ -3846,7 +3846,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						}
 						list.add_to_tail(current_time);
 					}
-					if(file->get_experimental_version() >= 9)
+					if(file->get_extended_version() >= 9)
 					{
 						file->rdwr_byte(month);
 					}
@@ -3861,7 +3861,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			}
 		}
 
-		if(file->get_experimental_version() > 0 && file->get_experimental_version() < 3)
+		if(file->get_extended_version() > 0 && file->get_extended_version() < 3)
 		{
 			uint16 old_paths_timestamp = 0;
 			uint16 old_connexions_timestamp = 0;
@@ -3870,7 +3870,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			file->rdwr_short(old_connexions_timestamp);
 			file->rdwr_bool(old_reschedule);
 		}
-		else if(file->get_experimental_version() > 0 && file->get_experimental_version() < 10)
+		else if(file->get_extended_version() > 0 && file->get_extended_version() < 10)
 		{
 			for(short i = 0; i < max_catg_count_file; i ++)
 			{
@@ -3883,12 +3883,12 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
+	if(file->get_extended_version() >=9 && file->get_version() >= 110000)
 	{
 		file->rdwr_bool(do_alternative_seats_calculation);
 	}
 
-	if(file->get_experimental_version() >= 10)
+	if(file->get_extended_version() >= 10)
 	{
 		if(file->is_saving())
 		{
@@ -3924,13 +3924,13 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(file->get_experimental_version() >= 11)
+	if(file->get_extended_version() >= 11)
 	{
 		// We considered caching the transfer time at the halt,
 		// but this was a bad idea since the algorithm has not settled down
 		// and it's pretty fast to compute during loading
 
-		if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
+		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 14)
 		{
 			file->rdwr_long(transfer_time);
 		}
@@ -3949,7 +3949,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(file->get_experimental_version() >= 12 || (file->get_version() >= 112007 && file->get_experimental_version() >= 11))
+	if(file->get_extended_version() >= 12 || (file->get_version() >= 112007 && file->get_extended_version() >= 11))
 	{
 		file->rdwr_byte(check_waiting);
 	}
@@ -3958,7 +3958,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		check_waiting = 0;
 	}
 
-	if(file->get_experimental_version() >= 12)
+	if(file->get_extended_version() >= 12)
 	{
 		// Load/save the estimated arrival and departure times.
 		uint16 convoy_id;
@@ -4017,7 +4017,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 	}
 	
-	if(file->get_experimental_version() >= 12 && file->get_experimental_revision() >= 11)
+	if(file->get_extended_version() >= 12 && file->get_extended_revision() >= 11)
 	{
 		uint32 station_signals_count = station_signals.get_count();
 		file->rdwr_long(station_signals_count);
@@ -4057,7 +4057,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		station_signals.clear();
 	}
 
-	if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 15)
+	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 15)
 	{
 		uint32 count;
 		sint64 ready;

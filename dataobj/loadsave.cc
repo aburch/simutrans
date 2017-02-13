@@ -271,8 +271,8 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 	const char *filename = dr_utf8_to_system_filename( filename_utf8 );
 	version = 0;
 	mode = zipped;
-	experimental_version = 0;
-	experimental_revision = 0;
+	extended_version = 0;
+	extended_revision = 0;
 	fd->fp = fopen( filename, "rb");
 	if(  fd->fp==NULL  ) {
 		// most likely not existing
@@ -324,7 +324,7 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 	if (strstart(buf, SAVEGAME_PREFIX)) {
 		combined_version versions = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode, pak_extension);
 		version = versions.version;
-		experimental_version = versions.experimental_version;
+		extended_version = versions.extended_version;
 	}
 	else if (strstart(buf, XML_SAVEGAME_PREFIX)) {
 		mode |= xml;
@@ -349,7 +349,7 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 		*s = 0;
 		combined_version versions = int_version(str, &mode, pak_extension);
 		version = versions.version;
-		experimental_version = versions.experimental_version;
+		extended_version = versions.extended_version;
 
 		read(buf, sizeof(" pak=\"") - 1);
 		if (version > 0) {
@@ -379,16 +379,16 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 	}
 	this->filename = filename;
 #ifndef SPECIAL_RESCUE_12_6
-	if (experimental_version >= 12)
+	if (extended_version >= 12)
 	{
-		rdwr_long(experimental_revision);
+		rdwr_long(extended_revision);
 	}
 	else
 	{
-		experimental_revision = 0;
+		extended_revision = 0;
 	}
 #else
-	experimental_revision = 0;
+	extended_revision = 0;
 #endif
 	return true;
 }
@@ -451,7 +451,7 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 	const char *end = pak_extension + strlen(pak_extension)-1;
 	const char *c = pak_extension;
 
-	// Add Experimental version numbering.
+	// Add Extended version numbering.
 	std::string savegame_ver = savegame_version;
 	if (savegame_version_ex && savegame_version_ex != savegame_version)
 	{
@@ -495,18 +495,18 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 
 	loadsave_t::combined_version versions = int_version(savegame_ver.c_str(), NULL, NULL);
 	version = versions.version;
-	experimental_version = versions.experimental_version;
-	experimental_revision = versions.experimental_revision;
+	extended_version = versions.extended_version;
+	extended_revision = versions.extended_revision;
 
 	this->filename = filename;
 
-	if (experimental_version >= 12)
+	if (extended_version >= 12)
 	{
-		rdwr_long(experimental_revision);
+		rdwr_long(extended_revision);
 	}
 	else
 	{
-		experimental_revision = 0;
+		extended_revision = 0;
 	}
 
 	return true;
@@ -1365,7 +1365,7 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 
 loadsave_t::combined_version loadsave_t::int_version(const char *version_text, int * /*mode*/, char *pak_extension_str)
 {
-	uint32 experimental_version = 0;
+	uint32 extended_version = 0;
 	// major number (0..)
 	uint32 v0 = atoi(version_text);
 	while(*version_text  &&  *version_text++ != '.')
@@ -1374,7 +1374,7 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 		dbg->fatal( "loadsave_t::int_version()","Really broken version string!" );
 		combined_version dud;
 		dud.version = 0;
-		dud.experimental_version = 0;
+		dud.extended_version = 0;
 		return dud;
 	}
 
@@ -1386,14 +1386,14 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 		dbg->fatal( "loadsave_t::int_version()","Really broken version string!" );
 		combined_version dud;
 		dud.version = 0;
-		dud.experimental_version = 0;
+		dud.extended_version = 0;
 		return dud;
 	}
 
 	// minor number (..08)
 	uint32 v2 = atoi(version_text);
 
-	// Experimental version
+	// Extended version
 	uint16 count = 0;
 	while (*version_text && *version_text++ != '.')
 	{
@@ -1401,7 +1401,7 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 	}
 	if (!*version_text)
 	{
-		// Decrement the pointer if this is not an Experimental version.
+		// Decrement the pointer if this is not an Extended version.
 		//*version_text -= count;
 		while (count > 0)
 		{
@@ -1411,7 +1411,7 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 	}
 	else
 	{
-		experimental_version = atoi(version_text);
+		extended_version = atoi(version_text);
 		while (count > 0)
 		{
 			version_text--;
@@ -1465,8 +1465,8 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 
 	combined_version loadsave_version;
 	loadsave_version.version = version;
-	loadsave_version.experimental_version = experimental_version;
-	loadsave_version.experimental_revision = EX_SAVE_MINOR;
+	loadsave_version.extended_version = extended_version;
+	loadsave_version.extended_revision = EX_SAVE_MINOR;
 
 	return loadsave_version;
 }

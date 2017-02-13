@@ -198,7 +198,7 @@ void schiene_t::rdwr(loadsave_t *file)
 	{
 		const char *s = get_desc()->get_name();
 		file->rdwr_str(s);
-		if(file->get_experimental_version() >= 12)
+		if(file->get_extended_version() >= 12)
 		{
 			s = replacement_way ? replacement_way->get_name() : ""; 
 			file->rdwr_str(s);
@@ -211,7 +211,7 @@ void schiene_t::rdwr(loadsave_t *file)
 
 #ifndef SPECIAL_RESCUE_12_3
 		const way_desc_t* loaded_replacement_way = NULL;
-		if(file->get_experimental_version() >= 12)
+		if(file->get_extended_version() >= 12)
 		{
 			char rbname[128];
 			file->rdwr_str(rbname, lengthof(rbname));
@@ -233,9 +233,9 @@ void schiene_t::rdwr(loadsave_t *file)
 			dbg->warning("schiene_t::rdwr()", "Unknown rail %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}
 
-		set_desc(desc, file->get_experimental_version() >= 12);
+		set_desc(desc, file->get_extended_version() >= 12);
 #ifndef SPECIAL_RESCUE_12_3
-		if(file->get_experimental_version() >= 12)
+		if(file->get_extended_version() >= 12)
 		{
 			replacement_way = loaded_replacement_way;
 		}
@@ -255,9 +255,9 @@ void schiene_t::rdwr(loadsave_t *file)
 		//DBG_MESSAGE("schiene_t::rdwr","track %s at (%i,%i) max_speed %i",bname,get_pos().x,get_pos().y,old_max_speed);
 	}
 #ifdef SPECIAL_RESCUE_12_6
-	if(file->is_saving() && file->get_experimental_version() >= 12)
+	if(file->is_saving() && file->get_extended_version() >= 12)
 #else
-	if(file->get_experimental_version() >= 12)
+	if(file->get_extended_version() >= 12)
 #endif
 	{
 		uint16 reserved_index = reserved.get_id();

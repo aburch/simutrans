@@ -64,22 +64,22 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		const uint16 v = decode_uint16(p);
 		version = v & 0x7FFF;
 
-		// Whether the read file is from Simutrans-Experimental
+		// Whether the read file is from Simutrans-Extended
 		//@author: jamespetts
 
 		way_constraints_of_way_t way_constraints;
-		const bool experimental = version > 0 ? v & EXP_VER : false;
-		uint16 experimental_version = 0;
-		if(experimental)
+		const bool extended = version > 0 ? v & EXP_VER : false;
+		uint16 extended_version = 0;
+		if(extended)
 		{
-			// Experimental version to start at 0 and increment.
+			// Extended version to start at 0 and increment.
 			version = version & EXP_VER ? version & 0x3FFF : 0;
 			while(version > 0x100)
 			{
 				version -= 0x100;
-				experimental_version ++;
+				extended_version ++;
 			}
-			experimental_version -=1;
+			extended_version -=1;
 		}
 
 		if(version==6) {
@@ -94,11 +94,11 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->styp = decode_uint8(p);
 			desc->draw_as_obj = decode_uint8(p);
 			desc->number_seasons = decode_sint8(p);
-			if(experimental)
+			if(extended)
 			{
 				way_constraints.set_permissive(decode_uint8(p));
 				way_constraints.set_prohibitive(decode_uint8(p));
-				if(experimental_version >= 1)
+				if(extended_version >= 1)
 				{
 					desc->topspeed_gradient_1 = decode_sint32(p);
 					desc->topspeed_gradient_2 = decode_sint32(p);
@@ -109,9 +109,9 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					desc->upgrade_group = decode_uint8(p);
 					desc->monthly_base_wear = decode_uint32(p); 
 				}
-				if(experimental_version > 1)
+				if(extended_version > 1)
 				{
-					dbg->fatal( "way_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", experimental_version );
+					dbg->fatal( "way_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", extended_version );
 				}
 			}
 		}
@@ -127,11 +127,11 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->styp = decode_uint8(p);
 			desc->draw_as_obj = decode_uint8(p);
 			desc->number_seasons = decode_sint8(p);
-			if(experimental)
+			if(extended)
 			{
 				way_constraints.set_permissive(decode_uint8(p));
 				way_constraints.set_prohibitive(decode_uint8(p));
-				if(experimental_version == 1)
+				if(extended_version == 1)
 				{
 					desc->topspeed_gradient_1 = decode_sint32(p);
 					desc->topspeed_gradient_2 = decode_sint32(p);
@@ -141,9 +141,9 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					desc->way_only_cost = decode_uint32(p);
 					desc->upgrade_group = decode_uint8(p);
 				}
-				if(experimental_version > 1)
+				if(extended_version > 1)
 				{
-					dbg->fatal("way_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version);
+					dbg->fatal("way_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", extended_version);
 				}
 			}
 
@@ -192,7 +192,7 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			dbg->fatal("way_reader_t::read_node()","Invalid version %d", version);
 		}
 		desc->set_way_constraints(way_constraints);
-		if(experimental_version < 1 || !experimental)
+		if(extended_version < 1 || !extended)
 		{
 			desc->topspeed_gradient_1 = desc->topspeed_gradient_2 = desc->topspeed;
 			desc->max_altitude = 0;
@@ -202,7 +202,7 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->upgrade_group = 0;
 		}
 
-		if(version < 6 || experimental_version < 1 || !experimental)
+		if(version < 6 || extended_version < 1 || !extended)
 		{
 			desc->monthly_base_wear = desc->wear_capacity / 600;
 		}

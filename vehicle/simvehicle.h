@@ -247,7 +247,7 @@ private:
 	* frictionforce = gamma*speed*weight
 	* since the total weight is needed a lot of times, we save it
 	* @author prissi
-	* BG, 18.10.2011: in tons in simutrans standard, in kg in simutrans experimental
+	* BG, 18.10.2011: in tons in simutrans standard, in kg in simutrans extended
 	*/
 	uint32 sum_weight;
 
@@ -480,7 +480,7 @@ public:
 
 	// returns speedlimit of ways (and if convoi enters station etc)
 	// the convoi takes care of the max_speed of the vehicle
-	// In Experimental this is mostly for entering stations etc.,
+	// In Extended this is mostly for entering stations etc.,
 	// as the new physics engine handles ways
 	sint32 get_speed_limit() const { return speed_limit; }
 	static inline sint32 speed_unlimited() {return (std::numeric_limits<sint32>::max)(); }

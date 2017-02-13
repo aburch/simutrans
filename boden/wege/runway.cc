@@ -37,7 +37,7 @@ void runway_t::rdwr(loadsave_t *file)
 	{
 		const char *s = get_desc()->get_name();
 		file->rdwr_str(s);
-		if(file->get_experimental_version() >= 12)
+		if(file->get_extended_version() >= 12)
 		{
 			if(!replacement_way)
 			{
@@ -58,7 +58,7 @@ void runway_t::rdwr(loadsave_t *file)
 
 #ifndef SPECIAL_RESCUE_12_3
 		const way_desc_t* loaded_replacement_way = NULL;
-		if(file->get_experimental_version() >= 12)
+		if(file->get_extended_version() >= 12)
 		{
 			char rbname[128];
 			file->rdwr_str(rbname, lengthof(rbname));
@@ -79,9 +79,9 @@ void runway_t::rdwr(loadsave_t *file)
 			set_max_speed(old_max_speed);
 		}
 
-		set_desc(desc, file->get_experimental_version() >= 12);
+		set_desc(desc, file->get_extended_version() >= 12);
 #ifndef SPECIAL_RESCUE_12_3
-		if(file->get_experimental_version() >= 12)
+		if(file->get_extended_version() >= 12)
 		{
 			replacement_way = loaded_replacement_way;
 		}

@@ -22,8 +22,8 @@ char env_t::program_dir[1024];
 plainstring env_t::default_theme;
 const char *env_t::user_dir = 0;
 const char *env_t::savegame_version_str = SAVEGAME_VER_NR;
-const char *env_t::savegame_ex_version_str = EXPERIMENTAL_VER_NR;
-const char *env_t::savegame_ex_revision_str = EXPERIMENTAL_REVISION_NR;
+const char *env_t::savegame_ex_version_str = EXTENDED_VER_NR;
+const char *env_t::savegame_ex_revision_str = EXTENDED_REVISION_NR;
 bool env_t::straight_way_without_control = false;
 bool env_t::networkmode = false;
 bool env_t::restore_UI = false;
@@ -200,8 +200,8 @@ void env_t::init()
 	default_mapmode = 0;	// show cities
 
 	savegame_version_str = SAVEGAME_VER_NR;
-	savegame_ex_version_str = EXPERIMENTAL_VER_NR;
-	savegame_ex_revision_str = EXPERIMENTAL_REVISION_NR;
+	savegame_ex_version_str = EXTENDED_VER_NR;
+	savegame_ex_revision_str = EXTENDED_REVISION_NR;
 
 	show_month = DATE_FMT_US;
 
@@ -374,8 +374,8 @@ void env_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()>102001  ) {
 		file->rdwr_byte( show_vehicle_states );
-		if(  file->get_experimental_version() >= 1 && file->get_experimental_version() < 12  && file->get_version() < 112005 ) {
-			// Experimental (but not standard!) was carrying around a dummy variable.
+		if(  file->get_extended_version() >= 1 && file->get_extended_version() < 12  && file->get_version() < 112005 ) {
+			// Extended (but not standard!) was carrying around a dummy variable.
 			// Formerly finance_ltr_graphs.
 			bool dummy = false;
 			file->rdwr_bool(dummy);
@@ -383,13 +383,13 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(left_to_right_graphs);
 	}
 
-	if(file->get_experimental_version() >= 6)
+	if(file->get_extended_version() >= 6)
 	{
 		file->rdwr_bool(hilly);
 		file->rdwr_bool(cities_ignore_height);
 	}
 	
-	if( file->get_experimental_version() >= 9 || (file->get_experimental_version() == 0 && file->get_version()>=102003)) 
+	if( file->get_extended_version() >= 9 || (file->get_extended_version() == 0 && file->get_version()>=102003)) 
 	{
 		file->rdwr_long( tooltip_delay );
 		file->rdwr_long( tooltip_duration );
@@ -399,7 +399,7 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_byte( bottom_window_text_color );
 	}
 
-	if(file->get_experimental_version() >= 9)
+	if(file->get_extended_version() >= 9)
 	{
 		file->rdwr_long(number_of_big_cities);
 		file->rdwr_long(number_of_clusters);
@@ -444,7 +444,7 @@ void env_t::rdwr(loadsave_t *file)
 	 file->rdwr_str( default_theme );
 	}
 
-	if(  file->get_version()>=120002 && (file->get_experimental_version() == 0  || file->get_experimental_revision() >= 10))
+	if(  file->get_version()>=120002 && (file->get_extended_version() == 0  || file->get_extended_revision() >= 10))
 	{
 		file->rdwr_bool( new_height_map_conversion );
 	}

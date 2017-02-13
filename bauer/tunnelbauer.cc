@@ -424,7 +424,7 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 
 	// now we search for a matching way for the tunnel's top speed
 	// The tunnel ways are no longer properly encoded, with the result that way_desc is garbled
-	// when fetched here and crashes the game. Since tunnel ways are deprecated in Experimental,
+	// when fetched here and crashes the game. Since tunnel ways are deprecated in Extended,
 	// and this bug is likely to be hard to fix, disalbe this for time time being.
 	//@jamespetts January 2017
 	/*if(way_desc == NULL)

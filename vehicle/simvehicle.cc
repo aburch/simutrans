@@ -917,7 +917,7 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 							sum_delivered += menge;
 							if(tmp.is_passenger())
 							{
-								// New for Experimental 7.2 - add happy passengers
+								// New for Extended 7.2 - add happy passengers
 								// to the origin station and transported passengers/mail
 								// to the origin city only *after* they arrive at their
 								// destinations.
@@ -2287,7 +2287,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	// koordinate of the last stop
 	if(file->get_version()>=99015) {
 		// This used to be 2d, now it's 3d.
-		if(file->get_experimental_version() < 12) {
+		if(file->get_extended_version() < 12) {
 			if(file->is_saving()) {
 				koord last_stop_pos_2d = last_stop_pos.get_2d();
 				last_stop_pos_2d.rdwr(file);
@@ -2327,7 +2327,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		}
 	}
 
-	if(file->get_experimental_version() >= 1)
+	if(file->get_extended_version() >= 1)
 	{
 		file->rdwr_bool(reversed);
 	}
@@ -2347,7 +2347,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		}
 	}
 
-	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
+	if(file->get_extended_version() >=9 && file->get_version() >= 110000)
 	{
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_short(direction_steps);
@@ -2380,7 +2380,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		}
 	}
 
-	if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
+	if(file->get_extended_version() >= 9 && file->get_version() >= 110006)
 	{
 		file->rdwr_string(current_livery);
 	}
@@ -7336,9 +7336,9 @@ void rail_vehicle_t::rdwr_from_convoi(loadsave_t* file)
 	
 	vehicle_t::rdwr_from_convoi(file);
 #ifdef SPECIAL_RESCUE_12_5
-	if(file->get_experimental_version() >= 12 && file->is_saving())
+	if(file->get_extended_version() >= 12 && file->is_saving())
 #else
-	if(file->get_experimental_version() >= 12)
+	if(file->get_extended_version() >= 12)
 #endif
 	{
 		uint8 wm = (uint8)working_method;

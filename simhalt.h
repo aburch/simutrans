@@ -47,7 +47,7 @@
 #define HALT_NOROUTE				5 // number of no-route passangers
 #define HALT_CONVOIS_ARRIVED        6 // number of convois arrived this month
 #define HALT_TOO_SLOW		        7 // The number of passengers whose estimated journey time exceeds their tolerance.
-/* NOTE - Standard has HALT_WALKED here as no. 7. In Experimental, this is in cities, not stops.*/
+/* NOTE - Standard has HALT_WALKED here as no. 7. In Extended, this is in cities, not stops.*/
 
 class cbuffer_t;
 class grund_t;

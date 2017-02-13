@@ -211,30 +211,30 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
 
-	// Whether the read file is from Simutrans-Experimental
+	// Whether the read file is from Simutrans-Extended
 	// @author: jamespetts
 
-	uint16 experimental_version = 0;
-	const bool experimental = version > 0 ? v & EXP_VER : false;
+	uint16 extended_version = 0;
+	const bool extended = version > 0 ? v & EXP_VER : false;
 	if(version > 0)
 	{
-		if(experimental)
+		if(extended)
 		{
-			// Experimental version to start at 0 and increment.
+			// Extended version to start at 0 and increment.
 			version = version & EXP_VER ? version & 0x3FFF : 0;
 			while(version > 0x100)
 			{
 				version -= 0x100;
-				experimental_version ++;
+				extended_version ++;
 			}
-			experimental_version -= 1;
+			extended_version -= 1;
 		}
 	}
 
 	//HACK: I have no idea why the above does not work.
-	if (experimental && (v == 49928 && version == 8) || (v == 49929 && version == 9))
+	if (extended && (v == 49928 && version == 8) || (v == 49929 && version == 9))
 	{
-		experimental_version = 3;
+		extended_version = 3;
 	}
 
 	if(version <= 7)
@@ -263,7 +263,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->size.y = decode_uint16(p);
 		desc->layouts   = decode_uint8(p);
 		desc->allowed_climates = (climate_bits)decode_uint16(p);
-		if (experimental_version >= 3)
+		if (extended_version >= 3)
 		{
 			desc->enables = decode_uint16(p);
 		}
@@ -271,7 +271,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			desc->enables = decode_uint8(p);
 		}
-		if(!experimental && desc->type == building_desc_t::depot)
+		if(!extended && desc->type == building_desc_t::depot)
 		{
 			desc->enables = 65535;
 		}
@@ -284,17 +284,17 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->maintenance = decode_sint32(p);
 		desc->price     = decode_sint32(p);
 		desc->allow_underground = decode_uint8(p);
-		if(experimental)
+		if(extended)
 		{
-			if(experimental_version > 3)
+			if(extended_version > 3)
 			{
-				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", extended_version );
 			}
 			desc->is_control_tower = decode_uint8(p);
 			desc->population_and_visitor_demand_capacity = decode_uint16(p);
 			desc->employment_capacity = decode_uint16(p);
 			desc->mail_demand_and_production_capacity = decode_uint16(p);
-			if(experimental_version >= 1)
+			if(extended_version >= 1)
 			{
 				desc->radius = decode_uint32(p);
 			}
@@ -321,7 +321,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->layouts   = decode_uint8(p);
 		desc->allowed_climates = (climate_bits)decode_uint16(p);
 		desc->enables   = decode_uint8(p);
-		if(experimental_version < 1 && desc->type == building_desc_t::depot)
+		if(extended_version < 1 && desc->type == building_desc_t::depot)
 		{
 			desc->enables = 65535;
 		}
@@ -331,15 +331,15 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->obsolete_date = decode_uint16(p);
 		desc->animation_time = decode_uint16(p);
 		
-		// Set default levels for Experimental
+		// Set default levels for Extended
 		desc->capacity = desc->level * 32;
 		desc->is_control_tower = 0;
 
-		if(experimental)
+		if(extended)
 		{
-			if(experimental_version > 2)
+			if(extended_version > 2)
 			{
-				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", extended_version );
 			}
 			else
 			{
@@ -352,7 +352,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// From version 7, this is also in Standard.
 		desc->allow_underground = decode_uint8(p);
 
-		if(experimental && experimental_version == 2)
+		if(extended && extended_version == 2)
 		{
 			desc->is_control_tower = decode_uint8(p);
 		}
@@ -370,7 +370,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->layouts			= decode_uint8(p);
 		desc->allowed_climates	= (climate_bits)decode_uint16(p);
 		desc->enables			= decode_uint8(p);
-		if(experimental_version < 1 && desc->type == building_desc_t::depot)
+		if(extended_version < 1 && desc->type == building_desc_t::depot)
 		{
 			desc->enables = 65535;
 		}
@@ -380,18 +380,18 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->obsolete_date = decode_uint16(p);
 		desc->animation_time = decode_uint16(p);
 		
-		// Set default levels for Experimental
+		// Set default levels for Extended
 		desc->capacity = desc->level * 32;
 		desc->allow_underground = desc->type == building_desc_t::generic_stop ? 2 : 0; 
 		desc->is_control_tower = 0;
 
-		if(experimental)
+		if(extended)
 		{
-			if(experimental_version > 2)
+			if(extended_version > 2)
 			{
-				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", extended_version );
 			}
-			else if(experimental_version == 2)
+			else if(extended_version == 2)
 			{
 				desc->capacity = decode_uint16(p);
 				desc->maintenance = decode_sint32(p);
@@ -535,9 +535,9 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->flags |= building_desc_t::FLAG_HAS_CURSOR;
 	}
 
-	if(!experimental)
+	if(!extended)
 	{
-		// Set default levels for Experimental
+		// Set default levels for Extended
 		if(version < 8)
 		{
 			desc->capacity = desc->level * 32;
@@ -550,7 +550,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->is_control_tower = 0;
 	}
 
-	if(!experimental || experimental_version < 1)
+	if(!extended || extended_version < 1)
 	{
 		desc->radius = 0;
 	}
@@ -562,7 +562,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(desc->level > 32767 && desc->type == building_desc_t::depot)
 	{
-		desc->level = experimental_version > 0 ? 1 : 4;
+		desc->level = extended_version > 0 ? 1 : 4;
 	}
 	else if((desc->level > 32767 && (desc->type >= building_desc_t::bahnhof || desc->type == building_desc_t::factory)) || version<=3  &&  ((uint8)desc->type >= building_desc_t::bahnhof  ||  desc->type == building_desc_t::factory  ||  desc->type == building_desc_t::depot)  &&  desc->level==0)
 	{

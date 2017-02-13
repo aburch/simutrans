@@ -51,20 +51,20 @@ obj_desc_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	int version = v & 0x8000 ? v & 0x7FFF : 0;
 
-	// Whether the read file is from Simutrans-Experimental
+	// Whether the read file is from Simutrans-Extended
 	//@author: jamespetts
-	const bool experimental = version > 0 ? v & EXP_VER : false;
-	uint16 experimental_version = 0;
-	if(experimental)
+	const bool extended = version > 0 ? v & EXP_VER : false;
+	uint16 extended_version = 0;
+	if(extended)
 	{
-		// Experimental version to start at 0 and increment.
+		// Extended version to start at 0 and increment.
 		version = version & EXP_VER ? version & 0x3FFF : 0;
 		while(version > 0x100)
 		{
 			version -= 0x100;
-			experimental_version ++;
+			extended_version ++;
 		}
-		experimental_version -= 1;
+		extended_version -= 1;
 	}
 
 	if(version == 1) {
@@ -88,7 +88,7 @@ obj_desc_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->speed_bonus = decode_uint16(p);
 		desc->weight_per_unit = decode_uint16(p);
 		desc->color = decode_uint8(p);
-		if(experimental)
+		if(extended)
 		{
 			const uint8 fare_stages = decode_uint8(p);
 			if(fare_stages > 0)

@@ -13,6 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9944405A-74A3-443D-83A6-F4B9DBE23DB2}</ProjectGuid>
     <RootNamespace>Makeobj</RootNamespace>
+    <ProjectName>Makeobj-Extended</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">

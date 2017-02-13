@@ -243,21 +243,21 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	int version = v & 0x8000 ? v & 0x7FFF : 0;
 
-	// Whether the read file is from Simutrans-Experimental
+	// Whether the read file is from Simutrans-Extended
 	// @author: jamespetts
 
-	const bool experimental = version > 0 ? v & EXP_VER : false;
-	uint16 experimental_version = 0;
-	if(experimental)
+	const bool extended = version > 0 ? v & EXP_VER : false;
+	uint16 extended_version = 0;
+	if(extended)
 	{
-		// Experimental version to start at 0 and increment.
+		// Extended version to start at 0 and increment.
 		version = version & EXP_VER ? version & 0x3FFF : 0;
 		while(version > 0x100)
 		{
 			version -= 0x100;
-			experimental_version ++;
+			extended_version ++;
 		}
-		experimental_version -=1;
+		extended_version -=1;
 	}
 
 	typedef factory_desc_t::site_t site_t;
@@ -271,7 +271,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->fields = decode_uint8(p);
 		desc->supplier_count = decode_uint16(p);
 		desc->product_count = decode_uint16(p);
-		if(experimental && experimental_version > 1)
+		if(extended && extended_version > 1)
 		{
 			desc->pax_level = 65535;
 		}
@@ -279,12 +279,12 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			desc->pax_level = decode_uint16(p);
 		}
-		if(experimental)
+		if(extended)
 		{
 			desc->electricity_proportion = decode_uint16(p); 
 			desc->inverse_electricity_proportion = 100 / desc->electricity_proportion;
 
-			if(experimental_version >= 1)
+			if(extended_version >= 1)
 			{
 				desc->upgrades = decode_uint8(p);
 			}
@@ -292,10 +292,10 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			{
 				desc->upgrades = 0;
 			}
-			if(experimental_version > 3)
+			if(extended_version > 3)
 			{
 				// Check for incompatible future versions
-				dbg->fatal( "factory_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+				dbg->fatal( "factory_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", extended_version );
 			}
 		}
 		desc->expand_probability = rescale_probability( decode_uint16(p) );
@@ -306,7 +306,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->pax_boost = decode_uint16(p);
 		desc->mail_boost = decode_uint16(p);
 		desc->electric_amount = decode_uint16(p);
-		if(experimental && experimental_version > 1)
+		if(extended && extended_version > 1)
 		{
 			desc->pax_demand = 65535;
 			desc->mail_demand = 65535;
@@ -336,12 +336,12 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->supplier_count = decode_uint16(p); //"supplier" (Babelfish)
 		desc->product_count = decode_uint16(p); //"products" (Babelfish)
 		desc->pax_level = decode_uint16(p);
-		if(experimental)
+		if(extended)
 		{
 			desc->electricity_proportion = decode_uint16(p); 
 			desc->inverse_electricity_proportion = 100 / desc->electricity_proportion;
 
-			if(experimental_version >= 1)
+			if(extended_version >= 1)
 			{
 				desc->upgrades = decode_uint8(p);
 			}
@@ -349,10 +349,10 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			{
 				desc->upgrades = 0;
 			}
-			if(experimental_version > 1)
+			if(extended_version > 1)
 			{
 				// Check for incompatible future versions
-				dbg->fatal( "factory_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+				dbg->fatal( "factory_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", extended_version );
 			}
 		}
 		desc->expand_probability = 0;
@@ -432,7 +432,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->base_max_distance_to_consumer = 65535;
 	}
 
-	if(!experimental)
+	if(!extended)
 	{
 		desc->electricity_proportion = 17;
 		desc->inverse_electricity_proportion = 100 / desc->electricity_proportion;

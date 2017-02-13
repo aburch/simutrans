@@ -169,13 +169,13 @@ void banner_t::draw(scr_coord pos, scr_size size )
 #ifdef REVISION
 	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "Version " VERSION_NUMBER, true );
 	cursor.y += LINESPACE+2;
-	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, EXPERIMENTAL_VERSION " " VERSION_DATE " r" QUOTEME(REVISION), true );
+	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, EXTENDED_VERSION " " VERSION_DATE " r" QUOTEME(REVISION), true );
 #else
-	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "Version " VERSION_NUMBER " " EXPERIMENTAL_VERSION " " VERSION_DATE, true );
+	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "Version " VERSION_NUMBER " " EXTENDED_VERSION " " VERSION_DATE, true );
 #endif
 	cursor.y += LINESPACE+7;
 
-	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_TITLE, SYSCOL_TEXT_SHADOW,  "Simutrans-Experimental is developed", true );
+	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_TITLE, SYSCOL_TEXT_SHADOW,  "Simutrans-Extended is developed", true );
 	cursor.y += LINESPACE+5;
 	display_shadow_proportional( cursor.x+24, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "by the Simutrans community", true );
 	cursor.y += LINESPACE+2;

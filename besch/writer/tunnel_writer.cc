@@ -38,7 +38,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	// BG, 11.02.2014: max_weight was missused as axle_load 
 	// in experimetal before standard introduced axle_load. 
 	//
-	// Therefore set new standard axle_load with old experimental
+	// Therefore set new standard axle_load with old extended
 	// max_weight, if axle_load not specified, but max_weight.
 	if (axle_load == 9999)
 	{
@@ -120,11 +120,11 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	// version 4: snow images + underground way image + broad portals
 	uint16 version = 0x8005;
 
-	// This is the overlay flag for Simutrans-Experimental
+	// This is the overlay flag for Simutrans-Extended
 	// This sets the *second* highest bit to 1. 
 	version |= EXP_VER;
 
-	// Finally, this is the experimental version number. This is *added*
+	// Finally, this is the extended version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
 	version += 0x200;
@@ -140,7 +140,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_sint8(fp, number_seasons,				21);
 	// has was (uint8) is here but filled later
 	node.write_sint8(fp, (number_portals==4),			23);
-	// experimental 1 additions:
+	// extended 1 additions:
 	node.write_uint8(fp, permissive_way_constraints,	24);
 	node.write_uint8(fp, prohibitive_way_constraints,	25);
 	node.write_uint16(fp, topspeed_gradient_1,			26);

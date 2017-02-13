@@ -25,7 +25,7 @@ The <em>[X]</em> buttons on the left of the list delete the saved game next to t
 IMPORTANT: New releases of Simutrans appear regularly; games saved in later releases of Simutrans may not be able to be loaded in earlier versions.
 </p>
 <p>
-<em>Note:</em> Simutrans-Experimental can load games from Simutrans-Standard, but Simutrans-Standard cannot load games saved in Simutrans-Experimental. 
+<em>Note:</em> Simutrans-Extended can load games from Simutrans-Standard, but Simutrans-Standard cannot load games saved in Simutrans-Extended. 
 </p>
 <p>
 Click on <em>Cancel</em> to close the <strong>Load</strong> window.

@@ -359,13 +359,13 @@ public:
 	uint16 get_animation_time() const { return animation_time; }
 
 	/** Recent versions of Standard have incorporated get_maintenance (etc.) from
-	  * Experimental (which Experimental formerly called "station_maintenance", etc.,
+	  * Extended (which Extended formerly called "station_maintenance", etc.,
 	  * instead of just "maintenance" etc.). 
 	  * 
 	  * In Standard, the actual price is calculated on the fly in the getter methods.
 	  * (See here: https://github.com/aburch/simutrans/commit/7192edc40cee52dc10f44b6d444dd4d668eaa365
 	  * for the Standard code). This is not desirable here because: (1) it does not
-	  * work well with Experimental's price scaling; and (2) it requires repeated 
+	  * work well with Extended's price scaling; and (2) it requires repeated 
 	  * recalculation of the prices, which is unnecessary work. 
 	  */
 

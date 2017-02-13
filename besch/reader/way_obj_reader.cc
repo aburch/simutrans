@@ -43,22 +43,22 @@ obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	uint16 version = v & 0x7FFF;
 
-	// Whether the read file is from Simutrans-Experimental
+	// Whether the read file is from Simutrans-Extended
 	//@author: jamespetts
 
 	way_constraints_of_way_t way_constraints;
-	const bool experimental = version > 0 ? v & EXP_VER : false;
-	uint16 experimental_version = 0;
-	if(experimental)
+	const bool extended = version > 0 ? v & EXP_VER : false;
+	uint16 extended_version = 0;
+	if(extended)
 	{
-		// Experimental version to start at 0 and increment.
+		// Extended version to start at 0 and increment.
 		version = version & EXP_VER ? version & 0x3FFF : 0;
 		while(version > 0x100)
 		{
 			version -= 0x100;
-			experimental_version ++;
+			extended_version ++;
 		}
-		experimental_version -=1;
+		extended_version -=1;
 	}
 
 	if(version==1) {
@@ -70,16 +70,16 @@ obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->obsolete_date = decode_uint16(p);
 		desc->wt = decode_uint8(p);
 		desc->own_wtyp = decode_uint8(p);
-		if(experimental)
+		if(extended)
 		{
-			if(experimental_version == 0)
+			if(extended_version == 0)
 			{
 				way_constraints.set_permissive(decode_uint8(p));
 				way_constraints.set_prohibitive(decode_uint8(p));
 			}
 			else
 			{
-				dbg->fatal( "way_obj_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", experimental_version );
+				dbg->fatal( "way_obj_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", extended_version );
 			}
 		}
 	}

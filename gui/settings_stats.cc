@@ -182,7 +182,7 @@ void settings_stats_t::set_cell_component(gui_component_table_t &tbl, gui_compon
 	tbl.set_size(tbl.get_table_size());
 
 
-void settings_experimental_general_stats_t::init( settings_t *sets )
+void settings_extended_general_stats_t::init( settings_t *sets )
 {
 	INIT_INIT;
 	INIT_NUM( "min_bonus_max_distance", sets->get_min_bonus_max_distance(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
@@ -322,7 +322,7 @@ void settings_experimental_general_stats_t::init( settings_t *sets )
 }
 
 
-void settings_experimental_general_stats_t::read(settings_t *sets)
+void settings_extended_general_stats_t::read(settings_t *sets)
 {
 	READ_INIT;
 
@@ -407,7 +407,7 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 }
 
 
-void settings_experimental_revenue_stats_t::init( settings_t *sets )
+void settings_extended_revenue_stats_t::init( settings_t *sets )
 {
 	INIT_INIT;
 	INIT_NUM( "passenger_trips_per_month_hundredths", sets->get_passenger_trips_per_month_hundredths(), 0, 4096, gui_numberinput_t::AUTOLINEAR, false );
@@ -524,7 +524,7 @@ void settings_experimental_revenue_stats_t::init( settings_t *sets )
 }
 
 
-void settings_experimental_revenue_stats_t::read(settings_t *sets)
+void settings_extended_revenue_stats_t::read(settings_t *sets)
 {
 	READ_INIT
 	READ_NUM_VALUE( sets->passenger_trips_per_month_hundredths );
@@ -654,7 +654,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	clear_dirty();
 
 	SEPERATOR
-	// comboboxes for Experimental savegame version and revision
+	// comboboxes for Extended savegame version and revision
 	savegame_ex.set_pos( scr_coord(2,ypos-2) );
 	savegame_ex.set_size( scr_size(70,D_BUTTON_HEIGHT) );
 	for(  int i=0;  i<lengthof(version_ex);  i++  ) 
@@ -667,7 +667,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 		{
 			savegame_ex.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version_ex[i]+1, SYSCOL_TEXT ) );
 		}
-		if(  strcmp(version_ex[i],EXPERIMENTAL_VER_NR)==0  ) 
+		if(  strcmp(version_ex[i],EXTENDED_VER_NR)==0  ) 
 		{
 			savegame_ex.set_selection( i );
 		}
@@ -675,7 +675,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	savegame_ex.set_focusable( false );
 	add_component( &savegame_ex );
 	savegame_ex.add_listener( this );
-	INIT_LB( "savegame Experimental version" );
+	INIT_LB( "savegame Extended version" );
 	label.back()->set_pos( scr_coord( 76, label.back()->get_pos().y ) );
 	clear_dirty();
 
@@ -702,7 +702,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	savegame_ex_rev.set_focusable( false );
 	add_component( &savegame_ex_rev );
 	savegame_ex_rev.add_listener( this );
-	INIT_LB( "savegame Experimental revision" );
+	INIT_LB( "savegame Extended revision" );
 	label.back()->set_pos( scr_coord( 76, label.back()->get_pos().y ) );
 	clear_dirty();
 

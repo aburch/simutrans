@@ -255,7 +255,7 @@ just_in_time = 1
 # This is only enabled when "just_in_time" is enabled
 # The limit is given in percent of factory storage (0=off)
 #
-# This number is (as of Simutrans-Experimental 11.16) scaled to the ratio
+# This number is (as of Simutrans-Extended 11.16) scaled to the ratio
 # of the time that it takes the industry to consume its stock to the average
 # lead time for new deliveries. Values of slightly over 100% are recommended.
 maximum_intransit_percentage = 110

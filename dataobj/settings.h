@@ -68,8 +68,8 @@ class settings_t
 	friend class settings_economy_stats_t;
 	friend class settings_costs_stats_t;
 	friend class settings_climates_stats_t;
-	friend class settings_experimental_general_stats_t;
-	friend class settings_experimental_revenue_stats_t;
+	friend class settings_extended_general_stats_t;
+	friend class settings_extended_revenue_stats_t;
 	friend class climate_gui_t;
 	friend class welt_gui_t;
 

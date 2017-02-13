@@ -51,7 +51,7 @@ char const *const NOTICE_TILE_FULL = "Tile not empty.";
 char const *const NOTICE_DISABLED_PUBLIC_WAY = "Not allowed to make publicly owned ways!";
 
 /// for compatibility with old versions
-/// Must be different in experimental!
+/// Must be different in extended!
 #define OLD_MAX_PLAYER_COST (21)
 
 /// number of years to keep history

@@ -219,7 +219,7 @@ private:
 	uint16 product_count; //"products" (Babelfish)
 	uint8 fields;	// only if there are any ...
 	uint16 pax_level; // Kept for backwards compatibility only. This is now read from the associated gebaeude_t object.
-	uint16 electricity_proportion; // Modifier of electricity consumption (a legacy setting for Experimental only)
+	uint16 electricity_proportion; // Modifier of electricity consumption (a legacy setting for Extended only)
 	uint16 inverse_electricity_proportion;
 	bool electricity_producer;
 	uint8 upgrades; // The industry types to which this industry can be upgraded.

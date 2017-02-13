@@ -35,7 +35,7 @@
 
 #define CXX11(gcc_major, gcc_minor, msc_ver) ( \
 	__cplusplus >= 201103L || \
-	(defined __GXX_EXPERIMENTAL_CXX0X__ && GCC_ATLEAST((gcc_major), (gcc_minor))) || \
+	(defined __GXX_EXTENDED_CXX0X__ && GCC_ATLEAST((gcc_major), (gcc_minor))) || \
 	(defined _MSC_VER && (msc_ver) != 0 && _MSC_VER >= (msc_ver)) \
 )
 

@@ -275,7 +275,7 @@ void schedule_t::rdwr(loadsave_t *file)
 	else {
 		file->rdwr_byte(current_stop);
 		file->rdwr_byte(size);
-		if(file->get_version()>=102003 && file->get_experimental_version() >= 9)
+		if(file->get_version()>=102003 && file->get_extended_version() >= 9)
 		{
 			file->rdwr_bool(bidirectional);
 			file->rdwr_bool(mirrored);
@@ -302,7 +302,7 @@ void schedule_t::rdwr(loadsave_t *file)
 				entries[i].reverse = -1;
 			}
 			entries[i].pos.rdwr(file);
-			if(file->get_experimental_version() >= 10 && file->get_version() >= 111002)
+			if(file->get_extended_version() >= 10 && file->get_version() >= 111002)
 			{
 				file->rdwr_short(entries[i].minimum_loading);
 				if(entries[i].minimum_loading > 100 && spacing)
@@ -323,15 +323,15 @@ void schedule_t::rdwr(loadsave_t *file)
 			if(file->get_version()>=99018) {
 				file->rdwr_byte(entries[i].waiting_time_shift);
 
-				if(file->get_experimental_version() >= 9 && file->get_version() >= 110006) 
+				if(file->get_extended_version() >= 9 && file->get_version() >= 110006) 
 				{
 					file->rdwr_short(entries[i].spacing_shift);
 				}
 
-				if(file->get_experimental_version() >= 10)
+				if(file->get_extended_version() >= 10)
 				{
 					file->rdwr_byte(entries[i].reverse);
-					if(file->get_experimental_revision() < 4 && entries[i].reverse)
+					if(file->get_extended_revision() < 4 && entries[i].reverse)
 					{
 						// Older versions had true as a default: set to indeterminate. 
 						entries[i].reverse = -1;
@@ -342,9 +342,9 @@ void schedule_t::rdwr(loadsave_t *file)
 					entries[i].reverse = -1;
 				}
 #ifdef SPECIAL_RESCUE_12 // For testers who want to load games saved with earlier unreleased versions.
-				if(file->get_experimental_version() >= 12 && file->is_saving())
+				if(file->get_extended_version() >= 12 && file->is_saving())
 #else
-				if(file->get_experimental_version() >= 12)
+				if(file->get_extended_version() >= 12)
 #endif
 				{
 					file->rdwr_bool(entries[i].wait_for_time);
@@ -372,12 +372,12 @@ void schedule_t::rdwr(loadsave_t *file)
 		current_stop = 0;
 	}
 
-	if(file->get_experimental_version() >= 9)
+	if(file->get_extended_version() >= 9)
 	{
 		file->rdwr_short(spacing);
 	}
 
-	if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
+	if(file->get_extended_version() >= 9 && file->get_version() >= 110006)
 	{
 		file->rdwr_bool(same_spacing_shift);
 	}

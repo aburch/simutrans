@@ -54,9 +54,9 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	costs.init( sets );
 	height = max(height, costs.get_size().h);
 	exp_general.init( sets );
-	height = max(height, exp_general.get_size().h + tabs_experimental.header_vsize);
+	height = max(height, exp_general.get_size().h + tabs_extended.header_vsize);
 	exp_revenue.init( sets );
-	height = max(height, exp_revenue.get_size().h + tabs_experimental.header_vsize);
+	height = max(height, exp_revenue.get_size().h + tabs_extended.header_vsize);
 	climates.init( sets );
 
 	scrolly_general.set_scroll_amount_y(D_BUTTON_HEIGHT/2);
@@ -70,13 +70,13 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	tabs.add_tab(&scrolly_display, translator::translate("Helligk."));
 	tabs.add_tab(&scrolly_economy, translator::translate("Economy"));
 	tabs.add_tab(&scrolly_routing, translator::translate("Routing"));
-	tabs.add_tab(&tabs_experimental, translator::translate("Experimental"));
+	tabs.add_tab(&tabs_extended, translator::translate("Extended"));
 	tabs.add_tab(&scrolly_costs, translator::translate("Costs"));
 	tabs.add_tab(&scrolly_climates, translator::translate("Climate Control"));
 	add_component(&tabs);
 
-	tabs_experimental.add_tab(&scrolly_exp_general, translator::translate("General Exp."));
-	tabs_experimental.add_tab(&scrolly_exp_revenue, translator::translate("Passengers"));
+	tabs_extended.add_tab(&scrolly_exp_general, translator::translate("General Ex."));
+	tabs_extended.add_tab(&scrolly_exp_revenue, translator::translate("Passengers"));
 
 	height += tabs.get_pos().y + tabs.header_vsize + 20;
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+gui_tab_panel_t::header_vsize+18*(D_BUTTON_HEIGHT/2)+2+1));

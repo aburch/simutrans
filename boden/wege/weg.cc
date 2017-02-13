@@ -398,7 +398,7 @@ void weg_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(file->get_experimental_version() >= 1)
+	if(file->get_extended_version() >= 1)
 	{
 		if (max_axle_load > 32768) {
 			dbg->error("weg_t::rdwr()", "Max axle load out of range");
@@ -408,7 +408,7 @@ void weg_t::rdwr(loadsave_t *file)
 		max_axle_load = wdummy16;
 	}
 
-	if(file->get_experimental_version() >= 12)
+	if(file->get_extended_version() >= 12)
 	{
 		bool prow = public_right_of_way;
 		file->rdwr_bool(prow);

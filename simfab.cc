@@ -329,13 +329,13 @@ void fabrik_t::update_scaled_electric_amount()
 {
 	if(desc->get_electric_amount() == 65535) 
 	{
-		// demand not specified in pak, use old fixed demands and the Experimental electricity proportion
+		// demand not specified in pak, use old fixed demands and the Extended electricity proportion
 		const uint16 electricity_proportion = get_desc()->is_electricity_producer() ? 400 : get_desc()->get_electricity_proportion();
 		scaled_electric_amount = PRODUCTION_DELTA_T * (uint32)(prodbase * electricity_proportion) / 100;
 		return;
 	}
 
-	// If the demand is specified in the pakset, do not use the Experimental electricity proportion.
+	// If the demand is specified in the pakset, do not use the Extended electricity proportion.
 	const sint64 prod = desc->get_productivity();
 	scaled_electric_amount = (uint32)( (( (sint64)(desc->get_electric_amount()) * (sint64)prodbase + (prod >> 1) ) / prod) << POWER_TO_MW );
 
@@ -1337,7 +1337,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		if(  file->is_saving()  ) {
 			uint16 nr=fields.get_count();
 			file->rdwr_short(nr);
-			if(  file->get_version()>102002  && file->get_experimental_version() != 7 ) {
+			if(  file->get_version()>102002  && file->get_extended_version() != 7 ) {
 				// each field stores location and a field class index
 				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
 					koord k = fields[i].location;
@@ -1359,7 +1359,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			koord k;
 			file->rdwr_short(nr);
 			fields.resize(nr);
-			if(  file->get_version()>102002  && file->get_experimental_version() != 7 ) {
+			if(  file->get_version()>102002  && file->get_extended_version() != 7 ) {
 				// each field stores location and a field class index
 				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
 					k.rdwr(file);
@@ -1384,7 +1384,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 	}
 
-	if(file->get_version() >= 99014 && file->get_experimental_version() < 12)
+	if(file->get_version() >= 99014 && file->get_extended_version() < 12)
 	{
 		// Was saving/loading of "target_cities".
 		sint32 nr = 0;
@@ -1396,7 +1396,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 	}
 	
-	if(file->get_experimental_version() < 9 && file->get_version() < 110006)
+	if(file->get_extended_version() < 9 && file->get_version() < 110006)
 	{
 		// Necessary to ensure that the industry density is correct after re-loading a game.
 		welt->increase_actual_industry_density(100 / desc->get_chance());
@@ -1448,7 +1448,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 	}
 
-	if(file->get_experimental_version() >= 12)
+	if(file->get_extended_version() >= 12)
 	{
 		grund_t *gr = welt->lookup(pos_origin);
 		if(!gr)
@@ -1597,7 +1597,7 @@ sint8 fabrik_t::is_needed(const ware_desc_t *typ) const
 	* this code is changed in the latest Standard nightlies. The
 	* idea of the change appears to be to scale the effect
 	* of the intransit percentage to the output store of the
-	* producing industry. This is not necessary in Experimental,
+	* producing industry. This is not necessary in Extended,
 	* as the max_intransit percentage is in any event scaled
 	* based on the lead time and consumption rate. Therefore, the
 	* additional code from Standard for this feature should be

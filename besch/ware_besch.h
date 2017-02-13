@@ -166,7 +166,7 @@ public:
 	uint16 get_speed_bonus() const { return speed_bonus; }
 
 	/**
-	 * Experimental has two special effects:
+	 * Extended has two special effects:
 	 * (1) Below a certain distance the speed bonus rating is zero;
 	 * (2) The speed bonus "fades in" above that distance and enlarges as distance continues,
 	 *     until a "maximum distance".

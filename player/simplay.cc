@@ -862,7 +862,7 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 		simlinemgmt.rdwr(file,this);
 	}
 
-	if(file->get_version()>102002 && file->get_experimental_version() != 7) {
+	if(file->get_version()>102002 && file->get_extended_version() != 7) {
 		// password hash
 		for(  int i=0;  i<20;  i++  ) {
 			file->rdwr_byte(pwd_hash[i]);
@@ -874,12 +874,12 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 	}
 
 	// save the name too
-	if(file->get_version()>102003 && (file->get_experimental_version() >= 9 || file->get_experimental_version() == 0)) 
+	if(file->get_version()>102003 && (file->get_extended_version() >= 9 || file->get_extended_version() == 0)) 
 	{
 		file->rdwr_str( player_name_buf, lengthof(player_name_buf) );
 	}
 
-	if(file->get_version() >= 110007 && file->get_experimental_version() >= 10)
+	if(file->get_version() >= 110007 && file->get_extended_version() >= 10)
 	{
 		// Save the colour
 		file->rdwr_byte(player_color_1);
@@ -895,7 +895,7 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 	}
 
 	// save age
-	if(  file->get_version() >= 112002  && (file->get_experimental_version() >= 11 || file->get_experimental_version() == 0) ) {
+	if(  file->get_version() >= 112002  && (file->get_extended_version() >= 11 || file->get_extended_version() == 0) ) {
 		file->rdwr_short( player_age );
 	}
 }

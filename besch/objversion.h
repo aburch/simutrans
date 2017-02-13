@@ -7,7 +7,7 @@
 #define COMPILER_VERSION_CODE_11 (0 * 1000000 + 1 * 1000 + 1)
 #define COMPILER_VERSION_CODE (0 * 1000000 + 1 * 1000 + 3)
 
-//The experimental subversion
+//The extended subversion
 #define EXP_VER 0x4000
 
 /*

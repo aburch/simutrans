@@ -97,11 +97,11 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	uint16 version = 0x8004; // version 4
 	
-	// This is the overlay flag for Simutrans-Experimental
+	// This is the overlay flag for Simutrans-Extended
 	// This sets the *second* highest bit to 1. 
 	version |= EXP_VER;
 
-	// Finally, this is the experimental version number. This is *added*
+	// Finally, this is the extended version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
 	// 0x100: Allow underground

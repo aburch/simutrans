@@ -246,12 +246,12 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12 +
 		obj.get_int("retire_month", 1) - 1;
 
-	// @author: Kieron Green (ideas from experimental code by jamespetts)
+	// @author: Kieron Green (ideas from extended code by jamespetts)
 	// capacity and price information.
 	// Stands in place of the "level" setting, but uses "level" data by default.
 
 	//NOTE: Default for maintenance and price must be set when loading so use magic default here
-	//also check for "station_xx" for experimental compatibility
+	//also check for "station_xx" for extended compatibility
 
 	sint32 capacity = obj.get_int("capacity", level * 32);
 	if(  capacity == level * 32  ) {
@@ -401,15 +401,15 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	uint16 version = 0x8009;
 	
-	// This is the overlay flag for Simutrans-Experimental
+	// This is the overlay flag for Simutrans-Extended
 	// This sets the *second* highest bit to 1. 
 	version |= EXP_VER;
 
-	// Finally, this is the experimental version number. This is *added*
+	// Finally, this is the extended version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
 	// Reset to 0x100 for Standard 0x8008
-	// 0x200: Experimental version 12: radii for buildings
+	// 0x200: Extended version 12: radii for buildings
 	// 0x300: 16-bit traction types
 	version += 0x300;
 	

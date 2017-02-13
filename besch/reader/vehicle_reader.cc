@@ -46,20 +46,20 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	int version = v & 0x8000 ? v & 0x7FFF : 0;
 	
-	// Whether the read file is from Simutrans-Experimental
+	// Whether the read file is from Simutrans-Extended
 	//@author: jamespetts
-	const bool experimental = version > 0 ? v & EXP_VER : false;
-	uint16 experimental_version = 0;
-	if(experimental)
+	const bool extended = version > 0 ? v & EXP_VER : false;
+	uint16 extended_version = 0;
+	if(extended)
 	{
-		// Experimental version to start at 0 and increment.
+		// Extended version to start at 0 and increment.
 		version = version & EXP_VER ? version & 0x3FFF : 0;
 		while(version > 0x100)
 		{
 			version -= 0x100;
-			experimental_version ++;
+			extended_version ++;
 		}
-		experimental_version -= 1;
+		extended_version -= 1;
 	}
 
 	way_constraints_of_vehicle_t way_constraints;
@@ -189,9 +189,9 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
 		desc->freight_image_type = decode_uint8(p);
-		if(experimental)
+		if(extended)
 		{
-			if(experimental_version <= 6)
+			if(extended_version <= 6)
 			{
 				desc->is_tilting = decode_uint8(p);
 				way_constraints.set_permissive(decode_uint8(p));
@@ -208,11 +208,11 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->brake_force = BRAKE_FORCE_UNKNOWN;
 				desc->minimum_runway_length = 10;
 				desc->rolling_resistance = vehicle_desc_t::get_rolling_default(desc->wt) / float32e8_t::tenthousand;
-				if(experimental_version == 1)
+				if(extended_version == 1)
 				{
 					desc->base_fixed_cost = decode_uint16(p);
 				}
-				else if(experimental_version >= 2)
+				else if(extended_version >= 2)
 				{
 					desc->base_fixed_cost = decode_uint32(p);
 				}
@@ -220,7 +220,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					desc->base_fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 				}
-				if(experimental_version >= 3)
+				if(extended_version >= 3)
 				{
 					desc->tractive_effort = decode_uint16(p);
 				}
@@ -229,7 +229,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					desc->tractive_effort = 0;
 				}
 
-				if(experimental_version >=4)
+				if(extended_version >=4)
 				{
 					uint32 air_resistance_hundreds = decode_uint16(p);
 					desc->air_resistance = air_resistance_hundreds / float32e8_t::hundred;
@@ -246,7 +246,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					desc->increase_maintenance_by_percent = 0;
 					desc->years_before_maintenance_max_reached = 0;
 				}
-				if(experimental_version >= 5)
+				if(extended_version >= 5)
 				{
 					desc->livery_image_type = decode_uint8(p);
 				}
@@ -254,7 +254,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					desc->livery_image_type = 0;
 				}
-				if(experimental_version >= 6)
+				if(extended_version >= 6)
 				{
 					// With minimum and maximum loading times in seconds
 					desc->min_loading_time_seconds = decode_uint16(p);
@@ -268,15 +268,15 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			}
 			else
 			{
-				dbg->fatal( "vehicle_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+				dbg->fatal( "vehicle_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", extended_version );
 			}
 		}
 	}
 	else if (version==9) {
-		// new: fixed_cost (previously Experimental only), loading_time, axle_load
+		// new: fixed_cost (previously Extended only), loading_time, axle_load
 		desc->base_cost = decode_uint32(p);
 		desc->capacity = decode_uint16(p);
-		if(experimental_version == 0)
+		if(extended_version == 0)
 		{
 			// The new Standard datum for loading times is read here.
 			desc->min_loading_time = desc->max_loading_time = decode_uint16(p);
@@ -286,9 +286,9 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->axle_load = decode_uint16(p);
 		desc->power = decode_uint32(p);
 		desc->running_cost = decode_uint16(p);
-		if(experimental_version == 0)
+		if(extended_version == 0)
 		{
-			// Experimental has this as a 32-bit integer, and reads it later.
+			// Extended has this as a 32-bit integer, and reads it later.
 			desc->base_fixed_cost = decode_uint16(p);
 		}
 
@@ -303,9 +303,9 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->leader_count = decode_uint8(p);		//"Predecessors" (Google)
 		desc->trailer_count = decode_uint8(p);		//"Successor" (Google)
 		desc->freight_image_type = decode_uint8(p);
-		if(experimental)
+		if(extended)
 		{
-			if(experimental_version <= 7)
+			if(extended_version <= 7)
 			{
 				desc->is_tilting = decode_uint8(p);
 				way_constraints.set_permissive(decode_uint8(p));
@@ -319,11 +319,11 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->upgrades = decode_uint8(p);
 				desc->base_upgrade_price = decode_uint32(p);
 				desc->available_only_as_upgrade = decode_uint8(p);
-				if(experimental_version == 1)
+				if(extended_version == 1)
 				{
 					desc->base_fixed_cost = decode_uint16(p);
 				}
-				else if(experimental_version >= 2)
+				else if(extended_version >= 2)
 				{
 					desc->base_fixed_cost = decode_uint32(p);
 				}
@@ -331,7 +331,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					desc->base_fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 				}
-				if(experimental_version >= 3)
+				if(extended_version >= 3)
 				{
 					desc->tractive_effort = decode_uint16(p);
 				}
@@ -340,7 +340,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					desc->tractive_effort = 0;
 				}
 
-				if(experimental_version >= 4)
+				if(extended_version >= 4)
 				{
 					uint32 air_resistance_hundreds = decode_uint16(p);
 					desc->air_resistance = air_resistance_hundreds / float32e8_t::hundred;
@@ -357,7 +357,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					desc->increase_maintenance_by_percent = 0;
 					desc->years_before_maintenance_max_reached = 0;
 				}
-				if(experimental_version >= 5)
+				if(extended_version >= 5)
 				{
 					desc->livery_image_type = decode_uint8(p);
 				}
@@ -365,7 +365,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					desc->livery_image_type = 0;
 				}
-				if(experimental_version >= 6)
+				if(extended_version >= 6)
 				{
 					// With minimum and maximum loading times in seconds
 					desc->min_loading_time_seconds = decode_uint16(p);
@@ -375,7 +375,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					desc->min_loading_time_seconds = desc->max_loading_time_seconds = 65535;
 				}
-				if(experimental_version >= 7)
+				if(extended_version >= 7)
 				{
 					uint32 rolling_resistance_tenths_thousands = decode_uint16(p);
 					desc->rolling_resistance = rolling_resistance_tenths_thousands / float32e8_t::tenthousand;
@@ -392,7 +392,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			}
 			else
 			{
-				dbg->fatal( "vehicle_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+				dbg->fatal( "vehicle_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", extended_version );
 			}
 		}
 	}
@@ -400,7 +400,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// new: weight in kgs
 		desc->base_cost = decode_uint32(p);
 		desc->capacity = decode_uint16(p);
-		if(!experimental)
+		if(!extended)
 		{
 			// The new Standard datum for loading times is read here.
 			desc->min_loading_time = desc->max_loading_time = decode_uint16(p);
@@ -410,9 +410,9 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->axle_load = decode_uint16(p);
 		desc->power = decode_uint32(p);
 		desc->running_cost = decode_uint16(p);
-		if(!experimental)
+		if(!extended)
 		{
-			// Experimental has this as a 32-bit integer, and reads it later.
+			// Extended has this as a 32-bit integer, and reads it later.
 			desc->base_fixed_cost = decode_uint16(p);
 		}
 
@@ -427,11 +427,11 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
 		desc->freight_image_type = decode_uint8(p);
-		if(experimental)
+		if(extended)
 		{
-			if(experimental_version < 3)
+			if(extended_version < 3)
 			{
-				// NOTE: Experimental version reset to 1 with incrementing of
+				// NOTE: Extended version reset to 1 with incrementing of
 				// Standard version to 10.
 				desc->is_tilting = decode_uint8(p);
 				way_constraints.set_permissive(decode_uint8(p));
@@ -445,7 +445,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->upgrades = decode_uint8(p);
 				desc->base_upgrade_price = decode_uint32(p);
 				desc->available_only_as_upgrade = decode_uint8(p);
-				if (!experimental && version == 10)
+				if (!extended && version == 10)
 				{
 					desc->base_fixed_cost = decode_uint16(p);
 				}
@@ -467,7 +467,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->rolling_resistance = rolling_resistance_tenths_thousands / float32e8_t::tenthousand;
 				desc->brake_force = decode_uint16(p);
 				desc->minimum_runway_length = decode_uint16(p);
-				if(experimental_version == 0)
+				if(extended_version == 0)
 				{
 					desc->range = 0;
 					desc->way_wear_factor = UINT32_MAX_VALUE; 
@@ -477,7 +477,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					desc->range = decode_uint16(p);
 					desc->way_wear_factor = decode_uint32(p);
 				}
-				if (experimental_version > 1)
+				if (extended_version > 1)
 				{
 					desc->is_tall = decode_uint8(p);
 				}
@@ -488,7 +488,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			}
 			else
 			{
-				dbg->fatal( "vehicle_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+				dbg->fatal( "vehicle_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", extended_version );
 			}
 		}
 	}
@@ -554,7 +554,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->freight_image_type = 0;
 	}
 
-	if(!experimental)
+	if(!extended)
 	{
 		// Default values for items not in the standard vehicle format.
 		desc->is_tilting = false;

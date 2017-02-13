@@ -388,11 +388,11 @@ int lock_company(SOCKET socket, uint32, int argc, char **argv)
 void usage()
 {
 	fprintf(stderr,
-		"nettool for Simutrans " VERSION_NUMBER EXPERIMENTAL_VERSION " and higher\n"
+		"nettool for Simutrans " VERSION_NUMBER EXTENDED_VERSION " and higher\n"
 		"\n"
 		"  Usage:\n"
 		"\n"
-		"      nettool-experimental [options] <command> [command argument]\n"
+		"      nettool-extended [options] <command> [command argument]\n"
 		"\n"
 		"    Options:\n"
 		"      -s <server[:port]> : Specify server to connect to (default is localhost:13353)\n"
@@ -570,7 +570,7 @@ int main(int argc, char* argv[]) {
 	// Print copyright notice unless quiet flag set
 	if (!opt_q) {
 		fprintf(stderr,
-			"nettool for Simutrans " VERSION_NUMBER EXPERIMENTAL_VERSION " and higher\n"
+			"nettool for Simutrans " VERSION_NUMBER EXTENDED_VERSION " and higher\n"
 		);
 	}
 

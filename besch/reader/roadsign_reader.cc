@@ -43,23 +43,23 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	int version = v & 0x8000 ? v & 0x7FFF : 0;
 
-	// Whether the read file is from Simutrans-Experimental
+	// Whether the read file is from Simutrans-Extended
 	// @author: jamespetts
 
-	uint16 experimental_version = 0;
-	const bool experimental = version > 0 ? v & EXP_VER : false;
+	uint16 extended_version = 0;
+	const bool extended = version > 0 ? v & EXP_VER : false;
 	if(version > 0)
 	{
-		if(experimental)
+		if(extended)
 		{
-			// Experimental version to start at 0 and increment.
+			// Extended version to start at 0 and increment.
 			version = version & EXP_VER ? version & 0x3FFF : 0;
 			while(version > 0x100)
 			{
 				version -= 0x100;
-				experimental_version ++;
+				extended_version ++;
 			}
-			experimental_version -= 1;
+			extended_version -= 1;
 		}
 	}
 
@@ -72,14 +72,14 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->wt = decode_uint8(p);
 		desc->intro_date = decode_uint16(p);
 		desc->obsolete_date = decode_uint16(p);
-		if(experimental)
+		if(extended)
 		{
-			if(experimental_version > 2)
+			if(extended_version > 2)
 			{
-				dbg->fatal( "roadsign_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+				dbg->fatal( "roadsign_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", extended_version );
 			}
 			desc->allow_underground = decode_uint8(p);
-			if(experimental_version >= 1)
+			if(extended_version >= 1)
 			{
 				desc->signal_group = decode_uint32(p);
 				desc->base_maintenance = decode_uint32(p);
@@ -122,11 +122,11 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->wt = decode_uint8(p);
 		desc->intro_date = decode_uint16(p);
 		desc->obsolete_date = decode_uint16(p);
-		if(experimental)
+		if(extended)
 		{
-			if(experimental_version > 1)
+			if(extended_version > 1)
 			{
-				dbg->fatal( "roadsign_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+				dbg->fatal( "roadsign_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", extended_version );
 			}
 			desc->allow_underground = decode_uint8(p);
 		}
@@ -160,12 +160,12 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->offset_left = 0;
 	}
 
-	if(!experimental)
+	if(!extended)
 	{
 		// Standard roadsigns can be placed both underground and above ground.
 		desc->allow_underground = 2;
 	}
-	if(!experimental || experimental_version < 1)
+	if(!extended || extended_version < 1)
 	{
 		desc->signal_group = 0;
 		desc->base_maintenance = 0;

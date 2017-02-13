@@ -414,7 +414,7 @@ int simu_main(int argc, char** argv)
 		printf(
 			"\n"
 			"---------------------------------------\n"
-			"  Simutrans " VERSION_NUMBER EXPERIMENTAL_VERSION "\n"
+			"  Simutrans " VERSION_NUMBER EXTENDED_VERSION "\n"
 			"  released " VERSION_DATE "\n"
 			"  an extended version of Simutrans\n"
 			"  developed by the Simutrans\n"
@@ -587,9 +587,9 @@ int simu_main(int argc, char** argv)
 
 
 #ifdef REVISION
-	const char *version = "Simutrans version " VERSION_NUMBER EXPERIMENTAL_VERSION " from " VERSION_DATE " r" QUOTEME(REVISION) "\n";
+	const char *version = "Simutrans version " VERSION_NUMBER EXTENDED_VERSION " from " VERSION_DATE " r" QUOTEME(REVISION) "\n";
 #else
-	const char *version = "Simutrans version " VERSION_NUMBER EXPERIMENTAL_VERSION " from " VERSION_DATE "\n";
+	const char *version = "Simutrans version " VERSION_NUMBER EXTENDED_VERSION " from " VERSION_DATE "\n";
 #endif
 
 
@@ -648,9 +648,9 @@ int simu_main(int argc, char** argv)
 	loadsave_t file;
 	
 #ifdef DEBUG
-	const char xml_filename[32] = "settings-experimental-debug.xml";
+	const char xml_filename[32] = "settings-extended-debug.xml";
 #else
-	const char xml_filename[26] = "settings-experimental.xml";
+	const char xml_filename[26] = "settings-extended.xml";
 #endif
 	bool xml_settings_found = file.rd_open(xml_filename);
 	if(!xml_settings_found)
@@ -671,8 +671,8 @@ int simu_main(int argc, char** argv)
 	if(xml_settings_found)  
 	{
 		if(file.get_version() > loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL).version 
-			|| file.get_experimental_version() > loadsave_t::int_version(EXPERIMENTAL_SAVEGAME_VERSION, NULL, NULL).experimental_version
-			|| file.get_experimental_revision() > EX_SAVE_MINOR)
+			|| file.get_extended_version() > loadsave_t::int_version(EXTENDED_SAVEGAME_VERSION, NULL, NULL).extended_version
+			|| file.get_extended_revision() > EX_SAVE_MINOR)
 		{
 			// too new => remove it
 			file.close();
@@ -761,7 +761,7 @@ int simu_main(int argc, char** argv)
 	}
 
 #ifdef DEBUG
-	DBG_MESSAGE( "simmain::main()", "Version: " VERSION_NUMBER EXPERIMENTAL_VERSION "  Date: " VERSION_DATE);
+	DBG_MESSAGE( "simmain::main()", "Version: " VERSION_NUMBER EXTENDED_VERSION "  Date: " VERSION_DATE);
 	DBG_MESSAGE( "Debuglevel","%i", env_t::verbose_debug );
 	DBG_MESSAGE( "program_dir", env_t::program_dir );
 	DBG_MESSAGE( "home_dir", env_t::user_dir );
@@ -1337,7 +1337,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 
 		if(  !env_t::networkmode  &&  new_world  ) {
 			dbg->important( "Show banner ... " );
-			ticker::add_msg("Welcome to Simutrans-Experimental, a fork of Simutrans-Standard, extended and maintained by the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
+			ticker::add_msg("Welcome to Simutrans-Extended (formerly Simutrans-Experimental), a fork of Simutrans-Standard, extended and maintained by the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 				modal_dialogue( new banner_t(), magic_none, welt, never_quit );
 			// only show new world, if no other dialoge is active ...
 			new_world = win_get_open_count()==0;
@@ -1381,7 +1381,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 
 	// save setting ...
 	chdir( env_t::user_dir );
-	if(file.wr_open(xml_filename,loadsave_t::xml,"settings only/",SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, EXPERIMENTAL_REVISION_NR)) 
+	if(file.wr_open(xml_filename,loadsave_t::xml,"settings only/",SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)) 
 	{
 		env_t::rdwr(&file);
 		env_t::default_settings.rdwr(&file);

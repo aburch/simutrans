@@ -143,7 +143,7 @@ void bridge_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(max_length);
 	chk->input(max_height);
 
-	//Experimental settings
+	//Extended settings
 	chk->input(max_weight);
 	chk->input(way_constraints.get_permissive());
 	chk->input(way_constraints.get_prohibitive());

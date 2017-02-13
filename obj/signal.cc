@@ -656,9 +656,9 @@ void signal_t::calc_image()
 void signal_t::rdwr_signal(loadsave_t *file)
 {
 #ifdef SPECIAL_RESCUE_12_5
-	if(file->get_experimental_version() >= 12 && file->is_saving())
+	if(file->get_extended_version() >= 12 && file->is_saving())
 #else
-	if(file->get_experimental_version() >= 12)
+	if(file->get_extended_version() >= 12)
 #endif
 	{
 		signalbox.rdwr(file);

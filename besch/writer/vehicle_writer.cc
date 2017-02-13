@@ -117,11 +117,11 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	//       as marker because formerly nodes were unversionend
 	uint16 version = 0x800B;
 	
-	// This is the overlay flag for Simutrans-Experimental
+	// This is the overlay flag for Simutrans-Extended
 	// This sets the *second* highest bit to 1. 
 	version |= EXP_VER;
 
-	// Finally, this is the experimental version number. This is *added*
+	// Finally, this is the extended version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
 	// Counting can restart at 0x100 if the Standard version increases.
@@ -145,7 +145,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	pos += sizeof(uint16);
 
 	/*
-	* This duplicates a system used in Experimental for some time.
+	* This duplicates a system used in Extended for some time.
 	* The keyword is the same.
 	*
 	// ms per loading/unloading everything
@@ -190,7 +190,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	/*
 	* uint16 size used in Standard. Stored in a different position
-	* in the file in Experimental, and is a uint32.
+	* in the file in Extended, and is a uint32.
 	*
 	// monthly maintenance
 	uint16 fixcost = obj.get_int("fixed_cost", 0);
@@ -839,7 +839,7 @@ end:
 
 	// Fixed monthly maintenance costs
 	// @author: jamespetts
-	// (The original Experimental name was "fixed_maintenance".
+	// (The original Extended name was "fixed_maintenance".
 	// The new Standard name is "fixed_cost". It is necessary
 	// to accommodate both.)
 	uint32 fixed_cost = obj.get_int("fixed_maintenance", 0);

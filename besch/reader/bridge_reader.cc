@@ -39,21 +39,21 @@ obj_desc_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	int version = v & 0x8000 ? v & 0x7FFF : 0;
 
-	// Whether the read file is from Simutrans-Experimental
+	// Whether the read file is from Simutrans-Extended
 	//@author: jamespetts
 
-	const bool experimental = version > 0 ? v & EXP_VER : false;
-	uint16 experimental_version = 0;
-	if(experimental)
+	const bool extended = version > 0 ? v & EXP_VER : false;
+	uint16 extended_version = 0;
+	if(extended)
 	{
-		// Experimental version to start at 0 and increment.
+		// Extended version to start at 0 and increment.
 		version = version & EXP_VER ? version & 0x3FFF : 0;
 		while(version > 0x100)
 		{
 			version -= 0x100;
-			experimental_version ++;
+			extended_version ++;
 		}
-		experimental_version -=1;
+		extended_version -=1;
 	}
 
 	// some defaults
@@ -154,12 +154,12 @@ obj_desc_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->pillars_asymmetric = (decode_uint8(p)!=0);
 		desc->max_height = decode_uint8(p);
 		desc->number_seasons = decode_uint8(p);
-		if(experimental)
+		if(extended)
 		{
 			desc->max_weight = desc->axle_load = decode_uint32(p);
 			way_constraints.set_permissive(decode_uint8(p));
 			way_constraints.set_prohibitive(decode_uint8(p));
-			if(experimental_version == 1)
+			if(extended_version == 1)
 			{
 				desc->topspeed_gradient_1 = decode_uint16(p);
 				desc->topspeed_gradient_2 = decode_uint16(p);
@@ -168,9 +168,9 @@ obj_desc_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->has_own_way_graphics = decode_uint8(p);
 				desc->has_way = decode_uint8(p);
 			}
-			if(experimental_version > 1)
+			if(extended_version > 1)
 			{
-				dbg->fatal("bridge_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version);
+				dbg->fatal("bridge_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", extended_version);
 			}
 		}
 
@@ -188,12 +188,12 @@ obj_desc_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->pillars_asymmetric = (decode_uint8(p)!=0);
 		desc->max_height = decode_uint8(p);
 		desc->axle_load = decode_uint16(p);	// new
-		if(experimental)
+		if(extended)
 		{
 			desc->max_weight = decode_uint32(p); // DIFFERENT to axle load.
 			way_constraints.set_permissive(decode_uint8(p));
 			way_constraints.set_prohibitive(decode_uint8(p));
-			if(experimental_version == 1)
+			if(extended_version == 1)
 			{
 				desc->topspeed_gradient_1 = decode_uint16(p);
 				desc->topspeed_gradient_2 = decode_uint16(p);
@@ -202,9 +202,9 @@ obj_desc_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->has_own_way_graphics = decode_uint8(p);
 				desc->has_way = decode_uint8(p);
 			}
-			if(experimental_version > 1)
+			if(extended_version > 1)
 			{
-				dbg->fatal("bridge_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version);
+				dbg->fatal("bridge_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", extended_version);
 			}
 		}
 		desc->number_seasons = decode_uint8(p);
@@ -221,7 +221,7 @@ obj_desc_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	desc->set_way_constraints(way_constraints);
 
-	if(experimental_version < 1 || !experimental)
+	if(extended_version < 1 || !extended)
 	{
 		desc->topspeed_gradient_1 = desc->topspeed_gradient_2 = desc->topspeed;
 		desc->max_altitude = 0;

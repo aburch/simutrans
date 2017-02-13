@@ -964,7 +964,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				}
 			}
 
-			// The logic above here is hopelessly broken for Experimental for multiple reasons
+			// The logic above here is hopelessly broken for Extended for multiple reasons
 			// (meters_per_tile, bits_per_month, and pay by average speed)
 			// and appears to have been wrong even in standard.
 			// Maybe try to clean it up sometime. --neroden

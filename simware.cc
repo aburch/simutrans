@@ -76,7 +76,7 @@ void ware_t::rdwr(loadsave_t *file)
 		file->rdwr_long(max);
 	}
 
-	if(file->get_version()>=110005 && file->get_experimental_version() < 12) 
+	if(file->get_version()>=110005 && file->get_extended_version() < 12) 
 	{
 		// Was "to_factory" / "factory_going".
 		uint8 dummy;
@@ -107,7 +107,7 @@ void ware_t::rdwr(loadsave_t *file)
 		}
 	}
 	// convert coordinate to halt indices
-	if(file->get_version() > 110005 && (file->get_experimental_version() >= 10 || file->get_experimental_version() == 0))
+	if(file->get_version() > 110005 && (file->get_extended_version() >= 10 || file->get_extended_version() == 0))
 	{
 		// save halt id directly
 		if(file->is_saving()) 
@@ -116,7 +116,7 @@ void ware_t::rdwr(loadsave_t *file)
 			file->rdwr_short(halt_id);
 			halt_id = zwischenziel.is_bound() ? zwischenziel.get_id() : 0;
 			file->rdwr_short(halt_id);
-			if(file->get_experimental_version() >= 1)
+			if(file->get_extended_version() >= 1)
 			{
 				halt_id = origin.is_bound() ? origin.get_id() : 0;	
 				file->rdwr_short(halt_id);
@@ -130,7 +130,7 @@ void ware_t::rdwr(loadsave_t *file)
 			ziel.set_id(halt_id);
 			file->rdwr_short(halt_id);
 			zwischenziel.set_id(halt_id);
-			if(file->get_experimental_version() >= 1)
+			if(file->get_extended_version() >= 1)
 			{
 				file->rdwr_short(halt_id);			
 				origin.set_id(halt_id);
@@ -149,7 +149,7 @@ void ware_t::rdwr(loadsave_t *file)
 			ziel_koord.rdwr(file);
 			koord zwischenziel_koord = zwischenziel.is_bound() ? zwischenziel->get_basis_pos() : koord::invalid;
 			zwischenziel_koord.rdwr(file);
-			if(file->get_experimental_version() >= 1)
+			if(file->get_extended_version() >= 1)
 			{
 				koord origin_koord = origin.is_bound() ? origin->get_basis_pos() : koord::invalid;	
 				origin_koord.rdwr(file);
@@ -162,14 +162,14 @@ void ware_t::rdwr(loadsave_t *file)
 			koord zwischen_ziel_koord(file);
 			zwischenziel = haltestelle_t::get_halt_koord_index(zwischen_ziel_koord);
 		
-			if(file->get_experimental_version() >= 1)
+			if(file->get_extended_version() >= 1)
 			{
 				koord origin_koord;	
 
 				origin_koord.rdwr(file);
-				if(file->get_experimental_version() == 1)
+				if(file->get_extended_version() == 1)
 				{				
-					// Simutrans-Experimental save version 1 had extra parameters
+					// Simutrans-Extended save version 1 had extra parameters
 					// such as "previous transfer" intended for use in the new revenue
 					// system. In the end, the system was designed differently, and
 					// these values are not present in versions 2 and above.
@@ -188,14 +188,14 @@ void ware_t::rdwr(loadsave_t *file)
 	}
 	zielpos.rdwr(file);
 
-	if(file->get_experimental_version() == 1)
+	if(file->get_extended_version() == 1)
 	{
 		uint32 dummy_2;
 		file->rdwr_long(dummy_2);
 		file->rdwr_long(dummy_2);
 	}
 
-	if(file->get_experimental_version() >= 2)
+	if(file->get_extended_version() >= 2)
 	{
 		if(file->get_version() < 110007)
 		{
@@ -204,7 +204,7 @@ void ware_t::rdwr(loadsave_t *file)
 			uint32 dummy = 0;
 			file->rdwr_long(dummy);
 		}
-		if(file->get_experimental_version() < 4)
+		if(file->get_extended_version() < 4)
 		{
 			// Was journey steps
 			uint8 dummy;
@@ -217,7 +217,7 @@ void ware_t::rdwr(loadsave_t *file)
 		arrival_time = 0;
 	}
 
-	if(file->get_experimental_version() >= 10 && file->get_version() >= 111000)
+	if(file->get_extended_version() >= 10 && file->get_version() >= 111000)
 	{
 		if(file->is_saving()) 
 		{
@@ -236,7 +236,7 @@ void ware_t::rdwr(loadsave_t *file)
 		last_transfer.set_id(origin.get_id());
 	}
 
-	if(file->get_experimental_version() >= 12)
+	if(file->get_extended_version() >= 12)
 	{
 		bool commuting = is_commuting_trip;
 		file->rdwr_bool(commuting);

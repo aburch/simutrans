@@ -294,7 +294,7 @@ void road_user_t::rdwr(loadsave_t *file)
 		file->rdwr_long(time_to_life);
 	}
 
-	if(file->get_experimental_version() >= 11)
+	if(file->get_extended_version() >= 11)
 	{
 		file->rdwr_byte(tiles_since_last_increment);
 	}
@@ -567,7 +567,7 @@ void private_car_t::rdwr(loadsave_t *file)
 		set_tiles_overtaking( tiles_overtaking );
 	}
 
-	if(file->get_experimental_version() >= 10 && file->get_version() >= 111002)
+	if(file->get_extended_version() >= 10 && file->get_version() >= 111002)
 	{
 		file->rdwr_long(ms_traffic_jam);
 #ifdef DESTINATION_CITYCARS

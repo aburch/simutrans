@@ -606,7 +606,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(ticks_ns);
 		file->rdwr_byte(ticks_ow);
 	}
-	if(  file->get_version()>=110007 || file->get_experimental_version() >= 10 ) {
+	if(  file->get_version()>=110007 || file->get_extended_version() >= 10 ) {
 		file->rdwr_byte(ticks_offset);
 	}
 	else {

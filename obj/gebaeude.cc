@@ -1140,7 +1140,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		file->rdwr_str(buf, lengthof(buf));
 	}
 	file->rdwr_short(idx);
-	if(file->get_experimental_version() <= 1)
+	if(file->get_extended_version() <= 1)
 	{
 		uint32 old_purchase_time = (uint32)purchase_time;
 		file->rdwr_long(old_purchase_time);
@@ -1151,7 +1151,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		file->rdwr_longlong(purchase_time);
 	}
 
-	if(file->get_experimental_version() >= 12)
+	if(file->get_extended_version() >= 12)
 	{
 		file->rdwr_longlong(available_jobs_by_time);
 	}
@@ -1281,7 +1281,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(dummy);
 	}
 
-	if(file->get_experimental_version() >= 12)
+	if(file->get_extended_version() >= 12)
 	{
 		bool f = is_factory;
 		file->rdwr_bool(f);
@@ -1310,11 +1310,11 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(file->get_experimental_version() >= 11)
+	if(file->get_extended_version() >= 11)
 	{
 		file->rdwr_short(passengers_generated_commuting);
 		file->rdwr_short(passengers_succeeded_commuting);
-		if(file->get_experimental_version() < 12)
+		if(file->get_extended_version() < 12)
 		{
 			uint8 old_success_percent_commuting = passenger_success_percent_last_year_commuting;
 			file->rdwr_byte(old_success_percent_commuting);
@@ -1327,7 +1327,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 		file->rdwr_short(passengers_generated_visiting);
 		file->rdwr_short(passengers_succeeded_visiting);
-		if(file->get_experimental_version() < 12)
+		if(file->get_extended_version() < 12)
 		{
 			uint8 old_success_percent_visiting = passenger_success_percent_last_year_visiting;
 			file->rdwr_byte(old_success_percent_visiting);
@@ -1339,7 +1339,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(file->get_experimental_version() >= 12)
+	if(file->get_extended_version() >= 12)
 	{
 		file->rdwr_short(people.population); // No need to distinguish the parts of the union here.
 		file->rdwr_short(jobs);

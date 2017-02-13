@@ -29,6 +29,7 @@
 *.ipdb
 *.TMP
 settings-experimental-debug.xml
+settings-extended-debug.xml
 ipch
 /Debug
 /Debug (SDL)
@@ -50,8 +51,10 @@ pak*
 PAK*
 settings.xml
 /simutrans-experimental
+/simutrans-extended
 /Debug-makeobj
 simutrans-experimental*
+simutrans-extended*
 simexstrip
 _UpgradeReport_Files*
 /.build
@@ -155,6 +158,7 @@ simctrl
 envvars
 text/*.*
 text/en/Simutrans-Experimental.vcxproj.lnk
+text/en/Simutrans-Extended.vcxproj.lnk
 text/all-help-file-names
 
 /Simutrans-Ex/nbproject/private/

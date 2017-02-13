@@ -7549,7 +7549,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 		settings.set_player_type(i, old_players[i]);
 	}
 
-	if(file->get_experimental_version() <= 1)
+	if(file->get_extended_version() <= 1)
 	{
 		uint32 old_ticks = (uint32)ticks;
 		file->rdwr_long(old_ticks);
@@ -7563,19 +7563,19 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	file->rdwr_long(last_year);
 
 	// rdwr cityrules (and associated settings) for networkgames
-	if(file->get_version()>102002 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9))
+	if(file->get_version()>102002 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9))
 	{
 		bool do_rdwr = env_t::networkmode;
 		file->rdwr_bool(do_rdwr);
 		if (do_rdwr) 
 		{
-			if(file->get_experimental_version() >= 9)
+			if(file->get_extended_version() >= 9)
 			{
 				stadt_t::cityrules_rdwr(file);
 				privatecar_rdwr(file);
 			}
 			stadt_t::electricity_consumption_rdwr(file);
-			if(file->get_version()>102003 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9)) 
+			if(file->get_version()>102003 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9)) 
 			{
 				vehicle_builder_t::rdwr_speedbonus(file);
 			}
@@ -7688,7 +7688,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		{
 			for (int cost_type = 0; cost_type < MAX_WORLD_COST; cost_type++)
 			{
-				if(file->get_experimental_version() < 12 && (cost_type == WORLD_JOBS || cost_type == WORLD_VISITOR_DEMAND || cost_type == WORLD_CAR_OWNERSHIP))
+				if(file->get_extended_version() < 12 && (cost_type == WORLD_JOBS || cost_type == WORLD_VISITOR_DEMAND || cost_type == WORLD_CAR_OWNERSHIP))
 				{
 					finance_history_year[year][cost_type] = 0;
 				}
@@ -7702,7 +7702,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		{
 			for (int cost_type = 0; cost_type < MAX_WORLD_COST; cost_type++)
 			{
-				if(file->get_experimental_version() < 12 && (cost_type == WORLD_JOBS || cost_type == WORLD_VISITOR_DEMAND || cost_type == WORLD_CAR_OWNERSHIP))
+				if(file->get_extended_version() < 12 && (cost_type == WORLD_JOBS || cost_type == WORLD_VISITOR_DEMAND || cost_type == WORLD_CAR_OWNERSHIP))
 				{
 					finance_history_month[month][cost_type] = 0;
 				}
@@ -7717,17 +7717,17 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 	// finally a possible scenario
 	scenario->rdwr( file );
 
-	if(file->get_experimental_version() >= 2)
+	if(file->get_extended_version() >= 2)
 	{
 		file->rdwr_short(base_pathing_counter);
 	}
-	if(file->get_experimental_version() >= 7 && file->get_experimental_version() < 9 && file->get_version() < 110006)
+	if(file->get_extended_version() >= 7 && file->get_extended_version() < 9 && file->get_version() < 110006)
 	{
 		double old_proportion = (double)industry_density_proportion / 10000.0;
 		file->rdwr_double(old_proportion);
 		industry_density_proportion = old_proportion * 10000.0;
 	}
-	else if(file->get_experimental_version() >= 9 && file->get_version() >= 110006 && file->get_experimental_version() < 11)
+	else if(file->get_extended_version() >= 9 && file->get_version() >= 110006 && file->get_extended_version() < 11)
 	{
 		// Versions before 10.16 used an excessively low (and therefore inaccurate) integer for the industry density proportion. 
 		// Detect this by checking whether the highest bit is set (it will not be naturally, so will only be set if this is 
@@ -7737,14 +7737,14 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		idp |= 0x8000;
 		file->rdwr_long(idp);
 	}
-	else if(file->get_experimental_version() >= 11)
+	else if(file->get_extended_version() >= 11)
 	{
 		file->rdwr_long(industry_density_proportion);
 	}
 
-	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
+	if(file->get_extended_version() >=9 && file->get_version() >= 110000)
 	{
-		if(file->get_experimental_version() < 11)
+		if(file->get_extended_version() < 11)
 		{
 			// Was next_private_car_update_month
 			uint8 dummy;
@@ -7754,7 +7754,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_long(citycar_speed_average);
 		file->rdwr_bool(recheck_road_connexions);
-		if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
+		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 14)
 		{
 			file->rdwr_long(generic_road_time_per_tile_city);
 			file->rdwr_long(generic_road_time_per_tile_intercity);
@@ -7778,7 +7778,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		}
 		
 		file->rdwr_long(max_road_check_depth);
-		if(file->get_experimental_version() < 10)
+		if(file->get_extended_version() < 10)
 		{
 			double old_density = actual_industry_density / 100.0;
 			file->rdwr_double(old_density);
@@ -7790,11 +7790,11 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		}
 	}
 
-	if(file->get_experimental_version() >= 12)
+	if(file->get_extended_version() >= 12)
 	{
 		file->rdwr_long(next_step_passenger);
 		file->rdwr_long(next_step_mail);
-		if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 13)
+		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 13)
 		{
 			if (env_t::networkmode)
 			{
@@ -7818,7 +7818,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		}
 	}
 
-	if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 15)
+	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 15)
 	{
 		uint32 count;
 		sint64 ready;
@@ -8267,8 +8267,8 @@ void karte_t::load(loadsave_t *file)
 
 	// some functions (finish_rd) need to know what version was loaded
 	load_version.version = file->get_version();
-	load_version.experimental_version = file->get_experimental_version();
-	load_version.experimental_revision = file->get_experimental_revision();
+	load_version.extended_version = file->get_extended_version();
+	load_version.extended_revision = file->get_extended_revision();
 
 	if(  env_t::networkmode  ) {
 		// clear the checklist history
@@ -8357,7 +8357,7 @@ void karte_t::load(loadsave_t *file)
 
 	DBG_DEBUG("karte_t::load", "init felder ok");
 
-	if(file->get_experimental_version() <= 1)
+	if(file->get_extended_version() <= 1)
 	{
 		uint32 old_ticks = (uint32)ticks;
 		file->rdwr_long(old_ticks);
@@ -8413,7 +8413,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 	active_player_nr = 0;
 
 	// rdwr cityrules for networkgames
-	if(file->get_version() > 102002 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9)) {
+	if(file->get_version() > 102002 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9)) {
 		bool do_rdwr = env_t::networkmode;
 		file->rdwr_bool(do_rdwr);
 		if(do_rdwr) 
@@ -8435,7 +8435,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 			}
 
 			// Next privatecar and electricity
-			if(file->get_experimental_version() >= 9)
+			if(file->get_extended_version() >= 9)
 			{
 				privatecar_rdwr(file);
 				stadt_t::electricity_consumption_rdwr(file);
@@ -8454,7 +8454,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 			}
 
 			// Finally speedbonus
-			if(file->get_version()>102003 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9)) 
+			if(file->get_version()>102003 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9)) 
 			{
 				vehicle_builder_t::rdwr_speedbonus(file);
 				if (  !env_t::networkmode || env_t::server  ) {
@@ -8717,7 +8717,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	// resolve dummy stops into real stops first ...
 	FOR(vector_tpl<halthandle_t>, const i, haltestelle_t::get_alle_haltestellen()) {
 		if (i->get_owner() && i->existiert_in_welt()) {
-			i->finish_rd(file->get_experimental_version() < 10);
+			i->finish_rd(file->get_extended_version() < 10);
 		}
 	}
 
@@ -8772,7 +8772,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		{
 			for(int cost_type = 0; cost_type < MAX_WORLD_COST; cost_type++) 
 			{
-				if(file->get_experimental_version() < 12 && (cost_type == WORLD_JOBS || cost_type == WORLD_VISITOR_DEMAND || cost_type == WORLD_CAR_OWNERSHIP))
+				if(file->get_extended_version() < 12 && (cost_type == WORLD_JOBS || cost_type == WORLD_VISITOR_DEMAND || cost_type == WORLD_CAR_OWNERSHIP))
 				{
 					finance_history_year[year][cost_type] = 0;
 				}
@@ -8786,7 +8786,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		{
 			for(int cost_type = 0; cost_type < MAX_WORLD_COST; cost_type++) 
 			{
-				if(file->get_experimental_version() < 12 && (cost_type == WORLD_JOBS || cost_type == WORLD_VISITOR_DEMAND || cost_type == WORLD_CAR_OWNERSHIP))
+				if(file->get_extended_version() < 12 && (cost_type == WORLD_JOBS || cost_type == WORLD_VISITOR_DEMAND || cost_type == WORLD_CAR_OWNERSHIP))
 				{
 					finance_history_year[month][cost_type] = 0;
 				}
@@ -8820,20 +8820,20 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		nwc_auth_player_t::init_player_lock_server(this);
 	}
 
-	if(file->get_experimental_version() >= 2)
+	if(file->get_extended_version() >= 2)
 	{
 		file->rdwr_short(base_pathing_counter);
 	}
 	
-	if((file->get_experimental_version() >= 7 && file->get_experimental_version() < 9 && file->get_version() < 110006))
+	if((file->get_extended_version() >= 7 && file->get_extended_version() < 9 && file->get_version() < 110006))
 	{
 		double old_proportion = industry_density_proportion / 10000.0;
 		file->rdwr_double(old_proportion);
 		industry_density_proportion = old_proportion * 10000.0;
 	}
-	else if(file->get_experimental_version() >= 9 && file->get_version() >= 110006)
+	else if(file->get_extended_version() >= 9 && file->get_version() >= 110006)
 	{
-		if(file->get_experimental_version() >= 11)
+		if(file->get_extended_version() >= 11)
 		{
 			file->rdwr_long(industry_density_proportion);
 		}
@@ -8866,9 +8866,9 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		industry_density_proportion = ((sint64)actual_industry_density * 10000ll) / finance_history_month[0][WORLD_CITICENS];
 	}
 
-	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
+	if(file->get_extended_version() >=9 && file->get_version() >= 110000)
 	{
-		if(file->get_experimental_version() < 11)
+		if(file->get_extended_version() < 11)
 		{
 			// Was next_private_car_update_month
 			uint8 dummy;
@@ -8878,7 +8878,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		// Existing values now saved in order to prevent network desyncs
 		file->rdwr_long(citycar_speed_average);
 		file->rdwr_bool(recheck_road_connexions);
-		if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 14)
+		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 14)
 		{
 			file->rdwr_long(generic_road_time_per_tile_city);
 			file->rdwr_long(generic_road_time_per_tile_intercity);
@@ -8908,7 +8908,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			}
 		}
 		file->rdwr_long(max_road_check_depth);
-		if(file->get_experimental_version() < 10)
+		if(file->get_extended_version() < 10)
 		{
 			double old_density = actual_industry_density / 100.0;
 			file->rdwr_double(old_density);
@@ -8925,12 +8925,12 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		}
 	}
 
-	if(file->get_experimental_version() >= 12)
+	if(file->get_extended_version() >= 12)
 	{
 		file->rdwr_long(next_step_passenger);
 		file->rdwr_long(next_step_mail);
 
-		if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 13)
+		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 13)
 		{
 			if (env_t::networkmode)
 			{
@@ -8962,7 +8962,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	transferring_cargoes = new vector_tpl<transferring_cargo_t>[1];
 #endif
 
-	if (file->get_experimental_version() >= 13 || file->get_experimental_revision() >= 15)
+	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 15)
 	{
 		uint32 count;
 		sint64 ready;
@@ -10159,7 +10159,7 @@ bool karte_t::interactive(uint32 quit_month)
 		pak_name.append( env_t::objfilename );
 		pak_name.erase( pak_name.length()-1 );
 		pak_name.append( ".sve" );
-		save( pak_name.c_str(), loadsave_t::autosave_mode, SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, EXPERIMENTAL_REVISION_NR, false );
+		save( pak_name.c_str(), loadsave_t::autosave_mode, SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR, false );
 	}
 
 	if(  get_current_month() >= quit_month  ) {
@@ -10616,7 +10616,7 @@ void karte_t::privatecar_init(const std::string &objfilename)
 */
 void karte_t::privatecar_rdwr(loadsave_t *file)
 {
-	if(file->get_experimental_version() < 9)
+	if(file->get_extended_version() < 9)
 	{
 		 return;
 	}

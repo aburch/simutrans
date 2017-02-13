@@ -102,7 +102,7 @@ float32e8_t vehicle_desc_t::get_power_force_ratio() const
 
 		case air_wt: 
 			// Aircraft are constant force machines at all speeds, but the pak sets are balanced for constant power. 
-			// We recommend for simutrans experimental to set the tractive effort manually. The existing aircraft power values are very roughly estimated.
+			// We recommend for simutrans extended to set the tractive effort manually. The existing aircraft power values are very roughly estimated.
 			if (topspeed)
 			{
 				return topspeed * half_of_kmh_to_ms;
@@ -119,7 +119,7 @@ float32e8_t vehicle_desc_t::get_power_force_ratio() const
 			* The german series 230(130 DR) was a universal engine with 2200 kW, 250 kN starting tractive effort and 140 km/h allowed top speed.
 			* The same engine with a freight gear (series 231 / 131 DR) and 2200 kW had 340 kN starting tractive effort and 100 km/h allowed top speed.
 			*
-			* In simutrans experimental these engines can be designed  by setting power to 2200, max speed to 140 resp. 100 and tractive effort to 250 resp. 340. 
+			* In simutrans extended these engines can be designed  by setting power to 2200, max speed to 140 resp. 100 and tractive effort to 250 resp. 340. 
 			* In simutrans standard		these engines can be simulated by setting power to 2200, max speed to 140 resp. 100 and gear to 1.136 resp. 1.545.
 			*/
 			return float32e8_t::ten;
@@ -261,7 +261,7 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 		chk->input(xref ? xref->get_name() : "NULL");
 	}*/
 
-	// Experimental settings
+	// Extended settings
 	chk->input(base_upgrade_price);
 	chk->input(overcrowded_capacity);
 	chk->input(base_fixed_cost);

@@ -48,7 +48,7 @@ void kanal_t::rdwr(loadsave_t *file)
 	{
 		const char *s = get_desc()->get_name();
 		file->rdwr_str(s);
-		if(file->get_experimental_version() >= 12)
+		if(file->get_extended_version() >= 12)
 		{
 			s = replacement_way ? replacement_way->get_name() : ""; 
 			file->rdwr_str(s);
@@ -63,7 +63,7 @@ void kanal_t::rdwr(loadsave_t *file)
 
 #ifndef SPECIAL_RESCUE_12_3
 		const way_desc_t* loaded_replacement_way = NULL;
-		if(file->get_experimental_version() >= 12)
+		if(file->get_extended_version() >= 12)
 		{
 			char rbname[128];
 			file->rdwr_str(rbname, lengthof(rbname));
@@ -83,10 +83,10 @@ void kanal_t::rdwr(loadsave_t *file)
 			dbg->warning("kanal_t::rdwr()", "Unknown channel %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}
 
-		set_desc(desc, file->get_experimental_version() >= 12);
+		set_desc(desc, file->get_extended_version() >= 12);
 
 #ifndef SPECIAL_RESCUE_12_3
-		if(file->get_experimental_version() >= 12)
+		if(file->get_extended_version() >= 12)
 		{
 			replacement_way = loaded_replacement_way;
 		}

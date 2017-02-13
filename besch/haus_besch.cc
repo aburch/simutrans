@@ -176,6 +176,6 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 		}
 	}
 
-	//Experimental settings
+	//Extended settings
 	chk->input(is_control_tower);
 }

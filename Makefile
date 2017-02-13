@@ -618,7 +618,7 @@ CXXFLAGS += $(CFLAGS)
 
 BUILDDIR ?= build/$(CFG)
 PROGDIR  ?= $(BUILDDIR)
-PROG     ?= simutrans-experimental
+PROG     ?= simutrans-extended
 
 
 include common.mk
@@ -628,7 +628,7 @@ ifeq ($(OSTYPE),mac)
 endif
 
 
-.PHONY: makeobj-experimental
+.PHONY: makeobj-extended
 
 makeobj:
 	$(Q)$(MAKE) -e -C makeobj FLAGS="$(FLAGS)"

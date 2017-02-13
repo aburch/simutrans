@@ -463,7 +463,7 @@ void leitung_t::rdwr(loadsave_t *file)
 		}
 		city_pos.rdwr(file);
 
-		if(file->get_experimental_version() >= 12 || (file->get_experimental_version() == 11 && file->get_version() >= 112006))
+		if(file->get_extended_version() >= 12 || (file->get_extended_version() == 11 && file->get_version() >= 112006))
 		{
 			if(get_typ() == senke)
 			{
@@ -482,7 +482,7 @@ void leitung_t::rdwr(loadsave_t *file)
 	{
 		file->rdwr_long(value); // "value" is not hereafter used.
 		set_net(NULL);
-		if(file->get_experimental_version() >= 3)
+		if(file->get_extended_version() >= 3)
 		{
 			koord city_pos = koord::invalid;
 			city_pos.rdwr(file);
@@ -492,7 +492,7 @@ void leitung_t::rdwr(loadsave_t *file)
 				city->add_substation((senke_t*)this);
 			}
 
-			if(file->get_experimental_version() >= 12 || (file->get_experimental_version() == 11 && file->get_version() >= 112006))
+			if(file->get_extended_version() >= 12 || (file->get_extended_version() == 11 && file->get_version() >= 112006))
 			{
 				uint32 lpd = 0;
 				file->rdwr_long(lpd);
@@ -509,7 +509,7 @@ void leitung_t::rdwr(loadsave_t *file)
 		/* ATTENTION: during loading this MUST not be called from the constructor!!!
 		 * (Otherwise it will be always true!)
 		 */
-		if(file->get_version() > 102002 && (file->get_experimental_version() >= 8 || file->get_experimental_version() == 0))
+		if(file->get_version() > 102002 && (file->get_extended_version() >= 8 || file->get_extended_version() == 0))
 		{
 			if(file->is_saving()) 
 			{
@@ -548,7 +548,7 @@ void leitung_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	else if(file->get_experimental_version() >= 8 && (get_typ() == pumpe || get_typ() == senke))
+	else if(file->get_extended_version() >= 8 && (get_typ() == pumpe || get_typ() == senke))
 	{
 		// Must add dummy string here, or else the loading/saving will fail, 
 		// since we do not know whether a leitung is a plain leitung, or a pumpe

@@ -24,7 +24,7 @@ void way_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(styp);
 	chk->input(has_double_slopes());
 
-	//Experimental values
+	//Extended values
 	chk->input(way_constraints.get_permissive());
 	chk->input(way_constraints.get_prohibitive());
 }

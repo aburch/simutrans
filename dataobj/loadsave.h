@@ -45,8 +45,8 @@ private:
 	unsigned buf_len[2];
 	char* ls_buf[2];
 	uint32 version;
-	uint32 experimental_version;
-	uint32 experimental_revision; // Secondary saved game identifier for changing the save format without changing the major version.
+	uint32 extended_version;
+	uint32 extended_revision; // Secondary saved game identifier for changing the save format without changing the major version.
 	int ident;		// only for XML formatting
 	char pak_extension[256];	// name of the pak folder during savetime
 
@@ -79,7 +79,7 @@ private:
 	void flush_buffer(int buf_num);
 
 public:
-	struct combined_version { uint32 version; uint32 experimental_version; uint32 experimental_revision; };
+	struct combined_version { uint32 version; uint32 extended_version; uint32 extended_revision; };
 	
 	static mode_t save_mode;	// default to use for saving
 	static mode_t autosave_mode; // default to use for autosaves and network mode client temp saves
@@ -109,8 +109,8 @@ public:
 	bool is_bzip2() const { return mode&bzip2; }
 	bool is_xml() const { return mode&xml; }
 	uint32 get_version() const { return version; }
-	uint32 get_experimental_version() const { return experimental_version; }
-	uint32 get_experimental_revision() const { return experimental_revision; }
+	uint32 get_extended_version() const { return extended_version; }
+	uint32 get_extended_revision() const { return extended_revision; }
 	const char *get_pak_extension() const { return pak_extension; }
 
 	void rdwr_byte(sint8 &c);

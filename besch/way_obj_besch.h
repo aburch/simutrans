@@ -188,7 +188,7 @@ public:
 		obj_desc_transport_infrastructure_t::calc_checksum(chk);
 		chk->input(own_wtyp);
 
-		//Experimental values
+		//Extended values
 		chk->input(way_constraints.get_permissive());
 		chk->input(way_constraints.get_prohibitive());
 	}

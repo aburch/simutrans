@@ -221,14 +221,14 @@ public:
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };
 
-class settings_experimental_general_stats_t : public settings_stats_t
+class settings_extended_general_stats_t : public settings_stats_t
 {
 public:
 	void init( settings_t *sets );
 	void read( settings_t *sets );
 };
 
-class settings_experimental_revenue_stats_t : public settings_stats_t
+class settings_extended_revenue_stats_t : public settings_stats_t
 {
 public:
 	void init( settings_t *sets );
