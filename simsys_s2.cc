@@ -97,8 +97,6 @@ static SDL_Window *window;
 static SDL_Renderer *renderer;
 static SDL_Texture *screen_tx;
 static SDL_Surface *screen;
-static int width = 16;
-static int height = 16;
 
 static int sync_blit = 0;
 static int use_dirty_tiles = 1;
@@ -131,8 +129,8 @@ bool dr_auto_scale(bool on_off )
 #pragma message "SDL version must be at least 2.0.4 to support autoscaling."
 #endif
 	{
-		x_scale = 32;
-		y_scale = 32;
+		x_scale = 48;
+		y_scale = 48;
 		return false;
 	}
 }
@@ -236,7 +234,10 @@ bool internal_create_surfaces(const bool print_info, int w, int h )
 	SDL_GetRendererInfo( renderer, &ri );
 	DBG_DEBUG( "internal_create_surfaces()", "Using: Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d, %s", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, SDL_GetPixelFormatName(SDL_PIXELFORMAT_RGB565) );
 
-	screen_tx = SDL_CreateTexture( renderer, pixel_format, SDL_TEXTUREACCESS_STREAMING, width, height );
+	if(  screen_tx  ) {
+		SDL_DestroyTexture( screen_tx );
+	}
+	screen_tx = SDL_CreateTexture( renderer, pixel_format, SDL_TEXTUREACCESS_STREAMING, w, h );
 	if(  screen_tx == NULL  ) {
 		dbg->error( "internal_create_surfaces()", "Couldn't create texture: %s", SDL_GetError() );
 		return false;
@@ -248,6 +249,7 @@ bool internal_create_surfaces(const bool print_info, int w, int h )
 		must_unlock = true;
 		SDL_LockTexture( screen_tx, NULL, &screen->pixels, &screen->pitch );
 		SDL_FreeSurface( screen );
+		screen = NULL;
 	}
 
 	// Color component bitmasks for the RGB565 pixel format used by simgraph16.cc
@@ -259,7 +261,7 @@ bool internal_create_surfaces(const bool print_info, int w, int h )
 		return false;
 	}
 
-	screen = SDL_CreateRGBSurface( 0, width, height, bpp, rmask, gmask, bmask, amask );
+	screen = SDL_CreateRGBSurface( 0, w, h, bpp, rmask, gmask, bmask, amask );
 	if(  screen == NULL  ) {
 		dbg->error( "internal_create_surfaces()", "Couldn't get the window surface: %s", SDL_GetError() );
 		return false;
@@ -268,17 +270,16 @@ bool internal_create_surfaces(const bool print_info, int w, int h )
 	if(  must_unlock  ) {
 		SDL_UnlockTexture( screen_tx );
  	}
-
 	return true;
 }
 
 
 // open the window
-int dr_os_open(int w, int h, int const fullscreen)
+int dr_os_open(int width, int height, int const fullscreen)
 {
 	// scale up
-	w = (w*x_scale)/32;
-	h = (h*y_scale)/32;
+	int w = (width*32l)/x_scale;
+	int h = (height*32l)/y_scale;
 
 	// some cards need those alignments
 	// especially 64bit want a border of 8bytes
@@ -287,11 +288,8 @@ int dr_os_open(int w, int h, int const fullscreen)
 		w = 16;
 	}
 
-	width = ((w*32)/x_scale+15) & 0x7FF0;
-	height = (h*32)/y_scale + 1;
-
 	Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_RESIZABLE;
-	window = SDL_CreateWindow( SIM_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, flags );
+	window = SDL_CreateWindow( SIM_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags );
 	if(  window == NULL  ) {
 		fprintf( stderr, "Couldn't open the window: %s\n", SDL_GetError() );
 		return 0;
@@ -300,7 +298,8 @@ int dr_os_open(int w, int h, int const fullscreen)
 	if(  !internal_create_surfaces( true, w, h )  ) {
 		return 0;
 	}
-	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h );
+	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (internal w=%d, h=%d)", width, height, w, h );
+	SDL_SetWindowSize( window, width, height );
 
 	SDL_ShowCursor(0);
 	arrow = SDL_GetCursor();
@@ -313,9 +312,9 @@ int dr_os_open(int w, int h, int const fullscreen)
 	    SDL_StartTextInput();
 	}
 
-	display_set_actual_width( width );
-	display_set_height( height );
-	return width;
+	display_set_actual_width( w );
+	display_set_height( h );
+	return w;
 }
 
 
@@ -332,8 +331,11 @@ void dr_os_close()
 
 
 // resizes screen
-int dr_textur_resize(unsigned short** const textur, int w, int const h)
+int dr_textur_resize(unsigned short** const textur, int width, int const height )
 {
+	int w = (width*32l)/x_scale;
+	int h = (height*32l)/y_scale;
+
 	// some cards need those alignments
 	// especially 64bit want a border of 8bytes
 	w = (w + 15) & 0x7FF0;
@@ -343,10 +345,6 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 
 	SDL_UnlockTexture( screen_tx );
 	if(  w != screen->w  ||  h != screen->h  ) {
-		width = (w*32l)/x_scale;
-		height = (h*32l)/y_scale;
-
-		SDL_SetWindowSize( window, w, h );
 		// Recreate the SDL surfaces at the new resolution.
 		SDL_DestroyTexture( screen_tx );
 		SDL_DestroyRenderer( renderer );
@@ -359,10 +357,9 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 		}
 		fflush( NULL );
 	}
+	SDL_SetWindowSize( window, width, height );
 	*textur = dr_textur_init();
-	display_set_actual_width( width );
-	display_set_height( height );
-	return width;
+	return w;
 }
 
 
@@ -417,8 +414,8 @@ void dr_textur(int xp, int yp, int w, int h)
 		SDL_Rect r;
 		r.x = xp;
 		r.y = yp;
-		r.w = xp + w > width ? width - xp : w;
-		r.h = yp + h > height ? height - yp : h;
+		r.w = xp + w > screen->w ? screen->w - xp : w;
+		r.h = yp + h > screen->h ? screen->h - yp : h;
 		SDL_UpdateTexture( screen_tx, &r, (uint8*)screen->pixels + yp * screen->pitch + xp * 2, screen->pitch );
 	}
 }
@@ -447,7 +444,7 @@ void set_pointer(int loading)
 int dr_screenshot(const char *filename, int x, int y, int w, int h)
 {
 #ifdef WIN32
-	if(  dr_screenshot_png( filename, w, h, width, ((unsigned short *)(screen->pixels)) + x + y * width, screen->format->BitsPerPixel )  ) {
+	if(  dr_screenshot_png( filename, w, h, screen->w, ((unsigned short *)(screen->pixels)) + x + y * screen->w, screen->format->BitsPerPixel )  ) {
 		return 1;
 	}
 #endif
