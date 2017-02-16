@@ -20,7 +20,7 @@
  * initialize finance history arrays
  * @author Jan Korbel
  */
-finance_t::finance_t(spieler_t * _player, karte_t * _world) :
+finance_t::finance_t(player_t * _player, karte_t * _world) :
 	player(_player),
 	world(_world)
 {
@@ -222,7 +222,8 @@ void finance_t::new_month()
 /**
  * Books interest expense or profit.
  */
-void finance_t::book_interest_monthly() {
+void finance_t::book_interest_monthly() 
+{
 	// This handles both interest on cash balance and interest on loans.
 	// Rate is yearly rate for debt; rate for credit is 1/4 of that.  (Fix this.)
 	const sint64 interest_rate = (sint64)world->get_settings().get_interest_rate_percent();
@@ -235,7 +236,8 @@ void finance_t::book_interest_monthly() {
 			// Credit interest rate is 1/4 of debt interest rate.
 			interest /= (float32e8_t)4;
 		}
-		// Apply to the current account balance, positive or negative
+		// Apply to the current account balance, only if in debt. 
+		// Credit interest, which applied in earlier versions, unbalanced the game.
 		interest *= (float32e8_t)get_account_balance();
 		// Due to the limitations of float32e8, interest can only go up to +-2^31 per month.
 		// Hopefully this won't be an issue.  It will report errors if it is.
@@ -249,7 +251,7 @@ void finance_t::book_interest_monthly() {
 		}
 		else
 		{
-			interest = (interest_rate * get_account_balance()) / 4800ll;
+			interest = 0;
 		}
 
 		com_year[0][ATC_INTEREST] += interest;
@@ -258,7 +260,8 @@ void finance_t::book_interest_monthly() {
 	}
 }
 
-void finance_t::calc_credit_limits() {
+void finance_t::calc_credit_limits()
+{
 	sint64 hard_limit_by_profits = credit_limit_by_profits();
 	sint64 hard_limit_by_assets = credit_limit_by_assets();
 
@@ -289,7 +292,8 @@ void finance_t::calc_credit_limits() {
  * Calculates a credit limit based on past year's profitability
  * (ability to cover interest costs).
  */
-sint64 finance_t::credit_limit_by_profits() const {
+sint64 finance_t::credit_limit_by_profits() const 
+{
 	// The idea is that yearly profits should cover yearly interest
 	// Look back 12 months (full year's profit)
 	sint64 profit_total=0;
@@ -326,7 +330,8 @@ sint64 finance_t::credit_limit_by_profits() const {
  * Calculates an asset-based credit limit.
  * Secured borrowing against assets.
  */
-sint64 finance_t::credit_limit_by_assets() const {
+sint64 finance_t::credit_limit_by_assets() const 
+{
 	// Can borrow against potentially all assets.
 	sint64 hard_limit_by_assets = - get_history_veh_month(TT_ALL, 0, ATV_NON_FINANCIAL_ASSETS);
 	// The following deals with potential bugs.
@@ -354,8 +359,8 @@ void finance_t::rdwr(loadsave_t *file)
 	* 	longer history
 	*	more transport_types
 	*	and new items in ATC_ or ATV_
-	* Warning: experimental adds three lines to ATC_ immediately, with version 112005.
-	* If Standard adds lines to ATC_, we must make adjustments by pushing the experimental lines "down".
+	* Warning: extended adds three lines to ATC_ immediately, with version 112005.
+	* If Standard adds lines to ATC_, we must make adjustments by pushing the extended lines "down".
 	*/
 	sint8 max_years  = MAX_PLAYER_HISTORY_YEARS;
 	sint8 max_months = MAX_PLAYER_HISTORY_MONTHS;
@@ -544,8 +549,8 @@ enum player_cost {
 	COST_ALL_CONVOIS,		// number of convois
 	COST_SCENARIO_COMPLETED,// scenario success (only useful if there is one ... )
 	COST_WAY_TOLLS,
-	COST_INTEREST,		// From experimental
-	COST_CREDIT_LIMIT	// From experimental
+	COST_INTEREST,		// From extended
+	COST_CREDIT_LIMIT	// From extended
 	// OLD_MAX_PLAYER_COST = 21
 };
 
@@ -754,7 +759,7 @@ void finance_t::import_from_cost_year( const sint64 finance_history_year[][OLD_M
 		veh_year[TT_OTHER][i][ATV_TRANSPORTED_GOOD]  = finance_history_year[i][COST_ALL_TRANSPORTED];
 		veh_year[TT_ALL  ][i][ATV_TRANSPORTED_GOOD]  = finance_history_year[i][COST_ALL_TRANSPORTED];
 		veh_year[TT_OTHER][i][ATV_TRANSPORTED]       = finance_history_year[i][COST_ALL_TRANSPORTED];
-		veh_year[TT_ALL  ][i][ATV_TRANSPORTED]       = finance_history_year[i][COST_ALL_TRANSPORTED]; 
+		veh_year[TT_ALL  ][i][ATV_TRANSPORTED]       = finance_history_year[i][COST_ALL_TRANSPORTED];
 		veh_year[TT_POWERLINE][i][ATV_REVENUE]       = finance_history_year[i][COST_POWERLINES];
 		veh_year[TT_OTHER][i][ATV_DELIVERED_PASSENGER] = finance_history_year[i][COST_TRANSPORTED_PAS];
 		veh_year[TT_ALL  ][i][ATV_DELIVERED_PASSENGER] = finance_history_year[i][COST_TRANSPORTED_PAS];
@@ -865,7 +870,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if(  file->get_version()<=102002 && file->get_experimental_version() <= 1 ) {
+	else if(  file->get_version()<=102002 && file->get_extended_version() <= 1 ) {
 		// saved everything
 		for (int year = 0;year<OLD_MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<18; cost_type++) {
@@ -880,7 +885,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 	}
 	else if(  file->get_version()<=102002  ) {
 		// saved everything
-		// Experimental had INTEREST, CREDIT_LIMIT
+		// Extended had INTEREST, CREDIT_LIMIT
 		for (int year = 0;year<OLD_MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<21; cost_type++) {
 				if (cost_type != COST_WAY_TOLLS) {
@@ -896,7 +901,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if(  file->get_version()<=110006  && file->get_experimental_version()==0  ) {
+	else if(  file->get_version()<=110006  && file->get_extended_version()==0  ) {
 		// only save what is needed
 		// no way tolls
 		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
@@ -914,11 +919,11 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	/* Note that experimental did not adopt way tolls until version 11
-	 * As a result the logic for version <=110006 for experimental can fall through to the
+	/* Note that extended did not adopt way tolls until version 11
+	 * As a result the logic for version <=110006 for extended can fall through to the
 	 * logic for version <= 112004
 	 */
-	else if (  file->get_version() <= 112004  && file->get_experimental_version() == 0  ) {
+	else if (  file->get_version() <= 112004  && file->get_extended_version() == 0  ) {
 		// savegame version: now with toll
 		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			for(  int cost_type = 0;   cost_type<19;   cost_type++  ) {
@@ -935,10 +940,10 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (  file->get_version() <= 112004  && file->get_experimental_version() == 1  ) {
+	else if (  file->get_version() <= 112004  && file->get_extended_version() == 1  ) {
 		// is this combination even possible?  I doubt it
-		// no way tolls in experimental despite being in standard
-		// no interest or credit limit in experimental
+		// no way tolls in extended despite being in standard
+		// no interest or credit limit in extended
 		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			for(  int cost_type = 0;   cost_type<18;   cost_type++  ) {
 				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
@@ -954,9 +959,9 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 			}
 		}
 	}
-	else if (  file->get_version() <= 112004 && file->get_experimental_version() <= 10  ) {
-		// Standard had way tolls, experimental still didn't
-		// Experimental also had INTEREST, CREDIT_LIMIT
+	else if (  file->get_version() <= 112004 && file->get_extended_version() <= 10  ) {
+		// Standard had way tolls, extended still didn't
+		// Extended also had INTEREST, CREDIT_LIMIT
 		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			for(  int cost_type = 0;   cost_type<21;   cost_type++  ) {
 				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
@@ -977,9 +982,9 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 		}
 	}
 	else if (  file->get_version() <= 112004  ) {
-		// Experimental version 11 with old save file format
+		// Extended version 11 with old save file format
 		// May happen in files saved with some development versions
-		// Experimental has WAY_TOLLS, INTEREST, CREDIT_LIMIT
+		// Extended has WAY_TOLLS, INTEREST, CREDIT_LIMIT
 		for(int year = 0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			for(  int cost_type = 0;   cost_type<21;   cost_type++  ) {
 				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
@@ -1000,7 +1005,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 		assert(false);
 	}
 
-	if(  file->get_version()>102002  && file->get_experimental_version() != 7  ) {
+	if(  file->get_version()>102002  && file->get_extended_version() != 7  ) {
 		file->rdwr_longlong(starting_money);
 	}
 

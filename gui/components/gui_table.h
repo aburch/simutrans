@@ -13,12 +13,12 @@
 #include "../../simtypes.h"
 #include "../../tpl/list_tpl.h"
 #include "gui_action_creator.h"
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../simcolor.h"
 #include "../gui_frame.h"
 
-typedef KOORD_VAL koord_x;
-typedef KOORD_VAL koord_y;
+//typedef KOORD_VAL koord_x;
+//typedef KOORD_VAL koord_y;
 typedef KOORD_VAL coordinate_t;
 typedef PLAYER_COLOR_VAL color_t;
 
@@ -62,13 +62,13 @@ class gui_table_intercept_t
 {
 private:
 	char *name;
-	coordinate_t size; 
+	scr_coord_val size; 
 	bool sort_descendingly;
 protected:
-	coordinate_t get_size() const { return size; }
-	void set_size(coordinate_t value) { size = value; }
+	scr_coord_val get_size() const { return size; }
+	void set_size(scr_coord_val value) { size = value; }
 public:
-	gui_table_intercept_t(char *name_, coordinate_t size_, bool sort_descendingly_) : name(name_), size(size_), sort_descendingly(sort_descendingly_) {}
+	gui_table_intercept_t(char *name, scr_coord_val size, bool sort_descendingly) : name(name), size(size), sort_descendingly(sort_descendingly) {}
 	virtual ~gui_table_intercept_t() {}
 	const char *get_name() const { return name; }
 	void set_name(const char *value) { if (name) free(name); name = NULL; if (value) name = strdup(value); }
@@ -87,10 +87,10 @@ class gui_table_column_t : public gui_table_intercept_t
 {
 public:
 	gui_table_column_t() : gui_table_intercept_t(NULL, 99, false) {}
-	gui_table_column_t(coordinate_t width) : gui_table_intercept_t(NULL, width, false) {}
-	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return sgn((long)&row1 - (long)&row2);  }
-	coordinate_t get_width() const { return get_size(); }
-	void set_width(coordinate_t value) { set_size(value); }
+	gui_table_column_t(scr_coord_val width) : gui_table_intercept_t(NULL, width, false) {}
+	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return sgn((uint64)&row1 - (uint64)&row2);  }
+	scr_coord_val get_width() const { return get_size(); }
+	void set_width(scr_coord_val value) { set_size(value); }
 };
 
 
@@ -104,10 +104,10 @@ class gui_table_row_t : public gui_table_intercept_t
 {
 public:
 	gui_table_row_t() : gui_table_intercept_t(NULL, 14, false) {}
-	gui_table_row_t(coordinate_t height) : gui_table_intercept_t(NULL, height, false) {}
-	virtual int compare_columns(const gui_table_column_t &column1, const gui_table_column_t &column2) const { return sgn((long)&column1 - (long)&column2); }
-	coordinate_t get_height() const { return get_size(); }
-	void set_height(coordinate_t value) { set_size(value); }
+	gui_table_row_t(scr_coord_val height) : gui_table_intercept_t(NULL, height, false) {}
+	virtual int compare_columns(const gui_table_column_t &column1, const gui_table_column_t &column2) const { return sgn((uint64)&column1 - (uint64)&column2); }
+	scr_coord_val get_height() const { return get_size(); }
+	void set_height(scr_coord_val value) { set_size(value); }
 };
 
 
@@ -156,7 +156,7 @@ protected:
  * @since 14-MAR-2010
  * @author Bernd Gabriel
  */
-class gui_table_t : public gui_komponente_t, public gui_action_creator_t
+class gui_table_t : public gui_component_t, public gui_action_creator_t
 {
 	friend class gui_table_column_list_t;
 	friend class gui_table_row_list_t;
@@ -165,15 +165,15 @@ private:
 	color_t grid_color;
 	bool grid_visible;
 	char tooltip[200];
-	koord default_cell_size;
+	scr_size default_cell_size;
 	// arrays controlled by change_size() via set_size() or add_column()/remove_column()/add_row()/remove_row()
 	gui_table_column_list_t columns;
 	gui_table_column_list_t row_sort_column_order;
 	gui_table_row_list_t rows;
 	gui_table_row_list_t column_sort_row_order;
 	//
-	bool get_column_at(koord_x x, coordinate_t &column, koord_x &offset) const;
-	bool get_row_at(koord_y y, coordinate_t &row, koord_y &offset) const;
+	bool get_column_at(scr_coord_val x, coordinate_t &column, scr_coord_val &offset) const;
+	bool get_row_at(scr_coord_val y, coordinate_t &row, scr_coord_val &offset) const;
 protected:
 	/**
 	 * change_size() is called in set_size(), whenever the size actually changes.
@@ -187,24 +187,24 @@ protected:
 	 * paint_cell() is called in paint_cells(), whenever a cell has to be painted.
 	 *
 	 * It has to paint cell (x,y) at position offset. 
-	 * The default implementation calls zeichnen() of the component of cell (x,y), if there is one.
+	 * The default implementation calls draw() of the component of cell (x,y), if there is one.
 	 */
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y);
+	virtual void paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y);
 
 	/**
-	 * paint_cells() is called in zeichnen() after painting the grid.
+	 * paint_cells() is called in draw() after painting the grid.
 	 *
 	 * It has to paint the cell content. 
 	 * The default implementation calls paint_cell() with the correct cell offset for each cell.
 	 */
-	virtual void paint_cells(const koord &offset);
+	virtual void paint_cells(const scr_coord& offset);
 
 	/**
-	 * paint_grid() is called in zeichnen() before painting the cells.
+	 * paint_grid() is called in draw() before painting the cells.
 	 *
 	 * The default implementation draws grid_color lines of grid_width, if the grid is set to be visible.
 	 */
-	virtual void paint_grid(const koord &offset);
+	virtual void paint_grid(const scr_coord& offset);
 public:
 	gui_table_t();
     virtual ~gui_table_t();
@@ -215,11 +215,11 @@ public:
 	 * size.x is the number of cells horizontally.
 	 * size.y is the number of cells vertically.
 	 */
-	const coordinates_t get_size() const {
+	const coordinates_t get_grid_size() const {
 		return coordinates_t(columns.get_count(), rows.get_count()); 
 	}
-	void set_size(const coordinates_t &value) { 
-		const coordinates_t &old_size = get_size(); 
+	void set_grid_size(const coordinates_t &value) { 
+		const coordinates_t &old_size = get_grid_size(); 
 		if (!old_size.equals(value)) {
 			change_size(old_size, value);
 		}
@@ -241,38 +241,41 @@ public:
 	 * 0: draws no grid,
 	 * 1: a 1 pixel wide line, ...
 	 */
-	koord get_grid_width() { return grid_width; }
+	koord get_grid_width() const { return grid_width; }
 	void set_grid_width(koord value) {	grid_width = value;	}
 
 	/**
 	 * Get/set grid color.
 	 */
-	color_t get_grid_color() { return grid_color; }
+	color_t get_grid_color() const { return grid_color; }
 	void set_grid_color(color_t value) { grid_color = value; }
 
 	/**
 	 * Get/set grid visibility.
 	 * if grid is not visible, grid is not painted, there is space around cells.
 	 */
-	bool get_grid_visible() { return grid_visible; }
+	bool get_grid_visible() const { return grid_visible; }
 	void set_grid_visible(bool value) { grid_visible = value; }
 	
 	/**
 	 * Get/set width of columns and heights of rows.
 	 */
-	koord_x get_default_column_width() { return default_cell_size.x; }
-	koord_y get_default_row_height() { return default_cell_size.y; }
-	void set_default_cell_size(koord value) { default_cell_size = value; }
-	koord_x get_column_width(coordinate_t x) const { return columns[x]->get_width(); }
-	void    set_column_width(coordinate_t x, koord_x w) { columns[x]->set_width(w); }
-	koord_x get_table_width() const;
-	koord_y get_row_height(coordinate_t y) const { return rows[y]->get_height(); }
-	void    set_row_height(coordinate_t y, koord_y h) { rows[y]->set_height(h); }
-	koord_y get_table_height() const;
-	koord get_cell_size(coordinate_t x, coordinate_t y) const { return koord(get_column_width(x), get_row_height(y)); }
-	koord get_table_size() const { return koord(get_table_width(), get_table_height()); }
+	scr_coord_val get_default_column_width() const { return default_cell_size.w; }
+	scr_coord_val get_default_row_height() const { return default_cell_size.h; }
+	void set_default_cell_size(const scr_size& value) { default_cell_size = value; }
 
-	bool get_cell_at(koord_x x, koord_y y, coordinates_t &cell, koord &offset);
+	scr_coord_val get_column_width(coordinate_t x) const { return columns[x]->get_width(); }
+	void    set_column_width(coordinate_t x, scr_coord_val w) { columns[x]->set_width(w); }
+	scr_coord_val get_table_width() const;
+
+	scr_coord_val get_row_height(coordinate_t y) const { return rows[y]->get_height(); }
+	void    set_row_height(coordinate_t y, scr_coord_val h) { rows[y]->set_height(h); }
+	scr_coord_val get_table_height() const;
+
+	scr_size get_cell_size(coordinate_t x, coordinate_t y) const { return scr_size(get_column_width(x), get_row_height(y)); }
+	scr_size get_table_size() const { return scr_size(get_table_width(), get_table_height()); }
+
+	bool get_cell_at(scr_coord_val x, scr_coord_val y, coordinates_t &cell, scr_coord &offset) const;
 
 	virtual bool infowin_event(const event_t *ev);
 
@@ -293,9 +296,9 @@ public:
 	void sort_columns();
 
 	/**
-	 * zeichnen() paints the table.
+	 * draw() paints the table.
 	 */
-	virtual void zeichnen(koord offset);
+	virtual void draw(scr_coord offset);
 };
 
 
@@ -343,7 +346,7 @@ public:
 	 * Contains the pixel offset of the cell within the table.
 	 * If is_cell_hit is false cell is undefined.
 	 */
-	koord offset;
+	scr_coord offset;
 };
 
 #endif

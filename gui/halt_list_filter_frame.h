@@ -19,7 +19,7 @@
 #include "halt_list_frame.h"
 #include "components/gui_textinput.h"
 
-class spieler_t;
+class player_t;
 
 class halt_list_filter_frame_t : public gui_frame_t , private action_listener_t
 {
@@ -29,11 +29,11 @@ private:
 	* Needed since a button_t does not know its parent.
 	*/
 	class ware_item_t : public button_t {
-		const ware_besch_t *ware_ab;
-		const ware_besch_t *ware_an;
+		const ware_desc_t *ware_ab;
+		const ware_desc_t *ware_an;
 		halt_list_filter_frame_t *parent;
 	public:
-		ware_item_t(halt_list_filter_frame_t *parent, const ware_besch_t *ware_ab, const ware_besch_t *ware_an)
+		ware_item_t(halt_list_filter_frame_t *parent, const ware_desc_t *ware_ab, const ware_desc_t *ware_an)
 		{
 			this->ware_ab = ware_ab;
 			this->ware_an = ware_an;
@@ -47,14 +47,14 @@ private:
 			}
 			return button_t::infowin_event(ev);
 		}
-		virtual void zeichnen(koord offset) {
+		virtual void draw(scr_coord offset) {
 			if(ware_ab) {
 				pressed = parent->get_ware_filter_ab(ware_ab);
 			}
 			if(ware_an) {
 				pressed = parent->get_ware_filter_an(ware_an);
 			}
-			button_t::zeichnen(offset);
+			button_t::draw(offset);
 		}
 	};
 
@@ -64,7 +64,7 @@ private:
 	 */
 	enum { FILTER_BUTTONS=16 };
 
-	static koord filter_buttons_pos[FILTER_BUTTONS];
+	static scr_coord filter_buttons_pos[FILTER_BUTTONS];
 	static halt_list_frame_t::filter_flag_t filter_buttons_types[FILTER_BUTTONS];
 	static const char *filter_buttons_text[FILTER_BUTTONS];
 
@@ -97,21 +97,21 @@ private:
 	gui_container_t ware_cont_an;
 
 public:
-	halt_list_filter_frame_t(spieler_t *sp, halt_list_frame_t *main_frame);
+	halt_list_filter_frame_t(player_t *player, halt_list_frame_t *main_frame);
 	~halt_list_filter_frame_t();
 
 	/**
 	 * Propagate function from main_frame for ware_item_t
 	 * @author V. Meyer
 	 */
-	bool get_ware_filter_ab(const ware_besch_t *ware) const { return main_frame->get_ware_filter_ab(ware); }
-	bool get_ware_filter_an(const ware_besch_t *ware) const { return main_frame->get_ware_filter_an(ware); }
+	bool get_ware_filter_ab(const ware_desc_t *ware) const { return main_frame->get_ware_filter_ab(ware); }
+	bool get_ware_filter_an(const ware_desc_t *ware) const { return main_frame->get_ware_filter_an(ware); }
 
 	/**
 	 * Handler for ware_item_t event.
 	 * @author V. Meyer
 	 */
-	void ware_item_triggered(const ware_besch_t *ware_ab, const ware_besch_t *ware_an);
+	void ware_item_triggered(const ware_desc_t *ware_ab, const ware_desc_t *ware_an);
 
 	/**
 	 * Does this window need a min size button in the title bar?
@@ -125,19 +125,19 @@ public:
 	 * component is displayed.
 	 * @author V. Meyer
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
     /**
      * resize window in response to a resize event
      */
-	void resize(const koord delta);
+	void resize(const scr_coord delta);
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_hilfe_datei() const {return "haltlist_filter.txt"; }
+	const char * get_help_filename() const {return "haltlist_filter.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

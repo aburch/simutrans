@@ -30,11 +30,11 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	//       as marker because formerly nodes were unversionend
 	uint16 version     = 0x8001;
 
-	// This is the overlay flag for Simutrans-Experimental
+	// This is the overlay flag for Simutrans-Extended
 	// This sets the *second* highest bit to 1. 
 	version |= EXP_VER;
 
-	// Finally, this is the experimental version number. This is *added*
+	// Finally, this is the extended version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
 	version += 0x100;
@@ -116,14 +116,27 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	front_list.clear();
 	back_list.clear();
 
-	for (hang = 3; hang <= 12; hang += 3) {
+	for(  hang = 3;  hang <= 12;  hang += 3  ) {
 		char buf[40];
-		sprintf(buf, "frontimageup[%d]", hang);
+		sprintf( buf, "frontimageup[%d]", hang );
 		string str = obj.get(buf);
 		front_list.append(str);
-		sprintf(buf, "backimageup[%d]", hang);
+		sprintf( buf, "backimageup[%d]", hang );
 		string str2 = obj.get(buf);
 		back_list.append(str2);
+	}
+	for(  hang = 3;  hang <= 12;  hang += 3  ) {
+		char buf[40];
+		sprintf( buf, "frontimageup2[%d]", hang );
+		string str = obj.get(buf);
+		if(  !str.empty()  ) {
+			front_list.append(str);
+		}
+		sprintf( buf, "backimageup2[%d]", hang );
+		string str2 = obj.get(buf);
+		if(  !str2.empty()  ) {
+			back_list.append(str2);
+		}
 	}
 	imagelist_writer_t::instance()->write_obj(outfp, node, front_list);
 	imagelist_writer_t::instance()->write_obj(outfp, node, back_list);
@@ -148,6 +161,6 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	cursorkeys.append(string(obj.get("icon")));
 	cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
 
-	// node.write_data(fp, &besch);
+	// node.write_data(fp, &desc);
 	node.write(outfp);
 }

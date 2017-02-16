@@ -1,0 +1,24 @@
+<title>Player Colour Help</title>
+
+<h1><strong>Player Colour</strong></h1>
+
+<p>
+<strong>Player Colour</strong> sets the colour of the player's transport company. The names of stops owned by this player, dialogue boxes relating to this player, messages showing the revenue earned by this player's vehicles, as well as certain items in the game, will be displayed in this colour.
+</p>
+<p>
+<strong>Player Colour</strong> can be found in the<a href="options.txt">game options</a> window.
+</p>
+<p>Click on the colour bar to change company colour.
+</p>
+<p>
+The title bar of the <strong>Player Colour</strong> window changes to indicate that a new colour is selected.
+</p>
+<p>
+The default player colour is light blue.
+</p>
+<p>
+Some items are not colour-coded and may not display in chosen colour. This depends on the pakset. 
+</p>
+<p>
+<em>Tip:</em> To change AI player colours, use the <a href="players.txt">Player List</a> or <a href="special.txt">P+ Change Player</a> to select the AI player first.
+</p>

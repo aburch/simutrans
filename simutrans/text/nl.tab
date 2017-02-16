@@ -1,0 +1,1933 @@
+Nederlands
+PROP_FONT_FILE
+Prop-Latin1.bdf
+################################################################################
+#                                                                              #
+#                Simutrans Scenario Specific Translation File                  #
+#                          Scenario: Sim-Experimental                          #
+#                            Language: nl Nederlands                           #
+#                             Encoding: ISO-8859-1                             #
+#                            Font : Prop-Latin1.bdf                            #
+#                           Date Created: 20.07 2013                           #
+#                                                                              #
+#                                   authors:                                   #
+#                                    - An_dz                                   #
+#                   note: Verified where all texts are shown                   #
+#                                   - Combuijs                                 #
+#                                    note:                                     #
+#                                    - Dwachs                                  #
+#                                    note:                                     #
+#                              Frank Penz - FrankP                             #
+#                                    note:                                     #
+#                            Nathan Samson - Nathan                            #
+#                                    note:                                     #
+#                        Lorenz Van Damme - gforcetheone                       #
+#                                    note:                                     #
+#                             Mark Knoester - mark                             #
+#                                    note:                                     #
+#                          Michel Vorenhout - michelv                          #
+#                                    note:                                     #
+#                             P. Hamming - phamming                            #
+#                                    note:                                     #
+#                          Markus Pristovsek - prissi                          #
+#                                    note:                                     #
+#                           Michael Olbricht - whoami                          #
+#                                    note:                                     #
+#                            Wim Vreeswijk - wipi35                            #
+#                                    note:                                     #
+#                                                                              #
+################################################################################
+#_____________________________Simutrans Base Texts______________________________
+#_____________________________Simutrans Base Texts______________________________
+#__________________________________button_text__________________________________
+#__________________________________button_text__________________________________
+Apply Line
+Lijn toewijzen
+cl_btn_filter_disable
+uit
+cl_btn_filter_enable
+aan
+cl_btn_filter_settings
+Instellingen
+cl_btn_sort_asc
+oplopend
+cl_btn_sort_desc
+aflopend
+cl_btn_sort_id
+id-nummer
+cl_btn_sort_income
+Inkomsten
+cl_btn_sort_name
+Naam
+cl_btn_sort_type
+Type
+clf_btn_alle
+alles
+clf_btn_invers
+wissel
+clf_btn_keine
+geen
+Construction_Btn
+Bouwkosten
+follow me
+volgen
+gl_btn_sort_bonus
+naar bonus
+gl_btn_sort_catg
+vlgs categorie
+gl_btn_sort_name
+op naam
+gl_btn_sort_revenue
+op inkomsten
+gl_btn_unsort
+niet gesorteerd
+go home
+naar depot
+hl_btn_filter_disable
+uit
+hl_btn_filter_enable
+aan
+hl_btn_filter_settings
+Instellingen
+hl_btn_sort_asc
+oplopend
+hl_btn_sort_desc
+aflopend
+hl_btn_sort_name
+Naam
+hl_btn_sort_type
+Soort
+hl_btn_sort_waiting
+Wachtend
+hlf_btn_alle
+alles
+hlf_btn_invers
+wissel
+hlf_btn_keine
+geen
+koord
+coördinaten
+Lade Relief
+Laad Hoogtekaart
+Load game
+Spel laden
+Load scenario
+Laad scenario
+Networks
+Transportnetwerk
+Optionen
+Instellingen
+Queueing
+Wachtend
+Scenario
+Scenario info
+Sprache
+Taal
+Start
+Starten
+Starte Spiel
+Start Spel
+Transfers
+Verwerkt
+#_________________________________climates_text_________________________________
+#_________________________________climates_text_________________________________
+arctic
+poolklimaat
+desert
+Woestijn:
+mediterran
+Subtropisch:
+rocky
+Rotsachtig:
+temperate
+Gematigd:
+tropic
+Tropisch:
+tundra
+Toendra:
+#__________________________________error_text___________________________________
+#__________________________________error_text___________________________________
+ Loading scenario script failed
+Scenario kan niet geladen worden!
+A bridge must start on a way!
+Een brug \nmoet op een weg beginnen!
+Autohalt muss auf\nStrasse liegen!\n
+Een halte voor bussen of \nvrachtwagens moet op een \nweg geplaatst worden!
+bridge is too high for its type!
+De brug is te hoog voor dit type!
+Bridge is too long for this type!\n
+Dit brugtype kan \nde overspanning niet halen!\n
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Een brug moet op\neen rechte\nhelling beginnen!\n
+Can't buy obsolete vehicles!
+Verouderde voertuigen kunnen niet gekocht worden!
+Cannot built depot here!
+Hier kan geen depot gebouwd worden!
+Cannot built this station/building\nin underground mode here.
+Dit gebouw kan niet\nondergronds gebouwd worden.\n
+Cannot create generic line!\nSelect line type by\nusing filter tabs.
+Kies eerst een voertuig voor\nde nieuwe lijn!
+Cannot create socket
+Kan netwerk niet initialiseren!
+Convoi handles exhausted!
+Maximum aantal lijnen bereikt!
+Convoy already deleted!
+Convooi reeds verwijderd
+Das Feld gehoert\neinem anderen Spieler\n
+Deze grond \nis van een \nandere Speler!\n\n
+Der Besitzer erlaubt das Entfernen nicht
+De eigenaar laat\nverwijderen\nniet toe\n
+Der Tunnel ist nicht frei!\n
+De tunnel is niet vrij!\n
+Die Bruecke ist nicht frei!\n
+De brug is niet leeg!\n
+Diese Zusammenstellung kann nicht fahren!\n
+Deze voertuigsamenstelling \nkan niet rijden!
+Dock must be built on single slope!
+Een haven moet op een enkelvoudige helling gebouwd worden!
+Fahrzeuge koennen so nicht entfernt werden
+Voertuigen kunnen\nzo niet verwijderd\nworden\n
+Flugzeughalt muss auf\nRunway liegen!\n
+Vliegtuigen kunnen alleen\nop een luchthaven landen.
+Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
+Dit luchthavengebouw \nkan hier niet gebouwd \nworden!
+Hier kann kein\nSignal aufge-\nstellt werden!\n
+Hier kan geen\nsein staan!\n
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Depot niet gevonden!\nKies zelf een depot \n(met de dienstregeling).
+In order to lock the game, you have to protect the public player by password!
+Om het spel te blokkeren moet de overheid beschermd worden met een wachtwoord
+Kann Spielstand\nnicht laden.\n
+Kan opgeslagen spelstand\nniet vinden/laden\n
+Kann Spielstand\nnicht speichern.\n
+Kan spelstand\nniet opslaan\n
+Lost connection\nto server!
+Verbinding met server\nverbroken!
+Lost synchronisation\nwith server.
+Verbinding verbroken\nLaad het spel opnieuw!\n
+Maglevhalt muss auf\nMaglevschiene liegen!\n
+Maglev-halte moet op magneetbaan liggen.
+Monorailhalt muss auf\nMonorail liegen!\n
+Een monorail station moet \nop een monorailbaan\ngeplaatst worden!
+Monorails are not available yet!
+Monorails zijn nog niet beschikbaar!
+Narrowgauge are not available yet!
+Smalspoor nog niet beschikbaar!
+Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
+Smalspoorhalte moet op smalspoor liggen
+No suitable way on the ground!
+Haltes kunnen alleen op rechte\nvlakke wegen gebouwd worden
+No through station here!
+Hier is geen (doorrij) station mogelijk!
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Voertuig heeft\n een dienstregeling\nnodig voordat het\nkan vertrekken!\n
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Niet mogelijk!\nDe dienstregeling kan \nnu niet veranderd \nworden.\nProbeer later.
+Not enough money!
+Onvoldoende saldo!
+On narrowgauge track only!\n
+Alleen op smalspoor!\n
+Only one transformer per factory!
+Slecht één trafo per fabriek
+Only public player can lock games!
+Alleen de overheid kan spellen blokkeren
+Out of funds
+Je hebt daar niet genoeg geld voor!
+Planes are not available yet!
+Vliegtuigen zijn nog niet\nbeschikbaar!
+Post muss neben\nHaltestelle\nliegen!\n
+Een postkantoor of ander \ngebouw moet geplaatst worden\nop een vrij veld naast een \nstopplaats/station!
+Protocoll error (expecting game)
+Protocolfout 
+Schiffhalt muss im\nWasser liegen!\n
+Een scheepsstop\nmoet op het water\nworden geplaatst\n
+Server busy
+Server bezet.
+Server did not respond!
+Server reageert niet
+Terraforming not possible\nhere in underground view
+Actie niet mogelijk ondergronds
+Upgrade must have\na higher level
+Upgraden alleen naar hoger niveau
+Vehicle %s cannot choose because stop too short!
+Voertuig %s heeft een te kort station in zijn dienstregeling!
+Zughalt muss auf\nSchiene liegen!\n
+Een treinstop\nmoet op rails\ngeplaatst worden\n
+#___________________________________help_text___________________________________
+#___________________________________help_text___________________________________
+<h1>Index</h1><p>*: only english</p><p>General</p>%s<p>Usage</p>%s<p>Tools</p>%s<p>Start</p>%s<p>How to play</p>%s<p>Others:</p>%s
+<title>Hulp</title><h1>Hulp Index</h1><p><it>Over Simutrans</it></p>%1$s<p><it>Hoe te bedienen</it></p>%2$s<p><it>Hoe een spel te starten</it></p>%4$s<p><it>Hoe te spelen</it></p>%5$s<p><it>Gereedschappen</it></p>%3$s<p><it>Andere vensters</it></p>%6$s
+Clear block reservation
+Blokreservering tonen/wissen
+Highlight railroad tracks
+Benadruk spoorwegen
+Highlite depots
+Benadruk remises
+Highlite electrical transmission lines
+Benadruk elektriciteitsnet
+Highlite factories
+Benadruk fabrieken
+Highlite forests
+Benadruk bossen
+Highlite tourist attraction
+Benadruk toeristenattrakties
+Overlay city limits
+Benadruk stadsgrenzen
+Overlay passenger destinations when a town window is open
+Benadruk passagiers- en post-bestemmingen van de stad als deze in een open venster staat
+Overlay schedules/network
+Laat alle verbindingen zien op de kaart
+Overlay town names
+Toon stadsnamen
+Please click on the map to add\nwaypoints or stops to this\nschedule.
+Klik op de kaart om haltes en routepunten toe te voegen
+Show capacity and if halt is overcrowded
+Toon capaciteit en status van halte
+Show how many convoi reach a station
+Toon hoeveel voertuigen aangekomen zijn
+Show how many people/much is waiting at halts
+Toon aantal wachtende mensen en goederen
+Show level of city buildings
+Toon nivo's van stadsgebouwen
+Show speedlimit of ways
+Toont de maximale snelheid van wegen
+Show transported freight/freight network
+Toon goederentransport en verbindingen
+Shows a listing with all industries on the map.
+Geeft een lijst van alle fabrieken
+#____________________________________ki_text____________________________________
+#____________________________________ki_text____________________________________
+%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
+Toeristen kunnen nu\nde buslijn van %s\ntussen %s en\nbezienswaardigheid %s\nbij (%i,%i) gebruiken.
+%s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
+Arbeiders kunnen nu\nde buslijn van %s\ntussen %s en\nfabriek %s\nbij (%i,%i) gebruiken.
+%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i).
+%s heeft nu %i vrachtwagens,\ndie tussen %s (%i,%i)\nen %s (%i,%i)\nrijden.
+%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i).
+%s voltooit\nnieuwe spoorwegen tussen\n%s (%i,%i) en\n%s (%i,%i).
+Airline service by\n%s\nnow between\n%s \nand %s.\n
+%s heeft\neen Luchtverbinding tussen\n%s en\n%s geopend.
+Ferry service by\n%s\nnow between\n%s \nand %s.\n
+%s\nopening van een nieuwe bootlijn\ntussen\n%s en \n%s.\n\n
+Travellers now\nuse %s's\nbusses between\n%s \nand %s.\n
+%s\nopent een nieuwe\nbusverbinding tussen\n%s en\n%s.\n
+#___________________________________menu_text___________________________________
+#___________________________________menu_text___________________________________
+AIRTOOLS
+Luchtvaart \n
+EDITTOOLS
+Kaarteneditor
+LISTTOOLS
+Lijstenbeheer
+MAGLEVTOOLS
+Maglev tools
+MONORAILTOOLS
+Monorail/maglev werktuigen
+NARROWGAUGETOOLS
+Smalspoor
+RAILTOOLS
+Spoorwegen
+ROADTOOLS
+Autowegen
+SHIPTOOLS
+Scheepvaart
+SLOPETOOLS
+Land ophogen/verlagen
+SPECIALTOOLS
+Bijzondere werktuigen
+TRAMTOOLS
+Trams
+#_________________________________message_text__________________________________
+#_________________________________message_text__________________________________
+%s s\nheadquarter now\nat (%i,%i).
+%s's heeft een nieuw hoofdkantoor gebouwd.
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s heeft \neen nieuw stadhuis \ngebouwd toen de stad\n%i inwoners bereikte.
+Bankrott:\n\nDu bist bankrott.\n
+Bankroet:\n\nU bent falliet.\n
+Congratulation\nScenario was complete in\n%i months %i years.
+Gefeliciteerd!\nHet scenario is gerealiseerd\nin \n%i maanden en %i jaren!
+Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
+Je hebt %d maanden om je schulden af te lossen!
+Factory chain extended\nfor %s near\n%s built with\n%i factories.
+Economie gaat goed\n voor %s bij %s zijn\n%i nieuwe fabrieken gebouwd.
+New %s now available:\n%s\n
+%s '%s'\nis nu beschikbaar.
+New factory chain\nfor %s near\n%s built with\n%i factories.
+Er is een nieuwe productieketen\nvoor %s bij\n%s gebouwd,\nbestaande uit %i fabrieken.
+New vehicle now available:\n%s\n
+Nieuw voertuig is \nnu beschikbaar:\n\n» %s «\n
+Now %u clients connected.
+%i spelers verbonden.
+On this map, you are not\nallowed to change player!\n
+Spelerswissel is niet mogelijk in dit spel.\nSpelerswissel is uitgeschakeld!\n
+Production of %s has been stopped:\n%s\n
+%s '%s'\nword niet meer geproduceerd.
+Remove vehicle from map. Use with care!
+Verwijder het voertuig direct.
+Scenario complete: %i%%
+doel voor %i%% bereikt
+Screenshot\ngespeichert.\n
+Schermafdruk\nopgeslagen\n
+Sends the convoi to the last depot it departed from!
+Stuur het voertuig naar een nabijgelegen depot.
+Spielstand wurde\ngeladen!\n
+\nSpelstand is\ngeladen\n
+Spielstand wurde\ngespeichert!\n
+\nSpelstand is\nopgeslagen\n
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+U heeft schulden!\n\nU heeft %d maanden\nom uw schulden af\n te lossen!\n
+With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
+%s heeft\neen nieuw monument\nopgericht. Dit wordt\ngevierd met festiviteiten.\n
+#_________________________________program_text__________________________________
+#_________________________________program_text__________________________________
+(%i)-
+(%i)
+(in depot)
+(in remise)
+\nBauzeit bis
+ tot 
+\nBauzeit von
+\ngebouwd vanaf 
+\nCan't open heightfield file.\n
+\nKan hoogteveld niet openen.\n
+\ndirection:
+\nrichtingen:
+\nelektrified
+geëlektrificeerd
+\nHeightfield has wrong image type.\n
+\nHoogteveld heeft een onjuiste\nbestands opmaak.\n
+\nis reserved by:
+\nin gebruik door trein:
+\nminimum speed:
+\nminimumsnelheid:
+\nnot elektrified
+niet geëlektrificeerd
+\nRibi (masked)
+\nRichtingen (gemaskeerd)
+\nRibi (unmasked)
+\n\nrichtingen (alle):
+\nSet phases:
+\npas stoplicht aan NZ/OW:
+\nsingle way
+\neenrichtingsweg
+\nway1 reserved by
+Weg 1 gebruikt door\nWeg 1 gebruikt door
+\nway2 reserved by
+Weg 2 gebruikt door\nWeg 2 gebruikt door
+\nwith sign/signal\n
+\nmet bord/sein\n
+%d buildings\n
+%d Gebouwen\n
+%d convois
+%d voertuigen
+%d Einzelfahrzeuge im Depot
+%d voertuigen in het depot
+%i years %i months old.
+%i jaar en %i maanden oud.
+%s building %s %s
+%s %s %s
+%s city %d %s
+%s centrum %d %s
+%s factory %s %s
+%s %s fabriek
+%s has entered a depot.
+%s heeft een depot bereikt.
+%s land %d %s
+%s %d %s
+%s\nis crowded.
+ %s is overbelast.
+%s\nwas liquidated.
+%s is bankroet gegaan\n. Het bedrijf is stilgelegd en alle bezittingen zijn verkocht.
+%u Client(s)\n
+%i spelers\n
+%u Player (%u locked)\n
+%u spelers (%u beveiligd)\n
+<em>%C</em> - %s<br>\n
+[%C]: %s\n\n
+<no line>
+<geen lijn>
+1 convoi
+1 voertuigsamenstelling
+1 Einzelfahrzeug im Depot
+1 voertuig in dit depot
+1LIGHT_CHOOSE
+Helderheid:
+1WORLD_CHOOSE
+Instellingen voor een nieuw spel:
+2LIGHT_CHOOSE
+Contrast:
+2WORLD_CHOOSE
+Kaartnummer:
+3LIGHT_CHOOSE
+Scrollsnelheid:
+4LIGHT_CHOOSE
+Scroll omdraaien
+5LIGHT_CHOOSE
+voetgangers (halte)
+5WORLD_CHOOSE
+Steden:
+6LIGHT_CHOOSE
+voetgangers (stad)
+6WORLD_CHOOSE
+Stadsverkeer:
+8WORLD_CHOOSE
+Dag en Nacht Modus
+Abfrage
+Info
+Abnehmer
+Afnemer
+About
+Info
+About scenario
+Copyright
+Abriss
+Verwijder
+Absenken
+Verlagen
+Abspanntransformator
+Transformator
+Accelerate time
+Tijd versnellen
+Account above %s
+%s Saldo
+Act. load: %u MW\n
+Verbruik: %u MW\n
+Active player only
+alleen actieve speler
+Add forest
+Bos aanplanten
+Add random citycar
+voeg willekeurige stadsauto toe
+add server
+Voeg server toe
+Add Stop
+Toevoegen
+Add stops for backward travel
+Toevoegen van de stops voor de terugweg
+Air
+Vliegtuigen
+aircraft_tab
+Vrachtvliegtuigen
+airplane
+vliegtuig
+Airport
+Luchthaven 
+All
+Alle
+all convoi tooltips
+alle tooltips voor voertuigen
+Allow city growth
+Stadsuitbreiding toestaan
+Allow player change
+Speleromschakeling toelaten
+allowed climates:\n
+Klimaatzones
+Alters a schedule.
+Dienstregeling wijzigen
+Angenommene Waren
+Vlakbij benodigde goederen
+anhaengen
+Toevoegen
+Anhaenger_tab
+Opleggers
+Anheben
+Ophogen
+Appends stops at the end of the schedule
+Stop toevoegen aan einde dienstregeling
+Arbeiter aus:
+Arbeiders uit:
+Arrived
+Aangekomen
+Assets
+Overige activa
+Aufloesen
+Opheffen
+Aufspanntransformator
+Transformator
+August
+Augustus
+Available
+Beschikbaar
+Bahndepot
+Remise
+battery
+batterij
+Baum
+Boom
+baum builder
+Plant bomen
+Baustelle
+Bouwplaats
+Bauzeit
+Bouwtijd
+Beenden
+Afsluiten
+Besonderes Gebaeude
+Bezienswaardigheid
+BF
+station
+bio
+biologisch
+Blockstrecke ist\nbelegt\n
+Andere trein op\ndit railblok\n
+Boden
+Land
+Bonusspeed: %i km/h
+Max. haalbare snelheid: %i km/h
+Boost (%)
+verhoging met (%)
+Bruecke
+Brug
+Brueckenboden
+brugdek
+Build air depot
+Bouw hangar
+build choosesignals
+Plaats keuzeseinen
+Build city market
+Bouw een nieuwe winkel in de dichtstbijzijnde stad
+Build drain
+Transformator station
+build HQ
+Bouw Hoofdkantoor
+Build land consumer
+Bouw een nieuwe energiecentrale.
+Build maglev depot
+Bouw een Maglev remise
+Build monorail depot
+Bouw een monorail remise
+Build narrowgauge depot
+Bouw een smalspoor remise
+Build powerline
+Hoogspanningslijn
+Build presignals
+Seinen voor twee blokken
+Build road depot
+Bouw een garage
+Build ship depot
+Bouw een scheepswerf
+Build signals
+Plaats seinen
+Build train depot
+Bouw een trein remise
+Build tram depot
+Bouw een tram remise
+Build truck depot
+Bouw een garage
+Building costs estimates
+Geschatte bouwkosten
+Buildings
+gebouwen
+Built artifical slopes
+Kunstmatige glooiingen
+Built random attraction
+Nieuwe bezienswaardigheid
+Bus_tab
+Bussen
+Can only move from halt to halt or waypoint to waypoint.
+Kan alleen verplaatst worden \nvan halte naar halte of \nvan routepunt naar routepunt.
+Cancel
+Annuleren
+Cannot connect to offline server!
+Server is offline en niet bereikbaar.
+Capacity:
+Capaciteit
+Capacity: %d%s %s\n
+Capaciteit: %3d%s %s\n
+Capacity: %s\nLoad: %d (%d%%)
+Capaciteit: %s\n» %d (%d%%)
+Capacity: %u MW\n
+Capaciteit: %u MW\n
+Cars are not available yet!
+Voertuigen zijn nog niet beschikbaar!
+cars.\nstate
+Voertuigen\n
+Cash
+Kas
+Change player
+Van speler wisselen
+Chart
+Grafiek
+Chat_msg
+Chat
+Choose direction
+Richting kiezen
+Choose operation executed on clicking stored/new vehicles
+Kies een actie voor de opgeslagen/nieuwe voertuigen.
+chooses a random map
+Kiest een willekeurige kaart
+citicens
+Inwoners
+City attraction
+Toeristische attractie
+City industries
+Aantal industrieën (stad)
+City list
+Stedenlijst
+City size
+Aantal inwoners
+city_road
+stadsweg
+citybuilding builder
+Stadsgebouwen bouwen
+CityLimit
+Gemeentegrens
+cl_title
+Voertuigen lijst
+cl_txt_sort
+Sorteren op:
+clf_chk_aircrafts
+Vliegtuigen
+clf_chk_cars
+Wegverkeer
+clf_chk_indepot
+in een depot
+clf_chk_maglev
+Maglev banen
+clf_chk_monorail
+Monorail banen
+clf_chk_name_filter
+Filter namen:
+clf_chk_narrowgauge
+Smalspoorbanen
+clf_chk_noincome
+geen inkomen
+clf_chk_noline
+geen lijn
+clf_chk_noroute
+geen route
+clf_chk_noschedule
+geen dienstregeling
+clf_chk_obsolete
+Verouderd
+clf_chk_ships
+Schepen
+clf_chk_spezial_filter
+Speciaal filter:
+clf_chk_stucked
+geblokkeerd
+clf_chk_trains
+Treinen
+clf_chk_trams
+Trams
+clf_chk_type_filter
+Filter type:
+clf_chk_waren
+Filter goederen:
+clf_title
+Voertuigen Filter
+Climate Control
+Klimaatinstellingen
+closed
+gesloten
+COLOR_CHOOSE\n
+Kies een kleur\nuit de tabel:\n
+Company bankrupt
+Onderneming is failliet!
+Company_msg
+Concurrenten
+Comparing pak files ...
+Bezig met het vergelijken van pak-bestanden ...
+Configure AI
+KI-instellingen
+Configure AI setttings
+KI (computer tegenstander) instellingen aanpassen
+Connect factory
+Verbind fabrieken
+Connected stops
+Aangesloten haltes
+Connected with server
+Verbonden met server
+Constructed by
+Gemaakt door 
+Constructed by %s
+Gemaakt door %s
+construction speed
+Bouwsnelheid
+Consumed
+verbruikt
+convoi %d of %d
+Voertuig %d van %d
+convoi error tooltips
+tooltips voor voertuig fouten
+Convoi has been sent\nto the nearest depot\nof appropriate type.\n
+Dit voertuig is naar een\nnabijgelegen depot gestuurd.\n
+Convoi is sold when all wagons are empty.
+Het voertuig of de samenstelling wordt verkocht zodra het helemaal leeg is.
+convoi mouseover tooltips
+convooi mouseover tooltips
+convoi passed last\nmonth %i\n
+Verkeer in de \nvoorafgegane maand: %i\n
+Convois
+Voertuigen
+Convois: %d\nProfit: %s
+Voertuigen: %d\nWinst: %s
+Convoys
+Voertuigen
+Copy Convoi
+Kopiëren
+Copy the selected convoi and its schedule or line
+Kopieer dit voertuig inclusief dienstregeling of lijn
+cost for removal
+Kosten voor verwijdering 
+Cost: %8s (%.2f$/km)\n
+Kosten: %8s (%.2f$/km)\n
+Costs
+Kosten
+Create a new line based on this schedule
+Maak van deze dienstregeling een nieuwe lijn
+curiosity builder
+Attractie bouwen
+curlist_title
+Bezienswaardigheden
+Currently playing:
+Momenteel spelend:
+Customers live in:
+Klanten wonen in:
+Deccelerate time
+Tijd vertragen
+decrease underground view level
+lager ondergronds niveau
+Default.sve
+Standaard
+Del Stop
+Verwijderen
+Delete Line
+Lijn opheffen
+Delete the current stop
+Verwijder halte
+Delete the selected line (if without associated convois).
+Verwijder de geselecteerde lijn (mits zonder konvooien)
+Delete this file.
+Dit bestand verwijderen
+Delivered
+Geleverd
+Demand
+Vraag:
+Demand: %u MW\n
+Vraag: %u MW\n
+Denkmal
+Monument
+Departed
+Vertrokken
+Depots
+Remises
+Destination
+Bestemming
+Destroying map ...
+Oude kaart wordt ontruimd ...
+Direkt erreichbare Haltestellen
+Direct bereikbare stopplaatsen
+disable midi
+Midi-muziek uitschakelen
+Distance
+Afstand
+Dock
+haven
+Durchsatz
+Capaciteit 
+Economy
+Economie en steden
+Eigenbesitz\n
+Openbaar bezit\n
+Ein %s\npasst hier nicht.\n
+Hier past geen\n%s.\n
+Einstellungen aendern
+Instellingen aanpassen
+electric
+elektrisch
+Electricity
+Stroom
+Electricity producer\n\n
+Energiecentrale \n\n
+Electrics_tab
+Electrisch
+Electrify track
+Bovenleidingen
+enlarge map
+Vergroot kaartafmetingen
+enter a value between %i and %i
+Geef een waarde tussen %i en %i
+Enter Password
+Naam en wachtwoord van speler wijzigen
+Error
+Fout
+Erzeuge neue Karte.\n
+Een ogenblik geduld,\neen nieuwe kaart\nwordt gemaakt ...\n\n(Bij een grote\nkaart kan dit even\nduren)\n
+Es wird bereits\nein Fahrplan\neingegeben\n
+Er wordt al\neen dienstregeling\ngemaakt.\nMaak deze eerst af!\n
+Fabrikanschluss
+Aangesloten industrie
+Fabrikname
+Fabrieksnaam
+Factories
+Fabrieken
+factory details
+Fabrieks details
+factorybuilder
+Fabrieken bouwen
+Fahrplan
+Dienstregeling
+Fahrtziel
+Bestemming: 
+Fahrzeuge:
+Voertuigen:
+Farbe
+Kleur
+Fast forward
+Snel voorwaarts in tijd
+February
+Februari
+Ferry_tab
+Veerboten
+Fertig
+Klaar
+Filename
+Bestand:
+Files from:
+Bestanden uit:
+Finances of %s
+Financiën van %s
+Finanzen
+Financiën
+find mismatch
+Vergelijk je pak
+fl_title
+Lijst met fabrieken
+Flug_tab
+Passagier-vliegtuigen
+Follow the convoi on the map.
+Volg het voertuig op de kaart.
+Forest
+Bos
+Found new city
+Nieuwe Stad
+Fracht
+Vracht
+Frame time:
+Beeldfrequentie:
+Free Capacity
+Vrije capaciteit 
+freeplay mode
+Freeplay, nooit bankroet
+Friction:
+Frictie:
+fuel_cell
+brandstofcel
+Full load
+Laden t/m 
+Fundament
+Fundering
+Fussgaenger
+Voetgangers
+GAME PAUSED
+SPEL GEPAUZEERD
+Game_msg
+Algemeen
+Gear:
+Overbrenging:
+Gebaeude
+Gebouw
+General
+Algemeen
+Generated
+Gegenereerd
+Generation: %u MW\n
+Generatie: %u MW\n
+Gewinn
+Inkomsten
+Give the selected vehicle(s) an individual schedule
+Ken het geselecteerde voertuig een eigen dienstregeling toe
+gl_title
+Goederenlijst
+Goods
+Goederen
+Goods AI
+Vracht-AI
+Goods list
+Goederenlijst
+Gross Profit
+Cash flow
+Groundobj
+Object
+Grow city
+Stad vergroten
+Growth
+Groei
+H
+bushalte
+Happy
+Tevreden
+Haus kaufen
+koop huis
+Headquarter and %li trains
+Hoofdkwartier en %li treinen
+Helligk.
+Scherm
+Helligk. u. Farben
+Beeldscherm instellingen
+Help
+Hulp
+Help text not found
+Hulp tekst niet gevonden.
+hide all building
+verberg alle gebouwen
+hide city building
+Verberg stadsgebouwen
+hide station names
+Verberg stationsnamen 
+hide transparent
+Verberg objecten transparant
+hide trees
+Verberg bomen
+Hier warten/lagern:
+Wachtenden passagiers/goederen:
+Highlite schedule
+Benadruk haltes dienstregeling
+hl_title
+Stations lijst
+hl_txt_filter
+Filter:
+hl_txt_sort
+Gesorteerd op:
+hlf_chk_airport
+Luchthaven
+hlf_chk_anleger
+Haven
+hlf_chk_bahnhof
+Station
+hlf_chk_bushalt
+Bushalte
+hlf_chk_frachthof
+Laadperron
+hlf_chk_keine_verb
+Geen verbinding
+hlf_chk_maglevstop
+Maglev station
+hlf_chk_monorailstop
+monorail halte
+hlf_chk_name_filter
+Filter namen:
+hlf_chk_narrowgaugestop
+Smalspoorstation
+hlf_chk_overflow
+overbeladen
+hlf_chk_spezial_filter
+Speciaal filter:
+hlf_chk_tramstop
+Tramhalte
+hlf_chk_type_filter
+Filter soort:
+hlf_chk_waren_abgabe
+Capaciteit:
+hlf_chk_waren_annahme
+Verbruik:
+hlf_title
+Station Filter
+Homeless
+Dakloos
+hydrogene
+Waterstof
+Idle:
+Werkloos:
+ignore climates
+Negeer klimaatzones
+In Transit
+Onderweg
+Increase Industry density
+Verhoog industriedichtheid
+increase underground view level
+hoger ondergronds niveau
+industrial building
+Fabrieksgebouw
+Init map ...
+Kaart inrichten...
+Input
+input
+Ins Stop
+Invoegen
+Insert stop before the current stop
+Stop invoegen voor de huidige
+Intercity road len:
+Lengte provinciale wegen
+Intro. date:
+Geïntroduceerd:
+invalid
+ongeldig
+Invalid coordinate
+Ongeldige coördinaat
+isometric map
+isometrische kaart
+January
+Januari
+join game
+Online spelen
+July
+Juli
+Jump to
+Ga naar
+June
+Juni
+Kein Besitzer\n
+Geen eigenaar
+keine
+geen
+Keine Einzelfahrzeuge im Depot
+Het depot is leeg
+Keyboard_Help\n
+Toetsenbord help\n
+Kreuzung
+Kruising
+labellist_title
+Label lijst
+Land attraction
+Bezienswaardigheid
+Land industries
+Aantal industrieën (land)
+LANG_CHOOSE\n
+Maak de keuze uit\nde volgende talen:\n
+LARGE_NUMBER_STRING
+M
+LARGE_NUMBER_VALUE
+1e6
+Last Month
+Vorige maand:
+Last Year
+Afgelopen Jaar
+Leaving depot!
+Verlaat depot!
+leer
+leeg
+Legend
+Legenda
+Leistung
+Vermogen
+Leistung: %d kW
+Vermogen: %d kW
+Leitung
+Hoogspanningsleiding
+letzen Monat: diesen Monat:
+Afgelopen maand:   Deze maand:
+Line
+Lijn
+Line Management
+Lijnenbeheer
+Lineless convoys serving this stop
+Niet aan lijn gebonden voertuigen die hier stoppen:
+Lines serving this stop
+Aangesloten lijnen
+LKW_tab
+Vrachtverkeer
+load height data from file
+Bestand met reliëfinformatie laden
+loaded
+geladen.
+loaded passenger/freight
+Sorteer passagiers/vracht op
+Loading (%i->%i%%)!
+Laden van (%i->%i%%)!
+Loading addon paks ...
+Addon paks laden ...
+Loading map ...
+Bezig met het laden van de kaart...
+Loading paks ...
+Paks laden ...
+Loading skins ...
+Skins laden ...
+Lock game
+Blokkeer speleromschakeling.
+Lokomotive_tab
+Locomotieven
+m3
+m³
+Maglev
+Magneetbaan
+maglev vehicle
+Magneetbaanvoertuig
+maglev_track
+Maglev baan
+Maglevdepot
+Maglev remise
+Mailbox
+Berichten
+Mailbox Options
+Berichtencentrum en opties
+Maintenance
+Onderhoud
+make stop public (or join with public stop next) costs %i per tile and level
+maak halte openbaar of verbind met openbare halte (%i$ per veld en nivo)
+Manual (Human)
+Mens
+Manufactured:
+Geproduceerd:
+Map roughness
+Ruigheid:
+map zoom
+Inzoomen
+March
+Maart
+Margin (%)
+Marge (%)
+Marker
+InfoBordje
+Max Boost (%)
+Maximale verhoging
+Max income:
+Max inkomsten:
+Max. speed:
+Max. snelheid:
+Maximum 254 stops\nin a schedule!\n
+Niet meer dan 254 haltes\nin één dienstregeling!\n
+maximum length of rivers
+Maximale rivierlengte
+Maximum tile height difference reached.
+Het maximale hoogteverschil\ntussen twee grondvlakken \nis bereikt.
+Maxspeed
+Maximum snelheid
+May
+Mei
+Median Citizen per town
+Gem. aantal inwoners
+Meldung
+Melding
+Menge
+Hoeveelheid
+MessageOptionsText
+\nNieuw Jaar\n\nAI Nieuws\n\nStadnieuws\n\nGeen Route\n\nNieuwe industrie\n\nChat\n\nNieuwe Voertuigen\n\nStation overbeladen\n\nProblemen\n\nFiles\n\nScenario
+min
+min.
+minimum length of rivers
+Minimum rivierlengte
+Missing pakfiles
+Er ontbreken objecten!
+Modify the selected line
+Gekozen lijn veranderen
+Monate alt
+maanden oud
+Monorail
+monorail
+monorail vehicle
+Monorail voertuig
+monorail_track
+Monorail baan
+Monorailboden
+monorail-ondergrond
+Monoraildepot
+monoraildepot
+month wait time
+wachttijd in maanden
+Months
+Maanden
+Monuments
+Monumenten
+Mountain height
+Berghoogte
+Movingobj
+Verschuiven
+Music playing disabled/not available
+Muziek uitgeschakeld/niet beschikbaar
+Music volume:
+Muziek volume:
+mute sound
+geluid uitschakelen
+Name
+Naam
+Narrowgauge
+Smalspoor
+narrowgauge vehicle
+Smalspoor voertuig
+narrowgauge_track
+Smalspoor
+Narrowgaugedepot
+Smalspoor remise
+Net Wealth
+Totale activa
+Net wealth near zero
+Er dreigt een negatief vermogen
+Neue Karte
+Nieuwe kaart
+Neue Welt
+Nieuwe wereld
+new convoi
+Nieuw voertuig
+New Line
+Nieuwe lijn
+New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.
+Nieuwe lijn gecreëerd!\nJe kunt de lijn nu toewijzen\ndoor deze te kiezen uit\nde lijnen hierboven.
+New Vehicles
+Nieuwe voertuigen
+no buildings hidden
+geen verborgen gebouwen
+no convois
+geen voertuigsamenstellingen
+No goods are loaded onto this convoi.
+Het voertuig accepteert geen nieuwe lading.
+no goods waiting
+geen wachtende goederen
+no load
+Alleen lossen
+No Route
+Geen route
+No stop here!
+Dit kan alleen voor haltes!
+No suitable ground!
+Geen geschikt terrein!
+No terminal station here!
+Hier is geen eindstation mogelijk!
+no timeline
+Geen tijdlijn
+no tree
+zonder bomen
+No. of Factories
+Fabrieken en winkels
+none
+Geen
+nord
+Noord
+nordost
+Noord-Oost
+nordwest
+Noord-West
+Not enough fields would remain.
+Onvoldoende vrije velden.
+Now active as %s.\n
+Je bent nu actief \nals speler %s.
+Number of rivers
+Aantal rivieren
+Odometer: %s km
+Kilometerstand: %s
+Ok
+OK
+On loan since %i month(s)
+U heeft schulden sinds %i maand(en)
+Only city chains
+Alleen stadsfabrieken
+Only land chains
+Alleen plattelandsfabrieken
+Operation
+Exploitatiekosten
+Ops Profit
+Resultaat
+Origin
+Herkomst
+ost
+Oost
+Output
+Productie
+Ownership
+Eigenaar
+paletten
+Kisten
+Pas_tab
+Passagiertreinen
+Passagiere
+Passagiers
+Passagierrate
+Passagiersaanbod
+Passagierziele
+Passagiers/postbestemmingen
+Passenger AI
+Passagiers AI
+Passengers %d %c, %d %c, %d no route
+Passagiers %d %c, %d %c, %d zonder route
+Passengers %d %s, %d %s, %d no route
+Passagiers %d %s, %d %s, %d zonder route
+Password
+Wachtwoord:
+Pause
+Pauze
+PaxDest
+Bestemmingen
+Percent Electricity
+Stroomproductie (% vraag)
+Plant tree
+Plant een boom
+player
+speler
+player -1
+mens
+player 0
+de overheid
+player 1
+Napik 128 AS
+player 10
+speler 10
+player 11
+speler 11
+player 12
+speler 12
+player 13
+speler 13
+player 2
+Trikky Transport
+player 3
+Meyer Moving Co.
+player 4
+Spedition VM
+player 5
+H-Trans b.v.
+player 6
+PSK & Co KG
+player 7
+speler 7
+player 8
+speler 8
+player 9
+speler 9
+Please choose vehicles first\n
+Selecteer eerst een voertuig!\n
+Post
+post
+Postrate
+Postaanbod
+Power
+Stroom
+Power:
+Vermogen:
+Powerlines
+HSP-leidingen
+Problems_msg
+Waarschuwingen
+Produced
+Geproduceerd
+Produktion
+Produktie
+Profit
+Winst
+promote to line
+Maak nieuwe lijn
+q1
+Lente
+q2
+Zomer
+q3
+Herfst
+q4
+Winter
+rail car
+spoorwagen
+random
+willekeurig
+Random age
+willekeurig jaar
+Random map
+Willekeurige kaart
+Rathaus
+Stadhuis
+Rating
+Beoordeling
+ratio_pax
+Verhouding
+Relevant
+Alleen benodigde
+Reliefkarte
+Kaart
+Remove
+Verwijder
+remove airstrips
+landingsbaan verwijderen
+remove channels
+kanaal verwijderen
+remove interm. signals
+verwijder tussenliggende signalen
+remove maglev tracks
+verwijder maglevbaan
+remove monorails
+monorail verwijderen
+remove narrowgauge tracks
+smalspoor verwijderen
+remove powerlines
+Verwijder HSP-leidingen
+remove roads
+weg verwijderen
+remove tracks
+spoorbaan verwijderen
+Remove wayobj %s
+Verwijder wayobj %s
+replace other signals
+Vervang andere signalen
+replace stop
+vervang halte
+request closing
+verzoek sluiten
+residential house
+woonhuis
+Restore natural slope
+Herstel natuurlijke glooiing
+Restwert:
+Verkoop waarde:
+Retire. date:
+Gebouwd tot:
+return ticket
+Retourtraject
+Revenue
+Inkomsten
+Revision:
+Revisie:
+road
+weg
+Road toll
+Tol
+road vehicle
+Wegvoertuig
+Roadsign
+verkeersbord
+Rotate map
+Kaart draaien
+Rotation
+Draaiing 
+Routing
+Verbindingen
+sack
+ zakken
+sail
+Wind
+Saving map ...
+Bezig met het opslaan van de kaart...
+Schedule changing!
+Wijziging in routeschema!
+Schienentunnel
+Spoorwegtunnel bouwen
+Schiff_tab
+Schepen
+Schiffdepot
+Scheepswerf
+Schleppkahn_tab
+Sleepboot
+Screenshot
+Schermafdruk
+Seasons
+Seizoenen
+Sehenswuerdigkeit
+Bezienswaardigheid
+Sell the selected vehicle(s)
+Verkoop de gekozen voertuigen.
+sended
+verstuurd
+SEP_FRACTION
+,
+SEP_THOUSAND
+.
+SEP_THOUSAND_EXPONENT
+3
+Serves Line:
+Bedient lijn:
+set signal spacing
+Set afstand tussen signalen
+Setting
+Instellingen
+Ship
+Schip
+shops and stores
+Winkels en magazijnen\n
+Show all
+Toon alles
+show all building
+Toon alle gebouwen
+Show also vehicles no longer in production.
+Toon ook voertuigen die niet meer vervaardigd worden.
+Show also vehicles that do not match for current action.
+Toon ook voertuigen die niet passen bij de reeds geselecteerde voertuigen.
+Show even servers with wrong version or pakset
+Toon ook servers met verkeerde programmaversie of verkeerde pakset
+show grid
+Toon raster
+Show industry
+Toon industrie
+Show legend
+Toon legenda
+Show map scale
+Toon schaal
+Show obsolete
+Verouderde tonen
+Show schedules
+toon dienstregelingen
+show station coverage
+toon stations dekking
+show station names
+toon stationsnamen
+show waiting bars
+toon waiting bars
+show/hide block reservations
+Toon/verberg blokreservering
+Show/hide statistics
+Toon/verberg statistieken
+Shows consumer/suppliers for factories
+Toon afnemers/leveranciers voor fabrieken
+Shows the currently selected schedule
+Toon de gekozen dienstregeling
+Shrink city
+Stad verkleinen
+shuffle midis
+shufflemode voor achtergrondmuziek
+Signal
+Sein
+signal spacing
+Signaal afstand
+Sim:
+Simloops:
+Size (%d MB):
+Omvang (%d MB):
+sliced underground mode
+"sliced" ondergrondse modus
+slot empty
+vrij
+Sort by
+Gesorteerd op
+Sort waiting list by
+Sorteer wachtenden op
+Sound
+Geluid
+Sound settings
+Geluidsinstellingen
+Sound volume:
+Geluidssterkte
+special freight
+Speciale vracht
+Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
+Snelheidsbonus\nstraat %i km/h, treinen %i km/h\nschepen %i km/h, vliegtuigen %i km/h.\n
+Speedlimit
+Max. snelheid
+Speichern
+Opslaan
+Spieler
+Speler
+Spieler(mz)
+Spelers
+Spielerliste
+Lijst met spelers
+Sprachen
+Talen
+Stadtinformation
+Stadsinformatie
+Start the selected vehicle(s)
+Start het gekozen voertuig.
+Station tiles:
+min. stationslengte:
+Station_msg
+Overbezettingen
+Status
+Haltestatus
+steam
+Stoom
+Step timeline one year
+Een jaar naar voren springen
+Storage
+voorraad
+Storage capacity
+Opslagcapaciteit
+Strassendepot
+Garage
+Strassentunnel
+Tunnel bouwen
+street car
+Wagen
+sued
+Zuid
+suedost
+Zuid-Oost
+suedwest
+Zuid-West
+Summer snowline
+Sneeuwgrens(z):
+Suppliers
+Leveranciers
+Supply %s at (%i,%i)
+Bezorg %s bij (%i,%i)
+Tage alt
+dagen oud
+There are still vehicles\nstored in this depot!\n
+Er zijn nog\nvoertuigen in\ndit depot!\n
+This Month
+Deze maand
+This Year
+Dit jaar
+Tile not empty.
+Het veld is niet leeg!
+timeline
+Tijdlijn
+tl_title
+Lijst met steden
+To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers.
+%s bouwt\neen %s,\nom meer toeristen aan te trekken.
+To heavy traffic\nresults in traffic jam.\n
+Te druk verkeer veroorzaakt\nopstoppingen.
+Toggle day/night view
+dag/nacht schakelen
+Toggle vehicle tooltips
+Voertuig info omschakelen
+tonnen
+t
+Total inhabitants:
+Aantal inwoners
+Tourist attractions
+Bezienswaardigheden
+Tourists
+Toerisme
+Town_msg
+Nieuwe bestemmingen
+Town: %s\n
+Stad: %s\n
+Towns
+Stadsnamen
+track
+spoor
+Tracks
+Spoorwegen
+Traffic
+Verkeer
+Train
+Trein
+Trains are not available yet!
+Treinen zijn nog niet beschikbaar!
+tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h.
+tram %i km/h, monorail %i km/h\nmagneetbaan %i km/h, smalspoor %i km/h.
+tram_track
+tramrails
+Tramdepot
+Tramremise
+Trams are not available yet!
+Trams zijn nog niet beschikbaar!
+Transferring game ...
+Spel wordt overgehaald ...
+Transformer only next to factory!
+Een transformatorstation moet direct naast de fabriek geplaatst worden!
+Translation
+Vertaling
+transparent station coverage
+transparante stations dekking
+Transport %li passengers
+Vervoer %li passagiers
+Transported
+Vervoerd
+TrolleyBus_tab
+Trolleybussen
+Truck
+Vrachtwagen
+Tunnel muss an\neinfachem\nHang beginnen!\n
+Een tunnel moet op\neen rechte\nhelling beginnen\n
+Tunnel must start on single way!
+Een tunnel moet op het einde van een straat beginnen!
+Tunnelboden
+Tunnelbodem
+underground mode
+ondergrondse mode
+UNDO failed!
+Ongedaan maken is niet meer mogelijk.\nJe kunt alleen de bouw van een weg\nongedaan maken zo lang je geen\nstations/haltes/seinen/borden/... \nhebt geplaatst op de weg.
+Undo last ways construction
+Maak laatste wegconstructie ongedaan
+Unemployed
+Werkeloos
+Unhappy
+Ontevreden
+units/day
+ eenh./dag
+Update Line
+Lijn veranderen
+upgrade HQ
+Hoofdkwartier uitbreiden
+Usage: %u %%
+Gebruik: %u %%
+Usage/Output
+Verbruik/productie
+Use beginner mode
+Activeer beginnermode
+Use timeline start year
+Tijdlijn/Aanvangsjaar
+Vehicle %s can't find a route!
+Voertuig %s \nkan geen route vinden!
+Vehicle %s is stucked!
+Voertuig %s\nis geblokkeerd.
+Vehicle details
+Voertuigdetails
+Verbrauch
+Verbruik
+Vergroessere die Karte\n
+Vergroot kaart
+Verkauf
+Verkopen!
+verkaufen
+Verkopen
+Verkehrsteilnehmer
+Weggebruiker
+via %s\n
+ via %s\n
+via Menge
+Aantal-via
+voranstellen
+Invoegen
+Waggon_tab
+Wagons
+waiting
+wachtend
+Waiting for clearance!
+Wacht op voorligger
+Walked
+Te voet
+Warnings_msg
+Verkeersmededelingen
+Wasser
+Water
+water
+Kanaal
+Water level
+Waterpeil:
+water vehicle
+Watervoertuig
+way %s cannot longer used:\n
+%s kan niet langer worden gebruikt:\n
+way %s cannot longer used:\n%s\n
+%s kan niet langer worden gebruikt:\n%s\n
+way %s now available:\n
+%s is nu beschikbaar.\n
+way %s now available:\n%s\n
+%s is nu beschikbaar:\n%s\n
+Ways not connected
+Wegen niet aangesloten
+Wegpunkt
+Routepunt
+Weight:
+Gewicht:
+Wert
+Waarde
+west
+West
+Winter snowline
+Sneeuwgrens(w):
+withdraw
+Terugtrekken
+Withdraw All
+Alles terugtrekken
+WRONGSAVE
+Opgeslagen spelversie\nniet compatibel. Bestand kan\nniet geladen worden.\n
+Year %i has started.
+Het jaar %i is begonnen.
+Years
+Jaren
+Your primary color:
+Eerste kleur
+Your secondary color:
+Tweede kleur
+Zielort
+Bestemming
+zooming in
+inzoomen
+zooming out
+uitzoomen
+Zu nah am Kartenrand
+Er kan hier niet\ngebouwd worden!\n
+#__________________________________record_text__________________________________
+#__________________________________record_text__________________________________
+New world record for maglevs: %.1f km/h by %s.
+Nieuw wereldrecord voor\nmaglevs: %.1f km/h\nby %s.
+New world record for monorails: %.1f km/h by %s.
+Nieuw wereldrecord voor\nmonorails: %.1f km/h\nby %s.
+New world record for motorcars: %.1f km/h by %s.
+Nieuw wereldrecord voor\nmotorvoertuigen:\n %.1f km/h\nby %s.
+New world record for narrowgauges: %.1f km/h by %s.
+Nieuw wereldrecord voor\nsmalspoor: %.1f km/h\nby %s.
+New world record for planes: %.1f km/h by %s.
+Nieuw wereldrecord voor\nvliegtuigen: %.1f km/h\nby %s.
+New world record for railways: %.1f km/h by %s.
+Nieuw wereldrecord voor\nspoorwegen: %.1f km/\nby %s.
+New world record for ship: %.1f km/h by %s.
+Nieuw wereldrecord voor\nschepen: %.1f km/h\nby %s.
+#_______________________________unnecessary_text________________________________
+#_______________________________unnecessary_text________________________________
+&1_CITY_SYLL
+dam
+&2_CITY_SYLL
+sum
+&3_CITY_SYLL
+hoven
+&4_CITY_SYLL
+tricht
+&5_CITY_SYLL
+drecht
+&6_CITY_SYLL
+hage
+&7_CITY_SYLL
+ham
+&8_CITY_SYLL
+mare
+&9_CITY_SYLL
+dijk
+&A_CITY_SYLL
+huizen
+&B_CITY_SYLL
+sel
+&C_CITY_SYLL
+burg
+&D_CITY_SYLL
+stad
+&E_CITY_SYLL
+bron
+%0_CITY_SYLL
+woud
+%1_CITY_SYLL
+Amster
+%2_CITY_SYLL
+Rotter
+%3_CITY_SYLL
+Hilver
+%4_CITY_SYLL
+Veen
+%5_CITY_SYLL
+Eind
+%6_CITY_SYLL
+Maas
+%7_CITY_SYLL
+Rijn
+%8_CITY_SYLL
+Nieuw
+%9_CITY_SYLL
+Delf
+%A_CITY_SYLL
+Oud
+%B_CITY_SYLL
+Volen
+%C_CITY_SYLL
+nieuw
+%D_CITY_SYLL
+top
+%F_CITY_SYLL
+park
+1center
+%s %s
+1extern
+%s buiten %s
+1suburb
+%s %s %s
+2center
+%s centraal %s
+2extern
+%s extern %s
+2suburb
+%s Velden %s %s
+3center
+%s centrum %s
+3extern
+%s land %s
+3suburb
+%s dorp %s %s
+4center
+%s binnen %s
+4extern
+%s veld %s
+4suburb
+%s Kolonie %s %s
+5center
+%s brink %s
+5extern
+%s Weidegrond %s
+5suburb
+Ontwikkelingsgebied %s %s %s
+6center
+%s Centraal %s
+6extern
+%s Industrieterrein %s
+7center
+%s Stad %s
+#_________________________Simutrans Experimental Texts__________________________
+#_________________________Simutrans Experimental Texts__________________________

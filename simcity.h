@@ -8,8 +8,10 @@
 #ifndef simcity_h
 #define simcity_h
 
-#include "simdings.h"
-#include "dings/gebaeude.h"
+#include "dataobj/ribi.h"
+
+#include "simobj.h"
+#include "obj/gebaeude.h"
 
 #include "tpl/vector_tpl.h"
 #include "tpl/weighted_vector_tpl.h"
@@ -17,19 +19,19 @@
 #include "tpl/slist_tpl.h"
 #include "tpl/koordhashtable_tpl.h"
 
-#include "vehicle/simverkehr.h"
+#include "vehicle/simroadtraffic.h"
 #include "tpl/sparse_tpl.h"
 #include "utils/plainstring.h"
 
 #include <string>
 
-class karte_t;
-class spieler_t;
+class karte_ptr_t;
+class player_t;
 class fabrik_t;
 class rule_t;
 
 // For private subroutines
-class haus_besch_t;
+class building_desc_t;
 
 // part of passengers going to factories or toursit attractions (100% mx)
 #define FACTORY_PAX (33)	// workers
@@ -42,6 +44,8 @@ class haus_besch_t;
 
 enum city_cost {
 	HIST_CITICENS=0,		// total people
+	HIST_JOBS,				// Total jobs
+	HIST_VISITOR_DEMAND,	// Total visitor demand
 	HIST_GROWTH,			// growth (just for convenience)
 	HIST_BUILDING,			// number of buildings
 	HIST_CITYCARS,			// Amount of private traffic produced by the city
@@ -55,24 +59,34 @@ enum city_cost {
 	HIST_POWER_RECIEVED,	// power consumption 
 	HIST_POWER_NEEDED,		// Power demand by the city.
 	HIST_CONGESTION,		// Level of congestion in the city, expressed in percent.
-	HIST_CAR_OWNERSHIP,		// Proportion of total population who have access to cars.
 	MAX_CITY_HISTORY		// Total number of items in array
 };
 
-enum route_status_type
-{
-	no_route = 0,
-	too_slow = 1,
-	public_transport = 2,
-	private_car = 3,
-	on_foot = 4
-};
+// The base offset for passenger statistics.
+static const uint32 HIST_BASE_PASS = HIST_PAS_TRANSPORTED;
 
-class private_car_destination_finder_t : public fahrer_t
+// The base offset for mail statistics.
+static const uint32 HIST_BASE_MAIL = HIST_MAIL_TRANSPORTED;
+
+// The offset for transported statistic for passengers and mail.
+static const uint32 HIST_OFFSET_TRANSPORTED = 0;
+
+// The offset for walked statistic for passengers and mail.
+static const uint32 HIST_OFFSET_WALKED = 1;
+
+// The offset for generated statistic for passengers and mail.
+static const uint32 HIST_OFFSET_GENERATED = 2;
+
+// The number of growth factors kept track of.
+static const uint32 GROWTH_FACTOR_NUMBER = 4;
+
+#define LEGACY_HIST_CAR_OWNERSHIP (16)
+
+class private_car_destination_finder_t : public test_driver_t
 {
 private:
-	automobil_t *master;
 	karte_t* welt;
+	road_vehicle_t *master;
 	stadt_t* origin_city;
 	const stadt_t* last_city;
 	uint32 last_tile_speed;
@@ -81,16 +95,16 @@ private:
 	uint16 meters_per_tile_x100;
 
 public:
-	private_car_destination_finder_t(karte_t *w, automobil_t* m, stadt_t* o);	
+	private_car_destination_finder_t(karte_t* w, road_vehicle_t* m, stadt_t* o);	
 	
 	virtual waytype_t get_waytype() const { return road_wt; };
-	virtual bool ist_befahrbar( const grund_t* gr ) const;
+	virtual bool check_next_tile( const grund_t* gr ) const;
 
-	virtual bool ist_ziel(const grund_t* gr, const grund_t*);
+	virtual bool  is_target(const grund_t* gr, const grund_t*);
 
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const;
 
-	virtual int get_kosten(const grund_t* gr, const sint32 max_speed, koord from_pos);
+	virtual int get_cost(const grund_t* gr, const sint32 max_speed, koord from_pos);
 };
 
 /**
@@ -134,8 +148,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	static bool cityrules_init(const std::string &objpathname);
-	static void privatecar_init(const std::string &objfilename);
-	sint16 get_private_car_ownership(sint32 monthyear);
 	uint16 get_electricity_consumption(sint32 monthyear) const;
 	static void electricity_consumption_init(const std::string &objfilename);
 
@@ -146,16 +158,17 @@ public:
 	 * @author Dwachs
 	 */
 	static void cityrules_rdwr(loadsave_t *file);
-	static void privatecar_rdwr(loadsave_t *file);
 	static void electricity_consumption_rdwr(loadsave_t *file);
 	void set_check_road_connexions(bool value) { check_road_connexions = value; }
 
 	static void set_cluster_factor( uint32 factor ) { stadt_t::cluster_factor = factor; }
 	static uint32 get_cluster_factor() { return stadt_t::cluster_factor; }
 
+	void set_private_car_trip(int passengers, stadt_t* destination_town);
+
 private:
-	static karte_t *welt;
-	spieler_t *besitzer_p;
+	static karte_ptr_t welt;
+	player_t *owner;
 	plainstring name;
 
 	weighted_vector_tpl <gebaeude_t *> buildings;
@@ -164,41 +177,15 @@ private:
 	sparse_tpl<uint8> pax_destinations_new;
 
 	// this counter will increment by one for every change => dialogs can question, if they need to update map
-	unsigned long pax_destinations_new_change;
+	uint32 pax_destinations_new_change;
 
-	koord pos;				// Gruendungsplanquadrat der Stadt ("founding grid square" - Google)
+	koord pos;				// Gruendungsplanquadrat der City ("founding grid square" - Google)
 	koord townhall_road;	// road in front of townhall
 	koord lo, ur;			// max size of housing area
-	bool  has_low_density;	// in this case extend borders by two
 
 	bool allow_citygrowth;	// Whether growth is permitted (true by default)
 
-	// this counter indicates which building will be processed next
-	uint32 step_count;
-
-public: //DESYNC DEBUG
-	uint32 get_step_count()  const { return step_count; }
-
-private:
-
-	/**
-	 * step so every house is asked once per month, 
-	 * assuming 21 bits per month and a passenger factor of 8
-	 * i.e. 2097152/(number of houses * passenger factor + 1) per step
-	 * 2097152 = 21 bit max.
-	 * So, for a bits per month of 18 and a passenger factor of 8,
-	 * all buildings in a city are stepped once per month. For
-	 * a passenger factor of 10 and bits per month of 21, all
-	 * buildings are steped 10x per month.
-	 * @author Hj. Malthaner
-	 */
-	uint32 step_interval;
-
-	/**
-	 * next passenger generation timer
-	 * @author Hj. Malthaner
-	 */
-	uint32 next_step;
+	bool has_townhall;
 
 	/**
 	 * in this fixed interval, construction will happen
@@ -213,17 +200,17 @@ private:
 
 	static uint32 cluster_factor;
 
-	// population statistics
-	sint32 bev; // total population
-	sint32 arb; // amount with jobs
-	sint32 won; // amount with homes
+	// attribute for the population (Bevoelkerung)
+	sint32 bev;	// total population (bevoelkerung)
+	sint32 arb;	// with a job (arbeit)
+	sint32 won;	// with a residence (wohnung)
 
 	/**
-	 * Modifier for city growth
-	 * transient data, not saved
-	 * @author Hj. Malthaner
+	 * Un-supplied city growth needs
+	 * A value of 2^32 means 1 new resident
+	 * @author Nathanael Nerode (neroden)
 	 */
-	sint32 wachstum;
+	sint64 unsupplied_city_growth;
 
 	/**
 	* City history
@@ -235,9 +222,46 @@ private:
 	/* updates the city history
 	* @author prissi
 	*/
-	void roll_history(void);
+	void roll_history();
 
-	void set_private_car_trip(int passengers, stadt_t* destination_town);
+	/* Members used to determine satisfaction for growth rate.
+	 * Satisfaction of this month cannot be used as it is an averaging filter for the entire month up to the present.
+	 * Instead the average over a number of growth ticks is used, defaulting to last month average if nothing is available.
+	 * @author DrSuperGood
+	 */
+private:
+	 // The growth factor type in form of the amount demanded and what was received.
+	 struct city_growth_factor_t {
+		 // The wanted value.
+		 sint64 demand;
+		 // The received value.
+		 sint64 supplied;
+
+		 city_growth_factor_t() : demand(0), supplied(0){}
+	 };
+
+	 // The previous values of the growth factors. Used to get delta between ticks and must be saved for determinism.
+	 city_growth_factor_t city_growth_factor_previous[GROWTH_FACTOR_NUMBER];
+
+	 /* Method to generate comparable growth factor data.
+	 * This allows one to alter the logic which computes growth.
+	 * @param factors factor array.
+	 * @param month the month which is to be used for the growth factors.
+	 */
+	 void city_growth_get_factors(city_growth_factor_t (&factors)[GROWTH_FACTOR_NUMBER], uint32 const month) const;
+
+	 /* Method to compute base growth using growth factors.
+	  * Logs differences in growth factors as well.
+	  * rprec : The returned fractional precision (out of sint32).
+	  * cprec : The computation fractional precision (out of sint32).
+	  */
+	 sint32 city_growth_base(uint32 const rprec = 6, uint32 const cprec = 16);
+
+	 /* Method to roll previous growth factors at end of month, called before history rolls over.
+	  * Needed to prevent loss of data (not set to 0) and while keeping reasonable (no insane values).
+	  * month : The month index of what is now the "last month".
+	  */
+	 void city_growth_monthly(uint32 const month);
 
 	// This is needed to prevent double counting of incoming traffic.
 	sint32 incoming_private_cars;
@@ -249,15 +273,11 @@ private:
 	// Needed for power consumption of such factories.
 	vector_tpl<fabrik_t *> city_factories;
 
-	enum journey_distance_type { local, midrange, longdistance };
-
 	// Hashtable of all cities/attractions/industries connected by road from this city.
 	// Key: city (etc.) location
 	// Value: journey time per tile (equiv. straight line distance)
-	// (in 10ths of minutes); 65535 = unreachable.
-	// @author: jamespetts, April 2010, modified December 2010 to koords rather than poiners
-	// so as to be network safe
-	typedef koordhashtable_tpl<koord, uint16> connexion_map;
+	// (in 10ths of minutes); UINT32_MAX_VALUE = unreachable.
+	typedef koordhashtable_tpl<koord, uint32> connexion_map;
 	connexion_map connected_cities;
 	connexion_map connected_industries;
 	connexion_map connected_attractions;
@@ -274,6 +294,9 @@ private:
 	void check_city_tiles(bool del = false);
 
 public:
+
+	void add_building_to_list(gebaeude_t* building, bool ordered = false);
+
 	/**
 	 * Returns pointer to history for city
 	 * @author hsiegeln
@@ -281,15 +304,14 @@ public:
 	sint64* get_city_history_year() { return *city_history_year; }
 	sint64* get_city_history_month() { return *city_history_month; }
 
-	// just needed by stadt_info.cc
-	static inline karte_t* get_welt() { return welt; }
-
 	uint32 stadtinfo_options;
 
 	void set_private_car_trips(uint16 number) 
 	{
-		city_history_month[0][HIST_CITYCARS] += number;
-		city_history_year[0][HIST_CITYCARS] += number;
+		// Do not add to the city's history here, as this 
+		// will distort the statistics in the city window
+		// for the number of people who have travelled by
+		// private car *from* the city.
 		incoming_private_cars += number;
 	}
 
@@ -316,6 +338,8 @@ public:
 
 	void add_power_demand(uint32 p) { city_history_month[0][HIST_POWER_NEEDED] += p; city_history_year[0][HIST_POWER_NEEDED] += p; }
 
+	void add_all_buildings_to_world_list();
+
 	/* end of history related thingies */
 private:
 	sint32 best_haus_wert;
@@ -326,75 +350,22 @@ private:
 
 public:
 	/**
-	 * Classes for storing and manipulating target factories and their data
-	 * @author Knightly
+ 	 * recalcs city borders (after loading old files, after house deletion, after house construction)
 	 */
-	struct factory_entry_t
-	{
-		union
-		{
-			fabrik_t *factory;
-			struct
-			{
-				sint16 factory_pos_x;
-				sint16 factory_pos_y;
-			};
-		};
-		sint32 demand;		// amount demanded by the factory; shifted by DEMAND_BITS
-		sint32 supply;		// amount that the city can supply
-		sint32 remaining;	// portion of supply which has not realised yet; remaining <= supply
-
-		factory_entry_t() : factory(NULL), demand(0), supply(0), remaining(0) { }
-		factory_entry_t(fabrik_t *_factory) : factory(_factory), demand(0), supply(0), remaining(0) { }
-		factory_entry_t(fabrik_t *_factory, sint32 _demand) : factory(_factory), demand(_demand), supply(0), remaining(0) { }
-
-		bool operator == (const factory_entry_t &other) const { return ( this->factory==other.factory ); }
-		void new_month() { supply = 0; remaining = 0; }
-		void rdwr(loadsave_t *file);
-		void resolve_factory();
-	};
-	#define RATIO_BITS (25)
-	struct factory_set_t
-	{
-		vector_tpl<factory_entry_t> entries;
-		sint32 total_demand;		// shifted by DEMAND_BITS
-		sint32 total_remaining;
-		sint32 total_generated;
-		uint32 generation_ratio;
-		bool ratio_stale;
-
-		factory_set_t() : total_demand(0), total_remaining(0), total_generated(0), generation_ratio(0), ratio_stale(true) { }
-
-		const vector_tpl<factory_entry_t>& get_entries() const { return entries; }
-		const factory_entry_t* get_entry(const fabrik_t *const factory) const;
-		factory_entry_t* get_random_entry();
-		void update_factory(fabrik_t *const factory, const sint32 demand);
-		void remove_factory(fabrik_t *const factory);
-		void recalc_generation_ratio(const sint32 default_percent, const sint64 *city_stats, const int stats_count, const int stat_type);
-		void new_month();
-		void rdwr(loadsave_t *file);
-		void resolve_factories();
-	};
+	void reset_city_borders();
 
 private:
-	/**
-	 * Data of target factories for pax/mail
-	 * @author Knightly
-	 */
-	factory_set_t target_factories_pax;
-	factory_set_t target_factories_mail;
 
 	/**
-	 * Initialization of pax_destinations_old/new
-	 * @author Hj. Malthaner
+	 * Enlarges city borders (after being unable to build a building, before trying again)
+	 * Returns false if there are other cities on all four sides
 	 */
-	void init_pax_destinations();
-
+	bool enlarge_city_borders();
 	/**
-	 * Recalculates city borders (after loading and deletion).
-	 * @warning Do not call this during multithreaded loading!
+	 * Enlarges city borders in a particular direction (N,S,E, or W)
+	 * Returns false if it can't
 	 */
-	void recalc_city_size();
+	bool enlarge_city_borders(ribi_t::ribi direction);
 
 	// calculates the growth rate for next growth_interval using all the different indicators
 	void calc_growth();
@@ -403,21 +374,9 @@ private:
 	 * Build new buildings when growing city
 	 * @author Hj. Malthaner
 	 */
-	void step_grow_city();
+	void step_grow_city(bool new_town = false);
 
 	enum pax_return_type { no_return, factory_return, tourist_return, city_return };
-
-	/**
-	 * verteilt die Passagiere auf die Haltestellen
-	 * @author Hj. Malthaner
-	 */
-	void step_passagiere();
-
-	/**
-	 * ein Passagierziel in die Zielkarte eintragen
-	 * @author Hj. Malthaner
-	 */
-	void merke_passagier_ziel(koord ziel, uint8 color);
 
 	/**
 	 * baut Spezialgebaeude, z.B Stadion
@@ -429,7 +388,7 @@ private:
 	 * baut ein angemessenes Rathaus
 	 * @author V. Meyer
 	 */
-	void check_bau_rathaus(bool);
+	void check_bau_townhall(bool);
 
 	/**
 	 * constructs a new consumer
@@ -437,24 +396,25 @@ private:
 	 */
 	void check_bau_factory(bool);
 
-	// bewertungsfunktionen fuer den Hauserbau
-	// wie gut passt so ein Gebaeudetyp an diese Stelle ?
-	gebaeude_t::typ was_ist_an(koord pos) const;
-
 	// find out, what building matches best
 	void bewerte_res_com_ind(const koord pos, int &ind, int &com, int &res);
 
 	/**
-	 * Build a city building at Planquadrat x,y
+	 * Build/renovates a city building at Planquadrat x,y
 	 */
 	void build_city_building(koord pos, bool new_town);
 	bool renovate_city_building(gebaeude_t *gb);
 	// Subroutines for build_city_building and renovate_city_buiding
 	// @author neroden
 	const gebaeude_t* get_citybuilding_at(const koord k) const;
-	int get_best_layout(const haus_besch_t* h, const koord & k) const;
+	int get_best_layout(const building_desc_t* h, const koord & k) const;
 
-	void erzeuge_verkehrsteilnehmer(koord pos, uint16 journey_tenths_of_minutes, koord target, uint8 number_of_passengers);
+	/**
+	 * Build a short road bridge extending from bd in direction.
+	 *
+	 * @author neroden
+	 */
+	bool build_bridge(grund_t* bd, ribi_t::ribi direction);
 
 	/**
 	 * baut ein Stueck Strasse
@@ -463,9 +423,10 @@ private:
 	 *
 	 * @author Hj. Malthaner, V. Meyer
 	 */
-	bool baue_strasse(const koord k, spieler_t *sp, bool forced);
+	bool maybe_build_road(koord k);
+	bool build_road(const koord k, player_t *player, bool forced);
 
-	void baue(bool new_town);
+	void build(bool new_town);
 
 	/**
 	 * @param pos position to check
@@ -474,6 +435,7 @@ private:
 	 * @author Hj. Malthaner
 	 */
 
+	bool bewerte_loc_has_public_road(koord pos);
 	bool bewerte_loc(koord pos, const rule_t &regel, int rotation);
 
 
@@ -492,56 +454,40 @@ private:
 	void bewerte_strasse(koord pos, sint32 rd, const rule_t &regel);
 	void bewerte_haus(koord pos, sint32 rd, const rule_t &regel);
 
-	/**
-	 * Updates city limits: tile at @p pos belongs to city.
-	 * @warning Do not call this during multithreaded loading!
-	 */
-	void pruefe_grenzen(koord pos);
-
-	void calc_internal_passengers();
-
-	uint16 adjusted_passenger_routing_local_chance;
-
-	// Checks to see whether this town is connected
-	// by road to each other town.
-	// @author: jamespetts, April 2010
-	uint16 check_road_connexion_to(stadt_t* city);
-	uint16 check_road_connexion_to(const fabrik_t* industry);
-	uint16 check_road_connexion_to(const gebaeude_t* attraction);
-
 	bool check_road_connexions;
-
-	inline void register_factory_passenger_generation(int* pax_left_to_do, const ware_besch_t *const wtyp, factory_set_t &target_factories, factory_entry_t* &factory_entry);
 
 	sint32 traffic_level;
 	void calc_traffic_level();
 
 public:
-	/**
-	 * sucht arbeitsplätze für die Einwohner
-	 * "looking jobs for residents" (Google)
-	 * @author Hj. Malthaner
-	 */
-	void verbinde_fabriken();
 
 	/**
-	 * Returns the data set associated with the pax/mail target factories
-	 * @author: prissi
+	 * ein Passagierziel in die Zielkarte eintragen
+	 * @author Hj. Malthaner
 	 */
-	const factory_set_t& get_target_factories_for_pax() const { return target_factories_pax; }
-	const factory_set_t& get_target_factories_for_mail() const { return target_factories_mail; }
-	factory_set_t& access_target_factories_for_pax() { return target_factories_pax; }
-	factory_set_t& access_target_factories_for_mail() { return target_factories_mail; }
+	void merke_passagier_ziel(koord ziel, uint8 color);
 
 	// this function removes houses from the city house list
 	// (called when removed by player, or by town)
 	void remove_gebaeude_from_stadt(gebaeude_t *gb);
 
+	// This is necessary to be separate from add/remove gebaeude_to_stadt
+	// because of the need for the present to retain the existing pattern
+	// of what sorts of buildings are added to the city list.
+	void update_city_stats_with_building(gebaeude_t* building, bool remove);
+
 	/**
-	 * This function adds houses to the city house list.
-	 * @param ordered true for multithreaded loading, will insert buidings ordered, will not update city limits
-	 */
-	void add_gebaeude_to_stadt(const gebaeude_t *gb, bool ordered=false);
+	* This function adds buildings to the city building list; 
+	* ordered for multithreaded loading.
+	*/
+	void add_gebaeude_to_stadt(gebaeude_t *gb, bool ordered=false);
+
+	static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
+	{
+		const uint32 pos_a = (a->get_pos().y<<16)+a->get_pos().x;
+		const uint32 pos_b = (b->get_pos().y<<16)+b->get_pos().x;
+		return pos_a<pos_b;
+	}
 
 	/**
 	* Returns the finance history for cities
@@ -560,19 +506,33 @@ public:
 	sint32 get_wachstum() const {return ((sint32)city_history_month[0][HIST_GROWTH]*5) + (sint32)(city_history_month[1][HIST_GROWTH]*4) + (sint32)city_history_month[2][HIST_GROWTH]; }
 
 	/**
-	 * ermittelt die Einwohnerzahl der Stadt
+	 * ermittelt die Einwohnerzahl der City
 	 * "determines the population of the city"
 	 * @author Hj. Malthaner
 	 */
 	//sint32 get_einwohner() const {return (buildings.get_sum_weight()*6)+((2*bev-arb-won)>>1);}
 	sint32 get_einwohner() const {return ((buildings.get_sum_weight() * welt->get_settings().get_meters_per_tile()) / 31)+((2*bev-arb-won)>>1);}
+	//sint32 get_einwohner() const { return bev; }
+
+	// Not suitable for use in game computations because this is not network safe. For GUI only.
+	double get_land_area() const;
+
+	// Not suitable for use in game computations because this is not network safe. For GUI only.
+	uint32 get_population_density() const
+	{
+		return city_history_month[0][HIST_CITICENS] / get_land_area();
+	}
+
+	sint32 get_city_population() const { return (sint32) city_history_month[0][HIST_CITICENS]; }
+	sint32 get_city_jobs() const { return (sint32) city_history_month[0][HIST_JOBS]; }
+	sint32 get_city_visitor_demand() const { return (sint32) city_history_month[0][HIST_VISITOR_DEMAND]; }
 
 	uint32 get_buildings()  const { return buildings.get_count(); }
 	sint32 get_unemployed() const { return bev - arb; }
 	sint32 get_homeless()   const { return bev - won; }
 
 	/**
-	 * Gibt den Namen der Stadt zurück.
+	 * Gibt den Namen der City zurück.
 	 * "Specifies the name of the town." (Google)
 	 * @author Hj. Malthaner
 	 */
@@ -586,7 +546,7 @@ public:
 
 	/**
 	 * gibt einen zufällingen gleichverteilten Punkt innerhalb der
-	 * Stadtgrenzen zurück
+	 * Citygrenzen zurück
 	 * @author Hj. Malthaner
 	 */
 	koord get_zufallspunkt(uint32 min_distance = 0, uint32 max_distance = 16384, koord origin = koord::invalid) const;
@@ -607,35 +567,35 @@ public:
 	 * => dialogs can question, if they need to update map
 	 * @author prissi
 	 */
-	unsigned long get_pax_destinations_new_change() const { return pax_destinations_new_change; }
+	uint32 get_pax_destinations_new_change() const { return pax_destinations_new_change; }
 
 	/**
-	 * Erzeugt eine neue Stadt auf Planquadrat (x,y) die dem Spieler sp
+	 * Erzeugt eine neue City auf Planquadrat (x,y) die dem Spieler player
 	 * gehoert.
-	 * @param sp Der Besitzer der Stadt.
+	 * @param player The owner of the city
 	 * @param x x-Planquadratkoordinate
 	 * @param y y-Planquadratkoordinate
 	 * @param number of citizens
 	 * @author Hj. Malthaner
 	 */
-	stadt_t(spieler_t* sp, koord pos, sint32 citizens);
+	stadt_t(player_t* player, koord pos, sint32 citizens);
 
 	/**
-	 * Erzeugt eine neue Stadt nach Angaben aus der Datei file.
-	 * @param welt Die Karte zu der die Stadt gehoeren soll.
-	 * @param file Zeiger auf die Datei mit den Stadtbaudaten.
+	 * Erzeugt eine neue City nach Angaben aus der Datei file.
+	 * @param welt Die Karte zu der die City gehoeren soll.
+	 * @param file Zeiger auf die Datei mit den Citybaudaten.
 	 * @see stadt_t::speichern()
 	 * @author Hj. Malthaner
 	 */
-	stadt_t(karte_t *welt, loadsave_t *file);
+	stadt_t(loadsave_t *file);
 
 	// closes window and that stuff
 	~stadt_t();
 
 	/**
-	 * Speichert die Daten der Stadt in der Datei file so, dass daraus
-	 * die Stadt wieder erzeugt werden kann. Die Gebaude und strassen der
-	 * Stadt werden nicht mit der Stadt gespeichert sondern mit den
+	 * Speichert die Daten der City in der Datei file so, dass daraus
+	 * die City wieder erzeugt werden kann. Die Gebaude und strassen der
+	 * City werden nicht mit der City gespeichert sondern mit den
 	 * Planquadraten auf denen sie stehen.
 	 * @see stadt_t::stadt_t()
 	 * @see planquadrat_t
@@ -648,46 +608,36 @@ public:
 	 * und nur noch die Datenstrukturenneu verknüpft werden müssen.
 	 * @author Hj. Malthaner
 	 */
-	void laden_abschliessen();
+	void finish_rd();
 
 	void rotate90( const sint16 y_size );
 
 	/* change size of city
 	* @author prissi */
-	void change_size( sint32 delta_citizens );
+	void change_size( sint64 delta_citizens, bool new_town = false );
 
 	// when ng is false, no town growth any more
 	void set_citygrowth_yesno( bool ng ) { allow_citygrowth = ng; }
 	bool get_citygrowth() const { return allow_citygrowth; }
 
-	void step(long delta_t);
-	void step2(long delta_t);
+	void step(uint32 delta_t);
 
-	void neuer_monat(bool check);
+	void new_month(bool check);
 
-	//@author: jamespetts
-	union destination_object
-	{
-		stadt_t* town;
-		const fabrik_t* industry;
-		const gebaeude_t* attraction;
-	};
-
-	struct destination
-	{
-		koord location;
-		uint16 type; //1 = town; others as #define above.
-		pax_return_type will_return;
-		destination_object object; 
-		factory_entry_t* factory_entry;
-		destination() { factory_entry = NULL; }
-	};
-
-	void add_road_connexion(uint16 journey_time_per_tile, const stadt_t* city);
-	void add_road_connexion(uint16 journey_time_per_tile, const fabrik_t* industry);
-	void add_road_connexion(uint16 journey_time_per_tile, const gebaeude_t* attraction);
+	void add_road_connexion(uint32 journey_time_per_tile, const stadt_t* city);
+	void add_road_connexion(uint32 journey_time_per_tile, const fabrik_t* industry);
+	void add_road_connexion(uint32 journey_time_per_tile, const gebaeude_t* attraction);
 
 	void check_all_private_car_routes();
+
+	// Checks to see whether this town is connected
+	// by road to each other town.
+	// @author: jamespetts, April 2010
+	uint32 check_road_connexion_to(stadt_t* city) const;
+	uint32 check_road_connexion_to(const fabrik_t* industry) const;
+	uint32 check_road_connexion_to(const gebaeude_t* attraction) const;
+
+	void generate_private_cars(koord pos, uint32 journey_tenths_of_minutes, koord target, uint8 number_of_passengers);
 
 private:
 	/**
@@ -714,46 +664,11 @@ private:
 		static bool less_than(const target_city_t &a, const target_city_t &b) { return a.distance < b.distance; }
 	};
 
-	/**
-	 * List of target cities weighted by both city size and distance
-	 * @author Knightly
-	 */
-	weighted_vector_tpl<target_city_t> target_cities;
-
-	/**
-	 * List of target attractions weighted by both passenger level and distance
-	 * @author Knightly
-	 */
-	weighted_vector_tpl<gebaeude_t *> target_attractions;
 
 public:
 
 	/**
-	 * Functions for manipulating the list of target cities
-	 * @author Knightly
-	 */
-	void add_target_city(stadt_t *const city);
-	void remove_target_city(stadt_t *const city) { target_cities.remove( target_city_t(city, 0) ); }
-	void update_target_city(stadt_t *const city);
-	void update_target_cities();
-	void recalc_target_cities();
-
-	/**
-	 * Functions for manipulating the list of target attractions
-	 * @author Knightly
-	 */
-	void add_target_attraction(gebaeude_t *const attraction);
-	void remove_target_attraction(gebaeude_t *const attraction) { target_attractions.remove(attraction); }
-	void recalc_target_attractions();
-
-	/**
-	 * such ein (zufälliges) ziel für einen Passagier
-	 * @author Hj. Malthaner
-	 */
-	destination find_destination(factory_set_t &target_factories, const sint64 generated, uint32 min_distance = 0, uint32 max_distance = 16384, koord origin = koord::invalid);
-
-	/**
-	 * Gibt die Gruendungsposition der Stadt zurueck.
+	 * Gibt die Gruendungsposition der City zurueck.
 	 * @return die Koordinaten des Gruendungsplanquadrates
 	 * "eturn the coordinates of the establishment grid square" (Babelfish)
 	 * @author Hj. Malthaner
@@ -771,23 +686,23 @@ public:
 
 	/**
 	 * Erzeugt ein Array zufaelliger Startkoordinaten,
-	 * die fuer eine Stadtgruendung geeignet sind.
-	 * @param wl Die Karte auf der die Stadt gegruendet werden soll.
+	 * die fuer eine Citygruendung geeignet sind.
+	 * @param wl Die Karte auf der die City gegruendet werden soll.
 	 * @param anzahl die Anzahl der zu liefernden Koordinaten
 	 * @author Hj. Malthaner
 	 * @param old_x, old_y: Generate no cities in (0,0) - (old_x, old_y)
 	 * @author Gerd Wachsmuth
 	 */
+
 	static vector_tpl<koord> *random_place(const karte_t *wl, const vector_tpl<sint32> *sizes_list, sint16 old_x, sint16 old_y);
-	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
+	// geeigneten platz zur Citygruendung durch Zufall ermitteln
 
-	void zeige_info(void);
+	void show_info();
 
-	void add_factory_arbeiterziel(fabrik_t *fab);
-
+	// This is actually last month's congestion - but this is necessary
 	uint8 get_congestion() const { return (uint8) city_history_month[0][HIST_CONGESTION]; }
 
-	void add_city_factory(fabrik_t *fab) { city_factories.append(fab); }
+	void add_city_factory(fabrik_t *fab) { city_factories.append_unique(fab); }
 	void remove_city_factory(fabrik_t *fab) { city_factories.remove(fab); }
 	const vector_tpl<fabrik_t*>& get_city_factories() const { return city_factories; }
 

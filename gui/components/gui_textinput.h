@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjorg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -17,14 +17,15 @@
 #define gui_components_gui_textinput_h
 
 #include "gui_action_creator.h"
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../simcolor.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
+#include "../../utils/cbuffer_t.h"
 
 
 class gui_textinput_t :
 	public gui_action_creator_t,
-	public gui_komponente_t
+	public gui_component_t
 {
 protected:
 
@@ -33,6 +34,11 @@ protected:
 	 * @author Hj. Malthaner
 	 */
 	char *text;
+
+	// text, which has not yet inputted (i.e. by an IME)
+	cbuffer_t composition;
+	size_t composition_target_start;
+	size_t composition_target_length;
 
 	/**
 	 * Maximum length of the string buffer
@@ -58,7 +64,7 @@ protected:
 	  * offset for controlling horizontal text scroll
 	  * Dwachs: made private to check for mouse induced cursor moves
 	  */
-	KOORD_VAL scroll_offset;
+	scr_coord_val scroll_offset;
 
 	/**
 	 * text alignment
@@ -75,7 +81,7 @@ protected:
 	 * reference time for regulating cursor blinking
 	 * @author Knightly
 	 */
-	unsigned long cursor_reference_time;
+	uint32 cursor_reference_time;
 
 	/**
 	 * whether focus has been received
@@ -106,12 +112,16 @@ public:
 	 */
 	void set_text(char *text, size_t max);
 
+	// text which is not yet inputed (i.e. for east asian text), assuming either native or utf8 encoding
+	void set_composition_status( char *composition, int target_start, int target_length );
+
 	/**
 	 * Return the Text buffer
 	 *
 	 * @author Hj. Malthaner
 	 */
 	char *get_text() const { return text; }
+	const char *get_composition() const { return composition.get_str(); }
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -119,17 +129,20 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	virtual void zeichnen(koord offset);
+	virtual void draw(scr_coord offset);
+
+	// x position of the current cursor (for IME purposes)
+	scr_coord_val get_current_cursor_x() { return calc_cursor_pos(head_cursor_pos); };
 
 	/**
 	 * Detect change of focus state and determine whether cursor should be displayed,
 	 * and call the function that performs the actual display
 	 * @author Knightly
 	 */
-	void display_with_focus(koord offset, bool has_focus);
+	void display_with_focus(scr_coord offset, bool has_focus);
 
 	// function that performs the actual display
-	virtual void display_with_cursor(koord offset, bool cursor_active, bool cursor_visible);
+	virtual void display_with_cursor(scr_coord offset, bool cursor_active, bool cursor_visible);
 
 	// to allow for right-aligned text
 	void set_alignment(uint8 _align){ align = _align;}
@@ -145,7 +158,7 @@ class gui_hidden_textinput_t : public gui_textinput_t
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	// function that performs the actual display; just draw with stars ...
-	virtual void display_with_cursor(koord offset, bool cursor_active, bool cursor_visible);
+	virtual void display_with_cursor(scr_coord offset, bool cursor_active, bool cursor_visible);
 };
 
 

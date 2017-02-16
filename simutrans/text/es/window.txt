@@ -1,0 +1,76 @@
+<title>Ayuda de Interfaz/Ventana del juego</title>
+
+<h1><strong>Interfaz/Ventana del juego</strong></h1>
+
+<p>
+Simutrans se juega mediante una <strong>Interfaz/Ventana del juego</strong> que da informacion acerca de la partida actual; acceso a los controles y herramientas del juego; y una vista del mundo de la partida actual.
+</p>
+<p>
+<em>Barra de titulo</em>: la parte izqierda de la barra de titulo de la <strong>Interfaz/Ventana del juego</strong> muestra la version y la fecha de creacion de la version de Simutrans que estas usando.<br>
+La parte derecha de la barra de titulo tambien tiene controles para minimizar, maximizar la <strong>Interfaz/Ventana del juego</strong> y tambien para salir de Simutrans. Esta barra se muestra solo cuando no estas jugando en modo pantalla completa
+</p>
+<p>
+<em>Iconos</em>: una fila de iconos, usados para acceder a las herramientas y controles del juego mientras estas jugando a Simutrans, Esta justo debajo de la <em>barra de titulo</em>. Los <em>iconos</em> (pulsa para usarlos) estan agrupados en tres conjuntos:
+</p>
+<p>
+- Los iconos del <a href="general.txt"><it>Menu principal</it></a>, que incluyen:<br>
+- <it>Disco floppy</it>: abre las <a href="options.txt">Ociones de juego</a><br>
+- <it>Mapa</it>: abre el <a href="map.txt">Mapa</a>
+<br>
+- <it>Lupa</it> selecciona la herramienta <a href="inspection_tool.txt">Explorar</a><br>
+- <it>Icono de la cuesta</it>: abre las <a href="slopetools.txt">herramientas del Terreno</a><br>
+- <it>Tren</it>: abre las <a href="railtools.txt">herramientas de trenes y vias</a>
+<br>
+- <it>Monorail/maglev</it>: abre la <a href="monorailtools.txt">barra de herramientas de monorail</a><br>
+- <it>Tranvia</it>: abre la <a href="tramtools.txt">barra de herramientas de tranvia</a>
+<br>
+- <it>Camion</it>: abre la <a href="roadtools.txt">barra de herramientas de transporte por carretera</a><br>
+- <em>Barco</em>: abre la <a href="shiptools.txt">barra de herramientas de transporte maritimo</a>
+<br>
+- <em>Avion</em>: abre la <a href="airtools.txt">barra de herramientas de transporte aereo</a>
+<br>
+- <em>Punto rojo en circulo amarillo</em> (<em>icono de grua</em> en el pak128): abre la <a href="special.txt">barra de herramientas especiales</a><br>
+- <em>Cruz roja</em> (<it>icono de bulldozer</it> en pak128): selecciona la herramienta <a href="removal_tool.txt">Eliminar</a>
+</p>
+<p>
+- Los iconos de <a href="general.txt">Administracion<it></it></a>, que incluyen:<br>
+- <em>Icono de lineas</em>: abre el menu de <a href="linemanagement.txt">Administracion de Lineas</a>
+<br>
+- <em>Icono de listas</em>: abre el menu de <a href="list.txt">Listas</a>
+<br>
+- <em>Icono del buzon</em>: abre el menu del <a href="mailbox.txt">Centro de Mensajes</a>
+<br>
+- <em>Icono del dinero</em>: abre el menu de <a href="finances.txt">Finanzas</a>
+</p>
+<p>
+- Los iconos de <a href="general.txt"><it>Otras opciones</it></a>, que incluyen:<br>
+- <em>Icono de la camara</em>: captura la imagen actual de la <strong>Interfaz/Ventana del juego</strong> (sin la <em>barra de titulo</em>) y la salva en formato bmp en el directorio ...simutrans/screeshot/<br>
+{Consejo: Tambien se puede hacer un captura pulsando la tecla <a href="keys.txt">[c]</a>.}
+<br>
+- <em>Icono de la taza de cafe</em>: el juego entra/sale del modo pausa.<br>
+{Consejo: Pulsando tambien la tecla [p] puedes pausar el juego}.<br>
+- <em> Icono >> </em>: activa/desactiva el modo Acelerar. (cambia la escala en la que el tiempo , <em>T</em>, transcurre en el juego).<br>
+{Consejos: Acelerar se puede activar /desactivar pulsando la tecla <a href="keys.txt">[W]</a><br>
+IMPORTANTE: El juego puede no ejecutarse de forma fluida;el menu de <a href="display.txt"><strong>Pantalla</strong></a> indica si tu ordenador puede soportar ese rendimiento.}<br>
+- <it>?</it>: abre el menu de la <a href="general.txt">Ayuda de Simutrans</a>
+
+</p>
+<p>
+Una parte de la <em>vista del juego</em> del mundo actual se muestra debajo de los <em>Iconos</em>.<br>
+Puede hacer zoom de la vista y tambien desplazarla para ver el resto de partes del mundo actual usando el <a href="mouse.txt">raton</a> o el <a href="keys.txt">teclado</a>.
+</p>
+<p>
+<em>barra de mensajes temporales</em> aparece y muestra <a href="mailbox.txt">mensajes</a> en la parte inferior de la vista del juego.<br>
+{Consejo: Pulsa en el mensaje para centrar la vista del juego sobre el acontecimiento al que hace referencia.}
+</p>
+<p>
+Una barra inferior muestra informacion acerca de la partida actual, y se situa en la parte inferior de la vista del juego.<br>
+La informacion mostrada, de izquierda a derecha en la barra inferior incluye:<br>
+<em>fecha y hora</em>: fecha y hora actual de la partida, seguida por el icono y nombre de la estacion del año.<br>
+<em>balance economico</em>: dinero actual disponible para construccion y otros costes (comprar vehiculos, mantenimiento de las infraestructuras de transporte y los costes operacionales de los vehiculos operativos).<br>
+<em>coordenadas</em>: indica la posicion del cursor en la vista de juego. Las tres cifras representan las coordenadas X, Y y la altura.<br>
+<em>T</em>: indica la escala de paso del tiempo en el juego.<br>
+{Consejos: Usa la tecla <a href="keys.txt">[.]</a> / [,]  para acelerar/decelerar el tiempo, T ; en el menu <a href="display.txt"><strong>Pantalla</strong></a> indica si el ordenador puede soportar ese rendimiento.<br>
+El uso de <a href="fast_forward.txt">Acelerar</a> reemplaza el valor de <em>T</em> por ">>" en la barra inferior.}<br>
+<em>cronologia</em>: indica si se esta usando <a href="new_world.txt">cronologia</a> en la partida actual.
+</p>

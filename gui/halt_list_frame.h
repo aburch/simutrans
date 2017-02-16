@@ -17,7 +17,7 @@
 #define __halt_list_frame_h
 
 #include "gui_frame.h"
-#include "gui_container.h"
+#include "components/gui_container.h"
 #include "halt_list_stats.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_button.h"
@@ -25,8 +25,8 @@
 #include "components/action_listener.h"
 #include "../tpl/vector_tpl.h"
 
-class spieler_t;
-class ware_besch_t;
+class player_t;
+class ware_desc_t;
 
 class halt_list_frame_t : public gui_frame_t , private action_listener_t
 {
@@ -49,7 +49,7 @@ public:
     };
 
 private:
-    spieler_t *m_sp;						//13-Feb-02	Added
+    player_t *m_player;						//13-Feb-02	Added
 
     static const char *sort_text[SORT_MODES];
 
@@ -86,13 +86,13 @@ private:
 
     static char name_filter_value[64];
 
-    static slist_tpl<const ware_besch_t *> waren_filter_ab;
-    static slist_tpl<const ware_besch_t *> waren_filter_an;
+    static slist_tpl<const ware_desc_t *> waren_filter_ab;
+    static slist_tpl<const ware_desc_t *> waren_filter_an;
 
     static bool compare_halts(halthandle_t, halthandle_t);
 
 public:
-	halt_list_frame_t(spieler_t *sp);
+	halt_list_frame_t(player_t *player);
 
 	virtual ~halt_list_frame_t();
 
@@ -109,7 +109,7 @@ public:
 	 * This method is called if the size of the window should be changed
 	 * @author Markus Weber
 	 */
-	void resize(const koord size_change);
+	void resize(const scr_coord size_change);
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -117,7 +117,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	/**
 	 * This function refreshes the station-list
@@ -130,7 +130,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char *get_hilfe_datei() const {return "haltlist.txt"; }
+	const char *get_help_filename() const {return "haltlist.txt"; }
 
 	static sort_mode_t get_sortierung() { return sortby; }
 	static void set_sortierung(sort_mode_t sm) { sortby = sm; }
@@ -143,12 +143,12 @@ public:
 
 	static char *access_name_filter() { return name_filter_value; }
 
-	static bool get_ware_filter_ab(const ware_besch_t *ware) { return waren_filter_ab.is_contained(ware); }
-	static void set_ware_filter_ab(const ware_besch_t *ware, int mode);
+	static bool get_ware_filter_ab(const ware_desc_t *ware) { return waren_filter_ab.is_contained(ware); }
+	static void set_ware_filter_ab(const ware_desc_t *ware, int mode);
 	static void set_alle_ware_filter_ab(int mode);
 
-	static bool get_ware_filter_an(const ware_besch_t *ware) { return waren_filter_an.is_contained(ware); }
-	static void set_ware_filter_an(const ware_besch_t *ware, int mode);
+	static bool get_ware_filter_an(const ware_desc_t *ware) { return waren_filter_an.is_contained(ware); }
+	static void set_ware_filter_an(const ware_desc_t *ware, int mode);
 	static void set_alle_ware_filter_an(int mode);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;

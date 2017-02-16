@@ -24,7 +24,6 @@
 class server_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	karte_t *welt;
 	gameinfo_t gi;
 	cbuffer_t buf, time, revision_buf, pakset_checksum_buf;
 
@@ -49,13 +48,13 @@ private:
 	 * Adds get_dns() method to retrieve dnsname
 	 * @author Timothy Baldock <tb@entropy.me.uk>
 	 */
-	class server_scrollitem_t : public gui_scrolled_list_t::scrollitem_t {
+	class server_scrollitem_t : public gui_scrolled_list_t::const_text_scrollitem_t {
 	private:
 		cbuffer_t servername;
 		cbuffer_t serverdns;
 		bool status;
 	public:
-		server_scrollitem_t (const cbuffer_t& name, const cbuffer_t& dns, bool status, uint8 col) : scrollitem_t( col ), servername( name ), serverdns( dns ), status( status ) { servername.append( " (" ); servername.append( serverdns.get_str() ); servername.append( ")" ); }
+		server_scrollitem_t (const cbuffer_t& name, const cbuffer_t& dns, bool status, uint8 col) : gui_scrolled_list_t::const_text_scrollitem_t( NULL, col ), servername( name ), serverdns( dns ), status( status ) { servername.append( " (" ); servername.append( serverdns.get_str() ); servername.append( ")" ); }
 		char const* get_text () const OVERRIDE { return servername.get_str(); }
 		char const* get_dns () const { return serverdns.get_str(); }
 		void set_text (char const* newtext) OVERRIDE { servername.clear(); servername.append( newtext ); serverdns.clear(); serverdns.append( newtext ); }
@@ -82,16 +81,16 @@ private:
 	bool update_serverlist ();
 
 public:
-	server_frame_t( karte_t *welt );
+	server_frame_t();
 
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	/**
 	 * Return name of file which contains associated help text for this window
 	 * @return Help file name, nor NULL if no help file exists
 	 * @author Hj. Malthaner
 	 */
-	const char *get_hilfe_datei() const {return "server.txt";}
+	const char *get_help_filename() const {return "server.txt";}
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

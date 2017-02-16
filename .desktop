@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Simutrans
+Encoding=UTF-
+Comment=An in-depth open source transport simulation game
+TryExec=simutrans
+Exec=sinumtrans
+Icon=simutrans.svg
+Terminal=true

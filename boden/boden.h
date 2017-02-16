@@ -21,11 +21,11 @@ class boden_t : public grund_t
 protected:
 	static bool show_grid;
 
-	virtual void calc_bild_internal();
+	virtual void calc_image_internal(const bool calc_only_snowline_change);
 
 public:
-	boden_t(karte_t *welt, loadsave_t *file, koord pos );
-	boden_t(karte_t *welt, koord3d pos, hang_t::typ slope);
+	boden_t(loadsave_t *file, koord pos );
+	boden_t(koord3d pos, slope_t::type slope);
 
 	virtual void rdwr(loadsave_t *file);
 

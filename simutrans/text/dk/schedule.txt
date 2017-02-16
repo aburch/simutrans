@@ -1,0 +1,52 @@
+<title>Ruteplan dialog hjælp</title>
+
+<h1>Ruteplan dialog</h1>
+
+<p>
+<em>Beskrivelse:</em><br>
+Ruteplan dialogen benyttes til at definere ruter imellem bustoppesteder,
+lastepladser, jernbanestationer, havne eller olieplatforme. Til en rute kan et
+eller flere køretøjer tilknyttes og startes, hvorefter de vil blive med at
+gennemkøre ruten, indtil de sendes tilbage i depot.
+</p>
+
+<p>
+<em>Udseende:</em><br>
+Øverst i dialogen er en liste med overskriften 'Min. last'. Til listen er to
+scroll-knapper tilknyttet.<br>
+Derunder følger et visningsareal, der viser navne, nummer, Min. lastningsgrad
+samt koordinater for de forskellige rutemål. <br>
+Nederst er fire knapper med teksterne 'Tilføj', 'Indføj', 'Fjern' og 'Færdig'.
+Som default indstilling er knappen 'Tilføj' trykket ned.
+</p>
+
+<p>
+<em>Opret en rute:</em><br>
+For at oprette en rute trykkes på 'Tilføj' knappen, hvorved cursoren forandres
+til et rutemål-symbol. Derefter venstreklikkes på de ønskede rutemål (ved en
+havn klikkes i vandet lige ved havnen) i den ønskede
+rækkefølge. <strong>Bemærk at der pt. er en maksimusgrænse på seksten (16)
+rutemål</strong><br>
+For samtlige rutemål kan der indstilles en "Minimums lastgrad". Minimum
+lastgraden er den procentsats af den samlede lastevne, som mindst skal være
+fyldt på køretøjet, før det fortsætter til næste rutemål. For at foretage
+denne indstilling klikkes til venstre for rutemålet i visningsarealet. Herved
+bliver rutemålet markeret som det aktuelle rutemål. Den ønskede minimums
+lastgrad indstilles derefter ved at bruge listens
+scroll-knapper. <strong>Bemærk at et køretøj, der endnu ikke har fået påfyldt
+den ønskede minimums lastgrad, vil vente til dette er tilfældet og kan derved
+spærre rutemålet for andre køretøjer.</strong> Tilsidst trykkes på 'Færdig'
+knappen, hvorved ruten er defineret og dialogen lukkes.
+</p>
+
+<p>
+<em>Opdater en rute:</em><br>
+En rute kan opdateres på følgende måde:<br>
+- Ved at trykke på 'Tilføj' knappen og tilføje yderligere rutemål bagest i
+  rækkefølgen af rutemål<br>
+- Ved at trykke på 'Indføj' knappen hvorefter en nyt rutemål indføjes før
+  det aktuelt markerede rutemål i listen. Dette er den nemmeste måde at sende
+  køretøjer tilbage i depot på.<br>
+- Ved at trykke på 'Fjern' knappen, hvorefter det aktuelt markerede rutemål
+  kan fjernes fra listen ved at klikke på det.
+</p>

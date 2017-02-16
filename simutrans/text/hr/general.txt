@@ -1,0 +1,106 @@
+<title>Simutrans Pomoc</title>
+
+<h1><strong>Opcenita Pomoc</strong></h1>
+<p>
+- <a href="simutrans.txt">Dobrodosli</a>
+<br>
+- <a href="window.txt">Sucelje Igre</a><br>
+- <a href="mouse.txt">Pomoc Za Misa</a> (za napisati)<br>
+- <a href="underground.txt">Podzemlje</a><br>
+- <a href="keys.txt">Pomoc Za Tipkovnicu</a>
+<br>
+<a href="options.txt">
+<strong>Opcije Igre</strong></a>
+<br>
+- <a href="language.txt">Jezik</a><br>
+- <a href="color.txt">Boja Igraca</a>
+<br>
+- <a href="display.txt">Postavke Prikaza</a><br>
+- <a href="sound.txt">Zvuk & Glazba</a>
+<br>
+- <a href="players.txt">Igraci</a>
+<br>
+- <a href="load.txt">Ucitavanje Igre</a>
+<br>
+- <a href="save.txt">Spremanje Igre</a>
+<br>
+- <a href="new_world.txt">Nova Igra</a><br>
+- - <a href="climates.txt">Kontrola Klime</a><br>
+- - <a href="load_relief.txt">Ucitavanje Visinske Mape</a>
+</p>
+
+<p>
+<a href="window.txt"><strong>Glavni Meni</strong></a><br>
+- <a href="options.txt">
+Postavke Igre</a><br>
+- <a href="map.txt">Mapa</a>
+<br>
+- <a href="inspection_tool.txt">Alat Istrazivanja</a><br>
+- <a href="slopetools.txt">Alati Za Oblikovanje</a><br>
+- <a href="railtools.txt">Zeljeznicki/Vlakovni Alati</a>
+<br>
+- <a href="monorailtools.txt">Monorail Alati</a><br>
+- <a href="tramtools.txt">Tramvajski Alati</a>
+<br>
+- <a href="roadtools.txt">Cestovni Alati</a><br>
+- <a href="shiptools.txt">Lucni Alati</a>
+<br>
+- <a href="airtools.txt">Aerodromski Alati</a>
+<br>
+- <a href="special.txt">Alati Posebne Izgradnje</a><br>
+- <a href="edittools.txt">Alati Uredjivanja Igre</a><br>
+- <a href="removal_tool.txt">Unistiti/Ukloniti</a>
+</p>
+<p>
+<a href="window.txt"><strong>?Meni Upravljanja</strong></a><br>
+- <a href="linemanagement.txt">Upravljanje Linijama</a>
+<br>
+- <a href="list.txt">Liste</a>
+<br>
+- - <a href="haltlist.txt">Lista Stajalista/Stanica</a><br>
+- - - <a href="haltlist_filter.txt">Filter Liste Stajalista/Stanica</a><br>
+- - <a href="convoi.txt">Lista Vozila</a><br>
+- - - <a href="convoi_filter.txt">Filter Liste Vozila</a>
+<br>
+- - <a href="citylist_filter.txt">Lista Gradova</a><br>
+- - <a href="goods_filter.txt">Lista Robe</a>
+<br>
+- - <a href="factorylist_filter.txt">Lista Industrije</a>
+<br>
+- - <a href="curiositylist_filter.txt">Lista Atrakcija</a>
+<br>
+- <a href="mailbox.txt">Centar Poruka</a>
+<br>
+- <a href="finances.txt">Financije</a>
+</p>
+<p>
+<a href="window.txt"><strong>Druge Postavke</strong></a><br>
+- <a href="window.txt">Spremiti Sliku Ekrana
+</a><br>
+- <a href="window.txt">Pauza</a>
+<br>
+- <a href="window.txt">Brzo Unaprijed</a><br>
+- <a href="window.txt">Pomoc</a>
+</p>
+
+<p>
+<a href="inspection_tool.txt"><strong>Drugi Dijalozi</strong></a><br>
+-<a href="depot.txt">Kontrole Depoa</a>
+<br>
+-<a href="schedule.txt">Kontrole Rasporeda</a>
+<br>
+- <a href="station.txt">Informacija Stajalista</a><br>
+- - <a href="station_details.txt">Detali Stajalista</a><br>
+- <a href="convoiinfo.txt">Informacija Konvoja/Vozia</a><br>
+- - <a href="convoidetail.txt">Detalji Konvoja/Vozila</a><br>
+- <a href="citywindow.txt">?Informacija Grada</a><br>
+- <a href="industry_info.txt">Informacija Industrije</a>
+</p>
+
+<p>
+Ako pomoc nije nadjena ovdje, pokusati<br>
+<em>http://guide.simutrans.com</em>, ili<br>
+<em>http://wiki.simutrans.com</em>, ili<br>
+<em>http://simutrans-tips.com</em>, ili<br>
+<em>http://forum.simutrans.com</em>.
+</p>

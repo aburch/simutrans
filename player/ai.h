@@ -16,8 +16,8 @@
 #include "../besch/ware_besch.h"
 
 class karte_t;
-class vehikel_besch_t;
-class ware_besch_t;
+class vehicle_desc_t;
+class ware_desc_t;
 
 
 /**
@@ -36,7 +36,7 @@ public:
 
 
 // AI helper functions
-class ai_t : public spieler_t
+class ai_t : public player_t
 {
 protected:
 	// set the allowed modes of transport
@@ -49,7 +49,7 @@ protected:
 	sint32 construction_speed;
 
 public:
-	ai_t(karte_t *wl, uint8 nr) : spieler_t( wl, nr ) {
+	ai_t(karte_t *wl, uint8 nr) : player_t( wl, nr ) {
 		road_transport = rail_transport = air_transport = ship_transport = false;
 		construction_speed = 8000;
 	}
@@ -72,7 +72,7 @@ public:
 	virtual void rdwr(loadsave_t *file);
 
 	// return true, if there is already a connection
-	bool is_connected(const koord star_pos, const koord end_pos, const ware_besch_t *wtyp) const;
+	bool is_connected(const koord star_pos, const koord end_pos, const ware_desc_t *wtyp) const;
 
 	// prepares a general tool just like a human player work do
 	bool init_general_tool( int tool, const char *param );
@@ -86,10 +86,10 @@ public:
 	 * AI players react upon this call and proceed
 	 * @author Dwachs
 	 */
-	virtual void tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool local);
+	virtual void tell_tool_result(tool_t *tool, koord3d pos, const char *err, bool local);
 
 	// find space for stations
-	bool suche_platz(koord pos, koord &size, koord *dirs) const;
+	bool suche_platz(koord pos, koord &size, koord *dirs);
 	bool suche_platz(koord &start, koord &size, koord target, koord off);
 
 	// removes building markers
@@ -108,10 +108,10 @@ public:
 	bool built_update_headquarter();
 
 	// builds a round between those two places or returns false
-	bool create_simple_road_transport(koord platz1, koord size1, koord platz2, koord size2, const weg_besch_t *road );
+	bool create_simple_road_transport(koord platz1, koord size1, koord platz2, koord size2, const way_desc_t *road );
 
-	/// helper method to call vehikelbauer_t::vehikel_search and fill in time-line related parameters
-	static const vehikel_besch_t *vehikel_search(waytype_t typ, const uint32 target_power, const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric);
+	/// helper method to call vehicle_builder_t::vehicle_search and fill in time-line related parameters
+	static const vehicle_desc_t *vehicle_search(waytype_t typ, const uint32 target_power, const sint32 target_speed, const ware_desc_t * target_freight, bool include_electric);
 };
 
 #endif

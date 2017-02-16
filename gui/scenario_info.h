@@ -10,10 +10,8 @@
 #include "components/gui_flowtext.h"
 #include "components/gui_tab_panel.h"
 #include "components/gui_scrollpane.h"
-#include "gui_frame.h"
 
 class dynamic_string;
-class karte_t;
 /**
  * All messages since the start of the program
  * @author prissi
@@ -33,13 +31,12 @@ private:
 	gui_scrollpane_t scrolly_debug;
 	gui_scrollpane_t scrolly_error;
 
-	karte_t* welt;
 
-	void update_dynamic_texts(gui_flowtext_t &flow, dynamic_string &text, koord gr, bool init);
+	void update_dynamic_texts(gui_flowtext_t &flow, dynamic_string &text, scr_size size, bool init);
 
 
 public:
-	scenario_info_t(karte_t *welt);
+	scenario_info_t();
 
 	/**
 	 * This method is called if an action is triggered
@@ -49,15 +46,15 @@ public:
 	 * components should be triggered.
 	 * V.Meyer
 	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered( gui_action_creator_t *comp, value_t extra);
 
 	/**
 	 * resize window in response to a resize event
 	 * @author Hj. Malthaner
 	 */
-	void resize(const koord delta);
+	void resize(const scr_coord delta);
 
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	void update_scenario_texts(bool init);
 

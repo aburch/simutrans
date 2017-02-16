@@ -1,0 +1,24 @@
+<h1>Descrierea generalã a jocului Simutrans</h1>
+
+<p>
+Simutrans este un joc de simulare economicã, ce poate fi descãrcat gratis
+de pe site-ul <strong>www.simutrans.de</strong> sau <strong>128.simutrans.com</strong>.
+Obiectivul principal este crearea unui sistem de transport profitabil. Fiecare
+unitate de producþie are contract cu o altã unitate, respectiv are nevoie
+de materii prime, care sunt procurate din mine sau ferme. Toate aceste unitãþi
+trebuie interconectate în aºa fel încãt reþeaua obþinutã sã fie cât mai rentabilã.
+În general economia se bazeazã pe trei principii: procurarea de materii prime,
+fabricarea unor aºa zise "marfã bucãþi" ºi serviciile precum transport persoane
+ºi poºtã. În prima fazã a jocului cel mai uºor este crearea reþelelor industriale,
+însã din punct de vedere al profitului realizat transportul de cãlãtori ºi poºtã
+este mult mai rentabil.
+</p>
+<p>
+<a href="keys.txt">Setãri tastaturã</a>
+</p>
+
+<p>
+Autor: (c) Hj. Malthaner
+Traducere (versiune 0.84.19.0): Phritzy
+<strong>(phritzy74@freemail.hu)</strong>
+</p>

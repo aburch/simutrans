@@ -7,6 +7,7 @@
 #BACKEND = gdi
 #BACKEND = opengl
 #BACKEND = sdl
+#BACKEND = sdl2
 #BACKEND = mixer_sdl
 #BACKEND = posix
 
@@ -27,17 +28,18 @@
 #PROFILE = 1  # Enable profiling
 #PROFILE = 2  # Enable profiling with optimisation flags, can be used with `OPTIMISE = 1'
 
-#WITH_REVISION = 1 # adds the revision from svn; required for networkgames
+WITH_REVISION = 1 # adds the revision from Github; required for networkgames
 # if you do not use SVN, add -DREVISION="1234" to the FLAGS below
 
 #WIN32_CONSOLE = 1 # adds a console for windows debugging
 
-#MULTI_THREAD = 4 # start this many threads for some tasks like updating, map rotation, ...
+MULTI_THREAD = 1 # Enable multithreading
 
 # Define these as empty strings, if you don't have the respective config program
 #ALLEGRO_CONFIG = allegro-config
 #PNG_CONFIG     = pkg-config libpng
 #SDL_CONFIG     = sdl-config
+#SDL2_CONFIG    = sdl2-config
 
 #VERBOSE = 1
 
@@ -46,6 +48,7 @@
 # Needed to compile:
 # USE_C: no assembler for copying (required for not using GCC on x86)
 # SIM_BIG_ENDIAN: MUST be set for PPC/Motorola byte order! (old mac, amiga)
+# NO_INTPTR_T: must be set if intptr_t is not available
 #
 # Changing appearance:
 # USE_SOFTPOINTER: emulate mouse pointer (set automatically in Makefile)
@@ -61,8 +64,6 @@
 # OTTD_LIKE: Enables half height tiles and crossconnects all industries
 # AUTOMATIC_BRIDGES and AUTOMATIC_TUNNELS: will be built also for player
 # AUTOJOIN_PUBLIC: stations next to a public stop will be joined to it
-# MAX_CHOOSE_BLOCK_TILES=xxx: maximum distance between choose signal and a
-#    target (undefined means no limit)
 # USE_DIFFERENT_WIND: different airplane approach directions over the map
 # DESTINATION_CITYCARS: Citycars can have a destination (enabled automatically - cannot be disabled)
 #
@@ -83,4 +84,4 @@
 # NETTOOL_PROGDIR = $(shell pwd)
 # PROGDIR  = $(shell pwd)
 
-FLAGS = -fpermissive
+FLAGS = -fno-delete-null-pointer-checks -fno-strict-aliasing -march=pentium4

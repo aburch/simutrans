@@ -20,8 +20,9 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 	const char *climate_str = obj.get("climates");
 	if (climate_str) {
 		allowed_climates = get_climate_bits(climate_str);
-	} else {
-		printf("WARNING: without climates!\n");
+	}
+	else {
+		dbg->warning( obj_writer_t::last_name, "No climates (using default)!");
 		allowed_climates = all_but_arctic_climate;
 	}
 	// seasons = 1: no seasons
@@ -86,9 +87,8 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 				// age is 1..5 (usually five stages, seasons is the seaons
 				sprintf(buf, "image[%s][%d]", dir_codes[dir], seasons);
 				string str = obj.get(buf);
-				if (str.empty()) {
-					printf("Missing images in moving groundobj (expected %s)!\n", buf );
-					dbg->fatal("groundobj_writer_t","Season image for season %i missing (%s)!",seasons);
+				if(  str.empty()  ) {
+					dbg->fatal("groundobj_writer_t","Season image for season %i missing (expected %s)!", seasons, buf );
 				}
 				keys.at(dir).append(str);
 			}

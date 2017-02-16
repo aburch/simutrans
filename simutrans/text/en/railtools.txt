@@ -1,0 +1,257 @@
+<title>Railway Tools Help</title>
+
+<h1><strong>Railway Tools</strong></h1>
+
+<p>
+The "Railway Tools" -strip provides tools for the construction of a railway network.<br>
+To acces the toolbar, click on the <em>train icon</em> on the main menu.<br>
+<em>Hover</em> the mouse cursor over an icon to show the tooltip.<br>
+<em>Click</em> with the left mouse button to select a tool.<br>
+<em>CTRL-click</em> on an icon to select a tool and get an additional meny with further details.<br>
+</p>
+
+
+These are the tools handed to you:<br><br>
+
+Rail tracks;<br>
+Elevated tracks;<br>
+Bridges;<br>
+Tunnels;<br>
+Electrifications;<br>
+Signs and Signals (Some only visible when selecting a signalbox on the map);<br>
+Remover tools;<br>
+Depots;<br>
+Station platforms;<br>
+Station extensions (buildings);<br>
+Signal boxes;<br>
+<br>
+
+If you are playing with the <a href="new_world.txt">timeline</a> on, then, as the years advance, the things that can be built change as technology progresses.
+</p>
+
+<p>
+<em>Rail Tracks:</em><br>
+These are the different kinds of tracks that are currently available to you.<br>
+To build a track between two points, select the desired track and then click first on the tile where the stretch of track should begin (a bulldozer is placed on that tile), and then on the end tile. If a legitimate path was found, the track will be imediatedly built.<br>
+Another way to build a track is to keep the mouse button pressed and 'drag' the way on the ground. The rail will remain visible and automatically correct for obstacles as long as the mousebutton is pressed and it can find a legitime path from the start tile. As soon as the mouse button is released, the rail will be built.<br>
+- <em>Tip:</em> Press CTRL while 'dragging' the rail to get a straight piece of track. Usefull when building double track!<br>
+Tracks will automatically join if the stretch of newly created track crosses existing tracks.<br><br>
+
+Some tracks that appear in the menu will be 'mothballed' types (shown in the tool tip). These tracks cannot be built as "new", only as a downgrade (CTRL+drag) of existing tracks.<br>
+Vehicles cannot use mothballed tracks, and they cost nothing to maintain.<br>
+Those are intended to represent a transport company mothballing infrastructure for possible use in the future (after being renewed with a non-mothballed track) without having to keep it in repair in the present.<br><br>
+
+Read more about that here: <a href="way_wear.txt">Way Wear</a><br><br>
+
+<em>Note:</em> Rails cannot be built on 'odd' slopes. Also some rails may be restricted to only be built on single or double slope. Use the <a href="slopetools.txt">Landscape Tools</a> to change the terrain.<br><br>
+
+- <em>Additional actions:</em><br>
+* CTRL+drag a track on the ground will force the track to be as straight as possible.<br>
+* CTRL+drag a track over existing tracks, will force the new track to be built.<br>
+* SHIFT+drag a track over existing tracks will change which the track is to be renewed with.<br><br>
+
+- <em>Tooltips for tracks:</em><br>
+* Name;<br>
+* Construction cost per km;<br>
+* Monthly cost per km in (brackets);<br>
+* Maximum speed;<br>
+* Maximum axle load;<br>
+* Durability - Read more about that here: <a href="way_wear.txt">Way Wear</a>;<br>
+* Restrictions to which vehicles may pass in (brackets);
+
+
+<br><br><br>
+
+<em>Elevated rails:</em><br>
+Elevated rails are treated and built exactly like normal rails. The difference is that it is built one level up in the air, and can thus be built above existing buildings and infrastructure. One can even build elevated infrastructure on top of another elevated infrastructure!<br>
+Depending on the pakset, there is an "E" visible on the icon of an elevated rail.<br>
+- <em>Tip:</em> Use bridges to connect elevated infrastructure with the "ground level"!<br><br>
+
+- <em>Additional actions:</em><br>
+* CTRL+drag an elevated track on the ground will force the stretch to be as straight as possible.<br><br>
+
+- <em>Tooltips for elevated tracks:</em><br>
+* Name;<br>
+* Construction cost per km;<br>
+* Monthly cost per km in (brackets);<br>
+* Maximum speed;<br>
+* Maximum total load on the entire span;<br>
+* Durability - Read more about that here: <a href="way_wear.txt">Way Wear</a>;<br>
+* Restrictions to which vehicles may pass in (brackets);
+
+<br><br><br>
+
+<em>Bridges:</em><br>
+Bridges can only be built N-S or E-W (no diagonals!) and need both endtiles to be either flat grounds or "flat" slopes (use the <a href="slopetools.txt">Landscape Tools</a> to change the terrain).<br>
+Build a bridge using the same method as building normal rails and elevated rails (by clicking twice or dragging) and the bridge will be imediatedly built if possible.<br>
+- <em>Tip:</em> If vehicles are supposed to pass underneath a bridge, the bridge need a clearance level of two heights (one doubble height).<br>
+Use the terrain tools to create artificial slopes to gain additional height clearance below the bridge.
+<br><br>
+<em>Note:</em> Make sure both end tiles of a bridge are on tiles with no odd slopes. Allowed shapes are: Flat ground, single heigt "flat" slope, doubble height "flat" slope.<br><br>
+
+- <em>Additional actions:</em><br>
+* CTRL+drag/click while building the bridge will force it to be two heights high if possible.<br><br>
+
+- <em>Tooltips for bridges:</em><br>
+* Name;<br>
+* Construction cost per tile;<br>
+* Monthly cost per tile in (brackets);<br>
+* Maximum speed;<br>
+* Maximum total load on the entire span;<br>
+* Maximum lenth in tiles;<br>
+* Restrictions to which vehicles may pass in (brackets);
+
+<br><br><br>
+
+<em>Tunnels</em><br>
+A tunnel needs to be two "heights" (a doubble height) below the ground surface.<br>
+Create a straight tunnel by making sure both end slopes are "flat" doubble height slopes and that there are no valleys, conflicting with the tunnel stretch. The two end slopes must be in a line, "facing" away from each other. Build the tunnel by clicking once at one of the flat doubble height slopes, and the entire tunnel will be created.<br><br>
+
+Another way to build a tunnel is to CTRL-click on an entry tile which builds only the tunnel entrance. Then switch to underground view (check the <a href="keys.txt">Keyboard Help</a>) and build the rest of the tunnel manually, using the same method as placing normal tracks. Build the tunnel exit the same way (CTRL-clicking) as the entrance.<br>
+Note that when switching to underground view, the "Railway Tools" menu will change to only show rails, signs/signals and buildings, buildable below the ground surface.<br>
+- <em>Tip:</em> Pay attention to any restrictions that the tunnel might have. If a tunnel has resrictions, only certain types of vehicles may use it.<br><br>
+
+- <em>Additional actions:</em><br>
+* CTRL+click on a slope will create only the tunnel entrance.<br><br>
+
+- <em>Tooltips for tunnels:</em><br>
+* Name;<br>
+* Construction cost per km;<br>
+* Monthly cost per km in (brackets);<br>
+* Maximum speed;<br>
+* Maximum axle load;<br>
+* Restrictions to which vehicles may pass in (brackets);
+
+<br><br><br>
+
+<em>Electrify Track:</em><br>
+The electrification tools allows you to electrify your network, allowing electric vehicles use the tracks. The electrification is applied on the tracks in the same way as normal tracks is built (clicking twice or dragging) and the electrification is imediatedly built if possible.<br>
+- <em>Tip:</em> Pay attention to which kind of electrification your vehicles need (check the "Must Use:" parameter of the vehicle in the depot), as there might exist several types of electrification.<br><br>
+
+- <em>Tooltips for electrifications:</em><br>
+* Name;<br>
+* Construction cost per km;<br>
+* Monthly cost per km in (brackets);<br>
+* Maximum speed;<br>
+* Restrictions to which vehicles may pass in (brackets);
+
+<br><br><br>
+
+
+<em>Signs and Signals:</em><br>
+Signs and Signals are placed on the tracks and are either directional (affecting only one direction) or bidirectional (affecting both directions). To place a signal (or a sign), press the icon and click on the desired tile on the tracks and it will be built directly. If the signal is bidirectional, change the direction of it by clicking on it again.<br>
+<em>Note:</em> Some signals will not be visible in the menu until a compatible signal box is been built (or selected on the map).<br><br>
+
+If multiple of the same signs or signals are desired after each other in a stretch, pay attention to the number appearing when pressing the icon: It shows between how many tiles they will be built if dragged along the track. To change that number, CTRL-click on the icon and a new meny appears where the signalspacing can be altered along with some other settings.<br>
+To actually build an entire stretch of signs or signals, CTRL-click on the first tile where the signal is wanted, then on the last tile the signal is wanted, alternatively 'drag' the signals on the rail, much like dragging electrification on the rail.<br>
+The signals will be imediatedly built.<br>
+<em>Note:</em> Placing signals using the last method (CTRL-clicking twice or dragging) will make them face against the direction you dragged.<br>
+
+- <em>Tip:</em> Remove signs and signals with the destroy/remove tool from the main menu.<br><br>
+
+- <em>Additional actions:</em><br>
+* CTRL+click on icon will bring up extra menu.<br>
+* CTRL+click with signal on track will start a stretch of signals.<br>
+* 2xclick on a directional signal will make it shift direction.<br><br>
+
+- <em>Tooltips for signs and signals:</em><br>
+* Name;<br>
+* Max speed at which the signal can be read (sighting speed);<br>
+* Construction cost;<br>
+* Monthly cost in (brackets);<br>
+
+<br><br>
+Read more about the signs and signals and how to use them here:<br>
+<a href="signals_overview.txt">Signals: Overview</a><br>
+<a href="signals_usage.txt">Signals: Usage</a><br>
+<a href="signals_signs.txt">Signals: Signs</a><br>
+<a href="signals_working_methods.txt">Signals: Working methods</a><br><br><br>
+
+<em>Remove Tools:</em><br>
+Those tools allow you to remove a stretch of track or a stretch of electrification. If the "remove track" is used, it will remove everything on the track as well (platforms, signals, tunnels, bridges etc) so be carefull when using.<br>
+The tools are used in the same way as laying tracks (clicking twice or dragging) and the tracks or electrification are removed instantly. However, it is wise to use the dragging-method in order to examine the destruction before it is executed and therefore also abortable (move cursor away from any tracks).<br>
+- <em>Tip:</em> If only single tiles is wanted removed, it is better to use the "destroy/remove" tool, located at the main menu.<br><br>
+
+- <em>Additional actions:</em><br>
+* [SHIFT] -dragging the track remover tool over existing tracks will disable the autorenewal (track will become "mothballed" instead).
+
+<br><br><br>
+
+<em>Train depots:</em><br>
+These tools lets you build depots for purchasing and managing trains and carriages. Depots can only be built at dead end tracks, so in order to build one, you must place it on an END-tile of your track network.<br>
+Depots also may be restricted to certain tractiontypes, like only steam engines or only diesel. To see what tractiontypes a depot serves, check the name of the depot. However, nonpowered vehicles (like carriages) can be built in all depots.<br>
+<em>Note:</em> Depots show electric vehicles only if the track "underneath" the depot is electrified by any means.<br>
+- <em>Tip:</em> Remove depots with the destroy/remove tool from the main menu.<br><br>
+
+- <em>Tooltips for depots:</em><br>
+* Name;<br>
+* Tractiontype in (brackets);<br>
+* Construction cost;<br>
+* Monthly cost in (brackets);<br><br>
+
+Read more about depots here: <a href="depot.txt">Depot Controls</a>
+
+
+<br><br><br>
+
+<em>Station platforms:</em><br>
+Station platforms (also just called "stops") are used by rail vehicles to pick up and drop off passengers and mail and other goods.<br>
+They are built directly on top of the tracks and can only be built on straight N-S or E-W tracks that is not already on a slope.<br>
+To build a platform, select the desired platform and click on the tracks and the platform will be built imediatedly. If there are no existing platforms or other kinds of stops or extensions on any of the 8 adjescent tiles, a new station will be generated on your newly placed platform. Otherwise, the platform will join the existing station automatically.<br>
+<em>Note:</em> Trains will not load/unload the carriages that does not fit inside the platform length.<br>
+- <em>Tip:</em> Remove platforms with the destroy/remove tool from the main menu.<br>
+Extend the length of the station platforms and build multi-platform stations (by building more platform sections on adjacent track) to accommodate longer and more vehicles.<br><br>
+
+- <em>Tooltips for station platforms:</em><br>
+* Name;<br>
+* Construction cost per tile;<br>
+* Monthly cost per tile in (brackets);<br>
+* Quantitude and wether it holds passengers, post or freight;<br><br>
+
+Read more about station platforms here: <a href="station.txt">Stop Information</a>
+
+
+<br><br><br>
+
+<em>Station extensions:</em><br>
+With this tool, you can build additional buildings which may increase number of good types and raize the capacity of a station.<br>
+Station extensions cannot be built standalone (creating its own station) but must be built adjecent to an existing station, becoming a part of that station.<br>
+To build an extension, click on the desired extension, then at the desired location next to an existing station and it will be built directly.<br>
+<em>Tip:</em> Remove extensions with the destroy/remove tool from the main menu.<br><br>
+
+
+- <em>Additional actions:</em><br>
+* CTRL+click on icon will let you choose which rotation to build the extension.<br><br>
+
+- <em>Tooltips for station extensions:</em><br>
+* Name;<br>
+* Construction cost;<br>
+* Monthly cost in (brackets);<br>
+* Quantitude and wether it holds passengers, post or freight;<br><br>
+
+
+Read more about Station extensions here: <a href="station.txt">Stop Information</a>
+
+<br><br><br>
+
+<em>Signal boxes:</em><br>
+Signal boxes are used to control the signals. Some signals might not be buildable if there is not built a signalbox first, to which the signals can connect.<br>
+Signal boxes do not have to be next to the tracks, but can be put in any location which is best suited to reach all the planned signals.<br>
+To build a signal box, select the desired signalbox, then click on a location on the map and the signal box will be imediatedly built. Also, you will se that the "Railway tools" menu will change, showing all the signals which can be built with this signal box.<br><br>
+
+- <em>Tooltips for signal boxes:</em><br>
+* Name;<br>
+* Radius in km that signals can be connected;<br>
+* Maximum number of signals that can be connected;<br>
+* Construction cost;<br>
+* Monthly cost in (brackets);<br><br>
+
+Read more about signals and signal boxes and how to use them here:<br>
+<a href="signals_overview.txt">Signals: Overview</a><br>
+<a href="signals_usage.txt">Signals: Usage</a><br>
+<a href="signals_signs.txt">Signals: Signs</a><br>
+<a href="signals_working_methods.txt">Signals: Working methods</a><br>
+
+
+
+<br><br><br>

@@ -1,0 +1,29 @@
+<title>Aiuto - Spaziatura automatica dei segnali</title>
+
+<h1><strong>Spaziatura automatica dei segnali</strong></h1>
+<p>
+<strong>Spaziatura automatica dei segnali</strong> permette di piazzare su di un percorso, in maniera automatica, una serie di segnali equispaziati tra loro.</p>
+<p>
+Metodo di utilizzo:
+</p>
+<p>
+
+-- Ctrl-click su un segnale fa apparire l'interfaccia.<br>
+
+-- Click-and-drag lungo il tracciato mostra la preview dei nuovi segnali, rilasciando il bottone i segnali diventeranno definitivi. I segnali saranno costruiti permettendo ai treni di muoversi lungo il percorso solo nella direzione che si è usata per trascinare i segnali.<br>
+
+-- Gioco in rete: per prima cosa ctrl-click sul tracciato e poi rilasciare il bottone del mouse. Premere il tasto e muovere il mouse per vedere l'anteprima. Rilasciare il bottone per costruire.<br>
+</p>
+<p>
+Parametri:
+</p>
+<p>
+
+-- <em>Spaziatura dei segnali:</em> numero di piastrelle consecutive oltre le quali verrà piazzato il segnale (i percorsi in diagonale valgono 1/2 piastrella). Questo valore è visualizzato sull'icona selezionando il segnale.<br>
+
+-- <em>Rimozione segnali intermedi:</em> se selezionato tutti gli altri segnali sul percorso saranno cancellati.<br>
+
+-- <em>Rimpiazza gli altri segnali:</em> se selzionato i segnali in corrispondenza dei nuovi segnali saranno cancellati.<br>
+<br>
+Questi parametri possono essere impostati per tutti i tipi di segnale in modo indipendente.
+</p>

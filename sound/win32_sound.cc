@@ -4,14 +4,15 @@
  * This file is part of the Simutrans project under the artistic license.
  */
 
+// define before all includes!
+#define UNICODE 1
+
 #include <stdio.h>
 
-#define UNICODE 1
 // windows.h defines min and max macros which we don't want
 #define NOMINMAX 1
 #include <windows.h>
-/*#include <dsound.h>
-#include <Amaudio.h>*/
+#include <mmsystem.h>
 
 #include "sound.h"
 

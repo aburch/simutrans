@@ -57,8 +57,11 @@ void dr_stop_midi()
 }
 
 
-long dr_midi_pos()
+sint32 dr_midi_pos()
 {
+	if (nowPlaying == -1) {
+		return -1;
+	}
 	float const rate = [[movies objectAtIndex: nowPlaying] rate];
 	return rate > 0 ? 0 : -1;
 }

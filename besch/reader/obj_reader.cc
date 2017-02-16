@@ -3,7 +3,7 @@
 
 // for the progress bar
 #include "../../simcolor.h"
-#include "../../simimg.h"
+#include "../../display/simimg.h"
 #include "../../simsys.h"
 #include "../../simtypes.h"
 #include "../../simloadingscreen.h"
@@ -12,12 +12,9 @@
 #include "../grund_besch.h"	// for the error message!
 #include "../../simskin.h"
 
-// for init of button images
-#include "../../gui/components/gui_button.h"
-
 // normal stuff
 #include "../../dataobj/translator.h"
-#include "../../dataobj/umgebung.h"
+#include "../../dataobj/environment.h"
 
 #include "../../utils/searchfolder.h"
 #include "../../utils/simstring.h"
@@ -34,9 +31,9 @@
 
 
 obj_reader_t::obj_map*                                         obj_reader_t::obj_reader;
-inthashtable_tpl<obj_type, stringhashtable_tpl<obj_besch_t*> > obj_reader_t::loaded;
+inthashtable_tpl<obj_type, stringhashtable_tpl<obj_desc_t*> > obj_reader_t::loaded;
 obj_reader_t::unresolved_map                                   obj_reader_t::unresolved;
-ptrhashtable_tpl<obj_besch_t**, int>                           obj_reader_t::fatals;
+ptrhashtable_tpl<obj_desc_t**, int>                           obj_reader_t::fatals;
 
 void obj_reader_t::register_reader()
 {
@@ -48,35 +45,18 @@ void obj_reader_t::register_reader()
 }
 
 
-bool obj_reader_t::init()
-{
-	// search for skins first
-	chdir( umgebung_t::program_dir );
-	load( "skin/", translator::translate("Loading skins ...") );
-	if(  umgebung_t::program_dir != umgebung_t::user_dir  ) {
-		chdir( umgebung_t::user_dir );
-		load( "skin/", translator::translate("Loading skins ...") );
-	}
-	chdir( umgebung_t::program_dir );
-	button_t::init_button_images();
-	return true;
-}
-
-
-bool obj_reader_t::laden_abschliessen()
+bool obj_reader_t::finish_rd()
 {
 	resolve_xrefs();
 
 	FOR(obj_map, const& i, *obj_reader) {
-		DBG_MESSAGE("obj_reader_t::laden_abschliessen()","Checking %s objects...", i.value->get_type_name());
+		DBG_MESSAGE("obj_reader_t::finish_rd()","Checking %s objects...", i.value->get_type_name());
 
 		if (!i.value->successfully_loaded()) {
-			dbg->warning("obj_reader_t::laden_abschliessen()","... failed!");
+			dbg->warning("obj_reader_t::finish_rd()","... failed!");
 			return false;
 		}
 	}
-
-	button_t::init_button_images();
 	return true;
 }
 
@@ -120,17 +100,17 @@ bool obj_reader_t::load(const char *path, const char *message)
 		}
 	}
 	else {
-		// Keine dat-file? dann ist liste ein Verzeichnis?
+		// Keine dat-file? dann ist list ein Verzeichnis?
 		// step is a bitmask to decide when it's time to update the progress bar.
 		// It takes the biggest power of 2 less than the number of elements and
 		// divides it in 256 sub-steps at most (the -7 comes from here)
 
-		const int max = find.search(path, "pak");
-		int step = -7;
-		for(long bit=1;  bit<max;  bit+=bit) {
-			step ++;
+		const sint32 max = find.search(path, "pak");
+		sint32 step = -7;
+		for(  sint32 bit = 1;  bit < max;  bit += bit  ) {
+			step++;
 		}
-		if(step<0) {
+		if(  step < 0  ) {
 			step = 0;
 		}
 		step = (2<<step)-1;
@@ -143,14 +123,14 @@ DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbo
 
 		loadingscreen_t ls( message, max, true );
 
-		if(  grund_besch_t::ausserhalb==NULL  ) {
+		if(  ground_desc_t::outside==NULL  ) {
 			// defining the pak tile witdh ....
 			read_file((name+"ground.Outside.pak").c_str());
-			if(grund_besch_t::ausserhalb==NULL) {
+			if(ground_desc_t::outside==NULL) {
 				dbg->warning("obj_reader_t::load()","ground.Outside.pak not found, cannot guess tile size! (driving on left will not work!)");
 			}
 			else {
-				if (char const* const copyright = grund_besch_t::ausserhalb->get_copyright()) {
+				if (char const* const copyright = ground_desc_t::outside->get_copyright()) {
 					ls.set_info(copyright);
 				}
 			}
@@ -207,7 +187,7 @@ void obj_reader_t::read_file(const char *name)
 		DBG_DEBUG("obj_reader_t::read_file()", "read %d blocks, file version is %x", n, version);
 
 		if(version <= COMPILER_VERSION_CODE) {
-			obj_besch_t *data = NULL;
+			obj_desc_t *data = NULL;
 			read_nodes(fp, data, 0, version );
 		}
 		else {
@@ -222,37 +202,38 @@ void obj_reader_t::read_file(const char *name)
 }
 
 
-void obj_reader_t::read_nodes(FILE* fp, obj_besch_t*& data, int register_nodes, uint32 version )
+static void read_node_info(obj_node_info_t& node, FILE* const f, uint32 const version)
+{
+	char data[EXT_OBJ_NODE_INFO_SIZE];
+
+	char* p = data;
+	fread(p, OBJ_NODE_INFO_SIZE, 1, f);
+	node.type     = decode_uint32(p);
+	node.children = decode_uint16(p);
+	node.size     = decode_uint16(p);
+	// can have larger records
+	if (version != COMPILER_VERSION_CODE_11 && node.size == LARGE_RECORD_SIZE) {
+		fread(p, sizeof(data) - OBJ_NODE_INFO_SIZE, 1, f);
+		node.size = decode_uint32(p);
+	}
+}
+
+
+void obj_reader_t::read_nodes(FILE* fp, obj_desc_t*& data, int register_nodes, uint32 version )
 {
 	obj_node_info_t node;
-	char load_dummy[EXT_OBJ_NODE_INFO_SIZE], *p;
-
-	p = load_dummy;
-	if(  version==COMPILER_VERSION_CODE_11  ) {
-		fread(p, OBJ_NODE_INFO_SIZE, 1, fp);
-		node.type = decode_uint32(p);
-		node.children = decode_uint16(p);
-		node.size = decode_uint16(p);
-	}
-	else {
-		// can have larger records
-		fread(p, OBJ_NODE_INFO_SIZE, 1, fp);
-		node.type = decode_uint32(p);
-		node.children = decode_uint16(p);
-		node.size = decode_uint16(p);
-		if(  node.size==LARGE_RECORD_SIZE  ) {
-			fread(p, 4, 1, fp);
-			node.size = decode_uint32(p);
-		}
-	}
+	read_node_info(node, fp, version);
 
 	obj_reader_t *reader = obj_reader->get(static_cast<obj_type>(node.type));
 	if(reader) {
 
 //DBG_DEBUG("obj_reader_t::read_nodes()","Reading %.4s-node of length %d with '%s'",	reinterpret_cast<const char *>(&node.type),	node.size,	reader->get_type_name());
 		data = reader->read_node(fp, node);
-		for(int i = 0; i < node.children; i++) {
-			read_nodes(fp, data->node_info[i], register_nodes+1, version);
+		if (node.children != 0) {
+			data->children = new obj_desc_t*[node.children];
+			for (int i = 0; i < node.children; i++) {
+				read_nodes(fp, data->children[i], register_nodes + 1, version);
+			}
 		}
 
 //DBG_DEBUG("obj_reader_t","registering with '%s'", reader->get_type_name());
@@ -273,45 +254,10 @@ void obj_reader_t::read_nodes(FILE* fp, obj_besch_t*& data, int register_nodes, 
 }
 
 
-obj_besch_t *obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
-{
-	obj_besch_t* besch = new(node.size) obj_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
-
-	if(node.size>0) {
-		// not 32/64 Bit compatible for everything but char!
-		dbg->warning("obj_reader_t::read_node()","native called on type %.4s (size %i), will break on 64Bit if type!=ASCII",reinterpret_cast<const char *>(&node.type),node.size);
-		fread(besch + 1, node.size, 1, fp);
-	}
-
-	return besch;
-}
-
-
 void obj_reader_t::skip_nodes(FILE *fp,uint32 version)
 {
 	obj_node_info_t node;
-	char load_dummy[OBJ_NODE_INFO_SIZE], *p;
-
-	p = load_dummy;
-	if(  version==COMPILER_VERSION_CODE_11  ) {
-		fread(p, OBJ_NODE_INFO_SIZE, 1, fp);
-		node.type = decode_uint32(p);
-		node.children = decode_uint16(p);
-		node.size = decode_uint16(p);
-	}
-	else {
-		// can have larger records
-		fread(p, OBJ_NODE_INFO_SIZE, 1, fp);
-		node.type = decode_uint32(p);
-		node.children = decode_uint16(p);
-		node.size = decode_uint16(p);
-		if(  node.size==LARGE_RECORD_SIZE  ) {
-			fread(p, 4, 1, fp);
-			node.size = decode_uint32(p);
-		}
-	}
-//DBG_DEBUG("obj_reader_t::skip_nodes", "type %.4s (size %d)",reinterpret_cast<const char *>(&node.type),node.size);
+	read_node_info(node, fp, version);
 
 	fseek(fp, node.size, SEEK_CUR);
 	for(int i = 0; i < node.children; i++) {
@@ -320,27 +266,20 @@ void obj_reader_t::skip_nodes(FILE *fp,uint32 version)
 }
 
 
-void obj_reader_t::delete_node(obj_besch_t *data)
-{
-	delete [] data->node_info;
-	delete data;
-}
-
-
 void obj_reader_t::resolve_xrefs()
 {
-	slist_tpl<obj_besch_t *> xref_nodes;
+	slist_tpl<obj_desc_t *> xref_nodes;
 	FOR(unresolved_map, const& u, unresolved) {
-		FOR(stringhashtable_tpl<slist_tpl<obj_besch_t**> >, const& i, u.value) {
-			obj_besch_t *obj_loaded = NULL;
+		FOR(stringhashtable_tpl<slist_tpl<obj_desc_t**> >, const& i, u.value) {
+			obj_desc_t *obj_loaded = NULL;
 
 			if (!strempty(i.key)) {
-				if (stringhashtable_tpl<obj_besch_t*>* const objtype_loaded = loaded.access(u.key)) {
+				if (stringhashtable_tpl<obj_desc_t*>* const objtype_loaded = loaded.access(u.key)) {
 					obj_loaded = objtype_loaded->get(i.key);
 				}
 			}
 
-			FOR(slist_tpl<obj_besch_t**>, const x, i.value) {
+			FOR(slist_tpl<obj_desc_t**>, const x, i.value) {
 				if (!obj_loaded && fatals.get(x)) {
 					dbg->fatal("obj_reader_t::resolve_xrefs", "cannot resolve '%4.4s-%s'", &u.key, i.key);
 				}
@@ -352,7 +291,7 @@ void obj_reader_t::resolve_xrefs()
 	}
 
 	while (!xref_nodes.empty()) {
-		delete_node(xref_nodes.remove_first());
+		delete xref_nodes.remove_first();
 	}
 
 	loaded.clear();
@@ -361,9 +300,9 @@ void obj_reader_t::resolve_xrefs()
 }
 
 
-void obj_reader_t::obj_for_xref(obj_type type, const char *name, obj_besch_t *data)
+void obj_reader_t::obj_for_xref(obj_type type, const char *name, obj_desc_t *data)
 {
-	stringhashtable_tpl<obj_besch_t *> *objtype_loaded = loaded.access(type);
+	stringhashtable_tpl<obj_desc_t *> *objtype_loaded = loaded.access(type);
 
 	if(!objtype_loaded) {
 		loaded.put(type);
@@ -374,15 +313,15 @@ void obj_reader_t::obj_for_xref(obj_type type, const char *name, obj_besch_t *da
 }
 
 
-void obj_reader_t::xref_to_resolve(obj_type type, const char *name, obj_besch_t **dest, bool fatal)
+void obj_reader_t::xref_to_resolve(obj_type type, const char *name, obj_desc_t **dest, bool fatal)
 {
-	stringhashtable_tpl< slist_tpl<obj_besch_t **> > *typeunresolved = unresolved.access(type);
+	stringhashtable_tpl< slist_tpl<obj_desc_t **> > *typeunresolved = unresolved.access(type);
 
 	if(!typeunresolved) {
 		unresolved.put(type);
 		typeunresolved = unresolved.access(type);
 	}
-	slist_tpl<obj_besch_t **> *list = typeunresolved->access(name);
+	slist_tpl<obj_desc_t **> *list = typeunresolved->access(name);
 	if(!list) {
 		typeunresolved->put(name);
 		list = typeunresolved->access(name);

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C++ Express 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Makeobj", "Makeobj-experimental.vcxproj", "{24CE8A5F-8B92-40EE-9491-31E2DFF019F9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Makeobj-experimental", "Makeobj-experimental.vcxproj", "{9944405A-74A3-443D-83A6-F4B9DBE23DB2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +9,10 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{24CE8A5F-8B92-40EE-9491-31E2DFF019F9}.Debug|Win32.ActiveCfg = Debug|Win32
-		{24CE8A5F-8B92-40EE-9491-31E2DFF019F9}.Debug|Win32.Build.0 = Debug|Win32
-		{24CE8A5F-8B92-40EE-9491-31E2DFF019F9}.Release|Win32.ActiveCfg = Release|Win32
-		{24CE8A5F-8B92-40EE-9491-31E2DFF019F9}.Release|Win32.Build.0 = Release|Win32
+		{9944405A-74A3-443D-83A6-F4B9DBE23DB2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9944405A-74A3-443D-83A6-F4B9DBE23DB2}.Debug|Win32.Build.0 = Debug|Win32
+		{9944405A-74A3-443D-83A6-F4B9DBE23DB2}.Release|Win32.ActiveCfg = Release|Win32
+		{9944405A-74A3-443D-83A6-F4B9DBE23DB2}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

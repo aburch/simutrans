@@ -2,7 +2,7 @@
 #define message_option_h
 
 #include "../simmesg.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
 #include "gui_frame.h"
 #include "components/action_listener.h"
@@ -11,7 +11,6 @@
 #include "components/gui_image.h"
 #include "../utils/cbuffer_t.h"
 
-class karte_t;
 
 class message_option_t : public gui_frame_t, private action_listener_t
 {
@@ -22,17 +21,16 @@ private:
 	gui_image_t legend;
 	sint32 ticker_msg, window_msg, auto_msg, ignore_msg;
 
-	static karte_t *welt;
 
 public:
-	message_option_t(karte_t *welt);
+	message_option_t();
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_hilfe_datei() const {return "mailbox.txt";}
+	const char * get_help_filename() const {return "mailbox.txt";}
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

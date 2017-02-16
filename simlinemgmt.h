@@ -13,17 +13,13 @@
 
 class loadsave_t;
 class schedule_t;
-class spieler_t;
+class player_t;
 class schedule_list_gui_t;
-class karte_t;
 
 class simlinemgmt_t
 {
 public:
-	simlinemgmt_t(karte_t* welt);
 	~simlinemgmt_t();
-
-	void line_management_window(spieler_t *);
 
 	/*
 	 * add a line
@@ -38,7 +34,7 @@ public:
 	void delete_line(linehandle_t line);
 
 	/*
-	 * update a line -> apply updated fahrplan to all convoys
+	 * update a line -> apply updated schedule to all convoys
 	 * @author hsiegeln
 	 */
 	static void update_line(linehandle_t line);
@@ -46,7 +42,7 @@ public:
 	/*
 	 * load or save the linemanagement
 	 */
-	void rdwr(karte_t * welt, loadsave_t * file, spieler_t * sp);
+	void rdwr(loadsave_t * file, player_t * player);
 
 	/*
 	 * sort the lines by name
@@ -61,7 +57,7 @@ public:
 	/*
 	 * called after game is fully loaded;
 	 */
-	void laden_abschliessen();
+	void finish_rd();
 
 	void rotate90( sint16 y_size );
 
@@ -71,13 +67,13 @@ public:
 	 * creates a line with an empty schedule
 	 * @author hsiegeln
 	 */
-	linehandle_t create_line(int ltype, spieler_t * sp);
+	linehandle_t create_line(int ltype, player_t * player);
 
 	/**
 	 * Creates a line and sets its schedule
 	 * @author prissi
 	 */
-	linehandle_t create_line(int ltype, spieler_t * sp, schedule_t * fpl);
+	linehandle_t create_line(int ltype, player_t * player, schedule_t * schedule);
 
 
 	/**
@@ -97,20 +93,16 @@ public:
 
 	uint32 get_line_count() const { return all_managed_lines.get_count(); }
 
-	karte_t* get_welt() const { return welt; }
-
 	/**
 	 * Will open the line management window and offer information about the line
 	 * @author isidoro
 	 */
-	void show_lineinfo(spieler_t *sp, linehandle_t line);
+	void show_lineinfo(player_t *player, linehandle_t line);
+
+	vector_tpl<linehandle_t> const& get_line_list() const { return all_managed_lines; }
 
 private:
 	vector_tpl<linehandle_t> all_managed_lines;
-
-	static karte_t * welt;
-
-	schedule_list_gui_t *schedule_list_gui;  // Use with caution.  Valid only afer zeige_info
 
 	linehandle_t line_with_id_zero;
 };

@@ -95,13 +95,13 @@ void factory_smoke_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileo
 	xref_writer_t::instance()->write_obj(outfp, node, obj_smoke, obj.get("smoke"), true);
 	koord  const pos_off   = obj.get_koord("smoketile",   koord(0, 0));
 	koord  const xy_off    = obj.get_koord("smokeoffset", koord(0, 0));
-	sint16 const zeitmaske = obj.get_int(  "smokespeed",  0);
+	sint16 const smokespeed = obj.get_int("smokespeed",  0); 
 
 	node.write_sint16(outfp, pos_off.x, 0);
 	node.write_sint16(outfp, pos_off.y, 2);
 	node.write_sint16(outfp, xy_off.x,  4);
 	node.write_sint16(outfp, xy_off.y,  6);
-	node.write_sint16(outfp, zeitmaske, 8);
+	node.write_sint16(outfp, smokespeed, 8);
 
 	node.write(outfp);
 }
@@ -125,7 +125,7 @@ void factory_product_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int ca
 }
 
 
-void factory_supplier_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int capacity, int count, int verbrauch, const char* warename)
+void factory_supplier_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int capacity, int count, int consumption, const char* warename)
 {
 	obj_node_t node(this, 8, &parent);
 
@@ -133,7 +133,7 @@ void factory_supplier_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int c
 
 	node.write_uint16(outfp, capacity,  0);
 	node.write_uint16(outfp, count,     2);
-	node.write_uint16(outfp, verbrauch, 4);
+	node.write_uint16(outfp, consumption, 4);
 	node.write_uint16(outfp, 0,         6); //dummy, unused (and uninitialized in past versions)
 
 	node.write(outfp);
@@ -154,20 +154,19 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	string str;
 
 	char const*            const placing     = obj.get("location");
-	fabrik_besch_t::site_t const platzierung =
-		!STRICMP(placing, "land")  ? fabrik_besch_t::Land   :
-		!STRICMP(placing, "water") ? fabrik_besch_t::Wasser :
-		!STRICMP(placing, "city")  ? fabrik_besch_t::Stadt  :
-		fabrik_besch_t::Land;
-	uint16 const produktivitaet = obj.get_int("productivity",        10);
-	uint16 const bereich        = obj.get_int("range",               10);
-	uint16 const gewichtung     = obj.get_int("distributionweight",   1);
-	uint8  const kennfarbe      = obj.get_int("mapcolor",           255);
-	if (kennfarbe == 255) {
-		fprintf( stderr, "ERROR:\nmissing an indentification color!\n");
+	factory_desc_t::site_t const placement =
+		!STRICMP(placing, "land")  ? factory_desc_t::Land   :
+		!STRICMP(placing, "water") ? factory_desc_t::Water :
+		!STRICMP(placing, "city")  ? factory_desc_t::City  :
+		factory_desc_t::Land;
+	uint16 const productivity = obj.get_int("productivity",        10);
+	uint16 const range        = obj.get_int("range",               10);
+	uint16 const chance     = obj.get_int("distributionweight",   1);
+	uint8  const color      = obj.get_color("mapcolor", 255);
+	if (color == 255) {
+		dbg->fatal( "Factory", "%s missing an indentification color! (mapcolor)", obj_writer_t::last_name );
 		exit(1);
 	}
-	uint16 const pax_level = obj.get_int("pax_level", 12);
 
 	uint16 const electricity_percent = obj.get_int("electricity_percent", 17);
 
@@ -180,10 +179,9 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 const pax_boost       = (obj.get_int("passenger_boost",        0) * 256 + 500) / 1000;
 	uint16 const mail_boost      = (obj.get_int("mail_boost",             0) * 256 + 500) / 1000;
 	uint16 const electric_amount =  obj.get_int("electricity_amount", 65535);
-	uint16 const pax_demand      =  obj.get_int("passenger_demand",   65535);
-	uint16 const mail_demand     =  obj.get_int("mail_demand",        65535);
+	uint16 const max_distance_to_consumer = obj.get_int("max_distance_to_consumer", 65535); // In km, not tiles.
 
-	obj_node_t node(this, 41, &parent);
+	obj_node_t node(this, 37, &parent);
 
 	obj.put("type", "fac");
 
@@ -191,44 +189,49 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	building_writer_t::instance()->write_obj(fp, node, obj);
 	if (*obj.get("smoke")) {
 		factory_smoke_writer_t::instance()->write_obj(fp, node, obj);
-	} else {
+	}
+	else {
 		xref_writer_t::instance()->write_obj(fp, node, obj_smoke, "", false);
 	}
 
-	uint16 lieferanten;
-	for (lieferanten = 0;; ++lieferanten) {
+	uint16 supplier_count;
+	for (supplier_count = 0;; ++supplier_count) {
 		char buf[40];
 
-		sprintf(buf, "inputgood[%d]", lieferanten);
+		sprintf(buf, "inputgood[%d]", supplier_count);
 		const char* good = obj.get(buf);
 
 		if (!good || !*good) {
 			break;
 		}
-		sprintf(buf, "inputsupplier[%d]", lieferanten);
+		sprintf(buf, "inputsupplier[%d]", supplier_count);
 		int supp = obj.get_int(buf, 0);
-		sprintf(buf, "inputcapacity[%d]", lieferanten);
+		sprintf(buf, "inputcapacity[%d]", supplier_count);
 		int cap = obj.get_int(buf, 0);
-		sprintf(buf, "inputfactor[%d]", lieferanten);
-		int verbrauch = (obj.get_int(buf, 100) * 256) / 100;
+		sprintf(buf, "inputfactor[%d]", supplier_count);
+		int consumption = (obj.get_int(buf, 100) * 256) / 100;
 
-		factory_supplier_writer_t::instance()->write_obj(fp, node, cap, supp, verbrauch, good);
+		factory_supplier_writer_t::instance()->write_obj(fp, node, cap, supp, consumption, good);
 	}
 
-	uint16 produkte;
-	for (produkte = 0;; ++produkte) {
+	uint16 product_count;
+	for (product_count = 0;; ++product_count) {
 		char buf[40];
 
-		sprintf(buf, "outputgood[%d]", produkte);
+		sprintf(buf, "outputgood[%d]", product_count);
 		const char* good = obj.get(buf);
 
 		if (!good || !*good) {
 			break;
 		}
-		sprintf(buf, "outputcapacity[%d]", produkte);
+		sprintf(buf, "outputcapacity[%d]", product_count);
 		int cap = obj.get_int(buf, 0);
 
-		sprintf(buf, "outputfactor[%d]", produkte);
+		if(  cap==0  ) {
+			dbg->error( "factory_writer_t::write_obj()", "Factory output capacity must be larger than 0. (currently %i)", cap );
+		}
+
+		sprintf(buf, "outputfactor[%d]", product_count);
 		int fac = (obj.get_int(buf, 100) * 256) / 100;
 
 		factory_product_writer_t::instance()->write_obj(fp, node, cap, fac, good);
@@ -261,39 +264,39 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// new version with factory boost, etc.
 	uint16 version = 0x8003;
 
-	// This is the overlay flag for Simutrans-Experimental
+	// This is the overlay flag for Simutrans-Extended
 	// This sets the *second* highest bit to 1. 
 	version |= EXP_VER;
 
-	// Finally, this is the experimental version number. This is *added*
+	// Finally, this is the extended version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
 
 	// 0x200 - version 7.0 and greater. Includes xref factories for upgrades.
-	version += 0x200;
+	// 0x300 - version 12.0 and greater. Removes passenger/mail parameters,
+	// which are now in the gebaeude_t objects, and adds max_distance_to_consumer.
+	version += 0x300;
 	
-	node.write_uint16(fp, version,             0); // version
-	node.write_uint16(fp, platzierung,         2);
-	node.write_uint16(fp, produktivitaet,      4);
-	node.write_uint16(fp, bereich,             6);
-	node.write_uint16(fp, gewichtung,          8);
-	node.write_uint8 (fp, kennfarbe,          10);
-	node.write_uint8 (fp, fields,             11);
-	node.write_uint16(fp, lieferanten,        12);
-	node.write_uint16(fp, produkte,           14);
-	node.write_uint16(fp, pax_level,          16);
-	node.write_uint16(fp, electricity_percent,18);
-	node.write_sint8 (fp, upgrades,			  20);
-	node.write_uint16(fp, expand_probability, 21);
-	node.write_uint16(fp, expand_minimum,     23);
-	node.write_uint16(fp, expand_range,       25);
-	node.write_uint16(fp, expand_times,       27);
-	node.write_uint16(fp, electric_boost,     29);
-	node.write_uint16(fp, pax_boost,          31);
-	node.write_uint16(fp, mail_boost,         33);
-	node.write_uint16(fp, electric_amount,    35);
-	node.write_uint16(fp, pax_demand,         37);
-	node.write_uint16(fp, mail_demand,        39);
+	node.write_uint16(fp, version,						0); // version
+	node.write_uint16(fp, placement,					2);
+	node.write_uint16(fp, productivity,				4);
+	node.write_uint16(fp, range,						6);
+	node.write_uint16(fp, chance,					8);
+	node.write_uint8 (fp, color,					10);
+	node.write_uint8 (fp, fields,						11);
+	node.write_uint16(fp, supplier_count,					12);
+	node.write_uint16(fp, product_count,						14);
+	node.write_uint16(fp, electricity_percent,			16);
+	node.write_sint8 (fp, upgrades,						18);
+	node.write_uint16(fp, expand_probability,			19);
+	node.write_uint16(fp, expand_minimum,				21);
+	node.write_uint16(fp, expand_range,					23);
+	node.write_uint16(fp, expand_times,					25);
+	node.write_uint16(fp, electric_boost,				27);
+	node.write_uint16(fp, pax_boost,					29);
+	node.write_uint16(fp, mail_boost,					31);
+	node.write_uint16(fp, electric_amount,				33);
+	node.write_uint16(fp, max_distance_to_consumer,		35);
 
 	node.write(fp);
 }

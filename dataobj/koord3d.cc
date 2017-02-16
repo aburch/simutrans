@@ -9,6 +9,7 @@
 
 #include "koord3d.h"
 #include "../dataobj/loadsave.h"
+#include "../dataobj/environment.h"
 
 
 const koord3d koord3d::invalid(-1, -1, -1);
@@ -50,6 +51,11 @@ void koord3d::rdwr(loadsave_t *file)
 		file->rdwr_byte(v8);
 		z = v8;
 	}
+
+	if(  file->is_loading()  &&  file->get_version() < 112007  &&  x != -1  &&  y != -1  ) {
+		// convert heights from old single height saved game
+		z *= env_t::pak_height_conversion_factor;
+	}
 }
 
 
@@ -59,7 +65,7 @@ koord3d::koord3d(loadsave_t *file)
 }
 
 
-// für debugmeldungen ...
+// for debug messages...
 const char *koord3d::get_str() const
 {
 	static char pos_str[32];
@@ -71,7 +77,7 @@ const char *koord3d::get_str() const
 }
 
 
-// für debugmeldungen ...
+// for debug messages...
 const char *koord3d::get_fullstr() const
 {
 	static char pos_str[32];
@@ -85,31 +91,31 @@ const char *koord3d::get_fullstr() const
 
 ribi_t::ribi koord3d_vector_t::get_ribi( uint32 index ) const
 {
-	ribi_t::ribi ribi = ribi_t::keine;
+	ribi_t::ribi ribi = ribi_t::none;
 	koord3d pos = operator[](index);
 	if( index > 0 ) {
-		ribi |= ribi_typ( operator[](index-1).get_2d()-pos.get_2d() );
+		ribi |= ribi_type( operator[](index-1).get_2d()-pos.get_2d() );
 	}
 	if( index+1 < get_count() ) {
-		ribi |= ribi_typ( operator[](index+1).get_2d()-pos.get_2d() );
+		ribi |= ribi_type( operator[](index+1).get_2d()-pos.get_2d() );
 	}
 	return ribi;
 }
 
 ribi_t::ribi koord3d_vector_t::get_short_ribi( uint32 index ) const
 {
-	ribi_t::ribi ribi = ribi_t::keine;
+	ribi_t::ribi ribi = ribi_t::none;
 	const koord pos = operator[](index).get_2d();
 	if( index > 0 ) {
 		const koord pos2 = operator[](index-1).get_2d();
 		if (koord_distance(pos,pos2)<=1) {
-			ribi |= ribi_typ( pos2-pos );
+			ribi |= ribi_type( pos2-pos );
 		}
 	}
 	if( index+1 < get_count() ) {
 		const koord pos2 = operator[](index+1).get_2d();
 		if (koord_distance(pos,pos2)<=1) {
-			ribi |= ribi_typ( pos2-pos );
+			ribi |= ribi_type( pos2-pos );
 		}
 	}
 	return ribi;

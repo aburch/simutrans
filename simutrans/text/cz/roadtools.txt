@@ -1,0 +1,42 @@
+<title>Nápovìda - silnièní doprava</title>
+<h1>Silnièní doprava</h1>
+
+<p>
+Pøes dialog silnièní doprava mù¾ete stavìt silnice, tunely, zastávky, nakládací místa aj.
+</p>
+
+<p>
+První jsou symboly rùzných druhù <em>silnic</em>: Kliknutím na nìkterý z nich se kurzor zmìní v obrázek odpovídajícího druhu silnice. Rùzné druhy silnic se li¹í v max. rychlost, cenì, a cenì za údr¾bu. Parametry ka¾dého druhu se zobrazí po najetí kurzorem nad jeho obrázek. Cena v závorce je cena z údr¾bu.<br>
+Pro stavbu silnice kliknete na místo, kde má silnice zaèínat - musí být prázdné - a poté si vyberete místo, kde má silnice konèit. Nesmí být moc daleko a musí být spojitelné (nesmí napøíklad pøeká¾et ¾eleznice). Problém se ¾eleznicí øe¹í pøejezdy.
+</p>
+
+<p>
+Symbol <em>zastávek</em>: Kliknutím na nìj se kurzor zmìní v obrázek autobusové zastávky. Mohou zde tedy stavìt pouze autobusy a také dodávky na po¹tu. Pokud chcete pøepravovat po¹tu, musí být u zastávky postavena budova po¹ty. Kapacita zastávky je jeden autobus (po¹tovní dodávka) v ka¾dém smìru a 64 cestujících na jedno políèko zastávky (poèítá se i budova po¹ty). Pro stavbu vyberte jakékoliv rovné místo na silnici.
+</p>
+
+<p>
+Symbol <em>nakládacího depa</em>: Kliknutím na nìj se kurzor zmìní v obrázek tohoto depa. Nakládací depa jsou pou¾ívány pro nalo¾ení v¹ech druhù výrobkù a surovin. Nakládací depo má kapacitu dvou aut a 1000 kusù ka¾dého druhu zbo¾í.
+</p>
+
+<p>
+Symbol <em>tunelu</em>: Kliknutím na nìj se kurzor zmìní v obrázek tunelu. Tunely se pou¾ívají pro protnutí hory, v místech, kde by objí¾ïka znaènì prodlou¾ila dobu cesty vozidla. Pro stavbu tunelu musíte nejprve postavit silnici. Místo, kde má tunel konèit musí být pøesnì naproti zaèátku tunelu. Tunel také nemù¾e stoupat, jeho konec musí být ve stejné vý¹ce jako zaèátek.
+</p>
+
+<p>
+Symbol <em>pøejezdu</em>: Kliknutím na nìj se kurzor zmìní v obrázek ¾eleznièního pøejezdu. Pou¾ívá se v místì, kde se silnice protíná se ¾eleznicí. Pøejezd musí být postaven na ji¾ existují rovné èásti ¾eleznice nebo silnice.
+</p>
+
+<p>
+Symbol <em>silnièního depa</em>: Kliknutím na nìj se kurzor zmìní v obrázek depa.
+Depa umo¾òují nakoupit v¹echna dostupná vozidla, spojovat pøívìsy a vytváøet èi pøiøazovat jízdní plány.
+Ke stavbì si vyberte místo, kde konèí silnice - nejlep¹í je tedy postavit si odboèku.
+</p>
+
+<p>
+-><a href="bridges.txt">Stavba mostù</a><br>
+-><a href="depot.txt">Nápovìda pro depo</a>
+</p>
+
+<p>
+-><a href="about.txt">Informace o pøekladu</a>
+</p>

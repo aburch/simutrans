@@ -1,0 +1,21 @@
+<title>Player Colour Help</title>
+
+<h1><strong>Player Colour</strong></h1>
+
+<p>
+<strong>Player Colour</strong> sets the colour of the company.<br>
+Vehicles, buildings & other items show company colour.
+</p>
+<p>
+<strong>Player Colour</strong> opens from <a href="options.txt">Game Options</a>.
+</p>
+<p>Click on colour-bar to change company colour.<br>
+Titlebar of <strong>Player Colour</strong> changes (not to new company colour) to indicate new colour is selected.
+</p>
+<p>
+Default human player colour is light blue.<br>
+Some items are not colour-coded & may not display chosen colour.
+</p>
+<p>
+{Tips: To change AI player colour use <a href="players.txt">Player List</a> or <a href="special.txt">P+ Change Player</a> to select AI player first}.
+</p>

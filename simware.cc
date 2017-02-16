@@ -22,7 +22,7 @@
 
 
 
-const ware_besch_t *ware_t::index_to_besch[256];
+const ware_desc_t *ware_t::index_to_desc[256];
 
 
 
@@ -31,22 +31,20 @@ ware_t::ware_t() : ziel(), zwischenziel(), zielpos(-1, -1)
 	menge = 0;
 	index = 0;
 	arrival_time = 0;
-	to_factory = 0;
 }
 
 
-ware_t::ware_t(const ware_besch_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -1)
+ware_t::ware_t(const ware_desc_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -1)
 {
 	//This constructor is called from simcity.cc
 	menge = 0;
 	index = wtyp->get_index();
 	arrival_time = 0;
-	to_factory = 0;
 }
 
 // Constructor for new revenue system: packet of cargo keeps track of its origin.
 //@author: jamespetts
-ware_t::ware_t(const ware_besch_t *wtyp, halthandle_t o) : ziel(), zwischenziel(), zielpos(-1, -1)
+ware_t::ware_t(const ware_desc_t *wtyp, halthandle_t o) : ziel(), zwischenziel(), zielpos(-1, -1)
 {
 	menge = 0;
 	index = wtyp->get_index();
@@ -55,20 +53,20 @@ ware_t::ware_t(const ware_besch_t *wtyp, halthandle_t o) : ziel(), zwischenziel(
 }
 
 
-ware_t::ware_t(karte_t *welt,loadsave_t *file)
+ware_t::ware_t(loadsave_t *file)
 {
-	rdwr(welt,file);
+	rdwr(file);
 }
 
 
-void ware_t::set_besch(const ware_besch_t* type)
+void ware_t::set_desc(const ware_desc_t* type)
 {
 	index = type->get_index();
 }
 
 
 
-void ware_t::rdwr(karte_t *welt,loadsave_t *file)
+void ware_t::rdwr(loadsave_t *file)
 {
 	sint32 amount = menge;
 	file->rdwr_long(amount);
@@ -78,13 +76,11 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		file->rdwr_long(max);
 	}
 
-	if(  file->get_version()>=110005  ) {
-		uint8 factory_going = to_factory;
-		file->rdwr_byte(factory_going);
-		to_factory = factory_going;
-	}
-	else if(  file->is_loading()  ) {
-		to_factory = 0;
+	if(file->get_version()>=110005 && file->get_extended_version() < 12) 
+	{
+		// Was "to_factory" / "factory_going".
+		uint8 dummy;
+		file->rdwr_byte(dummy);
 	}
 
 	uint8 catg=0;
@@ -94,13 +90,13 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 
 	if(file->is_saving()) {
 		const char *typ = NULL;
-		typ = get_besch()->get_name();
+		typ = get_desc()->get_name();
 		file->rdwr_str(typ);
 	}
 	else {
 		char typ[256];
 		file->rdwr_str(typ, lengthof(typ));
-		const ware_besch_t *type = warenbauer_t::get_info(typ);
+		const ware_desc_t *type = warenbauer_t::get_info(typ);
 		if(type==NULL) {
 			dbg->warning("ware_t::rdwr()","unknown ware of catg %d!",catg);
 			index = warenbauer_t::get_info_catg(catg)->get_index();
@@ -111,7 +107,7 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		}
 	}
 	// convert coordinate to halt indices
-	if(file->get_version() > 110005 && (file->get_experimental_version() >= 10 || file->get_experimental_version() == 0))
+	if(file->get_version() > 110005 && (file->get_extended_version() >= 10 || file->get_extended_version() == 0))
 	{
 		// save halt id directly
 		if(file->is_saving()) 
@@ -120,7 +116,7 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 			file->rdwr_short(halt_id);
 			halt_id = zwischenziel.is_bound() ? zwischenziel.get_id() : 0;
 			file->rdwr_short(halt_id);
-			if(file->get_experimental_version() >= 1)
+			if(file->get_extended_version() >= 1)
 			{
 				halt_id = origin.is_bound() ? origin.get_id() : 0;	
 				file->rdwr_short(halt_id);
@@ -134,7 +130,7 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 			ziel.set_id(halt_id);
 			file->rdwr_short(halt_id);
 			zwischenziel.set_id(halt_id);
-			if(file->get_experimental_version() >= 1)
+			if(file->get_extended_version() >= 1)
 			{
 				file->rdwr_short(halt_id);			
 				origin.set_id(halt_id);
@@ -153,7 +149,7 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 			ziel_koord.rdwr(file);
 			koord zwischenziel_koord = zwischenziel.is_bound() ? zwischenziel->get_basis_pos() : koord::invalid;
 			zwischenziel_koord.rdwr(file);
-			if(file->get_experimental_version() >= 1)
+			if(file->get_extended_version() >= 1)
 			{
 				koord origin_koord = origin.is_bound() ? origin->get_basis_pos() : koord::invalid;	
 				origin_koord.rdwr(file);
@@ -161,21 +157,19 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		}
 		else 
 		{
-			koord ziel_koord;
-			ziel_koord.rdwr(file);
-			ziel = welt->get_halt_koord_index(ziel_koord);
-			koord zwischen_ziel_koord;
-			zwischen_ziel_koord.rdwr(file);
-			zwischenziel = welt->get_halt_koord_index(zwischen_ziel_koord);
+			koord ziel_koord(file);
+			ziel = haltestelle_t::get_halt_koord_index(ziel_koord);
+			koord zwischen_ziel_koord(file);
+			zwischenziel = haltestelle_t::get_halt_koord_index(zwischen_ziel_koord);
 		
-			if(file->get_experimental_version() >= 1)
+			if(file->get_extended_version() >= 1)
 			{
 				koord origin_koord;	
 
 				origin_koord.rdwr(file);
-				if(file->get_experimental_version() == 1)
+				if(file->get_extended_version() == 1)
 				{				
-					// Simutrans-Experimental save version 1 had extra parameters
+					// Simutrans-Extended save version 1 had extra parameters
 					// such as "previous transfer" intended for use in the new revenue
 					// system. In the end, the system was designed differently, and
 					// these values are not present in versions 2 and above.
@@ -183,7 +177,7 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 					dummy.rdwr(file);
 				}
 			
-				origin = welt->get_halt_koord_index(origin_koord);
+				origin = haltestelle_t::get_halt_koord_index(origin_koord);
 			
 			}
 			else
@@ -194,14 +188,14 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 	}
 	zielpos.rdwr(file);
 
-	if(file->get_experimental_version() == 1)
+	if(file->get_extended_version() == 1)
 	{
 		uint32 dummy_2;
 		file->rdwr_long(dummy_2);
 		file->rdwr_long(dummy_2);
 	}
 
-	if(file->get_experimental_version() >= 2)
+	if(file->get_extended_version() >= 2)
 	{
 		if(file->get_version() < 110007)
 		{
@@ -210,7 +204,7 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 			uint32 dummy = 0;
 			file->rdwr_long(dummy);
 		}
-		if(file->get_experimental_version() < 4)
+		if(file->get_extended_version() < 4)
 		{
 			// Was journey steps
 			uint8 dummy;
@@ -223,7 +217,7 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		arrival_time = 0;
 	}
 
-	if(file->get_experimental_version() >= 10 && file->get_version() >= 111000)
+	if(file->get_extended_version() >= 10 && file->get_version() >= 111000)
 	{
 		if(file->is_saving()) 
 		{
@@ -241,57 +235,45 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 	{
 		last_transfer.set_id(origin.get_id());
 	}
-	
-	// restore factory-flag
-	if(  file->get_version()<110005  &&  file->is_loading()  ) {
-		if (fabrik_t::get_fab(welt, zielpos)) {
-			to_factory = 1;
+
+	if(file->get_extended_version() >= 12)
+	{
+		bool commuting = is_commuting_trip;
+		file->rdwr_bool(commuting);
+		is_commuting_trip = commuting;
+	}
+}
+
+//"finish loading" (BG); "Invite finish" (Google); "load lock" (Babelfish).
+void ware_t::finish_rd(karte_t *welt)
+{
+	if(  welt->load_version.version <= 111005  ) {
+		// since some halt was referred by with several koordinates
+		// this routine will correct it
+		if(ziel.is_bound()) {
+			ziel = haltestelle_t::get_halt_koord_index(ziel->get_init_pos());
+		}
+		if(zwischenziel.is_bound()) {
+			zwischenziel = haltestelle_t::get_halt_koord_index(zwischenziel->get_init_pos());
 		}
 	}
-}
-
-void ware_t::laden_abschliessen(karte_t *welt, spieler_t * /*sp*/)  //"Invite finish" (Google); "load lock" (Babelfish).
-{
-	// since some halt was referred by with several koordinates
-	// this routine will correct it
-	if(ziel.is_bound() && ziel->get_init_pos() != koord::invalid) 
-	{
-		ziel = welt->lookup(ziel->get_init_pos())->get_halt();
-	}
-	if(zwischenziel.is_bound() && zwischenziel->get_init_pos() != koord::invalid) 
-	{
-		zwischenziel = welt->lookup(zwischenziel->get_init_pos())->get_halt();
-	}
-
-	if(last_transfer.is_bound() && last_transfer->get_init_pos() != koord::invalid)
-	{
-		last_transfer = welt->lookup(last_transfer->get_init_pos())->get_halt();
-	}
-
-	if(origin.is_bound() && origin->get_init_pos() != koord::invalid) 
-	{
-		origin = welt->lookup(origin->get_init_pos())->get_halt();
-	}
-
-	update_factory_target(welt);
+	update_factory_target();
 }
 
 
-void ware_t::rotate90( karte_t *welt, sint16 y_size )
+void ware_t::rotate90(sint16 y_size )
 {
 	zielpos.rotate90( y_size );
-	update_factory_target(welt);
+	update_factory_target();
 }
 
 
-void ware_t::update_factory_target(karte_t *welt)
+void ware_t::update_factory_target()
 {
-	if (to_factory) {
-		// assert that target coordinates are unique for cargo going to the same factory
-		// as new cargo will be generated with possibly new factory coordinates
-		fabrik_t *fab = fabrik_t::get_fab( welt, zielpos );
-		if (fab) {
-			zielpos = fab->get_pos().get_2d();
-		}
+	// assert that target coordinates are unique for cargo going to the same factory
+	// as new cargo will be generated with possibly new factory coordinates
+	fabrik_t *fab = fabrik_t::get_fab( zielpos );
+	if (fab) {
+		zielpos = fab->get_pos().get_2d();
 	}
 }

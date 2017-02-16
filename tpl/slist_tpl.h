@@ -145,7 +145,7 @@ public:
 	 */
 	slist_tpl()
 	{
-		head = 0;             // leere liste
+		head = 0;             // leere list
 		tail = 0;
 		node_count = 0;
 	}

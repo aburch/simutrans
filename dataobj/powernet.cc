@@ -8,12 +8,12 @@
 #include "../simdebug.h"
 #include "powernet.h"
 
-#if MULTI_THREAD>1
-#include <pthread.h>
+#ifdef MULTI_THREAD
+#include "../utils/simthread.h"
 static pthread_mutex_t netlist_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
-// max capacity = (max<uint64> >> 5) -1, see senke_t::step in dings/leitung2.cc
+// max capacity = (max<uint64> >> 5) -1, see senke_t::step in obj/leitung2.cc
 //uint64 powernet_t::max_capacity = (1<<44)-1; // max to allow display with uint32 after POWER_TO_MW shift
 const uint64 powernet_t::max_capacity = (1953125ull<<23); // nicer number for human display (corresponds to 4 TW)
 
@@ -21,7 +21,7 @@ const uint64 powernet_t::max_capacity = (1953125ull<<23); // nicer number for hu
 slist_tpl<powernet_t *> powernet_t::powernet_list;
 
 
-void powernet_t::neue_karte()
+void powernet_t::new_world()
 {
 	while(!powernet_list.empty()) {
 		powernet_t *net = powernet_list.remove_first();
@@ -30,7 +30,7 @@ void powernet_t::neue_karte()
 }
 
 
-void powernet_t::step_all(long delta_t)
+void powernet_t::step_all(uint32 delta_t)
 {
 	FOR(slist_tpl<powernet_t*>, const p, powernet_list) {
 		p->step(delta_t);
@@ -40,11 +40,11 @@ void powernet_t::step_all(long delta_t)
 
 powernet_t::powernet_t()
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &netlist_mutex );
 #endif
 	powernet_list.insert( this );
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &netlist_mutex );
 #endif
 
@@ -57,17 +57,17 @@ powernet_t::powernet_t()
 
 powernet_t::~powernet_t()
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &netlist_mutex );
 #endif
 	powernet_list.remove( this );
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &netlist_mutex );
 #endif
 }
 
 
-void powernet_t::step(long delta_t)
+void powernet_t::step(uint32 delta_t)
 {
 	if(  delta_t==0  ) {
 		return;

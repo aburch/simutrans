@@ -30,7 +30,7 @@ public:
 	 * components should be triggered.
 	 * V.Meyer
 	 */
-	virtual bool action_triggered(gui_action_creator_t *komp, value_t extra) = 0;
+	virtual bool action_triggered(gui_action_creator_t *comp, value_t extra) = 0;
 };
 
 #endif

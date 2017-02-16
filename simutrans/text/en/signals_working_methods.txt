@@ -1,0 +1,89 @@
+<title>Signals working methods</title>
+
+<h1>Signals working methods</h1><br><br>
+
+<em>General about working methods</em><br><br>
+
+Signals are working with so called <it>working methods</it>, which will determine how the signal will behave and how the train will reserve the track beyond the signal. Different working methods represents different real life rail systems, and there are different signals available to the various working methods.<br><br>
+
+<em>drive by sight</em><br>
+When the train leaves the depot, this will automatically become its initial working method. The train driver uses his eyes to look ahead and secure that the track is free. <br>
+- Trains will never go faster than to stop inside its sighting distance. <br>
+- No signals at all are needed for trains to operate in this working method.<br><br>
+
+Trains automatically go into drive by sight at the following conditions:<br>
+- When they leave the depot<br>
+- Leave a platform with no signal on it (exception is if trains enter the station using "One train staff" or "Token block")<br>
+- One opens up the trains schedule<br>
+- Passes a <it>drive by sight sign</it>.<br><br>
+Be aware that this working method very easy creates deadlocks, eg at stations or when multiple trains are traveling on single tracks. However, this working method is ideal for eg trams inside cities, so they can drive closer to each other.<br><br>
+
+<em>Time interval signalling</em><br>
+Time interval signalling works by telling the approaching train how long time ago since the last train passed the signal. Therefore, they show clear by default and will work like this:<br>
+- Clear by default<br>
+- Danger on the passage of a train<br>
+- Caution 5 (in-game) minutes after a train had passed. Trains approaching the signal may continue beyond it at half line speed or half the signal's sighting speed, whichever is the lower<br>
+- Clear 10 (in-game) minutes after a train had passed<br><br>
+
+Be aware that this working method also very easily creates deadlocks. If trains collide in this working method, both trains will come to a stand for a long time before continuing in the drive by sight working method.<br> Also, the choose signals have some choose functionality, but be careful to avoid deadlocks at terminus stations.<br>
+Time interval signalling is best used at doubble tracked lines with trains that runs roughly at the same speed. It is not possible to create bidirectional signals using time interval signals.<br><br>
+
+<em>One train staff</em><br>
+One train staff (and "staff" as in stick rather than employee) is a system in which only one train is permitted on a whole stretch of line. It is very simple in operation: only a train whose driver is in physical possession of the staff may enter the section. This system must therefore have only one entry and exit point for all trains, or else the staff would be left in the wrong place. <br><br>
+
+- When a train approaches the "one train staff"-cabinett, it will come to a halt to check wether the staff is available inside the cabinett<br>
+- If the staff is in the cabinett, the train will grab it and reserve the entire route ahead of the train 
+- The train will now continue beyond the cabinett at full speed<br>
+- The train returns the staff to the cabinett when it reaches that cabinet again, (or until it reaches the same point in its schedule as it is now, whichever is sooner).<br><br>
+
+One train staff is only usable if a section has only one combined entrance and exit, like a single track dead-end section that have no internal signalling.<br>
+There can be more than one cabinett for a section, however they must be placed in an immediately adjacent tile to one another to work as one.<br>
+One train staff are especially usefull on very basic railways, where one single train is running on the entire line. The cabinett should then be placed on the exit from the depot and not on the train's normal route. It is not possible to create bidirectional signals using the one train staff cabinet.<br><br>
+
+<em>Token block</em><br>
+Token block is a much more sophisticated system than the "One train staff"-system and can be used to control singletracked lines. In real railways, it requires a train's driver to hold a physical token before entering the section. However, there is more than one such token, meaning that many trains can go through the section in one direction one after another. Only one token can be released at any one time and no other token can be released before the initial token is returned to a token machine. This is ensured by telegraph equipment at either end of the section.<br><br>
+
+- When a train approaches a token block signal, it will come to a halt to check wether a token is available from the signals token machine<br>
+- If a token is released, the train will grab it and continue beyond the signal<br>
+- The train will now reserve the entire route ahead up to the next signal (any signal) or drive by sight sign and drive at full speed. It will reserve through stations as well<br>
+- The train will keep its entire reservation until it has fully passed the next signal.<br>
+- Upon approaching the next signal (or drive by sight sign) on its route, it will return the token and another token can be released for another train.<br><br>
+
+Token block signalling is usefull on single track lines, with multiple sections and with multiple entry and exit points. It is not possible to create bidirectional signals using token block signals.<br><br>
+
+<em>Absolute block</em><br>
+The absolute block system is the most basic and simple form of signalling available. It prevents that no more than one train is inside the same block at the same time and do not take diretions or keep reservations behind the train.<br>
+In real life, everything is checked by the humans inside the signalboxes, which use telephone or telegraph to communicate between signalboxes, asking each other wether the former train had arrived and if the next train may be sent.<br>
+Presignals using absolute block behaves a bit different to presignals using other systems by alarming the approaching train of the states of ALL of the signals it will face, connected to this signalbox, not just the first nextcoming signal. If all signals facing the train are clear, the presignal will be set to clear, however if only one signal are at danger, the presignal will also be at danger. Therefore presignals must be placed BEFORE the first stop signal of the signalbox to have the effect.<br>
+- Trains will reserve path up to next signal<br>
+- If the train passes a presignal showing CLEAR, the train will reserve the entire path up to the first stop signal of the "next" signalbox.<br>
+- Trains will unreserve their path behind them, thus letting another train cross the track.<br><br>
+
+
+Signals using the absolute block system is especially usefull on lines with two or more tracks as well as signalling on stations. It is not so effective at signalling single lines, as it easy creates deadlocks on such.<br> It is not possible to create bidirectional signals using absolute block signals.<br><br>
+
+
+<em>Track circuit block</em><br>
+The main feature of track circuit block is that its an automatic signal system where the tracks automatically detects if they are occupied or not. This allows for higher capacity on the tracks and fewer signal boxes.<br>
+Depending on which pakset is used, the signals will always show "clear" even if there is no train approaching. Signals at junctions are semi-automatic and will therefore remain at danger until a route is booked to another signal.<br>
+The distant signals represents the state of the very next signal, resulting in more kinds of multiple aspect signals are available.<br><br>
+- Trains will make a directional reservation (shown in blue in the block reservation display) when they reserve through a section containing bidirectional signals<br>
+- The directional reservation ends at the next one way sign<br>
+- A tile with a directional reservation can be reserved (as a normal (red) block reservation) by any train proposing to go in the same direction<br><br>
+
+This signal system is usefull at all kinds of lines and especially single tracked lines.<br>
+If used at single tracked lines, create bidirectional signals by pressing multiple times with the signal building tool on the signal. Read more about that here: <a href="signals_usage.txt">Signals usage</a><br><br>
+
+<em>Cab signalling</em><br>
+Cab signals represents that the messages of a signal is shown on a panel inside the train. Since signals along the track gets more difficult to see at higher speeds, the cab signalling ensures that the train can drive faster without the risc that it missed the state of a signal.<br>
+The signals using this working method are treated in exactly the same way as track circuit block signals, save that there is an unlimited sighting distance.<br><br>
+The "signals" are to be placed like if one would have placed the normal track circuit signals.<br><br>
+
+<em>Moving block signalling</em><br>
+The moving block signal system is a bit different from the previous systems in regard that there are no fixed points where trains get orders, other than when passing the beacon to enter the working method.<br>
+It behaves like an extended version of the drive by sight system, only with unlimitted sighting distance and directional reservation as with the track circuit block system. However the choose signals (or beacons) will act like "normal" choose signals does.<br><br>
+
+- Normally, a signal has to be placed within a maximum distance of a signal box, however moving block signals only have the limit between the signals themself (the signalbox range works as normal)<br>
+- If there is more than this maximum space between signals, trains will revert to drive by sight mode after the point at the end of that space.<br>
+- A train traveling on single tracked lines will reserve the direction in the entire stretch in blue. Other trains proposing to go in the same direction is allowed too.<br>
+- Choose signals will not let a train past them unless the whole block is free, in a similar fashion to absolute/track circuit block signals. This behaviour of choose signals is necessary to prevent deadlocks at terminus stations. Always use a choose signal before terminus stations when using moving block signals.<br><br>

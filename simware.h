@@ -7,7 +7,7 @@
 
 class warenbauer_t;
 class karte_t;
-class spieler_t;
+class player_t;
 
 /** Class to handle goods packets (and their destinations) */
 class ware_t
@@ -16,20 +16,18 @@ class ware_t
 
 private:
 	/// private lookup table to speedup
-	static const ware_besch_t *index_to_besch[256];
+	static const ware_desc_t *index_to_desc[256];
 
 public:
-	/// type of good, used as index into index_to_besch
+	/// amount of goods
+	uint32 menge;
+
+	/// type of good, used as index into index_to_desc
 	uint32 index: 8;
 
-	/// amount of goods
-	uint32 menge : 23;
-
-	/**
-	 * To indicate that the ware's destination is a factory/consumer store
-	 * @author Knightly
-	 */
-	uint32 to_factory : 1;
+	// Necessary to determine whether to book 
+	// jobs taken on arrival.
+	bool is_commuting_trip : 1;
 
 private:
 	/**
@@ -70,14 +68,14 @@ private:
 	/**
 	 * Update target (zielpos) for factory-going goods (after loading or rotating)
 	 */
-	void update_factory_target(karte_t *welt);
+	void update_factory_target();
 
 public:
-	const halthandle_t &get_ziel() const { return ziel; }
+	inline const halthandle_t &get_ziel() const { return ziel; }
 	void set_ziel(const halthandle_t &ziel) { this->ziel = ziel; }
 
-	const halthandle_t &get_zwischenziel() const { return zwischenziel; }
-	halthandle_t &access_zwischenziel() { return zwischenziel; }
+	inline const halthandle_t &get_zwischenziel() const { return zwischenziel; }
+	inline halthandle_t &access_zwischenziel() { return zwischenziel; }
 	void set_zwischenziel(const halthandle_t &zwischenziel) { this->zwischenziel = zwischenziel; }
 
 	koord get_zielpos() const { return zielpos; }
@@ -86,37 +84,38 @@ public:
 	void reset() { menge = 0; ziel = zwischenziel = origin = last_transfer = halthandle_t(); zielpos = koord::invalid; }
 
 	ware_t();
-	ware_t(const ware_besch_t *typ);
-	ware_t(const ware_besch_t *typ, halthandle_t o);
-	ware_t(karte_t *welt,loadsave_t *file);
+	ware_t(const ware_desc_t *typ);
+	ware_t(const ware_desc_t *typ, halthandle_t o);
+//	ware_t(karte_t *welt,loadsave_t *file);
+	ware_t(loadsave_t *file);
 
 	/**
 	 * gibt den nicht-uebersetzten warennamen zurück
 	 * @author Hj. Malthaner
 	 * "There the non-translated names were back"
 	 */
-	const char *get_name() const { return get_besch()->get_name(); }
-	const char *get_mass() const { return get_besch()->get_mass(); }
-	uint8 get_catg() const { return get_besch()->get_catg(); }
-	uint8 get_index() const { return index; }
+	inline const char *get_name() const { return get_desc()->get_name(); }
+	inline const char *get_mass() const { return get_desc()->get_mass(); }
+	inline uint8 get_catg() const { return get_desc()->get_catg(); }
+	inline uint8 get_index() const { return index; }
 
 	//@author: jamespetts
-	halthandle_t get_origin() const { return origin; }
+	inline halthandle_t get_origin() const { return origin; }
 	void set_origin(halthandle_t value) { origin = value; }
-	halthandle_t get_last_transfer() const { return last_transfer; }
+	inline halthandle_t get_last_transfer() const { return last_transfer; }
 	void set_last_transfer(halthandle_t value) { last_transfer = value; }
 
-	const ware_besch_t* get_besch() const { return index_to_besch[index]; }
-	void set_besch(const ware_besch_t* type);
+	inline const ware_desc_t* get_desc() const { return index_to_desc[index]; }
+	void set_desc(const ware_desc_t* type);
 
-	void rdwr(karte_t *welt,loadsave_t *file);
+	void rdwr(loadsave_t *file);
 
-	void laden_abschliessen(karte_t *welt,spieler_t *sp);
+	void finish_rd(karte_t *welt);
 
 	// find out the category ...
-	bool is_passenger() const { return index == 0; }
-	bool is_mail() const { return index == 1; }
-	bool is_freight() const { return index > 2; }
+	inline bool is_passenger() const { return index == 0; }
+	inline bool is_mail() const { return index == 1; }
+	inline bool is_freight() const { return index > 2; }
 
 	// The time at which this packet arrived at the current station
 	// @author: jamespetts
@@ -133,25 +132,20 @@ public:
 			last_transfer == w.last_transfer;
 	}
 
+	bool can_merge_with(const ware_t &w)
+	{
+		return zwischenziel == w.zwischenziel &&
+		index  == w.index  &&
+		ziel  == w.ziel  &&
+		zielpos == w.zielpos &&
+		origin == w.origin && 
+		last_transfer == w.last_transfer;
+	}
+
 	bool operator <= (const ware_t &w)
 	{
 		// Used only for the binary heap
 		return arrival_time <= w.arrival_time;
-	}
-
-	// Lighter version of operator == that only checks equality
-	// of metrics needed for merging.
-	// BG: 21.02.2012: check most varying data first. 
-	inline bool can_merge_with (const ware_t &w) const
-	{
-		return 
-			ziel  == w.ziel  &&
-			origin == w.origin &&
-			index  == w.index  &&
-			to_factory == w.to_factory &&
-			// Only merge the destination *position* if the load is freight (since more than one factory might by connected!)
-			(!to_factory  ||  zielpos==w.zielpos) &&
-			last_transfer == w.last_transfer;
 	}
 
 	int operator!=(const ware_t &w) { return !(*this == w); 	}
@@ -160,7 +154,7 @@ public:
 	 * Adjust target coordinates.
 	 * Must be called after factories have been rotated!
 	 */
-	void rotate90( karte_t *welt, sint16 y_size );
+	void rotate90( sint16 y_size );
 };
 
 #endif

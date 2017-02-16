@@ -10,25 +10,39 @@
 
 #include "../simworld.h"
 #include "load_relief_frame.h"
+#include "welt.h"
+#include "simwin.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/einstellungen.h"
-#include "../dataobj/umgebung.h"
+#include "../dataobj/settings.h"
+#include "../dataobj/environment.h"
+#include "../dataobj/height_map_loader.h"
 
 /**
- * Aktion, die nach Knopfdruck gestartet wird.
+ * Action, started on button pressing
  * @author Hansjörg Malthaner
  */
-void load_relief_frame_t::action(const char *fullpath)
+bool load_relief_frame_t::item_action(const char *fullpath)
 {
 	sets->heightfield = fullpath;
+
+	if (gui_frame_t *new_world_gui = win_get_magic( magic_welt_gui_t )) {
+		static_cast<welt_gui_t*>(new_world_gui)->update_preview(true);
+	}
+
+	return true;
 }
 
 
-load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_frame_t(NULL, false, "maps/")
+load_relief_frame_t::load_relief_frame_t(settings_t* const sets) : savegame_frame_t( NULL, false, "maps/", env_t::show_delete_buttons )
 {
 	static char extra_path[1024];
 
-	sprintf(extra_path,"%s%smaps/", umgebung_t::program_dir, umgebung_t::objfilename.c_str());
+	new_format.init( button_t::square_automatic, "Maximize height levels", scr_coord(D_MARGIN_LEFT,savebutton.get_pos().y), scr_size(savebutton.get_pos().x-D_MARGIN_LEFT-D_H_SPACE,D_BUTTON_HEIGHT) );
+	new_format.pressed = env_t::new_height_map_conversion;
+	add_component( &new_format );
+
+	sprintf(extra_path,"%s%smaps/", env_t::program_dir, env_t::objfilename.c_str());
+	//sprintf(extra_path,"%smaps/", env_t::program_dir);
 
 	this->add_path(extra_path);
 
@@ -44,8 +58,11 @@ const char *load_relief_frame_t::get_info(const char *fullpath)
 
 	sint16 w, h;
 	sint8 *h_field ;
-	if(karte_t::get_height_data_from_file(fullpath, (sint8)sets->get_grundwasser(), h_field, w, h, true )) {
+	height_map_loader_t hml(new_format.pressed);
+
+	if(hml.get_height_data_from_file(fullpath, (sint8)sets->get_grundwasser(), h_field, w, h, true )) {
 		sprintf( size, "%i x %i", w, h );
+		env_t::new_height_map_conversion = new_format.pressed;
 		return size;
 	}
 	return "";
@@ -57,8 +74,11 @@ bool load_relief_frame_t::check_file( const char *fullpath, const char * )
 	sint16 w, h;
 	sint8 *h_field;
 
-	if(karte_t::get_height_data_from_file(fullpath, (sint8)sets->get_grundwasser(), h_field, w, h, true )) {
+	height_map_loader_t hml(new_format.pressed);
+	if(hml.get_height_data_from_file(fullpath, (sint8)sets->get_grundwasser(), h_field, w, h, true )) {
+
 		return w>0  &&  h>0;
+		env_t::new_height_map_conversion = new_format.pressed;
 	}
 	return false;
 }

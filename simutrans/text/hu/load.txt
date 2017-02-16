@@ -1,0 +1,16 @@
+<title>Betöltés Sugó</title>
+
+<h1>Lementett játékok betöltése</h1>
+
+<p> A "Betöltés" menûpont lehetõvé teszi a régebben lementett játékok
+folytatását. A felkínált gombok hasonlóak a <a href="save.txt">"Mentés"</a>
+menûpont alatti gombokkal.</p>
+
+<p>Ha netán olyan játékot szertnél betölteni ami már nem létezik, akkor
+egyszerûen egy hibaüzenetet kapsz.</p>
+
+<p><em>Fontos!</em> Régebbi verzióban mentett játékok nem minden esetben
+kompatibilisek az új verziókkal. További információért kutakodj egy kicsit
+a neten. Például itt:<strong>http://forum.simutrans.com</strong>. Több mint valószínû a nagy verzióváltások lementett
+játékai nem kompatibilisek egymással.
+</p>

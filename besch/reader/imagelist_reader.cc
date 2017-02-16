@@ -7,20 +7,19 @@
 #include "../obj_node_info.h"
 
 
-obj_besch_t * imagelist_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * imagelist_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, besch_buf, node.size);
+	ALLOCA(char, desc_buf, node.size);
 
-	bildliste_besch_t *besch = new bildliste_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
+	image_list_t *desc = new image_list_t();
 
 	// Hajo: Read data
-	fread(besch_buf, node.size, 1, fp);
-	char * p = besch_buf;
+	fread(desc_buf, node.size, 1, fp);
+	char * p = desc_buf;
 
-	besch->anzahl = decode_uint16(p);
+	desc->count = decode_uint16(p);
 
-//	DBG_DEBUG("imagelist_reader_t::read_node()", "count=%d data read (node.size=%i)",besch->anzahl, node.size);
+//	DBG_DEBUG("imagelist_reader_t::read_node()", "count=%d data read (node.size=%i)",desc->count, node.size);
 
-	return besch;
+	return desc;
 }

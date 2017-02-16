@@ -11,7 +11,7 @@
 #define gui_schedule_list_h
 
 #include "gui_frame.h"
-#include "gui_container.h"
+#include "components/gui_container.h"
 #include "components/gui_label.h"
 #include "components/gui_chart.h"
 #include "components/gui_textinput.h"
@@ -20,14 +20,14 @@
 #include "components/gui_tab_panel.h"
 #include "components/gui_combobox.h"
 #include "components/gui_label.h"
-#include "gui_convoiinfo.h"
+#include "components/gui_convoiinfo.h"
 #include "../simline.h"
 
-class spieler_t;
+class player_t;
 class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 {
 private:
-	spieler_t *sp;
+	player_t *player;
 
 	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line;;
 	gui_container_t cont, cont_haltestellen;
@@ -62,7 +62,7 @@ private:
 	// checks if possible / necessary
 	void rename_line();
 
-	void display(koord pos);
+	void display(scr_coord pos);
 
 	void update_lineinfo(linehandle_t new_line);
 
@@ -76,7 +76,7 @@ private:
 	vector_tpl<uint16> livery_scheme_indices;
 
 public:
-	schedule_list_gui_t(spieler_t* sp);
+	schedule_list_gui_t(player_t* player);
 	~schedule_list_gui_t();
 	/**
 	* in top-level windows the name is displayed in titlebar
@@ -90,7 +90,7 @@ public:
 	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	const char* get_hilfe_datei() const { return "linemanagement.txt"; }
+	const char* get_help_filename() const { return "linemanagement.txt"; }
 
 	/**
 	* Does this window need a min size button in the title bar?
@@ -105,13 +105,13 @@ public:
 	* component is displayed.
 	* @author Hj. Malthaner
 	*/
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	/**
 	* Set window size and adjust component sizes and/or positions accordingly
 	* @author Hj. Malthaner
 	*/
-	virtual void set_fenstergroesse(koord groesse);
+	virtual void set_windowsize(scr_size size);
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

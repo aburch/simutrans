@@ -9,6 +9,7 @@
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
 #include "simtypes.h"
+#include "simconvoi.h"
 
 #include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
@@ -18,21 +19,28 @@
 #define MAX_MONTHS				12 // Max history
 #define MAX_NON_MONEY_TYPES		4 // number of non money types in line's financial statistic
 
-#define LINE_CAPACITY			0 // the amount of ware that could be transported, theoretically
-#define LINE_TRANSPORTED_GOODS	1 // the amount of ware that has been transported
-#define LINE_AVERAGE_SPEED		2 // The average speed of all convoys in the line
-#define LINE_COMFORT			3 // The average comfort rating of all vehicles on this line (weighted by numbers)
-#define LINE_REVENUE			4 // the income this line generated
-#define LINE_OPERATIONS         5 // the cost of operations this line generated
-#define LINE_PROFIT             6 // total profit of line
-#define LINE_CONVOIS			7 // number of convois for this line
-#define LINE_DISTANCE		    8 // distance converd by all convois
-#define LINE_REFUNDS			9 // Total refunds paid to passengers/goods owners desiring to use this line but kept waiting too long to do so.
-#define MAX_LINE_COST			10 // Total number of cost items
+							// Exp|Std|Description
+enum line_cost_t {
+	LINE_CAPACITY =	0,			//  0 | 0 | the amount of ware that could be transported, theoretically
+	LINE_TRANSPORTED_GOODS,		//  1 | 1 | the amount of ware that has been transported
+	LINE_AVERAGE_SPEED,			//  2 |   | average speed of all convoys in the line
+	LINE_COMFORT,				//  3 |   | the average comfort rating of all vehicles on this line (weighted by numbers)
+	LINE_REVENUE,				//  4 | 3 | the income this line generated
+	LINE_OPERATIONS,			//  5 | 4 | the cost of operations this line generated
+	LINE_PROFIT,				//  6 | 5 | total profit of line
+	LINE_CONVOIS,				//  7 | 2 | number of convois for this line
+	LINE_DISTANCE,				//  8 | 6 | distance converd by all convois
+	LINE_REFUNDS,				//  9 |   | Total refunds paid to passengers/goods owners desiring to use this line but kept waiting too long to do so.
+//	LINE_MAXSPEED,				//    | 7 | maximum speed for bonus calculation of all convois
+//	LINE_WAYTOLL,				//    | 8 | way toll paid by vehicles of line
+	LINE_DEPARTURES,			// 10 |   | number of departures of convoys on this line from scheduled points
+	LINE_DEPARTURES_SCHEDULED,	// 11 |   | number of departures scheduled on this line from scheduled departure points
+	MAX_LINE_COST				// 12 | 9 | Total number of cost items
+};
 
-class karte_t;
+class karte_ptr_t;
 class loadsave_t;
-class spieler_t;
+class player_t;
 class schedule_t;
 
 class simline_t {
@@ -40,17 +48,15 @@ class simline_t {
 public:
 	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8, MAX_LINE_TYPE};
 
-	typedef koordhashtable_tpl<id_pair, average_tpl<uint16> > journey_times_map;
-
 protected:
-	schedule_t * fpl;
-	spieler_t *sp;
+	schedule_t * schedule;
+	player_t *player;
 	linetype type;
 
 	bool withdraw;
 
 private:
-	static karte_t * welt;
+	static karte_ptr_t welt;
 	plainstring name;
 
 	/**
@@ -104,14 +110,11 @@ private:
 	* The table of point-to-point average speeds.
 	* @author jamespetts
 	*/
-	journey_times_map *average_journey_times;
-	journey_times_map * average_journey_times_reverse_circular;
-
-	bool is_alternating_circle_route;
+	journey_times_map average_journey_times;
 
 public:
-	simline_t(karte_t* welt, spieler_t *sp, linetype type);
-	simline_t(karte_t* welt, spieler_t *sp, linetype type, loadsave_t *file);
+	simline_t(player_t *player, linetype type);
+	simline_t(player_t *player, linetype type, loadsave_t *file);
 
 	~simline_t();
 
@@ -141,6 +144,8 @@ public:
 	 */
 	uint32 count_convoys() const { return line_managed_convoys.get_count(); }
 
+	vector_tpl<convoihandle_t> const& get_convoys() const { return line_managed_convoys; }
+
 	/*
 	 * returns the state of the line
 	 * @author prissi
@@ -148,12 +153,12 @@ public:
 	uint8 get_state_color() const { return state_color; }
 
 	/*
-	 * return fahrplan of line
+	 * return schedule of line
 	 * @author hsiegeln
 	 */
-	schedule_t * get_schedule() const { return fpl; }
+	schedule_t * get_schedule() const { return schedule; }
 
-	void set_schedule(schedule_t* fpl);
+	void set_schedule(schedule_t* schedule);
 
 	/*
 	 * get name of line
@@ -175,14 +180,14 @@ public:
 	/*
 	 * register line with stop
 	 */
-	void register_stops(schedule_t * fpl);
+	void register_stops(schedule_t * schedule);
 
-	void laden_abschliessen();
+	void finish_rd();
 
 	/*
 	 * unregister line from stop
 	 */
-	void unregister_stops(schedule_t * fpl);
+	void unregister_stops(schedule_t * schedule);
 	void unregister_stops();
 
 	/*
@@ -195,9 +200,9 @@ public:
 
 	sint64* get_finance_history() { return *financial_history; }
 
-	sint64 get_finance_history(int month, int cost_type) const { return financial_history[month][cost_type]; }
+	sint64 get_finance_history(int month, line_cost_t cost_type) const { return financial_history[month][cost_type]; }
 
-	void book(sint64 amount, int cost_type) 
+	void book(sint64 amount, line_cost_t cost_type) 
 	{
 		if(cost_type != LINE_AVERAGE_SPEED && cost_type != LINE_COMFORT)
 		{
@@ -206,14 +211,19 @@ public:
 		else
 		{
 			// Average types
-			rolling_average[cost_type] += (uint32)amount;
+			if(rolling_average_count[cost_type] == 65535)
+			{
+				rolling_average_count[cost_type] /= 2;
+				rolling_average[cost_type] /= 2;
+			}
+			rolling_average[cost_type] += (uint32)amount;			
 			rolling_average_count[cost_type] ++;
 			const sint64 tmp = (sint64)rolling_average[cost_type] / (sint64)rolling_average_count[cost_type];
 			financial_history[0][cost_type] = tmp;
 		}
 	}
 
-	static uint8 convoi_to_line_catgory(uint8 convoi_cost_type);
+	static line_cost_t convoi_to_line_catgory(convoi_t::convoi_cost_t convoi_cost_type);
 
 	void new_month();
 
@@ -237,7 +247,7 @@ public:
 
 	bool get_withdraw() const { return withdraw; }
 
-	spieler_t *get_besitzer() const {return sp;}
+	player_t *get_owner() const {return player;}
 
 	void recalc_status();
 
@@ -245,12 +255,9 @@ public:
 	uint16 get_livery_scheme_index() const { return livery_scheme_index; }
 	void propogate_livery_scheme();
 
-	inline journey_times_map * get_average_journey_times() { return average_journey_times; }
-	inline journey_times_map * get_average_journey_times_reverse_circular() { return average_journey_times_reverse_circular; }
+	inline journey_times_map& get_average_journey_times() { return average_journey_times; }
 
-	void calc_is_alternating_circular_route();
-
-	bool get_is_alternating_circle_route() const { return is_alternating_circle_route; }
+	sint64 calc_departures_scheduled();
 };
 
 

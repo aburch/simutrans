@@ -1,0 +1,21 @@
+<title>Pomoc boje igraca</title>
+
+<h1><strong>Boja igraca</strong></h1>
+
+<p>
+<strong>Boja igraca</strong> postavlja boju kompananije.<br>
+Vozila, zgrade i druge stvari prikazuju boju kompanije.
+</p>
+<p>
+<strong>Boja igraca</strong> se otvara iz <a href="options.txt">Opcije Igre</a>.
+</p>
+<p>Kilinuti na obojane kvadratice za promjenu boje kompanije.<br>
+Naslov od <strong>Boja Igraca</strong> se mijenja (ne na novu boju kompanije) kako bi se prikazala nova odabrana boja.
+</p>
+<p>
+Uobicajena boja ljudskog igraca je lagano plava.<br>
+Neki predmeti nisu kodirani bojom i ne moraju prikazivati odabranu boju.
+</p>
+<p>
+{Savjeti: Za promjenu AI boje igraca koristiti <a href="players.txt">Lista Igraca</a> ili <a href="special.txt">P+ Promjena Igraca</a> za odabir AI igraca}.
+</p>

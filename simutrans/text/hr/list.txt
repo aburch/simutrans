@@ -1,0 +1,35 @@
+<title>Pomoc Listi</title>
+
+<h1><strong>Liste</strong></h1>
+
+<p>
+<strong>Liste</strong> ima postavke za otvaranje kontola za informacije o trenutnom statusu igre (i takodjer kontrole za namjestanje relativnog dohotka koji je dobiven prijevozom raznih <a href="goods_filter.txt">roba, putnika & poste</a>).
+</p>
+<p>
+Informacija je dostupna za igraca u listama o: <a href="station.txt">Stajalistima</a>; <a href="convoiinfo.txt">Convojima</a>; <a href="citywindow.txt">urbanim podrucjima</a>; dohotcima dobivenim iz raznih <a href="goods_filter.txt">roba</a>, putnika i poste; <a href="industry_info.txt">industrije</a>; i turistickih znamenitosti.
+</p>
+<p>
+Klik na ikonu liste s gornje strane pogleda igre za otvaranje <strong>Lista</strong>.<br>
+Pomicanje kurzora misa, nakon otvaranja ili klikom na alatnu traku, preko postavke alata liste za prikaz imena.
+</p>
+<p>
+Klik na postavku alata za otvaranje kontrola za informacije, slijeva na desno, o:
+</p>
+<p>
+<a href="haltlist.txt"><em>Lista Stanica:</em></a> <a href="station.txt">Stajalista</a>, gdje vozila utovaruju ili izbacuju robu & putnike (ali ne Stajalista samo za vozila prijevoza vodom).
+</p>
+<p>
+<a href="convoi.txt"><em>Lista Vozila:</em></a> cestovna i tracnicka <a href="convoiinfo.txt">vozila</a>, zrakoploci i brodovi.
+</p>
+<p>
+<a href="citylist_filter.txt"><em>Lista svih gradova:</em></a> <a href="citywindow.txt">urbana podrucja</a> (sela, gradici i gradovi).
+</p>
+<p>
+<a href="goods_filter.txt"><em>Lista svih roba:</em></a> dohotci dobijevi od raznih roba, putnika i poste (ukljucuje kontrole za namjestanje relativnog dohotka).
+</p>
+<p>
+<a href="factorylist_filter.txt"><em>Lista Tvrtki:</em></a> <a href="industry_info.txt">industrija</a> (potrosaci i dobavljaci robe).
+</p>
+<p>
+<a href="curiositylist_filter.txt"><em>Lista Znamenitosti:</em></a> touristicke znamenitosti.
+</p>

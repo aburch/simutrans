@@ -1,0 +1,2635 @@
+Italiano
+PROP_FONT_FILE
+Prop-Latin1.bdf
+################################################################################
+#                                                                              #
+#                Simutrans Scenario Specific Translation File                  #
+#                          Scenario: Sim-Experimental                          #
+#                             Language: it Italiano                            #
+#                             Encoding: ISO-8859-1                             #
+#                            Font : Prop-Latin1.bdf                            #
+#                           Date Created: 16.07 2013                           #
+#                                                                              #
+#                                   authors:                                   #
+#                                    - An_dz                                   #
+#                   note: Verified where all texts are shown                   #
+#                                    - Dwachs                                  #
+#                                    note:                                     #
+#                                   - Fabio85                                  #
+#                                    note:                                     #
+#                              Frank Penz - FrankP                             #
+#                                    note:                                     #
+#                                    - milko                                   #
+#                                    note:                                     #
+#                                   - notorius                                 #
+#                                    note:                                     #
+#                               ottavio - ottavio                              #
+#                                    note:                                     #
+#                          Markus Pristovsek - prissi                          #
+#                                    note:                                     #
+#                                Marco - rabanne                               #
+#                                    note:                                     #
+#                                                                              #
+################################################################################
+#_____________________________Simutrans Base Texts______________________________
+#_____________________________Simutrans Base Texts______________________________
+#__________________________________button_text__________________________________
+#__________________________________button_text__________________________________
+Apply Line
+Applica Linea
+cl_btn_filter_disable
+Inattivo
+cl_btn_filter_enable
+Attivo
+cl_btn_filter_settings
+Proprietà
+cl_btn_sort_asc
+Ascend.
+cl_btn_sort_desc
+Discend.
+cl_btn_sort_id
+ID interno
+cl_btn_sort_income
+Incasso
+cl_btn_sort_name
+Nome
+cl_btn_sort_type
+Tipo
+clf_btn_alle
+tutti
+clf_btn_invers
+inv.
+clf_btn_keine
+ness.
+Construction_Btn
+Costi costruzione
+follow me
+Seguimi
+gl_btn_sort_bonus
+per bonus
+gl_btn_sort_catg
+Categoria
+gl_btn_sort_name
+per nome
+gl_btn_sort_revenue
+per incassi
+gl_btn_unsort
+non ordinato
+go home
+Al deposito
+hl_btn_filter_disable
+Inattivo
+hl_btn_filter_enable
+Attivo
+hl_btn_filter_settings
+Proprietà
+hl_btn_sort_asc
+Ascend.
+hl_btn_sort_desc
+Discend.
+hl_btn_sort_name
+Nome
+hl_btn_sort_type
+Tipo
+hl_btn_sort_waiting
+Attesa
+hlf_btn_alle
+tutti
+hlf_btn_invers
+inv.
+hlf_btn_keine
+ness.
+koord
+Coordinate
+Lade Relief
+Carica Rilievo
+Load game
+Apri file
+Load scenario
+Carica scenario
+Networks
+Reti
+Optionen
+Opzioni
+Queueing
+Accodamento
+Sprache
+Lingua
+Start
+Parti
+Starte Spiel
+Inizia Gioco
+Transfers
+Trasferimenti
+#_________________________________climates_text_________________________________
+#_________________________________climates_text_________________________________
+arctic
+clima artico
+desert
+clima desertico
+mediterran
+clima mediterr.
+rocky
+roccioso
+temperate
+temperato
+tropic
+clima tropicale
+#__________________________________error_text___________________________________
+#__________________________________error_text___________________________________
+ Loading scenario script failed
+Caricamento dello scenario fallito
+A bridge must start on a way!
+I ponti devono\niniziare su un\ntracciato esistente.
+Autohalt muss auf\nStrasse liegen!\n
+Le fermate dei veicoli\ndevono stare\nsu una strada.
+bridge is too high for its type!
+Ponte troppo alto per il suo tipo
+Bridge is too long for this type!\n
+La campata è\ntroppo lunga per\nquesto tipo di ponte.\n
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Un ponte deve\niniziare su un\nterreno pianeggiante!\n
+Can't buy obsolete vehicles!
+Non puoi comprare veicoli obsoleti!
+Cannot built depot here!
+Impossibile costruire deposito qui.
+Cannot built this station/building\nin underground mode here.
+L'edificio non può\nessere costruito sotto terra.\n
+Cannot create generic line!\nSelect line type by\nusing filter tabs.
+Impossibile creare linea generia!\nSelezionare tipo linea\nusando i filtri.
+Cannot create socket
+Non si può creare il raccordo
+Convoi handles exhausted!
+Massimo numero di convogli raggiunto
+Convoy already deleted!
+Convoglio già cancellato!
+Das Feld gehoert\neinem anderen Spieler\n
+Questo terreno\nè di proprietà\ndi un altro giocatore!\n
+Der Besitzer erlaubt das Entfernen nicht
+Il proprietario non\nconcede il permesso\ndi rimozione.\n
+Der Tunnel ist nicht frei!\n
+Galleria non vuota.\n
+Die Bruecke ist nicht frei!\n
+Il ponte non è libero!\n
+Diese Zusammenstellung kann nicht fahren!\n
+Questa combinazione\nnon può viaggiare!\n
+Dock must be built on single slope!
+I porti si costruiscono su unica livelletta.
+Fahrzeuge koennen so nicht entfernt werden
+I veicoli non\npossono essere\nrimossi.\n
+Flugzeughalt muss auf\nRunway liegen!\n
+I velivoli devono\nstare su taxiway.
+Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
+Non puoi costruire\n\nun terminal qui.\n
+Hier kann kein\nSignal aufge-\nstellt werden!\n
+Impossibile mettere QUI\ndei segnali ferroviari!\n
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Impossibile trovare deposito.\nManda il veicolo\nmanualmente.
+In order to lock the game, you have to protect the public player by password!
+Per bloccare il cambio giocatore devi proteggere il giocatore pubblico con una password!
+Kann Spielstand\nnicht laden.\n
+Impossibile leggere/aprire\nil file!\n
+Kann Spielstand\nnicht speichern.\n
+Impossibile aprire\nil file in\nscrittura!\n
+Lost connection\nto server!
+Connessione persa con il server!
+Lost synchronisation\nwith server.
+Persa la sincronizzazione con il\n\nserver!
+Maglevhalt muss auf\nMaglevschiene liegen!\n
+Una fermata per maglev deve essere su una linea maglev!
+Monorailhalt muss auf\nMonorail liegen!\n
+Le fermate devono\nstare su una rotaia.
+Monorails are not available yet!
+Morotaie non ancora disponibili.
+Narrowgauge are not available yet!
+Linea a scartamento ridotto non è ancora disponibile!
+Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
+una fermata per scartamento ridotto deve stare su una linea a scartamento ridotto
+No suitable way on the ground!
+Serve un percorso
+No through station here!
+Non c'è nessuna stazione passante qui!
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Assegna un percorso\nal veicolo prima\ndi dargli l'ordine\ndi partire!\n
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+Il percorso del veicolo\nnon può esser cambiato\ndurante la ricerca del percorso.
+Not enough money!
+Non hai abbastanza soldi per costruirlo!
+On narrowgauge track only!\n
+Solo su linee a scartamento ridotto!\n
+Only one transformer per factory!
+Solo un trasformatore per fabbrica!
+Only public player can lock games!
+Solo il giocatore pubblico può bloccare i giochi!
+Out of funds
+Denaro esaurito
+Planes are not available yet!
+Aerei non ancora disponibili.
+Post muss neben\nHaltestelle\nliegen!\n
+Un ufficio postale\ndeve essere ubicato vicino\nad una fermata/stazione!\n
+Protocoll error (expecting game)
+Errore nel protocollo (aspettando il gioco)
+Schiffhalt muss im\nWasser liegen!\n
+Le fermate delle barche\npossono essere piazzate\nsolo sull'acqua\nvicino ad un attracco!\n
+Server busy
+Server sovraccarico
+Server did not respond!
+Il server non risponde!
+Terraforming not possible\nhere in underground view
+Il terraforming è impossibile sottoterra.
+Upgrade must have\na higher level
+L'aggiornamento deve essere a un livello superiore
+Vehicle %s cannot choose because stop too short!
+Il veicolo %s non può scegliere, fermata troppo corta!
+Zughalt muss auf\nSchiene liegen!\n
+Le fermate ferroviarie\npossono essere piazzate\nsolo sui binari!\n
+#___________________________________help_text___________________________________
+#___________________________________help_text___________________________________
+<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
+<title>Aiuto tastiera</title>\n<h1><strong>Aiuto tastiera</strong></h1>\n<p>\n<strong>Aiuto tastiera</strong> Mostra le funzioni per vari tasti premuti sulla tastiera\n</p>\n<p>\n<strong>Aiuto tastiera</strong> si apre quando viene premuto un tasto non assegnato o da <a href="general.txt">Aiuto generale</a>.\n</p>\n<p>\nLe maiuscole sono diverse dalle minuscole (usare [<em>Shift</em>] per lettere maiuscole).\n</p>\n<p>\nTasti con le funzioni assegnate includono: \n</p>\n<p>\n[<em>Tasti freccia</em>]: muovi la vista nel senso della freccia.<br>\n[<em>Backspace</em>]: chiude tutte le finestre,barre e testi d'aiuto nella vista.<br>\n[<em>Cancella</em>], o [<em>Esc</em>]: chiude la finestra,barra o aiuto in primo piano sulla vista.<br>\n[<em>Enter</em>], or [<em>Return</em>]: usato per confermare azioni.<br>\n[<em>Pagina su</em>], o [<em>></em>]: aumenta zoom.<br>\n[<em>Pagina giù</em>], o [<em>simbolo "minore di"</em>]: diminuisce zoom.\n[<em>F1</em>]: apre <a href="general.txt">Aiuto Simutrans</a>.<br></p>\n<p>\n[<em>1</em>]: muove la vista verso sud.<br>\n[<em>2</em>]: muove la vista verso sud-est.<br>\n[<em>3</em>]: muove la vista verso est.<br>\n[<em>4</em>]: muove la vista verso sud-ovest.<br>\n[<em>6</em>]: muove la vista verso nord-est.<br>\n[<em>7</em>]: muove la vista verso ovest.<br>\n[<em>8</em>]: muove la vista verso nord-ovest.<br>\n[<em>9</em>]: muove la vista verso nord.\n</p>\n<p>\n[<em>Shift</em>] + <a href="mouse.txt">mouse</a>: usato in <a href="map.txt">Map</a> per vedere collegamenti in <a href="industry_info.txt">Catena approvvigionamenti industrie</a>.<br>\n[<em>CTRL</em>] + strumento: costruisce (segnali & <a href="station.txt">fermate</a>) al livello più alto; o costruisce strade più veloci sulle più lente; o più dritte (più dirette) strade e ferrovie.<br>\n[<em>CTRL</em>] + ([<em>F2</em>] fino a [<em>F12</em>]): seleziona lo strumento richiamato da [<em>F2</em>] a [<em>F12</em>].\n</p>\n<p>
+Clear block reservation
+Mostra/nascondi vie riservate
+Highlight railroad tracks
+Evidenzia le ferrovie
+Highlite depots
+Evidenzia i depositi
+Highlite electrical transmission lines
+Evidenzia le linee elettriche
+Highlite factories
+Evidenzia le fabbriche
+Highlite forests
+Evidenzia le foreste
+Highlite tourist attraction
+Evidenzia le attrazioni turistiche
+Overlay city limits
+Sovrapponi i limiti delle città
+Overlay passenger destinations when a town window is open
+Sovrapponi le destinazioni dei passeggeri quando la finestra della città è aperta
+Overlay schedules/network
+Sovrapponi i percorsi/reti
+Overlay town names
+Sovrapponi i nomi delle città
+Please click on the map to add\nwaypoints or stops to this\nschedule.
+Click sulla mappa per aggiungere\npassaggi o fermate a questo\npercorso.
+Show capacity and if halt is overcrowded
+Mostra la capacità e se la fermata è sovraccarica
+Show how many convoi reach a station
+Mostra quanti convogli raggiungono una stazione
+Show how many people/much is waiting at halts
+Mostra quante persone e quanto tempo sono in attesa alle fermate
+Show initial passenger departure
+Mostra l'origine dei passeggeri
+Show level of city buildings
+Mostra il livello degli edifici cittadini
+Show mail service coverage/mail network
+Mostra la copertura del servizio postale / la rete postale
+Show passenger coverage/passenger network
+Mostra la copertura del servizio passeggeri / la rete passeggeri
+Show speedlimit of ways
+Mostra il limite di velocità delle strade
+Show the change of waiting at halts
+Mostra il cambio di attesa alle fermate
+Show the owenership of infrastructure
+Mostra il proprietario delle infrastrutture
+Show transported freight/freight network
+Mostra le merci trasportate / la rete merci
+Show usage of network
+Mostra l'utilizzo della rete
+Shows a listing with all industries on the map.
+Mostra la lista delle industrie sulla mappa
+Sum of departure/arrivals at halts
+Somma di partenze/arrivi alle fermate
+#____________________________________ki_text____________________________________
+#____________________________________ki_text____________________________________
+%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
+%s ora\noffre servizio bus\ntra %s\ne l'attrazione\n%s\na (%i,%i).\n
+%s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
+%s ora\noffre servizio bus\ntra %s\ne l'industria\n%s\na (%i,%i).\n
+%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i).
+%s\nora fa viaggiare\n%i camion tra\n%s a (%i,%i)\ne %s\na (%i,%i).
+%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i).
+%s\ninaugura una nuova ferrovia\ntra %s\na (%i,%i) e\n%s\na (%i,%i).
+Airline service by\n%s\nnow between\n%s \nand %s.\n
+Servizio aereo da\n%s\nadesso tra\n%s \ne %s.\n
+Ferry service by\n%s\nnow between\n%s \nand %s.\n
+Servizio navale tra\n%s\nadesso tra\n%s\ne%s.\n
+Travellers now\nuse %s's\nbusses between\n%s \nand %s.\n
+%s apre un nuovo servizio bus tra %s e %s.
+#___________________________________menu_text___________________________________
+#___________________________________menu_text___________________________________
+AIRTOOLS
+Strumenti aeroporto
+EDITTOOLS
+Strumenti per modifica mappa
+LISTTOOLS
+Liste
+MAGLEVTOOLS
+Strumenti maglev
+MONORAILTOOLS
+Strumenti monorotaia/maglev
+NARROWGAUGETOOLS
+Strumenti linea a scartamento ridotto
+RAILTOOLS
+Strumenti ferrovia
+ROADTOOLS
+Strumenti strade
+SHIPTOOLS
+Strumenti porto
+SLOPETOOLS
+Movimenti terra
+SPECIALTOOLS
+Strumenti costruzione speciali
+TRAMTOOLS
+Strumenti tram/ferrovia leggera
+#_________________________________message_text__________________________________
+#_________________________________message_text__________________________________
+%s s\nheadquarter now\nat (%i,%i).
+%s ha costruito una nuova sede.
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s ha speso\nsoldi per costruire un\nnuovo municipio\nquando ha raggiunto\n%i abitanti.
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s ha speso\nsoldi per costruire un\nnuovo municipio\nquando ha raggiunto\n%i abitanti.
+Bankrott:\n\nDu bist bankrott.\n
+Bancarotta:\n\nSei fallito!\n
+Congratulation\nScenario was complete in\n%i months %i years.
+Congratulazioni!\nLo scenario è stato\ncompletato in\n%imesi e %i anni!
+Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
+Hai %d mesi per ripagare i debiti.
+Factory chain extended\nfor %s near\n%s built with\n%i factories.
+L'economia si sta allargando:\n%s vicino %s allarga la catena.\n%i nuove fabbriche sono state fondate
+New %s now available:\n%s\n
+Nuovo %s ora disponibile:\n%s\n
+New factory chain\nfor %s near\n%s built with\n%i factories.
+Nuova rete d'industrie\nper %s vicino a\n%s costruita con\n%i industrie.
+New vehicle now available:\n%s\n
+\n Un nuovo veicolo è\n ora disponibile:\n\n\n -- %s --\n\n
+Now %u clients connected.
+Adesso sono connessi %i giocatori.
+On this map, you are not\nallowed to change player!\n
+Le impostazioni della partita\nnon permettono il cambio di giocatore.\n
+Production of %s has been stopped:\n%s\n
+Produzione di %s è stata interrotta:\n%s\n
+Remove vehicle from map. Use with care!
+Rimuovi veicolo dalla mappa.(Attenzione!)
+Scenario complete: %i%%
+Scenario completo: %i%%
+Screenshot\ngespeichert.\n
+Schermata\nsalvata.\n
+Sends the convoi to the last depot it departed from!
+Manda convoglio all'ultimo deposito da cui è partito
+Spielstand wurde\ngeladen!\n
+\nGioco caricato con successo!\n
+Spielstand wurde\ngespeichert!\n
+\nGioco salvato con successo!\n
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Sei in rosso!\n\nHai %d mese/i\nper rientrare.\n
+With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
+Con una grande festa,\n%s ha costruito\nun nuovo monumento.\n%i cittadini festeggiano.
+#_________________________________program_text__________________________________
+#_________________________________program_text__________________________________
+(%i)-
+(%i)
+(in depot)
+(in deposito)
+\nBauzeit bis
+\nfino al 
+\nBauzeit von
+\nCompare dal 
+\nCan't open heightfield file.\n
+\nFile dei rilievi non leggibile.\n
+\ndirection:
+\ndirezioni:
+\nelektrified
+\nelettrificata
+\nHeightfield has wrong image type.\n
+\nLa mappa dei rilievi è in un formato\ndi immagine errato.\n
+\nis reserved by:
+\nriservata da:
+\nminimum speed:
+\nvelocità minima:
+\nnot elektrified
+\nnon elettrificata\n
+\nRibi (masked)
+\ndirezioni\m (mascherate):
+\nRibi (unmasked)
+\ndirezioni\n(visibili):
+\nSet phases:
+\nregola lunghezza ns/ew:
+\nsingle way
+\nSingola Via
+\nway1 reserved by
+via 1 risevata da\nvia 1 riservata da
+\nway2 reserved by
+via 2 riservata da\nvia 2 riservata da
+\nwith sign/signal\n
+\ncon cartello/segnale\n
+%d buildings\n
+%d palazzi\n
+%d convois
+%d convogli
+%d Einzelfahrzeuge im Depot
+%d veicoli in deposito
+%i km/h (max. %ikm/h)
+%i km/h (max %ikm/h)
+%i years %i months old.
+ha %i anni e %i mesi.
+%s at (%i,%i) now public stop.
+%s (coordinate %i,%i) è divenuta fermata pubblica.
+%s building %s %s
+%s %s %s
+%s city %d %s
+%s città %d %s
+%s factory %s %s
+%s fabbrica %s %s
+%s has entered a depot.
+%s è in deposito.
+%s land %d %s
+%s terreno %d %s
+%s\nis crowded.
+%s è congestionata!
+%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
+%s\nVelocità %i\nVelocità massima %i\ndx:%i dy:%i
+%s\nwas liquidated.
+%s\nè stato liquidato.
+%u Client(s)\n
+%i Connesso(i)\n
+%u Player (%u locked)\n
+%u Giocatore (%u bloccato)\n
+<em>%C</em> - %s<br>\n
+[<em>%C</em>]: %s<br>\n
+<no line>
+<nessuna linea>
+1 convoi
+1 convoglio
+1 Einzelfahrzeug im Depot
+1 veicolo in deposito
+1LIGHT_CHOOSE
+Luminosità:
+1WORLD_CHOOSE
+Opzioni della nuova mappa:
+2LIGHT_CHOOSE
+Colori:
+2WORLD_CHOOSE
+Numero mappa:
+3LIGHT_CHOOSE
+Vel. scrolling:
+4LIGHT_CHOOSE
+Inverti scrolling
+5LIGHT_CHOOSE
+Mostrare pedoni
+5WORLD_CHOOSE
+Numero città:
+6LIGHT_CHOOSE
+Pedoni in città
+6WORLD_CHOOSE
+Densità traffico:
+8WORLD_CHOOSE
+Modalità giorno e notte
+Abfrage
+Lente
+Abnehmer
+Clienti
+About
+Info
+About scenario
+Info scenario
+Abriss
+Distruggi/Rimuovi
+Absenken
+Abbassa terreno
+Abspanntransformator
+Trasformatore
+Accelerate time
+Accelera il tempo
+Account above %s
+Conto di %s
+Act. load: %u MW\n
+Carico attuale:%u MW\n
+Active player only
+Solo giocatore attivo
+Add forest
+Aggiungi foresta
+Add random citycar
+Aggiungi auto casuale
+add server
+Aggiungi server
+Add Stop
+Aggiungi
+Add stops for backward travel
+Aggiungi fermate viaggio ritorno
+Air
+Aereo
+aircraft_tab
+Aerei merci
+airplane
+aeroplano
+Airport
+Aeroporto
+All
+Tutto
+all convoi tooltips
+Tutti i richiami dei convogli
+Allow city growth
+Permetti crescita città
+Allow player change
+Consenti cambio giocatore
+allowed climates:\n
+climi permessi
+Alters a schedule.
+Aggiungi/rimuovi fermate da percorso
+Angenommene Waren
+Prodotti necessari da impianti vicini
+anhaengen
+Aggiungi
+Anhaenger_tab
+Rimorchi
+Anheben
+Alza terreno
+Appends stops at the end of the schedule
+Aggiungi fermate alla fine del programma
+April
+Aprile
+Arbeiter aus:
+Lavoratori da:
+Arrived
+Arrivati
+Aufloesen
+Disassembla
+Aufspanntransformator
+Trasformatore
+August
+Agosto
+Available
+Disponibili
+Bahndepot
+Deposito treni
+battery
+Non esiste!
+Baum
+Albero
+baum builder
+Pianta alberi
+Baustelle
+Cantiere\nedile
+Bauzeit
+avanza nel tempo
+Beenden
+Esci
+Beginner mode
+Modalità principiante
+Besonderes Gebaeude
+Attrazione Turistica
+BF
+stazione
+bio
+biologico
+Blockstrecke ist\nbelegt\n
+Questo tratto di\nlinea è usato\nda un altro treno\n
+Boden
+Terreno
+Bonusspeed: %i km/h
+Bonus velocità: %i km/h
+Boost (%)
+Incremento (%)
+Bruecke
+Ponte
+Brueckenboden
+ponte
+Build air depot
+Costruisci deposito aerei
+build choosesignals
+Costruisci segnali di scelta
+Build city market
+Costruisci un mercato nella città più vicina.
+Build drain
+Trasformatore
+build HQ
+Costruisci sede
+Build land consumer
+Costruisci nuova stazione di potenza.
+Build maglev depot
+Costruisci deposito maglev
+Build monorail depot
+Costruisci deposito monorotaia
+Build narrowgauge depot
+Costruisci deposito per ferrovia scartamento ridotto
+Build powerline
+Costruisci linea elettrica
+Build presignals
+Costruisci presegnali
+Build road depot
+Costruisci deposito veicoli
+Build ship depot
+Costruisci deposito navale
+Build signals
+Costruisci segnale
+Build train depot
+Costruisci deposito treni
+Build tram depot
+Costruisci deposito tram
+Build truck depot
+Costruisci deposito veicoli
+Building costs estimates
+Stima costo costruzione
+Buildings
+Numero edifici
+Built artifical slopes
+Costruisci pendio artificiale
+Built random attraction
+Costruisci attrazione casuale
+Bus_tab
+Bus
+Can only move from halt to halt or waypoint to waypoint.
+Si può solo muovere\nda fermata a fermata o\n da punto a punto.
+Cancel
+Annulla
+Cannot connect to offline server!
+Impossibile connettersi, server offline!
+Capacity:
+Capacità:
+Capacity: %d%s %s\n
+Capacità: %3d %s %s\n
+Capacity: %s\nLoad: %d (%d%%)
+Capacità: %s\nCarico: %d (%d%%)
+Capacity: %u MW\n
+Capacità: %u MW\n
+Cars are not available yet!
+Automobili non ancora disponibili.
+cars.\nstate
+auto\n
+Cash
+Cassa
+Change player
+Cambia giocatore
+Chart
+Grafico
+Chat_msg
+Chat
+Choose direction
+Scegli direzione
+Choose operation executed on clicking stored/new vehicles
+Scegli operazione eseguita selezionando veicoli nuovi o in deposito
+chooses a random map
+Sceglie mappa casuale.
+citicens
+Cittadini
+City attraction
+Attrazione cittadina
+City industries
+Mercati in città
+City list
+Lista città
+City size
+Dimensioni
+city_road
+Strade urbane
+citybuilding builder
+Costruisci edifici urbani
+CityLimit
+Limiti città
+cl_title
+Lista veicoli
+cl_txt_sort
+Ordina per:
+clf_chk_aircrafts
+Aereoplani
+clf_chk_cars
+Bus/Camion
+clf_chk_indepot
+in deposito
+clf_chk_maglev
+Maglev
+clf_chk_monorail
+Monorotaia
+clf_chk_name_filter
+Filtro per nome:
+clf_chk_narrowgauge
+Treni a scartamento ridotto
+clf_chk_noincome
+nessun incasso
+clf_chk_noline
+nessuna linea
+clf_chk_noroute
+nessuna rotta
+clf_chk_noschedule
+nessun percorso
+clf_chk_obsolete
+obsoleto
+clf_chk_ships
+Imbarcazioni
+clf_chk_spezial_filter
+Filtro speciale:
+clf_chk_stucked
+bloccato
+clf_chk_trains
+Treni
+clf_chk_trams
+Tram
+clf_chk_type_filter
+Filtro per tipo:
+clf_chk_waren
+Filtro per merci:
+clf_title
+Filtro Lista Veicoli
+Climate Control
+Controllo clima
+closed
+chiuso
+COLOR_CHOOSE\n
+Per favore scegli\nun colore dalla\ntabella:\n
+Company bankrupt
+Compagnia in bancarotta
+Company_msg
+Concorrenti
+Comparing pak files ...
+Comparazione pak files...
+Configure AI
+Configura AI
+Configure AI setttings
+Configura impostazioni AI
+Connect factory
+Collega industrie
+Connected stops
+Fermate collegate
+Connected with server
+Connesso al server
+Constructed by
+Disegno di
+Constructed by %s
+Disegno di %s
+construction speed
+velocità di costruzione
+Consumed
+Consumato
+convoi %d of %d
+convoglio %d di %d
+convoi error tooltips
+Richiami errori convogli
+Convoi has been sent\nto the nearest depot\nof appropriate type.\n
+Convoglio deviato al deposito più vicino
+Convoi is sold when all wagons are empty.
+Il convoglio viene venduto quando tutti i vagoni sono vuoti.
+convoi mouseover tooltips
+Richiami convogli con mouse sopra
+convoi passed last\nmonth %i\n
+\nconvogli nell'ultimo\nmese: %i\n
+Convois
+Convogli
+Convois: %d\nProfit: %s
+Veicoli: %d\nProfitto: %s
+Convoys
+Convogli
+Copy Convoi
+Copia Convoglio
+Copy the selected convoi and its schedule or line
+Copia convoglio selezionato con percorso o linea
+cost for removal
+Costi per rimozione
+Cost: %8s (%.2f$/km)\n
+Costo: %8s (%.2f$/km)\n
+Costs
+Costi
+Create a new line based on this schedule
+Crea nuova linea da questo percorso
+curiosity builder
+Costruzione curiosità
+curlist_title
+Lista attrazioni
+Currently playing:
+Brano in esecuzione:
+Customers live in:
+Clienti abitano a:
+deactivated in online mode
+Non attivo online.
+Deccelerate time
+Rallenta tempo
+December
+Dicembre
+decrease underground view level
+Diminuisci livello visione sotterranea
+Default.sve
+Default
+Del Stop
+Rimuovi
+Delete Line
+Cancella linea
+Delete the current stop
+Cancella la fermata corrente
+Delete the selected line (if without associated convois).
+Cancella la linea selezionata (se senza veicoli associati).
+Delete this file.
+Cancella questo file
+Delivered
+Consegnati
+Demand
+Richiesta
+Demand: %u MW\n
+Domanda %u MW\n
+Denkmal
+Monumento
+Departed
+Partiti
+Depots
+Depositi
+Destination
+Destinazione
+Destroying map ...
+Distruzione della mappa...
+Details
+Dettagli
+Direkt erreichbare Haltestellen
+Collegamenti diretti da qui
+disable midi
+Disabilita MIDI
+Distance
+Distanza
+Dock
+porto
+Durchsatz
+Max. prod. 
+Economy
+Economia e città
+Eigenbesitz\n
+Proprietà pubblica\n
+Ein %s\npasst hier nicht.\n
+Un '%s'\nnon va bene qui!\n
+Einstellungen aendern
+Cambia opzioni
+electric
+elettrico
+Electricity
+Elettricità
+Electricity producer\n\n
+Produttore elettricità\n\n
+Electrics_tab
+Veicoli elettrici
+Electrify track
+Elettrifica
+enlarge map
+Allarga mappa
+enter a value between %i and %i
+Inserisci un valore tra %i e %i
+Enter address
+Inserire l'indirizzo
+Enter Password
+Inserire Password
+Error
+Errore
+Erzeuge neue Karte.\n
+Attendere prego,\nsto creando una\nnuova mappa...\n\n(Per grandi mappe,\nquesta operazione\npuò richiedere anche\nalcuni minuti)\n
+Es wird bereits\nein Fahrplan\neingegeben\n
+Hai già iniziato\nad inserire un percorso!\n
+Fabrikanschluss
+Fabbriche connesse
+Fabrikname
+Nome fabbrica
+Factories
+Fabbriche
+factory details
+Dettagli fabbrica
+factorybuilder
+Costruisci fabbriche
+Fahrplan
+Percorso
+Fahrtziel
+Destinazione:
+Fahrzeuge:
+Veicoli:
+Farbe
+Colore giocat.
+Fast forward
+Tempo accelerato
+February
+Febbraio
+Ferry_tab
+Traghetti
+Fertig
+Fatto
+Filename
+Nome file:
+Filter:
+Filtro:
+Finances of %s
+Finanze di %s
+Finanzen
+Finanze
+find mismatch
+Compara il pak
+fl_title
+Lista fabbriche
+Flug_tab
+Aereo Passeggeri
+Follow the convoi on the map.
+Segui convoglio sulla mappa
+Forest
+Foresta
+Found new city
+Fonda nuova città
+Fracht
+Merce
+Frame time:
+Tempo Frame:
+Free Capacity
+Capacità disp.
+freeplay mode
+Modalità gioco libero
+Friction:
+fattore frizione attuale:
+fuel_cell
+celle combustibile
+Full load
+Carico:      
+Fundament
+Fondazione
+Fussgaenger
+Pedoni
+Game info
+Informazioni gioco
+GAME PAUSED
+GIOCO IN PAUSA
+Game_msg
+Generale
+Gear:
+Rapporti:
+Gebaeude
+Edificio
+General
+Generale
+Generated
+Generati
+Generation: %u MW\n
+Generazione: %u MW\n
+Gewicht
+Peso
+Gewinn
+Incasso
+Give the selected vehicle(s) an individual schedule
+Dai al veicolo(i) selezionato un percorso individuale.
+gl_title
+Lista di tutti i beni
+Goods
+Merci
+Goods AI
+Merci IA
+Goods list
+Lista beni
+Gross Profit
+Utile lordo
+Groundobj
+Oggetto
+Grow city
+Ingrandisci
+Growth
+Crescita città
+H
+fermata
+Happy
+Felice
+Haus kaufen
+Compra casa
+Headquarter and %li trains
+Sede e %li treni
+Helligk.
+Grafica
+Helligk. u. Farben
+Modifica colori
+Help
+Aiuto
+Help text not found
+Testo della guida non trovato.
+hide all building
+Nascondi edifici
+hide city building
+Nascondi edifici città
+hide objects under cursor
+nascondi gli oggetti sotto il cursore
+hide station names
+nascondi nomi stazioni
+hide transparent
+Nascondi trasparenti
+hide trees
+Nascondi alberi
+Hier warten/lagern:
+Passeggeri/merci in attesa:
+Higher transport fees, crossconnect all factories
+Tasse di trasporto più alte, disabilita Just-in-time.
+Highlite schedule
+Evidenzia percorso
+hl_title
+Lista stazioni/fermate
+hl_txt_filter
+Filtro:
+hl_txt_sort
+Ordina per:
+hlf_chk_airport
+Aeroporti
+hlf_chk_anleger
+Porti
+hlf_chk_bahnhof
+Stazione ferrov.
+hlf_chk_bushalt
+Fermata bus
+hlf_chk_frachthof
+Piazz. di carico
+hlf_chk_keine_verb
+Senza conness.
+hlf_chk_maglevstop
+Stazione maglev
+hlf_chk_monorailstop
+Fermata monorail
+hlf_chk_name_filter
+Filtro per nome:
+hlf_chk_narrowgaugestop
+Stazione linea a scartamento ridotto
+hlf_chk_overflow
+Oltre Capacità
+hlf_chk_spezial_filter
+Filtro speciale:
+hlf_chk_tramstop
+Fermata tram
+hlf_chk_type_filter
+Filtro per tipo:
+hlf_chk_waren_abgabe
+Produzione:
+hlf_chk_waren_annahme
+Merci necessarie:
+hlf_title
+Filtro Lista Stazioni/Fermate
+Homeless
+Senzatetto
+hydrogene
+Idrogeno
+Idle:
+Inattivi:
+ignore climates
+Ignora clima
+In the industry legend show only currently existing factories
+Nella legenda delle industrie mostra solo le fabbriche esistenti
+In Transit
+In Transito
+Increase Industry density
+Aumenta densità industrie
+increase underground view level
+Aumenta livello di visione sotterranea
+industrial building
+Edificio industriale
+Init map ...
+Costruzione mappa ...
+Ins Stop
+Inserisci
+Insert stop before the current stop
+Inserisci fermata prima della corrente
+Intercity road len:
+Lunghezza strade interurbane:
+Intro. date:
+Data intro.:
+invalid
+indefinito
+Invalid coordinate
+Ordine non valido
+isometric map
+Mappa isometrica
+January
+Gennaio
+join game
+Gioca online!
+July
+Luglio
+Jump to
+Salta a
+June
+Giugno
+Kein Besitzer\n
+Nessun proprietario
+keine
+nessuno
+Keine Einzelfahrzeuge im Depot
+Nessun veicolo in deposito
+Keyboard_Help\n
+Aiuto tastiera\n
+Kreuzung
+Attraversamento
+labellist_title
+Lista dei marcatori
+Laden
+Carica
+Land attraction
+Attrazioni della zona
+Land industries
+Industrie fuori città:
+LANG_CHOOSE\n
+Per favore scegli\nuna lingua:\n
+LARGE_NUMBER_STRING
+M
+LARGE_NUMBER_VALUE
+1e6
+Last Month
+Ultimo Mese
+Last Year
+Anno Scorso
+Leaving depot!
+Sto uscendo dal deposito!
+leer
+vuoto
+Legend
+Legenda
+Leistung
+Potenza
+Leistung: %d kW
+Potenza: %d kW
+Leitung
+Elettrodotto
+letzen Monat: diesen Monat:
+scorso mese:         questo mese:
+Line
+Linea
+Line Filter
+Filtro Linee
+Line Management
+Gestione Linee
+Lineless convoys serving this stop
+Convogli senza linea che si fermano qui
+Lines serving this stop
+Linee passanti
+LKW_tab
+Camion
+load height data from file
+Apri rilievo da file.
+loaded
+caricato
+loaded passenger/freight
+Ordina passegeri/merci per
+Loading (%i->%i%%)!
+Caricamento (%i->%i%%)!
+Loading addon paks ...
+Caricamento pacchetti aggiuntivi...
+Loading map ...
+Caricamento mappa ...
+Loading paks ...
+Caricamento pacchetti...
+Loading skins ...
+Caricamento maschere...
+Lock game
+Vieta cambio giocatore (richiede conferma).
+Lokomotive_tab
+Motrici
+m3
+m³
+maglev vehicle
+veicolo maglev
+maglev_track
+Linea maglev
+Maglevdepot
+Deposito maglev
+Mail Demand %d\n
+Richiesta di posta %d\n
+Mailbox
+Centro Messaggi
+Mailbox Options
+Opzioni Centro Messaggi
+Maintenance
+Manutenzione
+make stop public (or join with public stop next) costs %i per tile and level
+far diventare la fermata pubblica (o collega a fermata pubblica vicina) costa %i$ per area e livello 
+Manual (Human)
+Manuale (umano)
+Manufactured:
+Prodotti:
+Map roughness
+Asprezza terreno:
+map zoom
+Zoom
+March
+Marzo
+Margin (%)
+Margine (%)
+Marker
+Cartello
+Max Boost (%)
+Massimo incremento (%)
+Max income:
+Guadagno max:
+Max. speed:
+Velocità max:
+Maximum 254 stops\nin a schedule!\n
+Al massimo 254 fermate\nin un percorso!\n
+maximum length of rivers
+Lunghezza max. fiumi
+Maximum tile height difference reached.
+Massimo dislivello\ntra due blocchi\ndi terreno\nraggiunto.
+Maxspeed
+Velocità massima
+May
+Maggio
+Median Citizen per town
+Media abitanti per città:
+Meldung
+Messaggio
+Menge
+ammontare
+MessageOptionsText
+\nNuovo Anno\n\nNotizie Avversari\n\nNotizie Città\n\nPercorsi Ostruiti\n\nNuove Fabbriche\n\nChat\n\nNuovi Veicoli\n\nStazioni Piene\n\nProblemi\n\nIngorghi Traffico
+min
+min.
+minimum length of rivers
+Lunghezza min. fiumi
+Missing pakfiles
+Nessun pak trovato
+Modify the selected line
+Modifica linea selezionata
+Monate alt
+mesi di età
+Monorail
+Monorotaia
+monorail vehicle
+Veicolo monorotaia
+monorail_track
+Linea monorail
+Monorailboden
+Suppporto Monorotaia
+Monoraildepot
+Deposito Monorotaia
+month wait time
+Attesa mensile
+Months
+Mesi
+Monument
+Monumento
+Monuments
+Monumenti
+Mountain height
+Altezza montagne:
+Movingobj
+Oggetto in movimento
+Music playing disabled/not available
+Musica disabilitata o non disponibile
+Music volume:
+Volume musica:
+mute sound
+Elimina suoni
+Name
+Nome
+Narrowgauge
+Linea a scartamento ridotto
+narrowgauge vehicle
+Veicolo per linea a scartamento ridotto
+narrowgauge_track
+Linea a scartamento ridotto
+Narrowgaugedepot
+Deposito mezzi a scartamento ridotto
+Net ID: %u\n
+ID rete: %u\n
+Net Wealth
+Valore rete
+Net wealth near zero
+Valore rete prossimo a zero
+Neue Karte
+Nuova mappa
+Neue Welt
+Crea Nuovo Mondo
+new convoi
+Nuovo convoglio
+New Line
+Nuova linea
+New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.
+Nuova linea creata!\nPuoi assegnare la linea\nselezionandola dal\nmenu sopra.
+New Vehicles
+Nuovi veicoli
+no buildings hidden
+Nessun edificio nascosto
+no convois
+nessun convoglio
+No goods are loaded onto this convoi.
+Nessun bene sarà caricato sul convoglio
+no goods waiting
+nessuna merce in attesa
+no load
+No carico
+No Route
+Senza percorso
+No stop here!
+Lo strumento deve essere usato nelle aree di fermata
+No suitable ground!
+Terreno non disponibile
+No terminal station here!
+Non c'è nessuna stazione terminale!
+no timeline
+no linea del tempo
+no tree
+Nessun albero
+No. of Factories
+Numero di fabbriche
+none
+nessuno
+nord
+Nord
+nordost
+Nord-Est
+nordwest
+Nord-Ovest
+Not enough fields would remain.
+Non rimarranno abbastanza\nterreni intorno a questa fattoria
+November
+Novembre
+Now active as %s.\n
+Ora attivo come %s.\n
+Number of rivers
+Numero di fiumi
+Object
+Oggetto
+Odometer: %s km
+Tachimetro: %skm
+Oktober
+Ottobre
+On loan since %i month(s)
+In debito da %i mese/i
+Only city chains
+Solo catene di città
+Only first %d differing paks reported. There are probably more.
+Solo i primi %d paks differenti sono segnalati. Probabilmente le differenze sono di più.
+Only land chains
+Solo catene di campagna
+Only show goods which are currently handled by factories
+Mostra solo i beni che sono attualmente gestiti dalle fabbriche
+open
+apri
+Operation
+Costi Operativi
+Ops Profit
+Profitti
+Or enter a server manually:
+O inserire manualmente il server:
+Origin
+Origine
+ost
+Est
+Ownership
+Proprietà
+Pak which may cause severe errors:
+Pak che può causare errori gravi:
+Pak which may cause visual errors:
+Pak che può causare errori di visualizzazione:
+Pak(s) different:
+Pak(s) differente:
+Pak(s) missing on client:
+Pak(s) mancanti sul client:
+Pak(s) not on server:
+Pak(s) non sul server:
+Pakset differences
+Differenze del Pakset
+paletten
+casse
+Pas_tab
+Treni Passeggeri
+Passagiere
+Passeggeri
+Passagierrate
+Livello Passeggeri
+Passagierziele
+Destinazioni passeggeri/posta
+Passenger AI
+Passeggeri IA
+Passenger Demand %d\n
+Richiesta di passeggeri %d\n
+Passengers %d %c, %d %c, %d no route
+Passeggeri %d %c, %d %c, %d non serviti
+Passengers %d %s, %d %s, %d no route
+Passeggeri %d %s, %d %s, %d non serviti
+Password
+Password:
+Pause
+Pausa
+Pax <%i>  Mail <%i>
+Passeggeri <%i> Posta <%i>
+PaxDest
+Destinazioni
+Percent Electricity
+Produzione elettricità(% domanda)
+Plant tree
+Pianta alberi
+player
+Giocatore
+player -1
+umano
+player 0
+servizio pubblico
+player 1
+Napik 128 AS
+player 10
+giocatore 10
+player 11
+giocatore 11
+player 12
+giocatore 12
+player 13
+giocatore 13
+player 2
+Tricchi Trasporti
+player 3
+Fratelli Bianchi Trasporti
+player 4
+Società Anonima Trasporti
+player 5
+Trasporti Veloci Spa
+player 6
+PSK & Co KG
+player 7
+giocatore 7
+player 8
+giocatore 8
+player 9
+giocatore 9
+Please choose vehicles first\n
+Scegli prima i veicoli!\n
+Post
+Posta
+Postrate
+Livello Posta
+Power
+Potenza
+Power (MW)
+Potenza (MW)
+Power:
+Potenza:
+Power: %4d kW\n
+Potenza: %4d kW\n
+Powerlines
+Elettrodotti
+Problems_msg
+Problemi
+Produced
+Prodotti
+Production/Boost
+Produzione/Incremento
+Produktion
+Produzione
+Profit
+Profitti
+promote to line
+Promuovi a linea
+q1
+Primav.
+q2
+Estate
+q3
+Autunno
+q4
+Inverno
+Query server
+Interroga server
+rail car
+treno
+random
+casuale
+Random age
+Anno casuale
+Random map
+Mappa casuale
+Rathaus
+Municipio
+Rating
+Valutazione
+ratio_pax
+Rapporto pass.
+Relevant
+Rilevante
+Reliefkarte
+Mappa
+Remove
+Rimuovi
+remove airstrips
+Rimuovi aeroporto
+remove channels
+rimuovi canali
+remove interm. signals
+Rimuovi segnali intermedi
+remove maglev tracks
+rimuovi linee maglev
+remove monorails
+rimuovi rotaia
+remove narrowgauge tracks
+rimuovi linee a scartamento ridotto
+remove powerlines
+rimuovi linee elettriche
+remove roads
+rimuovi strada
+remove tracks
+rimuovi binari
+Remove wayobj %s
+Rimuovi oggetto %s
+replace other signals
+Sostituisci altri segnali
+replace stop
+ripristina fermata
+request closing
+richiedi chiusura
+residential house
+Abitazione
+Restore natural slope
+Ripristina pendio naturale.
+Restwert:
+Prezzo di vendita:
+Retire. date:
+Data ritiro:
+return ticket
+Replica ritorno
+Revenue
+Entrate
+Revision:
+Revisione:
+road
+strada
+Road toll
+Casello stradale
+road vehicle
+Veicolo da strada
+Roadsign
+Cartello Stradale
+Rotate map
+Ruota mappa
+Rotation
+Rotazione
+sack
+sacchi
+sail
+vela
+Saving map ...
+Salvataggio mappa ...
+Schedule changing!
+Cambio programma!
+Schienentunnel
+Costruisci tunnel ferroviario
+Schiff_tab
+Imbarcazioni
+Schiffdepot
+Deposito imbarcazioni
+Schleppkahn_tab
+Chiatte
+Screenshot
+Cattura schermata
+Seasons
+stagioni
+Sehenswuerdigkeit
+Attrazione turistica
+Select a server to join:
+Scegli un server al quale aderire:
+Sell the selected vehicle(s)
+Vendi veicolo(i) selezionato.
+sended
+Spedito
+SEP_FRACTION
+,
+SEP_THOUSAND
+.
+SEP_THOUSAND_EXPONENT
+3
+September
+Settembre
+Serves Line:
+Serve linee:
+Service
+Servizio
+set signal spacing
+Imposta distanza segnali
+Setting
+Opzioni
+Ship
+Imbarcazione
+shops and stores
+Negozi ed uffici
+Show all
+Mostra tutto
+show all building
+Visualizza tutti gli edifici
+Show also vehicles no longer in production.
+Mostra anche veicoli non più prodotti.
+Show also vehicles that do not match for current action.
+Mostra anche veicoli non adatti.
+Show even servers with wrong version or pakset
+Visualizza i server che forniscono una versione sbagliata del pakset.
+show grid
+Mostra griglia
+Show industry
+Mostra fabbriche
+Show legend
+Mostra legenda
+Show map scale
+Scala valori
+Show mismatched
+Mostra le mancate corrispondenze
+Show obsolete
+Mostra Veicoli Vecchi
+Show offline
+Mostra offline
+Show only used
+Mostra solo quelli utilizzati
+Show schedules
+Mostra programmi
+Show servers that are offline
+Mostra i server che sono offline
+Show servers where game version or pakset does not match your client
+Mostra i server dove il gioco o il pak non combaciano con la propria versione
+show station coverage
+Mostra copertura stazione
+show station names
+Mostra nomi stazioni
+show waiting bars
+Visualizza barre di attesa
+show/hide block reservations
+mostra/nascondi blocco prenotazioni
+Show/hide estimated arrival times
+mostra/nascondi tempi di arrivo stimati
+show/hide object owner
+mostra/nascondi possessore dell'oggetto
+Show/hide statistics
+Mostra/Nascondi Statistiche
+Shows buttons on special topics.
+Mostra i pulsanti relativi a particolari temi.
+Shows consumer/suppliers for factories
+Mostra clienti/fornitori per fabbrica
+Shows the color code for several selections.
+Mostra il codice colore per diverse selezioni.
+Shows the currently selected schedule
+Mostra la linea selezionata
+Shrink city
+Rimpicciolisci città
+shuffle midis
+MIDI casuali
+Signal
+Segnale
+signal spacing
+Distanza segnali
+Sim:
+CicliSim:
+Similar view as the main window
+Visualizza viste simili come finestra principale
+Size (%d MB):
+Dimens. (%d MB):
+sliced underground mode
+Vista per livelli
+slot empty
+Slot vuoto
+Smart hide objects
+Nascondi oggetti intelligente
+Sort by
+ordina passeggeri/merci per
+Sort waiting list by
+Ordina lista di attesa per
+Sound
+Audio
+Sound settings
+Proprietà Audio
+Sound volume:
+Volume suono:
+special freight
+Carico Speciale
+Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
+Bonus velocità\nstrada %i km/h, ferrovia %i km/h\nnavi %i km/h, aerei %i km/h.
+Speedlimit
+Limite velocità
+Speichern
+Salva
+Spieler
+Giocatore
+Spieler(mz)
+Giocatori
+Spielerliste
+Lista giocatori
+Sprachen
+Lingue
+Stadtinformation
+Statistiche della città
+Start the selected vehicle(s)
+Fai partire veicolo(i) selezionato.
+Station tiles:
+Area stazioni:
+Station_msg
+Stazioni
+Status
+Stato fermata
+steam
+vapore
+Step timeline one year
+Salta un anno.
+Stops
+Fermate
+Storage
+Accoglienza
+Storage capacity
+Capacità di accoglienza
+Strassendepot
+Deposito camion/bus
+Strassentunnel
+Costruisci tunnel stradale
+street car
+Auto
+sued
+Sud
+suedost
+Sud-Est
+suedwest
+Sud-Ovest
+Summer snowline
+0°C estate
+Supplied: %u %%
+Forniti: %u %%
+Suppliers
+Fornitori
+Supply %s at (%i,%i)
+Fornitura %s a (%i,%i)
+Tage alt
+giorni di età
+There are still vehicles\nstored in this depot!\n
+Ci sono ancora\ndei veicoli\nin questo deposito!\n
+This Month
+Questo mese
+This Year
+Anno Corrente
+Tile not empty.
+Rimuovi tutto prima\ndi spostare la terra.
+timeline
+Usa linea del tempo
+tl_title
+Lista di tutte le Città
+To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers.
+Per attrarre più turisti,\n%s ha costruito\nun %s\ncon l'aiuto di\n%i contribuenti.
+To heavy traffic\nresults in traffic jam.\n
+Il troppo traffico\nha causato code.\n
+Toggle day/night view
+Cambia visione giorno/notte
+Toggle vehicle tooltips
+Cambia richiami veicoli
+tonnen
+t
+Total inhabitants:
+Abitanti totali:
+Tourist attractions
+Attrazioni turistiche
+Tourists
+Attrazioni
+Town_msg
+Nuove Destinazioni
+Town: %s\n
+Città di %s.\n
+Towns
+Città
+track
+linea
+Tracks
+Binari
+Traffic
+Traffico
+Train
+Treno
+Trains are not available yet!
+Treni non ancora disponibili.
+tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h.
+Tram %i km/h, Monorotaia %i km/h\nMaglev %i km/h, Scartamento ridotto %i km/h
+tram_track
+Linea tram
+Tramdepot
+Deposito tram
+Trams are not available yet!
+Tram non ancora disponibili.
+Transferring game ...
+Trasferimento gioco...
+Transformer only next to factory!
+I trasformatori devono essere in\nuno spazio piano vuoto\nvicino alla fabbrica!
+Translation
+Traduzione
+transparent station coverage
+Copertura stazione trasparente
+Transport %li passengers
+Trasporta %li passeggeri
+Transported
+Trasportati
+TrolleyBus_tab
+filobus
+Truck
+Camion
+Tunnel muss an\neinfachem\nHang beginnen!\n
+Un tunnel deve\niniziare su\nlivelletta uniforme!\n
+Tunnel must start on single way!
+Le gallerie devono iniziare su una singola via.
+Tunnelboden
+Galleria
+underground mode
+Modalità sotterranea
+UNDO failed!
+Impossibile annullare. \nPuoi annullare la costruzione di \ntracciati solo prima di aver messo\nsegnali/stazioni/fermate ecc.
+Undo last ways construction
+Annulla costruzione delle ultime linee
+Unemployed
+Disoccupati
+Unhappy
+Infelici
+units/day
+ unità/giorno
+Update Line
+Aggiorna linea
+upgrade HQ
+Migliora sede
+Usage: %u %%
+Utilizzo: %u %%
+Usage/Output
+Utilizzo/Produzione
+Use beginner mode
+Modalità principiante
+Use timeline start year
+Linea del tempo dall'anno:
+Vehicle %s can't find a route!
+Il veicolo %s\nnon trova il percorso!
+Vehicle %s is stucked!
+Il veicolo %s è bloccato!
+Vehicle details
+Dettagli Veicolo
+Verbrauch
+Consumo
+Vergroessere die Karte\n
+Allarga mappa\n
+Verkauf
+Rimuovi convoglio
+verkaufen
+Vendi
+Verkehrsteilnehmer
+Utente stradale
+via
+via (dettaglio)
+via %s\n
+ via %s\n
+via Menge
+via (ammontare)
+voranstellen
+Agg.in testa
+Waggon_tab
+Vagoni
+waiting
+in attesa
+Waiting for clearance!
+In attesa di permesso!
+Walked
+Camminato
+Warnings_msg
+Traffico
+Wasser
+Acqua
+water
+Canale
+Water level
+Livello acqua:
+water vehicle
+Veicolo navale
+way %s cannot longer used:\n
+La via del tipo %s non può più esser usata.\n
+way %s cannot longer used:\n%s\n
+La via del tipo %s non può più essere usata:\n%s\n
+way %s now available:\n
+Via del tipo %s ora disponibile:\n
+way %s now available:\n%s\n
+La via del tipo %s ora è disponibile:\n%s\n
+Ways not connected
+Vie non connesse
+Wegpunkt
+Waypoint
+Weight:
+Peso:
+Wert
+Valore
+west
+Ovest
+Winter snowline
+0°C inverno
+withdraw
+Ritira
+Withdraw All
+Ritira tutto
+WRONGSAVE
+Versione salvata\nnon compatibile.\n\nImpossibile leggere\nil file.\n
+Year %i has started.
+L'anno %i è iniziato.
+Years
+Anni
+Your primary color:
+Il tuo colore primario:
+Your secondary color:
+Il tuo colore secondario:
+Zielort
+Destinazione
+zooming in
+Aumenta zoom
+zooming out
+Riduci zoom
+Zu nah am Kartenrand
+Troppo vicino al\nbordo della mappa\nper costruire qualcosa.\n
+#__________________________________record_text__________________________________
+#__________________________________record_text__________________________________
+New world record for maglevs: %.1f km/h by %s.
+Nuovo record mondiale per maglev: %.1f km/h da %s.
+New world record for monorails: %.1f km/h by %s.
+Nuovo record mondiale per \nmonorotaie: %.1f km/h\nda %s.
+New world record for motorcars: %.1f km/h by %s.
+Nuovo record del mondo per\nveicoli:\n %.1f km/h\nda %s.
+New world record for narrowgauges: %.1f km/h by %s.
+Nuovo record del mondo per ferrovie a scartamento ridotto: %.1f km/h da %s.
+New world record for planes: %.1f km/h by %s.
+Nuovo record del mondo per\naeroplani:\n %.1f km/h\nda %s.
+New world record for railways: %.1f km/h by %s.
+Nuovo record del mondo per\nferrovie:\n %.1f km/h\nda %s.
+New world record for ship: %.1f km/h by %s.
+Nuovo record del mondo per\nnavi:\n %.1f km/h\nda %s.
+#_______________________________unnecessary_text________________________________
+#_______________________________unnecessary_text________________________________
+&0_CITY_SYLL
+villaggio
+&1_CITY_SYLL
+vecchio
+&2_CITY_SYLL
+nuovo
+&3_CITY_SYLL
+fiorito
+&4_CITY_SYLL
+bello
+&5_CITY_SYLL
+basso
+&6_CITY_SYLL
+bruno
+&7_CITY_SYLL
+verde
+&8_CITY_SYLL
+rosso
+&9_CITY_SYLL
+forte
+&A_CITY_SYLL
+corto
+&B_CITY_SYLL
+da
+&C_CITY_SYLL
+seppellire
+&D_CITY_SYLL
+vece
+&E_CITY_SYLL
+bene
+%0_CITY_SYLL
+pino
+%1_CITY_SYLL
+Borgo
+%2_CITY_SYLL
+Castel
+%3_CITY_SYLL
+Orto
+%4_CITY_SYLL
+Monte
+%5_CITY_SYLL
+Colle
+%6_CITY_SYLL
+Passo
+%7_CITY_SYLL
+Prato
+%8_CITY_SYLL
+Campo
+%9_CITY_SYLL
+Bosco
+%A_CITY_SYLL
+Sasso
+%B_CITY_SYLL
+Ponte
+%C_CITY_SYLL
+nuovo
+%D_CITY_SYLL
+Vuoto
+%F_CITY_SYLL
+Quercia
+1center
+%s %s
+1extern
+%s %s est.
+1suburb
+%s %s %s
+2center
+%s %s Centro
+2extern
+%s %s P.ta Principe
+2suburb
+%s Terre verdi %s %s
+3center
+%s %s Via Dante
+3extern
+%s %s P.ta Vecchia
+3suburb
+%s villaggio %s %s
+4center
+%s %s V.le Repubblica
+4extern
+%s %s P.ta Nuova
+4suburb
+%s rurale %s
+5center
+%s %s C.so Roma
+5extern
+% trasferimento %s
+5suburb
+%s città %s
+6center
+%s %s Hub
+6extern
+%s scambio %s
+6suburb
+%s periferia %s %s
+7center
+%s %s Settimo
+7extern
+%s pianure %s
+7suburb
+%s parco %s
+8center
+%s affari %s
+8extern
+%s %s margine %s
+8suburb
+%s satellite %s
+9center
+%s asse %s
+9extern
+%s bypass %s
+9suburb
+%s mezzo %s
+#_________________________Simutrans Experimental Texts__________________________
+#_________________________Simutrans Experimental Texts__________________________
+#_________________________________program_text__________________________________
+#_________________________________program_text__________________________________
+ from %s
+da %s
+ mins. travelling
+ durata viaggio (minuti)
+ mins. waiting)
+ tempo attesa (minuti)
+ via %s
+via %s
+; brakes from max. speed in %i - %i m
+; spazio frenata dalla massima velocità %i - %i m
+; brakes from max. speed in %i m
+; spazio frenata dalla massima velocità %i m
+"%s has built a new %s %s %s."
+%s ha costruito un nuovo %s %s %s.
+(Max. comfortable journey time: 
+(Tempo max per viaggio confortevole:
+\n\nInterest on your debt is\naccumulating at %i %%
+\n\nL'interesse sul tuo debito\nsi accumula al %i %%.
+\n\nYour credit rating is being affected.
+\n\nIl tuo rating di credito è stato modificato.
+\nCity: 
+\nCittà: 
+\nMax. axle load:
+\nCarico per asse max.:
+\nMax. weight:
+\nPeso max.:
+\nMAY USE:  
+\nPossono utilizzare:
+\nMUST USE: 
+\nDevono utilizzare:
+\nNo postboxes within walking distance
+\nNessuna buca delle lettere raggiungibile a piedi
+\nOrigin: %s\nDestination: %s
+\nOrigine: %s\nDestinazione: %s
+%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nCosto: %d$\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacità: %d (%d)%s %s\nPeso: %dt\nVel. Max.: %dkm/h\n
+%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+%s\nCosto: %d$\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacità: %d%s %s\nPeso: %dt\nVel. Max.: %dkm/h\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nAxle load: %dt\nTop speed: %dkm/h\n\nMax. brake force: %dkN\nRolling resistance: %.1fN\n
+%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacità: %d (%d)%s %s\nPeso: %dt\nCarico per asse: %dt\nVel. Max.: %dkm/h\n\nForza frenante max.: %dkN\nResistenza rotolamento: %.1fN\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nAxle load: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %.1fN\n
+%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacità: %d (%d)%s %s\nPeso: %dt\nCarico per asse: %dt\nVel. Max: %dkm/h\nForza frenante max.: %dkN\nResistenza rotolamento: %.1fN\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nAxle load: %dt\nTop speed: %dkm/h\n\nMax. brake force: %dkN\nRolling resistance: %.1fN\n
+%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacità: %d%s %s\nPeso: %dt\nCarico per asse: %dt\nVel. Max.: %dkm/h\n\nForza frenante max.: %dkN\nResistenza rotolamento: %.1fN\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nAxle load: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %.1fN\n
+%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacità: %d%s %s\nPeso: %dt\nCarico per asse: %dt\nVel. Max.: %dkm/h\nForza frenante max.: %dkN\nResistenza rotolamento: %.1fN\n
+%s\nCost:     %s\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\nMax. brake force: %dkN\nRolling resistance: %fN\n
+%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nCapacità: %d%s %s\nPeso: %dt\nVel. Max.: %dkm/h\nForza frenante max.: %dkN\nResistenza rotolamento: %fN\n
+%s\nCost: %d$\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkm/h\nWeight: %dt\n
+%s\nCosto: %d$\nManutenz.: %1.2f$/km, %1.2f$/mese\nPotenza: %dkW, %dkm/h\nPeso: %dt\n
+%s\nCost: %s\nMaint.: %1.2f$/km, %1.2f$/month\nPower: %dkW, %dkN\nTop Speed: %dkm/h\nWeight: %dt\nAxle load: %dt\nMax. brake force: %dkN\nRolling resistance: %.1fN\n
+%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nPotenza: %dkW, %dkN\nVel. Max.: %dkm/h\nPeso: %dt\nCarico per asse: %dt\nForza frenante max.: %dkN\nResistenza rotolamento: %.1fN\n
+above\nminutes
+minuti\noltre
+Acceleration
+Accelerazione
+Access
+Accesso
+All hidden items (such as trees and buildings) will appear as transparent.
+Tutti gli oggetti nascosti (come alberi ed edifici) appariranno trasparenti.
+All traction types
+Tutti i tipi di trazione
+Alternate directions
+Direzioni alternate
+assume_everywhere_connected_by_road
+Si assume che qualsiasi luogo sia connesso da una strada.
+Automatically replace this convoy.
+Rimpiazza automaticamente questo convoglio
+Average speed
+Velocità media
+Avg trip time
+Tempo medio di percorrenza
+Axle load:
+Carico per asse:
+Bridge cannot be built over deep water\n
+Impossibile costuire ponti su acque profonde\n
+Buy/sell
+Compra/Vendi
+Cannot build this signal underground.
+Non si possono costruire segnali sottoterra.
+Cannot delete a road where to do so would leave a city building unconnected by road.
+Non è possibile rimuovere una strada se si lascia un edificio della città sconnesso dalla rete stradale.
+Cannot set marker here.\n
+Non si possono impostare marker qui.\n
+Cannot terraform in deep water
+Impossibile modificare il terreno in acque profonde
+Capacity: %3d %s%s %s\n
+Capacità: %3d %s%s %s\n
+Capital expenditure on infrastructure
+Spese per infrastrutture
+Capital expenditure on vehicle purchases and upgrades
+Spese per acquisto o aggiornamento veicoli
+capital_threshold_size
+Limite della capitale
+Car ownership
+Auto di proprietà
+catering bonus\nfor travelling
+bonus catering\nper viaggio
+catering level 1
+livello di catering 1
+catering level 2
+livello di catering 2
+catering level 3
+livello di catering 3
+catering level 4
+livello di catering 4
+catering level 5
+livello di catering 5
+Catering level: %i\n
+Livello catering: %i\n
+Centralised path searching
+Ricerca itinerario centralizzata
+Centralised path searching is currently not available when playing online.
+Ricerca itinerario centralizzata non è disponibile durante il gioco online.
+chance\npercent
+possibilità\npercento
+Cities ignore height
+Città ignorano altitudine
+Cities like water
+Città vicine all'acqua
+Cities will be built all over the terrain, rather than preferring lower ground
+Le città saranno costruite su tutto il terreno, invece di preferire i terreni più bassi
+City
+Città
+City cluster size:
+Dimensione dei raggruppamenti di città:
+City generation: not enough places found for cities. Only %d cities generated.\n
+Generazione città: non c'è abbastanza spazio per tutte le città. Sono state generate solo %d città.\n
+City generation: only %d cities could be placed inside clusters.\n
+Generazione città: solo %d possono essere piazzate all'interno del settore.\n
+city_threshold_size
+Limite della città
+Clear
+Annulla sostituzione
+clf_chk_obsolete
+veicoli obsoleti
+Cluster size
+Dimensione gruppi
+comfort expectance\nfor travelling
+comfort atteso\nper viaggiare
+comfort impact\nlimitations
+impatto comfort\nlimitazioni
+Congestion
+Congestione
+Connecting cities ...
+Connessione delle città ...
+Constructed by %s\n
+Realizzato da %s\n
+Convoi is sent to depot when all wagons are empty.
+Il convoglio sarà inviato al deposito quando tutti i vagoni saranno vuoti.
+Cost of overdraft interest payments
+Costo interessi sullo scoperto
+Cost: %8s\n
+Costo: %8s\n
+Credit limit
+Limite del credito
+Distance\nComfort\nCatering level\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
+Distanza (km)\nComfort\nLivello catering\nSpeedbonus\nStrada %i km/h, Ferrovia %i km/h\nNavi %i km/h, Aerei %i km/h.
+Distance\nComfort\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
+Distanza (km)\nComfort\nSpeedbonus\nStrada %i km/h, Ferrovia %i km/h\nNave %i km/h, Aereo %i km/h.
+Electrical consumption: 
+Consumo di elettricità:
+Electrical demand: 
+Domanda di elettricità:
+Electrical output: 
+Produzione di elettricità:
+Explore paths:
+Esplora itinerari:
+Fill path matrix:
+Riempi la matrice degli itinerari:
+Filter eligible halts:
+Filtra possibili fermate:
+Finalising ...
+Finalizzazione ...
+Fixed Costs
+Costi fissi
+Full replace
+Sostituisci tutto
+get\nrevenue $
+ottenuti\nfatturato $
+gl_btn_sort_catg
+per categoria
+gl_btn_sort_weight
+per peso
+Goods supplied
+Prodotti forniti
+Graphs right to left instead of left to right
+Grafici da destra a sinistra anziché da sinistra a destra
+Graphs showing financial information will appear from right to left instead of left to right
+Il grafico delle informazioni finanziarie apparirà da destra a sinistra invece che da sinistra a destra
+Graphs showing non-financial information will appear from right to left instead of left to right
+Il grafico delle informazioni non finanziarie apparirà da destra a sinistra invece che da sinistra a destra
+Gross revenue
+Reddito lordo
+Groups:
+Gruppi:
+Growing cities ...
+Crescita città ...
+has changed its colour scheme.
+ha modificato il suo schema di colori
+head
+capo
+hide objects under cursor
+nascondi gli oggetti sotto al cursore
+Highlight the locations of stops on the current schedule
+Evidenzia le fermate sul percorso attuale
+Hilly landscape
+Paesaggio collinare
+Industry: %s has closed down, with the loss of %d jobs. %d upstream suppliers and %d downstream customers are affected.
+Industria: %s ha cessato l'attività, sono stati persi %d posti di lavoro. %d fornitori e %d clienti sono stati coinvolti.
+Interest
+Interessi
+Inverse graphs
+Grafici inversi
+Inverse graphs (financial)
+Grafico inverso (finanziario)
+Inverse graphs (other)
+Grafico inverso (altro)
+Keep replaced vehicles in the depot for future use rather than selling or upgrading them.
+Tenere i veicoli sostituiti in magazzino per un uso futuro piuttosto che venderli o ristrutturarli.
+Livery scheme:
+Schema di livree:
+Loading time:
+Tempo carico:
+Loading. %s left!
+Caricamento. %s da attendere
+local
+locale
+LOCO_CAP
+Capacità: %d%s %s\n
+LOCO_INFO_EXT
+%s\nCosto: %s\nManutenz.: %1.2f$/km, %1.2f$/mese\nPotenza: %dkW, %dkN\nVel. Max.: %dkm/h\nPeso: %dt\nForza max. freno: %dkN\nResistenza rotolam.: %fN\n
+long dist.
+Lunga distanza
+Maintenance: %1.2f$/km, %1.2f$/month\n
+Manutenzione: %1.2f$/km, %1.2f$/mese\n
+Mark for replacing
+Marca per la sostituzione
+Mark for replacing. The convoy will replace when manually sent to depot
+Marcato per la sostituzione. Il convoglio verrà sostituito quando sarà inviato manualmente al deposito
+max discomfort penalty
+Max penalità discomfort
+max luxury bonus
+Max bonus lusso
+Max. brake force:
+Forza frenante max:
+min comfort\nrating
+Minima percentuale comfort
+Minimum runway length
+Lunghezza minima pista
+Modified comfort
+Comfort modificato dal catering
+Name/password
+Login/Password
+Narrow gauge
+Scartamento ridotto
+near
+vicino a
+Next Month:
+Prossimo Mese:
+NO CONTROL TOWER
+Manca la torre di controllo
+No passenger stops within walking distance\n
+Nessuna fermata passeggeri raggiungibile a piedi\n
+North To South
+Da nord a sud
+Number of big cities
+Numero di grandi città
+Number of big cities:
+Numero di grandi città:
+Number of city clusters:
+Numero di raggruppamenti di città:
+Number of clusters
+Numero di gruppi
+Number of units of passengers and goods transported
+Numero di passeggeri e merci trasportate
+Obsolescence increase
+Costo aggiuntivo obsolescenza
+on foot)
+a piedi)
+Open countryside
+Campagna aperta
+Open water
+Mare aperto
+Operating revenue less operating expenditure
+Ricavo operativo meno costi operativi
+origin
+Origine
+origin (amount)
+origine (quantità)
+origin (detail)
+origine (dettaglio)
+Passenger destinations
+Destinazioni passeggeri
+passenger\ndistribution
+passeggero\ndistribuzione
+Passengers
+Passeggeri
+Passengers %d %c, %d %c, %d no route, %d too slow
+Passeggeri %d %c, %d %c, %d senza percorso, %d troppo lento
+Pedestrians will appear near stops whenver a passenger vehicle unloads there.
+I pedoni appariranno vicino alle fermate quando un veicolo li farà scendere lì.
+Pedestrians will appear randomly in towns.
+I pedoni appariranno a caso nelle città.
+per 1 km
+per 1km
+percent
+percento
+Percentage of revenue retained as profit
+Percentuale di ricavo trattenuta come profitto
+Placing attractions ...
+Posizionamento attrazioni ...
+Placing cities ...
+Posizionamento città ...
+Placing industries ...
+Posizionamento industrie ...
+Placing trees ...
+Posizionamento alberi ...
+Power demand
+Potenza richiesta
+Power supply
+Potenza fornita
+Power/tractive force: %4d kW / %d kN\n
+Potenza/forza di trazione: %4d kW / %d kN\n
+Pulls
+Traina
+Pulls:
+Traina:
+quick_city_growth
+Crescita rapida città
+Rail
+Ferrovia
+Re-route goods:
+Merci con nuovo percorso
+Read-only option : need to be set in simuconf.tab
+Opzione sola lettura: deve essere impostata in simuconf.tab
+Rebuild connexions:
+Ricostruisci connessioni:
+Recurring expenses of infrastructure maintenance
+Spese periodiche per mantenimento infrastrutture
+Refresh routes instantly
+Aggiorna subito i percorsi
+Refunds
+Rimborsi
+remove interm. signals
+Rimuovi segnali intermedi
+Replace
+Sostituisci
+replace all
+Sostituisci tutti
+Replace all convoys like this
+Sostituisci tutti i convogli come questo
+Replace all convoys like this belonging to this line
+Sostituisci tutti i convogli di questa linea come questo
+replace all in line
+Sostituisci quelli della linea
+Replace but stay
+Sostituisci ma rimani
+Replace cycle:
+Ciclo di sostituzioni:
+replace other signals
+Sostituisci i segnali esistenti
+Replacing
+Sostituzione
+Replacing\nvehicles of\n%-20s\ncompleted
+Rimpiazzo\ndei veicoli\n%-20s\ncompletato
+Reset this replacing operation
+Annulla questa operazione di rimpiazzo
+Retain in depot
+Conserva nel deposito
+Retire
+Pensiona
+Revenue from electricity transmission
+Ricavo da trasmissione elettricità
+revenue of
+entrate di
+reverse route
+Percorso al contrario
+Reversing
+Inversione
+Reversing. %s left
+Inversione. %s da attendere
+Road
+Strada
+Rolling resistance:
+Resistenza al rotolamento:
+Routes will update instantly after any changes to lines/schedules. Can make the game respond slowly on big maps.
+I percorsi si aggiorneranno immediatamente dopo le modifiche alle linee / orari. Può far rispondere lentamente il gioco se si usano mappe grandi.
+rpl_cnv_replace
+Sostituisci
+rpl_cnv_sell
+Vendi
+rpl_cnv_skip
+Salta
+Runway too short
+Lunghezza pista troppo corta
+savegame Experimental version
+gioco salvato in versione Experimental
+See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.
+Guarda sottoterra, uno strato alla volta. Alterna con CTRL + U. Muoviti su / giù di uno strato Home e Fine.
+See under the ground, to build tunnels and underground railways/metros. Toggle with SHIFT + U
+Guarda sotto terra, per costruire tunnel e ferrovie o metropolitane sotterranee. Cambia con SHIFT+U
+Sell
+Vendi
+Send convoy to depot, replace and restart it automatically
+Invia convoglio al deposito, sostituiscilo e fallo ripartire automaticamente
+Send convoy to depot, replace it and stay there
+Invia convoglio al deposito, sostituiscilo e fallo rimanere lì
+Send the convoy to its home depot for replacing rather than the nearest depot.
+Invia il convoglio al suo deposito base per la sostituzione invece di inviarlo al deposito più vicino.
+set signal spacing
+Imposta spaziatura segnali
+Show a non-transient dialogue box
+Visualizza una finestra di dialogo fissa
+Show a transient dialogue box
+Visualizza una finestra di dialogo a scomparsa
+Show from how far that passengers or goods will come to use your stops. Toggle with the v key.
+Visualizza da quanto lontano passeggeri e merci arriveranno per usare le tue fermate. Cambia con il tasto V.
+Show the map in the same isometric orientation as the main game window
+Visualizza la mappa con lo stesso orientamento della finestra principale di gioco
+Shows a bar graph representing the number of passengers/mail/goods waiting at stops.
+Visualizza un grafico a barre rappresentante il numero di passeggeri/posta/merci in attesa alle fermate.
+Shows the borderlines of each tile in the main game window. Can be useful for construction. Toggle with the # key.
+Mostra i confini di ogni casella nella finestra di gioco principale. Può essere utile quando si costruisce. Alterna con il tasto #.
+Shows the names of the individual stations in the main game window.
+Visualizza i nomi delle singole stazioni nella finestra principale di gioco.
+signale bauen
+Costruisci
+Size
+Dimensione
+Skip
+Salta
+Spacing cnv/month
+Spaziatura convogli/mese
+Spacing cnv/month, shift
+Spaziatura convogli/mese, spostamento
+Status:
+Stato:
+Stops potentially within walking distance:
+Fermate potenzialmente raggiungibili a piedi:
+That would exceed\nyour credit limit.
+Questa operazione supera\nil tuo limite di credito.
+The amount of mail transported in the region overall
+Ammontare della posta trasportata nella regione
+The charges incurred or revenues earned by running on other players' ways
+Oneri sostenuti viaggiando su tratte possedute da altri giocatori o ricavi conseguiti da altri giocatori che hanno viaggiato sui tratti di percorso di tua proprietà.
+The convoy has been sent\nto its home depot.\n
+Il convoglio è stato inviato\nal suo deposito base.\n
+The display of the station coverage can either be a transparent rectangle or a series of boxes.
+La visualizzazione della copertura delle stazioni può essere un rettangolo trasparente o una serie di quadrati.
+The following %s has become obsolete:\n%s\n
+Il seguente %s è divenuto obsoleto:\n%s\n
+The main game window can be scrolled by right-clicking and dragging the ground.
+La finestra principale di gioco può essere mossa cliccando con il destro e spostando il terreno.
+The maximum amount that can be borrowed without prohibiting further capital outlays
+Il massimo prestito che può essere preso senza proibire ulteriori spese per il capitale
+The number of convoys that have serviced this stop
+Numero di convogli che si sono fermati a questo stop
+The number of industries in the region
+Numero di industrie nella regione
+The number of inhabitants by which the region has increased
+Aumento abitanti nella regione
+The number of inhabitants of the region
+Numero di abitanti nella regione
+The number of passengers who could not find a route to their destination
+Numero di passeggeri non serviti
+The number of passengers who decline to travel because the journey would take too long
+Numero di passeggeri che hanno rinunciato al viaggio perché troppo lungo
+The number of passengers who have left because of overcrowding or excess waiting
+Numero di passeggeri che se ne sono andati per sovraffollamento o eccesso d'attesa
+The number of passengers who have travelled successfully from this stop
+Numero di passeggeri che hanno viaggiato con successo da questa fermata
+The number of passengers/units of mail/goods that have arrived at this stop
+Numero di passeggeri/posta/merci che sono arrivate a questa fermata
+The number of passengers/units of mail/goods that have departed from this stop
+Numero di passeggeri/posta/merci che sono partiti da questa fermata
+The number of passengers/units of mail/goods waiting at this stop
+Numero di passeggeri/posta/merci in attesa a questa fermata
+The number of private car trips in the region overall
+Numero di viaggi in auto privata nella regione
+The number of urban areas in the region
+Numero di aree urbane nella regione
+The percentage of available goods that have been transported in the region
+Percentuale di merci disponibili che sono state trasportate nella regione
+The percentage of passengers transported in the region overall
+La percentuale di passeggeri trasportati nella regione
+The total amount of mail generated in the region
+Ammontare totale di posta generata nella regione
+The total number of convoys in the region
+Numero totale di convogli nella regione
+The total number of mail/passengers/goods transported in the region
+Numero totale di passeggeri/posta/merci trasportati nella regione
+The total number of passengers wanting to be transported in the region
+Numero totale di passeggeri che vogliono essere trasportati nella regione
+This can only be built underground.
+Questo oggetto può essere costruito solo sottoterra.
+This is a tilting vehicle\n
+Questo è un veicolo basculante\n
+This is a travelling post office
+Questo è un ufficio postale itinerante
+tile
+casella
+tiles
+caselle
+To be replaced by:
+Sostituito da:
+too heavy
+Troppo pesante
+Too slow
+Troppo lento
+Total assets less total liabilities
+Attivi totali meno passivi totali
+Total capital assets, excluding liabilities
+Attivi totali del capitale, escluse passività
+Total income less total expenditure
+Ricavo totale meno spese totali
+Total liquid assets
+Totale attivi liquidi
+Transfer time: 
+Tempo di trasferimento: 
+Transformer only next to factory or in city!
+Le sottostazioni elettriche possono essere costruite solo vicino alle industrie o all'interno delle città.
+Transshipment time: 
+Tempo di trasbordo:
+travelling post office
+ufficio postale mobile
+Trees will be miniaturised or made transparent in the main game window.
+Gli alberi saranno miniaturizzati o resi trasparenti nella finestra principale di gioco.
+Unpowered vehicles only
+Solo veicoli senza motore
+Use any vehicles already present in the depot, if available, instead of buying new ones or upgrading.
+Utilizzare qualsiasi veicolo già presente nel deposito (se disponibile) invece di comprarne di nuovi o di ristrutturarne.
+Use centralised instead of distributed path searching system.
+Usa il sistema di ricerca dell'itinerario centralizzato al posto di quello distribuito
+Use existing vehicles
+Utilizza i veicoli esistenti
+Use home depot
+Utilizza il deposito base
+Use one spacing shift value for all stops in schedule.
+Usa lo stesso spostamento per tutte le fermate del programma.
+Use performance counter
+Usa indicatore performance
+Vehicle running costs (both fixed and distance related)
+Costi operativi dei veicoli (fissi e variabili)
+Vehicles make a round trip between the schedule endpoints, visiting all stops in reverse after reaching the end.
+I veicoli viaggiano tra i capolinea visitando tutti gli stop ed invertendo la direzione all'arrivo in ogni capolinea.
+waiting time unknown)
+Tempo d'attesa sconosciuto
+waiting\ntolerance\nmax. min
+tolleranza\ndi attesa\nmax. (min)
+waiting\ntolerance\nmin. min
+tolleranza\ndi attesa\nmin. (min)
+Walked
+Camminato
+Walking time
+Tempo a piedi
+Way constraint permissive 
+Vincolo di via permissivo
+Way constraint prohibitive %n\n
+Vincolo di via proibitivo %n\n
+West To East
+Da ovest ad est
+When adding convoys to the line, every second convoy will follow it in the reverse direction.
+Quando si aggiungono convogli alla linea, ogni secondo convoglio viaggerà nella direzione opposta (utile per il senso di marcia nelle linee circolari).
+When this is set, the vehicle will visit stops in reverse order.
+Quando è selezionato il veicolo visita le fermate in ordine inverso.
+Whether the lighting in the main game window simulates a periodic transition between day and night.
+Se la luce simula la transizione periodica tra giorno e notte.
+You have been overdrawn\nfor %i months
+Sei in debito\nda %i mesi.
+You have been overdrawn\nfor one month
+Sei in debito\nda un mese.
+#_______________________________unnecessary_text________________________________
+#_______________________________unnecessary_text________________________________
+Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
+Passeggeri %d %c, %d %c, %d senza percorso\n\nCapacità: %i\n

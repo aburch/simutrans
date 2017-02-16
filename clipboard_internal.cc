@@ -10,7 +10,7 @@
 #include <string.h>
 
 #include "simsys.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simdebug.h"
 
 

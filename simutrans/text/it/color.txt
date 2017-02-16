@@ -1,0 +1,9 @@
+<title>Aiuto - Scelta colori</title>
+
+<h1>Scelta colori</h1>
+
+<p>
+Con questo menù si può scegliere il colore che avranno
+tutti i propri veicoli, le proprie stazioni e le proprie fermate.
+Il colore di default è l'azzurro.
+</p>

@@ -1,0 +1,53 @@
+<title>Airport Tools Help</title>
+
+<h1><strong>Airport Tools</strong></h1>
+
+<p>
+<strong>Airport Tools</strong> contain tools to construct an air transport network. Tools may build or remove: taxiways and runways for aircraft, air stops (used to pick up and drop off, cargo or passengers), aircraft hangars (to purchase and manage air transport vehicles) and and various airport buildings. If playing with the <a href="new_world.txt">timeline</a> on, then as time passes in Simutrans more tool options may appear.
+</p>
+<p>
+Click on aircraft icon at the top of the main game window to open the toolbar.<br>
+Hover the mouse cursor over a tool option (after opening or clicking on toolbar) to see the name and, where appropriate: construction <a href="finances.txt">cost</a>, maintenance cost in brackets, and maximum speed and weight limits.
+</p>
+<p>
+<em>Tip</em>: One way to build a simple airport is:<br>
+i) construct and connect taxiway(s) and runway(s);<br>
+ii) place airstop(s) on end(s) of taxiway(s);<br>
+iii) add airport buildings as required.
+</p>
+<p>
+Tools may include, from left to right:
+</p>
+<p>
+<em>Taxiway:</em> tool builds ground movement areas for aircraft to go from an airstop to a runway. Taxiways are built on level ground in the main game window.<br>
+IMPORTANT: If Taxiways are connected to the end of runways aircraft may not take off or land.<br>
+To build a taxiway: click on the tool to select (changes cursor to taxiway), drag the tool where it is to be constructed. A preview of the taxiway will appear, along with an estimate of the building costs. To build the taxiway, just release the mouse button.<br>
+<em>Tip</em>: Use <strong>the destroy/remove tool</strong> to remove individual pieces of taxiway. Undo <a href="keys.txt">[z]</a> does not refund constructions costs.
+</p>
+<p>
+<em>Runway:</em> tools build an airstrip, used by aircraft to take-off and land. Runways are built on level ground in the main game window and may cross each other.<br>
+To build a Runway: click on the tool icon to select (changes cursor to way), drag the tool where it is to be constructed. A preview of the runway will appear, along with an estimate of the building costs. To build the taxiway, just release the mouse button.<br>
+<em>Tip:</em> Leave ends of runways unconnected otherwise aircraft may not take off or land. Use the destroy/remove tool to remove individual pieces of runway. Undo <a href="keys.txt">[z]</a> does not refund constructions costs.
+</p>
+<p>
+<em>Remove airstrips:</em> tool removes a segment of taxiway or runway, when no aircraft are present, between two points in the main game window. Use of the tool incurs a <a href="finances.txt">construction cost</a>.<br>
+To remove an airstrip: click on the tool icon (changes cursor to a red-cross); then click on strip that is to be deleted (selects deletion-point shown by a red-cross in the main game window); and finally click at another point on strip, to remove portion up to first deletion-point.
+<em>Tip:</em> Leave end of Runways unconnected otherwise planes may not take-off or land. Use the destroy/remove tool to remove individual pieces of airstrips.
+</p>
+<p>
+<em>Air <a href="depot.txt"><em>Depot:</em></a></em> tools build hangars for purchasing and managing aircraft. Hangars have a maintenance cost and are built on the end of a piece taxiway.<br>
+To build a hangar: click on the tool icon (changes cursor to a depot), then click on an end of a taxiway.<br>
+<em>Tip:</em> Remove depots with the destroy/remove tool.
+</p>
+<p>
+<em>Airstops</em> and <em>boarding bridge:</em> tools build stops in the main game window, for aircraft to pick up and drop off passengers or cargo.<br>
+An airstop when not built adjacent to an existing <a href="station.txt">stop</a> will create a new stop.<br>
+Airstops are built on the end of a piece taxiway; and have a maintenance cost and catchment area for goods, passengers and mail. An aircraft will only land at an airport if there is an free airstop available.<br>
+To build an airstop: click on the tool to select and then click on an end of a taxiway.<br>
+<em>Tip:</em> Remove Airstops with the destroy/remove tool. Press <a href="keys.txt">[v]</a> to show/hide the catchment area for goods and passengers in the main game window.
+</p>
+<p>
+<em>Airport buildings:</em> tools construct extensions for <a href="station.txt">Stops</a> which may increase maintenance costs and the capacity and catchment area for goods and passengers. In the corner of some tool options an icon (used in <a href="haltlist.txt">Station List</a> and Stop Information) shows which items the extension enables the Stop to handle.<br>
+To build an extension: click on the tool icon to select extension (changes cursor to extension), then click required position, next to an existing stop in the main game window. The new extension is now considered to be part of the stop.<br>
+<em>Tip:</em> Remove extensions with the the destroy/remove tool. Press <a href="keys.txt">[v]</a> to show/hide the catchment area for goods and passengers in the main game window.
+</p>

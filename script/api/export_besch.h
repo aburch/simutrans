@@ -3,15 +3,19 @@
 
 #include "../../squirrel/squirrel.h"
 
-/** @file export_besch.h Helper functions to export besch-classes */
+/** @file export_besch.h Helper functions to export desc-classes */
 
 /**
  * Creates class @p name in top of the stack.
  *
  * Defines constructor. Call has to be complemented by call to end_class.
  * @param name name of new class
- * @param func function pointer to a function that retrieves pointer-to-besch by name
+ * @param base name of base class (or NULL)
+ * @param func function pointer to a function that retrieves pointer-to-desc by name
  */
-void begin_besch_class(HSQUIRRELVM vm, const char* name, const void* (*func)(const char*));
+void begin_desc_class(HSQUIRRELVM vm, const char* name, const char* parent, const void* (*func)(const char*));
+
+/// Function signature to retrieve desc-pointer from name
+typedef const void* (*GETBESCHFUNC)(const char*);
 
 #endif

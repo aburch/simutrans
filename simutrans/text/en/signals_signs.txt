@@ -1,0 +1,30 @@
+<title>Signals signs</title>
+
+<h1>Signals signs</h1><br><br>
+
+<em>Speed sign</em><br>
+The minimum speed that trains may pass this sign with. Used to ensure that no slow trains are traveling on high speed lines.<br>
+Sign is bidirectional.
+<br><br>
+
+<em>End of signalling sign</em><br>
+After this sign, a train will revert to the "drive by sight" working method. Any signals before this sign will reserve the path up until this sign.<br>
+Sign is unidirectional.
+<br><br>
+
+<em>One way sign</em><br>
+This sign forces trains to only drive in one direction on this track. This is very usefull on doubble tracks and passing loops, when you want traffic to go in each direction on separate tracks. This is also the sign that will end an directional reservation. Place this sign at the beginning of the passing loop to fast resolve the directional reservation, so other trains can reverse the reservation.<br>
+Sign is unidirectional.
+<br><br>
+
+<em>Private gate</em><br>
+This "sign" or gate is usefull in multiplayer games when you have granted permission for other companies to use your track. If you want some peaces of track still to be private, you can place this sign/gate and check or uncheck which companies to grant acces in the info window for the sign/gate.<br>
+Sign is bidirectional.
+<br><br>
+
+<em>End of choose sign</em><br>
+This sign serves two functions:<br>
+1 - It is used to reserve a platform from the choose signal so only trains with that specific platform in its schedule will use it.<br>
+2 - It is used to mark the end of a station when the choose signal is finding a path through a station. For this functionallity to work, this sign must be placed outside all exits of a station.<br>
+Sign is bidirectional.
+<br><br>

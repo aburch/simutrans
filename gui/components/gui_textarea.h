@@ -8,22 +8,22 @@
 /*
  * A text display component
  *
- * @autor Hj. Malthaner
+ * @author Hj. Malthaner
  */
 
 #ifndef gui_textarea_h
 #define gui_textarea_h
 
-#include "gui_komponente.h"
+#include "gui_component.h"
 
 class cbuffer_t;
 
-class gui_textarea_t : public gui_komponente_t
+class gui_textarea_t : public gui_component_t
 {
 private:
 	/**
 	* The text to display. May be multi-lined.
-	* @autor Hj. Malthaner
+	* @author Hj. Malthaner
 	*/
 	cbuffer_t* buf;
 	/**
@@ -33,15 +33,14 @@ private:
 	 */
 	bool my_own_buf;
 
-	// we cache the number of lines, to dynamically recalculate the size, if needed
-	uint16	lines;
-
 public:
 	gui_textarea_t(cbuffer_t* buf_);
 	gui_textarea_t(const char* text);
 	~gui_textarea_t();
 
 	void set_text(const char *text);
+
+	void set_buf( cbuffer_t* buf_ ) { buf = buf_; recalc_size(); }
 
 	/**
 	 * recalc the current size, needed for speculative size calculations
@@ -52,7 +51,7 @@ public:
 	* Draw the component
 	* @author Hj. Malthaner
 	*/
-	virtual void zeichnen(koord offset);
+	virtual void draw(scr_coord offset);
 };
 
 #endif

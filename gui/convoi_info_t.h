@@ -20,12 +20,12 @@
 #include "components/gui_button.h"
 #include "components/gui_label.h"
 #include "components/gui_chart.h"
-#include "components/gui_ding_view_t.h"
+#include "components/gui_obj_view_t.h"
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
 #include "../linehandle_t.h"
 #include "../simconvoi.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
 #include "../utils/cbuffer_t.h"
 
@@ -42,10 +42,9 @@
 class convoi_info_t : public gui_frame_t, private action_listener_t
 {
 public:
-	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, SORT_MODES = 6 };
+	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, by_destination_detail = 6, SORT_MODES = 7 };
 
 private:
-	static karte_t *welt;
 
 	/**
 	* Buffer for freight info text string.
@@ -55,7 +54,7 @@ private:
 
 	gui_scrollpane_t scrolly;
 	gui_textarea_t text;
-	ding_view_t view;
+	obj_view_t view;
 	gui_label_t sort_label;
 	gui_textinput_t input;
 	gui_speedbar_t filled_bar;
@@ -100,14 +99,13 @@ private:
 	// checks if possible / necessary
 	void rename_cnv();
 
-	static bool route_search_in_progress;
+	//static bool route_search_in_progress;
 
 	static const char *sort_text[SORT_MODES];
 
 	void show_hide_statistics( bool show );
 
 public:
-	//static bool route_search_in_progress;
 	convoi_info_t(convoihandle_t cnv);
 
 	virtual ~convoi_info_t();
@@ -117,7 +115,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_hilfe_datei() const { return "convoiinfo.txt"; }
+	const char * get_help_filename() const { return "convoiinfo.txt"; }
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -125,13 +123,13 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	/**
 	 * Set window size and adjust component sizes and/or positions accordingly
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_fenstergroesse(koord groesse);
+	virtual void set_windowsize(scr_size size);
 
 	virtual bool is_weltpos();
 
@@ -145,7 +143,7 @@ public:
 	void update_data() { reset_cnv_name(); set_dirty(); }
 
 	// this constructor is only used during loading
-	convoi_info_t(karte_t *welt);
+	convoi_info_t();
 
 	void rdwr( loadsave_t *file );
 

@@ -7,7 +7,7 @@
 #ifndef __SKIN_BESCH_H
 #define __SKIN_BESCH_H
 
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "obj_besch_std_name.h"
 #include "bildliste2d_besch.h"
 
@@ -16,24 +16,24 @@
  *  Autor:
  *      Volker Meyer
  *
- *  Beschreibung:
- *      Skin ist im wesentlichen erstmal eine Bildliste.
+ *  Description:
+ *      An image list, with name and author attributes. Mostly used for gui purposes.
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
- *	2   Bildliste
+ *	2   Image list
  */
-class skin_besch_t : public obj_besch_std_name_t {
+class skin_desc_t : public obj_named_desc_t {
 public:
-	bild_besch_t const* get_bild(int i) const { return get_child<bildliste_besch_t>(2)->get_bild(i); }
+	image_t const* get_image(int i) const { return get_child<image_list_t>(2)->get_image(i); }
 
-	int get_bild_anzahl() const { return get_child<bildliste_besch_t>(2)->get_anzahl(); }
+	int get_count() const { return get_child<image_list_t>(2)->get_count(); }
 
-	image_id get_bild_nr(int i) const
+	image_id get_image_id(int i) const
 	{
-		const bild_besch_t *bild = get_bild(i);
-		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+		const image_t *image = get_image(i);
+		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 };
 

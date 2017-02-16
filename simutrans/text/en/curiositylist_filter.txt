@@ -1,0 +1,50 @@
+<title>Attraction List Help</title>
+
+<h1><strong>Attraction List</strong></h1>
+
+<p>
+<strong>Attraction List</strong> has information about all tourist attractions in the game. Tourist attractions act as both a destination and an origin for passengers and mail.
+</p>
+<p>
+To open the <strong>attraction list</strong> window, click on the attraction list icon in the <a href="list.txt">list management</a> toolstrip.<br>
+<em>Tip:</em> If items in list are only partially visible, then <a href="mouse.txt">re-size</a> the <strong>attraction list</strong> window, or scroll the list using the slider bars.
+</p>
+<p>
+<em>Sorted by:</em> has options to determine the order of tourist attractions shown.<br>
+Click on buttons to cycle through options (changes name of the option button):
+</p>
+<p>
+- <em>Name</em> orders the list alphabetically by name.<br>
+- <em>Passenger level</em> orders the list by relative popularity of the attraction as a destination for passengers and mail.
+</p>
+<p>
+- <em>ascending</em> / <em>descending</em> reverses the order of the list.
+</p>
+<p>
+Click on an item listd in the <strong>attraction list</strong> window to see more information about that tourist attraction.<br>
+<em>Tip:</em> click on the picture of a tourist attraction in the <strong>more information</strong> window to move the main game window to that attraction.
+</p>
+<p>
+Items listd for each tourist attraction include:
+</p>
+<p>
+<em>Status colour bar</em> colours indicate the rating of the attraction:<br>
+- <em>yellow:</em>does not fall in the catchment area of any <a href="station.txt">stop</a>;<br>
+- <em>green:</em> has associated stop(s) for passengers;<br>
+- <em>blue:</em> has associated stop(s) for mail;<br>
+- <em>turquoise:</em> has associated stop(s) for both passengers and mail;<br>
+- <em>orange:</em> an associated stop is overcrowded;<br>
+- <em>red:</em> all associated stops are overcrowded;
+</p>
+<p>
+<em>Building-graphic</em> indicates if it is a <a href="citywindow.txt">city</a> attraction.
+</p>
+<p>
+<em>Name</em> of the tourist attraction.
+</p>
+<p>
+<em>Passenger level</em> in brackets is a value that indicates the relative popularity as a destination for passengers and mail.
+</p>
+<p>
+<em>Tip:</em> For the provision of an optimum service, the whole tourist attraction must fall within the catchment area of one or more stops.
+</p>

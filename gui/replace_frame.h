@@ -87,8 +87,6 @@ private:
 	inline void start_replacing() {state=state_replace; replaced_so_far=0;}
 	uint8 get_present_state();
 
-	karte_t* get_welt() { return cnv->get_welt(); }
-
 	sint64 calc_total_cost();
 
 public:
@@ -96,7 +94,7 @@ public:
 	/**
 	 * Do the dynamic dialog layout
 	 */
-	void layout(koord *);
+	void layout(scr_size *size);
 	
 	/**
 	 * Update texts, image lists and buttons according to the current state.
@@ -112,14 +110,14 @@ public:
 	 * @author (Mathew Hounsell)
 	 * @date   11-Mar-2003
 	 */
-	void set_fenstergroesse(koord groesse);
+	void set_windowsize(scr_size size);
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
 	 * @return den Dateinamen für die Hilfe, oder NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_hilfe_datei() const {return "replace.txt";}
+	const char * get_help_filename() const {return "replace.txt";}
 
 	bool infowin_event(const event_t *ev);
 
@@ -127,7 +125,7 @@ public:
 	 * Zeichnet das Frame
 	 * @author Hansjörg Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size gr);
 
 	/**
 	 * This method is called if an action is triggered
@@ -137,7 +135,7 @@ public:
 	 * components should be triggered.
 	 * V.Meyer
 	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered( gui_action_creator_t *comp, value_t extra);
 
 	const convoihandle_t get_convoy() const { return cnv; }
 

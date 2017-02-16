@@ -13,33 +13,31 @@
 #include "fundament.h"
 
 
-fundament_t::fundament_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t(welt, koord3d(pos,0) )
+fundament_t::fundament_t(loadsave_t *file, koord pos ) : grund_t(koord3d(pos,0) )
 {
 	rdwr(file);
-	slope = (uint8)hang_t::flach;
+	slope = (uint8)slope_t::flat;
 }
 
 
-fundament_t::fundament_t(karte_t *welt, koord3d pos, hang_t::typ hang, bool build_up ) : grund_t(welt, pos)
+fundament_t::fundament_t(koord3d pos, slope_t::type hang, bool build_up ) : grund_t(pos)
 {
-	set_bild( IMG_LEER );
+	set_image( IMG_EMPTY );
 	if(hang && build_up) {
 		pos = get_pos();
-		pos.z ++;
+		pos.z += slope_t::max_diff(hang);
 		set_pos( pos );
 	}
-	slope = (uint8)hang_t::flach;
+	slope = (uint8)slope_t::flat;
 }
 
 
-void fundament_t::calc_bild_internal()
+void fundament_t::calc_image_internal(const bool calc_only_snowline_change)
 {
-	slope = 0;
-	if (is_visible()) {
-		set_bild( grund_besch_t::get_ground_tile(0,get_pos().z) );
+	set_image( ground_desc_t::get_ground_tile(this) );
+
+	if(  !calc_only_snowline_change  ) {
+		grund_t::calc_back_image( get_disp_height(), 0 );
 	}
-	else {
-		set_bild(IMG_LEER);
-	}
-	grund_t::calc_back_bild(get_disp_height(),0);
+	set_flag( dirty );
 }

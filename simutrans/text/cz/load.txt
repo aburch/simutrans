@@ -1,0 +1,20 @@
+<title>Nápovìda - naèíst</title>
+<h1>Naèíst</h1>
+
+<p>
+Pøes dialog naèíst mù¾ete naèíst døíve ulo¾enou hru a pokraèovat v ní.
+Ovládání dialogu je velice podobné jako u dialogu <a href="save.txt">ukládání</a>.<br>
+Jednodu¹e vyberete hru, ve které chcete pokraèovat, a kliknìte na její jméno. Dialog se zavøe, hra se naète, a pokud v¹e probìhne bez problému, zobrazí se potvrzovací zpráva.
+</p>
+
+<p>
+<em>Pozor:</em> Hry ulo¾ené z jiných verzí Simutrans nemusejí být kompatibilní s touto verzí. Pokud se takovouto nekompatibilní hru pokusíte naèíst, obdr¾íte chybové hlá¹ení.
+</p>
+
+<p>
+-><a href="save.txt">Nápovìda pro ukládání</a>
+</p>
+
+<p>
+-><a href="about.txt">Informace o pøekladu</a>
+</p>

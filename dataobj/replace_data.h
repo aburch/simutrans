@@ -8,8 +8,8 @@
 #include "../simconvoi.h"
 #include "../tpl/vector_tpl.h"
 
-class vehikel_t;
-class vehikel_besch_t;
+class vehicle_t;
+class vehicle_desc_t;
 class cbuffer_t;
 
 class replace_data_t
@@ -18,7 +18,7 @@ private:
 	/**
 	* The replacing vehicles, if any
 	*/
-	vector_tpl<const vehikel_besch_t *> *replacing_vehicles;
+	vector_tpl<const vehicle_desc_t *> *replacing_vehicles;
 	
 	/**
 	* The convoys currently being replaced
@@ -83,10 +83,10 @@ public:
 	
 	void set_allow_using_existing_vehicles(bool value) { allow_using_existing_vehicles = value; }
 
-	const vector_tpl<const vehikel_besch_t *>* get_replacing_vehicles() const { return replacing_vehicles; }
-	const vehikel_besch_t* get_replacing_vehicle(uint16 number) const;
-	void set_replacing_vehicles(vector_tpl<const vehikel_besch_t *> *rv) { replacing_vehicles = rv; }
-	void add_vehicle(const vehikel_besch_t* vehicle, bool add_at_front = false);
+	const vector_tpl<const vehicle_desc_t *>* get_replacing_vehicles() const { return replacing_vehicles; }
+	const vehicle_desc_t* get_replacing_vehicle(uint16 number) const;
+	void set_replacing_vehicles(vector_tpl<const vehicle_desc_t *> *rv) { replacing_vehicles = rv; }
+	void add_vehicle(const vehicle_desc_t* vehicle, bool add_at_front = false);
 
 	void increment_convoys(convoihandle_t cnv);
 	void decrement_convoys(convoihandle_t cnv);

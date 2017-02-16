@@ -26,7 +26,6 @@
 // for waytype_t
 #include "../simtypes.h"
 
-class karte_t;
 
 /**
  * Shows statistics. Only goods so far.
@@ -51,7 +50,6 @@ private:
 	static bool filter_goods;
 	static waytype_t wtype;
 
-	static karte_t* welt;
 	char	speed_bonus[6];
 	char	distance_txt[6];
 	char	comfort_txt[6];
@@ -94,14 +92,14 @@ private:
 	void sort_list();
 
 public:
-	goods_frame_t(karte_t *wl);
+	goods_frame_t();
 
 	/**
 	* resize window in response to a resize event
 	* @author Hj. Malthaner
 	* @date   16-Oct-2003
 	*/
-	void resize(const koord delta);
+	void resize(const scr_coord delta);
 
 	bool has_min_sizer() const {return true;}
 
@@ -110,7 +108,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_hilfe_datei() const {return "goods_filter.txt"; }
+	const char * get_help_filename() const {return "goods_filter.txt"; }
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -118,7 +116,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

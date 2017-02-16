@@ -114,7 +114,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;COLOUR_DEPTH=16;DEBUG=3;nDEBUG_PHYSICS;nDEBUG_SIMRAND_CALLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;COLOUR_DEPTH=16;DEBUG=3;nDEBUG_PHYSICS;nDEBUG_SIMRAND_CALLS;nMULTI_THREAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -125,9 +125,10 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4200;4800;4311;4996;4554;4373;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;Imm32.lib;Shell32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcmt.lib; msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -166,7 +167,7 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;Imm32.lib;Shell32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcmt.lib; msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -202,7 +203,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>SDL.lib SDLmain.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;Imm32.lib;Shell32.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;c:\Program Files\PlatformSDK\Lib;F:\My Documents\Development\Zlib\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmt.lib; msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -235,7 +236,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>SDL.lib SDLmain.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;Imm32.lib;Shell32.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>F:\My Documents\Development\Simutrans\SDL-1.2.13\include;G:\Program Files\PlatformSDK\Lib;F:\My Documents\Development\Zlib\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -269,7 +270,7 @@
       <DisableSpecificWarnings>4200;4800;4311;4996;4554;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winmm.lib;zlibstat.lib;advapi32.lib;wsock32.lib;libbz2.lib;Strmiids.lib;Ws2_32.lib;Imm32.lib;Shell32.lib</AdditionalDependencies>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -284,51 +285,95 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="besch\fabrik_besch.cc" />
+    <ClCompile Include="besch\obj_besch_std_name.cc" />
+    <ClCompile Include="besch\weg_besch.cc" />
     <ClCompile Include="clipboard_w32.cc" />
+    <ClCompile Include="dataobj\environment.cc" />
     <ClCompile Include="dataobj\gameinfo.cc" />
+    <ClCompile Include="dataobj\height_map_loader.cc" />
     <ClCompile Include="dataobj\livery_scheme.cc" />
-    <ClCompile Include="dataobj\network_address.cc" />
-    <ClCompile Include="dataobj\network_cmd_ingame.cc" />
-    <ClCompile Include="dataobj\network_cmd_scenario.cc" />
-    <ClCompile Include="dataobj\network_cmp_pakset.cc" />
-    <ClCompile Include="dataobj\network_file_transfer.cc" />
-    <ClCompile Include="dataobj\network_socket_list.cc" />
-    <ClCompile Include="dataobj\pakset_info.cc" />
-    <ClCompile Include="dataobj\pwd_hash.cc" />
+    <ClCompile Include="dataobj\objlist.cc" />
+    <ClCompile Include="dataobj\records.cc" />
+    <ClCompile Include="dataobj\settings.cc" />
+    <ClCompile Include="display\font.cc" />
+    <ClCompile Include="display\simgraph16.cc" />
+    <ClCompile Include="display\simview.cc" />
+    <ClCompile Include="display\viewport.cc" />
     <ClCompile Include="gui\ai_option_t.cc" />
-    <ClCompile Include="gui\components\gui_ding_view_t.cc" />
+    <ClCompile Include="gui\city_info.cc" />
+    <ClCompile Include="gui\components\gui_component.cc" />
+    <ClCompile Include="gui\components\gui_container.cc" />
+    <ClCompile Include="gui\components\gui_convoiinfo.cc" />
+    <ClCompile Include="gui\components\gui_image.cc" />
+    <ClCompile Include="gui\components\gui_map_preview.cc" />
+    <ClCompile Include="gui\components\gui_obj_view_t.cc" />
     <ClCompile Include="gui\convoy_item.cc" />
     <ClCompile Include="gui\display_settings.cc" />
     <ClCompile Include="gui\factory_chart.cc" />
+    <ClCompile Include="gui\gui_theme.cc" />
     <ClCompile Include="gui\line_item.cc" />
+    <ClCompile Include="gui\obj_info.cc" />
     <ClCompile Include="gui\privatesign_info.cc" />
     <ClCompile Include="gui\scenario_info.cc" />
     <ClCompile Include="gui\server_frame.cc" />
+    <ClCompile Include="gui\simwin.cc" />
+    <ClCompile Include="gui\themeselector.cc" />
+    <ClCompile Include="gui\tool_selector.cc" />
+    <ClCompile Include="network\checksum.cc" />
+    <ClCompile Include="network\memory_rw.cc" />
+    <ClCompile Include="network\network.cc" />
+    <ClCompile Include="network\network_address.cc" />
+    <ClCompile Include="network\network_cmd.cc" />
+    <ClCompile Include="network\network_cmd_ingame.cc" />
+    <ClCompile Include="network\network_cmd_scenario.cc" />
+    <ClCompile Include="network\network_cmp_pakset.cc" />
+    <ClCompile Include="network\network_file_transfer.cc" />
+    <ClCompile Include="network\network_packet.cc" />
+    <ClCompile Include="network\network_socket_list.cc" />
+    <ClCompile Include="network\pakset_info.cc" />
+    <ClCompile Include="network\pwd_hash.cc" />
+    <ClCompile Include="obj\baum.cc" />
+    <ClCompile Include="obj\bruecke.cc" />
+    <ClCompile Include="obj\crossing.cc" />
+    <ClCompile Include="obj\field.cc" />
+    <ClCompile Include="obj\gebaeude.cc" />
+    <ClCompile Include="obj\groundobj.cc" />
+    <ClCompile Include="obj\label.cc" />
+    <ClCompile Include="obj\leitung2.cc" />
+    <ClCompile Include="obj\pillar.cc" />
+    <ClCompile Include="obj\roadsign.cc" />
+    <ClCompile Include="obj\signal.cc" />
+    <ClCompile Include="obj\tunnel.cc" />
+    <ClCompile Include="obj\wayobj.cc" />
+    <ClCompile Include="obj\wolke.cc" />
+    <ClCompile Include="obj\zeiger.cc" />
     <ClCompile Include="player\ai.cc" />
     <ClCompile Include="player\ai_goods.cc" />
     <ClCompile Include="player\ai_passenger.cc" />
     <ClCompile Include="gui\banner.cc" />
-    <ClCompile Include="dings\baum.cc" />
     <ClCompile Include="gui\baum_edit.cc" />
     <ClCompile Include="besch\bild_besch.cc" />
     <ClCompile Include="boden\boden.cc" />
     <ClCompile Include="besch\reader\bridge_reader.cc" />
-    <ClCompile Include="dings\bruecke.cc" />
     <ClCompile Include="besch\bruecke_besch.cc" />
     <ClCompile Include="bauer\brueckenbauer.cc" />
     <ClCompile Include="boden\brueckenboden.cc" />
     <ClCompile Include="besch\reader\building_reader.cc" />
+    <ClCompile Include="player\finance.cc" />
     <ClCompile Include="script\api\api_city.cc" />
     <ClCompile Include="script\api\api_const.cc" />
     <ClCompile Include="script\api\api_convoy.cc" />
     <ClCompile Include="script\api\api_factory.cc" />
-    <ClCompile Include="script\api\api_goods_desc.cc" />
     <ClCompile Include="script\api\api_gui.cc" />
     <ClCompile Include="script\api\api_halt.cc" />
+    <ClCompile Include="script\api\api_map_objects.cc" />
+    <ClCompile Include="script\api\api_obj_desc.cc" />
+    <ClCompile Include="script\api\api_obj_desc_base.cc" />
     <ClCompile Include="script\api\api_player.cc" />
     <ClCompile Include="script\api\api_scenario.cc" />
     <ClCompile Include="script\api\api_schedule.cc" />
     <ClCompile Include="script\api\api_settings.cc" />
+    <ClCompile Include="script\api\api_simple.cc" />
     <ClCompile Include="script\api\api_tiles.cc" />
     <ClCompile Include="script\api\api_world.cc" />
     <ClCompile Include="script\api\export_besch.cc" />
@@ -339,10 +384,14 @@
     <ClCompile Include="script\dynamic_string.cc" />
     <ClCompile Include="script\export_objs.cc" />
     <ClCompile Include="script\script.cc" />
+    <ClCompile Include="siminteraction.cc" />
     <ClCompile Include="simloadingscreen.cc" />
+    <ClCompile Include="simobj.cc" />
+    <ClCompile Include="simsignalbox.cc" />
     <ClCompile Include="simsys.cc" />
     <ClCompile Include="simsys_w.cc" />
     <ClCompile Include="simsys_w32_png.cc" />
+    <ClCompile Include="simtool.cc" />
     <ClCompile Include="simunits.cc" />
     <ClCompile Include="squirrel\sqstdlib\sqstdaux.cc" />
     <ClCompile Include="squirrel\sqstdlib\sqstdblob.cc" />
@@ -376,15 +425,12 @@
     <ClCompile Include="gui\convoi_frame.cc" />
     <ClCompile Include="gui\convoi_info_t.cc" />
     <ClCompile Include="convoy.cc" />
-    <ClCompile Include="dings\crossing.cc" />
     <ClCompile Include="dataobj\crossing_logic.cc" />
     <ClCompile Include="besch\reader\crossing_reader.cc" />
     <ClCompile Include="gui\curiosity_edit.cc" />
     <ClCompile Include="gui\curiositylist_frame_t.cc" />
     <ClCompile Include="gui\curiositylist_stats_t.cc" />
     <ClCompile Include="gui\depot_frame.cc" />
-    <ClCompile Include="dataobj\dingliste.cc" />
-    <ClCompile Include="dataobj\einstellungen.cc" />
     <ClCompile Include="gui\enlarge_map_frame_t.cc" />
     <ClCompile Include="gui\extend_edit.cc" />
     <ClCompile Include="gui\fabrik_info.cc" />
@@ -395,18 +441,14 @@
     <ClCompile Include="gui\factorylist_stats_t.cc" />
     <ClCompile Include="dataobj\fahrplan.cc" />
     <ClCompile Include="gui\fahrplan_gui.cc" />
-    <ClCompile Include="dings\field.cc" />
-    <ClCompile Include="font.cc" />
     <ClCompile Include="dataobj\freelist.cc" />
     <ClCompile Include="freight_list_sorter.cc" />
     <ClCompile Include="boden\fundament.cc" />
-    <ClCompile Include="dings\gebaeude.cc" />
     <ClCompile Include="besch\reader\good_reader.cc" />
     <ClCompile Include="gui\goods_frame_t.cc" />
     <ClCompile Include="gui\goods_stats_t.cc" />
     <ClCompile Include="gui\ground_info.cc" />
     <ClCompile Include="besch\reader\ground_reader.cc" />
-    <ClCompile Include="dings\groundobj.cc" />
     <ClCompile Include="besch\reader\groundobj_reader.cc" />
     <ClCompile Include="boden\grund.cc" />
     <ClCompile Include="besch\grund_besch.cc" />
@@ -414,8 +456,6 @@
     <ClCompile Include="gui\components\gui_chart.cc" />
     <ClCompile Include="gui\components\gui_combobox.cc" />
     <ClCompile Include="gui\components\gui_component_table.cc" />
-    <ClCompile Include="gui\gui_container.cc" />
-    <ClCompile Include="gui\gui_convoiinfo.cc" />
     <ClCompile Include="gui\components\gui_convoy_assembler.cc" />
     <ClCompile Include="gui\components\gui_convoy_label.cc" />
     <ClCompile Include="gui\components\gui_fixedwidth_textarea.cc" />
@@ -450,23 +490,19 @@
     <ClCompile Include="gui\kennfarbe.cc" />
     <ClCompile Include="dataobj\koord.cc" />
     <ClCompile Include="dataobj\koord3d.cc" />
-    <ClCompile Include="dings\label.cc" />
     <ClCompile Include="gui\label_info.cc" />
     <ClCompile Include="gui\labellist_frame_t.cc" />
     <ClCompile Include="gui\labellist_stats_t.cc" />
-    <ClCompile Include="dings\leitung2.cc" />
     <ClCompile Include="gui\line_management_gui.cc" />
     <ClCompile Include="gui\load_relief_frame.cc" />
     <ClCompile Include="dataobj\loadsave.cc" />
     <ClCompile Include="gui\loadsave_frame.cc" />
-    <ClCompile Include="utils\checksum.cc" />
     <ClCompile Include="utils\csv.cc" />
     <ClCompile Include="utils\float32e8_t.cc" />
     <ClCompile Include="utils\log.cc" />
     <ClCompile Include="boden\wege\maglev.cc" />
     <ClCompile Include="gui\map_frame.cc" />
     <ClCompile Include="dataobj\marker.cc" />
-    <ClCompile Include="utils\memory_rw.cc" />
     <ClCompile Include="gui\message_frame_t.cc" />
     <ClCompile Include="gui\message_option_t.cc" />
     <ClCompile Include="gui\message_stats_t.cc" />
@@ -474,11 +510,9 @@
     <ClCompile Include="gui\money_frame.cc" />
     <ClCompile Include="boden\wege\monorail.cc" />
     <ClCompile Include="boden\monorailboden.cc" />
+    <ClCompile Include="utils\simrandom.cc" />
     <ClCompile Include="vehicle\movingobj.cc" />
     <ClCompile Include="boden\wege\narrowgauge.cc" />
-    <ClCompile Include="dataobj\network.cc" />
-    <ClCompile Include="dataobj\network_cmd.cc" />
-    <ClCompile Include="dataobj\network_packet.cc" />
     <ClCompile Include="besch\reader\obj_reader.cc" />
     <ClCompile Include="old_blockmanager.cc" />
     <ClCompile Include="gui\optionen.cc" />
@@ -486,14 +520,12 @@
     <ClCompile Include="gui\password_frame.cc" />
     <ClCompile Include="path_explorer.cc" />
     <ClCompile Include="besch\reader\pedestrian_reader.cc" />
-    <ClCompile Include="dings\pillar.cc" />
     <ClCompile Include="sucher\platzsucher.cc" />
     <ClCompile Include="gui\player_frame_t.cc" />
     <ClCompile Include="dataobj\powernet.cc" />
     <ClCompile Include="dataobj\replace_data.cc" />
     <ClCompile Include="gui\replace_frame.cc" />
     <ClCompile Include="dataobj\ribi.cc" />
-    <ClCompile Include="dings\roadsign.cc" />
     <ClCompile Include="besch\reader\roadsign_reader.cc" />
     <ClCompile Include="besch\reader\root_reader.cc" />
     <ClCompile Include="dataobj\route.cc" />
@@ -507,14 +539,12 @@
     <ClCompile Include="gui\settings_frame.cc" />
     <ClCompile Include="gui\settings_stats.cc" />
     <ClCompile Include="utils\sha1.cc" />
-    <ClCompile Include="dings\signal.cc" />
     <ClCompile Include="gui\signal_spacing.cc" />
     <ClCompile Include="besch\reader\sim_reader.cc" />
     <ClCompile Include="simcity.cc" />
     <ClCompile Include="simconvoi.cc" />
     <ClCompile Include="simdebug.cc" />
     <ClCompile Include="simdepot.cc" />
-    <ClCompile Include="simdings.cc" />
     <ClCompile Include="simevent.cc">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
@@ -528,7 +558,6 @@
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
     </ClCompile>
     <ClCompile Include="simfab.cc" />
-    <ClCompile Include="simgraph16.cc" />
     <ClCompile Include="simhalt.cc" />
     <ClCompile Include="simintr.cc" />
     <ClCompile Include="simio.cc" />
@@ -544,36 +573,27 @@
     <ClCompile Include="simskin.cc" />
     <ClCompile Include="simsound.cc" />
     <ClCompile Include="utils\simstring.cc" />
-    <ClCompile Include="simsys_s.cc" />
     <ClCompile Include="simticker.cc" />
-    <ClCompile Include="simtools.cc" />
-    <ClCompile Include="vehicle\simvehikel.cc" />
-    <ClCompile Include="vehicle\simverkehr.cc" />
-    <ClCompile Include="simview.cc" />
+    <ClCompile Include="vehicle\simroadtraffic.cc" />
+    <ClCompile Include="vehicle\simvehicle.cc" />
     <ClCompile Include="simware.cc" />
-    <ClCompile Include="simwerkz.cc" />
-    <ClCompile Include="simwin.cc" />
     <ClCompile Include="simworld.cc" />
     <ClCompile Include="besch\reader\skin_reader.cc" />
     <ClCompile Include="besch\sound_besch.cc" />
     <ClCompile Include="gui\sound_frame.cc" />
     <ClCompile Include="besch\reader\sound_reader.cc" />
     <ClCompile Include="gui\sprachen.cc" />
-    <ClCompile Include="gui\stadt_info.cc" />
     <ClCompile Include="gui\station_building_select.cc" />
     <ClCompile Include="boden\wege\strasse.cc" />
     <ClCompile Include="dataobj\tabfile.cc" />
     <ClCompile Include="besch\reader\text_reader.cc" />
-    <ClCompile Include="gui\thing_info.cc" />
     <ClCompile Include="gui\trafficlight_info.cc" />
     <ClCompile Include="dataobj\translator.cc" />
     <ClCompile Include="besch\reader\tree_reader.cc" />
-    <ClCompile Include="dings\tunnel.cc" />
     <ClCompile Include="besch\tunnel_besch.cc" />
     <ClCompile Include="besch\reader\tunnel_reader.cc" />
     <ClCompile Include="bauer\tunnelbauer.cc" />
     <ClCompile Include="boden\tunnelboden.cc" />
-    <ClCompile Include="dataobj\umgebung.cc" />
     <ClCompile Include="unicode.cc" />
     <ClCompile Include="besch\reader\vehicle_reader.cc" />
     <ClCompile Include="besch\vehikel_besch.cc" />
@@ -585,43 +605,85 @@
     <ClCompile Include="boden\wasser.cc" />
     <ClCompile Include="besch\reader\way_obj_reader.cc" />
     <ClCompile Include="besch\reader\way_reader.cc" />
-    <ClCompile Include="dings\wayobj.cc" />
     <ClCompile Include="boden\wege\weg.cc" />
     <ClCompile Include="bauer\wegbauer.cc" />
     <ClCompile Include="gui\welt.cc" />
-    <ClCompile Include="gui\werkzeug_waehler.cc" />
     <ClCompile Include="sound\win32_sound.cc" />
-    <ClCompile Include="dings\wolke.cc" />
     <ClCompile Include="besch\reader\xref_reader.cc" />
-    <ClCompile Include="dings\zeiger.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dataobj\environment.h" />
     <ClInclude Include="dataobj\gameinfo.h" />
+    <ClInclude Include="dataobj\height_map_loader.h" />
     <ClInclude Include="dataobj\livery_scheme.h" />
-    <ClInclude Include="dataobj\network_address.h" />
-    <ClInclude Include="dataobj\network_cmd_ingame.h" />
-    <ClInclude Include="dataobj\network_cmd_scenario.h" />
-    <ClInclude Include="dataobj\network_cmp_pakset.h" />
-    <ClInclude Include="dataobj\network_file_transfer.h" />
-    <ClInclude Include="dataobj\network_socket_list.h" />
-    <ClInclude Include="dataobj\pakset_info.h" />
-    <ClInclude Include="dataobj\pwd_hash.h" />
+    <ClInclude Include="dataobj\objlist.h" />
+    <ClInclude Include="dataobj\records.h" />
+    <ClInclude Include="dataobj\settings.h" />
+    <ClInclude Include="display\font.h" />
+    <ClInclude Include="display\scr_coord.h" />
+    <ClInclude Include="display\simgraph.h" />
+    <ClInclude Include="display\simimg.h" />
+    <ClInclude Include="display\simview.h" />
+    <ClInclude Include="display\viewport.h" />
     <ClInclude Include="gui\ai_option_t.h" />
+    <ClInclude Include="gui\city_info.h" />
     <ClInclude Include="gui\components\action_listener.h" />
-    <ClInclude Include="gui\components\gui_ding_view_t.h" />
+    <ClInclude Include="gui\components\gui_component.h" />
+    <ClInclude Include="gui\components\gui_container.h" />
+    <ClInclude Include="gui\components\gui_convoiinfo.h" />
     <ClInclude Include="gui\components\gui_fixedwidth_textarea.h" />
+    <ClInclude Include="gui\components\gui_komponente.h" />
+    <ClInclude Include="gui\components\gui_map_preview.h" />
+    <ClInclude Include="gui\components\gui_obj_view_t.h" />
     <ClInclude Include="gui\convoy_item.h" />
     <ClInclude Include="gui\display_settings.h" />
     <ClInclude Include="gui\factory_chart.h" />
+    <ClInclude Include="gui\gui_theme.h" />
+    <ClInclude Include="gui\obj_info.h" />
     <ClInclude Include="gui\privatesign_info.h" />
     <ClInclude Include="gui\scenario_info.h" />
     <ClInclude Include="gui\server_frame.h" />
+    <ClInclude Include="gui\simwin.h" />
+    <ClInclude Include="gui\themeselector.h" />
+    <ClInclude Include="gui\tool_selector.h" />
+    <ClInclude Include="network\checksum.h" />
+    <ClInclude Include="network\memory_rw.h" />
+    <ClInclude Include="network\network.h" />
+    <ClInclude Include="network\network_address.h" />
+    <ClInclude Include="network\network_cmd.h" />
+    <ClInclude Include="network\network_cmd_ingame.h" />
+    <ClInclude Include="network\network_cmd_scenario.h" />
+    <ClInclude Include="network\network_cmp_pakset.h" />
+    <ClInclude Include="network\network_file_transfer.h" />
+    <ClInclude Include="network\network_packet.h" />
+    <ClInclude Include="network\network_socket_list.h" />
+    <ClInclude Include="network\pakset_info.h" />
+    <ClInclude Include="network\pwd_hash.h" />
+    <ClInclude Include="obj\baum.h" />
+    <ClInclude Include="obj\bruecke.h" />
+    <ClInclude Include="obj\crossing.h" />
+    <ClInclude Include="obj\dummy.h" />
+    <ClInclude Include="obj\field.h" />
+    <ClInclude Include="obj\gebaeude.h" />
+    <ClInclude Include="obj\groundobj.h" />
+    <ClInclude Include="obj\label.h" />
+    <ClInclude Include="obj\leitung2.h" />
+    <ClInclude Include="obj\pillar.h" />
+    <ClInclude Include="obj\roadsign.h" />
+    <ClInclude Include="obj\signal.h" />
+    <ClInclude Include="obj\tunnel.h" />
+    <ClInclude Include="obj\wayobj.h" />
+    <ClInclude Include="obj\wolke.h" />
+    <ClInclude Include="obj\zeiger.h" />
     <ClInclude Include="player\ai.h" />
     <ClInclude Include="player\ai_goods.h" />
     <ClInclude Include="player\ai_passenger.h" />
+    <ClInclude Include="player\finance.h" />
     <ClInclude Include="script\api\api.h" />
     <ClInclude Include="script\api\api_base.h" />
     <ClInclude Include="script\api\api_doc.h" />
+    <ClInclude Include="script\api\api_obj_desc_base.h" />
+    <ClInclude Include="script\api\api_simple.h" />
     <ClInclude Include="script\api\export_besch.h" />
     <ClInclude Include="script\api\get_next.h" />
     <ClInclude Include="script\api_class.h" />
@@ -630,7 +692,11 @@
     <ClInclude Include="script\dynamic_string.h" />
     <ClInclude Include="script\export_objs.h" />
     <ClInclude Include="script\script.h" />
+    <ClInclude Include="siminteraction.h" />
     <ClInclude Include="simloadingscreen.h" />
+    <ClInclude Include="simobj.h" />
+    <ClInclude Include="simsignalbox.h" />
+    <ClInclude Include="simtool.h" />
     <ClInclude Include="simunits.h" />
     <ClInclude Include="squirrel\sqstdaux.h" />
     <ClInclude Include="squirrel\sqstdblob.h" />
@@ -661,7 +727,6 @@
     <ClInclude Include="tpl\array2d_tpl.h" />
     <ClInclude Include="tpl\array_tpl.h" />
     <ClInclude Include="gui\banner.h" />
-    <ClInclude Include="dings\baum.h" />
     <ClInclude Include="besch\baum_besch.h" />
     <ClInclude Include="gui\baum_edit.h" />
     <ClInclude Include="sucher\bauplatz_sucher.h" />
@@ -672,7 +737,6 @@
     <ClInclude Include="boden\boden.h" />
     <ClInclude Include="besch\reader\bridge_reader.h" />
     <ClInclude Include="besch\writer\bridge_writer.h" />
-    <ClInclude Include="dings\bruecke.h" />
     <ClInclude Include="besch\bruecke_besch.h" />
     <ClInclude Include="bauer\brueckenbauer.h" />
     <ClInclude Include="boden\brueckenboden.h" />
@@ -692,7 +756,6 @@
     <ClInclude Include="gui\convoi_info_t.h" />
     <ClInclude Include="convoihandle_t.h" />
     <ClInclude Include="convoy.h" />
-    <ClInclude Include="dings\crossing.h" />
     <ClInclude Include="dataobj\crossing_logic.h" />
     <ClInclude Include="besch\reader\crossing_reader.h" />
     <ClInclude Include="besch\writer\crossing_writer.h" />
@@ -702,13 +765,10 @@
     <ClInclude Include="gui\curiositylist_stats_t.h" />
     <ClInclude Include="tpl\debug_helper.h" />
     <ClInclude Include="gui\depot_frame.h" />
-    <ClInclude Include="dataobj\dingliste.h" />
     <ClInclude Include="utils\csv.h" />
     <ClInclude Include="utils\dr_rdgif.h" />
     <ClInclude Include="utils\dr_rdpng.h" />
     <ClInclude Include="utils\dr_rdppm.h" />
-    <ClInclude Include="dings\dummy.h" />
-    <ClInclude Include="dataobj\einstellungen.h" />
     <ClInclude Include="gui\enlarge_map_frame_t.h" />
     <ClInclude Include="gui\extend_edit.h" />
     <ClInclude Include="besch\fabrik_besch.h" />
@@ -722,14 +782,11 @@
     <ClInclude Include="ifc\fahrer.h" />
     <ClInclude Include="dataobj\fahrplan.h" />
     <ClInclude Include="gui\fahrplan_gui.h" />
-    <ClInclude Include="dings\field.h" />
     <ClInclude Include="tpl\fixed_list_tpl.h" />
-    <ClInclude Include="font.h" />
     <ClInclude Include="dataobj\freelist.h" />
     <ClInclude Include="freight_list_sorter.h" />
     <ClInclude Include="boden\fundament.h" />
     <ClInclude Include="besch\fussgaenger_besch.h" />
-    <ClInclude Include="dings\gebaeude.h" />
     <ClInclude Include="besch\writer\get_climate.h" />
     <ClInclude Include="besch\writer\get_waytype.h" />
     <ClInclude Include="besch\reader\good_reader.h" />
@@ -739,7 +796,6 @@
     <ClInclude Include="gui\ground_info.h" />
     <ClInclude Include="besch\reader\ground_reader.h" />
     <ClInclude Include="besch\writer\ground_writer.h" />
-    <ClInclude Include="dings\groundobj.h" />
     <ClInclude Include="besch\groundobj_besch.h" />
     <ClInclude Include="besch\reader\groundobj_reader.h" />
     <ClInclude Include="besch\writer\groundobj_writer.h" />
@@ -750,8 +806,6 @@
     <ClInclude Include="gui\components\gui_chart.h" />
     <ClInclude Include="gui\components\gui_combobox.h" />
     <ClInclude Include="gui\components\gui_component_table.h" />
-    <ClInclude Include="gui\gui_container.h" />
-    <ClInclude Include="gui\gui_convoiinfo.h" />
     <ClInclude Include="gui\components\gui_convoy_assembler.h" />
     <ClInclude Include="gui\components\gui_convoy_label.h" />
     <ClInclude Include="gui\components\gui_divider.h" />
@@ -798,12 +852,10 @@
     <ClInclude Include="dataobj\koord3d.h" />
     <ClInclude Include="tpl\koordhashtable_tpl.h" />
     <ClInclude Include="besch\kreuzung_besch.h" />
-    <ClInclude Include="dings\label.h" />
     <ClInclude Include="gui\label_info.h" />
     <ClInclude Include="gui\labellist_frame_t.h" />
     <ClInclude Include="gui\labellist_stats_t.h" />
     <ClInclude Include="dings\lagerhaus.h" />
-    <ClInclude Include="dings\leitung2.h" />
     <ClInclude Include="gui\line_item.h" />
     <ClInclude Include="gui\line_management_gui.h" />
     <ClInclude Include="linehandle_t.h" />
@@ -819,7 +871,6 @@
     <ClInclude Include="boden\wege\maglev.h" />
     <ClInclude Include="gui\map_frame.h" />
     <ClInclude Include="dataobj\marker.h" />
-    <ClInclude Include="utils\memory_rw.h" />
     <ClInclude Include="gui\message_frame_t.h" />
     <ClInclude Include="gui\message_option_t.h" />
     <ClInclude Include="gui\message_stats_t.h" />
@@ -828,12 +879,10 @@
     <ClInclude Include="gui\money_frame.h" />
     <ClInclude Include="boden\wege\monorail.h" />
     <ClInclude Include="boden\monorailboden.h" />
+    <ClInclude Include="utils\simrandom.h" />
     <ClInclude Include="vehicle\movingobj.h" />
     <ClInclude Include="music\music.h" />
     <ClInclude Include="boden\wege\narrowgauge.h" />
-    <ClInclude Include="dataobj\network.h" />
-    <ClInclude Include="dataobj\network_cmd.h" />
-    <ClInclude Include="dataobj\network_packet.h" />
     <ClInclude Include="utils\notification.h" />
     <ClInclude Include="besch\obj_besch.h" />
     <ClInclude Include="besch\obj_besch_std_name.h" />
@@ -853,7 +902,6 @@
     <ClInclude Include="pathes.h" />
     <ClInclude Include="besch\reader\pedestrian_reader.h" />
     <ClInclude Include="besch\writer\pedestrian_writer.h" />
-    <ClInclude Include="dings\pillar.h" />
     <ClInclude Include="sucher\platzsucher.h" />
     <ClInclude Include="gui\player_frame_t.h" />
     <ClInclude Include="dataobj\powernet.h" />
@@ -863,7 +911,6 @@
     <ClInclude Include="dataobj\replace_data.h" />
     <ClInclude Include="gui\replace_frame.h" />
     <ClInclude Include="dataobj\ribi.h" />
-    <ClInclude Include="dings\roadsign.h" />
     <ClInclude Include="besch\roadsign_besch.h" />
     <ClInclude Include="besch\reader\roadsign_reader.h" />
     <ClInclude Include="besch\writer\roadsign_writer.h" />
@@ -881,7 +928,6 @@
     <ClInclude Include="gui\settings_frame.h" />
     <ClInclude Include="gui\settings_stats.h" />
     <ClInclude Include="utils\sha1.h" />
-    <ClInclude Include="dings\signal.h" />
     <ClInclude Include="gui\signal_spacing.h" />
     <ClInclude Include="simcity.h" />
     <ClInclude Include="simcolor.h" />
@@ -892,9 +938,7 @@
     <ClInclude Include="simdings.h" />
     <ClInclude Include="simevent.h" />
     <ClInclude Include="simfab.h" />
-    <ClInclude Include="simgraph.h" />
     <ClInclude Include="simhalt.h" />
-    <ClInclude Include="simimg.h" />
     <ClInclude Include="simintr.h" />
     <ClInclude Include="simio.h" />
     <ClInclude Include="simline.h" />
@@ -913,13 +957,13 @@
     <ClInclude Include="simticker.h" />
     <ClInclude Include="simtools.h" />
     <ClInclude Include="simtypes.h" />
+    <ClInclude Include="vehicle\simroadtraffic.h" />
+    <ClInclude Include="vehicle\simvehicle.h" />
     <ClInclude Include="vehicle\simvehikel.h" />
     <ClInclude Include="vehicle\simverkehr.h" />
     <ClInclude Include="simversion.h" />
-    <ClInclude Include="simview.h" />
     <ClInclude Include="simware.h" />
     <ClInclude Include="simwerkz.h" />
-    <ClInclude Include="simwin.h" />
     <ClInclude Include="simworld.h" />
     <ClInclude Include="besch\skin_besch.h" />
     <ClInclude Include="besch\reader\skin_reader.h" />
@@ -949,13 +993,11 @@
     <ClInclude Include="dataobj\translator.h" />
     <ClInclude Include="besch\reader\tree_reader.h" />
     <ClInclude Include="besch\writer\tree_writer.h" />
-    <ClInclude Include="dings\tunnel.h" />
     <ClInclude Include="besch\tunnel_besch.h" />
     <ClInclude Include="besch\reader\tunnel_reader.h" />
     <ClInclude Include="besch\writer\tunnel_writer.h" />
     <ClInclude Include="bauer\tunnelbauer.h" />
     <ClInclude Include="boden\tunnelboden.h" />
-    <ClInclude Include="dataobj\umgebung.h" />
     <ClInclude Include="unicode.h" />
     <ClInclude Include="tpl\vector_tpl.h" />
     <ClInclude Include="besch\reader\vehicle_reader.h" />
@@ -972,35 +1014,22 @@
     <ClInclude Include="besch\writer\way_obj_writer.h" />
     <ClInclude Include="besch\reader\way_reader.h" />
     <ClInclude Include="besch\writer\way_writer.h" />
-    <ClInclude Include="dings\wayobj.h" />
     <ClInclude Include="boden\wege\weg.h" />
     <ClInclude Include="besch\weg_besch.h" />
     <ClInclude Include="bauer\wegbauer.h" />
     <ClInclude Include="tpl\weighted_vector_tpl.h" />
     <ClInclude Include="gui\welt.h" />
     <ClInclude Include="gui\werkzeug_waehler.h" />
-    <ClInclude Include="dings\wolke.h" />
     <ClInclude Include="besch\xref_besch.h" />
     <ClInclude Include="besch\reader\xref_reader.h" />
     <ClInclude Include="besch\writer\xref_writer.h" />
-    <ClInclude Include="dings\zeiger.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="base_texts_experimental.dat" />
-    <None Include="base_texts_experimental_6_2.dat" />
-    <None Include="base_texts_experimental_6_3.dat" />
-    <None Include="base_texts_experimental_7_0.dat" />
-    <None Include="base_texts_experimental_additional_5_0.dat" />
-    <None Include="base_texts_experimental_additional_5_1.dat" />
     <None Include="..\simutrans-experimental-binaries\config\electricity.tab" />
     <None Include="..\simutrans-experimental-binaries\text\en.tab" />
     <None Include="Makefile" />
     <None Include="..\simutrans-experimental-binaries\config\privatecar.tab" />
     <None Include="..\simutrans-experimental-binaries\config\simuconf.tab" />
-    <None Include="makeobj\Makefile" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="simres.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

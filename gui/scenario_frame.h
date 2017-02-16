@@ -12,14 +12,11 @@
 #include "savegame_frame.h"
 #include "../utils/cbuffer_t.h"
 
-class karte_t;
 
 
 class scenario_frame_t : public savegame_frame_t
 {
 private:
-	karte_t *welt;
-	bool do_load;
 	cbuffer_t path;
 
 protected:
@@ -27,13 +24,13 @@ protected:
 	 * Action that's started by the press of a button.
 	 * @author Hansjörg Malthaner
 	 */
-	virtual void action(const char *fullpath);
+	virtual bool item_action(const char *fullpath);
 
 	/**
-	 * Aktion, die nach X-Knopfdruck gestartet wird.
+	 * Action, started after X-Button pressing
 	 * @author V. Meyer
 	 */
-	virtual bool del_action(const char *f) { action(f); return true; }
+	virtual bool del_action(const char *f) { return item_action(f); }
 
 	// returns extra file info
 	virtual const char *get_info(const char *fname);
@@ -46,9 +43,9 @@ public:
 	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	virtual const char * get_hilfe_datei() const { return "scenario.txt"; }
+	virtual const char * get_help_filename() const { return "scenario.txt"; }
 
-	scenario_frame_t(karte_t *welt);
+	scenario_frame_t();
 };
 
 #endif

@@ -1,0 +1,39 @@
+<title>Player List Help</title>
+
+<h1><strong>Player List</strong></h1>
+
+<p>
+The <strong>Player List</strong> window provides information and has settings for different player companies.
+</p>
+<p>
+Click on the "Players" button in the <a href="options.txt">Game Options</a> menu, or press <a href="keys.txt">[k]</a> to open the <strong>Player List</strong>.
+</p>
+<p>
+There are fifteen player slots: one slot reserved for the default player (when the game starts, this player will always be active) one reserved for the <em>public service player</em>, and thirteen optional slots.
+</p>
+<p>
+Each slot occupied by an activated player shows: <br>
+- the name of that player;<br>
+- the primary colour of that player; and<br>
+- the <a href="finances.txt">account balance</a> of that player. Click the player's name to see detailed financial information about that player.
+</p>
+<p>
+Each empty slot has allows a selection between human or AI players (and different types of AI players). AI players are those controlled by the computer: they will build transport networks in competition with yours automatically. By switching to an AI player, you can take over the running of an AI transport network.
+</p>
+<p>
+Human players work in the same way as the AI players, except they do not build anything automatically. Selecting multiple human players is useful for playing as multiple transport companies at once, or hot-seat or play-by-e-mail multiplayer games. (Simutrans does not currently support network multiplayer games, although this feature is planned for the future).
+</p>
+<p>
+If switching between players was not disabled when the game was started, or subsequently locked, clicking on the arrows next to each player's name will activate that particular player. Players can also be changed by pressing <a href="keyboard.txt">SHIFT+[P]</a>, or by the "+P" button in the <a href="special.txt">special construction tools</a> menu.
+</p>
+<p>
+To activate an inactive slot, first select a type of player (human or one of the different types of AI), then click the activation button that appears to the left. Once a player is activated, it cannot be deactivated again, or changed in type (for example, from human to AI), so make sure that the type selected is correct before activating the player.
+</p>
+<p>
+The <em>Public Service</em> player is a special type of player: it can remove items from the world (such as insutries and other players' netowrks) that ordinary players cannot, and also has access to special <a href="edittools.txt">editing tools</a> for changing basic settings on the map (such as adding new industries or city buildings individually).</p>
+<p>
+Transport infrastructure owned by the public service player can be used by any players (individual players can make their stops public, which is a useful way of connecting two companies' transport networks together). The public service player has an account balance, but it does not become unable to purchase more or go bankrupt however much that it goes into debt. Finally, the public service player cannot have any vehicles of its own, or build any depots. The public service player is activated by default, and can never be controlled by the AI.
+</p>
+<p>
+At the foot of the players window is a button to toggle <em>Freeplay mode</em>. Freeplay mode is for playing Simutrans without any financial challenge - in freeplay mode, a player will never go bankrupt nor exceed the credit limit. 
+</p>

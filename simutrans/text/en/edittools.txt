@@ -1,0 +1,68 @@
+<title>Map editing tools Help</title>
+
+<h1><strong>Map editing tools</strong></h1>
+
+<p>
+<strong>Map editing tools</strong> enable the customisation and editing of the game world outside the confines of normal play. For this reason, these tools are restricted to the public service <a href="players.txt">player</a>. The map editing tools option is not visible when playing as any other player.
+</p>
+<p>
+Hover the mouse cursor over a toolbar icon to see the name of and more information about those tool options.
+</p>
+<p>
+Tool options include, from left to right:
+</p>
+<p>
+<em>Grow city:</em> increases the population of an <a href="citywindow.txt">urban area</a> by 100, constructing new roads and buildings if necessary.<br>
+To use: click on the tool icon to select (the cursor changes to a red up arrow) then click anywhere within an urban area.
+</p>
+<p>
+<em>Shrink city:</em> reduces the population of an <a href="citywindow.txt">urban area</a> by 100. Buildings and roads will not be destroyed (use the remove tool for that), but the city will not produce any new buildings until the previous population level has been exceeded.<br>
+To use: click on the tool icon to select (the cursor changes to a red down arrow) then click anywhere within an urban area.
+</p>
+<p>
+<em>Found a new city:</em> creates a new <a href="citywindow.txt">urban area</a>. The new urban area will start very small, but can be expanded using the <em>grow city</em> tool. Hover the mouse cursor over a toolbar icon to see the cost of founding a new city.<br>
+To use: click on the tool icon to select (the cursor changes to a picture of a city hall) then click anywhere above sea level in the main game window. The new city will be founded where the 
+</p>
+<p>
+<em>Plant random tree:</em> plants a random tree.<br>
+To use: click on the tool to select (the cursor changes to a picture of a tree and an arrow) then click anywhere on land to plant a tree. The tree will be selected randomly, but will be appropriate for the climate. Click and drag to plant a number of trees.
+</p>
+<p>
+<em>Add forest:</em> allows the creation of a wooded area automatically.<br>
+To use: click on the tool to select (the cursor changes to a picture of a tree and an arrow), then click and drag over the area of land that needs to be covered with trees. On releasing the mouse button, the forest will be planted.
+</p>
+<p>
+<em>City road:</em> allows the construction of city roads. City roads, like other roads, cannot be built on areas occupied by other buildings, across some sorts of rough terrain, or over water or obstructions.<br>
+Hover the mouse cursor over a toolbar icon to see the construction and maintenance cost incurred by public service player, and the maximum speed and weight limits.
+To build a city road: click on the tool icon to select (the cursor changes to a city road), then click and drag in the main game window to construct. A preview and cost estimate is shown: the road will be built when the mouse button is released. Press <a href="keys.txt">[ESC]</a> to cancel.<br>
+<em>Tip:</em> Different types of roads may connect. Use bridges and tunnels to connect roads across rough terrain, or to avoid obstructions. Use <a href="slopetools.txt">Landscape tools</a> to change the terrain, to create paths for roads. Use the destroy/remove tool to remove city roads and obstructions. Use <a href="keys.txt">[Ctrl]</a> at the same time for extra functions.
+</p>
+<p>
+<em>Rivers:</em> if the pakset supports it, a number of different rivers can be built. Hover the mouse cursor over an individual river to see information about that particular type of river. If the pakset contains no rivers, there will be no river icons here.<br>
+To use: click on the tool to select (the cursor changes to a picture of the selected river), and then click and drag in the main game window to construct the river. Release the mouse button when the preview shows the river in the correct place.
+</p>
+<p>
+<em>Increase industry density:</em> increases the number of industries in the game by adding a new complete industry chain to the game. The industries are chosen at random (with the exception of power stations, which are built to satisfy the demand for electricity). Each click of the button will add one industry chain to the game.
+</p>
+<p>
+<em>Build industries:</em> opens a new window with detailed controls for adding industries to the game individually. <a href="factory_build.txt">More details</a>.
+</p>
+<p>
+<em>Link industries:</em>: allows industries to be linked manually. When industries are built individually using the <a href="factory_build.txt">industry builder</a> tool, they are not linked to anything. In that state, they will not function, since industries need consumers, suppliers or both in order to operate. Use the <em>link industries</em> tool to connect them. To use the tool, select the tool from the menu, click the first industry that you want to link in the main game window, then click the second. The industries will then be linked.
+</p>
+<p>
+<em>Build attractions:</em> opens a new window with detailed controls for adding attractions to the game individually. <a href="curiosity_build.txt">More details</a>.
+</p>
+<p>
+<em>Build city buildings:</em> opens a new window with detailed controls for adding city buildings to the game individually. <a href="citybuilding_build.txt">More details</a>.
+</p>
+<p>
+<em>Plant trees:</em> opens a new window with detailed controls for adding trees to the game individually. <a href="baum_build.txt">More details</a>.
+</p>
+<p>
+<em>Disallow player changes:</em> permanently prevents any further switches between players, and any further use of the map editing tools. Click the icon once, then click somewhere in the main game window. <strong>WARNING</strong>: This change is, by design, irreversible. It is designed to allow players to stop themselves from doing what might be considered cheating. It applies to the particular game in which it was activated: it does not apply to any new games started (although Simutrans will need to be restarted to allow new games to be unlocked).
+</p>
+<p>
+<em>Step the timeline by a year:</em> advances the date in the game by one year. If playing with the <a href="new_world.txt">timeline</a> enabled, various changes occur as time passes: new vehicles and infrastructure becomes available, and older types become obsolete (their maintenance costs increasing the more obsolete that they are); the speed at which people and goods expect to be transported increases; the proportion of people who have access to private cars increases; the electricity consumption of cities increases, new types of industry become available and older types close down. 
+To use: click on the tool icon, no further confirmation is required (the date changes on left of the bottom bar under the main game window). The date will advance by one year for each click. The date cannot be reversed, however, so use this tool with care.
+</p>

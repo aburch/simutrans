@@ -1,11 +1,10 @@
 # City electricity consumption over the years. This does not affect industry consumption.
 # The numbers other than years are percentages, and should be integers (i.e., no decimal point). 
 #
-# Source of data (1920 onwards): http://ukedc.rl.ac.uk/EDC_links_l.html
+# Source of data (1920 onwards): https://www.gov.uk/government/statistical-data-sets/historical-electricity-data-1920-to-2011
 #
-# Figures before 1920 and after 2007 are educated guesses. Data are for the UK:
-# other countries might vary.
+# Figures before 1920 and after 2010 are educated guesses. Data are for the UK: other countries might vary.
 #
 # Author: James E. Petts (jamespetts)
 
-electricity_consumption=1875,0,1882,1,1920,2,1935,3,1940,5,1945,6,1950,10,1955,25,1960,42,1965,44,1970,60,1975,68,1980,72,1985,77,1990,86,1996,97,2000,107,2005,113,2007,112,2010,112,2030,100,2050,105
+electricity_consumption=1880,0,1882,1,1925,1,1931,2,1934,3,1936,4,1938,5,1944,6,1945,7,1946,9,1950,11,1955,17,1957,19,1958,22,1959,23,1960,27,1965,43,1970,57,1975,69,1980,73,1990,83,1996,92,2000,100,2005,107,2010,104,2030,100,2050,85

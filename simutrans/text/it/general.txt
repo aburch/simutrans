@@ -1,0 +1,11 @@
+<title>Aiuto - Introduzione a Simutrans</title>
+
+<h1>Introduzione a Simutrans</h1>
+
+<p>
+ancora da scrivere
+</p>
+
+<p>
+(c) Hj. Malthaner
+</p>

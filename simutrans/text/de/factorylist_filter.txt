@@ -1,0 +1,32 @@
+<title>Fabrikliste Hilfe</title>
+
+<h1><strong>Fabrikliste</strong></h1>
+
+<p>
+Die Fabrikliste wird über die <a href="list.txt">Listenverwaltung</a> geöffnet.<br/>
+In der Fabrikliste sind alle Fabriken des Welt gelistet. Die Sortierung ist nach allen aufgeführten Kriterien möglich; klicke zum Wechseln auf den Button. Ein Klick auf einen Eintrag öffnet das Infofenster zur Fabrik und zentriert die Karte diese.
+</p>
+<p>
+· <em>Status:</em> Zeigt den Status der Fabrik an.<br/>
+Die Farben bedeuten:<br/>
+- <em>Weiss:</em> Industrie produziert nicht<br/>
+- <em>Gelb:</em> Industrie ist nicht angeschlossen<br/>
+- <em>Grün:</em> Industrie hat Optimum<br/>
+- <em>Orange:</em> Industrie funktioniert, aber Verbesserungen sind möglich<br/>
+- <em>Rot:</em> Industrie muß überprüft werden
+</p>
+<p>
+· <em>Strom:</em> Zeigt an, ob die Fabrik ans Stromnetz angeschlossen ist. Dies wird durch einen roten Blitz dargestellt.
+</p>
+<p>
+· <em>Fabrikname:</em> Die Bezeichnung für die Fabrik.
+</p>
+<p>
+· <em>Eingang:</em> Die Summe aller im Rohstofflager der Fabrik wartenden Güter.
+</p>
+<p>
+· <em>Ausgang:</em> Die Summe aller im Fertigwarenlager transportbereiter Güter.
+</p>
+<p>
+· <em>Produktion:</em> Die Produktionsrate der Fabrik.
+</p>

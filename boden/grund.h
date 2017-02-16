@@ -10,29 +10,32 @@
 
 
 #include "../halthandle_t.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../simcolor.h"
 #include "../simconst.h"
 #include "../dataobj/koord3d.h"
-#include "../dataobj/dingliste.h"
+#include "../dataobj/objlist.h"
+#include "../display/clip_num.h"
 #include "wege/weg.h"
+#include "../tpl/koordhashtable_tpl.h"
 
 
-class spieler_t;
+class player_t;
 class depot_t;
-class karte_t;
+class signalbox_t;
+class karte_ptr_t;
 class cbuffer_t;
 
 
-/* A map from ding_t subtypes to their enum equivalent
+/* A map from obj_t subtypes to their enum equivalent
  * Used by grund_t::find<T>()
  */
-class aircraft_t;
+class air_vehicle_t;
 class baum_t;
 class bruecke_t;
 class crossing_t;
 class field_t;
-class fussgaenger_t;
+class pedestrian_t;
 class gebaeude_t;
 class groundobj_t;
 class label_t;
@@ -42,51 +45,51 @@ class pumpe_t;
 class roadsign_t;
 class senke_t;
 class signal_t;
-class stadtauto_t;
-class automobil_t;
+class private_car_t;
+class road_vehicle_t;
 class tunnel_t;
 class wayobj_t;
 class zeiger_t;
 
-template<typename T> struct map_ding {};
-template<> struct map_ding<aircraft_t>    { static const ding_t::typ code = ding_t::aircraft;    };
-template<> struct map_ding<baum_t>        { static const ding_t::typ code = ding_t::baum;        };
-template<> struct map_ding<bruecke_t>     { static const ding_t::typ code = ding_t::bruecke;     };
-template<> struct map_ding<crossing_t>    { static const ding_t::typ code = ding_t::crossing;    };
-template<> struct map_ding<field_t>       { static const ding_t::typ code = ding_t::field;       };
-template<> struct map_ding<fussgaenger_t> { static const ding_t::typ code = ding_t::fussgaenger; };
-template<> struct map_ding<gebaeude_t>    { static const ding_t::typ code = ding_t::gebaeude;    };
-template<> struct map_ding<groundobj_t>   { static const ding_t::typ code = ding_t::groundobj;   };
-template<> struct map_ding<label_t>       { static const ding_t::typ code = ding_t::label;       };
-template<> struct map_ding<leitung_t>     { static const ding_t::typ code = ding_t::leitung;     };
-template<> struct map_ding<pillar_t>      { static const ding_t::typ code = ding_t::pillar;      };
-template<> struct map_ding<pumpe_t>       { static const ding_t::typ code = ding_t::pumpe;       };
-template<> struct map_ding<roadsign_t>    { static const ding_t::typ code = ding_t::roadsign;    };
-template<> struct map_ding<senke_t>       { static const ding_t::typ code = ding_t::senke;       };
-template<> struct map_ding<signal_t>      { static const ding_t::typ code = ding_t::signal;      };
-template<> struct map_ding<stadtauto_t>   { static const ding_t::typ code = ding_t::verkehr;     };
-template<> struct map_ding<automobil_t>   { static const ding_t::typ code = ding_t::automobil;   };
-template<> struct map_ding<tunnel_t>      { static const ding_t::typ code = ding_t::tunnel;      };
-template<> struct map_ding<wayobj_t>      { static const ding_t::typ code = ding_t::wayobj;      };
-template<> struct map_ding<weg_t>         { static const ding_t::typ code = ding_t::way;         };
-template<> struct map_ding<zeiger_t>      { static const ding_t::typ code = ding_t::zeiger;      };
+template<typename T> struct map_obj {};
+template<> struct map_obj<air_vehicle_t>    { static const obj_t::typ code = obj_t::air_vehicle;    };
+template<> struct map_obj<baum_t>        { static const obj_t::typ code = obj_t::baum;        };
+template<> struct map_obj<bruecke_t>     { static const obj_t::typ code = obj_t::bruecke;     };
+template<> struct map_obj<crossing_t>    { static const obj_t::typ code = obj_t::crossing;    };
+template<> struct map_obj<field_t>       { static const obj_t::typ code = obj_t::field;       };
+template<> struct map_obj<pedestrian_t> { static const obj_t::typ code = obj_t::pedestrian; };
+template<> struct map_obj<gebaeude_t>    { static const obj_t::typ code = obj_t::gebaeude;    };
+template<> struct map_obj<groundobj_t>   { static const obj_t::typ code = obj_t::groundobj;   };
+template<> struct map_obj<label_t>       { static const obj_t::typ code = obj_t::label;       };
+template<> struct map_obj<leitung_t>     { static const obj_t::typ code = obj_t::leitung;     };
+template<> struct map_obj<pillar_t>      { static const obj_t::typ code = obj_t::pillar;      };
+template<> struct map_obj<pumpe_t>       { static const obj_t::typ code = obj_t::pumpe;       };
+template<> struct map_obj<roadsign_t>    { static const obj_t::typ code = obj_t::roadsign;    };
+template<> struct map_obj<senke_t>       { static const obj_t::typ code = obj_t::senke;       };
+template<> struct map_obj<signal_t>      { static const obj_t::typ code = obj_t::signal;      };
+template<> struct map_obj<private_car_t>   { static const obj_t::typ code = obj_t::road_user;     };
+template<> struct map_obj<road_vehicle_t>   { static const obj_t::typ code = obj_t::road_vehicle;   };
+template<> struct map_obj<tunnel_t>      { static const obj_t::typ code = obj_t::tunnel;      };
+template<> struct map_obj<wayobj_t>      { static const obj_t::typ code = obj_t::wayobj;      };
+template<> struct map_obj<weg_t>         { static const obj_t::typ code = obj_t::way;         };
+template<> struct map_obj<zeiger_t>      { static const obj_t::typ code = obj_t::zeiger;      };
 
 
-template<typename T> static inline T* ding_cast(ding_t* const d)
+template<typename T> static inline T* obj_cast(obj_t* const d)
 {
-	return d->get_typ() == map_ding<T>::code ? static_cast<T*>(d) : 0;
+	return d->get_typ() == map_obj<T>::code ? static_cast<T*>(d) : 0;
 }
 
 
 /**
  * <p>Abstrakte Basisklasse für Untergründe in Simutrans.</p>
  *
- * <p>Von der Klasse grund_t sind alle Untergruende (Land, Wasser, Strassen ...)
+ * <p>Von der Klasse grund_t sind all Untergruende (Land, Water, Strassen ...)
  * in simu abgeleitet. Jedes Planquadrat hat einen Untergrund.</p>
  *
  * <p>Der Boden hat Eigenschaften, die abgefragt werden koennen
  * ist_natur(), ist_wasser(), hat_wegtyp(), ist_bruecke().
- * In dieser Basisklasse sind alle Eigenschaften false, sie werden erst
+ * In dieser Basisklasse sind all Eigenschaften false, sie werden erst
  * in den Subklassen redefiniert.</p>
  *
  * @author Hj. Malthaner
@@ -99,12 +102,12 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	enum flag_values {
-		keine_flags=0,
+		no_flags=0,
 		dirty=1, // was changed => redraw full
 		is_kartenboden=2,
 		has_text=4,
 		marked = 8,  // will have a frame
-		draw_as_ding = 16, // is a slope etc => draw as one
+		draw_as_obj = 16, // is a slope etc => draw as one
 		is_halt_flag = 32,	// is a part of a halt
 		has_way1 = 64,
 		has_way2 = 128
@@ -133,41 +136,47 @@ public:
 protected:
 	/**
 	 * List of objects on this tile
+	 * Pointer (changes occasionally) + 8 bits + 8 bits (changes often)
 	 */
-	dingliste_t dinge;
+	objlist_t objlist;
 
 	/**
-	 * Coordinate
+ 	 * Handle to halt built on this ground
 	 */
-	koord3d pos;
-
-	/**
-	 * Flags to indicate existence of halts, ways, to mark dirty
-	 */
-	uint8 flags;
+	halthandle_t this_halt;
 
 	/**
 	 * Image number
 	 */
-	image_id bild_nr;
+	image_id imageid;
 
 	/**
-	 * Image of the walls
+	 * Coordinate (40 bits)
 	 */
-	sint8 back_bild_nr;
+	koord3d pos;
 
 	/**
 	 * Slope (now saved locally), because different grounds need different slopes
 	 */
 	uint8 slope;
 
+	/**
+	 * Image of the walls
+	 */
+	sint8 back_image_nr;
+
+	/**
+	 * Flags to indicate existence of halts, ways, to mark dirty
+	 */
+	uint8 flags;
+
 public:
 	/**
 	 * setzt die Bildnr. des anzuzeigenden Bodens
 	 * @author Hj. Malthaner
 	 */
-	inline void set_bild(image_id n) {
-		bild_nr = n;
+	inline void set_image(image_id n) {
+		imageid = n;
 		set_flag(dirty);
 	}
 
@@ -178,19 +187,19 @@ protected:
 	* Change to instance variable once more than one world is available.
 	* @author Hj. Malthaner
 	*/
-	static karte_t *welt;
+	static karte_ptr_t welt;
 
-	// calculates the slope image and sets the draw_as_ding flag correctly
-	void calc_back_bild(const sint8 hgt,const sint8 slope_this);
+	// calculates the slope image and sets the draw_as_obj flag correctly
+	void calc_back_image(const sint8 hgt,const sint8 slope_this);
 
 	// this is the real image calculation, called for the actual ground image
-	virtual void calc_bild_internal() = 0;
+	virtual void calc_image_internal(const bool calc_only_snowline_change) = 0;
 
 public:
 	enum typ { boden = 1, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
 
-	grund_t(karte_t *welt, loadsave_t *file);
-	grund_t(karte_t *welt, koord3d pos);
+	grund_t(loadsave_t *file);
+	grund_t(koord3d pos);
 
 private:
 	grund_t(grund_t const&);
@@ -209,8 +218,6 @@ public:
 	 */
 	static void set_underground_mode(const uint8 ugm, const sint8 level);
 
-	karte_t *get_welt() const {return welt;}
-
 	/**
 	* Setzt Flags für das neuzeichnen geänderter Untergründe
 	* @author Hj. Malthaner
@@ -221,31 +228,38 @@ public:
 	inline bool get_flag(flag_values flag) const {return (flags & flag) != 0;}
 
 	/**
-	* start a new month (and toggle the seasons)
-	* @author prissi
+	* Updates snowline dependent grund_t (and derivatives) - none are season dependent
+	* Updates season and or snowline dependent objects
 	*/
-	void check_season(const long month) { calc_bild_internal(); dinge.check_season(month); }
+	void check_season_snowline(const bool season_change, const bool snowline_change) { if( snowline_change ) { calc_image_internal( snowline_change ); } objlist.check_season( season_change && !snowline_change ); }
+
+	/**
+	 * Sets all objects to dirty to prevent artifacts with smart hide cursor
+	 */
+	void set_all_obj_dirty() { objlist.set_all_dirty(); }
+
+	/**
 
 	/**
 	 * Dient zur Neuberechnung des Bildes, wenn sich die Umgebung
 	 * oder die Lage (Hang) des grundes geaendert hat.
 	 * @author Hj. Malthaner
 	 */
-	void calc_bild();
+	void calc_image();
 
 	/**
 	* Gibt die Nummer des Bildes des Untergrundes zurueck.
 	* @return Die Nummer des Bildes des Untergrundes.
 	* @author Hj. Malthaner
 	*/
-	inline image_id get_bild() const {return bild_nr;}
+	inline image_id get_image() const {return imageid;}
 
 	/**
 	* Returns the number of an eventual foundation
 	* @author prissi
 	*/
-	image_id get_back_bild(int leftback) const;
-	virtual void clear_back_bild() {back_bild_nr=0;}
+	image_id get_back_image(int leftback) const;
+	virtual void clear_back_image() {back_image_nr=0;}
 
 	/**
 	* if ground is deleted mark the old spot as dirty
@@ -267,7 +281,7 @@ public:
 	virtual typ get_typ() const = 0;
 
 	/**
-	* Gibt eine Beschreibung des Untergrundes (informell) zurueck.
+	* Gibt eine Description des Untergrundes (informell) zurueck.
 	* @return Einen Beschreibungstext zum Untergrund.
 	* @author Hj. Malthaner
 	*/
@@ -284,7 +298,7 @@ public:
 	* Oeffnet standardmaessig kein Infofenster.
 	* @author Hj. Malthaner
 	*/
-	void zeige_info();
+	void show_info();
 
 	/**
 	* Gibt die Farbe des Beschreibungstexthintergrundes zuurck
@@ -333,7 +347,7 @@ public:
 	* returns powerline here
 	* @author Kieron Green
 	*/
-	leitung_t *get_leitung() const { return (leitung_t *) dinge.get_leitung(); }
+	leitung_t *get_leitung() const { return (leitung_t *) objlist.get_leitung(); }
 
 	/**
 	* Laedt oder speichert die Daten des Untergrundes in eine Datei.
@@ -364,8 +378,8 @@ public:
 	inline void set_pos(koord3d newpos) { pos = newpos;}
 
 	// slope are now maintained locally
-	hang_t::typ get_grund_hang() const { return (hang_t::typ)slope; }
-	void set_grund_hang(hang_t::typ sl) { slope = sl; }
+	slope_t::type get_grund_hang() const { return (slope_t::type)slope; }
+	void set_grund_hang(slope_t::type sl) { slope = sl; }
 
 	/**
 	 * Manche Böden können zu Haltestellen gehören.
@@ -382,17 +396,34 @@ public:
 	bool is_halt() const { return flags & is_halt_flag; }
 
 	/**
-	 * @return The height of the tile.
-	 */
-	inline sint8 get_hoehe() const {return pos.z;}
+	* @return The height of the tile.
+	*/
+	inline sint8 get_hoehe() const { return pos.z; }
 
 	/**
-	 * @param corner hang_t::_corner mask of corners to check.
-	 * @return The height of the tile at the requested corner.
-	 */
-	inline sint8 get_hoehe(hang_t::typ corner) const
+	* @param corner slope_t::_corner mask of corners to check.
+	* @return The height of the tile at the requested corner.
+	*/
+	inline sint8 get_hoehe(slope4_t::type corner) const
 	{
-		return pos.z + (((hang_t::typ)slope & corner )?1:0);
+		switch (corner) {
+		case slope4_t::corner_SW: {
+			return pos.z + corner_sw(slope);
+			break;
+		}
+		case slope4_t::corner_SE: {
+			return pos.z + corner_se(slope);
+			break;
+		}
+		case slope4_t::corner_NE: {
+			return pos.z + corner_ne(slope);
+			break;
+		}
+		default: {
+			return pos.z + corner_nw(slope);
+			break;
+		}
+		}
 	}
 
 	void set_hoehe(int h) { pos.z = h;}
@@ -410,17 +441,15 @@ public:
 	// returns slope
 	// if tile is not visible, 'flat' is returned
 	// special care has to be taken of tunnel mouths
-	inline hang_t::typ get_disp_slope() const {
+	inline slope_t::type get_disp_slope() const {
 		return (  (underground_mode & ugm_level)  &&  (pos.z > underground_level  ||  (get_typ()==tunnelboden  &&  ist_karten_boden()  &&  pos.z == underground_level))
-							? (hang_t::typ)hang_t::flach
+							? (slope_t::type)slope_t::flat
 							: get_grund_hang() );
 
 		/*switch(underground_mode) {// long version of the return statement above
 			case ugm_none: return(get_grund_hang());
-			case ugm_all:  return(get_grund_hang()); // get_typ()==tunnelboden && !ist_karten? hang_t::flach : get_grund_hang());
-			case ugm_level:return((pos.z > underground_level || (get_typ()==tunnelboden && ist_karten_boden() && pos.z == underground_level))
-							? hang_t::flach
-							: get_grund_hang());
+			case ugm_all:  return(get_grund_hang()); // get_typ()==tunnelboden && !ist_karten? slope_t::flat : get_grund_hang());
+			case ugm_level:return pos.z == underground_level || pos.z+max(max(corner_sw(slope),corner_se(slope)),max(corner_ne(slope),corner_nw(slope))) == underground_level || (ist_karten_boden() && pos.z <= underground_level);
 		}*/
 	}
 
@@ -455,26 +484,40 @@ public:
 	/**
 	 * returns slope of ways as displayed (special cases: bridge ramps, tunnel mouths, undergroundmode etc)
 	 */
-	hang_t::typ get_disp_way_slope() const;
+	slope_t::type get_disp_way_slope() const;
 
 	/**
 	 * Displays the ground images (including foundations, fences and ways)
 	 * @author Hj. Malthaner
 	 */
+#ifdef MULTI_THREAD
+	void display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const sint8 clip_num, bool force_show_grid=false) const;
+#else
 	void display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const;
+#endif
+
+	/**
+	 * Displays the earth at the border
+	 * @author prissi
+	 */
+void display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width CLIP_NUM_DEF);
 
 	/**
 	 * Displays the tile if it's visible.
 	 * @see is_karten_boden_visible()
 	 */
-	void display_if_visible(sint16 xpos, sint16 ypos, sint16 raster_tile_width);
+#ifdef MULTI_THREAD
+	void display_if_visible(sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const sint8 clip_num, bool force_show_grid=false);
+#else
+	void display_if_visible(sint16 xpos, sint16 ypos, const sint16 raster_tile_width);
+#endif
 
 	/**
 	 * displays everything that is on a tile - the main display routine for objects on tiles
 	 * @param is_global set to true, if this is called during the whole screen update
 	 * @author dwachs
 	 */
-	void display_dinge_all(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global) const;
+void display_obj_all(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global CLIP_NUM_DEF) const;
 
 	/**
 	 * similar to above but yieleds clipping error
@@ -482,7 +525,7 @@ public:
 	 * @param is_global set to true, if this is called during the whole screen update
 	 * @author prissi
 	 */
-	void display_dinge_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const bool is_global) const;
+void display_obj_all_quick_and_dirty(const sint16 xpos, sint16 ypos, const sint16 raster_tile_width, const bool is_global CLIP_NUM_DEF) const;
 
 	/**
 	 * displays background images of all non-moving objects on the tile
@@ -492,8 +535,8 @@ public:
 	 * @return index of first vehicle on the tile
 	 * @author dwachs
 	 */
-	uint8 display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool draw_ways, const bool visible) const;
-
+uint8 display_obj_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool draw_ways, const bool visible  CLIP_NUM_DEF) const;
+ 
 	/**
 	 * displays vehicle (background) images
 	 * @param start_offset start with object at this index
@@ -501,14 +544,14 @@ public:
 	 * @param ontile is true if we are on the tile that defines the clipping
 	 * @author dwachs
 	 */
-	uint8 display_dinge_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile) const;
-
+uint8 display_obj_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile  CLIP_NUM_DEF) const;
+ 
 	/**
 	 * displays all foreground images
 	 * @param is_global set to true, if this is called during the whole screen update
 	 * @author dwachs
 	 */
-	void display_dinge_fg(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset) const;
+void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset  CLIP_NUM_DEF) const;
 
 	/**
 	 * overlayer with signs, good levels and station coverage
@@ -517,19 +560,19 @@ public:
 	 */
 	void display_overlay(sint16 xpos, sint16 ypos);
 
-	inline ding_t *first_obj() const { return dinge.bei(offsets[flags/has_way1]); }
-	ding_t *suche_obj(ding_t::typ typ) const { return dinge.suche(typ,0); }
-	ding_t *obj_remove_top() { return dinge.remove_last(); }
+	inline obj_t *first_obj() const { return objlist.bei(offsets[flags/has_way1]); }
+	obj_t *suche_obj(obj_t::typ typ) const { return objlist.suche(typ,0); }
+	obj_t *obj_remove_top() { return objlist.remove_last(); }
 
-	template<typename T> T* find(uint start = 0) const { return static_cast<T*>(dinge.suche(map_ding<T>::code, start)); }
+	template<typename T> T* find(uint start = 0) const { return static_cast<T*>(objlist.suche(map_obj<T>::code, start)); }
 
-	uint8  obj_add(ding_t *obj) { return dinge.add(obj); }
-	uint8 obj_remove(const ding_t* obj) { return dinge.remove(obj); }
-	bool obj_loesche_alle(spieler_t *sp) { return dinge.loesche_alle(sp,offsets[flags/has_way1]); }
-	bool obj_ist_da(const ding_t* obj) const { return dinge.ist_da(obj); }
-	ding_t * obj_bei(uint8 n) const { return dinge.bei(n); }
-	uint8  obj_count() const { return dinge.get_top()-offsets[flags/has_way1]; }
-	uint8 get_top() const {return dinge.get_top();}
+	uint8  obj_add(obj_t *obj) { return objlist.add(obj); }
+	uint8 obj_remove(const obj_t* obj) { return objlist.remove(obj); }
+	bool obj_loesche_alle(player_t *player) { return objlist.loesche_alle(player,offsets[flags/has_way1]); }
+	bool obj_ist_da(const obj_t* obj) const { return objlist.ist_da(obj); }
+	obj_t * obj_bei(uint8 n) const { return objlist.bei(n); }
+	uint8  obj_count() const { return objlist.get_top()-offsets[flags/has_way1]; }
+	uint8 get_top() const {return objlist.get_top();}
 
 	// moves all object from the old to the new grund_t
 	void take_obj_from( grund_t *gr);
@@ -538,7 +581,7 @@ public:
 	* @return NULL wenn OK, oder Meldung, warum nicht
 	* @author Hj. Malthaner
 	*/
-	const char * kann_alle_obj_entfernen(const spieler_t *sp) const { return dinge.kann_alle_entfernen(sp,offsets[flags/has_way1]); }
+	const char * kann_alle_obj_entfernen(const player_t *player) const { return objlist.kann_alle_entfernen(player,offsets[flags/has_way1]); }
 
 	/**
 	* Interface zur Bauen und abfragen von Gebaeuden
@@ -551,11 +594,15 @@ public:
 	*/
 	depot_t *get_depot() const;
 
+	signalbox_t* get_signalbox() const;
+
+	gebaeude_t *get_building() const;
+
 	/*
 	* Interface zur Abfrage der Wege
 	* ==============================
-	* Jeder Boden hat bis zu 2. Special fuer Wasser: ohne Weg-Objekt werden
-	* alle ribis vom weg_t::wassert als gesetzt zurueckgeliefert.
+	* Jeder Boden hat bis zu 2. Special fuer Water: ohne Weg-Objekt werden
+	* all ribis vom weg_t::wassert als gesetzt zurueckgeliefert.
 	*/
 
 	/**
@@ -570,20 +617,17 @@ public:
 	* @author Hj. Malthaner
 	*/
 	weg_t *get_weg(waytype_t typ) const {
-		if (weg_t* const w = get_weg_nr(0)) {
-			const waytype_t wt = w->get_waytype();
-			if(wt == typ) {
+		if (flags & has_way1)
+		{
+			objlist_t::const_iterator i = objlist.begin();
+			weg_t* w = static_cast<weg_t *>(*i);
+			if (w->get_waytype() == typ)
 				return w;
-			}
-			else if (wt > typ) {
-				// ways are ordered wrt to waytype
-				return NULL;
-			}
-			// try second way (if exists)
-			if (weg_t* const w = get_weg_nr(1)) {
-				if(w->get_waytype()==typ) {
+			if (flags & has_way2)
+			{
+				w = static_cast<weg_t *>(*++i);
+				if (w->get_waytype() == typ)
 					return w;
-				}
 			}
 		}
 		return NULL;
@@ -603,7 +647,7 @@ public:
 	uint8 get_styp(waytype_t typ) const
 	{
 		weg_t *weg = get_weg(typ);
-		return (weg) ? weg->get_besch()->get_styp() : 0;
+		return (weg) ? weg->get_desc()->get_styp() : 0;
 	}
 
 	/**
@@ -639,7 +683,7 @@ public:
 	virtual sint8 get_weg_yoff() const { return 0; }
 
 	/**
-	* Hat der Boden mindestens ein weg_t-Objekt? Liefert false für Wasser!
+	* Hat der Boden mindestens ein weg_t-Objekt? Liefert false für Water!
 	* @author V. Meyer
 	*/
 	inline bool hat_wege() const { return (flags&(has_way1|has_way2))!=0;}
@@ -649,15 +693,15 @@ public:
 	* Strassenbahnschienen duerfen nicht als Kreuzung erkannt werden!
 	* @author V. Meyer, dariok
 	*/
-	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)dinge.bei(1))->get_besch()->get_styp()!=7; }
+	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)objlist.bei(1))->get_desc()->get_styp()!=type_tram; }
 
 	/**
 	* returns the vehcile of a convoi (if there)
 	* @author V. Meyer
 	*/
-	ding_t *get_convoi_vehicle() const { return dinge.get_convoi_vehicle(); }
+	obj_t *get_convoi_vehicle() const { return objlist.get_convoi_vehicle(); }
 
-	virtual hang_t::typ get_weg_hang() const { return get_grund_hang(); }
+	virtual slope_t::type get_weg_hang() const { return get_grund_hang(); }
 
 	/*
 	 * Search a matching wayobj
@@ -682,11 +726,11 @@ public:
 	 *
 	 * @param weg	    der neue Weg
 	 * @param ribi	    die neuen ribis
-	 * @param sp	    Spieler, dem der Boden zugeordnet wird
+	 * @param player	    Spieler, dem der Boden zugeordnet wird
 	 *
 	 * @author V. Meyer
 	 */
-	sint64 neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp);
+	sint64 neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player, koord3d_vector_t *route = NULL);
 
 	/**
 	 * Bauhilfsfunktion - die ribis eines vorhandenen weges werden erweitert
@@ -708,6 +752,42 @@ public:
 	 * @author V. Meyer
 	 */
 	sint32 weg_entfernen(waytype_t wegtyp, bool ribi_rem);
+
+	bool removing_road_would_disconnect_city_building();
+	bool removing_way_would_disrupt_public_right_of_way(waytype_t wt);
+	bool removing_road_would_break_monument_loop();
+
+	typedef koordhashtable_tpl<koord, bool> road_network_plan_t;
+	/**
+	 * Check whether building a road would result in a 2x2 square
+	 * of road tiles.
+	 */
+	bool would_create_excessive_roads(int dx, int dy, road_network_plan_t &);
+	bool would_create_excessive_roads(road_network_plan_t &);
+	bool would_create_excessive_roads();
+
+	/**
+	 * Check whether we can remove enough roads to avoid creating
+	 * a 2x2 square of road tiles.
+	 */
+	bool remove_excessive_roads(int dx, int dy, road_network_plan_t &);
+	bool remove_excessive_roads(road_network_plan_t &);
+	bool remove_excessive_roads();
+
+	int count_neighbouring_roads(road_network_plan_t &);
+
+	/**
+	 * These are a little complicated: when building or removing
+	 * roads, we want to know whether the whole construction
+	 * process succeeds before actually building anything; so we
+	 * use a hash table to keep track of all additions and
+	 * removals to the road network that we have planned.
+	 *
+	 * A true entry means a road tile is being added, a false
+	 * entry means it is being removed, no entry means that road
+	 * tile remains unchanged. */
+
+	static bool fixup_road_network_plan(road_network_plan_t &);
 
 	/**
 	 * Description;
@@ -740,7 +820,7 @@ public:
 	 * Description;
 	 *      Check, whether it is possible that a way goes up or down in ribi
 	 *      direction. The result depends of the ground type (i.e tunnel entries)
-	 *      and the "hang_typ" of the ground.
+	 *      and the "slope_type" of the ground.
 	 *
 	 *      Returns the height if one moves in direction given by ribi
 	 *
@@ -752,15 +832,15 @@ public:
 	 */
 	inline sint8 get_vmove(ribi_t::ribi ribi) const {
 		sint8 h = pos.z;
-		const hang_t::typ way_slope = get_weg_hang();
+		const slope_t::type way_slope = get_weg_hang();
 
 		// only on slope height may changes
 		if(  way_slope  ) {
-			if(ribi & ribi_t::nordost) {
-				h += corner3(way_slope);
+			if(ribi & ribi_t::northeast) {
+				h += corner_ne(way_slope);
 			}
 			else {
-				h += corner1(way_slope);
+				h += corner_sw(way_slope);
 			}
 		}
 
@@ -770,7 +850,9 @@ public:
 		 */
 		if(  way_slope != slope  ) {
 			if(  ist_bruecke()  &&  slope  ) {
-				h ++;	// end or start of a bridge
+				// calculate height quicker because we know that slope exists and is north, south, east or west
+				// single heights are not integer multiples of 8, double heights are
+				h += (slope & 7) ? 1 : 2;
 			}
 		}
 
@@ -781,7 +863,7 @@ public:
 	 * powerline ond other stuff
 	 * @author prissi
 	 */
-	bool remove_everything_from_way(spieler_t *sp,waytype_t wt,ribi_t::ribi ribi_rem);
+	bool remove_everything_from_way(player_t *player,waytype_t wt,ribi_t::ribi ribi_rem);
 
 	void* operator new(size_t s);
 	void  operator delete(void* p, size_t s);

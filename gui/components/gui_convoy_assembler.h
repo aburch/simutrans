@@ -11,8 +11,9 @@
 #include "gui_scrollpane.h"
 #include "gui_tab_panel.h"
 #include "gui_speedbar.h"
+#include "../gui_theme.h"
 
-#include "../gui_container.h"
+#include "gui_container.h"
 
 #include "../../convoihandle_t.h"
 
@@ -37,7 +38,7 @@ private:
 public:
 	depot_convoi_capacity_t();
 	void set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods);
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 };
 
 /**
@@ -71,27 +72,27 @@ class gui_convoy_assembler_t :
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	static koord get_placement(waytype_t wt);
-	static koord get_grid(waytype_t wt);
+	static scr_coord get_placement(waytype_t wt);
+	static scr_coord get_grid(waytype_t wt);
 
 	waytype_t way_type;
 	bool way_electrified;
-	class karte_t *welt;
+	static class karte_ptr_t welt;
 
 	// The selected convoy so far...
-	vector_tpl<const vehikel_besch_t *> vehicles;
+	vector_tpl<const vehicle_desc_t *> vehicles;
 
 	// Last changed vehicle (added/deleted)
-	const vehikel_besch_t *last_changed_vehicle;
+	const vehicle_desc_t *last_changed_vehicle;
 
 	// If this is used for a depot, which depot_frame manages, else NULL
 	class depot_frame_t *depot_frame;
 	class replace_frame_t *replace_frame;
 
 	/* Gui parameters */
-	koord placement;	// ...of first vehicle image
+	scr_coord placement;	// ...of first vehicle image
 	sint32 placement_dx;
-	koord grid;		    // Offsets for adjacent vehicle images
+	scr_coord grid;		    // Offsets for adjacent vehicle images
 	sint32 grid_dx;		// Horizontal offset adjustment for vehicles in convoy
 	uint32 max_convoy_length;
 	sint32 panel_rows;
@@ -106,6 +107,7 @@ class gui_convoy_assembler_t :
 	gui_label_t lb_convoi_weight;
 	gui_label_t lb_convoi_brake_force;
 	gui_label_t lb_convoi_rolling_resistance;
+	gui_label_t lb_convoi_way_wear_factor;
 	gui_label_t lb_convoi_line;
 	// Specifies the traction types handled by
 	// this depot.
@@ -167,6 +169,7 @@ class gui_convoy_assembler_t :
 	cbuffer_t txt_convoi_weight;
 	cbuffer_t txt_convoi_brake_force;
 	cbuffer_t txt_convoi_rolling_resistance;
+	cbuffer_t txt_convoi_way_wear_factor;
 	cbuffer_t txt_traction_types;
 	cbuffer_t txt_vehicle_count;
 
@@ -188,7 +191,7 @@ class gui_convoy_assembler_t :
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	typedef ptrhashtable_tpl<vehikel_besch_t const*, gui_image_list_t::image_data_t*> vehicle_image_map;
+	typedef ptrhashtable_tpl<vehicle_desc_t const*, gui_image_list_t::image_data_t*> vehicle_image_map;
 	vehicle_image_map vehicle_map;
 
 	/**
@@ -197,15 +200,15 @@ class gui_convoy_assembler_t :
 	 * @date  09.06.2003
 	 * @update 09-Jan-04
 	 */
-	void draw_vehicle_info_text(koord pos);
+	void draw_vehicle_info_text(const scr_coord& pos);
 
 	// for convoi image
 	void image_from_convoi_list(uint nr);
 
-	void image_from_storage_list(gui_image_list_t::image_data_t* bild_data);
+	void image_from_storage_list(gui_image_list_t::image_data_t* image_data);
 
 	// add a single vehicle (helper function)
-	void add_to_vehicle_list(const vehikel_besch_t *info);
+	void add_to_vehicle_list(const vehicle_desc_t *info);
 
 	static const sint16 VINFO_HEIGHT = 186 + 14;
 
@@ -221,7 +224,7 @@ public:
 
 	enum { u_buy, u_upgrade };
 
-	gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed char player_nr, bool electrified = true);
+	gui_convoy_assembler_t(waytype_t wt, signed char player_nr, bool electrified = true);
 	virtual ~gui_convoy_assembler_t();
 	/**
 	 * Create and fill loks_vec and waggons_vec.
@@ -245,7 +248,7 @@ public:
 	 * components should be triggered.
 	 * V.Meyer
 	 */
-	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+	bool action_triggered( gui_action_creator_t *comp, value_t extra);
 
 	/**
 	 * Update texts, image lists and buttons according to the current state.
@@ -255,29 +258,27 @@ public:
 	void update_data();
 	void update_tabs();
 
-	/* The gui_komponente_t interface */
-	virtual void zeichnen(koord offset);
+	/* The gui_component_t interface */
+	virtual void draw(scr_coord offset);
 
 	bool infowin_event(const event_t *ev);
 
 	inline void clear_convoy() {vehicles.clear();}
 
 	inline void remove_vehicle_at(sint32 n) {vehicles.remove_at(n);}
-	inline void append_vehicle(const vehikel_besch_t* vb, bool in_front) {vehicles.insert_at(in_front?0:vehicles.get_count(),vb);}
+	inline void append_vehicle(const vehicle_desc_t* vb, bool in_front) {vehicles.insert_at(in_front?0:vehicles.get_count(),vb);}
 
 	/* Getter/setter methods */
 
-	inline const vehikel_besch_t *get_last_changed_vehicle() const {return last_changed_vehicle;}
-
-	inline karte_t *get_welt() const {return welt;}
+	inline const vehicle_desc_t *get_last_changed_vehicle() const {return last_changed_vehicle;}
 
 	inline void set_depot_frame(depot_frame_t *df) {depot_frame=df;}
 	inline void set_replace_frame(replace_frame_t *rf) {replace_frame=rf;}
 
-	inline vector_tpl<const vehikel_besch_t *>* get_vehicles() {return &vehicles;}
+	inline vector_tpl<const vehicle_desc_t *>* get_vehicles() {return &vehicles;}
 	inline const vector_tpl<gui_image_list_t::image_data_t* >* get_convoi_pics() const { return &convoi_pics; }
 	void set_vehicles(convoihandle_t cnv);
-	void set_vehicles(const vector_tpl<const vehikel_besch_t *>* vv);
+	void set_vehicles(const vector_tpl<const vehicle_desc_t *>* vv);
 
 	inline void set_convoy_tabs_skip(sint32 skip) {convoy_tabs_skip=skip;}
 
@@ -293,9 +294,9 @@ public:
 
 	void set_panel_rows(sint32 dy); 
 
-	inline sint16 get_panel_height() const {return (panel_rows * grid.y + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER) - 4;}
+	inline sint16 get_panel_height() const {return (panel_rows * grid.y + D_TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER) - 4;}
 
-	inline sint16 get_min_panel_height() const {return grid.y + gui_tab_panel_t::HEADER_VSIZE + 2 * gui_image_list_t::BORDER;}
+	inline sint16 get_min_panel_height() const {return grid.y + D_TAB_HEADER_HEIGHT + 2 * gui_image_list_t::BORDER;}
 
 	inline int get_height() const {return get_convoy_height() + convoy_tabs_skip + 8 + get_vinfo_height() + 23 + get_panel_height();}
 

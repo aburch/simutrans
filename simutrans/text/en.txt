@@ -1,0 +1,1408 @@
+English
+PROP_FONT_FILE
+Prop-Latin1.bdf
+################################################################################
+#                                                                              #
+#                        Simutrans Base Translation File                       #
+#                             Scenario: Base texts                             #
+#                             Language: en English                             #
+#                                Encoding: ASCII                               #
+#                            Font : Prop-Latin1.bdf                            #
+#                           Date Created: 28.06 2008                           #
+#                                                                              #
+#                                   authors:                                   #
+#                        Alexandre Frauenknecht - al_cff                       #
+#                                    note:                                     #
+#                         BeatBoxRocker - beatboxrocker                        #
+#                                    note:                                     #
+#                            Colin W Anetts - Colin                            #
+#                                    note:                                     #
+#                             Dirk Burkholz - Dirk                             #
+#                     note: German translation coordinator                     #
+#                             Dirk W. - DirrrtyDirk                            #
+#                                    note:                                     #
+#                    dogbreathiv@hotmail.co.uk - dogbreathiv                   #
+#                                    note:                                     #
+#                           Fabio Gonella - fagonella                          #
+#                                    note:                                     #
+#                              Frank Penz - FrankP                             #
+#                          note: Administrator German                          #
+#                            G?nter Beine - gebeine                            #
+#                                    note:                                     #
+#                         Roman Schw?rer - Gotthardlok                         #
+#                                    note:                                     #
+#                        Hans Brickface - hansbrickface                        #
+#                                    note:                                     #
+#                          Jack Verheydt - j.verheydt                          #
+#                                    note:                                     #
+#                             Pavel Cizek - jatypc                             #
+#                                    note:                                     #
+#                             Jan Pol??ek - Jerome                             #
+#                           note: AKA Jerome Heretic                           #
+#                          James Barker - jimmyjazz951                         #
+#                                    note:                                     #
+#                             Jonas Czimek - joecz                             #
+#                                    note:                                     #
+#                             Ji?? Vose?ek - kacer                             #
+#                                    note:                                     #
+#                             Karl Katzke - katzke                             #
+#                                    note:                                     #
+#                             Marcus Haupt - Marcus                            #
+#note: if I?m not available by email to proximity.de try mail@marcus-haupt.de (#
+#                      Michael Bisbjerg - michaelbisbjerg                      #
+#                                    note:                                     #
+#                             Mike Ryan - mikeryan                             #
+#                                    note:                                     #
+#                             Stefan Wuttich - mip                             #
+#                                    note:                                     #
+#                            Matthieu Pupat - mpupat                           #
+#                                    note:                                     #
+#                              Markus Rex - msrex                              #
+#                                    note:                                     #
+#                            Milan Gvo?d?k - nalim27                           #
+#                                    note:                                     #
+#                              Tom?? Kube? - Napik                             #
+#           note: 128x128 dev. coordinator, SimuTranslator developer           #
+#                            Ond?ej Machulda - Ondra                           #
+#                                    note:                                     #
+#                    Patrick, American Fish Guy - patrickmn1                   #
+#                                    note:                                     #
+#                          Markus Pristovsek - prissi                          #
+#                            note: Administrator 64                            #
+#                            Guillermo Mateo - Raven                           #
+#                                    note:                                     #
+#                           Brian D. - scienceman123                           #
+#                                    note:                                     #
+#                       Christian 'Jason' Peper - trublu                       #
+#                                    note:                                     #
+#                         Tom?? Vrbick? - vrbicky_tomas                        #
+#                     note: Don?thurry up! Death is faster.                    #
+#                            Vladim?r Sl?vik - vsys                            #
+#                             note: Vladim?r Sl?vik                            #
+#                           Michael Olbricht - whoami                          #
+#                                    note:                                     #
+#                                                                              #
+################################################################################
+#_________________________________program_text__________________________________
+#_________________________________program_text__________________________________
+!0_STATION_CROWDED
+%s\nis crowded.
+!1_DEPOT_REACHED
+%s has entered a depot.
+%1_CITY_SYLL
+Apping
+%2_CITY_SYLL
+Malli
+%3_CITY_SYLL
+Ash
+%4_CITY_SYLL
+Spring
+%5_CITY_SYLL
+Polling
+%6_CITY_SYLL
+Baring
+%7_CITY_SYLL
+Hepp
+%8_CITY_SYLL
+Brent
+%9_CITY_SYLL
+Ren
+%A_CITY_SYLL
+Old
+%B_CITY_SYLL
+Hill
+%d buildings\n
+%d buildings
+%d convois
+%d convoys
+%d Einzelfahrzeuge im Depot
+%d vehicles stored here.
+%i km/h (max. %ikm/h)
+%i km/h (max. %ikm/h)
+%s building %s %s
+%s %s %s
+%s city %d %s
+%s city %d %s
+%s land %d %s
+%s land %d %s
+%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
+%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
+%s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
+%s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
+%s s\nheadquarter now\nat (%i,%i).
+%s's has built new headquarters.
+%s wasted\nyour money with a\nnew town hall\nwhen it reached\n%i inhabitants.
+%s \nbuilt a\nnew town hall\nwhen it reached\n%i inhabitants.
+%s's\nheadquarter now\nat (%i,%i).
+%s's\nheadquarters now\nat (%i,%i).
+%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i).
+%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s\nat (%i,%i).
+%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i).
+%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s\nat (%i,%i).
+%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
+%s\nspeed %i\nmax speed %i\ndx:%i dy:%i
+&1_CITY_SYLL
+chester
+&2_CITY_SYLL
+ton
+&3_CITY_SYLL
+ville
+&4_CITY_SYLL
+den
+&5_CITY_SYLL
+borough
+&6_CITY_SYLL
+ham
+&7_CITY_SYLL
+field
+&8_CITY_SYLL
+mouth
+&9_CITY_SYLL
+lock
+&A_CITY_SYLL
+cross
+(%i)-
+(%i) 
+(in depot)
+(in depot)
+1 convoi
+1 convoy
+1 Einzelfahrzeug im Depot
+1 Vehicle stored here.
+1center
+%s %s
+1extern
+%s branch %s
+1LIGHT_CHOOSE
+Brightness:
+1nord
+%s north %s
+1nordost
+%s NE %s
+1nordwest
+%s NW %s
+1ost
+%s east %s
+1suburb
+%s %s %s
+1sued
+%s south %s
+1suedost
+%s SE %s
+1suedwest
+%s SW %s
+1west
+%s west %s
+1WORLD_CHOOSE
+Settings for a New Game:
+2center
+%s central %s
+2extern
+%s External %s
+2LIGHT_CHOOSE
+Colours:
+2suburb
+%s Greenfields %s %s
+2WORLD_CHOOSE
+Map number:
+3center
+%s main %s
+3extern
+%s land %s
+3LIGHT_CHOOSE
+Scroll Speed:
+3suburb
+%s village %s %s
+3WORLD_CHOOSE
+Size (%d MB):
+4center
+%s inner %s
+4extern
+%s outer %s
+4LIGHT_CHOOSE
+Scroll Inverse
+5center
+%s transfer %s
+5LIGHT_CHOOSE
+Pedestrians at stops
+5WORLD_CHOOSE
+Nr. of Cities:
+6center
+%s Hub %s
+6LIGHT_CHOOSE
+Pedestrians in towns
+6WORLD_CHOOSE
+Traffic density:
+7center
+%s city %s
+8WORLD_CHOOSE
+day and night change
+<em>%C</em> - %s<br>\n
+[<em>%C</em>]: %s<br>\n
+<no line>
+<no line exists>
+<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
+<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1>\n<p>\n<strong>Keyboard Help</strong> shows functions for various key presses on the keyboard.\n</p>\n<p>\n<strong>Keyboard Help</strong> opens when an unassigned key is pressed or from <a href="general.txt">General Help</a>.\n</p>\n<p>\nKey presses are case sensitive (use [<em>Shift</em>] for upper-case letters).\n</p>\n<p>\nKeys with assigned functions include:\n</p>\n<p>\n[<em>Arrow Keys</em>]: scroll game-view in direction of arrow.<br>\n[<em>Backspace</em>]: close all windows, toolbars and help-texts in game-view.<br>\n[<em>Delete</em>], or [<em>Escape</em>]: close top window, toolbar or help-text in game-view.<br>\n[<em>Enter</em>], or [<em>Return</em>]: used to confirm actions.<br>\n[<em>Page-Up</em>], or [<em>></em>]: zoom-in game-view.<br>\n[<em>Page-Down</em>], or  [<em> less than symbol</em>]: zoom-out game-view.\n[<em>F1</em>]: open <a href="general.txt">Simutrans Help</a>.<br></p>\n<p>\n[<em>1</em>]: scroll game-view south-wards.<br>\n[<em>2</em>]: scroll game-view south-east-wards.<br>\n[<em>3</em>]: scroll game-view east-wards.<br>\n[<em>4</em>]: scroll game-view south-west-wards.<br>\n[<em>6</em>]: scroll game-view north-east-wards.<br>\n[<em>7</em>]: scroll game-view west-wards.<br>\n[<em>8</em>]: scroll game-view north-west-wards.<br>\n[<em>9</em>]: scroll game-view north-wards.\n</p>\n<p>\n[<em>Shift</em>] + <a href="mouse.txt">mouse</a>: used on <a href="map.txt">Map</a> to see links in <a href="industry_info.txt">Industry Supply Chain</a>.<br>\n[<em>CTRL</em>] + tool: construct (signals & <a href="station.txt">Stops</a>) on upper level; or build slower roads and tracks over faster ones; or build straighter (more direct) roads and tracks.<br>\n[<em>CTRL</em>] + ([<em>F2</em>] to [<em>F12</em>]): sets select current tool to keypresses [<em>F2</em>] to [<em>F12</em>].\n</p>\n<p>
+A bridge must end on a way!
+Bridges must\nend on an\nexisting way.
+A bridge must start on a way!
+Bridges must\nstart on an\nexisting way.\n
+Abfrage
+Inspection Tool
+Abnehmer
+Consumer
+About
+About
+Abriss
+Destroy/Remove
+Absenken
+Lower land
+Add Stop
+Add Stop
+Add stops for backward travel
+Add stops for backward travel.
+Add the selected vehicle(s) to the selected line
+Add the selected vehicle(s) to the selected line.
+Air
+Air
+aircraft_tab
+Freight planes
+Airport
+Airport
+AIRTOOLS
+Airport Tools
+All
+All
+Allow player change
+Allow player change
+Alters a schedule.
+Add/removes stops to/from a schedule
+Ambiguous signal combination.\nTry removing by clicking the\nother side of the signal.\n
+\nToo many signals nearby!\n\nTry removing by clicking the\nother side of the signal.\n\n
+Angenommene Waren
+Goods needed by nearby industries
+anhaengen
+Append
+Anhaenger_tab
+Trailers
+Anheben
+Raise land
+Apply Line
+Apply Line
+April
+April
+Arbeiter aus:
+Workers live in:
+arctic
+artic climate
+Arrived
+Arrived
+Assets
+Assets
+Aufloesen
+Disassemble
+August
+August
+Autohalt muss auf\nStrasse liegen!\n
+Bus or car stops\nmust be\nplaced on the road.
+Available
+Available
+Bahndepot
+Train depot
+Bankrott:\n\nDu bist bankrott.\n
+Bankrupt:\n\nYou are bankrupt!\n
+battery
+Battery
+Baum
+Tree
+Baustelle
+Construction site
+Beenden
+Quit
+Beginner mode
+Beginner Mode
+Besonderes Gebaeude
+Tourist attraction
+BF
+station
+bio
+biological
+Blockstrecke ist\nbelegt\n
+\nRail block is in use\nby another train!\n
+Boden
+Land
+Bridge is too long for this type!\n
+Bridge span is too\nlong for this type of\nbridge.\n
+Bruecke
+Bridge
+Bruecke muss an\neinfachem\nHang beginnen!\n
+Bridges must\nstart on a\nstraight slope\n
+Brueckenboden
+bridge
+build choosesignals
+Build platform choose signals
+Build city market
+Build a new market in the nearest city.
+Build drain
+Transformer station
+build HQ
+Build HQ
+Build land consumer
+Build a new power station.
+Build monorail depot
+Build monorail depot
+Build monotrail depot
+Build monorail depot
+Build powerline
+Build Power Transmission Line
+Build presignals
+Build twoblock signals
+Build road depot
+Build Garage
+Build ship depot
+Build Shipyard
+Build signals
+Build signals
+Build train depot
+Build train depot
+Build tram depot
+Build tram depot
+Build truck depot
+Build Garage
+Built artifical slopes
+Build artificial slopes
+Built random attraction
+Build a random attraction.
+Bus_tab
+Buses
+Cancel
+Cancel
+Cannot built depot here!
+Cannot build a depot here.
+Cannot create generic line!\nSelect line type by\nusing filter tabs.
+Cannot create generic line!\nSelect line type\nusing filter tabs.
+Capacity: %s\nLoad: %d (%d%%)
+Capacity: %s\n? %d (%d%%)
+Cars are not available yet!
+Cars are not yet available.
+Cash
+Account Balance
+Change player
+Change player
+Chart
+Chart
+Choose operation executed on clicking stored/new vehicles
+Choose operation executed on clicking stored/new vehicles
+chooses a random map
+Chooses a random map.
+citicens
+Citizens
+City industries
+Markets in cities
+City list
+City list
+City size
+City size
+CityLimit
+City limits
+city_road
+City road
+clf_btn_alle
+all
+clf_btn_invers
+inv.
+clf_btn_keine
+none
+clf_chk_aircrafts
+Aircraft
+clf_chk_cars
+Buses/trucks
+clf_chk_indepot
+in a depot
+clf_chk_name_filter
+Filter names:
+clf_chk_noincome
+no income
+clf_chk_noline
+no line
+clf_chk_noroute
+no route
+clf_chk_noschedule
+no schedule
+clf_chk_ships
+Ships
+clf_chk_spezial_filter
+Special filter:
+clf_chk_stucked
+stuck
+clf_chk_trains
+Trains
+clf_chk_type_filter
+Filter types:
+clf_chk_waren
+Filter goods:
+clf_title
+Vehicle List Filter
+Climate Control
+Set climate
+cl_btn_filter_disable
+disabled
+cl_btn_filter_enable
+enabled
+cl_btn_filter_settings
+Settings
+cl_btn_sort_asc
+ascending
+cl_btn_sort_desc
+descending
+cl_btn_sort_id
+internal ID
+cl_btn_sort_income
+Income
+cl_btn_sort_name
+Name
+cl_btn_sort_type
+Type
+cl_title
+Vehicle List
+cl_txt_filter
+Filter:
+cl_txt_sort
+Sort by:
+COLOR_CHOOSE\n
+Please choose a\ncolour from the table:\n
+Constructed by
+Painted by 
+Constructed by %s
+Painted by %s
+Construction_Btn
+Construction costs
+convoi %d of %d
+Convoy %d of %d
+Convoi has been sent\nto the nearest depot\nof appropriate type.\n
+Convoy has been sent\nto the nearest depot\nof appropriate type.\n
+Convoi is sold when all wagons are empty.
+The vehicle will be sold as soon as it is completely empty.
+convoi passed last\nmonth %i\n
+\nconvoys passing last\nmonth: %i\n
+Convois: %d\nProfit: %s
+Vehicles: %d\nProfit: %s
+Convoys
+Convoys
+Copy Convoi
+Copy Convoy
+Copy the selected convoi and its schedule or line
+Copy the selected convoy and its schedule or line
+Create a new line based on this schedule
+Create a new line based on this schedule
+curlist_title
+Attraction list
+Currently playing:
+Playing:
+Das Feld gehoert\neinem anderen Spieler\n
+This piece of\nland is owned by\nanother player!\n
+December
+December
+Del Stop
+ Remove
+Delete Line
+Delete line
+Delete this file.
+Delete this file.
+Denkmal
+Monument
+Departed
+Departed
+Depots
+Depots
+Der Besitzer erlaubt das Entfernen nicht
+\nThe owner refuses\npermission to\nremove this!\n
+Der Tunnel ist nicht frei!\n
+Tunnel is not empty.\n
+desert
+desert climate
+Destination
+Destination
+Details
+Details
+Die Bruecke ist nicht frei!\n
+The bridge is not free
+Diese Zusammenstellung kann nicht fahren!\n
+This combination\ncan't drive!\n
+diesel
+diesel
+Direkt erreichbare Haltestellen
+Direct routes from here
+Dock
+dock
+Dock must be built on single slope!
+Docks must be built on a single-sloped tile.
+Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
+You have %d months to repay your debt.
+Durchsatz
+Max.
+EDITTOOLS
+Map Editing Tools
+Eigenbesitz\n
+Public property\n
+Ein %s\npasst hier nicht.\n
+A '%s'\ndoesn't fit here!\n
+Einstellungen
+Options:
+Einstellungen aendern
+Change options:\n
+Einstellungsfenster
+Game options
+electric
+electric
+Electrify track
+Electrify track
+Electrics_tab
+Electric vehicles
+Error
+Error
+Erzeuge neue Karte.\n
+Please wait while a new\nmap is being created.\n\n(This may take a few \nminutes for big maps.)\n
+Es wird bereits\nein Fahrplan\neingegeben\n
+A schedule is\nbeing planned.\nFinish it first\nbefore re-scheduling!\n
+Fabrikanschluss
+Connected factories
+Fabrikname
+factory name
+Factories
+Factories
+Factory chain extended\nfor %s near\n%s built with\n%i factories.
+Economy going strong:\n%s near %s extends chain.\n%i new factory founded.
+factory details
+Factory details
+Fahrplan
+Schedule
+Fahrtziel
+Destination: 
+Fahrzeuge koennen so nicht entfernt werden
+Vehicles cannot be\nremoved this way!\n
+Fahrzeuge:
+Vehicles:
+Farbe
+Player Colour
+Fast forward
+Fast forward
+February
+February
+Ferry_tab
+Ferries
+Fertig
+ Done
+Filename
+Filename:
+Finances of %s
+Finances of %s
+Finanzen
+Finances
+Flugzeughalt muss auf\nRunway liegen!\n
+Plane stand must\nbe on a taxiway.
+Flug_tab
+Passenger Aircraft
+fl_title
+factory list
+follow me
+Follow me.
+Follow the convoi on the map.
+Follow the convoy on the map.
+Forest
+Forest
+Found new city
+found a new city
+FPS:
+FPS:
+Fracht
+Freight
+Frame time:
+Frame Time:
+Free Capacity
+Free Capacity
+Friction:
+current friction factor:
+fuel_cell
+fuel cell
+Full load
+Minimum load:    
+Fussgaenger
+Pedestrian
+GAME PAUSED
+Game Is Paused
+Gear:
+Gear:
+Gebaeude
+Building
+Gewicht
+Weight
+Gewinn
+Income:
+Give the selected vehicle(s) an individual schedule
+Give the selected vehicle(s) an individual schedule.
+gl_btn_sort_bonus
+by bonus
+gl_btn_sort_name
+by name
+gl_btn_sort_revenue
+by revenue
+gl_btn_unsort
+unsorted
+gl_title
+List of all goods
+go home
+Go to depot.
+Goods list
+Goods list
+Gross Profit
+Cash Flow
+Grow city
+Grow city.
+Growth
+City Growth
+H
+stop
+Hangar
+Hangar
+Happy
+Happy
+Helligk.
+Display
+Helligk. u. Farben
+Display settings
+Help
+Help
+Help text not found
+The help text is missing.
+hide all building
+hide all buildings
+hide city building
+hide city buildings
+hide transparent
+transparent instead of hidden
+hide trees
+Hide trees
+Hier kann dieses\nFlughafengebaeude nicht\ngebaut werden!\n
+You cannot build\n\nairport building here.\n
+Hier kann kein\nSignal aufge-\nstellt werden!\n
+You cannot place\nrail signals here.\n
+Hier warten/lagern:
+Goods and passengers waiting:
+hlf_btn_alle
+all
+hlf_btn_invers
+inverse
+hlf_btn_keine
+none
+hlf_chk_airport
+Airports
+hlf_chk_anleger
+Dock
+hlf_chk_bahnhof
+Railway station
+hlf_chk_bushalt
+Bus stop
+hlf_chk_frachthof
+Loading bay
+hlf_chk_keine_verb
+no connection
+hlf_chk_name_filter
+Filter names:
+hlf_chk_overflow
+Over Capacity
+hlf_chk_spezial_filter
+Special filter:
+hlf_chk_type_filter
+Filter types:
+hlf_chk_waren_abgabe
+Production:
+hlf_chk_waren_annahme
+Goods needed:
+hlf_title
+Station List Filter
+hl_btn_filter_disable
+disabled
+hl_btn_filter_enable
+enabled
+hl_btn_filter_settings
+Settings
+hl_btn_sort_asc
+ascending
+hl_btn_sort_desc
+descending
+hl_btn_sort_name
+Name
+hl_btn_sort_type
+Type
+hl_btn_sort_waiting
+Waiting
+hl_title
+Station List
+hl_txt_filter
+Filter:
+hl_txt_sort
+Sorted by:
+Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.
+Depot cannot be found.\nYou must send the\nvehicle there manually.
+Homeless
+Homeless
+hydrogene
+Hydrogen
+Idle:
+Idle:
+industrial building
+Industrial building
+Init map ...
+Initializing map ...
+Input
+input
+Ins Stop
+ Insert
+Intercity road len:
+Intercity Road Length:
+Intro. date:
+Intro. date:
+Invalid coordinate
+Invalid Order
+January
+January
+July
+July
+June
+June
+Kann Spielstand\nnicht laden.\n
+Cannot load saved game!
+Kann Spielstand\nnicht speichern.\n
+Cannot open\ntarget file\nfor writing!
+keine
+none
+Keine Einzelfahrzeuge im Depot
+No vehicles stored here
+Kreuzung
+Crossing
+Lade Relief
+Load Height Map
+Laden
+Load
+Land industries
+Industrie Chains
+LANG_CHOOSE\n
+Please choose your\npreferred language:\n
+Last Year
+Last Year:
+leer
+empty
+Legend
+Map legend
+MAGLEVTOOLS
+Maglev tools
+Leistung
+Power
+Leistung: %d kW
+Power: %d kW
+Leitung
+Power line
+letzen Monat: diesen Monat:
+last month:   this month:
+Line
+Line
+Line Management
+Line Management
+Lines are used to manage groups of vehicles
+Lines are used to manage groups of vehicles
+Lines serving this stop
+Lines serving this stop:
+LISTTOOLS
+Lists
+LKW_tab
+Trucks
+Load game
+Load game
+load height data from file
+Load height data from file.
+loaded
+loaded
+loaded passenger/freight
+Sort passengers/freight by
+Loading map ...
+Loading map ...
+Lock game
+Disallow player changes (requires confirmation).
+LOCO_CAP
+Capacity: %d%s %s\n
+LOCO_INFO
+%s\nCost: %d$ (%1.2f$/km)\nPower: %dkW, %dkm/h\nWeight: %dt\n
+Lokomotive_tab
+Locomotives
+m3
+m?
+Mailbox
+Message Centre
+Mailbox Options
+Message Centre Options
+Maintenance
+Maintenance
+Manufactured:
+Manufactured:
+Map roughness
+Map roughness:
+map zoom
+zoom
+March
+March
+Margin (%)
+Margin
+Marker
+Make a Sign
+max
+max
+Max income:
+Max. Income:
+Max. speed:
+Max. speed:
+Maximum 254 stops\nin a schedule!\n
+Maximum of 254 stops\nin a schedule!\n
+Maximum tile height difference reached.
+The maximum height\ndifference between\ntwo tiles has\nbeen reached.
+May
+May
+Median Citizen per town
+Median Citizens per City:
+mediterran
+mediterran climate
+Meldung
+Message
+Menge
+amount
+MessageOptionsText
+\nNew Year\n\nAI News\n\nCity News\n\nNo Route\n\nNew Industries\n\nTourist\n\nNew Vehicles\n\nStation full\n\nProblems
+min
+min.
+Modify the selected line
+Modify the selected line
+Momorailhalt
+Monorail station
+Monate alt
+months old.
+Monorail
+Monorail
+Monorailboden
+Monorail Support
+Monoraildepot
+Monorail Depot
+Monorailhalt muss auf\nMonorail liegen!\n
+Monorail stops must\nbe on monorail track.
+Monorails are not available yet!
+Monorails are not yet available.
+MONORAILTOOLS
+Monorail tools
+Months
+Months
+Mountain height
+Mountain height:
+Move the selected vehicle(s) back to the depot
+Disassemble the selected vehicles for re-combination.
+Music playing disabled/not available
+Music disabled/unavailable.
+Music volume:
+Music volume:
+Name
+Name
+Net Wealth
+Net Wealth
+Neue Karte
+New Map
+Neue Welt
+Create a New Game
+new convoi
+New convoy
+New factory chain\nfor %s near\n%s built with\n%i factories.
+Industry growth: New factory chain\nfor %s near\n%s built with\n%i factories.
+New Line
+New Line
+New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.
+New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.
+New vehicle now available:\n%s\n
+\n A new vehicle is\n now available:\n\n\n -- %s --\n\n
+New Vehicles
+New Vehicles
+New world record for monorails: %.1f km/h by %s.
+New world record for\nmonorails: %.1f km/h\nby %s.
+New world record for motorcars: %.1f km/h by %s.
+New world record for\nmotorcars:\n %.1f km/h\nby %s.
+New world record for planes: %.1f km/h by %s.
+New world record for\nplanes:\n %.1f km/h\nby %s.
+New world record for railways: %.1f km/h by %s.
+New world record for \nrailways:\n %.1f km/h \nby %s.
+New world record for ship: %.1f km/h by %s.
+New world record for\nships:\n %.1f km/h\nby %s.
+no convois
+No convoys
+No goods are loaded onto this convoi.
+No goods will be loaded onto this convoi
+no goods waiting
+no goods waiting
+no load
+No load
+No Route
+No Route
+No terminal station here!
+No terminal station here!
+No through station here!
+No through station here!
+no timeline
+all eras
+Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
+Give the Vehicle(s)\n(a) schedule(s), before\ngiving it(them) the go\norder!\n
+none
+none
+nord
+North
+nordost
+Northeast
+nordwest
+Northwest
+Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
+The vehicle's schedule\nmust not be changed\nduring route-finding.
+Not enough fields would remain.
+Not enough fields would\nremain around this farm.
+November
+November
+Now active as %s.\n
+Now active as %s.\n
+Ok
+OK
+Oktober
+October
+On this map, you are not\nallowed to change player!\n
+This game is locked.\nNo player changes are possible.\n
+Operation
+Operation Costs
+Ops Profit
+Operational Profit
+Optionen
+Options
+Origin
+Origin
+ost
+East
+Output
+output
+paletten
+ crates
+Passagiere
+Passengers
+Passagierrate
+Passenger level
+Passagierziele
+Pass./mail destinations
+Passengers %d %c, %d %c, %d no route
+Passengers %d %c, %d %c, %d no route
+Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
+Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
+Pas_tab
+Passenger carriages
+Pause
+Pause
+Planes are not available yet!
+Aircraft are not yet available.
+Plant tree
+Plant trees.
+player -1
+human
+player 0
+public service
+player 1
+Napik 128 AS
+player 2
+Trikky Transport
+player 3
+Meyer Moving Co.
+player 4
+Spedition VM
+player 5
+H-Trans Ltd
+player 6
+PSK & Co KG
+Please choose vehicles first\n
+Please choose vehicles first!\n
+Post
+Mail
+Post muss neben\nHaltestelle\nliegen!\n
+A station extension building\n(ex. post office, warehouse)\nmust be placed on a free tile\nnext to an existing stop/station.\n
+Postrate
+Mail level
+Power
+Power
+Power:
+Power:
+Powerlines
+Powerlines
+Production of vehicle has been stopped:\n%s\n
+Production of vehicle\nhas been stopped:\n%s.\n
+Produktion
+Production
+Profit
+Profit
+promote to line
+Promote to line
+q1
+Spring
+q2
+Summer
+q3
+Fall
+q4
+Winter
+RAILTOOLS
+Railway tools
+Random map
+Random map
+Rathaus
+City Hall
+Rating
+Rating
+Reliefkarte
+Map
+Remove vehicle from map. Use with care!
+Remove vehicle from map. (Use with care!)
+residential house
+Residential house\n
+Restore natural slope
+Restore natural slope.
+Restwert:
+Resale Value:
+Retire. date:
+Retire Date:
+return ticket
+replicate backwards
+Revenue
+Proceeds
+Roadsign
+Road Sign
+ROADTOOLS
+Road tools
+rocky
+alpine climate
+sack
+ bags
+sail
+wind
+Saving map ...
+Saving map ...
+Schienentunnel
+Build railway tunnel
+Schiffdepot
+Shipyard
+Schiffhalt muss im\nWasser liegen!\n
+A ship stop can only\nbe placed on water\nnear a dock!\n
+Schiff_tab
+Ships
+Schleppkahn_tab
+Barges
+Screenshot
+Take a screencapture.
+Screenshot\ngespeichert.\n
+Screenshot\nsaved.\n
+Sehenswuerdigkeit
+Tourist attraction
+Sell the selected vehicle(s)
+Sell the selected vehicle(s).
+sended
+Sent
+Sends the convoi to the last depot it departed from!
+Sends the convoy to the last depot from which it departed
+September
+September
+SEP_FRACTION
+.
+SEP_THOUSAND
+,
+Serves Line:
+Serves line:
+Service
+Service
+Ship
+Ship
+SHIPTOOLS
+Harbour Tools
+shops and stores
+Shops and offices\n
+Show all
+Show all
+Show also vehicles no longer in production.
+Show also vehicles no longer in production.
+Show also vehicles that do not match for current action.
+Also show vehicles that can't be used by the selected action.
+show grid
+Show grid
+Show industry
+Show industry
+Show legend
+Show legend
+Show map scale
+Show map scale
+Show obsolete
+Show obsolete too
+Show schedules
+Show schedules
+show station coverage
+Show station coverage
+Show/hide statistics
+Show/Hide Statistics
+Shows consumer/suppliers for factories
+Show consumers/suppliers for factories
+Shows the currently selected schedule
+Show the currently selected schedule
+Shrink city
+Shrink city
+Sim:
+Simloops:
+SLOPETOOLS
+vertically raise/lower land
+Sort by
+sort passenger/freight by
+Sort waiting list by
+Sort waiting list by
+Sound
+Sound
+Sound settings
+Sound settings
+Sound volume:
+Sound volume:
+special freight
+Special Freight
+SPECIALTOOLS
+Special Construction Tools
+Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
+Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
+Speedlimit
+Speed limit
+Speichern
+Save
+Spieler
+Player
+Spieler(mz)
+Players
+Spielerliste
+Player List
+Spielstand wurde\ngeladen!\n
+\nGame successfully loaded.\n
+Spielstand wurde\ngespeichert!\n
+\nGame successfully saved.\n
+Sprache
+Language
+Sprachen
+Languages
+Stadtinformation
+City Statistics
+Start
+Start
+Start the selected vehicle(s)
+Dispatches the selected vehicle(s).
+Starte Spiel
+Start Game
+Station already\nhas a post office!\n
+This station already\nhas a mail office,\nan additional one is \nnot necessary.\n
+Station tiles:
+Station tiles:
+Status
+Stop status
+steam
+steam
+Step timeline one year
+Step time-line by a year.
+Storage capacity
+Storage capacity
+Strassendepot
+Garage
+Strassentunnel
+Build road tunnel
+sued
+South
+suedost
+Southeast
+suedwest
+Southwest
+Suppliers
+Suppliers
+Tage alt
+days old.
+temperate
+temperate climate
+There are still vehicles\nstored in this depot!\n
+There are vehicles\nin this depot!\n
+This Month
+This month
+This Year
+This Year:
+Tile not empty.
+Clear the tile before\nusing a Slope Tool.
+timeline
+obey era
+tl_title
+List of all Cities
+To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers.
+To attract more tourists,\n%s built\na %s\nwith the aid of\n%i tax payers.
+To heavy traffic\nresults in traffic jam.\n
+Heavy traffic\ncauses a traffic jam.\n
+tonnen
+t
+Total inhabitants:
+Total inhabitants:
+Tourist attractions
+Tourist attractions
+Tourists
+Attractions
+Town: %s\n
+City of %s.\n
+Towns
+Cities
+Tracks
+Tracks
+Traffic
+Traffic
+Train
+Train
+Trains are not available yet!
+Trains are not yet available.
+Tramdepot
+Tram depot
+TrolleyBus_tab
+Trolleybuses
+Trams are not available yet!
+Trams are not yet available.
+TRAMTOOLS
+Trams/light rail tools
+Transported
+Traveled
+Travellers now\nuse %s's\nbusses between\n%s \nand %s.\n
+Travellers now\nuse %s's\nbuses between\n%s \nand %s.\n
+tropic
+tropical climate
+Truck
+Truck
+Tunnel muss an\neinfachem\nHang beginnen!\n
+Tunnels must\nstart on a straight\nslope\n
+Tunnel must end on single way!
+Tunnels must end on a single way.
+Tunnel must start on single way!
+Tunnels must start on a single way.
+Tunnelboden
+Tunnel
+Tunnelmuendung
+Tunnel entrance
+underground mode
+underground view
+UNDO failed!
+Undo is not possible anymore.\nYou can undo a route \nconstruction only as long as \nno signals/stations/stops or \nanything else was built on \nthe way.
+Unemployed
+Unemployed
+Unhappy
+Unhappy
+units/day
+units/month
+Update Line
+Update line
+upgrade HQ
+Upgrade HQ
+Use timeline start year
+Use chronology from year:
+Vehicle %s can't find a route!
+Vehicle %s\ncan't find a route!
+Vehicle %s is stucked!
+Vehicle %s is stuck!
+Vehicle details
+Vehicle details
+Verbrauch
+Consumption
+Verkauf
+Sell
+verkaufen
+Sell mode
+Verkehrsteilnehmer
+Traffic
+Vehicle %s is too heavy for this route: speed limited.
+Vehicle %s is too heavy for this route: speed limited.
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+You have %d months\nto pay off your debt.\n
+via
+via (detail)
+via %s\n
+ via %s\n
+via Menge
+via (amount)
+voranstellen
+Put in front
+Wagen im Block
+waggons in block
+WAGGON_INFO
+%s\nCost:     %d$ (%1.2f$/km)\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+Waggon_tab
+Freight wagons
+waiting
+waiting
+Water level
+Water level:
+way %s cannot longer used:\n
+Way-type %s can no longer be used.\n
+way %s cannot longer used:\n%s\n
+way-type %s can no longer be used:\n
+way %s now available:\n
+Way-type %s is available now.\n
+Wegpunkt
+Waypoint
+Wert
+Value
+west
+West
+With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
+With a big festival,\n%s built\na new monument.\n%i citizens rejoiced.
+withdraw
+withdraw
+WRONGSAVE
+\nIncompatible saved game.\nCannot load file.\n
+Year %i has started.
+Year %i has started.
+Years
+Years
+Zeiger
+Pointer (Zeiger)
+Zielort
+destination
+Zu nah am Kartenrand
+You cannot build\nso close to the\nedge of the map.
+Zu nah an einem\nanderen Signal!\n
+Rail signals can't\nbe built here.\nAnother signal\nis too near!\n
+Zughalt muss auf\nSchiene liegen!\n
+Rail stations must\nbe placed on the\nrailway track.\n
+\nBauzeit bis
+ until 
+\nBauzeit von
+\nAppears from 
+\nCan't open heightfield file.\n
+\nCannot open height map.\n
+\ndirection:
+\ndirections: 
+\nelektrified
+\nElectrified\n
+\nHeightfield has wrong image type.\n
+\nHeightfield has wrong\nimage type.\n
+\nis reserved by:
+\nreserved by train 
+\nminimum speed:
+\nminimum speed: 
+\nnot elektrified
+\nNot electrified\n
+\nRail block
+\nRail block No. 
+\nRibi (masked)
+\ndirections\m (masked): 
+\nsingle way
+\nSingle Way
+\nwith sign/signal\n
+\nwith sign/signal\n
+\n\nRibi (unmasked)
+\ndirections\n (unmasked): 
+

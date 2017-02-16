@@ -1,0 +1,61 @@
+<title>Stop List Help</title>
+
+<h1><strong>Stop List</strong></h1>
+
+<p>
+The <strong>Stop List</strong> window lists and gives information about the individual <a href="station.txt">stops</a> in the game world.
+</p>
+<p>
+To open: click on the stop list icon in the <a href="list.txt">List Management</a> toolstrip. The <strong>stop list</strong> window has four option buttons: two are used to sort the list, and two are used to filter the list, to show only items matching certain criteria. Below the buttons is a list of the <a href="station.txt">stops</a> owned by the current player.<br>
+<em>Tip:</em> If no stops are listd, change the <em>filter</em> options, or disable the filter. If not all items in the list are visible, then <a href="mouse.txt">re-size</a> the window, or scroll the list with the slider bar.
+</p>
+<p>
+Click the buttons to cycle through the options (the button text changes to reflect the currently selected option) or, in the case of the filter settings button, open a <a href="haltlist_filter.txt">new window</a> with controls for the filter):
+</p>
+<p>
+<em>Sorted by:</em> two option buttons determine the order in which the items in the list are shown:
+</p>
+<p>
+- <em>Unsorted</em> no particular order<br>
+- <em>Type</em> ordered by type of stop (e.g., railway station, 'bus stop, etc.)<br>
+- <em>Name</em> ordered alphabetically by the name of the stop.<br>
+- <em>Waiting</em> ordered by the amount of passengers, mail or goods present in proportion to the stop's capacity.
+</p>
+<p>
+- <em>ascending</em> / <em>descending</em> reverses the order of the list.
+</p>
+<p>
+<em>Filter:</em> two option buttons apply and set options for the filter.
+</p>
+<p>
+- <em>Enabled</em> / <em>Disabled</em> sets whether the filter is applied to the list.
+</p>
+<p>
+- <em>Settings</em> opens a <a href="haltlist_filter.txt">new window</a> with settings for the filter.
+</p>
+<p>
+Click on a item listd in the <strong>stop list</strong> window to see more <a href="station.txt">information</a> about that stop.<br>
+Items listd for each stop include:
+</p>
+<p>
+<em>Status colour bar:</em> different colours show how well that a stop is coping with the level of traffic. The status colour bar is also used in the stop information and line management windows, and is the same colour displayed in the colour bar above a stop in the main game window. The colours are:<br>
+- <em>Yellow:</em> there is currently no service to this stop<br>
+- <em>Green:</em> the stop has good service<br>
+- <em>Orange:</em> the stop has poor service<br>
+- <em>Red:</em> the stop has critically poor service<br>
+<em>Tip:</em> Use [!] to toggle the colour bar above stop in the main game window.
+</p>
+<p>
+<em>Name:</em> the name of the stop. This name can be changed in the <a href="station.txt">stop information</a> window.
+</p>
+<p>
+<em>Vehicle icons</em> indicate which types of vehicle can use <a href="station.txt">Stop</a> (also used in the stop information and line management windows).<br>
+Icons include: 'bus (for road passenger vehicles), truck (for road goods vehicles), train, narrow gauge train, monorail, maglev, boat and aircraft. Trams are a special case, since they can use either 'bus stops or railway stations, and do not have their own icon.
+</p>
+<p>
+<em>Freight icons</em> indicate which types of items (passengers, goods and/or mail) that the <a href="station.txt">stop</a> accepts.<br>
+<em>Tip:</em> adding extensions can enable a stop to handle new types of items.
+</p>
+<p>
+<em>Waiting</em> details of different mail, goods and passengers waiting at the <a href="station.txt">stops</a> listd.
+</p>

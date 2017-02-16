@@ -1,0 +1,59 @@
+<title>Køretøjsliste dialog hjælp</title>
+
+<h1>Køretøjsliste dialog</h1>
+
+<p>
+<em>Beskrivelse:</em><br>
+Køretøjsliste dialogen giver et overblik over samtlige køretøjer (lastbiler,
+busser, hestevogne, toge og skibe) med mulighed for at sortere og/eller
+filtrere disse efter parametre såsom navn, indtægt og type.
+</p>
+
+<p>
+<em>Udseende:</em><br>
+Øverst i dialogen er overskrifterne: 'Sorteret efter:' og 'Filter:'.<br>
+Til 'Sorteret efter:' er knyttet to "tilstands-knapper", der som default
+indstilling henholdsvis har tilstandende 'navn' samt 'stigende'.<br>
+Til 'Filter:' er der knyttet en 'tilstands-knap' med default tilstanden
+'inaktiv' samt en knap med titlen 'indstil filter'. <br>
+Resten af dialogen består af en liste indeholdende samtlige dine
+køretøjer. For alle køretøjer er angivet dets nummer, navn og fortjeneste.
+</p>
+
+<p>
+Ved at venstreklikke på et køretøj i listen kan man få dets<br>
+<a href="vehicle.txt">køretøj dialog</a> frem.
+</p>
+
+<p>
+Køretøjerne i listen kan sorteres ved hjælp af "tilstandsknapperne"
+under 'Sorteret efter:' overskriften.<br>
+Knappen til venstre giver sorteringstypen og knappen til højre angiver, om
+denne sortering skal foretages 'stigende' eller 'faldende'.<br>
+De tre sorteringstyper er:
+</p>
+
+<p>
+<em>Navn</em> - Sorterer køretøjerne efter navn. Enten alfabetisk eller
+omvendt alfabetisk alt efter indstillingen af knappen til venstre.
+</p>
+
+<p>
+<em>Indtægt</em> - Sorterer køretøjerne efter størrelsen af køretøjets
+indtjening. Stigende eller faldende alt efter højre-knappens tilstand.
+</p>
+
+<p>
+<em>Type</em> - Sorterer køretøjerne efter deres type, hvor rækkefølgen:
+biler, toge, skibe anses for stigende.
+</p>
+
+<p>
+For at lette overblikket af listen kan køretøjerne filtreres efter
+forskellige kriterier. Dette sker ved hjælp af knapperne under 'Filter:'
+overskriften.<br>
+Knappen til venstre er en "tilstands-knap". Denne knap kontrollerer
+filteranvendeksen med tilstandene 'inaktivt' og 'aktivt'. Knappen til højre
+med teksten 'indstil filter'<br>
+åbner for<a href="convoi_filter.txt">filter dialogen</a>
+</p>

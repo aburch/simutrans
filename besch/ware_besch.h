@@ -10,11 +10,11 @@
 
 #include "obj_besch_std_name.h"
 #include "../simcolor.h"
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
 #include "../tpl/vector_tpl.h"
 #include "../tpl/piecewise_linear_tpl.h"
 // Simworld is for adjusted speed bonus
-#include "../simworld.h"
+//#include "../simworld.h"
 
 class checksum_t;
 
@@ -43,18 +43,15 @@ struct fare_stage_t
 /**
  *  @author Volker Meyer, James Petts, neroden
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
- *	2   Text Maﬂeinheit
+ *	2   Text: Name of measurement unit
  */
-class ware_besch_t : public obj_besch_std_name_t {
+class ware_desc_t : public obj_named_desc_t {
 	friend class good_reader_t;
 	friend class warenbauer_t;
 
-	/*
-	* The base value is the one for multiplier 1000.
-	*/
 	vector_tpl<fare_stage_t> values;
 	vector_tpl<fare_stage_t> base_values;
 	vector_tpl<fare_stage_t> scaled_values;
@@ -97,7 +94,7 @@ public:
 	// the measure for that good (crates, people, bags ... )
 	const char *get_mass() const
 	{
-		return get_child<text_besch_t>(2)->get_text();
+		return get_child<text_desc_t>(2)->get_text();
 	}
 
 	/**
@@ -138,7 +135,7 @@ public:
 	*
 	* @author Hj. Malthaner
 	*/
-	bool is_interchangeable(const ware_besch_t *other) const
+	bool is_interchangeable(const ware_desc_t *other) const
 	{
 		return catg_index == other->get_catg_index();
 	}
@@ -151,14 +148,7 @@ public:
 
 	void calc_checksum(checksum_t *chk) const
 	{
-		chk->input(base_values.get_count());
-		ITERATE(base_values, i)
-		{
-			chk->input(base_values[i].to_distance);
-			chk->input(base_values[i].price);
-		}
 		chk->input(catg);
-		/*chk->input(catg_index);*/ // For some reason this line causes false mismatches.
 		chk->input(speed_bonus);
 		chk->input(weight_per_unit);
 	}
@@ -176,7 +166,7 @@ public:
 	uint16 get_speed_bonus() const { return speed_bonus; }
 
 	/**
-	 * Experimental has two special effects:
+	 * Extended has two special effects:
 	 * (1) Below a certain distance the speed bonus rating is zero;
 	 * (2) The speed bonus "fades in" above that distance and enlarges as distance continues,
 	 *     until a "maximum distance".
@@ -203,7 +193,7 @@ public:
 	 *
 	 * Requires the world for stupid technical reasons.
 	 */
-	sint64 get_fare_with_comfort_catering_speedbonus(karte_t* world,
+	sint64 get_fare_with_comfort_catering_speedbonus(class karte_t* world,
 					uint8 comfort, uint8 catering_level, sint64 journey_tenths,
 					sint16 relative_speed_percentage, uint32 distance_meters, uint32 starting_distance = 0) const;
 

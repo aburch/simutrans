@@ -1,0 +1,557 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum major release 12 of Simutrans-Experimental
+#
+# Author: jamespetts
+# Created: July 2013
+#
+obj=program_text
+name=Unknown destination
+note=Text displayed in lists of goods/passengers when the destination building cannot be ascertained. It replaces "invalid factory".
+-
+obj=program_text
+name=commuting
+note=Text displayed in lists of goods/passengers when the passengers are on a commuting trip.
+-
+obj=program_text
+name=visiting
+note=Text displayed in lists of goods/passengers when are on a visiting trip.
+-
+obj=program_text
+name=The percentage of people who have access to a private car
+note=Tooltip for private car ownership percentage in the world chart
+-
+obj=program_text
+name=Jobs
+note=Name for jobs graph in the world chart
+-
+obj=program_text
+name=Visitor demand
+note=Name for visitor demand graph in the world chart
+-
+obj=program_text
+name=Mail demand/output
+note=Label for the mail demand and output shown in the statistics for individual buildings.
+-
+obj=program_text
+name=The number of jobs in the region
+note=Tooltip for total jobs figure in the world chart
+-
+obj=program_text
+name=The number of visitors demanded in the region
+note=Tooltip for visitor demand figure in the world chart
+-
+obj=program_text
+name=available
+note=Shown in the information windows for buildings to display the number of jobs available.
+-
+obj=program_text
+name=Land value
+note=Shown in the dialogue box for ground tiles.
+-
+obj=program_text
+name=sq. km.
+note=From the city window giving the units for the land area.
+-
+obj=program_text
+name=Population density
+note=From the city window showing the population density
+-
+obj=program_text
+name=destination (detail)
+note=Shown in the convoy/stop window for the mode that shows detailed information about the destination of goods and passengers.
+-
+obj=program_text
+name=Range
+note=The text in the depot/replacer window showing the maximum number of kilometres between stops for this vehicle.
+-
+obj=program_text
+name=unlimited
+note=Shown in the depot/replace windows when the range is set to zero, indicating unlimited range.
+-
+obj=program_text
+name=out of range
+note=This is the tooltip text for a convoy whose next stop is out of range.
+-
+obj=program_text
+name=Cannot remove a public right of way without providing an adequate diversionary route
+note=This is the error message shown when a player tries to delete a public right of way without a diversionary route.
+-
+obj=program_text
+name=There is already a marker here.\n
+note=This is the error message shown when a player tries to place a marker on top of an already existing marker.
+-
+obj=program_text
+name=Cannot combine way object and halt.
+note=This is the error message shown when a player tries to build a halt on a road with noise barrier or a noise barrier on a road with a halt.
+-
+obj=program_text
+name=If this is set, convoys will wait until one of the specified times before departing, the specified times being fractions of a month.
+note=Tooltip for the wait for time feature in the schedule window.
+-
+obj=program_text
+name=Wait for time
+note=Label for the wait for time feature in the schedule window
+-
+obj=program_text
+name=Service frequency
+note=Label for the service frequency indicator in the line window.
+-
+obj=program_text
+name=Departures
+note=Label for the graph in the line window showing the number of departures
+-
+obj=program_text
+name=Scheduled
+note=Label for the graph in the line window showing the number of departures scheduled
+-
+obj=program_text
+name=Waiting for schedule. %s left
+note=Tooltip text for convoys awaiting a departure slot
+-
+obj=program_text
+name=Condition
+note=The text in the way information dialogue showing the condition in % of the way.
+-
+obj=program_text
+name=Durability
+note=The description in the way tooltip of the wear capacity of a way
+-
+obj=program_text
+name=Last renewed
+note=Text in the way information window showing when the way was last renewed.
+-
+obj=program_text
+name=Built
+note=Text in the way information window showing when the way was first built.
+-
+obj=program_text
+name=Way wear factor
+note=Text in the convoy information window indicating the wear (denominated in standard axle loads) exerted by this vehicle.
+-
+obj=program_text
+name=Wear
+note=Label for the minimap button showing the condition of ways.
+-
+obj=program_text
+name=Show the condition of ways
+note=Tooltip for the minimap button for showing the condition of ways.
+-
+obj=program_text
+name=Weight limit
+note=Label for the minimap button for showing the weight limit of ways.
+-
+obj=program_text
+name=Show the weight limit of ways
+note=Tooltip for the minimap button for showing the weight limit of ways.
+-
+obj=program_text
+name=To be renewed with
+note=Text in the way information window showing the way with which this way is to be renewed when renewal is needed.
+-
+obj=program_text
+name=Not enough money to carry out essential way renewal work.\n
+note=Warning when a player has insufficient money to carry out way renewal work.
+-
+obj=program_text
+name=Degraded
+note=Shown in the way information window for a way that is degraded.
+-
+obj=program_text
+name=Max. bridge weight:
+note=Shown in the way information window for the weight limit of the bridge.
+-
+obj=program_text
+name=A signalbox cannot be built here.
+note=Error message when trying to build a signalbox in an inappropriate location
+-
+obj=program_text
+name=Radius
+note=A tooltip description of the radius of signalboxes (and possibly in the future other buildings)
+-
+obj=program_text
+name=Max. signals
+note=Tooltip text for the maximum number of signals supported by a signalbox
+-
+obj=program_text
+name=Controlled from
+note=Display on a signal's information window showing the signalbox from which this signal is controlled.
+-
+obj=program_text
+name=Cannot build this signal without a signalbox. Build a new signalbox or select an existing one to build this signal.
+note=Error message when trying to build a signal when the currently selected signalbox no longer exists. 
+-
+obj=program_text
+name=Cannot build any signal beyond the maximum radius of the currently selected signalbox.
+note=Error message when trying to build a signal too far beyond the radius of the signalbox, irrespective of the minimum distance for the signal itself.
+-
+obj=program_text
+name=Cannot build this signal this far beyond any signalbox.
+note=Error message when trying to build a signal connecting to a signalbox beyond the maximum distance to a signalbox for this particular type of signal, irrespective of the signalbox's radius.
+-
+obj=program_text
+name=Cannot build any more signals connected to this signalbox: capacity exceeded.
+note=Error message when trying to build a signal connecting to a signalbox whose capacity would be exceeded by adding this signal.
+-
+obj=program_text
+name=Cannot transfer any signals to this signalbox: it does not have any spare capacity for more signals.
+note=Error message when trying to transfer a signal to a signalbox that is already full.
+-
+obj=program_text
+name=Cannot transfer signals to a signalbox belonging to another player.
+note=Error message when trying to transfer a signal to another player's signalbox.
+-
+obj=program_text
+name=Cannot transfer signals from a signalbox belonging to another player.
+note=Error message when trying to transfer a signal from another player's signalbox.
+-
+obj=program_text
+name=Cannot transfer any signals between these signalboxes because none of the signals will be compatible.
+note=Error message when trying to transfer signals between signalboxes which do not share any signal groups in common.
+-
+obj=program_text
+name=This signal is not compatible with this signalbox.
+note=Error message when trying to transfer a signal that is not compatible with the destination signalbox.
+-
+obj=program_text
+name=Reassign signals
+note=The name of the reassign signals tool for the tooltip.
+-
+obj=program_text
+name=Cannot transfer signals: unknown error.
+note=An unexpected error occurs in transferring signals. This should not occur.
+-
+obj=program_text
+name=Signals transferred successfully
+note=Part of the dialogue shown after transferring signals from one signalbox to another en messe, showing how many succeeded. (Not in use)
+-
+obj=program_text
+name=Signals not transferred
+note=Part of the dialogue shown after transferring signals from one signalbox to another en messe, showing how many failed. (Not in use)
+-
+obj=program_text
+name=Not all signals were transferred successfully.
+note=Shown when not all signals transfer successfully from one signalbox to another.
+-
+obj=program_text
+name=Cannot build signalbox underwater.
+note=Error message shown when attempting to build an underground signalbox underwater
+-
+obj=program_text
+name=Emergency stop
+note=Convoy tooltip when a train in time interval mode runs into another train
+-
+obj=program_text
+name=Signals
+note=Text in the information window of signalboxes showing the number of signals controlled from the box
+-
+obj=program_text
+name=building
+note=Part of the "A new building is now available: [name of building]" message appearing at the beginning of the month
+-
+obj=program_text
+name=drive_by_sight
+note=The name of the working method for signalling purposes
+-
+obj=program_text
+name=time_interval
+note=
+-
+obj=program_text
+name=absolute_block
+note=The name of the working method for signalling purposes
+-
+obj=program_text
+name=token_block
+note=The name of the working method for signalling purposes
+-
+obj=program_text
+name=track_circuit_block
+note=The name of the working method for signalling purposes
+-
+obj=program_text
+name=cab_signalling
+note=The name of the working method for signalling purposes
+-
+obj=program_text
+name=moving_block
+note=The name of the working method for signalling purposes
+-
+obj=program_text
+name=one_train_staff
+note=The name of the working method for signalling purposes
+-
+obj=program_text
+name=time_interval_with_telegraph
+note=The name of the working method for signalling purposes
+-
+obj=program_text
+name=Current working method
+note=Text in the convoy detail window showing the current working method
+-
+obj=program_text
+name=Time since a train last passed
+note=Text in the signal information window showing the time since a train last passed. Particularly useful for time interval signals, but shown on all signals for information.
+-
+obj=program_text
+name=choose_signal
+note=Text in the signal infowindow showing which attributes this signal has
+-
+obj=program_text
+name=station_signal
+note=Text in the signal infowindow showing which attributes this signal has
+-
+obj=program_text
+name=longblock_signal
+note=Text in the signal infowindow showing which attributes this signal has
+-
+obj=program_text
+name=combined_signal
+note=Text in the signal infowindow showing which attributes this signal has
+-
+obj=program_text
+name=distant_signal
+note=Text in the signal infowindow showing which attributes this signal has
+-
+obj=program_text
+name=intermediate_signal
+note=Text in the signal infowindow showing which attributes this signal has
+-
+obj=program_text
+name=permissive_signal
+note=Text in the signal infowindow showing which attributes this signal has
+-
+obj=program_text
+name=current_state
+note=Text in the signal infowindow telling the current state of the signal
+-
+obj=program_text
+name=danger
+note=The name of a signal state
+-
+obj=program_text
+name=clear2
+note=Two aspect signal showing clear
+-
+obj=program_text
+name=clear3
+note=Three aspect signal showing clear
+-
+obj=program_text
+name=clear4
+note=Four aspect signal showing clear
+-
+obj=program_text
+name=clear5
+note=Five aspect signal showing clear
+-
+obj=program_text
+name=clear2_alternate
+note=Choose signal showing clear
+-
+obj=program_text
+name=clear3_alternate
+note=Choose signal showing clear
+-
+obj=program_text
+name=clear4_alternate
+note=Choose signal showing clear
+-
+obj=program_text
+name=clear5_alternate
+note=Choose signal showing clear
+-
+obj=program_text
+name=clear2_main
+note=Choose signal showing clear
+-
+obj=program_text
+name=clear3_main
+note=Choose signal showing clear
+-
+obj=program_text
+name=clear4_main
+note=Choose signal showing clear
+-
+obj=program_text
+name=clear5_main
+note=Choose signal showing clear
+-
+obj=program_text
+name=cleartime_alternate
+note=Time interval signal showing clear
+-
+obj=program_text
+name=cleartime_main
+note=Time interval choose signal showing clear
+-
+obj=program_text
+name=cleartime
+note=Time interval choose signal showing clear
+-
+obj=program_text
+name=clearpre
+note=Presignal showing clear
+-
+obj=program_text
+name=caution2
+note=Two aspect signal showing caution (used in some occasions)
+-
+obj=program_text
+name=caution3
+note=Three aspect signal showing caution
+-
+obj=program_text
+name=caution4
+note=Four aspect signal showing caution
+-
+obj=program_text
+name=caution5
+note=Five aspect signal showing caution
+-
+obj=program_text
+name=caution2_alternate
+note=Two aspect choose signal showing caution (used in some occasions)
+-
+obj=program_text
+name=caution3_alternate
+note=Three aspect choose signal showing caution 
+-
+obj=program_text
+name=caution4_alternate
+note=Four aspect choose signal showing caution 
+-
+obj=program_text
+name=caution5_alternate
+note=Five aspect choose signal showing caution 
+-
+obj=program_text
+name=caution2_main
+note=Two aspect choose signal showing caution (used in some occasions)
+-
+obj=program_text
+name=caution3_main
+note=Three aspect choose signal showing caution 
+-
+obj=program_text
+name=caution4_main
+note=Four aspect choose signal showing caution 
+-
+obj=program_text
+name=caution5_main
+note=Five aspect choose signal showing caution 
+-
+obj=program_text
+name=cautiontime
+note=Time interval signal showing caution 
+-
+obj=program_text
+name=cautiontime_alternate
+note=Time interval choose signal showing caution 
+-
+obj=program_text
+name=cautiontime_main
+note=Time interval choose signal showing caution 
+-
+obj=program_text
+name=cautionpre
+note=Presignal showing caution
+-
+obj=program_text
+name=preliminary_caution4
+note=Four aspect signal showing preliminary caution
+-
+obj=program_text
+name=preliminary_caution5
+note=Five aspect signal showing preliminary caution
+-
+obj=program_text
+name=preliminary_caution4_alternate
+note=Four aspect choose signal showing preliminary caution
+-
+obj=program_text
+name=preliminary_caution5_alternate
+note=Five aspect choose signal showing preliminary caution
+-
+obj=program_text
+name=preliminary_caution4_main
+note=Four aspect choose signal showing preliminary caution
+-
+obj=program_text
+name=preliminary_caution5_main
+note=Five aspect choose signal showing preliminary caution
+-
+obj=program_text
+name=advanced_caution5
+note=Five aspect signal showing advanced caution
+-
+obj=program_text
+name=advanced_caution5_alternate
+note=Five aspect choose signal showing advanced caution
+-
+obj=program_text
+name=advanced_caution5_main
+note=Five aspect choose signal showing advanced caution
+-
+obj=program_text
+name=call_on
+note=A signal showing a call on aspect
+-
+obj=program_text
+name=call_ontime
+note=A time interval signal showing a call on aspect
+-
+obj=program_text
+name=call_on_choose
+note=A choose signal showing a call on aspect
+-
+obj=program_text
+name=call_ontime_choose
+note=A time interval choose signal showing a call on aspect
+-
+obj=program_text
+name=This signal creates directional reservations
+note=Text in the signal infowindow telling that the signal makes directional reservation
+-
+obj=program_text
+name=north_and_east
+note=Additional directions shown in the signal infowindow for "station signals"
+-
+obj=program_text
+name=north_and_south
+note=Additional directions shown in the signal infowindow for "station signals"
+-
+obj=program_text
+name=north_and_west
+note=Additional directions shown in the signal infowindow for "station signals"
+-
+obj=program_text
+name=south_and_east
+note=Additional directions shown in the signal infowindow for "station signals"
+-
+obj=program_text
+name=south_and_west
+note=Additional directions shown in the signal infowindow for "station signals"
+-
+obj=program_text
+name=east_and_west
+note=Additional directions shown in the signal infowindow for "station signals"
+-
+obj=program_text
+name=petrol
+note=One of the new engine types (existing engine types include diesel, steam, electric, etc)
+-
+obj=program_text
+name=turbine
+note=One of the new engine types (existing engine types include diesel, steam, electric, etc)
+-
+obj=program_text
+name=units transferring
+note=A description of the number of mail/passengers/goods currently transferring at a stop
+-
+obj=program_text
+name=Low bridge
+note=This text is shown in the way's information window when the way is under a low bridge under which not all vehicles may pass
+-
+obj=program_text
+name=Too tall for low bridges
+note=This text is shown in the convoy assembler for vehicles that are marked as being too tall to pass under low bridges (with is_tall set)

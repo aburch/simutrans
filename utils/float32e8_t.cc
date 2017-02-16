@@ -289,6 +289,10 @@ const float32e8_t float32e8_t::one((uint32) 1);
 const float32e8_t float32e8_t::two((uint32) 2);
 const float32e8_t float32e8_t::three((uint32) 3);
 const float32e8_t float32e8_t::four((uint32) 4);
+const float32e8_t float32e8_t::ten((uint32) 10);
+const float32e8_t float32e8_t::hundred((uint32) 100);
+const float32e8_t float32e8_t::thousand((uint32) 1000);
+const float32e8_t float32e8_t::tenthousand((uint32) 10000);
 
 // some "fractional" constants.
 const float32e8_t float32e8_t::tenth((uint32) 1, (uint32) 10);
@@ -563,6 +567,8 @@ sint32 float32e8_t::to_sint32() const
 	uint32 rm = m >> (32 - e);
 	return ms ? -(sint32) rm : (sint32) rm;
 }
+
+
 
 //const string float32e8_t::to_string() const
 //{

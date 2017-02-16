@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjorg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -15,25 +15,25 @@
 #ifndef gui_components_gui_numberinput_h
 #define gui_components_gui_numberinput_h
 
+#include "../../simtypes.h"
+#include "../../display/scr_coord.h"
+#include "action_listener.h"
 #include "gui_action_creator.h"
 #include "gui_textinput.h"
 #include "gui_button.h"
-#include "../../simtypes.h"
-#include "../../dataobj/koord.h"
-#include "action_listener.h"
+#include "../gui_theme.h"
 
-#define NUM_PERCENT (8)
 
 class gui_numberinput_t :
 	public gui_action_creator_t,
-	public gui_komponente_t,
+	public gui_component_t,
 	public action_listener_t
 {
 private:
 	bool check_value(sint32 _value);
 
 	// more sophisticated increase routines
-	static sint8 percent[NUM_PERCENT];
+	static sint8 percent[7];
 	sint32 get_prev_value();
 	sint32 get_next_value();
 
@@ -62,9 +62,10 @@ private:
 
 public:
 	gui_numberinput_t();
-	virtual ~gui_numberinput_t() {}
 
-	void set_groesse(koord groesse) OVERRIDE;
+	void set_size(scr_size size) OVERRIDE;
+	void set_width_by_len(size_t width, const char* symbols = NULL) {
+		set_width( display_get_char_max_width( (symbols) ? symbols : "+-/0123456789" ) * width + D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH + 2 ); }
 
 	// all init in one ...
 	void init( sint32 value, sint32 min, sint32 max, sint32 mode, bool wrap );
@@ -104,14 +105,14 @@ public:
 	 * Draw the component
 	 * @author Dwachs
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void enable() { b_enabled = true; set_focusable(true); bt_left.enable(); bt_right.enable(); }
 	void disable() { b_enabled = false; set_focusable(false); bt_left.disable(); bt_right.disable(); }
 	bool enabled() const { return b_enabled; }
-	virtual bool is_focusable() { return b_enabled && gui_komponente_t::is_focusable(); }
+	virtual bool is_focusable() { return b_enabled && gui_component_t::is_focusable(); }
 };
 
 #endif

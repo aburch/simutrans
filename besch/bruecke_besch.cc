@@ -1,82 +1,150 @@
 #include "../simdebug.h"
 
 #include "bruecke_besch.h"
-#include "../utils/checksum.h"
+#include "grund_besch.h"
+#include "../network/checksum.h"
 
 
 /*
  *  Autor:
  *      Volker Meyer
  *
- *  Beschreibung:
- *      Richtigen Index für einfaches Brückenstück bestimmen
+ *  Description:
+ *      Richtigen Index für singlees Brückenstück bestimmen
  */
-bruecke_besch_t::img_t bruecke_besch_t::get_simple(ribi_t::ribi ribi)
+bridge_desc_t::img_t bridge_desc_t::get_simple(ribi_t::ribi ribi, uint8 height) const
 {
-	return (ribi & ribi_t::nordsued) ? NS_Segment : OW_Segment;
-}
-
-
-// dito for pillars
-bruecke_besch_t::img_t bruecke_besch_t::get_pillar(ribi_t::ribi ribi)
-{
-	return (ribi & ribi_t::nordsued) ? NS_Pillar : OW_Pillar;
-}
-
-
-/*
- *  Autor:
- *      Volker Meyer
- *
- *  Beschreibung:
- *      Richtigen Index für klassischen Hangstart ück bestimmen
- */
-bruecke_besch_t::img_t bruecke_besch_t::get_start(ribi_t::ribi ribi)
-{
-	switch(ribi) {
-		case ribi_t::nord:	return N_Start;
-		case ribi_t::sued:	return S_Start;
-		case ribi_t::ost:	return O_Start;
-		case ribi_t::west:	return W_Start;
-		default:		return (img_t)-1;
+	if(  height>1 && get_background(NS_Segment2, 0)!=IMG_EMPTY  ) {
+		return (ribi & ribi_t::northsouth) ? NS_Segment2 : OW_Segment2;
+	}
+	else {
+		return (ribi & ribi_t::northsouth) ? NS_Segment : OW_Segment;
 	}
 }
 
 
+// dito for pillars
+bridge_desc_t::img_t bridge_desc_t::get_pillar(ribi_t::ribi ribi)
+{
+	return (ribi & ribi_t::northsouth) ? NS_Pillar : OW_Pillar;
+}
+
+
 /*
  *  Autor:
  *      Volker Meyer
  *
- *  Beschreibung:
- *      Richtigen Index für Rampenstart ück bestimmen
+ *  Description:
+ *      Richtigen Index für klassischen Hangstart ück bestimmen
  */
-bruecke_besch_t::img_t bruecke_besch_t::get_rampe(ribi_t::ribi ribi)
+bridge_desc_t::img_t bridge_desc_t::get_start(slope_t::type slope) const
 {
-    switch(ribi) {
-    case ribi_t::nord:	return N_Rampe;
-    case ribi_t::sued:	return S_Rampe;
-    case ribi_t::ost:	return O_Rampe;
-    case ribi_t::west:	return W_Rampe;
-    default:		return (img_t)-1;
-    }
+	// if double heights enabled and desc has 2 height images present then use these
+	if(  ground_desc_t::double_grounds  &&  get_background(N_Start2, 0) != IMG_EMPTY  ) {
+		switch(  slope  ) {
+			case slope_t::north: return N_Start;
+			case slope_t::south: return S_Start;
+			case slope_t::east:  return O_Start;
+			case slope_t::west: return W_Start;
+			case slope_t::north * 2: return N_Start2;
+			case slope_t::south * 2: return S_Start2;
+			case slope_t::east  * 2: return O_Start2;
+			case slope_t::west * 2: return W_Start2;
+		}
+	}
+	else {
+		switch(  slope  ) {
+			case slope_t::north: case slope_t::north * 2: return N_Start;
+			case slope_t::south: case slope_t::south * 2: return S_Start;
+			case slope_t::east:  case slope_t::east  * 2: return O_Start;
+			case slope_t::west: case slope_t::west * 2: return W_Start;
+		}
+	}
+	return (img_t) - 1;
 }
 
-void bruecke_besch_t::calc_checksum(checksum_t *chk) const
+
+/*
+ *  Autor:
+ *      Volker Meyer
+ *
+ *  Description:
+ *      Richtigen Index für Rampenstart ück bestimmen
+ */
+bridge_desc_t::img_t bridge_desc_t::get_ramp(slope_t::type slope) const
 {
-	chk->input(topspeed);
-	chk->input(preis);
-	chk->input(maintenance);
-	chk->input(wegtyp);
+	if(  ground_desc_t::double_grounds  &&  has_double_ramp()  ) {
+		switch(  slope  ) {
+			case slope_t::north: return S_Ramp;
+			case slope_t::south: return N_Ramp;
+			case slope_t::east:  return W_Ramp;
+			case slope_t::west: return O_Ramp;
+			case slope_t::north * 2: return S_Ramp2;
+			case slope_t::south * 2: return N_Ramp2;
+			case slope_t::east  * 2: return W_Ramp2;
+			case slope_t::west * 2: return O_Ramp2;
+		}
+	}
+	else {
+		switch(  slope  ) {
+			case slope_t::north: case slope_t::north * 2: return S_Ramp;
+			case slope_t::south: case slope_t::south * 2: return N_Ramp;
+			case slope_t::east:  case slope_t::east  * 2: return W_Ramp;
+			case slope_t::west: case slope_t::west * 2: return O_Ramp;
+		}
+	}
+	return (img_t) - 1;
+ }
+
+
+/*
+ *  Author:
+ *      Kieron Green
+ *
+ *  Description:
+ *      returns image index for appropriate ramp or start image given ground and way slopes
+ */
+bridge_desc_t::img_t bridge_desc_t::get_end(slope_t::type test_slope, slope_t::type ground_slope, slope_t::type way_slope) const
+{
+	img_t end_image;
+	if(  test_slope == slope_t::flat  ) {
+		end_image = get_ramp( way_slope );
+	}
+	else {
+		end_image = get_start( ground_slope );
+	}
+	return end_image;
+}
+
+
+/*
+ *  Author:
+ *      Kieron Green
+ *
+ *  Description:
+ *      returns whether desc has double height images for ramps
+ */
+bool bridge_desc_t::has_double_ramp() const
+{
+	return (get_background(bridge_desc_t::N_Ramp2, 0)!=IMG_EMPTY || get_foreground(bridge_desc_t::N_Ramp2, 0)!=IMG_EMPTY);
+}
+
+bool bridge_desc_t::has_double_start() const
+{
+	return (get_background(bridge_desc_t::N_Start2, 0) != IMG_EMPTY  ||  get_foreground(bridge_desc_t::N_Start2, 0) != IMG_EMPTY);
+}
+
+
+void bridge_desc_t::calc_checksum(checksum_t *chk) const
+{
+	obj_desc_transport_infrastructure_t::calc_checksum(chk);
 	chk->input(pillars_every);
 	chk->input(pillars_asymmetric);
 	chk->input(max_length);
 	chk->input(max_height);
-	chk->input(intro_date);
-	chk->input(obsolete_date);
 
-	//Experimental settings
+	//Extended settings
 	chk->input(max_weight);
 	chk->input(way_constraints.get_permissive());
 	chk->input(way_constraints.get_prohibitive());
-
 }

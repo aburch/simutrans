@@ -16,21 +16,21 @@
 #include <string.h>
 #include <algorithm>
 
-#include "gui_convoiinfo.h"
+#include "components/gui_convoiinfo.h"
 
 
 #include "convoi_frame.h"
 #include "convoi_filter_frame.h"
 
 #include "../simconvoi.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../simworld.h"
 #include "../besch/ware_besch.h"
 #include "../bauer/warenbauer.h"
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
 #include "../utils/simstring.h"
-#include "../vehicle/simvehikel.h"
+#include "../vehicle/simvehicle.h"
 
  /**
  * All filter and sort settings are static, so the old settings are
@@ -59,17 +59,17 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 		return false;
 	}
 
-	vehikel_t const* const fahr = cnv->front();
+	vehicle_t const* const tdriver = cnv->front();
 	if(  get_filter(convoi_filter_frame_t::typ_filter)  ) {
-		switch(fahr->get_typ()) {
-			case ding_t::automobil:
+		switch(tdriver->get_typ()) {
+			case obj_t::road_vehicle:
 				if(!get_filter(convoi_filter_frame_t::lkws_filter)) {
 					return false;
 				}
 				break;
-			case ding_t::waggon:
+			case obj_t::rail_vehicle:
 				// filter trams: a convoi is considered tram if the first vehicle is a tram vehicle
-				if(fahr->get_besch()->get_waytype()==tram_wt) {
+				if(tdriver->get_desc()->get_waytype()==tram_wt) {
 					if (!get_filter(convoi_filter_frame_t::tram_filter)) {
 						return false;
 					}
@@ -78,27 +78,27 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 					return false;
 				}
 				break;
-			case ding_t::schiff:
+			case obj_t::water_vehicle:
 				if(!get_filter(convoi_filter_frame_t::schiffe_filter)) {
 					return false;
 				}
 				break;
-			case ding_t::aircraft:
+			case obj_t::air_vehicle:
 				if(!get_filter(convoi_filter_frame_t::aircraft_filter)) {
 					return false;
 				}
 				break;
-			case ding_t::monorailwaggon:
+			case obj_t::monorail_vehicle:
 				if(!get_filter(convoi_filter_frame_t::monorail_filter)) {
 					return false;
 				}
 				break;
-			case ding_t::maglevwaggon:
+			case obj_t::maglev_vehicle:
 				if(!get_filter(convoi_filter_frame_t::maglev_filter)) {
 					return false;
 				}
 				break;
-			case ding_t::narrowgaugewaggon:
+			case obj_t::narrowgauge_vehicle:
 				if(!get_filter(convoi_filter_frame_t::narrowgauge_filter)) {
 					return false;
 				}
@@ -123,8 +123,8 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 
 	if(  get_filter(convoi_filter_frame_t::ware_filter)  ) {
 		unsigned i;
-		for(  i = 0; i < cnv->get_vehikel_anzahl(); i++) {
-			const ware_besch_t *wb = cnv->get_vehikel(i)->get_fracht_typ();
+		for(  i = 0; i < cnv->get_vehicle_count(); i++) {
+			const ware_desc_t *wb = cnv->get_vehicle(i)->get_cargo_type();
 			if(  wb->get_catg()!=0  ) {
 				wb = warenbauer_t::get_info_catg(wb->get_catg());
 			}
@@ -132,7 +132,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 				return true;
 			}
 		}
-		if(  i == cnv->get_vehikel_anzahl()  ) {
+		if(  i == cnv->get_vehicle_count()  ) {
 			return false;
 		}
 	}
@@ -142,7 +142,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 
 bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t const cnv2)
 {
-	long result=0;
+	sint32 result = 0;
 
 	switch (sortby) {
 		default:
@@ -153,15 +153,15 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 			result = sgn(cnv1->get_jahresgewinn() - cnv2->get_jahresgewinn());
 			break;
 		case nach_typ:
-			if(cnv1->get_vehikel_anzahl()*cnv2->get_vehikel_anzahl()>0) {
-				vehikel_t const* const fahr1 = cnv1->front();
-				vehikel_t const* const fahr2 = cnv2->front();
+			if(cnv1->get_vehicle_count()*cnv2->get_vehicle_count()>0) {
+				vehicle_t const* const tdriver1 = cnv1->front();
+				vehicle_t const* const tdriver2 = cnv2->front();
 
-				result = fahr1->get_typ() - fahr2->get_typ();
+				result = tdriver1->get_typ() - tdriver2->get_typ();
 				if(result == 0) {
-					result = fahr1->get_fracht_typ()->get_catg_index() - fahr2->get_fracht_typ()->get_catg_index();
+					result = tdriver1->get_cargo_type()->get_catg_index() - tdriver2->get_cargo_type()->get_catg_index();
 					if(result == 0) {
-						result = fahr1->get_basis_bild() - fahr2->get_basis_bild();
+						result = tdriver1->get_base_image() - tdriver2->get_base_image();
 					}
 				}
 			}
@@ -176,14 +176,13 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 
 void convoi_frame_t::sort_list()
 {
-	karte_t* welt = owner->get_welt();
 	last_world_convois = welt->convoys().get_count();
 
 	convois.clear();
 	convois.resize(last_world_convois);
 
 	FOR(vector_tpl<convoihandle_t>, const cnv, welt->convoys()) {
-		if(cnv->get_besitzer()==owner  &&   passes_filter(cnv)  ) {
+		if(cnv->get_owner()==owner  &&   passes_filter(cnv)  ) {
 			convois.append(cnv);
 		}
 	}
@@ -193,11 +192,11 @@ void convoi_frame_t::sort_list()
 	sorteddir.set_text( get_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");
 
 	// only now we know how many convois we have
-	resize(koord(0,0));
+	resize(scr_coord(0,0));
 }
 
 
-void convoi_frame_t::sort_list( char *name, uint32 filter, const slist_tpl<const ware_besch_t *> *wares )
+void convoi_frame_t::sort_list( char *name, uint32 filter, const slist_tpl<const ware_desc_t *> *wares )
 {
 	name_filter = name;
 	waren_filter = wares;
@@ -208,9 +207,9 @@ void convoi_frame_t::sort_list( char *name, uint32 filter, const slist_tpl<const
 }
 
 
-convoi_frame_t::convoi_frame_t(spieler_t* sp) :
-	gui_frame_t( translator::translate("cl_title"), sp),
-	owner(sp),
+convoi_frame_t::convoi_frame_t(player_t* player) :
+	gui_frame_t( translator::translate("cl_title"), player),
+	owner(player),
 	vscroll( scrollbar_t::vertical ),
 	sort_label("cl_txt_sort"),
 	filter_label("Filter:")
@@ -219,34 +218,36 @@ convoi_frame_t::convoi_frame_t(spieler_t* sp) :
 	filter_flags = 0;
 	filter_is_on = false;
 
-	sort_label.set_pos(koord(BUTTON1_X, 2));
-	add_komponente(&sort_label);
-	sortedby.init(button_t::roundbox, "", koord(BUTTON1_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	sort_label.set_pos(scr_coord(BUTTON1_X, 2));
+	add_component(&sort_label);
+
+	filter_label.set_pos(scr_coord(BUTTON3_X, 2));
+	add_component(&filter_label);
+
+	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 14));
 	sortedby.add_listener(this);
-	add_komponente(&sortedby);
+	add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", koord(BUTTON2_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+
+	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	sorteddir.add_listener(this);
-	add_komponente(&sorteddir);
+	add_component(&sorteddir);
 
-	filter_label.set_pos(koord(BUTTON3_X, 2));
-	add_komponente(&filter_label);
-
-	filter_on.init(button_t::roundbox, filter_is_on ? "cl_btn_filter_enable" : "cl_btn_filter_disable", koord(BUTTON3_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	filter_on.init(button_t::roundbox, filter_is_on ? "cl_btn_filter_enable" : "cl_btn_filter_disable", scr_coord(BUTTON3_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	filter_on.add_listener(this);
-	add_komponente(&filter_on);
+	add_component(&filter_on);
 
-	filter_details.init(button_t::roundbox, "cl_btn_filter_settings", koord(BUTTON4_X, 14), koord(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	filter_details.init(button_t::roundbox, "cl_btn_filter_settings", scr_coord(BUTTON4_X, 14), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	filter_details.add_listener(this);
-	add_komponente(&filter_details);
+	add_component(&filter_details);
 
 	sort_list();
 
-	set_fenstergroesse(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+5*(40)+31+1));
-	set_min_windowsize(koord(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+2*(40)+31+1));
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+5*(40)+31+1));
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+2*(40)+31+1));
 
 	set_resizemode(diagonal_resize);
-	resize(koord(0,0));
+	resize(scr_coord(0,0));
 }
 
 
@@ -258,7 +259,7 @@ convoi_frame_t::~convoi_frame_t()
 
 bool convoi_frame_t::infowin_event(const event_t *ev)
 {
-	const sint16 xr = vscroll.is_visible() ? scrollbar_t::BAR_SIZE : 1;
+	const sint16 xr = vscroll.is_visible() ? D_SCROLLBAR_WIDTH : 1;
 
 	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
 		destroy_win( magic_convoi_list_filter+owner->get_player_nr() );
@@ -268,7 +269,7 @@ bool convoi_frame_t::infowin_event(const event_t *ev)
 		// (and sometime even not then ... )
 		return vscroll.infowin_event(ev);
 	}
-	else if(  (IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx<get_fenstergroesse().x-xr  ) {
+	else if(  (IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx<get_windowsize().w-xr  ) {
 		int y = (ev->my-47)/40 + vscroll.get_knob_offset();
 		if(y<(sint32)convois.get_count()) {
 			// let gui_convoiinfo_t() handle this, since then it will be automatically consistent
@@ -284,22 +285,22 @@ bool convoi_frame_t::infowin_event(const event_t *ev)
  * This method is called if an action is triggered
  * @author Markus Weber
  */
-bool convoi_frame_t::action_triggered( gui_action_creator_t *komp, value_t /* */ )           // 28-Dec-01    Markus Weber    Added
+bool convoi_frame_t::action_triggered( gui_action_creator_t *comp, value_t /* */ )           // 28-Dec-01    Markus Weber    Added
 {
-	if(  komp == &filter_on  ) {
+	if(  comp == &filter_on  ) {
 		filter_is_on = !filter_is_on;
 		filter_on.set_text( filter_is_on ? "cl_btn_filter_enable" : "cl_btn_filter_disable");
 		sort_list();
 	}
-	else if(  komp == &sortedby  ) {
+	else if(  comp == &sortedby  ) {
 		set_sortierung( (sort_mode_t)((get_sortierung() + 1) % SORT_MODES) );
 		sort_list();
 	}
-	else if(  komp == &sorteddir  ) {
+	else if(  comp == &sorteddir  ) {
 		set_reverse( !get_reverse() );
 		sort_list();
 	}
-	else if(  komp == &filter_details  ) {
+	else if(  comp == &filter_details  ) {
 		if(  !destroy_win( magic_convoi_list_filter+owner->get_player_nr() )  ) {
 			create_win( new convoi_filter_frame_t(owner, this, filter_flags), w_info, magic_convoi_list_filter+owner->get_player_nr() );
 		}
@@ -308,49 +309,49 @@ bool convoi_frame_t::action_triggered( gui_action_creator_t *komp, value_t /* */
 }
 
 
-void convoi_frame_t::resize(const koord size_change)                          // 28-Dec-01    Markus Weber    Added
+void convoi_frame_t::resize(const scr_coord size_change)                          // 28-Dec-01    Markus Weber    Added
 {
 	gui_frame_t::resize(size_change);
-	koord groesse = get_fenstergroesse()-koord(0,47);
+	scr_size size = get_windowsize()-scr_size(0,47);
 	vscroll.set_visible(false);
-	remove_komponente(&vscroll);
-	vscroll.set_knob( groesse.y/40, convois.get_count() );
-	if(  (sint32)convois.get_count()<=groesse.y/40  ) {
+	remove_component(&vscroll);
+	vscroll.set_knob( size.h/40, convois.get_count() );
+	if(  (sint32)convois.get_count()<=size.h/40  ) {
 		vscroll.set_knob_offset(0);
 	}
 	else {
-		add_komponente(&vscroll);
+		add_component(&vscroll);
 		vscroll.set_visible(true);
-		vscroll.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 47-16-1));
-		vscroll.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
+		vscroll.set_pos(scr_coord(size.w-D_SCROLLBAR_WIDTH, 47-16-1));
+		vscroll.set_size(size-D_SCROLLBAR_SIZE);
 		vscroll.set_scroll_amount( 1 );
 	}
 }
 
 
-void convoi_frame_t::zeichnen(koord pos, koord gr)
+void convoi_frame_t::draw(scr_coord pos, scr_size size)
 {
 	filter_details.pressed = win_get_magic( magic_convoi_list_filter+owner->get_player_nr() );
 
-	gui_frame_t::zeichnen(pos, gr);
+	gui_frame_t::draw(pos, size);
 
-	const sint16 xr = vscroll.is_visible() ? scrollbar_t::BAR_SIZE+4 : 6;
-	PUSH_CLIP(pos.x, pos.y+47, gr.x-xr, gr.y-48 );
+	const sint16 xr = vscroll.is_visible() ? D_SCROLLBAR_WIDTH+4 : 6;
+	PUSH_CLIP(pos.x, pos.y+47, size.w-xr, size.h-48 );
 
 	uint32 start = vscroll.get_knob_offset();
 	sint16 yoffset = 47;
 
-	if (last_world_convois != owner->get_welt()->convoys().get_count()) {
+	if (last_world_convois != welt->convoys().get_count()) {
 		// some deleted/ added => resort
 		sort_list();
 	}
 
-	for(  unsigned i=start;  i<convois.get_count()  &&  yoffset<gr.y+47;  i++  ) {
+	for(  unsigned i=start;  i<convois.get_count()  &&  yoffset<size.h+47;  i++  ) {
 		convoihandle_t cnv = convois[i];
 
 		if(cnv.is_bound()) {
 			gui_convoiinfo_t ci(cnv);
-			ci.zeichnen( pos+koord(4,yoffset) );
+			ci.draw( pos+scr_coord(4,yoffset) );
 		}
 		// full height of a convoi is 40 for all info
 		yoffset += 40;

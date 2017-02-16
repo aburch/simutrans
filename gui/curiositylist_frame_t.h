@@ -12,7 +12,6 @@
 #include "components/gui_label.h"
 #include "components/gui_scrollpane.h"
 
-class karte_t;
 
 class curiositylist_frame_t : public gui_frame_t, private action_listener_t
 {
@@ -33,20 +32,20 @@ class curiositylist_frame_t : public gui_frame_t, private action_listener_t
 	static bool sortreverse;
 
  public:
-	curiositylist_frame_t(karte_t * welt);
+	curiositylist_frame_t();
 
 	/**
 	 * resize window in response to a resize event
 	 * @author Hj. Malthaner
 	 */
-	void resize(const koord delta);
+	void resize(const scr_coord delta);
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_hilfe_datei() const {return "curiositylist_filter.txt"; }
+	const char * get_help_filename() const {return "curiositylist_filter.txt"; }
 
 	 /**
 	 * This function refreshes the station-list

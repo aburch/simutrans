@@ -1,6 +1,13 @@
 #ifndef simversion_h
 #define simversion_h
 
+#ifdef MAKEOBJ
+#ifdef _MSC_VER
+FILE _iob[] = { *stdin, *stdout, *stderr };
+extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
+#endif
+#endif
+
 #if defined(REVISION_FROM_FILE)  &&  !defined(REVISION)
 // include external generated revision file
 #include "revision.h"
@@ -10,20 +17,22 @@
 #define SIM_BUILD_RELEASE_CANDIDATE 1
 #define SIM_BUILD_RELEASE           2
 
-#define SIM_VERSION_MAJOR 112
-#define SIM_VERSION_MINOR   3
-#define SIM_VERSION_PATCH   0
-#define SIM_VERSION_BUILD SIM_BUILD_RELEASE
+#define SIM_VERSION_MAJOR 120
+#define SIM_VERSION_MINOR   1
+#define SIM_VERSION_PATCH   2
+#define SIM_VERSION_BUILD SIM_BUILD_NIGHTLY
 
 // Beware: SAVEGAME minor is often ahead of version minor when there were patches.
 // ==> These have no direct connection at all!
 #define SIM_SAVE_MINOR      3
-#define SIM_SERVER_MINOR    7
+#define SIM_SERVER_MINOR    3
 
-#define EX_VERSION_MAJOR	11
-#define EX_VERSION_MINOR	35
+#define EX_VERSION_MAJOR	12
+#define EX_VERSION_MINOR	9000
+#define EX_SAVE_MINOR		17
+// Do not forget to increment the save game versions in settings_stats.cc when changing this
 
-#define MAKEOBJ_VERSION "55.1"
+#define MAKEOBJ_VERSION "55.5"
 
 #ifndef QUOTEME
 #	define QUOTEME_(x) #x
@@ -37,19 +46,21 @@
 #endif
 
 #if   SIM_VERSION_BUILD == SIM_BUILD_NIGHTLY
-#	define SIM_VERSION_BUILD_STRING " Development build"
+#	define SIM_VERSION_BUILD_STRING " Nightly development build"
 #elif SIM_VERSION_BUILD == SIM_BUILD_RELEASE_CANDIDATE
-#	define SIM_VERSION_BUILD_STRING " Release Candidate"
+#	define SIM_VERSION_BUILD_STRING " Release candidate"
 #elif SIM_VERSION_BUILD == SIM_BUILD_RELEASE
 #	define SIM_VERSION_BUILD_STRING
 #else
 #	error invalid SIM_VERSION_BUILD
 #endif
 
-#define VERSION_NUMBER QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_VERSION_MINOR) SIM_VERSION_PATCH_STRING " Experimental" SIM_VERSION_BUILD_STRING " "
-#define EXPERIMENTAL_VERSION QUOTEME(EX_VERSION_MAJOR) "." QUOTEME(EX_VERSION_MINOR)
+#define VERSION_NUMBER QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_VERSION_MINOR) SIM_VERSION_PATCH_STRING " Extended" SIM_VERSION_BUILD_STRING " "
+#define EXTENDED_VERSION QUOTEME(EX_VERSION_MAJOR) "." QUOTEME(EX_VERSION_MINOR)
 
-#define REVISION 1135
+#ifndef REVISION
+#define REVISION EX_VERSION_MAJOR.EX_VERSION_MINOR
+#endif
 
 #define VERSION_DATE __DATE__
 
@@ -58,9 +69,10 @@
 
 #define SAVEGAME_VER_NR        "0." QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_SAVE_MINOR)
 #define SERVER_SAVEGAME_VER_NR "0." QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_SERVER_MINOR)
-#define EXPERIMENTAL_VER_NR		"." QUOTEME(EX_VERSION_MAJOR)
+#define EXTENDED_VER_NR		"." QUOTEME(EX_VERSION_MAJOR)
+#define EXTENDED_REVISION_NR "." QUOTEME(EX_SAVE_MINOR)
 
-#define EXPERIMENTAL_SAVEGAME_VERSION (SAVEGAME_PREFIX SAVEGAME_VER_NR EXPERIMENTAL_VER_NR)
+#define EXTENDED_SAVEGAME_VERSION (SAVEGAME_PREFIX SAVEGAME_VER_NR EXTENDED_VER_NR)
 
 #define RES_VERSION_NUMBER  SIM_VERSION_MAJOR, SIM_VERSION_MINOR, EX_VERSION_MAJOR, EX_VERSION_MINOR
 
@@ -70,12 +82,13 @@
 #	define SIM_TITLE_REVISION_STRING
 #endif
 
-#define SIM_TITLE SAVEGAME_PREFIX VERSION_NUMBER EXPERIMENTAL_VERSION /*SIM_TITLE_REVISION_STRING*/
+#define SIM_TITLE SAVEGAME_PREFIX VERSION_NUMBER EXTENDED_VERSION SIM_TITLE_REVISION_STRING
 
 /*********************** Settings related to network games ********************/
 
 /* Server to announce status to */
-#define ANNOUNCE_SERVER "servers.experimental.simutrans.org:80"
+//#define ANNOUNCE_SERVER "servers.extended.simutrans.org:80"
+#define ANNOUNCE_SERVER "server.exp.simutrans.com:8080"
 
 /* Relative URL of the announce function on server */
 #define ANNOUNCE_URL "/announce"

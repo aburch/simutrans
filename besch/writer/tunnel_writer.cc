@@ -15,20 +15,71 @@ using std::string;
 
 void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 28, &parent);
+	static const char* const ribi_codes[26] = {
+		"-", "n",  "e",  "ne",  "s",  "ns",  "se",  "nse",
+		"w", "nw", "ew", "new", "sw", "nsw", "sew", "nsew",
+		"nse1", "new1", "nsw1", "sew1", "nsew1",	// different crossings: northwest/southeast is straight
+		"nse2", "new2", "nsw2", "sew2", "nsew2",
+	};
+	int ribi, hang;
+	
+	obj_node_t node(this, 32, &parent);
 
-	sint32 topspeed    = obj.get_int("topspeed",    1000);
-	uint32 preis       = obj.get_int("cost",          0);
-	uint32 maintenance = obj.get_int("maintenance",1000);
-	uint8 wegtyp       = get_waytype(obj.get("waytype"));
-	uint32 max_weight = obj.get_int("max_weight",  1000);
+	sint32 topspeed					= obj.get_int("topspeed",    1000);
+	sint32 topspeed_gradient_1		= obj.get_int("topspeed_gradient_1",    topspeed);
+	sint32 topspeed_gradient_2		= obj.get_int("topspeed_gradient_2",    topspeed_gradient_1);
+	uint32 preis					= obj.get_int("cost",          0);
+	uint32 maintenance				= obj.get_int("maintenance",1000);
+	uint8 wegtyp					= get_waytype(obj.get("waytype"));
+	uint16 axle_load				= obj.get_int("axle_load",   9999);
+	sint8 max_altitude				= obj.get_int("max_altitude", 0);
+	uint8 max_vehicles_on_tile		= obj.get_int("max_vehicles_on_tile", 251);
+
+	// BG, 11.02.2014: max_weight was missused as axle_load 
+	// in experimetal before standard introduced axle_load. 
+	//
+	// Therefore set new standard axle_load with old extended
+	// max_weight, if axle_load not specified, but max_weight.
+	if (axle_load == 9999)
+	{
+		uint32 max_weight  = obj.get_int("max_weight",   999);
+		if (max_weight != 999)
+			axle_load = max_weight;
+	}
 
 	// prissi: timeline
-	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro_date += obj.get_int("intro_month", 1) - 1;
 
 	uint16 obsolete_date  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
 	obsolete_date += obj.get_int("retire_month", 1) - 1;
+
+	// predefined string for directions
+	static const char* const indices[] = { "n", "s", "e", "w" };
+	static const char* const add[] = { "", "l", "r", "m" };
+	char buf[40];
+
+	// Check for seasons
+	sint8 number_seasons = 0;
+	sprintf(buf, "%simage[%s][1]", "front", indices[0]);
+	string str = obj.get(buf);
+	if(!str.empty()) {
+		// Snow images are present.
+		number_seasons = 1;
+	}
+
+	// Check for broad portals
+	uint8 number_portals = 1;
+	sprintf(buf, "%simage[%s%s][0]", "front", indices[0], add[1]);
+	str = obj.get(buf);
+	if (str.empty()) {
+		// Test short version
+		sprintf(buf, "%simage[%s%s]", "front", indices[0], add[1]);
+		str = obj.get(buf);
+	}
+	if(!str.empty()) {
+		number_portals = 4;
+	}
 
 	// Way constraints
 	// One byte for permissive, one byte for prohibitive.
@@ -67,16 +118,16 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	// version 2: snow images
 	// Version 3: pre-defined ways
 	// version 4: snow images + underground way image + broad portals
-	uint16 version = 0x8004;
+	uint16 version = 0x8005;
 
-	// This is the overlay flag for Simutrans-Experimental
+	// This is the overlay flag for Simutrans-Extended
 	// This sets the *second* highest bit to 1. 
 	version |= EXP_VER;
 
-	// Finally, this is the experimental version number. This is *added*
+	// Finally, this is the extended version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x100;
+	version += 0x200;
 
 	node.write_uint16(fp, version,						0);
 	node.write_sint32(fp, topspeed,						2);
@@ -85,15 +136,21 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint8 (fp, wegtyp,						14);
 	node.write_uint16(fp, intro_date,					15);
 	node.write_uint16(fp, obsolete_date,				17);
-	node.write_uint32(fp, max_weight,					20);
+	node.write_uint16(fp, axle_load,					19);
+	node.write_sint8(fp, number_seasons,				21);
+	// has was (uint8) is here but filled later
+	node.write_sint8(fp, (number_portals==4),			23);
+	// extended 1 additions:
 	node.write_uint8(fp, permissive_way_constraints,	24);
 	node.write_uint8(fp, prohibitive_way_constraints,	25);
+	node.write_uint16(fp, topspeed_gradient_1,			26);
+	node.write_uint16(fp, topspeed_gradient_2,			28);
+	node.write_sint8(fp, max_altitude,					30);
+	node.write_uint8(fp, max_vehicles_on_tile,			31);
 
-	sint8 number_seasons = 0;
-	uint8 number_portals = 1;
+	write_head(fp, node, obj);
 
-	static const char* const indices[] = { "n", "s", "e", "w" };
-	static const char* const add[] = { "", "l", "r", "m" };
+	// and now the images
 	slist_tpl<string> backkeys;
 	slist_tpl<string> frontkeys;
 
@@ -101,32 +158,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	cursorkeys.append(string(obj.get("cursor")));
 	cursorkeys.append(string(obj.get("icon")));
 
-	char buf[40];
-
-	// Check for seasons
-	sprintf(buf, "%simage[%s][1]", "front", indices[0]);
-	string str = obj.get(buf);
-	if(!str.empty()) {
-		// Snow images are present.
-		number_seasons = 1;
-	}
-	node.write_sint8(fp, number_seasons, 19);
-
-	// Check for broad portals
-	sprintf(buf, "%simage[%s%s][0]", "front", indices[0], add[1]);
-	str = obj.get(buf);
-	if (str.empty()) {
-		// Test short version
-		sprintf(buf, "%simage[%s%s]", "front", indices[0], add[1]);
-		str = obj.get(buf);
-	}
-	if(!str.empty()) {
-		number_portals = 4;
-	}
-	node.write_sint8(fp, (number_portals==4), 27);
-
-	write_head(fp, node, obj);
-
+	// These are the portal images only.
 	for(  uint8 season = 0;  season <= number_seasons;  season++  ) {
 		for(  uint8 pos = 0;  pos < 2;  pos++  ) {
 			for(  uint8 j = 0;  j < number_portals;  j++  ) {
@@ -151,13 +183,86 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 		}
 	}
 
-	str = obj.get("way");
-	if (!str.empty()) {
-		xref_writer_t::instance()->write_obj(fp, node, obj_way, str.c_str(), false);
-		node.write_sint8(fp, 1, 26);
+	uint32 has_tunnel_internal_images = 0;
+
+	// These are the internal images
+	// Code adapted from the way writer
+	slist_tpl<string> keys;
+	static const char* const image_type[] = { "", "front" };
+	for (int backtofront = 0; backtofront<2; backtofront++)
+	{
+		for (ribi = 0; ribi < 16; ribi++) 
+		{
+			char buf[64];
+
+			sprintf(buf, "%sundergroundimage[%s]", image_type[backtofront], ribi_codes[ribi]);
+			string str = obj.get(buf);
+			keys.append(str);
+			has_tunnel_internal_images ++;
+		}
+		imagelist_writer_t::instance()->write_obj(fp, node, keys);
+
+		keys.clear();
+		for (hang = 3; hang <= 12; hang += 3) 
+		{
+			char buf[64];
+
+			sprintf(buf, "%sundergroundimageup[%d]", image_type[backtofront], hang);
+			string str = obj.get(buf);
+			keys.append(str);
+			has_tunnel_internal_images++;
+		}
+		for (hang = 3; hang <= 12; hang += 3) 
+		{
+			char buf[64];
+
+			sprintf(buf, "%sundergroundimageup2[%d]", image_type[backtofront], hang);
+			string str = obj.get(buf);
+			if (!str.empty())
+			{
+				keys.append(str);
+				has_tunnel_internal_images++;
+			}
+		}
+		imagelist_writer_t::instance()->write_obj(fp, node, keys);
+
+		keys.clear();
+		for (ribi = 3; ribi <= 12; ribi += 3)
+		{
+			char buf[64];
+
+			sprintf(buf, "%sundergrounddiagonal[%s]", image_type[backtofront], ribi_codes[ribi]);
+			string str = obj.get(buf);
+			keys.append(str);
+			has_tunnel_internal_images++;
+		}
+		imagelist_writer_t::instance()->write_obj(fp, node, keys);
+		keys.clear();
 	}
-	else {
-		node.write_sint8(fp, 0, 26);
+
+	str = obj.get("way");
+	if (!str.empty())
+	{
+		xref_writer_t::instance()->write_obj(fp, node, obj_way, str.c_str(), false);
+		if (has_tunnel_internal_images >= 4)
+		{
+			node.write_sint8(fp, 3, 22);
+		}
+		else
+		{
+			node.write_sint8(fp, 1, 22);
+		}
+	}
+	else 
+	{
+		if (has_tunnel_internal_images >= 4)
+		{
+			node.write_sint8(fp, 2, 22);
+		}
+		else
+		{
+			node.write_sint8(fp, 0, 22);
+		}
 	}
 
 	cursorkeys.clear();

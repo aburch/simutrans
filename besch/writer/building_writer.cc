@@ -11,6 +11,7 @@
 #include "get_climate.h"
 #include "building_writer.h"
 #include "skin_writer.h"
+#include "cluster_writer.h"
 
 using std::string;
 
@@ -19,29 +20,31 @@ using std::string;
  */
 static uint8 get_engine_type(const char* engine_type, tabfileobj_t& obj)
 {
-	uint8 uv8 = vehikel_besch_t::diesel;
+	uint16 uv8 = vehicle_desc_t::diesel;
 
 	if (!STRICMP(engine_type, "diesel")) {
-		uv8 = vehikel_besch_t::diesel;
+		uv8 = vehicle_desc_t::diesel;
 	} else if (!STRICMP(engine_type, "electric")) {
-		uv8 = vehikel_besch_t::electric;
+		uv8 = vehicle_desc_t::electric;
 	} else if (!STRICMP(engine_type, "steam")) {
-		uv8 = vehikel_besch_t::steam;
+		uv8 = vehicle_desc_t::steam;
 	} else if (!STRICMP(engine_type, "bio")) {
-		uv8 = vehikel_besch_t::bio;
+		uv8 = vehicle_desc_t::bio;
 	} else if (!STRICMP(engine_type, "sail")) {
-		uv8 = vehikel_besch_t::sail;
+		uv8 = vehicle_desc_t::sail;
 	} else if (!STRICMP(engine_type, "fuel_cell")) {
-		uv8 = vehikel_besch_t::fuel_cell;
+		uv8 = vehicle_desc_t::fuel_cell;
 	} else if (!STRICMP(engine_type, "hydrogene")) {
-		uv8 = vehikel_besch_t::hydrogene;
+		uv8 = vehicle_desc_t::hydrogene;
 	} else if (!STRICMP(engine_type, "battery")) {
-		uv8 = vehikel_besch_t::battery;
+		uv8 = vehicle_desc_t::battery;
+	} else if (!STRICMP(engine_type, "petrol")) {
+		uv8 = vehicle_desc_t::petrol;
+	} else if (!STRICMP(engine_type, "turbine")) {
+		uv8 = vehicle_desc_t::turbine;
 	} else if (!STRICMP(engine_type, "unknown")) {
-		uv8 = vehikel_besch_t::unknown;
+		uv8 = vehicle_desc_t::unknown;
 	}
-
-	// printf("Engine type %s -> %d\n", engine_type, uv8);
 
 	return uv8;
 }
@@ -53,16 +56,16 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 {
 	obj_node_t node(this, 7, &parent);
 
-	uint8 phasen = 0;
+	uint8 phases = 0;
 	for (int i = 0; i < seasons; i++) {
 		FOR(slist_tpl<slist_tpl<string> >, const& s, backkeys.at(i)) {
-			if (phasen < s.get_count()) {
-				phasen = s.get_count();
+			if (phases < s.get_count()) {
+				phases = s.get_count();
 			}
 		}
 		FOR(slist_tpl<slist_tpl<string> >, const& s, frontkeys.at(i)) {
-			if (phasen < s.get_count()) {
-				phasen = s.get_count();
+			if (phases < s.get_count()) {
+				phases = s.get_count();
 			}
 		}
 	}
@@ -81,7 +84,7 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 	// Write version data
 	node.write_uint16(fp, v16, 0);
 
-	v16 = phasen;
+	v16 = phases;
 	node.write_uint16(fp, v16, 2);
 
 	v16 = index;
@@ -93,27 +96,11 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 	node.write(fp);
 }
 
-// Subroutine for write_obj, to avoid duplicated code
-static uint32 get_cluster_data(tabfileobj_t& obj)
-{
-	uint32 clusters = 0;
-	int* ints = obj.get_ints("clusters");
-
-	for(  int i = 1;  i <= ints[0];  i++  ) {
-		if(  ints[i] > 1  &&  ints[i] <= 32  ) { // Sanity check
-			clusters |= 1<<(ints[i]-1);
-		}
-	}
-	delete [] ints;
-
-	return clusters;
-}
-
 
 void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	// Hajo: take care, hardocded size of node on disc here!
-	obj_node_t node(this, 38, &parent);
+	obj_node_t node(this, 49, &parent);
 
 	write_head(fp, node, obj);
 
@@ -134,17 +121,18 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 	delete [] ints;
 
-	gebaeude_t::typ            gtyp             = gebaeude_t::unbekannt;
-	haus_besch_t::utyp         utype            = haus_besch_t::unbekannt;
+	building_desc_t::btype        type = building_desc_t::unknown;
 	uint32                     extra_data       = 0;
 	climate_bits               allowed_climates = all_but_water_climate; // all but water
-	uint8                      enables          = 0;
-	uint16                     level            = obj.get_int("level", 1) - 1; // TODO: Remove this -1, which is now reset in the reader, when the version is incremented.
-	haus_besch_t::flag_t const flags            =
-		(obj.get_int("noinfo",         0) > 0 ? haus_besch_t::FLAG_KEINE_INFO  : haus_besch_t::FLAG_NULL) |
-		(obj.get_int("noconstruction", 0) > 0 ? haus_besch_t::FLAG_KEINE_GRUBE : haus_besch_t::FLAG_NULL) |
-		(obj.get_int("needs_ground",   0) > 0 ? haus_besch_t::FLAG_NEED_GROUND : haus_besch_t::FLAG_NULL);
+	uint16                     enables          = 0;
+	uint16                     level            = obj.get_int("level", 1);
+	building_desc_t::flag_t const flags            =
+		(obj.get_int("noinfo",         0) > 0 ? building_desc_t::FLAG_NO_INFO  : building_desc_t::FLAG_NULL) |
+		(obj.get_int("noconstruction", 0) > 0 ? building_desc_t::FLAG_NO_PIT : building_desc_t::FLAG_NULL) |
+		(obj.get_int("needs_ground",   0) > 0 ? building_desc_t::FLAG_NEED_GROUND : building_desc_t::FLAG_NULL);
 	uint16               const animation_time   = obj.get_int("animation_time", 300);
+
+	level = obj.get_int("pax_level", level); // Needed for conversion from old factories.
 
 	// get the allowed area for this building
 	const char* climate_str = obj.get("climates");
@@ -154,51 +142,60 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	const char* type_name = obj.get("type");
 	if (!STRICMP(type_name, "res")) {
-		extra_data = get_cluster_data(obj);
-		gtyp = gebaeude_t::wohnung;
+		extra_data = cluster_writer_t::get_cluster_data(obj, "clusters");
+		type = building_desc_t::city_res;
 	} else if (!STRICMP(type_name, "com")) {
-		extra_data = get_cluster_data(obj);
-		gtyp = gebaeude_t::gewerbe;
+		extra_data = cluster_writer_t::get_cluster_data(obj, "clusters");
+		type = building_desc_t::city_com;
 	} else if (!STRICMP(type_name, "ind")) {
-		extra_data = get_cluster_data(obj);
-		gtyp = gebaeude_t::industrie;
+		extra_data = cluster_writer_t::get_cluster_data(obj, "clusters");
+		type = building_desc_t::city_ind;
 	} else if (!STRICMP(type_name, "cur")) {
 		extra_data = obj.get_int("build_time", 0);
 		level      = obj.get_int("passengers",  level);
-		utype      = extra_data == 0 ? haus_besch_t::attraction_land : haus_besch_t::attraction_city;
+		type      = extra_data == 0 ? building_desc_t::attraction_land : building_desc_t::attraction_city;
 	} else if (!STRICMP(type_name, "mon")) {
-		utype = haus_besch_t::denkmal;
+		type = building_desc_t::monument;
 		level = obj.get_int("passengers",  level);
 	} else if (!STRICMP(type_name, "tow")) {
 		level      = obj.get_int("passengers",  level);
 		extra_data = obj.get_int("build_time", 0);
-		utype = haus_besch_t::rathaus;
+		type = building_desc_t::townhall;
 	} else if (!STRICMP(type_name, "hq")) {
 		level      = obj.get_int("passengers",  level);
 		extra_data = obj.get_int("hq_level", 0);
-		utype = haus_besch_t::firmensitz;
+		type = building_desc_t::headquarter;
 	} else if (!STRICMP(type_name, "habour")  ||  !STRICMP(type_name, "harbour")) {
-		utype      = haus_besch_t::hafen;
+		// buildable only on sloped shores
+		type      = building_desc_t::dock;
+		extra_data = water_wt;
+	}
+	else if (!STRICMP(type_name, "dock")) {
+		// buildable only on flat shores
+		type      = building_desc_t::flat_dock;
 		extra_data = water_wt;
 	} else if (!STRICMP(type_name, "fac")) {
-		utype    = haus_besch_t::fabrik;
+		type    = building_desc_t::factory;
 		enables |= 4;
 	} else if (!STRICMP(type_name, "stop")) {
-		utype      = haus_besch_t::generic_stop;
+		type      = building_desc_t::generic_stop;
 		extra_data = get_waytype(obj.get("waytype"));
 	} else if (!STRICMP(type_name, "extension")) {
-		utype = haus_besch_t::generic_extension;
+		type = building_desc_t::generic_extension;
 		const char *wt = obj.get("waytype");
 		if(wt  &&  *wt>' ') {
-			// not waytype => just a generic exten that fits all
+			// not waytype => just a generic extension that fits all
 			extra_data = get_waytype(wt);
 		}
 	} else if (!STRICMP(type_name, "depot")) {
-		utype      = haus_besch_t::depot;
+		type      = building_desc_t::depot;
 		extra_data = get_waytype(obj.get("waytype"));
+	} else if (!STRICMP(type_name, "signalbox")) {
+		type      = building_desc_t::signalbox;
+		extra_data = cluster_writer_t::get_cluster_data(obj, "signal_groups");
 	} else if (!STRICMP(type_name, "any") || *type_name == '\0') {
 		// for instance "MonorailGround"
-		utype = haus_besch_t::weitere;
+		type = building_desc_t::others;
 	} else if (
 		!STRICMP(type_name, "station")  ||
 		!STRICMP(type_name, "railstop")  ||
@@ -215,10 +212,11 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		dbg->fatal( "building_writer_t::write_obj()","%s is obsolete type for %s", type_name, obj.get("name") );
 	}
 
-	// is is an station extension building?
+	// Is this a station extension building?
 	if (obj.get_int("extension_building", 0) > 0) {
 		dbg->fatal("building_writer_t::write_obj()","extension_building is obsolete keyword for %s; use stop/extension and waytype!", obj.get("name") );
 	}
+
 
 	if (obj.get_int("enables_pax", 0) > 0) {
 		enables |= 1;
@@ -226,12 +224,13 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	if (obj.get_int("enables_post", 0) > 0) {
 		enables |= 2;
 	}
-	if(  utype == haus_besch_t::fabrik  ||  obj.get_int("enables_ware", 0) > 0  ) {
+	if(  type == building_desc_t::factory  ||  obj.get_int("enables_ware", 0) > 0  ) {
 		enables |= 4;
 	}
 
-	if(  utype==haus_besch_t::generic_extension  ||  utype==haus_besch_t::generic_stop  ||  utype==haus_besch_t::hafen  ||  utype==haus_besch_t::depot  ||  utype==haus_besch_t::fabrik  ) {
+	if(  type==building_desc_t::generic_extension  ||  type==building_desc_t::generic_stop  ||  type==building_desc_t::dock  ||  type==building_desc_t::depot  ||  type==building_desc_t::factory  ) {
 		// since elevel was reduced by one beforehand ...
+		// TODO: Remove this when the reduction of level is removed.
 		++level;
 	}
 
@@ -247,19 +246,31 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12 +
 		obj.get_int("retire_month", 1) - 1;
 
-	// @author: jamespetts
-	// Station-specific capacity and price information.
+	// @author: Kieron Green (ideas from extended code by jamespetts)
+	// capacity and price information.
 	// Stands in place of the "level" setting, but uses "level" data by default.
 
-	sint32 station_capacity = obj.get_int("station_capacity", level * 32);
-	station_capacity = obj.get_int("capacity", station_capacity);
-	sint32 station_maintenance = obj.get_int("station_maintenance", 2147483647); //NOTE: Default cannot be set because it depends on a world factor. Must detect this number and put in default if it is found.
-	station_maintenance = obj.get_int("maintenance", station_maintenance);
-	sint32 station_price = obj.get_int("station_price", 2147483647);
-	station_price = obj.get_int("cost", station_price);
+	//NOTE: Default for maintenance and price must be set when loading so use magic default here
+	//also check for "station_xx" for extended compatibility
+
+	sint32 capacity = obj.get_int("capacity", level * 32);
+	if(  capacity == level * 32  ) {
+		capacity = obj.get_int("station_capacity", level * 32);
+	}
+	
+	sint32 maintenance = obj.get_int("maintenance", COST_MAGIC);
+	if(  maintenance == COST_MAGIC  ) {
+		maintenance = obj.get_int("station_maintenance", COST_MAGIC);
+	}
+	
+	sint32 price = obj.get_int("cost", COST_MAGIC);
+	if(  price == COST_MAGIC  ) {
+		price = obj.get_int("station_price", COST_MAGIC);
+	}
+	 
+	uint32 radius = obj.get_int("radius", 1000); 
 
 	uint8 allow_underground = obj.get_int("allow_underground", 2);
-
 	if(allow_underground > 2)
 	{
 		// Prohibit illegal values here.
@@ -267,13 +278,13 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	// Encode the depot traction types.
-	if(utype == haus_besch_t::depot)
+	if(type == building_desc_t::depot)
 	{
 		// HACK: Use "enables" (only used for a stop type) to encode traction types
-		enables = 255; // Default - all types enabled.
+		enables = 65535; // Default - all types enabled.
 		
-		uint8 traction_type_count = 0;
-		uint8 traction_type = 1;
+		uint16 traction_type_count = 0;
+		uint16 traction_type = 1;
 		bool engaged = false;
 		string engine_type;
 		do {
@@ -287,12 +298,12 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 				if(!engaged)
 				{
 					// If the user specifies anything, the
-					// default of 255 must be cleared.
+					// default of 65535 must be cleared.
 					engaged = true;
 					enables = 0;
 				}
 				traction_type = get_engine_type(engine_type.c_str(), obj);
-				const uint8 shifter = 1 << traction_type;
+				const uint16 shifter = 1 << traction_type;
 				enables |= shifter;
 				traction_type_count++;
 			}
@@ -300,6 +311,12 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	uint8 is_control_tower = obj.get_int("is_control_tower", 0);
+
+	uint16 population_and_visitor_demand_capacity = obj.get_int("population_and_visitor_demand_capacity", 65535);
+	uint16 employment_capacity = obj.get_int("passenger_demand", type == building_desc_t::city_res ? 0 : 65535);
+	employment_capacity = obj.get_int("employment_capacity", type == building_desc_t::city_res ? 0 : employment_capacity);
+	uint16 mail_demand_and_production_capacity = obj.get_int("mail_demand", 65535);	
+	mail_demand_and_production_capacity = obj.get_int("mail_demand_and_production_capacity", mail_demand_and_production_capacity);
 
 	// scan for most number of seasons
 	int seasons = 1;
@@ -358,11 +375,11 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 									fflush(NULL);
 #endif
 									break;
-								} else {
+								}
+								else {
 									// no higher front images
 									if (h > 0 && pos == 0) {
-										printf("WARNING: frontimage height MUST be one tile only!\n");
-										fflush(NULL);
+										dbg->error( obj_writer_t::last_name, "Frontimage height MUST be one tile only!");
 										break;
 									}
 								}
@@ -382,45 +399,48 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		}
 	}
 
-	uint16 version = 0x8007;
+	uint16 version = 0x8009;
 	
-	// This is the overlay flag for Simutrans-Experimental
+	// This is the overlay flag for Simutrans-Extended
 	// This sets the *second* highest bit to 1. 
 	version |= EXP_VER;
 
-	// Finally, this is the experimental version number. This is *added*
+	// Finally, this is the extended version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	// 0x200 - Depot traction types.
-	// 0x300 - Allow underground
+	// Reset to 0x100 for Standard 0x8008
+	// 0x200: Extended version 12: radii for buildings
+	// 0x300: 16-bit traction types
 	version += 0x300;
 	
 	// Hajo: write version data
+	node.write_uint16(fp, version,									0);
 
-	node.write_uint16(fp, version,				0);
-
-	// Hajo: write besch data
-	node.write_uint8 (fp, gtyp,					2);
-	node.write_uint8 (fp, utype,				3);
-	node.write_uint16(fp, level,				4);
-	node.write_uint32(fp, extra_data,			6);
-	node.write_uint16(fp, groesse.x,			10);
-	node.write_uint16(fp, groesse.y,			12);
-	node.write_uint8 (fp, layouts,				14);
-	node.write_uint16(fp, allowed_climates,		15);
-	node.write_uint8 (fp, enables,				17);
-	node.write_uint8 (fp, flags,				18);
-	node.write_uint8 (fp, chance,				19);
-	node.write_uint16(fp, intro_date,			20);
-	node.write_uint16(fp, obsolete_date,		22);
-	node.write_uint16(fp, animation_time,		24);
-	node.write_uint16(fp, station_capacity,		26);
-	node.write_sint32(fp, station_maintenance,	28);
-	node.write_sint32(fp, station_price,		32);
-	node.write_uint8(fp, allow_underground,		36);
-	node.write_uint8(fp, is_control_tower,		37);
+	// Hajo: write desc data
+	node.write_uint8(fp,	 0,										2); // was gtyp
+	node.write_uint8 (fp, type,										3);
+	node.write_uint16(fp, level,									4);
+	node.write_uint32(fp, extra_data,								6);
+	node.write_uint16(fp, groesse.x,								10);
+	node.write_uint16(fp, groesse.y,								12);
+	node.write_uint8 (fp, layouts,									14);
+	node.write_uint16(fp, allowed_climates,							15);
+	node.write_uint16(fp, enables,									17);
+	node.write_uint8 (fp, flags,									19);
+	node.write_uint8 (fp, chance,									20);
+	node.write_uint16(fp, intro_date,								21);
+	node.write_uint16(fp, obsolete_date,							23);
+	node.write_uint16(fp, animation_time,							25);
+	node.write_uint16(fp, capacity,									27);
+	node.write_sint32(fp, maintenance,								29);
+	node.write_sint32(fp, price,									33);
+	node.write_uint8 (fp, allow_underground,						37);
+	node.write_uint8 (fp, is_control_tower,							38);
+	node.write_uint16(fp, population_and_visitor_demand_capacity,	39);
+	node.write_uint16(fp, employment_capacity,						41);
+	node.write_uint16(fp, mail_demand_and_production_capacity,		43);
+	node.write_uint32(fp, radius,									45);
 	
-
 	// probably add some icons, if defined
 	slist_tpl<string> cursorkeys;
 

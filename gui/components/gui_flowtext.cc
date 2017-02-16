@@ -2,16 +2,17 @@
 #include <string.h>
 #include "../../simcolor.h"
 #include "../../simevent.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../dataobj/translator.h"
 #include "../../utils/simstring.h"
+#include "../gui_theme.h"
 
 #include "gui_flowtext.h"
 
 gui_flowtext_t::gui_flowtext_t()
 {
 	title[0] = '\0';
-	last_offset = koord::invalid;
+	last_offset = scr_coord::invalid;
 	dirty = true;
 }
 
@@ -45,7 +46,7 @@ void gui_flowtext_t::set_text(const char *text)
 				tail++;
 			}
 
-			// parse a tag (not allowed to exeec 511 letters)
+			// parse a tag (not allowed to exceed 511 letters)
 			for (int i = 0; *lead != '>' && *lead > 0 && i < 511; i++) {
 				lead++;
 			}
@@ -149,7 +150,7 @@ void gui_flowtext_t::set_text(const char *text)
 			// parse a word (and obey limits)
 			att = ATT_NONE;
 			for(  int i = 0;  *lead != '<'  &&  (*lead > 32  ||  (i==0  &&  *lead==32))  &&  i < 511  &&  *lead != '&'; i++) {
-				if(  *lead>128  &&  translator::get_lang()->utf_encoded  ) {
+				if(  *lead>128  ) {
 					size_t skip = 0;
 					utf16 symbol = utf8_to_utf16( lead, &skip );
 					if(  symbol == 0x3000  ) {
@@ -160,7 +161,7 @@ void gui_flowtext_t::set_text(const char *text)
 					i += skip;
 					if(  symbol == 0x3001  ||  symbol == 0x3002  ) {
 						att = ATT_NO_SPACE;
-						// CJK full stop, komma, space
+						// CJK full stop, comma, space
 						break;
 					}
 					// every CJK symbol could be used to break, so break after 10 characters
@@ -194,12 +195,10 @@ void gui_flowtext_t::set_text(const char *text)
 				lead++;
 			}
 			// skip wide spaces
-			if(  translator::get_lang()->utf_encoded  ) {
-				size_t skip = 0;
-				while(  utf8_to_utf16( lead, &skip )==0x3000  ) {
-					lead += skip;
-					skip = 0;
-				}
+			size_t skip = 0;
+			while(  utf8_to_utf16( lead, &skip )==0x3000  ) {
+				lead += skip;
+				skip = 0;
 			}
 		}
 		tail = lead;
@@ -214,17 +213,17 @@ const char* gui_flowtext_t::get_title() const
 }
 
 
-koord gui_flowtext_t::get_preferred_size()
+scr_size gui_flowtext_t::get_preferred_size()
 {
-	return output(koord(0, 0), false);
+	return output(scr_size(0, 0), false);
 }
 
-koord gui_flowtext_t::get_text_size()
+scr_size gui_flowtext_t::get_text_size()
 {
-	return output(koord(0, 0), false, false);
+	return output(scr_size(0, 0), false, false);
 }
 
-void gui_flowtext_t::zeichnen(koord offset)
+void gui_flowtext_t::draw(scr_coord offset)
 {
 	offset += pos;
 	if(offset!=last_offset) {
@@ -235,16 +234,16 @@ void gui_flowtext_t::zeichnen(koord offset)
 }
 
 
-koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
+scr_size gui_flowtext_t::output(scr_coord offset, bool doit, bool return_max_width)
 {
-	const int width = groesse.x;
+	const int width = size.w;
 
 	slist_tpl<hyperlink_t>::iterator link = links.begin();
 
 	int xpos         = 0;
 	int ypos         = 0;
-	int color        = COL_BLACK;
-	int double_color = COL_BLACK;
+	int color        = SYSCOL_TEXT;
+	int double_color = SYSCOL_TEXT_SHADOW;
 	bool double_it   = false;
 	bool link_it     = false;	// true, if currently underlining for a link
 	int extra_pixel  = 0;		// extra pixel before next line
@@ -291,7 +290,7 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 						display_proportional_clip(offset.x + xpos + 1, offset.y + ypos + 1, i.text.c_str(), 0, double_color, false);
 						extra_pixel |= 1;
 					}
-					KOORD_VAL width = display_proportional_clip(offset.x + xpos, offset.y + ypos, i.text.c_str(), 0, color, false);
+					scr_coord_val width = display_proportional_clip(offset.x + xpos, offset.y + ypos, i.text.c_str(), 0, color, false);
 					if(  link_it  ) {
 						display_fillbox_wh_clip( offset.x + last_link_x, ypos + offset.y + LINESPACE-1, (xpos+width)-last_link_x, 1, color, false);
 						last_link_x = xpos+width;
@@ -319,7 +318,7 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 				break;
 
 			case ATT_A_START:
-				color = COL_BLUE;
+				color = SYSCOL_TEXT_TITLE;
 				// link == links.end() if there is an endtag </a> is missing
 				if (link!=links.end()) {
 					link->tl.x = xpos;
@@ -334,54 +333,53 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 				link->br.y = ypos + LINESPACE;
 				++link;
 				link_it = false;
-				color = COL_BLACK;
+				color = SYSCOL_TEXT;
 				break;
 
 			case ATT_H1_START:
-				color        = COL_WHITE;
-				double_color = COL_BLACK;
+				color        = SYSCOL_TEXT_TITLE;
 				double_it    = true;
 				break;
 
 			case ATT_H1_END:
-				color     = COL_BLACK;
 				double_it = false;
 				if(doit) {
-					display_fillbox_wh_clip(offset.x + 1, offset.y + ypos + LINESPACE, xpos, 1, COL_WHITE, false);
-					display_fillbox_wh_clip(offset.x,     offset.y + ypos + LINESPACE-1,     xpos, 1, color, false);
+					display_fillbox_wh_clip(offset.x + 1, offset.y + ypos + LINESPACE,   xpos, 1, color,        false);
+					display_fillbox_wh_clip(offset.x,     offset.y + ypos + LINESPACE-1, xpos, 1, double_color, false);
 				}
 				xpos = 0;
 				extra_pixel = 0;
 				ypos += LINESPACE+2;
+				color = SYSCOL_TEXT;
 				break;
 
 			case ATT_EM_START:
-				color = COL_WHITE;
+				color = SYSCOL_TEXT_HIGHLIGHT;
 				break;
 
 			case ATT_EM_END:
-				color = COL_BLACK;
+				color = SYSCOL_TEXT;
 				break;
 
 			case ATT_IT_START:
-				color        = COL_BLACK;
-				double_color = COL_YELLOW;
-				double_it    = true;
+				color     = SYSCOL_TEXT_HIGHLIGHT;
+				double_it = true;
 				break;
 
 			case ATT_IT_END:
+				color     = SYSCOL_TEXT;
 				double_it = false;
 				break;
 
 			case ATT_STRONG_START:
 				if(  !double_it  ) {
-					color = COL_RED;
+					color = SYSCOL_TEXT_STRONG;
 				}
 				break;
 
 			case ATT_STRONG_END:
 				if(  !double_it  ) {
-					color = COL_BLACK;
+					color = SYSCOL_TEXT;
 				}
 				break;
 
@@ -392,7 +390,7 @@ koord gui_flowtext_t::output(koord offset, bool doit, bool return_max_width)
 		mark_rect_dirty_wc( offset.x, offset.y, offset.x+max_width, offset.y+ypos+LINESPACE );
 		dirty = false;
 	}
-	return koord( return_max_width ? max_width : text_width, ypos + LINESPACE);
+	return scr_size( return_max_width ? max_width : text_width, ypos + LINESPACE);
 }
 
 
@@ -400,7 +398,7 @@ bool gui_flowtext_t::infowin_event(const event_t* ev)
 {
 	if (IS_LEFTCLICK(ev)) {
 		// scan links for hit
-		koord evpos = koord( ev->cx, ev->cy ) - get_pos();
+		scr_coord evpos = scr_coord( ev->cx, ev->cy ); // - get_pos();
 		FOR(slist_tpl<hyperlink_t>, const& link, links) {
 			if(  link.tl.y+LINESPACE == link.br.y  ) {
 				if(  link.tl.x <= evpos.x  &&  evpos.x < link.br.x  &&  link.tl.y <= evpos.y  &&  evpos.y < link.br.y  ) {
@@ -410,7 +408,7 @@ bool gui_flowtext_t::infowin_event(const event_t* ev)
 			}
 			else {
 				//  multi lined box => more difficult
-				if(  link.tl.x <= evpos.x  &&  evpos.x < get_groesse().x  &&  link.tl.y <= evpos.y  &&  evpos.y < link.tl.y+LINESPACE  ) {
+				if(  link.tl.x <= evpos.x  &&  evpos.x < get_size().w  &&  link.tl.y <= evpos.y  &&  evpos.y < link.tl.y+LINESPACE  ) {
 					// in top line
 					call_listeners((void const*)link.param.c_str());
 					break;
@@ -420,7 +418,7 @@ bool gui_flowtext_t::infowin_event(const event_t* ev)
 					call_listeners((void const*)link.param.c_str());
 					break;
 				}
-				else if(  0 <= evpos.x  &&  evpos.x < get_groesse().x  &&  link.tl.y+LINESPACE <= evpos.y  &&  evpos.y < link.br.y-LINESPACE  ) {
+				else if(  0 <= evpos.x  &&  evpos.x < get_size().w  &&  link.tl.y+LINESPACE <= evpos.y  &&  evpos.y < link.br.y-LINESPACE  ) {
 					// line in between
 					call_listeners((void const*)link.param.c_str());
 					break;

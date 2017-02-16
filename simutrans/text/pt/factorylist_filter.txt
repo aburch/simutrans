@@ -1,0 +1,51 @@
+<title>Ajuda - Lista das fábridas</title>
+
+<h1><strong>Lista das fábricas</strong></h1>
+
+<p>
+<strong>Lista das fábricas</strong> tem informações sobre todas as <a href="industry_info.txt">indústrias</a> (fornecedoras e consumidoras) durante o curso do jogo.
+</p>
+<p>
+Para abrir a <strong>Lista das fábricas</strong>: clique no botão da lista de fábricas em <a href="list.txt">Listas</a>.<br>
+{OBS: Se os itens só forem parcialmente visíveis, tente <a href="mouse.txt">redimensionar</a> a <strong>Listas de fábricas</strong> ou role a barra de barra de rolagem.}
+</p>
+<p>
+<em>Classificadas por:</em> têm a opção de determinar a ordem das indústrias.<br>
+Clique nos botões para alternar ordem (o nome do botão muda ao clicar):
+</p>
+<p>
+- <em>Nome da fábrica</em> lista de indústrias em ordem alfabética.<br>
+- <em>Entrada</em> ordenar por entrada de matéria-prima.<br>
+- <em>Saída</em> ordenar por saída de suplimentos.<br>
+- <em>Produção</em> ordenar por capacidade de produção.<br>
+- <em>Taxa</em> ordenar por barra de status (ver abaixo).<br>
+- <em>Potência</em> ordenar por suprimento de energia.
+</p>
+<p>
+- <em>Crescente</em> / <em>Decrescente</em> reverte a ordem da lista.
+</p>
+<p>
+Clique em um dos itens listados na <strong>Lista das fábricas</strong> para maiores <a href="industry_info.txt">informações</a> da indústria.
+<br>Os itens listados sobre a indústria incluem:
+</p>
+<p>
+<em>Barra de status</em> a cor indica a operação da indústria (também é usada na <a href="industry_info.txt">Informações das indústrias</a>):<br>
+- <em>branco:</em> não requer matéria-prima.<br>
+- <em>amarelo:</em> a indústria está conectada à rede de transporte, mas com fornecimento precário.<br>
+- <em>verde:</em> indústria em ótimo estado.<br>
+- <em>laranja:</em> operacional, mas pode ser melhorado.<br>
+- <em>vermelho:</em> operacional, mas parte da cadeia industrial tem suprimentos em excesso.
+</p>
+<p>
+<em>Ícone de relâmpago vermelho</em>, se presente, mostra que a indústria contém um suprimento de energia nos seus <a href="special.txt">transformadores</a>.
+</p>
+<p><em>Nome da indústria:</em> mostra o nome da <a href="industry_info.txt">indústria</a>.
+</p>
+<p>
+Entre parênteses, existem 3 valores que representam informações de entrada e saída:<br>
+<em>produtos entrando:</em> quantidade de matérias em estoque prontas a ser processadas.<br>
+<em>produtos saindo:</em> quantidade de produtos que já foram produzidos aguardando transporte.<br>
+<em>produção total:</em> mostra o quanto a indústria consegue produzir por dia.
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+</p>

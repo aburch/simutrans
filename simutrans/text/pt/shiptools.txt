@@ -1,0 +1,56 @@
+<title>Ajuda - Navegação</title>
+
+<h1><strong>Ferramentas de navegação</strong></h1>
+
+<p>
+As <strong>Ferramentas de navegação</strong> constróem uma rede de transporte por mares e canais. As ferramentas podem construir ou remover: canais, eclusas, vários tipos de doca e estaleiros. Se estiver jogando com <a href="new_world.txt">linha do tempo</a>, então conforme o tempo passa no Simutrans mais opções de ferramentas podem aparecer.
+</p>
+<p>
+Clique no ícone de um barco no topo da área de jogo para abrir a barra de ferramentas.<br>
+Passe o cursor do mouse em cima das opções (após ter aberto ou clicado na barra de ferramentas) para ver o nome, o <a href="finances.txt">custo</a> de construção, custo de manutenção (entre parênteses), e o limite máximo de velocidade.
+</p>
+<p>
+As <strong>Ferramentas de navegação</strong> incluem, da esquerda para a direita:
+</p>
+<p>
+<em>Canal:</em> constrói hidrovias para veículos aquáticos, entre dois pontos na área de jogo.<br>
+Canais podem somente ser construídos em terra firme e podem não encontrar um caminho através de terrenos acidentados. Canais construídos entre dois pontos podem usar trechos de canais existentes em seu caminho.<br>
+Para construir um canal: clique na ferramenta para ativá-la (o cursor mudará para um canal), e clique na área de jogo no ponto inicial do canal (mostra um trator na área de jogo e as coordenadas do mapa no lado direito da barra inferior do jogo), e finalmente clique na área de jogo no ponto final.<br>
+{Dicas: canais construídos por <a href="players.txt">jogadores</a> diferentes podem não se conectar. Use o <a href="slopetools.txt">Editor de terrenos</a> para modificar o terreno, possibilitando caminhos para os canais. Use a ferrramenta Remover para remover partes individuais do canal e obstáculos. O desfazer <a href="keys.txt">[z]</a> não reembolsa os custos da construção.}
+</p>
+<p>
+<em>Remover canais:</em> remove partes do canal, quando não houver veículos presentes, entre dois pontos na área de jogo (Obs.: cais de canal no caminho são removidos também). O uso da ferramenta tem um <a href="finances.txt">custo</a> de construção.<br>
+Para remover canais: clique na ferramenta para ativá-la (o cursor mudará para um X vermelho), e clique no canal que será removido (o ponto selecionado é mostrado por um X vermelho na área de jogo), e finalmente clique no segundo ponto em um canal conectado, para remover o trecho de canais desde o ponto inicial selecionado.
+</p>
+<p>
+<em>Canal elevado:</em> constrói eclusas e uma ponte de canal para elevar/rebaixar o canal em um nível na área de jogo. A ponte possui um comprimento máximo e é construída no fim de um canal até um ponto disponível (outro final de canal ou um trecho de terra mais alto, dentro do limite).<br>
+Para construir um canal elevado: clique na ferramenta para ativá-la (o cursor mudará para um canal elevado), e clique na área de jogo no fim de um canal (ele será o ponto inicial da ponte). Obstáculos ou a falta de um lugar propício para o fim da ponte podem interromper a construção: construa canais dos dois lados que devem ser ligados pela ponte e tente novamente.<br>
+{Dicas: use a ferramenta Remover para remover pontes (clique no começo dela) ou obstáculos para a construção. Use <em>canais</em> para conectar pontes com hidrovias.}.
+</p>
+<p>
+<em>Cais de canal:</em> constrói uma doca em um canal na área de jogo para navios e barcaças recolherem e entregarem mercadorias, passageiros e correio.<br>
+Quando uma doca não for construída ao lado de uma <a href="station.txt">parada</a> existente, será criada uma nova.<br>
+Uma doca possui uma área de captura para mercadorias, passageiros e correio. No canto superior esquerdo um ícone (usado na <a href="haltlist.txt">Lista de paradas</a> e nas <a href="station.txt">Informações das estações</a>) mostra que tipos de itens uma parada suporta.<br>
+Para construir uma doca: clique na ferramenta para ativá-la (o cursor mudará para um cais de canal); e clique em um ponto do canal na área de jogo.<br>
+{Dicas: remova as docas com a ferramenta Remover. Pressione [v] para mostrar/ocultar a área de captura para mercadorias, passageiros e correio na área de jogo.<br>
+Paradas somente de veículos aquáticos não serão listadas na <a href="haltlist.txt">Lista de paradas/estações</a>}.
+</p>
+<p>
+<em>Paradas marinhas:</em> os vários itens a seguir constróem docas na área de jogo para veículos aquáticos.<br>
+Docas são construídas em uma porção reta da costa.<br>
+Quando uma doca não for construída ao lado de uma <a href="station.txt">parada</a> existente, será criada uma nova.<br>
+Uma doca possui uma área de captura para mercadorias, passageiros e correio. No canto superior esquerdo um ícone (usado na <a href="haltlist.txt">Lista de paradas</a> e nas <a href="station.txt">Informações das Estações</a>) mostra que tipos de itens uma parada suporta. Diferentes docas podem ter diferentes capacidades para mercadorias, passageiros e correio.<br>
+Para construir uma doca: clique na ferramenta para ativá-la (o cursor mudará para uma doca) e então clique em um quadro adjacente ao mar.<br>
+{Dicas: remova docas com a ferramenta Remover.<br>
+O tamanho das docas pode ser incrementado construindo nos quadros adjacentes. Veículos de transporte aquático podem usar qualquer quadro de água na área de captura da doca.<br>
+Paradas somente de veículos aquáticos não serão listadas na <a href="haltlist.txt">Lista de paradas/estações</a>}.
+<a href="industry_info.txt">Indústrias</a> em alto-mar como plataformas de petróleo não precisam de docas. Veículos de transporte aquático podem usar qualquer quadro da área de captura da indústria.<br>
+Pressione [v] para mostrar/ocultar a área de captura para mercadorias, passageiros e correio na área de jogo.
+</p>
+<p>
+<em>Construir <a href="depot.txt"><em>estaleiro:</em></a></em> constrói um depósito para a compra e gerenciamento de navios, barcos e barcaças. Depósitos possuem um custo de manutenção e são construídos dentro d'água na área de jogo.<br>
+Para construir um estaleiro: clique na ferramenta para ativá-la (o cursor mudará para um estaleiro), e clique na água na área de jogo.<br>
+{Dicas: remova os depósitos com a ferramenta Remover.}
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+</p>

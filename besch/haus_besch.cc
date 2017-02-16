@@ -5,8 +5,10 @@
  */
 #include "../simdebug.h"
 
+#include "../simworld.h"
+
 #include "haus_besch.h"
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
 
 
 
@@ -14,55 +16,46 @@
  *  Autor:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      Rechnet aus dem Index das Layout aus, zu dem diese Tile gehört.
  */
-uint8 haus_tile_besch_t::get_layout() const
+uint8 building_tile_desc_t::get_layout() const
 {
-	koord groesse = get_besch()->get_groesse();
-	return index / (groesse.x * groesse.y);
+	koord size = get_desc()->get_size();
+	return index / (size.x * size.y);
 }
-
 
 
 /*
  *  Autor:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      Bestimmt die Relativ-Position des Einzelbildes im Gesamtbild des
  *	Gebäudes.
+ *
+ * Description: Specifies the relative position of the frame in the overall image of the building. (Google)
  */
-koord haus_tile_besch_t::get_offset() const
+koord building_tile_desc_t::get_offset() const
 {
-	const haus_besch_t *besch = get_besch();
-	koord groesse = besch->get_groesse(get_layout());	// ggf. gedreht
-	return koord( index % groesse.x, (index / groesse.x) % groesse.y );
+	const building_desc_t *desc = get_desc();
+	koord size = desc->get_size(get_layout());	// ggf. gedreht ("rotated" - Google)
+	return koord( index % size.x, (index / size.x) % size.y );
 }
 
 
 
-waytype_t haus_besch_t::get_finance_waytype() const
+waytype_t building_desc_t::get_finance_waytype() const
 {
-	switch( get_utyp() )
+	switch( get_type() )
 	{
-		case haus_besch_t::bahnhof:      return track_wt;
-		case haus_besch_t::bushalt:      return road_wt;
-		case haus_besch_t::hafen:        return water_wt;
-		case haus_besch_t::binnenhafen:  return water_wt;
-		case haus_besch_t::airport:      return air_wt;
-		case haus_besch_t::monorailstop: return monorail_wt;
-		case haus_besch_t::bahnhof_geb:  return track_wt;
-		case haus_besch_t::bushalt_geb:  return road_wt;
-		case haus_besch_t::hafen_geb:    return water_wt;
-		case haus_besch_t::binnenhafen_geb: return water_wt;
-		case haus_besch_t::airport_geb:  return air_wt;
-		case haus_besch_t::monorail_geb: return monorail_wt;
-		case haus_besch_t::depot:
-		case haus_besch_t::generic_stop:
-		case haus_besch_t::generic_extension:
+		case dock:				return water_wt;
+		case flat_dock:			return water_wt;
+		case depot:
+		case generic_stop:
+		case generic_extension:
 			return (waytype_t) get_extra();
-		default: return ignore_wt;
+		default:							return ignore_wt;
 	}
 }
 
@@ -72,13 +65,13 @@ waytype_t haus_besch_t::get_finance_waytype() const
  * Mail generation level
  * @author Hj. Malthaner
  */
-uint16 haus_besch_t::get_post_level() const
+uint16 building_desc_t::get_mail_level() const
 {
-	switch (gtyp) {
+	switch (type) {
 		default:
-		case gebaeude_t::wohnung:   return level; // Home
-		case gebaeude_t::gewerbe:   return level * 2; // "Trade" (Google Translator)
-		case gebaeude_t::industrie: return level / 2; // Industry
+		case city_res:   return level; // Home
+		case city_com:   return level * 2; // "Trade" (Google Translator)
+		case city_ind: return level / 2; // Industry
 	}
 }
 
@@ -88,13 +81,15 @@ uint16 haus_besch_t::get_post_level() const
  * true, if this building needs a connection with a town
  * @author prissi
  */
-bool haus_besch_t::is_connected_with_town() const
+bool building_desc_t::is_connected_with_town() const
 {
-	switch(get_utyp()) {
-		case haus_besch_t::unbekannt:	// normal town buildings (RES, COM, IND)
-		case haus_besch_t::denkmal:	// monuments
-		case haus_besch_t::rathaus:	// townhalls
-		case haus_besch_t::firmensitz:	// headquarter
+	switch (get_type()) {
+		case city_res:
+		case city_com:
+		case city_ind:    // normal town buildings (RES, COM, IND)
+		case monument:     // monuments
+		case townhall:     // townhalls
+		case headquarter:  // headquarter
 			return true;
 		default:
 			return false;
@@ -102,23 +97,22 @@ bool haus_besch_t::is_connected_with_town() const
 }
 
 
-
 /*
  *  Autor:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      Abhängig von Position und Layout ein tile zurückliefern
  */
-const haus_tile_besch_t *haus_besch_t::get_tile(int layout, int x, int y) const
+const building_tile_desc_t *building_desc_t::get_tile(int layout, int x, int y) const
 {
-	layout = layout_anpassen(layout);
-	koord dims = get_groesse(layout);
+	layout = adjust_layout(layout);
+	koord dims = get_size(layout);
 
-	if(layout < 0  ||  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_b(layout)  ||  y >= get_h(layout)) {
-	dbg->fatal("haus_tile_besch_t::get_tile()",
+	if(layout < 0  ||  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_x(layout)  ||  y >= get_y(layout)) {
+	dbg->fatal("building_tile_desc_t::get_tile()",
 			   "invalid request for l=%d, x=%d, y=%d on building %s (l=%d, x=%d, y=%d)",
-		   layout, x, y, get_name(), layouts, groesse.x, groesse.y);
+		   layout, x, y, get_name(), layouts, size.x, size.y);
 	}
 	return get_tile(layout * dims.x * dims.y + y * dims.x + x);
 }
@@ -129,10 +123,10 @@ const haus_tile_besch_t *haus_besch_t::get_tile(int layout, int x, int y) const
  *  Autor:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      Layout normalisieren.
  */
-int haus_besch_t::layout_anpassen(int layout) const
+int building_desc_t::adjust_layout(int layout) const
 {
 	if(layout >= 4 && layouts <= 4) {
 		layout -= 4;
@@ -143,7 +137,7 @@ int haus_besch_t::layout_anpassen(int layout) const
 	}
 	if(layout > 0 && layouts <= 1) {
 		// Ist Layout B nicht definiert und das Teil quadratisch, nehmen wir ersatzweise A
-		if(groesse.x == groesse.y) {
+		if(size.x == size.y) {
 			layout--;
 		}
 	}
@@ -151,28 +145,29 @@ int haus_besch_t::layout_anpassen(int layout) const
 }
 
 
-void haus_besch_t::calc_checksum(checksum_t *chk) const
+void building_desc_t::calc_checksum(checksum_t *chk) const
 {
-	chk->input((uint8)gtyp);
-	chk->input((uint8)utype);
+	obj_desc_timelined_t::calc_checksum(chk);
+	chk->input((uint8)type);
 	chk->input(animation_time);
 	chk->input(extra_data);
-	chk->input(groesse.x);
-	chk->input(groesse.y);
+	chk->input(size.x);
+	chk->input(size.y);
 	chk->input((uint8)flags);
 	chk->input(level);
 	chk->input(layouts);
 	chk->input(enables);
 	chk->input(chance);
 	chk->input((uint8)allowed_climates);
-	chk->input(intro_date);
-	chk->input(obsolete_date);
+	chk->input(maintenance);
+	chk->input(price);
+	chk->input(capacity);
 	chk->input(allow_underground);
 	// now check the layout
 	for(uint8 i=0; i<layouts; i++) {
-		sint16 b=get_b(i);
+		sint16 b=get_x(i);
 		for(sint16 x=0; x<b; x++) {
-			sint16 h=get_h(i);
+			sint16 h=get_y(i);
 			for(sint16 y=0; y<h; y++) {
 				if (get_tile(i,x,y)  &&  get_tile(i,x,y)->has_image()) {
 					chk->input((sint16)(x+y+i));
@@ -181,10 +176,6 @@ void haus_besch_t::calc_checksum(checksum_t *chk) const
 		}
 	}
 
-	//Experimental settings
-	chk->input(station_maintenance);
-	chk->input(station_price);
-	chk->input(station_capacity);
-	chk->input(allow_underground ? 1 : 0);
-	chk->input(is_control_tower ? 1 : 0);
+	//Extended settings
+	chk->input(is_control_tower);
 }

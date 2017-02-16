@@ -23,6 +23,8 @@ class image_writer_t : public obj_writer_t {
 
 		image_writer_t() { register_writer(false); }
 
+		static uint32 block_getpix(int x, int y);
+
 	public:
 		static void dump_special_histogramm();
 
@@ -33,18 +35,10 @@ class image_writer_t : public obj_writer_t {
 		virtual obj_type get_type() const { return obj_image; }
 		virtual const char* get_type_name() const { return "image"; }
 
-		void write_obj(FILE* fp, obj_node_t& parent, std::string imagekey);
+		void write_obj(FILE* fp, obj_node_t& parent, std::string imagekey, uint32 index);
 
 	private:
 		bool block_laden(const char* fname);
-
-		static uint32 block_getpix(int x, int y)
-		{
-			return
-				(block[y * width * 3 + x * 3 + 0] << 16) +
-				(block[y * width * 3 + x * 3 + 1] <<  8) +
-				(block[y * width * 3 + x * 3 + 2] <<  0);
-		}
 
 		/**
 		 * Encodes an image into a sprite data structure, considers

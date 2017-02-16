@@ -10,15 +10,15 @@
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
-#include "../dataobj/network.h"
-#include "../dataobj/network_cmd_scenario.h"
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/environment.h"
+#include "../network/network.h"
+#include "../network/network_cmd_scenario.h"
+#include "../dataobj/schedule.h"
 
 #include "../utils/cbuffer_t.h"
 
 // error popup
-#include "../simwin.h"
+#include "../gui/simwin.h"
 #include "../gui/scenario_info.h"
 
 // scripting
@@ -52,6 +52,7 @@ scenario_t::scenario_t(karte_t *w) :
 	won = false;
 	lost = false;
 	rdwr_error = false;
+	need_toolbar_update = false;
 
 	cached_text_files.clear();
 }
@@ -92,7 +93,9 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 		dbg->warning("scenario_t::init", "error [%s] calling get_map_file", err);
 		return "No scenario map specified";
 	}
-	else {
+
+	// if savegame-string == "<attach>" then do not load a savegame, just attach to running game.
+	if ( strcmp(mapfile, "<attach>") ) {
 		// savegame location
 		buf.clear();
 		buf.printf("%s%s/%s", scenario_base, scenario_name_, mapfile.c_str());
@@ -100,12 +103,11 @@ const char* scenario_t::init( const char *scenario_base, const char *scenario_na
 			dbg->warning("scenario_t::init", "error loading savegame %s", err, (const char*)buf);
 			return "Could not load scenario map!";
 		}
+		// set savegame name
+		buf.clear();
+		buf.printf("%s.sve", scenario_name.c_str());
+		welt->get_settings().set_filename( strdup(buf) );
 	}
-
-	// set savegame name
-	buf.clear();
-	buf.printf("%s.sve", scenario_name.c_str());
-	welt->get_settings().set_filename( strdup(buf) );
 
 	// load translations
 	translator::load_files_from_folder( scenario_path.c_str(), "scenario" );
@@ -139,13 +141,23 @@ bool scenario_t::load_script(const char* filename)
 	export_global_constants(script->get_vm());
 	// load scenario base definitions
 	char basefile[1024];
-	sprintf( basefile, "%sscript/scenario_base.nut", umgebung_t::program_dir );
+	sprintf( basefile, "%sscript/scenario_base.nut", env_t::program_dir );
 	const char* err = script->call_script(basefile);
 	if (err) { // should not happen ...
 		dbg->error("scenario_t::load_script", "error [%s] calling %s", err, basefile);
 		return false;
 	}
-	register_export_function(script->get_vm(), welt);
+
+	// register api functions
+	register_export_function(script->get_vm());
+	err = script->get_error();
+	if (err) {
+		dbg->error("scenario_t::load_script", "error [%s] calling register_export_function", err);
+		return false;
+	}
+
+	// init strings
+	dynamic_string::init();
 
 	// load scenario definition
 	err = script->call_script(filename);
@@ -333,19 +345,14 @@ void scenario_t::intern_forbid(forbidden_t *test, bool forbid)
 		changed = true;
 	}
 end:
-	if (changed) {
-		switch(type) {
-			case forbidden_t::forbid_tool:
-				werkzeug_t::update_toolbars(welt);
-				break;
-			default: ;
-		}
+	if (changed  &&  type==forbidden_t::forbid_tool) {
+		need_toolbar_update = true;
 	}
 }
 
 void scenario_t::call_forbid_tool(forbidden_t *test, bool forbid)
 {
-	if (umgebung_t::server) {
+	if (env_t::server) {
 		// send information over network
 		nwc_scenario_rules_t *nws = new nwc_scenario_rules_t(welt->get_sync_steps() + 1, welt->get_map_counter());
 		nws->rule = test;
@@ -358,67 +365,67 @@ void scenario_t::call_forbid_tool(forbidden_t *test, bool forbid)
 	}
 }
 
-void scenario_t::forbid_tool(uint8 player_nr, uint16 wkz_id)
+void scenario_t::forbid_tool(uint8 player_nr, uint16 tool_id)
 {
-	forbidden_t *test = new forbidden_t(forbidden_t::forbid_tool, player_nr, wkz_id, invalid_wt);
+	forbidden_t *test = new forbidden_t(forbidden_t::forbid_tool, player_nr, tool_id, invalid_wt);
 	call_forbid_tool(test, true);
 }
 
 
-void scenario_t::allow_tool(uint8 player_nr, uint16 wkz_id)
+void scenario_t::allow_tool(uint8 player_nr, uint16 tool_id)
 {
-	forbidden_t *test = new forbidden_t(forbidden_t::forbid_tool, player_nr, wkz_id, invalid_wt);
+	forbidden_t *test = new forbidden_t(forbidden_t::forbid_tool, player_nr, tool_id, invalid_wt);
 	call_forbid_tool(test, false);
 }
 
 
-void scenario_t::forbid_way_tool(uint8 player_nr, uint16 wkz_id, waytype_t wt)
+void scenario_t::forbid_way_tool(uint8 player_nr, uint16 tool_id, waytype_t wt)
 {
-	forbidden_t *test = new forbidden_t(forbidden_t::forbid_tool, player_nr, wkz_id, wt);
+	forbidden_t *test = new forbidden_t(forbidden_t::forbid_tool, player_nr, tool_id, wt);
 	call_forbid_tool(test, true);
 }
 
 
-void scenario_t::allow_way_tool(uint8 player_nr, uint16 wkz_id, waytype_t wt)
+void scenario_t::allow_way_tool(uint8 player_nr, uint16 tool_id, waytype_t wt)
 {
-	forbidden_t *test = new forbidden_t(forbidden_t::forbid_tool, player_nr, wkz_id, wt);
+	forbidden_t *test = new forbidden_t(forbidden_t::forbid_tool, player_nr, tool_id, wt);
 	call_forbid_tool(test, false);
 }
 
 
-void scenario_t::forbid_way_tool_rect(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord pos_nw, koord pos_se, plainstring err)
+void scenario_t::forbid_way_tool_rect(uint8 player_nr, uint16 tool_id, waytype_t wt, koord pos_nw, koord pos_se, plainstring err)
 {
-	forbid_way_tool_cube(player_nr, wkz_id, wt, koord3d(pos_nw, -128), koord3d(pos_se, 127), err);
+	forbid_way_tool_cube(player_nr, tool_id, wt, koord3d(pos_nw, -128), koord3d(pos_se, 127), err);
 }
 
 
-void scenario_t::allow_way_tool_rect(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord pos_nw, koord pos_se)
+void scenario_t::allow_way_tool_rect(uint8 player_nr, uint16 tool_id, waytype_t wt, koord pos_nw, koord pos_se)
 {
-	allow_way_tool_cube(player_nr, wkz_id, wt, koord3d(pos_nw, -128), koord3d(pos_se, 127));
+	allow_way_tool_cube(player_nr, tool_id, wt, koord3d(pos_nw, -128), koord3d(pos_se, 127));
 }
 
 
-void scenario_t::forbid_way_tool_cube(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord3d pos_nw_0, koord3d pos_se_0, plainstring err)
+void scenario_t::forbid_way_tool_cube(uint8 player_nr, uint16 tool_id, waytype_t wt, koord3d pos_nw_0, koord3d pos_se_0, plainstring err)
 {
 	koord pos_nw( min(pos_nw_0.x, pos_se_0.x), min(pos_nw_0.y, pos_se_0.y));
 	koord pos_se( max(pos_nw_0.x, pos_se_0.x), max(pos_nw_0.y, pos_se_0.y));
 	sint8 hmin( min(pos_nw_0.z, pos_se_0.z) );
 	sint8 hmax( max(pos_nw_0.z, pos_se_0.z) );
 
-	forbidden_t *test = new forbidden_t(player_nr, wkz_id, wt, pos_nw, pos_se, hmin, hmax);
+	forbidden_t *test = new forbidden_t(player_nr, tool_id, wt, pos_nw, pos_se, hmin, hmax);
 	test->error = err;
 	call_forbid_tool(test, true);
 }
 
 
-void scenario_t::allow_way_tool_cube(uint8 player_nr, uint16 wkz_id, waytype_t wt, koord3d pos_nw_0, koord3d pos_se_0)
+void scenario_t::allow_way_tool_cube(uint8 player_nr, uint16 tool_id, waytype_t wt, koord3d pos_nw_0, koord3d pos_se_0)
 {
 	koord pos_nw( min(pos_nw_0.x, pos_se_0.x), min(pos_nw_0.y, pos_se_0.y));
 	koord pos_se( max(pos_nw_0.x, pos_se_0.x), max(pos_nw_0.y, pos_se_0.y));
 	sint8 hmin( min(pos_nw_0.z, pos_se_0.z) );
 	sint8 hmax( max(pos_nw_0.z, pos_se_0.z) );
 
-	forbidden_t *test = new forbidden_t(player_nr, wkz_id, wt, pos_nw, pos_se, hmin, hmax);
+	forbidden_t *test = new forbidden_t(player_nr, tool_id, wt, pos_nw, pos_se, hmin, hmax);
 	call_forbid_tool(test, false);
 }
 
@@ -426,18 +433,19 @@ void scenario_t::allow_way_tool_cube(uint8 player_nr, uint16 wkz_id, waytype_t w
 void scenario_t::clear_rules()
 {
 	clear_ptr_vector(forbidden_tools);
+	need_toolbar_update = true;
 }
 
 
-bool scenario_t::is_tool_allowed(spieler_t* sp, uint16 wkz_id, sint16 wt)
+bool scenario_t::is_tool_allowed(const player_t* player, uint16 tool_id, sint16 wt)
 {
 	if (what_scenario != SCRIPTED  &&  what_scenario != SCRIPTED_NETWORK) {
 		return true;
 	}
 	// first test the list
 	if (!forbidden_tools.empty()) {
-		forbidden_t test(forbidden_t::forbid_tool, PLAYER_UNOWNED, wkz_id, invalid_wt);
-		uint8 player_nr = sp  ?  sp->get_player_nr() :  PLAYER_UNOWNED;
+		forbidden_t test(forbidden_t::forbid_tool, PLAYER_UNOWNED, tool_id, invalid_wt);
+		uint8 player_nr = player  ?  player->get_player_nr() :  PLAYER_UNOWNED;
 
 		// first test waytype invalid_wt, then wt
 		// .. and all players then specific player
@@ -459,14 +467,14 @@ bool scenario_t::is_tool_allowed(spieler_t* sp, uint16 wkz_id, sint16 wt)
 	// then call script if available
 	if (what_scenario == SCRIPTED) {
 		bool ok = true;
-		const char* err = script->call_function("is_tool_allowed", ok, (uint8)(sp  ?  sp->get_player_nr() : PLAYER_UNOWNED), wkz_id, wt);
+		const char* err = script->call_function("is_tool_allowed", ok, (uint8)(player  ?  player->get_player_nr() : PLAYER_UNOWNED), tool_id, wt);
 		return err != NULL  ||  ok;
 	}
 
 	return true;
 }
 
-const char* scenario_t::is_work_allowed_here(spieler_t* sp, uint16 wkz_id, sint16 wt, koord3d pos)
+const char* scenario_t::is_work_allowed_here(const player_t* player, uint16 tool_id, sint16 wt, koord3d pos)
 {
 	if (what_scenario != SCRIPTED  &&  what_scenario != SCRIPTED_NETWORK) {
 		return NULL;
@@ -474,8 +482,8 @@ const char* scenario_t::is_work_allowed_here(spieler_t* sp, uint16 wkz_id, sint1
 
 	// first test the list
 	if (!forbidden_tools.empty()) {
-		forbidden_t test(forbidden_t::forbid_tool_rect, PLAYER_UNOWNED, wkz_id, invalid_wt);
-		uint8 player_nr = sp  ?  sp->get_player_nr() :  PLAYER_UNOWNED;
+		forbidden_t test(forbidden_t::forbid_tool_rect, PLAYER_UNOWNED, tool_id, invalid_wt);
+		uint8 player_nr = player  ?  player->get_player_nr() :  PLAYER_UNOWNED;
 
 		// first test waytype invalid_wt, then wt
 		// .. and all players then specific player
@@ -510,7 +518,7 @@ const char* scenario_t::is_work_allowed_here(spieler_t* sp, uint16 wkz_id, sint1
 	// which is done per client
 	if (what_scenario == SCRIPTED) {
 		static plainstring msg;
-		const char *err = script->call_function("is_work_allowed_here", msg, (uint8)(sp ? sp->get_player_nr() : PLAYER_UNOWNED), wkz_id, pos);
+		const char *err = script->call_function("is_work_allowed_here", msg, (uint8)(player ? player->get_player_nr() : PLAYER_UNOWNED), tool_id, pos);
 
 		return err == NULL ? msg.c_str() : NULL;
 	}
@@ -518,20 +526,20 @@ const char* scenario_t::is_work_allowed_here(spieler_t* sp, uint16 wkz_id, sint1
 }
 
 
-const char* scenario_t::is_schedule_allowed(spieler_t* sp, schedule_t* schedule)
+const char* scenario_t::is_schedule_allowed(const player_t* player, const schedule_t* schedule)
 {
 	// sanity checks
 	if (schedule == NULL) {
 		return "";
 	}
-	if (schedule->empty()  ||  umgebung_t::server) {
+	if (schedule->empty()  ||  env_t::server) {
 		// empty schedule, networkgame: all allowed
 		return NULL;
 	}
 	// call script
 	if (what_scenario == SCRIPTED) {
 		static plainstring msg;
-		const char *err = script->call_function("is_schedule_allowed", msg, (uint8)(sp ? sp->get_player_nr() : PLAYER_UNOWNED), schedule);
+		const char *err = script->call_function("is_schedule_allowed", msg, (uint8)(player ? player->get_player_nr() : PLAYER_UNOWNED), schedule);
 
 		return err == NULL ? msg.c_str() : NULL;
 	}
@@ -552,7 +560,7 @@ void scenario_t::step()
 {
 	if (!script) {
 		// update texts at clients if info window open
-		if (umgebung_t::networkmode  &&  !umgebung_t::server  &&  win_get_magic(magic_scenario_info)) {
+		if (env_t::networkmode  &&  !env_t::server  &&  win_get_magic(magic_scenario_info)) {
 			update_scenario_texts();
 		}
 		return;
@@ -563,20 +571,20 @@ void scenario_t::step()
 
 	// first check, whether win/loss state of any player changed
 	for(uint32 i=0; i<PLAYER_UNOWNED; i++) {
-		spieler_t *sp = welt->get_spieler(i);
+		player_t *player = welt->get_player(i);
 		uint16 mask = 1 << i;
 		// player exists and has not won/lost yet
-		if (sp  &&  (((won | lost) & mask)==0)) {
+		if (player  &&  (((won | lost) & mask)==0)) {
 			sint32 percentage = 0;
-			script->call_function("is_scenario_completed", percentage, (uint8)(sp ? sp->get_player_nr() : PLAYER_UNOWNED));
+			script->call_function("is_scenario_completed", percentage, (uint8)(player ? player->get_player_nr() : PLAYER_UNOWNED));
 
 			// script might have deleted the player
-			sp = welt->get_spieler(i);
-			if (sp == NULL) {
+			player = welt->get_player(i);
+			if (player == NULL) {
 				continue;
 			}
 
-			sp->set_scenario_completion(percentage);
+			player->set_scenario_completion(percentage);
 			// won ?
 			if (percentage >= 100) {
 				new_won |= mask;
@@ -591,7 +599,7 @@ void scenario_t::step()
 	update_won_lost(new_won, new_lost);
 
 	// server sends the new state to the clients
-	if (umgebung_t::server  &&  (new_won | new_lost)) {
+	if (env_t::server  &&  (new_won | new_lost)) {
 		nwc_scenario_t *nwc = new nwc_scenario_t();
 		nwc->won = new_won;
 		nwc->lost = new_lost;
@@ -602,6 +610,27 @@ void scenario_t::step()
 	// update texts
 	if (win_get_magic(magic_scenario_info) ) {
 		update_scenario_texts();
+	}
+
+	// update toolbars if necessary
+	if (need_toolbar_update) {
+		tool_t::update_toolbars();
+		need_toolbar_update = false;
+	}
+}
+
+
+void scenario_t::new_month()
+{
+	if (script) {
+		script->call_function("new_month");
+	}
+}
+
+void scenario_t::new_year()
+{
+	if (script) {
+		script->call_function("new_year");
 	}
 }
 
@@ -630,13 +659,13 @@ void scenario_t::update_won_lost(uint16 new_won, uint16 new_lost)
 
 void scenario_t::update_scenario_texts()
 {
-	spieler_t *sp = welt->get_active_player();
-	info_text.update(script, sp);
-	goal_text.update(script, sp);
-	rule_text.update(script, sp);
-	result_text.update(script, sp);
-	about_text.update(script, sp);
-	description_text.update(script, sp);
+	player_t *player = welt->get_active_player();
+	info_text.update(script, player);
+	goal_text.update(script, player);
+	rule_text.update(script, player);
+	result_text.update(script, player);
+	about_text.update(script, player);
+	description_text.update(script, player);
 }
 
 
@@ -690,7 +719,7 @@ bool scenario_t::open_info_win() const
 	// pop up for the win
 	scenario_info_t *si = (scenario_info_t*)win_get_magic(magic_scenario_info);
 	if (si == NULL) {
-		si = new scenario_info_t(welt);
+		si = new scenario_info_t();
 		create_win(si, w_info, magic_scenario_info);
 	}
 	si->open_result_tab();
@@ -729,7 +758,7 @@ void scenario_t::rdwr(loadsave_t *file)
 			plainstring str;
 			file->rdwr_str(str);
 			dbg->warning("scenario_t::rdwr", "loaded persistent scenario data: %s", str.c_str());
-			if (umgebung_t::networkmode   &&  !umgebung_t::server) {
+			if (env_t::networkmode   &&  !env_t::server) {
 				// client playing network scenario game:
 				// script files are not available
 				what_scenario = SCRIPTED_NETWORK;
@@ -739,14 +768,18 @@ void scenario_t::rdwr(loadsave_t *file)
 				// load script
 				cbuffer_t script_filename;
 
-				// try addon directory first
-				scenario_path = ( std::string("addons/") + umgebung_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
-				script_filename.printf("%sscenario.nut", scenario_path.c_str());
-				rdwr_error = !load_script(script_filename);
+				// assume error
+				rdwr_error = true;
+ 				// try addon directory first
+				if (env_t::default_settings.get_with_private_paks()) {
+					scenario_path = ( std::string("addons/") + env_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
+					script_filename.printf("%sscenario.nut", scenario_path.c_str());
+					rdwr_error = !load_script(script_filename);
+				}
 
 				// failed, try scenario from pakset directory
 				if (rdwr_error) {
-					scenario_path = (umgebung_t::program_dir + umgebung_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
+					scenario_path = (env_t::program_dir + env_t::objfilename + "scenario/" + scenario_name.c_str() + "/").c_str();
 					script_filename.clear();
 					script_filename.printf("%sscenario.nut", scenario_path.c_str());
 					rdwr_error = !load_script(script_filename);
@@ -789,6 +822,11 @@ void scenario_t::rdwr(loadsave_t *file)
 		forbidden_tools[i]->rdwr(file);
 	}
 
+	// cached strings
+	if (file->get_version() >= 120003) {
+		dynamic_string::rdwr_cache(file);
+	}
+
 	if (what_scenario == SCRIPTED  &&  file->is_loading()  &&  !rdwr_error) {
 		const char* err = script->call_function("resume_game");
 		if (err) {
@@ -825,12 +863,12 @@ int scenario_t::get_completion(int player_nr)
 	}
 
 	sint32 percentage = 0;
-	spieler_t *sp = welt->get_spieler(player_nr);
+	player_t *player = welt->get_player(player_nr);
 
 	if ( what_scenario == SCRIPTED ) {
 		// take cached value
-		if (sp) {
-			percentage = sp->get_scenario_completion();
+		if (player) {
+			percentage = player->get_scenario_completion();
 		}
 	}
 	else if ( what_scenario == SCRIPTED_NETWORK ) {
@@ -839,8 +877,8 @@ int scenario_t::get_completion(int player_nr)
 		const char *ret = dynamic_string::fetch_result((const char*)buf, NULL, NULL);
 		percentage = ret ? atoi(ret) : 0;
 		// cache value
-		if (sp) {
-			sp->set_scenario_completion(percentage);
+		if (player) {
+			player->set_scenario_completion(percentage);
 		}
 	}
 	return min( 100, percentage);

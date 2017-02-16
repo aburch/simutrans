@@ -1,0 +1,21 @@
+<title>Kleur van de speler Help (Nederlands)</title>
+
+<h1><strong>Kleur van de speler</strong></h1>
+
+<p>
+<strong>Kleur van de spelers</strong> bepaalt de kleur van de speler.<br>
+Voertuigen, gebouwen en andere zaken krijgen de kleur van de speler.
+</p>
+<p>
+<strong>Kleur van de speler</strong> wordt geactiveerd door de optie kleuren te kiezen vanuit het <a href="options.txt">Hoofdmenu</a>.
+</p>
+<p>Klik op de knop met de kleur van je keuze om de kleur voor de speler te wijzigen.<br>
+De titelbalk van <strong>Kleur van de speler</strong> scherm zal van kleur veranderen (niet in de nieuw gekozen kleur) om aan te geven dat de instelling is gewijzigd.
+</p>
+<p>
+Standaard kleur voor de mens is licht blauw.<br>
+Niet alle objecten zijn geschikt om in de kleur van de speler te worden getoond.
+</p>
+<p>
+{TIP: Om de kleur van een AI (= kunstmatige intelligentie = computer) speler te wijzigen kies eerst de  <a href="players.txt">Lijst met spelers</a> of <a href="special.txt">P</a> (net zo vaak totdat je de speler van je keuze bent) om van speler te wisselen}.
+</p>

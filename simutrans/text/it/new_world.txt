@@ -1,0 +1,72 @@
+<title>Aiuto - Nuovo Mondo</title>
+
+<h1>Finestra di dialogo Nuovo Mondo</h1>
+
+<p>
+Attraverso questa finestra di dialogo si possono cambiare i parametri
+che determinano le caratteristiche della mappa che si sta creando per
+iniziare un nuovo gioco.
+Inoltre, nell'angolo in alto a sinistra appare una finestra per la
+selezione della lingua di gioco.
+</p>
+<p>
+Il primo parametro è il numero della mappa. Esso determina il 'layout'
+della mappa, ad es. quantità e dislocazione dell'acqua, delle colline,
+degli alberi, la posizione delle città e delle fabbriche.
+Viene mostrata un'anteprima per ogni mappa. Il numero di mappa di
+default è 33.
+</p>
+<p>
+Le dimensioni della mappa determinano quanto grande essa sarà. E' possibile
+impostare un valore compreso fra 128x128 e 576x576 quadrati. Il default
+è 256x256.
+</p>
+<p>
+La densità delle industrie determina quante fabbriche saranno inserite
+nella mappa. Più bassa è la densità e più difficile diveterà il gioco,
+poichè ci saranno meno possibilità di trasporto di beni. Il default
+è 125.
+</p>
+<p>
+Il numero di città indica il numero di insediamenti urbani che verranno
+inseriti nella mappa e può variare da 2 a 64. Il default è 16.
+</p>
+<p>
+La densità del traffico determina il numero di auto private che
+circoleranno nelle città. Il default è 8.
+</p>
+<p>
+Il livello dell'acqua determina quanto acqua sarà presente nella mappa.
+Più basso è questo valore e più terreno sarà presente, e viceversa.
+Il default è 4.
+</p>
+<p>
+L'altezza delle montagne indica l'altitudine della più alta montagna
+della mappa. Il default è 160.
+L'asprezza del terreno indica quanto pianeggiante sarà la mappa. Più questo valore è
+basso e meno colline e valli saranno presenti. il range di valori fra cui
+scegliere varia da 1 a 3. Il default è 2.
+</p>
+<p>
+Il pulsante "Mappa casuale" selezionerà un numero di mappa a caso.
+Questa operazione non modifica qualsiasi altra opzione che si avesse
+selezionato precedentemente.
+</p>
+<p>
+Il bottone "Mostra pedoni" determina se i pedoni verranno mostrati
+quando arrivano con un treno o un autobus.
+E' possibile cambiare questa impostazione in ogni momento anche
+durante il gioco attraverso la finestra di dialogo<a href="display.txt">Schermo</a>.
+</p>
+<p>
+Il pulsante "Mod. giorno e notte" abilita o disabilita la funzione di
+simulazione dell'alternarsi di luce e buio.
+E' possibile cambiare questa impostazione in ogni momento anche
+durante il gioco attraverso la finestra di dialogo<a href="display.txt">Schermo</a>.
+</p>
+<p>
+Il pulsante "Carica gioco" permette di scegliere un gioco da caricare.
+Il pulsante "Inizia gioco" fa iniziare un nuovo gioco creando una nuova mappa
+secondo i parametri indicati.
+Il pulsante "Esci" termina immediatamente l'esecuzione di Simutrans.
+</p>

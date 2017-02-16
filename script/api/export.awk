@@ -8,6 +8,7 @@ BEGIN {
 	returns = "void"
 	indent = ""
 	within_apidoc = 0
+	mask = ""
 }
 
 # match beginning of SQAPI_DOC block
@@ -73,6 +74,10 @@ function split_params(string)
 # beginning of class definition
 # begin_class("factory_x", "extend_get");
 /(begin|create)_.*class/ {
+	# ignore class name inside error messages as in 'dbg->error("create_class", "failed ..")'
+	if ( /dbg->(message|warning|error|fatal)/ ) {
+		next
+	}
 	# class with parent class
 	if ( /_class[^"]*"([^"]*)"[^"]*"([^"]*)".*/ ) {
 		match($0, /_class[^"]*"([^"]*)"[^"]*"([^"]*)".*/, data)
@@ -138,11 +143,10 @@ function split_params(string)
 
 # now the actual methods
 # first string enclosed by ".." is method name
-/register_function/  ||  /register_method/ {
+/register_function/  ||  /register_method/ ||  /register_local_method/{
 	match($0, /"([^"]*)"/, data)
 	method = data[1]
 	# check for param types
-	use_mask = 0
 	if ( (within_class "::" method) in export_types) {
 		mask = export_types[(within_class "::" method)]
 	}
@@ -153,7 +157,6 @@ function split_params(string)
 		match(mask, " *(.*)\\((.*)\\)", data)
 		returns = data[1]
 		split_params(data[2])
-		use_mask = 1
 		for (t in ptypes) {
 			if (!(t in params)) {
 				params[t]=""

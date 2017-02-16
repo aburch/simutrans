@@ -1,0 +1,61 @@
+<title>Way wear and upgrades</title>
+
+<h1>Way wear and upgrades</h1><br>
+<p>
+</p>
+<h1>Concept:</h1>
+<p>
+Ways (roads, railways, etc.) wear out over time as they are used and eventually need to be renewed. As each vehicle passes over a way, it wears it a little. Each type of way has a durability rating. Each vehicle has a way wear factor. Each time that a vehicle passes over a way, the vehicle's way wear factor is deducted from the way's durability rating to give the way's remaining wear capacity.
+Eventually, when the durability reaches a certain level, the way becomes degraded, and vehicles may only pass over it at half its normal maximum speed.
+When the durability reaches another level, the way will become completely degraded and impassable.
+Provided that the owner of the way has sufficient funds, however, it will automatically renew itself just before it becomes degraded, unless its owner has elected not to do so.
+The condition of all ways can be checked either in the info window of the way tile, or in the "wear" overlay for the <a href="map.txt">minimap</a>.<br>
+The owners of ways that are degraded are warned up to once a month in advance if renewals be not possible due to insufficient funds<br><br>
+The current treasholds for way downgrading (Pak.Britain-Ex):<br>
+Degrade to half the maximum speed: 14%<br>
+Degrade to impassable: 0%<br>
+<p>
+</p>
+<h1>Getting information about wear:</h1>
+<p>
+The <em>Durability</em> value of a way will be shown when hovering with the mouse over the way icon in the build menu.
+<p>
+</p>
+The <em>Way wear factor</em> that a vehicle will pass on a way tile is specified in the depot window. This number will be subtracted from the durability of each tile of way each time that the vehicle passes over it.<br>
+<p>
+</p>
+The following information relating to the state of ways is available by selecting a tile of way with the query tool:
+<p>
+</p>
+<em>Condition:</em> The current condition of the way tile, shown in percent. This represents the current wear capacity of the way in proportion to its durability rating. 
+<p>
+</p>
+<em>Built:</em> The month and year this way tile was originally built.
+<p>
+</p>
+<em>Last renewed:</em> The month and year this way tile was last renewed.
+<p>
+</p>
+<em>to be renewed with:</em> This is the type of way with which this way currently is scheduled to be renewed.<br>
+<p>
+</p>
+<h1>Actions:</h1>
+<p>
+You can <em>override automatic renewal</em> and choose which type of way with wich this way tile is about to upgrade to, by select the desired type of way and SHIFT-dragging this way over the old way. By default, a way will renew to the same type as currently if this is still available, or the closest current equivalent type if not. <p>
+</p>
+You can <em>disable automatic renewal</em> by SHIFT-dragging the way remover tool or the mothballed type of way over the way, and the way will behave in the same manners as when you have insufficient funds (degrade to half speed, then to impassable)<br>
+<p>
+</p>
+<h1>Details:</h1>
+<p>
+By default, road and air vehicles (air vehicles acting like road vehicles on the ground) calculate their wear using the fourth power law based on the maximum axle load and an attempt to deduce the weight. Rail and allied vehicles default to a power of 2. Water craft will default to zero, as water craft do not normally wear ways.<br>
+</p>
+<h1>Tips:</h1>
+<p>
+-- Take the <em>durability</em> value of a way in consideration when building ways intended for lots of traffic.<br><br>
+-- Modern vehicles tend to wear the ways more than older vehicles, but this is not universally so: check the depot window to see the way wear<br><br>
+-- Heavier vehicles tend to wear ways exponentially more than ligher vehicles, especially road vehicles (this is the fourth power law)<br><br>
+-- Steam locomotives tend to wear ways more than other types of rail vehicles due to hammer blow, but multiple cylinder steam locomotives have a reduced hammer blow effect. Look carefully at the way wear factor for powerful steam locomotives as those with two cylinders in particular can wear the track very heavily<br><br>
+-- An efficient way of upgrading ways if there is no urgency in doing so is to over-ride the automatic renewal with a better type of way rather than renew straight away. The way will then upgrade just before it wears out.<br>
+<p>
+</p>

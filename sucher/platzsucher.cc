@@ -14,7 +14,7 @@
 #include "../simtypes.h"
 #include "platzsucher.h"
 
-pos_liste_t::pos_liste_t(sint16 max_radius)
+pos_list_t::pos_list_t(sint16 max_radius)
 {
 	this->max_radius = max_radius + 1;
 	spalten = new sint16[this->max_radius];
@@ -22,13 +22,13 @@ pos_liste_t::pos_liste_t(sint16 max_radius)
 	neu_starten();
 }
 
-pos_liste_t::~pos_liste_t()
+pos_list_t::~pos_list_t()
 {
 	delete [] spalten;
 }
 
 
-void pos_liste_t::neu_starten()
+void pos_list_t::neu_starten()
 {
 	radius = 1;
 	spalten[0] = 0;
@@ -37,7 +37,7 @@ void pos_liste_t::neu_starten()
 }
 
 
-sint16 pos_liste_t::suche_beste_reihe()
+sint16 pos_list_t::suche_beste_reihe()
 {
 	sint16 best_dist = -1;
 	sint16 beste_reihe = -1;
@@ -60,7 +60,7 @@ sint16 pos_liste_t::suche_beste_reihe()
 }
 
 
-bool pos_liste_t::get_naechste_pos(koord &k)
+bool pos_list_t::get_naechste_pos(koord &k)
 {
 	if(reihe != -1) {
 		if(quadrant++ == 4) {
@@ -90,7 +90,7 @@ bool pos_liste_t::get_naechste_pos(koord &k)
 }
 
 
-bool pos_liste_t::get_pos(koord &k)
+bool pos_list_t::get_pos(koord &k)
 {
 	if(reihe != -1) {
 		switch(quadrant) {
@@ -112,23 +112,23 @@ bool pos_liste_t::get_pos(koord &k)
 }
 
 
-pos_liste_wh_t::pos_liste_wh_t(sint16 max_radius, sint16 b, sint16 h) :
-    pos_liste_t(max_radius)
+pos_list_wh_t::pos_list_wh_t(sint16 max_radius, sint16 b, sint16 h) :
+    pos_list_t(max_radius)
 {
 	neu_starten(b, h);
 }
 
 
-void pos_liste_wh_t::neu_starten(sint16 b, sint16 h)
+void pos_list_wh_t::neu_starten(sint16 b, sint16 h)
 {
 	this->b = b;
 	this->h = h;
 	dx = dy = 0;
-	pos_liste_t::neu_starten();
+	pos_list_t::neu_starten();
 }
 
 
-bool pos_liste_wh_t::get_naechste_pos(koord &k)
+bool pos_list_wh_t::get_naechste_pos(koord &k)
 {
 	get_pos(k);
 
@@ -156,7 +156,7 @@ bool pos_liste_wh_t::get_naechste_pos(koord &k)
 		}
 	}
 	else {
-		if(pos_liste_t::get_naechste_pos(k)) {
+		if(pos_list_t::get_naechste_pos(k)) {
 			if(k.y == 0) {
 				dy = h - 1;
 			}
@@ -208,7 +208,8 @@ bool platzsucher_t::ist_feld_ok(koord /*pos*/, koord /*d*/, climate_bits /*cl*/)
 
 koord platzsucher_t::suche_platz(koord start, sint16 b, sint16 h, climate_bits cl, bool *r)
 {
-	pos_liste_wh_t psuch1(welt->get_size_max(), b, h);
+	sint16 radius = max_radius > 0 ? max_radius : welt->get_size_max();
+	pos_list_wh_t psuch1(radius, b, h);
 
 	this->b = b;
 	this->h = h;
@@ -217,9 +218,9 @@ koord platzsucher_t::suche_platz(koord start, sint16 b, sint16 h, climate_bits c
 
 	if((r && *r) && b != h) {
 		//
-		// Hier suchen wir auch gedrehte Positionen.
+		// Hier suchen wir auch gedrehte Positionen..
 		//
-		pos_liste_wh_t psuch2(welt->get_size_max(), h, b);
+		pos_list_wh_t psuch2(radius, h, b);
 
 		if(ist_platz_ok(start, b, h, cl)) {
 			*r = false;

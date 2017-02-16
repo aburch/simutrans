@@ -1,0 +1,32 @@
+<title>Load Help</title>
+
+<h1><strong>Load</strong></h1>
+
+<p>
+The <strong>load</strong> allows a <a href="save.txt">saved</a> game to be re-loaded or deleted.<br>
+<em>Note:</em> When a game is loaded, it replaces the existing game. Any changes in the existing game since it was last saved will be lost.
+</p>
+<p>
+The <strong>load</strong> window opens from the <a href="new_world.txt">create new world</a> and <a href="options.txt">game options</a> windows, or by pressing <a href="keys.txt">[L]</a>.
+</p>
+<p>
+The window lists all the saved games (which are stored in a simutrans subfolder in your "My Documents" or /home directory depending on the operating system).
+</p>
+<p>
+The pakset is listd to the right: usually, games saved with one pakset active cannot be loaded with another pakset active. The saved games from the current pakset are at the top of the list.
+</p>
+<p>
+Click the name of a saved game in the list or enter the name manually into the box at the top of the window and click "OK" to load a game.
+</p>
+<p>
+The <em>[X]</em> buttons on the left of the list delete the saved game next to them. <strong>WARNING</strong> there is no confirmation dialogue. Pressing [X] will delete the game immediately and permanently. The load window will close when a game is deleted.
+</p>
+<p>
+IMPORTANT: New releases of Simutrans appear regularly; games saved in later releases of Simutrans may not be able to be loaded in earlier versions.
+</p>
+<p>
+<em>Note:</em> Simutrans-Extended can load games from Simutrans-Standard, but Simutrans-Standard cannot load games saved in Simutrans-Extended. 
+</p>
+<p>
+Click on <em>Cancel</em> to close the <strong>Load</strong> window.
+</p>

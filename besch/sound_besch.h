@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __sound_besch_t
-#define __sound_besch_t
+#ifndef __sound_desc_t
+#define __sound_desc_t
 
 #include "obj_besch_std_name.h"
 #include "../simtypes.h"
@@ -19,27 +19,27 @@
  *  Autor:
  *      prissi
  *
- *  Beschreibung:
+ *  Description:
  *      Sounds in the game; name is the file name
  *      ingame, sounds are referred to by their number
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
  */
 
-#define SFX_CASH sound_besch_t::get_compatible_sound_id(15)
-#define SFX_REMOVER sound_besch_t::get_compatible_sound_id(14)
-#define SFX_DOCK sound_besch_t::get_compatible_sound_id(13)
-#define SFX_GAVEL sound_besch_t::get_compatible_sound_id(12)
-#define SFX_JACKHAMMER sound_besch_t::get_compatible_sound_id(11)
-#define SFX_FAILURE sound_besch_t::get_compatible_sound_id(10)
-#define SFX_SELECT sound_besch_t::get_compatible_sound_id(9)
+#define SFX_CASH sound_desc_t::get_compatible_sound_id(15)
+#define SFX_REMOVER sound_desc_t::get_compatible_sound_id(14)
+#define SFX_DOCK sound_desc_t::get_compatible_sound_id(13)
+#define SFX_GAVEL sound_desc_t::get_compatible_sound_id(12)
+#define SFX_JACKHAMMER sound_desc_t::get_compatible_sound_id(11)
+#define SFX_FAILURE sound_desc_t::get_compatible_sound_id(10)
+#define SFX_SELECT sound_desc_t::get_compatible_sound_id(9)
 
 #define MAX_OLD_SOUNDS (16)
 
 
-class sound_besch_t : public obj_besch_std_name_t {
+class sound_desc_t : public obj_named_desc_t {
     friend class sound_reader_t;
 
 private:
@@ -56,7 +56,7 @@ public:
 
 	static sint16 get_sound_id(const char *name);
 
-	static bool register_besch(sound_besch_t *besch);
+	static bool register_desc(sound_desc_t *desc);
 
 	static void init();
 

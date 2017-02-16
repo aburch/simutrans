@@ -1,23 +1,33 @@
-/*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ï»¿/*
+ * Copyright (c) 1997 - 2001 Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
  */
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 #ifndef _MSC_VER
 #include <unistd.h>
 #include <sys/time.h>
 #endif
 
-#ifdef _WIN32
-// windows.h defines min and max macros which we don't want
-#define NOMINMAX 1
-#include <windows.h>
-#endif
+#include <signal.h>
 
 #include "macros.h"
+#include "simdebug.h"
+#include "simevent.h"
 #include "simsys.h"
 
+
+static bool sigterm_received = false;
+
+// no autoscaling as we have no display ...
+bool dr_auto_scale(bool)
+{
+	return false;
+}
 
 bool dr_os_init(const int*)
 {
@@ -66,7 +76,7 @@ void dr_prepare_flush()
 {
 }
 
-void dr_flush(void)
+void dr_flush()
 {
 }
 
@@ -87,17 +97,26 @@ int dr_screenshot(const char *,int,int,int,int)
 	return -1;
 }
 
-static inline unsigned int ModifierKeys(void)
+static inline unsigned int ModifierKeys()
 {
 	return 0;
 }
 
-void GetEvents(void)
-{
-}
+void GetEvents()
+ {
+	if(  sigterm_received  ) {
+		sys_event.type = SIM_SYSTEM;
+		sys_event.code = SYSTEM_QUIT;
+	}
+ }
 
-void GetEventsNoWait(void)
+
+void GetEventsNoWait()
 {
+	if(  sigterm_received  ) {
+		sys_event.type = SIM_SYSTEM;
+		sys_event.code = SYSTEM_QUIT;
+	}
 }
 
 void show_pointer(int)
@@ -110,8 +129,9 @@ void ex_ord_update_mx_my()
 
 static timeval first;
 
-unsigned long dr_time(void)
+uint32 dr_time()
 {
+#ifndef _MSC_VER
 	timeval second;
 	gettimeofday(&second,NULL);
 	if (first.tv_usec > second.tv_usec) {
@@ -119,7 +139,11 @@ unsigned long dr_time(void)
 		second.tv_usec += 1000000;
 		second.tv_sec--;
 	}
-	return (unsigned long)(second.tv_sec - first.tv_sec)*1000ul + (unsigned long)(unsigned long)(second.tv_usec - first.tv_usec)/1000ul;
+
+	return (second.tv_sec - first.tv_sec)*1000ul + (second.tv_usec - first.tv_usec)/1000ul;
+#else
+	return timeGetTime();
+#endif
 }
 
 void dr_sleep(uint32 msec)
@@ -140,9 +164,37 @@ void dr_sleep(uint32 msec)
 #endif
 }
 
+void dr_start_textinput()
+{
+}
+
+void dr_stop_textinput()
+{
+}
+
+void dr_notify_input_pos(int, int)
+{
+}
+
+static void posix_sigterm(int)
+{
+	dbg->important("Received SIGTERM, exiting...");
+	sigterm_received = 1;
+}
+
 
 int main(int argc, char **argv)
+ {
+	signal( SIGTERM, posix_sigterm );
+#ifndef _MSC_VER
+ 	gettimeofday(&first,NULL);
+#endif
+ 	return sysmain(argc, argv);
+ }
+
+#ifdef _WIN32
+int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 {
-	gettimeofday(&first,NULL);
-	return sysmain(argc, argv);
+	return 0;
 }
+#endif

@@ -9,7 +9,7 @@
 #include "../simtypes.h"
 #include "obj_besch_std_name.h"
 #include "bildliste2d_besch.h"
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
 
 /*
  *  Autor:
@@ -20,14 +20,14 @@
  * or move around the map (water_t=only on water, air_t=everywhere)
  * They are removable with certain costs.
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
- *	2   Bildliste2D
+ *	2   Image-list 2d
  */
 
 
-class groundobj_besch_t : public obj_besch_std_name_t {
+class groundobj_desc_t : public obj_named_desc_t {
 	friend class groundobj_reader_t;
 	friend class groundobj_t;
 	friend class movingobj_t;
@@ -46,8 +46,19 @@ public:
 
 	bool is_allowed_climate( climate cl ) const { return ((1<<cl)&allowed_climates)!=0; }
 
-	const bild_besch_t *get_bild(int season, int phase) const  	{
-		return get_child<bildliste2d_besch_t>(2)->get_bild(phase, season);
+	// the right house for this area?
+	bool is_allowed_climate_bits( climate_bits cl ) const { return (cl&allowed_climates)!=0; }
+
+	// for the paltzsucher needed
+	climate_bits get_allowed_climate_bits() const { return allowed_climates; }
+
+	const image_t *get_image(uint8 season, uint16 phase) const {
+		return get_child<image_array_t>(2)->get_image(phase, season);
+	}
+
+	image_id get_image_nr(uint8 season, uint16 phase) const {
+		const image_t *image = get_child<image_array_t>(2)->get_image(phase, season);
+		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
 	// moving stuff should have eight
@@ -55,7 +66,7 @@ public:
 	// if anzahl==1, this will not appear on slopes
 	uint16 get_phases() const
 	{
-		return get_child<bildliste2d_besch_t>(2)->get_anzahl();
+		return get_child<image_array_t>(2)->get_count();
 	}
 
 	uint8 get_seasons() const { return number_of_seasons; }
@@ -66,7 +77,7 @@ public:
 
 	waytype_t get_waytype() const { return waytype; }
 
-	sint32 get_preis() const { return cost_removal; }
+	sint32 get_value() const { return cost_removal; }
 
 	uint16 get_index() const { return index; }
 
@@ -76,7 +87,6 @@ public:
 		chk->input(distribution_weight);
 		chk->input(number_of_seasons);
 		chk->input(speed);
-		chk->input(index);
 		chk->input(trees_on_top);
 		chk->input((uint8)waytype);
 		chk->input(cost_removal);

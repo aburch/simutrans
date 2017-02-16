@@ -10,12 +10,13 @@
  */
 
 #include "citylist_stats_t.h"
-#include "stadt_info.h"
+#include "city_info.h"
 
 #include "../simcity.h"
 #include "../simcolor.h"
-#include "../simgraph.h"
-#include "../simwin.h"
+#include "../display/simgraph.h"
+#include "../display/viewport.h"
+#include "../gui/simwin.h"
 #include "../simworld.h"
 
 #include "../besch/skin_besch.h"
@@ -29,8 +30,7 @@ static const char* total_bev_translation = NULL;
 char citylist_stats_t::total_bev_string[128];
 
 
-citylist_stats_t::citylist_stats_t(karte_t* w, citylist::sort_mode_t sortby, bool sortreverse) :
-	welt(w)
+citylist_stats_t::citylist_stats_t(citylist::sort_mode_t sortby, bool sortreverse)
 {
 	total_bev_translation = translator::translate("Total inhabitants:");
 	sort(sortby, sortreverse);
@@ -86,26 +86,29 @@ bool citylist_stats_t::infowin_event(const event_t * ev)
 	const uint line = ev->cy / (LINESPACE + 1);
 
 	line_selected = 0xFFFFFFFFu;
-	if (line >= city_list.get_count()) {
+	if(  line >= city_list.get_count()  ) {
 		return false;
 	}
 
 	stadt_t* stadt = city_list[line];
-	if(  ev->button_state>0  &&  ev->cx>0  &&  ev->cx<15  ) {
+	if(  ev->button_state > 0  &&  ev->cx  >0  &&  ev->cx < 15  ) {
 		line_selected = line;
 	}
 
-	if (IS_LEFTRELEASE(ev) && ev->cy>0) {
-		if(ev->cx>0  &&  ev->cx<15) {
-			const koord pos = stadt->get_pos();
-			welt->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
+	if(  IS_LEFTRELEASE(ev)  &&  ev->cy > 0  ) {
+		if(  ev->cx > 0  &&  ev->cx < 15  ) {
+			if(  grund_t *gr = welt->lookup_kartenboden( stadt->get_center() )  ) {
+				welt->get_viewport()->change_world_position( gr->get_pos() );
+			}
 		}
 		else {
-			stadt->zeige_info();
+			stadt->show_info();
 		}
-	} else if (IS_RIGHTRELEASE(ev) && ev->cy > 0) {
-		const koord pos = stadt->get_pos();
-		welt->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
+	}
+	else if(  IS_RIGHTRELEASE(ev)  &&  ev->cy > 0  ) {
+		if(  grund_t *gr = welt->lookup_kartenboden( stadt->get_center() )  ) {
+			welt->get_viewport()->change_world_position( gr->get_pos() );
+		}
 	}
 	return false;
 }
@@ -113,12 +116,12 @@ bool citylist_stats_t::infowin_event(const event_t * ev)
 
 void citylist_stats_t::recalc_size()
 {
-	// show_scroll_x==false ->> groesse.x not important ->> no need to calc text pixel length
-	set_groesse( koord(210, welt->get_staedte().get_count() * (LINESPACE+1) ) );
+	// show_scroll_x==false ->> size.w not important ->> no need to calc text pixel length
+	set_size( scr_size(210, welt->get_staedte().get_count() * (LINESPACE+1) ) );
 }
 
 
-void citylist_stats_t::zeichnen(koord offset)
+void citylist_stats_t::draw(scr_coord offset)
 {
 	cbuffer_t buf;
 
@@ -131,37 +134,44 @@ void citylist_stats_t::zeichnen(koord offset)
 		recalc_size();
 	}
 
-	uint32 sel = line_selected;
+	sint32 sel = line_selected;
 	clip_dimension cl = display_get_clip_wh();
 
 	FORX(vector_tpl<stadt_t*>, const stadt, city_list, offset.y += LINESPACE + 1) {
 
-		sint32 bev = stadt->get_einwohner();
-		sint32 growth = stadt->get_wachstum();
+		sint32 population = stadt->get_finance_history_month(0, HIST_CITICENS);
+		sint32 growth = stadt->get_finance_history_month(0, HIST_GROWTH);
 		if(  offset.y + LINESPACE > cl.y  &&  offset.y <= cl.yy  ) {
 			buf.clear();
 			buf.printf( "%s: ", stadt->get_name() );
-			buf.append( bev, 0 );
+			buf.append( population, 0 );
 			buf.append( " (" );
 			buf.append( growth/10.0, 1 );
 			buf.append( ")" );
-			display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, COL_BLACK, true);
+			display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 			// goto button
-			image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
-			display_color_img(img, offset.x + 2, offset.y, 0, false, true);
+			bool selected = sel==0;
+			if(  !selected  ) {
+				// still on center?
+				if(  grund_t *gr = welt->lookup_kartenboden( stadt->get_center() )  ) {
+					selected = welt->get_viewport()->is_on_center( gr->get_pos() );
+				}
+			}
+			display_img_aligned( gui_theme_t::pos_button_img[ selected ], scr_rect( offset.x, offset.y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+			sel --;
 
 			if(  win_get_magic( (ptrdiff_t)stadt )  ) {
-				display_blend_wh( offset.x, offset.y, groesse.x, LINESPACE, COL_BLACK, 25 );
+				display_blend_wh( offset.x, offset.y, size.w, LINESPACE, SYSCOL_TEXT, 25 );
 			}
 		}
-		total_bev    += bev;
+		total_bev    += population;
 		total_growth += growth;
 	}
 	// some cities there?
 	if(  total_bev > 0  ) {
 		buf.clear();
-		buf.printf( "%s%u", total_bev_translation, total_bev );
+		buf.printf( "%s %u", total_bev_translation, total_bev);
 		buf.append( " (" );
 		buf.append( total_growth/10.0, 1 );
 		buf.append( ")" );

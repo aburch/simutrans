@@ -16,9 +16,9 @@
 
 #include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
-class spieler_t;
+class player_t;
 
 
 /**
@@ -30,9 +30,10 @@ class halt_detail_t : public gui_frame_t, action_listener_t
 {
 private:
 	halthandle_t halt;
-	spieler_t *cached_active_player; // So that, if different from current, change line links
+	player_t *cached_active_player; // So that, if different from current, change line links
 	uint32 cached_line_count;
 	uint32 cached_convoy_count;
+	uint32 update_time;
 
 	cbuffer_t buf;
 
@@ -59,18 +60,18 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_hilfe_datei() const { return "station_details.txt"; }
+	const char * get_help_filename() const { return "station_details.txt"; }
 
-    // Set window size and adjust component sizes and/or positions accordingly
-    virtual void set_fenstergroesse(koord groesse);
+	// Set window size and adjust component sizes and/or positions accordingly
+	virtual void set_windowsize(scr_size size);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	// only defined to update schedule, if changed
-	void zeichnen( koord pos, koord gr );
+	void draw( scr_coord pos, scr_size size );
 
 	// this constructor is only used during loading
-	halt_detail_t(karte_t *welt);
+	halt_detail_t();
 
 	void rdwr( loadsave_t *file );
 

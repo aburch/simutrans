@@ -1,0 +1,29 @@
+<title>Marker List Help</title>
+
+<h1><strong>Marker List</strong></h1>
+
+<p>
+The <strong>Marker List</strong> window lists all <em>markers</em> placed in the game. A marker is a label placed by a player in the main game window. 
+</p>
+<p>
+To open the <strong>Marker List</strong> window: click on the marker list icon in the <a href="list.txt">List Management</a> window.<br>
+<em>Tip:</em> If items in list are only partially visible, then <a href="mouse.txt">re-size</a> the <strong>Marker List</strong> window or scroll the list using the slider bar.
+</p>
+<p>
+<em>Sorted by:</em> has options to determine the order of the industries listd.<br>
+Click on the buttons to cycle through the options (changes name of the option button):
+</p>
+<p>
+- <em>Name</em> orders alphabetically by the text of the marker.<br>
+- <em>Map co-ordinate</em> orders numerically by the map co-ordinates of the marker.<br>
+- <em>Player</em> orders alphabetically by the players whose markers are placed.<br>
+</p>
+<p>
+- <em>ascending</em> / <em>descending</em> reverses the order of the list.
+</p>
+<p>
+Click on the grey arrow next to each individual industry listd to be taken to the location of that industry in the main game window. Click on the name of the marker to open the marker window to edit or delete the marker.
+</p>
+<p>
+The <em>active player only</em> button determines whether markers for players other than the currently active player are shown.
+</p>

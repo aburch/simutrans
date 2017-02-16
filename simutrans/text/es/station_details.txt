@@ -1,0 +1,33 @@
+<title>Ayuda de Detalles de la Parada</title>
+
+<h1><strong>Detalles de la Parada</strong></h1>
+
+<p>
+<strong>Detalles de la Parada</strong> da mas informacion acerca de una Parada (donde los vehiculos cargar y descargan pasajeros y mercancias).
+</p>
+<p>
+<strong>Detalles de la Parada</strong> se abre desde el boton
+<a href="station.txt">
+Detalles</a> en la ventana de Informacion de la Parada.
+<br>
+Si no son visibles todos los elementos <a href="mouse.txt">ajusta</a> la ventana <strong>Detalles de la Parada</strong> o usa la barra de desplazamiento para desplazar los nombres)
+</p>
+<p>
+La informacion listada incluye:<br>
+<em>Industrias conectadas:</em> nombres y coordenadas del mapa (entre parentesis) de <a href="industry_info.txt">industrias</a> en el area de influencia de la Parada.<br>
+{Consejos: Usa
+<a href="keys.txt">[v]</a> para mostrar el area de influencia de las paradas.}
+</p>
+<p>
+<em>Industrias cercanas demandan:</em> tipos de
+<a href="goods_filter.txt">mercancias</a> requeridas por las <a href="industryinfo.txt">industrias</a> dentro del area de influencia de la Parada.
+</p>
+<p>
+<em>Lineas sirviendo a esta parada:</em>
+<a href="linemanagement.txt">Lineas</a> que usan esta Parada.<br>
+Las lineas son listadas en orden alfanumerico (mayusculas antes que minusculas).
+</p>
+<p>
+<em>Paradas conectadas directamente :</em>lista los nombres de Paradas que pueden se alcanzadas sin realizar un transbordo o cambio del tipo de mercancias o pasajeros.<br>
+Las paradas son listadas en orden alfanumerico (mayusculas antes que minusculas) en el caso de tipo de transporte, nombre de la Parada, y tipo de elemento que puede ser descargado (se muestra tambien para cada Parada).
+</p>

@@ -181,7 +181,7 @@ static SQRegFunction _blob_methods[] = {
 
 static SQInteger _g_blob_swap2(HSQUIRRELVM v)
 {
-	SQInteger i;
+	SQInteger i = 0;
 	sq_getinteger(v,2,&i);
 	short s=(short)i;
 	sq_pushinteger(v,(s<<8)|((s>>8)&0x00FF));
@@ -190,7 +190,7 @@ static SQInteger _g_blob_swap2(HSQUIRRELVM v)
 
 static SQInteger _g_blob_swap4(HSQUIRRELVM v)
 {
-	SQInteger i;
+	SQInteger i = 0;
 	sq_getinteger(v,2,&i);
 	unsigned int t4 = (unsigned int)i;
 	__swap_dword(&t4);

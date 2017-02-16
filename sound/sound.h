@@ -5,7 +5,7 @@
 /**
  * Sound initialisation routine
  */
-bool dr_init_sound(void);
+bool dr_init_sound();
 
 /**
  * loads a sample

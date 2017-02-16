@@ -12,9 +12,9 @@
 #include "boden/grund.h"
 
 
-class karte_t;
+class karte_ptr_t;
 class grund_t;
-class ding_t;
+class obj_t;
 class stadt_t;
 
 class planquadrat_t;
@@ -34,20 +34,21 @@ struct nearby_halt_t
  */
 class planquadrat_t
 {
+	static karte_ptr_t welt;
 private:
 	/* list of stations that are reaching to this tile (saves lots of time for lookup) */
 	nearby_halt_t *halt_list;
 
 	uint8 ground_size, halt_list_count;
 
-	/* only one station per ground xy tile */
-	halthandle_t this_halt;
-
 	/**
 	 * If this tile belongs to a city, a pointer to that city.
 	 * This saves much lookup time
 	 */
 	stadt_t* city;
+
+	// stores climate related settings
+	uint8 climate_data;
 
 	union DATA {
 		grund_t ** some;    // valid if capacity > 1
@@ -59,7 +60,7 @@ public:
 	 * Constructs a planquadrat with initial capacity of one ground
 	 * @author Hansjörg Malthaner
 	 */
-	planquadrat_t() { ground_size=0; data.one = NULL; halt_list_count=0;  halt_list=NULL; city = NULL; }
+	planquadrat_t() { ground_size = 0; climate_data = 0; data.one = NULL; halt_list_count = 0;  halt_list = NULL; city = NULL; }
 
 	~planquadrat_t();
 
@@ -105,10 +106,9 @@ public:
 			// must be valid ground at this point!
 		    return data.one->get_hoehe() == z ? data.one : NULL;
 		}
-		for(  int i = ground_size;  --i >= 0; ) {
-			grund_t *gr = data.some[i];
-			if(  gr->get_hoehe() == z  ) {
-				return gr;
+		for( grund_t **gr = data.some, **end = data.some + ground_size;  gr != end; ++gr ) {
+			if(  (*gr)->get_hoehe() == z  ) {
+				return *gr;
 			}
 		}
 		return NULL;
@@ -126,7 +126,7 @@ public:
 	* @return grund_t * with thing or NULL
 	* @author V. Meyer
 	*/
-	grund_t *get_boden_von_obj(ding_t *obj) const;
+	grund_t *get_boden_von_obj(obj_t *obj) const;
 
 	/**
 	* ground saved at index position idx (zero would be normal ground)
@@ -144,32 +144,79 @@ public:
 	unsigned int get_boden_count() const { return ground_size; }
 
 	/**
-	* konvertiert Land zu Wasser wenn unter Grundwasserniveau abgesenkt
+	* returns climate of plan (lowest 3 bits of climate byte)
+	* @author Kieron Green
+	*/
+	inline climate get_climate() const { return (climate)(climate_data & 7); }
+
+	/**
+	* sets plan climate
+	* @author Kieron Green
+	*/
+	void set_climate(climate cl) {
+		climate_data = (climate_data & 0xf8) + (cl & 7);
+	}
+
+	/**
+	* returns whether this is a transition to next climate (which will then use calculated image rather than overlay)
+	* @author Kieron Green
+	*/
+	inline bool get_climate_transition_flag() const { return (climate_data >> 3) & 1; }
+
+	/**
+	* set whether this is a transition to next climate (which will then use calculated image rather than overlay)
+	* @author Kieron Green
+	*/
+	void set_climate_transition_flag(bool flag) {
+		climate_data = flag ? (climate_data | 0x08) : (climate_data & 0xf7);
+	}
+
+	/**
+	* returns corners which transition to another climate
+	* this has no meaning if tile is a slope with transition to next climate as these corners are fixed
+	* therefore for this case to allow double heights 0 = first level transition, 1 = second level transition
+	* @author Kieron Green
+	*/
+	inline uint8 get_climate_corners() const { return (climate_data >> 4) & 15; }
+
+	stadt_t* get_city() const { return city; }
+	void set_city(stadt_t* value) { city = value; }
+
+	/**
+	* sets climate transition corners
+	* this has no meaning if tile is a slope with transition to next climate as these corners are fixed
+	* therefore for this case to allow double heights 0 = first level transition, 1 = second level transition
+	* @author Kieron Green
+	*/
+	void set_climate_corners(uint8 corners) {
+		climate_data = (climate_data & 0x0f) + (corners << 4);
+	}
+
+	/**
+	* converts boden to correct type, land or water
+	* @author Kieron Green
+	*/
+	void correct_water();
+
+	/**
+	* konvertiert Land zu Water wenn unter Grundwasserniveau abgesenkt
 	* @author Hj. Malthaner
 	*/
-	void abgesenkt(karte_t *welt);
+	void abgesenkt();
 
 	/**
 	* Converts water to land when raised above the ground water level
 	* @author Hj. Malthaner
 	*/
-	void angehoben(karte_t *welt);
+	void angehoben();
 
 	/**
-	* since stops may be multilevel, but waren uses pos, we mirror here any halt that is on this square
-	* @author Hj. Malthaner
+	* returns halthandle belonging to player player
+	* returns a random halt if player is NULL
+	* @return NULL if no halt present
+	* @author Kieron Green
 	*/
-	void set_halt(halthandle_t halt);
-
-	/**
-	* returns a halthandle, if some ground here has a stop
-	* @return NULL wenn keine Haltestelle, sonst Zeiger auf Haltestelle
-	* @author Hj. Malthaner
-	*/
-	halthandle_t get_halt() const {return this_halt;}
-
-	stadt_t* get_city() const { return city; }
-	void set_city(stadt_t* value) { city = value; }
+	halthandle_t get_halt(player_t *player) const;
 
 private:
 	// these functions are private helper functions for halt_list corrections
@@ -188,7 +235,7 @@ public:
 	* however this funtion check, whether there is really no other part still reachable
 	* @author prissi
 	*/
-	void remove_from_haltlist(karte_t *welt, halthandle_t halt);
+	void remove_from_haltlist(halthandle_t halt);
 
 	uint8 get_connected(halthandle_t halt) const;
 	bool is_connected(halthandle_t halt) const { return get_connected(halt) < 255; }
@@ -200,14 +247,18 @@ public:
 	const nearby_halt_t *get_haltlist() const { return halt_list; }
 	uint8 get_haltlist_count() const { return halt_list_count; }
 
-	void rdwr(karte_t *welt, loadsave_t *file, koord pos );
+	void rdwr(loadsave_t *file, koord pos );
 
-	// will toggle the seasons ...
-	void check_season(const long month);
+	/**
+	* Updates season and/or snowline dependent graphics
+	*/
+	void check_season_snowline(const bool season_change, const bool snowline_change);
 
-	void display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global, const sint8 hmin, const sint8 hmax) const;
+	void display_obj(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const bool is_global, const sint8 hmin, const sint8 hmax  CLIP_NUM_DEF) const;
 
-	void display_overlay(sint16 xpos, sint16 ypos, const sint8 hmin, const sint8 hmax) const;
+	void display_tileoverlay(sint16 xpos, sint16 ypos, const sint8 hmin, const sint8 hmax) const;
+
+	void display_overlay(sint16 xpos, sint16 ypos) const;
 };
 
 #endif

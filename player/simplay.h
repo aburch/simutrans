@@ -7,7 +7,7 @@
 #ifndef simplay_h
 #define simplay_h
 
-#include "../dataobj/pwd_hash.h"
+#include "../network/pwd_hash.h"
 #include "../simtypes.h"
 #include "../simlinemgmt.h"
 
@@ -25,19 +25,19 @@
 class karte_t;
 class fabrik_t;
 class koord3d;
-class werkzeug_t;
+class tool_t;
 class finance_t;
 
 /**
  * Class to hold informations about one player/company. AI players are derived from this class.
  */
-class spieler_t
+class player_t
 {
 public:
 	enum { EMPTY=0, HUMAN=1, AI_GOODS=2, AI_PASSENGER=3, MAX_AI, PASSWORD_PROTECTED=128 };
 
 protected:
-	char spieler_name_buf[256];
+	char player_name_buf[256];
 
 	/* "new" finance history */
 	finance_t *finance;
@@ -52,6 +52,9 @@ protected:
 	// when was the company founded
 	uint16 player_age;
 
+	/**
+	* Floating massages for all players here
+	*/
 	class income_message_t {
 	public:
 		char str[33];
@@ -67,14 +70,14 @@ protected:
 	slist_tpl<income_message_t *>messages;
 
 	/**
-	 * creates new income message entry or merges with existing one if the
+	 * Creates new income message entry or merges with existing one if the
 	 * most recent one is at the same coordinate
 	 */
 	void add_message(sint64 amount, koord k);
 
 public:
 	/**
-	 * displays amount of money when koordinates are on screen
+	 * Displays amount of money when koordinates are on screen
 	 */
 	void add_money_message(sint64 amount, koord k);
 
@@ -83,7 +86,7 @@ protected:
 	 * Kennfarbe (Fahrzeuge, Gebäude) des Speielers
 	 * @author Hj. Malthaner
 	 */
-	uint8 kennfarbe1, kennfarbe2;
+	uint8 player_color_1, player_color_2;
 
 	/**
 	 * Player number
@@ -103,7 +106,7 @@ protected:
 	 * Ist dieser Spieler ein automatischer Spieler?
 	 * @author Hj. Malthaner
 	 */
-	bool automat;
+	bool active;
 
 	/**
 	 * Are this player allowed to make any changes?
@@ -123,6 +126,12 @@ protected:
 	 */
 	bool access[MAX_PLAYER_COUNT];
 
+	
+	/* This flag is set if the player has already been
+	 * warned this month that there is insufficient money
+	 * for automatic way renewals*/
+	bool has_been_warned_about_no_money_for_renewals;
+
 public:
 	/**
 	 * Sums up "count" with number of convois in statistics,
@@ -134,17 +143,17 @@ public:
 	/**
 	 * Adds construction costs to accounting statistics.
 	 * @param amount How much does it cost
-	 * @param tt type of transport
+	 * @param wt type of transport
 	 * @author jk271
 	 */
-	static void book_construction_costs(spieler_t * const sp, const sint64 amount, const koord k, const waytype_t wt=ignore_wt);
+	static void book_construction_costs(player_t * const player, const sint64 amount, const koord k, const waytype_t wt=ignore_wt);
 
 	/**
 	 * Accounts bought/sold vehicles.
 	 * @param price money used for purchase of vehicle,
 	 *              negative value = vehicle bought,
 	 *              positive value = vehicle sold
-	 * @param tt type of transport for accounting purpose
+	 * @param wt type of transport for accounting purpose
 	 * @author jk271
 	 */
 	void book_new_vehicle(const sint64 price, const koord k, const waytype_t wt=ignore_wt);
@@ -152,7 +161,7 @@ public:
 	/**
 	 * Adds income to accounting statistics.
 	 * @param amount earned money
-	 * @param tt transport type used in accounting statistics
+	 * @param wt transport type used in accounting statistics
 	 * @param cathegory parameter
 	 * 	0 ... passenger
 	 *	1 ... mail
@@ -178,9 +187,18 @@ public:
 	void book_vehicle_maintenance(const sint64 amount, const waytype_t wt=ignore_wt);
 
 	/**
+	 * Adds way renewals to accounting statistics. 
+	 * @param amount (should be negative, will be adjusted for bits_per_month)
+	 * @param wt type of transport for accounting
+	 * @author jamespetts
+	 */
+
+	void book_way_renewal(const sint64 amount, const waytype_t wt = ignore_wt);
+
+	/**
 	 * Books toll paid by our company to someone else.
 	 * @param amount money paid to our company
-	 * @param tt type of transport used for assounting statistisc
+	 * @param wt type of transport used for accounting statistiscs
 	 * @author jk271
 	 */
 	void book_toll_paid(const sint64 amount, const waytype_t wt=ignore_wt);
@@ -188,7 +206,7 @@ public:
 	/**
 	 * Books toll paid to our company by someone else.
 	 * @param amount money paid for usage of our roads,railway,channels, ... ; positive sign
-	 * @param tt type of transport used for assounting statistisc
+	 * @param wt type of transport used for accounting statistiscs
 	 * @author jk271
 	 */
 	void book_toll_received(const sint64 amount, waytype_t wt=ignore_wt);
@@ -221,7 +239,7 @@ public:
 	/**
 	 * Static version.  If player is NULL, player can afford anything.
 	 */
-	static bool can_afford(spieler_t* sp, sint64 price);
+	static bool can_afford(player_t* player, sint64 price);
 
 	bool has_money_or_assets() const;
 
@@ -233,9 +251,9 @@ public:
 	 */
 	bool is_public_service() const { return player_nr == 1; }
 
-	virtual bool set_active( bool b ) { return automat = b; }
+	virtual bool set_active( bool b ) { return active = b; }
 
-	bool is_active() const { return automat; }
+	bool is_active() const { return active; }
 
 	bool is_locked() const { return locked; }
 
@@ -244,6 +262,9 @@ public:
 	void unlock(bool unlock_, bool unlock_pending_=false) { locked = !unlock_; unlock_pending = unlock_pending_; }
 
 	void check_unlock( const pwd_hash_t& hash ) { locked = (pwd_hash != hash); }
+
+	bool get_has_been_warned_about_no_money_for_renewals() const { return has_been_warned_about_no_money_for_renewals; }
+	void set_has_been_warned_about_no_money_for_renewals(bool value) { has_been_warned_about_no_money_for_renewals = value; }
 
 	// some routine needs this for direct manipulation
 	pwd_hash_t& access_password_hash() { return pwd_hash; }
@@ -258,13 +279,13 @@ public:
 	 * Age messages (move them upwards)
 	 * @author Hj. Malthaner
 	 */
-	void age_messages(long delta_t);
+	void age_messages(uint32 delta_t);
 
 	/* Handles player colors ...
 	* @author prissi
 	*/
-	uint8 get_player_color1() const { return kennfarbe1; }
-	uint8 get_player_color2() const { return kennfarbe2; }
+	uint8 get_player_color1() const { return player_color_1; }
+	uint8 get_player_color2() const { return player_color_2; }
 	// Change and report message
 	void set_player_color(uint8 col1, uint8 col2);
 	// Change, do not report message
@@ -272,7 +293,7 @@ public:
 	void set_player_color_no_message(uint8 col1, uint8 col2);
 
 	/**
-	 * Name of the player
+	 * Name of the player; "player -1" sits in front of the screen
 	 * @author player
 	 */
 	const char* get_name() const;
@@ -281,27 +302,33 @@ public:
 	sint8 get_player_nr() const {return player_nr; }
 
 	/**
+	 * Test if this player is a public service player.
+	 * @return true if the player is a public service player, otherwise false.
+	 */
+	bool is_public_serivce() const;
+
+	/**
 	 * return true, if the owner is none, myself or player(1), i.e. the ownership _can be taken by player test
 	 * @author prissi
 	 */
-	static bool check_owner( const spieler_t *owner, const spieler_t *test );
+	static bool check_owner( const player_t *owner, const player_t *test );
 
 	/**
-	 * @param welt Die Welt (Karte) des Spiels
-	 * @param color Kennfarbe des Spielers
+	 * @param welt World this players belong to.
+	 * @param player_nr Number assigned to this player, which is the player's identification
 	 * @author Hj. Malthaner
 	 */
-	spieler_t(karte_t *welt, uint8 player_nr );
+	player_t(karte_t *welt, uint8 player_nr );
 
-	virtual ~spieler_t();
+	virtual ~player_t();
 
 	/**
-	 * This is safe to be called with sp==NULL
+	 * This is safe to be called with player==NULL
 	 */
-	static sint32 add_maintenance(spieler_t *sp, sint32 const change, waytype_t const wt=ignore_wt)
+	static sint32 add_maintenance(player_t *player, sint32 const change, waytype_t const wt=ignore_wt)
 	{
-		if(sp) {
-			return sp->add_maintenance(change, wt);
+		if(player) {
+			return player->add_maintenance(change, wt);
 		}
 		return 0;
 	}
@@ -315,61 +342,57 @@ public:
 	void set_scenario_completion(sint32 percent);
 
 	/**
-	 * @return Kontostand als double (Gleitkomma) Wert
+	 * @return Account balance as a double (floating point) value
 	 * @author Hj. Malthaner
 	 */
-	double get_konto_als_double() const;
+	double get_account_balance_as_double() const;
 
 	/**
-	 * @return true wenn Konto Überzogen ist
+	 * @return true when account balance is overdrawn
 	 * @author Hj. Malthaner
 	 */
 	int get_account_overdrawn() const;
 
 	/**
-	 * Zeigt Meldungen aus der Queue des Spielers auf dem Bildschirm an
+	 * Displays messages from the queue of the player on the screen
+	 * Show income messages
 	 * @author Hj. Malthaner
 	 */
 	void display_messages();
 
 	/**
-	 * Wird von welt in kurzen abständen aufgerufen
+	 * Called often by simworld.cc during simulation
+	 * @note Any action goes here (only need for AI at the moment)
 	 * @author Hj. Malthaner
 	 */
 	virtual void step();
 
 	/**
-	 * Wird von welt nach jedem monat aufgerufen
+	 * Called monthly by simworld.cc during simulation
 	 * @author Hj. Malthaner
 	 * @returns false if player has to be removed (bankrupt/inactive)
 	 */
-	virtual bool neuer_monat();
+	virtual bool new_month();
 
 	/**
-	 * Methode fuer jaehrliche Aktionen
+	 * Called yearly by simworld.cc during simulation
 	 * @author Hj. Malthaner
 	 */
-	virtual void neues_jahr() {}
+	virtual void new_year() {}
 
 	/**
-	 * Lädt oder speichert Zustand des Spielers
-	 * @param file die offene Save-Datei
+	 * Stores/loads the player state
+	 * @param file where the data will be saved/loaded
 	 * @author Hj. Malthaner
 	 */
 	virtual void rdwr(loadsave_t *file);
 
 	/*
-	 * called after game is fully loaded;
+	 * Called after game is fully loaded;
 	 */
-	virtual void laden_abschliessen();
+	virtual void load_finished();
 
 	virtual void rotate90( const sint16 y_size );
-
-	/**
-	* Returns the world the player is in
-	* @author hsiegeln
-	*/
-	static karte_t *get_welt() { return welt; }
 
 	/**
 	* Calculates the assets of the player
@@ -382,20 +405,20 @@ public:
 	void update_assets(sint64 const delta, const waytype_t wt = ignore_wt);
 
 	/**
-	 * Rückruf, um uns zu informieren, dass ein Vehikel ein Problem hat
+	 * Report the player one of his vehicles has a problem
 	 * @author Hansjörg Malthaner
 	 * @date 26-Nov-2001
 	 */
-	virtual void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
+	virtual void report_vehicle_problem(convoihandle_t cnv,const koord3d ziel);
 
 	/**
 	 * Tells the player the result of tool-work commands
 	 * If player is active then play sound, popup error msg etc
-	 * AI players react upon this call and proceed
+	 * AI players react upon this call and proceedplayer The owner of the city
 	 * local is true if tool was called by player on our client
 	 * @author Dwachs
 	 */
-	virtual void tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool local);
+	virtual void tell_tool_result(tool_t *tool, koord3d pos, const char *err, bool local);
 
 	/**
 	 * Tells the player that the factory
@@ -415,14 +438,34 @@ private:
 	waytype_t undo_type;
 
 public:
+	/**
+	* Function for UNDO
+	* @date 7-Feb-2005
+	* @author prissi
+	*/
 	void init_undo(waytype_t t, unsigned short max );
+	/**
+	* Function for UNDO
+	* @date 7-Feb-2005
+	* @author prissi
+	*/
 	void add_undo(koord3d k);
+	/**
+	* Function for UNDO
+	* @date 7-Feb-2005
+	* @author prissi
+	*/
 	sint64 undo();
 
-	// headquarter stuff
 private:
+	// headquarter stuff
 	sint32 headquarter_level;
 	koord headquarter_pos;
+		
+	// The signalbox last selected. Used for placing signals attached to this box.
+	// Local only: this datum is transmitted over the network when the tool is used.
+	// Do not load/save.
+	signalbox_t* selected_signalbox;
 
 public:
 	void add_headquarter(short hq_level, koord hq_pos)
@@ -430,13 +473,16 @@ public:
 		headquarter_level = hq_level;
 		headquarter_pos = hq_pos;
 	}
-	koord get_headquarter_pos(void) const { return headquarter_pos; }
-	short get_headquarter_level(void) const { return headquarter_level; }
+	koord get_headquarter_pos() const { return headquarter_pos; }
+	short get_headquarter_level() const { return headquarter_level; }
 
 	void ai_bankrupt();
 
 	bool allows_access_to(uint8 other_player_nr) const { return this == NULL || player_nr == other_player_nr || access[other_player_nr]; }
 	void set_allow_access_to(uint8 other_player_nr, bool allow) { access[other_player_nr] = allow; }
+
+	void set_selected_signalbox(signalbox_t* sb);
+	signalbox_t* get_selected_signalbox() const { return selected_signalbox; }
 };
 
 #endif

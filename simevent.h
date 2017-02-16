@@ -17,18 +17,19 @@
 
 #define EVENT_NONE                    0
 #define EVENT_KEYBOARD                1
-#define EVENT_CLICK                   2
-#define EVENT_RELEASE                 3
-#define EVENT_MOVE                    4
-#define EVENT_DRAG                    5
-#define EVENT_REPEAT                  6
-#define EVENT_DOUBLE_CLICK            7  // Knightly: 2 consecutive sequences of click-release
-#define EVENT_TRIPLE_CLICK            8  // Knightly: 3 consecutive sequences of click-release
+#define EVENT_STRING                  2 // instead of a single character a ev_ptr points to an utf8 string
+#define EVENT_CLICK                   3
+#define EVENT_DOUBLE_CLICK            4  // Knightly: 2 consecutive sequences of click-release
+#define EVENT_TRIPLE_CLICK            5  // Knightly: 3 consecutive sequences of click-release
+#define EVENT_RELEASE                 6
+#define EVENT_MOVE                    7
+#define EVENT_DRAG                    8
+#define EVENT_REPEAT                  9
 
-#define INFOWIN                       9  // Hajo: window event, i.e. WIN_OPEN, WIN_CLOSE
-#define WINDOW_RESIZE                10  // 19-may-02	markus weber   added
-#define WINDOW_MAKE_MIN_SIZE         11  // 11-mar-03	(Mathew Hounsell) Added
-#define WINDOW_CHOOSE_NEXT           12	 // @author Volker Meyer @date  11.06.2003
+#define INFOWIN                      10  // Hajo: window event, i.e. WIN_OPEN, WIN_CLOSE
+#define WINDOW_RESIZE                11  // 19-may-02	markus weber   added
+#define WINDOW_MAKE_MIN_SIZE         12  // 11-mar-03	(Mathew Hounsell) Added
+#define WINDOW_CHOOSE_NEXT           13	 // @author Volker Meyer @date  11.06.2003
 
 #define EVENT_SYSTEM                254
 #define IGNORE_EVENT                255
@@ -49,9 +50,9 @@
 #define NEXT_WINDOW                   1
 #define PREV_WINDOW                   2
 
-// Hajo: System event codes must match those from simsys.h !!!
 #define SYSTEM_QUIT                   1
 #define SYSTEM_RESIZE                 2
+#define SYSTEM_RELOAD_WINDOWS         3
 
 /* normal keys have range 0-255, special key follow above 255 */
 /* other would be better for true unicode support :( */
@@ -147,7 +148,11 @@
  */
 struct event_t {
 	unsigned int ev_class;
-	unsigned int ev_code;
+	union {
+		unsigned int ev_code;
+		void *ev_ptr;
+	};
+
 	int mx, my;
 
 	/**
@@ -166,11 +171,13 @@ struct event_t {
 	 */
 	unsigned int ev_key_mod;
 
-	event_t() { }
-	event_t(unsigned int event_class) : ev_class(event_class) { }
+	event_t(unsigned int event_class = EVENT_NONE) : ev_class(event_class),
+		ev_code(0),
+		mx(0), my(0), cx(0), cy(0),
+		button_state(0), ev_key_mod(0)
+		{ }
 };
 
-#ifdef __cplusplus
 /**
  * Translate event origin. Useful when transferring events to sub-components.
  * @author Hj. Malthaner
@@ -182,7 +189,6 @@ static inline void translate_event(event_t* const ev, int x, int y)
 	ev->my += y;
 	ev->cy += y;
 }
-#endif
 
 /**
  * Return one event. Does *not* wait.
@@ -197,8 +203,14 @@ void display_poll_event(event_t*);
 void display_get_event(event_t*);
 void change_drag_start(int x, int y);
 
-int event_get_last_control_shift(void);
+int event_get_last_control_shift();
 unsigned int last_meta_event_get_class();
+
+/**
+ *Get mouse pointer position.Implementation in simsys.cc
+ */
+int get_mouse_x();
+int get_mouse_y();
 
 /**
  * Adds new events to be processed.

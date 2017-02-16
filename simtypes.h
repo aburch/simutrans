@@ -18,9 +18,6 @@
 #
 #	include <malloc.h>
 #	define ALLOCA(type, name, count) type* name = static_cast<type*>(alloca(sizeof(type) * (count)))
-#
-# define inline _inline
-#
 #elif defined __clang__
 #	include <stdlib.h>
 #	define ALLOCA(type, name, count) type* name = static_cast<type*>(alloca(sizeof(type) * (count)))
@@ -38,7 +35,7 @@
 
 #define CXX11(gcc_major, gcc_minor, msc_ver) ( \
 	__cplusplus >= 201103L || \
-	(defined __GXX_EXPERIMENTAL_CXX0X__ && GCC_ATLEAST((gcc_major), (gcc_minor))) || \
+	(defined __GXX_EXTENDED_CXX0X__ && GCC_ATLEAST((gcc_major), (gcc_minor))) || \
 	(defined _MSC_VER && (msc_ver) != 0 && _MSC_VER >= (msc_ver)) \
 )
 
@@ -54,16 +51,12 @@
 #	define OVERRIDE
 #endif
 
-#ifdef __cplusplus
-#	define ENUM_BITSET(T) \
-		static inline T operator ~  (T  a)      { return     (T)~(unsigned)a;                } \
-		static inline T operator &  (T  a, T b) { return     (T)((unsigned)a & (unsigned)b); } \
-		static inline T operator &= (T& a, T b) { return a = (T)((unsigned)a & (unsigned)b); } \
-		static inline T operator |  (T  a, T b) { return     (T)((unsigned)a | (unsigned)b); } \
-		static inline T operator |= (T& a, T b) { return a = (T)((unsigned)a | (unsigned)b); }
-#else
-#	define ENUM_BITSET(T)
-#endif
+#define ENUM_BITSET(T) \
+ static inline T operator ~ (T a) { return (T)~(unsigned)a; } \
+ static inline T operator & (T a, T b) { return (T)((unsigned)a & (unsigned)b); } \
+ static inline T operator &= (T& a, T b) { return a = (T)((unsigned)a & (unsigned)b); } \
+ static inline T operator | (T a, T b) { return (T)((unsigned)a | (unsigned)b); } \
+ static inline T operator |= (T& a, T b) { return a = (T)((unsigned)a | (unsigned)b); }
 
 /* divers enums:
  * better defined here than scattered in thousand files ...
@@ -97,7 +90,7 @@ enum climate_bits
 };
 
 /**
- * Vordefinierte Wegtypen.
+ * Vordefinierte Wetypeen.
  * @author Hj. Malthaner
  */
 enum waytype_t {
@@ -112,9 +105,23 @@ enum waytype_t {
 	tram_wt          =   7,
 	narrowgauge_wt   =   8,
 	air_wt           =  16,
+	noise_barrier_wt =  17,
 	powerline_wt     = 128
 };
 
+/**
+ * System types for ways
+ */
+enum systemtype_t {
+	type_flat = 0,	///< flat track
+	type_elevated = 1,	///< flag for elevated ways
+	type_runway = 1,	///< flag for runway (only aircrafts)
+	type_tram = 7,	///< tram track (waytype = track_wt)
+	type_river = 255,	///< flag for river
+	type_all = 255,	///< special ?
+};
+
+enum working_method_t { drive_by_sight, time_interval, absolute_block, token_block, track_circuit_block, cab_signalling, moving_block, one_train_staff, time_interval_with_telegraph };
 
 // makros are not very safe: thus use these macro like functions
 // otherwise things may fail or functions are called uneccessarily twice
@@ -149,19 +156,24 @@ typedef   signed long long  sint64;
 typedef unsigned long long  uint64;
 #ifdef _MSC_VER
 #	define GCC_PACKED
-#	define GCC_ALIGN32
-#	define GCC_ALIGN64
+#	define GCC_ALIGN(a)
+#	define MSVC_ALIGN(a) __declspec(align(a))
 #	define NORETURN __declspec(noreturn)
 #	pragma warning(disable: 4200 4311 4800 4996)
 #else
-#	define GCC_PACKED __attribute__ ((__packed__))
-#	define GCC_ALIGN32 __attribute__ (( __aligned__(4) ))
-#	define GCC_ALIGN64 __attribute__ (( __aligned__(8) ))
-#	define NORETURN   __attribute__ ((noreturn))
+#	define GCC_PACKED    __attribute__ ((__packed__))
+#	define GCC_ALIGN(a)  __attribute__ ((aligned (a)))
+#	define MSVC_ALIGN(a)
+#	define NORETURN      __attribute__ ((noreturn))
 #endif
 #define UINT64_MAX_VALUE	ULLONG_MAX
+#ifndef  MULTI_THREAD
+#if defined _MSC_VER
+#include <xkeycheck.h>
+#define thread_local  
+#endif
+#endif // ! MULTI_THREAD
 
-#ifdef __cplusplus
 
 template<typename T> static inline int sgn(T x)
 {
@@ -170,15 +182,19 @@ template<typename T> static inline int sgn(T x)
 		return 0;
 }
 
+#ifndef min
 static inline int min(const int a, const int b)
 {
 	return a < b ? a : b;
 }
+#endif
 
+#ifndef max
 static inline int max(const int a, const int b)
 {
 	return a > b ? a : b;
 }
+#endif
 
 // @author: jamespetts, April 2011
 template<class T> static T set_scale_generic(T value, uint16 scale_factor) { return (value * (T)scale_factor) / (T)1000; }
@@ -204,6 +220,33 @@ public:
 	{
 		sint64 new_total = (sint64)total + (sint64)value;
 		count++;
+		while(new_total > 65535ll)
+		{
+			new_total /= 2;
+			count /= 2;
+		}
+		total = (uint16)new_total;
+	}
+
+	inline void add_autoreduce(T value, T reduce_at)
+	{
+		if((reduce_at % 2) != 0)
+		{
+			// This *must* be an even number, or else the 
+			// average will drift too high as "count"
+			// is truncated at each reduction. 
+			reduce_at++;
+		}
+
+		sint64 new_total = (sint64)total + (sint64)value;
+		count++;
+		
+		if(count >= reduce_at)
+		{
+			new_total /= 2;
+			count /= 2;
+		}
+
 		while(new_total > 65535ll)
 		{
 			new_total /= 2;
@@ -333,9 +376,6 @@ union value_t
 	long i;
 };
 
-#else
-// c definitionen
-typedef enum bool { false, true } bool;
-#endif
+#define IGNORE_ZERO_WEIGHT
 
 #endif

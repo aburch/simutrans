@@ -17,10 +17,10 @@
  * @since 22-MAR-2010
  * @author Bernd Gabriel
  */
-class gui_table_cell_list_t : public list_tpl<gui_komponente_t> {
+class gui_table_cell_list_t : public list_tpl<gui_component_t> {
 protected:
-	virtual gui_komponente_t *create_item() const { 
-		// cannot create a default component, as gui_komponente_t is an abstract class.
+	virtual gui_component_t *create_item() const { 
+		// cannot create a default component, as gui_component_t is an abstract class.
 		return NULL;
 	}
 };
@@ -68,12 +68,12 @@ protected:
 	virtual void init_cell(coordinate_t x, coordinate_t y);
 
 	/**
-	 * paint_cell() is called in zeichnen(), whenever a cell has to be painted.
+	 * paint_cell() is called in draw(), whenever a cell has to be painted.
 	 *
 	 * It has to paint cell (x,y) at position offset. 
-	 * The default implementation calls zeichnen() of the component of cell (x,y), if there is one.
+	 * The default implementation calls draw() of the component of cell (x,y), if there is one.
 	 */
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y);
+	virtual void paint_cell(const scr_coord &offset, coordinate_t x, coordinate_t y);
 
 	/**
 	 * remove_cell() is called in change_size(), before a cell is removed, e.g. during set_size().
@@ -91,8 +91,8 @@ public:
 	bool get_owns_cell_components() { return owns_cell_components; }
 	void set_owns_cell_components(bool value) { owns_cell_components = value; }
 
-	gui_komponente_t *get_cell_component(coordinate_t x, coordinate_t y);
-	void set_cell_component(coordinate_t x, coordinate_t y, gui_komponente_t *component);
+	gui_component_t *get_cell_component(coordinate_t x, coordinate_t y);
+	void set_cell_component(coordinate_t x, coordinate_t y, gui_component_t *component);
 
 	virtual coordinate_t add_column(gui_table_column_t *column);
 	virtual coordinate_t add_row(gui_table_row_t *row);

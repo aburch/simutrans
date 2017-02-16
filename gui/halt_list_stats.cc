@@ -10,10 +10,11 @@
 #include "../simhalt.h"
 #include "../simskin.h"
 #include "../simcolor.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../player/simplay.h"
 #include "../simworld.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 
 #include "../dataobj/translator.h"
 
@@ -26,7 +27,7 @@
 
 
 /**
- * Events werden hiermit an die GUI-Komponenten
+ * Events werden hiermit an die GUI-components
  * gemeldet
  * @author Hj. Malthaner
  */
@@ -35,12 +36,12 @@ bool halt_list_stats_t::infowin_event(const event_t *ev)
 	if(halt.is_bound()) {
 		if(IS_LEFTRELEASE(ev)) {
 			if (event_get_last_control_shift() != 2) {
-				halt->zeige_info();
+				halt->show_info();
 			}
 			return true;
 		}
 		if(IS_RIGHTRELEASE(ev)) {
-			halt->get_welt()->change_world_position(halt->get_basis_pos3d());
+			welt->get_viewport()->change_world_position(halt->get_basis_pos3d());
 			return true;
 		}
 	}
@@ -49,10 +50,10 @@ bool halt_list_stats_t::infowin_event(const event_t *ev)
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Markus Weber
  */
-void halt_list_stats_t::zeichnen(koord offset)
+void halt_list_stats_t::draw(scr_coord offset)
 {
 	clip_dimension clip = display_get_clip_wh();
 
@@ -61,45 +62,45 @@ void halt_list_stats_t::zeichnen(koord offset)
 		display_fillbox_wh_clip(pos.x+offset.x+4, pos.y+offset.y+6, 26, D_INDICATOR_HEIGHT, halt->get_status_farbe(), true);
 
 		// name
-		int left = pos.x + offset.x + 32+2 + display_proportional_clip(pos.x + offset.x + 32+2, pos.y + offset.y + 2, translator::translate(halt->get_name()), ALIGN_LEFT, COL_BLACK, true);
+		int left = pos.x + offset.x + 32+2 + display_proportional_clip(pos.x + offset.x + 32+2, pos.y + offset.y + 2, translator::translate(halt->get_name()), ALIGN_LEFT, SYSCOL_TEXT, true);
 
 		// what kind of stop
 		haltestelle_t::stationtyp const halttype = halt->get_station_type();
 		int pos_y = pos.y+offset.y-41;
-		if (halttype & haltestelle_t::railstation) {
-			display_color_img(skinverwaltung_t::zughaltsymbol->get_bild_nr(0), left, pos_y, 0, false, true);
+		if (halttype & haltestelle_t::railstation && skinverwaltung_t::zughaltsymbol) {
+			display_color_img(skinverwaltung_t::zughaltsymbol->get_image_id(0), left, pos_y, 0, false, true);
 			left += 23;
 		}
-		if (halttype & haltestelle_t::loadingbay) {
-			display_color_img(skinverwaltung_t::autohaltsymbol->get_bild_nr(0), left, pos_y, 0, false, true);
+		if (halttype & haltestelle_t::loadingbay && skinverwaltung_t::autohaltsymbol) {
+			display_color_img(skinverwaltung_t::autohaltsymbol->get_image_id(0), left, pos_y, 0, false, true);
 			left += 23;
 		}
-		if (halttype & haltestelle_t::busstop) {
-			display_color_img(skinverwaltung_t::bushaltsymbol->get_bild_nr(0), left, pos_y, 0, false, true);
+		if (halttype & haltestelle_t::busstop && skinverwaltung_t::bushaltsymbol) {
+			display_color_img(skinverwaltung_t::bushaltsymbol->get_image_id(0), left, pos_y, 0, false, true);
 			left += 23;
 		}
-		if (halttype & haltestelle_t::dock) {
-			display_color_img(skinverwaltung_t::schiffshaltsymbol->get_bild_nr(0), left, pos_y, 0, false, true);
+		if (halttype & haltestelle_t::dock && skinverwaltung_t::schiffshaltsymbol) {
+			display_color_img(skinverwaltung_t::schiffshaltsymbol->get_image_id(0), left, pos_y, 0, false, true);
 			left += 23;
 		}
-		if (halttype & haltestelle_t::airstop) {
-			display_color_img(skinverwaltung_t::airhaltsymbol->get_bild_nr(0), pos.x+left, pos_y, 0, false, true);
+		if (halttype & haltestelle_t::airstop && skinverwaltung_t::airhaltsymbol) {
+			display_color_img(skinverwaltung_t::airhaltsymbol->get_image_id(0), pos.x+left, pos_y, 0, false, true);
 			left += 23;
 		}
-		if (halttype & haltestelle_t::monorailstop) {
-			display_color_img(skinverwaltung_t::monorailhaltsymbol->get_bild_nr(0), pos.x+left, pos_y, 0, false, true);
+		if (halttype & haltestelle_t::monorailstop && skinverwaltung_t::monorailhaltsymbol) {
+			display_color_img(skinverwaltung_t::monorailhaltsymbol->get_image_id(0), pos.x+left, pos_y, 0, false, true);
 			left += 23;
 		}
-		if (halttype & haltestelle_t::tramstop) {
-			display_color_img(skinverwaltung_t::tramhaltsymbol->get_bild_nr(0), pos.x+left, pos_y, 0, false, true);
+		if (halttype & haltestelle_t::tramstop && skinverwaltung_t::tramhaltsymbol) {
+			display_color_img(skinverwaltung_t::tramhaltsymbol->get_image_id(0), pos.x+left, pos_y, 0, false, true);
 			left += 23;
 		}
-		if (halttype & haltestelle_t::maglevstop) {
-			display_color_img(skinverwaltung_t::maglevhaltsymbol->get_bild_nr(0), pos.x+left, pos_y, 0, false, true);
+		if (halttype & haltestelle_t::maglevstop && skinverwaltung_t::maglevhaltsymbol) {
+			display_color_img(skinverwaltung_t::maglevhaltsymbol->get_image_id(0), pos.x+left, pos_y, 0, false, true);
 			left += 23;
 		}
-		if (halttype & haltestelle_t::narrowgaugestop) {
-			display_color_img(skinverwaltung_t::narrowgaugehaltsymbol->get_bild_nr(0), pos.x+left, pos_y, 0, false, true);
+		if (halttype & haltestelle_t::narrowgaugestop && skinverwaltung_t::narrowgaugehaltsymbol) {
+			display_color_img(skinverwaltung_t::narrowgaugehaltsymbol->get_image_id(0), pos.x+left, pos_y, 0, false, true);
 			left += 23;
 		}
 
@@ -107,21 +108,21 @@ void halt_list_stats_t::zeichnen(koord offset)
 		pos_y = pos.y+offset.y+14;
 		left = pos.x+offset.x+2;
 		if (halt->get_pax_enabled()) {
-			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), left, pos_y, 0, false, true);
+			display_color_img(skinverwaltung_t::passagiere->get_image_id(0), left, pos_y, 0, false, true);
 			left += 10;
 		}
 		if (halt->get_post_enabled()) {
-			display_color_img(skinverwaltung_t::post->get_bild_nr(0), left, pos_y, 0, false, true);
+			display_color_img(skinverwaltung_t::post->get_image_id(0), left, pos_y, 0, false, true);
 			left += 10;
 		}
 		if (halt->get_ware_enabled()) {
-			display_color_img(skinverwaltung_t::waren->get_bild_nr(0), left, pos_y, 0, false, true);
+			display_color_img(skinverwaltung_t::waren->get_image_id(0), left, pos_y, 0, false, true);
 			left += 10;
 		}
 
 		static cbuffer_t buf;
 		buf.clear();
 		halt->get_short_freight_info(buf);
-		display_proportional_clip(pos.x+offset.x+32+2, pos_y, buf, ALIGN_LEFT, COL_BLACK, true);
+		display_proportional_clip(pos.x+offset.x+32+2, pos_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 	}
 }

@@ -17,9 +17,6 @@
 /* crossconnect industry and half heights like openTTD */
 //#define OTTD_LIKE
 
-/* two inclinations per pixel */
-//#define DOUBLE_GROUNDS
-
 /* single height is only 8 pixel (default 16) */
 //#define HALF_HEIGHT
 
@@ -39,21 +36,17 @@
  * needed i.e. for MSVC and PowerPC */
 //#define USE_C
 
-// maximum distance to look ahead for tiles (if undefined, it is unlimited)
-#define MAX_CHOOSE_BLOCK_TILES (64)
-
 // The wind (i.e. approach direction) is random all over the map (not recommended, since it confuses players)
 //#define USE_DIFFERENT_WIND
 
 // define this for automaticcally joining stations next to a public stop with it
 //#define AUTOJOIN_PUBLIC
 
-// vector_tpl can be faster for sync_lists
-#define SYNC_VECTOR
-
 // allow minspeed and private way signs on waterways (imho pointless)
 //#define ENABLE_WATERWAY_SIGNS
 
+// Maximum number of threads
+#define MAX_THREADS (12)
 
 /*********************** Useful things for debugging ... ********************/
 
@@ -80,17 +73,13 @@
 
 
 // inclination types
-#ifndef DOUBLE_GROUNDS
-// constants used in tools wkz_setslope / wkz_restoreslope_t
-#define ALL_UP_SLOPE (16)
-#define ALL_DOWN_SLOPE (17)
-#define RESTORE_SLOPE (18)
-#else
-// double height (two slopes per tile) definitions
+// constants used in tools tool_setslope / tool_restoreslope_t
 #define ALL_UP_SLOPE (82)
 #define ALL_DOWN_SLOPE (83)
 #define RESTORE_SLOPE (84)
-#endif
+#define ALL_UP_SLOPE_SINGLE (16)
+#define ALL_DOWN_SLOPE_SINGLE (17)
+#define RESTORE_SLOPE_SINGLE (18)
 
 
 // 16 internal pixels per tile, for purposes of object visual offsets.

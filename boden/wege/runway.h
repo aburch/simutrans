@@ -21,16 +21,16 @@
 class runway_t : public schiene_t
 {
 public:
-	static const weg_besch_t *default_runway;
+	static const way_desc_t *default_runway;
 
 	/**
 	 * File loading constructor.
 	 *
 	 * @author Hj. Malthaner
 	 */
-	runway_t(karte_t *welt, loadsave_t *file);
+	runway_t(loadsave_t *file);
 
-	runway_t(karte_t *welt);
+	runway_t();
 
 	//inline waytype_t get_waytype() const {return air_wt;}
 

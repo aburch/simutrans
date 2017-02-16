@@ -26,7 +26,7 @@
 #include "../simtypes.h"
 #include "../utils/cbuffer_t.h"
 
-class vehikel_besch_t;
+class vehicle_desc_t;
 
 /**
  * Depot frame, handles all interaction with a vehicle depot.
@@ -114,7 +114,7 @@ private:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	sint64 calc_restwert(const vehikel_besch_t *veh_type);
+	sint64 calc_sale_value(const vehicle_desc_t *veh_type);
 
 	/**
 	 * Does this window need a min size button in the title bar?
@@ -123,21 +123,16 @@ private:
 	 */
 	bool has_min_sizer() const {return true;}
 
-//<<<<<<< HEAD
-//=======
-//	// true if already stored here
-//	bool is_contained(const vehikel_besch_t *info);
-//
-//	// add a single vehicle (helper function)
-//	void add_to_vehicle_list(const vehikel_besch_t *info);
-//
-//	// for convoi image
-//	void image_from_convoi_list(uint nr, bool to_end);
-//
-//	void image_from_storage_list(gui_image_list_t::image_data_t *bild_data);
-//
-//>>>>>>> aburch/master
-	karte_t* get_welt() { return depot->get_welt(); }
+	// true if already stored here
+	bool is_contained(const vehicle_desc_t *info);
+
+	// add a single vehicle (helper function)
+	void add_to_vehicle_list(const vehicle_desc_t *info);
+
+	// for convoi image
+	void image_from_convoi_list(uint nr, bool to_end);
+
+	void image_from_storage_list(gui_image_list_t::image_data_t *image_data);
 
 public:
 	// the next two are only needed for depot_t update notifications
@@ -150,7 +145,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  18.06.2003
 	 */
-	void layout(koord *);
+	void layout(scr_size *);
 
 	/**
 	 * Update texts, image lists and buttons according to the current state.
@@ -167,7 +162,7 @@ public:
 	 * @author (Mathew Hounsell)
 	 * @date   11-Mar-2003
 	 */
-	void set_fenstergroesse(koord groesse);
+	void set_windowsize(scr_size size);
 
 	/**
 	 * Create and fill loks_vec and waggons_vec.
@@ -188,7 +183,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_hilfe_datei() const {return "depot.txt";}
+	const char * get_help_filename() const {return "depot.txt";}
 
 	/**
 	 * Does this window need a next button in the title bar?
@@ -198,12 +193,13 @@ public:
 	bool has_next() const {return true;}
 
 	virtual koord3d get_weltpos(bool);
+	virtual bool is_weltpos();
 
 	/**
 	 * Open dialog for schedule entry.
 	 * @author Hj. Malthaner
 	 */
-	void fahrplaneingabe();
+	void open_schedule_editor();
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -211,7 +207,7 @@ public:
 	 * Draw the Frame
 	 * @author Hansjörg Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	// @author hsiegeln
 	void apply_line();

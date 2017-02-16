@@ -1,8 +1,9 @@
 #include "vehikel_besch.h"
 #include "xref_besch.h"
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
+#include "../simworld.h"
 
-uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost) const
+uint32 vehicle_desc_t::calc_running_cost(const karte_t *welt, uint32 base_cost) const
 {
 	// No cost or no time line --> no obsolescence cost increase.
 	if (base_cost == 0 || !welt->use_timeline())
@@ -19,7 +20,7 @@ uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost)
 	sint32 months_of_obsolescence = welt->get_current_month() - (get_retire_year_month() + months_after_retire);
 	if (months_of_obsolescence <= 0)	
 	{
-		return base_cost;
+		return base_cost; 
 	}
 
 	// I am obsolete --> obsolescence cost increase.
@@ -48,17 +49,17 @@ uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost)
 
 // Get running costs. Running costs increased if the vehicle is obsolete.
 // @author: jamespetts
-uint16 vehikel_besch_t::get_running_cost(const karte_t* welt) const
+uint16 vehicle_desc_t::get_running_cost(const karte_t* welt) const
 {
 	return calc_running_cost(welt, get_running_cost());
 }
 
-uint32 vehikel_besch_t::get_fixed_cost(karte_t *welt) const
+uint32 vehicle_desc_t::get_fixed_cost(karte_t *welt) const
 {
 	return calc_running_cost(welt, get_fixed_cost());
 }
 
-uint32 vehikel_besch_t::get_adjusted_monthly_fixed_cost(karte_t *welt) const
+uint32 vehicle_desc_t::get_adjusted_monthly_fixed_cost(karte_t *welt) const
 {
 	return welt->calc_adjusted_monthly_figure(calc_running_cost(welt, get_fixed_cost()));
 }
@@ -67,13 +68,14 @@ uint32 vehikel_besch_t::get_adjusted_monthly_fixed_cost(karte_t *welt) const
  * Get the ratio of power to force from either given power and force or according to given waytype.
  * Will never return 0, promised.
  */
-float32e8_t vehikel_besch_t::get_power_force_ratio() const
+float32e8_t vehicle_desc_t::get_power_force_ratio() const
 {
-	if (leistung != 0 && tractive_effort != 0)
+	if (power != 0 && tractive_effort != 0)
 	{
-		return float32e8_t(leistung, (uint32) tractive_effort);
+		return float32e8_t(power, (uint32) tractive_effort);
 	}
 
+	static const float32e8_t half_of_kmh_to_ms(10, 36 * 2);
 	switch (get_waytype())
 	{
 		case track_wt:
@@ -82,7 +84,7 @@ float32e8_t vehikel_besch_t::get_power_force_ratio() const
 		case maglev_wt:
 		case tram_wt:
 		case narrowgauge_wt:
-			if (geschw && get_engine_type() == steam)
+			if (topspeed && get_engine_type() == steam)
 			{
 				/** This is a steam engine on tracks. Steam engines on tracks are constant force engines.
 				* The force is constant from 0 to about half of maximum speed. Above the power becomes nearly constant due 
@@ -90,22 +92,22 @@ float32e8_t vehikel_besch_t::get_power_force_ratio() const
 				* We assume, that the given power is meant for the half of the engines allowed maximum speed and get the constant force:
 				*/
 				// Steamers are constant force machines unless about half of maximum speed, when steam runs short.
-				return float32e8_t(geschw * 10, 36 * 2);
+				return topspeed * half_of_kmh_to_ms;
 			}
-			/* else fall through */
+			return float32e8_t::ten;
 
 		//case water_wt:
 			// Ships are constant force machines at all speeds, but the pak sets are balanced for constant power. 
-			//return float32e8_t(geschw * 10, 36);
+			//return float32e8_t(get_geschw() * 10, 36);
 
 		case air_wt: 
 			// Aircraft are constant force machines at all speeds, but the pak sets are balanced for constant power. 
-			// We recommend for simutrans experimental to set the tractive effort manually. The existing aircraft power values are very roughly estimated.
-			if (geschw)
+			// We recommend for simutrans extended to set the tractive effort manually. The existing aircraft power values are very roughly estimated.
+			if (topspeed)
 			{
-				return float32e8_t(geschw * 10, 36 * 2);
+				return topspeed * half_of_kmh_to_ms;
 			}
-			/* else fall through */
+			return float32e8_t::ten;
 
 		default:
 			/** Constant power characteristic, but we limit maximum force to a tenth of the power multiplied by gear.
@@ -117,9 +119,10 @@ float32e8_t vehikel_besch_t::get_power_force_ratio() const
 			* The german series 230(130 DR) was a universal engine with 2200 kW, 250 kN starting tractive effort and 140 km/h allowed top speed.
 			* The same engine with a freight gear (series 231 / 131 DR) and 2200 kW had 340 kN starting tractive effort and 100 km/h allowed top speed.
 			*
-			* In simutrans these engines can be simulated by setting the power to 2200, max speed to 140 resp. 100 and the gear to 1.136 resp. 1.545.
+			* In simutrans extended these engines can be designed  by setting power to 2200, max speed to 140 resp. 100 and tractive effort to 250 resp. 340. 
+			* In simutrans standard		these engines can be simulated by setting power to 2200, max speed to 140 resp. 100 and gear to 1.136 resp. 1.545.
 			*/
-			return float32e8_t(10);
+			return float32e8_t::ten;
 	}
 }
 
@@ -127,7 +130,7 @@ float32e8_t vehikel_besch_t::get_power_force_ratio() const
  * calculate unloaded values after loading.
  * @author Bernd Gabriel, Dec 12, 2009
  */
-void vehikel_besch_t::loaded()
+void vehicle_desc_t::loaded()
 {
 	/** 
 	* Vehicles specify their (nominal) power. The formula 
@@ -148,8 +151,8 @@ void vehikel_besch_t::loaded()
 
 	static const float32e8_t gear_factor((uint32)GEAR_FACTOR); 
 	float32e8_t power_force_ratio = get_power_force_ratio();
-	force_threshold_speed = (uint16)(power_force_ratio + float32e8_t::half);
-	float32e8_t g_power = float32e8_t(leistung) * (/*(uint32) 1000L * */ (uint32)gear);
+	force_threshold_playerseed = (uint16)(power_force_ratio + float32e8_t::half);
+	float32e8_t g_power = float32e8_t(power) * (/*(uint32) 1000L * */ (uint32)gear);
 	float32e8_t g_force = float32e8_t(tractive_effort) * (/*(uint32) 1000L * */ (uint32)gear);
 	if (g_power != 0)
 	{
@@ -173,17 +176,17 @@ void vehikel_besch_t::loaded()
 	 */
 	if (g_power != 0 || g_force != 0)
 	{
-		uint32 speed = (uint32)geschw * kmh2ms + float32e8_t::half;
+		uint32 speed = (uint32)topspeed * kmh2ms + float32e8_t::half;
 		max_speed = speed;
 		geared_power = new uint32[speed+1];
 		geared_force = new uint32[speed+1];
 
-		for (; speed > force_threshold_speed; --speed)
+		for (; speed > force_threshold_playerseed; --speed)
 		{
 			geared_force[speed] = g_power / speed + float32e8_t::half;
 			geared_power[speed] = g_power + float32e8_t::half;
 		}
-		for (; speed <= force_threshold_speed; --speed)
+		for (; speed <= force_threshold_playerseed; --speed)
 		{
 			geared_force[speed] = g_force + float32e8_t::half;
 			geared_power[speed] = g_force * speed + float32e8_t::half;
@@ -195,14 +198,14 @@ void vehikel_besch_t::loaded()
  * Get effective force in N at given speed in m/s: effective_force_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
-uint32 vehikel_besch_t::get_effective_force_index(sint32 speed /* in m/s */ ) const
+uint32 vehicle_desc_t::get_effective_force_index(sint32 speed /* in m/s */ ) const
 {
 	if (geared_force == 0) 
 	{
 		// no force at all
 		return 0;
 	}
-	//return speed <= force_threshold_speed ? geared_force : geared_power / speed;
+	//return speed <= force_threshold_playerseed ? geared_force : geared_power / speed;
 	return geared_force[min(speed, max_speed)];
 }
 
@@ -210,18 +213,18 @@ uint32 vehikel_besch_t::get_effective_force_index(sint32 speed /* in m/s */ ) co
  * Get effective power in W at given speed in m/s: effective_power_index *welt->get_settings().get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
-uint32 vehikel_besch_t::get_effective_power_index(sint32 speed /* in m/s */ ) const
+uint32 vehicle_desc_t::get_effective_power_index(sint32 speed /* in m/s */ ) const
 {
 	if (geared_power == 0) 
 	{
 		// no power at all
 		return 0;
 	}
-	///return speed <= force_threshold_speed ? geared_force * speed : geared_power;
+	///return speed <= force_threshold_playerseed ? geared_force * speed : geared_power;
 	return geared_power[min(speed, max_speed)];
 }
 
-uint16 vehikel_besch_t::get_obsolete_year_month(const karte_t *welt) const
+uint16 vehicle_desc_t::get_obsolete_year_month(const karte_t *welt) const
 { 
 	if(increase_maintenance_after_years)
 	{
@@ -229,41 +232,36 @@ uint16 vehikel_besch_t::get_obsolete_year_month(const karte_t *welt) const
 	}
 	else
 	{
-		return obsolete_date + (welt->get_settings().get_default_increase_maintenance_after_years((waytype_t)typ) * 12);
+		return obsolete_date + (welt->get_settings().get_default_increase_maintenance_after_years((waytype_t)wt) * 12);
 	}
 }
 
-void vehikel_besch_t::calc_checksum(checksum_t *chk) const
+void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 {
-	chk->input(base_price);
-	chk->input(zuladung);
-	chk->input(geschw);
-	chk->input(gewicht);
-	chk->input(axle_load);
-	chk->input(leistung);
+	obj_desc_transport_related_t::calc_checksum(chk);
+	chk->input(capacity);
+	chk->input(weight);
+	chk->input(power);
 	chk->input(running_cost);
 	chk->input(base_fixed_cost);
-	chk->input(intro_date);
-	chk->input(obsolete_date);
 	chk->input(gear);
-	chk->input(typ);
 	chk->input(len);
-	chk->input(vorgaenger);
-	chk->input(nachfolger);
+	chk->input(leader_count);
+	chk->input(trailer_count);
 	chk->input(engine_type);
 	// freight
-	const xref_besch_t *xref = get_child<xref_besch_t>(2);
+	const xref_desc_t *xref = get_child<xref_desc_t>(2);
 	chk->input(xref ? xref->get_name() : "NULL");
 
 	// vehicle constraints
 	// For some reason, this records false mismatches with a few
 	// vehicles when names are used. Use  numbers instead.
-	/*for(uint8 i=0; i<vorgaenger+nachfolger; i++) {
-		const xref_besch_t *xref = get_child<xref_besch_t>(6+i);
+	/*for(uint8 i=0; i<leader_count+trailer_count; i++) {
+		const xref_desc_t *xref = get_child<xref_desc_t>(6+i);
 		chk->input(xref ? xref->get_name() : "NULL");
 	}*/
 
-	// Experimental settings
+	// Extended settings
 	chk->input(base_upgrade_price);
 	chk->input(overcrowded_capacity);
 	chk->input(base_fixed_cost);
@@ -280,6 +278,7 @@ void vehikel_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input(tractive_effort);
 	chk->input(brake_force);
 	chk->input(minimum_runway_length);
+	chk->input(range);
 	const uint16 ar = air_resistance * float32e8_t((uint32)100);
 	const uint16 rr = rolling_resistance * float32e8_t((uint32)100);
 	chk->input(ar);

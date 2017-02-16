@@ -11,7 +11,7 @@
 #include "simtypes.h"
 
 // Provide chdir().
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
 #	include <direct.h>
 #else
 #	include <unistd.h>
@@ -29,6 +29,7 @@
 #define SIM_MOUSE_BUTTONS   1
 #define SIM_KEYBOARD        2
 #define SIM_MOUSE_MOVE      3
+#define SIM_STRING          4
 #define SIM_SYSTEM          254
 #define SIM_IGNORE_EVENT    255
 
@@ -43,16 +44,15 @@
 #define SIM_MOUSE_WHEELUP           8 //2003-11-04 hsiegeln added
 #define SIM_MOUSE_WHEELDOWN         9 //2003-11-04 hsiegeln added
 
-#define SIM_SYSTEM_QUIT             1
-#define SIM_SYSTEM_RESIZE             2
-#define SIM_SYSTEM_UPDATE           3
-
 /* Globale Variablen zur Messagebearbeitung */
 
 struct sys_event
 {
 	unsigned long type;
-	unsigned long code;
+	union {
+		unsigned long code;
+		void *ptr;
+	};
 	int mx;                  /* es sind negative Koodinaten mgl */
 	int my;
 	int mb;
@@ -69,6 +69,9 @@ extern struct sys_event sys_event;
  */
 bool dr_movetotrash(const char *path);
 #endif
+
+// scale according to dpi setting
+bool dr_auto_scale(bool);
 
 bool dr_os_init(int const* parameter);
 
@@ -88,11 +91,22 @@ const char *dr_get_locale_string();
 
 void dr_mkdir(char const* path);
 
+// accecpt whatever encoding your filename has (assuming ANSI for windows) and returns the Unicode name
+const char *dr_system_filename_to_uft8( const char *path_in );
+
+// accecpt utf8 and returns (on windows) an ANSI filename
+const char *dr_utf8_to_system_filename( const char *path_in_utf8, bool create=false );
+
+// rename a file and delete eventually existing file new_utf8
+void dr_rename( const char *existing_utf8, const char *new_utf8 );
+
 /* query home directory */
 char const* dr_query_homedir();
 
-unsigned short* dr_textur_init(void);
+unsigned short* dr_textur_init();
 
+// returns the file path to a font file
+const char *dr_query_fontpath( const char * fontname );
 
 void dr_textur(int xp, int yp, int w, int h);
 
@@ -101,7 +115,7 @@ int dr_textur_resize(unsigned short** textur, int w, int h);
 
 // needed for screen update
 void dr_prepare_flush();	// waits, if previous update not yet finished
-void dr_flush(void);	// copy to screen (eventuall multithreaded)
+void dr_flush();	// copy to screen (eventuall multithreaded)
 
 /**
  * Transform a 24 bit RGB color into the system format.
@@ -116,12 +130,15 @@ void set_pointer(int loading);
 
 void move_pointer(int x, int y);
 
-void ex_ord_update_mx_my(void);
+int get_mouse_x();
+int get_mouse_y();
 
-void GetEvents(void);
-void GetEventsNoWait(void);
+void ex_ord_update_mx_my();
 
-unsigned long dr_time(void);
+void GetEvents();
+void GetEventsNoWait();
+
+uint32 dr_time();
 void dr_sleep(uint32 millisec);
 
 // error message in case of fatal events
@@ -159,6 +176,23 @@ size_t dr_paste(char *target, size_t max_length);
  * @return false, if nothing was downloaded
  */
 bool dr_download_pakset( const char *path_to_program, bool portable );
+
+/**
+ * Shows the touch keyboard when using systems without a hardware keyboard.
+ * Will be ignored if there is an hardware keyboard available.
+ */
+void dr_start_textinput();
+
+/**
+ * Hides the touch keyboard when using systems without a hardware keyboard.
+ * Will be ignored it there is no on-display keyboard shown.
+ */
+void dr_stop_textinput();
+
+/**
+ * Inform the IME of a ideal place to open its popup.
+ */
+void dr_notify_input_pos(int x, int y);
 
 int sysmain(int argc, char** argv);
 

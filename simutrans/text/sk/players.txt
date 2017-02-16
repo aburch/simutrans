@@ -1,0 +1,18 @@
+<title>Konkurenèní hráèi - pomoc</title>
+
+<h1>Zoznam hráèov</h1>
+
+<p>
+V tomto menu si schopný vidiet' konkurenciu - UMELÚ INTELIGENCIU
+s mo¾nost'ou bud vypnutia alebo zapnutia ka¾dého z nich.
+</p>
+<p>
+Bankový zostatok - ka¾dý konkurent je slovne zobrazený aj so zostatkom
+jeho úètu. Zapnút' alebo vypnút' ktoréhokoµvek z nich mô¾e¹ kliknutím
+na príslu¹né políèko vµavo.
+©tandardne je zapnutý jeden konkurent tyrkysovej farby.
+</p>
+<p>
+Pozn. prekladateµa : Vypnutím konkurentov deaktivuje¹ u nich len moznost' nového
+investovania. Ich dovtedaj¹ie investièné aktivity v¹ak be¾ia naïalej.
+</p>

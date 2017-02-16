@@ -14,74 +14,97 @@
 
 #include "gui_frame.h"
 #include "../simcolor.h"
-#include "../simgraph.h"
-#include "../simwin.h"
+#include "../display/simgraph.h"
+#include "../gui/simwin.h"
 #include "../simworld.h"
 #include "../player/simplay.h"
 
 #include "../besch/reader/obj_reader.h"
-#include "../simskin.h"
 #include "../besch/skin_besch.h"
+#include "../simskin.h"
 
-// default button sizes
-KOORD_VAL gui_frame_t::gui_button_width = 92;
-KOORD_VAL gui_frame_t::gui_button_height = 14;
+floating_cursor_t::floating_cursor_t(const scr_coord& initial,	scr_coord_val min_left,	scr_coord_val max_right)
+	: cursor(initial)
+	, left(min_left)
+	, right(max_right)
+	, row_height(0) 
+{}
 
-// default titlebar height
-KOORD_VAL gui_frame_t::gui_titlebar_height = 16;
+void floating_cursor_t::new_line()
+{
+	cursor.x = left;
+	cursor.y += row_height + D_V_SPACE;
+	row_height = 0;
+}
 
-// dialog borders
-KOORD_VAL gui_frame_t::gui_frame_left = 10;
-KOORD_VAL gui_frame_t::gui_frame_top = 10;
-KOORD_VAL gui_frame_t::gui_frame_right = 10;
-KOORD_VAL gui_frame_t::gui_frame_bottom = 10;
+scr_coord floating_cursor_t::next_pos(const scr_size& size)
+{
+	if (cursor.x + size.w > right)
+	{
+		new_line();
+	}
+	scr_coord curr = cursor;
+	cursor.x += size.w + D_H_SPACE;
+	if (row_height < size.h)
+		row_height = size.h;
+	return curr;
+}
 
-// space between two elements
-KOORD_VAL gui_frame_t::gui_hspace = 4;
-KOORD_VAL gui_frame_t::gui_vspace = 4;
 
-// size of status indicator elements (colored boxes in factories, station and others)
-KOORD_VAL gui_frame_t::gui_indicator_width = 20;
-KOORD_VAL gui_frame_t::gui_indicator_height = 4;
+//// default button sizes
+//KOORD_VAL gui_frame_t::gui_button_width = 92;
+//KOORD_VAL gui_frame_t::gui_button_height = 14;
+//
+//// default titlebar height
+//KOORD_VAL gui_frame_t::gui_titlebar_height = 16;
+//
+//// dialog borders
+//KOORD_VAL gui_frame_t::gui_frame_left = 10;
+//KOORD_VAL gui_frame_t::gui_frame_top = 10;
+//KOORD_VAL gui_frame_t::gui_frame_right = 10;
+//KOORD_VAL gui_frame_t::gui_frame_bottom = 10;
+//
+//// space between two elements
+//KOORD_VAL gui_frame_t::gui_hspace = 4;
+//KOORD_VAL gui_frame_t::gui_vspace = 4;
+//
+//// size of status indicator elements (colored boxes in factories, station and others)
+//KOORD_VAL gui_frame_t::gui_indicator_width = 20;
+//KOORD_VAL gui_frame_t::gui_indicator_height = 4;
+//
+
+karte_ptr_t gui_frame_t::welt;
 
 
 // Insert the container
-gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
+gui_frame_t::gui_frame_t(char const* const name, player_t const* const player)
 {
 	this->name = name;
-	groesse = koord(200, 100);
-	min_windowsize = koord(0,0);
-	owner = sp;
-	container.set_pos(koord(0,D_TITLEBAR_HEIGHT));
+	size = scr_size(200, 100);
+	min_windowsize = scr_size(0,0);
+	owner = player;
+	container.set_pos(scr_coord(0,D_TITLEBAR_HEIGHT));
 	set_resizemode(no_resize);  //25-may-02  markus weber  added
 	opaque = true;
 	dirty = true;
 }
 
 
-
 /**
  * Set the window size
  * @author Hj. Malthaner
  */
-void gui_frame_t::set_fenstergroesse(koord groesse)
+void gui_frame_t::set_windowsize(scr_size size)
 {
-	if(  groesse != this->groesse  ) {
+	if(  size != this->size  ) {
 		// mark old size dirty
-		koord const& pos = win_get_pos(this);
-		mark_rect_dirty_wc( pos.x, pos.y, pos.x+this->groesse.x, pos.y+this->groesse.y );
+		scr_coord const& pos = win_get_pos(this);
+		mark_rect_dirty_wc( pos.x, pos.y, pos.x+this->size.w, pos.y+this->size.h );
 
-		// minimal width //25-may-02  markus weber  added
-		if(  groesse.x < min_windowsize.x  ) {
-			groesse.x = min_windowsize.x;
-		}
+		// minimum size //25-may-02  markus weber  added
+		size.clip_lefttop(min_windowsize);
 
-		// minimal height //25-may-02  markus weber  added
-		if(  groesse.y < min_windowsize.y  ) {
-			groesse.y = min_windowsize.y;
-		}
-
-		this->groesse = groesse;
+		this->size = size;
 		dirty = true;
 	}
 }
@@ -92,14 +115,14 @@ void gui_frame_t::set_fenstergroesse(koord groesse)
  * -borders and -body background
  * @author Hj. Malthaner
  */
-PLAYER_COLOR_VAL gui_frame_t::get_titelcolor() const
+PLAYER_COLOR_VAL gui_frame_t::get_titlecolor() const
 {
-	return owner ? PLAYER_FLAG|(owner->get_player_color1()+1) : WIN_TITEL;
+	return owner ? PLAYER_FLAG|(owner->get_player_color1()+1) : WIN_TITLE;
 }
 
 
 /**
- * Events werden hiermit an die GUI-Komponenten
+ * Events werden hiermit an die GUI-components
  * gemeldet
  * @author Hj. Malthaner
  */
@@ -107,14 +130,14 @@ bool gui_frame_t::infowin_event(const event_t *ev)
 {
 	// %DB0 printf( "\nMessage: gui_frame_t::infowin_event( event_t const * ev ) : Fenster|Window %p : Event is %d", (void*)this, ev->ev_class );
 	if(IS_WINDOW_RESIZE(ev)) {
-		koord delta (  resize_mode & horizonal_resize ? ev->mx - ev->cx : 0,
+		scr_coord delta (  resize_mode & horizonal_resize ? ev->mx - ev->cx : 0,
 		               resize_mode & vertical_resize  ? ev->my - ev->cy : 0);
 		resize(delta);
 		return true;  // don't pass to children!
 	}
 	else if(IS_WINDOW_MAKE_MIN_SIZE(ev)) {
-		set_fenstergroesse( get_min_windowsize() ) ;
-		resize( koord(0,0) ) ;
+		set_windowsize( get_min_windowsize() ) ;
+		resize( scr_coord(0,0) ) ;
 		return true;  // don't pass to children!
 	}
 	else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_CLOSE  ||  ev->ev_code==WIN_OPEN  ||  ev->ev_code==WIN_TOP)) {
@@ -133,25 +156,18 @@ bool gui_frame_t::infowin_event(const event_t *ev)
  * @author Markus Weber, Hj. Malthaner
  * @date 11-may-02
  */
-void gui_frame_t::resize(const koord delta)
+void gui_frame_t::resize(const scr_coord delta)
 {
-	koord size_change = delta;
-	koord new_size = groesse + delta;
+	dirty = true;
+	scr_size new_size = size + delta;
 
-	// resize window to the minimal width
-	if (new_size.x < min_windowsize.x) {
-		size_change.x = min_windowsize.x - groesse.x;
-		new_size.x = min_windowsize.x;
-	}
+	// resize window to the minimum size
+	new_size.clip_lefttop(min_windowsize);
 
-	// resize window to the minimal height
-	if (new_size.y < min_windowsize.y) {
-		size_change.y = min_windowsize.y - groesse.y;
-		new_size.y = min_windowsize.y;
-	}
+	scr_coord size_change = new_size - size;
 
 	// resize window
-	set_fenstergroesse(new_size);
+	set_windowsize(new_size);
 
 	// change drag start
 	change_drag_start(size_change.x, size_change.y);
@@ -162,52 +178,35 @@ void gui_frame_t::resize(const koord delta)
  * Draw new component. The values to be passed refer to the window
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
+ *
  * @author Hj. Malthaner
  */
-void gui_frame_t::zeichnen(koord pos, koord gr)
+void gui_frame_t::draw(scr_coord pos, scr_size size)
 {
-	// ok, resized, move or draw for the first time
-	if(dirty) {
-		mark_rect_dirty_wc(pos.x,pos.y,pos.x+gr.x,pos.y+gr.y);
-		dirty = false;
-	}
-
 	// draw background
-	PUSH_CLIP(pos.x+1,pos.y+D_TITLEBAR_HEIGHT,gr.x-2,gr.y-D_TITLEBAR_HEIGHT);
-
 	if(  opaque  ) {
-		// Hajo: skinned windows code
-		if(skinverwaltung_t::window_skin!=NULL) {
-			const int img = skinverwaltung_t::window_skin->get_bild_nr(0);
-
-			for(int j=0; j<gr.y; j+=64) {
-				for(int i=0; i<gr.x; i+=64) {
-					// the background will not trigger a redraw!
-					display_color_img( img, pos.x+1 + i, pos.y+D_TITLEBAR_HEIGHT + j, 0, false, false );
-				}
-			}
-		}
-		else {
-			// empty box
-			display_fillbox_wh( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, gr.x-2, gr.y-D_TITLEBAR_HEIGHT, MN_GREY1, false );
+		display_img_stretch( gui_theme_t::windowback, scr_rect( pos + scr_coord(0,D_TITLEBAR_HEIGHT), size - scr_size(0,D_TITLEBAR_HEIGHT) ) );
+		if(  dirty  ) {
+			mark_rect_dirty_wc(pos.x, pos.y, pos.x + size.w, pos.y + D_TITLEBAR_HEIGHT );
 		}
 	}
 	else {
-		display_blend_wh( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, gr.x-2, gr.y-D_TITLEBAR_HEIGHT, color_transparent, percent_transparent );
+		if(  dirty  ) {
+			mark_rect_dirty_wc(pos.x, pos.y, pos.x + size.w, pos.y + size.h + D_TITLEBAR_HEIGHT );
+		}
+		display_blend_wh( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, size.w-2, size.h-D_TITLEBAR_HEIGHT, color_transparent, percent_transparent );
 	}
+	dirty = false;
 
-	// Hajo: left, right
-	display_vline_wh( pos.x, pos.y+D_TITLEBAR_HEIGHT, gr.y-D_TITLEBAR_HEIGHT, MN_GREY4, false );
-	display_vline_wh( pos.x+gr.x-1, pos.y+D_TITLEBAR_HEIGHT, gr.y-D_TITLEBAR_HEIGHT, MN_GREY0, false );
-
-	// Hajo: bottom line
-	display_fillbox_wh( pos.x, pos.y+gr.y-1, gr.x, 1, MN_GREY0, false );
-
-	// shadows
-
+	PUSH_CLIP(pos.x+1, pos.y+D_TITLEBAR_HEIGHT, size.w-2, size.h-D_TITLEBAR_HEIGHT);
+	container.draw(pos);
 	POP_CLIP();
 
-	container.zeichnen(pos);
+	// for shadows of the windows
+	if(  gui_theme_t::gui_drop_shadows  ) {
+		display_blend_wh( pos.x+size.w, pos.y+1, 2, size.h, COL_BLACK, 50 );
+		display_blend_wh( pos.x+1, pos.y+size.h, size.w, 2, COL_BLACK, 50 );
+	}
 }
 
 void  gui_frame_t::set_name(const char *name)

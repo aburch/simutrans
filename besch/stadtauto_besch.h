@@ -11,69 +11,46 @@
 #include "bildliste_besch.h"
 #include "../dataobj/ribi.h"
 #include "../simtypes.h"
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
 
 
 /*
  *  Autor:
  *      Volker Meyer
  *
- *  Beschreibung:
- *	Automatisch generierte Autos, die in der Stadt umherfahren.
+ *  Description:
+ *	Automatisch generierte Autos, die in der City umherfahren.
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
- *	2   Bildliste
+ *	2   Image-list
  */
-class stadtauto_besch_t : public obj_besch_std_name_t {
+class citycar_desc_t : public obj_desc_timelined_t {
 	friend class citycar_reader_t;
 
-	uint16 gewichtung;
+	uint16 chance;
 
-	// max speed
+	/// topspeed in internal speed units !!! not km/h!!!
 	uint16 geschw;
 
-	// when was this car used?
-	uint16 intro_date;
-	uint16 obsolete_date;
-
-	uint8	length[8];	// length of pixel until leaving the field (not used)
-
 public:
-	int get_bild_nr(ribi_t::dir dir) const
+	int get_image_id(ribi_t::dir dir) const
 	{
-		bild_besch_t const* const bild = get_child<bildliste_besch_t>(2)->get_bild(dir);
-		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+		image_t const* const image = get_child<image_list_t>(2)->get_image(dir);
+		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
-	int get_gewichtung() const { return gewichtung; }
+	int get_chance() const { return chance; }
 
+	/// topspeed in internal speed units !!! not km/h!!!
 	sint32 get_geschw() const { return geschw; }
-
-	/**
-	* @return introduction year
-	* @author Hj. Malthaner
-	*/
-	int get_intro_year_month() const { return intro_date; }
-
-	/**
-	 * @return time when obsolete
-	 * @author prissi
-	 */
-	int get_retire_year_month() const { return obsolete_date;}
-
-	/* @return the normalized distance to the next vehicle
-	* @author prissi
-	*/
-	uint8 get_length_to_next( uint8 next_dir ) const { return length[next_dir]; }
 
 	void calc_checksum(checksum_t *chk) const
 	{
-		chk->input(gewichtung);
+		obj_desc_timelined_t::calc_checksum(chk);
+		chk->input(chance);
 		chk->input(geschw);
-		chk->input(intro_date);
-		chk->input(obsolete_date);
 	}
 };
 

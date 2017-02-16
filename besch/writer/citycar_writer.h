@@ -16,7 +16,7 @@
  *  Autor:
  *      Volker Meyer
  *
- *  Beschreibung:
+ *  Description:
  *      Liest Beschreibunnen der automatisch generierten Autos
  */
 class citycar_writer_t : public obj_writer_t {

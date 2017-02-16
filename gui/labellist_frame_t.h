@@ -7,7 +7,6 @@
 #include "components/gui_label.h"
 #include "components/gui_scrollpane.h"
 
-class karte_t;
 
 /**
  * label list window
@@ -33,20 +32,20 @@ class labellist_frame_t : public gui_frame_t, private action_listener_t
     static bool sortreverse;
 	static bool filter_state;
  public:
-    labellist_frame_t(karte_t * welt);
+    labellist_frame_t();
 
     /**
      * resize window in response to a resize event
      * @author Hj. Malthaner
      */
-    void resize(const koord delta);
+    void resize(const scr_coord delta);
 
     /**
      * Set the window associated helptext
      * @return the filename for the helptext, or NULL
      * @author V. Meyer
      */
-    const char * get_hilfe_datei() const {return "labellist_filter.txt"; }
+    const char * get_help_filename() const {return "labellist_filter.txt"; }
 
      /**
      * This function refreshes the station-list
@@ -58,7 +57,7 @@ class labellist_frame_t : public gui_frame_t, private action_listener_t
     static void set_sortierung(const labellist::sort_mode_t sm) { sortby = sm; }
 
     static bool get_reverse() { return sortreverse; }
-    static void set_reverse(const bool& reverse) { sortreverse = reverse;    }
+    static void set_reverse(const bool& reverse) { sortreverse = reverse; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

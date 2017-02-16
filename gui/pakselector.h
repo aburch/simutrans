@@ -18,7 +18,7 @@ private:
 	gui_file_table_delete_column_t addon_column;
 
 protected:
-	virtual void action(const char *fullpath);
+	virtual bool item_action(const char *fullpath);
 	virtual bool del_action(const char *fullpath);
 	virtual const char *get_info(const char *fname);
 
@@ -31,15 +31,15 @@ protected:
 public:
 	void fill_list();	// do the search ...
 	virtual bool has_title() const { return false; }
-	bool has_pak() const { return use_table ? file_table.get_size().get_y() > 0 : !entries.empty(); }
+	bool has_pak() const { return use_table ? file_table.get_size().h > 0 : !entries.empty(); }
 
 	// If there is only one option, this will set the pak name and return true.
 	// Otherwise it will return false.  (Note, it's const but it modifies global data.)
 	bool check_only_one_option() const;
-	const char * get_hilfe_datei() const { return ""; }
+	const char * get_help_filename() const { return ""; }
 	// since we only want to see the frames ...
-	void zeichnen(koord pos, koord gr);
-	void set_fenstergroesse(koord groesse);
+	void draw(scr_coord pos, scr_size gr);
+	void set_windowsize(scr_size size);
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 	pakselector_t();
 };

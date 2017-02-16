@@ -5,7 +5,7 @@
 #include "../simtypes.h"
 #include "../simconst.h"
 #include "../tpl/array2d_tpl.h"
-#include "../utils/checksum.h"
+#include "../network/checksum.h"
 
 class karte_t;
 class loadsave_t;
@@ -14,13 +14,13 @@ class loadsave_t;
 class gameinfo_t
 {
 private:
-	sint32 groesse_x, groesse_y;
+	sint32 size_x, size_y;
 	array2d_tpl<uint8> map;
 
 	sint32 industries;
 	sint32 tourist_attractions;
-	sint32 anzahl_staedte;
-	sint32 einwohnerzahl;
+	sint32 city_count;
+	sint32 citizen_count;
 
 	uint16 convoi_count;
 	uint16 halt_count;
@@ -47,7 +47,7 @@ private:
 	checksum_t pakset_checksum;
 
 	// 0 = empty, otherwise some value from simplay
-	uint8 spieler_type[MAX_PLAYER_COUNT];
+	uint8 player_type[MAX_PLAYER_COUNT];
 	uint8 clients;	// currently connected players
 
 public:
@@ -56,14 +56,14 @@ public:
 
 	void rdwr( loadsave_t *file );
 
-	sint32 get_groesse_x() const {return groesse_x;}
-	sint32 get_groesse_y() const {return groesse_y;}
+	sint32 get_size_x() const {return size_x;}
+	sint32 get_size_y() const {return size_y;}
 	const array2d_tpl<uint8> *get_map() const { return &map; }
 
 	sint32 get_industries() const {return industries;}
 	sint32 get_tourist_attractions() const {return tourist_attractions;}
-	sint32 get_anzahl_staedte() const {return anzahl_staedte;}
-	sint32 get_einwohnerzahl() const {return einwohnerzahl;}
+	sint32 get_city_count() const {return city_count;}
+	sint32 get_einwohnerzahl() const {return citizen_count;}
 
 	sint32 get_convoi_count() const {return convoi_count;}
 	sint32 get_halt_count() const {return halt_count;}
@@ -79,7 +79,7 @@ public:
 	uint32 get_game_engine_revision() const { return game_engine_revision; }
 	const char *get_name_language_iso() const { return language_code_names; }
 	const char *get_pak_name() const { return pak_name.c_str(); }
-	uint8 get_player_type(uint8 i) const { return spieler_type[i]; }
+	uint8 get_player_type(uint8 i) const { return player_type[i]; }
 	uint8 get_clients() const { return clients; }
 	const checksum_t & get_pakset_checksum() const { return pakset_checksum; }
 };

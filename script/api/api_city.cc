@@ -47,20 +47,17 @@ SQInteger world_get_city_by_index(HSQUIRRELVM vm)
 	return push_instance(vm, "city_x",  pos.x, pos.y);
 }
 
-
-static void_t set_citygrowth(stadt_t *city, bool allow)
+static script_api::void_t set_citygrowth(stadt_t *city, bool allow)
 {
 	static char param[16];
-	sprintf(param,"g%hi,%hi,%hi", city->get_pos().x, city->get_pos().y, allow );
-	karte_t *welt = city->get_welt();
-	werkzeug_t *wkz = werkzeug_t::simple_tool[WKZ_CHANGE_CITY_TOOL];
-	wkz->set_default_param( param );
-	wkz->flags |=  werkzeug_t::WFL_SCRIPT;
-	welt->set_werkzeug( wkz, welt->get_spieler(1) );
-	wkz->flags &= ~werkzeug_t::WFL_SCRIPT;
-	return void_t();
+	sprintf(param,"g%hi,%hi,%hi", city->get_pos().x, city->get_pos().y, (short)allow );
+	tool_t *tool = tool_t::simple_tool[TOOL_CHANGE_CITY];
+	tool->set_default_param( param );
+	tool->flags |=  tool_t::WFL_SCRIPT;
+	welt->set_tool( tool, welt->get_public_player() );
+	tool->flags &= ~tool_t::WFL_SCRIPT;
+	return script_api::void_t();
 }
-
 
 void export_city(HSQUIRRELVM vm)
 {
@@ -111,6 +108,16 @@ void export_city(HSQUIRRELVM vm)
 	 */
 	register_method_fv(vm, &get_city_stat, "get_citizens",              freevariable2<bool,sint32>(true, HIST_CITICENS), true);
 	/**
+	 * Get monthly statistics of number of citizens.
+	 * @returns array, index [0] corresponds to current month
+	 */
+	register_method_fv(vm, &get_city_stat, "get_jobs",              freevariable2<bool,sint32>(true, HIST_JOBS), true);
+	/**
+	 * Get monthly statistics of number of citizens.
+	 * @returns array, index [0] corresponds to current month
+	 */
+	register_method_fv(vm, &get_city_stat, "get_visitor_demand",              freevariable2<bool,sint32>(true, HIST_VISITOR_DEMAND), true);
+	/**
 	 * Get monthly statistics of number of city growth.
 	 * @returns array, index [0] corresponds to current month
 	 */
@@ -150,6 +157,16 @@ void export_city(HSQUIRRELVM vm)
 	 * @returns array, index [0] corresponds to current year
 	 */
 	register_method_fv(vm, &get_city_stat, "get_year_citizens",         freevariable2<bool,sint32>(false, HIST_CITICENS), true );
+	/**
+	 * Get per year statistics of number of citizens.
+	 * @returns array, index [0] corresponds to current year
+	 */
+	register_method_fv(vm, &get_city_stat, "get_year_jobs",         freevariable2<bool,sint32>(false, HIST_JOBS), true );
+	/**
+	 * Get per year statistics of number of citizens.
+	 * @returns array, index [0] corresponds to current year
+	 */
+	register_method_fv(vm, &get_city_stat, "get_year_visitor_demand",         freevariable2<bool,sint32>(false, HIST_VISITOR_DEMAND), true );
 	/**
 	 * Get per year statistics of number of city growth.
 	 * @returns array, index [0] corresponds to current year
@@ -220,9 +237,10 @@ void export_city(HSQUIRRELVM vm)
 
 	/**
 	 * Change city size. City will immediately grow.
+	 * @param delta City size will change by this number.
 	 * @warning cannot be used in network games.
 	 */
-	register_method(vm, &stadt_t::change_size, "change_size");
+	register_method_fv(vm, &stadt_t::change_size, "change_size", freevariable<bool>(false));
 
 	/**
 	 * Enable or disable city growth.

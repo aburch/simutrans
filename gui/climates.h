@@ -28,21 +28,34 @@ private:
 	settings_t* sets;
 
 	enum { MAX_CLIMATE_LABEL=15 };
-
-	// since decrease/increase buttons always pair these ...
-	gui_numberinput_t water_level, mountain_height, mountain_roughness;
-
-	gui_numberinput_t snowline_winter;
-
-	gui_numberinput_t climate_borders_ui[rocky_climate];
-
-	gui_label_t numberinput_lbl[MAX_CLIMATE_LABEL], summer_snowline;
-
 	char snowline_txt[16];
 
-	button_t no_tree; // without tree
+	// since decrease/increase buttons always pair these ...
+	gui_numberinput_t
+		water_level,
+		mountain_height,
+		mountain_roughness;
 
-	gui_numberinput_t river_n, river_min, river_max;
+	gui_numberinput_t
+		snowline_winter;
+
+	gui_numberinput_t
+		climate_borders_ui[rocky_climate];
+
+	gui_label_t
+		numberinput_lbl[MAX_CLIMATE_LABEL],
+		summer_snowline;
+
+	button_t
+		no_tree; // without tree
+
+	button_t
+		lake; // lake
+
+	gui_numberinput_t
+		river_n,
+		river_min,
+		river_max;
 
 	// Gives a hilly landscape
 	// @author: jamespetts
@@ -62,7 +75,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_hilfe_datei() const {return "climates.txt";}
+	const char * get_help_filename() const {return "climates.txt";}
 
 	// does not work during new world dialog
 	virtual bool has_sticky() const { return false; }

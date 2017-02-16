@@ -17,7 +17,7 @@
 
 #include "convoi_filter_frame.h"
 #include "gui_frame.h"
-#include "gui_container.h"
+#include "components/gui_container.h"
 #include "components/gui_scrollbar.h"
 #include "components/gui_speedbar.h"
 #include "components/gui_label.h"
@@ -25,8 +25,8 @@
 #include "components/gui_button.h"
 #include "../convoihandle_t.h"
 
-class spieler_t;
-class ware_besch_t;
+class player_t;
+class ware_desc_t;
 
 class convoi_frame_t :
 	public gui_frame_t,
@@ -36,7 +36,7 @@ public:
 	enum sort_mode_t { nach_name=0, nach_gewinn=1, nach_typ=2, nach_id=3, SORT_MODES=4 };
 
 private:
-	spieler_t *owner;
+	player_t *owner;
 
 	static const char *sort_text[SORT_MODES];
 
@@ -60,7 +60,7 @@ private:
 
 	// actual filter setting
 	bool filter_is_on;
-	const slist_tpl<const ware_besch_t *>*waren_filter;
+	const slist_tpl<const ware_desc_t *>*waren_filter;
 	char *name_filter;
 	uint32 filter_flags;
 
@@ -89,14 +89,14 @@ public:
 	/**
 	 * Resorts convois
 	 */
-	void sort_list( char *name, uint32 filter, const slist_tpl<const ware_besch_t *> *wares );
+	void sort_list( char *name, uint32 filter, const slist_tpl<const ware_desc_t *> *wares );
 
-	convoi_frame_t(spieler_t *sp);
+	convoi_frame_t(player_t *player);
 
 	virtual ~convoi_frame_t();
 
 	/**
-	 * Events werden hiermit an die GUI-Komponenten
+	 * Events werden hiermit an die GUI-components
 	 * gemeldet
 	 * @author V. Meyer
 	 */
@@ -106,7 +106,7 @@ public:
 	 * This method is called if the size of the window should be changed
 	 * @author Markus Weber
 	 */
-	void resize(const koord size_change);                       // 28-Dec-01        Markus Weber Added
+	void resize(const scr_coord size_change);                       // 28-Dec-01        Markus Weber Added
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -114,14 +114,14 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_hilfe_datei() const {return "convoi.txt"; }
+	const char * get_help_filename() const {return "convoi.txt"; }
 
 	static sort_mode_t get_sortierung() { return sortby; }
 	static void set_sortierung(sort_mode_t sm) { sortby = sm; }

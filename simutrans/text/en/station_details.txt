@@ -1,0 +1,34 @@
+<title>Stop Details Help</title>
+
+<h1><strong>Stop Details</strong></h1>
+
+<p>
+<strong>Stop Details</strong> provides more information about a <em>stop</em>.
+</p>
+<p>
+<strong>Stop Details</strong> opens from the <em>Details</em> option button in the <a href="station.txt">stop information</a> window.
+</p>
+<p>
+If all items are not visible <a href="mouse.txt">re-size</a> <strong>Stop Details</strong>, or use the slider bars to scroll items.
+</p>
+<p>
+Information listd includes:<br>
+<em>Connected factories:</em> names and map co-ordinates (in brackets) of any <a href="industry_info.txt">industries</a> in the catchment area of the stop.<br>
+<em>Tip</em>: Use the <a href="keys.txt">[v]</a> key to toggle the display of catchments area for all the stops in the game.
+</p>
+<p>
+<em>Goods needed by nearby industries:</em> types of
+<a href="goods_filter.txt">goods</a> required by <a href="industryinfo.txt">industries</a> in the catchment area of the stop.
+</p>
+<p>
+<em>Lines serving this Stop:</em>
+<a href="linemanagement.txt">Lines</a> that use this Stop.<br>
+Lines are listd in alphabetical order, with capital letters before lower case letters. Click on the small <em>arrow</em> next to the line to open that line in the <a href="linemanagement.txt">line management</a> window.
+</p>
+<p>
+<em>Direct routes from here:</em>lists the names of stops that can be reached directly (i.e., without changing) by lines and convoys serving this stop. This is lised by the type of items (goods and passnegers) that can be transported from here.<br>
+Stops are listd are listd in alphabetical order, with capital letters before lower case letters. Click on the small <em>arrow</em> next to the line to go to that stop in the main window.
+</p>
+<p>
+Beneath each stop listd, there is a display of the average <em>travelling and waiting time</em> from the present stop to each of the destinations. Goods and passengers will always try to find the shortest route (in terms of journey time: that is, total travelling time plus total waiting time) between their origin and destination stops. Goods that care about how fast that they are transported (have a speed bonus rating of over 0%) and passengers will leave if they have to wait too long at any stop. How long is too long depends on their speed bonus rating.
+</p>

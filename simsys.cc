@@ -6,8 +6,12 @@
 
 #ifdef __HAIKU__
 #include <Message.h>
+#include <FindDirectory.h>
+#include <Path.h>
 #include <LocaleRoster.h>
+#include <SupportDefs.h>
 #define NO_UINT32_TYPES
+#define NO_UINT64_TYPES
 #endif
 
 #include "macros.h"
@@ -16,10 +20,15 @@
 
 
 #ifdef _WIN32
-#	define WIN32_LEAN_AND_MEAN
-#	include <direct.h>
 #	include <windows.h>
+#	include <winbase.h>
 #	include <shellapi.h>
+#	include <shlobj.h>
+#	if !defined(__CYGWIN__)
+#		include <direct.h>
+#	else
+#		include <sys\unistd.h>
+#	endif
 #	define PATH_MAX MAX_PATH
 #else
 #	include <limits.h>
@@ -31,11 +40,32 @@
 
 struct sys_event sys_event;
 
+/**
+ + * Get Mouse X-Position
+ + * @author Hj. Malthaner
+ + */
+int get_mouse_x()
+{
+	return sys_event.mx;
+}
+
+
+/**
+  * Get Mouse y-Position
+  * @author Hj. Malthaner
+  */
+int get_mouse_y()
+{
+	return sys_event.my;
+}
+
 
 void dr_mkdir(char const* const path)
 {
-#ifdef _WIN32
-	mkdir(path);
+#if defined(_WIN32) && !defined(__CYGWIN__)
+	WCHAR pathW[MAX_PATH];
+	MultiByteToWideChar( CP_UTF8, 0, path, -1, pathW, sizeof(pathW) );
+	CreateDirectoryW( pathW, NULL );
 #else
 	mkdir(path, 0777);
 #endif
@@ -55,8 +85,6 @@ bool dr_movetotrash(const char *path) {
 	strcpy(wfilename, path);
 
 	// Double \0 terminated string as required by the function.
-
-	wfilename[len]='\0';
 	wfilename[len+1]='\0';
 
 	ZeroMemory(&FileOp, sizeof(SHFILEOPSTRUCTA));
@@ -77,21 +105,90 @@ bool dr_movetotrash(const char *path) {
 }
 #endif
 
+
+// accecpt whatever encoding your filename has (assuming ANSI for windows) and returns the Unicode name
+const char *dr_system_filename_to_uft8( const char *path_in )
+{
+#if defined _WIN32
+	WCHAR bufferW[1024], bufferW2[1024];
+	static char buffer[1024*3];
+	MultiByteToWideChar( CP_UTF8, 0, path_in, -1, bufferW, lengthof(bufferW) );
+	GetLongPathNameW( bufferW, bufferW2, lengthof(bufferW2) );
+	WideCharToMultiByte( CP_UTF8, 0, bufferW2, -1, buffer, lengthof(buffer), NULL, NULL );
+	return buffer;
+#endif
+	return path_in;
+}
+
+
+
+// accecpt utf8 and returns (on windows) an ANSI filename
+const char *dr_utf8_to_system_filename( const char *path_in_utf8, bool create )
+{
+#if defined _WIN32
+	WCHAR bufferW[1024], bufferW2[1024];
+	static char buffer[1024*3];
+	MultiByteToWideChar( CP_UTF8, 0, path_in_utf8, -1, bufferW, lengthof(bufferW) );
+	if(  GetShortPathNameW( bufferW, bufferW2, lengthof(bufferW2) ) ==  0  ) {
+		if(  !create  ) {
+			// file does not exist, return input path
+			return path_in_utf8;
+		}
+		else {
+			CloseHandle( CreateFileW( bufferW, GENERIC_READ|GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL ) );
+			GetShortPathNameW( bufferW, bufferW2, lengthof(bufferW2) );
+		}
+	}
+	WideCharToMultiByte( CP_UTF8, 0, bufferW2, -1, buffer, lengthof(buffer), NULL, NULL );
+	return buffer;
+#endif
+	(void)create;
+	return path_in_utf8;
+}
+
+
+
+void dr_rename( const char *existing_utf8, const char *new_utf8 )
+{
+#if defined _WIN32
+	WCHAR oldf[1024], newf[1024];
+	MultiByteToWideChar( CP_UTF8, 0, existing_utf8, -1, oldf, lengthof(oldf) );
+	MultiByteToWideChar( CP_UTF8, 0, new_utf8, -1, newf, lengthof(newf) );
+	MoveFileExW( oldf, newf, MOVEFILE_REPLACE_EXISTING );
+#else
+	remove( new_utf8 );
+	rename( existing_utf8, new_utf8 );
+#endif
+}
+
+
 char const* dr_query_homedir()
 {
-	static char buffer[PATH_MAX];
+	static char buffer[PATH_MAX+24];
 
 #if defined _WIN32
-	DWORD len = PATH_MAX - 24;
-	HKEY hHomeDir;
-	if (RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ, &hHomeDir) != ERROR_SUCCESS)
-		return 0;
-	RegQueryValueExA(hHomeDir, "Personal", 0, 0, (BYTE*)buffer, &len);
-	strcat(buffer,"\\Simutrans");
+	WCHAR bufferW[PATH_MAX+24], bufferW2[PATH_MAX+24];
+	if(  SHGetFolderPathW(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, bufferW)  ) {
+		DWORD len = PATH_MAX;
+		HKEY hHomeDir;
+		if(  RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ, &hHomeDir) != ERROR_SUCCESS  ) {
+			return 0;
+		}
+		RegQueryValueExW(hHomeDir, L"Personal", 0, 0, (LPBYTE)bufferW, &len);
+	}
+	// this is needed to access multibyte user driectories with ASCII names ...
+	wcscat( bufferW, L"\\Simutrans" );
+	CreateDirectoryW( bufferW, NULL );	// must create it, because otherwise the short name does not exist
+	GetShortPathNameW( bufferW, bufferW2, lengthof(bufferW2) );
+	WideCharToMultiByte( CP_UTF8, 0, bufferW2, -1, buffer, MAX_PATH, NULL, NULL );
 #elif defined __APPLE__
 	sprintf(buffer, "%s/Library/Simutrans", getenv("HOME"));
+#elif defined __HAIKU__
+	BPath userDir;
+	find_directory(B_USER_DIRECTORY, &userDir);
+	sprintf(buffer, "%s/simutrans", userDir.Path());
 #else
-	sprintf(buffer, "%s/.simutrans-ex", getenv("HOME"));
+	sprintf(buffer, "%s/simutrans", getenv("HOME"));
 #endif
 
 	dr_mkdir(buffer);
@@ -102,7 +199,7 @@ char const* dr_query_homedir()
 #else
 	strcat(buffer, "/");
 #endif
-	char b2[PATH_MAX];
+	char b2[PATH_MAX+24];
 	sprintf(b2, "%smaps", buffer);
 	dr_mkdir(b2);
 	sprintf(b2, "%ssave", buffer);
@@ -111,6 +208,27 @@ char const* dr_query_homedir()
 	dr_mkdir(b2);
 
 	return buffer;
+}
+
+
+const char *dr_query_fontpath( const char *fontname )
+{
+#if defined _WIN32
+	static char buffer[PATH_MAX];
+
+	if(  SHGetFolderPathA(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, buffer)  ) {
+		strcpy( buffer, "C:\\Windows\\Fonts" );
+	}
+	strcat( buffer, "\\" );
+	strcat( buffer, fontname );
+	return buffer;
+#elif defined __APPLE__
+	// not implemented yet
+	return fontname;
+#else
+	// seems non-trivial to work on any system ...
+	return fontname;
+#endif
 }
 
 
@@ -586,10 +704,9 @@ const char *dr_get_locale_string()
 {
 	static char code[4];
 	BMessage result;
-	BLocaleRoster bl;
 	const char *str;
 	code[0] = 0;
-	if(  B_OK == bl.GetPreferredLanguages( &result )  ) {
+	if(  B_OK == BLocaleRoster::Default()->GetPreferredLanguages( &result )  ) {
 		result.FindString( (const char *)"language", &str );
 		for(  int i=0;  i<lengthof(code)-1  &&  isalpha(str[i]);  i++  ) {
 			code[i] = tolower(str[i]);
@@ -678,7 +795,11 @@ int sysmain(int const argc, char** const argv)
 {
 #ifdef _WIN32
 	char pathname[1024];
-	GetModuleFileNameA(GetModuleHandle(0), pathname, lengthof(pathname));
+	// so simutran can has also a multibyte name ...
+	WCHAR pathnameW[MAX_PATH], pathnameW2[MAX_PATH];
+	GetModuleFileNameW(GetModuleHandle(0), pathnameW, sizeof(pathname) );
+	GetShortPathNameW( pathnameW, pathnameW2, lengthof(pathnameW2) );
+	WideCharToMultiByte( CP_UTF8, 0, pathnameW2, -1, pathname, MAX_PATH, NULL, NULL );
 	argv[0] = pathname;
 #elif !defined __BEOS__
 #	if defined __GLIBC__ && !defined __AMIGA__

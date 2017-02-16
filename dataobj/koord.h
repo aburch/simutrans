@@ -7,9 +7,10 @@
 #include <stdlib.h>
 
 class loadsave_t;
+class scr_coord;
 
 /**
- * 2d Koordinaten
+ * 2D Coordinates
  */
 class koord
 {
@@ -22,7 +23,7 @@ public:
 	koord(short xp, short yp) : x(xp), y(yp) {}
 	koord(loadsave_t* file);
 	koord(ribi_t::ribi ribi) { *this = from_ribi[ribi]; }
-	koord(hang_t::typ hang)  { *this = from_hang[hang]; }
+	koord(slope_t::type hang)  { *this = from_hang[hang]; }
 
 	// use this instead of koord(simrand(x),simrand(y)) to avoid
 	// different order on different compilers
@@ -58,13 +59,33 @@ public:
 		x = new_x;
 	}
 
+	inline void clip_min( koord k_min )
+	{
+		if (x < k_min.x) {
+			x = k_min.x;
+		}
+		if (y < k_min.y) {
+			y = k_min.y;
+		}
+	}
+
+	inline void clip_max( koord k_max )
+	{
+		if (x > k_max.x) {
+			x = k_max.x;
+		}
+		if (y > k_max.y) {
+			y = k_max.y;
+		}
+	}
+
 	static const koord invalid;
-	static const koord nord;
-	static const koord sued;
-	static const koord ost;
+	static const koord north;
+	static const koord south;
+	static const koord east;
 	static const koord west;
-	// die 4 Grundrichtungen als Array
-	static const koord nsow[4];
+	// the 4 basic directions as an Array
+	static const koord nsew[4];
 	// 8 next neighbours
 	static const koord neighbours[8];
 	// 15 next nearest neightbours
@@ -72,7 +93,7 @@ public:
 
 private:
 	static const koord from_ribi[16];
-	static const koord from_hang[16];
+	static const koord from_hang[81];
 };
 
 //static inline uint32 int_sqrt(const uint32 num) 
@@ -91,12 +112,6 @@ private:
 //    }
 //    return n;
 //}
-
-static inline uint32 koord_distance(const koord &a, const koord &b)
-{
-	// Manhattan distance
-	return abs(a.x - b.x) + abs(a.y - b.y);
-}
 
 //static inline uint32 accurate_distance(const koord &a, const koord &b)
 //{
@@ -119,6 +134,12 @@ static inline uint32 shortest_distance(const koord &a, const koord &b)
 	else {
 		return (y_offset - x_offset) + ( ((x_offset * 181u) + 64u) >> 7 );
 	}
+}
+
+static inline uint32 koord_distance(const koord &a, const koord &b)
+{
+	// Manhattan distance
+	return abs(a.x - b.x) + abs(a.y - b.y);
 }
 
 // Knightly : multiply the value by the distance weight
@@ -201,6 +222,5 @@ static inline bool operator == (const koord& a, int b)
 //		return abs_distance(m_origin, a) < abs_distance(m_origin, b);
 //	}
 //};
-
 
 #endif

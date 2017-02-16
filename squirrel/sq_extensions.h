@@ -7,6 +7,20 @@
  * Extensions to the squirrel engine
  * for simutrans
  */
+
+/**
+ * Returns instance userpointer of instance, checks type tag.
+ * @param index of instance in stack
+ * @param tag type tag of class
+ * @param type squirrel-side class name - used for error message
+ * @returns userpointer or NULL in case of error (tag does not match)
+ */
+void* get_instanceup(HSQUIRRELVM vm, SQInteger index, void* tag, const char* type);
+
+/**
+ * Raises error.
+ * @param s is format string analogue to printf-interface
+ */
 void sq_raise_error(HSQUIRRELVM vm, const SQChar *s, ...);
 
 /**

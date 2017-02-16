@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>Makeobj</ProjectName>
+    <ProjectGuid>{24CE8A5F-8B92-40EE-9491-31E2DFF019F9}</ProjectGuid>
+    <RootNamespace>Makeobj</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\simutrans-experimental-binaries\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\simutrans-experimental-binaries\intermediates\makeobj\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\simutrans-experimental-binaries\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\simutrans-experimental-binaries\intermediates\makeobj\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;MAKEOBJ;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>libpng.lib;zlibstat.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)$(ProjectName)-debug.exe</OutputFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;MAKEOBJ;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>libpng.lib;zlibstat.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\besch\writer\bridge_writer.cc" />
+    <ClCompile Include="..\besch\writer\building_writer.cc" />
+    <ClCompile Include="..\besch\writer\citycar_writer.cc" />
+    <ClCompile Include="..\besch\writer\crossing_writer.cc" />
+    <ClCompile Include="..\utils\cstring_t.cc" />
+    <ClCompile Include="..\tpl\debug_helper.cc" />
+    <ClCompile Include="..\utils\dr_rdpng.c" />
+    <ClCompile Include="..\besch\writer\factory_writer.cc" />
+    <ClCompile Include="..\dataobj\freelist.cc" />
+    <ClCompile Include="..\besch\writer\get_climate.cc" />
+    <ClCompile Include="..\besch\writer\get_waytype.cc" />
+    <ClCompile Include="..\besch\writer\good_writer.cc" />
+    <ClCompile Include="..\besch\writer\ground_writer.cc" />
+    <ClCompile Include="..\besch\writer\groundobj_writer.cc" />
+    <ClCompile Include="..\besch\writer\image_writer.cc" />
+    <ClCompile Include="..\besch\writer\imagelist2d_writer.cc" />
+    <ClCompile Include="..\besch\writer\imagelist_writer.cc" />
+    <ClCompile Include="..\utils\log.cc" />
+    <ClCompile Include="makeobj.cc" />
+    <ClCompile Include="..\besch\writer\obj_node.cc" />
+    <ClCompile Include="..\besch\writer\obj_writer.cc" />
+    <ClCompile Include="..\besch\writer\pedestrian_writer.cc" />
+    <ClCompile Include="..\besch\writer\roadsign_writer.cc" />
+    <ClCompile Include="..\besch\writer\root_writer.cc" />
+    <ClCompile Include="..\utils\searchfolder.cc" />
+    <ClCompile Include="..\besch\writer\sim_writer.cc" />
+    <ClCompile Include="..\simdebug.cc" />
+    <ClCompile Include="..\simmem.cc" />
+    <ClCompile Include="..\utils\simstring.cc" />
+    <ClCompile Include="..\simtools.cc" />
+    <ClCompile Include="..\besch\writer\skin_writer.cc" />
+    <ClCompile Include="..\besch\writer\sound_writer.cc" />
+    <ClCompile Include="..\dataobj\tabfile.cc" />
+    <ClCompile Include="..\besch\writer\text_writer.cc" />
+    <ClCompile Include="..\besch\writer\tree_writer.cc" />
+    <ClCompile Include="..\besch\writer\tunnel_writer.cc" />
+    <ClCompile Include="..\besch\writer\vehicle_writer.cc" />
+    <ClCompile Include="..\besch\writer\way_obj_writer.cc" />
+    <ClCompile Include="..\besch\writer\way_writer.cc" />
+    <ClCompile Include="..\besch\writer\xref_writer.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\besch\writer\bridge_writer.h" />
+    <ClInclude Include="..\besch\writer\building_writer.h" />
+    <ClInclude Include="..\besch\writer\citycar_writer.h" />
+    <ClInclude Include="..\besch\writer\crossing_writer.h" />
+    <ClInclude Include="..\utils\cstring_t.h" />
+    <ClInclude Include="..\tpl\debug_helper.h" />
+    <ClInclude Include="..\utils\dr_rdpng.h" />
+    <ClInclude Include="..\besch\writer\factory_writer.h" />
+    <ClInclude Include="..\dataobj\freelist.h" />
+    <ClInclude Include="..\besch\writer\get_climate.h" />
+    <ClInclude Include="..\besch\writer\get_waytype.h" />
+    <ClInclude Include="..\besch\writer\good_writer.h" />
+    <ClInclude Include="..\besch\writer\ground_writer.h" />
+    <ClInclude Include="..\besch\writer\groundobj_writer.h" />
+    <ClInclude Include="..\besch\writer\image_writer.h" />
+    <ClInclude Include="..\besch\writer\imagelist2d_writer.h" />
+    <ClInclude Include="..\besch\writer\imagelist_writer.h" />
+    <ClInclude Include="..\utils\log.h" />
+    <ClInclude Include="..\besch\writer\obj_node.h" />
+    <ClInclude Include="..\besch\writer\obj_pak_exception.h" />
+    <ClInclude Include="..\besch\writer\obj_writer.h" />
+    <ClInclude Include="..\besch\writer\pedestrian_writer.h" />
+    <ClInclude Include="..\besch\writer\roadsign_writer.h" />
+    <ClInclude Include="..\besch\writer\root_writer.h" />
+    <ClInclude Include="..\utils\searchfolder.h" />
+    <ClInclude Include="..\simdebug.h" />
+    <ClInclude Include="..\simmem.h" />
+    <ClInclude Include="..\utils\simstring.h" />
+    <ClInclude Include="..\simtools.h" />
+    <ClInclude Include="..\besch\writer\skin_writer.h" />
+    <ClInclude Include="..\besch\writer\sound_writer.h" />
+    <ClInclude Include="..\dataobj\tabfile.h" />
+    <ClInclude Include="..\besch\writer\text_writer.h" />
+    <ClInclude Include="..\besch\writer\tree_writer.h" />
+    <ClInclude Include="..\besch\writer\tunnel_writer.h" />
+    <ClInclude Include="..\besch\writer\vehicle_writer.h" />
+    <ClInclude Include="..\besch\writer\way_obj_writer.h" />
+    <ClInclude Include="..\besch\writer\way_writer.h" />
+    <ClInclude Include="..\besch\writer\xref_writer.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,54 @@
+<title>Közúti\vasúti\hajózási kocsiszin\dokk Sugó</title>
+
+<h1>Kocsiszin\dokk ablak</h1>
+<p>
+A kocsiszinben lehetõség van különbözõ típusú jármûvek vásárlására,
+eladására,menetrendek összeállítására.
+</p>
+<p>
+A kocsiszin ablak megmutatja a vásárolt jármûveket, illetve, hogy miket
+lehet még vásárolni. A jármûvek különbözõ kategoriákban vannak osztva. Ezt
+a különbözõ füleken olvashatód le. Tulajdonképpen ez a depó lelke. Itt található az
+összes jármû. A felsõ részen ellenben a már kész összeállított konvojok között tudsz
+navigálni. Illetve ugyancsak a fenti legördülõ menük egyikében az útvonalak között
+barangolhatsz. A felsõ részen látható a már összeállított szerelvény. Több típus is
+összekapcsolható ha ez megengedett. Ha nem kapcsolható össze akkor azt
+egy vörös vonal jelzi a jármû alatt. A jobb alsó gomb segítségével
+állítható be a konvojok össszeállítási módja: <strong>"Hozzáad", "Elé rak", "Eladási mód"</strong>
+<br>
+<em>Hozzáad</em> - egymás után kapcsolódnak össze a jármûvek
+<br>
+<em>Elé rak</em> - az új jármû a régi elejébe kerül
+<br>
+<em>Eladási mód</em> - a depóban lévõ jármûveket így lehet eladni, tehát nem a konvojokat hanem a már szétbontott
+és depóban lévõ külön jármûveket. Az, hogy a depóban van-e jármû a bal alsó részen látható.
+</p>
+<p>
+Az alsó részhez közel az aktuális jármûrõl találhatóak meg a legfontosabb
+paraméterek (ára, fentartási költsége, mit szállít, csúcssebesség, kapacitás stb.).
+A felsõ részen 8 menûgomb található.
+</p>
+<p>
+A <strong>Start</strong> gombbal lehet a készen összeállított konvojt elindítani,
+de csak akkor ha a <a href="schedule.txt">"Menetrend"</a> vagy <strong>"Új vonal"</strong> menûgomb alatt
+már készítettél  egy menetrendet vagy új vonalat. Az új vonalat <strong>"Útvonalat alkalmaz"</strong> gombal
+társítod a konvojhoz. A Menetrend és Vonal között az a különbség, hogy míg a Menetrend csak az adott jármûre érvényes,
+addig a Vonalat más jármû is használhatja párhuzamosan. Vagyis ugyanazt a vonalat nagyon sok jármû is használhatja
+és a Vonalon történõ változtatás minden az illetõ Vonalat használó jármûre kihat.
+A <strong>"Szétbont"</strong> gombbal az aktuális konvojt bontod fel, de a pénzedet nem kapod vissza.
+Ilyenkor ahhoz, hogy eladd a jármûveket, a jobb alsó gombot kell
+<em>Eladási mód</em>-ra változtatni majd a megfelelõ jármûre kattintva eladni. Az egész konvojt egyszerre eladni
+az <strong>"Elad"</strong> gombbal lehet.
+</p>
+<p>
+Vásárláshoz elég ha a bal egérgombbal ráklikkelsz a megfelelõ jármûre.
+A konvoj tetszés szerintí összeállításához, a kiválasztott jármûveket sorba
+kell rakni. Nem akármelyék jármû rakható a másik után. Azt hogy elé/utána
+rakja-e a következõ jármûvet, a jobb alsó részhez közel lévõ kapcsológombbal
+határozod meg.<strong>Csakis egy konvojon dolgozhatsz egyszerre!</strong>
+</p>
+<p>
+A már mûködõ konvoj újbóli kocsiszinbe küldéséhez, a jármû ablakában a "Depóba" gombra kell kattintani, vagy kézzel kell
+változtatni a menetrenden. <strong>Figyelem!</strong> A villanyal mûködõ jármûvek csakis a vágányok villamosítása után jelennek meg.
+Az <em>Elavult jármûvek</em> gombbal lehet szabályozni azt, hogy a depó mutassa-e vagy sem a régi jármûveket.
+</p>

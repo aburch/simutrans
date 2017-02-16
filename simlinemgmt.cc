@@ -8,26 +8,17 @@
 #include "simlinemgmt.h"
 #include "simline.h"
 #include "simconvoi.h"
-#include "simwin.h"
+#include "gui/simwin.h"
 #include "simworld.h"
 #include "simtypes.h"
 #include "simintr.h"
 
-#include "dataobj/fahrplan.h"
+#include "dataobj/schedule.h"
 #include "dataobj/loadsave.h"
 
 #include "gui/schedule_list.h"
 
 #include "player/simplay.h"
-
-karte_t *simlinemgmt_t::welt = NULL;
-
-
-simlinemgmt_t::simlinemgmt_t(karte_t* welt)
-{
-	this->welt = welt;
-	schedule_list_gui = NULL;
-}
 
 
 simlinemgmt_t::~simlinemgmt_t()
@@ -38,19 +29,6 @@ simlinemgmt_t::~simlinemgmt_t()
 		linehandle_t line = all_managed_lines.back();
 		all_managed_lines.pop_back();
 		delete line.get_rep();	// detaching handled by line itself
-	}
-}
-
-
-void simlinemgmt_t::line_management_window(spieler_t *sp)
-{
-	schedule_list_gui = dynamic_cast<schedule_list_gui_t *>(win_get_magic( magic_line_management_t+sp->get_player_nr() ));
-	if(  schedule_list_gui==NULL  ) {
-		schedule_list_gui = new schedule_list_gui_t(sp);
-		create_win( schedule_list_gui, w_info, magic_line_management_t+sp->get_player_nr() );
-	}
-	else {
-		top_win( schedule_list_gui );
 	}
 }
 
@@ -73,7 +51,7 @@ void simlinemgmt_t::delete_line(linehandle_t line)
 
 void simlinemgmt_t::update_line(linehandle_t line)
 {
-	// when a line is updated, all managed convoys must get the new fahrplan!
+	// when a line is updated, all managed convoys must get the new schedule!
 	const int count = line->count_convoys();
 	for(int i = 0; i<count; i++) 
 	{
@@ -92,10 +70,13 @@ void simlinemgmt_t::update_line(linehandle_t line)
 	}
 	// finally de/register all stops
 	line->renew_stops();
+	if(  count>0  ) {
+		world()->set_schedule_counter();
+	}
 }
 
 
-void simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file, spieler_t *sp)
+void simlinemgmt_t::rdwr(loadsave_t *file, player_t *player)
 {
 	xml_tag_t l( file, "simlinemgmt_t" );
 
@@ -139,7 +120,7 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 			if(lt < simline_t::truckline  ||  lt > simline_t::narrowgaugeline) {
 					dbg->fatal( "simlinemgmt_t::rdwr()", "Cannot create default line!" );
 			}
-			simline_t *line = new simline_t(welt, sp, lt, file);
+			simline_t *line = new simline_t(player, lt, file);
 			if (!line->get_handle().is_bound()) {
 				// line id was saved as zero ...
 				if (unbound_line) {
@@ -155,7 +136,7 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 		}
 
 		if(  unbound_line  ) {
-			// linehandle will be corrected in simline_t::laden_abschliessen
+			// linehandle will be corrected in simline_t::finish_rd
 			line_with_id_zero = linehandle_t(unbound_line,true);
 			add_line( line_with_id_zero );
 		}
@@ -187,10 +168,10 @@ void simlinemgmt_t::sort_lines()
 }
 
 
-void simlinemgmt_t::laden_abschliessen()
+void simlinemgmt_t::finish_rd()
 {
 	FOR(vector_tpl<linehandle_t>, const i, all_managed_lines) {
-		i->laden_abschliessen();
+		i->finish_rd();
 	}
 	sort_lines();
 }
@@ -199,8 +180,8 @@ void simlinemgmt_t::laden_abschliessen()
 void simlinemgmt_t::rotate90( sint16 y_size )
 {
 	FOR(vector_tpl<linehandle_t>, const i, all_managed_lines) {
-		if (schedule_t* const fpl = i->get_schedule()) {
-			fpl->rotate90( y_size );
+		if (schedule_t* const schedule = i->get_schedule()) {
+			schedule->rotate90( y_size );
 		}
 	}
 }
@@ -214,13 +195,13 @@ void simlinemgmt_t::new_month()
 }
 
 
-linehandle_t simlinemgmt_t::create_line(int ltype, spieler_t * sp)
+linehandle_t simlinemgmt_t::create_line(int ltype, player_t * player)
 {
 	if(ltype < simline_t::truckline  ||  ltype > simline_t::narrowgaugeline) {
 			dbg->fatal( "simlinemgmt_t::create_line()", "Cannot create default line!" );
 	}
 
-	simline_t * line = new simline_t(welt, sp, (simline_t::linetype)ltype);
+	simline_t * line = new simline_t(player, (simline_t::linetype)ltype);
 
 	add_line( line->get_handle() );
 	sort_lines();
@@ -228,12 +209,11 @@ linehandle_t simlinemgmt_t::create_line(int ltype, spieler_t * sp)
 }
 
 
-
-linehandle_t simlinemgmt_t::create_line(int ltype, spieler_t * sp, schedule_t * fpl)
+linehandle_t simlinemgmt_t::create_line(int ltype, player_t * player, schedule_t * schedule)
 {
-	linehandle_t line = create_line( ltype, sp );
-	if(fpl) {
-		line->get_schedule()->copy_from(fpl);
+	linehandle_t line = create_line( ltype, player );
+	if(schedule) {
+		line->get_schedule()->copy_from(schedule);
 	}
 	return line;
 }
@@ -249,8 +229,16 @@ void simlinemgmt_t::get_lines(int type, vector_tpl<linehandle_t>* lines) const
 	}
 }
 
-void simlinemgmt_t::show_lineinfo(spieler_t *sp, linehandle_t line)
+
+void simlinemgmt_t::show_lineinfo(player_t *player, linehandle_t line)
 {
-	line_management_window(sp);
-	schedule_list_gui->show_lineinfo(line);
+	gui_frame_t *schedule_list_gui = win_get_magic( magic_line_management_t + player->get_player_nr() );
+	if(  schedule_list_gui  ) {
+		top_win( schedule_list_gui );
+	}
+	else {
+		schedule_list_gui = new schedule_list_gui_t(player);
+		create_win( schedule_list_gui, w_info, magic_line_management_t+player->get_player_nr() );
+	}
+	dynamic_cast<schedule_list_gui_t *>(schedule_list_gui)->show_lineinfo(line);
 }

@@ -16,10 +16,10 @@
 #include <termios.h>
 #endif
 
-#include "../dataobj/network.h"
-#include "../dataobj/network_cmd.h"
-#include "../dataobj/network_packet.h"
-#include "../dataobj/network_socket_list.h"
+#include "../network/network.h"
+#include "../network/network_cmd.h"
+#include "../network/network_packet.h"
+#include "../network/network_socket_list.h"
 #include "../simmem.h"
 #include "../simtypes.h"
 #include "../simversion.h"
@@ -388,11 +388,11 @@ int lock_company(SOCKET socket, uint32, int argc, char **argv)
 void usage()
 {
 	fprintf(stderr,
-		"nettool for Simutrans " VERSION_NUMBER EXPERIMENTAL_VERSION " and higher\n"
+		"nettool for Simutrans " VERSION_NUMBER EXTENDED_VERSION " and higher\n"
 		"\n"
 		"  Usage:\n"
 		"\n"
-		"      nettool-experimental [options] <command> [command argument]\n"
+		"      nettool-extended [options] <command> [command argument]\n"
 		"\n"
 		"    Options:\n"
 		"      -s <server[:port]> : Specify server to connect to (default is localhost:13353)\n"
@@ -570,7 +570,7 @@ int main(int argc, char* argv[]) {
 	// Print copyright notice unless quiet flag set
 	if (!opt_q) {
 		fprintf(stderr,
-			"nettool for Simutrans " VERSION_NUMBER EXPERIMENTAL_VERSION " and higher\n"
+			"nettool for Simutrans " VERSION_NUMBER EXTENDED_VERSION " and higher\n"
 		);
 	}
 

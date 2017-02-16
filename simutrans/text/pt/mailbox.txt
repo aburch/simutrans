@@ -1,0 +1,64 @@
+<title>Ajuda - Mensagens & Opç;ões das Mensagens</title>
+
+<h1><strong>Mensagens</strong></h1>
+
+<p>
+A janela <strong>Mensagens</strong> lista mensagens que o jogo lhe dá e abre controles para selecionar como são mostradas.
+</p>
+<p>
+Para abrir a janela de mensagens, clique no ícone da caixa de correio na barra superior do jogo ou pressione <a href="keys.txt">[B]</a>.<br>
+Clique sobre a mensagem para abrir uma janela com a mensagem e a imagem do local dela. Clique no botão com uma flecha no canto esquerdo da mensagem para ir pro local relacionado a mensagem.
+</p>
+<p>
+O botão <em>Opções</em> abre a <strong>Opções das mensagens</strong> para determinar como são exibidas as mensagens.
+</p>
+<p>
+<h1>Opções das mensagens</h1>
+</p>
+<p>
+A janela <strong>Opções das mensagens</strong> tem quatro colunas com botões quadrados que selecionam como são exibidas as mensagens.
+</p>
+<p>
+Da esquerda para a direita, as colunas selecionam se as mensagens são mostradas como:<br>
+- Desativa as mensagens daquele tipo;<br>
+- Texto rolando na barra inferior do jogo;<br>
+- Janela temporária (aparece por alguns segundo); ou<br>
+- Janela permanente (fica na tela até você fechar).<br>
+{Dica: clique no X no canto superior esquedo da mensagem ou use o teclado para fechar janelas permanentes.}
+</p>
+<p>
+Segue o tipo de mensagens exibidas por linha:
+</p>
+<p>
+<em>Ano novo:</em> Mostra uma mensagem todo começo de ano avisando sobre o novo ano.
+</p>
+<p>
+<em>Concorrência:</em> Mostra mensagens sobre outros <a href="players.txt">jogadores</a>.
+</p>
+<p>
+<em>Notícias cidades:</em> Mostra mensagens das <a href="citywindow.txt">cidades</a>, como construção de monumentos e novas prefeituras.
+</p>
+<p>
+<em>Sem rota:</em> Mostra uma mensagem toda vez que um veiculo não pode achar uma rota para seu próximo <a href="schedule.txt">destino</a> (uma <a href="station.txt">parada</a> ou ponto de passagem).
+</p>
+<p>
+<em>Novas rotas:</em> Toda vez que uma nova rota ficar disponível, com uma nova cadeia <a href="industryinfo.txt">empresarial</a> aparecer (um consumidor final e os fornecedores nescessários) devido ao crecimentos de uma <a href="citywindow.txt">cidade</a>.
+</p>
+<p>
+<em>Chat:</em> Mostra textos de conversas de outros usuários quando estiver jogando online.
+</p>
+<p>
+<em>Notícias veículos:</em> Mostra mensagens quando um novo veículo ficar disponível, ou terminar a produção de um. (só aparecem se a opção <a href="new_world.txt">linha do tempo</a> estiver ligada).
+</p>
+<p>
+<em>Estação lotada:</em> Se uma <a href="station.txt">estação</a> ou <a href="station.txt">parada</a> ficar cheia, aparecerá uma mensagem.
+</p>
+<p>
+<em>Problemas:</em> Mensagens de quaisquer problema com sua empresa de transporte, como dívidas.
+</p>
+<p>
+<em>Congestionamento:</em> Quando um veículo seu ficar parado em um congestionamento, uma mensagem vai aparecer.
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 11/08/2011.<br>
+Acesse a wiki para mais informações e ajudas: <em>http://wiki.simutrans-germany.com/</em>
+</p>

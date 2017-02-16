@@ -73,18 +73,23 @@ public:
 	static const sint16 max_exponent;
 	static const uint32 max_mantissa;
 	static const float32e8_t zero;
+	static const float32e8_t micro;
+	static const float32e8_t milli;
 	static const float32e8_t tenth;
 	static const float32e8_t quarter;
 	static const float32e8_t third;
 	static const float32e8_t half;
+
 	static const float32e8_t one;
 	static const float32e8_t two;
 	static const float32e8_t three;
 	static const float32e8_t four;
-	static const float32e8_t milli;
-	static const float32e8_t micro;
+	static const float32e8_t ten;
+	static const float32e8_t hundred;
+	static const float32e8_t thousand;
+	static const float32e8_t tenthousand;
 
-	inline float32e8_t() {};
+	inline float32e8_t() : m(0L), e(0), ms(false) {};
 
 	inline float32e8_t(const float32e8_t &value) { m = value.m; e = value.e; ms = value.ms; }
 	inline float32e8_t(const uint32 mantissa, const sint16 exponent, const bool negative_man) { m = mantissa; e = exponent; ms = negative_man; }
@@ -105,8 +110,8 @@ public:
 
 	inline float32e8_t(const sint32 nominator, const sint32 denominator) { set_value(float32e8_t(nominator) / float32e8_t(denominator)); }
 	inline float32e8_t(const uint32 nominator, const uint32 denominator) { set_value(float32e8_t(nominator) / float32e8_t(denominator)); }
-	inline float32e8_t(const sint64 nominator, const sint64 denominator) { set_value(float32e8_t(nominator) / float32e8_t(denominator)); }
-	inline float32e8_t(const uint64 nominator, const uint64 denominator) { set_value(float32e8_t(nominator) / float32e8_t(denominator)); }
+	//inline float32e8_t(const sint64 nominator, const sint64 denominator) { set_value(float32e8_t(nominator) / float32e8_t(denominator)); }
+	//inline float32e8_t(const uint64 nominator, const uint64 denominator) { set_value(float32e8_t(nominator) / float32e8_t(denominator)); }
 
 	inline void set_value(const uint8 value)
 	{
@@ -377,6 +382,21 @@ public:
 
 	const char* get_message()  const { return message.c_str(); }
 };
+
+#ifdef NETTOOL
+#undef min
+#undef max
+#endif
+
+static inline float32e8_t min(const float32e8_t a, const float32e8_t b)
+{
+	return a < b ? a : b;
+}
+
+static inline float32e8_t max(const float32e8_t a, const float32e8_t b)
+{
+	return a > b ? a : b;
+}
 
 
 #endif /* FLOAT32E8_T_H_ */

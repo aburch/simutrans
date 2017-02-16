@@ -8,7 +8,7 @@
 #ifndef gui_components_gui_speedbar_h
 #define gui_components_gui_speedbar_h
 
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../tpl/slist_tpl.h"
 
 
@@ -17,7 +17,7 @@
  * @author Volker Meyer
  * @date  12.06.2003
  */
-class gui_speedbar_t : public gui_komponente_t
+class gui_speedbar_t : public gui_component_t
 {
 private:
 	struct info_t {
@@ -41,9 +41,9 @@ public:
 	void set_vertical(bool vertical) { this->vertical = vertical; }
 
 	/**
-	 * Zeichnet die Komponente
+	 * Draw the component
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 };
 
 #endif

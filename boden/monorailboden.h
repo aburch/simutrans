@@ -6,11 +6,11 @@
 class monorailboden_t : public grund_t
 {
 protected:
-	void calc_bild_internal();
+	void calc_image_internal(const bool calc_only_snowline_change);
 
 public:
-	monorailboden_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t( welt, koord3d(pos,0) ) { rdwr(file); }
-	monorailboden_t(karte_t *welt, koord3d pos,hang_t::typ slope);
+	monorailboden_t(loadsave_t *file, koord pos ) : grund_t( koord3d(pos,0) ) { rdwr(file); }
+	monorailboden_t(koord3d pos,slope_t::type slope);
 
 	virtual void rdwr(loadsave_t *file);
 

@@ -1,0 +1,56 @@
+<title>Vehicle List Help</title>
+
+<h1><strong>Vehicle List</strong></h1>
+
+<p>
+<strong>Vehicle List</strong> shows information and has controls to filter and list different <a href="convoiinfo.txt">convoys</a>.
+</p>
+<p>
+To open: click the vehicle list icon in the <a href="list.txt">kist management</a> window or press <a href="keys.txt">[V]</a>. The <strong>cehicle list</strong> window has four option buttons, two are used to order items in a list and two are used to apply options to select items to show in list.<br>
+Below the buttons is a list of <a href="convoiinfo.txt">convoys</a> that match the criteria set for the filter options.<br>
+<em>Tip:</em> If no convoys are listd, change the <em>filter</em> options. If items in list are only partially visible, then <a href="mouse.txt">re-size</a> the <strong>vehicle list</strong> window or scroll list using the slider bar.
+</p>
+<p>
+Click the option buttons to cycle through options (which changes name of the option button) or open one or more of the following filter settings controls:
+</p>
+<p>
+<em>Sorted by:</em> Two option buttons determine the order of <a href="convoiinfo.txt">convoys</a> shown in the list.
+</p>
+<p>
+- <em>Type</em> orders the convoys by the type of transport (i.e., whether they are trains, aircraft, boats, etc.)<br>
+- <em>Name</em> orders the convoys alphabetically by their assigned name, which, by default, is name of the first vehicle <a href="depot.txt">purchased</a> or assembled for the convoy).<br>
+- <em>Income</em> orders the convoys by their profit (revenue less fixed and variable operating costs).
+- <em>Internal ID</em> orders the convoys by unique ID number of convoy (assigned by default when convoy is first purchased or assembled in a <a href=depot.txt">depot</a> and shown in titlebar of the <a href="convoiinfo.txt">convoy information</a>) window.
+</p>
+<p>
+- <em>Ascending</em> / <em>Descending</em> reverses the order of list.
+</p>
+<p>
+<em>Filter:</em> Two option buttons, switch on or off the selection criteria for the list and access controls to change the criteria.
+</p>
+<p>
+- <em>Enabled</em> / <em>Disabled</em> click to toggle the individual filter criteria for <a href="convoiinfo.txt">convoys</a> in the list.
+</p>
+<p>
+- <a href="convoi_filter.txt"><em>Settings</em></a> opens controls to change the filter criteria.
+</p>
+<p>
+Click on a item listd to see more information about that <a href="convoiinfo.txt">Convoy</a>.
+</p>
+<p>
+Items listd for each Convoy include:
+</p>
+<em>Internal ID</em>: a unique ID number of convoy (assigned by default when Convoy is first purchased or assembled in a <a href=depot.txt">depot</a> and shown in titlebar of <a href="convoiinfo.txt">Convoy Information</a>).
+</p>
+<p>
+<em>name</em> that has been assigned (by default this is make of first vehicle when Convoy is purchased or assembled).
+</p>
+<p>
+<em>income</em> shows profit (income generated less operation costs when in transit).
+</p>
+<p>
+<em>Line:</em> shows assigned <a href="linemanagement.txt">Line</a> and indicates if the Convoy is in a <a href="depot.txt">depot</a>.
+</p>
+<p>
+<em>graphics</em> show the compostion and the current load level .
+</p>

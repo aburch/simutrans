@@ -1,0 +1,22 @@
+<title>Vehicle Comfort Help</title>
+
+<h1><strong>Vehicle Comfort</strong></h1>
+
+<p>
+Passenger vehicles all have a <strong>comfort</strong> rating of between 0 and 255. The average comfort rating of vehicles in a line or convoy affects the revenue earned from passengers travelling using that line or convoy. The average comfort of a line is shown in the <a href="linemanagement.txt">line management</a> window. The average comfort of a convoy is shown in the <a href="convoiinfo.txt">convoy info</a> window.
+</p>
+<p>
+Passengers care about their comfort more the longer that their journey time is. For each journey time, there is a tolerable comfort level. This can be adjusted in the settings file called <strong>simuconf.tab</strong>, located in the /simutrans/config directory. If passengers travel on a convoy or line whose average comfort is below the tolerable level for their journey, then they will pay significantly less revenue than they otherwise might (how much less depends on how much below the tolerable comfort level that the average is). If passengers travel on a convoy or line whose average comfort is above the tolerable level, then they will pay a little more for the added luxury, but will not pay as much more for luxury as they will pay less for discomfort.
+</p>
+<p>
+Two things other than a vehicle's inherent comfort rating affect a line's or convoy's average comfort: <em>catering</em> and <em>overcrowding</em>. A convoy with catering facilities will have a slightly higher comfort rating than an otherwise convoy without catering facilities (this is separate from any additional revenue from <a href="catering.txt">catering</a>).
+</p>
+<p>
+If a vehicle is overcrowded, passengers have to stand. Standing passengers are very uncomfortable no matter how comfortable that seated passengers are: they are taken to have a comfort rating of no more than 10 (and less if the vehicle itself has a low comfort rating). If a lot of passengers have to stand, the comfort rating of a convoy will decline rapidly, so make sure that passengers never have to stand on long-distance journies.
+</p>
+<p>
+<em>Tip</em>: You can see which of your vehicles are overcrowded by looking in the <a href="linemanagement.txt">line management</a> window. Vehicles whose name appear in <strong>purple</strong> are overcrowded.
+</p>
+<p>
+<em>Tip</em>: You can see the journey time for each leg of a journey by looking in the <a href="station_details.txt">stop details</a> window for each origin stop.
+</p>

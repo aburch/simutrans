@@ -22,8 +22,8 @@
 #include "components/gui_textinput.h"
 
 class convoi_frame_t;
-class spieler_t;
-class ware_besch_t;
+class player_t;
+class ware_desc_t;
 
 class convoi_filter_frame_t : public gui_frame_t , private action_listener_t
 {
@@ -69,10 +69,10 @@ private:
 	class ware_item_t : public button_t
 	{
 	public:
-		const ware_besch_t *ware;
+		const ware_desc_t *ware;
 		convoi_filter_frame_t *parent;
 
-		ware_item_t(convoi_filter_frame_t *parent, const ware_besch_t *ware)
+		ware_item_t(convoi_filter_frame_t *parent, const ware_desc_t *ware)
 		{
 			this->ware = ware;
 			this->parent = parent;
@@ -90,9 +90,9 @@ private:
 	};
 
 	slist_tpl<ware_item_t *>all_ware;
-	static slist_tpl<const ware_besch_t *>active_ware;
+	static slist_tpl<const ware_desc_t *>active_ware;
 
-	static koord filter_buttons_pos[FILTER_BUTTONS];
+	static scr_coord filter_buttons_pos[FILTER_BUTTONS];
 	static filter_flag_t filter_buttons_types[FILTER_BUTTONS];
 	static const char *filter_buttons_text[FILTER_BUTTONS];
 
@@ -125,7 +125,7 @@ public:
 	 * Constructor. Generates all necessary Subcomponents.
 	 * @author V. Meyer
 	 */
-	convoi_filter_frame_t(spieler_t *sp, convoi_frame_t *parent, uint32 initial_filters );
+	convoi_filter_frame_t(player_t *player, convoi_frame_t *parent, uint32 initial_filters );
 
 	/**
 	 * Does this window need a min size button in the title bar?
@@ -136,14 +136,14 @@ public:
 	/**
 	 * resize window in response to a resize event
 	 */
-	void resize(const koord delta);
+	void resize(const scr_coord delta);
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char *get_hilfe_datei() const {return "convoi_filter.txt"; }
+	const char *get_help_filename() const {return "convoi_filter.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

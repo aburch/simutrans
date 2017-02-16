@@ -7,7 +7,7 @@
 #define gui_chart_h
 
 #include "../../simtypes.h"
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../tpl/slist_tpl.h"
 
 // CURVE TYPES
@@ -18,7 +18,7 @@
  * Draws a group of curves.
  * @author Hendrik Siegeln
  */
-class gui_chart_t : public gui_komponente_t
+class gui_chart_t : public gui_component_t
 {
 public:
 	/**
@@ -33,7 +33,7 @@ public:
 	 * paint chart
 	 * @author hsiegeln
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -52,16 +52,15 @@ public:
 	 */
 	typedef sint64 (*convert_proc) (const sint64);
 
-	/*
-	 * adds a curve to the graph
-	 * paramters:
-	 * @color: color for this curve; default 0
-	 * @values: reference to values
-	 * @size: elements to skip before next valid entry (only usefull in multidimensional arrays)
-	 * @offset: element to start with
-	 * @elements: elements in values
-	 * @proc: conversion procedure to be applied to supplied values
-	 * returns curve's id
+	/**
+	 * Adds a curve to the graph
+	 * @param color    color for this curve; default 0
+	 * @param values   reference to values
+	 * @param size     elements to skip before next valid entry (only useful in multidimensional arrays)
+	 * @param offset   element to start with
+	 * @param elements elements in values
+	 * @param proc     conversion procedure to be applied to supplied values
+	 * @returns curve's id
 	 * @author hsiegeln
 	 */
 	int add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc=NULL);
@@ -146,7 +145,7 @@ private:
 
 	int seed;
 
-	koord tooltipkoord;
+	scr_coord tooltipcoord;
 
 	bool show_x_axis, show_y_axis, ltr;
 

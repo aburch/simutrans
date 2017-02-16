@@ -29,7 +29,7 @@ template<class T> class weighted_vector_tpl
 		struct nodestruct
 		{
 			T data;
-			unsigned long weight;
+			uint32 weight;
 		};
 
 	public:
@@ -149,7 +149,7 @@ template<class T> class weighted_vector_tpl
 		 * Extend if necessary.
 		 * @author prissi
 		 */
-		bool append(T elem, unsigned long weight)
+		bool append(T elem, uint32 weight)
 		{
 #ifdef IGNORE_ZERO_WEIGHT
 			if (weight == 0) {
@@ -170,13 +170,13 @@ template<class T> class weighted_vector_tpl
 		/**
 		 * Checks if element is contained. Appends only new elements.
 		 */
-		bool append_unique(T elem, unsigned long weight)
+		bool append_unique(T elem, uint32 weight)
 		{
 			return is_contained(elem) || append(elem, weight);
 		}
 
 		/** inserts data at a certain pos */
-		bool insert_at(uint32 pos, T elem, unsigned long weight)
+		bool insert_at(uint32 pos, T elem, uint32 weight)
 		{
 #ifdef IGNORE_ZERO_WEIGHT
 			if (weight == 0) {
@@ -206,7 +206,7 @@ template<class T> class weighted_vector_tpl
 		 * Insert `elem' with respect to ordering.
 		 */
 		template<class StrictWeakOrdering>
-		void insert_ordered(const T& elem, unsigned long weight, StrictWeakOrdering comp)
+		void insert_ordered(const T& elem, uint32 weight, StrictWeakOrdering comp)
 		{
 			if(  count==size  ) {
 				resize(size == 0 ? 1 : size * 2);
@@ -231,7 +231,7 @@ template<class T> class weighted_vector_tpl
 		 * Otherwise return the address of the element in conflict.
 		 */
 		template<class StrictWeakOrdering>
-		T* insert_unique_ordered(const T& elem, unsigned long weight, StrictWeakOrdering comp)
+		T* insert_unique_ordered(const T& elem, uint32 weight, StrictWeakOrdering comp)
 		{
 			if(  count==size  ) {
 				resize(size == 0 ? 1 : size * 2);
@@ -258,7 +258,7 @@ template<class T> class weighted_vector_tpl
 		 * Update the weight of the element, if contained
 		 * @author Knightly
 		 */
-		bool update(T elem, unsigned long weight)
+		bool update(T elem, uint32 weight)
 		{
 			for(  uint32 i=0;  i<count;  ++i  ) {
 				if(  nodes[i].data==elem  ) {
@@ -272,21 +272,21 @@ template<class T> class weighted_vector_tpl
 		 * Update the weight of the element at the specified position
 		 * @author Knightly
 		 */
-		bool update_at(uint32 pos, unsigned long weight)
+		bool update_at(uint32 pos, uint32 weight)
 		{
 			if(  pos>=count  ) {
 				return false;
 			}
-			const unsigned long elem_weight = ( pos + 1 < count ? nodes[pos + 1].weight : total_weight ) - nodes[pos].weight;
+			const uint32 elem_weight = ( pos + 1 < count ? nodes[pos + 1].weight : total_weight ) - nodes[pos].weight;
 			if(  weight>elem_weight  ) {
-				const unsigned long delta_weight = weight - elem_weight;
+				const uint32 delta_weight = weight - elem_weight;
 				while(  ++pos<count  ) {
 					nodes[pos].weight += delta_weight;
 				}
 				total_weight += delta_weight;
 			}
 			else if(  weight<elem_weight  ) {
-				const unsigned long delta_weight = elem_weight - weight;
+				const uint32 delta_weight = elem_weight - weight;
 				while(  ++pos<count  ) {
 					nodes[pos].weight -= delta_weight;
 				}
@@ -301,7 +301,7 @@ template<class T> class weighted_vector_tpl
 		 */
 		template<typename U> void update_weights(U& get_weight)
 		{
-			unsigned long sum = 0;
+			uint32 sum = 0;
 			for (nodestruct* i = nodes, * const end = i + count; i != end; ++i) {
 				i->weight = sum;
 				sum      += get_weight(i->data);
@@ -319,12 +319,27 @@ template<class T> class weighted_vector_tpl
 			return false;
 		}
 
+		/** removes all copies of element, if contained */
+		bool remove_all(T elem)
+		{
+			bool any_to_remove = false;
+			for (uint32 i = 0; i < count; i++)
+			{
+				if(nodes != NULL && nodes[i].data == elem) 
+				{
+					any_to_remove = remove_at(i);
+					i--;
+				}
+			}
+			return any_to_remove;
+		}
+
 		/** removes element at position */
 		bool remove_at(uint32 pos)
 		{
 			if (pos >= count) return false;
 			// get the change in the weight; must check, if it isn't the last element
-			const unsigned long diff_weight = ( pos + 1 < count ? nodes[pos + 1].weight : total_weight ) - nodes[pos].weight;
+			const uint32 diff_weight = ( pos + 1 < count ? nodes[pos + 1].weight : total_weight ) - nodes[pos].weight;
 			for (uint32 i = pos; i < count - 1; i++) {
 				nodes[i].data   = nodes[i + 1].data;
 				nodes[i].weight = nodes[i + 1].weight - diff_weight;
@@ -334,6 +349,14 @@ template<class T> class weighted_vector_tpl
 			return true;
 		}
 
+		T& pop_back()
+		{
+			assert(count>0);
+			--count;
+			total_weight = nodes[count].weight;
+			return nodes[count].data;
+		}
+		
 		T& operator [](uint32 i)
 		{
 			if (i >= count) dbg->fatal("weighted_vector_tpl<T>::get()", "index out of bounds: %i not in 0..%d", i, count - 1);
@@ -349,13 +372,13 @@ template<class T> class weighted_vector_tpl
 		T& front() { return nodes[0].data; }
 
 		/** returns the weight at a position */
-		unsigned long weight_at(uint32 pos) const
+		uint32 weight_at(uint32 pos) const
 		{
 			return (pos < count) ? nodes[pos].weight : total_weight + 1;
 		}
 
 		/** Accesses the element at position i by weight */
-		T& at_weight(const unsigned long target_weight) const
+		T& at_weight(const uint32 target_weight) const
 		{
 			if (target_weight > total_weight) {
 				dbg->fatal("weighted_vector_tpl<T>::at_weight()", "weight out of bounds: %i not in 0..%d", target_weight, total_weight);
@@ -363,7 +386,7 @@ template<class T> class weighted_vector_tpl
 #if 0
 			// that is the main idea (but slower, the more entries are in the list)
 			uint32 pos;
-			unsigned long current_weight = 0;
+			uint32 current_weight = 0;
 			for (pos = 0;  pos < count - 1 && current_weight + nodes[pos + 1].weight < target_weight; pos++) {
 				current_weight += nodes[pos + 1].weight;
 			}
@@ -402,7 +425,7 @@ template<class T> class weighted_vector_tpl
 		uint32 get_size() const { return size; }
 
 		/** Gets the total weight */
-		unsigned long get_sum_weight() const { return total_weight; }
+		uint32 get_sum_weight() const { return total_weight; }
 
 		bool empty() const { return count == 0; }
 
@@ -416,7 +439,7 @@ template<class T> class weighted_vector_tpl
 		nodestruct* nodes;
 		uint32 size;                  ///< Capacity
 		uint32 count;                 ///< Number of elements in vector
-		unsigned long total_weight; ///< Sum of all weights
+		uint32 total_weight; ///< Sum of all weights
 
 		weighted_vector_tpl(const weighted_vector_tpl& other);
 

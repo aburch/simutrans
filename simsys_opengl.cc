@@ -9,8 +9,6 @@
  */
 
 #ifdef _WIN32
-// windows.h defines min and max macros which we don't want
-#define NOMINMAX 1
 #include <windows.h>
 #endif
 
@@ -27,7 +25,7 @@
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "simdebug.h"
 
 static Uint8 hourglass_cursor[] = {
@@ -337,6 +335,11 @@ void inline pbo_unmap(){
 	reset_textur(pixels);
 }
 
+// no autoscaling yet
+bool dr_auto_scale(bool)
+{
+	+return false;
+}
 
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der
@@ -724,7 +727,7 @@ void dr_prepare_flush()
 /**
  * Clears screen and queues a new render.
  */
-void dr_flush(void)
+void dr_flush()
 {
 	if (pbo_able)
 		pbo_unmap();
@@ -897,6 +900,7 @@ int dr_screenshot(const char *filename, int x, int y, int w, int h)
 		return 1;
 	}
 #endif
+	(void)(x + y + w + h);
 	return SDL_SaveBMP(SDL_GetVideoSurface(), filename) == 0 ? 1 : -1;
 }
 
@@ -906,7 +910,7 @@ int dr_screenshot(const char *filename, int x, int y, int w, int h)
  */
 
 
-static inline unsigned int ModifierKeys(void)
+static inline unsigned int ModifierKeys()
 {
 	SDLMod mod = SDL_GetModState();
 
@@ -964,16 +968,10 @@ static void internal_GetEvents(bool const wait)
 	switch (event.type) {
 		case SDL_VIDEORESIZE:
 			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_RESIZE;
+			sys_event.code = SYSTEM_RESIZE;
 			sys_event.mx   = event.resize.w;
 			sys_event.my   = event.resize.h;
 			printf("expose: x=%i, y=%i\n", sys_event.mx, sys_event.my);
-			break;
-
-		case SDL_VIDEOEXPOSE:
-			// will be ignored ...
-			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_UPDATE;
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
@@ -1106,7 +1104,7 @@ static void internal_GetEvents(bool const wait)
 
 		case SDL_QUIT:
 			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_QUIT;
+			sys_event.code = SYSTEM_QUIT;
 			break;
 
 		default:
@@ -1117,13 +1115,13 @@ static void internal_GetEvents(bool const wait)
 }
 
 
-void GetEvents(void)
+void GetEvents()
 {
 	internal_GetEvents(true);
 }
 
 
-void GetEventsNoWait(void)
+void GetEventsNoWait()
 {
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
@@ -1144,7 +1142,7 @@ void ex_ord_update_mx_my()
 }
 
 
-unsigned long dr_time(void)
+uint32 dr_time()
 {
 	return SDL_GetTicks();
 }
@@ -1155,6 +1153,17 @@ void dr_sleep(uint32 usec)
 	SDL_Delay(usec);
 }
 
+void dr_start_textinput()
+{
+}
+
+void dr_stop_textinput()
+{
+}
+
+void dr_notify_input_pos(int, int)
+{
+}
 
 #ifdef _WIN32
 int CALLBACK WinMain(HINSTANCE, HINSTANCE, LPSTR, int)

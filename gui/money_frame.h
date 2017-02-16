@@ -86,9 +86,9 @@ private:
 	gui_combobox_t transport_type_c;
 
 	/// Helper method to update number label text and color
-	void update_label(gui_label_t &label, char *buf, int transport_type, uint8 type, int yearmonth, int label_type = MONEY);
+	void update_label(gui_label_t &label, char *buf, int transport_type, uint8 type, int yearmonth, int label_type = MONEY, bool always_monthly = false);
 
-	spieler_t *sp;
+	player_t *player;
 
 	//@author hsiegeln
 	sint64 money_tmp, money_min, money_max;
@@ -129,13 +129,13 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_hilfe_datei() const {return "finances.txt";}
+	const char * get_help_filename() const {return "finances.txt";}
 
 	/**
 	 * Constructor. Adds all necessary Subcomponents.
 	 * @author Hj. Malthaner, Owen Rudge
 	 */
-	money_frame_t(spieler_t *sp);
+	money_frame_t(player_t *player);
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -143,7 +143,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

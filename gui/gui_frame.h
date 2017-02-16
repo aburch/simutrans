@@ -13,58 +13,54 @@
 #ifndef gui_gui_frame_h
 #define gui_gui_frame_h
 
-#include "../dataobj/koord.h"
-#include "../simgraph.h"
-#include "gui_container.h"
+#include "../display/scr_coord.h"
+#include "../display/simgraph.h"
 #include "../simcolor.h"
 #include "../dataobj/koord3d.h"
 #include "../dataobj/translator.h"
+#include "components/gui_container.h"
+#include "components/gui_button.h"
+
+#include "gui_theme.h"
+
+// Floating cursor eases to place components on a frame with a fixed width.
+// It places components in a horizontal line one by one as long as the frame is 
+// wide enough. If a component would exceed the maximum right coordinate, then
+// the floating cursor wraps the component into a new "line".
+class floating_cursor_t
+{
+	scr_coord cursor;
+	scr_coord_val left;
+	scr_coord_val right;
+	scr_coord_val row_height;
+public:
+	/** constructor
+	 * @param initial, position for the first component
+	 * @param min_left,	the x coordinate where to start new lines
+	 * @param max_right, the x coordinate where lines end
+	 */
+	floating_cursor_t(const scr_coord& initial, scr_coord_val min_left, scr_coord_val max_right);
+
+	/** next_pos() calculates and returns the position of the next component.
+	 * @author Bernd Gabriel
+	 * @date 19-Jan-2014
+	 * @param size, size of the next component
+	 */
+	scr_coord next_pos(const scr_size& size);
+
+	/** new_line() starts a new line.
+	 * If next_pos() has not been called since construction or last new_line(), 
+	 * the row_height is still 0 and thus will add a D_V_SPAVE to the y position only.
+	 */
+	void new_line();
+
+	inline scr_coord_val get_row_height() const { return row_height; }
+	inline const scr_coord& get_pos() const { return cursor; }
+};					   
 
 class loadsave_t;
-class spieler_t;
-
-
-/*
- * The following gives positioning aids for elements in dialogues
- * Only those, LINESPACE, and dimensions of elements itself must be
- * exclusively used to calculate positions in dialogues to have a
- * scalable interface
- */
-
-// default button width (may change with language and font)
-#define D_BUTTON_WIDTH (gui_frame_t::gui_button_width)
-#define D_BUTTON_HEIGHT (gui_frame_t::gui_button_height)
-
-// titlebar height
-#define D_TITLEBAR_HEIGHT (gui_frame_t::gui_titlebar_height)
-
-// dialog borders
-#define D_MARGIN_LEFT (gui_frame_t::gui_frame_left)
-#define D_MARGIN_TOP (gui_frame_t::gui_frame_top)
-#define D_MARGIN_RIGHT (gui_frame_t::gui_frame_right)
-#define D_MARGIN_BOTTOM (gui_frame_t::gui_frame_bottom)
-
-// space between two elements
-#define D_H_SPACE (gui_frame_t::gui_hspace)
-#define D_V_SPACE (gui_frame_t::gui_vspace)
-
-#define BUTTON1_X (D_MARGIN_LEFT)
-#define BUTTON2_X (D_MARGIN_LEFT+1*(D_BUTTON_WIDTH+D_H_SPACE))
-#define BUTTON3_X (D_MARGIN_LEFT+2*(D_BUTTON_WIDTH+D_H_SPACE))
-#define BUTTON4_X (D_MARGIN_LEFT+3*(D_BUTTON_WIDTH+D_H_SPACE))
-
-#define BUTTON_X(col) (D_MARGIN_LEFT+(col)*(D_BUTTON_WIDTH+D_H_SPACE))
-#define BUTTON_Y(row) ((row)*(D_BUTTON_HEIGHT+D_V_SPACE))
-
-// The width of a typical dialogue (either list/covoi/factory) and initial width when it makes sense
-#define D_DEFAULT_WIDTH (D_MARGIN_LEFT+4*D_BUTTON_WIDTH+3*D_H_SPACE+D_MARGIN_RIGHT)
-
-// dimensions of indicator bars (not yet a gui element ...)
-#define D_INDICATOR_WIDTH (gui_frame_t::gui_indicator_width)
-#define D_INDICATOR_HEIGHT (gui_frame_t::gui_indicator_height)
-
-
-
+class karte_ptr_t;
+class player_t;
 
 /**
  * A Class for window with Component.
@@ -86,42 +82,21 @@ public:
 		no_resize = 0, vertical_resize = 1, horizonal_resize = 2, diagonal_resize = 3
 	};
 
-	// default button sizes
-	static KOORD_VAL gui_button_width;
-	static KOORD_VAL gui_button_height;
-
-	// titlebar height
-	static KOORD_VAL gui_titlebar_height;
-
-	// dialog borders
-	static KOORD_VAL gui_frame_left;
-	static KOORD_VAL gui_frame_top;
-	static KOORD_VAL gui_frame_right;
-	static KOORD_VAL gui_frame_bottom;
-
-	// space between two elements
-	static KOORD_VAL gui_hspace;
-	static KOORD_VAL gui_vspace;
-
-	// and the indicator box dimension
-	static KOORD_VAL gui_indicator_width;
-	static KOORD_VAL gui_indicator_height;
-
 private:
 	gui_container_t container;
 
-	const char * name;
-	koord groesse;
+	const char *name;
+	scr_size size;
 
 	/**
 	 * Min. size of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	 */
-	koord min_windowsize;
+	scr_size min_windowsize;
 
 	resize_modes resize_mode; // 25-may-02  markus weber added
-	const spieler_t *owner;
+	const player_t *owner;
 
 	// set true for total redraw
 	bool dirty:1;
@@ -140,19 +115,20 @@ protected:
 	 * @author Markus Weber, Hj. Malthaner
 	 * @date   11-May-2002
 	 */
-	virtual void resize(const koord delta);
+	virtual void resize(const scr_coord delta);
 
-	void set_owner( const spieler_t *sp ) { owner = sp; }
+	void set_owner( const player_t *player ) { owner = player; }
 
 	void set_transparent( uint8 percent, COLOR_VAL col ) { opaque = percent==0; percent_transparent = percent; color_transparent = col; }
 
+	static karte_ptr_t welt;
 public:
 	/**
 	 * @param name, Window title
-	 * @param sp, owner for color
+	 * @param player, owner for color
 	 * @author Hj. Malthaner
 	 */
-	gui_frame_t(const char *name, const spieler_t *sp=NULL);
+	gui_frame_t(const char *name, const player_t *player=NULL);
 
 	virtual ~gui_frame_t() {}
 
@@ -160,13 +136,13 @@ public:
 	 * Adds the component to the window
 	 * @author Hj. Malthaner
 	 */
-	void add_komponente(gui_komponente_t *komp) { container.add_komponente(komp); }
+	void add_component(gui_component_t *comp) { container.add_component(comp); }
 
 	/**
 	 * Removes the component from the container.
 	 * @author Hj. Malthaner
 	 */
-	void remove_komponente(gui_komponente_t *komp) { container.remove_komponente(komp); }
+	void remove_component(gui_component_t *comp) { container.remove_component(comp); }
 
 	/**
 	 * The name is displayed in the titlebar
@@ -193,47 +169,50 @@ public:
 	 * -borders and -body background
 	 * @author Hj. Malthaner
 	 */
-	virtual PLAYER_COLOR_VAL get_titelcolor() const;
+	virtual PLAYER_COLOR_VAL get_titlecolor() const;
 
 	/**
 	 * @return gets the window sizes
 	 * @author Hj. Malthaner
 	 */
-	koord get_fenstergroesse() const { return groesse; }
+	scr_size get_windowsize() const { return size; }
 
 	/**
 	 * Sets the window sizes
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_fenstergroesse(koord groesse);
+	virtual void set_windowsize(scr_size size);
 
 	/**
 	 * Set minimum size of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	 */
-	void set_min_windowsize(koord size) { min_windowsize = size; }
+	void set_min_windowsize(scr_size size) { min_windowsize = size; }
 
 	/**
 	 * Set minimum size of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	 */
-	koord get_min_windowsize() { return min_windowsize; }
+	scr_size get_min_windowsize() { return min_windowsize; }
 
 	/**
-	 * @return returns the usable width and height of the window
+	 * Max Kielland 2013: Client size auto calculation with title bar and margins.
+	 * @return the usable width and height of the window
 	 * @author Markus Weber
 	 * @date   11-May-2002
-	*/
-	koord get_client_windowsize() const {return groesse-koord(0,D_TITLEBAR_HEIGHT); }
+ 	*/
+	scr_size get_client_windowsize() const {
+		return size - scr_size(0, ( has_title()*D_TITLEBAR_HEIGHT ) );
+	}
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	virtual const char * get_hilfe_datei() const {return NULL;}
+	virtual const char * get_help_filename() const {return NULL;}
 
 	/**
 	 * Does this window need a min size button in the title bar?
@@ -282,19 +261,19 @@ public:
 	 * @author Markus Weber
 	 * @date   25-May-2002
 	 */
-	resize_modes get_resizemode(void) { return resize_mode; }
+	resize_modes get_resizemode() { return resize_mode; }
 
 	/**
 	 * Returns true, if inside window area.
 	 */
-	virtual bool getroffen(int x, int y)
+	virtual bool is_hit(int x, int y)
 	{
-		koord groesse = get_fenstergroesse();
-		return (  x>=0  &&  y>=0  &&  x<groesse.x  &&  y<groesse.y  );
+		scr_size size = get_windowsize();
+		return (  x>=0  &&  y>=0  &&  x<size.w  &&  y<size.h  );
 	}
 
 	/**
-	 * Events werden hiermit an die GUI-Komponenten
+	 * Events werden hiermit an die GUI-components
 	 * gemeldet
 	 * @author Hj. Malthaner
 	 */
@@ -306,7 +285,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	virtual void zeichnen(koord pos, koord gr);
+	virtual void draw(scr_coord pos, scr_size size);
 
 	// called, when the map is rotated
 	virtual void map_rotate90( sint16 /*new_ysize*/ ) { }
@@ -319,9 +298,9 @@ public:
 	 * gui_container_t::infowin_event (e.g. in action_triggered)
 	 * will have NO effect.
 	 */
-	void set_focus( gui_komponente_t *k ) { container.set_focus(k); }
+	void set_focus( gui_component_t *k ) { container.set_focus(k); }
 
-	virtual gui_komponente_t *get_focus() { return container.get_focus(); }
+	virtual gui_component_t *get_focus() { return container.get_focus(); }
 };
 
 #endif

@@ -5,7 +5,7 @@
 
 
 /**
- * Das Fundament dient als Untergrund fuer alle Bauwerke in Simutrans.
+ * Das Fundament dient als Untergrund fuer all Bauwerke in Simutrans.
  *
  * @author Hj. Malthaner
  */
@@ -16,11 +16,11 @@ protected:
 	* Das Fundament hat immer das gleiche Bild.
 	* @author Hj. Malthaner
 	*/
-	void calc_bild_internal();
+	void calc_image_internal(const bool calc_only_snowline_change);
 
 public:
-	fundament_t(karte_t *welt, loadsave_t *file, koord pos );
-	fundament_t(karte_t *welt, koord3d pos,hang_t::typ hang, bool build_up = true);
+	fundament_t(loadsave_t *file, koord pos );
+	fundament_t(koord3d pos,slope_t::type hang, bool build_up = true);
 
 	/**
 	* Das Fundament heisst 'Fundament'.
@@ -31,7 +31,7 @@ public:
 
 	typ get_typ() const { return fundament; }
 
-	bool set_slope(hang_t::typ) { slope = 0; return false; }
+	bool set_slope(slope_t::type) { slope = 0; return false; }
 };
 
 #endif

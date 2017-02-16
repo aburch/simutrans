@@ -3,7 +3,6 @@
  *
  * This file is part of the Simutrans project under the artistic licence.
  */
-
 #ifndef __VEHIKEL_BESCH_H
 #define __VEHIKEL_BESCH_H
 #include <cstring>
@@ -17,7 +16,6 @@
 #include "sound_besch.h"
 #include "../dataobj/ribi.h"
 #include "../dataobj/way_constraints.h"
-#include "../simworld.h"
 #include "../simtypes.h"
 #include "../utils/float32e8_t.h"
 #include "../simunits.h"
@@ -53,9 +51,9 @@ class checksum_t;
  *
  * @author Volker Meyer, Hj. Malthaner, kierongreen
  */
-class vehikel_besch_t : public obj_besch_std_name_t {
+class vehicle_desc_t : public obj_desc_transport_related_t {
     friend class vehicle_reader_t;
-    friend class vehikelbauer_t;
+    friend class vehicle_builder_t;
 
 public:
 	/**
@@ -71,7 +69,10 @@ public:
 		sail,
 		fuel_cell,
 		hydrogene,
-		battery
+		battery,
+		petrol,
+		turbine,
+		MAX_TRACTION_TYPE
 	};
 
 	static const char* get_engine_type(engine_t e) 
@@ -97,36 +98,33 @@ public:
 			return "hydrogene";
 		case battery:
 			return "battery";
+		case petrol:
+			return "petrol";
+		case turbine:
+			return "turbine";
 		}
 	}
 
 
 private:
-	uint32 preis;				// Price
-	uint32 base_price;			// Price (without scale factor)
 	uint32 upgrade_price;		// Price if this vehicle is bought as an upgrade, not a new vehicle.
 	uint32 base_upgrade_price;  // Upgrade price (without scale factor)
-	uint16 zuladung;			// Payload
+	uint16 capacity;			// Payload
 	uint16 overcrowded_capacity; // The capacity of a vehicle if overcrowded (usually expressed as the standing capacity).
-	uint16 geschw;				// Speed in km/h
-	uint32 gewicht;				// Weight in kg
-	uint16 axle_load;			// Axle load
-	uint32 leistung;			// Power in kW
+	uint32 weight;				// Weight in kg
+	uint32 power;			// Power in kW
 	uint16 running_cost;		// Per kilometre cost
 	uint32 fixed_cost;			// Monthly cost @author: jamespetts, April 2009
 	uint32 base_fixed_cost;		// Monthly cost (without scale factor)
 
-	uint16 intro_date;			// introduction date
-	uint16 obsolete_date;		// phase out at
 	uint16 gear;				// engine gear (power multiplier), 64=100
 
-	sint8 typ;         			// see weg_t for allowed types
 	uint8 len;					// length (=8 is half a tile, the old default)
 	sint8 sound;
 
-	uint8 vorgaenger;			// all defined leading vehicles
-	uint8 nachfolger;			// all defined trailer
-	uint8 upgrades;				// The vehicles types to which this type may be upgraded.
+	uint8 leader_count;			// all defined leading vehicles
+	uint8 trailer_count;			// all defined trailer
+	uint8 upgrades;				// The number of vehicles that are upgrades of this vehicle.
 
 	uint8 engine_type;			// diesel, steam, electric (requires electrified ways), fuel_cell, etc.
 
@@ -178,12 +176,12 @@ private:
 							// Wikipedia, but is no use here).
 
 	float32e8_t air_resistance; // The "cf" value in physics calculations.
-	float32e8_t rolling_resistance; // The "fr" value in physics calculations.
+	float32e8_t rolling_resistance; // The "fr" value in physics calculations. 
 
 	// these values are not stored and therefore calculated in loaded():
 	// they are arrays having one element per speed in m/s:
 	uint32 max_speed;     // @author: Bernd Gabriel, May 27, 2012: length of the geared_* arrays (== maximum speed in m/s)
-	uint32 *geared_power; // @author: Bernd Gabriel, Nov  4, 2009: == leistung * gear in W
+	uint32 *geared_power; // @author: Bernd Gabriel, Nov  4, 2009: == power * gear in W
 	uint32 *geared_force; // @author: Bernd Gabriel, Dec 12, 2009: == tractive_effort * gear in N
 	/**
 	 * force threshold speed in km/h.
@@ -191,7 +189,7 @@ private:
 	 * Above this threshold the engine works as constant power engine.
 	 * @author Bernd Gabriel, Nov 4, 2009
 	 */
-	uint32 force_threshold_speed; // @author: Bernd Gabriel, Nov 4, 2009: in m/s
+	uint32 force_threshold_playerseed; // @author: Bernd Gabriel, Nov 4, 2009: in m/s
 
 	// Obsolescence settings
 	// @author: jamespetts
@@ -201,6 +199,18 @@ private:
 
 	//@author: jamespetts; 28th of July 2012
 	uint16 minimum_runway_length;
+
+	// The maximum number of km between stops (not waypoints)
+	uint16 range;
+
+	// The level of wear to which this vehicle subjects a way
+	// measured in Standard Axle loads (8t) * 10,000. 
+	uint32 way_wear_factor;
+
+	// Whether this vehicle may be allowed to pass under
+	// a restricted height bridge.
+	//@jamespetts January 2017
+	bool is_tall;
 
 	// @author: Bernd Gabriel, Dec 12, 2009: called as last action in read_node()
 	void loaded();
@@ -213,58 +223,62 @@ private:
 
 public:
 	// since we have a second constructor
-	vehikel_besch_t() : geared_power(0), geared_force(0) { }
+	vehicle_desc_t() : geared_power(0), geared_force(0) { }
 
-	// default vehicle (used for way seach and similar tasks)
-	// since it has no images and not even a name knot any calls to this will case a crash
-	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) : geared_power(0), geared_force(0) {
-		freight_image_type = livery_image_type = preis = upgrade_price = zuladung = overcrowded_capacity = running_cost = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
+	// default vehicle (used for way search and similar tasks)
+	// since it has no images and not even a name node any calls to this will case a crash
+	vehicle_desc_t(uint8 wtyp, uint16 speed, engine_t engine, uint16 al = 0, uint32 weight = 1) : geared_power(0), geared_force(0) {
+		freight_image_type = livery_image_type = cost = upgrade_price = capacity = overcrowded_capacity = running_cost = intro_date = leader_count = trailer_count = catering_level = upgrades = 0;
 		fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
-		leistung = gewicht = comfort = 1;
+		power = comfort = 1;
 		gear = GEAR_FACTOR;
-		//geared_power = GEAR_FACTOR;
 		len = 8;
 		sound = -1;
-		typ = wtyp;
+		wt = wtyp;
+		axle_load = al;
+		weight = weight;
 		engine_type = (uint8)engine;
-		geschw = speed;
+		topspeed = speed;
 		is_tilting = bidirectional = can_lead_from_rear = available_only_as_upgrade = false;
 		// These two lines are necessary for the building of way objects, so that they
 		// do not get stuck with constraints. 
 		way_constraints.set_permissive(0);
 		way_constraints.set_prohibitive(255);
+#ifndef NETTOOL
 		min_loading_time = max_loading_time = (uint32)seconds_to_ticks(30, 250); 
+#endif
 		tractive_effort = 0;
 		brake_force = BRAKE_FORCE_UNKNOWN;
-		minimum_runway_length = 0;
+		minimum_runway_length = 3;
+		range = 0;
 	}
 
-	virtual ~vehikel_besch_t()
+	virtual ~vehicle_desc_t()
 	{
 		delete [] geared_power;
 		delete [] geared_force;
 	}
 
-	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(2); }
+	ware_desc_t const* get_ware() const { return get_child<ware_desc_t>(2); }
 
-	skin_besch_t const* get_rauch() const { return get_child<skin_besch_t>(3); }
+	skin_desc_t const* get_smoke() const { return get_child<skin_desc_t>(3); }
 
-	image_id get_basis_bild() const { return get_bild_nr(ribi_t::dir_sued, get_ware() ); }
-	image_id get_basis_bild(const char* livery) const { return get_bild_nr(ribi_t::dir_sued, get_ware(), livery ); }
+	image_id get_base_image() const { return get_image_id(ribi_t::dir_south, get_ware() ); }
+	image_id get_base_image(const char* livery) const { return get_image_id(ribi_t::dir_south, get_ware(), livery ); }
 
 	// returns the number of different directions
-	uint8 get_dirs() const { return get_child<bildliste_besch_t>(4)->get_bild(4) ? 8 : 4; }
+	uint8 get_dirs() const { return get_child<image_list_t>(4)->get_image(4) ? 8 : 4; }
 
 	// return a matching image
 	// Vehicles can have single liveries, multiple liveries, 
 	// single frieght images, multiple frieght images or no freight images.
 	// they can have 4 or 8 directions ...
-	image_id get_bild_nr(ribi_t::dir dir, const ware_besch_t *ware, const char* livery_type = "default") const
+	image_id get_image_id(ribi_t::dir dir, const ware_desc_t *ware, const char* livery_type = "default") const
 	{
-		const bild_besch_t *bild=0;
-		const bildliste_besch_t *liste=0;
+		const image_t *image=0;
+		const image_list_t *list=0;
 
-		if(zuladung == 0 && ware)
+		if(capacity == 0 && ware)
 		{
 			ware = NULL;
 		}
@@ -278,7 +292,7 @@ public:
 				const uint8 freight_images = freight_image_type == 255 ? 1 : freight_image_type;
 				for(uint8 i = 0; i < livery_image_type; i++) 
 				{
-					if(!strcmp(livery_type, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + freight_images + i)->get_text()))
+					if(!strcmp(livery_type, get_child<text_desc_t>(5 + trailer_count + leader_count + upgrades + freight_images + i)->get_text()))
 					{
 						livery_index = i;
 						break;
@@ -286,17 +300,17 @@ public:
 				}
 			}
 			// vehicle has multiple liveries - get the appropriate one (if no list then fallback to livery zero)
-			bildliste2d_besch_t const* const liste2d = get_child<bildliste2d_besch_t>(4);
-			bild=liste2d->get_bild(dir, livery_index);
+			image_array_t const* const list2d = get_child<image_array_t>(4);
+			image=list2d->get_image(dir, livery_index);
 			
-			if(!bild) 
+			if(!image) 
 			{
 				if(dir>3)
 				{
-					bild = liste2d->get_bild(dir - 4, livery_index);
+					image = list2d->get_image(dir - 4, livery_index);
 				}
 			}
-			if (bild != NULL) return bild->get_nummer();
+			if (image != NULL) return image->get_id();
 		}
 
 		if(livery_image_type > 0 && freight_image_type == 255 && ware != NULL)
@@ -309,7 +323,7 @@ public:
 				// With the "default" livery, always select livery index 0
 				for(uint8 i = 0; i < livery_image_type; i++) 
 				{
-					if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)->get_text()))
+					if(!strcmp(livery_type, get_child<text_desc_t>(6 + trailer_count + leader_count + upgrades + i)->get_text()))
 					{
 						livery_index = i;
 						break;
@@ -317,17 +331,17 @@ public:
 				}
 			}
 			// vehicle has multiple liveries - get the appropriate one (if no list then fallback to livery zero)
-			bildliste2d_besch_t const* const liste2d = get_child<bildliste2d_besch_t>(5);
-			bild = liste2d->get_bild(dir, livery_index);
+			image_array_t const* const list2d = get_child<image_array_t>(5);
+			image = list2d->get_image(dir, livery_index);
 			
-			if(!bild) 
+			if(!image) 
 			{
 				if(dir>3)
 				{
-					bild = liste2d->get_bild(dir - 4, livery_index);
+					image = list2d->get_image(dir - 4, livery_index);
 				}
 			}
-			if (bild != NULL) return bild->get_nummer();
+			if (image != NULL) return image->get_id();
 		}
 
 		if(freight_image_type > 0 && freight_image_type < 255 && ware!=NULL && livery_image_type == 0)
@@ -340,7 +354,7 @@ public:
 			for( uint8 i=0;  i<freight_image_type;  i++  ) 
 			{
 				
-				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)) 
+				if (ware == get_child<ware_desc_t>(6 + trailer_count + leader_count + upgrades + i)) 
 				{
 					ware_index = i;
 					break;
@@ -348,16 +362,16 @@ public:
 			}
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
-			bildliste2d_besch_t const* const liste2d = get_child<bildliste2d_besch_t>(5);
-			bild=liste2d->get_bild(dir, ware_index);
-			if(!bild) 
+			image_array_t const* const list2d = get_child<image_array_t>(5);
+			image=list2d->get_image(dir, ware_index);
+			if(!image) 
 			{
 				if(dir>3)
 				{
-					bild = liste2d->get_bild(dir - 4, ware_index);
+					image = list2d->get_image(dir - 4, ware_index);
 				}
 			}
-			if (bild != NULL) return bild->get_nummer();
+			if (image != NULL) return image->get_id();
 		}
 
 		if(freight_image_type > 0 && freight_image_type < 255 && ware != NULL && livery_image_type > 0)
@@ -369,7 +383,7 @@ public:
 
 			for( uint8 i=0;  i<freight_image_type;  i++  ) 
 			{
-				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)) 
+				if (ware == get_child<ware_desc_t>(6 + trailer_count + leader_count + upgrades + i)) 
 				{
 					ware_index = i;
 					break;
@@ -380,7 +394,7 @@ public:
 			{
 				for(uint8 j = 0; j < livery_image_type; j++) 
 				{
-					if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + freight_image_type + upgrades + j)->get_text()))
+					if(!strcmp(livery_type, get_child<text_desc_t>(6 + trailer_count + leader_count + freight_image_type + upgrades + j)->get_text()))
 					{
 						livery_index = j;
 						break;
@@ -389,47 +403,47 @@ public:
 			}
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
-			bildliste3d_besch_t const* const liste3d = get_child<bildliste3d_besch_t>(5);
-			bild = liste3d->get_bild(dir, livery_index, ware_index);
-			if(!bild) 
+			image_array_3d_t const* const list3d = get_child<image_array_3d_t>(5);
+			image = list3d->get_image(dir, livery_index, ware_index);
+			if(!image) 
 			{
 				if(dir>3)
 				{
-					bild = liste3d->get_bild(dir - 4, livery_index, ware_index);
+					image = list3d->get_image(dir - 4, livery_index, ware_index);
 				}
 			}
-			if (bild != NULL) return bild->get_nummer();
+			if (image != NULL) return image->get_id();
 		}
 
 		// only try 1d freight image list for old style vehicles
 		if((freight_image_type == 0 || freight_image_type == 255) && ware != NULL && livery_image_type == 0) 
 		{
 			// Single freight image, single livery
-			liste = get_child<bildliste_besch_t>(5);
+			list = get_child<image_list_t>(5);
 		}
 
-		if(!liste) 
+		if(!list) 
 		{
-			liste = get_child<bildliste_besch_t>(4);
-			if(!liste)
+			list = get_child<image_list_t>(4);
+			if(!list)
 			{
-				return IMG_LEER;
+				return IMG_EMPTY;
 			}
 		}
 
-		bild = liste->get_bild(dir);
-		if(!bild) 
+		image = list->get_image(dir);
+		if(!image) 
 		{
 			if(dir>3)
 			{
-				bild = liste->get_bild(dir - 4);
+				image = list->get_image(dir - 4);
 			}
-			if(!bild) 
+			if(!image) 
 			{
-				return IMG_LEER;
+				return IMG_EMPTY;
 			}
 		}
-		return bild->get_nummer();
+		return image->get_id();
 	}
 
 	bool check_livery(const char* name) const
@@ -443,7 +457,7 @@ public:
 			for(sint8 i = 0; i < livery_image_type; i++) 
 			{
 				const uint8 freight_images = freight_image_type == 255 ? 1 : freight_image_type;
-				const char* livery_name = get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + freight_images + i)->get_text();
+				const char* livery_name = get_child<text_desc_t>(5 + trailer_count + leader_count + upgrades + freight_images + i)->get_text();
 				if(!strcmp(name, livery_name))
 				{
 					return true;
@@ -457,43 +471,40 @@ public:
 		}
 	}
 
-	// Liefert die erlaubten Vorgaenger.
-	// liefert get_vorgaenger(0) == NULL, so bedeutet das entweder alle
-	// Vorgänger sind erlaubt oder keine. Um das zu unterscheiden, sollte man
-	// vorher hat_vorgaenger() befragen
-
-	// Returns allowed predecessor.
-	// provides get_vorgaenger (0) == NULL, it means that either all 
-	// predecessors are allowed or not. To distinguish, one should 
-	// predict hat_vorgaenger () question (Google)
-	const vehikel_besch_t *get_vorgaenger(int i) const
+	/**
+	 * Returns allowed leader vehicles.
+	 * If get_leader(0) == NULL then either all or no leaders are allowed.
+	 * To distinguish these cases check get_leader_count().
+	 */
+	const vehicle_desc_t *get_leader(int i) const
 	{
-		if(i < 0 || i >= vorgaenger) {
+		if(i < 0 || i >= leader_count) {
 			return NULL;
 		}
-		return get_child<vehikel_besch_t>(get_add_to_node() + i);
+		return get_child<vehicle_desc_t>(get_add_to_node() + i);
 	}
 
-	// Liefert die erlaubten Nachfolger.
-	// liefert get_nachfolger(0) == NULL, so bedeutet das entweder alle
-	// Nachfolger sind erlaubt oder keine. Um das zu unterscheiden, sollte
-	// man vorher hat_nachfolger() befragen
-	const vehikel_besch_t *get_nachfolger(int i) const
+	/**
+	 * Returns vehicles that this vehicle is allowed to pull.
+	 * If get_trailer(0) == NULL then either all or no followers are allowed.
+	 * To distinguish these cases check get_trailer_count().
+	 */
+	const vehicle_desc_t *get_trailer(int i) const
 	{
-		if(i < 0 || i >= nachfolger) {
+		if(i < 0 || i >= trailer_count) {
 			return NULL;
 		}
-		return get_child<vehikel_besch_t>(get_add_to_node() + vorgaenger + i);
+		return get_child<vehicle_desc_t>(get_add_to_node() + leader_count + i);
 	}
 
-	int get_nachfolger_count() const { return nachfolger; }
+	int get_trailer_count() const { return trailer_count; }
 
 	/* returns true, if this veh can be before the next_veh
 	 * uses NULL to indicate end of convoi
 	 */
-	bool can_lead(const vehikel_besch_t *next_veh) const
+	bool can_lead(const vehicle_desc_t *next_veh) const
 	{
-		if(nachfolger == 0) 
+		if(trailer_count == 0) 
 		{
 			if(can_be_at_rear)
 			{
@@ -508,8 +519,8 @@ public:
 			}
 		}
 
-		for( int i=0;  i<nachfolger;  i++  ) {
-			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(get_add_to_node() + vorgaenger + i);
+		for( int i=0;  i<trailer_count;  i++  ) {
+			vehicle_desc_t const* const veh = get_child<vehicle_desc_t>(get_add_to_node() + leader_count + i);
 			if(veh==next_veh) {
 				return true;
 			}
@@ -521,14 +532,14 @@ public:
 	/* returns true, if this veh can be after the prev_veh
 	 * uses NULL to indicate front of convoi
 	 */
-	bool can_follow(const vehikel_besch_t *prev_veh) const
+	bool can_follow(const vehicle_desc_t *prev_veh) const
 	{
-		if(  vorgaenger==0  ) {
+		if(  leader_count==0  ) {
 			return true;
 		}
-		for( int i=0;  i<vorgaenger;  i++  ) 
+		for( int i=0;  i<leader_count;  i++  ) 
 		{
-			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(get_add_to_node() + i);
+			vehicle_desc_t const* const veh = get_child<vehicle_desc_t>(get_add_to_node() + i);
 			if(veh==prev_veh) 
 			{
 				return true;
@@ -538,45 +549,37 @@ public:
 		return false;
 	}
 
-	int get_vorgaenger_count() const { return vorgaenger; }
+	int get_leader_count() const { return leader_count; }
 
 	// Returns the vehicle types to which this vehicle type may be upgraded.
 
-	const vehikel_besch_t *get_upgrades(int i) const
+	const vehicle_desc_t *get_upgrades(int i) const
 	{
 		if(i < 0 || i >= upgrades)
 		{
 			return NULL;
 		}
-		return get_child<vehikel_besch_t>(get_add_to_node() + nachfolger + vorgaenger + i);
+		return get_child<vehicle_desc_t>(get_add_to_node() + trailer_count + leader_count + i);
 	}
 
 	int get_upgrades_count() const { return upgrades; }
 
-	bool can_follow_any() const { return nachfolger==0; }
+	bool can_follow_any() const { return trailer_count==0; }
 
-	waytype_t get_waytype() const { return static_cast<waytype_t>(typ); }
-	uint16 get_zuladung() const { return zuladung; }
-	uint32 get_preis() const { return preis; }
-	sint32 get_geschw() const { return geschw; }
-	uint32 get_gewicht() const { return gewicht; }
-	uint16 get_axle_load() const { return axle_load; }
+	uint16 get_capacity() const { return capacity; }
+	uint32 get_weight() const { return weight; }
 	uint16 get_running_cost() const { return running_cost; }
-	uint16 get_running_cost(const karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
+	uint16 get_running_cost(const class karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	uint32 get_fixed_cost() const { return fixed_cost; }
-	uint32 get_fixed_cost(karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
-	uint32 get_adjusted_monthly_fixed_cost(karte_t *welt) const; // includes increase for obsolescence and adjustment for monthly figures
-	//uint16 get_maintenance() const { return fixed_cost; } /* New Standard - not implemented yet */
-	//uint32 get_leistung() const { return leistung; }
-	//uint16 get_betriebskosten() const { return running_cost; }
-	//uint16 get_maintenance() const { return fixed_cost; }
+	uint32 get_fixed_cost(class karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
+	uint32 get_adjusted_monthly_fixed_cost(class karte_t *welt) const; // includes increase for obsolescence and adjustment for monthly figures
 	sint8 get_sound() const { return sound; }
 	bool is_bidirectional() const { return bidirectional; }
 	bool get_can_lead_from_rear() const { return can_lead_from_rear; }
 	uint8 get_comfort() const { return comfort; }
 	uint16 get_overcrowded_capacity() const { return overcrowded_capacity; }
-	uint32 get_min_loading_time() const { return zuladung > 0 ? min_loading_time : 0; }
-	uint32 get_max_loading_time() const { return zuladung > 0 ? max_loading_time : 0; }
+	uint32 get_min_loading_time() const { return capacity > 0 ? min_loading_time : 0; }
+	uint32 get_max_loading_time() const { return capacity > 0 ? max_loading_time : 0; }
 	uint32 get_upgrade_price() const { return upgrade_price; }
 	bool is_available_only_as_upgrade() const { return available_only_as_upgrade; }
 
@@ -614,7 +617,7 @@ public:
 	}
 
 	// BG, 15.06.2009: the formula for obsolescence formerly implemented twice in get_running_cost() and get_fixed_cost()
-	uint32 calc_running_cost(const karte_t *welt, uint32 base_cost) const;	
+	uint32 calc_running_cost(const class karte_t *welt, uint32 base_cost) const;	
 
 	float32e8_t get_power_force_ratio() const;
 	uint32 calc_max_force(const uint32 power) const { 
@@ -623,16 +626,18 @@ public:
 	uint32 calc_max_power(const uint32 force) const { 
 		return force ? (uint32)(force * get_power_force_ratio()) : 0; 
 	}
-	uint32 get_leistung() const { 
-		return leistung ? leistung : calc_max_power(tractive_effort); 
+	uint32 get_power() const { 
+		return power ? power : calc_max_power(tractive_effort); 
 	}
 	uint32 get_tractive_effort() const { 
-		return tractive_effort ? tractive_effort : calc_max_force(leistung);
+		return tractive_effort ? tractive_effort : calc_max_force(power);
 	}
 
 	uint16 get_brake_force() const { return brake_force; }
 
 	uint16 get_minimum_runway_length() const { return minimum_runway_length; }
+
+	uint16 get_range() const { return range; }
 	
 	/**
 	* @return introduction year
@@ -650,7 +655,7 @@ public:
 	* @return time when the vehicle is obsolete
 	* @author: jamespetts
 	*/
-	uint16 get_obsolete_year_month(const karte_t *welt) const;
+	uint16 get_obsolete_year_month(const class karte_t *welt) const;
 
 	// true if future
 	bool is_future (const uint16 month_now) const
@@ -671,7 +676,7 @@ public:
 	* @ Returns true if the vehicle is obsolete
 	* @author: 
 	*/
-	bool is_obsolete (const uint16 month_now, const karte_t* welt) const
+	bool is_obsolete (const uint16 month_now, const class karte_t* welt) const
 	{
 		return month_now  &&  (get_obsolete_year_month(welt) <= month_now);
 	}
@@ -688,7 +693,7 @@ public:
 	* eletric engines require an electrified way to run
 	* @author Hj. Malthaner
 	*/
-	uint8 get_engine_type() const { return engine_type; }
+	uint16 get_engine_type() const { return engine_type; }
 
 	/* @return the vehicles length in 1/8 of the normal len
 	* @author prissi
@@ -713,16 +718,20 @@ public:
 	*@author: jamespetts*/
 	uint8 get_catering_level() const { return catering_level; }
 
-	void set_scale(uint16 scale_factor)
+	uint32 get_way_wear_factor() const { return way_wear_factor; }
+
+	bool get_is_tall() const { return is_tall; }
+
+	void set_scale(uint16 scale_factor, uint32 way_wear_factor_rail, uint32 way_wear_factor_road, uint16 standard_axle_load)
 	{ 
-		const uint32 scaled_price = (uint32) set_scale_generic<sint64>(base_price, scale_factor);
-		const uint32 scaled_upgrade_price = (uint32) set_scale_generic<sint64>(base_upgrade_price, scale_factor);
-		const uint32 scaled_maintenance = set_scale_generic<uint32>(base_fixed_cost, scale_factor);
+		obj_desc_transport_related_t::set_scale(scale_factor);
 
-		preis = (base_price == 0 ? 0 : (scaled_price >= 1 ? scaled_price : 1));
-		upgrade_price = (base_upgrade_price == 0 ? 0 : (scaled_upgrade_price >= 1 ? scaled_upgrade_price : 1));
-		fixed_cost = (uint32)(base_fixed_cost == 0 ? 0 :(scaled_maintenance >= 1 ? scaled_maintenance : 1));
+		upgrade_price = (uint32) set_scale_generic<sint64>(base_upgrade_price, scale_factor);
+		if (base_upgrade_price && !upgrade_price) upgrade_price = 1;
 
+		fixed_cost = set_scale_generic<uint32>(base_fixed_cost, scale_factor);
+		if (base_fixed_cost && ! fixed_cost) fixed_cost = 1;
+#ifndef NETTOOL
 		if(max_loading_time_seconds != 65535)
 		{
 			max_loading_time = (uint32)seconds_to_ticks(max_loading_time_seconds, scale_factor);
@@ -730,6 +739,82 @@ public:
 		if(min_loading_time_seconds != 65535)
 		{
 			min_loading_time = (uint32)seconds_to_ticks(min_loading_time_seconds, scale_factor);
+		}
+#endif
+		if(way_wear_factor == UINT32_MAX_VALUE) 
+		{
+			// Uninitialised. Set it here, as cannot set it on reading because we need welt, and reading is static.
+			uint32 power;
+
+			switch(get_waytype())
+			{
+			case monorail_wt:
+			case track_wt:
+			case tram_wt:
+			case narrowgauge_wt:
+			case air_wt: // Runways should be like roads, but aircraft are so huge that it is unbalancable as such
+				power = way_wear_factor_rail;
+				break;
+			case maglev_wt:
+			case water_wt:
+				power = 0;
+				break;
+			case road_wt:
+			default:
+				power = way_wear_factor_road; 
+				break;
+			};
+			if(power > 0)
+			{
+				uint32 axles = axle_load ? (weight / axle_load) / 1000 : 1; // Weight is in kg.
+				axles = max(axles, 1);
+			
+				float32e8_t adjusted_standard_axle((uint32)axle_load, (uint32)standard_axle_load);
+				const float32e8_t adjusted_standard_axle_original = adjusted_standard_axle;
+				float32e8_t adjusted_standard_axle_extra((uint32)weight % (uint32)axles); 
+				adjusted_standard_axle_extra /= float32e8_t((uint32)1000, (uint32)1);
+				const float32e8_t adjusted_standard_axle_original_extra = adjusted_standard_axle_extra;
+
+				while(--power)
+				{
+					adjusted_standard_axle *= adjusted_standard_axle_original;
+					adjusted_standard_axle_extra *= adjusted_standard_axle_original_extra;
+				}
+
+				// Add estimate of hammer blow for steam locomotives
+				// See http://www.archive.org/stream/steelrailstheir02sellgoog/steelrailstheir02sellgoog_djvu.txt pp. 70-72 for details of this formula.
+				// This assumes a 2 cylinder locomotive.
+				if((get_waytype() == track_wt || get_waytype() == narrowgauge_wt) && power > 0 && engine_type == steam)
+				{
+					if(axle_load < 11)
+					{
+						if(topspeed < 90)
+						{
+							adjusted_standard_axle += (adjusted_standard_axle * float32e8_t((uint32)2, (uint32)3));
+						}
+						else
+						{
+							adjusted_standard_axle += (adjusted_standard_axle * float32e8_t((uint32)3, (uint32)4));
+						}
+					}
+					else
+					{
+						adjusted_standard_axle += (adjusted_standard_axle * float32e8_t((uint32)26, (uint32)100));
+					}
+					adjusted_standard_axle_extra += (adjusted_standard_axle * float32e8_t((uint32)26, (uint32)100));
+				}
+
+				adjusted_standard_axle *= axles;
+				adjusted_standard_axle += adjusted_standard_axle_extra;
+
+				adjusted_standard_axle *= (uint32)10000; 			
+
+				way_wear_factor = (uint32)adjusted_standard_axle.to_sint32();
+			}
+			else
+			{
+				way_wear_factor = 0;
+			}
 		}
 	}
 
@@ -767,7 +852,8 @@ public:
 
 			case air_wt:			return 100L; //1 when read
 
-			case road_wt:			
+			case road_wt:			return 15L; //0.15 when read
+
 			default:				return 15L; //0.15 when read
 		};
 	}  
@@ -794,5 +880,6 @@ public:
 		};
 	}
 };
+#define vehicle_desc_t_defined
 
 #endif

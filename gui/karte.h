@@ -1,20 +1,19 @@
 #ifndef gui_karte_h
 #define gui_karte_h
 
-#include "components/gui_komponente.h"
+#include "components/gui_component.h"
 #include "../halthandle_t.h"
 #include "../convoihandle_t.h"
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../tpl/array2d_tpl.h"
 #include "../tpl/vector_tpl.h"
 
 
-
-class karte_t;
+class karte_ptr_t;
 class fabrik_t;
 class grund_t;
 class stadt_t;
-class spieler_t;
+class player_t;
 class schedule_t;
 class loadsave_t;
 
@@ -25,13 +24,12 @@ class loadsave_t;
 #define ALWAYS_LARGE 1
 
 /**
- * Diese Klasse dient zur Darstellung der Reliefkarte
- * (18.06.00 von simwin getrennt)
- * Als Singleton implementiert.
+ * This class is used to render the relief map.
+ * Implemented as singleton.
  *
  * @author Hj. Malthaner
  */
-class reliefkarte_t : public gui_komponente_t
+class reliefkarte_t : public gui_component_t
 {
 public:
 	enum MAP_MODES {
@@ -59,12 +57,14 @@ public:
 		MAP_LINES = 1<<20,
 		MAP_LEVEL = 1<<21,
 		MAP_WAITCHANGE = 1<<22,
+		MAP_CONDITION = 1<<23,
+		MAP_WEIGHTLIMIT = 1<<24,
 		MAP_MODE_HALT_FLAGS = (MAP_STATUS|MAP_SERVICE|MAP_ORIGIN|MAP_TRANSFER|MAP_WAITING|MAP_WAITCHANGE),
 		MAP_MODE_FLAGS = (MAP_TOWN|MAP_CITYLIMIT|MAP_STATUS|MAP_SERVICE|MAP_WAITING|MAP_WAITCHANGE|MAP_TRANSFER|MAP_LINES|MAP_FACTORIES|MAP_ORIGIN|MAP_DEPOT|MAP_TOURIST|MAP_PAX_DEST)
 	};
 
 private:
-	static karte_t *welt;
+	static karte_ptr_t welt;
 
 	reliefkarte_t();
 
@@ -75,25 +75,23 @@ private:
 
 	void set_relief_color_clip( sint16 x, sint16 y, uint8 color );
 
-	void set_relief_farbe_area(koord k, int areasize, uint8 color);
-
 	// all stuff connected with schedule display
 	class line_segment_t
 	{
 	public:
 		koord start, end;
-		schedule_t *fpl;
-		spieler_t *sp;
+		schedule_t *schedule;
+		player_t *player;
 		waytype_t waytype;
 		uint8 colorcount;
 		uint8 start_offset;
 		uint8 end_offset;
 		bool start_diagonal;
 		line_segment_t() {}
-		line_segment_t( koord s, uint8 so, koord e, uint8 eo, schedule_t *f, spieler_t *p, uint8 cc, bool diagonal ) {
-			fpl = f;
+		line_segment_t( koord s, uint8 so, koord e, uint8 eo, schedule_t *f, player_t *p, uint8 cc, bool diagonal ) {
+			schedule = f;
 			waytype = f->get_waytype();
-			sp = p;
+			player = p;
 			colorcount = cc;
 			start_diagonal = diagonal;
 			if(  s.x<e.x  ||  (s.x==e.x  &&  s.y<e.y)  ) {
@@ -119,7 +117,6 @@ private:
 	};
 	vector_tpl<line_segment_t> schedule_cache;
 	convoihandle_t current_cnv;
-	uint8 fpl_player_nr;
 	uint8 last_schedule_counter;
 	vector_tpl<halthandle_t> stop_cache;
 
@@ -134,24 +131,24 @@ private:
 	static MAP_MODES last_mode;
 	static const uint8 severity_color[MAX_SEVERITY_COLORS];
 
-	inline void screen_to_karte(koord &) const;
+	koord screen_to_karte(const scr_coord&) const;
 
 	// for passenger destination display
 	const stadt_t *city;
-	unsigned long pax_destinations_last_change;
+	uint32 pax_destinations_last_change;
 
 	koord last_world_pos;
 
 	// current and new offset and size (to avoid drawing invisible parts)
-	koord cur_off, cur_size;
-	koord new_off, new_size;
+	scr_coord cur_off, new_off;
+	scr_size cur_size, new_size;
 
 	// true, if full redraw is needed
 	bool needs_redraw;
 
 	const fabrik_t* get_fab(koord pos, bool large_area) const;
 
-	const fabrik_t* draw_fab_connections(uint8 colour, koord pos) const;
+	const fabrik_t* draw_fab_connections(uint8 colour, scr_coord pos) const;
 
 	static sint32 max_cargo;
 	static sint32 max_passed;
@@ -164,7 +161,7 @@ private:
 	void set_citycar_speed_average();
 
 public:
-	void karte_to_screen(koord &) const;
+	scr_coord karte_to_screen(const koord &k) const;
 
 	static bool is_visible;
 
@@ -190,7 +187,7 @@ public:
 	*/
 	static uint8 calc_hoehe_farbe(const sint16 hoehe, const sint16 grundwasser);
 
-	// needed for town pasenger map
+	// needed for town passenger map
 	static uint8 calc_relief_farbe(const grund_t *gr);
 
 	// public, since the convoi updates need this
@@ -201,37 +198,35 @@ public:
 	static reliefkarte_t *get_karte();
 
 	// HACK! since we cannot get cleanly the current offset/size, we use this helper function
-	void set_xy_offset_size( koord off, koord size ) {
+	void set_xy_offset_size( scr_coord off, scr_size size ) {
 		new_off = off;
 		new_size = size;
 	}
 
-	koord get_offset() const { return cur_off; };
+	scr_coord get_offset() const { return cur_off; };
 
 	// update color with render mode (but few are ignored ... )
 	void calc_map_pixel(const koord k);
 
 	void calc_map();
 
-	// calculates the current size of the map (but do nopt change anything else)
-	void calc_map_groesse();
+	// calculates the current size of the map (but do not change anything else)
+	void calc_map_size();
 
 	virtual ~reliefkarte_t();
 
-	karte_t * get_welt() const {return welt;}
-
-	void set_welt(karte_t *welt);
+	void init();
 
 	void set_mode(MAP_MODES new_mode);
 
 	MAP_MODES get_mode() { return mode; }
 
 	// updates the map (if needed)
-	void neuer_monat();
+	void new_month();
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	void zeichnen(koord pos);
+	void draw(scr_coord pos);
 
 	void set_current_cnv( convoihandle_t c );
 

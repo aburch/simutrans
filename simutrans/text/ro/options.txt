@@ -1,0 +1,19 @@
+<title>Help Opþiuni</title>
+<h1>Opþiuni</h1>
+
+<p>
+<em>Limba</em> - Selectarea limbii<br>
+<em>Culoare jucãtor</em> - Selectarea culorii.<br>
+<em>Monitor</em> - Setãri monitor.<br>
+<em>Sunet</em> - Setãri sunete.<br>
+<em>Jucãtori</em> - Selectare adversari.<br>
+<em>Încarcã</em> - Încarcã joc salvat<br>
+<em>Salveazã</em> - Salvare joc.<br>
+<em>Hartã nouã</em> - Crearea unei noi hãrþi<br>
+<em>Terminare joc</em> - Ieºire din joc (jocul ne se salveazã automat)<br>
+</p>
+
+<p>
+
+Detalii în help-ul meniurilor.
+</p>

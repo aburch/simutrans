@@ -1,0 +1,55 @@
+<title>Special Construction Tools Help</title>
+
+<h1><strong>Special Construction Tools</strong></h1>
+
+<p>
+<strong>Special Construction Tools</strong> construct items that are not traffic related and also allow you to operate as another player in the game.
+</p>
+<p>
+Click red-drop-in-yellow-circle-icon (crane-icon in pak128) at top of the main game window to open toolbar. <br>
+Hover the mouse cursor over a toolbar icon (after opening or clicking on toolbar) to see name and where appropriate: construction<a href="finances.txt">cost</a>.
+</p>
+<p>
+<strong>Special Construction Tools</strong>include, from left to right:
+</p>
+<p>
+<em>Post Office:</em> tools build a post office that enable a <a href="station.txt">Stop</a> to handle mail. Post Offices increase the capacity and catchment area of the Stop and have a maintenance cost.<br>
+To build a post office: click on the tool icon to select, then click in the main game window by an existing Stop. The new Post Office is now considered to be part of the Stop.<br>
+<em>Tip:</em> Remove Post Offices and some obstructions with the destroy/remove tool.
+</p>
+<p>
+<em>Station Extensions:</em> tools construct extensions and buildings for <a href="station.txt">Stops</a>. Extensions may increase capacity and catchment area for goods and passengers, and maintenance costs. In the corner of some tool options an icon (used in <a href="haltlist.txt">Station List</a> and Stop Information) shows which items the extension allows the Stop to handle.<br>
+To build an extension: click on the tool icon to select (changes cursor to extension), then click required position, beside an existing Stop, in the main game window. The new extension is now considered to be part of the Stop.<br>
+<em>Tip:</em> Remove extensions with the destroy/remove tool.
+</p>
+<p>
+<em>P+ Change Player:</em> allows you to change the <a href="players.txt">player</a> that you control, if <a href="new_world.txt">allow player change</a> was selected at the start of the game. Extra <a href="edittools.txt">options</a> are available as the public service player.<br>
+click on the tool icon (or press <a href="keys.txt">[P]</a>) to cycle through the various players. A confirmation message appears that player has been changed: click on the X in top-left corner of message or use keyboard to close it.
+</p>
+<p>
+<em>Found a new city:</em> tools establishes a new <a href="citywindow.txt">urban area</a>.<br>
+To build a new city: click on the tool icon or press [C] to select (changes cursor to town hall), then click required position, in the main game window. The new city costs 5 million credits and will be built without further confirmation.<br>
+<em>Tip:</em> Click on the town hall in the main game window with the destroy/remove tool to remove the new city buildings.
+</p>
+<p>
+<em>Plant trees:</em> tool places a tree in the main game window.<br>
+To plant a tree: click on the tool icon to select (changes cursor to tree), then click required position.<br>
+<em>Tip:</em> Remove trees with the destroy/remove tool.
+</p>
+<p>
+<em>Build Power Transmission Line:</em> tool builds powerlines that supply power between transformer stations at power plants and <a href="industry_info.txt">industry</a> (to increase productivity). The supply of power generates income. These powerlines cannot cross diagonal tracks and roads.<br>
+To build a high power transmission line: click on to tool or press [l] to select (changes cursor to power lines), then click on a transformer station placed next to a power station, and finally click on a transformer station at an industry to supply it with power to increase production.<br>
+<em>Tip:</em> Powerlines can be built in stages, click at required points in the main game window. Remove powerlines with the destroy/remove tool.
+</p>
+<p>
+<em>Substation</em> tool builds a substation at power stations, <a href="industry_info.txt">industries</a> or cities for connection to high voltage transmission lines to transmit <a href="electricity.txt">electricity</a>.<br>
+To build a substation: click on the tool icon or press <a href="keys.txt">[g]</a> to select (changes the cursor to a red drop in a yellow circle), then click required position beside an industry or power station, in the main game window.<br>
+Substations built at power plants must be connected to substations at industries or cities with powerlines to supply electricity.
+</p>
+<p>
+<em>Add a marker:</em> tool opens controls to place a sign with personalised text in the main game window and can be used as a way of landmarking a specific position in the game world. Click on the tool icon to select or press <a href="keys.txt">[M]</a> (the cursor changes to a text marker) then click on the required point in the main game window to open the marker controls. At the top of the window are the co-ordinates on the map of the selected position, and an empty box. Enter the required text in to box (click on the box, type the text and click <em>OK</em> or press [Enter] or [Return]) to place the marker. The new marker is shown in the main game window and listd in the marker window (with map co-ordinates) when the window is re-opened.<br>
+To move the main game window to a marker point: open the <a href="labellist_filter.txt">marker list</a> window and choose a marker from the list.<br>
+To remove a marker: click on the <em>Add a marker</em> tool or press <a href="keys.txt">[M]</a> to select. The cursor changes to a text marker. Then click on the ground underneath the marker in the main game window, and click <em>Remove</em> in the marker window that appears.<br>
+To close the marker window: click the X in top left-hand corner of the window, or click <em>Cancel</em>.<br>
+<em>Tip:</em> Map co-ordinates of the cursor can be seen on right of the bottom bar under the main game window. Use <a href="keys.txt">[!]</a> to toggle the visibility of the text of markers in the main game window.
+</p>

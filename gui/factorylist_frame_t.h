@@ -12,7 +12,6 @@
 #include "factorylist_stats_t.h"
 
 
-class karte_t;
 
 class factorylist_frame_t : public gui_frame_t, private action_listener_t
 {
@@ -33,20 +32,20 @@ private:
 	static bool sortreverse;
 
 public:
-	factorylist_frame_t(karte_t * welt);
+	factorylist_frame_t();
 
 	/**
 	 * resize window in response to a resize event
 	 * @author Hj. Malthaner
 	 */
-	void resize(const koord delta);
+	void resize(const scr_coord delta);
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_hilfe_datei() const {return "factorylist_filter.txt"; }
+	const char * get_help_filename() const {return "factorylist_filter.txt"; }
 
 	static factorylist::sort_mode_t get_sortierung() { return sortby; }
 	static void set_sortierung(const factorylist::sort_mode_t& sm) { sortby = sm; }

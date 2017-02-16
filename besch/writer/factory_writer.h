@@ -6,7 +6,7 @@
 #include "../objversion.h"
 
 
-// Knightly : new writer class for field class besch
+// Knightly : new writer class for field class desc
 class factory_field_class_writer_t : public obj_writer_t {
 	private:
 		static factory_field_class_writer_t the_instance;
@@ -83,7 +83,7 @@ class factory_supplier_writer_t : public obj_writer_t {
 		virtual obj_type get_type() const { return obj_fsupplier; }
 		virtual const char* get_type_name() const { return "factory supplier"; }
 
-		void write_obj(FILE* outfp, obj_node_t& parent, int capacity, int count, int verbrauch, const char* warename);
+		void write_obj(FILE* outfp, obj_node_t& parent, int capacity, int count, int consumption, const char* warename);
 };
 
 

@@ -1,7 +1,7 @@
 #include "api_function.h"
 #include <stdio.h>
 
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 /**
  * Auxiliary function to register function in table/class at stack top
@@ -19,7 +19,7 @@ static FILE* file = NULL;
 
 void script_api::start_squirrel_type_logging()
 {
-	if (umgebung_t::verbose_debug < 2) {
+	if (env_t::verbose_debug < 2) {
 		return;
 	}
 	file = fopen("squirrel_types.awk", "w");
@@ -43,7 +43,7 @@ void script_api::log_squirrel_type(std::string classname, const char* name, std:
 {
 	if (file) {
 		fprintf(file, "\texport_types[\"%s::%s\"] = \"%s\"\n",
-			classname.compare(param<void_t>::squirrel_type()) == 0 ? "" : classname.c_str(),
+			classname.compare(param<script_api::void_t>::squirrel_type()) == 0 ? "" : classname.c_str(),
 			name,
 			squirrel_type.c_str()
 		);

@@ -1,0 +1,47 @@
+<title>Signals overview</title>
+
+<h1>Signals overview</h1><br>
+<p>
+
+</p>
+<h1>Concepts:</h1>
+<p>
+
+<em>Working methods</em><br>
+Since the dawn of railways, the biggest problem has always been to ensure that two trains are not running into each other. This has resulted in the development of various safety systems, rules, technical safety instruments etc.<br>
+Signals are working with so called working methods, which will determine how the signal will behave and how the train will reserve the track beyond the signal. Different working methods represents different real life rail systems, and there are different signals available to the various working methods.<br>
+Whenever the train leaves the depot or leaves a platform with no signals on, it will default to the Drive by Sight working method (although with some exceptions: se the link below).<br>
+Read more about working methods here: <a href="signals_working_methods.txt">Signals working methods</a><br><br>
+
+<em>Signalboxes</em><br>
+A signal can't just be built as a standalone signal: They need signalboxes in order to be built. A signalbox is in the real world the shelf or the building from which the signals are controlled. Newer techniques allows for more efficient signal systems with greater numbers and more remote controlled signals. In Simutrans, different signalboxes allows for different signals, simulating the different eras and techniques.<br><br>
+
+<em>Unidirectional signals</em><br>
+Signals are unidirectional signals that do not prevent trains passing in the opposite direction. Trains passing in the opposite direction will ignore the signals completely.<br>
+Some signals using certain working methods can also be built as bidirectional signals, controling traffic from both directions and thus creating directional reservations.<br><br>
+
+<em>Directional reservations</em><br>
+It is possible to create a directional reservation. That is a reservation of the tracks in a certain direction, and represented with the color BLUE with the block reservation tool.<br>
+A directional reservation can only be created by placing bidirectional signals that uses sertain working methods. Read more about that here: <a href="signals_usage.txt">Signals usage</a><br><br>
+
+<em>Sighting distance</em><br>
+The traindriver can only see a certain distance in front of the train. The sighting distance is heavily used when driving by sight (check <a href="signals_working_methods.txt">Signals working methods</a>) but is also used to determine the speed that a train is approaching an upcoming signal. Since the train does not know the state of an upcoming signal, it must drive slow enough in order to be able to stop in front of the signal. However, this can be improved by using presignals, which will tell the driver at a much earlier point, at what state the signal is, so the driver doesnt nessecarily have to brake at all.<br>
+Read more about presignals here: <a href="signals_usage.txt">Signals usage</a><br><br>
+
+<em>Multiple aspect signals</em><br>
+A signal may have up to 5 aspects, in addition to aspects for permissive signals and choose signals showing alternative routes. Not all paksets make use of all of the aspects and the graphics of the signals might be very different between paksets.<br>
+The core function of such signals is to rize the density of the tracks. The more aspects, the smaller blocks of tracks one can create without compromizing with lower top speeds, thus creating room for more trains on the tracks. Therefore, the most effective way of using multi aspect signals are at lines with a big traffic demand.
+Read more about how to use them here: <a href="signals_usage.txt">Signals usage</a><br><br>
+
+<em>Sighting speeds</em><br>
+At higher speeds, signs and signals get more difficult to read. Each signal has a maximum sighting speed (defined as "Max speed") which is the maximum speed that the traindrivers human eye can read the messages given from the signal. In effect, this means that a train will not pass a signal at higher speed than the signals maxspeed. Although with modern technology cab signalling allows the signal states to be shown inside the cab of the trains, thus allowing for a higher sighting speed, as it is the technology that "sees" the signal.<br><br>
+
+<em>Choose signals</em><br>
+Choose signals serves two functions: They will guide the train to an empty platform at the station, and they will guide a train through a station, also if the mainline route is occupied.<br>
+To make use of this second function, you need to place an <it>end of choose </it>sign outside all the exits of the station. When a train aproach the choose signal, it will be given a route all the way till its destination or the "end of choose" sign, whichever is encountered first.<br>
+Read more about how to use them here: <a href="signals_usage.txt">Signals usage</a><br><br>
+
+<em>Permissive signals</em><br>
+Permissive signals are used to increase line capacity. When a train is brought to a stand at a permissive signal at danger, it may proceed beyond the signal at "drive by sight". This is only possible where the signal controls a section of straight, unidirectional track. If there are junctions, the permissive functionality is disabled and the signal works as an ordinary signal.<br>
+Read more about how to use them here: <a href="signals_usage.txt">Signals usage</a><br><br>
+

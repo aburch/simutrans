@@ -1,4 +1,4 @@
-
+#include <stdlib.h>
 #include <cmath>
 #include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
@@ -20,28 +20,32 @@ using std::string;
 /**
  * Calculate numeric engine type from engine type string
  */
-static vehikel_besch_t::engine_t get_engine_type(char const* const engine_type)
+static vehicle_desc_t::engine_t get_engine_type(char const* const engine_type)
 {
-	vehikel_besch_t::engine_t uv8 = vehikel_besch_t::diesel;
+	vehicle_desc_t::engine_t uv8 = vehicle_desc_t::diesel;
 
 	if (!STRICMP(engine_type, "diesel")) {
-		uv8 = vehikel_besch_t::diesel;
+		uv8 = vehicle_desc_t::diesel;
 	} else if (!STRICMP(engine_type, "electric")) {
-		uv8 = vehikel_besch_t::electric;
+		uv8 = vehicle_desc_t::electric;
 	} else if (!STRICMP(engine_type, "steam")) {
-		uv8 = vehikel_besch_t::steam;
+		uv8 = vehicle_desc_t::steam;
 	} else if (!STRICMP(engine_type, "bio")) {
-		uv8 = vehikel_besch_t::bio;
+		uv8 = vehicle_desc_t::bio;
 	} else if (!STRICMP(engine_type, "sail")) {
-		uv8 = vehikel_besch_t::sail;
+		uv8 = vehicle_desc_t::sail;
 	} else if (!STRICMP(engine_type, "fuel_cell")) {
-		uv8 = vehikel_besch_t::fuel_cell;
+		uv8 = vehicle_desc_t::fuel_cell;
 	} else if (!STRICMP(engine_type, "hydrogene")) {
-		uv8 = vehikel_besch_t::hydrogene;
+		uv8 = vehicle_desc_t::hydrogene;
 	} else if (!STRICMP(engine_type, "battery")) {
-		uv8 = vehikel_besch_t::battery;
+		uv8 = vehicle_desc_t::battery;
+	} else if (!STRICMP(engine_type, "petrol")) {
+		uv8 = vehicle_desc_t::petrol;
+	} else if (!STRICMP(engine_type, "turbine")) {
+		uv8 = vehicle_desc_t::turbine;
 	} else if (!STRICMP(engine_type, "unknown")) {
-		uv8 = vehikel_besch_t::unknown;
+		uv8 = vehicle_desc_t::unknown;
 	}
 
 	// printf("Engine type %s -> %d\n", engine_type, uv8);
@@ -78,7 +82,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 77;
+	int total_len = 84;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -111,17 +115,20 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Hajo: version number
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version = 0x800A;
+	uint16 version = 0x800B;
 	
-	// This is the overlay flag for Simutrans-Experimental
+	// This is the overlay flag for Simutrans-Extended
 	// This sets the *second* highest bit to 1. 
 	version |= EXP_VER;
 
-	// Finally, this is the experimental version number. This is *added*
+	// Finally, this is the extended version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
 	// Counting can restart at 0x100 if the Standard version increases.
-	version += 0x100;
+	// Standard 10, 0x100 - everything from minimum runway length and earlier.
+	// Standard 10, 0x200 - range, wear factor.
+	// Standard 10, 0x300 - whether tall (for height restricted bridges)
+	version += 0x300;
 
 	node.write_uint16(fp, version, pos);
 
@@ -138,7 +145,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	pos += sizeof(uint16);
 
 	/*
-	* This duplicates a system used in Experimental for some time.
+	* This duplicates a system used in Extended for some time.
 	* The keyword is the same.
 	*
 	// ms per loading/unloading everything
@@ -164,7 +171,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// For automatic calculation of axle load
 	// (optional). This value is not written to file.
 	const uint8 axles_default = waytype == water_wt || waytype == maglev_wt ? 1 : 2;
-	const uint8 axles = obj.get_int("axles", 2);
+	const uint8 axles = obj.get_int("axles", axles_default);
 
 	// axle_load (determine ways usage)
 	uint16 axle_load = obj.get_int("axle_load", (weight / axles) / 1000);
@@ -183,7 +190,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	/*
 	* uint16 size used in Standard. Stored in a different position
-	* in the file in Experimental, and is a uint32.
+	* in the file in Extended, and is a uint32.
 	*
 	// monthly maintenance
 	uint16 fixcost = obj.get_int("fixed_cost", 0);
@@ -222,7 +229,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// engine
 	if (waytype == overheadlines_wt) {
 		// Hajo: compatibility for old style DAT files
-		uv8 = vehikel_besch_t::electric;
+		uv8 = vehicle_desc_t::electric;
 	}
 	else {
 		const char* engine_type = obj.get("engine_type");
@@ -414,10 +421,8 @@ end:
 			{
 				sprintf(buf, "freightimage[%d][%s]", freight, dir_codes[i]);
 				str = obj.get(buf);
-				if(str.empty())
-				{
-					printf("*** FATAL ***:\nMissing freightimage[%d][%s]!\n", freight, dir_codes[i]);
-					fflush(NULL);
+				if (str.empty()) {
+					dbg->fatal( "Vehicle", "Missing freightimage[%d][%s]!", freight, dir_codes[i]);
 					exit(1);
 				}
 				printf("Appending freightimage[%d][%s]\n", freight, dir_codes[i]);
@@ -479,16 +484,14 @@ end:
 	// prissi: added more error checks
 	if (has_8_images && emptykeys.get_count() < 8 && liverykeys_empty.get_count() < 8) 
 	{
-		printf("*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count() + liverykeys_empty.get_count());
-		//fprintf(stderr, "*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count() + liverykeys_empty.get_count());
-		exit(0);
+		dbg->fatal( "Vehicle", "Missing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count() + liverykeys_empty.get_count());
+		exit(1);
 	}
 
 	if (!(freightkeys_old.empty() || liverykeys_freight_old.empty()) && (emptykeys.get_count() != freightkeys_old.get_count() || liverykeys_empty.get_count() != liverykeys_freight_old.get_count()))
 	{
-		printf("*** FATAL ***:\nMissing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.get_count());
-		//fprintf(stderr, "*** FATAL ***:\nMissing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.get_count());
-		exit(0);
+		dbg->fatal( "Vehicle", "Missing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.get_count());
+		exit(1);
 	}
 
 	if(livery_max == 0)
@@ -547,14 +550,14 @@ end:
 	// Vorgänger/Nachfolgerbedingungen
 	// "Predecessor / Successor conditions" (Google)
 	//
-	uint8 besch_vorgaenger = 0;
+	uint8 desc_vorgaenger = 0;
 	bool found;
 	do {
 		char buf[40];
 
 		// Hajodoc: Constraints for previous vehicles
 		// Hajoval: string, "none" means only suitable at front of an convoi
-		sprintf(buf, "constraint[prev][%d]", besch_vorgaenger);
+		sprintf(buf, "constraint[prev][%d]", desc_vorgaenger);
 
 		str = obj.get(buf);
 		found = !str.empty();
@@ -563,18 +566,18 @@ end:
 				str = "";
 			}
 			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
-			besch_vorgaenger++;
+			desc_vorgaenger++;
 		}
 	} while (found);
 
-	uint8 besch_nachfolger = 0;
+	uint8 desc_nachfolger = 0;
 	bool can_be_at_rear = true;
 	do {
 		char buf[40];
 
 		// Hajodoc: Constraints for successing vehicles
 		// Hajoval: string, "none" to disallow any followers
-		sprintf(buf, "constraint[next][%d]", besch_nachfolger);
+		sprintf(buf, "constraint[next][%d]", desc_nachfolger);
 
 		str = obj.get(buf);
 
@@ -594,7 +597,7 @@ end:
 			else
 			{
 				xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
-				besch_nachfolger++;
+				desc_nachfolger++;
 			}
 		}
 	} while (found);
@@ -637,16 +640,15 @@ end:
 				// check for superflous definitions
 				if(!str.empty())
 				{
-					printf("WARNING: More freightimagetype (%i) than freight_images (%i)!\n", i, freight_max);
+					dbg->warning( obj_writer_t::last_name, "More freightimagetype (%i) than freight_images (%i)!", i, freight_max);
 					fflush(NULL);
 				}
 				break;
 			}
 			if(str.empty())
 			{
-				printf("*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max + 1);
-				//fprintf(stderr, "*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max + 1);
-				exit(0);
+				dbg->fatal( obj_writer_t::last_name, "Missing freightimagetype[%i] for %i freight_images!", i, freight_max + 1);
+				exit(1);
 			}
 			xref_writer_t::instance()->write_obj(fp, node, obj_good, str.c_str(), false);
 		}
@@ -664,16 +666,15 @@ end:
 			// check for superflous definitions
 			if(!str.empty())
 			{
-				printf("WARNING: More livery types (%i) than liveries (%i)!\n", i, livery_max);
+				dbg->fatal( obj_writer_t::last_name, "More livery types (%i) than liveries (%i)!", i, livery_max);
 				fflush(NULL);
 			}
 			break;
 		}
 		if(str.empty())
 		{
-			printf("*** FATAL ***:\nMissing liverytype[%i] for %i liveries!\n", i, livery_max + 1);
-			//fprintf(stderr, "*** FATAL ***:\nMissing liverytype[%i] for %i liveries!\n", i, livery_max + 1);
-			exit(0);
+			dbg->fatal( obj_writer_t::last_name, "Missing liverytype[%i] for %i liveries!", i, livery_max + 1);
+			exit(1);
 		}
 		text_writer_t::instance()->write_obj(fp, node, str.c_str());
 	}
@@ -690,9 +691,9 @@ end:
 		text_writer_t::instance()->write_obj(fp, node, "default");
 	}
 
-	node.write_sint8(fp, besch_vorgaenger, pos);
+	node.write_sint8(fp, desc_vorgaenger, pos);
 	pos += sizeof(sint8);
-	node.write_sint8(fp, besch_nachfolger, pos);
+	node.write_sint8(fp, desc_nachfolger, pos);
 	pos += sizeof(sint8);
 	node.write_uint8(fp, (uint8) freight_max, pos);
 	pos += sizeof(uint8);
@@ -838,7 +839,7 @@ end:
 
 	// Fixed monthly maintenance costs
 	// @author: jamespetts
-	// (The original Experimental name was "fixed_maintenance".
+	// (The original Extended name was "fixed_maintenance".
 	// The new Standard name is "fixed_cost". It is necessary
 	// to accommodate both.)
 	uint32 fixed_cost = obj.get_int("fixed_maintenance", 0);
@@ -854,7 +855,7 @@ end:
 
 	// Air resistance
 	// @author: jamespetts & Bernd Gabriel
-	uint16 air_default = vehikel_besch_t::get_air_default(waytype);
+	uint16 air_default = vehicle_desc_t::get_air_default(waytype);
 
 	uint16 air_resistance_hundreds = obj.get_int("air_resistance", air_default);
 	node.write_uint16(fp, air_resistance_hundreds, pos);
@@ -900,7 +901,7 @@ end:
 	node.write_uint16(fp, max_loading_time, pos);
 	pos += sizeof(uint16);
 
-	uint16 rolling_default = vehikel_besch_t::get_rolling_default(waytype);
+	uint16 rolling_default = vehicle_desc_t::get_rolling_default(waytype);
 
 	uint16 rolling_resistance_tenths_thousands = obj.get_int("rolling_resistance", rolling_default);
 	node.write_uint16(fp, rolling_resistance_tenths_thousands, pos);
@@ -913,6 +914,18 @@ end:
 	uint16 minimum_runway_length = obj.get_int("minimum_runway_length", 0);
 	node.write_uint16(fp, minimum_runway_length, pos);
 	pos += sizeof(minimum_runway_length);
+
+	uint16 range = obj.get_int("range", 0);
+	node.write_uint16(fp, range, pos);
+	pos += sizeof(range);
+
+	uint32 way_wear_factor = obj.get_int("way_wear_factor", UINT32_MAX_VALUE);
+	node.write_uint32(fp, way_wear_factor, pos);
+	pos += sizeof (way_wear_factor); 
+
+	uint8 is_tall = obj.get_int("is_tall", 0);
+	node.write_uint8(fp, is_tall, pos);
+	pos += sizeof(is_tall); 
 
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {

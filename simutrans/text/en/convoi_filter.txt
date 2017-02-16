@@ -1,0 +1,36 @@
+<title>Vehicle List Filter Help</title>
+
+<h1><strong>Vehicle List Filter</strong></h1>
+
+<p>
+<strong>Vehicle List Filter</strong> has options to determine which <a href="convoiinfo.txt">convoys</a>, are shown in the <a href="convoi.txt">Vehicle List</a>.
+</p>
+<p>
+Click on "settings" in the vehicle list window to open the <strong>vehicle list filter</strong>.
+</p>
+<p>
+Option buttons select convoys to be listd in the vehicle list window when filter option is <a href="convoi.txt">enabled</a>. Only convoys that fit all the criteria that have been chosen are listd.
+</p>
+<p>
+Click on a checkbox to set the criteria for the filters (the button is indented when selected):
+</p>
+<p>
+<em>Filter names:</em> selects a <a href="convoiinfo.txt">convoy</a> by name. To use: click on the button to select, then click on the name box and type the name of the chosen convoy exactly (the text is case sensitive).
+</p>
+<p>
+<em>Filter types:</em> will list convoys by the type of transport. To use: click on the button to select, then click on one or more of the following transport types: road, rail, monorail, tram, maglev, narrow gauge, water and air.
+</p>
+<p>
+<em>Special filter:</em> selects <a href="convoiinfo.txt">convoys</a> by the following criteria (click on the button to select, then click on):<br>
+- <em>no route</em> - cannot find a path to the next destination.<br>
+- <em>no schedule</em> - not assigned a <a href="schedule.txt">route</a>.<br>
+- <em>no income</em> - not generating any profit.<br>
+- <em>in a depot</em> - is in a <a href="depot.txt">depot</a>.<br>
+- <em>no line</em> - not assigned a <a href="linemanagement.txt">line</a>.
+</p>
+<p>
+<em>Filter goods:</em> selects convoys by ability to transport different goods and passengers. Click on the button next to the name to select the item(s). Use the <a href="mouse.txt">slider bar</a> to scroll items in list. Options include:<br>
+- <em>all</em> selects all items.<br>
+- <em>none</em> deselects all items.<br>
+- <em>inv.</em> reverses the  current selection of items.
+</p>

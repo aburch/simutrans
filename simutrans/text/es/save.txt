@@ -1,0 +1,35 @@
+<title>Ayuda de Guardar</title>
+
+<h1><strong>Guardar</strong></h1>
+
+<p>
+<strong>Guardar</strong> almacena la partida actual en un fichero (para continuar jugando mas tarde) y puede ser usado para borrar partidas guardadas.
+</p>
+<p>
+<strong>Guardar</strong> se abre desde <a href="options.txt">Opciones de Juego</a> o presionando <a href="keys.txt">[S]</a>; y muestra una lista con nombre, fecha y hora de las partidas guardadas.<br>
+Si no son visibles todas las partidas: usa la <a href="mouse.txt">barra de desplazamiento</a> en la parte derecha de la lista para desplazar los nombres.
+</p>
+<p>
+La partida actual puede ser salvada en un nuevo fichero o en un fichero ya existente.<br>
+Para salvar en un fichero nuevo, introduce el nombre en la caja de texto de la parte superior de la ventana
+ <strong>Guardar</strong>: pulsa en la caja de texto, introduce el nombre y pulsa [Enter] o [Return] o pulsa en <em>OK</em>; el nuevo fichero se mostrara en la lista.<br>
+IMPORTANTE: Si se usa un fichero listado, la partida antigua en reemplazada, por la partida actual y se pierde.
+</p>
+<p>
+Por defecto, la partida actual aparece en la caja de texto Archivo, para salvar esta ultima en ese fichero: pulsa en <em>OK</em> (los datos antiguos se pierden y son reemplazados por los datos de la partida actual).<br>
+Para salvar una partida en un fichero de una partida antigua: pulsa en el nombre dentro de la lista (la partida antigua es reemplazada por la partida actual).
+</p>
+<p>
+Los nombres de fichero pueden ser una combinacion de letras, numeros y simbolos con una longitud maxima de 57 caracteres; despues de salvar, solo se muestran 20 caracteres en las ventanas <strong>Guardar</strong> y
+<a href="load.txt">Cargar</a>.
+</p>
+<p>
+CUIDADO: Pulsando en el boton X  BORRARA LA PARTIDA DE FORMA INMEDIATA Y PERMANENTE, el fichero se elimina de la lista y la ventana <strong>Guardar</strong> se cierra. Use esta funcion con cuidado.
+</p>
+<p>
+{Consejos: Reinicia un juego salvado desde la ventana Cargar.<br>
+Puedes cambiar la opcion de auto-guardado (guardado automatico de la partida) en el fichero simuconf.tab}.
+</p>
+<p>
+Pulsa en <em>Cancelar</em> para cerrar la ventana <strong>Guardar</strong>; o en el boton X en la esquina superior izquierda; o usa el teclado.
+</p>

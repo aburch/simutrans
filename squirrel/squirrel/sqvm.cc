@@ -351,8 +351,10 @@ bool SQVM::Init(SQVM *friendvm, SQInteger stacksize)
 	_callsstack = &_callstackdata[0];
 	_stackbase = 0;
 	_top = 0;
-	if(!friendvm)
+	if(!friendvm) {
 		_roottable = SQTable::Create(_ss(this), 0);
+		sq_base_register(this);
+	}
 	else {
 		_roottable = friendvm->_roottable;
 		_errorhandler = friendvm->_errorhandler;
@@ -360,8 +362,6 @@ bool SQVM::Init(SQVM *friendvm, SQInteger stacksize)
 		_debughook_native = friendvm->_debughook_native;
 		_debughook_closure = friendvm->_debughook_closure;
 	}
-
-	sq_base_register(this);
 	return true;
 }
 
@@ -379,7 +379,7 @@ bool SQVM::StartCall(SQClosure *closure,SQInteger target,SQInteger args,SQIntege
 		if (nargs < paramssize) {
 			const SQChar *src = type(func->_sourcename) == OT_STRING?_stringval(func->_sourcename):NULL;
 			const SQChar *name = type(func->_name) == OT_STRING?_stringval(func->_name):NULL;
-			Raise_Error(_SC("wrong number of parameters: %d vs %d provided in call to %s:%s"), nargs, paramssize, src, name);
+			Raise_Error(_SC("wrong number of parameters: %d provided (instead %d) in call to %s:%s"), nargs, paramssize, src, name);
 			return false;
 		}
 
@@ -407,7 +407,7 @@ bool SQVM::StartCall(SQClosure *closure,SQInteger target,SQInteger args,SQIntege
 		else {
 			const SQChar *src = type(func->_sourcename) == OT_STRING?_stringval(func->_sourcename):NULL;
 			const SQChar *name = type(func->_name) == OT_STRING?_stringval(func->_name):NULL;
-			Raise_Error(_SC("wrong number of parameters: %d vs %d provided in call to %s:%s"), nargs, paramssize, src, name);
+			Raise_Error(_SC("wrong number of parameters: %d provided (instead %d) in call to %s:%s"), nargs, paramssize, src, name);
 			return false;
 		}
 	}
@@ -625,7 +625,10 @@ bool SQVM::CLASS_OP(SQObjectPtr &target,SQInteger baseclass,SQInteger attributes
 		int nparams = 2;
 		SQObjectPtr ret;
 		Push(target); Push(attrs);
-		Call(_class(target)->_metamethods[MT_INHERITED],nparams,_top - nparams, ret, false);
+		if(!Call(_class(target)->_metamethods[MT_INHERITED],nparams,_top - nparams, ret, false)) {
+			Pop(nparams);
+			return false;
+		}
 		Pop(nparams);
 	}
 	_class(target)->_attributes = attrs;
@@ -711,6 +714,7 @@ exception_restore:
 					_suspended = SQTrue;
 					_suspended_root = ci->_root;
 					_suspended_traps = traps;
+					_suspended_target = -1;
 					return true;
 				}
 			}
@@ -1154,7 +1158,7 @@ bool SQVM::CallNative(SQNativeClosure *nclosure, SQInteger nargs, SQInteger newb
 		((nparamscheck < 0) && (nargs < (-nparamscheck)))))
 	{
 		const SQChar *src = type(nclosure->_name) == OT_STRING?_stringval(nclosure->_name):NULL;
-		Raise_Error(_SC("wrong number of parameters: %d vs %d provided in call to %s"), nargs, nparamscheck, src);
+		Raise_Error(_SC("wrong number of parameters: %d provided (instead %d) in call to %s"), nargs, nparamscheck, src);
 		return false;
 	}
 
@@ -1215,7 +1219,7 @@ bool SQVM::Get(const SQObjectPtr &self,const SQObjectPtr &key,SQObjectPtr &dest,
 		if(_table(self)->Get(key,dest))return true;
 		break;
 	case OT_ARRAY:
-		if(sq_isnumeric(key)) { if(_array(self)->Get(tointeger(key),dest)) { return true; } Raise_IdxError(key); return false; }
+		if(sq_isnumeric(key)) { if(_array(self)->Get(tointeger(key),dest)) { return true; } if(selfidx != EXISTS_FALL_BACK) Raise_IdxError(key); return false; }
 		break;
 	case OT_INSTANCE:
 		if(_instance(self)->Get(key,dest)) return true;
@@ -1231,7 +1235,7 @@ bool SQVM::Get(const SQObjectPtr &self,const SQObjectPtr &key,SQObjectPtr &dest,
 				dest = SQInteger(_stringval(self)[n]);
 				return true;
 			}
-			Raise_IdxError(key);
+			if(selfidx != EXISTS_FALL_BACK) Raise_IdxError(key);
 			return false;
 		}
 		break;
@@ -1252,7 +1256,7 @@ bool SQVM::Get(const SQObjectPtr &self,const SQObjectPtr &key,SQObjectPtr &dest,
 		if(_table(_roottable)->Get(key,dest)) return true;
 	}
 //#endif
-	Raise_IdxError(key);
+	if(selfidx != EXISTS_FALL_BACK) Raise_IdxError(key);
 	return false;
 }
 

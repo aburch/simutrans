@@ -1,0 +1,77 @@
+<title>Replace vehicles Help</title>
+
+<h1><strong>Replacing Vehicles</strong></h1>
+
+<p>
+The <strong>Replace</strong> window is used to replace multiple <a href="convoiinfo.txt">convoys</a> automatically. The replace vehicles window is accessed by clicking on a convoy in the world map, and clicking on the "replace" button in the convoy's information window.
+</p>
+<p>
+The <strong>Replace</strong> window can be <a href="mouse.txt">re-sized</a> (click on down-arrow on titlebar of controls to return to original size).
+</p>
+<p>
+At the top of the <strong>Replace</strong> window, the current<a href="convoiinfo.txt">Convoy</a> is shown, along with some information about that convoy, such as its maximum speed, the number of vehicles, etc.
+</p>
+<p>
+Immediately beneath that, underneath the words <strong>To be replaced by:</strong>, the convoy with which the current convoy will be replaced is shown. By default, it shows a replica of the existing convoy. To clear it, click <strong>Clear</strong>. Cehicles can be added by clicking on the appropriate vehicles in the middle part of the window. Vehicles can be removed by clicking on the vehicles in question underneath <strong>To be replaced by:</strong>. This part works in much the same way as the <a href="depot.txt">depot</a> window. 
+</p>
+<p>
+A convoy that is set to be replaced has the "replace" button depressed with the text "replacing" instead of "replace". Clicking on the button when it says "replacing" allows the editing or cancelling of the current replace operation.
+</p>
+<p>
+<em>Finance</em><br>
+When any vehicles are selected, the cost or revenue from the operation is shown in the middle left of the window. This number might be positive, indicating that the vehicles that are to be sold are worth more than the vehicles that will be bought, or negative, indicating that the vehicles that will be bought cost more than the value of the vehicles to be sold. 
+</p>
+<p>
+<em>What to replace</em><br>
+By default, only the current convoy is replaced. However, there are two other options: <strong>Replace all in line</strong>, which will replace all convoys identical to the presently selected one in the current line, and <strong>Replace all</strong>, which will replace all convoys identical to the present one, whether they are in the same line or not. These options can be found towards te middle-left of the dialogue box.
+</p>
+<p>
+<em>Full replace</em><br>
+Click this button to replace the vehicles straight away, and have them resume their schedules as soon as the replacement is finished.
+</p>
+<p>
+<em>Replace but stay</em><br>
+Click this button to replace all the selected vehicles straight away, but have them wait in the depot after they have been replaced, rather than resuming their schedules.
+</p>
+<p>
+<em>Mark for replacing</em><br>
+Click this button to replace the selected vehicles the next time that they are sent to the depot manually.
+</p>
+<p>
+<em>Clear</em>
+<br>
+Clears the vehicles displayed in the "to be replaced with" section, and also cancels all pending replace operations on the current convoy and any convoy whose replace operation was set automatically with that of the current convoy using the "replace all" or the "replace all in line" options.
+</p>
+<p>
+<em>Replace all in line</em>
+<br>
+When this is selected, all idenitcal convoys in the same line, rather than just this convoy, will be replaced.
+</p>
+<p>
+<em>Replace all</em>
+<br>
+When this is selected, all idenitcal convoys whether or not in the same line, rather than just this convoy, will be replaced.
+</p>
+<p>
+<em>Replace all in line</em>
+<br>
+When this is selected, all idenitcal convoys in the same line, rather than just this convoy, will be replaced.
+</p>
+<p>
+<em>Retain in depot</em>
+<br>
+When this is selected, vehicles in the existing convoy not used in the new convoy will not be sold or upgraded to new vehicles, but retained in the depot where the replacing takes place for future use, for example, in a cascade.
+</p>
+<p>
+<em>Use home depot</em>
+<br>
+When this is selected, the convoy will be replaced at the depot that it last visited, instead of the nearest depot. Use this to ensure that all convoys are replaced at the same depot to allow for easy cascading.
+</p>
+<p>
+<em>Use existing vehicles</em>
+<br>
+When this is selected, any existing vehicles in the depot that are available will be used to make up the new convoy. Deselect this to preserve the vehicles that are already present in the depot.
+</p>
+<p>
+The <strong>Replace Cycle</strong> allows for, for example, every other vehicle in a line to be replaced.
+</p>

@@ -6,7 +6,9 @@
 #include "../utils/plainstring.h"
 
 class script_vm_t;
-class spieler_t;
+class player_t;
+class loadsave_t;
+
 
 /**
  * Class of strings to hold result of text-returning script functions.
@@ -37,7 +39,7 @@ public:
 	 * @param script the scripting engine, if script == NULL then this needs server communication
 	 * @param force_update will force to update even if cache is still valid
 	 */
-	void update(script_vm_t *script, spieler_t *sp, bool force_update=false);
+	void update(script_vm_t *script, player_t *player, bool force_update=false);
 
 	operator const plainstring& () const { return str; }
 	operator const char* () const { return (const char*)str; }
@@ -69,6 +71,8 @@ public:
 	 * immediately update the listening dynamic_string.
 	 */
 	static void record_result(const char* function, plainstring& result);
+
+	static void rdwr_cache(loadsave_t *file);
 
 private:
 	/**

@@ -4,7 +4,7 @@
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  *
- * Maintains the list of custon labels assigned to different palces on the map
+ * Maintains the list of custom labels assigned to different places on the map
  */
 
 #ifndef gui_jumpframe_h
@@ -17,7 +17,6 @@
 #include "components/gui_button.h"
 
 
-class karte_t;
 
 class jump_frame_t : public gui_frame_t, action_listener_t
 {
@@ -25,17 +24,16 @@ class jump_frame_t : public gui_frame_t, action_listener_t
 	gui_textinput_t input;
 	gui_divider_t divider1;
 	button_t jumpbutton;
-	karte_t *welt;
 
 public:
-	jump_frame_t(karte_t *welt);
+	jump_frame_t();
 
 	/**
 	* Set the window associated helptext
 	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	const char * get_hilfe_datei() const { return "jump_frame.txt"; }
+	const char * get_help_filename() const { return "jump_frame.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

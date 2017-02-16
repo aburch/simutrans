@@ -12,15 +12,17 @@
 
 #include "messagebox.h"
 
-#include "../simgraph.h"
-#include "../simwin.h"
+#include "../display/simgraph.h"
+#include "../display/viewport.h"
+#include "../gui/simwin.h"
 #include "../simworld.h"
+#include "../simskin.h"
 
-#include "../dataobj/umgebung.h"
+#include "../dataobj/environment.h"
 
 
-message_stats_t::message_stats_t(karte_t *w) :
-	welt(w), msg(w->get_message()), message_type(0), last_count(0), message_selected(-1), message_list(NULL)
+message_stats_t::message_stats_t() :
+	msg(welt->get_message()), message_type(0), last_count(0), message_selected(-1), message_list(NULL)
 {
 	filter_messages(-1);
 }
@@ -76,16 +78,16 @@ bool message_stats_t::infowin_event(const event_t * ev)
 		if(  (uint32)line<message_list->get_count()  ) {
 			message_t::node &n = *(message_list->at(line));
 			if(  ev->cx>=2  &&  ev->cx<=12  &&  welt->is_within_limits(n.pos)  ) {
-				welt->change_world_position( koord3d(n.pos, welt->min_hgt(n.pos)) );
+				welt->get_viewport()->change_world_position( koord3d(n.pos, welt->min_hgt(n.pos)) );
 			}
 			else {
 				// show message window again
 				news_window* news;
 				if(  n.pos==koord::invalid  ) {
-					news = new news_img( n.msg, n.bild, n.get_player_color(welt) );
+					news = new news_img( n.msg, n.image, n.get_player_color(welt) );
 				}
 				else {
-					news = new news_loc( welt, n.msg, n.pos, n.get_player_color(welt) );
+					news = new news_loc( n.msg, n.pos, n.get_player_color(welt) );
 				}
 				create_win(-1, -1, news, w_info, magic_none);
 			}
@@ -97,7 +99,7 @@ bool message_stats_t::infowin_event(const event_t * ev)
 		if(  (uint32)line<message_list->get_count()  ) {
 			message_t::node &n = *(message_list->at(line));
 			if(  welt->is_within_limits(n.pos)  ) {
-				welt->change_world_position( koord3d(n.pos, welt->min_hgt(n.pos)) );
+				welt->get_viewport()->change_world_position( koord3d(n.pos, welt->min_hgt(n.pos)) );
 			}
 		}
 	}
@@ -112,35 +114,35 @@ void message_stats_t::recalc_size()
 	// avoid overflow if too many messages are in the list
 	sint16 y_max = 0x7fff - LINESPACE - 1;
 
-	// loop copied from ::zeichnen(), trimmed to minimum for x_size calculation
+	// loop copied from ::draw(), trimmed to minimum for x_size calculation
 
 	FORX(slist_tpl<message_t::node*>, const i, *message_list, y_size += LINESPACE + 1) {
 		message_t::node const& n = *i;
 
 		// add time
 		char time[64];
-		switch (umgebung_t::show_month) {
-			case umgebung_t::DATE_FMT_GERMAN:
-			case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
+		switch (env_t::show_month) {
+			case env_t::DATE_FMT_GERMAN:
+			case env_t::DATE_FMT_GERMAN_NO_SEASON:
 				sprintf(time, "(%d.%d)", (n.time%12)+1, n.time/12 );
 				break;
 
-			case umgebung_t::DATE_FMT_MONTH:
-			case umgebung_t::DATE_FMT_US:
-			case umgebung_t::DATE_FMT_US_NO_SEASON:
+			case env_t::DATE_FMT_MONTH:
+			case env_t::DATE_FMT_US:
+			case env_t::DATE_FMT_US_NO_SEASON:
 				sprintf(time, "(%d/%d)", (n.time%12)+1, n.time/12 );
 				break;
 
-			case umgebung_t::DATE_FMT_JAPANESE:
-			case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
-			case umgebung_t::DATE_FMT_INTERNAL_MINUTE:
+			case env_t::DATE_FMT_JAPANESE:
+			case env_t::DATE_FMT_JAPANESE_NO_SEASON:
+			case env_t::DATE_FMT_INTERNAL_MINUTE:
 				sprintf(time, "(%d/%d)", n.time/12, (n.time%12)+1 );
 				break;
 
 			default:
 				time[0] = 0;
 		}
-		KOORD_VAL left = 14;
+		scr_coord_val left = 14;
 		if(  time[0]  ) {
 			left += proportional_string_width(time)+8;
 		}
@@ -162,7 +164,7 @@ void message_stats_t::recalc_size()
 		}
 	}
 
-	set_groesse(koord(x_size+4,y_size));
+	set_size(scr_size(x_size+4,y_size));
 }
 
 
@@ -170,7 +172,7 @@ void message_stats_t::recalc_size()
  * Now draw the list
  * @author prissi
  */
-void message_stats_t::zeichnen(koord offset)
+void message_stats_t::draw(scr_coord offset)
 {
 	// Knightly : update component size and filtered message list where necessary
 	const uint32 new_count = msg->get_list().get_count();
@@ -217,7 +219,14 @@ void message_stats_t::zeichnen(koord offset)
 		// goto information
 		if(  n.pos!=koord::invalid  ) {
 			// goto button
-			display_color_img( message_selected!=((y-offset.y)/(LINESPACE+1)) ? button_t::arrow_right_normal : button_t::arrow_right_pushed, offset.x + 2, y, 0, false, true);
+			bool selected =  message_selected==((y-offset.y)/(LINESPACE+1));
+			if(  !selected  ) {
+				// still on center?
+				if(  grund_t *gr = welt->lookup_kartenboden( n.pos )  ) {
+					selected = welt->get_viewport()->is_on_center( gr->get_pos() );
+				}
+			}
+			display_img_aligned( gui_theme_t::pos_button_img[ selected ], scr_rect( offset.x, y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
 		}
 
 		// correct for player color
@@ -225,28 +234,28 @@ void message_stats_t::zeichnen(koord offset)
 
 		// add time
 		char time[64];
-		switch (umgebung_t::show_month) {
-			case umgebung_t::DATE_FMT_GERMAN:
-			case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
+		switch (env_t::show_month) {
+			case env_t::DATE_FMT_GERMAN:
+			case env_t::DATE_FMT_GERMAN_NO_SEASON:
 				sprintf(time, "(%d.%d)", (n.time%12)+1, n.time/12 );
 				break;
 
-			case umgebung_t::DATE_FMT_MONTH:
-			case umgebung_t::DATE_FMT_US:
-			case umgebung_t::DATE_FMT_US_NO_SEASON:
+			case env_t::DATE_FMT_MONTH:
+			case env_t::DATE_FMT_US:
+			case env_t::DATE_FMT_US_NO_SEASON:
 				sprintf(time, "(%d/%d)", (n.time%12)+1, n.time/12 );
 				break;
 
-			case umgebung_t::DATE_FMT_JAPANESE:
-			case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
-			case umgebung_t::DATE_FMT_INTERNAL_MINUTE:
+			case env_t::DATE_FMT_JAPANESE:
+			case env_t::DATE_FMT_JAPANESE_NO_SEASON:
+			case env_t::DATE_FMT_INTERNAL_MINUTE:
 				sprintf(time, "(%d/%d)", n.time/12, (n.time%12)+1 );
 				break;
 
 			default:
 				time[0] = 0;
 		}
-		KOORD_VAL left = 14;
+		scr_coord_val left = 14;
 		if(  time[0]  ) {
 			left += display_proportional_clip(offset.x+left, y, time, ALIGN_LEFT, colorval, true)+8;
 		}

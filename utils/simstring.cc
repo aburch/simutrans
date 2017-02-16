@@ -26,7 +26,7 @@ char *ntos(long number, const char *format)
 	else {
 		r = sprintf(tempstring, "%ld", number);
 	}
-	assert(r<16);
+	assert(r<16);(void)r;
 
 	return tempstring;
 }
@@ -67,12 +67,12 @@ void set_fraction_sep(char c)
 }
 
 
-char get_fraction_sep(void)
+char get_fraction_sep()
 {
 	return fraction_sep;
 }
 
-const char *get_large_money_string(void)
+const char *get_large_money_string()
 {
 	return large_number_string;
 }
@@ -287,6 +287,33 @@ const char * ltrim(const char *p)
 		p ++;
 	}
 	return p;
+}
+
+
+/**
+ * Trims a std::string by removing any beginning and ending space/tab characters.
+ * (Move to simstring?)
+ * @author  Max Kielland
+ *
+ * @retval std::string  The trimmed string.
+ */
+std::string trim(const std::string &str_)
+{
+	std::string str(str_);
+
+	// left trim
+	std::string::size_type pos = str.find_first_not_of(" \t");
+	if( pos && pos  !=  std::string::npos ) {
+		str = str.substr(pos);
+	}
+
+	// right trim
+	pos = str.find_last_not_of(" \t");
+	if( pos != str.length()-1 && pos  !=  std::string::npos ) {
+		str = str.erase(pos+1);
+	}
+
+	return str;
 }
 
 

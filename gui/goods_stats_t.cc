@@ -14,7 +14,7 @@
 
 #include "goods_stats_t.h"
 
-#include "../simgraph.h"
+#include "../display/simgraph.h"
 #include "../simcolor.h"
 #include "../simworld.h"
 #include "../simconvoi.h"
@@ -28,14 +28,13 @@
 
 #include "../besch/ware_besch.h"
 #include "gui_frame.h"
+#include "../gui/components/gui_button.h"
 
 
-karte_t *goods_stats_t::welt = NULL;
 
-goods_stats_t::goods_stats_t( karte_t *wl )
+goods_stats_t::goods_stats_t()
 {
-	welt = wl;
-	set_groesse( koord(BUTTON4_X + D_BUTTON_WIDTH + 2, warenbauer_t::get_waren_anzahl() * (LINESPACE+1) ) );
+	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, warenbauer_t::get_count() * (LINESPACE+1) ) );
 }
 
 
@@ -47,8 +46,8 @@ void goods_stats_t::update_goodslist( uint16 *g, int b, int l, uint32 d, uint8 c
 	comfort = c;
 	catering_level = ct;
 	way_type = wt;
-	listed_goods = l;
-	set_groesse( koord(BUTTON4_X + D_BUTTON_WIDTH + 2, listed_goods * (LINESPACE+1) ) );
+	listd_goods = l;
+	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, listd_goods * (LINESPACE+1) ) );
 }
 
 
@@ -56,25 +55,26 @@ void goods_stats_t::update_goodslist( uint16 *g, int b, int l, uint32 d, uint8 c
  * Draw the component
  * @author Hj. Malthaner
  */
-void goods_stats_t::zeichnen(koord offset)
+void goods_stats_t::draw(scr_coord offset)
 {
-	int yoff = offset.y;
+	scr_coord_val yoff = offset.y;
 	char money_buf[256];
 	cbuffer_t buf;
+	offset.x += pos.x;
 
 	// Pre-111.1 in case current does not work.
-	/*for(  uint16 i=0;  i<warenbauer_t::get_waren_anzahl()-1u;  i++  )*/
+	/*for(  uint16 i=0;  i<warenbauer_t::get_count()-1u;  i++  )*/
 
-	for(  uint16 i=0;  i<listed_goods;  i++  )
+	for(  uint16 i=0;  i<listd_goods;  i++  )
 	{
-		const ware_besch_t * wtyp = warenbauer_t::get_info(goodslist[i]);
+		const ware_desc_t * wtyp = warenbauer_t::get_info(goodslist[i]);
 
 		display_ddd_box_clip(offset.x + 2, yoff, 8, 8, MN_GREY0, MN_GREY4);
 		display_fillbox_wh_clip(offset.x + 3, yoff+1, 6, 6, wtyp->get_color(), true);
 
 		buf.clear();
 		buf.printf("%s", translator::translate(wtyp->get_name()));
-		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, COL_BLACK, true);
+		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 		// Massively cleaned up by neroden, June 2013
 		sint64 relevant_speed = ( welt->get_average_speed(way_type) * (relative_speed_percentage + 100) ) / 100;
@@ -93,19 +93,19 @@ void goods_stats_t::zeichnen(koord offset)
 		money_to_string( money_buf, (double)price/100.0 );
 		buf.clear();
 		buf.printf(money_buf);
-		display_proportional_clip(offset.x + 170, yoff, buf, 	ALIGN_RIGHT, 	COL_BLACK, true);
+		display_proportional_clip(offset.x + 170, yoff, buf, 	ALIGN_RIGHT, 	SYSCOL_TEXT, true);
 
 		buf.clear();
 		buf.printf("%d%%", wtyp->get_adjusted_speed_bonus(distance_meters));
-		display_proportional_clip(offset.x + 205, yoff, buf, ALIGN_RIGHT, COL_BLACK, true);
+		display_proportional_clip(offset.x + 205, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 		buf.clear();
 		buf.printf( "%s",	translator::translate(wtyp->get_catg_name()));
-		display_proportional_clip(offset.x + 220, yoff, buf, 	ALIGN_LEFT, COL_BLACK, 	true);
+		display_proportional_clip(offset.x + 220, yoff, buf, 	ALIGN_LEFT, SYSCOL_TEXT, 	true);
 
 		buf.clear();
 		buf.printf("%dKg", wtyp->get_weight_per_unit());
-		display_proportional_clip(offset.x + 360, yoff, buf, ALIGN_RIGHT, COL_BLACK, true);
+		display_proportional_clip(offset.x + 360, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 		yoff += LINESPACE+1;
 	}

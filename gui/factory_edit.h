@@ -9,28 +9,28 @@
 #include "components/gui_label.h"
 #include "components/gui_numberinput.h"
 
-class fabrik_besch_t;
+class factory_desc_t;
 
-class wkz_build_industries_land_t;
-class wkz_build_industries_city_t;
-class wkz_build_factory_t;
+class tool_build_land_chain_t;
+class tool_city_chain_t;
+class tool_build_factory_t;
 
 
 class factory_edit_frame_t : public extend_edit_gui_t
 {
 private:
-	static wkz_build_industries_land_t land_chain_tool;
-	static wkz_build_industries_city_t city_chain_tool;
-	static wkz_build_factory_t fab_tool;
+	static tool_build_land_chain_t land_chain_tool;
+	static tool_city_chain_t city_chain_tool;
+	static tool_build_factory_t fab_tool;
 	static char param_str[256];
 
-	const fabrik_besch_t *fab_besch;
+	const factory_desc_t *fac_desc;
 	uint32 production;
 	uint8 rotation; //255 for any
 
 	char prod_str[32], rot_str[16];
 
-	vector_tpl<const fabrik_besch_t *>fablist;
+	vector_tpl<const factory_desc_t *>factory_list;
 
 	button_t bt_city_chain;
 	button_t bt_land_chain;
@@ -46,7 +46,7 @@ private:
 	virtual void change_item_info( sint32 i );
 
 public:
-	factory_edit_frame_t(spieler_t* sp,karte_t* welt);
+	factory_edit_frame_t(player_t* player);
 
 	/**
 	* in top-level windows the name is displayed in titlebar
@@ -60,7 +60,7 @@ public:
 	* @return the filename for the helptext, or NULL
 	* @author Hj. Malthaner
 	*/
-	const char* get_hilfe_datei() const { return "factory_build.txt"; }
+	const char* get_help_filename() const { return "factory_build.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

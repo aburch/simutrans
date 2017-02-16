@@ -13,7 +13,8 @@
  */
 
 #include "../simcolor.h"
-#include "../simgraph.h"
+#include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simworld.h"
 #include "../dataobj/translator.h"
 #include "../utils/simstring.h"
@@ -28,28 +29,28 @@ cbuffer_t grund_info_t::gr_info;
 grund_info_t::grund_info_t(const grund_t* gr_) :
 	gui_frame_t( translator::translate(gr_->get_name()), NULL),
 	gr(gr_),
-	view(gr_->get_welt(), gr_->get_pos(), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
-	textarea(&gr_info, 170 + view.get_groesse().x, view.get_groesse() + koord(10, 10))
+	view(gr_->get_pos(), scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
+	textarea(&gr_info, 170 + view.get_size().w, view.get_size() + scr_size(D_H_SPACE, D_V_SPACE))
 {
-	const ding_t *const d = gr->obj_bei(0);
+	const obj_t *const d = gr->obj_bei(0);
 	if (  d!=NULL  ) {
-		set_owner( d->get_besitzer() );
+		set_owner( d->get_owner() );
 	}
 
 	gr->info(gr_info);
 	
 	textarea.recalc_size();
 
-	sint16 width  = textarea.get_groesse().x + 20;
-	sint16 height = max( textarea.get_groesse().y, view.get_groesse().y ) + 36;
+	scr_coord_val width  = textarea.get_size().w + D_MARGIN_LEFT + D_MARGIN_RIGHT;
+	scr_coord_val height = D_TITLEBAR_HEIGHT + D_MARGIN_TOP + max( textarea.get_size().h, view.get_size().h ) + D_MARGIN_BOTTOM;
 
-	view.set_pos( koord(width - view.get_groesse().x - 10, 10) );
-	add_komponente( &view );
+	view.set_pos( scr_coord(width - view.get_size().w - D_MARGIN_RIGHT, D_MARGIN_TOP) );
+	add_component( &view );
 
-	textarea.set_pos( koord(10, 10) );
-	add_komponente( &textarea );
+	textarea.set_pos( scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP) );
+	add_component( &textarea );
 
-	set_fenstergroesse( koord(width, height) );
+	set_windowsize( scr_size(width, height) );
 }
 
 
@@ -58,12 +59,12 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
  * i.e. It's the screen coordinates of the window where the
  * component is displayed.
  */
-void grund_info_t::zeichnen(koord pos, koord groesse)
+void grund_info_t::draw(scr_coord pos, scr_size size)
 {
 	set_dirty();
-	const ding_t *const d = gr->obj_bei(0);
+	const obj_t *const d = gr->obj_bei(0);
 	if (  d!=NULL  ) {
-		set_owner( d->get_besitzer() );
+		set_owner( d->get_owner() );
 	}
 	gui_frame_t::set_name( translator::translate(gr->get_name()) );
 
@@ -71,12 +72,12 @@ void grund_info_t::zeichnen(koord pos, koord groesse)
 	gr->info(gr_info);
 	textarea.recalc_size();
 
-	gui_frame_t::zeichnen(pos, groesse);
+	gui_frame_t::draw(pos, size);
 
 	// Knightly : text may be changed and need more vertical space to display
-	const sint16 current_height = max( textarea.get_groesse().y, view.get_groesse().y ) + 36;
-	if(  current_height != get_fenstergroesse().y  ) {
-		set_fenstergroesse( koord(get_fenstergroesse().x, current_height) );
+	const sint16 current_height =  D_TITLEBAR_HEIGHT + D_MARGIN_TOP + max( textarea.get_size().h, view.get_size().h ) + D_MARGIN_BOTTOM;
+	if(  current_height != get_windowsize().h  ) {
+		set_windowsize( scr_size(get_windowsize().w, current_height) );
 	}
 }
 
@@ -89,9 +90,7 @@ koord3d grund_info_t::get_weltpos(bool)
 
 bool grund_info_t::is_weltpos()
 {
-	karte_t *welt = gr->get_welt();
-	return ( welt->get_x_off() | welt->get_y_off()) == 0  &&
-		welt->get_world_position() == welt->calculate_world_position( gr->get_pos() );
+	return ( welt->get_viewport()->is_on_center( gr->get_pos() ) );
 }
 
 

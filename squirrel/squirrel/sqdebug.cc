@@ -65,7 +65,8 @@ void SQVM::Raise_Error(const SQChar *s, ...)
 
 void SQVM::Raise_Error_vl(const SQChar *s, va_list vl)
 {
-	scvsprintf(_sp(rsl((SQInteger)scstrlen(s)+(NUMBER_MAX_CHAR*2))), s, vl);
+	SQInteger buffersize = (SQInteger)scstrlen(s)+(NUMBER_MAX_CHAR*2);
+	scvsprintf(_sp(rsl(buffersize)),buffersize, s, vl);
 	_lasterror = SQString::Create(_ss(this),_spval,-1);
 }
 

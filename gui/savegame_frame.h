@@ -11,17 +11,17 @@
 #include <string.h>
 #include <sys/stat.h>
 
+#include "gui_frame.h"
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "components/action_listener.h"
 #include "components/gui_table.h"
+#include "components/gui_container.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_textinput.h"
 #include "components/gui_divider.h"
 #include "components/gui_label.h"
 #include "components/gui_button.h"
-#include "gui_frame.h"
-#include "gui_container.h"
 
 #include <string>
 
@@ -36,7 +36,7 @@ protected:
 public:
 	gui_file_table_column_t(coordinate_t size_) : gui_table_column_t(size_) { pressed = false; }
 	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return strcmp(get_text(row1), get_text(row2)); }
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) = 0;
+	virtual void paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) = 0;
 	bool get_pressed() const { return pressed; }
 	void set_pressed(bool value) { pressed = value; }
 };
@@ -48,7 +48,7 @@ protected:
 	button_t btn;
 public:
 	gui_file_table_button_column_t(coordinate_t size_) : gui_file_table_column_t(size_) {}
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
+	virtual void paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 	void set_text(const char *text) { btn.set_text(text); }
 	void set_tooltip(const char *tooltip) { btn.set_tooltip(tooltip); }
 };
@@ -60,7 +60,7 @@ protected:
 	gui_label_t lbl;
 public:
 	gui_file_table_label_column_t(coordinate_t size_) : gui_file_table_column_t(size_) {}
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
+	virtual void paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
 
@@ -71,7 +71,7 @@ public:
 		btn.set_text("X");
 		btn.set_tooltip("Delete this file.");
 	}
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
+	virtual void paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
 
@@ -83,7 +83,7 @@ public:
 	gui_file_table_action_column_t() : gui_file_table_button_column_t(300) {
 		btn.set_no_translate(true);
 	}
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
+	virtual void paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
 
@@ -96,7 +96,7 @@ public:
 		set_sort_descendingly(true);
 	}
 	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return sgn(get_time(row1) - get_time(row2)); }
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
+	virtual void paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
 
@@ -127,115 +127,99 @@ public:
 class gui_file_table_t : public	gui_table_t
 {
 protected:
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y);	
+	virtual void paint_cell(const scr_coord& offset, coordinate_t x, coordinate_t y);	
 };
 
+
+
 /**
- * Base class from wich all GUI dialogs to load/save generics can inherit from
+ * Base class from which all GUI dialogs to load/save generics can inherit from
  * @author Hansjoerg Malthaner
- * @author Makohs
- * @note Based on previous original work from the simutrans team and Hansjoerg Malthaner
+ * @author Markohs
+ * @author Max Kielland
+ * @note Based on previous original work from the Simutrans team and Hansjoerg Malthaner
  * @note When I refer to a "qualified" path I mean it can contain sub-directories or even fully qualified path. i.e. : "save/a.sve" or "c:\simutrans\scenario\file.nut"
  */
 class savegame_frame_t : public gui_frame_t, action_listener_t
 {
 private:
 
-	/**
-	 * To avoid double mouse action
-	 */
-	bool in_action;
+	vector_tpl<std::string> paths;     //@< Paths in which this dialog will search for
 
-	/**
-	 * Paths in wich this dialog will search for
-	 */
-	vector_tpl<std::string> paths;
+	const char *suffix;                //@< Extension of the files this dialog will use, can be NULL Can include or not the "." at start, will work on both cases
+	char        ibuf[1024];            //@< Input buffer for the text input component
+	char        searchpath[1024];      //@< Default search path
+	bool        in_action;             //@< To avoid double mouse action
+	bool        only_directories;      //@< Search for directories (used in pak_selector)
+	bool        searchpath_defined;    //@< Is default path defined?
 
-	/**
-	 * Input buffer for the text input component
-	 */
-	char ibuf[1024];
-
-	/**
-	 * Is default path defined?
-	 */
-	bool searchpath_defined;
-
-	/**
-	 * Default search path
-	 */
-	char searchpath[1024];
-
-	/**
-	 * Adds a section entry to the list
-	 */
 	void add_section(std::string &name);
 
-	/**
-	 * Extension of the files this dialog will use, can be NULL
-	 * Can include or not the "." at start, will work on both cases
-	 */
-	const char *suffix;
+protected:
 
 	/**
-	 * Search for directories (used in pak_selector)
+	 * Entries in list can be actual file entries or
+	 * headers, that have a different look.
 	 */
-	bool only_directories;
+	enum dirlist_item_t {
+		LI_HEADER, //@< This is a header list item.
+		LI_ENTRY   //@< This is a data list item.
+	};
+
 
 	/**
-	 * Enable delete buttons
+	 * A list item.
+	 * Max Kielland: Shouldn't this be an ADT and then have
+	 * each derivate to define their own item class? This would also
+	 * take care of differences, sorting and freeing resources.
 	 */
-	bool delete_enabled;
+	struct dir_entry_t
+	{
+		dir_entry_t(button_t* button_, button_t* del_, gui_label_t* label_, dirlist_item_t type_ = LI_ENTRY, const char *info_=NULL) :
+			del(del_),
+			button(button_),
+			label(label_),
+			type(type_),
+			info(info_)
+		{}
+
+		button_t       *del;    //@< Delete button placed in the first column.
+		button_t       *button; //@< Action button placed in the second column.
+		gui_label_t    *label;  //@< Label placed in the third column.
+		dirlist_item_t  type;   //@< Item type, data or header.
+		const char     *info;   //@< A qualified path (might be relative) to the file, not just the name
+	};
+
+	// Standard GUI controls in dialogue
+	gui_textinput_t  input;         //@< Filename input field
+	gui_divider_t    divider1;      //@< Filename input field   (Added 30-Oct-2001 Markus Weber)
+	button_t         savebutton;    //@< Save button            (Added 29-Oct-2001 Markus Weber)
+	button_t         cancelbutton;  //@< Cancel button          (Added 29-Oct-2001 Markus Weber)
+	gui_label_t      fnlabel;       //@< Static file name label (Added 31-Oct-2001 Markus Weber)
+	gui_file_table_t file_table;
+	gui_container_t  button_frame;  //@< Gui container for all items
+	gui_scrollpane_t scrolly;       //@< Scroll panel for the GUI container
+
+	slist_tpl<dir_entry_t> entries;  //@< Internal list representing the file listing
+
+	uint32           num_sections;   //@< Internal counter representing the number of sections added to the list
+	bool             delete_enabled; //@< Show the first column of delete buttons.
+	bool             label_enabled;  //@< Show the third column of labels.
 
 	bool file_table_button_pressed;
 	coordinates_t pressed_file_table_button;
 
 	void press_file_table_button(coordinates_t &cell);
 	void release_file_table_button();	
-protected:
-
-	gui_textinput_t input;
-	gui_divider_t divider1;                               // 30-Oct-2001  Markus Weber    Added
-	button_t savebutton;                                  // 29-Oct-2001  Markus Weber    Added
-	button_t cancelbutton;                                // 29-Oct-2001  Markus Weber    Added
-	gui_label_t fnlabel;        //filename                // 31-Oct-2001  Markus Weber    Added
-	gui_file_table_t file_table;
-	gui_container_t button_frame;
-	gui_scrollpane_t scrolly;
 	// use file_table instead of button_frame:
 	bool use_table;
-
-	/**
-	 * Entries in list can be actual file entries or headers, that have a diferent look
-	 */
-	enum dirlist_item_t {LI_HEADER,LI_ENTRY};
-
-	struct dir_entry_t
-	{
-		dir_entry_t(button_t* button_, button_t* del_, gui_label_t* label_, dirlist_item_t type_ = LI_ENTRY, const char *info_=NULL) :
-			button(button_),
-			del(del_),
-			label(label_),
-			type(type_),
-			info(info_)
-		{}
-
-		button_t*      button;
-		button_t*      del;
-		gui_label_t*   label;
-		dirlist_item_t type;
-
-		/**
-		* Contains a qualified path (might be relative) to the file, not just the name
-		*/
-		const char *info;
-	};
 
 	/**
 	 * Returns extra file info
 	 * @note filename is a qualified path
 	 */
 	virtual const char *get_info(const char *fname) = 0;
+	virtual bool        item_action ( const char *fullpath ) = 0;
 
 	/**
 	 * Called on each entry, to be re-implemented on each sub-class
@@ -261,28 +245,14 @@ protected:
 	void list_filled();
 
 	/**
-	 * Internal list representing the file listing
-	 */
-	slist_tpl<dir_entry_t> entries;
-
-	/**
-	 * Internal counter representing the number of sections added to the list
-	 */
-	uint32 num_sections;
-
-	/**
 	 * Callback function that will be executed when the user clicks one of the entries in list
 	 * @author Hansjörg Malthaner
 	 */
-	virtual void action(const char *fullpath) = 0;
 
-	/**
-	 * Will be executed when the user presses the delete 'X' button.
-	 * @return If true, then the dialogue will be closed
-	 * @note on the pakselector, this action is re-used to load addons
-	 * @author Volker Meyer
-	 */
-	virtual bool del_action(const char *fullpath);
+	 // Virtual callback function that will be executed when the user clicks ok,
+	virtual bool cancel_action ( const char * /*fullpath*/ ) { return true; } // Callback for cancel button click
+	virtual bool del_action    ( const char *   fullpath   );                 // Callback for delete button click
+	virtual bool ok_action     ( const char * /*fullpath*/ ) { return true; } // Callback for ok button click
 
 	/**
 	 * Sets the filename in the edit field
@@ -326,7 +296,7 @@ public:
 	 * @author Mathew Hounsell
 	 * \date   11-Mar-2003
 	 */
-	virtual void set_fenstergroesse(koord groesse);
+	void set_windowsize(scr_size size) OVERRIDE;
 
 	/**
 	 * @param suffix Filename suffix, i.e. ".sve", you can omit the intial dot, i.e. "sve", NULL to not enforce any extension.
@@ -337,22 +307,14 @@ public:
 	 */
 	savegame_frame_t(const char *suffix = NULL, bool only_directories = false, const char *path = NULL, const bool delete_enabled = true, bool use_table = false );
 
+//	savegame_frame_t(const char *suffix, bool only_directorie, const char *path, const bool delete_enabled );
+//	savegame_frame_t(const char *suffix = NULL, bool only_directories = false, const char *path = NULL, const bool delete_enabled = true);
 	virtual ~savegame_frame_t();
 
-	/**
-	 * Inherited from action_listener_t
-	 */
-	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+	bool action_triggered  ( gui_action_creator_t*, value_t ) OVERRIDE;
+	bool infowin_event     ( event_t const* ) OVERRIDE;
 
-	/**
-	 * Must catch open message to update list, since I am using virtual functions
-	 */
-	bool infowin_event(event_t const*) OVERRIDE;
-
-	/**
-	 * Start the directory processing
-	 */
-	void fill_list();
+	virtual void fill_list ( void );
 };
 
 #endif

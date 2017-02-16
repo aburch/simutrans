@@ -6,6 +6,7 @@
 #include "simware.h"
 #include "simfab.h"
 #include "simworld.h"
+#include "simcity.h"
 
 #include "dataobj/translator.h"
 
@@ -15,10 +16,11 @@
 #include "utils/cbuffer_t.h"
 
 // Necessary for MinGW
+#ifndef __APPLE__
 #include "malloc.h"
+#endif
 
-
-karte_t *freight_list_sorter_t::welt = NULL;
+karte_ptr_t freight_list_sorter_t::welt;
 freight_list_sorter_t::sort_mode_t freight_list_sorter_t::sortby=by_name;
 
 /**
@@ -30,9 +32,9 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 	// if w1 and w2 differ, they are sorted according to catg_index and index
 	// we sort with respect to catg_indexfirst, since freights with the same category
 	// will be displayed together
-	int idx = w1.get_besch()->get_catg_index() - w2.get_besch()->get_catg_index();
+	int idx = w1.get_desc()->get_catg_index() - w2.get_desc()->get_catg_index();
 	if(  idx == 0  ) {
-		idx = w1.get_besch()->get_index() - w2.get_besch()->get_index();
+		idx = w1.get_desc()->get_index() - w2.get_desc()->get_index();
 	}
 	if(  idx != 0  ) {
 		return idx < 0;
@@ -70,7 +72,7 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 		}
 		// no break
 
-		case by_origin: // Sort by origin name
+		case by_origin: // Sort by origin stop name
 		case by_origin_amount: {
 			halthandle_t const o1 = w1.get_origin();
 			halthandle_t const o2 = w2.get_origin();
@@ -86,19 +88,44 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 		}
 		// no break
 
-		case by_name: { // sort by destination name
+		case by_name: { // sort by destination stop name
 			halthandle_t const d1 = w1.get_ziel();
 			halthandle_t const d2 = w2.get_ziel();
 			if(  d1.is_bound()  &&  d2.is_bound()  ) {
 				const fabrik_t *fab = NULL;
-				const char *const name1 = ( w1.to_factory && sortby != by_origin ? ( (fab=fabrik_t::get_fab(welt,w1.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : d1->get_name() );
-				const char *const name2 = ( w2.to_factory && sortby != by_origin ? ( (fab=fabrik_t::get_fab(welt,w2.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : d2->get_name() );
+				const char *const name1 = d1->get_name();
+				const char *const name2 = d2->get_name();
 				return strcmp(name1, name2) < 0;
 			}
-			if (d1.is_bound()) {
+			else if (d1.is_bound()) {
 				return false;
 			}
-			if (d2.is_bound()) {
+			else if (d2.is_bound()) {
+				return true;
+			}
+		}
+
+		case by_destination_detail: // Sort by ultimate destination name
+		{
+				
+			grund_t* gr = welt->lookup_kartenboden(w1.get_zielpos());
+			const gebaeude_t* const gb1 = gr ? gr->find<gebaeude_t>() : NULL;
+			gr = welt->lookup_kartenboden(w2.get_zielpos());
+			const gebaeude_t* const gb2 = gr ? gr->find<gebaeude_t>() : NULL;
+			if(gb1 && gb2)
+			{
+				const fabrik_t *fab = NULL;
+				// TODO -oBG, 29.12.2013: optimize:
+				const char *const name1 = (fabrik_t::get_fab(w1.get_zielpos()) && sortby != by_origin ? ((fab = fabrik_t::get_fab(w1.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : translator::translate(gb1->get_tile()->get_desc()->get_name()));
+				const char *const name2 = (fabrik_t::get_fab(w2.get_zielpos()) && sortby != by_origin ? ((fab = fabrik_t::get_fab(w2.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : translator::translate(gb2->get_tile()->get_desc()->get_name()));
+				return strcmp(name1, name2) < 0;
+			}
+			if(gb1) 
+			{
+				return false;
+			}
+			if(gb2)
+			{
 				return true;
 			}
 		}
@@ -108,7 +135,7 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 
 
 
-void freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max, const ware_t *ware, const char *what_doing )
+void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 max, const ware_t *ware, const char *what_doing)
 {
 	// not the first line?
 	if(  buf.len() > 0  ) {
@@ -119,7 +146,7 @@ void freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32
 		// convois
 		buf.printf("/%u", max);
 	}
-	ware_besch_t const& desc = *ware->get_besch();
+	ware_desc_t const& desc = *ware->get_desc();
 	char const*  const  name = translator::translate(ware->get_catg() != 0 ? desc.get_catg_name() : desc.get_name());
 	char const*  const  what = translator::translate(what_doing);
 	// Ensure consistent spacing
@@ -136,9 +163,8 @@ void freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32
 }
 
 
-void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing, karte_t *world)
+void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing)
 {
-	welt = world;
 	sortby = sort_mode;
 
 	// hsiegeln
@@ -163,7 +189,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 
 
 	FOR(vector_tpl<ware_t>, const& ware, warray) {
-		if(  ware.get_besch() == warenbauer_t::nichts  ||  ware.menge == 0  ) {
+		if(  ware.get_desc() == warenbauer_t::nichts  ||  ware.menge == 0  ) {
 			continue;
 		}
 		wlist[pos] = ware;
@@ -186,7 +212,19 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		{
 			for(int i = 0; i < pos; i++) 
 			{
-				if((sort_mode == by_name || sort_mode == by_via || sort_mode == by_amount || sort_mode == by_origin) && pos > 0) 
+				if(wlist[i].get_index() == wlist[pos].get_index() && wlist[i].get_origin() == wlist[pos].get_origin()) 
+				{
+					wlist[i].menge += wlist[pos--].menge;
+					break;
+				}
+			}
+		}
+
+		if(sort_mode == by_origin && pos > 0) 
+		{
+			for(int i = 0; i < pos; i++) 
+			{
+				if(wlist[i].get_index() == wlist[pos].get_index() && wlist[i].get_origin() == wlist[pos].get_origin() && wlist[i].get_index() == wlist[pos].get_index() && wlist[i].get_ziel() == wlist[pos].get_ziel()) 
 				{
 					wlist[i].menge += wlist[pos--].menge;
 					break;
@@ -199,6 +237,18 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			for(int i = 0; i < pos; i++) 
 			{
 				if(wlist[i].get_index() == wlist[pos].get_index() && wlist[i].get_ziel() == wlist[pos].get_ziel()) 
+				{
+					wlist[i].menge += wlist[pos--].menge;
+					break;
+				}
+			}
+		}
+
+		if(sort_mode == by_destination_detail && pos > 0)
+		{
+			for(int i = 0; i < pos; i++) 
+			{
+				if(wlist[i].get_index() == wlist[pos].get_index() && wlist[i].get_zielpos() == wlist[pos].get_zielpos()) 
 				{
 					wlist[i].menge += wlist[pos--].menge;
 					break;
@@ -228,7 +278,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			halthandle_t const via_halt		= wlist[j].get_zwischenziel();
 			halthandle_t const origin_halt	= wlist[j].get_origin();
 
-			const char * name = "unknown";
+			const char * name = translator::translate("unknown");
 			if(  halt.is_bound()  ) {
 				name = halt->get_name();
 			}
@@ -271,45 +321,70 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				}
 			}
 			// detail amount
-			buf.append("   ");
-			buf.append(ware.menge);
-			buf.append(" ");
-			buf.append(translator::translate(ware.get_besch()->get_mass()));
-			buf.append(" ");
-			buf.append(translator::translate(ware.get_besch()->get_name()));
-			if(sortby != by_origin_amount)
-			{
-				buf.append(" > ");
-			}
-			else
-			{
-				buf.append(" < ");
-			}
+			ware_desc_t const& desc = *ware.get_desc();
+			buf.printf("   %u%s %s %c ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()), ">>>>><>"[sortby]);
 			// the target name is not correct for the via sort
-
-			const bool is_factory_going = ( sortby!=by_via_sum  &&  ware.to_factory );	// exclude merged packets
-			if(  sortby!=by_via_sum  ||  via_halt==halt  ) 
+			if(sortby != by_via_sum && sortby != by_origin_amount) 
 			{
-				if(  is_factory_going && sortby != by_origin_amount ) 
+				koord zielpos = ware.get_zielpos();
+				const grund_t* gr = welt->lookup_kartenboden(zielpos);
+				const gebaeude_t* const gb = gr ? gr->get_building() : NULL;
+				cbuffer_t dbuf;
+				if (gb)
 				{
-					const fabrik_t *const factory = fabrik_t::get_fab( world, ware.get_zielpos() );
-					buf.printf("%s <%i, %i> ", (factory ? factory->get_name() : "Invalid Factory"), ware.get_zielpos().x, ware.get_zielpos().y);
+					gb->get_description(dbuf);
+				}
+				else
+				{
+					dbuf.append(translator::translate("Unknown destination"));
+				}
+				const stadt_t* city = welt->get_city(zielpos);
+				if(ware.is_passenger() && sortby == by_destination_detail)
+				{
+					const char* trip_type = (ware.is_commuting_trip ? translator::translate("commuting") : translator::translate("visiting"));
+
+					if(city)
+					{ 
+						buf.printf("%s <%i, %i> (%s; %s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name(), trip_type);
+					}
+					else 
+					{
+						buf.printf("%s <%i, %i> (%s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, trip_type);
+					}
+				}
+				else if(sortby == by_destination_detail)
+				{
+					if(city)
+					{
+						buf.printf("%s <%i, %i> (%s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name());
+					}
+					else
+					{
+						buf.printf("%s <%i, %i>\n     ", dbuf.get_str(), zielpos.x, zielpos.y);
+					}
 				}
 			}
 
-			if(sortby == by_name || sortby == by_amount || sortby == by_origin || (sortby == by_via_sum && via_halt == halt) || sortby == by_via)
+			if(sortby == by_name || sortby == by_destination_detail || sortby == by_amount || sortby == by_origin || (sortby == by_via_sum && via_halt == halt) || sortby == by_via)
 			{
-				const char *destination_name = "unknown";
+				const char *destination_name = translator::translate("unknown");
 				if(halt.is_bound()) 
 				{
 					destination_name = halt->get_name();
 				}
-				buf.printf(destination_name);
+				if(sortby == by_destination_detail)
+				{
+					buf.printf(translator::translate(" via %s"), destination_name);
+				}
+				else
+				{
+					buf.printf(destination_name);
+				}
 			}
 
 			if(sortby == by_origin_amount)
 			{
-				const char *origin_name = "unknown";
+				const char *origin_name = translator::translate("unknown");
 				if(origin_halt.is_bound()) 
 				{
 					origin_name = origin_halt->get_name();
@@ -317,9 +392,9 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				buf.printf(origin_name);
 			}
 			
-			if((via_halt != halt || is_factory_going) && (sortby == by_via || sortby == by_via_sum))
+			if(via_halt != halt && (sortby == by_via || sortby == by_via_sum))
 			{
-				const char *via_name = "unknown";
+				const char *via_name = translator::translate("unknown");
 				if(via_halt.is_bound()) 
 				{
 					via_name = via_halt->get_name();
@@ -328,7 +403,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			}
 			if(sortby == by_origin)
 			{
-				const char *origin_name = "unknown";
+				const char *origin_name = translator::translate("unknown");
 				if(origin_halt.is_bound()) 
 				{
 					origin_name = origin_halt->get_name();

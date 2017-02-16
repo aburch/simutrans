@@ -12,10 +12,10 @@
 #include "bauer/warenbauer.h"
 #include "besch/ware_besch.h"
 #include "simsys.h"
-#include "simgraph.h"
+#include "display/simgraph.h"
 #include "player/simplay.h"
-#include "dataobj/umgebung.h"
-#include "dataobj/fahrplan.h"
+#include "dataobj/environment.h"
+#include "dataobj/schedule.h"
 #include "simconvoi.h"
 #include "simloadingscreen.h"
 
@@ -36,7 +36,9 @@ uint8 path_explorer_t::category_empty = 255;
 path_explorer_t::compartment_t *path_explorer_t::goods_compartment = NULL;
 uint8 path_explorer_t::current_compartment = 0;
 bool path_explorer_t::processing = false;
-
+#ifdef MULTI_THREAD
+bool thread_local path_explorer_t::allow_path_explorer_on_this_thread = false;
+#endif
 
 void path_explorer_t::initialise(karte_t *welt)
 {
@@ -72,9 +74,14 @@ void path_explorer_t::finalise()
 	compartment_t::finalise();
 }
 
-
 void path_explorer_t::step()
 {
+#ifdef MULTI_THREAD
+	if (!allow_path_explorer_on_this_thread)
+	{
+		return;
+	}
+#endif
 	// at most check all goods categories once
 	for (uint8 i = 0; i < max_categories; ++i)
 	{
@@ -83,16 +90,13 @@ void path_explorer_t::step()
 			     || goods_compartment[current_compartment].is_refresh_requested() ) )
 		{
 			processing = true;	// this step performs something
-
 			// perform step
 			goods_compartment[current_compartment].step();
-
 			// if refresh is completed, move on to the next category
 			if ( goods_compartment[current_compartment].is_refresh_completed() )
 			{
 				current_compartment = (current_compartment + 1) % max_categories;
 			}
-
 			// each step process at most 1 goods category
 			return;
 		}
@@ -107,15 +111,14 @@ void path_explorer_t::step()
 
 void path_explorer_t::full_instant_refresh()
 {
+#ifdef MULTI_THREAD
+	path_explorer_t::allow_path_explorer_on_this_thread = true;
+#endif
+	uint16 curr_step = 0;
 	// exclude empty goods (nichts)
 	uint16 total_steps = (max_categories - 1) * 6;
-	uint16 curr_step = 0;
 
 	processing = true;
-
-	// initialize progress bar
-	loadingscreen_t ls( translator::translate("Calculating paths ..."), total_steps, true, true);
-	ls.set_progress(curr_step);
 
 	// disable the iteration limits
 	compartment_t::enable_limits(false);
@@ -127,6 +130,10 @@ void path_explorer_t::full_instant_refresh()
 	unsigned long start, diff;
 	start = dr_time();
 #endif
+
+	// initialize progress bar
+	loadingscreen_t ls(translator::translate("Calculating paths ..."), total_steps, true, true);
+	ls.set_progress(curr_step);
 
 	for (uint8 c = 0; c < max_categories; ++c)
 	{
@@ -165,6 +172,9 @@ void path_explorer_t::full_instant_refresh()
 	current_compartment = 0;
 
 	processing = false;
+#ifdef MULTI_THREAD
+	path_explorer_t::allow_path_explorer_on_this_thread = false;
+#endif
 }
 
 
@@ -489,6 +499,12 @@ void path_explorer_t::compartment_t::finalise()
 
 void path_explorer_t::compartment_t::step()
 {
+#ifdef MULTI_THREAD
+	if (!allow_path_explorer_on_this_thread)
+	{
+		return;
+	}
+#endif
 
 #ifdef DEBUG_COMPARTMENT_STEP
 	printf("\n\nCategory :  %s \n", translator::translate( catg_name ) );
@@ -509,6 +525,7 @@ void path_explorer_t::compartment_t::step()
 				refresh_requested = false;	// immediately reset it so that we can take new requests
 				refresh_completed = false;	// indicate that processing is at work
 				refresh_start_time = dr_time();
+				//refresh_start_time = world->get_zeit_ms(); // Possibly more network safe than the original (commented out above)
 				current_phase = phase_init_prepare;	// proceed to next phase
 				// no return statement here, as we want to fall through to the next phase
 			}
@@ -517,6 +534,7 @@ void path_explorer_t::compartment_t::step()
 #ifdef DEBUG_COMPARTMENT_STEP
 				printf("\t\t\tRefresh has not been requested\n");
 #endif
+
 				return;
 			}
 		}
@@ -533,22 +551,22 @@ void path_explorer_t::compartment_t::step()
 
 			start = dr_time();	// start timing
 #endif
-			slist_tpl<halthandle_t>::iterator halt_iter = haltestelle_t::get_alle_haltestellen().begin();
+			vector_tpl<halthandle_t>::const_iterator halt_iter = haltestelle_t::get_alle_haltestellen().begin();
 			all_halts_count = (uint16) haltestelle_t::get_alle_haltestellen().get_count();
 
 			// create all halts list
 			if (all_halts_count > 0)
 			{
-			all_halts_list = new halthandle_t[all_halts_count];
+				all_halts_list = new halthandle_t[all_halts_count];
 			}
 
-			const bool no_walking_connexions = !world->get_settings().get_allow_routing_on_foot() || catg!=warenbauer_t::passagiere->get_catg_index();
+			const bool no_walking_connexions = !world->get_settings().get_allow_routing_on_foot() || catg != warenbauer_t::passagiere->get_catg_index();
 
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
 			for (uint16 i = 0; i < all_halts_count; ++i)
 			{
-			all_halts_list[i] = *halt_iter;
-			++halt_iter;
+				all_halts_list[i] = *halt_iter;
+				++halt_iter;
 
 				// create an empty connexion hash table if the current halt does not already have one
 				if ( connexion_list[ all_halts_list[i].get_id() ].connexion_table == NULL )
@@ -583,7 +601,7 @@ void path_explorer_t::compartment_t::step()
 						walking_distance_halt->get_next_pos(all_halts_list[i]->get_basis_pos())
 						);
 
-					const uint16 journey_time = world->walking_time_tenths_from_distance(walking_journey_distance);
+					const uint32 journey_time = world->walking_time_tenths_from_distance(walking_journey_distance);
 					
 					// Check the journey times to the connexion
 					new_connexion = new haltestelle_t::connexion;
@@ -626,8 +644,8 @@ void path_explorer_t::compartment_t::step()
 			for (vector_tpl<convoihandle_t>::const_iterator i = world->convoys().begin(), end = world->convoys().end(); i != end; i++) 
 			{
 				current_convoy = *i;
-				// only consider lineless convoys which support this compartment's goods catetory
-				if ( !current_convoy->get_line().is_bound() && current_convoy->get_goods_catg_index().is_contained(catg) )
+				// only consider lineless convoys which support this compartment's goods catetory which are not in the depot
+				if (!current_convoy->in_depot() && !current_convoy->get_line().is_bound() && current_convoy->get_goods_catg_index().is_contained(catg) )
 				{
 					temp_linkage.convoy = current_convoy;
 					linkages->append(temp_linkage);
@@ -640,7 +658,7 @@ void path_explorer_t::compartment_t::step()
 			// loop through all lines of all players
 			for (int i = 0; i < MAX_PLAYER_COUNT; ++i) 
 			{
-				spieler_t *current_player = world->get_spieler(i);
+				player_t *current_player = world->get_player(i);
 
 				if(  current_player == NULL  ) 
 				{
@@ -652,7 +670,7 @@ void path_explorer_t::compartment_t::step()
 				{
 					current_line = *j;
 					// only consider lines which support this compartment's goods category
-					if ( current_line->get_goods_catg_index().is_contained(catg) )
+					if ( current_line->get_goods_catg_index().is_contained(catg) && current_line->count_convoys() > 0)
 					{
 						temp_linkage.line = current_line;
 						linkages->append(temp_linkage);
@@ -689,25 +707,25 @@ void path_explorer_t::compartment_t::step()
 
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
-			const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(catg);
+			const ware_desc_t *const ware_type = warenbauer_t::get_info_catg_index(catg);
 
 			linkage_t current_linkage;
 			schedule_t *current_schedule;
-			spieler_t *current_owner;
+			player_t *current_owner;
 			uint32 current_average_speed;
 
 			uint8 entry_count;
 			halthandle_t current_halt;
 
 			minivec_tpl<halthandle_t> halt_list(64);
-			minivec_tpl<uint16> journey_time_list(64);
+			minivec_tpl<uint32> journey_time_list(64);
 			minivec_tpl<bool> recurrence_list(64);		// an array indicating whether certain halts have been processed already
 
 			uint32 accumulated_journey_time;
 			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *catg_connexions;
 			haltestelle_t::connexion *new_connexion;
 
-			start = dr_time();	// start timing
+			start = dr_time();	// start timing. Note that this was originally dr_time()
 
 			// for each schedule of line / lineless convoy
 			while (phase_counter < linkages->get_count())
@@ -719,7 +737,7 @@ void path_explorer_t::compartment_t::step()
 				{
 					// Case : a line
 					current_schedule = current_linkage.line->get_schedule();
-					current_owner = current_linkage.line->get_besitzer();
+					current_owner = current_linkage.line->get_owner();
 					current_average_speed = (uint32) ( current_linkage.line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? 
 													   current_linkage.line->get_finance_history(1, LINE_AVERAGE_SPEED) : 
 													   ( speed_to_kmh(current_linkage.line->get_convoy(0)->get_min_top_speed()) >> 1 ) );
@@ -728,7 +746,7 @@ void path_explorer_t::compartment_t::step()
 				{
 					// Case : a lineless convoy
 					current_schedule = current_linkage.convoy->get_schedule();
-					current_owner = current_linkage.convoy->get_besitzer();
+					current_owner = current_linkage.convoy->get_owner();
 					current_average_speed = (uint32) ( current_linkage.convoy->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) > 0 ? 
 													   current_linkage.convoy->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED) : 
 													   ( speed_to_kmh(current_linkage.convoy->get_min_top_speed()) >> 1 ) );
@@ -750,7 +768,7 @@ void path_explorer_t::compartment_t::step()
 
 				while (entry_count-- && index < current_schedule->get_count())
 				{
-					current_halt = haltestelle_t::get_halt(world, current_schedule->eintrag[index].pos, current_owner);
+					current_halt = haltestelle_t::get_halt(current_schedule->entries[index].pos, current_owner);
                
 					// Make sure that the halt found was built before refresh started and that it supports current goods category
 					if ( current_halt.is_bound() && current_halt->get_inauguration_time() < refresh_start_time && current_halt->is_enabled(ware_type) )
@@ -767,7 +785,7 @@ void path_explorer_t::compartment_t::step()
 				// precalculate journey times between consecutive halts
 				// This is now only a fallback in case the point to point journey time data are not available.
 				entry_count = halt_list.get_count();	
-				uint16 journey_time = 0;
+				uint32 journey_time = 0;
 				journey_time_list.clear();
 				journey_time_list.append(0);	// reserve the first entry for the last journey time from last halt to first halt
 
@@ -777,28 +795,28 @@ void path_explorer_t::compartment_t::step()
 					journey_time = 0;
 					const id_pair pair(halt_list[i].get_id(), halt_list[(i+1)%entry_count].get_id());
 					
-					if ( current_linkage.line.is_bound() && current_linkage.line->get_average_journey_times()->is_contained(pair) )
+					if ( current_linkage.line.is_bound() && current_linkage.line->get_average_journey_times().is_contained(pair) )
 					{
 						if(!halt_list[i].is_bound() || ! halt_list[(i+1)%entry_count].is_bound())
 						{
-							current_linkage.line->get_average_journey_times()->remove(pair);
+							current_linkage.line->get_average_journey_times().remove(pair);
 							continue;
 						}
 						else
 						{
-							journey_time = current_linkage.line->get_average_journey_times()->access(pair)->reduce();
+							journey_time = current_linkage.line->get_average_journey_times().access(pair)->reduce();
 						}
 					}
-					else if ( current_linkage.convoy.is_bound() && current_linkage.convoy->get_average_journey_times()->is_contained(pair) )
+					else if ( current_linkage.convoy.is_bound() && current_linkage.convoy->get_average_journey_times().is_contained(pair) )
 					{
 						if(!halt_list[i].is_bound() || ! halt_list[(i+1)%entry_count].is_bound())
 						{
-							current_linkage.convoy->get_average_journey_times()->remove(pair);
+							current_linkage.convoy->get_average_journey_times().remove(pair);
 							continue;
 						}
 						else
 						{
-							journey_time = current_linkage.convoy->get_average_journey_times()->access(pair)->reduce();
+							journey_time = current_linkage.convoy->get_average_journey_times().access(pair)->reduce();
 						}
 					}
 
@@ -807,9 +825,7 @@ void path_explorer_t::compartment_t::step()
 						// Zero here means that there are no journey time data even if the hashtable entry exists.
 						// Fallback to convoy's general average speed if a point-to-point average is not available.
 						const uint32 distance = shortest_distance(halt_list[i]->get_basis_pos(), halt_list[(i+1)%entry_count]->get_basis_pos());
-						const uint32 journey_time_32 = world->travel_time_tenths_from_distance(distance, current_average_speed);
-						// TODO: Seriously consider using 32 bits here for all journey time data
-						journey_time = journey_time_32 > 65534 ? 65534 : journey_time_32;
+						journey_time = world->travel_time_tenths_from_distance(distance, current_average_speed);
 					}
 
 					// journey time from halt 0 to halt 1 is stored in journey_time_list[1]
@@ -858,28 +874,15 @@ void path_explorer_t::compartment_t::step()
 						accumulated_journey_time += journey_time_list[t];
 
 						// Check the journey times to the connexion
+						id_pair halt_pair(halt_list[h].get_id(), halt_list[t].get_id());
 						new_connexion = new haltestelle_t::connexion;
 						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
 						new_connexion->transfer_time = catg != warenbauer_t::passagiere->get_catg_index() ? halt_list[h]->get_transshipment_time() : halt_list[h]->get_transfer_time();
 						if(current_linkage.line.is_bound())
 						{
-							average_tpl<uint16>* ave = current_linkage.line->get_average_journey_times()->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
-							average_tpl<uint16>* ave_rc = NULL;
-							if(current_linkage.line->get_average_journey_times_reverse_circular())
-							{
-								ave_rc = current_linkage.line->get_average_journey_times_reverse_circular()->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
-							}
+							average_tpl<uint32>* ave = current_linkage.line->get_average_journey_times().access(halt_pair);
 							if(ave && ave->count > 0)
 							{
-								// Check whether this is a bidirectional circular route.
-								// If it is, check whether the reverse direction gives a shorter journey time.
-								if(ave_rc && ave_rc->count > 0)
-								{
-									if(ave_rc->reduce() < ave->reduce())
-									{
-										ave = ave_rc;
-									}
-								}
 								new_connexion->journey_time = ave->reduce();
 							}
 							else
@@ -890,7 +893,7 @@ void path_explorer_t::compartment_t::step()
 						}
 						else if(current_linkage.convoy.is_bound())
 						{
-							average_tpl<uint16>* ave = current_linkage.convoy->get_average_journey_times()->access(id_pair(halt_list[h].get_id(), halt_list[t].get_id()));
+							average_tpl<uint32>* ave = current_linkage.convoy->get_average_journey_times().access(halt_pair);
 							if(ave && ave->count > 0)
 							{
 								new_connexion->journey_time = ave->reduce();
@@ -932,7 +935,6 @@ void path_explorer_t::compartment_t::step()
 				++phase_counter;
 
 				// iteration control
-				++iterations;
 				++total_iterations;
 				if ( use_limits && iterations == limit_rebuild_connexions)
 				{
@@ -962,7 +964,7 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( umgebung_t::networkmode )
+						if ( env_t::networkmode )
 						{
 							const uint32 percentage = projected_iterations * 100 / local_rebuild_connexions;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
@@ -1083,7 +1085,7 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( umgebung_t::networkmode )
+						if ( env_t::networkmode )
 						{
 							const uint32 percentage = projected_iterations * 100 / local_filter_eligible;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
@@ -1279,7 +1281,7 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( umgebung_t::networkmode )
+						if ( env_t::networkmode )
 						{
 							const uint32 percentage = projected_iterations * 100 / local_fill_matrix;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
@@ -1368,7 +1370,7 @@ void path_explorer_t::compartment_t::step()
 					// identify halts which are connected with the current transfer halt
 					for ( uint16 idx = 0; idx < working_halt_count; ++idx )
 					{
-						if ( working_matrix[via][idx].aggregate_time != 65535 && via != idx )
+						if ( working_matrix[via][idx].aggregate_time != UINT32_MAX_VALUE && via != idx )
 						{
 							inbound_connections->register_connection( transport_matrix[idx][via].last_transport, idx );
 							outbound_connections->register_connection( transport_matrix[via][idx].first_transport, idx );
@@ -1413,14 +1415,6 @@ void path_explorer_t::compartment_t::step()
 													 + working_matrix[via][target].aggregate_time ) 
 											< working_matrix[origin][target].aggregate_time			   )
 								{
-									if(combined_time > 65535)
-									{
-										// Prevent perverse results with integer overflows here.
-										// It will probably be necessary eventually to put all journey
-										// times into 32-bit, but the impact on memory consumption and
-										// performance of this step is unknown.
-										combined_time = 65534;
-									}
 									working_matrix[origin][target].aggregate_time = combined_time;
 									working_matrix[origin][target].next_transfer = working_matrix[origin][via].next_transfer;
 									transport_matrix[origin][target].first_transport = transport_matrix[origin][via].first_transport;
@@ -1486,7 +1480,7 @@ void path_explorer_t::compartment_t::step()
 					const uint64 projected_iterations = static_cast<uint64>( statistic_iteration / statistic_duration ) * static_cast<uint64>( time_midpoint );
 					if ( projected_iterations > 0 )
 					{
-						if ( umgebung_t::networkmode )
+						if ( env_t::networkmode )
 						{
 							const uint32 percentage = static_cast<uint32>( projected_iterations * 100 / local_explore_paths );
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
@@ -1604,13 +1598,18 @@ void path_explorer_t::compartment_t::step()
 					++phase_counter;
 					continue;
 				}
+			
+				all_halts_list[phase_counter]->set_reroute_goods_next_step(catg);
+				++iterations;
+				++total_iterations;
 
-				if ( all_halts_list[phase_counter]->reroute_goods(catg) )
+				// The below is not compatible with multi-threading.
+				/*if ( all_halts_list[phase_counter]->reroute_goods(catg) )
 				{
 					// only halts with relevant goods packets are counted
 					++iterations;
 					++total_iterations;
-				}
+				}*/
 
 				++phase_counter;
 
@@ -1642,7 +1641,7 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( umgebung_t::networkmode )
+						if ( env_t::networkmode )
 						{
 							const uint32 percentage = projected_iterations * 100 / local_reroute_goods;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
@@ -1698,7 +1697,6 @@ void path_explorer_t::compartment_t::step()
 			return;
 		}
 	}
-
 }
 
 
@@ -1719,7 +1717,7 @@ void path_explorer_t::compartment_t::enumerate_all_paths(const path_element_t *c
 				
 				transfer_halt = matrix[x][y].next_transfer;
 
-				if (matrix[x][y].aggregate_time == 65535)
+				if (matrix[x][y].aggregate_time == UINT32_MAX_VALUE)
 				{
 					printf("\t\t\t\t******** No Route ********\n");
 				}
@@ -1729,7 +1727,7 @@ void path_explorer_t::compartment_t::enumerate_all_paths(const path_element_t *c
 					{
 						printf("\t\t\t\t%s\n", transfer_halt->get_name());
 
-						if ( halt_map[transfer_halt.get_id()] != 65535 )
+						if ( halt_map[transfer_halt.get_id()] != 65535)
 						{
 							transfer_halt = matrix[ halt_map[transfer_halt.get_id()] ][y].next_transfer;
 						}
@@ -1750,9 +1748,9 @@ void path_explorer_t::compartment_t::enumerate_all_paths(const path_element_t *c
 
 
 bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_halt, const halthandle_t target_halt, 
-													  uint16 &aggregate_time, halthandle_t &next_transfer)
+													  uint32 &aggregate_time, halthandle_t &next_transfer)
 {
-	uint32 origin_index, target_index;
+	uint16 origin_index, target_index;
 	
 	// check if origin and target halts are both present in matrix; if yes, check the validity of the next transfer
 	if ( paths_available && origin_halt.is_bound() && target_halt.is_bound()
@@ -1766,7 +1764,7 @@ bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_
 	}
 
 	// requested path not found
-	aggregate_time = 65535;
+	aggregate_time = UINT32_MAX_VALUE;
 	next_transfer = halthandle_t();
 	return false;
 }
@@ -1775,7 +1773,7 @@ bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_
 void path_explorer_t::compartment_t::set_category(uint8 category)
 { 
 	catg = category;
-	const ware_besch_t *ware_type = warenbauer_t::get_info_catg_index(catg);
+	const ware_desc_t *ware_type = warenbauer_t::get_info_catg_index(catg);
 	catg_name = ware_type->get_catg() == 0 ? ware_type->get_name() : ware_type->get_catg_name();
 }
 

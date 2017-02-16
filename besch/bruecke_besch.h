@@ -4,11 +4,11 @@
  * This file is part of the Simutrans project under the artistic licence.
  *
  *  BEWARE: non-standard node structure!
- *	0   Vordergrundbilder
- *	1   Hintergrundbilder
+ *	0   Foreground-images
+ *	1   Background-images
  *	2   Cursor/Icon (Hajo: 14-Feb-02: now also icon image)
- *	3   Vordergrundbilder - snow
- *	4   Hintergrundbilder - snow
+ *	3   Foreground-images - snow
+ *	4   Background-images - snow
  */
 
 #ifndef __BRUECKE_BESCH_H
@@ -19,59 +19,46 @@
 #include "bildliste_besch.h"
 #include "text_besch.h"
 #include "../simtypes.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
+#include "weg_besch.h"
 
 #include "../dataobj/ribi.h"
 #include "../dataobj/way_constraints.h"
 
-class werkzeug_t;
+class tool_t;
 class checksum_t;
 
-class bruecke_besch_t : public obj_besch_std_name_t {
+class bridge_desc_t : public obj_desc_transport_infrastructure_t {
     friend class bridge_reader_t;
 
 private:
-	sint32  topspeed;
-	uint32  preis;
-	uint32 scaled_price; // The price after scaling. @author: jamespetts
 
-	/**
-	* Maintenance cost per square/month
-	* @author Hj. Malthaner
-	*/
-	uint32 maintenance;
-	uint32 scaled_maintenance;
-
-	uint8  wegtyp;
 	uint8 pillars_every;	// =0 off
 	bool pillars_asymmetric;	// =0 off else leave one off for north/west slopes
 	uint offset;	// flag, because old bridges had their name/copyright at the wrong position
+	bool has_own_way_graphics; // Whether the way graphics are built into the bridge itself (do not allow display of other way graphics if this is set). This was traditional in Simutrans for a long time, so this is on by default.
+	bool has_way;
 
 	uint8 max_length;	// =0 off, else maximum length
 	uint8 max_height;	// =0 off, else maximum length
 	uint32 max_weight; //@author: jamespetts. Weight limit for convoys.
 
-	// allowed era
-	uint16 intro_date;
-	uint16 obsolete_date;
-
 	/* number of seasons (0 = none, 1 = no snow/snow
 	*/
-	sint8 number_seasons;
 
 	/*Way constraints for, e.g., loading gauges, types of electrification, etc.
 	* @author: jamespetts*/
 	way_constraints_of_way_t way_constraints;
 
-	werkzeug_t *builder;
-
+	sint8 number_seasons;
 
 public:
 	/*
 	 * Nummerierung all der verschiedenen Schienstücke
 	 */
 	enum img_t {
-		NS_Segment, OW_Segment, N_Start, S_Start, O_Start, W_Start, N_Rampe, S_Rampe, O_Rampe, W_Rampe, NS_Pillar, OW_Pillar
+		NS_Segment, OW_Segment, N_Start, S_Start, O_Start, W_Start, N_Ramp, S_Ramp, O_Ramp, W_Ramp, NS_Pillar, OW_Pillar,
+		NS_Segment2, OW_Segment2, N_Start2, S_Start2, O_Start2, W_Start2, N_Ramp2, S_Ramp2, O_Ramp2, W_Ramp2, NS_Pillar2, OW_Pillar2
 	};
 
 	/*
@@ -80,64 +67,52 @@ public:
 	const char *get_name() const { return get_cursor()->get_name(); }
 	const char *get_copyright() const { return get_cursor()->get_copyright(); }
 
-	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(2 + offset); }
+	skin_desc_t const* get_cursor() const { return get_child<skin_desc_t>(2 + offset); }
 
-	image_id get_hintergrund(img_t img, uint8 season) const 	{
-		const bild_besch_t *bild = NULL;
+	image_id get_background(img_t img, uint8 season) const 	{
+		const image_t *image = NULL;
 		if(season && number_seasons == 1) {
-			bild = get_child<bildliste_besch_t>(3 + offset)->get_bild(img);
+			image = get_child<image_list_t>(3 + offset)->get_image(img);
 		}
-		if(bild == NULL) {
-			bild = get_child<bildliste_besch_t>(0 + offset)->get_bild(img);
+		if(image == NULL) {
+			image = get_child<image_list_t>(0 + offset)->get_image(img);
 		}
-		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
-	image_id get_vordergrund(img_t img, uint8 season) const {
-		const bild_besch_t *bild = NULL;
+	image_id get_foreground(img_t img, uint8 season) const {
+		const image_t *image = NULL;
 		if(season && number_seasons == 1) {
-			bild = get_child<bildliste_besch_t>(4 + offset)->get_bild(img);
+			image = get_child<image_list_t>(4 + offset)->get_image(img);
 		}
-		if(bild == NULL) {
-			bild = get_child<bildliste_besch_t>(1 + offset)->get_bild(img);
+		if(image == NULL) {
+			image = get_child<image_list_t>(1 + offset)->get_image(img);
 		}
-		return bild != NULL ? bild->get_nummer() : IMG_LEER;
+		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
-	static img_t get_simple(ribi_t::ribi ribi);
-	static img_t get_start(ribi_t::ribi ribi);
-	static img_t get_rampe(ribi_t::ribi ribi);
+	img_t get_simple(ribi_t::ribi ribi, uint8 height) const;
+	img_t get_start(slope_t::type slope) const;
+	img_t get_ramp(slope_t::type slope) const;
 	static img_t get_pillar(ribi_t::ribi ribi);
 
-	waytype_t get_waytype() const { return static_cast<waytype_t>(wegtyp); }
+	/**
+	 * @return true if this bridge can raise two level from flat terrain
+	 */
+	bool has_double_ramp() const;
+
+	/**
+	 * @return true if this bridge can start or end onm a double slope
+	 */
+	bool has_double_start() const;
+
+	img_t get_end(slope_t::type test_slope, slope_t::type ground_slope, slope_t::type way_slope) const;
 
 	/**
 	 * There is no way to distinguish between train bridge and tram bridge.
 	 * However there are no real tram bridges possible in the game.
 	 */
 	waytype_t get_finance_waytype() const { return get_waytype(); }
-
-	sint32 get_preis() const { return scaled_price; }
-
-	sint32 get_base_price() const { return preis; }
-
-	sint32 get_wartung() const { return scaled_maintenance; }
-
-	sint32 get_base_maintenance() const { return maintenance; }
-
-	void set_scale(uint16 scale_factor) 
-	{ 
-		const uint32 scaled_price_preliminary =  set_scale_generic<uint32>(preis, scale_factor);
-		const uint32 scaled_maintenance_preliminary =  set_scale_generic<uint32>(maintenance, scale_factor);
-		scaled_price = scaled_price_preliminary > 0 ? scaled_price_preliminary : 1; 
-		scaled_maintenance = scaled_maintenance_preliminary > 0 ? scaled_maintenance_preliminary : 1;
-	}
-
-	/**
-	 * Determines max speed in km/h allowed on this bridge
-	 * @author Hj. Malthaner
-	 */
-	sint32  get_topspeed() const { return topspeed; }
 
 	/**
 	 * Determines max weight in tonnes for vehicles allowed on this bridge
@@ -169,19 +144,6 @@ public:
 	 */
 	int  get_max_height() const { return max_height; }
 
-	/**
-	 * @return introduction month
-	 * @author Hj. Malthaner
-	 */
-	int get_intro_year_month() const { return intro_date; }
-
-	/**
-	 * @return time when obsolete
-	 * @author prissi
-	 */
-	int get_retire_year_month() const { return obsolete_date; }
-
-
 	/* Way constraints: determines whether vehicles
 	 * can travel on this way. This method decodes
 	 * the byte into bool values. See here for
@@ -192,12 +154,14 @@ public:
 	const way_constraints_of_way_t& get_way_constraints() const { return way_constraints; }
 	void set_way_constraints(const way_constraints_of_way_t& way_constraints) { this->way_constraints = way_constraints; }
 
-	// default tool for building
-	werkzeug_t *get_builder() const {
-		return builder;
-	}
-	void set_builder( werkzeug_t *w )  {
-		builder = w;
+	bool get_has_own_way_graphics() const { return has_own_way_graphics; }
+
+	const way_desc_t *get_way_desc() const
+	{
+		if(has_way) {
+			return get_child<way_desc_t>(5 + number_seasons * 2);
+		}
+		return NULL;
 	}
 
 	void calc_checksum(checksum_t *chk) const;

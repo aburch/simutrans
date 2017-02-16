@@ -18,8 +18,8 @@ const float32e8_t ms2kmh((uint32) 36, (uint32) 10);
  */
 
 // scale to convert between simutrans speed and m/s
-const float32e8_t simspeed2ms((uint32) 10 * VEHICLE_SPEED_FACTOR, (uint32) 36 * 1024);
-const float32e8_t ms2simspeed((uint32) 36 * 1024, (uint32) 10 * VEHICLE_SPEED_FACTOR);
+const float32e8_t simspeed2ms((uint32) 10 * VEHICLE_SPEED_FACTOR, (uint32) 36 * 64);
+const float32e8_t ms2simspeed((uint32) 36 * 64, (uint32) 10 * VEHICLE_SPEED_FACTOR);
 
 /**
  * Conversion between simutrans steps and meters

@@ -19,8 +19,10 @@ class load_relief_frame_t : public savegame_frame_t
 private:
 	settings_t* sets;
 
+	button_t new_format;
+
 protected:
-	virtual void action(const char *fullpath);
+	virtual bool item_action(const char *fullpath);
 	virtual const char *get_info(const char *fullpath);
 	virtual bool check_file(const char *fullpath, const char *suffix);
 
@@ -30,7 +32,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char *get_hilfe_datei() const { return "load_relief.txt"; }
+	const char *get_help_filename() const { return "load_relief.txt"; }
 
 	load_relief_frame_t(settings_t*);
 };

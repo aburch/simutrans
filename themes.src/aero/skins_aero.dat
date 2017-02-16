@@ -1,0 +1,122 @@
+#
+# Simutrans window skin definitions for themes
+# Author: prissi
+#
+# All image name must starts with "> " to have them unzoomeable
+#
+# This theme tries a macintosh-look
+#
+--
+Obj=menu
+name=Button
+# unpressed left, middle, right
+Image[0]=> button.0.0
+Image[1]=> button.0.2
+Image[2]=> button.0.1
+# pressed left, middle, right
+Image[3]=> button.1.0
+Image[4]=> button.1.2
+Image[5]=> button.1.1
+# disabled left, middle, right
+Image[6]=> button.2.0
+Image[7]=> button.2.2
+Image[8]=> button.2.1
+# color mask left, middle, right
+Image[9]=> button.3.0
+Image[10]=> button.3.2
+Image[11]=> button.3.1
+--
+Obj=menu
+name=Roundbutton
+# unpressed left, middle, right
+Image[0]=> roundbutton.0.0
+Image[1]=> roundbutton.0.2
+Image[2]=> roundbutton.0.1
+# pressed left, middle, right
+Image[3]=> roundbutton.1.0
+Image[4]=> roundbutton.1.2
+Image[5]=> roundbutton.1.1
+# disabled left, middle, right
+Image[6]=> roundbutton.2.0
+Image[7]=> roundbutton.2.2
+Image[8]=> roundbutton.2.1
+--
+Obj=menu
+name=Checkbutton
+# unpressed
+Image[0]=> checkbutton.0.0
+# pressed
+Image[1]=> checkbutton.0.1
+# disabled
+Image[2]=> checkbutton.0.2
+--
+Obj=menu
+name=Posbutton
+# unpressed
+Image[0]=> posbutton.0.0
+# pressed
+Image[1]=> posbutton.0.1
+# disabled
+Image[2]=> posbutton.0.2
+--
+Obj=menu
+name=Scrollbar
+# unpressed pressed disabled left and right
+Image[0]=> scrollbar.0.0
+Image[1]=> scrollbar.0.1
+Image[2]=> scrollbar.0.2
+Image[3]=> scrollbar.0.3
+Image[4]=> scrollbar.0.4
+Image[5]=> scrollbar.0.5
+# scrollbar back left center right
+Image[6]=> scrollbar.1.0
+Image[7]=> scrollbar.1.2
+Image[8]=> scrollbar.1.1
+# scrollbar knob left center right
+Image[9]=> scrollbar.1.3
+Image[10]=> scrollbar.1.5
+Image[11]=> scrollbar.1.4
+# back up and down
+Image[12]=> scrollbar.2.0
+Image[13]=> scrollbar.2.2
+Image[14]=> scrollbar.2.1
+# knob up and down
+Image[15]=> scrollbar.2.3
+Image[16]=> scrollbar.2.5
+Image[17]=> scrollbar.2.4
+# scrollbar back up center down
+Image[18]=> scrollbar.3.0
+Image[19]=> scrollbar.3.2
+Image[20]=> scrollbar.3.1
+# scrollbar knob up center down
+Image[21]=> scrollbar.3.3
+Image[22]=> scrollbar.3.5
+Image[23]=> scrollbar.3.4
+--
+# window background
+Obj=menu
+name=Back
+Image[0]=> back.0.0
+--
+# window symbols
+Obj=menu
+name=Gadget
+# close
+Image[0]=> gadget.0.0
+# help
+Image[1]=> gadget.0.1
+# minimize
+Image[2]=> gadget.0.2
+# previous
+Image[3]=> gadget.0.3
+# next
+Image[4]=> gadget.0.4
+# unsticky
+Image[5]=> gadget.0.5
+# sticky
+Image[6]=> gadget.0.6
+# resize corner
+Image[7]=> gadget.0.7
+# goto pos
+Image[8]=> gadget.0.8
+--

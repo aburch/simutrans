@@ -43,10 +43,10 @@ private:
 	settings_climates_stats_t climates;
 	gui_scrollpane_t scrolly_climates;
 
-	gui_tab_panel_t	 tabs_experimental;
-	settings_experimental_general_stats_t exp_general;
+	gui_tab_panel_t	 tabs_extended;
+	settings_extended_general_stats_t exp_general;
 	gui_scrollpane_t scrolly_exp_general;
-	settings_experimental_revenue_stats_t exp_revenue;
+	settings_extended_revenue_stats_t exp_revenue;
 	gui_scrollpane_t scrolly_exp_revenue;
 
 	button_t revert_to_default, revert_to_last_save;
@@ -59,13 +59,13 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char *get_hilfe_datei() const {return "settings.txt";}
+	const char *get_help_filename() const {return "settings.txt";}
 
 	/**
 	* resize window in response to a resize event
 	* @author Hj. Malthaner
 	*/
-	void resize(const koord delta);
+	void resize(const scr_coord delta);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

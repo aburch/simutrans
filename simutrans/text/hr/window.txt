@@ -1,0 +1,78 @@
+<title>Pomoc Koristenja Sucelja Igre</title>
+
+<h1><strong>Sucelje Igre</strong></h1>
+
+<p>
+Simutrans se igra preko <strong>Sucelja Igre</strong> koje daje informacije o trenutnoj igri; pristup trakama izbornika & kotrolama igre; i pogled trenutnoga svijeta igre.
+</p>
+<p>
+<em>naslov</em>: lijevo na naslovu <strong>Sucelja Igre</strong> se prikazuje inacica i datum release-a Simutransa koji je trenutno pokrenut.<br>
+Desna strana naslova takodjer sadrzi kontrole za smanjivanje, povecavanje <strong>Sucelja Igre</strong> i takoder izlaz iz Simutrans-a.
+</p>
+<p>
+<em>Ikone</em>: red ikona, koje se koriste za pristup trakama izbornika igre i kontrolama igre kada se igra Simutrans, nalazi se pravo ispod <em>naslova</em>. <em>Ikone</em> (klik za koristenje) su grupirane u tri seta:
+</p>
+<p>
+- <a href="general.txt"><it>Glavni Meni</it></a> ikone sadrze:<br>
+- <it>disketa</it>: otvara <a href="options.txt">
+Postavke Igre</a><br>
+- <it>mapa</it>: otvara <a href="map.txt">Mapu</a>
+<br>
+- <it>lupa</it> odabire <a href="inspection_tool.txt">Alat Inspekcije</a><br>
+- <it>ikona nagnuca tla</it>: otvara <a href="slopetools.txt">traku alata oblikovanja tla</a><br>
+- <it>vlak</it>: otvara <a href="railtools.txt">?traku alata zeljeznica vlak</a>
+<br>
+- <it>monorail/maglev</it>: <a href="monorailtools.txt">monorail transport traka alata</a><br>
+- <it>tramvaj</it>: otvara <a href="tramtools.txt">tram transport traku alata</a>
+<br>
+- <it>kamion</it>: otvara <a href="roadtools.txt">cestovni transport traka alata</a><br>
+- <em>brod</em>: otvara <a href="shiptools.txt">vodeni transport traka alata</a>
+<br>
+- <em>zrakoplov</em>: otvara <a href="airtools.txt">zracni transport traka alata</a>
+<br>
+- <em>crvena kapljica u zuto krugu</em> (<em>ikona krana</em> u pak128): otvara <a href="special.txt">traka alata posebnih konstrukcija</a><br>
+- <em>crveni kriz</em> (<it>ikona buldozera</it> u pak128): odabire <a href="removal_tool.txt">Alat Unisti/Ukoloni</a>
+</p>
+<p>
+- <a href="general.txt"><it>Meni Vodjenja</it></a> ikone sadrze:<br>
+- <em>ikona mreze</em>: otvara <a href="linemanagement.txt">Vodnjenje Linije</a>
+<br>
+- <em>ikona lista</em>: otvara <a href="list.txt">Liste</a>
+<br>
+- <em>ikona postanskog sanducica</em>: otvara <a href="mailbox.txt">Centar Poruka</a>
+<br>
+- <em>ikona novca</em>: otvara <a href="finances.txt">Financije</a>
+</p>
+<p>
+- <a href="general.txt"><it>Druge Postavke</it></a> ikone sadrze:<br>
+- <em>ikon kamere</em>: hvata trenutnu sliku od <strong>Sucelja Igre</strong> (bez <em>naslova</em>) i sprema kao sliku u direktorij/mapu ...simutrans/screeshot/<br>
+{Savjeti: Slika takodjer moze biti uhvacena sa pritiskom tipke <a href="keys.txt">[c]</a>.}
+<br>
+- <em>ikona salice za kavu</em>: pauza
+/odpauziranje igre<br>
+{Savjeti: Pritisak tipke [p] se takodjer moze koristiti za pauzu/odpauziranje igre}.<br>
+- <em>>> ikona</em>: odbire/odznacava Brzo Naprijed. (mijenja stopu po kojoj Vrijeme, <em>T</em>, prolazi u igri).<br>
+{Savjeti: Brzo Naprijed se takodjer more odabrati/odznaciti sa pritiskom tipke <a href="keys.txt">[W]</a><br>
+VAZNO: Igra mozda nece ici glatko;<a href="display.txt"><strong>>Informacija Prikaza</strong></a>prikazuje moze li se racunalo nositi sa promjenom.}<br>
+- <it>?</it>: otvara <a href="general.txt">Simutrans Pomoc</a>
+
+</p>
+<p>
+<em>prikaz igre</em> dio trenutnog pogleda igre se prikazuje ispod <em>Ikona</em>.<br>
+Mozete zumirati i odzumirati pogled igre i takodjer se pomicati okolo u drugim dijelovima svijeta igre koristeci <a href="mouse.txt">misa</a> ili <a href="keys.txt">tipkovnicu</a>.
+</p>
+<p>
+<em>privremeni scroll-bar pomicanja</em> pojavljuje se i prikazuje <a href="mailbox.txt">poruke</a> na dnu pogleda igre.<br>
+{Savjeti: Klik na poruku u centru poruka za centriranje pogleda igre na povezanoj poziciji.}
+</p>
+<p>
+Donja traka koja prikazuje informacije o trenutnom svijetu igre se prikazuej ispod pogleda igre.<br>
+Pruzena informacija, slijeva premna desno u donjoj traci sadrzi:<br>
+<em>datum & vrijeme</em>: trenutan datum i vrijeme u svijetu igre, slijedi grafiku i ime godisnjeg doba.<br>
+<em>stanje na racunu</em>: trenutna dostupna gotovina za konstrukciju i drugi troskovi (nabavljanje vozila, odrzavanje infrastrukture prijevoza i troskovi koristenja vozila u pogonu).<br>
+<em>koordinate</em>: pokazuje poziciju kursora u pogledu igre. Tri lika predstavljaju X koordinate, Y koordinate i visinu.<br>
+<em>T</em>: prikazuje stopu prolaska vremena u igri.<br>
+{Savjeti: Koristiti <a href="keys.txt">[.]</a> / [,]  za ubrzanje/usporavanje vremena, T ; <a href="display.txt"><strong>Prikaz Informacija</strong></a>pokazuje moze li se racunalo nositi sa promjenom.<br>
+Koristenje <a href="fast_forward.txt">Brzo Naprijed</a> mijenja <em>T</em> sa ">>" na donjoj traci.}<br>
+<em>vremenska traka</em>: prikazuje je li <a href="new_world.txt">vremenska traka</a> odabrana u trenutnoj igri.
+</p>

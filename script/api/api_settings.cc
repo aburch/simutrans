@@ -2,36 +2,33 @@
 
 /** @file api_settings.cc exports game settings functions. */
 
+#include "api_simple.h"
 #include "../api_class.h"
 #include "../api_function.h"
-#include "../../dataobj/einstellungen.h"
+#include "../../dataobj/settings.h"
 #include "../../simmenu.h"
 #include "../../simworld.h"
 
 using namespace script_api;
 
-// see api_world.cc
-SQInteger push_time(HSQUIRRELVM vm, uint32 yearmonth);
 
-
-SQInteger get_start_time(HSQUIRRELVM vm)
+mytime_t get_start_time(settings_t* settings)
 {
-	settings_t* settings = param<settings_t*>::get(vm, 1);
 	uint32 yearmonth = 12*( max( settings->get_starting_year(),0) ) + max( settings->get_starting_month(),0);
-	return push_time(vm, yearmonth );
+	return yearmonth;
 }
 
 
-void_t set_traffic_level(settings_t*, sint16 rate)
+script_api::void_t set_traffic_level(settings_t*, sint16 rate)
 {
 	static char level[16];
 	sprintf(level, "%i", rate);
-	werkzeug_t *wkz = werkzeug_t::simple_tool[WKZ_TRAFFIC_LEVEL];
-	wkz->set_default_param( level );
-	wkz->flags |=  werkzeug_t::WFL_SCRIPT;
-	welt->set_werkzeug( wkz, welt->get_spieler(1) );
-	wkz->flags &= ~werkzeug_t::WFL_SCRIPT;
-	return void_t();
+	tool_t *tool = tool_t::simple_tool[TOOL_TRAFFIC_LEVEL];
+	tool->set_default_param( level );
+	tool->flags |=  tool_t::WFL_SCRIPT;
+	welt->set_tool( tool, welt->get_public_player() );
+	tool->flags &= ~tool_t::WFL_SCRIPT;
+	return script_api::void_t();
 }
 
 
@@ -59,7 +56,7 @@ void export_settings(HSQUIRRELVM vm)
 	/**
 	 * Get traffic level.
 	 */
-	register_method(vm, &settings_t::get_verkehr_level, "get_traffic_level");
+	register_method(vm, &settings_t::get_traffic_level, "get_traffic_level");
 
 	/**
 	 * Set traffic level. The higher the level the more city cars will be created.
@@ -70,9 +67,8 @@ void export_settings(HSQUIRRELVM vm)
 	/**
 	 * Returns starting time of the game.
 	 * @returns table { "year" = .., "month" = .. }
-	 * @typemask table()
 	 */
-	register_function(vm, get_start_time, "get_start_time", 1, ".");
+	register_local_method(vm, get_start_time, "get_start_time");
 
 	end_class(vm);
 }

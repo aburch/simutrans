@@ -12,11 +12,10 @@
 #include "skin_besch.h"
 #include "../dataobj/ribi.h"
 #include "../dataobj/way_constraints.h"
-#include "../utils/checksum.h"
 
-
-class werkzeug_t;
+class tool_t;
 class karte_t;
+class checksum_t;
 
 /**
  * Way type description. Contains all needed values to describe a
@@ -38,53 +37,10 @@ class karte_t;
  *
  * @author  Volker Meyer, Hj. Malthaner
  */
-class weg_besch_t : public obj_besch_std_name_t {
+class way_desc_t : public obj_desc_transport_infrastructure_t {
 	friend class way_reader_t;
 
-public:
-	// see also: weg_t::system_type
-	// unused: enum { elevated=1, joined=7 /* only tram */, special=255 };
-
 private:
-	/**
-	 * Price per square
-	 * @author Hj. Malthaner
-	 */
-	sint32 price;
-	sint32 scaled_price;
-
-	/**
-	 * Maintenance cost per square/month
-	 * @author Hj. Malthaner
-	 */
-	sint32 maintenance;
-	sint32 scaled_maintenance;
-
-	/**
-	 * Max speed
-	 * @author Hj. Malthaner
-	 */
-	sint32 topspeed;
-
-	/**
-	 * Max weight
-	 * @author Hj. Malthaner
-	 */
-	uint32 max_axle_load;
-
-	/**
-	 * Introduction date
-	 * @author Hj. Malthaner
-	 */
-	uint16 intro_date;
-	uint16 obsolete_date;
-
-	/**
-	 * Way type: i.e. road or track
-	 * @see waytype_t
-	 * @author Hj. Malthaner
-	 */
-	uint8 wtyp;
 
 	/**
 	 * Way system type: i.e. for wtyp == track this
@@ -95,7 +51,7 @@ private:
 
 	/* true, if a tile with this way should be always drawn as a thing
 	*/
-	uint8 draw_as_ding;
+	uint8 draw_as_obj;
 
 	/* number of seasons (0 = none, 1 = no snow/snow)
 	*/
@@ -109,15 +65,12 @@ private:
 	// if true front_images lists exists as nodes
 	bool front_images;
 
-	// this is the default tool for building this way ...
-	werkzeug_t *builder;
-
 	/**
 	 * calculates index of image list for flat ways
 	 * for winter and/or front images
 	 * add +1 and +2 to get slope and straight diagonal images, respectively
 	 */
-	int image_list_base_index(bool snow, bool front) const
+	uint16 image_list_base_index(bool snow, bool front) const
 	{
 		if (number_seasons == 0  ||  !snow) {
 			if (front  &&  front_images) {
@@ -137,37 +90,9 @@ private:
 		}
 	}
 public:
-	sint32 get_preis() const { return scaled_price; }
 
-	sint32 get_base_price() const { return price; }
-
-	sint32 get_wartung() const { return scaled_maintenance; }
-
-	sint32 get_base_maintenance() const { return  maintenance; }
-
-	void set_scale(uint16 scale_factor) 
-	{
-		const sint32 scaled_price_preliminary =  set_scale_generic<sint32>(price, scale_factor);
-		const sint32 scaled_maintenance_preliminary =  set_scale_generic<sint32>(maintenance, scale_factor);
-		scaled_price = scaled_price_preliminary < 1 ? (price > 0 ? 1 : 0) : scaled_price_preliminary;
-		scaled_maintenance = (scaled_maintenance_preliminary < (maintenance > 0 ? 1 : 0) ? 1: scaled_maintenance_preliminary);
-	}
-
-	/**
-	 * Determines max speed in km/h allowed on this way
-	 * @author Hj. Malthaner
-	 */
-	sint32 get_topspeed() const { return topspeed; }
-
-	//Returns maximum weight
-	uint32 get_max_axle_load() const { return max_axle_load < 999999 ? max_axle_load : 999; }
-
-	/**
-	 * get way type
-	 * @see waytype_t
-	 * @author Hj. Malthaner
-	 */
-	waytype_t get_wtyp() const { return (waytype_t)wtyp; }
+	// Returns maximum axle load
+	uint32 get_max_axle_load() const { return axle_load; }
 
 	/**
 	* @return waytype used in finance stats (needed to distinguish \
@@ -177,51 +102,50 @@ public:
 
 	/**
 	* returns the system type of this way (mostly used with rails)
-	* @see weg_t::styp
+	* @see systemtype_t
 	* @author DarioK
 	*/
 	uint8 get_styp() const { return styp; }
 
-	image_id get_bild_nr(ribi_t::ribi ribi, uint8 season, bool front = false) const
+	// This fails to compile for some reason.
+	//systemtype_t get_styp() const { return (systemtype_t)styp; }
+
+	bool is_tram() const { return wt == track_wt  &&  styp == type_tram; }
+
+	image_id get_image_id(ribi_t::ribi ribi, uint8 season, bool front = false) const
 	{
 		if (front  &&  !front_images) {
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 		int const n = image_list_base_index(season, front);
-		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi);
+		return get_child<image_list_t>(n)->get_image_id(ribi);
 	}
 
-	image_id get_bild_nr_switch(ribi_t::ribi ribi, uint8 season, bool nw, bool front = false) const
+	image_id get_image_nr_switch(ribi_t::ribi ribi, uint8 season, bool nw, bool front = false) const
 	{
 		if (front  &&  !front_images) {
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 		int const n = image_list_base_index(season, front);
-		bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(n);
+		image_list_t const* const imglist = get_child<image_list_t>(n);
 		// only do this if extended switches are there
-		if(  bl->get_anzahl()>16  ) {
+		if(  imglist->get_count()>16  ) {
 			static uint8 ribi_to_extra[16] = {
 				255, 255, 255, 255, 255, 255, 255, 0,
 				255, 255, 255, 1, 255, 2, 3, 4
 			};
-			return bl->get_bild_nr( ribi_to_extra[ribi]+16+(nw*5) );
+			return imglist->get_image_id( ribi_to_extra[ribi]+16+(nw*5) );
 		}
 		// else return standard values
-		return bl->get_bild_nr( ribi );
+		return imglist->get_image_id( ribi );
 	}
 
-	image_id get_hang_bild_nr(hang_t::typ hang, uint8 season, bool front = false) const
+	image_id get_hang_image_nr(slope_t::type hang, uint8 season, bool front = false) const
 	{
 		if (front  &&  !front_images) {
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
 		int const n = image_list_base_index(season, front) + 1;
-#ifndef DOUBLE_GROUNDS
-		if(!hang_t::ist_einfach(hang)) {
-			return IMG_LEER;
-		}
-		return get_child<bildliste_besch_t>(n)->get_bild_nr(hang / 3 - 1);
-#else
 		int nr;
 		switch(hang) {
 			case 4:
@@ -236,54 +160,64 @@ public:
 			case 36:
 				nr = 3;
 				break;
+			case 8:
+				nr = 4;
+				break;
+			case 24:
+				nr = 5;
+				break;
+			case 56:
+				nr = 6;
+				break;
+			case 72:
+				nr = 7;
+				break;
 			default:
-				return IMG_LEER;
+				return IMG_EMPTY;
 		}
-		return get_child<bildliste_besch_t>(n)->get_bild_nr(nr);
-#endif
+		image_id slope_img = get_child<image_list_t>(n)->get_image_id(nr);
+		if(  nr > 3  &&  slope_img == IMG_EMPTY  &&  get_child<image_list_t>(n)->get_count()<=4  ) {
+			// hack for old ways without double height images to use single slope images for both
+			nr -= 4;
+			slope_img = get_child<image_list_t>(n)->get_image_id(nr);
+		}
+		return slope_img;
 	}
 
-	image_id get_diagonal_bild_nr(ribi_t::ribi ribi, uint8 season, bool front = false) const
+	image_id get_diagonal_image_id(ribi_t::ribi ribi, uint8 season, bool front = false) const
 	{
 		if (front  &&  !front_images) {
-			return IMG_LEER;
+			return IMG_EMPTY;
 		}
-		int const n = image_list_base_index(season, front) + 2;
-		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi / 3 - 1);
+		const uint16 n = image_list_base_index(season, front) + 2;
+		return get_child<image_list_t>(n)->get_image_id(ribi / 3 - 1);
 	}
 
-	bool has_diagonal_bild() const {
-		return get_child<bildliste_besch_t>(4)->get_bild_nr(0) != IMG_LEER
-		||     get_child<bildliste_besch_t>(image_list_base_index(false, true)+2)->get_bild_nr(0) != IMG_LEER;
+	bool has_double_slopes() const {
+		return get_child<image_list_t>(3)->get_count() > 4
+		||     get_child<image_list_t>(image_list_base_index(false, true) + 1)->get_count() > 4;
 	}
 
-	bool has_switch_bild() const {
-		return get_child<bildliste_besch_t>(2)->get_anzahl() > 16
-		||     get_child<bildliste_besch_t>(image_list_base_index(false, true))->get_anzahl() > 16;
+	bool has_diagonal_image() const {
+		return get_child<image_list_t>(4)->get_image_id(0) != IMG_EMPTY
+		||     get_child<image_list_t>(image_list_base_index(false, true)+2)->get_image_id(0) != IMG_EMPTY;
 	}
 
-	/**
-	* @return introduction year
-	* @author Hj. Malthaner
-	*/
-	uint16 get_intro_year_month() const { return intro_date; }
-
-	/**
-	* @return introduction month
-	* @author Hj. Malthaner
-	*/
-	uint16 get_retire_year_month() const { return obsolete_date; }
+	bool has_switch_image() const {
+		return get_child<image_list_t>(2)->get_count() > 16
+		||     get_child<image_list_t>(image_list_base_index(false, true))->get_count() > 16;
+	}
 
 	/* true, if this tile is to be drawn as a normal thing */
-	bool is_draw_as_ding() const { return draw_as_ding; }
+	bool is_draw_as_obj() const { return draw_as_obj; }
 
 	/**
 	* Skin: cursor (index 0) and icon (index 1)
 	* @author Hj. Malthaner
 	*/
-	const skin_besch_t * get_cursor() const
+	const skin_desc_t * get_cursor() const
 	{
-		return get_child<skin_besch_t>(5);
+		return get_child<skin_desc_t>(5);
 	}
 
 	const way_constraints_of_way_t& get_way_constraints() const { return way_constraints; }
@@ -298,7 +232,7 @@ public:
 	 *
 	 * The logic is trivial and should be inlined.
 	 */
-	bool is_at_least_as_good_as(weg_besch_t const * other) const {
+	bool is_at_least_as_good_as(way_desc_t const * other) const {
 		if(  other == NULL  ) {
 			// This should not happen
 			return false;
@@ -334,28 +268,16 @@ public:
 	}
 
 	// default tool for building
-	werkzeug_t *get_builder() const {
+	tool_t *get_builder() const {
 		return builder;
 	}
-	void set_builder( werkzeug_t *w )  {
-		builder = w;
+	void set_builder( tool_t *tool )  {
+		builder = tool;
 	}
 
-	void calc_checksum(checksum_t *chk) const
-	{
-		chk->input(price);
-		chk->input(maintenance);
-		chk->input(topspeed);
-		chk->input(max_axle_load);
-		chk->input(intro_date);
-		chk->input(obsolete_date);
-		chk->input(wtyp);
-		chk->input(styp);
+	bool is_mothballed() const { return get_base_price() == 0 && topspeed == 0 && base_maintenance == 0; }
 
-		//Experimental values
-		chk->input(way_constraints.get_permissive());
-		chk->input(way_constraints.get_prohibitive());
-	}
+	void calc_checksum(checksum_t *chk) const;
 };
 
 #endif

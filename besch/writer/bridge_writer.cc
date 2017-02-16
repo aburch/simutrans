@@ -1,5 +1,6 @@
 #include <cmath>
 #include <string>
+#include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
 #include "obj_node.h"
 #include "obj_pak_exception.h"
@@ -9,23 +10,107 @@
 #include "skin_writer.h"
 #include "get_waytype.h"
 #include "bridge_writer.h"
+#include "xref_writer.h"
 
 using std::string;
 
+void write_bridge_images(FILE* outfp, obj_node_t& node, tabfileobj_t& obj, int season)
+{
+	slist_tpl<string> backkeys;
+	slist_tpl<string> frontkeys;
+
+	static const char* const names[] = {
+		"image",
+		"ns", "ew", NULL,
+		"start",
+		"n", "s", "e", "w", NULL,
+		"ramp",
+		"n", "s", "e", "w", NULL,
+		"pillar",
+		"s", "w", NULL,
+		"image2",
+		"ns", "ew", NULL,
+		"start2",
+		"n", "s", "e", "w", NULL,
+		"ramp2",
+		"n", "s", "e", "w", NULL,
+		"pillar2",
+		"s", "w", NULL,
+		NULL
+	};
+
+	const char* const * ptr = names;
+	const char* keyname = *ptr++;
+	char keybuf[40];
+
+	do {
+		const char* keyindex = *ptr++;
+		do {
+			string value;
+
+			if(  season < 0  ) {
+				sprintf( keybuf, "back%s[%s]", keyname, keyindex );
+				value = obj.get( keybuf );
+				backkeys.append( value );
+				//intf("BACK: %s -> %s\n", keybuf, value.chars());
+				sprintf( keybuf, "front%s[%s]", keyname, keyindex );
+			}
+			else {
+				sprintf( keybuf, "back%s[%s][%d]", keyname, keyindex, season );
+				value = obj.get( keybuf );
+				backkeys.append( value );
+				//intf("BACK: %s -> %s\n", keybuf, value.chars());
+				sprintf( keybuf, "front%s[%s][%d]", keyname, keyindex, season );
+			}
+
+			// must append to front keys even if empty to keep order correct (but warn anyway)
+			value = obj.get( keybuf );
+			frontkeys.append( value );
+			//intf("FRNT: %s -> %s\n", keybuf, value.chars());
+			if(  value.size() <= 2  ) {
+				dbg->warning( obj_writer_t::last_name, "No %s specified (might still work)", keybuf );
+			}
+
+			keyindex = *ptr++;
+		} while(  keyindex  );
+		keyname = *ptr++;
+	} while(  keyname  );
+
+	imagelist_writer_t::instance()->write_obj( outfp, node, backkeys );
+	imagelist_writer_t::instance()->write_obj( outfp, node, frontkeys );
+	if(  season <= 0  ) {
+		slist_tpl<string> cursorkeys;
+		cursorkeys.append( string( obj.get("cursor") ) );
+		cursorkeys.append( string( obj.get("icon") ) );
+
+		cursorskin_writer_t::instance()->write_obj( outfp, node, obj, cursorkeys );
+
+		cursorkeys.clear();
+	}
+	backkeys.clear();
+	frontkeys.clear();
+}
+
 void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 28, &parent);
+	obj_node_t node(this, 38, &parent);
 
-	uint8  wegtyp        = get_waytype(obj.get("waytype"));
-	uint16 topspeed      = obj.get_int("topspeed", 999);
-	uint32 preis         = obj.get_int("cost", 0);
-	uint32 maintenance   = obj.get_int("maintenance", 1000);
-	uint8  pillars_every = obj.get_int("pillar_distance",0); // distance==0 is off
-	uint8  pillar_asymmetric = obj.get_int("pillar_asymmetric",0); // middle of tile
-	uint8  max_length    = obj.get_int("max_lenght",0); // max_lenght==0: unlimited
-	max_length    = obj.get_int("max_length",max_length); // with correct spelling
-	uint8  max_height    = obj.get_int("max_height",0); // max_height==0: unlimited
-	uint32 max_weight	 = obj.get_int("max_weight",999);
+	uint8  wegtyp					= get_waytype(obj.get("waytype"));
+	uint16 topspeed					= obj.get_int("topspeed", 999);
+	uint16 topspeed_gradient_1      = obj.get_int("topspeed_gradient_1", topspeed);
+	uint16 topspeed_gradient_2      = obj.get_int("topspeed_gradient_2", topspeed_gradient_1);
+	uint32 preis					= obj.get_int("cost", 0);
+	uint32 maintenance				= obj.get_int("maintenance", 1000);
+	uint8  pillars_every			= obj.get_int("pillar_distance",0); // distance==0 is off
+	uint8  pillar_asymmetric		= obj.get_int("pillar_asymmetric",0); // middle of tile
+	uint8  max_length				= obj.get_int("max_lenght",0); // max_lenght==0: unlimited
+	max_length						= obj.get_int("max_length",max_length); // with correct spelling
+	uint8  max_height				= obj.get_int("max_height",0); // max_height==0: unlimited
+	uint16 axle_load				= obj.get_int("axle_load", 9999);
+	uint32 max_weight				= obj.get_int("max_weight", 250);
+	sint8 max_altitude				= obj.get_int("max_altitude", 0);
+	uint8 max_vehicles_on_tile		= obj.get_int("max_vehicles_on_tile", 251);
+	uint8 has_own_way_graphics		= obj.get_int("has_own_way_graphics", 1); // Traditionally, bridges had their own way graphics, hence the default of 1.
 
 	// prissi: timeline
 	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
@@ -71,16 +156,16 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version = 0x8008;
+	uint16 version = 0x8009;
 	
-	// This is the overlay flag for Simutrans-Experimental
+	// This is the overlay flag for Simutrans-Extended
 	// This sets the *second* highest bit to 1. 
 	version |= EXP_VER;
 
-	// Finally, this is the experimental version number. This is *added*
+	// Finally, this is the extended version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x100;
+	version += 0x200;
 
 	node.write_uint16(outfp, version,					0);
 	node.write_uint16(outfp, topspeed,					2);
@@ -93,124 +178,53 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	node.write_uint16(outfp, obsolete_date,				17);
 	node.write_uint8 (outfp, pillar_asymmetric,			19);
 	node.write_uint8 (outfp, max_height,				20);
-	node.write_uint32(outfp, max_weight,				22);
-	node.write_uint8(outfp, permissive_way_constraints,	26);
-	node.write_uint8(outfp, prohibitive_way_constraints,27);
-
-	static const char* const names[] = {
-		"image",
-		"ns", "ew", NULL,
-		"start",
-		"n", "s", "e", "w", NULL,
-		"ramp",
-		"n", "s", "e", "w", NULL,
-		NULL
-	};
-	slist_tpl<string> backkeys;
-	slist_tpl<string> frontkeys;
-
-	slist_tpl<string> cursorkeys;
-	cursorkeys.append(string(obj.get("cursor")));
-	cursorkeys.append(string(obj.get("icon")));
+	node.write_uint16(outfp, axle_load,					21);
+	node.write_uint32(outfp, max_weight,				23);
+	node.write_uint8(outfp, permissive_way_constraints,	27);
+	node.write_uint8(outfp, prohibitive_way_constraints,28);
+	node.write_uint16(outfp, topspeed_gradient_1,		29);
+	node.write_uint16(outfp, topspeed_gradient_2,		31);
+	node.write_sint8(outfp, max_altitude,				33);
+	node.write_uint8(outfp, max_vehicles_on_tile,		34);
+	node.write_uint8(outfp, has_own_way_graphics,		35);
 
 	char keybuf[40];
 
 	string str = obj.get("backimage[ns][0]");
 	if (str.empty()) {
-		node.write_data_at(outfp, &number_seasons, 21, sizeof(uint8));
+		node.write_data_at(outfp, &number_seasons, 37, sizeof(uint8));
 		write_head(outfp, node, obj);
-		const char* const * ptr = names;
-		const char* keyname = *ptr++;
+		write_bridge_images( outfp, node, obj, -1 );
 
-		do {
-			const char* keyindex = *ptr++;
-			do {
-				string value;
-
-				sprintf(keybuf, "back%s[%s]", keyname, keyindex);
-				value = obj.get(keybuf);
-				backkeys.append(value);
-				//intf("BACK: %s -> %s\n", keybuf, value.chars());
-				sprintf(keybuf, "front%s[%s]", keyname, keyindex);
-				value = obj.get(keybuf);
-				if (value.size() > 2) {
-					frontkeys.append(value);
-					//intf("FRNT: %s -> %s\n", keybuf, value.chars());
-				} else {
-					printf("WARNING: not %s specified (but might be still working)\n",keybuf);
-				}
-				keyindex = *ptr++;
-			} while (keyindex);
-			keyname = *ptr++;
-		} while (keyname);
-
-		if (pillars_every > 0) {
-			backkeys.append(string(obj.get("backpillar[s]")));
-			backkeys.append(string(obj.get("backpillar[w]")));
-		}
-		imagelist_writer_t::instance()->write_obj(outfp, node, backkeys);
-		imagelist_writer_t::instance()->write_obj(outfp, node, frontkeys);
-		cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
-		backkeys.clear();
-		frontkeys.clear();
-	} else {
+	}
+	else {
 		while(number_seasons < 2) {
 			sprintf(keybuf, "backimage[ns][%d]", number_seasons+1);
 			string str = obj.get(keybuf);
 			if (!str.empty()) {
 				number_seasons++;
-			} else {
+			}
+			else {
 				break;
 			}
 		}
 
-		node.write_data_at(outfp, &number_seasons, 21, sizeof(uint8));
+		node.write_data_at(outfp, &number_seasons, 37, sizeof(uint8));
 		write_head(outfp, node, obj);
 
 		for(uint8 season = 0 ; season <= number_seasons ; season++) {
-			const char* const * ptr = names;
-			const char* keyname = *ptr++;
-
-			do {
-				const char* keyindex = *ptr++;
-				do {
-					string value;
-
-					sprintf(keybuf, "back%s[%s][%d]", keyname, keyindex, season);
-					value = obj.get(keybuf);
-					backkeys.append(value);
-					//intf("BACK: %s -> %s\n", keybuf, value.chars());
-					sprintf(keybuf, "front%s[%s][%d]", keyname, keyindex, season);
-					value = obj.get(keybuf);
-					if (value.size() > 2) {
-						frontkeys.append(value);
-						//intf("FRNT: %s -> %s\n", keybuf, value.chars());
-					} else {
-						printf("WARNING: not %s specified (but might be still working)\n",keybuf);
-					}
-					keyindex = *ptr++;
-				} while (keyindex);
-				keyname = *ptr++;
-			} while (keyname);
-
-			if (pillars_every > 0) {
-				sprintf(keybuf, "backpillar[s][%d]",season);
-				backkeys.append(string(obj.get(keybuf)));
-				sprintf(keybuf, "backpillar[w][%d]",season);
-				backkeys.append(string(obj.get(keybuf)));
-			}
-			imagelist_writer_t::instance()->write_obj(outfp, node, backkeys);
-			imagelist_writer_t::instance()->write_obj(outfp, node, frontkeys);
-			if(season == 0 ) {
-				cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
-			}
-			backkeys.clear();
-			frontkeys.clear();
+			write_bridge_images( outfp, node, obj, season );
 		}
 	}
 
-	cursorkeys.clear();
+	str = obj.get("way");
+	if (!str.empty()) {
+		xref_writer_t::instance()->write_obj(outfp, node, obj_way, str.c_str(), false);
+		node.write_sint8(outfp, 1, 36);
+	}
+	else {
+		node.write_sint8(outfp, 0, 36);
+	}
 
-	// node.write_data(outfp, &besch);
 	node.write(outfp);
 }

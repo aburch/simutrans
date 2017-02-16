@@ -22,20 +22,20 @@ SQInteger get_object_index(HSQUIRRELVM vm)
 	grund_t *gr = param<grund_t*>::get(vm, 1);
 	uint8 index = param<uint8>::get(vm, 2);
 
-	ding_t *ding = NULL;
+	obj_t *obj = NULL;
 	if (gr  &&  index < gr->get_top()) {
-		ding = gr->obj_bei(index);
+		obj = gr->obj_bei(index);
 	}
-	return param<ding_t*>::push(vm, ding);
+	return param<obj_t*>::push(vm, obj);
 }
 
 
 // return way ribis, have to implement a wrapper, to correctly rotate ribi
-SQInteger get_way_ribi(HSQUIRRELVM vm)
+static SQInteger get_way_ribi(HSQUIRRELVM vm)
 {
 	grund_t *gr = param<grund_t*>::get(vm, 1);
 	waytype_t wt = param<waytype_t>::get(vm, 2);
-	bool masked = param<waytype_t>::get(vm, 3);
+	bool masked = param<bool>::get(vm, 3);
 
 	ribi_t::ribi ribi = gr ? (masked ? gr->get_weg_ribi(wt) : gr->get_weg_ribi_unmasked(wt) ) : 0;
 
@@ -51,12 +51,16 @@ SQInteger get_neighbour(HSQUIRRELVM vm)
 	ribi_t::ribi ribi = get_ribi(vm, 3);
 
 	grund_t *to = NULL;
-	if (gr  &&  ribi_t::ist_einfach(ribi)) {
+	if (gr  &&  ribi_t::is_single(ribi)) {
 		gr->get_neighbour(to, wt, ribi);
 	}
 	return param<grund_t*>::push(vm, to);
 }
 
+halthandle_t get_first_halt_on_square(planquadrat_t* plan)
+{
+	return plan->get_halt(NULL);
+}
 
 void export_tiles(HSQUIRRELVM vm)
 {
@@ -92,14 +96,6 @@ void export_tiles(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &grund_t::suche_obj, "find_object");
 
-	/**
-	 * Meta-method to be used in foreach loops to loop over all objects on the tile. Do not call it directly.
-	 */
-	register_function(vm, get_next_object,  "_nexti",  2, "x o|i");
-	/**
-	 * Meta-method to be used in foreach loops to loop over all objects on the tile. Do not call it directly.
-	 */
-	register_function(vm, get_object_index, "_get",    2, "xi");
 
 	/**
 	 * Access halt at this tile.
@@ -180,6 +176,36 @@ void export_tiles(HSQUIRRELVM vm)
 	 */
 	register_function(vm, &get_neighbour, "get_neighbour", 3, "xii");
 
+#ifdef SQAPI_DOC // document members
+	/**
+	 * List to iterate through all objects on this tile.
+	 * @code
+	 * t= tile_x(47,11)
+	 * foreach(obj in t.get_objects()) {
+	 *    ...
+	 * }
+	 * @endcode
+	 */
+	tile_object_list_x get_objects();
+#endif
+
+	end_class(vm);
+
+	/**
+	 * Class that holds an iterator through the list of objects on a particular tile.
+	 *
+	 * For an example see tile_x.
+	 */
+	begin_class(vm, "tile_object_list_x", "coord3d");
+	/**
+	 * Meta-method to be used in foreach loops to loop over all objects on the tile. Do not call it directly.
+	 */
+	register_function(vm, get_next_object,  "_nexti",  2, "x o|i");
+	/**
+	 * Meta-method to be used in foreach loops to loop over all objects on the tile. Do not call it directly.
+	 */
+	register_function(vm, get_object_index, "_get",    2, "x i|s");
+
 	end_class(vm);
 
 	/**
@@ -196,11 +222,20 @@ void export_tiles(HSQUIRRELVM vm)
 	 */
 	// actually defined simutrans/script/scenario_base.nut
 	// register_function(..., "constructor", ...);
+
 	/**
-	 * Access halt at this tile.
+	 * Access some halt at this square.
+	 * @deprecated Use square_x::get_player_halt or tile_x::get_halt instead!
 	 * @returns halt_x instance or null/false if no halt is present
 	 */
-	register_method(vm, &planquadrat_t::get_halt, "get_halt");
+	register_method(vm, &get_first_halt_on_square, "get_halt", true);
+
+	/**
+	 * Access halt of this player at this map position.
+	 * @param pl potential owner of halt
+	 * @returns halt_x instance or null/false if no halt is present
+	 */
+	register_method(vm, &planquadrat_t::get_halt, "get_player_halt");
 
 	/**
 	 * Access tile at specified height.

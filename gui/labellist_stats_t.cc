@@ -7,13 +7,14 @@
 
 #include "labellist_stats_t.h"
 
-#include "../simgraph.h"
+#include "../display/simgraph.h"
+#include "../display/viewport.h"
 #include "../simtypes.h"
 #include "../simworld.h"
+#include "../simskin.h"
 #include "../player/simplay.h"
 
-#include "../dings/gebaeude.h"
-#include "../dings/label.h"
+#include "../obj/label.h"
 
 #include "../besch/haus_besch.h"
 #include "../besch/skin_besch.h"
@@ -21,11 +22,11 @@
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
+#include "gui_theme.h"
 
 
 
-labellist_stats_t::labellist_stats_t(karte_t* w, labellist::sort_mode_t sortby, bool sortreverse, bool filter) :
-	welt(w)
+labellist_stats_t::labellist_stats_t(labellist::sort_mode_t sortby, bool sortreverse, bool filter)
 {
 	get_unique_labels(sortby,sortreverse,filter);
 	recalc_size();
@@ -35,11 +36,10 @@ labellist_stats_t::labellist_stats_t(karte_t* w, labellist::sort_mode_t sortby, 
 class compare_labels
 {
 	public:
-		compare_labels(labellist::sort_mode_t sortby_, bool reverse_, bool filter_, karte_t * welt_) :
+		compare_labels(labellist::sort_mode_t sortby_, bool reverse_, bool filter_) :
 			sortby(sortby_),
 			reverse(reverse_),
-			filter(filter_),
-			welt(welt_)
+			filter(filter_)
 		{}
 
 		bool operator ()(const koord a, const koord b)
@@ -64,7 +64,7 @@ class compare_labels
 						label_t* a_l = welt->lookup_kartenboden(a)->find<label_t>();
 						label_t* b_l = welt->lookup_kartenboden(b)->find<label_t>();
 						if(a_l && b_l) {
-							cmp = a_l->get_besitzer()->get_player_nr() - b_l->get_besitzer()->get_player_nr();
+							cmp = a_l->get_owner()->get_player_nr() - b_l->get_owner()->get_player_nr();
 						}
 					}
 					break;
@@ -82,9 +82,9 @@ class compare_labels
 	private:
 		labellist::sort_mode_t sortby;
 		bool reverse, filter;
-		karte_t * welt;
+		static karte_ptr_t welt;
 };
-
+karte_ptr_t compare_labels::welt;
 
 void labellist_stats_t::get_unique_labels(labellist::sort_mode_t sb, bool sr, bool fi)
 {
@@ -101,15 +101,15 @@ void labellist_stats_t::get_unique_labels(labellist::sort_mode_t sb, bool sr, bo
 		const char* name = welt->lookup_kartenboden(pos)->get_text();
 		// some old version games don't have label nor name.
 		// Check them to avoid crashes.
-		if(label  &&  name  &&  (!filter  ||  (label  &&  (label->get_besitzer() == welt->get_active_player())))) {
-			labels.insert_ordered( pos, compare_labels(sortby, sortreverse, filter, welt) );
+		if(label  &&  name  &&  (!filter  ||  (label  &&  (label->get_owner() == welt->get_active_player())))) {
+			labels.insert_ordered( pos, compare_labels(sortby, sortreverse, filter) );
 		}
 	}
 }
 
 
 /**
- * Events werden hiermit an die GUI-Komponenten
+ * Events werden hiermit an die GUI-components
  * gemeldet
  * @author Hj. Malthaner
  */
@@ -126,23 +126,21 @@ bool labellist_stats_t::infowin_event(const event_t * ev)
 	if (pos==koord::invalid) {
 		return false;
 	}
-
-	// deperess goto button
 	if(  ev->button_state>0  &&  ev->cx>0  &&  ev->cx<15  ) {
 		line_selected = line;
 	}
 
 	if (IS_LEFTRELEASE(ev)) {
 		if(  ev->cx>0  &&  ev->cx<15  ) {
-			welt->change_world_position(pos);
+			welt->get_viewport()->change_world_position(pos);
 		}
 		else if(welt->lookup_kartenboden(pos)->find<label_t>()) {
 			// avoid crash
-				welt->lookup_kartenboden(pos)->find<label_t>()->zeige_info();
+				welt->lookup_kartenboden(pos)->find<label_t>()->show_info();
 		}
 	}
 	else if (IS_RIGHTRELEASE(ev)) {
-		welt->change_world_position(pos);
+		welt->get_viewport()->change_world_position(pos);
 	}
 	return false;
 } // end of function labellist_stats_t::infowin_event(const event_t * ev)
@@ -153,7 +151,7 @@ void labellist_stats_t::recalc_size()
 	sint16 x_size = 0;
 	sint16 y_size = 0;
 
-	// loop copied from ::zeichnen(), trimmed to minimum for x_size calculation
+	// loop copied from ::draw(), trimmed to minimum for x_size calculation
 
 	static cbuffer_t buf;
 
@@ -162,11 +160,11 @@ void labellist_stats_t::recalc_size()
 
 		// the other infos
 		const label_t* label = welt->lookup_kartenboden(pos)->find<label_t>();
-		//PLAYER_COLOR_VAL col = COL_WHITE;
+		//PLAYER_COLOR_VAL col = SYSCOL_TEXT_HIGHLIGHT;
 		buf.printf(" (%d,%d)", pos.x, pos.y);
 
 		if(  label  ) {
-			//col = (PLAYER_FLAG|label->get_besitzer()->get_player_color1());
+			//col = (PLAYER_FLAG|label->get_owner()->get_player_color1());
 			grund_t *gr = welt->lookup(label->get_pos());
 			if(  gr  &&  gr->get_text()  ) {
 				buf.append(gr->get_text());
@@ -180,15 +178,15 @@ void labellist_stats_t::recalc_size()
 		y_size +=LINESPACE+1;
 	}
 
-	set_groesse(koord(x_size+10+4,y_size));
+	set_size(scr_size(x_size+10+4,y_size));
 }
 
 
 /**
- * Zeichnet die Komponente
+ * Draw the component
  * @author Hj. Malthaner
  */
-void labellist_stats_t::zeichnen(koord offset)
+void labellist_stats_t::draw(scr_coord offset)
 {
 	if(  last_world_labels!=welt->get_label_list().get_count()  ) {
 		// some deleted/ added => resort
@@ -197,7 +195,7 @@ void labellist_stats_t::zeichnen(koord offset)
 	}
 
 	// keep previous maximum width
-	int x_size = get_groesse().x-10-4;
+	int x_size = get_size().w-10-4;
 
 	clip_dimension const cd = display_get_clip_wh();
 	const int start = cd.y-LINESPACE+1;
@@ -216,8 +214,8 @@ void labellist_stats_t::zeichnen(koord offset)
 		if (yoff < start) continue;
 
 		// goto button
-		image_id const img = sel-- != 0 ? button_t::arrow_right_normal : button_t::arrow_right_pushed;
-		display_color_img(img, offset.x + 2, yoff, 0, false, true);
+		display_img_aligned( gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( offset.x, yoff, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+		sel --;
 
 		buf.clear();
 
@@ -227,7 +225,7 @@ void labellist_stats_t::zeichnen(koord offset)
 		buf.printf(" (%d,%d)", pos.x, pos.y);
 
 		if(label) {
-			col = (PLAYER_FLAG|label->get_besitzer()->get_player_color1());
+			col = (PLAYER_FLAG|label->get_owner()->get_player_color1());
 			grund_t *gr = welt->lookup(label->get_pos());
 			if(gr && gr->get_text()) {
 				buf.append(gr->get_text());
@@ -239,8 +237,8 @@ void labellist_stats_t::zeichnen(koord offset)
 		}
 	}
 
-	const koord gr(max(x_size+10+4,get_groesse().x),labels.get_count()*(LINESPACE+1));
-	if(  gr!=get_groesse()  ) {
-		set_groesse(gr);
+	const scr_size size(max(x_size+10+4,get_size().w),labels.get_count()*(LINESPACE+1));
+	if(  size!=get_size()  ) {
+		set_size(size);
 	}
 }

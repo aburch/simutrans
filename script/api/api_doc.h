@@ -34,7 +34,7 @@
  *
  * All coordinates in the script are with respect to the initial rotation of the map. If a player rotates
  * a map, then all coordinates are translated to the original rotation.
- * This effects the classes @ref coord and @ref coord3d as well as any functions that expect coordinates as input, as
+ * This affects the classes @ref coord and @ref coord3d as well as any functions that expect coordinates as input, as
  * for instance factory_x::factory_x or rules::forbid_way_tool_rect.
  *
  * @section sec_network Network play
@@ -84,7 +84,7 @@
  * pak-something/scenario/myscenario/
  * </tt>
  *
- * If need more complex texts, these go into sub-directories named after the language, in which they are written.
+ * If you need more complex texts, these go into sub-directories named after the language, in which they are written.
  *
  * <tt>
  * pak-something/scenario/myscenario/en/ <- English files go here.

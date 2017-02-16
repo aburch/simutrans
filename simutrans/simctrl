@@ -1,0 +1,252 @@
+#!/bin/sh
+
+VERBOSE=0
+# Number of seconds to allow for server to start/stop
+startstopgracetime=5
+
+pathtosimutrans=/usr/share/games/simutrans-experimental/sources/simutrans-experimental
+
+log() {
+    if [ "$1" != "ERROR" ]; then
+        if [ "$VERBOSE" -eq "1" ]; then
+            echo "$1: $2" >&2
+        fi
+    else
+        echo "$1: $2" >&2
+    fi
+}
+
+show_usage() {
+    echo "Usage: simctrl <tag> {status|start|restart|check|stop}" >&2
+}
+
+# Check we are running as root
+if [ `id -u` != "0" ]; then
+        log "ERROR" "You need to be superuser"
+        exit 1
+fi
+
+# Check command line parameters, there must be exactly two of them
+if [ "$#" -ne "2" ]; then
+    log "ERROR" "Wrong number of arguments"
+    show_usage
+    exit 1
+fi
+
+tag=$1
+action=$2
+
+pidfile="$pathtosimutrans/$tag.pid"
+configfile="$pathtosimutrans/etc/$tag.config"
+
+if [ -f $configfile ]; then
+    . $configfile
+else
+    log "ERROR" "No config file available for tag: $tag at location: $configfile"
+    exit 1
+fi
+
+# Need to check that the following variables are actually present (e.g. that config file is valid)
+if [ -z "${port:+x}" ]; then 
+    log "ERROR" "Config, parameter: 'port' not set for tag: $tag"
+    exit 1
+fi
+if [ -z "${revision:+x}" ]; then 
+    log "ERROR" "Config, parameter: 'revision' not set for tag: $tag"
+    exit 1
+fi
+if [ -z "${objects:+x}" ]; then 
+    log "ERROR" "Config, parameter: 'objects' not set for tag: $tag"
+    exit 1
+fi
+if [ -z "${save:+x}" ]; then 
+    log "ERROR" "Config, parameter: 'save' not set for tag: $tag"
+    exit 1
+fi
+if [ -z "${server_id:+x}" ]; then 
+    log "ERROR" "Config, parameter: 'server_id' not set for tag: $tag"
+    exit 1
+fi
+if [ -z "${server_name:+x}" ]; then 
+    log "ERROR" "Config, parameter: 'server_name' not set for tag: $tag"
+    exit 1
+fi
+if [ -z "${server_comment:+x}" ]; then 
+    log "ERROR" "Config, parameter: 'server_comment' not set for tag: $tag"
+    exit 1
+fi
+if [ -z "${debug:+x}" ]; then 
+    # Debug defaults to 2
+    debug=2
+fi
+
+
+# We do not use the $revision system at present for the Experimental server.
+
+simpath="$pathtosimutrans/simutrans/simutrans-experimental"
+#simpath="$pathtosimutrans/$revision/simutrans/sim"
+
+simutrans_stop() {
+    # Check if process is running
+    # $pid will be either the pid, or true value
+    PID=$(pidof_simutrans)
+
+    if [ "$PID" -gt "0" ]; then
+        # PID found and it is running, take steps to stop the server
+
+        logger -t $tag Attempting to stop server...
+        echo -n "Attempting to stop simutrans instance: $tag ($PID)."
+
+        kill $PID
+
+        dead=0
+        count=0
+
+        while [ $dead -eq "0" ] && [ $count -le $startstopgracetime ]
+        do
+            sleep 1
+
+            # Update status
+            echo -n "."
+
+            # Increment count by 1
+            count=$(($count+1))
+        
+            # Check if process is still running, pidof_simutrans returns -2 if it cannot find the pid
+            # it will also remove the pidfile in this instance
+            if [ $(pidof_simutrans) -ne "-2" ]; then dead=1; fi
+        done
+
+        # Finish up status with newline
+        echo ""
+
+        if [ $dead -eq "0" ]; then
+            log "ERROR" "Kill didn't work, server is still running"
+            logger -t $tag Server failed to stop!
+            exit 1
+        fi
+
+        logger -t $tag Server successfully stopped
+    else
+        log "INFO" "Server not running, not performing stop action."
+        echo "Server is not running"
+    fi
+}
+
+simutrans_start() {
+    # Check if this tagged instance is already running by checking PID file
+    PID=$(pidof_simutrans)
+    if [ "$PID" -eq "-2" ]; then
+        log "INFO" "Pidfile existed at: $pidfile, but no process with that ID was running. Continuing with startup of instance: $tag"
+    elif [ "$PID" -gt "0" ]; then
+        log "ERROR" "Pidfile exists at: $pidfile and a process is running with that ID, cannot start duplicate instance of server: $tag"
+        exit 1
+    fi
+
+    echo -n "Attempting to start Simutrans-Experimental instance: $tag."
+    logger -t $tag Attempting to start server...
+
+    # Start up the server; running as non-root user disabled for the time being, as, oddly, when run as non-root, nobody can connect to the server.
+    if [ $1 = "start" ]; then
+        /bin/sh -c "( $simpath -server $port -server_id $server_id -server_name $server_name -server_comment $server_comment -debug $debug -lang en -objects $objects -load $save 2>&1 & echo \$! >&3 ) 3>$pidfile | logger -i -t $tag &"
+    elif [ $1 = "restart" ]; then
+        /bin/sh -c "( $simpath -server $port -server_id $server_id -server_name $server_name -server_comment $server_comment -debug $debug -lang en -objects $objects 2>&1 & echo \$! >&3 ) 3>$pidfile | logger -i -t $tag &"
+    fi
+
+    alive=0
+    count=0
+
+    while [ $alive -eq "0" ] && [ $count -le $startstopgracetime ]
+    do
+        sleep 1
+
+        # Update status
+        echo -n "."
+
+        # Increment count by 1
+        count=$(($count+1))
+    
+        # Check if process is running yet, pidof_simutrans returns > 0 (the PID) if it is running
+        if [ $(pidof_simutrans) -gt "0" ]; then alive=1; fi
+    done
+
+    # Finish up status with newline
+    echo ""
+
+    # Check if simutrans has actually started
+    if [ "$alive" -eq "0" ]; then
+        log "ERROR" "Startup appears to have failed, no process is running with the pid specified in the pidfile for this instance ($pidfile)"
+        logger -t $tag Server startup failed
+        exit 1
+    else
+        log "INFO" "Server startup appears to have worked, instance: $tag is now running with pid: $(pidof_simutrans)"
+        logger -t $tag Server startup script completed
+    fi
+
+    # Return the pidfile
+    cat $pidfile
+}
+
+pidof_simutrans() {
+    # If pidfile exists and there is a simutrans process with the pid specified
+    # print the pid and return 0
+    if [ -e "$pidfile" ]; then
+        pid=`cat $pidfile`
+        kill -0 $pid 2>/dev/null
+        if [ "$?" -eq "1" ]; then
+            log "INFO" "Pidfile specifies a process that doesn't exist (pid: $pid), removing pidfile"
+            rm $pidfile
+            echo -2
+        else
+            log "INFO" "Pidfile found, pid is a running process (pid: $pid)"
+            echo $pid
+        fi
+    else
+        log "INFO" "Pidfile not found, this process either doesn't exist or wasn't started with this script"
+        echo -1
+    fi
+}
+
+
+case $action in
+    status)
+        # Check status of tagged instance
+        PID=$(pidof_simutrans)
+
+        if [ "$PID" -gt "0" ]; then
+            echo "Simutrans instance: $tag is currently running with pid: $PID"
+            echo "Output of \"ps uww -p $PID\":"
+            ps uww -p $PID
+        else
+            echo "Simutrans instance: $tag is not currently running."
+        fi
+    ;;
+    start)
+        simutrans_start "start"
+    ;;
+    stop)
+        simutrans_stop
+    ;;
+    restart)
+        # If server running, stop it first
+        simutrans_stop
+        
+        simutrans_start "restart"
+	;;
+    check)
+	  # Check status of tagged instance
+        PID=$(pidof_simutrans)
+
+        # Check whether the server is running, and restart it if not.
+        if [ "$PID" -gt "0" ]; then
+            echo "Simutrans instance: $tag is currently running. No action necessary."
+        else
+            echo "Simutrans instance: $tag is not currently running. Restarting..."
+		 simutrans_start "restart"
+        fi
+    ;;
+    *)
+        echo "ERROR" "Invalid command"
+        show_usage
+    ;;
+esac

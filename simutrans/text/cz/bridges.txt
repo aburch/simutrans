@@ -1,0 +1,31 @@
+<title>Nápovìda - stavba mostù</title>
+
+<h1><strong>Stavba mostù</strong></h1>
+
+<p> Mostem lze pøeklenout údolí nebo jiná pøeká¾ka. </p>
+<p> Ka¾dý most má urèenu maximální mo¾nou délku. Pro pøemostìní del¹ích úsekù nezbyde ne¾ v nabídce hledat jiný, nebo si pomoci ostrùvky a celkovou vzdálenost rozdìlit na více èástí. Mosty lze stavìt i pøes hluboká údolí s nerovným terénem, omezení je kladeno jen na poèáteèní a koncové pole. Most musí zaèínat a konèit na vodorovné plo¹e, svahu ¹ikmém ve smìru mostu nebo na umìlé vyvý¹eninì. Zaèátek a konec mostu nemusí být ve stejné vý¹ce, mù¾e mezi nimi být rozdíl jedné úrovnì. Mosty lze stavìt jen ve smìru hranic políèek, tj. nelze je (zatím) stavìt diagonálnì. Existuje v¹ak druh ¾eleznièní trati, který pøipomíná most, nebo» je nad terénem. Tuto tra» lze stavìt i diagonálnì.</p>
+<p>V¹echny mosty, a» ¾eleznièní, silnièní, pro lodní dopravu, nebo pro dráty vysokého napìtí se staví stejným zpùsobem. Silnièní most má jednu výjimku: lze na nìj navíc pøidat i koleje pro tramvaj.<br></p>
+
+<h1>Stavíme most</h1>
+<p>Následující postup lze uplatnit pro v¹echny typy mostù, pokud je zde psáno silnice, mù¾ete si místo ní dosadit ¾eleznici, nebo jiný druh dopravy mající mosty:<br>
+(i) Postavte silnici k obìma pøedpokládaným koncùm mostu, pøièem¾ silnice bude i a prvním a posledním políèku budoucího mostu. <br>
+(ii) Kliknìte na symbol mostu. Zvolte si ten který vám bude svými parametry nejvíce vyhovovat. <br>
+(iii) Kliknìte na pole se zamý¹leným poèátkem mostu a tlaèítko dr¾te stisknuté.<br>
+(iv) Najeïte kurzorem my¹i nad políèko, kde má most konèit, a pus»te tlaèítko. Most je hotov.</p>
+<p>Existuje také alternativní postup. Musíte v¹ak mít pøedem správnì pøichystané oba konce silnice, jinak se mù¾e stát, ¾e utratíte peníze za dlouhý most, který nechcete. Místo krokù (iii) a (iv) kliknìte na zaèátek zamý¹leného mostu a pus»te tlaèítko. Most se vystaví sám a¾ ke kusu silnice na druhé stranì.</p>
+
+<p>Èastu chybou pøi stavbì mostu je, ¾e není na koncích pøipojen k silnici (nebo ¾eleznici). Pøetáhnìte silnici (¾eleznici) i na poèáteèní a koncové pole mostovky, jinak pøes nìj auta (vlaky) nebudou jezdit.</p>
+
+<p>Tip: Nìkdy se most nevyplatí stavìt. Mosty mají obecnì vy¹¹í náklady na údr¾bu ne¾ je u bì¾né silnice (trati, elektrického vedení, ..). Podívejte, jestli se u men¹ích terénních nerovností nevyplatí prohlubeò zasypat.<br></p>
+
+<h1>Odstranìní mostu</h1>
+<p>Kliknìte na tlaèítko <em>Odstranit</em> a pak kliknìte na zaèátek nebo na konec mostovky.</p>
+
+<p>
+-><a href="roadtools.txt">Nápovìda pro stavbu silnic</a><br>
+-><a href="railtools.txt">Nápovìda pro stavbu ¾eleznic</a>
+</p>
+
+<p>
+-><a href="about.txt">Informace o pøekladu</a>
+</p>

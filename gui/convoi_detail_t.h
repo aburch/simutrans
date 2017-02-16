@@ -10,7 +10,7 @@
  */
 
 #include "gui_frame.h"
-#include "gui_container.h"
+#include "components/gui_container.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
@@ -19,9 +19,9 @@
 #include "components/gui_label.h"                  // 09-Dec-2001      Markus Weber    Added
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
-#include "../simwin.h"
+#include "../gui/simwin.h"
 
-class koord;
+class scr_coord;
 
 /**
  * One element of the vehicle list display
@@ -49,7 +49,7 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 };
 
 
@@ -65,7 +65,6 @@ public:
 	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
 
 private:
-	static karte_t *welt;
 
 	gui_scrollpane_t scrolly;
 	gui_vehicleinfo_t veh_info;
@@ -84,20 +83,20 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_hilfe_datei() const {return "convoidetail.txt"; }
+	const char * get_help_filename() const {return "convoidetail.txt"; }
 
 	/**
 	 * Set window size and adjust component sizes and/or positions accordingly
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_fenstergroesse(koord groesse);
+	virtual void set_windowsize(scr_size size);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
@@ -107,7 +106,7 @@ public:
 	void update_data() { set_dirty(); }
 
 	// this constructor is only used during loading
-	convoi_detail_t(karte_t *welt);
+	convoi_detail_t();
 
 	void rdwr( loadsave_t *file );
 

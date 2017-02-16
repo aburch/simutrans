@@ -1,0 +1,15 @@
+<title>Help Limba</title>
+
+<h1>Limba</h1>
+
+<p>
+Simutrans a fost tradus în mai multe limbi printre care ºi româna. Print selectarea limbajului
+dorit toate inscripþiile jocului se schimbã în limbajul selectat.
+<br>
+Însã numele oraºelor de pe harta odatã creatã nu se schimbã. Pt. a folosi oraºe româneºti,
+prima datã trebuie selectat limba românã, dupã care trebuie creat o nouã hartã.
+</p>
+
+<p>
+Pt. eventuale alte traduceri vizitaþi: <strong>www.simutrans.de sau 128.simutrans.com</strong>
+</p>

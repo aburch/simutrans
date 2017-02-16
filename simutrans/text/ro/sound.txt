@@ -1,0 +1,14 @@
+<title>Help Setare sunet</title>
+
+<h1>Setare sunet</h1>
+<p>
+Aici poþi selcta efectele dorite.
+</p>
+
+<p>
+<em>Volum efecte:</em> - Ajustarea efectelor (ex. claxonarea etc.)<br>
+<em>Volum muzicã:</em> - Ajustarea muzicii.
+<strong>Atenþie în unele cazuri jocul este instalat fãrã muzicã, în acest
+caz potenþiometrul nu are nici un efect. Melodia jucatã este afiºatã cu
+un rând mai jos</strong>
+</p>

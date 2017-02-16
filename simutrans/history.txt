@@ -1,8 +1,38 @@
+	CHG: zoom with mouse wheel zooms to the cursor position, not to the center of screen as it used to
+	CHG: system events management rearranged, simutrans should more responsive to user events, specially on low framerates
+	ADD: second_open_closes_win =1 in simuconf.tab will close open window instead top them on secod call/click
+	ADD: remember_window_positions=1 (default) will remeber last window positions
+	FIX: (S_N_C) net wealth was not consistent after buying vehicles
+	ADD: (kierongreen) double heights (slopes), different water levels per tile, and per tile climates
+	FIX: long block signals direct in front of stations gave deadlocks
+	ADD: fixed maintenance for vehciles is now booked
+	ADD: (jk271) way toll statistics now
+	ADD: (neroden/kierongreen) stacked stations eith different owners are now possible
+	ADD: loading gui themes (designs) on runtime
+	ADD: faster creating of hill
+	ADD: matching pak is loaded automatically when no -objects is given with -load on commandline
+	ADD: dragging map also with left mousebutton when the query tool is selected
+	ADD: display also fixed cost in convoi details and depot (if set)
+	ADD: enforce loading time (time will be added per full vehciles, default 1s)
+	ADD: makeobj can now warn about unused entries (makeobj verbose pak... or makeobj debug pak...)
+	CHG: Stretchable themes now in trunk
+	CHG: use faster route search for ships (jump-point search)
+	CHG: max in_transit now depends on the sum of all connected factories output storage times the in_transit percentage
+	ADD: goods in transit are now recalculated whenever a game is reloaded
+	CHG: overcrowded message no longer for factories supplied by producer but only interchanges
+	CHG: Waypoints act no longer as signals
+	ADD: server_motd_filename for file with a greeting message in online games
+
+
+Release of 112.3: (r6520 on 17-May-2013):
 	CHG: Removed the restriction of having border heights at water level. Forces a savegame version step, new maps can't be properly shown in previous versions.
 	CHG: Raise and Lower tools interact with the grid now, not with tiles.
 	ADD: (jk271/Dwachs) finance history distinguishes transport type
 	CHG: Added a new setting to simuconf.tab, background_color. Allows to change the color of the background.
+	ADD: Depature and arrival times can be shown in the halt dialoge
+	CHG: Updates to the in-game pointer mechanics, updates its position after using a tool, and hides when the pointer is outside the world.
 	ADD: (neroden) clustering of houses, set "cluster_factor" in cityrules.tab to about 10 times the typical distribution weight
+	ADD: Displaying the natural slope at the map border if requested (default on)
 
 
 Release of 112.2: (r6390 on 17-Mar-2013):
@@ -114,6 +144,7 @@ Release of 111.2.1 (r5434 on 28-Feb-2012): (111.2 had a severe bug with zipped g
 	ADD: goto-button to chat messages, coordinate taken from @x,y or (x,y)
 	CHG: overhauled color choose dialog with ideas from Hajo
 	FIX: lots of double free errors (mostly in network code)
+	FIX: No new buying obsolete stuff, just allow appending
 
 
 Release of 111.1 (r5115 on 23-Jan-2012):

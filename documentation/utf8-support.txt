@@ -4,6 +4,6 @@ If the language file is UTF8, then all input/output is handled as UTF8. However,
 
 UTF8 files are beginning with "§" in UTF8 as very first letter. The line endings must be "\xA" (see the japanese files)
 
-The only execption so far is the citylist, which must be in the same encoding as the language file. But this will also change someday.
+The only exception so far is the citylist, which must be in the same encoding as the language file. But this will also change someday.
 
 If an UTF8 file is encountered in a non UTF8 language, it will be translated to 8Bit Latin (by just ignoring all bits but the lowest 8).

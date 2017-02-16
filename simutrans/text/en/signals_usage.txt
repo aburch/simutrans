@@ -1,0 +1,136 @@
+<title>Signals usage</title>
+
+<h1>Signals usage</h1><br><br><br>
+
+<em>Basic stop signals</em><br>
+The most basic type of signal is the ones only showing two aspects. Another word for the signal could be a "two aspect signal", but since a signal need to have two aspects in order to be a signal at all (as opposed to a sign which have only one "aspect"), they are also called a "basic signal" or "stop signal".<br>
+The two signal states with their meaning: <br>
+1 - <it>DANGER</it>: Stop in front of signal<br>
+2 - <it>CLEAR</it>: Proceed<br><br>
+
+The signal is in no way telling the train driver about the states of any of the forthcomming signals, only that the block behind the signal is free, and that the driver may proceed behind the signal to the next signal or to its stop.
+<br><br><br><br>
+
+<em>Distant signals</em><br>
+Distant signals, presignals and repeater signals are all used only to tell the upcoming train at what state the next signal is. The signals are not "real" signals, and therefore, trains will not stop in front of them. 
+Distant signals have two states:<br>
+1 - <it>CAUTION</it>: Expect next signal to be at danger<br>
+2 - <it>CLEAR</it>: Expect next signal to be at clear<br><br>
+
+Distant signals behaves a bit differently if they use <it>"Absolute block":</it><br>
+Presignals using absolute block behaves a bit different to presignals using other systems by alarming the approaching train of the states of ALL of the signals it will face using the same signalbox as the presignal. If all signals facing the train are clear, the presignal will be set to clear, however if only one signal are at danger, the presignal will also be at danger. Therefore presignals must be placed BEFORE the first stop signal of the signalbox to have the effect.
+<br><br>
+
+For the rest of the working methods, they will warn for the next signal en route, even if that is controlled from another signal box (exception is for "Time interval" system, which also needs to be for the same signalbox)<br><br>
+
+<it>Placement:</it><br>
+Obviously, presignals are supposed to be placed en route at a distance before the signals they should warn for. The most optimum distance of a presignal in front of its signal (or signal group if it uses absolute block), is the same distance as the braking distance of the train with the longest braking distance.
+<br><br><br><br>
+
+<em>Multiple aspect signals</em><br>
+Signals which have presignals integrated into the stopsignal will get additional aspects and are called "Multiple aspect signals". A signal may have up to 5 aspects:<br>
+1 - <it>DANGER</it>: Stop in front of signal<br>
+2 - <it>CLEAR</it>: Proceed, expect next signal(s) to be at clear<br>
+3 - <it>CAUTION</it>: Proceed, but next signal will be at danger<br>
+4 - <it>PRELIMINARY CAUTION</it>: Proceed, but second next signal will be at danger<br>
+5 - <it>ADVANCED CAUTION</it>: Proceed, buth third next signal will be at danger<br>
+Note to the 2-CLEAR aspect: The number of free blocks ahead depends on wether this is a 3,4 or 5 aspect signal.<br><br>
+
+Multiaspect signals are mostly used with the "track circuit block" system and also possibly the "cab signal" system, however other working methods also make use of more than two aspects:<br><br>
+
+- <it>"Absolute block":</it><br>
+The absolute block system uses a signal that is also called a <em>"Combined signal"</em>. This is a three aspect signal, and the third aspect (CAUTION) is controlled from the next signalbox on the line. For this functionality to work, the next signalbox must also be in range of the combined signal, otherwise no presignal aspects are shown.<br><br>
+
+- <it>"Time intevall":</it><br>
+The "Time intervall" system uses a signal with three states (also called a <em>"Vane signal"</em>). It is clear at default, and will set to danger whenever a train is passing. The states of the signal is then determined by the time since the last train passed the signal:<br>
+1 - <it>DANGER</it>: Less than 5 in-game minutes since last train: Stop<br>
+2 - <it>CAUTION</it>: More than 5 minutes since last train: Proceed at half line speed or half the signal's sighting speed<br>
+3 - <it>CLEAR</it>: More than 10 minutes since last train: Proceed at full speed<br><br>
+
+
+<it>Placement:</it><br>
+If the signals are set too close to each other, the train might not be able to drive at its full potential due to its braking distance beeing too long. However, if they are spaced out too much, you potentially loose capacity on your tracks.<br>
+The optimum distance between multiple aspect signals are for:<br>
+- <it>Three aspect signals:</it> longest braking distance of a train.<br>
+- <it>Four aspect signals:</it> longest braking distance of a train, divided in 2.<br>
+- <it>Five aspect signals:</it> longest braking distance of a train, divided in 3.<br>
+The brake distance of a convoy is shown as "brakes from maxspeed" in the <a href="depot.txt">vehicle depot</a>.
+<br><br><br><br>
+
+
+<em>Cab signals</em><br>
+The cab signals represents the ballisers that are on the real world tracks. Trains passing a "cab signal" automatically have the nessecary equipment onboard.<br>
+The cab signals are raizing the sighting distance to unlimited, thus eliminating the need for any presignalling. Otherwise they are threated exactly as normal two aspect track circuit block signals, but due to their unlimited sighting distance, they are in effect unlimited-aspect signals!<br>
+Some paksets have visible states of the signals, other dont.<br>
+1 - <it>DANGER</it>: Stop in front of signal<br>
+2 - <it>CLEAR</it>: Proceed<br><br>
+
+<it>Placement:</it><br>
+Cab signals are placed like normal track circuit block signals. You can replace any normal 2,3,4 or 5 aspect signal with a cab signal.<br>
+Distance for optimum capacity is the longest braking distance of a train.
+
+<br><br><br><br>
+
+<em>Moving block signals</em><br>
+When a train passes a moving block signal (or beacon), it will drive in the "moving block" working mode. After having passed such a signal or beacon, the train will remain in this working mode until it passes another type of signal (eg a track circuit signal), stops at a station or gets beyond the reach of the last passed beacon (both last cases will make it go to "drive by sight").
+<br><br>
+<it>Placement:</it><br>
+A beacon should be placed on the entrence of a doubble tracked line. If there are stations along the line, the train need to pass a new beacon again.
+If using single tracked lines, be carefull to create a directional reservation BEFORE the train enters the single track, alternatively, use a block reservation (eg a cab signal) at the end of passing loop to create a red reservation until a bidirectional moving block beacon, otherwise deadlocks may arize.
+<br><br><br><br>
+
+<em>Choose signals</em><br>
+Choose signals serves two functions: They will guide the train to an empty platform at the station, and they will guide a train through a station if the mainline route is occupied. To make use of this second function, you need to place an <it>end of choose</it> sign outside all the exits of the station.<br>
+When a train approaches the choose signal, it will try to book a route all the way till its destination platform or the "end of choose" sign, whichever is encountered first. If succeded, the appropriate <it>(main route)</it> message is given to the train. If the initial attempt fails, the choose signal tries to book a route to an alternative platform, or via an alternative route to the end of choose sign. If the second attempt is succesfull, the appropriate <it>(subsidiary route)</it> message is given to the train. If second attempt also failed, it will show DANGER until any route is free.<br>
+The choose signal may also be a multiple aspect signal with the same number of aspects as a normal signal.<br><br>
+
+The titles of the states (DANGER, CLEAR, CAUTION, PRELIMINARY- and ADVANVED CAUTION) are the same as for normal signals:<br>
+1 - <it>DANGER</it> -<br>
+2a - <it>CLEAR (subsidiarey route)</it> -<br>
+2b - <it>CLEAR (main route)</it> -<br>
+3a - <it>CAUTION (subsidiarey route)</it> -<br>
+3b - <it>CAUTION (main route)</it> -<br>
+4a - <it>PRELIMINARY CAUTION (subsidiarey route)</it> -<br>
+4b - <it>PRELIMINARY CAUTION (main route)</it> -<br>
+5a - <it>ADVANCED CAUTION (subsidiarey route)</it> -<br>
+5b - <it>ADVANCED CAUTION (main route)</it> -<br>
+Note to the CLEAR aspect: The number of free blocks ahead depends on wether this is a 2,3,4 or 5 aspect signal, just like a normal multi aspect signal.<br>
+Also note that if a 3- or more aspect choose signal is guiding a train to a platform, it will show CAUTION, even if the track is clear behind the station (a 2 aspect choose signal will obviously show CLEAR)<br><br>
+
+<it>Placement:</it><br>
+Choose signals should be placed before the entrance of a station, or before the entrance to the tracks it is "controlling", preferabley so trains waiting at the signal will not block any outgoing trains.<br>
+If you have built a complex station with platforms after each other with junctions in between, choose signals can be used at platform ends to find a free route out of the station, however, it can also lead to strange routes if station is poorly designed.<br>
+It is worth investigating how many aspects the choose signal should have. If it is facing a terminus station, there is no need for more than a two aspect choose signal. But if the tracks continue behind the station, one can pick a choose signal with more aspects if traffic demands it.
+<br><br><br><br>
+
+<em>Permissive signals</em><br>
+Permissive signals is used to increase line capacity by letting more trains be inside the same block at once.<br>
+When a train has come to a stand at a signal at danger with permissive possibilities, it will be given a "CALL ON" aspect after which it will proceed in drive by sight mode. This allows multiple trains to enter a section, which might be useful in busy goods loops, or low speed high density urban passenger lines. NOTE that the permissive possibility is only allowed when the signal controls a section of unidirectional track with no junctions. If there are junctions, the permissive functionality is disabled and the signal works as an ordinary signal.<br><br>
+Some signals do not show a visible call on aspect: in this case, they will continue to show a danger aspect when the train passes.<br>
+In Pak128.Britain-Ex, the sighting speed for the permissive signals is lower than other signals, so there is a real disadvantage in placing them where they do not work as such.<br><br>
+
+A permissive signal can have up to a total of six states:<br>
+1 - <it>DANGER</it>: Stop in front of signal<br>
+2 - <it>CLEAR</it>: Proceed, (expect next signal(s) to be clear)<br>
+3 - <it>CAUTION</it>: Proceed, but next signal will be at danger<br>
+4 - <it>PRELIMINARY CAUTION</it>: Proceed, but second next signal will be at danger<br>
+5 - <it>ADVANCED CAUTION</it>: Proceed, buth third next signal will be at danger<br>
+6 - <it>CALL ON</it>: Proceed at drive by sight<br><br>
+Note to the CLEAR aspect: The number of free blocks ahead depends on wether this is a 2,3,4 or 5 aspect signal, just like a normal multi aspect signal.<br><br>
+
+<it>Placement:</it><br>
+Permissive signals should be placed where there is no risk at encounting head on traffic, eg at double tracks.<br>
+They should NOT be placed before any junctions, otherwise it will not let trains pass in drive by sight.<br>
+Multi aspect permissive signals should be placed using the same formula as for normal multi aspect signals.
+<br><br><br>
+<p>
+<em>Directional reservations</em><br>
+A directional reservation is created when a train books a route to a bidirectional signal. The directional reservation is then created behind that signal and only ends at the next <it>oneway sign</it>. The working methods that supports directional reservation (and bidirectional signals) are:<br> track circuit block, cab signalling and moving block.<br><br>
+
+<it>How to use:</it><br>
+This is how to make a failproof directional reservation:<br>
+- At the end of the passing loop, put a singlefaced cab- or track circuit signal (NOT a moving block signal).<br>
+- Put a bidirectional cab-, track circuit- or moving block signal as the first signal the train will pass.<br>
+- Make sure that both ends of the single tracked stretch have this setup.
+</p>
+<br><br><br><br>

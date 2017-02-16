@@ -11,28 +11,28 @@
 #include "../obj_node_info.h"
 
 #include "pedestrian_reader.h"
-#include "../../dataobj/pakset_info.h"
+#include "../../network/pakset_info.h"
 
 /*
  *  Autor:
  *      Volker Meyer
  */
-void pedestrian_reader_t::register_obj(obj_besch_t *&data)
+void pedestrian_reader_t::register_obj(obj_desc_t *&data)
 {
-	fussgaenger_besch_t *besch = static_cast<fussgaenger_besch_t  *>(data);
+	pedestrian_desc_t *desc = static_cast<pedestrian_desc_t  *>(data);
 
-	fussgaenger_t::register_besch(besch);
+	pedestrian_t::register_desc(desc);
 
 	checksum_t *chk = new checksum_t();
-	besch->calc_checksum(chk);
-	pakset_info_t::append(besch->get_name(), chk);
+	desc->calc_checksum(chk);
+	pakset_info_t::append(desc->get_name(), chk);
 }
 
 
 
 bool pedestrian_reader_t::successfully_loaded() const
 {
-	return fussgaenger_t::alles_geladen();
+	return pedestrian_t::successfully_loaded();
 }
 
 
@@ -42,16 +42,15 @@ bool pedestrian_reader_t::successfully_loaded() const
  * compatibility transformations.
  * @author Hj. Malthaner
  */
-obj_besch_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, besch_buf, node.size);
+	ALLOCA(char, desc_buf, node.size);
 
-	fussgaenger_besch_t *besch = new fussgaenger_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
+	pedestrian_desc_t *desc = new pedestrian_desc_t();
 
 	// Hajo: Read data
-	fread(besch_buf, node.size, 1, fp);
-	char * p = besch_buf;
+	fread(desc_buf, node.size, 1, fp);
+	char * p = desc_buf;
 
 	// Hajo: old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
@@ -61,8 +60,16 @@ obj_besch_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(version == 0) {
 		// old, nonversion node
-		besch->gewichtung = v;
+		desc->chance = v;
+
+		// This was a spare datum set to zero on all older versions
+		uint16 intro = decode_uint16(p);
+		if (intro > 0)
+		{
+			desc->intro_date = intro;
+			desc->obsolete_date = decode_uint16(p);
+		}
 	}
-	DBG_DEBUG("pedestrian_reader_t::read_node()","version=%i, gewichtung",version,besch->gewichtung);
-	return besch;
+	DBG_DEBUG("pedestrian_reader_t::read_node()","version=%i, chance",version,desc->chance);
+	return desc;
 }

@@ -15,17 +15,17 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	//       as marker because formerly nodes were unversionend
 	uint16 version = 0x8003;
 
-	// This is the overlay flag for Simutrans-Experimental
+	// This is the overlay flag for Simutrans-Extended
 	// This sets the *second* highest bit to 1. 
 	version |= EXP_VER;
 
-	// Finally, this is the experimental version number. This is *added*
+	// Finally, this is the extended version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
 	version += 0x100;
 
 	int pos = 0;
-	uint32 len = 3; // Should end up as 11 for Experimental version 1 combined with Standard version 3.
+	uint32 len = 3; // Should end up as 11 for Extended version 1 combined with Standard version 3.
 
 	// Used only for the old fixed values (no fare stages)
 	const uint16 value = obj.get_int("value", 0);

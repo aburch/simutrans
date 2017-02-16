@@ -8,16 +8,20 @@
 /*
  * A text display component
  *
- * @autor Hj. Malthaner
+ * @author Hj. Malthaner
  */
 
 #include <string.h>
 
 #include "gui_textarea.h"
-#include "../../simgraph.h"
+#include "../../display/simgraph.h"
 #include "../../simdebug.h"
 #include "../../simcolor.h"
+#include "../../simskin.h"
+#include "../gui_theme.h"
 #include "../../utils/cbuffer_t.h"
+
+#define L_PADDING_RIGHT (10)
 
 gui_textarea_t::gui_textarea_t(const char* text)
 {
@@ -50,17 +54,18 @@ void gui_textarea_t::set_text(const char *const text)
 	}
 }
 
-
 // recalcs the current size;
 // usually not needed to be called explicitly
 void gui_textarea_t::recalc_size()
 {
 	const char *text(*buf);
+
 	// we cannot use: display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, COL_BLACK);
 	// since we also want to dynamically change the size of the component
 	int new_lines=0;
 	int x_size = 1;
-	if (text!=NULL   &&   *text!= '\0') {
+
+	if (  (text != NULL)  &&  (*text != '\0')  ) {
 		const char *buf=text;
 		const char *next;
 
@@ -75,25 +80,26 @@ void gui_textarea_t::recalc_size()
 			new_lines += LINESPACE;
 		} while(  next != NULL  &&  *buf!=0  );
 	}
-DBG_MESSAGE("gui_textarea_t::recalc_size()","reset size to %i,%i",x_size+10,new_lines);
-	set_groesse(koord(x_size+10,new_lines+10));
+DBG_MESSAGE("gui_textarea_t::recalc_size()","reset size to %i,%i",x_size+L_PADDING_RIGHT,new_lines);
+	set_size( scr_size( x_size + L_PADDING_RIGHT, new_lines + 10) );
 }
-
 
 
 /**
  * Draw the component
  * @author Hj. Malthaner
  */
-void gui_textarea_t::zeichnen(koord offset)
+void gui_textarea_t::draw(scr_coord offset)
 {
 	const char *text(*buf);
+
 	// we cannot use: display_multiline_text(pos.x+offset.x, pos.y+offset.y+10, text, COL_BLACK);
 	// since we also want to dynamically change the size of the component
 	int new_lines=0;
+
 	// keep previous maximum width
-	int x_size = get_groesse().x-10;
-	if (text!=NULL   &&   *text!= '\0') {
+	int x_size = get_size().w - L_PADDING_RIGHT;
+	if (  (text != NULL)  &&  (*text != '\0')  ) {
 		const char *buf=text;
 		const char *next;
 		const sint16 x = pos.x+offset.x;
@@ -101,9 +107,9 @@ void gui_textarea_t::zeichnen(koord offset)
 
 		do {
 			next = strchr(buf, '\n');
-			if(pos.y+new_lines+LINESPACE>=0) {
+			if(  pos.y + new_lines + (LINESPACE >= 0)  ) {
 				const int len = next != NULL ? (long)(size_t)(next - buf) : -1;
-				int px_len = display_text_proportional_len_clip(x, y + new_lines, buf, ALIGN_LEFT | DT_DIRTY | DT_CLIP, COL_BLACK, len);
+				int px_len = display_text_proportional_len_clip(x, y + new_lines, buf, ALIGN_LEFT | DT_CLIP, SYSCOL_TEXT, true, len);
 				if(px_len>x_size) {
 					x_size = px_len;
 				}
@@ -112,8 +118,8 @@ void gui_textarea_t::zeichnen(koord offset)
 			new_lines += LINESPACE;
 		} while(  next != NULL  &&  *buf!=0  );
 	}
-	koord gr(max(x_size+10,get_groesse().x),new_lines);
-	if(gr!=get_groesse()) {
-		set_groesse(gr);
+	scr_size size( max( x_size + L_PADDING_RIGHT, get_size().w ), new_lines );
+	if(  size!=get_size()  ) {
+		set_size(size);
 	}
 }

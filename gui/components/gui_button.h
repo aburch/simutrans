@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjorg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -13,10 +13,12 @@
 #define gui_button_h
 
 #include "gui_action_creator.h"
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../simcolor.h"
-#include "../../simimg.h"
+#include "../../dataobj/koord.h"
+#include "../../display/simimg.h"
 
+class karte_ptr_t;
 
 /**
  * Class for buttons in Windows
@@ -26,66 +28,34 @@
  */
 class button_t :
 	public gui_action_creator_t,
-	public gui_komponente_t
+	public gui_component_t
 {
+
 public:
-	/*
-	 * if there is a skin, those are the button ids used then
-	 */
-	static image_id square_button_pushed;
-	static image_id square_button_normal;
-	static image_id arrow_left_pushed;
-	static image_id arrow_left_normal;
-	static image_id arrow_right_pushed;
-	static image_id arrow_right_normal;
-	static image_id arrow_up_pushed;
-	static image_id arrow_up_normal;
-	static image_id arrow_down_pushed;
-	static image_id arrow_down_normal;
-
-	// these are optional: buttons made out of graphics
-	static image_id b_cap_left;
-	static image_id b_body;
-	static image_id b_cap_right;
-
-	static image_id b_cap_left_p;
-	static image_id b_body_p;
-	static image_id b_cap_right_p;
-
-	// these are optional: scrollbars horizontal ...
-	static image_id scrollbar_left;
-	static image_id scrollbar_right;
-	static image_id scrollbar_middle;
-
-	static image_id scrollbar_slider_left;
-	static image_id scrollbar_slider_right;
-	static image_id scrollbar_slider_middle;
-
-	// these are optional: ... and scrollbars vertical
-	static image_id scrollbar_top;
-	static image_id scrollbar_bottom;
-	static image_id scrollbar_center;
-
-	static image_id scrollbar_slider_top;
-	static image_id scrollbar_slider_bottom;
-	static image_id scrollbar_slider_center;
-
 	/* the button with the postfix state do not automatically change their state like the normal button do
 	 * the _state buttons must be changed by the caller!
 	 * _automatic buttons do everything themselves, i.e. depress/release alternately
 	 *
-	 * square: button with text on the right side next to it
-	 * box:  button with is used for many selection purposes; can have colored background
-	 * roundbox: button for "load" cancel and such options
+	 * square:        a checkbox with text on the right side next to it
+	 * box:           button which is used for many selection purposes, can have colored background
+	 * roundbox:      button for "load", "cancel" and such options
 	 * arrow-buttons: buttons with arrows, cannot have text
 	 * repeat arrows: calls the caller until the mouse is released
-	 * scrollbar: well you guess it. Not used by gui_frame_t things ...
+	 * scrollbar:     well you guess it. Not used by gui_frame_t things ...
 	 */
 	enum type {
-		square=1, box, roundbox, arrowleft, arrowright, arrowup, arrowdown, scrollbar_horizontal, scrollbar_vertical, repeatarrowleft, repeatarrowright, posbutton,
+		square=1, box, roundbox, arrowleft, arrowright, arrowup, arrowdown, repeatarrowleft, repeatarrowright, posbutton,
 		square_state=129, box_state, roundbox_state, arrowleft_state, arrowright_state, arrowup_state, arrowdown_state, scrollbar_horizontal_state, scrollbar_vertical_state, repeatarrowleft_state, repeatarrowright_state,
 		square_automatic=257
 	};
+
+protected:
+	/**
+	 * Hide the base class init() version to force use of
+	 * the extended init() version for buttons.
+	 * @author Max Kielland
+	 */
+	using gui_component_t::init;
 
 private:
 	/**
@@ -108,32 +78,34 @@ private:
 	 * direct access provided to avoid translations
 	 * @author Hj. Malthaner
 	 */
-	struct { sint16 x,y; } targetpos;
-	const char * text;
- 	const char *translated_text;
+	union {
+		const char * text;
+		struct { sint16 x,y; } targetpos;
+	};
+	const char *translated_text;
 
-	// private function for displaying buttons or their replacement
-	void display_button_image(sint16 x, sint16 y, int number, bool pushed) const;
+	// any click will go to this world
+	static karte_ptr_t welt;
 
-	// draw a rectangular button
-	void draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool pressed);
+	void draw_focus_rect( scr_rect, scr_coord_val offset = 1);
 
-	// scrollbar either skinned or simple
-	void draw_scrollbar(sint16 x, sint16 y, sint16 w, sint16 h, bool horizontal, bool slider);
+	// Hide these
+	button_t(const button_t&);        // forbidden
+	void operator =(const button_t&); // forbidden
 
 public:
-	static void init_button_images();	// must be called at least once after loading skins
-
-	PLAYER_COLOR_VAL background; //@author hsiegeln
-	PLAYER_COLOR_VAL foreground;
+	COLOR_VAL background_color; //@author hsiegeln
+	COLOR_VAL text_color;
 
 	bool pressed;
+	scr_coord_val text_offset_x;
 
 	button_t();
 
-	void init(enum type typ, const char *text, koord pos, koord size = koord::invalid);
+	void init(enum type typ, const char *text, scr_coord pos=scr_coord(0,0), scr_size size = scr_size::invalid);
 
 	void set_typ(enum type typ);
+	enum type get_type() const { return this->type; }
 
 	const char * get_text() const {return text;}
 
@@ -147,7 +119,7 @@ public:
 	 * Get/Set text to position
 	 * @author prissi
 	 */
-	void set_targetpos(const koord k ) { this->targetpos.x = k.x; this->targetpos.y = k.y; }
+	void set_targetpos(const koord k ) { targetpos.x = k.x; targetpos.y = k.y; }
 
 	/**
 	 * Set the displayed text of the button when not to translate
@@ -174,22 +146,18 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 
-	void enable() { b_enabled = true; }
+	void enable(bool true_false_par = true) { b_enabled = true_false_par; }
 
-	void disable() { b_enabled = false; }
+	void disable() { enable(false); }
 
 	bool enabled() { return b_enabled; }
 
 	// Knightly : a button can only be focusable when it is enabled
-	virtual bool is_focusable() { return b_enabled && gui_komponente_t::is_focusable(); }
+	virtual bool is_focusable() { return b_enabled && gui_component_t::is_focusable(); }
 
 	void update_focusability();
 
-private:
-	button_t(const button_t&);        // forbidden
-	void operator =(const button_t&); // forbidden
 };
-
 #endif

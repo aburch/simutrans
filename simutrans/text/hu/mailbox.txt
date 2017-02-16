@@ -1,0 +1,30 @@
+<title>Postaláda/Postaláda opciók Sugó</title>
+
+<h1>Postaláda/Postaláda opciók</h1>
+<p>
+A játék során felbukkanó összes üzenet itt mentõdik. Ugyanakkor itt tudod beállítani azt, hogy mirõl és hogyan kérsz figyelmeztetést.
+</p>
+<p>
+Az <em>Opciók</em> gomb a "Postaláda opciók" nevû ablakot hozza fel. Itt lehet beállítani, hogy a különbözõ események üzenetei hogyan jelenjenek meg. Alapvetõen három módot lehet beállítani:
+<br>
+1. A kis bal oldali kocka aktiválása az jelenti, hogy az üzenetek futó szövegként a játék fõ ablakának alján jelennek meg (scroll text).
+<br>
+2. A közbelsõ kocka aktiválása azt jelenti, hogy az üzenetek egy felugró ablakban jelennek meg, amit csakis kézzel lehet lezárni.
+<br>
+3. A jobb kis kocka aktiválása azt jelenti, hogy az üzenetek egy felugró ablakban jelennek meg ami egy idõ után magától lezáródik.
+</p>
+<p>
+From top to bottom, the following messages are adjustable:<br>
+-<em>Új év:</em> Üzenet küldése új év kezdetekor.<br>
+-<em>AI (mesters. int.):</em> Üzenet a számítógép álltal vezérelt játékos (AI) új vonaláról.<br>
+-<em>Új város:</em> Üzenet nagyobb városháza építésekor.<br>
+-<em>Eltévedt jármû:</em> Üzenet olyan jármûvekrõl, melyek nem találják az utat.<br>
+-<em>Új ipari egység:</em> Üzenet új ipari lánc kialakításáról.<br>
+-<em>Turisták:</em> Üzenet új turista atrakció vagy emlékmû építésérõl.<br>
+-<em>Új jármû:</em> Üzenet új jármû érkezésérõl.<br>
+-<em>Tároló telítvel:</em> Üzenet a túlterhelt megállókról.<br>
+-<em>Egyéb problémák:</em> Üzenet egyébb kritikus hibákról.
+</p>
+<p>
+Minden egyes üzenetkor, az üzenetre vagy az üzenet melletti képre kattintva ráugrasz a problémás területre.
+</p>

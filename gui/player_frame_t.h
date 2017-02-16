@@ -3,8 +3,8 @@
  * Hj. Malthaner, 2000
  */
 
-#ifndef gui_spieler_h
-#define gui_spieler_h
+#ifndef gui_player_h
+#define gui_player_h
 
 #include "../simconst.h"
 
@@ -15,7 +15,6 @@
 #include "components/action_listener.h"
 #include "../utils/cbuffer_t.h"
 
-class karte_t;
 
 /**
  * Menu for the player list
@@ -45,10 +44,8 @@ private:
 
 	button_t	freeplay;
 
-	static karte_t *welt;
-
 public:
-	ki_kontroll_t(karte_t *welt);
+	ki_kontroll_t();
 	~ki_kontroll_t();
 
 	/**
@@ -56,7 +53,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_hilfe_datei() const {return "players.txt";}
+	const char * get_help_filename() const {return "players.txt";}
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -64,13 +61,13 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord pos, koord gr);
+	void draw(scr_coord pos, scr_size size);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	/**
 	 * Updates the dialogue window after changes to players states
-	 * called from wkz_change_player_t::init
+	 * called from tool_change_player_t::init
 	 * necessary for network games to keep dialogues synchronous
 	 * @author dwachs
 	 */

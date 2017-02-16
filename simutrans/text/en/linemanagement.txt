@@ -1,0 +1,130 @@
+<title>Line Management Help</title>
+
+<h1><strong>Line Management</strong></h1>
+
+<p>
+The <strong>line management</strong> window provides information and controls to manage <em>lines</em>. Lines are used to assign identical <a href="schedules.txt">schedules</a> to multiple convoys, and view aggregate statistics about the overall performance of all convoys in that line.
+</p>
+<p>
+Lines consist of an ordered list of <a href="station.txt">stops</a>, where vehicles pick up and drop off goods and passengers, and waypoints. Water transport vehicles may use any square of water in the catchment area of a dock as the stop.
+</p>
+<p>
+Click on the line management icon in the toolstrip at top of the main window, or press <a href="keys.txt">[w]</a> to open the <strong>line management</strong> window, which can be <a href="mouse.txt">re-sized</a> (click on the down-arrow in titlebar to return to the original size).
+</p>
+<p>
+The left hand side of the <strong>Line Management</strong> window lists existing lines. To scroll the list, use the slider bar on right. The lines can be filtered by transport type: to do so, click on a index-tab above list to select:<br>
+<em>All</em>: lists lines for all vehicles.<br>
+<em>Train</em>: lists Lines for all standard gauge railway vehicles.<br>
+<em>Narrow gauge</em>: lists Lines for all narrow gauge railway vehicles.<br>
+<em>Monorail</em>: lists lines for all monrail vehicles.<br>
+<em>Maglev</em>: lists lines for all magnetic levitation vehicles.<br>
+<em>Tram</em>: lists lines for all trams.<br>
+<em>Truck</em>: lists lines for all road vehicles.<br>
+<em>Ship</em>: lists lines for all water transport vehicles.<br>
+<em>Air</em>: lists lines for all aircraft.
+</p>
+<p>
+<em>Note</em>: Depending on the pak set installed, not all of the above transportation types might be visible.
+</p>
+<p>
+The names of the lines appear in different colours depending on their status:<br>
+<it>White</it> - no convoys assigned to the line<br>
+<it>Yellow</it> - not operational, not generating profit or loss<br>
+<it>Black</it> - normal: generating some profit<br>
+<it>Blue</it> - some vehicles in the line are obsolete<br>
+<it>Red</it> - the line is making a loss<br>
+<it>Purple</it> - overcrowded<br>
+<p>
+Under the list of existing lines are option buttons for managing lines.<br>
+Click on a line in the list to select (highlights name) and see information about <a href="station.txt">stops</a>, income, and <a href="convoiinfo.txt">convoys</a> on selected line.<br>
+If details about Stops or Convoys are only partially visible then re-size <strong>Line Management</strong> or use slider bars to scroll information.
+</p>
+<p>
+The Option buttons, on the left, include (click to select):
+</p>
+<p>
+<em>New Line:</em>option opens controls to define a <a href="schedule.txt">Schedule</a> for a new line.<br>
+Add as many <a href="station.txt">Stops</a> or waypoints required, set Wait For levels as required, then close Schedule Controls to create new Line (click <strong>x</strong> in the top-left hand corner of controls or use keyboard). The new line will be assigned a number and listd in the <strong>Line Management</strong> window.
+<p>
+<em>Tip</em>: Select transport type using the appropriate tab before creating a new line. Vehicles do not pick up or drop off goods or passengers at waypoints.
+</p>
+<p>
+<em>Update Line:</em> opens controls to alter and manage the existing <a href="schedule.txt">Schedule</a> (route and minimum quantity of goods and passengers required by a <a href="convoiinfo.txt">Convoy</a> to proceed) of a Line. Changes will affect vehicles on line, once Schedule Controls have been closed (click x in top-left-hand corner).<br>
+Click on a Line name in list to select (highlights name) then click on option button to open Schedule Controls.
+</p>
+<p>
+<em>Delete Line:</em> deletes the selected line.<br>
+Click on line name in list to select (highlights name), then click on option button to remove. No further confirmation will be required.
+</p>
+<p>
+When a line is selected, the <a href="station.txt">stops</a> are shown on bottom-left of the <strong>Line Management</strong> window. Click on a stop listd to open its stop Information.<br>
+Items listd for each stop include:<br>
+<em>Status colour bar:</em> colours indicate how overcrowded that <a href="station.txt">stops</a> are. The colour bar is also used in the <a href="haltlist.txt">stop list</a> and stop information  windows, and is the same colour displayed in the colour bar above a stop in the main game window:<br>
+- <em>Yellow:</em> not in service.<br>
+- <em>Green:</em> served, not overcrowded.<br>
+- <em>Orange:</em> slightly overcrowded.<br>
+- <em>Red:</em> very overcrowded.
+</p>
+<p>
+<em>Tip</em>: Use <strong>[!]</strong> to toggle colour-bar above stop in the main game window.
+</p>
+<p>
+<em>Name</em> that has been assigned to Stop.<br>
+<em>Number</em> of Stop (Stops are numbered if option is selected in simuconf.tab).<br>
+<em>Vehicle icon(s)</em> indicate which types of vehicles can use Stop (also used in Stop Information and Station List). Icons include: bus (for road passenger vehicles), truck (for road goods vehicles), train, boat and airplane. Trams can be indicated by a bus-icon or a train-icon depending on type of station.<br>
+<em>Freight icon(s)</em> indicate which items (passengers, goods and mail) a Stop can handle (also used in Stop Information and Station List).
+</p>
+<p>
+<em>Tip</em>: adding appropriate extensions can change the type of items (goods/passengers) that a stop can handle. <a href="special.txt">Post offices</a> can be added to stops to enable handling of mail.
+</p>
+<p>
+<em>Waiting</em> details of different goods and passengers.
+</p>
+<p>
+On the right of the <strong>Line Management</strong> window, there is a graph, a name box and a <a href="convoiinfo.txt">convoy</a> for the selected line.
+</p>
+<p>
+Click on the line name in the list to select (highlights name). Click on option buttons to toggle information about the selected line and the vehicles assigned to it, on the graph (the x-axis is time in months):
+</p>
+<p>
+- <em>Free Capacity</em> - the amount of spare space in vehicle(s) for goods and passengers.
+</p>
+<p>
+- <em>Transported</em> - the quantity of mail, goods and/or passengers that have used the line.
+</p>
+<p>
+- <em>Average speed</em> - the average of the average speeds of all convoys on the line.
+</p>
+<p>
+- <em>Comfort</em> - the average <a href="comfort.txt">comfort</a> of the line.
+</p>
+<p>
+- <em>Revenue</em> - the amount of revenue generated by vehicles.
+</p>
+<p>
+- <em>Running Costs</em> - the cost of maintaining vehicles: both fixed monthly and variable (per kilometre) maintenance costs are included.
+</p>
+<p>
+- <em>Profit</em> - the <a href="finances.txt">revenue</a> generated less costs incurred (revenue less running costs).
+</p>
+<p>
+- <em>Convoys</em> - the number of <a href="convoiinfo.txt">convoys</a> assigned to the line.
+</p>
+<p>
+To <em>rename</em> a line, click on the line name in the list to select it (highlights name), then click on the name box (under the graph options, above the list of convoys) and type the new name.
+</p>
+<p>
+When a line is selected (click on the line name in list to highlight it), the <a href="convoiinfo.txt">convoys</a> assigned to that line are listd below the graph.
+</p>
+<p>
+At the top of the list of vehicles, the total number of convoys assigned to line, profit (proceeds less running costs), capacity, and current quantity of goods and passengers carried (% of full capacity in brackets) of all convoys on line is shown. If the percentage is greater than 100%, the line is overcrowded.
+</p>
+<p>
+Click on an item listd to see more information about that convoy (use slider bar to scroll the list). Items listd for each convoy include:
+</p>
+<p>	
+<em>Name</em> that has been assigned (by default this is make of first vehicle unit <a href="depot.txt">purchased</a> or assembled for Convoy).<br>
+<em>Income</em> shows the line's profit (income generated less operation costs).<br>
+<em>Line:</em> shows the name of line assigned to the cnvoy and indicates if it is in a <a href="depot.txt">depot</a>.<br>
+<em>Graphics</em> show the compostion and the current level of items on board.
+</p>

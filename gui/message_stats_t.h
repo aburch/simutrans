@@ -8,21 +8,19 @@
 #ifndef message_stats_t_h
 #define message_stats_t_h
 
-#include "components/gui_komponente.h"
-#include "../simimg.h"
+#include "components/gui_component.h"
+#include "../display/simimg.h"
 #include "../simmesg.h"
 #include "../tpl/slist_tpl.h"
 
-class karte_t;
 
 /**
  * City list stats display
  * @author Hj. Malthaner
  */
-class message_stats_t : public gui_komponente_t
+class message_stats_t : public gui_world_component_t
 {
 private:
-	karte_t *welt;
 	message_t *msg;
 	sint32 message_type;								// Knightly : message type for filtering; -1 indicates no filtering
 	uint32 last_count;
@@ -31,8 +29,8 @@ private:
 	slist_tpl<message_t::node *> filtered_messages;		// Knightly : cache the list of messages belonging to a certain type
 
 public:
-	message_stats_t(karte_t *welt);
-	virtual ~message_stats_t() { filtered_messages.clear(); }
+	message_stats_t();
+	~message_stats_t() { filtered_messages.clear(); }
 
 	/**
 	 * Filter messages by type
@@ -44,15 +42,15 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	* Recalc the current size required to display everything, and set komponente groesse
-	*/
+	 * Recalc the size required to display everything and set size.
+	 */
 	void recalc_size();
 
 	/**
-	 * Zeichnet die Komponente
+	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 };
 
 #endif

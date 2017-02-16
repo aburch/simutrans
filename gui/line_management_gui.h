@@ -4,25 +4,24 @@
  * 01/12/2003
  */
 
-#include "fahrplan_gui.h"
+#include "schedule_gui.h"
 
 #include "../linehandle_t.h"
 
-class spieler_t;
-class karte_t;
+class player_t;
 class loadsave_t;
 
-class line_management_gui_t : public fahrplan_gui_t
+class line_management_gui_t : public schedule_gui_t
 {
 public:
-	line_management_gui_t(linehandle_t line, spieler_t* sp);
+	line_management_gui_t(linehandle_t line, player_t* player);
 	virtual ~line_management_gui_t();
 	const char * get_name() const;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	// stuff for UI saving
-	line_management_gui_t(karte_t *welt);
+	line_management_gui_t();
 	virtual void rdwr( loadsave_t *file );
 	virtual uint32 get_rdwr_id() { return magic_line_schedule_rdwr_dummy; }
 

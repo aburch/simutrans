@@ -1,0 +1,114 @@
+<title>Depot Controls Help</title>
+
+<h1><strong>Depot Controls</strong></h1>
+
+<p>
+Depots are used to purchase and manage vehicles and convoys. Different types of transport have their own depot. Electric vehicles may only be purchased from a depot that is on an electrified way, which is indicated by a red lightning flash in the top right hand corner. If playing with the <a href="new_world.txt">timeline</a> turned on, then, as time passes, in Simutrans more vehicles may become available.
+</p>
+<p>
+Tools for the construction of different depots are available from the construction toolbar for the respective type of transport: <a href="railtools.txt">railway depots</a>; <a href="narrowgaugetools.txt">narrow gauge railway depots</a>, <a href="monorailtools.txt">monorail depots</a>; <a href="maglevtools.txt">maglev depots</a>;  <a href="tramtools.txt">tram depots</a>; <a href="roadtools.txt">road garages</a>; <a href="shiptools.txt">shipyards</a>; and <a href="airtools.txt">aircraft hangars</a>.
+</p>
+<p>
+Click on a depot in the main game window with the <a href="inspection_tool.txt">inspection tool</a> to open the <strong>depot controls</strong> window. The <strong>depot controls</strong> window provides information about and allows the purchase, sale, upgrading and management of <a href="convoiinfo.txt">convoys</a>. The title bar of the <strong>depot controls</strong> window indicates which type of vehicle transport that the depot serves.
+</p>
+<p>
+<strong>Depot Controls</strong> can be <a href="mouse.txt">re-sized</a> (click on down-arrow on titlebar of controls to return to original size).<br>
+Click on left/right-arrows on titlebar to cycle through depots of the same transport type (centres the main game window on depot).
+</p>
+<p>
+At the top of <strong>Depot Controls</strong> the number of <a href="convoiinfo.txt">Convoys</a> in depot, Convoy name and <a href="linemanagement.txt">Line</a> is shown.
+</p>
+<p>
+<a href="convoiinfo.txt"><em>Convoy</em></a> <em>Name:</em> Click on left/right-arrow buttons by Convoy Name to cycle through Convoys in depot.<br>
+To change Convoy Name: click on convoy-name box and type new name (by default this is make of first the vehicle purchased or assembled for a new Convoy).
+</p>
+<p>
+<a href="linemanagement.txt"><em>Line</em></a> <em>Name:</em> Click on left/right-arrow buttons by name to select Lines for transport type of depot or click on line-name box to open a drop-down-list of Lines (click on Line in drop-down-list to select).<br>
+To change Line Name: click on line-name box and type new name. (by default this is assigned number when Line is created).
+</p>
+<p>
+<em>Current convoy (graphic)</em> Below the convoy and line name boxes, a picture of the selected (if any) convoy is shown. Move the mouse over a the picture of the vehicle in the selected convoy to see details about that vehicle (shown at bottom of the <strong>depot controls</strong> window). Click on a the vehicle in the picture of the convoy to remove it from the selected convoy and store it in the depot.
+</p>
+<p>
+Below the graphic, the number of vehicles in the selected convoy, the length of the Convoy, and any assigned lLine are shown. The length is important because, if a convoy is too long for a stop, the vehicles at the back will be left out of the stop and will not be able to load/unload there.
+</p>
+<p>
+Option buttons (click to use) include:
+</p>
+<p>
+<em>Start:</em> sends the selected <a href="convoiinfo.txt">convoy</a> out of the depot if a route can be found.
+</p>
+<p>
+<a href="schedule.txt"><em>Schedule:</em></a> opens controls to change the route and quantity of items that a <a href="convoiinfo.txt">convoy</a> will wait for at a <a href="station.txt">Stop</a>.
+</p>
+<p>
+<em>Disassemble:</em> puts the vehicle unit(s) in selected <a href="convoiinfo.txt">convoy</a> into storage in the depot.
+</p>
+<p>
+<em>Sell:</em> sells the current <a href="convoiinfo.txt">convoy</a>, realising the <em>resale value</em>.
+</p>
+<p>
+<a href="linemanagement.txt"><em>New Line:</em></a> opens controls to define a <a href="schedule.txt">Schedule</a>, which may be used for multiple <a href="convoiinfo.txt">Convoys</a>.
+</p>
+<p>
+<em>Apply Line:</em> assigns the <a href="linemanagement.txt">Line</a> displayed in line name box at the top of the <strong>Depot Controls</strong> window to the selected <a href="convoiinfo.txt">Convoy</a>.
+</p>
+<p>
+<a href="linemanagement.txt"><em>Update Line:</em></a> opens controls to modify the <a href="schedule.txt">Schedule</a> of the selected line.
+</p>
+<p>
+<em>Copy</em> <a href="convoiinfo.txt"><em>convoy:</em></a> purchases and assembles another convoy with an identical compostion, <a href="schedule.txt">schedule</a> and <a href="linemanagement.txt">line</a> to the selected convoy.
+</p>
+<p>
+<em>The vehicles:</em> are split into categories, which can be viewed by clicking on the appropriate tabs. The tabs divide the vehicles into the following groups: vehicles for passengers and mail, other powered (motorised) vehicles, and unpowered trailers/carriages. If the depot is electrified (shown by a red lightning flash in the top-right hand corner), there will also be a separate tab for powered electric units (called "trolleybuses" if the depot is a road depot). A white number over the picture of the vehicle indicates the quantity of that type of vehicle stored at the depot. Stored vehicles can be sold or are used when a new convoy is assembled.
+</p>
+<p>
+Move the mouse over a the pictures of the vehiclea to see information about those vehicles:<br>
+<em>Name:</em> and in brackets type of power used for motorised vehicles;<br>
+<em>Cost:</em> the purchase price and in brackets operation cost per kilometre and per month;<br>
+<em>Power:</em> tje engine power and maximum speed for motorised vehicles;<br>
+<em>Capacity:</em> the quantity and <a href="goods_filter.txt">category</a> of items that can be carried by the vehicle. If the vehicle has an overcrowded (standing) capacity, this will be shown in brackets;<br>
+<em>Loading time:</em> how long that it takes the vehicle to load and unload at stops;</br>
+<em>Comfort:</em> how <a href="comfort.txt">comfortable</a> that the vehicle is for passengers to use (0 - 255);<br>
+<em>Weight:</em> in metric tonnes;<br>
+<em>Top speed:</em> the fastest speed at which the vehicle can travel;<br>
+<em>Intro. date:</em> the date on which the vehicle becomes available if the <a href="new_world.txt">timeline</a> is turned on;<br>
+<em>Retire date:</em> the date on which the vehicle becomes obsolete if the <a href="new_world.txt">timeline</a> is turned on;<br>
+<em>Constructed by:</em> the name of the person who created the vehicle for Simutrans;<br>
+<em>Gear:</em> the factor by which the power is multiplied in the game;<br>
+<em>Resale Value:</em> the amount of money that can be realised by selling the vehicle now;<br>
+<em>Tilting vehicles:</em> whether the vehicle can tilt in order to take corners at higher speed; and<br>
+<em>Catering level:</em> if this vehicle provides <a href="catering.txt">catering</a> facilities for passengers, the level at which it does so.
+</p>
+<p>
+Click on a vehicle graphic to purchase, upgrade to or sell it depending on settings described below at the bottom left of the <strong>depot controls</strong> window. There are two drop-down menus underneath the word <strong>Vehicles:</strong>. To cycle through either of them, either press the left or right arrows, or click the text to see all the options at once.
+</p>
+<p>
+The first vehicle operations menu has three options:<br>
+<em>Append:</em> purchases a vehicle and adds it to the selected convoy, or, if no convoy is selected, creates a new convoy, and adds it to that.<br>
+<em>Put in front:</em> purchases a vehicle and adds it to front of selected convoy, or, if no convoy is selected, creates a new convoy, and adds it to that.<br>
+<em>Sell Now:</em> sells a stored vehicle of the type selected.<br>
+</p>
+<p>
+The second vehicle operations menu has two options:<br>
+<em>Buy/sell</em>: This is the default mode. Vehicles are either purchased or sold outright.<br>
+<em>Upgrade</em>: In this mode, existing vehicles are upgraded to other vehicles. When this is selected, the cost shown will be the cost of upgrading any existing vehicles to the selected vehicle, not the cost of buying it new. Unless <strong>show all</strong> is selected, only vehicles to which the current vehicle can be upgraded will be shown.</br>
+<p>
+<em>Color bars</em>: under the each vehicle graphic, there are coloured bars, which indicate whether the vehicles can be purchased, upgraded, or used in particular combinations in a <a href="convoiinfo.txt">convoy</a>. Colour bars may change with different settings in the vehicles operations menus.<br>
+Colours indicate:<br>
+- <em>Green:</em> the vehicle can be purchased (or upgraded), and can be used in the present position in the selected convoy.<br>
+- <em>Red:</em> the vehicle cannot be added to the convoy in the present position.<br>
+- <em>Yellow</em> another vehicle must be placed in front or behind to make an operational convoy.<br>
+- <em>Orange</em> there is not enough money to purchase the vehicle.</br>
+- <em>Blue:</em> the vehicle can be used but is obsolete.<br>
+- <em>Lilac:</em> the vehicle cannot be bought new, only upgraded from an existing vehicle.<br>
+- <em>Purple:</em> the current vehicle cannot be upgraded to this vehicle.<br>
+</p>
+<p>
+A convoy that can be used shows green bars for all the vehicles in it. If any yellow bars are visible, then another vehicle is required next to the one with the yellow bar to make the convoy useable.
+</p>
+<p>
+<em>Show all:</em> by default, only vehicles that can be used and purchased/upgraded are shown. Selecting this option displays all vehicles, whether they can be used or not.
+<p>
+<em>Show obsolete:</em> if playing with a <a href="new_world.txt">timeline</a>, selecting this option displays obsolete vehicles in addition to current vehicles.
+</p>

@@ -21,17 +21,17 @@
 class sound_frame_t : public gui_frame_t, action_listener_t
 {
 private:
-	scrollbar_t digi;
-	scrollbar_t midi;
-	gui_label_t dlabel;
-	gui_label_t mlabel;
-	button_t digi_mute;
-	button_t midi_mute;
-	button_t nextbtn;
-	button_t prevbtn;
-	button_t shufflebtn;
-	gui_label_t curlabel;
-	gui_label_t cplaying;
+    scrollbar_t sound_volume_scrollbar;
+    scrollbar_t music_volume_scrollbar;
+    gui_label_t sound_volume_label;
+    gui_label_t music_volume_label;
+    button_t sound_mute_button;
+    button_t music_mute_button;
+    button_t next_song_button;
+    button_t previous_song_button;
+    button_t shuffle_song_button;
+    gui_label_t song_name_label;
+    gui_label_t current_playing_label;
 
 
 	char song_buf[128];
@@ -39,27 +39,27 @@ private:
 
 public:
 
-	/**
+    /**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
-	 * @author Hj. Malthaner
-	 */
-	const char * get_hilfe_datei() const {return "sound.txt";}
+     * @author Hj. Malthaner
+     */
+    const char * get_help_filename() const {return "sound.txt";}
 
 
-	/**
+    /**
 	 * Constructor. Adds all necessary Subcomponents.
-	 * @author Hj. Malthaner
-	 */
-	sound_frame_t();
+     * @author Hj. Malthaner
+     */
+    sound_frame_t();
 
-	/**
+    /**
 	 * Draw new component. The values to be passed refer to the window
 	 * i.e. It's the screen coordinates of the window where the
 	 * component is displayed.
-	 * @author Hj. Malthaner
-	 */
-	void zeichnen(koord pos, koord gr);
+     * @author Hj. Malthaner
+     */
+    void draw(scr_coord pos, scr_size size);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

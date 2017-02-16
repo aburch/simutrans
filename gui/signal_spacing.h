@@ -1,6 +1,6 @@
 /*
  * Dialogue to set the signal spacing, when CTRL+clicking a signal on toolbar
- * Used by wkz_roadsign_t
+ * Used by tool_build_roadsign_t
  */
 
 #ifndef signal_spacing_h
@@ -12,33 +12,25 @@
 class gui_numberinput_t;
 class button_t;
 class gui_label_t;
-class wkz_roadsign_t;
-class spieler_t;
+class tool_build_roadsign_t;
+class player_t;
 
 class signal_spacing_frame_t : public gui_frame_t, private action_listener_t
 {
-	private:
-		wkz_roadsign_t* tool;
-		gui_numberinput_t signal_spacing_inp;
-		static uint8 signal_spacing;
-		gui_label_t signal_label;
-		button_t remove_button, replace_button;
-		static bool remove, replace;
-		spieler_t *sp;
-	public:
-		signal_spacing_frame_t( spieler_t *, wkz_roadsign_t * );
+private:
+	static uint8 signal_spacing;
+	static bool remove, replace;
+	static koord3d signalbox;
+	player_t *player;
+	tool_build_roadsign_t* tool;
+	gui_numberinput_t signal_spacing_inp;
+	gui_label_t signal_label;
+	button_t remove_button, replace_button;
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 *
-	 * Returns true, if action is done and no more
-	 * components should be triggered.
-	 * V.Meyer
-	 */
+public:
+	signal_spacing_frame_t( player_t *, tool_build_roadsign_t * );
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
-
-	const char * get_hilfe_datei() const {return "signal_spacing.txt";}
+	const char * get_help_filename() const { return "signal_spacing.txt"; }
 };
 
 #endif

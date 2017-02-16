@@ -19,7 +19,7 @@ endif
 
 ifeq ($(OSTYPE),mingw)
   CC ?= gcc
-  OS_OPT   ?= -mno-cygwin -march=pentium
+  OS_OPT   ?= -march=pentium
   # we need the libraries EXACTLY in this order to link
   STD_LIBS = -lmingw32 -lstdc++ -lwsock32
 endif
@@ -73,20 +73,20 @@ CXXFLAGS += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(OS_INC) $(OS_OPT
 # At the moment they're all treated identically, of course.
 SOLO_SOURCES += nettool.cc
 SHARED_SOURCES += ../dataobj/freelist.cc
-SHARED_SOURCES += ../dataobj/network_address.cc
-SHARED_SOURCES += ../dataobj/network_cmd.cc
-SHARED_SOURCES += ../dataobj/network_packet.cc
-SHARED_SOURCES += ../dataobj/network_socket_list.cc
-SHARED_SOURCES += ../dataobj/pwd_hash.cc
+SHARED_SOURCES += ../network/memory_rw.cc
+SHARED_SOURCES += ../network/network_address.cc
+SHARED_SOURCES += ../network/network_cmd.cc
+SHARED_SOURCES += ../network/network_packet.cc
+SHARED_SOURCES += ../network/network_socket_list.cc
+SHARED_SOURCES += ../network/pwd_hash.cc
 SHARED_SOURCES += ../simdebug.cc
 SHARED_SOURCES += ../simmem.cc
-SHARED_SOURCES += ../utils/memory_rw.cc
 SHARED_SOURCES += ../utils/simstring.cc
 SHARED_SOURCES += ../utils/fetchopt.cc
 SHARED_SOURCES += ../utils/sha1.cc
 VARIANT_SOURCES += ../utils/log.cc
-VARIANT_SOURCES += ../dataobj/network.cc
-VARIANT_SOURCES += ../dataobj/network_file_transfer.cc
+VARIANT_SOURCES += ../network/network.cc
+VARIANT_SOURCES += ../network/network_file_transfer.cc
 
 SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)
 

@@ -8,7 +8,7 @@
 
 
 /**
- * 3d Koordinaten
+ * 3D Coordinates
  */
 class koord3d //: public koord
 {
@@ -38,7 +38,7 @@ public:
 //	const koord& get_2d() const { return *this; }
 	koord get_2d() const { return koord(x,y); }
 
-	const koord3d& operator += (const koord3d& a)
+	inline const koord3d& operator += (const koord3d& a)
 	{
 		x += a.x;
 		y += a.y;
@@ -46,7 +46,7 @@ public:
 		return *this;
 	}
 
-	const koord3d& operator -= (koord3d& a)
+	inline const koord3d& operator -= (koord3d& a)
 	{
 		x -= a.x;
 		y -= a.y;
@@ -54,14 +54,14 @@ public:
 		return *this;
 	}
 
-	const koord3d& operator += (const koord& a)
+	inline const koord3d& operator += (const koord& a)
 	{
 		x += a.x;
 		y += a.y;
 		return *this;
 	}
 
-	const koord3d& operator -= (const koord& a)
+	inline const koord3d& operator -= (const koord& a)
 	{
 		x -= a.x;
 		y -= a.y;

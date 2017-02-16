@@ -4,16 +4,9 @@
  * This file is part of the Simutrans project under the artistic license.
  */
 
-#ifndef _MSC_VER
-#define SDL
-#endif
-
-#ifdef SDL
 #include <SDL.h>
 
 #ifdef _WIN32
-// windows.h defines min and max macros which we don't want
-#define NOMINMAX 1
 #include <windows.h>
 #endif
 
@@ -24,8 +17,7 @@
 #include "simversion.h"
 #include "simsys.h"
 #include "simevent.h"
-#include "simgraph.h"
-#include "./dataobj/umgebung.h"
+#include "display/simgraph.h"
 #include "simdebug.h"
 
 
@@ -98,18 +90,16 @@ static SDL_Cursor* arrow;
 static SDL_Cursor* hourglass;
 static SDL_Cursor* blank;
 
-#if MULTI_THREAD>1
-// enable barriers by this
-#define _XOPEN_SOURCE 600
-#include <pthread.h>
+#ifdef MULTI_THREAD
+#include "utils/simthread.h"
 
-static pthread_barrier_t redraw_barrier;
+static simthread_barrier_t redraw_barrier;
 static pthread_mutex_t redraw_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // parameters passed starting a thread
 typedef struct{
 	pthread_t thread;
-	uint8 number;
+	bool ready;
 } redraw_param_t;
 static redraw_param_t redraw_param;
 
@@ -117,8 +107,12 @@ static redraw_param_t redraw_param;
 void* redraw_thread( void* ptr )
 {
 	while(true) {
-		pthread_barrier_wait( &redraw_barrier );	// wait to start
+		simthread_barrier_wait( &redraw_barrier );	// wait to start
 		pthread_mutex_lock( &redraw_mutex );
+		if ( ((redraw_param_t*)ptr)->ready ) {
+			pthread_mutex_unlock( &redraw_mutex );
+			break;
+		}
 		display_flush_buffer();
 		if(  use_hw  ) {
 			SDL_UnlockSurface( screen );
@@ -136,6 +130,11 @@ static int num_SDL_Rects = 0;
 static SDL_Rect SDL_Rects[MAX_SDL_RECTS];
 #endif
 
+// no autoscaling yet
+bool dr_auto_scale(bool)
+{
+	return false;
+}
 
 /*
  * Hier sind die Basisfunktionen zur Initialisierung der
@@ -161,7 +160,6 @@ bool dr_os_init(const int* parameter)
 	sys_event.code = 0;
 
 	atexit(SDL_Quit); // clean up on exit
-
 	return true;
 }
 
@@ -194,16 +192,16 @@ resolution dr_query_screen_resolution()
 // open the window
 int dr_os_open(int w, int const h, int const fullscreen)
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	// init barrier
-	pthread_barrier_init( &redraw_barrier, NULL, 2);
+	simthread_barrier_init( &redraw_barrier, NULL, 2);
 
 	// Initialize and set thread detached attribute
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
 	pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_DETACHED);
 
-	redraw_param.number = 0;
+	redraw_param.ready = false;
 	if(  pthread_create( &(redraw_param.thread), &attr, redraw_thread, (void*)&redraw_param )  ) {
 		fprintf(stderr, "dr_os_open(): cannot multithread\n");
 		return 0;
@@ -230,12 +228,9 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	}
 
 	// open the window now
-	// The interface for SDL_putenv requires char*, not const char*, so give it a modifiable string just in case.
-	char centered_window_env_string[32] = "SDL_VIDEO_CENTERED=center";
-	SDL_putenv(centered_window_env_string); // request game window centered to stop it opening off screen since SDL1.2 has no way to open at a fixed position
+	SDL_putenv("SDL_VIDEO_CENTERED=center"); // request game window centered to stop it opening off screen since SDL1.2 has no way to open at a fixed position
 	screen = SDL_SetVideoMode( w, h, COLOUR_DEPTH, flags );
-	char not_centered_window_env_string[32] = "SDL_VIDEO_CENTERED=";
-	SDL_putenv(not_centered_window_env_string); // clear flag so it doesn't continually recenter upon resizing the window
+	SDL_putenv("SDL_VIDEO_CENTERED="); // clear flag so it doesn't continually recenter upon resizing the window
 	if(  screen == NULL  ) {
 		fprintf(stderr, "Couldn't open the window: %s\n", SDL_GetError());
 		return 0;
@@ -243,11 +238,11 @@ int dr_os_open(int w, int const h, int const fullscreen)
 	else {
 		const SDL_VideoInfo* vi = SDL_GetVideoInfo();
 		char driver_name[128];
-		SDL_VideoDriverName( driver_name, 128);
+		SDL_VideoDriverName( driver_name, lengthof(driver_name) );
 		fprintf(stderr, "SDL_driver=%s, hw_available=%i, video_mem=%i, blit_sw=%i, bpp=%i, bytes=%i\n", driver_name, vi->hw_available, vi->video_mem, vi->blit_sw, vi->vfmt->BitsPerPixel, vi->vfmt->BytesPerPixel );
 		fprintf(stderr, "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags );
 	}
-	printf("dr_os_open(SDL): SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h );
+	printf("dr_os_open(SDL): SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)\n", screen->w, screen->h, w, h );
 
 	SDL_EnableUNICODE(true);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -269,9 +264,13 @@ int dr_os_open(int w, int const h, int const fullscreen)
 // shut down SDL
 void dr_os_close()
 {
-#if MULTI_THREAD>1
-	// make sure redraw thread is waiting before closing
+#ifdef MULTI_THREAD
+	// signal thread to return
 	pthread_mutex_lock( &redraw_mutex );
+	redraw_param.ready = true;
+	pthread_mutex_unlock( &redraw_mutex );
+	// .. and join
+	pthread_join(redraw_param.thread, NULL);
 #endif
 	SDL_FreeCursor(hourglass);
 	SDL_FreeCursor(blank);
@@ -284,7 +283,7 @@ void dr_os_close()
 // resizes screen
 int dr_textur_resize(unsigned short** const textur, int w, int const h)
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &redraw_mutex );
 #endif
 	if(  use_hw  ) {
@@ -317,7 +316,7 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 		fflush(NULL);
 	}
 	*textur = (unsigned short*)screen->pixels;
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &redraw_mutex );
 #endif
 	return w;
@@ -346,18 +345,18 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 
 void dr_prepare_flush()
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_lock( &redraw_mutex );
 #endif
 	return;
 }
 
 
-void dr_flush(void)
+void dr_flush()
 {
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 	pthread_mutex_unlock( &redraw_mutex );
-	pthread_barrier_wait( &redraw_barrier );	// start thread
+	simthread_barrier_wait( &redraw_barrier );	// start thread
 #else
 	display_flush_buffer();
 	if(  use_hw  ) {
@@ -396,7 +395,7 @@ void dr_textur(int xp, int yp, int w, int h)
 		if(  w*h > 0  )
 #endif
 		{
-#if MULTI_THREAD>1
+#ifdef MULTI_THREAD
 			SDL_UpdateRect( screen, xp, yp, w, h );
 #else
 			if(  num_SDL_Rects < MAX_SDL_RECTS  ) {
@@ -439,6 +438,7 @@ int dr_screenshot(const char *filename, int x, int y, int w, int h)
 		return 1;
 	}
 #endif
+	(void)(x+y+w+h);
 	return SDL_SaveBMP(SDL_GetVideoSurface(), filename) == 0 ? 1 : -1;
 }
 
@@ -447,7 +447,7 @@ int dr_screenshot(const char *filename, int x, int y, int w, int h)
  * Hier sind die Funktionen zur Messageverarbeitung
  */
 
-static inline unsigned int ModifierKeys(void)
+static inline unsigned int ModifierKeys()
 {
 	SDLMod mod = SDL_GetModState();
 
@@ -505,16 +505,10 @@ static void internal_GetEvents(bool const wait)
 	switch (event.type) {
 		case SDL_VIDEORESIZE:
 			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_RESIZE;
+			sys_event.code = SYSTEM_RESIZE;
 			sys_event.mx   = event.resize.w;
 			sys_event.my   = event.resize.h;
 			printf("expose: x=%i, y=%i\n", sys_event.mx, sys_event.my);
-			break;
-
-		case SDL_VIDEOEXPOSE:
-			// will be ignored ...
-			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_UPDATE;
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
@@ -652,7 +646,7 @@ static void internal_GetEvents(bool const wait)
 
 		case SDL_QUIT:
 			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SIM_SYSTEM_QUIT;
+			sys_event.code = SYSTEM_QUIT;
 			break;
 
 		default:
@@ -663,13 +657,13 @@ static void internal_GetEvents(bool const wait)
 }
 
 
-void GetEvents(void)
+void GetEvents()
 {
 	internal_GetEvents(true);
 }
 
 
-void GetEventsNoWait(void)
+void GetEventsNoWait()
 {
 	sys_event.type = SIM_NOEVENT;
 	sys_event.code = 0;
@@ -689,8 +683,7 @@ void ex_ord_update_mx_my()
 	SDL_PumpEvents();
 }
 
-
-unsigned long dr_time(void)
+uint32 dr_time()
 {
 	return SDL_GetTicks();
 }
@@ -701,6 +694,18 @@ void dr_sleep(uint32 usec)
 	SDL_Delay(usec);
 }
 
+void dr_start_textinput()
+{
+}
+
+void dr_stop_textinput()
+{
+}
+
+void dr_notify_input_pos(int, int)
+{
+}
+
 #ifdef _MSC_VER
 // Needed for MS Visual C++ with /SUBSYSTEM:CONSOLE to work , if /SUBSYSTEM:WINDOWS this function is compiled but unreachable
 #undef main
@@ -709,6 +714,7 @@ int main()
    return WinMain(NULL,NULL,NULL,NULL);
 }
 #endif
+
 
 #ifdef _WIN32
 int CALLBACK WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
@@ -722,4 +728,3 @@ int main(int argc, char **argv)
 #endif
 	return sysmain(argc, argv);
 }
-#endif

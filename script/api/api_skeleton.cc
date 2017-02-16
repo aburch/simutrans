@@ -2,6 +2,7 @@
 
 // It is in a C++ file to be processed by Doxygen filters to get function typemasks right
 
+#ifdef DOXYGEN
 
 /**
  * This function is called when the scenario starts. Do all the initializations here,
@@ -16,6 +17,30 @@ register_function("start");
  * @typemask void()
  */
 register_function("resume_game");
+
+/**
+ * Called at the beginning of a new month.
+ * Statistics of the last (complete) month is now in position [1] of any statistics array.
+ * @typemask void()
+ */
+register_function("new_month")
+
+/**
+ * Called at the beginning of a new year.
+ * Statistics of the last (complete) year is now in position [1] of any statistics array.
+ * @typemask void()
+ */
+register_function("new_year")
+
+/**
+ * Called before starting the scenario.
+ * Should return filename of the savegame to be used for this scenario.
+ * If it returns "<attach>" the scenario is started with the currently running world.
+ * By default returns the string @ref map.file.
+ * @returns filename or "<attach>"
+ * @typemask string()
+ */
+register_function("get_map_file")
 
 /**
  * Text shown in the 'About' tab in the scenario info window.
@@ -37,7 +62,7 @@ register_function("get_about_text");
  * - \<h1\>, \<em\>, \<it\>, \<st\>: text between start and end tag will be colored. It's a matter of taste, of course.
  * - \<a href="..."\>: insert hyper link, text between start and end tag will be colored blue.
  *       - link to another tab of scenario info window: href="tabname", where tabname is one of: info, goal, rules, result, about
- *       - link to position on the map: href="(x,y)", click on link will jump to the map position
+ *       - link to position on the map: href="(x,y)" or href="(x,y,z)", click on link will jump to the map position
  *
  * @code
  * <h1>Here is an example.</h1>
@@ -142,3 +167,5 @@ register_function("is_work_allowed_here");
  * @typemask string(integer,schedule_x)
  */
 register_function("is_schedule_allowed");
+
+#endif

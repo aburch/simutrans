@@ -1,0 +1,68 @@
+<title>Financijska Pomoc</title>
+
+<h1><strong>Financije</strong></h1>
+
+<p>
+<strong>Finances</strong> prikazuje pregled financijskog stanja tvrtke igraca.
+</p>
+<p>
+Klik na ikon jezika gore unutar pogleda igre, ili stisnuti <a href="keys.txt">[f]</a>, ili kliknuti na ime igraca u <a href="players.txt">Igraci</a>, za otvaranje <strong>Financije</strong>.
+</p>
+<p>
+Vrijednosti (u Hajo Kreditima) su prikazane za trenutnu i prethodne kalendarske godine.<br>
+<em>Ova godina:</em> trenutna kalendarska godina igre.<br>
+<em>Prethodna godina:</em> prethodna kalendarska godina igre.
+</p>
+<p>
+Godi¹nje vrijednosti se takoðer mogu vidjeti u grafikonu za zadnjih deset godina, ili mjesecne vrijednosti za zadnju godinu.<br>
+Klik na vrijednost ime-gumb za promjenu detalja na grafu: y-os je kolicina, x-os je vrijeme.<br>
+Klik na indeksnu karticu na grafu index-kartici za promjenu skale x-osi:<br>
+<em>Godine:</em> prikaz godisnjih vrijednosti za zadnjih deset kalendarskih godina.<br>
+<em>Mjeseci:</em> prikaz mjesecnih vrijednosti za zadnjih 12 mjeseci igre
+</p>
+<p>
+Vrijednosti (klik na ime-gumb za prikaz detalja na grafu), sadrze:
+</p>
+<p>
+<em>Proceeds</em> - ukupni prihod prijevoza putnika, robe, poste i od <a href="special.txt">viskonaponskih prijenosa</a>.
+</p>
+<p>
+<em>Operativni Troskovi</em> - ukupni troskovi koji su se pojavili od svih <a href="convoiinfo.txt">Convoja</a> kada su bili u prijevozu.<br>
+{Savjeti: Operativni troskovi po kilometru za vozila se mogu vidjeti u <a href="depot.txt">depou</a> i iz Informacija Konvoja.}
+</p>
+<p>
+<em>Odrzavanje</em> - ukupni troskovi koji su se pojavili odrzavanje prijevozne mreze.<br>
+{Savjeti: Troskovi po mjesecu za odrzavanje mreze (<em>Odrzavanje (mjesecno)</em> prikazano na desnom <strong>Financije</strong>) se odbija na kraju kalendarskog mjeseca igre.}
+</p>
+<p>
+<em>Operacijski Prihod</em> - Prihod prijevoza robe, putnika i poste i visokonaposki prijenos (Postupa manje Operacijske Troskove i Odrzavanje).
+</p>
+<p>
+<em>Nova Vozila</em> - Rashodi i prihodi primljeni od kupnje ili prodaje vozila.
+</p>
+<p>
+<em>Gradiliste</em> - ukupni troskovi koji su se pojavili izgradnjom mreza prijevoza, oblikovanjem zemljista, visokonaponskim vodovima, i koristenjem <a href="removal_tool.txt">Unisti/Ukloni</a> i drugih alata uklanjanja puteva (tracnice, cesta, kanali i poletno/sletnig staza).
+</p>
+<p>
+<em>Tok Gotovine</em> - ukupni prihod minus ukupni rashod (troskovi).
+</p>
+<p>
+<em>Stanje Racuna</em> - trenutno dostupna gotovina za izgradnju ili kupnju vozila (takodjer prikazanano u sredini donje trake ispod pogleda igre.<br>
+{Savjeri: Ako igrac covjek ode u crveno (negativno stanje na racunu) u slijedna tri mjeseca, igrac je bankrotirao i igra je gotova}.
+</p>
+<p>
+<em>Imovina</em> - vrijednost svih vozila tvrtke na kraju poslijednjeg kalendarskog mjeseca.<br>
+{Savjeti: svaki mjesec se vrijednost operativnih vozila lagano smanjuje, trenutni prodajna vrijednost operativnih vozila se moze vidjeti u <a href="convoidetail.txt">Detalji Konvoja</a> ili kada je vozilo u depou.}
+</p>
+<p>
+<em>Neto bogatstvo</em> - Stanje na racunu plus imovina.
+</p>
+<p>
+<em>Margina</em> - je omjer operativnog profita naspram prihoda.
+</p>
+<p>
+<em>Puto?vali</em> - ukupni broj robe, putnika i prevezene poste.
+</p>
+<p>
+{Savjeti: Neki troskovi, pocetno stanje i financije u igri se mogu promijeniti u simuconf.tab}
+</p>

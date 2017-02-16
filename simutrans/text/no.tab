@@ -1,0 +1,369 @@
+Norsk
+PROP_FONT_FILE
+Prop-Latin1.bdf
+################################################################################
+#                                                                              #
+#                Simutrans Scenario Specific Translation File                  #
+#                          Scenario: Sim-Experimental                          #
+#                              Language: no Norsk                              #
+#                             Encoding: ISO-8859-1                             #
+#                            Font : Prop-Latin1.bdf                            #
+#                           Date Created: 20.07 2013                           #
+#                                                                              #
+#                                   authors:                                   #
+#                                    - An_dz                                   #
+#                   note: Verified where all texts are shown                   #
+#                         Christian Berntsen - DonChris                        #
+#                                    note:                                     #
+#                                    - Dwachs                                  #
+#                                    note:                                     #
+#                              Frank Penz - FrankP                             #
+#                                    note:                                     #
+#                                   - jsynnove                                 #
+#                                    note:                                     #
+#                          Markus Pristovsek - prissi                          #
+#                                    note:                                     #
+#                                                                              #
+################################################################################
+#_____________________________Simutrans Base Texts______________________________
+#_____________________________Simutrans Base Texts______________________________
+#__________________________________button_text__________________________________
+#__________________________________button_text__________________________________
+Apply Line
+Bruk rute
+cl_btn_filter_disable
+av
+cl_btn_filter_enable
+på
+cl_btn_filter_settings
+Innstillinger
+cl_btn_sort_asc
+Stigende
+cl_btn_sort_desc
+Synkende
+cl_btn_sort_id
+ID-nummer
+cl_btn_sort_income
+Inntekt
+cl_btn_sort_name
+Navn
+cl_btn_sort_type
+Type
+clf_btn_alle
+alle
+clf_btn_invers
+bytt
+clf_btn_keine
+ingen
+Construction_Btn
+Byggekostnader
+follow me
+Følg meg.
+gl_btn_sort_bonus
+bonus
+go home
+Kjør til depot
+hlf_btn_invers
+bytt
+hlf_btn_keine
+ingen
+koord
+koordinater
+Lade Relief
+Last høydekart
+Load game
+Last inn lagret spill
+Load scenario
+Last inn Scenario 
+Optionen
+Innstillinger
+Sprache
+Språk
+Starte Spiel
+Start spill
+#_________________________________climates_text_________________________________
+#_________________________________climates_text_________________________________
+arctic
+arktisk klima
+desert
+ørkenklima
+mediterran
+middelhavsklima
+rocky
+alpint klima
+temperate
+temperert klima
+tropic
+tropisk klima
+tundra
+tundraklima
+#__________________________________error_text___________________________________
+#__________________________________error_text___________________________________
+Kann Spielstand\nnicht laden.\n
+Kan ikke laste lagret spill!
+Zughalt muss auf\nSchiene liegen!\n
+Togstasjoner maa\nplasseres paa togskinner.\n
+#___________________________________help_text___________________________________
+#___________________________________help_text___________________________________
+<title>Keyboard Help</title>\n<h1><strong>Keyboard Help</strong></h1><p>\n
+<title>Tastatur hjelp</title>\n<h1><strong>Tastatur hjelp</strong></h1>\n<p>\n<strong>Tastatur hjelp</strong> viser funksjonene til de forskjellige tastene på tastaturet.\n</p>\n<p>\n<strong>Tastatur hjelp</strong> aapnes ved aa taste en ugyldig hurtigtast eller via <a href="general.txt">Generell hjelp</a>.\n</p>\n<p>\nStore og smaa bokstaver er forskjellige hurtigtaster (bruk [<em>Shift</em>] for store bokstaver).\n</p>\n<p>\nHurtigtaster inkluderer:\n</p>\n<p>\n[<em>Piltaster</em>]: flytter spillervindu i pilens retning.<br>\n[<em>Backspace</em>]: lukker alle vinduer, verktøylinjer og hjelpetekster.<br>\n[<em>Del</em>], eller [<em>Esc</em>]: lukker oeverste windu, verktøylinje eller hjelpetekst.<br>\n[<em>Enter</em>], eller [<em>Return</em>]: brukes for å bekrefte handlinger.<br>\n[<em>Pg-Up</em>], eller [<em>></em>]: zoom-inn spillervindu.<br>\n[<em>Pg-Dn</em>], eller [<em><</em>]: zoom-ut spillervindu.\n[<em>F1</em>]: aapner <a href="general.txt">Simutrans hjelp</a>.<br></p>\n<p>\n[<em>1</em>]: flytter spillervindu mot soer.<br>\n[<em>2</em>]: flytter spillervindu mot soeroest.<br>\n[<em>3</em>]: flytter spillervindu mot oest.<br>\n[<em>4</em>]: flytter spillervindu mot soervest.<br>\n[<em>6</em>]: flytter spillervindu mot nordoest.<br>\n[<em>7</em>]: flytter spillervindu mot vest.<br>\n[<em>8</em>]: flytter spillervindu mot nordvest.<br>\n[<em>9</em>]: flytter spillervindu mot nord.\n</p>\n<p>\n[<em>Shift</em>] + <a href="mouse.txt">mus</a>: brukt paa <a href="map.txt">Kart</a> for aa se informasjon om <a href="industry_info.txt">Industriers leveranse-kjeder</a>.<br>\n[<em>CTRL</em>] + verktoey: lager (signaler og <a href="station.txt">Stasjoner</a>) paa et hoere nivaa; eller bygger veier eller spor med lav hastighet over veier og spor med høy hastinghet; eller bygger rettere (mer direkte) veier og spor.<br>\n[<em>CTRL</em>] + ([<em>F2</em>] til [<em>F12</em>]): for aa legge til markert verktoey som hurtigtast på tastene [<em>F2</em>] til [<em>F12</em>].\n</p>\n<p>
+#____________________________________ki_text____________________________________
+#____________________________________ki_text____________________________________
+%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
+%s har naa\nbussforbindelse mellom\n%s og\nattraksjon\n%s\n(%i,%i).\n
+%s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
+%s har naa\nbussforbindelse mellom\n%s og\nfabrikk\n%s\n(%i,%i).\n
+#___________________________________menu_text___________________________________
+#___________________________________menu_text___________________________________
+#_________________________________message_text__________________________________
+#_________________________________message_text__________________________________
+%s s\nheadquarter now\nat (%i,%i).
+%ss har bygget nytt hovedkontor.
+%s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
+%s\noppfoerte et nytt\nraadhus naar\ninnbyggertallet steg\n til over %i.
+Bankrott:\n\nDu bist bankrott.\n
+Konkurs:\n\nDu er konkurs!\n
+Spielstand wurde\ngeladen!\n
+\nInnlasting av spill vellykket.\n
+Spielstand wurde\ngespeichert!\n
+\nLagring av spill vellykket.\n
+Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
+Gjeld maa tilbakebetales\n innen %d mnd.\n
+#_________________________________program_text__________________________________
+#_________________________________program_text__________________________________
+(in depot)
+(i depot)
+\nBauzeit von
+Produseres fra
+\nCan't open heightfield file.\n
+\nKan ikke aapne hoeydekart.\n
+\ndirection:
+\nretning:
+\nelektrified
+\nelektrisk\n
+\nis reserved by:
+\nreservert av tog
+\nminimum speed:
+\nminimum hastighet:
+\nnot elektrified
+\nikke elektrisk\n
+%d Einzelfahrzeuge im Depot
+%d kjoeretoey parkert her.
+%i km/h (max. %ikm/h)
+%i km/t (maks. %ikm/t)
+%s\nis crowded.
+er overfyldt.
+1WORLD_CHOOSE
+Innstillinger for Nytt spill:
+2LIGHT_CHOOSE
+Farger:
+2WORLD_CHOOSE
+Kart nummer:
+5LIGHT_CHOOSE
+Fotgjengere på holdeplasser
+5WORLD_CHOOSE
+Ant. byer:
+6LIGHT_CHOOSE
+Fotgjengere i byer
+airplane
+fly
+Airport
+Flyplass
+Allow player change
+Tillat spillerbytte
+Arbeiter aus:
+Arbeidere bor i:
+Available
+Tilgjengelig
+Baum
+Tre
+Bruecke
+Bro
+Brueckenboden
+bro
+build HQ
+Bygg HK
+Building costs estimates
+Estimert byggekostnad
+Buildings
+Ant. bygninger
+Capacity: %s\nLoad: %d (%d%%)
+Kapasitet: %s\n? %d (%d%%)
+Change player
+Bytt spiller
+chooses a random map
+Velg et tilfeldig kart.
+cl_txt_sort
+Sorter etter:
+clf_chk_aircrafts
+Fly
+clf_chk_noincome
+mangler inntekt
+clf_chk_ships
+Skip
+clf_chk_trains
+Tog
+Constructed by
+Tegnet av
+Constructed by %s
+Tegnet av %s
+December
+Desember
+Fabrikname
+Fabrikknavn
+January
+Januar
+July
+Juli
+June
+Juni
+Kein Besitzer\n
+Eksisterer ikke!
+keine
+ingen
+Keyboard_Help\n
+Tastaturhjelp\n
+Mountain height
+Høyde på fjell:
+Neue Welt
+Generer Nytt spill
+player
+spiller
+player 10
+Spiller 10
+player 11
+Spiller 11
+player 12
+Spiller 12
+player 13
+Spiller 13
+player 2
+Trikky Transport
+player 3
+Meyer Moving Co.
+player 7
+Spiller 7
+player 8
+Spiller 8
+player 9
+Spiller 9
+random
+tilfeldig
+Random age
+tilfeldig aar
+Random map
+Tilfeldig kart
+Rathaus
+Raadhus
+Reliefkarte
+Kart
+Remove
+Fjern
+remove powerlines
+Fjerne kraftlinje
+remove roads
+fjerne veier
+road
+vei
+Rotate map
+Roter kart
+Saving map ...
+Lagrer kart ...
+Schienentunnel
+Bygg togtunnel
+Schiff_tab
+Skip
+Schiffdepot
+Skipsverft
+Sehenswuerdigkeit
+Turistattraksjon
+SEP_FRACTION
+.
+SEP_THOUSAND
+ 
+Setting
+Innstillinger
+Ship
+Skip
+Show all
+Vis alle
+show all building
+Vis alle bygninger
+Show industry
+Vis industri
+show station coverage
+Vis dekningsomraade for stasjon
+show station names
+vis navn paa stasjoner
+Show/hide statistics
+Vis/skjul statistikk
+Simuconf.tab
+Eksisterer ikke!
+Size (%d MB):
+Stoerrelse (%d MB):
+Sound
+Lyd
+Sound settings
+Innstillinger for lyd
+Speichern
+Lagre
+Spieler
+Spiller
+Spieler(mz)
+Spillere
+Spielerliste
+Spillerliste
+Sprachen
+Språk
+steam
+damp
+Storage capacity
+Lagringskapasitet
+sued
+Soer
+suedost
+Soeroest
+suedwest
+Soervest
+Suppliers
+Leverandører
+Tage alt
+dager gammel.
+This Month
+Denne mnd
+This Year
+I år:
+tl_title
+Byoversikt
+Towns
+Byer
+Train
+Tog
+Translation
+Oversettelse
+transparent station coverage
+gjennomsiktig dekningsomraade
+Unemployed
+Arbeidsloes
+units/day
+enheter/mnd
+upgrade HQ
+Oppgradere HK
+Waggon_tab
+Biler
+waiting
+venter
+Wert
+Verdi
+west
+Vest
+Year %i has started.
+Aar %i har startet.
+Years
+Aar
+#__________________________________record_text__________________________________
+#__________________________________record_text__________________________________
+#_______________________________unnecessary_text________________________________
+#_______________________________unnecessary_text________________________________
+#_________________________Simutrans Experimental Texts__________________________
+#_________________________Simutrans Experimental Texts__________________________

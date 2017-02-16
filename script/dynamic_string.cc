@@ -3,27 +3,40 @@
 
 #include "../simsys.h"
 #include "../simworld.h"
-#include "../dataobj/network.h"
-#include "../dataobj/network_cmd_scenario.h"
-#include "../dataobj/umgebung.h"
+#include "../network/network.h"
+#include "../network/network_cmd_scenario.h"
+#include "../dataobj/environment.h"
+#include "../dataobj/loadsave.h"
 #include "../player/simplay.h"
 #include "../tpl/plainstringhashtable_tpl.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 
-unsigned long const CACHE_TIME = 10000; // 10s
+uint32 const CACHE_TIME = 10000; // 10s
 
 struct cached_string_t {
 	plainstring result;
-	unsigned long time;
+	uint32 time;
 	dynamic_string *listener;
-	cached_string_t(const char* str, long t, dynamic_string *l) : result(str), time(t), listener(l) {}
+	cached_string_t(const char* str, uint32 t, dynamic_string *l) : result(str), time(t), listener(l) {}
+
+	cached_string_t(loadsave_t* file)
+	{
+		time = dr_time() - CACHE_TIME;
+		listener = NULL;
+		rdwr(file);
+	}
+
+	void rdwr(loadsave_t* file)
+	{
+		file->rdwr_str(result);
+	}
 };
 
 static plainstringhashtable_tpl<cached_string_t*> cached_results;
 
 
-cached_string_t* get_cashed_result(const char* function, unsigned long cache_time)
+cached_string_t* get_cashed_result(const char* function, uint32 cache_time)
 {
 	cached_string_t *entry = cached_results.get(function);
 
@@ -48,16 +61,40 @@ dynamic_string::~dynamic_string()
 
 void dynamic_string::init()
 {
-	while(cached_string_t *entry = cached_results.remove_first()) {
-		delete entry;
+	while(!cached_results.empty()) {
+		delete cached_results.remove_first();
+	}
+}
+
+void dynamic_string::rdwr_cache(loadsave_t *file)
+{
+	uint32 count = cached_results.get_count();
+	file->rdwr_long(count);
+
+	if (file->is_loading()) {
+		// clear list
+		while (!cached_results.empty()) {
+			delete cached_results.remove_first();
+		}
+		for (uint32 i = 0; i<count; i++) {
+			plainstring key;
+			file->rdwr_str(key);
+			cached_results.set(key, new cached_string_t(file));
+		}
+	}
+	else {
+		FOR(plainstringhashtable_tpl<cached_string_t*>, &iter, cached_results) {
+			file->rdwr_str(iter.key);
+			iter.value->rdwr(file);
+		}
 	}
 }
 
 
-void dynamic_string::update(script_vm_t *script, spieler_t *sp, bool force_update)
+void dynamic_string::update(script_vm_t *script, player_t *player, bool force_update)
 {
 	cbuffer_t buf;
-	buf.printf("%s(%d)", method, sp ? sp->get_player_nr() : PLAYER_UNOWNED);
+	buf.printf("%s(%d)", method, player ? player->get_player_nr() : PLAYER_UNOWNED);
 	const char* function = (const char*)buf;
 	plainstring s;
 
@@ -72,13 +109,13 @@ void dynamic_string::update(script_vm_t *script, spieler_t *sp, bool force_updat
 		}
 		else {
 			// call script
-			script->call_function(method, s, (uint8)(sp ? sp->get_player_nr() : PLAYER_UNOWNED));
+			script->call_function(method, s, (uint8)(player ? player->get_player_nr() : PLAYER_UNOWNED));
 			// .. and store result
 			record_result(function, s);
 		}
 	}
 	else {
-		if (umgebung_t::networkmode  &&  !umgebung_t::server) {
+		if (env_t::networkmode  &&  !env_t::server) {
 			s = dynamic_string::fetch_result( function, script, this, force_update);
 			if ( s == NULL) {
 				s = "Waiting for server response...";
@@ -100,7 +137,7 @@ const char* dynamic_string::fetch_result(const char* function, script_vm_t *scri
 	bool const needs_update = entry == NULL  ||  force_update;
 
 	if (needs_update) {
-		if (script != NULL  ||  umgebung_t::server) {
+		if (script != NULL  ||  env_t::server) {
 			// directly call script if at server
 			if (script) {
 				plainstring str = call_script(function, script);

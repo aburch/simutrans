@@ -6,7 +6,8 @@
 #define ptrhashtable_tpl_h
 
 #include "hashtable_tpl.h"
-#include <stdlib.h>
+#include <stdint.h> // intptr_t (standard)
+#include <stddef.h> // ptrdiff_t, intptr_t (Microsoft)
 
 /*
  * Define the key characteristica for hashing pointers. For hashing the
@@ -15,7 +16,14 @@
 template<class key_t>
 class ptrhash_tpl {
 public:
+// define NO_INTPTR_T if it does not compile
+#ifndef NO_INTPTR_T
+	typedef intptr_t cast_ptr_to_t;
+	typedef intptr_t diff_type;
+#else
 	typedef ptrdiff_t diff_type;
+	typedef const char* cast_ptr_to_t;
+#endif
 
 	static uint32 hash(const key_t key)
 	{
@@ -29,7 +37,7 @@ public:
 
 	static diff_type comp(key_t key1, key_t key2)
 	{
-		return key1 - key2;
+		return (cast_ptr_to_t)key1 - (cast_ptr_to_t)key2;
 	}
 };
 

@@ -11,11 +11,47 @@
 #include "../simtypes.h"
 #include "../simworld.h"
 
-// This should be used when players attempt to buy things they can't afford.
-#define CREDIT_MESSAGE "That would exceed\nyour credit limit."
+ /****************************************** notification strings ************************************** /
+
+ /**
+ * Translated notification text identifiers used by tools are placed here.
+ * This is because they are not simple well structured internal identifiers.
+ * Instead they can be complex sentences intended to be read untranslated.
+ * Using these constants assues a valid and correct text identifier is choosen.
+ */
+
+ /**
+ * Message returned when a player cannot afford to complete an action.
+ */
+char const *const NOTICE_INSUFFICIENT_FUNDS = "That would exceed\nyour credit limit.";
+
+/**
+* Message returned when a player tries to place trees when trees are disabled.
+*/
+char const *const NOTICE_NO_TREES = "Trees disabled!";
+
+/**
+* Message returned when valid terrain cannot be found for a tool to use.
+*/
+char const *const NOTICE_UNSUITABLE_GROUND = "No suitable ground!";
+
+/**
+* Message returned when a depot cannot be placed.
+*/
+char const *const NOTICE_DEPOT_BAD_POS = "Cannot built depot here!";
+
+/**
+* Message returned when a tool fails due to the target tile being occupied.
+*/
+char const *const NOTICE_TILE_FULL = "Tile not empty.";
+
+/**
+ * Message returned when a company tries to make a public way when public ways are disabled.
+ */
+char const *const NOTICE_DISABLED_PUBLIC_WAY = "Not allowed to make publicly owned ways!";
 
 /// for compatibility with old versions
-/// Must be different in experimental!
+/// Must be different in extended!
 #define OLD_MAX_PLAYER_COST (21)
 
 /// number of years to keep history
@@ -109,7 +145,7 @@ enum accounting_type_vehicles {
 
 class loadsave_t;
 class karte_t;
-class spieler_t;
+class player_t;
 class scenario_t;
 
 
@@ -137,7 +173,7 @@ inline sint64 convert_money(sint64 value) { return (value + 50) / 100; }
  */
 class finance_t {
 	/** transport company */
-	spieler_t * player;
+	player_t * player;
 
 	karte_t * world;
 
@@ -191,7 +227,7 @@ class finance_t {
 	// sint32 vehicle_maintenance[TT_MAX];
 
 public:
-	finance_t(spieler_t * _player, karte_t * _world);
+	finance_t(player_t * _player, karte_t * _world);
 
 	/**
 	 * Adds construction cost to finance stats.
@@ -228,6 +264,20 @@ public:
 		maintenance[tt] += change;
 		maintenance[TT_ALL] += change;
 		return maintenance[tt];
+	}
+
+	/**
+	 * Adds way renewal into/from finance stats (booked as a one off payment of infrastructure maintenance)
+	 * @param renewal cost
+	 * @param wt - waytype for accounting purposes
+	 */
+	inline void book_way_renewal(const sint64 amount, const waytype_t wt)
+	{
+		transport_type tt = translate_waytype_to_tt(wt);
+		veh_year[tt][0][ATV_INFRASTRUCTURE_MAINTENANCE] += amount;
+		veh_month[tt][0][ATV_INFRASTRUCTURE_MAINTENANCE] += amount;
+
+		account_balance += amount;
 	}
 
 	/**
@@ -363,6 +413,8 @@ public:
 
 	/**
 	 * Calculates the finance history for player
+	 * Calculates the finance history for player.
+	 * This method has to be called before reading any variables besides account_balance!
 	 * @author hsiegeln
 	 */
 	void calc_finance_history();
@@ -375,7 +427,7 @@ public:
 	/**
 	 * Is player allowed to purchase something of this price, or is player
 	 * too deep in debt?  (Note that this applies to all players; the public
-     * player is special-cased in spieler_t, and skips this routine.)
+     * player is special-cased in player_t, and skips this routine.)
 	 * @returns whether player is allowed to purchase something of cost "price"
 	 * @params price
 	 */
@@ -426,6 +478,7 @@ public:
 
 	/**
 	 * Returns the finance history (indistinguishable part) for player.
+	 * Call calc_finance_history before use!
 	 * @param year 0 .. current year, 1 .. last year, etc
 	 * @param type one of accounting_type_common
 	 * @author jk271
@@ -435,7 +488,8 @@ public:
 
 	/**
 	 * Returns the finance history (distinguishable by type of transport) for player.
-	 * @param tt one of transport_type
+	 * Call calc_finance_history before use!
+	 * @param wt one of transport_type
 	 * @param year 0 .. current year, 1 .. last year, etc
 	 * @param type one of accounting_type_vehicles
 	 * @author jk271
@@ -450,7 +504,7 @@ public:
 
 	/**
 	 * @returns maintenance
-	 * @param tt transport type (Truck, Ship Air, ...)
+	 * @param wt transport type (Truck, Ship Air, ...)
 	 */
 	sint32 get_maintenance(transport_type tt=TT_ALL) const { assert(tt<TT_MAX); return maintenance[tt]; }
 
@@ -460,7 +514,12 @@ public:
 	 */
 	sint64 get_maintenance_with_bits(transport_type tt=TT_ALL) const;
 
-	sint64 get_netwealth() const { return com_year[0][ATC_NETWEALTH]; }
+	sint64 get_netwealth() const
+	{
+		// return com_year[0][ATC_NETWEALTH]; wont work as ATC_NETWEALTH is *only* updated in calc_finance_history
+		// see calc_finance_history
+		return veh_month[TT_ALL][0][ATV_NON_FINANCIAL_ASSETS] + account_balance;
+	}
 
 	sint64 get_scenario_completed() const { return com_month[0][ATC_SCENARIO_COMPLETED]; }
 
@@ -482,7 +541,7 @@ public:
 	/**
 	 * returns TRUE if net wealth > 0 (but this of course requires that we keep netwealth up to date!)
 	 */
-	bool has_money_or_assets() const { return ((get_history_com_year(0, ATC_NETWEALTH) ) > 0 ); }
+	bool has_money_or_assets() const { return ( get_netwealth() > 0 ); }
 
 	/**
 	 * increases number of month for which the company is in red numbers
@@ -500,7 +559,7 @@ public:
 	void new_month();
 
 	/**
-	 * rolls the finance history for player (needed when neues_jahr() or neuer_monat()) triggered
+	 * rolls the finance history for player (needed when new_year() or new_month()) triggered
 	 * @author hsiegeln, jk271
 	 */
 	void roll_history_year();
@@ -531,7 +590,7 @@ public:
 	void set_starting_money(sint64 amount) {  starting_money = amount; }
 
 	/**
- 	 * Translates haus_besch_t to transport_type
+ 	 * Translates building_desc_t to transport_type
 	 * Building can be assigned to transport type using utyp
  	 * @author jk271
  	 */

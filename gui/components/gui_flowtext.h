@@ -4,7 +4,7 @@
 #include <string>
 
 #include "gui_action_creator.h"
-#include "gui_komponente.h"
+#include "gui_component.h"
 #include "../../tpl/slist_tpl.h"
 
 
@@ -14,7 +14,7 @@
  */
 class gui_flowtext_t :
 	public gui_action_creator_t,
-	public gui_komponente_t
+	public gui_component_t
 {
 public:
 	gui_flowtext_t();
@@ -27,23 +27,23 @@ public:
 
 	const char* get_title() const;
 
-	koord get_preferred_size();
+	scr_size get_preferred_size();
 
-	koord get_text_size();
+	scr_size get_text_size();
 
 	/**
 	 * Paints the component
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord offset);
+	void draw(scr_coord offset);
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	bool dirty;
-	koord last_offset;
+	scr_coord last_offset;
 
 private:
-	koord output(koord pos, bool doit, bool return_max_width=true);
+	scr_size output(scr_coord pos, bool doit, bool return_max_width=true);
 
 	enum attributes
 	{
@@ -74,8 +74,8 @@ private:
 	{
 		hyperlink_t(const std::string &param_) : param(param_) {}
 
-		koord        tl;    // top left display position
-		koord        br;    // bottom right display position
+		scr_coord    tl;    // top left display position
+		scr_coord    br;    // bottom right display position
 		std::string  param;
 	};
 

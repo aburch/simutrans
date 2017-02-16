@@ -1,0 +1,68 @@
+<title>Indstillinger dialog hjælp</title>
+
+<h1>Indstillinger dialog</h1>
+
+<p>
+<em>Beskrivelse:</em><br>
+Denne dialog er en indgang til alle andre dialoger i Simutrans.
+</p>
+
+<p>
+<em>Udseende:</em><br>
+Dialogen består af ni (9) knapper, der hver aktiverer en ny dialog.
+</p>
+
+<p>
+Nedenfor er en liste over de mulige dialoger med en kort beskrivelser af, hvad
+den aktiverede dialog indeholder.
+</p>
+
+<p>
+<em>Sprog</em><br>
+Tillader valg af hvilket sprog Simutrans benytter til tekster og navne.
+</p>
+
+<p>
+<em>Spillerfarve</em><br>
+Giver mulighed for valg af firmafarve.
+</p>
+
+<p>
+<em>Udseende</em><br>
+Ændr udseende indstillinger såsom "dag og nat indstilling"
+</p>
+
+<p>
+<em>Lyd</em><br>
+Vælg dine lyd- og musikpræferencer.
+</p>
+
+<p>
+<em>Spillerliste</em><br>
+Kontroller AI-spillerne i spillet.
+</p>
+
+<p>
+<em>Indlæs</em><br>
+Indlæs et tidligere gemt spil.
+</p>
+
+<p>
+<em>Gem</em><br>
+Gem det aktuelle spil.
+</p>
+
+<p>
+<em>Nyt kort</em><br>
+Start et nyt spil.
+</p>
+
+<p>
+<em>Afslut</em><br>
+Afslut spillet. Bemærk at der <strong>ikke</strong> først bliver spurgt om det
+aktuelle spil skal gemmes.
+</p>
+
+<p>
+For en mere detaljeret beskrivelse, vælg venligst "hjælp" i den enkelte dialog.
+</p>

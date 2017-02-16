@@ -8,92 +8,98 @@
 /*
  * Company colors window
  */
-
+#include "kennfarbe.h"
 #include "../simdebug.h"
 #include "../simevent.h"
-#include "../simimg.h"
+#include "../display/simimg.h"
 #include "../simworld.h"
 #include "../besch/skin_besch.h"
 #include "../simskin.h"
 #include "../dataobj/translator.h"
-#include "kennfarbe.h"
 #include "../player/simplay.h"
+#include "../simtool.h"
 
-#include "../simwerkz.h"
-
-
-
-farbengui_t::farbengui_t(spieler_t *sp) :
-	gui_frame_t( translator::translate("Farbe"), sp ),
+farbengui_t::farbengui_t(player_t *player) :
+	gui_frame_t( translator::translate("Farbe"), player ),
 	txt(&buf),
 	c1( "Your primary color:" ),
 	c2( "Your secondary color:" ),
-	bild( skinverwaltung_t::color_options->get_bild_nr(0), sp->get_player_nr() )
+	image( skinverwaltung_t::color_options->get_image_id(0), player->get_player_nr() )
 {
-	this->sp = sp;
+	scr_coord cursor = scr_coord (D_MARGIN_TOP, D_MARGIN_LEFT);
+
+	this->player = player;
 	buf.clear();
 	buf.append(translator::translate("COLOR_CHOOSE\n"));
 
-	txt.set_pos( koord(D_MARGIN_LEFT,D_MARGIN_TOP) );
+	// Info text
+	txt.set_pos( cursor );
 	txt.recalc_size();
-	add_komponente( &txt );
+	add_component( &txt );
 
-	bild.set_pos( koord( (D_MARGIN_LEFT + 14*D_BUTTON_HEIGHT + 13*D_H_SPACE)-bild.get_groesse().x, D_MARGIN_TOP ) );
-	add_komponente( &bild );
+	// Picture
+	image.set_pos(cursor);
+	image.enable_offset_removal(true);
+	add_component( &image );
+	cursor.y += max( txt.get_size().h, image.get_size().h );
 
-	KOORD_VAL y = D_MARGIN_TOP+D_V_SPACE + max( txt.get_groesse().y, bild.get_groesse().y )-LINESPACE;
+	// Player's primary color label
+	c1.set_pos( cursor );
+	add_component( &c1 );
+	cursor.y += LINESPACE+D_V_SPACE;
 
-	// player color 1
-	c1.set_pos( koord(D_MARGIN_LEFT,y) );
-	add_komponente( &c1 );
-	y += LINESPACE+D_V_SPACE;
-	// now get all colors (but the one of the current player)
+	// Get all colors (except the current player's)
 	uint32 used_colors1 = 0;
 	uint32 used_colors2 = 0;
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		if(  i!=sp->get_player_nr()  &&  sp->get_welt()->get_spieler(i)  ) {
-			used_colors1 |= 1 << (sp->get_welt()->get_spieler(i)->get_player_color1() / 8);
-			used_colors2 |= 1 << (sp->get_welt()->get_spieler(i)->get_player_color2() / 8);
+		if(  i!=player->get_player_nr()  &&  welt->get_player(i)  ) {
+			used_colors1 |= 1 << (welt->get_player(i)->get_player_color1() / 8);
+			used_colors2 |= 1 << (welt->get_player(i)->get_player_color2() / 8);
 		}
 	}
-	// color buttons
+
+	// Primary color buttons
 	for(unsigned i=0;  i<28;  i++) {
-		player_color_1[i].init( button_t::box_state, (used_colors1 & (1<<i) ? "X" : ""), koord( D_MARGIN_LEFT+(i%14)*(D_BUTTON_HEIGHT+D_H_SPACE), y+(i/14)*(D_BUTTON_HEIGHT+D_H_SPACE) ), koord(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
-		player_color_1[i].background = i*8+4;
+		player_color_1[i].init( button_t::box_state, (used_colors1 & (1<<(i+1)) ? "X" : ""), scr_coord( cursor.x+(i%14)*(D_BUTTON_HEIGHT+D_H_SPACE), cursor.y+(i/14)*(D_BUTTON_HEIGHT+D_V_SPACE) ) , scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
+		player_color_1[i].background_color = i*8+4;
 		player_color_1[i].add_listener(this);
-		add_komponente( player_color_1+i );
+		add_component( player_color_1+i );
 	}
-	player_color_1[sp->get_player_color1()/8].pressed = true;
-	y += 2*D_BUTTON_HEIGHT+D_H_SPACE+D_V_SPACE+LINESPACE;
+	player_color_1[player->get_player_color1()/8].pressed = true;
+	cursor.y += 2*(D_BUTTON_HEIGHT+D_H_SPACE)+LINESPACE;
 
-	// player color 2
-	c2.set_pos( koord(D_MARGIN_LEFT,y) );
-	add_komponente( &c2 );
-	y += LINESPACE+D_V_SPACE;
-	// second color buttons
+	// Player's secondary color label
+	c2.set_pos( scr_coord(D_MARGIN_LEFT,cursor.y) );
+	add_component( &c2 );
+	cursor.y += LINESPACE+D_V_SPACE;
+
+	// Secondary color buttons
 	for(unsigned i=0;  i<28;  i++) {
-		player_color_2[i].init( button_t::box_state, (used_colors2 & (1<<i) ? "X" : ""), koord( D_MARGIN_LEFT+(i%14)*(D_BUTTON_HEIGHT+D_H_SPACE), y+(i/14)*(D_BUTTON_HEIGHT+D_H_SPACE) ), koord(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
-		player_color_2[i].background = i*8+4;
+		player_color_2[i].init( button_t::box_state, (used_colors2 & (1<<(i+1)) ? "X" : ""), scr_coord( cursor.x+(i%14)*(D_BUTTON_HEIGHT+D_H_SPACE), cursor.y+(i/14)*(D_BUTTON_HEIGHT+D_V_SPACE) ), scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
+		player_color_2[i].background_color = i*8+4;
 		player_color_2[i].add_listener(this);
-		add_komponente( player_color_2+i );
+		add_component( player_color_2+i );
 	}
-	player_color_2[sp->get_player_color2()/8].pressed = true;
-	y += 2*D_BUTTON_HEIGHT+D_H_SPACE+D_MARGIN_BOTTOM;
+	player_color_2[player->get_player_color2()/8].pressed = true;
+	cursor.y += 2*D_BUTTON_HEIGHT+D_H_SPACE;
 
-	set_fenstergroesse( koord( D_MARGIN_LEFT + 14*D_BUTTON_HEIGHT + 13*D_H_SPACE + D_MARGIN_RIGHT, y+D_TITLEBAR_HEIGHT ) );
+	// Put picture in place
+	image.align_to(&player_color_1[13],ALIGN_RIGHT);
+
+	set_windowsize( scr_size( D_MARGIN_LEFT + 14*D_BUTTON_HEIGHT + 13*D_H_SPACE + D_MARGIN_RIGHT, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
 }
-
 
 
 /**
  * This method is called if an action is triggered
  * @author V. Meyer
  */
-bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool farbengui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	for(unsigned i=0;  i<28;  i++) {
-		// new player 1 colour ?
-		if(komp==player_color_1+i) {
+
+		// new player 1 color?
+		if(comp==player_color_1+i) {
 			for(unsigned j=0;  j<28;  j++) {
 				player_color_1[j].pressed = false;
 			}
@@ -101,29 +107,32 @@ bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 
 			// re-colour a player
 			cbuffer_t buf;
-			buf.printf( "1%u,%i", sp->get_player_nr(), i*8);
-			werkzeug_t *w = create_tool( WKZ_RECOLOUR_TOOL | SIMPLE_TOOL );
-			w->set_default_param( buf );
-			sp->get_welt()->set_werkzeug( w, sp );
+			buf.printf( "1%u,%i", player->get_player_nr(), i*8);
+			tool_t *tool = create_tool( TOOL_RECOLOUR_TOOL | SIMPLE_TOOL );
+			tool->set_default_param( buf );
+			welt->set_tool( tool, player );
 			// since init always returns false, it is save to delete immediately
-			delete w;
+			delete tool;
 			return true;
 		}
-		// new player colour 2?
-		if(komp==player_color_2+i) {
+
+		// new player color 2?
+		if(comp==player_color_2+i) {
 			for(unsigned j=0;  j<28;  j++) {
 				player_color_2[j].pressed = false;
 			}
 			// re-colour a player
 			cbuffer_t buf;
-			buf.printf( "2%u,%i", sp->get_player_nr(), i*8);
-			werkzeug_t *w = create_tool( WKZ_RECOLOUR_TOOL | SIMPLE_TOOL );
-			w->set_default_param( buf );
-			sp->get_welt()->set_werkzeug( w, sp );
+			buf.printf( "2%u,%i", player->get_player_nr(), i*8);
+			tool_t *tool = create_tool( TOOL_RECOLOUR_TOOL | SIMPLE_TOOL );
+			tool->set_default_param( buf );
+			welt->set_tool( tool, player );
 			// since init always returns false, it is save to delete immediately
-			delete w;
+			delete tool;
 			return true;
 		}
+
 	}
+
 	return false;
 }
