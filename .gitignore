@@ -78,6 +78,7 @@ _UpgradeReport_Files*
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
+revision.h
 
 # Folder config file
 Desktop.ini
