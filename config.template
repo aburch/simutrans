@@ -84,4 +84,4 @@ MULTI_THREAD = 1 # Enable multithreading
 # NETTOOL_PROGDIR = $(shell pwd)
 # PROGDIR  = $(shell pwd)
 
-FLAGS = -fno-delete-null-pointer-checks -fno-strict-aliasing
+FLAGS = -fno-delete-null-pointer-checks -fno-strict-aliasing -march=pentium4
