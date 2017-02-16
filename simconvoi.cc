@@ -6166,7 +6166,7 @@ bool convoi_t::check_destination_reverse(route_t* current_route, route_t* target
 		bool rev = get_reverse_schedule();
 		schedule->increment_index(&index, &rev);
 		const koord3d next_ziel = schedule->entries[index].pos;
-		success = next_route.calc_route(welt, start_pos, next_ziel, front(), speed_to_kmh(get_min_top_speed()), get_highest_axle_load(), welt->get_settings().get_max_route_steps(), get_tile_length(), get_weight_summary().weight / 1000);
+		success = next_route.calc_route(welt, start_pos, next_ziel, front(), speed_to_kmh(get_min_top_speed()), get_highest_axle_load(), has_tall_vehicles(), welt->get_settings().get_max_route_steps(), get_tile_length(), get_weight_summary().weight / 1000);
 		target_rt = &next_route;
 	}
 
