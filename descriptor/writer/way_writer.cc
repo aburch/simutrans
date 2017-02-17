@@ -36,7 +36,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	sint32 topspeed    = obj.get_int("topspeed",    999);
 	uint32 max_weight  = obj.get_int("max_weight",  999);
 	uint16 axle_load = obj.get_int("axle_load",    9999);
-	sint8 overtaking_info = obj.get_int("overtaking_info", 9999);
+	sint8 overtaking_info = obj.get_int("overtaking_info", 1);
 
 	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro += obj.get_int("intro_month", 1) - 1;
