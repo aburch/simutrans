@@ -136,3 +136,6 @@ if [ "$OST" = "mingw64" ]; then
 	rm simutrans/pthread*.dll
 	rm simutrans/libwinpthread-1.dll
 fi
+
+# swallow any error values, return success in any case
+exit 0
