@@ -235,22 +235,10 @@ bool internal_create_surfaces(const bool, int w, int h )
 	SDL_GetRendererInfo( renderer, &ri );
 	DBG_DEBUG( "internal_create_surfaces()", "Using: Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d, %s", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, SDL_GetPixelFormatName(SDL_PIXELFORMAT_RGB565) );
 
-	if(  screen_tx  ) {
-		SDL_DestroyTexture( screen_tx );
-	}
 	screen_tx = SDL_CreateTexture( renderer, pixel_format, SDL_TEXTUREACCESS_STREAMING, w, h );
 	if(  screen_tx == NULL  ) {
 		dbg->error( "internal_create_surfaces()", "Couldn't create texture: %s", SDL_GetError() );
 		return false;
-	}
-
-	// FreeSurface only works if the texture is locked. crashes otherwise...
-	bool must_unlock = false;
-	if(  screen  ) {
-		must_unlock = true;
-		SDL_LockTexture( screen_tx, NULL, &screen->pixels, &screen->pitch );
-		SDL_FreeSurface( screen );
-		screen = NULL;
 	}
 
 	// Color component bitmasks for the RGB565 pixel format used by simgraph16.cc
@@ -268,9 +256,6 @@ bool internal_create_surfaces(const bool, int w, int h )
 		return false;
  	}
 
-	if(  must_unlock  ) {
-		SDL_UnlockTexture( screen_tx );
- 	}
 	return true;
 }
 
@@ -324,7 +309,6 @@ void dr_os_close()
 {
 	SDL_FreeCursor( blank );
 	SDL_FreeCursor( hourglass );
-	SDL_DestroyTexture( screen_tx );
 	SDL_DestroyRenderer( renderer );
 	SDL_DestroyWindow( window );
 	SDL_StopTextInput();
@@ -347,8 +331,14 @@ int dr_textur_resize(unsigned short** const textur, int width, int const height 
 	SDL_UnlockTexture( screen_tx );
 	if(  w != screen->w  ||  h != screen->h  ) {
 		// Recreate the SDL surfaces at the new resolution.
-		SDL_DestroyTexture( screen_tx );
+		// First free surface and then renderer.
+		SDL_FreeSurface( screen );
+		screen = NULL;
+		// This destroys texture as well.
 		SDL_DestroyRenderer( renderer );
+		renderer = NULL;
+		screen_tx = NULL;
+
 		internal_create_surfaces( false, w, h );
 		if(  screen  ) {
 			DBG_MESSAGE("dr_textur_resize(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h );
@@ -366,7 +356,11 @@ int dr_textur_resize(unsigned short** const textur, int width, int const height 
 
 unsigned short *dr_textur_init()
 {
-	SDL_LockTexture( screen_tx, NULL, &screen->pixels, &screen->pitch );
+	// SDL_LockTexture modifies pixels, so copy it first
+	void *pixels = screen->pixels;
+	int pitch = screen->pitch;
+
+	SDL_LockTexture( screen_tx, NULL, &pixels, &pitch );
 	return (unsigned short*)screen->pixels;
 }
 
