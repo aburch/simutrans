@@ -1,9 +1,10 @@
 /**
  * convoi_t Class for vehicle associations
- * Hansjörg Malthaner
+ * Hansjï¿½rg Malthaner
  */
 
 #include <stdlib.h>
+#include <math.h>
 
 #include "simdebug.h"
 #include "simunits.h"
@@ -31,6 +32,7 @@
 #include "gui/convoi_detail_t.h"
 #include "boden/grund.h"
 #include "boden/wege/schiene.h"	// for railblocks
+#include "boden/wege/strasse.h"
 
 #include "descriptor/vehicle_desc.h"
 #include "descriptor/roadsign_desc.h"
@@ -127,6 +129,8 @@ void convoi_t::init(player_t *player)
 	wait_lock = 0;
 	arrived_time = 0;
 
+	requested_change_lane = false;
+
 	jahresgewinn = 0;
 	total_distance_traveled = 0;
 
@@ -160,6 +164,7 @@ void convoi_t::init(player_t *player)
 	line_update_pending = linehandle_t();
 
 	home_depot = koord3d::invalid;
+	yielding_quit_index = -1;
 
 	recalc_data_front = true;
 	recalc_data = true;
@@ -728,6 +733,10 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 				sum_gesamtweight += total_vehicle_weight;
 			}
 		}
+		if(  get_yielding_quit_index() != -1 && speed_limit > kmh_to_speed(15)  ) {
+			//When yielding lane, speed_limit is 15 kmph lower.
+			speed_limit -= kmh_to_speed(15);
+		}
 		recalc_data = recalc_speed_limit = false;
 		akt_speed_soll = min( speed_limit, brake_speed_soll );
 	}
@@ -991,7 +1000,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 
 /**
  * Berechne route von Start- zu Zielkoordinate
- * @author Hanjsörg Malthaner
+ * @author Hanjsï¿½rg Malthaner
  */
 bool convoi_t::drive_to()
 {
@@ -1148,7 +1157,7 @@ bool convoi_t::drive_to()
 /**
  * Ein Fahrzeug hat ein Problem erkannt und erzwingt die
  * Berechnung einer neuen Route
- * @author Hanjsörg Malthaner
+ * @author Hanjsï¿½rg Malthaner
  */
 void convoi_t::suche_neue_route()
 {
@@ -1177,6 +1186,8 @@ void convoi_t::step()
 
 		case LOADING:
 			laden();
+			//When loading, vehicle should not be on passing lane.
+			set_tiles_overtaking(0);
 			break;
 
 		case DUMMY4:
@@ -1293,9 +1304,11 @@ void convoi_t::step()
 				if(restart_speed>=0) {
 					akt_speed = restart_speed;
 				}
+				/*
 				if(state==CAN_START  ||  state==CAN_START_ONE_MONTH) {
 					set_tiles_overtaking( 0 );
 				}
+				*/
 			}
 			break;
 
@@ -1310,9 +1323,11 @@ void convoi_t::step()
 				if(restart_speed>=0) {
 					akt_speed = restart_speed;
 				}
+				/*
 				if(state!=DRIVING) {
 					set_tiles_overtaking( 0 );
 				}
+				*/
 			}
 			break;
 
@@ -3577,9 +3592,11 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		return false;
 	}
 
+	/*
 	if (!other_overtaker->can_be_overtaken()) {
 		return false;
 	}
+	*/
 
 	if(  other_speed == 0  ) {
 		/* overtaking a loading convoi
@@ -3595,8 +3612,15 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			// also this is not possible, since a car loads in front of is!?!
 			return false;
 		}
+		//Overtaking info (0 = condition for one-way road, 1 = condition for two-way road, 2 = overtaking a loading convoy only, 3 = overtaking is completely forbidden)
+		sint8 overtaking_info = str->get_overtaking_info();
+		if(  overtaking_info == 3  ){
+			// This road prohibits overtaking.
+			return false;
+		}
 
 		uint16 idx = fahr[0]->get_route_index();
+		//TODO: This initialization of "tiles" should be considered again. 2 is not appropriate.
 		const sint32 tiles = other_speed == 0 ? 2 : (steps_other-1)/(CARUNITS_PER_TILE*VEHICLE_STEPS_PER_CARUNIT) + get_tile_length() + 1;
 		if(  tiles > 0  &&  idx+(uint32)tiles >= route.get_count()  ) {
 			// needs more space than there
@@ -3620,7 +3644,9 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 				return false;
 			}
 			// Check for other vehicles on the next tile
-			const uint8 top = gr->get_top();
+			//const uint8 top = gr->get_top();
+			//These conditions is abandoned to overtake in traffic jam.
+			/*
 			for(  uint8 j=1;  j<top;  j++  ) {
 				if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j))  ) {
 					// check for other traffic on the road
@@ -3635,14 +3661,36 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 					}
 				}
 			}
+			*/
 		}
 		set_tiles_overtaking( tiles );
 		return true;
 	}
 
+	// Around the end of route, overtaking should not be allowed.
+	if(  get_route()->get_count() - fahr[0]->get_route_index() < 5  ) {
+		return false;
+	}
+	// Do not overtake a vehicle which has higher power than this.
+	if(  other_overtaker->get_max_power_speed() - this->get_max_power_speed() > kmh_to_speed(5)  ) {
+		return false;
+	}
+
+	// The flag whether the convoi is in traffic jam. When this is true, we must calculate overtaking in a different way.
+	bool in_congestion = false;
 	int diff_speed = akt_speed - other_speed;
 	if(  diff_speed < kmh_to_speed(5)  ) {
-		return false;
+		grund_t *gr = welt->lookup(get_pos());
+		strasse_t *str=(strasse_t *)gr->get_weg(road_wt);
+		if(  str==NULL  ) {
+			printf("street is NULL!\n");
+			return false;
+		}else if(  akt_speed < fmin(max_power_speed, str->get_max_speed())/2  &&  diff_speed >= kmh_to_speed(0)  ){
+			//Warning: diff_speed == 0 is acceptable. We must consider the case diff_speed == 0.
+			in_congestion = true;
+		}else{
+			return false;
+		}
 	}
 
 	// Number of tiles overtaking will take
@@ -3651,10 +3699,16 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	// Distance it takes overtaking (unit: vehicle_steps) = my_speed * time_overtaking
 	// time_overtaking = tiles_to_overtake/diff_speed
 	// tiles_to_overtake = convoi_length + current pos within tile + (pos_other_convoi within tile + length of other convoi) - one tile
-	int distance = akt_speed*(fahr[0]->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/diff_speed;
+	int distance = 1;
+	if(  !in_congestion  ){
+		distance = akt_speed*(fahr[0]->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/diff_speed;
+	}else{
+		distance = max_power_speed*(fahr[0]->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/(max_power_speed-other_speed);
+	}
+
 	int time_overtaking = 0;
 
-	// Conditions for overtaking:
+	// Conditions for overtaking (originally):
 	// Flat tiles, with no stops, no crossings, no signs, no change of road speed limit
 	// First phase: no traffic except me and my overtaken car in the dangerous zone
 	unsigned int route_index = fahr[0]->get_route_index()+1;
@@ -3671,7 +3725,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		pos_next = route.at(route_index++);
 		grund_t *gr = welt->lookup(pos);
 		// no ground, or slope => about
-		if(  gr==NULL  ||  gr->get_weg_hang()!=slope_t::flat  ) {
+		if(  gr==NULL  ) {
 			return false;
 		}
 
@@ -3679,21 +3733,30 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		if(  str==NULL  ) {
 			return false;
 		}
+		//Overtaking info (0 = condition for one-way road, 1 = condition for two-way road, 2 = overtaking a loading convoy only, 3 = overtaking is completely forbidden)
+		sint8 overtaking_info = str->get_overtaking_info();
+		if(  overtaking_info != 1  ){
+			// Since the other vehicle is moving...
+			return false;
+		}
 		// the only roadsign we must account for are choose points and traffic lights
 		if(  str->has_sign()  ) {
 			const roadsign_t *rs = gr->find<roadsign_t>(1);
 			if(rs) {
 				const roadsign_desc_t *rb = rs->get_desc();
-				if(rb->is_choose_sign()  ||  rb->is_traffic_light()  ) {
+				//We do not consider traffic-lights.
+				if(  rb->is_choose_sign()  ) {
 					// because we need to stop here ...
 					return false;
 				}
 			}
 		}
 		// not overtaking on railroad crossings or on normal crossings ...
+		/*
 		if(  str->is_crossing()  ||  ribi_t::is_threeway(str->get_ribi())  ) {
 			return false;
 		}
+		*/
 		// street gets too slow (TODO: should be able to be correctly accounted for)
 		if(  akt_speed > kmh_to_speed(str->get_max_speed())  ) {
 			return false;
@@ -3711,7 +3774,12 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 				const overtaker_t *ov = v->get_overtaker();
 				if(ov) {
 					if(this!=ov  &&  other_overtaker!=ov) {
-						return false;
+						//If ov goes same directory, should not return false
+						ribi_t::ribi their_direction = ribi_t::backward( fahr[0]->calc_direction(pos_prev, pos_next) );
+						vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));
+						if (v && v->get_direction() == their_direction && v->get_overtaker()) {
+							return false;
+						}
 					}
 				}
 				else if(  v->get_waytype()==road_wt  &&  v->get_typ()!=obj_t::pedestrian  ) {
@@ -3774,8 +3842,9 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		pos = pos_next;
 	}
 
-	set_tiles_overtaking( 1+n_tiles );
-	other_overtaker->set_tiles_overtaking( -1-(n_tiles*(akt_speed-diff_speed))/akt_speed );
+	set_tiles_overtaking( 3+n_tiles );
+	//The parameter about being overtaken is no longer meaningful.
+	//other_overtaker->set_tiles_overtaking( -1-(n_tiles*(akt_speed-diff_speed))/akt_speed );
 	return true;
 }
 
@@ -3844,4 +3913,21 @@ const char* convoi_t::send_to_depot(bool local)
 	delete shortest_route;
 
 	return txt;
+}
+
+/*
+ * Functions to yield lane space to vehicles on passing lane.
+ * More natural movement controll is desired!
+ * @author teamhimeH
+ */
+void convoi_t::yield_lane_space()
+{
+	if(  speed_limit > kmh_to_speed(15)  ) {
+		uint32 quit_index = fahr[0]->get_route_index() + 3u;
+		if(  quit_index >= get_route()->get_count()  ) {
+			quit_index = get_route()->get_count() - 1u;
+		}
+		yielding_quit_index = quit_index;
+		must_recalc_speed_limit();
+	}
 }

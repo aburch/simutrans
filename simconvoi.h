@@ -267,6 +267,12 @@ private:
 	uint32 arrived_time;
 
 	/**
+	 *The flag whether this convoi is requested to change lane by the convoi behind this.
+	 *@author teamhimeH
+	 */
+	bool requested_change_lane;
+
+	/**
 	* accumulated profit over a year
 	* @author Hanjsörg Malthaner
 	*/
@@ -396,6 +402,13 @@ private:
 	void unregister_stops();
 
 	uint32 move_to(uint16 start_index);
+
+	/**
+	 * the route index of the point to quit yielding lane
+	 * == -1 means this convoi isn't yielding.
+	 * @author teamhimeH
+	 */
+	sint32 yielding_quit_index;
 
 public:
 	/**
@@ -884,6 +897,16 @@ public:
 
 	// Overtaking for convois
 	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
+
+	/*
+	 * Functions related to requested_change_lane
+	 * @author teamhimeH
+	 */
+	bool is_requested_change_lane() const { return requested_change_lane; }
+	void set_requested_change_lane(bool x) { requested_change_lane = x; }
+	void yield_lane_space();
+	sint32 get_yielding_quit_index() const { return yielding_quit_index; }
+	void quit_yielding_lane() { yielding_quit_index = -1; must_recalc_speed_limit(); }
 };
 
 #endif

@@ -164,6 +164,7 @@ public:
 	virtual void leave_tile();
 
 	virtual overtaker_t *get_overtaker() { return NULL; }
+	virtual convoi_t* get_overtaker_cv() { return NULL; }
 
 	vehicle_base_t();
 
@@ -513,6 +514,9 @@ public:
 	schedule_t * generate_new_schedule() const;
 
 	virtual overtaker_t* get_overtaker();
+	virtual convoi_t* get_overtaker_cv();
+
+	virtual vehicle_base_t* other_lane_blocked() const;
 };
 
 

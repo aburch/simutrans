@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
+ *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  */
@@ -63,6 +63,12 @@ private:
 
 	/// if true front_images lists exists as nodes
 	bool front_images;
+
+	/**
+	* Overtaking info (0 = condition for one-way road, 1 = condition for two-way road, 2 = overtaking a loading convoy only, 3 = overtaking is completely forbidden)
+	* @author teamhimeH
+	*/
+	sint8 overtaking_info;
 
 	/**
 	 * calculates index of image list for flat ways
@@ -214,6 +220,10 @@ public:
 	}
 
 	void calc_checksum(checksum_t *chk) const;
+
+	sint8 get_overtaking_info() const {
+		return overtaking_info;
+	}
 };
 
 #endif

@@ -504,9 +504,9 @@ ifeq ($(BACKEND),sdl2)
   SOURCES += simsys_s2.cc
   ifeq ($(OSTYPE),mac)
     # Core Audio (Quicktime) base sound system routines
-    SOURCES += sound/core-audio_sound.mm
-    SOURCES += music/core-audio_midi.mm
-    LIBS    += -framework Foundation -framework QTKit
+    SOURCES += sound/sdl_mixer_sound.cc
+    SOURCES += music/sdl_midi.cc
+    LIBS    += -framework Foundation -lSDL_mixer
   else
     SOURCES  += sound/sdl_sound.cc
     ifeq ($(findstring $(OSTYPE), cygwin mingw),)

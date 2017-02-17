@@ -55,6 +55,7 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->obsolete_date = DEFAULT_RETIRE_DATE*12;
 		desc->wt = road_wt;
 		desc->styp = type_flat;
+    desc->overtaking_info = 0;
 		desc->draw_as_obj = false;
 		desc->number_seasons = 0;
 	}
@@ -63,7 +64,22 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		const uint16 v = decode_uint16(p);
 		version = v & 0x7FFF;
 
-		if(version==6) {
+    if(version==7) {
+      //version 7, now with overtaking_info
+      desc->cost = decode_uint32(p);
+			desc->maintenance = decode_uint32(p);
+			desc->topspeed = decode_uint32(p);
+			desc->max_weight = decode_uint32(p);
+			desc->intro_date = decode_uint16(p);
+			desc->obsolete_date = decode_uint16(p);
+			desc->axle_load = decode_uint16(p);
+			desc->wt = decode_uint8(p);
+			desc->styp = decode_uint8(p);
+      desc->overtaking_info = decode_sint8(p);  //new
+			desc->draw_as_obj = decode_uint8(p);
+			desc->number_seasons = decode_sint8(p);
+    }
+		else if(version==6) {
 			// version 6, now with axle load
 			desc->cost = decode_uint32(p);
 			desc->maintenance = decode_uint32(p);
@@ -156,6 +172,10 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(  version < 6  ) {
 		desc->axle_load = 9999;
 	}
+
+  if(  version < 7  ) {
+    desc->overtaking_info = 1;
+  }
 
 	// front images from version 5 on
 	desc->front_images = version > 4;

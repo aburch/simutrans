@@ -526,6 +526,8 @@ sint8 vehicle_base_t::get_hoff() const
  */
 vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction )
 {
+	bool cnv_overtaking = false;//whether this convoi is on passing lane.
+	if(  cnv  ) cnv_overtaking = cnv -> is_overtaking();
 	// Search vehicle
 	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
 		if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
@@ -536,6 +538,7 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 			// check for car
 			uint8 other_direction=255;
 			bool other_moving = false;
+			bool other_overtaking = false; //whether the other convoi is on passing lane.
 			if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
 				// ignore ourself
 				if(  cnv == at->get_convoi()  ) {
@@ -543,24 +546,28 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 				}
 				other_direction = at->get_direction();
 				other_moving = at->get_convoi()->get_akt_speed() > kmh_to_speed(1);
+				other_overtaking = at->get_convoi()->is_overtaking();
 			}
 			// check for city car
 			else if(  v->get_waytype() == road_wt  ) {
 				other_direction = v->get_direction();
 				if(  private_car_t const* const sa = obj_cast<private_car_t>(v)  ){
 					other_moving = sa->get_current_speed() > 1;
+					other_overtaking = sa->is_overtaking();
 				}
 			}
 
 			// ok, there is another car ...
 			if(  other_direction != 255  ) {
-				if(  next_direction == other_direction  &&  !ribi_t::is_threeway(gr->get_weg_ribi(road_wt))  ) {
+				if(  next_direction == other_direction  &&  !ribi_t::is_threeway(gr->get_weg_ribi(road_wt))  &&  cnv_overtaking == other_overtaking  ) {
+					// only consider cars on same lane.
 					// cars going in the same direction and no crossing => that mean blocking ...
 					return v;
 				}
 
 				const ribi_t::ribi other_90direction = (gr->get_pos().get_2d() == v->get_pos_next().get_2d()) ? other_direction : calc_direction(gr->get_pos(), v->get_pos_next());
-				if(  other_90direction == next_90direction  ) {
+				if(  other_90direction == next_90direction   &&  cnv_overtaking == other_overtaking  ) {
+					//Whether this code is safe is not clear!!(can ignore cars on the other lane?)
 					// Want to exit in same as other   ~50% of the time
 					return v;
 				}
@@ -568,7 +575,8 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 				const bool drives_on_left = welt->get_settings().is_drive_left();
 				const bool across = next_direction == (drives_on_left ? ribi_t::rotate45l(next_90direction) : ribi_t::rotate45(next_90direction)); // turning across the opposite directions lane
 				const bool other_across = other_direction == (drives_on_left ? ribi_t::rotate45l(other_90direction) : ribi_t::rotate45(other_90direction)); // other is turning across the opposite directions lane
-				if(  other_direction == next_direction  &&  !(other_across || across)  ) {
+				if(  other_direction == next_direction  &&  !(other_across || across)  &&  cnv_overtaking == other_overtaking) {
+					// only consider cars on same lane.
 					// entering same straight waypoint as other ~18%
 					return v;
 				}
@@ -590,6 +598,7 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 					return v;
 				}
 				else if(  other_direction == current_direction  &&  current_90direction == ribi_t::none  ) {
+					// !It is not clear whether we should consider opposite lane in this case!
 					// entering same diagonal waypoint as other   ~1%
 					return v;
 				}
@@ -2120,7 +2129,8 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		uint32 test_index = route_index + 1u;
 
 		// way should be clear for overtaking: we checked previously
-		if(  !cnv->is_overtaking()  ) {
+		// Now we have to consider even if convoi is overtaking!
+		//if(  !cnv->is_overtaking()  ) {
 			// calculate new direction
 			route_t const& r = *cnv->get_route();
 			koord3d next = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
@@ -2133,6 +2143,43 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			// do not block intersections
 			const bool drives_on_left = welt->get_settings().is_drive_left();
 			bool int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction)) & str->get_ribi_unmasked())  ||  curr_90direction != next_90direction  ||  (rs  &&  rs->get_desc()->is_traffic_light()));
+
+			//If this convoi is overtaking, the convoi must avoid a head-on crash.
+			if(  cnv->is_overtaking()  ){
+				while(  test_index < route_index + 4u && test_index < r.get_count()  ){
+					grund_t *grn = welt->lookup(r.at(test_index));
+					for(  uint8 pos=1;  pos<(volatile uint8)grn->get_top();  pos++  ){
+						if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(grn->obj_bei(pos))  ){
+							if(  v->get_typ()==obj_t::pedestrian  ) {
+								continue;
+							}
+							ribi_t::ribi other_direction=255;
+							if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
+								//ignore ourself
+								if(  cnv == at->get_convoi()  ){
+									continue;
+								}
+								other_direction = at->get_direction();
+							}
+							//check for city car
+							else if(  v->get_waytype() == road_wt  ) {
+								other_direction = v->get_direction();
+							}
+							if(  other_direction != 255  ){
+								//There is another car. We have to check if this convoi is facing or not.
+								//calc_direction(next,get_pos()):opposite direction of next_direction.
+								if(  calc_direction(next,get_pos()) == other_direction  ) {
+									//printf("crash avoid. (%d,%d)\n", get_pos().x, get_pos().y);
+									cnv->set_tiles_overtaking(0);
+								}
+							}
+						}
+					}
+					test_index++;
+				}
+			}
+
+			test_index = route_index + 1u;//reset test_index
 
 			// check exit from crossings and intersections, allow to proceed after 4 consecutive
 			while(  !obj   &&  (str->is_crossing()  ||  int_block)  &&  test_index < r.get_count()  &&  test_index < route_index + 4u  ) {
@@ -2229,10 +2276,11 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					}
 				}
 			}
-		}
+		//}
 
 		// stuck message ...
 		if(  obj  &&  !second_check_count  ) {
+			/*
 			if(  obj->is_stuck()  ) {
 				// end of traffic jam, but no stuck message, because previous vehicle is stuck too
 				restart_speed = 0;
@@ -2240,23 +2288,50 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				cnv->reset_waiting();
 			}
 			else {
+			*/
 				if(  test_index == route_index + 1u  ) {
 					// no intersections or crossings, we might be able to overtake this one ...
-					overtaker_t *over = obj->get_overtaker();
-					if(  over  &&  !over->is_overtaken()  ) {
+					convoi_t *over = obj->get_overtaker_cv();
+					if(  over  ) {
+						/*
 						if(  over->is_overtaking()  ) {
 							// otherwise we would stop every time being overtaken
 							return true;
 						}
+						*/
 						// not overtaking/being overtake: we need to make a more thought test!
 						if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(obj)  ) {
 							convoi_t* const ocnv = car->get_convoi();
-							if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
+							// yielding vehicle should not be overtaken by the vehicle whose maximum speed is same.
+							bool yielding_factor = true;
+							if(  ocnv->get_yielding_quit_index() != -1  &&  this->get_speed_limit() - ocnv->get_speed_limit() < kmh_to_speed(10)  ) {
+								yielding_factor = false;
+							}
+							if(  !cnv->is_overtaking()  &&  !other_lane_blocked()  &&  yielding_factor  &&  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_akt_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
 								return true;
+							}
+							strasse_t *str=(strasse_t *)gr->get_weg(road_wt);
+							sint32 cnv_max_speed = (int)fmin(cnv->get_speed_limit(), str->get_max_speed()*kmh_to_speed(1));
+							sint32 other_max_speed = (int)fmin(ocnv->get_speed_limit(), str->get_max_speed()*kmh_to_speed(1));
+							//printf("cnv=%d, other=%d, str=%d (%d,%d)\n", cnv_max_speed/kmh_to_speed(1),other_max_speed/kmh_to_speed(1),str->get_max_speed(), get_pos().x, get_pos().y);
+							if(  cnv->is_overtaking() && kmh_to_speed(10) <  cnv_max_speed - other_max_speed  ) {
+								//If the convoi is on passing lane and there is slower convoi in front of this, this convoi request the slower to go to traffic lane.
+								ocnv->set_requested_change_lane(true);
+							}
+							//For the case that the faster convoi is on traffic lane.
+							if(  !cnv->is_overtaking() && kmh_to_speed(10) <  cnv_max_speed - other_max_speed  ) {
+								if(  vehicle_base_t* const br = car->other_lane_blocked()  ) {
+									if(  road_vehicle_t const* const blk = obj_cast<road_vehicle_t>(br)  ) {
+										if(  car->get_direction() == blk->get_direction() && abs(car->get_convoi()->get_speed_limit() - blk->get_convoi()->get_speed_limit()) < kmh_to_speed(5)  ){
+											//same direction && (almost) same speed vehicle exists.
+											ocnv->yield_lane_space();
+										}
+									}
+								}
 							}
 						}
 						else if(  private_car_t* const caut = obj_cast<private_car_t>(obj)  ) {
-							if(  cnv->can_overtake(caut, caut->get_desc()->get_geschw(), VEHICLE_STEPS_PER_TILE)  ) {
+							if(  !cnv->is_overtaking()  &&  !other_lane_blocked()  &&  cnv->can_overtake(caut, caut->get_desc()->get_geschw(), VEHICLE_STEPS_PER_TILE)  ) {
 								return true;
 							}
 						}
@@ -2264,8 +2339,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				}
 				// we have to wait ...
 				restart_speed = (cnv->get_akt_speed()*3)/4;
-				cnv->set_tiles_overtaking(0);
-			}
+			//}
 		}
 
 		return obj==NULL;
@@ -2280,6 +2354,54 @@ overtaker_t* road_vehicle_t::get_overtaker()
 	return cnv;
 }
 
+//return overtaker in "convoi_t"
+convoi_t* road_vehicle_t::get_overtaker_cv()
+{
+	return cnv;
+}
+
+vehicle_base_t* road_vehicle_t::other_lane_blocked() const{
+	//This function calculate whether the convoi can change lane.
+	//TODO: This function haven't considered city car!
+	if(  leading  ){
+		route_t const& r = *cnv->get_route();
+		//check whether there's no car in -1 ~ +1 section.
+		for(uint32 test_index = route_index < r.get_count() - 1u ? route_index + 1u : r.get_count() - 1u; test_index >= route_index - 1u; test_index--){
+			grund_t *gr = welt->lookup(r.at(test_index));
+			for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
+				if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
+					if(  v->get_typ()==obj_t::pedestrian  ) {
+						continue;
+					}
+					if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
+						// ignore ourself
+						if(  cnv == at->get_convoi()  ) {
+							continue;
+						}
+						if(  cnv->is_overtaking() && at->get_convoi()->is_overtaking()  ){
+							continue;
+						}
+						if(  !cnv->is_overtaking() && !(at->get_convoi()->is_overtaking())  ){
+							//Prohibit going on passing lane when facing traffic exists.
+							ribi_t::ribi other_direction = at->get_direction();
+							route_t const& r = *cnv->get_route();
+							koord3d next = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
+							if(  calc_direction(next,get_pos()) == other_direction  ) {
+								return v;
+							}
+							continue;
+						}
+						return v;
+					}
+				}
+			}
+			if(  test_index == 0  ) {
+				break;
+			}
+		}
+	}
+	return NULL;
+}
 
 void road_vehicle_t::enter_tile(grund_t* gr)
 {
@@ -2288,9 +2410,29 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 	const int cargo = get_total_cargo();
 	weg_t *str = gr->get_weg(road_wt);
 	str->book(cargo, WAY_STAT_GOODS);
-	if (leading)  {
+	if (  leading  )  {
 		str->book(1, WAY_STAT_CONVOIS);
 		cnv->update_tiles_overtaking();
+		//decide if overtaking convoi should go back to the traffic lane.
+		if(  cnv->get_tiles_overtaking() == 1  &&  str->get_overtaking_info() == 1  ){
+			if(  vehicle_base_t* v = other_lane_blocked()  ){
+				//lane change denied
+				cnv->set_tiles_overtaking(3);
+				if(  cnv->is_requested_change_lane()  ) {
+					//request the blocking convoi to reduce speed.
+					if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(v)  ) {
+						car->get_convoi()->yield_lane_space();
+					}
+				}
+			}
+			else {
+				//lane change accepted
+				cnv->set_requested_change_lane(false);
+			}
+		}
+		if(  cnv->get_yielding_quit_index() == route_index  ) {
+			cnv->quit_yielding_lane();
+		}
 	}
 }
 
