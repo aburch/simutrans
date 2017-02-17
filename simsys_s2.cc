@@ -124,13 +124,14 @@ bool dr_auto_scale(bool on_off )
 		}
 		return false;
 	}
-	else 
+	else
 #else
 #pragma message "SDL version must be at least 2.0.4 to support autoscaling."
 #endif
 	{
 		x_scale = 48;
 		y_scale = 48;
+		(void)on_off;
 		return false;
 	}
 }
@@ -187,7 +188,7 @@ resolution dr_query_screen_resolution()
 }
 
 
-bool internal_create_surfaces(const bool print_info, int w, int h )
+bool internal_create_surfaces(const bool, int w, int h )
 {
 	// The pixel format needs to match the graphics code within simgraph16.cc.
 	// Note that alpha is handled by simgraph16, not by SDL.
@@ -219,7 +220,7 @@ bool internal_create_surfaces(const bool print_info, int w, int h )
 	if(  renderer == NULL  ) {
 		dbg->warning( "internal_create_surfaces()", "Couldn't create opengl renderer: %s", SDL_GetError() );
 		// try all other renderer until success
-		// (however, on my windows machines opengles crashed, so the software renderer is never ever called)  
+		// (however, on my windows machines opengles crashed, so the software renderer is never ever called)
 		for(  int i = 0;  i < num_rend  &&  renderer==NULL;  i++  ) {
 			if(  i != rend_index  ) {
 				renderer = SDL_CreateRenderer( window, i, flags );
