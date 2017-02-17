@@ -294,7 +294,7 @@ PageExEnd
 
 
 
-; Some packs have not opene source license, so we have to show additional licences
+; Some paksets don't have an open source license, so we have to show additional licences
 Function CheckForClosedSource
 
   SectionGetFlags ${pak64german} $R0

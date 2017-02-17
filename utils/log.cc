@@ -86,8 +86,8 @@ void log_t::debug(const char *who, const char *format, ...)
 		va_list argptr;
 		va_start(argptr, format);
 
-		if( log ) {                         /* nur loggen wenn schon ein log */
-			fprintf(log ,"Debug: %s:\t",who);      /* geoeffnet worden ist */
+		if( log ) {                           /* only log when a log */
+			fprintf(log ,"Debug: %s:\t",who); /* is already open */
 			vfprintf(log, format, argptr);
 			fprintf(log,"\n");
 
@@ -98,8 +98,8 @@ void log_t::debug(const char *who, const char *format, ...)
 		va_end(argptr);
 
 		va_start(argptr, format);
-		if( tee ) {                         /* nur loggen wenn schon ein log */
-			fprintf(tee, "Debug: %s:\t",who);      /* geoeffnet worden ist */
+		if( tee ) {                           /* only log when a log */
+			fprintf(tee, "Debug: %s:\t",who); /* is already open */
 			vfprintf(tee, format, argptr);
 			fprintf(tee,"\n");
 		}
@@ -129,8 +129,8 @@ void log_t::message(const char *who, const char *format, ...)
 		va_list argptr;
 		va_start(argptr, format);
 
-		if( log ) {                         /* nur loggen wenn schon ein log */
-			fprintf(log ,"Message: %s:\t",who);      /* geoeffnet worden ist */
+		if( log ) {                             /* only log when a log */
+			fprintf(log ,"Message: %s:\t",who); /* is already open */
 			vfprintf(log, format, argptr);
 			fprintf(log,"\n");
 
@@ -141,8 +141,8 @@ void log_t::message(const char *who, const char *format, ...)
 		va_end(argptr);
 
 		va_start(argptr, format);
-		if( tee ) {                         /* nur loggen wenn schon ein log */
-			fprintf(tee, "Message: %s:\t",who);      /* geoeffnet worden ist */
+		if( tee ) {                             /* only log when a log */
+			fprintf(tee, "Message: %s:\t",who); /* is already open */
 			vfprintf(tee, format, argptr);
 			fprintf(tee,"\n");
 		}
@@ -172,8 +172,8 @@ void log_t::warning(const char *who, const char *format, ...)
 		va_list argptr;
 		va_start(argptr, format);
 
-		if( log ) {                         /* nur loggen wenn schon ein log */
-			fprintf(log ,"Warning: %s:\t",who);      /* geoeffnet worden ist */
+		if( log ) {                             /* only log when a log */
+			fprintf(log ,"Warning: %s:\t",who); /* is already open */
 			vfprintf(log, format, argptr);
 			fprintf(log,"\n");
 
@@ -184,8 +184,8 @@ void log_t::warning(const char *who, const char *format, ...)
 		va_end(argptr);
 
 		va_start(argptr, format);
-		if( tee ) {                         /* nur loggen wenn schon ein log */
-			fprintf(tee, "Warning: %s:\t",who);      /* geoeffnet worden ist */
+		if( tee ) {                             /* only log when a log */
+			fprintf(tee, "Warning: %s:\t",who); /* is already open */
 			vfprintf(tee, format, argptr);
 			fprintf(tee,"\n");
 		}
@@ -215,8 +215,8 @@ void log_t::error(const char *who, const char *format, ...)
 		va_list argptr;
 		va_start(argptr, format);
 
-		if( log ) {                         /* nur loggen wenn schon ein log */
-			fprintf(log ,"ERROR: %s:\t",who);      /* geoeffnet worden ist */
+		if( log ) {                           /* only log when a log */
+			fprintf(log ,"ERROR: %s:\t",who); /* is already open */
 			vfprintf(log, format, argptr);
 			fprintf(log,"\n");
 
@@ -230,8 +230,8 @@ void log_t::error(const char *who, const char *format, ...)
 		va_end(argptr);
 
 		va_start(argptr, format);
-		if( tee ) {                         /* nur loggen wenn schon ein log */
-			fprintf(tee, "ERROR: %s:\t",who);      /* geoeffnet worden ist */
+		if( tee ) {                           /* only log when a log */
+			fprintf(tee, "ERROR: %s:\t",who); /* is already open */
 			vfprintf(tee, format, argptr);
 			fprintf(tee,"\n");
 
@@ -358,8 +358,8 @@ void log_t::vmessage(const char *what, const char *who, const char *format, va_l
 		// HACK: this is undefined behavior but should work ... hopefully ...
 		args2 = args;
 #endif
-		if( log ) {                         /* nur loggen wenn schon ein log */
-			fprintf(log ,"%s: %s:\t", what, who);      /* geoeffnet worden ist */
+		if( log ) {                               /* only log when a log */
+			fprintf(log ,"%s: %s:\t", what, who); /* is already open */
 			vfprintf(log, format, args);
 			fprintf(log,"\n");
 
@@ -367,8 +367,8 @@ void log_t::vmessage(const char *what, const char *who, const char *format, va_l
 				fflush(log);
 			}
 		}
-		if( tee ) {                         /* nur loggen wenn schon ein log */
-			fprintf(tee,"%s: %s:\t", what, who);      /* geoeffnet worden ist */;
+		if( tee ) {                              /* only log when a log */
+			fprintf(tee,"%s: %s:\t", what, who); /* is already open */
 			vfprintf(tee, format, args2);
 			fprintf(tee,"\n");
 		}
@@ -382,12 +382,12 @@ log_t::log_t( const char *logfilename, bool force_flush, bool log_debug, bool lo
 {
 	log = NULL;
 	syslog = false;
-	this->force_flush = force_flush; /* wenn true wird jedesmal geflusht */
-					 /* wenn ein Eintrag ins log geschrieben wurde */
+	this->force_flush = force_flush; /* if true will always flush when */
+	                                 /* an entry is written to the log */
 	this->log_debug = log_debug;
 
 	if(logfilename == NULL) {
-		log = NULL;                       /* kein log */
+		log = NULL;                       /* not a log */
 		tee = NULL;
 	} else if(strcmp(logfilename,"stdio") == 0) {
 		log = stdout;

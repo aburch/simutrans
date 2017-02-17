@@ -6666,7 +6666,7 @@ bool tool_change_convoi_t::init( player_t *player )
 
 		case 'l': // change line
 			{
-				// read out id and new current_stop (actual) index
+				// read out id and new current_stop index
 				uint16 id=0, current_stop=0;
 				int count=sscanf( p, "%hi,%hi", &id, &current_stop );
 				linehandle_t l;

@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 
-# first assum unix ...
+# first assume unix ...
 simexe=
 updatepath="/"
 updater="get_pak.sh"

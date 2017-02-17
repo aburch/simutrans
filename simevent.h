@@ -1,5 +1,5 @@
 /*
- * Header for system independant event handling routines
+ * Header for system independent event handling routines
  *
  * Hj. Malthaner
  */

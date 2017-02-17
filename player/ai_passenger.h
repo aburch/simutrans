@@ -27,7 +27,7 @@ private:
 		CHECK_CONVOI
 	};
 
-	// vars für die KI
+	// vars for the KI
 	state state;
 
 	// we will use this vehicle!
@@ -36,7 +36,7 @@ private:
 	// and the convoi will run on this track:
 	const way_desc_t *road_weg ;
 
-	// time to wait before next contruction
+	// time to wait before next construction
 	sint32 next_construction_steps;
 
 	/* start and end stop position (and their size) */
@@ -55,7 +55,7 @@ private:
 	koord find_area_for_hub( const koord lo, const koord ru, const koord basis ) const;
 	koord find_place_for_hub( const stadt_t *s ) const;
 
-	/* builds harbours and ferrys
+	/* builds harbours and ferries
 	 * @author prissi
 	 */
 	koord find_harbour_pos(karte_t* welt, const stadt_t *s );
@@ -64,7 +64,7 @@ private:
 	// builds a simple 3x3 three stop airport with town connection road
 	halthandle_t build_airport(const stadt_t* city, koord pos, int rotate);
 
-	/* builts airports and planes
+	/* build airports and planes
 	 * @author prissi
 	 */
 	bool create_air_transport_vehikel(const stadt_t *start_stadt, const stadt_t *end_stadt);

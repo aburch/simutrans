@@ -6,7 +6,7 @@ Simutrans can create city names two ways:
 
 1) If there is a citylist_xx.txt file for the chosen language
    city names are read from this file.
-2) Otherwise random city names are created fromthe syllables
+2) Otherwise random city names are created from the syllables
    given in xx.tab
 
 

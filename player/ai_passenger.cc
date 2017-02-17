@@ -5,7 +5,7 @@
  * (see licence.txt)
  */
 
-/* simple passenger AI (not using trains, not preoptimized network) */
+/* simple passenger AI (not using trains, not pre-optimized network) */
 
 #include "../simcity.h"
 #include "../simconvoi.h"
@@ -116,7 +116,7 @@ koord ai_passenger_t::find_area_for_hub( const koord lo, const koord ru, const k
 							}
 						} else if(  test_dist+2<dist  &&  gr->ist_natur()  ) {
 							// also ok for a stop, but second choice
-							// so wie gave it a malus of 2
+							// so we gave it a malus of 2
 							best_pos = trypos;
 							dist = test_dist+2;
 						}
@@ -276,7 +276,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		}
 	}
 
-	// built the harbour if neccessary
+	// build the harbour if necessary
 	if(!start_hub.is_bound()) {
 		koord bushalt = start_harbour+start_dx;
 		const koord town_road = find_place_for_hub( start_stadt );
@@ -316,7 +316,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 	// now built the stops ... (since the roads were ok!)
 	if(!start_hub.is_bound()) {
 		/* first we must built the bus stop, since this will be the default stop for all our buses
-		 * we want to keep the name of a dock, thus wil will create it beforehand
+		 * we want to keep the name of a dock, thus we will create it beforehand
 		 */
 		koord bushalt = start_harbour+start_dx;
 		const building_desc_t* busstop_desc = hausbauer_t::get_random_station(building_desc_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX );
@@ -348,8 +348,8 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		}
 	}
 	if(!end_hub.is_bound()) {
-		/* agian we must built the bus stop first, since this will be the default stop for all our buses
-		 * we want to keep the name of a dock, thus wil will create it beforehand
+		/* again we must built the bus stop first, since this will be the default stop for all our buses
+		 * we want to keep the name of a dock, thus we will create it beforehand
 		 */
 		koord bushalt = end_harbour+end_dx;
 		const building_desc_t* busstop_desc = hausbauer_t::get_random_station(building_desc_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX );
@@ -584,7 +584,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 			call_general_tool( TOOL_BUILD_STATION, center+koord::nsew[i], airstop_desc->get_name() );
 		}
 	}
-	// sucess
+	// success
 	return halt;
 }
 
@@ -614,7 +614,7 @@ static koord find_airport_pos(karte_t* welt, const stadt_t *s )
 }
 
 
-/* builts airports and planes
+/* build airports and planes
  * @author prissi
  */
 bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, const stadt_t *end_stadt)
@@ -689,7 +689,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 	}
 	// eventually construct them
 	if(start_airport!=koord::invalid  &&  end_airport!=koord::invalid) {
-		// built the airport if neccessary
+		// build the airport if necessary
 		if(!start_hub.is_bound()) {
 			start_hub = build_airport(start_stadt, start_airport, true);
 			if(!start_hub.is_bound()) {
@@ -732,7 +732,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			}
 		}
 	}
-	// now we have aiports (albeit first tile is bus stop)
+	// now we have airports (albeit first tile is a bus stop)
 	const grund_t *start = start_hub->find_matching_position(air_wt);
 	const grund_t *end = end_hub->find_matching_position(air_wt);
 
@@ -875,7 +875,7 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 					const building_desc_t* bs = hausbauer_t::get_random_station(building_desc_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX);
 					if(  call_general_tool( TOOL_BUILD_STATION, to->get_pos().get_2d(), bs->get_name() )  ) {
 						//add to line
-						line->get_schedule()->append(to,0); // no need to register it yet; done automatically, when convois will be assinged
+						line->get_schedule()->append(to,0); // no need to register it yet; done automatically, when convois will be assigned
 					}
 				}
 				// start road, but no houses anywhere => stop searching
@@ -891,7 +891,7 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 
 
 /* tries to cover a city with bus stops that does not overlap much and cover as much as possible
- * returns the line created, if sucessful
+ * returns the line created, if successful
  */
 void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_stops)
 {
@@ -1155,7 +1155,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 			}
 			const building_desc_t* bs = hausbauer_t::get_random_station(building_desc_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX);
 			if(bs  &&  create_simple_road_transport(platz1, koord(1,1),platz2,koord(1,1),road_weg)  ) {
-				// since the road my have led to a crossing at the indended stop position ...
+				// since the road may have led to a crossing at the intended stop position ...
 				bool ok = true;
 				if(  !get_halt(platz1).is_bound()  ) {
 					if(  !call_general_tool( TOOL_BUILD_STATION, platz1, bs->get_name() )  ) {
@@ -1306,7 +1306,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 							}
 						}
 						if(capacity>0) {
-							// now try to finde new vehicle
+							// now try to find new vehicle
 							vehicle_t              const& v       = *line->get_convoy(0)->front();
 							waytype_t              const  wt      = v.get_waytype();
 							vehicle_desc_t const* const  v_desc = vehicle_builder_t::vehikel_search(wt, welt->get_current_month(), 50, welt->get_average_speed(wt), goods_manager_t::passengers, false, true);
@@ -1333,7 +1333,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 						}
 					}
 				}
-				// next: check for stucked convois ...
+				// next: check for stuck convois ...
 
 				sint64	free_cap = line->get_finance_history(0,LINE_CAPACITY);
 				sint64	used_cap = line->get_finance_history(0,LINE_TRANSPORTED_GOODS);
@@ -1447,9 +1447,9 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 
 
 /**
- * Dealing with stucked  or lost vehicles:
+ * Dealing with stuck  or lost vehicles:
  * - delete lost ones
- * - ignore stucked ones
+ * - ignore stuck ones
  * @author prissi
  * @date 30-Dec-2008
  */

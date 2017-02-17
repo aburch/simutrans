@@ -21,7 +21,7 @@ class goods_desc_t;
 /**
  * bauplatz_mit_strasse_sucher_t:
  *
- * Sucht einen freien Bauplatz mithilfe der Funktion suche_platz().
+ * Search for a free location using the function suche_platz().
  *
  * @author V. Meyer
  */
@@ -86,8 +86,9 @@ public:
 	halthandle_t get_halt( const koord haltpos ) const;
 
 	/**
-	 * Find the first water tile using line algorithm von Hajo
+	 * Find the first water tile using line algorithm
 	 * start MUST be on land!
+	 * @author Hajo
 	 **/
 	koord find_shore(koord start, koord end) const;
 	bool find_harbour(koord &start, koord &size, koord target);

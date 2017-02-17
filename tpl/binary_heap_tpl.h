@@ -16,7 +16,7 @@
  * my try on a binary heap template
  * inspired by the pathfinder of OTTD written by kuDr
  *
- * For information about Binary Heap algotithm,
+ * For information about Binary Heap algorithm,
  *   see: http://www.policyalmanac.org/games/binaryHeaps.htm *
  *
  * @date September 2006
@@ -80,7 +80,7 @@ public:
 
 
 	/**
-	* unfourtunately, the removing is as much effort as the insertion ...
+	* unfortunately, the removing is as much effort as the insertion ...
 	*/
 	T pop() {
 		assert(!empty());

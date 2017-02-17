@@ -79,7 +79,7 @@
 #
 # BUILDDIR = $(shell pwd)
 #
-# use this to specifiy the target directory for the executable:
+# use this to specify the target directory for the executable:
 # .. otherwise defaults to BUILDDIR
 #
 # MAKEOBJ_PROGDIR = $(shell pwd)

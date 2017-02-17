@@ -124,7 +124,7 @@ enum systemtype_t {
 
 #define CLIP(wert,mini,maxi)  min(max((wert),(mini)),(maxi))
 
-// Hajo: define machine independant types
+// Hajo: define machine independent types
 typedef unsigned int        uint;
 typedef   signed char       sint8;
 typedef unsigned char       uint8;
@@ -176,7 +176,7 @@ static inline int max(const int a, const int b)
 	return a > b ? a : b;
 }
 
-// endian coversion routines
+// endian conversion routines
 
 static inline uint16 endian(uint16 v)
 {

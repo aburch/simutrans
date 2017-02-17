@@ -146,14 +146,14 @@ private:
 	settings_t settings;
 
 	/**
-	 * For performance reasons we have the map grid size cached locally, comes from the enviroment (Einstellungen)
+	 * For performance reasons we have the map grid size cached locally, comes from the environment (Einstellungen)
 	 * @brief Cached map grid size.
 	 * @note Valid coords are (0..x-1,0..y-1)
 	 */
 	koord cached_grid_size;
 
 	/**
-	 * For performance reasons we have the map size cached locally, comes from the enviroment (Einstellungen).
+	 * For performance reasons we have the map size cached locally, comes from the environment (Einstellungen).
 	 * @brief Cached map size.
 	 * @note Valid coords are (0..x-1,0..y-1)
 	 * @note These values are one less than the size values of the grid.
@@ -342,7 +342,7 @@ private:
 	 * @pre can_raise_to should be called before this method.
 	 * @see can_raise_to
 	 * @returns count of full raise operations (4 corners raised one level)
-	 * @note Clear tile, reset water/land type, calc reliefkarte pixel.
+	 * @note Clear tile, reset water/land type, calc reliefkarte (relief map) pixel.
 	 */
 	int  raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 
@@ -366,7 +366,7 @@ private:
 	 * @pre can_lower_to should be called before this method.
 	 * @see can_lower_to
 	 * @returns count of full lower operations (4 corners lowered one level)
-	 * @note Clear tile, reset water/land type, calc reliefkarte pixel.
+	 * @note Clear tile, reset water/land type, calc reliefkarte (relief map) pixel.
 	 */
 	int  lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 
@@ -416,7 +416,7 @@ private:
 
 	/**
 	 * @name Player management
-	 *       Varables related to the player management in game.
+	 *       Variables related to the player management in game.
 	 * @author Hj. Malthaner
 	 * @{
 	 */
@@ -453,7 +453,7 @@ private:
 	/**
 	 * @name Display timing and scheduling
 	 *       These variables store system display timings in the past frames
-	 *       and allow for adecuate adjustments to adapt to the system performance
+	 *       and allow for adequate adjustments to adapt to the system performance
 	 *       and available resources (also in network mode).
 	 * @{
 	 */
@@ -596,7 +596,7 @@ private:
 	message_t *msg;
 
 	/**
-	 * Array indexed per way tipe. Used to determine the speedbonus.
+	 * Array indexed per way type. Used to determine the speedbonus.
 	 */
 	sint32 average_speed[8];
 
@@ -611,7 +611,7 @@ private:
 	uint32 map_counter;
 
 	/**
-	 * Recalculated speed boni for different vehicles.
+	 * Recalculated speed bonus for different vehicles.
 	 */
 	void recalc_average_speed();
 
@@ -638,7 +638,7 @@ private:
 	void load(loadsave_t *file);
 
 	/**
-	 * Removes all objects, deletes all data structures and frees all accesible memory.
+	 * Removes all objects, deletes all data structures and frees all accessible memory.
 	 * @author Hj. Malthaner
 	 */
 	void destroy();
@@ -667,7 +667,7 @@ private:
 	 * Distribute groundobjs and cities on the map but not
 	 * in the rectangle from (0,0) till (old_x, old_y).
 	 * It's now an extra function so we don't need the code twice.
-	 * @auther Gerd Wachsmuth
+	 * @author Gerd Wachsmuth
 	 */
 	void distribute_groundobjs_cities(int new_cities, sint32 new_mean_citizen_count, sint16 old_x, sint16 old_y );
 
@@ -719,7 +719,7 @@ public:
 
 	/**
 	 * For warning, when stuff had to be removed/replaced
-	 * level must be >=1 (1=factory, 2=vechiles, 3=not so important)
+	 * level must be >=1 (1=factory, 2=vehicles, 3=not so important)
 	 * may be refined later
 	 */
 	void add_missing_paks( const char *name, missing_level_t critical_level );
@@ -1173,7 +1173,7 @@ public:
 	 * Returns the (x,y) map size.
 	 * @brief Map size.
 	 * @note Valid coords are (0..x-1,0..y-1)
-	 * @note These values are exactly one less tham get_grid_size ones.
+	 * @note These values are exactly one less then get_grid_size ones.
 	 * @see get_grid_size()
 	 */
 	inline koord const &get_size() const { return cached_grid_size; }
@@ -1252,7 +1252,7 @@ public:
 	/**
 	 * This function takes grid coordinates as a parameter and a desired height (koord3d).
 	 * Will return the ground_t object that intersects with it in it's north corner if possible.
-	 * If that tile doesn't exist, returns the one that interesects with it in other corner.
+	 * If that tile doesn't exist, returns the one that intersects with it in other corner.
 	 * @param pos Grid coordinates to check for, the z points to the desired height.
 	 * @see lookup_kartenboden_gridcoords
 	 * @see corner_to_operate
@@ -1385,21 +1385,21 @@ public:
 	uint32 load_version;
 
 	/**
-	 * Checks if the planquadrat at coordinate (x,y)
+	 * Checks if the planquadrat (tile) at coordinate (x,y)
 	 * can be lowered at the specified height.
 	 * @author V. Meyer
 	 */
 	const char* can_lower_plan_to(const player_t *player, sint16 x, sint16 y, sint8 h) const;
 
 	/**
-	 * Checks if the planquadrat at coordinate (x,y)
+	 * Checks if the planquadrat (tile) at coordinate (x,y)
 	 * can be raised at the specified height.
 	 * @author V. Meyer
 	 */
 	const char* can_raise_plan_to(const player_t *player, sint16 x, sint16 y, sint8 h) const;
 
 	/**
-	 * Checks if the whole planquadrat at coordinates (x,y) height can
+	 * Checks if the whole planquadrat (tile) at coordinates (x,y) height can
 	 * be changed ( for example, water height can't be changed ).
 	 * @author Hj. Malthaner
 	 */
@@ -1528,7 +1528,7 @@ public:
 	const vector_tpl<const goods_desc_t*> &get_goods_list();
 
 	/**
-	 * Seaches and returns the closest city
+	 * Searches and returns the closest city
 	 * but prefers even farther cities if within their city limits
 	 * @author Hj. Malthaner
 	 */
@@ -1694,26 +1694,26 @@ public:
 
 private:
 	/**
-	 * @return Minimum height of the planquadrats at i, j. - for speed no checks performed that coordinates are valid
+	 * @return Minimum height of the planquadrats (tile) at i, j. - for speed no checks performed that coordinates are valid
 	 * @author Hj. Malthaner
 	 */
 	sint8 min_hgt_nocheck(koord k) const;
 
 	/**
-	 * @return Maximum height of the planquadrats at i, j. - for speed no checks performed that coordinates are valid
+	 * @return Maximum height of the planquadrats (tile) at i, j. - for speed no checks performed that coordinates are valid
 	 * @author Hj. Malthaner
 	 */
 	sint8 max_hgt_nocheck(koord k) const;
 
 public:
 	/**
-	 * @return Minimum height of the planquadrats at i, j.
+	 * @return Minimum height of the planquadrats (tile) at i, j.
 	 * @author Hj. Malthaner
 	 */
 	sint8 min_hgt(koord k) const;
 
 	/**
-	 * @return Maximum height of the planquadrats at i, j.
+	 * @return Maximum height of the planquadrats (tile) at i, j.
 	 * @author Hj. Malthaner
 	 */
 	sint8 max_hgt(koord k) const;
@@ -1740,7 +1740,7 @@ public:
 	/**
 	 * Plays the sound when the position is inside the visible region.
 	 * The sound plays lower when the position is outside the visible region.
-	 * @param pos Position at wich the event took place.
+	 * @param pos Position at which the event took place.
 	 * @param idx Index of the sound
 	 * @author Hj. Malthaner
 	 */

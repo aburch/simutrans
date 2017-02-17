@@ -17,7 +17,7 @@
 static int use_sound = 0;
 
 /*
- * defines the number of channels avaiable
+ * defines the number of channels available
  */
 #define CHANNELS 4
 
@@ -31,7 +31,7 @@ struct sample {
      * format */
     Uint8 *audio_data;
 
-    Uint32 audio_len;		    /* number of samples in the adiop data */
+    Uint32 audio_len;		    /* number of samples in the audio data */
 };
 
 
@@ -121,7 +121,7 @@ bool dr_init_sound()
 
 		if (SDL_OpenAudio(&desired, &output_audio_format) != -1) {
 
-			// check if we got the right audi format
+			// check if we got the right audio format
 			if (output_audio_format.format == AUDIO_S16SYS) {
 
 				int i;

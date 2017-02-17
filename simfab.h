@@ -198,7 +198,7 @@ class fabrik_t
 {
 public:
 	/**
-	 * Konstanten
+	 * Constants
 	 * @author Hj. Malthaner
 	 */
 	enum { precision_bits = 10, old_precision_bits = 10, precision_mask = 1023 };
@@ -264,7 +264,7 @@ private:
 	uint32 lieferziele_active_last_month;
 
 	/**
-	 * suppliers to this factry
+	 * suppliers to this factory
 	 * @author hsiegeln
 	 */
 	vector_tpl <koord> suppliers;

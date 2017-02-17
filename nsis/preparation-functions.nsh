@@ -1,4 +1,4 @@
-; ************************ Preperations for installer / downloader **************************
+; ************************ Preparations for installer / downloader **************************
 
 !include "MUI2.nsh"
 !include "Sections.nsh"

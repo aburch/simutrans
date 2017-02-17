@@ -75,7 +75,7 @@ private:
         int Message_Block_Index;            // Index into message block array
 
         bool Computed;                      // Is the digest computed?
-        bool Corrupted;                     // Is the message digest corruped?
+        bool Corrupted;                     // Is the message digest corrupted?
 };
 
 #endif

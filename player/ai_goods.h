@@ -28,7 +28,7 @@ private:
 		CHECK_CONVOI
 	};
 
-	// vars für die KI
+	// vars for the KI
 	state state;
 
 	/* test more than one supplier and more than one good *
@@ -58,7 +58,7 @@ private:
 	// multi-purpose counter
 	sint32 count;
 
-	// time to wait before next contruction
+	// time to wait before next construction
 	sint32 next_construction_steps;
 
 	/* start and end stop position (and their size) */
@@ -82,11 +82,11 @@ private:
 
 	slist_tpl<fabconnection_t*> forbidden_connections;
 
-	// return true, if this a route to avoid (i.e. we did a construction without sucess here ...)
+	// return true, if this a route to avoid (i.e. we did a construction without success here ...)
 	bool is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const goods_desc_t *w ) const;
 
 	/* recursive lookup of a factory tree:
-	 * sets start and ziel to the next needed supplier
+	 * sets start and destination to the next needed supplier
 	 * start always with the first branch, if there are more goods
 	 */
 	bool get_factory_tree_lowest_missing( fabrik_t *fab );

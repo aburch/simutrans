@@ -1,5 +1,5 @@
 /*
- * sound with SDL_mixer.dll (not chaning the volume of other programs)
+ * sound with SDL_mixer.dll (not changing the volume of other programs)
  *
  * This file is part of the Simutrans project under the artistic license.
  */
@@ -47,7 +47,7 @@ bool dr_init_sound()
 
 		if (Mix_OpenAudio(freq, format, channels, samples) != -1) {
 			Mix_QuerySpec(&freq, &format,  &channels);
-			// check if we got the right audi format
+			// check if we got the right audio format
 			if (format == AUDIO_S16SYS) {
 				// finished initializing
 				sound_ok = 1;

@@ -94,7 +94,7 @@ public:
 	virtual void info(cbuffer_t & buf) const;
 
 	/**
-	 * berechnet aktuelles image
+	 * Calculate actual image
 	 */
 	virtual void calc_image();
 
@@ -137,7 +137,7 @@ public:
 
 	void rotate90();
 
-	// substracts cost
+	// subtracts cost
 	void cleanup(player_t *player);
 
 	void finish_rd();

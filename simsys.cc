@@ -732,7 +732,7 @@ const char *dr_get_locale_string()
 		code[i] = tolower(ptr[i]);
 		code[i+1] = 0;
 	}
-	setlocale( LC_ALL, "C" );	// or the numberourpur may be broken
+	setlocale( LC_ALL, "C" );	// or the number output may be broken
 	return code[0] ? code : NULL;
 }
 #endif

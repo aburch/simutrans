@@ -1,5 +1,5 @@
 /*
- * Bit depth independent backend using allgro (mainly for BeOS)
+ * Bit depth independent backend using allegro (mainly for BeOS)
  *
  * This file is part of the Simutrans project under the artistic license.
  */

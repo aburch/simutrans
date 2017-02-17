@@ -138,7 +138,7 @@ void finance_t::calc_finance_history()
 	for( int j=0; j< ATV_MAX; ++j ) {
 		veh_month[TT_ALL][0][j] =0;
 		for( int tt=1; tt<TT_MAX; ++tt ) {
-			// do not add poverline revenue to vehicles revenue
+			// do not add powerline revenue to vehicles revenue
 			if ( ( tt != TT_POWERLINE ) || ( j >= ATV_REVENUE )) {
 				veh_month[TT_ALL][0][j] += veh_month[tt][0][j];
 			}
@@ -147,7 +147,7 @@ void finance_t::calc_finance_history()
 	for( int j=0; j< ATV_MAX; ++j ) {
 		veh_year[TT_ALL][0][j] =0;
 		for( int tt=1; tt<TT_MAX; ++tt ) {
-			// do not add poverline revenue to vehicles revenue
+			// do not add powerline revenue to vehicles revenue
 			if ( ( tt != TT_POWERLINE ) || ( j >= ATV_REVENUE )) {
 				veh_year[TT_ALL][0][j] += veh_year[tt][0][j];
 			}
@@ -782,10 +782,10 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 		 */
 		for(  int year=0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			finance_history_year[year][COST_NETWEALTH] = finance_history_year[year][COST_CASH]+finance_history_year[year][COST_ASSETS];
-			// only revnue minus running costs
+			// only revenue minus running costs
 			finance_history_year[year][COST_OPERATING_PROFIT] = finance_history_year[year][COST_INCOME] + finance_history_year[year][COST_POWERLINES] + finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE] + finance_history_year[year][COST_WAY_TOLLS];
 
-			// including also investements into vehicles/infrastructure
+			// including also investments into vehicles/infrastructure
 			finance_history_year[year][COST_PROFIT] = finance_history_year[year][COST_OPERATING_PROFIT]+finance_history_year[year][COST_CONSTRUCTION]+finance_history_year[year][COST_NEW_VEHICLE];
 			finance_history_year[year][COST_MARGIN] = calc_margin(finance_history_year[year][COST_OPERATING_PROFIT], finance_history_year[year][COST_INCOME]);
 		}

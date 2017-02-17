@@ -72,7 +72,7 @@ image_id wolke_t::get_image() const
 
 void wolke_t::rdwr(loadsave_t *file)
 {
-	// not saving cloads! (and loading only for compatibility)
+	// not saving clouds! (and loading only for compatibility)
 	assert(file->is_loading());
 
 	obj_t::rdwr( file );

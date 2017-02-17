@@ -42,7 +42,7 @@ foreach(tool_id in map.editing_tools) {
 
 /**
  * Called when filling toolbars, activating tools
- * Results are not transfered over network, use the rules.forbid_* functions in this case
+ * Results are not transferred over network, use the rules.forbid_* functions in this case
  *
  * @return 1 if allowed, null otherwise
  */

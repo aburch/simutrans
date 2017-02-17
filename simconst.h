@@ -39,7 +39,7 @@
 // The wind (i.e. approach direction) is random all over the map (not recommended, since it confuses players)
 //#define USE_DIFFERENT_WIND
 
-// define this for automaticcally joining stations next to a public stop with it
+// define this for automatically joining stations next to a public stop with it
 //#define AUTOJOIN_PUBLIC
 
 // allow minspeed and private way signs on waterways (imho pointless)
@@ -51,7 +51,7 @@
 
 /*********************** Useful things for debugging ... ********************/
 
-/* will highlite marked areas and convoi will leave traces */
+/* will highlight marked areas and convoi will leave traces */
 //#define DEBUG_ROUTES
 
 /* shows which tiles are drawn as dings (used in boden/grund.cc) */

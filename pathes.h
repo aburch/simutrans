@@ -4,7 +4,7 @@
  * This file is part of the Simutrans project under the artistic license.
  *
  *  Description:
- *      This header defines all pathes used be simutrans relative to the game
+ *      This header defines all paths used be simutrans relative to the game
  *	directory.
  */
 
@@ -12,7 +12,7 @@
 #define __PATHES_H
 
 /**
- * two defines for all pathes - if You want the root path,  use:
+ * two defines for all paths - if You want the root path,  use:
  *	#define _PATH ""
  *	#define _PATH_X ""
  * else use

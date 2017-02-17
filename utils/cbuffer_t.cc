@@ -104,7 +104,7 @@ const char* cbuffer_t::get_str() const
  * If an error occurs, an error message is printed into @p error.
  * Checks for positional parameters: either all or no parameter have to be positional as eg %1$d.
  * If positional parameter %[n]$ is specified then all up to n have to be present in the string as well.
- * Treates all integer parameters %i %u %d etc the same.
+ * Treats all integer parameters %i %u %d etc the same.
  * Ignores positional width parameters as *[n].
  *
  * @param format format string
@@ -269,7 +269,7 @@ static int my_vsnprintf(char *buf, size_t n, const char* fmt, va_list ap )
 			sprintf( pos, "%%%i$", count+1 );
 			c = strstr( fmt, pos );
 			if(  c  ) {
-				// extend format string, using 1 as marke between strings
+				// extend format string, using 1 as mark between strings
 				if(  count  ) {
 					*cfmt++ = '\01';
 				}

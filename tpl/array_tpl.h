@@ -6,7 +6,7 @@
 #include "../simtypes.h"
 
 /**
- * A template class for bounds checked 1-dimesnional arrays.
+ * A template class for bounds checked 1-dimensional arrays.
  * This is kept as simple as possible. Does not use exceptions
  * for error handling.
  */

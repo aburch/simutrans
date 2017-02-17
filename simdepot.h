@@ -198,7 +198,7 @@ public:
 
 	/**
 	 * Can object be removed?
-	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @return NULL when OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
 	virtual const char * is_deletable(const player_t *player);

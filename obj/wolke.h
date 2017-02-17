@@ -42,7 +42,7 @@ public:
 
 
 /**
- * follwoing two classes are just for compatibility for old save games
+ * following two classes are just for compatibility for old save games
  */
 class async_wolke_t : public obj_t
 {

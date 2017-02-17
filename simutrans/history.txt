@@ -84,13 +84,13 @@ Release of 120.0: (r7175 on 28-Apr-2014):
 	FIX: long block signals direct in front of stations gave deadlocks
 	ADD: fixed maintenance for vehicles is now booked
 	ADD: (jk271) way toll statistics now
-	ADD: (neroden/kierongreen) stacked stations eith different owners are now possible
+	ADD: (neroden/kierongreen) stacked stations with different owners are now possible
 	ADD: loading gui themes (designs) on runtime
 	ADD: faster creating of hill
 	ADD: matching pak is loaded automatically when no -objects is given with -load on commandline
 	ADD: dragging map also with left mousebutton when the query tool is selected
 	ADD: display also fixed cost in convoi details and depot (if set)
-	ADD: enforce loading time (time will be long of all vehciles, default 1s)
+	ADD: enforce loading time (time will be long of all vehicles, default 1s)
 	ADD: makeobj can now warn about unused entries (makeobj verbose pak... or makeobj debug pak...)
 	CHG: Stretchable themes now in trunk
 	CHG: use faster route search for ships (jump-point search)
@@ -107,7 +107,7 @@ Release of 112.3: (r6520 on 17-May-2013):
 	CHG: Raise and Lower tools interact with the grid now, not with tiles.
 	ADD: (jk271/Dwachs) finance history distinguishes transport type
 	CHG: Added a new setting to simuconf.tab, background_color. Allows to change the color of the background.
-	ADD: Depature and arrival times can be shown in the halt dialoge
+	ADD: Departure and arrival times can be shown in the halt dialogue
 	CHG: Updates to the in-game pointer mechanics, updates its position after using a tool, and hides when the pointer is outside the world.
 	ADD: (neroden) clustering of houses, set "cluster_factor" in cityrules.tab to about 10 times the typical distribution weight
 	ADD: Displaying the natural slope at the map border if requested (default on)
@@ -128,12 +128,12 @@ Release of 112.1: (r6212 on 23-Dec-2012):
 	FIX: waiting level in schedule dialog works with keys again
 	FIX: convoi list filtering again in working order
 	ADD: hide by default return ticket for rail based transport (enable by simuconf.tab)
-	ADD: possibliblity to limit the amount of goods in transit (see simuconf.tab)
+	ADD: possibility to limit the amount of goods in transit (see simuconf.tab)
 	ADD: city attractions and town halls can be defined to be build for more than 65535 citizens
 	FIX: you will need a dock to connect to an oil rig => no islands or tunnel can be used any more => ships only load at docks
-	ADD: display which factories supplied/recieved goods last month
+	ADD: display which factories supplied/received goods last month
 	ADD: player without operations can be deleted after x month
-	ADD: player without new buidling/replacing activities can lose password protection
+	ADD: player without new building/replacing activities can lose password protection
 	ADD: logging of ip/nickname of company creators
 	ADD: nettool commands to lock, unlock, remove a company
 	ADD: (Timothy) support for syslog (compile flag -DSYSLOG, command-line option -syslog)
@@ -145,7 +145,7 @@ Release of 112.1: (r6212 on 23-Dec-2012):
 
 
 Release of 112.0: (r6000 on 22-Oct-2012):
-	ADD: (wackdone) screenshots of topmost dialoge window only by CNTRL+screenshot tool click
+	ADD: (wackdone) screenshots of topmost dialogue window only by CNTRL+screenshot tool click
 	ADD: (wackdone) -pause on command line pauses the loaded game
 	FIX: downgrading of stops using CONTRL works again
 	ADD: scripted scenarios
@@ -154,9 +154,9 @@ Release of 112.0: (r6000 on 22-Oct-2012):
 	ADD: support for non-rectangular shaped station extensions, attractions, monuments
 	CHG: Allow to connect to channels built by anyone
 	CHG: fields can now spawned in larger number than the initial min value
-	CHG: number of factories in new world dialog is now indeed the total number of factories (too many newbe mistakes here)
+	CHG: number of factories in new world dialog is now indeed the total number of factories (too many newbie mistakes here)
 	ADD: force a minimum distance between city attractions
-	CHG: Bankrupsy check before substracting maintenance
+	CHG: Bankruptcy check before subtracting maintenance
 	ADD: Drag stops
 	CHG: reduced memory consumption when compiled with COLOUR_DEPTH=0, no copies of object images kept in memory
 	ADD: ctrl-click with link-factory tool actually removes links between factories
@@ -165,7 +165,7 @@ Release of 112.0: (r6000 on 22-Oct-2012):
 
 
 Release of 111.3.1 (r5843 on 31-Jul-2012):
-	ADD: weight in dat fields are in tons but kg can bei give like 1.350
+	ADD: weight in dat fields are in tons but kg can be given as 1.350
 	CHG: goto / follow convoi functionality via window gadget
 	CHG: no bridges over runways / taxiways
 	ADD: check whether format specifiers of translated strings match those of the master string, start with -debug 2 to get error messages
@@ -183,8 +183,8 @@ Release of 111.3 (r5772 on 10-Jun-2012):
 	ADD: enable dragging of lower & raise tools in network mode
 	ADD: enable dragging of bridge, tunnel, elevated way tools in network mode
 	ADD: zoomlevel in minimap from -16 to 16
-	ADD: Start paksetdownloaded, when started without paksets
-	FIX: (z9999+) Corrected speedbonus base faktor calculations
+	ADD: Start paksetdownloader, when started without paksets
+	FIX: (z9999+) Corrected speedbonus base factor calculations
 	FIX: (z9999+) Nickname in chat also send to server for reloads
 	FIX: (installer/pakset updater) better finding out if portable installation is needed
 	ADD: change of waiting at stops option in minimap
@@ -197,7 +197,7 @@ Release of 111.3 (r5772 on 10-Jun-2012):
 	CHG: Only founding a city when account is positive
 	CHG: powerlines will connect in directions a powerline can be build on a tile
 	ADD: threaded (but with graphic errors) tile redraw will by used automatically when fps too low
-	FIX: AI used wrong factories for bulding chains and build too long routes
+	FIX: AI used wrong factories for building chains and build too long routes
 
 
 Release of 111.2.2 (r5583 on 20-Mar-2012):
@@ -213,10 +213,10 @@ Release of 111.2.1 (r5434 on 28-Feb-2012): (111.2 had a severe bug with zipped g
 	ADD: show ownership in minimap
 	ADD: bonus_basefactor = 125 incorporated, determines minimum income for slow vehicles in case of speedbonus
 	ADD: hint text in empty schedules
-	ADD: highlite (land)tiles, which are part of a schedule
+	ADD: highlight (land)tiles, which are part of a schedule
 	ADD: F1 open dialog help in all dialogs with a help
-	ADD: only show line names which contains a pattern (optional) and other tuning of dialoges
-	ADD: server-side authentification of players
+	ADD: only show line names which contains a pattern (optional) and other tuning of dialogues
+	ADD: server-side authentication of players
 	ADD: city, industry and attraction numbers scale with map size
 	ADD: front images for ways
 	ADD: goto-button to chat messages, coordinate taken from @x,y or (x,y)
@@ -226,13 +226,13 @@ Release of 111.2.1 (r5434 on 28-Feb-2012): (111.2 had a severe bug with zipped g
 
 
 Release of 111.1 (r5115 on 23-Jan-2012):
-	FIX: owner of way gates were accidently rotated
+	FIX: owner of way gates were accidentally rotated
 	ADD: speedbonus speed limited by way speedlimits and achievable convoi max speed
 	ADD: record also walked pax
 	FIX: CJK description of houses correctly breaking
 	ADD: configure modes of transport for AIs
 	FIX: better tree offsets on tiles, should give less errors with trees on roads, in water etc
-	ADD: read (when with addon loadin) also ~/Simutrans/pakxyz/config.simuconf.tab
+	ADD: read (when with addon loading) also ~/Simutrans/pakxyz/config.simuconf.tab
 	ADD: (falconne) hide only objects around cursor
 	ADD: (falconne) hide factories and goods currently not on the map
 	FIX: several bugs with airplanes and reservation
@@ -242,11 +242,11 @@ Release of 111.1 (r5115 on 23-Jan-2012):
 	FIX: pedestrians on crossings were considered cars after leading
 	FIX: endless loop when fast forward and zooming out too much
 	CHG: using old display routines for zoom out to speed up display
-	CHG: cities will now grow gradually in time and size during creation, startinf with 32 citiciens in the first townhall year
+	CHG: cities will now grow gradually in time and size during creation, starting with 32 citizens in the first townhall year
 	CHG: minimap now really isometric
 	ADD: allow elevated ways over water with depth = 1
 	FIX: load savegames even if factory pak is missing
-	CHG: pak addons now in folder addons, to have same structure in protable and normal installation
+	CHG: pak addons now in folder addons, to have same structure in portable and normal installation
 	ADD: warn about missing pak files after loading a game
 	ADD: logging of speedbonus speed in line window
 
@@ -267,14 +267,14 @@ Release of 111.0 (r4911 on 1-Nov-2011):
 	ADD: way builder can use basic terraforming
 	CHG: gui does not lose focus when new messages appear
 	ADD: AI players use way builder with terraforming
-	CHG: passengers and mail now prefer nearer attractions and cities as destinations, with attarction changing over the years
+	CHG: passengers and mail now prefer nearer attractions and cities as destinations, with attraction changing over the years
 	CHG: enable building under flying aircrafts
 	CHG: renovated factory dialog to include statistics and other indicators; preparation for factory renaming
 	FIX: convoi reservation for street convois longer than one tile is now fixed
 	CHG: road vehicles less likely to block intersections or drive through each other when turning
 	ADD: traffic light phasing adjustment
 	ADD: break (pause) button now internally handled as ASCII 16 (^P)
-	ADD: koordinate display and goto button for almost any non-moving thing on the map
+	ADD: coordinate display and goto button for almost any non-moving thing on the map
 	ADD: loading convois will be overtaken
 	ADD: new file streetlist_xx.txt will be used for stop names for cities. With one parameter the halt type will be used, with two the city name and the halt type
 	ADD: configurable way toll for using other players way (see simuconf.tab)
@@ -361,7 +361,7 @@ Release of 110.0 (r4303 on 14-Feb-2011):
 	ADD: simuconf.tab: add default values for cityroad ("city_road") and intercity road ("asphalt_road")
 	CHANGE: TAB goes to next/Shift+TAB to previous edit box, moving and resizing now even when other windows open
 	ADD: skinnable scrollbars
-	ADD: setting dialoge tool (handle with care, should not be visible by default for pak sets!)
+	ADD: setting dialogue tool (handle with care, should not be visible by default for pak sets!)
 	ADD: resizer also part of skin
 	CHANGE: also starts without any skin
 	FIX: no signals to be built on switches, since they will not display correctly
@@ -394,7 +394,7 @@ Release of 110.0 (r4303 on 14-Feb-2011):
 	ADD: server uses a different savegame revision => testing already possible now
 	ADD: savegame version can be set in settings
 	ADD: simple chat system added (send message option in message window)
-	ADD: semiautomatical announce of servers possible
+	ADD: semi-automatic announce of servers possible
 	CHANGE: chat option now part of message center
 	ADD: messages on joining and leaving
 	CHANGE: renaming of stuff now in network games
@@ -485,16 +485,16 @@ Release of 102.2 (r2785)
 	ADD: No connections found via overcrowded stops, if overcrowded flag active
 	ADD: do not create goods/passenger/mail when the only route is over an overcrowded stop (simuconf.tab no_routing_over_overcrowded)
 	ADD: more vehicle messages show in main screen
-	CHANGE: ask for language only once (prepare for difficulty dialoge)
+	CHANGE: ask for language only once (prepare for difficulty dialogue)
 	ADD: UNDO for powerlines
 	FIX: convoi details (and info- windows) were not always correctly (re)opened
 	CHANGE: convoi, station and line handles autoextent their capacity
-	FIX: chanhing schedule bz stop mover did not worked on open schedule windows
-	CHANGE: climate dialoge now completely gui_numberinput_t
+	FIX: changing schedule by stop mover did not work on open schedule windows
+	CHANGE: climate dialogue now completely gui_numberinput_t
 	CHANGE: convois will only choose stops that can fit their entire length
 	FIX: (mostly gerw) tunnel maintenance costs
 	ADD: (z9999) tunnel can have predefined way (new syntax, need new makeobj)
-	ADD: completly ignore message button at beginning of dialoge
+	ADD: completely ignore message button at beginning of dialogue
 	CHANGE: faster map (non-isometric) on very large maps and no crashes with extremely large maps anymore
 	ADD: paste letters under windows with CNTRL+V
 	ADD: button "withdraw all" in line window
@@ -514,15 +514,15 @@ Release of 102.2 (r2785)
 	ADD: (z9999) better display of depots in minimap
 	ADD: (Dwachs) zooming of map with mousewheel
 	ADD: switches change graphics for diagonal going trains (only eyecandy)
-	ADD: ambient sound effects (for all grphics + forest + beaches)
-	CHANGE: less lagging updating/rerouting after schedule chnages even with large stations
+	ADD: ambient sound effects (for all graphics + forest + beaches)
+	CHANGE: less lagging updating/rerouting after schedule changes even with large stations
 	ADD: (Dwachs) Public player can remove all
 	ADD: two switches (-addons and -noaddons) to regulate loading of addons together with pakset
 	CHANGE: (Dwachs) 2-5x faster city generation
 	CHANGE: (Knightly) even faster routing of goods due to ignoring non-transfer stations in breath search
 	ADD: switch to keep towns static
 	ADD: (gerw) minimaps in city info window are clickable
-	CHANGE: after 40 retrys, factory construction will ignore climates to avoid broken chains (if possible at all)
+	CHANGE: after 40 retries, factory construction will ignore climates to avoid broken chains (if possible at all)
 	ADD: citygrowth parameter configurable in simuconf.tab
 	ADD: setting dialog allow access to all settings also found in simuconf.tab before starting a game
 
@@ -533,26 +533,26 @@ Release of 102.0 (r2366)
 	FIX: connect stops again to public player
 	FIX: marker had invalid position after loading a game => crash when adding new marker
 	FIX: again income messages even with very many convois
-	ADD: &#; for direkt character input (but no unicode yet) to help files "HTML" (&#30; happy face, &#31; unhappy face)
+	ADD: &#; for direct character input (but no unicode yet) to help files "HTML" (&#30; happy face, &#31; unhappy face)
 	ADD: (z9999) capacity of a stop shown in tooltip
 	ADD: (z9999) halt can have different storage capabilities for different good types (seperate_halt_capacities=1 in simuconf.tab)
 	ADD: if pay_for_total_distance=1 in simuconf.tab, price is calculated for the distance you got nearer to destination
 	ADD: (isidoro) jump to line window from halt_details
 	FIX: mark deleted trees dirty when building roads
-	CHANGE: message window now obeys also Simutrans UI (array/rightclick for goto on map, leftclik on text to show again)
+	CHANGE: message window now obeys also Simutrans UI (array/rightclick for goto on map, leftclick on text to show again)
 	CHANGE: inactive tabs nor greyed out
 	ADD: goto line also in convoi info window
 	CHANGE: (z9999) finally useful marker with a simutrans consistent gui
 	ADD: (gerw mostly) river are now created during map creation, new options in simuconf.tab
 	ADD: no vehicle/cash sounds during fast forward
 	ADD: (gerw/prissi) powerline remover
-	FIX: lines always got id 1 => saving was not sucessful!
-	CHANGE: language specific divider for amout possible (like million for most) using LARGE_NUMBER_STRING and LARGE_NUMBER_VALUE
+	FIX: lines always got id 1 => saving was not successful!
+	CHANGE: language specific divider for amount possible (like million for most) using LARGE_NUMBER_STRING and LARGE_NUMBER_VALUE
 	CHANGE: start at any month you like (parameter starting_month in simuconf.tab)
-	FIX: fences and slopes in most suituations now without graphic errors (some are currently unavoidable)
+	FIX: fences and slopes in most situations now without graphic errors (some are currently unavoidable)
 	ADD: (z9999) new sort option for good list by category
 	FIX: (mostly Dwachs) way graphic for way in tunnel now matches speed and maintenance fixed
-	ADD: avoid overcroded stops (experimental, avoid_overcrowding=1 in simucon.tab)
+	ADD: avoid overcrowded stops (experimental, avoid_overcrowding=1 in simuconf.tab)
 
 
 
@@ -565,24 +565,24 @@ Release of 101.0 (r2208)
 	FIX: retire dates again ignored during map creation
 	FIX: no crashing when loading unavailable buildings
 	FIX: crashes with movingobjects during creation
-	FIX: planes were not always correctly decending
-	FIX: harbour tile layout==16 tile were not calaculated simular to stations
+	FIX: planes were not always correctly descending
+	FIX: harbour tile layout==16 tile were not calculated similar to stations
 	CHANGE: -fullscreen command flag will try to detect current resolution => no need to specify size
 	FIX: scrollbar text after resize now updated properly
 	FIX: remember last selected tool
 	FIX: preserve tick count after loading saved game => wait per month should be fine now
 	FIX: allow harbours also on trees ...
-	FIX: start on signal tile resp. drive thorugh closed signals when open/close schedule dialoge
+	FIX: start on signal tile resp. drive through closed signals when open/close schedule dialogue
 	ADD: multithread support for screen copy (max. 10% faster) for GDI
 	FIX: new timing for idle and frame => fast forward speed more closely met, less CPU needed, smoother transitions
-	FIX: too sensitve mouse repaired (moving during clicking)
-	FIX: no crashes on pwoer bridges at vertical slopes
+	FIX: too sensitive mouse repaired (moving during clicking)
+	FIX: no crashes on power bridges at vertical slopes
 	CHANGE: much faster town renovation/town growth => faster city generation
-	FIX: only tools applyable in the current situation are visible
+	FIX: only tools applicable in the current situation are visible
 	CHANGE: savegame path instead .simutrans now ~/simutrans on Linux/BeOS, and ~/Documents/simutrans on MacOS
 	FIX: fields next to a new station leads to crashes during name determination
 	FIX: correct color for stops over townhalls for labels
-	FIX: long block signals searched always on first leg too much and stucke trains which stop directly after them
+	FIX: long block signals searched always on first leg too much and stuck trains which stop directly after them
 	FIX: wayremover removed (partly) bridges even without permission
 	FIX: bridges during removal removed too much maintenance
 	ADD: make tooltips configurable (show_tooltips, tooltip_background_color, tooltip_text_color) in simuconf.tab
@@ -590,7 +590,7 @@ Release of 101.0 (r2208)
 	FIX: rotate also coordinates of messages
 	ADD: target destinations in halt details now clickable
 	FIX: raise and lower now also ok new border, better error messages
-	FIX: (z9999) maglev and narrowgauge for everything, addional line symbols (MaglevStop, NarrowgaugeStop, ... ) for linemanager optional
+	FIX: (z9999) maglev and narrowgauge for everything, additional line symbols (MaglevStop, NarrowgaugeStop, ... ) for linemanager optional
 	CHANGE: speed on diagonals only 20% faster => less gain, more realistic vehicle length
 	FIX: no crossings on underground station tiles
 	FIX: wayobj ignored replacement by compat.tab for catenaries
@@ -604,28 +604,28 @@ Release of 101.0 (r2208)
 	ADD: instead a number also a name of a  menu object (with image zero) can be given for an icon in menuconf.tab
 	ADD: (Gerd Wachsmuth) map enlargement during the game
 	ADD: (VS) electric EMU/trolley bus tab added to depot
-	CHANGE: AI now seperate files, which would allow for a greater varienty of AIs
+	CHANGE: AI now separate files, which would allow for a greater variety of AIs
 	ADD: (Dwachs) depots remember last line
 	FIX: construction of four layout stations and rotation of four layout buildings were completely broken
 	FIX: graphic error with slopes next to bridges and tunnels
 	ADD: new tool to make a stop a public one (to make public stops on map without player change)
 	FIX: disabling sound and midi will be now saved and will disable them completely to avoid the SDL_mixer troubles
 	FIX: x instead y offset written by makeobj
-	ADD: (Dwachs) new object gui_numberinput_t for more convinient entering of numbers
+	ADD: (Dwachs) new object gui_numberinput_t for more convenient entering of numbers
 	ADD: (gerw) sizeable loadsave frame
 	CHANGE: savegame bump, no AI save state correctly, same for map extension, no koord saved anymore (up to 60% smaller savegames)
 	CHANGE: settings are now saved for game relevant/user relevant to prepare for multiplayer (and do proper versioning)
 	CHANGE: sea level now in single steps (before only double steps, but single steps in display)
 	FIX: handling of wrongly defined fonts and unicode characters now correct again
 	FIX: bridges could connect to "harbour" tunnels
-	CHANGE: maximu map size now 16 mio tiles
+	CHANGE: maximum map size now 16 million tiles
 	FIX: overcrowded station messages again
 
 
 Release of 100.0 (r1867, stable)
 
 28-June-2008:
-	FIX: rotated twonhalls could lead to crashes
+	FIX: rotated townhalls could lead to crashes
 	CHANGE: show connected stops at factory again
 	ADD: factory edit modus after patch from z9999
 	FIX: removing of wayobj in tunnel or on bridges left wrong top speed.
@@ -637,26 +637,26 @@ Release of 100.0 (r1867, stable)
 	CHANGE: smoother zoom out (experimental)
 	FIX: x-offset for images should finally work
 	ADD: following zoom-levels are now supported 1.5:1, 1.33:1, 1:1, 0.75:1, 0.66:1, 0.5:1, 0.33:1, 0.25:1 (maximum tile size zoomed in is 254!)
-	FIX: no cars entring railroad crossings when the apparently cannot exit (may fail with crossings followin immediately)
-	FIX: no citycars entring a crossing, if there is no exit
+	FIX: no cars entering railroad crossings when they apparently cannot exit (may fail with crossings following immediately)
+	FIX: no citycars entering a crossing, if there is no exit
 	FIX: convois created by copying had no home depot
 	FIX: during zoomout, the tiles were clipped 32 pixels too early
 	FIX: rotation of buildings with layout>4 corrected
 	ADD: more statistics for world (see in citylist)
 	FIX: show signals again in minimap
 	ADD: preliminary support for automatic configuration, clarification of the licence
-	CHANGE: maintance of player buildings now depends on its level
+	CHANGE: maintenance of player buildings now depends on its level
 	FIX: reloading with no matching buildings for a climate could lead to crashes
 	CHANGE: smoother movements of vehicles in all sizes and zoomlevels
-	FIX: powerlines destroy on fileds during loading
+	FIX: powerlines destroy on fields during loading
 	CHANGE: all traffic lights have now synchronized phases
 	ADD: new parameter in forestconf.tab: tree_climates for climates with at least one tree per tile and no_tree_climates for the reverse
-	ADD: new parameter for cityrules.tab "minimum_building_desity" in percent: if the area covered by buldings is less than this, the city borders will not increase => more compact cities, not fading out along a single street (default: 25)
+	ADD: new parameter for cityrules.tab "minimum_building_desity" in percent: if the area covered by buildings is less than this, the city borders will not increase => more compact cities, not fading out along a single street (default: 25)
 	CHANGE: completely renovated schedule entering window
 	CHANGE: logarithmic traffic density display in minimap
 	CHANGE: cst_depot_air for charging air_depot
 	CHANGE: less subtypes for stops and depot (halfway)
-	CHANGE: neu customable toolbars (90%) (see pak64/config/menuconf.tab)
+	CHANGE: new customizable toolbars (90%) (see pak64/config/menuconf.tab)
 	FIX: schedule window last line was not selectable
 	ADD: waytypes narrowgauge_track and maglev_track now functional
 	FIX: trains with freight_type but total load==0 were still creating connections (caotic)
@@ -676,7 +676,7 @@ Release of 100.0 (r1867, stable)
 	CHANGE: allow any key for command, include #99999 (decimal code), ^A (Control A), F99 (F1-F15), COMMA (,)
 	CHANGE: allow for &lt; and &gt; to be used in flowtexts
 	ADD: stop mover tool (mostly z9999) tilewise for road, stopwise for water/air and platformwise for rail bound vehicles
-	ADD: AI builts airports (sometimes still too close to border) and uses them more or less wisely
+	ADD: AI builds airports (sometimes still too close to border) and uses them more or less wisely
 	FIX: no factories/attractions under monorail or powerlines and thus no disruption of them
 	FIX: waypoints under/over stops were treated as stops for good routing
 	CHANGE: all stops are now given more or less unique names. First factories,
@@ -706,8 +706,8 @@ Release of 99.17.1 (r1550, stable)
 	CHANGE: images in line tab, translation now tooltip, "TramStop" pak needed
 	CHANGE: block reservation mode on will also enable "delete these reservations" cursor
 	ADD: new obj named groundobj, new string "cost for removal"
-	FIX: error with removing headquarter after rotation
-	FIX: deleting incontinous buildings and rotated buildings could crash simutrans, rotate factory base for rebuilding after loading
+	FIX: error with removing headquarters after rotation
+	FIX: deleting non-continuous buildings and rotated buildings could crash simutrans, rotate factory base for rebuilding after loading
 	FIX: invisible mousecursor by moving the mouse during right click scrolling outside of window fixed
 	CHANGE: adding type to introduction/retirement message
 	FIX: severe bug loading pedestrians or citycars
@@ -720,15 +720,15 @@ Release of 99.17 (r1502)
 	FIX: tiles in train middle at waypoints were not properly reserved
 	FIX: sometimes planes were circling on the ground
 	FIX: winter tile change for whole map also on large maps
-	ADD: more statistics to citys / preparation for different growth models (strings now   "citicens", "Growth", "Buildings", "Electricity",  "Transported", "Passagiere", "Sended", "Post", "Arrived", "Goods")
+	ADD: more statistics for cities / preparation for different growth models (strings now   "citicens", "Growth", "Buildings", "Electricity",  "Transported", "Passagiere", "Sended", "Post", "Arrived", "Goods")
 	FIX: daynight cycle for show_month<=1
 	CHANGE: town growth is now stimulated by 40% passenger transport, 20% Mail transport, and 30% for not leaving storage of consumers with workers from this town empty
 	FIX: powerlines and tunnel entries more intelligently handled during wayremoval
-	CHANGE/FIX: close schedule windows when delting a convoi or starting one from depot (removing the annoying error message when entering schedule is in progress) "Es wird bereits\nein Fahrplan\neingegeben\n"
+	CHANGE/FIX: close schedule windows when deleting a convoi or starting one from depot (removing the annoying error message when entering schedule is in progress) "Es wird bereits\nein Fahrplan\neingegeben\n"
 	CHANGE: electricity production of a power station is now fixed at 4x nominal production (does not matter how much transformers => no cheating with solar plants)
 	FIX: smoke offset revisited
-	FIX: thing info is always redrawed => less redrawing errors
-	FIX: headquarter was alsways added during drawing to money dialoge => to time left for event processing
+	FIX: thing info is always redrawn => less redrawing errors
+	FIX: headquarters was always added during drawing to money dialogue => to time left for event processing
 	FIX: remove trees below monorail depot
 	FIX: good filter now works with categories
 	CHANGES: city cars spawn now only if neither passengers, mail, nor goods are transported
@@ -742,18 +742,18 @@ Release of 99.16
 	FIX: image under fields were not recalculated after removal
 	FIX: deleting a factory with an open info window lead to crash (also during map destroying)
 	FIX: pak selector was not always shown
-	FIX: crash when openig slopetools in underground mode
+	FIX: crash when opening slopetools in underground mode
 	FIX: windows gain not focus during dragging with mousebutton
 	ADD: new error message 'Not possible in this rotation!'
 	FIX: bridges ending on elevated monorail or flat tiles fixed
 	ADD: screenshot under windows as png (if gdiplus.dll is present, i.e XP or .NET there)
 	FIX: transparent/no season recognizing bridges
-	FIX: double or "unkown" names for stations on bridges/tunnels for 99.14 and older games
+	FIX: double or "unknown" names for stations on bridges/tunnels for 99.14 and older games
 	CHANGE: events now internally carry always the mousebutton states => fixing problem when scrolling with right mouse button (and so others too)
 	ADD: airplanes now reserve the runway for the entire time of takeoff/landing (more realistic, smoother waiting circles)
 	ADD: during world creation no tourist attractions newer than the current year will appear with timeline on
 	FIX: under certain cases station (length!=8) stations loaded one vehicle too many
-	FIX: old texts weren not deleted from nonrotated hashtable during rotation
+	FIX: old texts were not deleted from nonrotated hashtable during rotation
 	ADD: 'pillar_asymmetric' for bridges with shorter pillars on north resp. west slopes and 'max_height' for bridges + new error message 'bridge is too high for its type!'
 	ADD: new crossing logic: crossing is one object only (new strings: "invalid", "open", "request closing", "closed", "\nway1 reserved by" , "cars.\nway2 reserved by", "cars.\nstate")
 	FIX: no stops on tunnel entries or on runways
@@ -772,16 +772,16 @@ Release of 99.15
 	FIX: vehicle position was wrong after visit to depot => such convois will be vanish after reloading, sorry
 	CHANGE: sort order for convois and halt match as default; also last setting is saved
 	CHANGE: selection of map buttons is saved
-	FIX: hausbauer now handles building deletion => complete deletion of stops and factories, even non-continuoius and connected
+	FIX: hausbauer now handles building deletion => complete deletion of stops and factories, even non-continuous and connected
 	FIX: pax_transported, pax_erzeugt was not saved
 	FIX (z9999): tree density setting form uint8 to uint16
 	FIX: empty schedule during loading for convois in depot => crash
 	FIX: signal and missing roads where overlooked when leaving depots
-	ADD: minimum factory distances more stongly enforced. Configurable via simuconf.tab (factory_spacing, default 6)
+	ADD: minimum factory distances more strongly enforced. Configurable via simuconf.tab (factory_spacing, default 6)
 	ADD: new message category for warnings (like name of new player or traffic jams)
 	ADD: AI now builds headquarters
 	FIX: correctly building ways from/in depots and stops
-	CHANGE: AI now announces headquarter construction with <<%s's\nheadquarter now\nat (%i,%i).>>
+	CHANGE: AI now announces headquarters construction with <<%s's\nheadquarter now\nat (%i,%i).>>
 	FIX: redistribution of goods on stations with three destinations was faulty
 	FIX: building taxiways again
 	FIX: lines again automatically connect and detach from a stop
@@ -797,8 +797,8 @@ Release of 99.15
 	FIX: remove tall buildings without residuals
 	CHANGE: bus AI now tries to connect intown as well => less worse competition
 	FIX: deletion of powerline was free up to now ...
-	CHANGE: two less virtual functions in vehikel_t::sync_step() (most often called routinen) => speedup
-	FIX: convois with waypoints at bends were still jumping for certain vehikel length (sigh ...)
+	CHANGE: two less virtual functions in vehikel_t::sync_step() (most often called routine) => speedup
+	FIX: convois with waypoints at bends were still jumping for certain vehicle lengths (sigh ...)
 	CHANGE: GDI fullscreen mode correct and due to switching resolution ~50% faster redraws
 	CHANGE: dragging during raising and lowering land enabled
 	ADD: manufacturer name for each car shown in the convoi detail dialogue
@@ -809,7 +809,7 @@ Release of 99.15
 	FIX: frame delay time does now slower increase/decrease => smoother response
 	CHANGE: all toolbars open directly below each others
 	FIX: crash when zooming out images with negative y-offsets
-	FIX: rotate map, when building a tree with nonratable factories
+	FIX: rotate map, when building a tree with nonrateable factories
 	FIX: ground calculation fixed again
 	FIX: smoke offsets
 	FIX: more responsive interface by changing frame time calculation again for extreme cases
@@ -824,7 +824,7 @@ Release of 99.15
 
 Release of 99.14
 
-31-Jul-2007:
+31-July-2007:
 	FIX: speed limit of channels for ships was never lifted
 	FIX: again front images for traffic lights
 	FIX: crash when building harbour outside of the map
@@ -837,16 +837,16 @@ Release of 99.14
 	FIX: crash when opening a depot, for that no vehicles exist
 	FIX: town name management now like halt management
 	FIX: player color for depot/color selection fixed
-	ADD: ordering of menue entries for station buildings (level) and wayobjects (topspeed)
+	ADD: ordering of menu entries for station buildings (level) and wayobjects (topspeed)
 	CHANGE: money frame construction cost button name now 'Construction_Btn'
 	CHANGE: enable UNDO always for active player
 	FIX: convoi list can again hold more than 819 convois
-	ADD: new buttons in fisplay settings: 'show waiting bars' and 'show station names' for the previous '!' key function
-	CHANGE: 'Q' now opens the optin dialogue, where you can really quit the game
+	ADD: new buttons in display settings: 'show waiting bars' and 'show station names' for the previous '!' key function
+	CHANGE: 'Q' now opens the options dialogue, where you can really quit the game
 	FIX: factory crossconnection running amok hopefully solved (and some production values tweaked)
 	ADD: (z9999) show current schedule/selected line in minimap (new strings: 'Show schedules', 'Shows the currently selected schedule', 'factory details', 'Shows consumer/suppliers for factories', 'CityLimit', '(%i)-')
 	FIX: redraw problems after topping windows
-	FIX: factory builder was tried to built the same factory always on the same region => now check next two regios two in all directions => less incomplete chains
+	FIX: factory builder was tried to built the same factory always on the same region => now check next two regions in all directions => less incomplete chains
 	CHANGE: AI deleted uneconomical vehicle and routes, if in trouble
 	CHANGE: AI tries now also more or less successful ship route
 
@@ -859,7 +859,7 @@ Release of 99.13
 	FIX: (kierongreen) Removing tram tracks from road caused crash
 	FIX: restore speed limit after crossing deletion
 	FIX: deletion of traffic lights led to crash with road deletion tool
-	FIX: (z9999) traffic light postion with drive on left fixed
+	FIX: (z9999) traffic light position with drive on left fixed
 	FIX: (z9999) filter overcrowded did not work in haltlist
 	FIX: right map rotation in non-isometric view
 	FIX: removing station from ground with other station one bridge/in tunnel could result in display/naming errors
@@ -878,15 +878,15 @@ Release of 99.13
 	FIX: overflow in money frame color calculation
 	ADD: now three lists for connecting stations, depending on the freight type => about 50% faster route search
 	CHANGE: different (more compact) list of stations connected at a stop
-	FIX: (kierongreen) stationnames in tunnels
+	FIX: (kierongreen) station names in tunnels
 	FIX: (z9999) monorail station extension buildings
-	FIX: convoi could break up when during loadtime it was on its finaly tile (also new detection for already broken convois)
+	FIX: convoi could break up when during loadtime it was on its finally tile (also new detection for already broken convois)
 	ADD: speed record for all kind of convois
 	FIX: vehicles may have been saved with wrong pos_prev, which may caused errors at waypoints/stations
 	FIX: blue night light finally working
 	ADD: automatic line breaks in building description texts (inspired by tron)
 	FIX: error with stale goods after deleting served stops
-	FIX: no crashes with overlong headquarter strings
+	FIX: no crashes with overlong headquarters strings
 	CHANGE: more cpu-friendly wait for no route/waiting before a signal (and less fast stuck tooltips)
 	FIX: finally really loading the Pxxx.bdf fonts (and generated new bdf-font based on old ones)
 	ADD: (kierongreen) ways will look for replacement during loadtime in no matching besch found
@@ -897,44 +897,44 @@ Release of 99.13
 
 Release of 99.12
 
-31-Mai-2007:
-	FIX: explicitely check error codes when saving files
+31-May-2007:
+	FIX: explicitly check error codes when saving files
 	FIX: cars now properly turn at road signs
-	ADD: toogle grid now also in the visual settings dialoge "show grid"
+	ADD: toggle grid now also in the visual settings dialogue "show grid"
 	FIX: road remover fixed
 	FIX: electric engine type was lost after saving
 	CHANGE: UNDO now only denied, if something built on top of that way (including tunnels, bridges, stops, signals, electrifications ...)
 	FIX: intended two way calculation during building of ways was calculating same route twice instead switching start and endpoints => strange routes could occur
 	CHANGE: removed second route calculation and put a malus on a turn on the last field
 	CHANGE: default way_double_curve=6 gives better results
-	FIX: after showing bankrupt dialoge, fast forward is switched off
+	FIX: after showing bankrupt dialogue, fast forward is switched off
 	FIX: crash, when a schedule had an illegal ground coordinate (new string: "Invalid coordinate")
 	CHANGE: city car generation is now proportional to (log10(generated-transported+1)*density/16) Probability=1.00 mean on average one citycar per month
 	FIX: wrong entry deleted during rerouting (vector_tpl will now assert there)
 	FIX: waypoints work correctly with vehicles longer than 8
 	CHANGE: bits per month setting should now work up to 29, minutes are now displayed
-	ADD: powerline category to money dialoge (and cleaned up, new string: This Month), also add headquarter to the dialoge
-	FIX: powerline did not cost any maintainnance (in simuconf.tab: cost_transformer=2500 and cost_maintain_transformer=100)
+	ADD: powerline category to money dialogue (and cleaned up, new string: This Month), also add headquarters to the dialogue
+	FIX: powerline did not cost any maintenance (in simuconf.tab: cost_transformer=2500 and cost_maintain_transformer=100)
 	ADD: b shows/hides reserved rails
 	ADD: new roadsign type 'end_of_choose' to limit the range of free_route sings/signals
 	FIX: construction over sidewalks did reset speed limit
 	FIX: overflow when sorting vehicle list (defined signum for sint64)
-	ADD: crossing bettwen all ays (expept air) are now allowed. See attached example. Priority will have the secondly defined way.
+	ADD: crossing between all ways (except air) are now allowed. See attached example. Priority will have the secondly defined way.
 	FIX: do not show foreground for normal buildings
 	FIX: starting long engines in a depot could cause all strange stuff
 
 
 Release of 99.11
 
-4-Mai-2007:
-	FIX: roads did repell each other too strongly. A little more clever handling has been introduced, but way_count_leaving_road is still too high.
+4-May-2007:
+	FIX: roads did repel each other too strongly. A little more clever handling has been introduced, but way_count_leaving_road is still too high.
 	CHANGE: convois indicate error states also with tooltips
 	FIX: factory crossconnection was one-sided
-	ADD: midi shuffle will be rembered
+	ADD: midi shuffle will be remembered
 	FIX: electric engines also recognized when not leading convoi
 	FIX: advance savegame => field positions now saved
 	ADD: more colors for convoi status: WHITE in depot, ORANGE: stuck/no route
-	FIX: readded city car info dialoge ("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i")
+	FIX: re-added city car info dialogue ("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i")
 	FIX: speed of convois and city cars was frame rate dependent!
 	FIX: deleting fields with factory
 	CHANGE: vehicle now queue properly even on diagonal roads
@@ -990,9 +990,9 @@ Release of 99.09.2
 	ADD: time multiplier for fast forward mode shown
 	FIX: setting correct 2nd player color after reloading a game
 	FIX: simu.log now saved in home directory
-	FIX: automatic recognisation of bitmap depth (failed with SDL on some old machines) => transparency fixed
+	FIX: automatic recognition of bitmap depth (failed with SDL on some old machines) => transparency fixed
 	CHANGE: 16 bit color depth for GDI (may not work on all machines, please report)
-	CHANGE: better recognisation by the AI, if there is already a connection
+	CHANGE: better recognition by the AI, if there is already a connection
 	CHANGE: AI now built also tunnel and bridges, that are only one tile long
 	FIX: also not altering old city roads (before only affected new city road)
 	ADD: two more tweaks for the way builder: way_straight (cost for straight tile) and way_leave_road (to make existing roads more favourable)
@@ -1001,7 +1001,7 @@ Release of 99.09.2
 Release of 99.09.1
 
 4-Mar-2007:
-	FIX: time for pause/refresh intervall now moved to sync_step() => handled internally each refresh => better responsivity
+	FIX: time for pause/refresh interval now moved to sync_step() => handled internally each refresh => better responsiveness
 	FIX: end of station with layout>4 in NS direction
 
 
@@ -1010,7 +1010,7 @@ Release of 99.09
 3-Mar-2007:
 	FIX: on unix multiuser environments the path separator symbol was omitted
 	FIX: marker did not work on elevated ways => no route, even if there was one
-	FIX: no crash after deleting powerline crossing during game creation (but this was done by fixing symtoms, not the cause :()
+	FIX: no crash after deleting powerline crossing during game creation (but this was done by fixing symptoms, not the cause :()
 	ADD: button for showing forest in minimap (new string "Forest")
 	FIX: during rerouting of goods wrong entries were deleted
 	FIX: singleuser_install in simuconf.tab was not read
@@ -1019,16 +1019,16 @@ Release of 99.09
 	FIX: station coverage was wrongly detected
 	FIX: ppm for all program for heightmaps (Photoshop created unexpected header)
 	ADD: goods entries shrank further (now 12 Bytes pre packet) and saved lots of lookups
-	ADD: obj=tree allows for seasons=3/5 with the thrid/fifth season having snowy winter tree image
+	ADD: obj=tree allows for seasons=3/5 with the third/fifth season having snowy winter tree image
 	FIX: AI tried to built busstops in invalid positions
 	FIX: InputSupplier[]=0 did not built new factories, even if required
 	FIX: no depot on crossings or places with more than a single way
-	CHANGE: a car will wait two months in a traffic jam, then it will complain. After three months it tries to turn; in unseccessful, it will self-destruct.
+	CHANGE: a car will wait two months in a traffic jam, then it will complain. After three months it tries to turn; in unsuccessful, it will self-destruct.
 	FIX: crash could occur with long_block_signals(); the fix will cause trains to slow down in front of long block signals similar to choose signals
 	ADD: color for good in dat-file (color=index_nr, same as factory colors)
 	CHANGE: category names now  CATEGORY_xx and part of the pak set, replacing  "piece goods", "bulk goods", "oil/gasoline", "cooled goods", "liquid food", "long goods"
 	FIX: connection streets across slopes
-	FIX: faster goundsearch also avoids artifical slopes
+	FIX: faster groundsearch also avoids artificial slopes
 
 
 Release of 99.08.1
@@ -1042,7 +1042,7 @@ Release of 99.08.1
 	FIX: correct baum types in the correct climate (hopefully final fix)
 	CHANGE: bus AI will use always the cheapest road to survive a little longer
 	FIX: games with failed to generate even a single town were saved wrongly
-	FIX: houses without citys are again reconnected to the nearest city upon reloading
+	FIX: houses without cities are again reconnected to the nearest city upon reloading
 	FIX: length of string buffer for stations was 3 bytes too short
 
 
@@ -1052,18 +1052,18 @@ Release of 99.08
 	FIX: random_tree_for_climate was broken, and did return not always the right tree
 	FIX: unmark map ground during underground deletion
 	FIX: image for bridge ramps after reloading
-	FIX: citys continue also ways on upslopes
+	FIX: cities continue also ways on upslopes
 	FIX: citycars properly turning, when there is no entry or only one tile after a crossing (and also make now 180° turns)
 	FIX: (kierongreen) trains in small window are now correctly followed over bridges
 	ADD: (kierongreen) withdraw of convois i.e. convoi is sold after it is empty (and no freight is loaded) 'withdraw' and 'Convoi is sold when all wagons are empty.'
 	ADD: (kierongreen) no loading button to convoi info window added for manual control of a convois state
-	FIX: crash when click on vehicle thas is in a different depot than its home depot
+	FIX: crash when click on vehicle that is in a different depot than its home depot
 	FIX: (kierongreen) underground mode resets not grid mode
 	FIX: (kierongreen) height on slope during follow convoi was jumping
 	CHANGE: shrank ware_t by eight bytes
 	FIX: citycar destroyed themselves after a curve with a dead end
-	FIX: wayremover in tunnel bemoved tunnel object also on starting and end tile
-	CHANGE: goods now stored in an array instead of a list at stations => higher chanches of joining => much faster (up to 50% for poassenger/mail games) + less memory (up to 4MB); your milage may vary.
+	FIX: wayremover in tunnel removed tunnel object also on starting and end tile
+	CHANGE: goods now stored in an array instead of a list at stations => higher chances of joining => much faster (up to 50% for passenger/mail games) + less memory (up to 4MB); your mileage may vary.
 	FIX: label were saved but not loaded
 	FIX: crash when city tried to built new road to new townhall over existing player road
 	CHANGE: only show goods which can be transported for status display at stations
@@ -1090,12 +1090,12 @@ Release of 99.07
 	FIX: crash when electrify before electrification
 	FIX: citycars got stuck on slopes at height level -1
 	FIX: way remover with tunnels crashed at tunnel entry
-	ADD: (prissi & kierongreen) transparent images for buildings, trees, and catchment area with an extended display dialoge (new strings: "hide transparent", "hide trees", "hide city building", "hide all building", "transparent station coverage", "show station coverage")
+	ADD: (prissi & kierongreen) transparent images for buildings, trees, and catchment area with an extended display dialogue (new strings: "hide transparent", "hide trees", "hide city building", "hide all building", "transparent station coverage", "show station coverage")
 	FIX: improved citycar behaviour
 	FIX: wayobj not dirty after creation => garbage on the screen
 	ADD: shuffle for midis
 	ADD: (kierongreen) colors for water height in minimap
-	ADD: (kierongreen+prissi) better station coverage display in seperate layer
+	ADD: (kierongreen+prissi) better station coverage display in separate layer
 	FIX: removing way was free of charge
 	ADD: new label enables land buying (cost by 'cost_buy_land' in simuconf.tab, default -100), help file now possible ('label_frame.txt')
 	FIX: wrong images after diagonal tile after bridges and crossings
@@ -1104,7 +1104,7 @@ Release of 99.07
 	FIX: (kierongreen) pillar position was plainly wrong
 	ADD: (kierongreen) using SDL_mixer for midi (now also with Linux, if possible)
 	FIX: crash during deletion of bridges and tunnel (although just fixed symptoms)
-	ADD: waterdepths (needs new ground obj "Water", with n images, n=0 is uppermost, 1=depper, 2=even deeper, ...
+	ADD: waterdepths (needs new ground obj "Water", with n images, n=0 is uppermost, 1=deeper, 2=even deeper, ...
 	FIX/CHANGE: roads will not be overtaken, if they are not public property
 	ADD: shadows for airplanes (still wrong at non-straight slopes)
 
@@ -1143,7 +1143,7 @@ Release of 99.05.1
 	FIX: crash in depot
 	FIX: off-by-one error which can lead to non-unique city names
 	FIX: DWITH in bdf-fonts was not used
-	FIX: check for allowing articifial slopes was brocken
+	FIX: check for allowing artificial slopes was broken
 	FIX: loading signals
 	FIX: loading bridges
 	FIX: display in depot for left hand driving
@@ -1160,7 +1160,7 @@ Release of 99.05
 03-Dec-2006:
 	FIX: always ensure tile is empty before applying slopes (avoids wrong positions)
 	FIX: deletion of thing not on the map
-	FIX: buying cars with different precessor/following numbers
+	FIX: buying cars with different predecessor/following numbers
 	FIX: elevated tracks not shown
 	FIX: waypoints for planes
 	CHANGE: 4 bytes less per planquadrat, 4 less per ground (now down to 32 bytes per tile without objects from previous 48)
@@ -1172,10 +1172,10 @@ Release of 99.05
 	CHANGE: game will continue even while dragging (still little buggy)
 	CHANGE: cityrules allow now up to 7x7; more fine control about the res/ind/com clustering too (see cityconf.tab)
 	CHANGE: option to not showing vehicles which are not matching current action ('Show all' and 'Show also vehicles that do not match for current action.' strings added)
-	CHANGE: zoom in and out 'map zoom' in the small map only with a control, more user friendly buttom positions 'Show legend', 'Show map scale', 'Show industry'
+	CHANGE: zoom in and out 'map zoom' in the small map only with a control, more user friendly button positions 'Show legend', 'Show map scale', 'Show industry'
 	ADD: auto-centering on minimap
 	ADD: 45 rotated minimap 'isometric map'
-	ADD: tunnel entrace only built with control key
+	ADD: tunnel entrance only built with control key
 	CHANGE: corner heights only bytes instead of long => less data to handle during savegames
 	FIX: track remover for tunnel and monorails fixed
 	FIX: building trough depots
@@ -1203,8 +1203,8 @@ Release of 99.04.1
 	FIX: in depot: articulated engines will be only bought forward respective backward from the current position on
 	FIX: bridge/tunnel construction/deletion fixed
 	FIX: retire messages for planes
-	FIX: way maintainace was screwed up
-	FIX: depots had not maintainance after reload
+	FIX: way maintenance was screwed up
+	FIX: depots had no maintenance after reload
 	FIX: button offsets
 
 
@@ -1212,7 +1212,7 @@ Release of 99.04
 
 13-Nov-2006: (prissi)
 	FIX: elevated construction could only connect via straight connections
-	FIX: tunnel rails were upraded to even higher speeds than allowed
+	FIX: tunnel rails were upgraded to even higher speeds than allowed
 	FIX: no more accidental connection between bridges/tunnels
 	FIX: no more upgrading track on bridges or in tunnels
 	FIX: way search for ways below monorail fixed
@@ -1224,7 +1224,7 @@ Release of 99.04
 	CHANGE: tunnel code changed (might not load 99.03 savegames!)
 	CHANGE: 6 byte less for planquadrat_t (i.e. per tile, although GCC gives us only four of them)
 	CHANGE: 8 byte less for grund_t => 14 bytes less per tile (12 with GCC) => map requires ~ 15-25% less memory
-	CHANGE: rewrote dingliste: alsways well defined position, about 10-20% faster insert of vehicles
+	CHANGE: rewrote dingliste: always well defined position, about 10-20% faster insert of vehicles
 	CHANGE: articulated vehicles are now always bought together, if there is only a single choice
 
 
@@ -1261,10 +1261,10 @@ Release of 99.02.2
 Release of 99.02.1
 
 03-Oct-2006: (prissi)
-	FIX: game could lock up during creation when no matchin tourist attractions were found for the available climates
-	ADD: new flag in cimuconf.tab "ground_info" to show info on ground tiles
+	FIX: game could lock up during creation when no matching tourist attractions were found for the available climates
+	ADD: new flag in simuconf.tab "ground_info" to show info on ground tiles
 	FIX: platzsucher did some meaningless comparisons and did not consider all suitable places (i.e. slopes)
-	FIX: factory builder did add one too few to the distribution weigth => with n factories with distribution_weight=1 the last was always forgotten
+	FIX: factory builder did add one too few to the distribution weight => with n factories with distribution_weight=1 the last was always forgotten
 	FIX: wrong/missing foundation during construction on slopes
 	FIX: if no townhall with bev=0 is available for a climate, no towns will be founded in this climate
 	FIX: redraw problem when changing window size
@@ -1306,13 +1306,13 @@ Release of 99.01
 
 18-Sep-2006: (prissi)
 	FIX: redraw after window resize
-	FIX: climate dialoge
+	FIX: climate dialogue
 	FIX: display in townhalls
 	FIX: images in depot again
 	FIX: pause at waypoints
 	CHANGE: automatically loading pak/demo.sve (or whatever the pak folder is) on startup
-	CHANGE: symbol.BigLogo.pak with maximum for image loaded during intial startup
-	CHANGE: more complex tunnels, with cost=, maintenance=, topspeed=, waytype=, intro- and retiredates
+	CHANGE: symbol.BigLogo.pak with maximum for image loaded during initial startup
+	CHANGE: more complex tunnels, with cost=, maintenance=, topspeed=, waytype=, intro- and retire dates
 	CHANGE: allowed tunnels for all but air, also removal or tunnel with tramrails should work
 	FIX: city roads no longer destroy runways and the like
 	FIX: more even house distribution with rotation
@@ -1353,7 +1353,7 @@ Release of 90.00
 	CHANGE: citycars lifetime now in ms => they will be more controllable, since generation is also linear with time (also cleanup of pedestrian code)
 	FIX: overheadwires could be now replaced by a faster type, player was not check during destruction
 	FIX: signals were always built without owner => everybody could destroy them
-	FIX: problem with depots not found: saving and loading should solve this, no longer deleting other poepls depots
+	FIX: problem with depots not found: saving and loading should solve this, no longer deleting other people depots
 
 
 Release of 89.03.2
@@ -1389,7 +1389,7 @@ Release of 89.03
 	CHANGE: you can pak object with any size (smaller than 255). The tile size will be taken now from "ground.Outside.pak" (Go for big ships, Timothy)
 	FIX: overhead maintenance take from pak, not from simuconf.tab any more
 	FIX: code file cleaning up
-	FIX: signal appearing immideately after direction changes
+	FIX: signal appearing immediately after direction changes
 	FIX: mark dirty for higher buildings
 	CHANGE: beginner mode 'Beginner mode' with 1,5times higher prices (can be configured in simuconf.tab) and no just in time factories
 	FIX: under certain circumstances, the wayobj/wayremove found an electric engine and could not lay a caternary ...
@@ -1414,7 +1414,7 @@ Release of 89.02.4
 	FIX: coverage area signs now always refreshed after building/deletion
 	FIX: Factorylistbuttontext translated twice Input -> Eingang -> Elevated station ...
 	FIX: more error checking during parsing of help files, unlimited length (before maximum 8192 bytes)
-	FIX: compile error on MAC spooted by Timothy
+	FIX: compile error on MAC spotted by Timothy
 	FIX: convoi loosing its name after many actions in the depot ...
 	FIX: choosing of bridges works again
 	FIX: signal and roadsign position on slopes
@@ -1449,7 +1449,7 @@ Release of 89.02.1
 
 30-Jul-2006: (prissi)
 	ADD: braking before red signals and at the end of stations in the following steps 200,100,50,25 (only stations)
-	FIX: no airplanes servicing oil riggs any more
+	FIX: no airplanes servicing oil rigs any more
 	ADD: new text "\nis reserved by:" for showing reservation on tracks
 	FIX: bus checks for electric route
 
@@ -1457,15 +1457,15 @@ Release of 89.02.1
 Release of 89.02
 
 24-Jul-2006: (prissi)
-	FIX: roadsigns shown in the wrong menues
+	FIX: roadsigns shown in the wrong menus
 	FIX: not cost display for ways
 	FIX: roadsigns error after loading
 	FIX: wrong clipping for scrollbars ... still ...
-	CHANGE: more than one tranlation for a language in pak/text/ possible
+	CHANGE: more than one translation for a language in pak/text/ possible
 	CHANGE: if there is a file pak/compat.tab the names will be used to search for vehicles during loading => obsolete vehicles can be appropriately replace + better loading of 128 under 64 and vice versa
 	FIX: correct sorting of goods by name
 	CHANGE: no more railblocks => no signals on crossings (which did not worked well before too), but signals are now only a single tile!
-	ADD: new object way-object for overheadwires or avalanche protection; allows for electric roads too ... top speed in wayobj is limitied
+	ADD: new object way-object for overheadwires or avalanche protection; allows for electric roads too ... top speed in wayobj is limited
 	FIX: correct weight for attractions
 	CHANGE: automatic align of city buildings to the next road, if there is more than one rotation
 	FIX: tunnel construction
@@ -1492,13 +1492,13 @@ Release of 89.01
 Release of 89.00 (preview)
 
 1-Jul-2006: (prissi)
-	ADD: path based signaling (PBS): There can be many trains in a block as long as their path do not intersect.
+	ADD: path based signalling (PBS): There can be many trains in a block as long as their path do not intersect.
 
 
 Release of 88.10.5 (stable)
 
 1-Jul-2006: (prissi)
-	FIX: maintainace for bridges works again
+	FIX: maintenance for bridges works again
 	FIX: values in finance history init to zero at the start of new year
 	ADD: fences at slopes
 
@@ -1523,16 +1523,16 @@ Release of 88.10.4
 	FIX: scrollbar in factory windows
 	FIX: clipping errors when letters were vertical (top) clipped
 	FIX: the "cost=" entry in the roadsign files were not correctly saved by makeobj
-	FIX: forgot to add "needs_ground=" to the building section of makeobj. If needs_ground!=0, gras (or snow) will be drawn below a building
+	FIX: forgot to add "needs_ground=" to the building section of makeobj. If needs_ground!=0, grass (or snow) will be drawn below a building
 
 
 Release of 88.10.3
 
 19-Jun-2006: (prissi)
 	FIX: wrong buildings on slopes, transparent bottoms
-	FIX/CHANGE: forbid to delete a line assinged to convois (but you could do it without crash anyway again)
+	FIX/CHANGE: forbid to delete a line assigned to convois (but you could do it without crash anyway again)
 	FIX: set dirty of smoke
-	CHANGE: only smoking chimmneys when producing/consuming
+	CHANGE: only smoking chimneys when producing/consuming
 	FIX: another try to fix the depot window to prevent wrong obsolete vehicles
 	FIX: faster, less memory consuming route calculation (about factor of 10-50 for ships)
 	FIX: waybuilder much faster calculation and finally builds diagonals as expected (may have one curve too much but is up to 4000% faster that way)
@@ -1555,16 +1555,16 @@ Release of 88.10.2
 	FIX: when the number of vehicles changed during reopening of a depot dialog (either year or electrification) the game crashed
 	ADD: you can create a roadsign which prevent citycars from entering. Use "is_private=1" in the roadsign definition (will be not part of the 64 set though!)
 	ADD: draw way as a normal object by "draw_as_ding=1" in the definition of a way
-	CHANGE: (intenal) all defines now in simconst.h"
+	CHANGE: (internal) all defines now in simconst.h"
 
 
 Release of 88.10.1
 
 4-Jun-2006: (prissi)
-	FIX: texinput fields work again as expected, mouse sets cursor position
+	FIX: textinput fields work again as expected, mouse sets cursor position
 	FIX: several places were handling player colors incorrect or not at all
 	FIX: several small clipping errors fixed
-	CHANGE: compiles again with MS Visual C++ Express => better debugging, some little errors fixed, esp. overuns
+	CHANGE: compiles again with MS Visual C++ Express => better debugging, some little errors fixed, esp. overruns
 
 
 Release of 88.10
@@ -1578,14 +1578,14 @@ Release of 88.10
 
 Release of 88.09.6
 
-9-Mai-2006: (prissi)
+9-May-2006: (prissi)
 	FIX: raising and lowering land works again as intended
 	FIX: loading slopes for bridge heads
-	FIX: assignement of more than 6 lines ...
+	FIX: assignment of more than 6 lines ...
 	CHANGE: reader more endian compatible
 	CHANGE: obsolete entry "2LIGHT_CHOOSE"
 	FIX: translator looked words up twice (eating lots of performance with many dialogs open)
-	FIX: line assingment during reloading fixed
+	FIX: line assignment during reloading fixed
 	FIX: depot is updated once before showing it
 	FIX: station ground name was copied on itself
 	FIX: workaround for Linux 4.0.3 compiler bug (will use the C-routines for image display instead of assembler)
@@ -1594,17 +1594,17 @@ Release of 88.09.6
 
 Release of 88.09.3
 
-4-Mai-2006: (prissi)
+4-May-2006: (prissi)
 	FIX: recompiled with hopefully corrected files => bridges/marker correctly, line number ok again
 	FIX: ownership of public owned road is taken when using trams
 	FIX: last line in schedules selectable again
 	CHANGE: slope now part of ground structure => less errors with monorail over houses
-	CHANGE: gui-components and dialogs mostly seperated, losts of code cleanup
+	CHANGE: gui-components and dialogs mostly separated, lots of code cleanup
 
 
 Release of 88.09.2
 
-1-Mai-2006: (prissi)
+1-May-2006: (prissi)
 	FIX: houses in cities on slopes again
 	FIX: can again delete last town too
 	FIX: translator automatically adds "\n" to stations => simutrans will remove this
@@ -1624,7 +1624,7 @@ Release of 88.09.2
 	FIX: convoi mini world view scroll more smooth and displays planes correctly
 	FIX: passengers from/to monuments after reloading
 	FIX: one month too many after reloading
-	FIX: player colors for AI changable
+	FIX: player colors for AI changeable
 	CHANGE: option window renovated (mostly internally, make much more consistent with current windowing system)
 
 
@@ -1632,10 +1632,10 @@ Release of 88.09.1
 
 23-Apr-2006: (prissi)
 	FIX: signal on illegal coordinates now checked
-	CHANGE: passenger generation now proportional to the inhabhitants show
+	CHANGE: passenger generation now proportional to the inhabitants show
 	ADD: passenger generation can be now adjusted using "passenger_factor" in simuconf.tab. 16 equals the old value.
 	FIX: track deletion of bridges and tunnel now completely deletes them
-	FIX: several errors/inconsisties with the line management dialog fixed
+	FIX: several errors/inconsistencies with the line management dialog fixed
 	FIX: clipping error when switching players
 	FIX: trees should now regrow at their intended rate
 	FIX: map window needed sometimes a right click to activate
@@ -1662,7 +1662,7 @@ Release of 88.09
 Release of 88.08.1
 
 16-Apr-2006: (prissi)
-	FIX: all unneccessary warnings corrected (and an error in the AI module found)
+	FIX: all unnecessary warnings corrected (and an error in the AI module found)
 	FIX: some problem with initialized values fixed
 	FIX: broken convoys after curves, much less "jumping" at waypoints
 	FIX: line selector in depot now hopefully finally fixed
@@ -1693,7 +1693,7 @@ Release of 88.07
 	CHANGE: asynchronous updating of routes and rerouting to avoid lags when building stations/change schedules
 	CHANGE: more CPU-friendly choosing for trains
 	ADD: block tool (b) also checks for double or orphan block and block without signal and corrects it
-	ADD: invalid block ids are now corrected duing loading
+	ADD: invalid block ids are now corrected during loading
 	FIX: crash using (t) when no rails are available
 	FIX: signal state in front of waiting train now always red, even for presignals and choose signals
 	FIX: better check for double entries in schedule to avoid crashing
@@ -1705,7 +1705,7 @@ Release of 88.07
 	FIX: no loading of smoke => no wrong images emerging after updates
 	FIX: lower right border error when loading reliefdata fixed
 	FIX: wrong speed on bridges after loading a saved game
-	CHANGE: after creating a new line, this line is immediately selected in this scedule window (removed text: "New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.")
+	CHANGE: after creating a new line, this line is immediately selected in this schedule window (removed text: "New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.")
 	CHANGE: clicking somewhere else into the dialog will close the line drop down box in schedule and depot dialog
 	FIX: construction of ship depots now again everywhere
 	FIX: redraw error in depot (part of vehicle was visible in certain window sizes outside the box)
@@ -1732,7 +1732,7 @@ Release of 88.06.2
 	FIX: ladegrad was ignored, if absolutely nothing was there to load or unload
 	CHANGE: choose signal will reserve the full way until the target location
 	FIX: traffic light switched to seldom after reloading
-	FIX: zoom out error with 128 pak and electricfication
+	FIX: zoom out error with 128 pak and electrification
 
 
 Release of 88.06.1
@@ -1742,10 +1742,10 @@ Release of 88.06.1
 	FIX: monorail ground saves slope (otherwise the slope could be changed by building below)
 	CHANGE: schedules are now recalculated more often
 	FIX: no tunnel or bridge destroyed by slopes anymore
-	ADD: indicator for convois stucked for more than a month
+	ADD: indicator for convois stuck for more than a month
 	FIX: much less redraw troubles with slopes (will be drawn as foreground, if any object is behind them)
 	ADD: season indicator
-	FIX: UNDO did remove tracks but no electricfication
+	FIX: UNDO did remove tracks but no electrification
 	FIX: block reservation now saved
 	CHANGE: made line chart more slim
 	FIX: when vehicle braking was larger than acceleration in curves => acceleration to insane speeds
@@ -1754,7 +1754,7 @@ Release of 88.06.1
 	FIX: several translator text adjusted with program texts
 
 04-Mar-2006: (prissi)
-	FIX: choose trains go to the end of a plattform again
+	FIX: choose trains go to the end of a platform again
 	FIX text changed to "Die Bruecke ist nicht frei!\n"
 	FIX: correctly loading and saving monorails
 
@@ -1763,7 +1763,7 @@ Release of 88.06
 
 04-Mar-2006: (prissi)
 	FIX: airplanes check for exit the map (although this should never happen)
-	FIX: runways may only built up to fout tiles next to the border
+	FIX: runways may only built up to four tiles next to the border
 	FIX: no depots on top of depots
 	FIX: too young trees with different timescales
 	FIX: sort options in convoy dialog were not correctly remembered
@@ -1781,7 +1781,7 @@ Release of 88.05.1
 	CHANGE: sync_prepare() only called one time before sync_step() => lost of useless objects are not called any more every frame
 	FIX: trams find depots again
 	CHANGE: built on top of cars or pedestrians (may cause graphics errors)
-	FIX: oilrigg and other water factories fixed when loading old sets
+	FIX: oilrig and other water factories fixed when loading old sets
 	FIX: wrong sound when closing tool bars
 	FIX: again correct gear in convoi details
 	FIX: several wrong sounds/smoke for vehicles
@@ -1793,22 +1793,22 @@ Release of 88.05.1
 Release of 88.05
 
 25-Feb-2006: (prissi)
-	CHANGE: runways now system_type=1, independet of max speed
+	CHANGE: runways now system_type=1, independent of max speed
 	FIX: traffic density=0 => no cars generated
 	FIX: townhall construction with uneven grounds
-	FIX: maintainace adjusted according acceleration factor
+	FIX: maintenance adjusted according acceleration factor
 	FIX: no longer roads through depots, bus stops or loading bays (hopefully)
 	FIX: sound hashes were wrongly calculated => hopefully fixed
 	FIX: player initialisation during map creation not allowed for passenger stations for player 0 and 1
 
 24-Feb-2006: (prissi)
-	FIX: crash in waybuilder when runway starts on streets or when a way costs no maintainance
+	FIX: crash in waybuilder when runway starts on streets or when a way costs no maintenance
 	FIX: wrong slope display (was back to old state?!?)
 	FIX: tunnel block connection
 	FIX: connection rails with tram rails
 	FIX: deleting bridges with roadsigns and stops
-	CHANGE: ectended bridge search for unknown bridges during loading
-	CHANGE: all vehicles somke, if requested
+	CHANGE: extended bridge search for unknown bridges during loading
+	CHANGE: all vehicles smoke, if requested
 	FIX: stop of passenger generation when timer overflowed fixed
 	CHANGE: only relative time steps used => much faster and more reliable for the game
 	FIX: nearly complete renovation of blockmanager
@@ -1884,9 +1884,9 @@ Release of 88.04.1
 	FIX: curiosity list was cutting names
 	FIX: no passengers generated after loading of a map
 	CHANGE: unified schedule routines
-	FIX: covoy wait for loading on empty stations work again
+	FIX: convoy wait for loading on empty stations work again
 	FIX: convoiinfo help window again
-	FIX: connection neightbours rewritten to check all ground levels => should work with subways too (if they come)
+	FIX: connection neighbours rewritten to check all ground levels => should work with subways too (if they come)
 	FIX: deleting busstops
 	CHANGE: monorail now separate from rail vehicles
 	CHANGE: blockmanager reworked in many aspects
@@ -1899,26 +1899,26 @@ Release of 88.04.1
 
 5-Feb-2006:
 	FIX: line window crashed when opened twice
-	ADD: covertiles over vertial trogs
+	ADD: covertiles over vertical trogs
 	FIX: no vehicle beaming any more (was waiting in sync_step instead step!)
 
 Release of 88.04
 
 3-Feb-2006(prissi):
-	CHANGE: big code cleanup, german translation cleaned of all unneccessary strings => all official strings now there
+	CHANGE: big code cleanup, german translation cleaned of all unnecessary strings => all official strings now there
 	CHANGE: map legend now closes with main map
 	FIX: linking order for gdi (=> again wav sound)
 	ADD: error message, if a feature is not yet available.
 
 2-Feb-2006(prissi):
 	CHANGE: sound system now working; all sound are save under pak*/sound with a description either in sound.tab in the same folder or a wavefilename in the vehicle description
-	CHANGE: new menu order, seperated monorail and tram; Help button. New text RAILTOOLS, MONORAILTOOLS, TRAMTOOLS, ROADTOOLS, SHIPTOOLS, AIRTOOLS, Help and Fast forward
+	CHANGE: new menu order, separated monorail and tram; Help button. New text RAILTOOLS, MONORAILTOOLS, TRAMTOOLS, ROADTOOLS, SHIPTOOLS, AIRTOOLS, Help and Fast forward
 	CHANGE: loading indicator and dummy message if no simuconf.tab is found (to avoid 80% of the complains I get via mail!)
 
 31-Jan-2006(prissi):
 	ADD: cityrule T and t for not a stop/stop
 	CHANGE: schedule do not allow waypoints for airplanes over stops
-	FIX: deleting water bidges
+	FIX: deleting water bridges
 	CHANGE: sound paks halfway done
 
 30-Jan-2006(prissi):
@@ -1951,7 +1951,7 @@ Release of 88.03.1
 
 27-Jan-2006(prissi):
 	FIX: New year calculation for Autosave/timeline ...
-	FIX: diasble arrow buttons
+	FIX: disable arrow buttons
 	CHANGE: goods list design
 	FIX: new world info some fixes
 	FIX: bridge builder for channels
@@ -1961,7 +1961,7 @@ Release of 88.03.1
 	CHANGE: order of buttons in halt list
 
 25-Jan-2006(prissi):
-	FIX: accelleration on slopes
+	FIX: acceleration on slopes
 	ADD: Repeatbuttons
 	ADD: correctly routing through tunnels again
 	FIX: wrong color in finance window
@@ -1982,7 +1982,7 @@ Release of 88.03
 
 21-Jan-2006(prissi):
 	CHANGE: station now have a capacity of 32*level; thus price reflect station capacity
-	CHANGE: changed owner of several dialoges
+	CHANGE: changed owner of several dialogues
 	CHANGE: new world functional, new string "Intercity road len:", obsolete ones. "7WORLD_CHOOSE", "7WORLD_CHOOSE", "
 
 18-Jan-2006(prissi):
@@ -1992,7 +1992,7 @@ Release of 88.03
 17-Jan-2006(prissi):
 	ADD: automatic slider recalculation at halt info and convoi info
 	CHANGE: consistent colors for negative and positive amount in dialog (red/black)
-	FIX: wrong maintance calculation when replacing roads (include other players ones)
+	FIX: wrong maintenance calculation when replacing roads (include other players ones)
 
 16-Jan-2006(mip):
 	CHANGE: new attraction list
@@ -2003,11 +2003,11 @@ Release of 88.03
 	FIX: new player frame (mostly internal change)
 
 13-Jan-2006(prissi):
-	FIX: way is keeped when building/removing bridges
+	FIX: way is kept when building/removing bridges
 	ADD: tooltip "Alters a schedule.", "loaded" for convoiinfo, further rearrangement
-	CHANGE: goods in convois and stops are sorted by the same rules => same sorting optins
+	CHANGE: goods in convois and stops are sorted by the same rules => same sorting options
 	CHANGE: convoi freight info and stop freight info only updated when needed => saving lots of time
-	ADD: tranlations "follow me", "Follow the convoi on the map", "Sort by"
+	ADD: translations "follow me", "Follow the convoi on the map", "Sort by"
 
 11-Jan-2006(prissi):
 	CHANGE: convoi_info new text "%i km/h (max. %ikm/h)"
@@ -2024,7 +2024,7 @@ Release of 88.03
 	FIX: first all down will flatten a tile (more intuitive), using a slope on identical couble slope will make it steeper
 
 9-Jan-2006(prissi):
-	CHANGE: coinvoi list: minus red, further polish of halt_info
+	CHANGE: convoi list: minus red, further polish of halt_info
 	CHANGE: halt_info: obsolete strings "Akzeptiert"
 	FIX: scroll_pane now clips correctly
 	CHANGE: speed bonus now in percentage instead of absolute speed => higher bonus for earlier fast stuff, lower for new stuff (may require new balancing :() (but effect not too much, only very fast things get a little less)
@@ -2043,13 +2043,13 @@ Release of 88.02.1
 	FIX: monorails now display again correctly
 	FIX: no rails at tunnel start
 	FIX: station alignment on bridge start fixed
-	FIX: no automatic bridges and tunnels any more => no crashes for public road and other ocasions
+	FIX: no automatic bridges and tunnels any more => no crashes for public road and other occasions
 
 
 Release of 88.02
 
 7-Jan-2006(prissi):
-	FIX: aircraft did not accelerat after reaching flight level
+	FIX: aircraft did not accelerate after reaching flight level
 	CHANGE: "cooperate identity" exactly same dimensions for all list buttons started
 	CHANGE: halt info, new text "Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n" instead "Passengers today:\n %d %c, %d %c, %d no route\n\n%s\n"
 	CHANGE: elements of halt list rearranged => more compact design
@@ -2057,14 +2057,14 @@ Release of 88.02
 	FIX: double character with GDI and numlock
 
 1-Jan-2006(prissi):
-	FIX: changed all income calculation to 64 bit => hopefully no overuns any more
+	FIX: changed all income calculation to 64 bit => hopefully no overruns any more
 	FIX: wayfinder check now for artificial slopes and starting tile
 	CHANGE: cost of land changes more balanced, tunnels more expensive
 	CHANGE: nicer indicator in lower line
 	FIX: 8 bit SDL works again fine
 
 31-Dec-2005(prissi):
-	CHANGE: makeobj reconizes now all waytypes in all relevant objects
+	CHANGE: makeobj recognizes now all waytypes in all relevant objects
 	FIX: way finder now takes care of powerlines when building bridges
 	FIX: now slopes are correctly checked before built => more slopes possible
 	FIX: selling airplanes do not delete a depot
@@ -2090,7 +2090,7 @@ Release of 88.01.3
 26-Dec-2005(prissi):
 	FIX: cursor keys for SDL and Allegro
 	FIX: mouse pointer for Allegro
-	FIX: symbol alingment fixed for message options
+	FIX: symbol alignment fixed for message options
 	FIX: missed airplanes again included into 64 pak
 
 Release of 88.01.2
@@ -2099,12 +2099,12 @@ Release of 88.01.2
 	two tiles drawing code operational; but, the effect is rather small and only seen in very hilly maps
 
 22-Dec-2005:
-	FIX(prissi): change factory preciosion to allow high-volume production
+	FIX(prissi): change factory precision to allow high-volume production
 	FIX: redrawing title bar under not Allegro
 
 21-Dec-2005
 	ADD(tron): new makefiles (all options now in config.default, copy config.template and edit this)
-	ADD(prissi): citycars with destinations (not recommended, just to many whcih want to reach places without roads)
+	ADD(prissi): citycars with destinations (not recommended, just to many which want to reach places without roads)
 	FIX(prissi): Allegro now with mouse in menu bar
 
 18-Dec-2005(prissi):
@@ -2118,7 +2118,7 @@ Release of 88.01.2
 	ADD: factory added to stop names (when built close to it)
 
 12-Dec-2005(prissi):
-	FIX: powerlines again builtable
+	FIX: powerlines again buildable
 	FIX: route calculation of aircraft improved
 	CHANGE: wait for loading percentage now several numbers with wrap around
 	ADD: waypoints for planes
@@ -2129,7 +2129,7 @@ Release of 88.01.1
 10-Dec-2005(prissi):
 	ADD: citylist with total inhabitants
 	ADD: new switch in simuconf.tab "just_in_time" (default=1) which allows switching off just in time logistics
-	CHANGE: new factory construction: try to connect always to an existing factory, and ignore the distance, if the connection factory is not an emental source
+	CHANGE: new factory construction: try to connect always to an existing factory, and ignore the distance, if the connection factory is not an elemental source
 	FIX: redraw error, when AI changed land height hopefully fixed
 	CHANGE: map display updated also with several options on
 
@@ -2163,7 +2163,7 @@ Release of 88.01
 	FIX: only straight runways
 	FIX: power large than 65536 and gear larger than 255 are now handled correctly
 	FIX: slower acceleration on runways
-	FIX: when ground was changed, airplanes were stucked
+	FIX: when ground was changed, airplanes were stuck
 	FIX: "nicer" calculation of speed during different flight positions
 	FIX: made planes compatible with half height version
 	FIX: error when zoomed out with different base tile sizes
@@ -2184,8 +2184,8 @@ Release of 88.00
 22-Nov-2005:
 	FIX (hsiegeln): do not count vehicles in depot for line capacity
 	FIX (hsiegeln): display in convoi and schedule list
-	FIX (prissi): vehicles in depot are shown, even if obsolete (but apparantly worked before too)
-	FIX (prissi): speedboni are always initilized with default values
+	FIX (prissi): vehicles in depot are shown, even if obsolete (but apparently worked before too)
+	FIX (prissi): speedboni are always initialized with default values
 	CHANGE (prissi): zero number if goods waiting are omitted in haltlist
 	FIX (prissi): vehicle going in wrong depots
 	CHANGE (prissi): haltlist now also with CNTRL functionality (CNTRL+click = only jump to position)
@@ -2214,12 +2214,12 @@ Release of 88.00
 			enables_post=1 - mail can start from here
 			enables_ware=1 - good are accepted here
 		Without these flags, a stop will not accept anything!
-		A freight station must posses "type=station  enables_ware=1" or it won't accept freigth.
+		A freight station must posses "type=station  enables_ware=1" or it won't accept freight.
 		For generic, not stop specific buildings, there are three entries left:
 			hall - waiting hall (1 dir)
 			post - post office (1 dir)
 			shed - goods shed (1 dir)
-	The halt list and halt dialoge are extended by a small symbol indicating what this station accepts.
+	The halt list and halt dialogue are extended by a small symbol indicating what this station accepts.
 
 
 Release of 87.02
@@ -2234,12 +2234,12 @@ Release of 87.02
 	FIX: default filter state for convoi list is off
 	CHANGE: A* for faster pathfinding and preference of faster ways for faster vehicles
 	FIX: correct booking of roadsigns
-	FIX: again sorted as intended by category amout transported engine type, speed, power, ...
+	FIX: again sorted as intended by category amount transported engine type, speed, power, ...
 	FIX: some further finetuning of cost, speeds etc.
 	FIX: some goods were wrongly joined, if there were two goods for the same factory at the same final stop
 	ADD: click on vehicle in depot will open depot window (should be like that from the beginning ... )
 	CHANGE: factory names for 64 changed again for compatibility with very old savegames (but 87.xx might not load!)
-	CHANGE: renovated japan pak for timline and consistent building names, many new trams ...
+	CHANGE: renovated japan pak for timeline and consistent building names, many new trams ...
 
 
 Release of 87.01
@@ -2248,7 +2248,7 @@ Release of 87.01
 	FIX: loading old maps with obsolete docks
 	FIX: no route next to attraction should now have a more meaningful number (so you can better guess how much you have to transport)
 	FIX: mail from attractions and factories again 4x received mail
-	CHANGE: some further small optimizations for faster drawing of dialoges
+	CHANGE: some further small optimizations for faster drawing of dialogues
 	CHANGE: vehicles now sorted in depot by intro year and engine type
 3-Nov-2005 (mip)
 	ADD: curiosity list
@@ -2261,7 +2261,7 @@ Release of 87.01
 	FIX: under some circumstances, building on ways (e.g. all stations) were not correctly removed
 	FIX: several data of pak64 vehicles finetuned, mail carriage added, busstop before 1900 added
 	ADD: Fast forward (keycode W)
-	ADD: indicator for fast forward and timeline (tranlatable "timeline" "no timeline")
+	ADD: indicator for fast forward and timeline (translatable "timeline" "no timeline")
 	FIX: calculation of speed bonus changed => bonus not per car, but per passenger
 	FIX: timeline was sometimes some years off; especially after loading old games
 
@@ -2269,10 +2269,10 @@ Release of 87.01
 Release of 87.00
 
 27-Oct-2005 (prissi)
-	CHANGE: train outside depot on same sqare are displayed first
+	CHANGE: train outside depot on same square are displayed first
 	CHANGE: no goods are sent to overflowing industries
 	CHANGE: halt status color also red, when goods are overflowing station
-	CHANGE: accepts freight at all stops near factories (includign bus stops)
+	CHANGE: accepts freight at all stops near factories (including bus stops)
 	CHANGE: road, rail and ship bonus now depend on average speed, if timeline is on
 	FIX: some errors loading older savegames fixed
 	FIX: on animated tiles missing phases will return the tile at phase=0 (i.e. baumarkt)
@@ -2291,7 +2291,7 @@ Release of 87.00
 	FIX: when renovating, check, if I can renovate something; if highest level reached: do nothing
 	CHANGE: full building timeline for 64 pak with many new building (=> can play from 1900)
 	CHANGE: era and copyright message for buildings
-	ADD: many new trams, alignement corrected for existing ones
+	ADD: many new trams, alignment corrected for existing ones
 	ADD: new player1 tool: jump a year forward
 	CHANGE: haltlist now member of planquadrat
 	ADD: stations on bridges
@@ -2306,7 +2306,7 @@ Release of 86.10.5
 	CHANGE: growth now size dependent (max 1.67 for <1000, max. 3 for <1000, max. 6 for other)
 	FIX: good distribution always, when more than 10 produced: non-distributing factories should be gone
 	FIX: passenger and mail coverage display fixed
-	FIX: connection from factories and town were assymetric and only passengers went to the last factory in the list
+	FIX: connection from factories and town were asymmetric and only passengers went to the last factory in the list
 	CHANGE: train can drive now on any track (also on public owned roadcrossings ...)
 15-Oct-2005 (prissi)
 	FIX: deleting upper and lower objects tweaked a little
@@ -2330,12 +2330,12 @@ Release of 86.10.4
 	CHANGE: CNTRL+roadbuilder will replace also fast by slower road
 	FIX: first use of 's' for roadbuilding -> crashed program
 	FIX: setting new schedule could crash on fast computers or long lines due to recursive calling
-	ADD: two new settings to simiconf.tab "only_single_info" and "window_buttons_right"
+	ADD: two new settings to simuconf.tab "only_single_info" and "window_buttons_right"
 	CHANGE: configure, that always a single window opens up
-	CHANGE: for you ariabic and hebrew writers and all brainwashed by gates: close button configurable to the right (goes best with Win98 skin ... )
-	ADD: timeline, starting year and cheating mode can be set in the starting menue (and will be fixed further one, allowing for competitions)
+	CHANGE: for you arabic and hebrew writers and all brainwashed by gates: close button configurable to the right (goes best with Win98 skin ... )
+	ADD: timeline, starting year and cheating mode can be set in the starting menu (and will be fixed further one, allowing for competitions)
 	ADD: new edit tool to protect a map from further change
-	CHANGE: new spanish, portugese, czech, and dutch translation for 64 set
+	CHANGE: new spanish, portuguese, czech, and dutch translation for 64 set
 	CHANGE: further reordering of deletion order ...
 	FIX: if factories were connected via station areas, goods disappeared ...
 
@@ -2401,10 +2401,10 @@ Release of 86.09.3
 24-Sep-2005 (prissi)
 	FIX: also loading games with too many objects on one tile (warning will be given)
 	FIX: working again with factories with more than 30 destinations and 10 suppliers
-	FIX: artificial slopes now nearly always ok (one case is not solveable)
+	FIX: artificial slopes now nearly always ok (one case is not solvable)
 	FIX: reloading streets with paveway are again 50km/h
 	FIX: sending back pax was not trying original destination => too many no route
-	FIX: forgotten comment: citycars deseased after 100 hops ...
+	FIX: forgotten comment: citycars deceased after 100 hops ...
 	ADD: traffic lights
 
 
@@ -2429,7 +2429,7 @@ Release of 86.09.1
 16-Sep-2005 (prissi)
 	FIX: bridges now cost again money
 	FIX: citycars and pedestrians behave now as intended
-	FIX: citycars delete themseves at the end of their lifetime
+	FIX: citycars delete themselves at the end of their lifetime
 	CHANGE: non-square buildings are allowed also without rotation
 	FIX: click in town tool now on correct line
 	FIX: overlarge windows now moved to left corner
@@ -2448,7 +2448,7 @@ Release of 86.09
 	CHANGE: citycars will no turn into a dead end (check 2 tiles ahead)
 	FIX: again pedestrians (was broken since 86.07)
 	CHANGE: new setting in simuconf.tab: "drive_left" will offset all citycars, trucks, roadsigns, ... to the other side of the road (there will be still some clipping errors)
-	CHANGE: artifical slopes now includes the natural ones
+	CHANGE: artificial slopes now includes the natural ones
 	ADD: Isaac new roadsigns
 	ADD: cityroad configurable "city_road_type" in simuconf.tab
 	FIX: cars now also wait on diagonals
@@ -2461,9 +2461,9 @@ Release of 86.09
 	ADD: Some buildings from Moistboy and de/en translation texts
 	ADD: road inside city limits will get a sidewalk after some time
 	ADD: "Total inhabitants:" to citylist which shows the number of total inhabitants
-	CHANGE: made dinglist to maximum size 255, and single objects are stored directly => much faster loading, saved another 2 bytes per tile and 32 byte per emtpy tile/one object tile
+	CHANGE: made dinglist to maximum size 255, and single objects are stored directly => much faster loading, saved another 2 bytes per tile and 32 byte per empty tile/one object tile
 	CHANGE: removed fundament type from ding-types => 56 bytes less per building
-	FIX: Some more error checking, when loading ways => can cope with unknow ways
+	FIX: Some more error checking, when loading ways => can cope with unknown ways
 
 
 Release of 86.08.1
@@ -2476,14 +2476,14 @@ Release of 86.08.1
 	CHANGE: haltlist to minivec_tpl => saved about 2 bytes per tile
 	FIX: error check during scroll bar creation
 	CHANGE: tried yet another set of routines for GDI which seems to work on all machines I could test
-	CHANGE: newly arranged finace window, obsolete string now "Construction:", "New Vehicles:","Vehicle Running Costs:","Revenue:","Total:","Maintenance:","Balance:"
+	CHANGE: newly arranged finance window, obsolete string now "Construction:", "New Vehicles:","Vehicle Running Costs:","Revenue:","Total:","Maintenance:","Balance:"
 
 
 Release of 86.08
 
 3-Sep-2005 (prissi)
 	FIX: convoi in depot which were assigned a line or a schedule started after reloading.
-	CHANGE: Separeted map and legend. Got rid of small font
+	CHANGE: Separated map and legend. Got rid of small font
 	FIX: Closing button should check, if closing is ok.
 	ADD: built straight ways by pressing control during mouseclick	(just using a dumb minimizing distance algorithm)
 	FIX: factory production calculation could overflow under bad circumstances.
@@ -2492,7 +2492,7 @@ Release of 86.08
 Release of 86.07.4
 
 2-Sep-2005 (prissi)
-	CHANGE: new map button "factries", no more clutter in the legend
+	CHANGE: new map button "factories", no more clutter in the legend
 	FIX: divers "delete" to "delete [] ", which are different operators. valgrind now only complains about SDL stuff.
 
 Release of 86.07.3
@@ -2509,17 +2509,17 @@ Release of 86.07.2
 
 25-Jul-2005 (prissi)
 	FIX: again correct train types for newer paks
-	FIX: error during loading was using evt. unitialized minimap
+	FIX: error during loading was using evt. uninitialised minimap
 	CHANGE: order in railtools and tramstools roughly similar
 	CHANGE: background for tunnel graphics (was returning always foreground)
 	CHANGE: AI will always keep cityroads
 	FIX: roads under harbour deleted
-	FIX: AI now users better calculation of income (before always the farest factory won)
+	FIX: AI now uses better calculation of income (before always the farthest factory won)
 	CHANGE: zeiger now drawn on to of everything
 	CHANGE: allow to crossconnect all factories (via crossconnect_factories=1 in conf/simuconf.tab)
 	FIX: factories initiated more than one smoker instance during loading (could break savegames)
 	FIX: cars and trains now really vanish in tunnels (more or less)
-	CHANGE: wrote extremly simple direct copy in Windows-GDI. Seems 2x faster than SDL and the debugger works a little, yeah!!!
+	CHANGE: wrote extremely simple direct copy in Windows-GDI. Seems 2x faster than SDL and the debugger works a little, yeah!!!
 
 
 Release of 86.07.1
@@ -2538,8 +2538,8 @@ Release of 86.07
 13-Jul-2005 (prissi)
 	Internal cleaning up of some data structures => more run-time memory, preparation for other machines/64 Bit
 	Repaired/Changed some code to make it compatible with DevCpp
-	Changed the list handling code: There was a lot of uneeded memory use (class instead struct) and some overhead. Also more friendly to different compilers.
-	Changed the mempool code: Reuse the blocks also used for the list handling code (will be alway size of 4, 8, 12, ... bytes up)
+	Changed the list handling code: There was a lot of unneeded memory use (class instead struct) and some overhead. Also more friendly to different compilers.
+	Changed the mempool code: Reuse the blocks also used for the list handling code (will be always size of 4, 8, 12, ... bytes up)
 
 	CHANGE: removing now first deletes citycars, then roadsigns/signals, otherwise like before
 	FIX: key help dialog is now a magic one (only open once)
@@ -2548,24 +2548,24 @@ Release of 86.07
 	CHANGE: Non-quadratic maps (my favorite is always 512x256)
 	CHANGE: Unmagic cityinfo (so you can open more than one) and city info does not forget its settings anymore
 	CHANGE: try to built a little more straighter road/tracks also for diagonals (not 100% working yet)
-	ADD: presignals now posess a third stage, i.e. next block free, but nextnext one still not free
+	ADD: presignals now possesses a third stage, i.e. next block free, but next one still not free
 	FIX: Paranoia check during loading can partly repair broken savegames during loading/saving
-	CHANGE: vehicle values drops now 50% in 20 xears and changes monthly.
+	CHANGE: vehicle values drops now 50% in 20 years and changes monthly.
 	CHANGE: passengers and goods are first loaded for the nearest stations the convoi goes. This allows to built local and station skipping highspeed lines.
 	ADD: after three month not moving, citycars will turn around. If still stuck, they will report "To heavy traffic\nresults in traffic jam.\n" as a problem
-	CHANGE: citycars will wait for next free hop in a step() (saveing lots of calculation time)
+	CHANGE: citycars will wait for next free hop in a step() (saving lots of calculation time)
 	CHANGE: autosave value gives now interval in month (0=off)
 	FIX: no more redraw errors with slopes behind buildings
 	CHANGE: sorting by number of passenger for the next destination (i.e. connecting to xyz)
 
-	64 Graphcis:
+	64 Graphics:
 	ADD: new station building and new harbours from timeshock/converted 128px graphics
 
 
 Release of 86.06
 
 6-Jul-2005 (prissi)
-	FIX: calculation of slopes after lowering lanscapes now correct
+	FIX: calculation of slopes after lowering landscapes now correct
 	FIX: connection with a near stop could fail for non-symmetrical station buildings
 	FIX: full-window mode works more reliable
 	FIX: crash, when the land on a route was removed
@@ -2595,20 +2595,20 @@ Release of 86.05.1
 	FIX: fullscreen mode from simuconf working.
 	FIX: redraw error when raising water.
 	ADD: 'P' to change player (player 0 is construction AI).
-	ADD: Edit menu for player 0 (grow city, shrink city, biult cityroad, built attraction)
-	CHANGE: built industry now into edit menu
+	ADD: Edit menu for player 0 (grow city, shrink city, build cityroad, build attraction)
+	CHANGE: build industry now into edit menu
 
 
 Release of 86.05
 
 17-Jun-2005 (prissi)
 	FIX: no resize when dialog open
-	FIX: AI busses waiting at tourist attractions were not added to routing tables (and updating tables now asynchronus process).
+	FIX: AI busses waiting at tourist attractions were not added to routing tables (and updating tables now asynchronous process).
 	FIX: passenger AI could cause random crashes. Also test for indirect connections was no working. Now only new route built, if more than three stations bypassed.
-	CHANGE: rearraged icon in the slope tool
+	CHANGE: rearranged icon in the slope tool
 	CHANGE: 4 new slope graphs => much less drawing errors (backward compatible)
 	CHANGE: forbid use of slopes on potentially dangerous tiles (message: "Tile not empty.")
-	ADD: support for headquarter (in dat: obj=building, type=hq, parameters are level= 1,2,3,4,... and passengers=xyz) (Press 'H' to built)
+	ADD: support for headquarters (in dat: obj=building, type=hq, parameters are level= 1,2,3,4,... and passengers=xyz) (Press 'H' to built)
 	CHANGE: No stop at waypoints on straight tracks
 	FIX: fullscreen-switch repaired
 
@@ -2679,7 +2679,7 @@ Release of 86.03
 	ADD: allow larger maps (but will need lots of memory) and longer trains (up to 24 cars).
 	ADD: display of station capacity ("Storage capacity")
 	FIX: not starting up when japanese was selected
-	CHANGE: calculation of FPS change to a real time based system to avoid very high FPS with high accelarations (downside: at very high stretch times vehicle movement less smooth)
+	CHANGE: calculation of FPS change to a real time based system to avoid very high FPS with high accelerations (downside: at very high stretch times vehicle movement less smooth)
 
 New entries for citycars are:
 speed, intro_year, intor_month, retire_year, retire_month
@@ -2689,9 +2689,9 @@ speed, intro_year, intor_month, retire_year, retire_month
 	CHANGE: obsolete vehicles can be hidden if the timeline is on
 	CHANGE: no electric units shown, if depot did not have catenaries
 	CHANGE: new tab for passenger vehicles (to show EMU heads, use freigth=Passagiere and payload=0, to add them here) Name is "Pas_tab" (trains), "Bus_tab" (cars), and "Ferry_tab" for ships.
-	FIX: depot window can be now redraw by clicking the obsolete button (will fix display after electricfication or rezoom)
+	FIX: depot window can be now redraw by clicking the obsolete button (will fix display after electrification or rezoom)
 	FIX: second row should be selectable after rezoom in depots
-	FIX: several small things increasing compatibilty to standard C++ (compiles on GCC 2.95)
+	FIX: several small things increasing compatibility to standard C++ (compiles on GCC 2.95)
 	FIX: citycar_writer fixed
 	FIX: click with tool windows now obey used/unused images
 
@@ -2702,7 +2702,7 @@ Release of 86.02.2
 	CHANGE: produced good go now first to the factories, which have a storage, that is not overcrowded
 	CHANGE: removed the step-wise route recalculation at halts into a monthwise one.
 	FIX: error, when good is already at target stop hopefully finally fixed
-	CHANGE: retiring date for city cars and eingines
+	CHANGE: retiring date for city cars and engines
 	CHANGE: production now really the value in the dat-files => resetting several 64pak values
 	FIX: factory location searcher works again as intended
 	FIX: some things which placing bus stops
@@ -2718,8 +2718,8 @@ Release of 86.02.1
 	FIX: no longer people waiting for transport to own stop
 	FIX: numbers of created with no route at station display corrected corrected
 	FIX: station type was not calculated after loading => station list empty
-	FIX: pres-ignal crashed, when deleted tiles of a calculated route
-	FIX: pedestrian grafics fixed
+	FIX: presignal crashed, when deleted tiles of a calculated route
+	FIX: pedestrian graphics fixed
 
 
 Release of 86.02
@@ -2730,11 +2730,11 @@ Release of 86.02
 	FIX: when convoi self_detructs, its value is booked back to the owner
 	FIX: when station already is already destination => just happy
 	ADD: vitus new pedestrians to 64-pak
-	CHANGE: oilfield to Ravens oilfied
+	CHANGE: oilfield to Ravens oilfield
 
 24-Apr-2005 (prissi)
 	FIX: no route found, when factory was to close
-	FIX: crashes, if deliverey with unknown route?!?
+	FIX: crashes, if delivery with unknown route?!?
 
 20-Apr-2005 (prissi)
 	FIX: ware could not unload at a dock => internal connect calculation no with halt basis_pos
@@ -2757,12 +2757,12 @@ Release of 86.01
 	CHANGE: when a ware was added to a station, the route was calculated again in case of pax
 	CHANGE: passenger generation/routing cleaned up and reworked => much faster
 	FIX: now really closing all windows before loading
-	CHANGE: Building do not step anymore, if not neccessary => much faster
-	CHANGE: simloop/FPS system complete reworked to allow more time for other applications resp. a smoother scheduling all other times. But now no time strech <1.0 possible
+	CHANGE: Building do not step anymore, if not necessary => much faster
+	CHANGE: simloop/FPS system complete reworked to allow more time for other applications resp. a smoother scheduling all other times. But now no time stretch <1.0 possible
 	CHANGE: factories are now built every 2^x*industry_increase_every
 
 14-Apr-2005 (prissi)
-	FIX: no more adding cities after loading corrected; also now in priciple an unlimited number of cities should be possible (but something still breaks at 64 ... )
+	FIX: no more adding cities after loading corrected; also now in principle an unlimited number of cities should be possible (but something still breaks at 64 ... )
 	FIX/CHANGE: traffic to an attraction is now proportional to the level of this attraction
 	FIX: ships could only unload under the harbour ...
 	CHANGE: random now c instead of C++ => a little faster
@@ -2786,7 +2786,7 @@ Release of 86.00.3
 	FIX: player images were displayed two times using slow and fast routines ... urg!
 	FIX: tourist and city building passenger amount per time now comparable
 	CHANGE: hopefully removed all spaces from pak64 file names (will break old savegames)
-	FIX: mip_cobbelstone maintetnance corrected
+	FIX: mip_cobbelstone maintenance corrected
 	FIX: trams corrected
 	FIX: added new pedestrians from Vitus
 
@@ -2797,12 +2797,12 @@ Release of 86.00.2
 8-Apr-2005 (prissi)
 	CHANGE: new signals for 64
 	CHANGE: different signal graphics for electrified and normal tracks (if more than 8 images defined)
-	CHANGE: passenger AI will removed stucked or unused busses
-	FIX: passenger AI will no longer built lines to unconnecting factories
+	CHANGE: passenger AI will removed stuck or unused busses
+	FIX: passenger AI will no longer build lines to unconnected factories
 	FIX: pax at tourist attractions were added to all stops!?!
 
 7-Apr-2005 (prissi)
-	FIX: several routines replacing groung also destroyed binding to halt
+	FIX: several routines replacing ground also destroyed binding to halt
 	FIX: tourist attractions now generate mail again
 	FIX: unhappy mail was also omitted
 	FIX: presignals were not correctly removed
@@ -2810,7 +2810,7 @@ Release of 86.00.2
 
 5-Apr-2005 (prissi)
 	CHANGE: assembler for display_text (17% faster) and display_fillbox (150% faster)
-	FIX: variation of non-rotable houses was ignored for special buildings
+	FIX: variation of non-rotatable houses was ignored for special buildings
 	CHANGE: tourist attraction are no longer built next to each other, but at least 1+b+h away
 
 Changes to Makeobj20 (prissi)
@@ -2818,7 +2818,7 @@ Changes to Makeobj20 (prissi)
 	CHANGE: pax_level for factories added.
 	FIX: 96 and any other even size should work again.
 	FIX: citycars were broken.
-	CHANGE: "schiene_tram" added as waytype to accomodate for Trams.
+	CHANGE: "schiene_tram" added as waytype to accommodate for Trams.
 
 3-Apr-2005 (prissi)
 	FIX: station window display
@@ -2845,7 +2845,7 @@ Release of 86.00.1
 	FIX: makeobj allows now also for sizes != 64 and 128
 
 26-Mar-2005 (prissi)
-	FIX: factory catchment area was assymetric (2x3) => change also to 2x2
+	FIX: factory catchment area was asymmetric (2x3) => change also to 2x2
 	FIX: tourist attraction display now normalized to biggest attraction
 	CHANGE: another round of drawing optimizations: no redraw of menus or ticker background
 	CHANGE: vertical clipping display further optimized, zoom on demand now working
@@ -2860,7 +2860,7 @@ Release of 86.00
 	NEW: statistics for towns
 	FIX: all ground tiles were no properly initialized during loading! (weg1 and 2 could have a random image!)
 	CHANGE: all images are loaded and coded to their proper values. Darkening is only on demand. (huge memory relief)
-	CHANGE: zooming calculation change => drastic speed-up and in priciple allows also for zomming by all integer factors (1,2,3,4,5, ... )
+	CHANGE: zooming calculation change => drastic speed-up and in principle allows also for zooming by all integer factors (1,2,3,4,5, ... )
 	CHANGE: Debug message actually taken out, if compiled without debug support => leaner code and speed up.
 	CHANGE: TramTools disabled, if no tram depot found
 	CHANGE: Lots of german help files added (from Gotthardlok)
@@ -2876,7 +2876,7 @@ Release of 86.00
 	FIX: corrected some loadgame issues
 
 11-Mar-2005 (prissi)
-	CHANGE: quickstone_t shrinked to unsigned short int (saves memory)
+	CHANGE: quickstone_t shrank to unsigned short int (saves memory)
 	CHANGE: vector_tpl now with removal and insert_at at certain position
 	CHANGE: grund_t now remembers the 10 next stations (this seems like maximum number to me)
 		This allows way faster search for stations. Furthermore, passenger now are preferably routed to a station of the player/passenger AI.
@@ -2889,18 +2889,18 @@ Release of 86.00
 	FIX: Austrian and finnish citylist had still old names
 	FIX: Citycars again in dat files (was omitted during makeobj link, because commented in simwrite.cc ???)
 	CHANGE: Savegame format now 86.00, since this will be 86 with trams and more
-	CHANGE: Median citicen is again median ...
-	CHANGE: New founded city has always 1/10 of median citicens at the beginning
+	CHANGE: Median citizen is again median ...
+	CHANGE: New founded city has always 1/10 of median citizens at the beginning
 
 4-Mar-2005 (prissi)
-	FIX: factory and transformer builder now checks their building sites before more stricktly
+	FIX: factory and transformer builder now checks their building sites before more strictly
 
 1-Mar-2005 (prissi)
 	CHANGE: menu clean up: Post -> special tools
 	NEW: cursor for slop tool (cursor.Slope.pak)
 	NEW: large docks, as many as you like
 	NEW: as many stations as you like
-	NEW: as many bustops as you like
+	NEW: as many busstops as you like
 	CHANGE: factories now have a passenger level
 Following cursor.*.pak had become obsolete:
 	BusStop, Crossing, Rail, Road, TrainStop, FreightTrainStop, TrainDepot, CarDepot, Post, ShipStop
@@ -2909,8 +2909,8 @@ Following cursor.*.pak had become obsolete:
 24-Feb-2005 (prissi)
 	NEW: larger ports possible
 	NEW: passenger AI new also built lines to factories and attractions
-	CHANGE: allow for higher inital mountains
-	FIX: meadian citicens was actually maximum citicens
+	CHANGE: allow for higher initial mountains
+	FIX: median citizens was actually maximum citizens
 
 23-Feb-2005 (hsiegeln):
 	NEW: presignals; -> trains will not enter a block, if the block to be entered thereafter is not free and they are waiting at a "presignal"
@@ -2924,7 +2924,7 @@ Following cursor.*.pak had become obsolete:
 	FIX: net wealth initialization was missing for month graphs
 	FIX: own vehicles couldn't be managed after loading game
 	FIX: potential crash in line management window
-	FIX: butten enable/disable in line management window
+	FIX: button enable/disable in line management window
 
 
 Release Simutrans 85.04.1
@@ -2939,9 +2939,9 @@ Release Simutrans 85.04.1
 	FIX: tooltip corrected
 
 19-Feb-2005:
-	FIX: removed uneccessary pixels from cathedral and stadium
+	FIX: removed unnecessary pixels from cathedral and stadium
 	FIX: night lights for stadium
-	FIX: initial displaywidth now 704 instead 702
+	FIX: initial display width now 704 instead 702
 	CHANGE: added citycar pickup
 	FIX: ship power values reworked
 
@@ -2958,17 +2958,17 @@ Release Simutrans 85.04.1
 
 	CHANGE: bus AI added (player 2) including overcrowded lines
 		=> new message "Travellers now\nuse %s's\nbusses between\n%s \nand %s.\n"
-	CHANGE: mip_cobblestone now 50 km/h, cobbelstone 60
+	CHANGE: mip_cobblestone now 50 km/h, cobblestone 60
 	CHANGE: AI can build now much more roads
 	FIX: maintenance of city road reduced to 3.00, because difference is charged to player
-	FIX: error with way replayement in AI (same way replaced was charged)
+	FIX: error with way replacement in AI (same way replaced was charged)
 	FIX: no income generating by overbuilding roads
 
 
 Released Simutrans 0.85.04.0
 
 11-Feb-2005:
-	FIX: simultanious AI now working without crash
+	FIX: simultaneous AI now working without crash
 	CHANGE: AI 1 always road only, AI 6 rail only
 	FIX: more WF cars now in players and night colors
 	FIX Book truck night colors and trailer
@@ -2978,7 +2978,7 @@ Released Simutrans 0.85.04.0
 	FIX: clipping calculation for characters was faulty
 	FIX: at some places wrong memory allocation repaired
 	FIX: some windows were two times destroyed, now kill_list checked for doubles
-	FIX: Lunix binaries again linked with V5 libstdc++
+	FIX: Linux binaries again linked with V5 libstdc++
 	CHANGE: added USA citylist
 	CHANGE: cleaned up simuconf.tab (Tomas)
 	FIX: Several help window texts reworked
@@ -2997,7 +2997,7 @@ Released Simutrans 0.85.03.3
 Released Simutrans 0.85.03.2
 
 9-Feb-2005:
-	FIX: reduced passenger number again to initally intended value
+	FIX: reduced passenger number again to initially intended value
 		This is about 1/4 of the current value. Thus I doubled the number
 		per building.
 	FIX: no undo after bridges or tunnels
@@ -3021,14 +3021,14 @@ Released Simutrans 0.85.03.1
 		=> city growth rates much lower, need a good service over whole map
 	FIX: Renovation of townhalls: now all with roof texture and "real" grass
 	FIX: Power station production increased after loading: check on load time
-	FIX: error of an character allowcation array (V. Meyer)
+	FIX: error of an character allocation array (V. Meyer)
 	FIX: superfluous parameters in check_for_crossing() removed.  (V. Meyer)
 
 
 Released Simutrans 0.85.03
 
 6-Feb-2005:
-	FIX/CHANGE: replace building seach in map window by simple gib_halt()
+	FIX/CHANGE: replace building search in map window by simple gib_halt()
 	FIX: No crowded stations messages from AI anymore
 	FIX: Depot reached message was not in mailbox
 	FIX: mailbox now starts always empty.
@@ -3040,7 +3040,7 @@ Released Simutrans 0.85.03
 	CHANGE: when producing power, powerstations consumption raises 3x
 		(to prevent building too many transformers)
 	FIX: removing transformer when under power now reduced production again
-	FIX: no more sucide divers at the fish_swarm
+	FIX: no more suicide divers at the fish_swarm
 	FIX: factor for production increase could lead to very high values for
 		low productions in 128 set
 
@@ -3060,10 +3060,10 @@ Released Simutrans 0.85.02.0
 2-Feb-2005:
 	CHANGE: german help files
 	CHANGE: two new command line options "-timeline" and "-startyear"
-	CHANGE: main menue again little different order and new icons
+	CHANGE: main menu again little different order and new icons
 	CHANGE: list window toll added (after Markus Weber)
 	CHANGE: vehicle image is now the loaded images (please comment)
-	FIX/CHANGE: city do not grow until there is some trensportation
+	FIX/CHANGE: city do not grow until there is some transportation
 	   going on
 	CHANGE: minimum now 1 city
 	CHANGE: possible to set minimum citizen number
@@ -3076,7 +3076,7 @@ Released Simutrans 0.85.02.0
 	FIX: disallow building of city-AI on powerlines
 	FIX: overcrowded station message again
 	demi-FIX: on the expense of a small memory leak powerline now
-	   loads and connects under all condistions
+	   loads and connects under all conditions
 	CHANGE: added mailbox (open with 'B')
 	CHANGE: AI could now given a now int tab-file "player 5"->"H-Trans GmbH"
 	CHANGE: central message manager, also added the following messages:
@@ -3119,7 +3119,7 @@ Released Simutrans 0.85.01.0
 	CHANGE: some industrial building renovated, night pixels removed
 	CHANGE: city factories have a minimum distance of 6
 	CHANGE: removed "BRIDGETOOL", "5WORLD_CHOOSE"
-	CHANGE: now seperate settings for land industry, city industry, and torism called
+	CHANGE: now separate settings for land industry, city industry, and tourism called
 	   "Land industries", "City industries", "Tourist attractions"
 	CHANGE: added a second power plant "Oil Power Plant"
 
@@ -3136,19 +3136,19 @@ Released Simutrans 0.85.01.0
 	CHANGE: tool added "Plant tree" (key '/' now without function)
 	CHANGE: removed drivables (key 'n') since they crashed anyway
 	CHANGE: removed add pump (key 'P'), since now add transformer does the right type automatically
-	CHANGE: removed uneccessary bridge menu pak-file
+	CHANGE: removed unnecessary bridge menu pak-file
 
 
 Released Simutrans 0.85.00.0
 
 16-Jan-2005:
-	FIX: powerline works again (please, built from source to traget!)
+	FIX: powerline works again (please, built from source to target!)
 	FIX: powerline on slopes added
 	CHANGE: new factory distribution code, distribution entirely by the same function, which built new suppliers
-	CHANGE: added new concretefactory
+	CHANGE: added new concrete factory
 
 11-Jan-2005:
-	FIX: AI built railway tracks on water and over houses, disbaled
+	FIX: AI built railway tracks on water and over houses, disabled
 	FIX: Create new industry (shift+i) new creates a random consumer instead of "Materialswholesale"
 	FIX: New industries are crossconnected
 	FIX: Producer and processing are now placed in cities, if requested in the dat file
@@ -3159,16 +3159,16 @@ Released Simutrans 0.85.00.0
 	CHANGE: new menu for "half documented" features:
 		SPECIALTOOLS, Found new city, Build land consumer, Build city market,  Build powerline, Build drain, Marker
 	CHANGE: MHz shipyard, special cursor, new depot icon
-	CHANGE: City builts new industry after some time (see cityconf.tab), also crossconnected
-	CHANGE: complete hungary and romanian translation, preliminary russian one
+	CHANGE: City builds new industry after some time (see cityconf.tab), also crossconnected
+	CHANGE: complete hungarian and romanian translation, preliminary russian one
 
 9-Jan-2005:
 	FIX: vehicle selection was wrongly calculated (very good vehicles were also excluded)
 	FIX: in translation a second pak-specific entry could not overlaid a previous entry
 		=> now their can be scenario-specific station and town names
 	CHANGE: 	new city checks also for unique name
-	CHANGE: in translation files all lines startin with '#' are ignored
-	CHANGE: factory are constructed with their storage nearly full => AI can start immeadiately, less double lines
+	CHANGE: in translation files all lines starting with '#' are ignored
+	CHANGE: factory are constructed with their storage nearly full => AI can start immediately, less double lines
 
 
 Released Simutrans 0.84.22.0
@@ -3189,11 +3189,11 @@ Released Simutrans 0.84.22.0
 		- can electrify tracks
 	CHANGE: Renovation of way/rail construction tool
 		- automatically creates railroad crossings if possible
-		- tunnels will always have the fastes way (not name dependent any more)
-	CHANGE: Cities in a new map can now have a certain distance (see confing/cityconf.tab)
+		- tunnels will always have the fastest way (not name dependent any more)
+	CHANGE: Cities in a new map can now have a certain distance (see config/cityconf.tab)
 	CHANGE: Japanese pak "Oil Power Plant" now have a powerline connection
 	CHANGE: Full Unicode display support
-		- renovation of all text displaying routines and therefore many dialoge boxes
+		- renovation of all text displaying routines and therefore many dialogue boxes
 		- support of BDF as an alternative font format (less than 256 chars of Unicode/ISO10626-1 coding only)
 		- UTF8 encoded (2 Byte language) files are possible
 		- 2 Byte output/editing works (no input due to SDL yet)
@@ -3280,9 +3280,9 @@ Released Simutrans 0.84.17.0
 
 04-Nov-04: CHANGE: replaced three industrial buildings by better
                    versions created by MHz
-           CHANGE: replaced one residental building by a better
+           CHANGE: replaced one residential building by a better
                    version created by MHz
-           CHANGE: improved two residental building images
+           CHANGE: improved two residential building images
            CHANGE: included updated hungarian translation by
                    Ferencz Szekely
            CHANGE: included updated polish translation by
@@ -3402,7 +3402,7 @@ Released Simutrans 0.84.15.3
                    and mail properly
            CHANGE: theatre now has "Leuchtreklame" and lit windows
 
-22-Aug-04: CHANGE: line management window now rembers size and settings
+22-Aug-04: CHANGE: line management window now remembers size and settings
                    if closed and reopened unless you load a saved game
                    or start a new map.
 
@@ -3420,7 +3420,7 @@ Released Simutrans 0.84.15.2
                    - new mountain pine tree
                    - improved fir image
                    - improved cement mill image somewhat
-                   - added old roadster private car (slightly modifed
+                   - added old roadster private car (slightly modified
                      version from 128 set)
            CHANGE: tried to reduce the overall number of oil wells
                    -> maybe the default industry density should be risen
@@ -3436,7 +3436,7 @@ Released Simutrans 0.84.15.2
 
 20-Aug-04: CHANGE: improved some images
                    - Townhall stage 0 and 1
-                   - some residental town houses (night mode)
+                   - some residential town houses (night mode)
                    - some industrial town houses (night mode)
 
 Released Simutrans 0.84.15.1
@@ -3461,7 +3461,7 @@ Released Simutrans 0.84.15.0
            NEW: station details window got a "?" gadget to open the
                 associated help window.
            FIX: fixed a bug in HTML (help) display if a link was the first
-                word of a line, it couldn't be selcted as a link.
+                word of a line, it couldn't be selected as a link.
            NEW: added factory details (optional) windows
 
 15-Aug-04: NEW: most depot window buttons now got tooltips
@@ -3541,7 +3541,7 @@ Released Simutrans 0.84.12.0
                    Passengers now check for destination station before
                    doing pathfinding. This is slower for new games with
                    only few stations, but faster for big games with a
-                   lot of interconnnected stations
+                   lot of interconnected stations
            FIX: (Hendrik)
                 loading games with 0 factories works again
 
@@ -3569,7 +3569,7 @@ Released Simutrans 0.84.11.0
            - textinput supports clipping & scrolling & more
            - combobox uses new textinput component and is now inheriting
              gui_textinput_t
-           - window titels now support clipping
+           - window titles now support clipping
 
 
 Released Simutrans 0.84.10.0
@@ -3586,7 +3586,7 @@ Released Simutrans 0.84.10.0
            the new "gueterbahnhof" was not shown in overview map overlays
            (coverage, etc)
            "operating profit" was adding vehicle's running cost to profit,
-           rather than substracting
+           rather than subtracting
 
            Change:
            added ev_key_mod to event struct (ev_key_mod holds key modifiers,
@@ -3601,7 +3601,7 @@ Released Simutrans 0.84.10.0
            Change:
            savegame version now 84007 (was required for new curve in finance
            window)
-           if user clicks into the scrollbar, above/left or below/roght the
+           if user clicks into the scrollbar, top-left or bottom-right the
            slider, now the scrollbar scrolls up/down accordingly
 
 
@@ -3704,7 +3704,7 @@ Released Simutrans 0.84.8.3
 
 Released Simutrans 0.84.8.2
 
-11-Apr-04 FIX: lines entered from line magement window now show up
+11-Apr-04 FIX: lines entered from line management window now show up
                in depots again
           FIX: lines entered in another depot, are visible in all
                depots again after opening their info window
@@ -3733,7 +3733,7 @@ Released Simutrans 0.84.8.0
 
 01-Apr-04 CHANGE: adjusted weights of busses and trucks
 
-31-Mar-04 CHANGE: adjusted 64x64 pixel tile set waggon weights
+31-Mar-04 CHANGE: adjusted 64x64 pixel tile set wagon weights
           CHANGE: AI now searches more locations for stations
           FIX: AI now properly raises/lowers land in order to
                build a station
@@ -3801,7 +3801,7 @@ Released Simutrans 0.84.7.1
                   way descriptions
 
 22-Mar-04 CHANGE: continued to work on new way types (descriptions,
-                  menues, icons, cursors, DAT/PAK files)
+                  menus, icons, cursors, DAT/PAK files)
           INTERN: reduced number of #includes in translator.h
 
 21-Mar-04 CHANGE: continued to work on new way types:
@@ -3827,7 +3827,7 @@ Released Simutrans 0.84.7.1
 15-Mar-04 FIX: industries are now created on all densities except
                density 0
 
-14-Mar-04 CHANGE: pause only canceled by key codes >= 32
+14-Mar-04 CHANGE: pause only cancelled by key codes >= 32
           CHANGE: pause now really stops game time (industries
                   don't try to catch up with production after
                   unpausing)
@@ -3874,7 +3874,7 @@ released Simutrans 0.84.3.1
           CHANGE: way statistics now get saved with the game
 
 27-Feb-04 CHANGE: started to incorporate Hendriks new relief map
-                  -> need to change the structur somewhat to fit
+                  -> need to change the structure somewhat to fit
                      better
 
 22-Feb-04 CHANGE: fixed some mistakes that have been introduced while
@@ -3907,7 +3907,7 @@ released Simutrans 0.84.2.2
 
 released Simutrans 0.84.2.1
 
-16-Feb-04 FIX: Bridge tools menu size now adpats properly to number of
+16-Feb-04 FIX: Bridge tools menu size now adapts properly to number of
                contained icons
 
 released Simutrans 0.84.2.0
@@ -3937,10 +3937,10 @@ released Simutrans 0.84.2.0
           NEW: bridge tool tooltips now list additional information
                (price, speed limit)
           WARNING: the changes to the bridge DAT/PAK files introduced
-                   a slight incompatibilty with former bridge PAK files:
+                   a slight incompatibility with former bridge PAK files:
                    the old files do not store icon information for the
                    menu. Thus if you use old PAK files with this
-                   version, the bridge tools menu will show emty icons.
+                   version, the bridge tools menu will show empty icons.
                    The tooltips will help to identify the correct sort
                    of bridge.
                    -> ATM this only affects the 128x128 pixel tile set
@@ -3972,9 +3972,9 @@ released Simutrans 0.84.1.0
 07-Feb-04 NEW: added 1% waiting time to schedule choices
           NEW: included japanese translation and fonts
           CHANGE: chosen language is no longer saved with game
-                  (this emasn that the chosen languge won't be
+                  (this means that the chosen language won't be
                    altered if you load a game that was created with
-                   a different langauge setting)
+                   a different language setting)
           CHANGE: improved coal mine image a little bit
 
 06-Feb-04 FIX: fixed a problem that's been introduced during some changes
@@ -3998,7 +3998,7 @@ released Simutrans 0.84.0.1
 
 02-Feb-04 FIX: fixed a bug if a line was deleted while it had
                pending updates
-          FIX: fixed a an access to an unitialized variable if
+          FIX: fixed a an access to an uninitialised variable if
                a line was deleted after loading a saved game
 
 released Simutrans 0.84.0.0
@@ -4046,7 +4046,7 @@ released PAK update
 
 released Simutrans 0.83.7.1
 
-25-Jan-04 CHANGE: replaced a residental city building with a better
+25-Jan-04 CHANGE: replaced a residential city building with a better
                version from 128x128 pixel tile set (Modern house)
           CHANGE: replaced an industrial city building with a better
                version from 128x128 pixel tile set (Tools factory)
@@ -4059,13 +4059,13 @@ released Simutrans 0.83.7.1
           CHANGE: increased probability to create a bookshop, car shop,
                 or furniture shop in a city.
 
-24-Jan-04 FIX: fixed an array bounds violation if laoding a
+24-Jan-04 FIX: fixed an array bounds violation if loading a
                heightfield again after increasing the number of cities.
           FIX: fixed a problem in removing signals - now issues an
                error message if the signal combination cannot be
                removed safely.
           FIX: removed an erroneously lit pixel from one of the trees
-          NEW: translateable thousand and fraction separators
+          NEW: translatable thousand and fraction separators
                (language dependant number formatting)
           NEW: 4x7 font (map legend) now also available in latin-2
                (needed for polish and czech translation)
@@ -4076,7 +4076,7 @@ released Simutrans 0.83.7.1
           CHANGE: replaced wait loop by timer solution
 
 22-Jan-04 NEW: continued to work on skin support -> support for
-               user defind button skins
+               user defined button skins
 
 released Simutrans 0.83.7.0
 
@@ -4094,9 +4094,9 @@ released Simutrans 0.83.7.0
 
 released Simutrans 0.83.6.1
 
-18-Jan-04 FIX: latin-2 font now also loaded if saved langauge setting
+18-Jan-04 FIX: latin-2 font now also loaded if saved language setting
                needs latin-2 font
-          FIX: interity road offset can be 0,1 (64x64 pixel tileset)
+          FIX: intercity road offset can be 0,1 (64x64 pixel tileset)
                or 0,2 (128x128 pixel tile set) -> I hope it will make
                the intercity roads also work with the 128x128 pixel
                tile set
@@ -4133,7 +4133,7 @@ released Simutrans 0.83.5.0
                is too slow now on your computer, edit simuconf.tab
                and lower the max road length.
           NEW: overhead wires now have a maintenance cost of
-               2 CR/month (configureable via simuconf.tab)
+               2 CR/month (configurable via simuconf.tab)
 
 
 12-Jan-04 FIX: tried to get more information about PAK file loading
@@ -4144,9 +4144,9 @@ released Simutrans 0.83.5.0
           CHANGE: pak update
                - new old-style goods truck
                - two more high level industrial city buildings
-               - one more high level comercial city building
+               - one more high level commercial city building
                - replaced "Medium offices" with better image
-               - chanegd levels of some buildings to achieve better
+               - changed levels of some buildings to achieve better
                  look of cities
                - changed descriptions of some buildings
                - fixed two mismatched buildings descriptions
@@ -4208,7 +4208,7 @@ released back-ported food chain
           - Factories: grain farm, fish_pond, fish swarm, cow farm,
                        brewery, dairy, grain mill, bakery,
                        food processing plant, cannery, supermarket
-          - Vehicles: cooling waggon, milk waggon, cooling truck,
+          - Vehicles: cooling wagon, milk wagon, cooling truck,
                       milk tanker, fishing boat
 
           Updated 64x64 pixel tile set
@@ -4257,7 +4257,7 @@ released Simutrans 0.83.2.1
                   window in default 800x600 resolution
           CHANGE: resolutions of width 1400 and 1600 now try to open
                   in fullscreen mode (I can't test this on my system,
-                  so I don't knwo if it works well or not).
+                  so I don't know if it works well or not).
 
 01-Jan-04 FIX: line numbers are now created in subsequent order again
           CHANGE: line 'name' is now initially set to all bytes 0 upon
@@ -4271,7 +4271,7 @@ released Simutrans 0.83.1.3
 
 31-Dec-03 FIX: fixed a crash if the schedule of a line was changed
                (double free, Hendrik)
-          FIX: fixed potential use of an unitialised variable in
+          FIX: fixed potential use of an uninitialized variable in
                schedule list ui
 
 released Simutrans 0.83.1.2
@@ -4281,10 +4281,10 @@ released Simutrans 0.83.1.2
                   time lapse factor
           FIX: fixed a crash if station-connections are being rebuild
                while there is a vehicle without a schedule
-          FIX: made two more entries of the lines mangement window
-               translateable.
+          FIX: made two more entries of the lines management window
+               translatable.
           FIX: fixed a bug that could produce the same line id twice
-               (two lines with same id severly screw up the line
+               (two lines with same id severely screw up the line
                management, this was an important fix).
           CHANGE: included new fi.tab provided by Antti Louko
           CHANGE: included citylist_en_gb.txt from the feedback forum
@@ -4294,7 +4294,7 @@ released Simutrans 0.83.1.2
 released Simutrans 0.83.1.1
 
 28-Dec-03 FIX: fixed this problem:
-                1. buy 4 waggons (without an engine)
+                1. buy 4 wagons (without an engine)
                 2. add a waypoint to the schedule of the convoi
                 3. try to start the convoi
                 4. error message appears (convoi cannot drive,
@@ -4325,7 +4325,7 @@ released Simutrans 0.83.1.0
 
 22-Dec-03 NEW: included Hendriks changes
                - Vehicle lines are now sorted
-               - Fixed a crash due to an unitialized variable in
+               - Fixed a crash due to an uninitialised variable in
                  vehicle line list
                  "press 'w' in new game, select "update" -> game crashes"
                  -> now fixed.
@@ -4342,8 +4342,8 @@ released Simutrans 0.82.15.7exp
 
 released Simutrans 0.82.15.6exp
 
-14-Dec-03 FIX: forrest config is now read from 'config' subdirectory, too
-          CHANGE: split forrest config from simuconf.tab, now it read
+14-Dec-03 FIX: forest config is now read from 'config' subdirectory, too
+          CHANGE: split forest config from simuconf.tab, now it read
                   from forrestconf.tab
           FIX: tried to fix the goods distribution problem for factories
                bigger than 2x2 tiles
@@ -4435,7 +4435,7 @@ released Simutrans 0.82.14exp
                (was 100% chance before)
           CHANGE: drive in cinemas now have a 30% chance to be built
                (was 100% chance before)
-          CHANGE: Deltic is now a diesel enginge
+          CHANGE: Deltic is now a diesel engine
 
 31-Oct-03 CHANGE: got a saved game from Wolfgang Rufeger which crashed
                upon electrifying tracks. Reason for the crash: the track
@@ -4479,7 +4479,7 @@ released Simutrans 0.82.13exp
           NEW: relief map is now draggable with right mouse button
 
 13-Oct-03 CHANGE: improved a few building images
-          CHANGE: included a new residental city building
+          CHANGE: included a new residential city building
 
 
 released Simutrans 0.82.12exp
@@ -4531,7 +4531,7 @@ released Simutrans 0.82.10exp
 
 17-Sep-03 FIX: ships can be started from depots again
           FIX: maintenance costs lowered and moved to simuconf.tab
-          FIX: removed unneccesary waiting time for vehicles that
+          FIX: removed unnecessary waiting time for vehicles that
                wait for XY% full but already reached XY%
           CHANGE: continued work on new powerlines
 
@@ -4553,7 +4553,7 @@ released Simutrans 0.82.9exp
 ???       CHANGE: added two more high level commercial buildings images
           CHANGE: removed one low quality commercial building image
           CHANGE: improved a few building images
-          CHANGE: changed configuration of some engines and waggons
+          CHANGE: changed configuration of some engines and wagons
 
 11-Sep-03 CHANGE: improved AI station building ability
           CHANGE: AI can now transport gasoline too - better said, it
@@ -4566,16 +4566,16 @@ released Simutrans 0.82.9exp
 released Simutrans 0.82.8exp
 
 
-06-Sep-03 FIX: fixed a bug in heightfield loading code that somtimes
+06-Sep-03 FIX: fixed a bug in heightfield loading code that sometimes
                created lines of land at the right and bottom map borders
                even if there was supposed to be sea there.
 
-          CHANGE: Some config files now get closed immediatley after
+          CHANGE: Some config files now get closed immediately after
                   reading - former Simutrans versions kept them open
                   until the program ended.
 
           CHANGE: Adapted weight, prices and running costs of some
-                  waggons
+                  wagons
 
           CHANGE: Changed some english and german translations entries
 
@@ -4593,13 +4593,13 @@ released Simutrans 0.82.8exp
                   should work well with higher factors, too
 
 03-Sep-03 FIX: Fixed a type/range problem in getting heights from the
-               map datasructure. This bug caused various height-related
+               map datastructure. This bug caused various height-related
                problems, including a crash if land was risen above 7
 
 02-Sep-03 FIX: Fixed a bug in Volkers new depot code that allowed
                to remove depots which had vehicles stored in them.
 
-01-Sep-03 CHANGE: Waggons and trailers now have speed limits, too
+01-Sep-03 CHANGE: Wagons and trailers now have speed limits, too
 
           NEW: High speed passenger and mail cars suitable for the
                Tigress I engine
@@ -4616,13 +4616,13 @@ released Simutrans 0.82.7exp
 
 26-Aug-03 FIX: Got a saved game where convois had insanely high wait
                lock values. I don't know how that could happen -
-               anyways the locks now have an upper bound of 1023
+               anyway the locks now have an upper bound of 1023
                so that sooner or later such convois start to move
                again.
 
           CHANGE: Changed a potentially insecure instruction order
                   in removing convois via the emergency button.
-                  Crashs had been reported, but couldn't be reproduced.
+                  Crashes have been reported, but couldn't be reproduced.
                   I still hope this change will help.
 
           CHANGE: Reduced vehicle waiting time by another 5%
@@ -4733,7 +4733,7 @@ released Simutrans 0.82.5exp
           FIX: Fixed two minor bugs in world map creation that caused
                trouble if the water level was changed from default level
 
-20-Jul-03 CHANGE: Continued work on artficial slopes - created menu icons
+20-Jul-03 CHANGE: Continued work on artificial slopes - created menu icons
                   and added slope tools to raise and lower land.
 
           NEW: Textures for slope support walls
@@ -4743,10 +4743,10 @@ released Simutrans 0.82.5exp
           FIX: Fixed a bug in heightfield loading (wrong filename suffix)
                (Heightfields are still searched in the "save" directory)
 
-19-Jul-03 CHANGE: Continued work on artficial slopes - completed slope
+19-Jul-03 CHANGE: Continued work on artificial slopes - completed slope
                   table, created a menu and tools
 
-17-Jul-03 CHANGE: Continued work on artficial slopes - painted slope
+17-Jul-03 CHANGE: Continued work on artificial slopes - painted slope
                   cut walls and implemented first version of slope
                   mapping table.
 
@@ -4777,7 +4777,7 @@ released Simutrans 0.82.5exp
           NEW: Added emergency button to vehicle info window - it removes
                the vehicle from the map. This is useful to get rid of
                stuck vehicles. Be careful: the removed vehicle is gone
-               forever! The button is labeled "X".
+               forever! The button is labelled "X".
 
           NEW: AI will now remove vehicles if they have no suitable
                route (anymore) - i.e. due to a bug or player sabotage.
@@ -4802,9 +4802,9 @@ released Simutrans 0.82.5exp
                   -> this is also an incentive to use ships. Unlike rails
                   and roads, water doesn't need maintenance :)
 
-          NOTE: Due to the changed payment calculation (intruduced in
+          NOTE: Due to the changed payment calculation (introduced in
                 0.82.0exp), passenger transport gives higher revenues
-                now. Maybe further adaptions must be made, but the
+                now. Maybe further adaptations must be made, but the
                 new calculation scheme is correct, while the old scheme
                 was wrong.
 
@@ -4816,8 +4816,8 @@ released Simutrans 0.82.5exp
                   distance since the last stop.
 
                   Before, it happened that goods that stayed in the
-                  vehicle for several stops, only payed the last hop,
-                  insteasd of the full distance.
+                  vehicle for several stops, only paid the last hop,
+                  instead of the full distance.
 
           CHANGE: Lowered (to 25%) amount of passengers generated at
                   tourist attractions. Now up to 42 passengers are
@@ -4848,7 +4848,7 @@ released Simutrans 0.82.5exp
           CHANGE: Removed old code - this can only read games saved with
                   the prev. version.
 
-          NEW: Savegames are now zippped by default - loading autodetcts
+          NEW: Savegames are now zipped by default - loading autodetects
                the savegame type.
                (Hajo: doesn't work on my system. Default seems to be set to
                 binary, not zipped. Forcing zipped mode causes a crash).
@@ -4892,7 +4892,7 @@ You can use this version with the 0.81.35exp base package.
           CHANGE: included Volkers changes (lots ... most notably the new
                   depot window)
 
-09-Jun-03 CHANGE: support for unzoomeable images (icons ...)
+09-Jun-03 CHANGE: support for unzoomable images (icons ...)
                   adapted MakeObj, display routines and dat files
                   -> if image names in .dat files are prefixed with
                   "> " they will not get zoomed in the game
@@ -4911,7 +4911,7 @@ You can use this version with the 0.81.35exp base package.
              saved games. The player color settings will most likely
              become reset to color set 0 if loading an old game, some
              times a random other set can be chosen. This means you'll
-             most likel have to choose your preferred color set again.
+             most likely have to choose your preferred color set again.
 
 25-May-03 released 0.81.33exp
 
@@ -4934,7 +4934,7 @@ You can use this version with the 0.81.35exp base package.
 08-May-03 CHANGE: cursor keys now scroll map, too
 
 25-Apr-03 FIX: traced Simutrans for memory leaks and accesses of/to
-               unitialized memory
+               uninitialised memory
 
 21-Apr-03 CHANGE: optimized some graphics routines (5% faster now)
 
@@ -4982,7 +4982,7 @@ You can use this version with the 0.81.35exp base package.
 16-Mar-03 CHANGE: changed ownership (player) management for things
           CHANGE: tried to reduce memory consumption, saved 8 bytes
                   per map square that has no bridge or tunnel
-                  -> risen max map size to 768 for theose people with
+                  -> risen max map size to 768 for that people with
                      powerful computers.
           FIX: fixed a potential buffer overflow in minivec_tpl
           FIX: fixed a potential buffer overflow in microvec_tpl
@@ -4993,7 +4993,7 @@ You can use this version with the 0.81.35exp base package.
           NEW: included 4 types of variant grass to break the uniformity
                if the landscape
 
-13-Mar-03 FIX: fixed a problem if tunnels went under sqaures with name
+13-Mar-03 FIX: fixed a problem if tunnels went under squares with name
                signs or bridges went over them
           FIX: fixed the dat file for TPI Class 26 engine
 
@@ -5019,13 +5019,13 @@ You can use this version with the 0.81.35exp base package.
                   0 being the brightest setting. 0 is default value.
           CHANGE: slightly risen the average distance of industries
           CHANGE: made church a special building
-          released inofficial 0.81.23exp
+          released unofficial 0.81.23exp
 
 22-Feb-03 NEW: tested -nosound and -nomidi switches on windows
 
 20-Feb-03 NEW: -nosound and -nomidi switches to turn off sound and music
 
-19-Feb-03 FIX: fixed a bug in building level-crossings on non-emtpy squares
+19-Feb-03 FIX: fixed a bug in building level-crossings on non-empty squares
           NEW: Materialwholesale now also accepts planks and steel
           NEW: Home market now also accepts planks
 
@@ -5036,8 +5036,8 @@ You can use this version with the 0.81.35exp base package.
           FIX: fixed a bug in image zooming if going back to zoom factor 1
           CHANGE: included new help texts by Adam Barclay
 
-???       Stopped developement of zooming feature. Need to wait for
-          Volkers new MakeObj with more flags for images (unzoomeable
+???       Stopped development of zooming feature. Need to wait for
+          Volkers new MakeObj with more flags for images (unzoomable
           images -> currently icons and other menu-images get zoomed, too).
           Very simple (fast) zoom routine is working now, zoom quality
           is bad.
@@ -5055,7 +5055,7 @@ You can use this version with the 0.81.35exp base package.
           CHANGE: performance tuning
                - changed route_t and vector_tpl index parameters to
                  unsigned, saving one if conditional on each access
-          released inofficial 0.81.22exp
+          released unofficial 0.81.22exp
 
 08-Feb-03 NEW: player starting money can now be configured in
                simuconf.tab
@@ -5069,15 +5069,15 @@ You can use this version with the 0.81.35exp base package.
                tile mode
           FIX: fixed refresh area for landscape pointer movement in
                128x128 tile mode
-          FIX: level crossing only can be build on empty sqaures
+          FIX: level crossing only can be build on empty squares
                (this prevents a crash if you built them while a vehicle was
-               passing this sqaure)
+               passing this square)
           FIX: fixed input overflow problem in factories
 
 06-Feb-03 CHANGE: more performance tuning
                   - optimized dingliste bei(n) now takes an unsigned
                     parameter, saving one if conditional
-                  - changed array_tpl and array2d_tpl paramters to
+                  - changed array_tpl and array2d_tpl parameters to
                     to unsigned, saving one (two) if conditionals on each
                     element access
 
@@ -5118,7 +5118,7 @@ You can use this version with the 0.81.35exp base package.
                to jump to consumers conveniently
 
 26-Jan-03 NEW: started to work on lights for the night mode
-          released inofficial 0.81.20exp
+          released unofficial 0.81.20exp
 
 25-Jan-03 FIX: road tunnels again get correct image after loading (was
                broken during migration to new pak files)
@@ -5131,7 +5131,7 @@ You can use this version with the 0.81.35exp base package.
 
 23-Jan-03 FIX: overhead lines on bridges are now (again) loaded correctly
                from saved games
-          FIX: signals on bridges are now laoded correctly from saved games
+          FIX: signals on bridges are now loaded correctly from saved games
           CHANGE: city building tool now included in toolbar
           FIX: city building cursor now has proper size
           FIX: removing roads and railroad track now costs 100 Cr
@@ -5153,7 +5153,7 @@ You can use this version with the 0.81.35exp base package.
                   and a whole lot CPU time plus memory bandwidth!)
           CHANGE: changed "Passenger %" for monuments from 150 to 60
           CHANGE: enhanced capacity of all busses by about 5%
-          CHANGE: changed capacity of mail waggon from 60 to 120 bags
+          CHANGE: changed capacity of mail wagon from 60 to 120 bags
           CHANGE: changed capacity of mail boat from 140 to 180 bags
           CHANGE: changed capacity of mail trucks to 50 and 60 bags
           CHANGE: doubled running costs of all vehicles. Lowered running
@@ -5163,7 +5163,7 @@ You can use this version with the 0.81.35exp base package.
                   where more than 64 passengers per square are already
                   waiting
                   Note: workers nevertheless use crowded stations!
-          CHANGE: reduced passenger genration ratio from (building_level+2)
+          CHANGE: reduced passenger generation ratio from (building_level+2)
                   to (building_level+4)/2   ->  that is roughly the same
                   as before for low-level buildings, but only have of the
                   former rate for high-level buildings
@@ -5182,7 +5182,7 @@ You can use this version with the 0.81.35exp base package.
 17-Jan-03 FIX: made some bugfixes for new bigtile mode
           FIX: fixed a bug in overhead line y-offset calculation that
                made overhead tiles on bridge ends move higher and higher
-               if the overehad lines were re-built (again)
+               if the overhead lines were re-built (again)
           NEW: added automatic tile size detection (PAK files reader)
                -> requires at least one full width image in tile set
           NEW: linked lists now allocate nodes from a pool. Slightly faster
@@ -5195,7 +5195,7 @@ You can use this version with the 0.81.35exp base package.
           FIX: fixed a bug in MakeObj/PNG file reading
           FIX: fixed a bug in MakeObj image writing
 
-15-Jan-03 NEW: preparation for configureable tile size
+15-Jan-03 NEW: preparation for configurable tile size
 
 14-Jan-03 NEW: tried to implement a more efficient management for
                linked list nodes, try to reuse as many nodes as possible
@@ -5207,7 +5207,7 @@ You can use this version with the 0.81.35exp base package.
 
 08-Jan-03 FIX: fixed a bug that sometimes move the city area out of map
                bounds if a town hall was renewed
-          FIX: added correfction code to read games with towns that suffer
+          FIX: added correction code to read games with towns that suffer
                from the above mentioned problem
 
 05-Jan-03 FIX: player cannot rename AI stations anymore
@@ -5222,7 +5222,7 @@ You can use this version with the 0.81.35exp base package.
 04-Jan-03 CHANGE: bus stops now can be placed even if there are
                   pedestrians there
           NEW: added monument inscriptions to en.tab
-          FIX: fixed plastic waggon images (player color) which
+          FIX: fixed plastic wagon images (player color) which
                seem to have been damaged during the conversion to the
                new multi-pak file approach.
           FIX: overhead powerlines on bridge ramps on even ground have
@@ -5249,11 +5249,11 @@ You can use this version with the 0.81.35exp base package.
                   75, 75*4, 75*4, 75*4
           CHANGE: added checks for two potential crashes in searching
                   for locations of monuments and town halls
-          CHANGE: repaired images for paper waggon, paper truck, paper trailer
+          CHANGE: repaired images for paper wagon, paper truck, paper trailer
                   which seem to have been damaged during the conversion to the
                   new multi-pak file approach.
           FIX: added missing wav files (lost since conversion ...)
-          released inofficial 0.81.12exp
+          released unofficial 0.81.12exp
 
 21-Dec-02 CHANGE: more work for overhead powerlines
 
@@ -5271,23 +5271,23 @@ You can use this version with the 0.81.35exp base package.
                as ordinary tracks
 
 07-Dec-02 CHANGE: changed capacities:
-                  Furniture waggon:  20 crates
+                  Furniture wagon:  20 crates
                   Furniture truck:   16 crates
                   Furniture trailer: 18 crates
-          NEW: Option for semaphor signals
-          released inofficial 0.81.11exp
+          NEW: Option for semaphore signals
+          released unofficial 0.81.11exp
 
 ???       released 0.81.10exp
 
 30-Nov-02 CHANGE: improved/reworked H-Trans coal truck image
-          FIX: fixed .dat file for furniture waggon
+          FIX: fixed .dat file for furniture wagon
 
 17-Nov-02 FIX: fixed some bugs in routing of goods (broken during changes
                for categorized goods)
           BUG: Station list filter for incoming/outgoing goods might work
                differently than before. I never used it, so my change is just
                a guess
-          released inofficial 0.81.9exp
+          released unofficial 0.81.9exp
 
 16-Nov-02 NEW: enlarged schedule window
           CHANGE: goods are now grouped into unique goods, parcel service and
@@ -5307,17 +5307,17 @@ You can use this version with the 0.81.35exp base package.
 
 26-Oct-02 FIX: After schedule changes, no-longer existing routes are
                checked and waiting goods are cleaned up. This should
-               fix the long-standing bug that passegeners and goods
+               fix the long-standing bug that passengers and goods
                waited endlessly after a route was shut down and/or
                replaced by another route.
                This cleanup action is pretty time consuming. In games
                with many stations and vehicles, running on slow computers
                this will take several seconds to complete.
-          released inofficial 0.81.8exp
+          released unofficial 0.81.8exp
 
 20-Oct-02 FIX: Oil rigs now accept passengers and mail (again, was broken
                after 0.81.0)
-          released inofficial 0.81.7exp
+          released unofficial 0.81.7exp
 
 19-Oct-02 FIX: fixed a bug in loading saved games (height information
                was accessed before actually loaded)
@@ -5332,16 +5332,16 @@ You can use this version with the 0.81.35exp base package.
           FIX: maintenance costs are now displayed in red
           CHANGE: relief map is now zoomable: right click into map to
                   toggle zoom/unzoomed display
-          released inofficial 0.81.6exp
+          released unofficial 0.81.6exp
 
-06-Oct-02 CHANGE: tried to make relief map zoomeable
+06-Oct-02 CHANGE: tried to make relief map zoomable
 
 06-Oct-02 FIX: updated/fixed more images/animations
           FIX: tried to fix the problem that some vehicles were not
                immediately visible after loading.
           FIX: fixed the problem of vehicles stored in depots being
                invisible after loading.
-          released inofficial 0.81.5exp
+          released unofficial 0.81.5exp
 
 05-Oct-02 FIX: updated/fixed more images
           FIX: italian translation is available again
@@ -5361,7 +5361,7 @@ You can use this version with the 0.81.35exp base package.
 
 20-Sep-02 CHANGE: Starting money again set to 100.000Cr
           CHANGE: made info windows for pedestrians and private cars
-                  configureable in simuconf.tab
+                  configurable in simuconf.tab
 
 29-Sep-02 CHANGE: changed passenger generation in cities (steps more
                   frequently, but only every 8th row)
@@ -5397,7 +5397,7 @@ You can use this version with the 0.81.35exp base package.
                   more robust against the most common coding mistakes
                   (deleting/removing a sync object while a sync step is
                   running).
-          CHANGE: tombstone arrays are now configureable in simuconf.tab
+          CHANGE: tombstone arrays are now configurable in simuconf.tab
 
 21-Sep-02 NEW: schedules are no longer lost if a vehicle enters
                a depot
@@ -5432,8 +5432,8 @@ You can use this version with the 0.81.35exp base package.
           FIX: changed and added some entries to en.tab
           FIX: included hu.tab fix from MrTLee
           CHANGE: tried to improve bus stop images
-          CHANGE: changed sand waggon to be recolorable
-          CHANGE: changed stone waggon to be recolorable
+          CHANGE: changed sand wagon to be recolorable
+          CHANGE: changed stone wagon to be recolorable
           TIME: 2:30h
 
 31-Aug-02 CHANGE: raised starting money to 100000 Cr
@@ -5448,7 +5448,7 @@ You can use this version with the 0.81.35exp base package.
 
 30-Aug-02 CHANGE: changed tombstone implementation for stations
                   to a more efficient variant
-          CHANGE: removed brighntess and contrast control from the
+          CHANGE: removed brightness and contrast control from the
                   display options dialog because they didn't work anymore
                   since the transition to the 16 bit graphics code and
                   those features most likely won't be implemented again.
@@ -5482,7 +5482,7 @@ You can use this version with the 0.81.35exp base package.
                 had gone more than 2**31 steps
          TIME: 1:00h
 
-07/11/02 - FIX: factory descriptions are restoired after loading. This fixes
+07/11/02 - FIX: factory descriptions are restored after loading. This fixes
                 a crash after loading saved games in 0.80.10a
          - FIX: (hopefully) oil rigs now accept passengers
          TIME: 1:00h
@@ -5501,14 +5501,14 @@ You can use this version with the 0.81.35exp base package.
                 Siegel
          - NEW: included the alignment-corrected trucks from Jens "JET" Emmel
          - NEW: included a new ship from Jens "JET" Emmel
-         - FIX: bying a trailer or waggon without having an engine no longer
+         - FIX: buying a trailer or wagon without having an engine no longer
                 crashes the game
          - KNOWN PROBLEMS:
              - ship depot display is messed up pretty much
              - all of Bennhardts engines have same price and running cost,
                sensible values will be discussed on the mailing list and
                included
-         - released inofficial 0.80.10-16exp
+         - released unofficial 0.80.10-16exp
          TIME: 2:00h
 
 07/06/02 - NEW: finished heightfield loading
@@ -5518,19 +5518,19 @@ You can use this version with the 0.81.35exp base package.
          TIME: 4:00h
 
 07/05/02 - NEW: option to load heightfield (a PPM image where the brightness
-                of a pixel determines the height fo that spot on the map)
+                of a pixel determines the height for that spot on the map)
          TIME: 1:30h
 
 07/01/02 - FIX: fixed a bug in Markus' patch for the depot window - when
                 buying a new vehicle the cost of a lot of different vehicles
                 was also withdrawn from the players account.
-         - released inofficial 0.80.9a-16exp
+         - released unofficial 0.80.9a-16exp
 
 06/30/02 - FIX: maintenance cost is now actually subtracted from players
                 account every month.
          - FIX: fixed a wrong entry in gebaeude.tab
          - MERGE: included Owen Rudges Win32 midi playing routines
-         - released inofficial 0.80.9-16exp
+         - released unofficial 0.80.9-16exp
 
 06/29/02 - NEW: maintenance costs for roads, railroads and buildings:
                 - road/railroad:  5.00 Cr/month
@@ -5544,11 +5544,11 @@ You can use this version with the 0.81.35exp base package.
 
 06/23/02 - NEW: List of all schedules (also saved 4 bytes memory per schedule)
          - FIX: savegame frame shows local time instead of GMT
-         - CHANGE: map frame now has a minumum sizeof 96x64 pixels
+         - CHANGE: map frame now has a minimum sizeof 96x64 pixels
          TIME: 0:30h
 
 06/15/02 - CHANGE: sped up graphics by another 2%
-         - released inofficial 0.80.8-16exp
+         - released unofficial 0.80.8-16exp
          TIME: 3:00h
 
 06/14/02 - FIX: industries have several consumers again (Volker)
@@ -5583,10 +5583,10 @@ You can use this version with the 0.81.35exp base package.
                    1024x768 and 1280x1024 in fullscreen. Use the -screensize
                    option to force a windowed mode by using a different
                    resolution.
-         - released inofficial 0.80.7-16exp
+         - released unofficial 0.80.7-16exp
          TIME: 4:00h
 
-06/08/02 - NEW: map window remembers size and uses old size when openend again
+06/08/02 - NEW: map window remembers size and uses old size when open again
          - NEW: painted animated diesel smoke and steam (only used with
                 vehicles currently)
          - CHANGE: smoke type is now read from current vehikel.tab instead
@@ -5610,7 +5610,7 @@ You can use this version with the 0.81.35exp base package.
          TIME: 2:30h
 
 06/01/02 - MERGE: merged Markus' changes for resizeable windows
-         - CHANGE: adapeted Markus' changes to fit better into Simutrans
+         - CHANGE: adapted Markus' changes to fit better into Simutrans
          TIME: 1:30h
 
 05/30/02 - NEW: help texts for relief map and finance window added
@@ -5620,7 +5620,7 @@ You can use this version with the 0.81.35exp base package.
          TIME: 3:00h
 
 05/29/02 - FIX: fixed "wait for xxx%" entry in en.tab so that the % number
-                is always clearly visible in the scheule dialog
+                is always clearly visible in the schedule dialog
          - NEW: preparation for factory color configuration in
                 industry.tab
          TIME: 1:00h
@@ -5637,17 +5637,17 @@ You can use this version with the 0.81.35exp base package.
          - NEW: (Hellmade) included screenshot facility for 16 bit graphics
                 engine
          - MERGE: Merged Volkers changes (Filter-Dialogs, many small patches)
-         - released inofficial 0.80.6-16exp
+         - released unofficial 0.80.6-16exp
          TIME: 3:00h
 
 05/18/02 - FIX: (Hellmade) Double headed trains will be correctly
                 disassembled in depots
-         - FIX: (Hellmade) Buying more than 16 waggons for a train
-                moves the additionals waggons to the pool section
+         - FIX: (Hellmade) Buying more than 16 wagons for a train
+                moves the additional wagons to the pool section
          TIME: 3:30h
 
 05/09/02 - NEW: merged Volkers changes
-         - FIX: fixed a clipping bug for colored images in the 16 bit
+         - FIX: fixed a clipping bug for coloured images in the 16 bit
                 graphics engine.
          - CHANGE: info windows for buildings now carry title "Building"
                    again.
@@ -5664,12 +5664,12 @@ You can use this version with the 0.81.35exp base package.
          - CHANGE: cementmill now requires stone
          - CHANGE: productivity/range entries in industry.tab updated
          - CHANGE: changed night to a more blueish color
-         released inofficial 0.80.4-16exp
+         released unofficial 0.80.4-16exp
          TIME: 2:30h
 
 04/18/02 - FIX: fixed a buffer overflow in simgraph16.c (dirty tiles list)
          - NEW: extended error checking capabilities for memory management
-                -> can now detect overlows
+                -> can now detect overflows
          TIME: 1:30h
 
 04/17/02 - FIX: F1 key now triggers general help in 16 bit version, too
@@ -5680,8 +5680,8 @@ You can use this version with the 0.81.35exp base package.
                    sequence of maps
          - FIX: tried to fix a bug that sometimes prevented the AI from
                 building tunnels (the AI ended up with a broken route)
-         - FIX: fixed a crash if a highest level bulding was build
-                (crash only occured in 0.80.2-16)
+         - FIX: fixed a crash if a highest level building was build
+                (crash only occurred in 0.80.2-16)
          TIME: 1:00h
 
 04/11/02 - FIX: fixed a bug in player-triggered city building
@@ -5709,7 +5709,7 @@ You can use this version with the 0.81.35exp base package.
                 inserted into a schedule
          TIME: 0:30h
 
-04/03/02 - FIX: fixed a bug in the 16 bit graphcis code that caused a crash
+04/03/02 - FIX: fixed a bug in the 16 bit graphics code that caused a crash
                 when a player-colored image with an invalid number was
                 displayed.
          TIME: 0:30h
@@ -5780,12 +5780,12 @@ You can use this version with the 0.81.35exp base package.
          TIME: 1:00h
 
 01/27/02 - CHANGE: Made convoi route preparation also an
-                   asynchroneous task.
-         - CHANGE: Because asynchroneaou tasks take longer to execute,
+                   asynchronous task.
+         - CHANGE: Because asynchronous tasks take longer to execute,
                    vehicles stop longer at stations than before.
                    To rebalance the game, the productivity of all industries
                    was reduced by 10%.
-         - CHANGE: Due to the new asynchroneous parts in convoi setup
+         - CHANGE: Due to the new asynchronous parts in convoi setup
                    vehicles may remain much longer in a inconsistent state.
                    That problem is solved now.
          - NEW: released unofficial version 0.80.pre3
@@ -5793,22 +5793,22 @@ You can use this version with the 0.81.35exp base package.
 
 01/26/02 - CHANGE: Increased safety buffer in convoi info display.
          - CHANGE: Increased safety buffer in station info display.
-         - CHANGE: Made convoi setup an asynchroneous task.
-         - CHANGE: Halved minimum accelleration.
+         - CHANGE: Made convoi setup an asynchronous task.
+         - CHANGE: Halved minimum acceleration.
          - CHANGE: Reduced uphill speed.
          - CHANGE: Reduced speed in curves.
          - CHANGE: Fiddled with frame time calculation to get smoother
                    vehicle movement.
          TIME: 3:30h
 
-01/24/02 - FIX: Fixed some bugs in asynchroneous vehicle loading code.
-                Overall asynchroneous loading seems to allow to use quite
+01/24/02 - FIX: Fixed some bugs in asynchronous vehicle loading code.
+                Overall asynchronous loading seems to allow to use quite
                 some more vehicles than before.
          - FIX: Improved responsiveness to user input under high load.
          TIME: 2:00h
 
 01/23/02 - FIX: Debugging
-         - CHANGE: Made vehicle loading an asynchroneous task.
+         - CHANGE: Made vehicle loading an asynchronous task.
          - CHANGE: Passengers and goods transfer at most 30 times from
                    one transport to another to reach their destination.
          TIME: 2:00h
@@ -5820,7 +5820,7 @@ You can use this version with the 0.81.35exp base package.
          - CHANGE: Changed layout of vehicle list to display vehicle
                    with 3 figures (100+) better.
          - CHANGE: Using memory pools for water grounds - this saves 4 bytes
-                   per water sqaure and speeds up allocation and deallocation
+                   per water square and speeds up allocation and deallocation
                    of water grounds. It also helps to reduce memory
                    fragmentation.
          - FIX: Fixed a possible buffer overflow in halt list.
@@ -5832,7 +5832,7 @@ You can use this version with the 0.81.35exp base package.
 01/19/02 - FIX: Fixed a bug in clipped 16 bit image display routines
          - FIX: Fixed a bug in SDL sound routines that caused a crash
                 in the windows version
-         - FIX: Fixed a possible buffer overlow in route calculation of
+         - FIX: Fixed a possible buffer overflow in route calculation of
                 goods and passengers.
          - NEW: Fullscreen mode for Linux/SDL in 640x480, 800x600, 1024x768
                 and 1280x1024 (The Windows version always offered those as
@@ -5879,7 +5879,7 @@ You can use this version with the 0.81.35exp base package.
 
 01/02/02 - MERGE: merged Volkers changes
                   - Shift-M opens marker UI
-                  - Removing a bus stop from a sqaure with a sidewalk
+                  - Removing a bus stop from a square with a sidewalk
                     keeps the sidewalk
                   - Bugfixes for bridges and tunnels
                   - Code cleanups
@@ -5889,7 +5889,7 @@ You can use this version with the 0.81.35exp base package.
 
 12/28/01 - CHANGE: Reverted some changes made by Volker:
                    - city roads belong to nobody again
-                   - a sqaure that the player builds a road or railroad on
+                   - a square that the player builds a road or railroad on
                      and that had no former owner belongs to the player again
                    -> That fixes the 'bus station on city roads' problem
          - FIX: Included a bugfix from Volker to make bridges work again.
@@ -5913,7 +5913,7 @@ You can use this version with the 0.81.35exp base package.
          - FIX: Fixed a bug in the AI code that sometimes prohibited the use
                 of tunnels in the AIs routes
          - FIX: Partly loaded vehicles display the loaded/empty cars now.
-         - NEW: Option in the schedule dialog to set a requireed loading grade.
+         - NEW: Option in the schedule dialog to set a required loading grade.
                 Vehicles can now wait for a minimum amount of loaded goods
                 before departing.
          TIME: 6:30h
@@ -5996,7 +5996,7 @@ You can use this version with the 0.81.35exp base package.
                 displayed twice
          - NEW: 'Game paused' splash message
          - NEW: Included Flor Wauters furniture trailer
-         - CHANGE: reduced memory consumption of each water sqaure by 4 bytes.
+         - CHANGE: reduced memory consumption of each water square by 4 bytes.
          - CHANGE: optimized screen refresh, gained about 10% speedup if
                    many vehicles are visible
          TIME: 5:00h
@@ -6029,9 +6029,9 @@ You can use this version with the 0.81.35exp base package.
          - Released unofficial 0.79.7exp
          TIME: 1:30h
 
-11/25/01 - CHANGE: only waggons inside of a stations will be loaded/unloaded
+11/25/01 - CHANGE: only wagons inside of a stations will be loaded/unloaded
          - CHANGE: loading/unloading has a base duration (32) and an additional
-                   duration for each waggon (8)
+                   duration for each wagon (8)
          - CHANGE: internal change: replaced many old 2d coordinates in
                    paramterlists with 3d coordinates.
          - CHANGE: Added "Station XY is crowded" message to the newsticker
@@ -6039,7 +6039,7 @@ You can use this version with the 0.81.35exp base package.
                    as often. This should speed up the program.
          - FIX: rail block is marked 'left' if a train enters a depot
          - FIX: added missing screen refresh when saving a game per name
-         - FIX: fixed a bug in blockmanger, which could cause and endless
+         - FIX: fixed a bug in blockmanager, which could cause and endless
                 loop during world destruction
          - FIX: fixed several bugs in handle_as_id_tpl which caused crashes
          - FIX: fixed a crash when a vehicle with freight was sent to a depot
@@ -6048,13 +6048,13 @@ You can use this version with the 0.81.35exp base package.
          TIME: 8:00h
 
 11/24/01 - NEW: minivec template, a very small vector type.
-         - CHANGE: Reworked plan sqaures to use minivec type instead of a
+         - CHANGE: Reworked plan squares to use minivec type instead of a
                    list type to store grounds. This saves at least 512K
-                   memory for a standard 256x256 sqaures map. In addition
+                   memory for a standard 256x256 squares map. In addition
                    accesses should be faster now.
          - CHANGE: Removed an unused variable from ground class. It seems
                    it was introduced by Volkers changes but actually not
-                   used. This saves 512K for a standard 256x256 sqaure map.
+                   used. This saves 512K for a standard 256x256 square map.
          - CHANGE: Reordered variables in ground class, which saved another
                    4 bytes per ground. Why is the compiler too stupid to do
                    this automatically?
@@ -6081,8 +6081,8 @@ You can use this version with the 0.81.35exp base package.
 
 
 11/20/01 - NEW: Ground info window adapter class
-         - CHANGE: Changed class hiereachy of ground classes to be
-                   independant from info window class
+         - CHANGE: Changed class hierarchy of ground classes to be
+                   independent from info window class
                    -> this allows inlining of some functions and thus
                       speeds up some things (3% speedup overall).
          - FIX: Info windows display correct ground name again, this
@@ -6094,7 +6094,7 @@ You can use this version with the 0.81.35exp base package.
 
 11/18/01 - NEW: New engine: Tigress I (1144-1151)
          - CHANGE: Code cleanup
-         - CHANGE: Trees are now generatd according to their preferred
+         - CHANGE: Trees are now generated according to their preferred
                    placement on new maps. Some prefer lower terrain, some
                    prefer the upper regions.
          - CHANGE: Trees generate up to three new trees during their lifetime.
@@ -6110,7 +6110,7 @@ You can use this version with the 0.81.35exp base package.
                      removed from a vehicle which cannot reach their
                      destination anymore. Formerly all goods were removed.
          - CHANGE: Merged Markus' changes:
-                   - Ok und Cancel buttons for savegame file chooser. The
+                   - Ok and Cancel buttons for savegame file chooser. The
                      new savegame chooser looks really cool :)
          - CHANGE: Merged Volkers changes:
                    - fixed a small flaw in hashtable datatype
@@ -6137,7 +6137,7 @@ You can use this version with the 0.81.35exp base package.
          - NEW: Merged Andreas' changes to the SDL system wrapper file
          - CHANGE: limited 'random map' to 0-999
          - CHANGE: system wrapper can now choose between software or
-                   hardware cusror. Currently Allegro uses software
+                   hardware cursor. Currently Allegro uses software
                    cursor, SDL and X11 use hardware cursor.
          TIME: 1:15h
 
@@ -6165,7 +6165,7 @@ You can use this version with the 0.81.35exp base package.
                    problems reported which might be related to a buffer
                    overflow in station info display. New buffer size is
                    8192 bytes. Mingw32 does not support snprintf(), but with
-                   sprintf() I have no idea how to avoid buffer overlflows.
+                   sprintf() I have no idea how to avoid buffer overflows.
                    I just hope 12288 bytes is big enough.
          - CHANGE: doubled buffer size of convoi info text, too, just to
                    be a bit more save. Now 8192 bytes buffer size.
@@ -6189,14 +6189,14 @@ You can use this version with the 0.81.35exp base package.
                    should speed routing up for long and complex routes, but
                    is somewhat slower for short routes
          - CHANGE: optimized vehicle routing, now about 20% faster than
-                   before. This allows to use 20% more vehicels than
+                   before. This allows to use 20% more vehicles than
                    before! Changes due to the switch to the STL priority
                    queue are not included in this measurement.
          TIME: 3:00h
 
 11/05/01 - CHANGE: included Tristans fixed vehikel.tab with better
                    weight and power values for trucks, busses and ships
-         - CHANGE: changed vehicle info dispaly in road vehicle depot
+         - CHANGE: changed vehicle info display in road vehicle depot
                    to display power and weight
          TIME: 0:15h
 
@@ -6213,7 +6213,7 @@ You can use this version with the 0.81.35exp base package.
          - FIX: removing tunnels works now
          - FIX: removing bridges works now
          - CHANGE: removing bridges and tunnels no longer places rails
-                   on the end sqaures, but cuts the rails at the end
+                   on the end squares, but cuts the rails at the end
                    of the former structure
          - CHANGE: added END markers to depot.tab sections and a check
                    if given vehicle count matches actual vehicle count.
@@ -6240,15 +6240,15 @@ You can use this version with the 0.81.35exp base package.
                 versions, I don't know why it was broken in between.
                 Nevertheless this is fixed. (calc_bild() of the vehicle
                 checked the ground of the map square which was not yet
-                completely loaded at this moment, and this inconsitency
+                completely loaded at this moment, and this inconsistency
                 made the game crash. Vehicles call calc_bild() often while
-                moving. Theoretical thereis a chance that the image of a
+                moving. Theoretical there is a chance that the image of a
                 vehicle is wrong now directly after loading, but I couldn't
                 find any problems yet.
          - FIX: if a saved game from a Simutrans with a different vehicle.tab
                 is loaded, some vehicle informations are not available.
                 Formerly this caused a crash while loading the game. Now the
-                information is replced with 0 values. This has the result that
+                information is replaced with 0 values. This has the result that
                 the 'unknown' vehicles do not move (power and weight are set
                 to 0), but the saved game can be loaded and all common vehicles
                 (common in both vehicle.tab files from the saving and loading
@@ -6277,7 +6277,7 @@ You can use this version with the 0.81.35exp base package.
          - FIX: vehicles are now displayed correctly (uncropped) again.
                 (was broken due to Volkers changes)
            -> This fix does not work for vehicles on bridges, but since the
-              problem only occured with ships noticeably I think the fix is
+              problem only occurred with ships noticeably I think the fix is
               'good enough'. We have no ships on bridges so far.
          - CHANGE: conserved about 160KB for a standard size map save file
            -> This change limits the number of players to 127. I guess, this
@@ -6304,11 +6304,11 @@ You can use this version with the 0.81.35exp base package.
                 buildings no. 2 and 3 got mixed during saving
          - FIX: Volkers changes prohibited removing trees and town buildings
                 It's now again possible to remove trees and houses
-         - NEW: Released semi-offical Simutrans version 0.79.pre1
+         - NEW: Released semi-official Simutrans version 0.79.pre1
 
 09/23/01 - CHANGE: enabled producing industries to have more than one
                    consumer.
-         - NEW: More than one consumer per producer. This finally ovrcomes
+         - NEW: More than one consumer per producer. This finally overcomes
                 the strict 1:1 relation of producers and consumers and allows
                 more flexibility in the game.
          - CHANGE: modified buttons of the schedule input window to match
@@ -6316,7 +6316,7 @@ You can use this version with the 0.81.35exp base package.
          - FIX: fixed a display problem in train/convoi and station info
                 windows
 
-09/22/01 - CHANGE: instead of enabling all things as sychroneous objects
+09/22/01 - CHANGE: instead of enabling all things as synchronous objects
                    only a few are sync steppable now. This change should
                    improve the performance of Simutrans, especially if many
                    vehicles are used.
@@ -6336,7 +6336,7 @@ You can use this version with the 0.81.35exp base package.
                 after loading again. This problem is fixed now.
          - NEW: added a new industry: furniture factory
 
-09/16/01 - FIX: textiput fields release focus now if the containing window is
+09/16/01 - FIX: textinput fields release focus now if the containing window is
                 closed
          - FIX: it was possible to choose invalid color sets by clicking left
                 or right of the color bars in the color chooser window. This
@@ -6361,29 +6361,29 @@ You can use this version with the 0.81.35exp base package.
            - Moved updates of the relief map into ground object class
            - Fixed an array  bounds violation problem in vehicle routing
              code. This bug was probably very seldom triggered.
-           - Removed unneded methods from the sqaures objects
+           - Removed unneeded methods from the squares objects
            - Changed vehicle movement a bit.
            - Fixed a problem in the bridge building tool
 
 09/09/01 - CHANGE: World display in convoi and station windows fixed
-         - FIX: Industries get a proper list of worker residental cities
+         - FIX: Industries get a proper list of worker residential cities
                 even after creating a new map.
          - FIX: Display of desired destinations in city info window fixed
 
-09/08/01 - FIX: Renamimg of newly build vehicles works now
+09/08/01 - FIX: Renaming of newly build vehicles works now
          - BUG: The window title gets translated automatically. If by
                 accident the vehicles new name is included as string
                 in the language file the window title displays the translation
                 for this string instead of the string itself.
          - NEW: Version stamp for saved games
          - NEW: Version check and error message when loading saved games
-         - CHANGE: Cleaned up fahrer_t, vehikel_t hierarchie: removed
+         - CHANGE: Cleaned up fahrer_t, vehikel_t hierarchies: removed
                 methods which were no longer used after Volkers changes
 
-09/06/01 - NEW: Released semi-offical Simutrans version 0.78.12
+09/06/01 - NEW: Released semi-official Simutrans version 0.78.12
          - CHANGE: updated todo list
          - CHANGE: mail offices can no longer be build on roads and railroads
-         - CHANGE: maps with invlid rail blocks can be loaded again
+         - CHANGE: maps with invalid rail blocks can be loaded again
                 (added Volkers hack). I'm not sure if this fixes the problem
                 but at least you can load the maps again and try to go on
                 with the game.
@@ -6429,7 +6429,7 @@ You can use this version with the 0.81.35exp base package.
                 This cleans up some code and streamlines more of the UI.
          - NEW: added text input facility for changing convoi name to
                 convoi info window -> this allows to change vehicle names!
-         - NEW: text area component (only used in new convo window so far)
+         - NEW: text area component (only used in new convoi window so far)
 
 08/20/01 - FIX: Fixed a bug which crashed the game if a new map was created,
                 then the game was quit and again a new map with more cities
@@ -6441,7 +6441,7 @@ You can use this version with the 0.81.35exp base package.
          - CHANGE: adapted a few more dialogs to the rule:
                    unchangeable values -> black
                    changeable/changing values -> white
-                   This way the player can see immediatley which values are
+                   This way the player can see immediately which values are
                    fixed and which are supposed to be changed/changing
 
 07/01/01 - NEW: built a new BeOS release (0.78.10exp)
@@ -6450,7 +6450,7 @@ You can use this version with the 0.81.35exp base package.
          - NEW: (internal) label text can now have other colors than black
          - CHANGE: to unify the finance window look with existing dialogs
                 all changing entries are displayed in white, all constant
-                entries are diplayed in black now
+                entries are displayed in black now
 
 06/23/01 - NEW: assigned click sounds to more actions to give a better
                 feedback to the user
@@ -6476,7 +6476,7 @@ You can use this version with the 0.81.35exp base package.
                 had its name set to NULL. This should not happen normally
                 but NULL should be a allowed value for a name string
                 (meaning 'no name'). Now the program should be able to cope
-                with station builing names which are NULL. Usually this
+                with station building names which are NULL. Usually this
                 problem was reported as "The game crashes if I click a station"
          - CHANGE: found some more printf calls and replaced them by calls
                 to the new logging system.
@@ -6520,7 +6520,7 @@ You can use this version with the 0.81.35exp base package.
          - BUG: The block repair tool does not work if there is a train
                 waiting on a bridge and the block below the bridge shall
                 be repaired. In this case the train on the bridge is counted
-                as if it was on the ground block and the wagoon counter of
+                as if it was on the ground block and the wagon counter of
                 the ground block is set too high.
 
 06/06/01 - FIX: fixed a problem during image calculation in the schiene class
@@ -6589,7 +6589,7 @@ You can use this version with the 0.81.35exp base package.
          - CHANGE: Translated a few more messages from the tools
 
 05/23/01 - NEW: Tombstone/id_handle templates allows to check for dangling
-                pointer in all classes retrofittet with tomstone tables
+                pointer in all classes retrofitted with tomstone tables
          - CHANGE: Retrofitted rail block class with tombstone table
          - CHANGE: Split rail block classes and rail block management code
                    into two files
@@ -6630,7 +6630,7 @@ You can use this version with the 0.81.35exp base package.
                 fixed now. This bug could be triggered either by using the
                 'remover' tool or by building something on squares which
                 contained clouds.
-         - CHECK: it was rported that removing rails or roads and thus
+         - CHECK: it was reported that removing rails or roads and thus
                 breaking a vehicles route would crash the game. This
                 could not be reproduced.
          - CHANGE: included new en.tab, fi.tab, fr.tab and es.tab
@@ -6675,7 +6675,7 @@ You can use this version with the 0.81.35exp base package.
          - CHANGE: included new powerlines from Daniel
          - CHANGE: included new transformer station from Daniel
          - CHANGE: Doubled the running cost for all locos, they were
-                smaller than the avarage truck running cost before.
+                smaller than the average truck running cost before.
                 Now running costs for train engines are higher than
                 truck running costs in average.
          - CHANGE: Raised the capacity of all trucks by 10-30%.
@@ -6721,16 +6721,16 @@ You can use this version with the 0.81.35exp base package.
                 problems. The new implementation should be more robust
                 against several error types (dangling pointers!).
                 It's probably not more correct than before, but allows
-                to keep playing even if an error occured. This solution
+                to keep playing even if an error occurred. This solution
                 needs to copy more memory (16/24 bytes instead of four
                 for each assignment but saves one indirection on each value
                 access and saves calls to new/delete. All in all it seems to
-                be rougly as fast as before (no measureable difference). I
+                be roughly as fast as before (no measurable difference). I
                 think, it's even faster now.
          - CHANGE: Changed event queue indices in simsys_d.c to unsigned types.
                 They were always checked for higher bound, but not for
-                lower bound. Making them unsigned prevents the occurance of
-                negative values, and a higher bound check is now sufficent
+                lower bound. Making them unsigned prevents the occurrence of
+                negative values, and a higher bound check is now sufficient
                 to ensure values of valid range. Similar to the change above,
                 this might not be more correct than before but it should be
                 more robust against errors than before.
@@ -6738,29 +6738,29 @@ You can use this version with the 0.81.35exp base package.
                 safe interfaces. Should allow better error checking by the
                 compiler.
          - CHANGE: Changed memory allocation scheme of map squares. They prefer
-                to keep memory instaed of freeing it. They just free memory
+                to keep memory instead of freeing it. They just free memory
                 if they have space for more than 32 objects but contain less
                 than 8 objects. In other cases they keep the allocated space.
                 This reduces the number of calls to new/delete and should
                 therefore speed up the program, but it might use up to
-                four times more memory than before (couldn't verfiy this, the
+                four times more memory than before (couldn't verify this, the
                 game needed 12 megs to play a 256x256 map before and still
                 needs less than 13 megs for a 256x256 map).
 
 03/20/01 - FIX: Fixed a bugs which destroyed the freelist of the
                 node_container_t by accident. Cause was a freelist=0
-                in the cosntructorof the node_container while
-                freelist is a staic member and should not be nulled
+                in the constructor of the node_container while
+                freelist is a static member and should not be nulled
                 in the constructor.result was a memory leak.
          - CHANGE: Allow putback of node lists in node_container_t. This
                 reduces the number of calls to new and delete and should
-                be more efficient. It simpliefies code and moved two
+                be more efficient. It simplifies code and moved two
                 implementations to a single source, thus enhancing
                 maintainability. The queue_t and Stack classes benefit from
                 this feature.
          - FIX: Fixed a memory leak in sound_frame_t. Sliders and labels
-                are now data fields of the class instead allocated spearately
-                on the heap. This way they are automatically free'd if the
+                are now data fields of the class instead allocated separately
+                on the heap. This way they are automatically freed if the
                 frame is deleted.
          - CHANGE: Updated two of my houses, adjusted window sizes and wall
                 colors. Added a lamp (lit at night) to one of the houses.
@@ -6796,7 +6796,7 @@ You can use this version with the 0.81.35exp base package.
                 of five savegame slots for loading and saving a game
          - FIX: Fixed a bug in convoi (train) loading code. There was
                 a little chance that convois (trains) were saved in an
-                inconsisten state. This fix recovers the convoi state
+                inconsistent state. This fix recovers the convoi state
                 during loading the game.
          - CHANGE: added a new interface class for listening for button
                 press events to the gui class hierarchy
@@ -6813,14 +6813,14 @@ You can use this version with the 0.81.35exp base package.
 03/08/01 - CHANGE: idle_time now drops until below 50µs
          - CHANGE: passengers are routed in groups of up to 7
          - CHANGE: passengers are appalled by crowded stations
-                in goups of 8 (was 4 before)
+                in groups of 8 (was 4 before)
          - CHANGE: passengers are appalled by not finding a route
-                in goups of 4 (was 1 before)
+                in groups of 4 (was 1 before)
          - CHANGE: tried to optimize haltestelle_t::suche_route()
 
 03/05/01 - CHANGE: cities step only every fourth row per step
                 (was every second row before)
-         - CHANGE: buildings creates twice as much passenders as before
+         - CHANGE: buildings creates twice as much passengers as before
                 to make up for the slower step frequency
 
 03/04/01 - NEW: Sound control window (only volume control so far)
@@ -6833,7 +6833,7 @@ You can use this version with the 0.81.35exp base package.
          - CHANGE: map window display maps <= 256x256 squares without
                 scrolling, bigger maps are displayed in a scrollable
                 window of 250x250 pixels in size. (Currently the
-                scrollbars are just inactiv during the display of
+                scrollbars are just inactive during the display of
                 smaller maps).
          - FIX: X-Windows: Exposure-event wird jetzt richtig verarbeitet
 
@@ -6867,7 +6867,7 @@ You can use this version with the 0.81.35exp base package.
          - CHANGE: Tree placement improved (by Till)
          - FIX: Cities no longer destroy bridges when building things
                 below them
-         - FIX: It's no longer possible toremove depots while there are
+         - FIX: It's no longer possible to remove depots while there are
                 vehicles in them
          - FIX: Off screen sounds are now muted (clipped) correctly even
                 in higher screen resolutions
@@ -6878,18 +6878,18 @@ You can use this version with the 0.81.35exp base package.
                 Now 'select' is the default action.
 
 
-02/11/01 - CHANGE: Closing a tool window reverts theselceted tool
+02/11/01 - CHANGE: Closing a tool window reverts the selected tool
                    to the information tool.
          - FIX: Day/night switch on title screen works now.
 
 01/28/01 - CHANGE: If there is no train/convoi yet, and a new engine is
-                   baught, a new train/convoi is automatically created
+                   bought, a new train/convoi is automatically created
                    and the engine is added.
          - FIX: VELO in en.tab changed to DIBU
 
 01/24/01 - FIX: Clipping rectangle bug fixed
 
-01/21/01 - FIX: Railway stations can't be bult on level crossings
+01/21/01 - FIX: Railway stations can't be built on level crossings
                 anymore
          - FIX: TPDIesel entry corrected in de.tab/en.tab
          - CHANGE: included Dirks/Manfreds new de.tab
@@ -6913,11 +6913,11 @@ You can use this version with the 0.81.35exp base package.
 01/10/01 - FIX: a bug in rail track display code (displayed end of lines
                 under signals)
          - FIX: windows get events, even if the last mouse click was
-                outside the windwo
+                outside the window
 
 01/07/01 - Added tools to create level crossings; this tool adds rails to
            roads. Together with the former level crossing tool, this gives
-           a general prupose levele crossing building tool.
+           a general purpose level crossing building tool.
          - Added infrastructure to bind sounds to tool selection and execution
          - Fixed bus-stop bug
 

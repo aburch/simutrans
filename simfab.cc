@@ -1040,7 +1040,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 					build_locations.append(gr);
 					assert(gr->find<field_t>() == NULL);
 				}
-				// skip inside of rectange (already checked earlier)
+				// skip inside of rectangle (already checked earlier)
 				if(radius > 1 && yoff == -radius && (xoff > -radius && xoff < radius + get_desc()->get_building()->get_size().x - 1)) {
 					yoff = radius + get_desc()->get_building()->get_size().y - 2;
 				}
@@ -2402,7 +2402,7 @@ void fabrik_t::verteile_waren(const uint32 product)
 	// not connected?
 	const planquadrat_t *plan = welt->access(pos.get_2d());
 	if(  plan == NULL  ) {
-		dbg->fatal("fabrik_t::verteile_waren", "%s has not distibution target", get_name() );
+		dbg->fatal("fabrik_t::verteile_waren", "%s has not distribution target", get_name() );
 	}
 	if(  plan->get_haltlist_count() == 0  ) {
 		return;

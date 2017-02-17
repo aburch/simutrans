@@ -3251,7 +3251,7 @@ sint64 convoi_t::get_purchase_cost() const
 
 /**
 * set line
-* since convoys must operate on a copy of the route's schedule (schedule), we apply a fresh copy
+* since convoys must operate on a copy of the route's schedule, we apply a fresh copy
 * @author hsiegeln
 */
 void convoi_t::set_line(linehandle_t org_line)
@@ -3278,7 +3278,7 @@ void convoi_t::set_line(linehandle_t org_line)
 
 /**
 * unset line
-* removes convoy from route without destroying its schedule (schedule)
+* removes convoy from route without destroying its schedule
 * => no need to recalculate connections!
 * @author hsiegeln
 */
