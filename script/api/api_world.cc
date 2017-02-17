@@ -144,7 +144,7 @@ void export_world(HSQUIRRELVM vm)
 	 * In network games, there will be a delay between the call to this function and the removal of the player.
 	 *
 	 * @param pl player to be removed
-	 * @returns whether operation was successfull
+	 * @returns whether operation was successful
 	 */
 	STATIC register_method(vm, &world_remove_player, "remove_player", true);
 	/**

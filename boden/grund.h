@@ -258,7 +258,7 @@ public:
 	void calc_image();
 
 	/**
-	* Return the number of images the ground have.
+	* Return the number of images the ground has.
 	* @return The number of images.
 	* @author Hj. Malthaner
 	*/

@@ -71,7 +71,7 @@ public:
 
 	/**
 	 * receive the next command: continues receiving the packet
-	 * if an error occurs while receiving the packet, (this) is reset-ted
+	 * if an error occurs while receiving the packet, (this) is reset
 	 * @return the command if packet is fully received
 	 */
 	network_command_t* receive_nwc();

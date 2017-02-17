@@ -13,9 +13,9 @@
 
 
 /**
- * Klasse für Schienen in Simutrans.
- * Auf den Schienen koennen Züge fahren.
- * Jede Schiene gehört zu einer Blockstrecke
+ * Class for monorail tracks, derived from schiene.
+ * Monorail trains can drive on this tracks.
+ * Each track belongs to a section block
  *
  * @author Hj. Malthaner
  */

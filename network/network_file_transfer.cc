@@ -115,7 +115,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 		}
 		nwc_gameinfo_t *nwgi = dynamic_cast<nwc_gameinfo_t*>(nwc);
 		if (nwgi==NULL) {
-			err = "Protocoll error (expected NWC_GAMEINFO)";
+			err = "Protocol error (expected NWC_GAMEINFO)";
 			goto end;
 		}
 		if (nwgi->len==0) {
@@ -283,7 +283,7 @@ const char *network_send_file( uint32 client_id, const char *filename )
 	fclose(fp);
 	return NULL;
 error:
-	// an error occured: close file
+	// an error occurred: close file
 	fclose(fp);
 	return "Client closed connection during transfer";
 }

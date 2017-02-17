@@ -17,7 +17,7 @@ class vehicle_t;
 /**
  * Class for Rails in Simutrans.
  * Trains can run over rails.
- * Every rail belong to a section block
+ * Every rail belongs to a section block
  *
  * @author Hj. Malthaner
  */

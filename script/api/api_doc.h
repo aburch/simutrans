@@ -230,7 +230,7 @@
  * @until }
  * Both of the strings are translated by means of calls to ttext::to_string and the result is returned.
  *
- * Thats it. The remaining parts of this script are plain routine.
+ * That's it. The remaining parts of this script are plain routine.
  */
 
 /**

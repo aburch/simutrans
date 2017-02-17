@@ -382,7 +382,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &gebaeude_t::is_townhall, "is_townhall");
 	/**
-	 * @returns whether building is headquarter
+	 * @returns whether building is headquarters
 	 */
 	register_method(vm, &gebaeude_t::is_headquarter, "is_headquarter");
 	/**
@@ -444,7 +444,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	 */
 	begin_obj_class<weg_t>(vm, "way_x", "map_object_x");
 	/**
-	 * @return if this way has sidewalk - only meaningfull for roads
+	 * @return if this way has sidewalk - only meaningful for roads
 	 */
 	register_method(vm, &weg_t::hat_gehweg, "has_sidewalk");
 	/**
