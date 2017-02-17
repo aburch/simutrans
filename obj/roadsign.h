@@ -12,7 +12,6 @@
 #include "../simtypes.h"
 #include "../descriptor/roadsign_desc.h"
 #include "../ifc/sync_steppable.h"
-#include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
 class tool_selector_t;
@@ -144,7 +143,6 @@ public:
 
 	// static routines from here
 private:
-	static vector_tpl<const roadsign_desc_t *> list;
 	static stringhashtable_tpl<const roadsign_desc_t *> table;
 
 protected:

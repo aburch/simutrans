@@ -13,7 +13,6 @@
 #include "../simobj.h"
 #include "../dataobj/ribi.h"
 #include "../descriptor/way_obj_desc.h"
-#include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
 class player_t;
@@ -110,7 +109,6 @@ public:
 
 	/* the static routines */
 private:
-	static vector_tpl<const way_obj_desc_t *> list;
 	static stringhashtable_tpl<const way_obj_desc_t *> table;
 
 public:
