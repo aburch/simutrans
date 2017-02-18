@@ -71,7 +71,10 @@ else
   SOURCES += clipboard_internal.cc
 endif
 
-LIBS += -lbz2 -lz
+ifneq ($(OSTYPE),mingw)
+	# already defined
+	LIBS += -lbz2 -lz
+endif
 
 ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
