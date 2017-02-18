@@ -345,8 +345,8 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h )
 			dbg->warning("dr_textur_resize(SDL)", "screen is NULL. Good luck!");
 		}
 		fflush( NULL );
-		display_set_actual_width( screen->w );
 	}
+	display_set_actual_width( screen->w );
 	SDL_SetWindowSize( window, width, height );
 	*textur = dr_textur_init();
 	return screen->w;
