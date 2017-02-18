@@ -32,11 +32,12 @@ else
       else
         ifeq ($(OSTYPE),mingw)
           CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
-          LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware
+          LDFLAGS += -static-libgcc -static-libstdc++ -Wl,-Bstatic -lpthread -lbz2 -lz -Wl,-Bdynamic -Wl,--large-address-aware
           ifneq ($(STATIC),)
             ifeq ($(shell expr $(STATIC) \>= 1), 1)
               CFLAGS  += -static
-              LDFLAGS += -static
+              LDFLAGS += -Wl,-Bstatic -lz2 -Wl,-Bdynamic
+							# other libs like SDL2 MUST be dynamic!
             endif
           endif
           LIBS += -lmingw32

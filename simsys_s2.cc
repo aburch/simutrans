@@ -273,6 +273,7 @@ int dr_os_open(int width, int height, int const fullscreen)
 	if(  w <= 0  ) {
 		w = 16;
 	}
+	width = (w*x_scale)/32l;
 
 	Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_RESIZABLE;
 	window = SDL_CreateWindow( SIM_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags );
@@ -316,20 +317,17 @@ void dr_os_close()
 
 
 // resizes screen
-int dr_textur_resize(unsigned short** const textur, int width, int const height )
+int dr_textur_resize(unsigned short** const textur, int w, int const h )
 {
-	int w = (width*32l)/x_scale;
-	int h = (height*32l)/y_scale;
+	// enforce multiple of 16 pixels, or there are likely mismatches
+	w = (w + 15 ) & 0x7FF0;
 
-	// some cards need those alignments
-	// especially 64bit want a border of 8bytes
-	w = (w + 15) & 0x7FF0;
-	if(  w <= 0  ) {
-		w = 16;
-	}
+	// w, h are the width in pixel, we calculate now the scree size
+	int width = (w*x_scale)/32l;
+	int height = (h*y_scale)/32l;
 
 	SDL_UnlockTexture( screen_tx );
-	if(  w != screen->w  ||  h != screen->h  ) {
+	if(  width != screen->w  ||  height != screen->h  ) {
 		// Recreate the SDL surfaces at the new resolution.
 		// First free surface and then renderer.
 		SDL_FreeSurface( screen );
@@ -347,10 +345,11 @@ int dr_textur_resize(unsigned short** const textur, int width, int const height 
 			dbg->warning("dr_textur_resize(SDL)", "screen is NULL. Good luck!");
 		}
 		fflush( NULL );
+		display_set_actual_width( screen->w );
 	}
 	SDL_SetWindowSize( window, width, height );
 	*textur = dr_textur_init();
-	return w;
+	return screen->w;
 }
 
 
@@ -520,8 +519,8 @@ static void internal_GetEvents(bool const wait)
 			if(  event.window.event == SDL_WINDOWEVENT_RESIZED  ) {
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SYSTEM_RESIZE;
-				sys_event.mx   = event.window.data1;
-				sys_event.my   = event.window.data2;
+				sys_event.mx   = (event.window.data1*32l)/x_scale;
+				sys_event.my   = (event.window.data2*32l)/y_scale;
 			}
 			// Ignore other window events.
 			break;

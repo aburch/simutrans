@@ -129,7 +129,7 @@ rm simutrans/simutrans$simexe
 
 # cleanup dll's
 if [ "$OST" = "mingw" ]; then
-	rm simutrans/pthread*.dll
+	rm simutrans/*pthread*.dll
 fi
 
 # swallow any error values, return success in any case
