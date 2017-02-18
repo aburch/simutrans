@@ -4,6 +4,8 @@
  *
  * @section api-trunk Current trunk
  *
+ * @section api-120-2 Release 120.2
+ *
  * - Feature: scripted AI players
  * - Feature: script calls can be suspended and waken up, less strict checks of 'script take too long'
  * - Feature: add commands to modify game state, see @ref game_cmd

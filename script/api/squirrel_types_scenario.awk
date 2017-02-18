@@ -121,7 +121,7 @@ BEGIN {
 	export_types["building_desc_x::get_available_stations"] = "array<building_desc_x>(building_desc_x::building_type, way_types, good_desc_x)"
 	export_types["building_desc_x::is_terminus"] = "bool()"
 	export_types["way_desc_x::has_double_slopes"] = "bool()"
-	export_types["way_desc_x::get_system_type"] = "integer()"
+	export_types["way_desc_x::get_system_type"] = "way_system_types()"
 	export_types["way_desc_x::get_available_ways"] = "array<way_desc_x>(way_types, way_system_types)"
 	export_types["tunnel_desc_x::get_available_tunnels"] = "array<tunnel_desc_x>(way_types)"
 	export_types["bridge_desc_x::has_double_ramp"] = "bool()"
