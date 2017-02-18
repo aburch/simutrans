@@ -128,7 +128,7 @@ distribute
 rm simutrans/simutrans$simexe
 
 # cleanup dll's
-if [ "$OST" = "mingw64" ]; then
+if [ "$OST" = "mingw" ]; then
 	rm simutrans/pthread*.dll
 fi
 

@@ -30,7 +30,7 @@ AC_CHECK_HEADERS(LocaleRoster.h)
 # hackish detection of OS ...
 if test "$ac_cv_header_windows_h" == yes
 then
-	AC_SUBST(os_type, mingw64)
+	AC_SUBST(os_type, mingw)
 elif test "$ac_cv_header_LocaleRoster_h" == yes
 then
 	AC_SUBST(os_type, haiku)
