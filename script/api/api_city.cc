@@ -209,8 +209,8 @@ void export_city(HSQUIRRELVM vm)
 	register_method(vm, &stadt_t::get_citygrowth,  "get_citygrowth_enabled");
 
 	/**
-	 * Position of townhall.
-	 * @returns townhall position
+	 * Position of town-hall.
+	 * @returns town-hall position
 	 */
 	register_method(vm, &stadt_t::get_pos,         "get_pos");
 
