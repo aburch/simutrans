@@ -2280,25 +2280,14 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 		// stuck message ...
 		if(  obj  &&  !second_check_count  ) {
-			/*
-			if(  obj->is_stuck()  ) {
-				// end of traffic jam, but no stuck message, because previous vehicle is stuck too
-				restart_speed = 0;
-				cnv->set_tiles_overtaking(0);
-				cnv->reset_waiting();
-			}
-			else {
-			*/
+			// Process is different whether the road is for one-way or two-way
+			sint8 overtaking_info = str->get_overtaking_info();
+			if(  overtaking_info == 0  ) {
+				// road is one-way.
 				if(  test_index == route_index + 1u  ) {
 					// no intersections or crossings, we might be able to overtake this one ...
 					convoi_t *over = obj->get_overtaker_cv();
 					if(  over  ) {
-						/*
-						if(  over->is_overtaking()  ) {
-							// otherwise we would stop every time being overtaken
-							return true;
-						}
-						*/
 						// not overtaking/being overtake: we need to make a more thought test!
 						if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(obj)  ) {
 							convoi_t* const ocnv = car->get_convoi();
@@ -2339,7 +2328,57 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				}
 				// we have to wait ...
 				restart_speed = (cnv->get_akt_speed()*3)/4;
-			//}
+			}
+			else if(  overtaking_info <= 2  ) {
+				// road is two-way and overtaking is allowed on the stricter condition.
+				if(  obj->is_stuck()  ) {
+					// end of traffic jam, but no stuck message, because previous vehicle is stuck too
+					restart_speed = 0;
+					cnv->set_tiles_overtaking(0);
+					cnv->reset_waiting();
+				}
+				else {
+					if(  test_index == route_index + 1u  ) {
+						// no intersections or crossings, we might be able to overtake this one ...
+						overtaker_t *over = obj->get_overtaker();
+						if(  over  &&  !over->is_overtaken()  ) {
+							if(  over->is_overtaking()  ) {
+								// otherwise we would stop every time being overtaken
+								return true;
+							}
+							// not overtaking/being overtake: we need to make a more thought test!
+							if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(obj)  ) {
+								convoi_t* const ocnv = car->get_convoi();
+								if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
+									return true;
+								}
+							}
+							else if(  private_car_t* const caut = obj_cast<private_car_t>(obj)  ) {
+								if(  cnv->can_overtake(caut, caut->get_desc()->get_geschw(), VEHICLE_STEPS_PER_TILE)  ) {
+									return true;
+								}
+							}
+						}
+					}
+					// we have to wait ...
+					restart_speed = (cnv->get_akt_speed()*3)/4;
+					cnv->set_tiles_overtaking(0);
+				}
+			}
+			else {
+				// overtaking vehicle is prohibited.
+				if(  obj->is_stuck()  ) {
+					// end of traffic jam, but no stuck message, because previous vehicle is stuck too
+					restart_speed = 0;
+					cnv->set_tiles_overtaking(0);
+					cnv->reset_waiting();
+				}
+				else {
+					// we have to wait ...
+					restart_speed = (cnv->get_akt_speed()*3)/4;
+					cnv->set_tiles_overtaking(0);
+				}
+			}
 		}
 
 		return obj==NULL;
@@ -2414,7 +2453,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 		str->book(1, WAY_STAT_CONVOIS);
 		cnv->update_tiles_overtaking();
 		//decide if overtaking convoi should go back to the traffic lane.
-		if(  cnv->get_tiles_overtaking() == 1  &&  str->get_overtaking_info() == 1  ){
+		if(  cnv->get_tiles_overtaking() == 1  &&  str->get_overtaking_info() == 0  ){
 			if(  vehicle_base_t* v = other_lane_blocked()  ){
 				//lane change denied
 				cnv->set_tiles_overtaking(3);
