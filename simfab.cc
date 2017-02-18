@@ -99,17 +99,17 @@ public:
 /**
  * Produce a scaled production amount from a production amount and work factor.
  */
-sint32 work_scale_production(sint32 prod, sint32 work){
+sint32 work_scale_production(sint64 prod, sint64 work){
 	// compute scaled production, rounding up
-	return (sint32)((((sint64)prod * (sint64)work) + (1 << WORK_BITS) - 1) >> WORK_BITS);
+	return ((prod * work) + (1 << WORK_BITS) - 1) >> WORK_BITS;
 }
 
 /**
  * Produce a work factor from a production amount and scaled production amount.
  */
-sint32 work_from_production(sint32 prod, sint32 scaled){
+sint32 work_from_production(sint64 prod, sint64 scaled){
 	// compute work, rounding up
-	return (sint32)((((sint64)scaled << WORK_BITS) + (sint64)prod - 1) / (sint64)prod);
+	return prod ? ((scaled << WORK_BITS) + prod - 1) / prod : 0;
 }
 
 void ware_production_t::init_stats()
