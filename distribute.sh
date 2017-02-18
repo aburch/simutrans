@@ -7,7 +7,7 @@
 
 
 # get pthreads DLL
-getDLLold()
+getDLL()
 {
 	# Use curl if available, else use wget
 	echo "Downloading pthreadGC2.dll"
@@ -31,11 +31,6 @@ getDLLold()
 	fi
 }
 
-# we now just copy the DLL
-getDLL() {
-	cp /mingw/bin/libwinpthread-1.dll .
-}
-
 # first assume unix name defaults ...
 simexe=
 updatepath="/"
@@ -51,7 +46,7 @@ if [ "$OST" = "mac" ]; then
   simarchivbase=simumac
 elif [ "$OST" = "haiku" ]; then
  simarchivbase=simuhaiku
-elif [ "$OST" = "mingw64" ]; then
+elif [ "$OST" = "mingw" ]; then
   simexe=.exe
   SDLTEST=`grep "^BACKEND =" config.default | sed "s/BACKEND[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
   if [ "$SDLTEST" = "sdl" ]  ||  [ "$SDLTEST" = "sdl2" ]; then
@@ -61,7 +56,8 @@ elif [ "$OST" = "mingw64" ]; then
 # Missing: Copy matching SDL dll!
   fi
   cd simutrans
-  getDLL
+# not needed in current distribution
+#  getDLL
   cd ..
   updatepath="/nsis/"
   updater="download-paksets.exe"
@@ -134,7 +130,6 @@ rm simutrans/simutrans$simexe
 # cleanup dll's
 if [ "$OST" = "mingw64" ]; then
 	rm simutrans/pthread*.dll
-	rm simutrans/libwinpthread-1.dll
 fi
 
 # swallow any error values, return success in any case
