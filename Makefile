@@ -1,7 +1,6 @@
 CFG ?= default
 -include config.$(CFG)
 
-
 BACKENDS      = allegro gdi opengl sdl sdl2 mixer_sdl posix
 COLOUR_DEPTHS = 0 16
 OSTYPES       = amiga beos cygwin freebsd haiku linux mingw mac
@@ -29,11 +28,19 @@ else
   else
     ifneq ($(findstring $(OSTYPE), cygwin mingw),)
       ifeq ($(OSTYPE),cygwin)
-        CFLAGS  += -I/usr/include/mingw -mwin32
+        CFLAGS += -I/usr/include/mingw -mwin32
       else
+        ifeq ($(OSTYPE),mingw)
           CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
-          LDFLAGS += -static -lstdc++ -lpthread -lbz2 -lz -Wl,--large-address-aware
-          LIBS    += -lmingw32
+          LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware
+          ifneq ($(STATIC),)
+            ifeq ($(shell expr $(STATIC) \>= 1), 1)
+              CFLAGS  += -static
+              LDFLAGS += -static
+            endif
+          endif
+          LIBS += -lmingw32
+        endif
       endif
       SOURCES += simsys_w32_png.cc
       CFLAGS  += -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
@@ -72,9 +79,9 @@ SDL2_CONFIG    ?= sdl2-config
 ifneq ($(OPTIMISE),)
   CFLAGS += -O3
   ifeq ($(findstring $(OSTYPE), amiga),)
-	ifneq ($(findstring $(CXX), clang),)
-		CFLAGS += -minline-all-stringops
-	endif
+    ifneq ($(findstring $(CXX), clang),)
+      CFLAGS += -minline-all-stringops
+    endif
   endif
 else
   CFLAGS += -O
@@ -109,15 +116,8 @@ endif
 ifneq ($(MULTI_THREAD),)
   ifeq ($(shell expr $(MULTI_THREAD) \>= 1), 1)
     CFLAGS += -DMULTI_THREAD
-    ifeq ($(OSTYPE),mingw)
-#use lpthreadGC2d for debug alternatively
-#      LDFLAGS += -lpthreadGC2
-# MinGW64 work better with Posix their own
+    ifneq ($(OSTYPE),haiku)
       LDFLAGS += -lpthread
-    else
-      ifneq ($(OSTYPE),haiku)
-        LDFLAGS += -lpthread
-      endif
     endif
   endif
 endif
@@ -480,20 +480,27 @@ ifeq ($(BACKEND),sdl)
       SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
-			LDFLAGS += -Wl,-Bdynamic
     endif
   endif
   ifeq ($(SDL_CONFIG),)
     ifeq ($(OSTYPE),mac)
-      SDL_CFLAGS  := -I/System/Libraries/Frameworks/SDL/Headers -Dmain=SDL_main
-      SDL_LDFLAGS := -framework SDL -framework Cocoa -I/System/Libraries/Frameworks/SDL/Headers SDLMain.m
+      SDL_CFLAGS  := -I/Library/Frameworks/SDL.framework/Headers -Dmain=SDL_main
+      SDL_LDFLAGS := -framework SDL -framework Cocoa -I/Library/Frameworks/SDL.framework/Headers OSX/SDLMain.m
     else
       SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
-      SDL_LDFLAGS := -lSDLmain -lSDL -limm32
+      SDL_LDFLAGS := -lSDLmain -lSDL
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-    SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+    ifneq ($(STATIC),)
+      ifeq ($(shell expr $(STATIC) \>= 1), 1)
+        SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
+      else
+        SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+      endif
+    else
+      SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+    endif
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)
@@ -509,24 +516,30 @@ ifeq ($(BACKEND),sdl2)
   else
     SOURCES  += sound/sdl_sound.cc
     ifeq ($(findstring $(OSTYPE), cygwin mingw),)
-			SOURCES += music/no_midi.cc
+      SOURCES += music/no_midi.cc
     else
-			# use midi sound on windows
       SOURCES += music/w32_midi.cc
-			LDFLAGS += -Wl,-Bdynamic
     endif
   endif
   ifeq ($(SDL2_CONFIG),)
     ifeq ($(OSTYPE),mac)
-      SDL_CFLAGS  := -I/System/Libraries/Frameworks/SDL2/Headers -Dmain=SDL_main
-      SDL_LDFLAGS := -framework SDL2 -framework Cocoa -I/System/Libraries/Frameworks/SDL2/Headers SDLMain.m
+      SDL_CFLAGS  := -I/Library/Frameworks/SDL2.framework/Headers
+      SDL_LDFLAGS := -framework SDL2
     else
       SDL_CFLAGS  := -I$(MINGDIR)/include/SDL2 -Dmain=SDL_main
       SDL_LDFLAGS := -lSDL2main -lSDL2
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL2_CONFIG) --cflags)
-    SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
+    ifneq ($(STATIC),)
+      ifeq ($(shell expr $(STATIC) \>= 1), 1)
+        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
+      else
+        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
+      endif
+    else
+      SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
+    endif
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)
@@ -564,8 +577,8 @@ ifeq ($(BACKEND),opengl)
   endif
   ifeq ($(SDL_CONFIG),)
     SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
-    SDL_LDFLAGS := -lSDLmain -lSDL
-	else
+    SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
+  else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
     SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
   endif

@@ -1,7 +1,7 @@
 CFG ?= default
 -include ../config.$(CFG)
 
-OSTYPES       = beos cygwin freebsd haiku linux mingw64 mac
+OSTYPES       = beos cygwin freebsd haiku linux mingw mac
 
 ifeq ($(findstring $(OSTYPE), $(OSTYPES)),)
   $(error Unkown OSTYPE "$(OSTYPE)", must be one of "$(OSTYPES)")
@@ -29,10 +29,15 @@ ifeq ($(OSTYPE),cygwin)
   STD_LIBS += -lwinmm
 endif
 
-ifeq ($(OSTYPE),mingw64)
-  CC ?= gcc
+ifeq ($(OSTYPE),mingw)
   OS_OPT   ?= -DPNG_STATIC -DZLIB_STATIC -march=pentium
   LDFLAGS += -static-libgcc -static-libstdc++
+  ifneq ($(STATIC),)
+    ifeq ($(shell expr $(STATIC) \>= 1), 1)
+      OS_OPT  += -static
+      LDFLAGS += -static
+    endif
+  endif
   # we need the libraries EXACTLY in this order to link
   STD_LIBS = -lmingw32 -lpng -lz
 endif

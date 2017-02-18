@@ -20,13 +20,15 @@
 #OSTYPE = freebsd
 #OSTYPE = haiku
 #OSTYPE = linux
-#OSTYPE = mingw64
+#OSTYPE = mingw
 #OSTYPE = mac
 
-#DEBUG = 3    # Level 1-3, higher number means more debug-friendly, see Makefile
+#DEBUG = 1    # Level 1-3, higher number means more debug-friendly, see Makefile
 #OPTIMISE = 1 # Add umpteen optimisation flags
 #PROFILE = 1  # Enable profiling
 #PROFILE = 2  # Enable profiling with optimisation flags, can be used with `OPTIMISE = 1'
+
+#STATIC = 1   # Enable static linkage, currently mingw only
 
 #WITH_REVISION = 1 # adds the revision from svn; required for networkgames
 # if you do not use SVN, add -DREVISION="1234" to the FLAGS below
