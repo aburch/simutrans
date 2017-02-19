@@ -2387,6 +2387,27 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				}
 			}
 		}
+		// If this vehicle is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
+		if(  cnv->is_overtaking()  &&  str->get_overtaking_info() == 3  ) {
+			// TODO:other_lane_blocked() method is inappropriate for the condition.
+			if(  !other_lane_blocked()  ) {
+				cnv->set_tiles_overtaking(0);
+				return true;
+			}
+			else if(  cnv->get_akt_speed() > 0  ) {
+				restart_speed = 0;
+				cnv->reset_waiting();
+				return false;
+			}
+		}
+		// If this vehicle is forced to go back to traffic lane at the next tile and traffic lane is not safe to change lane, this vehicle should wait.
+		if(  str->get_overtaking_info() > 0  &&  cnv->get_tiles_overtaking() == 1  ) {
+			if(  other_lane_blocked()  ) {
+				restart_speed = 0;
+				cnv->reset_waiting();
+				return false;
+			}
+		}
 
 		return obj==NULL;
 	}
