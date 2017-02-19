@@ -695,9 +695,19 @@ void haltestelle_t::rotate90( const sint16 y_size )
 		}
 	}
 
+	vector_tpl<koord3d> rotated_station_signals;
+
 	FOR(vector_tpl<koord3d>, i, station_signals)
 	{
 		i.rotate90(y_size); 
+		rotated_station_signals.append(i);
+	}
+
+	station_signals.clear();
+	
+	FOR(vector_tpl<koord3d>, i, rotated_station_signals)
+	{
+		station_signals.append(i);
 	}
 
 	sint64 temp_last_departed[4];
