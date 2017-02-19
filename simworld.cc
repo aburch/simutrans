@@ -846,7 +846,9 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			}
 
 			delete pos;
-			DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns", dr_time()-tbegin );
+#ifdef DEBUG
+			dbg->message("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns", dr_time()-tbegin );
+#endif
 
 			uint32 game_start = current_month;
 			// townhalls available since?
@@ -5552,7 +5554,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 		haltestelle_t::step_all();
 	} while (  haltestelle_t::get_rerouting_status()==RECONNECTING  );
 #ifdef DEBUG
-	DBG_MESSAGE("rebuild_destinations()","for all haltstellen_t took %ld ms", dr_time()-dt );
+	dbg->message("rebuild_destinations()","for all haltstellen_t took %ld ms", dr_time()-dt );
 #endif
 
 #if 0

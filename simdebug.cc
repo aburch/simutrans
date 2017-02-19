@@ -25,7 +25,7 @@ void init_logging(const char* logname, bool force_flush, bool log_debug, const c
 }
 
 
-#ifdef DEBUG
+#if (MSG_LEVEL >= 1)
 
 #ifdef _MSC_VER
 int __cdecl _purecall()

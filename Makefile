@@ -92,6 +92,9 @@ else
 endif
 
 ifdef DEBUG
+	ifndef MSG_LEVEL
+		MSG_LEVEL = 3
+	endif
   ifeq ($(shell expr $(DEBUG) \>= 1), 1)
     CFLAGS += -g -DDEBUG
   endif
@@ -107,6 +110,10 @@ ifdef DEBUG
   endif
 else
   CFLAGS += -DNDEBUG
+endif
+
+ifdef MSG_LEVEL
+	CFLAGS += -DMSG_LEVEL=$(MSG_LEVEL)
 endif
 
 ifneq ($(PROFILE),)
