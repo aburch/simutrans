@@ -36,7 +36,7 @@ else
           ifneq ($(STATIC),)
             ifeq ($(shell expr $(STATIC) \>= 1), 1)
               CFLAGS  += -static
-              LDFLAGS += -Wl,-Bstatic -lz2 -Wl,-Bdynamic
+              LDFLAGS += -Wl,-Bstatic -lbz2 -Wl,-Bdynamic
 							# other libs like SDL2 MUST be dynamic!
             endif
           endif
