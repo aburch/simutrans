@@ -40,6 +40,10 @@ OST=unknown
 # now get the OSTYPE from config.default and remove all spaces around
 OST=`grep "^OSTYPE" config.default | sed "s/OSTYPE[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
 
+PGC=0
+# now get the OSTYPE from config.default and remove all spaces around
+PGC=`grep "^BUNDLE_PTHREADGC2" config.default | sed "s/BUNDLE_PTHREADGC2[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
+
 # now make the correct archive name
 simexe=
 if [ "$OST" = "mac" ]; then
@@ -56,8 +60,10 @@ elif [ "$OST" = "mingw" ]; then
 # Missing: Copy matching SDL dll!
   fi
   cd simutrans
-# not needed in current distribution
-#  getDLL
+
+	if [ "$PGC" -ne 0	]; then
+		getDLL
+	fi
   cd ..
   updatepath="/nsis/"
   updater="download-paksets.exe"
@@ -71,7 +77,6 @@ elif [ "$OST" = "freebsd" ]; then
 elif [ "$OST" = "amiga" ]; then
  simarchivbase=simuamiga
 fi
-
 
 # now add revesion number without any modificators
 # fetch language files
@@ -128,8 +133,8 @@ distribute
 rm simutrans/simutrans$simexe
 
 # cleanup dll's
-if [ "$OST" = "mingw" ]; then
-	rm simutrans/*pthread*.dll
+if [ "$PGC" -ne 0 ]; then
+	rm simutrans/pthreadGC2.dll
 fi
 
 # swallow any error values, return success in any case
