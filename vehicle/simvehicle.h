@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 HansjÃ¶rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
@@ -52,6 +52,9 @@ protected:
 	static sint8 driveleft_base_offsets[8][2];
 	static sint8 overtaking_base_offsets[8][2];
 
+	// right side driving or left side driving?
+	static bool left_driving;
+
 	/**
 	 * Actual travel direction in screen coordinates
 	 * @author Hj. Malthaner
@@ -99,6 +102,9 @@ protected:
 	// check for road vehicle, if next tile is free
 	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction );
 
+	// If true, two vehicles might crash by lane crossing.
+	bool judge_lane_crossing( const uint8 current_direction, const uint8 next_direction, const uint8 other_next_direction, const bool is_overtaking, const bool forced_to_change_lane );
+
 	// only needed for old way of moving vehicles to determine position at loading time
 	bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const;
 
@@ -143,6 +149,8 @@ public:
 	ribi_t::ribi calc_set_direction(const koord3d& start, const koord3d& ende);
 
 	ribi_t::ribi get_direction() const {return direction;}
+
+	ribi_t::ribi get_90direction() const {return ribi_type(get_pos(), get_pos_next());}
 
 	koord3d get_pos_next() const {return pos_next;}
 

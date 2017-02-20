@@ -131,6 +131,8 @@ sint8 vehicle_base_t::driveleft_base_offsets[8][2] =
 // [0]=xoff [1]=yoff
 sint8 vehicle_base_t::overtaking_base_offsets[8][2];
 
+bool vehicle_base_t::left_driving = false;
+
 // recalc offsets for overtaking
 void vehicle_base_t::set_overtaking_offsets( bool driving_on_the_left )
 {
@@ -156,6 +158,8 @@ void vehicle_base_t::set_overtaking_offsets( bool driving_on_the_left )
 	overtaking_base_offsets[5][1] = -sign * YOFF;
 	overtaking_base_offsets[6][1] = -sign * YOFF;
 	overtaking_base_offsets[7][1] = 0;
+
+	left_driving = driving_on_the_left;
 }
 
 
@@ -612,6 +616,59 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 	return NULL;
 }
 
+bool vehicle_base_t::judge_lane_crossing( const uint8 current_direction, const uint8 next_direction, const uint8 other_next_direction, const bool is_overtaking, const bool forced_to_change_lane )
+{
+	bool on_left = false;
+	if(  is_overtaking  &&  !left_driving  ) {
+		on_left = true;
+	}
+	if(  !is_overtaking  &&  left_driving  ) {
+		on_left = true;
+	}
+	// go straight = 0, turn right = -1, turn left = 1.
+	sint8 this_turn;
+	if(  next_direction == ribi_t::rotate90(current_direction)  ) {
+		this_turn = -1;
+	}
+	else if(  next_direction == ribi_t::rotate90l(current_direction)  ) {
+		this_turn = 1;
+	}
+	else {
+		// go straight?
+		this_turn = 0;
+	}
+	sint8 other_turn;
+	if(  other_next_direction == ribi_t::rotate90(current_direction)  ) {
+		other_turn = -1;
+	}
+	else if(  other_next_direction == ribi_t::rotate90l(current_direction)  ) {
+		other_turn = 1;
+	}
+	else {
+		// go straight?
+		other_turn = 0;
+	}
+	if(  on_left  ) {
+		if(  forced_to_change_lane  &&  other_turn - this_turn >= 0  ) {
+			//printf("current:%d, next:%d, other:%d\n", current_direction,next_direction,other_next_direction);
+			//printf("on left: %d,%d (%d,%d)\n", this_turn, other_turn, get_pos().x, get_pos().y);
+			return true;
+		}
+		else if(  other_turn - this_turn > 0  ) {
+			return true;
+		}
+	}
+	else {
+		if(  forced_to_change_lane  &&  other_turn - this_turn <= 0  ) {
+			//printf("on right: %d,%d (%d,%d)\n", this_turn, other_turn, get_pos().x, get_pos().y);
+			return true;
+		}
+		else if(  other_turn - this_turn < 0  ) {
+			return true;
+		}
+	}
+	return false;
+}
 
 void vehicle_t::rotate90()
 {
@@ -2388,24 +2445,28 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 		}
 		// If this vehicle is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
+		koord3d pos_next2 = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
 		if(  cnv->is_overtaking()  &&  str->get_overtaking_info() == 3  ) {
 			// TODO:other_lane_blocked() method is inappropriate for the condition.
-			if(  !other_lane_blocked()  ) {
-				cnv->set_tiles_overtaking(0);
-				return true;
+			if(  vehicle_base_t* v = other_lane_blocked()  ) {
+				if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next2), v->get_90direction(), true, true)) {
+					restart_speed = 0;
+					cnv->reset_waiting();
+					return false;
+				}
 			}
-			else if(  cnv->get_akt_speed() > 0  ) {
-				restart_speed = 0;
-				cnv->reset_waiting();
-				return false;
-			}
+			// There is no vehicle on traffic lane.
+			cnv->set_tiles_overtaking(0);
+			return true;
 		}
 		// If this vehicle is forced to go back to traffic lane at the next tile and traffic lane is not safe to change lane, this vehicle should wait.
 		if(  str->get_overtaking_info() > 0  &&  cnv->get_tiles_overtaking() == 1  ) {
-			if(  other_lane_blocked()  ) {
-				restart_speed = 0;
-				cnv->reset_waiting();
-				return false;
+			if(  vehicle_base_t* v = other_lane_blocked()  ) {
+				if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next2), v->get_90direction(), true, true)) {
+					restart_speed = 0;
+					cnv->reset_waiting();
+					return false;
+				}
 			}
 		}
 
