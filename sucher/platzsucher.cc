@@ -14,74 +14,74 @@
 #include "../simtypes.h"
 #include "platzsucher.h"
 
-pos_liste_t::pos_liste_t(sint16 max_radius)
+pos_list_t::pos_list_t(sint16 max_radius)
 {
 	this->max_radius = max_radius + 1;
-	spalten = new sint16[this->max_radius];
+	columns = new sint16[this->max_radius];
 
-	neu_starten();
+	restart();
 }
 
-pos_liste_t::~pos_liste_t()
+pos_list_t::~pos_list_t()
 {
-	delete [] spalten;
+	delete [] columns;
 }
 
 
-void pos_liste_t::neu_starten()
+void pos_list_t::restart()
 {
 	radius = 1;
-	spalten[0] = 0;
-	reihe = 0;
+	columns[0] = 0;
+	row = 0;
 	quadrant = 0;
 }
 
 
-sint16 pos_liste_t::suche_beste_reihe()
+sint16 pos_list_t::find_best_row()
 {
 	sint16 best_dist = -1;
-	sint16 beste_reihe = -1;
+	sint16 best_row = -1;
 
 	for(sint16 i = 0; i < radius; i++) {
-		if(spalten[i] < radius) {
-			int dist = (int)i * i + spalten[i] * spalten[i];
+		if(columns[i] < radius) {
+			int dist = (int)i * i + columns[i] * columns[i];
 
 			if(best_dist == -1 || dist < best_dist) {
 				best_dist = dist;
-				beste_reihe = i;
+				best_row = i;
 			}
 		}
 	}
 	if(radius < max_radius && best_dist > radius * radius) {
 		return -1;
 	} else {
-		return beste_reihe;
+		return best_row;
 	}
 }
 
 
-bool pos_liste_t::get_naechste_pos(koord &k)
+bool pos_list_t::get_next_pos(koord &k)
 {
-	if(reihe != -1) {
+	if(row != -1) {
 		if(quadrant++ == 4) {
 			quadrant = 1;
 
-			spalten[reihe]++;
+			columns[row]++;
 
-			reihe = suche_beste_reihe();
-			if(reihe == -1) {
+			row = find_best_row();
+			if(row == -1) {
 				if(radius < max_radius) {
-					spalten[radius++] = 0;
+					columns[radius++] = 0;
 				}
-				reihe = suche_beste_reihe();
+				row = find_best_row();
 			}
 		}
 	}
-	if(reihe != -1) {
-		if(quadrant == 1 && !reihe) {
+	if(row != -1) {
+		if(quadrant == 1 && !row) {
 			quadrant += 2;		// skip second 0, +/-y
 		}
-		if(quadrant % 2 == 1 && !spalten[reihe]) {
+		if(quadrant % 2 == 1 && !columns[row]) {
 			quadrant ++;		// skip second +/-x, 0
 		}
 		return get_pos(k);
@@ -90,21 +90,21 @@ bool pos_liste_t::get_naechste_pos(koord &k)
 }
 
 
-bool pos_liste_t::get_pos(koord &k)
+bool pos_list_t::get_pos(koord &k)
 {
-	if(reihe != -1) {
+	if(row != -1) {
 		switch(quadrant) {
 			case 1:
-				k = koord(reihe, spalten[reihe]);
+				k = koord(row, columns[row]);
 				return true;
 			case 2:
-				k = koord(reihe, (short)-spalten[reihe]);
+				k = koord(row, (short)-columns[row]);
 				return true;
 			case 3:
-				k = koord((short)-reihe, spalten[reihe]);
+				k = koord((short)-row, columns[row]);
 				return true;
 			case 4:
-				k = koord(-reihe, -spalten[reihe]);
+				k = koord(-row, -columns[row]);
 				return true;
 		}
 	}
@@ -112,23 +112,23 @@ bool pos_liste_t::get_pos(koord &k)
 }
 
 
-pos_liste_wh_t::pos_liste_wh_t(sint16 max_radius, sint16 b, sint16 h) :
-    pos_liste_t(max_radius)
+pos_list_wh_t::pos_list_wh_t(sint16 max_radius, sint16 w, sint16 h) :
+    pos_list_t(max_radius)
 {
-	neu_starten(b, h);
+	restart(w, h);
 }
 
 
-void pos_liste_wh_t::neu_starten(sint16 b, sint16 h)
+void pos_list_wh_t::restart(sint16 w, sint16 h)
 {
-	this->b = b;
+	this->w = w;
 	this->h = h;
 	dx = dy = 0;
-	pos_liste_t::neu_starten();
+	pos_list_t::restart();
 }
 
 
-bool pos_liste_wh_t::get_naechste_pos(koord &k)
+bool pos_list_wh_t::get_next_pos(koord &k)
 {
 	get_pos(k);
 
@@ -138,7 +138,7 @@ bool pos_liste_wh_t::get_naechste_pos(koord &k)
 		}
 		else if(dy > 0) {
 			dy--;
-			dx = b - 1;
+			dx = w - 1;
 		}
 		k.x -= dx;
 		k.y -= dy;
@@ -152,22 +152,22 @@ bool pos_liste_wh_t::get_naechste_pos(koord &k)
 	else if(dy > 0) {
 		k.y -= --dy;
 		if(k.x <= 0) {
-			k.x -= b - 1;
+			k.x -= w - 1;
 		}
 	}
 	else {
-		if(pos_liste_t::get_naechste_pos(k)) {
+		if(pos_list_t::get_next_pos(k)) {
 			if(k.y == 0) {
 				dy = h - 1;
 			}
 			if(k.x == 0) {
-				dx = b - 1;
+				dx = w - 1;
 			}
 			if(k.y <= 0) {
 				k.y -= h - 1;
 			}
 			if(k.x <= 0) {
-				k.x -= b - 1;
+				k.x -= w - 1;
 			}
 		}
 		else {
@@ -178,17 +178,17 @@ bool pos_liste_wh_t::get_naechste_pos(koord &k)
 }
 
 
-bool platzsucher_t::ist_platz_ok(koord pos, sint16 b, sint16 h,climate_bits cl) const
+bool placefinder_t::is_place_ok(koord pos, sint16 w, sint16 h,climate_bits cl) const
 {
 	if(!welt->is_within_limits(pos)) {
 		return false;
 	}
-	koord k(b, h);
+	koord k(w, h);
 
 	while(k.y-- > 0) {
-		k.x = b;
+		k.x = w;
 		while(k.x-- > 0) {
-			if(!ist_feld_ok(pos, k, cl)) {
+			if(!is_field_ok(pos, k, cl)) {
 				return false;
 			}
 		}
@@ -196,46 +196,46 @@ bool platzsucher_t::ist_platz_ok(koord pos, sint16 b, sint16 h,climate_bits cl) 
 	return true;
 }
 
-bool platzsucher_t::ist_randfeld(koord d) const
+bool placefinder_t::is_randomfield(koord d) const
 {
-	return d.x == 0 || d.x == b - 1 || d.y == 0 || d.y == h - 1;
+	return d.x == 0 || d.x == w - 1 || d.y == 0 || d.y == h - 1;
 }
 
-bool platzsucher_t::ist_feld_ok(koord /*pos*/, koord /*d*/, climate_bits /*cl*/) const
+bool placefinder_t::is_field_ok(koord /*pos*/, koord /*d*/, climate_bits /*cl*/) const
 {
 	return true;
 }
 
-koord platzsucher_t::suche_platz(koord start, sint16 b, sint16 h, climate_bits cl, bool *r)
+koord placefinder_t::find_place(koord start, sint16 w, sint16 h, climate_bits cl, bool *r)
 {
 	sint16 radius = max_radius > 0 ? max_radius : welt->get_size_max();
-	pos_liste_wh_t psuch1(radius, b, h);
+	pos_list_wh_t results_straight(radius, w, h);
 
-	this->b = b;
+	this->w = w;
 	this->h = h;
 
 	koord rel1, rel2;
 
-	if((r && *r) && b != h) {
+	if((r && *r) && w != h) {
 		//
-		// Hier suchen wir auch gedrehte Positionen.
+		// Here we also search for the rotated positions.
 		//
-		pos_liste_wh_t psuch2(radius, h, b);
+		pos_list_wh_t results_rotated(radius, h, w);
 
-		if(ist_platz_ok(start, b, h, cl)) {
+		if(is_place_ok(start, w, h, cl)) {
 			*r = false;
 			return start;
 		}
-		if(ist_platz_ok(start, h, b, cl)) {
+		if(is_place_ok(start, h, w, cl)) {
 			*r = true;
 			return start;
 		}
-		while(psuch1.get_naechste_pos(rel1) && psuch2.get_naechste_pos(rel2)) {
-			if(ist_platz_ok(start + rel1, b, h, cl)) {
+		while(results_straight.get_next_pos(rel1) && results_rotated.get_next_pos(rel2)) {
+			if(is_place_ok(start + rel1, w, h, cl)) {
 				*r = false;
 				return start + rel1;
 			}
-			if(ist_platz_ok(start + rel2, h, b, cl)) {
+			if(is_place_ok(start + rel2, h, w, cl)) {
 				*r = true;
 				return start + rel2;
 			}
@@ -244,13 +244,13 @@ koord platzsucher_t::suche_platz(koord start, sint16 b, sint16 h, climate_bits c
 	}
 	else {
 		//
-		// Suche ohne gedrehte Positionen.
+		// Search without rotated positions.
 		//
-		if(ist_platz_ok(start, b, h, cl)) {
+		if(is_place_ok(start, w, h, cl)) {
 			return start;
 		}
-		while(psuch1.get_naechste_pos(rel1)) {
-			if(ist_platz_ok(start + rel1, b, h, cl)) {
+		while(results_straight.get_next_pos(rel1)) {
+			if(is_place_ok(start + rel1, w, h, cl)) {
 				if(r) {
 					*r = false;
 				}

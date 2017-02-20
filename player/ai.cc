@@ -37,31 +37,31 @@
 
 
 /* The flesh for the place with road for headquarters searcher ... */
-bool ai_bauplatz_mit_strasse_sucher_t::strasse_bei(sint16 x, sint16 y) const {
+bool ai_building_place_with_road_finder::road_by(sint16 x, sint16 y) const {
 	grund_t *bd = welt->lookup_kartenboden( koord(x,y) );
 	return bd && bd->hat_weg(road_wt);
 }
 
 
-bool ai_bauplatz_mit_strasse_sucher_t::ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
-	if(bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)) {
+bool ai_building_place_with_road_finder::is_place_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const {
+	if(building_placefinder_t::is_place_ok(pos, w, h, cl)) {
 		// check to not built on a road
 		int i, j;
-		for(j=pos.x; j<pos.x+b; j++) {
+		for(j=pos.x; j<pos.x+w; j++) {
 			for(i=pos.y; i<pos.y+h; i++) {
-				if(strasse_bei(j,i)) {
+				if(road_by(j,i)) {
 					return false;
 				}
 			}
 		}
 		// now check for road connection
 		for(i = pos.y; i < pos.y + h; i++) {
-			if(strasse_bei(pos.x - 1, i) ||  strasse_bei(pos.x + b, i)) {
+			if(road_by(pos.x - 1, i) ||  road_by(pos.x + w, i)) {
 				return true;
 			}
 		}
-		for(i = pos.x; i < pos.x + b; i++) {
-			if(strasse_bei(i, pos.y - 1) ||  strasse_bei(i, pos.y + h)) {
+		for(i = pos.x; i < pos.x + w; i++) {
+			if(road_by(i, pos.y - 1) ||  road_by(i, pos.y + h)) {
 				return true;
 			}
 		}
@@ -357,7 +357,7 @@ bool ai_t::built_update_headquarter()
 				}
 				if(st) {
 					bool is_rotate=desc->get_all_layouts()>1;
-					place = ai_bauplatz_mit_strasse_sucher_t(welt).suche_platz(st->get_pos(), desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), &is_rotate);
+					place = ai_building_place_with_road_finder(welt).find_place(st->get_pos(), desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), &is_rotate);
 				}
 			}
 			const char *err="No suitable ground!";
