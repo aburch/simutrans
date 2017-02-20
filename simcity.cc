@@ -46,7 +46,7 @@
 #include "dataobj/tabfile.h"
 #include "dataobj/environment.h"
 
-#include "sucher/bauplatz_sucher.h"
+#include "finder/building_placefinder.h"
 #include "bauer/wegbauer.h"
 #include "bauer/brueckenbauer.h"
 #include "bauer/hausbauer.h"

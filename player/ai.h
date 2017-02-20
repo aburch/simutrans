@@ -12,7 +12,7 @@
 
 #include "simplay.h"
 
-#include "../sucher/bauplatz_sucher.h"
+#include "../finder/building_placefinder.h"
 
 class karte_t;
 class vehicle_desc_t;

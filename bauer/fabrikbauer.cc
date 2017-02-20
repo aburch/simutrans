@@ -27,7 +27,7 @@
 
 #include "../tpl/vector_tpl.h"
 #include "../tpl/array_tpl.h"
-#include "../sucher/bauplatz_sucher.h"
+#include "../finder/building_placefinder.h"
 
 #include "../utils/cbuffer_t.h"
 
