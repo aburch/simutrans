@@ -2398,7 +2398,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				if(  obj->is_stuck()  ) {
 					// end of traffic jam, but no stuck message, because previous vehicle is stuck too
 					restart_speed = 0;
-					cnv->set_tiles_overtaking(0);
+					//cnv->set_tiles_overtaking(0);
 					cnv->reset_waiting();
 				}
 				else {
@@ -2445,7 +2445,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 		}
 		// If this vehicle is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
-		koord3d pos_next2 = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
+		const koord3d pos_next2 = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
 		if(  cnv->is_overtaking()  &&  str->get_overtaking_info() == 3  ) {
 			// TODO:other_lane_blocked() method is inappropriate for the condition.
 			if(  vehicle_base_t* v = other_lane_blocked()  ) {
