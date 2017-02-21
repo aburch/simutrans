@@ -177,8 +177,11 @@ bool pos_list_wh_t::get_next_pos(koord &k)
 	return true;
 }
 
-
-bool placefinder_t::is_place_ok(koord pos, sint16 w, sint16 h,climate_bits cl) const
+/*
+ * Checks if all tiles are suitable for the building to be built
+ * Includes boundary tiles around the building
+ */
+bool placefinder_t::is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const
 {
 	if(!welt->is_within_limits(pos)) {
 		return false;
@@ -188,7 +191,7 @@ bool placefinder_t::is_place_ok(koord pos, sint16 w, sint16 h,climate_bits cl) c
 	while(k.y-- > 0) {
 		k.x = w;
 		while(k.x-- > 0) {
-			if(!is_field_ok(pos, k, cl)) {
+			if(!is_tile_ok(pos, k, cl)) {
 				return false;
 			}
 		}
@@ -196,12 +199,21 @@ bool placefinder_t::is_place_ok(koord pos, sint16 w, sint16 h,climate_bits cl) c
 	return true;
 }
 
-bool placefinder_t::is_randomfield(koord d) const
+/*
+ * Checks if the tile is part of the building or if it's a boundary tile
+ * @return false, when tile is part of the building
+ * @return true, when tile is the boundary tile of the building
+ */
+bool placefinder_t::is_boundary_tile(koord d) const
 {
 	return d.x == 0 || d.x == w - 1 || d.y == 0 || d.y == h - 1;
 }
 
-bool placefinder_t::is_field_ok(koord /*pos*/, koord /*d*/, climate_bits /*cl*/) const
+/*
+ * Checks if the tile is suitable for building, used by is_area_ok()
+ * This function is replaced for building types that require rules
+ */
+bool placefinder_t::is_tile_ok(koord /*pos*/, koord /*d*/, climate_bits /*cl*/) const
 {
 	return true;
 }
@@ -222,20 +234,20 @@ koord placefinder_t::find_place(koord start, sint16 w, sint16 h, climate_bits cl
 		//
 		pos_list_wh_t results_rotated(radius, h, w);
 
-		if(is_place_ok(start, w, h, cl)) {
+		if(is_area_ok(start, w, h, cl)) {
 			*r = false;
 			return start;
 		}
-		if(is_place_ok(start, h, w, cl)) {
+		if(is_area_ok(start, h, w, cl)) {
 			*r = true;
 			return start;
 		}
 		while(results_straight.get_next_pos(rel1) && results_rotated.get_next_pos(rel2)) {
-			if(is_place_ok(start + rel1, w, h, cl)) {
+			if(is_area_ok(start + rel1, w, h, cl)) {
 				*r = false;
 				return start + rel1;
 			}
-			if(is_place_ok(start + rel2, h, w, cl)) {
+			if(is_area_ok(start + rel2, h, w, cl)) {
 				*r = true;
 				return start + rel2;
 			}
@@ -246,11 +258,11 @@ koord placefinder_t::find_place(koord start, sint16 w, sint16 h, climate_bits cl
 		//
 		// Search without rotated positions.
 		//
-		if(is_place_ok(start, w, h, cl)) {
+		if(is_area_ok(start, w, h, cl)) {
 			return start;
 		}
 		while(results_straight.get_next_pos(rel1)) {
-			if(is_place_ok(start + rel1, w, h, cl)) {
+			if(is_area_ok(start + rel1, w, h, cl)) {
 				if(r) {
 					*r = false;
 				}

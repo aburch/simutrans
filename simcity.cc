@@ -505,7 +505,7 @@ class monument_placefinder_t : public placefinder_t {
 	public:
 		monument_placefinder_t(karte_t* welt, sint16 radius) : placefinder_t(welt, radius) {}
 
-		virtual bool is_field_ok(koord pos, koord d, climate_bits cl) const
+		virtual bool is_tile_ok(koord pos, koord d, climate_bits cl) const
 		{
 			const planquadrat_t* plan = welt->access(pos + d);
 
@@ -519,9 +519,9 @@ class monument_placefinder_t : public placefinder_t {
 				return false;
 			}
 
-			if (is_randomfield(d)) {
+			if (is_boundary_tile(d)) {
 				return
-					gr->get_grund_hang() == slope_t::flat &&     // Flach
+					gr->get_grund_hang() == slope_t::flat &&     // Flat
 					gr->get_typ() == grund_t::boden &&           // Boden -> no building
 					(!gr->hat_wege() || gr->hat_weg(road_wt)) && // only roads
 					gr->kann_alle_obj_entfernen(NULL) == NULL;   // Irgendwas verbaut den Platz?
@@ -530,7 +530,7 @@ class monument_placefinder_t : public placefinder_t {
 				return
 					gr->get_grund_hang() == slope_t::flat &&
 					gr->get_typ() == grund_t::boden &&
-					gr->ist_natur() &&                         // Keine Wege hier
+					gr->ist_natur() &&                         // No way here
 					gr->kann_alle_obj_entfernen(NULL) == NULL; // Irgendwas verbaut den Platz?
 			}
 		}
@@ -548,7 +548,7 @@ class townhall_placefinder_t : public placefinder_t {
 	public:
 		townhall_placefinder_t(karte_t* welt, uint8 dir_) : placefinder_t(welt), dir(dir_) {}
 
-		virtual bool is_field_ok(koord pos, koord d, climate_bits cl) const
+		virtual bool is_tile_ok(koord pos, koord d, climate_bits cl) const
 		{
 			const grund_t* gr = welt->lookup_kartenboden(pos + d);
 			if (gr == NULL  ||  gr->get_grund_hang() != slope_t::flat) {
@@ -2302,9 +2302,9 @@ class building_place_with_road_finder: public building_placefinder_t
 			return dist;
 		}
 
-		virtual bool is_place_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const
+		virtual bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const
 		{
-			if(  !building_placefinder_t::is_place_ok(pos, w, h, cl)  ) {
+			if(  !building_placefinder_t::is_area_ok(pos, w, h, cl)  ) {
 				return false;
 			}
 			bool next_to_road = false;
