@@ -92,25 +92,31 @@ void wolke_t::rdwr(loadsave_t *file)
 }
 
 
-
 sync_result wolke_t::sync_step(uint32 delta_t)
 {
+	const image_id old_img = get_image();
+
 	insta_zeit += delta_t;
-	if(insta_zeit>=2499) {
+	if(  insta_zeit >= 2499  ) {
 		// delete wolke ...
 		insta_zeit = 2499;
 		return SYNC_DELETE;
 	}
-	// move cloud up
-	sint8 ymove = ((insta_zeit*OBJECT_OFFSET_STEPS) >> 12);
-	if(  base_y_off-ymove!=get_yoff()  ) {
-		// move/change cloud ... (happens much more often than image change => image change will be always done when drawing)
-		if(!get_flag(obj_t::dirty)) {
-			mark_image_dirty(get_image(),0);
-		}
-		set_yoff(  base_y_off - ymove  );
-		set_flag(obj_t::dirty);
-	}
+	const image_id new_img = get_image();
+
+ 	// move cloud up
+	const sint8 new_yoff = base_y_off - ((insta_zeit * OBJECT_OFFSET_STEPS) >> 12);
+	if(  new_yoff != get_yoff()  ||  new_img != old_img  ) {
+ 		// move/change cloud ... (happens much more often than image change => image change will be always done when drawing)
+		if(  !get_flag( obj_t::dirty )  ) {
+			set_flag( obj_t::dirty );
+			mark_image_dirty( old_img, 0 );
+			if(  new_img != old_img  ) {
+				mark_image_dirty( new_img, 0 );
+			}
+ 		}
+		set_yoff( new_yoff );
+ 	}
 	return SYNC_OK;
 }
 
