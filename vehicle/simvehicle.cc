@@ -2497,7 +2497,7 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked() const{
 	if(  leading  ){
 		route_t const& r = *cnv->get_route();
 		//check whether there's no car in -1 ~ +1 section.
-		for(uint32 test_index = route_index < r.get_count() - 1u ? route_index + 1u : r.get_count() - 1u; test_index >= route_index - 1u; test_index--){
+		for(uint32 test_index = route_index < r.get_count() ? route_index : r.get_count() - 1u; test_index >= route_index - 2u; test_index--){
 			grund_t *gr = welt->lookup(r.at(test_index));
 			for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
 				if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
