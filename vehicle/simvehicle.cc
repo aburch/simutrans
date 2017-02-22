@@ -2388,6 +2388,9 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					// end of traffic jam, but no stuck message, because previous vehicle is stuck too
 					restart_speed = 0;
 					cnv->reset_waiting();
+					if(  cnv->is_overtaking()  &&  other_lane_blocked() == NULL  ) {
+						cnv->set_tiles_overtaking(0);
+					}
 				}
 				else {
 					restart_speed = (cnv->get_akt_speed()*3)/4;
