@@ -2452,7 +2452,7 @@ void way_builder_t::build_road()
 				// keep faster ways or if it is the same way ... (@author prissi)
 				if(  weg->get_desc()==desc  ||  keep_existing_ways
 					||  (  keep_existing_city_roads  &&  weg->hat_gehweg()  )
-					||  (  ( keep_existing_faster_ways || (!player->is_public_service() && weg->is_public_right_of_way())) &&  ! ( desc->is_at_least_as_good_as(weg->get_desc()) )  )
+					||  (  ( keep_existing_faster_ways || ((player && !player->is_public_service()) && weg->is_public_right_of_way())) &&  ! ( desc->is_at_least_as_good_as(weg->get_desc()) )  )
 					||  (  player!=NULL  &&  weg-> is_deletable(player)!=NULL  )
 					||  (  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  )
 					) {
