@@ -252,20 +252,24 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehicle_desc_t* vb)
 				cnv->upgrade_vehicle(i, new_veh);
 				if(cnv->get_vehicle(i)->get_desc()->get_trailer_count() == 1 && cnv->get_vehicle(i)->get_desc()->get_power() != 0)
 				{
-					//We need to upgrade tenders, too.	
-					vehicle_t* new_veh_2 = vehicle_builder_t::build(get_pos(), get_owner(), NULL, new_veh->get_desc()->get_trailer(0), true); 
-					cnv->upgrade_vehicle(i + 1, new_veh_2);
-					// The above assumes that tenders are free, which they are in Pak128.Britain, the cost being built into the locomotive.
-					// The below ought work more accurately, but does not work properly, for some reason.
+					// We need to upgrade tenders, too.	
+					const vehicle_desc_t* new_desc = new_veh->get_desc()->get_trailer(0);
+					if (new_desc)
+					{
+						vehicle_t* new_veh_2 = vehicle_builder_t::build(get_pos(), get_owner(), NULL, new_desc, true);
+						cnv->upgrade_vehicle(i + 1, new_veh_2);
+						// The above assumes that tenders are free, which they are in Pak128.Britain, the cost being built into the locomotive.
+						// The below ought work more accurately, but does not work properly, for some reason.
 
-					/*if(cnv->get_vehicle(i + 1)->get_desc()->get_upgrades_count() >= c && cnv->get_vehicle(i + 1)->get_desc()->get_upgrades_count() > 0)
-					{
-						cnv->get_vehicle(i + 1)->set_desc(cnv->get_vehicle(i + 1)->get_desc()->get_upgrades(c));
-					}	
-					else if(cnv->get_vehicle(i + 1)->get_desc()->get_upgrades_count() > 0)
-					{
-						cnv->get_vehicle(i + 1)->set_desc(cnv->get_vehicle(i + 1)->get_desc()->get_upgrades(0));
-					}*/					
+						/*if(cnv->get_vehicle(i + 1)->get_desc()->get_upgrades_count() >= c && cnv->get_vehicle(i + 1)->get_desc()->get_upgrades_count() > 0)
+						{
+							cnv->get_vehicle(i + 1)->set_desc(cnv->get_vehicle(i + 1)->get_desc()->get_upgrades(c));
+						}
+						else if(cnv->get_vehicle(i + 1)->get_desc()->get_upgrades_count() > 0)
+						{
+							cnv->get_vehicle(i + 1)->set_desc(cnv->get_vehicle(i + 1)->get_desc()->get_upgrades(0));
+						}*/
+					}
 				}		
 				//Check whether this is a Garrett type vehicle (this is code for the exceptional case where a Garrett is upgraded to another Garrett)
 				if(cnv->get_vehicle(0)->get_desc()->get_power() == 0 && cnv->get_vehicle(0)->get_desc()->get_capacity() == 0)

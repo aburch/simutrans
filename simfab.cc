@@ -3198,8 +3198,7 @@ uint32 fabrik_t::get_lead_time(const ware_desc_t* wtype)
 				}
 				break;
 			}
-		}
-		
+		}	
 	}
 
 	return longest_lead_time;
