@@ -389,6 +389,8 @@ public:
 	*/
 	uint16 get_cargo_max() const {return desc->get_capacity(); }
 
+	ribi_t::ribi get_next_90direction() const;
+
 	const char * get_cargo_mass() const;
 
 	/**
@@ -524,7 +526,8 @@ public:
 	virtual overtaker_t* get_overtaker();
 	virtual convoi_t* get_overtaker_cv();
 
-	virtual vehicle_base_t* other_lane_blocked() const;
+	virtual vehicle_base_t* other_lane_blocked() const { return other_lane_blocked(false); }
+	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top) const;
 };
 
 

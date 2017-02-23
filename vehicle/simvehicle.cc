@@ -1765,6 +1765,14 @@ const char *vehicle_t::is_deletable(const player_t *)
 	return "Fahrzeuge koennen so nicht entfernt werden";
 }
 
+ribi_t::ribi vehicle_t::get_next_90direction() const {
+	const route_t* route = cnv->get_route();
+	if(  route  &&  route_index < route->get_count() - 1u  ) {
+		const koord3d pos_next2 = route->at(route_index + 1u);
+		return calc_direction(pos_next,pos_next2);
+	}
+	return ribi_t::none;
+}
 
 vehicle_t::~vehicle_t()
 {
@@ -2449,6 +2457,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 		// If this vehicle is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
 		const koord3d pos_next2 = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
+		const koord3d pos_next3 = route_index < r.get_count() - 2u ? r.at(route_index + 2u) : pos_next2;
 		if(  cnv->is_overtaking()  &&  str->get_overtaking_info() == 3  ) {
 			// TODO:other_lane_blocked() method is inappropriate for the condition.
 			if(  vehicle_base_t* v = other_lane_blocked()  ) {
@@ -2472,6 +2481,23 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				}
 			}
 		}
+		// If 2 tiles ahead is a crossing, lane crossing must be checked before entering.
+		// strasse_t *str=(strasse_t *)gr->get_weg(road_wt);
+		const grund_t *gr = route_index < r.get_count() - 1u ? welt->lookup(r.at(route_index+1u)) : NULL;
+		const strasse_t *stre= gr ? (strasse_t *)gr->get_weg(road_wt) : NULL;
+		const ribi_t::ribi way_ribi = stre ? stre->get_ribi_unmasked() : ribi_t::none;
+		if(  stre  &&  stre->get_overtaking_info() == 0  &&  (way_ribi == ribi_t::all  ||  ribi_t::is_threeway(way_ribi))  ) {
+			if(  const vehicle_base_t* v = other_lane_blocked(true)  ) {
+				if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
+					if(  judge_lane_crossing(calc_direction(pos_next,pos_next2), calc_direction(pos_next2,pos_next3), at->get_next_90direction(), cnv->is_overtaking(), false)  ) {
+						// vehicle must stop.
+						restart_speed = 0;
+						cnv->reset_waiting();
+						return false;
+					}
+				}
+			}
+		}
 
 		return obj==NULL;
 	}
@@ -2491,12 +2517,13 @@ convoi_t* road_vehicle_t::get_overtaker_cv()
 	return cnv;
 }
 
-vehicle_base_t* road_vehicle_t::other_lane_blocked() const{
+vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top) const{
 	//This function calculate whether the convoi can change lane.
 	//TODO: This function haven't considered city car!
 	if(  leading  ){
 		route_t const& r = *cnv->get_route();
-		//check whether there's no car in -1 ~ +1 section.
+		// only_search_top == false: check whether there's no car in -1 ~ +1 section.
+		// only_search_top == true: check whether there's no car in front of this vehicle. (Not the same lane.)
 		for(uint32 test_index = route_index < r.get_count() ? route_index : r.get_count() - 1u; test_index >= route_index - 2u; test_index--){
 			grund_t *gr = welt->lookup(r.at(test_index));
 			for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
@@ -2522,11 +2549,14 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked() const{
 							}
 							continue;
 						}
+						if(  test_index == route_index - 2u  &&  at->get_convoi()->get_akt_speed() == 0  ) {
+							continue;
+						}
 						return v;
 					}
 				}
 			}
-			if(  test_index == 0  ) {
+			if(  test_index == 0  ||  only_search_top  ) {
 				break;
 			}
 		}
