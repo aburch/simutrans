@@ -12,7 +12,7 @@
 #include "components/gui_button.h"
 #include "components/gui_numberinput.h"
 
-#define COLORS_MAX_BUTTONS (24)
+#define COLORS_MAX_BUTTONS (25)
 #define BUF_MAXLEN_MS_FORMAT (16)
 
 
