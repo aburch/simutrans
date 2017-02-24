@@ -488,7 +488,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				k->count = tmp->count+1;
 				k->jps_ribi = ribi_t::all;
 
-				if (use_jps  &&  to->ist_wasser()) {
+				if (use_jps  &&  to->is_water()) {
 					// only check previous direction plus directions not available on this tile
 					// if going straight only check straight direction
 					// if going diagonally check both directions that generate this diagonal
@@ -632,7 +632,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 					koord3d pos = post.back() + koord(next);
 					ok = false;
 					if (grund_t *gr = welt->lookup(pos)) {
-						if (gr->ist_wasser()) {
+						if (gr->is_water()) {
 							ok = true;
 							post.append(pos);
 						}

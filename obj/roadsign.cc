@@ -468,7 +468,7 @@ sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 	}
 	else {
 		// change every ~32s
-		uint32 ticks = ((welt->get_zeit_ms()>>10)+ticks_offset) % (ticks_ns+ticks_ow);
+		uint32 ticks = ((welt->get_ticks()>>10)+ticks_offset) % (ticks_ns+ticks_ow);
 
 		uint8 new_state = (ticks >= ticks_ns) ^ (welt->get_settings().get_rotation() & 1);
 		if(state!=new_state) {

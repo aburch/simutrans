@@ -1584,7 +1584,7 @@ void win_display_flush(double konto)
 		}
 	}
 
-	char const *time = tick_to_string( wl->get_zeit_ms(), true );
+	char const *time = tick_to_string( wl->get_ticks(), true );
 
 	// statusbar background
 	display_set_clip_wh( 0, 0, disp_width, disp_height );

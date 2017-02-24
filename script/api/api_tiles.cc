@@ -135,7 +135,7 @@ void export_tiles(HSQUIRRELVM vm)
 	 * Queries tile type.
 	 * @returns true if tile is an ocean tile
 	 */
-	register_method(vm, &grund_t::ist_wasser, "is_water");
+	register_method(vm, &grund_t::is_water, "is_water");
 
 	/**
 	 * Queries tile type.

@@ -971,7 +971,7 @@ stadt_t::~stadt_t()
 				assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
 
 				if(gb->get_tile()->get_desc()->get_type()==building_desc_t::headquarter) {
-					stadt_t *city = welt->suche_naechste_stadt(gb->get_pos().get_2d());
+					stadt_t *city = welt->find_nearest_city(gb->get_pos().get_2d());
 					gb->set_stadt( city );
 					if(city) {
 						city->buildings.append(gb, gb->get_passagier_level());
@@ -1029,7 +1029,7 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 
 	/* get a unique cityname */
 	char                          const* n       = "simcity";
-	weighted_vector_tpl<stadt_t*> const& staedte = welt->get_staedte();
+	weighted_vector_tpl<stadt_t*> const& staedte = welt->get_cities();
 
 	const vector_tpl<char*>& city_names = translator::get_city_name_list();
 
@@ -2191,7 +2191,7 @@ void stadt_t::add_target_city(stadt_t *const city)
 void stadt_t::recalc_target_cities()
 {
 	target_cities.clear();
-	FOR(weighted_vector_tpl<stadt_t*>, const c, welt->get_staedte()) {
+	FOR(weighted_vector_tpl<stadt_t*>, const c, welt->get_cities()) {
 		add_target_city(c);
 	}
 }
@@ -2210,7 +2210,7 @@ void stadt_t::add_target_attraction(gebaeude_t *const attraction)
 void stadt_t::recalc_target_attractions()
 {
 	target_attractions.clear();
-	FOR(weighted_vector_tpl<gebaeude_t*>, const a, welt->get_ausflugsziele()) {
+	FOR(weighted_vector_tpl<gebaeude_t*>, const a, welt->get_attractions()) {
 		add_target_attraction(a);
 	}
 }
@@ -2285,7 +2285,7 @@ class building_place_with_road_finder: public building_placefinder_t
 		// get distance to next special building
 		int find_dist_next_special(koord pos) const
 		{
-			const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_ausflugsziele();
+			const weighted_vector_tpl<gebaeude_t*>& attractions = welt->get_attractions();
 			int dist = welt->get_size().x * welt->get_size().y;
 			FOR(  weighted_vector_tpl<gebaeude_t*>, const i, attractions  ) {
 				int const d = koord_distance(i->get_pos(), pos);
@@ -2293,7 +2293,7 @@ class building_place_with_road_finder: public building_placefinder_t
 					dist = d;
 				}
 			}
-			FOR(  weighted_vector_tpl<stadt_t *>, const city, welt->get_staedte() ) {
+			FOR(  weighted_vector_tpl<stadt_t *>, const city, welt->get_cities() ) {
 				int const d = koord_distance(city->get_pos(), pos);
 				if(  d < dist  ) {
 					dist = d;
@@ -3111,11 +3111,11 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 	slope_t::type slope = bd->get_grund_hang();
 	if (!slope_t::is_way(slope)) {
 		climate c = welt->get_climate(k);
-		if (welt->can_ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true)) {
-			welt->ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true);
+		if (welt->can_flatten_tile(NULL, k, bd->get_hoehe()+1, true)) {
+			welt->flatten_tile(NULL, k, bd->get_hoehe()+1, true);
 		}
-		else if(  bd->get_hoehe() > welt->get_water_hgt(k)  &&  welt->can_ebne_planquadrat(NULL, k, bd->get_hoehe() )  ) {
-			welt->ebne_planquadrat(NULL, k, bd->get_hoehe());
+		else if(  bd->get_hoehe() > welt->get_water_hgt(k)  &&  welt->can_flatten_tile(NULL, k, bd->get_hoehe() )  ) {
+			welt->flatten_tile(NULL, k, bd->get_hoehe());
 		}
 		else {
 			return false;
@@ -3253,7 +3253,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 		if(ribi_t::is_single(connection_roads)) {
 			koord zv = koord(ribi_t::backward(connection_roads));
 			grund_t *bd_next = welt->lookup_kartenboden( k + zv );
-			if(bd_next  &&  (bd_next->ist_wasser()  ||  (bd_next->hat_weg(water_wt)  &&  bd_next->get_weg(water_wt)->get_desc()->get_styp()== type_river))) {
+			if(bd_next  &&  (bd_next->is_water()  ||  (bd_next->hat_weg(water_wt)  &&  bd_next->get_weg(water_wt)->get_desc()->get_styp()== type_river))) {
 				// ok there is a river
 				const bridge_desc_t *bridge = bridge_builder_t::find_bridge(road_wt, welt->get_city_road()->get_topspeed(), welt->get_timeline_year_month() );
 				if(  bridge==NULL  ) {

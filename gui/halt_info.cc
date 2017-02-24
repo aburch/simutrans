@@ -393,7 +393,7 @@ void halt_info_t::update_departures()
 	destinations.clear();
 	origins.clear();
 
-	const uint32 cur_ticks = welt->get_zeit_ms() % welt->ticks_per_world_month;
+	const uint32 cur_ticks = welt->get_ticks() % welt->ticks_per_world_month;
 	static uint32 last_ticks = 0;
 
 	if(  last_ticks > cur_ticks  ) {

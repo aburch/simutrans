@@ -231,13 +231,13 @@ void enlarge_map_frame_t::update_preview()
 				}
 				else {
 					const sint16 height = welt->lookup_hgt( pos );
-					color = reliefkarte_t::calc_hoehe_farbe(height, sets->get_grundwasser());
+					color = reliefkarte_t::calc_hoehe_farbe(height, sets->get_groundwater());
 				}
 			}
 			else {
 				// new part
 				const sint16 height = karte_t::perlin_hoehe(sets, pos, koord(old_x,old_y) );
-				color = reliefkarte_t::calc_hoehe_farbe(height, sets->get_grundwasser());
+				color = reliefkarte_t::calc_hoehe_farbe(height, sets->get_groundwater());
 			}
 			karte[j*preview_size+i] = color;
 		}

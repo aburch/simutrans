@@ -78,7 +78,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	inp_underground_level.set_width( edit_width );
 	inp_underground_level.align_to(&buttons[20], ALIGN_CENTER_V);
 	inp_underground_level.set_value( grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : welt->get_zeiger()->get_pos().z);
-	inp_underground_level.set_limits(welt->get_grundwasser()-10, 32);
+	inp_underground_level.set_limits(welt->get_groundwater()-10, 32);
 	inp_underground_level.add_listener(this);
 	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
@@ -623,7 +623,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	hide_buildings_label.set_text( env_t::hide_buildings==0 ? "no buildings hidden" : (env_t::hide_buildings==1 ? "hide city building" : "hide all building") );
 	convoy_tooltip_label.set_text( env_t::show_vehicle_states==0 ? "convoi error tooltips" : (env_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
 	sprintf(frame_time_buf," %d ms", get_frame_time() );
-	sprintf(idle_time_buf, " %d ms", welt->get_schlaf_zeit() );
+	sprintf(idle_time_buf, " %d ms", welt->get_idle_time() );
 
 	// fps_label
 	uint8  color;

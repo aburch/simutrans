@@ -23,7 +23,7 @@ bool wasser_t::change_stage = false;
 void wasser_t::prepare_for_refresh()
 {
 	if(!welt->is_fast_forward()  &&  env_t::water_animation>0) {
-		int new_stage = (welt->get_zeit_ms() / env_t::water_animation) % ground_desc_t::water_animation_stages;
+		int new_stage = (welt->get_ticks() / env_t::water_animation) % ground_desc_t::water_animation_stages;
 		wasser_t::change_stage = (new_stage != stage);
 		wasser_t::stage = new_stage;
 	}
@@ -54,7 +54,7 @@ void wasser_t::calc_image_internal(const bool calc_only_snowline_change)
 		ribi = ribi_t::none;
 		for(  uint8 i = 0;  i < 4;  i++  ) {
 			grund_t *gr_neighbour = NULL;
-			if(  get_neighbour( gr_neighbour, invalid_wt, ribi_t::nsew[i] )  &&  (gr_neighbour->ist_wasser()  ||  gr_neighbour->hat_weg( water_wt ))  ) {
+			if(  get_neighbour( gr_neighbour, invalid_wt, ribi_t::nsew[i] )  &&  (gr_neighbour->is_water()  ||  gr_neighbour->hat_weg( water_wt ))  ) {
 				ribi |= ribi_t::nsew[i];
 			}
 		}

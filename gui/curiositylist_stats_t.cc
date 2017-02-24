@@ -78,16 +78,16 @@ class compare_curiosities
 
 void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t sb, bool sr)
 {
-	const weighted_vector_tpl<gebaeude_t*>& ausflugsziele = welt->get_ausflugsziele();
+	const weighted_vector_tpl<gebaeude_t*>& world_attractions = welt->get_attractions();
 
 	sortby = sb;
 	sortreverse = sr;
 
 	attractions.clear();
-	last_world_curiosities = ausflugsziele.get_count();
+	last_world_curiosities = world_attractions.get_count();
 	attractions.resize(last_world_curiosities);
 
-	FOR(weighted_vector_tpl<gebaeude_t*>, const geb, ausflugsziele) {
+	FOR(weighted_vector_tpl<gebaeude_t*>, const geb, world_attractions) {
 		if (geb != NULL &&
 				geb->get_first_tile() == geb &&
 				geb->get_passagier_level() != 0) {
@@ -156,7 +156,7 @@ void curiositylist_stats_t::draw(scr_coord offset)
 	static cbuffer_t buf;
 	int yoff = offset.y;
 
-	if(  last_world_curiosities != welt->get_ausflugsziele().get_count()  ) {
+	if(  last_world_curiosities != welt->get_attractions().get_count()  ) {
 		// some deleted/ added => resort
 		get_unique_attractions( sortby, sortreverse );
 		recalc_size();

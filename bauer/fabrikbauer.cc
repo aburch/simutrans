@@ -300,7 +300,7 @@ bool factory_builder_t::check_construction_site(koord pos, koord size, bool wate
 		for(int y=0;y<size.y;y++) {
 			for(int x=0;x<size.x;x++) {
 				const grund_t *gr=welt->lookup_kartenboden(pos+koord(x,y));
-				if(gr==NULL  ||  !gr->ist_wasser()  ||  gr->get_grund_hang()!=slope_t::flat) {
+				if(gr==NULL  ||  !gr->is_water()  ||  gr->get_grund_hang()!=slope_t::flat) {
 					return false;
 				}
 			}
@@ -461,7 +461,7 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 						grund_t *gr = welt->lookup_kartenboden(x,y);
 						// build the halt on factory tiles on open water only,
 						// since the halt can't be removed otherwise
-						if(gr->ist_wasser()  &&  !(gr->hat_weg(water_wt))  &&  gr->find<gebaeude_t>()) {
+						if(gr->is_water()  &&  !(gr->hat_weg(water_wt))  &&  gr->find<gebaeude_t>()) {
 							halt->add_grund( gr );
 						}
 					}
@@ -489,7 +489,7 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 
 	// add passenger to pax>0, (so no suicide diver at the fish swarm)
 	if(info->get_pax_level()>0) {
-		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
+		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_cities();
 		vector_tpl<stadt_t *>distance_stadt( staedte.get_count() );
 
 		FOR(weighted_vector_tpl<stadt_t*>, const i, staedte) {
@@ -560,7 +560,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 	}
 
 	// no cities at all?
-	if (info->get_placement() == factory_desc_t::City  &&  welt->get_staedte().empty()) {
+	if (info->get_placement() == factory_desc_t::City  &&  welt->get_cities().empty()) {
 		return 0;
 	}
 
@@ -580,7 +580,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		koord size=info->get_building()->get_size(0);
 
 		// build consumer (factory) in town
-		stadt_t *city = welt->suche_naechste_stadt(pos->get_2d());
+		stadt_t *city = welt->find_nearest_city(pos->get_2d());
 
 		/* Three variants:
 		 * A:
@@ -946,7 +946,7 @@ next_ware_check:
 			DBG_MESSAGE( "factory_builder_t::increase_industry_density()", "added ware %i to factory %s", last_built_consumer_ware, last_built_consumer->get_name() );
 			// tell the player
 			if(tell_me) {
-				stadt_t *s = welt->suche_naechste_stadt( last_built_consumer->get_pos().get_2d() );
+				stadt_t *s = welt->find_nearest_city( last_built_consumer->get_pos().get_2d() );
 				const char *stadt_name = s ? s->get_name() : translator::translate("nowhere");
 				cbuffer_t buf;
 				buf.printf( translator::translate("Factory chain extended\nfor %s near\n%s built with\n%i factories."), translator::translate(last_built_consumer->get_name()), stadt_name, nr );
@@ -984,7 +984,7 @@ next_ware_check:
 			const factory_desc_t *fab=get_random_consumer( no_electric==0, ALL_CLIMATES, welt->get_timeline_year_month() );
 			if(fab) {
 				const bool in_city = fab->get_placement() == factory_desc_t::City;
-				if (in_city && welt->get_staedte().empty()) {
+				if (in_city && welt->get_cities().empty()) {
 					// we cannot build this factory here
 					continue;
 				}
@@ -996,7 +996,7 @@ next_ware_check:
 				}
 				else {
 					// or within the city limit
-					const stadt_t *city = pick_any_weighted(welt->get_staedte());
+					const stadt_t *city = pick_any_weighted(welt->get_cities());
 					koord diff = city->get_rechtsunten()-city->get_linksoben();
 					pos = find_random_construction_site( city->get_center(), max(diff.x,diff.y)/2, fab->get_building()->get_size(rotation),fab->get_placement()==factory_desc_t::Water,fab->get_building(),ignore_climates, 1000);
 				}

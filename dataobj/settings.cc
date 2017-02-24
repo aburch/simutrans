@@ -58,7 +58,7 @@ settings_t::settings_t() :
 	// default climate zones
 	set_default_climates( );
 	winter_snowline = 7;	// not mediterranean
-	grundwasser = -2;            //25-Nov-01        Markus Weber    Added
+	groundwater = -2;            //25-Nov-01        Markus Weber    Added
 
 	max_mountain_height = 160;                  //can be 0-160.0  01-Dec-01        Markus Weber    Added
 	map_roughness = 0.6;                        //can be 0-1      01-Dec-01        Markus Weber    Added
@@ -332,9 +332,9 @@ void settings_t::rdwr(loadsave_t *file)
 		file->rdwr_long(dummy );	// scroll ignored
 		file->rdwr_long(traffic_level );
 		file->rdwr_long(show_pax );
-		dummy = grundwasser;
+		dummy = groundwater;
 		file->rdwr_long(dummy );
-		grundwasser = (sint16)(dummy/16);
+		groundwater = (sint16)(dummy/16);
 		file->rdwr_double(max_mountain_height );
 		file->rdwr_double(map_roughness );
 
@@ -369,13 +369,13 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 		file->rdwr_long(traffic_level );
 		file->rdwr_long(show_pax );
-		sint32 dummy = grundwasser;
+		sint32 dummy = groundwater;
 		file->rdwr_long(dummy );
 		if(file->get_version() < 99005) {
-			grundwasser = (sint16)(dummy/16);
+			groundwater = (sint16)(dummy/16);
 		}
 		else {
-			grundwasser = (sint16)dummy;
+			groundwater = (sint16)dummy;
 		}
 		file->rdwr_double(max_mountain_height );
 		file->rdwr_double(map_roughness );
@@ -452,7 +452,7 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 
 		if(  file->is_loading()  &&  file->get_version() < 112007  ) {
-			grundwasser *= env_t::pak_height_conversion_factor;
+			groundwater *= env_t::pak_height_conversion_factor;
 			for(  int i = 0;  i < 8;  i++  ) {
 				climate_borders[i] *= env_t::pak_height_conversion_factor;
 			}

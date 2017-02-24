@@ -645,7 +645,7 @@ void vehicle_t::set_convoi(convoi_t *c)
 			if (!r.empty() && route_index < r.get_count() - 1) {
 				grund_t const* const gr = welt->lookup(pos_next);
 				if (!gr || !gr->get_weg(get_waytype())) {
-					if (!(water_wt == get_waytype()  &&  gr->ist_wasser())) { // ships on the open sea are valid
+					if (!(water_wt == get_waytype()  &&  gr->is_water())) { // ships on the open sea are valid
 						pos_next = r.at(route_index + 1U);
 					}
 				}
@@ -3182,7 +3182,7 @@ void water_vehicle_t::enter_tile(grund_t* gr)
 
 bool water_vehicle_t::check_next_tile(const grund_t *bd) const
 {
-	if(  bd->ist_wasser()  ) {
+	if(  bd->is_water()  ) {
 		return true;
 	}
 	// channel can have more stuff to check

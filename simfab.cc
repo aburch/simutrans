@@ -773,7 +773,7 @@ fabrik_t::fabrik_t(loadsave_t* file)
 	status = nothing;
 	currently_producing = false;
 	transformer = NULL;
-	last_sound_ms = welt->get_zeit_ms();
+	last_sound_ms = welt->get_ticks();
 }
 
 
@@ -854,7 +854,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* factory_
 		}
 	}
 
-	last_sound_ms = welt->get_zeit_ms();
+	last_sound_ms = welt->get_ticks();
 	init_stats();
 	arrival_stats_pax.init();
 	arrival_stats_mail.init();
@@ -1417,12 +1417,12 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		for(  int i=0;  i<nr;  i++  ) {
 			sint32 city_index = -1;
 			if(file->is_saving()) {
-				city_index = welt->get_staedte().index_of( target_cities[i] );
+				city_index = welt->get_cities().index_of( target_cities[i] );
 			}
 			file->rdwr_long(city_index);
 			if(  file->is_loading()  ) {
 				// will also update factory information
-				target_cities.append( welt->get_staedte()[city_index] );
+				target_cities.append( welt->get_cities()[city_index] );
 			}
 		}
 	}
@@ -1499,7 +1499,7 @@ void fabrik_t::smoke() const
 		welt->sync_way_eyecandy.add( smoke );
 	}
 	// maybe sound?
-	if(  desc->get_sound()!=NO_SOUND  &&  	welt->get_zeit_ms()>last_sound_ms+desc->get_sound_intervall_ms()  ) {
+	if(  desc->get_sound()!=NO_SOUND  &&  	welt->get_ticks()>last_sound_ms+desc->get_sound_intervall_ms()  ) {
 		welt->play_sound_area_clipped( get_pos().get_2d(), desc->get_sound() );
 	}
 }

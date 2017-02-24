@@ -565,7 +565,7 @@ namespace script_api {
 	stadt_t* param<stadt_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		koord pos = param<koord>::get(vm, index);
-		return welt->suche_naechste_stadt(pos);
+		return welt->find_nearest_city(pos);
 	}
 
 	SQInteger param<stadt_t*>::push(HSQUIRRELVM vm, stadt_t* const& v)

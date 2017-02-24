@@ -133,7 +133,7 @@ gebaeude_t::~gebaeude_t()
 
 	// tiles might be invalid, if no description is found during loading
 	if(tile  &&  tile->get_desc()  &&  tile->get_desc()->is_attraction()) {
-		welt->remove_ausflugsziel(this);
+		welt->remove_attraction(this);
 	}
 
 	if(tile) {
@@ -240,7 +240,7 @@ void gebaeude_t::add_alter(uint32 a)
 
 void gebaeude_t::set_tile( const building_tile_desc_t *new_tile, bool start_with_construction )
 {
-	insta_zeit = welt->get_zeit_ms();
+	insta_zeit = welt->get_ticks();
 
 	if(!zeige_baugrube  &&  tile!=NULL) {
 		// mark old tile dirty
@@ -285,7 +285,7 @@ sync_result gebaeude_t::sync_step(uint32 delta_t)
 {
 	if(  zeige_baugrube  ) {
 		// still under construction?
-		if(  welt->get_zeit_ms() - insta_zeit > 5000  ) {
+		if(  welt->get_ticks() - insta_zeit > 5000  ) {
 			set_flag( obj_t::dirty );
 			mark_image_dirty( get_image(), 0 );
 			zeige_baugrube = false;
@@ -832,11 +832,11 @@ void gebaeude_t::rdwr(loadsave_t *file)
 	if(  file->get_version()>=99014  ) {
 		sint32 city_index = -1;
 		if(  file->is_saving()  &&  ptr.stadt!=NULL  ) {
-			city_index = welt->get_staedte().index_of( ptr.stadt );
+			city_index = welt->get_cities().index_of( ptr.stadt );
 		}
 		file->rdwr_long(city_index);
 		if(  file->is_loading()  &&  city_index!=-1  &&  (tile==NULL  ||  tile->get_desc()==NULL  ||  tile->get_desc()->is_connected_with_town())  ) {
-			ptr.stadt = welt->get_staedte()[city_index];
+			ptr.stadt = welt->get_cities()[city_index];
 		}
 	}
 
@@ -847,7 +847,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 		// Hajo: rebuild tourist attraction list
 		if(tile && tile->get_desc()->is_attraction()) {
-			welt->add_ausflugsziel( this );
+			welt->add_attraction( this );
 		}
 	}
 }
@@ -866,7 +866,7 @@ void gebaeude_t::finish_rd()
 	// citybuilding, but no town?
 	if(  tile->get_offset()==koord(0,0)  ) {
 		if(  tile->get_desc()->is_connected_with_town()  ) {
-			stadt_t *city = (ptr.stadt==NULL) ? welt->suche_naechste_stadt( get_pos().get_2d() ) : ptr.stadt;
+			stadt_t *city = (ptr.stadt==NULL) ? welt->find_nearest_city( get_pos().get_2d() ) : ptr.stadt;
 			if(city) {
 #ifdef MULTI_THREAD
 				pthread_mutex_lock( &add_to_city_mutex );

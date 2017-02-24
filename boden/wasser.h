@@ -20,7 +20,7 @@ public:
 	wasser_t(loadsave_t *file, koord pos ) : grund_t(koord3d(pos,0) ), ribi(ribi_t::none) { rdwr(file); }
 	wasser_t(koord3d pos) : grund_t(pos), ribi(ribi_t::none) {}
 
-	inline bool ist_wasser() const { return true; }
+	inline bool is_water() const { return true; }
 
 	// returns correct directions for water and none for the rest ...
 	ribi_t::ribi get_weg_ribi(waytype_t typ) const { return (typ==water_wt) ? ribi : (ribi_t::ribi)ribi_t::none; }

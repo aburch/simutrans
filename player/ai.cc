@@ -161,7 +161,7 @@ bool ai_t::suche_platz(koord pos, koord &size, koord *dirs)
 			grund_t *gr = welt->lookup_kartenboden(  pos + (dirs[dir]*i)  );
 			if(  gr == NULL
 				||  gr->get_halt().is_bound()
-				||  !welt->can_ebne_planquadrat(this, pos, start_z )
+				||  !welt->can_flatten_tile(this, pos, start_z )
 				||  !gr->ist_natur()
 				||  gr->kann_alle_obj_entfernen(this) != NULL
 				||  gr->get_hoehe() < welt->get_water_hgt( pos + (dirs[dir] * i) )  ) {
@@ -351,7 +351,7 @@ bool ai_t::built_update_headquarter()
 				stadt_t *st = NULL;
 				FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
 					if(  halt->get_owner()==this  ) {
-						st = welt->suche_naechste_stadt(halt->get_basis_pos());
+						st = welt->find_nearest_city(halt->get_basis_pos());
 						break;
 					}
 				}
@@ -413,7 +413,7 @@ koord ai_t::find_shore(koord start, koord end) const
 	for (i = 0; i <= steps; i++) {
 		koord next(xp>>16,yp>>16);
 		if(next!=last) {
-			if(!welt->lookup_kartenboden(next)->ist_wasser()) {
+			if(!welt->lookup_kartenboden(next)->is_water()) {
 				last = next;
 			}
 		}
@@ -472,7 +472,7 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	climate c1 = welt->get_climate(platz1);
 	climate c2 = welt->get_climate(platz2);
 
-	if(  !(welt->ebne_planquadrat( this, platz1, welt->lookup_kartenboden(platz1)->get_hoehe() )  &&  welt->ebne_planquadrat( this, platz2, welt->lookup_kartenboden(platz2)->get_hoehe() ))  ) {
+	if(  !(welt->flatten_tile( this, platz1, welt->lookup_kartenboden(platz1)->get_hoehe() )  &&  welt->flatten_tile( this, platz2, welt->lookup_kartenboden(platz2)->get_hoehe() ))  ) {
 		// no flat land here?!?
 		return false;
 	}

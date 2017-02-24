@@ -400,7 +400,7 @@ bool ai_goods_t::create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 			koord p(x,y);
 			grund_t *gr = welt->lookup_kartenboden(p);
 			// check for water tile, do not start in depots
-			if(  gr->ist_wasser()  &&  halt == get_halt(p)  &&  gr->get_depot()==NULL  ) {
+			if(  gr->is_water()  &&  halt == get_halt(p)  &&  gr->get_depot()==NULL  ) {
 				if(  koord_distance(best_pos,platz2)<koord_distance(p,platz2)  ) {
 					best_pos = p;
 				}
@@ -655,7 +655,7 @@ bool ai_goods_t::create_simple_rail_transport()
 	koord perpend( sgn(size1.y), sgn(size1.x) );
 	while(k!=size1+platz1) {
 		climate c = welt->get_climate(k);
-		if(!welt->ebne_planquadrat( this, k, z1 )) {
+		if(!welt->flatten_tile( this, k, z1 )) {
 			return false;
 		}
 		// ensure is land
@@ -675,7 +675,7 @@ bool ai_goods_t::create_simple_rail_transport()
 	koord diff2( sgn(size2.x), sgn(size2.y) );
 	while(k!=size2+platz2) {
 		climate c = welt->get_climate(k);
-		if(!welt->ebne_planquadrat(this,k,z2)) {
+		if(!welt->flatten_tile(this,k,z2)) {
 			return false;
 		}
 		// ensure is land

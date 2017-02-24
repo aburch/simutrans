@@ -34,7 +34,7 @@ vector_tpl<sint64> const& get_city_stat(stadt_t* city, bool monthly, sint32 INDE
 
 SQInteger world_get_next_city(HSQUIRRELVM vm)
 {
-	return generic_get_next(vm, welt->get_staedte().get_count());
+	return generic_get_next(vm, welt->get_cities().get_count());
 }
 
 namespace script_api {
@@ -43,7 +43,7 @@ namespace script_api {
 
 stadt_t* world_get_city_by_index(city_list_t, uint32 index)
 {
-	return index < welt->get_staedte().get_count()  ?  welt->get_staedte()[index] : NULL;
+	return index < welt->get_cities().get_count()  ?  welt->get_cities()[index] : NULL;
 }
 
 call_tool_init set_citygrowth(stadt_t *city, bool allow)
@@ -55,7 +55,7 @@ call_tool_init set_citygrowth(stadt_t *city, bool allow)
 
 call_tool_init city_set_name(stadt_t* city, const char* name)
 {
-	return command_rename(welt->get_public_player(), 't', welt->get_staedte().index_of(city), name);
+	return command_rename(welt->get_public_player(), 't', welt->get_cities().index_of(city), name);
 }
 
 

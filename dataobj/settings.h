@@ -107,7 +107,7 @@ private:
 	 * waterlevel, climate borders, lowest snow in winter
 	 */
 
-	sint16 grundwasser;
+	sint16 groundwater;
 	sint16 climate_borders[MAX_CLIMATES];
 	sint16 winter_snowline;
 
@@ -377,7 +377,7 @@ public:
 	void set_show_pax(bool yesno) {show_pax=yesno;}
 	bool get_show_pax() const {return show_pax != 0;}
 
-	sint16 get_grundwasser() const {return grundwasser;}
+	sint16 get_groundwater() const {return groundwater;}
 
 	double get_max_mountain_height() const {return max_mountain_height;}
 
