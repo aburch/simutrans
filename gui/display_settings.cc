@@ -617,7 +617,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	}
 	fps_value_label.set_color(color);
 	sprintf(fps_buf," %d fps", loops );
-#ifdef MSG_LEVEL >= 3
+#if MSG_LEVEL >= 3
 	if(  env_t::simple_drawing  ) {
 		strcat( fps_buf, "*" );
 	}
