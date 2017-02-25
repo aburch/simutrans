@@ -85,6 +85,9 @@ protected:
 	// cached image
 	image_id image;
 
+	// true, if this vehicle will enter passing lane in the next tile
+	bool next_enter_passing_lane;
+
 	/**
 	 * Vehicle movement: check whether this vehicle can enter the next tile (pos_next).
 	 * @returns NULL if check fails, otherwise pointer to the next tile
