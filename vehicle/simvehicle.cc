@@ -2454,27 +2454,28 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					}
 					// we have to wait ...
 					restart_speed = (cnv->get_akt_speed()*3)/4;
-					cnv->set_tiles_overtaking(0);
+					//cnv->set_tiles_overtaking(0);
 				}
 			}
 			else {
-				// overtaking vehicle is prohibited.
+				// lane change is prohibited.
 				if(  obj->is_stuck()  ) {
 					// end of traffic jam, but no stuck message, because previous vehicle is stuck too
 					restart_speed = 0;
-					cnv->set_tiles_overtaking(0);
+					//cnv->set_tiles_overtaking(0);
 					cnv->reset_waiting();
 				}
 				else {
 					// we have to wait ...
 					restart_speed = (cnv->get_akt_speed()*3)/4;
-					cnv->set_tiles_overtaking(0);
+					//cnv->set_tiles_overtaking(0);
 				}
 			}
 		}
-		// If this vehicle is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
+
 		const koord3d pos_next2 = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
 		const koord3d pos_next3 = route_index < r.get_count() - 2u ? r.at(route_index + 2u) : pos_next2;
+		// If this vehicle is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
 		if(  cnv->is_overtaking()  &&  str->get_overtaking_info() == 3  ) {
 			// TODO:other_lane_blocked() method is inappropriate for the condition.
 			if(  vehicle_base_t* v = other_lane_blocked()  ) {
@@ -2488,8 +2489,21 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			cnv->set_tiles_overtaking(0);
 			return true;
 		}
+		// If this vehicle is on traffic lane and the next tile forces to go passing lane, this vehicle must wait until passing lane become safe.
+		if(  !cnv->is_overtaking()  &&  str->get_overtaking_info() == 4  ) {
+			if(  vehicle_base_t* v = other_lane_blocked()  ) {
+				if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next2), v->get_90direction(), false, true)) {
+					restart_speed = 0;
+					cnv->reset_waiting();
+					return false;
+				}
+			}
+			// There is no vehicle on passing lane.
+			next_enter_passing_lane = true;
+			return true;
+		}
 		// If this vehicle is forced to go back to traffic lane at the next tile and traffic lane is not safe to change lane, this vehicle should wait.
-		if(  str->get_overtaking_info() > 0  &&  cnv->get_tiles_overtaking() == 1  ) {
+		if(  str->get_overtaking_info() > 0  &&  str->get_overtaking_info() < 4  &&  cnv->get_tiles_overtaking() == 1  ) {
 			if(  vehicle_base_t* v = other_lane_blocked()  ) {
 				if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next2), v->get_90direction(), true, true)) {
 					restart_speed = 0;
@@ -2614,6 +2628,9 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 		}
 		if(  cnv->get_yielding_quit_index() == route_index  ) {
 			cnv->quit_yielding_lane();
+		}
+		if(  str->get_overtaking_info() == 4  ) {
+			cnv->set_tiles_overtaking(1);
 		}
 	}
 }

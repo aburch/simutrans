@@ -250,6 +250,9 @@ void weg_t::info(cbuffer_t & buf) const
 			case 3:
 				buf.printf("%s%s\n", translator::translate("Overtaking:"),translator::translate("prohibited"));
 				break;
+			case 4:
+				buf.printf("%s%s\n", translator::translate("Overtaking:"),translator::translate("passing lane only"));
+				break;
 			default:
 				buf.printf("%s%s\n", translator::translate("Overtaking:"),translator::translate("ERROR"));
 				break;
