@@ -19,7 +19,7 @@ endif
 
 ifeq ($(OSTYPE),amiga)
   STD_LIBS ?= -lunix -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
-  CFLAGS += -mcrt=newlib -DUSE_C -DSIM_BIG_ENDIAN -gstabs+
+  CFLAGS += -mcrt=newlib -DSIM_BIG_ENDIAN -gstabs+
   LDFLAGS += -Bstatic -non_shared
 else
 # BeOS (obsolete)

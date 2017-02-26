@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include <algorithm>
 
 #include "../macros.h"
 #include "../simtypes.h"
@@ -33,20 +34,10 @@
 #endif
 
 // first: find out, which copy routines we may use!
-#ifndef  __GNUC__
-# undef USE_C
-# define USE_C
-# ifndef  _M_IX86
-#  define ALIGN_COPY
-# endif
-#else
-# if defined(USE_C)  ||  !defined(__i386__)
-#  undef USE_C
-#  define USE_C
-#  if GCC_ATLEAST(4, 2) || !defined(__i386__)
-#   define ALIGN_COPY
-#   warning "Needs to use slower copy with GCC > 4.2.x"
-#  endif
+#ifdef  __GNUC__
+# if defined(__i686__)
+// default, but will only make a difference with display_fb_intern
+#  define USE_ASSEMBLER
 # endif
 #endif
 
@@ -2357,12 +2348,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 		PIXVAL *tp = textur + xp + yp * disp_width;
 
 		do { // line decoder
-#ifdef USE_C
 			uint16 runlen = *sp++;
-#else
-			// assembler needs this size
-			uint32 runlen = *sp++;
-#endif
 			PIXVAL *p = tp;
 
 			// one line decoder
@@ -2379,72 +2365,36 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					sp += runlen;
 				}
 				else {
-#ifdef USE_C
-#ifndef ALIGN_COPY
-				{
-					// "classic" C code (why is it faster!?!)
-					const uint32 *ls;
-					uint32 *ld;
-
-					if (runlen & 1) {
-						*p++ = *sp++;
+#ifdef LOW_LEVEL
+					// low level c++
+					if(  runlen  ) {
+						// align to 4 bytes, should use uintptr_t but not available
+						if(  reinterpret_cast<size_t>(p) & 0x2  ) {
+							*p++ = *sp++;
+							runlen--;
+						}
+						// aligned fast copy loop
+						bool const postalign = runlen & 1;
+						runlen >>= 1;
+						uint32 *ld = (uint32 *)p;
+						//const uint32 *ls = (const uint32 *)sp;
+						while (runlen--) {
+							//*ld++ = *ls++;
+							*ld++ = (uint32(sp[1]) << 16) | uint32(sp[0]);
+							sp += 2;
+						}
+						p = (PIXVAL*)ld;
+						//sp = (const PIXVAL*)ls;
+						// finish unaligned remainder
+						if(  postalign  ) {
+							*p++ = *sp++;
+						}
 					}
-
-					ls = (const uint32 *)sp;
-					ld = (uint32 *)p;
-					runlen >>= 1;
-					while (runlen--) {
-						*ld++ = *ls++;
-					}
-					p = (PIXVAL*)ld;
-					sp = (const PIXVAL*)ls;
-				}
 #else
-				// some architectures: faster with inline of memory functions!
-				memcpy( p, sp, runlen*sizeof(PIXVAL) );
-				sp += runlen;
-				p += runlen;
-#endif
-#else
-				// this code is sometimes slower, mostly 5% faster, not really clear why and when (cache alignment?)
-				asm volatile (
-					// rep movsw and we would be finished, but we unroll
-					// uneven number of words to copy
-					"shrl %2\n\t"
-					"jnc 0f\n\t"
-					// Copy first word
-					// *p++ = *sp++;
-					"movsw\n\t"
-					"0:\n\t"
-					"negl %2\n\t"
-					"addl $1f, %2\n\t"
-					"jmp * %2\n\t"
-					"ud2\n\t"
-					".p2align 4\n\t"
-#define MOVSD1   "movsd\n\t"
-#define MOVSD2   MOVSD1   MOVSD1
-#define MOVSD4   MOVSD2   MOVSD2
-#define MOVSD8   MOVSD4   MOVSD4
-#define MOVSD16  MOVSD8   MOVSD8
-#define MOVSD32  MOVSD16  MOVSD16
-#define MOVSD64  MOVSD32  MOVSD32
-#define MOVSD128 MOVSD64  MOVSD64
-#define MOVSD256 MOVSD128 MOVSD128
-					MOVSD256
-#undef MOVSD256
-#undef MOVSD128
-#undef MOVSD64
-#undef MOVSD32
-#undef MOVSD16
-#undef MOVSD8
-#undef MOVSD4
-#undef MOVSD2
-#undef MOVSD1
-					"1:\n\t"
-					: "+D" (p), "+S" (sp), "+r" (runlen)
-					:
-					: "cc", "memory"
-				);
+					// high level c++
+					const PIXVAL *const splast = sp + runlen;
+					p = std::copy(sp, splast, p);
+					sp = splast;
 #endif
 				}
 				runlen = *sp++;
@@ -2498,13 +2448,7 @@ void display_img_aux(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 p
 		const sint8 use_player = (images[n].recode_flags & FLAG_HAS_PLAYER_COLOR) * player_nr_raw;
 		// need to go to nightmode and or re-zoomed?
 		PIXVAL *sp;
-#if 0
-		if(  images[n].recode_flags & FLAG_HAS_TRANSPARENT_COLOR  ) {
-			// activate the right rgbmap
-			rgbmap_current = rgbmap_day_night;
-//			transparent_map_current = transparent_map_day_night;
-		}
-#endif
+
 		if(  use_player > 0  ) {
 			// player colour images are rezoomed/recoloured in display_color_img
 			sp = images[n].data[use_player];
@@ -3820,20 +3764,11 @@ void display_base_img_alpha(const image_id n, const image_id alpha_n, const unsi
 // scrolls horizontally, will ignore clipping etc.
 void display_scroll_band(const KOORD_VAL start_y, const KOORD_VAL x_offset, const KOORD_VAL h)
 {
-	const PIXVAL* src = textur + start_y * disp_width + x_offset;
-	PIXVAL* dst = textur + start_y * disp_width;
-	size_t amount = sizeof(PIXVAL) * (h * disp_width - x_offset);
+	const PIXVAL*const src = textur + start_y * disp_width + x_offset;
+	PIXVAL *const dst = textur + start_y * disp_width;
+	const size_t amount = sizeof(PIXVAL) * (h * disp_width - x_offset);
 
-#ifdef USE_C
 	memmove(dst, src, amount);
-#else
-	amount /= 4;
-	asm volatile (
-		"rep\n\t"
-		"movsl\n\t"
-		: "+D" (dst), "+S" (src), "+c" (amount)
-	);
-#endif
 }
 
 
@@ -3869,37 +3804,15 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 {
 	if (clip_lr(&xp, &w, cL, cR) && clip_lr(&yp, &h, cT, cB)) {
 		PIXVAL *p = textur + xp + yp * disp_width;
-		int dx = disp_width - w;
-#if !defined( USE_C )  ||  !defined( ALIGN_COPY )
-		const uint32 longcolval = (colval << 16) | colval;
-#endif
+		const int dx = disp_width - w;
 
 		if (dirty) {
 			mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
 		}
-
+#if defined(USE_ASSEMBLER)
+		// since only here assembler makes a difference ...
+		const uint32 longcolval = (colval << 16) | colval;
 		do {
-#ifdef USE_C
-			KOORD_VAL count = w;
-#ifdef ALIGN_COPY
-			// unfortunately the GCC > 4.1.x has a bug in the optimizer
-			while(  count-- != 0  ) {
-				*p++ = colval;
-			}
-#else
-			uint32 *lp;
-
-			if(  count & 1  ) {
-				*p++ = colval;
-			}
-			count >>= 1;
-			lp = (uint32 *)p;
-			while(  count-- != 0  ) {
-				*lp++ = longcolval;
-			}
-			p = (PIXVAL *)lp;
-#endif
-#else
 			unsigned int count = w;
 			asm volatile (
 				// uneven words to copy?
@@ -3915,9 +3828,41 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 				: "a" (longcolval)
 				: "cc", "memory"
 			);
-#endif
 			p += dx;
-		} while (--h != 0);
+		} while (--h);
+#elif defined(LOW_LEVEL)
+		// low level c++
+		const uint32 colvald = (colval << 16) | colval;
+		do {
+			KOORD_VAL count = w;
+
+			// align to 4 bytes, should use uintptr_t but not available
+			if(  reinterpret_cast<size_t>(p) & 0x2  ) {
+				*p++ = (PIXVAL)colvald;
+				count--;
+			}
+			// aligned fast fill loop
+			bool const postalign = count & 1;
+			count >>= 1;
+			uint32 *lp = (uint32 *)p;
+			while(count--) {
+				*lp++ = colvald;
+			}
+			p = (PIXVAL *)lp;
+			// finish unaligned remainder
+			if(  postalign  ) {
+				*p++ = (PIXVAL)colvald;
+			}
+			p += dx;
+		} while (--h);
+#else
+		// high level c++
+		do {
+			PIXVAL *const fillend = p + w;
+			std::fill(p, fillend, colval);
+			p = fillend + dx;
+		} while (--h);
+#endif
 	}
 }
 
@@ -4273,10 +4218,6 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 	KOORD_VAL x0;	// store the initial x (for dirty marking)
 	KOORD_VAL y_offset, char_height;	// real y for display with clipping
 	unsigned char mask1, mask2;	// for horizontal clipping
-#ifndef USE_C
-	// faster drawing with assembler
-	const uint32 color2 = (color << 16) | color;
-#endif
 
 	// TAKE CARE: Clipping area may be larger than actual screen size ...
 	if(  (flags & DT_CLIP)  ) {
@@ -4371,7 +4312,8 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 				for (h = char_yoffset; h < char_height; h++) {
 					unsigned int dat = *p++ & m;
 					PIXVAL* dst = textur + screen_pos;
-#ifdef USE_C
+#if defined LOW_LEVEL
+					// low level c++
 					if (dat != 0) {
 						if (dat & 0x80) dst[0] = color;
 						if (dat & 0x40) dst[1] = color;
@@ -4383,9 +4325,14 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 						if (dat & 0x01) dst[7] = color;
 					}
 #else
-					// assemble variant of the above, using table and string instructions:
-					// optimized for long pipelines ...
-#					include "text_pixel.c"
+					// high level c++
+					if(  dat  !=  0  ) {
+						for(  size_t dat_offset = 0 ; dat_offset < 8 ; dat_offset++  ) {
+							if(  (dat & (0x80 >> dat_offset))  ) {
+								dst[dat_offset] = color;
+							}
+						}
+					}
 #endif
 					screen_pos += disp_width;
 				}

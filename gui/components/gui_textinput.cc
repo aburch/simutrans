@@ -558,7 +558,7 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 
 		// IME text to display?
 		if(  composition.len()  ) {
-			assert(head_cursor_pos==tail_cursor_pos);
+//			assert(head_cursor_pos==tail_cursor_pos);
 
 			display_proportional_clip(x_base_offset+x_offset, y_offset, composition.get_str(), ALIGN_LEFT, textcol, true);
 
