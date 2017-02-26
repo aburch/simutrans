@@ -32,8 +32,8 @@ extern char **__argv;
 #include "gui/components/gui_komponente.h"
 #include "gui/components/gui_textinput.h"
 
-// Both backends have critical bugs...
-#if !defined(_WIN32) && !defined(__linux__)
+// Maybe Linux is not fine too, had critical bugs...
+#if !defined(__linux__)
 #define USE_SDL_TEXTEDITING
 #else
 #endif
@@ -478,11 +478,10 @@ static int conv_mouse_buttons(Uint8 const state)
 
 static void internal_GetEvents(bool const wait)
 {
-#ifdef __APPLE__
 	// Apparently Cocoa SDL posts key events that meant to be used by IM...
 	// Ignoring SDL_KEYDOWN during preedit seems to work fine.
 	static bool composition_is_underway = false;
-#endif
+
 	SDL_Event event;
 	event.type = 1;
 	if(  wait  ) {
@@ -560,11 +559,19 @@ static void internal_GetEvents(bool const wait)
 			break;
 		}
 		case SDL_KEYDOWN: {
-#ifdef __APPLE__
+			// Hack: when 2 byte character composition is under way, we have to leave the key processing with the IME
+			// BUT: if not, we have to do it ourselves, or the cursor or return will not be recognised
 			if(  composition_is_underway  ) {
-				break;
+				if(  gui_component_t *c = win_get_focus()  ) {
+					if(  gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)  ) {
+						if(  tinp->get_composition()[0]  ) {
+							// pending string, handled by IME
+							break;
+						}
+					}
+				}
 			}
-#endif
+
 			unsigned long code;
 #ifdef _WIN32
 			// SDL doesn't set numlock state correctly on startup. Revert to win32 function as workaround.
@@ -646,20 +653,16 @@ static void internal_GetEvents(bool const wait)
 				sys_event.ptr     = (void*)textinput;
 			}
 			sys_event.key_mod = ModifierKeys();
-#ifdef __APPLE__
 			composition_is_underway = false;
-#endif
 			break;
 		}
 #ifdef USE_SDL_TEXTEDITING
 		case SDL_TEXTEDITING: {
 			//printf( "SDL_TEXTEDITING {timestamp=%d, \"%s\", start=%d, length=%d}\n", event.edit.timestamp, event.edit.text, event.edit.start, event.edit.length );
 			strcpy( textinput, event.edit.text );
-#ifdef __APPLE__
 			if(  !textinput[0]  ) {
 				composition_is_underway = false;
 			}
-#endif
 			int i = 0;
 			int start = 0;
 			for(  ; i<event.edit.start; ++i  ) {
@@ -675,9 +678,7 @@ static void internal_GetEvents(bool const wait)
 					tinp->set_composition_status( textinput, start, end-start );
 				}
 			}
-#ifdef __APPLE__
 			composition_is_underway = true;
-#endif
 			break;
 		}
 #endif
