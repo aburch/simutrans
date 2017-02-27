@@ -32,6 +32,7 @@
 
 #include "../gui/trafficlight_info.h"
 #include "../gui/privatesign_info.h"
+#include "../gui/onewaysign_info.h"
 #include "../gui/tool_selector.h"
 
 #include "../tpl/stringhashtable_tpl.h"
@@ -81,6 +82,7 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	state = 0;
 	ticks_ns = ticks_ow = 16;
 	ticks_offset = 0;
+	lane_fix = 4;
 	set_owner( player );
 	if(  desc->is_private_way()  ) {
 		// init ownership of private ways
@@ -171,6 +173,15 @@ void roadsign_t::show_info()
 	}
 	else if(  automatic  ) {
 		create_win(new trafficlight_info_t(this), w_info, (ptrdiff_t)this );
+	}
+	else if(  desc->is_single_way()  ) {
+		koord3d intersection;
+		if(  (intersection = get_intersection()) == koord3d::invalid  ) {
+			set_lane_fix(4);
+		}
+		else {
+			create_win(new onewaysign_info_t(this, intersection), w_info, (ptrdiff_t)this );
+		}
 	}
 	else {
 		obj_t::show_info();
@@ -724,4 +735,40 @@ const roadsign_desc_t *roadsign_t::roadsign_search(roadsign_desc_t::types const 
 		}
 	}
 	return NULL;
+}
+
+const koord3d roadsign_t::get_intersection() const
+{
+	grund_t* current_gr = welt->lookup(get_pos());
+	ribi_t::ribi current_ribi = dir;
+	for(int step = 0; step < 500; step++) {
+		grund_t *next_gr;
+		if(  ribi_t::is_single(current_ribi)  ) {
+			if(  current_gr->get_neighbour(next_gr,road_wt,current_ribi)  ) {
+				// grund found
+				strasse_t *str = (strasse_t *)next_gr->get_weg(road_wt);
+				if(  str  &&  str->get_overtaking_info() == 0  ) {
+					ribi_t::ribi str_ribi = str->get_ribi();
+					if(  str_ribi == ribi_t::all  ||  ribi_t::is_threeway(str_ribi)  ) {
+						// This point is a crossing!
+						return next_gr->get_pos();
+					}
+					else {
+						// go forward
+						current_gr = next_gr;
+						current_ribi = ~((~str_ribi)|ribi_t::reverse_single(current_ribi));
+					}
+				}
+				else {
+					// there is no street or the street is not one-way road.
+					return koord3d::invalid;
+				}
+			}
+			else {
+				// grund not found
+				return koord3d::invalid;
+			}
+		}
+	}
+	return koord3d::invalid;
 }

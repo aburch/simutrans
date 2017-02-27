@@ -39,6 +39,9 @@ protected:
 
 	sint8 after_yoffset, after_xoffset;
 
+	// 0 = not fixed, 1 = only fix left lane, 2 = only fix right lane, 3 = fix both lane, 4 = not applied
+	uint8 lane_fix;
+
 	const roadsign_desc_t *desc;
 
 	ribi_t::ribi calc_mask() const { return ribi_t::is_single(dir) ? dir : (ribi_t::ribi)ribi_t::none; }
@@ -113,6 +116,10 @@ public:
 
 	inline void set_image( image_id b ) { image = b; }
 	image_id get_image() const { return image; }
+
+	uint8 get_lane_fix() const { return lane_fix; }
+	void set_lane_fix(uint8 lf) { lane_fix = lf; }
+	const koord3d get_intersection() const;
 
 	/**
 	* For the front image hiding vehicles

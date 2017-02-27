@@ -322,6 +322,7 @@ SOURCES += gui/message_option_t.cc
 SOURCES += gui/message_stats_t.cc
 SOURCES += gui/messagebox.cc
 SOURCES += gui/money_frame.cc
+SOURCES += gui/onewaysign_info.cc
 SOURCES += gui/optionen.cc
 SOURCES += gui/pakselector.cc
 SOURCES += gui/password_frame.cc
