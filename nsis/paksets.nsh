@@ -7,7 +7,7 @@ Section "!pak (64 size) (standard)" pak
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/120-2/simupak64-120-2.zip"
   StrCpy $archievename "simupak64-120-2.zip"
   StrCpy $downloadname "pak"
-  StrCpy $VersionString "pak64 120.1.2 r1872"
+  StrCpy $VersionString "pak64 120.2 r1872"
   Call DownloadInstallZip
 SectionEnd
 
