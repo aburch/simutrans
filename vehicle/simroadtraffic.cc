@@ -121,7 +121,12 @@ road_user_t::road_user_t(grund_t* bd, uint16 random) :
 		pos_next = to->get_pos();
 	}
 	else {
-		pos_next = welt->lookup_kartenboden(get_pos().get_2d() + koord(direction))->get_pos();
+		const grund_t* gr = welt->lookup_kartenboden(get_pos().get_2d() + koord(direction));
+		pos_next = gr ? gr->get_pos() : koord3d::invalid; 
+		if (!gr)
+		{
+			time_to_life = 0; // Destroy invalid objects
+		}
 	}
 	set_owner( welt->get_public_player() );
 }
