@@ -223,10 +223,7 @@ void player_t::book_delivered(const sint64 amount, const waytype_t wt, int index
 
 bool player_t::can_afford(const sint64 price) const
 {
-	return (
-		   player_nr == 1 // Public service can always afford anything
-		|| finance->can_afford(price)
-	);
+	return (is_public_serivce() || finance->can_afford(price));
 }
 
 bool player_t::can_afford(player_t* player, sint64 price)
