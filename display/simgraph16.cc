@@ -2358,7 +2358,13 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				}
 				else {
 #ifdef LOW_LEVEL
-					// low level c++
+#ifdef SIM_BIG_ENDIAN
+					// low level c++ without any unrolling
+					while(  runlen--  ) {
+						*sp++ = *p++;
+					}
+#else
+					// trying to merge reads and writes
 					if(  runlen  ) {
 						// align to 4 bytes, should use uintptr_t but not available
 						if(  reinterpret_cast<size_t>(p) & 0x2  ) {
@@ -2372,11 +2378,9 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 						while (runlen--) {
 #if defined _MSC_VER // MSVC can read unaligned
 							*ld++ = *(uint32 const *const)sp;
-#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#else
 							// little endian order, assumed by default
 							*ld++ = (uint32(sp[1]) << 16) | uint32(sp[0]);
-#else
-							*ld++ = (uint32(sp[0]) << 16) | uint32(sp[1]);
 #endif
 							sp += 2;
 						}
@@ -2386,6 +2390,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 							*p++ = *sp++;
 						}
 					}
+#endif
 #else
 					// high level c++
 					const PIXVAL *const splast = sp + runlen;
