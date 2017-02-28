@@ -231,7 +231,7 @@ private:
 	uint16 pax_demand;
 	uint16 mail_demand;
 	sint8 sound_id;
-	sint32 sound_intervall;
+	uint32 sound_intervall;
 
 public:
 	const char *get_name() const { return get_building()->get_name(); }
@@ -290,7 +290,7 @@ public:
 
 	// more effects when producing
 	sint8 get_sound() const { return sound_id; }
-	sint32 get_sound_intervall_ms() const { return sound_intervall; }
+	uint32 get_sound_intervall_ms() const { return sound_intervall; }
 
 	void calc_checksum(checksum_t *chk) const;
 };

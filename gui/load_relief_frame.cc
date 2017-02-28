@@ -59,7 +59,7 @@ const char *load_relief_frame_t::get_info(const char *fullpath)
 	sint8 *h_field ;
 	height_map_loader_t hml(new_format.pressed);
 
-	if(hml.get_height_data_from_file(fullpath, (sint8)sets->get_grundwasser(), h_field, w, h, true )) {
+	if(hml.get_height_data_from_file(fullpath, (sint8)sets->get_groundwater(), h_field, w, h, true )) {
 		sprintf( size, "%i x %i", w, h );
 		env_t::new_height_map_conversion = new_format.pressed;
 		return size;
@@ -74,7 +74,7 @@ bool load_relief_frame_t::check_file( const char *fullpath, const char * )
 	sint8 *h_field;
 
 	height_map_loader_t hml(new_format.pressed);
-	if(hml.get_height_data_from_file(fullpath, (sint8)sets->get_grundwasser(), h_field, w, h, true )) {
+	if(hml.get_height_data_from_file(fullpath, (sint8)sets->get_groundwater(), h_field, w, h, true )) {
 		return w>0  &&  h>0;
 		env_t::new_height_map_conversion = new_format.pressed;
 	}

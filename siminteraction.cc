@@ -386,7 +386,7 @@ bool interaction_t::process_event( event_t &ev )
 		move_view(ev);
 	}
 	else if(  (left_drag  ||  world->get_tool(world->get_active_player_nr())->get_id() == (TOOL_QUERY | GENERAL_TOOL))  &&  IS_LEFTDRAG(&ev)  ) {
-		/* ok, we have the query tool selected, and we have a left drag or left release event with an actual different
+		/* ok, we have the query tool selected, and we have a left drag or left release event with an actual difference
 		 * => move the map */
 		if(  !left_drag  ) {
 			display_show_pointer(false);
@@ -398,7 +398,7 @@ bool interaction_t::process_event( event_t &ev )
 	}
 
 	if(  IS_LEFTRELEASE(&ev)  &&  left_drag  ) {
-		// show then mouse and swallow this event if we were dragging before
+		// show the mouse and swallow this event if we were dragging before
 		ev.ev_code = EVENT_NONE;
 		display_show_pointer(true);
 		left_drag = false;

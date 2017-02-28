@@ -250,7 +250,7 @@ void planquadrat_t::rdwr(loadsave_t *file, koord pos )
 	}
 	else {
 		grund_t *gr;
-		sint8 hgt = welt->get_grundwasser();
+		sint8 hgt = welt->get_groundwater();
 		//DBG_DEBUG("planquadrat_t::rdwr()","Reading boden");
 		do {
 			short gtyp = file->rd_obj_id();
@@ -366,7 +366,7 @@ void planquadrat_t::abgesenkt()
 			// recalc water ribis of neighbors
 			for(int r=0; r<4; r++) {
 				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsew[r]);
-				if (gr2  &&  gr2->ist_wasser()) {
+				if (gr2  &&  gr2->is_water()) {
 					gr2->calc_image();
 				}
 			}
@@ -395,7 +395,7 @@ void planquadrat_t::angehoben()
 			// recalc water ribis
 			for(int r=0; r<4; r++) {
 				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsew[r]);
-				if(  gr2  &&  gr2->ist_wasser()  ) {
+				if(  gr2  &&  gr2->is_water()  ) {
 					gr2->calc_image();
 				}
 			}
@@ -407,7 +407,7 @@ void planquadrat_t::angehoben()
 			// recalc water ribis
 			for(int r=0; r<4; r++) {
 				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsew[r]);
-				if(  gr2  &&  gr2->ist_wasser()  ) {
+				if(  gr2  &&  gr2->is_water()  ) {
 					gr2->calc_image();
 				}
 			}

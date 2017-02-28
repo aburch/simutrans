@@ -457,7 +457,7 @@ bool network_init_server( int port )
 
 void network_set_socket_nodelay( SOCKET sock )
 {
-#if (defined(TCP_NODELAY)  &&  !defined(__APPLE__))  ||  COLOUR_DEPTH == 0
+#if (defined(TCP_NODELAY)  ||  COLOUR_DEPTH == 0)
 	// do not wait to join small (command) packets when sending (may cause 200ms delay!)
 	// force this for dedicated servers
 	int b = 1;

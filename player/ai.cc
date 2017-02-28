@@ -36,32 +36,32 @@
 #include "../vehicle/simvehicle.h"
 
 
-/* The flesh for the place with road for headquarter searcher ... */
-bool ai_bauplatz_mit_strasse_sucher_t::strasse_bei(sint16 x, sint16 y) const {
+/* The flesh for the place with road for headquarters searcher ... */
+bool ai_building_place_with_road_finder::is_road_at(sint16 x, sint16 y) const {
 	grund_t *bd = welt->lookup_kartenboden( koord(x,y) );
 	return bd && bd->hat_weg(road_wt);
 }
 
 
-bool ai_bauplatz_mit_strasse_sucher_t::ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
-	if(bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)) {
+bool ai_building_place_with_road_finder::is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const {
+	if(building_placefinder_t::is_area_ok(pos, w, h, cl)) {
 		// check to not built on a road
 		int i, j;
-		for(j=pos.x; j<pos.x+b; j++) {
+		for(j=pos.x; j<pos.x+w; j++) {
 			for(i=pos.y; i<pos.y+h; i++) {
-				if(strasse_bei(j,i)) {
+				if(is_road_at(j,i)) {
 					return false;
 				}
 			}
 		}
 		// now check for road connection
 		for(i = pos.y; i < pos.y + h; i++) {
-			if(strasse_bei(pos.x - 1, i) ||  strasse_bei(pos.x + b, i)) {
+			if(is_road_at(pos.x - 1, i) ||  is_road_at(pos.x + w, i)) {
 				return true;
 			}
 		}
-		for(i = pos.x; i < pos.x + b; i++) {
-			if(strasse_bei(i, pos.y - 1) ||  strasse_bei(i, pos.y + h)) {
+		for(i = pos.x; i < pos.x + w; i++) {
+			if(is_road_at(i, pos.y - 1) ||  is_road_at(i, pos.y + h)) {
 				return true;
 			}
 		}
@@ -161,7 +161,7 @@ bool ai_t::suche_platz(koord pos, koord &size, koord *dirs)
 			grund_t *gr = welt->lookup_kartenboden(  pos + (dirs[dir]*i)  );
 			if(  gr == NULL
 				||  gr->get_halt().is_bound()
-				||  !welt->can_ebne_planquadrat(this, pos, start_z )
+				||  !welt->can_flatten_tile(this, pos, start_z )
 				||  !gr->ist_natur()
 				||  gr->kann_alle_obj_entfernen(this) != NULL
 				||  gr->get_hoehe() < welt->get_water_hgt( pos + (dirs[dir] * i) )  ) {
@@ -320,7 +320,7 @@ void ai_t::set_marker( koord place, koord size )
 
 
 
-/* builts a headquarter or updates one */
+/* builds headquarters or upgrades one */
 bool ai_t::built_update_headquarter()
 {
 	// find next level
@@ -351,13 +351,13 @@ bool ai_t::built_update_headquarter()
 				stadt_t *st = NULL;
 				FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
 					if(  halt->get_owner()==this  ) {
-						st = welt->suche_naechste_stadt(halt->get_basis_pos());
+						st = welt->find_nearest_city(halt->get_basis_pos());
 						break;
 					}
 				}
 				if(st) {
 					bool is_rotate=desc->get_all_layouts()>1;
-					place = ai_bauplatz_mit_strasse_sucher_t(welt).suche_platz(st->get_pos(), desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), &is_rotate);
+					place = ai_building_place_with_road_finder(welt).find_place(st->get_pos(), desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), &is_rotate);
 				}
 			}
 			const char *err="No suitable ground!";
@@ -382,8 +382,9 @@ bool ai_t::built_update_headquarter()
 
 
 /**
- * Find the last water tile using line algorithm von Hajo
+ * Find the last water tile using line algorithm
  * start MUST be on land!
+ * @author Hajo
  **/
 koord ai_t::find_shore(koord start, koord end) const
 {
@@ -412,7 +413,7 @@ koord ai_t::find_shore(koord start, koord end) const
 	for (i = 0; i <= steps; i++) {
 		koord next(xp>>16,yp>>16);
 		if(next!=last) {
-			if(!welt->lookup_kartenboden(next)->ist_wasser()) {
+			if(!welt->lookup_kartenboden(next)->is_water()) {
 				last = next;
 			}
 		}
@@ -471,7 +472,7 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	climate c1 = welt->get_climate(platz1);
 	climate c2 = welt->get_climate(platz2);
 
-	if(  !(welt->ebne_planquadrat( this, platz1, welt->lookup_kartenboden(platz1)->get_hoehe() )  &&  welt->ebne_planquadrat( this, platz2, welt->lookup_kartenboden(platz2)->get_hoehe() ))  ) {
+	if(  !(welt->flatten_tile( this, platz1, welt->lookup_kartenboden(platz1)->get_hoehe() )  &&  welt->flatten_tile( this, platz2, welt->lookup_kartenboden(platz2)->get_hoehe() ))  ) {
 		// no flat land here?!?
 		return false;
 	}
@@ -498,7 +499,7 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	if(  verbindung.calc_route(welt, welt->lookup_kartenboden(platz1)->get_pos(), welt->lookup_kartenboden(platz2)->get_pos(), test_driver, 0, 0)  &&
 		 verbindung.get_count() < 2u*koord_distance(platz1,platz2))  {
 DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.get_count() );
-		// found something with the nearly same lenght
+		// found something with the nearly same length
 		delete test_driver;
 		return true;
 	}

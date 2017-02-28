@@ -99,17 +99,17 @@ public:
 /**
  * Produce a scaled production amount from a production amount and work factor.
  */
-sint32 work_scale_production(sint32 prod, sint32 work){
+sint32 work_scale_production(sint64 prod, sint64 work){
 	// compute scaled production, rounding up
-	return (sint32)((((sint64)prod * (sint64)work) + (1 << WORK_BITS) - 1) >> WORK_BITS);
+	return ((prod * work) + (1 << WORK_BITS) - 1) >> WORK_BITS;
 }
 
 /**
  * Produce a work factor from a production amount and scaled production amount.
  */
-sint32 work_from_production(sint32 prod, sint32 scaled){
+sint32 work_from_production(sint64 prod, sint64 scaled){
 	// compute work, rounding up
-	return (sint32)((((sint64)scaled << WORK_BITS) + (sint64)prod - 1) / (sint64)prod);
+	return prod ? ((scaled << WORK_BITS) + prod - 1) / prod : 0;
 }
 
 void ware_production_t::init_stats()
@@ -773,7 +773,7 @@ fabrik_t::fabrik_t(loadsave_t* file)
 	status = nothing;
 	currently_producing = false;
 	transformer = NULL;
-	last_sound_ms = welt->get_zeit_ms();
+	last_sound_ms = welt->get_ticks();
 }
 
 
@@ -854,7 +854,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* factory_
 		}
 	}
 
-	last_sound_ms = welt->get_zeit_ms();
+	last_sound_ms = welt->get_ticks();
 	init_stats();
 	arrival_stats_pax.init();
 	arrival_stats_mail.init();
@@ -1040,7 +1040,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 					build_locations.append(gr);
 					assert(gr->find<field_t>() == NULL);
 				}
-				// skip inside of rectange (already checked earlier)
+				// skip inside of rectangle (already checked earlier)
 				if(radius > 1 && yoff == -radius && (xoff > -radius && xoff < radius + get_desc()->get_building()->get_size().x - 1)) {
 					yoff = radius + get_desc()->get_building()->get_size().y - 2;
 				}
@@ -1417,12 +1417,12 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		for(  int i=0;  i<nr;  i++  ) {
 			sint32 city_index = -1;
 			if(file->is_saving()) {
-				city_index = welt->get_staedte().index_of( target_cities[i] );
+				city_index = welt->get_cities().index_of( target_cities[i] );
 			}
 			file->rdwr_long(city_index);
 			if(  file->is_loading()  ) {
 				// will also update factory information
-				target_cities.append( welt->get_staedte()[city_index] );
+				target_cities.append( welt->get_cities()[city_index] );
 			}
 		}
 	}
@@ -1499,7 +1499,7 @@ void fabrik_t::smoke() const
 		welt->sync_way_eyecandy.add( smoke );
 	}
 	// maybe sound?
-	if(  desc->get_sound()!=NO_SOUND  &&  	welt->get_zeit_ms()>last_sound_ms+desc->get_sound_intervall_ms()  ) {
+	if(  desc->get_sound()!=NO_SOUND  &&  	welt->get_ticks()>last_sound_ms+desc->get_sound_intervall_ms()  ) {
 		welt->play_sound_area_clipped( get_pos().get_2d(), desc->get_sound() );
 	}
 }
@@ -2402,7 +2402,7 @@ void fabrik_t::verteile_waren(const uint32 product)
 	// not connected?
 	const planquadrat_t *plan = welt->access(pos.get_2d());
 	if(  plan == NULL  ) {
-		dbg->fatal("fabrik_t::verteile_waren", "%s has not distibution target", get_name() );
+		dbg->fatal("fabrik_t::verteile_waren", "%s has not distribution target", get_name() );
 	}
 	if(  plan->get_haltlist_count() == 0  ) {
 		return;

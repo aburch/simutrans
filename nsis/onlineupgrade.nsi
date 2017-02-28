@@ -37,7 +37,7 @@ SectionGroupEnd
 !include "other-functions.nsh"
 
 
-;********************* from here on special own helper funtions ************
+;********************* from here on special own helper functions ************
 
 ; make sure, at least one executable is installed
 Function .onSelChange

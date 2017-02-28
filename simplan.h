@@ -44,7 +44,7 @@ private:
 
 public:
 	/**
-	 * Constructs a planquadrat with initial capacity of one ground
+	 * Constructs a planquadrat (tile) with initial capacity of one ground
 	 * @author Hansjörg Malthaner
 	 */
 	planquadrat_t() { ground_size = 0; climate_data = 0; data.one = NULL; halt_list_count = 0;  halt_list = NULL; }
@@ -112,7 +112,7 @@ public:
 	inline grund_t *get_kartenboden() const { return (ground_size<=1) ? data.one : data.some[0]; }
 
 	/**
-	* find ground if thing is on this planquadrat
+	* find ground if thing is on this planquadrat (tile)
 	* @return grund_t * with thing or NULL
 	* @author V. Meyer
 	*/
@@ -218,7 +218,7 @@ public:
 
 	/**
 	* removes the halt from a ground
-	* however this funtion check, whether there is really no other part still reachable
+	* however this function check, whether there is really no other part still reachable
 	* @author prissi
 	*/
 	void remove_from_haltlist(halthandle_t halt);

@@ -53,7 +53,7 @@ public:
 	/**
 	 * sends to a client
 	 * sends complete command-packet
-	 * @return whether send was succesfull
+	 * @return whether send was successful
 	 */
 	bool send(SOCKET s);
 

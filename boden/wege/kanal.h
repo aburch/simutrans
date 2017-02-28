@@ -6,7 +6,7 @@
 #include "../../utils/cbuffer_t.h"
 
 /**
- * Am Dock können Schiffe anlegen
+ * Ships can be created on docks
  *
  * @author Hj. Malthaner
  */

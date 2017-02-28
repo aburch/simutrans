@@ -1596,7 +1596,7 @@ void convoi_t::ziel_erreicht()
 			akt_speed = 0;
 			halt->book(1, HALT_CONVOIS_ARRIVED);
 			state = LOADING;
-			arrived_time = welt->get_zeit_ms();
+			arrived_time = welt->get_ticks();
 		}
 		else {
 			// Neither depot nor station: waypoint
@@ -2516,7 +2516,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(file->get_version()>=99017) {
 		if(file->is_saving()) {
 			if(  has_schedule  &&  schedule->get_current_entry().waiting_time_shift > 0  ) {
-				uint32 diff_ticks = arrived_time + (welt->ticks_per_world_month >> (16 - schedule->get_current_entry().waiting_time_shift)) - welt->get_zeit_ms();
+				uint32 diff_ticks = arrived_time + (welt->ticks_per_world_month >> (16 - schedule->get_current_entry().waiting_time_shift)) - welt->get_ticks();
 				file->rdwr_long(diff_ticks);
 			}
 			else {
@@ -2527,7 +2527,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		else {
 			uint32 diff_ticks = 0;
 			file->rdwr_long(diff_ticks);
-			arrived_time = has_schedule ? welt->get_zeit_ms() - (welt->ticks_per_world_month >> (16 - schedule->get_current_entry().waiting_time_shift)) + diff_ticks : 0;
+			arrived_time = has_schedule ? welt->get_ticks() - (welt->ticks_per_world_month >> (16 - schedule->get_current_entry().waiting_time_shift)) + diff_ticks : 0;
 		}
 	}
 
@@ -2834,7 +2834,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 	// now find out station length
 	uint16 vehicles_loading = 0;
-	if(  gr->ist_wasser()  ) {
+	if(  gr->is_water()  ) {
 		// harbour has any size
 		vehicles_loading = anz_vehikel;
 	}
@@ -2977,7 +2977,7 @@ station_tile_search_ready: ;
 
 	// loading is finished => maybe drive on
 	if(  loading_level >= loading_limit  ||  no_load
-		||  (schedule->get_current_entry().waiting_time_shift > 0  &&  welt->get_zeit_ms() - arrived_time > (welt->ticks_per_world_month >> (16 - schedule->get_current_entry().waiting_time_shift)) ) ) {
+		||  (schedule->get_current_entry().waiting_time_shift > 0  &&  welt->get_ticks() - arrived_time > (welt->ticks_per_world_month >> (16 - schedule->get_current_entry().waiting_time_shift)) ) ) {
 
 		if(  withdraw  &&  (loading_level == 0  ||  goods_catg_index.empty())  ) {
 			// destroy when empty
@@ -3266,7 +3266,7 @@ sint64 convoi_t::get_purchase_cost() const
 
 /**
 * set line
-* since convoys must operate on a copy of the route's schedule (schedule), we apply a fresh copy
+* since convoys must operate on a copy of the route's schedule, we apply a fresh copy
 * @author hsiegeln
 */
 void convoi_t::set_line(linehandle_t org_line)
@@ -3293,7 +3293,7 @@ void convoi_t::set_line(linehandle_t org_line)
 
 /**
 * unset line
-* removes convoy from route without destroying its schedule (schedule)
+* removes convoy from route without destroying its schedule
 * => no need to recalculate connections!
 * @author hsiegeln
 */

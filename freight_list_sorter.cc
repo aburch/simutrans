@@ -160,7 +160,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		// sort the ware's list
 		std::sort( wlist, wlist + pos, compare_ware );
 
-		// print the ware's list to buffer - it should be in sortorder by now!
+		// print the ware's list to buffer - it should be in sort order by now!
 		int last_goods_index = -1;
 		int last_ware_catg = -1;
 
@@ -239,11 +239,11 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			else {
 				buf.append("\n");
 			}
-			// debug ende
+			// debug end
 		}
 	}
 
-	// still entires left?
+	// still entire left?
 	for(  ; full_i != full_end; ++full_i  ) {
 		ware_t const& g = *full_i;
 		add_ware_heading(buf, 0, g.menge, &g, what_doing);

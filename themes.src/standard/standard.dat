@@ -2,7 +2,7 @@
 # Simutrans window skin definitions for themes
 # Author: prissi
 #
-# All image name must starts with "> " to have them unzoomeable
+# All image names must start with "> " to have them non zoomable
 #
 # This theme has the scalable standard look
 #
@@ -36,7 +36,7 @@ Image[14]=> button.1.4
 Image[15]=> button.1.6
 Image[16]=> button.1.8
 Image[17]=> button.1.7
-# disabled (will used the unporessed color mask)
+# disabled (will use the unpressed color mask)
 Image[18]=> button.2.0
 Image[19]=> button.2.2
 Image[20]=> button.2.1

@@ -52,7 +52,7 @@ public:
 
 	uint8 get_broad_type() const { return broad_type; };
 	/**
-	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @return NULL when OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
 	virtual const char *is_deletable(const player_t *player);

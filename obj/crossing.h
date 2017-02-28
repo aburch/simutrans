@@ -53,13 +53,13 @@ public:
 	const crossing_desc_t *get_desc() const { return desc; }
 
 	/**
-	 * @return string (only used for debugg at the moment)
+	 * @return string (only used for debug at the moment)
 	 * @author prissi
 	 */
 	void info(cbuffer_t & buf) const { logic->info(buf); }
 
 	/**
-	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @return NULL when OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
 	virtual const char *is_deletable(const player_t *player);

@@ -1,7 +1,7 @@
 /*
- * Untergrund für Gebäude in Simutrans.
- * Überarbeitet Januar 2001
- * von Hj. Malthaner
+ * Ground for buildings in Simutrans.
+ * Revised January 2001
+ * Hj. Malthaner
  */
 
 #include "../simconst.h"

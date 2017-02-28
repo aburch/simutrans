@@ -32,14 +32,14 @@
 /* need to emulate the mouse pointer with a graphic */
 //#define USE_SOFTPOINTER
 
-/* Use C implementation of image drawing routines
- * needed i.e. for MSVC and PowerPC */
-//#define USE_C
+/* Use low level C/C++ implementations of routines
+ * Some routines, eg for drawing, can have low level C++ implementations that might perform better on certain platforms */
+#define LOW_LEVEL
 
 // The wind (i.e. approach direction) is random all over the map (not recommended, since it confuses players)
 //#define USE_DIFFERENT_WIND
 
-// define this for automaticcally joining stations next to a public stop with it
+// define this for automatically joining stations next to a public stop with it
 //#define AUTOJOIN_PUBLIC
 
 // allow minspeed and private way signs on waterways (imho pointless)
@@ -51,7 +51,7 @@
 
 /*********************** Useful things for debugging ... ********************/
 
-/* will highlite marked areas and convoi will leave traces */
+/* will highlight marked areas and convoi will leave traces */
 //#define DEBUG_ROUTES
 
 /* shows which tiles are drawn as dings (used in boden/grund.cc) */
@@ -91,11 +91,5 @@
 // offsets for mouse pointer
 #define Z_PLAN (4)
 #define Z_GRID (0)
-
-
-// sanity check: USE_C if not GCC and not intel 32bit
-#if !defined USE_C && (!defined __GNUC__ || !defined __i386__)
-#	define USE_C
-#endif
 
 #endif

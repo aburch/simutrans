@@ -45,7 +45,7 @@ enum transport_type {
 
 
 /**
- * ATC = accounting type commmon (common means data common for all transport types).
+ * ATC = accounting type common (common means data common for all transport types).
  *
  * Supersedes COST_ types, that CAN NOT be distinguished by type of transport-
  * - the data are concerning to whole company
@@ -188,7 +188,7 @@ public:
 	 * Adds construction cost to finance stats.
 	 * @param amount sum of money
 	 * @param wt way type, e.g. tram_wt
-	 * @param utyp used for distinguishing tranport type of building for accounting purposes, used with buildings only.
+	 * @param utyp used for distinguishing transport type of building for accounting purposes, used with buildings only.
 	 */
 	inline void book_construction_costs(const sint64 amount, const waytype_t wt) {
 		transport_type tt = translate_waytype_to_tt(wt);
@@ -432,7 +432,7 @@ public:
 	void increase_account_overdrawn() { account_overdrawn++; }
 
 	/**
-	 * returns true if company bancrupted
+	 * returns true if company is bankrupt
 	 */
 	bool is_bancrupted() const;
 

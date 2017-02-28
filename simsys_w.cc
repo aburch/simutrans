@@ -38,7 +38,7 @@ extern char **__argv;
 #	define GET_WHEEL_DELTA_WPARAM(wparam) ((short)HIWORD(wparam))
 #endif
 
-// 16 Bit may be much slower than 15 unfourtunately on some hardware
+// 16 Bit may be much slower than 15 unfortunately on some hardware
 #define USE_16BIT_DIB
 
 #include "simmem.h"
@@ -67,7 +67,7 @@ volatile HDC hdc = NULL;
 HANDLE	hFlushThread=0;
 CRITICAL_SECTION redraw_underway;
 
-// forward decleration
+// forward deceleration
 DWORD WINAPI dr_flush_screen(LPVOID lpParam);
 #endif
 
@@ -242,7 +242,7 @@ void dr_os_close()
 }
 
 
-// reiszes screen
+// resizes screen
 int dr_textur_resize(unsigned short** const textur, int w, int const h)
 {
 #ifdef MULTI_THREAD
@@ -306,7 +306,7 @@ unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 
 
 #ifdef MULTI_THREAD
-// multhreaded screen copy ...
+// multithreaded screen copy ...
 DWORD WINAPI dr_flush_screen(LPVOID /*lpParam*/)
 {
 	while(1) {
@@ -430,7 +430,7 @@ int dr_screenshot(const char *filename, int x, int y, int w, int h)
 			fwrite(AllDib, sizeof(AllDib->bmiHeader) + sizeof(*AllDib->bmiColors) * 3, 1, fBmp);
 
 			for (LONG i = 0; i < AllDib->bmiHeader.biHeight; ++i) {
-				// row must be alsway even number of pixel
+				// row must be always even number of pixel
 				fwrite(AllDibData + (AllDib->bmiHeader.biHeight - 1 - i) * old_width, (AllDib->bmiHeader.biWidth + 1) & 0xFFFE, 2, fBmp);
 			}
 			AllDib->bmiHeader.biWidth = old_width;
@@ -499,7 +499,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					settings.dmPelsHeight = MaxSize.bottom;
 					settings.dmDisplayFrequency = 0;
 
-					// should be alsway sucessful, since it worked as least once ...
+					// should be always successful, since it worked as least once ...
 					ChangeDisplaySettings(&settings, CDS_FULLSCREEN);
 					is_not_top = false;
 
@@ -580,7 +580,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			sys_event.code = GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? SIM_MOUSE_WHEELUP : SIM_MOUSE_WHEELDOWN;
 			sys_event.key_mod = ModifierKeys();
 			/* the returned coordinate in LPARAM are absolute coordinates, which will deeply confuse simutrans
-			 * we just reuse the coordinates we used the last time by not chaning mx/my ...
+			 * we just reuse the coordinates we used the last time by not changing mx/my ...
 			 */
 			return 0;
 
@@ -1009,7 +1009,7 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 
 	GetWindowRect(GetDesktopWindow(), &MaxSize);
 
-	// maybe set timer to 1ms intervall on Win2k upwards ...
+	// maybe set timer to 1ms interval on Win2k upwards ...
 	{
 		OSVERSIONINFO osinfo;
 		osinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);

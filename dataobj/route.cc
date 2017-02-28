@@ -216,7 +216,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				k->gr = to;
 				k->count = tmp->count+1;
 				k->f = 0;
-				k->g = tmp->g + tdriver->get_cost(to, max_khm, gr->get_pos().get_2d());
+				k->g = tmp->g + tdriver->get_cost(to, to->get_weg(wegtyp), max_khm, ribi_t::nsew[r]);
 				k->ribi_from = ribi_t::nsew[r];
 
 				uint8 current_dir = ribi_t::nsew[r];
@@ -278,8 +278,8 @@ ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 		next_ribi[0] = (ziel.y>gr_pos.y) ? ribi_t::south : ribi_t::north;
 		next_ribi[1] = (ziel.x>gr_pos.x) ? ribi_t::east : ribi_t::west;
 	}
-	next_ribi[2] = ribi_t::backward( next_ribi[1] );
-	next_ribi[3] = ribi_t::backward( next_ribi[0] );
+	next_ribi[2] = ribi_t::reverse_single( next_ribi[1] );
+	next_ribi[3] = ribi_t::reverse_single( next_ribi[0] );
 	return next_ribi;
 }
 
@@ -415,14 +415,14 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				weg_t *w = to->get_weg(wegtyp);
 				// Do not go on a tile, where a oneway sign forbids going.
 				// This saves time and fixed the bug, that a oneway sign on the final tile was ignored.
-				if (w  &&  w->get_ribi_maske()  &&  ribi_t::backward(next_ribi[r]) == w->get_ribi()) {
+				if (w  &&  w->get_ribi_maske()  &&  ribi_t::reverse_single(next_ribi[r]) == w->get_ribi()) {
 					// there is a signal, and the only direction leaving the next tile
 					// is back to our position
 					continue;
 				}
 
 				// new values for cost g (without way it is either in the air or in water => no costs)
-				uint32 new_g = tmp->g + (w ? tdriver->get_cost(to, max_speed, gr->get_pos().get_2d()) : 1);
+				uint32 new_g = tmp->g + (w ? tdriver->get_cost(to, w, max_speed, next_ribi[r]) : 1);
 
 				// check for curves (usually, one would need the lastlast and the last;
 				// if not there, then we could just take the last
@@ -488,7 +488,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				k->count = tmp->count+1;
 				k->jps_ribi = ribi_t::all;
 
-				if (use_jps  &&  to->ist_wasser()) {
+				if (use_jps  &&  to->is_water()) {
 					// only check previous direction plus directions not available on this tile
 					// if going straight only check straight direction
 					// if going diagonally check both directions that generate this diagonal
@@ -632,7 +632,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 					koord3d pos = post.back() + koord(next);
 					ok = false;
 					if (grund_t *gr = welt->lookup(pos)) {
-						if (gr->ist_wasser()) {
+						if (gr->is_water()) {
 							ok = true;
 							post.append(pos);
 						}

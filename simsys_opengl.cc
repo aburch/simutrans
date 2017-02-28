@@ -186,7 +186,7 @@ static void update_tex_dims(){
 		y_max_coord= (float)screen->h/(float)tex_h;
 	}
 
-	// check if we exceded maximum texture size
+	// check if we exceeded maximum texture size
 
 	if (max(tex_w,tex_h)>tex_max_size){
 
@@ -463,8 +463,8 @@ int dr_os_open(int w, int const h, int const fullscreen)
 void dr_os_close()
 {
 	SDL_FreeCursor(hourglass);
-	// Hajo: SDL doc says, screen is free'd by SDL_Quit and should not be
-	// free'd by the user
+	// Hajo: SDL doc says, screen is freed by SDL_Quit and should not be
+	// freed by the user
 	// SDL_FreeSurface(screen);
 }
 
@@ -552,7 +552,7 @@ static void create_gl_texture()
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_max_size, tex_max_size, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, NULL);
 
 
-					// set the cordinates of this texture in the -1 .. +1 space
+					// set the coordinates of this texture in the -1 .. +1 space
 					// +1 is top, so we need to flip the vertical coordinate
 
 					tiled_textures[x][y].left=(float)(x*tex_max_size*2)/(float)(screen->w)-1;

@@ -13,7 +13,7 @@
 
 
 /**
- * Klasse für runwayn in Simutrans.
+ * Class for aiport runaway in Simutrans.
  * speed >250 are for take of (maybe rather use system type in next release?)
  *
  * @author Hj. Malthaner

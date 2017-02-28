@@ -4,7 +4,7 @@
 #include "weg.h"
 
 /**
- * Auf der Strasse können Autos fahren.
+ * Cars are able to drive on roads.
  *
  * @author Hj. Malthaner
  */

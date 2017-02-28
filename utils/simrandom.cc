@@ -263,8 +263,8 @@ static double interpolated_noise(const double x, const double y)
 
 
 /**
- * x,y Koordinaten des Punktes
- * p   Persistenz
+ * x,y Point coordinates
+ * p   Persistence
  */
 double perlin_noise_2D(const double x, const double y, const double p)
 {

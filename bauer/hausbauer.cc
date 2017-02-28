@@ -485,13 +485,13 @@ gebaeude_t* hausbauer_t::build(player_t* player_, koord3d pos, int org_layout, c
 				gb->set_fab((fabrik_t *)param);
 			}
 			// try to fake old building
-			else if(welt->get_zeit_ms() < 2) {
+			else if(welt->get_ticks() < 2) {
 				// Hajo: after staring a new map, build fake old buildings
 				gb->add_alter(10000);
 			}
 
 			grund_t *gr = welt->lookup_kartenboden(pos.get_2d() + k);
-			if(gr->ist_wasser()) {
+			if(gr->is_water()) {
 				gr->obj_add(gb);
 			}
 			else if(  desc->get_type() == building_desc_t::dock  ||  desc->get_type() == building_desc_t::flat_dock  ) {
@@ -539,7 +539,7 @@ gebaeude_t* hausbauer_t::build(player_t* player_, koord3d pos, int org_layout, c
 			}
 			gb->set_pos( gr->get_pos() );
 			if(desc->is_attraction()) {
-				welt->add_ausflugsziel( gb );
+				welt->add_attraction( gb );
 			}
 			if (!desc->is_city_building()) {
 				if(station_building.is_contained(desc)) {
@@ -714,7 +714,7 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 	}
 
 	if(desc->is_attraction()) {
-		welt->add_ausflugsziel( gb );
+		welt->add_attraction( gb );
 	}
 
 	// update minimap

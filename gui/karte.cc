@@ -621,12 +621,12 @@ void reliefkarte_t::set_relief_farbe(koord k_, const int color)
 /**
  * calculates ground color for position relative to water height
  * @param hoehe height of the tile
- * @param grundwasser water height
+ * @param groundwater water height
  * @author Hj. Malthaner
  */
-uint8 reliefkarte_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 grundwasser)
+uint8 reliefkarte_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 groundwater)
 {
-	return map_type_color[clamp( (hoehe-grundwasser)+MAX_MAP_TYPE_WATER-1, 0, MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND-1 )];
+	return map_type_color[clamp( (hoehe-groundwater)+MAX_MAP_TYPE_WATER-1, 0, MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND-1 )];
 }
 
 
@@ -708,8 +708,8 @@ uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 					}
 					else {
 						sint16 height = (gr->get_grund_hang()%3);
-						if(  gr->get_hoehe() > welt->get_grundwasser()  ) {
-							color = calc_hoehe_farbe( gr->get_hoehe() + height, welt->get_grundwasser() );
+						if(  gr->get_hoehe() > welt->get_groundwater()  ) {
+							color = calc_hoehe_farbe( gr->get_hoehe() + height, welt->get_groundwater() );
 						}
 						else {
 							color = calc_hoehe_farbe( gr->get_hoehe() + height, gr->get_hoehe() + height - 1);
@@ -1080,7 +1080,7 @@ const fabrik_t* reliefkarte_t::draw_fab_connections(const uint8 colour, const sc
 			if (fab2) {
 				const scr_coord end = karte_to_screen( lieferziel ) + pos;
 				display_direct_line(fabpos.x, fabpos.y, end.x, end.y, colour);
-				display_fillbox_wh_clip(end.x, end.y, 3, 3, ((welt->get_zeit_ms() >> 10) & 1) == 0 ? COL_RED : COL_WHITE, true);
+				display_fillbox_wh_clip(end.x, end.y, 3, 3, ((welt->get_ticks() >> 10) & 1) == 0 ? COL_RED : COL_WHITE, true);
 
 				scr_coord boxpos = end + scr_coord(10, 0);
 				const char * name = translator::translate(fab2->get_name());
@@ -1525,7 +1525,7 @@ void reliefkarte_t::draw(scr_coord pos)
 	// if we do not do this here, vehicles would erase the town names
 	// ADD: if CRTL key is pressed, temporary show the name
 	if(  mode & MAP_TOWN  ) {
-		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
+		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_cities();
 		const COLOR_VAL col = showing_schedule ? COL_BLACK : COL_WHITE;
 
 		FOR( weighted_vector_tpl<stadt_t*>, const stadt, staedte ) {
@@ -1543,7 +1543,7 @@ void reliefkarte_t::draw(scr_coord pos)
 	if(  mode & MAP_CITYLIMIT  ) {
 
 		// for all cities
-		FOR(  weighted_vector_tpl<stadt_t*>,  const stadt,  welt->get_staedte()  ) {
+		FOR(  weighted_vector_tpl<stadt_t*>,  const stadt,  welt->get_cities()  ) {
 			koord k[4];
 			k[0] = stadt->get_linksoben(); // top left
 			k[2] = stadt->get_rechtsunten(); // bottom right
@@ -1570,7 +1570,7 @@ void reliefkarte_t::draw(scr_coord pos)
 	// since we do iterate the tourist info list, this must be done here
 	// find tourist spots
 	if(  mode & MAP_TOURIST  ) {
-		FOR(  weighted_vector_tpl<gebaeude_t*>, const gb, welt->get_ausflugsziele()  ) {
+		FOR(  weighted_vector_tpl<gebaeude_t*>, const gb, welt->get_attractions()  ) {
 			if(  gb->get_first_tile() == gb  ) {
 				scr_coord gb_pos = karte_to_screen( gb->get_pos().get_2d() );
 				gb_pos = gb_pos + pos;

@@ -89,7 +89,7 @@ void dr_play_sample(int key, int volume)
 	if(sound_ok && key < 1024 && sound_samples[key] != NULL) {
 		int v = voice[vc & 3];
 		if(v == -1) {
-			// noch nie benutzt
+			// never used
 			voice[vc & 3] = v = allocate_voice(sound_samples[key]);
 		}
 		else {

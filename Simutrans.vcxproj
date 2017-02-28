@@ -106,17 +106,18 @@
       <DisableSpecificWarnings>4200;4800;4311;4996;4373;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;shell32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;libbz2.lib;pthreadVC2.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;shell32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;imm32.lib;libbz2.lib;pthreadVC2.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
     <Manifest>
       <EnableDPIAwareness>true</EnableDPIAwareness>
@@ -315,7 +316,7 @@
     <ClCompile Include="gui\password_frame.cc" />
     <ClCompile Include="descriptor\reader\pedestrian_reader.cc" />
     <ClCompile Include="obj\pillar.cc" />
-    <ClCompile Include="sucher\platzsucher.cc" />
+    <ClCompile Include="finder\placefinder.cc" />
     <ClCompile Include="gui\player_frame_t.cc" />
     <ClCompile Include="dataobj\powernet.cc" />
     <ClCompile Include="gui\privatesign_info.cc" />
@@ -471,7 +472,7 @@
     <ClInclude Include="obj\baum.h" />
     <ClInclude Include="descriptor\tree_desc.h" />
     <ClInclude Include="gui\baum_edit.h" />
-    <ClInclude Include="sucher\bauplatz_sucher.h" />
+    <ClInclude Include="finder\building_placefinder.h" />
     <ClInclude Include="descriptor\image.h" />
     <ClInclude Include="descriptor\image_array.h" />
     <ClInclude Include="descriptor\image_list.h" />
@@ -636,7 +637,7 @@
     <ClInclude Include="pathes.h" />
     <ClInclude Include="descriptor\reader\pedestrian_reader.h" />
     <ClInclude Include="obj\pillar.h" />
-    <ClInclude Include="sucher\platzsucher.h" />
+    <ClInclude Include="finder\placefinder.h" />
     <ClInclude Include="gui\player_frame_t.h" />
     <ClInclude Include="dataobj\powernet.h" />
     <ClInclude Include="tpl\prioqueue_tpl.h" />

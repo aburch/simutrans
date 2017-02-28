@@ -77,7 +77,7 @@ PortableSpaceSkip:
   Goto AllSetPortable
 
 PortableUnknown:
-  ; ask whether this is a protable installation
+  ; ask whether this is a portable installation
   MessageBox MB_YESNO|MB_ICONINFORMATION "Should this be a portable installation?" IDYES YesPortable
   StrCpy $multiuserinstall "1"
 YesPortable:
@@ -157,7 +157,7 @@ Function componentsPre
   Call EnableSectionIfThere
 FunctionEnd
 
-; Some packs have not opene source license, so we have to show additional licences
+; Some paksets don't have an open source license, so we have to show additional licences
 Function CheckForClosedSource
 
   SectionGetFlags ${pak64german} $R0

@@ -7,7 +7,7 @@
 
 
 # get pthreads DLL
-getDLLold()
+getDLL()
 {
 	# Use curl if available, else use wget
 	echo "Downloading pthreadGC2.dll"
@@ -31,11 +31,6 @@ getDLLold()
 	fi
 }
 
-# we now just copy the DLL
-getDLL() {
-	cp /mingw/bin/libwinpthread-1.dll .
-}
-
 # first assume unix name defaults ...
 simexe=
 updatepath="/"
@@ -45,13 +40,17 @@ OST=unknown
 # now get the OSTYPE from config.default and remove all spaces around
 OST=`grep "^OSTYPE" config.default | sed "s/OSTYPE[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
 
+PGC=0
+# now get the OSTYPE from config.default and remove all spaces around
+PGC=`grep "^BUNDLE_PTHREADGC2" config.default | sed "s/BUNDLE_PTHREADGC2[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
+
 # now make the correct archive name
 simexe=
 if [ "$OST" = "mac" ]; then
   simarchivbase=simumac
 elif [ "$OST" = "haiku" ]; then
  simarchivbase=simuhaiku
-elif [ "$OST" = "mingw64" ]; then
+elif [ "$OST" = "mingw" ]; then
   simexe=.exe
   SDLTEST=`grep "^BACKEND =" config.default | sed "s/BACKEND[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
   if [ "$SDLTEST" = "sdl" ]  ||  [ "$SDLTEST" = "sdl2" ]; then
@@ -61,7 +60,10 @@ elif [ "$OST" = "mingw64" ]; then
 # Missing: Copy matching SDL dll!
   fi
   cd simutrans
-  getDLL
+
+	if [ "$PGC" -ne 0	]; then
+		getDLL
+	fi
   cd ..
   updatepath="/nsis/"
   updater="download-paksets.exe"
@@ -75,7 +77,6 @@ elif [ "$OST" = "freebsd" ]; then
 elif [ "$OST" = "amiga" ]; then
  simarchivbase=simuamiga
 fi
-
 
 # now add revesion number without any modificators
 # fetch language files
@@ -132,7 +133,9 @@ distribute
 rm simutrans/simutrans$simexe
 
 # cleanup dll's
-if [ "$OST" = "mingw64" ]; then
-	rm simutrans/pthread*.dll
-	rm simutrans/libwinpthread-1.dll
+if [ "$PGC" -ne 0 ]; then
+	rm simutrans/pthreadGC2.dll
 fi
+
+# swallow any error values, return success in any case
+exit 0

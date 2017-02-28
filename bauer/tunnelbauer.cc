@@ -193,7 +193,7 @@ koord3d tunnel_builder_t::find_end_pos(player_t *player, koord3d pos, koord zv, 
 		}
 
 		// check water level
-		if (gr->ist_wasser()  &&  welt->lookup_hgt(pos.get_2d()) <= pos.z) {
+		if (gr->is_water()  &&  welt->lookup_hgt(pos.get_2d()) <= pos.z) {
 			return koord3d::invalid;
 		}
 
@@ -611,7 +611,7 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 				ground_outside->weg_erweitern(desc->get_waytype(), ribi_type(zv));
 			}
 		}
-		if (desc->get_waytype()==water_wt  &&  ground_outside->ist_wasser()) {
+		if (desc->get_waytype()==water_wt  &&  ground_outside->is_water()) {
 			// connect to the sea
 			tunnel->weg_erweitern(desc->get_waytype(), ribi_type(-zv));
 			ground_outside->calc_image(); // to recalculate ribis

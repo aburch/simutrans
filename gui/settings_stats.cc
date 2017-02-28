@@ -495,17 +495,17 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	INIT_INIT
 	INIT_NUM_NEW( "height_map_conversion_version", env_t::pak_height_conversion_factor, 1, 2, 0, false );
 	SEPERATOR
-	INIT_NUM_NEW( "Water level", sets->get_grundwasser(), -10, 0, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM_NEW( "Water level", sets->get_groundwater(), -10, 0, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "Mountain height", mountain_height_start, 0, min(1000,100*(11-mountain_roughness_start)), 10, false );
 	INIT_NUM_NEW( "Map roughness", mountain_roughness_start, 0, min(10, 11-((mountain_height_start+99)/100)), gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_LB( "Summer snowline" );
-	INIT_NUM( "Winter snowline", sets->get_winter_snowline(), sets->get_grundwasser(), 24, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "Winter snowline", sets->get_winter_snowline(), sets->get_groundwater(), 24, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	// other climate borders ...
 	sint16 arctic = 0;
 	for(  int i=desert_climate;  i!=arctic_climate;  i++  ) {
-		INIT_NUM( ground_desc_t::get_climate_name_from_bit((climate)i), sets->get_climate_borders()[i], sets->get_grundwasser(), 24, gui_numberinput_t::AUTOLINEAR, false );
+		INIT_NUM( ground_desc_t::get_climate_name_from_bit((climate)i), sets->get_climate_borders()[i], sets->get_groundwater(), 24, gui_numberinput_t::AUTOLINEAR, false );
 		if(sets->get_climate_borders()[i]>arctic) {
 			arctic = sets->get_climate_borders()[i];
 		}
@@ -544,7 +544,7 @@ void settings_climates_stats_t::read(settings_t* const sets)
 {
 	READ_INIT
 	READ_NUM_VALUE_NEW( env_t::pak_height_conversion_factor );
-	READ_NUM_VALUE_NEW( sets->grundwasser );
+	READ_NUM_VALUE_NEW( sets->groundwater );
 	READ_NUM_VALUE_NEW( sets->max_mountain_height );
 	double n;
 	READ_NUM_VALUE_NEW( n );

@@ -280,7 +280,7 @@ void halt_detail_t::halt_detail_info()
 			const goods_desc_t* info = goods_manager_t::get_info_catg_index(i);
 			// If it is a special freight, we display the name of the good, otherwise the name of the category.
 			buf.append( translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()) );
-#if DEBUG>=4
+#if MSG_LEVEL>=4
 			if(  halt->is_transfer(i)  ) {
 				buf.append("*");
 			}

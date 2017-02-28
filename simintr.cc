@@ -99,7 +99,7 @@ void interrupt_check(const char* caller_info)
 	DBG_DEBUG4("interrupt_check", "called from (%s)", caller_info);
 	if(enabled) {
 		static uint32 last_ms = 0;
-		if(  !welt_modell->is_fast_forward()  ||  welt_modell->get_zeit_ms() != last_ms  ) {
+		if(  !welt_modell->is_fast_forward()  ||  welt_modell->get_ticks() != last_ms  ) {
 			const uint32 now = dr_time();
 			if((now-last_time)*FRAME_TIME_MULTI < frame_time) {
 				return;
@@ -112,7 +112,7 @@ void interrupt_check(const char* caller_info)
 				enabled = true;
 			}
 		}
-		last_ms = welt_modell->get_zeit_ms();
+		last_ms = welt_modell->get_ticks();
 	}
 	(void)caller_info;
 }
@@ -194,7 +194,7 @@ char const *tick_to_string( sint32 ticks, bool show_full )
 		//DBG_MESSAGE("env_t::show_month","%d",env_t::show_month);
 		// @author hsiegeln - updated to show month
 		// @author prissi - also show date if desired
-		// since seaons 0 is always summer for backward compatibility
+		// since seasons 0 is always summer for backward compatibility
 		char const* const season = translator::translate(seasons[welt_modell->get_season()]);
 		char const* const month_ = translator::get_month_name(month % 12);
 		switch(env_t::show_month) {
@@ -244,7 +244,7 @@ char const *tick_to_string( sint32 ticks, bool show_full )
 
 		// suppress as much as possible, assuming this is an relative offset to the current month
 		sint32 num_days = ( ticks * (env_t::show_month==env_t::DATE_FMT_MONTH? 3 : tage_per_month[month]) ) >> welt_modell->ticks_per_world_month_shift;
-		num_days -= ( (welt_modell->get_zeit_ms() % welt_modell->ticks_per_world_month) * (env_t::show_month==env_t::DATE_FMT_MONTH? 3 : tage_per_month[month]) ) >> welt_modell->ticks_per_world_month_shift;
+		num_days -= ( (welt_modell->get_ticks() % welt_modell->ticks_per_world_month) * (env_t::show_month==env_t::DATE_FMT_MONTH? 3 : tage_per_month[month]) ) >> welt_modell->ticks_per_world_month_shift;
 		char days[64];
 		days[0] = 0;
 		if(  num_days!=0  ) {
@@ -261,11 +261,11 @@ char const *tick_to_string( sint32 ticks, bool show_full )
 			minuten = ( (minuten + 30 ) / 60 ) * 60;
 			hours += minuten /60;
 			if(  switchtick < 18 ) {
-				// four hour inveralls
+				// four hour intervals
 				hours = (hours + 3 ) & 0xFFFFC;
 			}
 			else if(  switchtick == 18 ) {
-				// two hour inveralls
+				// two hour intervals
 				hours = (hours + 1 ) & 0xFFFFE;
 			}
 		}

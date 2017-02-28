@@ -78,7 +78,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	inp_underground_level.set_width( edit_width );
 	inp_underground_level.align_to(&buttons[20], ALIGN_CENTER_V);
 	inp_underground_level.set_value( grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : welt->get_zeiger()->get_pos().z);
-	inp_underground_level.set_limits(welt->get_grundwasser()-10, 32);
+	inp_underground_level.set_limits(welt->get_groundwater()-10, 32);
 	inp_underground_level.add_listener(this);
 	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
 
@@ -262,6 +262,17 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[22].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	cursor.y += D_CHECKBOX_HEIGHT;
 
+	// Toggle simple drawing for debugging
+#ifdef DEBUG
+	cursor.y += D_V_SPACE;
+	buttons[24].set_pos( cursor );
+	buttons[24].set_typ(button_t::square_state);
+	buttons[24].set_text("Simple drawing");
+	buttons[24].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	buttons[24].pressed = env_t::simple_drawing;
+	cursor.y += D_CHECKBOX_HEIGHT;
+#endif
+
 	// Divider 4
 	divider4.set_pos( cursor );
 	add_component(&divider4);
@@ -340,6 +351,9 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	add_component( buttons+0 );
 	add_component( buttons+1 );
 	add_component( buttons+22);
+#ifdef DEBUG
+	add_component( buttons+24);
+#endif
 
 	// unused buttons
 	// add_component( buttons+2 );
@@ -576,7 +590,10 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	if((buttons+23)==komp) {
 		create_win(new themeselector_t(), w_info, magic_themes);
 	}
-
+	if((buttons+24)==komp) {
+		env_t::simple_drawing = !env_t::simple_drawing;
+		buttons[24].pressed = env_t::simple_drawing;
+	}
 	welt->set_dirty();
 	return true;
 }
@@ -599,12 +616,14 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	buttons[19].pressed = (env_t::show_names&2)!=0;
 	buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
 	buttons[22].pressed = env_t::visualize_schedule;
+	buttons[24].pressed = env_t::simple_drawing;
+	buttons[24].enable(welt->is_paused());
 
 	// Update label buffers
 	hide_buildings_label.set_text( env_t::hide_buildings==0 ? "no buildings hidden" : (env_t::hide_buildings==1 ? "hide city building" : "hide all building") );
 	convoy_tooltip_label.set_text( env_t::show_vehicle_states==0 ? "convoi error tooltips" : (env_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
 	sprintf(frame_time_buf," %d ms", get_frame_time() );
-	sprintf(idle_time_buf, " %d ms", welt->get_schlaf_zeit() );
+	sprintf(idle_time_buf, " %d ms", welt->get_idle_time() );
 
 	// fps_label
 	uint8  color;
@@ -617,7 +636,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	}
 	fps_value_label.set_color(color);
 	sprintf(fps_buf," %d fps", loops );
-#ifdef DEBUG
+#if MSG_LEVEL >= 3
 	if(  env_t::simple_drawing  ) {
 		strcat( fps_buf, "*" );
 	}

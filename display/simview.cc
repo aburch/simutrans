@@ -132,7 +132,7 @@ void main_view_t::display(bool force_dirty)
 	else {
 		// calculate also days if desired
 		uint32 month = welt->get_last_month();
-		const uint32 ticks_this_month = welt->get_zeit_ms() % welt->ticks_per_world_month;
+		const uint32 ticks_this_month = welt->get_ticks() % welt->ticks_per_world_month;
 		uint32 hours2;
 		if (env_t::show_month > env_t::DATE_FMT_MONTH) {
 			static sint32 days_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
@@ -162,7 +162,7 @@ void main_view_t::display(bool force_dirty)
 	const sint8 hmax_ground = (grund_t::underground_mode==grund_t::ugm_level) ? grund_t::underground_level : 127;
 
 	// lower limit for y: display correctly water/outside graphics at upper border of screen
-	int y_min = (-const_y_off + 4*tile_raster_scale_y( min(hmax_ground, welt->get_grundwasser())*TILE_HEIGHT_STEP, IMG_SIZE )
+	int y_min = (-const_y_off + 4*tile_raster_scale_y( min(hmax_ground, welt->get_groundwater())*TILE_HEIGHT_STEP, IMG_SIZE )
 					+ 4*(menu_height-IMG_SIZE)-IMG_SIZE/2-1) / IMG_SIZE;
 
 #ifdef MULTI_THREAD
@@ -384,7 +384,7 @@ void main_view_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max
 					// check if outside visible
 					outside_visible = true;
 					if(  env_t::draw_outside_tile  ) {
-						const sint16 yypos = ypos - tile_raster_scale_y( welt->get_grundwasser() * TILE_HEIGHT_STEP, IMG_SIZE );
+						const sint16 yypos = ypos - tile_raster_scale_y( welt->get_groundwater() * TILE_HEIGHT_STEP, IMG_SIZE );
 						display_normal( ground_desc_t::outside->get_image(0), xpos, yypos, 0, true, false  CLIP_NUM_PAR);
 					}
 				}

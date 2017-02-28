@@ -9,7 +9,7 @@
 #error "Only Windows has GDI+!"
 #endif
 
-// windows Bibliotheken DirectDraw 5.x
+// DirectDraw 5.x Windows libraries
 #include <windows.h>
 #include <basetyps.h>
 

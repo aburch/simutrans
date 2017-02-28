@@ -9,6 +9,7 @@
 
 
 class grund_t;
+class weg_t;
 
 /**
  * Interface to connect the vehicle with its route
@@ -32,8 +33,14 @@ public:
 
 	virtual waytype_t get_waytype() const = 0;
 
-	// how expensive to go here (for way search) with the maximum convoi speed as second parameter
-	virtual int get_cost(const grund_t *, const sint32, koord from_pos) const = 0;
+	/**
+	 * How expensive to go here (for way search).
+	 * @param gr tile to check
+	 * @param w way on the tile (can be NULL)
+	 * @param max_speed the maximum convoi speed as second parameter
+	 * @param from direction in which we enter the tile
+	 */
+	virtual int get_cost(const grund_t *gr, const weg_t *w, const sint32 max_speed, ribi_t::ribi from) const = 0;
 
 	// returns true for the way search to an unknown target.
 	// first is current ground, second is starting ground

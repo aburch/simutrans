@@ -188,7 +188,7 @@ public:
 	* returns a color based on the current high
 	* @author hsiegeln
 	*/
-	static uint8 calc_hoehe_farbe(const sint16 hoehe, const sint16 grundwasser);
+	static uint8 calc_hoehe_farbe(const sint16 hoehe, const sint16 groundwater);
 
 	// needed for town passenger map
 	static uint8 calc_relief_farbe(const grund_t *gr);

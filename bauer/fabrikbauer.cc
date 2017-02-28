@@ -27,7 +27,7 @@
 
 #include "../tpl/vector_tpl.h"
 #include "../tpl/array_tpl.h"
-#include "../sucher/bauplatz_sucher.h"
+#include "../finder/building_placefinder.h"
 
 #include "../utils/cbuffer_t.h"
 
@@ -109,26 +109,26 @@ void factory_builder_t::new_world()
  * Searches for a suitable building site using suche_platz().
  * The site is chosen so that there is a street next to the building site.
  */
-class factory_bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t  {
+class factory_place_with_road_finder: public building_placefinder_t  {
 
 public:
-	factory_bauplatz_mit_strasse_sucher_t(karte_t* welt) : bauplatz_sucher_t(welt) {}
+	factory_place_with_road_finder(karte_t* welt) : building_placefinder_t(welt) {}
 
-	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const
+	virtual bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const
 	{
-		if(  !bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)  ) {
+		if(  !building_placefinder_t::is_area_ok(pos, w, h, cl)  ) {
 			return false;
 		}
 		bool next_to_road = false;
 
 		for (sint16 y = -1;  y < h; y++) {
-			for (sint16 x = -1; x < b; x++) {
+			for (sint16 x = -1; x < w; x++) {
 				koord k(pos + koord(x,y));
 				grund_t *gr = welt->lookup_kartenboden(k);
 				if (!gr) {
 					return false;
 				}
-				if (	0 <= x  &&  x < b-1  &&  0 <= y  &&  y < h-1) {
+				if (	0 <= x  &&  x < w-1  &&  0 <= y  &&  y < h-1) {
 					// not at border: is there something top like elevated monorails?
 					if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1)  )!=NULL) {
 						// something on top (monorail or power lines)
@@ -138,7 +138,7 @@ public:
 				}
 				else {
 					// border but not corner: near a road if possible
-					if (!next_to_road  &&  (0 <= x  ||  x < b-1)  &&  (0 <= y  ||  y < h-1)) {
+					if (!next_to_road  &&  (0 <= x  ||  x < w-1)  &&  (0 <= y  ||  y < h-1)) {
 						next_to_road = gr->hat_weg(road_wt);
 					}
 					// do not build on an existing factory
@@ -300,7 +300,7 @@ bool factory_builder_t::check_construction_site(koord pos, koord size, bool wate
 		for(int y=0;y<size.y;y++) {
 			for(int x=0;x<size.x;x++) {
 				const grund_t *gr=welt->lookup_kartenboden(pos+koord(x,y));
-				if(gr==NULL  ||  !gr->ist_wasser()  ||  gr->get_grund_hang()!=slope_t::flat) {
+				if(gr==NULL  ||  !gr->is_water()  ||  gr->get_grund_hang()!=slope_t::flat) {
 					return false;
 				}
 			}
@@ -461,7 +461,7 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 						grund_t *gr = welt->lookup_kartenboden(x,y);
 						// build the halt on factory tiles on open water only,
 						// since the halt can't be removed otherwise
-						if(gr->ist_wasser()  &&  !(gr->hat_weg(water_wt))  &&  gr->find<gebaeude_t>()) {
+						if(gr->is_water()  &&  !(gr->hat_weg(water_wt))  &&  gr->find<gebaeude_t>()) {
 							halt->add_grund( gr );
 						}
 					}
@@ -489,7 +489,7 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 
 	// add passenger to pax>0, (so no suicide diver at the fish swarm)
 	if(info->get_pax_level()>0) {
-		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
+		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_cities();
 		vector_tpl<stadt_t *>distance_stadt( staedte.get_count() );
 
 		FOR(weighted_vector_tpl<stadt_t*>, const i, staedte) {
@@ -560,7 +560,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 	}
 
 	// no cities at all?
-	if (info->get_placement() == factory_desc_t::City  &&  welt->get_staedte().empty()) {
+	if (info->get_placement() == factory_desc_t::City  &&  welt->get_cities().empty()) {
 		return 0;
 	}
 
@@ -580,7 +580,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		koord size=info->get_building()->get_size(0);
 
 		// build consumer (factory) in town
-		stadt_t *city = welt->suche_naechste_stadt(pos->get_2d());
+		stadt_t *city = welt->find_nearest_city(pos->get_2d());
 
 		/* Three variants:
 		 * A:
@@ -591,12 +591,12 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		 */
 		bool is_rotate=info->get_building()->get_all_layouts()>1  &&  size.x!=size.y  &&  info->get_building()->can_rotate();
 		// first try with standard orientation
-		koord k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(city->get_pos(), size.x, size.y, info->get_building()->get_allowed_climate_bits());
+		koord k = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.x, size.y, info->get_building()->get_allowed_climate_bits());
 
 		// second try: rotated
 		koord k1 = koord::invalid;
 		if (is_rotate  &&  (k == koord::invalid  ||  simrand(256)<128)) {
-			k1 = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(city->get_pos(), size.y, size.x, info->get_building()->get_allowed_climate_bits());
+			k1 = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.y, size.x, info->get_building()->get_allowed_climate_bits());
 		}
 
 		rotate = simrand( info->get_building()->get_all_layouts() );
@@ -629,7 +629,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		 * often hidden behind a row of houses, cut off from roads.
 		 */
 #if 0
-		k = bauplatz_sucher_t(welt).suche_platz(city->get_pos(), land_bau.dim.x, land_bau.dim.y, info->get_building()->get_allowed_climate_bits(), &is_rotate);
+		k = building_placefinder_t(welt).find_place(city->get_pos(), land_bau.dim.x, land_bau.dim.y, info->get_building()->get_allowed_climate_bits(), &is_rotate);
 #endif
 
 		if(k != koord::invalid) {
@@ -946,7 +946,7 @@ next_ware_check:
 			DBG_MESSAGE( "factory_builder_t::increase_industry_density()", "added ware %i to factory %s", last_built_consumer_ware, last_built_consumer->get_name() );
 			// tell the player
 			if(tell_me) {
-				stadt_t *s = welt->suche_naechste_stadt( last_built_consumer->get_pos().get_2d() );
+				stadt_t *s = welt->find_nearest_city( last_built_consumer->get_pos().get_2d() );
 				const char *stadt_name = s ? s->get_name() : translator::translate("nowhere");
 				cbuffer_t buf;
 				buf.printf( translator::translate("Factory chain extended\nfor %s near\n%s built with\n%i factories."), translator::translate(last_built_consumer->get_name()), stadt_name, nr );
@@ -984,7 +984,7 @@ next_ware_check:
 			const factory_desc_t *fab=get_random_consumer( no_electric==0, ALL_CLIMATES, welt->get_timeline_year_month() );
 			if(fab) {
 				const bool in_city = fab->get_placement() == factory_desc_t::City;
-				if (in_city && welt->get_staedte().empty()) {
+				if (in_city && welt->get_cities().empty()) {
 					// we cannot build this factory here
 					continue;
 				}
@@ -996,7 +996,7 @@ next_ware_check:
 				}
 				else {
 					// or within the city limit
-					const stadt_t *city = pick_any_weighted(welt->get_staedte());
+					const stadt_t *city = pick_any_weighted(welt->get_cities());
 					koord diff = city->get_rechtsunten()-city->get_linksoben();
 					pos = find_random_construction_site( city->get_center(), max(diff.x,diff.y)/2, fab->get_building()->get_size(rotation),fab->get_placement()==factory_desc_t::Water,fab->get_building(),ignore_climates, 1000);
 				}

@@ -21,7 +21,7 @@ bool dr_init_sound()
 	printf("Sound system Initialise\n");
 	printf("Wave File database\n");
 	movies_WAV = [NSMutableArray arrayWithCapacity: 128];
-	printf("Sound system Initalisation complete\n");
+	printf("Sound system Initialisation complete\n");
 	return true;
 }
 

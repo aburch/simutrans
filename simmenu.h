@@ -119,7 +119,7 @@ enum {
 };
 
 enum {
-	// dialoge tools
+	// dialogue tools
 	DIALOG_HELP = 0,
 	DIALOG_OPTIONS,
 	DIALOG_MINIMAP,

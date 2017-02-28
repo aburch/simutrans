@@ -4,10 +4,10 @@
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  *
- * Basisklasse für Wege in Simutrans.
+ * Base class for Ways in Simutrans.
  *
- * 14.06.00 getrennt von simgrund.cc
- * Überarbeitet Januar 2001
+ * 14.06.00 derived from simgrund.cc
+ * Revised January 2001
  *
  * derived from simobj.h in 2007
  *

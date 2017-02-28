@@ -202,21 +202,21 @@ private:
 
 	/**
 	* Overall performance.
-	* Is not stored, but is calculated from individual functions
+	* Not stored, but calculated from individual parts
 	* @author Hj. Malthaner
 	*/
 	uint32 sum_power;
 
 	/**
 	* Overall performance with Gear.
-	* Is not stored, but is calculated from individual functions
+	* Not stored, but calculated from individual parts
 	* @author prissi
 	*/
 	sint32 sum_gear_and_power;
 
 	/* sum_weight: unloaded weight of all vehicles *
 	* sum_gesamtweight: total weight of all vehicles *
-	* Are not stored, but are calculated from individual weights
+	* Not stored, but calculated from individual weights
 	* when loading/driving.
 	* @author Hj. Malthaner, prissi
 	*/

@@ -25,7 +25,7 @@ char *ntos(int number, const char *format);
 
 
 /**
- * Set thousand seperator, used in money_to_string and
+ * Set thousand separator, used in money_to_string and
  * number_to_string
  * @author Hj. Malthaner
  */
@@ -33,7 +33,7 @@ void set_thousand_sep(char c);
 
 
 /**
- * Set fraction seperator, used in money_to_string and
+ * Set fraction separator, used in money_to_string and
  * number_to_string
  * @author Hj. Malthaner
  */
@@ -50,7 +50,7 @@ const char *get_large_money_string();
 void set_thousand_sep_exponent(int new_thousand_sep_exponent);
 
 /**
- * Set abbrevitation and the amout by which large money amouts will be shortened
+ * Set abbreviation and the amount by which large money amounts will be shortened
  * @author prissi
  */
 void set_large_amout( const char *, const double v );

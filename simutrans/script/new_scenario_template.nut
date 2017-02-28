@@ -71,7 +71,7 @@ function start()
 /**
  * Main function: returns percentage of completion
  * If returned value >= 100 then scenario is won
- * If less than zero scenarion is lost
+ * If less than zero scenario is lost
  */
 function is_scenario_completed(pl)
 {

@@ -61,7 +61,7 @@ void schedule_gui_stats_t::highlight_schedule( schedule_t *markschedule, bool ma
 			}
 			gr->set_flag( grund_t::dirty );
 			// here on water
-			if(  gr->ist_wasser()  ||  gr->ist_natur()  ) {
+			if(  gr->is_water()  ||  gr->ist_natur()  ) {
 				if(  marking  ) {
 					gr->set_flag( grund_t::marked );
 				}

@@ -39,7 +39,7 @@ public:
 	static std::string complete(const std::string &filepath, const std::string &extension);
 
 	/**
-	 * Function results will be accesible only in a const interator fashion.
+	 * Function results will be accessible only in a const iterator fashion.
 	 */
 	typedef vector_tpl<char*>::const_iterator const_iterator;
 	/**
@@ -72,7 +72,7 @@ private:
 	 */
 	void add_entry(const std::string &path, const char *entry, const bool prepend );
 	/**
-	 * Clears the seach results.
+	 * Clears the search results.
 	 */
 	void clear_list();
 };

@@ -12,7 +12,7 @@
 
 #include "simplay.h"
 
-#include "../sucher/bauplatz_sucher.h"
+#include "../finder/building_placefinder.h"
 
 class karte_t;
 class vehicle_desc_t;
@@ -21,15 +21,15 @@ class goods_desc_t;
 /**
  * bauplatz_mit_strasse_sucher_t:
  *
- * Sucht einen freien Bauplatz mithilfe der Funktion suche_platz().
+ * Search for a free location using the function find_place().
  *
  * @author V. Meyer
  */
-class ai_bauplatz_mit_strasse_sucher_t : public bauplatz_sucher_t  {
+class ai_building_place_with_road_finder : public building_placefinder_t  {
 public:
-	ai_bauplatz_mit_strasse_sucher_t(karte_t *welt) : bauplatz_sucher_t(welt) {}
-	bool strasse_bei(sint16 x, sint16 y) const;
-	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const;
+	ai_building_place_with_road_finder(karte_t *welt) : building_placefinder_t(welt) {}
+	bool is_road_at(sint16 x, sint16 y) const;
+	virtual bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const;
 };
 
 
@@ -86,8 +86,9 @@ public:
 	halthandle_t get_halt( const koord haltpos ) const;
 
 	/**
-	 * Find the first water tile using line algorithm von Hajo
+	 * Find the first water tile using line algorithm
 	 * start MUST be on land!
+	 * @author Hajo
 	 **/
 	koord find_shore(koord start, koord end) const;
 	bool find_harbour(koord &start, koord &size, koord target);

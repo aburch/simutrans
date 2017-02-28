@@ -98,7 +98,7 @@ template<class T> class vector_tpl
 
 		/**
 		 * Checks if element is contained. Appends only new elements.
-		 * extend vector if nessesary
+		 * extend vector if necessary
 		 */
 		bool append_unique(const T& elem)
 		{

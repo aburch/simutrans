@@ -129,7 +129,7 @@ public:
 	COLOR_VAL get_state_color() const { return state_color; }
 
 	/*
-	 * return schedule (schedule) of line
+	 * return the schedule of the line
 	 * @author hsiegeln
 	 */
 	schedule_t * get_schedule() const { return schedule; }

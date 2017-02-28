@@ -184,7 +184,7 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 			return gr->get_halt();
 		}
 		// no halt? => we do the water check
-		if(gr->ist_wasser()) {
+		if(gr->is_water()) {
 			// may catch bus stops close to water ...
 			const planquadrat_t *plan = welt->access(pos.get_2d());
 			const uint8 cnt = plan->get_haltlist_count();
@@ -555,7 +555,7 @@ static int count_printf_param( const char *str )
 char* haltestelle_t::create_name(koord const k, char const* const typ)
 {
 	int const lang = welt->get_settings().get_name_language_id();
-	stadt_t *stadt = welt->suche_naechste_stadt(k);
+	stadt_t *stadt = welt->find_nearest_city(k);
 	const char *stop = translator::translate(typ,lang);
 	cbuffer_t buf;
 
@@ -2379,7 +2379,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 	const gebaeude_t* gb = gr->find<gebaeude_t>();
 	const building_desc_t *desc=gb?gb->get_tile()->get_desc():NULL;
 
-	if(  gr->ist_wasser()  &&  gb  ) {
+	if(  gr->is_water()  &&  gb  ) {
 		// may happen around oil rigs and so on
 		station_type |= dock;
 		// for water factories

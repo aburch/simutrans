@@ -712,7 +712,7 @@ void vehicle_t::set_convoi(convoi_t *c)
 			if (!r.empty() && route_index < r.get_count() - 1) {
 				grund_t const* const gr = welt->lookup(pos_next);
 				if (!gr || !gr->get_weg(get_waytype())) {
-					if (!(water_wt == get_waytype()  &&  gr->ist_wasser())) { // ships on the open sea are valid
+					if (!(water_wt == get_waytype()  &&  gr->is_water())) { // ships on the open sea are valid
 						pos_next = r.at(route_index + 1U);
 					}
 				}
@@ -1975,10 +1975,9 @@ bool road_vehicle_t::check_next_tile(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int road_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord from_pos) const
+int road_vehicle_t::get_cost(const grund_t *gr, const weg_t *w, const sint32 max_speed, ribi_t::ribi from) const
 {
 	// first favor faster ways
-	const weg_t *w=gr->get_weg(road_wt);
 	if(!w) {
 		return 0xFFFF;
 	}
@@ -1995,9 +1994,8 @@ int road_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	// effect of slope
 	if(  gr->get_weg_hang()!=0  ) {
 		// Knightly : check if the slope is upwards, relative to the previous tile
-		from_pos -= gr->get_pos().get_2d();
 		// 15 hardcoded, see get_cost_upslope()
-		costs += 15 * slope_t::get_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y );
+		costs += 15 * get_sloping_upwards( gr->get_weg_hang(), from );
 	}
 	return costs;
 }
@@ -2858,10 +2856,9 @@ bool rail_vehicle_t::check_next_tile(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord from_pos) const
+int rail_vehicle_t::get_cost(const grund_t *gr, const weg_t *w, const sint32 max_speed, ribi_t::ribi from) const
 {
 	// first favor faster ways
-	const weg_t *w = gr->get_weg(get_waytype());
 	if(  w==NULL  ) {
 		// only occurs when deletion during way search
 		return 999;
@@ -2874,9 +2871,8 @@ int rail_vehicle_t::get_cost(const grund_t *gr, const sint32 max_speed, koord fr
 	// effect of slope
 	if(  gr->get_weg_hang()!=0  ) {
 		// Knightly : check if the slope is upwards, relative to the previous tile
-		from_pos -= gr->get_pos().get_2d();
 		// 25 hardcoded, see get_cost_upslope()
-		costs += 25 * slope_t::get_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y );
+		costs += 25 * get_sloping_upwards( gr->get_weg_hang(), from );
 	}
 
 	return costs;
@@ -3527,7 +3523,7 @@ void water_vehicle_t::enter_tile(grund_t* gr)
 
 bool water_vehicle_t::check_next_tile(const grund_t *bd) const
 {
-	if(  bd->ist_wasser()  ) {
+	if(  bd->is_water()  ) {
 		return true;
 	}
 	// channel can have more stuff to check
@@ -3650,10 +3646,9 @@ ribi_t::ribi air_vehicle_t::get_ribi(const grund_t *gr) const
 
 // how expensive to go here (for way search)
 // author prissi
-int air_vehicle_t::get_cost(const grund_t *gr, const sint32, koord) const
+int air_vehicle_t::get_cost(const grund_t *, const weg_t *w, const sint32, ribi_t::ribi) const
 {
 	// first favor faster ways
-	const weg_t *w=gr->get_weg(air_wt);
 	int costs = 0;
 
 	if(state==flying) {

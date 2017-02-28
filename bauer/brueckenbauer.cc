@@ -163,6 +163,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 	}
 
 	if(  !slope_t::is_way(gr->get_weg_hang())  ) {
+		// it's not a straight slope
 		return "Bruecke muss an\neinfachem\nHang beginnen!\n";
 	}
 
@@ -232,13 +233,13 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 			return "A bridge must start on a way!";
 		}
 	}
-	// somethign here which we cannot remove => fail too
+	// something here which we cannot remove => fail too
 	if(  obj_t *obj=gr->obj_bei(0)  ) {
 		if(  const char *err_msg = obj->is_deletable(player)  ) {
 			return err_msg;
 		}
 	}
-	return "";	// could end here by must not end here
+	return "";	// could end here but must not end here
 }
 
 bool bridge_builder_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, const char *&error_msg)
@@ -844,7 +845,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 				grund_t *to = NULL;
 				if(  ribi_t::is_single(ribi)  &&  gr->get_neighbour(to, invalid_wt, ribi_t::backward(ribi))) {
 					// connect to open sea, calc_image will recompute ribi at to.
-					if (to->ist_wasser()) {
+					if (to->is_water()) {
 						to->calc_image();
 					}
 					// only single tile under bridge => try to connect to next tile

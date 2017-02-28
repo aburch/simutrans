@@ -54,7 +54,7 @@ void dr_os_close()
 {
 }
 
-// reiszes screen
+// resizes screen
 int dr_textur_resize(unsigned short** const textur, int, int)
 {
 	*textur = NULL;

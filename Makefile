@@ -1,10 +1,9 @@
 CFG ?= default
 -include config.$(CFG)
 
-
 BACKENDS      = allegro gdi opengl sdl sdl2 mixer_sdl posix
 COLOUR_DEPTHS = 0 16
-OSTYPES       = amiga beos cygwin freebsd haiku linux mingw64 mac
+OSTYPES       = amiga beos cygwin freebsd haiku linux mingw mac
 
 ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
   $(error Unkown BACKEND "$(BACKEND)", must be one of "$(BACKENDS)")
@@ -20,21 +19,28 @@ endif
 
 ifeq ($(OSTYPE),amiga)
   STD_LIBS ?= -lunix -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
-  CFLAGS += -mcrt=newlib -DUSE_C -DSIM_BIG_ENDIAN -gstabs+
+  CFLAGS += -mcrt=newlib -DSIM_BIG_ENDIAN -gstabs+
   LDFLAGS += -Bstatic -non_shared
 else
 # BeOS (obsolete)
   ifeq ($(OSTYPE),beos)
     LIBS += -lnet
   else
-    ifneq ($(findstring $(OSTYPE), cygwin mingw64),)
+    ifneq ($(findstring $(OSTYPE), cygwin mingw),)
       ifeq ($(OSTYPE),cygwin)
-        CFLAGS  += -I/usr/include/mingw -mwin32
+        CFLAGS += -I/usr/include/mingw -mwin32
       else
-        ifeq ($(OSTYPE),mingw64)
+        ifeq ($(OSTYPE),mingw)
           CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
-          LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware
-          LIBS    += -lmingw32
+          LDFLAGS += -static-libgcc -static-libstdc++ -Wl,-Bstatic -lpthread -lbz2 -lz -Wl,-Bdynamic -Wl,--large-address-aware
+          ifneq ($(STATIC),)
+            ifeq ($(shell expr $(STATIC) \>= 1), 1)
+              CFLAGS  += -static
+              LDFLAGS += -Wl,-Bstatic -lbz2 -Wl,-Bdynamic
+							# other libs like SDL2 MUST be dynamic!
+            endif
+          endif
+          LIBS += -lmingw32
         endif
       endif
       SOURCES += simsys_w32_png.cc
@@ -59,13 +65,16 @@ else
   endif
 endif
 
-ifeq ($(OSTYPE),mingw64)
+ifeq ($(OSTYPE),mingw)
   SOURCES += clipboard_w32.cc
 else
   SOURCES += clipboard_internal.cc
 endif
 
-LIBS += -lbz2 -lz
+ifneq ($(OSTYPE),mingw)
+	# already defined
+	LIBS += -lbz2 -lz
+endif
 
 ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
@@ -74,15 +83,18 @@ SDL2_CONFIG    ?= sdl2-config
 ifneq ($(OPTIMISE),)
   CFLAGS += -O3
   ifeq ($(findstring $(OSTYPE), amiga),)
-	ifneq ($(findstring $(CXX), clang),)
-		CFLAGS += -minline-all-stringops
-	endif
+    ifneq ($(findstring $(CXX), clang),)
+      CFLAGS += -minline-all-stringops
+    endif
   endif
 else
   CFLAGS += -O
 endif
 
 ifdef DEBUG
+	ifndef MSG_LEVEL
+		MSG_LEVEL = 3
+	endif
   ifeq ($(shell expr $(DEBUG) \>= 1), 1)
     CFLAGS += -g -DDEBUG
   endif
@@ -100,6 +112,10 @@ else
   CFLAGS += -DNDEBUG
 endif
 
+ifdef MSG_LEVEL
+	CFLAGS += -DMSG_LEVEL=$(MSG_LEVEL)
+endif
+
 ifneq ($(PROFILE),)
   CFLAGS  += -pg -DPROFILE
   ifneq ($(PROFILE), 2)
@@ -111,15 +127,8 @@ endif
 ifneq ($(MULTI_THREAD),)
   ifeq ($(shell expr $(MULTI_THREAD) \>= 1), 1)
     CFLAGS += -DMULTI_THREAD
-    ifeq ($(OSTYPE),mingw64)
-#use lpthreadGC2d for debug alternatively
-#      LDFLAGS += -lpthreadGC2
-# MinGW64 mag die nicht mehr, muss die Posix Threads nehmen
+    ifneq ($(OSTYPE),haiku)
       LDFLAGS += -lpthread
-    else
-      ifneq ($(OSTYPE),haiku)
-        LDFLAGS += -lpthread
-      endif
     endif
   endif
 endif
@@ -432,7 +441,7 @@ SOURCES += simticker.cc
 SOURCES += simtool.cc
 SOURCES += simware.cc
 SOURCES += simworld.cc
-SOURCES += sucher/platzsucher.cc
+SOURCES += finder/placefinder.cc
 SOURCES += unicode.cc
 SOURCES += utils/cbuffer_t.cc
 SOURCES += utils/csv.cc
@@ -486,15 +495,23 @@ ifeq ($(BACKEND),sdl)
   endif
   ifeq ($(SDL_CONFIG),)
     ifeq ($(OSTYPE),mac)
-      SDL_CFLAGS  := -I/System/Libraries/Frameworks/SDL/Headers -Dmain=SDL_main
-      SDL_LDFLAGS := -framework SDL -framework Cocoa -I/System/Libraries/Frameworks/SDL/Headers SDLMain.m
+      SDL_CFLAGS  := -I/Library/Frameworks/SDL.framework/Headers -Dmain=SDL_main
+      SDL_LDFLAGS := -framework SDL -framework Cocoa -I/Library/Frameworks/SDL.framework/Headers OSX/SDLMain.m
     else
       SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
       SDL_LDFLAGS := -lSDLmain -lSDL
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-    SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+    ifneq ($(STATIC),)
+      ifeq ($(shell expr $(STATIC) \>= 1), 1)
+        SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
+      else
+        SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+      endif
+    else
+      SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+    endif
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)
@@ -517,15 +534,23 @@ ifeq ($(BACKEND),sdl2)
   endif
   ifeq ($(SDL2_CONFIG),)
     ifeq ($(OSTYPE),mac)
-      SDL_CFLAGS  := -I/System/Libraries/Frameworks/SDL2/Headers -Dmain=SDL_main
-      SDL_LDFLAGS := -framework SDL2 -framework Cocoa -I/System/Libraries/Frameworks/SDL2/Headers SDLMain.m
+      SDL_CFLAGS  := -I/Library/Frameworks/SDL2.framework/Headers
+      SDL_LDFLAGS := -framework SDL2
     else
       SDL_CFLAGS  := -I$(MINGDIR)/include/SDL2 -Dmain=SDL_main
       SDL_LDFLAGS := -lSDL2main -lSDL2
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL2_CONFIG) --cflags)
-    SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
+    ifneq ($(STATIC),)
+      ifeq ($(shell expr $(STATIC) \>= 1), 1)
+        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
+      else
+        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
+      endif
+    else
+      SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
+    endif
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)

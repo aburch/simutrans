@@ -1,8 +1,8 @@
 /*
- * Schienen für Simutrans
+ * Rails for Simutrans
  *
- * Überarbeitet Januar 2001
- * von Hj. Malthaner
+ * Revised January 2001
+ * Hj. Malthaner
  */
 
 #include <stdio.h>
@@ -77,7 +77,7 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir  )
 {
 	if(can_reserve(c)) {
 		reserved = c;
-		/* for threeway and forway switches we may need to alter graphic, if
+		/* for threeway and fourway switches we may need to alter graphic, if
 		 * direction is a diagonal (i.e. on the switching part)
 		 * and there are switching graphics
 		 */

@@ -14,7 +14,7 @@
 
 
 /**
- * Signale für die Bahnlinien.
+ * Signals for rail tracks.
  *
  * @see blockstrecke_t
  * @see blockmanager
@@ -37,7 +37,7 @@ public:
 	const char *get_name() const {return "Signal";}
 
 	/**
-	* berechnet aktuelles image
+	* Calculate the actual image
 	*/
 	void calc_image();
 };

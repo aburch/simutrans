@@ -72,7 +72,7 @@ depot_t::~depot_t()
 depot_t *depot_t::find_depot( koord3d start, const obj_t::typ depot_type, const player_t *player, bool forward)
 {
 	depot_t *found = NULL;
-	koord3d found_pos = forward ? koord3d(welt->get_size().x+1,welt->get_size().y+1,welt->get_grundwasser()) : koord3d(-1,-1,-1);
+	koord3d found_pos = forward ? koord3d(welt->get_size().x+1,welt->get_size().y+1,welt->get_groundwater()) : koord3d(-1,-1,-1);
 	sint32 found_hash = forward ? 0x7FFFFFF : -1;
 	sint32 start_hash = start.x + (8192 * start.y);
 	FOR(slist_tpl<depot_t*>, const d, all_depots) {
@@ -227,7 +227,7 @@ void depot_t::sell_vehicle(vehicle_t* veh)
 }
 
 
-// returns the indest of the oldest/newest vehicle in a list
+// returns the index of the oldest/newest vehicle in a list
 vehicle_t* depot_t::find_oldest_newest(const vehicle_desc_t* desc, bool old)
 {
 	vehicle_t* found_veh = NULL;
@@ -476,7 +476,7 @@ void depot_t::rdwr(loadsave_t *file)
 
 	rdwr_vehikel(vehicles, file);
 	if (file->get_version() < 81033) {
-		// waggons are stored extra, just add them to vehicles
+		// wagons are stored extra, just add them to vehicles
 		assert(file->is_loading());
 		rdwr_vehikel(vehicles, file);
 	}
@@ -544,7 +544,7 @@ void depot_t::rdwr_vehikel(slist_tpl<vehicle_t *> &list, loadsave_t *file)
 
 
 /**
- * @return NULL wenn OK, ansonsten eine Fehlermeldung
+ * @return NULL when OK, otherwise an error message
  * @author Hj. Malthaner
  */
 const char * depot_t::is_deletable(const player_t *player)

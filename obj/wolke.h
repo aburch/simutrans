@@ -19,7 +19,7 @@ private:
 
 	uint16 insta_zeit;	// clouds vanish when insta_zeit>2500 => maximum 5 images ...
 	sint8 base_y_off;
-	sint8 cloud_nr;
+	uint8 cloud_nr;
 
 public:
 	static bool register_desc(const skin_desc_t *desc);
@@ -42,7 +42,7 @@ public:
 
 
 /**
- * follwoing two classes are just for compatibility for old save games
+ * following two classes are just for compatibility for old save games
  */
 class async_wolke_t : public obj_t
 {

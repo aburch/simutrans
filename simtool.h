@@ -471,7 +471,7 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
 
-/* builts a (if param=NULL random) industry chain starting here *
+/* builds an (if param=NULL random) industry chain starting here *
  * the parameter string is a follow (or NULL):
  * 1#34,oelfeld
  * first letter: ignore climates
@@ -659,7 +659,7 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
-// builts next chain
+// builds next chain
 class tool_increase_industry_t : public tool_t {
 public:
 	tool_increase_industry_t() : tool_t(TOOL_INCREASE_INDUSTRY | SIMPLE_TOOL) {}
@@ -691,7 +691,7 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
-// setp one year forward
+// step one year forward
 class tool_step_year_t : public tool_t {
 public:
 	tool_step_year_t() : tool_t(TOOL_STEP_YEAR | SIMPLE_TOOL) {}
@@ -978,7 +978,7 @@ public:
 };
 
 /******************************** Internal tools ***********/
-/* internal simple tools needed for networksynchronisation */
+/* internal simple tools needed for network synchronisation */
 class tool_traffic_level_t : public tool_t {
 public:
 	tool_traffic_level_t() : tool_t(TOOL_TRAFFIC_LEVEL | SIMPLE_TOOL) {}

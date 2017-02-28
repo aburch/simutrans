@@ -70,7 +70,7 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "tool_build_factory", TOOL_BUILD_FACTORY | GENERAL_TOOL);
 	/// link factories
 	enum_slot(vm, "tool_link_factory", TOOL_LINK_FACTORY | GENERAL_TOOL);
-	/// build headquarter
+	/// build headquarters
 	enum_slot(vm, "tool_headquarter", TOOL_HEADQUARTER | GENERAL_TOOL);
 	/// lock map: switching players not allowed anymore
 	enum_slot(vm, "tool_lock_game", TOOL_LOCK_GAME | GENERAL_TOOL);
@@ -177,7 +177,7 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "mo_tree", obj_t::baum);
 	/// pointer (bulldozers etc)
 	enum_slot(vm, "mo_pointer", obj_t::zeiger);
-	/// cloude and smoke
+	/// cloud and smoke
 	enum_slot(vm, "mo_cloud", obj_t::wolke);
 	/// building (houses, halts, factories ...)
 	enum_slot(vm, "mo_building", obj_t::gebaeude);

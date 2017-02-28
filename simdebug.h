@@ -35,20 +35,40 @@ extern log_t *dbg;
  */
 void init_logging(const char *logname, bool force_flush, bool log_debug, const char *greeting, const char* syslogtag );
 
-#ifndef DEBUG
+#ifdef MSG_LEVEL
 
-// nothing to debug -> then ignore
-#define DBG_MESSAGE(i,...) ;
-#define DBG_DEBUG(i,...) ;
+#if MSG_LEVEL >= 4
+#define DBG_DEBUG4 dbg->debug
+#define DBG_DEBUG dbg->message
+
+#elif MSG_LEVEL == 3
 #define DBG_DEBUG4(i,...) ;
+#define DBG_MESSAGE dbg->message
+#define DBG_DEBUG dbg->message
 
-#else
+#elif MSG_LEVEL >= 1
+#define DBG_DEBUG4(i,...) ;
+#define DBG_MESSAGE(i,...) ;
+#define DBG_DEBUG dbg->message
+
+#endif
+
+#elif defined(DEBUG)
+
+// default level in undefinded
+#define MSG_LEVEL (3)
 
 //#define DBG_MESSAGE(i,...) dbg->message(i,__VA_ARGS__)
 //#define DBG_DEBUG(i,...) dbg->message(i,__VA_ARGS__)
 #define DBG_MESSAGE dbg->message
 #define DBG_DEBUG dbg->message
 #define DBG_DEBUG4 dbg->debug
+
+#else
+// nothing to debug -> then ignore
+#define DBG_DEBUG4(i,...) ;
+#define DBG_MESSAGE(i,...) ;
+#define DBG_DEBUG(i,...) ;
 
 #endif
 

@@ -274,8 +274,8 @@ void dr_os_close()
 #endif
 	SDL_FreeCursor(hourglass);
 	SDL_FreeCursor(blank);
-	// Hajo: SDL doc says, screen is free'd by SDL_Quit and should not be
-	// free'd by the user
+	// Hajo: SDL doc says, screen is freed by SDL_Quit and should not be
+	// freed by the user
 	// SDL_FreeSurface(screen);
 }
 

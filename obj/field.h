@@ -30,7 +30,7 @@ public:
 	void show_info();
 
 	/**
-	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @return NULL when OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
 	const char * is_deletable(const player_t *);

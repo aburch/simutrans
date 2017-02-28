@@ -21,9 +21,9 @@
 #define SIM_SYSTEM_TRASHBINAVAILABLE
 #endif
 
-/* Variablen zur Messageverarbeitung */
+/* Variable for message processing */
 
-/* Klassen */
+/* Classes */
 
 #define SIM_NOEVENT         0
 #define SIM_MOUSE_BUTTONS   1
@@ -33,7 +33,7 @@
 #define SIM_SYSTEM          254
 #define SIM_IGNORE_EVENT    255
 
-/* Aktionen */ /* added RIGHTUP and MIDUP */
+/* Actions */ /* added RIGHTUP and MIDUP */
 #define SIM_MOUSE_LEFTUP            1
 #define SIM_MOUSE_RIGHTUP           2
 #define SIM_MOUSE_MIDUP             3
@@ -44,7 +44,7 @@
 #define SIM_MOUSE_WHEELUP           8 //2003-11-04 hsiegeln added
 #define SIM_MOUSE_WHEELDOWN         9 //2003-11-04 hsiegeln added
 
-/* Globale Variablen zur Messagebearbeitung */
+/* Global Variable for message processing */
 
 struct sys_event
 {
@@ -115,7 +115,7 @@ int dr_textur_resize(unsigned short** textur, int w, int h);
 
 // needed for screen update
 void dr_prepare_flush();	// waits, if previous update not yet finished
-void dr_flush();	// copy to screen (eventuall multithreaded)
+void dr_flush();	// copy to screen (eventually multithreaded)
 
 /**
  * Transform a 24 bit RGB color into the system format.
@@ -172,7 +172,7 @@ size_t dr_paste(char *target, size_t max_length);
 /**
  * Open a program/starts a script to download pak sets from sourceforge
  * @param path_to_program : actual simutrans pakfile directory
- * @param portabel : true if lokal files to be save in simutransdir
+ * @param portabel : true if local files to be save in simutransdir
  * @return false, if nothing was downloaded
  */
 bool dr_download_pakset( const char *path_to_program, bool portable );

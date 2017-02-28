@@ -202,7 +202,7 @@ public:
 	}
 
 	// the elements are inserted with increasing key
-	// => faster retrivial (we only have to check half of the lists)
+	// => faster retrieval (we only have to check half of the lists)
 	const value_t &get(const key_t key) const
 	{
 		static value_t nix;
@@ -220,7 +220,7 @@ public:
 	}
 
 	// the elements are inserted with increasing key
-	// => faster retrivial, but never ever change a key later!!!
+	// => faster retrieval, but never ever change a key later!!!
 	value_t *access(const key_t key)
 	{
 		slist_tpl<node_t>& bag = bags[get_hash(key)];

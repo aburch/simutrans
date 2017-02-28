@@ -18,6 +18,8 @@ AC_CHECK_LIB(freetype2, load_FT_font, [AC_SUBST(freetype2, '-DUSE_FREETYPE')], [
 # optional (but highly recommended) multithreading
 AC_SEARCH_LIBS(pthread_mutex_destroy, pthread, [AC_SUBST(multithread, 1)], [AC_SUBST(multithread, 0)] )
 
+AC_CHECK_LIB(pthreadGC2, pthread_mutex_destroy, [AC_SUBST(bundlepthread, 1)], [AC_SUBST(bundlepthread, 0)] )
+
 # find OS and backend by libs ...
 AC_CHECK_LIB(SDL2, SDL_GetRenderDriverInfo)
 AC_CHECK_LIB(SDL, SDL_Init)
@@ -30,7 +32,7 @@ AC_CHECK_HEADERS(LocaleRoster.h)
 # hackish detection of OS ...
 if test "$ac_cv_header_windows_h" == yes
 then
-	AC_SUBST(os_type, mingw64)
+	AC_SUBST(os_type, mingw)
 elif test "$ac_cv_header_LocaleRoster_h" == yes
 then
 	AC_SUBST(os_type, haiku)
@@ -109,6 +111,5 @@ if test "$ac_cv_sizeof_voidp" == 4
 		AC_SUBST(flags, '-DUSE_C')
 	fi
 fi
-
 
 AC_OUTPUT(config.default)
