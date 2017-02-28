@@ -2506,7 +2506,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 					for(k.x = 0; k.x < groesse_alt.x; k.x ++) {
 						// for buildings with holes the hole could be on a different height ->gr==NULL
 						bool ok = false;
-						if (grund_t *gr = welt->lookup(koord3d(k,0)+pos)) {
+						if (grund_t *gr = welt->lookup_kartenboden(k + pos)) {
 							if(gebaeude_t *gb_part = gr->find<gebaeude_t>()) {
 								// there may be buildings with holes, so we only remove our building!
 								if(gb_part->get_tile()  ==  desc_old->get_tile(old_layout, k.x, k.y)) {
