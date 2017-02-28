@@ -35,6 +35,10 @@
 /* need to emulate the mouse pointer with a graphic */
 //#define USE_SOFTPOINTER
 
+/* Use assembly imepmentation of routines if available
+* Some routines, eg for drawing, can have assembly implementations for certaint platforms that may perform better */
+#define USE_ASSEMBLER
+
 /* Use low level C/C++ implementations of routines
  * Some routines, eg for drawing, can have low level C++ implementations that might perform better on certain platforms */
 #define LOW_LEVEL
