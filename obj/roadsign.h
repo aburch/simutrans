@@ -41,6 +41,7 @@ protected:
 
 	// 0 = not fixed, 1 = only fix left lane, 2 = only fix right lane, 3 = fix both lane, 4 = not applied
 	uint8 lane_fix;
+	koord3d intersection_pos;
 
 	const roadsign_desc_t *desc;
 

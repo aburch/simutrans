@@ -175,12 +175,14 @@ void roadsign_t::show_info()
 		create_win(new trafficlight_info_t(this), w_info, (ptrdiff_t)this );
 	}
 	else if(  desc->is_single_way()  ) {
-		koord3d intersection;
-		if(  (intersection = get_intersection()) == koord3d::invalid  ) {
+		if(  (intersection_pos = get_intersection()) == koord3d::invalid  ) {
 			set_lane_fix(4);
+			obj_t::show_info();
 		}
 		else {
-			create_win(new onewaysign_info_t(this, intersection), w_info, (ptrdiff_t)this );
+			// off the "not applied" bit flag
+			lane_fix = ~((~lane_fix)|4);
+			create_win(new onewaysign_info_t(this, intersection_pos), w_info, (ptrdiff_t)this );
 		}
 	}
 	else {
@@ -215,6 +217,9 @@ void roadsign_t::info(cbuffer_t & buf) const
 			buf.append(translator::translate("\nSet phases:"));
 			buf.append("\n");
 			buf.append("\n");
+		}
+		if(desc->is_single_way() && intersection_pos != koord3d::invalid) {
+			buf.printf("%s(%d,%d,%d)\n", translator::translate("\nintersection:"), intersection_pos.x,intersection_pos.y,intersection_pos.z);
 		}
 	}
 }
@@ -740,12 +745,13 @@ const roadsign_desc_t *roadsign_t::roadsign_search(roadsign_desc_t::types const 
 const koord3d roadsign_t::get_intersection() const
 {
 	grund_t* current_gr = welt->lookup(get_pos());
-	ribi_t::ribi current_ribi = dir;
+	ribi_t::ribi current_ribi = ribi_t::reverse_single(dir);
 	for(int step = 0; step < 500; step++) {
 		grund_t *next_gr;
 		if(  ribi_t::is_single(current_ribi)  ) {
 			if(  current_gr->get_neighbour(next_gr,road_wt,current_ribi)  ) {
 				// grund found
+				//printf("(%d,%d)->(%d,%d), ribi:%d\n", current_gr->get_pos().x,current_gr->get_pos().y,next_gr->get_pos().x,next_gr->get_pos().y,current_ribi);
 				strasse_t *str = (strasse_t *)next_gr->get_weg(road_wt);
 				if(  str  &&  str->get_overtaking_info() == 0  ) {
 					ribi_t::ribi str_ribi = str->get_ribi();
