@@ -2367,12 +2367,12 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 #ifdef LOW_LEVEL
 #ifdef SIM_BIG_ENDIAN
 					// low level c++ without any unrolling
-					while (runlen--) {
+					while(  runlen--  ) {
 						*sp++ = *p++;
 					}
 #else
 					// trying to merge reads and writes
-					if (runlen) {
+					if(  runlen  ) {
 						// align to 4 bytes, should use uintptr_t but not available
 						if (reinterpret_cast<size_t>(p) & 0x2) {
 							*p++ = *sp++;
@@ -2385,11 +2385,9 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 						while (runlen--) {
 #if defined _MSC_VER // MSVC can read unaligned
 							*ld++ = *(uint32 const *const)sp;
-#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#else
 							// little endian order, assumed by default
 							*ld++ = (uint32(sp[1]) << 16) | uint32(sp[0]);
-#else
-							*ld++ = (uint32(sp[0]) << 16) | uint32(sp[1]);
 #endif
 							sp += 2;
 						}
@@ -4485,7 +4483,6 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 				for (h = char_yoffset; h < char_height; h++) {
 					unsigned int dat = *p++ & m;
 					PIXVAL* dst = textur + screen_pos;
-<<<<<<< HEAD
 #if defined LOW_LEVEL
 					// low level c++
 					if (dat != 0) {
@@ -4499,20 +4496,16 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 						if (dat & 0x01) dst[7] = color;
 					}
 #else
-					// high level c++
-					if (dat != 0) {
-						for (size_t dat_offset = 0; dat_offset < 8; dat_offset++) {
-							if ((dat & (0x80 >> dat_offset))) {
-=======
 
+					// high level c++
 					if(  dat  !=  0  ) {
 						for(  size_t dat_offset = 0 ; dat_offset < 8 ; dat_offset++  ) {
 							if(  (dat & (0x80 >> dat_offset))  ) {
->>>>>>> ea2d5f2d9... Clean up for assembly removal commit. Improved endian robustness and MSVC performance.
 								dst[dat_offset] = color;
 							}
 						}
 					}
+#endif
 					screen_pos += disp_width;
 				}
 			}
