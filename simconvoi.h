@@ -410,6 +410,10 @@ private:
 	 */
 	sint32 yielding_quit_index;
 
+	// 0: not fixed, -1: fixed to traffic lane, 1:fixed to passing lane
+	sint8 lane_fix;
+	uint32 lane_fix_end_index;
+
 public:
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
@@ -907,6 +911,15 @@ public:
 	void yield_lane_space();
 	sint32 get_yielding_quit_index() const { return yielding_quit_index; }
 	void quit_yielding_lane() { yielding_quit_index = -1; must_recalc_speed_limit(); }
+
+	/*
+	 * Functions related to lane fixing
+	 * @author teamhimeH
+	 */
+	 bool calc_lane_fix(uint8 lane_fix_sign); // If true, lane fixing started.
+	 uint32 get_lane_fix_end_index() const { return lane_fix_end_index; }
+	 sint8 get_lane_fix() const { return lane_fix; }
+	 void reset_lane_fix() { lane_fix = 0; }
 };
 
 #endif

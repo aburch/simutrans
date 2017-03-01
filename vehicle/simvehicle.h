@@ -88,10 +88,6 @@ protected:
 	// true, if this vehicle will enter passing lane in the next tile
 	bool next_enter_passing_lane;
 
-	// this can be used by road_vehicle_t and private_car_t
-	// 0: not fixed, -1: fixed to left lane, 1:fixed to right lane
-	uint8 lane_fix;
-
 	/**
 	 * Vehicle movement: check whether this vehicle can enter the next tile (pos_next).
 	 * @returns NULL if check fails, otherwise pointer to the next tile

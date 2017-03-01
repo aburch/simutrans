@@ -165,6 +165,7 @@ void convoi_t::init(player_t *player)
 
 	home_depot = koord3d::invalid;
 	yielding_quit_index = -1;
+	lane_fix = 0;
 
 	recalc_data_front = true;
 	recalc_data = true;
@@ -3950,4 +3951,62 @@ void convoi_t::yield_lane_space()
 		yielding_quit_index = quit_index;
 		must_recalc_speed_limit();
 	}
+}
+
+bool convoi_t::calc_lane_fix(uint8 lane_fix_sign)
+{
+	if(  lane_fix_sign!=0  &&  lane_fix_sign<4  ) {
+		uint16 test_index = fahr[0]->get_route_index();
+		while(  test_index < route.get_count()  ) {
+			grund_t *gr = welt->lookup(route.at(test_index));
+			if(  !gr  ) {
+				// way (weg) not existent (likely destroyed)
+				return false;
+			}
+			strasse_t *str = (strasse_t *)gr->get_weg(road_wt);
+			if(  !str  ||  gr->get_top() > 250  ||  str->get_overtaking_info() != 0  ) {
+				// too many cars here or no street or not one-way road
+				return false;
+			}
+			ribi_t::ribi str_ribi = str->get_ribi();
+			if(  str_ribi == ribi_t::all  ||  ribi_t::is_threeway(str_ribi)  ) {
+				// It's a intersection.
+				if(  test_index == 0  ||  test_index == route.get_count() - 1  ) {
+					// cannot calculate prev_dir or next_dir
+					return false;
+				}
+				ribi_t::ribi prev_dir = vehicle_base_t::calc_direction(welt->lookup(route.at(test_index-1))->get_pos(),welt->lookup(route.at(test_index))->get_pos());
+				ribi_t::ribi next_dir = vehicle_base_t::calc_direction(welt->lookup(route.at(test_index))->get_pos(),welt->lookup(route.at(test_index+1))->get_pos());
+				ribi_t::ribi str_left = (ribi_t::rotate90l(prev_dir) & str_ribi) == 0 ? prev_dir : ribi_t::rotate90l(prev_dir);
+				ribi_t::ribi str_right = (ribi_t::rotate90(prev_dir) & str_ribi) == 0 ? prev_dir : ribi_t::rotate90(prev_dir);
+				if(  next_dir == str_left  &&  (lane_fix_sign & 1) != 0  ) {
+					// fix to left lane
+					if(  welt->get_settings().is_drive_left()  ) {
+						lane_fix = -1;
+					}
+					else {
+						lane_fix = 1;
+					}
+					lane_fix_end_index = test_index;
+					return true;
+				}
+				else if(  next_dir == str_right  &&  (lane_fix_sign & 2) != 0  ) {
+					// fix to right lane
+					if(  welt->get_settings().is_drive_left()  ) {
+						lane_fix = 1;
+					}
+					else {
+						lane_fix = -1;
+					}
+					lane_fix_end_index = test_index;
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+			test_index++;
+		}
+	}
+	return false;
 }
