@@ -2571,6 +2571,12 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_short( next_reservation_index );
 	}
 
+	if(  file->get_version()>=120005  ) {
+		file->rdwr_long(yielding_quit_index);
+		file->rdwr_byte(lane_fix);
+		file->rdwr_long(lane_fix_end_index);
+	}
+
 	if(  file->is_loading()  ) {
 		reserve_route();
 		recalc_catg_index();
