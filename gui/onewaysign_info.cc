@@ -17,8 +17,8 @@ onewaysign_info_t::onewaysign_info_t(roadsign_t* s, koord3d first_intersection) 
 	obj_infowin_t(s),
 	sign(s)
 {
-	direction[0].init( button_t::square_state, translator::translate("Left"), scr_coord(4,get_windowsize().h - 50), scr_size(40,D_BUTTON_HEIGHT) );
-	direction[1].init( button_t::square_state, translator::translate("Right"), scr_coord(50,get_windowsize().h - 50), scr_size(40,D_BUTTON_HEIGHT) );
+	direction[0].init( button_t::square_state, translator::translate("Left"), scr_coord(10,get_windowsize().h - 40), scr_size(40,D_BUTTON_HEIGHT) );
+	direction[1].init( button_t::square_state, translator::translate("Right"), scr_coord(60,get_windowsize().h - 40), scr_size(40,D_BUTTON_HEIGHT) );
 	direction[0].add_listener( this );
 	direction[1].add_listener( this );
 	direction[0].pressed = (sign->get_lane_fix() & 1) != 0;

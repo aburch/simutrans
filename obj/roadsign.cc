@@ -219,7 +219,7 @@ void roadsign_t::info(cbuffer_t & buf) const
 			buf.append("\n");
 		}
 		if(desc->is_single_way() && intersection_pos != koord3d::invalid) {
-			buf.printf("%s(%d,%d,%d)\n", translator::translate("\nintersection:"), intersection_pos.x,intersection_pos.y,intersection_pos.z);
+			buf.printf("%s(%d,%d,%d)\n", translator::translate("intersection:"), intersection_pos.x,intersection_pos.y,intersection_pos.z);
 		}
 	}
 }
