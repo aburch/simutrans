@@ -3400,6 +3400,8 @@ const char *tool_build_wayobj_t::do_work( player_t* player, const koord3d &start
 	bool can_built = calc_route( verbindung, player, start, end );
 	DBG_MESSAGE("tool_build_wayobj_t::work()","route search returned %d",can_built);
 
+	const char *err = NULL;
+
 	if(!can_built) {
 		return "Ways not connected";
 	}
@@ -3411,26 +3413,36 @@ const char *tool_build_wayobj_t::do_work( player_t* player, const koord3d &start
 			wayobj_t::extend_wayobj_t(r[i], player, r.get_ribi(i), desc);
 		}
 		else {
-			if (wayobj_t* const wo = welt->lookup(r[i])->find<wayobj_t>()) {
-				const char *err = wo->is_deletable( player );
-				if( !err ) {
-					wo->cleanup( player );
-					delete wo;
+			grund_t *gr = welt->lookup(r[i]);
+			for(int n=0;  n<gr->get_top();  n++  ) {
+				obj_t *obj = gr->obj_bei(n);
+				if(  obj  &&  obj->get_typ()==obj_t::wayobj  ) {
+					wayobj_t *wo = static_cast<wayobj_t *>(obj);
+					if(  wo->get_waytype() == wt  ) {
+						// only remove matching waytype
+						const char *err = wo->is_deletable( player );
+						if( !err ) {
+							wo->cleanup( player );
+							delete wo;
+						}
+						else {
+							break;
+						}
+					}
 				}
 			}
 		}
 	}
 
-	// Update depots (new electric tab?). Depots can only be on first and last tile.
-	for(  uint8 j = 0;  j < 2;  j++  ) {
-		uint8 i = j==0 ? 0 : verbindung.get_count()-1;
-		depot_t *dep = welt->lookup( verbindung.at(i) )->get_depot();
-		if( dep ) {
-			dep->update_win();
-		}
+	// Update depots (maybe remove electric tab?). Depots can only be on first and last tile.
+	if(  depot_t *dep = welt->lookup(r[0])->get_depot()  ) {
+		dep->update_win();
+	}
+	if(  depot_t *dep = welt->lookup(r.back())->get_depot()  ) {
+		dep->update_win();
 	}
 
-	return NULL;
+	return err;
 }
 
 
