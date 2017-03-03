@@ -147,7 +147,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	else if (!STRICMP(type_name, "hq")) {
 		level      = obj.get_int("passengers",  level);
 		extra_data = obj.get_int("hq_level", 0);
-		type = building_desc_t::headquarter;
+		type = building_desc_t::headquarters;
 	}
 	else if (!STRICMP(type_name, "habour")  ||  !STRICMP(type_name, "harbour")) {
 		// buildable only on sloped shores
@@ -245,9 +245,9 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		capacity = obj.get_int("station_capacity", level * 32);
 	}
 
-	sint32 maintenance = obj.get_int("maintenance", COST_MAGIC);
-	if(  maintenance == COST_MAGIC  ) {
-		maintenance = obj.get_int("station_maintenance", COST_MAGIC);
+	sint32 maintenance = obj.get_int("maintenance", PRICE_MAGIC);
+	if(  maintenance == PRICE_MAGIC  ) {
+		maintenance = obj.get_int("station_maintenance", PRICE_MAGIC);
 	}
 
 	sint32 price = obj.get_int("cost", PRICE_MAGIC);
