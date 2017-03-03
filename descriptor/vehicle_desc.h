@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __VEHIKEL_DESC_H
-#define __VEHIKEL_DESC_H
+#ifndef __VEHICLE_DESC_H
+#define __VEHICLE_DESC_H
 
 #include "obj_base_desc.h"
 #include "goods_desc.h"
@@ -91,14 +91,14 @@ public:
 
 	// default vehicle (used for way search and similar tasks)
 	// since it has no images and not even a name node any calls to this will case a crash
-	vehicle_desc_t(uint8 wtyp, uint16 speed, engine_t engine) {
-		freight_image_type = cost = capacity = axle_load = running_cost = fixed_cost = intro_date = leader_count = trailer_count = 0;
+	vehicle_desc_t(uint8 wtype, uint16 speed, engine_t engine) {
+		freight_image_type = price = capacity = axle_load = running_cost = fixed_cost = intro_date = leader_count = trailer_count = 0;
 		power = weight = 1;
 		loading_time = 1000;
 		gear = 64;
 		len = 8;
 		sound = -1;
-		wt = wtyp;
+		wtyp = wtype;
 		engine_type = (uint8)engine;
 		topspeed = speed;
 	}
@@ -113,7 +113,7 @@ public:
 	uint8 get_dirs() const { return get_child<image_list_t>(4)->get_image(4) ? 8 : 4; }
 
 	// return a matching image
-	// beware, there are three class of vehicles
+	// beware, there are three classes of vehicles
 	// vehicles with and without freight images, and vehicles with different freight images
 	// they can have 4 or 8 directions ...
 	image_id get_image_id(ribi_t::dir dir, const goods_desc_t *ware) const

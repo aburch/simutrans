@@ -98,7 +98,7 @@ static int calc_min_top_speed(const array_tpl<vehicle_t*>& fahr, uint8 anz_vehik
 {
 	int min_top_speed = SPEED_UNLIMITED;
 	for(uint8 i=0; i<anz_vehikel; i++) {
-		min_top_speed = min(min_top_speed, kmh_to_speed( fahr[i]->get_desc()->get_geschw() ) );
+		min_top_speed = min(min_top_speed, kmh_to_speed( fahr[i]->get_desc()->get_topspeed() ) );
 	}
 	return min_top_speed;
 }
@@ -652,14 +652,14 @@ void convoi_t::add_running_cost( const weg_t *weg )
 					obj_t *d=gr->obj_bei(i);
 					if(  wayobj_t const* const wo = obj_cast<wayobj_t>(d)  )  {
 						if(  wo->get_waytype()==weg->get_waytype()  ) {
-							toll += (wo->get_desc()->get_wartung()*welt->get_settings().get_way_toll_waycost_percentage())/100l;
+							toll += (wo->get_desc()->get_maintenance()*welt->get_settings().get_way_toll_waycost_percentage())/100l;
 							break;
 						}
 					}
 				}
 			}
 			// now add normal way toll be maintenance
-			toll += (weg->get_desc()->get_wartung()*welt->get_settings().get_way_toll_waycost_percentage())/100l;
+			toll += (weg->get_desc()->get_maintenance()*welt->get_settings().get_way_toll_waycost_percentage())/100l;
 		}
 		weg->get_owner()->book_toll_received( toll, get_schedule()->get_waytype() );
 		get_owner()->book_toll_paid(         -toll, get_schedule()->get_waytype() );
@@ -1640,7 +1640,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		sum_gear_and_power += info->get_power()*info->get_gear();
 		sum_weight += info->get_weight();
 		sum_running_costs -= info->get_running_cost();
-		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_desc()->get_geschw() ) );
+		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_desc()->get_topspeed() ) );
 		sum_gesamtweight = sum_weight;
 		calc_loading();
 		freight_info_resort = true;
@@ -2596,7 +2596,7 @@ void convoi_t::info(cbuffer_t & buf) const
 	if (v != NULL) {
 		char tmp[128];
 
-		buf.printf("\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_desc()->get_geschw(), get_running_cost() / 100.0);
+		buf.printf("\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_desc()->get_topspeed(), get_running_cost() / 100.0);
 		buf.printf(" %s: %ikW\n", translator::translate("Leistung"), sum_power);
 		buf.printf(" %s: %i (%i) t\n", translator::translate("Gewicht"), sum_weight, sum_gesamtweight - sum_weight);
 		buf.printf(" %s: ", translator::translate("Gewinn"));
@@ -3243,7 +3243,7 @@ sint64 convoi_t::get_purchase_cost() const
 {
 	sint64 purchase_cost = 0;
 	for(  unsigned i = 0;  i < get_vehicle_count();  i++  ) {
-		purchase_cost += fahr[i]->get_desc()->get_preis();
+		purchase_cost += fahr[i]->get_desc()->get_price();
 	}
 	return purchase_cost;
 }

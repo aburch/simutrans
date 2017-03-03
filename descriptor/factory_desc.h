@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __FABRIK_DESC_H
-#define __FABRIK_DESC_H
+#ifndef __FACTORY_DESC_H
+#define __FACTORY_DESC_H
 
 #include "obj_desc.h"
 #include "building_desc.h"
@@ -50,8 +50,8 @@ class field_group_desc_t : public obj_desc_t {
 private:
 	uint16 probability;		// between 0 ...10000
 	uint16 max_fields;		// maximum number of fields around a single factory
-	uint16 min_fields;		// number of fields to start with
-	uint16 start_fields;	// spawn between min and start_fields fields
+	uint16 min_fields;		// minimum number of fields around a single factory
+	uint16 start_fields;	// number of fields between min and start_fields to spawn on creation
 	uint16 field_classes;	// number of field classes
 
 	weighted_vector_tpl<uint16> field_class_indices;
@@ -132,7 +132,7 @@ public:
  *      Volker Meyer
  *
  *  Description:
- *      Ein Verbrauchsgut einer Fabriktyps
+ *      Information about required goods for production
  *
  *  Child nodes:
  *	0   Ware
@@ -159,7 +159,7 @@ public:
  *      Volker Meyer
  *
  *  Description:
- *      Eine Produktion eines Fabriktyps
+ *      Information about produced goods of a factory
  *
  *  Child nodes:
  *	0   Ware
@@ -213,7 +213,7 @@ private:
 	site_t placement;
 	uint16 productivity;
 	uint16 range;
-	uint16 chance;	// probability of construction of this factory
+	uint16 distribution_weight;	// probability of construction of this factory
 	uint8 color;
 	uint16 supplier_count;
 	uint16 product_count;
@@ -227,11 +227,11 @@ private:
 	uint16 electric_boost;
 	uint16 pax_boost;
 	uint16 mail_boost;
-	uint16 electric_amount;
+	uint16 electric_demand;
 	uint16 pax_demand;
 	uint16 mail_demand;
 	sint8 sound_id;
-	uint32 sound_intervall;
+	uint32 sound_interval;
 
 public:
 	const char *get_name() const { return get_building()->get_name(); }
@@ -263,7 +263,7 @@ public:
 
 	/* where to built */
 	site_t get_placement() const { return placement; }
-	uint16 get_chance() const { return chance;     }
+	uint16 get_distribution_weight() const { return distribution_weight; }
 
 	uint8 get_color() const { return color; }
 
@@ -277,20 +277,20 @@ public:
 	bool is_electricity_producer() const { return electricity_producer; }
 
 	uint16 get_expand_probability() const { return expand_probability; }
-	uint16 get_expand_minumum() const { return expand_minimum; }
+	uint16 get_expand_minimum() const { return expand_minimum; }
 	uint16 get_expand_range() const { return expand_range; }
 	uint16 get_expand_times() const { return expand_times; }
 
 	uint16 get_electric_boost() const { return electric_boost; }
 	uint16 get_pax_boost() const { return pax_boost; }
 	uint16 get_mail_boost() const { return mail_boost; }
-	uint16 get_electric_amount() const { return electric_amount; }
+	uint16 get_electric_demand() const { return electric_demand; }
 	uint16 get_pax_demand() const { return pax_demand; }
 	uint16 get_mail_demand() const { return mail_demand; }
 
 	// more effects when producing
 	sint8 get_sound() const { return sound_id; }
-	uint32 get_sound_intervall_ms() const { return sound_intervall; }
+	uint32 get_sound_interval_ms() const { return sound_interval; }
 
 	void calc_checksum(checksum_t *chk) const;
 };

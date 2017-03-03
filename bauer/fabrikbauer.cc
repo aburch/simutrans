@@ -181,7 +181,7 @@ const factory_desc_t *factory_builder_t::get_random_consumer(bool electric, clim
 			current->get_building()->is_allowed_climate_bits(cl)  &&
 			(electric ^ !current->is_electricity_producer())  &&
 			current->get_building()->is_available(timeline)  ) {
-				consumer.insert_unique_ordered(current, current->get_chance(), compare_fabrik_desc);
+				consumer.insert_unique_ordered(current, current->get_distribution_weight(), compare_fabrik_desc);
 		}
 	}
 	// no consumer installed?
@@ -254,7 +254,7 @@ int factory_builder_t::count_producers(const goods_desc_t *ware, uint16 timeline
 		factory_desc_t const* const tmp = t.value;
 		for (uint i = 0; i < tmp->get_product_count(); i++) {
 			const factory_product_desc_t *product = tmp->get_product(i);
-			if(  product->get_output_type()==ware  &&  tmp->get_chance()>0  &&  tmp->get_building()->is_available(timeline)  ) {
+			if(  product->get_output_type()==ware  &&  tmp->get_distribution_weight()>0  &&  tmp->get_building()->is_available(timeline)  ) {
 				count++;
 			}
 		}
@@ -274,11 +274,11 @@ void factory_builder_t::find_producer(weighted_vector_tpl<const factory_desc_t *
 	producer.clear();
 	FOR(stringhashtable_tpl<factory_desc_t const*>, const& t, desc_table) {
 		factory_desc_t const* const tmp = t.value;
-		if (  tmp->get_chance()>0  &&  tmp->get_building()->is_available(timeline)  ) {
+		if (  tmp->get_distribution_weight()>0  &&  tmp->get_building()->is_available(timeline)  ) {
 			for(  uint i=0; i<tmp->get_product_count();  i++  ) {
 				const factory_product_desc_t *product = tmp->get_product(i);
 				if(  product->get_output_type()==ware  ) {
-					producer.insert_unique_ordered(tmp, tmp->get_chance(), compare_fabrik_desc);
+					producer.insert_unique_ordered(tmp, tmp->get_distribution_weight(), compare_fabrik_desc);
 					break;
 				}
 			}
@@ -527,7 +527,7 @@ bool factory_builder_t::can_factory_tree_rotate( const factory_desc_t *desc )
 			factory_desc_t const* const tmp = t.value;
 			// now check if we produce this good...
 			for (uint i = 0; i < tmp->get_product_count(); i++) {
-				if(tmp->get_product(i)->get_output_type()==ware  &&  tmp->get_chance()>0) {
+				if(tmp->get_product(i)->get_output_type()==ware  &&  tmp->get_distribution_weight()>0) {
 
 					if(!can_factory_tree_rotate( tmp )) {
 						return false;
@@ -965,10 +965,10 @@ next_ware_check:
 
 	FOR(slist_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 		if(  fab->get_desc()->is_electricity_producer()  ) {
-			electric_supply += fab->get_scaled_electric_amount() / PRODUCTION_DELTA_T;
+			electric_supply += fab->get_scaled_electric_demand() / PRODUCTION_DELTA_T;
 		}
 		else {
-			electric_demand += fab->get_scaled_electric_amount() / PRODUCTION_DELTA_T;
+			electric_demand += fab->get_scaled_electric_demand() / PRODUCTION_DELTA_T;
 		}
 	}
 

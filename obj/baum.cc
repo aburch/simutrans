@@ -115,7 +115,7 @@ uint8 baum_t::plant_tree_on_coordinate(koord pos, const uint8 maximum_count, con
 						// ok to built here
 						break;
 					case obj_t::groundobj:
-						if(((groundobj_t *)obj)->get_desc()->can_built_trees_here()) {
+						if(((groundobj_t *)obj)->get_desc()->can_build_trees_here()) {
 							break;
 						}
 						// leave these (and all other empty)
@@ -157,7 +157,7 @@ bool baum_t::plant_tree_on_coordinate(koord pos, const tree_desc_t *desc, const 
 						// ok to built here
 						break;
 					case obj_t::groundobj:
-						if(((groundobj_t *)(gr->obj_bei(0)))->get_desc()->can_built_trees_here()) {
+						if(((groundobj_t *)(gr->obj_bei(0)))->get_desc()->can_build_trees_here()) {
 							break;
 						}
 						// leave these (and all other empty)

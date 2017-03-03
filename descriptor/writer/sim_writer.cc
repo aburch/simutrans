@@ -4,8 +4,7 @@
  * This file is part of the Simutrans project under the artistic licence.
  *
  *  Description:
- *		Statische Instanzen alle writer_t Klassen die für Simutrans benötigt
- *		werden
+ *		Statically instantiate all writer_t classes required by Simutrans
  */
 
 #include "text_writer.h"
@@ -32,13 +31,12 @@
 #include "tree_writer.h"
 #include "vehicle_writer.h"
 
-/*
+/**
+ * static data
  *
- *  static data
- *
- *  Da die Klassen selbstregistrierend sind, kriegt der Linker nicht mit,
- *  wenn eine fehlt, solang die instance auch im Klassenfile liegt.
- *  Daher lieber alle Instanzen hier versammeln.
+ * These classes are self-registering. The linker will not notify if there is a missing class, since it
+ * may be also instantiated in the class itself. Therefore, all classes MUST be declared here to force
+ * the linking and raise an error if we lack any of them.
  */
 stringhashtable_tpl<obj_writer_t*>* obj_writer_t::writer_by_name = NULL;
 inthashtable_tpl<obj_type, obj_writer_t*>* obj_writer_t::writer_by_type = NULL;

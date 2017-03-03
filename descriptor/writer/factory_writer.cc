@@ -72,10 +72,10 @@ void factory_field_group_writer_t::write_obj(FILE* outfp, obj_node_t& parent, ta
 	}
 
 	// common, shared field data
-	uint16 const probability = obj.get_int("probability_to_spawn", 10); // 0,1 %
-	uint16 const max_fields  = obj.get_int("max_fields",           25);
-	uint16 const min_fields  = obj.get_int("min_fields",            5);
-	uint16 const start_fields  = obj.get_int("start_fields",            5);
+	uint16 const probability  = obj.get_int("probability_to_spawn", 10); // 0,1 %
+	uint16 const max_fields   = obj.get_int("max_fields",           25);
+	uint16 const min_fields   = obj.get_int("min_fields",            5);
+	uint16 const start_fields = obj.get_int("start_fields",          5);
 
 	node.write_uint16(outfp, 0x8003,        0); // version
 	node.write_uint16(outfp, probability,   2);
@@ -98,10 +98,10 @@ void factory_smoke_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileo
 	koord  const xy_off    = obj.get_koord("smokeoffset", koord(0, 0));
 	sint16 const smokespeed = 0; /* was obj.get_int("smokespeed",  0); */
 
-	node.write_sint16(outfp, pos_off.x, 0);
-	node.write_sint16(outfp, pos_off.y, 2);
-	node.write_sint16(outfp, xy_off.x,  4);
-	node.write_sint16(outfp, xy_off.y,  6);
+	node.write_sint16(outfp, pos_off.x,  0);
+	node.write_sint16(outfp, pos_off.y,  2);
+	node.write_sint16(outfp, xy_off.x,   4);
+	node.write_sint16(outfp, xy_off.y,   6);
 	node.write_sint16(outfp, smokespeed, 8);
 
 	node.write(outfp);
@@ -115,7 +115,7 @@ void factory_product_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int ca
 	xref_writer_t::instance()->write_obj(outfp, node, obj_good, warename, true);
 
 	// Hajo: Version needs high bit set as trigger -> this is required
-	//       as marker because formerly nodes were unversionend
+	//       as marker because formerly nodes were unversioned
 	// new version 2: pax-level added
 	node.write_uint16(outfp, 0x8001,   0);
 
@@ -132,10 +132,10 @@ void factory_supplier_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int c
 
 	xref_writer_t::instance()->write_obj(outfp, node, obj_good, warename, true);
 
-	node.write_uint16(outfp, capacity,  0);
-	node.write_uint16(outfp, count,     2);
+	node.write_uint16(outfp, capacity,    0);
+	node.write_uint16(outfp, count,       2);
 	node.write_uint16(outfp, consumption, 4);
-	node.write_uint16(outfp, 0,         6); //dummy, unused (and uninitialized in past versions)
+	node.write_uint16(outfp, 0,           6); //dummy, unused (and uninitialized in past versions)
 
 	node.write(outfp);
 }
@@ -145,7 +145,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 {
 	char const*            const placing     = obj.get("location");
 	factory_desc_t::site_t const placement =
-		!STRICMP(placing, "land")  ? factory_desc_t::Land   :
+		!STRICMP(placing, "land")  ? factory_desc_t::Land  :
 		!STRICMP(placing, "water") ? factory_desc_t::Water :
 		!STRICMP(placing, "city")  ? factory_desc_t::City  :
 		factory_desc_t::Land;
@@ -154,7 +154,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 const chance       = obj.get_int("distributionweight",   1);
 	uint8  const color        = obj.get_color("mapcolor", 255);
 	if (color == 255) {
-		dbg->fatal( "Factory", "%s missing an indentification color! (mapcolor)", obj_writer_t::last_name );
+		dbg->fatal( "Factory", "%s missing an identification color! (mapcolor)", obj_writer_t::last_name );
 		exit(1);
 	}
 	uint16 const pax_level = obj.get_int("pax_level", 12);
@@ -167,8 +167,8 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 const electric_boost  = (obj.get_int("electricity_boost",   1000) * 256 + 500) / 1000;
 	uint16 const pax_boost       = (obj.get_int("passenger_boost",        0) * 256 + 500) / 1000;
 	uint16 const mail_boost      = (obj.get_int("mail_boost",             0) * 256 + 500) / 1000;
-	uint16 electric_amount       =  obj.get_int("electricity_amount", 65535);
-	electric_amount              =  obj.get_int("electricity_demand", electric_amount);
+	uint16 electric_demand       =  obj.get_int("electricity_amount", 65535);
+	electric_demand              =  obj.get_int("electricity_demand", electric_demand);
 	uint16 const pax_demand      =  obj.get_int("passenger_demand",   65535);
 	uint16 const mail_demand     =  obj.get_int("mail_demand",        65535);
 	// how long between sounds
@@ -278,7 +278,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, electric_boost,     26);
 	node.write_uint16(fp, pax_boost,          28);
 	node.write_uint16(fp, mail_boost,         30);
-	node.write_uint16(fp, electric_amount,    32);
+	node.write_uint16(fp, electric_demand,    32);
 	node.write_uint16(fp, pax_demand,         34);
 	node.write_uint16(fp, mail_demand,        36);
 	node.write_uint32(fp, sound_interval,     38);
@@ -297,10 +297,10 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 std::string factory_writer_t::get_node_name(FILE* fp) const
 {
-	obj_node_info_t node; // Gebäude - wehe nicht
+	obj_node_info_t node; // Name is inside building (BUIL) node, which is a child of factory (FACT) node
 
 	fread(&node, sizeof(node), 1, fp);
-	if (node.type != obj_building) return ""; // ???
+	if (node.type != obj_building) return ""; // If BUIL node not found, return blank to at least not crash
 
 	fseek(fp, node.size, SEEK_CUR);
 

@@ -72,14 +72,26 @@ obj_desc_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 
 		desc->intro_date = 0;
-		desc->obsolete_date = 65535;
+		desc->retire_date = 65535;
 		if (version >= 2 ) {
 			desc->intro_date = decode_uint16(p);
-			desc->obsolete_date = decode_uint16(p);
+			desc->retire_date = decode_uint16(p);
 		}
 	}
 	else {
 		dbg->fatal( "crossing_reader_t::read_node()","Invalid version %d", version);
 	}
+
+	DBG_DEBUG("crossing_reader_t::read_node()",
+		"version=%i, waytype1=%d, waytype2=%d, topspeed1=%i, topspeed2=%i, open_time=%i, close_time=%i, sound=%i",
+		version,
+		desc->waytype1,
+		desc->waytype2,
+		desc->topspeed1,
+		desc->topspeed2,
+		desc->open_animation_time,
+		desc->closed_animation_time,
+		desc->sound);
+
 	return desc;
 }

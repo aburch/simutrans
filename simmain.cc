@@ -1002,7 +1002,7 @@ int simu_main(int argc, char** argv)
 		}
 		chdir( env_t::program_dir );
 	}
-	obj_reader_t::laden_abschliessen();
+	obj_reader_t::finish_loading();
 	pakset_info_t::calculate_checksum();
 	pakset_info_t::debug();
 

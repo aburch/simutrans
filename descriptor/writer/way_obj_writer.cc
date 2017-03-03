@@ -20,7 +20,7 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 		"-", "n",  "e",  "ne",  "s",  "ns",  "se",  "nse",
 		"w", "nw", "ew", "new", "sw", "nsw", "sew", "nsew"
 	};
-	int ribi, hang;
+	int ribi, slope;
 
 	obj_node_t node(this, 20, &parent);
 
@@ -70,23 +70,23 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	front_list.clear();
 	back_list.clear();
 
-	for(  hang = 3;  hang <= 12;  hang += 3  ) {
+	for(  slope = 3;  slope <= 12;  slope += 3  ) {
 		char buf[40];
-		sprintf( buf, "frontimageup[%d]", hang );
+		sprintf( buf, "frontimageup[%d]", slope );
 		string str = obj.get(buf);
 		front_list.append(str);
-		sprintf( buf, "backimageup[%d]", hang );
+		sprintf( buf, "backimageup[%d]", slope );
 		string str2 = obj.get(buf);
 		back_list.append(str2);
 	}
-	for(  hang = 3;  hang <= 12;  hang += 3  ) {
+	for(  slope = 3;  slope <= 12;  slope += 3  ) {
 		char buf[40];
-		sprintf( buf, "frontimageup2[%d]", hang );
+		sprintf( buf, "frontimageup2[%d]", slope );
 		string str = obj.get(buf);
 		if(  !str.empty()  ) {
 			front_list.append(str);
 		}
-		sprintf( buf, "backimageup2[%d]", hang );
+		sprintf( buf, "backimageup2[%d]", slope );
 		string str2 = obj.get(buf);
 		if(  !str2.empty()  ) {
 			back_list.append(str2);

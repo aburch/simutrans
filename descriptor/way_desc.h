@@ -26,7 +26,7 @@ class tool_t;
  *	3   Images for slopes
  *	4   Images for straight diagonal ways
  *	5   Hajo: Skin (cursor and icon)
- * if number_seasons == 0  (no winter images)
+ * if number_of_seasons == 0  (no winter images)
  *	6-8  front images of image lists 2-4
  * else
  *	6-8  winter images of image lists 2-4
@@ -59,7 +59,7 @@ private:
 
 	/* number of seasons (0 = none, 1 = no snow/snow
 	*/
-	sint8 number_seasons;
+	sint8 number_of_seasons;
 
 	/// if true front_images lists exists as nodes
 	bool front_images;
@@ -71,9 +71,9 @@ private:
 	 */
 	uint16 image_list_base_index(bool snow, bool front) const
 	{
-		if (number_seasons == 0  ||  !snow) {
+		if (number_of_seasons == 0  ||  !snow) {
 			if (front  &&  front_images) {
-				return (number_seasons == 0) ? 6 : 9;
+				return (number_of_seasons == 0) ? 6 : 9;
 			}
 			else {
 				return 2;
@@ -103,7 +103,7 @@ public:
 	*/
 	systemtype_t get_styp() const { return (systemtype_t)styp; }
 
-	bool is_tram() const { return wt == track_wt  &&  styp == type_tram; }
+	bool is_tram() const { return wtyp == track_wt  &&  styp == type_tram; }
 
 	image_id get_image_id(ribi_t::ribi ribi, uint8 season, bool front = false) const
 	{
@@ -133,14 +133,14 @@ public:
 		return imglist->get_image_id( ribi );
 	}
 
-	image_id get_slope_image_id(slope_t::type hang, uint8 season, bool front = false) const
+	image_id get_slope_image_id(slope_t::type slope, uint8 season, bool front = false) const
 	{
 		if (front  &&  !front_images) {
 			return IMG_EMPTY;
 		}
 		const uint16 n = image_list_base_index(season, front) + 1;
 		uint16 nr;
-		switch(hang) {
+		switch(slope) {
 			case 4:
 				nr = 0;
 				break;

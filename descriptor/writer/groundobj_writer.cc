@@ -26,15 +26,15 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 		allowed_climates = all_but_arctic_climate;
 	}
 	// seasons = 1: no seasons
-	// otherwise the year will be devided by the (number_of_seasons-1)
-	// The last image is alsway the snow image!
+	// otherwise the year will be divided by the (number_of_seasons-1)
+	// The last image is always the snow image!
 	uint8 const number_of_seasons = obj.get_int("seasons", 1);
 
-	// distribution probabiltion for all of this set
+	// distribution probability for all of this set
 	uint16 const distribution_weight = obj.get_int("distributionweight", 3);
 
 	// how much for removal
-	sint32 const cost_removal = obj.get_int("cost", 0);
+	sint32 const price = obj.get_int("cost", 0);
 
 	// !=0 for moving objects (sheeps, birds)
 	uint16 const speed = obj.get_int("speed", 0);
@@ -57,7 +57,7 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 				char buf[40];
 
 				// Images of the tree
-				// age is 1..5 (usually five stages, seasons is the seaons
+				// age is 1..5 (usually five stages, seasons is the seasons
 				sprintf(buf, "image[%d][%d]", phase, seasons);
 				string str = obj.get(buf);
 				if (str.empty()) {
@@ -84,7 +84,7 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 				char buf[40];
 
 				// Images of the tree
-				// age is 1..5 (usually five stages, seasons is the seaons
+				// age is 1..5 (usually five stages, seasons is the seasons
 				sprintf(buf, "image[%s][%d]", dir_codes[dir], seasons);
 				string str = obj.get(buf);
 				if(  str.empty()  ) {
@@ -105,7 +105,7 @@ finish_images:
 	node.write_uint8 (fp, trees_on_top,         7);
 	node.write_uint16(fp, speed,                8);
 	node.write_uint16(fp, waytype,             10);
-	node.write_sint32(fp, cost_removal,        12);
+	node.write_sint32(fp, price,        12);
 
 	node.write(fp);
 }

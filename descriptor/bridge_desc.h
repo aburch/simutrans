@@ -11,8 +11,8 @@
  *	4   Background-images - snow
  */
 
-#ifndef __BRUECKE_DESC_H
-#define __BRUECKE_DESC_H
+#ifndef __BRIDGE_DESC_H
+#define __BRIDGE_DESC_H
 
 
 #include "skin_desc.h"
@@ -41,11 +41,11 @@ private:
 	/* number of seasons (0 = none, 1 = no snow/snow
 	*/
 
-	sint8 number_seasons;
+	sint8 number_of_seasons;
 
 public:
 	/*
-	 * Nummerierung all der verschiedenen Schienstücke
+	 * Numbering of all image pieces
 	 */
 	enum img_t {
 		NS_Segment, OW_Segment, N_Start, S_Start, O_Start, W_Start, N_Ramp, S_Ramp, O_Ramp, W_Ramp, NS_Pillar, OW_Pillar,
@@ -53,7 +53,7 @@ public:
 	};
 
 	/*
-	 * Name und Copyright sind beim Cursor gespeichert!
+	 * Name and Copyright used to be saved only with the Cursor
 	 */
 	const char *get_name() const { return get_cursor()->get_name(); }
 	const char *get_copyright() const { return get_cursor()->get_copyright(); }
@@ -62,7 +62,7 @@ public:
 
 	image_id get_background(img_t img, uint8 season) const 	{
 		const image_t *image = NULL;
-		if(season && number_seasons == 1) {
+		if(season && number_of_seasons == 1) {
 			image = get_child<image_list_t>(3 + offset)->get_image(img);
 		}
 		if(image == NULL) {
@@ -73,7 +73,7 @@ public:
 
 	image_id get_foreground(img_t img, uint8 season) const {
 		const image_t *image = NULL;
-		if(season && number_seasons == 1) {
+		if(season && number_of_seasons == 1) {
 			image = get_child<image_list_t>(4 + offset)->get_image(img);
 		}
 		if(image == NULL) {
@@ -82,7 +82,7 @@ public:
 		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
-	img_t get_simple(ribi_t::ribi ribi, uint8 height) const;
+	img_t get_straight(ribi_t::ribi ribi, uint8 height) const;
 	img_t get_start(slope_t::type slope) const;
 	img_t get_ramp(slope_t::type slope) const;
 	static img_t get_pillar(ribi_t::ribi ribi);

@@ -229,14 +229,14 @@ void groundobj_t::info(cbuffer_t & buf) const
 	buf.append("\n");
 	buf.append(translator::translate("cost for removal"));
 	char buffer[128];
-	money_to_string( buffer, get_desc()->get_preis()/100.0 );
+	money_to_string( buffer, get_desc()->get_price()/100.0 );
 	buf.append( buffer );
 }
 
 
 void groundobj_t::cleanup(player_t *player)
 {
-	player_t::book_construction_costs(player, -get_desc()->get_preis(), get_pos().get_2d(), ignore_wt);
+	player_t::book_construction_costs(player, -get_desc()->get_price(), get_pos().get_2d(), ignore_wt);
 	mark_image_dirty( get_image(), 0 );
 }
 

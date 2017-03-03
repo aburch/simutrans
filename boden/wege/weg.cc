@@ -175,7 +175,7 @@ weg_t::~weg_t()
 	alle_wege.remove(this);
 	player_t *player=get_owner();
 	if(player) {
-		player_t::add_maintenance( player,  -desc->get_wartung(), desc->get_finance_waytype() );
+		player_t::add_maintenance( player,  -desc->get_maintenance(), desc->get_finance_waytype() );
 	}
 }
 
@@ -568,7 +568,7 @@ void weg_t::finish_rd()
 {
 	player_t *player = get_owner();
 	if(  player  &&  desc  ) {
-		player_t::add_maintenance( player,  desc->get_wartung(), desc->get_finance_waytype() );
+		player_t::add_maintenance( player,  desc->get_maintenance(), desc->get_finance_waytype() );
 	}
 }
 

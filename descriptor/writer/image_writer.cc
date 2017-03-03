@@ -66,9 +66,9 @@ static uint16 pixrgb_to_pixval(uint32 rgb)
 	// first: find about alpha
 	assert(  rgb < ALPHA_THRESHOLD  );
 
-	int alpha = 30 - (rgb >> 24)/8;	// transparency in 32 steps, but simutrans uses internall the reverse format
+	int alpha = 30 - (rgb >> 24)/8;	// transparency in 32 steps, but simutrans uses internally the reverse format
 	if(  rgb > 0x00FFFFFF  ) {
-		// apha is now between 0 ... 30
+		// alpha is now between 0 ... 30
 
 		// first see if this is a transparent special color (like player color)
 		for (int i = 0; i < SPECIAL; i++) {
@@ -132,7 +132,7 @@ static void init_dim(uint32 *image, dimension *dim, int img_size)
 		}
 	}
 	if (!found) {
-		// Negativ values not usable
+		// Negative values not usable
 		dim->xmin = 1;
 		dim->ymin = 1;
 	}
@@ -241,7 +241,7 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 
 
 
-bool image_writer_t::block_laden(const char* fname)
+bool image_writer_t::block_load(const char* fname)
 {
 	// The last png-file is cached
 	if(  last_img_file == fname  ||  load_block(&block, &width, &height, fname, img_size)  ) {
@@ -259,7 +259,7 @@ bool image_writer_t::block_laden(const char* fname)
 /* the syntax for image the string is
  *   "-" empty image
  * [> ]imagefilename_without_extension[[[[.row].col],xoffset],yoffset]
- *  leading "> " set teh flag for an unzoomable image
+ *  leading "> " set the flag for a non-zoomable image
  *  after the dots also spaces and comments are allowed
  */
 void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_imagekey, uint32 index)
@@ -270,7 +270,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 
 	MEMZERO(image);
 
-	// Hajo: if first char is a '>' then this image is not zoomeable
+	// Hajo: if first char is a '>' then this image is not zoomable
 	if(  an_imagekey[0] == '>'  ) {
 		an_imagekey = an_imagekey.substr(1);
 		image.zoomable = false;
@@ -323,7 +323,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 		}
 
 		// Load complete file
-		if (!block_laden(imagekey.c_str())) {
+		if (!block_load(imagekey.c_str())) {
 			char reason[1024];
 			sprintf(reason, "cannot open %s", imagekey .c_str());
 			throw obj_pak_exception_t("image_writer_t", reason);
@@ -413,9 +413,9 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, std::string an_i
 	// to avoid any problems due to structure changes, we write manually the data
 	node.write_uint16(outfp, image.x,        0);
 	node.write_uint16(outfp, image.y,        2);
-	node.write_uint16 (outfp, image.w,        4);
-	node.write_uint8 (outfp, 3,             6); // version, always at position 6!
-	node.write_uint16 (outfp, image.h,        7);
+	node.write_uint16(outfp, image.w,        4);
+	node.write_uint8 (outfp, 3,              6); // version, always at position 6!
+	node.write_uint16(outfp, image.h,        7);
 	// len is now automatically calculated
 	node.write_uint8 (outfp, image.zoomable, 9);
 

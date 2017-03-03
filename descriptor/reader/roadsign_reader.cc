@@ -46,42 +46,42 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(version==4) {
 		// Versioned node, version 3
 		desc->min_speed = kmh_to_speed(decode_uint16(p));
-		desc->cost = decode_uint32(p);
+		desc->price = decode_uint32(p);
 		desc->flags = decode_uint8(p);
 		desc->offset_left = decode_sint8(p);
-		desc->wt = decode_uint8(p);
+		desc->wtyp = decode_uint8(p);
 		desc->intro_date = decode_uint16(p);
-		desc->obsolete_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
 	}
 	else if(version==3) {
 		// Versioned node, version 3
 		desc->min_speed = kmh_to_speed(decode_uint16(p));
-		desc->cost = decode_uint32(p);
+		desc->price = decode_uint32(p);
 		desc->flags = decode_uint8(p);
 		desc->offset_left = 14;
-		desc->wt = decode_uint8(p);
+		desc->wtyp = decode_uint8(p);
 		desc->intro_date = decode_uint16(p);
-		desc->obsolete_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
 	}
 	else if(version==2) {
 		// Versioned node, version 2
 		desc->min_speed = kmh_to_speed(decode_uint16(p));
-		desc->cost = decode_uint32(p);
+		desc->price = decode_uint32(p);
 		desc->flags = decode_uint8(p);
 		desc->offset_left = 14;
 		desc->intro_date = DEFAULT_INTRO_DATE*12;
-		desc->obsolete_date = DEFAULT_RETIRE_DATE*12;
-		desc->wt = road_wt;
+		desc->retire_date = DEFAULT_RETIRE_DATE*12;
+		desc->wtyp = road_wt;
 	}
 	else if(version==1) {
 		// Versioned node, version 1
 		desc->min_speed = kmh_to_speed(decode_uint16(p));
-		desc->cost = 50000;
+		desc->price = 50000;
 		desc->flags = decode_uint8(p);
 		desc->offset_left = 14;
 		desc->intro_date = DEFAULT_INTRO_DATE*12;
-		desc->obsolete_date = DEFAULT_RETIRE_DATE*12;
-		desc->wt = road_wt;
+		desc->retire_date = DEFAULT_RETIRE_DATE*12;
+		desc->wtyp = road_wt;
 	}
 	else {
 		dbg->fatal("roadsign_reader_t::read_node()","version 0 not supported. File corrupt?");
@@ -92,6 +92,18 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->offset_left = 0;
 	}
 
-	DBG_DEBUG("roadsign_reader_t::read_node()","min_speed=%i, cost=%i, flags=%x, wt=%i, intro=%i%i, retire=%i,%i",desc->min_speed,desc->cost/100,desc->flags,desc->wt,desc->intro_date%12+1,desc->intro_date/12,desc->obsolete_date%12+1,desc->obsolete_date/12 );
+	DBG_DEBUG("roadsign_reader_t::read_node()",
+		"version=%i, min_speed=%i, price=%i, flags=%x, wtyp=%i, offset_left=%i, intro=%i/%i, retire=%i/%i",
+		version,
+		desc->min_speed,
+		desc->price/100,
+		desc->flags,
+		desc->wtyp,
+		desc->offset_left,
+		desc->intro_date%12+1,
+		desc->intro_date/12,
+		desc->retire_date%12+1,
+		desc->retire_date/12);
+
 	return desc;
 }

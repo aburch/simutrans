@@ -1,5 +1,5 @@
-#ifndef __GOOD_READER_H
-#define __GOOD_READER_H
+#ifndef __GOODS_READER_H
+#define __GOODS_READER_H
 
 #include "obj_reader.h"
 

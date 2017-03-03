@@ -16,7 +16,7 @@ public:
 	static way_obj_reader_t*instance() { return &the_instance; }
 
 	/**
-	 * Read a way info node. Does version check and
+	 * Read a way-object info node. Does version check and
 	 * compatibility transformations.
 	 * @author Hj. Malthaner
 	 */

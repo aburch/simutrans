@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __WARE_DESC_H
-#define __WARE_DESC_H
+#ifndef __GOODS_DESC_H
+#define __GOODS_DESC_H
 
 #include "obj_base_desc.h"
 #include "../simcolor.h"
@@ -52,7 +52,7 @@ class goods_desc_t : public obj_named_desc_t {
 
 	/**
 	 * index of the type,
-	 * assinged during registration
+	 * assigned during registration
 	 */
 	uint8 goods_index;
 

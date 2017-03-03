@@ -113,15 +113,15 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		index += 1 + sound_str.size();
 	}
 
-	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
-	intro += obj.get_int("intro_month", 1) - 1;
+	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+	intro_date += obj.get_int("intro_month", 1) - 1;
 
-	uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
-	retire += obj.get_int("retire_month", 1) - 1;
+	uint16 retire_date  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
+	retire_date += obj.get_int("retire_month", 1) - 1;
 
-	node.write_uint16(fp, intro, index);
+	node.write_uint16(fp, intro_date, index);
 	index += 2;
-	node.write_uint16(fp, retire, index);
+	node.write_uint16(fp, retire_date, index);
 	index += 2;
 
 	// now the image stuff

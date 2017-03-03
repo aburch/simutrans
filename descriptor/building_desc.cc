@@ -17,7 +17,7 @@
  *      Volker Meyer
  *
  *  Description:
- *      Rechnet aus dem Index das Layout aus, zu dem diese Tile gehört.
+ *      Calculate which layout the tile belongs to from the index.
  */
 uint8 building_tile_desc_t::get_layout() const
 {
@@ -32,13 +32,12 @@ uint8 building_tile_desc_t::get_layout() const
  *      Volker Meyer
  *
  *  Description:
- *      Bestimmt die Relativ-Position des Einzelbildes im Gesamtbild des
- *	Gebäudes.
+ *      Return the relative position of an image in the whole building image
  */
 koord building_tile_desc_t::get_offset() const
 {
 	const building_desc_t *desc = get_desc();
-	koord size = desc->get_size(get_layout());	// ggf. gedreht
+	koord size = desc->get_size(get_layout());	// rotate if necessary
 	return koord( index % size.x, (index / size.x) % size.y );
 }
 
@@ -85,10 +84,10 @@ bool building_desc_t::is_connected_with_town() const
 	switch(get_type()) {
 		case city_res:
 		case city_com:
-		case city_ind:    // normal town buildings (RES, COM, IND)
+		case city_ind:     // normal town buildings (RES, COM, IND)
 		case monument:     // monuments
 		case townhall:     // townhalls
-		case headquarter:  // headquarter
+		case headquarters: // headquarters
 			return true;
 		default:
 			return false;
@@ -102,7 +101,7 @@ bool building_desc_t::is_connected_with_town() const
  *      Volker Meyer
  *
  *  Description:
- *      Abhängig von Position und Layout ein tile zurückliefern
+ *      Returns the correct tile image on that position depending on the layout
  */
 const building_tile_desc_t *building_desc_t::get_tile(uint8 layout, sint16 x, sint16 y) const
 {
@@ -124,7 +123,7 @@ const building_tile_desc_t *building_desc_t::get_tile(uint8 layout, sint16 x, si
  *      Volker Meyer
  *
  *  Description:
- *      Layout normalisieren.
+ *      Layout normalisation. Returns number of different layouts
  */
 uint8 building_desc_t::adjust_layout(uint8 layout) const
 {
@@ -132,11 +131,11 @@ uint8 building_desc_t::adjust_layout(uint8 layout) const
 		layout -= 4;
 	}
 	if(layout >= 2 && layouts <= 2) {
-		// Sind Layout C und D nicht definiert, nehemen wir ersatzweise A und B
+		// if layouts C and D are not defined, we use A and B as substitutes
 		layout -= 2;
 	}
 	if(layout > 0 && layouts <= 1) {
-		// Ist Layout B nicht definiert und das Teil quadratisch, nehmen wir ersatzweise A
+		// if layout B is not defined and the building is squared, we us A as substitute
 		if(size.x == size.y) {
 			layout--;
 		}
@@ -157,7 +156,7 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(level);
 	chk->input(layouts);
 	chk->input(enables);
-	chk->input(chance);
+	chk->input(distribution_weight);
 	chk->input((uint8)allowed_climates);
 	chk->input(maintenance);
 	chk->input(price);
@@ -183,10 +182,10 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 * @author jamespetts
 */
 
-sint32 building_desc_t::get_maintenance(karte_t *welt) const
+sint32 building_desc_t::get_maintenance(karte_t *world) const
 {
-	if(  maintenance == COST_MAGIC  ) {
-		return welt->get_settings().maint_building*get_level();
+	if(  maintenance == PRICE_MAGIC  ) {
+		return world->get_settings().maint_building*get_level();
 	}
 	else {
 		return maintenance;
@@ -194,10 +193,10 @@ sint32 building_desc_t::get_maintenance(karte_t *welt) const
 }
 
 
-sint32 building_desc_t::get_price(karte_t *welt) const
+sint32 building_desc_t::get_price(karte_t *world) const
 {
-	if(  price == COST_MAGIC  ) {
-		settings_t const& s = welt->get_settings();
+	if(  price == PRICE_MAGIC  ) {
+		settings_t const& s = world->get_settings();
 		switch (get_type()) {
 			case dock:
 			case flat_dock:
@@ -230,7 +229,7 @@ sint32 building_desc_t::get_price(karte_t *welt) const
 					case air_wt:         return -s.cst_depot_air;
 					default:             return 0;
 				}
-			case headquarter:
+			case headquarters:
 				return -s.cst_multiply_headquarter * get_level();
 			default:
 				return -s.cst_multiply_remove_haus * get_level();

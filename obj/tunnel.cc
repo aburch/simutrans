@@ -160,13 +160,13 @@ void tunnel_t::finish_rd()
 		weg_t *weg = gr->get_weg(desc->get_waytype());
 		if(weg) {
 			weg->set_max_speed(desc->get_topspeed());
-			player_t::add_maintenance( player, -weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype());
+			player_t::add_maintenance( player, -weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
 		}
 		leitung_t *lt = gr->get_leitung();
 		if(lt) {
-			player_t::add_maintenance( player, -lt->get_desc()->get_wartung(), powerline_wt );
+			player_t::add_maintenance( player, -lt->get_desc()->get_maintenance(), powerline_wt );
 		}
-		player_t::add_maintenance( player,  desc->get_wartung(), desc->get_finance_waytype() );
+		player_t::add_maintenance( player,  desc->get_maintenance(), desc->get_finance_waytype() );
 	}
 }
 
@@ -182,12 +182,12 @@ void tunnel_t::cleanup( player_t *player2 )
 			weg_t *weg = gr->get_weg( desc->get_waytype() );
 			if(weg)	{
 				weg->set_max_speed( weg->get_desc()->get_topspeed() );
-				player_t::add_maintenance( player,  weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype());
+				player_t::add_maintenance( player,  weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
 			}
-			player_t::add_maintenance( player,  -desc->get_wartung(), desc->get_finance_waytype() );
+			player_t::add_maintenance( player,  -desc->get_maintenance(), desc->get_finance_waytype() );
 		}
 	}
-	player_t::book_construction_costs(player2, -desc->get_preis(), get_pos().get_2d(), desc->get_finance_waytype() );
+	player_t::book_construction_costs(player2, -desc->get_price(), get_pos().get_2d(), desc->get_finance_waytype() );
 }
 
 

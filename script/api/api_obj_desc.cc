@@ -288,7 +288,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * @returns cost [in 1/100 credits] to buy or build on piece or tile of this thing.
 	 */
-	register_method(vm, &obj_desc_transport_related_t::get_preis, "get_cost");
+	register_method(vm, &obj_desc_transport_related_t::get_price, "get_cost");
 	/**
 	 * @returns way type, can be @ref wt_invalid.
 	 */
@@ -427,7 +427,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/// townhall
 	enum_slot(vm, "townhall", (uint8)building_desc_t::townhall, true);
 	/// company headquarters
-	enum_slot(vm, "headquarter", (uint8)building_desc_t::headquarter, true);
+	enum_slot(vm, "headquarter", (uint8)building_desc_t::headquarters, true);
 	/// harbour
 	enum_slot(vm, "harbour", (uint8)building_desc_t::dock, true);
 	/// harbour without a slope (buildable on flat ground beaches)
@@ -452,7 +452,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * @returns headquarter level (or -1 if building is not headquarter)
 	 */
-	register_method(vm, &building_desc_t::get_headquarter_level, "get_headquarter_level");
+	register_method(vm, &building_desc_t::get_headquarters_level, "get_headquarter_level");
 
 	/**
 	 * Returns an array with all buildings of the given type.

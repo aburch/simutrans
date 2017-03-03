@@ -34,9 +34,9 @@ private:
 
 	/* number of seasons (0 = none, 1 = no snow/snow
 	 */
-	sint8 number_seasons;
+	sint8 number_of_seasons;
 
-	/* has underground way image ? ( 0 = no, 1 = yes
+	/* has underground way image ? ( 0 = no, 1 = yes ) [way parameter]
 	 */
 	uint8 has_way;
 
@@ -45,27 +45,27 @@ private:
 	uint8 broad_portals;
 
 public:
-	const image_t *get_background(slope_t::type hang, uint8 season, uint8 type ) const
+	const image_t *get_background(slope_t::type slope, uint8 season, uint8 type ) const
 	{
-		const uint8 n = season && number_seasons == 1 ? 5 : 2;
-		return get_child<image_list_t>(n)->get_image(slope_indices[hang] + 4 * type);
+		const uint8 n = season && number_of_seasons == 1 ? 5 : 2;
+		return get_child<image_list_t>(n)->get_image(slope_indices[slope] + 4 * type);
 	}
 
-	image_id get_background_id(slope_t::type hang, uint8 season, uint8 type ) const
+	image_id get_background_id(slope_t::type slope, uint8 season, uint8 type ) const
 	{
-		const image_t *desc = get_background(hang, season, type );
+		const image_t *desc = get_background(slope, season, type );
 		return desc != NULL ? desc->get_id() : IMG_EMPTY;
 	}
 
-	const image_t *get_foreground(slope_t::type hang, uint8 season, uint8 type ) const
+	const image_t *get_foreground(slope_t::type slope, uint8 season, uint8 type ) const
 	{
-		const uint8 n = season && number_seasons == 1 ? 6 : 3;
-		return get_child<image_list_t>(n)->get_image(slope_indices[hang] + 4 * type);
+		const uint8 n = season && number_of_seasons == 1 ? 6 : 3;
+		return get_child<image_list_t>(n)->get_image(slope_indices[slope] + 4 * type);
 	}
 
-	image_id get_foreground_id(slope_t::type hang, uint8 season, uint8 type) const
+	image_id get_foreground_id(slope_t::type slope, uint8 season, uint8 type) const
 	{
-		const image_t *desc = get_foreground(hang, season, type );
+		const image_t *desc = get_foreground(slope, season, type );
 		return desc != NULL ? desc->get_id() :IMG_EMPTY;
 	}
 
@@ -76,7 +76,7 @@ public:
 	const way_desc_t *get_way_desc() const
 	{
 		if(has_way) {
-			return get_child<way_desc_t>(5 + number_seasons * 2);
+			return get_child<way_desc_t>(5 + number_of_seasons * 2);
 		}
 		return NULL;
 	}

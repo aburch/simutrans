@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __HAUS_DESC_H
-#define __HAUS_DESC_H
+#ifndef __BUILDING_DESC_H
+#define __BUILDING_DESC_H
 
 #include <assert.h>
 #include "image_array.h"
@@ -54,16 +54,16 @@ public:
 		return get_background(0,0,0)!=IMG_EMPTY  ||  get_foreground(0,0)!=IMG_EMPTY;
 	}
 
-	image_id get_background(uint16 phase, uint16 hoehe, uint8 season) const
+	image_id get_background(uint16 phase, uint16 height, uint8 season) const
 	{
 		image_array_t const* const imglist = get_child<image_array_t>(0 + 2 * season);
 		if(phase>0 && phase<phases) {
-			if (image_t const* const image = imglist->get_image(hoehe, phase)) {
+			if (image_t const* const image = imglist->get_image(height, phase)) {
 				return image->get_id();
 			}
 		}
 		// here if this phase does not exists ...
-		image_t const* const image = imglist->get_image(hoehe, 0);
+		image_t const* const image = imglist->get_image(height, 0);
 		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
@@ -130,7 +130,7 @@ public:
 			factory           =  4,
 			townhall          =  5,
 			others            =  6, ///< monorail foundation
-			headquarter       =  7,
+			headquarters      =  7,
 			dock              = 11, ///< dock, build on sloped coast
 			// in these, the extra data points to a waytype
 			depot             = 33,
@@ -188,20 +188,20 @@ private:
 	uint16 level;          // or passengers;
 	uint8  layouts;        // 1 2, 4, 8  or 16
 	uint8  enables;		// if it is a stop, what is enabled ...
-	uint8  chance;         // Hajo: chance to build, special buildings, only other is weight factor
+	uint8  distribution_weight;         // Hajo: chance to build, special buildings, only other is weight factor
 
 
 	/** @author: jamespetts.
 	 * Additional fields for separate capacity/maintenance
 	 * If these are not specified in the .dat file, they are set to
-	 * COST_MAGIC then calculated from the "level" in the old way.
+	 * PRICE_MAGIC then calculated from the "level" in the old way.
 	 */
 
 	sint32 price;
 	sint32 maintenance;
 	uint16 capacity;
 
-#define COST_MAGIC (2147483647)
+#define PRICE_MAGIC (2147483647)
 
 
 	climate_bits	allowed_climates;
@@ -255,16 +255,16 @@ public:
 	building_desc_t::btype get_type() const { return type; }
 
 	bool is_townhall()      const { return is_type(townhall); }
-	bool is_headquarter()   const { return is_type(headquarter); }
+	bool is_headquarters()   const { return is_type(headquarters); }
 	bool is_attraction() const { return is_type(attraction_land) || is_type(attraction_city); }
 	bool is_factory()       const { return is_type(factory); }
 	bool is_city_building() const { return is_type(city_res) || is_type(city_com) || is_type(city_ind); }
-	bool is_transport_building() const { return type > headquarter  && type <= flat_dock; }
+	bool is_transport_building() const { return type > headquarters  && type <= flat_dock; }
 
 	bool is_connected_with_town() const;
 
-	/// @returns headquarter level (or -1 if building is not headquarter)
-	sint32 get_headquarter_level() const  { return (is_headquarter() ? get_extra() : -1) ; }
+	/// @returns headquarters level (or -1 if building is not headquarters)
+	sint32 get_headquarters_level() const  { return (is_headquarters() ? get_extra() : -1) ; }
 
 	/**
 	* the level is used in many places: for price, for capacity, ...
@@ -279,7 +279,7 @@ public:
 	uint16 get_mail_level() const;
 
 	// how often will this appear
-	uint8 get_chance() const { return chance; }
+	uint8 get_distribution_weight() const { return distribution_weight; }
 
 	const building_tile_desc_t *get_tile(uint16 index) const {
 		assert(index < layouts * size.x * size.y);
@@ -321,11 +321,11 @@ public:
 	// the right house for this area?
 	bool is_allowed_climate_bits( climate_bits cl ) const { return (cl&allowed_climates)!=0; }
 
-	// for the paltzsucher needed
+	// needed by place_finder
 	climate_bits get_allowed_climate_bits() const { return allowed_climates; }
 
 	/**
-	* @return station flags (only used for station buildings and oil riggs)
+	* @return station flags (only used for station buildings and oil rigs)
 	* @author prissi
 	*/
 	uint8 get_enabled() const { return enables; }
@@ -340,8 +340,8 @@ public:
 	* @see above for maintenance/price/capacity variable information
 	* @author Kieron Green/jamespetts
 	*/
-	sint32 get_maintenance(karte_t *welt) const;
-	sint32 get_price(karte_t *welt) const;
+	sint32 get_maintenance(karte_t *world) const;
+	sint32 get_price(karte_t *world) const;
 	uint16 get_capacity() const { return capacity; }
 
 

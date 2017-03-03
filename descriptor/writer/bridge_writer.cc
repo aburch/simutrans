@@ -94,7 +94,7 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 
 	uint8  wegtyp        = get_waytype(obj.get("waytype"));
 	uint16 topspeed      = obj.get_int("topspeed", 999);
-	uint32 preis         = obj.get_int("cost", 0);
+	uint32 price         = obj.get_int("cost", 0);
 	uint32 maintenance   = obj.get_int("maintenance", 1000);
 	uint8  pillars_every = obj.get_int("pillar_distance",0); // distance==0 is off
 	uint8  pillar_asymmetric = obj.get_int("pillar_asymmetric",0); // middle of tile
@@ -107,23 +107,23 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro_date += obj.get_int("intro_month", 1) - 1;
 
-	uint16 obsolete_date = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
-	obsolete_date += obj.get_int("retire_month", 1) - 1;
+	uint16 retire_date = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
+	retire_date += obj.get_int("retire_month", 1) - 1;
 
-	sint8 number_seasons = 0;
+	sint8 number_of_seasons = 0;
 
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
 	uint16 version = 0x8009;
 	node.write_uint16(outfp, version,            0);
 	node.write_uint16(outfp, topspeed,           2);
-	node.write_uint32(outfp, preis,              4);
+	node.write_uint32(outfp, price,              4);
 	node.write_uint32(outfp, maintenance,        8);
 	node.write_uint8 (outfp, wegtyp,            12);
 	node.write_uint8 (outfp, pillars_every,     13);
 	node.write_uint8 (outfp, max_length,        14);
 	node.write_uint16(outfp, intro_date,        15);
-	node.write_uint16(outfp, obsolete_date,     17);
+	node.write_uint16(outfp, retire_date,       17);
 	node.write_uint8 (outfp, pillar_asymmetric, 19);
 	node.write_uint16(outfp, axle_load,         20);
 	node.write_uint8 (outfp, max_height,        22);
@@ -132,27 +132,27 @@ void bridge_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& o
 
 	string str = obj.get("backimage[ns][0]");
 	if (str.empty()) {
-		node.write_data_at(outfp, &number_seasons, 23, sizeof(uint8));
+		node.write_data_at(outfp, &number_of_seasons, 23, sizeof(uint8));
 		write_head(outfp, node, obj);
 		write_bridge_images( outfp, node, obj, -1 );
 
 	}
 	else {
-		while(number_seasons < 2) {
-			sprintf(keybuf, "backimage[ns][%d]", number_seasons+1);
+		while(number_of_seasons < 2) {
+			sprintf(keybuf, "backimage[ns][%d]", number_of_seasons+1);
 			string str = obj.get(keybuf);
 			if (!str.empty()) {
-				number_seasons++;
+				number_of_seasons++;
 			}
 			else {
 				break;
 			}
 		}
 
-		node.write_data_at(outfp, &number_seasons, 23, sizeof(uint8));
+		node.write_data_at(outfp, &number_of_seasons, 23, sizeof(uint8));
 		write_head(outfp, node, obj);
 
-		for(uint8 season = 0 ; season <= number_seasons ; season++) {
+		for(uint8 season = 0 ; season <= number_of_seasons ; season++) {
 			write_bridge_images( outfp, node, obj, season );
 		}
 	}

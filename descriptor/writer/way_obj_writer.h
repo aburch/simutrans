@@ -17,7 +17,7 @@ class way_obj_writer_t : public obj_writer_t {
 
 	public:
 		/**
-		 * Write a waytype description node
+		 * Write a way-object description node
 		 * @author Hj. Malthaner
 		 */
 		virtual void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);

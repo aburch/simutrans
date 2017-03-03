@@ -10,9 +10,9 @@
  *      Volker Meyer
  *
  *  Description:
- *      Richtigen Index für einfaches Brückenstück bestimmen
+ *      Returns image index of a straight piece (excluding start pieces)
  */
-bridge_desc_t::img_t bridge_desc_t::get_simple(ribi_t::ribi ribi, uint8 height) const
+bridge_desc_t::img_t bridge_desc_t::get_straight(ribi_t::ribi ribi, uint8 height) const
 {
 	if(  height>1 && get_background(NS_Segment2, 0)!=IMG_EMPTY  ) {
 		return (ribi & ribi_t::northsouth) ? NS_Segment2 : OW_Segment2;
@@ -23,7 +23,7 @@ bridge_desc_t::img_t bridge_desc_t::get_simple(ribi_t::ribi ribi, uint8 height) 
 }
 
 
-// dito for pillars
+// ditto for pillars
 bridge_desc_t::img_t bridge_desc_t::get_pillar(ribi_t::ribi ribi)
 {
 	return (ribi & ribi_t::northsouth) ? NS_Pillar : OW_Pillar;
@@ -35,7 +35,7 @@ bridge_desc_t::img_t bridge_desc_t::get_pillar(ribi_t::ribi ribi)
  *      Volker Meyer
  *
  *  Description:
- *      Richtigen Index für klassischen Hangstart ück bestimmen
+ *      Returns image index of a straight bridge-start piece (on slope)
  */
 bridge_desc_t::img_t bridge_desc_t::get_start(slope_t::type slope) const
 {
@@ -69,7 +69,7 @@ bridge_desc_t::img_t bridge_desc_t::get_start(slope_t::type slope) const
  *      Volker Meyer
  *
  *  Description:
- *      Richtigen Index für Rampenstart ück bestimmen
+ *      Returns image index of a ramp piece
  */
 bridge_desc_t::img_t bridge_desc_t::get_ramp(slope_t::type slope) const
 {

@@ -1338,7 +1338,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			leitung_t *lt = gr1->get_leitung();
 			if(  lt  ) {
 				// remove maintenance for existing powerline
-				player_t::add_maintenance(lt->get_owner(), -lt->get_desc()->get_wartung(), powerline_wt);
+				player_t::add_maintenance(lt->get_owner(), -lt->get_desc()->get_maintenance(), powerline_wt);
 				lt->finish_rd();
 			}
 
@@ -1563,7 +1563,7 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 		tunnelboden_t* tunnel = new tunnelboden_t(pos, 0);
 		welt->access(k)->boden_hinzufuegen(tunnel);
 		tunnel->obj_add(new tunnel_t(pos, player, tunnel_desc));
-		player_t::add_maintenance( player, tunnel_desc->get_wartung(), tunnel_desc->get_finance_waytype() );
+		player_t::add_maintenance( player, tunnel_desc->get_maintenance(), tunnel_desc->get_finance_waytype() );
 		gr = tunnel;
 	}
 	else {
@@ -2231,7 +2231,7 @@ const char* tool_build_way_t::get_tooltip(const player_t *) const
 	if (desc == NULL) {
 		return "";
 	}
-	tooltip_with_price_maintenance( welt, desc->get_name(), -desc->get_preis(), desc->get_wartung() );
+	tooltip_with_price_maintenance( welt, desc->get_name(), -desc->get_price(), desc->get_maintenance() );
 	size_t n= strlen(toolstr);
 	sprintf(toolstr+n, ", %dkm/h", desc->get_topspeed() );
 	return toolstr;
@@ -2471,7 +2471,7 @@ const char* tool_build_bridge_t::get_tooltip(const player_t *) const
 	if (desc == NULL) {
 		return "";
 	}
-	tooltip_with_price_maintenance( welt, desc->get_name(), -desc->get_preis(), desc->get_wartung() );
+	tooltip_with_price_maintenance( welt, desc->get_name(), -desc->get_price(), desc->get_maintenance() );
 	size_t n= strlen(toolstr);
 	if(desc->get_waytype()!=powerline_wt) {
 		n += sprintf(toolstr+n, ", %dkm/h", desc->get_topspeed());
@@ -2566,7 +2566,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 					costs -= welt->get_settings().cst_remove_tree;
 					break;
 				case obj_t::groundobj:
-					costs += ((groundobj_t *)obj)->get_desc()->get_preis();
+					costs += ((groundobj_t *)obj)->get_desc()->get_price();
 					break;
 				default: break;
 			}
@@ -2587,13 +2587,13 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 		gr->obj_add( way );
 		grund_t *kb = welt->lookup_kartenboden(pos.get_2d());
 		sint16 height = pos.z - kb->get_pos().z;
-		way->set_image(desc->get_background(desc->get_simple(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())),0));
-		way->set_foreground_image(desc->get_foreground(desc->get_simple(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())), 0));
+		way->set_image(desc->get_background(desc->get_straight(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())),0));
+		way->set_foreground_image(desc->get_foreground(desc->get_straight(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())), 0));
 		marked.insert( way );
 		way->mark_image_dirty( way->get_image(), 0 );
 		pos = pos + zv;
 	}
-	costs += desc->get_preis() * koord_distance(start, pos);
+	costs += desc->get_price() * koord_distance(start, pos);
 	// end
 	gr = welt->lookup(end);
 
@@ -2615,12 +2615,12 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 		}
 		marked.insert( way );
 		way->mark_image_dirty( way->get_image(), 0 );
-		costs += desc->get_preis();
+		costs += desc->get_price();
 	}
 	else {
 		if (desc->get_waytype() == powerline_wt  ? !gr->find<leitung_t>() : !gr->hat_weg(desc->get_waytype())) {
 			const way_desc_t *way_desc = way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat);
-			costs += way_desc->get_preis();
+			costs += way_desc->get_price();
 		}
 	}
 	// eventually we have to remove trees on end tile
@@ -2632,7 +2632,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 					costs -= welt->get_settings().cst_remove_tree;
 					break;
 				case obj_t::groundobj:
-					costs += ((groundobj_t *)obj)->get_desc()->get_preis();
+					costs += ((groundobj_t *)obj)->get_desc()->get_price();
 					break;
 				default: break;
 			}
@@ -2748,7 +2748,7 @@ uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, 
 const char* tool_build_tunnel_t::get_tooltip(const player_t *) const
 {
 	const tunnel_desc_t * desc = tunnel_builder_t::get_desc(default_param);
-	tooltip_with_price_maintenance( welt, desc->get_name(), -desc->get_preis(), desc->get_wartung() );
+	tooltip_with_price_maintenance( welt, desc->get_name(), -desc->get_price(), desc->get_maintenance() );
 	size_t n= strlen(toolstr);
 	if(desc->get_waytype()!=powerline_wt) {
 		n += sprintf(toolstr+n, ", %dkm/h", desc->get_topspeed());
@@ -3234,7 +3234,7 @@ const char* tool_build_wayobj_t::get_tooltip(const player_t *) const
 	if(  build  ) {
 		const way_obj_desc_t *desc = get_desc();
 		if(desc) {
-			tooltip_with_price_maintenance( welt, desc->get_name(), -desc->get_preis(), desc->get_wartung() );
+			tooltip_with_price_maintenance( welt, desc->get_name(), -desc->get_price(), desc->get_maintenance() );
 			size_t n= strlen(toolstr);
 			if (desc->is_overhead_line()) {
 				// only overheadlines impose topspeed
@@ -3349,17 +3349,17 @@ void tool_build_wayobj_t::mark_tiles( player_t* player, const koord3d &start, co
 			// Search a matching catenary on gr.
 			wayobj_t *wayobj = gr->get_wayobj( wt );
 			if( build ) {
-				cost_estimate += desc->get_preis();
+				cost_estimate += desc->get_price();
 				if( wayobj ) {
 					show = show | wayobj->get_dir();
 					// Already a catenary here -> costs only, if new catenary is faster
 					if(  wayobj->get_desc()->get_topspeed() >= desc->get_topspeed()  ) {
-						cost_estimate -= desc->get_preis();
+						cost_estimate -= desc->get_price();
 					}
 				}
 			}
 			else if( wayobj ) {
-				cost_estimate += wayobj->get_desc()->get_preis();
+				cost_estimate += wayobj->get_desc()->get_price();
 			}
 
 			zeiger_t *way_obj = NULL;
@@ -4566,7 +4566,7 @@ char const* tool_build_roadsign_t::get_tooltip(player_t const*) const
 {
 	const roadsign_desc_t * desc = roadsign_t::find_desc(default_param);
 	if(desc) {
-		return tooltip_with_price( desc->get_name(), -desc->get_preis() );
+		return tooltip_with_price( desc->get_name(), -desc->get_price() );
 	}
 	return NULL;
 }
@@ -4826,7 +4826,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 				dummy_rs->set_dir(ribi); // calls calc_image()
 				zeiger->set_foreground_image(dummy_rs->get_front_image());
 				zeiger->set_image(dummy_rs->get_image());
-				cost += rs ? (rs->get_desc()==desc ? 0  : desc->get_preis()+rs->get_desc()->get_preis()) : desc->get_preis();
+				cost += rs ? (rs->get_desc()==desc ? 0  : desc->get_price()+rs->get_desc()->get_price()) : desc->get_price();
 			}
 		}
 		else if (s.remove_intermediate && rs && !rs->is_deletable(player)) {
@@ -4835,7 +4835,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 				zeiger->set_image( tool_t::general_tool[TOOL_REMOVER]->cursor );
 				gr->obj_add( zeiger );
 				directions.append(ribi_t::none /*remove sign*/);
-				cost += rs->get_desc()->get_preis();
+				cost += rs->get_desc()->get_price();
 		}
 	}
 	delete dummy_rs;
@@ -5006,7 +5006,7 @@ built_sign:
 					gr->obj_add(rs);
 					rs->finish_rd();	// to make them visible
 					weg->count_sign();
-					player_t::book_construction_costs(player, -desc->get_preis(), gr->get_pos().get_2d(), weg->get_waytype());
+					player_t::book_construction_costs(player, -desc->get_price(), gr->get_pos().get_2d(), weg->get_waytype());
 				}
 			}
 			error = NULL;
@@ -5602,7 +5602,7 @@ const char *tool_link_factory_t::do_work( player_t *, const koord3d &start, cons
  */
 const building_desc_t *tool_headquarter_t::next_level( const player_t *player ) const
 {
-	return hausbauer_t::get_headquarter(player->get_headquarter_level(), welt->get_timeline_year_month());
+	return hausbauer_t::get_headquarters(player->get_headquarter_level(), welt->get_timeline_year_month());
 }
 
 const char* tool_headquarter_t::get_tooltip(const player_t *player) const
@@ -6185,12 +6185,12 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 		}
 
 		// compute maintainance cost
-		sint32 cost = w->get_desc()->get_wartung();
+		sint32 cost = w->get_desc()->get_maintenance();
 		tunnel_t *t = NULL;
 		// tunnel cost overwrites way cost
 		if(  gr->ist_tunnel()  ) {
 			t = gr->find<tunnel_t>();
-			cost = t->get_desc()->get_wartung();
+			cost = t->get_desc()->get_maintenance();
 		}
 
 		// check funds
@@ -6244,7 +6244,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 		}
 
 		// check funds
-		sint32 const cost = wo->get_desc()->get_wartung();
+		sint32 const cost = wo->get_desc()->get_maintenance();
 		sint64 const workcost = -welt->scale_with_month_length(cost * welt->get_settings().cst_make_public_months);
 		if(  giveaway  &&  !player->can_afford(workcost)  ) {
 			return NOTICE_INSUFFICIENT_FUNDS;

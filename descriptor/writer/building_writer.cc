@@ -78,7 +78,7 @@ static uint32 get_cluster_data(tabfileobj_t& obj)
 
 void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	// Hajo: take care, hardocded size of node on disc here!
+	// Hajo: take care, hardcoded size of node on disc here!
 	obj_node_t node(this, 37, &parent);
 
 	write_head(fp, node, obj);
@@ -100,16 +100,16 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 	delete [] ints;
 
-	building_desc_t::btype        type             = building_desc_t::unknown;
+	building_desc_t::btype     type             = building_desc_t::unknown;
 	uint32                     extra_data       = 0;
 	climate_bits               allowed_climates = all_but_water_climate; // all but water
 	uint8                      enables          = 0;
 	uint16                     level            = obj.get_int("level", 1) - 1;
-	building_desc_t::flag_t const flags            =
+	building_desc_t::flag_t const flags =
 		(obj.get_int("noinfo",         0) > 0 ? building_desc_t::FLAG_NO_INFO  : building_desc_t::FLAG_NULL) |
 		(obj.get_int("noconstruction", 0) > 0 ? building_desc_t::FLAG_NO_PIT : building_desc_t::FLAG_NULL) |
 		(obj.get_int("needs_ground",   0) > 0 ? building_desc_t::FLAG_NEED_GROUND : building_desc_t::FLAG_NULL);
-	uint16               const animation_time   = obj.get_int("animation_time", 300);
+	uint16 const animation_time = obj.get_int("animation_time", 300);
 
 	// get the allowed area for this building
 	const char* climate_str = obj.get("climates");
@@ -171,7 +171,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		type = building_desc_t::generic_extension;
 		const char *wt = obj.get("waytype");
 		if(wt  &&  *wt>' ') {
-			// not waytype => just a generic exten that fits all
+			// no waytype => just a generic extension that fits all
 			extra_data = get_waytype(wt);
 		}
 	}
@@ -217,7 +217,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	if(  type == building_desc_t::generic_extension  ||  type == building_desc_t::generic_stop  ||  type == building_desc_t::dock  ||  type == building_desc_t::depot  ||  type == building_desc_t::factory  ) {
-		// since elevel was reduced by one beforehand ...
+		// since level was reduced by one beforehand ...
 		++level;
 	}
 
@@ -229,7 +229,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12 +
 		obj.get_int("intro_month", 1) - 1;
 
-	uint16 const obsolete_date =
+	uint16 const retire_date =
 		obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12 +
 		obj.get_int("retire_month", 1) - 1;
 
@@ -250,9 +250,9 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		maintenance = obj.get_int("station_maintenance", COST_MAGIC);
 	}
 
-	sint32 price = obj.get_int("cost", COST_MAGIC);
-	if(  price == COST_MAGIC  ) {
-		price = obj.get_int("station_price", COST_MAGIC);
+	sint32 price = obj.get_int("cost", PRICE_MAGIC);
+	if(  price == PRICE_MAGIC  ) {
+		price = obj.get_int("station_price", PRICE_MAGIC);
 	}
 
 	uint8 allow_underground = obj.get_int("allow_underground", 2);
@@ -359,7 +359,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint8 (fp, flags,            18);
 	node.write_uint8 (fp, chance,           19);
 	node.write_uint16(fp, intro_date,       20);
-	node.write_uint16(fp, obsolete_date,    22);
+	node.write_uint16(fp, retire_date,    22);
 	node.write_uint16(fp, animation_time,   24);
 	node.write_uint16(fp, capacity,         26);
 	node.write_sint32(fp, maintenance,      28);

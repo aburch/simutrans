@@ -703,7 +703,7 @@ void stadt_t::recalc_city_size()
 	lo = pos;
 	ur = pos;
 	FOR(weighted_vector_tpl<gebaeude_t*>, const i, buildings) {
-		if (i->get_tile()->get_desc()->get_type() != building_desc_t::headquarter) {
+		if (i->get_tile()->get_desc()->get_type() != building_desc_t::headquarters) {
 			koord const& gb_pos = i->get_pos().get_2d();
 			lo.clip_max(gb_pos);
 			ur.clip_min(gb_pos);
@@ -970,7 +970,7 @@ stadt_t::~stadt_t()
 				gebaeude_t* const gb = buildings.pop_back();
 				assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
 
-				if(gb->get_tile()->get_desc()->get_type()==building_desc_t::headquarter) {
+				if(gb->get_tile()->get_desc()->get_type()==building_desc_t::headquarters) {
 					stadt_t *city = welt->find_nearest_city(gb->get_pos().get_2d());
 					gb->set_stadt( city );
 					if(city) {
@@ -2328,7 +2328,7 @@ class building_place_with_road_finder: public building_placefinder_t
 						if (big_city) {
 							if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
 								const building_desc_t::btype utyp = gb->get_tile()->get_desc()->get_type();
-								if(  building_desc_t::attraction_city <= utyp  &&  utyp <= building_desc_t::headquarter) {
+								if(  building_desc_t::attraction_city <= utyp  &&  utyp <= building_desc_t::headquarters) {
 									return false;
 								}
 							}
@@ -2358,7 +2358,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 	// tourist attraction buildings
 	const building_desc_t* desc = hausbauer_t::get_special( bev, building_desc_t::attraction_city, welt->get_timeline_year_month(), new_town, welt->get_climate(pos) );
 	if (desc != NULL) {
-		if (simrand(100) < (uint)desc->get_chance()) {
+		if (simrand(100) < (uint)desc->get_distribution_weight()) {
 
 			bool big_city = buildings.get_count() >= 10;
 			bool is_rotate = desc->get_all_layouts() > 1;
@@ -2769,7 +2769,7 @@ bool process_city_street(grund_t& gr, const way_desc_t* cr)
 	if(  !weg->hat_gehweg() || weg->get_desc() != cr ){
 		player_t *sp = weg->get_owner();
 		if( sp != NULL ){
-			player_t::add_maintenance(sp, -weg->get_desc()->get_wartung(), road_wt);
+			player_t::add_maintenance(sp, -weg->get_desc()->get_maintenance(), road_wt);
 			weg->set_owner(NULL); // make public
 		}
 		weg->set_gehweg(true);

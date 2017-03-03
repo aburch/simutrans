@@ -4,7 +4,7 @@
  * This file is part of the Simutrans project under the artistic licence.
  *
  *  Description:
- *      This files describes way objects like a electrifications
+ *      This files describes way objects like electrifications
  */
 #ifndef __WAY_OBJ_DESC_H
 #define __WAY_OBJ_DESC_H
@@ -51,10 +51,10 @@ public:
 
 	image_id get_back_image_id(ribi_t::ribi ribi) const { return get_child<image_list_t>(3)->get_image_id(ribi); }
 
-	image_id get_front_slope_image_id(slope_t::type hang) const
+	image_id get_front_slope_image_id(slope_t::type slope) const
 	{
 		uint16 nr;
-		switch(hang) {
+		switch(slope) {
 			case 4:
 				nr = 0;
 				break;
@@ -91,10 +91,10 @@ public:
 		return slope_img;
 	  }
 
-	image_id get_back_slope_image_id(slope_t::type hang) const
+	image_id get_back_slope_image_id(slope_t::type slope) const
 	{
 		uint16 nr;
-		switch(hang) {
+		switch(slope) {
 			case 4:
 				nr = 0;
 				break;
