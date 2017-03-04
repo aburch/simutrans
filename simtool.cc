@@ -4733,7 +4733,7 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 			old_level = old_desc->get_level();
 			old_b = old_desc->get_x();
 			old_h = old_desc->get_y();
-			if( old_desc->get_level() >= desc->get_level() &&  old_desc->get_capacity() > desc->get_capacity()) 
+			if( old_desc->get_level() >= desc->get_level() &&  old_desc->get_capacity() >= desc->get_capacity()) 
 			{
 				return "Upgrade must have\na higher level";
 			}
