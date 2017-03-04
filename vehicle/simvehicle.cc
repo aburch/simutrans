@@ -1084,7 +1084,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 
 /**
  * Remove freight that no longer can reach its destination
- * i.e. because of a changed schedule
+ * e.g. because of a changed schedule
  * @author Hj. Malthaner
  */
 void vehicle_t::remove_stale_cargo()
@@ -2255,12 +2255,15 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 			if( (desc==NULL || ware.menge>0) && welt->is_within_limits(ware.get_zielpos()) && ware.get_desc() ) {
 				// also add, of the desc is unknown to find matching replacement
 				fracht.insert(ware);
+#ifdef CACHE_TRANSIT
 				/*
 				* It's very easy for in-transit information to get corrupted,
 				* if an intermediate program version fails to compute it right.
 				* So *always* compute it fresh.
+				* 
+				* This no longer works properly with Extended because cargo
+				* may be in a queue waiting to be loaded at a station.
 				*/
-#ifdef CACHE_TRANSIT
 				if(  file->get_version() <= 112000  )
 #endif
 					// restore in-transit information

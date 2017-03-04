@@ -1317,11 +1317,11 @@ void haltestelle_t::step()
 
 						if(tmp.is_freight())
 						{
-							// Make sure to adjust the destination factory's in-transit figure.
+							// Make sure to reduce the destination factory's in-transit figure.
 							fabrik_t::update_transit(tmp, false);
 						}
 
-						// Extended 7.2 - if they are discarded, a refund is due.
+						// If they are discarded, a refund is due.
 
 						if(!passengers_walked && tmp.get_origin().is_bound() && get_owner()->get_finance()->get_account_balance() > 0)
 						{
@@ -3626,13 +3626,17 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					ware_t ware(file);
 					if( ware.get_desc() && ware.menge>0 && welt->is_within_limits(ware.get_zielpos()) ) {
 						add_ware_to_halt(ware, true);
+#ifndef CACHE_TRANSIT
 						/*
 						 * It's very easy for in-transit information to get corrupted,
 						 * if an intermediate program version fails to compute it right.
 						 * So *always* compute it fresh.
+						 *
+						 * This no longer works properly with Extended because cargo
+						 * may be in a queue waiting to be loaded at a station.
 						 */ 
-							// restore intransit information
 							fabrik_t::update_transit( ware, true );
+#endif
 					}
 					else if(  ware.menge>0  )
 					{
