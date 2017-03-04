@@ -323,7 +323,9 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 			return true;
 		}
 	}
-	return !haltestelle_t::get_halt(ziel,get_owner()).is_bound();
+	
+	const grund_t* gr = welt->lookup(ziel);
+	return !haltestelle_t::get_halt(ziel,get_owner()).is_bound() && !(gr && gr->get_depot());
 }
 
 #ifdef MULTI_THREAD
