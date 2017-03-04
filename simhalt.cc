@@ -2608,7 +2608,7 @@ sint64 haltestelle_t::calc_ready_time(ware_t ware, bool arriving_from_vehicle, k
 		ready_time += world()->get_seconds_to_ticks(transfer_time * 6);
 	}
 
-	if (!arriving_from_vehicle && ware.get_ziel() != self)
+	if (/*!arriving_from_vehicle &&*/ ware.get_ziel() == self)
 	{
 		uint16 distance;
 		if (origin_pos == koord::invalid)
@@ -2633,7 +2633,6 @@ sint64 haltestelle_t::calc_ready_time(ware_t ware, bool arriving_from_vehicle, k
 			ready_time += walking_time;
 		}
 	}
-
 	return ready_time;
 }
 
