@@ -3922,7 +3922,11 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	if(starting_from_stand && cnv->get_next_stop_index() == route_index && !signal_current && working_method != drive_by_sight && working_method != moving_block)
 	{
 		// If we are starting from stand, have no reservation beyond here and there is no signal, assume that it has been deleted and revert to drive by sight.
-		set_working_method(drive_by_sight); 
+		if (working_method == token_block)
+		{
+			cnv->unreserve_route();
+		}
+		set_working_method(drive_by_sight);
 	}
 
 	const koord dir = gr->get_pos().get_2d() - get_pos().get_2d();
@@ -5315,8 +5319,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	bool platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(signal_pos, get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt);
 
 	// If we are in token block or one train staff mode, one train staff mode or making directional reservations, reserve to the end of the route if there is not a prior signal.
-	// However, do not call this if we are in the block reserver already called from this method to prevent
-	// infinite recursion.
+	// However, do not call this if we are in the block reserver already called from this method to prevent infinite recursion.
 	const bool bidirectional_reservation = (working_method == track_circuit_block || working_method == cab_signalling || working_method == moving_block) 
 		&& last_bidirectional_signal_index < INVALID_INDEX;
 	if(!is_from_token && !is_from_directional && ((working_method == token_block && last_token_block_signal_index < INVALID_INDEX) || bidirectional_reservation || working_method == one_train_staff) && next_signal_index == INVALID_INDEX)
@@ -5385,7 +5388,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			if(cnv->get_next_stop_index() - 1 <= route_index) 
 			{
-				if(working_method == one_train_staff && next_signal_index >= INVALID_INDEX)
+				if (working_method == one_train_staff && next_signal_index >= INVALID_INDEX)
 				{
 					cnv->set_next_stop_index(next_next_signal);
 				}
@@ -5909,7 +5912,7 @@ void rail_vehicle_t::leave_tile()
 							&& cnv->get_state() != convoi_t::REVERSING)
 						{
 							// On passing a signal, clear all the so far uncleared reservation when in token block mode.
-							// If the signal is not a long-block signal, clear token block mode. This assumes that long
+							// If the signal is not a token block signal, clear token block mode. This assumes that token
 							// block signals will be placed at the entrance and stop signals at the exit of single line
 							// sections.
 							clear_token_reservation(sig, w, sch0);							
