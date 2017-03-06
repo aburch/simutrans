@@ -1134,9 +1134,14 @@ void route_t::postprocess_water_route(karte_t *welt)
 
 			const bool is_rail_type = tdriver->get_waytype() == track_wt || tdriver->get_waytype() == narrowgauge_wt || tdriver->get_waytype() == maglev_wt || tdriver->get_waytype() == tram_wt || tdriver->get_waytype() == monorail_wt;
 			bool first_run = true;
-			while(gr->get_neighbour(gr, wegtyp, ribi) && gr->get_halt() == halt && tdriver->check_next_tile(gr) && (((tdriver->get_ribi(gr) & ribi) != 0) || (first_run && is_rail_type)))
+
+			bool ribi_check = (tdriver->get_ribi(gr) & ribi) != 0;
+			bool has_signal = gr->get_weg(tdriver->get_waytype())->has_signal();
+
+			while(gr->get_neighbour(gr, wegtyp, ribi) && gr->get_halt() == halt && tdriver->check_next_tile(gr) && ((ribi_check || (first_run && is_rail_type))))
 			{
 				first_run = false;
+				has_signal = gr->get_weg(tdriver->get_waytype())->has_signal();
 				// Do not go on a tile where a one way sign forbids going.
 				// This saves time and fixed the bug that a one way sign on the final tile was ignored.
 				weg_t* wg = gr->get_weg(wegtyp);
@@ -1146,7 +1151,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 					if(is_rail_type)
 					{
 						// Unidirectional signals allow routing in both directions but only act in one direction. Check whether this is one of those.
-						if(!gr->get_weg(tdriver->get_waytype()) || !gr->get_weg(tdriver->get_waytype())->has_signal())
+						if(!gr->get_weg(tdriver->get_waytype()) || !has_signal)
 						{
 							break;
 						}
@@ -1159,6 +1164,17 @@ void route_t::postprocess_water_route(karte_t *welt)
 				
 				route.append(gr->get_pos());
 				platform_size++;
+				
+				if (has_signal)
+				{
+					ribi_t::ribi ribi_unmasked = gr->get_weg_ribi_unmasked(wegtyp);
+					ribi_check = (ribi_unmasked & ribi) != 0;
+				}
+				else
+				{
+					ribi_check = (tdriver->get_ribi(gr) & ribi) != 0;
+				}
+				
 			}
 
 			if(!move_to_end_of_station && platform_size > max_len)
