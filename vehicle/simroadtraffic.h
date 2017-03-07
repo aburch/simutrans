@@ -154,6 +154,10 @@ public:
 
 	// Overtaking for city cars
 	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
+
+	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top) const;
+
+	vehicle_base_t* is_there_car(grund_t *gr) const; // This is a helper function of other_lane_blocked
 };
 
 #endif

@@ -3613,7 +3613,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		return false;
 	}
 
-	//Overtaking info (0 = condition for one-way road, 1 = condition for two-way road, 2 = overtaking a loading convoy only, 3 = overtaking is completely forbidden)
+	//Overtaking info (0 = condition for one-way road, 1 = condition for two-way road, 2 = overtaking a loading convoy only, 3 = overtaking is completely forbidden, 4 = vehicles can go only on passing lane)
 	if(  overtaking_info == 3  ){
 		// This road prohibits overtaking.
 		return false;
@@ -3766,17 +3766,17 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 					return false;
 				}
 				//We consider traffic-lights on two-way road.
-				if(  rb->is_traffic_light()  &&  overtaking_info_loop == 1  ) {
+				if(  rb->is_traffic_light()  &&  overtaking_info_loop >= 1  ) {
 					return false;
 				}
 			}
 		}
 		// not overtaking on railroad crossings or on normal crossings ...
-		if(  overtaking_info_loop == 1  &&  (str->is_crossing()  ||  ribi_t::is_threeway(str->get_ribi()))  ) {
+		if(  overtaking_info_loop >= 1  &&  (str->is_crossing()  ||  ribi_t::is_threeway(str->get_ribi()))  ) {
 			return false;
 		}
 		// street gets too slow (TODO: should be able to be correctly accounted for)
-		if(  overtaking_info_loop == 1  &&  akt_speed > kmh_to_speed(str->get_max_speed())  ) {
+		if(  overtaking_info_loop >= 1  &&  akt_speed > kmh_to_speed(str->get_max_speed())  ) {
 			return false;
 		}
 
