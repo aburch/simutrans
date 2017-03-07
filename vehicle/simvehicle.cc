@@ -189,6 +189,7 @@ vehicle_base_t::vehicle_base_t():
 	dx = 0;
 	dy = 0;
 	zoff_start = zoff_end = 0;
+	next_enter_passing_lane = false;
 }
 
 
@@ -204,6 +205,7 @@ vehicle_base_t::vehicle_base_t(koord3d pos):
 	dx = 0;
 	dy = 0;
 	zoff_start = zoff_end = 0;
+	next_enter_passing_lane = false;
 }
 
 
