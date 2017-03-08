@@ -2004,7 +2004,11 @@ end_loop:
 			if (front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt && gr && !gr->get_depot())
 			{
 				rail_vehicle_t* rv = (rail_vehicle_t*)back();
-				rv->unreserve_station();
+				rail_vehicle_t* rv_front = (rail_vehicle_t*)front();
+				if (rv_front->get_working_method() != one_train_staff)
+				{
+					rv->unreserve_station();
+				}
 			}
 			vorfahren();
 			break;

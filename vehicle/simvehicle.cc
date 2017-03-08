@@ -5786,7 +5786,7 @@ void rail_vehicle_t::unreserve_station()
 	grund_t* gr_prev = gr;
 	while (in_station)
 	{
-		bool is_previous = gr_prev->get_neighbour(gr_prev, get_waytype(), reverse_direction);
+		const bool is_previous = gr_prev->get_neighbour(gr_prev, get_waytype(), reverse_direction);
 		if (is_previous)
 		{
 			in_station = gr_prev->get_halt().is_bound();
