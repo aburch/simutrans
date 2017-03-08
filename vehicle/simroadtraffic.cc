@@ -710,6 +710,25 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 		}
 		return true;
 	}
+	// If this vehicle is on traffic lane and the next tile forces to go passing lane, this vehicle must wait until passing lane become safe.
+	if(  is_overtaking()  &&  str->get_overtaking_info() == 4  ) {
+		if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
+			if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next_next), v->get_90direction(), false, true)) {
+				return false;
+			}
+		}
+		// There is no vehicle on passing lane.
+		next_enter_passing_lane = true;
+		return true;
+	}
+	// If this vehicle is forced to go back to traffic lane at the next tile and traffic lane is not safe to change lane, this vehicle should wait.
+	if(  str->get_overtaking_info() > 0  &&  str->get_overtaking_info() < 4  &&  get_tiles_overtaking() == 1  ) {
+		if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
+			if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next_next), v->get_90direction(), true, true)) {
+				return false;
+			}
+		}
+	}
 
 	if(dt==NULL  &&  current_speed==0) {
 		ms_traffic_jam = 0;
