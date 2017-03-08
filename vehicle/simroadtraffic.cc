@@ -535,7 +535,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			// this fails with two crossings together; however, I see no easy way out here ...
 		}
 		else {
-			// not a crossing => skip 90° check!
+			// not a crossing => skip 90Â° check!
 			dt = no_cars_blocking( gr, NULL, this_direction, next_direction, next_90direction, this );
 			frei = true;
 		}
@@ -669,6 +669,22 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 				checkpos += dir;
 			}
 		}
+	}
+
+	// If this car is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
+	if(  is_overtaking()  &&  str->get_overtaking_info() == 3  ) {
+		if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
+			if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next_next), v->get_90direction(), true, true)) {
+				return false;
+			}
+		}
+		// There is no vehicle on traffic lane.
+		set_tiles_overtaking(0);
+		if(current_speed==0) {
+			ms_traffic_jam = 0;
+			current_speed = 48;
+		}
+		return true;
 	}
 
 	if(dt==NULL  &&  current_speed==0) {
@@ -1233,6 +1249,16 @@ vehicle_base_t* private_car_t::other_lane_blocked(const bool only_search_top) co
 			}
 		}
 		// rear check should be written here...
+		for(uint8 r = 0; r < 4; r++) {
+			grund_t *to = NULL;
+			if(  gr->get_neighbour(to, road_wt, ribi_t::nsew[r])  ) {
+				if(  to  ) {
+					if(  vehicle_base_t* v = is_there_car(gr)  ) {
+						return v;
+					}
+				}
+			}
+		}
 	}
 	return NULL;
 }
