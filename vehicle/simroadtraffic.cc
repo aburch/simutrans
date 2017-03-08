@@ -539,6 +539,30 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			dt = no_cars_blocking( gr, NULL, this_direction, next_direction, next_90direction, this );
 			frei = true;
 		}
+		//If this car is overtaking, the car must avoid a head-on crash.
+		if(  is_overtaking()  ) {
+			grund_t* sg[2];
+			sg[0] = welt->lookup(pos_next);
+			sg[1] = welt->lookup(pos_next_next);
+			for(uint8 i = 0; i < 2; i++) {
+				for(  uint8 pos=1;  pos<(volatile uint8)sg[i]->get_top();  pos++  ) {
+					if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(sg[i]->obj_bei(pos))  ) {
+						if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
+							ribi_t::ribi other_direction = at->get_direction();
+							if(  !at->get_convoi()->is_overtaking()  &&  ribi_t::backward(get_direction()) == other_direction  ) {
+								set_tiles_overtaking(0);
+							}
+						}
+						else if(  private_car_t* const caut = obj_cast<private_car_t>(v)  ) {
+							ribi_t::ribi other_direction = caut->get_direction();
+							if(  !caut->is_overtaking()  &&  ribi_t::backward(get_direction()) == other_direction  ) {
+								set_tiles_overtaking(0);
+							}
+						}
+					}
+				}
+			}
+		}
 		// Overtaking vehicles shouldn't have anything blocking them
 		if(  overtaking_info == 0  ) {
 			if(  dt  ) {
@@ -1281,7 +1305,7 @@ vehicle_base_t* private_car_t::is_there_car (grund_t *gr) const
 				if(  !is_overtaking() && !(at->get_convoi()->is_overtaking())  ){
 					//Prohibit going on passing lane when facing traffic exists.
 					ribi_t::ribi other_direction = at->get_direction();
-					if(  calc_direction(pos_next,get_pos()) == other_direction  ) {
+					if(  ribi_t::backward(get_direction()) == other_direction  ) {
 						return v;
 					}
 					continue;
@@ -1296,7 +1320,7 @@ vehicle_base_t* private_car_t::is_there_car (grund_t *gr) const
 				if(  !is_overtaking() && !(caut->is_overtaking())  ){
 					//Prohibit going on passing lane when facing traffic exists.
 					ribi_t::ribi other_direction = caut->get_direction();
-					if(  calc_direction(pos_next,get_pos()) == other_direction  ) {
+					if(  ribi_t::backward(get_direction()) == other_direction  ) {
 						return v;
 					}
 					continue;
