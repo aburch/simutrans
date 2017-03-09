@@ -711,7 +711,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 		return true;
 	}
 	// If this vehicle is on traffic lane and the next tile forces to go passing lane, this vehicle must wait until passing lane become safe.
-	if(  is_overtaking()  &&  str->get_overtaking_info() == 4  ) {
+	if(  !is_overtaking()  &&  str->get_overtaking_info() == 4  ) {
 		if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
 			if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next_next), v->get_90direction(), false, true)) {
 				return false;
