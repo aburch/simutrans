@@ -918,15 +918,7 @@ void private_car_t::hop(grund_t* to)
 
 	calc_current_speed(to);
 
-	update_tiles_overtaking();
-	if(to->ist_uebergang()) {
-		to->find<crossing_t>(2)->add_to_crossing(this);
-	}
 	weg_t *str = to->get_weg(road_wt);
-	if(  next_enter_passing_lane  ) {
-		set_tiles_overtaking(3);
-		next_enter_passing_lane = false;
-	}
 	//decide if overtaking citycar should go back to the traffic lane.
 	if(  get_tiles_overtaking() == 1  &&  str->get_overtaking_info() == 0  ){
 		vehicle_base_t* v = NULL;
@@ -934,6 +926,14 @@ void private_car_t::hop(grund_t* to)
 			//lane change denied
 			set_tiles_overtaking(3);
 		}
+	}
+	update_tiles_overtaking();
+	if(to->ist_uebergang()) {
+		to->find<crossing_t>(2)->add_to_crossing(this);
+	}
+	if(  next_enter_passing_lane  ) {
+		set_tiles_overtaking(3);
+		next_enter_passing_lane = false;
 	}
 	if(  str->get_overtaking_info() == 4  ) {
 		set_tiles_overtaking(1);
