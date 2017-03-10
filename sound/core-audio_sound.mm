@@ -9,18 +9,18 @@
 
 #import <Foundation/NSArray.h>
 #import <Foundation/NSString.h>
-#import <QTKit/QTMovie.h>
+#import <AVFoundation/AVFoundation.h>
 #import <stdio.h>
 
 
-static NSMutableArray* movies_WAV;
+static NSMutableArray* players_WAV;
 
 
 bool dr_init_sound()
 {
 	printf("Sound system Initialise\n");
 	printf("Wave File database\n");
-	movies_WAV = [NSMutableArray arrayWithCapacity: 128];
+	players_WAV = [NSMutableArray arrayWithCapacity: 128];
 	printf("Sound system Initialisation complete\n");
 	return true;
 }
@@ -28,20 +28,20 @@ bool dr_init_sound()
 
 int dr_load_sample(char const* const filename)
 {
-	NSString* const s = [NSString stringWithUTF8String: filename];
-	QTMovie*  const m = [QTMovie movieWithFile: s error: nil];
-	if (!m) {
+	NSURL* const url = [NSURL fileURLWithPath: [NSString stringWithUTF8String: filename]];
+	AVAudioPlayer* const player = [[AVAudioPlayer alloc] initWithContentsOfURL: url error: nil];
+	if (!player) {
 		printf("** Warning, unable to open wav file %s\n", filename);
 		return -1;
 	}
 
 	// Preload the file into memory.
-	[m setVolume: 0];
-	[m play];
+	[player setVolume: 0];
+	[player play];
 
-	[movies_WAV addObject: m];
+	[players_WAV addObject: player];
 
-	int const i = [movies_WAV count] - 1;
+	int const i = [players_WAV count] - 1;
 	printf("Load WAV (%d): %s\n", i, filename);
 	return i;
 }
@@ -49,7 +49,7 @@ int dr_load_sample(char const* const filename)
 
 void dr_play_sample(int const key, int const volume)
 {
-	QTMovie* const m = [movies_WAV objectAtIndex: key];
+	AVAudioPlayer* const m = [players_WAV objectAtIndex: key];
 	[m setVolume: volume / 255.f];
 	[m play];
 }
