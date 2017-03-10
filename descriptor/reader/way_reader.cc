@@ -66,18 +66,18 @@ obj_desc_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
     if(version==7) {
       //version 7, now with overtaking_info
-      desc->cost = decode_uint32(p);
+      desc->price = decode_uint32(p);
 			desc->maintenance = decode_uint32(p);
 			desc->topspeed = decode_uint32(p);
 			desc->max_weight = decode_uint32(p);
 			desc->intro_date = decode_uint16(p);
-			desc->obsolete_date = decode_uint16(p);
+			desc->retire_date = decode_uint16(p);
 			desc->axle_load = decode_uint16(p);
-			desc->wt = decode_uint8(p);
+			desc->wtyp = decode_uint8(p);
 			desc->styp = decode_uint8(p);
       desc->overtaking_info = decode_sint8(p);  //new
 			desc->draw_as_obj = decode_uint8(p);
-			desc->number_seasons = decode_sint8(p);
+			desc->number_of_seasons = decode_sint8(p);
     }
 		else if(version==6) {
 			// version 6, now with axle load
