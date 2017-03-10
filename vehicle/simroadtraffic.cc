@@ -944,6 +944,7 @@ void private_car_t::hop(grund_t* to)
 	if(  str->get_overtaking_info() == 4  ) {
 		set_tiles_overtaking(1);
 	}
+	next_cross_lane = false; // since this car moved...
 	pos_next = pos_next_next;
 	pos_next_next = koord3d::invalid;
 }

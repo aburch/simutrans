@@ -2521,7 +2521,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 		}
 		// If 2 tiles ahead is a crossing, lane crossing must be checked before entering.
-		// strasse_t *str=(strasse_t *)gr->get_weg(road_wt);
+		const koord3d pos_next3 = route_index < r.get_count() - 2u ? r.at(route_index + 2u) : pos_next2;
 		const grund_t *gr = route_index < r.get_count() - 1u ? welt->lookup(r.at(route_index+1u)) : NULL;
 		const strasse_t *stre= gr ? (strasse_t *)gr->get_weg(road_wt) : NULL;
 		const ribi_t::ribi way_ribi = stre ? stre->get_ribi_unmasked() : ribi_t::none;
@@ -2532,6 +2532,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 						// vehicle must stop.
 						restart_speed = 0;
 						cnv->reset_waiting();
+						next_cross_lane = true;
 						return false;
 					}
 				}
