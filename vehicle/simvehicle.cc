@@ -2520,6 +2520,23 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				}
 			}
 		}
+		// If 2 tiles ahead is a crossing, lane crossing must be checked before entering.
+		// strasse_t *str=(strasse_t *)gr->get_weg(road_wt);
+		const grund_t *gr = route_index < r.get_count() - 1u ? welt->lookup(r.at(route_index+1u)) : NULL;
+		const strasse_t *stre= gr ? (strasse_t *)gr->get_weg(road_wt) : NULL;
+		const ribi_t::ribi way_ribi = stre ? stre->get_ribi_unmasked() : ribi_t::none;
+		if(  stre  &&  stre->get_overtaking_info() == 0  &&  (way_ribi == ribi_t::all  ||  ribi_t::is_threeway(way_ribi))  ) {
+			if(  const vehicle_base_t* v = other_lane_blocked(true)  ) {
+				if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
+					if(  judge_lane_crossing(calc_direction(pos_next,pos_next2), calc_direction(pos_next2,pos_next3), at->get_next_90direction(), cnv->is_overtaking(), false)  ) {
+						// vehicle must stop.
+						restart_speed = 0;
+						cnv->reset_waiting();
+						return false;
+					}
+				}
+			}
+		}
 		// For the case that this vehicle is fixed to passing lane and is on traffic lane.
 		if(  str->get_overtaking_info() == 0  &&  cnv->get_lane_fix() == 1  &&  !cnv->is_overtaking()  ) {
 			if(  vehicle_base_t* v = other_lane_blocked()  ) {
