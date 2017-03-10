@@ -729,6 +729,12 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			}
 		}
 	}
+	// If there is a vehicle that requests lane crossing, this vehicle must stop to yield space.
+	if(  vehicle_base_t* v = other_lane_blocked(true)  ) {
+		if(  v->get_waytype() == road_wt  &&  v->get_next_cross_lane()  ) {
+			return false;
+		}
+	}
 
 	if(dt==NULL  &&  current_speed==0) {
 		ms_traffic_jam = 0;

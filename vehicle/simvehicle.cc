@@ -190,6 +190,7 @@ vehicle_base_t::vehicle_base_t():
 	dy = 0;
 	zoff_start = zoff_end = 0;
 	next_enter_passing_lane = false;
+	next_cross_lane = false;
 }
 
 
@@ -206,6 +207,7 @@ vehicle_base_t::vehicle_base_t(koord3d pos):
 	dy = 0;
 	zoff_start = zoff_end = 0;
 	next_enter_passing_lane = false;
+	next_cross_lane = false;
 }
 
 
@@ -2486,10 +2488,12 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		// If this vehicle is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
 		if(  cnv->is_overtaking()  &&  str->get_overtaking_info() == 3  ) {
 			// TODO:other_lane_blocked() method is inappropriate for the condition.
+			printf("current:(%d,%d), str:(%d,%d)\n", get_pos().x,get_pos().y,str->get_pos().x,str->get_pos().y);
 			if(  vehicle_base_t* v = other_lane_blocked()  ) {
 				if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next2), v->get_90direction(), true, true)) {
 					restart_speed = 0;
 					cnv->reset_waiting();
+					next_cross_lane = true;
 					return false;
 				}
 			}
@@ -2503,6 +2507,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next2), v->get_90direction(), false, true)) {
 					restart_speed = 0;
 					cnv->reset_waiting();
+					next_cross_lane = true;
 					return false;
 				}
 			}
@@ -2516,6 +2521,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next2), v->get_90direction(), true, true)) {
 					restart_speed = 0;
 					cnv->reset_waiting();
+					next_cross_lane = true;
 					return false;
 				}
 			}
@@ -2551,6 +2557,15 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			else {
 				// go on passing lane.
 				cnv->set_tiles_overtaking(3);
+			}
+		}
+		// If there is a vehicle that requests lane crossing, this vehicle must stop to yield space.
+		if(  vehicle_base_t* v = other_lane_blocked(true)  ) {
+			if(  v->get_waytype() == road_wt  &&  v->get_next_cross_lane()  ) {
+				// vehicle must stop.
+				restart_speed = 0;
+				cnv->reset_waiting();
+				return false;
 			}
 		}
 
@@ -2683,6 +2698,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 		if(  str->get_overtaking_info() == 4  ) {
 			cnv->set_tiles_overtaking(1);
 		}
+		next_cross_lane = false; // since this convoi moved...
 		// If there is one-way sign, calc lane_fix. This should not be calculated in can_enter_tile().
 		if(  roadsign_t* rs = gr->find<roadsign_t>()  ) {
 			if(  rs->get_desc()->is_single_way()  ) {
