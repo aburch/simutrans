@@ -83,7 +83,7 @@ const tunnel_desc_t *tunnel_builder_t::get_tunnel_desc(const waytype_t wtyp, con
 			if(  desc->is_available(time)  ) {
 				if(  find_desc==NULL  ||
 					(find_desc->get_topspeed()<min_speed  &&  find_desc->get_topspeed()<desc->get_topspeed())  ||
-					(desc->get_topspeed()>=min_speed  &&  desc->get_wartung()<find_desc->get_wartung())
+					(desc->get_topspeed()>=min_speed  &&  desc->get_maintenance()<find_desc->get_maintenance())
 				) {
 					find_desc = desc;
 				}
@@ -460,21 +460,21 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 			weg->set_desc(way_desc);
 			weg->set_max_speed(desc->get_topspeed());
 			tunnel->neuen_weg_bauen(weg, ribi_t::doubles(ribi), player);
-			player_t::add_maintenance( player, -weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype() );
+			player_t::add_maintenance( player, -weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype() );
 		}
 		else {
 			lt = new leitung_t(tunnel->get_pos(), player);
 			lt->set_desc(way_desc);
 			tunnel->obj_add( lt );
 			lt->finish_rd();
-			player_t::add_maintenance( player, -way_desc->get_wartung(), powerline_wt );
+			player_t::add_maintenance( player, -way_desc->get_maintenance(), powerline_wt );
 		}
 		tunnel->obj_add(new tunnel_t(pos, player, desc));
 		tunnel->calc_image();
 		tunnel->set_flag(grund_t::dirty);
 		assert(!tunnel->ist_karten_boden());
-		player_t::add_maintenance( player, desc->get_wartung(), desc->get_finance_waytype() );
-		cost += desc->get_preis();
+		player_t::add_maintenance( player, desc->get_maintenance(), desc->get_finance_waytype() );
+		cost += desc->get_price();
 		pos = pos + zv;
 	}
 
@@ -509,21 +509,21 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 			weg->set_desc(way_desc);
 			weg->set_max_speed(desc->get_topspeed());
 			tunnel->neuen_weg_bauen(weg, ribi, player);
-			player_t::add_maintenance( player,  -weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype() );
+			player_t::add_maintenance( player,  -weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype() );
 		}
 		else {
 			lt = new leitung_t(tunnel->get_pos(), player);
 			lt->set_desc(way_desc);
 			tunnel->obj_add( lt );
 			lt->finish_rd();
-			player_t::add_maintenance( player, -way_desc->get_wartung(), powerline_wt );
+			player_t::add_maintenance( player, -way_desc->get_maintenance(), powerline_wt );
 		}
 		tunnel->obj_add(new tunnel_t(pos, player, desc));
 		tunnel->calc_image();
 		tunnel->set_flag(grund_t::dirty);
 		assert(!tunnel->ist_karten_boden());
-		player_t::add_maintenance( player,  desc->get_wartung(), desc->get_finance_waytype() );
-		cost += desc->get_preis();
+		player_t::add_maintenance( player,  desc->get_maintenance(), desc->get_finance_waytype() );
+		cost += desc->get_price();
 	}
 
 	player_t::book_construction_costs(player, -cost, start.get_2d(), desc->get_waytype());
@@ -562,7 +562,7 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 			}
 			tunnel->neuen_weg_bauen( weg, ribi, player );
 		}
-		player_t::add_maintenance( player, -weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype() );
+		player_t::add_maintenance( player, -weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype() );
 		weg->set_max_speed( desc->get_topspeed() );
 	}
 	else {
@@ -571,12 +571,12 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 			lt = new leitung_t(tunnel->get_pos(), player);
 			lt->set_desc(way_desc);
 			tunnel->obj_add( lt );
-			player_t::add_maintenance( player, -way_desc->get_wartung(), powerline_wt );
+			player_t::add_maintenance( player, -way_desc->get_maintenance(), powerline_wt );
 		}
 		else {
 			// subtract twice maintenance: once for the already existing powerline
 			// once since leitung_t::finish_rd will add it again
-			player_t::add_maintenance( player, -2*lt->get_desc()->get_wartung(), powerline_wt );
+			player_t::add_maintenance( player, -2*lt->get_desc()->get_maintenance(), powerline_wt );
 		}
 		lt->finish_rd();
 	}
@@ -620,9 +620,9 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 
 
 	if(player!=NULL) {
-		player_t::add_maintenance( player,  desc->get_wartung(), desc->get_finance_waytype() );
+		player_t::add_maintenance( player,  desc->get_maintenance(), desc->get_finance_waytype() );
 	}
-	cost += desc->get_preis();
+	cost += desc->get_price();
 }
 
 

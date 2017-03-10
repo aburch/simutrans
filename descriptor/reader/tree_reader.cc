@@ -15,7 +15,7 @@ void tree_reader_t::register_obj(obj_desc_t *&data)
     tree_desc_t *desc = static_cast<tree_desc_t *>(data);
 
     baum_t::register_desc(desc);
-//    printf("...Baum %s geladen\n", desc->get_name());
+//    printf("...Tree %s loaded\n", desc->get_name());
 	checksum_t *chk = new checksum_t();
 	desc->calc_checksum(chk);
 	pakset_info_t::append(desc->get_name(), chk);
@@ -60,7 +60,13 @@ obj_desc_t * tree_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->allowed_climates = all_but_arctic_climate;
 		desc->distribution_weight = 3;
 	}
-	DBG_DEBUG("tree_reader_t::read_node()", "climates=$%X, seasons %i, and weight=%i (ver=%i, node.size=%i)",desc->allowed_climates,desc->number_of_seasons,desc->distribution_weight, version, node.size);
+	DBG_DEBUG("tree_reader_t::read_node()",
+		"version=%i, climates=$%X, seasons=%i, chance=%i (node.size=%i)",
+		version,
+		desc->allowed_climates,
+		desc->number_of_seasons,
+		desc->distribution_weight,
+		node.size);
 
 	return desc;
 }

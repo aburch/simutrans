@@ -76,7 +76,7 @@ const skin_desc_t* skinverwaltung_t::tunnel_texture     = NULL;
 slist_tpl<const skin_desc_t *>skinverwaltung_t::extra_obj;
 
 
-static spezial_obj_tpl<skin_desc_t> const misc_objekte[] = {
+static special_obj_tpl<skin_desc_t> const misc_objekte[] = {
 	{ &skinverwaltung_t::senke,             "PowerDest"    },
 	{ &skinverwaltung_t::pumpe,             "PowerSource"  },
 	{ &skinverwaltung_t::construction_site, "Construction" },
@@ -85,7 +85,7 @@ static spezial_obj_tpl<skin_desc_t> const misc_objekte[] = {
 	{ NULL, NULL }
 };
 
-static spezial_obj_tpl<skin_desc_t> const menu_objekte[] = {
+static special_obj_tpl<skin_desc_t> const menu_objekte[] = {
 	// new menu system
 	{ &skinverwaltung_t::button,            "Button"   },
 	{ &skinverwaltung_t::round_button,      "Roundbutton"  },
@@ -104,7 +104,7 @@ static spezial_obj_tpl<skin_desc_t> const menu_objekte[] = {
 	{ NULL, NULL }
 };
 
-static spezial_obj_tpl<skin_desc_t> const symbol_objekte[] = {
+static special_obj_tpl<skin_desc_t> const symbol_objekte[] = {
 	{ &skinverwaltung_t::seasons_icons,      "Seasons"        },
 	{ &skinverwaltung_t::message_options,    "MessageOptions" },
 	{ &skinverwaltung_t::color_options,      "ColorOptions"   },
@@ -122,7 +122,7 @@ static spezial_obj_tpl<skin_desc_t> const symbol_objekte[] = {
 };
 
 // simutrans will work without those
-static spezial_obj_tpl<skin_desc_t> const fakultative_objekte[] = {
+static special_obj_tpl<skin_desc_t> const fakultative_objekte[] = {
 	{ &skinverwaltung_t::biglogosymbol,      "BigLogo"        },
 	{ &skinverwaltung_t::mouse_cursor,       "Mouse"          },
 	{ &skinverwaltung_t::zughaltsymbol,      "TrainStop"      },
@@ -145,7 +145,7 @@ static spezial_obj_tpl<skin_desc_t> const fakultative_objekte[] = {
 	{ NULL, NULL }
 };
 
-static spezial_obj_tpl<skin_desc_t> const cursor_objekte[] = {
+static special_obj_tpl<skin_desc_t> const cursor_objekte[] = {
 	// old cursors
 	{ &skinverwaltung_t::bauigelsymbol,  "Builder"      },
 	{ &skinverwaltung_t::cursor_general, "GeneralTools" },
@@ -156,7 +156,7 @@ static spezial_obj_tpl<skin_desc_t> const cursor_objekte[] = {
 
 bool skinverwaltung_t::successfully_loaded(skintyp_t type)
 {
-	spezial_obj_tpl<skin_desc_t> const* sd;
+	special_obj_tpl<skin_desc_t> const* sd;
 	switch (type) {
 		case menu:    sd = menu_objekte+1;       break;
 		case cursor:  sd = cursor_objekte;     break;
@@ -177,7 +177,7 @@ bool skinverwaltung_t::successfully_loaded(skintyp_t type)
 
 bool skinverwaltung_t::register_desc(skintyp_t type, const skin_desc_t* desc)
 {
-	spezial_obj_tpl<skin_desc_t> const* sd;
+	special_obj_tpl<skin_desc_t> const* sd;
 	switch (type) {
 		case menu:    sd = menu_objekte;   break;
 		case cursor:  sd = cursor_objekte; break;

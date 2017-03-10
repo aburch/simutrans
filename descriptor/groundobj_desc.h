@@ -33,13 +33,13 @@ class groundobj_desc_t : public obj_named_desc_t {
 	friend class movingobj_t;
 
 	climate_bits allowed_climates;
-	uint16 distribution_weight;
-	uint8  number_of_seasons;
-	sint32  speed;
-	uint16 index;
-	bool  trees_on_top;
-	waytype_t waytype;
-	sint32 cost_removal;
+	uint16       distribution_weight;
+	uint8        number_of_seasons;
+	sint32       speed;
+	uint16       index;
+	bool         trees_on_top;
+	waytype_t    wtyp;
+	sint32       price;
 
 public:
 	uint16 get_distribution_weight() const { return distribution_weight; }
@@ -49,7 +49,7 @@ public:
 	// the right house for this area?
 	bool is_allowed_climate_bits( climate_bits cl ) const { return (cl&allowed_climates)!=0; }
 
-	// for the paltzsucher needed
+	// needed by place_finder
 	climate_bits get_allowed_climate_bits() const { return allowed_climates; }
 
 	const image_t *get_image(uint8 season, uint16 phase) const {
@@ -73,11 +73,11 @@ public:
 
 	sint32 get_speed() const { return speed; }
 
-	bool can_built_trees_here() const { return trees_on_top; }
+	bool can_build_trees_here() const { return trees_on_top; }
 
-	waytype_t get_waytype() const { return waytype; }
+	waytype_t get_waytype() const { return wtyp; }
 
-	sint32 get_preis() const { return cost_removal; }
+	sint32 get_price() const { return price; }
 
 	uint16 get_index() const { return index; }
 
@@ -88,8 +88,8 @@ public:
 		chk->input(number_of_seasons);
 		chk->input(speed);
 		chk->input(trees_on_top);
-		chk->input((uint8)waytype);
-		chk->input(cost_removal);
+		chk->input((uint8)wtyp);
+		chk->input(price);
 	}
 };
 

@@ -499,7 +499,7 @@ void player_t::ai_bankrupt()
 					if(  w  &&  w->get_owner()==this  ) {
 						// tunnels and bridges are handled later? (logic needs to be checked for correct maintenance costs)
 						if (!gr->ist_bruecke()  &&  !gr->ist_tunnel()) {
-							sint32 const costs = w->get_desc()->get_wartung();
+							sint32 const costs = w->get_desc()->get_maintenance();
 							waytype_t const wt = w->get_desc()->get_finance_waytype();
 							player_t::add_maintenance(this, -costs, wt);
 							player_t::add_maintenance(psplayer, costs, wt);
@@ -562,7 +562,7 @@ void player_t::ai_bankrupt()
 							case obj_t::leitung:
 								// do not remove powerline from bridges
 								if(gr->ist_bruecke()) {
-									costs = ((leitung_t*)obj)->get_desc()->get_wartung();
+									costs = ((leitung_t*)obj)->get_desc()->get_maintenance();
 									add_maintenance(-costs, powerline_wt);
 									psplayer->add_maintenance(costs, powerline_wt);
 									obj->set_owner(psplayer);
@@ -584,7 +584,7 @@ void player_t::ai_bankrupt()
 								}
 								// roads and water ways also made public
 								else if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
-									costs = w->get_desc()->get_wartung();
+									costs = w->get_desc()->get_maintenance();
 									wt = w->get_waytype();
 									add_maintenance(-costs, wt);
 									psplayer->add_maintenance(costs, wt);
@@ -596,14 +596,14 @@ void player_t::ai_bankrupt()
 								break;
 							}
 							case obj_t::bruecke:
-								costs = ((bruecke_t*)obj)->get_desc()->get_wartung();
+								costs = ((bruecke_t*)obj)->get_desc()->get_maintenance();
 								wt = obj->get_waytype();
 								add_maintenance(-costs, wt);
 								psplayer->add_maintenance(costs, wt);
 								obj->set_owner(psplayer);
 								break;
 							case obj_t::tunnel:
-								costs = ((tunnel_t*)obj)->get_desc()->get_wartung();
+								costs = ((tunnel_t*)obj)->get_desc()->get_maintenance();
 								wt = ((tunnel_t*)obj)->get_desc()->get_finance_waytype();
 								add_maintenance(-costs, wt);
 								psplayer->add_maintenance(costs, wt);
@@ -888,7 +888,7 @@ sint64 player_t::undo()
 		}
 		else {
 			if (leitung_t* lt = gr->get_leitung()) {
-				cost += lt->get_desc()->get_preis();
+				cost += lt->get_desc()->get_price();
 				lt->cleanup(NULL);
 				delete lt;
 			}

@@ -57,6 +57,7 @@
 
 #define baum_pri (50)
 #define pillar_pri (7)
+#define wayobj_pri (8)
 
 // priority of moving things: should be smaller than the priority of powerlines
 #define moving_obj_pri (100)
@@ -79,7 +80,7 @@ static uint8 type_to_pri[256]=
 	6, // roadsign
 	pillar_pri, // pillar
 	1, 1, 1, 1, // depots (must be before tunnel!)
-	8, // way objects (electrification)
+	wayobj_pri, // way objects (electrification)
 	0, // ways (always at the top!)
 	9, // label, indicates ownership: insert before trees
 	3, // field (factory extension)
@@ -508,6 +509,13 @@ bool objlist_t::add(obj_t* new_obj)
 				if (!pillar  ||  new_obj->get_yoff()  > pillar->get_yoff() ) {
 					break;
 				}
+			}
+		}
+		else if(  pri == wayobj_pri  &&  obj.some[i]->get_typ()==obj_t::wayobj  ) {
+			wayobj_t const* const wo = obj_cast<wayobj_t>(obj.some[i]);
+			if(  wo  &&  wo->get_waytype() < obj_cast<wayobj_t>(new_obj)->get_waytype() ) {
+				// insert after a lower waytype
+				i += 1;
 			}
 		}
 		intern_insert_at(new_obj, i);

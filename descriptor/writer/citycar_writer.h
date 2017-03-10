@@ -17,7 +17,7 @@
  *      Volker Meyer
  *
  *  Description:
- *      Liest Beschreibunnen der automatisch generierten Autos
+ *      Description of the automatically generated cars
  */
 class citycar_writer_t : public obj_writer_t {
 	private:

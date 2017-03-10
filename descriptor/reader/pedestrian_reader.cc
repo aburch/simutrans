@@ -38,7 +38,7 @@ bool pedestrian_reader_t::successfully_loaded() const
 
 
 /**
- * Read a goods info node. Does version check and
+ * Read a pedestrian info node. Does version check and
  * compatibility transformations.
  * @author Hj. Malthaner
  */
@@ -60,8 +60,8 @@ obj_desc_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(version == 0) {
 		// old, nonversion node
-		desc->chance = v;
+		desc->distribution_weight = v;
 	}
-	DBG_DEBUG("pedestrian_reader_t::read_node()","version=%i, chance",version,desc->chance);
+	DBG_DEBUG("pedestrian_reader_t::read_node()", "version=%i, chance=%i", version, desc->distribution_weight);
 	return desc;
 }

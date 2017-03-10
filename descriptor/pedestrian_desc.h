@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __pedestrian_desc_h
-#define __pedestrian_desc_h
+#ifndef __PEDESTRIAN_DESC_H
+#define __PEDESTRIAN_DESC_H
 
 #include "obj_base_desc.h"
 #include "image_list.h"
@@ -27,7 +27,7 @@
 class pedestrian_desc_t : public obj_named_desc_t {
     friend class pedestrian_reader_t;
 
-    uint16 chance;
+    uint16 distribution_weight;
 
 public:
     image_id get_image_id(ribi_t::dir dir) const
@@ -36,11 +36,11 @@ public:
 		return image != NULL ? image->get_id() : IMG_EMPTY;
     }
 
-    uint16 get_chance() const { return chance; }
+    uint16 get_distribution_weight() const { return distribution_weight; }
 
 	void calc_checksum(checksum_t *chk) const
 	{
-		chk->input(chance);
+		chk->input(distribution_weight);
 	}
 };
 

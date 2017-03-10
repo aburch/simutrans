@@ -44,16 +44,19 @@ void obj_reader_t::register_reader()
 	//printf("This program can read %s objects\n", get_type_name());
 }
 
-
-bool obj_reader_t::laden_abschliessen()
+/*
+ * Do the last loading procedures
+ * Resolve all xrefs
+ */
+bool obj_reader_t::finish_loading()
 {
 	resolve_xrefs();
 
 	FOR(obj_map, const& i, *obj_reader) {
-		DBG_MESSAGE("obj_reader_t::laden_abschliessen()","Checking %s objects...", i.value->get_type_name());
+		DBG_MESSAGE("obj_reader_t::finish_loading()","Checking %s objects...", i.value->get_type_name());
 
 		if (!i.value->successfully_loaded()) {
-			dbg->warning("obj_reader_t::laden_abschliessen()","... failed!");
+			dbg->warning("obj_reader_t::finish_loading()","... failed!");
 			return false;
 		}
 	}
@@ -100,7 +103,7 @@ bool obj_reader_t::load(const char *path, const char *message)
 		}
 	}
 	else {
-		// Keine dat-file? dann ist list ein Verzeichnis?
+		// No dat-file? Then is the list a directory?
 		// step is a bitmask to decide when it's time to update the progress bar.
 		// It takes the biggest power of 2 less than the number of elements and
 		// divides it in 256 sub-steps at most (the -7 comes from here)
@@ -124,7 +127,7 @@ DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbo
 		loadingscreen_t ls( message, max, true );
 
 		if(  ground_desc_t::outside==NULL  ) {
-			// defining the pak tile witdh ....
+			// defining the pak tile width ....
 			read_file((name+"ground.Outside.pak").c_str());
 			if(ground_desc_t::outside==NULL) {
 				dbg->warning("obj_reader_t::load()","ground.Outside.pak not found, cannot guess tile size! (driving on left will not work!)");
@@ -176,7 +179,7 @@ void obj_reader_t::read_file(const char *name)
 //			DBG_DEBUG("obj_reader_t::read_file()", "skipped %d header bytes", n);
 		}
 
-		// Compiled Verison
+		// Compiled Version
 		uint32 version = 0;
 		char dummy[4], *p;
 		p = dummy;

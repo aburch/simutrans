@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __BAUM_DESC_H
-#define __BAUM_DESC_H
+#ifndef __TREE_DESC_H
+#define __TREE_DESC_H
 
 #include "../simtypes.h"
 #include "obj_base_desc.h"
@@ -17,7 +17,7 @@
  *      Volker Meyer
  *
  *  Description:
- *      Description eines Baumes in Simutrans
+ *      Tree type description in Simutrans
  *
  *  Child nodes:
  *	0   Name
@@ -32,9 +32,9 @@
 class tree_desc_t : public obj_named_desc_t {
 	friend class tree_reader_t;
 
-	climate_bits	allowed_climates;
-	uint8		distribution_weight;
-	uint8		number_of_seasons;
+	climate_bits allowed_climates;
+	uint8        distribution_weight;
+	uint8        number_of_seasons;
 
 public:
 	uint16 get_distribution_weight() const { return distribution_weight; }

@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __KREUZUNG_DESC_H
-#define __KREUZUNG_DESC_H
+#ifndef __CROSSING_DESC_H
+#define __CROSSING_DESC_H
 
 #include "obj_base_desc.h"
 #include "image.h"
@@ -23,7 +23,7 @@ class checksum_t;
  *  Child nodes:
  *	0   Name
  *	1   Copyright
- *	2   Bild
+ *	2   Image-list
  */
 class crossing_desc_t : public obj_desc_timelined_t {
     friend class crossing_reader_t;
@@ -84,7 +84,7 @@ public:
 		chk->input(topspeed1);
 		chk->input(topspeed2);
 		chk->input(intro_date);
-		chk->input(obsolete_date);
+		chk->input(retire_date);
 	}
 };
 

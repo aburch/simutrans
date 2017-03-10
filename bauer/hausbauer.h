@@ -35,7 +35,7 @@ private:
 	static vector_tpl<const building_desc_t*> townhalls;         ///< Town halls
 	static vector_tpl<const building_desc_t*> monuments;         ///< All monuments
 	static vector_tpl<const building_desc_t*> unbuilt_monuments; ///< All unbuilt monuments
-	static vector_tpl<const building_desc_t*> headquarter;       ///< Company headquarters
+	static vector_tpl<const building_desc_t*> headquarters;       ///< Company headquarters
 	static vector_tpl<const building_desc_t*> station_building;  ///< All station buildings
 
 	/// @returns a random entry from @p list
@@ -87,7 +87,7 @@ public:
 	static const building_desc_t* get_residential(int level, uint16 time, climate cl, uint32 clusters = 0);
 
 	/// @returns headquarters with level @p level (takes the first matching one)
-	static const building_desc_t* get_headquarter(int level, uint16 time);
+	static const building_desc_t* get_headquarters(int level, uint16 time);
 
 	/// @returns a random tourist attraction matching the requirements.
 	static const building_desc_t* get_random_attraction(uint16 time, bool ignore_retire, climate cl)

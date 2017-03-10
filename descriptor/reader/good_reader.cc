@@ -83,7 +83,13 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->catg = (uint8)decode_uint16(p);
 	}
 
-	DBG_DEBUG("goods_reader_t::read_node()","version=%d value=%d catg=%d bonus=%d",version, desc->value, desc->catg, desc->speed_bonus);
+	DBG_DEBUG("goods_reader_t::read_node()","version=%d, value=%d, catg=%d, bonus=%d, weight=%i, color=%i",
+		version,
+		desc->base_value,
+		desc->catg,
+		desc->speed_bonus,
+		desc->weight_per_unit,
+		desc->color);
 
 
   return desc;

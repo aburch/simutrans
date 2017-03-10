@@ -410,21 +410,21 @@ void fabrik_t::book_weighted_sums(sint64 delta_time)
 }
 
 
-void fabrik_t::update_scaled_electric_amount()
+void fabrik_t::update_scaled_electric_demand()
 {
-	if(  desc->get_electric_amount()==65535  ) {
+	if(  desc->get_electric_demand()==65535  ) {
 		// demand not specified in pak, use old fixed demands
-		scaled_electric_amount = prodbase * PRODUCTION_DELTA_T;
+		scaled_electric_demand = prodbase * PRODUCTION_DELTA_T;
 		if(  desc->is_electricity_producer()  ) {
-			scaled_electric_amount *= 4;
+			scaled_electric_demand *= 4;
 		}
 		return;
 	}
 
 	const sint64 prod = desc->get_productivity();
-	scaled_electric_amount = (uint32)( (( (sint64)(desc->get_electric_amount()) * (sint64)prodbase + (prod >> 1) ) / prod) << POWER_TO_MW );
+	scaled_electric_demand = (uint32)( (( (sint64)(desc->get_electric_demand()) * (sint64)prodbase + (prod >> 1) ) / prod) << POWER_TO_MW );
 
-	if(  scaled_electric_amount == 0  ) {
+	if(  scaled_electric_demand == 0  ) {
 		prodfactor_electric = 0;
 	}
 }
@@ -680,7 +680,7 @@ void fabrik_t::set_base_production(sint32 p)
 {
 	prodbase = p;
 	recalc_storage_capacities();
-	update_scaled_electric_amount();
+	update_scaled_electric_demand();
 	update_scaled_pax_demand();
 	update_scaled_mail_demand();
 	update_prodfactor_pax();
@@ -861,7 +861,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* owner, const factory_desc_t* factory_
 
 	delta_slot = 0;
 	times_expanded = 0;
-	update_scaled_electric_amount();
+	update_scaled_electric_demand();
 	update_scaled_pax_demand();
 	update_scaled_mail_demand();
 }
@@ -974,7 +974,7 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 
 	// Boost logic determines what factors boost factory production.
 	if( welt->get_settings().get_just_in_time() >= 2 ) {
-		if(  !desc->is_electricity_producer()  &&  desc->get_electric_amount() > 0  ) {
+		if(  !desc->is_electricity_producer()  &&  desc->get_electric_demand() > 0  ) {
 			boost_type = BL_POWER;
 		}
 		else if(  desc->get_pax_demand() ||  desc->get_mail_demand()  ) {
@@ -1499,7 +1499,7 @@ void fabrik_t::smoke() const
 		welt->sync_way_eyecandy.add( smoke );
 	}
 	// maybe sound?
-	if(  desc->get_sound()!=NO_SOUND  &&  	welt->get_ticks()>last_sound_ms+desc->get_sound_intervall_ms()  ) {
+	if(  desc->get_sound()!=NO_SOUND  &&  	welt->get_ticks()>last_sound_ms+desc->get_sound_interval_ms()  ) {
 		welt->play_sound_area_clipped( get_pos().get_2d(), desc->get_sound() );
 	}
 }
@@ -1744,7 +1744,7 @@ void fabrik_t::step(uint32 delta_t)
 	switch(  boost_type  ) {
 		case BL_CLASSIC: {
 			// JIT1 implementation for power bonus.
-			if(  !desc->is_electricity_producer()  &&  scaled_electric_amount > 0  ) {
+			if(  !desc->is_electricity_producer()  &&  scaled_electric_demand > 0  ) {
 				// one may be thinking of linking this to actual production only
 				prodfactor_electric = (sint32)(((sint64)desc->get_electric_boost() * (sint64)get_power_satisfaction() + (sint64)(1 << (leitung_t::FRACTION_PRECISION - 1))) >> leitung_t::FRACTION_PRECISION);
 			}
@@ -2079,7 +2079,7 @@ void fabrik_t::step(uint32 delta_t)
 						currently_producing = true;
 						if(  desc->is_electricity_producer()  ) {
 							// power station => produce power
-							power += (uint32)( ((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS );
+							power += (uint32)( ((sint64)scaled_electric_demand * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS );
 						}
 						work += 1 << WORK_BITS;
 						// to find out, if storage changed
@@ -2088,7 +2088,7 @@ void fabrik_t::step(uint32 delta_t)
 					else {
 						if(  desc->is_electricity_producer()  ) {
 							// power station => produce power
-							power += (uint32)( (((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS) * eingang[index].menge / (v + 1) );
+							power += (uint32)( (((sint64)scaled_electric_demand * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS) * eingang[index].menge / (v + 1) );
 						}
 						delta_menge += eingang[index].menge;
 						work += work_from_production(prod, eingang[index].menge);
@@ -2147,7 +2147,7 @@ void fabrik_t::step(uint32 delta_t)
 
 				if(  desc->is_electricity_producer()  ) {
 					// compute power production
-					uint64 pp = ((uint64)scaled_electric_amount * (uint64)boost * (uint64)work) >> (DEFAULT_PRODUCTION_FACTOR_BITS + WORK_BITS);
+					uint64 pp = ((uint64)scaled_electric_demand * (uint64)boost * (uint64)work) >> (DEFAULT_PRODUCTION_FACTOR_BITS + WORK_BITS);
 					set_power_supply((uint32)pp);
 				}
 
@@ -2162,7 +2162,7 @@ void fabrik_t::step(uint32 delta_t)
 				delta_menge += prod;
 
 				// compute power production
-				uint64 pp = ((uint64)scaled_electric_amount * (uint64)boost) >> DEFAULT_PRODUCTION_FACTOR_BITS;
+				uint64 pp = ((uint64)scaled_electric_demand * (uint64)boost) >> DEFAULT_PRODUCTION_FACTOR_BITS;
 				set_power_supply((uint32)pp);
 
 				break;
@@ -2175,7 +2175,7 @@ void fabrik_t::step(uint32 delta_t)
 				// power station? => produce power
 				if(  desc->is_electricity_producer()  ) {
 					currently_producing = true;
-					set_power_supply((uint32)( ((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS ));
+					set_power_supply((uint32)( ((sint64)scaled_electric_demand * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS ));
 				}
 				break;
 			}
@@ -2248,7 +2248,7 @@ void fabrik_t::step(uint32 delta_t)
 			// draw a fixed amount of power when working sufficiently, otherwise draw no power
 			if(  !desc->is_electricity_producer()  ) {
 				if(  currently_producing  ) {
-					set_power_demand(scaled_electric_amount);
+					set_power_demand(scaled_electric_demand);
 				}
 				else {
 					set_power_demand(0);
@@ -2258,7 +2258,7 @@ void fabrik_t::step(uint32 delta_t)
 		}
 		case BL_POWER: {
 			// compute power demand
-			uint64 pd = ((uint64)scaled_electric_amount * (uint64)boost * (uint64)work) >> (DEFAULT_PRODUCTION_FACTOR_BITS + WORK_BITS);
+			uint64 pd = ((uint64)scaled_electric_demand * (uint64)boost * (uint64)work) >> (DEFAULT_PRODUCTION_FACTOR_BITS + WORK_BITS);
 			set_power_demand((uint32)pd);
 
 			break;
@@ -2326,7 +2326,7 @@ void fabrik_t::step(uint32 delta_t)
 				else {
 					if(  times_expanded < desc->get_expand_times()  ) {
 						if(  simrand(10000) < desc->get_expand_probability()  ) {
-							set_base_production( prodbase + desc->get_expand_minumum() + simrand( desc->get_expand_range() ) );
+							set_base_production( prodbase + desc->get_expand_minimum() + simrand( desc->get_expand_range() ) );
 							++times_expanded;
 						}
 					}

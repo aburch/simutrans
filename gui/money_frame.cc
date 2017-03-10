@@ -370,7 +370,7 @@ money_frame_t::money_frame_t(player_t *player)
 		add_component(&headquarter);
 		headquarter.set_tooltip( "Configure AI setttings" );
 	}
-	else if(old_level > 0  ||  hausbauer_t::get_headquarter(0,welt->get_timeline_year_month())!=NULL) {
+	else if(old_level > 0  ||  hausbauer_t::get_headquarters(0,welt->get_timeline_year_month())!=NULL) {
 
 		headquarter.init(button_t::roundbox, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", scr_coord(582-12-120, 0), scr_size(120, BUTTONSPACE));
 		headquarter.add_listener(this);

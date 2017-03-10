@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __STADTAUTO_DESC_H
-#define __STADTAUTO_DESC_H
+#ifndef __CITYCAR_DESC_H
+#define __CITYCAR_DESC_H
 
 #include "obj_base_desc.h"
 #include "image_list.h"
@@ -29,10 +29,10 @@
 class citycar_desc_t : public obj_desc_timelined_t {
 	friend class citycar_reader_t;
 
-	uint16 chance;
+	uint16 distribution_weight;
 
 	/// topspeed in internal speed units !!! not km/h!!!
-	uint16 geschw;
+	uint16 topspeed;
 
 public:
 	image_id get_image_id(ribi_t::dir dir) const
@@ -41,16 +41,16 @@ public:
 		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
-	uint16 get_chance() const { return chance; }
+	uint16 get_distribution_weight() const { return distribution_weight; }
 
 	/// topspeed in internal speed units !!! not km/h!!!
-	uint16 get_geschw() const { return geschw; }
+	uint16 get_topspeed() const { return topspeed; }
 
 	void calc_checksum(checksum_t *chk) const
 	{
 		obj_desc_timelined_t::calc_checksum(chk);
-		chk->input(chance);
-		chk->input(geschw);
+		chk->input(distribution_weight);
+		chk->input(topspeed);
 	}
 };
 

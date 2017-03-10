@@ -71,7 +71,7 @@ wayobj_t::~wayobj_t()
 		return;
 	}
 	if(get_owner()) {
-		player_t::add_maintenance(get_owner(), -desc->get_wartung(), get_waytype());
+		player_t::add_maintenance(get_owner(), -desc->get_maintenance(), get_waytype());
 	}
 	if(desc->is_overhead_line()) {
 		grund_t *gr=welt->lookup(get_pos());
@@ -171,7 +171,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 void wayobj_t::cleanup(player_t *player)
 {
 	if(desc) {
-		player_t::book_construction_costs(player, -desc->get_preis(), get_pos().get_2d(), desc->get_wtyp());
+		player_t::book_construction_costs(player, -desc->get_price(), get_pos().get_2d(), desc->get_wtyp());
 	}
 }
 
@@ -218,7 +218,7 @@ void wayobj_t::finish_rd()
 	}
 
 	if(get_owner()) {
-		player_t::add_maintenance(get_owner(), desc->get_wartung(), desc->get_wtyp());
+		player_t::add_maintenance(get_owner(), desc->get_maintenance(), desc->get_wtyp());
 	}
 }
 
@@ -361,7 +361,7 @@ void wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, c
 		wo->calc_image();
 		wo->mark_image_dirty( wo->get_front_image(), 0 );
 		wo->set_flag(obj_t::dirty);
-		player_t::book_construction_costs( owner,  -desc->get_preis(), pos.get_2d(), desc->get_wtyp());
+		player_t::book_construction_costs( owner,  -desc->get_price(), pos.get_2d(), desc->get_wtyp());
 
 		for( uint8 i = 0; i < 4; i++ ) {
 		// Extend wayobjects around the new one, that aren't already connected.

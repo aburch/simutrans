@@ -9,10 +9,10 @@
 #define MAX_PLAYER_COUNT (16)
 #define PLAYER_UNOWNED (15)
 
-/* Flag for Intel byte order
+/* Flag for non Intel byte order
  * SET THIS IN YOUR COMPILER COMMAND LINE!
  */
-//#define LITTLE_ENDIAN
+//#define SIM_BIG_ENDIAN
 
 /* crossconnect industry and half heights like openTTD */
 //#define OTTD_LIKE
@@ -31,6 +31,10 @@
 
 /* need to emulate the mouse pointer with a graphic */
 //#define USE_SOFTPOINTER
+
+/* Use assembly imepmentation of routines if available
+* Some routines, eg for drawing, can have assembly implementations for certaint platforms that may perform better */
+#define USE_ASSEMBLER
 
 /* Use low level C/C++ implementations of routines
  * Some routines, eg for drawing, can have low level C++ implementations that might perform better on certain platforms */

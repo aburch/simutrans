@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __BILDLISTE_DESC_H
-#define __BILDLISTE_DESC_H
+#ifndef __IMAGELIST_DESC_H
+#define __IMAGELIST_DESC_H
 
 #include "image.h"
 

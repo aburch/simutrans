@@ -57,11 +57,14 @@ SectionEnd
 
 Section "Chinese Font" wenquanyi_font
   AddSize 3169
+  IfFileExists $INSTDIR\font\wenquanyi_9pt.bdf no_chinese_needed
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/wenquanyi_9pt-font-bdf.zip"
   StrCpy $archievename "wenquanyi_9pt-font-bdf.zip"
   StrCpy $downloadname "wenquanyi_9pt"
   Call DownloadInstallZipWithoutSimutrans
   Rename $INSTDIR\wenquanyi_9pt.bdf $INSTDIR\font\wenquanyi_9pt.bdf
+  Delete $INSTDIR\wenquanyi_9pt.bdf
+no_chinese_needed:
 SectionEnd
 
 SectionGroupEnd

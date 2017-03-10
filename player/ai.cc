@@ -324,7 +324,7 @@ void ai_t::set_marker( koord place, koord size )
 bool ai_t::built_update_headquarter()
 {
 	// find next level
-	const building_desc_t* desc = hausbauer_t::get_headquarter(get_headquarter_level(), welt->get_timeline_year_month());
+	const building_desc_t* desc = hausbauer_t::get_headquarters(get_headquarter_level(), welt->get_timeline_year_month());
 	// is the a suitable one?
 	if(desc!=NULL) {
 		// cost is negative!

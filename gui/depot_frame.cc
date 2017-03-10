@@ -1611,12 +1611,12 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 
 		if(  sint64 fix_cost = welt->scale_with_month_length(veh_type->get_maintenance())  ) {
 			char tmp[128];
-			money_to_string( tmp, veh_type->get_preis() / 100.0, false );
+			money_to_string( tmp, veh_type->get_price() / 100.0, false );
 			buf.printf( translator::translate("Cost: %8s (%.2f$/km %.2f$/m)\n"), tmp, veh_type->get_running_cost()/100.0, fix_cost/100.0 );
 		}
 		else {
 			char tmp[128];
-			money_to_string(  tmp, veh_type->get_preis() / 100.0, false );
+			money_to_string(  tmp, veh_type->get_price() / 100.0, false );
 			buf.printf( translator::translate("Cost: %8s (%.2f$/km)\n"), tmp, veh_type->get_running_cost()/100.0 );
 		}
 
@@ -1639,7 +1639,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		}
 
 		buf.printf( "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_weight() / 1000.0 );
-		buf.printf( "%s %3d km/h", translator::translate("Max. speed:"), veh_type->get_geschw() );
+		buf.printf( "%s %3d km/h", translator::translate("Max. speed:"), veh_type->get_topspeed() );
 
 		display_multiline_text( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_size().h + D_V_SPACE, buf, SYSCOL_TEXT);
 

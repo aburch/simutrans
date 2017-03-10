@@ -14,7 +14,7 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 
 	write_head(fp, node, obj);
 
-	uint16 const chance = obj.get_int("distributionweight", 1);
+	uint16 const distribution_weight = obj.get_int("distributionweight", 1);
 
 	static const char* const dir_codes[] = {
 		"s", "w", "sw", "se", "n", "e", "ne", "nw"
@@ -31,8 +31,8 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 	}
 	imagelist_writer_t::instance()->write_obj(fp, node, keys);
 
-	node.write_uint16(fp, chance, 0);
-	node.write_uint16(fp, 0,          2); //dummy, unused (and uninitialized in past versions)
+	node.write_uint16(fp, distribution_weight, 0);
+	node.write_uint16(fp, 0, 2); //dummy, unused (and uninitialized in past versions)
 
 	node.write(fp);
 }

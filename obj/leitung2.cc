@@ -157,7 +157,7 @@ leitung_t::~leitung_t()
 			delete net;
 		}
 		if(!gr->ist_tunnel()) {
-			player_t::add_maintenance(get_owner(), -desc->get_wartung(), powerline_wt);
+			player_t::add_maintenance(get_owner(), -desc->get_maintenance(), powerline_wt);
 		}
 	}
 }
@@ -165,7 +165,7 @@ leitung_t::~leitung_t()
 
 void leitung_t::cleanup(player_t *player)
 {
-	player_t::book_construction_costs(player, -desc->get_preis()/2, get_pos().get_2d(), powerline_wt);
+	player_t::book_construction_costs(player, -desc->get_price()/2, get_pos().get_2d(), powerline_wt);
 	mark_image_dirty( image, 0 );
 }
 
@@ -377,7 +377,7 @@ void leitung_t::finish_rd()
 	grund_t *gr = welt->lookup(get_pos());
 	assert(gr); (void)gr;
 
-	player_t::add_maintenance(get_owner(), desc->get_wartung(), powerline_wt);
+	player_t::add_maintenance(get_owner(), desc->get_maintenance(), powerline_wt);
 }
 
 void leitung_t::rdwr(loadsave_t *file)

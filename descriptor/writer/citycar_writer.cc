@@ -12,24 +12,24 @@ void citycar_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	obj_node_t node(this, 10, &parent);
 
-	uint16 const chance = obj.get_int("distributionweight", 1);
+	uint16 const dist_weight = obj.get_int("distributionweight", 1);
 
 	uint16 const intro_date =
 		obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12 +
 		obj.get_int("intro_month", 1) - 1;
 
-	uint16 const obsolete_date =
+	uint16 const retire_date =
 		obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12 +
 		obj.get_int("retire_month", 1) - 1;
 
-	uint16 const geschw = obj.get_int("speed", 80) * 16;
+	uint16 const topspeed = obj.get_int("speed", 80) * 16;
 
 	// new version with intro and obsolete dates
 	node.write_uint16(fp, 0x8002,        0); // version information
-	node.write_uint16(fp, chance,    2);
-	node.write_uint16(fp, geschw,        4);
+	node.write_uint16(fp, dist_weight,   2);
+	node.write_uint16(fp, topspeed,      4);
 	node.write_uint16(fp, intro_date,    6);
-	node.write_uint16(fp, obsolete_date, 8);
+	node.write_uint16(fp, retire_date, 8);
 
 	write_head(fp, node, obj);
 

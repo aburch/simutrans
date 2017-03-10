@@ -1734,7 +1734,7 @@ sint64 grund_t::remove_trees()
 	}
 	// remove all groundobjs ...
 	while (groundobj_t* const d = find<groundobj_t>(0)) {
-		cost += d->get_desc()->get_preis();
+		cost += d->get_desc()->get_price();
 		delete d;
 	}
 	return cost;
@@ -1787,7 +1787,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player)
 
 		// just add the maintenance
 		if(player && !is_water()) {
-			player_t::add_maintenance( player, weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype() );
+			player_t::add_maintenance( player, weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype() );
 			weg->set_owner( player );
 		}
 
@@ -1820,7 +1820,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 			}
 		}
 
-		sint32 costs=weg->get_desc()->get_preis();	// costs for removal are construction costs
+		sint32 costs=weg->get_desc()->get_price();	// costs for removal are construction costs
 		weg->cleanup( NULL );
 		delete weg;
 
@@ -1970,14 +1970,14 @@ bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t
 			if (roadsign_t* const sign = obj_cast<roadsign_t>(obj)) {
 				// roadsigns: check dir: dirs changed => delete
 				if (sign->get_desc()->get_wtyp() == wt && (sign->get_dir() & ~add) != 0) {
-					costs -= sign->get_desc()->get_preis();
+					costs -= sign->get_desc()->get_price();
 					delete sign;
 				}
 			}
 			else if (signal_t* const signal = obj_cast<signal_t>(obj)) {
 				// signal: not on crossings => remove all
 				if (signal->get_desc()->get_wtyp() == wt) {
-					costs -= signal->get_desc()->get_preis();
+					costs -= signal->get_desc()->get_price();
 					delete signal;
 				}
 			}
@@ -1990,7 +1990,7 @@ bool grund_t::remove_everything_from_way(player_t* player_, waytype_t wt, ribi_t
 						wayobj->set_dir(new_dir);
 					}
 					else {
-						costs -= wayobj->get_desc()->get_preis();
+						costs -= wayobj->get_desc()->get_price();
 						delete wayobj;
 					}
 				}

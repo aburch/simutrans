@@ -51,32 +51,40 @@ obj_desc_t * citycar_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(version == 2) {
 		// Versioned node, version 1
 
-		desc->chance = decode_uint16(p);
-		desc->geschw = kmh_to_speed(decode_uint16(p)/16);
+		desc->distribution_weight = decode_uint16(p);
+		desc->topspeed = kmh_to_speed(decode_uint16(p)/16);
 		desc->intro_date = decode_uint16(p);
-		desc->obsolete_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
 	}
 	else if(version == 1) {
 		// Versioned node, version 1
 
-		desc->chance = decode_uint16(p);
-		desc->geschw = kmh_to_speed(decode_uint16(p)/16);
+		desc->distribution_weight = decode_uint16(p);
+		desc->topspeed = kmh_to_speed(decode_uint16(p)/16);
 		uint16 intro_date = decode_uint16(p);
 		desc->intro_date = (intro_date/16)*12  + (intro_date%12);
-		uint16 obsolete_date = decode_uint16(p);
-		desc->obsolete_date= (obsolete_date/16)*12  + (obsolete_date%12);
+		uint16 retire_date = decode_uint16(p);
+		desc->retire_date= (retire_date/16)*12  + (retire_date%12);
 	}
 	else {
-		desc->chance = v;
-		desc->geschw = kmh_to_speed(80);
+		desc->distribution_weight = v;
+		desc->topspeed = kmh_to_speed(80);
 		desc->intro_date = DEFAULT_INTRO_DATE*12;
-		desc->obsolete_date = DEFAULT_RETIRE_DATE*12;
+		desc->retire_date = DEFAULT_RETIRE_DATE*12;
 	}
 	// zero speed not allowed, we want something that moves!
-	if(  desc->geschw<=16  ) {
+	if(  desc->topspeed<=16  ) {
 		dbg->warning( "citycar_reader_t::read_node()", "citycar must have minimum speed => changed to 1.25 km/h!" );
-		desc->geschw = 16;
+		desc->topspeed = 16;
 	}
-	DBG_DEBUG("citycar_reader_t::read_node()","version=%i, weight=%i, intro=%i, retire=%i speed=%i",version,desc->chance,desc->intro_date/12,desc->obsolete_date/12, speed_to_kmh(desc->geschw) );
+	DBG_DEBUG("citycar_reader_t::read_node()","version=%i, speed=%i, chance=%i, intro=%i/%i, retire=%i/%i",
+		version,
+		speed_to_kmh(desc->topspeed),
+		desc->distribution_weight,
+		(desc->intro_date%12)+1,
+		desc->intro_date/12,
+		(desc->retire_date%12)+1,
+		desc->retire_date/12);
+
 	return desc;
 }
