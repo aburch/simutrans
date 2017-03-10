@@ -663,8 +663,6 @@ bool vehicle_base_t::judge_lane_crossing( const uint8 current_direction, const u
 	}
 	if(  on_left  ) {
 		if(  forced_to_change_lane  &&  other_turn - this_turn >= 0  ) {
-			//printf("current:%d, next:%d, other:%d\n", current_direction,next_direction,other_next_direction);
-			//printf("on left: %d,%d (%d,%d)\n", this_turn, other_turn, get_pos().x, get_pos().y);
 			return true;
 		}
 		else if(  other_turn - this_turn > 0  ) {
@@ -673,7 +671,6 @@ bool vehicle_base_t::judge_lane_crossing( const uint8 current_direction, const u
 	}
 	else {
 		if(  forced_to_change_lane  &&  other_turn - this_turn <= 0  ) {
-			//printf("on right: %d,%d (%d,%d)\n", this_turn, other_turn, get_pos().x, get_pos().y);
 			return true;
 		}
 		else if(  other_turn - this_turn < 0  ) {
@@ -2394,7 +2391,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 							strasse_t *str=(strasse_t *)gr->get_weg(road_wt);
 							sint32 cnv_max_speed = (int)fmin(cnv->get_speed_limit(), str->get_max_speed()*kmh_to_speed(1));
 							sint32 other_max_speed = (int)fmin(ocnv->get_speed_limit(), str->get_max_speed()*kmh_to_speed(1));
-							//printf("cnv=%d, other=%d, str=%d (%d,%d)\n", cnv_max_speed/kmh_to_speed(1),other_max_speed/kmh_to_speed(1),str->get_max_speed(), get_pos().x, get_pos().y);
 							if(  cnv->is_overtaking() && kmh_to_speed(10) <  cnv_max_speed - other_max_speed  ) {
 								//If the convoi is on passing lane and there is slower convoi in front of this, this convoi request the slower to go to traffic lane.
 								ocnv->set_requested_change_lane(true);
@@ -2484,11 +2480,9 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 
 		const koord3d pos_next2 = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
-		const koord3d pos_next3 = route_index < r.get_count() - 2u ? r.at(route_index + 2u) : pos_next2;
 		// If this vehicle is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
 		if(  cnv->is_overtaking()  &&  str->get_overtaking_info() == 3  ) {
 			// TODO:other_lane_blocked() method is inappropriate for the condition.
-			printf("current:(%d,%d), str:(%d,%d)\n", get_pos().x,get_pos().y,str->get_pos().x,str->get_pos().y);
 			if(  vehicle_base_t* v = other_lane_blocked()  ) {
 				if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next2), v->get_90direction(), true, true)) {
 					restart_speed = 0;
