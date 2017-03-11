@@ -1409,16 +1409,22 @@ void haltestelle_t::new_month()
 			// After two months, values of 10 minutes are appended to the list of waiting times.
 			// This helps to gradually reduce times which were high as a result of a one-off problem,
 			// whilst still allowing rarely-travelled connections to have sensible waiting times.
-			if(iter.value.month > 2)
+			if (iter.value.month >= 1)
 			{
+				const uint16 estimated_waiting_time = get_service_frequency(self, category) / 2;
 				for(int i = 0; i < 8; i ++)
 				{
-					iter.value.times.add_to_tail(19);
+					iter.value.times.add_to_tail(estimated_waiting_time);
 				}
+			}
+			if(iter.value.month > 2)
+			{
 				iter.value.times.clear();
 				iter.value.month = 0;
 			}
 			// Update the waiting time timing records.
+			// This is how many months that it has been since
+			// any waiting time data were actually stored here.
 			iter.value.month ++;
 		}
 	}
@@ -1659,6 +1665,31 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 		const uint32 count = times.get_count();
 		if(count > 0 && halt.is_bound())
 		{
+#ifdef USE_MEDIAN_WAITING_TIME
+			// This is *much* slower than the mean average and
+			// makes only a very modest difference to long waiting times.
+			binary_heap_tpl<uint32*> sorted_waiting_times;
+			uint32 tt[32];
+
+			ITERATE(times, i)
+			{
+				tt[i] = times.get_element(i);
+				sorted_waiting_times.insert(&tt[i]);
+			}
+
+			const uint32 count = sorted_waiting_times.get_count();
+			vector_tpl<uint32> sorted_vector;
+
+			while (!sorted_waiting_times.empty())
+			{
+				uint32 time = *sorted_waiting_times.pop();
+				sorted_vector.append(time); 
+			}
+
+			const uint32 output = sorted_vector[(count - 1) / 2];
+			return output;
+#else
+
 			uint32 total_times = 0;
 			ITERATE(times,i)
 			{
@@ -1666,6 +1697,7 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 			}
 			total_times /= count;
 			return total_times;
+#endif
 		}
 	}
 	// The service frequency is divided by two to get the waiting times

@@ -1793,7 +1793,7 @@ void vehicle_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 
 	// Old method - not realistic. Now uses modified speed limit. Preserved optionally.
 	// curve: higher friction
-	if(previous_direction != direction) //"Old direction != direction"
+	if(previous_direction != direction) 
 	{
 		//The level (if any) of additional friction to apply around corners.
 		const uint8 curve_friction_factor = welt->get_settings().get_curve_friction_factor(waytype);
@@ -5782,11 +5782,12 @@ void rail_vehicle_t::unreserve_station()
 	const koord dir = this_pos.get_2d() - last_pos.get_2d();
 	const ribi_t::ribi direction_of_travel = ribi_type(dir);
 	const ribi_t::ribi reverse_direction = ribi_t::backward(direction_of_travel);
+	bool is_previous;
 
 	grund_t* gr_prev = gr;
 	while (in_station)
 	{
-		const bool is_previous = gr_prev->get_neighbour(gr_prev, get_waytype(), reverse_direction);
+		is_previous = gr_prev->get_neighbour(gr_prev, get_waytype(), reverse_direction);
 		if (is_previous)
 		{
 			in_station = gr_prev->get_halt().is_bound();
