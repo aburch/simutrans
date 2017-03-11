@@ -101,13 +101,13 @@ void export_tiles(HSQUIRRELVM vm)
 	/**
 	 * Constructor. Returns tile at particular 3d coordinate.
 	 * If not tile is found, it returns the ground tile.
-	 * Raises error, if (@p x, @p y) coordinate are out-of-range.
+	 * Raises error, if (@p x, @p y) coordinates are out-of-range.
 	 * @param x x-coordinate
-	 * @param y z-coordinate
-	 * @param y z-coordinate
+	 * @param y y-coordinate
+	 * @param z z-coordinate
 	 * @typemask (integer,integer,integer)
 	 */
-	// actually defined simutrans/script/script_base.nut
+	// actually defined in simutrans/script/script_base.nut
 	// register_function(..., "constructor", ...);
 
 
@@ -260,7 +260,7 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @param y z-coordinate
 	 * @typemask (integer,integer)
 	 */
-	// actually defined simutrans/script/script_base.nut
+	// actually defined in simutrans/script/script_base.nut
 	// register_function(..., "constructor", ...);
 	/**
 	 * Access some halt at this square.
