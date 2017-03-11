@@ -1001,7 +1001,8 @@ bool convoi_t::drive_to()
 		// otherwise repositioning of the train drive_to may lead to stray reserved tiles
 		if (dynamic_cast<rail_vehicle_t*>(fahr[0])!=NULL  &&  anz_vehikel > 1) {
 			// route-index points to next position in route
-			uint16 index0 = fahr[0]->get_route_index()-1;
+			// it is completely off when convoi leaves depot
+			uint16 index0 = min(fahr[0]->get_route_index()-1, route.get_count());
 			for(uint8 i=1; i<anz_vehikel; i++) {
 				uint16 index1 = fahr[i]->get_route_index();
 				for(uint16 j = index1; j<index0; j++) {
