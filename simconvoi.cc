@@ -3287,12 +3287,15 @@ void convoi_t::vorfahren()
 					// It is possible that the last entry was a skipped waypoint.
 					sch->increment_index(&stop, &rev);
 				}
+				
 				if(sch->entries[stop].reverse == 1 != (state == REVERSING))
 				{
 					need_to_update_line = true;
 					const sint8 reverse_state = state == REVERSING ? 1 : 0;
 					sch->set_reverse(reverse_state, stop);
 				}
+
+				break;
 			}
 
 			sch->increment_index(&stop, &rev);
