@@ -2276,14 +2276,39 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const ware_desc_t *w
 				count ++;
 
 				const halthandle_t next_transfer = next_to_load->get_zwischenziel();
-				if(plan_halt.is_bound() && next_transfer == plan_halt && plan_halt->is_enabled(catg_index))
+				const halthandle_t destination = next_to_load->get_ziel();
+
+				const bool bound_for_next_transfer = next_transfer == plan_halt;
+				const bool bound_for_destination = destination == plan_halt;
+
+				if(plan_halt.is_bound() && (bound_for_next_transfer || bound_for_destination) && plan_halt->is_enabled(catg_index))
 				{
-					// Check to see whether this is the convoy departing from this stop that will arrive at the destination the soonest.
+					// Check to see whether this is the convoy departing from this stop that will arrive at the next transfer or ultimate destination the soonest.
 		
 					convoihandle_t fast_convoy;
-					const sint64 best_arrival_time = calc_earliest_arrival_time_at(next_transfer, fast_convoy, catg_index);
-					const arrival_times_map& next_transfer_arrivals = next_transfer->get_estimated_convoy_arrival_times();
-					const sint64 this_arrival_time = next_transfer_arrivals.get(cnv->self.get_id());
+					sint64 best_arrival_time;
+					if (bound_for_next_transfer)
+					{
+						best_arrival_time = calc_earliest_arrival_time_at(next_transfer, fast_convoy, catg_index);
+					}
+					else
+					{
+						// This should be called only relatively rarely, when a convoy bound for this packet's ultimate destination arrives,
+						// but this convoy is routed via an intermediate halt. Check whether it is sensible to stick to the planned route
+						// here.
+						uint32 test_time = 0;
+						halthandle_t test_transfer;
+						path_explorer_t::get_catg_path_between(catg_index, self, destination, test_time, test_transfer);
+						const sint64 test_time_in_ticks = welt->get_seconds_to_ticks(test_time * 6);
+						best_arrival_time = test_time_in_ticks + welt->get_zeit_ms();
+					}
+
+					const halthandle_t check_halt = bound_for_next_transfer ? next_transfer : destination;
+
+					const arrival_times_map& check_arrivals = check_halt->get_estimated_convoy_arrival_times();
+					const sint64 this_arrival_time = check_arrivals.get(cnv->self.get_id());
+
+					bool wait_for_faster_convoy = true;
 
 					if(best_arrival_time < this_arrival_time)
 					{
@@ -2300,9 +2325,7 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const ware_desc_t *w
 							// The faster convoy is late.
 							// Estimate its arrival time based on the degree of delay so far (somewhat pessimistically). 
 							fast_here_departure_time += (((welt->get_zeit_ms() - fast_here_arrival_time) + 1) * waiting_multiplication_factor);
-						}
-						
-						bool wait_for_faster_convoy = true;
+						}				
 						
 						sint64 waiting_time_for_faster_convoy = fast_here_departure_time - welt->get_zeit_ms();
 						if(!fast_is_here)
@@ -2331,7 +2354,7 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const ware_desc_t *w
 
 						// Assume that a convoy on the same line, in the same part of its timetable will not overtake this convoy.
 
-						if(fast_convoy->get_line() == cnv->get_line())
+						if(fast_convoy.is_bound() && fast_convoy->get_line() == cnv->get_line())
 						{
 							// Check for the same part of the timetable, as the convoy may either be going in a circle in a reverse direction
 							// or otherwise call at this stop at different parts of its timetable.
@@ -2413,9 +2436,20 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const ware_desc_t *w
 							continue;
 						}
 					}
+					else
+					{
+						wait_for_faster_convoy = false;
+					}
+					
+					if(!bound_for_next_transfer && !wait_for_faster_convoy)
+					{
+						// The direct route is faster than the planned route:
+						// update the next transfer to reflect this.
+						next_to_load->set_zwischenziel(destination); 
+					}
 	
 					// Refuse to be overcrowded if alternative exists
-					connexion * const next_connexion = connexions[catg_index]->get(next_transfer);
+					connexion * const next_connexion = connexions[catg_index]->get(check_halt);
 					if(next_connexion  &&  overcrowded  &&  next_connexion->alternative_seats)
 					{
 						schedule->increment_index(&index, &reverse);
@@ -2447,9 +2481,9 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const ware_desc_t *w
 						goods_to_check.clear();
 						break;
 					}
-				}
+				} 
 				// nothing there to load
-
+				
 				// if the schedule is mirrored and has reached its end, break
 				// as the convoy will be returning this way later.
 				if(schedule->is_mirrored() && (index == 0 || index == (schedule->get_count() - 1)))
