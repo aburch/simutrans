@@ -1406,18 +1406,31 @@ void haltestelle_t::new_month()
 		FOR(waiting_time_map, & iter, waiting_times[category])
 		{
 			// If the waiting time data are stale (more than two months old), gradually flush them.
-			// After two months, values of 10 minutes are appended to the list of waiting times.
-			// This helps to gradually reduce times which were high as a result of a one-off problem,
+			// After a month, values of the estimated waiting time are appended to the list of waiting times.
+			// This helps gradually to reduce times which were high as a result of a one-off problem,
 			// whilst still allowing rarely-travelled connections to have sensible waiting times.
 			if (iter.value.month >= 1)
 			{
-				const uint16 estimated_waiting_time = get_service_frequency(self, category) / 2;
-				for(int i = 0; i < 8; i ++)
+				halthandle_t check_halt;
+				check_halt.set_id(iter.key);
+
+				const uint32 service_frequency = get_service_frequency(check_halt, category);
+				const uint32 estimated_waiting_time = service_frequency / 2;
+
+				if (get_average_waiting_time(check_halt, category) > service_frequency)
 				{
-					iter.value.times.add_to_tail(estimated_waiting_time);
+					iter.value.times.clear();
+					iter.value.month = 0;
+				}
+				else
+				{
+					for (int i = 0; i < 8; i++)
+					{
+						iter.value.times.add_to_tail(estimated_waiting_time);
+					}
 				}
 			}
-			if(iter.value.month > 2)
+			else if(iter.value.month > 2)
 			{
 				iter.value.times.clear();
 				iter.value.month = 0;
@@ -1656,7 +1669,7 @@ sint8 haltestelle_t::is_connected(halthandle_t halt, uint8 catg_index) const
 	return linka->get(halt)  ||  linkb->get(self) ? 1 : 0;
 }
 
-uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category)
+uint32 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category)
 {
 	inthashtable_tpl<uint32, haltestelle_t::waiting_time_set> * const wt = &waiting_times[category];
 	if(wt->is_contained((halt.get_id())))

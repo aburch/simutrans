@@ -908,7 +908,7 @@ public:
 
 	// Getting and setting average waiting times in minutes
 	// @author: jamespetts
-	uint16 get_average_waiting_time(halthandle_t halt, uint8 category);
+	uint32 get_average_waiting_time(halthandle_t halt, uint8 category);
 
 	void add_waiting_time(uint32 time, halthandle_t halt, uint8 category, bool do_not_reset_month = false);
 
