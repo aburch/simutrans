@@ -4,6 +4,8 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Add map_object_x::mark and unmark
+ *
  * @section api-120-2 Release 120.2
  *
  * - Feature: scripted AI players
