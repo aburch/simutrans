@@ -1656,7 +1656,7 @@ sint8 haltestelle_t::is_connected(halthandle_t halt, uint8 catg_index) const
 	return linka->get(halt)  ||  linkb->get(self) ? 1 : 0;
 }
 
-uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category) const
+uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category)
 {
 	inthashtable_tpl<uint32, haltestelle_t::waiting_time_set> * const wt = &waiting_times[category];
 	if(wt->is_contained((halt.get_id())))
@@ -1704,23 +1704,55 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 	// because the time that passengers, goods, etc. wait is, on average,
 	// half the interval between services, because they do not all arrive
 	// just after the previous service has departed. 
-	uint16 estimated_waiting_time = get_service_frequency(halt, category) / 2;
+	uint32 service_frequency = get_service_frequency(halt, category);
+	const uint32 estimated_waiting_time = service_frequency / 2;
 	fixed_list_tpl<uint32, 32> tmp;
 	waiting_time_set set;
 	set.times = tmp;
 	set.month = 2; // Set this so as to be stale and flushed quickly to keep this up to date.
-	set.times.add_to_tail(estimated_waiting_time); 
-	waiting_times[category].put(halt.get_id(), set); // This is to avoid repeat calculation of the service interval, which is computationally intensive.
+	set.times.add_to_tail(estimated_waiting_time);
+
+#ifdef ALWAYS_CACHE_SERVICE_INTERVAL
+
+	// This is network safe for multi-threading only because 
+	// the data in service_frequencies are only read by
+	// methods called from parts of the code that never run
+	// concurrently with the path explorer (being the
+	// single-threaded part of the convoy stepping and the
+	// (also single threaded) stepping of the halts.
+	service_frequency_specifier spec;
+	spec.x = category;
+	spec.y = halt.get_id();
+	service_frequencies.set(spec, service_frequency); 
+#endif
+
 	return estimated_waiting_time;
 }
 
-uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 category) const
+uint32 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 category) const
 {
-	uint16 service_frequency = 0;
+	// Check whether the value is in the hashtable. If not, calculate it. 
 
-	for(uint32 i = 0; i < registered_lines.get_count(); i++) 
+	service_frequency_specifier spec;
+	spec.x = category;
+	spec.y = destination.get_id();
+
+	if (service_frequencies.is_contained(spec))
 	{
-		if(!registered_lines[i]->get_goods_catg_index().is_contained(category))
+		return service_frequencies.get(spec);
+	}
+
+	dbg->message("uint32 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 category) const", "Service frequency not in the database: calculating");
+	return calc_service_frequency(destination, category);
+}
+
+uint32 haltestelle_t::calc_service_frequency(halthandle_t destination, uint8 category) const
+{
+	uint32 service_frequency = 0;
+
+	for (uint32 i = 0; i < registered_lines.get_count(); i++)
+	{
+		if (!registered_lines[i]->get_goods_catg_index().is_contained(category))
 		{
 			continue;
 		}
@@ -1730,10 +1762,10 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 		uint32 number_of_calls_at_this_stop = 0;
 		koord current_halt;
 		koord next_halt;
-		for(uint8 n = 0; n < schedule_count; n++)
+		for (uint8 n = 0; n < schedule_count; n++)
 		{
 			current_halt = registered_lines[i]->get_schedule()->entries[n].pos.get_2d();
-			if(n < schedule_count - 2)
+			if (n < schedule_count - 2)
 			{
 				next_halt = registered_lines[i]->get_schedule()->entries[n + 1].pos.get_2d();
 			}
@@ -1741,10 +1773,10 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 			{
 				next_halt = registered_lines[i]->get_schedule()->entries[0].pos.get_2d();
 			}
-			if(n < schedule_count - 1)
+			if (n < schedule_count - 1)
 			{
 				const uint32 average_time = registered_lines[i]->get_average_journey_times().get(id_pair(haltestelle_t::get_halt(current_halt, owner).get_id(), haltestelle_t::get_halt(next_halt, owner).get_id())).get_average();
-				if(average_time != 0 && average_time != UINT32_MAX_VALUE)
+				if (average_time != 0 && average_time != UINT32_MAX_VALUE)
 				{
 					timing += average_time;
 				}
@@ -1755,26 +1787,26 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 					const uint32 recorded_average_speed = registered_lines[i]->get_finance_history(1, LINE_AVERAGE_SPEED);
 					const uint32 average_speed = recorded_average_speed > 0 ? recorded_average_speed : speed_to_kmh(registered_lines[i]->get_convoy(0)->get_min_top_speed()) >> 1;
 					const uint32 journey_time = welt->travel_time_tenths_from_distance(distance, average_speed);
-									
+
 					timing += journey_time;
 				}
 			}
 
 			halthandle_t current_halthandle = haltestelle_t::get_halt(current_halt, owner);
 
-			if(current_halthandle == destination)
+			if (current_halthandle == destination)
 			{
 				// This line serves this destination.
 				line_serves_destination = true;
 			}
-			
-			if(current_halthandle == self)
+
+			if (current_halthandle == self)
 			{
-				number_of_calls_at_this_stop ++;
+				number_of_calls_at_this_stop++;
 			}
 		}
-		
-		if(!line_serves_destination)
+
+		if (!line_serves_destination)
 		{
 			continue;
 		}
@@ -1782,7 +1814,7 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 		// Divide the round trip time by the number of convoys in the line and by the number of times that it calls at this stop in its schedule.
 		timing /= (registered_lines[i]->count_convoys() * number_of_calls_at_this_stop == 0 ? 1 : number_of_calls_at_this_stop);
 
-		if(registered_lines[i]->get_schedule()->get_spacing() > 0)
+		if (registered_lines[i]->get_schedule()->get_spacing() > 0)
 		{
 			// Check whether the spacing setting affects things.
 			sint64 spacing_ticks = welt->ticks_per_world_month / (sint64)registered_lines[i]->get_schedule()->get_spacing();
@@ -1790,9 +1822,9 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 			timing = max(spacing_time, timing);
 		}
 
-		timing = max(1, timing); 
+		timing = max(1, timing);
 
-		if(service_frequency == 0)
+		if (service_frequency == 0)
 		{
 			// This is the only time that this has been set so far, so compute for single line timing.
 			service_frequency = max(1, timing);
@@ -1800,12 +1832,12 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 		else
 		{
 			// There are multiple lines serving this stop, so compute for multiple line timing
-			if(service_frequency == timing)
+			if (service_frequency == timing)
 			{
 				// Two equally timed lines: halve the service frequency
 				service_frequency /= 2;
 			}
-			else if(service_frequency > timing)
+			else if (service_frequency > timing)
 			{
 				// The new timing is more frequent than the service interval calculated so far
 				uint32 proportion_10 = (service_frequency * 10) / timing; // This is the number of new convoys per old convoy in any given time, * 10
@@ -1821,6 +1853,7 @@ uint16 haltestelle_t::get_service_frequency(halthandle_t destination, uint8 cate
 			}
 		}
 	}
+
 	return service_frequency;
 }
 
@@ -4165,6 +4198,13 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 	}
 
+	// We do not need to save/load the service interval,
+	// because this is re-set when the convoys are loaded
+	// in any event. However, just to be on the safe side,
+	// clear it here.
+
+	service_frequencies.clear();
+
 	// So compute it fresh every time
 	calc_transfer_time();
 
@@ -5219,6 +5259,15 @@ void haltestelle_t::clear_estimated_timings(uint16 convoy_id)
 	estimated_convoy_departure_times.remove(convoy_id);
 }
 
+void haltestelle_t::add_line(linehandle_t line)
+{
+	registered_lines.append_unique(line);
+#ifdef ALWAYS_CACHE_SERVICE_INTERVAL
+	clear_service_intervals(line->get_schedule());
+#else
+	update_service_intervals(line->get_schedule());
+#endif
+}
 void haltestelle_t::remove_line(linehandle_t line)
 { 
 	registered_lines.remove(line); 
@@ -5231,6 +5280,17 @@ void haltestelle_t::remove_line(linehandle_t line)
 			connexions[i]->clear();
 		}
 	}
+	update_service_intervals(line->get_schedule());
+}
+
+void haltestelle_t::add_convoy(convoihandle_t convoy)
+{
+	registered_convoys.append_unique(convoy);
+#ifdef ALWAYS_CACHE_SERVICE_INTERVAL
+	clear_service_intervals(convoy->get_schedule());
+#else
+	update_service_intervals(convoy->get_schedule());
+#endif
 }
 
 void haltestelle_t::remove_convoy(convoihandle_t convoy)
@@ -5244,7 +5304,50 @@ void haltestelle_t::remove_convoy(convoihandle_t convoy)
 			connexions[i]->clear();
 		}
 	}
+	update_service_intervals(convoy->get_schedule());
 }
+
+void haltestelle_t::update_service_intervals(schedule_t* sch)
+{
+	halthandle_t halt;
+	for (uint8 i = 0; i < sch->get_count(); i++)
+	{
+		halt = haltestelle_t::get_halt(sch->entries[i].pos, world()->get_public_player());
+		if (halt.is_bound())
+		{
+			service_frequency_specifier spec;
+			spec.x = halt.get_id();
+			uint32 freq; 
+			for(uint8 c = 0; c < warenbauer_t::get_max_catg_index(); c ++)
+			{
+				freq = calc_service_frequency(halt, c);
+				spec.x = c;
+				service_frequencies.set(spec, freq); 
+			}
+		}
+	}
+}
+
+#ifdef ALWAYS_CACHE_SERVICE_INTERVAL
+void haltestelle_t::clear_service_intervals(schedule_t* sch)
+{
+	halthandle_t halt;
+	for (uint8 i = 0; i < sch->get_count(); i++)
+	{
+		halt = haltestelle_t::get_halt(sch->entries[i].pos, world()->get_public_player());
+		if (halt.is_bound())
+		{
+			service_frequency_specifier spec;
+			spec.x = halt.get_id();
+			for (uint8 c = 0; c < warenbauer_t::get_max_catg_index(); c++)
+			{
+				spec.x = c;
+				service_frequencies.remove(spec);
+			}
+		}
+	}
+}
+#endif
 
 sint64 haltestelle_t::calc_earliest_arrival_time_at(halthandle_t halt, convoihandle_t &convoy, uint8 catg_index) const
 {

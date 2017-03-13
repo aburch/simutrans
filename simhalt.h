@@ -49,6 +49,13 @@
 #define HALT_TOO_SLOW		        7 // The number of passengers whose estimated journey time exceeds their tolerance.
 /* NOTE - Standard has HALT_WALKED here as no. 7. In Extended, this is in cities, not stops.*/
 
+// This should be network safe multi-threadedly (this has been considered carefully and tested somewhat,
+// although the test was run at a time (March 2017) when there was another known bug, hard to find, causing
+// network desyncs when multiple clients connect to a server, so the test is not a perfect proof of being
+// network safe)
+// It is faster enabled than disabled. 
+#define ALWAYS_CACHE_SERVICE_INTERVAL
+
 class cbuffer_t;
 class grund_t;
 class fabrik_t;
@@ -324,7 +331,19 @@ public:
 	void add_control_tower() { control_towers ++; }
 	void remove_control_tower() { if(control_towers > 0) control_towers --; }
 
+	struct service_frequency_specifier
+	{
+		uint16 x;
+		uint8 y;
 
+		service_frequency_specifier operator - (service_frequency_specifier s)
+		{
+			service_frequency_specifier result;
+			result.x = x - s.x;
+			result.y = y - s.y;
+			return result;
+		}
+	};
 
 	bool is_transfer(const uint8 catg) const { return non_identical_schedules[catg] > 1u; }
 //	bool is_transfer(const uint8 catg) const { return all_links[catg].is_transfer; }
@@ -445,6 +464,11 @@ private:
 	// @author: jamespetts
 
 	waiting_time_map * waiting_times;
+
+	// Store the service frequencies to all other halts so that this does not need to be
+	// recalculated frequently. These are used as proxies for waiting times when no
+	// recent (or any) waiting time data are available. 
+	koordhashtable_tpl<service_frequency_specifier, uint32> service_frequencies;
 
 	static const sint64 waiting_multiplication_factor = 3ll;
 	static const sint64 waiting_tolerance_ratio = 50ll;
@@ -792,13 +816,13 @@ public:
 	 * called, if a line serves this stop
 	 * @author hsiegeln
 	 */
-	void add_line(linehandle_t line) { registered_lines.append_unique(line); }
+	void add_line(linehandle_t line);
 
 	/*
 	 * called, if a line removes this stop from it's schedule
 	 * @author hsiegeln
 	 */
-	void remove_line(linehandle_t line);
+	void remove_line(linehandle_t line);		
 
 	/*
 	 * list of line ids that serve this stop
@@ -810,7 +834,7 @@ public:
 	 * Register a lineless convoy which serves this stop
 	 * @author Knightly
 	 */
-	void add_convoy(convoihandle_t convoy) { registered_convoys.append_unique(convoy); }
+	void add_convoy(convoihandle_t convoy);
 
 	/**
 	 * Unregister a lineless convoy
@@ -823,6 +847,17 @@ public:
 	 * @author Knightly
 	 */
 	vector_tpl<convoihandle_t> registered_convoys;
+
+	// Update and recalculate the cached service intervals
+	void update_service_intervals(schedule_t* sch);
+
+#ifdef ALWAYS_CACHE_SERVICE_INTERVAL
+	// This is a selective clear of the service intervals:
+	// this will clear the service intervals to stops
+	// on this schedule only. To clear all service intervals,
+	// run service_intervals.clear(). 
+	void clear_service_intervals(schedule_t* sch);
+#endif
 
 	/**
 	 * It will calculate number of free seats in all other (not cnv) convoys at stop
@@ -873,7 +908,7 @@ public:
 
 	// Getting and setting average waiting times in minutes
 	// @author: jamespetts
-	uint16 get_average_waiting_time(halthandle_t halt, uint8 category) const;
+	uint16 get_average_waiting_time(halthandle_t halt, uint8 category);
 
 	void add_waiting_time(uint32 time, halthandle_t halt, uint8 category, bool do_not_reset_month = false);
 
@@ -943,7 +978,9 @@ public:
 	/**
 	* The average time in 10ths of minutes between convoys to this destination
 	*/
-	uint16 get_service_frequency(halthandle_t destination, uint8 category) const;
+	uint32 get_service_frequency(halthandle_t destination, uint8 category) const;
+
+	uint32 calc_service_frequency(halthandle_t destination, uint8 category) const;
 
 	void set_estimated_arrival_time(uint16 convoy_id, sint64 time);
 	void set_estimated_departure_time(uint16 convoy_id, sint64 time);
