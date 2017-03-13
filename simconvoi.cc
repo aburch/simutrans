@@ -1012,7 +1012,7 @@ bool convoi_t::drive_to()
 						track->unreserve(self);
 					}
 				}
-				index0 = index1-1;
+				index0 = min(index1-1, route.get_count());
 			}
 		}
 
