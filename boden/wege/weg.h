@@ -32,6 +32,14 @@ enum way_statistics {
 	WAY_STAT_CONVOIS = 1  ///< number of convois that passed this way
 };
 
+enum overtaking_info {
+	ONE_WAY           = 0,
+	TWO_WAY           = 1,
+	LOADING_CAR_ONLY  = 2,
+	PROHIBITED        = 3,
+	PASSING_LANE_ONLY = 4
+};
+
 
 /**
  * <p>Der Weg ist die Basisklasse fuer alle Verkehrswege in Simutrans.
