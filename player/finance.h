@@ -11,7 +11,7 @@
 #include "../simtypes.h"
 #include "../simworld.h"
 
- /****************************************** notification strings ************************************** /
+ /****************************************** notification strings **************************************/
 
  /**
  * Translated notification text identifiers used by tools are placed here.

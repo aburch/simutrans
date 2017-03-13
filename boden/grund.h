@@ -239,8 +239,6 @@ public:
 	void set_all_obj_dirty() { objlist.set_all_dirty(); }
 
 	/**
-
-	/**
 	 * Dient zur Neuberechnung des Bildes, wenn sich die Umgebung
 	 * oder die Lage (Hang) des grundes geaendert hat.
 	 * @author Hj. Malthaner

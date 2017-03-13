@@ -227,6 +227,7 @@ void depot_frame_t::layout(scr_size *size)
 	placement.y = depot->get_y_placement() * get_base_tile_raster_width() / 64 + 2;
 	grid_dx = depot->get_x_grid() * get_base_tile_raster_width() / 64 / 2;
 	placement_dx = depot->get_x_grid() * get_base_tile_raster_width() / 64 / 4;
+	*/
 
 	/*
 	*	Dialog format:
