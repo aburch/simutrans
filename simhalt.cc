@@ -2225,7 +2225,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 
 
 // will load something compatible with wtyp into the car which schedule is schedule
-bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const ware_desc_t *wtyp, uint32 maxi, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded) //"hole from" (Google)
+bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const ware_desc_t *wtyp, uint32 maxi, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded)
 {
 	bool skipped = false;
 	const uint8 catg_index = wtyp->get_catg_index();
@@ -2265,13 +2265,13 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const ware_desc_t *w
 			int count = 0;
 			while(index != schedule->get_aktuell() || (cnv->get_state() == convoi_t::REVERSING && count == 0))
 			{
-				halthandle_t& plan_halt = cached_halts[index];
-				if(plan_halt.is_null())
+				halthandle_t& schedule_halt = cached_halts[index];
+				if(schedule_halt.is_null())
 				{
-					plan_halt = haltestelle_t::get_halt(schedule->entries[index].pos, player);
+					schedule_halt = haltestelle_t::get_halt(schedule->entries[index].pos, player);
 				}
 
-				if(plan_halt == self)
+				if(schedule_halt == self)
 				{
 					// The convoy returns here later, so do not load goods/passengers just to go on a detour.
 					if(count == 0)
@@ -2291,10 +2291,10 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const ware_desc_t *w
 				const halthandle_t next_transfer = next_to_load->get_zwischenziel();
 				const halthandle_t destination = next_to_load->get_ziel();
 
-				const bool bound_for_next_transfer = next_transfer == plan_halt;
-				const bool bound_for_destination = destination == plan_halt;
+				const bool bound_for_next_transfer = next_transfer == schedule_halt;
+				const bool bound_for_destination = destination == schedule_halt;
 
-				if(plan_halt.is_bound() && (bound_for_next_transfer || bound_for_destination) && plan_halt->is_enabled(catg_index))
+				if(schedule_halt.is_bound() && (bound_for_next_transfer || bound_for_destination) && schedule_halt->is_enabled(catg_index))
 				{
 					// Check to see whether this is the convoy departing from this stop that will arrive at the next transfer or ultimate destination the soonest.
 		
