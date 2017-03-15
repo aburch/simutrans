@@ -1541,6 +1541,25 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 				// no connections from here => delete
 				delete new_warray;
 				new_warray = NULL;
+				ware_t ware;
+
+				for (uint32 i = 0; i < packet_count; i++)
+				{
+					ware = warray->get_element(i);
+					if (ware.is_freight())
+					{
+						const grund_t* gr = welt->lookup_kartenboden(ware.get_zielpos()); 
+						if (gr)
+						{
+							const gebaeude_t* building = gr->get_building();
+							const fabrik_t* fab = building ? building->get_fabrik() : NULL;
+							if (fab)
+							{
+								fab->update_transit(ware, false);
+							}
+						}
+					}
+				}
 			}
 		}
 

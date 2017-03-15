@@ -143,6 +143,7 @@
 " Felix", "testing",
 " Fam621", "testing",
 " Accord 2", "testing",
+" Toshio Kuratomi" "testing",
 "","",
 "","",
 "Game Design Assistance:","",
