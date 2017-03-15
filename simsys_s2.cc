@@ -116,7 +116,7 @@ bool dr_auto_scale(bool on_off )
 #if SDL_VERSION_ATLEAST(2,0,4)
 	if(  on_off  ) {
 		float hdpi, vdpi;
-		SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE );
+		SDL_Init( SDL_INIT_VIDEO );
 		if(  SDL_GetDisplayDPI( 0, NULL, &hdpi, &vdpi )==0  ) {
 			x_scale = ((long)hdpi*32+1)/96;
 			y_scale = ((long)vdpi*32+1)/96;
@@ -143,7 +143,7 @@ bool dr_auto_scale(bool on_off )
  */
 bool dr_os_init(const int* parameter)
 {
-	if(  SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE ) != 0  ) {
+	if(  SDL_Init( SDL_INIT_VIDEO ) != 0  ) {
 		fprintf( stderr, "Couldn't initialize SDL: %s\n", SDL_GetError() );
 		return false;
 	}
