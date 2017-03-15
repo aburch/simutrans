@@ -4,7 +4,6 @@
 #include "../simversion.h"
 #include "../simconst.h"
 #include "../simtypes.h"
-#include "../simcolor.h"
 #include "../simmesg.h"
 
 #include "../utils/simrandom.h"
@@ -113,12 +112,16 @@ uint32 env_t::fps;
 sint16 env_t::max_acceleration;
 uint8 env_t::num_threads;
 bool env_t::show_tooltips;
-uint8 env_t::tooltip_color;
-uint8 env_t::tooltip_textcolor;
+uint32 env_t::tooltip_color_rgb;
+PIXVAL env_t::tooltip_color;
+uint32 env_t::tooltip_textcolor_rgb;
+PIXVAL env_t::tooltip_textcolor;
 uint8 env_t::toolbar_max_width;
 uint8 env_t::toolbar_max_height;
-uint8 env_t::cursor_overlay_color;
-uint8 env_t::background_color;
+uint32 env_t::cursor_overlay_color_rgb;
+PIXVAL env_t::cursor_overlay_color;
+uint32 env_t::background_color_rgb;
+PIXVAL env_t::background_color;
 bool env_t::draw_earth_border;
 bool env_t::draw_outside_tile;
 uint8 env_t::show_vehicle_states;
@@ -128,10 +131,13 @@ bool env_t::left_to_right_graphs;
 uint32 env_t::tooltip_delay;
 uint32 env_t::tooltip_duration;
 
-uint8 env_t::front_window_bar_color;
-uint8 env_t::front_window_text_color;
-uint8 env_t::bottom_window_bar_color;
-uint8 env_t::bottom_window_text_color;
+uint32 env_t::front_window_text_color_rgb;
+PIXVAL env_t::front_window_text_color;
+uint32 env_t::bottom_window_text_color_rgb;
+PIXVAL env_t::bottom_window_text_color;
+uint32 env_t::default_window_title_color_rgb;
+PIXVAL env_t::default_window_title_color;
+uint8 env_t::bottom_window_darkness;
 
 uint16 env_t::compass_map_position;
 uint16 env_t::compass_screen_position;
@@ -214,15 +220,15 @@ void env_t::init()
 #endif
 
 	show_tooltips = true;
-	tooltip_color = 4;
-	tooltip_textcolor = COL_BLACK;
+	tooltip_color_rgb = 0x3964D0; // COL_SOFT_BLUE
+	tooltip_textcolor_rgb = 0x000000; // COL_BLACK
 
 	toolbar_max_width = 0;
 	toolbar_max_height = 0;
 
-	cursor_overlay_color = COL_ORANGE;
+	cursor_overlay_color_rgb = 0xFF8000; // COL_ORANGE
 
-	background_color = COL_GREY2;
+	background_color_rgb = 0x404040; // COL_GREY2
 	draw_earth_border = true;
 	draw_outside_tile = false;
 
@@ -242,10 +248,10 @@ void env_t::init()
 	tooltip_delay = 500;
 	tooltip_duration = 5000;
 
-	front_window_bar_color = 1;
-	front_window_text_color = COL_WHITE; // 215
-	bottom_window_bar_color = 4;
-	bottom_window_text_color = 209;	// dark grey
+	front_window_text_color_rgb = 0xFFFFFF; // COL_WHITE
+	bottom_window_text_color_rgb = 0x303030; // CITY_KI dark grey
+	default_window_title_color_rgb = 0xD76B00;
+	bottom_window_darkness = 25;
 
 	default_ai_construction_speed = 8000;
 
@@ -307,8 +313,15 @@ void env_t::rdwr(loadsave_t *file)
 	}
 
 	file->rdwr_bool( show_tooltips );
-	file->rdwr_byte( tooltip_color );
-	file->rdwr_byte( tooltip_textcolor );
+	if (  file->get_version()<120005  ) {
+		uint8 color = COL_SOFT_BLUE;
+		file->rdwr_byte( color );
+		env_t::tooltip_color_rgb = get_color_rgb(color);
+
+		color = COL_BLACK;
+		file->rdwr_byte( color );
+		env_t::tooltip_textcolor_rgb = get_color_rgb(color);
+	}
 
 	file->rdwr_long( autosave );
 	file->rdwr_long( fps );
@@ -371,10 +384,19 @@ void env_t::rdwr(loadsave_t *file)
 	if(  file->get_version()>=102003  ) {
 		file->rdwr_long( tooltip_delay );
 		file->rdwr_long( tooltip_duration );
-		file->rdwr_byte( front_window_bar_color );
-		file->rdwr_byte( front_window_text_color );
-		file->rdwr_byte( bottom_window_bar_color );
-		file->rdwr_byte( bottom_window_text_color );
+		if (  file->get_version()<120005  ) {
+			uint8 color = COL_WHITE;
+			file->rdwr_byte( color ); // to skip old parameter front_window_bar_color
+
+			file->rdwr_byte( color );
+			env_t::front_window_text_color_rgb = get_color_rgb(color);
+
+			file->rdwr_byte( color ); // to skip old parameter bottom_window_bar_color
+
+			color = 209; // CITY_KI
+			file->rdwr_byte( color );
+			env_t::bottom_window_text_color_rgb = get_color_rgb(color);
+		}
 	}
 
 	if(  file->get_version()>=110000  ) {
@@ -399,7 +421,11 @@ void env_t::rdwr(loadsave_t *file)
 		}
 	}
 	if(  file->get_version()>=112006  ) {
-		file->rdwr_byte( background_color );
+		if(  file->get_version()<120005  ) {
+			uint8 color = COL_GREY2;
+			file->rdwr_byte( color );
+			env_t::background_color_rgb = get_color_rgb(color);
+		}
 		file->rdwr_bool( draw_earth_border );
 		file->rdwr_bool( draw_outside_tile );
 	}
@@ -416,5 +442,15 @@ void env_t::rdwr(loadsave_t *file)
 	if(  file->get_version()>=120002  ) {
 		file->rdwr_bool( new_height_map_conversion );
 	}
-	// server settings are not saved, since the are server specific and could be different on different servers on the save computers
+	if(  file->get_version()>=120005  ) {
+		file->rdwr_long( background_color_rgb );
+		file->rdwr_long( tooltip_color_rgb );
+		file->rdwr_long( tooltip_textcolor_rgb );
+		file->rdwr_long( default_window_title_color_rgb );
+		file->rdwr_long( front_window_text_color_rgb );
+		file->rdwr_long( bottom_window_text_color_rgb );
+
+		file->rdwr_byte( bottom_window_darkness );
+	}
+	// server settings are not saved, since they are server specific and could be different on different servers on the save computers
 }

@@ -29,8 +29,6 @@
 // remembers last settings
 static uint32 bFilterStates[MAX_PLAYER_COUNT];
 
-#define COST_BALANCE    10 // bank balance
-
 #define BUTTONSPACE 14
 
 // @author hsiegeln
@@ -52,7 +50,7 @@ const char *money_frame_t::cost_type_name[MAX_PLAYER_COST_BUTTON] =
 };
 
 
-const COLOR_VAL money_frame_t::cost_type_color[MAX_PLAYER_COST_BUTTON] =
+const uint8 money_frame_t::cost_type_color[MAX_PLAYER_COST_BUTTON] =
 {
 	COL_TRANSPORTED,
 	COL_REVENUE,
@@ -130,7 +128,7 @@ sint64 money_frame_t::get_statistics_value(int tt, uint8 type, int yearmonth, bo
 void money_frame_t::update_label(gui_label_t &label, char *buf, int transport_type, uint8 type, int yearmonth, int label_type)
 {
 	sint64 value = get_statistics_value(transport_type, type, yearmonth, year_month_tabs.get_active_tab_index()==1);
-	int color = value >= 0 ? (value > 0 ? MONEY_PLUS : COL_YELLOW) : MONEY_MINUS;
+	PIXVAL color = value >= 0 ? (value > 0 ? MONEY_PLUS : color_idx_to_rgb(COL_YELLOW)) : MONEY_MINUS;
 
 	if (label_type == MONEY) {
 		const double cost = value / 100.0;
@@ -222,7 +220,7 @@ money_frame_t::money_frame_t(player_t *player)
 		old_toll(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 		maintenance_label("This Month",SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 		maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-		warn("", COL_YELLOW, gui_label_t::left),
+		warn("", color_idx_to_rgb(COL_YELLOW), gui_label_t::left),
 		scenario("", SYSCOL_TEXT, gui_label_t::left),
 		transport_type_option(0),
 		headquarter_view(koord3d::invalid, scr_size(120, 64))
@@ -310,8 +308,8 @@ money_frame_t::money_frame_t(player_t *player)
 	for (int i = 0; i<MAX_PLAYER_COST_BUTTON; i++) {
 		const int curve_type = cost_type[3*i+2];
 		const int curve_precision = curve_type == MONEY ? 2 : 0;
-		mchart.add_curve( cost_type_color[i], *chart_table_month, MAX_PLAYER_COST_BUTTON, i, MAX_PLAYER_HISTORY_MONTHS, curve_type, false, true, curve_precision);
-		chart.add_curve(  cost_type_color[i], *chart_table_year,  MAX_PLAYER_COST_BUTTON, i, MAX_PLAYER_HISTORY_YEARS,  curve_type, false, true, curve_precision);
+		mchart.add_curve( color_idx_to_rgb(cost_type_color[i]), *chart_table_month, MAX_PLAYER_COST_BUTTON, i, MAX_PLAYER_HISTORY_MONTHS, curve_type, false, true, curve_precision);
+		chart.add_curve(  color_idx_to_rgb(cost_type_color[i]), *chart_table_year,  MAX_PLAYER_COST_BUTTON, i, MAX_PLAYER_HISTORY_YEARS,  curve_type, false, true, curve_precision);
 	}
 
 	// tab (month/year)
@@ -398,13 +396,13 @@ money_frame_t::money_frame_t(player_t *player)
 	for(int ibutton=0;  ibutton<9;  ibutton++) {
 		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], scr_coord(left, top+ibutton*BUTTONSPACE-2), scr_size(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
-		filterButtons[ibutton].background_color = cost_type_color[ibutton];
+		filterButtons[ibutton].background_color = color_idx_to_rgb(cost_type_color[ibutton]);
 		add_component(filterButtons + ibutton);
 	}
 	for(int ibutton=9;  ibutton<MAX_PLAYER_COST_BUTTON;  ibutton++) {
 		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], scr_coord(left+335, top+(ibutton-4)*BUTTONSPACE-2), scr_size(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
-		filterButtons[ibutton].background_color = cost_type_color[ibutton];
+		filterButtons[ibutton].background_color = color_idx_to_rgb(cost_type_color[ibutton]);
 		add_component(filterButtons + ibutton);
 	}
 
@@ -505,7 +503,7 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 		tstrncpy(str_buf[15], translator::translate("Net wealth near zero"), lengthof(str_buf[15]) );
 	}
 	else if(  player->get_account_overdrawn()  ) {
-		warn.set_color( COL_YELLOW );
+		warn.set_color( color_idx_to_rgb(COL_YELLOW) );
 		sprintf( str_buf[15], translator::translate("On loan since %i month(s)"), player->get_account_overdrawn() );
 	}
 	else {

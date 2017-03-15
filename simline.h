@@ -60,7 +60,7 @@ private:
 	 * the current state saved as color
 	 * Meanings are BLACK (ok), WHITE (no convois), YELLOW (no vehicle moved), RED (last month income minus), BLUE (at least one convoi vehicle is obsolete)
 	 */
-	COLOR_VAL state_color;
+	PIXVAL state_color;
 
 	/*
 	 * a list of all convoys assigned to this line
@@ -126,7 +126,7 @@ public:
 	 * returns the state of the line
 	 * @author prissi
 	 */
-	COLOR_VAL get_state_color() const { return state_color; }
+	PIXVAL get_state_color() const { return state_color; }
 
 	/*
 	 * return the schedule of the line

@@ -255,7 +255,7 @@ void goods_frame_t::draw(scr_coord pos, scr_size size)
 		(welt->get_average_speed(water_wt)*relative_speed_change)/100,
 		(welt->get_average_speed(air_wt)*relative_speed_change)/100
 	);
-	display_multiline_text( pos.x + D_MARGIN_LEFT, pos.y + D_BUTTON_HEIGHT + 4, speed_message, SYSCOL_TEXT_HIGHLIGHT );
+	display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, pos.y + D_BUTTON_HEIGHT + 4, speed_message, SYSCOL_TEXT_HIGHLIGHT );
 
 	speed_message.clear();
 	speed_message.printf(translator::translate("tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h."),
@@ -264,11 +264,11 @@ void goods_frame_t::draw(scr_coord pos, scr_size size)
 		(welt->get_average_speed(maglev_wt)*relative_speed_change)/100,
 		(welt->get_average_speed(narrowgauge_wt)*relative_speed_change)/100
 	);
-	display_multiline_text( pos.x + D_MARGIN_LEFT, pos.y + D_BUTTON_HEIGHT + 4 + 3 * LINESPACE, speed_message, SYSCOL_TEXT_HIGHLIGHT );
+	display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, pos.y + D_BUTTON_HEIGHT + 4 + 3 * LINESPACE, speed_message, SYSCOL_TEXT_HIGHLIGHT );
 
 	speed_message.clear();
 	speed_message.printf(translator::translate("100 km/h = %i tiles/month"),
 		welt->speed_to_tiles_per_month(kmh_to_speed(100))
 	);
-	display_multiline_text( pos.x + D_MARGIN_LEFT, pos.y + D_BUTTON_HEIGHT + 4 + 5 * LINESPACE, speed_message, SYSCOL_TEXT_HIGHLIGHT );
+	display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, pos.y + D_BUTTON_HEIGHT + 4 + 5 * LINESPACE, speed_message, SYSCOL_TEXT_HIGHLIGHT );
 }

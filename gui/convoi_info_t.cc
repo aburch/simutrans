@@ -48,7 +48,7 @@ static const char cost_type[convoi_t::MAX_CONVOI_COST][64] =
 	"Free Capacity", "Transported", "Revenue", "Operation", "Profit", "Distance", "Maxspeed", "Way toll"
 };
 
-static const int cost_type_color[convoi_t::MAX_CONVOI_COST] =
+static const uint8 cost_type_color[convoi_t::MAX_CONVOI_COST] =
 {
 	COL_FREE_CAPACITY,
 	COL_TRANSPORTED,
@@ -139,12 +139,12 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	                                  +D_V_SPACE;                  // chart x-axis labels plus space
 
 	for (int cost = 0; cost<convoi_t::MAX_CONVOI_COST; cost++) {
-		chart.add_curve( cost_type_color[cost], cnv->get_finance_history(), convoi_t::MAX_CONVOI_COST, cost, MAX_MONTHS, cost_type_money[cost], false, true, cost_type_money[cost]*2 );
+		chart.add_curve( color_idx_to_rgb(cost_type_color[cost]), cnv->get_finance_history(), convoi_t::MAX_CONVOI_COST, cost, MAX_MONTHS, cost_type_money[cost], false, true, cost_type_money[cost]*2 );
 		filterButtons[cost].init(button_t::box_state, cost_type[cost],
 						 scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(cost%4), offset_below_chart + (D_BUTTON_HEIGHT+D_V_SPACE)*(cost/4)),
 			scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
-		filterButtons[cost].background_color = cost_type_color[cost];
+		filterButtons[cost].background_color = color_idx_to_rgb(cost_type_color[cost]);
 		filterButtons[cost].set_visible(false);
 		filterButtons[cost].pressed = false;
 		add_component(filterButtons + cost);
@@ -177,17 +177,17 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	scrolly.set_show_scroll_x(true);
 	add_component(&scrolly);
 
-	filled_bar.add_color_value(&cnv->get_loading_limit(), COL_YELLOW);
-	filled_bar.add_color_value(&cnv->get_loading_level(), COL_GREEN);
+	filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
+	filled_bar.add_color_value(&cnv->get_loading_level(), color_idx_to_rgb(COL_GREEN));
 	add_component(&filled_bar);
 
 	speed_bar.set_base(max_convoi_speed);
 	speed_bar.set_vertical(false);
-	speed_bar.add_color_value(&mean_convoi_speed, COL_GREEN);
+	speed_bar.add_color_value(&mean_convoi_speed, color_idx_to_rgb(COL_GREEN));
 	add_component(&speed_bar);
 
 	// we update this ourself!
-	route_bar.add_color_value(&cnv_route_index, COL_GREEN);
+	route_bar.add_color_value(&cnv_route_index, color_idx_to_rgb(COL_GREEN));
 	add_component(&route_bar);
 
 	// goto line button
@@ -293,17 +293,17 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed()*4);
 		mean_convoi_speed /= 2;
 		buf.printf( translator::translate("%i km/h (max. %ikm/h)"), (mean_convoi_speed+3)/4, speed_to_kmh(cnv->get_min_top_speed()) );
-		display_proportional( xpos, ypos, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
+		display_proportional_rgb( xpos, ypos, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 		ypos += LINESPACE;
 
 		// next important: income stuff
-		int len = display_proportional( xpos, ypos, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true ) + 5;
+		int len = display_proportional_rgb( xpos, ypos, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true ) + 5;
 		money_to_string( tmp, cnv->get_jahresgewinn()/100.0 );
-		len += display_proportional( xpos+len, ypos, tmp, ALIGN_LEFT, cnv->get_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true )+5;
+		len += display_proportional_rgb( xpos+len, ypos, tmp, ALIGN_LEFT, cnv->get_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true )+5;
 		money_to_string( tmp+1, cnv->get_running_cost()/100.0 );
 		strcat( tmp, "/km)" );
 		tmp[0] = '(';
-		display_proportional( xpos+len, ypos, tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
+		display_proportional_rgb( xpos+len, ypos, tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
 		ypos += LINESPACE;
 
 		// the weight entry
@@ -314,7 +314,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		info_buf.append( "t (" );
 		info_buf.append( (cnv->get_sum_gesamtweight()-cnv->get_sum_weight())/1000.0, 1 );
 		info_buf.append( "t)" );
-		display_proportional( xpos, ypos, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true );
+		display_proportional_rgb( xpos, ypos, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 		ypos += LINESPACE;
 
 		// next stop
@@ -322,7 +322,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		info_buf.clear();
 		info_buf.append(translator::translate("Fahrtziel"));
 		schedule_gui_t::gimme_short_stop_name(info_buf, welt, cnv->get_owner(), schedule->get_current_entry(), 34);
-		len = display_proportional_clip( xpos, ypos, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true );
+		len = display_proportional_clip_rgb( xpos, ypos, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 
 		// convoi load indicator
 		const scr_coord_val offset = max( len+D_MARGIN_LEFT, 167)+3;
@@ -335,8 +335,8 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		 * @author hsiegeln
 		 */
 		if(  cnv->get_line().is_bound()  ) {
-			len = display_proportional( xpos+D_BUTTON_HEIGHT, ypos, translator::translate("Serves Line:"), ALIGN_LEFT, SYSCOL_TEXT, true );
-			display_proportional_clip( xpos+D_BUTTON_HEIGHT+D_H_SPACE+len, ypos, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
+			len = display_proportional_rgb( xpos+D_BUTTON_HEIGHT, ypos, translator::translate("Serves Line:"), ALIGN_LEFT, SYSCOL_TEXT, true );
+			display_proportional_clip_rgb( xpos+D_BUTTON_HEIGHT+D_H_SPACE+len, ypos, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
 		}
 		POP_CLIP();
 	}

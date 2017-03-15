@@ -108,14 +108,14 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_component(&lb_convois);
 
 	convoy_selector.add_listener(this);
-	convoy_selector.set_highlight_color( depot->get_owner()->get_player_color1() + 1);
+	convoy_selector.set_highlight_color( color_idx_to_rgb(depot->get_owner()->get_player_color1() + 1));
 	add_component(&convoy_selector);
 
 	/*
 	* [SELECT ROUTE]:
 	*/
 	line_selector.add_listener(this);
-	line_selector.set_highlight_color( depot->get_owner()->get_player_color1() + 1);
+	line_selector.set_highlight_color( color_idx_to_rgb(depot->get_owner()->get_player_color1() + 1));
 	line_selector.set_wrapping(false);
 	line_selector.set_focusable(true);
 	add_component(&line_selector);
@@ -150,11 +150,11 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	convoi_tile_length_sb = 0;
 	new_vehicle_length_sb = 0;
 	if(  depot->get_typ() != depot_t::schiffdepot  &&  depot->get_typ() != depot_t::airdepot  ) { // no convoy length bar for ships or aircraft
-		sb_convoi_length.add_color_value(&convoi_tile_length_sb, COL_BROWN);
-		sb_convoi_length.add_color_value(&new_vehicle_length_sb, COL_DARK_GREEN);
-		sb_convoi_length.add_color_value(&convoi_length_ok_sb, COL_GREEN);
-		sb_convoi_length.add_color_value(&convoi_length_slower_sb, COL_ORANGE);
-		sb_convoi_length.add_color_value(&convoi_length_too_slow_sb, COL_RED);
+		sb_convoi_length.add_color_value(&convoi_tile_length_sb, color_idx_to_rgb(COL_BROWN));
+		sb_convoi_length.add_color_value(&new_vehicle_length_sb, color_idx_to_rgb(COL_DARK_GREEN));
+		sb_convoi_length.add_color_value(&convoi_length_ok_sb, color_idx_to_rgb(COL_GREEN));
+		sb_convoi_length.add_color_value(&convoi_length_slower_sb, color_idx_to_rgb(COL_ORANGE));
+		sb_convoi_length.add_color_value(&convoi_length_too_slow_sb, color_idx_to_rgb(COL_RED));
 		add_component(&sb_convoi_length);
 	}
 
@@ -225,7 +225,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 		add_component(&bt_obsolete);
 	}
 
-	vehicle_filter.set_highlight_color(depot->get_owner()->get_player_color1() + 1);
+	vehicle_filter.set_highlight_color(color_idx_to_rgb(depot->get_owner()->get_player_color1() + 1));
 	vehicle_filter.add_listener(this);
 	add_component(&vehicle_filter);
 
@@ -795,24 +795,24 @@ void depot_frame_t::update_data()
 		}
 
 		/* color bars for current convoi: */
-		convoi_pics[0]->lcolor = cnv->front()->get_desc()->can_follow(NULL) ? COL_GREEN : COL_YELLOW;
+		convoi_pics[0]->lcolor = color_idx_to_rgb(cnv->front()->get_desc()->can_follow(NULL) ? COL_GREEN : COL_YELLOW);
 		{
 			unsigned i;
 			for(  i = 1;  i < cnv->get_vehicle_count();  i++  ) {
-				convoi_pics[i - 1]->rcolor = cnv->get_vehikel(i-1)->get_desc()->can_lead(cnv->get_vehikel(i)->get_desc()) ? COL_GREEN : COL_RED;
-				convoi_pics[i]->lcolor     = cnv->get_vehikel(i)->get_desc()->can_follow(cnv->get_vehikel(i-1)->get_desc()) ? COL_GREEN : COL_RED;
+				convoi_pics[i - 1]->rcolor = color_idx_to_rgb(cnv->get_vehikel(i-1)->get_desc()->can_lead(cnv->get_vehikel(i)->get_desc()) ? COL_GREEN : COL_RED);
+				convoi_pics[i]->lcolor     = color_idx_to_rgb(cnv->get_vehikel(i)->get_desc()->can_follow(cnv->get_vehikel(i-1)->get_desc()) ? COL_GREEN : COL_RED);
 			}
-			convoi_pics[i - 1]->rcolor = cnv->get_vehikel(i-1)->get_desc()->can_lead(NULL) ? COL_GREEN : COL_YELLOW;
+			convoi_pics[i - 1]->rcolor = color_idx_to_rgb(cnv->get_vehikel(i-1)->get_desc()->can_lead(NULL) ? COL_GREEN : COL_YELLOW);
 		}
 
 		// change green into blue for vehicles that are not available
 		for(  unsigned i = 0;  i < cnv->get_vehicle_count();  i++  ) {
 			if(  !cnv->get_vehikel(i)->get_desc()->is_available(month_now)  ) {
-				if(  convoi_pics[i]->lcolor == COL_GREEN  ) {
-					convoi_pics[i]->lcolor = COL_BLUE;
+				if(  convoi_pics[i]->lcolor == color_idx_to_rgb(COL_GREEN)  ) {
+					convoi_pics[i]->lcolor = color_idx_to_rgb(COL_BLUE);
 				}
-				if(  convoi_pics[i]->rcolor == COL_GREEN  ) {
-					convoi_pics[i]->rcolor = COL_BLUE;
+				if(  convoi_pics[i]->rcolor == color_idx_to_rgb(COL_GREEN)  ) {
+					convoi_pics[i]->rcolor = color_idx_to_rgb(COL_BLUE);
 				}
 			}
 		}
@@ -823,7 +823,7 @@ void depot_frame_t::update_data()
 	FOR(vehicle_image_map, const& i, vehicle_map) {
 		vehicle_desc_t const* const    info = i.key;
 		gui_image_list_t::image_data_t& img  = *i.value;
-		const uint8 ok_color = info->is_available(month_now) ? COL_GREEN : COL_BLUE;
+		const PIXVAL ok_color = color_idx_to_rgb(info->is_available(month_now) ? COL_GREEN : COL_BLUE);
 
 		img.count = 0;
 		img.lcolor = ok_color;
@@ -839,25 +839,25 @@ void depot_frame_t::update_data()
 
 		if(veh_action == va_insert) {
 			if(!info->can_lead(veh)  ||  (veh  &&  !veh->can_follow(info))) {
-				img.lcolor = COL_RED;
-				img.rcolor = COL_RED;
+				img.lcolor = color_idx_to_rgb(COL_RED);
+				img.rcolor = color_idx_to_rgb(COL_RED);
 			}
 			else if(!info->can_follow(NULL)) {
-				img.lcolor = COL_YELLOW;
+				img.lcolor = color_idx_to_rgb(COL_YELLOW);
 			}
 		}
 		else if(veh_action == va_append) {
 			if(!info->can_follow(veh)  ||  (veh  &&  !veh->can_lead(info))) {
-				img.lcolor = COL_RED;
-				img.rcolor = COL_RED;
+				img.lcolor = color_idx_to_rgb(COL_RED);
+				img.rcolor = color_idx_to_rgb(COL_RED);
 			}
 			else if(!info->can_lead(NULL)) {
-				img.rcolor = COL_YELLOW;
+				img.rcolor = color_idx_to_rgb(COL_YELLOW);
 			}
 		}
 		else if( veh_action == va_sell ) {
-			img.lcolor = COL_RED;
-			img.rcolor = COL_RED;
+			img.lcolor = color_idx_to_rgb(COL_RED);
+			img.rcolor = color_idx_to_rgb(COL_RED);
 		}
 	}
 
@@ -866,8 +866,8 @@ void depot_frame_t::update_data()
 		if (gui_image_list_t::image_data_t* const imgdat = vehicle_map.get(v->get_desc())) {
 			imgdat->count++;
 			if(veh_action == va_sell) {
-				imgdat->lcolor = COL_GREEN;
-				imgdat->rcolor = COL_GREEN;
+				imgdat->lcolor = color_idx_to_rgb(COL_GREEN);
+				imgdat->rcolor = color_idx_to_rgb(COL_GREEN);
 			}
 		}
 	}
@@ -963,7 +963,7 @@ sint64 depot_frame_t::calc_restwert(const vehicle_desc_t *veh_type)
 
 void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *image_data)
 {
-	if(  image_data->lcolor != COL_RED  &&  image_data->rcolor != COL_RED  ) {
+	if(  image_data->lcolor != color_idx_to_rgb(COL_RED)  &&  image_data->rcolor != color_idx_to_rgb(COL_RED)  ) {
 		if(  veh_action == va_sell  ) {
 			depot->call_depot_tool('s', convoihandle_t(), image_data->text );
 		}
@@ -1557,7 +1557,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		// cursor over a vehicle in the selection list
 		const vector_tpl<gui_image_list_t::image_data_t*>& vec = (lst == &electrics ? electrics_vec : (lst == &pas ? pas_vec : (lst == &loks ? loks_vec : waggons_vec)));
 		veh_type = vehicle_builder_t::get_info( vec[sel_index]->text );
-		if(  vec[sel_index]->lcolor == COL_RED  ||  veh_action == va_sell  ) {
+		if(  vec[sel_index]->lcolor == color_idx_to_rgb(COL_RED)  ||  veh_action == va_sell  ) {
 			// don't show new_vehicle_length_sb when can't actually add the highlighted vehicle, or selling from inventory
 			new_vehicle_length_sb_force_zero = true;
 		}
@@ -1593,7 +1593,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 				break;
 			}
 		}
-		display_proportional( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + div_tabbottom.get_pos().y + div_tabbottom.get_size().h + 1, c, ALIGN_LEFT, SYSCOL_TEXT, true );
+		display_proportional_rgb( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + div_tabbottom.get_pos().y + div_tabbottom.get_size().h + 1, c, ALIGN_LEFT, SYSCOL_TEXT, true );
 	}
 
 	if(  veh_type  ) {
@@ -1641,7 +1641,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		buf.printf( "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_weight() / 1000.0 );
 		buf.printf( "%s %3d km/h", translator::translate("Max. speed:"), veh_type->get_topspeed() );
 
-		display_multiline_text( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_size().h + D_V_SPACE, buf, SYSCOL_TEXT);
+		display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_size().h + D_V_SPACE, buf, SYSCOL_TEXT);
 
 		// column 2
 		buf.clear();
@@ -1680,7 +1680,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 			buf.printf( "%s %8s", translator::translate("Restwert:"), tmp );
 		}
 
-		display_multiline_text( pos.x + second_column_x, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_size().h + D_V_SPACE + LINESPACE, buf, SYSCOL_TEXT);
+		display_multiline_text_rgb( pos.x + second_column_x, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_size().h + D_V_SPACE + LINESPACE, buf, SYSCOL_TEXT);
 
 		// update speedbar
 		new_vehicle_length_sb = new_vehicle_length_sb_force_zero ? 0 : convoi_length_ok_sb + convoi_length_slower_sb + convoi_length_too_slow_sb + veh_type->get_length();
@@ -1763,18 +1763,18 @@ void depot_convoi_capacity_t::draw(scr_coord off)
 	scr_coord_val w = 0;
 	cbuf.clear();
 	cbuf.printf("%s %d", translator::translate("Capacity:"), total_pax );
-	w += display_proportional_clip( pos.x+off.x + w, pos.y+off.y , cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
+	w += display_proportional_clip_rgb( pos.x+off.x + w, pos.y+off.y , cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 	display_color_img( skinverwaltung_t::passengers->get_image_id(0), pos.x + off.x + w, pos.y + off.y, 0, false, false);
 
 	w += 16;
 	cbuf.clear();
 	cbuf.printf("%d", total_mail );
-	w += display_proportional_clip( pos.x+off.x + w, pos.y+off.y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
+	w += display_proportional_clip_rgb( pos.x+off.x + w, pos.y+off.y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 	display_color_img( skinverwaltung_t::mail->get_image_id(0), pos.x + off.x + w, pos.y + off.y, 0, false, false);
 
 	w += 16;
 	cbuf.clear();
 	cbuf.printf("%d", total_goods );
-	w += display_proportional_clip( pos.x+off.x + w, pos.y+off.y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
+	w += display_proportional_clip_rgb( pos.x+off.x + w, pos.y+off.y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 	display_color_img( skinverwaltung_t::goods->get_image_id(0), pos.x + off.x + w, pos.y + off.y, 0, false, false);
 }

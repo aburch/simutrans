@@ -114,7 +114,7 @@ public:
 	void mark_images_dirty() const;
 
 	image_id get_outline_image() const;
-	PLAYER_COLOR_VAL get_outline_colour() const;
+	FLAGGED_PIXVAL get_outline_colour() const;
 
 	// caches image at height 0
 	void calc_image();

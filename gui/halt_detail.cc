@@ -211,7 +211,7 @@ void halt_detail_t::halt_detail_info()
 
 			// Line labels with color of player
 			label_names.append( strdup(halt->registered_lines[i]->get_name()) );
-			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_lines[i]->get_owner()->get_player_color1()+0) );
+			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|color_idx_to_rgb(halt->registered_lines[i]->get_owner()->get_player_color1()+0) );
 			l->set_pos( scr_coord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
 			linelabels.append( l );
 			cont.add_component( l );
@@ -246,7 +246,7 @@ void halt_detail_t::halt_detail_info()
 
 			// Line labels with color of player
 			label_names.append( strdup(halt->registered_convoys[i]->get_name()) );
-			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|(halt->registered_convoys[i]->get_owner()->get_player_color1()+0) );
+			gui_label_t *l = new gui_label_t( label_names.back(), PLAYER_FLAG|color_idx_to_rgb(halt->registered_convoys[i]->get_owner()->get_player_color1()+0) );
 			l->set_pos( scr_coord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y) );
 			convoylabels.append( l );
 			cont.add_component( l );

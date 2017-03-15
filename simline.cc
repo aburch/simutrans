@@ -395,11 +395,11 @@ void simline_t::recalc_status()
 	}
 	else if(financial_history[0][LINE_PROFIT]<0) {
 		// ok, not performing best
-		state_color = COL_RED;
+		state_color = color_idx_to_rgb(COL_RED);
 	}
 	else if((financial_history[0][LINE_OPERATIONS]|financial_history[1][LINE_OPERATIONS])==0) {
 		// nothing moved
-		state_color = COL_YELLOW;
+		state_color = color_idx_to_rgb(COL_YELLOW);
 	}
 	else if(welt->use_timeline()) {
 		// convois has obsolete vehicles?
@@ -409,7 +409,7 @@ void simline_t::recalc_status()
 			if (has_obsolete) break;
 		}
 		// now we have to set it
-		state_color = has_obsolete ? COL_DARK_BLUE : SYSCOL_TEXT;
+		state_color = has_obsolete ? color_idx_to_rgb(COL_DARK_BLUE) : SYSCOL_TEXT;
 	}
 	else {
 		// normal state

@@ -1376,16 +1376,16 @@ void stadt_t::rotate90( const sint16 y_size )
 	best_strasse.reset(pos);
 	best_haus.reset(pos);
 	// townhall position may be changed a little!
-	sparse_tpl<uint8> pax_destinations_temp(koord( PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE ));
+	sparse_tpl<PIXVAL> pax_destinations_temp(koord( PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE ));
 
-	uint8 color;
+	PIXVAL color;
 	koord pos;
 	for( uint16 i = 0; i < pax_destinations_new.get_data_count(); i++ ) {
 		pax_destinations_new.get_nonzero(i, pos, color);
 		assert( color != 0 );
 		pax_destinations_temp.set( PAX_DESTINATIONS_SIZE-1-pos.y, pos.x, color );
 	}
-	swap<uint8>( pax_destinations_temp, pax_destinations_new );
+	swap<PIXVAL>( pax_destinations_temp, pax_destinations_new );
 
 	pax_destinations_temp.clear();
 	for( uint16 i = 0; i < pax_destinations_old.get_data_count(); i++ ) {
@@ -1394,7 +1394,7 @@ void stadt_t::rotate90( const sint16 y_size )
 		pax_destinations_temp.set( PAX_DESTINATIONS_SIZE-1-pos.y, pos.x, color );
 	}
 	pax_destinations_new_change ++;
-	swap<uint8>( pax_destinations_temp, pax_destinations_old );
+	swap<PIXVAL>( pax_destinations_temp, pax_destinations_old );
 }
 
 
@@ -1655,7 +1655,7 @@ void stadt_t::city_growth_monthly(uint32 const month)
 
 void stadt_t::new_month( bool recalc_destinations )
 {
-	swap<uint8>( pax_destinations_old, pax_destinations_new );
+	swap<PIXVAL>( pax_destinations_old, pax_destinations_new );
 	pax_destinations_new.clear();
 	pax_destinations_new_change = 0;
 
@@ -1926,7 +1926,7 @@ void stadt_t::step_passagiere()
 				city_history_month[0][history_type + HIST_OFFSET_TRANSPORTED] += pax_left_to_do;
 
 				// destination logged
-				merke_passagier_ziel(dest_pos, COL_YELLOW);
+				merke_passagier_ziel(dest_pos, color_idx_to_rgb(COL_YELLOW));
 			}
 			else if(  route_result==haltestelle_t::ROUTE_WALK  ) {
 				if(  factory_entry  ) {
@@ -1942,7 +1942,7 @@ void stadt_t::step_passagiere()
 				city_history_month[0][history_type + HIST_OFFSET_WALKED] += pax_left_to_do;
 
 				// probably not a good idea to mark them as player only cares about remote traffic
-				//merke_passagier_ziel(dest_pos, COL_YELLOW);
+				//merke_passagier_ziel(dest_pos, color_idx_to_rgb(COL_YELLOW));
 			}
 			else if(  route_result==haltestelle_t::ROUTE_OVERCROWDED  ) {
 				// overcrowded routes cause unhappiness to be logged
@@ -1954,13 +1954,13 @@ void stadt_t::step_passagiere()
 					// all routes to goal are overcrowded -> register at first stop (closest)
 					FOR(vector_tpl<halthandle_t>, const s, start_halts) {
 						s->add_pax_unhappy(pax_left_to_do);
-						merke_passagier_ziel(dest_pos, COL_ORANGE);
+						merke_passagier_ziel(dest_pos, color_idx_to_rgb(COL_ORANGE));
 						break;
 					}
 				}
 
 				// destination logged
-				merke_passagier_ziel(dest_pos, COL_ORANGE);
+				merke_passagier_ziel(dest_pos, color_idx_to_rgb(COL_ORANGE));
 			}
 			else if (  route_result == haltestelle_t::NO_ROUTE  ) {
 				// since there is no route from any start halt -> register no route at first halts (closest)
@@ -1968,7 +1968,7 @@ void stadt_t::step_passagiere()
 					s->add_pax_no_route(pax_left_to_do);
 					break;
 				}
-				merke_passagier_ziel(dest_pos, COL_DARK_ORANGE);
+				merke_passagier_ziel(dest_pos, color_idx_to_rgb(COL_DARK_ORANGE));
 #ifdef DESTINATION_CITYCARS
 				//citycars with destination
 				generate_private_cars(start_halt->get_basis_pos(), step_count, ziel);
@@ -2151,7 +2151,7 @@ void stadt_t::step_passagiere()
 		//citycars with destination
 		generate_private_cars(k, step_count, ziel);
 #endif
-		merke_passagier_ziel(ziel, COL_DARK_ORANGE);
+		merke_passagier_ziel(ziel, color_idx_to_rgb(COL_DARK_ORANGE));
 		// we do not show no route for destination stop!
 	}
 }
@@ -2257,7 +2257,7 @@ koord stadt_t::find_destination(factory_set_t &target_factories, const sint64 ge
 }
 
 
-void stadt_t::merke_passagier_ziel(koord k, uint8 color)
+void stadt_t::merke_passagier_ziel(koord k, PIXVAL color)
 {
 	const koord p = koord(
 		((k.x * PAX_DESTINATIONS_SIZE) / welt->get_size().x) & (PAX_DESTINATIONS_SIZE-1),

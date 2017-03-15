@@ -25,7 +25,7 @@ private:
 	* Mini Map-Preview
 	* @author Hj. Malthaner
 	*/
-	unsigned char karte[preview_size*preview_size];
+	PIXVAL karte[preview_size*preview_size];
 
 	bool changed_number_of_towns;
 

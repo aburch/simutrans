@@ -50,7 +50,7 @@ scr_coord_val citylist_stats_t::draw( scr_coord pos, scr_coord_val width, bool s
 	buf.append( " (" );
 	buf.append( growth/10.0, 1 );
 	buf.append( ")" );
-	display_proportional_clip( pos.x+D_H_SPACE*2 + gui_theme_t::gui_pos_button_size.w, pos.y+(h-LINESPACE)/2, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+	display_proportional_clip_rgb( pos.x+D_H_SPACE*2 + gui_theme_t::gui_pos_button_size.w, pos.y+(h-LINESPACE)/2, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 	// goto button
 	bool info_open = win_get_magic( (ptrdiff_t)city );
@@ -70,7 +70,7 @@ scr_coord_val citylist_stats_t::draw( scr_coord pos, scr_coord_val width, bool s
 	display_img_aligned( gui_theme_t::pos_button_img[ selected ], pos_xywh, ALIGN_CENTER_V | ALIGN_CENTER_H, true );
 
 	if(  info_open  ) {
-		display_blend_wh( pos.x, pos.y, width, h, COL_BLACK, 25 );
+		display_blend_wh_rgb( pos.x, pos.y, width, h, color_idx_to_rgb(COL_BLACK), 25 );
 	}
 	return true;
 }

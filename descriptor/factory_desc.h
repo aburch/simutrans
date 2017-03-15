@@ -265,7 +265,7 @@ public:
 	site_t get_placement() const { return placement; }
 	uint16 get_distribution_weight() const { return distribution_weight; }
 
-	uint8 get_color() const { return color; }
+	PIXVAL get_color() const { return color_idx_to_rgb(color); }
 
 	void set_productivity(uint16 p) { productivity=p; }
 	uint16 get_productivity() const { return productivity; }

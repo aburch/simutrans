@@ -36,39 +36,42 @@ private:
 
 	gui_chart_t chart, mchart;
 
-	gui_label_t tylabel; // this year
-	gui_label_t lylabel; // last year
+	gui_label_t
+		tylabel, // this year
+		lylabel, // last year
 
-	gui_label_t conmoney;
-	gui_label_t nvmoney;
-	gui_label_t vrmoney;
-	gui_label_t imoney;
-	gui_label_t tmoney;
-	gui_label_t mmoney;
-	gui_label_t omoney;
+		conmoney,
+		nvmoney,
+		vrmoney,
+		imoney,
+		tmoney,
+		mmoney,
+		omoney,
 
-	gui_label_t old_conmoney;
-	gui_label_t old_nvmoney;
-	gui_label_t old_vrmoney;
-	gui_label_t old_imoney;
-	gui_label_t old_tmoney;
-	gui_label_t old_mmoney;
-	gui_label_t old_omoney;
+		old_conmoney,
+		old_nvmoney,
+		old_vrmoney,
+		old_imoney,
+		old_tmoney,
+		old_mmoney,
+		old_omoney,
 
-	gui_label_t tylabel2; // this year, right column
+		tylabel2, // this year, right column
 
-	gui_label_t gtmoney; // balance (current)
-	gui_label_t vtmoney;
-	gui_label_t money;
-	gui_label_t margin;
-	gui_label_t transport, old_transport;
-	gui_label_t toll, old_toll;
+		gtmoney, // balance (current)
+		vtmoney,
+		money,
+		margin,
+		transport,
+		old_transport,
+		toll,
+		old_toll,
 
-	gui_label_t maintenance_label;
-	gui_label_t maintenance_money;
+		maintenance_label,
+		maintenance_money,
 
-	gui_label_t warn;
-	gui_label_t scenario;
+		warn,
+		scenario;
 
 	gui_container_t month_dummy, year_dummy;
 
@@ -88,7 +91,7 @@ private:
 	button_t filterButtons[MAX_PLAYER_COST_BUTTON];
 	void calc_chart_values();
 	static const char *cost_type_name[MAX_PLAYER_COST_BUTTON];
-	static const COLOR_VAL cost_type_color[MAX_PLAYER_COST_BUTTON];
+	static const uint8 cost_type_color[MAX_PLAYER_COST_BUTTON];
 	static const uint8 cost_type[3*MAX_PLAYER_COST_BUTTON];
 	static const char * transport_type_values[TT_MAX];
 	gui_tab_panel_t year_month_tabs;

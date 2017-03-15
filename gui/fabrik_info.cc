@@ -163,9 +163,9 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 	prod_buf.append( fab->get_current_production(), 0 );
 	prod_buf.append( translator::translate("units/day") );
 
-	unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()];
-	display_ddd_box_clip(pos.x + view.get_pos().x, pos.y + view.get_pos().y + view.get_size().h + D_TITLEBAR_HEIGHT, view.get_size().w, D_INDICATOR_HEIGHT, MN_GREY0, MN_GREY4);
-	display_fillbox_wh_clip(pos.x + view.get_pos().x + 1, pos.y + view.get_pos().y + view.get_size().h + D_TITLEBAR_HEIGHT+1, view.get_size().w - 2, D_INDICATOR_HEIGHT-2, indikatorfarbe, true);
+	PIXVAL indikatorfarbe = color_idx_to_rgb(fabrik_t::status_to_color[fab->get_status()]);
+	display_ddd_box_clip_rgb(pos.x + view.get_pos().x, pos.y + view.get_pos().y + view.get_size().h + D_TITLEBAR_HEIGHT, view.get_size().w, D_INDICATOR_HEIGHT, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
+	display_fillbox_wh_clip_rgb(pos.x + view.get_pos().x + 1, pos.y + view.get_pos().y + view.get_size().h + D_TITLEBAR_HEIGHT+1, view.get_size().w - 2, D_INDICATOR_HEIGHT-2, indikatorfarbe, true);
 	scr_coord_val x_view_pos = D_MARGIN_LEFT;
 	scr_coord_val x_prod_pos = D_MARGIN_LEFT+proportional_string_width(prod_buf)+10;
 	if(  skinverwaltung_t::electricity->get_image_id(0)!=IMG_EMPTY  ) {
@@ -346,16 +346,16 @@ void gui_fabrik_info_t::draw(scr_coord offset)
 			buf.clear();
 			buf.printf("%i", pax_entry->supply);
 			w = proportional_string_width( buf );
-			display_proportional_clip( xoff+18+(w>21?w-21:0), yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true );
+			display_proportional_clip_rgb( xoff+18+(w>21?w-21:0), yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true );
 			display_color_img(skinverwaltung_t::passengers->get_image_id(0), xoff+20+1+(w>21?w-21:0), yoff, 0, false, true);
 
 			buf.clear();
 			buf.printf("%i", mail_entry->supply);
 			w = proportional_string_width( buf );
-			display_proportional_clip( xoff+62+(w>21?w-21:0), yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true );
+			display_proportional_clip_rgb( xoff+62+(w>21?w-21:0), yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true );
 			display_color_img(skinverwaltung_t::mail->get_image_id(0), xoff+64+1+(w>21?w-21:0), yoff, 0, false, true);
 
-			display_proportional_clip(xoff + 90, yoff, c->get_name(), ALIGN_LEFT, SYSCOL_TEXT, true);
+			display_proportional_clip_rgb(xoff + 90, yoff, c->get_name(), ALIGN_LEFT, SYSCOL_TEXT, true);
 			yoff += LINESPACE;
 		}
 		yoff += 2 * LINESPACE;

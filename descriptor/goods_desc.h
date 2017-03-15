@@ -9,6 +9,7 @@
 
 #include "obj_base_desc.h"
 #include "../simcolor.h"
+#include "../display/simgraph.h"
 #include "../network/checksum.h"
 
 class checksum_t;
@@ -56,7 +57,7 @@ class goods_desc_t : public obj_named_desc_t {
 	 */
 	uint8 goods_index;
 
-	COLOR_VAL color;
+	uint8 color;
 
 	/**
 	* Bonus for fast transport given in percent!
@@ -132,7 +133,7 @@ public:
 	* @return color for good table and waiting bars
 	* @author Hj. Malthaner
 	*/
-	COLOR_VAL get_color() const { return color; }
+	PIXVAL get_color() const { return color_idx_to_rgb(color); }
 
 	void calc_checksum(checksum_t *chk) const
 	{
