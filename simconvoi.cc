@@ -4432,7 +4432,7 @@ void convoi_t::rdwr(loadsave_t *file)
 					file->rdwr_short(ave_count);
 					average_tpl<uint16> ave;
 					ave.total = total;
-					ave.count = count;
+					ave.count = ave_count;
 					journey_times_between_schedule_points.put(departure_point, ave);
 				}
 			}
