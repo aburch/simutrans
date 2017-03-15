@@ -386,7 +386,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 
 				weg_t* w = to->get_weg(tdriver->get_waytype());
 
-				if (is_tall && w->is_height_restricted())
+				if (is_tall && w && w->is_height_restricted())
 				{
 					// Tall vehicles cannot pass under low bridges
 					continue;
