@@ -38,11 +38,11 @@ const char *hist_type[MAX_CITY_HISTORY] =
 };
 
 
-const int hist_type_color[MAX_CITY_HISTORY] =
+const uint8 hist_type_color[MAX_CITY_HISTORY] =
 {
-	COL_WHITE, COL_DARK_GREEN, COL_LIGHT_PURPLE, 110,
-	COL_LIGHT_BLUE, COL_DARK_BLUE, 100, COL_LIGHT_YELLOW, COL_DARK_YELLOW, COL_YELLOW,
-	COL_LIGHT_BROWN, COL_BROWN, 87
+	COL_WHITE, COL_DARK_GREEN, COL_LIGHT_PURPLE, COL_CONSTRUCTION,
+	COL_LIGHT_BLUE, COL_DARK_BLUE, COL_SOFT_BLUE, COL_LIGHT_YELLOW, COL_DARK_YELLOW, COL_YELLOW,
+	COL_LIGHT_BROWN, COL_BROWN, COL_OPS_PROFIT
 };
 
 
@@ -78,7 +78,7 @@ city_info_t::city_info_t(stadt_t* city) :
 	chart.set_seed(welt->get_last_year());
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	for(  uint32 i = 0;  i<MAX_CITY_HISTORY;  i++  ) {
-		chart.add_curve( hist_type_color[i], city->get_city_history_year(),
+		chart.add_curve( color_idx_to_rgb(hist_type_color[i]), city->get_city_history_year(),
 			MAX_CITY_HISTORY, i, 12, STANDARD, (city->stadtinfo_options & (1<<i))!=0, true, 0 );
 	}
 
@@ -89,7 +89,7 @@ city_info_t::city_info_t(stadt_t* city) :
 	mchart.set_seed(0);
 	mchart.set_background(SYSCOL_CHART_BACKGROUND);
 	for(  uint32 i = 0;  i<MAX_CITY_HISTORY;  i++  ) {
-		mchart.add_curve( hist_type_color[i], city->get_city_history_month(),
+		mchart.add_curve( color_idx_to_rgb(hist_type_color[i]), city->get_city_history_month(),
 			MAX_CITY_HISTORY, i, 12, STANDARD, (city->stadtinfo_options & (1<<i))!=0, true, 0 );
 	}
 	mchart.set_visible(false);
@@ -102,7 +102,7 @@ city_info_t::city_info_t(stadt_t* city) :
 	// add filter buttons; skip electricity
 	for(  int hist=0;  hist<MAX_CITY_HISTORY-1;  hist++  ) {
 		filterButtons[hist].init(button_t::box_state, hist_type[hist], scr_coord(0,0), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-		filterButtons[hist].background_color = hist_type_color[hist];
+		filterButtons[hist].background_color = color_idx_to_rgb(hist_type_color[hist]);
 		filterButtons[hist].pressed = (city->stadtinfo_options & (1<<hist))!=0;
 		filterButtons[hist].add_listener(this);
 		add_component(filterButtons + hist);
@@ -238,7 +238,7 @@ void city_info_t::reset_city_name()
 }
 
 
-void city_info_t::init_pax_dest( array2d_tpl<uint8> &pax_dest )
+void city_info_t::init_pax_dest( array2d_tpl<PIXVAL> &pax_dest )
 {
 	const int size_x = welt->get_size().x;
 	const int size_y = welt->get_size().y;
@@ -251,9 +251,9 @@ void city_info_t::init_pax_dest( array2d_tpl<uint8> &pax_dest )
 }
 
 
-void city_info_t::add_pax_dest( array2d_tpl<uint8> &pax_dest, const sparse_tpl< uint8 >* city_pax_dest )
+void city_info_t::add_pax_dest( array2d_tpl<PIXVAL> &pax_dest, const sparse_tpl<PIXVAL>* city_pax_dest )
 {
-	uint8 color;
+	PIXVAL color;
 	koord pos;
 	// how large the box in the world?
 	const sint16 dd_x = 1+(minimaps_size.w-1)/PAX_DESTINATIONS_SIZE;
@@ -309,7 +309,7 @@ void city_info_t::draw(scr_coord pos, scr_size size)
 	buf.append( ": " );
 	buf.append( c->get_homeless(), 0 );
 
-	display_multiline_text(pos.x + D_MARGIN_LEFT,
+	display_multiline_text_rgb(pos.x + D_MARGIN_LEFT,
 		pos.y+D_TITLEBAR_HEIGHT + D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE, buf, SYSCOL_TEXT );
 
 	const uint32 current_pax_destinations = c->get_pax_destinations_new_change();
@@ -457,7 +457,7 @@ city_info_t::city_info_t() :
 	// add filter buttons; skip electricity
 	for(  int hist=0;  hist<MAX_CITY_HISTORY-1;  hist++  ) {
 		filterButtons[hist].init(button_t::box_state, hist_type[hist], scr_coord(0,0), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-		filterButtons[hist].background_color = hist_type_color[hist];
+		filterButtons[hist].background_color = color_idx_to_rgb(hist_type_color[hist]);
 		filterButtons[hist].add_listener(this);
 		add_component(filterButtons + hist);
 	}
@@ -494,8 +494,8 @@ void city_info_t::rdwr(loadsave_t *file)
 		city = welt->get_cities()[townindex];
 		city->stadtinfo_options = flags;
 		for(  int i = 0;  i<MAX_CITY_HISTORY-1;  i++  ) {
-			chart.add_curve( hist_type_color[i], city->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, (city->stadtinfo_options & (1<<i))!=0, true, 0 );
-			mchart.add_curve( hist_type_color[i], city->get_city_history_month(), MAX_CITY_HISTORY, i, 12, STANDARD, (city->stadtinfo_options & (1<<i))!=0, true, 0 );
+			chart.add_curve( color_idx_to_rgb(hist_type_color[i]), city->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, (city->stadtinfo_options & (1<<i))!=0, true, 0 );
+			mchart.add_curve( color_idx_to_rgb(hist_type_color[i]), city->get_city_history_month(), MAX_CITY_HISTORY, i, 12, STANDARD, (city->stadtinfo_options & (1<<i))!=0, true, 0 );
 			if(  city->stadtinfo_options & (1<<i)  ) {
 				filterButtons[i].pressed = 1;
 				chart.show_curve(i);

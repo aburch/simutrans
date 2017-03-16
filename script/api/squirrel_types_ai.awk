@@ -174,6 +174,8 @@ BEGIN {
 	export_types["map_object_x::get_pos"] = "coord3d()"
 	export_types["map_object_x::is_removable"] = "string(player_x)"
 	export_types["map_object_x::get_type"] = "map_objects()"
+	export_types["map_object_x::mark"] = "void()"
+	export_types["map_object_x::unmark"] = "void()"
 	export_types["tree_x::get_age"] = "integer()"
 	export_types["tree_x::get_desc"] = "tree_desc_x()"
 	export_types["building_x::get_factory"] = "factory_x()"

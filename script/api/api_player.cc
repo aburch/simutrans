@@ -136,7 +136,7 @@ void export_player(HSQUIRRELVM vm, bool scenario)
 	 * @param nr player number, 0 = standard player, 1 = public player
 	 * @typemask (integer)
 	 */
-	// actually defined simutrans/script/script_base.nut
+	// actually defined in simutrans/script/script_base.nut
 	// register_function(..., "constructor", ...);
 
 	if (!scenario) {

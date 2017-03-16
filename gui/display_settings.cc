@@ -626,13 +626,13 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	sprintf(idle_time_buf, " %d ms", welt->get_idle_time() );
 
 	// fps_label
-	uint8  color;
+	PIXVAL color;
 	uint32 loops;
 	uint32 target_fps = welt->is_fast_forward() ? 10 : env_t::fps;
 	loops = welt->get_realFPS();
 	color = SYSCOL_TEXT_HIGHLIGHT;
 	if(  loops < (target_fps*3)/4  ) {
-		color = ( loops <= target_fps/2 ) ? COL_RED : COL_YELLOW;
+		color = color_idx_to_rgb(( loops <= target_fps/2 ) ? COL_RED : COL_YELLOW);
 	}
 	fps_value_label.set_color(color);
 	sprintf(fps_buf," %d fps", loops );
@@ -646,7 +646,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	loops = welt->get_simloops();
 	color = SYSCOL_TEXT_HIGHLIGHT;
 	if(  loops <= 30  ) {
-		color = (loops<=20) ? COL_RED : COL_YELLOW;
+		color = color_idx_to_rgb((loops<=20) ? COL_RED : COL_YELLOW);
 	}
 	simloops_value_label.set_color(color);
 	sprintf(simloops_buf,  " %d%c%d", loops/10, get_fraction_sep(), loops%10 );
@@ -657,20 +657,20 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	// Draw user defined components (not a component object)
 	if(  env_t::show_names&1  ) {
 
-		PLAYER_COLOR_VAL pc = welt->get_active_player() ? welt->get_active_player()->get_player_color1()+4 : COL_ORANGE; // Why +4?
+		FLAGGED_PIXVAL pc = welt->get_active_player() ? color_idx_to_rgb(welt->get_active_player()->get_player_color1()+4) : color_idx_to_rgb(COL_ORANGE);
 		const char *text = translator::translate("show station names");
 
 		switch( env_t::show_names >> 2 ) {
 			case 0:
-				display_ddd_proportional_clip( x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE, y+buttons[18].get_pos().y+buttons[18].get_size().h/2, proportional_string_width(text)+7, 0, pc, COL_BLACK, text, 1 );
+				display_ddd_proportional_clip( x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE, y+buttons[18].get_pos().y+buttons[18].get_size().h/2, proportional_string_width(text)+7, 0, pc, color_idx_to_rgb(COL_BLACK), text, 1 );
 				break;
 			case 1:
-				display_outline_proportional( x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE, y+buttons[18].get_pos().y, pc+1, COL_BLACK, text, 1 );
+				display_outline_proportional_rgb( x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE, y+buttons[18].get_pos().y, pc+1, color_idx_to_rgb(COL_BLACK), text, 1 );
 				break;
 			case 2:
-				display_outline_proportional( x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE+LINESPACE+D_H_SPACE, y+buttons[18].get_pos().y,   COL_YELLOW,  COL_BLACK,   text, 1 );
-				display_ddd_box_clip(         x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE,                     y+buttons[18].get_pos().y,   LINESPACE,   LINESPACE,   pc-2, pc+2 );
-				display_fillbox_wh(           x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE+1,                   y+buttons[18].get_pos().y+1, LINESPACE-2, LINESPACE-2, pc,   true);
+				display_outline_proportional_rgb( x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE+LINESPACE+D_H_SPACE, y+buttons[18].get_pos().y,   color_idx_to_rgb(COL_YELLOW),  color_idx_to_rgb(COL_BLACK),   text, 1 );
+				display_ddd_box_clip_rgb(         x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE,                     y+buttons[18].get_pos().y,   LINESPACE,   LINESPACE,   pc-2, pc+2 );
+				display_fillbox_wh_rgb(           x+buttons[18].get_pos().x+buttons[18].get_size().w+D_H_SPACE+1,                   y+buttons[18].get_pos().y+1, LINESPACE-2, LINESPACE-2, pc,   true);
 				break;
 		}
 	}

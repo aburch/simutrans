@@ -70,14 +70,7 @@ const uint8 index_of_haltinfo[MAX_HALT_COST] = {
 	HALT_WALKED
 };
 
-#define COL_HAPPY COL_WHITE
-#define COL_UNHAPPY COL_RED
-#define COL_NO_ROUTE COL_BLUE
-#define COL_WAITING COL_YELLOW
-#define COL_ARRIVED COL_DARK_ORANGE
-#define COL_DEPARTED COL_DARK_YELLOW
-
-const int cost_type_color[MAX_HALT_COST] =
+const uint8 cost_type_color[MAX_HALT_COST] =
 {
 	COL_HAPPY,
 	COL_UNHAPPY,
@@ -85,7 +78,7 @@ const int cost_type_color[MAX_HALT_COST] =
 	COL_WAITING,
 	COL_ARRIVED,
 	COL_DEPARTED,
-	COL_COUNVOI_COUNT,
+	COL_CONVOI_COUNT,
 	COL_LILAC
 };
 
@@ -118,12 +111,12 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	const sint16 offset_below_chart = chart.get_pos().y + 100 + D_V_SPACE; // chart x-axis labels plus space
 	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
-		chart.add_curve(cost_type_color[cost], halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true, 0);
+		chart.add_curve(color_idx_to_rgb(cost_type_color[cost]), halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true, 0);
 		filterButtons[cost].init(button_t::box_state, cost_type[cost],
 			scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(cost%4), offset_below_chart+(D_BUTTON_HEIGHT+2)*(cost/4) ),
 			scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
-		filterButtons[cost].background_color = cost_type_color[cost];
+		filterButtons[cost].background_color = color_idx_to_rgb(cost_type_color[cost]);
 		filterButtons[cost].set_visible(false);
 		filterButtons[cost].pressed = false;
 		add_component(filterButtons + cost);
@@ -223,8 +216,8 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		set_dirty();
 
 		sint16 top = pos.y+36;
-		COLOR_VAL indikatorfarbe = halt->get_status_farbe();
-		display_fillbox_wh_clip(pos.x+10, top+2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indikatorfarbe, true);
+		PIXVAL indikatorfarbe = halt->get_status_farbe();
+		display_fillbox_wh_clip_rgb(pos.x+10, top+2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indikatorfarbe, true);
 
 		// now what do we accept here?
 		int left = 10+D_INDICATOR_WIDTH+2;
@@ -287,7 +280,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		info_buf.printf("%s: %u", translator::translate("Storage capacity"), halt->get_capacity(0));
 		left = pos.x+10;
 		// passengers
-		left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+		left += display_proportional_rgb(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		if (welt->get_settings().is_separate_halt_capacities()) {
 			// here only for separate capacities
 			display_color_img(skinverwaltung_t::passengers->get_image_id(0), left, top, 0, false, false);
@@ -295,13 +288,13 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			// mail
 			info_buf.clear();
 			info_buf.printf(",  %u", halt->get_capacity(1));
-			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			left += display_proportional_rgb(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_color_img(skinverwaltung_t::mail->get_image_id(0), left, top, 0, false, false);
 			left += 10;
 			// goods
 			info_buf.clear();
 			info_buf.printf(",  %u", halt->get_capacity(2));
-			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			left += display_proportional_rgb(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_color_img(skinverwaltung_t::goods->get_image_id(0), left, top, 0, false, false);
 			left = 53+LINESPACE;
 		}
@@ -310,7 +303,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		// information about the passengers happiness
 		info_buf.clear();
 		halt->info(info_buf);
-		display_multiline_text( pos.x+10, pos.y+53+LINESPACE, info_buf, SYSCOL_TEXT );
+		display_multiline_text_rgb( pos.x+10, pos.y+53+LINESPACE, info_buf, SYSCOL_TEXT );
 	}
 }
 

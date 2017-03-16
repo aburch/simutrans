@@ -51,16 +51,16 @@ public:
 	class const_text_scrollitem_t : public scrollitem_t {
 	protected:
 		const char *consttext;
-		COLOR_VAL color;
+		PIXVAL color;
 		static bool compare( scrollitem_t *a, scrollitem_t *b );
 	public:
-		const_text_scrollitem_t(char const* const t, uint8 const col) : consttext(t), color(col) {}
+		const_text_scrollitem_t(char const* const t, PIXVAL const col) : consttext(t), color(col) {}
 
 		virtual scr_coord_val draw( scr_coord pos, scr_coord_val width, bool is_selected, bool has_focus );
 		virtual scr_coord_val get_height() const { return LINESPACE; }
 
-		virtual uint8 get_color() { return color; }
-		virtual void set_color(uint8 col) { color = col; }
+		virtual PIXVAL get_color() { return color; }
+		virtual void set_color(PIXVAL col) { color = col; }
 
 		virtual char const* get_text() const { return consttext; }
 		virtual void set_text(char const *) {}
@@ -74,7 +74,7 @@ public:
 		plainstring text;
 
 	public:
-		var_text_scrollitem_t(char const* const t, uint8 const col) : const_text_scrollitem_t(t,col), text(t) {}
+		var_text_scrollitem_t(char const* const t, PIXVAL const col) : const_text_scrollitem_t(t,col), text(t) {}
 		virtual void set_text(char const *t) OVERRIDE { text = t; }
 		virtual bool is_editable() { return true; }
 	};
@@ -89,7 +89,7 @@ private:
 	 * color of selected entry
 	 * @author Hj. Malthaner
 	 */
-	int highlight_color;
+	PIXVAL highlight_color;
 
 	scrollbar_t sb;
 
@@ -106,7 +106,7 @@ public:
 	* Sets the color of selected entry
 	* @author Hj. Malthaner
 	*/
-	void set_highlight_color(int c) { highlight_color = c; }
+	void set_highlight_color(PIXVAL c) { highlight_color = c; }
 
 	void show_selection(int s);
 

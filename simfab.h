@@ -621,7 +621,7 @@ public:
 	char const* get_name() const;
 	void set_name( const char *name );
 
-	sint32 get_color() const { return desc->get_color(); }
+	PIXVAL get_color() const { return desc->get_color(); }
 
 	player_t *get_owner() const
 	{
@@ -697,7 +697,7 @@ public:
 
 	/* prissi: returns the status of the current factory, as well as output */
 	enum { bad, medium, good, inactive, nothing };
-	static unsigned status_to_color[5];
+	static uint8 status_to_color[5];
 
 	uint8  get_status() const { return status; }
 	uint32 get_total_in() const { return total_input; }

@@ -43,11 +43,6 @@
 #define ARROW_DOWN 5
 #define SCROLL_BAR 6
 
-// colors
-#define RB_LEFT_BUTTON (201)
-#define RB_BODY_BUTTON (202)
-#define RB_RIGHT_BUTTON (203)
-
 karte_ptr_t button_t::welt;
 
 
@@ -57,7 +52,7 @@ button_t::button_t() :
 	b_no_translate = false;
 	pressed = false;
 	translated_tooltip = tooltip = NULL;
-	background_color = COL_WHITE;
+	background_color = color_idx_to_rgb(COL_WHITE);
 	b_enabled = true;
 
 	// By default a box button
@@ -248,10 +243,10 @@ void button_t::draw_focus_rect( scr_rect r, scr_coord_val offset) {
 
 	scr_coord_val w = ((offset-1)<<1);
 
-	display_fillbox_wh_clip(r.x-offset+1,     r.y-1-offset+1,    r.w+w, 1, COL_WHITE, false);
-	display_fillbox_wh_clip(r.x-offset+1,     r.y+r.h+offset-1,  r.w+w, 1, COL_WHITE, false);
-	display_vline_wh_clip  (r.x-offset,       r.y-offset+1,      r.h+w,    COL_WHITE, false);
-	display_vline_wh_clip  (r.x+r.w+offset-1, r.y-offset+1,      r.h+w,    COL_WHITE, false);
+	display_fillbox_wh_clip_rgb(r.x-offset+1,     r.y-1-offset+1,   r.w+w, 1, color_idx_to_rgb(COL_WHITE), false);
+	display_fillbox_wh_clip_rgb(r.x-offset+1,     r.y+r.h+offset-1, r.w+w, 1, color_idx_to_rgb(COL_WHITE), false);
+	display_vline_wh_clip_rgb  (r.x-offset,       r.y-offset+1,     r.h+w,    color_idx_to_rgb(COL_WHITE), false);
+	display_vline_wh_clip_rgb  (r.x+r.w+offset-1, r.y-offset+1,     r.h+w,    color_idx_to_rgb(COL_WHITE), false);
 }
 
 
@@ -263,7 +258,7 @@ void button_t::draw(scr_coord offset)
 	}
 
 	const scr_rect area( offset+pos, size );
-	COLOR_VAL text_color = pressed ? SYSCOL_BUTTON_TEXT_SELECTED : this->text_color;
+	PIXVAL text_color = pressed ? SYSCOL_BUTTON_TEXT_SELECTED : this->text_color;
 	text_color = b_enabled ? text_color : SYSCOL_BUTTON_TEXT_DISABLED;
 
 	switch (type&STATE_MASK) {
@@ -277,7 +272,7 @@ void button_t::draw(scr_coord offset)
 					// move the text to leave evt. space for a colored box top left or bottom right of it
 					scr_rect area_text = area - gui_theme_t::gui_color_button_text_offset_right;
 					area_text.set_pos( gui_theme_t::gui_color_button_text_offset + area.get_pos() );
-					display_proportional_ellipse( area_text, translated_text, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, text_color, true );
+					display_proportional_ellipse_rgb( area_text, translated_text, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, text_color, true );
 				}
 				if(  win_get_focus()==this  ) {
 					draw_focus_rect( area );
@@ -292,7 +287,7 @@ void button_t::draw(scr_coord offset)
 					// move the text to leave evt. space for a colored box top left or bottom right of it
 					scr_rect area_text = area - gui_theme_t::gui_button_text_offset_right;
 					area_text.set_pos( gui_theme_t::gui_button_text_offset + area.get_pos() );
-					display_proportional_ellipse( area_text, translated_text, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, text_color, true );
+					display_proportional_ellipse_rgb( area_text, translated_text, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, text_color, true );
 				}
 				if(  win_get_focus()==this  ) {
 					draw_focus_rect( area );
@@ -307,7 +302,7 @@ void button_t::draw(scr_coord offset)
 					text_color = b_enabled ? this->text_color : SYSCOL_CHECKBOX_TEXT_DISABLED;
 					scr_rect area_text = area;
 					area_text.x += gui_theme_t::gui_checkbox_size.w + D_H_SPACE;
-					display_proportional_ellipse( area_text, translated_text, ALIGN_LEFT | ALIGN_CENTER_V | DT_CLIP, text_color, true );
+					display_proportional_ellipse_rgb( area_text, translated_text, ALIGN_LEFT | ALIGN_CENTER_V | DT_CLIP, text_color, true );
 				}
 				if(  win_get_focus() == this  ) {
 					draw_focus_rect( scr_rect( area.get_pos()+scr_coord(0,(area.get_size().h-gui_theme_t::gui_checkbox_size.w)/2), gui_theme_t::gui_checkbox_size ) );

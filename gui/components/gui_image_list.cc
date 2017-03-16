@@ -89,13 +89,13 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 
 			// display mark
 			if(idata.lcolor!=EMPTY_IMAGE_BAR) {
-				display_fillbox_wh_clip( xpos + 1, ypos + grid.y - 5, grid.x/2 - 1, 4, idata.lcolor, true);
+				display_fillbox_wh_clip_rgb( xpos + 1, ypos + grid.y - 5, grid.x/2 - 1, 4, idata.lcolor, true);
 			}
 			if(idata.rcolor!=EMPTY_IMAGE_BAR) {
-				display_fillbox_wh_clip( xpos + grid.x/2, ypos + grid.y - 5, grid.x - grid.x/2 - 1, 4, idata.rcolor, true);
+				display_fillbox_wh_clip_rgb( xpos + grid.x/2, ypos + grid.y - 5, grid.x - grid.x/2 - 1, 4, idata.rcolor, true);
 			}
 			if (sel_index-- == 0) {
-				display_ddd_box_clip(xpos, ypos, grid.x, grid.y, MN_GREY4, MN_GREY0);
+				display_ddd_box_clip_rgb(xpos, ypos, grid.x, grid.y, color_idx_to_rgb(MN_GREY4), color_idx_to_rgb(MN_GREY0));
 			}
 
 			// Get image data
@@ -117,11 +117,11 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 				// Let's make a black background to ensure visibility
 				for(int iy = -3; iy < 0; iy++) {
 					for(int ix = 1; ix < 4; ix++) {
-						display_proportional_clip(xpos + ix, ypos + iy, text, ALIGN_LEFT, COL_BLACK, true);
+						display_proportional_clip_rgb(xpos + ix, ypos + iy, text, ALIGN_LEFT, color_idx_to_rgb(COL_BLACK), true);
 					}
 				}
 				// Display the number white on black
-				display_proportional_clip(xpos + 2, ypos - 2, text, ALIGN_LEFT, COL_WHITE, true);
+				display_proportional_clip_rgb(xpos + 2, ypos - 2, text, ALIGN_LEFT, color_idx_to_rgb(COL_WHITE), true);
 			}
 		}
 		// advance x, y to next position

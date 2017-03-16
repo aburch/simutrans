@@ -45,12 +45,12 @@ private:
 
 	button_t filterButtons[MAX_CITY_HISTORY]; ///< Buttons to enable/disable chart curves
 
-	array2d_tpl<uint8> pax_dest_old, pax_dest_new;
+	array2d_tpl<PIXVAL> pax_dest_old, pax_dest_new;
 
 	uint32 pax_destinations_last_change;
 
-	void init_pax_dest( array2d_tpl<uint8> &pax_dest );
-	void add_pax_dest( array2d_tpl<uint8> &pax_dest, const sparse_tpl< uint8 >* city_pax_dest );
+	void init_pax_dest( array2d_tpl<PIXVAL> &pax_dest );
+	void add_pax_dest( array2d_tpl<PIXVAL> &pax_dest, const sparse_tpl<PIXVAL>* city_pax_dest );
 
 	/// Renames the city to the name given in the text input field
 	void rename_city();

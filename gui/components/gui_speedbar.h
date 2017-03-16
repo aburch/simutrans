@@ -21,7 +21,7 @@ class gui_speedbar_t : public gui_component_t
 {
 private:
 	struct info_t {
-		sint32 color;
+		PIXVAL color;
 		const sint32 *value;
 		sint32 last;
 	};
@@ -34,7 +34,7 @@ private:
 public:
 	gui_speedbar_t() { base = 100; vertical = false; }
 
-	void add_color_value(const sint32 *value, uint8 color);
+	void add_color_value(const sint32 *value, PIXVAL color);
 
 	void set_base(sint32 base);
 

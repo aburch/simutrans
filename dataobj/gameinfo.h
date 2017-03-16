@@ -4,6 +4,7 @@
 #include <string>
 #include "../simtypes.h"
 #include "../simconst.h"
+#include "../simcolor.h"
 #include "../tpl/array2d_tpl.h"
 #include "../network/checksum.h"
 
@@ -15,7 +16,7 @@ class gameinfo_t
 {
 private:
 	sint32 size_x, size_y;
-	array2d_tpl<uint8> map;
+	array2d_tpl<PIXVAL> map;
 
 	sint32 industries;
 	sint32 tourist_attractions;
@@ -58,7 +59,7 @@ public:
 
 	sint32 get_size_x() const {return size_x;}
 	sint32 get_size_y() const {return size_y;}
-	const array2d_tpl<uint8> *get_map() const { return &map; }
+	const array2d_tpl<PIXVAL> *get_map() const { return &map; }
 
 	sint32 get_industries() const {return industries;}
 	sint32 get_tourist_attractions() const {return tourist_attractions;}

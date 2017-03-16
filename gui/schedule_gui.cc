@@ -167,7 +167,7 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 	if(  schedule->empty()  ) {
 		buf.clear();
 		buf.append(translator::translate("Please click on the map to add\nwaypoints or stops to this\nschedule."));
-		sint16 const width = display_multiline_text(offset.x + 4, offset.y, buf, SYSCOL_TEXT_HIGHLIGHT );
+		sint16 const width = display_multiline_text_rgb(offset.x + 4, offset.y, buf, SYSCOL_TEXT_HIGHLIGHT );
 		set_size(scr_size(width + 4 + 16, 3 * LINESPACE));
 	}
 	else {
@@ -177,14 +177,14 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 		FORX(minivec_tpl<schedule_entry_t>, const& e, schedule->entries, (--sel, offset.y += LINESPACE + 1)) {
 			if (sel == 0) {
 				// highlight current entry (width is just wide enough, scrolly will do clipping)
-				display_fillbox_wh_clip(offset.x, offset.y - 1, 2048, LINESPACE + 1, player->get_player_color1() + 1, false);
+				display_fillbox_wh_clip_rgb(offset.x, offset.y - 1, 2048, LINESPACE + 1, color_idx_to_rgb(player->get_player_color1() + 1), false);
 			}
 
 			buf.clear();
 			buf.printf("%i) ", ++i);
 			gimme_stop_name(buf, welt, player, e);
-			PLAYER_COLOR_VAL const c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
-			sint16           const w = display_proportional_clip(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
+			PIXVAL const c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
+			sint16 const w = display_proportional_clip_rgb(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
 			if (width < w) {
 				width = w;
 			}
@@ -277,7 +277,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 		line_selector.set_pos(scr_coord(2, ypos));
 		line_selector.set_size(scr_size(BUTTON4_X-2, D_BUTTON_HEIGHT));
 		line_selector.set_max_size(scr_size(BUTTON4_X-2, 13*LINESPACE+D_TITLEBAR_HEIGHT-1));
-		line_selector.set_highlight_color(player->get_player_color1() + 1);
+		line_selector.set_highlight_color(color_idx_to_rgb(player->get_player_color1() + 1));
 		line_selector.clear_elements();
 
 		init_line_selector();

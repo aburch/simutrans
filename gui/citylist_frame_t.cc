@@ -53,11 +53,11 @@ const uint8 citylist_frame_t::hist_type_color[karte_t::MAX_WORLD_COST] =
 	COL_WHITE,
 	COL_DARK_GREEN,
 	COL_LIGHT_PURPLE,
-	71 /*COL_GREEN*/,
+	71,
 	COL_TURQUOISE,
-	87,
+	COL_OPS_PROFIT,
 	COL_LIGHT_BLUE,
-	100,
+	COL_SOFT_BLUE,
 	COL_LIGHT_YELLOW,
 	COL_YELLOW,
 	COL_LIGHT_BROWN,
@@ -127,7 +127,7 @@ citylist_frame_t::citylist_frame_t() :
 	chart.set_visible(false);
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
-		chart.add_curve(hist_type_color[cost], welt->get_finance_history_year(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_YEARS, hist_type_type[cost], false, true, (cost==1) ? 1 : 0 );
+		chart.add_curve(color_idx_to_rgb(hist_type_color[cost]), welt->get_finance_history_year(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_YEARS, hist_type_type[cost], false, true, (cost==1) ? 1 : 0 );
 	}
 
 	mchart.set_pos(scr_coord(D_MARGIN_LEFT,D_TAB_HEADER_HEIGHT));
@@ -136,13 +136,13 @@ citylist_frame_t::citylist_frame_t() :
 	mchart.set_visible(false);
 	mchart.set_background(SYSCOL_CHART_BACKGROUND);
 	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
-		mchart.add_curve(hist_type_color[cost], welt->get_finance_history_month(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_MONTHS, hist_type_type[cost], false, true, (cost==1) ? 1 : 0 );
+		mchart.add_curve(color_idx_to_rgb(hist_type_color[cost]), welt->get_finance_history_month(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_MONTHS, hist_type_type[cost], false, true, (cost==1) ? 1 : 0 );
 	}
 
 	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
 		filterButtons[cost].init(button_t::box_state, hist_type[cost], scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(cost%4), 42+D_TAB_HEADER_HEIGHT+yb+(D_BUTTON_HEIGHT+D_V_SPACE)*(cost/4)), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
-		filterButtons[cost].background_color = hist_type_color[cost];
+		filterButtons[cost].background_color = color_idx_to_rgb(hist_type_color[cost]);
 		filterButtons[cost].set_visible(false);
 		filterButtons[cost].pressed = false;
 		add_component(filterButtons + cost);
@@ -236,5 +236,5 @@ void citylist_frame_t::draw(scr_coord pos, scr_size size)
 	cbuffer_t buf;
 	buf.append( translator::translate("Total inhabitants:") );
 	buf.append( welt->get_finance_history_month()[0], 0 );
-	display_proportional( pos.x+2, pos.y+18, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
+	display_proportional_rgb( pos.x+2, pos.y+18, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 }

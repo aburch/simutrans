@@ -31,8 +31,8 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 
     filled_bar.set_pos(scr_coord(2, 33));
     filled_bar.set_size(scr_size(100, 4));
-    filled_bar.add_color_value(&cnv->get_loading_limit(), COL_YELLOW);
-    filled_bar.add_color_value(&cnv->get_loading_level(), COL_GREEN);
+    filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
+    filled_bar.add_color_value(&cnv->get_loading_level(), color_idx_to_rgb(COL_GREEN));
 }
 
 /**
@@ -65,23 +65,23 @@ void gui_convoiinfo_t::draw(scr_coord offset)
 	clip_dimension clip = display_get_clip_wh();
 	if(! ((pos.y+offset.y) > clip.yy ||  (pos.y+offset.y) < clip.y-32) &&  cnv.is_bound()) {
 		// name, use the convoi status color for redraw: Possible colors are YELLOW (not moving) BLUE: obsolete in convoi, RED: minus income, BLACK: ok
-		int max_x = display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+6, cnv->get_name(), ALIGN_LEFT, cnv->get_status_color(), true)+2;
+		int max_x = display_proportional_clip_rgb(pos.x+offset.x+2, pos.y+offset.y+6, cnv->get_name(), ALIGN_LEFT, cnv->get_status_color(), true)+2;
 
-		int w = display_proportional_clip(pos.x+offset.x+2,pos.y+offset.y+6+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true)+2;
+		int w = display_proportional_clip_rgb(pos.x+offset.x+2,pos.y+offset.y+6+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true)+2;
 		char buf[256];
 		money_to_string(buf, cnv->get_jahresgewinn() / 100.0 );
-		w += display_proportional_clip(pos.x+offset.x+2+w+5,pos.y+offset.y+6+LINESPACE, buf, ALIGN_LEFT, cnv->get_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true);
+		w += display_proportional_clip_rgb(pos.x+offset.x+2+w+5,pos.y+offset.y+6+LINESPACE, buf, ALIGN_LEFT, cnv->get_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true);
 		max_x = max(max_x,w+5);
 
 		// only show assigned line, if there is one!
 		if (cnv->in_depot()) {
 			const char *txt = translator::translate("(in depot)");
-			int w = display_proportional_clip(pos.x+offset.x+2, pos.y+offset.y+6+2*LINESPACE,txt,ALIGN_LEFT, SYSCOL_TEXT, true)+2;
+			int w = display_proportional_clip_rgb(pos.x+offset.x+2, pos.y+offset.y+6+2*LINESPACE,txt,ALIGN_LEFT, SYSCOL_TEXT, true)+2;
 			max_x = max(max_x,w);
 		}
 		else if(cnv->get_line().is_bound()) {
-			int w = display_proportional_clip( pos.x+offset.x+2, pos.y+offset.y+6+2*LINESPACE, translator::translate("Line"), ALIGN_LEFT, SYSCOL_TEXT, true)+2;
-			w += display_proportional_clip( pos.x+offset.x+2+w+5, pos.y+offset.y+6+2*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
+			int w = display_proportional_clip_rgb( pos.x+offset.x+2, pos.y+offset.y+6+2*LINESPACE, translator::translate("Line"), ALIGN_LEFT, SYSCOL_TEXT, true)+2;
+			w += display_proportional_clip_rgb( pos.x+offset.x+2+w+5, pos.y+offset.y+6+2*LINESPACE, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
 			max_x = max(max_x,w+5);
 		}
 

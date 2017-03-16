@@ -233,6 +233,20 @@ void begin_obj_class(HSQUIRRELVM vm, const char* name, const char* base = NULL)
 	// now functions can be registered
 }
 
+// mark objects
+void_t mark_object(obj_t* obj)
+{
+	obj->set_flag(obj_t::highlight);
+	obj->set_flag(obj_t::dirty);
+	return void_t();
+}
+void_t unmark_object(obj_t* obj)
+{
+	obj->clear_flag(obj_t::highlight);
+	obj->set_flag(obj_t::dirty);
+	return void_t();
+}
+
 // markers / labels
 call_tool_work create_marker(koord pos, player_t* player, const char* text)
 {
@@ -347,6 +361,14 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @returns type of object.
 	 */
 	register_method(vm, &obj_t::get_typ, "get_type");
+	/**
+	 * Marks the object for highlighting. Use with care.
+	 */
+	register_method(vm, &mark_object, "mark", true);
+	/**
+	 * Unmarks the object for highlighting.
+	 */
+	register_method(vm, &unmark_object, "unmark", true);
 	end_class(vm);
 
 

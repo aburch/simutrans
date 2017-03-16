@@ -315,7 +315,7 @@ public:
 	* @return die Farbe des Beschreibungstexthintergrundes.
 	* @author Hj. Malthaner
 	*/
-	PLAYER_COLOR_VAL text_farbe() const;
+	FLAGGED_PIXVAL text_farbe() const;
 
 	/**
 	 * Sets the label text (by copying it)

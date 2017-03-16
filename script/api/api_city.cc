@@ -108,7 +108,7 @@ void export_city(HSQUIRRELVM vm)
 	 * @param y y-coordinate
 	 * @typemask (integer,integer)
 	 */
-	// actually defined simutrans/script/script_base.nut
+	// actually defined in simutrans/script/script_base.nut
 	// register_function(..., "constructor", ...);
 
 	/**

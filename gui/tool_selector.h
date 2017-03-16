@@ -14,6 +14,7 @@
 #include "gui_frame.h"
 #include "../tpl/vector_tpl.h"
 #include "../gui/simwin.h"
+#include "../dataobj/environment.h"
 
 class tool_t;
 
@@ -80,7 +81,7 @@ public:
 	 */
 	const char *get_help_filename() const {return help_file;}
 
-	PLAYER_COLOR_VAL get_titlecolor() const { return WIN_TITLE; }
+	FLAGGED_PIXVAL get_titlecolor() const { return env_t::default_window_title_color; }
 
 	bool is_hit(int x, int y) OVERRIDE;
 

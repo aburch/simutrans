@@ -62,14 +62,14 @@ static const char *cost_type[MAX_LINE_COST] =
 	"Road toll"
 };
 
-const int cost_type_color[MAX_LINE_COST] =
+const uint8 cost_type_color[MAX_LINE_COST] =
 {
 	COL_FREE_CAPACITY,
 	COL_TRANSPORTED,
 	COL_REVENUE,
 	COL_OPERATION,
 	COL_PROFIT,
-	COL_COUNVOI_COUNT,
+	COL_CONVOI_COUNT,
 	COL_DISTANCE,
 	COL_MAXSPEED,
 	COL_TOLL
@@ -135,7 +135,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	// init scrolled list
 	scl.set_pos(scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP));
 	scl.set_size(scr_size(3*D_BUTTON_WIDTH+2*D_H_SPACE, SCL_HEIGHT));
-	scl.set_highlight_color(player->get_player_color1()+1);
+	scl.set_highlight_color(color_idx_to_rgb(player->get_player_color1()+1));
 	scl.add_listener(this);
 
 	// tab panel
@@ -232,7 +232,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&inp_name);
 
 	// load display
-	filled_bar.add_color_value(&loadfactor, COL_GREEN);
+	filled_bar.add_color_value(&loadfactor, color_idx_to_rgb(COL_GREEN));
 	filled_bar.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP+SCL_HEIGHT + D_H_SPACE));
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
@@ -264,7 +264,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	for(  int i=0;  i<MAX_LINE_COST;  i++  ) {
 		filterButtons[i].init(button_t::box_state,cost_type[i],scr_coord(0,0), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filterButtons[i].add_listener(this);
-		filterButtons[i].background_color = cost_type_color[i];
+		filterButtons[i].background_color = color_idx_to_rgb(cost_type_color[i]);
 		add_component(filterButtons + i);
 	}
 
@@ -534,13 +534,13 @@ void schedule_list_gui_t::display(scr_coord pos)
 			break;
 		}
 	}
-	int len=display_proportional_clip(pos.x+RIGHT_COLUMN_OFFSET,
+	int len=display_proportional_clip_rgb(pos.x+RIGHT_COLUMN_OFFSET,
 		pos.y+D_TITLEBAR_HEIGHT+D_MARGIN_TOP+SCL_HEIGHT+2*D_BUTTON_HEIGHT+D_V_SPACE, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 
-	int len2 = display_proportional_clip(pos.x+RIGHT_COLUMN_OFFSET,
+	int len2 = display_proportional_clip_rgb(pos.x+RIGHT_COLUMN_OFFSET,
 		pos.y+D_TITLEBAR_HEIGHT+D_MARGIN_TOP+SCL_HEIGHT+2*D_BUTTON_HEIGHT+D_V_SPACE+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true );
 	money_to_string(ctmp, profit/100.0);
-	len2 += display_proportional_clip(pos.x+RIGHT_COLUMN_OFFSET+len2,
+	len2 += display_proportional_clip_rgb(pos.x+RIGHT_COLUMN_OFFSET+len2,
 		pos.y+D_TITLEBAR_HEIGHT+D_MARGIN_TOP+SCL_HEIGHT+2*D_BUTTON_HEIGHT+D_V_SPACE+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
 	if(  capacity>0  ) {
@@ -548,7 +548,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 		number_to_string(ctmp, capacity, 2);
 		buf.clear();
 		buf.printf( translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor );
-		display_multiline_text(pos.x + RIGHT_COLUMN_OFFSET + rest_width,
+		display_multiline_text_rgb(pos.x + RIGHT_COLUMN_OFFSET + rest_width,
 			pos.y+D_TITLEBAR_HEIGHT+D_MARGIN_TOP + SCL_HEIGHT + 2*D_BUTTON_HEIGHT+D_V_SPACE, buf, SYSCOL_TEXT);
 	}
 }
@@ -667,7 +667,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// chart
 		chart.remove_curves();
 		for(  int i=0; i<MAX_LINE_COST; i++  )  {
-			chart.add_curve(cost_type_color[i], new_line->get_finance_history(), MAX_LINE_COST, statistic[i], MAX_MONTHS, statistic_type[i], filterButtons[i].pressed, true, statistic_type[i]*2 );
+			chart.add_curve(color_idx_to_rgb(cost_type_color[i]), new_line->get_finance_history(), MAX_LINE_COST, statistic[i], MAX_MONTHS, statistic_type[i], filterButtons[i].pressed, true, statistic_type[i]*2 );
 			if(  filterButtons[i].pressed  ) {
 				chart.show_curve(i);
 			}
