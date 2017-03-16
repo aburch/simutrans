@@ -2481,7 +2481,8 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 		const koord3d pos_next2 = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
 		// If this vehicle is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
-		if(  cnv->is_overtaking()  &&  str->get_overtaking_info() == 3  ) {
+		// When condition changes, overtaking should be quitted once.
+		if(  (cnv->is_overtaking()  &&  str->get_overtaking_info()==3)  ||  (cnv->is_overtaking()  &&  str->get_overtaking_info()>0  &&  str->get_overtaking_info()<4  &&  welt->lookup(get_pos())->get_weg(road_wt)->get_overtaking_info()==0)  ) {
 			// TODO:other_lane_blocked() method is inappropriate for the condition.
 			if(  vehicle_base_t* v = other_lane_blocked()  ) {
 				if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next2), v->get_90direction(), true, true)) {
