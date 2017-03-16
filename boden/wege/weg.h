@@ -32,6 +32,7 @@ enum way_statistics {
 	WAY_STAT_CONVOIS = 1  ///< number of convois that passed this way
 };
 
+// These should be used to handle overtaking_info?
 enum overtaking_info {
 	ONE_WAY           = 0,
 	TWO_WAY           = 1,
