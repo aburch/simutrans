@@ -156,7 +156,7 @@ const goods_desc_t *goods_manager_t::get_info(const char* name)
 	}
 	if(  ware == NULL  ) {
 		// to avoid crashed with NULL pointer in skripts return good NONE
-		dbg->error( "goods_manager_t::get_info()", "No desc for %s", name );
+		dbg->warning( "goods_manager_t::get_info()", "No desc for %s", name );
 		ware = goods_manager_t::none;
 	}
 	return ware;

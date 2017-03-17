@@ -1206,7 +1206,6 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		if(  file->is_loading()  ) {
 
 			ware.set_typ( goods_manager_t::get_info(ware_name) );
-			guarded_free(const_cast<char *>(ware_name));
 
 			// Maximum in-transit is always 0 on load.
 			if(  welt->get_settings().get_just_in_time() < 2  ) {
@@ -1214,7 +1213,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			}
 
 			if(  !desc  ||  !desc->get_supplier(i)  ) {
-				dbg->warning( "fabrik_t::rdwr()", "Factory at %s requested producer for %s but has none!", pos_origin.get_fullstr(), ware.get_typ()->get_name() );
+				if (desc) dbg->warning( "fabrik_t::rdwr()", "Factory at %s requested producer for %s but has none!", pos_origin.get_fullstr(), ware_name);
 				ware.menge = 0;
 			}
 			else {
@@ -1236,16 +1235,19 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 				if(  ware.menge > max  ) {
 					ware.menge = max;
 				}
-			}
-		}
 
-		if(  desc  ) {
-			// in case of missing producer, we have to remove the superflous entires
-			while(  eingang_count > 0  &&   desc->get_supplier(eingang_count-1)==NULL  ) {
-				eingang_count --;
+				if (ware.get_typ() != desc->get_supplier(i)->get_input_type()) {
+					dbg->warning("fabrik_t::rdwr", "Factory at %s: producer[%d] mismatch in savegame=%s/%s, in pak=%s",
+							 pos_origin.get_fullstr(), i, ware_name, ware.get_typ()->get_name(), desc->get_supplier(i)->get_input_type()->get_name());
+				}
 			}
-			eingang.resize( eingang_count );
+			guarded_free(const_cast<char *>(ware_name));
 		}
+	}
+	if(  desc  &&  eingang_count != desc->get_supplier_count() ) {
+		dbg->warning("fabrik_t::rdwr", "Mismatch of input slot count for factory %s at %s: savegame = %d, pak = %d", get_name(), pos_origin.get_fullstr(), eingang_count, desc->get_supplier_count());
+		// resize input to match the descriptor
+		eingang.resize( desc->get_supplier_count() );
 	}
 
 	// now rebuilt information for produced goods
@@ -1278,22 +1280,38 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		ware.rdwr( file );
 		if(  file->is_loading()  ) {
 			ware.set_typ( goods_manager_t::get_info(ware_name) );
-			guarded_free(const_cast<char *>(ware_name));
 
-			// Outputs used to be with respect to actual units of production. They now are normalized with respect to factory production so require conversion.
-			if(  file->get_version() <= 120000  ){
-				const uint32 prod_factor = desc ? desc->get_product(i)->get_factor() : 1;
-				ware.menge = (sint32)(((sint64)menge << DEFAULT_PRODUCTION_FACTOR_BITS) / (sint64)prod_factor);
-			}
-			else {
-				ware.menge = menge;
-			}
-
-			// Hajo: repair files that have 'insane' values
-			if(  ware.menge < 0  ) {
+			if(  !desc  ||  !desc->get_product(i)  ) {
+				if (desc) dbg->warning( "fabrik_t::rdwr()", "Factory at %s requested consumer for %s but has none!", pos_origin.get_fullstr(), ware_name );
 				ware.menge = 0;
 			}
+			else {
+				// Outputs used to be with respect to actual units of production. They now are normalized with respect to factory production so require conversion.
+				if(  file->get_version() <= 120000  ){
+					const uint32 prod_factor = desc ? desc->get_product(i)->get_factor() : 1;
+					ware.menge = (sint32)(((sint64)menge << DEFAULT_PRODUCTION_FACTOR_BITS) / (sint64)prod_factor);
+				}
+				else {
+					ware.menge = menge;
+				}
+
+				// Hajo: repair files that have 'insane' values
+				if(  ware.menge < 0  ) {
+					ware.menge = 0;
+				}
+
+				if (ware.get_typ() != desc->get_product(i)->get_output_type()) {
+					dbg->warning("fabrik_t::rdwr", "Factory at %s: consumer[%d] mismatch in savegame=%s/%s, in pak=%s",
+							 pos_origin.get_fullstr(), i, ware_name, ware.get_typ()->get_name(), desc->get_product(i)->get_output_type()->get_name());
+				}
+			}
+			guarded_free(const_cast<char *>(ware_name));
 		}
+	}
+	if(  desc  &&  ausgang_count != desc->get_product_count()) {
+		dbg->warning("fabrik_t::rdwr", "Mismatch of output slot count for factory %s at %s: savegame = %d, pak = %d", get_name(), pos_origin.get_fullstr(), ausgang_count, desc->get_product_count());
+		// resize output to match the descriptor
+		ausgang.resize( desc->get_product_count() );
 	}
 
 	// restore other information
