@@ -232,7 +232,7 @@ slope_t::type slope_type(koord dir);
 
 /**
  * Calculate slope from directions.
- * WTF This routine translated ribi_t::north to slope_t::north.
+ * Go upward on the slope: going north translates to slope_t::south.
  */
 slope_t::type slope_type(ribi_t::ribi);
 

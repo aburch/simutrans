@@ -1098,6 +1098,9 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				// has the wrong tilt
 				return NOTICE_TILE_FULL;
 			}
+			// reverse ribis: up to here was direction leaving the tile,
+			// now it will be the direction on the tile when moving onto the slope
+			ribis = ribi_t::reverse_single(ribis);
 			/* new things getting tricky:
 			 * A single way on an all up or down slope will result in
 			 * a slope with the way as hinge.
