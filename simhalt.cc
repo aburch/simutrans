@@ -1167,17 +1167,18 @@ void haltestelle_t::check_transferring_cargoes()
 			const uint32 ready_seconds = world()->ticks_to_seconds((tc.ready_time - current_time));
 			const uint32 ready_minutes = ready_seconds / 60;
 			const uint32 ready_hours = ready_minutes / 60;
+			bool removed; // This check is necessary because, for some odd reason, the iterator sometimes repeats a tc object.
 			if (tc.ready_time <= current_time)
 			{
 				ware = tc.ware;
-				transferring_cargoes[i].remove(tc);
-				if (ware.get_ziel() == self)
+				removed = transferring_cargoes[i].remove(tc);
+				if (removed && ware.get_ziel() == self)
 				{
 					// This is the final destination: register the cargoes
 					// at their ultimate end point.
 					world()->deposit_ware_at_destination(ware);
 				}
-				else
+				else if (removed)
 				{
 					// This is just a transfer - add this to the stop's
 					// internal storage for onward travel.
