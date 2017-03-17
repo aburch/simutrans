@@ -225,14 +225,19 @@ public:
 };
 
 /**
- * Calculate directions from slopes.
- * Go upward on the slope: slope_t::north translates to ribi_t::south.
+ * Calculate slope from directions.
+ * Go upward on the slope: going north translates to slope_t::south.
  */
 slope_t::type slope_type(koord dir);
+
+/**
+ * Calculate slope from directions.
+ * WTF This routine translated ribi_t::north to slope_t::north.
+ */
 slope_t::type slope_type(ribi_t::ribi);
 
 /**
- * Check if the slope is upwards, relative to the previous tile.
+ * Check if the slope is upwards, relative to the direction @p from.
  * @returns 1 for single upwards and 2 for double upwards
  */
 sint16 get_sloping_upwards(const slope_t::type slope, const ribi_t::ribi from);

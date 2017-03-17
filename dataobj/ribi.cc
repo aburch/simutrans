@@ -356,7 +356,7 @@ bool ribi_t::is_perpendicular(ribi x, ribi y)
 sint16 get_sloping_upwards(const slope_t::type slope, const ribi_t::ribi from)
 {
 	// slope upwards relative to direction 'from'
-	const slope_t::type from_slope = slope_type(from);
+	const slope_t::type from_slope = slope_type(ribi_t::reverse_single(from));
 
 	if (from_slope == slope) {
 		return 1;
