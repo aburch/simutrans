@@ -1967,9 +1967,9 @@ void karte_t::init_threads()
 
 	const sint32 parallel_operations = max(get_parallel_operations(), env_t::num_threads - 1); 
 
-	private_cars_added_threaded = new vector_tpl<private_car_t*>[parallel_operations];
-	pedestrians_added_threaded = new vector_tpl<pedestrian_t*>[parallel_operations];
-	transferring_cargoes = new vector_tpl<transferring_cargo_t>[parallel_operations];
+	private_cars_added_threaded = new vector_tpl<private_car_t*>[parallel_operations + 1];
+	pedestrians_added_threaded = new vector_tpl<pedestrian_t*>[parallel_operations + 1];
+	transferring_cargoes = new vector_tpl<transferring_cargo_t>[parallel_operations + 1];
 	marker_t::markers = new marker_t[parallel_operations * 2]; 
 
 	pthread_attr_init(&thread_attributes);
@@ -2012,7 +2012,7 @@ void karte_t::init_threads()
 		
 #ifdef MULTI_THREAD_PASSENGER_GENERATION
 		sint32* thread_number_pass = new sint32;
-		*thread_number_pass = i;
+		*thread_number_pass = i + 1; // +1 because we need thread number 0 to represent the main thread.
 		rc = pthread_create(&thread, &thread_attributes, &step_passengers_and_mail_threaded, (void*)thread_number_pass);
 		if (rc)
 		{
@@ -2026,7 +2026,7 @@ void karte_t::init_threads()
 
 #ifdef MULTI_THREAD_CONVOYS
 		uint32* thread_number_cnv = new uint32;
-		*thread_number_cnv = i;
+		*thread_number_cnv = i; 
 		rc = pthread_create(&thread, &thread_attributes, &step_individual_convoy_threaded, (void*)thread_number_cnv);
 		if (rc)
 		{
