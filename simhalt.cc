@@ -408,7 +408,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>*[max_categories];
 
 #ifdef MULTI_THREAD
-	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations()];
+	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations() + 1];
 #else
 	transferring_cargoes = new vector_tpl<transferring_cargo_t>[1];
 #endif
@@ -502,7 +502,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 	}
 
 #ifdef MULTI_THREAD
-	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations()];
+	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations() + 1];
 #else
 	transferring_cargoes = new vector_tpl<transferring_cargo_t>[1];
 #endif
