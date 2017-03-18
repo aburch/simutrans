@@ -3125,6 +3125,7 @@ void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 	const grund_t* gr = welt->lookup_kartenboden(k);
 	if(gr)
 	{
+		assert(!gr->ist_wasser() || gr->get_halt().is_bound() || gr->get_depot());
 		const gebaeude_t* gb = gr->find<gebaeude_t>();
 		if(gb)
 		{
