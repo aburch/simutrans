@@ -32,7 +32,15 @@ void message_t::node::rdwr(loadsave_t *file)
 	file->rdwr_str( msg, lengthof(msg) );
 	file->rdwr_long( type );
 	pos.rdwr( file );
-	file->rdwr_long( color );
+	if (file->get_version() < 120005) {
+		// color was 16bit, with 0x8000 indicating player colors
+		uint16 c = color & PLAYER_FLAG ? 0x8000 + (color&(~PLAYER_FLAG)) : MN_GREY0;
+		file->rdwr_short(c);
+		color = c & 0x8000 ? PLAYER_FLAG + (c&(~0x8000)) : color_idx_to_rgb(c);
+	}
+	else {
+		file->rdwr_long( color );
+	}
 	file->rdwr_long( time );
 	if(  file->is_loading()  ) {
 		image = IMG_EMPTY;
@@ -139,7 +147,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 		}
 	}
 
-	// filter out AI messages for a similar area to recent activity messages 
+	// filter out AI messages for a similar area to recent activity messages
 	if(  what == ai  &&  pos != koord::invalid  ) {
 		uint32 i = 0;
 		FOR(slist_tpl<node*>, const iter, list) {
