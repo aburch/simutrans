@@ -176,8 +176,9 @@ void pedestrian_t::generate_pedestrians_at(const koord3d k, uint32 count, uint32
 			return;
 		}
 
+		count = min(count, 128);
 		
-		for (int i = 0; i < count; i++)
+		for (uint32 i = 0; i < count; i++)
 		{
 			pedestrian_t* ped = new pedestrian_t(gr, time_to_live);
 			ped->calc_height(gr);
