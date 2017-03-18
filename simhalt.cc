@@ -2426,7 +2426,11 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const goods_desc_t *
 						// also has that, do not wait for a "faster" convoy, as it may never come.
 
 						const schedule_entry_t schedule_entry = cnv->get_schedule()->get_current_eintrag();
-						if(schedule_entry.minimum_loading > 0 && !schedule_entry.wait_for_time && schedule_entry.waiting_time_shift == 0)
+						if (!fast_convoy.is_bound())
+						{
+							wait_for_faster_convoy = false;
+						}
+						else if(schedule_entry.minimum_loading > 0 && !schedule_entry.wait_for_time && schedule_entry.waiting_time_shift == 0)
 						{
 							// This convoy has an untimed wait for load order.
 							if(fast_convoy->get_line() == cnv->get_line())
