@@ -1591,6 +1591,9 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	settings.update_max_alternative_destinations_commuting(commuter_targets.get_sum_weight());
 	settings.update_max_alternative_destinations_visiting(visitor_targets.get_sum_weight());
+
+	pedestrian_t::check_timeline_pedestrians();
+
 #ifdef MULTI_THREAD
 	init_threads();
 	first_step = 1;
