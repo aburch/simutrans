@@ -1179,6 +1179,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	if(  file->is_loading()  ) {
 		eingang.resize( eingang_count );
 	}
+	bool mismatch = false;
 	for(  i=0;  i<eingang_count;  i++  ) {
 		ware_production_t &ware = eingang[i];
 		const char *ware_name = NULL;
@@ -1237,6 +1238,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 				}
 
 				if (ware.get_typ() != desc->get_supplier(i)->get_input_type()) {
+					mismatch = true;
 					dbg->warning("fabrik_t::rdwr", "Factory at %s: producer[%d] mismatch in savegame=%s/%s, in pak=%s",
 							 pos_origin.get_fullstr(), i, ware_name, ware.get_typ()->get_name(), desc->get_supplier(i)->get_input_type()->get_name());
 				}
@@ -1249,12 +1251,31 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		// resize input to match the descriptor
 		eingang.resize( desc->get_supplier_count() );
 	}
+	if (mismatch) {
+		array_tpl<ware_production_t> dummy;
+		dummy.resize(desc->get_supplier_count());
+		for(uint16 i=0; i<desc->get_supplier_count(); i++) {
+			dummy[i] = eingang[i];
+		}
+		for(uint16 i=0; i<desc->get_supplier_count(); i++) {
+			// search for matching type
+			const goods_desc_t* goods = desc->get_supplier(i)->get_input_type();
+			for(uint16 j=0; j<desc->get_supplier_count(); j++) {
+				if (dummy[j].get_typ() == goods) {
+					eingang[i] = dummy[j];
+					dummy[j].set_typ(NULL);
+					break;
+				}
+			}
+		}
+	}
 
 	// now rebuilt information for produced goods
 	file->rdwr_long(ausgang_count);
 	if(  file->is_loading()  ) {
 		ausgang.resize( ausgang_count );
 	}
+	mismatch = false;
 	for(  i=0;  i<ausgang_count;  ++i  ) {
 		ware_production_t &ware = ausgang[i];
 		const char *ware_name = NULL;
@@ -1301,6 +1322,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 				}
 
 				if (ware.get_typ() != desc->get_product(i)->get_output_type()) {
+					mismatch = true;
 					dbg->warning("fabrik_t::rdwr", "Factory at %s: consumer[%d] mismatch in savegame=%s/%s, in pak=%s",
 							 pos_origin.get_fullstr(), i, ware_name, ware.get_typ()->get_name(), desc->get_product(i)->get_output_type()->get_name());
 				}
@@ -1312,6 +1334,24 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		dbg->warning("fabrik_t::rdwr", "Mismatch of output slot count for factory %s at %s: savegame = %d, pak = %d", get_name(), pos_origin.get_fullstr(), ausgang_count, desc->get_product_count());
 		// resize output to match the descriptor
 		ausgang.resize( desc->get_product_count() );
+	}
+	if (mismatch) {
+		array_tpl<ware_production_t> dummy;
+		dummy.resize(desc->get_product_count());
+		for(uint16 i=0; i<desc->get_product_count(); i++) {
+			dummy[i] = ausgang[i];
+		}
+		for(uint16 i=0; i<desc->get_product_count(); i++) {
+			// search for matching type
+			const goods_desc_t* goods = desc->get_product(i)->get_output_type();
+			for(uint16 j=0; j<desc->get_product_count(); j++) {
+				if (dummy[j].get_typ() == goods) {
+					ausgang[i] = dummy[j];
+					dummy[j].set_typ(NULL);
+					break;
+				}
+			}
+		}
 	}
 
 	// restore other information
