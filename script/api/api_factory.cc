@@ -30,13 +30,13 @@ SQInteger exp_factory_constructor(HSQUIRRELVM vm)
 	for (int io=0; io<2; io++) {
 		sq_pushstring(vm, io==0 ? "input" : "output", -1);
 		sq_newtable(vm);
-		const array_tpl<ware_production_t> &prodslot = io==0 ? fab->get_eingang() :fab->get_ausgang();
+		const array_tpl<ware_production_t> &prodslot = io==0 ? fab->get_input() :fab->get_output();
 		for(uint32 p=0; p < prodslot.get_count(); p++) {
 			// create slots 'good name' <- {x,y,name}   //'factory_production'
 			sq_pushstring(vm, prodslot[p].get_typ()->get_name(), -1);
 			// create instance of factory_production_x
 			if(!SQ_SUCCEEDED(push_instance(vm, "factory_production_x",
-				x, y, prodslot[p].get_typ()->get_name(), p + (io > 0  ?  fab->get_eingang().get_count() : 0))))
+				x, y, prodslot[p].get_typ()->get_name(), p + (io > 0  ?  fab->get_input().get_count() : 0))))
 			{
 				// create empty table
 				sq_newtable(vm);

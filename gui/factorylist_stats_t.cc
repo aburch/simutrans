@@ -56,32 +56,32 @@ class compare_factories
 
 				case factorylist::by_input:
 				{
-					int a_in = a->get_eingang().empty() ? -1 : (int)a->get_total_in();
-					int b_in = b->get_eingang().empty() ? -1 : (int)b->get_total_in();
+					int a_in = a->get_input().empty() ? -1 : (int)a->get_total_in();
+					int b_in = b->get_input().empty() ? -1 : (int)b->get_total_in();
 					cmp = a_in - b_in;
 					break;
 				}
 
 				case factorylist::by_transit:
 				{
-					int a_transit = a->get_eingang().empty() ? -1 : (int)a->get_total_transit();
-					int b_transit = b->get_eingang().empty() ? -1 : (int)b->get_total_transit();
+					int a_transit = a->get_input().empty() ? -1 : (int)a->get_total_transit();
+					int b_transit = b->get_input().empty() ? -1 : (int)b->get_total_transit();
 					cmp = a_transit - b_transit;
 					break;
 				}
 
 				case factorylist::by_available:
 				{
-					int a_in = a->get_eingang().empty() ? -1 : (int)(a->get_total_in()+a->get_total_transit());
-					int b_in = b->get_eingang().empty() ? -1 : (int)(b->get_total_in()+b->get_total_transit());
+					int a_in = a->get_input().empty() ? -1 : (int)(a->get_total_in()+a->get_total_transit());
+					int b_in = b->get_input().empty() ? -1 : (int)(b->get_total_in()+b->get_total_transit());
 					cmp = a_in - b_in;
 					break;
 				}
 
 				case factorylist::by_output:
 				{
-					int a_out = a->get_ausgang().empty() ? -1 : (int)a->get_total_out();
-					int b_out = b->get_ausgang().empty() ? -1 : (int)b->get_total_out();
+					int a_out = a->get_output().empty() ? -1 : (int)a->get_total_out();
+					int b_out = b->get_output().empty() ? -1 : (int)b->get_total_out();
 					cmp = a_out - b_out;
 					break;
 				}
@@ -205,7 +205,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 			buf.append(fab->get_name());
 			buf.append(" (");
 
-			if (!fab->get_eingang().empty()) {
+			if (!fab->get_input().empty()) {
 				buf.printf( "%i+%i", fab->get_total_in(), fab->get_total_transit() );
 			}
 			else {
@@ -213,7 +213,7 @@ void factorylist_stats_t::draw(scr_coord offset)
 			}
 			buf.append(", ");
 
-			if (!fab->get_ausgang().empty()) {
+			if (!fab->get_output().empty()) {
 				buf.append(fab->get_total_out(),0);
 			}
 			else {

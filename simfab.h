@@ -320,8 +320,8 @@ private:
 	sint32 prodfactor_pax;
 	sint32 prodfactor_mail;
 
-	array_tpl<ware_production_t> eingang; ///< array for input/consumed goods
-	array_tpl<ware_production_t> ausgang; ///< array for output/produced goods
+	array_tpl<ware_production_t> input;  ///< array for input/consumed goods
+	array_tpl<ware_production_t> output; ///< array for output/produced goods
 
 	/**
 	 * Some handy cached numbers for active inputs and outputs.
@@ -677,8 +677,8 @@ public:
 	 * total and current procduction/storage values
 	 * @author Hj. Malthaner
 	 */
-	const array_tpl<ware_production_t>& get_eingang() const { return eingang; }
-	const array_tpl<ware_production_t>& get_ausgang() const { return ausgang; }
+	const array_tpl<ware_production_t>& get_input() const { return input; }
+	const array_tpl<ware_production_t>& get_output() const { return output; }
 
 	/**
 	 * Production multipliers
@@ -723,7 +723,7 @@ public:
 	uint32 get_scaled_pax_demand() const { return scaled_pax_demand; }
 	uint32 get_scaled_mail_demand() const { return scaled_mail_demand; }
 
-	bool is_end_consumer() const { return (ausgang.empty() && !desc->is_electricity_producer()); }
+	bool is_end_consumer() const { return (output.empty() && !desc->is_electricity_producer()); }
 
 	// Returns a list of goods produced by this factory.
 	slist_tpl<const goods_desc_t*> *get_produced_goods() const;

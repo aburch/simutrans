@@ -375,13 +375,13 @@ namespace script_api {
 		SQInteger i = -1;
 		if (SQ_SUCCEEDED(get_slot(vm, "index", i, index))) {
 			if (i>=0) {
-				if ( (uint32)i<fab->get_eingang().get_count()) {
-					return &fab->get_eingang()[i];
+				if ( (uint32)i<fab->get_input().get_count()) {
+					return &fab->get_input()[i];
 				}
 				else {
-					i -= fab->get_eingang().get_count();
-					if ( (uint32)i<fab->get_ausgang().get_count()) {
-						return &fab->get_ausgang()[i];
+					i -= fab->get_input().get_count();
+					if ( (uint32)i<fab->get_output().get_count()) {
+						return &fab->get_output()[i];
 					}
 				}
 			}
@@ -399,8 +399,8 @@ namespace script_api {
 		// obtain index into wareproduction_t arrays
 		SQInteger i = -1;
 		if (SQ_SUCCEEDED(get_slot(vm, "index", i, index))) {
-			if (i>=0  &&  (uint32)i<fab->get_eingang().get_count()) {
-				const ware_production_t& in = fab->get_eingang()[i];
+			if (i>=0  &&  (uint32)i<fab->get_input().get_count()) {
+				const ware_production_t& in = fab->get_input()[i];
 				const factory_supplier_desc_t* desc = fab->get_desc()->get_supplier(i);
 				// sanity check
 				if (desc  &&  desc->get_input_type() == in.get_typ()) {
@@ -421,9 +421,9 @@ namespace script_api {
 		// obtain index into wareproduction_t arrays
 		SQInteger i = -1;
 		if (SQ_SUCCEEDED(get_slot(vm, "index", i, index))) {
-			i -= fab->get_eingang().get_count();
-			if (i>=0  &&  (uint32)i<fab->get_ausgang().get_count()) {
-				const ware_production_t& out = fab->get_ausgang()[i];
+			i -= fab->get_input().get_count();
+			if (i>=0  &&  (uint32)i<fab->get_output().get_count()) {
+				const ware_production_t& out = fab->get_output()[i];
 				const factory_product_desc_t* desc = fab->get_desc()->get_product(i);
 				// sanity check
 				if (desc  &&  desc->get_output_type() == out.get_typ()) {

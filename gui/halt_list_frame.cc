@@ -181,7 +181,7 @@ static bool passes_filter_out(haltestelle_t const& s)
 			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
 			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
 			FOR(slist_tpl<fabrik_t*>, const f, s.get_fab_list()) {
-				FOR(array_tpl<ware_production_t>, const& j, f->get_ausgang()) {
+				FOR(array_tpl<ware_production_t>, const& j, f->get_output()) {
 					if (j.get_typ() == ware) return true;
 				}
 			}
@@ -218,7 +218,7 @@ static bool passes_filter_in(haltestelle_t const& s)
 			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
 			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
 			FOR(slist_tpl<fabrik_t*>, const f, s.get_fab_list()) {
-				FOR(array_tpl<ware_production_t>, const& j, f->get_eingang()) {
+				FOR(array_tpl<ware_production_t>, const& j, f->get_input()) {
 					if (j.get_typ() == ware) return true;
 				}
 			}

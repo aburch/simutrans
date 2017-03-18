@@ -156,8 +156,8 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	goods_chart.set_size( scr_size( D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT, CHART_HEIGHT ) );
 	goods_chart.set_dimension(12, 10000);
 	goods_chart.set_background(SYSCOL_CHART_BACKGROUND);
-	const uint32 input_count = factory->get_eingang().get_count();
-	const uint32 output_count = factory->get_ausgang().get_count();
+	const uint32 input_count = factory->get_input().get_count();
+	const uint32 output_count = factory->get_output().get_count();
 	if(  input_count>0  ||  output_count>0  ) {
 		goods_buttons = new button_t[ (input_count + output_count) * MAX_FAB_GOODS_STAT ];
 		goods_labels = new gui_label_t[ (input_count>0 ? input_count + 1 : 0) + (output_count>0 ? output_count + 1 : 0) ];
@@ -170,7 +170,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 		goods_cont.add_component( goods_labels + goods_label_count );
 		goods_label_count ++;
 		goods_label_row ++;
-		const array_tpl<ware_production_t> &input = factory->get_eingang();
+		const array_tpl<ware_production_t> &input = factory->get_input();
 		for(  uint32 g=0;  g<input_count;  ++g  ) {
 			goods_labels[goods_label_count].set_text( input[g].get_typ()->get_name() );
 			goods_labels[goods_label_count].set_pos( scr_coord( D_MARGIN_LEFT+(D_H_SPACE<<1), offset_below_chart + label_offset + (D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_row ) );
@@ -196,7 +196,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 		goods_cont.add_component( goods_labels + goods_label_count );
 		goods_label_count ++;
 		goods_label_row ++;
-		const array_tpl<ware_production_t> &output = factory->get_ausgang();
+		const array_tpl<ware_production_t> &output = factory->get_output();
 		for(  uint32 g=0;  g<output_count;  ++g  ) {
 			goods_labels[goods_label_count].set_text( output[g].get_typ()->get_name() );
 			goods_labels[goods_label_count].set_pos( scr_coord( D_MARGIN_LEFT+(D_H_SPACE<<1), offset_below_chart + label_offset + (D_H_SPACE+D_BUTTON_HEIGHT)*goods_label_row ) );
