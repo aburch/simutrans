@@ -2955,7 +2955,7 @@ void settings_t::cache_comfort_tables() {
 
 /**
  * Reload the linear interpolation tables for speedbonus from the settings.
- * These tables are stored directly in ware_desc_t objects.
+ * These tables are stored directly in goods_desc_t objects.
  * Therefore, during loading you must call this *after* warenbauer_t is done registering wares.
  * @author neroden
  */

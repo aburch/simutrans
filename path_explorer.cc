@@ -707,7 +707,7 @@ void path_explorer_t::compartment_t::step()
 
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
-			const ware_desc_t *const ware_type = warenbauer_t::get_info_catg_index(catg);
+			const goods_desc_t *const ware_type = warenbauer_t::get_info_catg_index(catg);
 
 			linkage_t current_linkage;
 			schedule_t *current_schedule;
@@ -1773,7 +1773,7 @@ bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_
 void path_explorer_t::compartment_t::set_category(uint8 category)
 { 
 	catg = category;
-	const ware_desc_t *ware_type = warenbauer_t::get_info_catg_index(catg);
+	const goods_desc_t *ware_type = warenbauer_t::get_info_catg_index(catg);
 	catg_name = ware_type->get_catg() == 0 ? ware_type->get_name() : ware_type->get_catg_name();
 }
 

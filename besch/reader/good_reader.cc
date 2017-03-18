@@ -10,7 +10,7 @@
 
 void good_reader_t::register_obj(obj_desc_t *&data)
 {
-	ware_desc_t *desc = static_cast<ware_desc_t *>(data);
+	goods_desc_t *desc = static_cast<goods_desc_t *>(data);
 
 	warenbauer_t::register_desc(desc);
 	DBG_DEBUG("good_reader_t::register_obj()","loaded good '%s'", desc->get_name());
@@ -33,7 +33,7 @@ obj_desc_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, desc_buf, node.size);
 
-	ware_desc_t *desc = new ware_desc_t();
+	goods_desc_t *desc = new goods_desc_t();
 
 	// some defaults
 	desc->speed_bonus = 0;

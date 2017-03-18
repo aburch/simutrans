@@ -251,7 +251,7 @@ bool factory_builder_t::successfully_loaded()
 }
 
 
-int factory_builder_t::count_producers(const ware_desc_t *ware, uint16 timeline)
+int factory_builder_t::count_producers(const goods_desc_t *ware, uint16 timeline)
 {
 	int anzahl=0;
 
@@ -274,7 +274,7 @@ DBG_MESSAGE("factory_builder_t::count_producers()","%i producer for good '%s' fo
  * Finds a random producer producing @p ware.
  * @param timeline the current time(months)
  */
-void factory_builder_t::find_producer(weighted_vector_tpl<const factory_desc_t *> &producer, const ware_desc_t *ware, uint16 timeline )
+void factory_builder_t::find_producer(weighted_vector_tpl<const factory_desc_t *> &producer, const goods_desc_t *ware, uint16 timeline )
 {
 	// find all producers
 	producer.clear();
@@ -537,7 +537,7 @@ bool factory_builder_t::can_factory_tree_rotate( const factory_desc_t *desc )
 	// now check all suppliers if they can rotate
 	for(  int i=0;  i<desc->get_supplier_count();  i++   ) {
 
-		const ware_desc_t *ware = desc->get_supplier(i)->get_ware();
+		const goods_desc_t *ware = desc->get_supplier(i)->get_ware();
 
 		// unfortunately, for every for iteration we have to check all factories ...
 		FOR(stringhashtable_tpl<factory_desc_t const*>, const& t, desc_table) {
@@ -701,7 +701,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 	 * We must take care to add capacity for cross-connected factories!
 	 */
 	const factory_supplier_desc_t *supplier = info->get_supplier(supplier_nr);
-	const ware_desc_t *ware = supplier->get_ware();
+	const goods_desc_t *ware = supplier->get_ware();
 	const int anzahl_producer_d=count_producers( ware, welt->get_timeline_year_month() );
 
 	if(anzahl_producer_d==0) {
@@ -933,7 +933,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 	{
 		// A collection of all consumer industries that are not fully linked to suppliers.
 		slist_tpl<fabrik_t*> unlinked_consumers;
-		slist_tpl<const ware_desc_t*> missing_goods;
+		slist_tpl<const goods_desc_t*> missing_goods;
 
 		FOR(vector_tpl<fabrik_t*>, fab, welt->get_fab_list())
 		{
@@ -941,7 +941,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 			{
 				// Check the list of possible suppliers for this factory type.
 				const factory_supplier_desc_t* supplier_type = fab->get_desc()->get_supplier(l);
-				const ware_desc_t* w = supplier_type->get_ware();
+				const goods_desc_t* w = supplier_type->get_ware();
 				missing_goods.append_unique(w);
 				const vector_tpl<koord> suppliers = fab->get_suppliers();
 				
@@ -960,7 +960,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 					for(uint p = 0; p < supplier->get_desc()->get_product_count(); p ++)
 					{
 						const factory_product_desc_t* consumer_type = supplier->get_desc()->get_product(p);
-						const ware_desc_t* wp = consumer_type->get_ware();
+						const goods_desc_t* wp = consumer_type->get_ware();
 						
 						if(wp == w)
 						{
@@ -973,7 +973,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 								const fabrik_t* competing_consumer = fabrik_t::get_fab(competing_consumers.get_element(n));
 								for(int x = 0; x < competing_consumer->get_desc()->get_supplier_count(); x ++)
 								{
-									const ware_desc_t* wcc = consumer_type->get_ware();
+									const goods_desc_t* wcc = consumer_type->get_ware();
 									if(wcc == wp)
 									{
 										used_output += competing_consumer->get_base_production() * competing_consumer->get_desc()->get_supplier(x)->get_consumption();
@@ -1012,7 +1012,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 			{
 				for(int i=0;  i < unlinked_consumer->get_desc()->get_supplier_count();  i++) 
 				{
-					ware_desc_t const* const w = unlinked_consumer->get_desc()->get_supplier(i)->get_ware();
+					goods_desc_t const* const w = unlinked_consumer->get_desc()->get_supplier(i)->get_ware();
 					for(uint32 j = 0; j < unlinked_consumer->get_suppliers().get_count(); j++) 
 					{
 						fabrik_t *sup = fabrik_t::get_fab(unlinked_consumer->get_suppliers()[j]);

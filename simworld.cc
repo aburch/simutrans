@@ -5715,7 +5715,7 @@ sint32 karte_t::get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const pla
 	return size.x * size.y;
 }
 
-void karte_t::get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &tile_list, const ware_desc_t * wtyp, vector_tpl<nearby_halt_t> &halts) const
+void karte_t::get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &tile_list, const goods_desc_t * wtyp, vector_tpl<nearby_halt_t> &halts) const
 {
 	// Suitable start search (public transport)
 	FOR(vector_tpl<const planquadrat_t*>, const& current_tile, tile_list)
@@ -5876,7 +5876,7 @@ void karte_t::deposit_ware_at_destination(ware_t ware)
 	}
 }
 
-uint32 karte_t::generate_passengers_or_mail(const ware_desc_t * wtyp)
+uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 {
 	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
 	const uint32 units_this_step = simrand((uint32)settings.get_passenger_routing_packet_size(), "void karte_t::generate_passengers_and_mail(uint32 delta_t) passenger/mail packet size") + 1;
@@ -10402,7 +10402,7 @@ void karte_t::calc_max_road_check_depth()
 	max_road_check_depth = ((uint32)settings.get_range_visiting_tolerance() * 100) / (settings.get_meters_per_tile() * 6) * min(citycar_speed_average, max_road_speed);
 }
 
-static bool sort_ware_by_name(const ware_desc_t* a, const ware_desc_t* b)
+static bool sort_ware_by_name(const goods_desc_t* a, const goods_desc_t* b)
 {
 	int diff = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));
 	return diff < 0;
@@ -10410,7 +10410,7 @@ static bool sort_ware_by_name(const ware_desc_t* a, const ware_desc_t* b)
 
 
 // Returns a list of goods produced by factories that exist in current game
-const vector_tpl<const ware_desc_t*> &karte_t::get_goods_list()
+const vector_tpl<const goods_desc_t*> &karte_t::get_goods_list()
 {
 	if (goods_in_game.empty()) {
 		// Goods list needs to be rebuilt
@@ -10419,8 +10419,8 @@ const vector_tpl<const ware_desc_t*> &karte_t::get_goods_list()
 		gui_convoy_assembler_t::selected_filter = VEHICLE_FILTER_RELEVANT;
 
 		FOR(vector_tpl<fabrik_t*>, const factory, get_fab_list()) {
-			slist_tpl<ware_desc_t const*>* const produced_goods = factory->get_produced_goods();
-			FOR(slist_tpl<ware_desc_t const*>, const good, *produced_goods) {
+			slist_tpl<goods_desc_t const*>* const produced_goods = factory->get_produced_goods();
+			FOR(slist_tpl<goods_desc_t const*>, const good, *produced_goods) {
 				goods_in_game.insert_unique_ordered(good, sort_ware_by_name);
 			}
 			delete produced_goods;

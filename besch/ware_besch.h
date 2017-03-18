@@ -48,7 +48,7 @@ struct fare_stage_t
  *	1   Copyright
  *	2   Text: Name of measurement unit
  */
-class ware_desc_t : public obj_named_desc_t {
+class goods_desc_t : public obj_named_desc_t {
 	friend class good_reader_t;
 	friend class warenbauer_t;
 
@@ -135,7 +135,7 @@ public:
 	*
 	* @author Hj. Malthaner
 	*/
-	bool is_interchangeable(const ware_desc_t *other) const
+	bool is_interchangeable(const goods_desc_t *other) const
 	{
 		return catg_index == other->get_catg_index();
 	}

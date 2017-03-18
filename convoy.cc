@@ -45,7 +45,7 @@ static void get_possible_freight_weight(uint8 catg_index, sint32 &min_weight, si
 	min_weight = WEIGHT_UNLIMITED;
 	for (uint16 j=0; j<warenbauer_t::get_count(); j++) 
 	{
-		const ware_desc_t &ware = *warenbauer_t::get_info(j);
+		const goods_desc_t &ware = *warenbauer_t::get_info(j);
 		if (ware.get_catg_index() == catg_index) 
 		{
 			sint32 weight = ware.get_weight_per_unit();

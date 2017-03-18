@@ -610,7 +610,7 @@ public:
 
 	// check, if we accepts this good
 	// often called, thus inline ...
-	bool is_enabled( const ware_desc_t *wtyp ) const {
+	bool is_enabled( const goods_desc_t *wtyp ) const {
 		return is_enabled(wtyp->get_catg_index());
 	}
 
@@ -687,18 +687,18 @@ public:
 	 * gibt Gesamtmenge derware vom typ typ zurück
 	 * @author Hj. Malthaner
 	 */
-	uint32 get_ware_summe(const ware_desc_t *warentyp) const;
+	uint32 get_ware_summe(const goods_desc_t *warentyp) const;
 
 	/**
 	 * returns total number for a certain position (since more than one factory might connect to a stop)
 	 * @author Hj. Malthaner
 	 */
-	uint32 get_ware_fuer_zielpos(const ware_desc_t *warentyp, const koord zielpos) const;
+	uint32 get_ware_fuer_zielpos(const goods_desc_t *warentyp, const koord zielpos) const;
 
 	/**
 	* True if we accept/deliver this kind of good
 	*/
-	bool gibt_ab(const ware_desc_t *warentyp) const { return waren[warentyp->get_catg_index()] != NULL; }
+	bool gibt_ab(const goods_desc_t *warentyp) const { return waren[warentyp->get_catg_index()] != NULL; }
 
 	/* retrieves a ware packet for any destination in the list
 	 * needed, if the factory in question wants to remove something
@@ -710,7 +710,7 @@ public:
 	 * @param fracht goods will be put into this list, vehicle has to load it
 	 * @author Hj. Malthaner, dwachs
 	 */
-	bool fetch_goods( slist_tpl<ware_t> &fracht, const ware_desc_t *warentyp, uint32 menge, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowd);
+	bool fetch_goods( slist_tpl<ware_t> &fracht, const goods_desc_t *warentyp, uint32 menge, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowd);
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach

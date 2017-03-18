@@ -12,7 +12,7 @@ class obj_desc_transport_related_t;
 class tree_desc_t;
 class building_desc_t;
 class building_tile_desc_t;
-class ware_desc_t;
+class goods_desc_t;
 class way_desc_t;
 
 namespace script_api {
@@ -70,7 +70,7 @@ namespace script_api {
 	declare_param_mask(obj_desc_transport_related_t*, "t|x|y", "obj_desc_transport_x");
 
 	declare_desc_param(tree_desc_t, "tree_desc_x");
-	declare_desc_param(ware_desc_t, "good_desc_x");
+	declare_desc_param(goods_desc_t, "good_desc_x");
 	declare_desc_param(building_desc_t, "building_desc_x");
 	declare_desc_param(way_desc_t, "way_desc_x");
 

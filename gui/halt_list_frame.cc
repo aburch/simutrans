@@ -59,8 +59,8 @@ int halt_list_frame_t::filter_flags = 0;
 
 char halt_list_frame_t::name_filter_value[64] = "";
 
-slist_tpl<const ware_desc_t *> halt_list_frame_t::waren_filter_ab;
-slist_tpl<const ware_desc_t *> halt_list_frame_t::waren_filter_an;
+slist_tpl<const goods_desc_t *> halt_list_frame_t::waren_filter_ab;
+slist_tpl<const goods_desc_t *> halt_list_frame_t::waren_filter_an;
 
 const char *halt_list_frame_t::sort_text[SORT_MODES] = {
 	"hl_btn_sort_name",
@@ -181,7 +181,7 @@ static bool passes_filter_out(haltestelle_t const& s)
 	// Hajo: todo: check if there is a destination for the good (?)
 
 	for (uint32 i = 0; i != warenbauer_t::get_count(); ++i) {
-		ware_desc_t const* const ware = warenbauer_t::get_info(i);
+		goods_desc_t const* const ware = warenbauer_t::get_info(i);
 		if (!halt_list_frame_t::get_ware_filter_ab(ware)) continue;
 
 		if (ware == warenbauer_t::passagiere) {
@@ -216,7 +216,7 @@ static bool passes_filter_in(haltestelle_t const& s)
 	// Hajo: todo: check if there is a destination for the good (?)
 
 	for (uint32 i = 0; i != warenbauer_t::get_count(); ++i) {
-		ware_desc_t const* const ware = warenbauer_t::get_info(i);
+		goods_desc_t const* const ware = warenbauer_t::get_info(i);
 		if (!halt_list_frame_t::get_ware_filter_an(ware)) continue;
 
 		if (ware == warenbauer_t::passagiere) {
@@ -479,7 +479,7 @@ void halt_list_frame_t::draw(scr_coord pos, scr_size size)
 }
 
 
-void halt_list_frame_t::set_ware_filter_ab(const ware_desc_t *ware, int mode)
+void halt_list_frame_t::set_ware_filter_ab(const goods_desc_t *ware, int mode)
 {
 	if(ware != warenbauer_t::nichts) {
 		if(get_ware_filter_ab(ware)) {
@@ -496,7 +496,7 @@ void halt_list_frame_t::set_ware_filter_ab(const ware_desc_t *ware, int mode)
 }
 
 
-void halt_list_frame_t::set_ware_filter_an(const ware_desc_t *ware, int mode)
+void halt_list_frame_t::set_ware_filter_an(const goods_desc_t *ware, int mode)
 {
 	if(ware != warenbauer_t::nichts) {
 		if(get_ware_filter_an(ware)) {

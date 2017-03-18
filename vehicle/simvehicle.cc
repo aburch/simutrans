@@ -2674,7 +2674,7 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) 
 		}
 		// try to find a matching vehicle
 		if(desc==NULL) {
-			const ware_desc_t* w = (!fracht.empty() ? fracht.front().get_desc() : warenbauer_t::passagiere);
+			const goods_desc_t* w = (!fracht.empty() ? fracht.front().get_desc() : warenbauer_t::passagiere);
 			dbg->warning("road_vehicle_t::road_vehicle_t()","try to find a fitting vehicle for %s.",  w->get_name() );
 			desc = vehicle_builder_t::get_best_matching(road_wt, 0, (fracht.empty() ? 0 : 50), is_leading?50:0, speed_to_kmh(speed_limit), w, true, last_desc, is_last );
 			if(desc) {
@@ -3352,7 +3352,7 @@ rail_vehicle_t::rail_vehicle_tloadsave_t *file, bool is_leading, bool is_last) :
 		// try to find a matching vehicle
 		if(desc==NULL) {
 			int power = (is_leading || fracht.empty() || fracht.front() == warenbauer_t::nichts) ? 500 : 0;
-			const ware_desc_t* w = fracht.empty() ? warenbauer_t::nichts : fracht.front().get_desc();
+			const goods_desc_t* w = fracht.empty() ? warenbauer_t::nichts : fracht.front().get_desc();
 			dbg->warning("rail_vehicle_t::rail_vehicle_t()","try to find a fitting vehicle for %s.", power>0 ? "engine": w->get_name() );
 			if(last_desc!=NULL  &&  last_desc->can_follow(last_desc)  &&  last_desc->get_ware()==w  &&  (!is_last  ||  last_desc->get_trailer(0)==NULL)) {
 				// same as previously ...

@@ -42,7 +42,7 @@ SQInteger world_get_halt_by_index(HSQUIRRELVM vm)
 // 0: not connected
 // 1: connected
 // -1: undecided
-sint8 is_halt_connected(halthandle_t a, halthandle_t b, const ware_desc_t *desc)
+sint8 is_halt_connected(halthandle_t a, halthandle_t b, const goods_desc_t *desc)
 {
 	if (desc == 0  ||  !a.is_bound()  || !b.is_bound()) {
 		return 0;
@@ -106,7 +106,7 @@ void export_halt(HSQUIRRELVM vm)
 	 * @param freight_type freight type
 	 * @returns the answer to this question
 	 */
-	register_method<bool (haltestelle_t::*)(const ware_desc_t*) const>(vm, &haltestelle_t::is_enabled, "accepts_good", false);
+	register_method<bool (haltestelle_t::*)(const goods_desc_t*) const>(vm, &haltestelle_t::is_enabled, "accepts_good", false);
 
 	/**
 	 * Get monthly statistics of number of arrived goods.

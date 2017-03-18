@@ -2592,7 +2592,7 @@ DBG_MESSAGE("convoi_t::add_vehicle()","extend array_tpl to %i totals.",max_rail_
 		// Purpose		: Try to update supported goods category of this convoy
 		if (v->get_cargo_max() > 0)
 		{
-			const ware_desc_t *ware_type = v->get_cargo_type();
+			const goods_desc_t *ware_type = v->get_cargo_type();
 			if (ware_type != warenbauer_t::nichts)
 				goods_catg_index.append_unique(ware_type->get_catg_index(), 1);
 		}
@@ -2617,7 +2617,7 @@ DBG_MESSAGE("convoi_t::add_vehicle()","extend array_tpl to %i totals.",max_rail_
 		freight_info_resort = true;
 		// Add good_catg_index:
 		if(v->get_cargo_max() != 0) {
-			const ware_desc_t *ware=v->get_cargo_type();
+			const goods_desc_t *ware=v->get_cargo_type();
 			if(ware!=warenbauer_t::nichts  ) {
 				goods_catg_index.append_unique( ware->get_catg_index() );
 			}
@@ -2676,7 +2676,7 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	// Purpose		: Try to update supported goods category of this convoy
 	if (v->get_cargo_max() > 0)
 	{
-		const ware_desc_t *ware_type = v->get_cargo_type();
+		const goods_desc_t *ware_type = v->get_cargo_type();
 		if (ware_type != warenbauer_t::nichts)
 			goods_catg_index.append_unique(ware_type->get_catg_index(), 1);
 	}
@@ -2816,7 +2816,7 @@ void convoi_t::recalc_catg_index()
 		if(get_vehicle(i)->get_cargo_max() == 0) {
 			continue;
 		}
-		const ware_desc_t *ware=get_vehicle(i)->get_cargo_type();
+		const goods_desc_t *ware=get_vehicle(i)->get_cargo_type();
 		if(ware!=warenbauer_t::nichts  ) {
 			goods_catg_index.append_unique( ware->get_catg_index() );
 		}
@@ -4739,7 +4739,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			const vehicle_t* v = vehicle[i];
 
 			// first add to capacity indicator
-			const ware_desc_t* ware_desc = v->get_desc()->get_ware();
+			const goods_desc_t* ware_desc = v->get_desc()->get_ware();
 			const uint16 menge = v->get_desc()->get_capacity();
 			if(menge>0  &&  ware_desc!=warenbauer_t::nichts) {
 				max_loaded_waren[ware_desc->get_index()] += menge;
@@ -5219,7 +5219,7 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	const sint64 ref_speed = welt->get_average_speed(front()->get_desc()->get_waytype());
 	const sint64 relative_speed_percentage = (100ll * average_speed) / ref_speed - 100ll;
 
-	const ware_desc_t* goods = ware.get_desc();
+	const goods_desc_t* goods = ware.get_desc();
 
 	sint64 fare;
 	if (ware.is_passenger())

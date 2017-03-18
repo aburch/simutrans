@@ -45,7 +45,7 @@ static const char * catg_names[32] = {
  * @return Name of the category of the good
  * @author Hj. Malthaner
  */
-const char * ware_desc_t::get_catg_name() const
+const char * goods_desc_t::get_catg_name() const
 {
 	return catg_names[catg & 31];
 }
@@ -54,7 +54,7 @@ const char * ware_desc_t::get_catg_name() const
 /**
  * Reset the scaled values.
  */
-void ware_desc_t::set_scale(uint16 scale_factor)
+void goods_desc_t::set_scale(uint16 scale_factor)
 {
 	scaled_values.clear();
 	uint16 new_price;
@@ -87,7 +87,7 @@ void ware_desc_t::set_scale(uint16 scale_factor)
  * This is very different from the similarly-named routine in standard
  * @author: jamespetts, neroden
  */
-sint64 ware_desc_t::get_base_fare(uint32 distance_meters, uint32 starting_distance) const
+sint64 goods_desc_t::get_base_fare(uint32 distance_meters, uint32 starting_distance) const
 {
 	sint64 total_fare = 0;
 	uint16 per_meter_fare;
@@ -159,7 +159,7 @@ sint64 ware_desc_t::get_base_fare(uint32 distance_meters, uint32 starting_distan
  * precision than that.  (Consider changing this.)
  * It will stay in the range of a sint16 unless the pak is completely broken.
  */
-sint64 ware_desc_t::get_fare_with_speedbonus(sint16 relative_speed_percentage, uint32 distance_meters, uint32 starting_distance) const
+sint64 goods_desc_t::get_fare_with_speedbonus(sint16 relative_speed_percentage, uint32 distance_meters, uint32 starting_distance) const
 {
 	sint64 base_fare = get_base_fare(distance_meters, starting_distance);
 		// We must be able to multiply by, say, 2^16;
@@ -190,7 +190,7 @@ sint64 ware_desc_t::get_fare_with_speedbonus(sint16 relative_speed_percentage, u
  *
  * It has to take the world as an argument for dumb reasons.
  */
-sint64 ware_desc_t::get_fare_with_comfort_catering_speedbonus(karte_t* world,
+sint64 goods_desc_t::get_fare_with_comfort_catering_speedbonus(karte_t* world,
 				uint8 comfort, uint8 catering_level, sint64 journey_tenths,
 				sint16 relative_speed_percentage, uint32 distance_meters, uint32 starting_distance) const
 {
@@ -255,7 +255,7 @@ sint64 ware_desc_t::get_fare_with_comfort_catering_speedbonus(karte_t* world,
  * The approximation is chosen to be 2x the base fare ("no speedbonus") for the minimum distance.
  * This is in the same units as get_fare_with_speedbonus.
  */
-sint64 ware_desc_t::get_refund(uint32 distance_meters) const
+sint64 goods_desc_t::get_refund(uint32 distance_meters) const
 {
  	sint64 fare = get_base_fare(distance_meters);
 	return fare * 2;

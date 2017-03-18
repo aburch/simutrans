@@ -13,7 +13,7 @@
 #include "../dataobj/koord3d.h"
 
 class building_desc_t;
-class ware_desc_t;
+class goods_desc_t;
 class factory_desc_t;
 class stadt_t;
 class karte_ptr_t;
@@ -52,13 +52,13 @@ private:
 	static stringhashtable_tpl<const factory_desc_t *> desc_table;
 
 	/// @returns the number of producers producing @p ware
-	static int count_producers(const ware_desc_t *ware, uint16 timeline);
+	static int count_producers(const goods_desc_t *ware, uint16 timeline);
 
 	/**
 	 * Finds a random producer producing @p ware.
 	 * @param timeline the current time (months)
 	 */
-	static void find_producer(weighted_vector_tpl<const factory_desc_t *> &producer, const ware_desc_t *ware, uint16 timeline );
+	static void find_producer(weighted_vector_tpl<const factory_desc_t *> &producer, const goods_desc_t *ware, uint16 timeline );
 
 public:
 	/// This is only for the set_scale function in simworld.cc	

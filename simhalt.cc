@@ -1957,7 +1957,7 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 
 void haltestelle_t::get_destination_halts_of_ware(ware_t &ware, vector_tpl<halthandle_t>& destination_halts_list) const
 {
-	const ware_desc_t * warentyp = ware.get_desc();
+	const goods_desc_t * warentyp = ware.get_desc();
 
 	if(ware.get_zielpos() == koord::invalid && ware.get_ziel().is_bound())
 	{
@@ -2245,7 +2245,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 
 
 // will load something compatible with wtyp into the car which schedule is schedule
-bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const ware_desc_t *wtyp, uint32 maxi, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded)
+bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const goods_desc_t *wtyp, uint32 maxi, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded)
 {
 	bool skipped = false;
 	const uint8 catg_index = wtyp->get_catg_index();
@@ -2598,7 +2598,7 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 	}
 }
 
-uint32 haltestelle_t::get_ware_summe(const ware_desc_t *wtyp) const
+uint32 haltestelle_t::get_ware_summe(const goods_desc_t *wtyp) const
 {
 	int sum = 0;
 	const vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
@@ -2614,7 +2614,7 @@ uint32 haltestelle_t::get_ware_summe(const ware_desc_t *wtyp) const
 
 
 
-uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_desc_t *wtyp, const koord zielpos) const
+uint32 haltestelle_t::get_ware_fuer_zielpos(const goods_desc_t *wtyp, const koord zielpos) const
 {
 	const vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
 	if(warray!=NULL) {
@@ -3122,7 +3122,7 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf) const
 	bool got_one = false;
 
 	for(unsigned int i=0; i<warenbauer_t::get_count(); i++) {
-		const ware_desc_t *wtyp = warenbauer_t::get_info(i);
+		const goods_desc_t *wtyp = warenbauer_t::get_info(i);
 		if(gibt_ab(wtyp)) {
 
 			// ignore goods with sum=zero
@@ -4502,7 +4502,7 @@ void haltestelle_t::recalc_status()
 		const uint8  count = warenbauer_t::get_count();
 		const uint32 max_ware = get_capacity(2);
 		for(  uint32 i = 3;  i < count;  i++  ) {
-			ware_desc_t const* const wtyp = warenbauer_t::get_info(i);
+			goods_desc_t const* const wtyp = warenbauer_t::get_info(i);
 			const uint32 ware_sum = get_ware_summe(wtyp);
 			total_sum += ware_sum;
 			if(ware_sum>max_ware) {
@@ -4577,7 +4577,7 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 		if(  i == 2  ) {
 			continue; // ignore freight none
 		}
-		const ware_desc_t *wtyp = warenbauer_t::get_info(i);
+		const goods_desc_t *wtyp = warenbauer_t::get_info(i);
 		if(  gibt_ab( wtyp )  ) {
 			if(  i < 2  ) {
 				max_capacity = get_capacity(i);

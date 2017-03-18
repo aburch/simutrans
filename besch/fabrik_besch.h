@@ -146,7 +146,7 @@ private:
 	uint16  consumption;
 
 public:
-	ware_desc_t const* get_ware() const { return get_child<ware_desc_t>(0); }
+	goods_desc_t const* get_ware() const { return get_child<goods_desc_t>(0); }
 	int get_capacity() const { return capacity; } 
 	int get_supplier_count() const { return supplier_count; } 
 	int get_consumption() const { return consumption; }
@@ -178,7 +178,7 @@ private:
     uint16 factor;
 
 public:
-	ware_desc_t const* get_ware() const { return get_child<ware_desc_t>(0); }
+	goods_desc_t const* get_ware() const { return get_child<goods_desc_t>(0); }
 	uint32 get_capacity() const { return capacity; }
 	uint32 get_factor() const { return factor; }
 	void calc_checksum(checksum_t *chk) const;

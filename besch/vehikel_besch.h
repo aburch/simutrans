@@ -259,7 +259,7 @@ public:
 		delete [] geared_force;
 	}
 
-	ware_desc_t const* get_ware() const { return get_child<ware_desc_t>(2); }
+	goods_desc_t const* get_ware() const { return get_child<goods_desc_t>(2); }
 
 	skin_desc_t const* get_smoke() const { return get_child<skin_desc_t>(3); }
 
@@ -273,7 +273,7 @@ public:
 	// Vehicles can have single liveries, multiple liveries, 
 	// single frieght images, multiple frieght images or no freight images.
 	// they can have 4 or 8 directions ...
-	image_id get_image_id(ribi_t::dir dir, const ware_desc_t *ware, const char* livery_type = "default") const
+	image_id get_image_id(ribi_t::dir dir, const goods_desc_t *ware, const char* livery_type = "default") const
 	{
 		const image_t *image=0;
 		const image_list_t *list=0;
@@ -354,7 +354,7 @@ public:
 			for( uint8 i=0;  i<freight_image_type;  i++  ) 
 			{
 				
-				if (ware == get_child<ware_desc_t>(6 + trailer_count + leader_count + upgrades + i)) 
+				if (ware == get_child<goods_desc_t>(6 + trailer_count + leader_count + upgrades + i)) 
 				{
 					ware_index = i;
 					break;
@@ -383,7 +383,7 @@ public:
 
 			for( uint8 i=0;  i<freight_image_type;  i++  ) 
 			{
-				if (ware == get_child<ware_desc_t>(6 + trailer_count + leader_count + upgrades + i)) 
+				if (ware == get_child<goods_desc_t>(6 + trailer_count + leader_count + upgrades + i)) 
 				{
 					ware_index = i;
 					break;

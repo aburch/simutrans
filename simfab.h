@@ -85,7 +85,7 @@ sint64 convert_boost(sint64 value);
 class ware_production_t
 {
 private:
-	const ware_desc_t *type;
+	const goods_desc_t *type;
 	// Knightly : statistics for each goods
 	sint64 statistics[MAX_MONTH][MAX_FAB_GOODS_STAT];
 	sint64 weighted_sum_storage;
@@ -101,8 +101,8 @@ public:
 		init_stats();
 	}
 
-	const ware_desc_t* get_typ() const { return type; }
-	void set_typ(const ware_desc_t *t) { type=t; }
+	const goods_desc_t* get_typ() const { return type; }
+	void set_typ(const goods_desc_t *t) { type=t; }
 
 	// Knightly : functions for manipulating goods statistics
 	void roll_stats(sint64 aggregate_weight);
@@ -537,8 +537,8 @@ public:
 	 *   -1 wenn typ nicht produziert wird ("if not type is produced")
 	 *   sonst die gelagerte menge ("otherwise the stored quantity")
 	 */
-	sint32 input_vorrat_an(const ware_desc_t *ware);        // Vorrat von Warentyp ("Inventories of product")
-	sint32 vorrat_an(const ware_desc_t *ware);        // Vorrat von Warentyp
+	sint32 input_vorrat_an(const goods_desc_t *ware);        // Vorrat von Warentyp ("Inventories of product")
+	sint32 vorrat_an(const goods_desc_t *ware);        // Vorrat von Warentyp
 
 	/**
 	* returns all power and consume it to prevent multiple pumpes
@@ -580,9 +580,9 @@ public:
 	 * -1 wenn Ware nicht verarbeitet wird
 	 */
 
-	sint8 is_needed(const ware_desc_t *) const;
+	sint8 is_needed(const goods_desc_t *) const;
 
-	sint32 liefere_an(const ware_desc_t *, sint32 menge);
+	sint32 liefere_an(const goods_desc_t *, sint32 menge);
 
 	void step(uint32 delta_t);                  // factory muss auch arbeiten ("factory must also work")
 
@@ -724,7 +724,7 @@ public:
 	/**
 	 * Returns a list of goods produced by this factory.
 	 */
-	slist_tpl<const ware_desc_t*> *get_produced_goods() const;
+	slist_tpl<const goods_desc_t*> *get_produced_goods() const;
 
 	void add_to_world_list();
 
@@ -733,7 +733,7 @@ public:
 
 	void calc_max_intransit_percentages();
 	// Average journey time to delivery goods of this type
-	uint32 get_lead_time (const ware_desc_t* wtype);
+	uint32 get_lead_time (const goods_desc_t* wtype);
 	// Time to consume the full input store of these goods at full capacity
 	uint32 get_time_to_consume_stock(uint32 index);
 

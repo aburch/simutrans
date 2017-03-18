@@ -222,7 +222,7 @@ goods_frame_t::goods_frame_t() :
 
 bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 {
-	const ware_desc_t* w[2];
+	const goods_desc_t* w[2];
 	w[0] = warenbauer_t::get_info(a);
 	w[1] = warenbauer_t::get_info(b);
 
@@ -288,11 +288,11 @@ void goods_frame_t::sort_list()
 	sorteddir.set_text(sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
 	// Fetch the list of goods produced by the factories that exist in the current game
-	const vector_tpl<const ware_desc_t*> &goods_in_game = welt->get_goods_list();
+	const vector_tpl<const goods_desc_t*> &goods_in_game = welt->get_goods_list();
 
 	int n=0;
 	for(unsigned int i=0; i<warenbauer_t::get_count(); i++) {
-		const ware_desc_t * wtyp = warenbauer_t::get_info(i);
+		const goods_desc_t * wtyp = warenbauer_t::get_info(i);
 
 		// Skip goods not in the game
 		// Do not skip goods which don't generate income -- it makes it hard to debug paks

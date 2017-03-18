@@ -299,7 +299,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * Descriptor of goods and freight types.
 	 */
-	begin_desc_class(vm, "good_desc_x", "obj_desc_x", (GETBESCHFUNC)param<const ware_desc_t*>::getfunc());
+	begin_desc_class(vm, "good_desc_x", "obj_desc_x", (GETBESCHFUNC)param<const goods_desc_t*>::getfunc());
 
 	// dummy entry to create documentation of constructor
 	/**
@@ -312,7 +312,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * @return freight category. 0=Passengers, 1=Mail, 2=None, >=3 anything else
 	 */
-	register_method(vm, &ware_desc_t::get_catg_index, "get_catg_index");
+	register_method(vm, &goods_desc_t::get_catg_index, "get_catg_index");
 
 
 	end_class(vm);

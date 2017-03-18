@@ -65,7 +65,7 @@ class message_t;
 class way_desc_t;
 class tunnel_desc_t;
 class network_world_command_t;
-class ware_desc_t;
+class goods_desc_t;
 class memory_rw_t;
 class viewport_t;
 class records_t;
@@ -427,7 +427,7 @@ private:
 	/**
 	 * Stores a list of goods produced by factories currently in the game;
 	 */
-	vector_tpl<const ware_desc_t*> goods_in_game;
+	vector_tpl<const goods_desc_t*> goods_in_game;
 
 	weighted_vector_tpl<gebaeude_t *> ausflugsziele;
 
@@ -974,7 +974,7 @@ private:
 
 	sint32 calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const;
 
-	uint32 generate_passengers_or_mail(const ware_desc_t * wtyp);
+	uint32 generate_passengers_or_mail(const goods_desc_t * wtyp);
 
 	destination find_destination(trip_type trip);
 
@@ -2258,7 +2258,7 @@ public:
 	/**
 	 * Returns a list of goods produced by factories that exist in current game.
 	 */
-	const vector_tpl<const ware_desc_t*> &get_goods_list();
+	const vector_tpl<const goods_desc_t*> &get_goods_list();
 
 	/**
 	 * Seaches and returns the closest city
@@ -2634,7 +2634,7 @@ private:
 	uint32 get_next_command_step();
 
 	sint32 get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const planquadrat_t*> &tile_list) const;
-	void get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &tile_list, const ware_desc_t * wtyp, vector_tpl<nearby_halt_t> &halts) const;
+	void get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &tile_list, const goods_desc_t * wtyp, vector_tpl<nearby_halt_t> &halts) const;
 };
 
 
