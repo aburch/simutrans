@@ -154,6 +154,12 @@ grund_t* road_user_t::hop()
 		return NULL;
 	}
 
+	// It is not clear why this is necessary in
+	// Extended but not in Standard, but without
+	// this, remnents of images will appear
+	// whenever vehicles move off or reverse. 
+	from->mark_image_dirty();
+
 	grund_t *list[4];
 	int count = 0;
 
@@ -407,6 +413,11 @@ private_car_t::~private_car_t()
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr  &&  gr->ist_uebergang()) {
 		gr->find<crossing_t>(2)->release_crossing(this);
+	}
+
+	if (gr)
+	{
+		gr->mark_image_dirty();
 	}
 	
 	// just to be sure we are removed from this list!

@@ -1953,7 +1953,7 @@ uint16 vehicle_t::load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convo
 	return total_freight - start_freight;
 }
 
-void vehicle_t::calc_image() //"Bild" = "picture" (Google)
+void vehicle_t::calc_image() 
 {
 	image_id old_image=get_image();
 	if (fracht.empty())

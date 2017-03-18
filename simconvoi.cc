@@ -425,17 +425,27 @@ uint32 convoi_t::move_to(uint16 const start_index)
 	for (unsigned i = 0; i != anz_vehicle; ++i) {
 		vehicle_t& v = *vehicle[i];
 
-		if (grund_t const* const gr = v.get_grund()) {
-			schiene_t* const rails = obj_cast<schiene_t>(v.get_weg());
-			v.mark_image_dirty(v.get_image(), v.get_hoff());
+		if (grund_t* gr = welt->lookup(v.get_pos())) {
+			v.mark_image_dirty(v.get_image(), 0);
 			v.leave_tile();
 			// maybe unreserve this
+			weg_t* const way = v.get_weg(); 
+			schiene_t* const rails = obj_cast<schiene_t>(way);
 			if(rails) 
 			{
 				if(state != REVERSING)
 				{
 					rails->unreserve(&v);
 				}
+			}
+
+			if (gr)
+			{
+				// It is not clear why this is necessary in
+				// Extended but not in Standard, but without
+				// this, remnents of images will appear
+				// whenever vehicles move off or reverse. 
+				gr->mark_image_dirty();
 			}
 		}
 
@@ -450,6 +460,7 @@ uint32 convoi_t::move_to(uint16 const start_index)
 			train_length += v.get_desc()->get_length();
 		}
 	}
+
 	return train_length;
 }
 

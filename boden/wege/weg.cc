@@ -852,8 +852,9 @@ void weg_t::calc_image()
 			}
 		}
 	}
-	if (image!=old_image && from != NULL) {
-		mark_image_dirty(old_image, from->get_weg_yoff());
+	if (image!=old_image) {
+		sint8 yoff = from ? from->get_weg_yoff() : 0;
+		mark_image_dirty(old_image, yoff);
 		mark_image_dirty(image, from->get_weg_yoff());
 	}
 #ifdef MULTI_THREAD
