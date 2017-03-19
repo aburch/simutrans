@@ -221,7 +221,7 @@ convoi_t::convoi_t(loadsave_t* file) : vehicle(max_vehicle, NULL)
 	current_stop = schedule == NULL ? 255 : schedule->get_aktuell() - 1;
 
 	// Added by : Knightly
-	old_fpl = NULL;
+	old_schedule = NULL;
 	free_seats = 0;
 	recalc_catg_index();
 	has_obsolete = calc_obsolescence(welt->get_timeline_year_month());
@@ -248,7 +248,7 @@ convoi_t::convoi_t(player_t* player) : vehicle(max_vehicle, NULL)
 	max_signal_speed = SPEED_UNLIMITED;
 
 	// Added by : Knightly
-	old_fpl = NULL;
+	old_schedule = NULL;
 	free_seats = 0;
 
 	livery_scheme_index = 0;
@@ -2868,51 +2868,51 @@ void convoi_t::check_freight()
 }
 
 
-bool convoi_t::set_schedule(schedule_t * f)
+bool convoi_t::set_schedule(schedule_t * sch)
 {
 	if(  state==SELF_DESTRUCT  ) {
 		return false;
 	}
 
-	DBG_DEBUG("convoi_t::set_schedule()", "new=%p, old=%p", f, schedule);
-	assert(f != NULL);
+	DBG_DEBUG("convoi_t::set_schedule()", "new=%p, old=%p", sch, schedule);
+	assert(sch != NULL);
 
 	if(!line.is_bound() && state != INITIAL)
 	{
 		// New method - recalculate as necessary
 
 		// Added by : Knightly
-		if ( schedule == f && old_fpl )	// Case : Schedule window of operating convoy
+		if ( schedule == sch && old_schedule )	// Case : Schedule window of operating convoy
 		{
-			if ( !old_fpl->matches(welt, schedule) )
+			if ( !old_schedule->matches(welt, schedule) )
 			{
-				haltestelle_t::refresh_routing(old_fpl, goods_catg_index, owner);
+				haltestelle_t::refresh_routing(old_schedule, goods_catg_index, owner);
 				haltestelle_t::refresh_routing(schedule, goods_catg_index, owner);
 			}
 		}
 		else
 		{
-			if (schedule != f)
+			if (schedule != sch)
 			{
 				haltestelle_t::refresh_routing(schedule, goods_catg_index, owner);
 			}
-			haltestelle_t::refresh_routing(f, goods_catg_index, owner);
+			haltestelle_t::refresh_routing(sch, goods_catg_index, owner);
 		}
 	}
 
-	if (schedule == f && old_fpl) {
-		schedule = old_fpl;
+	if (schedule == sch && old_schedule) {
+		schedule = old_schedule;
 	}
 	
 	// happens to be identical?
-	if(schedule!=f) {
+	if(schedule!=sch) {
 		// now check, we we have been bond to a line we are about to lose:
 		bool changed = false;
 		if(  line.is_bound()  ) {
-			if(  !f->matches(welt, schedule)) {
+			if(  !sch->matches(welt, schedule)) {
 				changed = true;
 			}
-			if(  !f->matches( welt, line->get_schedule() )  ) {
+			if(  !sch->matches( welt, line->get_schedule() )  ) {
 				// change from line to individual schedule
 				//		-> unset line now and register stops from new schedule later
 				changed = true;
@@ -2920,7 +2920,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 			}
 		}
 		else {
-			if(  !f->matches( welt, schedule )  ) {
+			if(  !sch->matches( welt, schedule )  ) {
 				// Knightly : merely change schedule and do not involve line
 				//				-> unregister stops from old schedule now and register stops from new schedule later
 				changed = true;
@@ -2933,7 +2933,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 			destroy_win((ptrdiff_t)schedule);
 			delete schedule;
 		}
-		schedule = f;
+		schedule = sch;
 		if(  changed  )
 		{
 			// Knightly : if line is unset or schedule is changed
@@ -4821,7 +4821,7 @@ void convoi_t::open_schedule_window( bool show )
 	// Purpose  : To keep a copy of the original schedule before opening schedule window
 	if (schedule)
 	{
-		old_fpl = schedule->copy();
+		old_schedule = schedule->copy();
 	}
 
 	if(  show  ) {
@@ -6450,7 +6450,7 @@ bool convoi_t::go_to_depot(bool show_success, bool use_home_depot)
 
 	if (schedule)
 	{
-		old_fpl = schedule->copy();
+		old_schedule = schedule->copy();
 	}
 
 	// limit update to certain states that are considered to be safe for schedule updates

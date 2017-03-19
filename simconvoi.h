@@ -330,7 +330,7 @@ private:
 
 	// Added by : Knightly
 	// Purpose  : To hold the original schedule before opening schedule window
-	schedule_t *old_fpl;
+	schedule_t *old_schedule;
 	koord3d fpl_target;
 
 	/**

@@ -30,8 +30,8 @@ line_management_gui_t::line_management_gui_t(linehandle_t line, player_t* player
 
 line_management_gui_t::~line_management_gui_t()
 {
-	delete old_fpl;	// since we pass a *copy* of the line's schedule to the base class
-	old_fpl = NULL;
+	delete old_schedule;	// since we pass a *copy* of the line's schedule to the base class
+	old_schedule = NULL;
 }
 
 
@@ -92,19 +92,19 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// dummy types
-		old_fpl = new truck_schedule_t();
+		old_schedule = new truck_schedule_t();
 		schedule = new truck_schedule_t();
 	}
 	size.rdwr( file );
 	file->rdwr_byte( player_nr );
 	simline_t::rdwr_linehandle_t(file, line);
-	old_fpl->rdwr(file);
+	old_schedule->rdwr(file);
 	schedule->rdwr(file);
 	if(  file->is_loading()  ) {
 		player_t *player = welt->get_player(player_nr);
 		assert(player);	// since it was alive during saving, this should never happen
 
-		if(  line.is_bound()  &&  old_fpl->matches( welt, line->get_schedule() )  ) {
+		if(  line.is_bound()  &&  old_schedule->matches( welt, line->get_schedule() )  ) {
 			// now we can open the window ...
 			scr_coord const& pos = win_get_pos(this);
 			line_management_gui_t *w = new line_management_gui_t( line, player );
@@ -116,9 +116,9 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 			dbg->error( "line_management_gui_t::rdwr", "Could not restore schedule window for line id %i", line.get_id() );
 		}
 		player = NULL;
-		delete old_fpl;
+		delete old_schedule;
 		delete schedule;
-		schedule = old_fpl = NULL;
+		schedule = old_schedule = NULL;
 		line = linehandle_t();
 		destroy_win( this );
 	}

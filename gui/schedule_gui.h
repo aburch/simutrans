@@ -129,7 +129,7 @@ private:
 	void update_selection();
 protected:
 	schedule_t *schedule;
-	schedule_t* old_fpl;
+	schedule_t* old_schedule;
 	player_t *player;
 	convoihandle_t cnv;
 

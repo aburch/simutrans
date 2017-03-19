@@ -323,12 +323,12 @@ schedule_gui_t::schedule_gui_t(schedule_t* fpl_, player_t* player_, convoihandle
 	lb_spacing_shift_as_clock(NULL, SYSCOL_TEXT, gui_label_t::right),
 	stats(player_),
 	scrolly(&stats),
-	old_fpl(fpl_),
+	old_schedule(fpl_),
 	player(player_),
 	cnv(cnv_)
 {
-	old_fpl->finish_editing();
-	schedule = old_fpl->copy();
+	old_schedule->finish_editing();
+	schedule = old_schedule->copy();
 	stats.set_schedule(schedule);
 	if(  !cnv.is_bound()  ) {
 		old_line = new_line = linehandle_t();
@@ -845,7 +845,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 		// update line schedule via tool!
 		tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
 		cbuffer_t buf;
-		buf.printf( "c,0,%i,%ld,", (int)schedule->get_type(), (long)(uint64)old_fpl );
+		buf.printf( "c,0,%i,%ld,", (int)schedule->get_type(), (long)(uint64)old_schedule );
 		schedule->sprintf_schedule( buf );
 		tool->set_default_param(buf);
 		welt->set_tool( tool, player );
@@ -968,7 +968,7 @@ gui_frame_t( translator::translate("Fahrplan"), NULL),
 	stats(NULL),
 	scrolly(&stats),
 	schedule(NULL),
-	old_fpl(NULL),
+	old_schedule(NULL),
 	player(NULL),
 	cnv()
 {
@@ -1004,10 +1004,10 @@ void schedule_gui_t::rdwr(loadsave_t *file)
 	// schedules
 	if(  file->is_loading()  ) {
 		// dummy types
-		old_fpl = new truck_schedule_t();
+		old_schedule = new truck_schedule_t();
 		schedule = new truck_schedule_t();
 	}
-	old_fpl->rdwr(file);
+	old_schedule->rdwr(file);
 	schedule->rdwr(file);
 
 	if(  file->is_loading()  ) {
@@ -1025,9 +1025,9 @@ void schedule_gui_t::rdwr(loadsave_t *file)
 			dbg->error( "schedule_gui_t::rdwr", "Could not restore schedule window for (%d)", cnv.get_id() );
 		}
 		player = NULL;
-		delete old_fpl;
+		delete old_schedule;
 		delete schedule;
-		schedule = old_fpl = NULL;
+		schedule = old_schedule = NULL;
 		cnv = convoihandle_t();
 		destroy_win( this );
 	}
