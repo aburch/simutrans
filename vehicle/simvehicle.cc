@@ -395,7 +395,7 @@ void vehicle_base_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 		display_steps = (display_steps*diagonal_multiplier)>>10;
 	}
 	xoff += (display_steps*dx) >> 10;
-	yoff += ((display_steps*dy) >> 10) + (get_hoff()*raster_width)/(4*16);
+	yoff += ((display_steps*dy) >> 10) + (get_hoff(raster_width))/(4*16);
 }
 
 
@@ -513,11 +513,11 @@ void vehicle_base_t::calc_height(grund_t *gr)
 }
 
 
-sint8 vehicle_base_t::get_hoff() const
+sint16 vehicle_base_t::get_hoff(const sint16 raster_width) const
 {
 	sint16 h_start = -(sint8)TILE_HEIGHT_STEP * (sint8)zoff_start;
 	sint16 h_end   = -(sint8)TILE_HEIGHT_STEP * (sint8)zoff_end;
-	return (h_start*steps + h_end*(256-steps)) >> 9;
+	return ((h_start*steps + h_end*(256-steps))*raster_width) >> 9;
 }
 
 

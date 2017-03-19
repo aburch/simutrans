@@ -118,7 +118,7 @@ public:
 	inline void set_image( image_id b ) { image = b; }
 	virtual image_id get_image() const {return image;}
 
-	sint8 get_hoff() const;
+	sint16 get_hoff(const sint16 raster_width=1) const;
 	uint8 get_steps() const {return steps;}
 
 	// to make smaller steps than the tile granularity, we have to calculate our offsets ourselves!
