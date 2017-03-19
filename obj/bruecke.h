@@ -3,7 +3,7 @@
 
 class karte_t;
 
-#include "../besch/bruecke_besch.h"
+#include "../descriptor/bruecke_besch.h"
 #include "../simobj.h"
 
 /**

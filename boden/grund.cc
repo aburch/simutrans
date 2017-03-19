@@ -21,11 +21,11 @@
 #include "../bauer/wegbauer.h"
 #include "../bauer/vehikelbauer.h" /* for diversion route checking */
 
-#include "../besch/grund_besch.h"
-#include "../besch/haus_besch.h"
-#include "../besch/kreuzung_besch.h"
-#include "../besch/tunnel_besch.h"
-#include "../besch/weg_besch.h"
+#include "../descriptor/grund_besch.h"
+#include "../descriptor/haus_besch.h"
+#include "../descriptor/kreuzung_besch.h"
+#include "../descriptor/tunnel_besch.h"
+#include "../descriptor/weg_besch.h"
 
 #include "../dataobj/freelist.h"
 #include "../dataobj/loadsave.h"

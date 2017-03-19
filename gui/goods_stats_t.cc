@@ -20,13 +20,13 @@
 #include "../simconvoi.h"
 
 #include "../bauer/warenbauer.h"
-#include "../besch/ware_besch.h"
+#include "../descriptor/ware_besch.h"
 
 #include "../dataobj/translator.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 
-#include "../besch/ware_besch.h"
+#include "../descriptor/ware_besch.h"
 #include "gui_frame.h"
 #include "../gui/components/gui_button.h"
 

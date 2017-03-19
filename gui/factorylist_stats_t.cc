@@ -24,7 +24,7 @@
 #include "components/gui_button.h"
 
 #include "../bauer/warenbauer.h"
-#include "../besch/skin_besch.h"
+#include "../descriptor/skin_besch.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 

@@ -14,8 +14,8 @@
 
 #include "boden.h"
 
-#include "../besch/grund_besch.h"
-#include "../besch/skin_besch.h"
+#include "../descriptor/grund_besch.h"
+#include "../descriptor/skin_besch.h"
 
 
 boden_t::boden_t(loadsave_t *file, koord pos ) : grund_t( koord3d(pos,0) )

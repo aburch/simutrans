@@ -19,8 +19,8 @@
 #include "../simworld.h"
 #include "../player/simplay.h"
 
-#include "../besch/reader/obj_reader.h"
-#include "../besch/skin_besch.h"
+#include "../descriptor/reader/obj_reader.h"
+#include "../descriptor/skin_besch.h"
 #include "../simskin.h"
 
 floating_cursor_t::floating_cursor_t(const scr_coord& initial,	scr_coord_val min_left,	scr_coord_val max_right)

@@ -22,8 +22,8 @@
 
 #include "../obj/gebaeude.h"
 
-#include "../besch/haus_besch.h"
-#include "../besch/skin_besch.h"
+#include "../descriptor/haus_besch.h"
+#include "../descriptor/skin_besch.h"
 
 #include "../dataobj/translator.h"
 

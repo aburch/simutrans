@@ -20,9 +20,9 @@
 #include "../simworld.h"
 #include "../simsignalbox.h"
 
-#include "../besch/roadsign_besch.h"
-#include "../besch/skin_besch.h"
-#include "../besch/haus_besch.h"
+#include "../descriptor/roadsign_besch.h"
+#include "../descriptor/skin_besch.h"
+#include "../descriptor/haus_besch.h"
 
 #include "../boden/grund.h"
 #include "../boden/wege/strasse.h"

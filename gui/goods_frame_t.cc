@@ -17,7 +17,7 @@
 
 
 #include "../bauer/warenbauer.h"
-#include "../besch/ware_besch.h"
+#include "../descriptor/ware_besch.h"
 #include "../dataobj/translator.h"
 
 // For waytype_t
@@ -28,7 +28,7 @@
 #include "../simconvoi.h"
 
 // For revenue stuff
-#include "../besch/ware_besch.h"
+#include "../descriptor/ware_besch.h"
 
 /**
  * This variable defines the current speed for bonus calculation

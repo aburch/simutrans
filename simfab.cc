@@ -28,8 +28,8 @@
 #include "utils/simrandom.h"
 #include "simware.h"
 #include "simworld.h"
-#include "besch/haus_besch.h"
-#include "besch/ware_besch.h"
+#include "descriptor/haus_besch.h"
+#include "descriptor/ware_besch.h"
 #include "player/simplay.h"
 
 #include "simmesg.h"
@@ -45,7 +45,7 @@
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 
-#include "besch/fabrik_besch.h"
+#include "descriptor/fabrik_besch.h"
 #include "bauer/hausbauer.h"
 #include "bauer/warenbauer.h"
 #include "bauer/fabrikbauer.h"

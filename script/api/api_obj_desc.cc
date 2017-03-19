@@ -8,8 +8,8 @@
 #include "get_next.h"
 #include "../api_class.h"
 #include "../api_function.h"
-#include "../../besch/haus_besch.h"
-#include "../../besch/ware_besch.h"
+#include "../../descriptor/haus_besch.h"
+#include "../../descriptor/ware_besch.h"
 #include "../../bauer/warenbauer.h"
 #include "../../simworld.h"
 

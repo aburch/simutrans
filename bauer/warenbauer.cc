@@ -6,8 +6,8 @@
  */
 
 #include "../simdebug.h"
-#include "../besch/ware_besch.h"
-#include "../besch/spezial_obj_tpl.h"
+#include "../descriptor/ware_besch.h"
+#include "../descriptor/spezial_obj_tpl.h"
 #include "../simware.h"
 #include "../simcolor.h"
 #include "warenbauer.h"

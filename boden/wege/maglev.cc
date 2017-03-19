@@ -1,6 +1,6 @@
 #include "../../simtypes.h"
 #include "../../bauer/wegbauer.h"
-#include "../../besch/weg_besch.h"
+#include "../../descriptor/weg_besch.h"
 
 #include "maglev.h"
 

@@ -10,8 +10,8 @@
 #include "../../simworld.h"
 #include "../../display/simimg.h"
 
-#include "../../besch/grund_besch.h"
-#include "../../besch/weg_besch.h"
+#include "../../descriptor/grund_besch.h"
+#include "../../descriptor/weg_besch.h"
 
 #include "../../bauer/wegbauer.h"
 #include "../../dataobj/translator.h"

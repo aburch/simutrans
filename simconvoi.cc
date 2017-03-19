@@ -35,9 +35,9 @@
 
 #include "bauer/vehikelbauer.h"
 
-#include "besch/vehikel_besch.h"
-#include "besch/roadsign_besch.h"
-#include "besch/haus_besch.h"
+#include "descriptor/vehikel_besch.h"
+#include "descriptor/roadsign_besch.h"
+#include "descriptor/haus_besch.h"
 
 #include "dataobj/schedule.h"
 #include "dataobj/route.h"
@@ -62,7 +62,7 @@
 
 #include "convoy.h"
 
-#include "besch/ware_besch.h"
+#include "descriptor/ware_besch.h"
 
 #ifdef MULTI_THREAD
 #include "utils/simthread.h"

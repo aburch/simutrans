@@ -17,7 +17,7 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 
-#include "../besch/tunnel_besch.h"
+#include "../descriptor/tunnel_besch.h"
 
 #include "leitung2.h"
 #include "../bauer/wegbauer.h"

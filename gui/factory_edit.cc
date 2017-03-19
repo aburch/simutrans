@@ -17,9 +17,9 @@
 
 #include "../bauer/fabrikbauer.h"
 
-#include "../besch/grund_besch.h"
-#include "../besch/intro_dates.h"
-#include "../besch/fabrik_besch.h"
+#include "../descriptor/grund_besch.h"
+#include "../descriptor/intro_dates.h"
+#include "../descriptor/fabrik_besch.h"
 
 #include "../dataobj/translator.h"
 

@@ -34,10 +34,10 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../boden/grund.h"
 #include "../boden/wege/strasse.h"
 
-#include "../besch/haus_besch.h"
-#include "../besch/intro_dates.h"
+#include "../descriptor/haus_besch.h"
+#include "../descriptor/intro_dates.h"
 
-#include "../besch/grund_besch.h"
+#include "../descriptor/grund_besch.h"
 
 #include "../utils/cbuffer_t.h"
 

@@ -18,7 +18,7 @@
 #include "../simworld.h"
 #include "../path_explorer.h"
 #include "../bauer/wegbauer.h"
-#include "../besch/weg_besch.h"
+#include "../descriptor/weg_besch.h"
 #include "../utils/simstring.h"
 #include "../utils/float32e8_t.h"
 #include "../vehicle/simvehicle.h"
@@ -26,7 +26,7 @@
 #include "loadsave.h"
 #include "tabfile.h"
 #include "translator.h"
-#include "../besch/intro_dates.h"
+#include "../descriptor/intro_dates.h"
 
 #include "../tpl/minivec_tpl.h"
 

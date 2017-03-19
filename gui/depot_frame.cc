@@ -27,7 +27,7 @@
 #include "../simskin.h"
 #include "../utils/simrandom.h"
 
-#include "../besch/haus_besch.h"
+#include "../descriptor/haus_besch.h"
 
 
 #include "schedule_gui.h"

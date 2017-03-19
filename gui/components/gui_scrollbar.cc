@@ -11,7 +11,7 @@
 #include "../../display/simgraph.h"
 #include "../../simskin.h"
 #include "../../macros.h"
-#include "../../besch/skin_besch.h"
+#include "../../descriptor/skin_besch.h"
 #include "action_listener.h"
 #include "gui_scrollbar.h"
 

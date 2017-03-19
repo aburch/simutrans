@@ -39,7 +39,7 @@
 #include "bauer/hausbauer.h"
 #include "bauer/warenbauer.h"
 
-#include "besch/ware_besch.h"
+#include "descriptor/ware_besch.h"
 
 #include "boden/boden.h"
 #include "boden/grund.h"
@@ -64,7 +64,7 @@
 
 #include "vehicle/simpeople.h"
 
-#include "besch/ware_besch.h"
+#include "descriptor/ware_besch.h"
 
 karte_ptr_t haltestelle_t::welt;
 

@@ -10,7 +10,7 @@
 #include "karte.h"
 #include "welt.h"
 
-#include "../besch/grund_besch.h"
+#include "../descriptor/grund_besch.h"
 
 #include "../simdebug.h"
 #include "../simworld.h"

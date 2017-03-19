@@ -16,7 +16,7 @@
 
 #include "../player/ai.h"
 
-#include "../besch/skin_besch.h"
+#include "../descriptor/skin_besch.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 #include "ai_option_t.h"

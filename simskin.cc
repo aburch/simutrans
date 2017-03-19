@@ -1,5 +1,5 @@
-#include "besch/skin_besch.h"
-#include "besch/spezial_obj_tpl.h"
+#include "descriptor/skin_besch.h"
+#include "descriptor/spezial_obj_tpl.h"
 #include "simskin.h"
 
 #include "tpl/slist_tpl.h"

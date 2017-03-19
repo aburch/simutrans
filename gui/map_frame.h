@@ -18,7 +18,7 @@
 #include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
-#include "../besch/fabrik_besch.h"
+#include "../descriptor/fabrik_besch.h"
 #include "../tpl/stringhashtable_tpl.h"
 
 class karte_ptr_t;

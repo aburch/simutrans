@@ -39,8 +39,8 @@
 #include "../vehicle/simpeople.h"
 #include "../vehicle/movingobj.h"
 
-#include "../besch/haus_besch.h"
-#include "../besch/groundobj_besch.h"
+#include "../descriptor/haus_besch.h"
+#include "../descriptor/groundobj_besch.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/freelist.h"
 #include "../dataobj/environment.h"

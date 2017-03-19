@@ -7,7 +7,7 @@
 
 #include "../simconst.h"
 #include "../simsys.h"
-#include "../besch/bild_besch.h"
+#include "../descriptor/bild_besch.h"
 
 #include "simgraph.h"
 

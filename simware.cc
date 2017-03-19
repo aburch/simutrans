@@ -17,7 +17,7 @@
 #include "dataobj/loadsave.h"
 #include "dataobj/koord.h"
 
-#include "besch/ware_besch.h"
+#include "descriptor/ware_besch.h"
 #include "bauer/warenbauer.h"
 
 

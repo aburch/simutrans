@@ -18,7 +18,7 @@
 
 #include "../boden/grund.h"
 
-#include "../besch/groundobj_besch.h"
+#include "../descriptor/groundobj_besch.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"

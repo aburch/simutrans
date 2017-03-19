@@ -15,7 +15,7 @@
 #include "tpl/vector_tpl.h"
 #include "tpl/array_tpl.h"
 #include "tpl/inthashtable_tpl.h"
-#include "besch/fabrik_besch.h"
+#include "descriptor/fabrik_besch.h"
 #include "halthandle_t.h"
 #include "simworld.h"
 #include "utils/plainstring.h"

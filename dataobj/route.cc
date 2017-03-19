@@ -21,7 +21,7 @@
 #include "../ifc/simtestdriver.h"
 #include "loadsave.h"
 #include "route.h"
-#include "../besch/bruecke_besch.h"
+#include "../descriptor/bruecke_besch.h"
 #include "../boden/wege/strasse.h"
 #include "../obj/gebaeude.h"
 #include "../obj/roadsign.h"

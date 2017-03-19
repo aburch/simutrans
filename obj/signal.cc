@@ -21,7 +21,7 @@
 #include "../utils/cbuffer_t.h"
 #include "../obj/gebaeude.h"
 #include "../simsignalbox.h"
-#include "../besch/haus_besch.h"
+#include "../descriptor/haus_besch.h"
 #include "../simhalt.h"
 
 #include "../gui/signal_info.h"

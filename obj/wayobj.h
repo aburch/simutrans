@@ -14,7 +14,7 @@
 #include "../simworld.h"
 #include "../boden/grund.h"
 #include "../dataobj/ribi.h"
-#include "../besch/way_obj_besch.h"
+#include "../descriptor/way_obj_besch.h"
 #include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 

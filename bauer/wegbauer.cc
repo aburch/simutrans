@@ -25,10 +25,10 @@
 #include "brueckenbauer.h"
 #include "tunnelbauer.h"
 
-#include "../besch/weg_besch.h"
-#include "../besch/tunnel_besch.h"
-#include "../besch/haus_besch.h"
-#include "../besch/kreuzung_besch.h"
+#include "../descriptor/weg_besch.h"
+#include "../descriptor/tunnel_besch.h"
+#include "../descriptor/haus_besch.h"
+#include "../descriptor/kreuzung_besch.h"
 
 #include "../boden/wege/strasse.h"
 #include "../boden/wege/schiene.h"

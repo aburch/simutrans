@@ -20,7 +20,7 @@
 
 #include "bauer/warenbauer.h"
 
-#include "besch/ware_besch.h"
+#include "descriptor/ware_besch.h"
 
 #include "dataobj/koord.h"
 

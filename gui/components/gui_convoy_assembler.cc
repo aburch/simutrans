@@ -20,15 +20,15 @@
 
 #include "../../bauer/warenbauer.h"
 #include "../../bauer/vehikelbauer.h"
-#include "../../besch/intro_dates.h"
+#include "../../descriptor/intro_dates.h"
 #include "../../dataobj/replace_data.h"
 #include "../../dataobj/translator.h"
 #include "../../dataobj/environment.h"
 #include "../../dataobj/livery_scheme.h"
 #include "../../utils/simstring.h"
 #include "../../vehicle/simvehicle.h"
-#include "../../besch/haus_besch.h"
-#include "../../besch/vehikel_besch.h"
+#include "../../descriptor/haus_besch.h"
+#include "../../descriptor/vehikel_besch.h"
 #include "../../player/simplay.h"
 
 #include "../../utils/cbuffer_t.h"

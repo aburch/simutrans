@@ -24,9 +24,9 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 
-#include "../besch/bruecke_besch.h"
-#include "../besch/tunnel_besch.h"
-#include "../besch/way_obj_besch.h"
+#include "../descriptor/bruecke_besch.h"
+#include "../descriptor/tunnel_besch.h"
+#include "../descriptor/way_obj_besch.h"
 
 #include "../gui/tool_selector.h"
 

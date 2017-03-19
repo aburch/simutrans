@@ -12,7 +12,7 @@
 
 #include "../utils/cbuffer_t.h"
 #include "../gui/messagebox.h"
-#include "../besch/haus_besch.h"
+#include "../descriptor/haus_besch.h"
 #include "../boden/grund.h"
 #include "../obj/gebaeude.h"
 #include "../player/simplay.h"
