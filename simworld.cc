@@ -1672,7 +1672,7 @@ void *step_passengers_and_mail_threaded(void* args)
 		}
 
 		// The generate passengers function is called many times (often well > 100) each step; the mail version is called only once or twice each step, sometimes not at all.
-		uint32 units_this_step;
+		uint32 units_this_step = 0;
 		total_units_passenger = 0;
 		total_units_mail = 0;
 
@@ -5786,6 +5786,7 @@ void karte_t::check_transferring_cargoes()
 #else
 	sint32 po = 1;
 #endif
+	bool removed;
 	for (sint32 i = 0; i < po; i++)
 	{
 		FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes[i])
@@ -5796,8 +5797,11 @@ void karte_t::check_transferring_cargoes()
 			if (tc.ready_time <= current_time)
 			{
 				ware = tc.ware;
-				transferring_cargoes[i].remove(tc);
-				deposit_ware_at_destination(ware);
+				removed = transferring_cargoes[i].remove(tc);
+				if (removed)
+				{
+					deposit_ware_at_destination(ware);
+				}
 			}
 		}
 	}
