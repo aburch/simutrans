@@ -869,7 +869,7 @@ void ai_goods_t::step()
 
 			// is rail transport allowed?
 			if(rail_transport) {
-				// any rail car that transport this good (actually this weg_t the largest)
+				// any rail car that transport this good (actually this way_t the largest)
 				rail_vehicle = vehicle_search( track_wt, 0, best_rail_speed,  freight, true);
 			}
 			rail_engine = NULL;

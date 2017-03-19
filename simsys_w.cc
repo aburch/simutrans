@@ -499,7 +499,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					settings.dmPelsHeight = MaxSize.bottom;
 					settings.dmDisplayFrequency = 0;
 
-					// should be alsway sucessful, since it worked as least once ...
+					// should be alsway successful, since it worked as least once ...
 					ChangeDisplaySettings(&settings, CDS_FULLSCREEN);
 					is_not_top = false;
 

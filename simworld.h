@@ -7,7 +7,7 @@
 
 /*
  * zentrale Datenstruktur von Simutrans
- * von Hj. Malthaner 1998
+ * Hj. Malthaner 1998
  */
 
 #ifndef simworld_h

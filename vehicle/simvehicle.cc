@@ -6,7 +6,7 @@
  *
  * All moving stuff (vehicle_base_t) and all player vehicle (derived from vehicle_t)
  *
- * 01.11.99  getrennt von simobj.cc
+ * 01.11.99  derived from simobj.cc
  *
  * Hansjoerg Malthaner, Nov. 1999
  */

@@ -1,6 +1,6 @@
 /*
  * Ein-/Ausgaberoutinen fuer Simutrans
- * von Hj. Malthaner, 2000
+ * Hj. Malthaner, 2000
  */
 
 #include <stdio.h>

@@ -60,7 +60,7 @@ int dr_load_midi(const char *filename)
 			// already absolute path
 			midi_filenames[i] = filename;
 
-			// need to make dos path seperators
+			// need to make dos path separators
 			for (char* j = midi_filenames[i]; *j != '\0'; ++j) {
 				if (*j == '/') {
 					*j = '\\';
@@ -308,7 +308,7 @@ void __win32_set_midi_volume(int type, int left, int right)
 // Sets the MIDI volume - internal routine
 void __win32_set_midi_volume(int , int left, int right)
 {
-	// prissis short version
+	// prissi's short version
 	DWORD vol = (left<<24)|(right<<8);
 
 	if( midiOutGetNumDevs()== 0 ) {

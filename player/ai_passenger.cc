@@ -901,7 +901,7 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 
 
 /* tries to cover a city with bus stops that does not overlap much and cover as much as possible
- * returns the line created, if sucessful
+ * returns the line created, if successful
  */
 void ai_passenger_t::cover_city_with_bus_route(koord start_pos, int number_of_stops)
 {

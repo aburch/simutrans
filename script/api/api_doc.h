@@ -105,7 +105,7 @@
  * Let us inspect a sample script file. We will have a look into the pak64 Millionaire scenario.
  * The objective of this scenario is to get rich as fast as possible.
  *
- * @dontinclude millionaire/scenario.nut
+ * @don'tinclude millionaire/scenario.nut
  * As first the savegame is specified:
  * @skipline map.file
  * Then we provide some meta-information about the ::scenario
@@ -143,7 +143,7 @@
  *
  * We will learn how to make the translation of the script's output possible.
  *
- * @dontinclude pharmacy-max/scenario.nut
+ * @don'tinclude pharmacy-max/scenario.nut
  * We do not care about the meta information, and jump right into the @ref get_rule_text method.
  * @skip get_rule_text
  * @until }
@@ -185,7 +185,7 @@
  * @until }
  * Both of the strings are translated by means of calls to ttext::to_string and the result is returned.
  *
- * Thats it. The remaining parts of this script are plain routine.
+ * That's it. The remaining parts of this script are plain routine.
  */
 
 /**

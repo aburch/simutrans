@@ -7,7 +7,7 @@
 
 /*
  * Haltestellen fuer Simutrans
- * 03.2000 getrennt von simfab.cc
+ * 03.2000 derived from simfab.cc
  *
  * Hj. Malthaner
  */

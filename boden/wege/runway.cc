@@ -1,8 +1,8 @@
 /*
- * runways für Simutrans
+ * Runaways for Simutrans
  *
- * Überarbeitet Januar 2001
- * von Hj. Malthaner
+ * Revised January 2001
+ * Hj. Malthaner
  */
 
 #include "../../simworld.h"
