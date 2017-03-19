@@ -5406,6 +5406,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		 platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(route->at(last_stop_signal_index), get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt);
 	}
 
+	bool choose_route_identical_to_main_route = false;
+
 	// free, in case of un-reserve or no success in reservation
 	// or alternatively free that section reserved beyond the last signal to which reservation can take place
 	if(!success || !directional_reservation_succeeded || ((next_signal_index < INVALID_INDEX) && (next_signal_working_method == absolute_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling || ((next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph) && !next_signal_protects_no_junctions))))
@@ -5488,16 +5490,28 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			// This will call the block reserver afresh from the last choose signal with choose logic enabled. 
 			sint32 modified_route_index;
+			const uint32 route_count = route->get_count();
 			if(is_from_token || is_from_directional)
 			{
-				modified_route_index  = route_index - route->get_count(); 
+				modified_route_index  = route_index - route_count;
 			}
 			else
 			{
 				modified_route_index = route_index;
 			}
 
+			
+
+			const koord3d check_tile_mid = route->at(route_count / 2u);
+			const koord3d check_tile_end = route->back(); 
+
 			choose_return = activate_choose_signal(last_choose_signal_index, next_signal_index, brake_steps, modified_sighting_distance_tiles, route, modified_route_index); 
+
+			if (route_count == route->get_count())
+			{
+				// Check whether the choose signal route really is a new route.
+				choose_route_identical_to_main_route = check_tile_mid == route->at(route_count / 2u) && check_tile_end == route->back();
+			}
 		}
 
 		if(!success && !choose_return)
@@ -5537,7 +5551,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			{
 				if(((counter -- || (pre_signals.empty() && (!starting_at_signal || signs.get_count() == 1)) || (reached_end_of_loop && (early_platform_index == INVALID_INDEX || last_stop_signal_index < early_platform_index))) && (signal->get_desc()->get_working_method() != token_block || starting_at_signal)) && route->at(route->get_count() - 1) != signal->get_pos())
 				{
-					const bool use_no_choose_aspect = signal->get_desc()->is_choose_sign() && !is_choosing && choose_return == 0;
+					const bool use_no_choose_aspect = choose_route_identical_to_main_route || (signal->get_desc()->is_choose_sign() && !is_choosing && choose_return == 0);
 					if(signal->get_desc()->get_working_method() == absolute_block || signal->get_desc()->get_working_method() == token_block || signal->get_desc()->get_working_method() == cab_signalling)
 					{
 						// There is no need to set a combined signal to clear here, as this is set below in the pre-signals clearing loop.
