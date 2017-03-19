@@ -299,7 +299,7 @@ private:
 	// true, if the factory did produce enough in the last step to require power
 	bool currently_producing;
 
-	sint32 last_sound_ms;
+	uint32 last_sound_ms;
 
 	// power that can be currently drawn from this station (or the amount delivered)
 	uint32 power;

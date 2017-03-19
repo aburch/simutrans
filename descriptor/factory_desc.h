@@ -236,7 +236,7 @@ private:
 	uint16 base_max_distance_to_consumer;
 	uint16 max_distance_to_consumer;
 	sint8 sound_id;
-	sint32 sound_intervall;
+	uint32 sound_intervall;
 
 public:
 
@@ -303,7 +303,7 @@ public:
 
 	// more effects when producing
 	sint8 get_sound() const { return sound_id; }
-	sint32 get_sound_intervall_ms() const { return sound_intervall; }
+	uint32 get_sound_intervall_ms() const { return sound_intervall; }
 	
 	uint16 get_max_distance_to_consumer() const { return max_distance_to_consumer; }
 

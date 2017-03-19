@@ -4093,9 +4093,9 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 	}
 	slope_t::type hang = gr->get_grund_hang();
 	// first get the size
-	int len = desc->get_size().y-1;
 	int len = desc->get_y() - 1;
 	koord dx(hang);
+	koord last_k = k - dx*len;
 	halthandle_t halt;
 
 	sint64 costs;
@@ -4173,7 +4173,7 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 	// remove everything from tile
 	gr->obj_loesche_alle(player);
 
-DBG_MESSAGE("tool_dockbau()","building dock from square (%d,%d) to (%d,%d)", k.x, k.y, last_k.x, last_k.y);
+DBG_MESSAGE("tool_build_station_t::tool_station_dock_aux()","building dock from square (%d,%d) to (%d,%d)", k.x, k.y, last_k.x, last_k.y);
 	int layout = 0;
 	koord3d bau_pos = welt->lookup_kartenboden(k)->get_pos();
 	koord dx2;
