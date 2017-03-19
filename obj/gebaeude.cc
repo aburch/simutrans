@@ -102,7 +102,7 @@ gebaeude_t::gebaeude_t(loadsave_t *file) :
 	if(file->get_version()<88002) {
 		set_yoff(0);
 	}
-	if(tile  &&  tile->get_phasen()>1) {
+	if(tile  &&  tile->get_phases()>1) {
 		welt->sync_eyecandy.add( this );
 		sync = true;
 	}
@@ -492,7 +492,7 @@ void gebaeude_t::set_tile( const building_tile_desc_t *new_tile, bool start_with
 
 	zeige_baugrube = !new_tile->get_desc()->no_construction_pit()  &&  start_with_construction;
 	if(sync) {
-		if(new_tile->get_phasen()<=1  &&  !zeige_baugrube) {
+		if(new_tile->get_phases()<=1  &&  !zeige_baugrube) {
 			// need to stop animation
 #ifdef MULTI_THREAD
 			pthread_mutex_lock( &sync_mutex );
@@ -505,12 +505,12 @@ void gebaeude_t::set_tile( const building_tile_desc_t *new_tile, bool start_with
 #endif
 		}
 	}
-	else if(new_tile->get_phasen()>1  ||  zeige_baugrube) {
+	else if (new_tile->get_phases()>1 && (!is_factory || get_fabrik()->is_currently_producing()) || zeige_baugrube) {
 		// needs now animation
 #ifdef MULTI_THREAD
 		pthread_mutex_lock( &sync_mutex );
 #endif
-		anim_frame = sim_async_rand(new_tile->get_phasen());
+		anim_frame = sim_async_rand(new_tile->get_phases());
 		anim_time = 0;
 		welt->sync_eyecandy.add(this);
 		sync = true;
@@ -532,50 +532,52 @@ sync_result gebaeude_t::sync_step(uint32 delta_t)
 		// this when some intermediate values were uint32.
 		purchase_time = welt->get_zeit_ms() - 5000ll;
 	}
-
-	if(zeige_baugrube) {
+	if (zeige_baugrube) {
 		// still under construction?
-		if(welt->get_zeit_ms() - purchase_time > 5000ll) {
+		if (welt->get_zeit_ms() - purchase_time > 5000) {
 			set_flag(obj_t::dirty);
 			mark_image_dirty(get_image(), 0);
 			zeige_baugrube = false;
-			if(tile->get_phasen()<=1) {
+			if (tile->get_phases() <= 1) {
 				sync = false;
 				return SYNC_REMOVE;
 			}
 		}
 	}
 	else {
-		// normal animated building
-		anim_time += (uint16)delta_t;
-		if(  anim_time > tile->get_desc()->get_animation_time()  ) {
-			anim_time -= tile->get_desc()->get_animation_time();
+		if (!is_factory || get_fabrik()->is_currently_producing()) {
+			// normal animated building
+			anim_time += delta_t;
+			if (anim_time > tile->get_desc()->get_animation_time()) {
+				anim_time -= tile->get_desc()->get_animation_time();
 
-			// old positions need redraw
-			if(  background_animated  ) {
-				set_flag( obj_t::dirty );
-				mark_images_dirty();
-			}
-			else {
-				// try foreground
-				image_id image = tile->get_foreground( anim_frame, season );
-				mark_image_dirty( image, 0 );
-			}
+				// old positions need redraw
+				if (background_animated) {
+					set_flag(obj_t::dirty);
+					mark_images_dirty();
+				}
+				else {
+					// try foreground
+					image_id image = tile->get_foreground(anim_frame, season);
+					mark_image_dirty(image, 0);
+				}
 
-			anim_frame++;
-			if(  anim_frame >= tile->get_phasen()  ) {
-				anim_frame = 0;
-			}
+				anim_frame++;
+				if (anim_frame >= tile->get_phases()) {
+					anim_frame = 0;
+				}
 
-			if(  !background_animated  ) {
-				// next phase must be marked dirty too ...
-				image_id image = tile->get_foreground( anim_frame, season );
-				mark_image_dirty( image, 0 );
+				if (!background_animated) {
+					// next phase must be marked dirty too ...
+					image_id image = tile->get_foreground(anim_frame, season);
+					mark_image_dirty(image, 0);
+				}
 			}
- 		}
- 	}
+		}
+	}
 	return SYNC_OK;
 }
+
 
 
 void gebaeude_t::calc_image()

@@ -3,6 +3,7 @@
 #include "../../bauer/fabrikbauer.h"
 #include "../../simdebug.h"
 #include "../obj_node_info.h"
+#include "../sound_desc.h"
 #include "../factory_desc.h"
 #include "../xref_desc.h"
 #include "../../network/pakset_info.h"
@@ -235,6 +236,9 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// Hajo: Read data
 	fread(desc_buf, node.size, 1, fp);
 
+	desc->sound_id = NO_SOUND;
+	desc->sound_intervall = 0xFFFFFFFFul;
+
 	char * p = desc_buf;
 
 	// Hajo: old versions of PAK files have no version stamp.
@@ -261,7 +265,64 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	typedef factory_desc_t::site_t site_t;
-	if(version == 3) {
+	if (version == 4)
+	{
+		// Versioned node, version 4 with sound and animation
+		desc->placement = (site_t)decode_uint16(p);
+		desc->productivity = decode_uint16(p);
+		desc->range = decode_uint16(p);
+		desc->chance = decode_uint16(p);
+		desc->color = decode_uint8(p);
+		desc->fields = decode_uint8(p);
+		desc->supplier_count = decode_uint16(p);
+		desc->product_count = decode_uint16(p);
+		if (extended)
+		{
+			desc->pax_level = 65535;
+		}
+		else
+		{
+			desc->pax_level = decode_uint16(p);
+		}
+		if (extended)
+		{
+			desc->electricity_proportion = decode_uint16(p);
+			desc->inverse_electricity_proportion = 100 / desc->electricity_proportion;
+
+			desc->upgrades = decode_uint8(p);
+			
+			if (extended_version > 3)
+			{
+				// Check for incompatible future versions
+				dbg->fatal("factory_reader_t::read_node()", "Incompatible pak file version for Simutrans-Extended, number %i", extended_version);
+			}
+		}
+		desc->expand_probability = rescale_probability(decode_uint16(p));
+		desc->expand_minimum = decode_uint16(p);
+		desc->expand_range = decode_uint16(p);
+		desc->expand_times = decode_uint16(p);
+		desc->electric_boost = decode_uint16(p);
+		desc->pax_boost = decode_uint16(p);
+		desc->mail_boost = decode_uint16(p);
+		desc->electric_amount = decode_uint16(p);
+		if (extended && extended_version > 1)
+		{
+			desc->pax_demand = 65535;
+			desc->mail_demand = 65535;
+			desc->base_max_distance_to_consumer = decode_uint16(p);
+		}
+		else
+		{
+			desc->pax_demand = decode_uint16(p);
+			desc->mail_demand = decode_uint16(p);
+			desc->base_max_distance_to_consumer = 65535;
+		}
+		desc->sound_intervall = decode_sint32(p);
+		desc->sound_id = decode_sint8(p);
+		
+		DBG_DEBUG("factory_reader_t::read_node()", "version=4, platz=%i, supplier_count=%i, pax=%i, sound_intervall=%li, sound_id=%i", desc->placement, desc->supplier_count, desc->pax_level, desc->sound_intervall, desc->sound_id);
+	}
+	else if(version == 3) {
 		// Versioned node, version 3
 		desc->placement = (site_t)decode_uint16(p);
 		desc->productivity = decode_uint16(p);
@@ -440,6 +501,23 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	desc->max_distance_to_consumer = desc->base_max_distance_to_consumer;
+
+	if (desc->sound_id == LOAD_SOUND) {
+		uint8 len = decode_sint8(p);
+		char wavname[256];
+		wavname[len] = 0;
+		for (uint8 i = 0; i<len; i++) {
+			wavname[i] = decode_sint8(p);
+		}
+		desc->sound_id = (sint8)sound_desc_t::get_sound_id(wavname);
+		DBG_MESSAGE("vehicle_reader_t::register_obj()", "sound %s to %i", wavname, desc->sound_id);
+		
+	}
+	else if (desc->sound_id >= 0 && desc->sound_id <= MAX_OLD_SOUNDS) {
+		sint16 old_id = desc->sound_id;
+		desc->sound_id = (sint8)sound_desc_t::get_compatible_sound_id((sint8)old_id);
+		DBG_MESSAGE("vehicle_reader_t::register_obj()", "old sound %i to %i", old_id, desc->sound_id);
+	}
 
 	return desc;
 }

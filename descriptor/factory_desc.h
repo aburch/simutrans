@@ -235,6 +235,8 @@ private:
 	uint16 mail_demand; // Kept for backwards compatibility only. This is now read from the associated gebaeude_t object.
 	uint16 base_max_distance_to_consumer;
 	uint16 max_distance_to_consumer;
+	sint8 sound_id;
+	sint32 sound_intervall;
 
 public:
 
@@ -298,6 +300,10 @@ public:
 	uint16 get_electric_amount() const { return electric_amount; }
 	uint16 get_pax_demand() const { return pax_demand; }
 	uint16 get_mail_demand() const { return mail_demand; }
+
+	// more effects when producing
+	sint8 get_sound() const { return sound_id; }
+	sint32 get_sound_intervall_ms() const { return sound_intervall; }
 	
 	uint16 get_max_distance_to_consumer() const { return max_distance_to_consumer; }
 
