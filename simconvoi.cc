@@ -1306,9 +1306,11 @@ void convoi_t::step()
 				if(restart_speed>=0) {
 					akt_speed = restart_speed;
 				}
-				sint8 overtaking_info = welt->lookup(get_pos())->get_weg(road_wt)->get_overtaking_info();
-				if(  (state==CAN_START  ||  state==CAN_START_ONE_MONTH)  &&  overtaking_info!=0  &&  overtaking_info!=4  ) {
-					set_tiles_overtaking( 0 );
+				if(  fahr[0]->get_waytype()==road_wt  ) {
+					sint8 overtaking_info = welt->lookup(get_pos())->get_weg(road_wt)->get_overtaking_info();
+					if(  (state==CAN_START  ||  state==CAN_START_ONE_MONTH)  &&  overtaking_info!=0  &&  overtaking_info!=4  ) {
+						set_tiles_overtaking( 0 );
+					}
 				}
 			}
 			break;
@@ -1324,9 +1326,11 @@ void convoi_t::step()
 				if(restart_speed>=0) {
 					akt_speed = restart_speed;
 				}
-				sint8 overtaking_info = welt->lookup(get_pos())->get_weg(road_wt)->get_overtaking_info();
-				if(  state!=DRIVING  &&  overtaking_info!=0  &&  overtaking_info!=4  ) {
-					set_tiles_overtaking( 0 );
+				if(  fahr[0]->get_waytype()==road_wt  ) {
+					sint8 overtaking_info = welt->lookup(get_pos())->get_weg(road_wt)->get_overtaking_info();
+					if(  state!=DRIVING  &&  overtaking_info!=0  &&  overtaking_info!=4  ) {
+						set_tiles_overtaking( 0 );
+					}
 				}
 			}
 			break;
