@@ -14,29 +14,29 @@
 #include "../dataobj/translator.h"
 
 
-stringhashtable_tpl<const goods_desc_t *> warenbauer_t::desc_names;
+stringhashtable_tpl<const goods_desc_t *> goods_manager_t::desc_names;
 
-vector_tpl<goods_desc_t *> warenbauer_t::waren;
+vector_tpl<goods_desc_t *> goods_manager_t::waren;
 
-uint8 warenbauer_t::max_catg_index = 0;
+uint8 goods_manager_t::max_catg_index = 0;
 
-const goods_desc_t *warenbauer_t::passagiere = NULL;
-const goods_desc_t *warenbauer_t::post = NULL;
-const goods_desc_t *warenbauer_t::nichts = NULL;
+const goods_desc_t *goods_manager_t::passagiere = NULL;
+const goods_desc_t *goods_manager_t::post = NULL;
+const goods_desc_t *goods_manager_t::nichts = NULL;
 
-goods_desc_t *warenbauer_t::load_passagiere = NULL;
-goods_desc_t *warenbauer_t::load_post = NULL;
-goods_desc_t *warenbauer_t::load_nichts = NULL;
+goods_desc_t *goods_manager_t::load_passagiere = NULL;
+goods_desc_t *goods_manager_t::load_post = NULL;
+goods_desc_t *goods_manager_t::load_nichts = NULL;
 
 static spezial_obj_tpl<goods_desc_t> const special_objects[] = {
-	{ &warenbauer_t::passagiere,    "Passagiere" },
-	{ &warenbauer_t::post,	    "Post" },
-	{ &warenbauer_t::nichts,	    "None" },
+	{ &goods_manager_t::passagiere,    "Passagiere" },
+	{ &goods_manager_t::post,	    "Post" },
+	{ &goods_manager_t::nichts,	    "None" },
 	{ NULL, NULL }
 };
 
 
-bool warenbauer_t::successfully_loaded()
+bool goods_manager_t::successfully_loaded()
 {
 	if(!::successfully_loaded(special_objects)) {
 		return false;
@@ -51,7 +51,7 @@ bool warenbauer_t::successfully_loaded()
 	waren.insert_at(0,load_passagiere);
 
 	if(waren.get_count()>=255) {
-		dbg->fatal("warenbauer_t::successfully_loaded()","Too many different goods %i>255",waren.get_count()-1 );
+		dbg->fatal("goods_manager_t::successfully_loaded()","Too many different goods %i>255",waren.get_count()-1 );
 	}
 
 	// assign indexes
@@ -106,7 +106,7 @@ bool warenbauer_t::successfully_loaded()
 	// however, some place do need the dummy ...
 	ware_t::index_to_desc[2] = NULL;
 
-	DBG_MESSAGE("warenbauer_t::successfully_loaded()","total goods %i, different kind of categories %i", waren.get_count(), max_catg_index );
+	DBG_MESSAGE("goods_manager_t::successfully_loaded()","total goods %i, different kind of categories %i", waren.get_count(), max_catg_index );
 
 	return true;
 }
@@ -118,7 +118,7 @@ static bool compare_ware_desc(const goods_desc_t* a, const goods_desc_t* b)
 	return diff < 0;
 }
 
-bool warenbauer_t::register_desc(goods_desc_t *desc)
+bool goods_manager_t::register_desc(goods_desc_t *desc)
 {
 	desc->values.clear();
 	ITERATE(desc->base_values, i)
@@ -129,7 +129,7 @@ bool warenbauer_t::register_desc(goods_desc_t *desc)
 	// avoid duplicates with same name
 	goods_desc_t *old_desc = const_cast<goods_desc_t *>(desc_names.get(desc->get_name()));
 	if(  old_desc  ) {
-		dbg->warning( "warenbauer_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		dbg->warning( "goods_manager_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 		desc_names.remove(desc->get_name());
 		waren.remove( old_desc );
 	}
@@ -152,7 +152,7 @@ bool warenbauer_t::register_desc(goods_desc_t *desc)
 }
 
 
-const goods_desc_t *warenbauer_t::get_info(const char* name)
+const goods_desc_t *goods_manager_t::get_info(const char* name)
 {
 	const goods_desc_t *ware = desc_names.get(name);
 	if(  ware==NULL  ) {
@@ -162,7 +162,7 @@ const goods_desc_t *warenbauer_t::get_info(const char* name)
 }
 
 
-const goods_desc_t *warenbauer_t::get_info_catg(const uint8 catg)
+const goods_desc_t *goods_manager_t::get_info_catg(const uint8 catg)
 {
 	if(catg>0) {
 		for(unsigned i=0;  i<get_count();  i++  ) {
@@ -171,12 +171,12 @@ const goods_desc_t *warenbauer_t::get_info_catg(const uint8 catg)
 			}
 		}
 	}
-	dbg->warning("warenbauer_t::get_info()", "No info for good catg %d available, set to passengers", catg);
+	dbg->warning("goods_manager_t::get_info()", "No info for good catg %d available, set to passengers", catg);
 	return waren[0];
 }
 
 
-const goods_desc_t *warenbauer_t::get_info_catg_index(const uint8 catg_index)
+const goods_desc_t *goods_manager_t::get_info_catg_index(const uint8 catg_index)
 {
 	for(unsigned i=0;  i<get_count();  i++  ) {
 		if(waren[i]->get_catg_index()==catg_index) {
@@ -189,9 +189,9 @@ const goods_desc_t *warenbauer_t::get_info_catg_index(const uint8 catg_index)
 
 
 // adjuster for dummies ...
-void warenbauer_t::set_multiplier(sint32 multiplier, uint16 scale_factor)
+void goods_manager_t::set_multiplier(sint32 multiplier, uint16 scale_factor)
 {
-//DBG_MESSAGE("warenbauer_t::set_multiplier()","new factor %i",multiplier);
+//DBG_MESSAGE("goods_manager_t::set_multiplier()","new factor %i",multiplier);
 	for(unsigned i=0;  i<get_count();  i++  ) 
 	{
 		waren[i]->values.clear();
@@ -214,7 +214,7 @@ void warenbauer_t::set_multiplier(sint32 multiplier, uint16 scale_factor)
  * max_bonus_min_distance -- in METERS -- here the speedbonus reaches its max
  * multiplier -- multiply by the nominal speedbonus to get the maximum speedbonus
  */
-void warenbauer_t::cache_speedbonuses(uint32 min_d, uint32 med_d, uint32 max_d, uint16 multiplier)
+void goods_manager_t::cache_speedbonuses(uint32 min_d, uint32 med_d, uint32 max_d, uint16 multiplier)
 {
 	for( unsigned i=0;  i<get_count();  i++ )
 	{

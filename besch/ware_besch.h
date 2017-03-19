@@ -49,8 +49,8 @@ struct fare_stage_t
  *	2   Text: Name of measurement unit
  */
 class goods_desc_t : public obj_named_desc_t {
-	friend class good_reader_t;
-	friend class warenbauer_t;
+	friend class goods_reader_t;
+	friend class goods_manager_t;
 
 	vector_tpl<fare_stage_t> values;
 	vector_tpl<fare_stage_t> base_values;
@@ -176,7 +176,7 @@ public:
 	 */
 	uint16 get_adjusted_speed_bonus(uint32 distance) const
 	{
-		// Use the functional... it should be loaded by warenbauer_t::cache_speedbonuses
+		// Use the functional... it should be loaded by goods_manager_t::cache_speedbonuses
 		return adjusted_speed_bonus(distance);
 	}
 

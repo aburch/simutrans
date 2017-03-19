@@ -5,8 +5,8 @@
  * (see licence.txt)
  */
 
-#ifndef warenbauer_t_h
-#define warenbauer_t_h
+#ifndef goods_manager_t_h
+#define goods_manager_t_h
 
 #include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
@@ -18,7 +18,7 @@ class goods_desc_t;
  *
  * @author Hj. Malthaner
  */
-class warenbauer_t
+class goods_manager_t
 {
 private:
 	static stringhashtable_tpl<const goods_desc_t *> desc_names;

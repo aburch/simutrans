@@ -828,7 +828,7 @@ public:
 	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
 	uint16 get_max_bonus_multiplier_percent() const { return max_bonus_multiplier_percent; }
 	// Cache the above settings directly in goods_desc_t objects.
-	// During loading you must call this *after* warenbauer_t is done registering wares.
+	// During loading you must call this *after* goods_manager_t is done registering wares.
 	void cache_speedbonuses();
 
 	uint16 get_meters_per_tile() const { return meters_per_tile; }

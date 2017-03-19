@@ -1244,13 +1244,13 @@ void reliefkarte_t::draw(scr_coord pos)
 
 						// does this line has a matching freight
 						if(  mode & MAP_PASSENGER  ) {
-							if(  !linee[j]->get_goods_catg_index().is_contained( warenbauer_t::INDEX_PAS )  ) {
+							if(  !linee[j]->get_goods_catg_index().is_contained( goods_manager_t::INDEX_PAS )  ) {
 								// no passengers
 								continue;
 							}
 						}
 						else if(  mode & MAP_MAIL  ) {
-							if(  !linee[j]->get_goods_catg_index().is_contained( warenbauer_t::INDEX_MAIL )  ) {
+							if(  !linee[j]->get_goods_catg_index().is_contained( goods_manager_t::INDEX_MAIL )  ) {
 								// no mail
 								continue;
 							}
@@ -1258,7 +1258,7 @@ void reliefkarte_t::draw(scr_coord pos)
 						else if(  mode & MAP_FREIGHT  ) {
 							uint8 i=0;
 							for(  ;  i < linee[j]->get_goods_catg_index().get_count();  i++  ) {
-								if(  linee[j]->get_goods_catg_index()[i] > warenbauer_t::INDEX_NONE  ) {
+								if(  linee[j]->get_goods_catg_index()[i] > goods_manager_t::INDEX_NONE  ) {
 									break;
 								}
 							}
@@ -1301,13 +1301,13 @@ void reliefkarte_t::draw(scr_coord pos)
 				if( state != convoi_t::INITIAL  &&  state != convoi_t::ENTERING_DEPOT  &&  state != convoi_t::SELF_DESTRUCT  ) {
 					// does this line has a matching freight
 					if(  mode & MAP_PASSENGER  ) {
-						if(  !cnv->get_goods_catg_index().is_contained( warenbauer_t::INDEX_PAS )  ) {
+						if(  !cnv->get_goods_catg_index().is_contained( goods_manager_t::INDEX_PAS )  ) {
 							// no passengers
 							continue;
 						}
 					}
 					else if(  mode & MAP_MAIL  ) {
-						if(  !cnv->get_goods_catg_index().is_contained( warenbauer_t::INDEX_MAIL )  ) {
+						if(  !cnv->get_goods_catg_index().is_contained( goods_manager_t::INDEX_MAIL )  ) {
 							// no mail
 							continue;
 						}
@@ -1315,7 +1315,7 @@ void reliefkarte_t::draw(scr_coord pos)
 					else if(  mode & MAP_FREIGHT  ) {
 						uint8 i=0;
 						for(  ;  i < cnv->get_goods_catg_index().get_count();  i++  ) {
-							if(  cnv->get_goods_catg_index()[i] > warenbauer_t::INDEX_NONE  ) {
+							if(  cnv->get_goods_catg_index()[i] > goods_manager_t::INDEX_NONE  ) {
 								break;
 							}
 						}
@@ -1423,13 +1423,13 @@ void reliefkarte_t::draw(scr_coord pos)
 		}
 		else if(  mode&MAP_TRANSFER  ) {
 			FOR( const vector_tpl<halthandle_t>, halt, haltestelle_t::get_alle_haltestellen() ) {
-				if(  halt->is_transfer(warenbauer_t::INDEX_PAS)  ||  halt->is_transfer(warenbauer_t::INDEX_MAIL)  ) {
+				if(  halt->is_transfer(goods_manager_t::INDEX_PAS)  ||  halt->is_transfer(goods_manager_t::INDEX_MAIL)  ) {
 					stop_cache.append( halt );
 				}
 				else {
 					// good transfer?
 					bool transfer = false;
-					for(  int i=warenbauer_t::INDEX_NONE+1  &&  !transfer;  i<=warenbauer_t::get_max_catg_index();  i ++  ) {
+					for(  int i=goods_manager_t::INDEX_NONE+1  &&  !transfer;  i<=goods_manager_t::get_max_catg_index();  i ++  ) {
 						transfer = halt->is_transfer( i );
 					}
 					if(  transfer  ) {

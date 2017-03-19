@@ -208,7 +208,7 @@ goods_frame_t::goods_frame_t() :
 
 	sort_list();
 
-	int h = (warenbauer_t::get_count()+1)*(LINESPACE+1)+y;
+	int h = (goods_manager_t::get_count()+1)*(LINESPACE+1)+y;
 	if(h>450) {
 		h = y+27*(LINESPACE+1)+D_TITLEBAR_HEIGHT+1;
 	}
@@ -223,8 +223,8 @@ goods_frame_t::goods_frame_t() :
 bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 {
 	const goods_desc_t* w[2];
-	w[0] = warenbauer_t::get_info(a);
-	w[1] = warenbauer_t::get_info(b);
+	w[0] = goods_manager_t::get_info(a);
+	w[1] = goods_manager_t::get_info(b);
 
 	int order = 0;
 
@@ -291,13 +291,13 @@ void goods_frame_t::sort_list()
 	const vector_tpl<const goods_desc_t*> &goods_in_game = welt->get_goods_list();
 
 	int n=0;
-	for(unsigned int i=0; i<warenbauer_t::get_count(); i++) {
-		const goods_desc_t * wtyp = warenbauer_t::get_info(i);
+	for(unsigned int i=0; i<goods_manager_t::get_count(); i++) {
+		const goods_desc_t * wtyp = goods_manager_t::get_info(i);
 
 		// Skip goods not in the game
 		// Do not skip goods which don't generate income -- it makes it hard to debug paks
 		// Do skip the special good "None"
-		if(  (wtyp != warenbauer_t::nichts) && (!filter_goods || goods_in_game.is_contained(wtyp))  ) {
+		if(  (wtyp != goods_manager_t::nichts) && (!filter_goods || goods_in_game.is_contained(wtyp))  ) {
 			good_list[n++] = i;
 		}
 	}

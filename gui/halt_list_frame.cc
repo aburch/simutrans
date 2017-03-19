@@ -147,7 +147,7 @@ static bool passes_filter_special(haltestelle_t & s)
 	if(halt_list_frame_t::get_filter(halt_list_frame_t::ohneverb_filter))
 	{
 		bool walking_connexion_only = true; // Walking connexion or no connexion at all.
-		for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); ++i)
+		for(uint8 i = 0; i < goods_manager_t::get_max_catg_index(); ++i)
 		{
 			if(!s.get_connexions(i)->empty()) 
 			{
@@ -180,15 +180,15 @@ static bool passes_filter_out(haltestelle_t const& s)
 
 	// Hajo: todo: check if there is a destination for the good (?)
 
-	for (uint32 i = 0; i != warenbauer_t::get_count(); ++i) {
-		goods_desc_t const* const ware = warenbauer_t::get_info(i);
+	for (uint32 i = 0; i != goods_manager_t::get_count(); ++i) {
+		goods_desc_t const* const ware = goods_manager_t::get_info(i);
 		if (!halt_list_frame_t::get_ware_filter_ab(ware)) continue;
 
-		if (ware == warenbauer_t::passagiere) {
+		if (ware == goods_manager_t::passagiere) {
 			if (s.get_pax_enabled()) return true;
-		} else if (ware == warenbauer_t::post) {
+		} else if (ware == goods_manager_t::post) {
 			if (s.get_post_enabled()) return true;
-		} else if (ware != warenbauer_t::nichts) {
+		} else if (ware != goods_manager_t::nichts) {
 			// Oh Mann - eine doublese Schleife und das noch pro Haltestelle
 			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
 			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
@@ -215,15 +215,15 @@ static bool passes_filter_in(haltestelle_t const& s)
 
 	// Hajo: todo: check if there is a destination for the good (?)
 
-	for (uint32 i = 0; i != warenbauer_t::get_count(); ++i) {
-		goods_desc_t const* const ware = warenbauer_t::get_info(i);
+	for (uint32 i = 0; i != goods_manager_t::get_count(); ++i) {
+		goods_desc_t const* const ware = goods_manager_t::get_info(i);
 		if (!halt_list_frame_t::get_ware_filter_an(ware)) continue;
 
-		if (ware == warenbauer_t::passagiere) {
+		if (ware == goods_manager_t::passagiere) {
 			if (s.get_pax_enabled()) return true;
-		} else if (ware == warenbauer_t::post) {
+		} else if (ware == goods_manager_t::post) {
 			if (s.get_post_enabled()) return true;
-		} else if (ware != warenbauer_t::nichts) {
+		} else if (ware != goods_manager_t::nichts) {
 			// Oh Mann - eine doublese Schleife und das noch pro Haltestelle
 			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
 			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
@@ -481,7 +481,7 @@ void halt_list_frame_t::draw(scr_coord pos, scr_size size)
 
 void halt_list_frame_t::set_ware_filter_ab(const goods_desc_t *ware, int mode)
 {
-	if(ware != warenbauer_t::nichts) {
+	if(ware != goods_manager_t::nichts) {
 		if(get_ware_filter_ab(ware)) {
 			if(mode != 1) {
 				waren_filter_ab.remove(ware);
@@ -498,7 +498,7 @@ void halt_list_frame_t::set_ware_filter_ab(const goods_desc_t *ware, int mode)
 
 void halt_list_frame_t::set_ware_filter_an(const goods_desc_t *ware, int mode)
 {
-	if(ware != warenbauer_t::nichts) {
+	if(ware != goods_manager_t::nichts) {
 		if(get_ware_filter_an(ware)) {
 			if(mode != 1) {
 				waren_filter_an.remove(ware);
@@ -519,8 +519,8 @@ void halt_list_frame_t::set_alle_ware_filter_ab(int mode)
 		waren_filter_ab.clear();
 	}
 	else {
-		for(unsigned int i = 0; i<warenbauer_t::get_count(); i++) {
-			set_ware_filter_ab(warenbauer_t::get_info(i), mode);
+		for(unsigned int i = 0; i<goods_manager_t::get_count(); i++) {
+			set_ware_filter_ab(goods_manager_t::get_info(i), mode);
 		}
 	}
 }
@@ -532,8 +532,8 @@ void halt_list_frame_t::set_alle_ware_filter_an(int mode)
 		waren_filter_an.clear();
 	}
 	else {
-		for(unsigned int i = 0; i<warenbauer_t::get_count(); i++) {
-			set_ware_filter_an(warenbauer_t::get_info(i), mode);
+		for(unsigned int i = 0; i<goods_manager_t::get_count(); i++) {
+			set_ware_filter_an(goods_manager_t::get_info(i), mode);
 		}
 	}
 }

@@ -2956,12 +2956,12 @@ void settings_t::cache_comfort_tables() {
 /**
  * Reload the linear interpolation tables for speedbonus from the settings.
  * These tables are stored directly in goods_desc_t objects.
- * Therefore, during loading you must call this *after* warenbauer_t is done registering wares.
+ * Therefore, during loading you must call this *after* goods_manager_t is done registering wares.
  * @author neroden
  */
 void settings_t::cache_speedbonuses() {
 	// There is one speedbonus table for each good, so defer most of the work
-	// to warenbauer_t.
+	// to goods_manager_t.
 
 	// Sanity-check the settings, and fix them if they're broken.
 	if (median_bonus_distance) {
@@ -2987,7 +2987,7 @@ void settings_t::cache_speedbonuses() {
 	uint16 multiplier = (uint16) max_bonus_multiplier_percent;
 
 	// Do the work.
-	warenbauer_t::cache_speedbonuses(min_d, med_d, max_d, multiplier);
+	goods_manager_t::cache_speedbonuses(min_d, med_d, max_d, multiplier);
 }
 
 // Returns *scaled* values.

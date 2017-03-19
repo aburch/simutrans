@@ -1467,13 +1467,13 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	snowline = sets->get_winter_snowline() + grundwasser;
 
 	if(sets->get_beginner_mode()) {
-		warenbauer_t::set_multiplier(settings.get_beginner_price_factor(), settings.get_meters_per_tile());
+		goods_manager_t::set_multiplier(settings.get_beginner_price_factor(), settings.get_meters_per_tile());
 		settings.set_just_in_time( 0 );
 	}
 	else {
-		warenbauer_t::set_multiplier(1000, settings.get_meters_per_tile());
+		goods_manager_t::set_multiplier(1000, settings.get_meters_per_tile());
 	}
-	// Must do this just after set_multiplier, since it depends on warenbauer_t having registered all wares:
+	// Must do this just after set_multiplier, since it depends on goods_manager_t having registered all wares:
 	settings.cache_speedbonuses();
 
 	recalc_season_snowline(false);
@@ -1735,7 +1735,7 @@ void *step_passengers_and_mail_threaded(void* args)
 				{
 					goto top;
 				}
-				units_this_step = karte_t::world->generate_passengers_or_mail(warenbauer_t::passagiere);
+				units_this_step = karte_t::world->generate_passengers_or_mail(goods_manager_t::passagiere);
 				total_units_passenger += units_this_step;
 				next_step_passenger_this_thread -= (karte_t::world->passenger_step_interval * units_this_step);
 
@@ -1750,7 +1750,7 @@ void *step_passengers_and_mail_threaded(void* args)
 				{
 					goto top;
 				}
-				units_this_step = karte_t::world->generate_passengers_or_mail(warenbauer_t::post);
+				units_this_step = karte_t::world->generate_passengers_or_mail(goods_manager_t::post);
 				total_units_mail += units_this_step;
 				next_step_mail_this_thread -= (karte_t::world->mail_step_interval * units_this_step);
 
@@ -1759,8 +1759,8 @@ void *step_passengers_and_mail_threaded(void* args)
 #else
 		for (uint32 i = 0; i < 2; i++)
 		{	
-			karte_t::world->generate_passengers_or_mail(warenbauer_t::passagiere);
-			karte_t::world->generate_passengers_or_mail(warenbauer_t::post);
+			karte_t::world->generate_passengers_or_mail(goods_manager_t::passagiere);
+			karte_t::world->generate_passengers_or_mail(goods_manager_t::post);
 		}
 #endif
 
@@ -2837,8 +2837,8 @@ karte_t::karte_t() :
 	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL );
 
 	// standard prices
-	warenbauer_t::set_multiplier( 1000, settings.get_meters_per_tile() );
-	// Must do this just after set_multiplier, since it depends on warenbauer_t having registered all wares:
+	goods_manager_t::set_multiplier( 1000, settings.get_meters_per_tile() );
+	// Must do this just after set_multiplier, since it depends on goods_manager_t having registered all wares:
 	settings.cache_speedbonuses();
 
 	zeiger = 0;
@@ -2981,10 +2981,10 @@ void karte_t::set_scale()
 	}
 
 	// Goods
-	const uint16 goods_count = warenbauer_t::get_count();
+	const uint16 goods_count = goods_manager_t::get_count();
 	for(uint16 i = 0; i < goods_count; i ++)
 	{
-		warenbauer_t::get_modifiable_info(i)->set_scale(scale_factor);
+		goods_manager_t::get_modifiable_info(i)->set_scale(scale_factor);
 	}
 
 	// Industries
@@ -5663,7 +5663,7 @@ void karte_t::step_passengers_and_mail(uint32 delta_t)
 		{
 			return;
 		}
-		units_this_step = generate_passengers_or_mail(warenbauer_t::passagiere);
+		units_this_step = generate_passengers_or_mail(goods_manager_t::passagiere);
 		next_step_passenger -= (passenger_step_interval * units_this_step);
 
 	} 
@@ -5674,7 +5674,7 @@ void karte_t::step_passengers_and_mail(uint32 delta_t)
 		{
 			return;
 		}
-		units_this_step = generate_passengers_or_mail(warenbauer_t::post);
+		units_this_step = generate_passengers_or_mail(goods_manager_t::post);
 		next_step_mail -= (mail_step_interval * units_this_step);
 	} 
 }
@@ -5885,11 +5885,11 @@ void karte_t::deposit_ware_at_destination(ware_t ware)
 
 uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 {
-	const city_cost history_type = (wtyp == warenbauer_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
+	const city_cost history_type = (wtyp == goods_manager_t::passagiere) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
 	const uint32 units_this_step = simrand((uint32)settings.get_passenger_routing_packet_size(), "void karte_t::generate_passengers_and_mail(uint32 delta_t) passenger/mail packet size") + 1;
 	// Pick the building from which to generate passengers/mail
 	gebaeude_t* gb;
-	if(wtyp == warenbauer_t::passagiere)
+	if(wtyp == goods_manager_t::passagiere)
 	{
 		// Pick a passenger building at random
 		const uint32 weight = simrand(passenger_origins.get_sum_weight() - 1, "void karte_t::generate_passengers_and_mail(uint32 delta_t) pick origin building (passengers)");
@@ -5930,7 +5930,7 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 	// Check whether this batch of passengers has access to a private car each.
 		
-	const sint16 private_car_percent = wtyp == warenbauer_t::passagiere ? get_private_car_ownership(get_timeline_year_month()) : 0; 
+	const sint16 private_car_percent = wtyp == goods_manager_t::passagiere ? get_private_car_ownership(get_timeline_year_month()) : 0; 
 	// Only passengers have private cars
 	// QUERY: Should people be taken to be able to deliver mail packets in their own cars?
 	bool has_private_car = private_car_percent > 0 ? simrand(100, "karte_t::generate_passengers_and_mail() (has private car?)") <= (uint16)private_car_percent : false;
@@ -5949,7 +5949,7 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 	const uint32 range_visiting_tolerance = max(0, settings.get_range_visiting_tolerance() - min_visiting_tolerance);
 
 	const uint16 max_onward_trips = settings.get_max_onward_trips();
-	trip_type trip = (wtyp == warenbauer_t::passagiere) ?
+	trip_type trip = (wtyp == goods_manager_t::passagiere) ?
 			simrand(100, "karte_t::generate_passengers_and_mail() (commuting or visiting trip?)") < settings.get_commuting_trip_chance_percent() ?
 		commuting_trip : visiting_trip : mail_trip;
 
@@ -5969,7 +5969,7 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 	// Mail does not make onward journeys.
 	const uint16 onward_trips = simrand(100, "void stadt_t::generate_passengers_and_mail() (any onward trips?)") < settings.get_onward_trip_chance_percent() &&
-		wtyp == warenbauer_t::passagiere ? simrand(max_onward_trips, "void stadt_t::step_passagiere() (how many onward trips?)") + 1 : 1;
+		wtyp == goods_manager_t::passagiere ? simrand(max_onward_trips, "void stadt_t::step_passagiere() (how many onward trips?)") + 1 : 1;
 
 	route_status = initialising;
 
@@ -6087,7 +6087,7 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		* (Neroden suggests that this be reconsidered)
 		*/
 		uint32 quasi_tolerance = tolerance;
-		if(wtyp == warenbauer_t::post)
+		if(wtyp == goods_manager_t::post)
 		{
 			// People will walk long distances with mail: it is not heavy.
 			quasi_tolerance = simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::generate_passengers_and_mail (quasi tolerance)") + min_visiting_tolerance;
@@ -6465,13 +6465,13 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #ifdef MULTI_THREAD
 			pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 #endif
-			if(city && wtyp == warenbauer_t::passagiere)
+			if(city && wtyp == goods_manager_t::passagiere)
 			{
 				city->merke_passagier_ziel(destination_pos, COL_YELLOW);
 			}
 			set_return_trip = true;
 			// create pedestrians in the near area?
-			if(settings.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
+			if(settings.get_random_pedestrians() && wtyp == goods_manager_t::passagiere) 
 			{
 				pedestrian_t::generate_pedestrians_at(origin_pos, units_this_step);
 			}
@@ -6503,7 +6503,7 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 				city->generate_private_cars(origin_pos.get_2d(), car_minutes, destination_pos, units_this_step);
 #endif
-				if(wtyp == warenbauer_t::passagiere)
+				if(wtyp == goods_manager_t::passagiere)
 				{
 					city->set_private_car_trip(units_this_step, destination_town);
 					city->merke_passagier_ziel(destination_pos, COL_TURQUOISE);
@@ -6547,14 +6547,14 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 			// Walking passengers are not marked as "happy", as the player has not made them happy.
 
-			if(settings.get_random_pedestrians() && wtyp == warenbauer_t::passagiere) 
+			if(settings.get_random_pedestrians() && wtyp == goods_manager_t::passagiere) 
 			{
 				pedestrian_t::generate_pedestrians_at(origin_pos, units_this_step, get_seconds_to_ticks(walking_time * 6));
 			}
 				
 			if(city)
 			{
-				if(wtyp == warenbauer_t::passagiere)
+				if(wtyp == goods_manager_t::passagiere)
 				{
 					city->merke_passagier_ziel(destination_pos, COL_DARK_YELLOW);
 					city->add_walking_passengers(units_this_step);
@@ -6591,7 +6591,7 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 		case overcrowded:
 
-			if(city && wtyp == warenbauer_t::passagiere)
+			if(city && wtyp == goods_manager_t::passagiere)
 			{
 				city->merke_passagier_ziel(best_bad_destination, COL_RED);
 			}					
@@ -6608,7 +6608,7 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			break;
 
 		case too_slow:
-			if(city && wtyp == warenbauer_t::passagiere)
+			if(city && wtyp == goods_manager_t::passagiere)
 			{
 				if(car_minutes >= best_journey_time)
 				{
@@ -6640,7 +6640,7 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		case destination_unavailable:
 		default:
 no_route:
-			if(city && wtyp == warenbauer_t::passagiere)
+			if(city && wtyp == goods_manager_t::passagiere)
 			{
 				if(route_status == destination_unavailable)
 				{
@@ -6715,7 +6715,7 @@ no_route:
 #ifdef MULTI_THREAD
 				pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 #endif
-				current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == warenbauer_t::passagiere ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED));
+				current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == goods_manager_t::passagiere ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED));
 #ifdef MULTI_THREAD
 				pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 #endif
@@ -6819,7 +6819,7 @@ no_route:
 #ifdef MULTI_THREAD
 								pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 #endif
-								current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
+								current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == goods_manager_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
 #ifdef MULTI_THREAD
 								pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 #endif
@@ -6874,7 +6874,7 @@ no_route:
 				if(car_minutes < UINT32_MAX_VALUE)
 				{
 					// Do not check tolerance, as they must come back!
-					if(wtyp == warenbauer_t::passagiere)
+					if(wtyp == goods_manager_t::passagiere)
 					{
 						if(destination_town)
 						{
@@ -6903,7 +6903,7 @@ no_route:
 #endif
 					if(current_destination.type == factory && (trip == commuting_trip || trip == mail_trip))
 					{
-						current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
+						current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == goods_manager_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
 					}
 				}
 				else
@@ -6927,7 +6927,7 @@ return_on_foot:
 #ifdef MULTI_THREAD
 				pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 #endif
-				if(wtyp == warenbauer_t::passagiere)
+				if(wtyp == goods_manager_t::passagiere)
 				{
 					if (settings.get_random_pedestrians())
 					{
@@ -6962,7 +6962,7 @@ return_on_foot:
 				}
 				if(current_destination.type == factory && (trip == commuting_trip || trip == mail_trip))
 				{
-					current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp==warenbauer_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
+					current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp==goods_manager_t::passagiere ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
 				}
 #ifdef MULTI_THREAD
 				pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
@@ -8305,12 +8305,12 @@ void karte_t::load(loadsave_t *file)
 		}
 	}
 	if (settings.get_beginner_mode()) {
-		warenbauer_t::set_multiplier(settings.get_beginner_price_factor(), settings.get_meters_per_tile());
+		goods_manager_t::set_multiplier(settings.get_beginner_price_factor(), settings.get_meters_per_tile());
 	}
 	else {
-		warenbauer_t::set_multiplier( 1000, settings.get_meters_per_tile() );
+		goods_manager_t::set_multiplier( 1000, settings.get_meters_per_tile() );
 	}
-	// Must do this just after set_multiplier, since it depends on warenbauer_t having registered all wares:
+	// Must do this just after set_multiplier, since it depends on goods_manager_t having registered all wares:
 	settings.cache_speedbonuses();
 
 	if(old_scale_factor != get_settings().get_meters_per_tile())
@@ -10433,8 +10433,8 @@ const vector_tpl<const goods_desc_t*> &karte_t::get_goods_list()
 			delete produced_goods;
 		}
 
-		goods_in_game.insert_at(0, warenbauer_t::passagiere);
-		goods_in_game.insert_at(1, warenbauer_t::post);
+		goods_in_game.insert_at(0, goods_manager_t::passagiere);
+		goods_in_game.insert_at(1, goods_manager_t::post);
 	}
 
 	return goods_in_game;

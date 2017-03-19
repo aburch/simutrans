@@ -1467,7 +1467,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 		// freight?
 		const char *temp=NULL;
 		file->rdwr_str( temp );
-		freight = temp ? warenbauer_t::get_info(temp) : NULL;
+		freight = temp ? goods_manager_t::get_info(temp) : NULL;
 		// vehicles
 		file->rdwr_str( temp );
 		rail_engine = temp ? vehicle_builder_t::get_info(temp) : NULL;
@@ -1543,7 +1543,7 @@ void ai_goods_t::fabconnection_t::rdwr(loadsave_t *file)
 		fab2 = fabrik_t::get_fab( k3d.get_2d() );
 		const char *temp=NULL;
 		file->rdwr_str( temp );
-		ware = warenbauer_t::get_info(temp);
+		ware = goods_manager_t::get_info(temp);
 	}
 }
 

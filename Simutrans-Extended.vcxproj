@@ -1659,6 +1659,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bauer\warenbauer.cc" />
     <ClCompile Include="besch\fabrik_besch.cc" />
     <ClCompile Include="besch\obj_besch_std_name.cc" />
     <ClCompile Include="besch\vehikel_besch.cc" />
@@ -2094,7 +2095,6 @@
     <ClCompile Include="bauer\vehikelbauer.cc" />
     <ClCompile Include="music\w32_midi.cc" />
     <ClCompile Include="besch\ware_besch.cc" />
-    <ClCompile Include="bauer\warenbauer.cc" />
     <ClCompile Include="boden\wasser.cc" />
     <ClCompile Include="besch\reader\way_obj_reader.cc" />
     <ClCompile Include="besch\reader\way_reader.cc" />

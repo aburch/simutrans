@@ -201,7 +201,7 @@ sint64 goods_desc_t::get_fare_with_comfort_catering_speedbonus(karte_t* world,
 		return 0;
 	}
 
-	if ( get_index() == warenbauer_t::INDEX_PAS ) {
+	if ( get_index() == goods_manager_t::INDEX_PAS ) {
 		/*
 		 * Passengers: apply luxury bonus or discomfort penalty
 		 */
@@ -231,7 +231,7 @@ sint64 goods_desc_t::get_fare_with_comfort_catering_speedbonus(karte_t* world,
 			// Use the catering revenues table for this catering level. It is a functional.
 			fare += world->get_settings().catering_revenues[catering_level](journey_tenths);
 		}
-	} else if ( get_index() == warenbauer_t::INDEX_MAIL ) {
+	} else if ( get_index() == goods_manager_t::INDEX_MAIL ) {
 		if (catering_level > 0) {
 			/*
 			 * It's a TPO.  Apply TPO revenue.

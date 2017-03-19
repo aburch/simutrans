@@ -285,7 +285,7 @@ void fabrik_t::arrival_statistics_t::book_arrival(const uint16 amount)
 
 void fabrik_t::update_transit( const ware_t& ware, bool add )
 {
-	if(  ware.index > warenbauer_t::INDEX_NONE  ) {
+	if(  ware.index > goods_manager_t::INDEX_NONE  ) {
 		// only for freights
 		fabrik_t *fab = get_fab( ware.get_zielpos() );
 		if(  fab  ) {
@@ -1242,7 +1242,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 		ware.rdwr( file );
 		if(  file->is_loading()  ) {
-			ware.set_typ( warenbauer_t::get_info(ware_name) );
+			ware.set_typ( goods_manager_t::get_info(ware_name) );
 			guarded_free(const_cast<char *>(ware_name));
 			// Hajo: repair files that have 'insane' values
 			if(  ware.menge<0  ) {
@@ -1295,7 +1295,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 		ware.rdwr( file );
 		if(  file->is_loading()  ) {
-			ware.set_typ( warenbauer_t::get_info(ware_name) );
+			ware.set_typ( goods_manager_t::get_info(ware_name) );
 			guarded_free(const_cast<char *>(ware_name));
 			// Hajo: repair files that have 'insane' values
 			if(  ware.menge<0  ) {
@@ -1579,7 +1579,7 @@ sint32 fabrik_t::vorrat_an(const goods_desc_t *typ)
 
 sint32 fabrik_t::liefere_an(const goods_desc_t *typ, sint32 menge)
 {
-	if(  typ==warenbauer_t::passagiere  ) {
+	if(  typ==goods_manager_t::passagiere  ) {
 		// book pax arrival and recalculate pax boost
 		book_stat(menge, FAB_PAX_ARRIVED);
 		if(!building)
@@ -1591,7 +1591,7 @@ sint32 fabrik_t::liefere_an(const goods_desc_t *typ, sint32 menge)
 		update_prodfactor_pax();
 		return menge;
 	}
-	else if(  typ==warenbauer_t::post  ) {
+	else if(  typ==goods_manager_t::post  ) {
 		// book mail arrival and recalculate mail boost
 		book_stat(menge, FAB_MAIL_ARRIVED);
 		arrival_stats_mail.book_arrival(menge);

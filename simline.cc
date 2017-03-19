@@ -151,7 +151,7 @@ void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 				continue;
 			}
 			const goods_desc_t *ware=cnv->get_vehicle(i)->get_cargo_type();
-			if(  ware!=warenbauer_t::nichts  &&  !goods_catg_index.is_contained(ware->get_catg_index())  ) {
+			if(  ware!=goods_manager_t::nichts  &&  !goods_catg_index.is_contained(ware->get_catg_index())  ) {
 				goods_catg_index.append( ware->get_catg_index(), 1 );
 				update_schedules = true;
 			}

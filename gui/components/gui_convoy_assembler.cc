@@ -700,12 +700,12 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 			way_wear_factor += (double)desc->get_way_wear_factor();
 
 			switch(  ware->get_catg_index()  ) {
-				case warenbauer_t::INDEX_PAS: {
+				case goods_manager_t::INDEX_PAS: {
 					total_pax += desc->get_capacity();
 					total_standing_pax += desc->get_overcrowded_capacity();
 					break;
 				}
-				case warenbauer_t::INDEX_MAIL: {
+				case goods_manager_t::INDEX_MAIL: {
 					total_mail += desc->get_capacity();
 					break;
 				}
@@ -844,11 +844,11 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 			int loks = 0, waggons = 0, pax=0, electrics = 0;
 			FOR(slist_tpl<vehicle_desc_t *>, const info, vehicle_builder_t::get_info(way_type)) 
 			{
-				if(info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)) 
+				if(info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_ware()==goods_manager_t::passagiere  ||  info->get_ware()==goods_manager_t::post)) 
 				{
 					electrics++;
 				}
-				else if(info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post) 
+				else if(info->get_ware()==goods_manager_t::passagiere  ||  info->get_ware()==goods_manager_t::post) 
 				{
 					pax++;
 				}
@@ -1111,12 +1111,12 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehicle_desc_t *info)
 	}
 	gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(info->get_name(), image);
 
-	if(  info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)  ) {
+	if(  info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_ware()==goods_manager_t::passagiere  ||  info->get_ware()==goods_manager_t::post)  ) {
 		electrics_vec.append(img_data);
 		vehicle_map.set(info, electrics_vec.back());
 	}
 	// since they come "pre-sorted" for the vehiclebauer, we have to do nothing to keep them sorted
-	else if(info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post) {
+	else if(info->get_ware()==goods_manager_t::passagiere  ||  info->get_ware()==goods_manager_t::post) {
 		pas_vec.append(img_data);
 		vehicle_map.set(info, pas_vec.back());
 	}

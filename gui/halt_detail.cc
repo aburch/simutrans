@@ -196,8 +196,8 @@ void halt_detail_t::halt_detail_info()
 	offset_y += LINESPACE;
 
 	if (!nimmt_an.empty()  &&  halt->get_ware_enabled()) {
-		for(uint32 i=0; i<warenbauer_t::get_count(); i++) {
-			const goods_desc_t *ware = warenbauer_t::get_info(i);
+		for(uint32 i=0; i<goods_manager_t::get_count(); i++) {
+			const goods_desc_t *ware = goods_manager_t::get_info(i);
 			if(nimmt_an.is_contained(ware)) {
 
 				buf.append(" - ");
@@ -295,7 +295,7 @@ void halt_detail_t::halt_detail_info()
 
 	bool has_stops = false;
 
-	for (uint i=0; i<warenbauer_t::get_max_catg_index(); i++)
+	for (uint i=0; i<goods_manager_t::get_max_catg_index(); i++)
 	{
 		typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_map_single_remote;
 		connexions_map_single_remote *connexions = halt->get_connexions(i);
@@ -305,7 +305,7 @@ void halt_detail_t::halt_detail_info()
 			buf.append("\n");
 			offset_y += LINESPACE;
 			buf.append(" · ");
-			const goods_desc_t* info = warenbauer_t::get_info_catg_index(i);
+			const goods_desc_t* info = goods_manager_t::get_info_catg_index(i);
 			// If it is a special freight, we display the name of the good, otherwise the name of the category.
 			buf.append( translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()) );
 #if DEBUG>=4
@@ -316,7 +316,7 @@ void halt_detail_t::halt_detail_info()
 			buf.append(":\n");
 			offset_y += LINESPACE;
 
-			FOR(connexions_map_single_remote, & iter, *connexions) 
+			FOR(connexions_map_single_remote, &iter, *connexions)
 			{
 				halthandle_t a_halt = iter.key;
 				haltestelle_t::connexion* cnx = iter.value;

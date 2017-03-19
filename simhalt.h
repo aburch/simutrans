@@ -617,10 +617,10 @@ public:
 	// a separate version for checking with goods category index
 	bool is_enabled( const uint8 catg_index ) const
 	{
-		if (catg_index == warenbauer_t::INDEX_PAS) {
+		if (catg_index == goods_manager_t::INDEX_PAS) {
 			return enables&PAX;
 		}
-		else if(catg_index == warenbauer_t::INDEX_MAIL) {
+		else if(catg_index == goods_manager_t::INDEX_MAIL) {
 			return enables&POST;
 		}
 		return enables&WARE;

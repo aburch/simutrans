@@ -8,12 +8,12 @@
 #include "../../network/pakset_info.h"
 
 
-void good_reader_t::register_obj(obj_desc_t *&data)
+void goods_reader_t::register_obj(obj_desc_t *&data)
 {
 	goods_desc_t *desc = static_cast<goods_desc_t *>(data);
 
-	warenbauer_t::register_desc(desc);
-	DBG_DEBUG("good_reader_t::register_obj()","loaded good '%s'", desc->get_name());
+	goods_manager_t::register_desc(desc);
+	DBG_DEBUG("goods_reader_t::register_obj()","loaded good '%s'", desc->get_name());
 
 	obj_for_xref(get_type(), desc->get_name(), data);
 
@@ -23,13 +23,13 @@ void good_reader_t::register_obj(obj_desc_t *&data)
 }
 
 
-bool good_reader_t::successfully_loaded() const
+bool goods_reader_t::successfully_loaded() const
 {
-	return warenbauer_t::successfully_loaded(); //"Alles geladen" = "Everything laoded" (Babelfish)
+	return goods_manager_t::successfully_loaded(); //"Alles geladen" = "Everything laoded" (Babelfish)
 }
 
 
-obj_desc_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, desc_buf, node.size);
 
@@ -117,7 +117,7 @@ obj_desc_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->catg = (uint8)decode_uint16(p);
 	}
 
-	DBG_DEBUG("good_reader_t::read_node()","version=%d value=%d catg=%d bonus=%d",version, desc->base_values.get_count() > 0 ? desc->base_values[0].price : 0, desc->catg, desc->speed_bonus);
+	DBG_DEBUG("goods_reader_t::read_node()","version=%d value=%d catg=%d bonus=%d",version, desc->base_values.get_count() > 0 ? desc->base_values[0].price : 0, desc->catg, desc->speed_bonus);
 
 
   return desc;

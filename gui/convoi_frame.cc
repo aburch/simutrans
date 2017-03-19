@@ -126,7 +126,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 		for(  i = 0; i < cnv->get_vehicle_count(); i++) {
 			const goods_desc_t *wb = cnv->get_vehicle(i)->get_cargo_type();
 			if(  wb->get_catg()!=0  ) {
-				wb = warenbauer_t::get_info_catg(wb->get_catg());
+				wb = goods_manager_t::get_info_catg(wb->get_catg());
 			}
 			if(  waren_filter->is_contained(wb)  ) {
 				return true;
