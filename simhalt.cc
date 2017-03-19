@@ -398,7 +398,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 
 	const uint8 max_categories = goods_manager_t::get_max_catg_index();
 
-	goods = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
+	cargo = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
 	non_identical_schedules = new uint8[ max_categories ];
 
 	for ( uint8 i = 0; i < max_categories; i++ ) {
@@ -461,7 +461,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 
 	const uint8 max_categories = goods_manager_t::get_max_catg_index();
 
-	goods = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
+	cargo = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
 	non_identical_schedules = new uint8[ max_categories ];
 
 	for ( uint8 i = 0; i < max_categories; i++ ) {
@@ -625,15 +625,15 @@ haltestelle_t::~haltestelle_t()
 	const uint8 max_categories = goods_manager_t::get_max_catg_index();
 
 	for(uint8 i = 0; i < max_categories; i++) {
-		if (goods[i]) {
-			FOR(vector_tpl<ware_t>, const &w, *goods[i]) {
+		if (cargo[i]) {
+			FOR(vector_tpl<ware_t>, const &w, *cargo[i]) {
 				fabrik_t::update_transit(w, false);
 			}
-			delete goods[i];
-			goods[i] = NULL;
+			delete cargo[i];
+			cargo[i] = NULL;
 		}
 	}
-	free( goods );
+	free(cargo);
 
 	if(!welt->is_destroying())
 	{
@@ -661,8 +661,8 @@ void haltestelle_t::rotate90( const sint16 y_size )
 	// rotate goods destinations
 	// iterate over all different categories
 	for(uint8 i=0; i<goods_manager_t::get_max_catg_index(); i++) {
-		if(goods[i]) {
-			vector_tpl<ware_t>& warray = *goods[i];
+		if(cargo[i]) {
+			vector_tpl<ware_t>& warray = *cargo[i];
 			for (size_t j = warray.get_count(); j-- > 0;) {
 				ware_t& ware = warray[j];
 				if(ware.menge>0) {
@@ -1227,7 +1227,7 @@ void haltestelle_t::step()
 		vector_tpl<ware_t> *warray;
 		for(uint16 j = 0; j < goods_manager_t::get_max_catg_index(); j ++)
 		{
-			warray = goods[j];
+			warray = cargo[j];
 			if(warray == NULL)
 			{
 				continue;
@@ -1462,9 +1462,9 @@ void haltestelle_t::new_month()
 // Purpose		: re-route goods of a single ware category
 uint32 haltestelle_t::reroute_goods(const uint8 catg)
 {
-	if(goods[catg])
+	if(cargo[catg])
 	{
-		vector_tpl<ware_t> * warray = goods[catg];
+		vector_tpl<ware_t> * warray = cargo[catg];
 		const uint32 packet_count = warray->get_count();
 		vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(packet_count);
 
@@ -1565,8 +1565,8 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 		}
 
 		// replace the array
-		delete goods[catg];
-		goods[catg] = new_warray;
+		delete cargo[catg];
+		cargo[catg] = new_warray;
 
 		// likely the display must be updated after this
 		resort_freight_info = true;
@@ -2214,7 +2214,7 @@ void haltestelle_t::add_pax_no_route(int n)
 bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 {
 	w.menge = 0;
-	vector_tpl<ware_t> *warray = goods[w.get_desc()->get_catg_index()];
+	vector_tpl<ware_t> *warray = cargo[w.get_desc()->get_catg_index()];
 	if(warray!=NULL) {
 		FOR(vector_tpl<ware_t>, & tmp, *warray) {
 			// skip empty entries
@@ -2249,7 +2249,7 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const goods_desc_t *
 {
 	bool skipped = false;
 	const uint8 catg_index = wtyp->get_catg_index();
-	vector_tpl<ware_t> *warray = goods[catg_index];
+	vector_tpl<ware_t> *warray = cargo[catg_index];
 	if(warray  &&  warray->get_count() > 0)
 	{		
 		binary_heap_tpl<ware_t*> goods_to_check;
@@ -2605,7 +2605,7 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 uint32 haltestelle_t::get_ware_summe(const goods_desc_t *wtyp) const
 {
 	int sum = 0;
-	const vector_tpl<ware_t> * warray = goods[wtyp->get_catg_index()];
+	const vector_tpl<ware_t> * warray = cargo[wtyp->get_catg_index()];
 	if(warray!=NULL) {
 		FOR(vector_tpl<ware_t>, const& i, *warray) {
 			if (wtyp->get_index() == i.get_index()) {
@@ -2620,7 +2620,7 @@ uint32 haltestelle_t::get_ware_summe(const goods_desc_t *wtyp) const
 
 uint32 haltestelle_t::get_ware_fuer_zielpos(const goods_desc_t *wtyp, const koord zielpos) const
 {
-	const vector_tpl<ware_t> * warray = goods[wtyp->get_catg_index()];
+	const vector_tpl<ware_t> * warray = cargo[wtyp->get_catg_index()];
 	if(warray!=NULL) {
 		FOR(vector_tpl<ware_t>, const& ware, *warray) {
 			if(wtyp->get_index()==ware.get_index()  &&  ware.get_zielpos()==zielpos) {
@@ -2636,7 +2636,7 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 {
 	// pruefen ob die ware mit bereits wartender ware vereinigt werden kann
 	// "examine whether the ware with software already waiting to be united" (Google)
-	vector_tpl<ware_t> * warray = goods[ware.get_desc()->get_catg_index()];
+	vector_tpl<ware_t> * warray = cargo[ware.get_desc()->get_catg_index()];
 	if(warray != NULL)
 	{
 		FOR(vector_tpl<ware_t>, & tmp, *warray)
@@ -2697,12 +2697,12 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 	ware.set_last_transfer(self);
 
 	// now we have to add the ware to the stop
-	vector_tpl<ware_t> * warray = goods[ware.get_desc()->get_catg_index()];
+	vector_tpl<ware_t> * warray = cargo[ware.get_desc()->get_catg_index()];
 	if(warray==NULL)
 	{
 		// this type was not stored here before ...
 		warray = new vector_tpl<ware_t>(4);
-		goods[ware.get_desc()->get_catg_index()] = warray;
+		cargo[ware.get_desc()->get_catg_index()] = warray;
 	}
 	resort_freight_info = true;
 	if(!from_saved)
@@ -2844,7 +2844,7 @@ void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
 #ifdef STATION_CHECK
 	if (talk)
 	{
-		const vector_tpl<ware_t> * warray = goods[ware.get_desc()->get_catg_index()];
+		const vector_tpl<ware_t> * warray = cargo[ware.get_desc()->get_catg_index()];
 		dbg->message("\t", "warray count %d", (*warray).get_count());
 	}
 #endif
@@ -3064,7 +3064,7 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	#ifdef DEBUG_SIMRAND_CALLS
 #ifdef STATION_CHECK
 			if (talk)
-				dbg->message("haltestelle_t::liefere_an", "%d walk to station \"%s\" goods[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
+				dbg->message("haltestelle_t::liefere_an", "%d walk to station \"%s\" cargo[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
 #endif
 #endif
 			ware.get_zwischenziel()->liefere_an(ware, walked_between_stations + 1);
@@ -3076,7 +3076,7 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 #ifdef DEBUG_SIMRAND_CALLS
 #ifdef STATION_CHECK
 	if (talk)
-		dbg->message("haltestelle_t::liefere_an", "%d waiting for transfer to station \"%s\" goods[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
+		dbg->message("haltestelle_t::liefere_an", "%d waiting for transfer to station \"%s\" cargo[0].count %d", ware.menge, ware.get_zwischenziel()->get_name(), get_warray(0)->get_count());
 #endif
 #endif
 	return;
@@ -3110,7 +3110,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		buf.clear();
 
 		for(unsigned i=0; i<goods_manager_t::get_max_catg_index(); i++) {
-			const vector_tpl<ware_t> * warray = goods[i];
+			const vector_tpl<ware_t> * warray = cargo[i];
 			if(warray) {
 				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting");
 			}
@@ -3389,7 +3389,7 @@ void haltestelle_t::transfer_goods(halthandle_t halt)
 #endif
 	// transfer goods to halt
 	for(uint8 i=0; i<goods_manager_t::get_max_catg_index(); i++) {
-		const vector_tpl<ware_t> * warray = goods[i];
+		const vector_tpl<ware_t> * warray = cargo[i];
 		if (warray) {
 			FOR(vector_tpl<ware_t>, const& j, *warray) {
 				halt->add_ware_to_halt(j);
@@ -3401,8 +3401,8 @@ void haltestelle_t::transfer_goods(halthandle_t halt)
 #endif
 #endif
 			}
-			delete goods[i];
-			goods[i] = NULL;
+			delete cargo[i];
+			cargo[i] = NULL;
 		}
 	}
 }
@@ -3675,7 +3675,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	{
 		for(unsigned i=0; i<max_catg_count_file; i++)
 		{
-			vector_tpl<ware_t> *warray = goods[i];
+			vector_tpl<ware_t> *warray = cargo[i];
 			uint32 ware_count = 1;
 
 			if(warray)
@@ -3721,15 +3721,15 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s);
 
 #ifdef DEBUG_SIMRAND_CALLS
-		if (goods[0])
+		if (cargo[0])
 		{
 			if (!strcmp(get_name(), "Newton Abbot Railway Station"))
 			{
-				dbg->message("haltestelle_t::rdwr", "at stop \"%s\" goods[0]->get_count() is %u ", get_name(), goods[0]->get_count());
-				//for (int i = 0; i < goods[0]->get_count(); ++i)
+				dbg->message("haltestelle_t::rdwr", "at stop \"%s\" cargo[0]->get_count() is %u ", get_name(), cargo[0]->get_count());
+				//for (int i = 0; i < cargo[0]->get_count(); ++i)
 				//{
 				//	char buf[16];
-				//	const ware_t &ware = (*goods[0])[i];
+				//	const ware_t &ware = (*cargo[0])[i];
 				//	sprintf(buf, "% 8u)", i);
 				//	dbg->message(buf, "%u to %s", ware.menge, ware.get_ziel()->get_name());
 				//}
@@ -3807,15 +3807,15 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 
 #ifdef DEBUG_SIMRAND_CALLS
-		if (goods[0])
+		if (cargo[0])
 		{
 			if (!strcmp(get_name(), "Newton Abbot Railway Station"))
 			{
-				dbg->message("haltestelle_t::rdwr", "at stop \"%s\" goods[0]->get_count() is %u ", get_name(), goods[0]->get_count());
-				//for (int i = 0; i < goods[0]->get_count(); ++i)
+				dbg->message("haltestelle_t::rdwr", "at stop \"%s\" cargo[0]->get_count() is %u ", get_name(), cargo[0]->get_count());
+				//for (int i = 0; i < cargo[0]->get_count(); ++i)
 				//{
 				//	char buf[16];
-				//	const ware_t &ware = (*goods[0])[i];
+				//	const ware_t &ware = (*cargo[0])[i];
 				//	sprintf(buf, "% 8u)", i);
 				//	dbg->message(buf, "%u", ware.menge);
 				//}
@@ -4294,9 +4294,9 @@ void haltestelle_t::finish_rd(bool need_recheck_for_walking_distance)
 	// fix good destination coordinates
 	for(uint8 i = 0; i < goods_manager_t::get_max_catg_index(); i++)
 	{
-		if(goods[i])
+		if(cargo[i])
 		{
-			vector_tpl<ware_t> * warray = goods[i];
+			vector_tpl<ware_t> * warray = cargo[i];
 			FOR(vector_tpl<ware_t>, & j, *warray)
 			{
 				j.finish_rd(welt);
@@ -5247,18 +5247,18 @@ void haltestelle_t::calc_transfer_time()
 	// TODO: Better separate waiting times for different types of goods.
 
 	const uint8 max_categories = goods_manager_t::get_max_catg_index();
-	const sint64 waiting_passengers = goods[0] ? goods[0]->get_count() : 0;
+	const sint64 waiting_passengers = cargo[0] ? cargo[0]->get_count() : 0;
 	sint64 waiting_goods = 0;
 
 	for(uint8 i = 2; i < max_categories; i++)
 	{
-		if(goods[i])
+		if(cargo[i])
 		{
-			FOR(vector_tpl<ware_t>, const &w, *goods[i])
+			FOR(vector_tpl<ware_t>, const &w, *cargo[i])
 			{
-				if(goods[i])
+				if(cargo[i])
 				{
-					vector_tpl<ware_t> * warray = goods[i];
+					vector_tpl<ware_t> * warray = cargo[i];
 					FOR(vector_tpl<ware_t>, & j, *warray)
 					{
 						waiting_goods += j.menge;

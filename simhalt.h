@@ -377,7 +377,7 @@ private:
 
 
 	// Array with different categries that contains all waiting goods at this stop
-	vector_tpl<ware_t> **goods;
+	vector_tpl<ware_t> **cargo;
 
 	/**
 	 * Liste der angeschlossenen Fabriken
@@ -698,7 +698,7 @@ public:
 	/**
 	* True if we accept/deliver this kind of good
 	*/
-	bool gibt_ab(const goods_desc_t *warentyp) const { return goods[warentyp->get_catg_index()] != NULL; }
+	bool gibt_ab(const goods_desc_t *warentyp) const { return cargo[warentyp->get_catg_index()] != NULL; }
 
 	/* retrieves a ware packet for any destination in the list
 	 * needed, if the factory in question wants to remove something
@@ -930,10 +930,10 @@ public:
 	// Purpose		: Create goods list of specified goods category if it is not already present
 	void prepare_goods_list(uint8 category)
 	{
-		if ( goods[category] == NULL )
+		if (cargo[category] == NULL )
 		{
 			// indicates that this can route those goods
-			goods[category] = new vector_tpl<ware_t>(0);
+			cargo[category] = new vector_tpl<ware_t>(0);
 		}
 	}
 
