@@ -1579,7 +1579,7 @@ sint32 fabrik_t::vorrat_an(const goods_desc_t *typ)
 
 sint32 fabrik_t::liefere_an(const goods_desc_t *typ, sint32 menge)
 {
-	if(  typ==goods_manager_t::passagiere  ) {
+	if(  typ==goods_manager_t::passengers  ) {
 		// book pax arrival and recalculate pax boost
 		book_stat(menge, FAB_PAX_ARRIVED);
 		if(!building)
@@ -1591,7 +1591,7 @@ sint32 fabrik_t::liefere_an(const goods_desc_t *typ, sint32 menge)
 		update_prodfactor_pax();
 		return menge;
 	}
-	else if(  typ==goods_manager_t::post  ) {
+	else if(  typ==goods_manager_t::mail  ) {
 		// book mail arrival and recalculate mail boost
 		book_stat(menge, FAB_MAIL_ARRIVED);
 		arrival_stats_mail.book_arrival(menge);
@@ -2745,7 +2745,7 @@ void fabrik_t::recalc_nearby_halts()
 						{
 							nearby_passenger_halts.append(new_nearby_halt);
 						}
-						if(new_nearby_halt.halt->get_post_enabled())
+						if(new_nearby_halt.halt->get_mail_enabled())
 						{
 							nearby_mail_halts.append(new_nearby_halt);
 						}

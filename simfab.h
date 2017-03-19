@@ -144,7 +144,7 @@ public:
  * verbrauchen Waren und beliefern nahe Haltestellen.
  *
  * Die Abfragefunktionen liefern -1 wenn eine Ware niemals
- * hergestellt oder verbraucht wird, 0 wenn gerade nichts
+ * hergestellt oder verbraucht wird, 0 wenn gerade none
  * hergestellt oder verbraucht wird und > 0 sonst
  * (entspricht Vorrat/Verbrauch).
  * 
@@ -221,7 +221,7 @@ private:
 	vector_tpl <field_data_t> fields;
 
 	/**
-	 * Die erzeugten waren auf die Haltestellen verteilen
+	 * Die erzeugten goods auf die Haltestellen verteilen
 	 * The produced were distributed at the stops
 	 * @author Hj. Malthaner
 	 */

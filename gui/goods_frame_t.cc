@@ -297,7 +297,7 @@ void goods_frame_t::sort_list()
 		// Skip goods not in the game
 		// Do not skip goods which don't generate income -- it makes it hard to debug paks
 		// Do skip the special good "None"
-		if(  (wtyp != goods_manager_t::nichts) && (!filter_goods || goods_in_game.is_contained(wtyp))  ) {
+		if(  (wtyp != goods_manager_t::none) && (!filter_goods || goods_in_game.is_contained(wtyp))  ) {
 			good_list[n++] = i;
 		}
 	}

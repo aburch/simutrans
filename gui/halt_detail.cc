@@ -127,7 +127,7 @@ void halt_detail_t::halt_detail_info()
 
 	sint16 offset_y = LINESPACE;
 
-	if(halt->get_pax_enabled() || halt->get_post_enabled())
+	if(halt->get_pax_enabled() || halt->get_mail_enabled())
 	{
 		buf.append(translator::translate("Transfer time: "));
 		char transfer_time_as_clock[32];

@@ -3836,7 +3836,7 @@ const char *tool_build_station_t::tool_station_building_aux(player_t *player, bo
 	{
 		return "";
 	}
-DBG_MESSAGE("tool_station_building_aux()", "building mail office/station building on square %d,%d", k.x, k.y);
+DBG_MESSAGE("tool_station_building_aux()", "building post office/station building on square %d,%d", k.x, k.y);
 
 	// Player player pays for the construction
 	// but we try to extend stations of Player new_owner that may be the public player

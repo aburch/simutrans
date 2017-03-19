@@ -2604,7 +2604,7 @@ DBG_MESSAGE("convoi_t::add_vehicle()","extend array_tpl to %i totals.",max_rail_
 		if (v->get_cargo_max() > 0)
 		{
 			const goods_desc_t *ware_type = v->get_cargo_type();
-			if (ware_type != goods_manager_t::nichts)
+			if (ware_type != goods_manager_t::none)
 				goods_catg_index.append_unique(ware_type->get_catg_index(), 1);
 		}
 
@@ -2629,7 +2629,7 @@ DBG_MESSAGE("convoi_t::add_vehicle()","extend array_tpl to %i totals.",max_rail_
 		// Add good_catg_index:
 		if(v->get_cargo_max() != 0) {
 			const goods_desc_t *ware=v->get_cargo_type();
-			if(ware!=goods_manager_t::nichts  ) {
+			if(ware!=goods_manager_t::none  ) {
 				goods_catg_index.append_unique( ware->get_catg_index() );
 			}
 		}
@@ -2688,7 +2688,7 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	if (v->get_cargo_max() > 0)
 	{
 		const goods_desc_t *ware_type = v->get_cargo_type();
-		if (ware_type != goods_manager_t::nichts)
+		if (ware_type != goods_manager_t::none)
 			goods_catg_index.append_unique(ware_type->get_catg_index(), 1);
 	}
 
@@ -2828,7 +2828,7 @@ void convoi_t::recalc_catg_index()
 			continue;
 		}
 		const goods_desc_t *ware=get_vehicle(i)->get_cargo_type();
-		if(ware!=goods_manager_t::nichts  ) {
+		if(ware!=goods_manager_t::none  ) {
 			goods_catg_index.append_unique( ware->get_catg_index() );
 		}
 	}
@@ -4321,7 +4321,7 @@ void convoi_t::rdwr(loadsave_t *file)
 
 			if(file->is_saving())
 			{
-				// In theory, this could be set up when saving, but it is unlikely that post version 12 games
+				// In theory, this could be set up when saving, but it is unlikely that mail version 12 games
 				// can be made backwards compatible to version 11 or earlier in any event because of factory
 				// entries in passenger packets, so this would be superfluous. 
 				uint32 count = 0;
@@ -4752,7 +4752,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			// first add to capacity indicator
 			const goods_desc_t* ware_desc = v->get_desc()->get_freight_type();
 			const uint16 menge = v->get_desc()->get_capacity();
-			if(menge>0  &&  ware_desc!=goods_manager_t::nichts) {
+			if(menge>0  &&  ware_desc!=goods_manager_t::none) {
 				max_loaded_waren[ware_desc->get_index()] += menge;
 			}
 
@@ -5720,7 +5720,7 @@ void convoi_t::calc_loading()
 
 	for(unsigned i=0; i<anz_vehicle; i++) {
 		const vehicle_t* v = vehicle[i];
-		if ( v->get_cargo_type() == goods_manager_t::passagiere ) {
+		if ( v->get_cargo_type() == goods_manager_t::passengers ) {
 			seats_max += v->get_cargo_max();
 			seats_menge += v->get_total_cargo();
 		}

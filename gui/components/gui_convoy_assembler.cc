@@ -844,11 +844,11 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 			int loks = 0, waggons = 0, pax=0, electrics = 0;
 			FOR(slist_tpl<vehicle_desc_t *>, const info, vehicle_builder_t::get_info(way_type)) 
 			{
-				if(info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_freight_type()==goods_manager_t::passagiere  ||  info->get_freight_type()==goods_manager_t::post))
+				if(info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_freight_type()==goods_manager_t::passengers  ||  info->get_freight_type()==goods_manager_t::mail))
 				{
 					electrics++;
 				}
-				else if(info->get_freight_type()==goods_manager_t::passagiere  ||  info->get_freight_type()==goods_manager_t::post)
+				else if(info->get_freight_type()==goods_manager_t::passengers  ||  info->get_freight_type()==goods_manager_t::mail)
 				{
 					pax++;
 				}
@@ -1111,12 +1111,12 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehicle_desc_t *info)
 	}
 	gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(info->get_name(), image);
 
-	if(  info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_freight_type()==goods_manager_t::passagiere  ||  info->get_freight_type()==goods_manager_t::post)  ) {
+	if(  info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_freight_type()==goods_manager_t::passengers  ||  info->get_freight_type()==goods_manager_t::mail)  ) {
 		electrics_vec.append(img_data);
 		vehicle_map.set(info, electrics_vec.back());
 	}
 	// since they come "pre-sorted" for the vehiclebauer, we have to do nothing to keep them sorted
-	else if(info->get_freight_type()==goods_manager_t::passagiere  ||  info->get_freight_type()==goods_manager_t::post) {
+	else if(info->get_freight_type()==goods_manager_t::passengers  ||  info->get_freight_type()==goods_manager_t::mail) {
 		pas_vec.append(img_data);
 		vehicle_map.set(info, pas_vec.back());
 	}
@@ -2157,17 +2157,17 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 	cbuf.clear();
 	cbuf.printf("%s %d (%d)", translator::translate("Capacity:"), total_pax, total_standing_pax );
 	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y , cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
-	display_color_img( skinverwaltung_t::passagiere->get_image_id(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
+	display_color_img( skinverwaltung_t::passengers->get_image_id(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 
 	w += 16;
 	cbuf.clear();
 	cbuf.printf("%d", total_mail );
 	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
-	display_color_img( skinverwaltung_t::post->get_image_id(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
+	display_color_img( skinverwaltung_t::mail->get_image_id(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 
 	w += 16;
 	cbuf.clear();
 	cbuf.printf("%d", total_goods );
 	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
-	display_color_img( skinverwaltung_t::waren->get_image_id(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
+	display_color_img( skinverwaltung_t::goods->get_image_id(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 }

@@ -349,26 +349,26 @@ public:
 			// Multiple freight images, single livery
 			// more freight images and a freight: find the right one
 
-			sint8 ware_index = 0; // freight images: if not found use first freight
+			sint8 goods_index = 0; // freight images: if not found use first freight
 			
 			for( uint8 i=0;  i<freight_image_type;  i++  ) 
 			{
 				
 				if (ware == get_child<goods_desc_t>(6 + trailer_count + leader_count + upgrades + i)) 
 				{
-					ware_index = i;
+					goods_index = i;
 					break;
 				}
 			}
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
 			image_array_t const* const list2d = get_child<image_array_t>(5);
-			image=list2d->get_image(dir, ware_index);
+			image=list2d->get_image(dir, goods_index);
 			if(!image) 
 			{
 				if(dir>3)
 				{
-					image = list2d->get_image(dir - 4, ware_index);
+					image = list2d->get_image(dir - 4, goods_index);
 				}
 			}
 			if (image != NULL) return image->get_id();
@@ -378,14 +378,14 @@ public:
 		{
 			// Multiple freight images, multiple liveries
 
-			sint8 ware_index = 0; // freight images: if not found use first freight
+			sint8 goods_index = 0; // freight images: if not found use first freight
 			uint8 livery_index = 0;
 
 			for( uint8 i=0;  i<freight_image_type;  i++  ) 
 			{
 				if (ware == get_child<goods_desc_t>(6 + trailer_count + leader_count + upgrades + i)) 
 				{
-					ware_index = i;
+					goods_index = i;
 					break;
 				}
 			}
@@ -404,12 +404,12 @@ public:
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
 			image_array_3d_t const* const list3d = get_child<image_array_3d_t>(5);
-			image = list3d->get_image(dir, livery_index, ware_index);
+			image = list3d->get_image(dir, livery_index, goods_index);
 			if(!image) 
 			{
 				if(dir>3)
 				{
-					image = list3d->get_image(dir - 4, livery_index, ware_index);
+					image = list3d->get_image(dir - 4, livery_index, goods_index);
 				}
 			}
 			if (image != NULL) return image->get_id();

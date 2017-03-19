@@ -2204,7 +2204,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	if (new_cost_multiply_airterminal > 0) {
 		cst_multiply_airterminal = new_cost_multiply_airterminal * -100 * distance_per_tile;
 	}
-	// "post" is auxiliary station buildings
+	// "mail" is auxiliary station buildings
 	sint64 new_cost_multiply_post = contents.get_int64("cost_multiply_post", -1);
 	if (new_cost_multiply_post > 0) {
 		cst_multiply_post = new_cost_multiply_post * -100 * distance_per_tile;

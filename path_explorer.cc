@@ -47,7 +47,7 @@ void path_explorer_t::initialise(karte_t *welt)
 		world = welt;
 	}
 	max_categories = goods_manager_t::get_max_catg_index();
-	category_empty = goods_manager_t::nichts->get_catg_index();
+	category_empty = goods_manager_t::none->get_catg_index();
 	goods_compartment = new compartment_t[max_categories];
 
 	for (uint8 i = 0; i < max_categories; ++i)
@@ -115,7 +115,7 @@ void path_explorer_t::full_instant_refresh()
 	path_explorer_t::allow_path_explorer_on_this_thread = true;
 #endif
 	uint16 curr_step = 0;
-	// exclude empty goods (nichts)
+	// exclude empty goods (none)
 	uint16 total_steps = (max_categories - 1) * 6;
 
 	processing = true;
@@ -560,7 +560,7 @@ void path_explorer_t::compartment_t::step()
 				all_halts_list = new halthandle_t[all_halts_count];
 			}
 
-			const bool no_walking_connexions = !world->get_settings().get_allow_routing_on_foot() || catg != goods_manager_t::passagiere->get_catg_index();
+			const bool no_walking_connexions = !world->get_settings().get_allow_routing_on_foot() || catg != goods_manager_t::passengers->get_catg_index();
 
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
 			for (uint16 i = 0; i < all_halts_count; ++i)
@@ -577,7 +577,7 @@ void path_explorer_t::compartment_t::step()
 				// Connect halts within walking distance of each other (for passengers only)
 				// @author: jamespetts, July 2011
 
-				if ( no_walking_connexions || !all_halts_list[i]->is_enabled(goods_manager_t::passagiere) )
+				if ( no_walking_connexions || !all_halts_list[i]->is_enabled(goods_manager_t::passengers) )
 				{
 					continue;
 				}
@@ -591,7 +591,7 @@ void path_explorer_t::compartment_t::step()
 				{
 					walking_distance_halt = all_halts_list[i]->get_halt_within_walking_distance(x);
 
-					if(!walking_distance_halt.is_bound() || !walking_distance_halt->is_enabled(goods_manager_t::passagiere))
+					if(!walking_distance_halt.is_bound() || !walking_distance_halt->is_enabled(goods_manager_t::passengers))
 					{
 						continue;
 					}
@@ -877,7 +877,7 @@ void path_explorer_t::compartment_t::step()
 						id_pair halt_pair(halt_list[h].get_id(), halt_list[t].get_id());
 						new_connexion = new haltestelle_t::connexion;
 						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
-						new_connexion->transfer_time = catg != goods_manager_t::passagiere->get_catg_index() ? halt_list[h]->get_transshipment_time() : halt_list[h]->get_transfer_time();
+						new_connexion->transfer_time = catg != goods_manager_t::passengers->get_catg_index() ? halt_list[h]->get_transshipment_time() : halt_list[h]->get_transfer_time();
 						if(current_linkage.line.is_bound())
 						{
 							average_tpl<uint32>* ave = current_linkage.line->get_average_journey_times().access(halt_pair);

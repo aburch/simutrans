@@ -179,7 +179,7 @@ class building_desc_t : public obj_desc_timelined_t {
 			airport_geb       = 21,
 			monorail_geb      = 22,
 			wartehalle        = 30,
-			post              = 31,
+			mail              = 31,
 			lagerhalle        = 32,
 		};
 

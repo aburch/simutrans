@@ -100,9 +100,9 @@ public:
 
 	/// @name icons used to show which halt serves passengers / mail / freight
 	/// @{
-	static const skin_desc_t *passagiere;
-	static const skin_desc_t *post;
-	static const skin_desc_t *waren;
+	static const skin_desc_t *passengers;
+	static const skin_desc_t *mail;
+	static const skin_desc_t *goods;
 	/// @}
 
 	/// images shown in display of lines in mini-map

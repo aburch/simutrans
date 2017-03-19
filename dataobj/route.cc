@@ -1021,12 +1021,12 @@ void route_t::postprocess_water_route(karte_t *welt)
 				// postprocess here
 				bool ok = ribi_type(route[straight_end], route[i+1]) ==  ribi;
 				// try to find straight route, which avoids one diagonal part
-				koord3d_vector_t post;
-				post.append( route[straight_end] );
+				koord3d_vector_t mail;
+				mail.append( route[straight_end] );
 				koord3d &end = route[i];
 				for(uint32 j = straight_end; j < i  &&  ok; j++) {
 					ribi_t::ribi next = 0;
-					koord diff = (end - post.back()).get_2d();
+					koord diff = (end - mail.back()).get_2d();
 					if (abs(diff.x)>=abs(diff.y)) {
 						next = diff.x > 0 ? ribi_t::east : ribi_t::west;
 						if (abs(diff.x)==abs(diff.y)  &&  next == straight_ribi) {
@@ -1036,19 +1036,19 @@ void route_t::postprocess_water_route(karte_t *welt)
 					else {
 						next = diff.y > 0 ? ribi_t::south : ribi_t::north;
 					}
-					koord3d pos = post.back() + koord(next);
+					koord3d pos = mail.back() + koord(next);
 					ok = false;
 					if (grund_t *gr = welt->lookup(pos)) {
 						if (gr->ist_wasser()) {
 							ok = true;
-							post.append(pos);
+							mail.append(pos);
 						}
 					}
 				}
 				// now substitute the new route part into the route
 				if (ok) {
 					for(uint32 j = straight_end; j < i  &&  ok; j++) {
-						route[j] = post[j-straight_end];
+						route[j] = mail[j-straight_end];
 					}
 					// start again with the first straight part
 					i = straight_end;

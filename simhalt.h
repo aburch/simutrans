@@ -138,7 +138,7 @@ private:
 	COLOR_VAL status_color, last_status_color;
 	sint16 last_bar_count;
 	vector_tpl<KOORD_VAL> last_bar_height; // caches the last height of the station bar for each good type drawn in display_status(). used for dirty tile management
-	uint32 capacity[3]; // passenger, post, goods
+	uint32 capacity[3]; // passenger, mail, goods
 	uint8 overcrowded[256/8]; ///< bit field for each goods type (max 256)
 
 	slist_tpl<convoihandle_t> loading_here;
@@ -377,7 +377,7 @@ private:
 
 
 	// Array with different categries that contains all waiting goods at this stop
-	vector_tpl<ware_t> **waren;
+	vector_tpl<ware_t> **goods;
 
 	/**
 	 * Liste der angeschlossenen Fabriken
@@ -405,7 +405,7 @@ private:
 
 	// since we do partial routing, we remeber the last offset
 	uint8 last_catg_index;
-	uint32 last_ware_index;
+	uint32 last_goods_index;
 
 	/* station flags (most what enabled) */
 	uint16 enables;
@@ -504,7 +504,7 @@ private:
 public:
 #ifdef DEBUG_SIMRAND_CALLS
 	bool loading;
-	vector_tpl<ware_t> *get_warray(uint8 catg) { return waren[catg]; }
+	vector_tpl<ware_t> *get_warray(uint8 catg) { return goods[catg]; }
 #endif
 
 	// Added by : Knightly
@@ -605,7 +605,7 @@ public:
 	uint32 find_route(const vector_tpl<halthandle_t>& ziel_list, ware_t & ware, const uint32 journey_time = UINT32_MAX_VALUE, const koord destination_pos = koord::invalid) const;
 
 	bool get_pax_enabled()  const { return enables & PAX;  }
-	bool get_post_enabled() const { return enables & POST; }
+	bool get_mail_enabled() const { return enables & POST; }
 	bool get_ware_enabled() const { return enables & WARE; }
 
 	// check, if we accepts this good
@@ -698,7 +698,7 @@ public:
 	/**
 	* True if we accept/deliver this kind of good
 	*/
-	bool gibt_ab(const goods_desc_t *warentyp) const { return waren[warentyp->get_catg_index()] != NULL; }
+	bool gibt_ab(const goods_desc_t *warentyp) const { return goods[warentyp->get_catg_index()] != NULL; }
 
 	/* retrieves a ware packet for any destination in the list
 	 * needed, if the factory in question wants to remove something
@@ -930,10 +930,10 @@ public:
 	// Purpose		: Create goods list of specified goods category if it is not already present
 	void prepare_goods_list(uint8 category)
 	{
-		if ( waren[category] == NULL )
+		if ( goods[category] == NULL )
 		{
 			// indicates that this can route those goods
-			waren[category] = new vector_tpl<ware_t>(0);
+			goods[category] = new vector_tpl<ware_t>(0);
 		}
 	}
 

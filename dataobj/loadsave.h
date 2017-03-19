@@ -139,7 +139,7 @@ public:
 	/**
 	* Read/Write plainstring.
 	* @param str the string to be read/written
-	* @post str should not be NULL after reading.
+	* @mail str should not be NULL after reading.
 	*/
 	void rdwr_str(plainstring& str);
 

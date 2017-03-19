@@ -275,7 +275,7 @@ public:
 	int get_productivity() const { return productivity; }
 	int get_range() const { return range; } //"range" (Babelfish)
 
-	/* level for post and passenger generation */
+	/* level for mail and passenger generation */
 	int get_pax_level() const { return pax_level; }
 
 	uint16 get_electricity_proportion() const { return electricity_proportion; }

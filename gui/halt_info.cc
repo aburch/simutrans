@@ -277,15 +277,15 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		// now what do we accept here?
 		int left = 10+D_INDICATOR_WIDTH+2;
 		if (halt->get_pax_enabled()) {
-			display_color_img(skinverwaltung_t::passagiere->get_image_id(0), pos.x+left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 10;
 		}
-		if (halt->get_post_enabled()) {
-			display_color_img(skinverwaltung_t::post->get_image_id(0), pos.x+left, top, 0, false, false);
+		if (halt->get_mail_enabled()) {
+			display_color_img(skinverwaltung_t::mail->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 10;
 		}
 		if (halt->get_ware_enabled()) {
-			display_color_img(skinverwaltung_t::waren->get_image_id(0), pos.x+left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::goods->get_image_id(0), pos.x+left, top, 0, false, false);
 			left += 10;
 		}
 
@@ -340,19 +340,19 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		if (welt->get_settings().is_separate_halt_capacities()) {
 			// here only for separate capacities
-			display_color_img(skinverwaltung_t::passagiere->get_image_id(0), left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::passengers->get_image_id(0), left, top, 0, false, false);
 			left += 10;
-			// post
+			// mail
 			info_buf.clear();
 			info_buf.printf(",  %u", halt->get_capacity(1));
 			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			display_color_img(skinverwaltung_t::post->get_image_id(0), left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::mail->get_image_id(0), left, top, 0, false, false);
 			left += 10;
 			// goods
 			info_buf.clear();
 			info_buf.printf(",  %u", halt->get_capacity(2));
 			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			display_color_img(skinverwaltung_t::waren->get_image_id(0), left, top, 0, false, false);
+			display_color_img(skinverwaltung_t::goods->get_image_id(0), left, top, 0, false, false);
 			left = 53+LINESPACE;
 		}
 		top += LINESPACE + D_V_SPACE;
