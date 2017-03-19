@@ -16,6 +16,7 @@
 #include "karte.h"
 #include "map_frame.h"
 
+#include "../simsys.h"
 
 #include "../simworld.h"
 #include "../gui/simwin.h"
@@ -468,7 +469,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		// Move the mouse pointer back to starting location
 		// To prevent a infinite mouse event loop, we just do it when needed.
 		if ((ev->mx - ev->cx)!=0  ||  (ev->my-ev->cy)!=0) {
-			//move_pointer(screenpos.x + ev->cx, screenpos.y+ev->cy);
+			move_pointer(screenpos.x + ev->cx, screenpos.y+ev->cy);
 		}
 
 		return true;
