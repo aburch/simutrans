@@ -18,21 +18,22 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #define SIM_BUILD_RELEASE           2
 
 #define SIM_VERSION_MAJOR 120
-#define SIM_VERSION_MINOR   1
-#define SIM_VERSION_PATCH   2
+#define SIM_VERSION_MINOR   2
+#define SIM_VERSION_PATCH   1
 #define SIM_VERSION_BUILD SIM_BUILD_NIGHTLY
 
 // Beware: SAVEGAME minor is often ahead of version minor when there were patches.
 // ==> These have no direct connection at all!
-#define SIM_SAVE_MINOR      3
-#define SIM_SERVER_MINOR    3
+#define SIM_SAVE_MINOR      4
+#define SIM_SERVER_MINOR    4
 
 #define EX_VERSION_MAJOR	12
 #define EX_VERSION_MINOR	0
 #define EX_SAVE_MINOR		18
 // Do not forget to increment the save game versions in settings_stats.cc when changing this
 
-#define MAKEOBJ_VERSION "55.5"
+#define MAKEOBJ_VERSION "60.0"
+// Transparency and new factories
 
 #ifndef QUOTEME
 #	define QUOTEME_(x) #x
