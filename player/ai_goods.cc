@@ -133,11 +133,11 @@ bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 		const goods_desc_t *ware = fab->get_desc()->get_supplier(i)->get_input_type();
 
 		// find out how much is there
-		const array_tpl<ware_production_t>& eingang = fab->get_eingang();
+		const array_tpl<ware_production_t>& input = fab->get_input();
 		uint ware_nr;
-		for(  ware_nr=0;  ware_nr<eingang.get_count()  &&  eingang[ware_nr].get_typ()!=ware;  ware_nr++  )
+		for(  ware_nr=0;  ware_nr<input.get_count()  &&  input[ware_nr].get_typ()!=ware;  ware_nr++  )
 			;
-		if(  eingang[ware_nr].menge > eingang[ware_nr].max/4  ) {
+		if(  input[ware_nr].menge > input[ware_nr].max/4  ) {
 			// already enough supplied to
 			continue;
 		}
@@ -150,12 +150,12 @@ bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 					 !is_forbidden(qfab, fab, ware)  &&
 					 !is_connected(q, fab->get_pos().get_2d(), ware)  ) {
 					// find out how much is there
-					const array_tpl<ware_production_t>& ausgang = qfab->get_ausgang();
+					const array_tpl<ware_production_t>& output = qfab->get_output();
 					uint ware_nr;
-					for(ware_nr=0;  ware_nr<ausgang.get_count()  &&  ausgang[ware_nr].get_typ()!=ware;  ware_nr++  )
+					for(ware_nr=0;  ware_nr<output.get_count()  &&  output[ware_nr].get_typ()!=ware;  ware_nr++  )
 						;
 					// ok, there is no connection and it is not banned, so we if there is enough for us
-					if(  ausgang[ware_nr].menge < 1+ausgang[ware_nr].max/8  ) {
+					if(  output[ware_nr].menge < 1+output[ware_nr].max/8  ) {
 						// try better supplying this first
 						if(  qfab->get_suppliers().get_count()>0  &&  get_factory_tree_lowest_missing( qfab )) {
 							return true;
@@ -893,14 +893,14 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 
 
 			// properly calculate production
-			const array_tpl<ware_production_t>& ausgang = start->get_ausgang();
+			const array_tpl<ware_production_t>& output = start->get_output();
 			uint start_ware=0;
-			while(  start_ware<ausgang.get_count()  &&  ausgang[start_ware].get_typ()!=freight  ) {
+			while(  start_ware<output.get_count()  &&  output[start_ware].get_typ()!=freight  ) {
 				start_ware++;
 			}
-			assert(  start_ware<ausgang.get_count()  );
+			assert(  start_ware<output.get_count()  );
 			const int prod = min((uint32)ziel->get_base_production(),
-			                 ( start->get_base_production() * start->get_desc()->get_product(start_ware)->get_factor() )/256u - (uint32)(start->get_ausgang()[start_ware].get_stat(1, FAB_GOODS_DELIVERED)) );
+			                 ( start->get_base_production() * start->get_desc()->get_product(start_ware)->get_factor() )/256u - (uint32)(start->get_output()[start_ware].get_stat(1, FAB_GOODS_DELIVERED)) );
 
 DBG_MESSAGE("do_ki()","check railway");
 			/* calculate number of cars for railroad */
@@ -1028,12 +1028,12 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 			}
 			else {
 				// properly calculate production
-				const array_tpl<ware_production_t>& ausgang = start->get_ausgang();
+				const array_tpl<ware_production_t>& output = start->get_output();
 				uint start_ware=0;
-				while(  start_ware<ausgang.get_count()  &&  ausgang[start_ware].get_typ()!=freight  ) {
+				while(  start_ware<output.get_count()  &&  output[start_ware].get_typ()!=freight  ) {
 					start_ware++;
 				}
-				const sint32 prod = min( ziel->get_base_production(), (sint32)(start->get_base_production() * start->get_desc()->get_product(start_ware)->get_factor()) - (sint32)(start->get_ausgang()[start_ware].get_stat(1, FAB_GOODS_DELIVERED)) );
+				const sint32 prod = min( ziel->get_base_production(), (sint32)(start->get_base_production() * start->get_desc()->get_product(start_ware)->get_factor()) - (sint32)(start->get_output()[start_ware].get_stat(1, FAB_GOODS_DELIVERED)) );
 				if(prod<0) {
 					// too much supplied last time?!? => retry
 					state = CHECK_CONVOI;

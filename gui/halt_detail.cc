@@ -148,7 +148,7 @@ void halt_detail_t::halt_detail_info()
 			buf.printf("   %s (%d, %d)\n", translator::translate(fab->get_name()), pos.x, pos.y);
 			offset_y += LINESPACE;
 
-			FOR(array_tpl<ware_production_t>, const& i, fab->get_eingang()) {
+			FOR(array_tpl<ware_production_t>, const& i, fab->get_input()) {
 				goods_desc_t const* const ware = i.get_typ();
 				if(!nimmt_an.is_contained(ware)) {
 					nimmt_an.append(ware);
