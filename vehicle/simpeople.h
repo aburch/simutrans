@@ -42,8 +42,6 @@ public:
 
 	sync_result sync_step(uint32 delta_t);
 
-	// prissi: always free
-	virtual bool ist_weg_frei() { return true; }
 	virtual grund_t* hop_check();
 	virtual void hop(grund_t* gr);
 
