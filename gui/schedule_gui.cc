@@ -312,7 +312,7 @@ schedule_gui_t::~schedule_gui_t()
 
 
 
-schedule_gui_t::schedule_gui_t(schedule_t* fpl_, player_t* player_, convoihandle_t cnv_) :
+schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle_t cnv_) :
 	gui_frame_t( translator::translate("Fahrplan"), player_),
 	lb_line("Serves Line:"),
 	lb_wait("month wait time"),
@@ -323,7 +323,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* fpl_, player_t* player_, convoihandle
 	lb_spacing_shift_as_clock(NULL, SYSCOL_TEXT, gui_label_t::right),
 	stats(player_),
 	scrolly(&stats),
-	old_schedule(fpl_),
+	old_schedule(sch_),
 	player(player_),
 	cnv(cnv_)
 {
