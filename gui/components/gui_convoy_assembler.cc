@@ -690,7 +690,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 
 		for(  unsigned i = 0;  i < number_of_vehicles;  i++  ) {
 			const vehicle_desc_t *desc = vehicles.get_element(i);
-			const goods_desc_t* const ware = desc->get_ware();
+			const goods_desc_t* const ware = desc->get_freight_type();
 
 			total_cost += desc->get_value();
 			total_power += desc->get_power();
@@ -844,11 +844,11 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 			int loks = 0, waggons = 0, pax=0, electrics = 0;
 			FOR(slist_tpl<vehicle_desc_t *>, const info, vehicle_builder_t::get_info(way_type)) 
 			{
-				if(info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_ware()==goods_manager_t::passagiere  ||  info->get_ware()==goods_manager_t::post)) 
+				if(info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_freight_type()==goods_manager_t::passagiere  ||  info->get_freight_type()==goods_manager_t::post))
 				{
 					electrics++;
 				}
-				else if(info->get_ware()==goods_manager_t::passagiere  ||  info->get_ware()==goods_manager_t::post) 
+				else if(info->get_freight_type()==goods_manager_t::passagiere  ||  info->get_freight_type()==goods_manager_t::post)
 				{
 					pax++;
 				}
@@ -1027,7 +1027,7 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehicle_desc_t *info)
 	}
 
 	// Check if vehicle should be filtered
-	const goods_desc_t *freight = info->get_ware();
+	const goods_desc_t *freight = info->get_freight_type();
 	// Only filter when required and never filter engines
 	if (selected_filter > 0 && info->get_capacity() > 0) 
 	{
@@ -1111,12 +1111,12 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehicle_desc_t *info)
 	}
 	gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(info->get_name(), image);
 
-	if(  info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_ware()==goods_manager_t::passagiere  ||  info->get_ware()==goods_manager_t::post)  ) {
+	if(  info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_freight_type()==goods_manager_t::passagiere  ||  info->get_freight_type()==goods_manager_t::post)  ) {
 		electrics_vec.append(img_data);
 		vehicle_map.set(info, electrics_vec.back());
 	}
 	// since they come "pre-sorted" for the vehiclebauer, we have to do nothing to keep them sorted
-	else if(info->get_ware()==goods_manager_t::passagiere  ||  info->get_ware()==goods_manager_t::post) {
+	else if(info->get_freight_type()==goods_manager_t::passagiere  ||  info->get_freight_type()==goods_manager_t::post) {
 		pas_vec.append(img_data);
 		vehicle_map.set(info, pas_vec.back());
 	}
@@ -1876,8 +1876,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf(buf + n, translator::translate("Capacity: %3d %s%s %s\n"),
 				veh_type->get_capacity(),
 				cap,
-				translator::translate( veh_type->get_ware()->get_mass() ),
-				veh_type->get_ware()->get_catg()==0 ? translator::translate( veh_type->get_ware()->get_name() ) : translator::translate( veh_type->get_ware()->get_catg_name() )
+				translator::translate( veh_type->get_freight_type()->get_mass() ),
+				veh_type->get_freight_type()->get_catg()==0 ? translator::translate( veh_type->get_freight_type()->get_name() ) : translator::translate( veh_type->get_freight_type()->get_catg_name() )
 				);
 		}
 		else {
@@ -1962,7 +1962,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf(buf + n, "\n");
 		}
 
-		if(veh_type->get_ware()->get_catg_index() == 0)
+		if(veh_type->get_freight_type()->get_catg_index() == 0)
 		{
 			//Comfort only applies to passengers.
 			uint8 comfort = veh_type->get_comfort();
@@ -1978,7 +1978,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 
 		if(veh_type->get_catering_level() > 0)
 		{
-			if(veh_type->get_ware()->get_catg_index() == 1)
+			if(veh_type->get_freight_type()->get_catg_index() == 1)
 			{
 				//Catering vehicles that carry mail are treated as TPOs.
 				n +=  sprintf(buf + n, "%s", translator::translate("This is a travelling post office"));

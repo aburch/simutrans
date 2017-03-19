@@ -417,7 +417,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			if(v->get_desc()->get_catering_level() > 0)
 			{
 				buf.clear();
-				if(v->get_desc()->get_ware()->get_catg_index() == 1)
+				if(v->get_desc()->get_freight_type()->get_catg_index() == 1)
 				{
 					//Catering vehicles that carry mail are treated as TPOs.
 					buf.printf( "%s", translator::translate("This is a travelling post office\n"));

@@ -1037,7 +1037,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 		const uint16 hinein = total_capacity - total_freight; //hinein = inside (Google)
 		slist_tpl<ware_t> capacity; //"Payload" (Google)
 
-		*skip_vehicles = halt->fetch_goods(capacity, desc->get_ware(), hinein, schedule, cnv->get_owner(), cnv, overcrowd);
+		*skip_vehicles = halt->fetch_goods(capacity, desc->get_freight_type(), hinein, schedule, cnv->get_owner(), cnv, overcrowd);
 		if(!capacity.empty())
 		{
 			cnv->invalidate_weight_summary();
@@ -1940,7 +1940,7 @@ void vehicle_t::discard_cargo()
 uint16 vehicle_t::load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehicles)
 {
 	const uint16 start_freight = total_freight;
-	if(halt.is_bound()  &&  halt->gibt_ab(desc->get_ware()))
+	if(halt.is_bound()  &&  halt->gibt_ab(desc->get_freight_type()))
 	{
 		*skip_convois = load_freight_internal(halt, overcrowd, skip_vehicles);
 	}
@@ -2101,7 +2101,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		fracht_count = fracht.get_count();
 		// we try to have one freight count to guess the right freight
 		// when no desc is given
-		if(fracht_count==0  &&  desc->get_ware()!=goods_manager_t::nichts  &&  desc->get_capacity()>0) {
+		if(fracht_count==0  &&  desc->get_freight_type()!=goods_manager_t::nichts  &&  desc->get_capacity()>0) {
 			fracht_count = 1;
 		}
 	}
@@ -2236,7 +2236,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	if(file->is_saving()) {
 		if (fracht.empty()  &&  fracht_count>0) {
 			// create dummy freight for savegame compatibility
-			ware_t ware( desc->get_ware() );
+			ware_t ware( desc->get_freight_type() );
 			ware.menge = 0;
 			ware.set_ziel( halthandle_t() );
 			ware.set_zwischenziel( halthandle_t() );
@@ -3354,7 +3354,7 @@ rail_vehicle_t::rail_vehicle_tloadsave_t *file, bool is_leading, bool is_last) :
 			int power = (is_leading || fracht.empty() || fracht.front() == goods_manager_t::nichts) ? 500 : 0;
 			const goods_desc_t* w = fracht.empty() ? goods_manager_t::nichts : fracht.front().get_desc();
 			dbg->warning("rail_vehicle_t::rail_vehicle_t()","try to find a fitting vehicle for %s.", power>0 ? "engine": w->get_name() );
-			if(last_desc!=NULL  &&  last_desc->can_follow(last_desc)  &&  last_desc->get_ware()==w  &&  (!is_last  ||  last_desc->get_trailer(0)==NULL)) {
+			if(last_desc!=NULL  &&  last_desc->can_follow(last_desc)  &&  last_desc->get_freight_type()==w  &&  (!is_last  ||  last_desc->get_trailer(0)==NULL)) {
 				// same as previously ...
 				desc = last_desc;
 			}

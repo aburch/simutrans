@@ -148,7 +148,7 @@ void freight_summary_t::add_vehicle(const vehicle_desc_t &b)
 	if (payload > 0)
 	{
 		sint32 min_weight, max_weight;
-		get_possible_freight_weight(b.get_ware()->get_catg_index(), min_weight, max_weight);
+		get_possible_freight_weight(b.get_freight_type()->get_catg_index(), min_weight, max_weight);
 		min_freight_weight += min_weight * payload;
 		max_freight_weight += max_weight * payload;
 	}

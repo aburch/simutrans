@@ -3512,7 +3512,7 @@ void convoi_t::reverse_order(bool rev)
 		}
 
 		// Check for a goods train with a brake van
-		if((vehicle[anz_vehicle - 2]->get_desc()->get_ware()->get_catg_index() > 1)
+		if((vehicle[anz_vehicle - 2]->get_desc()->get_freight_type()->get_catg_index() > 1)
 			&& 	vehicle[anz_vehicle - 2]->get_desc()->get_can_be_at_rear() == false)
 		{
 			b--;
@@ -4750,7 +4750,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			const vehicle_t* v = vehicle[i];
 
 			// first add to capacity indicator
-			const goods_desc_t* ware_desc = v->get_desc()->get_ware();
+			const goods_desc_t* ware_desc = v->get_desc()->get_freight_type();
 			const uint16 menge = v->get_desc()->get_capacity();
 			if(menge>0  &&  ware_desc!=goods_manager_t::nichts) {
 				max_loaded_waren[ware_desc->get_index()] += menge;
@@ -6336,7 +6336,7 @@ convoi_t::get_catering_level(uint8 type) const
 			continue;
 		}
 		current_catering_level = v->get_desc()->get_catering_level();
-		if(current_catering_level > max_catering_level && v->get_desc()->get_ware()->get_catg_index() == type)
+		if(current_catering_level > max_catering_level && v->get_desc()->get_freight_type()->get_catg_index() == type)
 		{
 			max_catering_level = current_catering_level;
 		}
@@ -7129,7 +7129,7 @@ void convoi_t::clear_replace()
 	{
 		// Loco hauled, no turntable.
 		if(anz_vehicle > 1 && vehicle[anz_vehicle-2]->get_desc()->get_can_be_at_rear() == false
-			&& vehicle[anz_vehicle-2]->get_desc()->get_ware()->get_catg_index() > 1)
+			&& vehicle[anz_vehicle-2]->get_desc()->get_freight_type()->get_catg_index() > 1)
 		{
 			// Goods train with brake van - longer reverse time.
 			reverse_delay = (welt->get_settings().get_hauled_reverse_time() * 14) / 10;
