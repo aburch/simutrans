@@ -2,7 +2,7 @@
 #include "../../simdebug.h"
 #include "../../utils/simstring.h"
 
-#include "../way_obj_besch.h"
+#include "../way_obj_desc.h"
 #include "../../obj/wayobj.h"
 
 #include "way_obj_reader.h"

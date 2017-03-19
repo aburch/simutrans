@@ -2,8 +2,8 @@
 
 #include "../../dataobj/crossing_logic.h"
 
-#include "../sound_besch.h"
-#include "../kreuzung_besch.h"
+#include "../sound_desc.h"
+#include "../crossing_desc.h"
 #include "crossing_reader.h"
 
 #include "../obj_node_info.h"

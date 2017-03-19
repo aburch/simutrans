@@ -32,8 +32,8 @@
 #include "../bauer/hausbauer.h"
 #include "../bauer/tunnelbauer.h"
 
-#include "../descriptor/tunnel_besch.h"
-#include "../descriptor/weg_besch.h"
+#include "../descriptor/tunnel_desc.h"
+#include "../descriptor/way_desc.h"
 
 #include "../boden/grund.h"
 

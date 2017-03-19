@@ -19,7 +19,7 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/livery_scheme.h"
 
-#include "../descriptor/vehikel_besch.h"
+#include "../descriptor/vehicle_desc.h"
 
 #include "vehikelbauer.h"
 

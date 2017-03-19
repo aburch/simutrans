@@ -8,7 +8,7 @@
 
 #include "../utils/float32e8_t.h"
 #include "../simworld.h"
-#include "../descriptor/haus_besch.h"
+#include "../descriptor/building_desc.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/scenario.h"
 #include "simplay.h"

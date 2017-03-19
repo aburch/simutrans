@@ -18,7 +18,7 @@
 #include "../simworld.h"
 #include "../path_explorer.h"
 #include "../bauer/wegbauer.h"
-#include "../descriptor/weg_besch.h"
+#include "../descriptor/way_desc.h"
 #include "../utils/simstring.h"
 #include "../utils/float32e8_t.h"
 #include "../vehicle/simvehicle.h"

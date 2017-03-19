@@ -35,8 +35,8 @@
 #include "gui/karte.h"
 #include "gui/city_info.h"
 
-#include "descriptor/haus_besch.h"
-#include "descriptor/stadtauto_besch.h"
+#include "descriptor/building_desc.h"
+#include "descriptor/citycar_desc.h"
 
 #include "simintr.h"
 #include "simdebug.h"

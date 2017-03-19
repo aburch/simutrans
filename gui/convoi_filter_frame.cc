@@ -17,7 +17,7 @@
 #include "components/gui_convoiinfo.h"
 #include "../simcolor.h"
 
-#include "../descriptor/ware_besch.h"
+#include "../descriptor/goods_desc.h"
 #include "../bauer/warenbauer.h"
 #include "../dataobj/translator.h"
 

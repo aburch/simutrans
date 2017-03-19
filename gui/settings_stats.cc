@@ -1049,7 +1049,7 @@ void settings_costs_stats_t::read(settings_t* const sets)
 }
 
 
-#include "../descriptor/grund_besch.h"
+#include "../descriptor/ground_desc.h"
 
 
 void settings_climates_stats_t::init(settings_t* const sets)

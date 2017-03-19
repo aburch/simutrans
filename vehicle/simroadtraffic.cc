@@ -37,8 +37,8 @@
 #include "../boden/grund.h"
 #include "../boden/wege/weg.h"
 #include "../boden/wege/strasse.h"
-#include "../descriptor/stadtauto_besch.h"
-#include "../descriptor/roadsign_besch.h"
+#include "../descriptor/citycar_desc.h"
+#include "../descriptor/roadsign_desc.h"
 
 
 #include "../utils/cbuffer_t.h"

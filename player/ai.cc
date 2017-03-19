@@ -24,7 +24,7 @@
 #include "../bauer/vehikelbauer.h"
 #include "../bauer/wegbauer.h"
 
-#include "../descriptor/haus_besch.h"
+#include "../descriptor/building_desc.h"
 
 #include "../dataobj/loadsave.h"
 

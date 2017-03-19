@@ -6,7 +6,7 @@
 
 #include "../../obj/wolke.h"
 
-#include "../skin_besch.h"
+#include "../skin_desc.h"
 #include "skin_reader.h"
 
 

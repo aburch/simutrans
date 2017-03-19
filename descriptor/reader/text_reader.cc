@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "../../simdebug.h"
 
-#include "../text_besch.h"
+#include "../text_desc.h"
 
 #include "text_reader.h"
 #include "../obj_node_info.h"

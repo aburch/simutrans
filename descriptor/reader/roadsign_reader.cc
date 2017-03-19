@@ -2,7 +2,7 @@
 
 #include "../../obj/roadsign.h"
 #include "../../simunits.h"	// for kmh to speed conversion
-#include "../roadsign_besch.h"
+#include "../roadsign_desc.h"
 #include "../intro_dates.h"
 
 #include "roadsign_reader.h"

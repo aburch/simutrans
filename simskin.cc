@@ -1,4 +1,4 @@
-#include "descriptor/skin_besch.h"
+#include "descriptor/skin_desc.h"
 #include "descriptor/spezial_obj_tpl.h"
 #include "simskin.h"
 

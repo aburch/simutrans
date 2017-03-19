@@ -40,10 +40,10 @@
 #include "simhalt.h"
 #include "simskin.h"
 
-#include "descriptor/grund_besch.h"
-#include "descriptor/haus_besch.h"
-#include "descriptor/roadsign_besch.h"
-#include "descriptor/tunnel_besch.h"
+#include "descriptor/ground_desc.h"
+#include "descriptor/building_desc.h"
+#include "descriptor/roadsign_desc.h"
+#include "descriptor/tunnel_desc.h"
 
 #include "vehicle/simvehicle.h"
 #include "vehicle/simroadtraffic.h"
@@ -89,8 +89,8 @@
 #include "bauer/wegbauer.h"
 #include "bauer/hausbauer.h"
 
-#include "descriptor/weg_besch.h"
-#include "descriptor/roadsign_besch.h"
+#include "descriptor/way_desc.h"
+#include "descriptor/roadsign_desc.h"
 
 #include "tpl/vector_tpl.h"
 #include "tpl/weighted_vector_tpl.h"

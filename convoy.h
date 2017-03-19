@@ -67,7 +67,7 @@ a = (Fm - Frs - cf * v^2) / m
 #include "utils/float32e8_t.h"
 #include "simunits.h"
 #include "tpl/vector_tpl.h"
-#include "descriptor/vehikel_besch.h"
+#include "descriptor/vehicle_desc.h"
 #include "simtypes.h"
 
 class vehicle_t;

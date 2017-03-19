@@ -17,7 +17,7 @@
 
 #include "../bauer/hausbauer.h"
 
-#include "../descriptor/grund_besch.h"
+#include "../descriptor/ground_desc.h"
 #include "../descriptor/intro_dates.h"
 
 #include "../dataobj/translator.h"

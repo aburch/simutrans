@@ -17,7 +17,7 @@
 #include "../../simcolor.h"
 #include "../../gui/simwin.h"
 
-#include "../../descriptor/skin_besch.h"
+#include "../../descriptor/skin_desc.h"
 
 #define IMG_WIDTH 20
 

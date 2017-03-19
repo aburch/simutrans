@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "../../simdebug.h"
 
-#include "../bildliste_besch.h"
+#include "../image_list.h"
 
 #include "imagelist_reader.h"
 #include "../obj_node_info.h"

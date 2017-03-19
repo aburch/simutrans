@@ -3,7 +3,7 @@
 #include "../../bauer/hausbauer.h"
 #include "../../bauer/warenbauer.h"
 #include "../../bauer/wegbauer.h"
-#include "../../descriptor/ware_besch.h"
+#include "../../descriptor/goods_desc.h"
 #include "../../obj/baum.h"
 #include "../../squirrel/sq_extensions.h"
 

@@ -7,8 +7,8 @@
 
 #include <string.h>
 
-#include "../descriptor/haus_besch.h"
-#include "../descriptor/skin_besch.h"
+#include "../descriptor/building_desc.h"
+#include "../descriptor/skin_desc.h"
 #include "../descriptor/spezial_obj_tpl.h"
 
 #include "../boden/boden.h"

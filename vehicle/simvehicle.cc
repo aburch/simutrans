@@ -57,10 +57,10 @@
 
 #include "../gui/karte.h"
 
-#include "../descriptor/stadtauto_besch.h"
-#include "../descriptor/ware_besch.h"
-#include "../descriptor/skin_besch.h"
-#include "../descriptor/roadsign_besch.h"
+#include "../descriptor/citycar_desc.h"
+#include "../descriptor/goods_desc.h"
+#include "../descriptor/skin_desc.h"
+#include "../descriptor/roadsign_desc.h"
 
 #include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
@@ -72,7 +72,7 @@
 #include "../utils/cbuffer_t.h"
 
 #include "../utils/simrandom.h"
-#include "../descriptor/ware_besch.h"
+#include "../descriptor/goods_desc.h"
 
 #include "../convoy.h"
 

@@ -26,8 +26,8 @@
 #include "../gui/tool_selector.h"
 #include "../gui/karte.h"
 
-#include "../descriptor/bruecke_besch.h"
-#include "../descriptor/haus_besch.h"
+#include "../descriptor/bridge_desc.h"
+#include "../descriptor/building_desc.h"
 
 #include "../dataobj/marker.h"
 #include "../dataobj/scenario.h"

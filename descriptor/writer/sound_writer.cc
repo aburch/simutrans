@@ -1,7 +1,7 @@
 #include <string>
 #include "../../dataobj/tabfile.h"
 #include "obj_node.h"
-#include "../sound_besch.h"
+#include "../sound_desc.h"
 #include "text_writer.h"
 #include "sound_writer.h"
 

@@ -4,7 +4,7 @@
 #include "../../simdebug.h"
 #include "../../obj/baum.h"
 
-#include "../baum_besch.h"
+#include "../tree_desc.h"
 #include "../obj_node_info.h"
 #include "tree_reader.h"
 #include "../../network/pakset_info.h"

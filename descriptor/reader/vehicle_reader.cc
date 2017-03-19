@@ -2,8 +2,8 @@
 #include "../../simdebug.h"
 #include "../../simconst.h"
 #include "../../bauer/vehikelbauer.h"
-#include "../sound_besch.h"
-#include "../vehikel_besch.h"
+#include "../sound_desc.h"
+#include "../vehicle_desc.h"
 #include "../intro_dates.h"
 
 #include "vehicle_reader.h"

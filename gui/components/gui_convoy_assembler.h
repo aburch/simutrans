@@ -17,7 +17,7 @@
 
 #include "../../convoihandle_t.h"
 
-#include "../../descriptor/vehikel_besch.h"
+#include "../../descriptor/vehicle_desc.h"
 
 #include "gui_action_creator.h"
 

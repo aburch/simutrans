@@ -16,8 +16,8 @@
 
 #include "../obj/label.h"
 
-#include "../descriptor/haus_besch.h"
-#include "../descriptor/skin_besch.h"
+#include "../descriptor/building_desc.h"
+#include "../descriptor/skin_desc.h"
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"

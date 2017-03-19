@@ -4,7 +4,7 @@
 
 #include "good_reader.h"
 #include "../obj_node_info.h"
-#include "../ware_besch.h"
+#include "../goods_desc.h"
 #include "../../network/pakset_info.h"
 
 

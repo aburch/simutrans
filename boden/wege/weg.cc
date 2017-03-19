@@ -47,10 +47,10 @@
 #include "../../dataobj/translator.h"
 #include "../../dataobj/loadsave.h"
 #include "../../dataobj/environment.h"
-#include "../../descriptor/weg_besch.h"
-#include "../../descriptor/tunnel_besch.h"
-#include "../../descriptor/roadsign_besch.h"
-#include "../../descriptor/haus_besch.h" // for ::should_city_adopt_this
+#include "../../descriptor/way_desc.h"
+#include "../../descriptor/tunnel_desc.h"
+#include "../../descriptor/roadsign_desc.h"
+#include "../../descriptor/building_desc.h" // for ::should_city_adopt_this
 
 #include "../../bauer/wegbauer.h"
 

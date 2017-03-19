@@ -20,7 +20,7 @@
 #include "../player/simplay.h"
 
 #include "../descriptor/reader/obj_reader.h"
-#include "../descriptor/skin_besch.h"
+#include "../descriptor/skin_desc.h"
 #include "../simskin.h"
 
 floating_cursor_t::floating_cursor_t(const scr_coord& initial,	scr_coord_val min_left,	scr_coord_val max_right)

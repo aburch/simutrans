@@ -27,7 +27,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/koord.h"
 #include "../dataobj/loadsave.h"
-#include "../descriptor/fabrik_besch.h"
+#include "../descriptor/factory_desc.h"
 #include "../simfab.h"
 #include "../utils/simrandom.h"
 

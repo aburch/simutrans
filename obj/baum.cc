@@ -20,7 +20,7 @@
 
 #include "../boden/grund.h"
 
-#include "../descriptor/baum_besch.h"
+#include "../descriptor/tree_desc.h"
 
 #include "../obj/groundobj.h"
 

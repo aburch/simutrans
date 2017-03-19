@@ -8,7 +8,7 @@
 
 #include "../../display/simimg.h"
 
-#include "../../descriptor/skin_besch.h"
+#include "../../descriptor/skin_desc.h"
 
 #include "gui_action_creator.h"
 #include "gui_component.h"

@@ -14,7 +14,7 @@
 #endif
 
 #include "../simdebug.h"
-#include "../descriptor/bild_besch.h"
+#include "../descriptor/image.h"
 #include "koord.h"
 #include "tabfile.h"
 

@@ -13,7 +13,7 @@
 #include "../display/simimg.h"
 #include "../player/simplay.h"
 
-#include "../descriptor/kreuzung_besch.h"
+#include "../descriptor/crossing_desc.h"
 
 #include "../boden/grund.h"
 #include "../boden/wege/weg.h"

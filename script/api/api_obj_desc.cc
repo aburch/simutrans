@@ -1,6 +1,6 @@
 #include "api.h"
 
-/** @file api_obj_besch.cc exports goods descriptors - *_desc_t. */
+/** @file api_obj_desc.cc exports goods descriptors - *_desc_t. */
 
 #include "api_obj_desc_base.h"
 #include "api_simple.h"
@@ -8,8 +8,8 @@
 #include "get_next.h"
 #include "../api_class.h"
 #include "../api_function.h"
-#include "../../descriptor/haus_besch.h"
-#include "../../descriptor/ware_besch.h"
+#include "../../descriptor/building_desc.h"
+#include "../../descriptor/goods_desc.h"
 #include "../../bauer/warenbauer.h"
 #include "../../simworld.h"
 

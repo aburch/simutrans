@@ -10,7 +10,7 @@
 
 #include "../simtypes.h"
 #include "../display/simimg.h"
-#include "../descriptor/kreuzung_besch.h"
+#include "../descriptor/crossing_desc.h"
 #include "../dataobj/crossing_logic.h"
 
 class vehicle_base_t;

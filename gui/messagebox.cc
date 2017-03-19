@@ -9,7 +9,7 @@
 #include "../display/simgraph.h"
 
 #include "../simskin.h"
-#include "../descriptor/skin_besch.h"
+#include "../descriptor/skin_desc.h"
 
 #include "../dataobj/translator.h"
 #include "messagebox.h"

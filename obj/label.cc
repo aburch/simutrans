@@ -18,8 +18,8 @@
 #include "../player/simplay.h"
 #include "../gui/label_info.h"
 
-#include "../descriptor/grund_besch.h"
-#include "../descriptor/skin_besch.h"
+#include "../descriptor/ground_desc.h"
+#include "../descriptor/skin_desc.h"
 
 #include "../dataobj/environment.h"
 

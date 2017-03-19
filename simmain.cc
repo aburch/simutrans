@@ -66,8 +66,8 @@
 #include "network/pakset_info.h"
 
 #include "descriptor/reader/obj_reader.h"
-#include "descriptor/sound_besch.h"
-#include "descriptor/grund_besch.h"
+#include "descriptor/sound_desc.h"
+#include "descriptor/ground_desc.h"
 
 #include "music/music.h"
 #include "sound/sound.h"

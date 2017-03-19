@@ -14,7 +14,7 @@
 #include "../simline.h"
 #include "../simconvoi.h"
 
-#include "../descriptor/ware_besch.h"
+#include "../descriptor/goods_desc.h"
 #include "../bauer/warenbauer.h"
 
 #include "../dataobj/translator.h"

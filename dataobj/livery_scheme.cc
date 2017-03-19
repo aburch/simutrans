@@ -6,7 +6,7 @@
 
 #include "livery_scheme.h"
 #include "loadsave.h"
-#include "../descriptor/vehikel_besch.h"
+#include "../descriptor/vehicle_desc.h"
 
 livery_scheme_t::livery_scheme_t(const char* n, const uint16 date)
 {

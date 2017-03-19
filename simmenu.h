@@ -10,7 +10,7 @@
 #define simmenu_h
 
 #include <string>
-#include "descriptor/sound_besch.h"
+#include "descriptor/sound_desc.h"
 
 #include "dataobj/koord3d.h"
 #include "dataobj/translator.h"

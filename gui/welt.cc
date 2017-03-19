@@ -24,7 +24,7 @@
 #include "../bauer/hausbauer.h"
 #include "../bauer/wegbauer.h"
 
-#include "../descriptor/haus_besch.h"
+#include "../descriptor/building_desc.h"
 
 #include "../dataobj/height_map_loader.h"
 #include "../dataobj/settings.h"

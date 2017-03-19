@@ -1,5 +1,5 @@
 #include "../../bauer/wegbauer.h"
-#include "../../descriptor/weg_besch.h"
+#include "../../descriptor/way_desc.h"
 
 #include "narrowgauge.h"
 

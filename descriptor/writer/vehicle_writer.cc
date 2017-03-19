@@ -2,8 +2,8 @@
 #include <cmath>
 #include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
-#include "../vehikel_besch.h"
-#include "../sound_besch.h"
+#include "../vehicle_desc.h"
+#include "../sound_desc.h"
 #include "../../boden/wege/weg.h"
 #include "obj_pak_exception.h"
 #include "obj_node.h"

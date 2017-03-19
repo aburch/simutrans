@@ -10,7 +10,7 @@
 #include "tpl/slist_tpl.h"
 #include "dataobj/translator.h"
 #include "bauer/warenbauer.h"
-#include "descriptor/ware_besch.h"
+#include "descriptor/goods_desc.h"
 #include "simsys.h"
 #include "display/simgraph.h"
 #include "player/simplay.h"

@@ -34,7 +34,7 @@
 
 #include "bauer/vehikelbauer.h"
 
-#include "descriptor/haus_besch.h"
+#include "descriptor/building_desc.h"
 
 #include "utils/cbuffer_t.h"
 

@@ -27,8 +27,8 @@
 #include "../../dataobj/livery_scheme.h"
 #include "../../utils/simstring.h"
 #include "../../vehicle/simvehicle.h"
-#include "../../descriptor/haus_besch.h"
-#include "../../descriptor/vehikel_besch.h"
+#include "../../descriptor/building_desc.h"
+#include "../../descriptor/vehicle_desc.h"
 #include "../../player/simplay.h"
 
 #include "../../utils/cbuffer_t.h"

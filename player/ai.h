@@ -13,7 +13,7 @@
 #include "simplay.h"
 
 #include "../sucher/bauplatz_sucher.h"
-#include "../descriptor/ware_besch.h"
+#include "../descriptor/goods_desc.h"
 
 class karte_t;
 class vehicle_desc_t;

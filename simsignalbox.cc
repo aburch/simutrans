@@ -12,7 +12,7 @@
 #include "simcity.h"
 #include "obj/signal.h"
 #include "boden/wege/weg.h"
-#include "descriptor/haus_besch.h"
+#include "descriptor/building_desc.h"
 #include "simdebug.h"
 #include "simtool.h"
 

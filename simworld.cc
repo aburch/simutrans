@@ -110,11 +110,11 @@
 #include "bauer/vehikelbauer.h"
 #include "bauer/hausbauer.h"
 
-#include "descriptor/grund_besch.h"
-#include "descriptor/sound_besch.h"
-#include "descriptor/tunnel_besch.h"
-#include "descriptor/bruecke_besch.h"
-#include "descriptor/stadtauto_besch.h"
+#include "descriptor/ground_desc.h"
+#include "descriptor/sound_desc.h"
+#include "descriptor/tunnel_desc.h"
+#include "descriptor/bridge_desc.h"
+#include "descriptor/citycar_desc.h"
 
 #include "player/simplay.h"
 #include "player/finance.h"

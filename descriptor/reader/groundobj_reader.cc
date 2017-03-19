@@ -6,7 +6,7 @@
 #include "../../obj/groundobj.h"
 #include "../../vehicle/movingobj.h"
 
-#include "../groundobj_besch.h"
+#include "../groundobj_desc.h"
 #include "../obj_node_info.h"
 #include "groundobj_reader.h"
 #include "../../network/pakset_info.h"

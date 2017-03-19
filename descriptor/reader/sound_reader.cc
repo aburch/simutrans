@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "../sound_besch.h"
+#include "../sound_desc.h"
 #include "sound_reader.h"
 
 #include "../obj_node_info.h"

@@ -26,7 +26,7 @@
 #include "bauer/brueckenbauer.h"
 #include "bauer/tunnelbauer.h"
 
-#include "descriptor/haus_besch.h"
+#include "descriptor/building_desc.h"
 
 #include "boden/grund.h"
 #include "boden/wege/strasse.h"

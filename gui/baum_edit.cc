@@ -19,8 +19,8 @@
 #include "../dataobj/translator.h"
 
 
-#include "../descriptor/bild_besch.h"
-#include "../descriptor/grund_besch.h"
+#include "../descriptor/image.h"
+#include "../descriptor/ground_desc.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"

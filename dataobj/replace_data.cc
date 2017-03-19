@@ -8,7 +8,7 @@
 #include "../bauer/vehikelbauer.h"
 
 #include "../vehicle/simvehicle.h"
-#include "../descriptor/vehikel_besch.h"
+#include "../descriptor/vehicle_desc.h"
 
 
 replace_data_t::replace_data_t()

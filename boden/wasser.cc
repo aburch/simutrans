@@ -8,7 +8,7 @@
 
 #include "../simworld.h"
 
-#include "../descriptor/grund_besch.h"
+#include "../descriptor/ground_desc.h"
 
 #include "../dataobj/environment.h"
 

@@ -2,7 +2,7 @@
 #include <string.h>
 #include "../../bauer/hausbauer.h"
 #include "../../simdebug.h"
-#include "../haus_besch.h"
+#include "../building_desc.h"
 #include "../intro_dates.h"
 #include "../obj_node_info.h"
 #include "building_reader.h"
