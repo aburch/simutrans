@@ -3,7 +3,7 @@
 
 #include "simroadtraffic.h"
 
-class fussgaenger_besch_t;
+class pedestrian_desc_t;
 
 /**
  * Pedestrians also are road users.
@@ -14,10 +14,10 @@ class fussgaenger_besch_t;
 class pedestrian_t : public road_user_t
 {
 private:
-	static stringhashtable_tpl<const fussgaenger_besch_t *> table;
+	static stringhashtable_tpl<const pedestrian_desc_t *> table;
 
 private:
-	const fussgaenger_besch_t *besch;
+	const pedestrian_desc_t *desc;
 
 protected:
 	void rdwr(loadsave_t *file);
@@ -35,7 +35,7 @@ public:
 
 	virtual ~pedestrian_t();
 
-	const fussgaenger_besch_t *get_besch() const { return besch; }
+	const pedestrian_desc_t *get_desc() const { return desc; }
 
 	const char *get_name() const {return "Fussgaenger";}
 #ifdef INLINE_OBJ_TYPE
@@ -51,8 +51,8 @@ public:
 	virtual void hop(grund_t* gr);
 
 	// class register functions
-	static bool register_besch(const fussgaenger_besch_t *besch);
-	static bool alles_geladen();
+	static bool register_desc(const pedestrian_desc_t *desc);
+	static bool successfully_loaded();
 
 	static void generate_pedestrians_at(koord3d k, uint32 anzahl, uint32 time_to_live = 0);
 

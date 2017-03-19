@@ -12,7 +12,7 @@
 #include "../simcolor.h"
 #include "../display/simgraph.h"
 
-class bild_besch_t;
+class image_t;
 
 
 /*
@@ -299,7 +299,7 @@ public:
 	static void init_gui_defaults();
 
 	// assings k with the dimension of this image
-	static void init_size_from_bild( const bild_besch_t *pic, scr_size &k );
+	static void init_size_from_image( const image_t *pic, scr_size &k );
 
 	// init the skin dimensions form file
 	static void init_gui_from_images();

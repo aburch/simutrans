@@ -4,14 +4,14 @@
  * 01/12/2003
  */
 
-#include "fahrplan_gui.h"
+#include "schedule_gui.h"
 
 #include "../linehandle_t.h"
 
 class player_t;
 class loadsave_t;
 
-class line_management_gui_t : public fahrplan_gui_t
+class line_management_gui_t : public schedule_gui_t
 {
 public:
 	line_management_gui_t(linehandle_t line, player_t* player);

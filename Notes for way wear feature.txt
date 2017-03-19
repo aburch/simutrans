@@ -1,0 +1,73 @@
+Resources: 
+http://www.pavementinteractive.org/2014/06/02/pavement-design-whats-my-structural-number/
+http://www.pavementinteractive.org/article/equivalent-single-axle-load/
+http://www.pavementinteractive.org/wsdot-esal-application/
+http://www.kent.gov.uk/__data/assets/pdf_file/0012/13035/Making-it-Happen-Road-pavement-design-guide-July-2000.pdf
+http://www.ice.org.uk/getattachment/d8fdce3e-801e-4d7c-add9-e446637f9762/Thin-pavement-surfacings.aspx
+
+** FORMULA **
+
+(this vehicle weight / standard weight) ^ 4
+
+****
+
+New thin asphalt coatings (stone mastic asphalt, "SMA") last 25% longer (on average) between maintenance rquirements than traditional hot rolled asphalt. They were introduced in about the mid 1990s. 
+
+Anticipate variance of 100x in contemporaneous road surfaces in wear factorials: ESAL 100,000 for a light road and 10,000,000 for a heavy road. (US figures)
+
+The Kent County Council figures (see para. 5.7) range from 1,200,000 Standard Axles (that is, 8t axles) over its design life for a major road to 10,000 for a very minor road, and 300,000 for a moderately minor road. This is based on up to 120 commercial vehicles per day, although it later refers to an "msa" of over 50, "msa" being a measure of the totality of all traffic on the road in standard 8t axles (presumably, "million standard axles"). 
+
+At base (before adjustment for m/tile and bits per month, the combined effect of which is to multiply by 2), should calibrate as follows:
+
+City road, lifespan 20 years with 100 passes/month of vehicle with 2 axles and 4t axle load. That is, 200 4t axle passes per month. 
+
+If this is the reference standard (one 4t axle pass being one Equivalent Simutrans Axle Load)...?
+
+At Pak128.Britan-Ex standards, 3.75 months = 1 day. However, this is a day without a night. Assuming 16 active hours in a day, this is closer to 2.5. 2.5 * 365 = 912.5 months per year, or 76 months per month. Real world ESALs must therefore be divided by 76 to get to the equivalent in Pak128.Britain-Ex. *But* one must then account for the bits per month and meters per tile for which these things must be adjusted. Months are about 2x as long as they would be at default settings. The configuration files must therefore divide ESALs by 152 (76 * 2) to get ESimALs. That would produce:
+
+Heavy road: 65,789 (10,000,000 / 152) - US measure
+Light road: 658 (100,000 / 152) - US measure
+
+*** (Modern SMA roads in the UK) ***
+
+Very heavy road, 50msa: 328,947 (50,000,000 / 152) SA - UK measure
+Heavy road, 30msa: 197,368 (30,000,000 / 152) SA - UK measure
+Medium heavy road, 20msa: 131,579 (20,000,000 / 152) SA - UK measure
+Medium road, 10msa: 65,789 (10,000,000 / 152) SA - UK measure
+Medium light road, 5msa: 32,894 (5,000,000 / 152) SA - UK measure
+Light road, 2msa: 13,158 (2,000,000 / 152) SA - UK measure
+Very light road, 0.5msa: 3,289 (500,000 / 152) SA - UK measure
+
+The Leyland DAF65 in the game has an 8t axle load, and 2 axles. This vehicle is therefore 2x SA per pass. 
+
+This would equate to the following:
+
+50msa = 164,473 lifetime passes
+30msa = 98,684 lifetime passes
+20msa = 65,789 lifetime passes
+10msa = 32,894 lifetime passes
+5msa = 16,447 lifetime passes
+2msa = 6,579 lifetime passes
+0.5msa = 1,644 lifetime passes
+
+For a 20 year life, this equates to:
+
+50msa = 685 passes/month or 107 passes/hour
+30msa = 411 passes/month or 64 passes/hour
+20msa = 274 passes/month or 43 passes/hour
+10msa = 137 passes/month or 21 passes/hour
+5msa = 68 passes/month or 10 passes/hour
+2msa = 27 passes/month or 4 passes/hour
+0.5msa = 6.85 passes/month 1.07 passes/hour
+
+** Implementation strategy **
+
+Each vehicle to report a value of "Standard Axles". That value either to be specified directly in the .dat file or to be calculated from the axle load in default thereof using a power specified in simuconf.tab per waytype (default: 4 for road, 1 for rail, 0 for water; rail has a linear relationship and water experiences no wear). 
+
+Each convoy, when it changes its assemblage, to calculate a global convoy SA value. 
+
+Each waytype to specify a number of standard axle passes before condition reaches zero (the SA capacity).
+
+Each convoy passing over the way to deduct an appropriate number from the condition value based on the proportion of its SA rating to the way's SA capacity. 
+
+At condition 0, the way automatically downgrades to mothballed status and is unusable. At a specified percentage above 0 (by default, 15%, set in simuconf.tab), the way gets into poor condition and is either automatically upgraded or has a speed limit applied to it, the limit being a percentage of its normal speed limit being set in simuconf.tab, the default being 60%. 

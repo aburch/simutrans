@@ -26,7 +26,7 @@
 #include "../tpl/vector_tpl.h"
 
 class player_t;
-class ware_besch_t;
+class goods_desc_t;
 
 class halt_list_frame_t : public gui_frame_t , private action_listener_t
 {
@@ -86,8 +86,8 @@ private:
 
     static char name_filter_value[64];
 
-    static slist_tpl<const ware_besch_t *> waren_filter_ab;
-    static slist_tpl<const ware_besch_t *> waren_filter_an;
+    static slist_tpl<const goods_desc_t *> waren_filter_ab;
+    static slist_tpl<const goods_desc_t *> waren_filter_an;
 
     static bool compare_halts(halthandle_t, halthandle_t);
 
@@ -143,12 +143,12 @@ public:
 
 	static char *access_name_filter() { return name_filter_value; }
 
-	static bool get_ware_filter_ab(const ware_besch_t *ware) { return waren_filter_ab.is_contained(ware); }
-	static void set_ware_filter_ab(const ware_besch_t *ware, int mode);
+	static bool get_ware_filter_ab(const goods_desc_t *ware) { return waren_filter_ab.is_contained(ware); }
+	static void set_ware_filter_ab(const goods_desc_t *ware, int mode);
 	static void set_alle_ware_filter_ab(int mode);
 
-	static bool get_ware_filter_an(const ware_besch_t *ware) { return waren_filter_an.is_contained(ware); }
-	static void set_ware_filter_an(const ware_besch_t *ware, int mode);
+	static bool get_ware_filter_an(const goods_desc_t *ware) { return waren_filter_an.is_contained(ware); }
+	static void set_ware_filter_an(const goods_desc_t *ware, int mode);
 	static void set_alle_ware_filter_an(int mode);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;

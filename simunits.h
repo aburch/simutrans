@@ -34,7 +34,7 @@
         -- 2^12 per vehicle steps, by definition
 		-- 2^16 per vehicle steps in older code
 		-- chosen to maximize precision of certain interfaces
- * 6 -- km -- 1/tile in standard; variable in Experimental with the meters_per_tile setting
+ * 6 -- km -- 1/tile in standard; variable in Extended with the meters_per_tile setting
  *
  * TIME units:
  * 1 -- ticks -- referred to as ms or milliseconds in old code
@@ -43,7 +43,7 @@
  * 3 -- days -- derived from months
  * 4 -- years -- derived from months
  * 5 -- hours & minutes -- NOT derived from months, implied by vehicle speed 
- *      -- (express for journey, waiting, reversing, loading and spacing times in Experimental)
+ *      -- (express for journey, waiting, reversing, loading and spacing times in Extended)
  *      -- 100 km/h = (100 << 10) / 80 "yards"/tick = 1280 "yards"/tick. (see macro kmh_to_speed below)
  *      -- Assuming 1000 meters per tile, 1h = 104857600/1280 = 81920 ticks; 
  *      -- 3min = 81920/20 = 4096 ticks
@@ -219,7 +219,7 @@ extern const float32e8_t V_MIN;
 
 /**
  * INTERCONVERSION BETWEEN SPEED, TIME AND DISTANCE
- * There are too many different units used in simutrans-experimental
+ * There are too many different units used in simutrans-extended
  * But this handles... some of them.
  */
 inline sint64 seconds_from_meters_and_kmh(sint64 meters, sint64 kmh) {

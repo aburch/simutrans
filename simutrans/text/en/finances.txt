@@ -9,7 +9,7 @@
 Click on the finances button in the upper button bar in the main game window, or press <a href="keys.txt">[f]</a>, or click on player name in the <a href="players.txt">Players</a> window, to open the <strong>Finances</strong> window.
 </p>
 <p>
-Values (in Hajo Credits) are listed for present and previous calendar years.<br>
+Values (in Hajo Credits) are listd for present and previous calendar years.<br>
 <em>This Year:</em> current game calendar year.<br>
 <em>Last Year:</em> previous game calendar year.
 </p>

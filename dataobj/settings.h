@@ -20,7 +20,7 @@
 class player_t;
 class loadsave_t;
 class tabfile_t;
-class weg_besch_t;
+class way_desc_t;
 
 struct road_timeline_t
 {
@@ -68,8 +68,8 @@ class settings_t
 	friend class settings_economy_stats_t;
 	friend class settings_costs_stats_t;
 	friend class settings_climates_stats_t;
-	friend class settings_experimental_general_stats_t;
-	friend class settings_experimental_revenue_stats_t;
+	friend class settings_extended_general_stats_t;
+	friend class settings_extended_revenue_stats_t;
 	friend class climate_gui_t;
 	friend class welt_gui_t;
 
@@ -89,19 +89,18 @@ private:
 	bool pak_overrides_savegame_settings;
 	bool userdir_overrides_savegame_settings;
 
-	sint32 groesse_x, groesse_y;
-	sint32 nummer;
+	sint32 size_x, size_y;
+	sint32 map_number;
 
 	/* new setting since version 0.85.01
 	 * @author prissi
-	 * not used any more:    sint32 industrie_dichte;
 	 */
 	sint32 factory_count;
 	sint32 electric_promille;
 	sint32 tourist_attractions;
 
-	sint32 anzahl_staedte;
-	sint32 mittlere_einwohnerzahl;
+	sint32 city_count;
+	sint32 mean_einwohnerzahl;
 
 	// town growth factors
 	sint32 passenger_multiplier;
@@ -131,7 +130,7 @@ private:
 	/**
 	 * At which level buildings generate traffic?
 	 */
-	sint32 verkehr_level;
+	sint32 traffic_level;
 
 	/**
 	 * Should pedestrians be displayed?
@@ -246,8 +245,8 @@ private:
 
 	/**
 	 * multiplier for steps on diagonal:
-	 * 1024: TT-like, faktor 2, vehicle will be too long and too fast
-	 * 724: correct one, faktor sqrt(2)
+	 * 1024: TT-like, factor 2, vehicle will be too long and too fast
+	 * 724: correct one, factor sqrt(2)
 	 */
 	uint16 pak_diagonal_multiplier;
 
@@ -556,6 +555,9 @@ private:
 	// true if transformers are allowed to built underground
 	bool allow_underground_transformers;
 
+	// true if companies can make ways public
+	bool disable_make_way_public;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -583,6 +585,9 @@ public:
 	sint64 cst_multiply_remove_field;
 	sint64 cst_transformer;
 	sint64 cst_maintain_transformer;
+
+	// maintainance cost in months to make something public
+	sint64 cst_make_public_months;
 
 	// costs for the way searcher
 	sint32 way_count_straight;
@@ -696,13 +701,13 @@ public:
 	// init form this file ...
 	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, std::string &objfilename );
 
-	void set_groesse_x(sint32 g) {groesse_x=g;}
-	void set_groesse_y(sint32 g) {groesse_y=g;}
-	void set_groesse(sint32 x, sint32 y) {groesse_x = x; groesse_y=y;}
-	sint32 get_groesse_x() const {return groesse_x;}
-	sint32 get_groesse_y() const {return groesse_y;}
+	void set_size_x(sint32 g) {size_x=g;}
+	void set_size_y(sint32 g) {size_y=g;}
+	void set_groesse(sint32 x, sint32 y) {size_x = x; size_y=y;}
+	sint32 get_size_x() const {return size_x;}
+	sint32 get_size_y() const {return size_y;}
 
-	sint32 get_karte_nummer() const {return nummer;}
+	sint32 get_map_number() const {return map_number;}
 
 	void set_factory_count(sint32 d) { factory_count=d; }
 	sint32 get_factory_count() const {return factory_count;}
@@ -712,14 +717,14 @@ public:
 	void set_tourist_attractions( sint32 n ) { tourist_attractions = n; }
 	sint32 get_tourist_attractions() const {return tourist_attractions;}
 
-	void set_anzahl_staedte(sint32 n) {anzahl_staedte=n;}
-	sint32 get_anzahl_staedte() const {return anzahl_staedte;}
+	void set_city_count(sint32 n) {city_count=n;}
+	sint32 get_city_count() const {return city_count;}
 
-	void set_mittlere_einwohnerzahl( sint32 n ) {mittlere_einwohnerzahl = n;}
-	sint32 get_mittlere_einwohnerzahl() const {return mittlere_einwohnerzahl;} // Median town size
+	void set_mean_einwohnerzahl( sint32 n ) {mean_einwohnerzahl = n;}
+	sint32 get_mean_einwohnerzahl() const {return mean_einwohnerzahl;} // Median town size
 
-	void set_verkehr_level(sint32 l) {verkehr_level=l;}
-	sint32 get_verkehr_level() const {return verkehr_level;}
+	void set_traffic_level(sint32 l) {traffic_level=l;}
+	sint32 get_traffic_level() const {return traffic_level;}
 
 	void set_show_pax(bool yesno) {show_pax=yesno;}
 	bool get_show_pax() const {return show_pax != 0;}
@@ -763,7 +768,7 @@ public:
 
 	void rotate90() {
 		rotation = (rotation+1)&3;
-		set_groesse( groesse_y, groesse_x );
+		set_groesse( size_y, size_x );
 	}
 	uint8 get_rotation() const { return rotation; }
 
@@ -799,8 +804,8 @@ public:
 
 	sint32 get_beginner_price_factor() const { return beginner_price_factor; }
 
-	const weg_besch_t *get_city_road_type( uint16 year );
-	const weg_besch_t *get_intercity_road_type( uint16 year );
+	const way_desc_t *get_city_road_type( uint16 year );
+	const way_desc_t *get_intercity_road_type( uint16 year );
 
 	void set_pak_diagonal_multiplier(uint16 n) { pak_diagonal_multiplier = n; }
 	uint16 get_pak_diagonal_multiplier() const { return pak_diagonal_multiplier; }
@@ -822,8 +827,8 @@ public:
 	uint16 get_median_bonus_distance() const { return median_bonus_distance; }
 	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
 	uint16 get_max_bonus_multiplier_percent() const { return max_bonus_multiplier_percent; }
-	// Cache the above settings directly in ware_besch_t objects.
-	// During loading you must call this *after* warenbauer_t is done registering wares.
+	// Cache the above settings directly in goods_desc_t objects.
+	// During loading you must call this *after* goods_manager_t is done registering wares.
 	void cache_speedbonuses();
 
 	uint16 get_meters_per_tile() const { return meters_per_tile; }
@@ -1074,6 +1079,7 @@ public:
 	void set_max_elevated_way_building_level(uint8 value) { max_elevated_way_building_level = value; }
 
 	bool get_allow_underground_transformers() const { return allow_underground_transformers; }
+	bool get_disable_make_way_public() const { return disable_make_way_public; }
 	void set_scale();
 
 	uint16 get_remove_dummy_player_months() const { return remove_dummy_player_months; }

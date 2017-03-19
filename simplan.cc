@@ -16,7 +16,7 @@
 #include "player/simplay.h"
 #include "simconst.h"
 #include "macros.h"
-#include "besch/grund_besch.h"
+#include "descriptor/ground_desc.h"
 #include "boden/grund.h"
 #include "boden/boden.h"
 #include "boden/fundament.h"
@@ -322,8 +322,8 @@ void planquadrat_t::check_season_snowline(const bool season_change, const bool s
 void planquadrat_t::correct_water()
 {
 	grund_t *gr = get_kartenboden();
-	hang_t::typ slope = gr->get_grund_hang();
-	sint8 max_height = gr->get_hoehe() + hang_t::max_diff( slope );
+	slope_t::type slope = gr->get_grund_hang();
+	sint8 max_height = gr->get_hoehe() + slope_t::max_diff( slope );
 	koord k = gr->get_pos().get_2d();
 	sint8 water_hgt = welt->get_water_hgt(k);
 	if(  gr  &&  gr->get_typ() != grund_t::wasser  &&  max_height <= water_hgt  ) {
@@ -342,13 +342,13 @@ void planquadrat_t::correct_water()
 	gr = get_kartenboden();
 	if(  gr  &&  gr->get_typ() != grund_t::wasser  &&  gr->get_disp_height() < water_hgt  &&  welt->max_hgt(k) > water_hgt  ) {
 		sint8 disp_hneu = water_hgt;
-		sint8 disp_hn_sw = max( gr->get_hoehe() + corner1(slope), water_hgt );
-		sint8 disp_hn_se = max( gr->get_hoehe() + corner2(slope), water_hgt );
-		sint8 disp_hn_ne = max( gr->get_hoehe() + corner3(slope), water_hgt );
-		sint8 disp_hn_nw = max( gr->get_hoehe() + corner4(slope), water_hgt );
+		sint8 disp_hn_sw = max( gr->get_hoehe() + corner_sw(slope), water_hgt );
+		sint8 disp_hn_se = max( gr->get_hoehe() + corner_se(slope), water_hgt );
+		sint8 disp_hn_ne = max( gr->get_hoehe() + corner_ne(slope), water_hgt );
+		sint8 disp_hn_nw = max( gr->get_hoehe() + corner_nw(slope), water_hgt );
 		const uint8 sneu = (disp_hn_sw - disp_hneu) + ((disp_hn_se - disp_hneu) * 3) + ((disp_hn_ne - disp_hneu) * 9) + ((disp_hn_nw - disp_hneu) * 27);
 		gr->set_hoehe( disp_hneu );
-		gr->set_grund_hang( (hang_t::typ)sneu );
+		gr->set_grund_hang( (slope_t::type)sneu );
 	}
 }
 
@@ -368,7 +368,7 @@ void planquadrat_t::abgesenkt()
 			kartenboden_setzen( gr );
 			// recalc water ribis of neighbors
 			for(int r=0; r<4; r++) {
-				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsow[r]);
+				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsew[r]);
 				if (gr2  &&  gr2->ist_wasser()) {
 					gr2->calc_image();
 				}
@@ -397,7 +397,7 @@ void planquadrat_t::angehoben()
 			kartenboden_setzen( gr );
 			// recalc water ribis
 			for(int r=0; r<4; r++) {
-				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsow[r]);
+				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsew[r]);
 				if(  gr2  &&  gr2->ist_wasser()  ) {
 					gr2->calc_image();
 				}
@@ -409,7 +409,7 @@ void planquadrat_t::angehoben()
 			kartenboden_setzen( gr );
 			// recalc water ribis
 			for(int r=0; r<4; r++) {
-				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsow[r]);
+				grund_t *gr2 = welt->lookup_kartenboden(k + koord::nsew[r]);
 				if(  gr2  &&  gr2->ist_wasser()  ) {
 					gr2->calc_image();
 				}
@@ -435,8 +435,8 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 		for(  ;  i < ground_size;  i++  ) {
 			const grund_t* gr = data.some[i];
 			const sint8 h = gr->get_hoehe();
-			const hang_t::typ slope = gr->get_grund_hang();
-			const sint8 htop = h + max(max(corner1(slope), corner2(slope)),max(corner3(slope), corner4(slope)));
+			const slope_t::type slope = gr->get_grund_hang();
+			const sint8 htop = h + max(max(corner_sw(slope), corner_se(slope)),max(corner_ne(slope), corner_nw(slope)));
 			// above ground
 			if(  h > h0  ) {
 				break;
@@ -465,8 +465,8 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 			p_cr = display_get_clip_wh( CLIP_NUM_VAR );
 			for(  uint8 j = i;  j < ground_size;  j++  ) {
 				const sint8 h = data.some[j]->get_hoehe();
-				const hang_t::typ slope = data.some[j]->get_grund_hang();
-				const sint8 htop = h + max(max(corner1(slope), corner2(slope)),max(corner3(slope), corner4(slope)));
+				const slope_t::type slope = data.some[j]->get_grund_hang();
+				const sint8 htop = h + max(max(corner_sw(slope), corner_se(slope)),max(corner_ne(slope), corner_nw(slope)));
 				// too high?
 				if(  h > hmax  ) {
 					break;
@@ -492,8 +492,8 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 	for(  ;  i < ground_size;  i++  ) {
 		const grund_t* gr = data.some[i];
 		const sint8 h = gr->get_hoehe();
-		const hang_t::typ slope = gr->get_grund_hang();
-		const sint8 htop = h + max(max(corner1(slope), corner2(slope)),max(corner3(slope), corner4(slope)));
+		const slope_t::type slope = gr->get_grund_hang();
+		const sint8 htop = h + max(max(corner_sw(slope), corner_se(slope)),max(corner_ne(slope), corner_nw(slope)));
 		// too high?
 		if(  h > hmax  ) {
 			break;
@@ -514,13 +514,13 @@ image_id overlay_img(grund_t *gr)
 	image_id img;
 	if(  gr->get_typ()==grund_t::wasser  ) {
 		// water is always flat and does not return proper image_id
-		img = grund_besch_t::ausserhalb->get_image(0);
+		img = ground_desc_t::outside->get_image(0);
 	}
 	else {
 		img = gr->get_image();
 		if(  img==IMG_EMPTY  ) {
 			// foundations or underground mode
-			img = grund_besch_t::get_ground_tile( gr );
+			img = ground_desc_t::get_ground_tile( gr );
 		}
 	}
 	return img;
@@ -547,7 +547,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 			fabrik_t* fab=gb->get_fabrik();
 			if(fab) {
 				PLAYER_COLOR_VAL status = COL_RED;
-				if(fab->get_besch()->is_electricity_producer()) {
+				if(fab->get_desc()->is_electricity_producer()) {
 					status = COL_LIGHT_BLUE;
 					if(fab->is_transformer_connected()) {
 						status = COL_LIGHT_TURQUOISE;

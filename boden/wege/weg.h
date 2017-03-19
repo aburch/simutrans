@@ -11,12 +11,12 @@
 #include "../../display/simimg.h"
 #include "../../simtypes.h"
 #include "../../simobj.h"
-#include "../../besch/weg_besch.h"
+#include "../../descriptor/way_desc.h"
 #include "../../dataobj/koord3d.h"
 
 
 class karte_t;
-class weg_besch_t;
+class way_desc_t;
 class cbuffer_t;
 class player_t;
 class signal_t;
@@ -36,7 +36,7 @@ enum way_statistics {
 
 
 /**
- * <p>Der Weg ist die Basisklasse fuer alle Verkehrswege in Simutrans.
+ * <p>Der Weg ist die Basisklasse fuer all Verkehrswege in Simutrans.
  * Wege "gehören" immer zu einem Grund. Sie besitzen Richtungsbits sowie
  * eine Maske fuer Richtungsbits.</p>
  *
@@ -45,7 +45,7 @@ enum way_statistics {
  * <p>Kreuzungen werden dadurch unterstützt, daß ein Grund zwei Wege
  * enthalten kann (prinzipiell auch mehrere möglich.</p>
  *
- * <p>Wegtyp -1 ist reserviert und kann nicht für Wege benutzt werden<p>
+ * <p>Wetype -1 ist reserviert und kann nicht für Wege benutzt werden<p>
  *
  * @author Hj. Malthaner
  */
@@ -71,15 +71,6 @@ public:
 		IS_SNOW = 0x80	// marker, if above snowline currently
 	};
 
-	// see also unused: weg_besch_t::<anonym> enum { elevated=1, joined=7 /* only tram */, special=255 };
-	enum system_type {
-		type_flat     = 0,	///< flat track
-		type_elevated = 1,	///< flag for elevated ways
-		type_tram     = 7,	///< tram track (waytype = track_wt), hardcoded values everywhere ...
-		type_underground = 64, ///< underground
-		type_all      = 255
-	};
-
 private:
 	/**
 	* array for statistical values
@@ -93,7 +84,7 @@ private:
 	* Way type description
 	* @author Hj. Malthaner
 	*/
-	const weg_besch_t * besch;
+	const way_desc_t * desc;
 
 	/**
 	* Richtungsbits für den Weg. Norden ist oben rechts auf dem Monitor.
@@ -115,7 +106,7 @@ private:
 	uint8 flags;
 
 	/**
-	* max speed; could not be taken for besch, since other object may modify the speed
+	* max speed; could not be taken for desc, since other object may modify the speed
 	* @author Hj. Malthaner
 	*/
 	uint16 max_speed;
@@ -129,7 +120,7 @@ private:
 	uint32 bridge_weight_limit;
 
 	image_id image;
-	image_id after_bild;
+	image_id foreground_image;
 
 	/**
 	* Initializes all member variables
@@ -191,7 +182,7 @@ protected:
 	 * NULL = do not replace.
 	 * @author: jamespetts
 	 */
-	const weg_besch_t *replacement_way;
+	const way_desc_t *replacement_way;
 
 	/* 
 	 * Degrade the way owing to excessive wear without renewal.
@@ -230,7 +221,7 @@ public:
 	void set_bridge_weight_limit(uint32 value) { bridge_weight_limit = value; }
 
 	// Resets constraints to their base values. Used when removing way objects.
-	void reset_way_constraints() { way_constraints = besch->get_way_constraints(); }
+	void reset_way_constraints() { way_constraints = desc->get_way_constraints(); }
 
 	void clear_way_constraints() { way_constraints.set_permissive(0); way_constraints.set_prohibitive(0); }
 
@@ -256,15 +247,15 @@ public:
 	uint32 get_bridge_weight_limit() const { return bridge_weight_limit; }
 
 	/**
-	* Setzt neue Beschreibung. Ersetzt alte Höchstgeschwindigkeit
-	* mit wert aus Beschreibung.
+	* Setzt neue Description. Ersetzt alte Höchstgeschwindigkeit
+	* mit wert aus Description.
 	*
 	* Sets a new description. Replaces old with maximum speed
 	* worth of description and updates the maintenance cost.
 	* @author Hj. Malthaner
 	*/
-	void set_besch(const weg_besch_t *b, bool from_saved_game = false);
-	const weg_besch_t *get_besch() const { return besch; }
+	void set_desc(const way_desc_t *b, bool from_saved_game = false);
+	const way_desc_t *get_desc() const { return desc; }
 
 	// returns a way with the matching type
 	static weg_t *alloc(waytype_t wt);
@@ -287,7 +278,7 @@ public:
 	virtual const char * is_deletable(const player_t *player, bool allow_public = false);
 
 	/**
-	* Wegtyp zurückliefern
+	* Wetype zurückliefern
 	*/
 	waytype_t get_waytype() const { return waytype; }
 
@@ -304,12 +295,12 @@ public:
 	* Die Bezeichnung des Wegs
 	* @author Hj. Malthaner
 	*/
-	const char *get_name() const { return besch->get_name(); }
+	const char *get_name() const { return desc->get_name(); }
 
 	/**
 	* Setzt neue Richtungsbits für einen Weg.
 	*
-	* Nachdem die ribis geändert werden, ist das weg_bild des
+	* Nachdem die ribis geändert werden, ist das weg_image des
 	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
 	* zur Reparatur muß folgen).
 	* @param ribi Richtungsbits
@@ -319,7 +310,7 @@ public:
 	/**
 	* Entfernt Richtungsbits von einem Weg.
 	*
-	* Nachdem die ribis geändert werden, ist das weg_bild des
+	* Nachdem die ribis geändert werden, ist das weg_image des
 	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
 	* zur Reparatur muß folgen).
 	* @param ribi Richtungsbits
@@ -329,7 +320,7 @@ public:
 	/**
 	* Setzt Richtungsbits für den Weg.
 	*
-	* Nachdem die ribis geändert werden, ist das weg_bild des
+	* Nachdem die ribis geändert werden, ist das weg_image des
 	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
 	* zur Reparatur muß folgen).
 	* @param ribi Richtungsbits
@@ -406,11 +397,11 @@ public:
 	 */
 	void clear_sign_flag() { flags &= ~(HAS_SIGN | HAS_SIGNAL); }
 
-	inline void set_bild( image_id b ) { image = b; }
+	inline void set_image( image_id b ) { image = b; }
 	image_id get_image() const {return image;}
 
-	inline void set_after_bild( image_id b ) { after_bild = b; }
-	image_id get_front_image() const {return after_bild;}
+	inline void set_after_image( image_id b ) { foreground_image = b; }
+	image_id get_front_image() const {return foreground_image;}
 
 	// correct maintainace
 	void finish_rd();
@@ -428,6 +419,8 @@ public:
 
 	uint32 get_remaining_wear_capacity() const { return remaining_wear_capacity; }
 	uint32 get_condition_percent() const;
+
+	bool is_height_restricted() const;
 	
 	/**
 	 * Called by a convoy or a city car when it passes over a way
@@ -436,7 +429,7 @@ public:
 	 */
 	void wear_way(uint32 wear); 
 
-	void set_replacement_way(const weg_besch_t* replacement) { replacement_way = replacement; }
+	void set_replacement_way(const way_desc_t* replacement) { replacement_way = replacement; }
 
 	/**
 	 * Renew the way automatically when it is worn out.

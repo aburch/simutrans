@@ -18,7 +18,7 @@ class karte_t;
 class karte_ptr_t;
 class koord;
 class koord3d;
-struct linieneintrag_t;
+struct schedule_entry_t;
 class planquadrat_t;
 class plainstring;
 class scenario_t;
@@ -328,7 +328,7 @@ namespace script_api {
 	declare_specialized_param(planquadrat_t*, "t|x|y", "square_x");
 	declare_specialized_param(settings_t*, "t|x|y", "settings");
 	declare_specialized_param(const schedule_t*, "t|x|y", "schedule_x");
-	declare_specialized_param(linieneintrag_t, "t|x|y", "schedule_entry_x");
+	declare_specialized_param(schedule_entry_t, "t|x|y", "schedule_entry_x");
 	declare_specialized_param(mytime_t, "i|t|x|y", "time_x");
 	declare_specialized_param(mytime_ticks_t, "i|t|x|y", "time_ticks_x");
 	declare_specialized_param(scenario_t*, "t|x|y", "");

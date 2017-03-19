@@ -3,26 +3,26 @@
 
 #include "halthandle_t.h"
 #include "dataobj/koord.h"
-#include "besch/ware_besch.h"
+#include "descriptor/goods_desc.h"
 
-class warenbauer_t;
+class goods_manager_t;
 class karte_t;
 class player_t;
 
 /** Class to handle goods packets (and their destinations) */
 class ware_t
 {
-	friend class warenbauer_t;
+	friend class goods_manager_t;
 
 private:
 	/// private lookup table to speedup
-	static const ware_besch_t *index_to_besch[256];
+	static const goods_desc_t *index_to_desc[256];
 
 public:
 	/// amount of goods
 	uint32 menge;
 
-	/// type of good, used as index into index_to_besch
+	/// type of good, used as index into index_to_desc
 	uint32 index: 8;
 
 	// Necessary to determine whether to book 
@@ -84,8 +84,8 @@ public:
 	void reset() { menge = 0; ziel = zwischenziel = origin = last_transfer = halthandle_t(); zielpos = koord::invalid; }
 
 	ware_t();
-	ware_t(const ware_besch_t *typ);
-	ware_t(const ware_besch_t *typ, halthandle_t o);
+	ware_t(const goods_desc_t *typ);
+	ware_t(const goods_desc_t *typ, halthandle_t o);
 //	ware_t(karte_t *welt,loadsave_t *file);
 	ware_t(loadsave_t *file);
 
@@ -94,9 +94,9 @@ public:
 	 * @author Hj. Malthaner
 	 * "There the non-translated names were back"
 	 */
-	inline const char *get_name() const { return get_besch()->get_name(); }
-	inline const char *get_mass() const { return get_besch()->get_mass(); }
-	inline uint8 get_catg() const { return get_besch()->get_catg(); }
+	inline const char *get_name() const { return get_desc()->get_name(); }
+	inline const char *get_mass() const { return get_desc()->get_mass(); }
+	inline uint8 get_catg() const { return get_desc()->get_catg(); }
 	inline uint8 get_index() const { return index; }
 
 	//@author: jamespetts
@@ -105,8 +105,8 @@ public:
 	inline halthandle_t get_last_transfer() const { return last_transfer; }
 	void set_last_transfer(halthandle_t value) { last_transfer = value; }
 
-	inline const ware_besch_t* get_besch() const { return index_to_besch[index]; }
-	void set_besch(const ware_besch_t* type);
+	inline const goods_desc_t* get_desc() const { return index_to_desc[index]; }
+	void set_desc(const goods_desc_t* type);
 
 	void rdwr(loadsave_t *file);
 

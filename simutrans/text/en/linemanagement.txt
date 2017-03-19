@@ -44,7 +44,7 @@ The Option buttons, on the left, include (click to select):
 </p>
 <p>
 <em>New Line:</em>option opens controls to define a <a href="schedule.txt">Schedule</a> for a new line.<br>
-Add as many <a href="station.txt">Stops</a> or waypoints required, set Wait For levels as required, then close Schedule Controls to create new Line (click <strong>x</strong> in the top-left hand corner of controls or use keyboard). The new line will be assigned a number and listed in the <strong>Line Management</strong> window.
+Add as many <a href="station.txt">Stops</a> or waypoints required, set Wait For levels as required, then close Schedule Controls to create new Line (click <strong>x</strong> in the top-left hand corner of controls or use keyboard). The new line will be assigned a number and listd in the <strong>Line Management</strong> window.
 <p>
 <em>Tip</em>: Select transport type using the appropriate tab before creating a new line. Vehicles do not pick up or drop off goods or passengers at waypoints.
 </p>
@@ -57,8 +57,8 @@ Click on a Line name in list to select (highlights name) then click on option bu
 Click on line name in list to select (highlights name), then click on option button to remove. No further confirmation will be required.
 </p>
 <p>
-When a line is selected, the <a href="station.txt">stops</a> are shown on bottom-left of the <strong>Line Management</strong> window. Click on a stop listed to open its stop Information.<br>
-Items listed for each stop include:<br>
+When a line is selected, the <a href="station.txt">stops</a> are shown on bottom-left of the <strong>Line Management</strong> window. Click on a stop listd to open its stop Information.<br>
+Items listd for each stop include:<br>
 <em>Status colour bar:</em> colours indicate how overcrowded that <a href="station.txt">stops</a> are. The colour bar is also used in the <a href="haltlist.txt">stop list</a> and stop information  windows, and is the same colour displayed in the colour bar above a stop in the main game window:<br>
 - <em>Yellow:</em> not in service.<br>
 - <em>Green:</em> served, not overcrowded.<br>
@@ -114,13 +114,13 @@ Click on the line name in the list to select (highlights name). Click on option 
 To <em>rename</em> a line, click on the line name in the list to select it (highlights name), then click on the name box (under the graph options, above the list of convoys) and type the new name.
 </p>
 <p>
-When a line is selected (click on the line name in list to highlight it), the <a href="convoiinfo.txt">convoys</a> assigned to that line are listed below the graph.
+When a line is selected (click on the line name in list to highlight it), the <a href="convoiinfo.txt">convoys</a> assigned to that line are listd below the graph.
 </p>
 <p>
 At the top of the list of vehicles, the total number of convoys assigned to line, profit (proceeds less running costs), capacity, and current quantity of goods and passengers carried (% of full capacity in brackets) of all convoys on line is shown. If the percentage is greater than 100%, the line is overcrowded.
 </p>
 <p>
-Click on an item listed to see more information about that convoy (use slider bar to scroll the list). Items listed for each convoy include:
+Click on an item listd to see more information about that convoy (use slider bar to scroll the list). Items listd for each convoy include:
 </p>
 <p>	
 <em>Name</em> that has been assigned (by default this is make of first vehicle unit <a href="depot.txt">purchased</a> or assembled for Convoy).<br>

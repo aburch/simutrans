@@ -830,7 +830,7 @@ void gui_file_table_button_column_t::paint_cell(const scr_coord& offset, coordin
 {
  	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
 	scr_size size = scr_size(get_width(), row.get_height());
-	scr_coord mouse(get_maus_x() - offset.x, get_maus_y() - offset.y);
+	scr_coord mouse(get_mouse_x() - offset.x, get_mouse_y() - offset.y);
 	if (0 <= mouse.x && mouse.x < size.w && 0 <= mouse.y && mouse.y < size.h){ 
 		btn.set_typ(button_t::roundbox);
 	}

@@ -10,7 +10,7 @@
 
 #include "../simtypes.h"
 #include "../display/simimg.h"
-#include "../besch/kreuzung_besch.h"
+#include "../descriptor/crossing_desc.h"
 #include "../dataobj/crossing_logic.h"
 
 class vehicle_base_t;
@@ -22,11 +22,11 @@ class vehicle_base_t;
 class crossing_t : public obj_no_info_t
 {
 protected:
-	image_id after_bild, image;
+	image_id foreground_image, image;
 	uint8 ns;				// direction
 	uint8 state;	// only needed for loading ...
 	crossing_logic_t *logic;
-	const kreuzung_besch_t *besch;
+	const crossing_desc_t *desc;
 
 public:
 #ifdef INLINE_OBJ_TYPE
@@ -43,7 +43,7 @@ public:
 	waytype_t get_waytype() const { return invalid_wt; }
 
 	crossing_t(loadsave_t *file);
-	crossing_t(player_t *player, koord3d pos, const kreuzung_besch_t *besch, uint8 ns = 0);
+	crossing_t(player_t *player, koord3d pos, const crossing_desc_t *desc, uint8 ns = 0);
 
 	/**
 	 * crossing logic is removed here
@@ -53,7 +53,7 @@ public:
 
 	void rotate90();
 
-	const kreuzung_besch_t *get_besch() const { return besch; }
+	const crossing_desc_t *get_desc() const { return desc; }
 
 	/**
 	 * @return string (only used for debugg at the moment)
@@ -105,7 +105,7 @@ public:
 	* For the front image hiding vehicles
 	* @author prissi
 	*/
-	image_id get_front_image() const { return after_bild; }
+	image_id get_front_image() const { return foreground_image; }
 
 	void rdwr(loadsave_t *file);
 

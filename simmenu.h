@@ -10,7 +10,7 @@
 #define simmenu_h
 
 #include <string>
-#include "besch/sound_besch.h"
+#include "descriptor/sound_desc.h"
 
 #include "dataobj/koord3d.h"
 #include "dataobj/translator.h"
@@ -204,7 +204,8 @@ public:
 		WFL_SHIFT  = 1, ///< shift-key was pressed when mouse-click happened
 		WFL_CTRL   = 2, ///< ctrl-key was pressed when mouse-click happened
 		WFL_LOCAL  = 4, ///< tool call was issued by local client
-		WFL_SCRIPT = 8  ///< tool call was issued by script (no password checks)
+		WFL_SCRIPT = 8,  ///< tool call was issued by script (no password checks)
+		WFL_NO_CHK = 16, ///< tool call needs no password or scenario checks
 	};
 	uint8 flags; // flags are set before init/work/move is called
 
@@ -212,6 +213,8 @@ public:
 	bool is_shift_pressed()   const { return flags & WFL_SHIFT; }
 	bool is_local_execution() const { return flags & WFL_LOCAL; }
 	bool is_scripted()        const { return flags & WFL_SCRIPT; }
+	bool no_check()           const { return flags & WFL_NO_CHK; }
+	bool can_use_gui()        const { return is_local_execution() && !is_scripted(); }
 
 	uint16 command_key;// key to toggle action for this function
 
@@ -303,6 +306,12 @@ public:
 	virtual const char *move( player_t *, uint16 /* buttonstate */, koord3d ) { return ""; }
 
 	/**
+	 * Should be overloaded if derived class implements move,
+	 * move will only be called, if this function returns true.
+	 */
+	virtual bool move_has_effects() const { return false; }
+
+	/**
 	 * Returns whether the 2d koordinate passed it's a valid position for this tool to highlight a tile,
 	 * just takes into account is_grid_tool. It does not check if work is allowed there, that's check_pos() work.
 	 * @see check_pos
@@ -349,6 +358,7 @@ public:
 
 	char const* work(player_t*, koord3d) OVERRIDE;
 	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
+	bool move_has_effects() const OVERRIDE { return true; }
 
 	bool is_work_here_network_save(player_t *, koord3d) OVERRIDE;
 

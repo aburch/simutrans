@@ -18,7 +18,7 @@
 #include "components/action_listener.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"
-#include "../besch/fabrik_besch.h"
+#include "../descriptor/factory_desc.h"
 #include "../tpl/stringhashtable_tpl.h"
 
 class karte_ptr_t;
@@ -55,7 +55,7 @@ private:
 	static bool is_cursor_hidden;
 
 	// Cache of factories in current game world
-	static stringhashtable_tpl<const fabrik_besch_t *> factory_list;
+	static stringhashtable_tpl<const factory_desc_t *> factory_list;
 
 	/**
 	 * We need to keep track of drag/click events

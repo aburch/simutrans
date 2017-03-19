@@ -22,9 +22,9 @@
 class monorail_t : public schiene_t
 {
 public:
-	static const weg_besch_t *default_monorail;
+	static const way_desc_t *default_monorail;
 
-	monorail_t() : schiene_t(monorail_wt) { set_besch(default_monorail); }
+	monorail_t() : schiene_t(monorail_wt) { set_desc(default_monorail); }
 
 	/**
 	 * File loading constructor.

@@ -21,7 +21,7 @@ const uint64 powernet_t::max_capacity = (1953125ull<<23); // nicer number for hu
 slist_tpl<powernet_t *> powernet_t::powernet_list;
 
 
-void powernet_t::neue_karte()
+void powernet_t::new_world()
 {
 	while(!powernet_list.empty()) {
 		powernet_t *net = powernet_list.remove_first();

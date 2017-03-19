@@ -5,7 +5,6 @@
 #include "../api_param.h"
 #include "../../simobj.h"
 #include "../../simmenu.h"
-#include "../../boden/wege/weg.h"
 
 using namespace script_api;
 
@@ -42,8 +41,8 @@ void export_global_constants(HSQUIRRELVM vm)
 	enum_slot(vm, "tool_change_city_size", TOOL_CHANGE_CITY_SIZE | GENERAL_TOOL);
 	/// plant a tree
 	enum_slot(vm, "tool_plant_tree", TOOL_PLANT_TREE | GENERAL_TOOL);
-	// not needed? enum__slot(vm, "tool_fahrplan_add", TOOL_SCHEDULE_ADD | GENERAL_TOOL);
-	// not needed? enum__slot(vm, "tool_fahrplan_ins", TOOL_SCHEDULE_INS | GENERAL_TOOL);
+	// not needed? enum__slot(vm, "tool_schedule_add", TOOL_SCHEDULE_ADD | GENERAL_TOOL);
+	// not needed? enum__slot(vm, "tool_schedule_ins", TOOL_SCHEDULE_INS | GENERAL_TOOL);
 	/// build ways
 	enum_slot(vm, "tool_build_way", TOOL_BUILD_WAY | GENERAL_TOOL);
 	/// build bridges
@@ -150,11 +149,11 @@ void export_global_constants(HSQUIRRELVM vm)
 	 */
 	begin_enum("way_system_types");
 	/// flat ways
-	enum_slot(vm, "st_flat", weg_t::type_flat);
+	enum_slot(vm, "st_flat", type_flat);
 	/// elevated ways
-	enum_slot(vm, "st_elevated", weg_t::type_elevated);
+	enum_slot(vm, "st_elevated", type_elevated);
 	/// tram tracks (here way type has to be wt_tram)
-	enum_slot(vm, "st_tram", weg_t::type_tram);
+	enum_slot(vm, "st_tram", type_tram);
 	end_enum();
 
 	// players
@@ -224,15 +223,15 @@ void export_global_constants(HSQUIRRELVM vm)
 	/// city car - not player owned
 	enum_slot(vm, "mo_city_car", obj_t::road_user);
 	/// road vehicle
-	enum_slot(vm, "mo_car", obj_t::automobil);
+	enum_slot(vm, "mo_car", obj_t::road_vehicle);
 	/// rail vehicle
 	enum_slot(vm, "mo_train", obj_t::rail_vehicle);
 	/// monorail vehicle
-	enum_slot(vm, "mo_monorail", obj_t::monorailwaggon);
+	enum_slot(vm, "mo_monorail", obj_t::monorail_vehicle);
 	/// maglev vehicle
-	enum_slot(vm, "mo_maglev", obj_t::maglevwaggon);
+	enum_slot(vm, "mo_maglev", obj_t::maglev_vehicle);
 	/// narrowgauge vehicle
-	enum_slot(vm, "mo_narrowgauge", obj_t::narrowgaugewaggon);
+	enum_slot(vm, "mo_narrowgauge", obj_t::narrowgauge_vehicle);
 	/// ship
 	enum_slot(vm, "mo_ship", obj_t::water_vehicle);
 	/// airplane

@@ -35,7 +35,7 @@
 
 #define CXX11(gcc_major, gcc_minor, msc_ver) ( \
 	__cplusplus >= 201103L || \
-	(defined __GXX_EXPERIMENTAL_CXX0X__ && GCC_ATLEAST((gcc_major), (gcc_minor))) || \
+	(defined __GXX_EXTENDED_CXX0X__ && GCC_ATLEAST((gcc_major), (gcc_minor))) || \
 	(defined _MSC_VER && (msc_ver) != 0 && _MSC_VER >= (msc_ver)) \
 )
 
@@ -90,7 +90,7 @@ enum climate_bits
 };
 
 /**
- * Vordefinierte Wegtypen.
+ * Vordefinierte Wetypeen.
  * @author Hj. Malthaner
  */
 enum waytype_t {
@@ -107,6 +107,18 @@ enum waytype_t {
 	air_wt           =  16,
 	noise_barrier_wt =  17,
 	powerline_wt     = 128
+};
+
+/**
+ * System types for ways
+ */
+enum systemtype_t {
+	type_flat = 0,	///< flat track
+	type_elevated = 1,	///< flag for elevated ways
+	type_runway = 1,	///< flag for runway (only aircrafts)
+	type_tram = 7,	///< tram track (waytype = track_wt)
+	type_river = 255,	///< flag for river
+	type_all = 255,	///< special ?
 };
 
 enum working_method_t { drive_by_sight, time_interval, absolute_block, token_block, track_circuit_block, cab_signalling, moving_block, one_train_staff, time_interval_with_telegraph };

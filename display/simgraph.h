@@ -141,7 +141,7 @@ void reset_textur(void *new_textur);
 uint16 display_load_font(const char* fname);
 
 image_id get_image_count();
-void register_image(struct bild_t*);
+void register_image(class image_t *);
 
 // delete all images above a certain number ...
 void display_free_all_images_above( image_id above );
@@ -153,10 +153,6 @@ void display_get_base_image_offset( image_id bild, KOORD_VAL *xoff, KOORD_VAL *y
 void display_get_image_offset( image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
 void display_get_base_image_offset( image_id bild, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
 void display_mark_img_dirty( image_id bild, KOORD_VAL x, KOORD_VAL y );
-
-int get_maus_x();
-int get_maus_y();
-
 
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2); // clips to screen only
 void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2  CLIP_NUM_DEF); // clips to clip_rect
@@ -294,7 +290,6 @@ void display_clear();
 
 void display_flush_buffer();
 
-void display_move_pointer(KOORD_VAL dx, KOORD_VAL dy);
 void display_show_pointer(int yesno);
 void display_set_pointer(int pointer);
 void display_show_load_pointer(int loading);

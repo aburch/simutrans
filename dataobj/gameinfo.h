@@ -19,8 +19,8 @@ private:
 
 	sint32 industries;
 	sint32 tourist_attractions;
-	sint32 anzahl_staedte;
-	sint32 einwohnerzahl;
+	sint32 city_count;
+	sint32 citizen_count;
 
 	uint16 convoi_count;
 	uint16 halt_count;
@@ -62,8 +62,8 @@ public:
 
 	sint32 get_industries() const {return industries;}
 	sint32 get_tourist_attractions() const {return tourist_attractions;}
-	sint32 get_anzahl_staedte() const {return anzahl_staedte;}
-	sint32 get_einwohnerzahl() const {return einwohnerzahl;}
+	sint32 get_city_count() const {return city_count;}
+	sint32 get_einwohnerzahl() const {return citizen_count;}
 
 	sint32 get_convoi_count() const {return convoi_count;}
 	sint32 get_halt_count() const {return halt_count;}

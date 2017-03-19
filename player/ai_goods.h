@@ -40,17 +40,17 @@ private:
 	// actual route to be built between those
 	fabrik_t *start;
 	fabrik_t *ziel;
-	const ware_besch_t *freight;
+	const goods_desc_t *freight;
 
 	// we will use this vehicle!
-	const vehikel_besch_t *rail_vehicle;
-	const vehikel_besch_t *rail_engine;
-	const vehikel_besch_t *road_vehicle;
-	const vehikel_besch_t *ship_vehicle;
+	const vehicle_desc_t *rail_vehicle;
+	const vehicle_desc_t *rail_engine;
+	const vehicle_desc_t *road_vehicle;
+	const vehicle_desc_t *ship_vehicle;
 
 	// and the convoi will run on this track:
-	const weg_besch_t *rail_weg;
-	const weg_besch_t *road_weg;
+	const way_desc_t *rail_weg;
+	const way_desc_t *road_weg;
 
 	sint32 count_rail;
 	sint32 count_road;
@@ -69,10 +69,10 @@ private:
 		friend class ai_goods_t;
 		fabrik_t *fab1;
 		fabrik_t *fab2;	// koord1 must be always "smaller" than koord2
-		const ware_besch_t *ware;
+		const goods_desc_t *ware;
 
 	public:
-		fabconnection_t( fabrik_t *k1=0, fabrik_t *k2=0, const ware_besch_t *w=0 ) : fab1(k1), fab2(k2), ware(w) {}
+		fabconnection_t( fabrik_t *k1=0, fabrik_t *k2=0, const goods_desc_t *w=0 ) : fab1(k1), fab2(k2), ware(w) {}
 		void rdwr( loadsave_t *file );
 
 		bool operator != (const fabconnection_t & k) { return fab1 != k.fab1 || fab2 != k.fab2 || ware != k.ware; }
@@ -83,7 +83,7 @@ private:
 	slist_tpl<fabconnection_t*> forbidden_connections;
 
 	// return true, if this a route to avoid (i.e. we did a construction without sucess here ...)
-	bool is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const ware_besch_t *w ) const;
+	bool is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const goods_desc_t *w ) const;
 
 	/* recursive lookup of a factory tree:
 	 * sets start and ziel to the next needed supplier
@@ -98,14 +98,14 @@ private:
 
 	bool suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length);
 
-	int baue_bahnhof(const koord* p, int anz_vehikel);
+	int baue_bahnhof(const koord* p, int anz_vehicle);
 
 	bool create_simple_rail_transport();
 
 	// create way and stops for these routes
-	bool create_ship_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
-	void create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel);
-	void create_rail_transport_vehikel(const koord pos1,const koord pos2, int anz_vehikel, int ladegrad);
+	bool create_ship_transport_vehicle(fabrik_t *qfab, int anz_vehicle);
+	void create_road_transport_vehicle(fabrik_t *qfab, int anz_vehicle);
+	void create_rail_transport_vehicle(const koord pos1,const koord pos2, int anz_vehicle, int minimum_loading);
 
 public:
 	ai_goods_t(karte_t *wl, uint8 nr);
@@ -132,7 +132,7 @@ public:
 
 	/**
 	 * Tells the player that a fabrik_t is going to be deleted.
-	 * It could also tell, that a fab has been created, but by now the fabrikbauer_t does not.
+	 * It could also tell, that a fab has been created, but by now the factory_builder_t does not.
 	 * @author Bernd Gabriel, Jan 01, 2010
 	 */
 	virtual void notify_factory(notification_factory_t flag, const fabrik_t*);

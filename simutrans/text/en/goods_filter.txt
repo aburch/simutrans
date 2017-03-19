@@ -9,7 +9,7 @@ The <strong>Goods list</strong> window contains information on the different ite
 To open: click on goods list icon in the <a href="list.txt">list management</a> window, or press <a href="keys.txt">[G]</a>.
 </p>
 <p>
-Items are listed in a table containing, with information about the revenue per unit, category, weight, and other matters about the items (see below for details).<br>
+Items are listd in a table containing, with information about the revenue per unit, category, weight, and other matters about the items (see below for details).<br>
 <em>Tip:</em> If items in list are only partially visible, then <a href="mouse.txt">re-size</a> the window or scroll the list using the slider bar.
 </p>
 <p>
@@ -41,7 +41,7 @@ Click the option buttons to cycle through options (changes name of the option bu
 - <em>ascending</em> / <em>descending</em> reverses the order of the list.
 </p>
 <p>
-Details listed for each item include:
+Details listd for each item include:
 </p>
 <p>
 <em>Colour</em> is the same colour displayed in bar chart shown in the main game window above a <a href="station.txt">stops</a> to the indicate quantity of items of that type waiting for transport.<br>

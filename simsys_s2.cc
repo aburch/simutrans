@@ -1,8 +1,11 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
- * This file is part of the Simutrans project under the artistic license.
- */
+* Copyright (c) 1997 - 2001 Hansjörg Malthaner
+*
+* This file is part of the Simutrans project under the artistic license.
+*
+* It contains the code to use the SDL2 backend for simutrans displayu
+*
+*/
 
 #include <SDL2/SDL.h>
 
@@ -105,8 +108,8 @@ static SDL_Cursor *hourglass;
 static SDL_Cursor *blank;
 
 
-int x_scale = 36;
-int y_scale = 36;
+int x_scale = 32;
+int y_scale = 32;
 
 
 // no autoscaling yet
@@ -352,9 +355,7 @@ int dr_textur_resize(unsigned short** const textur, int w, int const h)
 			DBG_MESSAGE("dr_textur_resize(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
 		}
 		else {
-			if (dbg) {
-				dbg->warning("dr_textur_resize(SDL)", "screen is NULL. Good luck!");
-			}
+			dbg->warning("dr_textur_resize(SDL)", "screen is NULL. Good luck!");
 		}
 		fflush(NULL);
 	}
@@ -714,7 +715,7 @@ static void internal_GetEvents(bool const wait)
 		break;
 	}
 	}
-	}
+}
 
 
 void GetEvents()
@@ -799,4 +800,3 @@ int main(int argc, char **argv)
 #endif
 	return sysmain(argc, argv);
 }
-

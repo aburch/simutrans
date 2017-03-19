@@ -1,4 +1,4 @@
-/* ICON and Version info for Simutrans-Experimental Windows */
+/* ICON and Version info for Simutrans-Extended Windows */
 
 #include <windows.h>
 #include "simversion.h"
@@ -14,14 +14,14 @@ PRODUCTVERSION RES_VERSION_NUMBER
  {
   BLOCK "040904E4"
   {
-   VALUE "CompanyName",      "Simutrans-Experimental Team"
-   VALUE "FileDescription",  "Simutrans-Experimental"
-   VALUE "FileVersion",      VERSION_NUMBER EXPERIMENTAL_VERSION
+   VALUE "CompanyName",      "Simutrans-Extended Team"
+   VALUE "FileDescription",  "Simutrans-Extended"
+   VALUE "FileVersion",      VERSION_NUMBER EXTENDED_VERSION
    VALUE "InternalName",     "SIMUTRANS"
-   VALUE "LegalCopyright",   "\251 Hj. Malthaner '97-'04 Simutrans-Experimental Team '05-'16"
-   VALUE "OriginalFilename", "simutrans-experimental.exe"
-   VALUE "ProductName",      "Simutrans-Experimental"
-   VALUE "ProductVersion",   VERSION_NUMBER EXPERIMENTAL_VERSION
+   VALUE "LegalCopyright",   "\251 Hj. Malthaner '97-'04 Simutrans-Extended Team '05-'16"
+   VALUE "OriginalFilename", "simutrans-extended.exe"
+   VALUE "ProductName",      "Simutrans-Extended"
+   VALUE "ProductVersion",   VERSION_NUMBER EXTENDED_VERSION
   }
 
  }

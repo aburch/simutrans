@@ -4,7 +4,7 @@
 
 #include "../api_class.h"
 #include "../api_function.h"
-#include "../../dataobj/fahrplan.h"
+#include "../../dataobj/schedule.h"
 #include "../../simhalt.h"
 #include "../../simworld.h"
 

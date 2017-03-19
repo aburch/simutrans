@@ -32,8 +32,8 @@ else
         CFLAGS  += -I/usr/include/mingw -mwin32
       else
         ifeq ($(OSTYPE),mingw)
-          CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
-          LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware
+          CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -static
+		  LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware -static
           LIBS    += -lmingw32
         endif
       endif
@@ -71,6 +71,8 @@ else
 endif
 
 LIBS += -lbz2 -lz
+
+ CFLAGS +=  -std=gnu++11
 
 ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
@@ -120,7 +122,7 @@ ifneq ($(MULTI_THREAD),)
 #use lpthreadGC2d for debug alternatively
 #		Disabled, as this does not work for cross-compiling
 #      LDFLAGS += -lpthreadGC2
-	   LDFLAGS += -lpthread
+	   LDFLAGS += -static -lpthread
     else
       ifneq ($(OSTYPE),haiku)
         LDFLAGS += -lpthread
@@ -130,7 +132,7 @@ ifneq ($(MULTI_THREAD),)
 endif
 
 ifneq ($(WITH_REVISION),)
-  REV = $(shell svnversion)
+  REV = $(shell git rev-parse --short HEAD)
   ifneq ($(REV),)
     CFLAGS  += -DREVISION="$(REV)"
   endif
@@ -146,42 +148,42 @@ SOURCES += bauer/tunnelbauer.cc
 SOURCES += bauer/vehikelbauer.cc
 SOURCES += bauer/warenbauer.cc
 SOURCES += bauer/wegbauer.cc
-SOURCES += besch/bild_besch.cc
-SOURCES += besch/bruecke_besch.cc
-SOURCES += besch/fabrik_besch.cc
-SOURCES += besch/grund_besch.cc
-SOURCES += besch/haus_besch.cc
-SOURCES += besch/obj_besch_std_name.cc
-SOURCES += besch/reader/bridge_reader.cc
-SOURCES += besch/reader/building_reader.cc
-SOURCES += besch/reader/citycar_reader.cc
-SOURCES += besch/reader/crossing_reader.cc
-SOURCES += besch/reader/factory_reader.cc
-SOURCES += besch/reader/good_reader.cc
-SOURCES += besch/reader/ground_reader.cc
-SOURCES += besch/reader/groundobj_reader.cc
-SOURCES += besch/reader/image_reader.cc
-SOURCES += besch/reader/imagelist2d_reader.cc
-SOURCES += besch/reader/imagelist_reader.cc
-SOURCES += besch/reader/obj_reader.cc
-SOURCES += besch/reader/pedestrian_reader.cc
-SOURCES += besch/reader/roadsign_reader.cc
-SOURCES += besch/reader/root_reader.cc
-SOURCES += besch/reader/sim_reader.cc
-SOURCES += besch/reader/skin_reader.cc
-SOURCES += besch/reader/sound_reader.cc
-SOURCES += besch/reader/text_reader.cc
-SOURCES += besch/reader/tree_reader.cc
-SOURCES += besch/reader/tunnel_reader.cc
-SOURCES += besch/reader/vehicle_reader.cc
-SOURCES += besch/reader/way_obj_reader.cc
-SOURCES += besch/reader/way_reader.cc
-SOURCES += besch/reader/xref_reader.cc
-SOURCES += besch/sound_besch.cc
-SOURCES += besch/tunnel_besch.cc
-SOURCES += besch/vehikel_besch.cc
-SOURCES += besch/ware_besch.cc
-SOURCES += besch/weg_besch.cc
+SOURCES += descriptor/image.cc
+SOURCES += descriptor/bridge_desc.cc
+SOURCES += descriptor/factory_desc.cc
+SOURCES += descriptor/ground_desc.cc
+SOURCES += descriptor/building_desc.cc
+SOURCES += descriptor/obj_base_desc.cc
+SOURCES += descriptor/reader/bridge_reader.cc
+SOURCES += descriptor/reader/building_reader.cc
+SOURCES += descriptor/reader/citycar_reader.cc
+SOURCES += descriptor/reader/crossing_reader.cc
+SOURCES += descriptor/reader/factory_reader.cc
+SOURCES += descriptor/reader/good_reader.cc
+SOURCES += descriptor/reader/ground_reader.cc
+SOURCES += descriptor/reader/groundobj_reader.cc
+SOURCES += descriptor/reader/image_reader.cc
+SOURCES += descriptor/reader/imagelist2d_reader.cc
+SOURCES += descriptor/reader/imagelist_reader.cc
+SOURCES += descriptor/reader/obj_reader.cc
+SOURCES += descriptor/reader/pedestrian_reader.cc
+SOURCES += descriptor/reader/roadsign_reader.cc
+SOURCES += descriptor/reader/root_reader.cc
+SOURCES += descriptor/reader/sim_reader.cc
+SOURCES += descriptor/reader/skin_reader.cc
+SOURCES += descriptor/reader/sound_reader.cc
+SOURCES += descriptor/reader/text_reader.cc
+SOURCES += descriptor/reader/tree_reader.cc
+SOURCES += descriptor/reader/tunnel_reader.cc
+SOURCES += descriptor/reader/vehicle_reader.cc
+SOURCES += descriptor/reader/way_obj_reader.cc
+SOURCES += descriptor/reader/way_reader.cc
+SOURCES += descriptor/reader/xref_reader.cc
+SOURCES += descriptor/sound_desc.cc
+SOURCES += descriptor/tunnel_desc.cc
+SOURCES += descriptor/vehicle_desc.cc
+SOURCES += descriptor/goods_desc.cc
+SOURCES += descriptor/way_desc.cc
 SOURCES += boden/boden.cc
 SOURCES += boden/brueckenboden.cc
 SOURCES += boden/fundament.cc
@@ -200,7 +202,7 @@ SOURCES += boden/wege/weg.cc
 SOURCES += dataobj/crossing_logic.cc
 SOURCES += dataobj/objlist.cc
 SOURCES += dataobj/settings.cc
-SOURCES += dataobj/fahrplan.cc
+SOURCES += dataobj/schedule.cc
 SOURCES += dataobj/freelist.cc
 SOURCES += dataobj/gameinfo.cc
 SOURCES += dataobj/height_map_loader.cc
@@ -216,7 +218,6 @@ SOURCES += dataobj/scenario.cc
 SOURCES += dataobj/tabfile.cc
 SOURCES += dataobj/translator.cc
 SOURCES += dataobj/environment.cc
-SOURCES += dataobj/warenziel.cc
 SOURCES += obj/baum.cc
 SOURCES += obj/bruecke.cc
 SOURCES += obj/crossing.cc
@@ -283,7 +284,7 @@ SOURCES += gui/factory_chart.cc
 SOURCES += gui/factory_edit.cc
 SOURCES += gui/factorylist_frame_t.cc
 SOURCES += gui/factorylist_stats_t.cc
-SOURCES += gui/fahrplan_gui.cc
+SOURCES += gui/schedule_gui.cc
 SOURCES += gui/goods_frame_t.cc
 SOURCES += gui/goods_stats_t.cc
 SOURCES += gui/ground_info.cc
@@ -373,7 +374,7 @@ SOURCES += script/api/api_settings.cc
 SOURCES += script/api/api_simple.cc
 SOURCES += script/api/api_tiles.cc
 SOURCES += script/api/api_world.cc
-SOURCES += script/api/export_besch.cc
+SOURCES += script/api/export_desc.cc
 SOURCES += script/api/get_next.cc
 SOURCES += script/dynamic_string.cc
 SOURCES += script/export_objs.cc
@@ -498,7 +499,11 @@ ifeq ($(BACKEND),sdl)
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-    SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+    ifeq ($(OSTYPE),mingw)
+		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
+	else
+	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+	endif
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)
@@ -544,7 +549,12 @@ ifeq ($(BACKEND),mixer_sdl)
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-    SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+	ifeq ($(OSTYPE),mingw)
+		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
+	else
+	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+	endif
+ 
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS) -lSDL_mixer
@@ -570,7 +580,11 @@ ifeq ($(BACKEND),opengl)
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-    SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+    ifeq ($(OSTYPE),mingw)
+		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
+	else
+	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+	endif
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)
@@ -604,7 +618,7 @@ CXXFLAGS += $(CFLAGS)
 
 BUILDDIR ?= build/$(CFG)
 PROGDIR  ?= $(BUILDDIR)
-PROG     ?= simutrans-experimental
+PROG     ?= simutrans-extended
 
 
 include common.mk
@@ -614,7 +628,7 @@ ifeq ($(OSTYPE),mac)
 endif
 
 
-.PHONY: makeobj-experimental
+.PHONY: makeobj-extended
 
 makeobj:
 	$(Q)$(MAKE) -e -C makeobj FLAGS="$(FLAGS)"

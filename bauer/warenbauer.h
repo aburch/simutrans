@@ -5,28 +5,28 @@
  * (see licence.txt)
  */
 
-#ifndef warenbauer_t_h
-#define warenbauer_t_h
+#ifndef goods_manager_t_h
+#define goods_manager_t_h
 
 #include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
-class ware_besch_t;
+class goods_desc_t;
 
 /**
  * Factory-Class for Goods.
  *
  * @author Hj. Malthaner
  */
-class warenbauer_t
+class goods_manager_t
 {
 private:
-	static stringhashtable_tpl<const ware_besch_t *> besch_names;
-	static vector_tpl<ware_besch_t *> waren;
+	static stringhashtable_tpl<const goods_desc_t *> desc_names;
+	static vector_tpl<goods_desc_t *> goods;
 
-	static ware_besch_t *load_passagiere;
-	static ware_besch_t *load_post;
-	static ware_besch_t *load_nichts;
+	static goods_desc_t *load_passengers;
+	static goods_desc_t *load_mail;
+	static goods_desc_t *load_none;
 
 	// number of different good classes;
 	static uint8 max_catg_index;
@@ -34,12 +34,12 @@ private:
 public:
 	enum { INDEX_PAS=0, INDEX_MAIL=1, INDEX_NONE=2 };
 
-	static const ware_besch_t *passagiere;
-	static const ware_besch_t *post;
-	static const ware_besch_t *nichts; //"Nothing".
+	static const goods_desc_t *passengers;
+	static const goods_desc_t *mail;
+	static const goods_desc_t *none; //"Nothing".
 
-	static bool alles_geladen();
-	static bool register_besch(ware_besch_t *besch);
+	static bool successfully_loaded();
+	static bool register_desc(goods_desc_t *desc);
 
 	static uint8 get_max_catg_index() { return max_catg_index; }
 
@@ -51,19 +51,19 @@ public:
 	* @param name the non-translated good name
 	* @author Hj. Malthaner/V. Meyer
 	*/
-	static const ware_besch_t *get_info(const char* name);
+	static const goods_desc_t *get_info(const char* name);
 
-	static const ware_besch_t *get_info(uint16 idx) { return waren[idx]; }
+	static const goods_desc_t *get_info(uint16 idx) { return goods[idx]; }
 
-	static ware_besch_t *get_modifiable_info(uint16 idx) { return waren[idx]; }
+	static goods_desc_t *get_modifiable_info(uint16 idx) { return goods[idx]; }
 
-	static uint16 get_waren_anzahl() { return waren.get_count(); }
+	static uint16 get_count() { return goods.get_count(); }
 
 	// good by catg
-	static const ware_besch_t *get_info_catg(const uint8 catg);
+	static const goods_desc_t *get_info_catg(const uint8 catg);
 
 	// good by catg_index
-	static const ware_besch_t *get_info_catg_index(const uint8 catg_index);
+	static const goods_desc_t *get_info_catg_index(const uint8 catg_index);
 
 	/*
 	 * allow to multiply all prices, 1000=1.0

@@ -16,7 +16,7 @@
 #include "../pathes.h"
 #include "../display/simimg.h"
 #include "../simskin.h"
-#include "../besch/skin_besch.h"
+#include "../descriptor/skin_desc.h"
 #include "sprachen.h"
 
 #include "../display/font.h"
@@ -86,7 +86,7 @@ void sprachengui_t::init_font_from_lang()
 sprachengui_t::sprachengui_t() :
 	gui_frame_t( translator::translate("Sprachen") ),
 	text_label(&buf),
-	flags(skinverwaltung_t::flaggensymbol?skinverwaltung_t::flaggensymbol->get_bild_nr(0):IMG_EMPTY),
+	flags(skinverwaltung_t::flaggensymbol?skinverwaltung_t::flaggensymbol->get_image_id(0):IMG_EMPTY),
 	buttons(translator::get_language_count())
 {
 	// Coordinates are relative to parent (TITLEHEIGHT already subtracted)

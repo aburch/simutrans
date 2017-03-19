@@ -7,7 +7,7 @@ The <strong>Stop List</strong> window lists and gives information about the indi
 </p>
 <p>
 To open: click on the stop list icon in the <a href="list.txt">List Management</a> toolstrip. The <strong>stop list</strong> window has four option buttons: two are used to sort the list, and two are used to filter the list, to show only items matching certain criteria. Below the buttons is a list of the <a href="station.txt">stops</a> owned by the current player.<br>
-<em>Tip:</em> If no stops are listed, change the <em>filter</em> options, or disable the filter. If not all items in the list are visible, then <a href="mouse.txt">re-size</a> the window, or scroll the list with the slider bar.
+<em>Tip:</em> If no stops are listd, change the <em>filter</em> options, or disable the filter. If not all items in the list are visible, then <a href="mouse.txt">re-size</a> the window, or scroll the list with the slider bar.
 </p>
 <p>
 Click the buttons to cycle through the options (the button text changes to reflect the currently selected option) or, in the case of the filter settings button, open a <a href="haltlist_filter.txt">new window</a> with controls for the filter):
@@ -34,8 +34,8 @@ Click the buttons to cycle through the options (the button text changes to refle
 - <em>Settings</em> opens a <a href="haltlist_filter.txt">new window</a> with settings for the filter.
 </p>
 <p>
-Click on a item listed in the <strong>stop list</strong> window to see more <a href="station.txt">information</a> about that stop.<br>
-Items listed for each stop include:
+Click on a item listd in the <strong>stop list</strong> window to see more <a href="station.txt">information</a> about that stop.<br>
+Items listd for each stop include:
 </p>
 <p>
 <em>Status colour bar:</em> different colours show how well that a stop is coping with the level of traffic. The status colour bar is also used in the stop information and line management windows, and is the same colour displayed in the colour bar above a stop in the main game window. The colours are:<br>
@@ -57,5 +57,5 @@ Icons include: 'bus (for road passenger vehicles), truck (for road goods vehicle
 <em>Tip:</em> adding extensions can enable a stop to handle new types of items.
 </p>
 <p>
-<em>Waiting</em> details of different mail, goods and passengers waiting at the <a href="station.txt">stops</a> listed.
+<em>Waiting</em> details of different mail, goods and passengers waiting at the <a href="station.txt">stops</a> listd.
 </p>

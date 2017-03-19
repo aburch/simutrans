@@ -331,8 +331,8 @@ void gui_numberinput_t::draw(scr_coord offset)
 	textinp.display_with_focus( new_offset, (win_get_focus()==this) );
 	bt_right.draw(new_offset);
 
-	if(getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )) {
+	if(getroffen( get_mouse_x()-offset.x, get_mouse_y()-offset.y )) {
 		sprintf( tooltip, translator::translate("enter a value between %i and %i"), min_value, max_value );
-		win_set_tooltip(get_maus_x() + TOOLTIP_MOUSE_OFFSET_X, new_offset.y + size.h + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
+		win_set_tooltip(get_mouse_x() + TOOLTIP_MOUSE_OFFSET_X, new_offset.y + size.h + TOOLTIP_MOUSE_OFFSET_Y, tooltip, this);
 	}
 }

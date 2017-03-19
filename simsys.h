@@ -130,6 +130,9 @@ void set_pointer(int loading);
 
 void move_pointer(int x, int y);
 
+int get_mouse_x();
+int get_mouse_y();
+
 void ex_ord_update_mx_my();
 
 void GetEvents();

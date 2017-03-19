@@ -362,6 +362,6 @@ void gui_table_t::draw(scr_coord offset)
 	paint_cells(pos);
 	if (*tooltip)
 	{
-		win_set_tooltip(get_maus_x() + 16, get_maus_y() - 16, tooltip, this);
+		win_set_tooltip(get_mouse_x() + 16, get_mouse_y() - 16, tooltip, this);
 	}
 }

@@ -8,9 +8,9 @@ int debuglevel = 2;
 #include "../simtypes.h"
 #include "../simversion.h"
 #include "../utils/simstring.h"
-#include "../besch/writer/obj_pak_exception.h"
-#include "../besch/writer/root_writer.h"
-#include "../besch/writer/image_writer.h"
+#include "../descriptor/writer/obj_pak_exception.h"
+#include "../descriptor/writer/root_writer.h"
+#include "../descriptor/writer/image_writer.h"
 
 
 // Needed to avoid linking problems
@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 {
 	argv++, argc--;
 
-	init_logging("stderr", true, true, "Makeobj version " MAKEOBJ_VERSION " for simutrans " VERSION_NUMBER EXPERIMENTAL_VERSION " and higher\n", "makeobj");
+	init_logging("stderr", true, true, "Makeobj version " MAKEOBJ_VERSION " for simutrans " VERSION_NUMBER EXTENDED_VERSION " and higher\n", "makeobj");
 
 	debuglevel = 2; // only warnings and errorsS
 
@@ -45,8 +45,8 @@ int main(int argc, char* argv[])
 
 		if(  debuglevel>1  ) {
 			puts(
-				"\nMakeobj-Experimental, based on Makeobj version " MAKEOBJ_VERSION " for Simutrans " VERSION_NUMBER EXPERIMENTAL_VERSION " and higher\n"
-				"Experimental version by James E. Petts, derived from Makeobj, (c) 2002-2012 V. Meyer , Hj. Malthaner and \n"
+				"\nMakeobj-Extended, based on Makeobj version " MAKEOBJ_VERSION " for Simutrans " VERSION_NUMBER EXTENDED_VERSION " and higher\n"
+				"Extended version by James E. Petts, derived from Makeobj, (c) 2002-2012 V. Meyer , Hj. Malthaner and \n"
 				"M. Pristovsek and the Simutrans development team. This is open source software, released under the Artistic Licence.\n"
 			);
 		}

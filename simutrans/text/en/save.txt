@@ -12,8 +12,8 @@ If all games are not visible: use <a href="mouse.txt">the slider bar</a> on righ
 <p>
 The current game can be saved to a new file or over an existing game.<br>
 To save game to new file, enter new name into box at top of
- <strong>Save</strong>: click on box, type name and press [Enter] or [Return] or click on <em>OK</em>; the new filename is listed.<br>
-IMPORTANT: If a listed filename is used: old game is replaced, by current game, and lost.
+ <strong>Save</strong>: click on box, type name and press [Enter] or [Return] or click on <em>OK</em>; the new filename is listd.<br>
+IMPORTANT: If a listd filename is used: old game is replaced, by current game, and lost.
 </p>
 <p>
 By default the current game appears in filename box, to save to this file: click <em>OK</em> (old data is lost and replaced with current data).<br>

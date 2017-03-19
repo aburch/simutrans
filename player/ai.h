@@ -13,11 +13,11 @@
 #include "simplay.h"
 
 #include "../sucher/bauplatz_sucher.h"
-#include "../besch/ware_besch.h"
+#include "../descriptor/goods_desc.h"
 
 class karte_t;
-class vehikel_besch_t;
-class ware_besch_t;
+class vehicle_desc_t;
+class goods_desc_t;
 
 
 /**
@@ -72,7 +72,7 @@ public:
 	virtual void rdwr(loadsave_t *file);
 
 	// return true, if there is already a connection
-	bool is_connected(const koord star_pos, const koord end_pos, const ware_besch_t *wtyp) const;
+	bool is_connected(const koord star_pos, const koord end_pos, const goods_desc_t *wtyp) const;
 
 	// prepares a general tool just like a human player work do
 	bool init_general_tool( int tool, const char *param );
@@ -108,10 +108,10 @@ public:
 	bool built_update_headquarter();
 
 	// builds a round between those two places or returns false
-	bool create_simple_road_transport(koord platz1, koord size1, koord platz2, koord size2, const weg_besch_t *road );
+	bool create_simple_road_transport(koord platz1, koord size1, koord platz2, koord size2, const way_desc_t *road );
 
-	/// helper method to call vehikelbauer_t::vehikel_search and fill in time-line related parameters
-	static const vehikel_besch_t *vehikel_search(waytype_t typ, const uint32 target_power, const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric);
+	/// helper method to call vehicle_builder_t::vehicle_search and fill in time-line related parameters
+	static const vehicle_desc_t *vehicle_search(waytype_t typ, const uint32 target_power, const sint32 target_speed, const goods_desc_t * target_freight, bool include_electric);
 };
 
 #endif

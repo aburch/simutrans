@@ -21,7 +21,7 @@
 #include "../convoihandle_t.h"
 #include "../ifc/simtestdriver.h"
 #include "../boden/grund.h"
-#include "../besch/vehikel_besch.h"
+#include "../descriptor/vehicle_desc.h"
 #include "../vehicle/overtaker.h"
 #include "../tpl/slist_tpl.h"
 #include "../tpl/array_tpl.h"
@@ -163,7 +163,7 @@ public:
 
 	uint32 do_drive(uint32 dist);	// basis movement code
 
-	inline void set_bild( image_id b ) { image = b; }
+	inline void set_image( image_id b ) { image = b; }
 	virtual image_id get_image() const {return image;}
 
 	sint8 get_hoff() const;
@@ -185,7 +185,7 @@ public:
 
 	static ribi_t::ribi calc_direction(koord start, koord ende);
 	ribi_t::ribi calc_set_direction(const koord3d& start, const koord3d& ende);
-	uint16 get_tile_steps(const koord &start, const koord &ende, /*out*/ ribi_t::ribi &richtung) const;
+	uint16 get_tile_steps(const koord &start, const koord &ende, /*out*/ ribi_t::ribi &direction) const;
 
 	ribi_t::ribi get_direction() const {return direction;}
 
@@ -247,7 +247,7 @@ private:
 	* frictionforce = gamma*speed*weight
 	* since the total weight is needed a lot of times, we save it
 	* @author prissi
-	* BG, 18.10.2011: in tons in simutrans standard, in kg in simutrans experimental
+	* BG, 18.10.2011: in tons in simutrans standard, in kg in simutrans extended
 	*/
 	uint32 sum_weight;
 
@@ -260,7 +260,7 @@ private:
 
 	sint32 calc_modified_speed_limit(koord3d position, ribi_t::ribi current_direction, bool is_corner);
 	
-	bool load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehikels);
+	bool load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehicles);
 
 	// @author: jamespetts
 	// uint16 local_bonus_supplement;
@@ -320,7 +320,7 @@ protected:
 	uint16 total_freight;	// since the sum is needed quite often, it is cached
 	slist_tpl<ware_t> fracht;   // list of goods being transported
 
-	const vehikel_besch_t *besch;
+	const vehicle_desc_t *desc;
 
 	convoi_t *cnv;		// != NULL if the vehicle is part of a Convoi
 
@@ -386,7 +386,7 @@ public:
 
 	void get_smoke(bool yesno ) { smoke = yesno;}
 
-	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed_kmh, route_t* route);
+	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed_kmh, bool is_tall, route_t* route);
 	uint16 get_route_index() const {return route_index;}
 	void set_route_index(uint16 value) { route_index = value; }
 	const koord3d get_pos_prev() const {return pos_prev;}
@@ -397,7 +397,7 @@ public:
 	* Get the base image.
 	* @author Hj. Malthaner
 	*/
-	image_id get_base_image() const { return besch->get_base_image(current_livery.c_str()); }
+	image_id get_base_image() const { return desc->get_base_image(current_livery.c_str()); }
 
 	/**
 	 * @return image with base direction and freight image taken from loaded cargo
@@ -408,22 +408,22 @@ public:
 	* @return vehicle description object
 	* @author Hj. Malthaner
 	*/
-	const vehikel_besch_t *get_besch() const {return besch; }
-	void set_besch(const vehikel_besch_t* value) { besch = value; }
+	const vehicle_desc_t *get_desc() const {return desc; }
+	void set_desc(const vehicle_desc_t* value) { desc = value; }
 
 	/**
 	* @return die running_cost in Cr/100Km
 	* @author Hj. Malthaner
 	*/
-	int get_running_cost() const { return besch->get_running_cost(); }
-	int get_running_cost(const karte_t* welt) const { return besch->get_running_cost(welt); }
+	int get_running_cost() const { return desc->get_running_cost(); }
+	int get_running_cost(const karte_t* welt) const { return desc->get_running_cost(welt); }
 
 	/**
 	* @return fixed maintenance costs in Cr/100months
 	* @author Bernd Gabriel
 	*/
-	uint32 get_fixed_cost() const { return besch->get_fixed_cost(); }
-	uint32 get_fixed_cost(karte_t* welt) const { return besch->get_fixed_cost(welt); }
+	uint32 get_fixed_cost() const { return desc->get_fixed_cost(); }
+	uint32 get_fixed_cost(karte_t* welt) const { return desc->get_fixed_cost(welt); }
 
 	/**
 	* Play sound, when the vehicle is visible on screen
@@ -444,11 +444,11 @@ public:
 #ifdef INLINE_OBJ_TYPE
 protected:
 	vehicle_t(typ type);
-	vehicle_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player);
+	vehicle_t(typ type, koord3d pos, const vehicle_desc_t* desc, player_t* player);
 public:
 #else
 	vehicle_t();
-	vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player);
+	vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player);
 #endif
 
 	~vehicle_t();
@@ -466,11 +466,7 @@ private:
 	void info(cbuffer_t & buf, bool dummy = false) const;
 public:
 #endif
-	/**
-	* Determine travel direction
-	* @author Hj. Malthaner
-	*/
-	ribi_t::ribi richtung() const;
+
 
 	/* return friction constant: changes in hill and curves; may even negative downhill *
 	* @author prissi
@@ -484,7 +480,7 @@ public:
 
 	// returns speedlimit of ways (and if convoi enters station etc)
 	// the convoi takes care of the max_speed of the vehicle
-	// In Experimental this is mostly for entering stations etc.,
+	// In Extended this is mostly for entering stations etc.,
 	// as the new physics engine handles ways
 	sint32 get_speed_limit() const { return speed_limit; }
 	static inline sint32 speed_unlimited() {return (std::numeric_limits<sint32>::max)(); }
@@ -512,12 +508,12 @@ public:
 	/**
 	* get the type of cargo this vehicle can transport
 	*/
-	const ware_besch_t* get_cargo_type() const { return besch->get_ware(); }
+	const goods_desc_t* get_cargo_type() const { return desc->get_freight_type(); }
 
 	/**
 	* Get the maximum capacity
 	*/
-	uint16 get_cargo_max() const {return besch->get_zuladung(); }
+	uint16 get_cargo_max() const {return desc->get_capacity(); }
 
 	const char * get_cargo_mass() const;
 
@@ -585,7 +581,7 @@ public:
 	 * @return amount loaded
 	 */
 	uint16 load_cargo(halthandle_t halt)  { bool dummy; (void)dummy; return load_cargo(halt, false, &dummy, &dummy); }
-	uint16 load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehikels);
+	uint16 load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehicles);
 
 	/**
 	* Remove freight that no longer can reach it's destination
@@ -662,7 +658,7 @@ class road_vehicle_t : public vehicle_t
 private:
 	// called internally only from can_enter_tile()
 	// returns true on success
-	bool choose_route(sint32 &restart_speed, ribi_t::ribi richtung, uint16 index);
+	bool choose_route(sint32 &restart_speed, ribi_t::ribi start_direction, uint16 index);
 
 public:
 	bool check_next_tile(const grund_t *bd) const;
@@ -677,14 +673,14 @@ public:
 
 	road_vehicle_t(loadsave_t *file, bool first, bool last);
 	road_vehicle_t();
-	road_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv); // start und fahrplan
+	road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv); // start und schedule
 
 	virtual void set_convoi(convoi_t *c);
 
 	// how expensive to go here (for way search)
 	virtual int get_cost(const grund_t *, const sint32, koord);
 
-	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
+	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route);
 
 	virtual bool can_enter_tile(const grund_t *gr_next, sint32 &restart_speed, uint8 second_check_count);
 
@@ -696,7 +692,7 @@ public:
 
 #ifdef INLINE_OBJ_TYPE
 #else
-	obj_t::typ get_typ() const { return automobil; }
+	obj_t::typ get_typ() const { return road_vehicle; }
 #endif
 
 	schedule_t * generate_new_schedule() const;
@@ -729,7 +725,7 @@ public:
 	void rdwr_from_convoi(loadsave_t *file);
 
 	// since we might need to unreserve previously used blocks, we must do this before calculation a new route
-	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
+	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route);
 
 	// how expensive to go here (for way search)
 	virtual int get_cost(const grund_t *, const sint32, koord);
@@ -749,14 +745,18 @@ public:
 
 	void leave_tile();
 
+	/// Unreserve behind the train using the current route
 	void unreserve_in_rear();
+
+	/// Unreserve behind the train (irrespective of route) all station tiles in rear
+	void unreserve_station();
 
 	void clear_token_reservation(signal_t* sig, rail_vehicle_t* w, schiene_t* sch); 
 
 #ifdef INLINE_OBJ_TYPE
 protected:
 	rail_vehicle_t(typ type, loadsave_t *file, bool is_leading, bool is_last);
-	rail_vehicle_t(typ type, koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t *cnv); // start und fahrplan
+	rail_vehicle_t(typ type, koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t *cnv); // start und schedule
 	void init(loadsave_t *file, bool is_leading, bool is_last);
 public:
 #else
@@ -764,7 +764,7 @@ public:
 #endif
 
 	rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last);
-	rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t *cnv); // start und fahrplan
+	rail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t *cnv); // start und schedule
 	virtual ~rail_vehicle_t();
 
 	virtual void set_convoi(convoi_t *c);
@@ -789,14 +789,14 @@ public:
 
 #ifdef INLINE_OBJ_TYPE
 	// all handled by rail_vehicle_t
-	monorail_rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : rail_vehicle_t(monorailwaggon, file,is_leading, is_last) {}
-	monorail_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(monorailwaggon, pos, besch, player, cnv) {}
+	monorail_rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : rail_vehicle_t(monorail_vehicle, file,is_leading, is_last) {}
+	monorail_rail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv) : rail_vehicle_t(monorail_vehicle, pos, desc, player, cnv) {}
 #else
 	// all handled by rail_vehicle_t
 	monorail_rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : rail_vehicle_t(file,is_leading, is_last) {}
-	monorail_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, besch, player, cnv) {}
+	monorail_rail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, desc, player, cnv) {}
 
-	typ get_typ() const { return monorailwaggon; }
+	typ get_typ() const { return monorail_vehicle; }
 #endif
 
 	schedule_t * generate_new_schedule() const;
@@ -816,14 +816,14 @@ public:
 
 #ifdef INLINE_OBJ_TYPE
 	// all handled by rail_vehicle_t
-	maglev_rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : rail_vehicle_t(maglevwaggon, file, is_leading, is_last) {}
-	maglev_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(maglevwaggon, pos, besch, player, cnv) {}
+	maglev_rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : rail_vehicle_t(maglev_vehicle, file, is_leading, is_last) {}
+	maglev_rail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv) : rail_vehicle_t(maglev_vehicle, pos, desc, player, cnv) {}
 #else
 	// all handled by rail_vehicle_t
 	maglev_rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : rail_vehicle_t(file, is_leading, is_last) {}
-	maglev_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, besch, player, cnv) {}
+	maglev_rail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, desc, player, cnv) {}
 
-	typ get_typ() const { return maglevwaggon; }
+	typ get_typ() const { return maglev_vehicle; }
 #endif
 
 	schedule_t * generate_new_schedule() const;
@@ -843,14 +843,14 @@ public:
 
 #ifdef INLINE_OBJ_TYPE
 	// all handled by rail_vehicle_t
-	narrowgauge_rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : rail_vehicle_t(narrowgaugewaggon, file, is_leading, is_last) {}
-	narrowgauge_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(narrowgaugewaggon, pos, besch, player, cnv) {}
+	narrowgauge_rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : rail_vehicle_t(narrowgauge_vehicle, file, is_leading, is_last) {}
+	narrowgauge_rail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv) : rail_vehicle_t(narrowgauge_vehicle, pos, desc, player, cnv) {}
 #else
 	// all handled by rail_vehicle_t
 	narrowgauge_rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : rail_vehicle_t(file, is_leading, is_last) {}
-	narrowgauge_rail_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, besch, player, cnv) {}
+	narrowgauge_rail_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv) : rail_vehicle_t(pos, desc, player, cnv) {}
 
-	typ get_typ() const { return narrowgaugewaggon; }
+	typ get_typ() const { return narrowgauge_vehicle; }
 #endif
 
 	schedule_t * generate_new_schedule() const;
@@ -888,7 +888,7 @@ public:
 	virtual bool  is_target(const grund_t *,const grund_t *) {return 0;}
 
 	water_vehicle_t(loadsave_t *file, bool is_leading, bool is_last);
-	water_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv);
+	water_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv);
 
 #ifdef INLINE_OBJ_TYPE
 #else
@@ -960,7 +960,7 @@ protected:
 
 public:
 	air_vehicle_t(loadsave_t *file, bool is_leading, bool is_last);
-	air_vehicle_t(koord3d pos, const vehikel_besch_t* besch, player_t* player, convoi_t* cnv); // start and schedule
+	air_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player, convoi_t* cnv); // start and schedule
 
 	// to shift the events around properly
 	void get_event_index( flight_state &state_, uint32 &takeoff_, uint32 &stopsearch_, uint32 &landing_ ) { state_ = state; takeoff_ = takeoff; stopsearch_ = search_for_stop; landing_ = touchdown; }
@@ -986,7 +986,7 @@ public:
 
 	virtual void set_convoi(convoi_t *c);
 
-	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
+	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route);
 
 	// BG, 08.08.2012: extracted from can_enter_tile()
     bool reroute(const uint16 reroute_index, const koord3d &ziel);

@@ -7,7 +7,7 @@
 
 #include "../simconst.h"
 #include "../simsys.h"
-#include "../besch/bild_besch.h"
+#include "../descriptor/image.h"
 
 #include "simgraph.h"
 
@@ -107,9 +107,9 @@ COLOR_VAL display_get_index_from_rgb(uint8, uint8, uint8)
 	return 0;
 }
 
-void register_image(struct bild_t* image)
+void register_image(struct image_t* image)
 {
-	image->bild_nr = 1;
+	image->imageid = 1;
 }
 
 void display_snapshot(int, int, int, int)
@@ -143,16 +143,6 @@ void display_set_base_image_offset(unsigned, KOORD_VAL, KOORD_VAL)
 {
 }
 */
-
-int get_maus_x()
-{
-	return sys_event.mx;
-}
-
-int get_maus_y()
-{
-	return sys_event.my;
-}
 
 clip_dimension display_get_clip_wh(CLIP_NUM_DEF_NOUSE0)
 {
@@ -352,10 +342,6 @@ int display_multiline_text_rgb(KOORD_VAL, KOORD_VAL, const char *, PLAYER_COLOR_
 }
 
 void display_flush_buffer()
-{
-}
-
-void display_move_pointer(KOORD_VAL, KOORD_VAL)
 {
 }
 

@@ -13,7 +13,7 @@
 #include "../simevent.h"
 #include "../display/simimg.h"
 #include "../simworld.h"
-#include "../besch/skin_besch.h"
+#include "../descriptor/skin_desc.h"
 #include "../simskin.h"
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
@@ -24,7 +24,7 @@ farbengui_t::farbengui_t(player_t *player) :
 	txt(&buf),
 	c1( "Your primary color:" ),
 	c2( "Your secondary color:" ),
-	image( skinverwaltung_t::color_options->get_bild_nr(0), player->get_player_nr() )
+	image( skinverwaltung_t::color_options->get_image_id(0), player->get_player_nr() )
 {
 	scr_coord cursor = scr_coord (D_MARGIN_TOP, D_MARGIN_LEFT);
 

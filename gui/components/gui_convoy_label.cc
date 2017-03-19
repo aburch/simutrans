@@ -31,10 +31,10 @@ scr_size gui_convoy_label_t::get_image_size() const
 {
 	scr_coord_val tamx=0;
 	scr_coord_val tamy=0;
-	if (cnv.is_bound() && cnv->get_vehikel_anzahl()>0) {
-		for(unsigned i=0; i<cnv->get_vehikel_anzahl();i++) {
+	if (cnv.is_bound() && cnv->get_vehicle_count()>0) {
+		for(unsigned i=0; i<cnv->get_vehicle_count();i++) {
 			KOORD_VAL x, y, w, h;
-			const image_id image=cnv->get_vehikel(i)->get_base_image();
+			const image_id image=cnv->get_vehicle(i)->get_base_image();
 			display_get_base_image_offset(image, &x, &y, &w, &h );
 			tamx += (w*2)/3;
 			tamy = max(tamy,h+26);
@@ -70,10 +70,10 @@ void gui_convoy_label_t::draw(scr_coord offset)
 	} else if (get_align()==right) {
 		left-=tam.w;
 	}
-	if (cnv.is_bound() && cnv->get_vehikel_anzahl()>0) {
-		for(unsigned i=0; i<cnv->get_vehikel_anzahl();i++) {
+	if (cnv.is_bound() && cnv->get_vehicle_count()>0) {
+		for(unsigned i=0; i<cnv->get_vehicle_count();i++) {
 			KOORD_VAL x, y, w, h;
-			const image_id image=cnv->get_vehikel(i)->get_base_image();
+			const image_id image=cnv->get_vehicle(i)->get_base_image();
 			display_get_base_image_offset(image, &x, &y, &w, &h );
 			display_base_img(image,left-x,pos.y+offset.y+13-y-h/2,cnv->get_owner()->get_player_nr(),false,true);
 			left += (w*2)/3;
@@ -86,7 +86,7 @@ void gui_convoy_label_t::draw(scr_coord offset)
 		char tmp[128];
 		if (show_number) {
 			sprintf(tmp, "%s %d (%s %i)",
-				translator::translate("Fahrzeuge:"), cnv->get_vehikel_anzahl(),
+				translator::translate("Fahrzeuge:"), cnv->get_vehicle_count(),
 				translator::translate("Station tiles:"), convoy.get_vehicle_summary().tiles);
 			display_proportional( offset.x + 4, offset.y , tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
 			offset.y+=LINESPACE;

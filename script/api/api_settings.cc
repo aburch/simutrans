@@ -26,7 +26,7 @@ script_api::void_t set_traffic_level(settings_t*, sint16 rate)
 	tool_t *tool = tool_t::simple_tool[TOOL_TRAFFIC_LEVEL];
 	tool->set_default_param( level );
 	tool->flags |=  tool_t::WFL_SCRIPT;
-	welt->set_tool( tool, welt->get_player(1) );
+	welt->set_tool( tool, welt->get_public_player() );
 	tool->flags &= ~tool_t::WFL_SCRIPT;
 	return script_api::void_t();
 }
@@ -56,7 +56,7 @@ void export_settings(HSQUIRRELVM vm)
 	/**
 	 * Get traffic level.
 	 */
-	register_method(vm, &settings_t::get_verkehr_level, "get_traffic_level");
+	register_method(vm, &settings_t::get_traffic_level, "get_traffic_level");
 
 	/**
 	 * Set traffic level. The higher the level the more city cars will be created.

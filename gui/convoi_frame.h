@@ -26,7 +26,7 @@
 #include "../convoihandle_t.h"
 
 class player_t;
-class ware_besch_t;
+class goods_desc_t;
 
 class convoi_frame_t :
 	public gui_frame_t,
@@ -60,7 +60,7 @@ private:
 
 	// actual filter setting
 	bool filter_is_on;
-	const slist_tpl<const ware_besch_t *>*waren_filter;
+	const slist_tpl<const goods_desc_t *>*waren_filter;
 	char *name_filter;
 	uint32 filter_flags;
 
@@ -89,7 +89,7 @@ public:
 	/**
 	 * Resorts convois
 	 */
-	void sort_list( char *name, uint32 filter, const slist_tpl<const ware_besch_t *> *wares );
+	void sort_list( char *name, uint32 filter, const slist_tpl<const goods_desc_t *> *wares );
 
 	convoi_frame_t(player_t *player);
 

@@ -3,7 +3,7 @@ PROP_FONT_FILE
 Prop-Latin1.bdf
 ################################################################################
 #                                                                              #
-#                 Simutrans-Experimental Base Translation File                 #
+#                 Simutrans-Extended Base Translation File                 #
 #                             Scenario: Base texts                             #
 #                             Language: en English                             #
 #                                Encoding: ASCII                               #
@@ -1239,6 +1239,8 @@ Rose
 Mount 
 &39_CITY_PREFIX
 St. Michael 
+&3A_CITY_PREFIX
+Martin's 
 #
 # Town name suffixes.
 # There can be up to 256 of these.
@@ -1359,6 +1361,8 @@ brook
 heath
 &36_CITY_SUFFIX
  Ponds
+&37_CITY_SUFFIX
+ Rise
 # 
 # Other strings
 # 
@@ -1578,7 +1582,7 @@ Bridge cannot be built over deep water\n
 Bridge cannot be built over deep water.\nBuild a length restricted\nbridge instead.
 Bruecke
 Bridge
-Bruecke muss an\neinfachem\nHang beginnen!\n
+Bruecke muss an\nsingleem\nHang beginnen!\n
 Bridges must\nstart on a\nstraight slope\n
 Brueckenboden
 Bridge
@@ -2244,11 +2248,11 @@ Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
 Give the Vehicle(s)\n(a) schedule(s), before\ngiving it(them) the go\norder!\n
 none
 none
-nord
+north
 North
 nordost
 Northeast
-nordwest
+northwest
 Northwest
 Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
 The vehicle's schedule\nmust not be changed\nuntil the operation is complete.
@@ -2304,7 +2308,7 @@ Optionen
 Options
 Origin
 Origin
-ost
+east
 East
 Output
 Output
@@ -2584,11 +2588,11 @@ Strassendepot
 Garage
 Strassentunnel
 Build road tunnel
-sued
+south
 South
-suedost
+southeast
 Southeast
-suedwest
+southwest
 Southwest
 Suppliers
 Suppliers
@@ -2650,8 +2654,8 @@ tropic
 Dune
 Truck
 Truck
-Tunnel muss an\neinfachem\nHang beginnen!\n
-Tunnels must\nstart on a straight\nslope\n
+Tunnel muss an\nsingleem\nHang beginnen!\n
+Tunnels must\nstart on a straight\n double height slope\n
 Tunnel must end on single way!
 Tunnels must end on a\nsingle way with a slope.
 Tunnel must start on single way!

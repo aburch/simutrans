@@ -32,8 +32,8 @@
 #include "../bauer/hausbauer.h"
 #include "../bauer/tunnelbauer.h"
 
-#include "../besch/tunnel_besch.h"
-#include "../besch/weg_besch.h"
+#include "../descriptor/tunnel_desc.h"
+#include "../descriptor/way_desc.h"
 
 #include "../boden/grund.h"
 
@@ -44,6 +44,7 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/schedule.h"
 
 #include "../obj/bruecke.h"
 #include "../obj/gebaeude.h"
@@ -222,10 +223,7 @@ void player_t::book_delivered(const sint64 amount, const waytype_t wt, int index
 
 bool player_t::can_afford(const sint64 price) const
 {
-	return (
-		   player_nr == 1 // Public service can always afford anything
-		|| finance->can_afford(price)
-	);
+	return (is_public_serivce() || finance->can_afford(price));
 }
 
 bool player_t::can_afford(player_t* player, sint64 price)
@@ -236,6 +234,15 @@ bool player_t::can_afford(player_t* player, sint64 price)
 	} else {
 		return player->can_afford(price);
 	}
+}
+
+bool player_t::is_public_serivce() const
+ {
+	if (!this)
+	{
+		return false;
+	}
+	return get_player_nr() == 1;
 }
 
 /* returns the name of the player; "player -1" sits in front of the screen
@@ -544,7 +551,7 @@ void player_t::calc_assets()
 		}
 	}
 
-	// all vehikels stored in depot not part of a convoi
+	// all vehicles stored in depot not part of a convoi
 	FOR(slist_tpl<depot_t*>, const depot, depot_t::get_depot_list()) {
 		if(  depot->get_player_nr() == player_nr  ) {
 			FOR(slist_tpl<vehicle_t*>, const veh, depot->get_vehicle_list()) {
@@ -579,7 +586,7 @@ void player_t::set_scenario_completion(sint32 percent)
 
 bool player_t::check_owner( const player_t *owner, const player_t *test )
 {
-	return owner == test  ||  owner == NULL  ||  test == welt->get_player(1);
+	return owner == test || owner == NULL || (test != NULL  &&  test->is_public_serivce());
 }
 
 
@@ -629,7 +636,7 @@ void player_t::ai_bankrupt()
 
 	// transfer all ways in public stops belonging to me to no one
 	FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
-		if(  halt->get_owner()==welt->get_player(1)  ) {
+		if(  halt->get_owner()==welt->get_public_player()  ) {
 			// only concerns public stops tiles
 			FOR(slist_tpl<haltestelle_t::tile_t>, const& i, halt->get_tiles()) {
 				grund_t const* const gr = i.grund;
@@ -638,7 +645,7 @@ void player_t::ai_bankrupt()
 					if(  w  &&  w->get_owner()==this  ) {
 						// take ownership
 						if (wnr>1  ||  (!gr->ist_bruecke()  &&  !gr->ist_tunnel())) {
-							player_t::add_maintenance( this, -w->get_besch()->get_wartung(), w->get_besch()->get_finance_waytype() );
+							player_t::add_maintenance( this, -w->get_desc()->get_wartung(), w->get_desc()->get_finance_waytype() );
 						}
 						w->set_owner(NULL); // make unowned
 					}
@@ -677,9 +684,9 @@ void player_t::ai_bankrupt()
 								break;
 							case obj_t::leitung:
 								if(gr->ist_bruecke()) {
-									add_maintenance( -((leitung_t*)obj)->get_besch()->get_wartung(), powerline_wt );
+									add_maintenance( -((leitung_t*)obj)->get_desc()->get_wartung(), powerline_wt );
 									// do not remove powerline from bridges
-									obj->set_owner( welt->get_player(1) );
+									obj->set_owner( welt->get_public_player() );
 								}
 								else {
 									obj->cleanup(this);
@@ -696,15 +703,15 @@ void player_t::ai_bankrupt()
 									w->set_owner( NULL );
 								}
 								else if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
-									add_maintenance( -w->get_besch()->get_wartung(), w->get_waytype() );
+									add_maintenance( -w->get_desc()->get_wartung(), w->get_waytype() );
 									w->set_owner( NULL );
 								}
 								else {
 									weg_t *way = (weg_t *)obj;
-									const weg_besch_t* mothballed_type = wegbauer_t::way_search_mothballed(way->get_waytype(), (weg_t::system_type)way->get_besch()->get_styp());
+									const way_desc_t* mothballed_type = way_builder_t::way_search_mothballed(way->get_waytype(), (systemtype_t)way->get_desc()->get_styp());
 									if(mothballed_type && way->get_waytype())
 									{
-										way->set_besch(mothballed_type);
+										way->set_desc(mothballed_type);
 									}
 									else
 									{
@@ -715,16 +722,16 @@ void player_t::ai_bankrupt()
 								break;
 							}
 							case obj_t::bruecke:
-								add_maintenance( -((bruecke_t*)obj)->get_besch()->get_wartung(), obj->get_waytype() );
+								add_maintenance( -((bruecke_t*)obj)->get_desc()->get_wartung(), obj->get_waytype() );
 								obj->set_owner( NULL );
 								break;
 							case obj_t::tunnel:
-								add_maintenance( -((tunnel_t*)obj)->get_besch()->get_wartung(), ((tunnel_t*)obj)->get_besch()->get_finance_waytype() );
+								add_maintenance( -((tunnel_t*)obj)->get_desc()->get_wartung(), ((tunnel_t*)obj)->get_desc()->get_finance_waytype() );
 								obj->set_owner( NULL );
 								break;
 
 							default:
-								obj->set_owner( welt->get_player(1) );
+								obj->set_owner( welt->get_public_player() );
 						}
 					}
 				}
@@ -852,7 +859,7 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 		simlinemgmt.rdwr(file,this);
 	}
 
-	if(file->get_version()>102002 && file->get_experimental_version() != 7) {
+	if(file->get_version()>102002 && file->get_extended_version() != 7) {
 		// password hash
 		for(  int i=0;  i<20;  i++  ) {
 			file->rdwr_byte(pwd_hash[i]);
@@ -864,12 +871,12 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 	}
 
 	// save the name too
-	if(file->get_version()>102003 && (file->get_experimental_version() >= 9 || file->get_experimental_version() == 0)) 
+	if(file->get_version()>102003 && (file->get_extended_version() >= 9 || file->get_extended_version() == 0)) 
 	{
 		file->rdwr_str( player_name_buf, lengthof(player_name_buf) );
 	}
 
-	if(file->get_version() >= 110007 && file->get_experimental_version() >= 10)
+	if(file->get_version() >= 110007 && file->get_extended_version() >= 10)
 	{
 		// Save the colour
 		file->rdwr_byte(player_color_1);
@@ -885,7 +892,7 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 	}
 
 	// save age
-	if(  file->get_version() >= 112002  && (file->get_experimental_version() >= 11 || file->get_experimental_version() == 0) ) {
+	if(  file->get_version() >= 112002  && (file->get_extended_version() >= 11 || file->get_extended_version() == 0) ) {
 		file->rdwr_short( player_age );
 	}
 }
@@ -948,7 +955,17 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stucked!", cnv->get_n
 		
 		case convoi_t::OUT_OF_RANGE:
 			{
-				const uint16 distance = (shortest_distance(cnv->get_pos().get_2d(), ziel.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
+				koord destination = ziel.get_2d();
+				while(!haltestelle_t::get_halt(destination, this).is_bound() && (welt->lookup_kartenboden(destination) == NULL || !welt->lookup_kartenboden(destination)->get_depot()))
+				{
+					// Make sure that we are not incorrectly calculating the distance to a waypoint.
+					schedule_t* const sch = cnv->get_schedule();
+					bool rev = cnv->is_reversed();
+					uint8 index = sch->get_aktuell();
+					sch->increment_index(&index, &rev);
+					destination = sch->entries.get_element(index).pos.get_2d(); 
+				}
+				const uint16 distance = (shortest_distance(cnv->get_pos().get_2d(), destination) * welt->get_settings().get_meters_per_tile()) / 1000u;
 				const uint16 excess = distance - cnv->get_min_range();
 				DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s cannot travel %ikm to (%i,%i) because it would exceed its range of %i by %ikm", cnv->get_name(), distance, ziel.x, ziel.y, cnv->get_min_range(), excess);
 				if(this == welt->get_active_player())
@@ -1059,7 +1076,7 @@ sint64 player_t::undo()
 			leitung_t* lt = gr->get_leitung();
 			if (lt)
 			{
-				cost += lt->get_besch()->get_preis();
+				cost += lt->get_desc()->get_value();
 				lt->cleanup(NULL);
 				delete lt;
 			}

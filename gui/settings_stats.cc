@@ -49,7 +49,10 @@ static char const* const version[] =
 	"0.112.7",
 	"0.120.0",
 	"0.120.1",
-	"0.120.7"
+	"0.120.2",
+	"0.120.3",
+	"0.120.7",
+	"0.120.1.2"
 };
 
 static const char *version_ex[] =
@@ -86,7 +89,10 @@ static const char *revision_ex[] =
 	"12",
 	"13",
 	"14",
-	"15"
+	"15",
+	"16",
+	"17",
+	"18"
 };
 
 // just free memory
@@ -178,7 +184,7 @@ void settings_stats_t::set_cell_component(gui_component_table_t &tbl, gui_compon
 	tbl.set_size(tbl.get_table_size());
 
 
-void settings_experimental_general_stats_t::init( settings_t *sets )
+void settings_extended_general_stats_t::init( settings_t *sets )
 {
 	INIT_INIT;
 	INIT_NUM( "min_bonus_max_distance", sets->get_min_bonus_max_distance(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
@@ -318,7 +324,7 @@ void settings_experimental_general_stats_t::init( settings_t *sets )
 }
 
 
-void settings_experimental_general_stats_t::read(settings_t *sets)
+void settings_extended_general_stats_t::read(settings_t *sets)
 {
 	READ_INIT;
 
@@ -403,7 +409,7 @@ void settings_experimental_general_stats_t::read(settings_t *sets)
 }
 
 
-void settings_experimental_revenue_stats_t::init( settings_t *sets )
+void settings_extended_revenue_stats_t::init( settings_t *sets )
 {
 	INIT_INIT;
 	INIT_NUM( "passenger_trips_per_month_hundredths", sets->get_passenger_trips_per_month_hundredths(), 0, 4096, gui_numberinput_t::AUTOLINEAR, false );
@@ -520,7 +526,7 @@ void settings_experimental_revenue_stats_t::init( settings_t *sets )
 }
 
 
-void settings_experimental_revenue_stats_t::read(settings_t *sets)
+void settings_extended_revenue_stats_t::read(settings_t *sets)
 {
 	READ_INIT
 	READ_NUM_VALUE( sets->passenger_trips_per_month_hundredths );
@@ -650,7 +656,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	clear_dirty();
 
 	SEPERATOR
-	// comboboxes for Experimental savegame version and revision
+	// comboboxes for Extended savegame version and revision
 	savegame_ex.set_pos( scr_coord(2,ypos-2) );
 	savegame_ex.set_size( scr_size(70,D_BUTTON_HEIGHT) );
 	for(  int i=0;  i<lengthof(version_ex);  i++  ) 
@@ -663,7 +669,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 		{
 			savegame_ex.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version_ex[i]+1, SYSCOL_TEXT ) );
 		}
-		if(  strcmp(version_ex[i],EXPERIMENTAL_VER_NR)==0  ) 
+		if(  strcmp(version_ex[i],EXTENDED_VER_NR)==0  ) 
 		{
 			savegame_ex.set_selection( i );
 		}
@@ -671,7 +677,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	savegame_ex.set_focusable( false );
 	add_component( &savegame_ex );
 	savegame_ex.add_listener( this );
-	INIT_LB( "savegame Experimental version" );
+	INIT_LB( "savegame Extended version" );
 	label.back()->set_pos( scr_coord( 76, label.back()->get_pos().y ) );
 	clear_dirty();
 
@@ -698,7 +704,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	savegame_ex_rev.set_focusable( false );
 	add_component( &savegame_ex_rev );
 	savegame_ex_rev.add_listener( this );
-	INIT_LB( "savegame Experimental revision" );
+	INIT_LB( "savegame Extended revision" );
 	label.back()->set_pos( scr_coord( 76, label.back()->get_pos().y ) );
 	clear_dirty();
 
@@ -890,6 +896,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "toll_runningcost_percentage", sets->get_way_toll_runningcost_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "toll_waycost_percentage", sets->get_way_toll_waycost_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "toll_revenue_percentage", sets->get_way_toll_revenue_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_BOOL("disable_make_way_public", sets->get_disable_make_way_public());
 	SEPERATOR
 
 	INIT_BOOL( "just_in_time", sets->get_just_in_time() );
@@ -920,7 +927,7 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	SEPERATOR
 	INIT_BOOL( "random_pedestrians", sets->get_random_pedestrians() );
 	INIT_BOOL( "stop_pedestrians", sets->get_show_pax() );
-	INIT_NUM( "citycar_level", sets->get_verkehr_level(), 0, 16, 1, false );
+	INIT_NUM( "citycar_level", sets->get_traffic_level(), 0, 16, 1, false );
 	INIT_NUM( "default_citycar_life", sets->get_stadtauto_duration(), 1, 1200, 12, false );
 
 	clear_dirty();
@@ -946,6 +953,7 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->way_toll_runningcost_percentage );
 	READ_NUM_VALUE( sets->way_toll_waycost_percentage );
 	READ_NUM_VALUE( sets->way_toll_revenue_percentage );
+	READ_BOOL_VALUE(sets->disable_make_way_public);
 	
 	READ_BOOL_VALUE( sets->just_in_time );
 	READ_NUM_VALUE( sets->factory_maximum_intransit_percentage );
@@ -971,7 +979,7 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->growthfactor_large );
 	READ_BOOL( sets->set_random_pedestrians );
 	READ_BOOL( sets->set_show_pax );
-	READ_NUM( sets->set_verkehr_level );
+	READ_NUM( sets->set_traffic_level );
 	READ_NUM_VALUE( sets->stadtauto_duration );
 }
 
@@ -1001,6 +1009,7 @@ void settings_costs_stats_t::init(settings_t const* const sets)
 	INIT_COST( "cost_multiply_remove_field", -sets->cst_multiply_remove_field, 1, 100000000, 10, false );
 	INIT_COST( "cost_transformer", -sets->cst_transformer, 1, 100000000, 10, false );
 	INIT_COST( "cost_maintain_transformer", -sets->cst_maintain_transformer, 1, 100000000, 10, false );
+	INIT_NUM("cost_make_public_months", sets->cst_make_public_months, 0, 36000, gui_numberinput_t::AUTOLINEAR, false);
 	clear_dirty();
 	height = ypos;
 	set_size( settings_stats_t::get_size() );
@@ -1033,13 +1042,14 @@ void settings_costs_stats_t::read(settings_t* const sets)
 	READ_COST_VALUE( sets->cst_multiply_remove_field )*(-1);
 	READ_COST_VALUE( sets->cst_transformer )*(-1);
 	READ_COST_VALUE( sets->cst_maintain_transformer )*(-1);
+	READ_NUM_VALUE(sets->cst_make_public_months);
 
 	clear_dirty();
 	set_size( settings_stats_t::get_size() );
 }
 
 
-#include "../besch/grund_besch.h"
+#include "../descriptor/ground_desc.h"
 
 
 void settings_climates_stats_t::init(settings_t* const sets)
@@ -1061,7 +1071,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	// other climate borders ...
 	sint16 arctic = 0;
 	for(  int i=desert_climate;  i!=arctic_climate;  i++  ) {
-		INIT_NUM( grund_besch_t::get_climate_name_from_bit((climate)i), sets->get_climate_borders()[i], sets->get_grundwasser(), 24, gui_numberinput_t::AUTOLINEAR, false );
+		INIT_NUM( ground_desc_t::get_climate_name_from_bit((climate)i), sets->get_climate_borders()[i], sets->get_grundwasser(), 24, gui_numberinput_t::AUTOLINEAR, false );
 		if(sets->get_climate_borders()[i+1]>arctic) {
 			arctic = sets->get_climate_borders()[i+1];
 		}

@@ -68,7 +68,7 @@ template<> struct map_obj<roadsign_t>    { static const obj_t::typ code = obj_t:
 template<> struct map_obj<senke_t>       { static const obj_t::typ code = obj_t::senke;       };
 template<> struct map_obj<signal_t>      { static const obj_t::typ code = obj_t::signal;      };
 template<> struct map_obj<private_car_t>   { static const obj_t::typ code = obj_t::road_user;     };
-template<> struct map_obj<road_vehicle_t>   { static const obj_t::typ code = obj_t::automobil;   };
+template<> struct map_obj<road_vehicle_t>   { static const obj_t::typ code = obj_t::road_vehicle;   };
 template<> struct map_obj<tunnel_t>      { static const obj_t::typ code = obj_t::tunnel;      };
 template<> struct map_obj<wayobj_t>      { static const obj_t::typ code = obj_t::wayobj;      };
 template<> struct map_obj<weg_t>         { static const obj_t::typ code = obj_t::way;         };
@@ -84,12 +84,12 @@ template<typename T> static inline T* obj_cast(obj_t* const d)
 /**
  * <p>Abstrakte Basisklasse für Untergründe in Simutrans.</p>
  *
- * <p>Von der Klasse grund_t sind alle Untergruende (Land, Wasser, Strassen ...)
+ * <p>Von der Klasse grund_t sind all Untergruende (Land, Water, Strassen ...)
  * in simu abgeleitet. Jedes Planquadrat hat einen Untergrund.</p>
  *
  * <p>Der Boden hat Eigenschaften, die abgefragt werden koennen
  * ist_natur(), ist_wasser(), hat_wegtyp(), ist_bruecke().
- * In dieser Basisklasse sind alle Eigenschaften false, sie werden erst
+ * In dieser Basisklasse sind all Eigenschaften false, sie werden erst
  * in den Subklassen redefiniert.</p>
  *
  * @author Hj. Malthaner
@@ -148,7 +148,7 @@ protected:
 	/**
 	 * Image number
 	 */
-	image_id bild_nr;
+	image_id imageid;
 
 	/**
 	 * Coordinate (40 bits)
@@ -163,7 +163,7 @@ protected:
 	/**
 	 * Image of the walls
 	 */
-	sint8 back_bild_nr;
+	sint8 back_image_nr;
 
 	/**
 	 * Flags to indicate existence of halts, ways, to mark dirty
@@ -175,8 +175,8 @@ public:
 	 * setzt die Bildnr. des anzuzeigenden Bodens
 	 * @author Hj. Malthaner
 	 */
-	inline void set_bild(image_id n) {
-		bild_nr = n;
+	inline void set_image(image_id n) {
+		imageid = n;
 		set_flag(dirty);
 	}
 
@@ -190,10 +190,10 @@ protected:
 	static karte_ptr_t welt;
 
 	// calculates the slope image and sets the draw_as_obj flag correctly
-	void calc_back_bild(const sint8 hgt,const sint8 slope_this);
+	void calc_back_image(const sint8 hgt,const sint8 slope_this);
 
 	// this is the real image calculation, called for the actual ground image
-	virtual void calc_bild_internal(const bool calc_only_snowline_change) = 0;
+	virtual void calc_image_internal(const bool calc_only_snowline_change) = 0;
 
 public:
 	enum typ { boden = 1, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
@@ -231,14 +231,12 @@ public:
 	* Updates snowline dependent grund_t (and derivatives) - none are season dependent
 	* Updates season and or snowline dependent objects
 	*/
-	void check_season_snowline(const bool season_change, const bool snowline_change) { if( snowline_change ) { calc_bild_internal( snowline_change ); } objlist.check_season( season_change && !snowline_change ); }
+	void check_season_snowline(const bool season_change, const bool snowline_change) { if( snowline_change ) { calc_image_internal( snowline_change ); } objlist.check_season( season_change && !snowline_change ); }
 
 	/**
 	 * Sets all objects to dirty to prevent artifacts with smart hide cursor
 	 */
 	void set_all_obj_dirty() { objlist.set_all_dirty(); }
-
-	/**
 
 	/**
 	 * Dient zur Neuberechnung des Bildes, wenn sich die Umgebung
@@ -252,14 +250,14 @@ public:
 	* @return Die Nummer des Bildes des Untergrundes.
 	* @author Hj. Malthaner
 	*/
-	inline image_id get_image() const {return bild_nr;}
+	inline image_id get_image() const {return imageid;}
 
 	/**
 	* Returns the number of an eventual foundation
 	* @author prissi
 	*/
-	image_id get_back_bild(int leftback) const;
-	virtual void clear_back_bild() {back_bild_nr=0;}
+	image_id get_back_image(int leftback) const;
+	virtual void clear_back_image() {back_image_nr=0;}
 
 	/**
 	* if ground is deleted mark the old spot as dirty
@@ -281,7 +279,7 @@ public:
 	virtual typ get_typ() const = 0;
 
 	/**
-	* Gibt eine Beschreibung des Untergrundes (informell) zurueck.
+	* Gibt eine Description des Untergrundes (informell) zurueck.
 	* @return Einen Beschreibungstext zum Untergrund.
 	* @author Hj. Malthaner
 	*/
@@ -378,8 +376,8 @@ public:
 	inline void set_pos(koord3d newpos) { pos = newpos;}
 
 	// slope are now maintained locally
-	hang_t::typ get_grund_hang() const { return (hang_t::typ)slope; }
-	void set_grund_hang(hang_t::typ sl) { slope = sl; }
+	slope_t::type get_grund_hang() const { return (slope_t::type)slope; }
+	void set_grund_hang(slope_t::type sl) { slope = sl; }
 
 	/**
 	 * Manche Böden können zu Haltestellen gehören.
@@ -396,33 +394,33 @@ public:
 	bool is_halt() const { return flags & is_halt_flag; }
 
 	/**
-	 * @return The height of the tile.
-	 */
-	inline sint8 get_hoehe() const {return pos.z;}
+	* @return The height of the tile.
+	*/
+	inline sint8 get_hoehe() const { return pos.z; }
 
 	/**
-	 * @param corner hang_t::_corner mask of corners to check.
-	 * @return The height of the tile at the requested corner.
-	 */
-	inline sint8 get_hoehe(hang_t::typ corner) const
+	* @param corner slope_t::_corner mask of corners to check.
+	* @return The height of the tile at the requested corner.
+	*/
+	inline sint8 get_hoehe(slope4_t::type corner) const
 	{
-		switch(  corner  ) {
-			case hang_t::corner_SW: {
-				return pos.z + corner1(slope);
-				break;
-			}
-			case hang_t::corner_SE: {
-				return pos.z + corner2(slope);
-				break;
-			}
-			case hang_t::corner_NE: {
-				return pos.z + corner3(slope);
-				break;
-			}
-			default: {
-				return pos.z + corner4(slope);
-				break;
-			}
+		switch (corner) {
+		case slope4_t::corner_SW: {
+			return pos.z + corner_sw(slope);
+			break;
+		}
+		case slope4_t::corner_SE: {
+			return pos.z + corner_se(slope);
+			break;
+		}
+		case slope4_t::corner_NE: {
+			return pos.z + corner_ne(slope);
+			break;
+		}
+		default: {
+			return pos.z + corner_nw(slope);
+			break;
+		}
 		}
 	}
 
@@ -441,15 +439,15 @@ public:
 	// returns slope
 	// if tile is not visible, 'flat' is returned
 	// special care has to be taken of tunnel mouths
-	inline hang_t::typ get_disp_slope() const {
+	inline slope_t::type get_disp_slope() const {
 		return (  (underground_mode & ugm_level)  &&  (pos.z > underground_level  ||  (get_typ()==tunnelboden  &&  ist_karten_boden()  &&  pos.z == underground_level))
-							? (hang_t::typ)hang_t::flach
+							? (slope_t::type)slope_t::flat
 							: get_grund_hang() );
 
 		/*switch(underground_mode) {// long version of the return statement above
 			case ugm_none: return(get_grund_hang());
-			case ugm_all:  return(get_grund_hang()); // get_typ()==tunnelboden && !ist_karten? hang_t::flach : get_grund_hang());
-			case ugm_level:return pos.z == underground_level || pos.z+max(max(corner1(slope),corner2(slope)),max(corner3(slope),corner4(slope))) == underground_level || (ist_karten_boden() && pos.z <= underground_level);
+			case ugm_all:  return(get_grund_hang()); // get_typ()==tunnelboden && !ist_karten? slope_t::flat : get_grund_hang());
+			case ugm_level:return pos.z == underground_level || pos.z+max(max(corner_sw(slope),corner_se(slope)),max(corner_ne(slope),corner_nw(slope))) == underground_level || (ist_karten_boden() && pos.z <= underground_level);
 		}*/
 	}
 
@@ -484,7 +482,7 @@ public:
 	/**
 	 * returns slope of ways as displayed (special cases: bridge ramps, tunnel mouths, undergroundmode etc)
 	 */
-	hang_t::typ get_disp_way_slope() const;
+	slope_t::type get_disp_way_slope() const;
 
 	/**
 	 * Displays the ground images (including foundations, fences and ways)
@@ -601,8 +599,8 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	/*
 	* Interface zur Abfrage der Wege
 	* ==============================
-	* Jeder Boden hat bis zu 2. Special fuer Wasser: ohne Weg-Objekt werden
-	* alle ribis vom weg_t::wassert als gesetzt zurueckgeliefert.
+	* Jeder Boden hat bis zu 2. Special fuer Water: ohne Weg-Objekt werden
+	* all ribis vom weg_t::wassert als gesetzt zurueckgeliefert.
 	*/
 
 	/**
@@ -647,7 +645,7 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	uint8 get_styp(waytype_t typ) const
 	{
 		weg_t *weg = get_weg(typ);
-		return (weg) ? weg->get_besch()->get_styp() : 0;
+		return (weg) ? weg->get_desc()->get_styp() : 0;
 	}
 
 	/**
@@ -683,7 +681,7 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	virtual sint8 get_weg_yoff() const { return 0; }
 
 	/**
-	* Hat der Boden mindestens ein weg_t-Objekt? Liefert false für Wasser!
+	* Hat der Boden mindestens ein weg_t-Objekt? Liefert false für Water!
 	* @author V. Meyer
 	*/
 	inline bool hat_wege() const { return (flags&(has_way1|has_way2))!=0;}
@@ -693,7 +691,7 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	* Strassenbahnschienen duerfen nicht als Kreuzung erkannt werden!
 	* @author V. Meyer, dariok
 	*/
-	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)objlist.bei(1))->get_besch()->get_styp()!=7; }
+	inline bool ist_uebergang() const { return (flags&has_way2)!=0  &&  ((weg_t *)objlist.bei(1))->get_desc()->get_styp()!=type_tram; }
 
 	/**
 	* returns the vehcile of a convoi (if there)
@@ -701,7 +699,7 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	*/
 	obj_t *get_convoi_vehicle() const { return objlist.get_convoi_vehicle(); }
 
-	virtual hang_t::typ get_weg_hang() const { return get_grund_hang(); }
+	virtual slope_t::type get_weg_hang() const { return get_grund_hang(); }
 
 	/*
 	 * Search a matching wayobj
@@ -820,7 +818,7 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	 * Description;
 	 *      Check, whether it is possible that a way goes up or down in ribi
 	 *      direction. The result depends of the ground type (i.e tunnel entries)
-	 *      and the "hang_typ" of the ground.
+	 *      and the "slope_type" of the ground.
 	 *
 	 *      Returns the height if one moves in direction given by ribi
 	 *
@@ -832,15 +830,15 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	 */
 	inline sint8 get_vmove(ribi_t::ribi ribi) const {
 		sint8 h = pos.z;
-		const hang_t::typ way_slope = get_weg_hang();
+		const slope_t::type way_slope = get_weg_hang();
 
 		// only on slope height may changes
 		if(  way_slope  ) {
-			if(ribi & ribi_t::nordost) {
-				h += corner3(way_slope);
+			if(ribi & ribi_t::northeast) {
+				h += corner_ne(way_slope);
 			}
 			else {
-				h += corner1(way_slope);
+				h += corner_sw(way_slope);
 			}
 		}
 

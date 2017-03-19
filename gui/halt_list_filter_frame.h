@@ -29,11 +29,11 @@ private:
 	* Needed since a button_t does not know its parent.
 	*/
 	class ware_item_t : public button_t {
-		const ware_besch_t *ware_ab;
-		const ware_besch_t *ware_an;
+		const goods_desc_t *ware_ab;
+		const goods_desc_t *ware_an;
 		halt_list_filter_frame_t *parent;
 	public:
-		ware_item_t(halt_list_filter_frame_t *parent, const ware_besch_t *ware_ab, const ware_besch_t *ware_an)
+		ware_item_t(halt_list_filter_frame_t *parent, const goods_desc_t *ware_ab, const goods_desc_t *ware_an)
 		{
 			this->ware_ab = ware_ab;
 			this->ware_an = ware_an;
@@ -104,14 +104,14 @@ public:
 	 * Propagate function from main_frame for ware_item_t
 	 * @author V. Meyer
 	 */
-	bool get_ware_filter_ab(const ware_besch_t *ware) const { return main_frame->get_ware_filter_ab(ware); }
-	bool get_ware_filter_an(const ware_besch_t *ware) const { return main_frame->get_ware_filter_an(ware); }
+	bool get_ware_filter_ab(const goods_desc_t *ware) const { return main_frame->get_ware_filter_ab(ware); }
+	bool get_ware_filter_an(const goods_desc_t *ware) const { return main_frame->get_ware_filter_an(ware); }
 
 	/**
 	 * Handler for ware_item_t event.
 	 * @author V. Meyer
 	 */
-	void ware_item_triggered(const ware_besch_t *ware_ab, const ware_besch_t *ware_an);
+	void ware_item_triggered(const goods_desc_t *ware_ab, const goods_desc_t *ware_an);
 
 	/**
 	 * Does this window need a min size button in the title bar?

@@ -20,15 +20,15 @@
 
 #include "../../bauer/warenbauer.h"
 #include "../../bauer/vehikelbauer.h"
-#include "../../besch/intro_dates.h"
+#include "../../descriptor/intro_dates.h"
 #include "../../dataobj/replace_data.h"
 #include "../../dataobj/translator.h"
 #include "../../dataobj/environment.h"
 #include "../../dataobj/livery_scheme.h"
 #include "../../utils/simstring.h"
 #include "../../vehicle/simvehicle.h"
-#include "../../besch/haus_besch.h"
-#include "../../besch/vehikel_besch.h"
+#include "../../descriptor/building_desc.h"
+#include "../../descriptor/vehicle_desc.h"
 #include "../../player/simplay.h"
 
 #include "../../utils/cbuffer_t.h"
@@ -156,8 +156,8 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	scrolly_electrics.set_show_scroll_x(false);
 	scrolly_electrics.set_size_corner(false);
 	// add only if there are any trolleybuses
-	const uint16 shifter = 1 << vehikel_besch_t::electric;
-	const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled());
+	const uint16 shifter = 1 << vehicle_desc_t::electric;
+	const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_desc()->get_enabled());
 	if(!electrics_vec.empty() && correct_traction_type) 
 	{
 		tabs.add_tab(&scrolly_electrics, translator::translate( get_electrics_name(wt) ) );
@@ -689,28 +689,28 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		double way_wear_factor = 0.0;
 
 		for(  unsigned i = 0;  i < number_of_vehicles;  i++  ) {
-			const vehikel_besch_t *besch = vehicles.get_element(i);
-			const ware_besch_t* const ware = besch->get_ware();
+			const vehicle_desc_t *desc = vehicles.get_element(i);
+			const goods_desc_t* const ware = desc->get_freight_type();
 
-			total_cost += besch->get_preis();
-			total_power += besch->get_leistung();
-			total_force += besch->get_tractive_effort();
- 			maint_per_km += besch->get_running_cost();
- 			maint_per_month += besch->get_adjusted_monthly_fixed_cost(welt);
-			way_wear_factor += (double)besch->get_way_wear_factor();
+			total_cost += desc->get_value();
+			total_power += desc->get_power();
+			total_force += desc->get_tractive_effort();
+ 			maint_per_km += desc->get_running_cost();
+ 			maint_per_month += desc->get_adjusted_monthly_fixed_cost(welt);
+			way_wear_factor += (double)desc->get_way_wear_factor();
 
 			switch(  ware->get_catg_index()  ) {
-				case warenbauer_t::INDEX_PAS: {
-					total_pax += besch->get_zuladung();
-					total_standing_pax += besch->get_overcrowded_capacity();
+				case goods_manager_t::INDEX_PAS: {
+					total_pax += desc->get_capacity();
+					total_standing_pax += desc->get_overcrowded_capacity();
 					break;
 				}
-				case warenbauer_t::INDEX_MAIL: {
-					total_mail += besch->get_zuladung();
+				case goods_manager_t::INDEX_MAIL: {
+					total_mail += desc->get_capacity();
 					break;
 				}
 				default: {
-					total_goods += besch->get_zuladung();
+					total_goods += desc->get_capacity();
 					break;
 				}
 			}
@@ -814,7 +814,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 // add all current vehicles
 void gui_convoy_assembler_t::build_vehicle_lists()
 {
-	if(vehikelbauer_t::get_info(way_type).empty()) 
+	if(vehicle_builder_t::get_info(way_type).empty()) 
 	{
 		// there are tracks etc. but now vehicles => do nothing
 		// at least initialize some data
@@ -842,17 +842,17 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 		if(electrics_vec.empty()  &&  pas_vec.empty()  &&  loks_vec.empty()  &&  waggons_vec.empty())
 		{
 			int loks = 0, waggons = 0, pax=0, electrics = 0;
-			FOR(slist_tpl<vehikel_besch_t *>, const info, vehikelbauer_t::get_info(way_type)) 
+			FOR(slist_tpl<vehicle_desc_t *>, const info, vehicle_builder_t::get_info(way_type)) 
 			{
-				if(info->get_engine_type() == vehikel_besch_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)) 
+				if(info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_freight_type()==goods_manager_t::passengers  ||  info->get_freight_type()==goods_manager_t::mail))
 				{
 					electrics++;
 				}
-				else if(info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post) 
+				else if(info->get_freight_type()==goods_manager_t::passengers  ||  info->get_freight_type()==goods_manager_t::mail)
 				{
 					pax++;
 				}
-				else if(info->get_leistung() > 0  ||  info->get_zuladung()==0) 
+				else if(info->get_power() > 0  ||  info->get_capacity()==0) 
 				{
 					loks++;
 				}
@@ -880,7 +880,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 	if(!show_all  &&  veh_action==va_sell && depot_frame) {
 		// just list the one to sell
 		FOR(slist_tpl<vehicle_t*>, const v, depot_frame->get_depot()->get_vehicle_list()) {
-			vehikel_besch_t const* const d = v->get_besch();
+			vehicle_desc_t const* const d = v->get_desc();
 			if (vehicle_map.get(d)) continue;
 			add_to_vehicle_list(d);
 		}
@@ -894,16 +894,16 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 		  depot_frame->update_data();
 		}
 
-		FOR(slist_tpl<vehikel_besch_t *>, const info, vehikelbauer_t::get_info(way_type)) 
+		FOR(slist_tpl<vehicle_desc_t *>, const info, vehicle_builder_t::get_info(way_type)) 
 		{
-			const vehikel_besch_t *veh = NULL;
+			const vehicle_desc_t *veh = NULL;
 			if(vehicles.get_count()>0) {
 				veh = (veh_action == va_insert) ? vehicles[0] : vehicles[vehicles.get_count() - 1];
 			}
 
 			// current vehicle
 			if( (depot_frame && depot_frame->get_depot()->is_contained(info))  ||
-				((way_electrified  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
+				((way_electrified  ||  info->get_engine_type()!=vehicle_desc_t::electric)  &&
 					 ((!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )  ) )) 
 			{
 				// check if allowed
@@ -921,12 +921,12 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 					}
 					if(upgrade == u_upgrade)
 					{
-						vector_tpl<const vehikel_besch_t*> vehicle_list;
+						vector_tpl<const vehicle_desc_t*> vehicle_list;
 						upgradeable = false;
 
 						if(replace_frame == NULL)
 						{
-							FOR(vector_tpl<const vehikel_besch_t*>, vehicle, vehicles)
+							FOR(vector_tpl<const vehicle_desc_t*>, vehicle, vehicles)
 							{
 								vehicle_list.append(vehicle);
 							}
@@ -935,9 +935,9 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 						{
 							const convoihandle_t cnv = replace_frame->get_convoy();
 						
-							for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
+							for(uint8 i = 0; i < cnv->get_vehicle_count(); i ++)
 							{
-								vehicle_list.append(cnv->get_vehikel(i)->get_besch());
+								vehicle_list.append(cnv->get_vehicle(i)->get_desc());
 							}
 						}
 						
@@ -946,7 +946,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 							break;
 						}
 
-						FOR(vector_tpl<const vehikel_besch_t*>, vehicle, vehicle_list)
+						FOR(vector_tpl<const vehicle_desc_t*>, vehicle, vehicle_list)
 						{
 							for(uint16 c = 0; c < vehicle->get_upgrades_count(); c++)
 							{
@@ -969,10 +969,10 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 							{
 								append = false;
 								convoihandle_t cnv = replace_frame->get_convoy();
-								const uint8 count = cnv->get_vehikel_anzahl();
+								const uint8 count = cnv->get_vehicle_count();
 								for(uint8 i = 0; i < count; i++)
 								{
-									if(cnv->get_vehikel(i)->get_besch() == info)
+									if(cnv->get_vehicle(i)->get_desc() == info)
 									{
 										append = true;
 										break;
@@ -982,10 +982,10 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 						}
 					}
 					const uint16 shifter = 1 << info->get_engine_type();
-					const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled());
+					const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_desc()->get_enabled());
 					const weg_t* way = depot_frame ? welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype()) : NULL;
 					const bool correct_way_constraint = !way || missing_way_constraints_t(info->get_way_constraints(), way->get_way_constraints()).check_next_tile();
-					if(!correct_way_constraint || (!correct_traction_type && (info->get_leistung() > 0 || (veh_action == va_insert && info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0) && info->get_vorgaenger(0)->get_leistung() > 0))))
+					if(!correct_way_constraint || (!correct_traction_type && (info->get_power() > 0 || (veh_action == va_insert && info->get_leader_count() == 1 && info->get_leader(0) && info->get_leader(0)->get_power() > 0))))
 					{
 						append = false;
 					}
@@ -1018,7 +1018,7 @@ DBG_DEBUG("gui_convoy_assembler_t::build_vehicle_lists()","finally %i passenger 
 
 
 // add a single vehicle (helper function)
-void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
+void gui_convoy_assembler_t::add_to_vehicle_list(const vehicle_desc_t *info)
 {
 	// Prevent multiple instances of the same vehicle
 	if(vehicle_map.is_contained(info))
@@ -1027,16 +1027,16 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 	}
 
 	// Check if vehicle should be filtered
-	const ware_besch_t *freight = info->get_ware();
+	const goods_desc_t *freight = info->get_freight_type();
 	// Only filter when required and never filter engines
-	if (selected_filter > 0 && info->get_zuladung() > 0) 
+	if (selected_filter > 0 && info->get_capacity() > 0) 
 	{
 		if (selected_filter == VEHICLE_FILTER_RELEVANT) 
 		{
 			if(freight->get_catg_index() >= 3) 
 			{
 				bool found = false;
-				FOR(vector_tpl<ware_besch_t const*>, const i, welt->get_goods_list()) 
+				FOR(vector_tpl<goods_desc_t const*>, const i, welt->get_goods_list()) 
 				{
 					if (freight->get_catg_index() == i->get_catg_index())
 					{
@@ -1056,7 +1056,7 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 			uint32 goods_index = selected_filter - VEHICLE_FILTER_GOODS_OFFSET;
 			if (goods_index < welt->get_goods_list().get_count()) 
 			{
-				const ware_besch_t *selected_good = welt->get_goods_list()[goods_index];
+				const goods_desc_t *selected_good = welt->get_goods_list()[goods_index];
 				if (freight->get_catg_index() != selected_good->get_catg_index()) 
 				{
 					return; // This vehicle can't transport the selected good
@@ -1111,16 +1111,16 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 	}
 	gui_image_list_t::image_data_t* img_data = new gui_image_list_t::image_data_t(info->get_name(), image);
 
-	if(  info->get_engine_type() == vehikel_besch_t::electric  &&  (info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post)  ) {
+	if(  info->get_engine_type() == vehicle_desc_t::electric  &&  (info->get_freight_type()==goods_manager_t::passengers  ||  info->get_freight_type()==goods_manager_t::mail)  ) {
 		electrics_vec.append(img_data);
 		vehicle_map.set(info, electrics_vec.back());
 	}
-	// since they come "pre-sorted" for the vehikelbauer, we have to do nothing to keep them sorted
-	else if(info->get_ware()==warenbauer_t::passagiere  ||  info->get_ware()==warenbauer_t::post) {
+	// since they come "pre-sorted" for the vehiclebauer, we have to do nothing to keep them sorted
+	else if(info->get_freight_type()==goods_manager_t::passengers  ||  info->get_freight_type()==goods_manager_t::mail) {
 		pas_vec.append(img_data);
 		vehicle_map.set(info, pas_vec.back());
 	}
-	else if(info->get_leistung() > 0  || (info->get_zuladung()==0  && (info->get_vorgaenger_count() > 0 || info->get_nachfolger_count() > 0)))
+	else if(info->get_power() > 0  || (info->get_capacity()==0  && (info->get_leader_count() > 0 || info->get_trailer_count() > 0)))
 	{
 		loks_vec.append(img_data);
 		vehicle_map.set(info, loks_vec.back());
@@ -1142,15 +1142,15 @@ void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 		depot = depot_frame->get_depot();
 
 		const convoihandle_t cnv = depot->get_convoi(depot_frame->get_icnv());
-		if(cnv.is_bound() &&  nr<cnv->get_vehikel_anzahl() ) {
+		if(cnv.is_bound() &&  nr<cnv->get_vehicle_count() ) {
 
 			// we remove all connected vehicles together!
 			// find start
 			unsigned start_nr = nr;
 			while(start_nr>0) {
 				start_nr --;
-				const vehikel_besch_t *info = cnv->get_vehikel(start_nr)->get_besch();
-				if(info->get_nachfolger_count()!=1) {
+				const vehicle_desc_t *info = cnv->get_vehicle(start_nr)->get_desc();
+				if(info->get_trailer_count()!=1) {
 					start_nr ++;
 					break;
 				}
@@ -1171,10 +1171,10 @@ void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 
 
 
-void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_data_t* bild_data)
+void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_data_t* image_data)
 {
 	
-	const vehikel_besch_t *info = vehikelbauer_t::get_info(bild_data->text);
+	const vehicle_desc_t *info = vehicle_builder_t::get_info(image_data->text);
 
 	const convoihandle_t cnv = depot_frame ? depot_frame->get_depot()->get_convoi(depot_frame->get_icnv()) : replace_frame->get_convoy();
 	
@@ -1188,15 +1188,15 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 	if(depot_frame)
 	{
 		depot_t *depot = depot_frame->get_depot();
-		if(bild_data->lcolor != COL_RED &&
-			bild_data->rcolor != COL_RED &&
-			bild_data->rcolor != COL_GREY3 &&
-			bild_data->lcolor != COL_GREY3 &&
-			bild_data->rcolor != COL_DARK_PURPLE &&
-			bild_data->lcolor != COL_DARK_PURPLE &&
-			bild_data->rcolor != COL_PURPLE &&
-			bild_data->lcolor != COL_PURPLE &&
-			!((bild_data->lcolor == COL_DARK_ORANGE || bild_data->rcolor == COL_DARK_ORANGE)
+		if(image_data->lcolor != COL_RED &&
+			image_data->rcolor != COL_RED &&
+			image_data->rcolor != COL_GREY3 &&
+			image_data->lcolor != COL_GREY3 &&
+			image_data->rcolor != COL_DARK_PURPLE &&
+			image_data->lcolor != COL_DARK_PURPLE &&
+			image_data->rcolor != COL_PURPLE &&
+			image_data->lcolor != COL_PURPLE &&
+			!((image_data->lcolor == COL_DARK_ORANGE || image_data->rcolor == COL_DARK_ORANGE)
 			&& veh_action != va_sell
 			&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true))) 
 		{
@@ -1206,29 +1206,29 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 
 			if(veh_action == va_sell)
 			{
-				depot->call_depot_tool( 's', convoihandle_t(), bild_data->text, livery_scheme_index );
+				depot->call_depot_tool( 's', convoihandle_t(), image_data->text, livery_scheme_index );
 			}
 			else if(upgrade != u_upgrade)
 			{
-				depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, bild_data->text, livery_scheme_index );
+				depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, image_data->text, livery_scheme_index );
 			}
 			else
 			{
-				depot->call_depot_tool( 'u', cnv, bild_data->text, livery_scheme_index );
+				depot->call_depot_tool( 'u', cnv, image_data->text, livery_scheme_index );
 			}
 		}	
 	}
 	else
 	{
-		if(bild_data->lcolor != COL_RED &&
-			bild_data->rcolor != COL_RED &&
-			bild_data->rcolor != COL_GREY3 &&
-			bild_data->lcolor != COL_GREY3 &&
-			bild_data->rcolor != COL_DARK_PURPLE &&
-			bild_data->lcolor != COL_DARK_PURPLE &&
-			bild_data->rcolor != COL_PURPLE &&
-			bild_data->lcolor != COL_PURPLE &&
-			!((bild_data->lcolor == COL_DARK_ORANGE || bild_data->rcolor == COL_DARK_ORANGE)
+		if(image_data->lcolor != COL_RED &&
+			image_data->rcolor != COL_RED &&
+			image_data->rcolor != COL_GREY3 &&
+			image_data->lcolor != COL_GREY3 &&
+			image_data->rcolor != COL_DARK_PURPLE &&
+			image_data->lcolor != COL_DARK_PURPLE &&
+			image_data->rcolor != COL_PURPLE &&
+			image_data->lcolor != COL_PURPLE &&
+			!((image_data->lcolor == COL_DARK_ORANGE || image_data->rcolor == COL_DARK_ORANGE)
 			&& veh_action != va_sell
 			/*&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true)*/)) 
 		{
@@ -1272,7 +1272,7 @@ void gui_convoy_assembler_t::update_data()
 	// change green into blue for retired vehicles
 	const uint16 month_now = welt->get_timeline_year_month();
 
-	const vehikel_besch_t *veh = NULL;
+	const vehicle_desc_t *veh = NULL;
 
 	convoi_pics.clear();
 	if(vehicles.get_count() > 0) {
@@ -1281,7 +1281,7 @@ void gui_convoy_assembler_t::update_data()
 		for(i=0; i<vehicles.get_count(); i++) {
 
 			// just make sure, there is this vehicle also here!
-			const vehikel_besch_t *info=vehicles[i];
+			const vehicle_desc_t *info=vehicles[i];
 			if(vehicle_map.get(info)==NULL) {
 				add_to_vehicle_list( info );
 			}
@@ -1292,7 +1292,7 @@ void gui_convoy_assembler_t::update_data()
 			{
 				FOR(slist_tpl<vehicle_t *>, const& iter, depot_frame->get_depot()->get_vehicle_list())
 				{
-					if(iter->get_besch() == info)
+					if(iter->get_desc() == info)
 					{
 						vehicle_available = true;
 						image = info->get_base_image(iter->get_current_livery());
@@ -1303,12 +1303,12 @@ void gui_convoy_assembler_t::update_data()
 				for(unsigned int i = 0; i < depot_frame->get_depot()->convoi_count(); i ++)
 				{
 					convoihandle_t cnv = depot_frame->get_depot()->get_convoi(i);
-					for(int n = 0; n < cnv->get_vehikel_anzahl(); n ++)
+					for(int n = 0; n < cnv->get_vehicle_count(); n ++)
 					{
-						if(cnv->get_vehikel(n)->get_besch() == info)
+						if(cnv->get_vehicle(n)->get_desc() == info)
 						{
 							vehicle_available = true;
-							image = info->get_base_image(cnv->get_vehikel(n)->get_current_livery());
+							image = info->get_base_image(cnv->get_vehicle(n)->get_current_livery());
 							// Necessary to break out of double loop.
 							goto end;
 						}
@@ -1318,12 +1318,12 @@ void gui_convoy_assembler_t::update_data()
 			else if(replace_frame)
 			{
 				convoihandle_t cnv = replace_frame->get_convoy();
-				for(int n = 0; n < cnv->get_vehikel_anzahl(); n ++)
+				for(int n = 0; n < cnv->get_vehicle_count(); n ++)
 				{
-					if(cnv->get_vehikel(n)->get_besch() == info)
+					if(cnv->get_vehicle(n)->get_desc() == info)
 					{
 						vehicle_available = true;
-						image = info->get_base_image(cnv->get_vehikel(n)->get_current_livery());
+						image = info->get_base_image(cnv->get_vehicle(n)->get_current_livery());
 						break;
 					}
 				}
@@ -1402,7 +1402,7 @@ void gui_convoy_assembler_t::update_data()
 	
 	FOR(vehicle_image_map, const& i, vehicle_map) 
 	{
-		vehikel_besch_t const* const    info = i.key;
+		vehicle_desc_t const* const    info = i.key;
 		gui_image_list_t::image_data_t& img  = *i.value;
 
 		const uint8 ok_color = info->is_future(month_now) || info->is_retired(month_now) ? COL_DARK_BLUE : COL_DARK_GREEN;
@@ -1445,7 +1445,7 @@ void gui_convoy_assembler_t::update_data()
 				// Only flag as too expensive that which could be purchased but for its price.
 				if(upgrade == u_buy)
 				{
-					if(!player->can_afford(info->get_preis()))
+					if(!player->can_afford(info->get_value()))
 					{
 						img.lcolor = COL_DARK_ORANGE;
 						img.rcolor = COL_DARK_ORANGE;
@@ -1459,11 +1459,11 @@ void gui_convoy_assembler_t::update_data()
 						img.rcolor = COL_DARK_ORANGE;
 					}
 				}
-				if(depot_frame && (i.key->get_leistung() > 0 || veh_action == va_insert && i.key->get_vorgaenger_count() == 1 && i.key->get_vorgaenger(0) && i.key->get_vorgaenger(0)->get_leistung() > 0))
+				if(depot_frame && (i.key->get_power() > 0 || veh_action == va_insert && i.key->get_leader_count() == 1 && i.key->get_leader(0) && i.key->get_leader(0)->get_power() > 0))
 				{
 					const uint16 traction_type = i.key->get_engine_type();
 					const uint16 shifter = 1 << traction_type;
-					if(!(shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled()))
+					if(!(shifter & depot_frame->get_depot()->get_tile()->get_desc()->get_enabled()))
 					{
 						// Do not allow purchasing of vehicle if depot is of the wrong type.
 						img.lcolor = COL_RED;
@@ -1502,7 +1502,7 @@ void gui_convoy_assembler_t::update_data()
 			//Check whether there are any vehicles to upgrade
 			img.lcolor = COL_DARK_PURPLE;
 			img.rcolor = COL_DARK_PURPLE;
-			vector_tpl<const vehikel_besch_t*> vehicle_list;
+			vector_tpl<const vehicle_desc_t*> vehicle_list;
 
 			//if(replace_frame == NULL)
 			//{
@@ -1515,9 +1515,9 @@ void gui_convoy_assembler_t::update_data()
 			//{
 			//	const convoihandle_t cnv = replace_frame->get_convoy();
 			//
-			//	for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
+			//	for(uint8 i = 0; i < cnv->get_vehicle_count(); i ++)
 			//	{
-			//		vehicle_list.append(cnv->get_vehikel(i)->get_besch());
+			//		vehicle_list.append(cnv->get_vehicle(i)->get_desc());
 			//	}
 			//}
 
@@ -1605,10 +1605,10 @@ void gui_convoy_assembler_t::update_data()
 				{
 					purple = true;
 					convoihandle_t cnv = replace_frame->get_convoy();
-					const uint8 count = cnv->get_vehikel_anzahl();
+					const uint8 count = cnv->get_vehicle_count();
 					for(uint8 i = 0; i < count; i++)
 					{
-						if(cnv->get_vehikel(i)->get_besch() == info)
+						if(cnv->get_vehicle(i)->get_desc() == info)
 						{
 							purple = false;
 							break;
@@ -1630,7 +1630,7 @@ DBG_DEBUG("gui_convoy_assembler_t::update_data()","current %s with colors %i,%i"
 	{
 		FOR(slist_tpl<vehicle_t *>, const& iter2, depot_frame->get_depot()->get_vehicle_list())
 		{
-			gui_image_list_t::image_data_t *imgdat=vehicle_map.get(iter2->get_besch());
+			gui_image_list_t::image_data_t *imgdat=vehicle_map.get(iter2->get_desc());
 			// can fail, if currently not visible
 			if(imgdat) 
 			{
@@ -1659,7 +1659,7 @@ void gui_convoy_assembler_t::update_tabs()
 	}
 	else if(replace_frame)
 	{
-		wt = replace_frame->get_convoy()->get_vehikel(0)->get_waytype();
+		wt = replace_frame->get_convoy()->get_vehicle(0)->get_waytype();
 	}
 	else
 	{
@@ -1684,8 +1684,8 @@ void gui_convoy_assembler_t::update_tabs()
 	scrolly_electrics.set_show_scroll_x(false);
 	scrolly_electrics.set_size_corner(false);
 	// add only if there are any trolleybuses
-	const uint16 shifter = 1 << vehikel_besch_t::electric;
-	const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled());
+	const uint16 shifter = 1 << vehicle_desc_t::electric;
+	const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_desc()->get_enabled());
 	if(!electrics_vec.empty() && correct_traction_type) 
 	{
 		tabs.add_tab(&scrolly_electrics, translator::translate( get_electrics_name(wt) ) );
@@ -1729,7 +1729,7 @@ void gui_convoy_assembler_t::update_tabs()
 	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), SYSCOL_TEXT));
 	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Relevant"), SYSCOL_TEXT));
 
-	FOR(vector_tpl<ware_besch_t const*>, const i, welt->get_goods_list()) {
+	FOR(vector_tpl<goods_desc_t const*>, const i, welt->get_goods_list()) {
 		vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(i->get_name()), SYSCOL_TEXT));
 	}
 
@@ -1754,10 +1754,10 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		tab == &scrolly_electrics ? &electrics :
 		tab == &scrolly_loks      ? &loks      :
 		&waggons;
-	int x = get_maus_x();
-	int y = get_maus_y();
+	int x = get_mouse_x();
+	int y = get_mouse_y();
 	double resale_value = -1.0;
-	const vehikel_besch_t *veh_type = NULL;
+	const vehicle_desc_t *veh_type = NULL;
 	bool new_vehicle_length_sb_force_zero = false;
 	scr_coord relpos = scr_coord( 0, ((gui_scrollpane_t *)tabs.get_aktives_tab())->get_scroll_y() );
 	int sel_index = lst->index_at(pos + tabs.get_pos() - relpos, x, y - D_TAB_HEADER_HEIGHT);
@@ -1765,7 +1765,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 	if ((sel_index != -1) && (tabs.getroffen(x-pos.x,y-pos.y))) {
 		// cursor over a vehicle in the selection list
 		const vector_tpl<gui_image_list_t::image_data_t*>& vec = (lst == &electrics ? electrics_vec : (lst == &pas ? pas_vec : (lst == &loks ? loks_vec : waggons_vec)));
-		veh_type = vehikelbauer_t::get_info(vec[sel_index]->text);
+		veh_type = vehicle_builder_t::get_info(vec[sel_index]->text);
 		if(  vec[sel_index]->lcolor == COL_RED  ||  veh_action == va_sell  ) {
 			// don't show new_vehicle_length_sb when can't actually add the highlighted vehicle, or selling from inventory
 			new_vehicle_length_sb_force_zero = true;
@@ -1791,8 +1791,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				convoihandle_t cnv = depot_frame->get_convoy();
 				if(cnv.is_bound())
 				{
-					veh_type = cnv->get_vehikel(sel_index)->get_besch();
-					resale_value = cnv->get_vehikel(sel_index)->calc_sale_value();
+					veh_type = cnv->get_vehicle(sel_index)->get_desc();
+					resale_value = cnv->get_vehicle(sel_index)->calc_sale_value();
 				}
 				else
 				{
@@ -1827,14 +1827,14 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 
 		int n = sprintf(buf, "%s", translator::translate(veh_type->get_name(),welt->get_settings().get_name_language_id()));
 
-		if(  veh_type->get_leistung() > 0 ) { // LOCO
+		if(  veh_type->get_power() > 0 ) { // LOCO
 			n += sprintf( buf + n, " (%s)\n", translator::translate( engine_type_names[veh_type->get_engine_type()+1] ) );
 		}
 		else {
 			n += sprintf( buf + n, "\n");
 		}
 
-		if(veh_type->get_leistung() > 0) 
+		if(veh_type->get_power() > 0) 
 		{  
 			// LOCO
 			sint32 friction = convoy.get_current_friction();
@@ -1858,7 +1858,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		}
 		
 		char tmp[128];
-		money_to_string( tmp, veh_type->get_preis() / 100.0, false );
+		money_to_string( tmp, veh_type->get_value() / 100.0, false );
 		// These two lines differ from the Standard translation texts, as Standard does not have a monthly cost.
 		n += sprintf( buf + n, translator::translate("Cost: %8s\n"), tmp);
 		n += sprintf( buf + n, translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), veh_type->get_running_cost() / 100.0, veh_type->get_adjusted_monthly_fixed_cost(welt)/100.0);
@@ -1872,37 +1872,37 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		{
 			cap[0] = '\0';
 		}
-		if(  veh_type->get_zuladung() > 0  ) { // Standard translation is "Capacity: %3d%s %s\n", as Standard has no overcrowding
+		if(  veh_type->get_capacity() > 0  ) { // Standard translation is "Capacity: %3d%s %s\n", as Standard has no overcrowding
 			n += sprintf(buf + n, translator::translate("Capacity: %3d %s%s %s\n"),
-				veh_type->get_zuladung(),
+				veh_type->get_capacity(),
 				cap,
-				translator::translate( veh_type->get_ware()->get_mass() ),
-				veh_type->get_ware()->get_catg()==0 ? translator::translate( veh_type->get_ware()->get_name() ) : translator::translate( veh_type->get_ware()->get_catg_name() )
+				translator::translate( veh_type->get_freight_type()->get_mass() ),
+				veh_type->get_freight_type()->get_catg()==0 ? translator::translate( veh_type->get_freight_type()->get_name() ) : translator::translate( veh_type->get_freight_type()->get_catg_name() )
 				);
 		}
 		else {
 			n += sprintf( buf + n, "\n");
 		}
 
-		if(  veh_type->get_leistung() > 0  ) { // LOCO
+		if(  veh_type->get_power() > 0  ) { // LOCO
 			// Standard translation is "Power: %4d kW\n", as Standard has no tractive effort
-			n += sprintf( buf + n, translator::translate("Power/tractive force: %4d kW / %d kN\n"), veh_type->get_leistung(), veh_type->get_tractive_effort());
+			n += sprintf( buf + n, translator::translate("Power/tractive force: %4d kW / %d kN\n"), veh_type->get_power(), veh_type->get_tractive_effort());
 		}
 		else {
 			n += sprintf( buf + n, "\n");
 		}
 
-		n += sprintf( buf + n, "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_gewicht() / 1000.0 ); // Convert kg to tonnes
+		n += sprintf( buf + n, "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_weight() / 1000.0 ); // Convert kg to tonnes
 		if(veh_type->get_waytype() != water_wt)
 		{
-			n += sprintf( buf + n, "%s %it\n", translator::translate("Axle load:"), veh_type->get_axle_load()); // Experimental only
+			n += sprintf( buf + n, "%s %it\n", translator::translate("Axle load:"), veh_type->get_axle_load()); // Extended only
 		}
 		else
 		{
 			n += sprintf( buf + n, "\n");
 		}
-		n += sprintf( buf + n, "%s %4.1fkN\n", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0); // Experimental only
-		n += sprintf( buf + n, "%s %4.3fkN\n", translator::translate("Rolling resistance:"), veh_type->get_rolling_resistance().to_double() * (double)veh_type->get_gewicht() / 1000.0); // Experimental only
+		n += sprintf( buf + n, "%s %4.1fkN\n", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0); // Extended only
+		n += sprintf( buf + n, "%s %4.3fkN\n", translator::translate("Rolling resistance:"), veh_type->get_rolling_resistance().to_double() * (double)veh_type->get_weight() / 1000.0); // Extended only
 		
 		n += sprintf( buf + n, "%s %3d km/h", translator::translate("Max. speed:"), veh_type->get_geschw() );
 
@@ -1920,6 +1920,12 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				sprintf(tmpbuf, "Permissive %i", i);
 				n += sprintf(buf + n, "%s", translator::translate(tmpbuf));
 			}
+		}
+
+		if (veh_type->get_is_tall())
+		{
+			n += sprintf(buf + n, "\n");
+			n += sprintf(buf + n, "%s", translator::translate("Too tall for low bridges"));
 		}
 
 		display_multiline_text( pos.x + 4, pos.y + tabs.get_pos().y + tabs.get_size().h + 31 + LINESPACE*1 + 4 + 16, buf, SYSCOL_TEXT);
@@ -1942,7 +1948,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf( buf + n, "\n");
 		}
 
-		if(veh_type->get_zuladung() > 0)
+		if(veh_type->get_capacity() > 0)
 		{
 			char min_loading_time_as_clock[32];
 			char max_loading_time_as_clock[32];
@@ -1956,7 +1962,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf(buf + n, "\n");
 		}
 
-		if(veh_type->get_ware()->get_catg_index() == 0)
+		if(veh_type->get_freight_type()->get_catg_index() == 0)
 		{
 			//Comfort only applies to passengers.
 			uint8 comfort = veh_type->get_comfort();
@@ -1972,7 +1978,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 
 		if(veh_type->get_catering_level() > 0)
 		{
-			if(veh_type->get_ware()->get_catg_index() == 1)
+			if(veh_type->get_freight_type()->get_catg_index() == 1)
 			{
 				//Catering vehicles that carry mail are treated as TPOs.
 				n +=  sprintf(buf + n, "%s", translator::translate("This is a travelling post office"));
@@ -1988,7 +1994,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf( buf + n, "\n");
 		}
 
-		if(veh_type->get_tilting())
+		if (veh_type->get_tilting())
 		{
 			n += sprintf(buf + n, "%s", translator::translate("This is a tilting vehicle\n"));
 		}
@@ -2017,7 +2023,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf(buf + n, "%s: %i m \n", translator::translate("Minimum runway length"), veh_type->get_minimum_runway_length());
 		}
 
-		if(  veh_type->get_leistung() > 0  &&  veh_type->get_gear() != 64  ) {
+		if(  veh_type->get_power() > 0  &&  veh_type->get_gear() != 64  ) {
 			n += sprintf( buf + n, "%s %0.2f : 1\n", translator::translate("Gear:"), veh_type->get_gear() / 64.0 );
 		}
 		else {
@@ -2068,14 +2074,14 @@ void gui_convoy_assembler_t::set_vehicles(convoihandle_t cnv)
 {
 	clear_convoy();
 	if (cnv.is_bound()) {
-		for (uint8 i=0; i<cnv->get_vehikel_anzahl(); i++) {
-			vehicles.append(cnv->get_vehikel(i)->get_besch());
+		for (uint8 i=0; i<cnv->get_vehicle_count(); i++) {
+			vehicles.append(cnv->get_vehicle(i)->get_desc());
 		}
 	}
 }
 
 
-void gui_convoy_assembler_t::set_vehicles(const vector_tpl<const vehikel_besch_t *>* vv)
+void gui_convoy_assembler_t::set_vehicles(const vector_tpl<const vehicle_desc_t *>* vv)
 {
 	vehicles.clear();
 	vehicles.resize(vv->get_count());  // To save some memory
@@ -2151,17 +2157,17 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 	cbuf.clear();
 	cbuf.printf("%s %d (%d)", translator::translate("Capacity:"), total_pax, total_standing_pax );
 	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y , cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
-	display_color_img( skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
+	display_color_img( skinverwaltung_t::passengers->get_image_id(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 
 	w += 16;
 	cbuf.clear();
 	cbuf.printf("%d", total_mail );
 	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
-	display_color_img( skinverwaltung_t::post->get_bild_nr(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
+	display_color_img( skinverwaltung_t::mail->get_image_id(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 
 	w += 16;
 	cbuf.clear();
 	cbuf.printf("%d", total_goods );
 	w += display_proportional_clip( pos.x+offset.x + w, pos.y+offset.y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
-	display_color_img( skinverwaltung_t::waren->get_bild_nr(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
+	display_color_img( skinverwaltung_t::goods->get_image_id(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 }

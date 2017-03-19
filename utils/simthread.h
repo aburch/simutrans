@@ -15,7 +15,7 @@
 
 #if defined _MSC_VER && _MSC_VER >= 1900
 // MSVC 2015 with Windows 10 SDK has struct timespec
-#define _TIMESPEC_DEFINED
+#define HAVE_STRUCT_TIMESPEC
 #endif
 
 #if defined _MSC_VER && _MSC_VER < 1900

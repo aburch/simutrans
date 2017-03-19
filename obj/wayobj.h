@@ -14,7 +14,7 @@
 #include "../simworld.h"
 #include "../boden/grund.h"
 #include "../dataobj/ribi.h"
-#include "../besch/way_obj_besch.h"
+#include "../descriptor/way_obj_desc.h"
 #include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
@@ -32,7 +32,7 @@ class tool_selector_t;
 class wayobj_t : public obj_no_info_t
 {
 private:
-	const way_obj_besch_t *besch;
+	const way_obj_desc_t *desc;
 
 	uint8 diagonal:1;
 	uint8 hang:7;
@@ -44,13 +44,13 @@ private:
 
 
 public:
-	wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_besch_t *besch);
+	wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_desc_t *desc);
 
 	wayobj_t(loadsave_t *file);
 
 	virtual ~wayobj_t();
 
-	const way_obj_besch_t *get_besch() const {return besch;}
+	const way_obj_desc_t *get_desc() const {return desc;}
 
 	void rotate90();
 
@@ -59,8 +59,8 @@ public:
 	* @author V. Meyer
 	*/
 	image_id get_image() const {
-		return hang ? besch->get_back_slope_image_id(hang) :
-			(diagonal ? besch->get_back_diagonal_image_id(dir) : besch->get_back_image_id(dir));
+		return hang ? desc->get_back_slope_image_id(hang) :
+			(diagonal ? desc->get_back_diagonal_image_id(dir) : desc->get_back_image_id(dir));
 	}
 
 	/**
@@ -68,8 +68,8 @@ public:
 	* @author V. Meyer
 	*/
 	image_id get_front_image() const {
-		return hang ? besch->get_front_slope_image_id(hang) :
-			diagonal ? besch->get_front_diagonal_image_id(dir) : besch->get_front_image_id(dir);
+		return hang ? desc->get_front_slope_image_id(hang) :
+			diagonal ? desc->get_front_diagonal_image_id(dir) : desc->get_front_image_id(dir);
 	}
 
 	/**
@@ -86,7 +86,7 @@ public:
 	/**
 	 * waytype associated with this object
 	 */
-	waytype_t get_waytype() const { return besch ? besch->get_wtyp() : invalid_wt; }
+	waytype_t get_waytype() const { return desc ? desc->get_wtyp() : invalid_wt; }
 
 	void calc_image();
 
@@ -104,7 +104,7 @@ public:
 
 	const char*  is_deletable(const player_t *player) OVERRIDE;
 	bool clashes_with_halt() {
-		return get_besch()->get_own_wtyp() == noise_barrier_wt;
+		return get_desc()->is_noise_barrier();
 	}
 
 	/**
@@ -119,21 +119,21 @@ public:
 
 	/* the static routines */
 private:
-	static stringhashtable_tpl<way_obj_besch_t *> table;
+	static stringhashtable_tpl<way_obj_desc_t *> table;
 
 public:
-	static const way_obj_besch_t *default_oberleitung;
+	static const way_obj_desc_t *default_oberleitung;
 
 	// use this constructor; it will extend a matching existing wayobj
-	static const char *extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_besch_t *besch);
+	static const char *extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_desc_t *desc);
 
-	static bool register_besch(way_obj_besch_t *besch);
-	static bool alles_geladen();
+	static bool register_desc(way_obj_desc_t *desc);
+	static bool successfully_loaded();
 
 	// search an object (currently only used by AI for caternary)
-	static const way_obj_besch_t *wayobj_search(waytype_t wt,waytype_t own,uint16 time);
+	static const way_obj_desc_t *get_overhead_line(waytype_t wt,uint16 time);
 
-	static const way_obj_besch_t *find_besch(const char *);
+	static const way_obj_desc_t *find_desc(const char *);
 
 	/**
 	 * Fill menu with icons of given stops from the list
@@ -141,7 +141,7 @@ public:
 	 */
 	static void fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 sound_ok);
 
-	static stringhashtable_tpl<way_obj_besch_t *>* get_all_wayobjects() { return &table; }
+	static stringhashtable_tpl<way_obj_desc_t *>* get_all_wayobjects() { return &table; }
 };
 
 #endif

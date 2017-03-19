@@ -18,7 +18,7 @@
 #include "../simworld.h"
 #include "../path_explorer.h"
 #include "../bauer/wegbauer.h"
-#include "../besch/weg_besch.h"
+#include "../descriptor/way_desc.h"
 #include "../utils/simstring.h"
 #include "../utils/float32e8_t.h"
 #include "../vehicle/simvehicle.h"
@@ -26,7 +26,7 @@
 #include "loadsave.h"
 #include "tabfile.h"
 #include "translator.h"
-#include "../besch/intro_dates.h"
+#include "../descriptor/intro_dates.h"
 
 #include "../tpl/minivec_tpl.h"
 
@@ -45,10 +45,10 @@ settings_t::settings_t() :
 	pak_overrides_savegame_settings = false;
 	userdir_overrides_savegame_settings = false;
 
-	groesse_x = 256;
-	groesse_y = 256;
+	size_x = 256;
+	size_y = 256;
 
-	nummer = 33;
+	map_number = 33;
 
 	/* new setting since version 0.85.01
 	 * @author prissi
@@ -56,13 +56,13 @@ settings_t::settings_t() :
 	factory_count = 12;
 	tourist_attractions = 8;
 
-	anzahl_staedte = 8;
-	mittlere_einwohnerzahl = 1600;
+	city_count = 8;
+	mean_einwohnerzahl = 1600;
 
 	station_coverage_size = 3;
 	station_coverage_size_factories = 3;
 
-	verkehr_level = 5;
+	traffic_level = 5;
 
 	show_pax = true;
 
@@ -185,8 +185,8 @@ settings_t::settings_t() :
 	max_rerouting_interval_months = 2;
 
 	/* multiplier for steps on diagonal:
-	 * 1024: TT-like, faktor 2, vehicle will be too long and too fast
-	 * 724: correct one, faktor sqrt(2)
+	 * 1024: TT-like, factor 2, vehicle will be too long and too fast
+	 * 724: correct one, factor sqrt(2)
 	 */
 	pak_diagonal_multiplier = 724;
 
@@ -242,6 +242,7 @@ settings_t::settings_t() :
 	airport_toll_revenue_percentage = 0;
 
 	allow_underground_transformers = true;
+	disable_make_way_public = false;
 
 	// stop buildings
 	cst_multiply_dock=-50000;
@@ -267,6 +268,8 @@ settings_t::settings_t() :
 	// cost for transformers
 	cst_transformer=-250000;
 	cst_maintain_transformer=-2000;
+
+	cst_make_public_months = 60;
 
 	// costs for the way searcher
 	way_count_straight=1;
@@ -519,7 +522,7 @@ settings_t::settings_t() :
 
 void settings_t::set_default_climates()
 {
-	static sint16 borders[MAX_CLIMATES] = { 0, 0, 0, 3, 6, 8, 10, 10 };
+	static sint16 borders[MAX_CLIMATES] = { 0, -3, -2, 3, 6, 8, 10, 10 };
 	memcpy( climate_borders, borders, sizeof(sint16)*MAX_CLIMATES );
 }
 
@@ -533,10 +536,10 @@ void settings_t::rdwr(loadsave_t *file)
 	if(file->get_version() < 86000) {
 		uint32 dummy;
 
-		file->rdwr_long(groesse_x );
-		groesse_y = groesse_x;
+		file->rdwr_long(size_x );
+		size_y = size_x;
 
-		file->rdwr_long(nummer );
+		file->rdwr_long(map_number );
 
 		// to be compatible with previous savegames
 		dummy = 0;
@@ -545,18 +548,18 @@ void settings_t::rdwr(loadsave_t *file)
 		tourist_attractions = 12;
 
 		// now towns
-		mittlere_einwohnerzahl = 1600;
-		dummy =  anzahl_staedte;
+		mean_einwohnerzahl = 1600;
+		dummy =  city_count;
 		file->rdwr_long(dummy );
 		dummy &= 127;
 		if(dummy>63) {
 			dbg->warning("settings_t::rdwr()", "This game was saved with too many cities! (%i of maximum 63). Simutrans may crash!", dummy);
 		}
-		anzahl_staedte = dummy;
+		city_count = dummy;
 
 		// rest
 		file->rdwr_long(dummy );	// scroll ignored
-		file->rdwr_long(verkehr_level );
+		file->rdwr_long(traffic_level );
 		file->rdwr_long(show_pax );
 		dummy = grundwasser;
 		file->rdwr_long(dummy );
@@ -571,8 +574,8 @@ void settings_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// newer versions
-		file->rdwr_long(groesse_x );
-		file->rdwr_long(nummer );
+		file->rdwr_long(size_x );
+		file->rdwr_long(map_number );
 
 		// industries
 		file->rdwr_long(factory_count );
@@ -586,15 +589,15 @@ void settings_t::rdwr(loadsave_t *file)
 		file->rdwr_long(tourist_attractions );
 
 		// now towns
-		file->rdwr_long(mittlere_einwohnerzahl );
-		file->rdwr_long(anzahl_staedte );
+		file->rdwr_long(mean_einwohnerzahl );
+		file->rdwr_long(city_count );
 
 		// rest
 		if(file->get_version() < 101000) {
 			uint32 dummy;	// was scroll dir
 			file->rdwr_long(dummy);
 		}
-		file->rdwr_long(verkehr_level );
+		file->rdwr_long(traffic_level );
 		file->rdwr_long(show_pax );
 		sint32 dummy = grundwasser;
 		file->rdwr_long(dummy );
@@ -613,7 +616,7 @@ void settings_t::rdwr(loadsave_t *file)
 			station_coverage_size = (uint16)dummy;
 		}
 
-		if(file->get_experimental_version() >= 11)
+		if(file->get_extended_version() >= 11)
 		{
 			file->rdwr_short(station_coverage_size_factories);
 			if ( file->get_version() <= 112002) {
@@ -626,10 +629,10 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_version() >= 86006) {
 			// handle also size on y direction
-			file->rdwr_long(groesse_y );
+			file->rdwr_long(size_y );
 		}
 		else {
-			groesse_y = groesse_x;
+			size_y = size_x;
 		}
 
 		if(file->get_version() >= 86011) {
@@ -715,7 +718,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(origin_x );
 			file->rdwr_short(origin_y );
 
-			if(file->get_experimental_version() < 12)
+			if(file->get_extended_version() < 12)
 			{
 				// Was passenger factor.
 				file->rdwr_long(old_passenger_factor);
@@ -730,7 +733,7 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_long(growthfactor_small );
 				file->rdwr_long(growthfactor_medium );
 				file->rdwr_long(growthfactor_large );
-				if(file->get_experimental_version() < 12)
+				if(file->get_extended_version() < 12)
 				{
 					// Was factory_worker_percentage, tourist_percentage and factory_worker_radius.
 					uint16 dummy;
@@ -750,7 +753,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(stadtauto_duration);
 
 			file->rdwr_bool(numbered_stations);
-			if(file->get_version() <= 102002 || (file->get_experimental_version() < 8 && file->get_experimental_version() != 0))
+			if(file->get_version() <= 102002 || (file->get_extended_version() < 8 && file->get_extended_version() != 0))
 			{
 				if(file->is_loading()) 
 				{
@@ -799,7 +802,7 @@ void settings_t::rdwr(loadsave_t *file)
 			for(  int i=0;  i<15;  i++  ) {
 				file->rdwr_bool( player_active[i]);
 				file->rdwr_byte( player_type[i]);
-				if(  file->get_version()<=102002 || file->get_experimental_version() == 7) {
+				if(  file->get_version()<=102002 || file->get_extended_version() == 7) {
 					char dummy[17];
 					dummy[0] = 0;
 					file->rdwr_str(dummy, lengthof(dummy));
@@ -808,7 +811,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 			// cost section ...
 			file->rdwr_bool( freeplay);
-			if(  file->get_version()>102002 && file->get_experimental_version() != 7 ) {
+			if(  file->get_version()>102002 && file->get_extended_version() != 7 ) {
 				file->rdwr_longlong( starting_money);
 				// these must be saved, since new player will get different amounts eventually
 				for(  int i=0;  i<10;  i++  ) {
@@ -872,6 +875,10 @@ void settings_t::rdwr(loadsave_t *file)
 			// cost for transformers
 			file->rdwr_longlong(cst_transformer );
 			file->rdwr_longlong(cst_maintain_transformer );
+			if (file->get_version() > 120002 && file->get_extended_revision() >= 16 || file->get_extended_version() >= 13)
+			{
+				file->rdwr_longlong(cst_make_public_months);	
+			}
 			// wayfinder
 			file->rdwr_long(way_count_straight );
 			file->rdwr_long(way_count_curve );
@@ -906,7 +913,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_version()>101000) {
 			file->rdwr_bool( separate_halt_capacities);
-			if(file->get_experimental_version() < 2)
+			if(file->get_extended_version() < 2)
 			{
 				// Was pay for total distance.
 				// Now depracated.
@@ -947,14 +954,14 @@ void settings_t::rdwr(loadsave_t *file)
 				frames_per_step = env_t::network_frames_per_step;
 			}
 			file->rdwr_bool( allow_buying_obsolete_vehicles);
-			if(file->get_experimental_version() < 12 && (file->get_experimental_version() >= 8 || file->get_experimental_version() == 0))
+			if(file->get_extended_version() < 12 && (file->get_extended_version() >= 8 || file->get_extended_version() == 0))
 			{
 				// Was factory_worker_minimum_towns and factory_worker_maximum_towns
 				uint32 dummy;
 				file->rdwr_long(dummy);
 				file->rdwr_long(dummy);
 			}
-			if(file->get_experimental_version() >= 9 || file->get_experimental_version() == 0)
+			if(file->get_extended_version() >= 9 || file->get_extended_version() == 0)
 			{
 				// forest stuff
 				file->rdwr_byte( forest_base_size);
@@ -965,26 +972,26 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_short( tree_climates);
 				file->rdwr_short( no_tree_climates);
 				file->rdwr_bool( no_trees);
-				if(file->get_experimental_version() < 9)
+				if(file->get_extended_version() < 9)
 				{
 					sint32 dummy = 0;
 					file->rdwr_long(dummy); // Was "minimum city distance"
 				}
 				file->rdwr_long( industry_increase );
 			}
-			if(file->get_experimental_version() >= 9)
+			if(file->get_extended_version() >= 9)
 			{
 				file->rdwr_long( city_isolation_factor );
 			}
 		}
 
-		if(file->get_experimental_version() >= 1)
+		if(file->get_extended_version() >= 1)
 		{
 			uint16 min_b_max;
 			uint16 max_b_min;
 			uint16 median_b = 0;
 			uint16 max_b_percent = max_bonus_multiplier_percent;
-			if (file->get_experimental_version() >= 6 && file->get_experimental_version() < 12 && file->get_version() < 112005) {
+			if (file->get_extended_version() >= 6 && file->get_extended_version() < 12 && file->get_version() < 112005) {
 				// These were in tiles.
 				min_b_max = (sint32) min_bonus_max_distance * 1000 / meters_per_tile;
 				median_b = (sint32) median_bonus_distance * 1000 / meters_per_tile;
@@ -999,7 +1006,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(min_b_max);
 			file->rdwr_short(max_b_min);
 
-			if(file->get_experimental_version() == 1)
+			if(file->get_extended_version() == 1)
 			{
 				uint16 dummy;
 				file->rdwr_short(dummy);
@@ -1009,11 +1016,11 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_short(median_b);
 
 				file->rdwr_short(max_b_percent);
-				if(file->get_experimental_version() <= 9)
+				if(file->get_extended_version() <= 9)
 				{
 					uint16 distance_per_tile_integer = meters_per_tile / 10;
 					file->rdwr_short(distance_per_tile_integer);
-					if(file->get_experimental_version() < 5 && file->get_experimental_version() >= 1)
+					if(file->get_extended_version() < 5 && file->get_extended_version() >= 1)
 					{
 						// In earlier versions, the default was set to a higher level. This
 						// is a problem when the new journey time tolerance features is used.
@@ -1075,7 +1082,7 @@ void settings_t::rdwr(loadsave_t *file)
 				}
 			}
 
-			if (file->get_experimental_version() >= 6 && file->get_experimental_version() < 11 && file->get_version() < 112005)
+			if (file->get_extended_version() >= 6 && file->get_extended_version() < 11 && file->get_version() < 112005)
 			{
 				// These were in tiles.
 				min_bonus_max_distance = (sint32) min_b_max * meters_per_tile / 1000;
@@ -1095,7 +1102,7 @@ void settings_t::rdwr(loadsave_t *file)
 
 			float32e8_t distance_per_tile(meters_per_tile, 1000);
 
-			if(file->get_experimental_version() < 6)
+			if(file->get_extended_version() < 6)
 			{
 				// Scale the costs to match the scale factor.
 				// Note that this will fail for attempts to save in the old format.
@@ -1112,9 +1119,9 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short(obsolete_running_cost_increase_percent);
 			file->rdwr_short(obsolete_running_cost_increase_phase_years);
 
-			if(file->get_experimental_version() >= 9)
+			if(file->get_extended_version() >= 9)
 			{
-				if (file->get_experimental_version() < 12)
+				if (file->get_extended_version() < 12)
 				{
 					// Was formerly passenger distance ranges, now deprecated.
 					uint32 dummy = 0;
@@ -1138,7 +1145,7 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 
 			file->rdwr_byte(passenger_routing_packet_size);
-			if(file->get_experimental_version() >= 12)
+			if(file->get_extended_version() >= 12)
 			{
 				file->rdwr_short(max_alternative_destinations_commuting);
 				file->rdwr_short(max_alternative_destinations_visiting);
@@ -1154,14 +1161,14 @@ void settings_t::rdwr(loadsave_t *file)
 					max_alternative_destinations_visiting = max_alternative_destinations_commuting = (uint16)eight_bit_alternative_destinations;
 				}
 			}
-			if(file->get_experimental_version() < 12)
+			if(file->get_extended_version() < 12)
 			{
 				// Was passenger_routing_local_chance and passenger_routing_midrange_chance
 				uint8 dummy;
 				file->rdwr_byte(dummy);
 				file->rdwr_byte(dummy);
 			}
-			if(file->get_experimental_version() < 11)
+			if(file->get_extended_version() < 11)
 			{
 				// Was base_car_preference_percent
 				uint8 dummy = 0;
@@ -1197,7 +1204,7 @@ void settings_t::rdwr(loadsave_t *file)
 					dbg->fatal("settings_t::rdwr", "Invalid waytype");
 				}
 
-				if(file->get_experimental_version() >= 12)
+				if(file->get_extended_version() >= 12)
 				{
 #ifdef SPECIAL_RESCUE_12_4
 					if(file->is_saving())
@@ -1220,7 +1227,7 @@ void settings_t::rdwr(loadsave_t *file)
 					sint8 dummy_byte = 0;
 					file->rdwr_long(dummy);
 					file->rdwr_long(dummy);
-					if(file->get_experimental_version() < 10)
+					if(file->get_extended_version() < 10)
 					{
 						double dummy_double;
 						file->rdwr_double(dummy_double);
@@ -1234,15 +1241,15 @@ void settings_t::rdwr(loadsave_t *file)
 					file->rdwr_byte(dummy_byte);
 					file->rdwr_byte(dummy_byte);
 				}
-				if(file->get_experimental_version() >= 10)
+				if(file->get_extended_version() >= 10)
 				{
 					file->rdwr_byte(curve_friction_factor[waytype_t(wt)]);
 				}
 			}
 #ifdef SPECIAL_RESCUE_12_4
-			if(file->get_experimental_version() >= 12 && file->is_saving())
+			if(file->get_extended_version() >= 12 && file->is_saving())
 #else
-			if(file->get_experimental_version() >= 12)
+			if(file->get_extended_version() >= 12)
 #endif
 			{
 				file->rdwr_long(tilting_min_radius_effect);
@@ -1254,7 +1261,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_bool(allow_bankruptcy);
 			file->rdwr_bool(allow_purchases_when_insolvent);
 
-			if(file->get_experimental_version() >= 11)
+			if(file->get_extended_version() >= 11)
 			{
 				file->rdwr_long(unit_reverse_time);
 				file->rdwr_long(hauled_reverse_time);
@@ -1297,10 +1304,10 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 		}
 
-		if(file->get_experimental_version() >= 2)
+		if(file->get_extended_version() >= 2)
 		{
 			file->rdwr_short(global_power_factor_percent);
-			if(file->get_experimental_version() <= 7)
+			if(file->get_extended_version() <= 7)
 			{
 				uint16 old_passenger_max_wait;
 				file->rdwr_short(old_passenger_max_wait);
@@ -1313,9 +1320,9 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(max_rerouting_interval_months);
 		}
 
-		if(file->get_experimental_version() >= 3)
+		if(file->get_extended_version() >= 3)
 		{
-			if(file->get_experimental_version() < 7)
+			if(file->get_extended_version() < 7)
 			{
 				// Was city weight factor. Now replaced by a more
 				// sophisticated customisable city growth from Standard.
@@ -1334,19 +1341,19 @@ void settings_t::rdwr(loadsave_t *file)
 			enforce_weight_limits = enforce_weight_limits == 0 ? 0 : 1;
 		}
 		
-		if(file->get_experimental_version() >= 4 && file->get_experimental_version() < 10)
+		if(file->get_extended_version() >= 4 && file->get_extended_version() < 10)
 		{
 			uint8 dummy;
 			file->rdwr_byte(dummy);
 		}
 
-		if(file->get_experimental_version() >= 5)
+		if(file->get_extended_version() >= 5)
 		{
 			file->rdwr_short(min_visiting_tolerance);
 			file->rdwr_short(range_commuting_tolerance);
 			file->rdwr_short(min_commuting_tolerance);
 			file->rdwr_short(range_visiting_tolerance);
-			if(file->get_experimental_version() < 12)
+			if(file->get_extended_version() < 12)
 			{
 				// Was min_longdistance_tolerance and max_longdistance_tolerance
 				uint16 dummy;
@@ -1366,9 +1373,9 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_short( used_vehicle_reduction );
 		}
 		
-		if(file->get_experimental_version() >= 8)
+		if(file->get_extended_version() >= 8)
 		{
-			if(file->get_experimental_version() < 11)
+			if(file->get_extended_version() < 11)
 			{
 				uint16 dummy = 0;
 				file->rdwr_short(dummy);
@@ -1407,10 +1414,10 @@ void settings_t::rdwr(loadsave_t *file)
 		 
 		if(  file->get_version()>=110007  ) 
 		{
-			if(file->get_experimental_version() == 0 )
+			if(file->get_extended_version() == 0 )
 			{
 				// Unfortunately, with this new system from Standard, it is no longer possible
-				// to parse these values in a way that makes sense to Experimental. This must
+				// to parse these values in a way that makes sense to Extended. This must
 				// be maintained to retain saved game compatibility only.
 				uint32 dummy_32 = 0;
 				uint16 dummy_16 = 0;
@@ -1422,7 +1429,7 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 		}
 		
-		if(file->get_experimental_version() >= 10 || (file->get_experimental_version() == 0 && file->get_version() >= 110007))
+		if(file->get_extended_version() >= 10 || (file->get_extended_version() == 0 && file->get_version() >= 110007))
 		{
 			file->rdwr_bool( drive_on_left );
 			file->rdwr_bool( signals_on_left );
@@ -1432,7 +1439,7 @@ void settings_t::rdwr(loadsave_t *file)
 		{
 			file->rdwr_long( way_toll_runningcost_percentage );
 			file->rdwr_long( way_toll_waycost_percentage );
-			if(file->get_experimental_version() >= 10)
+			if(file->get_extended_version() >= 10)
 			{
 				file->rdwr_long(way_toll_revenue_percentage);
 				file->rdwr_long(seaport_toll_revenue_percentage);
@@ -1440,7 +1447,7 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 		}
 
-		if (file->get_experimental_version() >= 9 && file->get_version() >= 110006) 
+		if (file->get_extended_version() >= 9 && file->get_version() >= 110006) 
 		{
 			file->rdwr_byte(spacing_shift_mode);
 			file->rdwr_short(spacing_shift_divisor);
@@ -1475,7 +1482,7 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 		}
 
-		if(file->get_experimental_version() >= 10)
+		if(file->get_extended_version() >= 10)
 		{
 			file->rdwr_bool(allow_routing_on_foot);
 			file->rdwr_short(min_wait_airport);
@@ -1489,7 +1496,7 @@ void settings_t::rdwr(loadsave_t *file)
 			}
 		}
 
-		if(file->get_experimental_version() >= 11)
+		if(file->get_extended_version() >= 11)
 		{
 			file->rdwr_longlong(private_car_toll_per_km);
 			file->rdwr_bool(towns_adopt_player_roads);
@@ -1505,14 +1512,14 @@ void settings_t::rdwr(loadsave_t *file)
 			walking_speed = 5;
 		}
 
-		if(file->get_version()>=111002 && file->get_experimental_version() == 0) 
+		if(file->get_version()>=111002 && file->get_extended_version() == 0) 
 		{
 			// Was bonus_basefactor
 			uint32 dummy = 0;
 			file->rdwr_long(dummy);
 		}
 
-		if(file->get_experimental_version() >= 10 && file->get_version() >= 111002)
+		if(file->get_extended_version() >= 10 && file->get_version() >= 111002)
 		{
 			file->rdwr_long(max_small_city_size);
 			file->rdwr_long(max_city_size);
@@ -1545,19 +1552,24 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_longlong( cst_alter_climate );
 			file->rdwr_byte( way_height_clearance );
 		}
-		if(  file->get_version()>=120002 && file->get_experimental_version() == 0 ) {
+		if(  file->get_version()>=120002 && file->get_extended_version() == 0 ) {
 			uint32 default_ai_construction_speed;
 			file->rdwr_long( default_ai_construction_speed );
 			// This feature is used in Standard only
 		}
-		if(  file->get_version() >=120002 && (file->get_experimental_revision() >= 9 || file->get_experimental_version() == 0 )) {
+		if(  file->get_version() >=120002 && (file->get_extended_revision() >= 9 || file->get_extended_version() == 0 )) {
 			file->rdwr_bool(lake);
 			file->rdwr_bool(no_trees);
 			file->rdwr_long(max_choose_route_steps );
 		// otherwise the default values of the last one will be used
 		}
 
-		if(file->get_experimental_version() >= 12)
+		if (file->get_version() > 120003 && file->get_extended_revision() >= 17 || file->get_extended_version() >= 13)
+		{
+			file->rdwr_bool(disable_make_way_public);
+		}
+
+		if(file->get_extended_version() >= 12)
 		{
 			file->rdwr_short(population_per_level);
 			file->rdwr_short(visitor_demand_per_level);
@@ -1608,24 +1620,24 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(way_wear_power_factor_rail_type);
 			file->rdwr_short(standard_axle_load); 
 			file->rdwr_long(citycar_way_wear_factor);
-			if(file->get_experimental_revision() >= 2)
+			if(file->get_extended_revision() >= 2)
 			{
 				file->rdwr_long(sighting_distance_meters);
 				sighting_distance_tiles = sighting_distance_meters / meters_per_tile;
 				file->rdwr_long(assumed_curve_radius_45_degrees);
 			}
-			if(file->get_experimental_revision() >= 3)
+			if(file->get_extended_revision() >= 3)
 			{
 				file->rdwr_long(max_speed_drive_by_sight_kmh); 
 				max_speed_drive_by_sight = kmh_to_speed(max_speed_drive_by_sight_kmh);
 			}
 #endif
-			if(file->get_experimental_revision() >= 5)
+			if(file->get_extended_revision() >= 5)
 			{
 				file->rdwr_short(global_force_factor_percent);
 			}
 
-			if(file->get_experimental_revision() >= 6)
+			if(file->get_extended_revision() >= 6)
 			{
 				file->rdwr_long(time_interval_seconds_to_clear);
 				file->rdwr_long(time_interval_seconds_to_caution);
@@ -1635,7 +1647,7 @@ void settings_t::rdwr(loadsave_t *file)
 				time_interval_seconds_to_clear = 600;
 				time_interval_seconds_to_caution = 300;
 			}
-			if(file->get_experimental_revision() >= 7)
+			if(file->get_extended_revision() >= 7)
 			{
 				file->rdwr_long(town_road_speed_limit);
 			}
@@ -1871,6 +1883,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	drive_on_left = contents.get_int("drive_left", drive_on_left );
 	signals_on_left = contents.get_int("signals_on_left", signals_on_left );
 	allow_underground_transformers = contents.get_int( "allow_underground_transformers", allow_underground_transformers )!=0;
+	disable_make_way_public = contents.get_int("disable_make_way_public", disable_make_way_public) != 0;
 
 	// up to ten rivers are possible
 	for(  int i = 0;  i<10;  i++  ) {
@@ -1912,7 +1925,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 					p++;
 				}
 				tstrncpy( city_roads[num_city_roads].name, test, (unsigned)(p-test)+1 );
-				// default her: intro/retire=0 -> set later to intro/retire of way-besch
+				// default her: intro/retire=0 -> set later to intro/retire of way-desc
 				city_roads[num_city_roads].intro = 0;
 				city_roads[num_city_roads].retire = 0;
 				if(  *p==','  ) {
@@ -1965,7 +1978,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 					p++;
 				}
 				tstrncpy( intercity_roads[num_intercity_roads].name, test, (unsigned)(p-test)+1 );
-				// default her: intro/retire=0 -> set later to intro/retire of way-besch
+				// default her: intro/retire=0 -> set later to intro/retire of way-desc
 				intercity_roads[num_intercity_roads].intro = 0;
 				intercity_roads[num_intercity_roads].retire = 0;
 				if(  *p==','  ) {
@@ -2027,7 +2040,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	random_pedestrians = contents.get_int("random_pedestrians", random_pedestrians ) != 0;
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;
-	verkehr_level = contents.get_int("citycar_level", verkehr_level );
+	traffic_level = contents.get_int("citycar_level", traffic_level );
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration );	// ten normal years
 	allow_buying_obsolete_vehicles = contents.get_int("allow_buying_obsolete_vehicles", allow_buying_obsolete_vehicles );
 	used_vehicle_reduction  = clamp( contents.get_int("used_vehicle_reduction", used_vehicle_reduction ), 0, 1000 );
@@ -2191,7 +2204,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	if (new_cost_multiply_airterminal > 0) {
 		cst_multiply_airterminal = new_cost_multiply_airterminal * -100 * distance_per_tile;
 	}
-	// "post" is auxiliary station buildings
+	// "mail" is auxiliary station buildings
 	sint64 new_cost_multiply_post = contents.get_int64("cost_multiply_post", -1);
 	if (new_cost_multiply_post > 0) {
 		cst_multiply_post = new_cost_multiply_post * -100 * distance_per_tile;
@@ -2207,7 +2220,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	// Set slope or alter it the "cheaper" way.
 	// This *should* be adjusted for distance per tile, because it's actually distance-based.
-	// But we weren't adjusting it before experimental version 12.
+	// But we weren't adjusting it before extended version 12.
 	// We do not attempt to correct saved games as this was part of the "game balance" involved
 	// with that game.  A save game can be changed using the override options.
 	sint64 new_cost_alter_land = contents.get_int64("cost_alter_land", -1);
@@ -2250,6 +2263,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	//   It should be possible to override this in .dat files, but it isn't
 	cst_transformer = contents.get_int64("cost_transformer", cst_transformer/(-100) ) * -100;
 	cst_maintain_transformer = contents.get_int64("cost_maintain_transformer", cst_maintain_transformer/(-100) ) * -100;
+
+	cst_make_public_months = contents.get_int64("cost_make_public_months", cst_make_public_months);
 
 	/* now the way builder */
 	way_count_straight = contents.get_int("way_straight", way_count_straight );
@@ -2667,15 +2682,15 @@ sint64 settings_t::get_starting_money(sint16 const year) const
 
 
 /**
- * returns newest way-besch for road_timeline_t arrays
+ * returns newest way-desc for road_timeline_t arrays
  * @param road_timeline_t must be an array with at least num_roads elements, no range checks!
  */
-static const weg_besch_t *get_timeline_road_type( uint16 year, uint16 num_roads, road_timeline_t* roads)
+static const way_desc_t *get_timeline_road_type( uint16 year, uint16 num_roads, road_timeline_t* roads)
 {
-	const weg_besch_t *besch = NULL;
-	const weg_besch_t *test;
+	const way_desc_t *desc = NULL;
+	const way_desc_t *test;
 	for(  int i=0;  i<num_roads;  i++  ) {
-		test = wegbauer_t::get_besch( roads[i].name, 0 );
+		test = way_builder_t::get_desc( roads[i].name, 0 );
 		if(  test  ) {
 			// return first available for no timeline
 			if(  year==0  ) {
@@ -2694,23 +2709,23 @@ static const weg_besch_t *get_timeline_road_type( uint16 year, uint16 num_roads,
 			}
 			// find newest available ...
 			if(  year>=roads[i].intro  &&  year<roads[i].retire  ) {
-				if(  besch==0  ||  besch->get_intro_year_month()<test->get_intro_year_month()  ) {
-					besch = test;
+				if(  desc==0  ||  desc->get_intro_year_month()<test->get_intro_year_month()  ) {
+					desc = test;
 				}
 			}
 		}
 	}
-	return besch;
+	return desc;
 }
 
 
-weg_besch_t const* settings_t::get_city_road_type(uint16 const year)
+way_desc_t const* settings_t::get_city_road_type(uint16 const year)
 {
 	return get_timeline_road_type(year, num_city_roads, city_roads);
 }
 
 
-weg_besch_t const* settings_t::get_intercity_road_type(uint16 const year)
+way_desc_t const* settings_t::get_intercity_road_type(uint16 const year)
 {
 	return get_timeline_road_type(year, num_intercity_roads, intercity_roads);
 }
@@ -2940,13 +2955,13 @@ void settings_t::cache_comfort_tables() {
 
 /**
  * Reload the linear interpolation tables for speedbonus from the settings.
- * These tables are stored directly in ware_besch_t objects.
- * Therefore, during loading you must call this *after* warenbauer_t is done registering wares.
+ * These tables are stored directly in goods_desc_t objects.
+ * Therefore, during loading you must call this *after* goods_manager_t is done registering wares.
  * @author neroden
  */
 void settings_t::cache_speedbonuses() {
 	// There is one speedbonus table for each good, so defer most of the work
-	// to warenbauer_t.
+	// to goods_manager_t.
 
 	// Sanity-check the settings, and fix them if they're broken.
 	if (median_bonus_distance) {
@@ -2972,7 +2987,7 @@ void settings_t::cache_speedbonuses() {
 	uint16 multiplier = (uint16) max_bonus_multiplier_percent;
 
 	// Do the work.
-	warenbauer_t::cache_speedbonuses(min_d, med_d, max_d, multiplier);
+	goods_manager_t::cache_speedbonuses(min_d, med_d, max_d, multiplier);
 }
 
 // Returns *scaled* values.

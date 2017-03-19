@@ -4,7 +4,7 @@
 #include "components/gui_component.h"
 #include "../halthandle_t.h"
 #include "../convoihandle_t.h"
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../tpl/array2d_tpl.h"
 #include "../tpl/vector_tpl.h"
 
@@ -75,14 +75,12 @@ private:
 
 	void set_relief_color_clip( sint16 x, sint16 y, uint8 color );
 
-	void set_relief_farbe_area(koord k, int areasize, uint8 color);
-
 	// all stuff connected with schedule display
 	class line_segment_t
 	{
 	public:
 		koord start, end;
-		schedule_t *fpl;
+		schedule_t *schedule;
 		player_t *player;
 		waytype_t waytype;
 		uint8 colorcount;
@@ -91,7 +89,7 @@ private:
 		bool start_diagonal;
 		line_segment_t() {}
 		line_segment_t( koord s, uint8 so, koord e, uint8 eo, schedule_t *f, player_t *p, uint8 cc, bool diagonal ) {
-			fpl = f;
+			schedule = f;
 			waytype = f->get_waytype();
 			player = p;
 			colorcount = cc;

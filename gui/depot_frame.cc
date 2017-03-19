@@ -27,16 +27,16 @@
 #include "../simskin.h"
 #include "../utils/simrandom.h"
 
-#include "../besch/haus_besch.h"
+#include "../descriptor/building_desc.h"
 
 
-#include "fahrplan_gui.h"
+#include "schedule_gui.h"
 #include "line_management_gui.h"
 #include "line_item.h"
 #include "convoy_item.h"
 #include "messagebox.h"
 
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 
@@ -156,11 +156,11 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_component(&convoy_assembler);
 
 	cbuffer_t txt_traction_types;
-	if(depot->get_tile()->get_besch()->get_enabled() == 0)
+	if(depot->get_tile()->get_desc()->get_enabled() == 0)
 	{
 		txt_traction_types.printf("%s", translator::translate("Unpowered vehicles only"));
 	}
-	else if(depot->get_tile()->get_besch()->get_enabled() == 65535)
+	else if(depot->get_tile()->get_desc()->get_enabled() == 65535)
 	{
 		txt_traction_types.printf("%s", translator::translate("All traction types"));
 	}
@@ -168,10 +168,10 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	{
 		uint16 shifter;
 		bool first = true;
-		for(uint16 i = 0; i < (vehikel_besch_t::MAX_TRACTION_TYPE - 1); i ++)
+		for(uint16 i = 0; i < (vehicle_desc_t::MAX_TRACTION_TYPE - 1); i ++)
 		{
 			shifter = 1 << i;
-			if((shifter & depot->get_tile()->get_besch()->get_enabled()))
+			if((shifter & depot->get_tile()->get_desc()->get_enabled()))
 			{
 				if(first)
 				{
@@ -182,7 +182,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 				{
 					txt_traction_types.printf(", ");
 				}
-				txt_traction_types.printf("%s", translator::translate(vehikel_besch_t::get_engine_type((vehikel_besch_t::engine_t)i)));
+				txt_traction_types.printf("%s", translator::translate(vehicle_desc_t::get_engine_type((vehicle_desc_t::engine_t)i)));
 			}
 		}
 	}
@@ -227,6 +227,7 @@ void depot_frame_t::layout(scr_size *size)
 	placement.y = depot->get_y_placement() * get_base_tile_raster_width() / 64 + 2;
 	grid_dx = depot->get_x_grid() * get_base_tile_raster_width() / 64 / 2;
 	placement_dx = depot->get_x_grid() * get_base_tile_raster_width() / 64 / 4;
+	*/
 
 	/*
 	*	Dialog format:
@@ -493,11 +494,11 @@ void depot_frame_t::update_data()
 }
 
 
-sint64 depot_frame_t::calc_sale_value(const vehikel_besch_t *veh_type)
+sint64 depot_frame_t::calc_sale_value(const vehicle_desc_t *veh_type)
 {
 	sint64 wert = 0;
 	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
-		if(  v->get_besch() == veh_type  ) {
+		if(  v->get_desc() == veh_type  ) {
 			wert += v->calc_sale_value();
 		}
 	}
@@ -529,16 +530,16 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 				// promote existing individual schedule to line
 				cbuffer_t buf;
 				if(  cnv.is_bound()  &&  !selected_line.is_bound()  ) {
-					schedule_t* fpl = cnv->get_schedule();
-					if(  fpl  ) {
-						fpl->sprintf_schedule( buf );
+					schedule_t* schedule = cnv->get_schedule();
+					if(  schedule  ) {
+						schedule->sprintf_schedule( buf );
 					}
 				}
 				depot->call_depot_tool('l', convoihandle_t(), buf);
 				return true;
 			}
 			else {
-				fahrplaneingabe();
+				open_schedule_editor();
 				return true;
 			}
 		} else if(comp == &bt_destroy) {
@@ -615,9 +616,9 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 					// promote existing individual schedule to line
 					cbuffer_t buf;
 					if(  cnv.is_bound()  &&  !selected_line.is_bound()  ) {
-						schedule_t* fpl = cnv->get_schedule();
-						if(  fpl  ) {
-							fpl->sprintf_schedule( buf );
+						schedule_t* schedule = cnv->get_schedule();
+						if(  schedule  ) {
+							schedule->sprintf_schedule( buf );
 						}
 					}
 					line_selector.set_focusable( false );
@@ -792,7 +793,7 @@ void depot_frame_t::apply_line()
 			// sometimes the user might wish to remove convoy from line
 			// => we clear the schedule completely
 			schedule_t *dummy = cnv->create_schedule()->copy();
-			dummy->eintrag.clear();
+			dummy->entries.clear();
 
 			cbuffer_t buf;
 			dummy->sprintf_schedule(buf);
@@ -804,19 +805,19 @@ void depot_frame_t::apply_line()
 }
 
 
-void depot_frame_t::fahrplaneingabe()
+void depot_frame_t::open_schedule_editor()
 {
 	convoihandle_t cnv = depot->get_convoi( icnv );
 
-	if(  cnv.is_bound()  &&  cnv->get_vehikel_anzahl() > 0  ) {
+	if(  cnv.is_bound()  &&  cnv->get_vehicle_count() > 0  ) {
 		if(  selected_line.is_bound()  &&  event_get_last_control_shift() == 2  ) { // update line with CTRL-click
 			create_win( new line_management_gui_t( selected_line, depot->get_owner() ), w_info, (ptrdiff_t)selected_line.get_rep() );
 		}
 		else { // edit individual schedule
 			// this can happen locally, since any update of the schedule is done during closing window
-			schedule_t *fpl = cnv->create_schedule();
-			assert(fpl!=NULL);
-			gui_frame_t *fplwin = win_get_magic( (ptrdiff_t)fpl );
+			schedule_t *schedule = cnv->create_schedule();
+			assert(schedule!=NULL);
+			gui_frame_t *fplwin = win_get_magic( (ptrdiff_t)schedule );
 			if(  fplwin == NULL  ) {
 				cnv->open_schedule_window( welt->get_active_player() == cnv->get_owner() );
 			}
@@ -841,7 +842,7 @@ bool depot_frame_t::check_way_electrified(bool init)
 	}
 	if( way_electrified ) 
 	{
-		//img_bolt.set_image(skinverwaltung_t::electricity->get_bild_nr(0));
+		//img_bolt.set_image(skinverwaltung_t::electricity->get_image_id(0));
 	}
 
 	else

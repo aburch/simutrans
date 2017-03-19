@@ -12,7 +12,7 @@
 #include "simcity.h"
 #include "obj/signal.h"
 #include "boden/wege/weg.h"
-#include "besch/haus_besch.h"
+#include "descriptor/building_desc.h"
 #include "simdebug.h"
 #include "simtool.h"
 
@@ -32,10 +32,10 @@ signalbox_t::signalbox_t(loadsave_t *file) : gebaeude_t(file)
 }
 
 #ifdef INLINE_OBJ_TYPE
-signalbox_t::signalbox_t(koord3d pos, player_t *player, const haus_tile_besch_t *t) :
+signalbox_t::signalbox_t(koord3d pos, player_t *player, const building_tile_desc_t *t) :
     gebaeude_t(signalbox, pos, player, t)
 #else
-signalbox_t::signalbox_t(koord3d pos, player_t *player, const haus_tile_besch_t *t) :
+signalbox_t::signalbox_t(koord3d pos, player_t *player, const building_tile_desc_t *t) :
     gebaeude_t(pos, player, t)
 #endif
 {
@@ -147,13 +147,13 @@ bool signalbox_t::add_signal(signal_t* s)
 	return false;
 }
 
-bool signalbox_t::can_add_signal(const roadsign_besch_t* b) const
+bool signalbox_t::can_add_signal(const roadsign_desc_t* d) const
 {
-	uint32 group = b->get_signal_group();
+	uint32 group = d->get_signal_group();
 
 	if(group) // A signal with a group of 0 needs no signalbox and does not work with signalboxes
 	{
-		uint32 my_groups = get_first_tile()->get_tile()->get_besch()->get_clusters();
+		uint32 my_groups = get_first_tile()->get_tile()->get_desc()->get_clusters();
 		if(my_groups & group)
 		{
 			// The signals form part of a matching group: allow addition
@@ -170,12 +170,12 @@ bool signalbox_t::can_add_signal(const signal_t* s) const
 		return false;
 	}
 	
-	return can_add_signal(s->get_besch());
+	return can_add_signal(s->get_desc());
 }
 
 bool signalbox_t::can_add_more_signals() const
 {
-	return signals.get_count() < get_first_tile()->get_tile()->get_besch()->get_capacity();
+	return signals.get_count() < get_first_tile()->get_tile()->get_desc()->get_capacity();
 }
 
 bool signalbox_t::transfer_signal(signal_t* s, signalbox_t* sb)
@@ -185,9 +185,9 @@ bool signalbox_t::transfer_signal(signal_t* s, signalbox_t* sb)
 		return false;
 	}
 
-	if(!s->get_besch()->get_working_method() != moving_block)
+	if(!s->get_desc()->get_working_method() != moving_block)
 	{
-		if(s->get_besch()->get_max_distance_to_signalbox() != 0 && ((s->get_besch()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d())))
+		if(s->get_desc()->get_max_distance_to_signalbox() != 0 && ((s->get_desc()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d())))
 		{
 			return false;
 		}
@@ -227,9 +227,9 @@ koord signalbox_t::transfer_all_signals(signalbox_t* sb)
 			continue;
 		}
 
-		if(!s->get_besch()->get_working_method() != moving_block)
+		if(!s->get_desc()->get_working_method() != moving_block)
 		{
-			if (s->get_besch()->get_max_distance_to_signalbox() != 0 && ((s->get_besch()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d())))
+			if (s->get_desc()->get_max_distance_to_signalbox() != 0 && ((s->get_desc()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d())))
 			{
 				failure++;
 				continue;

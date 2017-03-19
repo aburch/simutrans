@@ -19,7 +19,7 @@
 #include "../gui/simwin.h"
 #include "../simworld.h"
 
-#include "../besch/skin_besch.h"
+#include "../descriptor/skin_desc.h"
 
 #include "../dataobj/translator.h"
 
