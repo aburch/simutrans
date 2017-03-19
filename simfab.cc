@@ -578,7 +578,7 @@ void fabrik_t::recalc_storage_capacities()
 			FOR(array_tpl<ware_production_t>, & g, ausgang) {
 				for(  uint b=0;  b<desc->get_product_count();  ++b  ) {
 					const factory_product_desc_t *const output = desc->get_product(b);
-					if (g.get_typ() == output->get_input_type()) {
+					if (g.get_typ() == output->get_output_type()) {
 						g.max = (output->get_capacity() << precision_bits) + share;
 					}
 				}
@@ -600,7 +600,7 @@ void fabrik_t::recalc_storage_capacities()
 		FOR(array_tpl<ware_production_t>, & g, ausgang) {
 			for(  uint b=0;  b<desc->get_product_count();  ++b  ) {
 				const factory_product_desc_t *const output = desc->get_product(b);
-				if (g.get_typ() == output->get_input_type()) {
+				if (g.get_typ() == output->get_output_type()) {
 					g.max = (sint32)((sint64)(output->get_capacity() << precision_bits) * (sint64)prodbase / (sint64)desc->get_productivity());
 				}
 			}
@@ -849,7 +849,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, s
 	ausgang.resize( desc->get_product_count() );
 	for(  uint g=0;  g<desc->get_product_count();  ++g  ) {
 		const factory_product_desc_t *const product = desc->get_product(g);
-		ausgang[g].set_typ( product->get_input_type() );
+		ausgang[g].set_typ( product->get_output_type() );
 	}
 
 	recalc_storage_capacities();
@@ -2408,7 +2408,7 @@ void fabrik_t::new_month()
 						ausgang.resize( desc->get_product_count() );
 						for(  uint g=0;  g<desc->get_product_count();  ++g  ) {
 							const factory_product_desc_t *const product = desc->get_product(g);
-							ausgang[g].set_typ( product->get_input_type() );
+							ausgang[g].set_typ( product->get_output_type() );
 						}
 
 						recalc_storage_capacities();
@@ -3172,7 +3172,7 @@ uint32 fabrik_t::get_lead_time(const goods_desc_t* wtype)
 		for (uint i = 0; i < fab->get_desc()->get_product_count(); i++) 
 		{
 			const factory_product_desc_t *product = fab->get_desc()->get_product(i);
-			if(product->get_input_type() == wtype)
+			if(product->get_output_type() == wtype)
 			{
 				uint32 best_journey_time = UINT32_MAX_VALUE;
 				const uint32 transfer_journey_time_factor = ((uint32)welt->get_settings().get_meters_per_tile() * 6) * 10;

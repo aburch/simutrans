@@ -260,7 +260,7 @@ int factory_builder_t::count_producers(const goods_desc_t *ware, uint16 timeline
 		factory_desc_t const* const tmp = t.value;
 		for (uint i = 0; i < tmp->get_product_count(); i++) {
 			const factory_product_desc_t *product = tmp->get_product(i);
-			if(  product->get_input_type()==ware  &&  tmp->get_chance()>0  &&  tmp->get_building()->is_available(timeline)  ) {
+			if(  product->get_output_type()==ware  &&  tmp->get_chance()>0  &&  tmp->get_building()->is_available(timeline)  ) {
 				anzahl++;
 			}
 		}
@@ -283,7 +283,7 @@ void factory_builder_t::find_producer(weighted_vector_tpl<const factory_desc_t *
 		if (  tmp->get_chance()>0  &&  tmp->get_building()->is_available(timeline)  ) {
 			for(  uint i=0; i<tmp->get_product_count();  i++  ) {
 				const factory_product_desc_t *product = tmp->get_product(i);
-				if(  product->get_input_type()==ware  ) {
+				if(  product->get_output_type()==ware  ) {
 					producer.insert_unique_ordered(tmp, tmp->get_chance(), compare_fabrik_desc);
 					break;
 				}
@@ -544,7 +544,7 @@ bool factory_builder_t::can_factory_tree_rotate( const factory_desc_t *desc )
 			factory_desc_t const* const tmp = t.value;
 			// now check if we produce this good...
 			for (uint i = 0; i < tmp->get_product_count(); i++) {
-				if(tmp->get_product(i)->get_input_type()==ware  &&  tmp->get_chance()>0) {
+				if(tmp->get_product(i)->get_output_type()==ware  &&  tmp->get_chance()>0) {
 
 					if(!can_factory_tree_rotate( tmp )) {
 						return false;
@@ -742,7 +742,7 @@ DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need 
 				// now guess how much this factory can supply
 				const factory_desc_t* const fd = fab->get_desc();
 				for (uint gg = 0; gg < fd->get_product_count(); gg++) {
-					if (fd->get_product(gg)->get_input_type() == ware && fab->get_lieferziele().get_count() < 10) { // does not make sense to split into more ...
+					if (fd->get_product(gg)->get_output_type() == ware && fab->get_lieferziele().get_count() < 10) { // does not make sense to split into more ...
 						sint32 production_left = fab->get_base_production() * fd->get_product(gg)->get_factor();
 						const vector_tpl <koord> & lieferziele = fab->get_lieferziele();
 
@@ -858,7 +858,7 @@ DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need 
 			// connect new supplier to us
 			const factory_desc_t* const fd = fab->get_desc();
 			for (uint gg = 0; gg < fab->get_desc()->get_product_count(); gg++) {
-				if (fd->get_product(gg)->get_input_type() == ware) {
+				if (fd->get_product(gg)->get_output_type() == ware) {
 					sint32 production = fab->get_base_production() * fd->get_product(gg)->get_factor();
 					// the take care of how much this factory could supply
 					consumption -= production;
@@ -889,7 +889,7 @@ DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need 
 				for(uint x = 0; x < count; x ++)
 				{
 					const factory_product_desc_t* test_prod = fab->get_desc()->get_product(x);
-					if(i->fab->get_produced_goods()->is_contained(test_prod->get_input_type()))
+					if(i->fab->get_produced_goods()->is_contained(test_prod->get_output_type()))
 					{
 						supplies_correct_goods = true;
 						break;
@@ -960,7 +960,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 					for(uint p = 0; p < supplier->get_desc()->get_product_count(); p ++)
 					{
 						const factory_product_desc_t* consumer_type = supplier->get_desc()->get_product(p);
-						const goods_desc_t* wp = consumer_type->get_input_type();
+						const goods_desc_t* wp = consumer_type->get_output_type();
 						
 						if(wp == w)
 						{
@@ -973,7 +973,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 								const fabrik_t* competing_consumer = fabrik_t::get_fab(competing_consumers.get_element(n));
 								for(int x = 0; x < competing_consumer->get_desc()->get_supplier_count(); x ++)
 								{
-									const goods_desc_t* wcc = consumer_type->get_input_type();
+									const goods_desc_t* wcc = consumer_type->get_output_type();
 									if(wcc == wp)
 									{
 										used_output += competing_consumer->get_base_production() * competing_consumer->get_desc()->get_supplier(x)->get_consumption();
@@ -1019,7 +1019,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 						const factory_desc_t* const fd = sup->get_desc();
 						for (uint32 k = 0; k < fd->get_product_count(); k++) 
 						{
-							if (fd->get_product(k)->get_input_type() == w)
+							if (fd->get_product(k)->get_output_type() == w)
 							{
 								missing_goods_index = i + 1;
 								goto next_ware_check;
