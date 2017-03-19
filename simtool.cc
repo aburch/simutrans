@@ -4094,8 +4094,8 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 	slope_t::type hang = gr->get_grund_hang();
 	// first get the size
 	int len = desc->get_size().y-1;
-	koord dx = koord((slope_t::type)hang);
-	koord last_k = k - dx*len;
+	int len = desc->get_y() - 1;
+	koord dx(hang);
 	halthandle_t halt;
 
 	sint64 costs;
@@ -4119,7 +4119,9 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 		return "Dock must be built on single slope!";
 	}
 	else {
-		for(int i=0;  i<=len;  i++  ) {
+		// iterate up to max(len,1) to ensure that there is at least one tile of water
+		// in front of the dock
+			for (int i = 0; i <= max(len, 1); i++) {
 			if(!welt->is_within_limits(k-dx*i)) {
 				// need at least a single tile to navigate ...
 				return "Zu nah am Kartenrand";
@@ -4145,7 +4147,6 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 			const grund_t *gr=welt->lookup_kartenboden(k-dx*i);
 			if (gr->get_hoehe() != pos.z) {
 				return NOTICE_UNSUITABLE_GROUND;
-				break;
 			}
 			if (const char *msg = gr->kann_alle_obj_entfernen(player)) {
 				return msg;
@@ -4158,8 +4159,11 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 				}
 			}
 			else {
-				// all other tiles in water
-				if (!gr->ist_wasser()  ||  gr->find<gebaeude_t>()  ||  gr->get_depot()  ||  gr->is_halt()) {
+				// all other tiles in water (allowing one-tile docks on rivers)
+				if (!gr->ist_wasser() && !(len == 0 && i == 1 && gr->hat_weg(water_wt))) {
+					return NOTICE_UNSUITABLE_GROUND;
+				}
+				if (gr->find<gebaeude_t>() || gr->get_depot() || gr->is_halt()) {
 					return NOTICE_TILE_FULL;
 				}
 			}
