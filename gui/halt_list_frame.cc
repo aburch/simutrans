@@ -26,7 +26,7 @@
 #include "../gui/simwin.h"
 #include "../descriptor/skin_desc.h"
 
-#include "../bauer/warenbauer.h"
+#include "../bauer/goods_manager.h"
 
 #include "../dataobj/translator.h"
 

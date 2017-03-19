@@ -1,7 +1,7 @@
 #include "api_obj_desc_base.h"
 
 #include "../../bauer/hausbauer.h"
-#include "../../bauer/warenbauer.h"
+#include "../../bauer/goods_manager.h"
 #include "../../bauer/wegbauer.h"
 #include "../../descriptor/goods_desc.h"
 #include "../../obj/baum.h"

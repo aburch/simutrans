@@ -10,7 +10,7 @@
 #include "../api_function.h"
 #include "../../descriptor/building_desc.h"
 #include "../../descriptor/goods_desc.h"
-#include "../../bauer/warenbauer.h"
+#include "../../bauer/goods_manager.h"
 #include "../../simworld.h"
 
 #define begin_enum(name)

@@ -1659,7 +1659,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bauer\warenbauer.cc" />
+    <ClCompile Include="bauer\goods_manager.cc" />
     <ClCompile Include="descriptor\factory_desc.cc" />
     <ClCompile Include="descriptor\obj_base_desc.cc" />
     <ClCompile Include="descriptor\vehicle_desc.cc" />
@@ -2496,7 +2496,7 @@
     <ClInclude Include="descriptor\vehicle_desc.h" />
     <ClInclude Include="bauer\vehikelbauer.h" />
     <ClInclude Include="descriptor\goods_desc.h" />
-    <ClInclude Include="bauer\warenbauer.h" />
+    <ClInclude Include="bauer\goods_manager.h" />
     <ClInclude Include="boden\wasser.h" />
     <ClInclude Include="dataobj\way_constraints.h" />
     <ClInclude Include="descriptor\way_obj_desc.h" />
