@@ -3,7 +3,7 @@
 
 #include "../../squirrel/squirrel.h"
 
-/** @file export_besch.h Helper functions to export desc-classes */
+/** @file export_desc.h Helper functions to export desc-classes */
 
 /**
  * Creates class @p name in top of the stack.

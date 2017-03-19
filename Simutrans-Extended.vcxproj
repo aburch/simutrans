@@ -1756,7 +1756,7 @@
     <ClCompile Include="script\api\api_simple.cc" />
     <ClCompile Include="script\api\api_tiles.cc" />
     <ClCompile Include="script\api\api_world.cc" />
-    <ClCompile Include="script\api\export_besch.cc" />
+    <ClCompile Include="script\api\export_desc.cc" />
     <ClCompile Include="script\api\get_next.cc" />
     <ClCompile Include="script\api_class.cc" />
     <ClCompile Include="script\api_function.cc" />
@@ -2179,7 +2179,7 @@
     <ClInclude Include="script\api\api_doc.h" />
     <ClInclude Include="script\api\api_obj_desc_base.h" />
     <ClInclude Include="script\api\api_simple.h" />
-    <ClInclude Include="script\api\export_besch.h" />
+    <ClInclude Include="script\api\export_desc.h" />
     <ClInclude Include="script\api\get_next.h" />
     <ClInclude Include="script\api_class.h" />
     <ClInclude Include="script\api_function.h" />

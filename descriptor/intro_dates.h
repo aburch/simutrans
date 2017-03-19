@@ -1,4 +1,4 @@
-// just some defualt intro and retirement dates, if nothing else is defined
+// just some default intro and retirement dates, if nothing else is defined
 
 #ifndef DEFAULT_INTRO_DATE
 

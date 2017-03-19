@@ -1,6 +1,6 @@
 #include <string>
 #include "../../tpl/slist_tpl.h"
-#include "../bildliste3d_besch.h"
+#include "../image_array_3d.h"
 #include "obj_node.h"
 #include "imagelist_writer.h"
 #include "imagelist3d_writer.h"
