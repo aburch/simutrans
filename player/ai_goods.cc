@@ -130,7 +130,7 @@ bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 {
 	// now check for all products (should be changed later for the root)
 	for(  int i=0;  i<fab->get_desc()->get_supplier_count();  i++  ) {
-		const goods_desc_t *ware = fab->get_desc()->get_supplier(i)->get_ware();
+		const goods_desc_t *ware = fab->get_desc()->get_supplier(i)->get_input_type();
 
 		// find out how much is there
 		const array_tpl<ware_production_t>& eingang = fab->get_eingang();
@@ -146,7 +146,7 @@ bool ai_goods_t::get_factory_tree_lowest_missing( fabrik_t *fab )
 			fabrik_t* const qfab = fabrik_t::get_fab(q);
 			const factory_desc_t* const fd = qfab->get_desc();
 			for(  uint qq = 0;  qq < fd->get_product_count();  qq++  ) {
-				if(  fd->get_product(qq)->get_ware() == ware  &&
+				if(  fd->get_product(qq)->get_input_type() == ware  &&
 					 !is_forbidden(qfab, fab, ware)  &&
 					 !is_connected(q, fab->get_pos().get_2d(), ware)  ) {
 					// find out how much is there
@@ -190,7 +190,7 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 
 	// now check for all
 	for (int i = 0; i < d.get_supplier_count(); ++i) {
-		goods_desc_t const* const ware = d.get_supplier(i)->get_ware();
+		goods_desc_t const* const ware = d.get_supplier(i)->get_input_type();
 
 		bool complete = false;	// found at least one factory
 		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
@@ -202,7 +202,7 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 			if( !is_forbidden( qfab, fab, ware ) ) {
 				const factory_desc_t* const fd = qfab->get_desc();
 				for (uint qq = 0; qq < fd->get_product_count(); qq++) {
-					if (fd->get_product(qq)->get_ware() == ware ) {
+					if (fd->get_product(qq)->get_input_type() == ware ) {
 						int n = get_factory_tree_missing_count( qfab );
 						if(n>=0) {
 							complete = true;

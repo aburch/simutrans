@@ -569,7 +569,7 @@ void fabrik_t::recalc_storage_capacities()
 			FOR(array_tpl<ware_production_t>, & g, eingang) {
 				for(  int b=0;  b<desc->get_supplier_count();  ++b  ) {
 					const factory_supplier_desc_t *const input = desc->get_supplier(b);
-					if (g.get_typ() == input->get_ware()) {
+					if (g.get_typ() == input->get_input_type()) {
 						g.max = (input->get_capacity() << precision_bits) + share;
 					}
 				}
@@ -578,7 +578,7 @@ void fabrik_t::recalc_storage_capacities()
 			FOR(array_tpl<ware_production_t>, & g, ausgang) {
 				for(  uint b=0;  b<desc->get_product_count();  ++b  ) {
 					const factory_product_desc_t *const output = desc->get_product(b);
-					if (g.get_typ() == output->get_ware()) {
+					if (g.get_typ() == output->get_input_type()) {
 						g.max = (output->get_capacity() << precision_bits) + share;
 					}
 				}
@@ -591,7 +591,7 @@ void fabrik_t::recalc_storage_capacities()
 		FOR(array_tpl<ware_production_t>, & g, eingang) {
 			for(  int b=0;  b<desc->get_supplier_count();  ++b  ) {
 				const factory_supplier_desc_t *const input = desc->get_supplier(b);
-				if (g.get_typ() == input->get_ware()) {
+				if (g.get_typ() == input->get_input_type()) {
 					g.max = (sint32)((sint64)(input->get_capacity() << precision_bits) * (sint64)prodbase / (sint64)desc->get_productivity());
 				}
 			}
@@ -600,7 +600,7 @@ void fabrik_t::recalc_storage_capacities()
 		FOR(array_tpl<ware_production_t>, & g, ausgang) {
 			for(  uint b=0;  b<desc->get_product_count();  ++b  ) {
 				const factory_product_desc_t *const output = desc->get_product(b);
-				if (g.get_typ() == output->get_ware()) {
+				if (g.get_typ() == output->get_input_type()) {
 					g.max = (sint32)((sint64)(output->get_capacity() << precision_bits) * (sint64)prodbase / (sint64)desc->get_productivity());
 				}
 			}
@@ -842,14 +842,14 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, s
 	eingang.resize( desc->get_supplier_count() );
 	for(  int g=0;  g<desc->get_supplier_count();  ++g  ) {
 		const factory_supplier_desc_t *const input = desc->get_supplier(g);
-		eingang[g].set_typ( input->get_ware() );
+		eingang[g].set_typ( input->get_input_type() );
 	}
 
 	// create output information
 	ausgang.resize( desc->get_product_count() );
 	for(  uint g=0;  g<desc->get_product_count();  ++g  ) {
 		const factory_product_desc_t *const product = desc->get_product(g);
-		ausgang[g].set_typ( product->get_ware() );
+		ausgang[g].set_typ( product->get_input_type() );
 	}
 
 	recalc_storage_capacities();
@@ -2378,8 +2378,8 @@ void fabrik_t::new_month()
 						eingang.resize(desc->get_supplier_count() );
 						for(  int g=0;  g<desc->get_supplier_count();  ++g  ) {
 							const factory_supplier_desc_t *const input = desc->get_supplier(g);
-							eingang[g].set_typ( input->get_ware() );
-							input_products.append(input->get_ware());
+							eingang[g].set_typ( input->get_input_type() );
+							input_products.append(input->get_input_type());
 						}
 
 						// The upgraded factory might not have the same inputs as its predecessor. 
@@ -2408,7 +2408,7 @@ void fabrik_t::new_month()
 						ausgang.resize( desc->get_product_count() );
 						for(  uint g=0;  g<desc->get_product_count();  ++g  ) {
 							const factory_product_desc_t *const product = desc->get_product(g);
-							ausgang[g].set_typ( product->get_ware() );
+							ausgang[g].set_typ( product->get_input_type() );
 						}
 
 						recalc_storage_capacities();
@@ -2996,7 +2996,7 @@ void fabrik_t::add_all_suppliers()
 {
 	for(int i=0; i < desc->get_supplier_count(); i++) {
 		const factory_supplier_desc_t *supplier = desc->get_supplier(i);
-		const goods_desc_t *ware = supplier->get_ware();
+		const goods_desc_t *ware = supplier->get_input_type();
 
 		FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
 			// connect to an existing one, if this is an producer
@@ -3017,7 +3017,7 @@ bool fabrik_t::add_supplier(fabrik_t* fab)
 {
 	for(int i=0; i < desc->get_supplier_count(); i++) {
 		const factory_supplier_desc_t *supplier = desc->get_supplier(i);
-		const goods_desc_t *ware = supplier->get_ware();
+		const goods_desc_t *ware = supplier->get_input_type();
 
 			// connect to an existing one, if this is an producer
 			if(  fab!=this  &&  fab->vorrat_an(ware) > -1  ) { //"inventory to" (Google)
@@ -3037,7 +3037,7 @@ bool fabrik_t::add_customer(fabrik_t* fab)
 {
 	for(int i=0; i < fab->get_desc()->get_supplier_count(); i++) {
 		const factory_supplier_desc_t *supplier = fab->get_desc()->get_supplier(i);
-		const goods_desc_t *ware = supplier->get_ware();
+		const goods_desc_t *ware = supplier->get_input_type();
 
 			// connect to an existing one, if it is a consumer
 			if(fab!=this  &&  vorrat_an(ware) > -1) { //"inventory to" (Google)
@@ -3172,7 +3172,7 @@ uint32 fabrik_t::get_lead_time(const goods_desc_t* wtype)
 		for (uint i = 0; i < fab->get_desc()->get_product_count(); i++) 
 		{
 			const factory_product_desc_t *product = fab->get_desc()->get_product(i);
-			if(product->get_ware() == wtype)
+			if(product->get_input_type() == wtype)
 			{
 				uint32 best_journey_time = UINT32_MAX_VALUE;
 				const uint32 transfer_journey_time_factor = ((uint32)welt->get_settings().get_meters_per_tile() * 6) * 10;
