@@ -1060,7 +1060,7 @@ const char *two_click_tool_t::move(player_t *player, uint16 buttonstate, koord3d
 }
 
 
-void two_click_tool_t::start_at(koord3d &new_start )
+void two_click_tool_t::start_at( koord3d &new_start )
 {
 	first_click_var = false;
 	start = new_start;

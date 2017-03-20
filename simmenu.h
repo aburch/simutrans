@@ -318,7 +318,7 @@ public:
 	 * @see check_pos
 	 * @return true is the coordinate it's found valid, false otherwise.
 	 */
-	bool check_valid_pos(koord k ) const;
+	bool check_valid_pos( koord k ) const;
 
 	/**
 	 * Specifies if the cursor will need a position update after this tool takes effect (ie: changed the height of the tile)
@@ -409,11 +409,12 @@ private:
 
 	bool first_click_var;
 	koord3d start;
-	void start_at( koord3d &new_start );
 
 	zeiger_t *start_marker;
 
 protected:
+	virtual void start_at( koord3d &new_start );
+
 	slist_tpl< zeiger_t* > marked;
 };
 

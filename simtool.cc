@@ -2303,7 +2303,21 @@ waytype_t tool_build_way_t::get_waytype() const
 	return invalid_wt;
 }
 
-uint8 tool_build_way_t::is_valid_pos(  player_t *player, const koord3d &pos, const char *&error, const koord3d & )
+void tool_build_way_t::start_at( koord3d &new_start )
+{
+	if(  is_shift_pressed()  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)  ) {
+		grund_t *gr=welt->lookup(new_start);
+		if(  weg_t *way = gr->get_weg( desc->get_waytype() )  ) {
+			if(  way->get_desc()->get_styp() == type_elevated  ) {
+				new_start.z -= 1;
+			}
+		}
+	}
+	// elevated ways with SHIFT will selected the current layer, when already on an elevated way
+	two_click_tool_t::start_at( new_start );
+}
+
+uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, const char *&error, const koord3d & )
 {
 	error = NULL;
 	grund_t *gr=welt->lookup(pos);
@@ -2376,12 +2390,23 @@ void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 	else {
 		bauigel.set_keep_existing_faster_ways( true );
 	}
+	koord3d my_start = start;
+	// special check to replace elevated ways
+	if(  is_shift_pressed()  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)  ) {
+		grund_t *gr=welt->lookup(start);
+		if(  weg_t *way = gr->get_weg( desc->get_waytype() )  ) {
+			if(  way->get_desc()->get_styp() == type_elevated  ) {
+				my_start.z += 1;
+			}
+		}
+	}
+	// and continue as normal ...
 	if(  is_ctrl_pressed()  ||  (env_t::straight_way_without_control  &&  !env_t::networkmode  &&  !is_scripted())  ) {
 		DBG_MESSAGE("tool_build_way_t()", "try straight route");
-		bauigel.calc_straight_route(start,end);
+		bauigel.calc_straight_route(my_start,end);
 	}
 	else {
-		bauigel.calc_route(start,end);
+		bauigel.calc_route(my_start,end);
 	}
 	DBG_MESSAGE("tool_build_way_t()", "builder found route with %d squares length.", bauigel.get_count());
 }
