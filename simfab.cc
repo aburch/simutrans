@@ -1093,7 +1093,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 					build_locations.append(gr);
 					assert(gr->find<field_t>() == NULL);
 				}
-				// skip inside of rectange (already checked earlier)
+				// skip inside of rectangle (already checked earlier)
 				if(radius > 1 && yoff == -radius && (xoff > -radius && xoff < radius + get_desc()->get_building()->get_size().x - 1)) {
 					yoff = radius + get_desc()->get_building()->get_size().y - 2;
 				}
@@ -2969,7 +2969,7 @@ void fabrik_t::rem_supplier(koord pos)
 			w.max_transit = 0;
 		}
 
-		// unfourtunately we have to bite the bullet and recalc the values from scratch ...
+		// unfortunately we have to bite the bullet and recalc the values from scratch ...
 		FOR( vector_tpl<koord>, ziel, suppliers ) {
 			if(  fabrik_t *fab = get_fab( ziel )  ) {
 				for(  uint32 i=0;  i < fab->get_ausgang().get_count();  i++   ) {

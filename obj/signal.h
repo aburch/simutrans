@@ -13,7 +13,7 @@
 #include "../simobj.h"
 
 /**
- * Signale für die Bahnlinien.
+ * Signals for rail tracks.
  *
  * @see blockstrecke_t
  * @see blockmanager
@@ -52,7 +52,7 @@ public:
 	const char *get_name() const { return desc->get_name(); }
 
 	/**
-	* berechnet aktuelles image
+	* Calculate actual image
 	*/
 	void calc_image();
 

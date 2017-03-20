@@ -10,7 +10,7 @@ Click the magnifying glass icon in the toolstrip at the top of the main game win
 </p>
 <p>
 To use tnspection tool: move the cursor over the item (building, transport network, vehicle, etc.) about which you want more information, and left click. If there is more than one thing under the cursor, you will need to click the requisite number of times to see information on all of those things.
-<em>Tip:</em> Option to open one dialogue or all dialogues for a given cursor position available in simuconf.tab
+<em>Tip:</em> Option to open one dialogue or all dialoguess for a given cursor position available in simuconf.tab
 </p>
 <p>
 Almost everything in the main game window will give more information when clicked on with the <strong>inspection tool</strong>. Some particularly important things are accessed with the tool, however. Click on the following types of items for:

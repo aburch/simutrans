@@ -362,7 +362,7 @@ static void ask_language()
 
 
 /**
- * This function will be set in the main function as the handler the runtime enviroment will
+ * This function will be set in the main function as the handler the runtime environment will
  * call in the case it lacks memory for new()
  */
 static void sim_new_handler()
@@ -1335,7 +1335,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 			dbg->important( "Show banner ... " );
 			ticker::add_msg("Welcome to Simutrans-Extended (formerly Simutrans-Experimental), a fork of Simutrans-Standard, extended and maintained by the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 				modal_dialogue( new banner_t(), magic_none, welt, never_quit );
-			// only show new world, if no other dialoge is active ...
+			// only show new world, if no other dialogue is active ...
 			new_world = win_get_open_count()==0;
 		}
 		if(  env_t::quit_simutrans  ) {

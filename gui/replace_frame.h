@@ -114,7 +114,7 @@ public:
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * @return den Dateinamen for the Hilfe, oder NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_help_filename() const {return "replace.txt";}

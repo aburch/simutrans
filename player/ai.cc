@@ -35,7 +35,7 @@
 #include "../vehicle/simvehicle.h"
 
 
-/* The flesh for the place with road for headquarter searcher ... */
+/* The flesh for the place with road for headquarters searcher ... */
 bool ai_bauplatz_mit_strasse_sucher_t::strasse_bei(sint16 x, sint16 y) const {
 	grund_t *bd = welt->lookup_kartenboden( koord(x,y) );
 	return bd && bd->hat_weg(road_wt);
@@ -353,7 +353,7 @@ void ai_t::set_marker( koord place, koord size )
 
 
 
-/* builts a headquarter or updates one */
+/* builds headquarters or upgrades one */
 bool ai_t::built_update_headquarter()
 {
 	// find next level
@@ -415,7 +415,7 @@ bool ai_t::built_update_headquarter()
 
 
 /**
- * Find the last water tile using line algorithm von Hajo
+ * Find the last water tile using line algorithm 
  * start MUST be on land!
  **/
 koord ai_t::find_shore(koord start, koord end) const

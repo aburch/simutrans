@@ -6,10 +6,10 @@
 
 /**
  * An implementation of the tombstone pointer checking method.
- * It uses an table of pointers and indizes into that table to
+ * It uses a table of pointers and indices into that table to
  * implement the tombstone system. Unlike real tombstones, this
- * template reuses entries from the tombstone tabel, but it tries
- * to leave free'd tombstones untouched as long as possible, to
+ * template reuses entries from the tombstone table, but it tries
+ * to leave freed  tombstones untouched as long as possible, to
  * detect most of the dangling pointers.
  *
  * This templates goal is to be efficient and fairly safe.
@@ -88,7 +88,7 @@ private:
 
 	/**
 	 * The index in the table for this handle.
-	 * (only this variable is actially saved, since the rest is static!)
+	 * (only this variable is actually saved, since the rest is static!)
 	 */
 	uint16 entry;
 

@@ -37,7 +37,7 @@ class settings_t;
 	sint16 ypos = 4;\
 	remove_all();\
 	free_all();\
-	seperator = 0;\
+	separator = 0;\
 	new_world = (win_get_magic( magic_welt_gui_t )!=NULL);\
 
 
@@ -107,7 +107,7 @@ class settings_t;
 
 #define SEPERATOR \
 	ypos += D_V_SPACE;\
-	seperator += 1;\
+	separator += 1;\
 
 
 // call this before and READ_...
@@ -138,7 +138,7 @@ class settings_t;
 class settings_stats_t : public gui_container_t
 {
 protected:
-	sint16 width, height, seperator;
+	sint16 width, height, separator;
 	bool new_world;
 	// since the copy constructor will no copy the right action listener => pointer
 	slist_tpl<gui_label_t *> label;

@@ -2413,7 +2413,7 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 	return false;
 }
 
-// this funtion is called many many times => make it as fast as possible
+// this function is called many many times => make it as fast as possible
 // i.e. no reverse lookup of ribis from koord
 bool grund_t::get_neighbour(grund_t *&to, waytype_t type, ribi_t::ribi ribi) const
 {

@@ -1426,7 +1426,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				}
 			}
 
-			// ok, was sucess
+			// ok, was success
 			if(  !gr1->ist_wasser()  &&  new_slope == 0  &&  hgt == water_hgt  &&  gr1->get_typ() != grund_t::tunnelboden  ) {
 				// now water
 				gr1->obj_loesche_alle(player);
@@ -6318,7 +6318,7 @@ bool tool_build_land_chain_t::init( player_t * )
 	return true;
 }
 
-/* builds a (if param=NULL random) industry chain starting here *
+/* builds an (if param=NULL random) industry chain starting here *
  * the parameter string is a follow:
  * 1#34,oelfeld
  * first letter: ignore climates

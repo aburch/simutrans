@@ -10,7 +10,7 @@
 // menus
 const skin_desc_t* skinverwaltung_t::tool_icons_general  = NULL;
 const skin_desc_t* skinverwaltung_t::tool_icons_simple   = NULL;
-const skin_desc_t* skinverwaltung_t::tool_icons_dialoge  = NULL;
+const skin_desc_t* skinverwaltung_t::tool_icons_dialoge = NULL;
 const skin_desc_t* skinverwaltung_t::tool_icons_toolbars = NULL;
 const skin_desc_t* skinverwaltung_t::toolbar_background = NULL;
 

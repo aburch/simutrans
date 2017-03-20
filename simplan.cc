@@ -722,7 +722,7 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 
 /**
  * removes the halt from a ground
- * however this funtion check, whether there is really no other part still reachable
+ * however this function check, whether there is really no other part still reachable
  * @author prissi, neroden
  */
 void planquadrat_t::remove_from_haltlist(halthandle_t halt)

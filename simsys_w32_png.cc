@@ -11,7 +11,7 @@
 #error "Only Windows has GDI+!"
 #endif
 
-// windows Bibliotheken DirectDraw 5.x
+// DirectDraw 5.x Windows libraries
 // windows.h defines min and max macros which we don't want
 #define NOMINMAX 1
 #include <windows.h>

@@ -41,7 +41,7 @@ The following information relating to the state of ways is available by selectin
 </p>
 <h1>Actions:</h1>
 <p>
-You can <em>override automatic renewal</em> and choose which type of way with wich this way tile is about to upgrade to, by select the desired type of way and SHIFT-dragging this way over the old way. By default, a way will renew to the same type as currently if this is still available, or the closest current equivalent type if not. <p>
+You can <em>override automatic renewal</em> and choose which type of way with which this way tile is about to upgrade to, by select the desired type of way and SHIFT-dragging this way over the old way. By default, a way will renew to the same type as currently if this is still available, or the closest current equivalent type if not. <p>
 </p>
 You can <em>disable automatic renewal</em> by SHIFT-dragging the way remover tool or the mothballed type of way over the way, and the way will behave in the same manners as when you have insufficient funds (degrade to half speed, then to impassable)<br>
 <p>

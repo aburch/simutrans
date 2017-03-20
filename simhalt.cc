@@ -5032,7 +5032,7 @@ bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 				vehicle_t const& v = *cnv->front();
 				if (gr->hat_weg(v.get_waytype()) && !gr->suche_obj(v.get_typ())) {
 					// not occipied
-//DBG_MESSAGE("haltestelle_t::reserve_position()","sucess for gr=%i,%i cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());
+//DBG_MESSAGE("haltestelle_t::reserve_position()","success for gr=%i,%i cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());
 					i->reservation = cnv;
 					return true;
 				}

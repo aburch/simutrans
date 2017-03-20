@@ -124,7 +124,7 @@ public:
 		MAX_CONVOI_COST				//  9 | 8 |
 	};
 
-	/* Konstanten
+	/* Constants
 	* @author prissi
 	*/
 	enum { max_vehicle=8, max_rail_vehicle = 64 };

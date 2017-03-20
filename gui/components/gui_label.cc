@@ -48,19 +48,19 @@ void gui_label_t::draw(scr_coord offset)
 {
 	if(  align == money  ) {
 		if(text) {
-			const char *seperator = NULL;
+			const char *separator = NULL;
 
 			if(  strrchr(text, '$')!=NULL  ) {
-				seperator = strrchr(text, get_fraction_sep());
-				if(seperator==NULL  &&  get_large_money_string()!=NULL) {
-					seperator = strrchr(text, *(get_large_money_string()) );
+				separator = strrchr(text, get_fraction_sep());
+				if(separator==NULL  &&  get_large_money_string()!=NULL) {
+					separator = strrchr(text, *(get_large_money_string()) );
 				}
 			}
 
-			if(seperator) {
-				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, seperator, ALIGN_LEFT, color, true);
-				if(  seperator!=text  ) {
-					display_text_proportional_len_clip(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT, color, true, seperator-text );
+			if(separator) {
+				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, separator, ALIGN_LEFT, color, true);
+				if(  separator!=text  ) {
+					display_text_proportional_len_clip(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT, color, true, separator-text );
 				}
 			}
 			else {

@@ -323,7 +323,7 @@ void simline_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(start_reversed);
 	}
 
-	// otherwise inintialized to zero if loading ...
+	// otherwise initialized to zero if loading ...
 	financial_history[0][LINE_CONVOIS] = count_convoys();
 
 	if(file->get_extended_version() >= 2)
@@ -681,7 +681,7 @@ void simline_t::recalc_catg_index()
 void simline_t::set_withdraw( bool yes_no )
 {
 	withdraw = yes_no && !line_managed_convoys.empty();
-	// convois in depots will be immeadiately destroyed, thus we go backwards
+	// convois in depots will be immediately destroyed, thus we go backwards
 	for (size_t i = line_managed_convoys.get_count(); i-- != 0;) {
 		line_managed_convoys[i]->set_no_load(yes_no);	// must be first, since set withdraw might destroy convoi if in depot!
 		line_managed_convoys[i]->set_withdraw(yes_no);

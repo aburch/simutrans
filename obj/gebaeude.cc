@@ -764,7 +764,7 @@ bool gebaeude_t::is_city_building() const
 
 void gebaeude_t::show_info()
 {
-	// TODO: Add code for signalbox dialogues here
+	// TODO: Add code for signalbox dialoguess here
 	if(get_fabrik()) {
 		ptr.fab->show_info();
 		return;
@@ -1266,7 +1266,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 			}
 		}	// here we should have a valid tile pointer or nothing ...
 
-		/* avoid double contruction of monuments:
+		/* avoid double construction of monuments:
 		 * remove them from selection lists
 		 */
 		if (tile  &&  tile->get_desc()->get_type() == building_desc_t::monument) {

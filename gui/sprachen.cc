@@ -79,7 +79,7 @@ void sprachengui_t::init_font_from_lang()
 		p = "";
 		v = 1e99;
 	}
-	set_large_amout(p,v);
+	set_large_amount(p,v);
 }
 
 
@@ -103,10 +103,10 @@ sprachengui_t::sprachengui_t() :
 	add_component( &text_label );
 	cursor.y += text_label.get_size().h;
 
-	seperator.set_pos( cursor );
-	seperator.set_width( L_DIALOG_WIDTH-D_MARGINS_X-D_H_SPACE-flags.get_size().w );
-	add_component( &seperator );
-	cursor.y = max( seperator.get_pos().y + D_DIVIDER_HEIGHT, flags.get_pos().y + flags.get_size().h);
+	separator.set_pos( cursor );
+	separator.set_width( L_DIALOG_WIDTH-D_MARGINS_X-D_H_SPACE-flags.get_size().w );
+	add_component( &separator );
+	cursor.y = max( separator.get_pos().y + D_DIVIDER_HEIGHT, flags.get_pos().y + flags.get_size().h);
 
 	const translator::lang_info* lang = translator::get_langs();
 	for (int i = 0; i < translator::get_language_count(); ++i, ++lang) {

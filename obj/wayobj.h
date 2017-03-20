@@ -25,7 +25,7 @@ class grund_t;
 class tool_selector_t;
 
 /**
- * Overhead powelines for elctrifed tracks.
+ * Overhead powelines for electrified tracks.
  *
  * @author Hj. Malthaner
  */
@@ -74,7 +74,7 @@ public:
 
 	/**
 	* 'Jedes Ding braucht einen Typ.'
-	* @return Gibt den typ des Objekts zurück.
+	* @return the object type.
 	* @author Hj. Malthaner
 	*/
 
@@ -99,7 +99,7 @@ public:
 	*/
 	void rdwr(loadsave_t *file);
 
-	// substracts cost
+	// subtracts cost
 	void cleanup(player_t *player);
 
 	const char*  is_deletable(const player_t *player) OVERRIDE;
@@ -130,7 +130,7 @@ public:
 	static bool register_desc(way_obj_desc_t *desc);
 	static bool successfully_loaded();
 
-	// search an object (currently only used by AI for caternary)
+	// search an object (currently only used by AI for catenary)
 	static const way_obj_desc_t *get_overhead_line(waytype_t wt,uint16 time);
 
 	static const way_obj_desc_t *find_desc(const char *);

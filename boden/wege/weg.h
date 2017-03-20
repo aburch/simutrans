@@ -286,7 +286,7 @@ public:
 
 	/**
 	* 'Jedes Ding braucht einen Typ.'
-	* @return Gibt den typ des Objekts zurück.
+	* @return the object type.
 	* @author Hj. Malthaner
 	*/
 	//typ get_typ() const { return obj_t::way; }

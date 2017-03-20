@@ -415,13 +415,13 @@ static double interpolated_noise(const double x, const double y)
 
 /**
  * x,y  Point coordinates
- * p    Persistence (was: Persistenz)
+ * p    Persistence (was: Persistence)
  * m    Map size (longer side)
  */
 double perlin_noise_2D(const double x, const double y, const double p, const sint32 m)
 {
 /**
-* Hoehe eines Punktes der Karte mit "perlin noise"
+* Height one point in the map with "perlin noise"
 *
 * @param frequency in 0..1.0 roughness, the higher the rougher
 * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!

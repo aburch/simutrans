@@ -9,7 +9,7 @@
 #include <string.h>
 
 /*
- * Define the key characteristica for hashing "const char *".
+ * Define the key characteristics for hashing "const char *".
  */
 class stringhash_t {
 public:

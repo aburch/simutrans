@@ -63,7 +63,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	clear_schedule_text  = translator::translate("<clear schedule>");
 	unique_schedule_text = translator::translate("<individual schedule>");
 	new_line_text        = translator::translate("<create new line>");
-	line_seperator       = translator::translate("--------------------------------");
+	line_separator       = translator::translate("--------------------------------");
 	new_convoy_text      = translator::translate("new convoi");
 	promote_to_line_text = translator::translate("<promote to line>");
 
@@ -474,7 +474,7 @@ void depot_frame_t::update_data()
 		// select "create new schedule"
 		line_selector.set_selection( 0 );
 	}
-	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_seperator, SYSCOL_TEXT ) );
+	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_separator, SYSCOL_TEXT ) );
 
 	// check all matching lines
 	selected_line = linehandle_t();

@@ -1776,7 +1776,7 @@ sint16 get_friction_of_waytype(waytype_t waytype)
 }
 
 
-/* calculates the current friction coefficient based on the curent track
+/* calculates the current friction coefficient based on the current track
  * flat, slope, (curve)...
  * @author prissi, HJ, Dwachs
  */

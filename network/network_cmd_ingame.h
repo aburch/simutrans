@@ -379,7 +379,7 @@ public:
 
 	void init_tool();
 private:
-	// transfered data
+	// transferred data
 	plainstring default_param;
 	uint32 tool_client_id;
 	uint16 tool_id;

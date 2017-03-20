@@ -449,7 +449,7 @@ private:
 
 	/*
 	* parameter to ease sorting
-	* sortierung is local and stores the sortorder for the individual station
+	* sortierung is local and stores the sort order for the individual station
 	* @author hsiegeln
 	*/
 	uint8 sortierung;
