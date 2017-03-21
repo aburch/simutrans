@@ -326,6 +326,7 @@ note=Text in the signal infowindow telling the current state of the signal
 -
 obj=program_text
 name=infinite_range
+note=This text is shown in the signal info window or the building info window, when max_distance is set to 0 in the datfile
 -
 obj=program_text
 name=radius
