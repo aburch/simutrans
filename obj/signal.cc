@@ -433,7 +433,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 				uint32 mdt_sb = desc->get_max_distance_to_signalbox();
 				if (mdt_sb == 0)
 				{
-					buf.append("infinite_range");
+					buf.append(translator::translate("infinite_range"));
 				}
 				else if (mdt_sb<1000)
 
