@@ -326,7 +326,10 @@ note=Text in the signal infowindow telling the current state of the signal
 -
 obj=program_text
 name=infinite_range
-note=This text is shown in the signal info window, when max_distance is set to 0 in the signals datfile
+-
+obj=program_text
+name=radius
+note=This text is shown in a signalbox infowindow, illustrating within how big range a signal can be placed
 -
 obj=program_text
 name=danger
