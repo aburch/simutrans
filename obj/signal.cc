@@ -422,9 +422,9 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 				}
 				else
 				{
-					char number_real_dist[10];
-					number_to_string(number_real_dist, km_to_signalbox, 1);
-					buf.append(number_real_dist);
+					char number[10];
+					number_to_string(number, km_to_signalbox, 1);
+					buf.append(number);
 					buf.append("km");
 				}
 
@@ -445,10 +445,10 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 
 				else
 				{
-					const double max_dist = (double)desc->get_max_distance_to_signalbox()/1000;
-					char number_max_dist[10];
-					number_to_string(number_max_dist, max_dist, 1);
-					buf.append(number_max_dist);
+					const double max_dist = (double)mdt_sb / 1000;
+					char number[10];
+					number_to_string(number, max_dist, 1);
+					buf.append(number);
 					buf.append("km");
 				}
 				buf.append(")");
