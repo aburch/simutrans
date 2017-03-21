@@ -35,7 +35,7 @@ signal_info_t::signal_info_t(signal_t* const s) :
 			const gebaeude_t* gb = gr->get_building();
 			if (gb)
 			{
-				signalbox_button.init(button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, get_windowsize().h - 25 - LINESPACE));
+				signalbox_button.init(button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, get_windowsize().h - 25 - 2*LINESPACE));
 				signalbox_button.set_tooltip("goto_signalbox");
 				add_component(&signalbox_button);
 				signalbox_button.add_listener(this);

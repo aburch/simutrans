@@ -23,6 +23,7 @@
 #include "../simsignalbox.h"
 #include "../descriptor/building_desc.h"
 #include "../simhalt.h"
+#include "../utils/simstring.h"
 
 #include "../gui/signal_info.h"
 
@@ -405,6 +406,53 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 				buf.append(",");
 				buf.append(sb.z);
 				buf.append(">"); 
+				buf.append("\n   ");
+				
+				// Show the distance between the signal and its signalbox, along with the signals maximum range
+				koord3d sigpos = get_pos();
+				const uint32 tiles_to_signalbox = shortest_distance(sigpos.get_2d(), sb.get_2d());
+				const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
+				const double km_to_signalbox = (double)tiles_to_signalbox * km_per_tile;
+
+				if (km_to_signalbox < 1)
+				{
+					float m_to_signalbox = km_to_signalbox * 1000;
+					buf.append(m_to_signalbox);
+					buf.append("m");
+				}
+				else
+				{
+					char number_real_dist[10];
+					number_to_string(number_real_dist, km_to_signalbox, 1);
+					buf.append(number_real_dist);
+					buf.append("km");
+				}
+
+				buf.append(" (");
+
+				uint32 mdt_sb = desc->get_max_distance_to_signalbox();
+				if (mdt_sb == 0)
+				{
+					buf.append("infinite_range");
+				}
+				else if (mdt_sb<1000)
+
+				{
+					
+					buf.append(mdt_sb);
+					buf.append("m");
+				}
+
+				else
+				{
+					const double max_dist = (double)desc->get_max_distance_to_signalbox()/1000;
+					char number_max_dist[10];
+					number_to_string(number_max_dist, max_dist, 1);
+					buf.append(number_max_dist);
+					buf.append("km");
+				}
+				buf.append(")");
+				
 			}
 			else
 			{
