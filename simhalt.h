@@ -479,7 +479,7 @@ private:
 	// Purpose	: To store the time at which this halt is created
 	//			  This is *not* saved in save games.
 	//			  When loading halts from save game, this is set to 0
-	uint32 inauguration_time;
+	sint64 inauguration_time;
 
 	/**
 	* Arrival times of convoys bound for this stop, estimated based on 
@@ -939,7 +939,7 @@ public:
 
 	// Addedy by : Knightly
 	// Purpose	 : Return the time at which the halt was first created
-	uint32 get_inauguration_time() { return inauguration_time; }
+	sint64 get_inauguration_time() { return inauguration_time; }
 
 	/*
 	* deletes factory references so map rotation won't segfault
