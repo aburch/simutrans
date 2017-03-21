@@ -3118,6 +3118,10 @@ permissive_signal
 Permissive Signal
 current_state
 Current state
+infinite_range
+Infinite range
+radius
+Radius
 danger
 Danger
 clear2
