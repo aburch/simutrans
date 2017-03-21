@@ -524,8 +524,8 @@ void path_explorer_t::compartment_t::step()
 			{
 				refresh_requested = false;	// immediately reset it so that we can take new requests
 				refresh_completed = false;	// indicate that processing is at work
-				refresh_start_time = dr_time();
-				//refresh_start_time = world->get_zeit_ms(); // Possibly more network safe than the original (commented out above)
+				//refresh_start_time = dr_time();
+				refresh_start_time = world->get_zeit_ms(); // Possibly more network safe than the original (commented out above)
 				current_phase = phase_init_prepare;	// proceed to next phase
 				// no return statement here, as we want to fall through to the next phase
 			}

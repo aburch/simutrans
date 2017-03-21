@@ -226,7 +226,7 @@ private:
 		};
 
 		// store the start time of refresh
-		unsigned long refresh_start_time;
+		sint64 refresh_start_time;
 
 		// set of variables for finished path data
 		path_element_t **finished_matrix;
