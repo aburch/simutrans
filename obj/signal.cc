@@ -409,7 +409,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 				buf.append("\n   ");
 				
 				// Show the distance between the signal and its signalbox, along with the signals maximum range
-				koord3d sigpos = get_pos();
+				koord3d sigpos = sig->get_pos();
 				const uint32 tiles_to_signalbox = shortest_distance(sigpos.get_2d(), sb.get_2d());
 				const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
 				const double km_to_signalbox = (double)tiles_to_signalbox * km_per_tile;
