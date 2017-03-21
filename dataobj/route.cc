@@ -527,8 +527,8 @@ ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 		next_ribi[0] = (ziel.y>gr_pos.y) ? ribi_t::south : ribi_t::north;
 		next_ribi[1] = (ziel.x>gr_pos.x) ? ribi_t::east : ribi_t::west;
 	}
-	next_ribi[2] = ribi_t::backward( next_ribi[1] );
-	next_ribi[3] = ribi_t::backward( next_ribi[0] );
+	next_ribi[2] = ribi_t::reverse_single(next_ribi[1]);
+	next_ribi[3] = ribi_t::reverse_single(next_ribi[0]);
 	return next_ribi;
 }
 

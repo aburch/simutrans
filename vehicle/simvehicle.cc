@@ -6,7 +6,7 @@
  *
  * All moving stuff (vehicle_base_t) and all player vehicle (derived from vehicle_t)
  *
- * 01.11.99  getrennt von simobj.cc
+ * 01.11.99  derived from simobj.cc
  *
  * Hansjoerg Malthaner, Nov. 1999
  */
@@ -24,7 +24,7 @@
 #include "../boden/wege/monorail.h"
 #include "../boden/wege/strasse.h"
 
-#include "../bauer/warenbauer.h"
+#include "../bauer/goods_manager.h"
 
 #include "../simworld.h"
 #include "../simdebug.h"
@@ -589,7 +589,7 @@ void vehicle_base_t::calc_height(grund_t *gr)
 		// slope changed below a moving thing?!?
 		return;
 	}
-	else if(  gr->ist_tunnel()  &&  gr->ist_karten_boden()  ) {
+	else if (gr->ist_tunnel() && gr->ist_karten_boden() && !is_flying()) {
 		use_calc_height = true; // to avoid errors if underground mode is switched
 		if(  grund_t::underground_mode == grund_t::ugm_none  ||
 			(grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() < grund_t::underground_level)
@@ -1776,7 +1776,7 @@ sint16 get_friction_of_waytype(waytype_t waytype)
 }
 
 
-/* calculates the current friction coefficient based on the curent track
+/* calculates the current friction coefficient based on the current track
  * flat, slope, (curve)...
  * @author prissi, HJ, Dwachs
  */
@@ -5500,8 +5500,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				modified_route_index = route_index;
 			}
 
-			
-
 			const koord3d check_tile_mid = route->at(route_count / 2u);
 			const koord3d check_tile_end = route->back(); 
 
@@ -5552,6 +5550,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				if(((counter -- || (pre_signals.empty() && (!starting_at_signal || signs.get_count() == 1)) || (reached_end_of_loop && (early_platform_index == INVALID_INDEX || last_stop_signal_index < early_platform_index))) && (signal->get_desc()->get_working_method() != token_block || starting_at_signal)) && route->at(route->get_count() - 1) != signal->get_pos())
 				{
 					const bool use_no_choose_aspect = choose_route_identical_to_main_route || (signal->get_desc()->is_choose_sign() && !is_choosing && choose_return == 0);
+					
 					if(signal->get_desc()->get_working_method() == absolute_block || signal->get_desc()->get_working_method() == token_block || signal->get_desc()->get_working_method() == cab_signalling)
 					{
 						// There is no need to set a combined signal to clear here, as this is set below in the pre-signals clearing loop.
@@ -5582,6 +5581,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							{
 								add_value = 1;
 							}
+
+							if (choose_route_identical_to_main_route)
+							{
+								add_value -= choose_return;
+							}
 						
 							switch(signal->get_desc()->get_aspects())
 							{
@@ -5599,7 +5603,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								}
 								else if(next_signal_index > route->get_count() - 1 || signal->get_pos() != route->at(next_signal_index))
 								{
-									if(signal->get_state() == roadsign_t::danger)
+									if (signal->get_state() == roadsign_t::danger || (choose_route_identical_to_main_route && choose_return && signal->get_state() == roadsign_t::caution))
 									{
 										signal->set_state(use_no_choose_aspect ? roadsign_t::caution_no_choose : roadsign_t::caution);
 									}
@@ -5612,14 +5616,14 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								}
 								else if(counter + add_value >= 1)
 								{
-									if(signal->get_state() == roadsign_t::danger || signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::caution_no_choose)
+									if(signal->get_state() == roadsign_t::danger || signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::caution_no_choose || (choose_route_identical_to_main_route && choose_return && signal->get_state() == roadsign_t::preliminary_caution))
 									{
 										signal->set_state(use_no_choose_aspect && signal->get_state() != roadsign_t::caution && signal->get_state() != roadsign_t::preliminary_caution ? roadsign_t::preliminary_caution_no_choose : roadsign_t::preliminary_caution);
 									}	
 								}
 								else if(next_signal_index > route->get_count() - 1 || signal->get_pos() != route->at(next_signal_index))
 								{
-									if(signal->get_state() == roadsign_t::danger)
+									if (signal->get_state() == roadsign_t::danger || (choose_route_identical_to_main_route && choose_return && signal->get_state() == roadsign_t::caution))
 									{
 										signal->set_state(use_no_choose_aspect ? roadsign_t::caution_no_choose : roadsign_t::caution);
 									}
@@ -5632,21 +5636,21 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								}
 								else if(counter + add_value >= 2)
 								{
-									if(signal->get_state() == roadsign_t::danger || signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::preliminary_caution || signal->get_state() == roadsign_t::caution_no_choose || signal->get_state() == roadsign_t::preliminary_caution_no_choose)
+									if(signal->get_state() == roadsign_t::danger || signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::preliminary_caution || signal->get_state() == roadsign_t::caution_no_choose || signal->get_state() == roadsign_t::preliminary_caution_no_choose || (choose_route_identical_to_main_route && choose_return && signal->get_state() == roadsign_t::advance_caution))
 									{
 										signal->set_state(use_no_choose_aspect && signal->get_state() != roadsign_t::caution && signal->get_state() != roadsign_t::clear && signal->get_state() != roadsign_t::preliminary_caution && signal->get_state() != roadsign_t::advance_caution  ? roadsign_t::advance_caution_no_choose : roadsign_t::advance_caution);
 									}
 								}
 								else if(counter + add_value >= 1)
 								{
-									if(signal->get_state() == roadsign_t::danger || signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::caution_no_choose)
+									if (signal->get_state() == roadsign_t::danger || signal->get_state() == roadsign_t::caution || signal->get_state() == roadsign_t::caution_no_choose || (choose_route_identical_to_main_route && choose_return && signal->get_state() == roadsign_t::preliminary_caution))
 									{
 										signal->set_state(use_no_choose_aspect && signal->get_state() != roadsign_t::caution && signal->get_state() != roadsign_t::clear && signal->get_state() != roadsign_t::preliminary_caution && signal->get_state() != roadsign_t::advance_caution  || signal->get_state() == roadsign_t::caution ? roadsign_t::preliminary_caution_no_choose : roadsign_t::preliminary_caution);
 									}
 								}
 								else if(next_signal_index > route->get_count() - 1 || signal->get_pos() != route->at(next_signal_index))
 								{
-									if(signal->get_state() == roadsign_t::danger)
+									if (signal->get_state() == roadsign_t::danger || (choose_route_identical_to_main_route && choose_return && signal->get_state() == roadsign_t::caution))
 									{
 										signal->set_state(use_no_choose_aspect ? roadsign_t::caution_no_choose : roadsign_t::caution);
 									}
@@ -7570,12 +7574,15 @@ void air_vehicle_t::display_after(int xpos_org, int ypos_org, bool is_global) co
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
 		get_screen_offset( xpos, ypos, raster_width );
 
+		display_swap_clip_wh(CLIP_NUM_VAR);
+
 		// will be dirty
 		// the aircraft!!!
 		display_color( image, xpos, ypos, get_player_nr(), true, true/*get_flag(obj_t::dirty)*/  CLIP_NUM_PAR);
 #ifndef MULTI_THREAD
 		vehicle_t::display_after(xpos_org, ypos_org - tile_raster_scale_y(current_flughohe - hoff - 2, raster_width), is_global);
 #endif
+		display_swap_clip_wh(CLIP_NUM_VAR);
 	}
 #ifdef MULTI_THREAD
 }

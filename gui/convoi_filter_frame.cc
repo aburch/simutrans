@@ -18,7 +18,7 @@
 #include "../simcolor.h"
 
 #include "../descriptor/goods_desc.h"
-#include "../bauer/warenbauer.h"
+#include "../bauer/goods_manager.h"
 #include "../dataobj/translator.h"
 
 #define D_HALF_BUTTON_WIDTH (D_BUTTON_WIDTH/2)

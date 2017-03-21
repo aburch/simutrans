@@ -13,7 +13,7 @@
 #include "../../simconvoi.h"
 #include "../../display/simgraph.h"
 #include "../../convoy.h"
-#include "../../bauer/warenbauer.h"
+#include "../../bauer/goods_manager.h"
 #include "../../dataobj/translator.h"
 #include "../../player/simplay.h"
 #include "../../vehicle/simvehicle.h"

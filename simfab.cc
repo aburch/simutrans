@@ -30,6 +30,7 @@
 #include "simworld.h"
 #include "descriptor/building_desc.h"
 #include "descriptor/goods_desc.h"
+#include "descriptor/sound_desc.h"
 #include "player/simplay.h"
 
 #include "simmesg.h"
@@ -47,7 +48,7 @@
 
 #include "descriptor/factory_desc.h"
 #include "bauer/hausbauer.h"
-#include "bauer/warenbauer.h"
+#include "bauer/goods_manager.h"
 #include "bauer/fabrikbauer.h"
 
 #include "gui/fabrik_info.h"
@@ -723,6 +724,7 @@ fabrik_t::fabrik_t(loadsave_t* file)
 	status = nothing;
 	currently_producing = false;
 	transformer_connected = NULL;
+	last_sound_ms = welt->get_zeit_ms();
 
 	if(  desc == NULL  ) {
 		dbg->warning( "fabrik_t::fabrik_t()", "No pak-file for factory at (%s) - will not be built!", pos_origin.get_str() );
@@ -862,6 +864,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, s
 		}
 	}
 	
+	last_sound_ms = welt->get_zeit_ms();
 	init_stats();
 	arrival_stats_pax.init();
 	arrival_stats_mail.init();
@@ -1090,7 +1093,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 					build_locations.append(gr);
 					assert(gr->find<field_t>() == NULL);
 				}
-				// skip inside of rectange (already checked earlier)
+				// skip inside of rectangle (already checked earlier)
 				if(radius > 1 && yoff == -radius && (xoff > -radius && xoff < radius + get_desc()->get_building()->get_size().x - 1)) {
 					yoff = radius + get_desc()->get_building()->get_size().y - 2;
 				}
@@ -1517,6 +1520,10 @@ void fabrik_t::smoke() const
 		wolke_t *smoke =  new wolke_t(gr->get_pos(), offsetx, offsety, rada->get_images() );
 		gr->obj_add(smoke);
 		welt->sync_way_eyecandy.add( smoke );
+	}
+	// maybe sound?
+	if (desc->get_sound() != NO_SOUND  &&  	welt->get_zeit_ms()>last_sound_ms + desc->get_sound_intervall_ms()) {
+		welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound());
 	}
 }
 
@@ -2962,7 +2969,7 @@ void fabrik_t::rem_supplier(koord pos)
 			w.max_transit = 0;
 		}
 
-		// unfourtunately we have to bite the bullet and recalc the values from scratch ...
+		// unfortunately we have to bite the bullet and recalc the values from scratch ...
 		FOR( vector_tpl<koord>, ziel, suppliers ) {
 			if(  fabrik_t *fab = get_fab( ziel )  ) {
 				for(  uint32 i=0;  i < fab->get_ausgang().get_count();  i++   ) {

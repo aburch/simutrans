@@ -82,7 +82,7 @@ public:
 
 	/**
 	 * Checks if element is contained. Appends only new elements.
-	 * extend vector if nessesary
+	 * extend vector if necessary
 	 */
 	bool append_unique(T elem, uint8 extend)
 	{

@@ -103,7 +103,7 @@ protected:
 	sint32 add_maintenance(sint32 change, waytype_t const wt=ignore_wt);
 
 	/**
-	 * Ist dieser Spieler ein automatischer Spieler?
+	 * Is this player an AI player?
 	 * @author Hj. Malthaner
 	 */
 	bool active;

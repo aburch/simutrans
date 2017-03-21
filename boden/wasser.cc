@@ -1,7 +1,7 @@
 /*
- * Water-Untergrund für Simutrans.
- * Überarbeitet Januar 2001
- * von Hj. Malthaner
+ * Water ground for Simutrans.
+ * Revised January 2001
+ * Hj. Malthaner
  */
 
 #include "wasser.h"

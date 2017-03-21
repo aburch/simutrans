@@ -497,7 +497,7 @@ void rdwr_all_win(loadsave_t *file)
 					// end of dialogues
 					case (uint32)magic_none: return;
 
-					// actual dialogues to restore
+					// actual dialoguess to restore
 					case magic_convoi_info:    w = new convoi_info_t(); break;
 					case magic_convoi_detail:  w = new convoi_detail_t(); break;
 					case magic_themes:         w = new themeselector_t(); break;

@@ -239,7 +239,7 @@ typedef struct{
 } world_thread_param_t;
 
 
-// now the paramters
+// now the parameters
 static world_thread_param_t world_thread_param[MAX_THREADS];
 
 void *karte_t::world_xy_loop_thread(void *ptr)
@@ -441,7 +441,7 @@ void karte_t::perlin_hoehe_loop( sint16 x_min, sint16 x_max, sint16 y_min, sint1
 
 
 /**
- * Hoehe eines Punktes der Karte mit "perlin noise"
+ * Height one point in the map with "perlin noise"
  *
  * @param frequency in 0..1.0 roughness, the higher the rougher
  * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
@@ -451,7 +451,7 @@ sint32 karte_t::perlin_hoehe(settings_t const* const sets, koord k, koord const 
 {
 	// Hajo: to Markus: replace the fixed values with your
 	// settings. Amplitude is the top highness of the
-	// montains, frequency is something like landscape 'roughness'
+	// mountains, frequency is something like landscape 'roughness'
 	// amplitude may not be greater than 160.0 !!!
 	// please don't allow frequencies higher than 0.8 it'll
 	// break the AI's pathfinding. Frequency values of 0.5 .. 0.7
@@ -515,7 +515,7 @@ void karte_t::cleanup_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, si
 
 void karte_t::cleanup_karte( int xoff, int yoff )
 {
-	// we need a copy to smoothen the map to a realistic level
+	// we need a copy to smooth the map to a realistic level
 	const sint32 grid_size = (get_size().x+1)*(sint32)(get_size().y+1);
 	sint8 *grid_hgts_cpy = new sint8[grid_size];
 	memcpy( grid_hgts_cpy, grid_hgts, grid_size );
@@ -548,7 +548,7 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 
 void karte_t::destroy()
 {
-	is_sound = false; // karte_t::play_sound_area_clipped needs valid zeiger
+	is_sound = false; // karte_t::play_sound_area_clipped needs valid zeiger (pointer/drawer)
 	destroying = true;
 DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
@@ -844,7 +844,7 @@ void karte_t::set_scenario(scenario_t *s)
 
 void karte_t::create_rivers( sint16 number )
 {
-	// First check, wether there is a canal:
+	// First check, whether there is a canal:
 	const way_desc_t* river_desc = way_builder_t::get_desc( env_t::river_type[env_t::river_types-1], 0 );
 	if(  river_desc == NULL  ) {
 		// should never reaching here ...
@@ -887,7 +887,7 @@ void karte_t::create_rivers( sint16 number )
 		koord const start = pick_any_weighted(mountain_tiles);
 		mountain_tiles.remove( start );
 
-		// build a list of matchin targets
+		// build a list of matching targets
 		vector_tpl<koord> valid_water_tiles;
 
 		for(  uint32 i=0;  i<water_tiles.get_count();  i++  ) {
@@ -1273,7 +1273,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 				if(  conn.x >= 0  ) {
 					// is there a connection already
 					const bool connected = (  phase==1  &&  verbindung.calc_route(this, k[conn.x], k[conn.y], test_driver, 0, 0, false, 0 )  );
-					// build this connestion?
+					// build this connection?
 					bool build = false;
 					// set appropriate max length for way builder
 					if(  connected  ) {
@@ -2789,7 +2789,7 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 		set_dirty();
 		reset_timer();
 	}
-	// update main menue
+	// update main menu
 	tool_t::update_toolbars();
 }
 
@@ -3767,7 +3767,7 @@ int karte_t::grid_lower(const player_t *player, koord k, const char*&err)
 
 bool karte_t::can_ebne_planquadrat(player_t *player, koord k, sint8 hgt, bool keep_water, bool make_underwater_hill)
 {
-	return ebne_planquadrat(player, k, hgt, keep_water, make_underwater_hill, true /* justcheck */);
+	return ebne_planquadrat(player, k, hgt, keep_water, make_underwater_hill, true /* just check */);
 }
 
 
@@ -4138,7 +4138,7 @@ void karte_t::rotate90_plans(sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_
 void karte_t::rotate90()
 {
 DBG_MESSAGE( "karte_t::rotate90()", "called" );
-	// asumme we can save this rotation
+	// assume we can save this rotation
 	nosave_warning = nosave = false;
 
 	//announce current target rotation
@@ -4516,7 +4516,7 @@ rands[7] = 0;
 		set_random_mode( INTERACTIVE_RANDOM );
 
 		/* animations do not require exact sync
-		 * foundations etc are added removed freuently during city growth
+		 * foundations etc are added removed frequently during city growth
 		 * => they are now in a hastable!
 		 */
 		sync_eyecandy.sync_step( delta_t );
@@ -4598,7 +4598,7 @@ void karte_t::update_frame_sleep_time()
 		// (de-)activate faster redraw
 		env_t::simple_drawing = (env_t::simple_drawing_normal >= get_tile_raster_width());
 
-		// calaculate and activate fast redraw ..
+		// calculate and activate fast redraw ..
 		if(  realFPS > (env_t::fps*17/16)  ) {
 			// decrease fast tile zoom by one
 			if(  env_t::simple_drawing_normal > env_t::simple_drawing_default  ) {
@@ -4679,13 +4679,13 @@ void karte_t::update_frame_sleep_time()
 }
 
 
-// add an amout to a subcategory
+// add an amount to a subcategory
 void karte_t::buche(sint64 const betrag, player_cost const type)
 {
 	assert(type < MAX_WORLD_COST);
 	finance_history_year[0][type] += betrag;
 	finance_history_month[0][type] += betrag;
-	// to do: check for dependecies
+	// to do: check for dependencies
 }
 
 
@@ -7431,7 +7431,7 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_s
 
 
 /**
- * Play a sound, but only if near enoungh.
+ * Play a sound, but only if near enough.
  * Sounds are muted by distance and clipped completely if too far away.
  *
  * @author Hj. Malthaner
@@ -7635,7 +7635,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved stops");
 
-	// svae number of convois
+	// save number of convois
 	if(  file->get_version()>=101000  ) {
 		uint16 i=convoi_array.get_count();
 		file->rdwr_short(i);
@@ -7930,7 +7930,7 @@ bool karte_t::load(const char *filename)
 
 	DBG_MESSAGE("karte_t::load", "loading game from '%s'", filename);
 
-	// reloading same game? Remeber pos
+	// reloading same game? Remember pos
 	const koord oldpos = settings.get_filename()[0]>0  &&  strncmp(filename,settings.get_filename(),strlen(settings.get_filename()))==0 ? viewport->get_world_position() : koord::invalid;
 
 	if(  strstart(filename, "net:")  ) {
@@ -8215,7 +8215,7 @@ void karte_t::load(loadsave_t *file)
 
 	simloops = 60;
 
-	// zum laden vorbereiten -> tabelle loeschen
+	// zum laden vorbereiten -> tablele loeschen
 	powernet_t::new_world();
 	pumpe_t::new_world();
 	senke_t::new_world();
@@ -10106,7 +10106,7 @@ bool karte_t::interactive(uint32 quit_month)
 					dbg->warning("karte_t::interactive", "sync_step=%u  %s", sync_steps, buf);
 #endif
 
-					// some serverside tasks
+					// some server sidetasks
 					if(  env_t::networkmode  &&  env_t::server  ) {
 						// broadcast sync info regularly and when lagged
 						const sint64 timelag = (sint32)dr_time() - (sint32)next_step_time;

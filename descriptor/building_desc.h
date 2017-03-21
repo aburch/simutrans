@@ -53,7 +53,7 @@ public:
 
 	int get_index() const { return index; }
 	int get_seasons() const { return seasons; }
-	int get_phasen() const { return phases; }
+	int get_phases() const { return phases; }
 
 	bool has_image() const {
 		return get_background(0,0,0)!=IMG_EMPTY  ||  get_foreground(0,0)!=IMG_EMPTY;

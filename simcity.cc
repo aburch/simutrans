@@ -3173,7 +3173,7 @@ void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 
 /**
  * bauplatz_mit_strasse_sucher_t:
- * Sucht einen freien Bauplatz mithilfe der Funktion suche_platz().
+ * Search for a free location using the function suche_platz().
  * added: Minimum distance between monuments
  * @author V. Meyer/prissi
  */
@@ -4813,7 +4813,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 			}
 		} else {
 			weg_t *weg = new strasse_t();
-			// Hajo: city roads should not belong to any player => so we can ignore any contruction costs ...
+			// Hajo: city roads should not belong to any player => so we can ignore any construction costs ...
 			weg->set_desc(welt->get_city_road());
 			strasse_t *str = static_cast<strasse_t *>(weg);
 			str->set_gehweg(true);

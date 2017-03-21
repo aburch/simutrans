@@ -123,7 +123,7 @@ enum {
 };
 
 enum {
-	// dialoge tools
+	// dialogue tools
 	DIALOG_HELP = 0,
 	DIALOG_OPTIONS,
 	DIALOG_MINIMAP,
@@ -180,7 +180,7 @@ public:
 
 	static tool_t *dummy;
 
-	// for key loockup
+	// for key lookup
 	static vector_tpl<tool_t *>char_to_tool;
 
 	/// cursor image

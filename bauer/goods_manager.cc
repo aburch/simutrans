@@ -10,7 +10,7 @@
 #include "../descriptor/spezial_obj_tpl.h"
 #include "../simware.h"
 #include "../simcolor.h"
-#include "warenbauer.h"
+#include "goods_manager.h"
 #include "../dataobj/translator.h"
 
 
@@ -29,7 +29,7 @@ goods_desc_t *goods_manager_t::load_mail = NULL;
 goods_desc_t *goods_manager_t::load_none = NULL;
 
 static spezial_obj_tpl<goods_desc_t> const special_objects[] = {
-	{ &goods_manager_t::passengers,    "Passagiere" },
+	{ &goods_manager_t::passengers, "Passagiere" },
 	{ &goods_manager_t::mail,	    "Post" },
 	{ &goods_manager_t::none,	    "None" },
 	{ NULL, NULL }

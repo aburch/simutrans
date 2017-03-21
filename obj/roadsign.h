@@ -107,7 +107,7 @@ public:
 	virtual void info(cbuffer_t & buf, bool dummy = false) const;
 
 	/**
-	 * berechnet aktuelles image
+	 * Calculate actual image
 	 */
 	virtual void calc_image();
 
@@ -149,7 +149,7 @@ public:
 
 	void rotate90();
 
-	// substracts cost
+	// subtracts cost
 	void cleanup(player_t *player);
 
 	void finish_rd();
@@ -214,7 +214,7 @@ public:
 	}
 
 	/* In order to allow for Swedish and Czeck translations (and possibly other translations as well), the type of signal showing the aspect need to be identified by the aspect name.
-	Also, wether it is a time interval signal needs to be identified from the aspect name, as "CLEAR" or "CAUTION" on a three aspect signal in this case do not refer to 
+	Also, whether it is a time interval signal needs to be identified from the aspect name, as "CLEAR" or "CAUTION" on a three aspect signal in this case do not refer to 
 	the forthcomming signal (however, it does on the presignal!).
 	Choose signals have their own namelist as well.
 	 clearpre = presignal

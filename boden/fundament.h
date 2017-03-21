@@ -5,7 +5,7 @@
 
 
 /**
- * Das Fundament dient als Untergrund fuer all Bauwerke in Simutrans.
+ * The foundation serves as base ground for all buildings in Simutrans.
  *
  * @author Hj. Malthaner
  */
@@ -23,8 +23,8 @@ public:
 	fundament_t(koord3d pos,slope_t::type hang, bool build_up = true);
 
 	/**
-	* Das Fundament heisst 'Fundament'.
-	* @return gibt 'Fundament' zurueck.
+	* The foundation is called 'Fundament'.
+	* @return 'Fundament'.
 	* @author Hj. Malthaner
 	*/
 	const char *get_name() const {return "Fundament";}

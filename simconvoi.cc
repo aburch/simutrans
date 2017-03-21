@@ -604,7 +604,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 		destroy();
 		return;
 	}
-	// put convoi agian right on track?
+	// put convoi again right on track?
 	if(realing_position  &&  anz_vehicle>1) {
 		// display just a warning
 		DBG_MESSAGE("convoi_t::finish_rd()","cnv %i is currently too long.",self.get_id());
@@ -3045,7 +3045,7 @@ bool convoi_t::can_go_alte_direction()
 
 	uint16 length = min((convoi_length/16u)+4u,route.get_count());	// maximum length in tiles to check
 
-	// we just check, wether we go back (i.e. route tiles other than zero have convoi vehicles on them)
+	// we just check, whether we go back (i.e. route tiles other than zero have convoi vehicles on them)
 	for( int index=1;  index<length;  index++ ) {
 		grund_t *gr=welt->lookup(route.at(index));
 		// now check, if we are already here ...

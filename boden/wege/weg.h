@@ -30,8 +30,8 @@ template <class T> class vector_tpl;
 #define MAX_WAY_STATISTICS 2
 
 enum way_statistics {
-	WAY_STAT_GOODS   = 0, ///< number of goods transported over this weg
-	WAY_STAT_CONVOIS = 1  ///< number of convois that passed this weg
+	WAY_STAT_GOODS   = 0, ///< number of goods transported over this way
+	WAY_STAT_CONVOIS = 1  ///< number of convois that passed this way
 };
 
 
@@ -94,7 +94,7 @@ private:
 	uint8 ribi:4;
 
 	/**
-	* Maske für Richtungsbits
+	* ask for ribi (Richtungsbits => Direction Bits)
 	* @author Hj. Malthaner
 	*/
 	uint8 ribi_maske:4;
@@ -266,7 +266,7 @@ public:
 	virtual void rdwr(loadsave_t *file);
 
 	/**
-	* Info-text für diesen Weg
+	* Info-text for this way
 	* @author Hj. Malthaner
 	*/
 	virtual void info(cbuffer_t & buf, bool is_bridge = false) const;
@@ -286,7 +286,7 @@ public:
 
 	/**
 	* 'Jedes Ding braucht einen Typ.'
-	* @return Gibt den typ des Objekts zurück.
+	* @return the object type.
 	* @author Hj. Malthaner
 	*/
 	//typ get_typ() const { return obj_t::way; }
@@ -298,7 +298,7 @@ public:
 	const char *get_name() const { return desc->get_name(); }
 
 	/**
-	* Setzt neue Richtungsbits für einen Weg.
+	* Add direction bits (ribi) for a way.
 	*
 	* Nachdem die ribis geändert werden, ist das weg_image des
 	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
@@ -308,7 +308,7 @@ public:
 	void ribi_add(ribi_t::ribi ribi) { this->ribi |= (uint8)ribi;}
 
 	/**
-	* Entfernt Richtungsbits von einem Weg.
+	* Remove direction bits (ribi) on a way.
 	*
 	* Nachdem die ribis geändert werden, ist das weg_image des
 	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
@@ -318,7 +318,7 @@ public:
 	void ribi_rem(ribi_t::ribi ribi) { this->ribi &= (uint8)~ribi;}
 
 	/**
-	* Setzt Richtungsbits für den Weg.
+	* Set direction bits (ribi) for the way.
 	*
 	* Nachdem die ribis geändert werden, ist das weg_image des
 	* zugehörigen Grundes falsch (Ein Aufruf von grund_t::calc_image()
@@ -328,12 +328,12 @@ public:
 	void set_ribi(ribi_t::ribi ribi) { this->ribi = (uint8)ribi;}
 
 	/**
-	* Ermittelt die unmaskierten Richtungsbits für den Weg.
+	* Get the unmasked direction bits (ribi) for the way (without signals or other ribi changer).
 	*/
 	ribi_t::ribi get_ribi_unmasked() const { return (ribi_t::ribi)ribi; }
 
 	/**
-	* Ermittelt die (maskierten) Richtungsbits für den Weg.
+	* Get the masked direction bits (ribi) for the way (with signals or other ribi changer).
 	*/
 	ribi_t::ribi get_ribi() const { return (ribi_t::ribi)(ribi & ~ribi_maske); }
 
@@ -403,7 +403,7 @@ public:
 	inline void set_after_image( image_id b ) { foreground_image = b; }
 	image_id get_front_image() const {return foreground_image;}
 
-	// correct maintainace
+	// correct maintenance
 	void finish_rd();
 
 	// Should a city adopt this, if it is being built/upgrade by player player?

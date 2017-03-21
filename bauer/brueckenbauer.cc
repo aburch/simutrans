@@ -263,7 +263,7 @@ const char *check_tile( const grund_t *gr, const player_t *player, waytype_t wt,
 			return "A bridge must start on a way!";
 		}
 	}
-	// somethign here which we cannot remove => fail too
+	// something here which we cannot remove => fail too
 	if(  obj_t *obj=gr->obj_bei(0)  ) {
 		if(  const char *err_msg = obj->is_deletable(player)  ) {
 			return err_msg;

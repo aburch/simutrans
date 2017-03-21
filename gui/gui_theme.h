@@ -18,7 +18,7 @@ class image_t;
 /*
  * The following gives positioning aids for elements in dialogues
  * Only those, LINESPACE, and dimensions of elements itself must be
- * exclusively used to calculate positions in dialogues to have a
+ * exclusively used to calculate positions in dialoguess to have a
  * scalable interface
  *
  * Max Kielland:

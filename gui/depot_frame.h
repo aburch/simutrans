@@ -96,7 +96,7 @@ private:
 	/// contains the current translation of "<promote to line>"
 	const char* promote_to_line_text;
 	/// "-----------" between header items and lines
-	const char* line_seperator;
+	const char* line_separator;
 
 	gui_combobox_t line_selector;
 

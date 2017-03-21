@@ -7,7 +7,7 @@
 #include "../simunits.h"
 #include "livery_scheme.h"
 #include "../tpl/piecewise_linear_tpl.h" // for various revenue tables
-#include "../bauer/warenbauer.h" // for speed bonus tables
+#include "../bauer/goods_manager.h" // for speed bonus tables
 
 /**
  * Game settings

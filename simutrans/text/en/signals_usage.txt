@@ -34,7 +34,7 @@ Signals which have presignals integrated into the stopsignal will get additional
 3 - <it>CAUTION</it>: Proceed, but next signal will be at danger<br>
 4 - <it>PRELIMINARY CAUTION</it>: Proceed, but second next signal will be at danger<br>
 5 - <it>ADVANCED CAUTION</it>: Proceed, buth third next signal will be at danger<br>
-Note to the 2-CLEAR aspect: The number of free blocks ahead depends on wether this is a 3,4 or 5 aspect signal.<br><br>
+Note to the 2-CLEAR aspect: The number of free blocks ahead depends on whether this is a 3,4 or 5 aspect signal.<br><br>
 
 Multiaspect signals are mostly used with the "track circuit block" system and also possibly the "cab signal" system, however other working methods also make use of more than two aspects:<br><br>
 
@@ -61,7 +61,7 @@ The brake distance of a convoy is shown as "brakes from maxspeed" in the <a href
 <em>Cab signals</em><br>
 The cab signals represents the ballisers that are on the real world tracks. Trains passing a "cab signal" automatically have the nessecary equipment onboard.<br>
 The cab signals are raizing the sighting distance to unlimited, thus eliminating the need for any presignalling. Otherwise they are threated exactly as normal two aspect track circuit block signals, but due to their unlimited sighting distance, they are in effect unlimited-aspect signals!<br>
-Some paksets have visible states of the signals, other dont.<br>
+Some paksets have visible states of the signals, other don't.<br>
 1 - <it>DANGER</it>: Stop in front of signal<br>
 2 - <it>CLEAR</it>: Proceed<br><br>
 
@@ -81,7 +81,7 @@ If using single tracked lines, be carefull to create a directional reservation B
 
 <em>Choose signals</em><br>
 Choose signals serves two functions: They will guide the train to an empty platform at the station, and they will guide a train through a station if the mainline route is occupied. To make use of this second function, you need to place an <it>end of choose</it> sign outside all the exits of the station.<br>
-When a train approaches the choose signal, it will try to book a route all the way till its destination platform or the "end of choose" sign, whichever is encountered first. If succeded, the appropriate <it>(main route)</it> message is given to the train. If the initial attempt fails, the choose signal tries to book a route to an alternative platform, or via an alternative route to the end of choose sign. If the second attempt is succesfull, the appropriate <it>(subsidiary route)</it> message is given to the train. If second attempt also failed, it will show DANGER until any route is free.<br>
+When a train approaches the choose signal, it will try to book a route all the way till its destination platform or the "end of choose" sign, whichever is encountered first. If succeded, the appropriate <it>(main route)</it> message is given to the train. If the initial attempt fails, the choose signal tries to book a route to an alternative platform, or via an alternative route to the end of choose sign. If the second attempt is successful, the appropriate <it>(subsidiary route)</it> message is given to the train. If second attempt also failed, it will show DANGER until any route is free.<br>
 The choose signal may also be a multiple aspect signal with the same number of aspects as a normal signal.<br><br>
 
 The titles of the states (DANGER, CLEAR, CAUTION, PRELIMINARY- and ADVANVED CAUTION) are the same as for normal signals:<br>
@@ -94,7 +94,7 @@ The titles of the states (DANGER, CLEAR, CAUTION, PRELIMINARY- and ADVANVED CAUT
 4b - <it>PRELIMINARY CAUTION (main route)</it> -<br>
 5a - <it>ADVANCED CAUTION (subsidiarey route)</it> -<br>
 5b - <it>ADVANCED CAUTION (main route)</it> -<br>
-Note to the CLEAR aspect: The number of free blocks ahead depends on wether this is a 2,3,4 or 5 aspect signal, just like a normal multi aspect signal.<br>
+Note to the CLEAR aspect: The number of free blocks ahead depends on whether this is a 2,3,4 or 5 aspect signal, just like a normal multi aspect signal.<br>
 Also note that if a 3- or more aspect choose signal is guiding a train to a platform, it will show CAUTION, even if the track is clear behind the station (a 2 aspect choose signal will obviously show CLEAR)<br><br>
 
 <it>Placement:</it><br>
@@ -116,7 +116,7 @@ A permissive signal can have up to a total of six states:<br>
 4 - <it>PRELIMINARY CAUTION</it>: Proceed, but second next signal will be at danger<br>
 5 - <it>ADVANCED CAUTION</it>: Proceed, buth third next signal will be at danger<br>
 6 - <it>CALL ON</it>: Proceed at drive by sight<br><br>
-Note to the CLEAR aspect: The number of free blocks ahead depends on wether this is a 2,3,4 or 5 aspect signal, just like a normal multi aspect signal.<br><br>
+Note to the CLEAR aspect: The number of free blocks ahead depends on whether this is a 2,3,4 or 5 aspect signal, just like a normal multi aspect signal.<br><br>
 
 <it>Placement:</it><br>
 Permissive signals should be placed where there is no risk at encounting head on traffic, eg at double tracks.<br>

@@ -3,7 +3,7 @@
 <h1><strong>Message Centre</strong></h1>
 
 <p>
-The <strong>message centre</strong> is a listing of all dialogues and messages (including messages on the ticker, at the bottom of the screen) from the game.
+The <strong>message centre</strong> is a listing of all dialoguess and messages (including messages on the ticker, at the bottom of the screen) from the game.
 </p>
 <p>
 Click on the mailbox icon in the toolstrip at top of the main game window, or press <a href="keys.txt">[B]</a> to open the <strong>message centre</strong> window. Clicking on individual messages will, in appropriate cases, move the main game window to the location associated with that message.

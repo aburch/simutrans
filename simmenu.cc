@@ -46,7 +46,7 @@
 
 karte_ptr_t tool_t::welt;
 
-// for key loockup; is always sorted during the game
+// for key lookup; is always sorted during the game
 vector_tpl<tool_t *>tool_t::char_to_tool(0);
 
 // here are the default values, icons, cursor, sound definitions ...
@@ -326,7 +326,7 @@ void tool_t::read_menu(const std::string &objfilename)
 {
 	char_to_tool.clear();
 	tabfile_t menuconf;
-	// only use pak sepcific menues, since otherwise images may missing
+	// only use pak specific menus, since otherwise  images may be missing
 	if (!menuconf.open((objfilename+"config/menuconf.tab").c_str())) {
 		dbg->fatal("tool_t::init_menu()", "Can't read %sconfig/menuconf.tab", objfilename.c_str() );
 	}
@@ -780,7 +780,7 @@ void toolbar_t::update(player_t *player)
 					waytype_t way = (waytype_t)(*c!=0 ? atoi(++c) : 0);
 					hausbauer_t::fill_menu( tool_selector, utype, way, get_sound(c));
 				} else if (param[0] == '-') {
-					// add dummy werkzeug as seperator
+					// add dummy werkzeug as separator
 					tool_selector->add_tool_selector( dummy );
 				}
 			}

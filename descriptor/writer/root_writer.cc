@@ -271,7 +271,7 @@ bool root_writer_t::do_copy(FILE* outfp, obj_node_info_t& root, const char* open
 }
 
 
-// merges pak files into an archieve
+// merges pak files into an archive
 //
 void root_writer_t::copy(const char* name, int argc, char* argv[])
 {
@@ -358,7 +358,7 @@ void root_writer_t::uncopy(const char* name)
 	}
 
 	if (!infp) {
-		dbg->fatal( "Unmerge", "Cannot open archieve file %s\n", name);
+		dbg->fatal( "Unmerge", "Cannot open archive file %s\n", name);
 		exit(3);
 	}
 
@@ -371,14 +371,14 @@ void root_writer_t::uncopy(const char* name)
 			obj_node_info_t root;
 			obj_node_t::read_node( infp, root );
 			if (root.children == 1) {
-				dbg->error( "Unmerge", "%s is not an archieve (aborting)", name);
+				dbg->error( "Unmerge", "%s is not an archive (aborting)", name);
 				fclose(infp);
 				exit(3);
 			}
 
 			printf("  found %d files to extract\n\n", root.children);
 
-			// now itereate over the archieve
+			// now itereate over the archive
 			for (  int number=0;  number<root.children;  number++  ) {
 				// read the info node ...
 				long start_pos=ftell(infp);

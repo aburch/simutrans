@@ -10,7 +10,7 @@
 
 #include <math.h>
 #include "convoy.h"
-#include "bauer/warenbauer.h"
+#include "bauer/goods_manager.h"
 #include "vehicle/simvehicle.h"
 #include "simconvoi.h"
 

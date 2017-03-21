@@ -10,7 +10,7 @@
 #include "../api_function.h"
 #include "../../descriptor/building_desc.h"
 #include "../../descriptor/goods_desc.h"
-#include "../../bauer/warenbauer.h"
+#include "../../bauer/goods_manager.h"
 #include "../../simworld.h"
 
 #define begin_enum(name)
@@ -232,7 +232,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	enum_slot(vm, "factory", (uint8)building_desc_t::factory, true);
 	/// townhall
 	enum_slot(vm, "townhall", (uint8)building_desc_t::townhall, true);
-	/// company headquarter
+	/// company headquarters
 	enum_slot(vm, "headquarter", (uint8)building_desc_t::headquarter, true);
 	/// harbour
 	enum_slot(vm, "harbour", (uint8)building_desc_t::dock, true);

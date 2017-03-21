@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "../../simdebug.h"
-#include "../../bauer/warenbauer.h"
+#include "../../bauer/goods_manager.h"
 
 #include "good_reader.h"
 #include "../obj_node_info.h"

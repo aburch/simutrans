@@ -1,5 +1,5 @@
 /*
- * system-independant event handling routines
+ * system-independent event handling routines
  * Hj. Malthaner, Jan. 2001
  */
 

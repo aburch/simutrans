@@ -4,7 +4,7 @@
 #include "grund.h"
 
 /**
- * Der Water-Untergrund modelliert Fluesse und Seen in Simutrans.
+ * The water ground models rivers and lakes in Simutrans.
  *
  * @author Hj. Malthaner
  */

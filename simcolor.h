@@ -75,7 +75,7 @@ typedef unsigned char COLOR_VAL;
 
 #define WIN_TITLE     (154)
 
-// used in many dialogues graphs
+// used in many dialoguess graphs
 #define COL_REVENUE (142)
 #define COL_OPERATION (132)
 #define COL_MAINTENANCE (134)

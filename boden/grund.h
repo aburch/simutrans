@@ -576,7 +576,7 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	void take_obj_from( grund_t *gr);
 
 	/**
-	* @return NULL wenn OK, oder Meldung, warum nicht
+	* @return NULL when OK, oder Meldung, warum nicht
 	* @author Hj. Malthaner
 	*/
 	const char * kann_alle_obj_entfernen(const player_t *player) const { return objlist.kann_alle_entfernen(player,offsets[flags/has_way1]); }

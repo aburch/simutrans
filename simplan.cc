@@ -460,13 +460,13 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 	}
 	else {
 		// clip everything at the next tile above
-		clip_dimension p_cr;
 		if(  i < ground_size  ) {
-			p_cr = display_get_clip_wh( CLIP_NUM_VAR );
+			
+			clip_dimension p_cr = display_get_clip_wh(CLIP_NUM_VAR);
+
 			for(  uint8 j = i;  j < ground_size;  j++  ) {
 				const sint8 h = data.some[j]->get_hoehe();
-				const slope_t::type slope = data.some[j]->get_grund_hang();
-				const sint8 htop = h + max(max(corner_sw(slope), corner_se(slope)),max(corner_ne(slope), corner_nw(slope)));
+				const sint8 htop = h + slope_t::max_diff(data.some[j]->get_grund_hang());
 				// too high?
 				if(  h > hmax  ) {
 					break;
@@ -476,13 +476,13 @@ void planquadrat_t::display_obj(const sint16 xpos, const sint16 ypos, const sint
 					// something on top: clip horizontally to prevent trees etc shining trough bridges
 					const sint16 yh = ypos - tile_raster_scale_y( (h - h0) * TILE_HEIGHT_STEP, raster_tile_width ) + ((3 * raster_tile_width) >> 2);
 					if(  yh >= p_cr.y  ) {
-						display_set_clip_wh(p_cr.x, yh, p_cr.w, p_cr.h + p_cr.y - yh  CLIP_NUM_PAR  );
+						display_push_clip_wh(p_cr.x, yh, p_cr.w, p_cr.h + p_cr.y - yh  CLIP_NUM_PAR);
 					}
 					break;
 				}
 			}
 			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
-			display_set_clip_wh( p_cr.x, p_cr.y, p_cr.w, p_cr.h  CLIP_NUM_PAR ); // restore clipping
+			display_pop_clip_wh(CLIP_NUM_VAR);
 		}
 		else {
 			gr0->display_obj_all( xpos, ypos, raster_tile_width, is_global  CLIP_NUM_PAR );
@@ -722,7 +722,7 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 
 /**
  * removes the halt from a ground
- * however this funtion check, whether there is really no other part still reachable
+ * however this function check, whether there is really no other part still reachable
  * @author prissi, neroden
  */
 void planquadrat_t::remove_from_haltlist(halthandle_t halt)

@@ -18,7 +18,7 @@
 #include "../../simconvoi.h"
 #include "../../convoy.h"
 
-#include "../../bauer/warenbauer.h"
+#include "../../bauer/goods_manager.h"
 #include "../../bauer/vehikelbauer.h"
 #include "../../descriptor/intro_dates.h"
 #include "../../dataobj/replace_data.h"

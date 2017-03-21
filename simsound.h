@@ -1,6 +1,6 @@
 /*
  * Description der Schnittstelle zum Soundsystem.
- * von Hj. Malthaner, 1998, 2000
+ * Hj. Malthaner, 1998, 2000
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
  */
@@ -66,7 +66,7 @@ const char *sound_get_midi_title(int index);
 
 
 /**
- * gets curent midi number
+ * gets current midi number
  * @author Hj. Malthaner
  */
 int get_current_midi();

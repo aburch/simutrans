@@ -1426,7 +1426,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				}
 			}
 
-			// ok, was sucess
+			// ok, was success
 			if(  !gr1->ist_wasser()  &&  new_slope == 0  &&  hgt == water_hgt  &&  gr1->get_typ() != grund_t::tunnelboden  ) {
 				// now water
 				gr1->obj_loesche_alle(player);
@@ -4093,8 +4093,8 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 	}
 	slope_t::type hang = gr->get_grund_hang();
 	// first get the size
-	int len = desc->get_size().y-1;
-	koord dx = koord((slope_t::type)hang);
+	int len = desc->get_y() - 1;
+	koord dx(hang);
 	koord last_k = k - dx*len;
 	halthandle_t halt;
 
@@ -4119,7 +4119,9 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 		return "Dock must be built on single slope!";
 	}
 	else {
-		for(int i=0;  i<=len;  i++  ) {
+		// iterate up to max(len,1) to ensure that there is at least one tile of water
+		// in front of the dock
+			for (int i = 0; i <= max(len, 1); i++) {
 			if(!welt->is_within_limits(k-dx*i)) {
 				// need at least a single tile to navigate ...
 				return "Zu nah am Kartenrand";
@@ -4145,7 +4147,6 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 			const grund_t *gr=welt->lookup_kartenboden(k-dx*i);
 			if (gr->get_hoehe() != pos.z) {
 				return NOTICE_UNSUITABLE_GROUND;
-				break;
 			}
 			if (const char *msg = gr->kann_alle_obj_entfernen(player)) {
 				return msg;
@@ -4158,8 +4159,11 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 				}
 			}
 			else {
-				// all other tiles in water
-				if (!gr->ist_wasser()  ||  gr->find<gebaeude_t>()  ||  gr->get_depot()  ||  gr->is_halt()) {
+				// all other tiles in water (allowing one-tile docks on rivers)
+				if (!gr->ist_wasser() && !(len == 0 && i == 1 && gr->hat_weg(water_wt))) {
+					return NOTICE_UNSUITABLE_GROUND;
+				}
+				if (gr->find<gebaeude_t>() || gr->get_depot() || gr->is_halt()) {
 					return NOTICE_TILE_FULL;
 				}
 			}
@@ -4169,7 +4173,7 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 	// remove everything from tile
 	gr->obj_loesche_alle(player);
 
-DBG_MESSAGE("tool_dockbau()","building dock from square (%d,%d) to (%d,%d)", k.x, k.y, last_k.x, last_k.y);
+DBG_MESSAGE("tool_build_station_t::tool_station_dock_aux()","building dock from square (%d,%d) to (%d,%d)", k.x, k.y, last_k.x, last_k.y);
 	int layout = 0;
 	koord3d bau_pos = welt->lookup_kartenboden(k)->get_pos();
 	koord dx2;
@@ -6314,7 +6318,7 @@ bool tool_build_land_chain_t::init( player_t * )
 	return true;
 }
 
-/* builds a (if param=NULL random) industry chain starting here *
+/* builds an (if param=NULL random) industry chain starting here *
  * the parameter string is a follow:
  * 1#34,oelfeld
  * first letter: ignore climates

@@ -143,7 +143,7 @@ const char *sound_get_midi_title(int index)
 
 
 /**
- * gets curent midi number
+ * gets current midi number
  * @author Hj. Malthaner
  */
 int get_current_midi()

@@ -9,7 +9,8 @@
 #ifndef _MSC_VER
 #include <dirent.h>
 #else
-#include <windows.h>
+#define NOMINMAX
+#include <Windows.h>
 #include <io.h>
 #endif
 
