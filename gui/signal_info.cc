@@ -67,7 +67,7 @@ bool signal_info_t::action_triggered( gui_action_creator_t *comp, value_t)
 	if (comp == &signalbox_button)
 	{
 		koord3d sb = sig->get_signalbox();
-		welt->get_viewport()->change_world_position(koord3d(sb));
-		return true;
+		welt->get_viewport()->change_world_position(koord3d(sb));		
 	}
+	return true;
 }
