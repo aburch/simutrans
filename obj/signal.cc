@@ -422,12 +422,20 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 				}
 				else
 				{
-					char number[10];
-					number_to_string(number, km_to_signalbox, 1);
-					buf.append(number);
+					uint n_actual;
+					if (km_to_signalbox < 20)
+					{
+						n_actual = 1;
+					}
+					else
+					{
+						n_actual = 0;
+					}
+					char number_actual[10];
+					number_to_string(number_actual, km_to_signalbox, n_actual);
+					buf.append(number_actual);
 					buf.append("km");
 				}
-
 				buf.append(" (");
 
 				uint32 mdt_sb = desc->get_max_distance_to_signalbox();
@@ -445,10 +453,19 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 
 				else
 				{
+					uint n_max;
 					const double max_dist = (double)mdt_sb / 1000;
-					char number[10];
-					number_to_string(number, max_dist, 1);
-					buf.append(number);
+					if (max_dist < 20) 
+					{
+						n_max = 1;
+					}
+					else
+					{
+						n_max = 0;
+					}
+					char number_max[10];
+					number_to_string(number_max, max_dist, n_max);
+					buf.append(number_max);
 					buf.append("km");
 				}
 				buf.append(")");
