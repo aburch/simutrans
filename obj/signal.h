@@ -28,6 +28,9 @@ private:
 
 	// Used for time interval signalling
 	sint64 train_last_passed;
+protected:
+
+ uint8 textlines_in_signal_window;
 
 public:
 	signal_t(loadsave_t *file);
@@ -51,6 +54,8 @@ public:
 #endif
 	const char *get_name() const { return desc->get_name(); }
 
+	uint8 get_textlines() const { return textlines_in_signal_window; }
+
 	/**
 	* Calculate actual image
 	*/
@@ -68,6 +73,8 @@ public:
 	sint64 get_train_last_passed() const { return train_last_passed; }
 
 	void show_info();
+
+
 };
 
 #endif
