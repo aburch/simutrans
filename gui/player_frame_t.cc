@@ -193,6 +193,12 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 				// create new AI
 				welt->call_change_player_tool(karte_t::new_player, i, player_select[i].get_selection());
 				player_lock[i].enable( welt->get_player(i) );
+
+				// if scripted ai without script -> open script selector window
+				ai_scripted_t *ai = dynamic_cast<ai_scripted_t*>(welt->get_player(i));
+				if (ai  &&  !ai->has_script()) {
+					create_win( new ai_selector_t(i), w_info, magic_finances_t + i );
+				}
 			}
 			else {
 				// Current AI on/off
