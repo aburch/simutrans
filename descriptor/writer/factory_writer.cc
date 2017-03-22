@@ -184,7 +184,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// how long between sounds
 	uint32 const sound_interval = obj.get_int("sound_interval", 0xFFFFFFFFul);
 
-	uint16 total_len = 41;
+	uint16 total_len = 44;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim(obj.get("sound"));
@@ -325,11 +325,11 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint32(fp, sound_interval,				37);
 	node.write_uint8(fp, sound_id,						41);
 
-	// this should ne always at the end
+	// this should be always at the end
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
-		node.write_sint8(fp, sound_str_len, 43);
-		node.write_data_at(fp, sound_str.c_str(), 44, sound_str_len);
+		node.write_sint8(fp, sound_str_len, 42);
+		node.write_data_at(fp, sound_str.c_str(), 43, sound_str_len);
 	}
 
 	node.write(fp);
