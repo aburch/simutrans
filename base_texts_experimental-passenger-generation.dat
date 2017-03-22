@@ -333,6 +333,10 @@ name=radius
 note=This text is shown in a signalbox infowindow, illustrating within how big range a signal can be placed
 -
 obj=program_text
+name=underground
+note=This text shows in the info panel when the object in question is underground
+-
+obj=program_text
 name=danger
 note=The name of a signal state
 -

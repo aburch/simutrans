@@ -397,15 +397,24 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			const gebaeude_t* gb = gr->get_building();
 			if(gb)
 			{
+				const grund_t *ground = welt->lookup_kartenboden(sb.x, sb.y);
+				bool sb_underground = ground->get_hoehe() > sb.z;
+
 				buf.append("   ");
 				buf.append(translator::translate(gb->get_name()));
+				if (sb_underground)
+				{
+					buf.append("\n  ");
+				}
 				buf.append(" <");
 				buf.append(sb.x);
 				buf.append(",");
 				buf.append(sb.y);
-				buf.append(",");
-				buf.append(sb.z);
 				buf.append(">"); 
+				if (sb_underground)
+				{
+					buf.printf(" (%s)", translator::translate("underground"));
+				}
 				buf.append("\n   ");
 				
 				// Show the distance between the signal and its signalbox, along with the signals maximum range
