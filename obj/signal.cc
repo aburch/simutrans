@@ -406,6 +406,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			const gebaeude_t* gb = gr->get_building();
 			if(gb)
 			{
+				uint8 textlines = 2;
 				const grund_t *ground = welt->lookup_kartenboden(sb.x, sb.y);
 				bool sb_underground = ground->get_hoehe() > sb.z;
 
@@ -414,6 +415,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 				if (sb_underground)
 				{
 					buf.append("\n  ");
+					textlines += 1;
 				}
 				buf.append(" <");
 				buf.append(sb.x);
@@ -487,6 +489,8 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 					buf.append("km");
 				}
 				buf.append(")");
+				sig->textlines_in_signal_window = textlines;
+				buf.append(textlines);
 				
 			}
 			else
