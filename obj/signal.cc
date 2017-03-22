@@ -490,7 +490,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 				}
 				buf.append(")");
 				sig->textlines_in_signal_window = textlines;
-				buf.append(textlines);
+
 				
 			}
 			else
