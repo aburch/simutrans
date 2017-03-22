@@ -334,7 +334,11 @@ note=This text is shown in a signalbox infowindow, illustrating within how big r
 -
 obj=program_text
 name=underground
-note=This text shows in the info panel when the object in question is underground
+note=This text shows in the signal info panel when the signalbox is underground
+-
+obj=program_text
+name=underground_signal
+note=This text shows in the signal info panel when the signal is underground
 -
 obj=program_text
 name=danger

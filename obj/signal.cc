@@ -173,6 +173,15 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(translator::translate("permissive_signal"));
 		buf.append("\n");
 	}
+
+	koord3d sig_pos = sig->get_pos();
+	const grund_t *sig_gr = welt->lookup_kartenboden(sig_pos.x, sig_pos.y);
+
+	if (sig_gr->get_hoehe() > sig_pos.z == true)
+	{
+		buf.append(translator::translate("underground_signal"));
+		buf.append("\n");
+	}
 	buf.printf("%s%s%d%s%s", translator::translate("Max. speed:")," ", speed_to_kmh(desc->get_max_speed()), " ", "km/h");
 	buf.append("\n");
 
