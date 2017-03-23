@@ -301,6 +301,8 @@ public:
 			return "caution5";
 		case 3:
 			return "preliminary_caution5";
+		case 4:
+			return "advanced_caution5";
 		case 9:
 			return "call_on";
 		default:
@@ -379,9 +381,9 @@ public:
 		case 4:
 			return "advanced_caution5_alternate";
 		case 5:
-			return "clear_main";
+			return "clear5_main";
 		case 6:
-			return "caution_main";
+			return "caution5_main";
 		case 7:
 			return "preliminary_caution5_main";
 		case 8:

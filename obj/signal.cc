@@ -23,6 +23,7 @@
 #include "../simsignalbox.h"
 #include "../descriptor/building_desc.h"
 #include "../simhalt.h"
+#include "../utils/simstring.h"
 
 #include "../gui/signal_info.h"
 
@@ -170,6 +171,15 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	if (desc->get_permissive() == true)
 	{
 		buf.append(translator::translate("permissive_signal"));
+		buf.append("\n");
+	}
+
+	koord3d sig_pos = sig->get_pos();
+	const grund_t *sig_gr = welt->lookup_kartenboden(sig_pos.x, sig_pos.y);
+
+	if (sig_gr->get_hoehe() > sig_pos.z == true)
+	{
+		buf.append(translator::translate("underground_signal"));
 		buf.append("\n");
 	}
 	buf.printf("%s%s%d%s%s", translator::translate("Max. speed:")," ", speed_to_kmh(desc->get_max_speed()), " ", "km/h");
@@ -396,15 +406,92 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			const gebaeude_t* gb = gr->get_building();
 			if(gb)
 			{
+				uint8 textlines = 2;
+				const grund_t *ground = welt->lookup_kartenboden(sb.x, sb.y);
+				bool sb_underground = ground->get_hoehe() > sb.z;
+
 				buf.append("   ");
 				buf.append(translator::translate(gb->get_name()));
+				if (sb_underground)
+				{
+					buf.append("\n  ");
+					textlines += 1;
+				}
 				buf.append(" <");
 				buf.append(sb.x);
 				buf.append(",");
 				buf.append(sb.y);
-				buf.append(",");
-				buf.append(sb.z);
 				buf.append(">"); 
+				if (sb_underground)
+				{
+					buf.printf(" (%s)", translator::translate("underground"));
+				}
+				buf.append("\n   ");
+				
+				// Show the distance between the signal and its signalbox, along with the signals maximum range
+				koord3d sigpos = sig->get_pos();
+				const uint32 tiles_to_signalbox = shortest_distance(sigpos.get_2d(), sb.get_2d());
+				const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
+				const double km_to_signalbox = (double)tiles_to_signalbox * km_per_tile;
+
+				if (km_to_signalbox < 1)
+				{
+					float m_to_signalbox = km_to_signalbox * 1000;
+					buf.append(m_to_signalbox);
+					buf.append("m");
+				}
+				else
+				{
+					uint n_actual;
+					if (km_to_signalbox < 20)
+					{
+						n_actual = 1;
+					}
+					else
+					{
+						n_actual = 0;
+					}
+					char number_actual[10];
+					number_to_string(number_actual, km_to_signalbox, n_actual);
+					buf.append(number_actual);
+					buf.append("km");
+				}
+				buf.append(" (");
+
+				uint32 mdt_sb = desc->get_max_distance_to_signalbox();
+				if (mdt_sb == 0)
+				{
+					buf.append(translator::translate("infinite_range"));
+				}
+				else if (mdt_sb<1000)
+
+				{
+					
+					buf.append(mdt_sb);
+					buf.append("m");
+				}
+
+				else
+				{
+					uint n_max;
+					const double max_dist = (double)mdt_sb / 1000;
+					if (max_dist < 20) 
+					{
+						n_max = 1;
+					}
+					else
+					{
+						n_max = 0;
+					}
+					char number_max[10];
+					number_to_string(number_max, max_dist, n_max);
+					buf.append(number_max);
+					buf.append("km");
+				}
+				buf.append(")");
+				sig->textlines_in_signal_window = textlines;
+
+				
 			}
 			else
 			{

@@ -30,6 +30,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #include "../simintr.h"
 #include "../simskin.h"
 #include "../simsignalbox.h"
+#include "../utils/simstring.h"
 
 #include "../boden/grund.h"
 #include "../boden/wege/strasse.h"
@@ -964,7 +965,39 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		if(tile->get_desc()->is_signalbox())
 		{
 			signalbox_t* sb = (signalbox_t*)get_first_tile();
-			buf.printf("%s: %d/%d\n", translator::translate("Signals"), sb->get_number_of_signals_controlled_from_this_box(), tile->get_desc()->get_capacity()); 
+			buf.printf("%s: %d/%d\n", translator::translate("Signals"), sb->get_number_of_signals_controlled_from_this_box(), tile->get_desc()->get_capacity());
+
+			buf.printf("%s: ", translator::translate("radius"));
+			uint32 radius = tile->get_desc()->get_radius();
+			if (radius == 0)
+			{
+				buf.append(translator::translate("infinite_range"));
+			}
+			else if (radius<1000)
+
+			{
+				buf.append(radius);
+				buf.append("m");
+			}
+
+			else
+			{
+				uint n_max;
+				const double max_dist = (double)radius / 1000;
+				if (max_dist < 20)
+				{
+					n_max = 1;
+				}
+				else
+				{
+					n_max = 0;
+				}
+				char number_max[10];
+				number_to_string(number_max, max_dist, n_max);
+				buf.append(number_max);
+				buf.append("km");
+			}
+			buf.append("\n");
 		}
 
 		buf.printf("\n%s: %d\n", translator::translate("citicens"), get_adjusted_population());
