@@ -339,8 +339,9 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		}
 		else
 			buf.append(translator::translate("danger"));
-		buf.append(translator::translate("\n\n"));
+			buf.append(translator::translate("\n"));
 	}
+	buf.append(translator::translate("\n"));
 
 	if (((desc->is_longblock_signal() || get_dir() == 3 || get_dir() == 6 || get_dir() == 9 || get_dir() == 12 || get_dir() == 5 || get_dir() == 10) && (desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == track_circuit_block || desc->get_working_method() == cab_signalling || desc->get_working_method() == moving_block)) && (desc->is_pre_signal()) == false)
 	{
@@ -390,6 +391,46 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append("\n");
 	}
 	buf.append("\n");
+
+	if (desc->get_working_method() == moving_block)
+	{
+		uint32 mdt_mbs = desc->get_max_distance_to_signalbox(); // Max distance to Moving Block Signal
+		buf.append(translator::translate("max_dist_between_signals"));
+		buf.append(": ");
+		if (mdt_mbs == 0)
+		{
+			buf.append(translator::translate("infinite_range"));
+		}
+		else
+		{
+			if (mdt_mbs < 1000)
+			{
+				buf.append(mdt_mbs);
+				buf.append("m");
+			}
+
+			else
+			{
+				uint n_max;
+				const double max_dist_mov = (double)mdt_mbs / 1000;
+				if (max_dist_mov < 20)
+				{
+					n_max = 1;
+				}
+				else
+				{
+					n_max = 0;
+				}
+				char number_max_mov[10];
+				number_to_string(number_max_mov, max_dist_mov, n_max);
+				buf.append(number_max_mov);
+				buf.append("km");
+
+			}
+		}
+		buf.append("\n\n");
+	}
+
 	
 	buf.append(translator::translate("Controlled from"));
 	buf.append(":\n");
@@ -406,7 +447,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			const gebaeude_t* gb = gr->get_building();
 			if(gb)
 			{
-				uint8 textlines = 2;
+				uint8 textlines = 2; // to locate the clickable signalbox button
 				const grund_t *ground = welt->lookup_kartenboden(sb.x, sb.y);
 				bool sb_underground = ground->get_hoehe() > sb.z;
 
@@ -456,42 +497,49 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 					buf.append(number_actual);
 					buf.append("km");
 				}
-				buf.append(" (");
 
-				uint32 mdt_sb = desc->get_max_distance_to_signalbox();
-				if (mdt_sb == 0)
+				if (desc->get_working_method() != moving_block)
 				{
-					buf.append(translator::translate("infinite_range"));
-				}
-				else if (mdt_sb<1000)
+					buf.append(" (");
 
-				{
-					
-					buf.append(mdt_sb);
-					buf.append("m");
-				}
+					uint32 mdt_sb = desc->get_max_distance_to_signalbox();
 
-				else
-				{
-					uint n_max;
-					const double max_dist = (double)mdt_sb / 1000;
-					if (max_dist < 20) 
+					if (mdt_sb == 0)
 					{
-						n_max = 1;
+						buf.append(translator::translate("infinite_range"));
 					}
 					else
 					{
-						n_max = 0;
-					}
-					char number_max[10];
-					number_to_string(number_max, max_dist, n_max);
-					buf.append(number_max);
-					buf.append("km");
-				}
-				buf.append(")");
-				sig->textlines_in_signal_window = textlines;
+						if (mdt_sb < 1000)
+						{
+							buf.printf("%s: ", translator::translate("max"));
+							buf.append(mdt_sb);
+							buf.append("m");
+						}
 
-				
+						else
+						{
+							uint n_max;
+							const double max_dist = (double)mdt_sb / 1000;
+							if (max_dist < 20)
+							{
+								n_max = 1;
+							}
+							else
+							{
+								n_max = 0;
+							}
+							char number_max[10];
+							number_to_string(number_max, max_dist, n_max);
+							buf.printf("%s: ", translator::translate("max"));
+							buf.append(number_max);
+							buf.append("km");
+						}
+					}
+					buf.append(")");
+				}
+
+				sig->textlines_in_signal_window = textlines;
 			}
 			else
 			{

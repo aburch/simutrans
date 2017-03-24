@@ -3126,6 +3126,8 @@ underground
 Underground
 underground_signal
 Underground Signal
+max_dist_between_signals
+Max dist. between beacons
 danger
 Danger
 clear2
