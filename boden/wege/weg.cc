@@ -35,6 +35,7 @@
 #include "../../player/simplay.h"
 #include "../../obj/roadsign.h"
 #include "../../obj/signal.h"
+#include "../../obj/wayobj.h"
 #include "../../obj/crossing.h"
 #include "../../utils/cbuffer_t.h"
 #include "../../dataobj/translator.h"
@@ -605,4 +606,18 @@ const char *weg_t::is_deletable(const player_t *player)
 		return NULL;
 	}
 	return obj_t::is_deletable(player);
+}
+
+sint8 weg_t::get_overtaking_info() const {
+	grund_t* gr = welt->lookup(get_pos());
+	if(  gr  ) {
+		for(  uint8 i=0;  i<gr->get_top();  i++  ) {
+			if(  wayobj_t *w = obj_cast<wayobj_t>(gr->obj_bei(i))  ) {
+				if(  w->get_waytype()==road_wt  &&  w->is_info_changer()  ) {
+					return w->get_overtaking_info();
+				}
+			}
+		}
+	}
+	return desc->get_overtaking_info();
 }

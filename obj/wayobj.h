@@ -107,6 +107,12 @@ public:
 	void set_dir(ribi_t::ribi d) { dir = d; calc_image(); }
 	ribi_t::ribi get_dir() const { return dir; }
 
+	/*
+	* @author teamhimeH
+	*/
+	sint8 get_overtaking_info() const { return desc->get_overtaking_info(); }
+	bool is_info_changer() const { return desc->get_overtaking_info()>-1; }
+
 	/* the static routines */
 private:
 	static stringhashtable_tpl<const way_obj_desc_t *> table;
