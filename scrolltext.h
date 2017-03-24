@@ -204,6 +204,8 @@
 " L. Walker 101", "",
 " Adam_N", "", 
 " Zabuhailo", "", 
+" Jessepash", "", 
+" Bigpickle51", "",
 "","",
 "Translation:","",
 "","",
