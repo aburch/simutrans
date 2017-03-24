@@ -1158,8 +1158,7 @@ void vehicle_t::remove_stale_cargo()
 }
 
 
-void
-vehicle_t::play_sound() const
+void vehicle_t::play_sound() const
 {
 	if(  desc->get_sound() >= 0  &&  !welt->is_fast_forward() && sound_ticks < welt->get_zeit_ms() )
 	{
