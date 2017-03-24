@@ -339,8 +339,9 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		}
 		else
 			buf.append(translator::translate("danger"));
-		buf.append(translator::translate("\n\n"));
+			buf.append(translator::translate("\n"));
 	}
+	buf.append(translator::translate("\n"));
 
 	if (((desc->is_longblock_signal() || get_dir() == 3 || get_dir() == 6 || get_dir() == 9 || get_dir() == 12 || get_dir() == 5 || get_dir() == 10) && (desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == track_circuit_block || desc->get_working_method() == cab_signalling || desc->get_working_method() == moving_block)) && (desc->is_pre_signal()) == false)
 	{
