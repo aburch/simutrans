@@ -15,6 +15,7 @@
 #include "../simworld.h"
 #include "../descriptor/skin_desc.h"
 #include "../simskin.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
 
@@ -104,6 +105,8 @@ bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			}
 			player_color_1[i].pressed = true;
 			player->set_player_color( i*8, player->get_player_color2() );
+			env_t::default_settings.set_default_player_color(player->get_player_nr(), player->get_player_color1(), player->get_player_color2());
+
 			return true;
 		}
 
@@ -114,6 +117,8 @@ bool farbengui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			}
 			player_color_2[i].pressed = true;
 			player->set_player_color( player->get_player_color1(), i*8 );
+			env_t::default_settings.set_default_player_color(player->get_player_nr(), player->get_player_color1(), player->get_player_color2());
+
 			return true;
 		}
 
