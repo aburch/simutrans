@@ -310,8 +310,13 @@ namespace script_api {
 	SQInteger param<koord>::push(HSQUIRRELVM vm, koord const& v)
 	{
 		koord k(v);
-		// transform coordinates
-		coordinate_transform_t::koord_w2sq(k);
+		if (k.x != -1  &&  k.y != -1) {
+			// transform coordinates
+			coordinate_transform_t::koord_w2sq(k);
+		}
+		else {
+			k = koord::invalid;
+		}
 		return push_instance(vm, "coord", k.x, k.y);
 	}
 
@@ -329,8 +334,13 @@ namespace script_api {
 	SQInteger param<koord3d>::push(HSQUIRRELVM vm, koord3d const& v)
 	{
 		koord k(v.get_2d());
-		// transform coordinates
-		coordinate_transform_t::koord_w2sq(k);
+		if (k.x != -1  &&  k.y != -1) {
+			// transform coordinates
+			coordinate_transform_t::koord_w2sq(k);
+		}
+		else {
+			k = koord::invalid;
+		}
 		return push_instance(vm, "coord3d", k.x, k.y, v.z);
 	}
 
