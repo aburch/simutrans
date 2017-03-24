@@ -3223,8 +3223,17 @@ void settings_t::copy_city_road(settings_t const& other)
 }
 
 
+void settings_t::set_default_player_color(uint8 player_nr, uint8 color1, uint8 color2)
+{
+	if (player_nr < MAX_PLAYER_COUNT) {
+		default_player_color[player_nr][0] = color1 < 28 ? color1 : 255;
+		default_player_color[player_nr][1] = color2 < 28 ? color2 : 255;
+	}
+}
+
+
 // returns default player colors for new players
-void settings_t::set_default_player_color(player_t* const player) const
+void settings_t::set_player_color_to_default(player_t* const player) const
 {
 	karte_ptr_t welt;
 	uint8 color1 = default_player_color[player->get_player_nr()][0];

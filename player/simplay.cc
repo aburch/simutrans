@@ -82,7 +82,7 @@ player_t::player_t(uint8 nr) :
 
 	allow_voluntary_takeover = false;
 
-	welt->get_settings().set_default_player_color(this);
+	welt->get_settings().set_player_color_to_default(this);
 
 	// we have different AI, try to find out our type:
 	sprintf(player_name_buf,"player %i",player_nr-1);

@@ -1088,7 +1088,8 @@ public:
 
 	sint16 get_used_vehicle_reduction() const { return used_vehicle_reduction; }
 
-	void set_default_player_color( player_t *player ) const;
+	void set_player_color_to_default( player_t *player ) const;
+	void set_default_player_color(uint8 player_nr, uint8 color1, uint8 color2);
 
 	// usually only used in network mode => no need to set them!
 	uint32 get_random_counter() const { return random_counter; }

@@ -10,6 +10,7 @@
 #include "../simworld.h"
 #include "../descriptor/skin_desc.h"
 #include "../simskin.h"
+#include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
 #include "../simtool.h"
@@ -106,6 +107,7 @@ bool farbengui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			tool_t *tool = create_tool( TOOL_RECOLOUR_TOOL | SIMPLE_TOOL );
 			tool->set_default_param( buf );
 			welt->set_tool( tool, player );
+			env_t::default_settings.set_default_player_color(player->get_player_nr(), player->get_player_color1(), player->get_player_color2());
 			// since init always returns false, it is save to delete immediately
 			delete tool;
 			return true;
@@ -122,6 +124,7 @@ bool farbengui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			tool_t *tool = create_tool( TOOL_RECOLOUR_TOOL | SIMPLE_TOOL );
 			tool->set_default_param( buf );
 			welt->set_tool( tool, player );
+			env_t::default_settings.set_default_player_color(player->get_player_nr(), player->get_player_color1(), player->get_player_color2());
 			// since init always returns false, it is save to delete immediately
 			delete tool;
 			return true;
