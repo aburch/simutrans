@@ -47,20 +47,23 @@ void pillar_t::calc_image()
 {
 	bool hide = false;
 	int height = get_yoff();
-	if(  desc->has_pillar_asymmetric()  ) {
-		if(  grund_t *gr = welt->lookup(get_pos())  ) {
-			slope_t::type slope = gr->get_grund_hang();
+	if(  grund_t *gr = welt->lookup(get_pos())  ) {
+		slope_t::type slope = gr->get_grund_hang();
+		if(  desc->has_pillar_asymmetric()  ) {
 			if(  dir == bridge_desc_t::NS_Pillar  ) {
-				height += min( corner_sw(slope), corner_se(slope) ) * TILE_HEIGHT_STEP;
+				height += ( (corner_sw(slope) + corner_se(slope) ) * TILE_HEIGHT_STEP )/2;
 			}
 			else {
-				height += min( corner_se(slope), corner_ne(slope) ) * TILE_HEIGHT_STEP;
+				height += ( ( corner_se(slope) + corner_ne(slope) ) * TILE_HEIGHT_STEP ) / 2;
 			}
 			if(  height > 0  ) {
 				hide = true;
 			}
 		}
-
+		else {
+			// on slope use mean height ...
+			height += ( ( corner_se(slope) + corner_ne(slope) + corner_sw(slope) + corner_se(slope) ) * TILE_HEIGHT_STEP ) / 4;
+		}
 	}
 	image = hide ? IMG_EMPTY : desc->get_background( (bridge_desc_t::img_t)dir, get_pos().z-height/TILE_HEIGHT_STEP >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate );
 }

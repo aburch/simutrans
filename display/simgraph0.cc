@@ -25,9 +25,13 @@ KOORD_VAL base_tile_raster_width = 16; // original
 PIXVAL specialcolormap_all_day[256];
 
 
-uint32 get_color_rgb(uint8 idx);
+uint32 get_color_rgb(uint8 idx)
 {
 	return 0;
+}
+
+void env_t_rgb_to_system_colors()
+{
 }
 
 KOORD_VAL display_set_base_raster_width(KOORD_VAL)

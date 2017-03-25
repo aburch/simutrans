@@ -737,6 +737,7 @@ uint32 get_color_rgb(uint8 idx)
 	return 0;
 }
 
+
 /*
  * Convert env_t colours from RGB888 to the system format
  */
@@ -764,6 +765,7 @@ void env_t_rgb_to_system_colors()
 	rgb = env_t::background_color_rgb;
 	env_t::background_color = get_system_color( rgb>>16, (rgb>>8)&0xFF, rgb&0xFF );
 }
+
 
 /* changes the raster width after loading */
 KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster)
