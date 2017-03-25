@@ -760,6 +760,15 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 	}
 
 	koord3d pos = start+koord3d( zv.x, zv.y, add_height );
+
+	// update limits
+	if(  welt->min_height > pos.z  ) {
+		welt->min_height = pos.z;
+	}
+	else if(  welt->max_height < pos.z  ) {
+		welt->max_height = pos.z;
+	}
+
 	while(  pos.get_2d() != end.get_2d()  ) {
 		brueckenboden_t *bruecke = new brueckenboden_t( pos, 0, 0 );
 		welt->access(pos.get_2d())->boden_hinzufuegen(bruecke);
