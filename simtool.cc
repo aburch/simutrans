@@ -2308,8 +2308,8 @@ void tool_build_way_t::start_at( koord3d &new_start )
 	if(  is_shift_pressed()  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)  ) {
 		grund_t *gr=welt->lookup(new_start);
 		if(  weg_t *way = gr->get_weg( desc->get_waytype() )  ) {
-			if(  way->get_desc()->get_styp() == type_elevated  ) {
-				new_start.z -= 1;
+			if(  way->get_desc()->get_styp() == type_elevated  &&  welt->lookup(new_start-koord3d(0,0,welt->get_settings().get_way_height_clearance()))  ) {
+				new_start.z -= welt->get_settings().get_way_height_clearance();
 			}
 		}
 	}
@@ -2393,10 +2393,10 @@ void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 	koord3d my_start = start;
 	// special check to replace elevated ways
 	if(  is_shift_pressed()  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)  ) {
-		grund_t *gr=welt->lookup(start);
+		grund_t *gr=welt->lookup(my_start);
 		if(  weg_t *way = gr->get_weg( desc->get_waytype() )  ) {
-			if(  way->get_desc()->get_styp() == type_elevated  ) {
-				my_start.z += 1;
+			if(  way->get_desc()->get_styp() == type_elevated  &&  welt->lookup( my_start + koord3d(0,0,welt->get_settings().get_way_height_clearance()) )  ) {
+				my_start.z += welt->get_settings().get_way_height_clearance();
 			}
 		}
 	}
