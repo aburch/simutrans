@@ -3330,8 +3330,12 @@ bool tool_build_wayobj_t::init( player_t *player )
 
 bool tool_build_wayobj_t::calc_route( route_t &verbindung, player_t *player, const koord3d& start, const koord3d& to )
 {
+	waytype_t waytype = wt;
+	if (waytype == any_wt) {
+		waytype = welt->lookup(start)->get_weg(wt)->get_waytype();
+	}
 	// get a default vehikel
-	vehicle_desc_t remover_desc( wt, 500, vehicle_desc_t::diesel );
+	vehicle_desc_t remover_desc( waytype, 500, vehicle_desc_t::diesel );
 	vehicle_t* test_vehicle = vehicle_builder_t::build(start, player, NULL, &remover_desc);
 	test_vehicle->set_flag( obj_t::not_on_map );
 	test_driver_t* test_driver = scenario_checker_t::apply(test_vehicle, player, this);

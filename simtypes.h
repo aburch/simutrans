@@ -103,7 +103,8 @@ enum waytype_t {
 	tram_wt          =   7,
 	narrowgauge_wt   =   8,
 	air_wt           =  16,
-	powerline_wt     = 128
+	powerline_wt     = 128,
+	any_wt           = 255
 };
 
 /**

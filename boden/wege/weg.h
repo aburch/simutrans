@@ -225,7 +225,7 @@ public:
 	* Overtaking info (0 = condition for one-way road, 1 = condition for two-way road, 2 = overtaking a loading convoy only, 3 = overtaking is completely forbidden, 4 = vehicles can go only on passing lane)
 	* @author teamhimeH
 	*/
-	sint8 get_overtaking_info() const { return desc->get_overtaking_info(); }
+	sint8 get_overtaking_info() const;
 
 	/**
 	* Add direction bits (ribi) for a way.

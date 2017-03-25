@@ -42,8 +42,8 @@ obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	const uint16 version = v & 0x7FFF;
 
-	if(version==1) {
-		// Versioned node, version 3
+  if(version==2) {
+    // Versioned node, version 2
 		desc->price = decode_uint32(p);
 		desc->maintenance = decode_uint32(p);
 		desc->topspeed = decode_uint32(p);
@@ -51,18 +51,31 @@ obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->retire_date = decode_uint16(p);
 		desc->wtyp = decode_uint8(p);
 		desc->own_wtyp = decode_uint8(p);
+    desc->overtaking_info = decode_sint8(p); //new!
+  }
+	else if(version==1) {
+		// Versioned node, version 1
+		desc->price = decode_uint32(p);
+		desc->maintenance = decode_uint32(p);
+		desc->topspeed = decode_uint32(p);
+		desc->intro_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
+		desc->wtyp = decode_uint8(p);
+		desc->own_wtyp = decode_uint8(p);
+    desc->overtaking_info = -1;
 	}
 	else {
 		dbg->fatal("way_obj_reader_t::read_node()","Invalid version %d", version);
 	}
 	DBG_DEBUG("way_obj_reader_t::read_node()",
-	     "version=%d price=%d maintenance=%d topspeed=%d wtype=%d own_wtype=%d intro=%i/%i, retire=%i/%i",
+	     "version=%d price=%d maintenance=%d topspeed=%d wtype=%d own_wtype=%d overtaking_info=%d intro=%i/%i, retire=%i/%i",
 	     version,
 	     desc->price,
 	     desc->maintenance,
 	     desc->topspeed,
 	     desc->wtyp,
 	     desc->own_wtyp,
+       desc->overtaking_info,
 	     (desc->intro_date%12)+1,
 	     desc->intro_date/12,
 	     (desc->retire_date%12)+1,
