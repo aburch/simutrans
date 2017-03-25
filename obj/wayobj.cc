@@ -205,6 +205,15 @@ void wayobj_t::finish_rd()
 	if(desc->is_overhead_line()) {
 		const waytype_t wt = (desc->get_wtyp()==tram_wt) ? track_wt : desc->get_wtyp();
 		weg_t *weg = welt->lookup(get_pos())->get_weg(wt);
+		if (wt == any_wt) {
+			weg_t *weg2 = welt->lookup(get_pos())->get_weg_nr(1);
+			if (weg2) {
+				weg2->set_electrify(true);
+				if(weg2->get_max_speed()>desc->get_topspeed()) {
+					weg2->set_max_speed(desc->get_topspeed());
+				}
+			}
+		}
 		if(weg) {
 			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 			weg->set_electrify(true);
@@ -268,8 +277,15 @@ void wayobj_t::calc_image()
 			return;
 		}
 
+		ribi_t::ribi sec_way_ribi_unmasked = 0;
+		if (wt == any_wt) {
+			if (weg_t *sec_w = gr->get_weg_nr(1)) {
+				sec_way_ribi_unmasked = sec_w->get_ribi_unmasked();
+			}
+		}
+
 		set_yoff( -gr->get_weg_yoff() );
-		dir &= w->get_ribi_unmasked();
+		dir &= (w->get_ribi_unmasked() | sec_way_ribi_unmasked);
 
 		// if there is a slope, we are finished, only four choices here (so far)
 		hang = gr->get_weg_hang();

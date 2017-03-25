@@ -627,7 +627,7 @@ public:
 	weg_t *get_weg(waytype_t typ) const {
 		if (weg_t* const w = get_weg_nr(0)) {
 			const waytype_t wt = w->get_waytype();
-			if(wt == typ) {
+			if(wt == typ || (typ == any_wt && wt > 0)) {
 				return w;
 			}
 			else if (wt > typ) {
