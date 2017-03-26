@@ -828,7 +828,7 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 		update_data();
 		layout(NULL);
 	}
-	else {
+	if(0) {
 		if(IS_LEFTCLICK(ev)  ) {
 			if(  !convoy_selector.getroffen(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  &&  convoy_selector.is_dropped()  ) {
 				// close combo box; we must do it ourselves, since the box does not receive outside events ...

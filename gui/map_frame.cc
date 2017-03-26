@@ -577,24 +577,6 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	// comboboxes shoudl loose their focus on close
-	gui_component_t *focus = win_get_focus();
-	if(  focus == &viewed_player_c  ) {
-		if(  !viewed_player_c.is_dropped()  ) {
-			set_focus( NULL );
-		}
-	}
-	else if(  focus == &transport_type_c  ) {
-		if(  !transport_type_c.is_dropped()  ) {
-			set_focus( NULL );
-		}
-	}
-	else if(  focus == &viewed_player_c  ) {
-		if(  !freight_type_c.is_dropped()  ) {
-			set_focus( NULL );
-		}
-	}
-
 	if(  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
 		set_focus( reliefkarte_t::get_karte() );
 	}
