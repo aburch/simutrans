@@ -39,6 +39,7 @@ private:
 	 * @author hsiegeln
 	 */
 	gui_scrolled_list_t droplist;
+	bool opened_at_bottom:1;
 
 	// flag for first call
 	bool first_call:1;
@@ -73,6 +74,13 @@ public:
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void sort( int offset, void *sort_param ) { droplist.sort( offset, sort_param ); }
+
+	/**
+	 * returns the element that has focus.
+	 * child classes like scrolled list of tabs should
+	 * return a child component.
+	 */
+	virtual gui_component_t *get_focus() { return this; }
 
 	/**
 	 * Draw the component
