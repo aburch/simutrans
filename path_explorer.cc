@@ -511,7 +511,7 @@ void path_explorer_t::compartment_t::step()
 #endif
 
 	// For timing use
-	unsigned long start, diff;
+	uint32 start, diff;
 
 	switch (current_phase)
 	{

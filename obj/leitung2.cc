@@ -454,7 +454,7 @@ void leitung_t::rdwr(loadsave_t *file)
 	obj_t::rdwr(file);
 	if(file->is_saving()) 
 	{
-		value = (unsigned long)get_net(); //  This seems to be functionless, but should be preserved for compatibility. It likewise appears functionless in Standard.
+		value = (uint32)get_net(); //  This seems to be functionless, but should be preserved for compatibility. It likewise appears functionless in Standard.
 		file->rdwr_long(value);
 		koord city_pos = koord::invalid;
 		if(city != NULL)
