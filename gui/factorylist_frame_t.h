@@ -21,15 +21,7 @@ private:
 	gui_label_t sort_label;
 	button_t	sortedby;
 	button_t	sorteddir;
-	factorylist_stats_t stats;
-	gui_scrollpane_t scrolly;
-
-	/*
-	 * All filter settings are static, so they are not reset each
-	 * time the window closes.
-	 */
-	static factorylist::sort_mode_t sortby;
-	static bool sortreverse;
+	gui_scrolled_list_t scrolly;
 
 public:
 	factorylist_frame_t();
@@ -47,13 +39,9 @@ public:
 	 */
 	const char * get_help_filename() const {return "factorylist_filter.txt"; }
 
-	static factorylist::sort_mode_t get_sortierung() { return sortby; }
-	static void set_sortierung(const factorylist::sort_mode_t& sm) { sortby = sm; }
-
-	static bool get_reverse() { return sortreverse; }
-	static void set_reverse(const bool& reverse) { sortreverse = reverse; }
-
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	void draw(scr_coord pos, scr_size size);
 };
 
 #endif

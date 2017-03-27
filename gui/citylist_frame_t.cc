@@ -81,7 +81,7 @@ const uint8 citylist_frame_t::hist_type_type[karte_t::MAX_WORLD_COST] =
 };
 
 #define CHART_HEIGHT (168)
-#define SCROLL_START (D_V_SPACE*3+LINESPACE*2+D_BUTTON_HEIGHT)
+#define SCROLL_START (D_MARGIN_TOP+D_V_SPACE*2+LINESPACE*2+D_BUTTON_HEIGHT)
 
 static unsigned old_cities = 0;
 
@@ -93,18 +93,18 @@ citylist_frame_t::citylist_frame_t() :
 {
 	old_cities = 0;
 
-	sort_label.set_pos(scr_coord(BUTTON1_X, D_V_SPACE*2+LINESPACE ) );
+	sort_label.set_pos(scr_coord(BUTTON1_X, D_MARGIN_TOP+D_V_SPACE+LINESPACE ) );
 	add_component(&sort_label);
 
-	sortedby.init(button_t::roundbox, sort_text[citylist_stats_t::sort_mode & 0x1F], scr_coord(BUTTON1_X, D_V_SPACE*2+LINESPACE*2) );
+	sortedby.init(button_t::roundbox, sort_text[citylist_stats_t::sort_mode & 0x1F], scr_coord(BUTTON1_X, D_MARGIN_TOP+D_V_SPACE+LINESPACE*2) );
 	sortedby.add_listener(this);
 	add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, citylist_stats_t::sort_mode > citylist_stats_t::SORT_MODES ? "hl_btn_sort_desc" : "hl_btn_sort_asc", scr_coord(BUTTON2_X, D_V_SPACE*2+LINESPACE*2));
+	sorteddir.init(button_t::roundbox, citylist_stats_t::sort_mode > citylist_stats_t::SORT_MODES ? "hl_btn_sort_desc" : "hl_btn_sort_asc", scr_coord(BUTTON2_X, D_MARGIN_TOP+D_V_SPACE+LINESPACE*2));
 	sorteddir.add_listener(this);
 	add_component(&sorteddir);
 
-	show_stats.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON4_X, D_V_SPACE*2+LINESPACE*2));
+	show_stats.init(button_t::roundbox_state, "Chart", scr_coord(BUTTON4_X, D_MARGIN_TOP+D_V_SPACE+LINESPACE*2));
 	show_stats.set_tooltip("Show/hide statistics");
 	show_stats.add_listener(this);
 	add_component(&show_stats);
@@ -232,5 +232,5 @@ void citylist_frame_t::draw(scr_coord pos, scr_size size)
 	cbuffer_t buf;
 	buf.append( translator::translate("Total inhabitants:") );
 	buf.append( welt->get_finance_history_month()[0], 0 );
-	display_proportional_rgb( pos.x+D_MARGIN_LEFT, pos.y+D_V_SPACE+D_TITLEBAR_HEIGHT, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
+	display_proportional_rgb( pos.x+D_MARGIN_LEFT, pos.y+D_MARGIN_TOP+D_TITLEBAR_HEIGHT, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 }

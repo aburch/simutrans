@@ -13,13 +13,9 @@
 #include "factorylist_frame_t.h"
 
 #include "../dataobj/translator.h"
-
-/**
- * This variable defines the sort order (ascending or descending)
- * Values: 1 = ascending, 2 = descending)
- * @author Markus Weber
- */
-bool factorylist_frame_t::sortreverse = false;
+#include "../simcolor.h"
+#include "../dataobj/environment.h"
+#include "../utils/cbuffer_t.h"
 
 /**
  * This variable defines by which column the table is sorted
@@ -29,7 +25,6 @@ bool factorylist_frame_t::sortreverse = false;
  *         3 = Station type
  * @author Markus Weber
  */
-factorylist::sort_mode_t factorylist_frame_t::sortby = factorylist::by_name;
 
 const char *factorylist_frame_t::sort_text[factorylist::SORT_MODES] = {
 	"Fabrikname",
@@ -43,30 +38,28 @@ const char *factorylist_frame_t::sort_text[factorylist::SORT_MODES] = {
 factorylist_frame_t::factorylist_frame_t() :
 	gui_frame_t( translator::translate("fl_title") ),
 	sort_label(translator::translate("hl_txt_sort")),
-	stats(sortby,sortreverse),
-	scrolly(&stats)
+	scrolly(gui_scrolled_list_t::windowskin)
 {
-	sort_label.set_pos(scr_coord(BUTTON1_X, 2));
+	sort_label.set_pos(scr_coord(BUTTON1_X, D_MARGIN_TOP));
 	add_component(&sort_label);
 
-	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, 14));
+	sortedby.init(button_t::roundbox, "", scr_coord(BUTTON1_X, D_MARGIN_TOP+LINESPACE));
 	sortedby.add_listener(this);
 	add_component(&sortedby);
 
-	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, 14));
+	sorteddir.init(button_t::roundbox, "", scr_coord(BUTTON2_X, D_MARGIN_TOP+LINESPACE));
 	sorteddir.add_listener(this);
 	add_component(&sorteddir);
 
 	// name buttons
-	sortedby.set_text(sort_text[get_sortierung()]);
-	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+	sortedby.set_text(sort_text[factorylist_stats_t::sort_mode]);
+	sorteddir.set_text(factorylist_stats_t::reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
-	scrolly.set_pos(scr_coord(0, 14+D_BUTTON_HEIGHT+2));
-	scrolly.set_scroll_amount_y(LINESPACE+1);
+	scrolly.set_pos(scr_coord(0, D_MARGIN_TOP+LINESPACE+D_BUTTON_HEIGHT+D_V_SPACE));
 	add_component(&scrolly);
 
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_DEFAULT_HEIGHT));
-	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+4*(LINESPACE+1)+14+D_BUTTON_HEIGHT+2+1));
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+D_MARGIN_TOP+LINESPACE+D_V_SPACE+30));
 
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0,0));
@@ -81,16 +74,14 @@ factorylist_frame_t::factorylist_frame_t() :
 bool factorylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp == &sortedby) {
-		set_sortierung((factorylist::sort_mode_t)((get_sortierung() + 1) % factorylist::SORT_MODES));
-		sortedby.set_text(sort_text[get_sortierung()]);
-		stats.sort(get_sortierung(),get_reverse());
-		stats.recalc_size();
+		factorylist_stats_t::sort_mode = (factorylist_stats_t::sort_mode + 1) % factorylist::SORT_MODES;
+		sortedby.set_text(sort_text[factorylist_stats_t::sort_mode]);
+		scrolly.sort(0,NULL);
 	}
 	else if(komp == &sorteddir) {
-		set_reverse(!get_reverse());
-		sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
-		stats.sort(get_sortierung(),get_reverse());
-		stats.recalc_size();
+		factorylist_stats_t::reverse = !factorylist_stats_t::reverse;
+		sorteddir.set_text( factorylist_stats_t::reverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+		scrolly.sort(0,NULL);
 	}
 	return true;
 }
@@ -105,6 +96,21 @@ void factorylist_frame_t::resize(const scr_coord delta)
 {
 	gui_frame_t::resize(delta);
 	// window size - titlebar - offset (header)
-	scr_size size = get_windowsize()-scr_size(0,D_TITLEBAR_HEIGHT+14+D_BUTTON_HEIGHT+2+1);
+	scr_size size = get_windowsize()-scr_size(0,D_TITLEBAR_HEIGHT+D_MARGIN_TOP+LINESPACE+D_BUTTON_HEIGHT+D_V_SPACE);
 	scrolly.set_size(size);
+}
+
+
+
+void factorylist_frame_t::draw(scr_coord pos, scr_size size)
+{
+	if(  world()->get_fab_list().get_count() != scrolly.get_count()  ) {
+		scrolly.clear_elements();
+		FOR(const slist_tpl<fabrik_t *>,fab,world()->get_fab_list()) {
+			scrolly.append_element( new factorylist_stats_t(fab) );
+		}
+		scrolly.sort(0,NULL);
+	}
+
+	gui_frame_t::draw(pos,size);
 }
