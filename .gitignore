@@ -31,7 +31,6 @@
 settings-experimental-debug.xml
 settings-extended-debug.xml
 ipch
-simutrans/
 /Debug
 /Debug (SDL)
 /Debug-nettool

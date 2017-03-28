@@ -67,7 +67,6 @@ void roadsign_t::init(loadsave_t *file)
 roadsign_t::roadsign_t(loadsave_t *file) : obj_t ()
 #endif
 {
-
 	image = foreground_image = IMG_EMPTY;
 	preview = false;
 	rdwr(file);
@@ -240,82 +239,31 @@ void roadsign_t::show_info()
  */
 void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 {
-	obj_t::info(buf);
-	roadsign_t* rs = (roadsign_t*)this;
-
-	buf.append(translator::translate(desc->get_name()));
-	buf.append("\n\n");
-
-	if (desc->is_choose_sign())
-	{
-		buf.append(translator::translate("choose_sign"));
-		buf.append("\n");
+	obj_t::info( buf );
+	if(  desc->is_private_way()  ) {
+		buf.append( "\n\n\n\n\n\n\n\n\n\n\n\n\n\n" );
 	}
-	if (desc->get_max_speed() > 0)
-	{
-		buf.printf("%s%s%d%s%s", translator::translate("Max. speed:"), " ", speed_to_kmh(desc->get_max_speed()), " ", "km/h");
+	else {
+		buf.append(translator::translate("Roadsign"));
 		buf.append("\n");
-	}
-	if (desc->get_min_speed() != 0)
-	{
-		buf.printf("%s%s%d%s%s", translator::translate("min_speed:"), " ", speed_to_kmh(desc->get_min_speed()), " ", "km/h");
-		buf.append("\n");
-	}
-
-	if (desc->is_single_way())
-	{
-		buf.printf("%s%s%s", translator::translate("permitted_direction:"), " ", translator::translate(get_directions_name(get_dir())));
-		buf.append("\n");
-	}
-	else if (desc->is_traffic_light())
-	{
-		buf.printf("%s%s%s", translator::translate("current_clear_directions:"), "\n", translator::translate(get_directions_name(get_dir())));
-		buf.append("\n");
-	}
-	else
-	{
-		buf.append(translator::translate("Direction"));
-		buf.append(": ");
-		buf.append(translator::translate(get_directions_name(get_dir())));
-		buf.append("\n");
-	}
-	koord3d rs_pos = rs->get_pos();
-	const grund_t *rs_gr = welt->lookup_kartenboden(rs_pos.x, rs_pos.y);
-
-	if (rs_gr->get_hoehe() > rs_pos.z == true)
-	{
-		buf.append(translator::translate("underground_sign"));
-		buf.append("\n");
-	}
-
-
-	// Did not figure out how to make the sign registrate a passing train // Ves
-	/*
-	buf.append(translator::translate("Time since a train last passed"));
-	buf.append(": ");
-	char time_since_train_last_passed[32];
-	welt->sprintf_ticks(time_since_train_last_passed, sizeof(time_since_train_last_passed), welt->get_zeit_ms() - rs->get_train_last_passed());
-	buf.append(time_since_train_last_passed);
-	buf.append("\n");
-	*/
-
+		if(desc->is_single_way()) {
+			buf.append(translator::translate("\nsingle way"));
+		}
+		if(desc->get_min_speed()!=0) {
+			buf.printf("%s%d", translator::translate("\nminimum speed:"), speed_to_kmh(desc->get_min_speed()));
+		}
 #ifdef DEBUG
-	buf.append(translator::translate("\ndirection:"));
-	buf.append(dir);
-	buf.append("\n");
+		buf.append(translator::translate("\ndirection:"));
+		buf.append(dir);
+		buf.append("\n");
 #endif
-	if (desc->is_traffic_light())
-	{
-		buf.append(translator::translate("\nSet phases:"));
-		buf.append("\n\n");
+		if(  automatic  ) {
+			buf.append(translator::translate("\nSet phases:"));
+			buf.append("\n\n");;
+		}
 	}
-	if (desc->is_private_way()) // Must be last, as the \n\n\n... section is the free height for the buttons // Ves
-	{
-		buf.append("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-	}
-}
 	// Signal specific information is dealt with in void signal_t::info(cbuffer_t & buf, bool dummy) const (in signal.cc)
-
+}
 
 
 // could be still better aligned for drive_left settings ...
