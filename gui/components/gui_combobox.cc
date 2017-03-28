@@ -117,13 +117,13 @@ DBG_MESSAGE("event","HOWDY!");
 				return false;
 			}
 
-			// else prepare for selection
-
 			// swallow the first mouse click
-			if(IS_LEFTRELEASE(ev)) {
-				first_call = false;
+			if(  !IS_LEFTRELEASE(ev)  ) {
+				return false;
 			}
+			first_call = false;
 
+			// else prepare for selection
 			droplist.set_visible(true);
 			droplist.set_pos(scr_coord(this->pos.x, this->pos.y + D_EDIT_HEIGHT + D_V_SPACE / 2));
 			droplist.request_size(scr_size(this->size.w, max_size.h - D_EDIT_HEIGHT - D_V_SPACE / 2));
