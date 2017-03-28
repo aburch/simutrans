@@ -1158,15 +1158,14 @@ void vehicle_t::remove_stale_cargo()
 }
 
 
-void
-vehicle_t::play_sound() const
+void vehicle_t::play_sound() const
 {
 	if(  desc->get_sound() >= 0  &&  !welt->is_fast_forward() && sound_ticks < welt->get_zeit_ms() )
 	{
 		if(welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound()))
 		{
 			// Only reset the counter if the sound can be heard.
-			const sint64 sound_offset = sim_async_rand(30000) + 5000;
+			const sint64 sound_offset = sim_async_rand(10000) + 5000;
 			sound_ticks = welt->get_zeit_ms() + sound_offset;
 		}
 	}
@@ -5403,7 +5402,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	if(last_bidirectional_signal_index < INVALID_INDEX && first_oneway_sign_index >= INVALID_INDEX && directional_reservation_succeeded && end_of_block)
 	{
 		 next_signal_index = last_stop_signal_index;
-		 platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(route->at(last_stop_signal_index), get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt);
+		 platform_starter = (this_halt.is_bound() && i < route->get_count() && (haltestelle_t::get_halt(route->at(last_stop_signal_index), get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt);
 	}
 
 	bool choose_route_identical_to_main_route = false;
@@ -5472,9 +5471,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					&& sch1->get_pos() != get_pos())
 				{
 					sch1->unreserve(cnv->self);
+					const sint32 n = min(i, route->get_count() - 1); 
 					if(sch1->has_signal()) 
 					{
-						ribi_t::ribi direction_of_travel = ribi_type(route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u,i+1u)));
+						ribi_t::ribi direction_of_travel = ribi_type(route->at(max(1u,n)-1u), route->at(min(route->get_count()-1u,n+1u)));
 						signal_t* signal = sch1->get_signal(direction_of_travel);
 						signs.remove(gr_this);
 					}

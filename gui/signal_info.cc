@@ -36,9 +36,10 @@ signal_info_t::signal_info_t(signal_t* const s) :
 			if (gb)
 			{
 				signalbox_button.init(button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, get_windowsize().h - 26 - (sig->get_textlines() * LINESPACE)));
-				signalbox_button.set_tooltip("goto_signalbox");
+				signalbox_button.set_tooltip(translator::translate("goto_signalbox"));
 				add_component(&signalbox_button);
 				signalbox_button.add_listener(this);
+
 			}
 			else
 			{
@@ -66,7 +67,7 @@ bool signal_info_t::action_triggered( gui_action_creator_t *comp, value_t)
 	if (comp == &signalbox_button)
 	{
 		koord3d sb = sig->get_signalbox();
-		welt->get_viewport()->change_world_position(koord3d(sb));		
+		welt->get_viewport()->change_world_position(koord3d(sb));
 	}
 	return true;
 }
