@@ -406,6 +406,12 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		}
 	}
 	else if(  IS_LEFTCLICK(ev)  ) {
+		// since now the focus could be received while the mouse  no there, we must release it
+		scr_rect this_comp( get_size() );
+		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
+			// not us, just in old focus from previous selection or tab
+			return false;
+		}
 		// acting on release causes unwanted recalculations of cursor position for long strings and (scroll_offset>0)
 		// moreover, only (click) or (release) event happened inside textinput, the other one could lie outside
 		// use mouse *click* position; update both head and tail cursors
@@ -417,6 +423,12 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		return true;
 	}
 	else if(  IS_LEFTDRAG(ev)  ) {
+		// since now the focus could be received while the mouse  no there, we must release it
+		scr_rect this_comp( get_size() );
+		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
+			// not us, just in old focus from previous selection or tab
+			return false;
+		}
 		// Knightly : use mouse *move* position; update head cursor only in order to enable text selection
 		// use mouse *move* position; update head cursor only in order to enable text selection
 		head_cursor_pos = 0;
@@ -427,29 +439,37 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		return true;
 	}
 	else if(  IS_LEFTDBLCLK(ev)  ) {
-		if( text ) {
-			// select a word as delimited by spaces
-			// for tail cursor pos -> skip over all contiguous non-space characters to the left
-			const char* tmp_text = text + tail_cursor_pos;
-			uint8 byte_length;
-			uint8 pixel_width;
-			while(  tail_cursor_pos>0  &&  get_prev_char_with_metrics(tmp_text, text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
-				tail_cursor_pos -= byte_length;
-			}
-			// for head cursor pos -> skip over all contiguous non-space characters to the right
-			const size_t len = strlen(text);
-			tmp_text = text + head_cursor_pos;
-			while(  head_cursor_pos<len  &&  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
-				head_cursor_pos += byte_length;
-			}
+		// since now the focus could be received while the mouse  no there, we must release it
+		scr_rect this_comp( get_size() );
+		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
+			// not us, just in old focus from previous selection or tab
+			return false;
+		}
+		// select a word as delimited by spaces
+		// for tail cursor pos -> skip over all contiguous non-space characters to the left
+		const char* tmp_text = text + tail_cursor_pos;
+		uint8 byte_length;
+		uint8 pixel_width;
+		while(  tail_cursor_pos>0  &&  get_prev_char_with_metrics(tmp_text, text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
+			tail_cursor_pos -= byte_length;
+		}
+		// for head cursor pos -> skip over all contiguous non-space characters to the right
+		const size_t len = strlen(text);
+		tmp_text = text + head_cursor_pos;
+		while(  head_cursor_pos<len  &&  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)!=SIM_KEY_SPACE  ) {
+			head_cursor_pos += byte_length;
 		}
 	}
 	else if(  IS_LEFTTPLCLK(ev)  ) {
-		if( text ) {
-			// Knightly : select the whole text
-			head_cursor_pos = strlen(text);
-			tail_cursor_pos = 0;
+		// since now the focus could be received while the mouse  no there, we must release it
+		scr_rect this_comp( get_size() );
+		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
+			// not us, just in old focus from previous selection or tab
+			return false;
 		}
+		// select the whole text
+		head_cursor_pos = strlen(text);
+		tail_cursor_pos = 0;
 	}
 	else if(  ev->ev_class==INFOWIN  &&  ev->ev_code==WIN_UNTOP  ) {
 		if(  text_dirty  ) {
@@ -613,7 +633,13 @@ void gui_textinput_t::set_text(char *text, size_t max)
 // needed to set the cursor on the right position
 bool gui_hidden_textinput_t::infowin_event(const event_t *ev)
 {
-	if(  IS_LEFTCLICK(ev)  ) {
+	if(  IS_LEFTRELEASE(ev)  ) {
+		// since now the focus could be received while the mouse  no there, we must release it
+		scr_rect this_comp( get_size() );
+		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
+			// not us, just in old focus from previous selection or tab
+			return false;
+		}
 		// acting on release causes unwanted recalculations of cursor position for long strings and (cursor_offset>0)
 		// moreover, only (click) or (release) event happened inside textinput, the other one could lie outside
 		sint16 asterix_width = display_calc_proportional_string_len_width("*",1);
