@@ -10,6 +10,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 #include "../simunits.h"
 #include "../simworld.h"
@@ -54,6 +55,8 @@
 
 #include "../boden/wege/weg.h"
 
+
+char depot_frame_t::name_filter_value[64] = "";
 
 static const char* engine_type_names[9] =
 {
@@ -117,7 +120,6 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	line_selector.add_listener(this);
 	line_selector.set_highlight_color( color_idx_to_rgb(depot->get_owner()->get_player_color1() + 1));
 	line_selector.set_wrapping(false);
-	line_selector.set_focusable(true);
 	add_component(&line_selector);
 
 	// goto line button
@@ -211,14 +213,16 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	bt_veh_action.set_tooltip("Choose operation executed on clicking stored/new vehicles");
 	add_component(&bt_veh_action);
 
-	bt_show_all.set_typ(button_t::square);
+	bt_show_all.set_typ(button_t::square_state);
 	bt_show_all.set_text("Show all");
 	bt_show_all.add_listener(this);
 	bt_show_all.set_tooltip("Show also vehicles that do not match for current action.");
+	bt_show_all.pressed = show_all;
 	add_component(&bt_show_all);
 
-	bt_obsolete.set_typ(button_t::square);
+	bt_obsolete.set_typ(button_t::square_state);
 	bt_obsolete.set_text("Show obsolete");
+	bt_obsolete.pressed = show_retired_vehicles;
 	if(  welt->get_settings().get_allow_buying_obsolete_vehicles()  ) {
 		bt_obsolete.add_listener(this);
 		bt_obsolete.set_tooltip("Show also vehicles no longer in production.");
@@ -228,6 +232,10 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	vehicle_filter.set_highlight_color(color_idx_to_rgb(depot->get_owner()->get_player_color1() + 1));
 	vehicle_filter.add_listener(this);
 	add_component(&vehicle_filter);
+
+	name_filter_input.set_text(name_filter_value, 60);
+	add_component(&name_filter_input);
+	name_filter_input.add_listener(this);
 
 	build_vehicle_lists();
 
@@ -349,13 +357,13 @@ void depot_frame_t::layout(scr_size *size)
 	*	    [Start][Schedule][Destroy][Sell]
 	*	    [new Route][change Route][delete Route]
 	*/
-	const scr_coord_val ACTIONS_WIDTH = D_DEFAULT_WIDTH;
+	const scr_coord_val ACTIONS_WIDTH = D_DEFAULT_WIDTH + 110; // because depot has a text input frame for search
 	const scr_coord_val ACTIONS_HEIGHT = D_BUTTON_HEIGHT;
 
 	/*
 	*	Structure of [VINFO] is one multiline text.
 	*/
-	const scr_coord_val VINFO_HEIGHT = 9 * LINESPACE - 1;
+	const scr_coord_val VINFO_HEIGHT =  6*LINESPACE + D_BUTTON_HEIGHT*2 + D_V_SPACE;
 
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.
@@ -542,17 +550,18 @@ void depot_frame_t::layout(scr_size *size)
 	lb_veh_action.align_to(&bt_veh_action, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord(D_V_SPACE,0));
 
 	bt_show_all.set_pos(scr_coord(D_MARGIN_LEFT, INFO_VSTART + D_BUTTON_HEIGHT + 1));
-	bt_show_all.pressed = show_all;
 
 	const int w = max(72, bt_show_all.get_size().w);
 	bt_obsolete.set_pos(scr_coord(D_MARGIN_LEFT + w + 4 + 6, INFO_VSTART + D_BUTTON_HEIGHT + 1));
-	bt_obsolete.pressed = show_retired_vehicles;
 
 	vehicle_filter.set_pos( scr_coord(D_MARGIN_LEFT + (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 + 3, INFO_VSTART + D_BUTTON_HEIGHT));
 	vehicle_filter.set_size( scr_size((DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) - (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 - 3, D_BUTTON_HEIGHT));
 	vehicle_filter.set_max_size( scr_size( D_BUTTON_WIDTH + 60, ((size &&  size->h>0) ? size->h : gui_frame_t::get_windowsize().h)-INFO_VSTART-D_BUTTON_HEIGHT-D_MARGIN_BOTTOM-D_TITLEBAR_HEIGHT ) );
 
-	lb_vehicle_filter.align_to(&vehicle_filter, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(D_V_SPACE,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_EDIT_HEIGHT)));
+	lb_vehicle_filter.align_to(&vehicle_filter, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(D_V_SPACE,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT)));
+
+	name_filter_input.set_size( vehicle_filter.get_size() );
+	name_filter_input.set_pos( vehicle_filter.get_pos()+scr_coord(0,2+D_BUTTON_HEIGHT));
 
 	const scr_coord_val margin = 4;
 	img_bolt.set_pos(scr_coord(get_windowsize().w - skinverwaltung_t::electricity->get_image(0)->get_pic()->w - margin, margin));
@@ -709,7 +718,10 @@ void depot_frame_t::build_vehicle_lists()
 					}
 				}
 				if(append) {
-					add_to_vehicle_list( info );
+					// name filter. Try to check both object name and translation name (case sensitive though!)
+					if(  name_filter_value[0]==0  ||  (strstr(info->get_name(), name_filter_value)  ||  strstr(translator::translate(info->get_name()), name_filter_value))  ) {
+						add_to_vehicle_list( info );
+					}
 				}
 			}
 		}
@@ -946,346 +958,8 @@ void depot_frame_t::update_data()
 		depot->selected_filter = VEHICLE_FILTER_RELEVANT;
 	}
 	vehicle_filter.set_selection(depot->selected_filter);
-}
 
-
-sint64 depot_frame_t::calc_restwert(const vehicle_desc_t *veh_type)
-{
-	sint64 wert = 0;
-	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
-		if(  v->get_desc() == veh_type  ) {
-			wert += v->calc_sale_value();
-		}
-	}
-	return wert;
-}
-
-
-void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *image_data)
-{
-	if(  image_data->lcolor != color_idx_to_rgb(COL_RED)  &&  image_data->rcolor != color_idx_to_rgb(COL_RED)  ) {
-		if(  veh_action == va_sell  ) {
-			depot->call_depot_tool('s', convoihandle_t(), image_data->text );
-		}
-		else {
-			convoihandle_t cnv = depot->get_convoi( icnv );
-			if(  !cnv.is_bound()  &&   !depot->get_owner()->is_locked()  ) {
-				// adding new convoi, block depot actions until command executed
-				// otherwise in multiplayer it's likely multiple convois get created
-				// rather than one new convoi with multiple vehicles
-				depot->set_command_pending();
-			}
-			depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, image_data->text );
-		}
-	}
-}
-
-
-void depot_frame_t::image_from_convoi_list(uint nr, bool to_end)
-{
-	const convoihandle_t cnv = depot->get_convoi( icnv );
-	if(  cnv.is_bound()  &&  nr < cnv->get_vehicle_count()  ) {
-		// we remove all connected vehicles together!
-		// find start
-		unsigned start_nr = nr;
-		while(  start_nr > 0  ) {
-			start_nr--;
-			const vehicle_desc_t *info = cnv->get_vehikel(start_nr)->get_desc();
-			if(  info->get_trailer_count() != 1  ) {
-				start_nr++;
-				break;
-			}
-		}
-
-		cbuffer_t start;
-		start.printf("%u", start_nr);
-
-		const char tool = to_end ? 'R' : 'r';
-		depot->call_depot_tool( tool, cnv, start );
-	}
-}
-
-
-bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
-{
-	convoihandle_t cnv = depot->get_convoi( icnv );
-
-	if(  depot->is_command_pending()  ) {
-		// block new commands until last command is executed
-		return true;
-	}
-
-	if(  comp != NULL  ) {	// message from outside!
-		if(  comp == &bt_start  ) {
-			if(  cnv.is_bound()  ) {
-				//first: close schedule (will update schedule on clients)
-				destroy_win( (ptrdiff_t)cnv->get_schedule() );
-				// only then call the tool to start
-				char tool = event_get_last_control_shift() == 2 ? 'B' : 'b'; // start all with CTRL-click
-				depot->call_depot_tool( tool, cnv, NULL);
-			}
-		}
-		else if(  comp == &bt_schedule  ) {
-			if(  line_selector.get_selection() == 1  &&  !line_selector.is_dropped()  ) { // create new line
-				// promote existing individual schedule to line
-				cbuffer_t buf;
-				if(  cnv.is_bound()  &&  !selected_line.is_bound()  ) {
-					schedule_t* schedule = cnv->get_schedule();
-					if(  schedule  ) {
-						schedule->sprintf_schedule( buf );
-					}
-				}
-				depot->call_depot_tool('l', convoihandle_t(), buf);
-				return true;
-			}
-			else {
-				open_schedule_editor();
-				return true;
-			}
-		}
-		else if(  comp == &line_button  ) {
-			if(  cnv.is_bound()  ) {
-				cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), cnv->get_line() );
-				welt->set_dirty();
-			}
-		}
-		else if(  comp == &bt_sell  ) {
-			depot->call_depot_tool('v', cnv, NULL);
-		}
-		// image list selection here ...
-		else if(  comp == &convoi  ) {
-			image_from_convoi_list( p.i, last_meta_event_get_class() == EVENT_DOUBLE_CLICK);
-		}
-		else if(  comp == &pas  &&  last_meta_event_get_class() != EVENT_DOUBLE_CLICK  ) {
-			image_from_storage_list(pas_vec[p.i]);
-		}
-		else if(  comp == &electrics  &&  last_meta_event_get_class() != EVENT_DOUBLE_CLICK  ) {
-			image_from_storage_list(electrics_vec[p.i]);
-		}
-		else if(  comp == &loks  &&  last_meta_event_get_class() != EVENT_DOUBLE_CLICK  ) {
-			image_from_storage_list(loks_vec[p.i]);
-		}
-		else if(  comp == &waggons  &&  last_meta_event_get_class() != EVENT_DOUBLE_CLICK  ) {
-			image_from_storage_list(waggons_vec[p.i]);
-		}
-		// convoi filters
-		else if(  comp == &bt_obsolete  ) {
-			show_retired_vehicles = (show_retired_vehicles == 0);
-			depot_t::update_all_win();
-		}
-		else if(  comp == &bt_show_all  ) {
-			show_all = (show_all == 0);
-			depot_t::update_all_win();
-		}
-		else if(  comp == &bt_veh_action  ) {
-			if(  veh_action == va_sell  ) {
-				veh_action = va_append;
-			}
-			else {
-				veh_action = veh_action + 1;
-			}
-		}
-		else if(  comp == &bt_copy_convoi  ) {
-			if(  cnv.is_bound()  ) {
-				if(  !welt->use_timeline()  ||  welt->get_settings().get_allow_buying_obsolete_vehicles()  ||  depot->check_obsolete_inventory( cnv )  ) {
-					depot->call_depot_tool('c', cnv, NULL);
-				}
-				else {
-					create_win( new news_img("Can't buy obsolete vehicles!"), w_time_delete, magic_none );
-				}
-			}
-			return true;
-		}
-		else if(  comp == &convoy_selector  ) {
-			icnv = p.i - 1;
-			if(  !depot->get_convoi(icnv).is_bound()  ) {
-				set_focus( NULL );
-			}
-			else {
-				set_focus( (gui_component_t *)&convoy_selector );
-			}
-		}
-		else if(  comp == &line_selector  ) {
-			const int selection = p.i;
-			if(  selection == 0  ) { // unique
-				if(  selected_line.is_bound()  ) {
-					selected_line = linehandle_t();
-					apply_line();
-				}
-				// HACK mark line_selector temporarily un-focusable.
-				// We call set_focus(NULL) later if we can.
-				// Calling set_focus(NULL) now would have no effect due to logic in gui_container_t::infowin_event.
-				line_selector.set_focusable( false );
-				return true;
-			}
-			else if(  selection == 1  ) { // create new line
-				if(  line_selector.is_dropped()  ) { // but not from next/prev buttons
-					// promote existing individual schedule to line
-					cbuffer_t buf;
-					if(  cnv.is_bound()  &&  !selected_line.is_bound()  ) {
-						schedule_t* schedule = cnv->get_schedule();
-						if(  schedule  ) {
-							schedule->sprintf_schedule( buf );
-						}
-					}
-					line_selector.set_focusable( false );
-					last_selected_line = linehandle_t();	// clear last selected line so we can get a new one ...
-					depot->call_depot_tool('l', convoihandle_t(), buf);
-				}
-				return true;
-			}
-			if(  last_selected_line.is_bound()  ) {
-				if(  selection == 2  ) { // last selected line
-					selected_line = last_selected_line;
-					apply_line();
-					return true;
-				}
-			}
-
-			// access the selected element to get selected line
-			line_scrollitem_t *item = dynamic_cast<line_scrollitem_t*>(line_selector.get_element(selection));
-			if(  item  ) {
-				selected_line = item->get_line();
-				depot->set_last_selected_line( selected_line );
-				last_selected_line = selected_line;
-				apply_line();
-				return true;
-			}
-			line_selector.set_focusable( false );
-		}
-		else if(  comp == &vehicle_filter  ) {
-			depot->selected_filter = vehicle_filter.get_selection();
-		}
-		else {
-			return false;
-		}
-		build_vehicle_lists();
-	}
-	else {
-		update_data();
-		update_tabs();
-	}
-	layout(NULL);
-	return true;
-}
-
-
-bool depot_frame_t::infowin_event(const event_t *ev)
-{
-	// enable disable button actions
-	const bool action_allowed = welt->get_active_player() == depot->get_owner();
-	bt_new_line.enable( action_allowed );
-	bt_change_line.enable( action_allowed );
-	bt_copy_convoi.enable( action_allowed );
-	bt_apply_line.enable( action_allowed );
-	bt_start.enable( action_allowed );
-	bt_schedule.enable( action_allowed );
-	bt_destroy.enable( action_allowed );
-	bt_sell.enable( action_allowed );
-	bt_obsolete.enable( action_allowed );
-	bt_show_all.enable( action_allowed );
-	bt_veh_action.enable( action_allowed );
-	line_button.enable( action_allowed );
-//	convoy_selector.
-	if(  !action_allowed  &&  ev->ev_class <= INFOWIN  ) {
-		return false;
-	}
-
-	const bool swallowed = gui_frame_t::infowin_event(ev);
-
-	// HACK make line_selector focusable again
-	// now we can release focus
-	if(  !line_selector.is_focusable( ) ) {
-		line_selector.set_focusable( true );
-		set_focus(NULL);
-	}
-
-	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
-
-		bool dir = (ev->ev_code==NEXT_WINDOW);
-		depot_t *next_dep = depot_t::find_depot( depot->get_pos(), depot->get_typ(), depot->get_owner(), dir == NEXT_WINDOW );
-		if(next_dep == NULL) {
-			if(dir == NEXT_WINDOW) {
-				// check the next from start of map
-				next_dep = depot_t::find_depot( koord3d(-1,-1,0), depot->get_typ(), depot->get_owner(), true );
-			}
-			else {
-				// respective end of map
-				next_dep = depot_t::find_depot( koord3d(8192,8192,127), depot->get_typ(), depot->get_owner(), false );
-			}
-		}
-
-		if(next_dep  &&  next_dep!=this->depot) {
-			/**
-			 * Replace our depot_frame_t with a new at the same position.
-			 * Volker Meyer
-			 */
-			scr_coord const pos = win_get_pos(this);
-			destroy_win( this );
-
-			next_dep->show_info();
-			win_set_pos(win_get_magic((ptrdiff_t)next_dep), pos.x, pos.y);
-			welt->get_viewport()->change_world_position(next_dep->get_pos());
-		}
-		else {
-			// recenter on current depot
-			welt->get_viewport()->change_world_position(depot->get_pos());
-		}
-
-		return true;
-	}
-	if(0) {
-		if(IS_LEFTCLICK(ev)  ) {
-			if(  !convoy_selector.getroffen(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  &&  convoy_selector.is_dropped()  ) {
-				// close combo box; we must do it ourselves, since the box does not receive outside events ...
-				convoy_selector.close_box();
-			}
-			if(  line_selector.is_dropped()  &&  !line_selector.getroffen(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  ) {
-				// close combo box; we must do it ourselves, since the box does not receive outside events ...
-				line_selector.close_box();
-				if(  line_selector.get_selection() < last_selected_line.is_bound()+3  &&  get_focus() == &line_selector  ) {
-					set_focus( NULL );
-				}
-			}
-			if(  !vehicle_filter.getroffen(ev->cx, ev->cy-D_TITLEBAR_HEIGHT)  &&  vehicle_filter.is_dropped()  ) {
-				// close combo box; we must do it ourselves, since the box does not receive outside events ...
-				vehicle_filter.close_box();
-			}
-		}
-	}
-
-	if(  get_focus() == &vehicle_filter  &&  !vehicle_filter.is_dropped()  ) {
-		set_focus( NULL );
-	}
-
-	return swallowed;
-}
-
-
-void depot_frame_t::draw(scr_coord pos, scr_size size)
-{
-	const bool action_allowed = welt->get_active_player() == depot->get_owner();
-	bt_new_line.enable( action_allowed );
-	bt_change_line.enable( action_allowed );
-	bt_copy_convoi.enable( action_allowed );
-	bt_apply_line.enable( action_allowed );
-	bt_start.enable( action_allowed );
-	bt_schedule.enable( action_allowed );
-	bt_destroy.enable( action_allowed );
-	bt_sell.enable( action_allowed );
-	bt_obsolete.enable( action_allowed );
-	bt_show_all.enable( action_allowed );
-	bt_veh_action.enable( action_allowed );
-	line_button.enable( action_allowed );
-
-	convoihandle_t cnv = depot->get_convoi(icnv);
-	// check for data inconsistencies (can happen with withdraw-all and vehicle in depot)
-	if(  !cnv.is_bound()  &&  !convoi_pics.empty()  ) {
-		icnv=0;
-		update_data();
-		cnv = depot->get_convoi(icnv);
-	}
-
+	// finally: update text
 	uint32 total_pax = 0;
 	uint32 total_mail = 0;
 	uint32 total_goods = 0;
@@ -1466,9 +1140,319 @@ void depot_frame_t::draw(scr_coord pos, scr_size size)
 		sb_convoi_length.set_visible(false);
 		cont_convoi_capacity.set_visible(false);
 	}
+}
 
-	bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed
-	bt_show_all.pressed = show_all;	// otherwise the button would not show depressed
+
+sint64 depot_frame_t::calc_restwert(const vehicle_desc_t *veh_type)
+{
+	sint64 wert = 0;
+	FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
+		if(  v->get_desc() == veh_type  ) {
+			wert += v->calc_sale_value();
+		}
+	}
+	return wert;
+}
+
+
+void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *image_data)
+{
+	if(  image_data->lcolor != color_idx_to_rgb(COL_RED)  &&  image_data->rcolor != color_idx_to_rgb(COL_RED)  ) {
+		if(  veh_action == va_sell  ) {
+			depot->call_depot_tool('s', convoihandle_t(), image_data->text );
+		}
+		else {
+			convoihandle_t cnv = depot->get_convoi( icnv );
+			if(  !cnv.is_bound()  &&   !depot->get_owner()->is_locked()  ) {
+				// adding new convoi, block depot actions until command executed
+				// otherwise in multiplayer it's likely multiple convois get created
+				// rather than one new convoi with multiple vehicles
+				depot->set_command_pending();
+			}
+			depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, image_data->text );
+		}
+	}
+}
+
+
+void depot_frame_t::image_from_convoi_list(uint nr, bool to_end)
+{
+	const convoihandle_t cnv = depot->get_convoi( icnv );
+	if(  cnv.is_bound()  &&  nr < cnv->get_vehicle_count()  ) {
+		// we remove all connected vehicles together!
+		// find start
+		unsigned start_nr = nr;
+		while(  start_nr > 0  ) {
+			start_nr--;
+			const vehicle_desc_t *info = cnv->get_vehikel(start_nr)->get_desc();
+			if(  info->get_trailer_count() != 1  ) {
+				start_nr++;
+				break;
+			}
+		}
+
+		cbuffer_t start;
+		start.printf("%u", start_nr);
+
+		const char tool = to_end ? 'R' : 'r';
+		depot->call_depot_tool( tool, cnv, start );
+	}
+}
+
+
+bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
+{
+	convoihandle_t cnv = depot->get_convoi( icnv );
+
+	if(  depot->is_command_pending()  ) {
+		// block new commands until last command is executed
+		return true;
+	}
+
+	if(  comp != NULL  ) {	// message from outside!
+		if(  comp == &bt_start  ) {
+			if(  cnv.is_bound()  ) {
+				//first: close schedule (will update schedule on clients)
+				destroy_win( (ptrdiff_t)cnv->get_schedule() );
+				// only then call the tool to start
+				char tool = event_get_last_control_shift() == 2 ? 'B' : 'b'; // start all with CTRL-click
+				depot->call_depot_tool( tool, cnv, NULL);
+			}
+		}
+		else if(  comp == &bt_schedule  ) {
+			if(  line_selector.get_selection() == 1  &&  !line_selector.is_dropped()  ) { // create new line
+				// promote existing individual schedule to line
+				cbuffer_t buf;
+				if(  cnv.is_bound()  &&  !selected_line.is_bound()  ) {
+					schedule_t* schedule = cnv->get_schedule();
+					if(  schedule  ) {
+						schedule->sprintf_schedule( buf );
+					}
+				}
+				depot->call_depot_tool('l', convoihandle_t(), buf);
+				return true;
+			}
+			else {
+				open_schedule_editor();
+				return true;
+			}
+		}
+		else if(  comp == &line_button  ) {
+			if(  cnv.is_bound()  ) {
+				cnv->get_owner()->simlinemgmt.show_lineinfo( cnv->get_owner(), cnv->get_line() );
+				welt->set_dirty();
+			}
+		}
+		else if(  comp == &bt_sell  ) {
+			depot->call_depot_tool('v', cnv, NULL);
+		}
+		// image list selection here ...
+		else if(  comp == &convoi  ) {
+			image_from_convoi_list( p.i, last_meta_event_get_class() == EVENT_DOUBLE_CLICK);
+		}
+		else if(  comp == &pas  &&  last_meta_event_get_class() != EVENT_DOUBLE_CLICK  ) {
+			image_from_storage_list(pas_vec[p.i]);
+		}
+		else if(  comp == &electrics  &&  last_meta_event_get_class() != EVENT_DOUBLE_CLICK  ) {
+			image_from_storage_list(electrics_vec[p.i]);
+		}
+		else if(  comp == &loks  &&  last_meta_event_get_class() != EVENT_DOUBLE_CLICK  ) {
+			image_from_storage_list(loks_vec[p.i]);
+		}
+		else if(  comp == &waggons  &&  last_meta_event_get_class() != EVENT_DOUBLE_CLICK  ) {
+			image_from_storage_list(waggons_vec[p.i]);
+		}
+		// convoi filters
+		else if(  comp == &bt_obsolete  ) {
+			show_retired_vehicles = (show_retired_vehicles == 0);
+			bt_obsolete.pressed = show_retired_vehicles;
+			depot_t::update_all_win();
+		}
+		else if(  comp == &bt_show_all  ) {
+			show_all = (show_all == 0);
+			bt_show_all.pressed = show_all;
+			depot_t::update_all_win();
+		}
+		else if(  comp == &name_filter_input  ) {
+			depot_t::update_all_win();
+		}
+		else if(  comp == &bt_veh_action  ) {
+			if(  veh_action == va_sell  ) {
+				veh_action = va_append;
+			}
+			else {
+				veh_action = veh_action + 1;
+			}
+		}
+		else if(  comp == &bt_copy_convoi  ) {
+			if(  cnv.is_bound()  ) {
+				if(  !welt->use_timeline()  ||  welt->get_settings().get_allow_buying_obsolete_vehicles()  ||  depot->check_obsolete_inventory( cnv )  ) {
+					depot->call_depot_tool('c', cnv, NULL);
+				}
+				else {
+					create_win( new news_img("Can't buy obsolete vehicles!"), w_time_delete, magic_none );
+				}
+			}
+			return true;
+		}
+		else if(  comp == &convoy_selector  ) {
+			icnv = p.i - 1;
+/*			if(  !depot->get_convoi(icnv).is_bound()  ) {
+				set_focus( NULL );
+			}
+			else {
+				set_focus( (gui_component_t *)&convoy_selector );
+			}*/
+		}
+		else if(  comp == &line_selector  ) {
+			const int selection = p.i;
+			if(  selection == 0  ) { // unique
+				if(  selected_line.is_bound()  ) {
+					selected_line = linehandle_t();
+					apply_line();
+				}
+				return true;
+			}
+			else if(  selection == 1  ) { // create new line
+				if(  line_selector.is_dropped()  ) { // but not from next/prev buttons
+					// promote existing individual schedule to line
+					cbuffer_t buf;
+					if(  cnv.is_bound()  &&  !selected_line.is_bound()  ) {
+						schedule_t* schedule = cnv->get_schedule();
+						if(  schedule  ) {
+							schedule->sprintf_schedule( buf );
+						}
+					}
+					last_selected_line = linehandle_t();	// clear last selected line so we can get a new one ...
+					depot->call_depot_tool('l', convoihandle_t(), buf);
+				}
+				return true;
+			}
+			if(  last_selected_line.is_bound()  ) {
+				if(  selection == 2  ) { // last selected line
+					selected_line = last_selected_line;
+					apply_line();
+					return true;
+				}
+			}
+
+			// access the selected element to get selected line
+			line_scrollitem_t *item = dynamic_cast<line_scrollitem_t*>(line_selector.get_element(selection));
+			if(  item  ) {
+				selected_line = item->get_line();
+				depot->set_last_selected_line( selected_line );
+				last_selected_line = selected_line;
+				apply_line();
+				return true;
+			}
+		}
+		else if(  comp == &vehicle_filter  ) {
+			depot->selected_filter = vehicle_filter.get_selection();
+		}
+		else {
+			return false;
+		}
+		build_vehicle_lists();
+	}
+	else {
+		update_data();
+		update_tabs();
+	}
+	layout(NULL);
+	return true;
+}
+
+
+bool depot_frame_t::infowin_event(const event_t *ev)
+{
+	// enable disable button actions
+	const bool action_allowed = welt->get_active_player() == depot->get_owner();
+	bt_new_line.enable( action_allowed );
+	bt_change_line.enable( action_allowed );
+	bt_copy_convoi.enable( action_allowed );
+	bt_apply_line.enable( action_allowed );
+	bt_start.enable( action_allowed );
+	bt_schedule.enable( action_allowed );
+	bt_destroy.enable( action_allowed );
+	bt_sell.enable( action_allowed );
+	bt_obsolete.enable( action_allowed );
+	bt_show_all.enable( action_allowed );
+	bt_veh_action.enable( action_allowed );
+	line_button.enable( action_allowed );
+//	convoy_selector.
+	if(  !action_allowed  &&  ev->ev_class <= INFOWIN  ) {
+		return false;
+	}
+
+	const bool swallowed = gui_frame_t::infowin_event(ev);
+
+	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
+
+		bool dir = (ev->ev_code==NEXT_WINDOW);
+		depot_t *next_dep = depot_t::find_depot( depot->get_pos(), depot->get_typ(), depot->get_owner(), dir == NEXT_WINDOW );
+		if(next_dep == NULL) {
+			if(dir == NEXT_WINDOW) {
+				// check the next from start of map
+				next_dep = depot_t::find_depot( koord3d(-1,-1,0), depot->get_typ(), depot->get_owner(), true );
+			}
+			else {
+				// respective end of map
+				next_dep = depot_t::find_depot( koord3d(8192,8192,127), depot->get_typ(), depot->get_owner(), false );
+			}
+		}
+
+		if(next_dep  &&  next_dep!=this->depot) {
+			/**
+			 * Replace our depot_frame_t with a new at the same position.
+			 * Volker Meyer
+			 */
+			scr_coord const pos = win_get_pos(this);
+			destroy_win( this );
+
+			next_dep->show_info();
+			win_set_pos(win_get_magic((ptrdiff_t)next_dep), pos.x, pos.y);
+			welt->get_viewport()->change_world_position(next_dep->get_pos());
+		}
+		else {
+			// recenter on current depot
+			welt->get_viewport()->change_world_position(depot->get_pos());
+		}
+
+		return true;
+	}
+
+	if(  swallowed  &&  get_focus()==&name_filter_input  &&  (ev->ev_class == EVENT_KEYBOARD  ||  ev->ev_class == EVENT_STRING)  ) {
+		depot_t::update_all_win();
+	}
+
+	return swallowed;
+}
+
+
+void depot_frame_t::draw(scr_coord pos, scr_size size)
+{
+	const bool action_allowed = welt->get_active_player() == depot->get_owner();
+
+	bt_new_line.enable( action_allowed );
+	bt_change_line.enable( action_allowed );
+	bt_copy_convoi.enable( action_allowed );
+	bt_apply_line.enable( action_allowed );
+	bt_start.enable( action_allowed );
+	bt_schedule.enable( action_allowed );
+	bt_destroy.enable( action_allowed );
+	bt_sell.enable( action_allowed );
+	bt_obsolete.enable( action_allowed );
+	bt_show_all.enable( action_allowed );
+	bt_veh_action.enable( action_allowed );
+	line_button.enable( action_allowed );
+
+	convoihandle_t cnv = depot->get_convoi(icnv);
+	// check for data inconsistencies (can happen with withdraw-all and vehicle in depot)
+	if(  !cnv.is_bound()  &&  !convoi_pics.empty()  ) {
+		icnv=0;
+		update_data();
+		cnv = depot->get_convoi(icnv);
+	}
 
 	gui_frame_t::draw(pos, size);
 	draw_vehicle_info_text(pos);
@@ -1641,7 +1625,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		buf.printf( "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_weight() / 1000.0 );
 		buf.printf( "%s %3d km/h", translator::translate("Max. speed:"), veh_type->get_topspeed() );
 
-		display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_size().h + D_V_SPACE, buf, SYSCOL_TEXT);
+		display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_size().h + D_V_SPACE + D_BUTTON_HEIGHT*2 - LINESPACE*2, buf, SYSCOL_TEXT);
 
 		// column 2
 		buf.clear();
@@ -1680,7 +1664,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 			buf.printf( "%s %8s", translator::translate("Restwert:"), tmp );
 		}
 
-		display_multiline_text_rgb( pos.x + second_column_x, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_size().h + D_V_SPACE + LINESPACE, buf, SYSCOL_TEXT);
+		display_multiline_text_rgb( pos.x + second_column_x, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_size().h + D_V_SPACE + D_BUTTON_HEIGHT*2 - LINESPACE, buf, SYSCOL_TEXT);
 
 		// update speedbar
 		new_vehicle_length_sb = new_vehicle_length_sb_force_zero ? 0 : convoi_length_ok_sb + convoi_length_slower_sb + convoi_length_too_slow_sb + veh_type->get_length();
