@@ -288,8 +288,6 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append("\n");
 	}
 
-
-
 	// Did not figure out how to make the sign registrate a passing train // Ves
 	/*
 	buf.append(translator::translate("Time since a train last passed"));
