@@ -364,6 +364,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	}
 	if (get_state() != danger)
 	{
+		// Possible information about how many blocks are reserved, or speed restrictions for time interval signals
 	}
 	buf.append(translator::translate("\n"));
 
