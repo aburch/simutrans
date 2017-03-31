@@ -214,6 +214,8 @@
 " Colin Taft", "",
 " Tom Tait", "", 
 " YleArkisto", "", 
+" Arnaud Coutancier", "", 
+" Sandeep Kurissery", ""
 "","",
 "Translation:","",
 "","",
