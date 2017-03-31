@@ -25,12 +25,12 @@
 
 class koord3d;
 class koord;
-class wegbauer_t;
-class haus_besch_t;
-class roadsign_besch_t;
-class weg_besch_t;
+class way_builder_t;
+class building_desc_t;
+class roadsign_desc_t;
+class way_desc_t;
 class route_t;
-class way_obj_besch_t;
+class way_obj_desc_t;
 
 /****************************** helper functions: *****************************/
 
@@ -82,6 +82,7 @@ public:
 	 * it sends work commands over network itself
 	 */
 	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
+	bool move_has_effects() const OVERRIDE { return true; }
 
 	bool is_init_network_save() const OVERRIDE { return true; }
 	/**
@@ -228,10 +229,11 @@ private:
 class tool_plant_tree_t : public kartenboden_tool_t {
 public:
 	tool_plant_tree_t() : kartenboden_tool_t(TOOL_PLANT_TREE | GENERAL_TOOL) {}
-	image_id get_icon(player_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_EMPTY; }
+	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate( "Plant tree" ); }
-	bool init(player_t*) { return baum_t::get_anzahl_besch() > 0; }
+	bool init(player_t*) { return baum_t::get_count() > 0; }
 	char const* move(player_t* const player, uint16 const b, koord3d const k) OVERRIDE;
+	bool move_has_effects() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
@@ -239,17 +241,17 @@ public:
 /* only called directly from schedule => no tooltip!
  * default_param must point to a schedule!
  */
-class tool_fahrplan_add_t : public tool_t {
+class tool_schedule_add_t : public tool_t {
 public:
-	tool_fahrplan_add_t() : tool_t(TOOL_SCHEDULE_ADD | GENERAL_TOOL) {}
+	tool_schedule_add_t() : tool_t(TOOL_SCHEDULE_ADD | GENERAL_TOOL) {}
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
-class tool_fahrplan_ins_t : public tool_t {
+class tool_schedule_ins_t : public tool_t {
 public:
-	tool_fahrplan_ins_t() : tool_t(TOOL_SCHEDULE_INS | GENERAL_TOOL) {}
+	tool_schedule_ins_t() : tool_t(TOOL_SCHEDULE_INS | GENERAL_TOOL) {}
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
@@ -257,20 +259,20 @@ public:
 
 class tool_build_way_t : public two_click_tool_t {
 public: 
-	static const weg_besch_t *defaults[18];	// default ways for all types
+	static const way_desc_t *defaults[18];	// default ways for all types
 private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 
 protected:
-	const weg_besch_t *besch;
+	const way_desc_t *desc;
 
-	virtual weg_besch_t const* get_besch(uint16, bool) const;
-	void calc_route( wegbauer_t &bauigel, const koord3d &, const koord3d & );
+	virtual way_desc_t const* get_desc(uint16, bool) const;
+	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
 
 public:
-	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), besch() {}
+	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), desc() {}
 	image_id get_icon(player_t*) const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	char const* get_default_param(player_t*) const OVERRIDE;
@@ -279,7 +281,7 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 	// remove preview necessary while building elevated ways
-	bool remove_preview_necessary() const OVERRIDE { return !is_first_click()  &&  (besch  &&  (besch->get_styp() == 1  &&  besch->get_wtyp() != air_wt)); }
+	bool remove_preview_necessary() const OVERRIDE { return !is_first_click()  &&  (desc  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)); }
 };
 
 class tool_build_cityroad : public tool_build_way_t {
@@ -287,7 +289,7 @@ private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 public:
 	tool_build_cityroad() : tool_build_way_t(TOOL_BUILD_CITYROAD | GENERAL_TOOL) {}
-	weg_besch_t const* get_besch(uint16, bool) const OVERRIDE;
+	way_desc_t const* get_desc(uint16, bool) const OVERRIDE;
 	image_id get_icon(player_t* const player) const OVERRIDE { return tool_t::get_icon(player); }
 	bool is_selected() const OVERRIDE { return tool_t::is_selected(); }
 	bool is_init_network_save() const OVERRIDE { return true; }
@@ -297,13 +299,13 @@ public:
 class tool_build_bridge_t : public two_click_tool_t {
 private:
 	ribi_t::ribi ribi;
-	const weg_besch_t* weg_besch;
+	const way_desc_t* way_desc;
 
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 public:
-	tool_build_bridge_t() : two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) { weg_besch = NULL; }
+	tool_build_bridge_t() : two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) { way_desc = NULL; }
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
@@ -315,14 +317,14 @@ public:
 
 class tool_build_tunnel_t : public two_click_tool_t {
 private:
-	const weg_besch_t* weg_besch;
+	const way_desc_t* way_desc;
 
-	void calc_route( wegbauer_t &bauigel, const koord3d &, const koord3d &);
+	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d &);
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 public:
-	tool_build_tunnel_t() : two_click_tool_t(TOOL_BUILD_TUNNEL | GENERAL_TOOL) {}
+	tool_build_tunnel_t();
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
@@ -348,13 +350,13 @@ public:
 	waytype_t get_waytype() const OVERRIDE;
 };
 
-class tool_wayobj_t : public two_click_tool_t {
+class tool_build_wayobj_t : public two_click_tool_t {
 protected:
 	const bool build;
 private:
-	static const way_obj_besch_t *default_electric;
-	const way_obj_besch_t *besch;
-	const way_obj_besch_t *get_besch() const;
+	static const way_obj_desc_t *default_electric;
+	const way_obj_desc_t *desc;
+	const way_obj_desc_t *get_desc() const;
 	waytype_t wt;
 
 	bool calc_route( route_t &, player_t *, const koord3d& start, const koord3d &to );
@@ -364,7 +366,7 @@ private:
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 
 public:
-	tool_wayobj_t(uint16 const id = TOOL_BUILD_WAYOBJ | GENERAL_TOOL, bool b = true) : two_click_tool_t(id), build(b) {}
+	tool_build_wayobj_t(uint16 const id = TOOL_BUILD_WAYOBJ | GENERAL_TOOL, bool b = true) : two_click_tool_t(id), build(b) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool is_selected() const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
@@ -372,9 +374,9 @@ public:
 	waytype_t get_waytype() const OVERRIDE;
 };
 
-class tool_wayobj_remover_t : public tool_wayobj_t {
+class tool_wayobj_remover_t : public tool_build_wayobj_t {
 public:
-	tool_wayobj_remover_t() : tool_wayobj_t(TOOL_REMOVE_WAYOBJ | GENERAL_TOOL, false) {}
+	tool_wayobj_remover_t() : tool_build_wayobj_t(TOOL_REMOVE_WAYOBJ | GENERAL_TOOL, false) {}
 	bool is_selected() const OVERRIDE { return tool_t::is_selected(); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
@@ -382,11 +384,11 @@ public:
 class tool_build_station_t : public tool_t {
 private:
 	static char toolstring[256];
-	const char *tool_station_building_aux(player_t *, bool, koord3d, const haus_besch_t *, sint8 rotation );
-	const char *tool_station_dock_aux(player_t *, koord3d, const haus_besch_t * );
-	const char *tool_station_flat_dock_aux(player_t *, koord3d, const haus_besch_t *, sint8 );
-	const char *tool_station_aux(player_t *, koord3d, const haus_besch_t *, waytype_t, sint64 cost, const char *halt_suffix );
-	const haus_besch_t *get_besch( sint8 &rotation ) const;
+	const char *tool_station_building_aux(player_t *, bool, koord3d, const building_desc_t *, sint8 rotation );
+	const char *tool_station_dock_aux(player_t *, koord3d, const building_desc_t * );
+	const char *tool_station_flat_dock_aux(player_t *, koord3d, const building_desc_t *, sint8 );
+	const char *tool_station_aux(player_t *, koord3d, const building_desc_t *, waytype_t, sint64 cost, const char *halt_suffix );
+	const building_desc_t *get_desc( sint8 &rotation ) const;
 
 public:
 	tool_build_station_t() : tool_t(TOOL_BUILD_STATION | GENERAL_TOOL) {}
@@ -395,6 +397,7 @@ public:
 	bool init(player_t*) OVERRIDE;
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
 	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
+	bool move_has_effects() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
@@ -404,8 +407,8 @@ public:
 class tool_build_roadsign_t : public two_click_tool_t {
 
 private:
-	const roadsign_besch_t* besch;
-	const char *place_sign_intern( player_t *, grund_t*, const roadsign_besch_t* b = NULL);
+	const roadsign_desc_t* desc;
+	const char *place_sign_intern( player_t *, grund_t*, const roadsign_desc_t* b = NULL);
 
 public:
 	struct signal_info {
@@ -435,7 +438,7 @@ private:
 	vector_tpl< ribi_t::ribi > directions;
 
 public:
-	tool_build_roadsign_t() : two_click_tool_t(TOOL_BUILD_ROADSIGN | GENERAL_TOOL), besch() {}
+	tool_build_roadsign_t() : two_click_tool_t(TOOL_BUILD_ROADSIGN | GENERAL_TOOL), desc() {}
 
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
@@ -452,7 +455,7 @@ public:
 class tool_depot_t : public tool_t {
 private:
 	static char toolstring[256];
-	const char *tool_depot_aux(player_t *player, koord3d pos, const haus_besch_t *besch, waytype_t wegtype, sint64 cost);
+	const char *tool_depot_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype, sint64 cost);
 public:
 	tool_depot_t() : tool_t(TOOL_BUILD_DEPOT | GENERAL_TOOL) {}
 	image_id get_icon(player_t*) const OVERRIDE;
@@ -467,7 +470,7 @@ class tool_signalbox_t : public tool_t
 {
 private:
 	static char toolstring[256];
-	const char* tool_signalbox_aux(player_t* player, koord3d pos, const haus_besch_t* besch, sint64 cost);
+	const char* tool_signalbox_aux(player_t* player, koord3d pos, const building_desc_t* desc, sint64 cost);
 public:
 	tool_signalbox_t() : tool_t(TOOL_BUILD_SIGNALBOX | GENERAL_TOOL) {}
 	const char *check_pos(player_t *, koord3d pos);
@@ -495,7 +498,7 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
 
-/* builts a (if param=NULL random) industry chain starting here *
+/* build an (if param=NULL random) industry chain starting here *
  * the parameter string is a follow (or NULL):
  * 1#34,oelfeld
  * first letter: ignore climates
@@ -545,7 +548,7 @@ private:
 
 class tool_headquarter_t : public kartenboden_tool_t {
 private:
-	const haus_besch_t *next_level( const player_t *player ) const;
+	const building_desc_t *next_level( const player_t *player ) const;
 public:
 	tool_headquarter_t() : kartenboden_tool_t(TOOL_HEADQUARTER | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE;
@@ -579,9 +582,9 @@ public:
 class tool_forest_t : public two_click_tool_t {
 public:
 	tool_forest_t() : two_click_tool_t(TOOL_FOREST | GENERAL_TOOL) {}
-	image_id get_icon(player_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_EMPTY; }
+	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Add forest"); }
-	bool init( player_t *player) { return  baum_t::get_anzahl_besch() > 0  &&  two_click_tool_t::init(player); }
+	bool init( player_t *player) { return  baum_t::get_count() > 0  &&  two_click_tool_t::init(player); }
 private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
@@ -636,6 +639,7 @@ public:
 	bool exit(player_t *s ) { return init(s); }
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	char const* move(player_t*, uint16 /* buttonstate */, koord3d) OVERRIDE;
+	bool move_has_effects() const OVERRIDE { return true; }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
@@ -701,7 +705,7 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
-// builts next chain
+// build next chain
 class tool_increase_industry_t : public tool_t {
 public:
 	tool_increase_industry_t() : tool_t(TOOL_INCREASE_INDUSTRY | SIMPLE_TOOL) {}
@@ -733,7 +737,7 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
-// setp one year forward
+// step one year forward
 class tool_step_year_t : public tool_t {
 public:
 	tool_step_year_t() : tool_t(TOOL_STEP_YEAR | SIMPLE_TOOL) {}
@@ -748,8 +752,8 @@ class tool_change_game_speed_t : public tool_t {
 public:
 	tool_change_game_speed_t() : tool_t(TOOL_CHANGE_GAME_SPEED | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE {
-		int faktor = atoi(default_param);
-		return faktor>0 ? translator::translate("Accelerate time") : translator::translate("Deccelerate time");
+		int factor = atoi(default_param);
+		return factor>0 ? translator::translate("Accelerate time") : translator::translate("Deccelerate time");
 	}
 	bool init( player_t *player ) {
 		if(  !env_t::networkmode  ||  player->get_player_nr()==1  ) {
@@ -911,9 +915,9 @@ class tool_fill_trees_t : public tool_t {
 public:
 	tool_fill_trees_t() : tool_t(TOOL_FILL_TREES | SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Fill trees"); }
-	image_id get_icon(player_t *) const { return baum_t::get_anzahl_besch() > 0 ? icon : IMG_EMPTY; }
+	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
 	bool init(player_t * ) {
-		if(  baum_t::get_anzahl_besch() > 0  &&  default_param  ) {
+		if(  baum_t::get_count() > 0  &&  default_param  ) {
 			baum_t::fill_trees( atoi(default_param) );
 		}
 		return false;
@@ -1019,7 +1023,7 @@ public:
 };
 
 /******************************** Internal tools ***********/
-/* internal simple tools needed for networksynchronisation */
+/* internal simple tools needed for network synchronisation*/
 class tool_traffic_level_t : public tool_t {
 public:
 	tool_traffic_level_t() : tool_t(TOOL_TRAFFIC_LEVEL | SIMPLE_TOOL) {}
@@ -1028,7 +1032,7 @@ public:
 	bool init( player_t * ) {
 		assert(  default_param  );
 		sint16 level = min( max( atoi(default_param), 0), 16);
-		welt->get_settings().set_verkehr_level(level);
+		welt->get_settings().set_traffic_level(level);
 		return false;
 	}
 	bool is_init_network_save() const OVERRIDE { return false; }

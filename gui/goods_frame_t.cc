@@ -16,8 +16,8 @@
 #include "components/gui_scrollpane.h"
 
 
-#include "../bauer/warenbauer.h"
-#include "../besch/ware_besch.h"
+#include "../bauer/goods_manager.h"
+#include "../descriptor/goods_desc.h"
 #include "../dataobj/translator.h"
 
 // For waytype_t
@@ -28,7 +28,7 @@
 #include "../simconvoi.h"
 
 // For revenue stuff
-#include "../besch/ware_besch.h"
+#include "../descriptor/goods_desc.h"
 
 /**
  * This variable defines the current speed for bonus calculation
@@ -208,7 +208,7 @@ goods_frame_t::goods_frame_t() :
 
 	sort_list();
 
-	int h = (warenbauer_t::get_waren_anzahl()+1)*(LINESPACE+1)+y;
+	int h = (goods_manager_t::get_count()+1)*(LINESPACE+1)+y;
 	if(h>450) {
 		h = y+27*(LINESPACE+1)+D_TITLEBAR_HEIGHT+1;
 	}
@@ -222,9 +222,9 @@ goods_frame_t::goods_frame_t() :
 
 bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 {
-	const ware_besch_t* w[2];
-	w[0] = warenbauer_t::get_info(a);
-	w[1] = warenbauer_t::get_info(b);
+	const goods_desc_t* w[2];
+	w[0] = goods_manager_t::get_info(a);
+	w[1] = goods_manager_t::get_info(b);
 
 	int order = 0;
 
@@ -253,11 +253,11 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 				order = price[0] - price[1];
 //=======
 //			{
-//				const sint32 grundwert1281 = w1->get_preis() * goods_frame_t::welt->get_settings().get_bonus_basefactor();
-//				const sint32 grundwert_bonus1 = w1->get_preis()*(1000l+(relative_speed_change-100l)*w1->get_speed_bonus());
+//				const sint32 grundwert1281 = w1->get_value() * goods_frame_t::welt->get_settings().get_bonus_basefactor();
+//				const sint32 grundwert_bonus1 = w1->get_value()*(1000l+(relative_speed_change-100l)*w1->get_speed_bonus());
 //				const sint32 price1 = (grundwert1281>grundwert_bonus1 ? grundwert1281 : grundwert_bonus1);
-//				const sint32 grundwert1282 = w2->get_preis() * goods_frame_t::welt->get_settings().get_bonus_basefactor();
-//				const sint32 grundwert_bonus2 = w2->get_preis()*(1000l+(relative_speed_change-100l)*w2->get_speed_bonus());
+//				const sint32 grundwert1282 = w2->get_value() * goods_frame_t::welt->get_settings().get_bonus_basefactor();
+//				const sint32 grundwert_bonus2 = w2->get_value()*(1000l+(relative_speed_change-100l)*w2->get_speed_bonus());
 //				const sint32 price2 = (grundwert1282>grundwert_bonus2 ? grundwert1282 : grundwert_bonus2);
 //				order = price1-price2;
 //>>>>>>> v111.3
@@ -288,16 +288,16 @@ void goods_frame_t::sort_list()
 	sorteddir.set_text(sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
 
 	// Fetch the list of goods produced by the factories that exist in the current game
-	const vector_tpl<const ware_besch_t*> &goods_in_game = welt->get_goods_list();
+	const vector_tpl<const goods_desc_t*> &goods_in_game = welt->get_goods_list();
 
 	int n=0;
-	for(unsigned int i=0; i<warenbauer_t::get_waren_anzahl(); i++) {
-		const ware_besch_t * wtyp = warenbauer_t::get_info(i);
+	for(unsigned int i=0; i<goods_manager_t::get_count(); i++) {
+		const goods_desc_t * wtyp = goods_manager_t::get_info(i);
 
 		// Skip goods not in the game
 		// Do not skip goods which don't generate income -- it makes it hard to debug paks
 		// Do skip the special good "None"
-		if(  (wtyp != warenbauer_t::nichts) && (!filter_goods || goods_in_game.is_contained(wtyp))  ) {
+		if(  (wtyp != goods_manager_t::none) && (!filter_goods || goods_in_game.is_contained(wtyp))  ) {
 			good_list[n++] = i;
 		}
 	}

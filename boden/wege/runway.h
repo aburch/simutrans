@@ -13,7 +13,7 @@
 
 
 /**
- * Klasse für runwayn in Simutrans.
+ * Class for aiport runaway in Simutrans.
  * speed >250 are for take of (maybe rather use system type in next release?)
  *
  * @author Hj. Malthaner
@@ -21,7 +21,7 @@
 class runway_t : public schiene_t
 {
 public:
-	static const weg_besch_t *default_runway;
+	static const way_desc_t *default_runway;
 
 	/**
 	 * File loading constructor.

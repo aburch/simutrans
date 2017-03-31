@@ -24,15 +24,15 @@
 #include "../simware.h"
 #include "../simfab.h"
 #include "../gui/simwin.h"
-#include "../besch/skin_besch.h"
+#include "../descriptor/skin_desc.h"
 
-#include "../bauer/warenbauer.h"
+#include "../bauer/goods_manager.h"
 
 #include "../dataobj/translator.h"
 
 #include "../utils/cbuffer_t.h"
 
-
+#define HALT_SCROLL_START (D_MARGIN_TOP + LINESPACE + D_V_SPACE + D_BUTTON_HEIGHT)
 
 /**
  * All filter and sort settings are static, so the old settings are
@@ -59,8 +59,8 @@ int halt_list_frame_t::filter_flags = 0;
 
 char halt_list_frame_t::name_filter_value[64] = "";
 
-slist_tpl<const ware_besch_t *> halt_list_frame_t::waren_filter_ab;
-slist_tpl<const ware_besch_t *> halt_list_frame_t::waren_filter_an;
+slist_tpl<const goods_desc_t *> halt_list_frame_t::waren_filter_ab;
+slist_tpl<const goods_desc_t *> halt_list_frame_t::waren_filter_an;
 
 const char *halt_list_frame_t::sort_text[SORT_MODES] = {
 	"hl_btn_sort_name",
@@ -147,7 +147,7 @@ static bool passes_filter_special(haltestelle_t & s)
 	if(halt_list_frame_t::get_filter(halt_list_frame_t::ohneverb_filter))
 	{
 		bool walking_connexion_only = true; // Walking connexion or no connexion at all.
-		for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); ++i)
+		for(uint8 i = 0; i < goods_manager_t::get_max_catg_index(); ++i)
 		{
 			if(!s.get_connexions(i)->empty()) 
 			{
@@ -174,22 +174,22 @@ static bool passes_filter_out(haltestelle_t const& s)
 
 	/*
 	 * Die Unterkriterien werden gebildet aus:
-	 * - die Ware wird produziert (pax/post_enabled bzw. fabrik vorhanden)
+	 * - die Ware wird produziert (pax/post_enabled bzw. factory vorhanden)
 	 * - es existiert eine Zugverbindung mit dieser Ware (!ziele[...].empty())
 	 */
 
 	// Hajo: todo: check if there is a destination for the good (?)
 
-	for (uint32 i = 0; i != warenbauer_t::get_waren_anzahl(); ++i) {
-		ware_besch_t const* const ware = warenbauer_t::get_info(i);
+	for (uint32 i = 0; i != goods_manager_t::get_count(); ++i) {
+		goods_desc_t const* const ware = goods_manager_t::get_info(i);
 		if (!halt_list_frame_t::get_ware_filter_ab(ware)) continue;
 
-		if (ware == warenbauer_t::passagiere) {
+		if (ware == goods_manager_t::passengers) {
 			if (s.get_pax_enabled()) return true;
-		} else if (ware == warenbauer_t::post) {
-			if (s.get_post_enabled()) return true;
-		} else if (ware != warenbauer_t::nichts) {
-			// Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
+		} else if (ware == goods_manager_t::mail) {
+			if (s.get_mail_enabled()) return true;
+		} else if (ware != goods_manager_t::none) {
+			// Oh Mann - eine doublese Schleife und das noch pro Haltestelle
 			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
 			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
 			FOR(slist_tpl<fabrik_t*>, const f, s.get_fab_list()) {
@@ -209,22 +209,22 @@ static bool passes_filter_in(haltestelle_t const& s)
 	if (!halt_list_frame_t::get_filter(halt_list_frame_t::ware_an_filter)) return true;
 	/*
 	 * Die Unterkriterien werden gebildet aus:
-	 * - die Ware wird verbraucht (pax/post_enabled bzw. fabrik vorhanden)
+	 * - die Ware wird verbraucht (pax/post_enabled bzw. factory vorhanden)
 	 * - es existiert eine Zugverbindung mit dieser Ware (!ziele[...].empty())
 	 */
 
 	// Hajo: todo: check if there is a destination for the good (?)
 
-	for (uint32 i = 0; i != warenbauer_t::get_waren_anzahl(); ++i) {
-		ware_besch_t const* const ware = warenbauer_t::get_info(i);
+	for (uint32 i = 0; i != goods_manager_t::get_count(); ++i) {
+		goods_desc_t const* const ware = goods_manager_t::get_info(i);
 		if (!halt_list_frame_t::get_ware_filter_an(ware)) continue;
 
-		if (ware == warenbauer_t::passagiere) {
+		if (ware == goods_manager_t::passengers) {
 			if (s.get_pax_enabled()) return true;
-		} else if (ware == warenbauer_t::post) {
-			if (s.get_post_enabled()) return true;
-		} else if (ware != warenbauer_t::nichts) {
-			// Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
+		} else if (ware == goods_manager_t::mail) {
+			if (s.get_mail_enabled()) return true;
+		} else if (ware != goods_manager_t::none) {
+			// Oh Mann - eine doublese Schleife und das noch pro Haltestelle
 			// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
 			// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
 			FOR(slist_tpl<fabrik_t*>, const f, s.get_fab_list()) {
@@ -290,7 +290,7 @@ halt_list_frame_t::halt_list_frame_t(player_t *player) :
 	display_list();
 
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+7*(28)+31+1));
-	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+3*(28)+31+1));
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT + 3 * (28) + HALT_SCROLL_START));
 
 	set_resizemode(diagonal_resize);
 	resize (scr_coord(0,0));
@@ -367,8 +367,8 @@ bool halt_list_frame_t::infowin_event(const event_t *ev)
 		// (and sometime even not then ... )
 		return vscroll.infowin_event(ev);
 	}
-	else if(  (IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx<get_windowsize().w-xr  ) {
-		const int y = (ev->my-47)/28 + vscroll.get_knob_offset();
+	else if ((IS_LEFTRELEASE(ev) || IS_RIGHTRELEASE(ev)) && ev->my>HALT_SCROLL_START + D_TITLEBAR_HEIGHT  &&  ev->mx<get_windowsize().w - xr && !stops.empty()) {
+		const int y = (ev->my - HALT_SCROLL_START - D_TITLEBAR_HEIGHT) / stops[0].get_size().h + vscroll.get_knob_offset();
 
 		if(  y<num_filtered_stops  ) {
 			// find the 'y'th filtered stop in the unfiltered stops list
@@ -425,17 +425,18 @@ bool halt_list_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* 
 void halt_list_frame_t::resize(const scr_coord size_change)
 {
 	gui_frame_t::resize(size_change);
-	scr_size size = get_windowsize()-scr_size(0,47);
+	scr_size size = get_windowsize() - scr_size(0, D_TITLEBAR_HEIGHT + HALT_SCROLL_START);
 	vscroll.set_visible(false);
 	remove_component(&vscroll);
-	vscroll.set_knob( size.h/28, num_filtered_stops );
-	if(  num_filtered_stops<=size.h/28  ) {
+	int halt_h = (stops.empty() ? 28 : stops[0].get_size().h);
+	vscroll.set_knob(size.h / halt_h, num_filtered_stops);
+	if (num_filtered_stops <= size.h / halt_h) {
 		vscroll.set_knob_offset(0);
 	}
 	else {
 		add_component(&vscroll);
 		vscroll.set_visible(true);
-		vscroll.set_pos(scr_coord(size.w-D_SCROLLBAR_WIDTH, 47-D_TITLEBAR_HEIGHT-1));
+		vscroll.set_pos(scr_coord(size.w - D_SCROLLBAR_WIDTH, HALT_SCROLL_START));
 		vscroll.set_size(size-D_SCROLLBAR_SIZE);
 		vscroll.set_scroll_amount( 1 );
 	}
@@ -467,7 +468,7 @@ void halt_list_frame_t::draw(scr_coord pos, scr_size size)
 			num_filtered_stops++;
 			if(  num_filtered_stops>start  &&  yoffset<size.h+47  ) {
 				i.draw(pos + scr_coord(0, yoffset));
-				yoffset += 28;
+				yoffset += i.get_size().h;
 			}
 		}
 	}
@@ -479,9 +480,9 @@ void halt_list_frame_t::draw(scr_coord pos, scr_size size)
 }
 
 
-void halt_list_frame_t::set_ware_filter_ab(const ware_besch_t *ware, int mode)
+void halt_list_frame_t::set_ware_filter_ab(const goods_desc_t *ware, int mode)
 {
-	if(ware != warenbauer_t::nichts) {
+	if(ware != goods_manager_t::none) {
 		if(get_ware_filter_ab(ware)) {
 			if(mode != 1) {
 				waren_filter_ab.remove(ware);
@@ -496,9 +497,9 @@ void halt_list_frame_t::set_ware_filter_ab(const ware_besch_t *ware, int mode)
 }
 
 
-void halt_list_frame_t::set_ware_filter_an(const ware_besch_t *ware, int mode)
+void halt_list_frame_t::set_ware_filter_an(const goods_desc_t *ware, int mode)
 {
-	if(ware != warenbauer_t::nichts) {
+	if(ware != goods_manager_t::none) {
 		if(get_ware_filter_an(ware)) {
 			if(mode != 1) {
 				waren_filter_an.remove(ware);
@@ -519,8 +520,8 @@ void halt_list_frame_t::set_alle_ware_filter_ab(int mode)
 		waren_filter_ab.clear();
 	}
 	else {
-		for(unsigned int i = 0; i<warenbauer_t::get_waren_anzahl(); i++) {
-			set_ware_filter_ab(warenbauer_t::get_info(i), mode);
+		for(unsigned int i = 0; i<goods_manager_t::get_count(); i++) {
+			set_ware_filter_ab(goods_manager_t::get_info(i), mode);
 		}
 	}
 }
@@ -532,8 +533,8 @@ void halt_list_frame_t::set_alle_ware_filter_an(int mode)
 		waren_filter_an.clear();
 	}
 	else {
-		for(unsigned int i = 0; i<warenbauer_t::get_waren_anzahl(); i++) {
-			set_ware_filter_an(warenbauer_t::get_info(i), mode);
+		for(unsigned int i = 0; i<goods_manager_t::get_count(); i++) {
+			set_ware_filter_an(goods_manager_t::get_info(i), mode);
 		}
 	}
 }

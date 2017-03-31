@@ -26,7 +26,7 @@
 #include "../simtypes.h"
 #include "../utils/cbuffer_t.h"
 
-class vehikel_besch_t;
+class vehicle_desc_t;
 
 /**
  * Depot frame, handles all interaction with a vehicle depot.
@@ -96,7 +96,7 @@ private:
 	/// contains the current translation of "<promote to line>"
 	const char* promote_to_line_text;
 	/// "-----------" between header items and lines
-	const char* line_seperator;
+	const char* line_separator;
 
 	gui_combobox_t line_selector;
 
@@ -114,7 +114,7 @@ private:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	sint64 calc_sale_value(const vehikel_besch_t *veh_type);
+	sint64 calc_sale_value(const vehicle_desc_t *veh_type);
 
 	/**
 	 * Does this window need a min size button in the title bar?
@@ -124,15 +124,15 @@ private:
 	bool has_min_sizer() const {return true;}
 
 	// true if already stored here
-	bool is_contained(const vehikel_besch_t *info);
+	bool is_contained(const vehicle_desc_t *info);
 
 	// add a single vehicle (helper function)
-	void add_to_vehicle_list(const vehikel_besch_t *info);
+	void add_to_vehicle_list(const vehicle_desc_t *info);
 
 	// for convoi image
 	void image_from_convoi_list(uint nr, bool to_end);
 
-	void image_from_storage_list(gui_image_list_t::image_data_t *bild_data);
+	void image_from_storage_list(gui_image_list_t::image_data_t *image_data);
 
 public:
 	// the next two are only needed for depot_t update notifications
@@ -199,7 +199,7 @@ public:
 	 * Open dialog for schedule entry.
 	 * @author Hj. Malthaner
 	 */
-	void fahrplaneingabe();
+	void open_schedule_editor();
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

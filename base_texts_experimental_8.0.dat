@@ -18,7 +18,7 @@ note=Used in the depot frame to indicate that all traction types are enabled.
 -
 obj=program_text
 name=General Exp.
-note=Name of tab in settings frame for general settings of simutrans experimental.
+note=Name of tab in settings frame for general settings of Simutrans-Extended
 -
 obj=program_text
 name=distance_per_tile_percent

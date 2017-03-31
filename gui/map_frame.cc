@@ -16,6 +16,7 @@
 #include "karte.h"
 #include "map_frame.h"
 
+#include "../simsys.h"
 
 #include "../simworld.h"
 #include "../gui/simwin.h"
@@ -27,7 +28,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/koord.h"
 #include "../dataobj/loadsave.h"
-#include "../besch/fabrik_besch.h"
+#include "../descriptor/factory_desc.h"
 #include "../simfab.h"
 #include "../utils/simrandom.h"
 
@@ -46,7 +47,7 @@ bool  map_frame_t::is_cursor_hidden=false;
 bool  map_frame_t::filter_factory_list=true;
 
 // Caches list of factories in current game world
-stringhashtable_tpl<const fabrik_besch_t *> map_frame_t::factory_list;
+stringhashtable_tpl<const factory_desc_t *> map_frame_t::factory_list;
 
 // Hajo: we track our position onscreen
 scr_coord map_frame_t::screenpos;
@@ -262,8 +263,8 @@ void map_frame_t::update_factory_legend()
 		if(  filter_factory_list  ) {
 			minivec_tpl<uint8> colours;
 			FOR(vector_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
-				fabrik_besch_t const& d = *f->get_besch();
-				if(  d.get_gewichtung() > 0  ) {
+				factory_desc_t const& d = *f->get_desc();
+				if(  d.get_chance() > 0  ) {
 					if( colours.append_unique(d.get_kennfarbe()) ) {
 						std::string const label( translator::translate(d.get_name()) );
 						legend.append_unique( legend_entry_t(label, d.get_kennfarbe()) );
@@ -272,9 +273,9 @@ void map_frame_t::update_factory_legend()
 			}
 		}
 		else {
-			FOR(stringhashtable_tpl<fabrik_besch_t const*>, const& i, fabrikbauer_t::get_fabesch()) {
-				fabrik_besch_t const& d = *i.value;
-				if ( d.get_gewichtung() > 0 ) {
+			FOR(stringhashtable_tpl<factory_desc_t const*>, const& i, factory_builder_t::get_factory_table()) {
+				factory_desc_t const& d = *i.value;
+				if ( d.get_chance() > 0 ) {
 					std::string const label(translator::translate(d.get_name()));
 					legend.append_unique( legend_entry_t(label, d.get_kennfarbe()) );
 				}
@@ -468,7 +469,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		// Move the mouse pointer back to starting location
 		// To prevent a infinite mouse event loop, we just do it when needed.
 		if ((ev->mx - ev->cx)!=0  ||  (ev->my-ev->cy)!=0) {
-			//display_move_pointer(screenpos.x + ev->cx, screenpos.y+ev->cy);
+			move_pointer(screenpos.x + ev->cx, screenpos.y+ev->cy);
 		}
 
 		return true;
@@ -680,10 +681,10 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 
 	// may add compass
 	if(  reliefkarte_t::get_karte()->isometric  &&  skinverwaltung_t::compass_iso  ) {
-		display_img_aligned( skinverwaltung_t::compass_iso->get_bild_nr( welt->get_settings().get_rotation() ), scrolly.get_client()+pos+scr_coord(4,4+D_TITLEBAR_HEIGHT)-scr_size(8,8), ALIGN_RIGHT|ALIGN_TOP, false );
+		display_img_aligned( skinverwaltung_t::compass_iso->get_image_id( welt->get_settings().get_rotation() ), scrolly.get_client()+pos+scr_coord(4,4+D_TITLEBAR_HEIGHT)-scr_size(8,8), ALIGN_RIGHT|ALIGN_TOP, false );
 	}
 	else if(  !reliefkarte_t::get_karte()->isometric  &&  skinverwaltung_t::compass_rect  ) {
-		display_img_aligned( skinverwaltung_t::compass_rect->get_bild_nr( welt->get_settings().get_rotation() ), scrolly.get_client()+pos+scr_coord(4,4+D_TITLEBAR_HEIGHT)-scr_size(8,8), ALIGN_RIGHT|ALIGN_TOP, false );
+		display_img_aligned( skinverwaltung_t::compass_rect->get_image_id( welt->get_settings().get_rotation() ), scrolly.get_client()+pos+scr_coord(4,4+D_TITLEBAR_HEIGHT)-scr_size(8,8), ALIGN_RIGHT|ALIGN_TOP, false );
 	}
 }
 

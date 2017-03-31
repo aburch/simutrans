@@ -13,7 +13,7 @@
 #include "../simobj.h"
 
 /**
- * Signale für die Bahnlinien.
+ * Signals for rail tracks.
  *
  * @see blockstrecke_t
  * @see blockmanager
@@ -28,10 +28,13 @@ private:
 
 	// Used for time interval signalling
 	sint64 train_last_passed;
+protected:
+
+ uint8 textlines_in_signal_window;
 
 public:
 	signal_t(loadsave_t *file);
-	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_besch_t *besch, koord3d sb, bool preview = false);
+	signal_t(player_t *player, koord3d pos, ribi_t::ribi dir,const roadsign_desc_t *desc, koord3d sb, bool preview = false);
 	~signal_t();
 
 	void rdwr_signal(loadsave_t *file);
@@ -49,10 +52,12 @@ public:
 #else
 	typ get_typ() const { return obj_t::signal; }
 #endif
-	const char *get_name() const { return besch->get_name(); }
+	const char *get_name() const { return desc->get_name(); }
+
+	uint8 get_textlines() const { return textlines_in_signal_window; }
 
 	/**
-	* berechnet aktuelles image
+	* Calculate actual image
 	*/
 	void calc_image();
 
@@ -62,12 +67,14 @@ public:
 	bool get_no_junctions_to_next_signal() const { return no_junctions_to_next_signal; }
 	void set_no_junctions_to_next_signal(bool value) { no_junctions_to_next_signal = value; } 
 
-	bool is_bidirectional() const { return ((dir & ribi_t::ost) && (dir & ribi_t::west)) || ((dir & ribi_t::sued) && (dir & ribi_t::nord)); }
+	bool is_bidirectional() const { return ((dir & ribi_t::east) && (dir & ribi_t::west)) || ((dir & ribi_t::south) && (dir & ribi_t::north)); }
 
 	void set_train_last_passed(sint64 value) { train_last_passed = value; }
 	sint64 get_train_last_passed() const { return train_last_passed; }
 
 	void show_info();
+
+
 };
 
 #endif

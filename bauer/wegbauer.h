@@ -15,9 +15,9 @@
 #include "../tpl/stringhashtable_tpl.h"
 
 
-class weg_besch_t;
-class bruecke_besch_t;
-class tunnel_besch_t;
+class way_desc_t;
+class bridge_desc_t;
+class tunnel_desc_t;
 class karte_ptr_t;
 class player_t;
 class grund_t;
@@ -28,14 +28,14 @@ class tool_selector_t;
  * way building class with its own route finding
  * @author Hj. Malthaner
  */
-class wegbauer_t
+class way_builder_t
 {
 	static karte_ptr_t welt;
 public:
-	static const weg_besch_t *leitung_besch;
+	static const way_desc_t *leitung_desc;
 
-	static bool register_besch(weg_besch_t *besch);
-	static bool alle_wege_geladen();
+	static bool register_desc(way_desc_t *desc);
+	static bool successfully_loaded();
 
 	// generates timeline message
 	static void new_month();
@@ -44,31 +44,33 @@ public:
 	 * Finds a way with a given speed limit for a given waytype
 	 * @author prissi
 	 */
-	static const weg_besch_t * weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const weg_t::system_type system_type, const uint32 wear_capacity_limit, way_constraints_of_vehicle_t way_constraints = way_constraints_of_vehicle_t());
-	static const weg_besch_t * weg_search(const waytype_t wtyp,const sint32 speed_limit, const uint16 time, const weg_t::system_type system_type);
+	static const way_desc_t * weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const systemtype_t system_type, const uint32 wear_capacity_limit, way_constraints_of_vehicle_t way_constraints = way_constraints_of_vehicle_t());
+	static const way_desc_t * weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint16 time, const systemtype_t system_type);
 	
 	/**
 	 * Finds a mothballed way for a given waytype. 
 	 * Returns NULL if there is no mothballed way for such a type.
 	 * @author jamespetts
 	 */
-	static const weg_besch_t * way_search_mothballed(const waytype_t wtyp, const weg_t::system_type system_type);
+	static const way_desc_t * way_search_mothballed(const waytype_t wtyp, const systemtype_t system_type);
 
-	static const weg_besch_t *get_besch(const char *way_name,const uint16 time=0);
+	static const way_desc_t *get_desc(const char *way_name,const uint16 time=0);
 
-	static stringhashtable_tpl <weg_besch_t *> * get_all_ways();
+	static stringhashtable_tpl <way_desc_t *> * get_all_ways();
 
-	static const weg_besch_t *get_earliest_way(const waytype_t wtyp);
+	static const way_desc_t *get_earliest_way(const waytype_t wtyp);
 
-	static const weg_besch_t *get_latest_way(const waytype_t wtyp);
+	static const way_desc_t *get_latest_way(const waytype_t wtyp);
 
 	static bool waytype_available( const waytype_t wtyp, uint16 time );
+
+	static const vector_tpl<const way_desc_t *>&  get_way_list(waytype_t, systemtype_t system_type);
 
 	/**
 	 * Fill menu with icons of given waytype
 	 * @author Hj. Malthaner
 	 */
-	static void fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, const weg_t::system_type styp, sint16 ok_sound);
+	static void fill_menu(tool_selector_t *tool_selector, const waytype_t wtyp, const systemtype_t styp, sint16 ok_sound);
 
 	enum bautyp_t {
 		strasse=road_wt,
@@ -119,19 +121,19 @@ private:
 	 * Type of way to build
 	 * @author Hj. Malthaner
 	 */
-	const weg_besch_t * besch;
+	const way_desc_t * desc;
 
 	/**
 	 * Type of bridges to build (zero=>no bridges)
 	 * @author Hj. Malthaner
 	 */
-	const bruecke_besch_t * bruecke_besch;
+	const bridge_desc_t * bridge_desc;
 
 	/**
 	 * Type of bridges to build (zero=>no bridges)
 	 * @author Hj. Malthaner
 	 */
-	const tunnel_besch_t * tunnel_besch;
+	const tunnel_desc_t * tunnel_desc;
 
 	/**
 	 * If a way is built on top of another way, should the type
@@ -182,18 +184,18 @@ private:
 	// runways need to meet some special conditions enforced here
 	bool intern_calc_route_runways(koord3d start, const koord3d ziel);
 
-	void baue_tunnel_und_bruecken();
+	void build_tunnel_and_bridges();
 
 	// adds the ground before underground construction (always called before the following construction routines)
-	bool baue_tunnelboden();
+	bool build_tunnel_tile();
 
 	// adds the grounds for elevated tracks
-	void baue_elevated();
+	void build_elevated();
 
-	void baue_strasse();
-	void baue_schiene();
-	void baue_leitung();
-	void baue_fluss();
+	void build_road();
+	void build_track();
+	void build_powerline();
+	void build_river();
 
 	uint32 calc_distance( const koord3d &pos, const koord3d &mini, const koord3d &maxi );
 
@@ -203,8 +205,6 @@ public:
 	const koord3d_vector_t &get_route() const { return route; }
 
 	uint32 get_count() const { return route.get_count(); }
-
-	sint32 n;
 
 	/**
 	 * If a way is built on top of another way, should the type
@@ -228,13 +228,13 @@ public:
 
 	void set_mark_way_for_upgrade_only(bool yesno) { mark_way_for_upgrade_only = yesno; }
 
-	void route_fuer(bautyp_t wt, const weg_besch_t * besch, const tunnel_besch_t *tunnel_besch=NULL, const bruecke_besch_t *bruecke_besch=NULL);
+	void init_builder(bautyp_t wt, const way_desc_t * desc, const tunnel_desc_t *tunnel_desc=NULL, const bridge_desc_t *bridge_desc=NULL);
 
 	void set_maximum(uint32 n) { maximum = n; }
 
-	void set_besch(const weg_besch_t* weg_besch) { besch = weg_besch; }
+	void set_desc(const way_desc_t* way_desc) { desc = way_desc; }
 
-	wegbauer_t(player_t *player_);
+	way_builder_t(player_t *player_);
 
 	void calc_straight_route(const koord3d start, const koord3d ziel);
 	void calc_route(const koord3d &start3d, const koord3d &ziel);
@@ -246,7 +246,7 @@ public:
 	sint64 calc_costs();
 
 	bool check_crossing(const koord zv, const grund_t *bd,waytype_t wtyp, const player_t *player) const;
-	bool check_for_leitung(const koord zv, const grund_t *bd) const;
+	bool check_powerline(const koord zv, const grund_t *bd) const;
 	// allowed owner?
 	bool check_owner( const player_t *player1, const player_t *player2 ) const;
 	// checks whether buildings on the tile allow to leave in direction dir
@@ -257,9 +257,9 @@ public:
 	bool check_terraforming( const grund_t *from, const grund_t *to, uint8* new_from_slope=NULL, uint8* new_to_slope=NULL);
 	void do_terraforming();
 
-	void baue();
+	void build();
 };
 
-ENUM_BITSET(wegbauer_t::bautyp_t);
+ENUM_BITSET(way_builder_t::bautyp_t);
 
 #endif

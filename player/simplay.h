@@ -103,7 +103,7 @@ protected:
 	sint32 add_maintenance(sint32 change, waytype_t const wt=ignore_wt);
 
 	/**
-	 * Ist dieser Spieler ein automatischer Spieler?
+	 * Is this player an AI player?
 	 * @author Hj. Malthaner
 	 */
 	bool active;
@@ -300,6 +300,12 @@ public:
 	void set_name(const char *);
 
 	sint8 get_player_nr() const {return player_nr; }
+
+	/**
+	 * Test if this player is a public service player.
+	 * @return true if the player is a public service player, otherwise false.
+	 */
+	bool is_public_serivce() const;
 
 	/**
 	 * return true, if the owner is none, myself or player(1), i.e. the ownership _can be taken by player test

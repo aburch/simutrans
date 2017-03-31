@@ -22,7 +22,7 @@
 #include "simticker.h"
 #include "gui/simwin.h"
 #include "simworld.h"
-#include "besch/sound_besch.h"
+#include "descriptor/sound_desc.h"
 #include "obj/zeiger.h"
 #include "display/viewport.h"
 
@@ -46,7 +46,7 @@ void interaction_t::move_view( const event_t &ev )
 #ifdef __BEOS__
 		change_drag_start(ev.mx - ev.cx, ev.my - ev.cy);
 #else
-		display_move_pointer(ev.cx, ev.cy);
+		move_pointer(ev.cx, ev.cy);
 #endif
 	}
 }
@@ -80,7 +80,10 @@ void interaction_t::move_cursor( const event_t &ev )
 
 		zeiger->change_pos(pos);
 
-		if(  !env_t::networkmode  ||  tool->is_move_network_save(world->get_active_player())) {
+		if (!tool->move_has_effects()) {
+			is_dragging = false;
+		}
+		else if (!env_t::networkmode || tool->is_move_network_save(world->get_active_player())) {
 			tool->flags = event_get_last_control_shift() | tool_t::WFL_LOCAL;
 			if(tool->check_pos( world->get_active_player(), zeiger->get_pos() )==NULL) {
 				if(  ev.button_state == 0  ) {
@@ -125,11 +128,11 @@ void interaction_t::interactive_event( const event_t &ev )
 
 			// cursor movements
 			case '9':
-				viewport->change_world_position(viewport->get_world_position() + koord::nord);
+				viewport->change_world_position(viewport->get_world_position() + koord::north);
 				world->set_dirty();
 				break;
 			case '1':
-				viewport->change_world_position(viewport->get_world_position() + koord::sued);
+				viewport->change_world_position(viewport->get_world_position() + koord::south);
 				world->set_dirty();
 				break;
 			case '7':
@@ -137,7 +140,7 @@ void interaction_t::interactive_event( const event_t &ev )
 				world->set_dirty();
 				break;
 			case '3':
-				viewport->change_world_position(viewport->get_world_position() + koord::ost);
+				viewport->change_world_position(viewport->get_world_position() + koord::east);
 				world->set_dirty();
 				break;
 			case '6':
@@ -206,6 +209,12 @@ void interaction_t::interactive_event( const event_t &ev )
 							break;
 						}
 					}
+#ifdef STEAM_BUILT
+					// Block F12 from bringing up Keyboard Help (for Steam Screenshot) - but still allow F12 to be used if defined in pakset
+					if (ev.ev_code==SIM_KEY_F12) {
+						ok=true;
+					}
+#endif
 					if(!ok) {
 						help_frame_t::open_help_on( "keys.txt" );
 					}
@@ -218,51 +227,28 @@ void interaction_t::interactive_event( const event_t &ev )
 
 		DBG_MESSAGE("interaction_t::interactive_event(event_t &ev)", "calling a tool");
 
-		if(world->is_within_grid_limits(world->get_zeiger()->get_pos().get_2d())) {
-			const char *err = NULL;
-			bool result = true;
+		koord3d pos = world->get_zeiger()->get_pos();
+		if(world->is_within_grid_limits(pos.get_2d())) {
+
+			bool suspended = false; // true if execution was suspended, i.e. sent to server
 			tool_t *tool = world->get_tool(world->get_active_player_nr());
+			player_t *player = world->get_active_player();
 			// first check for visibility etc
-			err = tool->check_pos( world->get_active_player(), world->get_zeiger()->get_pos() );
+			const char *err = tool->check_pos( player, pos );
 			if (err==NULL) {
 				tool->flags = event_get_last_control_shift();
-				if (!env_t::networkmode  ||  tool->is_work_network_save()  ||  tool->is_work_here_network_save( world->get_active_player(), world->get_zeiger()->get_pos() ) ) {
-					// do the work
-					tool->flags |= tool_t::WFL_LOCAL;
-					// check allowance by scenario
-					koord3d const& pos = world->get_zeiger()->get_pos();
-					if (world->get_scenario()->is_scripted()) {
-						if (!world->get_scenario()->is_tool_allowed(world->get_active_player(), tool->get_id(), tool->get_waytype()) ) {
-							err = "";
-						}
-						else {
-							err = world->get_scenario()->is_work_allowed_here(world->get_active_player(), tool->get_id(), tool->get_waytype(), pos);
-						}
-					}
-					if (err == NULL) {
-						err = tool->work(world->get_active_player(), world->get_zeiger()->get_pos());
-						if( err == NULL ) {
-							// Check if we need to update pointer(zeiger) position.
-							if ( tool->update_pos_after_use() ) {
-								// Cursor might need movement (screen has changed, we get a new one under the mouse pointer)
-								const koord3d pos_new = viewport->get_new_cursor_position(scr_coord(ev.mx,ev.my),tool->is_grid_tool());
-								world->get_zeiger()->set_pos(pos_new);
-							}
-						}
-					}
-				}
-				else {
-					// queue tool for network
-					nwc_tool_t *nwc = new nwc_tool_t(world->get_active_player(), tool, world->get_zeiger()->get_pos(), world->get_steps(), world->get_map_counter(), false);
-					network_send_server(nwc);
-					result = false;
-					// reset tool
-					tool->init(world->get_active_player());
-				}
+				err = world->call_work(tool, player, pos, suspended);
 			}
-			if (result) {
+			if (!suspended) {
 				// play sound / error message
-				world->get_active_player()->tell_tool_result(tool, world->get_zeiger()->get_pos(), err, true);
+				world->get_active_player()->tell_tool_result(tool, pos, err, true);
+
+				// Check if we need to update pointer(zeiger) position.
+				if( err == NULL  &&  tool->update_pos_after_use() ) {
+					// Cursor might need movement (screen has changed, we get a new one under the mouse pointer)
+					const koord3d pos_new = viewport->get_new_cursor_position(scr_coord(ev.mx,ev.my), tool->is_grid_tool());
+					world->get_zeiger()->set_pos(pos_new);
+				}
 			}
 			tool->flags = 0;
 		}
@@ -310,38 +296,37 @@ void interaction_t::interactive_event( const event_t &ev )
 }
 
 
-bool interaction_t::process_event( event_t &ev )
+bool interaction_t::process_event(event_t &ev)
 {
-	if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_QUIT) {
+	if (ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT) {
 		// quit the program if this window is closed
-		destroy_all_win(true);
 		env_t::quit_simutrans = true;
 
 		// we may be requested to save the game before exit
-		if(  env_t::server  &&  env_t::server_save_game_on_quit  ) {
+		if (env_t::server  &&  env_t::server_save_game_on_quit) {
 
 			// to ensure only one attempt is made
 			env_t::server_save_game_on_quit = false;
 
 			// following code quite similar to nwc_sync_t::do_coomand
-			chdir( env_t::user_dir );
+			chdir(env_t::user_dir);
 
 			// first save password hashes
 			char fn[256];
-			sprintf( fn, "server%d-pwdhash.sve", env_t::server );
+			sprintf(fn, "server%d-pwdhash.sve", env_t::server);
 			loadsave_t file;
-			if(file.wr_open(fn, loadsave_t::save_mode, "hashes", SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, EXPERIMENTAL_REVISION_NR )) {
-				world->rdwr_player_password_hashes( &file );
+			if (file.wr_open(fn, loadsave_t::zipped, "hashes", SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR)) {
+				world->rdwr_player_password_hashes(&file);
 				file.close();
 			}
 
 			// remove passwords before transfer on the server and set default client mask
-			// they will be restored in karte_t::load
+			// they will be restored in karte_t::laden
 			uint16 unlocked_players = 0;
-			for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
+			for (int i = 0; i<PLAYER_UNOWNED; i++) {
 				player_t *player = world->get_player(i);
-				if(  player==NULL  ||  player->access_password_hash().empty()  ) {
-					unlocked_players |= (1<<i);
+				if (player == NULL || player->access_password_hash().empty()) {
+					unlocked_players |= (1 << i);
 				}
 				else {
 					player->access_password_hash().clear();
@@ -349,22 +334,36 @@ bool interaction_t::process_event( event_t &ev )
 			}
 
 			// save game
-			sprintf( fn, "server%d-restore.sve", env_t::server );
+			sprintf(fn, "server%d-restore.sve", env_t::server);
 			bool old_restore_UI = env_t::restore_UI;
 			env_t::restore_UI = true;
-			world->save( fn, loadsave_t::save_mode, SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, EXPERIMENTAL_REVISION_NR, false );
+			world->save(fn, loadsave_t::save_mode, SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR, false);
 			env_t::restore_UI = old_restore_UI;
 		}
+		else if (env_t::reload_and_save_on_quit) {
+			bool old_restore_UI = env_t::restore_UI;
+			env_t::restore_UI = true;
+
+			// construct from pak name an autosave if requested
+			std::string pak_name("autosave-");
+			pak_name.append(env_t::objfilename);
+			pak_name.erase(pak_name.length() - 1);
+			pak_name.append(".sve");
+
+			world->save(pak_name.c_str(), loadsave_t::autosave_mode, SERVER_SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR, false);
+			env_t::restore_UI = old_restore_UI;
+		}
+		destroy_all_win(true);
 		return true;
 	}
 
-	if(ev.ev_class==IGNORE_EVENT) {
+	if (ev.ev_class == IGNORE_EVENT) {
 		// ignore it
 		return false;
 	}
 
 	DBG_DEBUG4("interaction_t::process_event", "calling check_pos_win");
-	if(check_pos_win(&ev)){
+	if (check_pos_win(&ev)) {
 		// The event is shallowed by the GUI, next.
 		return false;
 	}
@@ -375,31 +374,31 @@ bool interaction_t::process_event( event_t &ev )
 
 	static bool left_drag = false;
 
-	if(IS_RIGHTCLICK(&ev)) {
+	if (IS_RIGHTCLICK(&ev)) {
 		display_show_pointer(false);
 	}
-	else if(IS_RIGHTRELEASE(&ev)) {
+	else if (IS_RIGHTRELEASE(&ev)) {
 		display_show_pointer(true);
 	}
-	else if(IS_RIGHTDRAG(&ev)) {
+	else if (IS_RIGHTDRAG(&ev)) {
 		// unset following
-		world->get_viewport()->set_follow_convoi( convoihandle_t() );
+		world->get_viewport()->set_follow_convoi(convoihandle_t());
 		move_view(ev);
 	}
-	else if(  (left_drag  ||  world->get_tool(world->get_active_player_nr())->get_id() == (TOOL_QUERY | GENERAL_TOOL))  &&  IS_LEFTDRAG(&ev)  ) {
-		/* ok, we have the query tool selected, and we have a left drag or left release event with an actual different
-		 * => move the map */
-		if(  !left_drag  ) {
+	else if ((left_drag || world->get_tool(world->get_active_player_nr())->get_id() == (TOOL_QUERY | GENERAL_TOOL)) && IS_LEFTDRAG(&ev)) {
+		/* ok, we have the query tool selected, and we have a left drag or left release event with an actual difference
+		* => move the map */
+		if (!left_drag) {
 			display_show_pointer(false);
 			left_drag = true;
 		}
-		world->get_viewport()->set_follow_convoi( convoihandle_t() );
+		world->get_viewport()->set_follow_convoi(convoihandle_t());
 		move_view(ev);
 		ev.ev_code = EVENT_NONE;
 	}
 
-	if(  IS_LEFTRELEASE(&ev)  &&  left_drag  ) {
-		// show then mouse and swallow this event if we were dragging before
+	if (IS_LEFTRELEASE(&ev) && left_drag) {
+		// show the mouse and swallow this event if we were dragging before
 		ev.ev_code = EVENT_NONE;
 		display_show_pointer(true);
 		left_drag = false;
@@ -409,7 +408,7 @@ bool interaction_t::process_event( event_t &ev )
 	DBG_DEBUG4("interaction_t::process_event", "check if cursor needs movement");
 
 
-	if( (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON)  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)  ||  ev.ev_class==EVENT_RELEASE) {
+	if ((ev.ev_class == EVENT_DRAG  &&  ev.ev_code == MOUSE_LEFTBUTTON) || (ev.button_state == 0 && ev.ev_class == EVENT_MOVE) || ev.ev_class == EVENT_RELEASE) {
 		move_cursor(ev);
 	}
 

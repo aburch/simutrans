@@ -21,7 +21,7 @@
 #include "../ifc/simtestdriver.h"
 #include "loadsave.h"
 #include "route.h"
-#include "../besch/bruecke_besch.h"
+#include "../descriptor/bridge_desc.h"
 #include "../boden/wege/strasse.h"
 #include "../obj/gebaeude.h"
 #include "../obj/roadsign.h"
@@ -58,7 +58,7 @@ void route_t::append(const route_t *r)
 	}
 	// then append
 	for( unsigned int i=0;  i<=hops;  i++ ) {
-		route.append(r->position_bei(i));
+		route.append(r->at(i));
 	}
 }
 
@@ -181,7 +181,7 @@ void route_t::RELEASE_NODES(uint8 nodes_index)
 /* find the route to an unknown location
  * @author prissi
  */
-bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 axle_load, sint32 max_tile_len, uint32 total_weight, uint32 max_depth, find_route_flags flags)
+bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 axle_load, sint32 max_tile_len, uint32 total_weight, uint32 max_depth, bool is_tall, find_route_flags flags)
 {
 	bool ok = false;
 
@@ -203,7 +203,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 	}
 
 	// nothing in lists
-	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
+	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y, karte_t::marker_index);
 
 	// there are several variant for maintaining the open list
 	// however, only binary heap and HOT queue with binary heap are worth considering
@@ -377,14 +377,20 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		{
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			grund_t* to;
-			if((ribi & ribi_t::nsow[r] & start_dir) != 0  // allowed dir (we can restrict the first step by start_dir)
-				&& koord_distance(start, gr->get_pos() + koord::nsow[r]) < max_depth	// not too far away
-				&& gr->get_neighbour(to, wegtyp, ribi_t::nsow[r])  // is connected
+			if((ribi & ribi_t::nsew[r] & start_dir) != 0  // allowed dir (we can restrict the first step by start_dir)
+				&& koord_distance(start, gr->get_pos() + koord::nsew[r]) < max_depth	// not too far away
+				&& gr->get_neighbour(to, wegtyp, ribi_t::nsew[r])  // is connected
 				&& !marker.is_marked(to) // not already tested
 				&& tdriver->check_next_tile(to)	// can be driven on
 			) {
 
 				weg_t* w = to->get_weg(tdriver->get_waytype());
+
+				if (is_tall && w && w->is_height_restricted())
+				{
+					// Tall vehicles cannot pass under low bridges
+					continue;
+				}
 				
 				if(enforce_weight_limits > 1 && w != NULL)
 				{
@@ -415,7 +421,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				{
 					// Do not traverse routes with end of choose signs
 					 roadsign_t* rs = welt->lookup(w->get_pos())->find<roadsign_t>();
-					 if(rs->get_besch()->is_end_choose_signal())
+					 if(rs->get_desc()->is_end_choose_signal())
 					 {
 						 continue;
 					 }
@@ -433,14 +439,14 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				k->count = tmp->count+1;
 				k->f = 0;
 				k->g = tmp->g + tdriver->get_cost(to, max_khm, gr->get_pos().get_2d());
-				k->ribi_from = ribi_t::nsow[r];
+				k->ribi_from = ribi_t::nsew[r];
 
-				uint8 current_dir = ribi_t::nsow[r];
+				uint8 current_dir = ribi_t::nsew[r];
 				if(tmp->parent!=NULL) {
 					current_dir |= tmp->ribi_from;
 					if(tmp->dir!=current_dir) {
 						k->g += 3; 
-						if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir))
+						if(ribi_t::is_perpendicular(tmp->dir,current_dir))
 						{
 							if(flags == choose_signal)
 							{
@@ -470,7 +476,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		}
 
 		// ok, now no more restraints
-		start_dir = ribi_t::alle;
+		start_dir = ribi_t::all;
 
 	} while(  !queue.empty()  &&  step < MAX_STEP  &&  queue.get_count() < max_depth  );
 
@@ -514,19 +520,19 @@ ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 {
 	static thread_local ribi_t::ribi next_ribi[4];
 	if( abs(gr_pos.x-ziel.x)>abs(gr_pos.y-ziel.y) ) {
-		next_ribi[0] = (ziel.x>gr_pos.x) ? ribi_t::ost : ribi_t::west;
-		next_ribi[1] = (ziel.y>gr_pos.y) ? ribi_t::sued : ribi_t::nord;
+		next_ribi[0] = (ziel.x>gr_pos.x) ? ribi_t::east : ribi_t::west;
+		next_ribi[1] = (ziel.y>gr_pos.y) ? ribi_t::south : ribi_t::north;
 	}
 	else {
-		next_ribi[0] = (ziel.y>gr_pos.y) ? ribi_t::sued : ribi_t::nord;
-		next_ribi[1] = (ziel.x>gr_pos.x) ? ribi_t::ost : ribi_t::west;
+		next_ribi[0] = (ziel.y>gr_pos.y) ? ribi_t::south : ribi_t::north;
+		next_ribi[1] = (ziel.x>gr_pos.x) ? ribi_t::east : ribi_t::west;
 	}
-	next_ribi[2] = ribi_t::rueckwaerts( next_ribi[1] );
-	next_ribi[3] = ribi_t::rueckwaerts( next_ribi[0] );
+	next_ribi[2] = ribi_t::reverse_single(next_ribi[1]);
+	next_ribi[3] = ribi_t::reverse_single(next_ribi[0]);
 	return next_ribi;
 }
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t *tdriver, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, const sint32 tile_length, koord3d avoid_tile)
+bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t *tdriver, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, bool is_tall, const sint32 tile_length, koord3d avoid_tile)
 {
 	bool ok = false;
 
@@ -609,11 +615,11 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 	tmp->g = 0;
 	tmp->dir = 0;
 	tmp->count = 0;
-	tmp->ribi_from = ribi_t::keine;
-	tmp->jps_ribi  = ribi_t::alle;
+	tmp->ribi_from = ribi_t::none;
+	tmp->jps_ribi  = ribi_t::all;
 
 	// nothing in lists
-	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y);
+	marker_t& marker = marker_t::instance(welt->get_size().x, welt->get_size().y, karte_t::marker_index);
 
 	const grund_t* avoid_ground = welt->lookup(avoid_tile);
 	marker.mark(avoid_ground);
@@ -628,12 +634,15 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 	sint32 bridge_tile_count = 0;
 	sint32 best_distance = 65535;
 	do {
+#ifndef MULTI_THREAD
+		// If this is multi-threaded, we cannot have random
+		// threads calling INT_CHECK.
 		// Hajo: this is too expensive to be called each step
-		// We cannot call INT_CHECK here if this is multi-threaded.
-		/*if((beat++ & 1023) == 0)
+		if((beat++ & 1023) == 0)
 		{
 			INT_CHECK("route 161");
-		}*/
+		}
+#endif
 
 		if (new_top) {
 			// this is not in closed list, no check necessary
@@ -709,12 +718,18 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 					}
 				}
 
-				sint32 is_overweight = not_overweight;
+				// Low bridges
+				if (is_tall && w->is_height_restricted())
+				{
+					continue;
+				}
 
+				// Weight limits
+				sint32 is_overweight = not_overweight;
 				if(enforce_weight_limits > 0 && w != NULL)
 				{
 					// Bernd Gabriel, Mar 10, 2010: way limit info
-					if(to->ist_bruecke() || w->get_besch()->get_styp() == weg_t::type_elevated || w->get_waytype() == air_wt || w->get_waytype() == water_wt)
+					if(to->ist_bruecke() || w->get_desc()->get_styp() == type_elevated || w->get_waytype() == air_wt || w->get_waytype() == water_wt)
 					{
 						// Bridges care about convoy weight, whereas other types of way
 						// care about axle weight.
@@ -725,7 +740,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 						
 						// Trams need to check the weight of the underlying bridge.
 						
-						if(w->get_besch()->get_styp() == weg_t::type_tram)
+						if(w->get_desc()->get_styp() == type_tram)
 						{
 							const weg_t* underlying_bridge = welt->lookup(w->get_pos())->get_weg(road_wt);
 							if(!underlying_bridge)
@@ -823,7 +838,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 							// discourage 90° turns
 							new_g += 10;
 						}
-						else if(ribi_t::ist_exakt_orthogonal(tmp->dir,current_dir))
+						else if(ribi_t::is_perpendicular(tmp->dir,current_dir))
 						{
 							// discourage v turns heavily
 							new_g += 25;
@@ -842,10 +857,10 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 				// count how many 45 degree turns are necessary to get to target
 				sint8 turns = 0;
 				if (dist>1) {
-					ribi_t::ribi to_target = ribi_typ(to->get_pos(), ziel );
+					ribi_t::ribi to_target = ribi_type(to->get_pos(), ziel );
 
 					if (to_target  &&  (to_target!=current_dir)) {
-						if (ribi_t::ist_einfach(current_dir) != ribi_t::ist_einfach(to_target)) {
+						if (ribi_t::is_single(current_dir) != ribi_t::is_single(to_target)) {
 							to_target = ribi_t::rotate45(to_target);
 							turns ++;
 						}
@@ -879,7 +894,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 				k->dir = current_dir;
 				k->ribi_from = next_ribi[r];
 				k->count = tmp->count+1;
-				k->jps_ribi = ribi_t::alle;
+				k->jps_ribi = ribi_t::all;
 
 				if (use_jps  &&  to->ist_wasser()) {
 					// only check previous direction plus directions not available on this tile
@@ -965,7 +980,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 	if (route.get_count() < 5) return;
 
 	// direction of last straight part (and last index of straight part)
-	ribi_t::ribi straight_ribi = ribi_typ(route[0], route[1]);
+	ribi_t::ribi straight_ribi = ribi_type(route[0], route[1]);
 	uint32 straight_end = 0;
 
 	// search for route parts:
@@ -975,8 +990,8 @@ void route_t::postprocess_water_route(karte_t *welt)
 	uint32 i = 1;
 	while( i < route.get_count()-1 )
 	{
-		ribi_t::ribi ribi = ribi_typ(route[i-1], route[i+1]);
-		if (ribi_t::ist_einfach(ribi)) {
+		ribi_t::ribi ribi = ribi_type(route[i-1], route[i+1]);
+		if (ribi_t::is_single(ribi)) {
 			if (ribi == straight_ribi) {
 				if (phase == 1) {
 					// third part starts
@@ -1004,36 +1019,36 @@ void route_t::postprocess_water_route(karte_t *welt)
 			else if (phase == 2) {
 				// fourth phase
 				// postprocess here
-				bool ok = ribi_typ(route[straight_end], route[i+1]) ==  ribi;
+				bool ok = ribi_type(route[straight_end], route[i+1]) ==  ribi;
 				// try to find straight route, which avoids one diagonal part
-				koord3d_vector_t post;
-				post.append( route[straight_end] );
+				koord3d_vector_t mail;
+				mail.append( route[straight_end] );
 				koord3d &end = route[i];
 				for(uint32 j = straight_end; j < i  &&  ok; j++) {
 					ribi_t::ribi next = 0;
-					koord diff = (end - post.back()).get_2d();
+					koord diff = (end - mail.back()).get_2d();
 					if (abs(diff.x)>=abs(diff.y)) {
-						next = diff.x > 0 ? ribi_t::ost : ribi_t::west;
+						next = diff.x > 0 ? ribi_t::east : ribi_t::west;
 						if (abs(diff.x)==abs(diff.y)  &&  next == straight_ribi) {
-							next = diff.y > 0 ? ribi_t::sued : ribi_t::nord;
+							next = diff.y > 0 ? ribi_t::south : ribi_t::north;
 						}
 					}
 					else {
-						next = diff.y > 0 ? ribi_t::sued : ribi_t::nord;
+						next = diff.y > 0 ? ribi_t::south : ribi_t::north;
 					}
-					koord3d pos = post.back() + koord(next);
+					koord3d pos = mail.back() + koord(next);
 					ok = false;
 					if (grund_t *gr = welt->lookup(pos)) {
 						if (gr->ist_wasser()) {
 							ok = true;
-							post.append(pos);
+							mail.append(pos);
 						}
 					}
 				}
 				// now substitute the new route part into the route
 				if (ok) {
 					for(uint32 j = straight_end; j < i  &&  ok; j++) {
-						route[j] = post[j-straight_end];
+						route[j] = mail[j-straight_end];
 					}
 					// start again with the first straight part
 					i = straight_end;
@@ -1056,7 +1071,7 @@ void route_t::postprocess_water_route(karte_t *welt)
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
- route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t *tdriver, const sint32 max_khm, const uint32 axle_load, sint32 max_len, const sint64 max_cost, const uint32 convoy_weight, koord3d avoid_tile)
+ route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t *tdriver, const sint32 max_khm, const uint32 axle_load, bool is_tall, sint32 max_len, const sint64 max_cost, const uint32 convoy_weight, koord3d avoid_tile)
 {
 	route.clear();
 	const uint32 distance = shortest_distance(start.get_2d(), ziel.get_2d()) * 600;
@@ -1074,7 +1089,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 	// profiling for routes ...
 	long ms=dr_time();
 #endif
-	bool ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, max_cost, axle_load, convoy_weight, max_len, avoid_tile);
+	bool ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, max_cost, axle_load, convoy_weight, is_tall, max_len, avoid_tile);
 #ifdef DEBUG_ROUTES
 	if(tdriver->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );}
 #endif
@@ -1113,25 +1128,30 @@ void route_t::postprocess_water_route(karte_t *welt)
 			// Find the end of the station, and append these tiles to the route.
 			const uint32 max_n = route.get_count() - 1;
 			const koord zv = route[max_n].get_2d() - route[max_n - 1].get_2d();
-			const int ribi = ribi_typ(zv);
+			const int ribi = ribi_type(zv);
 
 			const waytype_t wegtyp = tdriver->get_waytype();
 
 			const bool is_rail_type = tdriver->get_waytype() == track_wt || tdriver->get_waytype() == narrowgauge_wt || tdriver->get_waytype() == maglev_wt || tdriver->get_waytype() == tram_wt || tdriver->get_waytype() == monorail_wt;
 			bool first_run = true;
-			while(gr->get_neighbour(gr, wegtyp, ribi) && gr->get_halt() == halt && tdriver->check_next_tile(gr) && (((tdriver->get_ribi(gr) & ribi) != 0) || (first_run && is_rail_type)))
+
+			bool ribi_check = (tdriver->get_ribi(gr) & ribi) != 0;
+			bool has_signal = gr->get_weg(tdriver->get_waytype())->has_signal();
+
+			while(gr->get_neighbour(gr, wegtyp, ribi) && gr->get_halt() == halt && tdriver->check_next_tile(gr) && ((ribi_check || (first_run && is_rail_type))))
 			{
 				first_run = false;
+				has_signal = gr->get_weg(tdriver->get_waytype())->has_signal();
 				// Do not go on a tile where a one way sign forbids going.
 				// This saves time and fixed the bug that a one way sign on the final tile was ignored.
 				weg_t* wg = gr->get_weg(wegtyp);
-				ribi_t::ribi go_dir = wg ? wg->get_ribi_maske(): ribi_t::alle;
+				ribi_t::ribi go_dir = wg ? wg->get_ribi_maske(): ribi_t::all;
 				if((ribi & go_dir) != 0)
 				{
 					if(is_rail_type)
 					{
 						// Unidirectional signals allow routing in both directions but only act in one direction. Check whether this is one of those.
-						if(!gr->get_weg(tdriver->get_waytype()) || !gr->get_weg(tdriver->get_waytype())->has_signal())
+						if(!gr->get_weg(tdriver->get_waytype()) || !has_signal)
 						{
 							break;
 						}
@@ -1144,6 +1164,17 @@ void route_t::postprocess_water_route(karte_t *welt)
 				
 				route.append(gr->get_pos());
 				platform_size++;
+				
+				if (has_signal)
+				{
+					ribi_t::ribi ribi_unmasked = gr->get_weg_ribi_unmasked(wegtyp);
+					ribi_check = (ribi_unmasked & ribi) != 0;
+				}
+				else
+				{
+					ribi_check = (tdriver->get_ribi(gr) & ribi) != 0;
+				}
+				
 			}
 
 			if(!move_to_end_of_station && platform_size > max_len)
@@ -1175,7 +1206,7 @@ void route_t::rdwr(loadsave_t *file)
 	xml_tag_t r( file, "route_t" );
 	sint32 max_n = route.get_count()-1;
 
-	if(file->get_experimental_version() >= 11 && file->get_version() >= 112003)
+	if(file->get_extended_version() >= 11 && file->get_version() >= 112003)
 	{
 		file->rdwr_long(max_axle_load);
 		file->rdwr_long(max_convoy_weight);

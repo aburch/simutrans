@@ -206,7 +206,7 @@ Extend the length of the station platforms and build multi-platform stations (by
 * Name;<br>
 * Construction cost per tile;<br>
 * Monthly cost per tile in (brackets);<br>
-* Quantitude and wether it holds passengers, post or freight;<br><br>
+* Quantitude and whether it holds passengers, mail or freight;<br><br>
 
 Read more about station platforms here: <a href="station.txt">Stop Information</a>
 
@@ -227,7 +227,7 @@ To build an extension, click on the desired extension, then at the desired locat
 * Name;<br>
 * Construction cost;<br>
 * Monthly cost in (brackets);<br>
-* Quantitude and wether it holds passengers, post or freight;<br><br>
+* Quantitude and whether it holds passengers, mail or freight;<br><br>
 
 
 Read more about Station extensions here: <a href="station.txt">Stop Information</a>

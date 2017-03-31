@@ -27,6 +27,7 @@ Prop-Latin1.bdf
 #                                    note:                                     #
 #                          Markus Pristovsek - prissi                          #
 #                                    note:                                     #
+#      Modified by Victor Sörensen (Ves) for Simutrans Experimental v.12       #
 #                                                                              #
 ################################################################################
 #_____________________________Simutrans Base Texts______________________________
@@ -2119,3 +2120,150 @@ Ditt konto har varit övertrasserat\ni 1 månad
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
 Passagerare %d %c, %d %c, %d utan rutt\n\nKapacitet: %i\n
+#_______________________________Signals and their states________________________________
+#_______________________________Signaler och deras tillstånd________________________________
+#-----------------------------
+#-- Signals working methods:--
+drive_by_sight
+Kör på sikt
+time_interval
+Tidsinterval
+absolute_block
+Absolut block
+token_block
+Token block
+track_circuit_block
+Automatisk spårblockering
+cab_signalling
+Hyttsignalering
+moving_block
+Rörlig spårblockering
+one_train_staff
+Tågstav
+time_interval_with_telegraph
+Tidsintervall med telegraf
+#------------------------------------
+#-- Signals states and information:--
+choose_signal
+Infartssignal
+station_signal
+T-signal
+longblock_signal
+Longblocksignal
+combined_signal
+Kombinerad signal
+distant_signal
+Försignal
+intermediate_signal
+Mellanliggande signal
+permissive_signal
+Tillåtande signal
+current_state
+Nuvarande aspekt
+danger
+Stop
+clear2
+Kör
+clear3
+Kör, vänta kör
+clear4
+Kör, vänta kör, vänta kör
+clear5
+Kör, vänta kör, vänta kör, vänta kör
+clear2_alternate
+Kör (alternativ rutt)
+clear3_alternate
+Kör, vänta kör (alternativ rutt)
+clear4_alternate
+Kör, vänta kör, vänta kör (alternativ rutt)
+clear5_alternate
+Kör, vänta kör, vänta kör, vänta kör (alternativ rutt)
+clear2_main
+Kör (primär rutt)
+clear3_main
+Kör, vänta kör (primär rutt)
+clear4_main
+Kör, vänta kör, vänta kör (primär rutt)
+clear5_main
+Kör, vänta kör, vänta kör, vänta kör (primär rutt)
+cleartime
+Kör
+cleartime_alternate
+Kör (alternativ rutt)
+cleartime_main
+Kör (primär rutt)
+clearpre
+Vänta kör
+caution3
+Kör, vänta stopp
+caution4
+Kör, vänta stopp
+caution5
+Kör, vänta stopp
+caution3_alternate
+Kör, vänta stopp (alternativ rutt)
+caution4_alternate
+Kör, vänta stopp (alternativ rutt)
+caution5_alternate
+Kör, vänta stopp (alternativ rutt)
+caution3_main
+Kör, vänta stopp (primär rutt)
+caution4_main
+Kör, vänta stopp (primär rutt)
+caution5_main
+Kör, vänta stopp (primär rutt)
+cautiontime
+Kör, varsamhet
+cautiontime_alternate
+Kör, varsamhet (alternativ rutt)
+cautiontime_main
+Kör, varsamhet (primär rutt)
+cautionpre
+Vänta stopp
+preliminary_caution4
+Kör, vänta kör, vänta stopp
+preliminary_caution5
+Kör, vänta kör, vänta stopp
+preliminary_caution4_alternate
+Kör, vänta kör, vänta stopp (alternativ rutt)
+preliminary_caution5_alternate
+Kör, vänta kör, vänta stopp (alternativ rutt)
+preliminary_caution4_main
+Kör, vänta kör, vänta stopp (primär rutt)
+preliminary_caution5_main
+Kör, vänta kör, vänta stopp (primär rutt)
+advanced_caution5
+Kör, vänta kör, vänta kör, vänta stopp
+advanced_caution5_alternate
+Kör, vänta kör, vänta kör, vänta stopp (alternativ rutt)
+advanced_caution5_main
+Kör, vänta kör, vänta kör, vänta stopp (primär rutt)
+call_on
+Kör, varsamhet
+call_ontime
+Kör, varsamhet
+call_on_choose
+Kör, varsamhet
+call_ontime_choose
+Kör, varsamhet
+This signal creates directional reservations
+Denna signal skapar riktade reservationer
+north_and_east
+Nord och öst
+north_and_south
+Nord och syd
+north_and_west
+Nord och väst
+south_and_east
+Syd och öst
+south_and_west
+Syd och väst
+east_and_west
+Öst och väst
+goto_signalbox
+Gå til ställverk
+
+
+
+
+

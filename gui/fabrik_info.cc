@@ -68,7 +68,7 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 
 	// Hajo: "About" button only if translation is available
 	char key[256];
-	sprintf(key, "factory_%s_details", fab->get_besch()->get_name());
+	sprintf(key, "factory_%s_details", fab->get_desc()->get_name());
 	const char * value = translator::translate(key);
 	if(value && *value != 'f') {
 		details_button.init( button_t::roundbox, "Details", scr_coord(BUTTON4_X,offset_below_viewport), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
@@ -116,7 +116,7 @@ void fabrik_info_t::rename_factory()
 		buf.printf( "f%s,%s", fab->get_pos().get_str(), fabname );
 		tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 		tool->set_default_param( buf );
-		welt->set_tool( tool, welt->get_player(1));
+		welt->set_tool( tool, welt->get_public_player());
 		// since init always returns false, it is safe to delete immediately
 		delete tool;
 	}
@@ -169,34 +169,34 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 	display_fillbox_wh_clip(pos.x + view.get_pos().x + 1, pos.y + view.get_pos().y + view.get_size().h + D_TITLEBAR_HEIGHT+1, view.get_size().w - 2, D_INDICATOR_HEIGHT-2, indikatorfarbe, true);
 	scr_coord_val x_view_pos = D_MARGIN_LEFT;
 	scr_coord_val x_prod_pos = D_MARGIN_LEFT+proportional_string_width(prod_buf)+10;
-	if(  skinverwaltung_t::electricity->get_bild_nr(0)!=IMG_EMPTY  ) {
+	if(  skinverwaltung_t::electricity->get_image_id(0)!=IMG_EMPTY  ) {
 		// indicator for receiving
 		if(  fab->get_prodfactor_electric()>0  ) {
-			display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
+			display_color_img(skinverwaltung_t::electricity->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
 			x_view_pos += skinverwaltung_t::electricity->get_image(0)->get_pic()->w+4;
 		}
 		// indicator for enabled
-		if(  fab->get_besch()->get_electric_boost()  ) {
-			display_color_img( skinverwaltung_t::electricity->get_bild_nr(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
+		if(  fab->get_desc()->get_electric_boost()  ) {
+			display_color_img( skinverwaltung_t::electricity->get_image_id(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
 			x_prod_pos += skinverwaltung_t::electricity->get_image(0)->get_pic()->w+4;
 		}
 	}
-	if(  skinverwaltung_t::passagiere->get_bild_nr(0)!=IMG_EMPTY  ) {
+	if(  skinverwaltung_t::passengers->get_image_id(0)!=IMG_EMPTY  ) {
 		if(  fab->get_prodfactor_pax()>0  ) {
-			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
-			x_view_pos += skinverwaltung_t::passagiere->get_image(0)->get_pic()->w+4;
+			display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
+			x_view_pos += skinverwaltung_t::passengers->get_image(0)->get_pic()->w+4;
 		}
-		if(  fab->get_besch()->get_pax_boost()  ) {
-			display_color_img( skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
-			x_prod_pos += skinverwaltung_t::passagiere->get_image(0)->get_pic()->w+4;
+		if(  fab->get_desc()->get_pax_boost()  ) {
+			display_color_img( skinverwaltung_t::passengers->get_image_id(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
+			x_prod_pos += skinverwaltung_t::passengers->get_image(0)->get_pic()->w+4;
 		}
 	}
-	if(  skinverwaltung_t::post->get_bild_nr(0)!=IMG_EMPTY  ) {
+	if(  skinverwaltung_t::mail->get_image_id(0)!=IMG_EMPTY  ) {
 		if(  fab->get_prodfactor_mail()>0  ) {
-			display_color_img(skinverwaltung_t::post->get_bild_nr(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
+			display_color_img(skinverwaltung_t::mail->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
 		}
-		if(  fab->get_besch()->get_mail_boost()  ) {
-			display_color_img( skinverwaltung_t::post->get_bild_nr(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
+		if(  fab->get_desc()->get_mail_boost()  ) {
+			display_color_img( skinverwaltung_t::mail->get_image_id(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
 		}
 	}
 }
@@ -239,7 +239,7 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	else if(comp == &details_button) {
 		help_frame_t * frame = new help_frame_t();
 		char key[256];
-		sprintf(key, "factory_%s_details", fab->get_besch()->get_name());
+		sprintf(key, "factory_%s_details", fab->get_desc()->get_name());
 		frame->set_text(translator::translate(key));
 		create_win(frame, w_info, (ptrdiff_t)this);
 	}
@@ -311,7 +311,7 @@ void gui_fabrik_info_t::draw(scr_coord offset)
 		yoff += LINESPACE;
 		FOR(  const vector_tpl<koord>, k, fab->get_lieferziele() ) {
 			if(  fab->is_active_lieferziel(k)  ) {
-				display_color_img(skinverwaltung_t::waren->get_bild_nr(0), xoff, yoff, 0, false, true);
+				display_color_img(skinverwaltung_t::goods->get_image_id(0), xoff, yoff, 0, false, true);
 			}
 			yoff += LINESPACE;
 		}
@@ -323,7 +323,7 @@ void gui_fabrik_info_t::draw(scr_coord offset)
 		FOR(  const vector_tpl<koord>, k, fab->get_suppliers() ) {
 			if(  const fabrik_t *src = fabrik_t::get_fab(k)  ) {
 				if(  src->is_active_lieferziel(fab->get_pos().get_2d())  ) {
-					display_color_img(skinverwaltung_t::waren->get_bild_nr(0), xoff, yoff, 0, false, true);
+					display_color_img(skinverwaltung_t::goods->get_image_id(0), xoff, yoff, 0, false, true);
 				}
 			}
 			yoff += LINESPACE;
@@ -337,7 +337,7 @@ void gui_fabrik_info_t::draw(scr_coord offset)
 
 
 fabrik_info_t::fabrik_info_t() :
-	gui_frame_t("", welt->get_player(1)),
+	gui_frame_t("", welt->get_public_player()),
 	fab(NULL),
 	chart(NULL),
 	view(scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
@@ -426,7 +426,7 @@ void fabrik_info_t::rdwr( loadsave_t *file )
 
 		// Hajo: "About" button only if translation is available
 		char key[256];
-		sprintf(key, "factory_%s_details", fab->get_besch()->get_name());
+		sprintf(key, "factory_%s_details", fab->get_desc()->get_name());
 		const char * value = translator::translate(key);
 		if(value && *value != 'f') {
 			details_button.init( button_t::roundbox, "Details", scr_coord(BUTTON4_X,offset_below_viewport), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));

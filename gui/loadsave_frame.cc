@@ -34,7 +34,7 @@ public:
 	//loadsave_t file;
 	const char* get_pak_extension() { return svei ? svei->pak.c_str() : ""; }
 	uint32 get_version() const { return svei ? svei->version : 0; }
-	uint32 get_experimental_version() const { return svei ? svei->experimental_version : 0; }
+	uint32 get_extended_version() const { return svei ? svei->extended_version : 0; }
 
 	//gui_loadsave_table_row_t() : gui_file_table_row_t() {};
 	gui_loadsave_table_row_t(const char *pathname, const char *buttontext);
@@ -43,8 +43,8 @@ public:
 stringhashtable_tpl<sve_info_t *> loadsave_frame_t::cached_info;
 
 
-sve_info_t::sve_info_t(const char *pak_, time_t mod_, sint32 fs, uint32 version, uint32 experimental_version)
-: pak(""), mod_time(mod_), file_size(fs), version(version), experimental_version(experimental_version)
+sve_info_t::sve_info_t(const char *pak_, time_t mod_, sint32 fs, uint32 version, uint32 extended_version)
+: pak(""), mod_time(mod_), file_size(fs), version(version), extended_version(extended_version)
 {
 	if(pak_) {
 		pak = pak_;
@@ -63,22 +63,25 @@ void sve_info_t::rdwr(loadsave_t *file)
 {
 	const char *s = strdup(pak.c_str());
 	file->rdwr_str(s);
-	if (file->is_loading()) {
+	if (file->is_loading() && s) {
 		pak = s;
 	}
-	free(const_cast<char *>(s));
+	if (s)
+	{
+		free(const_cast<char *>(s));
+	}
 	file->rdwr_longlong(mod_time);
 	file->rdwr_long(file_size);
-	if (file->get_experimental_version() >= 12 )
+	if (file->get_extended_version() >= 12 )
 	{
 		file->rdwr_long(version);
-		file->rdwr_long(experimental_version);
+		file->rdwr_long(extended_version);
 	}
 	else
 	{
 		if (file->is_loading())
 		{
-			version = experimental_version = 0;
+			version = extended_version = 0;
 		}
 	}
 }
@@ -129,7 +132,7 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve", fals
 	if (cached_info.empty()) {
 		loadsave_t file;
 		const char *cache_file = SAVE_PATH_X "_cached_exp.xml";
-		if (file.rd_open(cache_file) && file.get_experimental_version() == EX_VERSION_MAJOR) {
+		if (file.rd_open(cache_file) && file.get_extended_version() == EX_VERSION_MAJOR) {
 			// ignore comment
 			const char *text=NULL;
 			file.rdwr_str(text);
@@ -230,7 +233,7 @@ gui_loadsave_table_row_t::gui_loadsave_table_row_t(const char *pathname, const c
 			}
 
 			// now insert in hash_table
-			svei = new sve_info_t(test.get_pak_extension(), info.st_mtime, info.st_size, test.get_version(), test.get_experimental_version() );
+			svei = new sve_info_t(test.get_pak_extension(), info.st_mtime, info.st_size, test.get_version(), test.get_extended_version() );
 			// copy filename
 			char *key = strdup(pathname);
 			sve_info_t *svei_old = loadsave_frame_t::cached_info.set(key, svei);
@@ -319,7 +322,7 @@ sint32 gui_file_table_exp_column_t::get_int(const gui_table_row_t &row) const
 {
 	// file version 
  	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
-	return (sint32) file_row.get_experimental_version();
+	return (sint32) file_row.get_extended_version();
 }
 
 
@@ -396,7 +399,7 @@ loadsave_frame_t::~loadsave_frame_t()
 	// save hashtable
 	loadsave_t file;
 	const char *cache_file = SAVE_PATH_X "_cached_exp.xml";
-	if( file.wr_open(cache_file, loadsave_t::xml, "cache", SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, EXPERIMENTAL_REVISION_NR) )
+	if( file.wr_open(cache_file, loadsave_t::xml, "cache", SAVEGAME_VER_NR, EXTENDED_VER_NR, EXTENDED_REVISION_NR) )
 	{
 		const char *text="Automatically generated file. Do not edit. An invalid file may crash the game. Deleting is allowed though.";
 		file.rdwr_str(text);

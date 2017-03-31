@@ -19,14 +19,14 @@
 #include "../simworld.h"
 #include "../simconvoi.h"
 
-#include "../bauer/warenbauer.h"
-#include "../besch/ware_besch.h"
+#include "../bauer/goods_manager.h"
+#include "../descriptor/goods_desc.h"
 
 #include "../dataobj/translator.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 
-#include "../besch/ware_besch.h"
+#include "../descriptor/goods_desc.h"
 #include "gui_frame.h"
 #include "../gui/components/gui_button.h"
 
@@ -34,7 +34,7 @@
 
 goods_stats_t::goods_stats_t()
 {
-	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, warenbauer_t::get_waren_anzahl() * (LINESPACE+1) ) );
+	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, goods_manager_t::get_count() * (LINESPACE+1) ) );
 }
 
 
@@ -46,8 +46,8 @@ void goods_stats_t::update_goodslist( uint16 *g, int b, int l, uint32 d, uint8 c
 	comfort = c;
 	catering_level = ct;
 	way_type = wt;
-	listed_goods = l;
-	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, listed_goods * (LINESPACE+1) ) );
+	listd_goods = l;
+	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, listd_goods * (LINESPACE+1) ) );
 }
 
 
@@ -63,11 +63,11 @@ void goods_stats_t::draw(scr_coord offset)
 	offset.x += pos.x;
 
 	// Pre-111.1 in case current does not work.
-	/*for(  uint16 i=0;  i<warenbauer_t::get_waren_anzahl()-1u;  i++  )*/
+	/*for(  uint16 i=0;  i<goods_manager_t::get_count()-1u;  i++  )*/
 
-	for(  uint16 i=0;  i<listed_goods;  i++  )
+	for(  uint16 i=0;  i<listd_goods;  i++  )
 	{
-		const ware_besch_t * wtyp = warenbauer_t::get_info(goodslist[i]);
+		const goods_desc_t * wtyp = goods_manager_t::get_info(goodslist[i]);
 
 		display_ddd_box_clip(offset.x + 2, yoff, 8, 8, MN_GREY0, MN_GREY4);
 		display_fillbox_wh_clip(offset.x + 3, yoff+1, 6, 6, wtyp->get_color(), true);

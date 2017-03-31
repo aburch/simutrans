@@ -15,7 +15,7 @@
 #include "tpl/vector_tpl.h"
 #include "tpl/array_tpl.h"
 #include "tpl/inthashtable_tpl.h"
-#include "besch/fabrik_besch.h"
+#include "descriptor/factory_desc.h"
 #include "halthandle_t.h"
 #include "simworld.h"
 #include "utils/plainstring.h"
@@ -85,7 +85,7 @@ sint64 convert_boost(sint64 value);
 class ware_production_t
 {
 private:
-	const ware_besch_t *type;
+	const goods_desc_t *type;
 	// Knightly : statistics for each goods
 	sint64 statistics[MAX_MONTH][MAX_FAB_GOODS_STAT];
 	sint64 weighted_sum_storage;
@@ -101,8 +101,8 @@ public:
 		init_stats();
 	}
 
-	const ware_besch_t* get_typ() const { return type; }
-	void set_typ(const ware_besch_t *t) { type=t; }
+	const goods_desc_t* get_typ() const { return type; }
+	void set_typ(const goods_desc_t *t) { type=t; }
 
 	// Knightly : functions for manipulating goods statistics
 	void roll_stats(sint64 aggregate_weight);
@@ -144,7 +144,7 @@ public:
  * verbrauchen Waren und beliefern nahe Haltestellen.
  *
  * Die Abfragefunktionen liefern -1 wenn eine Ware niemals
- * hergestellt oder verbraucht wird, 0 wenn gerade nichts
+ * hergestellt oder verbraucht wird, 0 wenn gerade none
  * hergestellt oder verbraucht wird und > 0 sonst
  * (entspricht Vorrat/Verbrauch).
  * 
@@ -160,7 +160,7 @@ class fabrik_t
 {
 public:
 	/**
-	 * Konstanten
+	 * Constants
 	 * @author Hj. Malthaner
 	 */
 	enum { precision_bits = 10, old_precision_bits = 10, precision_mask = 1023 };
@@ -198,7 +198,7 @@ private:
 	uint32 lieferziele_active_last_month;
 
 	/**
-	 * suppliers to this factry
+	 * suppliers to this factory
 	 * @author hsiegeln
 	 */
 	vector_tpl <koord> suppliers;
@@ -221,16 +221,16 @@ private:
 	vector_tpl <field_data_t> fields;
 
 	/**
-	 * Die erzeugten waren auf die Haltestellen verteilen
+	 * Die erzeugten goods auf die Haltestellen verteilen
 	 * The produced were distributed at the stops
 	 * @author Hj. Malthaner
 	 */
-	void verteile_waren(const uint32 produkt);
+	void verteile_waren(const uint32 product);
 
 	player_t *owner;		// player_t* owner_p
 	static karte_ptr_t welt;
 
-	const fabrik_besch_t *besch;
+	const factory_desc_t *desc;
 
 protected:
 
@@ -257,14 +257,14 @@ private:
 	uint8 rotate;
 
 	/**
-	 * produktionsgrundmenge
+	 * productionsgrundmenge
 	 * "production fundamental set"
 	 * @author Hj. Malthaner
 	 */
 	sint32 prodbase;
 
 	/**
-	 * multiplikator für die Produktionsgrundmenge
+	 * multiplikator for the Produktionsgrundmenge
 	 * multiplier for the production of basic quantity
 	 * @author Hj. Malthaner
 	 */
@@ -298,6 +298,8 @@ private:
 
 	// true, if the factory did produce enough in the last step to require power
 	bool currently_producing;
+
+	uint32 last_sound_ms;
 
 	// power that can be currently drawn from this station (or the amount delivered)
 	uint32 power;
@@ -433,7 +435,7 @@ protected:
 
 public:
 	fabrik_t(loadsave_t *file);
-	fabrik_t(koord3d pos, player_t* player, const fabrik_besch_t* fabesch, sint32 initial_prod_base);
+	fabrik_t(koord3d pos, player_t* player, const factory_desc_t* desc, sint32 initial_prod_base);
 	~fabrik_t();
 
 	gebaeude_t* get_building();
@@ -475,7 +477,7 @@ public:
 	 * @return vehicle description object
 	 * @author Hj. Malthaner
 	 */
-	const fabrik_besch_t *get_besch() const {return besch; }
+	const factory_desc_t *get_desc() const {return desc; }
 
 	void finish_rd();
 
@@ -501,7 +503,7 @@ public:
 
 	/**
 	 * Re-mark nearby roads.
-	 * Needs to be called by fabrikbauer_t (otherwise private).
+	 * Needs to be called by factory_builder_t (otherwise private).
 	 */
 	void mark_connected_roads(bool del);
 
@@ -537,8 +539,8 @@ public:
 	 *   -1 wenn typ nicht produziert wird ("if not type is produced")
 	 *   sonst die gelagerte menge ("otherwise the stored quantity")
 	 */
-	sint32 input_vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp ("Inventories of product")
-	sint32 vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
+	sint32 input_vorrat_an(const goods_desc_t *ware);        // Vorrat von Warentyp ("Inventories of product")
+	sint32 vorrat_an(const goods_desc_t *ware);        // Vorrat von Warentyp
 
 	/**
 	* returns all power and consume it to prevent multiple pumpes
@@ -570,28 +572,28 @@ public:
 	/**
 	* Used to limit transformers to one per factory
 	*/
-	bool is_transformer_connected() const { return (bool)transformer_connected || ((bool)city && !besch->is_electricity_producer()); }
+	bool is_transformer_connected() const { return (bool)transformer_connected || ((bool)city && !desc->is_electricity_producer()); }
 	leitung_t* get_transformer_connected() { return transformer_connected; }
 	void set_transformer_connected(leitung_t* connected) { transformer_connected = connected; }
 
 	/**
-	 * @return 1 wenn verbrauch,
+	 * @return 1 wenn consumption,
 	 * 0 wenn Produktionsstopp,
 	 * -1 wenn Ware nicht verarbeitet wird
 	 */
 
-	sint8 is_needed(const ware_besch_t *) const;
+	sint8 is_needed(const goods_desc_t *) const;
 
-	sint32 liefere_an(const ware_besch_t *, sint32 menge);
+	sint32 liefere_an(const goods_desc_t *, sint32 menge);
 
-	void step(uint32 delta_t);                  // fabrik muss auch arbeiten ("factory must also work")
+	void step(uint32 delta_t);                  // factory muss auch arbeiten ("factory must also work")
 
 	void new_month();
 
 	char const* get_name() const;
 	void set_name( const char *name );
 
-	sint32 get_kennfarbe() const { return besch->get_kennfarbe(); }
+	sint32 get_kennfarbe() const { return desc->get_kennfarbe(); }
 
 	player_t *get_owner() const
 	{
@@ -627,26 +629,26 @@ public:
 	static vector_tpl<fabrik_t *> & sind_da_welche(koord min, koord max);
 
 	/**
-	 * gibt true zurueck wenn sich ein fabrik im feld befindet
+	 * gibt true zurueck wenn sich ein factory im feld befindet
 	 * 
 	 * "gives true back if factory in the field is"
 	 *
 	 * @author Hj. Malthaner
 	 */
 	//static bool ist_da_eine(karte_t *welt, koord min, koord max);
-	//static bool ist_bauplatz(karte_t *welt, koord pos, koord groesse, bool water, climate_bits cl);
+	//static bool check_construction_site(karte_t *welt, koord pos, koord size, bool water, climate_bits cl);
 
 	// hier die methoden zum parametrisieren der Fabrik
 	// "here the methods to parameterize the factory"
 
 	/**
-	 * Baut die Gebäude für die Fabrik
+	 * Baut die Gebäude for the Fabrik
 	 *
 	 * "Build the buildings for the factory"
 	 *
 	 * @author Hj. Malthaner, V. Meyer
 	 */
-	void baue(sint32 rotate, bool build_fields, bool force_initial_prodbase);
+	void build(sint32 rotate, bool build_fields, bool force_initial_prodbase);
 
 	sint16 get_rotate() const { return rotate; }
 
@@ -719,12 +721,12 @@ public:
 	uint32 get_monthly_pax_demand() const;
 	uint32 get_scaled_mail_demand() const { return scaled_mail_demand; }
 
-	bool is_end_consumer() const { return (ausgang.empty() && !besch->is_electricity_producer()); }
+	bool is_end_consumer() const { return (ausgang.empty() && !desc->is_electricity_producer()); }
 
 	/**
 	 * Returns a list of goods produced by this factory.
 	 */
-	slist_tpl<const ware_besch_t*> *get_produced_goods() const;
+	slist_tpl<const goods_desc_t*> *get_produced_goods() const;
 
 	void add_to_world_list();
 
@@ -733,7 +735,7 @@ public:
 
 	void calc_max_intransit_percentages();
 	// Average journey time to delivery goods of this type
-	uint32 get_lead_time (const ware_besch_t* wtype);
+	uint32 get_lead_time (const goods_desc_t* wtype);
 	// Time to consume the full input store of these goods at full capacity
 	uint32 get_time_to_consume_stock(uint32 index);
 

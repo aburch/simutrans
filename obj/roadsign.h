@@ -10,7 +10,7 @@
 
 #include "../simobj.h"
 #include "../simtypes.h"
-#include "../besch/roadsign_besch.h"
+#include "../descriptor/roadsign_desc.h"
 #include "../ifc/sync_steppable.h"
 #include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
@@ -26,7 +26,7 @@ class roadsign_t : public obj_t, public sync_steppable
 {
 protected:
 	image_id image;
-	image_id after_bild;
+	image_id foreground_image;
 
 	enum { SHOW_FONT=1, SHOW_BACK=2, SWITCH_AUTOMATIC=16 };
 
@@ -41,9 +41,9 @@ protected:
 
 	sint8 after_yoffset, after_xoffset;
 
-	const roadsign_besch_t *besch;
+	const roadsign_desc_t *desc;
 
-	ribi_t::ribi calc_mask() const { return ribi_t::ist_einfach(dir) ? dir : (ribi_t::ribi)ribi_t::keine; }
+	ribi_t::ribi calc_mask() const { return ribi_t::is_single(dir) ? dir : (ribi_t::ribi)ribi_t::none; }
 
 public:
 	// Max. 16 (15 incl. 0)
@@ -69,8 +69,8 @@ protected:
 	roadsign_t(typ type, loadsave_t *file);
 	void init(loadsave_t *file);
 
-	roadsign_t(typ type, player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch, bool preview = false);
-	void init(player_t *player, ribi_t::ribi dir, const roadsign_besch_t *besch, bool preview = false);
+	roadsign_t(typ type, player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_desc_t* desc, bool preview = false);
+	void init(player_t *player, ribi_t::ribi dir, const roadsign_desc_t *desc, bool preview = false);
 public:
 #else
 	typ get_typ() const { return roadsign; }
@@ -83,12 +83,12 @@ public:
 	/**
 	 * waytype associated with this object
 	 */
-	waytype_t get_waytype() const { return besch ? besch->get_wtyp() : invalid_wt; }
+	waytype_t get_waytype() const { return desc ? desc->get_wtyp() : invalid_wt; }
 
 	roadsign_t(loadsave_t *file);
-	roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_besch_t* besch, bool preview = false);
+	roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const roadsign_desc_t* desc, bool preview = false);
 
-	const roadsign_besch_t *get_besch() const {return besch;}
+	const roadsign_desc_t *get_desc() const {return desc;}
 
 	/**
 	 * signale muessen bei der destruktion von der
@@ -107,12 +107,12 @@ public:
 	virtual void info(cbuffer_t & buf, bool dummy = false) const;
 
 	/**
-	 * berechnet aktuelles image
+	 * Calculate actual image
 	 */
 	virtual void calc_image();
 
 	// true, if a free route choose point (these are always single way the avoid recalculation of long return routes)
-	bool is_free_route(uint8 check_dir) const { return besch->is_choose_sign() &&  check_dir == dir; }
+	bool is_free_route(uint8 check_dir) const { return desc->is_choose_sign() &&  check_dir == dir; }
 
 	// changes the state of a traffic light
 	sync_result sync_step(uint32);
@@ -125,14 +125,14 @@ public:
 	uint8 get_ticks_offset() const { return ticks_offset; }
 	void set_ticks_offset(uint8 offset) { ticks_offset = offset; }
 
-	inline void set_bild( image_id b ) { image = b; }
+	inline void set_image( image_id b ) { image = b; }
 	image_id get_image() const { return image; }
 
 	/**
 	* For the front image hiding vehicles
 	* @author prissi
 	*/
-	image_id get_front_image() const { return after_bild; }
+	image_id get_front_image() const { return foreground_image; }
 
 	/**
 	* draw the part overlapping the vehicles
@@ -149,22 +149,22 @@ public:
 
 	void rotate90();
 
-	// substracts cost
+	// subtracts cost
 	void cleanup(player_t *player);
 
 	void finish_rd();
 
 	// static routines from here
 private:
-	static vector_tpl<roadsign_besch_t *> liste;
-	static stringhashtable_tpl<const roadsign_besch_t *> table;
+	static vector_tpl<roadsign_desc_t *> list;
+	static stringhashtable_tpl<const roadsign_desc_t *> table;
 
 protected:
-	static const roadsign_besch_t *default_signal;
+	static const roadsign_desc_t *default_signal;
 
 public:
-	static bool register_besch(roadsign_besch_t *besch);
-	static bool alles_geladen();
+	static bool register_desc(roadsign_desc_t *desc);
+	static bool successfully_loaded();
 
 	/**
 	 * Fill menu with icons of given stops from the list
@@ -172,17 +172,17 @@ public:
 	 */
 	static void fill_menu(tool_selector_t *tool_selector, waytype_t wtyp, sint16 sound_ok);
 
-	static const roadsign_besch_t *roadsign_search(roadsign_besch_t::types flag, const waytype_t wt, const uint16 time);
+	static const roadsign_desc_t *roadsign_search(roadsign_desc_t::types flag, const waytype_t wt, const uint16 time);
 
-	const roadsign_besch_t* find_best_upgrade(bool underground); 
+	const roadsign_desc_t* find_best_upgrade(bool underground); 
 
-	static const roadsign_besch_t *find_besch(const char *name) { return table.get(name); }
+	static const roadsign_desc_t *find_desc(const char *name) { return table.get(name); }
 
 	static void set_scale(uint16 scale_factor);
 
 	// Upgrades this sign or signal to another type.
 	// Returns true if succeeds.
-	bool upgrade(const roadsign_besch_t* new_besch); 
+	bool upgrade(const roadsign_desc_t* new_desc); 
 	bool upgrade(bool underground) { return upgrade(find_best_upgrade(underground)); } 
 
 
@@ -214,7 +214,7 @@ public:
 	}
 
 	/* In order to allow for Swedish and Czeck translations (and possibly other translations as well), the type of signal showing the aspect need to be identified by the aspect name.
-	Also, wether it is a time interval signal needs to be identified from the aspect name, as "CLEAR" or "CAUTION" on a three aspect signal in this case do not refer to 
+	Also, whether it is a time interval signal needs to be identified from the aspect name, as "CLEAR" or "CAUTION" on a three aspect signal in this case do not refer to 
 	the forthcomming signal (however, it does on the presignal!).
 	Choose signals have their own namelist as well.
 	 clearpre = presignal
@@ -301,6 +301,8 @@ public:
 			return "caution5";
 		case 3:
 			return "preliminary_caution5";
+		case 4:
+			return "advanced_caution5";
 		case 9:
 			return "call_on";
 		default:
@@ -379,9 +381,9 @@ public:
 		case 4:
 			return "advanced_caution5_alternate";
 		case 5:
-			return "clear_main";
+			return "clear5_main";
 		case 6:
-			return "caution_main";
+			return "caution5_main";
 		case 7:
 			return "preliminary_caution5_main";
 		case 8:
@@ -436,19 +438,19 @@ public:
 		switch (wm)
 		{
 		case 1:
-			return "sued";
+			return "south";
 		case 2:
 			return "west";
 		case 3:
 			return "north_and_east";
 		case 4:
-			return "nord";
+			return "north";
 		case 5:
 			return "north_and_south";
 		case 6:
 			return "south_and_east";
 		case 8:
-			return "ost";
+			return "east";
 		case 9:
 			return "north_and_west";
 		case 10:

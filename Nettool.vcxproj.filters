@@ -15,31 +15,25 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dataobj\freelist.cc">
+    <ClCompile Include="utils\fetchopt.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utils\fetchopt.cc">
+    <ClCompile Include="dataobj\freelist.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utils\log.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="network\memory_rw.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="nettools\nettool.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="simdebug.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="simmem.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\simstring.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\sha1.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="network\network.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\network_address.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="network\network_cmd.cc">
@@ -51,51 +45,54 @@
     <ClCompile Include="network\network_packet.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="network\network_address.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="network\network_socket_list.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="network\pwd_hash.cc">
+    <ClCompile Include="simdebug.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="network\memory_rw.cc">
+    <ClCompile Include="simmem.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\simstring.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\float32e8_t.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dataobj\freelist.h">
+    <ClInclude Include="utils\fetchopt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils\fetchopt.h">
+    <ClInclude Include="dataobj\freelist.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utils\log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utils\memory_rw.h">
+    <ClInclude Include="network\memory_rw.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="nettools\nettool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dataobj\network.h">
+    <ClInclude Include="network\network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dataobj\network_address.h">
+    <ClInclude Include="network\network_address.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dataobj\network_cmd.h">
+    <ClInclude Include="network\network_cmd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dataobj\network_file_transfer.h">
+    <ClInclude Include="network\network_file_transfer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dataobj\network_packet.h">
+    <ClInclude Include="network\network_packet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dataobj\network_socket_list.h">
+    <ClInclude Include="network\network_socket_list.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simdebug.h">

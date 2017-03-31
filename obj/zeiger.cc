@@ -23,7 +23,7 @@ zeiger_t::zeiger_t(loadsave_t *file) : obj_no_info_t()
 #endif
 {
 	image = IMG_EMPTY;
-	after_bild = IMG_EMPTY;
+	foreground_image = IMG_EMPTY;
 	area = koord(0,0);
 	offset = koord(0,0);
 	rdwr(file);
@@ -39,7 +39,7 @@ zeiger_t::zeiger_t(koord3d pos, player_t *player) :
 {
 	set_owner( player );
 	image = IMG_EMPTY;
-	after_bild = IMG_EMPTY;
+	foreground_image = IMG_EMPTY;
 	area = koord(0,0);
 	offset = koord(0,0);
 }
@@ -92,7 +92,7 @@ void zeiger_t::change_pos(koord3d k )
 }
 
 
-void zeiger_t::set_bild( image_id b )
+void zeiger_t::set_image( image_id b )
 {
 	// mark dirty
 	mark_image_dirty( image, 0 );
@@ -100,12 +100,12 @@ void zeiger_t::set_bild( image_id b )
 	image = b;
 }
 
-void zeiger_t::set_after_bild( image_id b )
+void zeiger_t::set_after_image( image_id b )
 {
 	// mark dirty
-	mark_image_dirty( after_bild, 0 );
+	mark_image_dirty( foreground_image, 0 );
 	mark_image_dirty( b, 0 );
-	after_bild = b;
+	foreground_image = b;
 }
 
 void zeiger_t::set_area(koord new_area, bool center, koord new_offset)

@@ -40,7 +40,7 @@ bool nwc_pakset_info_t::execute(karte_t *)
 					// we are already talking to another client
 					nwi.flag = SV_ERROR;
 					nwi.send(packet->get_sender());
-					// ignore result of send, we dont want to talk to that client either
+					// ignore result of send, we don't want to talk to that client either
 					break;
 				}
 				server_receiver = packet->get_sender();
@@ -77,7 +77,7 @@ bool nwc_pakset_info_t::execute(karte_t *)
 		}
 		if(  send  ) {
 			if(socket_list_t::has_client(server_receiver)) {
-				// send, if unsuccessfull stop comparing
+				// send, if unsuccessful stop comparing
 				if (!nwi.send(server_receiver)) {
 					ready = true;
 				}
@@ -135,7 +135,7 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 			}
 		}
 		// copy our info to addon
-		// ie treat all our pak's as if they were not present on the server
+		// ie treatall our paks as if they were not present on the server
 		stringhashtable_tpl<checksum_t*> addons;
 		{
 			FOR(stringhashtable_tpl<checksum_t*>, const& i, pakset_info_t::get_info()) {
@@ -197,7 +197,7 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 						checksum_t* chk = addons.remove(nwi->name);
 						if(chk) {
 							if((*chk)==(*(nwi->chk))) {
-								// found identical besch's
+								// found identical desc's
 							}
 							else {
 								different.put(nwi->name, nwi->chk);

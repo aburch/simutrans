@@ -14,7 +14,7 @@
 
 #include "translator.h"
 
-#include "../besch/kreuzung_besch.h"
+#include "../descriptor/crossing_desc.h"
 
 #include "../utils/cbuffer_t.h"
 
@@ -27,10 +27,10 @@
 karte_ptr_t crossing_logic_t::welt;
 
 
-crossing_logic_t::crossing_logic_t( const kreuzung_besch_t *besch )
+crossing_logic_t::crossing_logic_t( const crossing_desc_t *desc )
 {
 	state = CROSSING_INVALID;
-	this->besch = besch;
+	this->desc = desc;
 	request_close = NULL;
 }
 
@@ -84,7 +84,7 @@ void crossing_logic_t::recalc_state()
 // request permission to pass crossing
 bool crossing_logic_t::request_crossing(const vehicle_base_t *v, bool check_only)
 {
-	if(v->get_waytype()==besch->get_waytype(0)) {
+	if(v->get_waytype()==desc->get_waytype(0)) {
 		if(on_way2.empty()  &&  state == CROSSING_OPEN) {
 			// way2 is empty ...
 			return true;
@@ -94,9 +94,9 @@ bool crossing_logic_t::request_crossing(const vehicle_base_t *v, bool check_only
 		// => ok only if I am already crossing
 		return on_way1.is_contained(v);
 	}
-	else if(v->get_waytype()==besch->get_waytype(1)) {
+	else if(v->get_waytype()==desc->get_waytype(1)) {
 
-		// vehikel from way2 arrives
+		// vehicle from way2 arrives
 		if(on_way1.get_count()) {
 			// sorry, still things on the crossing, but we will prepare
 			if(!check_only)
@@ -123,10 +123,10 @@ bool crossing_logic_t::request_crossing(const vehicle_base_t *v, bool check_only
 void crossing_logic_t::add_to_crossing( const vehicle_base_t *v )
 {
 	if(  v->get_typ()!=obj_t::pedestrian  ) {
-		if(v->get_waytype()==besch->get_waytype(0)) {
+		if(v->get_waytype()==desc->get_waytype(0)) {
 			on_way1.append_unique(v);
 		}
-		else if (v->get_waytype() == besch->get_waytype(1)) {
+		else if (v->get_waytype() == desc->get_waytype(1)) {
 			// add it and close crossing
 			on_way2.append_unique(v);
 			if(  request_close==v  ) {
@@ -142,7 +142,7 @@ void crossing_logic_t::add_to_crossing( const vehicle_base_t *v )
 // or of a city car; releases the crossing which may switch state
 void crossing_logic_t::release_crossing( const vehicle_base_t *v )
 {
-	if(  v->get_waytype() == besch->get_waytype(0)  ) {
+	if(  v->get_waytype() == desc->get_waytype(0)  ) {
 		on_way1.remove(v);
 		if(  state == CROSSING_REQUEST_CLOSE  &&  on_way1.empty()  ) {
 			set_state( CROSSING_CLOSED );
@@ -164,8 +164,8 @@ void crossing_logic_t::release_crossing( const vehicle_base_t *v )
 void crossing_logic_t::set_state( crossing_state_t new_state )
 {
 	// play sound (if there and closing)
-	if(new_state==CROSSING_CLOSED  &&  besch->get_sound()>=0  &&  !welt->is_fast_forward()) {
-		welt->play_sound_area_clipped(crossings[0]->get_pos().get_2d(), besch->get_sound());
+	if(new_state==CROSSING_CLOSED  &&  desc->get_sound()>=0  &&  !welt->is_fast_forward()) {
+		welt->play_sound_area_clipped(crossings[0]->get_pos().get_2d(), desc->get_sound());
 	}
 
 	if(new_state!=state) {
@@ -189,13 +189,13 @@ void crossing_logic_t::set_state( crossing_state_t new_state )
  *  2 ..     3 4 5 6 7 8
  * ..          ...
  */
-minivec_tpl<const kreuzung_besch_t *> crossing_logic_t::can_cross_array[36];
+minivec_tpl<const crossing_desc_t *> crossing_logic_t::can_cross_array[36];
 
 
 /**
  * compare crossings for the same waytype-combinations
  */
-int compare_crossing(const kreuzung_besch_t *c0, const kreuzung_besch_t *c1)
+int compare_crossing(const crossing_desc_t *c0, const crossing_desc_t *c1)
 {
 	// sort descending wrt maxspeed
 	int diff = c1->get_maxspeed(0) - c0->get_maxspeed(0);
@@ -209,47 +209,47 @@ int compare_crossing(const kreuzung_besch_t *c0, const kreuzung_besch_t *c1)
 }
 
 
-void crossing_logic_t::register_besch(kreuzung_besch_t *besch)
+void crossing_logic_t::register_desc(crossing_desc_t *desc)
 {
 	// mark if crossing possible
-	const waytype_t way0 = (const waytype_t)min(besch->get_waytype(0), besch->get_waytype(1));
-	const waytype_t way1 = (const waytype_t)max(besch->get_waytype(0), besch->get_waytype(1));
+	const waytype_t way0 = (const waytype_t)min(desc->get_waytype(0), desc->get_waytype(1));
+	const waytype_t way1 = (const waytype_t)max(desc->get_waytype(0), desc->get_waytype(1));
 	if(way0<8  &&  way1<9  &&  way0<way1) {
 		uint8 index = way0 * 9 + way1 - ((way0+2)*(way0+1))/2;
 		// max index = 7*9 + 8 - 9*4 = 71-36 = 35
 		// .. overwrite double entries
-		minivec_tpl<const kreuzung_besch_t *> &vec = can_cross_array[index];
+		minivec_tpl<const crossing_desc_t *> &vec = can_cross_array[index];
 		// first check for existing crossing with the same name
 		for(uint8 i=0; i<vec.get_count(); i++) {
-			if (strcmp(vec[i]->get_name(), besch->get_name())==0) {
+			if (strcmp(vec[i]->get_name(), desc->get_name())==0) {
 				vec.remove_at(i);
-				dbg->warning( "crossing_logic_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+				dbg->warning( "crossing_logic_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 			}
 		}
-DBG_DEBUG( "crossing_logic_t::register_besch()","%s", besch->get_name() );
+DBG_DEBUG( "crossing_logic_t::register_desc()","%s", desc->get_name() );
 		// .. then make sorted insert
 		for(uint8 i=0; i<vec.get_count(); i++) {
-			if (compare_crossing(besch, vec[i])<0) {
-				vec.insert_at(i, besch);
+			if (compare_crossing(desc, vec[i])<0) {
+				vec.insert_at(i, desc);
 				return;
 			}
 		}
-		vec.append(besch);
+		vec.append(desc);
 	}
 }
 
 
-const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const waytype_t ow, sint32 way_0_speed, sint32 way_1_speed, uint16 timeline_year_month)
+const crossing_desc_t *crossing_logic_t::get_crossing(const waytype_t ns, const waytype_t ow, sint32 way_0_speed, sint32 way_1_speed, uint16 timeline_year_month)
 {
 	// mark if crossing possible
 	const waytype_t way0 = ns <  ow ? ns : ow;
 	const waytype_t way1 = ns >= ow ? ns : ow;
-	const kreuzung_besch_t *best = NULL;
+	const crossing_desc_t *best = NULL;
 	// index 8 is narrowgauge, only air_wt and powerline_wt have higher indexes
 	if(  way0 <= 8  &&  way1 <= 8  &&  way0 != way1  ) {
 
 		const uint8 index = way0 * 9 + way1 - ((way0+2)*(way0+1))/2;
-		FOR(  minivec_tpl<kreuzung_besch_t const*>,  const i,  can_cross_array[index]  ) {
+		FOR(  minivec_tpl<crossing_desc_t const*>,  const i,  can_cross_array[index]  ) {
 			if(  !i->is_available(timeline_year_month)  ) {
 				continue;
 			}
@@ -280,7 +280,7 @@ const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const
 /**
  * compare crossings for the same waytype-combinations
  */
-bool have_crossings_same_wt(const kreuzung_besch_t *c0, const kreuzung_besch_t *c1)
+bool have_crossings_same_wt(const crossing_desc_t *c0, const crossing_desc_t *c1)
 {
 	return c0->get_waytype(0) == c1->get_waytype(0)  &&  c0->get_waytype(1) == c1->get_waytype(1);
 }
@@ -291,7 +291,7 @@ bool have_crossings_same_wt(const kreuzung_besch_t *c0, const kreuzung_besch_t *
 void crossing_logic_t::add( crossing_t *start_cr, crossing_state_t state )
 {
 	koord3d pos = start_cr->get_pos();
-	const koord zv = start_cr->get_dir() ? koord::west : koord::nord;
+	const koord zv = start_cr->get_dir() ? koord::west :  koord::north;
 	slist_tpl<crossing_t *>crossings;
 	minivec_tpl<crossing_logic_t *>crossings_logics;
 
@@ -307,7 +307,7 @@ void crossing_logic_t::add( crossing_t *start_cr, crossing_state_t state )
 			break;
 		}
 		crossing_t *found_cr = gr->find<crossing_t>();
-		if(found_cr==NULL  ||  !have_crossings_same_wt(found_cr->get_besch(),start_cr->get_besch())) {
+		if(found_cr==NULL  ||  !have_crossings_same_wt(found_cr->get_desc(),start_cr->get_desc())) {
 			break;
 		}
 		crossings.append( found_cr );
@@ -324,7 +324,7 @@ void crossing_logic_t::add( crossing_t *start_cr, crossing_state_t state )
 			break;
 		}
 		crossing_t *found_cr = gr->find<crossing_t>();
-		if(found_cr==NULL  ||  !have_crossings_same_wt(found_cr->get_besch(),start_cr->get_besch())) {
+		if(found_cr==NULL  ||  !have_crossings_same_wt(found_cr->get_desc(),start_cr->get_desc())) {
 			break;
 		}
 		crossings.append( found_cr );
@@ -345,7 +345,7 @@ void crossing_logic_t::add( crossing_t *start_cr, crossing_state_t state )
 	}
 	// no old logic there create a new one
 	if(  found_logic == NULL ) {
-		found_logic = new crossing_logic_t( start_cr->get_besch() );
+		found_logic = new crossing_logic_t( start_cr->get_desc() );
 	}
 
 	// set new crossing logic to all
@@ -368,11 +368,11 @@ void crossing_logic_t::remove( crossing_t *cr )
 	else {
 		// check for a crossing to the east/south
 		koord3d pos = cr->get_pos();
-		const koord zv = cr->get_dir() ? koord::west : koord::nord;
+		const koord zv = cr->get_dir() ? koord::west :  koord::north;
 		const grund_t *gr = welt->lookup( pos-zv );
 		if(  gr  ) {
 			crossing_t *found_cr = gr->find<crossing_t>();
-			if(  found_cr  &&  have_crossings_same_wt(found_cr->get_besch(),cr->get_besch())  ) {
+			if(  found_cr  &&  have_crossings_same_wt(found_cr->get_desc(),cr->get_desc())  ) {
 				// crossing to the east/south so split logic from any found to the north/west
 				crossing_logic_t *split_logic = NULL;
 				while(1) {
@@ -382,13 +382,13 @@ void crossing_logic_t::remove( crossing_t *cr )
 						break;
 					}
 					found_cr = gr->find<crossing_t>();
-					if(  found_cr == NULL  ||  !have_crossings_same_wt(found_cr->get_besch(),cr->get_besch())  ) {
+					if(  found_cr == NULL  ||  !have_crossings_same_wt(found_cr->get_desc(),cr->get_desc())  ) {
 						break;
 					}
 					assert(this==found_cr->get_logic());
 
 					if(  !split_logic  ) {
-						split_logic = new crossing_logic_t( cr->get_besch() );
+						split_logic = new crossing_logic_t( cr->get_desc() );
 					}
 					crossings.remove( found_cr );
 					found_cr->set_logic( split_logic );

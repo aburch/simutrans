@@ -15,9 +15,9 @@
 class vehicle_t;
 
 /**
- * Klasse für Schienen in Simutrans.
- * Auf den Schienen koennen Züge fahren.
- * Jede Schiene gehört zu einer Blockstrecke
+ * Class for monorail tracks, derived from schiene.
+ * Monorail trains can drive on this tracks.
+ * Each track belongs to a section block
  *
  * @author Hj. Malthaner
  */
@@ -41,7 +41,7 @@ protected:
 
 	schiene_t(waytype_t waytype);
 public:
-	static const weg_besch_t *default_schiene;
+	static const way_desc_t *default_schiene;
 
 	static bool show_reservations;
 
@@ -69,11 +69,11 @@ public:
 	{ 
 		if(t == block)
 		{
-			return !reserved.is_bound() || c == reserved || (type == directional && (dir == direction || dir == ribi_t::alle || (is_diagonal() && (dir & direction)) || (is_junction() && (dir & direction)))) || (type == priority && true /*Insert real logic here*/); 
+			return !reserved.is_bound() || c == reserved || (type == directional && (dir == direction || dir == ribi_t::all || (is_diagonal() && (dir & direction)) || (is_junction() && (dir & direction)))) || (type == priority && true /*Insert real logic here*/); 
 		}
 		if(t == directional)
 		{
-			return !reserved.is_bound() || c == reserved || type == priority || (dir == direction || dir == ribi_t::alle) || (!check_directions_at_junctions && is_junction());
+			return !reserved.is_bound() || c == reserved || type == priority || (dir == direction || dir == ribi_t::all) || (!check_directions_at_junctions && is_junction());
 		}
 		if(t == priority)
 		{

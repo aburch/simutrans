@@ -9,13 +9,13 @@
 
 #include "tpl/slist_tpl.h"
 #include "dataobj/translator.h"
-#include "bauer/warenbauer.h"
-#include "besch/ware_besch.h"
+#include "bauer/goods_manager.h"
+#include "descriptor/goods_desc.h"
 #include "simsys.h"
 #include "display/simgraph.h"
 #include "player/simplay.h"
 #include "dataobj/environment.h"
-#include "dataobj/fahrplan.h"
+#include "dataobj/schedule.h"
 #include "simconvoi.h"
 #include "simloadingscreen.h"
 
@@ -46,8 +46,8 @@ void path_explorer_t::initialise(karte_t *welt)
 	{
 		world = welt;
 	}
-	max_categories = warenbauer_t::get_max_catg_index();
-	category_empty = warenbauer_t::nichts->get_catg_index();
+	max_categories = goods_manager_t::get_max_catg_index();
+	category_empty = goods_manager_t::none->get_catg_index();
 	goods_compartment = new compartment_t[max_categories];
 
 	for (uint8 i = 0; i < max_categories; ++i)
@@ -115,7 +115,7 @@ void path_explorer_t::full_instant_refresh()
 	path_explorer_t::allow_path_explorer_on_this_thread = true;
 #endif
 	uint16 curr_step = 0;
-	// exclude empty goods (nichts)
+	// exclude empty goods (none)
 	uint16 total_steps = (max_categories - 1) * 6;
 
 	processing = true;
@@ -511,7 +511,7 @@ void path_explorer_t::compartment_t::step()
 #endif
 
 	// For timing use
-	unsigned long start, diff;
+	uint32 start, diff;
 
 	switch (current_phase)
 	{
@@ -524,8 +524,8 @@ void path_explorer_t::compartment_t::step()
 			{
 				refresh_requested = false;	// immediately reset it so that we can take new requests
 				refresh_completed = false;	// indicate that processing is at work
-				refresh_start_time = dr_time();
-				//refresh_start_time = world->get_zeit_ms(); // Possibly more network safe than the original (commented out above)
+				//refresh_start_time = dr_time();
+				refresh_start_time = world->get_zeit_ms(); // Possibly more network safe than the original (commented out above)
 				current_phase = phase_init_prepare;	// proceed to next phase
 				// no return statement here, as we want to fall through to the next phase
 			}
@@ -560,7 +560,7 @@ void path_explorer_t::compartment_t::step()
 				all_halts_list = new halthandle_t[all_halts_count];
 			}
 
-			const bool no_walking_connexions = !world->get_settings().get_allow_routing_on_foot() || catg != warenbauer_t::passagiere->get_catg_index();
+			const bool no_walking_connexions = !world->get_settings().get_allow_routing_on_foot() || catg != goods_manager_t::passengers->get_catg_index();
 
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
 			for (uint16 i = 0; i < all_halts_count; ++i)
@@ -577,7 +577,7 @@ void path_explorer_t::compartment_t::step()
 				// Connect halts within walking distance of each other (for passengers only)
 				// @author: jamespetts, July 2011
 
-				if ( no_walking_connexions || !all_halts_list[i]->is_enabled(warenbauer_t::passagiere) )
+				if ( no_walking_connexions || !all_halts_list[i]->is_enabled(goods_manager_t::passengers) )
 				{
 					continue;
 				}
@@ -591,7 +591,7 @@ void path_explorer_t::compartment_t::step()
 				{
 					walking_distance_halt = all_halts_list[i]->get_halt_within_walking_distance(x);
 
-					if(!walking_distance_halt.is_bound() || !walking_distance_halt->is_enabled(warenbauer_t::passagiere))
+					if(!walking_distance_halt.is_bound() || !walking_distance_halt->is_enabled(goods_manager_t::passengers))
 					{
 						continue;
 					}
@@ -707,7 +707,7 @@ void path_explorer_t::compartment_t::step()
 
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
-			const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(catg);
+			const goods_desc_t *const ware_type = goods_manager_t::get_info_catg_index(catg);
 
 			linkage_t current_linkage;
 			schedule_t *current_schedule;
@@ -768,7 +768,7 @@ void path_explorer_t::compartment_t::step()
 
 				while (entry_count-- && index < current_schedule->get_count())
 				{
-					current_halt = haltestelle_t::get_halt(current_schedule->eintrag[index].pos, current_owner);
+					current_halt = haltestelle_t::get_halt(current_schedule->entries[index].pos, current_owner);
                
 					// Make sure that the halt found was built before refresh started and that it supports current goods category
 					if ( current_halt.is_bound() && current_halt->get_inauguration_time() < refresh_start_time && current_halt->is_enabled(ware_type) )
@@ -877,7 +877,7 @@ void path_explorer_t::compartment_t::step()
 						id_pair halt_pair(halt_list[h].get_id(), halt_list[t].get_id());
 						new_connexion = new haltestelle_t::connexion;
 						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
-						new_connexion->transfer_time = catg != warenbauer_t::passagiere->get_catg_index() ? halt_list[h]->get_transshipment_time() : halt_list[h]->get_transfer_time();
+						new_connexion->transfer_time = catg != goods_manager_t::passengers->get_catg_index() ? halt_list[h]->get_transshipment_time() : halt_list[h]->get_transfer_time();
 						if(current_linkage.line.is_bound())
 						{
 							average_tpl<uint32>* ave = current_linkage.line->get_average_journey_times().access(halt_pair);
@@ -1773,7 +1773,7 @@ bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_
 void path_explorer_t::compartment_t::set_category(uint8 category)
 { 
 	catg = category;
-	const ware_besch_t *ware_type = warenbauer_t::get_info_catg_index(catg);
+	const goods_desc_t *ware_type = goods_manager_t::get_info_catg_index(catg);
 	catg_name = ware_type->get_catg() == 0 ? ware_type->get_name() : ware_type->get_catg_name();
 }
 

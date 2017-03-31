@@ -67,7 +67,7 @@ a = (Fm - Frs - cf * v^2) / m
 #include "utils/float32e8_t.h"
 #include "simunits.h"
 #include "tpl/vector_tpl.h"
-#include "besch/vehikel_besch.h"
+#include "descriptor/vehicle_desc.h"
 #include "simtypes.h"
 
 class vehicle_t;
@@ -119,10 +119,10 @@ struct vehicle_summary_t
 		max_speed = KMH_SPEED_UNLIMITED; // if there is no vehicle, there is no speed limit!
 	}
 
-	inline void add_vehicle(const vehikel_besch_t &b)
+	inline void add_vehicle(const vehicle_desc_t &b)
 	{
 		length += b.get_length();
-		weight += b.get_gewicht();
+		weight += b.get_weight();
 		max_speed = min(max_speed, b.get_geschw());
 	}
 
@@ -153,7 +153,7 @@ struct adverse_summary_t
 	}
 
 	void add_vehicle(const vehicle_t &v);
-	void add_vehicle(const vehikel_besch_t &b, bool is_leading);
+	void add_vehicle(const vehicle_desc_t &b, bool is_leading);
 };
 
 /******************************************************************************/
@@ -169,7 +169,7 @@ struct freight_summary_t
 		min_freight_weight = max_freight_weight = 0;
 	}
 
-	void add_vehicle(const vehikel_besch_t &b);
+	void add_vehicle(const vehicle_desc_t &b);
 };
 
 /******************************************************************************/
@@ -384,7 +384,7 @@ public:
 
 	//-----------------------------------------------------------------------------
 	
-	// vehicle_summary becomes invalid, when the vehicle list or any vehicle's vehicle_besch_t changes.
+	// vehicle_summary becomes invalid, when the vehicle list or any vehicle's vehicle_desc_t changes.
 	inline void invalidate_vehicle_summary()
 	{
 		is_valid &= ~(cd_vehicle_summary|cd_adverse_summary|cd_weight_summary|cd_starting_force|cd_continuous_power|cd_braking_force);
@@ -408,7 +408,7 @@ public:
 	//-----------------------------------------------------------------------------
 	
 	// adverse_summary becomes invalid, when vehicle_summary becomes invalid 
-	// or any vehicle's vehicle_besch_t or any vehicle's location/way changes.
+	// or any vehicle's vehicle_desc_t or any vehicle's location/way changes.
 	inline void invalidate_adverse_summary()
 	{
 		is_valid &= ~(cd_adverse_summary|cd_weight_summary|cd_braking_force);
@@ -432,7 +432,7 @@ public:
 	//-----------------------------------------------------------------------------
 	
 	// freight_summary becomes invalid, when vehicle_summary becomes invalid 
-	// or any vehicle's vehicle_besch_t.
+	// or any vehicle's vehicle_desc_t.
 	inline void invalidate_freight_summary()
 	{
 		is_valid &= ~(cd_freight_summary);
@@ -456,7 +456,7 @@ public:
 	//-----------------------------------------------------------------------------
 	
 	// starting_force becomes invalid, when vehicle_summary becomes invalid 
-	// or any vehicle's vehicle_besch_t.
+	// or any vehicle's vehicle_desc_t.
 	inline void invalidate_starting_force()
 	{
 		is_valid &= ~(cd_starting_force);
@@ -475,7 +475,7 @@ public:
 	//-----------------------------------------------------------------------------
 	
 	// brake_force becomes invalid, when vehicle_summary becomes invalid 
-	// or any vehicle's vehicle_besch_t.
+	// or any vehicle's vehicle_desc_t.
 	inline void invalidate_brake_force()
 	{
 		is_valid &= ~(cd_braking_force);
@@ -494,7 +494,7 @@ public:
 	//-----------------------------------------------------------------------------
 	
 	// continuous_power becomes invalid, when vehicle_summary becomes invalid 
-	// or any vehicle's vehicle_besch_t.
+	// or any vehicle's vehicle_desc_t.
 	inline void invalidate_continuous_power()
 	{
 		is_valid &= ~(cd_continuous_power);
@@ -553,7 +553,7 @@ public:
 class potential_convoy_t : public lazy_convoy_t
 {
 private:
-	vector_tpl<const vehikel_besch_t *> &vehicles;
+	vector_tpl<const vehicle_desc_t *> &vehicles;
 protected:
 	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
@@ -562,7 +562,7 @@ protected:
 	virtual float32e8_t get_force_summary(const float32e8_t &speed /* in m/s */);
 	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */);
 public:
-	potential_convoy_t(vector_tpl<const vehikel_besch_t *> &besch) : lazy_convoy_t(), vehicles(besch)
+	potential_convoy_t(vector_tpl<const vehicle_desc_t *> &desc) : lazy_convoy_t(), vehicles(desc)
 	{
 	}
 	virtual sint16 get_current_friction();
@@ -575,11 +575,11 @@ public:
 class vehicle_as_potential_convoy_t : public potential_convoy_t
 {
 private:
-	vector_tpl<const vehikel_besch_t *> vehicles;
+	vector_tpl<const vehicle_desc_t *> vehicles;
 public:
-	vehicle_as_potential_convoy_t(const vehikel_besch_t &besch) : potential_convoy_t(vehicles)
+	vehicle_as_potential_convoy_t(const vehicle_desc_t &desc) : potential_convoy_t(vehicles)
 	{
-		vehicles.append(&besch);
+		vehicles.append(&desc);
 	}
 };
 

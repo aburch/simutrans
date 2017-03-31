@@ -14,7 +14,7 @@
 /**
  * bauplatz_sucher_t:
  *
- * Sucht einen freien Bauplatz mithilfe der Funktion suche_platz().
+ * Search for a free location using the function suche_platz().
  *
  * @author V. Meyer
  */

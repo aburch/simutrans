@@ -9,7 +9,7 @@ private:
 	uint8 weg_hang;
 
 protected:
-	void calc_bild_internal();
+	void calc_image_internal();
 
 public:
 	brueckenboden_t(loadsave_t *file, koord pos ) : grund_t(koord3d(pos,0) ) { rdwr(file); }
@@ -22,11 +22,11 @@ public:
 
 	virtual sint8 get_weg_yoff() const;
 
-	hang_t::typ get_weg_hang() const { return weg_hang; }
+	slope_t::type get_weg_hang() const { return weg_hang; }
 
 	const char *get_name() const {return "Brueckenboden";}
 	typ get_typ() const { return brueckenboden; }
-	void calc_bild_internal(const bool calc_only_snowline_change);
+	void calc_image_internal(const bool calc_only_snowline_change);
 
 	void info(cbuffer_t & buf, bool dummy = false) const;
 };

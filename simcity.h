@@ -31,7 +31,7 @@ class fabrik_t;
 class rule_t;
 
 // For private subroutines
-class haus_besch_t;
+class building_desc_t;
 
 // part of passengers going to factories or toursit attractions (100% mx)
 #define FACTORY_PAX (33)	// workers
@@ -179,11 +179,13 @@ private:
 	// this counter will increment by one for every change => dialogs can question, if they need to update map
 	uint32 pax_destinations_new_change;
 
-	koord pos;				// Gruendungsplanquadrat der Stadt ("founding grid square" - Google)
+	koord pos;				// Gruendungsplanquadrat der City ("founding grid square" - Google)
 	koord townhall_road;	// road in front of townhall
 	koord lo, ur;			// max size of housing area
 
 	bool allow_citygrowth;	// Whether growth is permitted (true by default)
+
+	bool has_townhall;
 
 	/**
 	 * in this fixed interval, construction will happen
@@ -386,17 +388,13 @@ private:
 	 * baut ein angemessenes Rathaus
 	 * @author V. Meyer
 	 */
-	void check_bau_rathaus(bool);
+	void check_bau_townhall(bool);
 
 	/**
 	 * constructs a new consumer
 	 * @author prissi
 	 */
 	void check_bau_factory(bool);
-
-	// bewertungsfunktionen fuer den Hauserbau
-	// wie gut passt so ein Gebaeudetyp an diese Stelle ?
-	gebaeude_t::typ was_ist_an(koord pos) const;
 
 	// find out, what building matches best
 	void bewerte_res_com_ind(const koord pos, int &ind, int &com, int &res);
@@ -409,7 +407,7 @@ private:
 	// Subroutines for build_city_building and renovate_city_buiding
 	// @author neroden
 	const gebaeude_t* get_citybuilding_at(const koord k) const;
-	int get_best_layout(const haus_besch_t* h, const koord & k) const;
+	int get_best_layout(const building_desc_t* h, const koord & k) const;
 
 	/**
 	 * Build a short road bridge extending from bd in direction.
@@ -426,9 +424,9 @@ private:
 	 * @author Hj. Malthaner, V. Meyer
 	 */
 	bool maybe_build_road(koord k);
-	bool baue_strasse(const koord k, player_t *player, bool forced);
+	bool build_road(const koord k, player_t *player, bool forced);
 
-	void baue(bool new_town);
+	void build(bool new_town);
 
 	/**
 	 * @param pos position to check
@@ -508,7 +506,7 @@ public:
 	sint32 get_wachstum() const {return ((sint32)city_history_month[0][HIST_GROWTH]*5) + (sint32)(city_history_month[1][HIST_GROWTH]*4) + (sint32)city_history_month[2][HIST_GROWTH]; }
 
 	/**
-	 * ermittelt die Einwohnerzahl der Stadt
+	 * ermittelt die Einwohnerzahl der City
 	 * "determines the population of the city"
 	 * @author Hj. Malthaner
 	 */
@@ -534,7 +532,7 @@ public:
 	sint32 get_homeless()   const { return bev - won; }
 
 	/**
-	 * Gibt den Namen der Stadt zurück.
+	 * Gibt den Namen der City zurück.
 	 * "Specifies the name of the town." (Google)
 	 * @author Hj. Malthaner
 	 */
@@ -548,7 +546,7 @@ public:
 
 	/**
 	 * gibt einen zufällingen gleichverteilten Punkt innerhalb der
-	 * Stadtgrenzen zurück
+	 * Citygrenzen zurück
 	 * @author Hj. Malthaner
 	 */
 	koord get_zufallspunkt(uint32 min_distance = 0, uint32 max_distance = 16384, koord origin = koord::invalid) const;
@@ -572,7 +570,7 @@ public:
 	uint32 get_pax_destinations_new_change() const { return pax_destinations_new_change; }
 
 	/**
-	 * Erzeugt eine neue Stadt auf Planquadrat (x,y) die dem Spieler player
+	 * Erzeugt eine neue City auf Planquadrat (x,y) die dem Spieler player
 	 * gehoert.
 	 * @param player The owner of the city
 	 * @param x x-Planquadratkoordinate
@@ -583,9 +581,9 @@ public:
 	stadt_t(player_t* player, koord pos, sint32 citizens);
 
 	/**
-	 * Erzeugt eine neue Stadt nach Angaben aus der Datei file.
-	 * @param welt Die Karte zu der die Stadt gehoeren soll.
-	 * @param file Zeiger auf die Datei mit den Stadtbaudaten.
+	 * Erzeugt eine neue City nach Angaben aus der Datei file.
+	 * @param welt Die Karte zu der die City gehoeren soll.
+	 * @param file Zeiger auf die Datei mit den Citybaudaten.
 	 * @see stadt_t::speichern()
 	 * @author Hj. Malthaner
 	 */
@@ -595,9 +593,9 @@ public:
 	~stadt_t();
 
 	/**
-	 * Speichert die Daten der Stadt in der Datei file so, dass daraus
-	 * die Stadt wieder erzeugt werden kann. Die Gebaude und strassen der
-	 * Stadt werden nicht mit der Stadt gespeichert sondern mit den
+	 * Speichert die Daten der City in der Datei file so, dass daraus
+	 * die City wieder erzeugt werden kann. Die Gebaude und strassen der
+	 * City werden nicht mit der City gespeichert sondern mit den
 	 * Planquadraten auf denen sie stehen.
 	 * @see stadt_t::stadt_t()
 	 * @see planquadrat_t
@@ -670,7 +668,7 @@ private:
 public:
 
 	/**
-	 * Gibt die Gruendungsposition der Stadt zurueck.
+	 * Gibt die Gruendungsposition der City zurueck.
 	 * @return die Koordinaten des Gruendungsplanquadrates
 	 * "eturn the coordinates of the establishment grid square" (Babelfish)
 	 * @author Hj. Malthaner
@@ -688,8 +686,8 @@ public:
 
 	/**
 	 * Erzeugt ein Array zufaelliger Startkoordinaten,
-	 * die fuer eine Stadtgruendung geeignet sind.
-	 * @param wl Die Karte auf der die Stadt gegruendet werden soll.
+	 * die fuer eine Citygruendung geeignet sind.
+	 * @param wl Die Karte auf der die City gegruendet werden soll.
 	 * @param anzahl die Anzahl der zu liefernden Koordinaten
 	 * @author Hj. Malthaner
 	 * @param old_x, old_y: Generate no cities in (0,0) - (old_x, old_y)
@@ -697,7 +695,7 @@ public:
 	 */
 
 	static vector_tpl<koord> *random_place(const karte_t *wl, const vector_tpl<sint32> *sizes_list, sint16 old_x, sint16 old_y);
-	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
+	// geeigneten platz zur Citygruendung durch Zufall ermitteln
 
 	void show_info();
 

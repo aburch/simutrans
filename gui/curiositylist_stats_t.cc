@@ -22,8 +22,8 @@
 
 #include "../obj/gebaeude.h"
 
-#include "../besch/haus_besch.h"
-#include "../besch/skin_besch.h"
+#include "../descriptor/building_desc.h"
+#include "../descriptor/skin_desc.h"
 
 #include "../dataobj/translator.h"
 
@@ -57,8 +57,8 @@ class compare_curiosities
 				default: NOT_REACHED
 				case curiositylist::by_name:
 				{
-					const char* a_name = translator::translate(a->get_tile()->get_besch()->get_name());
-					const char* b_name = translator::translate(b->get_tile()->get_besch()->get_name());
+					const char* a_name = translator::translate(a->get_tile()->get_desc()->get_name());
+					const char* b_name = translator::translate(b->get_tile()->get_desc()->get_name());
 					cmp = STRICMP(a_name, b_name);
 					break;
 				}
@@ -184,13 +184,13 @@ void curiositylist_stats_t::draw(scr_coord offset)
 
 		// is connected? => decide on indicatorfarbe (indicator color)
 		int indicatorfarbe;
-		bool post=false;
+		bool mail=false;
 		bool pax=false;
 		bool all_crowded=true;
 		bool some_crowded=false;
 		const planquadrat_t *plan = welt->access(geb->get_pos().get_2d());
 		const nearby_halt_t *halt_list = plan->get_haltlist();
-		for(  unsigned h=0;  (post&pax)==0  &&  h<plan->get_haltlist_count();  h++ ) {
+		for(  unsigned h=0;  (mail&pax)==0  &&  h<plan->get_haltlist_count();  h++ ) {
 			halthandle_t halt = halt_list[h].halt;
 			if (halt->get_pax_enabled()) {
 				pax = true;
@@ -201,8 +201,8 @@ void curiositylist_stats_t::draw(scr_coord offset)
 					all_crowded = false;
 				}
 			}
-			if (halt->get_post_enabled()) {
-				post = true;
+			if (halt->get_mail_enabled()) {
+				mail = true;
 				if (halt->get_pax_unhappy() > 40) {
 					some_crowded |= true;
 				}
@@ -216,16 +216,16 @@ void curiositylist_stats_t::draw(scr_coord offset)
 			indicatorfarbe = all_crowded ? COL_RED : COL_ORANGE;
 		}
 		else if(pax) {
-			indicatorfarbe = post ? COL_TURQUOISE : COL_DARK_GREEN;
+			indicatorfarbe = mail ? COL_TURQUOISE : COL_DARK_GREEN;
 		}
 		else {
-			indicatorfarbe = post ? COL_BLUE : COL_YELLOW;
+			indicatorfarbe = mail ? COL_BLUE : COL_YELLOW;
 		}
 
 		display_fillbox_wh_clip(xoff+7, yoff+2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indicatorfarbe, true);
 
 		// the other infos
-		const unsigned char *name = (const unsigned char *)ltrim( translator::translate(geb->get_tile()->get_besch()->get_name()) );
+		const unsigned char *name = (const unsigned char *)ltrim( translator::translate(geb->get_tile()->get_desc()->get_name()) );
 		char short_name[256];
 		char* dst = short_name;
 		int    cr = 0;
@@ -249,8 +249,8 @@ void curiositylist_stats_t::draw(scr_coord offset)
 
 		display_proportional_clip(xoff+D_INDICATOR_WIDTH+10+9,yoff,buf,ALIGN_LEFT,SYSCOL_TEXT,true);
 
-		if (geb->get_tile()->get_besch()->get_extra() != 0) {
-		    display_color_img(skinverwaltung_t::intown->get_bild_nr(0), xoff+D_INDICATOR_WIDTH+9, yoff, 0, false, false);
+		if (geb->get_tile()->get_desc()->get_extra() != 0) {
+		    display_color_img(skinverwaltung_t::intown->get_image_id(0), xoff+D_INDICATOR_WIDTH+9, yoff, 0, false, false);
 		}
 		if(  win_get_magic( (ptrdiff_t)geb )  ) {
 			display_blend_wh( offset.x+D_POS_BUTTON_WIDTH+D_H_SPACE, yoff, size.w, LINESPACE, SYSCOL_TEXT, 25 );

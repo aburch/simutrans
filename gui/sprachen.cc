@@ -16,7 +16,7 @@
 #include "../pathes.h"
 #include "../display/simimg.h"
 #include "../simskin.h"
-#include "../besch/skin_besch.h"
+#include "../descriptor/skin_desc.h"
 #include "sprachen.h"
 
 #include "../display/font.h"
@@ -79,14 +79,14 @@ void sprachengui_t::init_font_from_lang()
 		p = "";
 		v = 1e99;
 	}
-	set_large_amout(p,v);
+	set_large_amount(p,v);
 }
 
 
 sprachengui_t::sprachengui_t() :
 	gui_frame_t( translator::translate("Sprachen") ),
 	text_label(&buf),
-	flags(skinverwaltung_t::flaggensymbol?skinverwaltung_t::flaggensymbol->get_bild_nr(0):IMG_EMPTY),
+	flags(skinverwaltung_t::flaggensymbol?skinverwaltung_t::flaggensymbol->get_image_id(0):IMG_EMPTY),
 	buttons(translator::get_language_count())
 {
 	// Coordinates are relative to parent (TITLEHEIGHT already subtracted)
@@ -103,10 +103,10 @@ sprachengui_t::sprachengui_t() :
 	add_component( &text_label );
 	cursor.y += text_label.get_size().h;
 
-	seperator.set_pos( cursor );
-	seperator.set_width( L_DIALOG_WIDTH-D_MARGINS_X-D_H_SPACE-flags.get_size().w );
-	add_component( &seperator );
-	cursor.y = max( seperator.get_pos().y + D_DIVIDER_HEIGHT, flags.get_pos().y + flags.get_size().h);
+	separator.set_pos( cursor );
+	separator.set_width( L_DIALOG_WIDTH-D_MARGINS_X-D_H_SPACE-flags.get_size().w );
+	add_component( &separator );
+	cursor.y = max( separator.get_pos().y + D_DIVIDER_HEIGHT, flags.get_pos().y + flags.get_size().h);
 
 	const translator::lang_info* lang = translator::get_langs();
 	for (int i = 0; i < translator::get_language_count(); ++i, ++lang) {

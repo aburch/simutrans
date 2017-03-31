@@ -12,7 +12,7 @@ The convoy information window lists the items (goods, passengers or mail) carrie
 Convoys are assembled and purchased from <a href="depot.txt">depots</a>, or by <a href="replace.txt">replacing</a> existing convoys. 
 </p>
 <p>
-Click on a convoy in the main game window with the <a href="inspection_tool.txt">inspection tool</a> or click on a convoy listed in the <a href="convoi.txt">cehicle list</a> or the <a href="linemanagement.txt">line management</a> window to open the <strong>convoy information</strong> window.<br>
+Click on a convoy in the main game window with the <a href="inspection_tool.txt">inspection tool</a> or click on a convoy listd in the <a href="convoi.txt">cehicle list</a> or the <a href="linemanagement.txt">line management</a> window to open the <strong>convoy information</strong> window.<br>
 The title bar of the <strong>convoy information</strong> window shows a unique ID number (in brackets) and the name of the convoy (by default, this is the name of the type of the first vehicle added to the convoy, but this can be changed).
 </p>
 <p>

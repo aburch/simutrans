@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include "../simtypes.h"
 #ifdef DEBUG_SIMRAND_CALLS
-#include "tpl/fixed_list_tpl.h"
+#include "../tpl/fixed_list_tpl.h"
 #endif
 
 uint32 get_random_seed();
@@ -36,7 +36,7 @@ uint32 simrand_plain();
 
 double perlin_noise_2D(const double x, const double y, const double persistence, const sint32 map_size = 512);
 
-// for netowrk debugging, i.e. finding hidden simrands in worng places
+// for network debugging, i.e. finding hidden simrands in wrong places
 enum { INTERACTIVE_RANDOM=1, STEP_RANDOM=2, SYNC_STEP_RANDOM=4, LOAD_RANDOM=8, MAP_CREATE_RANDOM=16 };
 void set_random_mode( uint16 );
 void clear_random_mode( uint16 );

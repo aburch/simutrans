@@ -39,8 +39,8 @@
 #include "../vehicle/simpeople.h"
 #include "../vehicle/movingobj.h"
 
-#include "../besch/haus_besch.h"
-#include "../besch/groundobj_besch.h"
+#include "../descriptor/building_desc.h"
+#include "../descriptor/groundobj_desc.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/freelist.h"
 #include "../dataobj/environment.h"
@@ -321,7 +321,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 			// driving on left side
 			if(direction<4) {	// north, northwest
 
-				if((direction&(~ribi_t::suedost))==0) {
+				if((direction&(~ribi_t::southeast))==0) {
 					// if we are going east we must be drawn as the first in east direction
 					intern_insert_at(new_obj, start);
 					return true;
@@ -329,7 +329,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 				else {
 					// we must be drawn before south or west (thus insert after)
 					for(uint8 i=start;  i<end;  i++  ) {
-						if((((const vehicle_t*)obj.some[i])->get_direction()&ribi_t::suedwest)!=0) {
+						if((((const vehicle_t*)obj.some[i])->get_direction()&ribi_t::southwest)!=0) {
 							intern_insert_at(new_obj, i);
 							return true;
 						}
@@ -342,12 +342,12 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 			}
 			else {
 				// going south, west or the rest
-				if((direction&(~ribi_t::suedost))==0) {
+				if((direction&(~ribi_t::southeast))==0) {
 					// if we are going south or southeast we must be drawn as the first in east direction (after north and northeast)
 					for(uint8 i=start;  i<end;  i++  ) {
 						if (obj_t const* const dt = obj.some[i]) {
 							if (vehicle_base_t const* const v = obj_cast<vehicle_base_t>(dt)) {
-								if ((v->get_direction() & ribi_t::suedwest) != 0) {
+								if ((v->get_direction() & ribi_t::southwest) != 0) {
 									intern_insert_at(new_obj, i);
 									return true;
 								}
@@ -364,11 +364,11 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 			// driving on right side
 			if(direction<4) {	// north, east, northeast
 
-				if((direction&(~ribi_t::suedost))==0) {
+				if((direction&(~ribi_t::southeast))==0) {
 
 					// if we are going east we must be drawn as the first in east direction (after north and northeast)
 					for(uint8 i=start;  i<end;  i++  ) {
-						if( (((const vehicle_t*)obj.some[i])->get_direction()&ribi_t::nordost)!=0) {
+						if( (((const vehicle_t*)obj.some[i])->get_direction()&ribi_t::northeast)!=0) {
 							intern_insert_at(new_obj, i);
 							return true;
 						}
@@ -383,7 +383,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 			else {
 				// going south, west or the rest
 
-				if((direction&(~ribi_t::suedost))==0) {
+				if((direction&(~ribi_t::southeast))==0) {
 					// going south or southeast, insert as first in this dirs
 					intern_insert_at(new_obj, start);
 					return true;
@@ -391,7 +391,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 				else {
 					for(uint8 i=start;  i<end;  i++  ) {
 						// west or northwest: append after all westwards
-						if((((const vehicle_t*)obj.some[i])->get_direction()&ribi_t::suedwest)==0) {
+						if((((const vehicle_t*)obj.some[i])->get_direction()&ribi_t::southwest)==0) {
 							intern_insert_at(new_obj, i);
 							return true;
 						}
@@ -410,7 +410,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 		// but all vehicles are of the same typ, since this is track/channel etc. ONLY!
 
 		// => much simpler to handle
-		if((((vehicle_t*)new_obj)->get_direction()&(~ribi_t::suedost))==0) {
+		if((((vehicle_t*)new_obj)->get_direction()&(~ribi_t::southeast))==0) {
 			// if we are going east or south, we must be drawn before (i.e. put first)
 			intern_insert_at(new_obj, start);
 			return true;
@@ -775,7 +775,7 @@ obj_t *objlist_t::get_convoi_vehicle() const
 	else {
 		for(  uint8 i=0;  i < top;  i++  ) {
 			uint8 typ = obj.some[i]->get_typ();
-			if(  typ >= obj_t::automobil  &&  typ <= obj_t::air_vehicle  ) {
+			if(  typ >= obj_t::road_vehicle  &&  typ <= obj_t::air_vehicle  ) {
 				return obj.some[i];
 			}
 		}
@@ -827,7 +827,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::wayobj:
 				{
 					wayobj_t* const wo = new wayobj_t(file);
-					if (wo->get_besch() == NULL) {
+					if (wo->get_desc() == NULL) {
 						// ignore missing wayobjs
 						wo->set_flag(obj_t::not_on_map);
 						delete wo;
@@ -845,7 +845,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::pedestrian:
 				{
 					pedestrian_t* const pedestrian = new pedestrian_t(file);
-					if (pedestrian->get_besch() == NULL) {
+					if (pedestrian->get_desc() == NULL) {
 						// no pedestrians ... delete this
 						pedestrian->set_flag(obj_t::not_on_map);
 						delete pedestrian;
@@ -862,7 +862,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::road_user:
 				{
 					private_car_t* const car = new private_car_t(file);
-					if (car->get_besch() == NULL) {
+					if (car->get_desc() == NULL) {
 						// no citycars ... delete this
 						car->set_flag(obj_t::not_on_map);
 						delete car;
@@ -906,9 +906,9 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 					// for compatibility reasons we may have to convert them to tram and monorail depots
 					bahndepot_t*                   bd;
 					gebaeude_t                     gb(file);
-					haus_tile_besch_t const* const tile = gb.get_tile();
+					building_tile_desc_t const* const tile = gb.get_tile();
 					if(  tile  ) {
-						switch (tile->get_besch()->get_extra()) {
+						switch (tile->get_desc()->get_extra()) {
 							case monorail_wt: bd = new monoraildepot_t( gb.get_pos(), gb.get_owner(), tile); break;
 							case tram_wt:     bd = new tramdepot_t(     gb.get_pos(), gb.get_owner(), tile); break;
 							default:          bd = new bahndepot_t(     gb.get_pos(), gb.get_owner(), tile); break;
@@ -935,7 +935,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::pillar:
 				{
 					pillar_t *p = new pillar_t(file);
-					if(p->get_besch()!=NULL  &&  p->get_besch()->get_pillar()!=0) {
+					if(p->get_desc()!=NULL  &&  p->get_desc()->get_pillar()!=0) {
 						new_obj = p;
 					}
 					else {
@@ -950,10 +950,10 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::baum:
 				{
 					baum_t *b = new baum_t(file);
-					if(  !b->get_besch()  ) {
+					if(  !b->get_desc()  ) {
 						// is there a replacement possible
-						if(  const baum_besch_t *besch = baum_t::random_tree_for_climate( world()->get_climate_at_height(current_pos.z) )  ) {
-							b->set_besch( besch );
+						if(  const tree_desc_t *desc = baum_t::random_tree_for_climate( world()->get_climate_at_height(current_pos.z) )  ) {
+							b->set_desc( desc );
 						}
 						else {
 							// do not remove from map on this position, since there will be nothing
@@ -971,10 +971,10 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::groundobj:
 				{
 					groundobj_t* const groundobj = new groundobj_t(file);
-					if(groundobj->get_besch() == NULL) {
+					if(groundobj->get_desc() == NULL) {
 						// do not remove from this position, since there will be nothing
 						groundobj->set_flag(obj_t::not_on_map);
-						// not use cleanup, since it would try to lookup besch
+						// not use cleanup, since it would try to lookup desc
 						delete groundobj;
 					}
 					else {
@@ -986,7 +986,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::movingobj:
 				{
 					movingobj_t* const movingobj = new movingobj_t(file);
-					if (movingobj->get_besch() == NULL) {
+					if (movingobj->get_desc() == NULL) {
 						// no citycars ... delete this
 						movingobj->set_flag(obj_t::not_on_map);
 						delete movingobj;
@@ -1017,7 +1017,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				case obj_t::roadsign:
 				{
 					roadsign_t *rs = new roadsign_t(file);
-					if(rs->get_besch()==NULL) {
+					if(rs->get_desc()==NULL) {
 						// roadsign_t without description => ignore
 						rs->set_flag(obj_t::not_on_map);
 						delete rs;
@@ -1242,10 +1242,10 @@ inline bool local_display_obj_vh(const obj_t *draw_obj, const sint16 xpos, const
 	air_vehicle_t      const*       a;
 	if(  v  &&  (ontile  ||  !(a = obj_cast<air_vehicle_t>(v))  ||  a->is_on_ground())  ) {
 		const ribi_t::ribi veh_ribi = v->get_direction();
-		if(  ontile  ||  (veh_ribi & ribi) == ribi  ||  (ribi_t::rueckwaerts(veh_ribi) & ribi )== ribi  ||  draw_obj->get_typ() == obj_t::air_vehicle  ) {
+		if(  ontile  ||  (veh_ribi & ribi) == ribi  ||  (ribi_t::backward(veh_ribi) & ribi )== ribi  ||  draw_obj->get_typ() == obj_t::air_vehicle  ) {
 			// activate clipping only for our direction masked by the ribi argument
 			// use non-convex clipping (16) only if we are on the currently drawn tile or its n/w neighbours
-			activate_ribi_clip( ((veh_ribi|ribi_t::rueckwaerts(veh_ribi))&ribi) | (ontile  ||  ribi == ribi_t::nord  ||  ribi == ribi_t::west ? 16 : 0)  CLIP_NUM_PAR);
+			activate_ribi_clip( ((veh_ribi|ribi_t::backward(veh_ribi))&ribi) | (ontile  ||  ribi == ribi_t::north  ||  ribi == ribi_t::west ? 16 : 0)  CLIP_NUM_PAR);
 			draw_obj->display( xpos, ypos  CLIP_NUM_PAR);
 		}
 		return true;
@@ -1265,7 +1265,7 @@ uint8 objlist_t::display_obj_vh( const sint16 xpos, const sint16 ypos, const uin
 
 	if(  capacity <= 1  ) {
 		uint8 i = local_display_obj_vh( obj.one, xpos, ypos, ribi, ontile  CLIP_NUM_PAR);
-		activate_ribi_clip( ribi_t::alle  CLIP_NUM_PAR);
+		activate_ribi_clip( ribi_t::all  CLIP_NUM_PAR);
 		return i;
 	}
 
@@ -1278,7 +1278,7 @@ uint8 objlist_t::display_obj_vh( const sint16 xpos, const sint16 ypos, const uin
 			break;
 		}
 	}
-	activate_ribi_clip( ribi_t::alle  CLIP_NUM_PAR);
+	activate_ribi_clip( ribi_t::all  CLIP_NUM_PAR);
 	return nr_v+1;
 }
 

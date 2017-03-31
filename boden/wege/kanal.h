@@ -6,7 +6,7 @@
 #include "../../utils/cbuffer_t.h"
 
 /**
- * Am Dock können Schiffe anlegen
+ * Ships can be created on docks
  *
  * @author Hj. Malthaner
  */
@@ -14,7 +14,7 @@ class kanal_t : public weg_t
 {
 
 public:
-	static const weg_besch_t *default_kanal;
+	static const way_desc_t *default_kanal;
 
 	kanal_t(loadsave_t *file);
 	kanal_t();

@@ -7,7 +7,7 @@
 </p>
 <p>
 To Use: Click red-cross-icon (<it>bulldozer-icon</it> in pak128) at top of the main game window or press <a href="keys.txt">[a]</a> to open <strong>Removal Tool</strong> (changes cursor to a red-cross-over-dust-cloud).<br>
-Position cursor in game view, a yellow outline indicates position on which Tool will operate (map cordinates are indicated in bottom-bar). Then click on item in the main game window to remove.
+Position cursor in game view, a yellow outline indicates position on which Tool will operate (map coordinates are indicated in bottom-bar). Then click on item in the main game window to remove.
 </p>
 <p>
 Cost incurred displayed in the main game window and appears as under <a href="finances.txt">Construction site</a>. The cost of removal is equivalent to cost of construction for player items.<br>

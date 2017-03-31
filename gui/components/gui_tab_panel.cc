@@ -17,7 +17,7 @@
 #include "../../simcolor.h"
 #include "../../gui/simwin.h"
 
-#include "../../besch/skin_besch.h"
+#include "../../descriptor/skin_desc.h"
 
 #define IMG_WIDTH 20
 
@@ -37,9 +37,9 @@ gui_tab_panel_t::gui_tab_panel_t() :
 
 
 
-void gui_tab_panel_t::add_tab(gui_component_t *c, const char *name, const skin_besch_t *besch, const char *tooltip )
+void gui_tab_panel_t::add_tab(gui_component_t *c, const char *name, const skin_desc_t *desc, const char *tooltip )
 {
-	tabs.append( tab(c, besch?NULL:name, besch?besch->get_image(0):NULL, tooltip) );
+	tabs.append( tab(c, desc?NULL:name, desc?desc->get_image(0):NULL, tooltip) );
 	set_size( get_size() );
 }
 
@@ -189,7 +189,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 				else {
 					scr_coord_val const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
 					scr_coord_val const x = text_x - iter.img->get_pic()->x + IMG_WIDTH / 2 - iter.img->get_pic()->w / 2;
-					display_img_blend(iter.img->get_nummer(), x, y, TRANSPARENT50_FLAG, false, true);
+					display_img_blend(iter.img->get_id(), x, y, TRANSPARENT50_FLAG, false, true);
 				}
 			}
 			else {
@@ -205,7 +205,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 				else {
 					scr_coord_val const y = ypos   - iter.img->get_pic()->y + 10            - iter.img->get_pic()->h / 2;
 					scr_coord_val const x = text_x - iter.img->get_pic()->x + IMG_WIDTH / 2 - iter.img->get_pic()->w / 2;
-					display_color_img(iter.img->get_nummer(), x, y, 0, false, true);
+					display_color_img(iter.img->get_id(), x, y, 0, false, true);
 				}
 			}
 			text_x += width + 8;
@@ -216,10 +216,10 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 	display_fillbox_wh_clip(text_x-4, ypos+D_TAB_HEADER_HEIGHT-1, xpos+size.w-(text_x-4), 1, SYSCOL_HIGHLIGHT, true);
 
 	// now for tooltips ...
-	int my = get_maus_y()-parent_pos.y-pos.y-6;
+	int my = get_mouse_y()-parent_pos.y-pos.y-6;
 	if(my>=0  &&  my < D_TAB_HEADER_HEIGHT-1) {
 		// Reiter getroffen?
-		int mx = get_maus_x()-parent_pos.x-pos.x-11;
+		int mx = get_mouse_x()-parent_pos.x-pos.x-11;
 		int text_x = 4;
 		int i=0;
 		FORX(slist_tpl<tab>, const& iter, tabs, ++i) {
@@ -229,7 +229,7 @@ void gui_tab_panel_t::draw(scr_coord parent_pos)
 
 				if(text_x < mx && text_x+width+8 > mx  && (required_size.w<=get_size().w || mx < right.get_pos().x-12)) {
 					// tooltip or change
-					win_set_tooltip(get_maus_x() + 16, ypos + D_TAB_HEADER_HEIGHT + 12, iter.tooltip, &iter, this);
+					win_set_tooltip(get_mouse_x() + 16, ypos + D_TAB_HEADER_HEIGHT + 12, iter.tooltip, &iter, this);
 					break;
 				}
 

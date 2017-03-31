@@ -14,7 +14,7 @@
 #include <string.h>
 #include "macros.h"
 #include "music/music.h"
-#include "besch/sound_besch.h"
+#include "descriptor/sound_desc.h"
 #include "sound/sound.h"
 #include "simsound.h"
 #include "simsys.h"
@@ -48,7 +48,7 @@ static int current_midi = -1;  // Hajo: init with error condition,
 
 
 /**
- * setzt lautstärke für alle effekte
+ * setzt lautstärke für all effekte
  * @author Hj. Malthaner
  */
 void sound_set_global_volume(int volume)
@@ -58,7 +58,7 @@ void sound_set_global_volume(int volume)
 
 
 /**
- * ermittelt lautstaärke für alle effekte
+ * ermittelt lautstaärke für all effekte
  * @author Hj. Malthaner
  */
 int sound_get_global_volume()
@@ -143,7 +143,7 @@ const char *sound_get_midi_title(int index)
 
 
 /**
- * gets curent midi number
+ * gets current midi number
  * @author Hj. Malthaner
  */
 int get_current_midi()

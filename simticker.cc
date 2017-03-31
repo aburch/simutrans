@@ -161,7 +161,7 @@ void ticker::redraw_ticker()
 		const int start_y=display_get_height()-TICKER_YPOS_BOTTOM;
 		const int width = display_get_width();
 
-		// just draw the ticker grey ... (to be sure ... )
+		// just draw the ticker in its colour ... (to be sure ... )
 		display_fillbox_wh(0, start_y, width, 1, SYSCOL_TICKER_DIVIDER, true);
 		display_fillbox_wh(0, start_y+1, width, TICKER_HEIGHT-1, SYSCOL_TICKER_BACKGROUND, true);
 		FOR(slist_tpl<node>, & n, list) {

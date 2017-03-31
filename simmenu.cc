@@ -26,7 +26,7 @@
 #include "bauer/brueckenbauer.h"
 #include "bauer/tunnelbauer.h"
 
-#include "besch/haus_besch.h"
+#include "descriptor/building_desc.h"
 
 #include "boden/grund.h"
 #include "boden/wege/strasse.h"
@@ -46,7 +46,7 @@
 
 karte_ptr_t tool_t::welt;
 
-// for key loockup; is always sorted during the game
+// for key lookup; is always sorted during the game
 vector_tpl<tool_t *>tool_t::char_to_tool(0);
 
 // here are the default values, icons, cursor, sound definitions ...
@@ -90,13 +90,13 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_ADD_CITY:         tool = new tool_add_city_t(); break;
 		case TOOL_CHANGE_CITY_SIZE: tool = new tool_change_city_size_t(); break;
 		case TOOL_PLANT_TREE:       tool = new tool_plant_tree_t(); break;
-		case TOOL_SCHEDULE_ADD:     tool = new tool_fahrplan_add_t(); break;
-		case TOOL_SCHEDULE_INS:     tool = new tool_fahrplan_ins_t(); break;
+		case TOOL_SCHEDULE_ADD:     tool = new tool_schedule_add_t(); break;
+		case TOOL_SCHEDULE_INS:     tool = new tool_schedule_ins_t(); break;
 		case TOOL_BUILD_WAY:          tool = new tool_build_way_t(); break;
 		case TOOL_BUILD_BRIDGE:      tool = new tool_build_bridge_t(); break;
 		case TOOL_BUILD_TUNNEL:        tool = new tool_build_tunnel_t(); break;
 		case TOOL_WAYREMOVER:       tool = new tool_wayremover_t(); break;
-		case TOOL_BUILD_WAYOBJ:           tool = new tool_wayobj_t(); break;
+		case TOOL_BUILD_WAYOBJ:           tool = new tool_build_wayobj_t(); break;
 		case TOOL_BUILD_STATION:          tool = new tool_build_station_t(); break;
 		case TOOL_BUILD_ROADSIGN:         tool = new tool_build_roadsign_t(); break;
 		case TOOL_BUILD_DEPOT:            tool = new tool_depot_t(); break;
@@ -168,7 +168,7 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_TOGGLE_RESERVATION:tool = new tool_toggle_reservation_t(); break;
 		case TOOL_VIEW_OWNER:        tool = new tool_view_owner_t(); break;
 		case TOOL_HIDE_UNDER_CURSOR: tool = new tool_hide_under_cursor_t(); break;
-		// Experimental non-UI tools - should be at the end.
+		// Extended non-UI tools - should be at the end.
 		case TOOL_RECOLOUR_TOOL:		tool = new tool_recolour_t(); break;
 		case TOOL_ACCESS_TOOL:		tool = new tool_access_t(); break;
 		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
@@ -326,7 +326,7 @@ void tool_t::read_menu(const std::string &objfilename)
 {
 	char_to_tool.clear();
 	tabfile_t menuconf;
-	// only use pak sepcific menues, since otherwise images may missing
+	// only use pak specific menus, since otherwise  images may be missing
 	if (!menuconf.open((objfilename+"config/menuconf.tab").c_str())) {
 		dbg->fatal("tool_t::init_menu()", "Can't read %sconfig/menuconf.tab", objfilename.c_str() );
 	}
@@ -339,8 +339,8 @@ void tool_t::read_menu(const std::string &objfilename)
 		const char* type;
 		uint16 count;
 		vector_tpl<tool_t *> &tools;
-		const skin_besch_t *icons;
-		const skin_besch_t *cursor;
+		const skin_desc_t *icons;
+		const skin_desc_t *cursor;
 		bool with_sound;
 
 	};
@@ -377,14 +377,14 @@ void tool_t::read_menu(const std::string &objfilename)
 					while(  str[i]!=0  &&  str[i]!=','  ) {
 						i++;
 					}
-					const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
-					tool->icon = s ? s->get_bild_nr(0) : IMG_EMPTY;
+					const skin_desc_t *s=skinverwaltung_t::get_extra(str,i-1);
+					tool->icon = s ? s->get_image_id(0) : IMG_EMPTY;
 				}
 				else {
-					if(  icon>=info[t].icons->get_bild_anzahl()  ) {
+					if(  icon>=info[t].icons->get_count()  ) {
 						dbg->warning( "tool_t::init_menu()", "wrong icon (%i) given for %s[%i]", icon, info[t].type, i );
 					}
-					tool->icon = info[t].icons->get_bild_nr(icon);
+					tool->icon = info[t].icons->get_image_id(icon);
 				}
 				do {
 					str++;
@@ -396,10 +396,10 @@ void tool_t::read_menu(const std::string &objfilename)
 					str++;
 					if(*str!=',') {
 						uint16 cursor = (uint16)atoi(str);
-						if(  cursor>=info[t].cursor->get_bild_anzahl()  ) {
+						if(  cursor>=info[t].cursor->get_count()  ) {
 							dbg->warning( "tool_t::init_menu()", "wrong cursor (%i) given for %s[%i]", cursor, info[t].type, i );
 						}
-						tool->cursor = info[t].cursor->get_bild_nr(cursor);
+						tool->cursor = info[t].cursor->get_image_id(cursor);
 						do {
 							str++;
 						} while(*str  &&  *str!=',');
@@ -413,7 +413,7 @@ void tool_t::read_menu(const std::string &objfilename)
 					if(*str!=',') {
 						int sound = atoi(str);
 						if(  sound>0  ) {
-							tool->ok_sound = sound_besch_t::get_compatible_sound_id(sound);
+							tool->ok_sound = sound_desc_t::get_compatible_sound_id(sound);
 						}
 						do {
 							str++;
@@ -439,7 +439,7 @@ void tool_t::read_menu(const std::string &objfilename)
 	// default size
 //	env_t::iconsize = scr_size( contents.get_int("icon_width",env_t::iconsize.w), contents.get_int("icon_height",env_t::iconsize.h) );
 	// first: add main menu
-	toolbar_tool.resize( skinverwaltung_t::tool_icons_toolbars->get_bild_anzahl() );
+	toolbar_tool.resize( skinverwaltung_t::tool_icons_toolbars->get_count() );
 	toolbar_tool.append(new toolbar_t(TOOLBAR_TOOL, "", ""));
 	// now for the rest
 	for(  uint16 i=0;  i<toolbar_tool.get_count();  i++  ) {
@@ -494,15 +494,15 @@ void tool_t::read_menu(const std::string &objfilename)
 						while(  str[i]!=0  &&  str[i]!=','  ) {
 							i++;
 						}
-						const skin_besch_t *s=skinverwaltung_t::get_extra(str,i-1);
-						icon = s ? s->get_bild_nr(0) : IMG_EMPTY;
+						const skin_desc_t *s=skinverwaltung_t::get_extra(str,i-1);
+						icon = s ? s->get_image_id(0) : IMG_EMPTY;
 					}
 					else {
-						if(  icon>=skinverwaltung_t::tool_icons_toolbars->get_bild_anzahl()  ) {
+						if(  icon>=skinverwaltung_t::tool_icons_toolbars->get_count()  ) {
 							dbg->warning( "tool_t::read_menu()", "wrong icon (%i) given for toolbar_tool[%i][%i]", icon, i, j );
 							icon = 0;
 						}
-						icon = skinverwaltung_t::tool_icons_toolbars->get_bild_nr(icon);
+						icon = skinverwaltung_t::tool_icons_toolbars->get_image_id(icon);
 					}
 					while(*str  &&  *str!=',') {
 						str++;
@@ -682,7 +682,7 @@ bool tool_t::check_valid_pos(koord k ) const
  */
 void tool_t::init_cursor( zeiger_t *zeiger) const
 {
-	zeiger->set_bild( cursor );
+	zeiger->set_image( cursor );
 	zeiger->set_yoff( offset );
 	zeiger->set_area( cursor_area, cursor_centered, cursor_offset);
 }
@@ -758,14 +758,14 @@ void toolbar_t::update(player_t *player)
 					while(*c  &&  *c!=','  &&  *c!=')') {
 						c++;
 					}
-					weg_t::system_type subtype = (weg_t::system_type)(*c!=0 ? atoi(++c) : 0);
-					wegbauer_t::fill_menu( tool_selector, way, subtype, get_sound(c));
+					systemtype_t subtype = (systemtype_t)(*c!=0 ? atoi(++c) : 0);
+					way_builder_t::fill_menu( tool_selector, way, subtype, get_sound(c));
 				} else if (char const* const c = strstart(param, "bridges(")) {
 					waytype_t const way = (waytype_t)atoi(c);
-					brueckenbauer_t::fill_menu(tool_selector, way, get_sound(c));
+					bridge_builder_t::fill_menu(tool_selector, way, get_sound(c));
 				} else if (char const* const c = strstart(param, "tunnels(")) {
 					waytype_t const way = (waytype_t)atoi(c);
-					tunnelbauer_t::fill_menu(tool_selector, way, get_sound(c));
+					tunnel_builder_t::fill_menu(tool_selector, way, get_sound(c));
 				} else if (char const* const c = strstart(param, "signs(")) {
 					waytype_t const way = (waytype_t)atoi(c);
 					roadsign_t::fill_menu(tool_selector, way, get_sound(c));
@@ -773,14 +773,14 @@ void toolbar_t::update(player_t *player)
 					waytype_t const way = (waytype_t)atoi(c);
 					wayobj_t::fill_menu(tool_selector, way, get_sound(c));
 				} else if (char const* c = strstart(param, "buildings(")) {
-					haus_besch_t::utyp const utype = (haus_besch_t::utyp)atoi(c);
+					building_desc_t::btype const utype = (building_desc_t::btype)atoi(c);
 					while(*c  &&  *c!=','  &&  *c!=')') {
 						c++;
 					}
 					waytype_t way = (waytype_t)(*c!=0 ? atoi(++c) : 0);
 					hausbauer_t::fill_menu( tool_selector, utype, way, get_sound(c));
 				} else if (param[0] == '-') {
-					// add dummy werkzeug as seperator
+					// add dummy werkzeug as separator
 					tool_selector->add_tool_selector( dummy );
 				}
 			}
@@ -803,7 +803,7 @@ void toolbar_t::update(player_t *player)
 		}
 	}
 
-	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  player!=welt->get_player(1))  ) {
+	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  player!=welt->get_public_player())  ) {
 		destroy_win(tool_selector);
 		return;
 	}
@@ -815,7 +815,7 @@ void toolbar_t::update(player_t *player)
 bool toolbar_t::init(player_t *player)
 {
 	update( player );
-	bool close = (strcmp(this->default_param,"EDITTOOLS")==0  &&  player!=welt->get_player(1));
+	bool close = (strcmp(this->default_param,"EDITTOOLS")==0  &&  player!=welt->get_public_player());
 
 	// show/create window
 	if(  close  ) {
@@ -988,7 +988,7 @@ void two_click_tool_t::start_at(koord3d &new_start )
 	if (is_local_execution()) {
 		welt->show_distance = new_start;
 		start_marker = new zeiger_t(start, NULL);
-		start_marker->set_bild( get_marker_image() );
+		start_marker->set_image( get_marker_image() );
 		grund_t *gr = welt->lookup( start );
 		if( gr ) {
 			gr->obj_add(start_marker);
@@ -1028,5 +1028,5 @@ void two_click_tool_t::cleanup( bool delete_start_marker )
 
 image_id two_click_tool_t::get_marker_image()
 {
-	return skinverwaltung_t::bauigelsymbol->get_bild_nr(0);
+	return skinverwaltung_t::bauigelsymbol->get_image_id(0);
 }

@@ -25,8 +25,8 @@
 #include "../simconvoi.h"
 #include "../gui/simwin.h"
 #include "../simworld.h"
-#include "../besch/ware_besch.h"
-#include "../bauer/warenbauer.h"
+#include "../descriptor/goods_desc.h"
+#include "../bauer/goods_manager.h"
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
 #include "../utils/simstring.h"
@@ -62,14 +62,14 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 	vehicle_t const* const tdriver = cnv->front();
 	if(  get_filter(convoi_filter_frame_t::typ_filter)  ) {
 		switch(tdriver->get_typ()) {
-			case obj_t::automobil:
+			case obj_t::road_vehicle:
 				if(!get_filter(convoi_filter_frame_t::lkws_filter)) {
 					return false;
 				}
 				break;
 			case obj_t::rail_vehicle:
 				// filter trams: a convoi is considered tram if the first vehicle is a tram vehicle
-				if(tdriver->get_besch()->get_waytype()==tram_wt) {
+				if(tdriver->get_desc()->get_waytype()==tram_wt) {
 					if (!get_filter(convoi_filter_frame_t::tram_filter)) {
 						return false;
 					}
@@ -88,17 +88,17 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 					return false;
 				}
 				break;
-			case obj_t::monorailwaggon:
+			case obj_t::monorail_vehicle:
 				if(!get_filter(convoi_filter_frame_t::monorail_filter)) {
 					return false;
 				}
 				break;
-			case obj_t::maglevwaggon:
+			case obj_t::maglev_vehicle:
 				if(!get_filter(convoi_filter_frame_t::maglev_filter)) {
 					return false;
 				}
 				break;
-			case obj_t::narrowgaugewaggon:
+			case obj_t::narrowgauge_vehicle:
 				if(!get_filter(convoi_filter_frame_t::narrowgauge_filter)) {
 					return false;
 				}
@@ -123,16 +123,16 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 
 	if(  get_filter(convoi_filter_frame_t::ware_filter)  ) {
 		unsigned i;
-		for(  i = 0; i < cnv->get_vehikel_anzahl(); i++) {
-			const ware_besch_t *wb = cnv->get_vehikel(i)->get_cargo_type();
+		for(  i = 0; i < cnv->get_vehicle_count(); i++) {
+			const goods_desc_t *wb = cnv->get_vehicle(i)->get_cargo_type();
 			if(  wb->get_catg()!=0  ) {
-				wb = warenbauer_t::get_info_catg(wb->get_catg());
+				wb = goods_manager_t::get_info_catg(wb->get_catg());
 			}
 			if(  waren_filter->is_contained(wb)  ) {
 				return true;
 			}
 		}
-		if(  i == cnv->get_vehikel_anzahl()  ) {
+		if(  i == cnv->get_vehicle_count()  ) {
 			return false;
 		}
 	}
@@ -153,7 +153,7 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 			result = sgn(cnv1->get_jahresgewinn() - cnv2->get_jahresgewinn());
 			break;
 		case nach_typ:
-			if(cnv1->get_vehikel_anzahl()*cnv2->get_vehikel_anzahl()>0) {
+			if(cnv1->get_vehicle_count()*cnv2->get_vehicle_count()>0) {
 				vehicle_t const* const tdriver1 = cnv1->front();
 				vehicle_t const* const tdriver2 = cnv2->front();
 
@@ -196,7 +196,7 @@ void convoi_frame_t::sort_list()
 }
 
 
-void convoi_frame_t::sort_list( char *name, uint32 filter, const slist_tpl<const ware_besch_t *> *wares )
+void convoi_frame_t::sort_list( char *name, uint32 filter, const slist_tpl<const goods_desc_t *> *wares )
 {
 	name_filter = name;
 	waren_filter = wares;

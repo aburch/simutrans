@@ -14,11 +14,10 @@
 #include "../simskin.h"
 #include "../player/simplay.h"
 
-#include "../obj/gebaeude.h"
 #include "../obj/label.h"
 
-#include "../besch/haus_besch.h"
-#include "../besch/skin_besch.h"
+#include "../descriptor/building_desc.h"
+#include "../descriptor/skin_desc.h"
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"

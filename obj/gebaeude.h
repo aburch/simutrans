@@ -12,7 +12,7 @@
 #include "../simobj.h"
 #include "../simcolor.h"
 
-class haus_tile_besch_t;
+class building_tile_desc_t;
 class fabrik_t;
 class stadt_t;
 
@@ -22,17 +22,8 @@ class stadt_t;
  */
 class gebaeude_t : public obj_t, sync_steppable
 {
-public:
-	/**
-	 * Vom typ "unbekannt" sind auch spezielle gebaeude z.B. das Rathaus
-	 * "Of type "unknown" are also special gebaeude eg City Hall" (Google)
-	 * residential, commercial, industrial, unknown
-	 * @author Hj. Malthaner
-	 */
-	enum typ {wohnung, gewerbe, industrie, unbekannt};
-
 private:
-	const haus_tile_besch_t *tile;
+	const building_tile_desc_t *tile;
 
 	
 
@@ -164,29 +155,27 @@ private:
 #ifdef INLINE_OBJ_TYPE
 protected:
 	gebaeude_t(obj_t::typ type);
-	gebaeude_t(obj_t::typ type, koord3d pos,player_t *player, const haus_tile_besch_t *t);
-	void init(player_t *player, const haus_tile_besch_t *t);
+	gebaeude_t(obj_t::typ type, koord3d pos,player_t *player, const building_tile_desc_t *t);
+	void init(player_t *player, const building_tile_desc_t *t);
 
 public:
 	gebaeude_t(loadsave_t *file);
-	gebaeude_t(koord3d pos,player_t *player, const haus_tile_besch_t *t);
+	gebaeude_t(koord3d pos,player_t *player, const building_tile_desc_t *t);
 #else
 protected:
 	gebaeude_t();
 
 public:
 	gebaeude_t(loadsave_t *file);
-	gebaeude_t(koord3d pos,player_t *player, const haus_tile_besch_t *t);
+	gebaeude_t(koord3d pos,player_t *player, const building_tile_desc_t *t);
 #endif
 	virtual ~gebaeude_t();
 
 	void rotate90();
 
-	typ get_haustyp() const;
-
 	void add_alter(sint64 a);
 
-	void set_fab(fabrik_t *fb);
+	void set_fab(fabrik_t *fd);
 	void set_stadt(stadt_t *s);
 
 	/**
@@ -238,19 +227,15 @@ public:
 
 	void get_description(cbuffer_t & buf) const;
 
-	/**
-	* Town hall
-	*/
-	bool ist_rathaus() const;
+	bool is_townhall() const;
 
-	/**
-	* "Head office" (Google)
-	*/
-	bool ist_firmensitz() const;
+	bool is_headquarter() const;
 
 	bool is_monument() const;
 
 	bool is_attraction() const;
+
+	bool is_city_building() const;
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
@@ -267,9 +252,9 @@ public:
 	 */
 	sync_result sync_step(uint32 delta_t);
 
-	void set_tile( const haus_tile_besch_t *t, bool start_with_construction );
+	void set_tile( const building_tile_desc_t *t, bool start_with_construction );
 
-	const haus_tile_besch_t *get_tile() const { return tile; }
+	const building_tile_desc_t *get_tile() const { return tile; }
 
 	virtual void show_info();
 
@@ -277,10 +262,15 @@ public:
 
 	void finish_rd();
 
+	// currently animated
+	bool is_sync() const { return sync; }
+
 	/**
 	 * @returns pointer to first tile of a multi-tile building.
 	 */
-	gebaeude_t* get_first_tile() const;
+	const gebaeude_t* get_first_tile() const;
+
+	gebaeude_t* access_first_tile();
 
 	void add_passengers_generated_commuting(uint16 number) { passengers_generated_commuting += number; }
 	void add_passengers_succeeded_commuting(uint16 number) { passengers_succeeded_commuting += number; }

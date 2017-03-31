@@ -32,9 +32,9 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 	// if w1 and w2 differ, they are sorted according to catg_index and index
 	// we sort with respect to catg_indexfirst, since freights with the same category
 	// will be displayed together
-	int idx = w1.get_besch()->get_catg_index() - w2.get_besch()->get_catg_index();
+	int idx = w1.get_desc()->get_catg_index() - w2.get_desc()->get_catg_index();
 	if(  idx == 0  ) {
-		idx = w1.get_besch()->get_index() - w2.get_besch()->get_index();
+		idx = w1.get_desc()->get_index() - w2.get_desc()->get_index();
 	}
 	if(  idx != 0  ) {
 		return idx < 0;
@@ -116,8 +116,8 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 			{
 				const fabrik_t *fab = NULL;
 				// TODO -oBG, 29.12.2013: optimize:
-				const char *const name1 = (fabrik_t::get_fab(w1.get_zielpos()) && sortby != by_origin ? ((fab = fabrik_t::get_fab(w1.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : translator::translate(gb1->get_tile()->get_besch()->get_name()));
-				const char *const name2 = (fabrik_t::get_fab(w2.get_zielpos()) && sortby != by_origin ? ((fab = fabrik_t::get_fab(w2.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : translator::translate(gb2->get_tile()->get_besch()->get_name()));
+				const char *const name1 = (fabrik_t::get_fab(w1.get_zielpos()) && sortby != by_origin ? ((fab = fabrik_t::get_fab(w1.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : translator::translate(gb1->get_tile()->get_desc()->get_name()));
+				const char *const name2 = (fabrik_t::get_fab(w2.get_zielpos()) && sortby != by_origin ? ((fab = fabrik_t::get_fab(w2.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : translator::translate(gb2->get_tile()->get_desc()->get_name()));
 				return strcmp(name1, name2) < 0;
 			}
 			if(gb1) 
@@ -146,7 +146,7 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 		// convois
 		buf.printf("/%u", max);
 	}
-	ware_besch_t const& desc = *ware->get_besch();
+	goods_desc_t const& desc = *ware->get_desc();
 	char const*  const  name = translator::translate(ware->get_catg() != 0 ? desc.get_catg_name() : desc.get_name());
 	char const*  const  what = translator::translate(what_doing);
 	// Ensure consistent spacing
@@ -189,7 +189,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 
 
 	FOR(vector_tpl<ware_t>, const& ware, warray) {
-		if(  ware.get_besch() == warenbauer_t::nichts  ||  ware.menge == 0  ) {
+		if(  ware.get_desc() == goods_manager_t::none  ||  ware.menge == 0  ) {
 			continue;
 		}
 		wlist[pos] = ware;
@@ -269,8 +269,8 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		// sort the ware's list
 		std::sort( wlist, wlist + pos, compare_ware );
 
-		// print the ware's list to buffer - it should be in sortorder by now!
-		int last_ware_index = -1;
+		// print the ware's list to buffer - it should be in sort order by now!
+		int last_goods_index = -1;
 		int last_ware_catg = -1;
 
 		for(  int j = 0;  j < pos;  j++  ) {
@@ -284,13 +284,13 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			}
 
 			ware_t const& ware = wlist[j];
-			if(  last_ware_index!=ware.get_index()  &&  last_ware_catg!=ware.get_catg()  ) {
+			if(  last_goods_index!=ware.get_index()  &&  last_ware_catg!=ware.get_catg()  ) {
 				sint32 sum = 0;
-				last_ware_index = ware.get_index();
+				last_goods_index = ware.get_index();
 				last_ware_catg = (ware.get_catg()!=0) ? ware.get_catg() : -1;
 				for(  int i=j;  i<pos;  i++  ) {
 					ware_t const& sumware = wlist[i];
-					if(  last_ware_index != sumware.get_index()  ) {
+					if(  last_goods_index != sumware.get_index()  ) {
 						if(  last_ware_catg != sumware.get_catg()  ) {
 							break;	// next category reached ...
 						}
@@ -309,7 +309,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					// ok, we have a list of freights
 					while(  full_i != full_end  ) {
 						ware_t const& current = *full_i++;
-						if(  last_ware_index==current.get_index()  ||  last_ware_catg==current.get_catg()  ) {
+						if(  last_goods_index==current.get_index()  ||  last_ware_catg==current.get_catg()  ) {
 							add_ware_heading( buf, sum, current.menge, &current, what_doing );
 							break;
 						}
@@ -321,7 +321,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				}
 			}
 			// detail amount
-			ware_besch_t const& desc = *ware.get_besch();
+			goods_desc_t const& desc = *ware.get_desc();
 			buf.printf("   %u%s %s %c ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()), ">>>>><>"[sortby]);
 			// the target name is not correct for the via sort
 			if(sortby != by_via_sum && sortby != by_origin_amount) 
@@ -413,7 +413,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			}
 
 			buf.append("\n");
-			// debug ende
+			// debug end
 		}
 	}
 

@@ -33,8 +33,8 @@ At the top of the <strong>convoy details</strong> window, information shown incl
 - <em>Retire</em>: The convoy will continue in service until all of the goods or passengers on board have reached their destination. No new goods or passengers will be loaded. Once the vehicle is empty, it will go to the nearest depot, but will be stored, not sold.
 </p>
 <p>
-Beneath the buttons, every vehicle in the convoy is listed individually, with details about that vehicle.<br>
-Information listed for the vehicles includes:<br>
+Beneath the buttons, every vehicle in the convoy is listd individually, with details about that vehicle.<br>
+Information listd for the vehicles includes:<br>
 - <em>Graphic</em> a picture of the vehicle (also used in <a href="depot.txt">depots</a>).<br>
 - <em>Manufactured:</em> month and year of manufacture, and the introduction date if playing with a <a href="new_world.txt">timeline</a>.<br>
 - <em>Resale Value:</em> amount that would be realised if the vehicle was to be sold now.<br>

@@ -13,7 +13,7 @@
 #include "../dataobj/environment.h"
 #include "../network/network.h"
 #include "../network/network_cmd_scenario.h"
-#include "../dataobj/fahrplan.h"
+#include "../dataobj/schedule.h"
 
 #include "../utils/cbuffer_t.h"
 
@@ -820,6 +820,11 @@ void scenario_t::rdwr(loadsave_t *file)
 			forbidden_tools.append(new forbidden_t());
 		}
 		forbidden_tools[i]->rdwr(file);
+	}
+
+	// cached strings
+	if (file->get_version() >= 120003) {
+		dynamic_string::rdwr_cache(file);
 	}
 
 	if (what_scenario == SCRIPTED  &&  file->is_loading()  &&  !rdwr_error) {

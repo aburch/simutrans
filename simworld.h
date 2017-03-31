@@ -7,7 +7,7 @@
 
 /*
  * zentrale Datenstruktur von Simutrans
- * von Hj. Malthaner 1998
+ * Hj. Malthaner 1998
  */
 
 #ifndef simworld_h
@@ -62,32 +62,50 @@ class sync_steppable;
 class tool_t;
 class scenario_t;
 class message_t;
-class weg_besch_t;
-class tunnel_besch_t;
+class way_desc_t;
+class tunnel_desc_t;
 class network_world_command_t;
-class ware_besch_t;
+class goods_desc_t;
 class memory_rw_t;
 class viewport_t;
 class records_t;
 
 #define CHK_RANDS 32
 
+// Without this, the in-transit numbers are recalculated on every load/save
+// and this goes wrong. 
+#define CACHE_TRANSIT
+
 #ifdef MULTI_THREAD
 //#define FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
-#define MULTI_THREAD_PASSENGER_GENERATION // Currently fails (desync) in any known configuration.
-#define MULTI_THREAD_CONVOYS // Fails (desync) even if FORBID_SYNC_OBJECTS is defined and even if MULTI_THREAD_PATH_EXPLORER is undefined; but only in one specific old game.
-#define MULTI_THREAD_PATH_EXPLORER // Confirmed working 
+#define MULTI_THREAD_PASSENGER_GENERATION 
+#ifndef FORBID_MULTI_THREAD_CONVOYS
+#define MULTI_THREAD_CONVOYS 
+#endif
+#ifndef FORBID_MULTI_THREAD_PATH_EXPLORER
+#define MULTI_THREAD_PATH_EXPLORER 
+#endif
+#ifndef FORBID_MULTI_THREAD_ROUTE_UNRESERVER
+#define MULTI_THREAD_ROUTE_UNRESERVER
+#endif
 #endif
 
 #ifndef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
-//#define FORBID_SYNC_OBJECTS // The desync is in the actual numbers of passengers that end up at any given stop, so this does not assist.
-//#define FORBID_PRIVATE_CARS // This does not cause the desync, but causes it to be detected more quickly. This should not be defined.
-//#define FORBID_PEDESTRIANS // This does not cause the desync, but causes it to be detected more quickly. This should not be defined.
-//#define FORBID_CONGESTION_EFFECTS // This appears to make no difference.
-//#define DISABLE_JOB_EFFECTS // This appears to make no difference
-//#define FORBID_PUBLIC_TRANSPORT // Desyncs without this defined.
-//#define FORBID_RETURN_TRIPS // This appears to make no difference
-//#define DISABLE_GLOBAL_WAITING_LIST // Will desync without this enabled
+//#define FORBID_SYNC_OBJECTS // Has no effect on rare desync (January 2017)
+//#define FORBID_PRIVATE_CARS  // Has no effect on rare desync (January 2017)
+//#define FORBID_PEDESTRIANS // Has no effect on rare desync (January 2017)
+//#define FORBID_CONGESTION_EFFECTS //  Has no effect on rare desync (January 2017)
+//#define DISABLE_JOB_EFFECTS // Has no effect on rare desync (January 2017)
+//#define FORBID_PUBLIC_TRANSPORT // This appears to prevent the rare desync when enabled (January 2017)
+//#define FORBID_RETURN_TRIPS // This appears to prevent the rare desync when enabled (January 2017)
+//#define DISABLE_GLOBAL_WAITING_LIST // Has no effect on rare desync (January 2017)
+//#define FORBID_PARALLELL_PASSENGER_GENERATION // This prevents the desync (January 2017)
+//#define FORBID_SWITCHING_TO_RETURN_ON_FOOT // Has no effect on rare desync (January 2017)
+//#define FORBID_SET_GENERATED_PASSENGERS // Has no effect on rare desync (January 2017)
+//#define FORBID_RECORDING_RETURN_FACTORY_PASSENGERS  // Has no effect on rare desync (January 2017)
+//#define FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_1 // When this is defined, it will not desync: when it is undefined, it will desync.
+//#define FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_2 // Undefining this one does not seem to make a difference: still no desync.
+//#define FORBID_STARTE_MIT_ROUTE_FOR_RETURNING_PASSENGERS // Has no effect on rare desync (January 2017)
 #endif
 
 struct checklist_t
@@ -259,14 +277,14 @@ private:
 	settings_t settings;
 
 	/**
-	 * For performance reasons we have the map grid size cached locally, comes from the enviroment (Einstellungen)
+	 * For performance reasons we have the map grid size cached locally, comes from the environment (Einstellungen)
 	 * @brief Cached map grid size.
 	 * @note Valid coords are (0..x-1,0..y-1)
 	 */
 	koord cached_grid_size;
 
 	/**
-	 * For performance reasons we have the map size cached locally, comes from the enviroment (Einstellungen).
+	 * For performance reasons we have the map size cached locally, comes from the environment (Einstellungen).
 	 * @brief Cached map size.
 	 * @note Valid coords are (0..x-1,0..y-1)
 	 * @note These values are one less than the size values of the grid.
@@ -409,7 +427,7 @@ private:
 	/**
 	 * Stores a list of goods produced by factories currently in the game;
 	 */
-	vector_tpl<const ware_besch_t*> goods_in_game;
+	vector_tpl<const goods_desc_t*> goods_in_game;
 
 	weighted_vector_tpl<gebaeude_t *> ausflugsziele;
 
@@ -469,7 +487,7 @@ private:
 	 * @pre can_raise_to should be called before this method.
 	 * @see can_raise_to
 	 * @returns count of full raise operations (4 corners raised one level)
-	 * @note Clear tile, reset water/land type, calc reliefkarte pixel.
+	 * @note Clear tile, reset water/land type, calc reliefkarte (relief map) pixel.
 	 */
 	int  raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 
@@ -493,7 +511,7 @@ private:
 	 * @pre can_lower_to should be called before this method.
 	 * @see can_lower_to
 	 * @returns count of full lower operations (4 corners lowered one level)
-	 * @note Clear tile, reset water/land type, calc reliefkarte pixel.
+	 * @note Clear tile, reset water/land type, calc reliefkarte (relief map) pixel.
 	 */
 	int  lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 
@@ -546,7 +564,7 @@ private:
 
 	/**
 	 * @name Player management
-	 *       Varables related to the player management in game.
+	 *       Variables related to the player management in game.
 	 * @author Hj. Malthaner
 	 * @{
 	 */
@@ -586,7 +604,7 @@ private:
 	/**
 	 * @name Display timing and scheduling
 	 *       These variables store system display timings in the past frames
-	 *       and allow for adecuate adjustments to adapt to the system performance
+	 *       and allow for adequate adjustments to adapt to the system performance
 	 *       and available resources (also in network mode).
 	 * @{
 	 */
@@ -722,7 +740,7 @@ private:
 	/**
 	 * May change due to timeline.
 	 */
-	const weg_besch_t *city_road;
+	const way_desc_t *city_road;
 
 	// Data for maintaining industry density even
 	// after industries close
@@ -741,7 +759,7 @@ private:
 	message_t *msg;
 
 	/**
-	 * Array indexed per way tipe. Used to determine the speedbonus.
+	 * Array indexed per way type. Used to determine the speedbonus.
 	 */
 	sint32 average_speed[8];
 
@@ -783,7 +801,7 @@ private:
 	void load(loadsave_t *file);
 
 	/**
-	 * Removes all objects, deletes all data structures and frees all accesible memory.
+	 * Removes all objects, deletes all data structures and frees all accessible memory.
 	 * @author Hj. Malthaner
 	 */
 	void destroy();
@@ -858,7 +876,7 @@ private:
 	/**
 	 * Loops over plans after load.
 	 */
-	void plans_laden_abschliessen(sint16, sint16, sint16, sint16);
+	void plans_finish_rd(sint16, sint16, sint16, sint16);
 
 	/**
 	 * Updates all images.
@@ -956,7 +974,7 @@ private:
 
 	sint32 calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const;
 
-	uint32 generate_passengers_or_mail(const ware_besch_t * wtyp);
+	uint32 generate_passengers_or_mail(const goods_desc_t * wtyp);
 
 	destination find_destination(trip_type trip);
 
@@ -970,8 +988,7 @@ private:
 	static sint32 cities_to_process;
 	static vector_tpl<convoihandle_t> convoys_next_step;
 	public:
-	static uint32 path_explorer_step_progress;
-	static bool unreserve_route_running;
+	static sint32 path_explorer_step_progress;
 	static bool threads_initialised; 
 	
 	// These are both intended to be arrays of vectors
@@ -979,7 +996,11 @@ private:
 	static vector_tpl<pedestrian_t*> *pedestrians_added_threaded;
 
 	static thread_local uint32 passenger_generation_thread_number;
+	static thread_local uint32 marker_index;
 	private:
+#else
+	public:
+	static const uint32 marker_index = UINT32_MAX_VALUE;
 #endif
 
 public:
@@ -1010,6 +1031,9 @@ public:
 
 	vector_tpl<fabrik_t*> closed_factories_this_month;
 
+	/// cache the current maximum and minimum height on the map
+	sint8 max_height, min_height;
+
 	/**
 	 * Returns the messagebox message container.
 	 */
@@ -1022,7 +1046,7 @@ public:
 
 	/**
 	 * For warning, when stuff had to be removed/replaced
-	 * level must be >=1 (1=factory, 2=vechiles, 3=not so important)
+	 * level must be >=1 (1=factory, 2=vehicles, 3=not so important)
 	 * may be refined later
 	 */
 	void add_missing_paks( const char *name, missing_level_t critical_level );
@@ -1200,6 +1224,20 @@ public:
 	void clear_player_password_hashes();
 	void rdwr_player_password_hashes(loadsave_t *file);
 	void remove_player(uint8 player_nr);
+
+	/**
+	 * Get the public service player whos domain of influence includes the ground gr.
+	 * If gr is NULL then the default public service player is returned.
+	 * @param gr the ground to lookup
+	 * @return a public service player
+	 */
+	player_t *get_public_player(grund_t const *const gr) const;
+	
+	/**
+	* Get the default public service player.
+	* @return the default public service player
+	*/
+	player_t *get_public_player() const;
 
 	/**
 	 * Network safe initiation of new and deletion of players, change freeplay.
@@ -1665,7 +1703,7 @@ public:
 	 * prissi: current city road.
 	 * @note May change due to timeline.
 	 */
-	const weg_besch_t* get_city_road() const { return city_road; }
+	const way_desc_t* get_city_road() const { return city_road; }
 
 	/**
 	 * Number of steps elapsed since the map was generated.
@@ -1838,10 +1876,16 @@ public:
 	tool_t *get_tool(uint8 nr) const { return selected_tool[nr]; }
 
 	/**
+	* Calls the work method of the tool.
+	* Takes network and scenarios into account.
+	*/
+	const char* call_work(tool_t *t, player_t *pl, koord3d pos, bool &suspended);
+
+	/**
 	 * Returns the (x,y) map size.
 	 * @brief Map size.
 	 * @note Valid coords are (0..x-1,0..y-1)
-	 * @note These values are exactly one less tham get_grid_size ones.
+	 * @note These values are exactly one less then get_grid_size ones.
 	 * @see get_grid_size()
 	 */
 	inline koord const &get_size() const { return cached_grid_size; }
@@ -1861,7 +1905,7 @@ public:
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
 		return (x|y|(cached_size.x-x)|(cached_size.y-y))>=0;
-//		return x>=0 &&  y>=0  &&  cached_groesse_karte_x>=x  &&  cached_groesse_karte_y>=y;
+//		return x>=0 &&  y>=0  &&  cached_size_x_karte_x>=x  &&  cached_size_x_karte_y>=y;
 	}
 
 	/**
@@ -1881,7 +1925,7 @@ public:
 	// prissi: since negative values will make the whole result negative, we can use bitwise or
 	// faster, since pentiums and other long pipeline processors do not like jumps
 		return (x|y|(cached_grid_size.x-x)|(cached_grid_size.y-y))>=0;
-//		return x>=0 &&  y>=0  &&  cached_groesse_gitter_x>=x  &&  cached_groesse_gitter_y>=y;
+//		return x>=0 &&  y>=0  &&  cached_size_x_gitter_x>=x  &&  cached_size_x_gitter_y>=y;
 	}
 
 	/**
@@ -1921,7 +1965,7 @@ public:
 	/**
 	 * This function takes grid coordinates as a parameter and a desired height (koord3d).
 	 * Will return the ground_t object that intersects with it in it's north corner if possible.
-	 * If that tile doesn't exist, returns the one that interesects with it in other corner.
+	 * If that tile doesn't exist, returns the one that intersects with it in other corner.
 	 * @param pos Grid coordinates to check for, the z points to the desired height.
 	 * @see lookup_kartenboden_gridcoords
 	 * @see corner_to_operate
@@ -1974,22 +2018,22 @@ public:
 	 * @note Will always return north-west except on border tiles.
 	 * @pre pos has to be a valid grid coordinate, undefined otherwise.
 	 */
-	inline hang_t::typ get_corner_to_operate(const koord &pos) const
+	inline slope_t::type get_corner_to_operate(const koord &pos) const
 	{
 		// Normal tile
 		if ( ( pos.x != cached_grid_size.x )  &&  ( pos.y != cached_grid_size.y ) ){
-			return hang_t::corner_NW;
+			return slope4_t::corner_NW;
 		}
 		// Border on south-east
 		if ( is_within_limits(pos.x-1, pos.y) ) {
-			return(hang_t::corner_NE);
+			return(slope4_t::corner_NE);
 		}
 		// Border on south-west
 		if ( is_within_limits(pos.x, pos.y-1) ) {
-			return(hang_t::corner_SW);
+			return(slope4_t::corner_SW);
 		}
 		// Border on south
-		return (hang_t::corner_SE);
+		return (slope4_t::corner_SE);
 	}
 
 
@@ -2069,21 +2113,21 @@ public:
 	loadsave_t::combined_version load_version;
 
 	/**
-	 * Checks if the planquadrat at coordinate (x,y)
+	 * Checks if the planquadrat (tile) at coordinate (x,y)
 	 * can be lowered at the specified height.
 	 * @author V. Meyer
 	 */
 	const char* can_lower_plan_to(const player_t *player, sint16 x, sint16 y, sint8 h) const;
 
 	/**
-	 * Checks if the planquadrat at coordinate (x,y)
+	 * Checks if the planquadrat (tile) at coordinate (x,y)
 	 * can be raised at the specified height.
 	 * @author V. Meyer
 	 */
 	const char* can_raise_plan_to(const player_t *player, sint16 x, sint16 y, sint8 h) const;
 
 	/**
-	 * Checks if the whole planquadrat at coordinates (x,y) height can
+	 *Checks if the whole planquadrat (tile) at coordinates (x,y) height can
 	 * be changed ( for example, water height can't be changed ).
 	 * @author Hj. Malthaner
 	 */
@@ -2214,10 +2258,10 @@ public:
 	/**
 	 * Returns a list of goods produced by factories that exist in current game.
 	 */
-	const vector_tpl<const ware_besch_t*> &get_goods_list();
+	const vector_tpl<const goods_desc_t*> &get_goods_list();
 
 	/**
-	 * Seaches and returns the closest city
+	 * Searches and returns the closest city
 	 * but prefers even farther cities if within their city limits
 	 * @author Hj. Malthaner
 	 */
@@ -2387,32 +2431,32 @@ public:
 
 private:
 	/**
-	 * @return Minimum height of the planquadrats at i, j. - for speed no checks performed that coordinates are valid
+	 * @return Minimum height of the planquadrats (tile) at i, j. - for speed no checks performed that coordinates are valid
 	 * @author Hj. Malthaner
 	 */
 	sint8 min_hgt_nocheck(koord k) const;
 
 	/**
-	 * @return Maximum height of the planquadrats at i, j. - for speed no checks performed that coordinates are valid
+	 * @return Maximum height of the planquadrats (tile) at i, j. - for speed no checks performed that coordinates are valid
 	 * @author Hj. Malthaner
 	 */
 	sint8 max_hgt_nocheck(koord k) const;
 
 public:
 	/**
-	 * @return Minimum height of the planquadrats at i, j.
+	 * @return Minimum height of the planquadrats (tile) at i, j.
 	 * @author Hj. Malthaner
 	 */
 	sint8 min_hgt(koord k) const;
 
 	/**
-	 * @return Maximum height of the planquadrats at i, j.
+	 * @return Maximum height of the planquadrats (tile) at i, j.
 	 * @author Hj. Malthaner
 	 */
 	sint8 max_hgt(koord k) const;
 
 	/**
-	 * @return true, wenn Platz an Stelle pos mit Groesse dim Wasser ist
+	 * @return true, wenn Platz an Stelle pos mit Groesse dim Water ist
 	 * @author V. Meyer
 	 */
 	bool ist_wasser(koord k, koord dim) const;
@@ -2433,7 +2477,7 @@ public:
 	/**
 	 * Plays the sound when the position is inside the visible region.
 	 * The sound plays lower when the position is outside the visible region.
-	 * @param pos Position at wich the event took place.
+	 * @param pos Position at which the event took place.
 	 * @param idx Index of the sound
 	 * @author Hj. Malthaner
 	 */
@@ -2511,7 +2555,7 @@ public:
 	uint32 get_generic_road_time_per_tile_city() const { return generic_road_time_per_tile_city; }
 	uint32 get_generic_road_time_per_tile_intercity() const { return generic_road_time_per_tile_intercity; };
 
-	sint32 calc_generic_road_time_per_tile(const weg_besch_t* besch);
+	sint32 calc_generic_road_time_per_tile(const way_desc_t* desc);
 
 	uint32 get_max_road_check_depth() const { return max_road_check_depth; }
 
@@ -2590,7 +2634,7 @@ private:
 	uint32 get_next_command_step();
 
 	sint32 get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const planquadrat_t*> &tile_list) const;
-	void get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &tile_list, const ware_besch_t * wtyp, vector_tpl<nearby_halt_t> &halts) const;
+	void get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &tile_list, const goods_desc_t * wtyp, vector_tpl<nearby_halt_t> &halts) const;
 };
 
 

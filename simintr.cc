@@ -199,7 +199,7 @@ char const *tick_to_string( sint64 ticks, bool show_full )
 		//DBG_MESSAGE("env_t::show_month","%d",env_t::show_month);
 		// @author hsiegeln - updated to show month
 		// @author prissi - also show date if desired
-		// since seaons 0 is always summer for backward compatibility
+		// since seasons 0 is always summer for backward compatibility
 		char const* const season = translator::translate(seasons[welt_modell->get_season()]);
 		char const* const month_ = translator::get_month_name(month % 12);
 		switch(env_t::show_month) {
@@ -303,11 +303,11 @@ char const *tick_to_string( sint64 ticks, bool show_full )
 		//	minuten = ( (minuten + 30 ) / 60 ) * 60;
 		//	stunden += minuten /60;
 		//	if(  switchtick < 18 ) {
-		//		// four hour inveralls
+		//		// four hour intervals
 		//		stunden = (stunden + 3 ) & 0xFFFFC;
 		//	}
 		//	else if(  switchtick == 18 ) {
-		//		// two hour inveralls
+		//		// two hour intervals
 		//		stunden = (stunden + 1 ) & 0xFFFFE;
 		//	}
 		//}

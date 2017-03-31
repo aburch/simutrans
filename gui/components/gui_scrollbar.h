@@ -65,7 +65,7 @@ private:
 	scr_rect knobarea, sliderarea;
 
 	void reposition_buttons();
-	void scroll( sint32 amout_to_scroll );
+	void scroll( sint32 amount_to_scroll );
 
 public:
 	// type is either scrollbar_t::horizontal or scrollbar_t::vertical

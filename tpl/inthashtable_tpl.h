@@ -24,7 +24,7 @@ template<> struct int_diff_type<uint64> {
 
 
 /**
- * Define the key characteristica for hashing integer types
+ * Define the key characteristics for hashing integer types
  */
 template<class key_t>
 class inthash_tpl {

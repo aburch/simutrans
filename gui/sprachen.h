@@ -28,7 +28,7 @@ private:
 		int id;
 	};
 	vector_tpl<language_button_t> buttons;
-	gui_divider_t seperator;
+	gui_divider_t separator;
 
 	static int cmp_language_button(sprachengui_t::language_button_t a, sprachengui_t::language_button_t b);
 

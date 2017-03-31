@@ -43,7 +43,7 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	/**
-	 * Recalc the size required to display everything and set size (groesse).
+	 * Recalc the size required to display everything and set size (size).
 	 */
 	void recalc_size();
 

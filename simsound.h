@@ -1,6 +1,6 @@
 /*
- * Beschreibung der Schnittstelle zum Soundsystem.
- * von Hj. Malthaner, 1998, 2000
+ * Description der Schnittstelle zum Soundsystem.
+ * Hj. Malthaner, 1998, 2000
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
  */
@@ -15,14 +15,14 @@ void sound_set_mute(bool on);
 bool sound_get_mute();
 
 /**
- * setzt Lautstärke für alle effekte
+ * setzt Lautstärke für all effekte
  * @author Hj. Malthaner
  */
 void sound_set_global_volume(int volume);
 
 
 /**
- * ermittelt Lautstärke für alle effekte
+ * ermittelt Lautstärke für all effekte
  * @author Hj. Malthaner
  */
 int sound_get_global_volume();
@@ -66,7 +66,7 @@ const char *sound_get_midi_title(int index);
 
 
 /**
- * gets curent midi number
+ * gets current midi number
  * @author Hj. Malthaner
  */
 int get_current_midi();

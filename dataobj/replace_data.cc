@@ -8,7 +8,7 @@
 #include "../bauer/vehikelbauer.h"
 
 #include "../vehicle/simvehicle.h"
-#include "../besch/vehikel_besch.h"
+#include "../descriptor/vehicle_desc.h"
 
 
 replace_data_t::replace_data_t()
@@ -17,7 +17,7 @@ replace_data_t::replace_data_t()
 	retain_in_depot = false;
 	use_home_depot = false;
 	allow_using_existing_vehicles = true;
-	replacing_vehicles = new vector_tpl<const vehikel_besch_t *>;
+	replacing_vehicles = new vector_tpl<const vehicle_desc_t *>;
 	replacing_convoys = new vector_tpl<convoihandle_t>();
 	number_of_convoys = 0;
 	clearing = false;
@@ -30,7 +30,7 @@ replace_data_t::replace_data_t(replace_data_t* copy_from)
 	use_home_depot = copy_from->get_use_home_depot();
 	allow_using_existing_vehicles = copy_from->get_allow_using_existing_vehicles();
 	const uint16 replace_count = copy_from->get_replacing_vehicles()->get_count();
-	replacing_vehicles = new vector_tpl<const vehikel_besch_t*>(replace_count);
+	replacing_vehicles = new vector_tpl<const vehicle_desc_t*>(replace_count);
 	replacing_convoys = new vector_tpl<convoihandle_t>();
 	for(uint16 i = 0; i < replace_count; i ++)
 	{
@@ -42,7 +42,7 @@ replace_data_t::replace_data_t(replace_data_t* copy_from)
 
 replace_data_t::replace_data_t(loadsave_t *file)
 {
-	replacing_vehicles = new vector_tpl<const vehikel_besch_t *>;
+	replacing_vehicles = new vector_tpl<const vehicle_desc_t *>;
 	replacing_convoys = new vector_tpl<convoihandle_t>();
 	rdwr(file);
 	// When replace data are loaded, there is no easy way of checking
@@ -146,18 +146,18 @@ bool replace_data_t::sscanf_replace(const char *ptr)
 		}
 		vehicle_name[n] = '\0';
 		
-		const vehikel_besch_t* besch = vehikelbauer_t::get_info(vehicle_name);
-		if(besch == NULL) 
+		const vehicle_desc_t* desc = vehicle_builder_t::get_info(vehicle_name);
+		if(desc == NULL) 
 		{
-			besch = vehikelbauer_t::get_info(translator::compatibility_name(vehicle_name));
+			desc = vehicle_builder_t::get_info(translator::compatibility_name(vehicle_name));
 		}
-		if(besch == NULL)
+		if(desc == NULL)
 		{
 			dbg->warning("replace_data_t::sscanf_replace()","no vehicle pak for '%s' search for something similar", vehicle_name);
 		}
 		else
 		{
-			replacing_vehicles->append(besch);
+			replacing_vehicles->append(desc);
 		}
 		p++;
 	}
@@ -196,24 +196,24 @@ void replace_data_t::rdwr(loadsave_t *file)
 		{
 			char vehicle_name[256];
 			file->rdwr_str(vehicle_name, 256);
-			const vehikel_besch_t* besch = vehikelbauer_t::get_info(vehicle_name);
-			if(besch == NULL) 
+			const vehicle_desc_t* desc = vehicle_builder_t::get_info(vehicle_name);
+			if(desc == NULL) 
 			{
-				besch = vehikelbauer_t::get_info(translator::compatibility_name(vehicle_name));
+				desc = vehicle_builder_t::get_info(translator::compatibility_name(vehicle_name));
 			}
-			if(besch == NULL)
+			if(desc == NULL)
 			{
 				dbg->warning("replace_data_t::rdwr()","no vehicle pak for '%s' search for something similar", vehicle_name);
 			}
 			else
 			{
-				replacing_vehicles->append(besch);
+				replacing_vehicles->append(desc);
 			}
 		}
 	}
 }
 
-const vehikel_besch_t*  replace_data_t::get_replacing_vehicle(uint16 number) const
+const vehicle_desc_t*  replace_data_t::get_replacing_vehicle(uint16 number) const
 {
 	return replacing_vehicles->get_element(number);
 	
@@ -239,7 +239,7 @@ bool replace_data_t::check_contained(convoihandle_t cnv)
 	return replacing_convoys->append_unique(cnv);
 }
 
-void replace_data_t::add_vehicle(const vehikel_besch_t* vehicle, bool add_at_front)
+void replace_data_t::add_vehicle(const vehicle_desc_t* vehicle, bool add_at_front)
 {
 	if(add_at_front)
 	{

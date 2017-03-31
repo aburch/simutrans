@@ -47,12 +47,12 @@ void script_vm_t::errorfunc(HSQUIRRELVM vm, const SQChar *s_, ...)
 	static cbuffer_t buf;
 	if (strcmp(s, "<error>")==0) {
 		buf.clear();
-		buf.printf("<st>Your script made an error!</st>\n");
+		buf.printf("<st>Your script has an error!</st>\n");
 	}
 	if (strcmp(s, "</error>")==0) {
 		help_frame_t *win = new help_frame_t();
 		win->set_text(buf);
-		win->set_name("Script error occured");
+		win->set_name("Script error occurred");
 		create_win( win, w_info, magic_none);
 		// find failed script
 		for(uint32 i=0; i<all_scripts.get_count(); i++) {

@@ -235,7 +235,7 @@ void city_info_t::rename_city()
 			buf.printf( "t%u,%s", welt->get_staedte().index_of(stadt), name );
 			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 			tool->set_default_param( buf );
-			welt->set_tool( tool, welt->get_player(1));
+			welt->set_tool( tool, welt->get_public_player());
 			// since init always returns false, it is safe to delete immediately
 			delete tool;
 			// do not trigger this command again

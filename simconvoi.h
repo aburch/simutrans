@@ -41,7 +41,7 @@ class depot_t;
 class karte_ptr_t;
 class player_t;
 class vehicle_t;
-class vehikel_besch_t;
+class vehicle_desc_t;
 class schedule_t;
 class cbuffer_t;
 class ware_t;
@@ -124,13 +124,13 @@ public:
 		MAX_CONVOI_COST				//  9 | 8 |
 	};
 
-	/* Konstanten
+	/* Constants
 	* @author prissi
 	*/
 	enum { max_vehicle=8, max_rail_vehicle = 64 };
 
 	enum states {INITIAL,
-		FAHRPLANEINGABE, // "Schedule enter" (Google)
+		EDIT_SCHEDULE, // "Schedule enter" (Google)
 		ROUTING_1,
 		ROUTING_2,
 		DUMMY5,
@@ -323,18 +323,18 @@ private:
 	char name_and_id[128];
 
 	/**
-	* Alle vehikel-fahrplanzeiger zeigen hierauf
+	* Alle vehicle-fahrplanzeiger zeigen hierauf
 	* @author Hj. Malthaner
 	*/
-	schedule_t *fpl;
+	schedule_t *schedule;
 
 	// Added by : Knightly
 	// Purpose  : To hold the original schedule before opening schedule window
-	schedule_t *old_fpl;
+	schedule_t *old_schedule;
 	koord3d fpl_target;
 
 	/**
-	* loading_level was ladegrad before. Actual percentage loaded for loadable vehicles (station length!).
+	* loading_level was minimum_loading before. Actual percentage loaded for loadable vehicles (station length!).
 	* needed as int, since used by the gui
 	* @author Volker Meyer
 	* @date  12.06.2003
@@ -437,7 +437,7 @@ private:
 	* Number of vehicles in this convoi.
 	* @author Hj. Malthaner
 	*/
-	uint8 anz_vehikel;
+	uint8 anz_vehicle;
 
 	/* Number of steps the current convoi did already
 	 * (only needed for leaving/entering depot)
@@ -445,27 +445,27 @@ private:
 	sint16 steps_driven;
 
 	/**
-	* Gesamtleistung. Wird nicht gespeichert, sondern aus den Einzelleistungen
+	* Gesamtpower. Wird nicht gespeichert, sondern aus den Einzelpoweren
 	* errechnet.
 	* @author Hj. Malthaner
 	*/
-	//uint32 sum_leistung;
+	//uint32 sum_power;
 
 	/**
-	* Gesamtleistung mit Gear. Wird nicht gespeichert, sondern aus den Einzelleistungen
+	* Gesamtpower mit Gear. Wird nicht gespeichert, sondern aus den Einzelpoweren
 	* errechnet.
 	* @author prissi
 	*/
-	//sint32 sum_gear_und_leistung;
+	//sint32 sum_gear_and_power;
 
-	/* sum_gewicht: leergewichte aller vehicles *
-	* sum_gesamtgewicht: gesamtgewichte aller vehicles *
-	* Werden nicht gespeichert, sondern aus den Einzelgewichten
+	/* sum_weight: leerweighte aller vehicles *
+	* sum_gesamtweight: gesamtweighte aller vehicles *
+	* Werden nicht gespeichert, sondern aus den Einzelweighten
 	* errechnet beim beladen/fahren.
 	* @author Hj. Malthaner, prissi
 	*/
-	//sint64 sum_gewicht;
-	//sint64 sum_gesamtgewicht;
+	//sint64 sum_weight;
+	//sint64 sum_gesamtweight;
 
 	// cached values
 	// will be recalculated if
@@ -547,7 +547,7 @@ private:
 
 	states state;
 
-	ribi_t::ribi alte_richtung; //"Old direction" (Google)
+	ribi_t::ribi alte_direction; //"Old direction" (Google)
 
 	/**
 	* The index number of the livery scheme of the current convoy
@@ -581,7 +581,7 @@ private:
 	* if the direction is the same as before
 	* @author Hanjsörg Malthaner
 	*/
-	bool can_go_alte_richtung();
+	bool can_go_alte_direction();
 
 	/**
 	* Mark first and last vehicle.
@@ -589,7 +589,7 @@ private:
 	*/
 	void set_erstes_letztes();
 
-	// returns the index of the vehikel at position length (16=1 tile)
+	// returns the index of the vehicle at position length (16=1 tile)
 	int get_vehicle_at_length(uint16);
 
 	/**
@@ -904,7 +904,7 @@ public:
 	int get_state() const { return state; }
 
 	// In any of these states, user interaction should not be possible. 
-	bool is_locked() const { return state == convoi_t::FAHRPLANEINGABE || state == convoi_t::ROUTING_2 || state == convoi_t::ROUTE_JUST_FOUND; }
+	bool is_locked() const { return state == convoi_t::EDIT_SCHEDULE || state == convoi_t::ROUTING_2 || state == convoi_t::ROUTE_JUST_FOUND; }
 
 	/**
 	* true if in waiting state (maybe also due to starting)
@@ -1032,20 +1032,20 @@ public:
 	 * @return total power of this convoi
 	 * @author Hj. Malthaner
 	 */
-	inline uint32 get_sum_leistung() {return get_continuous_power();}
+	inline uint32 get_sum_power() {return get_continuous_power();}
 	inline sint32 get_min_top_speed() {return get_vehicle_summary().max_sim_speed;}
 
 	/// @returns weight of the convoy's vehicles (excluding freight)
-	inline sint64 get_sum_gewicht() {return get_vehicle_summary().weight;}
+	inline sint64 get_sum_weight() {return get_vehicle_summary().weight;}
 
 	/// @returns weight of convoy including freight
-	//inline const sint64 & get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+	//inline const sint64 & get_sum_gesamtweight() const {return sum_gesamtweight;}
 
 	/** Get power index in kW multiplied by gear.
 	 * Get effective power in kW by dividing by GEAR_FACTOR, which is 64.
 	 * @author Bernd Gabriel, Nov, 14 2009
 	 */
-	//inline const sint32 & get_power_index() { return sum_gear_und_leistung; }
+	//inline const sint32 & get_power_index() { return sum_gear_and_power; }
 
 	uint32 get_length() const;
 
@@ -1113,12 +1113,12 @@ public:
 	* @return Vehicle count
 	* @author Hj. Malthaner
 	*/
-	inline uint8 get_vehikel_anzahl() const { return anz_vehikel; }
+	inline uint8 get_vehicle_count() const { return anz_vehicle; }
 
 	/**
 	 * @return Vehicle at position i
 	 */
-	inline vehicle_t* get_vehikel(uint16 i) const { return vehicle[i]; }
+	inline vehicle_t* get_vehicle(uint16 i) const { return vehicle[i]; }
 
 	// Upgrades a vehicle in the convoy.
 	// @author: jamespetts, February 2010
@@ -1126,23 +1126,23 @@ public:
 
 	vehicle_t* front() const { return *vehicle.begin(); }
 
-	vehicle_t* back() const { return vehicle.begin()[anz_vehikel - 1]; }
+	vehicle_t* back() const { return vehicle.begin()[anz_vehicle - 1]; }
 
 	typedef array_tpl<vehicle_t*>::const_iterator const_iterator;
 	inline array_tpl<vehicle_t*>::const_iterator begin() const { return vehicle.begin(); }
-	inline array_tpl<vehicle_t*>::const_iterator end() const { return vehicle.begin() + anz_vehikel; }
+	inline array_tpl<vehicle_t*>::const_iterator end() const { return vehicle.begin() + anz_vehicle; }
 
 	/**
 	* Adds a vehicel at the start or end of the convoi.
 	* @author Hj. Malthaner
 	*/
-	bool add_vehikel(vehicle_t *v, bool infront = false);
+	bool add_vehicle(vehicle_t *v, bool infront = false);
 
 	/**
 	* Removes vehicles at position i
 	* @author Hj. Malthaner
 	*/
-	vehicle_t * remove_vehikel_bei(unsigned short i);
+	vehicle_t * remove_vehicle_bei(unsigned short i);
 
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 
@@ -1159,7 +1159,7 @@ public:
 	* @return Current schedule
 	* @author Hj. Malthaner
 	*/
-	inline schedule_t* get_schedule() const { return fpl; }
+	inline schedule_t* get_schedule() const { return schedule; }
 
 	/**
 	* Creates a new schedule if there isn't one already.
@@ -1216,6 +1216,8 @@ public:
 	// Reserve the tiles on which the convoy is standing to prevent collisions.
 	void reserve_own_tiles();
 
+	bool has_tall_vehicles();
+
 private:
 	journey_times_map average_journey_times;
 public:
@@ -1248,7 +1250,7 @@ public:
 	void open_schedule_window( bool show );
 
 	/**
-	* pruefe ob Beschraenkungen fuer alle Fahrzeuge erfuellt sind
+	* pruefe ob Beschraenkungen fuer all Fahrzeuge erfuellt sind
 	* "	examine whether restrictions for all vehicles are fulfilled" (Google)
 	* @author Hj. Malthaner
 	*/
@@ -1283,7 +1285,7 @@ public:
 	inline bool in_depot() const { return state == INITIAL; }
 
 	/**
-	* loading_level was ladegrad before. Actual percentage loaded of loadable
+	* loading_level was minimum_loading before. Actual percentage loaded of loadable
 	* vehicles.
 	* @author Volker Meyer
 	* @date  12.06.2003

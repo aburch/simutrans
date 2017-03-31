@@ -13,7 +13,7 @@
 #include "../simtypes.h"
 
 #include "../boden/grund.h"
-#include "../besch/groundobj_besch.h"
+#include "../descriptor/groundobj_desc.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
@@ -27,31 +27,31 @@
 
 #include "groundobj.h"
 
-/******************************** static routines for besch management ****************************************************************/
+/******************************** static routines for desc management ****************************************************************/
 
-vector_tpl<const groundobj_besch_t *> groundobj_t::groundobj_typen(0);
+vector_tpl<const groundobj_desc_t *> groundobj_t::groundobj_typen(0);
 
-stringhashtable_tpl<groundobj_besch_t *> groundobj_t::besch_names;
+stringhashtable_tpl<groundobj_desc_t *> groundobj_t::desc_names;
 
 
-bool compare_groundobj_besch(const groundobj_besch_t* a, const groundobj_besch_t* b)
+bool compare_groundobj_desc(const groundobj_desc_t* a, const groundobj_desc_t* b)
 {
 	return strcmp(a->get_name(), b->get_name())<0;
 }
 
 
-bool groundobj_t::alles_geladen()
+bool groundobj_t::successfully_loaded()
 {
-	groundobj_typen.resize(besch_names.get_count());
-	FOR(stringhashtable_tpl<groundobj_besch_t*>, const& i, besch_names) {
-		groundobj_typen.insert_ordered(i.value, compare_groundobj_besch);
+	groundobj_typen.resize(desc_names.get_count());
+	FOR(stringhashtable_tpl<groundobj_desc_t*>, const& i, desc_names) {
+		groundobj_typen.insert_ordered(i.value, compare_groundobj_desc);
 	}
 	// iterate again to assign the index
-	FOR(stringhashtable_tpl<groundobj_besch_t*>, const& i, besch_names) {
+	FOR(stringhashtable_tpl<groundobj_desc_t*>, const& i, desc_names) {
 		i.value->index = groundobj_typen.index_of(i.value);
 	}
 
-	if(besch_names.empty()) {
+	if(desc_names.empty()) {
 		groundobj_typen.append( NULL );
 		DBG_MESSAGE("groundobj_t", "No groundobj found - feature disabled");
 	}
@@ -59,14 +59,14 @@ bool groundobj_t::alles_geladen()
 }
 
 
-bool groundobj_t::register_besch(groundobj_besch_t *besch)
+bool groundobj_t::register_desc(groundobj_desc_t *desc)
 {
-	assert(besch->get_speed()==0);
+	assert(desc->get_speed()==0);
 	// remove duplicates
-	if(  besch_names.remove( besch->get_name() )  ) {
-		dbg->warning( "groundobj_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+	if(  desc_names.remove( desc->get_name() )  ) {
+		dbg->warning( "groundobj_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 	}
-	besch_names.put(besch->get_name(), besch );
+	desc_names.put(desc->get_name(), desc );
 	return true;
 }
 
@@ -74,26 +74,26 @@ bool groundobj_t::register_besch(groundobj_besch_t *besch)
 /* also checks for distribution values
  * @author prissi
  */
-const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate_bits cl, hang_t::typ slope  )
+const groundobj_desc_t *groundobj_t::random_groundobj_for_climate(climate_bits cl, slope_t::type slope  )
 {
 	// none there
-	if(  besch_names.empty()  ) {
+	if(  desc_names.empty()  ) {
 		return NULL;
 	}
 
 	int weight = 0;
-	FOR(  vector_tpl<groundobj_besch_t const*>,  const i,  groundobj_typen  ) {
-		if(  i->is_allowed_climate_bits(cl)  &&  (slope == hang_t::flach  ||  (i->get_phases() >= slope  &&  i->get_image_nr(0,slope)!=IMG_EMPTY  )  )  ) {
+	FOR(  vector_tpl<groundobj_desc_t const*>,  const i,  groundobj_typen  ) {
+		if(  i->is_allowed_climate_bits(cl)  &&  (slope == slope_t::flat  ||  (i->get_phases() >= slope  &&  i->get_image_nr(0,slope)!=IMG_EMPTY  )  )  ) {
 			weight += i->get_distribution_weight();
 		}
 	}
 
 	// now weight their distribution
 	if(  weight > 0  ) {
-		const int w=simrand(weight, "const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate_bits cl, hang_t::typ slope  )");
+		const int w=simrand(weight, "const groundobj_desc_t *groundobj_t::random_groundobj_for_climate(climate_bits cl, slope_t::type slope  )");
 		weight = 0;
-		FOR(vector_tpl<groundobj_besch_t const*>, const i, groundobj_typen) {
-			if(  i->is_allowed_climate_bits(cl)  &&  (slope == hang_t::flach  ||  (i->get_phases() >= slope  &&  i->get_image_nr(0,slope)!=IMG_EMPTY  )  )  ) {
+		FOR(vector_tpl<groundobj_desc_t const*>, const i, groundobj_typen) {
+			if(  i->is_allowed_climate_bits(cl)  &&  (slope == slope_t::flat  ||  (i->get_phases() >= slope  &&  i->get_image_nr(0,slope)!=IMG_EMPTY  )  )  ) {
 				weight += i->get_distribution_weight();
 				if(weight>=w) {
 					return i;
@@ -113,8 +113,8 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate_bits 
 // recalculates only the seasonal image
 void groundobj_t::calc_image()
 {
-	const groundobj_besch_t *besch=get_besch();
-	const sint16 seasons = besch->get_seasons()-1;
+	const groundobj_desc_t *desc=get_desc();
+	const sint16 seasons = desc->get_seasons()-1;
 	uint8 season=0;
 
 	// two possibilities
@@ -140,10 +140,10 @@ void groundobj_t::calc_image()
 	}
 	// check for slopes?
 	uint16 phase = 0;
-	if(besch->get_phases()>1) {
+	if(desc->get_phases()>1) {
 		phase = welt->lookup(get_pos())->get_grund_hang();
 	}
-	image = get_besch()->get_image_nr( season, phase );
+	image = get_desc()->get_image_nr( season, phase );
 }
 
 
@@ -158,7 +158,7 @@ groundobj_t::groundobj_t(loadsave_t *file) :
 }
 
 
-groundobj_t::groundobj_t(koord3d pos, const groundobj_besch_t *b ) : 
+groundobj_t::groundobj_t(koord3d pos, const groundobj_desc_t *b ) : 
 #ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::groundobj, pos)
 #else
@@ -189,20 +189,23 @@ void groundobj_t::rdwr(loadsave_t *file)
 	obj_t::rdwr(file);
 
 	if(file->is_saving()) {
-		const char *s = get_besch()->get_name();
+		const char *s = get_desc()->get_name();
 		file->rdwr_str(s);
 	}
 	else {
 		char bname[128];
 		file->rdwr_str(bname, lengthof(bname));
-		groundobj_besch_t *besch = besch_names.get(bname);
-		if(  besch_names.empty()  ||  besch==NULL  ) {
+		groundobj_desc_t *desc = desc_names.get(bname);
+		if (desc == NULL) {
+			desc = desc_names.get(translator::compatibility_name(bname));	
+		}
+		if (desc == NULL) {
 			groundobjtype = simrand(groundobj_typen.get_count(), "void groundobj_t::rdwr(loadsave_t *file)");
 		}
 		else {
-			groundobjtype = besch->get_index();
+			groundobjtype = desc->get_index();
 		}
-		// if not there, besch will be zero
+		// if not there, desc will be zero
 	}
 }
 
@@ -228,22 +231,22 @@ void groundobj_t::info(cbuffer_t & buf) const
 {
 	obj_t::info(buf);
 
-	buf.append(translator::translate(get_besch()->get_name()));
-	if (char const* const maker = get_besch()->get_copyright()) {
+	buf.append(translator::translate(get_desc()->get_name()));
+	if (char const* const maker = get_desc()->get_copyright()) {
 		buf.append("\n");
 		buf.printf(translator::translate("Constructed by %s"), maker);
 	}
 	buf.append("\n");
 	buf.append(translator::translate("cost for removal"));
 	char buffer[128];
-	money_to_string( buffer, get_besch()->get_preis()/100.0 );
+	money_to_string( buffer, get_desc()->get_value()/100.0 );
 	buf.append( buffer );
 }
 
 
 void groundobj_t::cleanup(player_t *player)
 {
-	player_t::book_construction_costs(player, -get_besch()->get_preis(), get_pos().get_2d(), ignore_wt);
+	player_t::book_construction_costs(player, -get_desc()->get_value(), get_pos().get_2d(), ignore_wt);
 	mark_image_dirty( get_image(), 0 );
 }
 

@@ -32,13 +32,13 @@ private:
 
 	// The number of goods to be displayed. May be less than maximum number of goods possible,
 	// if we are filtering to only the goods being produced by factories in the current game.
-	int listed_goods;
+	int listd_goods;
 
 public:
 	goods_stats_t();
 
 	// update list and resize
-	void update_goodslist(uint16 *g, int relative_speed_percentage, int listed_goods, uint32 distance, uint8 comfort, uint8 catering, waytype_t waytype);
+	void update_goodslist(uint16 *g, int relative_speed_percentage, int listd_goods, uint32 distance, uint8 comfort, uint8 catering, waytype_t waytype);
 
 	/**
 	* Draw the component

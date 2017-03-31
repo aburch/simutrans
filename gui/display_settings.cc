@@ -115,7 +115,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// traffic density
 	traffic_density.set_pos( scr_coord(L_DIALOG_WIDTH-10-45,DENS_TRAFFIC-1) );
 	traffic_density.set_size( scr_size( 45, D_BUTTON_HEIGHT-1 ) );
-	traffic_density.set_value(welt->get_settings().get_verkehr_level());
+	traffic_density.set_value(welt->get_settings().get_traffic_level());
 	traffic_density.set_limits( 0, 16 );
 	traffic_density.add_listener(this);
 
@@ -341,7 +341,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 			welt->set_tool( tool_t::simple_tool[TOOL_TRAFFIC_LEVEL&0xFFF], welt->get_active_player() );
 		}
 		else {
-			traffic_density.set_value(welt->get_settings().get_verkehr_level());
+			traffic_density.set_value(welt->get_settings().get_traffic_level());
 		}
 	} else if(&scrollspeed==comp) {
 		env_t::scroll_multi = (sint16)( buttons[6].pressed ? -v.i : v.i );

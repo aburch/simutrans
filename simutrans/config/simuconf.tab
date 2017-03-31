@@ -25,6 +25,10 @@
 #
 # Do not delete these comment line! (Needed for installer)
 
+progdir_overrides_savegame_settings = 0
+pak_overrides_savegame_settings = 0
+userdir_overrides_savegame_settings = 0
+
 # Default pak file path
 # which graphics you want to play?
 # Nothing means automatic selection
@@ -251,7 +255,7 @@ just_in_time = 1
 # This is only enabled when "just_in_time" is enabled
 # The limit is given in percent of factory storage (0=off)
 #
-# This number is (as of Simutrans-Experimental 11.16) scaled to the ratio
+# This number is (as of Simutrans-Extended 11.16) scaled to the ratio
 # of the time that it takes the industry to consume its stock to the average
 # lead time for new deliveries. Values of slightly over 100% are recommended.
 maximum_intransit_percentage = 110
@@ -289,7 +293,7 @@ remove_dummy_player_months = 6
 # remove password of abandoned companies (wihtout any building activity) after x month (0=off default)
 unprotect_abondoned_player_months = 0
 
-# how long is a diagonal (512: faktor 2=1024/512, old way, 724: sqrt(2)=1024/724
+# how long is a diagonal (512: factor 2=1024/512, old way, 724: sqrt(2)=1024/724
 # THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
 #diagonal_multiplier = 724
 
@@ -503,6 +507,9 @@ toll_waycost_percentage = 0
 # in beginner mode, all good prices are multiplied by a factor (default 1500=1.5)
 beginner_price_factor = 1500
 
+ # The number of months of maintainance that the make public tool costs to use
+cst_make_public_months = 60
+
 ################################### Miscellaneous settings ##################################
 #
 # also pak dependent
@@ -652,6 +659,11 @@ town_road_speed_limit = 50
 # This allows for height maps with more height levels
 new_height_map_conversion = 0
 
+# disable companies from making ways public with the appropiate tool
+# even when disabled companies can still make stops public
+# does not affect public service provider player
+disable_make_way_public = 0
+
 ################################# Tree settings #################################
 #  please be careful in changing them, I spent lot of time finding optimals.
 #  those values have impact on no. of spawned trees -> memory consumption
@@ -783,7 +795,7 @@ fast_forward = 100
 # Sets the local addresses Simutrans should listen on and use for making outgoing connections
 # By default it will use all local IPv4 and IPv6 addresses
 # This setting has no effect if Simutrans has been compiled with the USE_IP4_ONLY flag set!
-# The addresses listed will be tried in the order specified
+# The addresses listd will be tried in the order specified
 # A DNS name may be specified, this will be resolved and Simutrans will attempt to listen
 # on all of the addresses returned.
 #listen = ::,0.0.0.0
@@ -849,7 +861,7 @@ server_frames_between_checks = 32
 #server_infurl = http://your.domain/server-info.html
 
 # Pause server when no clients are connected
-#pause_server_no_clients = 1
+pause_server_no_clients = 0
 
 # Nickname when joining network games
 #nickname = John Doe
@@ -859,6 +871,15 @@ server_save_game_on_quit = 0
 
 # Chat window transparency (0=off, 25, 50 75 are possible)
 chat_transparency = 75
+
+# The number of game months before a player making no changes
+# to its company is unlocked automatically to allow other players
+# to take over.
+unprotect_abandoned_player_months = 120
+
+# The number of game months before a player that has never built
+# anything substantive is deleted automatically.
+remove_dummy_player_months = 24
 
 # Here you can add a message about your server (It will read this file on each joining anew)
 #server_motd_filename =

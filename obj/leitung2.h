@@ -23,7 +23,7 @@
 class powernet_t;
 class player_t;
 class fabrik_t;
-class weg_besch_t;
+class way_desc_t;
 
 class leitung_t : public obj_t
 {
@@ -42,7 +42,7 @@ protected:
 	*/
 	powernet_t * net;
 
-	const weg_besch_t *besch;
+	const way_desc_t *desc;
 
 	fabrik_t *fab;
 
@@ -74,8 +74,8 @@ public:
 	powernet_t* get_net() const { return net; }
 	void set_net(powernet_t* p) { net = p; }
 
-	const weg_besch_t * get_besch() { return besch; }
-	void set_besch(const weg_besch_t *new_besch) { besch = new_besch; }
+	const way_desc_t * get_desc() { return desc; }
+	void set_desc(const way_desc_t *new_desc) { desc = new_desc; }
 
 	int gimme_neighbours(leitung_t **conn);
 	static fabrik_t * suche_fab_4(const koord pos);
@@ -115,7 +115,7 @@ public:
 
 	ribi_t::ribi get_ribi() const { return ribi; }
 
-	inline void set_bild( image_id b ) { image = b; }
+	inline void set_image( image_id b ) { image = b; }
 	image_id get_image() const {return is_crossing ? IMG_EMPTY : image;}
 	image_id get_front_image() const {return is_crossing ? image : IMG_EMPTY;}
 
@@ -154,7 +154,7 @@ public:
 class pumpe_t : public leitung_t
 {
 public:
-	static void neue_karte();
+	static void new_world();
 	static void step_all(uint32 delta_t);
 
 private:
@@ -190,7 +190,7 @@ public:
 class senke_t : public leitung_t, public sync_steppable
 {
 public:
-	static void neue_karte();
+	static void new_world();
 	static void step_all(uint32 delta_t);
 	static slist_tpl<senke_t *> senke_list;
 

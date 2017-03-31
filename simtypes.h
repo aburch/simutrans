@@ -35,7 +35,7 @@
 
 #define CXX11(gcc_major, gcc_minor, msc_ver) ( \
 	__cplusplus >= 201103L || \
-	(defined __GXX_EXPERIMENTAL_CXX0X__ && GCC_ATLEAST((gcc_major), (gcc_minor))) || \
+	(defined __GXX_EXTENDED_CXX0X__ && GCC_ATLEAST((gcc_major), (gcc_minor))) || \
 	(defined _MSC_VER && (msc_ver) != 0 && _MSC_VER >= (msc_ver)) \
 )
 
@@ -90,7 +90,7 @@ enum climate_bits
 };
 
 /**
- * Vordefinierte Wegtypen.
+ * Vordefinierte Wetypeen.
  * @author Hj. Malthaner
  */
 enum waytype_t {
@@ -109,6 +109,18 @@ enum waytype_t {
 	powerline_wt     = 128
 };
 
+/**
+ * System types for ways
+ */
+enum systemtype_t {
+	type_flat = 0,	///< flat track
+	type_elevated = 1,	///< flag for elevated ways
+	type_runway = 1,	///< flag for runway (only aircrafts)
+	type_tram = 7,	///< tram track (waytype = track_wt)
+	type_river = 255,	///< flag for river
+	type_all = 255,	///< special ?
+};
+
 enum working_method_t { drive_by_sight, time_interval, absolute_block, token_block, track_circuit_block, cab_signalling, moving_block, one_train_staff, time_interval_with_telegraph };
 
 // makros are not very safe: thus use these macro like functions
@@ -116,7 +128,7 @@ enum working_method_t { drive_by_sight, time_interval, absolute_block, token_blo
 
 #define CLIP(wert,mini,maxi)  min(max((wert),(mini)),(maxi))
 
-// Hajo: define machine independant types
+// Hajo: define machine independent types
 typedef unsigned int        uint;
 typedef   signed char       sint8;
 typedef unsigned char       uint8;
@@ -312,7 +324,7 @@ static inline bool operator == (const id_pair& a, int b)
 	return b == 0 && a == id_pair(0, 0);
 }
 
-// endian coversion routines
+// endian conversion routines
 
 static inline uint16 endian(uint16 v)
 {

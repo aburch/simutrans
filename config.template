@@ -28,7 +28,7 @@
 #PROFILE = 1  # Enable profiling
 #PROFILE = 2  # Enable profiling with optimisation flags, can be used with `OPTIMISE = 1'
 
-#WITH_REVISION = 1 # adds the revision from svn; required for networkgames
+WITH_REVISION = 1 # adds the revision from Github; required for networkgames
 # if you do not use SVN, add -DREVISION="1234" to the FLAGS below
 
 #WIN32_CONSOLE = 1 # adds a console for windows debugging
@@ -69,6 +69,7 @@ MULTI_THREAD = 1 # Enable multithreading
 #
 # In order to use the flags, add a line like this: (-Dxxx)
 # FLAGS = -DUSE_C
+# The above flag is recommended for speed on modern CPUs: see http://forum.simutrans.com/index.php?topic=16773.msg159658#msg159658
 
 # Output directories:
 #
@@ -77,11 +78,11 @@ MULTI_THREAD = 1 # Enable multithreading
 #
 # BUILDDIR = $(shell pwd)
 #
-# use this to specifiy the target directory for the executable:
+# use this to specify the target directory for the executable:
 # .. otherwise defaults to BUILDDIR
 #
 # MAKEOBJ_PROGDIR = $(shell pwd)
 # NETTOOL_PROGDIR = $(shell pwd)
 # PROGDIR  = $(shell pwd)
 
-FLAGS = -fno-delete-null-pointer-checks -fno-strict-aliasing -std=c++11
+FLAGS = -DUSE_C -fno-delete-null-pointer-checks -fno-strict-aliasing 

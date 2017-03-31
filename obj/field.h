@@ -5,16 +5,16 @@
 #include "../display/simimg.h"
 
 
-class field_class_besch_t;
+class field_class_desc_t;
 class fabrik_t;
 
 class field_t : public obj_t
 {
 	fabrik_t *fab;
-	const field_class_besch_t *besch;
+	const field_class_desc_t *desc;
 
 public:
-	field_t(const koord3d pos, player_t *player, const field_class_besch_t *besch, fabrik_t *fab);
+	field_t(const koord3d pos, player_t *player, const field_class_desc_t *desc, fabrik_t *fab);
 	virtual ~field_t();
 
 	const char* get_name() const { return "Field"; }
@@ -33,7 +33,7 @@ public:
 	void show_info();
 
 	/**
-	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @return NULL when OK, otherwise an error message
 	 * @author Hj. Malthaner
 	 */
 	const char *  is_deletable(const player_t *);

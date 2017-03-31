@@ -1,7 +1,7 @@
 /*
- * Natur-Untergrund für Simutrans.
- * Überarbeitet Januar 2001
- * von Hj. Malthaner
+ * Nature/Countryside ground for Simutrans.
+ * Revised January 2001
+ * Hj. Malthaner
  */
 
 #include "../simworld.h"
@@ -14,8 +14,8 @@
 
 #include "boden.h"
 
-#include "../besch/grund_besch.h"
-#include "../besch/skin_besch.h"
+#include "../descriptor/ground_desc.h"
+#include "../descriptor/skin_desc.h"
 
 
 boden_t::boden_t(loadsave_t *file, koord pos ) : grund_t( koord3d(pos,0) )
@@ -29,7 +29,7 @@ boden_t::boden_t(loadsave_t *file, koord pos ) : grund_t( koord3d(pos,0) )
 			sint32 age;
 			file->rdwr_long( age );
 			// check, if we still have this tree ... (if there are not trees, the first index is NULL!)
-			if (id < baum_t::get_anzahl_besch() && baum_t::get_all_besch()[id]) {
+			if (id < baum_t::get_count() && baum_t::get_all_desc()[id]) {
 				baum_t *tree = new baum_t( get_pos(), (uint8)id, age, slope );
 				objlist.add( tree );
 			}
@@ -43,7 +43,7 @@ boden_t::boden_t(loadsave_t *file, koord pos ) : grund_t( koord3d(pos,0) )
 }
 
 
-boden_t::boden_t(koord3d pos, hang_t::typ sl) : grund_t(pos)
+boden_t::boden_t(koord3d pos, slope_t::type sl) : grund_t(pos)
 {
 	slope = sl;
 }
@@ -61,7 +61,7 @@ void boden_t::rdwr(loadsave_t *file)
 				obj_t *obj = objlist.bei(i);
 				if(  obj->get_typ()==obj_t::baum  ) {
 					baum_t *tree = (baum_t *)obj;
-					file->wr_obj_id( tree->get_besch_id() );
+					file->wr_obj_id( tree->get_desc_id() );
 					uint32 age = tree->get_age();
 					file->rdwr_long( age );
 				}
@@ -85,32 +85,32 @@ const char *boden_t::get_name() const
 }
 
 
-void boden_t::calc_bild_internal(const bool calc_only_snowline_change)
+void boden_t::calc_image_internal(const bool calc_only_snowline_change)
 {
-	const hang_t::typ slope_this = get_disp_slope();
+	const slope_t::type slope_this = get_disp_slope();
 
 	const weg_t *const weg = get_weg( road_wt );
 	if(  weg  &&  weg->hat_gehweg()  ) {
 		// single or double slope? (single slopes are not divisible by 8)
-		const uint8 bild_nr = (!slope_this  ||  (slope_this & 7)) ? grund_besch_t::slopetable[slope_this] : grund_besch_t::slopetable[slope_this >> 1] + 12;
+		const uint8 imageid = (!slope_this  ||  (slope_this & 7)) ? ground_desc_t::slopetable[slope_this] : ground_desc_t::slopetable[slope_this >> 1] + 12;
 
-		if(  (get_hoehe() >= welt->get_snowline()  ||  welt->get_climate(pos.get_2d()) == arctic_climate)  &&  skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 1) != IMG_EMPTY  ) {
+		if(  (get_hoehe() >= welt->get_snowline()  ||  welt->get_climate(pos.get_2d()) == arctic_climate)  &&  skinverwaltung_t::fussweg->get_image_id(imageid + 1) != IMG_EMPTY  ) {
 			// snow images
-			set_bild( skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 1) );
+			set_image( skinverwaltung_t::fussweg->get_image_id(imageid + 1) );
 		}
-		else if(  slope_this != 0  &&  get_hoehe() == welt->get_snowline() - 1  &&  skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 2) != IMG_EMPTY  ) {
+		else if(  slope_this != 0  &&  get_hoehe() == welt->get_snowline() - 1  &&  skinverwaltung_t::fussweg->get_image_id(imageid + 2) != IMG_EMPTY  ) {
 			// transition images
-			set_bild( skinverwaltung_t::fussweg->get_bild_nr(bild_nr + 2) );
+			set_image( skinverwaltung_t::fussweg->get_image_id(imageid + 2) );
 		}
 		else {
-			set_bild( skinverwaltung_t::fussweg->get_bild_nr(bild_nr) );
+			set_image( skinverwaltung_t::fussweg->get_image_id(imageid) );
 		}
 	}
 	else {
-		set_bild( grund_besch_t::get_ground_tile(this) );
+		set_image( ground_desc_t::get_ground_tile(this) );
 	}
 
 	if(  !calc_only_snowline_change  ) {
-		grund_t::calc_back_bild( get_disp_height(), slope_this );
+		grund_t::calc_back_image( get_disp_height(), slope_this );
 	}
 }

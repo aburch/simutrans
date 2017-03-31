@@ -24,7 +24,7 @@
  * work in fixed time. Maintains a list of free nodes to reduce calls
  * to new and delete.
  *
- * Must NOT be used with things with copy contructor like button_t or std::string!!!
+ * Must NOT be used with things with copy constructor like button_t or std::string!!!
  *
  * @date November 2000
  * @author Hj. Malthaner
@@ -145,7 +145,7 @@ public:
 	 */
 	slist_tpl()
 	{
-		head = 0;             // leere liste
+		head = 0;             // empty list
 		tail = 0;
 		node_count = 0;
 	}
@@ -276,7 +276,7 @@ public:
 		while(p != 0 && p->data != data) {
 			p = p->next;
 		}
-		return p != 0;         // ist NULL wenn nicht gefunden
+		return p != 0;         // is NULL when not found
 	}
 
 	/**
@@ -324,7 +324,7 @@ public:
 
 	/**
 	 * Retrieves the first element from the list. This element is
-	 * deleted from the list. Useful for some queueing tasks.
+	 * deleted from the list. Useful for some queuing tasks.
 	 * @author Hj. Malthaner
 	 */
 	T remove_first()

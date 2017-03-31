@@ -27,7 +27,9 @@
 *.diagsession
 *.iobj
 *.ipdb
+*.TMP
 settings-experimental-debug.xml
+settings-extended-debug.xml
 ipch
 /Debug
 /Debug (SDL)
@@ -49,8 +51,10 @@ pak*
 PAK*
 settings.xml
 /simutrans-experimental
+/simutrans-extended
 /Debug-makeobj
-Simutrans-Experimental.exe
+simutrans-experimental*
+simexstrip
 _UpgradeReport_Files*
 /.build
 *.orig
@@ -74,6 +78,7 @@ _UpgradeReport_Files*
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
+revision.h
 
 # Folder config file
 Desktop.ini
@@ -153,6 +158,7 @@ simctrl
 envvars
 text/*.*
 text/en/Simutrans-Experimental.vcxproj.lnk
+text/en/Simutrans-Extended.vcxproj.lnk
 text/all-help-file-names
 
 /Simutrans-Ex/nbproject/private/

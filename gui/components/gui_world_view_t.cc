@@ -62,7 +62,7 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 	sint16        y_offset  = 0;
 	if(obj) { // offsets?
 		fine_here = scr_coord(tile_raster_scale_x(-obj->get_xoff(), raster), tile_raster_scale_y(-obj->get_yoff() % (OBJECT_OFFSET_STEPS * 2), raster));
-		y_offset  = obj->get_yoff() / (OBJECT_OFFSET_STEPS * 2);
+		y_offset = obj->get_yoff() / (OBJECT_OFFSET_STEPS * 2);
 		if(vehicle_base_t const* const v = obj_cast<vehicle_base_t>(obj)) {
 			int x = 0;
 			int y = 0;

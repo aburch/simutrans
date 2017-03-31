@@ -383,6 +383,11 @@ public:
 	const char* get_message()  const { return message.c_str(); }
 };
 
+#ifdef NETTOOL
+#undef min
+#undef max
+#endif
+
 static inline float32e8_t min(const float32e8_t a, const float32e8_t b)
 {
 	return a < b ? a : b;

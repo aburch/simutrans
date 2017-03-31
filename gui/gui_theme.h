@@ -12,13 +12,13 @@
 #include "../simcolor.h"
 #include "../display/simgraph.h"
 
-class bild_besch_t;
+class image_t;
 
 
 /*
  * The following gives positioning aids for elements in dialogues
  * Only those, LINESPACE, and dimensions of elements itself must be
- * exclusively used to calculate positions in dialogues to have a
+ * exclusively used to calculate positions in dialoguess to have a
  * scalable interface
  *
  * Max Kielland:
@@ -299,7 +299,7 @@ public:
 	static void init_gui_defaults();
 
 	// assings k with the dimension of this image
-	static void init_size_from_bild( const bild_besch_t *pic, scr_size &k );
+	static void init_size_from_image( const image_t *pic, scr_size &k );
 
 	// init the skin dimensions form file
 	static void init_gui_from_images();

@@ -13,7 +13,7 @@
 #include "../simevent.h"
 #include "../display/simimg.h"
 #include "../simworld.h"
-#include "../besch/skin_besch.h"
+#include "../descriptor/skin_desc.h"
 #include "../simskin.h"
 #include "../dataobj/translator.h"
 #include "../player/simplay.h"
@@ -24,7 +24,7 @@ farbengui_t::farbengui_t(player_t *player) :
 	txt(&buf),
 	c1( "Your primary color:" ),
 	c2( "Your secondary color:" ),
-	image( skinverwaltung_t::color_options->get_bild_nr(0), player->get_player_nr() )
+	image( skinverwaltung_t::color_options->get_image_id(0), player->get_player_nr() )
 {
 	scr_coord cursor = scr_coord (D_MARGIN_TOP, D_MARGIN_LEFT);
 
@@ -60,7 +60,7 @@ farbengui_t::farbengui_t(player_t *player) :
 
 	// Primary color buttons
 	for(unsigned i=0;  i<28;  i++) {
-		player_color_1[i].init( button_t::box_state, (used_colors1 & (1<<(i+1)) ? "X" : ""), scr_coord( cursor.x+(i%14)*(D_BUTTON_HEIGHT+D_H_SPACE), cursor.y+(i/14)*(D_BUTTON_HEIGHT+D_V_SPACE) ) , scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
+		player_color_1[i].init(button_t::box_state, (used_colors1 & (1 << i) ? "X" : ""), scr_coord(cursor.x + (i % 14)*(D_BUTTON_HEIGHT + D_H_SPACE), cursor.y + (i / 14)*(D_BUTTON_HEIGHT + D_V_SPACE)), scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
 		player_color_1[i].background_color = i*8+4;
 		player_color_1[i].add_listener(this);
 		add_component( player_color_1+i );
@@ -75,7 +75,7 @@ farbengui_t::farbengui_t(player_t *player) :
 
 	// Secondary color buttons
 	for(unsigned i=0;  i<28;  i++) {
-		player_color_2[i].init( button_t::box_state, (used_colors2 & (1<<(i+1)) ? "X" : ""), scr_coord( cursor.x+(i%14)*(D_BUTTON_HEIGHT+D_H_SPACE), cursor.y+(i/14)*(D_BUTTON_HEIGHT+D_V_SPACE) ), scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
+		player_color_2[i].init(button_t::box_state, (used_colors2 & (1 << i) ? "X" : ""), scr_coord(cursor.x + (i % 14)*(D_BUTTON_HEIGHT + D_H_SPACE), cursor.y + (i / 14)*(D_BUTTON_HEIGHT + D_V_SPACE)), scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
 		player_color_2[i].background_color = i*8+4;
 		player_color_2[i].add_listener(this);
 		add_component( player_color_2+i );

@@ -240,7 +240,7 @@ void server_frame_t::update_info ()
 		buf.printf( translator::translate("%u Player (%u locked)\n"), player, locked );
 		buf.printf( translator::translate("%u Client(s)\n"), (unsigned)gi.get_clients() );
 	}
-	buf.printf( "%s %u\n", translator::translate("Towns"), gi.get_anzahl_staedte() );
+	buf.printf( "%s %u\n", translator::translate("Towns"), gi.get_city_count() );
 	number_to_string( temp, gi.get_einwohnerzahl(), 0 );
 	buf.printf( "%s %s\n", translator::translate("citicens"), temp );
 	buf.printf( "%s %u\n", translator::translate("Factories"), gi.get_industries() );
@@ -248,7 +248,7 @@ void server_frame_t::update_info ()
 	buf.printf( "%s %u\n", translator::translate("Stops"), gi.get_halt_count() );
 
 	revision_buf.clear();
-	revision_buf.printf( "%s %u", translator::translate( "Revision:" ), gi.get_game_engine_revision() );
+	revision_buf.printf( "%s %x", translator::translate( "Revision:" ), gi.get_game_engine_revision() );
 	revision.set_text( revision_buf );
 	revision.set_color( engine_match ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG );
 

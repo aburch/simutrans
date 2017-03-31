@@ -17,7 +17,7 @@
 #include "../simworld.h"
 #include "../simcity.h"
 #include "../simhalt.h"
-#include "../besch/grund_besch.h"
+#include "../descriptor/ground_desc.h"
 #include "../player/simplay.h"
 #include "../gui/karte.h"
 #include "../utils/simstring.h"
@@ -43,10 +43,10 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 
 	industries = welt->get_fab_list().get_count();
 	tourist_attractions = welt->get_ausflugsziele().get_count();
-	anzahl_staedte = welt->get_staedte().get_count();
-	einwohnerzahl = 0;
+	city_count = welt->get_staedte().get_count();
+	citizen_count = 0;
 	FOR(weighted_vector_tpl<stadt_t*>, const i, welt->get_staedte()) {
-		einwohnerzahl += i->get_einwohner();
+		citizen_count += i->get_einwohner();
 	}
 
 	const int gr_x = welt->get_size().x;
@@ -92,7 +92,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	file_name = s.get_filename();
 
 	// comment currently not used
-	char const* const copyright = grund_besch_t::ausserhalb->get_copyright();
+	char const* const copyright = ground_desc_t::outside->get_copyright();
 	if (copyright && STRICMP("none", copyright) != 0) {
 		// construct from outside object copyright string
 		pak_name = copyright;
@@ -104,7 +104,8 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	}
 
 #ifdef REVISION
-	game_engine_revision = atol( QUOTEME(REVISION) );
+	//game_engine_revision = atol( QUOTEME(REVISION) );
+	game_engine_revision = strtol(QUOTEME(REVISION), NULL, 16);
 #else
 	game_engine_revision = 0;
 #endif
@@ -136,8 +137,8 @@ void gameinfo_t::rdwr(loadsave_t *file)
 
 	file->rdwr_long( industries );
 	file->rdwr_long( tourist_attractions );
-	file->rdwr_long( anzahl_staedte );
-	file->rdwr_long( einwohnerzahl );
+	file->rdwr_long( city_count );
+	file->rdwr_long( citizen_count );
 
 	file->rdwr_short( convoi_count );
 	file->rdwr_short( halt_count );

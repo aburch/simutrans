@@ -110,11 +110,11 @@ public:
 	 * @author (Mathew Hounsell)
 	 * @date   11-Mar-2003
 	 */
-	void set_windowsize(scr_size groesse);
+	void set_windowsize(scr_size size);
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
-	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * @return den Dateinamen for the Hilfe, oder NULL
 	 * @author Hj. Malthaner
 	 */
 	const char * get_help_filename() const {return "replace.txt";}

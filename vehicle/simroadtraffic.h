@@ -3,7 +3,7 @@
 
 /**
  * Moving objects for Simutrans.
- * Transport vehicles are defined in simvehikel.h, because they greatly
+ * Transport vehicles are defined in simvehicle.h, because they greatly
  * differ from the vehicles defined herein for the individual traffic
  * (pedestrians, citycars, movingobj aka flock of sheep).
  *
@@ -19,7 +19,7 @@
 #include "../tpl/stringhashtable_tpl.h"
 #include "../ifc/sync_steppable.h"
 
-class stadtauto_besch_t;
+class citycar_desc_t;
 class karte_t;
 
 /**
@@ -103,7 +103,7 @@ private:
 	
 	koord origin;
 
-	const stadtauto_besch_t *besch;
+	const citycar_desc_t *desc;
 
 	//route_t route;
 	//uint16 route_index;
@@ -140,9 +140,9 @@ public:
 
 	virtual ~private_car_t();
 
-	static stringhashtable_tpl<const stadtauto_besch_t *> table;
+	static stringhashtable_tpl<const citycar_desc_t *> table;
 
-	const stadtauto_besch_t *get_besch() const { return besch; }
+	const citycar_desc_t *get_desc() const { return desc; }
 
 	sync_result sync_step(uint32 delta_t);
 
@@ -175,8 +175,8 @@ public:
 	static void build_timeline_list(karte_t *welt);
 	static bool list_empty();
 
-	static bool register_besch(const stadtauto_besch_t *besch);
-	static bool alles_geladen();
+	static bool register_desc(const citycar_desc_t *desc);
+	static bool successfully_loaded();
 
 	// since we must consider overtaking, we use this for offset calculation
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;

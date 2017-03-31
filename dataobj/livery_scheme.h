@@ -12,7 +12,7 @@
 #include "../tpl/vector_tpl.h"
 
 class loadsave_t;
-class vehikel_besch_t;
+class vehicle_desc_t;
 
 struct livery_t
 {
@@ -64,7 +64,7 @@ public:
 		}
 	}
 
-	const char* get_latest_available_livery(uint16 date, const vehikel_besch_t* besch) const;
+	const char* get_latest_available_livery(uint16 date, const vehicle_desc_t* desc) const;
 
 	void rdwr(loadsave_t *file);
 };

@@ -31,7 +31,7 @@ Time interval signalling is best used at doubble tracked lines with trains that 
 <em>One train staff</em><br>
 One train staff (and "staff" as in stick rather than employee) is a system in which only one train is permitted on a whole stretch of line. It is very simple in operation: only a train whose driver is in physical possession of the staff may enter the section. This system must therefore have only one entry and exit point for all trains, or else the staff would be left in the wrong place. <br><br>
 
-- When a train approaches the "one train staff"-cabinett, it will come to a halt to check wether the staff is available inside the cabinett<br>
+- When a train approaches the "one train staff"-cabinett, it will come to a halt to check whether the staff is available inside the cabinett<br>
 - If the staff is in the cabinett, the train will grab it and reserve the entire route ahead of the train 
 - The train will now continue beyond the cabinett at full speed<br>
 - The train returns the staff to the cabinett when it reaches that cabinet again, (or until it reaches the same point in its schedule as it is now, whichever is sooner).<br><br>
@@ -43,7 +43,7 @@ One train staff are especially usefull on very basic railways, where one single 
 <em>Token block</em><br>
 Token block is a much more sophisticated system than the "One train staff"-system and can be used to control singletracked lines. In real railways, it requires a train's driver to hold a physical token before entering the section. However, there is more than one such token, meaning that many trains can go through the section in one direction one after another. Only one token can be released at any one time and no other token can be released before the initial token is returned to a token machine. This is ensured by telegraph equipment at either end of the section.<br><br>
 
-- When a train approaches a token block signal, it will come to a halt to check wether a token is available from the signals token machine<br>
+- When a train approaches a token block signal, it will come to a halt to check whether a token is available from the signals token machine<br>
 - If a token is released, the train will grab it and continue beyond the signal<br>
 - The train will now reserve the entire route ahead up to the next signal (any signal) or drive by sight sign and drive at full speed. It will reserve through stations as well<br>
 - The train will keep its entire reservation until it has fully passed the next signal.<br>
@@ -53,7 +53,7 @@ Token block signalling is usefull on single track lines, with multiple sections 
 
 <em>Absolute block</em><br>
 The absolute block system is the most basic and simple form of signalling available. It prevents that no more than one train is inside the same block at the same time and do not take diretions or keep reservations behind the train.<br>
-In real life, everything is checked by the humans inside the signalboxes, which use telephone or telegraph to communicate between signalboxes, asking each other wether the former train had arrived and if the next train may be sent.<br>
+In real life, everything is checked by the humans inside the signalboxes, which use telephone or telegraph to communicate between signalboxes, asking each other whether the former train had arrived and if the next train may be sent.<br>
 Presignals using absolute block behaves a bit different to presignals using other systems by alarming the approaching train of the states of ALL of the signals it will face, connected to this signalbox, not just the first nextcoming signal. If all signals facing the train are clear, the presignal will be set to clear, however if only one signal are at danger, the presignal will also be at danger. Therefore presignals must be placed BEFORE the first stop signal of the signalbox to have the effect.<br>
 - Trains will reserve path up to next signal<br>
 - If the train passes a presignal showing CLEAR, the train will reserve the entire path up to the first stop signal of the "next" signalbox.<br>
