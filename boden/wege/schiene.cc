@@ -10,6 +10,7 @@
 #include "../../gui/simwin.h"
 #include "../../simconvoi.h"
 #include "../../simworld.h"
+#include "../../utils/simstring.h"
 #include "../../vehicle/simvehicle.h"
 
 #include "../../obj/signal.h"
@@ -25,6 +26,7 @@
 #include "../../gui/schiene_info.h"
 
 #include "schiene.h"
+
 
 const way_desc_t *schiene_t::default_schiene=NULL;
 bool schiene_t::show_reservations = false;
@@ -75,18 +77,74 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 {
 	weg_t::info(buf, is_bridge);
 
-	if(reserved.is_bound()) {
+	schiene_t* sch = (schiene_t*)this;
+
+	if(reserved.is_bound()) 
+	{
 		const char* reserve_text = translator::translate("\nis reserved by:");
 		// ignore linebreak
 		if (reserve_text[0] == '\n') {
 			reserve_text++;
 		}
+		uint8 textlines = 3; // to locate the clickable button
 		buf.append(reserve_text);
+		buf.append("\n   ");
 		buf.append(reserved->get_name());
+		buf.append("\n   ");
+		buf.append(get_reservation_type_name(get_reservation_type()));
+		if (get_reservation_type() == directional)
+		{
+			buf.append(" ");
+			buf.append(translator::translate("heading"));
+			buf.append(": ");
+			buf.append(get_directions_name(get_reserved_direction()));
+		}
+		buf.append("\n   ");
+		buf.append(translator::translate("distance_to_vehicle"));
+		buf.append(": ");
+	/*	working_method_t wm = reserved->get_working_method();
+		buf.append(wm);
 		buf.append("\n");
+		*/
+		koord3d vehpos = reserved->get_pos();
+		koord3d schpos = sch->get_pos();
+		const uint32 tiles_to_vehicle = shortest_distance(schpos.get_2d(), vehpos.get_2d());
+		const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
+		const double km_to_vehicle = (double)tiles_to_vehicle * km_per_tile;
+
+		if (km_to_vehicle < 1)
+		{
+			float m_to_vehicle = km_to_vehicle * 1000;
+			buf.append(m_to_vehicle);
+			buf.append("m");
+		}
+		else
+		{
+			uint n_actual;
+			if (km_to_vehicle < 20)
+			{
+				n_actual = 1;
+			}
+			else
+			{
+				n_actual = 0;
+			}
+			char number_actual[10];
+			number_to_string(number_actual, km_to_vehicle, n_actual);
+			buf.append(number_actual);
+			buf.append("km");
+		}
+
+		sch->textlines_in_info_window = textlines;
+
+
 #ifdef DEBUG_PBS
 		reserved->show_info();
 #endif
+	}
+	else
+	{
+		buf.append(translator::translate("track_not_reserved"));
 	}
 }
 
