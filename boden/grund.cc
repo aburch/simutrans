@@ -1723,6 +1723,7 @@ gebaeude_t *grund_t::get_building() const
 	{
 		return gb;
 	}
+	
 	return get_depot();
 }
 

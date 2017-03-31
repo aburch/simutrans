@@ -1479,22 +1479,6 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 	}
 
-	if(file->get_extended_version() >= 12)
-	{
-		grund_t *gr = welt->lookup(pos_origin);
-		if(!gr)
-		{
-			gr = welt->lookup_kartenboden(pos_origin.get_2d());
-		}
-		gebaeude_t *gb = gr->find<gebaeude_t>();
-		
-		building = gb;
-		if (building)
-		{
-			building->set_fab(this);
-		}
-	}
-
 	has_calculated_intransit_percentages = false;
 	// Cannot calculate intransit percentages here,
 	// as this can only be done when paths are available.
