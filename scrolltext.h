@@ -213,6 +213,7 @@
 " Gareth Bull", "",
 " Colin Taft", "",
 " Tom Tait", "", 
+" YleArkisto", "", 
 "","",
 "Translation:","",
 "","",
