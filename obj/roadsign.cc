@@ -250,20 +250,54 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(translator::translate("choose_sign"));
 		buf.append("\n");
 	}
-	if (desc->get_max_speed() > 0)
+	if (desc->is_traffic_light())
 	{
-		buf.printf("%s%s%d%s%s", translator::translate("Max. speed:"), " ", speed_to_kmh(desc->get_max_speed()), " ", "km/h");
+		buf.append(translator::translate("traffic_light"));
+		buf.append("\n");
+	}
+	if (desc->is_single_way())
+	{
+		buf.append(translator::translate("single_way_sign"));
+		buf.append("\n");
+	}
+	if (desc->is_private_way())
+	{
+		buf.append(translator::translate("private_way_sign"));
+		buf.append("\n");
+	}
+	if (desc->is_end_choose_signal())
+	{
+		buf.append(translator::translate("end_of_choose_sign"));
 		buf.append("\n");
 	}
 	if (desc->get_min_speed() != 0)
 	{
-		buf.printf("%s%s%d%s%s", translator::translate("min_speed:"), " ", speed_to_kmh(desc->get_min_speed()), " ", "km/h");
+		buf.printf("%s%s%d%s%s", translator::translate("min_speed"), ": ", speed_to_kmh(desc->get_min_speed()), " ", "km/h");
 		buf.append("\n");
 	}
 
 	koord3d rs_pos = rs->get_pos();
-	const grund_t *rs_gr = welt->lookup_kartenboden(rs_pos.x, rs_pos.y);
 
+	const grund_t* rs_gr3d = welt->lookup(rs_pos);
+	const weg_t* way = rs_gr3d->get_weg(desc->get_wtyp() != tram_wt ? desc->get_wtyp() : track_wt);
+	if (way->get_max_speed() * 2 >= speed_to_kmh(desc->get_max_speed()))
+	{
+		buf.printf("%s%s%d%s%s", translator::translate("Max. speed:"), " ", speed_to_kmh(desc->get_max_speed()), " ", "km/h");
+		buf.append("\n");
+
+		if (way->is_rail_type())
+		{
+			buf.printf("%s%s%s%d%s%s%s", "(", translator::translate("track_speed"), ": ", way->get_max_speed(), " ", "km/h", ")");
+		}
+		else
+		{
+			buf.printf("%s%s%s%d%s%s%s", "(", translator::translate("way_speed"), ": ", way->get_max_speed(), " ", "km/h", ")");
+		}
+		buf.append("\n");
+	}
+	
+
+	const grund_t *rs_gr = welt->lookup_kartenboden(rs_pos.x, rs_pos.y);
 	if (rs_gr->get_hoehe() > rs_pos.z == true)
 	{
 		buf.append(translator::translate("underground_sign"));
@@ -272,12 +306,12 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 
 	if (desc->is_single_way())
 	{
-		buf.printf("%s%s%s", translator::translate("permitted_direction:"), " ", translator::translate(get_directions_name(get_dir())));
+		buf.printf("%s%s%s", translator::translate("permitted_direction"), ": ", translator::translate(get_directions_name(get_dir()))); // Perhaps: "direction_of_travel" ?
 		buf.append("\n");
 	}
 	else if (desc->is_traffic_light())
 	{
-		buf.printf("%s%s%s", translator::translate("current_clear_directions:"), "\n", translator::translate(get_directions_name(get_dir())));
+		buf.printf("%s%s%s", translator::translate("current_clear_directions"), ":\n", translator::translate(get_directions_name(get_dir()))); // Perhaps: "direction_of_travel" ?
 		buf.append("\n");
 	}
 	else
