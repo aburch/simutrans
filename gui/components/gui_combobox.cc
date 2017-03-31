@@ -151,8 +151,12 @@ DBG_MESSAGE("event","HOWDY!");
 				translate_event(&ev2, 0, -D_EDIT_HEIGHT - D_V_SPACE/2);
 			}
 
-			if(droplist.getroffen(ev->cx + pos.x, ev->cy + pos.y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
+			if(droplist.getroffen(ev->cx + pos.x, ev->cy + pos.y)  &&  IS_LEFTRELEASE(ev)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
+				int old_selection = droplist.get_selection();
 				droplist.infowin_event(&ev2);
+				if(  droplist.get_selection() !=  old_selection  ) {
+					call_listeners( droplist.get_selection() );
+				}
 				// we selected something?
 				if(finish  &&  IS_LEFTRELEASE(ev)) {
 					close_box();
@@ -160,7 +164,7 @@ DBG_MESSAGE("event","HOWDY!");
 			}
 			else {
 				// acting on "release" is better than checking for "new selection"
-				if (IS_LEFTRELEASE(ev)) {
+				if(  IS_LEFTRELEASE(ev)  ) {
 					close_box();
 					return false;
 				}

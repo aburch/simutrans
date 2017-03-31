@@ -167,7 +167,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 			swallowed = comp_focus->infowin_event(&ev2);
 
 			// set focus for component, if component allows focus
-			gui_component_t *focus = comp_focus->get_focus();
+			gui_component_t *focus = comp->get_focus();
 			if(  focus  &&  IS_LEFTCLICK(ev)  &&  comp->getroffen(ev->cx, ev->cy)  ) {
 				/* the focus swallow all following events;
 				 * due to the activation action
