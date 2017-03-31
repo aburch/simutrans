@@ -182,8 +182,29 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(translator::translate("underground_signal"));
 		buf.append("\n");
 	}
-	buf.printf("%s%s%d%s%s", translator::translate("Max. speed:")," ", speed_to_kmh(desc->get_max_speed()), " ", "km/h");
-	buf.append("\n");
+	if (desc->get_working_method() == drive_by_sight)
+	{
+		const sint32 max_speed_drive_by_sight = welt->get_settings().get_max_speed_drive_by_sight();
+		if (max_speed_drive_by_sight && get_desc()->get_waytype() != tram_wt)
+		{
+			buf.printf("%s%s%d%s%s", translator::translate("Max. speed:"), " ", speed_to_kmh(max_speed_drive_by_sight), " ", "km/h");
+			buf.append("\n");
+		}
+	}
+	else
+	{
+
+		buf.printf("%s%s%d%s%s", translator::translate("Max. speed:"), " ", speed_to_kmh(desc->get_max_speed()), " ", "km/h");
+		buf.append("\n");
+
+		const grund_t* sig_gr3d = welt->lookup(sig_pos);
+		const weg_t* way = sig_gr3d->get_weg(desc->get_wtyp() != tram_wt ? desc->get_wtyp() : track_wt);
+		//	if (way->get_max_speed() * 2 >= speed_to_kmh(desc->get_max_speed()))  // Wether this information only shall be shown when the track speed is close to or above the max speed of the signal
+		//	{
+		buf.printf("%s%s%s%d%s%s%s", "(", translator::translate("track_speed"), ": ", way->get_max_speed(), " ", "km/h", ")");
+		buf.append("\n");
+		//	}
+	}
 
 	buf.append(translator::translate("Direction"));
 	buf.append(": ");
