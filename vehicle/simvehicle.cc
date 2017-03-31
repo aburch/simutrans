@@ -2236,6 +2236,10 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(  cnv->is_overtaking()  ){
 			while(  test_index < route_index + 4u && test_index < r.get_count()  ){
 				grund_t *grn = welt->lookup(r.at(test_index));
+				if(  !grn  ) {
+					cnv->suche_neue_route();
+					return false;
+				}
 				for(  uint8 pos=1;  pos<(volatile uint8)grn->get_top();  pos++  ){
 					if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(grn->obj_bei(pos))  ){
 						if(  v->get_typ()==obj_t::pedestrian  ) {
@@ -2589,6 +2593,10 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top) c
 		// only_search_top == true: check whether there's no car in front of this vehicle. (Not the same lane.)
 		for(uint32 test_index = route_index < r.get_count() ? route_index : r.get_count() - 1u; test_index >= route_index - 2u; test_index--){
 			grund_t *gr = welt->lookup(r.at(test_index));
+			if(  !gr  ) {
+				cnv->suche_neue_route();
+				return NULL;
+			}
 			for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
 				if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
 					if(  v->get_typ()==obj_t::pedestrian  ) {
