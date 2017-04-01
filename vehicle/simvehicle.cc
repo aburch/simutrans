@@ -5719,7 +5719,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, schiene_t* sch)
 {
 	route_t* route = cnv ? cnv->get_route() : NULL;
-	if(sig && !sig->get_desc()->get_working_method() == token_block && cnv->get_state() != convoi_t::REVERSING)
+	if(sig && (sig->get_desc()->get_working_method() != token_block) && cnv->get_state() != convoi_t::REVERSING)
 	{
 		w->set_working_method(sig->get_desc()->get_working_method());
 	}
