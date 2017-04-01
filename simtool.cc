@@ -8057,7 +8057,7 @@ bool tool_change_convoi_t::init( player_t *player )
 			if(  new_state>0  ) {
 				cnv->set_state( new_state );
 				if(  new_state==convoi_t::EDIT_SCHEDULE  ) {
-					cnv->get_schedule()->finish_editing();
+					cnv->get_schedule()->start_editing();
 				}
 			}
 			break;

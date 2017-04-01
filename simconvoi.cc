@@ -93,7 +93,7 @@ karte_ptr_t convoi_t::welt;
 static const char * state_names[convoi_t::MAX_STATES] =
 {
 	"INITIAL",
-	"EDIT_SCHEDULE", //"Schedule input"
+	"EDIT_SCHEDULE",
 	"ROUTING_1",
 	"ROUTING_2",
 	"",
@@ -104,7 +104,7 @@ static const char * state_names[convoi_t::MAX_STATES] =
 	"WAITING_FOR_CLEARANCE_ONE_MONTH",
 	"CAN_START",
 	"CAN_START_ONE_MONTH",
-	"SELF_DESTRUCT",	// self destruct
+	"SELF_DESTRUCT",	
 	"WAITING_FOR_CLEARANCE_TWO_MONTHS",
 	"CAN_START_TWO_MONTHS",
 	"LEAVING_DEPOT",
@@ -1952,6 +1952,10 @@ end_loop:
 					// We aren't at our destination; start routing.
 					can_go ? state = ROUTING_1 : state = LOADING;
 				}
+			}
+			else
+			{
+				break;
 			}
 
 		case ROUTING_1:
@@ -4831,7 +4835,7 @@ void convoi_t::open_schedule_window( bool show )
 	}
 	if(schedule)
 	{
-		schedule->finish_editing();
+		schedule->start_editing();
 	}
 }
 
@@ -6103,7 +6107,7 @@ end_check:
 		if(!schedule->is_editing_finished()) {
 			schedule->copy_from( new_fpl );
 			schedule->set_aktuell(current_stop); // set new schedule current position to best match
-			schedule->finish_editing();
+			schedule->start_editing();
 		}
 		else {
 			schedule->copy_from( new_fpl );

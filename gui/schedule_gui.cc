@@ -327,7 +327,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 	player(player_),
 	cnv(cnv_)
 {
-	old_schedule->finish_editing();
+	old_schedule->start_editing();
 	schedule = old_schedule->copy();
 	stats.set_schedule(schedule);
 	if(  !cnv.is_bound()  ) {
@@ -833,7 +833,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 			new_line = li->get_line();
 			stats.highlight_schedule( schedule, false );
 			schedule->copy_from( new_line->get_schedule() );
-			schedule->finish_editing();
+			schedule->start_editing();
 		}
 		else {
 			// remove line
@@ -926,7 +926,7 @@ void schedule_gui_t::draw(scr_coord pos, scr_size size)
 	// after loading in network games, the schedule might still being updated
 	if(  cnv.is_bound()  &&  cnv->get_state()==convoi_t::EDIT_SCHEDULE  &&  schedule->is_editing_finished()  ) {
 		assert( convoi_t::EDIT_SCHEDULE==1 ); // convoi_t::EDIT_SCHEDULE is 1
-		schedule->finish_editing();
+		schedule->start_editing();
 		cnv->call_convoi_tool( 's', "1" );
 	}
 

@@ -124,7 +124,7 @@ public:
 	 * "Completed"
 	 */
 	inline bool is_editing_finished() const { return editing_finished; }
-	void finish_editing() { editing_finished = true; } // "Input completed"
+	void finish_editing() { editing_finished = true; }
 	void start_editing() { editing_finished = false; }
 	inline int get_spacing() const { return spacing; }
 	inline void set_spacing( int s ) { spacing = s; }
