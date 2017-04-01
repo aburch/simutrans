@@ -5654,6 +5654,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	can_go = can_go || (now >= go_on_ticks && !wait_for_time);
 	can_go = can_go || running_late; 
 	can_go = can_go || no_load;
+	can_go = can_go && state != WAITING_FOR_CLEARANCE && state != WAITING_FOR_CLEARANCE_ONE_MONTH && state != WAITING_FOR_CLEARANCE_TWO_MONTHS;
 	can_go = can_go && now > earliest_departure_time;
 	if(can_go) {
 
