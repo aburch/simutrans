@@ -3923,9 +3923,12 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		// If we are starting from stand, have no reservation beyond here and there is no signal, assume that it has been deleted and revert to drive by sight.
 		if (working_method == token_block)
 		{
-			cnv->unreserve_route();
+			cnv->set_next_stop_index(INVALID_INDEX);
 		}
-		set_working_method(drive_by_sight);
+		else
+		{
+			set_working_method(drive_by_sight);
+		}
 	}
 
 	const koord dir = gr->get_pos().get_2d() - get_pos().get_2d();
