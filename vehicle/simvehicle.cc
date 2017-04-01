@@ -4548,8 +4548,16 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			}
 
 			const uint32 station_signals_ahead = check_halt.is_bound() ? check_halt->get_station_signals_count() : 0;
+			bool station_signals_in_advance = false;
+			const bool signal_here = sch1->has_signal() || station_signals;
 
-			if(sch1->has_signal() || station_signals || (check_halt != this_halt && station_signals_ahead))
+			if(!signal_here && station_signals_ahead)
+			{
+				halthandle_t destination_halt = haltestelle_t::get_halt(cnv->get_schedule()->get_current_eintrag().pos, get_owner()); 
+				station_signals_in_advance = check_halt != this_halt && check_halt != destination_halt; 
+			}
+			
+			if(signal_here || station_signals_in_advance)
 			{			 
 				signal_t* signal = NULL;
 				halthandle_t station_signal_halt;
@@ -5409,7 +5417,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 	// free, in case of un-reserve or no success in reservation
 	// or alternatively free that section reserved beyond the last signal to which reservation can take place
-	if(!success || !directional_reservation_succeeded || ((next_signal_index < INVALID_INDEX) && (next_signal_working_method == absolute_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling || ((next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph) && !next_signal_protects_no_junctions))))
+	if(!success || !directional_reservation_succeeded || ((next_signal_index < INVALID_INDEX) && (next_signal_working_method == absolute_block || next_signal_working_method == token_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling || ((next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph) && !next_signal_protects_no_junctions))))
 	{
 		const bool will_choose = last_choose_signal_index < INVALID_INDEX && !is_choosing && not_entirely_free;
 		// free reservation
