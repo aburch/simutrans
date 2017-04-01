@@ -348,7 +348,7 @@ void depot_frame_t::layout(scr_size *size)
 	*/
 	const scr_coord_val CLIST_WIDTH = depot->get_max_convoi_length() * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER;
 	const scr_coord_val CLIST_HEIGHT = grid.y + 2 * gui_image_list_t::BORDER + 5;
-	const scr_coord_val CINFO_HEIGHT = LINESPACE * 4 + 1;
+	const scr_coord_val CINFO_HEIGHT = LINESPACE * 3 + D_BUTTON_HEIGHT + 1;
 	const scr_coord_val CONVOI_WIDTH = CLIST_WIDTH + placement_dx;
 
 	/*

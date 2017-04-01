@@ -42,6 +42,8 @@
 
 
 
+int schedule_gui_t::entry_height = 10;
+
 // shows/deletes highlighting of tiles
 void schedule_gui_stats_t::highlight_schedule( schedule_t *markschedule, bool marking )
 {
@@ -173,26 +175,27 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 	else {
 		int    i     = 0;
 		size_t sel   = schedule->get_current_stop();
-		sint16 width = get_size().w - 16;
-		FORX(minivec_tpl<schedule_entry_t>, const& e, schedule->entries, (--sel, offset.y += LINESPACE + 1)) {
+		sint16 width = get_size().w - D_POS_BUTTON_WIDTH;
+		FORX(minivec_tpl<schedule_entry_t>, const& e, schedule->entries, (--sel, offset.y += schedule_gui_t::entry_height)) {
 			if (sel == 0) {
 				// highlight current entry (width is just wide enough, scrolly will do clipping)
-				display_fillbox_wh_clip_rgb(offset.x, offset.y - 1, 2048, LINESPACE + 1, color_idx_to_rgb(player->get_player_color1() + 1), false);
+				display_fillbox_wh_clip_rgb(offset.x, offset.y - 1, 2048, schedule_gui_t::entry_height, color_idx_to_rgb(player->get_player_color1() + 1), false);
 			}
 
 			buf.clear();
 			buf.printf("%i) ", ++i);
 			gimme_stop_name(buf, welt, player, e);
 			PIXVAL const c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
-			sint16 const w = display_proportional_clip_rgb(offset.x + 4 + 10, offset.y, buf, ALIGN_LEFT, c, true);
+			int h = (schedule_gui_t::entry_height-LINESPACE)/2;
+			sint16 const w = display_proportional_clip_rgb(offset.x + 4 + D_POS_BUTTON_WIDTH, offset.y+h, buf, ALIGN_LEFT, c, true);
 			if (width < w) {
 				width = w;
 			}
 
 			// the goto button (right arrow)
-			display_img_aligned( gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( offset.x, offset.y, 14, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+			display_img_aligned( gui_theme_t::pos_button_img[ sel == 0 ], scr_rect( offset.x, offset.y, D_POS_BUTTON_WIDTH, schedule_gui_t::entry_height ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
 		}
-		set_size(scr_size(width + 16, schedule->get_count() * (LINESPACE + 1)));
+		set_size(scr_size(width + D_POS_BUTTON_WIDTH, schedule->get_count() * schedule_gui_t::entry_height ));
 		highlight_schedule(schedule, true);
 	}
 }
@@ -247,6 +250,8 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	player(player_),
 	cnv(cnv_)
 {
+	entry_height = max( D_BUTTON_HEIGHT, LINESPACE+1 );
+
 	old_schedule->start_editing();
 	schedule = old_schedule->copy();
 	stats.set_schedule(schedule);
@@ -452,7 +457,7 @@ bool schedule_gui_t::infowin_event(const event_t *ev)
 
 		if(  ev->my >= scrolly.get_pos().y + D_TITLEBAR_HEIGHT ) {
 			// we are now in the multiline region ...
-			const int line = ( ev->my - scrolly.get_pos().y + scrolly.get_scroll_y() - D_TITLEBAR_HEIGHT )/(LINESPACE+1);
+			const int line = ( ev->my - scrolly.get_pos().y + scrolly.get_scroll_y() - D_TITLEBAR_HEIGHT )/schedule_gui_t::entry_height;
 
 			if(  line >= 0 && line < schedule->get_count()  ) {
 				if(  IS_RIGHTCLICK(ev)  ||  ev->mx<16  ) {
