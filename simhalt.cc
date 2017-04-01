@@ -4504,11 +4504,28 @@ void haltestelle_t::recalc_status()
 	if(status_color!=COL_RED  &&  get_ware_enabled()) {
 		const uint8  count = goods_manager_t::get_count();
 		const uint32 max_ware = get_capacity(2);
+
+		// For goods, include transferring goods when determining whether a stop is overcrowded.
+		// This is necessary as goods tend to come all at once and take a long time to transfer.
+		uint32 transferring_total = 0;
+		for (uint32 i = 0; i <= welt->get_parallel_operations(); i++)
+		{
+			for (uint32 n = 0; n < transferring_cargoes[i].get_count(); n++)
+			{
+				if (transferring_cargoes[i].get_element(n).ware.is_freight())
+				{
+					transferring_total += transferring_cargoes[i].get_element(n).ware.menge;
+				}
+			}
+		}
+
 		for(  uint32 i = 3;  i < count;  i++  ) {
 			goods_desc_t const* const wtyp = goods_manager_t::get_info(i);
 			const uint32 ware_sum = get_ware_summe(wtyp);
+			
 			total_sum += ware_sum;
-			if(ware_sum>max_ware) {
+			if(ware_sum + transferring_total > max_ware) 
+			{
 				status_bits |= ware_sum > max_ware + 32 || enables & CROWDED ? 2 : 1; 
 				overcrowded[wtyp->get_index()/8] |= 1<<(wtyp->get_index()%8);
 			}
