@@ -5315,7 +5315,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	// here we go only with reserve
 
 	const koord3d signal_pos = next_signal_index < INVALID_INDEX ? route->at(next_signal_index) : koord3d::invalid;
-	bool platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(signal_pos, get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt);
+	bool platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(signal_pos, get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt) && first_stop_signal_index == last_stop_signal_index;
 
 	// If we are in token block or one train staff mode, one train staff mode or making directional reservations, reserve to the end of the route if there is not a prior signal.
 	// However, do not call this if we are in the block reserver already called from this method to prevent infinite recursion.
