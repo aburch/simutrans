@@ -5424,27 +5424,27 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	{
 		const bool will_choose = last_choose_signal_index < INVALID_INDEX && !is_choosing && not_entirely_free;
 		// free reservation
-		uint16 relevant_index;
+		uint16 curtailment_index;
 		if(!success)
 		{
-			relevant_index = start_index;
+			curtailment_index = start_index;
 		}
 		else if(!directional_reservation_succeeded)
 		{
-			relevant_index = last_non_directional_index;
+			curtailment_index = last_non_directional_index;
 		}
 		else if(will_choose)
 		{
-			relevant_index = last_choose_signal_index;
+			curtailment_index = last_choose_signal_index;
 		}
 		else
 		{
-			relevant_index = next_signal_index;
+			curtailment_index = next_signal_index;
 		}
 
 		if(!directional_only)
 		{
-			relevant_index ++;
+			curtailment_index ++;
 		}
 
 		if(next_signal_index < INVALID_INDEX && (next_signal_index == start_index || platform_starter) && !is_from_token)
@@ -5469,9 +5469,9 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			front->reserve(cnv->self, direction); 
 			rear->reserve(cnv->self, direction); 
 		}
-		else if(relevant_index < i)
+		else if(curtailment_index < i)
 		{
-			for(uint32 j = relevant_index; j < route->get_count(); j++)
+			for(uint32 j = curtailment_index; j < route->get_count(); j++)
 			{
 				grund_t* gr_this = welt->lookup(route->at(j));
 				schiene_t * sch1 = gr_this ? (schiene_t *)gr_this->get_weg(get_waytype()) : NULL;
@@ -5516,6 +5516,28 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 			choose_return = activate_choose_signal(last_choose_signal_index, next_signal_index, brake_steps, modified_sighting_distance_tiles, route, modified_route_index); 
 
+			if (success && choose_return == 0)
+			{
+				// Restore the curtailed route above: the original route works, but the choose route does not.
+				bool re_reserve_succeeded = true;
+				for (uint32 n = curtailment_index; n < next_signal_index; n++)
+				{
+					grund_t* gr_this = welt->lookup(route->at(n));
+					schiene_t * sch1 = gr_this ? (schiene_t *)gr_this->get_weg(get_waytype()) : NULL;
+					re_reserve_succeeded &= sch1->reserve(cnv->self, ribi_t::all);
+				}
+
+				if (re_reserve_succeeded)
+				{
+					const koord3d last_choose_pos = route->at(last_choose_signal_index); 
+					grund_t* const signal_ground = welt->lookup(last_choose_pos);
+					if (signal_ground)
+					{
+						signs.append(signal_ground);
+					}
+				}
+			}
+
 			if (route_count == route->get_count())
 			{
 				// Check whether the choose signal route really is a new route.
@@ -5525,7 +5547,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 		if(!success && !choose_return)
 		{
-			cnv->set_next_reservation_index(relevant_index);
+			cnv->set_next_reservation_index(curtailment_index);
 			return 0;
 		} 
 	}
