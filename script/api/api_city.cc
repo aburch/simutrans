@@ -34,14 +34,14 @@ vector_tpl<sint64> const& get_city_stat(stadt_t* city, bool monthly, sint32 INDE
 
 SQInteger world_get_next_city(HSQUIRRELVM vm)
 {
-	return generic_get_next(vm, welt->get_staedte().get_count());
+	return generic_get_next(vm, welt->get_cities().get_count());
 }
 
 
 SQInteger world_get_city_by_index(HSQUIRRELVM vm)
 {
 	sint32 index = param<sint32>::get(vm, -1);
-	koord pos = (0<=index  &&  (uint32)index<welt->get_staedte().get_count()) ?  welt->get_staedte()[index]->get_pos() : koord::invalid;
+	koord pos = (0<=index  &&  (uint32)index<welt->get_cities().get_count()) ?  welt->get_cities()[index]->get_pos() : koord::invalid;
 	// transform coordinates
 	welt->get_scenario()->koord_w2sq(pos);
 	return push_instance(vm, "city_x",  pos.x, pos.y);

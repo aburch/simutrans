@@ -225,14 +225,14 @@ bool city_info_t::is_weltpos()
  */
 void city_info_t::rename_city()
 {
-	if (welt->get_staedte().is_contained(stadt)) {
+	if (welt->get_cities().is_contained(stadt)) {
 		const char *t = name_input.get_text();
 		// only change if old name and current name are the same
 		// otherwise some unintended undo if renaming would occur
 		if(  t  &&  t[0]  &&  strcmp(t, stadt->get_name())  &&  strcmp(old_name, stadt->get_name())==0) {
 			// text changed => call tool
 			cbuffer_t buf;
-			buf.printf( "t%u,%s", welt->get_staedte().index_of(stadt), name );
+			buf.printf( "t%u,%s", welt->get_cities().index_of(stadt), name );
 			tool_t *tool = create_tool( TOOL_RENAME | SIMPLE_TOOL );
 			tool->set_default_param( buf );
 			welt->set_tool( tool, welt->get_public_player());
@@ -248,7 +248,7 @@ void city_info_t::rename_city()
 void city_info_t::reset_city_name()
 {
 	// change text input
-	if (welt->get_staedte().is_contained(stadt)) {
+	if (welt->get_cities().is_contained(stadt)) {
 		tstrncpy(old_name, stadt->get_name(), sizeof(old_name));
 		tstrncpy(name, stadt->get_name(), sizeof(name));
 		name_input.set_text(name, sizeof(name));
@@ -514,14 +514,14 @@ void city_info_t::rdwr(loadsave_t *file)
 			}
 		}
 		tabstate = year_month_tabs.get_active_tab_index();
-		townindex = welt->get_staedte().index_of(stadt);
+		townindex = welt->get_cities().index_of(stadt);
 	}
 	size.rdwr( file );
 	file->rdwr_long( townindex );
 	file->rdwr_long( flags );
 	file->rdwr_short( tabstate );
 	if(  file->is_loading()  ) {
-		stadt = welt->get_staedte()[townindex];
+		stadt = welt->get_cities()[townindex];
 		stadt->stadtinfo_options = flags;
 		for(  int i = 0;  i<MAX_CITY_HISTORY-1;  i++  ) {
 			chart.add_curve( hist_type_color[i], stadt->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true, 0 );

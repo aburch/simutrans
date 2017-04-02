@@ -223,7 +223,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	inp_underground_level.set_size( scr_size( 50, D_BUTTON_HEIGHT-1 ) );
 	//inp_underground_level.align_to(&buttons[20], ALIGN_CENTER_V);
 	inp_underground_level.set_value( grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : welt->get_zeiger()->get_pos().z);
-	inp_underground_level.set_limits(welt->get_grundwasser()-10, 32);
+	inp_underground_level.set_limits(welt->get_groundwater()-10, 32);
 	inp_underground_level.add_listener(this);
 
 	//21
@@ -503,7 +503,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	display_proportional_clip(x+len, y+FPS_DATA, buf, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
 
 	len = 15+display_proportional_clip(x+10, y+IDLE_DATA, translator::translate("Idle:"), ALIGN_LEFT, SYSCOL_TEXT, true);
-	display_proportional_clip(x+len, y+IDLE_DATA, ntos(welt->get_schlaf_zeit(), "%d ms"), ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
+	display_proportional_clip(x+len, y+IDLE_DATA, ntos(welt->get_idle_time(), "%d ms"), ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
 
 	uint8 farbe;
 	uint32 loops;

@@ -724,7 +724,7 @@ fabrik_t::fabrik_t(loadsave_t* file)
 	status = nothing;
 	currently_producing = false;
 	transformer_connected = NULL;
-	last_sound_ms = welt->get_zeit_ms();
+	last_sound_ms = welt->get_ticks();
 
 	if(  desc == NULL  ) {
 		dbg->warning( "fabrik_t::fabrik_t()", "No pak-file for factory at (%s) - will not be built!", pos_origin.get_str() );
@@ -792,7 +792,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, s
 	if(desc->get_placement() == 2 && city && desc->get_product_count() == 0)
 	{
 		// City consumer industries set their consumption rates by the relative size of the city
-		const weighted_vector_tpl<stadt_t*>& cities = welt->get_staedte();
+		const weighted_vector_tpl<stadt_t*>& cities = welt->get_cities();
 
 		sint64 biggest_city_population = 0;
 		sint64 smallest_city_population = -1;
@@ -864,7 +864,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, s
 		}
 	}
 	
-	last_sound_ms = welt->get_zeit_ms();
+	last_sound_ms = welt->get_ticks();
 	init_stats();
 	arrival_stats_pax.init();
 	arrival_stats_mail.init();
@@ -965,7 +965,7 @@ fabrik_t::~fabrik_t()
 		// @author: jamespetts
 		uint32 number_of_customers = lieferziele.get_count();
 		uint32 number_of_suppliers = suppliers.get_count();
-		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
+		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_cities();
 		for(weighted_vector_tpl<stadt_t*>::const_iterator j = staedte.begin(), end = staedte.end(); j != end; ++j) 
 		{
 			(*j)->remove_connected_industry(this);
@@ -1506,7 +1506,7 @@ void fabrik_t::smoke() const
 		welt->sync_way_eyecandy.add( smoke );
 	}
 	// maybe sound?
-	if (desc->get_sound() != NO_SOUND  &&  	welt->get_zeit_ms()>last_sound_ms + desc->get_sound_intervall_ms()) {
+	if (desc->get_sound() != NO_SOUND  &&  	welt->get_ticks()>last_sound_ms + desc->get_sound_intervall_ms()) {
 		welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound());
 	}
 }
@@ -2004,7 +2004,7 @@ void fabrik_t::verteile_waren(const uint32 product)
 					ware_t ware(ausgang[product].get_typ(), nearby_halt.halt);
 					ware.menge = menge;
 					ware.set_zielpos( lieferziel );
-					ware.arrival_time = welt->get_zeit_ms();
+					ware.arrival_time = welt->get_ticks();
 
 					uint32 w;
 					// find the index in the target factory
@@ -2083,7 +2083,7 @@ void fabrik_t::verteile_waren(const uint32 product)
 				if(  amount > most_waiting.menge  ) {
 					most_waiting.set_zielpos(n);
 					most_waiting.menge = amount;
-					most_waiting.arrival_time = welt->get_zeit_ms();
+					most_waiting.arrival_time = welt->get_ticks();
 				}
 			}
 
@@ -2315,7 +2315,7 @@ void fabrik_t::new_month()
 						if(desc->get_placement() == 2 && city && desc->get_product_count() == 0)
 						{
 							// City consumer industries set their consumption rates by the relative size of the city
-							const weighted_vector_tpl<stadt_t*>& cities = welt->get_staedte();
+							const weighted_vector_tpl<stadt_t*>& cities = welt->get_cities();
 
 							sint64 biggest_city_population = 0;
 							sint64 smallest_city_population = -1;

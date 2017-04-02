@@ -399,7 +399,7 @@ bool ai_goods_t::create_ship_transport_vehicle(fabrik_t *qfab, int anz_vehicle)
 		for (int x = pos1.x - cov; x <= pos1.x + cov; ++x) {
 			koord p(x,y);
 			grund_t *gr = welt->lookup_kartenboden(p);
-			if(  gr->ist_wasser()  &&  halt == haltestelle_t::get_halt( gr->get_pos(), this )  &&  gr->get_depot()==NULL  ) {
+			if(  gr->is_water()  &&  halt == haltestelle_t::get_halt( gr->get_pos(), this )  &&  gr->get_depot()==NULL  ) {
 				if(  koord_distance(best_pos,platz2)<koord_distance(p,platz2)  ) {
 					best_pos = p;
 				}
@@ -656,7 +656,7 @@ bool ai_goods_t::create_simple_rail_transport()
 	koord diff1( sgn(size1.x), sgn(size1.y) );
 	koord perpend( sgn(size1.y), sgn(size1.x) );
 	while(k!=size1+platz1) {
-		if(!welt->ebne_planquadrat( this, k, z1 )) {
+		if(!welt->flatten_tile( this, k, z1 )) {
 			return false;
 		}
 		k += diff1;
@@ -668,7 +668,7 @@ bool ai_goods_t::create_simple_rail_transport()
 	perpend = koord( sgn(size2.y), sgn(size2.x) );
 	koord diff2( sgn(size2.x), sgn(size2.y) );
 	while(k!=size2+platz2) {
-		if(!welt->ebne_planquadrat(this,k,z2)) {
+		if(!welt->flatten_tile(this,k,z2)) {
 			return false;
 		}
 		k += diff2;

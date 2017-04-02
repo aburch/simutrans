@@ -685,8 +685,8 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 
 		// remove town? (when removing townhall)
 		if(gb->is_townhall()) {
-			stadt_t *stadt = welt->suche_naechste_stadt(k);
-			if(!welt->rem_stadt( stadt )) {
+			stadt_t *stadt = welt->find_nearest_city(k);
+			if(!welt->remove_city( stadt )) {
 				msg = "Das Feld gehoert\neinem anderen Spieler\n";
 				return false;
 			}
@@ -1324,7 +1324,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			}
 
 			// now prevent being lowered below neighbouring water
-			sint8 water_table = (water_hgt >= (gr1->get_hoehe() + gr1->get_grund_hang() ? 1 : 0)) ? water_hgt : welt->get_grundwasser() - 4;
+			sint8 water_table = (water_hgt >= (gr1->get_hoehe() + gr1->get_grund_hang() ? 1 : 0)) ? water_hgt : welt->get_groundwater() - 4;
 			sint8 min_neighbour_height = gr1->get_hoehe();
 
 			for(  sint16 i = 0 ;  i < 8 ;  i++  ) {
@@ -1427,21 +1427,21 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			}
 
 			// ok, was success
-			if(  !gr1->ist_wasser()  &&  new_slope == 0  &&  hgt == water_hgt  &&  gr1->get_typ() != grund_t::tunnelboden  ) {
+			if(  !gr1->is_water()  &&  new_slope == 0  &&  hgt == water_hgt  &&  gr1->get_typ() != grund_t::tunnelboden  ) {
 				// now water
 				gr1->obj_loesche_alle(player);
 				welt->access(k)->kartenboden_setzen( new wasser_t(new_pos) );
 				gr1 = welt->lookup_kartenboden(k);
 			}
-			else if(  gr1->ist_wasser()  &&  (new_pos.z > water_hgt  ||  new_slope != 0)  ) {
+			else if(  gr1->is_water()  &&  (new_pos.z > water_hgt  ||  new_slope != 0)  ) {
 				// build underwater hill first
-				if(  !welt->ebne_planquadrat( player, k, water_hgt, false, true )  ) {
+				if(  !welt->flatten_tile( player, k, water_hgt, false, true )  ) {
 					return NOTICE_TILE_FULL;
 				}
 				gr1->obj_loesche_alle(player);
 				welt->access(k)->kartenboden_setzen( new boden_t(new_pos,new_slope) );
 				gr1 = welt->lookup_kartenboden(k);
-				welt->set_water_hgt(k, welt->get_grundwasser()-4);
+				welt->set_water_hgt(k, welt->get_groundwater()-4);
 			}
 			else {
 				gr1->set_grund_hang(new_slope);
@@ -1487,7 +1487,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					// connect canals to sea
 					if(  gr1->get_hoehe() == water_hgt  &&  gr1->hat_weg(water_wt)  ) {
 						grund_t *sea = welt->lookup_kartenboden(k - koord( ribi_type(new_slope ) ));
-						if (sea  &&  sea->ist_wasser()) {
+						if (sea  &&  sea->is_water()) {
 							gr1->weg_erweitern(water_wt, ribi_t::backward(ribi_type(new_slope)));
 							sea->calc_image();
 						}
@@ -1501,7 +1501,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 					}
 				}
 				// correct the grid height
-				if(  gr1->ist_wasser()  ) {
+				if(  gr1->is_water()  ) {
 					sint8 grid_hgt = min( water_hgt, welt->lookup_hgt( k ) );
 					welt->set_grid_hgt(k, grid_hgt );
 				}
@@ -1721,7 +1721,7 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 
 	// underground: first build tunnel tile	at coordinate pos
 	if(underground) {
-		if(gr->ist_wasser()) {
+		if(gr->is_water()) {
 			return "Cannot build transformer in water.";
 		}
 
@@ -1799,7 +1799,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 	grund_t *gr = welt->lookup_kartenboden(k);
 	if(gr) {
 		if(gr->ist_natur() &&
-			!gr->ist_wasser() &&
+			!gr->is_water() &&
 			gr->get_grund_hang() == 0  &&
 			hausbauer_t::get_special( 0, building_desc_t::townhall, welt->get_timeline_year_month(), 0, welt->get_climate( k ) ) != NULL  ) {
 
@@ -1824,7 +1824,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 					return NOTICE_UNSUITABLE_GROUND;
 				}
 
-				welt->add_stadt(stadt);
+				welt->add_city(stadt);
 				stadt->finish_rd();
 
 				player_t::book_construction_costs(player, welt->get_settings().cst_found_city, k, ignore_wt);
@@ -1902,7 +1902,7 @@ bool tool_change_city_size_t::init( player_t * )
 
 const char *tool_change_city_size_t::work( player_t *, koord3d pos )
 {
-	stadt_t *city = welt->suche_naechste_stadt(pos.get_2d());
+	stadt_t *city = welt->find_nearest_city(pos.get_2d());
 	if(city!=NULL) {
 		city->change_size( atoi(default_param) );
 		return NULL;
@@ -1978,7 +1978,7 @@ const char *tool_set_climate_t::do_work( player_t *player, const koord3d &start,
 			if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
 				if(  cl != water_climate  ) {
 					bool ok = true;
-					if(  gr->ist_wasser()  ) {
+					if(  gr->is_water()  ) {
 						const sint8 hgt = welt->lookup_hgt(k);
 						ok = welt->get_water_hgt(k) == hgt  &&  welt->is_plan_height_changeable( k.x, k.y );
 						// check s, se, e - these must not be deep water!
@@ -2000,7 +2000,7 @@ const char *tool_set_climate_t::do_work( player_t *player, const koord3d &start,
 						n ++;
 					}
 				}
-				else if(  !gr->ist_wasser()  &&  gr->get_grund_hang() == slope_t::flat  &&  welt->is_plan_height_changeable( k.x, k.y )  ) {
+				else if(  !gr->is_water()  &&  gr->get_grund_hang() == slope_t::flat  &&  welt->is_plan_height_changeable( k.x, k.y )  ) {
 					bool ok = true;
 					for(  int i = 0 ;  i < 8;  i++  ) {
 						grund_t *gr2 = welt->lookup_kartenboden( k + koord::neighbours[i] );
@@ -2050,7 +2050,7 @@ const char *tool_change_water_height_t::work( player_t *, koord3d pos )
 	sint8 new_water_height;
 	grund_t *gr = welt->lookup_kartenboden(k);
 
-	if(  gr->ist_wasser()  ) {
+	if(  gr->is_water()  ) {
 		// lower + control removes shallow water only. If this tile is deep water this will fail
 		if(  !raising  &&  is_ctrl_pressed()  &&  welt->min_hgt(k)!=gr->get_hoehe()  ) {
 			return "Cannot alter water";
@@ -2067,7 +2067,7 @@ const char *tool_change_water_height_t::work( player_t *, koord3d pos )
 	else {
 		return "Cannot alter water";
 	}
-	if(  new_water_height < welt->get_grundwasser() - 3  ) {
+	if(  new_water_height < welt->get_groundwater() - 3  ) {
 		return "Cannot alter water";
 	}
 	sint8 test_height = max( new_water_height, gr->get_hoehe() );
@@ -2189,7 +2189,7 @@ const char *tool_change_water_height_t::work( player_t *, koord3d pos )
 
 				sint8 h0_nw, h0_ne, h0_se, h0_sw;
 
-				if(  gr2->ist_wasser()  ) {
+				if(  gr2->is_water()  ) {
 					// water - maximum existing height can be is old water height no matter what surrounding grids are
 					h0_nw = min(h0, welt->lookup_hgt(x, y));
 					h0_ne = min(h0, welt->lookup_hgt(x+1, y));
@@ -2202,7 +2202,7 @@ const char *tool_change_water_height_t::work( player_t *, koord3d pos )
 					h0_ne = welt->lookup_hgt(x+1, y);
 					h0_se = welt->lookup_hgt(x+1, y+1);
 					h0_sw = welt->lookup_hgt(x, y+1);
-					if(  !gr2->ist_wasser()  ) {
+					if(  !gr2->is_water()  ) {
 						// while this appears to be a single height slope actually it is a double height slope half underwater
 						const sint8 water_hgt = welt->get_water_hgt(x, y);
 						h0_nw >= water_hgt ? h0_nw = h0 + corner_nw( gr2->get_grund_hang() ) : 0;
@@ -2850,7 +2850,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 			gr->set_grund_hang( 0 );
 			welt->access(pos.get_2d())->boden_hinzufuegen(gr);
 		}
-		if (gr->ist_wasser()) {
+		if (gr->is_water()) {
 				continue;
 			}
 		zeiger_t *way = new zeiger_t(pos, player);
@@ -3462,7 +3462,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 		else
 		{
 			// ground can be missing after deleting a bridge ...
-			if(gr  &&  !gr->ist_wasser()) 
+			if(gr  &&  !gr->is_water()) 
 			{
 				if(gr->ist_bruecke())
 				{
@@ -4160,7 +4160,7 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 			}
 			else {
 				// all other tiles in water (allowing one-tile docks on rivers)
-				if (!gr->ist_wasser() && !(len == 0 && i == 1 && gr->hat_weg(water_wt))) {
+				if (!gr->is_water() && !(len == 0 && i == 1 && gr->hat_weg(water_wt))) {
 					return NOTICE_UNSUITABLE_GROUND;
 				}
 				if (gr->find<gebaeude_t>() || gr->get_depot() || gr->is_halt()) {
@@ -4266,7 +4266,7 @@ DBG_MESSAGE("tool_build_station_t::tool_station_dock_aux()","building dock from 
 		if(halt.is_bound() && env_t::networkmode)
 		{
 			cbuffer_t message;
-			const stadt_t* nearest_city = welt->suche_naechste_stadt(pos.get_2d());
+			const stadt_t* nearest_city = welt->find_nearest_city(pos.get_2d());
 			const char * city_name = nearest_city ? nearest_city->get_name() : "open countryside";
 			const char* preposition = welt->get_city(pos.get_2d()) || !nearest_city ? "in" : "near";
 			message.printf("%s has built a new %s %s %s.", player->get_name(), "Dock", preposition, city_name);
@@ -4349,7 +4349,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 	uint8        total_dir = 0;
 	for(  uint8 i=0;  i<4;  i++  ) {
 		if(  grund_t *gr = welt->lookup_kartenboden(k+koord::nsew[i])  ) {
-			if(  gr->ist_wasser()  &&  gr->get_hoehe() == pos.z) {
+			if(  gr->is_water()  &&  gr->get_hoehe() == pos.z) {
 				water_dir |= ribi_t::nsew[i];
 				total_dir ++;
 			}
@@ -4404,7 +4404,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 
 			if (i>0) {
 				// all other tiles in water
-				if (!gr->ist_wasser()  ||  gr->find<gebaeude_t>()  ||  gr->get_depot()  ||  gr->is_halt()) {
+				if (!gr->is_water()  ||  gr->find<gebaeude_t>()  ||  gr->get_depot()  ||  gr->is_halt()) {
 					last_error = NOTICE_TILE_FULL;
 				}
 			}
@@ -4762,7 +4762,7 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 		if(halt.is_bound() && env_t::networkmode)
 		{
 			cbuffer_t message;
-			const stadt_t* nearest_city = welt->suche_naechste_stadt(pos.get_2d());
+			const stadt_t* nearest_city = welt->find_nearest_city(pos.get_2d());
 			const char * city_name = nearest_city ? nearest_city->get_name() : "open countryside";
 			const char* preposition = welt->get_city(pos.get_2d()) || !nearest_city ? "in" : "near";
 			int const lang = welt->get_settings().get_name_language_id();
@@ -5882,7 +5882,7 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 			}
 		}
 		
-		if(!gr || gr->ist_wasser() || (gr->get_weg_nr(0) && gr->get_weg_nr(0)->get_pos().z == pos.z) || (gr->get_building() && gr->get_building()->get_pos().z == pos.z) || gr->is_halt()) 
+		if(!gr || gr->is_water() || (gr->get_weg_nr(0) && gr->get_weg_nr(0)->get_pos().z == pos.z) || (gr->get_building() && gr->get_building()->get_pos().z == pos.z) || gr->is_halt()) 
 		{
 			// No ground, water, or the ground has a way or building on it.
 			// TODO: Consider allowing special gantry signalboxes
@@ -5895,7 +5895,7 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 		// underground: first build tunnel tile	at coordinate pos
 		if(underground) 
 		{
-			if(gr->ist_wasser()) 
+			if(gr->is_water()) 
 			{
 				return "Cannot build signalbox underwater.";
 			}
@@ -6032,7 +6032,7 @@ const char *tool_depot_t::tool_depot_aux(player_t *player, koord3d pos, const bu
 		// special for the seven seas ...
 		if(wegtype==water_wt) {
 			bd = welt->lookup_kartenboden(pos.get_2d());
-			if(!bd->ist_wasser()) {
+			if(!bd->is_water()) {
 				bd = NULL;
 			}
 		}
@@ -6059,7 +6059,7 @@ const char *tool_depot_t::tool_depot_aux(player_t *player, koord3d pos, const bu
 		}
 
 		ribi_t::ribi ribi;
-		if(bd->ist_wasser()) {
+		if(bd->is_water()) {
 			// assume one orientation with water
 			ribi = ribi_t::south;
 		}
@@ -6355,12 +6355,12 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 	bool hat_platz = false;
 	if(fab->get_placement()==factory_desc_t::Water) {
 		// at sea
-		hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_building()->get_size(rotation) );
+		hat_platz = welt->is_water( pos.get_2d(), fab->get_building()->get_size(rotation) );
 
 		if(!hat_platz  &&  size.y!=size.x  &&  fab->get_building()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) {
 			// try other rotation too ...
 			rotation = (rotation+1) % fab->get_building()->get_all_layouts();
-			hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_building()->get_size(rotation) );
+			hat_platz = welt->is_water( pos.get_2d(), fab->get_building()->get_size(rotation) );
 		}
 	}
 	else {
@@ -6528,13 +6528,13 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 	if(fab->get_placement()==factory_desc_t::Water) 
 	{
 		// at sea
-		hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_building()->get_size(rotation) );
+		hat_platz = welt->is_water( pos.get_2d(), fab->get_building()->get_size(rotation) );
 
 		if(!hat_platz  &&  size.y!=size.x  &&  fab->get_building()->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#')) 
 		{
 			// try other rotation too ...
 			rotation = (rotation+1) % fab->get_building()->get_all_layouts();
-			hat_platz = welt->ist_wasser( pos.get_2d(), fab->get_building()->get_size(rotation) );
+			hat_platz = welt->is_water( pos.get_2d(), fab->get_building()->get_size(rotation) );
 		}
 	}
 	else 
@@ -6905,7 +6905,7 @@ void tool_stop_moving_t::read_start_position(player_t *player, const koord3d &po
 		return;
 	}
 	// now assign waytypes
-	if(bd->ist_wasser()) {
+	if(bd->is_water()) {
 		waytype[0] = water_wt;
 	}
 	else {
@@ -6933,14 +6933,14 @@ uint8 tool_stop_moving_t::is_valid_pos(  player_t *player, const koord3d &pos, c
 		return 0;
 	}
 	// check for halt on the tile
-	if(  h.is_bound()  &&  !(bd->is_halt()  ||  (h->get_station_type()&haltestelle_t::dock  &&  bd->ist_wasser())  )  ) {
+	if(  h.is_bound()  &&  !(bd->is_halt()  ||  (h->get_station_type()&haltestelle_t::dock  &&  bd->is_water())  )  ) {
 		error = NOTICE_UNSUITABLE_GROUND;
 		return 0;
 	}
 
 	if (start==koord3d::invalid) {
 		// check for existing ways
-		if (bd->ist_wasser()  ||  bd->hat_wege()) {
+		if (bd->is_water()  ||  bd->hat_wege()) {
 			return 2;
 		}
 		else {
@@ -6957,7 +6957,7 @@ uint8 tool_stop_moving_t::is_valid_pos(  player_t *player, const koord3d &pos, c
 			return 0;
 		}
 		// check waytypes
-		if(  (waytype[0] == water_wt  &&  bd->ist_wasser())  ||  bd->hat_weg(waytype[0])  ||  bd->hat_weg(waytype[1])  ) {
+		if(  (waytype[0] == water_wt  &&  bd->is_water())  ||  bd->hat_weg(waytype[0])  ||  bd->hat_weg(waytype[1])  ) {
 			// ok
 			return 2;
 		}
@@ -6985,7 +6985,7 @@ const char *tool_stop_moving_t::do_work( player_t *player, const koord3d &last_p
 			const waytype_t wt = waytype[i];
 			slist_tpl <koord3d>old_platform;
 
-			if(bd->ist_wasser()) {
+			if(bd->is_water()) {
 				if(wt!=water_wt) {
 					break;
 				}
@@ -8788,8 +8788,8 @@ bool tool_rename_t::init(player_t *player)
 
 		case 't':
 		{
-			if(  player == welt->get_public_player()  &&   id<welt->get_staedte().get_count()  ) {
-				welt->get_staedte()[id]->set_name( p );
+			if(  player == welt->get_public_player()  &&   id<welt->get_cities().get_count()  ) {
+				welt->get_cities()[id]->set_name( p );
 				return false;
 			}
 			break;

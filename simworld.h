@@ -381,7 +381,7 @@ private:
 	 * Water level height.
 	 * @author Hj. Malthaner
 	 */
-	sint8 grundwasser;
+	sint8 groundwater;
 
 	/**
 	 * Current snow height.
@@ -429,7 +429,7 @@ private:
 	 */
 	vector_tpl<const goods_desc_t*> goods_in_game;
 
-	weighted_vector_tpl<gebaeude_t *> ausflugsziele;
+	weighted_vector_tpl<gebaeude_t *> world_attractions;
 
 	slist_tpl<koord> labels;
 
@@ -1676,7 +1676,7 @@ public:
 	 * 	
 	 * Time cards since creation / the last load in ms (Google)
 	 */
-	sint64 get_zeit_ms() const { return ticks; }
+	sint64 get_ticks() const { return ticks; }
 
 
 	uint32 get_next_month_ticks() const { return (uint32) next_month_ticks; }
@@ -1719,7 +1719,7 @@ public:
 	 *
 	 * Idle time. Use only to the announcement! (Babelfish)
 	 */
-	uint32 get_schlaf_zeit() const { return idle_time; }
+	uint32 get_idle_time() const { return idle_time; }
 
 	/**
 	 * Number of frames displayed in the last real time second.
@@ -1741,12 +1741,12 @@ public:
 	 * Returns the current waterline height.
 	 * @author Hj. Malthaner
 	 */
-	sint8 get_grundwasser() const { return grundwasser; }
+	sint8 get_groundwater() const { return groundwater; }
 
 	/**
 	 * Returns the minimum allowed height on the map.
 	 */
-	sint8 get_minimumheight() const { return grundwasser-10; }
+	sint8 get_minimumheight() const { return groundwater-10; }
 
 	/**
 	 * Returns the maximum allowed world height.
@@ -1795,7 +1795,7 @@ public:
 	 */
 	climate get_climate_at_height(sint16 height) const
 	{
-		const sint16 h=height-grundwasser;
+		const sint16 h=height-groundwater;
 		if(h<0) {
 			return water_climate;
 		} else if(h>=32) {
@@ -2088,7 +2088,7 @@ public:
 	  */
 	void init(settings_t*, sint8 const* heights);
 
-	void init_felder();
+	void init_tiles();
 
 	void enlarge_map(settings_t const*, sint8 const* h_field);
 
@@ -2146,8 +2146,8 @@ public:
 	int grid_lower(const player_t *player, koord pos, const char*&err);
 
 	// mostly used by AI: Ask to flatten a tile
-	bool can_ebne_planquadrat(player_t *player, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false);
-	bool ebne_planquadrat(player_t *player, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false, bool justcheck=false);
+	bool can_flatten_tile(player_t *player, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false);
+	bool flatten_tile(player_t *player, koord k, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false, bool justcheck=false);
 
 	/**
 	 * Class to manage terraform operations.
@@ -2226,22 +2226,22 @@ public:
 	 * To access the cities array.
 	 * @author Hj. Malthaner
 	 */
-	const weighted_vector_tpl<stadt_t*>& get_staedte() const { return stadt; }
+	const weighted_vector_tpl<stadt_t*>& get_cities() const { return stadt; }
 	stadt_t *get_town_at(const uint32 weight) { return stadt.at_weight(weight); }
 	uint32 get_town_list_weight() const { return stadt.get_sum_weight(); }
 
-	void add_stadt(stadt_t *s);
+	void add_city(stadt_t *s);
 
 	/**
 	 * Removes town from map, houses will be left overs.
 	 * @author prissi
 	 */
-	bool rem_stadt(stadt_t *s);
+	bool remove_city(stadt_t *s);
 
 	/* tourist attraction list */
-	void add_ausflugsziel(gebaeude_t *gb);
-	void remove_ausflugsziel(gebaeude_t *gb);
-	const weighted_vector_tpl<gebaeude_t*> &get_ausflugsziele() const {return ausflugsziele; }
+	void add_attraction(gebaeude_t *gb);
+	void remove_attraction(gebaeude_t *gb);
+	const weighted_vector_tpl<gebaeude_t*> &get_ausflugsziele() const {return world_attractions; }
 
 	void add_label(koord k) { if (!labels.is_contained(k)) labels.append(k); }
 	void remove_label(koord k) { labels.remove(k); }
@@ -2265,7 +2265,7 @@ public:
 	 * but prefers even farther cities if within their city limits
 	 * @author Hj. Malthaner
 	 */
-	stadt_t *suche_naechste_stadt(koord k) const;
+	stadt_t *find_nearest_city(koord k) const;
 	
 	// Returns the city at the position given.
 	// Returns NULL if there is no city there.
@@ -2341,7 +2341,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	inline sint8 lookup_hgt(sint16 x, sint16 y) const {
-		return is_within_grid_limits(x, y) ? grid_hgts[x + y*(cached_grid_size.x+1)] : grundwasser;
+		return is_within_grid_limits(x, y) ? grid_hgts[x + y*(cached_grid_size.x+1)] : groundwater;
 	}
 
 	inline sint8 lookup_hgt(koord k) const { return lookup_hgt(k.x, k.y); }
@@ -2373,7 +2373,7 @@ public:
 	 * @author Kieron Green
 	 */
 	inline sint8 get_water_hgt(sint16 x, sint16 y) const {
-		return is_within_limits( x, y ) ? water_hgts[x + y * (cached_grid_size.x)] : grundwasser;
+		return is_within_limits( x, y ) ? water_hgts[x + y * (cached_grid_size.x)] : groundwater;
 	}
 
 	inline sint8 get_water_hgt(koord k) const { return get_water_hgt(k.x, k.y); }
@@ -2459,7 +2459,7 @@ public:
 	 * @return true, wenn Platz an Stelle pos mit Groesse dim Water ist
 	 * @author V. Meyer
 	 */
-	bool ist_wasser(koord k, koord dim) const;
+	bool is_water(koord k, koord dim) const;
 
 	/**
 	 * @return true, if square in place (i,j) with size w, h is constructible.

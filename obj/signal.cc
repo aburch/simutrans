@@ -376,7 +376,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 			};
 			buf.append(": "); 
 			char time_since_train_last_passed[32];
-			welt->sprintf_ticks(time_since_train_last_passed, sizeof(time_since_train_last_passed), welt->get_zeit_ms() - this_tile_halt->get_train_last_departed(i));
+			welt->sprintf_ticks(time_since_train_last_passed, sizeof(time_since_train_last_passed), welt->get_ticks() - this_tile_halt->get_train_last_departed(i));
 			buf.append(time_since_train_last_passed);		
 			buf.append("\n");
 		}
@@ -386,7 +386,7 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(translator::translate("Time since a train last passed")); 
 		buf.append(": "); 
 		char time_since_train_last_passed[32];
-		welt->sprintf_ticks(time_since_train_last_passed, sizeof(time_since_train_last_passed), welt->get_zeit_ms() - sig->get_train_last_passed());
+		welt->sprintf_ticks(time_since_train_last_passed, sizeof(time_since_train_last_passed), welt->get_ticks() - sig->get_train_last_passed());
 		buf.append(time_since_train_last_passed);
 		buf.append("\n");
 	}

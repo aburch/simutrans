@@ -67,7 +67,7 @@ class compare_cities
 
 void citylist_stats_t::sort(citylist::sort_mode_t sb, bool sr)
 {
-	const weighted_vector_tpl<stadt_t*>& cities = welt->get_staedte();
+	const weighted_vector_tpl<stadt_t*>& cities = welt->get_cities();
 
 	sortby = sb;
 	sortreverse = sr;
@@ -117,7 +117,7 @@ bool citylist_stats_t::infowin_event(const event_t * ev)
 void citylist_stats_t::recalc_size()
 {
 	// show_scroll_x==false ->> size.w not important ->> no need to calc text pixel length
-	set_size( scr_size(210, welt->get_staedte().get_count() * (LINESPACE+1) ) );
+	set_size( scr_size(210, welt->get_cities().get_count() * (LINESPACE+1) ) );
 }
 
 
@@ -128,7 +128,7 @@ void citylist_stats_t::draw(scr_coord offset)
 	sint32 total_bev = 0;
 	sint32 total_growth = 0;
 
-	if(  welt->get_staedte().get_count()!=city_list.get_count()  ) {
+	if(  welt->get_cities().get_count()!=city_list.get_count()  ) {
 		// some deleted/ added => resort
 		sort( sortby, sortreverse );
 		recalc_size();

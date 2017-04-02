@@ -16,7 +16,7 @@ height_map_loader_t::height_map_loader_t(bool new_format):
 
 
 // read height data from bmp or ppm files
-bool height_map_loader_t::get_height_data_from_file( const char *filename, sint8 grundwasser, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values )
+bool height_map_loader_t::get_height_data_from_file( const char *filename, sint8 groundwater, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values )
 {
 	if (FILE* const file = fopen(filename, "rb")) {
 		char id[3];
@@ -81,7 +81,7 @@ bool height_map_loader_t::get_height_data_from_file( const char *filename, sint8
 
 			// now read the data and convert them on the fly
 			hfield = new sint8[w*h];
-			memset( hfield, grundwasser, w*h );
+			memset( hfield, groundwater, w*h );
 			if(bit_depth==8) {
 				// convert color tables to height levels
 				if(table==0) {
@@ -220,7 +220,7 @@ bool height_map_loader_t::get_height_data_from_file( const char *filename, sint8
 
 			// ok, now read them in
 			hfield = new sint8[w*h];
-			memset( hfield, grundwasser, w*h );
+			memset( hfield, groundwater, w*h );
 
 			for(sint16 y=0; y<h; y++) {
 				for(sint16 x=0; x<w; x++) {

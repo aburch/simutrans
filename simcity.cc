@@ -1419,7 +1419,7 @@ stadt_t::~stadt_t()
 			
 				if(gb->get_tile()->get_desc()->get_type() == building_desc_t::headquarter)
 				{
-					stadt_t *city = welt->suche_naechste_stadt(gb->get_pos().get_2d());
+					stadt_t *city = welt->find_nearest_city(gb->get_pos().get_2d());
 					gb->set_stadt( city );
 					if(city) 
 					{
@@ -1445,7 +1445,7 @@ stadt_t::~stadt_t()
 				sub->city = NULL;
 			}
 		
-			const weighted_vector_tpl<stadt_t*>& cities = welt->get_staedte();
+			const weighted_vector_tpl<stadt_t*>& cities = welt->get_cities();
 			FOR(weighted_vector_tpl<stadt_t*>, const i, cities)
 			{
 				i->remove_connected_city(this);
@@ -1507,7 +1507,7 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 
 	/* get a unique cityname */
 	char                          const* n       = "simcity";
-	weighted_vector_tpl<stadt_t*> const& staedte = welt->get_staedte();
+	weighted_vector_tpl<stadt_t*> const& staedte = welt->get_cities();
 
 	const vector_tpl<char*>& city_names = translator::get_city_name_list();
 
@@ -3125,7 +3125,7 @@ void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 	const grund_t* gr = welt->lookup_kartenboden(k);
 	if(gr)
 	{
-		assert(!gr->ist_wasser() || gr->get_halt().is_bound() || gr->get_depot());
+		assert(!gr->is_water() || gr->get_halt().is_bound() || gr->get_depot());
 		const gebaeude_t* gb = gr->find<gebaeude_t>();
 		if(gb)
 		{
@@ -3196,7 +3196,7 @@ class building_place_with_road_finder: public building_placefinder_t
 					dist = d;
 				}
 			}
-			FOR(  weighted_vector_tpl<stadt_t *>, const city, welt->get_staedte() ) {
+			FOR(  weighted_vector_tpl<stadt_t *>, const city, welt->get_cities() ) {
 				int const d = koord_distance(city->get_pos(), pos);
 				if(  d < dist  ) {
 					dist = d;
@@ -4626,11 +4626,11 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 	slope_t::type slope = bd->get_grund_hang();
 	if (!slope_t::is_way(slope)) {
 		climate c = welt->get_climate(k);
-		if (welt->can_ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true)) {
-			welt->ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true);
+		if (welt->can_flatten_tile(NULL, k, bd->get_hoehe()+1, true)) {
+			welt->flatten_tile(NULL, k, bd->get_hoehe()+1, true);
 		}
-		else if(  bd->get_hoehe() > welt->get_water_hgt(k)  &&  welt->can_ebne_planquadrat(NULL, k, bd->get_hoehe() )  ) {
-			welt->ebne_planquadrat(NULL, k, bd->get_hoehe());
+		else if(  bd->get_hoehe() > welt->get_water_hgt(k)  &&  welt->can_flatten_tile(NULL, k, bd->get_hoehe() )  ) {
+			welt->flatten_tile(NULL, k, bd->get_hoehe());
 		}
 		else {
 			return false;
@@ -4827,7 +4827,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 			koord zv = koord(direction);
 			grund_t *bd_next = welt->lookup_kartenboden( k + zv );
 			if(  bd_next &&
-			     (bd_next->ist_wasser() || bd_next->hat_weg(water_wt) || bd_next->hat_weg(track_wt) || bd_next->hat_weg(narrowgauge_wt) ||
+			     (bd_next->is_water() || bd_next->hat_weg(water_wt) || bd_next->hat_weg(track_wt) || bd_next->hat_weg(narrowgauge_wt) ||
 			       bd_next->hat_weg(monorail_wt) || bd_next->hat_weg(maglev_wt) || (bd_next->hat_weg(road_wt) && !bd_next->get_weg(road_wt)->is_public_right_of_way()))) {
 				// There is a river, a canal, railway, a private road, or a lake in the way. Build a bridge.
 				build_bridge(bd, direction);
@@ -5051,7 +5051,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 		for (pos.x = 2; pos.x < wl_size.x-2; pos.x++ ) {
 			koord my_grid_pos(pos.x/grid_step, pos.y/grid_step);
 			grund_t *gr = wl->lookup_kartenboden(pos);
-			if ( gr->get_hoehe() <= wl->get_grundwasser()  || ( gr->hat_weg(water_wt) && gr->get_max_speed() )  ) {
+			if ( gr->get_hoehe() <= wl->get_groundwater()  || ( gr->hat_weg(water_wt) && gr->get_max_speed() )  ) {
 				koord dpos;
 				for ( dpos.y = -4; dpos.y < 5; dpos.y++) {
 					for ( dpos.x = -4; dpos.x < 5 ; dpos.x++) {
@@ -5106,7 +5106,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 			}
 			else {
 				int weight;
-				const sint16 height_above_water = wl->lookup_hgt(pos) - wl->get_grundwasser();
+				const sint16 height_above_water = wl->lookup_hgt(pos) - wl->get_groundwater();
 				switch(height_above_water)
 				{
 					case 1: weight = 24; break;

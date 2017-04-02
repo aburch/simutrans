@@ -201,17 +201,17 @@ void grund_t::rdwr(loadsave_t *file)
 	xml_tag_t g( file, "grund_t" );
 	if(file->get_version()<101000) {
 		pos.rdwr(file);
-		z_w = welt->get_grundwasser();
+		z_w = welt->get_groundwater();
 	}
 	else if(  file->get_version() < 112007  ) {
 		file->rdwr_byte(z);
-		pos.z = get_typ() == grund_t::wasser ? welt->get_grundwasser() : z;
-		z_w = welt->get_grundwasser();
+		pos.z = get_typ() == grund_t::wasser ? welt->get_groundwater() : z;
+		z_w = welt->get_groundwater();
 	}
 	else {
 		file->rdwr_byte(z);
 		file->rdwr_byte(z_w);
-		if(  file->is_loading()  &&  !ist_wasser()  &&  !welt->lookup_kartenboden( k )  &&  z < z_w  ) {
+		if(  file->is_loading()  &&  !is_water()  &&  !welt->lookup_kartenboden( k )  &&  z < z_w  ) {
 			// partially in water, restore correct ground height while keeping grid height
 			// if kartenboden doesn't exist we will become it
 			pos.z = z_w;
@@ -611,7 +611,7 @@ void grund_t::info(cbuffer_t& buf, bool dummy) const
 	}
 	else
 	{
-		if(ist_wasser())
+		if(is_water())
 		{
 			buf.append(translator::translate("Open water"));
 		}
@@ -621,7 +621,7 @@ void grund_t::info(cbuffer_t& buf, bool dummy) const
 		}
 	}
 	buf.append("\n\n");
-	if(!ist_wasser()) {
+	if(!is_water()) {
 		if(flags&has_way1) {
 			buf.append(translator::translate(get_weg_nr(0)->get_name()));
 			buf.append("\n");
@@ -682,7 +682,7 @@ void grund_t::set_halt(halthandle_t halt)
 	bool add = halt.is_bound();
 	if(  add  ) {
 		// ok, we want to add a stop: first check if it can apply to water
-		if(  get_weg_ribi(water_wt)  ||  ist_wasser()  ||  (ist_karten_boden()  &&  welt->get_climate(pos.get_2d())==water_climate)  ) {
+		if(  get_weg_ribi(water_wt)  ||  is_water()  ||  (ist_karten_boden()  &&  welt->get_climate(pos.get_2d())==water_climate)  ) {
 			add = (halt->get_station_type() & haltestelle_t::dock) > 0;
 		}
 	}
@@ -868,7 +868,7 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 					);
 
 					// no fences between water tiles or between invisible tiles
-					if(  fence[i]  &&  ( (ist_wasser() && gr->ist_wasser()) || (!isvisible && !gr->is_visible()) )  ) {
+					if(  fence[i]  &&  ( (is_water() && gr->is_water()) || (!isvisible && !gr->is_visible()) )  ) {
 						fence[i] = false;
 					}
 				}
@@ -1072,7 +1072,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 						if(  min_climate == water_climate  ) {
 							water_corners += 1 << i;
 						}
-						if(  (climate_corners >> i) & 1  &&  !ist_wasser()  &&  snow_transition > 0  ) {
+						if(  (climate_corners >> i) & 1  &&  !is_water()  &&  snow_transition > 0  ) {
 							// looks up sw, se, ne, nw for i=0...3
 							// we compare with tile either side (e.g. for sw, w and s) and pick highest one
 							if(  transition_climate > climate0  ) {
@@ -1199,7 +1199,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 
 void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile_width CLIP_NUM_DEF)
 {
-	if(  pos.z < welt->get_grundwasser()  ) {
+	if(  pos.z < welt->get_groundwater()  ) {
 		// we do not display below water (yet)
 		return;
 	}
@@ -1210,12 +1210,12 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 	if(  pos.y-welt->get_size().y+1 == 0  ) {
 		// move slopes to front of tile
 		sint16 x = xpos - raster_tile_width/2;
-		sint16 y = ypos + raster_tile_width/4 + (pos.z-welt->get_grundwasser())*hgt_step;
+		sint16 y = ypos + raster_tile_width/4 + (pos.z-welt->get_groundwater())*hgt_step;
 		// left side border
 		sint16 diff = corner_sw(slope)-corner_se(slope);
 		image_id slope_img = ground_desc_t::slopes->get_image( lookup_hgt[ 2+diff ]+11 );
 		diff = -min(corner_sw(slope),corner_se(slope));
-		sint16 zz = pos.z-welt->get_grundwasser();
+		sint16 zz = pos.z-welt->get_groundwater();
 		if(  diff < zz && ((zz-diff)&1)==1  ) {
 			display_normal( ground_desc_t::slopes->get_image(15), x, y, 0, true, false CLIP_NUM_PAR );
 			y -= hgt_step;
@@ -1233,12 +1233,12 @@ void grund_t::display_border( sint16 xpos, sint16 ypos, const sint16 raster_tile
 	if(  pos.x-welt->get_size().x+1 == 0  ) {
 		// move slopes to front of tile
 		sint16 x = xpos + raster_tile_width/2;
-		sint16 y = ypos + raster_tile_width/4 + (pos.z-welt->get_grundwasser())*hgt_step;
+		sint16 y = ypos + raster_tile_width/4 + (pos.z-welt->get_groundwater())*hgt_step;
 		// right side border
 		sint16 diff = corner_se(slope)-corner_ne(slope);
 		image_id slope_img = ground_desc_t::slopes->get_image( lookup_hgt[ 2+diff ] );
 		diff = -min(corner_se(slope),corner_ne(slope));
-		sint16 zz = pos.z-welt->get_grundwasser();
+		sint16 zz = pos.z-welt->get_groundwater();
 		if(  diff < zz && ((zz-diff)&1)==1  ) {
 			display_normal( ground_desc_t::slopes->get_image(4), x, y, 0, true, false CLIP_NUM_PAR );
 			y -= hgt_step;
@@ -1422,7 +1422,7 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 			ribi |= w2->get_ribi_unmasked();
 		}
 	}
-	else if (ist_wasser()) {
+	else if (is_water()) {
 		ribi = (static_cast<const wasser_t*>(this))->get_weg_ribi(water_wt);
 	}
 
@@ -1440,7 +1440,7 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 	}
 
 	// ships might be large and could be clipped by vertical walls on our tile
-	const bool ontile_se = back_image_nr  &&  ist_wasser();
+	const bool ontile_se = back_image_nr  &&  is_water();
 
 	// get slope of way as displayed
 	const uint8 slope = get_disp_way_slope();
@@ -1890,7 +1890,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player,
 			str->set_gehweg(true);
 			weg->set_public_right_of_way();
 		}
-		else if(player && !ist_wasser() && !city_adopts_this)
+		else if(player && !is_water() && !city_adopts_this)
 		{
 			// Set the owner
 			weg->set_owner(player);
@@ -2515,7 +2515,7 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 		}
 
 		// remove ribi from canals to sea level
-		if (wt==water_wt  &&  pos.z==welt->get_grundwasser()  &&  slope!=slope_t::flat) {
+		if (wt==water_wt  &&  pos.z==welt->get_groundwater()  &&  slope!=slope_t::flat) {
 			rem &= ~ribi_t::doubles(ribi_type(slope));
 		}
 
@@ -2600,7 +2600,7 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 				// remove ribis from sea tiles
 				if(  wt == water_wt  &&  pos.z == welt->get_water_hgt( here )  &&  slope != slope_t::flat  ) {
 					grund_t *gr = welt->lookup_kartenboden(here - ribi_type(slope));
-					if (gr  &&  gr->ist_wasser()) {
+					if (gr  &&  gr->is_water()) {
 						gr->calc_image(); // to recalculate ribis
 					}
 				}

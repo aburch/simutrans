@@ -522,7 +522,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 			}
 			// mostly remove everything
 			vector_tpl<obj_t *> keptobjs;
-			if(!gr->ist_wasser() && desc->get_type() != building_desc_t::dock && desc->get_type() != building_desc_t::flat_dock)
+			if(!gr->is_water() && desc->get_type() != building_desc_t::dock && desc->get_type() != building_desc_t::flat_dock)
 			{			
 				if(!gr->hat_wege()) {
 					// save certain object types
@@ -603,7 +603,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 							// a flat bridge end on a slope.  (Otherwise it's zero.)
 							// So this is the desired level...
 							if (front_z == gr->get_pos().z &&
-							    front_z > welt->get_grundwasser()) {
+							    front_z > welt->get_groundwater()) {
 								// Build down to meet the front side.
 								build_up = false;
 							}
@@ -639,7 +639,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 				gb->set_fab((fabrik_t *)param);
 			}
 			// try to fake old building
-			else if(welt->get_zeit_ms() < 2) {
+			else if(welt->get_ticks() < 2) {
 				// Hajo: after staring a new map, build fake old buildings
 				gb->add_alter(10000ll);
 			}
@@ -657,7 +657,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 			}
 			//gb->set_pos( gr->get_pos() );
 			if(desc->is_attraction()) {
-				welt->add_ausflugsziel( gb );
+				welt->add_attraction( gb );
 			}
 			if(!desc->is_city_building() && !desc->is_signalbox()) {
 				if(station_building.is_contained(desc)) 
@@ -827,7 +827,7 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 	}
 
 	if(desc->is_attraction()) {
-		welt->add_ausflugsziel( gb );
+		welt->add_attraction( gb );
 	}
 	reliefkarte_t::get_karte()->calc_map_pixel(gb->get_pos().get_2d());
 

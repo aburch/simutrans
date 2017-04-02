@@ -306,7 +306,7 @@ bool factory_builder_t::check_construction_site(koord pos, koord size, bool wate
 		for(int y=0;y<size.y;y++) {
 			for(int x=0;x<size.x;x++) {
 				const grund_t *gr=welt->lookup_kartenboden(pos+koord(x,y));
-				if(gr==NULL  ||  !gr->ist_wasser()  ||  gr->get_grund_hang()!=slope_t::flat) {
+				if(gr==NULL  ||  !gr->is_water()  ||  gr->get_grund_hang()!=slope_t::flat) {
 					return false;
 				}
 			}
@@ -485,7 +485,7 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 						grund_t *gr = welt->lookup_kartenboden(x,y);
 						// build the halt on factory tiles on open water only,
 						// since the halt can't be removed otherwise
-						if(gr->ist_wasser()  &&  !(gr->hat_weg(water_wt))  &&  gr->find<gebaeude_t>()) {
+						if(gr->is_water()  &&  !(gr->hat_weg(water_wt))  &&  gr->find<gebaeude_t>()) {
 							halt->add_grund( gr );
 						}
 					}
@@ -577,7 +577,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 	}
 
 	// no cities at all?
-	if (info->get_placement() == factory_desc_t::City  &&  welt->get_staedte().empty()) {
+	if (info->get_placement() == factory_desc_t::City  &&  welt->get_cities().empty()) {
 		return 0;
 	}
 
@@ -598,7 +598,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		koord size=info->get_building()->get_size(0);
 
 		// build consumer (factory) in town
-		stadt_t *city = welt->suche_naechste_stadt(pos->get_2d());
+		stadt_t *city = welt->find_nearest_city(pos->get_2d());
 
 		/* Three variants:
 		 * A:
@@ -1067,7 +1067,7 @@ next_ware_check:
 						DBG_MESSAGE( "factory_builder_t::increase_industry_density()", "added ware %i to factory %s", missing_goods_index, unlinked_consumer->get_name() );
 						// tell the player
 						if(tell_me) {
-							stadt_t *s = welt->suche_naechste_stadt( unlinked_consumer->get_pos().get_2d() );
+							stadt_t *s = welt->find_nearest_city( unlinked_consumer->get_pos().get_2d() );
 							const char *stadt_name = s ? s->get_name() : "simcity";
 							cbuffer_t buf;
 							buf.printf( translator::translate("Factory chain extended\nfor %s near\n%s built with\n%i factories."), translator::translate(unlinked_consumer->get_name()), stadt_name, nr );
@@ -1099,7 +1099,7 @@ next_ware_check:
 		}
 	}
 
-	const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
+	const weighted_vector_tpl<stadt_t*>& staedte = welt->get_cities();
 	
 	for(weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i)
 	{
@@ -1127,11 +1127,11 @@ next_ware_check:
 					}
 				}
 				const bool in_city = fab->get_placement() == factory_desc_t::City;
-				if (in_city && welt->get_staedte().empty()) {
+				if (in_city && welt->get_cities().empty()) {
 					// we cannot build this factory here
 					continue;
 				}
-				koord   testpos = in_city ? pick_any_weighted(welt->get_staedte())->get_pos() : koord::koord_random(welt->get_size().x, welt->get_size().y);
+				koord   testpos = in_city ? pick_any_weighted(welt->get_cities())->get_pos() : koord::koord_random(welt->get_size().x, welt->get_size().y);
 				koord3d pos = welt->lookup_kartenboden( testpos )->get_pos();
 				int rotation = simrand(fab->get_building()->get_all_layouts()-1, "factory_builder_t::increase_industry_density()");
 				if(!in_city) {
@@ -1140,7 +1140,7 @@ next_ware_check:
 				}
 				else {
 					// or within the city limit
-					const stadt_t *city = pick_any_weighted(welt->get_staedte());
+					const stadt_t *city = pick_any_weighted(welt->get_cities());
 					koord diff = city->get_rechtsunten()-city->get_linksoben();
 					pos = find_random_construction_site( city->get_center(), max(diff.x,diff.y)/2, fab->get_building()->get_size(rotation),fab->get_placement()==factory_desc_t::Water,fab->get_building(),ignore_climates, 1000);
 				}
@@ -1152,7 +1152,7 @@ next_ware_check:
 						reliefkarte_t::get_karte()->calc_map_size();
 						// tell the player
 						if(tell_me) {
-							stadt_t *s = welt->suche_naechste_stadt( pos.get_2d() );
+							stadt_t *s = welt->find_nearest_city( pos.get_2d() );
 							const char *stadt_name = s ? s->get_name() : translator::translate("nowhere");
 							cbuffer_t buf;
 							buf.printf( translator::translate("New factory chain\nfor %s near\n%s built with\n%i factories."), translator::translate(our_fab->get_name()), stadt_name, nr );

@@ -14,7 +14,7 @@ public:
 	 * Reads height data from 8 or 25 bit bmp or ppm files.
 	 * @return Either pointer to heightfield (use delete [] for it) or NULL.
 	 */
-	bool get_height_data_from_file( const char *filename, sint8 grundwasser, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values );
+	bool get_height_data_from_file( const char *filename, sint8 groundwater, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values );
 
 private:
 	inline sint8 rgb_to_height( const int r, const int g, const int b ) {

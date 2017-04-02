@@ -810,7 +810,7 @@ void vehicle_t::set_convoi(convoi_t *c)
 			if (!r.empty() && route_index < r.get_count() - 1) {
 				grund_t const* const gr = welt->lookup(pos_next);
 				if (!gr || !gr->get_weg(get_waytype())) {
-					if (!(water_wt == get_waytype()  && gr && gr->ist_wasser())) { // ships on the open sea are valid
+					if (!(water_wt == get_waytype()  && gr && gr->is_water())) { // ships on the open sea are valid
 						pos_next = r.at(route_index + 1U);
 					}
 				}
@@ -1160,13 +1160,13 @@ void vehicle_t::remove_stale_cargo()
 
 void vehicle_t::play_sound() const
 {
-	if(  desc->get_sound() >= 0  &&  !welt->is_fast_forward() && sound_ticks < welt->get_zeit_ms() )
+	if(  desc->get_sound() >= 0  &&  !welt->is_fast_forward() && sound_ticks < welt->get_ticks() )
 	{
 		if(welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound()))
 		{
 			// Only reset the counter if the sound can be heard.
 			const sint64 sound_offset = sim_async_rand(10000) + 5000;
-			sound_ticks = welt->get_zeit_ms() + sound_offset;
+			sound_ticks = welt->get_ticks() + sound_offset;
 		}
 	}
 }
@@ -4696,7 +4696,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							}
 							const sint64 caution_interval_ticks = welt->get_seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_caution());
 							const sint64 clear_interval_ticks =  welt->get_seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_clear());
-							const sint64 ticks = welt->get_zeit_ms();
+							const sint64 ticks = welt->get_ticks();
 
 							if(last_passed + caution_interval_ticks > ticks)
 							{
@@ -5939,7 +5939,7 @@ void rail_vehicle_t::leave_tile()
 		
 					if(sig) 
 					{
-						sig->set_train_last_passed(welt->get_zeit_ms());
+						sig->set_train_last_passed(welt->get_ticks());
 						if(sig->get_no_junctions_to_next_signal() && !sig->get_desc()->is_pre_signal() && (sig->get_desc()->get_working_method() == time_interval || sig->get_desc()->get_working_method() == time_interval_with_telegraph))
 						{
 							welt->add_time_interval_signal_to_check(sig); 
@@ -6076,7 +6076,7 @@ void rail_vehicle_t::leave_tile()
 									sig_route->set_state(roadsign_t::caution);
 									if(sig_route->get_desc()->get_working_method() == time_interval || sig_route->get_desc()->get_working_method() == time_interval_with_telegraph)
 									{
-										sig_route->set_train_last_passed(welt->get_zeit_ms());
+										sig_route->set_train_last_passed(welt->get_ticks());
 										if(sig->get_no_junctions_to_next_signal())
 										{
 											// Junction signals reserve within sighting distance in ordinary time interval mode, or to the next signal in time interval with telegraph mode.
@@ -6101,7 +6101,7 @@ void rail_vehicle_t::leave_tile()
 				if(station_signals_count && !this_halt.is_bound())
 				{
 					ribi_t::ribi direction = ribi_type(cnv->get_route()->at(0u), cnv->get_route()->at(1u));
-					last_tile_halt->set_train_last_departed(welt->get_zeit_ms(), direction);
+					last_tile_halt->set_train_last_departed(welt->get_ticks(), direction);
 					for(uint j = 0; j < station_signals_count; j ++)
 					{
 						koord3d station_signal_pos = last_tile_halt->get_station_signal(j);
@@ -6232,11 +6232,11 @@ void water_vehicle_t::enter_tile(grund_t* gr)
 bool water_vehicle_t::check_next_tile(const grund_t *bd) const
 {
 	const weg_t *w = bd->get_weg(water_wt);	
-	if(bd->ist_wasser() || !w) 
+	if(bd->is_water() || !w) 
 	{
 		// If there are permissive constraints, this vehicle cannot
 		// traverse open seas, but it may use lakes. 
-		if(bd->get_hoehe() > welt->get_grundwasser())
+		if(bd->get_hoehe() > welt->get_groundwater())
 		{
 			return true;
 		}

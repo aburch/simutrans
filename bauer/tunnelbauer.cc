@@ -687,7 +687,7 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 				ground_outside->weg_erweitern(desc->get_waytype(), ribi_type(zv));
 			}
 		}
-		if (desc->get_waytype()==water_wt  &&  ground_outside->ist_wasser()) {
+		if (desc->get_waytype()==water_wt  &&  ground_outside->is_water()) {
 			// connect to the sea
 			tunnel->weg_erweitern(desc->get_waytype(), ribi_type(-zv));
 			ground_outside->calc_image(); // to recalculate ribis

@@ -49,7 +49,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	sets = sets_par;
 
 	// Water level
-	water_level.init( sets->get_grundwasser(), -10*(ground_desc_t::double_grounds?2:1), 0, gui_numberinput_t::AUTOLINEAR, false );
+	water_level.init( sets->get_groundwater(), -10*(ground_desc_t::double_grounds?2:1), 0, gui_numberinput_t::AUTOLINEAR, false );
 	water_level.set_pos( cursor );
 	water_level.set_size( edit_size );
 	water_level.add_listener( this );
@@ -133,7 +133,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	cursor.y += D_BUTTON_HEIGHT;
 
 	// Winter snowline
-	snowline_winter.init( sets->get_winter_snowline(), -5, 32 - sets->get_grundwasser(), gui_numberinput_t::AUTOLINEAR, false );
+	snowline_winter.init( sets->get_winter_snowline(), -5, 32 - sets->get_groundwater(), gui_numberinput_t::AUTOLINEAR, false );
 	snowline_winter.set_pos( cursor );
 	snowline_winter.set_size( edit_size );
 	snowline_winter.add_listener( this );
@@ -148,7 +148,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	sint16 arctic = 0;
 	for(  int i=desert_climate-1;  i<=rocky_climate-1;  i++  ) {
 
-		climate_borders_ui[i].init( sets->get_climate_borders()[i+1], -5, 32 - sets->get_grundwasser(), gui_numberinput_t::AUTOLINEAR, false );
+		climate_borders_ui[i].init( sets->get_climate_borders()[i+1], -5, 32 - sets->get_groundwater(), gui_numberinput_t::AUTOLINEAR, false );
 		climate_borders_ui[i].set_pos( cursor );
 		climate_borders_ui[i].set_size( edit_size );
 		climate_borders_ui[i].add_listener( this );
@@ -237,12 +237,12 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		sets->set_lake(lake.pressed);
 	}
 	else if(comp==&water_level) {
-		sets->grundwasser = (sint16)v.i;
+		sets->groundwater = (sint16)v.i;
 		if(  welt_gui  ) {
 			welt_gui->update_preview();
 		}
 		for(  int i=desert_climate-1;  i<=rocky_climate-1;  i++  ) {
-			climate_borders_ui[i].set_limits( -5, 32 - sets->get_grundwasser() );
+			climate_borders_ui[i].set_limits( -5, 32 - sets->get_groundwater() );
 			climate_borders_ui[i].set_value( climate_borders_ui[i].get_value() );
 		}
 	}

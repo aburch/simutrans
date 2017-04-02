@@ -428,7 +428,7 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
 	sint16 w, h;
 	sint8 *h_field=NULL;
 	height_map_loader_t hml(sets);
-	if(hml.get_height_data_from_file(filename, (sint8)sets->get_grundwasser(), h_field, w, h, false )) {
+	if(hml.get_height_data_from_file(filename, (sint8)sets->get_groundwater(), h_field, w, h, false )) {
 		sets->set_size_x(w);
 		sets->set_size_y(h);
 		update_densities();
@@ -442,7 +442,7 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
 		const int my = sets->get_size_y()/map_size.h;
 		for(  int y=0;  y<map_size.h;  y++  ) {
 			for(  int x=0;  x<map_size.w;  x++  ) {
-				map.at(x,y) = reliefkarte_t::calc_hoehe_farbe( h_field[x*mx+y*my*w], sets->get_grundwasser()-1 );
+				map.at(x,y) = reliefkarte_t::calc_hoehe_farbe( h_field[x*mx+y*my*w], sets->get_groundwater()-1 );
 			}
 		}
 		map_preview.set_map_data(&map,map_size);
@@ -496,7 +496,7 @@ void welt_gui_t::update_preview(bool load_heightfield)
 		const int my = sets->get_size_y()/map_size.h;
 		for(  int y=0;  y<map_size.h;  y++  ) {
 			for(  int x=0;  x<map_size.w;  x++  ) {
-				map.at(x,y) = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(x*mx,y*my), koord::invalid, max_size ), sets->get_grundwasser());
+				map.at(x,y) = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(x*mx,y*my), koord::invalid, max_size ), sets->get_groundwater());
 			}
 		}
 		sets->heightfield = "";
@@ -617,7 +617,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		// load relief
 		loaded_heightfield = false;
 		sets->heightfield = "";
-		sets->grundwasser = -2*env_t::pak_height_conversion_factor;
+		sets->groundwater = -2*env_t::pak_height_conversion_factor;
 		load_relief_frame_t* lrf = new load_relief_frame_t(sets);
 		create_win((display_get_width() - lrf->get_windowsize().w-10), 40, lrf, w_info, magic_load_t );
 		knr = sets->get_map_number();	// otherwise using cancel would not show the normal generated map again

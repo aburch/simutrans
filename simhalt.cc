@@ -121,7 +121,7 @@ halthandle_t haltestelle_t::get_halt(const koord pos, const player_t *player )
 			}
 		}
 		// no halt? => we do the water check
-		if(plan->get_kartenboden()->ist_wasser())
+		if(plan->get_kartenboden()->is_water())
 		{
 			// may catch bus stops close to water ...
 			const uint8 cnt = plan->get_haltlist_count();
@@ -220,7 +220,7 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 			return gr->get_halt();
 		}
 		// no halt? => we do the water check
-		if(gr->ist_wasser())
+		if(gr->is_water())
 		{
 			// may catch bus stops close to water ...
 			const planquadrat_t *plan = welt->access(pos.get_2d());
@@ -490,7 +490,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 
 	// Added by : Knightly
 	//inauguration_time = dr_time();
-	inauguration_time = welt->get_zeit_ms(); // Possibly more network safe than the original (commented out above)
+	inauguration_time = welt->get_ticks(); // Possibly more network safe than the original (commented out above)
 
 	control_towers = 0;
 
@@ -810,7 +810,7 @@ static int count_printf_param( const char *str )
 char* haltestelle_t::create_name(koord const k, char const* const typ)
 {
 	int const lang = welt->get_settings().get_name_language_id();
-	stadt_t *stadt = welt->suche_naechste_stadt(k);
+	stadt_t *stadt = welt->find_nearest_city(k);
 	const char *stop = translator::translate(typ,lang);
 	cbuffer_t buf;
 
@@ -1151,7 +1151,7 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 
 void haltestelle_t::check_transferring_cargoes()
 {
-	const sint64 current_time = welt->get_zeit_ms();
+	const sint64 current_time = welt->get_ticks();
 	ware_t ware;
 
 #ifdef MULTI_THREAD
@@ -1257,7 +1257,7 @@ void haltestelle_t::step()
 					continue;
 				}
 
-				uint32 waiting_tenths = convoi_t::get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
+				uint32 waiting_tenths = convoi_t::get_waiting_minutes(welt->get_ticks() - tmp.arrival_time);
 
 				// Checks to see whether the freight has been waiting too long.
 				// If so, discard it.
@@ -2333,7 +2333,7 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const goods_desc_t *
 						halthandle_t test_transfer;
 						path_explorer_t::get_catg_path_between(catg_index, self, destination, test_time, test_transfer);
 						const sint64 test_time_in_ticks = welt->get_seconds_to_ticks(test_time * 6);
-						best_arrival_time = test_time_in_ticks + welt->get_zeit_ms();
+						best_arrival_time = test_time_in_ticks + welt->get_ticks();
 					}
 
 					const halthandle_t check_halt = bound_for_next_transfer ? next_transfer : destination;
@@ -2353,14 +2353,14 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const goods_desc_t *
 						sint64 fast_here_departure_time = get_estimated_convoy_departure_times().get(fast_convoy.get_id());
 						const bool fast_is_here = loading_here.is_contained(fast_convoy);
 						sint64 fast_here_arrival_time = get_estimated_convoy_arrival_times().get(fast_convoy.get_id());
-						if(fast_here_arrival_time <= welt->get_zeit_ms() && !fast_is_here)
+						if(fast_here_arrival_time <= welt->get_ticks() && !fast_is_here)
 						{
 							// The faster convoy is late.
 							// Estimate its arrival time based on the degree of delay so far (somewhat pessimistically). 
-							fast_here_departure_time += (((welt->get_zeit_ms() - fast_here_arrival_time) + 1) * waiting_multiplication_factor);
+							fast_here_departure_time += (((welt->get_ticks() - fast_here_arrival_time) + 1) * waiting_multiplication_factor);
 						}				
 						
-						sint64 waiting_time_for_faster_convoy = fast_here_departure_time - welt->get_zeit_ms();
+						sint64 waiting_time_for_faster_convoy = fast_here_departure_time - welt->get_ticks();
 						if(!fast_is_here)
 						{
 							if (waiting_time_for_faster_convoy == 0)
@@ -2670,7 +2670,7 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 				if(ware.menge > 0)
 				{
 					//The waiting time for ware will always be zero.
-					tmp.arrival_time = welt->get_zeit_ms() - ((welt->get_zeit_ms() - tmp.arrival_time) * tmp.menge) / (tmp.menge + ware.menge);
+					tmp.arrival_time = welt->get_ticks() - ((welt->get_ticks() - tmp.arrival_time) * tmp.menge) / (tmp.menge + ware.menge);
 				}
 
 				tmp.menge += ware.menge;
@@ -2691,7 +2691,7 @@ void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 	// @author: jamespetts
 	if(!from_saved)
 	{
-		ware.arrival_time = welt->get_zeit_ms();
+		ware.arrival_time = welt->get_ticks();
 	}
 
 	ware.set_last_transfer(self);
@@ -2733,7 +2733,7 @@ void haltestelle_t::add_to_waiting_list(ware_t ware, sint64 ready_time)
 
 sint64 haltestelle_t::calc_ready_time(ware_t ware, bool arriving_from_vehicle, koord origin_pos) const
 {
-	sint64 ready_time = welt->get_zeit_ms();
+	sint64 ready_time = welt->get_ticks();
 
 	if (ware.is_freight())
 	{
@@ -3024,10 +3024,10 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 			const sint64 best_arrival_time_destination_stop = calc_earliest_arrival_time_at(ware.get_ziel(), dummy, ware.get_desc()->get_catg_index());
 			sint64 best_arrival_time_transfer = ware.get_zwischenziel() != ware.get_ziel() ? calc_earliest_arrival_time_at(ware.get_zwischenziel(), dummy, ware.get_desc()->get_catg_index()) : SINT64_MAX_VALUE;
 
-			const sint64 arrival_after_walking_to_destination = welt->get_seconds_to_ticks(welt->walking_time_tenths_from_distance((uint32)straight_line_distance_destination) * 6) + welt->get_zeit_ms();
+			const sint64 arrival_after_walking_to_destination = welt->get_seconds_to_ticks(welt->walking_time_tenths_from_distance((uint32)straight_line_distance_destination) * 6) + welt->get_ticks();
 
 			const uint16 straight_line_distance_to_next_transfer = shortest_distance(get_init_pos(), ware.get_zwischenziel()->get_next_pos(get_next_pos(ware.get_zwischenziel()->get_basis_pos())));
-			const sint64 arrival_after_walking_to_next_transfer = welt->get_seconds_to_ticks(welt->walking_time_tenths_from_distance((uint32)straight_line_distance_to_next_transfer) * 6) + welt->get_zeit_ms();
+			const sint64 arrival_after_walking_to_next_transfer = welt->get_seconds_to_ticks(welt->walking_time_tenths_from_distance((uint32)straight_line_distance_to_next_transfer) * 6) + welt->get_ticks();
 			
 			sint64 extra_time_to_ultimate_destination = 0;
 			if(best_arrival_time_transfer < SINT64_MAX_VALUE)
@@ -3423,7 +3423,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 	const gebaeude_t* gb = gr->find<gebaeude_t>();
 	const building_desc_t *desc=gb?gb->get_tile()->get_desc():NULL;
 
-	if(gr->ist_wasser() && gb) {
+	if(gr->is_water() && gb) {
 		// may happend around oil rigs and so on
 		station_type |= dock;
 		// for water factories
@@ -5476,10 +5476,10 @@ sint64 haltestelle_t::calc_earliest_arrival_time_at(halthandle_t halt, convoihan
 
 			// Check to see whether the convoy is running late. 
 			const sint64 this_stop_arrival = estimated_convoy_arrival_times.get(iter.key);
-			if(this_stop_arrival <= welt->get_zeit_ms() && !loading_here.is_contained(arrival_convoy))
+			if(this_stop_arrival <= welt->get_ticks() && !loading_here.is_contained(arrival_convoy))
 			{
 				// Assume that it will be as late again as it already is (e.g., if it is 2 minutes late so far, assume a total delay of 4 minutes)
-				const sint64 estimated_total_delay = (welt->get_zeit_ms() - this_stop_arrival) * waiting_multiplication_factor;
+				const sint64 estimated_total_delay = (welt->get_ticks() - this_stop_arrival) * waiting_multiplication_factor;
 				current_time += estimated_total_delay;
 			}
 
