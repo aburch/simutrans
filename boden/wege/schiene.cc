@@ -145,6 +145,7 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 	else
 	{
 		buf.append(translator::translate("track_not_reserved"));
+		buf.append("\n\n");
 	}
 }
 
