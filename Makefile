@@ -90,6 +90,9 @@ else
 endif
 
 ifdef DEBUG
+	ifndef MSG_LEVEL
+		MSG_LEVEL = 3
+	endif
   ifeq ($(shell expr $(DEBUG) \>= 1), 1)
     CFLAGS += -g -DDEBUG
   endif
@@ -109,6 +112,9 @@ endif
 
 ifneq ($(PROFILE),)
   CFLAGS  += -pg -DPROFILE
+  ifdef MSG_LEVEL
+	CFLAGS += -DMSG_LEVEL=$(MSG_LEVEL)
+	endif
   ifneq ($(PROFILE), 2)
     CFLAGS  += -fno-inline -fno-schedule-insns
   endif

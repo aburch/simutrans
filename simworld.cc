@@ -1028,7 +1028,9 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 			}
 
 			delete pos;
-			DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns", dr_time()-tbegin );
+#ifdef DEBUG
+				dbg->message("karte_t::distribute_groundobjs_cities()", "took %lu ms for all towns", dr_time() - tbegin);
+#endif
 
 			uint32 game_start = current_month;
 			// townhalls available since?

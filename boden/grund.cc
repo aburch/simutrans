@@ -338,7 +338,7 @@ void grund_t::rdwr(loadsave_t *file)
 			if(++i < 2) {
 				switch(wtyp) {
 					default:
-#if DEBUG
+#if MSG_LEVEL
 						if(  wtyp != invalid_wt  ) {
 							dbg->error( "grund_t::rdwr()", "invalid waytype %i!", (int)wtyp );
 							wtyp = invalid_wt;
@@ -647,7 +647,7 @@ void grund_t::info(cbuffer_t& buf, bool dummy) const
 	char price[64];
 	money_to_string(price, abs(welt->get_land_value(pos)));
 	buf.printf("%s: %s\n", translator::translate("Land value"), price);
-#if DEBUG >= 3
+#if MSG_LEVEL >= 4
 	buf.printf("\nflags $%0X", flags );
 	buf.printf("\n\npos: (%s)",pos.get_str());
 	buf.printf("\nslope: %i",get_grund_hang());

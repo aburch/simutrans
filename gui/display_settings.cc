@@ -515,7 +515,7 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	}
 	len = 15+display_proportional_clip(x+10, y+FRAME_DATA, translator::translate("FPS:"), ALIGN_LEFT, SYSCOL_TEXT, true);
 	sprintf(buf,"%d fps", loops );
-#ifdef DEBUG
+#if MSG_LEVEL >= 3
 	if(  env_t::simple_drawing  ) {
 		strcat( buf, "*" );
 	}
