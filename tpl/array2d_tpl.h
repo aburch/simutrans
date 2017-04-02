@@ -58,7 +58,7 @@ public:
 			memset( data, value, w*h );
 		}
 		else {
-			unsigned i=(w*h)+1;
+			unsigned i=(w*h);
 			while(  i>0  ) {
 				data[--i] = value;
 			}
