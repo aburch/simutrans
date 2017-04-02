@@ -316,6 +316,7 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(translator::translate("no_maintenance_costs"));
 	}
 	buf.append("\n");
+	buf.append("\n");
 
 	if (desc->is_single_way())
 	{
