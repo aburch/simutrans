@@ -206,6 +206,19 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		//	}
 	}
 
+	if (desc->get_maintenance() > 0)
+	{
+		char maintenance_number[64];
+		money_to_string(maintenance_number, (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) / 100.0);
+		buf.printf("%s%s", translator::translate("maintenance"), ": ");
+		buf.append(maintenance_number);
+		buf.append("\n");
+	}
+	else
+	{
+		buf.append(translator::translate("no_maintenance_costs"));
+	}
+
 	buf.append(translator::translate("Direction"));
 	buf.append(": ");
 	if (desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block))
