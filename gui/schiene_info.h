@@ -48,6 +48,8 @@ protected:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
+	virtual void draw(scr_coord pos, scr_size size);
+
 	// called, after external change
 	//void update_data();
 };
