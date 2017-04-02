@@ -1838,7 +1838,7 @@ void fabrik_t::step(uint32 delta_t)
 				else {
 					if(  times_expanded<desc->get_expand_times()  ) {
 						if(  simrand(10000, "fabrik_t::step (expand 1)")<desc->get_expand_probability()  ) {
-							set_base_production( prodbase + desc->get_expand_minimum() + simrand( desc->get_expand_range(), "fabrik_t::step (expand 2)" ) );
+							set_base_production( prodbase + desc->get_expand_minumum() + simrand( desc->get_expand_range(), "fabrik_t::step (expand 2)" ) );
 							++times_expanded;
 						}
 					}

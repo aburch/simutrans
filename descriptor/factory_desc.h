@@ -290,7 +290,7 @@ public:
 	int get_upgrades_count() const { return upgrades; }
 
 	uint16 get_expand_probability() const { return expand_probability; }
-	uint16 get_expand_minimum() const { return expand_minimum; }
+	uint16 get_expand_minumum() const { return expand_minimum; }
 	uint16 get_expand_range() const { return expand_range; }
 	uint16 get_expand_times() const { return expand_times; }
 
