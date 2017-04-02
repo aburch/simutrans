@@ -396,3 +396,59 @@ obj=program_text
 name=call_ontime_choose
 note=A time interval choose signal showing a call on aspect
 -
+obj=program_text
+name=track_speed
+note=The speed of the track underneath the sign/signal is shown in the sign/signals info window
+-
+obj=program_text
+name=way_speed
+note=The speed of the way underneath the sign/signal is shown in the sign/signals info window
+-
+obj=program_text
+name=maintenance
+note=Maintenance of the sign/signal, shown in the info window
+-
+obj=program_text
+name=no_maintenance_costs
+note=If the sign/signal has no monthly maintenance
+-
+obj=program_text
+name=choose_sign
+note=shown in the signs info window wether the sign is a eeehh... a choose sign
+-
+obj=program_text
+name=min_speed
+note=The minimum speed of the sign (if specified) shown in the info window
+-
+obj=program_text
+name=permitted_direction
+note=Shown in one way signs info window
+-
+obj=program_text
+name=current_clear_directions
+note=Shown in traffic lights info window
+-
+obj=program_text
+name=underground_sign
+note=shown in the signs info window if said sign is underground
+-
+obj=program_text
+name=underground_signal
+note=Shown in the signal info window if it is underground
+-
+obj=program_text
+name=traffic_light
+note=Shown in the signs info window if sign is a traffic light
+-
+obj=program_text
+name=single_way_sign
+note=shown in signs info window if it is single way
+-
+obj=program_text
+name=private_way_sign
+note=shown in signs info window if it is a private way sign
+-
+obj=program_text
+name=end_of_choose_sign
+note=shown in signs info window if it is an end of choose sign
+-

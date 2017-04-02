@@ -212,12 +212,12 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		money_to_string(maintenance_number, (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) / 100.0);
 		buf.printf("%s%s", translator::translate("maintenance"), ": ");
 		buf.append(maintenance_number);
-		buf.append("\n");
 	}
 	else
 	{
 		buf.append(translator::translate("no_maintenance_costs"));
 	}
+	buf.append("\n");
 
 	buf.append(translator::translate("Direction"));
 	buf.append(": ");

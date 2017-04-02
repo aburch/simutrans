@@ -304,6 +304,19 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append("\n");
 	}
 
+	if (desc->get_maintenance() > 0)
+	{
+		char maintenance_number[64];
+		money_to_string(maintenance_number, (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) / 100.0);
+		buf.printf("%s%s", translator::translate("maintenance"), ": ");
+		buf.append(maintenance_number);
+	}
+	else
+	{
+		buf.append(translator::translate("no_maintenance_costs"));
+	}
+	buf.append("\n");
+
 	if (desc->is_single_way())
 	{
 		buf.printf("%s%s%s", translator::translate("permitted_direction"), ": ", translator::translate(get_directions_name(get_dir()))); // Perhaps: "direction_of_travel" ?

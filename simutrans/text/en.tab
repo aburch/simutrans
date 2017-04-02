@@ -3230,3 +3230,31 @@ east_and_west
 East and West
 goto_signalbox
 Go to signalbox
+underground_signal
+Underground Signal
+underground_sign
+Underground Sign
+track_speed
+Track speed
+way_speed
+Way speed
+maintenance
+Maintenance
+no_maintenance_costs
+No maintenance costs
+choose_sign
+Choose sign
+traffic_light
+Traffic light
+single_way_sign
+Single way sign
+private_way_sign
+Private way sign
+end_of_choose_sign
+End of choose sign
+min_speed
+Min. Speed
+permitted_direction
+Permitted direction
+current_clear_directions
+Current clear directions
