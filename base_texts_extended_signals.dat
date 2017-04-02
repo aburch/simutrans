@@ -441,8 +441,8 @@ name=traffic_light
 note=Shown in the signs info window if sign is a traffic light
 -
 obj=program_text
-name=single_way_sign
-note=shown in signs info window if it is single way
+name=one_way_sign
+note=shown in signs info window if it is one way
 -
 obj=program_text
 name=private_way_sign
