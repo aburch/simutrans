@@ -491,8 +491,8 @@ ifeq ($(BACKEND),sdl)
   endif
   ifeq ($(SDL_CONFIG),)
     ifeq ($(OSTYPE),mac)
-      SDL_CFLAGS  := -I/System/Libraries/Frameworks/SDL/Headers -Dmain=SDL_main
-      SDL_LDFLAGS := -framework SDL -framework Cocoa -I/System/Libraries/Frameworks/SDL/Headers SDLMain.m
+      SDL_CFLAGS  := -I/Library/Frameworks/SDL.framework/Headers -Dmain=SDL_main
+      SDL_LDFLAGS := -framework SDL -framework Cocoa -I/Library/Frameworks/SDL.framework/Headers OSX/SDLMain.m
     else
       SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
       SDL_LDFLAGS := -lSDLmain -lSDL
