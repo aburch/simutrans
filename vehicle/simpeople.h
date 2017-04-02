@@ -45,8 +45,6 @@ public:
 
 	sync_result sync_step(uint32 delta_t);
 
-	// prissi: always free
-	virtual bool can_enter_tile() { return true; }
 	virtual grund_t* hop_check();
 	virtual void hop(grund_t* gr);
 
