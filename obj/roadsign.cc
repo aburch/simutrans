@@ -257,7 +257,7 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 	}
 	if (desc->is_single_way())
 	{
-		buf.append(translator::translate("single_way_sign"));
+		buf.append(translator::translate("one_way_sign"));
 		buf.append("\n");
 	}
 	if (desc->is_private_way())
