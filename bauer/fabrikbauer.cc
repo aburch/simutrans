@@ -115,9 +115,9 @@ class factory_place_with_road_finder: public building_placefinder_t  {
 public:
 	factory_place_with_road_finder(karte_t* welt) : building_placefinder_t(welt) {}
 
-	virtual bool is_place_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const
+	virtual bool is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const
 	{
-		if(  !building_placefinder_t::is_place_ok(pos, b, h, cl)  ) {
+		if(  !building_placefinder_t::is_area_ok(pos, b, h, cl)  ) {
 			// We need a clear space to build, first of all
 			return false;
 		}
