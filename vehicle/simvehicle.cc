@@ -2117,7 +2117,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	sint8 hoff = file->is_saving() ? get_hoff() : 0;
 
 	if(file->get_version()<86006) {
-		// parameter werden in der deklarierten reihenfolge gespeichert
+		// parameter werden in der deklarierten rownfolge gespeichert
 		// "Parameters are declared in the order saved" (Translated by Google)
 		sint32 l;
 		file->rdwr_long(purchase_time);

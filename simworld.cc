@@ -8571,7 +8571,7 @@ DBG_MESSAGE("karte_t::load()", "init player");
 	DBG_MESSAGE("karte_t::load()", "prepare for %i factories", fabs);
 
 	for(sint32 i = 0; i < fabs; i++) {
-		// list in gleicher reihenfolge wie vor dem speichern wieder aufbauen
+		// list in gleicher rownfolge wie vor dem speichern wieder aufbauen
 		fabrik_t *fab = new fabrik_t(file);
 		if(fab->get_desc()) {
 			fab_list.append(fab);

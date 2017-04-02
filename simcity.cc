@@ -931,21 +931,21 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 }
 
 /**
- * monument_platz_sucher_t:
+ * monument_placefinder_t:
  *
- * Sucht einen freien Bauplatz
- * Im Gegensatz zum bauplatz_sucher_t werden Strassen auf den Raendern
+ * Search a free place for a building
+ * Im Gegensatz zum building_placefinder_t werden Strassen auf den Raendern
  * toleriert.
- *
+ * Search a free place for a monument building
  * 22-Dec-02: Hajo: added safety checks for gr != 0 and plan != 0
  *
  * @author V. Meyer
  */
-class monument_platz_sucher_t : public platzsucher_t {
+class monument_placefinder_t : public platzsucher_t {
 	public:
-		monument_platz_sucher_t(karte_t* welt, sint16 radius) : platzsucher_t(welt, radius) {}
+		monument_placefinder_t(karte_t* welt, sint16 radius) : platzsucher_t(welt, radius) {}
 
-		virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const
+		virtual bool is_field_ok(koord pos, koord d, climate_bits cl) const
 		{
 			const planquadrat_t* plan = welt->access(pos + d);
 
@@ -966,7 +966,7 @@ class monument_platz_sucher_t : public platzsucher_t {
 				if (obj->get_owner() != NULL &&
 				    obj->get_owner() != welt->get_public_player()) {
 					/* XXX player-owned roads okay to remove? */
-					/* XXX player-owned trams/electrification okay if ist_randfeld()? */
+					/* XXX player-owned trams/electrification okay if is_randomfield()? */
 					return false;
 				}
 
@@ -1002,7 +1002,7 @@ class monument_platz_sucher_t : public platzsucher_t {
 				return false;
 			}
 
-			if (ist_randfeld(d)) {
+			if (is_randomfield(d)) {
 			} else {
 				/* XXX necessary? */
 				if (gr->hat_weg(tram_wt)) {
@@ -1016,17 +1016,17 @@ class monument_platz_sucher_t : public platzsucher_t {
 
 
 /**
- * townhallplatz_sucher_t:
+ * townhall_placefinder_t:
  *
  * 22-Dec-02: Hajo: added safety checks for gr != 0 and plan != 0
  *
  * @author V. Meyer
  */
-class townhallplatz_sucher_t : public platzsucher_t {
+class townhall_placefinder_t : public platzsucher_t {
 	public:
-		townhallplatz_sucher_t(karte_t* welt, uint8 dir_) : platzsucher_t(welt), dir(dir_) {}
+		townhall_placefinder_t(karte_t* welt, uint8 dir_) : platzsucher_t(welt), dir(dir_) {}
 
-		virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const
+		virtual bool is_field_ok(koord pos, koord d, climate_bits cl) const
 		{
 			const grund_t* gr = welt->lookup_kartenboden(pos + d);
 			if (gr == NULL  ||  gr->get_grund_hang() != slope_t::flat) return false;
@@ -3172,18 +3172,18 @@ void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 
 
 /**
- * bauplatz_mit_strasse_sucher_t:
- * Search for a free location using the function suche_platz().
+ * building_place_with_road_finder:
+ * Search for a free location using the function find_place().
  * added: Minimum distance between monuments
  * @author V. Meyer/prissi
  */
-class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
+class building_place_with_road_finder: public building_placefinder_t
 {
 	public:
 		/// if false, this will the check 'do not build next other to special buildings'
 		bool big_city;
 
-		bauplatz_mit_strasse_sucher_t(karte_t* welt, sint16 radius, bool big) : bauplatz_sucher_t(welt, radius), big_city(big) {}
+		building_place_with_road_finder(karte_t* welt, sint16 radius, bool big) : building_placefinder_t(welt, radius), big_city(big) {}
 
 		// get distance to next special building
 		int find_dist_next_special(koord pos) const
@@ -3205,20 +3205,20 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 			return dist;
 		}
 
-		virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const
+		virtual bool is_place_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const
 		{
-			if(  !bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)  ) {
+			if(  !building_placefinder_t::is_place_ok(pos, w, h, cl)  ) {
 				return false;
 			}
 			bool next_to_road = false;
 			// not direct next to factories or townhalls
-			for (sint16 x = -1; x < b; x++) {
+			for (sint16 x = -1; x < w; x++) {
 				for (sint16 y = -1;  y < h; y++) {
 					grund_t *gr = welt->lookup_kartenboden(pos + koord(x,y));
 					if (!gr) {
 						return false;
 					}
-					if (	0 <= x  &&  x < b-1  &&  0 <= y  &&  y < h-1) {
+					if (	0 <= x  &&  x < w-1  &&  0 <= y  &&  y < h-1) {
 						// inside: nothing on top like elevated monorails?
 						if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1)  )!=NULL) {
 							// something on top (monorail or powerlines)
@@ -3248,7 +3248,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 			}
 
 			// try to built a little away from previous ones
-			if (big_city  &&  find_dist_next_special(pos) < b + h + welt->get_settings().get_special_building_distance()  ) {
+			if (big_city  &&  find_dist_next_special(pos) < w + h + welt->get_settings().get_special_building_distance()  ) {
 				return false;
 			}
 			return true;
@@ -3268,7 +3268,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 			bool is_rotate = desc->get_all_layouts() > 1;
 			sint16 radius = koord_distance( get_rechtsunten(), get_linksoben() )/2 + 10;
 			// find place
-			koord best_pos = bauplatz_mit_strasse_sucher_t(welt, radius, big_city).suche_platz(pos, desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), &is_rotate);
+			koord best_pos = building_place_with_road_finder(welt, radius, big_city).find_place(pos, desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), &is_rotate);
 
 			if (best_pos != koord::invalid) {
 				// then built it
@@ -3295,7 +3295,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 		if (desc) {
 			koord total_size = koord(2 + desc->get_x(), 2 + desc->get_y());
 			sint16 radius = koord_distance( get_rechtsunten(), get_linksoben() )/2 + 10;
-			koord best_pos(monument_platz_sucher_t(welt, radius).suche_platz(pos, total_size.x, total_size.y, desc->get_allowed_climate_bits()));
+			koord best_pos(monument_placefinder_t(welt, radius).find_place(pos, total_size.x, total_size.y, desc->get_allowed_climate_bits()));
 
 			if (best_pos != koord::invalid) {
 				// check if borders around the monument are inside the map limits
@@ -3553,7 +3553,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 				road1.y = desc->get_y(layout);
 		}
 		if (neugruendung || umziehen) {
-			best_pos = townhallplatz_sucher_t(welt, dir).suche_platz(pos, desc->get_x(layout) + (dir & ribi_t::eastwest ? 1 : 0), desc->get_y(layout) + (dir & ribi_t::northsouth ? 1 : 0), desc->get_allowed_climate_bits());
+			best_pos = townhall_placefinder_t(welt, dir).find_place(pos, desc->get_x(layout) + (dir & ribi_t::eastwest ? 1 : 0), desc->get_y(layout) + (dir & ribi_t::northsouth ? 1 : 0), desc->get_allowed_climate_bits());
 		}
 		// check, if the was something found
 		if(best_pos==koord::invalid) {

@@ -5,24 +5,24 @@
  * (see license.txt)
  */
 
-#ifndef bauplatz_sucher_t_h
-#define bauplatz_sucher_t_h
+#ifndef building_placefinder_t_h
+#define building_placefinder_t_h
 
 #include "platzsucher.h"
 #include "../simworld.h"
 
 /**
- * bauplatz_sucher_t:
+ * building_placefinder_t:
  *
- * Search for a free location using the function suche_platz().
+ * Search for a free location using the function find_place().
  *
  * @author V. Meyer
  */
-class bauplatz_sucher_t : public platzsucher_t {
+class building_placefinder_t : public platzsucher_t {
 public:
-	bauplatz_sucher_t(karte_t *welt, sint16 radius = -1) : platzsucher_t(welt, radius) {}
+	building_placefinder_t(karte_t *welt, sint16 radius = -1) : platzsucher_t(welt, radius) {}
 
-	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
+	virtual bool is_place_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
 		return welt->square_is_free(pos, b, h, NULL, cl);
 	}
 };

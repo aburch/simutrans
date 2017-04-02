@@ -107,17 +107,17 @@ void factory_builder_t::new_world()
 
 
 /**
- * Searches for a suitable building site using suche_platz().
+ * Searches for a suitable building site using find_place().
  * The site is chosen so that there is a street next to the building site.
  */
-class factory_bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t  {
+class factory_place_with_road_finder: public building_placefinder_t  {
 
 public:
-	factory_bauplatz_mit_strasse_sucher_t(karte_t* welt) : bauplatz_sucher_t(welt) {}
+	factory_place_with_road_finder(karte_t* welt) : building_placefinder_t(welt) {}
 
-	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const
+	virtual bool is_place_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const
 	{
-		if(  !bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)  ) {
+		if(  !building_placefinder_t::is_place_ok(pos, b, h, cl)  ) {
 			// We need a clear space to build, first of all
 			return false;
 		}
@@ -609,12 +609,12 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		 */
 		bool is_rotate=info->get_building()->get_all_layouts()>1  &&  size.x!=size.y  &&  info->get_building()->can_rotate();
 		// first try with standard orientation
-		koord k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(city->get_pos(), size.x, size.y, info->get_building()->get_allowed_climate_bits());
+		koord k = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.x, size.y, info->get_building()->get_allowed_climate_bits());
 
 		// second try: rotated
 		koord k1 = koord::invalid;
 		if (is_rotate  &&  (k == koord::invalid  ||  simrand(256, " factory_builder_t::build_link")<128)) {
-			k1 = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(city->get_pos(), size.y, size.x, info->get_building()->get_allowed_climate_bits());
+			k1 = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.y, size.x, info->get_building()->get_allowed_climate_bits());
 		}
 
 		rotate = simrand( info->get_building()->get_all_layouts(), " factory_builder_t::build_link" );
@@ -647,7 +647,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		 * often hidden behind a row of houses, cut off from roads.
 		 */
 #if 0
-		k = bauplatz_sucher_t(welt).suche_platz(city->get_pos(), land_bau.dim.x, land_bau.dim.y, info->get_building()->get_allowed_climate_bits(), &is_rotate);
+		k = building_placefinder_t(welt).find_place(city->get_pos(), land_bau.dim.x, land_bau.dim.y, info->get_building()->get_allowed_climate_bits(), &is_rotate);
 #endif /* 0 */
 
 		if(k != koord::invalid) {

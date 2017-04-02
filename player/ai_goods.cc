@@ -313,7 +313,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 			}
 		}
 		if( !ok ) {
-			ok = suche_platz(start, start_size, ziel, qfab->get_desc()->get_building()->get_size(qfab->get_rotate()) );
+			ok = find_place(start, start_size, ziel, qfab->get_desc()->get_building()->get_size(qfab->get_rotate()) );
 		}
 	}
 	else {
@@ -323,7 +323,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 
 	if( ok && !has_ziel ) {
 		// found a place, search for target
-		ok = suche_platz(ziel, ziel_size, start, zfab->get_desc()->get_building()->get_size(zfab->get_rotate()) );
+		ok = find_place(ziel, ziel_size, start, zfab->get_desc()->get_building()->get_size(zfab->get_rotate()) );
 	}
 
 	INT_CHECK("simplay 1729");

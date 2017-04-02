@@ -7,8 +7,8 @@
  * Author: V. Meyer
  */
 
-#ifndef __PLATZSUCHER_H
-#define __PLATZSUCHER_H
+#ifndef __PLACEFINDER_H
+#define __PLACEFINDER_H
 
 #include "../dataobj/koord.h"
 class karte_t;
@@ -16,33 +16,33 @@ class karte_t;
 /**
  * pos_list_t:
  *
- * Liefert nach wachsender Entfernung von (0, 0) sortiert all Koordinaten
- * mit x und y im Bereich [-max_xy;max_xy] außer (0, 0) selber.
- * (0, 0) wird als Endekenzeichen verwendet.
+ * Provides a list of all coordinates from (0, 0) sortiert all Koordinaten
+ *order with x and y in range [-max_xy; max_xy] except for (0, 0) itself.
+ * (0, 0) is used as the end marker.
  *
  * @author V. Meyer
  */
 class pos_list_t {
 	sint16 max_radius;
-	sint16 *spalten;
+	sint16 *columns;
 	sint16 radius;
-	sint16 reihe;
+	sint16 row;
 	sint16 quadrant;
 
-	sint16 suche_beste_reihe();
+	sint16 find_best_row();
 
 public:
 	/**
-	* @param max_xy (Maximalwert für x und y-Position)
+	* @param max_xy (Maximum value for x and y position)
 	*
 	* @author V. Meyer
 	*/
 	pos_list_t(sint16 max_xy);
 	virtual ~pos_list_t();
 
-	void neu_starten();
+	void restart();
 	bool get_pos(koord &k);
-	virtual bool get_naechste_pos(koord &k);
+	virtual bool get_next_pos(koord &k);
 };
 
 
@@ -64,10 +64,10 @@ class pos_list_wh_t : public pos_list_t {
 public:
 	pos_list_wh_t(sint16 max_radius, sint16 b, sint16 h);
 
-	void neu_starten(sint16 b, sint16 h);
-	void neu_starten() { pos_list_t::neu_starten(); }
+	void restart(sint16 b, sint16 h);
+	void restart() { pos_list_t::restart(); }
 
-	bool get_naechste_pos(koord &k);
+	bool get_next_pos(koord &k);
 };
 
 /**
@@ -80,16 +80,16 @@ protected:
 	sint16 h;
 	sint16 max_radius;
 
-	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const;
+	virtual bool is_place_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const;
 
-	virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const;
+	virtual bool is_field_ok(koord pos, koord d, climate_bits cl) const;
 
-	bool ist_randfeld(koord d) const;
+	bool is_randomfield(koord d) const;
 
 	platzsucher_t(karte_t *welt, sint16 _max_radius = - 1) { this->welt = welt; max_radius = _max_radius; }
 	virtual ~platzsucher_t() {}
 public:
-	koord suche_platz(koord start, sint16 b, sint16 h, climate_bits cl, bool *r = NULL);
+	koord find_place(koord start, sint16 b, sint16 h, climate_bits cl, bool *r = NULL);
 };
 
 #endif

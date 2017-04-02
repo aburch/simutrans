@@ -21,17 +21,17 @@ class goods_desc_t;
 
 
 /**
- * bauplatz_mit_strasse_sucher_t:
+ * building_place_with_road_finder:
  *
- * Search for a free location using the function suche_platz().
+ * Search for a free location using the function find_place().
  *
  * @author V. Meyer
  */
-class ai_bauplatz_mit_strasse_sucher_t : public bauplatz_sucher_t  {
+class ai_building_place_with_road_finder : public building_placefinder_t  {
 public:
-	ai_bauplatz_mit_strasse_sucher_t(karte_t *welt) : bauplatz_sucher_t(welt) {}
-	bool strasse_bei(sint16 x, sint16 y) const;
-	virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const;
+	ai_building_place_with_road_finder(karte_t *welt) : building_placefinder_t(welt) {}
+	bool road_by(sint16 x, sint16 y) const;
+	virtual bool is_place_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const;
 };
 
 
@@ -89,8 +89,8 @@ public:
 	virtual void tell_tool_result(tool_t *tool, koord3d pos, const char *err, bool local);
 
 	// find space for stations
-	bool suche_platz(koord pos, koord &size, koord *dirs);
-	bool suche_platz(koord &start, koord &size, koord target, koord off);
+	bool find_place(koord pos, koord &size, koord *dirs);
+	bool find_place(koord &start, koord &size, koord target, koord off);
 
 	// removes building markers
 	void clean_marker( koord place, koord size );
