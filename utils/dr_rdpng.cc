@@ -75,10 +75,8 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	/* Expand paletted colors into true RGB triplets */
     if(  color_type == PNG_COLOR_TYPE_PALETTE  ) {
         png_set_expand(png_ptr);
-		/* Don't output alpha channel on indexed images (There is a bug in libpng that the first pixel of such a bitmap ihas alpha 0xFFxxxxx */
-		png_set_strip_alpha(png_ptr);
-		// add dummy alpha
-		png_set_filler(png_ptr, 0, PNG_FILLER_BEFORE);
+		png_set_swap_alpha(png_ptr);
+		png_set_invert_alpha(png_ptr);
 	}
 	else if (color_type == PNG_COLOR_TYPE_RGB) {
 		// add zero aplpha channel
