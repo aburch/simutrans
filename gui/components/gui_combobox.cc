@@ -151,7 +151,7 @@ DBG_MESSAGE("event","HOWDY!");
 				translate_event(&ev2, 0, -D_EDIT_HEIGHT - D_V_SPACE/2);
 			}
 
-			if(droplist.getroffen(ev->cx + pos.x, ev->cy + pos.y)  &&  IS_LEFTRELEASE(ev)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
+			if( (droplist.getroffen(ev->cx + pos.x, ev->cy + pos.y)  &&  IS_LEFTRELEASE(ev))  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
 				int old_selection = droplist.get_selection();
 				droplist.infowin_event(&ev2);
 				if(  droplist.get_selection() !=  old_selection  ) {

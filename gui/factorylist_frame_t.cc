@@ -104,7 +104,7 @@ void factorylist_frame_t::resize(const scr_coord delta)
 
 void factorylist_frame_t::draw(scr_coord pos, scr_size size)
 {
-	if(  world()->get_fab_list().get_count() != scrolly.get_count()  ) {
+	if(  world()->get_fab_list().get_count() != (uint32)scrolly.get_count()  ) {
 		scrolly.clear_elements();
 		FOR(const slist_tpl<fabrik_t *>,fab,world()->get_fab_list()) {
 			scrolly.append_element( new factorylist_stats_t(fab) );
