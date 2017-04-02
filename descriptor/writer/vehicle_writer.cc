@@ -115,7 +115,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	// Hajo: version number
 	// Hajo: Version needs high bit set as trigger -> this is required
-	//       as marker because formerly nodes were unversionend
+	//       as marker because formerly nodes were unversioned
 	uint16 version = 0x800B;
 	
 	// This is the overlay flag for Simutrans-Extended
@@ -140,9 +140,9 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint32(fp, cost, pos);
 	pos += sizeof(uint32);
 
-	// Hajodoc: Payload of this vehicle
-	uint16 payload = obj.get_int("payload", 0);
-	node.write_uint16(fp, payload, pos);
+	// Hajodoc: Maximum payload of this vehicle
+	uint16 capacity = obj.get_int("payload", 0);
+	node.write_uint16(fp, capacity, pos);
 	pos += sizeof(uint16);
 
 	/*
@@ -156,9 +156,9 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	*/
 
 	// Hajodoc: Top speed of this vehicle. Must be greater than 0
-	uint16 top_speed = obj.get_int("speed", 0);
-	node.write_uint16(fp, top_speed, pos);
-	pos += sizeof(payload);
+	uint16 topspeed  = obj.get_int("speed", 0);
+	node.write_uint16(fp, topspeed, pos);
+	pos += sizeof(topspeed);
 
 	// Hajodoc: Total weight of this vehicle in tons
 	const char *weight_str = obj.get("weight");
@@ -185,8 +185,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	pos += sizeof(uint32);
 
 	// Hajodoc: Running costs, given in cent per square
-	uint16 runningcost = obj.get_int("runningcost", 0);
-	node.write_uint16(fp, runningcost, pos);
+	uint16 running_cost = obj.get_int("runningcost", 0);
+	node.write_uint16(fp, running_cost, pos);
 	pos += sizeof(uint16);
 
 	/*
@@ -194,20 +194,20 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	* in the file in Extended, and is a uint32.
 	*
 	// monthly maintenance
-	uint16 fixcost = obj.get_int("fixed_cost", 0);
-	node.write_uint16(fp, fixcost, pos);
+	uint16 fixed_cost = obj.get_int("fixed_cost", 0);
+	node.write_uint16(fp, fixed_cost, pos);
 	pos += sizeof(uint16);*/
 
 	// Hajodoc: Introduction date (year * 12 + month)
-	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
-	intro += obj.get_int("intro_month", 1) - 1;
-	node.write_uint16(fp, intro, pos);
+	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+	intro_date += obj.get_int("intro_month", 1) - 1;
+	node.write_uint16(fp, intro_date, pos);
 	pos += sizeof(uint16);
 
 	// Hajodoc: retire date (year * 12 + month)
-	uint16 retire = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
-	retire += obj.get_int("retire_month", 1) - 1;
-	node.write_uint16(fp, retire, pos);
+	uint16 retire_date = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
+	retire_date += obj.get_int("retire_month", 1) - 1;
+	node.write_uint16(fp, retire_date, pos);
 	pos += sizeof(uint16);
 
 	// Hajodoc: Engine gear (power multiplier)
@@ -253,8 +253,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	xref_writer_t::instance()->write_obj(fp, node, obj_good, freight, true);
 	xref_writer_t::instance()->write_obj(fp, node, obj_smoke, obj.get("smoke"), false);
 
-	// Jetzt kommen die Bildlisten
-	// "Now the picture lists" (Google)
+	// Now comes the Image-list
 	static const char* const dir_codes[] = {
 		"s", "w", "sw", "se", "n", "e", "ne", "nw"
 	};
@@ -266,7 +265,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	slist_tpl<slist_tpl<slist_tpl<string> > > liverykeys_freight;
 	string str;
 
-	int  freight_max  = 0;
+	int  freight_image_type  = 0;
 	int	 livery_max	  = 0;
 	bool has_8_images = false;
 
@@ -280,7 +279,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		str = obj.get(buf);
 		if(str.empty())
 		{
-			freight_max += i;
+			freight_image_type += i;
 			break;
 		}
 	}
@@ -296,7 +295,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			str = obj.get(buf);
 			if(str.empty())
 			{
-				freight_max += i;
+				freight_image_type += i;
 				// Do not increment livery_max here, as this will double count:
 				// liveries for loaded vehicles should be the same as for unloaded vehicles,
 				// and the liveries will have been counted already in empty images.
@@ -403,7 +402,7 @@ end:
 			}
 		}
 
-		if (freight_max == 0 && livery_max == 0) 
+		if (freight_image_type == 0 && livery_max == 0) 
 		{
 			// a single freight image
 			// old style definition - just [direction]
@@ -415,10 +414,10 @@ end:
 				freightkeys_old.append(str);
 			}
 		} 
-		else if (freight_max > 0 && livery_max == 0)
+		else if (freight_image_type > 0 && livery_max == 0)
 		{
 			freightkeys.append();
-			for(int freight = 0; freight < freight_max; freight++)
+			for(int freight = 0; freight < freight_image_type; freight++)
 			{
 				sprintf(buf, "freightimage[%d][%s]", freight, dir_codes[i]);
 				str = obj.get(buf);
@@ -430,7 +429,7 @@ end:
 				freightkeys.at(i).append(str);
 			}
 		}
-		else if(freight_max == 0 && livery_max > 0)
+		else if(freight_image_type == 0 && livery_max > 0)
 		{
 			// a single freight image
 			// old style definition - just [direction]
@@ -449,14 +448,14 @@ end:
 				liverykeys_freight_old.at(i).append(str);
 			}
 		}
-		else if (freight_max > 0 && livery_max > 0)
+		else if (freight_image_type > 0 && livery_max > 0)
 		{
 			// Liveries *and* freight
 			liverykeys_freight.append();
 			for(int livery = 0; livery < livery_max; livery++)
 			{
 				liverykeys_freight.at(i).append(); // See http://forum.simutrans.com/index.php?topic=9841.0
-				for(int freight = 0; freight < freight_max; freight++)
+				for(int freight = 0; freight < freight_image_type; freight++)
 				{
 					sprintf(buf, "freightimage[%d][%s][%d]", freight, dir_codes[i], livery);
 					str = obj.get(buf);
@@ -508,13 +507,13 @@ end:
 		printf("Writing %d multiple livery empty images\n", liverykeys_empty.get_count() *  liverykeys_empty.front().get_count());
 	}
 	
-	if (freight_max > 0 && livery_max == 0) 
+	if (freight_image_type > 0 && livery_max == 0) 
 	{
 		// Multiple freight images, no multiple liveries
 		imagelist2d_writer_t::instance()->write_obj(fp, node, freightkeys);
 		printf("Writing %d single livery multiple type freight images\n", (freightkeys.get_count() * freightkeys.front().get_count()));
 	} 
-	else if(freight_max > 0 && livery_max > 0)
+	else if(freight_image_type > 0 && livery_max > 0)
 	{
 		// Multiple frieght images, multiple liveries
 		//fprintf(stderr, "Writing %d multiple livery multiple type freight images\n", (liverykeys_freight.get_count() * liverykeys_freight.front().get_count() * liverykeys_freight.front().front().get_count()));
@@ -522,16 +521,16 @@ end:
 		printf("Writing %d multiple livery multiple type freight images\n", (liverykeys_freight.get_count() * liverykeys_freight.front().get_count() * liverykeys_freight.front().front().get_count()));
 		//fprintf(stderr, "Completed\n");
 	}
-	else if(freight_max == 0 && livery_max > 0 && basic_freight_images > 0)
+	else if(freight_image_type == 0 && livery_max > 0 && basic_freight_images > 0)
 	{
 		// Single freight images, multiple liveries
 		//fprintf(stderr, "Writing %d single type multiple livery freight images\n", liverykeys_freight_old.get_count() * liverykeys_freight_old.front().get_count());
 		imagelist2d_writer_t::instance()->write_obj(fp, node, liverykeys_freight_old);
-		freight_max = 255; // To indicate that there are indeed single freight images and multiple liveries available. 
+		freight_image_type = 255; // To indicate that there are indeed single freight images and multiple liveries available. 
 		printf("Writing %d single type multiple livery freight images\n", liverykeys_freight_old.get_count() * liverykeys_freight_old.front().get_count());
 		//fprintf(stderr, "Completed\n");
 	}
-	else if(freight_max == 0 && freight_max < 255 && livery_max == 0)
+	else if(freight_image_type == 0 && freight_image_type < 255 && livery_max == 0)
 	{
 		// Single freight images, no multiple liveries
 		if (freightkeys_old.get_count() == emptykeys.get_count()) 
@@ -548,17 +547,16 @@ end:
 	}
 
 	//
-	// Vorgänger/Nachfolgerbedingungen
-	// "Predecessor / Successor conditions" (Google)
+	// following/leader vehicle constrains
 	//
-	uint8 desc_vorgaenger = 0;
+	uint8 leader_count = 0;
 	bool found;
 	do {
 		char buf[40];
 
 		// Hajodoc: Constraints for previous vehicles
 		// Hajoval: string, "none" means only suitable at front of an convoi
-		sprintf(buf, "constraint[prev][%d]", desc_vorgaenger);
+		sprintf(buf, "constraint[prev][%d]", leader_count);
 
 		str = obj.get(buf);
 		found = !str.empty();
@@ -567,18 +565,18 @@ end:
 				str = "";
 			}
 			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
-			desc_vorgaenger++;
+			leader_count++;
 		}
 	} while (found);
 
-	uint8 desc_nachfolger = 0;
+	uint8 trailer_count = 0;
 	bool can_be_at_rear = true;
 	do {
 		char buf[40];
 
 		// Hajodoc: Constraints for successing vehicles
 		// Hajoval: string, "none" to disallow any followers
-		sprintf(buf, "constraint[next][%d]", desc_nachfolger);
+		sprintf(buf, "constraint[next][%d]", trailer_count);
 
 		str = obj.get(buf);
 
@@ -598,7 +596,7 @@ end:
 			else
 			{
 				xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
-				desc_nachfolger++;
+				trailer_count++;
 			}
 		}
 	} while (found);
@@ -629,26 +627,26 @@ end:
 
 	// multiple freight image types - define what good uses each index
 	// good without index will be an error
-	if(freight_max < 255)
+	if(freight_image_type < 255)
 	{
-		for (i = 0; i <= freight_max; i++)
+		for (i = 0; i <= freight_image_type; i++)
 		{
 			char buf[40];
 			sprintf(buf, "freightimagetype[%d]", i);
 			str = obj.get(buf);
-			if (i == freight_max) 
+			if (i == freight_image_type) 
 			{
 				// check for superflous definitions
 				if(!str.empty())
 				{
-					dbg->warning( obj_writer_t::last_name, "More freightimagetype (%i) than freight_images (%i)!", i, freight_max);
+					dbg->warning( obj_writer_t::last_name, "More freightimagetype (%i) than freight_images (%i)!", i, freight_image_type);
 					fflush(NULL);
 				}
 				break;
 			}
 			if(str.empty())
 			{
-				dbg->fatal( obj_writer_t::last_name, "Missing freightimagetype[%i] for %i freight_images!", i, freight_max + 1);
+				dbg->fatal( obj_writer_t::last_name, "Missing freightimagetype[%i] for %i freight_images!", i, freight_image_type + 1);
 				exit(1);
 			}
 			xref_writer_t::instance()->write_obj(fp, node, obj_good, str.c_str(), false);
@@ -682,7 +680,7 @@ end:
 
 	// if no index defined then add default as vehicle good
 	// if not using freight images then store zero string
-	if (freight_max > 0 && freight_max < 255) 
+	if (freight_image_type > 0 && freight_image_type < 255) 
 	{
 		xref_writer_t::instance()->write_obj(fp, node, obj_good, freight, false);
 	}
@@ -692,11 +690,11 @@ end:
 		text_writer_t::instance()->write_obj(fp, node, "default");
 	}
 
-	node.write_sint8(fp, desc_vorgaenger, pos);
+	node.write_sint8(fp, leader_count, pos);
 	pos += sizeof(sint8);
-	node.write_sint8(fp, desc_nachfolger, pos);
+	node.write_sint8(fp, trailer_count, pos);
 	pos += sizeof(sint8);
-	node.write_uint8(fp, (uint8) freight_max, pos);
+	node.write_uint8(fp, (uint8) freight_image_type, pos);
 	pos += sizeof(uint8);
 
 	// Whether this is a tilting train

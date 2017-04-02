@@ -233,7 +233,7 @@ const uint32 stadt_t::city_growth_step = 21000;
 uint32 stadt_t::cluster_factor = 100;
 
 /*
- * chance of success when a city tries to extend a road along a bridge
+ * distribution_weight of success when a city tries to extend a road along a bridge
  * The rest of the time it will fail and build somewhere else instead
  * (This avoids overbuilding of free bridges)
  * @author neroden
@@ -241,7 +241,7 @@ uint32 stadt_t::cluster_factor = 100;
 static uint32 bridge_success_percentage = 25;
 
 /*
- * chance to do renovation instead new building (in percent)
+ * distribution_weight to do renovation instead new building (in percent)
  * @author prissi
  */
 static uint32 renovation_percentage = 25;
@@ -296,13 +296,13 @@ public:
 
 class rule_t {
 public:
-	sint16  chance;
+	sint16  distribution_weight;
 	vector_tpl<rule_entry_t> rule;
-	rule_t(uint32 count=0) : chance(0), rule(count) {}
+	rule_t(uint32 count=0) : distribution_weight(0), rule(count) {}
 
 	void rdwr(loadsave_t* file)
 	{
-		file->rdwr_short(chance);
+		file->rdwr_short(distribution_weight);
 
 		if (file->is_loading()) {
 			rule.clear();
@@ -653,7 +653,7 @@ bool stadt_t::maybe_build_road(koord k)
 	uint32 offset = simrand(num_road_rules, "void stadt_t::build");	// start with random rule
 	for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
 		uint32 rule = ( i+offset ) % num_road_rules;
-		sint32 rd = 8 + road_rules[rule]->chance;
+		sint32 rd = 8 + road_rules[rule]->distribution_weight;
 
 		if (simrand(rd, "void stadt_t::bewerte_strasse") == 0) {
 			best_strasse.check(k, bewerte_pos(k, *road_rules[rule]));
@@ -752,8 +752,8 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 	clear_ptr_vector( house_rules );
 	for (uint32 i = 0; i < num_house_rules; i++) {
 		house_rules.append(new rule_t());
-		sprintf(buf, "house_%u.chance", i + 1);
-		house_rules[i]->chance = contents.get_int(buf, 0);
+		sprintf(buf, "house_%u.distribution_weight", i + 1);
+		house_rules[i]->distribution_weight = contents.get_int(buf, 0);
 
 		sprintf(buf, "house_%u", i + 1);
 		const char* rule = contents.get_string(buf, "");
@@ -793,7 +793,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 				}
 			}
 		}
-		dbg->message("stadt_t::cityrules_init()", "House-Rule %d: chance %d\n",i,house_rules[i]->chance);
+		dbg->message("stadt_t::cityrules_init()", "House-Rule %d: distribution_weight %d\n",i,house_rules[i]->distribution_weight);
 		for(uint32 j=0; j< house_rules[i]->rule.get_count(); j++) {
 			dbg->message("stadt_t::cityrules_init()", "House-Rule %d: Pos (%d,%d) Flag %d\n",i,house_rules[i]->rule[j].x,house_rules[i]->rule[j].y,house_rules[i]->rule[j].flag);
 			}
@@ -802,8 +802,8 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 	clear_ptr_vector( road_rules );
 	for (uint32 i = 0; i < num_road_rules; i++) {
 		road_rules.append(new rule_t());
-		sprintf(buf, "road_%d.chance", i + 1);
-		road_rules[i]->chance = contents.get_int(buf, 0);
+		sprintf(buf, "road_%d.distribution_weight", i + 1);
+		road_rules[i]->distribution_weight = contents.get_int(buf, 0);
 
 		sprintf(buf, "road_%d", i + 1);
 		const char* rule = contents.get_string(buf, "");
@@ -841,7 +841,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 				}
 			}
 		}
-		dbg->message("stadt_t::cityrules_init()", "Road-Rule %d: chance %d\n",i,road_rules[i]->chance);
+		dbg->message("stadt_t::cityrules_init()", "Road-Rule %d: distribution_weight %d\n",i,road_rules[i]->distribution_weight);
 		for(uint32 j=0; j< road_rules[i]->rule.get_count(); j++)
 			dbg->message("stadt_t::cityrules_init()", "Road-Rule %d: Pos (%d,%d) Flag %d\n",i,road_rules[i]->rule[j].x,road_rules[i]->rule[j].y,road_rules[i]->rule[j].flag);
 		
@@ -1362,7 +1362,7 @@ void stadt_t::reset_city_borders()
 			weighted_vector_tpl<gebaeude_t*>::const_iterator i = buildings.begin();
 			i != buildings.end(); ++i) {
 		gebaeude_t* gb = *i;
-		if (gb->get_tile()->get_desc()->get_type() != building_desc_t::headquarter) {
+		if (gb->get_tile()->get_desc()->get_type() != building_desc_t::headquarters) {
 			// Not an HQ
 			koord gb_pos = gb->get_pos().get_2d();
 			if (new_lo.x > gb_pos.x) {
@@ -1417,7 +1417,7 @@ stadt_t::~stadt_t()
 				gebaeude_t* const gb = buildings.pop_back();
 				assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
 			
-				if(gb->get_tile()->get_desc()->get_type() == building_desc_t::headquarter)
+				if(gb->get_tile()->get_desc()->get_type() == building_desc_t::headquarters)
 				{
 					stadt_t *city = welt->find_nearest_city(gb->get_pos().get_2d());
 					gb->set_stadt( city );
@@ -3231,7 +3231,7 @@ class building_place_with_road_finder: public building_placefinder_t
 						if (big_city) {
 							if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
 								const building_desc_t::btype utyp = gb->get_tile()->get_desc()->get_type();
-								if(  building_desc_t::attraction_city <= utyp  &&  utyp <= building_desc_t::headquarter) {
+								if(  building_desc_t::attraction_city <= utyp  &&  utyp <= building_desc_t::headquarters) {
 									return false;
 								}
 							}
@@ -3261,7 +3261,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 	// touristenattraktion bauen
 	const building_desc_t* desc = hausbauer_t::get_special(has_townhall ? bev : 0, building_desc_t::attraction_city, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos));
 	if (desc != NULL) {
-		if (simrand(100, "void stadt_t::check_bau_spezial") < (uint)desc->get_chance()) {
+		if (simrand(100, "void stadt_t::check_bau_spezial") < (uint)desc->get_distribution_weight()) {
 			// build was immer es ist
 
 			bool big_city = buildings.get_count() >= 10;
@@ -3782,7 +3782,7 @@ void process_city_street(grund_t& gr, const way_desc_t* cr)
 	// Check whether any changes are needed.
 	if((!weg->hat_gehweg() || weg->get_desc() != cr) && make_public == true)
 	{
-		player_t::add_maintenance(player, -weg->get_desc()->get_wartung(), road_wt);
+		player_t::add_maintenance(player, -weg->get_desc()->get_maintenance(), road_wt);
 		weg->set_gehweg(true);
 		weg->set_owner(NULL); // make public
 		if(cr->is_at_least_as_good_as(weg->get_desc())) 
@@ -4875,7 +4875,7 @@ void stadt_t::build(bool new_town)
 			uint32 offset = simrand(num_house_rules, "void stadt_t::build");	// start with random rule
 			for(  uint32 i = 0;  i < num_house_rules  &&  !best_haus.found();  i++  ) {
 				uint32 rule = ( i+offset ) % num_house_rules;
-				bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
+				bewerte_haus(k, 8 + house_rules[rule]->distribution_weight, *house_rules[rule]);
 			}
 			// one rule applied?
 			if(  best_haus.found()  ) {
@@ -4953,7 +4953,7 @@ void stadt_t::build(bool new_town)
 			uint32 offset = simrand(num_house_rules, "void stadt_t::build");	// start with random rule
 			for (uint32 i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
 				uint32 rule = ( i+offset ) % num_house_rules;
-				bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
+				bewerte_haus(k, 8 + house_rules[rule]->distribution_weight, *house_rules[rule]);
 			}
 			// one rule applied?
 			if (best_haus.found()) {
@@ -4965,7 +4965,7 @@ void stadt_t::build(bool new_town)
 			candidates.remove_at(idx, false);
 		}
 		// Oooh.  We tried every candidate location and we couldn't build.
-		// (Admittedly, this may be because percentage-chance rules told us not to.)
+		// (Admittedly, this may be because percentage-distribution_weight rules told us not to.)
 		// Anyway, if this happened, enlarge the city limits and try again.
 		bool could_enlarge = enlarge_city_borders();
 		if (!could_enlarge) {

@@ -348,7 +348,7 @@ bool factory_chart_t::action_triggered(gui_action_creator_t *comp, value_t)
 void factory_chart_t::draw(scr_coord pos)
 {
 	// update reference lines' data (these might change over time)
-	prod_ref_line_data[FAB_REF_DEMAND_ELECTRIC] = ( factory->get_desc()->is_electricity_producer() ? 0 : factory->get_scaled_electric_amount() );
+	prod_ref_line_data[FAB_REF_DEMAND_ELECTRIC] = ( factory->get_desc()->is_electricity_producer() ? 0 : factory->get_scaled_electric_demand() );
 	prod_ref_line_data[FAB_REF_DEMAND_PAX] = factory->get_monthly_pax_demand();
 	prod_ref_line_data[FAB_REF_DEMAND_MAIL] = factory->get_scaled_mail_demand();
 

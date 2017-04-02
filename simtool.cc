@@ -1472,7 +1472,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			leitung_t *lt = gr1->get_leitung();
 			if(  lt  ) {
 				// remove maintenance for existing powerline
-				player_t::add_maintenance(lt->get_owner(), -lt->get_desc()->get_wartung(), powerline_wt);
+				player_t::add_maintenance(lt->get_owner(), -lt->get_desc()->get_maintenance(), powerline_wt);
 				lt->finish_rd();
 			}
 
@@ -1737,7 +1737,7 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 		tunnelboden_t* tunnel = new tunnelboden_t(pos, 0);
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		tunnel->obj_add(new tunnel_t(pos, player, tunnel_desc));
-		player_t::add_maintenance( player, tunnel_desc->get_wartung(), tunnel_desc->get_finance_waytype() );
+		player_t::add_maintenance( player, tunnel_desc->get_maintenance(), tunnel_desc->get_finance_waytype() );
 		gr = tunnel;
 	}
 	else {
@@ -2446,7 +2446,7 @@ const char* tool_build_way_t::get_default_param(player_t *player) const
 	}
 	else {
 		if (default_param == NULL) {
-			// no chance to guess anything sensible
+			// no distribution_weight to guess anything sensible
 			return NULL;
 		}
 		const way_desc_t* test_desc = get_desc(0, false);
@@ -2648,7 +2648,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 
 			zeiger_t *way = new zeiger_t(pos, NULL );
 			if(gr->get_weg_hang()) {
-				way->set_image( desc->get_hang_image_nr(gr->get_weg_hang(),0) );
+				way->set_image( desc->get_slope_image_id(gr->get_weg_hang(),0) );
 			}
 			else if(desc->get_wtyp()!=powerline_wt  &&  ribi_t::is_bend(zeige)  &&  desc->has_diagonal_image()) {
 				way->set_image( desc->get_diagonal_image_id(zeige,0) );
@@ -2694,7 +2694,7 @@ const char* tool_build_bridge_t::get_tooltip(const player_t *) const
 	if (desc == NULL) {
 		return "";
 	}
-	tooltip_with_price_maintenance( welt, desc->get_name(), -desc->get_value(), desc->get_wartung());
+	tooltip_with_price_maintenance( welt, desc->get_name(), -desc->get_value(), desc->get_maintenance());
 	size_t n= strlen(toolstr);
 	if(desc->get_waytype()!=powerline_wt) {
 		n += sprintf(toolstr+n, ", %dkm/h, %dt", 
@@ -2857,8 +2857,8 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 		gr->obj_add( way );
 		grund_t *kb = welt->lookup_kartenboden(pos.get_2d());
 		sint16 height = pos.z - kb->get_pos().z;
-		way->set_image(desc->get_background(desc->get_simple(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())),0));
-		way->set_after_image(desc->get_foreground(desc->get_simple(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())), 0));
+		way->set_image(desc->get_background(desc->get_straight(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())),0));
+		way->set_after_image(desc->get_foreground(desc->get_straight(ribi_mark,height-slope_t::max_diff(kb->get_grund_hang())), 0));
 		marked.insert( way );
 		way->mark_image_dirty( way->get_image(), 0 );
 		pos = pos + zv;
@@ -3211,7 +3211,7 @@ void tool_build_tunnel_t::mark_tiles(  player_t *player, const koord3d &start, c
 
 			zeiger_t *way = new zeiger_t(pos, player );
 			if(gr->get_weg_hang()) {
-				way->set_image( wb->get_hang_image_nr(gr->get_weg_hang(),0) );
+				way->set_image( wb->get_slope_image_id(gr->get_weg_hang(),0) );
 			}
 			else if(wb->get_wtyp()!=powerline_wt  &&  ribi_t::is_bend(zeige)  &&  wb->has_diagonal_image()) {
 				way->set_image( wb->get_diagonal_image_id(zeige,0) );
@@ -4049,7 +4049,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building post office/station buildin
 
 	sint64 cost;
 	sint32 const factor = desc->get_level() * desc->get_x() * desc->get_y();
-	if(desc->get_base_price() == COST_MAGIC)
+	if(desc->get_base_price() == PRICE_MAGIC)
 	{
 		cost = s.cst_multiply_post * factor;
 	}
@@ -4107,7 +4107,7 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 	halthandle_t halt;
 
 	sint64 costs;
-	if(desc->get_base_price() == COST_MAGIC)
+	if(desc->get_base_price() == PRICE_MAGIC)
 	{
 		costs =welt->get_settings().cst_multiply_dock * desc->get_level();
 	}
@@ -4288,7 +4288,7 @@ DBG_MESSAGE("tool_build_station_t::tool_station_dock_aux()","building dock from 
 		// public stops are expensive!
 		// (Except for the public player itself)
 		sint64 maint;
-		if(desc->get_base_maintenance() == COST_MAGIC)
+		if(desc->get_base_maintenance() == PRICE_MAGIC)
 		{
 			maint = welt->get_settings().maint_building * desc->get_level();
 		}
@@ -4332,7 +4332,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 	int len = desc->get_size().y-1;
 
 	sint64 costs;
-	if(desc->get_base_price() == COST_MAGIC)
+	if(desc->get_base_price() == PRICE_MAGIC)
 	{
 		costs =welt->get_settings().cst_multiply_dock * desc->get_level();
 	}
@@ -4538,7 +4538,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 		// public stops are expensive!
 		// (Except for the public player itself)
 		sint64 maint;
-		if(desc->get_base_maintenance() == COST_MAGIC)
+		if(desc->get_base_maintenance() == PRICE_MAGIC)
 		{
 			maint = welt->get_settings().maint_building * desc->get_level();
 		}
@@ -4797,7 +4797,7 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 		// public stops are expensive!
 		// (Except for the public player itself, of course)
 		sint64 maint;
-		if(desc->get_base_maintenance() == COST_MAGIC)
+		if(desc->get_base_maintenance() == PRICE_MAGIC)
 		{
 			maint = welt->get_settings().maint_building * desc->get_level();
 		}
@@ -4935,7 +4935,7 @@ char const* tool_build_station_t::get_tooltip(player_t const*player) const
 	uint32 cap = desc->get_capacity(); // This is always correct in the desc object.
 	if(  desc->get_type()==building_desc_t::generic_stop  ) 
 	{
-		if(desc->get_base_maintenance() != COST_MAGIC)
+		if(desc->get_base_maintenance() != PRICE_MAGIC)
 		{
 			maint = desc->get_maintenance();
 		}
@@ -4943,7 +4943,7 @@ char const* tool_build_station_t::get_tooltip(player_t const*player) const
 		{
 			maint = welt->get_settings().maint_building*desc->get_level();
 		}
-		if(desc->get_base_price() != COST_MAGIC)
+		if(desc->get_base_price() != PRICE_MAGIC)
 		{
 			price = -desc->get_price();
 		}
@@ -4977,7 +4977,7 @@ char const* tool_build_station_t::get_tooltip(player_t const*player) const
 	}
 	else if(desc->get_type()==building_desc_t::generic_extension || desc->get_type()==building_desc_t::dock || desc->get_type()==building_desc_t::flat_dock) 
 	{
-		if(desc->get_base_maintenance() != COST_MAGIC)
+		if(desc->get_base_maintenance() != PRICE_MAGIC)
 		{
 			maint = desc->get_maintenance();
 		}
@@ -4986,7 +4986,7 @@ char const* tool_build_station_t::get_tooltip(player_t const*player) const
 			maint = welt->get_settings().maint_building * desc->get_level();
 		}
 
-		if(desc->get_base_price() != COST_MAGIC)
+		if(desc->get_base_price() != PRICE_MAGIC)
 		{
 			price = -desc->get_price();
 		}
@@ -5122,7 +5122,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 	{
 		case building_desc_t::dock:
 		case building_desc_t::flat_dock:
-			if(desc->get_base_price() == COST_MAGIC)
+			if(desc->get_base_price() == PRICE_MAGIC)
 			{
 				cost = s.cst_multiply_dock * desc->get_level();
 			}
@@ -5154,7 +5154,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 			sint64 cost = -desc->get_price();
 			switch(desc->get_extra()) {
 				case road_wt:
-					if(desc->get_base_price() == COST_MAGIC)
+					if(desc->get_base_price() == PRICE_MAGIC)
 					{
 						cost = s.cst_multiply_roadstop * desc->get_level();
 					}
@@ -5173,7 +5173,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 				case maglev_wt:
 				case narrowgauge_wt:
 				case tram_wt:
-					if(desc->get_base_price() == COST_MAGIC)
+					if(desc->get_base_price() == PRICE_MAGIC)
 					{
 						cost = s.cst_multiply_station * desc->get_level();
 					}
@@ -5188,7 +5188,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 					msg = tool_build_station_t::tool_station_aux(player, pos, desc, (waytype_t)desc->get_extra(), cost, "BF");
 					break;
 				case water_wt:
-					if(desc->get_base_price() == COST_MAGIC)
+					if(desc->get_base_price() == PRICE_MAGIC)
 					{
 						cost = s.cst_multiply_dock * desc->get_level();
 					}
@@ -5203,7 +5203,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 					msg = tool_build_station_t::tool_station_aux(player, pos, desc, water_wt, cost, "Dock");
 					break;
 				case air_wt:
-					if(desc->get_base_price() == COST_MAGIC)
+					if(desc->get_base_price() == PRICE_MAGIC)
 					{
 						cost = s.cst_multiply_airterminal * desc->get_level();
 					}
@@ -5922,7 +5922,7 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 			tunnelboden_t* tunnel = new tunnelboden_t(pos, 0);
 			welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 			tunnel->obj_add(new tunnel_t(pos, player, tunnel_desc));
-			player_t::add_maintenance( player, tunnel_desc->get_wartung(), tunnel_desc->get_finance_waytype() );
+			player_t::add_maintenance( player, tunnel_desc->get_maintenance(), tunnel_desc->get_finance_waytype() );
 			gr = tunnel;
 		}
 
@@ -6633,19 +6633,19 @@ const char *tool_link_factory_t::do_work( player_t *, const koord3d &start, cons
 }
 
 
-/* builds company headquarter
+/* builds company headquarters
  * @author prissi
  */
 const building_desc_t *tool_headquarter_t::next_level( const player_t *player ) const
 {
-	return hausbauer_t::get_headquarter(player->get_headquarter_level(), welt->get_timeline_year_month());
+	return hausbauer_t::get_headquarter(player->get_headquarters_level(), welt->get_timeline_year_month());
 }
 
 const char* tool_headquarter_t::get_tooltip(const player_t *player) const
 {
 	if (building_desc_t const* const desc = next_level(player)) {
 		settings_t  const& s      = welt->get_settings();
-		char const* const  tip    = player->get_headquarter_level() == 0 ? "build HQ" : "upgrade HQ";
+		char const* const  tip    = player->get_headquarters_level() == 0 ? "build HQ" : "upgrade HQ";
 		sint64      const  factor = (sint64)desc->get_level() * desc->get_x() * desc->get_y();
 		return tooltip_with_price_maintenance(welt, tip, factor * s.cst_multiply_headquarter, factor * s.maint_building);
 	}
@@ -6671,11 +6671,11 @@ const char *tool_headquarter_t::work( player_t *player, koord3d pos )
 {
 	bool ok=false;
 	bool built = false;
-DBG_MESSAGE("tool_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y);
+DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos.y);
 
 	const building_desc_t* desc = next_level(player);
 	if(desc==NULL) {
-		// no further headquarter level
+		// no further headquarters level
 		dbg->message( "tool_headquarter()", "Already at maximum level!" );
 		return "";
 	}
@@ -7396,7 +7396,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					return NOTICE_UNSUITABLE_GROUND;
 				}
 				// change maintenance and ownership
-				sint64 maintenance_cost = w->get_desc()->get_wartung();
+				sint64 maintenance_cost = w->get_desc()->get_maintenance();
 				sint64 construction_cost;
 				if(player == psplayer)
 				{
@@ -7424,7 +7424,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				if(gr->ist_im_tunnel()) 
 				{
 					tunnel_t *t = gr->find<tunnel_t>();
-					maintenance_cost = t->get_desc()->get_wartung();
+					maintenance_cost = t->get_desc()->get_maintenance();
 					if(player == psplayer)
 					{
 						construction_cost = t->get_desc()->get_value();
@@ -7446,7 +7446,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				if(gr->ist_bruecke())
 				{
 					bruecke_t* b = gr->find<bruecke_t>();
-					maintenance_cost = b->get_desc()->get_wartung();
+					maintenance_cost = b->get_desc()->get_maintenance();
 					if(player == psplayer)
 					{
 						construction_cost = b->get_desc()->get_value();
@@ -7488,7 +7488,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				{
 					if(wayobj_t *wo = obj_cast<wayobj_t>(gr->obj_bei(i))) 
 					{
-						maintenance_cost = wo->get_desc()->get_wartung();
+						maintenance_cost = wo->get_desc()->get_maintenance();
 						
 						player_t::add_maintenance(player, -maintenance_cost, w->get_desc()->get_finance_waytype() );
 						
@@ -8917,7 +8917,7 @@ bool tool_access_t::init(player_t *player)
 		player_t* const receiving_player = welt->get_player(id_receiving_player);
 		schedule_t* schedule;
 		koord3d pos;
-		waytype_t waytype;
+		waytype_t    wtyp;
 
 		uint8 current_aktuell;
 		halthandle_t halt;
@@ -8935,7 +8935,7 @@ bool tool_access_t::init(player_t *player)
 					continue;
 				}
 				current_aktuell = schedule->get_aktuell();
-				waytype = schedule->get_waytype(); 
+				wtyp = schedule->get_waytype();
 				for(uint8 n = 0; n < schedule->get_count(); n ++)
 				{
 					bool tram_stop_public = false;
@@ -8998,7 +8998,7 @@ bool tool_access_t::init(player_t *player)
 				continue;
 			}
 			current_aktuell = schedule->get_aktuell();
-			waytype = schedule->get_waytype(); 
+			wtyp = schedule->get_waytype();
 			for(uint8 n = 0; n < schedule->get_count(); n ++)
 			{
 				bool tram_stop_public = false;

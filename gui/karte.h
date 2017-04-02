@@ -82,7 +82,7 @@ private:
 		koord start, end;
 		schedule_t *schedule;
 		player_t *player;
-		waytype_t waytype;
+		waytype_t    wtyp;
 		uint8 colorcount;
 		uint8 start_offset;
 		uint8 end_offset;
@@ -90,7 +90,7 @@ private:
 		line_segment_t() {}
 		line_segment_t( koord s, uint8 so, koord e, uint8 eo, schedule_t *f, player_t *p, uint8 cc, bool diagonal ) {
 			schedule = f;
-			waytype = f->get_waytype();
+			wtyp = f->get_waytype();
 			player = p;
 			colorcount = cc;
 			start_diagonal = diagonal;
@@ -185,7 +185,7 @@ public:
 	* returns a color based on the current high
 	* @author hsiegeln
 	*/
-	static uint8 calc_hoehe_farbe(const sint16 hoehe, const sint16 groundwater);
+	static uint8 calc_hoehe_farbe(const sint16 height, const sint16 groundwater);
 
 	// needed for town passenger map
 	static uint8 calc_relief_farbe(const grund_t *gr);

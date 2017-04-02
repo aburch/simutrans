@@ -124,8 +124,8 @@ const bridge_desc_t *bridge_builder_t::find_bridge(const waytype_t wtyp, const s
 			if(find_desc==NULL  ||
 				((find_desc->get_topspeed()<min_speed  &&  find_desc->get_topspeed()<desc->get_topspeed())  &&
 				(find_desc->get_max_weight()<max_weight  &&  find_desc->get_topspeed()<desc->get_max_weight()))  ||
-				(desc->get_topspeed()>=min_speed && desc->get_max_weight()>=max_weight  &&  (desc->get_wartung()<find_desc->get_wartung() ||
-				(desc->get_wartung()==find_desc->get_wartung() &&  desc->get_value()<find_desc->get_value())))
+				(desc->get_topspeed()>=min_speed && desc->get_max_weight()>=max_weight  &&  (desc->get_maintenance()<find_desc->get_maintenance() ||
+				(desc->get_maintenance()==find_desc->get_maintenance() &&  desc->get_value()<find_desc->get_value())))
 			) {
 				find_desc = desc;
 			}
@@ -919,7 +919,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 		}
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 		sint16 height = pos.z - gr->get_pos().z;
-		bruecke_t *br = new bruecke_t(bruecke->get_pos(), player, desc, desc->get_simple(ribi,height-slope_t::max_diff(gr->get_grund_hang())));
+		bruecke_t *br = new bruecke_t(bruecke->get_pos(), player, desc, desc->get_straight(ribi,height-slope_t::max_diff(gr->get_grund_hang())));
 		bruecke->obj_add(br);
 		bruecke->calc_image();
 		br->finish_rd();
@@ -1109,7 +1109,7 @@ void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ri
 		}
 		else {
 			// remove maintenance - it will be added in leitung_t::finish_rd
-			player_t::add_maintenance( player, -lt->get_desc()->get_wartung(), powerline_wt);
+			player_t::add_maintenance( player, -lt->get_desc()->get_maintenance(), powerline_wt);
 		}
 		// connect to neighbor tiles and networks, add maintenance
 		lt->finish_rd();

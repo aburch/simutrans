@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef __sound_desc_t
-#define __sound_desc_t
+#ifndef __SOUND_DESC_H
+#define __SOUND_DESC_H
 
 #include "obj_base_desc.h"
 #include "../simtypes.h"

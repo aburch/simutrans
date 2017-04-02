@@ -125,7 +125,7 @@ adjust_image:
 
 	// check for left corner
 	if(version<2  &&  desc->h>0) {
-		// find left left border
+		// find left border
 		uint16 left = 255;
 		uint16 *dest = desc->data;
 		for( uint8 y=0;  y<desc->h;  y++  ) {

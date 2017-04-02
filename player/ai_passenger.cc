@@ -291,7 +291,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 		if(town_road!=bushalt) {
 			way_builder_t bauigel(this);
 			// no bridges => otherwise first tile might be bridge start ...
-			bauigel.init_builder(way_builder_t::strasse, way_builder_t::weg_search(road_wt, road_vehicle->get_geschw(), road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1), tunnel_builder_t::get_tunnel_desc(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()), NULL );
+			bauigel.init_builder(way_builder_t::strasse, way_builder_t::weg_search(road_wt, road_vehicle->get_topspeed(), road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1), tunnel_builder_t::get_tunnel_desc(road_wt,road_vehicle->get_topspeed(),welt->get_timeline_year_month()), NULL );
 			bauigel.set_keep_existing_faster_ways(true);
 			bauigel.set_keep_city_roads(true);
 			bauigel.set_maximum(10000);
@@ -309,7 +309,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 		if(town_road!=bushalt) {
 			way_builder_t bauigel(this);
 			// no bridges => otherwise first tile might be bridge start ...
-			bauigel.init_builder(way_builder_t::strasse, way_builder_t::weg_search(road_wt, road_vehicle->get_geschw(), road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1), tunnel_builder_t::get_tunnel_desc(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()), NULL );
+			bauigel.init_builder(way_builder_t::strasse, way_builder_t::weg_search(road_wt, road_vehicle->get_topspeed(), road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1), tunnel_builder_t::get_tunnel_desc(road_wt,road_vehicle->get_topspeed(),welt->get_timeline_year_month()), NULL );
 			bauigel.set_keep_existing_faster_ways(true);
 			bauigel.set_keep_city_roads(true);
 			bauigel.set_maximum(10000);
@@ -517,7 +517,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	uint32 length=9999;
 	rotation=-1;
 
-	bauigel.init_builder(way_builder_t::strasse, way_builder_t::weg_search(road_wt, road_vehicle->get_geschw(), road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1), tunnel_builder_t::get_tunnel_desc(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel.init_builder(way_builder_t::strasse, way_builder_t::weg_search(road_wt, road_vehicle->get_topspeed(), road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1), tunnel_builder_t::get_tunnel_desc(road_wt,road_vehicle->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_vehicle->get_topspeed(),welt->get_timeline_year_month()) );
 	bauigel.set_keep_existing_faster_ways(true);
 	bauigel.set_keep_city_roads(true);
 	bauigel.set_maximum(10000);
@@ -885,7 +885,7 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 					const building_desc_t* bs = hausbauer_t::get_random_station(building_desc_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX);
 					if(  call_general_tool( TOOL_BUILD_STATION, to->get_pos().get_2d(), bs->get_name() )  ) {
 						//add to line
-						line->get_schedule()->append(to,0); // no need to register it yet; done automatically, when convois will be assinged
+						line->get_schedule()->append(to,0); // no need to register it yet; done automatically, when convois will be assigned
 					}
 				}
 				// start road, but no houses anywhere => stop searching
@@ -1128,9 +1128,9 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","no suitable hub found");
 			road_vehicle = vehicle_search( road_wt, 50, 80, goods_manager_t::passengers, false);
 			if(road_vehicle!=NULL) {
 				// find the best => AI will never survive
-//				road_weg = way_builder_t::weg_search( road_wt, road_vehicle->get_geschw(), welt->get_timeline_year_month(),type_flat );
+//				road_weg = way_builder_t::weg_search( road_wt, road_vehicle->get_topspeed(), welt->get_timeline_year_month(),type_flat );
 				// find the really cheapest road
-				road_weg = way_builder_t::weg_search(road_wt, road_vehicle->get_geschw(), road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1);
+				road_weg = way_builder_t::weg_search(road_wt, road_vehicle->get_topspeed(), road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1);
 				state = NR_BAUE_STRASSEN_ROUTE;
 DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->get_name(),road_weg->get_name());
 			}

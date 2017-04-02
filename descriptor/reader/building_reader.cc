@@ -9,12 +9,12 @@
 #include "../../network/pakset_info.h"
 
 /**
-* For compatibility ...
+* Old building types, for compatibility ...
 */
-struct old_gtyp
+struct old_btyp
 {
 	/**
-	* Vom typ "unknown" sind auch spezielle gebaeude z.B. das Rathaus
+	* From type "unknown" also come special buildings e.q. Townhall
 	* @author Hj. Malthaner
 	*/
 	enum typ { wohnung, gewerbe, industrie, unknown };
@@ -61,7 +61,10 @@ obj_desc_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->seasons = 1;
 		desc->building = NULL;
 	}
-	DBG_DEBUG("tile_reader_t::read_node()","phases=%i index=%i seasons=%i", desc->phases, desc->index, desc->seasons );
+	DBG_DEBUG("tile_reader_t::read_node()","phases=%i index=%i seasons=%i", 
+		desc->phases,
+		desc->index,
+		desc->seasons );
 
 	return desc;
 }
@@ -155,7 +158,7 @@ void building_reader_t::register_obj(obj_desc_t *&data)
 	// and finally old stations ...
 	// correct all building types in building_desc_t::old_building_types_t
 	else if ((uint8)desc->get_type() >= building_desc_t::bahnhof && (uint8)desc->get_type() <= building_desc_t::lagerhalle) {
-		// compability stuff
+		// compatibility stuff
 		static uint16 old_to_new_waytype[16] = { track_wt, road_wt, road_wt, water_wt, water_wt, air_wt, monorail_wt, 0, track_wt, road_wt, road_wt, 0 , water_wt, air_wt, monorail_wt, 0 };
 		uint8 type = desc->type;
 		desc->extra_data = type <= building_desc_t::monorail_geb ? old_to_new_waytype[type - building_desc_t::bahnhof] : 0;
@@ -242,20 +245,20 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Capacity, maintenance and price were set from level;
 		// as was the population, employment and mail capacity.
 		desc->capacity = desc->level * 32;
-		desc->maintenance = COST_MAGIC;
-		desc->price = COST_MAGIC;
+		desc->maintenance = PRICE_MAGIC;
+		desc->price = PRICE_MAGIC;
 		desc->population_and_visitor_demand_capacity = 65535;
 		desc->employment_capacity = 65535;
 		desc->mail_demand_and_production_capacity = 65535;
 	} 
 
-	old_gtyp::typ gtyp;
+	old_btyp::typ btyp;
 
 	if (version == 8 || version == 9) 
 	{
 		// Versioned node, version 8
 		// station price, maintenance and capacity added
-		gtyp = (old_gtyp::typ)decode_uint8(p);
+		btyp = (old_btyp::typ)decode_uint8(p);
 		desc->type = (building_desc_t::btype)decode_uint8(p);
 		desc->level     = decode_uint16(p);
 		desc->extra_data = decode_uint32(p);
@@ -276,9 +279,9 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->enables = 65535;
 		}
 		desc->flags     = (building_desc_t::flag_t)decode_uint8(p);
-		desc->chance    = decode_uint8(p);
+		desc->distribution_weight    = decode_uint8(p);
 		desc->intro_date    = decode_uint16(p);
-		desc->obsolete_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
 		desc->animation_time = decode_uint16(p);
 		desc->capacity  = decode_uint16(p);
 		desc->maintenance = decode_sint32(p);
@@ -312,7 +315,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	{
 		// Versioned node, version 7
 		// underground mode added
-		gtyp = (old_gtyp::typ)decode_uint8(p);
+		btyp = (old_btyp::typ)decode_uint8(p);
 		desc->type = (building_desc_t::btype)decode_uint8(p);
 		desc->level     = decode_uint16(p) + 1; // This was necessary for the previous versions.
 		desc->extra_data = decode_uint32(p);
@@ -326,9 +329,9 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->enables = 65535;
 		}
 		desc->flags     = (building_desc_t::flag_t)decode_uint8(p);
-		desc->chance    = decode_uint8(p);
+		desc->distribution_weight    = decode_uint8(p);
 		desc->intro_date    = decode_uint16(p);
-		desc->obsolete_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
 		desc->animation_time = decode_uint16(p);
 		
 		// Set default levels for Extended
@@ -360,8 +363,8 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if(version == 5  ||  version==6) {
 		// Versioned node, version 5 or 6  (only level logic is different)
-		// animation intervall in ms added
-		gtyp					= (old_gtyp::typ)decode_uint8(p);
+		// animation interval in ms added
+		btyp					= (old_btyp::typ)decode_uint8(p);
 		desc->type				= (building_desc_t::btype)decode_uint8(p);
 		desc->level				= decode_uint16(p) + 1;
 		desc->extra_data		= decode_uint32(p);
@@ -375,9 +378,9 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->enables = 65535;
 		}
 		desc->flags		 = (building_desc_t::flag_t)decode_uint8(p);
-		desc->chance		 = decode_uint8(p);
+		desc->distribution_weight		 = decode_uint8(p);
 		desc->intro_date    = decode_uint16(p);
-		desc->obsolete_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
 		desc->animation_time = decode_uint16(p);
 		
 		// Set default levels for Extended
@@ -413,7 +416,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(version == 4) {
 		// Versioned node, version 4
 		// climates and seasons added
-		gtyp = (old_gtyp::typ)decode_uint8(p);
+		btyp = (old_btyp::typ)decode_uint8(p);
 		desc->type = (building_desc_t::btype)decode_uint8(p);
 		desc->level     = decode_uint16(p) + 1;
 		desc->extra_data= decode_uint32(p);
@@ -427,15 +430,15 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->enables = 65535;
 		}
 		desc->flags     = (building_desc_t::flag_t)decode_uint8(p);
-		desc->chance    = decode_uint8(p);
+		desc->distribution_weight    = decode_uint8(p);
 		desc->intro_date    = decode_uint16(p);
-		desc->obsolete_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
 		desc->animation_time = 300;
 
 	}
 	else if(version == 3) {
 		// Versioned node, version 3
-		gtyp = (old_gtyp::typ)decode_uint8(p);
+		btyp = (old_btyp::typ)decode_uint8(p);
 		desc->type = (building_desc_t::btype)decode_uint8(p);
 		desc->level     = decode_uint16(p) + 1;
 		desc->extra_data= decode_uint32(p);
@@ -449,14 +452,14 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->enables = 255;
 		}
 		desc->flags     = (building_desc_t::flag_t)decode_uint8(p);
-		desc->chance    = decode_uint8(p);
+		desc->distribution_weight    = decode_uint8(p);
 		desc->intro_date    = decode_uint16(p);
-		desc->obsolete_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
 		desc->animation_time = 300;
 	}
 	else if(version == 2) {
 		// Versioned node, version 2
-		gtyp = (old_gtyp::typ)decode_uint8(p);
+		btyp = (old_btyp::typ)decode_uint8(p);
 		desc->type = (building_desc_t::btype)decode_uint8(p);
 		desc->level     = decode_uint16(p) + 1;
 		desc->extra_data= decode_uint32(p);
@@ -474,14 +477,14 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->enables   = 0x80;
 		}
 		desc->flags     = (building_desc_t::flag_t)decode_uint8(p);
-		desc->chance    = decode_uint8(p);
+		desc->distribution_weight    = decode_uint8(p);
 		desc->intro_date    = decode_uint16(p);
-		desc->obsolete_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
 		desc->animation_time = 300;
 	}
 	else if(version == 1) {
 		// Versioned node, version 1
-		gtyp = (old_gtyp::typ)decode_uint8(p);
+		btyp = (old_btyp::typ)decode_uint8(p);
 		desc->type = (building_desc_t::btype)decode_uint8(p);
 		desc->level     = decode_uint16(p) + 1;
 		desc->extra_data= decode_uint32(p);
@@ -498,15 +501,15 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->enables   = 0x80;
 		}
 		desc->flags     = (building_desc_t::flag_t)decode_uint8(p);
-		desc->chance    = decode_uint8(p);
+		desc->distribution_weight    = decode_uint8(p);
 
 		desc->intro_date    = DEFAULT_INTRO_DATE*12;
-		desc->obsolete_date = DEFAULT_RETIRE_DATE*12;
+		desc->retire_date = DEFAULT_RETIRE_DATE*12;
 		desc->animation_time = 300;
 	}
 	else if(version == 0) {
 		// old node, version 0
-		gtyp = (old_gtyp::typ)v;
+		btyp = (old_btyp::typ)v;
 		decode_uint16(p);
 		desc->type = (building_desc_t::btype)decode_uint32(p);
 		desc->level     = decode_uint32(p) + 1;
@@ -524,10 +527,10 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->enables   = 0x80;
 		}
 		desc->flags     = (building_desc_t::flag_t)decode_uint32(p);
-		desc->chance    = 100;
+		desc->distribution_weight    = 100;
 
 		desc->intro_date    = DEFAULT_INTRO_DATE*12;
-		desc->obsolete_date = DEFAULT_RETIRE_DATE*12;
+		desc->retire_date = DEFAULT_RETIRE_DATE*12;
 		desc->animation_time = 300;
 	}
 	// there are additional nodes for cursor/icon
@@ -582,8 +585,8 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(  version<=7  ) {
 		// capacity, maintenance and price were set from level
 		desc->capacity = desc->level * 32;
-		desc->maintenance = COST_MAGIC;
-		desc->price = COST_MAGIC;
+		desc->maintenance = PRICE_MAGIC;
+		desc->price = PRICE_MAGIC;
 	}
 
 	if (desc->level == 65535) {
@@ -592,11 +595,10 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 
 	if (version < 9) {
-		switch (gtyp) {
-			case old_gtyp::wohnung:    desc->type = building_desc_t::city_res; break;
-			case old_gtyp::gewerbe:    desc->type = building_desc_t::city_com; break;
-			case old_gtyp::industrie:  desc->type = building_desc_t::city_ind; break;
-			default:;
+		switch (btyp) {
+			case old_btyp::wohnung:    desc->type = building_desc_t::city_res; break;
+			case old_btyp::gewerbe:    desc->type = building_desc_t::city_com; break;
+			case old_btyp::industrie:  desc->type = building_desc_t::city_ind; break;
 		}
 	}
 
@@ -611,13 +613,13 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		" layouts=%d"
 		" enables=%x"
 		" flags=%d"
-		" chance=%d"
+		" distribution_weight=%d"
 		" climates=%X"
 		" anim=%d"
 		" intro=%d"
 		" retire=%d",
 		version,
-		gtyp,
+		btyp,
 		desc->type,
 		desc->level,
 		desc->extra_data,
@@ -626,11 +628,11 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->layouts,
 		desc->enables,
 		desc->flags,
-		desc->chance,
+		desc->distribution_weight,
 		desc->allowed_climates,
 		desc->animation_time,
 		desc->intro_date,
-		desc->obsolete_date
+		desc->retire_date
 	);
 
 	return desc;

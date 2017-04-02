@@ -1951,7 +1951,7 @@ public:
 	koord get_closest_coordinate(koord outside_pos);
 
 	/**
-	 * @return grund an pos/hoehe
+	 * @return grund an pos/height
 	 * @note Inline because called very frequently!
 	 * @author Hj. Malthaner
 	 */
@@ -1959,7 +1959,7 @@ public:
 	{
 		const planquadrat_t *plan = access(pos.x, pos.y);
 		return plan ? plan->get_boden_in_hoehe(pos.z) : NULL;
-		//"boden in hoehe" = floor in height (Google)
+		//"boden in height" = floor in height (Google)
 	}
 
 	/**

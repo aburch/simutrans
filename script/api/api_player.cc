@@ -83,7 +83,7 @@ void export_player(HSQUIRRELVM vm)
 	 * Return headquarters level.
 	 * @returns level, level is zero if no headquarters was built
 	 */
-	register_method(vm, &player_t::get_headquarter_level, "get_headquarter_level");
+	register_method(vm, &player_t::get_headquarters_level, "get_headquarters_level");
 	/**
 	 * Return headquarters position.
 	 * @returns coordinate, (-1,-1) if no headquarters was built

@@ -27,7 +27,7 @@ void tree_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	// seasons = 1: no seasons
 	// seasons = 2: 0=summer, 1=winter
 	// seasons = 4, normal four seasons, starting with summer
-	// seasons = 5, normal for seasons and snowy image
+	// seasons = 5, normal four seasons and snowy image
 	uint8 const number_of_seasons   = obj.get_int("seasons", 1);
 	uint8 const distribution_weight = obj.get_int("distributionweight", 3);
 
@@ -39,7 +39,7 @@ void tree_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 			char buf[40];
 
 			// Images of the tree
-			// age is 1..5 (usually five stages, seasons is the seaons
+			// age is 1..5 (usually five stages, seasons is the seasons
 			sprintf(buf, "image[%d][%d]", age, seasons);
 
 			string str = obj.get(buf);

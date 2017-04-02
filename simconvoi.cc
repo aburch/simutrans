@@ -816,14 +816,14 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 					obj_t *d=gr->obj_bei(i);
 					if(  wayobj_t const* const wo = obj_cast<wayobj_t>(d)  )  {
 						if(  wo->get_waytype()==weg->get_waytype()  ) {
-							toll += (wo->get_desc()->get_wartung()*welt->get_settings().get_way_toll_waycost_percentage())/100l;
+							toll += (wo->get_desc()->get_maintenance()*welt->get_settings().get_way_toll_waycost_percentage())/100l;
 							break;
 						}
 					}
 				}
 			}
 			// now add normal way toll be maintenance
-			toll += (weg->get_desc()->get_wartung() * welt->get_settings().get_way_toll_waycost_percentage()) / 100l;
+			toll += (weg->get_desc()->get_maintenance() * welt->get_settings().get_way_toll_waycost_percentage()) / 100l;
 		}
 		weg->get_owner()->book_toll_received( toll, get_schedule()->get_waytype() );
 		get_owner()->book_toll_paid(         -toll, get_schedule()->get_waytype() );
@@ -2625,7 +2625,7 @@ DBG_MESSAGE("convoi_t::add_vehicle()","extend array_tpl to %i totals.",max_rail_
 		//}
 		//sum_gear_and_power += (info->get_power() * info->get_gear() *welt->get_settings().get_global_power_factor_percent() + 50) / 100;
 		//sum_weight += info->get_weight();
-		//min_top_speed = min( min_top_speed, kmh_to_speed( v->get_desc()->get_geschw() ) );
+		//min_top_speed = min( min_top_speed, kmh_to_speed( v->get_desc()->get_topspeed() ) );
 		//sum_gesamtweight = sum_weight;
 		calc_loading();
 		invalidate_vehicle_summary();
@@ -4715,7 +4715,7 @@ void convoi_t::info(cbuffer_t & buf) const
 	if (v != NULL) {
 		char tmp[128];
 
-		buf.printf("\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_desc()->get_geschw(), get_running_cost(welt) / 100.0F);
+		buf.printf("\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_desc()->get_topspeed(), get_running_cost(welt) / 100.0F);
 
 		buf.printf(" %s: %ikW\n", translator::translate("Leistung"), sum_power );
 

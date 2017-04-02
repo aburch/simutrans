@@ -1,5 +1,5 @@
-#ifndef GOOD_WRITER_H
-#define GOOD_WRITER_H
+#ifndef GOODS_WRITER_H
+#define GOODS_WRITER_H
 
 #include <string>
 #include "obj_writer.h"

@@ -77,12 +77,12 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->intro_date = decode_uint16(p);
 		desc->gear = decode_uint8(p);
 
-		desc->wt = decode_uint8(p);
+		desc->wtyp = decode_uint8(p);
 		desc->sound = decode_sint8(p);
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
 
-		desc->obsolete_date = (DEFAULT_RETIRE_DATE*16);
+		desc->retire_date = (DEFAULT_RETIRE_DATE*16);
 	}
 	else if(version == 2) {
 		// Versioned node, version 2
@@ -97,13 +97,13 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->intro_date = decode_uint16(p);
 		desc->gear = decode_uint8(p);
 
-		desc->wt = decode_uint8(p);
+		desc->wtyp = decode_uint8(p);
 		desc->sound = decode_sint8(p);
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
 		desc->engine_type = decode_uint8(p);
 
-		desc->obsolete_date = (DEFAULT_RETIRE_DATE*16);
+		desc->retire_date = (DEFAULT_RETIRE_DATE*16);
 	}
 	else if (version==3   ||  version==4  ||  version==5) {
 		// Versioned node, version 3 with retire date
@@ -118,10 +118,10 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->running_cost = decode_uint16(p);
 
 		desc->intro_date = decode_uint16(p);
-		desc->obsolete_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
 		desc->gear = decode_uint8(p);
 
-		desc->wt = decode_uint8(p);
+		desc->wtyp = decode_uint8(p);
 		desc->sound = decode_sint8(p);
 		desc->leader_count = decode_uint8(p);
 		desc->trailer_count = decode_uint8(p);
@@ -138,10 +138,10 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->running_cost = decode_uint16(p);
 
 		desc->intro_date = decode_uint16(p);
-		desc->obsolete_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
 		desc->gear = decode_uint16(p);
 
-		desc->wt = decode_uint8(p);
+		desc->wtyp = decode_uint8(p);
 		desc->sound = decode_sint8(p);
 		desc->engine_type = decode_uint8(p);
 		desc->leader_count = decode_uint8(p);
@@ -158,10 +158,10 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->running_cost = decode_uint16(p);
 
 		desc->intro_date = decode_uint16(p);
-		desc->obsolete_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
 		desc->gear = decode_uint16(p);
 
-		desc->wt = decode_uint8(p);
+		desc->wtyp = decode_uint8(p);
 		desc->sound = decode_sint8(p);
 		desc->engine_type = decode_uint8(p);
 		desc->len = decode_uint8(p);
@@ -179,10 +179,10 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->running_cost = decode_uint16(p);
 
 		desc->intro_date = decode_uint16(p);
-		desc->obsolete_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
 		desc->gear = decode_uint16(p);
 
-		desc->wt = decode_uint8(p);
+		desc->wtyp = decode_uint8(p);
 		desc->sound = decode_sint8(p);
 		desc->engine_type = decode_uint8(p);
 		desc->len = decode_uint8(p);
@@ -207,7 +207,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->available_only_as_upgrade = decode_uint8(p);
 				desc->brake_force = BRAKE_FORCE_UNKNOWN;
 				desc->minimum_runway_length = 10;
-				desc->rolling_resistance = vehicle_desc_t::get_rolling_default(desc->wt) / float32e8_t::tenthousand;
+				desc->rolling_resistance = vehicle_desc_t::get_rolling_default(desc->wtyp) / float32e8_t::tenthousand;
 				if(extended_version == 1)
 				{
 					desc->base_fixed_cost = decode_uint16(p);
@@ -240,7 +240,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else
 				{
-					desc->air_resistance = vehicle_desc_t::get_air_default(desc->wt) / float32e8_t::hundred;
+					desc->air_resistance = vehicle_desc_t::get_air_default(desc->wtyp) / float32e8_t::hundred;
 					desc->can_be_at_rear = true;
 					desc->increase_maintenance_after_years = 0;
 					desc->increase_maintenance_by_percent = 0;
@@ -293,10 +293,10 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 
 		desc->intro_date = decode_uint16(p);
-		desc->obsolete_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
 		desc->gear = decode_uint16(p);
 
-		desc->wt = decode_uint8(p);
+		desc->wtyp = decode_uint8(p);
 		desc->sound = decode_sint8(p);
 		desc->engine_type = decode_uint8(p);
 		desc->len = decode_uint8(p);
@@ -351,7 +351,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else
 				{
-					desc->air_resistance = vehicle_desc_t::get_air_default(desc->wt) / float32e8_t::hundred;
+					desc->air_resistance = vehicle_desc_t::get_air_default(desc->wtyp) / float32e8_t::hundred;
 					desc->can_be_at_rear = true;
 					desc->increase_maintenance_after_years = 0;
 					desc->increase_maintenance_by_percent = 0;
@@ -384,7 +384,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				else
 				{
-					desc->rolling_resistance = vehicle_desc_t::get_rolling_default(desc->wt) / float32e8_t::tenthousand;
+					desc->rolling_resistance = vehicle_desc_t::get_rolling_default(desc->wtyp) / float32e8_t::tenthousand;
 					desc->brake_force = BRAKE_FORCE_UNKNOWN;
 					desc->minimum_runway_length = 10;
 				}
@@ -417,10 +417,10 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 
 		desc->intro_date = decode_uint16(p);
-		desc->obsolete_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
 		desc->gear = decode_uint16(p);
 
-		desc->wt = decode_uint8(p);
+		desc->wtyp = decode_uint8(p);
 		desc->sound = decode_sint8(p);
 		desc->engine_type = decode_uint8(p);
 		desc->len = decode_uint8(p);
@@ -498,7 +498,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 		// old node, version 0
 
-		desc->wt = (sint8)v;
+		desc->wtyp = (sint8)v;
 		desc->capacity = decode_uint16(p);
 		desc->base_cost = decode_uint32(p);
 		desc->topspeed = decode_uint16(p);
@@ -510,7 +510,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->trailer_count = (sint8)decode_uint16(p);
 
 		desc->intro_date = DEFAULT_INTRO_DATE*16;
-		desc->obsolete_date = (DEFAULT_RETIRE_DATE*16);
+		desc->retire_date = (DEFAULT_RETIRE_DATE*16);
 		desc->gear = 64;
 	}
 
@@ -523,21 +523,21 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	//change the vehicle type
 	if(version<4) {
-		if(desc->wt==4) {
+		if(desc->wtyp==4) {
 			desc->engine_type = vehicle_desc_t::electric;
-			desc->wt = 1;
+			desc->wtyp = 1;
 		}
 		// convert to new standard
 		static const waytype_t convert_from_old[8]={road_wt, track_wt, water_wt, air_wt, invalid_wt, monorail_wt, invalid_wt, tram_wt };
-		desc->wt = convert_from_old[desc->wt];
+		desc->wtyp = convert_from_old[desc->wtyp];
 	}
 
 	// before version 5 dates were based on base 12 ...
 	if(version<5) {
 		uint16 date=desc->intro_date;
 		desc->intro_date = (date/16)*12 + (date%16);
-		date=desc->obsolete_date;
-		desc->obsolete_date = (date/16)*12 + (date%16);
+		date=desc->retire_date;
+		desc->retire_date = (date/16)*12 + (date%16);
 	}
 
 	// before the length was always 1/8 (=half a tile)
@@ -589,8 +589,8 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			break;
 		}
 
-		desc->air_resistance = vehicle_desc_t::get_air_default(desc->wt) / float32e8_t::hundred;
-		desc->rolling_resistance = vehicle_desc_t::get_rolling_default(desc->wt) / float32e8_t::tenthousand;
+		desc->air_resistance = vehicle_desc_t::get_air_default(desc->wtyp) / float32e8_t::hundred;
+		desc->rolling_resistance = vehicle_desc_t::get_rolling_default(desc->wtyp) / float32e8_t::tenthousand;
 		desc->upgrades = 0;
 		desc->base_upgrade_price = desc->base_cost;
 		desc->available_only_as_upgrade = false;
@@ -646,7 +646,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc-
 		"date=%d/%d gear=%d engine_type=%d len=%d is_tilting=%d catering_level=%d "
 		"way_constraints_permissive=%d way_constraints_prohibitive%d bidirectional%d can_lead_from_rear%d",
 		version,
-		desc->wt,
+		desc->wtyp,
 		desc->capacity,
 		desc->base_cost,
 		desc->topspeed,

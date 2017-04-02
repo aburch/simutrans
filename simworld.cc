@@ -1584,7 +1584,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 		{
 			// Power stations are excluded from the target weight:
 			// a different system is used for them.
-			weight = factory_type->get_chance();
+			weight = factory_type->get_distribution_weight();
 			actual_industry_density += (100 / weight);
 		}
 	}
@@ -4761,11 +4761,11 @@ void karte_t::new_month()
 			{
 				if(fab->get_desc()->is_electricity_producer())
 				{
-					electric_productivity += fab->get_scaled_electric_amount();
+					electric_productivity += fab->get_scaled_electric_demand();
 				} 
 				else 
 				{
-					total_electric_demand += fab->get_scaled_electric_amount();
+					total_electric_demand += fab->get_scaled_electric_demand();
 				}
 			}
 			else
@@ -4796,10 +4796,10 @@ void karte_t::new_month()
 	const uint32 target_industry_density = get_target_industry_density();
 	if(actual_industry_density < target_industry_density)
 	{
-		// Only add one chain per month, and randomise (with a minimum of 8% chance to ensure that any industry deficiency is, on average, remedied in about a year).
+		// Only add one chain per month, and randomise (with a minimum of 8% distribution_weight to ensure that any industry deficiency is, on average, remedied in about a year).
 		const uint32 percentage = max((((target_industry_density - actual_industry_density) * 100) / target_industry_density), 8);
-		const uint32 chance = simrand(100, "void karte_t::new_month()");
-		if(chance < percentage)
+		const uint32 distribution_weight = simrand(100, "void karte_t::new_month()");
+		if(distribution_weight < percentage)
 		{
 			factory_builder_t::increase_industry_density(true, true);
 		}
@@ -5523,7 +5523,7 @@ rands[19] = get_random_seed();
 	if (first_step == 2 || first_step == 3)
 	{
 		// Convoys cannot be stepped concurrently with sync_step running in network mode because whether they need routing may depend on a command executed in sync_step,
-		// and it will be entirely by chance whether that command is executed before or after the threads get to processing that particular convoy.
+		// and it will be entirely by distribution_weight whether that command is executed before or after the threads get to processing that particular convoy.
 		first_step = 0;
 	}
 #endif
@@ -6397,7 +6397,7 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			// a private car journey is not possible.
 			if(car_minutes < tolerance)
 			{
-				const uint32 private_car_chance = simrand(100, "void stadt_t::generate_passengers_and_mail() (private car chance?)");
+				const uint32 private_car_chance = simrand(100, "void stadt_t::generate_passengers_and_mail() (private car distribution_weight?)");
 
 				if(route_status != public_transport)
 				{
@@ -8868,7 +8868,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			{
 				// Power stations are excluded from the target weight:
 				// a different system is used for them.
-				weight = max(factory_type->get_chance(), 1); // To prevent divisions by zero
+				weight = max(factory_type->get_distribution_weight(), 1); // To prevent divisions by zero
 				actual_industry_density += (100 / weight);
 			}
 		}
@@ -10322,9 +10322,9 @@ void karte_t::set_citycar_speed_average()
 	sint32 count = 0;
 	FOR(stringhashtable_tpl<const citycar_desc_t *>, const& iter, private_car_t::table)
 	{
-		// Take into account the *chance* of vehicles, too: fewer people have sports cars than Minis. 
-		vehicle_speed_sum += (speed_to_kmh(iter.value->get_geschw())) * iter.value->get_chance();
-		count += iter.value->get_chance();
+		// Take into account the *distribution_weight* of vehicles, too: fewer people have sports cars than Minis. 
+		vehicle_speed_sum += (speed_to_kmh(iter.value->get_topspeed())) * iter.value->get_distribution_weight();
+		count += iter.value->get_distribution_weight();
 	}
 	citycar_speed_average = vehicle_speed_sum / count;
 }

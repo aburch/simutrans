@@ -583,13 +583,13 @@ void reliefkarte_t::set_relief_farbe(koord k_, const int color)
 
 /**
  * calculates ground color for position relative to water height
- * @param hoehe height of the tile
+ * @param height height of the tile
  * @param groundwater water height
  * @author Hj. Malthaner
  */
-uint8 reliefkarte_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 groundwater)
+uint8 reliefkarte_t::calc_hoehe_farbe(const sint16 height, const sint16 groundwater)
 {
-	return map_type_color[clamp( (hoehe-groundwater)+MAX_MAP_TYPE_WATER-1, 0, MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND-1 )];
+	return map_type_color[clamp( (height-groundwater)+MAX_MAP_TYPE_WATER-1, 0, MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND-1 )];
 }
 
 
@@ -1406,7 +1406,7 @@ void reliefkarte_t::draw(scr_coord pos)
 				diagonal = seg.start_diagonal;
 			}
 			// and finally draw ...
-			line_segment_draw( seg.waytype, k1, seg.start_offset*offset, k2, seg.end_offset*offset, diagonal, color );
+			line_segment_draw( seg.wtyp, k1, seg.start_offset*offset, k2, seg.end_offset*offset, diagonal, color );
 		}
 	}
 

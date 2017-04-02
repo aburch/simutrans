@@ -123,7 +123,7 @@ struct vehicle_summary_t
 	{
 		length += b.get_length();
 		weight += b.get_weight();
-		max_speed = min(max_speed, b.get_geschw());
+		max_speed = min(max_speed, b.get_topspeed());
 	}
 
 	// call update_summary() after all vehicles have been added.

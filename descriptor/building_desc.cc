@@ -17,7 +17,7 @@
  *      Volker Meyer
  *
  *  Description:
- *      Rechnet aus dem Index das Layout aus, zu dem diese Tile gehört.
+ *      Calculate which layout the tile belongs to from the index.
  */
 uint8 building_tile_desc_t::get_layout() const
 {
@@ -31,15 +31,12 @@ uint8 building_tile_desc_t::get_layout() const
  *      Volker Meyer
  *
  *  Description:
- *      Bestimmt die Relativ-Position des Einzelbildes im Gesamtbild des
- *	Gebäudes.
- *
- * Description: Specifies the relative position of the frame in the overall image of the building. (Google)
+ *      Return the relative position of an image in the whole building image
  */
 koord building_tile_desc_t::get_offset() const
 {
 	const building_desc_t *desc = get_desc();
-	koord size = desc->get_size(get_layout());	// ggf. gedreht ("rotated" - Google)
+	koord size = desc->get_size(get_layout());	// rotate if necessary
 	return koord( index % size.x, (index / size.x) % size.y );
 }
 
@@ -69,9 +66,9 @@ uint16 building_desc_t::get_mail_level() const
 {
 	switch (type) {
 		default:
-		case city_res:   return level; // Home
-		case city_com:   return level * 2; // "Trade" (Google Translator)
-		case city_ind: return level / 2; // Industry
+		case city_res:   return level; 
+		case city_com:   return level * 2;
+		case city_ind: return level / 2; 
 	}
 }
 
@@ -89,7 +86,7 @@ bool building_desc_t::is_connected_with_town() const
 		case city_ind:    // normal town buildings (RES, COM, IND)
 		case monument:     // monuments
 		case townhall:     // townhalls
-		case headquarter:  // headquarter
+		case headquarters:  // headquarters
 			return true;
 		default:
 			return false;
@@ -102,7 +99,7 @@ bool building_desc_t::is_connected_with_town() const
  *      Volker Meyer
  *
  *  Description:
- *      Abhängig von Position und Layout ein tile zurückliefern
+ *      Returns the correct tile image on that position depending on the layout
  */
 const building_tile_desc_t *building_desc_t::get_tile(int layout, int x, int y) const
 {
@@ -124,7 +121,7 @@ const building_tile_desc_t *building_desc_t::get_tile(int layout, int x, int y) 
  *      Volker Meyer
  *
  *  Description:
- *      Layout normalisieren.
+ *      Layout normalisation. Returns number of different layouts
  */
 int building_desc_t::adjust_layout(int layout) const
 {
@@ -132,11 +129,11 @@ int building_desc_t::adjust_layout(int layout) const
 		layout -= 4;
 	}
 	if(layout >= 2 && layouts <= 2) {
-		// Sind Layout C und D nicht definiert, nehemen wir ersatzweise A und B
+		// if layouts C and D are not defined, we use A and B as substitutesormalisation. Returns number of different layouts
 		layout -= 2;
 	}
 	if(layout > 0 && layouts <= 1) {
-		// Ist Layout B nicht definiert und das Teil quadratisch, nehmen wir ersatzweise A
+		// if layout B is not defined and the building is squared, we us A as substitute
 		if(size.x == size.y) {
 			layout--;
 		}
@@ -157,7 +154,7 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(level);
 	chk->input(layouts);
 	chk->input(enables);
-	chk->input(chance);
+	chk->input(distribution_weight);
 	chk->input((uint8)allowed_climates);
 	chk->input(maintenance);
 	chk->input(price);

@@ -2,8 +2,8 @@
  * Routines to manage special object descriptors (descs) lists used in the program.
  */
 
-#ifndef __SPEZIAL_OBJ_TPL_H
-#define __SPEZIAL_OBJ_TPL_H
+#ifndef __SPECIAL_OBJ_TPL_H
+#define __SPECIAL_OBJ_TPL_H
 
 #include <string.h>
 #include <typeinfo>

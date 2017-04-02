@@ -716,7 +716,7 @@ public:
 	 * Return the scaled electricity amount and pax/mail demand
 	 * @author Knightly
 	 */
-	uint32 get_scaled_electric_amount() const { return scaled_electric_amount; }
+	uint32 get_scaled_electric_demand() const { return scaled_electric_amount; }
 	uint32 get_scaled_pax_demand() const { return scaled_pax_demand; }
 	uint32 get_monthly_pax_demand() const;
 	uint32 get_scaled_mail_demand() const { return scaled_mail_demand; }

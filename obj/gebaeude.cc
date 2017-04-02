@@ -137,7 +137,7 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const building_tile_desc_t
 	{
 		set_tile(t,true);	// this will set init time etc.
 		sint64 maint;
-		if(tile->get_desc()->get_base_maintenance() == COST_MAGIC)
+		if(tile->get_desc()->get_base_maintenance() == PRICE_MAGIC)
 		{
 			maint = welt->get_settings().maint_building*tile->get_desc()->get_level();
 		}
@@ -267,7 +267,7 @@ gebaeude_t::~gebaeude_t()
 	if(tile) 
 	{
 		sint64 maint;
-		if(tile->get_desc()->get_base_maintenance() == COST_MAGIC)
+		if(tile->get_desc()->get_base_maintenance() == PRICE_MAGIC)
 		{
 			maint = welt->get_settings().maint_building * tile->get_desc()->get_level();
 		}
@@ -1449,7 +1449,7 @@ void gebaeude_t::finish_rd()
 {
 	calc_image();
 	sint64 maint = tile->get_desc()->get_maintenance();
-	if(maint == COST_MAGIC) 
+	if(maint == PRICE_MAGIC) 
 	{
 		maint = welt->get_settings().maint_building*tile->get_desc()->get_level();
 	}
@@ -1541,8 +1541,8 @@ void gebaeude_t::cleanup(player_t *player)
 
 		// tearing down halts is always single costs only
 		cost = desc->get_price();
-		// This check is necessary because the number of COST_MAGIC is used if no price is specified. 
-		if(desc->get_base_price() == COST_MAGIC)
+		// This check is necessary because the number of PRICE_MAGIC is used if no price is specified. 
+		if(desc->get_base_price() == PRICE_MAGIC)
 		{
 			// TODO: find a way of checking what *kind* of stop that this is. This assumes railway.
 			cost = welt->get_settings().cst_multiply_station * desc->get_level();

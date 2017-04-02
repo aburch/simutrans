@@ -407,10 +407,10 @@ private:
 	// The maximum number of onward trips permissible for passengers that do make an onward trip.
 	uint16 max_onward_trips;
 
-	// The chance (in %) that any given packet of passengers will make at least one onward trip.
+	// The distribution_weight (in %) that any given packet of passengers will make at least one onward trip.
 	uint16 onward_trip_chance_percent;
 
-	// The chance (in %) that any given packet of passengers will be making a commuting, rather than visiting, trip.
+	// The distribution_weight (in %) that any given packet of passengers will be making a commuting, rather than visiting, trip.
 	uint16 commuting_trip_chance_percent;
 
 	// This is used to store the adjusted value for the number of ticks that must elapse before a single job is replenished.

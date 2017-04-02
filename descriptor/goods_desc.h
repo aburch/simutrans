@@ -74,7 +74,7 @@ class goods_desc_t : public obj_named_desc_t {
 
 	/**
 	 * index of the type,
-	 * assinged during registration
+	 * assigned during registration
 	 */
 	uint8 goods_index;
 

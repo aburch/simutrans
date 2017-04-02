@@ -48,7 +48,7 @@ public:
 
 private:
 
-	static vector_tpl<const building_desc_t*> headquarter;
+	static vector_tpl<const building_desc_t*> headquarters;
 
 	/**
 	 * Liefert einen zufälligen Eintrag aus der Liste.

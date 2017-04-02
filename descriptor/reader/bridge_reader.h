@@ -14,7 +14,7 @@ public:
 	static bridge_reader_t*instance() { return &the_instance; }
 
 	/**
-	 * Read a goods info node. Does version check and
+	 * Read a bridge info node. Does version check and
 	 * compatibility transformations.
 	 * @author Hj. Malthaner
 	 */

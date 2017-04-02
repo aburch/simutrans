@@ -2740,7 +2740,7 @@ bool road_vehicle_t::check_next_tile(const grund_t *bd) const
 		const roadsign_t* rs = bd->find<roadsign_t>();
 		if(rs!=NULL) {
 			const roadsign_desc_t* rs_desc = rs->get_desc();
-			if(get_desc() && rs_desc->get_min_speed()>0  &&  rs_desc->get_min_speed() > kmh_to_speed(get_desc()->get_geschw())  ) 
+			if(get_desc() && rs_desc->get_min_speed()>0  &&  rs_desc->get_min_speed() > kmh_to_speed(get_desc()->get_topspeed())  ) 
 			{
 				return false;
 			}
@@ -3235,7 +3235,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 							}
 						}
 						else if(  private_car_t* const caut = obj_cast<private_car_t>(obj)  ) {
-							if(  cnv->can_overtake(caut, caut->get_desc()->get_geschw(), VEHICLE_STEPS_PER_TILE)  ) {
+							if(  cnv->can_overtake(caut, caut->get_desc()->get_topspeed(), VEHICLE_STEPS_PER_TILE)  ) {
 								return true;
 							}
 						}
@@ -7487,7 +7487,7 @@ void air_vehicle_t::hop(grund_t* gr)
 			break;
 		}
 		case circling: {
-			new_speed_limit = kmh_to_speed(desc->get_geschw())/3;
+			new_speed_limit = kmh_to_speed(desc->get_topspeed())/3;
 			new_friction = 4;
 			// do not change height any more while circling
 			flying_height += h_cur;
@@ -7516,7 +7516,7 @@ void air_vehicle_t::hop(grund_t* gr)
 			break;
 		}
 		case landing: {
-			new_speed_limit = kmh_to_speed(desc->get_geschw())/3; // ==approach speed
+			new_speed_limit = kmh_to_speed(desc->get_topspeed())/3; // ==approach speed
 			new_friction = 8;
 			flying_height += h_cur;
 			if(  flying_height < target_height  ) {
@@ -7532,7 +7532,7 @@ void air_vehicle_t::hop(grund_t* gr)
 
 				// touchdown!
 				if (flying_height==h_next) {
-					const sint32 taxi_speed = kmh_to_speed( min( 60, desc->get_geschw()/4 ) );
+					const sint32 taxi_speed = kmh_to_speed( min( 60, desc->get_topspeed()/4 ) );
 					if(  cnv->get_akt_speed() <= taxi_speed  ) {
 						new_speed_limit = taxi_speed;
 						new_friction = 16;
@@ -7541,7 +7541,7 @@ void air_vehicle_t::hop(grund_t* gr)
 						const sint32 runway_left = search_for_stop - route_index;
 						new_speed_limit = min( new_speed_limit, runway_left*runway_left*taxi_speed ); // ...approach 540 240 60 60
 						const sint32 runway_left_fr = max( 0, 6-runway_left );
-						new_friction = max( new_friction, min( desc->get_geschw()/12, 4 + 4*(runway_left_fr*runway_left_fr+1) )); // ...8 8 12 24 44 72 108 152
+						new_friction = max( new_friction, min( desc->get_topspeed()/12, 4 + 4*(runway_left_fr*runway_left_fr+1) )); // ...8 8 12 24 44 72 108 152
 					}
 				}
 			}
@@ -7562,7 +7562,7 @@ void air_vehicle_t::hop(grund_t* gr)
 			break;
 		}
 		default: {
-			new_speed_limit = kmh_to_speed( min( 60, desc->get_geschw()/4 ) );
+			new_speed_limit = kmh_to_speed( min( 60, desc->get_topspeed()/4 ) );
 			new_friction = 16;
 			flying_height = 0;
 			target_height = h_next;

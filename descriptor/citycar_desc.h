@@ -29,10 +29,10 @@
 class citycar_desc_t : public obj_desc_timelined_t {
 	friend class citycar_reader_t;
 
-	uint16 chance;
+	uint16 distribution_weight;
 
 	/// topspeed in internal speed units !!! not km/h!!!
-	uint16 geschw;
+	uint16 topspeed;
 
 public:
 	int get_image_id(ribi_t::dir dir) const
@@ -41,16 +41,16 @@ public:
 		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
-	int get_chance() const { return chance; }
+	int get_distribution_weight() const { return distribution_weight; }
 
 	/// topspeed in internal speed units !!! not km/h!!!
-	sint32 get_geschw() const { return geschw; }
+	sint32 get_topspeed() const { return topspeed; }
 
 	void calc_checksum(checksum_t *chk) const
 	{
 		obj_desc_timelined_t::calc_checksum(chk);
-		chk->input(chance);
-		chk->input(geschw);
+		chk->input(distribution_weight);
+		chk->input(topspeed);
 	}
 };
 

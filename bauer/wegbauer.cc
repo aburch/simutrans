@@ -1228,7 +1228,7 @@ void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* 
 	if(  bridge_desc  && (  ribi_type(from->get_grund_hang()) == ribi_t::backward(ribi_type(zv))  ||  from->get_grund_hang() == 0  )
 		&&  bridge_builder_t::can_place_ramp(player, from, desc->get_wtyp(),ribi_t::backward(ribi_type(zv)))  ) {
 		// Try a bridge.
-		const sint32 cost_difference=desc->get_wartung()>0 ? (bridge_desc->get_wartung()*4l+3l)/desc->get_wartung() : 16;
+		const sint32 cost_difference=desc->get_maintenance()>0 ? (bridge_desc->get_maintenance()*4l+3l)/desc->get_maintenance() : 16;
 		// try eight possible lengths ..
 		uint32 min_length = 1;
 		for (uint8 i = 0; i < 8 && min_length <= welt->get_settings().way_max_bridge_len; ++i) {
@@ -1259,7 +1259,7 @@ void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* 
 
 	if(  tunnel_desc  &&  ribi_type(from->get_grund_hang()) == ribi_type(zv)  ) {
 		// uphill hang ... may be tunnel?
-		const sint32 cost_difference = desc->get_wartung() > 0 ? (tunnel_desc->get_wartung() * 4l + 3l) / desc->get_wartung() : 16;
+		const sint32 cost_difference = desc->get_maintenance() > 0 ? (tunnel_desc->get_maintenance() * 4l + 3l) / desc->get_maintenance() : 16;
 		koord3d end = tunnel_builder_t::find_end_pos( player, from->get_pos(), zv, tunnel_desc);
 		if(  end != koord3d::invalid  &&  !ziel.is_contained(end)  ) {
 			uint32 length = koord_distance(from->get_pos(), end);
@@ -2305,11 +2305,11 @@ bool way_builder_t::build_tunnel_tile()
 				lt->set_desc(desc);
 				tunnel->obj_add( lt );
 				lt->finish_rd();
-				player_t::add_maintenance( player, -lt->get_desc()->get_wartung(), powerline_wt);
+				player_t::add_maintenance( player, -lt->get_desc()->get_maintenance(), powerline_wt);
 			}
 			tunnel->calc_image();
 			cost -= tunnel_desc->get_value();
-			player_t::add_maintenance( player,  tunnel_desc->get_wartung(), tunnel_desc->get_finance_waytype() );
+			player_t::add_maintenance( player,  tunnel_desc->get_maintenance(), tunnel_desc->get_finance_waytype() );
 		}
 		else if(gr->get_typ()==grund_t::tunnelboden) {
 			// check for extension only ...
@@ -2342,7 +2342,7 @@ bool way_builder_t::build_tunnel_tile()
 					gr->obj_add( lt );
 				} else {
 					lt->leitung_t::finish_rd();	// only change powerline aspect
-					player_t::add_maintenance( player, -lt->get_desc()->get_wartung(), powerline_wt);
+					player_t::add_maintenance( player, -lt->get_desc()->get_maintenance(), powerline_wt);
 				}
 			}
 
@@ -2702,7 +2702,7 @@ void way_builder_t::build_powerline()
 			// modernize the network
 			if( !keep_existing_faster_ways  ||  lt->get_desc()->get_topspeed() < desc->get_topspeed()  ) {
 				build_powerline = true;
-				player_t::add_maintenance( lt->get_owner(),  -lt->get_desc()->get_wartung(), powerline_wt );
+				player_t::add_maintenance( lt->get_owner(),  -lt->get_desc()->get_maintenance(), powerline_wt );
 			}
 		}
 		if (build_powerline) {

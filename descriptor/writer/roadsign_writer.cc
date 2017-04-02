@@ -16,8 +16,11 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 {
 	obj_node_t node(this, 44, &parent);
 
-	uint32                  const cost      = obj.get_int("cost",      500) * 100;
-	uint16                  const min_speed = obj.get_int("min_speed",   0);
+	uint32                 const price      = obj.get_int("cost",      500) * 100;
+	uint16                 const min_speed = obj.get_int("min_speed",   0);
+	sint8                  const offset_left = obj.get_int("offset_left", 14);
+	uint8                  const wtyp = get_waytype(obj.get("waytype"));
+
 	roadsign_desc_t::types const flags     =
 		(obj.get_int("single_way",         0) > 0 ? roadsign_desc_t::ONE_WAY               : roadsign_desc_t::NONE) |
 		(obj.get_int("free_route",         0) > 0 ? roadsign_desc_t::CHOOSE_SIGN           : roadsign_desc_t::NONE) |
@@ -27,8 +30,6 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		(obj.get_int("no_foreground",      0) > 0 ? roadsign_desc_t::ONLY_BACKIMAGE        : roadsign_desc_t::NONE) |
 		(obj.get_int("is_longblocksignal", 0) > 0 ? roadsign_desc_t::SIGN_LONGBLOCK_SIGNAL : roadsign_desc_t::NONE) |
 		(obj.get_int("end_of_choose",      0) > 0 ? roadsign_desc_t::END_OF_CHOOSE_AREA    : roadsign_desc_t::NONE);
-	uint8                   const wtyp      = get_waytype(obj.get("waytype"));
-	sint8                   const offset_left = obj.get_int("offset_left", 14 );
 	
 	uint8 allow_underground = obj.get_int("allow_underground", 0);
 
@@ -90,7 +91,7 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		working_method = one_train_staff;
 	}
 
-	uint32 signal_upgrade_cost = obj.get_int("signal_upgrade_cost", cost); 
+	uint32 signal_upgrade_cost = obj.get_int("signal_upgrade_cost", price); 
 	uint8 upgrade_group = obj.get_int("upgrade_group", 0);
 	uint8 intermediate_block = obj.get_int("intermediate_block", 0);
 	uint8 normal_danger = obj.get_int("normal_danger", 0);
@@ -111,18 +112,18 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// Hajo: write version data
 	node.write_uint16(fp, version,     0);
 	node.write_uint16(fp, min_speed,   2);
-	node.write_uint32(fp, cost,        4);
+	node.write_uint32(fp, price,       4);
 	node.write_uint8 (fp, flags,       8);
 	node.write_uint8 (fp, offset_left, 9);
 	node.write_uint8 (fp, wtyp,        10);
 
-	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
-	intro += obj.get_int("intro_month", 1) - 1;
-	node.write_uint16(fp,          intro,           11);
+	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+	intro_date += obj.get_int("intro_month", 1) - 1;
+	node.write_uint16(fp, intro_date,           11);
 
-	uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
-	retire += obj.get_int("retire_month", 1) - 1;
-	node.write_uint16(fp,          retire,          13);
+	uint16 retire_date = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
+	retire_date += obj.get_int("retire_month", 1) - 1;
+	node.write_uint16(fp, retire_date,          13);
 
 	node.write_uint8(fp, allow_underground, 15);
 	node.write_uint32(fp, signal_group, 16);

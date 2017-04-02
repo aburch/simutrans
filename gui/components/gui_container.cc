@@ -135,7 +135,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 				}
 
 				// Knightly :	inner containers with focusable components may not have a focused component yet
-				//				==> give the inner container a chance to activate the first focusable component
+				//				==> give the inner container a distribution_weight to activate the first focusable component
 				if(  new_focus  &&  new_focus->get_focus()==NULL  ) {
 					event_t ev2 = *ev;
 					translate_event(&ev2, -new_focus->get_pos().x, -new_focus->get_pos().y);

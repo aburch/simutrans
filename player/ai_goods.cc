@@ -640,14 +640,14 @@ bool ai_goods_t::create_simple_rail_transport()
 	clean_marker(platz2,size2);
 
 	way_builder_t bauigel(this);
-	bauigel.init_builder( way_builder_t::schiene|way_builder_t::bot_flag, rail_weg, tunnel_builder_t::get_tunnel_desc(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel.init_builder( way_builder_t::schiene|way_builder_t::bot_flag, rail_weg, tunnel_builder_t::get_tunnel_desc(track_wt,rail_engine->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_topspeed(),welt->get_timeline_year_month()) );
 	bauigel.set_keep_existing_ways(false);
 	// for stations
 	way_builder_t bauigel1(this);
-	bauigel1.init_builder( way_builder_t::schiene|way_builder_t::bot_flag, rail_weg, tunnel_builder_t::get_tunnel_desc(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel1.init_builder( way_builder_t::schiene|way_builder_t::bot_flag, rail_weg, tunnel_builder_t::get_tunnel_desc(track_wt,rail_engine->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_topspeed(),welt->get_timeline_year_month()) );
 	bauigel1.set_keep_existing_ways(false);
 	way_builder_t bauigel2(this);
-	bauigel2.init_builder( way_builder_t::schiene|way_builder_t::bot_flag, rail_weg, tunnel_builder_t::get_tunnel_desc(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel2.init_builder( way_builder_t::schiene|way_builder_t::bot_flag, rail_weg, tunnel_builder_t::get_tunnel_desc(track_wt,rail_engine->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_topspeed(),welt->get_timeline_year_month()) );
 	bauigel2.set_keep_existing_ways(false);
 
 	// first: make plain stations tiles as intended
@@ -695,7 +695,7 @@ bool ai_goods_t::create_simple_rail_transport()
 
 	// now try route with terraforming
 	way_builder_t baumaulwurf(this);
-	baumaulwurf.init_builder( way_builder_t::schiene|way_builder_t::bot_flag|way_builder_t::terraform_flag, rail_weg, tunnel_builder_t::get_tunnel_desc(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+	baumaulwurf.init_builder( way_builder_t::schiene|way_builder_t::bot_flag|way_builder_t::terraform_flag, rail_weg, tunnel_builder_t::get_tunnel_desc(track_wt,rail_engine->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_topspeed(),welt->get_timeline_year_month()) );
 	baumaulwurf.set_keep_existing_ways(false);
 	baumaulwurf.calc_route( starttiles, endtiles );
 
@@ -723,7 +723,7 @@ DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track 
 		koord3d                 tile2 = r.back();
 		if (!starttiles.is_contained(tile1)) sim::swap(tile1, tile2);
 		// No botflag, since we want to connect with the station.
-		bauigel.init_builder( way_builder_t::schiene, rail_weg, tunnel_builder_t::get_tunnel_desc(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
+		bauigel.init_builder( way_builder_t::schiene, rail_weg, tunnel_builder_t::get_tunnel_desc(track_wt,rail_engine->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(track_wt,rail_engine->get_topspeed(),welt->get_timeline_year_month()) );
 		bauigel.calc_straight_route( koord3d(platz1,z1), tile1);
 		bauigel.build();
 		bauigel.calc_straight_route( koord3d(platz2,z2), tile2);
@@ -908,7 +908,7 @@ DBG_MESSAGE("do_ki()","check railway");
 			count_rail=255;	// no cars yet
 			if(  rail_vehicle!=NULL  ) {
 				// if our car is faster: well use slower speed to save money
-				best_rail_speed = min(51, rail_vehicle->get_geschw());
+				best_rail_speed = min(51, rail_vehicle->get_topspeed());
 				//for engine: guess number of cars
 				count_rail = (prod*dist) / (rail_vehicle->get_capacity()*best_rail_speed)+1;
 				// assume the engine weight 100 tons for power needed calculation
@@ -916,7 +916,7 @@ DBG_MESSAGE("do_ki()","check railway");
 //				sint32 power_needed = (long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->get_weight()+rail_vehicle->get_capacity()*freight->get_weight_per_unit()*0.001)));
 				rail_engine = vehicle_search( track_wt, total_weight/1000, best_rail_speed, NULL, wayobj_t::default_oberleitung!=NULL);
 				if(  rail_engine!=NULL  ) {
-					best_rail_speed = min(rail_engine->get_geschw(),rail_vehicle->get_geschw());
+					best_rail_speed = min(rail_engine->get_topspeed(),rail_vehicle->get_topspeed());
 					// find cheapest track with that speed (and no monorail/elevated/tram tracks, please)
 					rail_weg = way_builder_t::weg_search( track_wt, best_rail_speed, welt->get_timeline_year_month(),type_flat );
 					if(  rail_weg!=NULL  ) {
@@ -947,7 +947,7 @@ DBG_MESSAGE("do_ki()","check railway");
 			/* calculate number of cars for road; much easier */
 			count_road=255;	// no cars yet
 			if(  road_vehicle!=NULL  ) {
-				best_road_speed = road_vehicle->get_geschw();
+				best_road_speed = road_vehicle->get_topspeed();
 				// find cheapest road
 				road_weg = way_builder_t::weg_search(road_wt, best_road_speed, road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1);
 				if(  road_weg!=NULL  ) {
@@ -991,7 +991,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				const uint32 tpm = welt->speed_to_tiles_per_month(kmh_to_speed(average_speed));
 				const sint32 profit_per_month = ( (freight_revenue_per_trip - freight_cost_per_trip) * tpm / dist * 2) ;
 
-				cost_rail = rail_weg->get_wartung() - profit_per_month;
+				cost_rail = rail_weg->get_maintenance() - profit_per_month;
 				DBG_MESSAGE("ai_goods_t::do_ki()","Net credits per month for rail transport %.2f (income %.2f)",cost_rail/100.0, profit_per_month/100.0 );
 			}
 
@@ -1012,7 +1012,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				const uint32 tpm = welt->speed_to_tiles_per_month(kmh_to_speed(average_speed));
 				const sint32 profit_per_month = ( (freight_revenue_per_trip - freight_cost_per_trip) * tpm / dist * 2) ;
 
-				cost_road = road_weg->get_wartung() - profit_per_month;
+				cost_road = road_weg->get_maintenance() - profit_per_month;
 				DBG_MESSAGE("ai_goods_t::do_ki()","Net credits per month for road transport %.2f (income %.2f)",cost_road/100.0, profit_per_month/100.0 );
 			}
 
@@ -1072,7 +1072,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				}
 				// just remember the position, where the harbour will be built
 				harbour=platz1;
-				int ships_needed = 1 + (prod*shortest_distance(harbour,start->get_pos().get_2d())) / (ship_vehicle->get_capacity()*max(20,ship_vehicle->get_geschw()));
+				int ships_needed = 1 + (prod*shortest_distance(harbour,start->get_pos().get_2d())) / (ship_vehicle->get_capacity()*max(20,ship_vehicle->get_topspeed()));
 				if(create_ship_transport_vehicle(start,ships_needed)) {
 					bool already_connected = false;
 					const planquadrat_t* pl = welt->access(harbour);
@@ -1120,7 +1120,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				if(count_rail>=3) {
 					if(count_rail<org_count_rail) {
 						// rethink engine
-						int best_rail_speed = min(51, rail_vehicle->get_geschw());
+						int best_rail_speed = min(51, rail_vehicle->get_topspeed());
 						//for engine: guess number of cars
 						sint32 power_needed=(sint32)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*( (rail_vehicle->get_weight()+rail_vehicle->get_capacity()*freight->get_weight_per_unit())*0.001 )));
 						const vehicle_desc_t *v=vehicle_search( track_wt, power_needed, best_rail_speed, NULL, false);

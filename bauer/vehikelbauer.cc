@@ -132,7 +132,7 @@ sint32 vehicle_builder_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 			FOR(slist_tpl<vehicle_desc_t *>, info, typ_fahrzeuge[wtidx]) 
 			{
 				if(info->get_power()>0  &&  info->is_available(monthyear)) {
-					speed_sum += info->get_geschw();
+					speed_sum += info->get_topspeed();
 					num_averages ++;
 				}
 			}
@@ -285,7 +285,7 @@ static bool compare_vehicle_desc(const vehicle_desc_t* a, const vehicle_desc_t* 
 				uint8 a_engine = (b->get_capacity() + b->get_power() == 0 ? (uint8)vehicle_desc_t::steam : b->get_engine_type());
 				cmp = b_engine - a_engine;
 				if (cmp == 0) {
-					cmp = a->get_geschw() - b->get_geschw();
+					cmp = a->get_topspeed() - b->get_topspeed();
 					if (cmp == 0) {
 						// put tender at the end of the list ...
 						int b_power = (a->get_power() == 0 ? 0x7FFFFFF : a->get_power());
@@ -415,7 +415,7 @@ const vehicle_desc_t *vehicle_builder_t::vehicle_search( waytype_t wt, const uin
 						difference += best.power < test.power ? -10 : 10;
 					}
 					// it is faster? (although we support only up to 120km/h for goods)
-					difference += (desc->get_geschw() < test_desc->get_geschw())? -10 : 10;
+					difference += (desc->get_topspeed() < test_desc->get_topspeed())? -10 : 10;
 					// it is cheaper? (not so important)
 					difference += (desc->get_value() > test_desc->get_value())? -5 : 5;
 					// add some malus for obsolete vehicles
@@ -437,11 +437,11 @@ const vehicle_desc_t *vehicle_builder_t::vehicle_search( waytype_t wt, const uin
 					continue;
 				}
 				// finally, we might be able to use this vehicle
-				sint32 speed = test_desc->get_geschw();
+				sint32 speed = test_desc->get_topspeed();
 				uint32 max_weight = test.power/( (speed*speed)/2500 + 1 );
 
 				// we found a useful engine
-				test.index = (test.power*100)/max(test_desc->get_running_cost(), 1) + test_desc->get_geschw() - (sint16)test_desc->get_weight() - (sint32)(test_desc->get_value()/25000);
+				test.index = (test.power*100)/max(test_desc->get_running_cost(), 1) + test_desc->get_topspeed() - (sint16)test_desc->get_weight() - (sint32)(test_desc->get_value()/25000);
 				// too slow?
 				if(speed < target_speed) {
 					test.index -= 250;
@@ -549,7 +549,7 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 
 					sint32 difference=0;	// smaller is better
 					// it is faster? (although we support only up to 120km/h for goods)
-					difference += (desc->get_geschw() < test_desc->get_geschw())? -10 : 10;
+					difference += (desc->get_topspeed() < test_desc->get_topspeed())? -10 : 10;
 					// it is cheaper? (not so important)
 					difference += (desc->get_value() > test_desc->get_value())? -5 : 5;
 					// add some malus for obsolete vehicles
@@ -568,11 +568,11 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 			}
 			else {
 				// finally, we might be able to use this vehicle
-				sint32 speed = test_desc->get_geschw();
+				sint32 speed = test_desc->get_topspeed();
 				uint32 max_weight = power/( (speed*speed)/2500 + 1 );
 
 				// we found a useful engine
-				sint32 current_index = (power * 100) / (1 + test_desc->get_running_cost()) + test_desc->get_geschw() - (sint16)test_desc->get_weight() - (sint32)(test_desc->get_value()/25000);
+				sint32 current_index = (power * 100) / (1 + test_desc->get_running_cost()) + test_desc->get_topspeed() - (sint16)test_desc->get_weight() - (sint32)(test_desc->get_value()/25000);
 				// too slow?
 				if(speed < target_speed) {
 					current_index -= 250;

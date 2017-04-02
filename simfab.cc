@@ -958,7 +958,7 @@ fabrik_t::~fabrik_t()
 		
 		if (desc != NULL)
 		{
-			welt->decrease_actual_industry_density(100 / desc->get_chance());
+			welt->decrease_actual_industry_density(100 / desc->get_distribution_weight());
 		}
 
 		// Disconnect this factory from all chains.
@@ -1430,7 +1430,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	if(file->get_extended_version() < 9 && file->get_version() < 110006)
 	{
 		// Necessary to ensure that the industry density is correct after re-loading a game.
-		welt->increase_actual_industry_density(100 / desc->get_chance());
+		welt->increase_actual_industry_density(100 / desc->get_distribution_weight());
 	}
 
 	if(  file->get_version() >= 110005  ) {
@@ -1506,7 +1506,7 @@ void fabrik_t::smoke() const
 		welt->sync_way_eyecandy.add( smoke );
 	}
 	// maybe sound?
-	if (desc->get_sound() != NO_SOUND  &&  	welt->get_ticks()>last_sound_ms + desc->get_sound_intervall_ms()) {
+	if (desc->get_sound() != NO_SOUND  &&  	welt->get_ticks()>last_sound_ms + desc->get_sound_interval_ms()) {
 		welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound());
 	}
 }
@@ -1827,7 +1827,7 @@ void fabrik_t::step(uint32 delta_t)
 			// we produced some real quantity => smoke
 			smoke();
 
-			// Knightly : chance to expand every 256 rounds of activities, after which activity count will return to 0 (overflow behaviour)
+			// Knightly : distribution_weight to expand every 256 rounds of activities, after which activity count will return to 0 (overflow behaviour)
 			if(  ++activity_count==0  ) {
 				if(  desc->get_field_group()  ) {
 					if(  fields.get_count()<desc->get_field_group()->get_max_fields()  ) {
@@ -1838,7 +1838,7 @@ void fabrik_t::step(uint32 delta_t)
 				else {
 					if(  times_expanded<desc->get_expand_times()  ) {
 						if(  simrand(10000, "fabrik_t::step (expand 1)")<desc->get_expand_probability()  ) {
-							set_base_production( prodbase + desc->get_expand_minumum() + simrand( desc->get_expand_range(), "fabrik_t::step (expand 2)" ) );
+							set_base_production( prodbase + desc->get_expand_minimum() + simrand( desc->get_expand_range(), "fabrik_t::step (expand 2)" ) );
 							++times_expanded;
 						}
 					}
@@ -2216,7 +2216,7 @@ void fabrik_t::new_month()
 	calc_max_intransit_percentages();
 
 	// Check to see whether factory is obsolete.
-	// If it is, give it a chance of being closed down.
+	// If it is, give it a distribution_weight of being closed down.
 	// @author: jamespetts
 
 	if(welt->use_timeline() && desc->get_building()->get_retire_year_month() < welt->get_timeline_year_month())
@@ -2233,8 +2233,8 @@ void fabrik_t::new_month()
 		{
 			uint32 proportion = (difference * 100) / max_difference;
 			proportion *= 75; //Set to percentage value, but take into account fact will be frequently checked (would otherwise be * 100 - reduced to take into account frequency of checking)
-			const uint32 chance = (simrand(1000000, "void fabrik_t::new_month()"));
-			if(chance <= proportion)
+			const uint32 distribution_weight = (simrand(1000000, "void fabrik_t::new_month()"));
+			if(distribution_weight <= proportion)
 			{
 				closedown = true;
 			}
@@ -2250,7 +2250,7 @@ void fabrik_t::new_month()
 				// This factory has some upgrades: consider upgrading.
 				minivec_tpl<const factory_desc_t*> upgrade_list(upgrades_count);
 				const uint32 max_density = (welt->get_target_industry_density() * 150) / 100;
-				const uint32 adjusted_density = welt->get_actual_industry_density() - (100 / desc->get_chance());
+				const uint32 adjusted_density = welt->get_actual_industry_density() - (100 / desc->get_distribution_weight());
 				for(uint16 i = 0; i < upgrades_count; i ++)
 				{
 					// Check whether any upgrades are suitable.
@@ -2272,7 +2272,7 @@ void fabrik_t::new_month()
 						fab->get_building()->get_size() == desc->get_building()->get_size() &&
 						fab->get_building()->get_intro_year_month() <= welt->get_timeline_year_month() &&
 						fab->get_building()->get_retire_year_month() >= welt->get_timeline_year_month() &&
-						adjusted_density < (max_density + (100 / fab->get_chance())))
+						adjusted_density < (max_density + (100 / fab->get_distribution_weight())))
 					{
 						upgrade_list.append_unique(fab);
 					}
@@ -2284,16 +2284,16 @@ void fabrik_t::new_month()
 					uint32 total_density = 0;
 					FOR(minivec_tpl<const factory_desc_t*>, upgrade, upgrade_list)
 					{
-						total_density += (100 / upgrade->get_chance());
+						total_density += (100 / upgrade->get_distribution_weight());
 					}
 					const uint32 average_density = total_density / list_count;
 					const uint32 probability = 1 / ((100 - ((adjusted_density + average_density) / max_density)) * upgrade_list.get_count()) / 100;
-					const uint32 chance = simrand(probability, "void fabrik_t::new_month()");
-					if(chance < list_count)
+					const uint32 distribution_weight = simrand(probability, "void fabrik_t::new_month()");
+					if(distribution_weight < list_count)
 					{
 						// All the conditions are met: upgrade.
-						const int old_distributionweight = desc->get_chance();
-						const factory_desc_t* new_type = upgrade_list[chance];
+						const int old_distributionweight = desc->get_distribution_weight();
+						const factory_desc_t* new_type = upgrade_list[distribution_weight];
 						welt->decrease_actual_industry_density(100 / old_distributionweight);
 						uint32 percentage = new_type->get_field_group() ? (new_type->get_field_group()->get_max_fields() * 100) / desc->get_field_group()->get_max_fields() : 0;
 						const uint16 adjusted_number_of_fields = percentage ? (fields.get_count() * percentage) / 100 : 0;
@@ -2410,7 +2410,7 @@ void fabrik_t::new_month()
 						update_scaled_mail_demand();
 						update_prodfactor_pax();
 						update_prodfactor_mail();
-						welt->increase_actual_industry_density(100 / new_type->get_chance());
+						welt->increase_actual_industry_density(100 / new_type->get_distribution_weight());
 						sprintf(buf, translator::translate("Industry:\n%s\nhas been upgraded\nto industry:\n%s."), translator::translate(old_name), translator::translate(new_name));
 						welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, CITY_KI, skinverwaltung_t::neujahrsymbol->get_image_id(0));
 						return;

@@ -56,7 +56,7 @@ bool pedestrian_t::successfully_loaded()
 			temp_liste.insert_ordered(i.value, compare_fussgaenger_desc);
 		}
 		FOR(vector_tpl<pedestrian_desc_t const*>, const i, temp_liste) {
-			list.append(i, i->get_chance());
+			list.append(i, i->get_distribution_weight());
 		}
 	}
 	return true;
@@ -294,7 +294,7 @@ void pedestrian_t::check_timeline_pedestrians()
 	{
 		if (fd->is_available(world()->get_timeline_year_month()))
 		{
-			current_pedestrians.append(fd, fd->get_chance()); 
+			current_pedestrians.append(fd, fd->get_distribution_weight()); 
 		}
 	}
 }

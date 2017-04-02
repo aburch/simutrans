@@ -3170,7 +3170,7 @@ sint64 haltestelle_t::calc_maintenance() const
 		if (gebaeude_t* const gb = i.grund->find<gebaeude_t>())
 		{
 			const building_desc_t* desc = gb->get_tile()->get_desc();
-			if(desc->get_base_maintenance() == COST_MAGIC)
+			if(desc->get_base_maintenance() == PRICE_MAGIC)
 			{
 				// Default value - no specific maintenance set. Use the old method
 				maintenance += welt->get_settings().maint_building * desc->get_level();
@@ -3206,7 +3206,7 @@ bool haltestelle_t::make_public_and_join(player_t *player)
 			{
 				const building_desc_t* desc = gb->get_tile()->get_desc();
 				sint32 costs;
-				if(desc->get_base_maintenance() == COST_MAGIC)
+				if(desc->get_base_maintenance() == PRICE_MAGIC)
 				{
 					// Default value - no specific maintenance set. Use the old method
 					costs = welt->get_settings().maint_building * desc->get_level();
@@ -3246,7 +3246,7 @@ bool haltestelle_t::make_public_and_join(player_t *player)
 				player_t *gb_player = gb->get_owner();
 				const building_desc_t* desc = gb->get_tile()->get_desc();
 				sint32 costs;
-				if(desc->get_base_maintenance() == COST_MAGIC)
+				if(desc->get_base_maintenance() == PRICE_MAGIC)
 				{
 					// Default value - no specific maintenance set. Use the old method
 					costs = welt->get_settings().maint_building * desc->get_level();
@@ -3331,7 +3331,7 @@ bool haltestelle_t::make_public_and_join(player_t *player)
 				if(public_owner!=gb_player) {
 					sint32 costs;
 
-					if(gb->get_tile()->get_desc()->get_base_maintenance() == COST_MAGIC)
+					if(gb->get_tile()->get_desc()->get_base_maintenance() == PRICE_MAGIC)
 					{
 						// Default value - no specific maintenance set. Use the old method
 						costs = welt->get_settings().maint_building * gb->get_tile()->get_desc()->get_level();
@@ -3639,7 +3639,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			const building_desc_t *desc=gb ? gb->get_tile()->get_desc():NULL;
 			if(desc) {
 				add_grund( gr, false /*do not relink factories now*/ );
-				// verbinde_fabriken will be called in laden_abschliessen
+				// verbinde_fabriken will be called in finish_rd
 			}
 			else {
 				dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!", k.get_str() );

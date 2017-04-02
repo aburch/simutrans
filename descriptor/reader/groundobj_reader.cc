@@ -56,14 +56,22 @@ obj_desc_t * groundobj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->number_of_seasons = decode_uint8(p);
 		desc->trees_on_top = (bool)decode_uint8(p);
 		desc->speed = kmh_to_speed( decode_uint16(p) );
-		desc->waytype = (waytype_t)decode_uint16(p);
-		desc->cost_removal = decode_sint32(p);
+		desc->wtyp = (waytype_t)decode_uint16(p);
+		desc->price = decode_sint32(p);
 	}
 	else {
 		// old node, version 0, never existed
 		dbg->fatal( "groundobj_reader_t::read_node()", "version %i not supported!", version );
 	}
-	DBG_DEBUG("groundobj_reader_t::read_node()", "climates=$%X, seasons %i, weight=%i, speed=%i, ways=%i, cost=%d", desc->allowed_climates, desc->number_of_seasons, desc->distribution_weight, speed_to_kmh(desc->speed), desc->waytype, desc->cost_removal);
+	DBG_DEBUG("groundobj_reader_t::read_node()", "version=%i, climates=$%X, seasons=%i, chance=%i, speed=%i, ways=%i, cost=%d, trees_on_top=%i",
+		version,
+		desc->allowed_climates,
+		desc->number_of_seasons,
+		desc->distribution_weight,
+		speed_to_kmh(desc->speed),
+		desc->wtyp,
+		desc->price,
+		desc->trees_on_top);
 
 	return desc;
 }

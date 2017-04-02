@@ -98,7 +98,7 @@ float32e8_t vehicle_desc_t::get_power_force_ratio() const
 
 		//case water_wt:
 			// Ships are constant force machines at all speeds, but the pak sets are balanced for constant power. 
-			//return float32e8_t(get_geschw() * 10, 36);
+			//return float32e8_t(get_topspeed() * 10, 36);
 
 		case air_wt: 
 			// Aircraft are constant force machines at all speeds, but the pak sets are balanced for constant power. 
@@ -228,11 +228,11 @@ uint16 vehicle_desc_t::get_obsolete_year_month(const karte_t *welt) const
 { 
 	if(increase_maintenance_after_years)
 	{
-		return obsolete_date + (12 * increase_maintenance_after_years); 
+		return retire_date + (12 * increase_maintenance_after_years); 
 	}
 	else
 	{
-		return obsolete_date + (welt->get_settings().get_default_increase_maintenance_after_years((waytype_t)wt) * 12);
+		return retire_date + (welt->get_settings().get_default_increase_maintenance_after_years((waytype_t)wtyp) * 12);
 	}
 }
 
