@@ -1,3 +1,6 @@
+	FIX: crash when resizing isometric minimap
+	FIX: problems with scrolled lists
+
 Release of 120.2.2: (r8163 on 31-3-2017):
 	ADD: Name filter in depot window
 	FIX: Combo boxes now work much more reliable
