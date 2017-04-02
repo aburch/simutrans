@@ -80,10 +80,10 @@ void export_tiles(HSQUIRRELVM vm)
 	/**
 	 * Constructor. Returns tile at particular 3d coordinate.
 	 * If not tile is found, it returns the ground tile.
-	 * Raises error, if (@p x, @p y) coordinate are out-of-range.
+	 * Raises error, if (@p x, @p y) coordinates are out-of-range.
 	 * @param x x-coordinate
-	 * @param y z-coordinate
-	 * @param y z-coordinate
+	 * @param y y-coordinate
+	 * @param z z-coordinate
 	 * @typemask (integer,integer,integer)
 	 */
 	// actually defined simutrans/script/scenario_base.nut
@@ -107,7 +107,7 @@ void export_tiles(HSQUIRRELVM vm)
 	 * Queries tile type.
 	 * @returns true if tile is an ocean tile
 	 */
-	register_method(vm, &grund_t::ist_wasser, "is_water");
+	register_method(vm, &grund_t::is_water, "is_water");
 
 	/**
 	 * Queries tile type.

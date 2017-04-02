@@ -36,31 +36,31 @@
 
 
 /* The flesh for the place with road for headquarters searcher ... */
-bool ai_bauplatz_mit_strasse_sucher_t::strasse_bei(sint16 x, sint16 y) const {
+bool ai_building_place_with_road_finder::is_road_at(sint16 x, sint16 y) const {
 	grund_t *bd = welt->lookup_kartenboden( koord(x,y) );
 	return bd && bd->hat_weg(road_wt);
 }
 
 
-bool ai_bauplatz_mit_strasse_sucher_t::ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
-	if(bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)) {
+bool ai_building_place_with_road_finder::is_area_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const {
+	if(building_placefinder_t::is_area_ok(pos, b, h, cl)) {
 		// check to not built on a road
 		int i, j;
 		for(j=pos.x; j<pos.x+b; j++) {
 			for(i=pos.y; i<pos.y+h; i++) {
-				if(strasse_bei(j,i)) {
+				if(is_road_at(j,i)) {
 					return false;
 				}
 			}
 		}
 		// now check for road connection
 		for(i = pos.y; i < pos.y + h; i++) {
-			if(strasse_bei(pos.x - 1, i) ||  strasse_bei(pos.x + b, i)) {
+			if(is_road_at(pos.x - 1, i) ||  is_road_at(pos.x + b, i)) {
 				return true;
 			}
 		}
 		for(i = pos.x; i < pos.x + b; i++) {
-			if(strasse_bei(i, pos.y - 1) ||  strasse_bei(i, pos.y + h)) {
+			if(is_road_at(i, pos.y - 1) ||  is_road_at(i, pos.y + h)) {
 				return true;
 			}
 		}
@@ -172,7 +172,7 @@ bool ai_t::call_general_tool( int tool, koord k, const char *param )
 /* returns ok, of there is a suitable space found
  * only check into two directions, the ones given by dir
  */
-bool ai_t::suche_platz(koord pos, koord &size, koord *dirs)
+bool ai_t::find_place(koord pos, koord &size, koord *dirs)
 {
 	sint16 length = abs( size.x + size.y );
 
@@ -192,7 +192,7 @@ bool ai_t::suche_platz(koord pos, koord &size, koord *dirs)
 			grund_t *gr = welt->lookup_kartenboden(  pos + (dirs[dir]*i)  );
 			if(  gr == NULL
 				||  gr->get_halt().is_bound()
-				||  !welt->can_ebne_planquadrat(this, pos, start_z )
+				||  !welt->can_flatten_tile(this, pos, start_z )
 				||  !gr->ist_natur()
 				||  gr->kann_alle_obj_entfernen(this) != NULL
 				||  gr->get_hoehe() < welt->get_water_hgt( pos + (dirs[dir] * i) )  ) {
@@ -216,7 +216,7 @@ bool ai_t::suche_platz(koord pos, koord &size, koord *dirs)
  * also try "nicest" place first
  * @author HJ & prissi
  */
-bool ai_t::suche_platz(koord &start, koord &size, koord target, koord off)
+bool ai_t::find_place(koord &start, koord &size, koord target, koord off)
 {
 	// distance of last found point
 	int dist=0x7FFFFFFF;
@@ -235,7 +235,7 @@ bool ai_t::suche_platz(koord &start, koord &size, koord target, koord off)
 		dir[1] = koord( 0, sgn(target.y-start.y) );
 	}
 
-	DBG_MESSAGE("ai_t::suche_platz()","at (%i,%i) for size (%i,%i)",xpos,ypos,off.x,off.y);
+	DBG_MESSAGE("ai_t::find_place()","at (%i,%i) for size (%i,%i)",xpos,ypos,off.x,off.y);
 	int maxy = min( welt->get_size().y, ypos + off.y + cov );
 	int maxx = min( welt->get_size().x, xpos + off.x + cov );
 	for (int y = max(0,ypos-cov);  y < maxy;  y++) {
@@ -247,7 +247,7 @@ bool ai_t::suche_platz(koord &start, koord &size, koord target, koord off)
 			}
 			// thus now check them
 			int current_dist = shortest_distance(platz,target);
-			if(  current_dist<dist  &&  suche_platz(platz,size,dir)  ){
+			if(  current_dist<dist  &&  find_place(platz,size,dir)  ){
 				// we will take the shortest route found
 				start = platz;
 				dist = shortest_distance(platz,target);
@@ -255,13 +255,13 @@ bool ai_t::suche_platz(koord &start, koord &size, koord target, koord off)
 			else {
 				koord test(x,y);
 				if(  get_halt(test).is_bound()  ) {
-DBG_MESSAGE("ai_t::suche_platz()","Search around stop at (%i,%i)",x,y);
+DBG_MESSAGE("ai_t::find_place()","Search around stop at (%i,%i)",x,y);
 
 					// we are on a station that belongs to us
 					int xneu=x-1, yneu=y-1;
 					platz = koord(xneu,y);
 					current_dist = shortest_distance(platz,target);
-					if(  current_dist<dist  &&  suche_platz(platz,size,dir)  ){
+					if(  current_dist<dist  &&  find_place(platz,size,dir)  ){
 						// we will take the shortest route found
 						start = platz;
 						dist = current_dist;
@@ -269,7 +269,7 @@ DBG_MESSAGE("ai_t::suche_platz()","Search around stop at (%i,%i)",x,y);
 
 					platz = koord(x,yneu);
 					current_dist = shortest_distance(platz,target);
-					if(  current_dist<dist  &&  suche_platz(platz,size,dir)  ){
+					if(  current_dist<dist  &&  find_place(platz,size,dir)  ){
 						// we will take the shortest route found
 						start = platz;
 						dist = current_dist;
@@ -280,7 +280,7 @@ DBG_MESSAGE("ai_t::suche_platz()","Search around stop at (%i,%i)",x,y);
 					yneu = y+1;
 					platz = koord(xneu,y);
 					current_dist = shortest_distance(platz,target);
-					if(  current_dist<dist  &&  suche_platz(platz,size,dir)  ){
+					if(  current_dist<dist  &&  find_place(platz,size,dir)  ){
 						// we will take the shortest route found
 						start = platz;
 						dist = current_dist;
@@ -288,7 +288,7 @@ DBG_MESSAGE("ai_t::suche_platz()","Search around stop at (%i,%i)",x,y);
 
 					platz = koord(x,yneu);
 					current_dist = shortest_distance(platz,target);
-					if(  current_dist<dist  &&  suche_platz(platz,size,dir)  ){
+					if(  current_dist<dist  &&  find_place(platz,size,dir)  ){
 						// we will take the shortest route found
 						start = platz;
 						dist = current_dist;
@@ -357,7 +357,7 @@ void ai_t::set_marker( koord place, koord size )
 bool ai_t::built_update_headquarter()
 {
 	// find next level
-	const building_desc_t* desc = hausbauer_t::get_headquarter(get_headquarter_level(), welt->get_timeline_year_month());
+	const building_desc_t* desc = hausbauer_t::get_headquarter(get_headquarters_level(), welt->get_timeline_year_month());
 	// is the a suitable one?
 	if(desc!=NULL) {
 		// cost is negative!
@@ -384,13 +384,13 @@ bool ai_t::built_update_headquarter()
 				stadt_t *st = NULL;
 				FOR(vector_tpl<halthandle_t>, const halt, haltestelle_t::get_alle_haltestellen()) {
 					if(  halt->get_owner()==this  ) {
-						st = welt->suche_naechste_stadt(halt->get_basis_pos());
+						st = welt->find_nearest_city(halt->get_basis_pos());
 						break;
 					}
 				}
 				if(st) {
 					bool is_rotate=desc->get_all_layouts()>1;
-					place = ai_bauplatz_mit_strasse_sucher_t(welt).suche_platz(st->get_pos(), desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), &is_rotate);
+					place = ai_building_place_with_road_finder(welt).find_place(st->get_pos(), desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), &is_rotate);
 				}
 			}
 			const char *err=NOTICE_UNSUITABLE_GROUND;
@@ -445,7 +445,7 @@ koord ai_t::find_shore(koord start, koord end) const
 	for (i = 0; i <= steps; i++) {
 		koord next(xp>>16,yp>>16);
 		if(next!=last) {
-			if(!welt->lookup_kartenboden(next)->ist_wasser()) {
+			if(!welt->lookup_kartenboden(next)->is_water()) {
 				last = next;
 			}
 		}
@@ -475,7 +475,7 @@ bool ai_t::find_harbour(koord &start, koord &size, koord target)
 					koord dir[2] = { zv, koord(zv.y,zv.x) };
 					koord platz = k+zv;
 					int current_dist = shortest_distance(k,target);
-					if(  current_dist<dist  &&  suche_platz(platz,size,dir)  ){
+					if(  current_dist<dist  &&  find_place(platz,size,dir)  ){
 						// we will take the shortest route found
 						start = k;
 						dist = current_dist;
@@ -501,7 +501,7 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	clean_marker(platz1,size1);
 	clean_marker(platz2,size2);
 
-	if(  !(welt->ebne_planquadrat( this, platz1, welt->lookup_kartenboden(platz1)->get_hoehe() )  &&  welt->ebne_planquadrat( this, platz2, welt->lookup_kartenboden(platz2)->get_hoehe() ))  ) {
+	if(  !(welt->flatten_tile( this, platz1, welt->lookup_kartenboden(platz1)->get_hoehe() )  &&  welt->flatten_tile( this, platz2, welt->lookup_kartenboden(platz2)->get_hoehe() ))  ) {
 		// no flat land here?!?
 		return false;
 	}

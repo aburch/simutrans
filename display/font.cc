@@ -126,7 +126,7 @@ static sint32 dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int ch
 			data[CHARACTER_LEN*char_nr + CHARACTER_LEN-2] = start_h;
 			data[CHARACTER_LEN*char_nr + CHARACTER_LEN-1] = g_width;
 			if (d_width == -1) {
-#ifdef DEBUG
+#ifdef MSG_LEVEL
 				// no screen width: should not happen, but we can recover
 				fprintf(stderr, "BDF warning: %i has no screen width assigned!\n", char_nr);
 #endif

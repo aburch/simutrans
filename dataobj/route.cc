@@ -896,7 +896,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 				k->count = tmp->count+1;
 				k->jps_ribi = ribi_t::all;
 
-				if (use_jps  &&  to->ist_wasser()) {
+				if (use_jps  &&  to->is_water()) {
 					// only check previous direction plus directions not available on this tile
 					// if going straight only check straight direction
 					// if going diagonally check both directions that generate this diagonal
@@ -944,7 +944,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 			// debug heuristics
 			if (tmp->f > best) {
 				uint32 dist = calc_distance( tmp->gr->get_pos(), ziel);
-				dbg->error("route_t::intern_calc_route()", "Problem with heuristic:  from %s to %s at %s, best = %d, cost = %d, heur = %d, dist = %d, turns = %d\n",
+				dbg->warning("route_t::intern_calc_route()", "Problem with heuristic:  from %s to %s at %s, best = %d, cost = %d, heur = %d, dist = %d, turns = %d\n",
 						    start.get_str(), ziel.get_fullstr(), tmp->gr->get_pos().get_2d().get_str(), best, tmp->g, tmp->f, dist, tmp->f - tmp->g - dist);
 			}
 #endif
@@ -1039,7 +1039,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 					koord3d pos = mail.back() + koord(next);
 					ok = false;
 					if (grund_t *gr = welt->lookup(pos)) {
-						if (gr->ist_wasser()) {
+						if (gr->is_water()) {
 							ok = true;
 							mail.append(pos);
 						}

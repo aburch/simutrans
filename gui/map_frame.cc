@@ -264,7 +264,7 @@ void map_frame_t::update_factory_legend()
 			minivec_tpl<uint8> colours;
 			FOR(vector_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
 				factory_desc_t const& d = *f->get_desc();
-				if(  d.get_chance() > 0  ) {
+				if(  d.get_distribution_weight() > 0  ) {
 					if( colours.append_unique(d.get_kennfarbe()) ) {
 						std::string const label( translator::translate(d.get_name()) );
 						legend.append_unique( legend_entry_t(label, d.get_kennfarbe()) );
@@ -275,7 +275,7 @@ void map_frame_t::update_factory_legend()
 		else {
 			FOR(stringhashtable_tpl<factory_desc_t const*>, const& i, factory_builder_t::get_factory_table()) {
 				factory_desc_t const& d = *i.value;
-				if ( d.get_chance() > 0 ) {
+				if ( d.get_distribution_weight() > 0 ) {
 					std::string const label(translator::translate(d.get_name()));
 					legend.append_unique( legend_entry_t(label, d.get_kennfarbe()) );
 				}

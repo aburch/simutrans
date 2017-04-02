@@ -213,6 +213,10 @@
 " Gareth Bull", "",
 " Colin Taft", "",
 " Tom Tait", "", 
+" YleArkisto", "", 
+" Arnaud Coutancier", "", 
+" Sandeep Kurissery", ""
+" The Bloke 33", "", 
 "","",
 "Translation:","",
 "","",

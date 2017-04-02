@@ -20,7 +20,7 @@ endif
 
 ifeq ($(OSTYPE),amiga)
   STD_LIBS ?= -lunix -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
-  CFLAGS += -mcrt=newlib -DUSE_C -DSIM_BIG_ENDIAN -gstabs+
+  CFLAGS += -mcrt=newlib -DSIM_BIG_ENDIAN -gstabs+
   LDFLAGS += -Bstatic -non_shared
 else
 # BeOS (obsolete)
@@ -90,6 +90,9 @@ else
 endif
 
 ifdef DEBUG
+	ifndef MSG_LEVEL
+		MSG_LEVEL = 3
+	endif
   ifeq ($(shell expr $(DEBUG) \>= 1), 1)
     CFLAGS += -g -DDEBUG
   endif
@@ -109,6 +112,9 @@ endif
 
 ifneq ($(PROFILE),)
   CFLAGS  += -pg -DPROFILE
+  ifdef MSG_LEVEL
+	CFLAGS += -DMSG_LEVEL=$(MSG_LEVEL)
+	endif
   ifneq ($(PROFILE), 2)
     CFLAGS  += -fno-inline -fno-schedule-insns
   endif
@@ -427,7 +433,7 @@ SOURCES += simticker.cc
 SOURCES += simtool.cc
 SOURCES += simware.cc
 SOURCES += simworld.cc
-SOURCES += sucher/platzsucher.cc
+SOURCES += finder/placefinder.cc
 SOURCES += unicode.cc
 SOURCES += utils/cbuffer_t.cc
 SOURCES += utils/csv.cc
@@ -491,8 +497,8 @@ ifeq ($(BACKEND),sdl)
   endif
   ifeq ($(SDL_CONFIG),)
     ifeq ($(OSTYPE),mac)
-      SDL_CFLAGS  := -I/System/Libraries/Frameworks/SDL/Headers -Dmain=SDL_main
-      SDL_LDFLAGS := -framework SDL -framework Cocoa -I/System/Libraries/Frameworks/SDL/Headers SDLMain.m
+      SDL_CFLAGS  := -I/Library/Frameworks/SDL.framework/Headers -Dmain=SDL_main
+      SDL_LDFLAGS := -framework SDL -framework Cocoa -I/Library/Frameworks/SDL.framework/Headers OSX/SDLMain.m
     else
       SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
       SDL_LDFLAGS := -lSDLmain -lSDL

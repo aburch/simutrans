@@ -233,7 +233,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/// townhall
 	enum_slot(vm, "townhall", (uint8)building_desc_t::townhall, true);
 	/// company headquarters
-	enum_slot(vm, "headquarter", (uint8)building_desc_t::headquarter, true);
+	enum_slot(vm, "headquarters", (uint8)building_desc_t::headquarters, true);
 	/// harbour
 	enum_slot(vm, "harbour", (uint8)building_desc_t::dock, true);
 	/// harbour without a slope (buildable on flat ground beaches)

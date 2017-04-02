@@ -43,7 +43,7 @@ public:
 	scr_coord_val w;  ///< width of data[] image
 	scr_coord_val h;  ///< height of data[] image
 	image_id imageid; ///< set by register_image()
-	uint8 zoomable;   ///< some image may not be zoomed i.e. icons
+	uint8 zoomable;   ///< some images may not be zoomed i.e. icons
 	PIXVAL *data;     ///< RLE encoded image data
 
 	image_t(size_t len_ = 0) : data(NULL)

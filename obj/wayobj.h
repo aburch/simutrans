@@ -15,7 +15,6 @@
 #include "../boden/grund.h"
 #include "../dataobj/ribi.h"
 #include "../descriptor/way_obj_desc.h"
-#include "../tpl/vector_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
 
 class player_t;

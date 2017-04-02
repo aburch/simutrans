@@ -5,7 +5,7 @@
 void obj_desc_timelined_t::calc_checksum(checksum_t *chk) const
 {
 	chk->input(intro_date);
-	chk->input(obsolete_date);
+	chk->input(retire_date);
 }
 
 
@@ -14,7 +14,7 @@ void obj_desc_transport_related_t::calc_checksum(checksum_t *chk) const
 	obj_desc_timelined_t::calc_checksum(chk);
 	chk->input(base_maintenance);
 	chk->input(base_cost);
-	chk->input(wt);
+	chk->input(wtyp);
 	chk->input(topspeed);
 	chk->input(topspeed-topspeed_gradient_1);
 	chk->input(topspeed-topspeed_gradient_2);

@@ -604,7 +604,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 	static monorailboden_t to_dummy(koord3d::invalid, slope_t::flat);
 	static monorailboden_t from_dummy(koord3d::invalid, slope_t::flat);
 
-	const sint8 altitude = max(from->get_pos().z, to->get_pos().z) - welt->get_grundwasser();
+	const sint8 altitude = max(from->get_pos().z, to->get_pos().z) - welt->get_groundwater();
 	const sint8 max_altitude = desc->get_max_altitude();
 	if(max_altitude > 0 && altitude > max_altitude)
 	{
@@ -802,7 +802,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 			const weg_t *str=to->get_weg(road_wt);
 
 			// we allow connection to any road
-			ok = (str  ||  !fundament)  &&  !to->ist_wasser();
+			ok = (str  ||  !fundament)  &&  !to->is_water();
 			if(!ok) {
 				return false;
 			}
@@ -833,7 +833,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 			}
 			// ok, regular construction here
 			// if no way there: check for right ground type, otherwise check owner
-			ok = sch == NULL ? (!fundament && !to->ist_wasser()) : check_owner(sch->get_owner(),player) || check_access(sch, player);
+			ok = sch == NULL ? (!fundament && !to->is_water()) : check_owner(sch->get_owner(),player) || check_access(sch, player);
 			if(!ok) {
 				return false;
 			}
@@ -860,7 +860,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 			const weg_t *sch=to->get_weg(track_wt);
 			// roads are checked in check_crossing
 			// if no way there: check for right ground type, otherwise check owner
-			ok = sch == NULL ? (!fundament && !to->ist_wasser()) : check_owner(sch->get_owner(),player) || check_access(sch, player);
+			ok = sch == NULL ? (!fundament && !to->is_water()) : check_owner(sch->get_owner(),player) || check_access(sch, player);
 			// tram track allowed in road tunnels, but only along existing roads / tracks
 			if(from!=to) {
 				if(from->ist_tunnel()) {
@@ -888,7 +888,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 		break;
 
 		case leitung:
-			ok = !to->ist_wasser()  &&  (to->get_weg(air_wt)==NULL);
+			ok = !to->is_water()  &&  (to->get_weg(air_wt)==NULL);
 			ok &= !(to->ist_tunnel() && to->hat_wege());
 			if(to->get_weg_nr(0)!=NULL) {
 				// only 90 deg crossings, only a single way
@@ -932,7 +932,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 			ok = canal == NULL ? !fundament : check_owner(canal->get_owner(), player) || check_access(canal, player);
 			// calculate costs
 			if(ok) {
-				*costs = to->ist_wasser() ||  canal  ? s.way_count_straight : s.way_count_leaving_road; // prefer water very much
+				*costs = to->is_water() ||  canal  ? s.way_count_straight : s.way_count_leaving_road; // prefer water very much
 				if(to->get_weg_hang()!=0  &&  !to_flat) {
 					*costs += s.way_count_slope * 2;
 				}
@@ -941,7 +941,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 		}
 
 		case river:
-			if(  to->ist_wasser()  ) {
+			if(  to->is_water()  ) {
 				ok = true;
 				// do not care while in ocean
 				*costs = 1;
@@ -967,7 +967,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 					// cannot go over the end of a runway with a taxiway
 					return false;
 				}
-				ok = !to->ist_wasser() && (w  ||  !to->hat_wege())  &&  to->find<leitung_t>()==NULL  &&  !fundament;
+				ok = !to->is_water() && (w  ||  !to->hat_wege())  &&  to->find<leitung_t>()==NULL  &&  !fundament;
 				// calculate costs
 				*costs = s.way_count_straight;
 			}
@@ -1228,7 +1228,7 @@ void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* 
 	if(  bridge_desc  && (  ribi_type(from->get_grund_hang()) == ribi_t::backward(ribi_type(zv))  ||  from->get_grund_hang() == 0  )
 		&&  bridge_builder_t::can_place_ramp(player, from, desc->get_wtyp(),ribi_t::backward(ribi_type(zv)))  ) {
 		// Try a bridge.
-		const sint32 cost_difference=desc->get_wartung()>0 ? (bridge_desc->get_wartung()*4l+3l)/desc->get_wartung() : 16;
+		const sint32 cost_difference=desc->get_maintenance()>0 ? (bridge_desc->get_maintenance()*4l+3l)/desc->get_maintenance() : 16;
 		// try eight possible lengths ..
 		uint32 min_length = 1;
 		for (uint8 i = 0; i < 8 && min_length <= welt->get_settings().way_max_bridge_len; ++i) {
@@ -1259,7 +1259,7 @@ void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* 
 
 	if(  tunnel_desc  &&  ribi_type(from->get_grund_hang()) == ribi_type(zv)  ) {
 		// uphill hang ... may be tunnel?
-		const sint32 cost_difference = desc->get_wartung() > 0 ? (tunnel_desc->get_wartung() * 4l + 3l) / desc->get_wartung() : 16;
+		const sint32 cost_difference = desc->get_maintenance() > 0 ? (tunnel_desc->get_maintenance() * 4l + 3l) / desc->get_maintenance() : 16;
 		koord3d end = tunnel_builder_t::find_end_pos( player, from->get_pos(), zv, tunnel_desc);
 		if(  end != koord3d::invalid  &&  !ziel.is_contained(end)  ) {
 			uint32 length = koord_distance(from->get_pos(), end);
@@ -1742,7 +1742,7 @@ void way_builder_t::intern_calc_straight_route(const koord3d start, const koord3
 
 			// check new tile: ground must be above tunnel and below sea
 			grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-			ok = ok  &&  (gr->get_hoehe() > pos.z)  &&  (!gr->ist_wasser()  ||  (welt->lookup_hgt(pos.get_2d()) > pos.z) );
+			ok = ok  &&  (gr->get_hoehe() > pos.z)  &&  (!gr->is_water()  ||  (welt->lookup_hgt(pos.get_2d()) > pos.z) );
 
 			if (bd_von_new) {
 				delete bd_von;
@@ -1935,7 +1935,7 @@ uint32 ms = dr_time();
 		else {
 			intern_calc_route( ziel, start );
 		}
-		while (route.get_count()>1  &&  welt->lookup(route[0])->get_grund_hang() == slope_t::flat  &&  welt->lookup(route[1])->ist_wasser()) {
+		while (route.get_count()>1  &&  welt->lookup(route[0])->get_grund_hang() == slope_t::flat  &&  welt->lookup(route[1])->is_water()) {
 			// remove leading water ...
 			route.remove_at(0);
 		}
@@ -2140,7 +2140,7 @@ sint64 way_builder_t::calc_costs()
 						}
 						old_playerseedlimit = weg->get_desc()->get_topspeed();
 					}
-					else if (desc->get_wtyp()==water_wt  &&  gr->ist_wasser()) {
+					else if (desc->get_wtyp()==water_wt  &&  gr->is_water()) {
 						old_playerseedlimit = new_speedlimit;
 					}
 				}
@@ -2305,11 +2305,11 @@ bool way_builder_t::build_tunnel_tile()
 				lt->set_desc(desc);
 				tunnel->obj_add( lt );
 				lt->finish_rd();
-				player_t::add_maintenance( player, -lt->get_desc()->get_wartung(), powerline_wt);
+				player_t::add_maintenance( player, -lt->get_desc()->get_maintenance(), powerline_wt);
 			}
 			tunnel->calc_image();
 			cost -= tunnel_desc->get_value();
-			player_t::add_maintenance( player,  tunnel_desc->get_wartung(), tunnel_desc->get_finance_waytype() );
+			player_t::add_maintenance( player,  tunnel_desc->get_maintenance(), tunnel_desc->get_finance_waytype() );
 		}
 		else if(gr->get_typ()==grund_t::tunnelboden) {
 			// check for extension only ...
@@ -2342,7 +2342,7 @@ bool way_builder_t::build_tunnel_tile()
 					gr->obj_add( lt );
 				} else {
 					lt->leitung_t::finish_rd();	// only change powerline aspect
-					player_t::add_maintenance( player, -lt->get_desc()->get_wartung(), powerline_wt);
+					player_t::add_maintenance( player, -lt->get_desc()->get_maintenance(), powerline_wt);
 				}
 			}
 
@@ -2644,7 +2644,7 @@ void way_builder_t::build_track()
 					if(  desc->get_wtyp() == water_wt  ) {
 						for(  int j = 0;  j < 4;  j++  ) {
 							grund_t *sea = welt->lookup_kartenboden( route[i].get_2d() + koord::nsew[j] );
-							if(  sea  &&  sea->ist_wasser()  ) {
+							if(  sea  &&  sea->is_water()  ) {
 								gr->weg_erweitern( water_wt, ribi_t::nsew[j] );
 								sea->calc_image();
 							}
@@ -2702,7 +2702,7 @@ void way_builder_t::build_powerline()
 			// modernize the network
 			if( !keep_existing_faster_ways  ||  lt->get_desc()->get_topspeed() < desc->get_topspeed()  ) {
 				build_powerline = true;
-				player_t::add_maintenance( lt->get_owner(),  -lt->get_desc()->get_wartung(), powerline_wt );
+				player_t::add_maintenance( lt->get_owner(),  -lt->get_desc()->get_maintenance(), powerline_wt );
 			}
 		}
 		if (build_powerline) {
@@ -2728,7 +2728,7 @@ class fluss_test_driver_t : public test_driver_t
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt); }
 	virtual waytype_t get_waytype() const { return invalid_wt; }
 	virtual int get_cost(const grund_t *, const sint32, koord) { return 1; }
-	virtual bool is_target(const grund_t *cur,const grund_t *) { return cur->ist_wasser()  &&  cur->get_grund_hang()==slope_t::flat; }
+	virtual bool is_target(const grund_t *cur,const grund_t *) { return cur->is_water()  &&  cur->get_grund_hang()==slope_t::flat; }
 };
 
 
@@ -2767,11 +2767,11 @@ void way_builder_t::build_river()
 			// one step higher?
 			if (route[j].z > route[i].z) break;
 			// check
-			ok = welt->can_ebne_planquadrat(NULL, route[j].get_2d(), max(route[j].z-1, start_h));
+			ok = welt->can_flatten_tile(NULL, route[j].get_2d(), max(route[j].z-1, start_h));
 		}
 		// now lower all tiles that have the same height as tile i
 		for(uint32 k=i; k<j; k++) {
-			welt->ebne_planquadrat(NULL, route[k].get_2d(), max(route[k].z-1, start_h));
+			welt->flatten_tile(NULL, route[k].get_2d(), max(route[k].z-1, start_h));
 		}
 		if (!ok) {
 			end_n = j;

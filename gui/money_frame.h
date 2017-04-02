@@ -104,7 +104,7 @@ private:
 	static const char * transport_type_values[TT_MAX];
 	gui_tab_panel_t year_month_tabs;
 
-	button_t headquarter, goto_headquarter;
+	button_t headquarters, goto_headquarter;
 	char headquarter_tooltip[1024];
 	location_view_t headquarter_view;
 

@@ -1,5 +1,5 @@
-#ifndef OBJ_WRITER
-#define OBJ_WRITER
+#ifndef OBJ_WRITER_H
+#define OBJ_WRITER_H
 
 #include <stdio.h>
 #include <string>

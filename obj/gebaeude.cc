@@ -68,7 +68,7 @@ void gebaeude_t::init()
 	background_animated = false;
 	remove_ground = true;
 	anim_frame = 0;
-//	insta_zeit = 0; // init in set_tile()
+//	purchase_time = 0; // init in set_tile()
 	ptr.fab = NULL;
 	passengers_generated_commuting = 0;
 	passengers_succeeded_commuting = 0;
@@ -137,7 +137,7 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const building_tile_desc_t
 	{
 		set_tile(t,true);	// this will set init time etc.
 		sint64 maint;
-		if(tile->get_desc()->get_base_maintenance() == COST_MAGIC)
+		if(tile->get_desc()->get_base_maintenance() == PRICE_MAGIC)
 		{
 			maint = welt->get_settings().maint_building*tile->get_desc()->get_level();
 		}
@@ -210,7 +210,7 @@ gebaeude_t::gebaeude_t(koord3d pos, player_t *player, const building_tile_desc_t
 	// will be created. The sum total of this should be zero, but if buildings start with
 	// their maximum number of jobs, this ends up being the base line number, effectively
 	// doubling the number of available jobs.
-	available_jobs_by_time = welt->get_zeit_ms();
+	available_jobs_by_time = welt->get_ticks();
 }
 
 stadt_t* gebaeude_t::get_stadt() const
@@ -260,14 +260,14 @@ gebaeude_t::~gebaeude_t()
 		check_road_tiles(true);
 		if(tile->get_desc()->is_attraction())
 		{
-			welt->remove_ausflugsziel(this);
+			welt->remove_attraction(this);
 		}
 	}
 
 	if(tile) 
 	{
 		sint64 maint;
-		if(tile->get_desc()->get_base_maintenance() == COST_MAGIC)
+		if(tile->get_desc()->get_base_maintenance() == PRICE_MAGIC)
 		{
 			maint = welt->get_settings().maint_building * tile->get_desc()->get_level();
 		}
@@ -278,7 +278,7 @@ gebaeude_t::~gebaeude_t()
 		player_t::add_maintenance(get_owner(), -maint);
 	}
 
-	const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
+	const weighted_vector_tpl<stadt_t*>& staedte = welt->get_cities();
 	for(weighted_vector_tpl<stadt_t*>::const_iterator j = staedte.begin(), end = staedte.end(); j != end; ++j) 
 	{
 		(*j)->remove_connected_attraction(this);
@@ -484,7 +484,7 @@ void gebaeude_t::add_alter(sint64 a)
 
 void gebaeude_t::set_tile( const building_tile_desc_t *new_tile, bool start_with_construction )
 {
-	purchase_time = welt->get_zeit_ms();
+	purchase_time = welt->get_ticks();
 
 	if(!zeige_baugrube  &&  tile!=NULL) {
 		// mark old tile dirty
@@ -527,15 +527,15 @@ void gebaeude_t::set_tile( const building_tile_desc_t *new_tile, bool start_with
 
 sync_result gebaeude_t::sync_step(uint32 delta_t)
 {
-	if(purchase_time > welt->get_zeit_ms())
+	if(purchase_time > welt->get_ticks())
 	{
 		// There were some integer overflow issues with 
 		// this when some intermediate values were uint32.
-		purchase_time = welt->get_zeit_ms() - 5000ll;
+		purchase_time = welt->get_ticks() - 5000ll;
 	}
 	if (zeige_baugrube) {
 		// still under construction?
-		if (welt->get_zeit_ms() - purchase_time > 5000) {
+		if (welt->get_ticks() - purchase_time > 5000) {
 			set_flag(obj_t::dirty);
 			mark_image_dirty(get_image(), 0);
 			zeige_baugrube = false;
@@ -777,7 +777,7 @@ void gebaeude_t::show_info()
 		create_win( new money_frame_t(get_owner()), w_info, magic_finances_t+get_owner()->get_player_nr() );
 	}
 	else if (is_townhall()) {
-		welt->suche_naechste_stadt(get_pos().get_2d())->show_info();
+		welt->find_nearest_city(get_pos().get_2d())->show_info();
 	}
 
 	if(!tile->get_desc()->no_info_window()) {
@@ -1329,9 +1329,9 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		sint32 city_index = -1;
 		if(  file->is_saving()  &&  ptr.stadt!=NULL  ) 
 		{
-			if (welt->get_staedte().is_contained(ptr.stadt))
+			if (welt->get_cities().is_contained(ptr.stadt))
 			{
-				city_index = welt->get_staedte().index_of(ptr.stadt);
+				city_index = welt->get_cities().index_of(ptr.stadt);
 			}
 			else
 			{
@@ -1341,7 +1341,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		}
 		file->rdwr_long(city_index);
 		if(  file->is_loading()  &&  city_index!=-1  &&  (tile==NULL  ||  tile->get_desc()==NULL  ||  tile->get_desc()->is_connected_with_town())  ) {
-			ptr.stadt = welt->get_staedte()[city_index];
+			ptr.stadt = welt->get_cities()[city_index];
 		}
 	}
 
@@ -1430,7 +1430,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		// Hajo: rebuild tourist attraction list
 		if(tile && building_type->is_attraction()) 
 		{
-			welt->add_ausflugsziel(this);
+			welt->add_attraction(this);
 		}
 	}
 }
@@ -1449,7 +1449,7 @@ void gebaeude_t::finish_rd()
 {
 	calc_image();
 	sint64 maint = tile->get_desc()->get_maintenance();
-	if(maint == COST_MAGIC) 
+	if(maint == PRICE_MAGIC) 
 	{
 		maint = welt->get_settings().maint_building*tile->get_desc()->get_level();
 	}
@@ -1469,7 +1469,7 @@ void gebaeude_t::finish_rd()
 			}
 			else
 			{
-				city = (ptr.stadt == NULL) ? welt->suche_naechste_stadt(get_pos().get_2d()) : ptr.stadt;
+				city = (ptr.stadt == NULL) ? welt->find_nearest_city(get_pos().get_2d()) : ptr.stadt;
 			}
 
 			if (city)
@@ -1541,8 +1541,8 @@ void gebaeude_t::cleanup(player_t *player)
 
 		// tearing down halts is always single costs only
 		cost = desc->get_price();
-		// This check is necessary because the number of COST_MAGIC is used if no price is specified. 
-		if(desc->get_base_price() == COST_MAGIC)
+		// This check is necessary because the number of PRICE_MAGIC is used if no price is specified. 
+		if(desc->get_base_price() == PRICE_MAGIC)
 		{
 			// TODO: find a way of checking what *kind* of stop that this is. This assumes railway.
 			cost = welt->get_settings().cst_multiply_station * desc->get_level();
@@ -1648,7 +1648,7 @@ void gebaeude_t::set_commute_trip(uint16 number)
 {
 	// Record the number of arriving workers by encoding the earliest time at which new workers can arrive.
 	const sint64 job_ticks = ((sint64)number * welt->get_settings().get_job_replenishment_ticks()) / ((sint64)adjusted_jobs < 1ll ? 1ll : (sint64)adjusted_jobs);
-	const sint64 new_jobs_by_time = welt->get_zeit_ms() - welt->get_settings().get_job_replenishment_ticks();
+	const sint64 new_jobs_by_time = welt->get_ticks() - welt->get_settings().get_job_replenishment_ticks();
 	available_jobs_by_time = max(new_jobs_by_time + job_ticks, available_jobs_by_time + job_ticks);
 	add_passengers_succeeded_commuting(number);
 }
@@ -1691,12 +1691,12 @@ sint32 gebaeude_t::check_remaining_available_jobs() const
 	}
 	else
 	{*/
-		if(available_jobs_by_time < welt->get_zeit_ms() - welt->get_settings().get_job_replenishment_ticks())
+		if(available_jobs_by_time < welt->get_ticks() - welt->get_settings().get_job_replenishment_ticks())
 		{
 			// Uninitialised or stale - all jobs available
 			return (sint64)adjusted_jobs;
 		}
-		const sint64 delta_t = welt->get_zeit_ms() - available_jobs_by_time;
+		const sint64 delta_t = welt->get_ticks() - available_jobs_by_time;
 		const sint64 remaining_jobs = delta_t * (sint64)adjusted_jobs / welt->get_settings().get_job_replenishment_ticks();
 		return (sint32)remaining_jobs;
 	//}
@@ -1704,7 +1704,7 @@ sint32 gebaeude_t::check_remaining_available_jobs() const
 
 bool gebaeude_t::jobs_available() const
 { 
-	const sint64 ticks = welt->get_zeit_ms();
+	const sint64 ticks = welt->get_ticks();
 	bool difference = available_jobs_by_time <= ticks;
 	return difference;
 }

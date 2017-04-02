@@ -60,24 +60,24 @@ const int totalslopes = 81;
 /* combines a texture and a lightmap
  * just weights all pixels by the lightmap
  */
-static image_t* create_textured_tile(const image_t* bild_lightmap, const image_t* bild_texture)
+static image_t* create_textured_tile(const image_t* image_lightmap, const image_t* image_texture)
 {
-	if(  bild_lightmap == NULL  ) {
+	if(  image_lightmap == NULL  ) {
 		image_t *image_dest = image_t::create_single_pixel();
 		image_dest->register_image();
 		return image_dest;
 	}
 
-	image_t *image_dest = bild_lightmap->copy_rotate(0);
+	image_t *image_dest = image_lightmap->copy_rotate(0);
 #if COLOUR_DEPTH != 0
 	PIXVAL* dest = image_dest->get_data();
 
-	PIXVAL const* const texture = bild_texture->get_data();
-	sint16        const x_y     = bild_texture->get_pic()->w;
+	PIXVAL const* const texture = image_texture->get_data();
+	sint16        const x_y     = image_texture->get_pic()->w;
 	// now mix the images
 	for (int j = 0; j < image_dest->get_pic()->h; j++) {
 		sint32 x = *dest++;
-		const sint32 offset = (image_dest->get_pic()->y + j - bild_texture->get_pic()->y) * (x_y + 3) + 2; // position of the pixel in a rectangular map
+		const sint32 offset = (image_dest->get_pic()->y + j - image_texture->get_pic()->y) * (x_y + 3) + 2; // position of the pixel in a rectangular map
 		do
 		{
 			sint16 runlen = *dest++;
@@ -111,19 +111,19 @@ static image_t* create_textured_tile(const image_t* bild_lightmap, const image_t
 
 /* combines a texture and a lightmap
  * does a very simple stretching of the texture and the mix images
- * BEWARE: Assumes all images but bild_lightmap are square!
+ * BEWARE: Assumes all images but image_lightmap are square!
  * BEWARE: no special colors or your will see literally blue!
  */
-/*static image_t* create_textured_tile_mix(const image_t* bild_lightmap, slope_t::type slope, const image_t* bild_mixmap,  const image_t* bild_src1, const image_t* bild_src2, const image_t* bild_src3)
+/*static image_t* create_textured_tile_mix(const image_t* image_lightmap, slope_t::type slope, const image_t* image_mixmap,  const image_t* image_src1, const image_t* image_src2, const image_t* image_src3)
 {
-	image_t *image_dest = bild_lightmap->copy_rotate(0);
+	image_t *image_dest = image_lightmap->copy_rotate(0);
 #if COLOUR_DEPTH != 0
-	PIXVAL const* const mixmap  = bild_mixmap->get_data();
-	PIXVAL const* const src1    = bild_src1->get_data() - bild_src1->get_pic()->y * (bild_src1->get_pic()->w + 3L);
-	PIXVAL const* const src2    = bild_src2->get_data() - bild_src2->get_pic()->y * (bild_src2->get_pic()->w + 3L);
-	PIXVAL const* const src3    = bild_src3->get_data() - bild_src3->get_pic()->y * (bild_src3->get_pic()->w + 3L);
-	sint32        const x_y     = bild_src1->get_pic()->w;
-	sint32        const mix_x_y = bild_mixmap->get_pic()->w;
+	PIXVAL const* const mixmap  = image_mixmap->get_data();
+	PIXVAL const* const src1    = image_src1->get_data() - image_src1->get_pic()->y * (image_src1->get_pic()->w + 3L);
+	PIXVAL const* const src2    = image_src2->get_data() - image_src2->get_pic()->y * (image_src2->get_pic()->w + 3L);
+	PIXVAL const* const src3    = image_src3->get_data() - image_src3->get_pic()->y * (image_src3->get_pic()->w + 3L);
+	sint32        const x_y     = image_src1->get_pic()->w;
+	sint32        const mix_x_y = image_mixmap->get_pic()->w;
 	sint16 tile_x, tile_y;
 
 */	/*
@@ -169,7 +169,7 @@ static image_t* create_textured_tile(const image_t* bild_lightmap, const image_t
 				// first; check, if we are front or back half
 				// back half means, we are above a line from the left_y (corner_sw), middle_y, right_y (corner_se)
 				const sint16 back_y = (tile_x<x_y/2) ? corner_sw_y + ((middle_y-corner_sw_y)*tile_x)/(x_y/2) : middle_y + ((corner_ne_y-middle_y)*(tile_x-(x_y/2)))/(x_y/2);
-				// in the middle? the it is just the diagonal in the mixmap
+				// in the middle? then it is just the diagonal in the mixmap
 				if(back_y==tile_y) {
 					tile_y_corrected = 0;
 				}
@@ -233,7 +233,7 @@ static image_t* create_textured_tile(const image_t* bild_lightmap, const image_t
 				sint32 mixmap_offset = ( (y_t*mix_x_y) / x_y) *(mix_x_y+3) + 2 + (x_t * mix_x_y)/x_y;
 
 				PIXVAL mix = mixed_color(mixmap[mixmap_offset],src1[offset+tile_x],src2[offset+tile_x],src3[offset+tile_x]);
-				// to see onyl the mixmap for mixing, uncomment next line
+				// to see only the mixmap for mixing, uncomment next line
 //				PIXVAL mix = mixmap[mixmap_offset];
 				PIXVAL grey = *dest;
 				PIXVAL rc = (red_comp(grey)*red_comp(mix))/16;
@@ -263,19 +263,19 @@ static image_t* create_textured_tile(const image_t* bild_lightmap, const image_t
 
 /* combines a texture and a lightmap
  * does a very simple stretching of the texture and the mix images
- * BEWARE: Assumes all images but bild_lightmap are square!
+ * BEWARE: Assumes all images but image_lightmap are square!
  * BEWARE: no special colors or your will see literally blue!
  */
-static image_t* create_alpha_tile(const image_t* bild_lightmap, slope_t::type slope, const image_t* bild_alphamap)
+static image_t* create_alpha_tile(const image_t* image_lightmap, slope_t::type slope, const image_t* bild_alphamap)
 {
-	if(  bild_lightmap == NULL  ||  bild_alphamap == NULL  ||  bild_alphamap->get_pic()->w < 2  ) {
+	if(  image_lightmap == NULL  ||  bild_alphamap == NULL  ||  bild_alphamap->get_pic()->w < 2  ) {
 		image_t *image_dest = image_t::create_single_pixel();
 		image_dest->register_image();
 		return image_dest;
 	}
 	assert( bild_alphamap->get_pic()->w == bild_alphamap->get_pic()->h);
 
-	image_t *image_dest = bild_lightmap->copy_rotate(0);
+	image_t *image_dest = image_lightmap->copy_rotate(0);
 
 	PIXVAL const* const alphamap  = bild_alphamap->get_data();
 	const sint32 x_y     = image_dest->get_pic()->w;
@@ -320,7 +320,7 @@ static image_t* create_alpha_tile(const image_t* bild_lightmap, slope_t::type sl
 				// first; check, if we are front or back half
 				// back half means, we are above a line from the left_y (corner_sw), middle_y, right_y (corner_se)
 				const sint16 back_y = (x_y < 2) ? 0 : ( (tile_x < x_y / 2) ? corner_sw_y + ((middle_y - corner_sw_y) * tile_x) / (x_y / 2) : middle_y + ((corner_ne_y - middle_y) * (tile_x - (x_y / 2))) / (x_y / 2) );
-				// in the middle? the it is just the diagonal in the mixmap
+				// in the middle? then it is just the diagonal in the mixmap
 				if(  back_y == tile_y  ) {
 					tile_y_corrected = 0;
 				}
@@ -401,7 +401,7 @@ static image_t* create_alpha_tile(const image_t* bild_lightmap, slope_t::type sl
 * the real textures are registered/calculated below
 */
 
-karte_t *ground_desc_t::welt = NULL;
+karte_t *ground_desc_t::world = NULL;
 
 
 /* convert double to single slopes
@@ -533,9 +533,9 @@ char const* ground_desc_t::get_climate_name_from_bit(climate n)
 }
 
 
-void ground_desc_t::init_ground_textures(karte_t *w)
+void ground_desc_t::init_ground_textures(karte_t *world)
 {
-	ground_desc_t::welt = w;
+	ground_desc_t::world = world;
 
 	printf("Calculating textures ...");
 
@@ -921,7 +921,7 @@ void ground_desc_t::init_ground_textures(karte_t *w)
 		}
 	}
 
-	// from here one the images are generated by us => deletion also by us then
+	// from here on the images are generated by us => deletion also by us then
 	image_offset = get_image_count();
 	DBG_MESSAGE("ground_desc_t::init_ground_textures()","image_offset=%d", image_offset );
 
@@ -1022,7 +1022,7 @@ image_id ground_desc_t::get_ground_tile(grund_t *gr)
 	slope_t::type slope = gr->get_disp_slope();
 	sint16 height = gr->get_disp_height();
 	koord k = gr->get_pos().get_2d();
-	const sint16 tile_h = height - welt->get_water_hgt(k);
+	const sint16 tile_h = height - world->get_water_hgt(k);
 	if(  tile_h < 0  ||  (tile_h == 0  &&  slope == slope_t::flat)  ) {
 		// deep water
 		image_array_t const* const list = sea->get_child<image_array_t>(2);
@@ -1030,8 +1030,8 @@ image_id ground_desc_t::get_ground_tile(grund_t *gr)
 		return list->get_image( nr, 0 )->get_id();
 	}
 	else {
-		const bool snow = height >= welt->get_snowline();
-		const sint16 climate_nr = snow ? number_of_climates : (welt->get_climate(k) > 1 ? welt->get_climate(k) - 1 : 0);
+		const bool snow = height >= world->get_snowline();
+		const sint16 climate_nr = snow ? number_of_climates : (world->get_climate(k) > 1 ? world->get_climate(k) - 1 : 0);
 		// returns base climate for tile, transitions will be overlayed later
 		return climate_image[climate_nr] + doubleslope_to_imgnr[slope];
 	}

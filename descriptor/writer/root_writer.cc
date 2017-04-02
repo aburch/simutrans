@@ -19,7 +19,7 @@ void root_writer_t::write_header(FILE* fp)
 	);
 
 	uint32 l = endian(uint32(COMPILER_VERSION_CODE));
-	fwrite(&l, 1, sizeof(uint32), fp); // Compiler Version zum Checken
+	fwrite(&l, 1, sizeof(uint32), fp); // Compiler version to check
 
 	obj_node_t::set_start_offset(ftell(fp));
 }
@@ -35,7 +35,7 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 	string file = find.complete(filename, "pak");
 
 	if (file[file.size()-1] == '/') {
-		printf("writing invidual files to %s\n", filename);
+		printf("writing individual files to %s\n", filename);
 		separate = true;
 	}
 	else {
@@ -171,7 +171,7 @@ void root_writer_t::dump(int argc, char* argv[])
 	for (int i = 0; i < argc; i++) {
 		bool any = false;
 
-		// this is neccessary to avoid the hassle with "./*.pak" otherwise
+		// this is necessary to avoid the hassle with "./*.pak" otherwise
 		if (strchr(argv[i], '*') == NULL) {
 			any = do_dump(argv[i]);
 		}
@@ -224,7 +224,7 @@ void root_writer_t::list(int argc, char* argv[])
 	for (int i = 0; i < argc; i++) {
 		bool any = false;
 
-		// this is neccessary to avoid the hassle with "./*.pak" otherwise
+		// this is necessary to avoid the hassle with "./*.pak" otherwise
 		if (strchr(argv[i],'*') == NULL) {
 			any = do_list(argv[i]);
 		}
@@ -312,7 +312,7 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 	for(  int i=0;  i<argc;  i++  ) {
 		bool any = false;
 
-		// this is neccessary to avoid the hassle with "./*.pak" otherwise
+		// this is necessary to avoid the hassle with "./*.pak" otherwise
 		if (strchr(argv[i], '*') == NULL) {
 			any = do_copy(outfp, root, argv[i]);
 		} else {
@@ -378,7 +378,7 @@ void root_writer_t::uncopy(const char* name)
 
 			printf("  found %d files to extract\n\n", root.children);
 
-			// now itereate over the archive
+			// now iterate over the archive
 			for (  int number=0;  number<root.children;  number++  ) {
 				// read the info node ...
 				long start_pos=ftell(infp);
@@ -400,14 +400,14 @@ void root_writer_t::uncopy(const char* name)
 					node_name = name_from_next_node(infp);
 					if (node_name.empty()) {
 						fseek( infp, pos, SEEK_SET );
-						// we need to take name from thrid children, the cursor node ...
+						// we need to take name from third children, the cursor node ...
 						obj_node_info_t node;
 						// quick and dirty: since there are a variable number, we just skip all image nodes
 						do {
 							obj_node_t::read_node( infp, node );
 							fseek(infp, node.size, SEEK_CUR );
 						} while(  (node.type==obj_imagelist  ||  node.type==obj_image)  &&  !feof(infp)  );
-						// then we try the next node (shoudl be cursor node then!
+						// then we try the next node (should be cursor node then!
 						if(  node.type==obj_cursor  ) {
 							node_name = name_from_next_node(infp);
 						}

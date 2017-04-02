@@ -27,20 +27,20 @@
 class pedestrian_desc_t : public obj_desc_timelined_t {
     friend class pedestrian_reader_t;
 
-    uint16 chance;
+    uint16 distribution_weight;
 public:
     int get_image_id(ribi_t::dir dir) const
     {
 		image_t const* const image = get_child<image_list_t>(2)->get_image(dir);
 		return image != NULL ? image->get_id() : IMG_EMPTY;
     }
-    int get_chance() const
+    int get_distribution_weight() const
     {
-		return chance;
+		return distribution_weight;
     }
 	void calc_checksum(checksum_t *chk) const
 	{
-		chk->input(chance);
+		chk->input(distribution_weight);
 	}
 };
 

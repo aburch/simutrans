@@ -24,7 +24,7 @@ protected:
 
 public:
 	pillar_t(loadsave_t *file);
-	pillar_t(koord3d pos, player_t *player, const bridge_desc_t *desc, bridge_desc_t::img_t img, int hoehe);
+	pillar_t(koord3d pos, player_t *player, const bridge_desc_t *desc, bridge_desc_t::img_t img, int height);
 
 	const char* get_name() const { return "Pillar"; }
 #ifdef INLINE_OBJ_TYPE

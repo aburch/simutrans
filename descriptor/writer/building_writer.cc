@@ -99,7 +99,7 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 
 void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	// Hajo: take care, hardocded size of node on disc here!
+	// Hajo: take care, hardcoded size of node on disc here!
 	obj_node_t node(this, 49, &parent);
 
 	write_head(fp, node, obj);
@@ -164,7 +164,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	} else if (!STRICMP(type_name, "hq")) {
 		level      = obj.get_int("passengers",  level);
 		extra_data = obj.get_int("hq_level", 0);
-		type = building_desc_t::headquarter;
+		type = building_desc_t::headquarters;
 	} else if (!STRICMP(type_name, "habour")  ||  !STRICMP(type_name, "harbour")) {
 		// buildable only on sloped shores
 		type      = building_desc_t::dock;
@@ -229,20 +229,20 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	}
 
 	if(  type==building_desc_t::generic_extension  ||  type==building_desc_t::generic_stop  ||  type==building_desc_t::dock  ||  type==building_desc_t::depot  ||  type==building_desc_t::factory  ) {
-		// since elevel was reduced by one beforehand ...
+		//  no waytype => just a generic extension that fits all
 		// TODO: Remove this when the reduction of level is removed.
 		++level;
 	}
 
-	// Hajo: read chance - default is 100% chance to be built
-	uint8 const chance = obj.get_int("chance", 100);
+	// Hajo: read dist_weight - default is 100% dist_weight to be built
+	uint8 const dist_weight = obj.get_int("chance", 100);
 
 	// prissi: timeline for buildings
 	uint16 const intro_date =
 		obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12 +
 		obj.get_int("intro_month", 1) - 1;
 
-	uint16 const obsolete_date =
+	uint16 const retire_date =
 		obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12 +
 		obj.get_int("retire_month", 1) - 1;
 
@@ -258,14 +258,14 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		capacity = obj.get_int("station_capacity", level * 32);
 	}
 	
-	sint32 maintenance = obj.get_int("maintenance", COST_MAGIC);
-	if(  maintenance == COST_MAGIC  ) {
-		maintenance = obj.get_int("station_maintenance", COST_MAGIC);
+	sint32 maintenance = obj.get_int("maintenance", PRICE_MAGIC);
+	if(  maintenance == PRICE_MAGIC  ) {
+		maintenance = obj.get_int("station_maintenance", PRICE_MAGIC);
 	}
 	
-	sint32 price = obj.get_int("cost", COST_MAGIC);
-	if(  price == COST_MAGIC  ) {
-		price = obj.get_int("station_price", COST_MAGIC);
+	sint32 price = obj.get_int("cost", PRICE_MAGIC);
+	if(  price == PRICE_MAGIC  ) {
+		price = obj.get_int("station_price", PRICE_MAGIC);
 	}
 	 
 	uint32 radius = obj.get_int("radius", 1000); 
@@ -427,9 +427,9 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp, allowed_climates,							15);
 	node.write_uint16(fp, enables,									17);
 	node.write_uint8 (fp, flags,									19);
-	node.write_uint8 (fp, chance,									20);
+	node.write_uint8 (fp, dist_weight,									20);
 	node.write_uint16(fp, intro_date,								21);
-	node.write_uint16(fp, obsolete_date,							23);
+	node.write_uint16(fp, retire_date,							23);
 	node.write_uint16(fp, animation_time,							25);
 	node.write_uint16(fp, capacity,									27);
 	node.write_sint32(fp, maintenance,								29);

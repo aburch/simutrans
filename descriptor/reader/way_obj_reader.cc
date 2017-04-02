@@ -63,12 +63,12 @@ obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	if(version==1) {
 		// Versioned node, version 3
-		desc->cost = decode_uint32(p);
+		desc->price = decode_uint32(p);
 		desc->maintenance = decode_uint32(p);
 		desc->topspeed = decode_uint32(p);
 		desc->intro_date = decode_uint16(p);
-		desc->obsolete_date = decode_uint16(p);
-		desc->wt = decode_uint8(p);
+		desc->retire_date = decode_uint16(p);
+		desc->wtyp = decode_uint8(p);
 		desc->own_wtyp = decode_uint8(p);
 		if(extended)
 		{
@@ -89,21 +89,24 @@ obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	desc->set_way_constraints(way_constraints);
 
-	desc->base_cost = desc->cost;
+	desc->base_cost = desc->price;
 	desc->base_maintenance = desc->maintenance;
 	// Way objects do not have a separate top speed for gradients,
 	// but still need this value to be set to avoid it being zero.
 	desc->topspeed_gradient_1 = desc->topspeed_gradient_2 = desc->topspeed;
 
-  DBG_DEBUG("way_obj_reader_t::read_node()",
-	     "version=%d cost=%d maintenance=%d topspeed=%d wtype=%d styp=%d intro_year=%i",
-	     version,
-	     desc->cost,
-	     desc->maintenance,
-	     desc->topspeed,
-	     desc->wt,
-	     desc->own_wtyp,
-	     desc->intro_date/12);
+	DBG_DEBUG("way_obj_reader_t::read_node()",
+		"version=%d price=%d maintenance=%d topspeed=%d wtype=%d own_wtype=%d intro=%i/%i, retire=%i/%i",
+		version,
+		desc->price,
+		desc->maintenance,
+		desc->topspeed,
+		desc->wtyp,
+		desc->own_wtyp,
+		(desc->intro_date % 12) + 1,
+		desc->intro_date / 12,
+		(desc->retire_date % 12) + 1,
+		desc->retire_date / 12);
 
   return desc;
 }

@@ -35,13 +35,13 @@ private:
 
 	/* number of seasons (0 = none, 1 = no snow/snow)
 	*/
-	sint8 number_seasons;
+	sint8 number_of_seasons;
 
 	/*Way constraints for, e.g., loading gauges, types of electrification, etc.
 	* @author: jamespetts*/
 	way_constraints_of_way_t way_constraints;
 
-	/* has underground way image ? (0 = no, 1 = old type way, 2 = underground tunnel images, 3 = both)
+	/* has underground way image ? (0 = no, 1 = old type way, 2 = underground tunnel images, 3 = both)  [way parameter]
 	*/
 	uint8 has_way;
 
@@ -68,38 +68,38 @@ public:
 	* front underground diagonal (12). 
 	*/
 	
-	const image_t *get_background(slope_t::type hang, uint8 season, uint8 type ) const
+	const image_t *get_background(slope_t::type slope, uint8 season, uint8 type ) const
 	{
-		int const n = season && number_seasons == 1 ? 5 : 2;
-		return get_child<image_list_t>(n)->get_image(slope_indices[hang] + 4 * type);
+		int const n = season && number_of_seasons == 1 ? 5 : 2;
+		return get_child<image_list_t>(n)->get_image(slope_indices[slope] + 4 * type);
 	}
 
-	image_id get_background_id(slope_t::type hang, uint8 season, uint8 type ) const
+	image_id get_background_id(slope_t::type slope, uint8 season, uint8 type ) const
 	{
-		const image_t *desc = get_background(hang, season, type );
+		const image_t *desc = get_background(slope, season, type );
 		return desc != NULL ? desc->get_id() : IMG_EMPTY;
 	}
 
-	const image_t *get_foreground(slope_t::type hang, uint8 season, uint8 type ) const
+	const image_t *get_foreground(slope_t::type slope, uint8 season, uint8 type ) const
 	{
-		int const n = season && number_seasons == 1 ? 6 : 3;
-		return get_child<image_list_t>(n)->get_image(slope_indices[hang] + 4 * type);
+		int const n = season && number_of_seasons == 1 ? 6 : 3;
+		return get_child<image_list_t>(n)->get_image(slope_indices[slope] + 4 * type);
 	}
 
-	image_id get_foreground_id(slope_t::type hang, uint8 season, uint8 type) const
+	image_id get_foreground_id(slope_t::type slope, uint8 season, uint8 type) const
 	{
-		const image_t *desc = get_foreground(hang, season, type );
+		const image_t *desc = get_foreground(slope, season, type );
 		return desc != NULL ? desc->get_id() : IMG_EMPTY;
 	}
 
-	image_id get_underground_background_id(ribi_t::ribi ribi, slope_t::type hang) const
+	image_id get_underground_background_id(ribi_t::ribi ribi, slope_t::type slope) const
 	{
-		return hang == slope_t::flat ? get_child<image_list_t>(7)->get_image_id(ribi) : get_hang_image_nr(hang, false);
+		return slope == slope_t::flat ? get_child<image_list_t>(7)->get_image_id(ribi) : get_slope_image_nr(slope, false);
 	}
 
-	image_id get_underground_foreground_id(ribi_t::ribi ribi, slope_t::type hang) const
+	image_id get_underground_foreground_id(ribi_t::ribi ribi, slope_t::type slope) const
 	{
-		return hang == slope_t::flat ? get_child<image_list_t>(10)->get_image_id(ribi) : get_hang_image_nr(hang, true);
+		return slope == slope_t::flat ? get_child<image_list_t>(10)->get_image_id(ribi) : get_slope_image_nr(slope, true);
 	}
 
 	image_id get_diagonal_image_id(ribi_t::ribi ribi, bool front) const
@@ -110,11 +110,11 @@ public:
 
 private:
 
-	image_id get_hang_image_nr(slope_t::type hang,  bool front) const
+	image_id get_slope_image_nr(slope_t::type slope,  bool front) const
 	{
 		int const n = front ? 11 : 8;
 		int nr;
-		switch (hang)
+		switch (slope)
 		{
 		case 4:
 			nr = 0;
@@ -181,7 +181,7 @@ public:
 	{
 		if(get_has_way())
 		{
-			return get_child<way_desc_t>(5 + number_seasons * 2);
+			return get_child<way_desc_t>(5 + number_of_seasons * 2);
 		}
 		return NULL;
 	}

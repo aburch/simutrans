@@ -59,16 +59,16 @@ public:
 		return get_background(0,0,0)!=IMG_EMPTY  ||  get_foreground(0,0)!=IMG_EMPTY;
 	}
 
-	image_id get_background(int phase, int hoehe, int season) const
+	image_id get_background(int phase, int height, int season) const
 	{
 		image_array_t const* const imglist = get_child<image_array_t>(0 + 2 * season);
 		if(phase>0 && phase<phases) {
-			if (image_t const* const image = imglist->get_image(hoehe, phase)) {
+			if (image_t const* const image = imglist->get_image(height, phase)) {
 				return image->get_id();
 			}
 		}
 		// here if this phase does not exists ...
-		image_t const* const image = imglist->get_image(hoehe, 0);
+		image_t const* const image = imglist->get_image(height, 0);
 		return image != NULL ? image->get_id() : IMG_EMPTY;
 	}
 
@@ -135,7 +135,7 @@ class building_desc_t : public obj_desc_timelined_t {
 			factory				= 4,
 			townhall			= 5,
 			others				= 6, ///< monorail foundation
-			headquarter			= 7,
+			headquarters			= 7,
 			dock				= 11, ///< dock, build on sloped coast
 									// in these, the extra data points to a waytype
 			depot				= 33,
@@ -197,12 +197,12 @@ class building_desc_t : public obj_desc_timelined_t {
 	uint16 level;			// or passengers;
 	uint8  layouts;			// 1 2, 4, 8  or 16
 	uint16 enables;			// if it is a stop, what is enabled; if it is a signal box, the signal group that can be linked to this box.
-	uint8  chance;			// Hajo: chance to build, special buildings, only other is weight factor
+	uint8  distribution_weight;			// Hajo:chance to build, special buildings, only other is weight factor
 
 	/** @author: jamespetts.
 	 * Additional fields for separate capacity/maintenance
 	 * If these are not specified in the .dat file, they are set to
-	 * COST_MAGIC then calculated from the "level" in the old way.
+	 * PRICE_MAGIC then calculated from the "level" in the old way.
 	 */
 
 	sint32 price;
@@ -217,7 +217,7 @@ class building_desc_t : public obj_desc_timelined_t {
 
 	uint32 radius; // The radius for which this building has effect. For signalboxes, the maximum distance (in meters) that signals operating from here can be placed.
 
-	#define COST_MAGIC (2147483647) 
+	#define PRICE_MAGIC (2147483647) 
 
 	climate_bits allowed_climates;
 
@@ -279,11 +279,11 @@ public:
 	building_desc_t::btype get_type() const { return type; }
 
 	bool is_townhall()      const { return is_type(townhall); }
-	bool is_headquarter()   const { return is_type(headquarter); }
+	bool is_headquarter()   const { return is_type(headquarters); }
 	bool is_attraction() const { return is_type(attraction_land) || is_type(attraction_city); }
 	bool is_factory()       const { return is_type(factory); }
 	bool is_city_building() const { return is_type(city_res) || is_type(city_com) || is_type(city_ind); }
-	bool is_transport_building() const { return type > headquarter  && type <= flat_dock; }
+	bool is_transport_building() const { return type > headquarters  && type <= flat_dock; }
 	bool is_signalbox() const { return is_type(signalbox); }
 
 	bool is_connected_with_town() const;
@@ -301,7 +301,7 @@ public:
 	uint16 get_mail_level() const;
 
 	// how often will this appear
-	int get_chance() const { return chance; }
+	int get_distribution_weight() const { return distribution_weight; }
 
 	const building_tile_desc_t *get_tile(int index) const {
 		assert(0<=index  &&  index < layouts * size.x * size.y);
@@ -388,8 +388,8 @@ public:
 	void set_scale(uint16 scale_factor) 
 	{
 		// BG: 29.08.2009: explicit typecasts avoid warnings
-		const sint32 scaled_price_x = price == COST_MAGIC ? price : (sint32) set_scale_generic<sint64>((sint64)price, scale_factor);
-		const sint32 scaled_maintenance_x = maintenance == COST_MAGIC ? maintenance : (sint32) set_scale_generic<sint64>((sint64)maintenance, scale_factor);
+		const sint32 scaled_price_x = price == PRICE_MAGIC ? price : (sint32) set_scale_generic<sint64>((sint64)price, scale_factor);
+		const sint32 scaled_maintenance_x = maintenance == PRICE_MAGIC ? maintenance : (sint32) set_scale_generic<sint64>((sint64)maintenance, scale_factor);
 		scaled_price = (scaled_price_x < (price > 0 ? 1 : 0) ? 1: scaled_price_x);
 		scaled_maintenance = (scaled_maintenance_x < (maintenance > 0 ? 1 : 0) ? 1: scaled_maintenance_x);
 	}

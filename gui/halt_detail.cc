@@ -173,7 +173,7 @@ void halt_detail_t::halt_detail_info()
 			buf.printf("   %s (%d, %d)\n", translator::translate(fab->get_name()), pos.x, pos.y);
 			offset_y += LINESPACE;
 
-			FOR(array_tpl<ware_production_t>, const& i, fab->get_eingang()) {
+			FOR(array_tpl<ware_production_t>, const& i, fab->get_input()) {
 				goods_desc_t const* const ware = i.get_typ();
 				if(!nimmt_an.is_contained(ware)) {
 					nimmt_an.append(ware);
@@ -308,7 +308,7 @@ void halt_detail_t::halt_detail_info()
 			const goods_desc_t* info = goods_manager_t::get_info_catg_index(i);
 			// If it is a special freight, we display the name of the good, otherwise the name of the category.
 			buf.append( translator::translate(info->get_catg()==0?info->get_name():info->get_catg_name()) );
-#if DEBUG>=4
+#if MSG_LEVEL>=4
 			if(  halt->is_transfer(i)  ) {
 				buf.append("*");
 			}
@@ -430,11 +430,11 @@ void halt_detail_t::draw(scr_coord pos, scr_size size)
 	if(halt.is_bound()) {
 		if( cached_active_player != welt->get_active_player()	||  halt->registered_lines.get_count()!=cached_line_count  || 
 			halt->registered_convoys.get_count()!=cached_convoy_count  ||
-		    welt->get_zeit_ms() - update_time > 10000) {
+		    welt->get_ticks() - update_time > 10000) {
 			// fill buffer with halt detail
 			halt_detail_info();
 			cached_active_player=welt->get_active_player();
-			update_time = welt->get_zeit_ms();
+			update_time = welt->get_ticks();
 		}
 	}
 	gui_frame_t::draw( pos, size );

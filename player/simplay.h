@@ -458,7 +458,7 @@ public:
 	sint64 undo();
 
 private:
-	// headquarter stuff
+	// headquarters stuff
 	sint32 headquarter_level;
 	koord headquarter_pos;
 		
@@ -474,7 +474,7 @@ public:
 		headquarter_pos = hq_pos;
 	}
 	koord get_headquarter_pos() const { return headquarter_pos; }
-	short get_headquarter_level() const { return headquarter_level; }
+	short get_headquarters_level() const { return headquarter_level; }
 
 	void ai_bankrupt();
 

@@ -44,7 +44,7 @@ private:
 
 	const stadt_t *start_stadt;
 	const stadt_t *end_stadt;	// target is town
-	const gebaeude_t *end_ausflugsziel;
+	const gebaeude_t *end_attraction;
 	fabrik_t *ziel;
 
 	// marker field

@@ -233,16 +233,16 @@ void bruecke_t::finish_rd()
 		const weg_t* old_way = gr ? gr->get_weg(desc->get_wtyp()) : NULL;
 		const wayobj_t* way_object = old_way ? way_object = gr->get_wayobj(desc->get_waytype()) : NULL;
 		// take ownership of way
-		player_t::add_maintenance( weg->get_owner(), -weg->get_desc()->get_wartung(), desc->get_finance_waytype());
+		player_t::add_maintenance( weg->get_owner(), -weg->get_desc()->get_maintenance(), desc->get_finance_waytype());
 		weg->set_owner(player);
 	}
-	player_t::add_maintenance( player,  desc->get_wartung(), desc->get_finance_waytype());
+	player_t::add_maintenance( player,  desc->get_maintenance(), desc->get_finance_waytype());
 
 	// with double heights may need to correct image on load (not all desc have double images)
 	// at present only start images have 2 height variants, others to follow...
 	if(  !gr->is_kartenboden  ) {
 		if(  desc->get_waytype() != powerline_wt  ) {
-			//img = desc->get_simple( gr->get_weg_ribi_unmasked( desc->get_waytype() ) );
+			//img = desc->get_straight( gr->get_weg_ribi_unmasked( desc->get_waytype() ) );
 		}
 	}
 	else {
@@ -283,7 +283,7 @@ void bruecke_t::cleanup( player_t *player2 )
 				{
 					weg->set_max_speed(min(desc->get_topspeed(), way_desc->get_topspeed()));
 				}
-			player_t::add_maintenance( player,  weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype());
+			player_t::add_maintenance( player,  weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
 			// reset offsets
 			weg->set_yoff(0);
 			if (gr->get_weg_nr(1)) {
@@ -291,7 +291,7 @@ void bruecke_t::cleanup( player_t *player2 )
 			}
 		}
 	}
-	player_t::add_maintenance( player,  -desc->get_wartung(), desc->get_finance_waytype() );
+	player_t::add_maintenance( player,  -desc->get_maintenance(), desc->get_finance_waytype() );
 	player_t::book_construction_costs( player2, -desc->get_value(), get_pos().get_2d(), desc->get_waytype() );
 }
 

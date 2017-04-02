@@ -308,13 +308,13 @@ namespace script_api {
 		SQInteger i = -1;
 		if (SQ_SUCCEEDED(get_slot(vm, "index", i, index))) {
 			if (i>=0) {
-				if ( (uint32)i<fab->get_eingang().get_count()) {
-					return &fab->get_eingang()[i];
+				if ( (uint32)i<fab->get_input().get_count()) {
+					return &fab->get_input()[i];
 				}
 				else {
-					i -= fab->get_eingang().get_count();
-					if ( (uint32)i<fab->get_ausgang().get_count()) {
-						return &fab->get_ausgang()[i];
+					i -= fab->get_input().get_count();
+					if ( (uint32)i<fab->get_output().get_count()) {
+						return &fab->get_output()[i];
 					}
 				}
 			}
@@ -444,7 +444,7 @@ namespace script_api {
 	stadt_t* param<stadt_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		koord pos = param<koord>::get(vm, index);
-		return welt->suche_naechste_stadt(pos);
+		return welt->find_nearest_city(pos);
 	}
 
 	SQInteger param<stadt_t*>::push(HSQUIRRELVM vm, stadt_t* const& v)

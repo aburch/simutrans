@@ -53,7 +53,7 @@
 #include "dataobj/environment.h"
 #include "dataobj/route.h"
 
-#include "sucher/bauplatz_sucher.h"
+#include "finder/building_placefinder.h"
 #include "bauer/brueckenbauer.h"
 #include "bauer/tunnelbauer.h"
 #include "bauer/fabrikbauer.h"
@@ -233,7 +233,7 @@ const uint32 stadt_t::city_growth_step = 21000;
 uint32 stadt_t::cluster_factor = 100;
 
 /*
- * chance of success when a city tries to extend a road along a bridge
+ * distribution_weight of success when a city tries to extend a road along a bridge
  * The rest of the time it will fail and build somewhere else instead
  * (This avoids overbuilding of free bridges)
  * @author neroden
@@ -241,7 +241,7 @@ uint32 stadt_t::cluster_factor = 100;
 static uint32 bridge_success_percentage = 25;
 
 /*
- * chance to do renovation instead new building (in percent)
+ * distribution_weight to do renovation instead new building (in percent)
  * @author prissi
  */
 static uint32 renovation_percentage = 25;
@@ -296,13 +296,13 @@ public:
 
 class rule_t {
 public:
-	sint16  chance;
+	sint16  distribution_weight;
 	vector_tpl<rule_entry_t> rule;
-	rule_t(uint32 count=0) : chance(0), rule(count) {}
+	rule_t(uint32 count=0) : distribution_weight(0), rule(count) {}
 
 	void rdwr(loadsave_t* file)
 	{
-		file->rdwr_short(chance);
+		file->rdwr_short(distribution_weight);
 
 		if (file->is_loading()) {
 			rule.clear();
@@ -653,7 +653,7 @@ bool stadt_t::maybe_build_road(koord k)
 	uint32 offset = simrand(num_road_rules, "void stadt_t::build");	// start with random rule
 	for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
 		uint32 rule = ( i+offset ) % num_road_rules;
-		sint32 rd = 8 + road_rules[rule]->chance;
+		sint32 rd = 8 + road_rules[rule]->distribution_weight;
 
 		if (simrand(rd, "void stadt_t::bewerte_strasse") == 0) {
 			best_strasse.check(k, bewerte_pos(k, *road_rules[rule]));
@@ -752,8 +752,8 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 	clear_ptr_vector( house_rules );
 	for (uint32 i = 0; i < num_house_rules; i++) {
 		house_rules.append(new rule_t());
-		sprintf(buf, "house_%u.chance", i + 1);
-		house_rules[i]->chance = contents.get_int(buf, 0);
+		sprintf(buf, "house_%u.distribution_weight", i + 1);
+		house_rules[i]->distribution_weight = contents.get_int(buf, 0);
 
 		sprintf(buf, "house_%u", i + 1);
 		const char* rule = contents.get_string(buf, "");
@@ -793,7 +793,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 				}
 			}
 		}
-		dbg->message("stadt_t::cityrules_init()", "House-Rule %d: chance %d\n",i,house_rules[i]->chance);
+		dbg->message("stadt_t::cityrules_init()", "House-Rule %d: distribution_weight %d\n",i,house_rules[i]->distribution_weight);
 		for(uint32 j=0; j< house_rules[i]->rule.get_count(); j++) {
 			dbg->message("stadt_t::cityrules_init()", "House-Rule %d: Pos (%d,%d) Flag %d\n",i,house_rules[i]->rule[j].x,house_rules[i]->rule[j].y,house_rules[i]->rule[j].flag);
 			}
@@ -802,8 +802,8 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 	clear_ptr_vector( road_rules );
 	for (uint32 i = 0; i < num_road_rules; i++) {
 		road_rules.append(new rule_t());
-		sprintf(buf, "road_%d.chance", i + 1);
-		road_rules[i]->chance = contents.get_int(buf, 0);
+		sprintf(buf, "road_%d.distribution_weight", i + 1);
+		road_rules[i]->distribution_weight = contents.get_int(buf, 0);
 
 		sprintf(buf, "road_%d", i + 1);
 		const char* rule = contents.get_string(buf, "");
@@ -841,7 +841,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 				}
 			}
 		}
-		dbg->message("stadt_t::cityrules_init()", "Road-Rule %d: chance %d\n",i,road_rules[i]->chance);
+		dbg->message("stadt_t::cityrules_init()", "Road-Rule %d: distribution_weight %d\n",i,road_rules[i]->distribution_weight);
 		for(uint32 j=0; j< road_rules[i]->rule.get_count(); j++)
 			dbg->message("stadt_t::cityrules_init()", "Road-Rule %d: Pos (%d,%d) Flag %d\n",i,road_rules[i]->rule[j].x,road_rules[i]->rule[j].y,road_rules[i]->rule[j].flag);
 		
@@ -931,21 +931,21 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
 }
 
 /**
- * monument_platz_sucher_t:
+ * monument_placefinder_t:
  *
- * Sucht einen freien Bauplatz
- * Im Gegensatz zum bauplatz_sucher_t werden Strassen auf den Raendern
+ * Search a free place for a building
+ * Im Gegensatz zum building_placefinder_t werden Strassen auf den Raendern
  * toleriert.
- *
+ * Search a free place for a monument building
  * 22-Dec-02: Hajo: added safety checks for gr != 0 and plan != 0
  *
  * @author V. Meyer
  */
-class monument_platz_sucher_t : public platzsucher_t {
+class monument_placefinder_t : public placefinder_t {
 	public:
-		monument_platz_sucher_t(karte_t* welt, sint16 radius) : platzsucher_t(welt, radius) {}
+		monument_placefinder_t(karte_t* welt, sint16 radius) : placefinder_t(welt, radius) {}
 
-		virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const
+		virtual bool is_tile_ok(koord pos, koord d, climate_bits cl) const
 		{
 			const planquadrat_t* plan = welt->access(pos + d);
 
@@ -966,7 +966,7 @@ class monument_platz_sucher_t : public platzsucher_t {
 				if (obj->get_owner() != NULL &&
 				    obj->get_owner() != welt->get_public_player()) {
 					/* XXX player-owned roads okay to remove? */
-					/* XXX player-owned trams/electrification okay if ist_randfeld()? */
+					/* XXX player-owned trams/electrification okay if is_boundary_tile()? */
 					return false;
 				}
 
@@ -1002,7 +1002,7 @@ class monument_platz_sucher_t : public platzsucher_t {
 				return false;
 			}
 
-			if (ist_randfeld(d)) {
+			if (is_boundary_tile(d)) {
 			} else {
 				/* XXX necessary? */
 				if (gr->hat_weg(tram_wt)) {
@@ -1016,17 +1016,17 @@ class monument_platz_sucher_t : public platzsucher_t {
 
 
 /**
- * townhallplatz_sucher_t:
+ * townhall_placefinder_t:
  *
  * 22-Dec-02: Hajo: added safety checks for gr != 0 and plan != 0
  *
  * @author V. Meyer
  */
-class townhallplatz_sucher_t : public platzsucher_t {
+class townhall_placefinder_t : public placefinder_t {
 	public:
-		townhallplatz_sucher_t(karte_t* welt, uint8 dir_) : platzsucher_t(welt), dir(dir_) {}
+		townhall_placefinder_t(karte_t* welt, uint8 dir_) : placefinder_t(welt), dir(dir_) {}
 
-		virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const
+		virtual bool is_tile_ok(koord pos, koord d, climate_bits cl) const
 		{
 			const grund_t* gr = welt->lookup_kartenboden(pos + d);
 			if (gr == NULL  ||  gr->get_grund_hang() != slope_t::flat) return false;
@@ -1362,7 +1362,7 @@ void stadt_t::reset_city_borders()
 			weighted_vector_tpl<gebaeude_t*>::const_iterator i = buildings.begin();
 			i != buildings.end(); ++i) {
 		gebaeude_t* gb = *i;
-		if (gb->get_tile()->get_desc()->get_type() != building_desc_t::headquarter) {
+		if (gb->get_tile()->get_desc()->get_type() != building_desc_t::headquarters) {
 			// Not an HQ
 			koord gb_pos = gb->get_pos().get_2d();
 			if (new_lo.x > gb_pos.x) {
@@ -1417,9 +1417,9 @@ stadt_t::~stadt_t()
 				gebaeude_t* const gb = buildings.pop_back();
 				assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
 			
-				if(gb->get_tile()->get_desc()->get_type() == building_desc_t::headquarter)
+				if(gb->get_tile()->get_desc()->get_type() == building_desc_t::headquarters)
 				{
-					stadt_t *city = welt->suche_naechste_stadt(gb->get_pos().get_2d());
+					stadt_t *city = welt->find_nearest_city(gb->get_pos().get_2d());
 					gb->set_stadt( city );
 					if(city) 
 					{
@@ -1445,7 +1445,7 @@ stadt_t::~stadt_t()
 				sub->city = NULL;
 			}
 		
-			const weighted_vector_tpl<stadt_t*>& cities = welt->get_staedte();
+			const weighted_vector_tpl<stadt_t*>& cities = welt->get_cities();
 			FOR(weighted_vector_tpl<stadt_t*>, const i, cities)
 			{
 				i->remove_connected_city(this);
@@ -1507,7 +1507,7 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 
 	/* get a unique cityname */
 	char                          const* n       = "simcity";
-	weighted_vector_tpl<stadt_t*> const& staedte = welt->get_staedte();
+	weighted_vector_tpl<stadt_t*> const& staedte = welt->get_cities();
 
 	const vector_tpl<char*>& city_names = translator::get_city_name_list();
 
@@ -3125,7 +3125,7 @@ void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 	const grund_t* gr = welt->lookup_kartenboden(k);
 	if(gr)
 	{
-		assert(!gr->ist_wasser() || gr->get_halt().is_bound() || gr->get_depot());
+		assert(!gr->is_water() || gr->get_halt().is_bound() || gr->get_depot());
 		const gebaeude_t* gb = gr->find<gebaeude_t>();
 		if(gb)
 		{
@@ -3172,18 +3172,18 @@ void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 
 
 /**
- * bauplatz_mit_strasse_sucher_t:
- * Search for a free location using the function suche_platz().
+ * building_place_with_road_finder:
+ * Search for a free location using the function find_place().
  * added: Minimum distance between monuments
  * @author V. Meyer/prissi
  */
-class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
+class building_place_with_road_finder: public building_placefinder_t
 {
 	public:
 		/// if false, this will the check 'do not build next other to special buildings'
 		bool big_city;
 
-		bauplatz_mit_strasse_sucher_t(karte_t* welt, sint16 radius, bool big) : bauplatz_sucher_t(welt, radius), big_city(big) {}
+		building_place_with_road_finder(karte_t* welt, sint16 radius, bool big) : building_placefinder_t(welt, radius), big_city(big) {}
 
 		// get distance to next special building
 		int find_dist_next_special(koord pos) const
@@ -3196,7 +3196,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 					dist = d;
 				}
 			}
-			FOR(  weighted_vector_tpl<stadt_t *>, const city, welt->get_staedte() ) {
+			FOR(  weighted_vector_tpl<stadt_t *>, const city, welt->get_cities() ) {
 				int const d = koord_distance(city->get_pos(), pos);
 				if(  d < dist  ) {
 					dist = d;
@@ -3205,20 +3205,20 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 			return dist;
 		}
 
-		virtual bool ist_platz_ok(koord pos, sint16 b, sint16 h, climate_bits cl) const
+		virtual bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const
 		{
-			if(  !bauplatz_sucher_t::ist_platz_ok(pos, b, h, cl)  ) {
+			if(  !building_placefinder_t::is_area_ok(pos, w, h, cl)  ) {
 				return false;
 			}
 			bool next_to_road = false;
 			// not direct next to factories or townhalls
-			for (sint16 x = -1; x < b; x++) {
+			for (sint16 x = -1; x < w; x++) {
 				for (sint16 y = -1;  y < h; y++) {
 					grund_t *gr = welt->lookup_kartenboden(pos + koord(x,y));
 					if (!gr) {
 						return false;
 					}
-					if (	0 <= x  &&  x < b-1  &&  0 <= y  &&  y < h-1) {
+					if (	0 <= x  &&  x < w-1  &&  0 <= y  &&  y < h-1) {
 						// inside: nothing on top like elevated monorails?
 						if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1)  )!=NULL) {
 							// something on top (monorail or powerlines)
@@ -3231,7 +3231,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 						if (big_city) {
 							if(  gebaeude_t *gb=gr->find<gebaeude_t>()  ) {
 								const building_desc_t::btype utyp = gb->get_tile()->get_desc()->get_type();
-								if(  building_desc_t::attraction_city <= utyp  &&  utyp <= building_desc_t::headquarter) {
+								if(  building_desc_t::attraction_city <= utyp  &&  utyp <= building_desc_t::headquarters) {
 									return false;
 								}
 							}
@@ -3248,7 +3248,7 @@ class bauplatz_mit_strasse_sucher_t: public bauplatz_sucher_t
 			}
 
 			// try to built a little away from previous ones
-			if (big_city  &&  find_dist_next_special(pos) < b + h + welt->get_settings().get_special_building_distance()  ) {
+			if (big_city  &&  find_dist_next_special(pos) < w + h + welt->get_settings().get_special_building_distance()  ) {
 				return false;
 			}
 			return true;
@@ -3261,14 +3261,14 @@ void stadt_t::check_bau_spezial(bool new_town)
 	// touristenattraktion bauen
 	const building_desc_t* desc = hausbauer_t::get_special(has_townhall ? bev : 0, building_desc_t::attraction_city, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos));
 	if (desc != NULL) {
-		if (simrand(100, "void stadt_t::check_bau_spezial") < (uint)desc->get_chance()) {
+		if (simrand(100, "void stadt_t::check_bau_spezial") < (uint)desc->get_distribution_weight()) {
 			// build was immer es ist
 
 			bool big_city = buildings.get_count() >= 10;
 			bool is_rotate = desc->get_all_layouts() > 1;
 			sint16 radius = koord_distance( get_rechtsunten(), get_linksoben() )/2 + 10;
 			// find place
-			koord best_pos = bauplatz_mit_strasse_sucher_t(welt, radius, big_city).suche_platz(pos, desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), &is_rotate);
+			koord best_pos = building_place_with_road_finder(welt, radius, big_city).find_place(pos, desc->get_x(), desc->get_y(), desc->get_allowed_climate_bits(), &is_rotate);
 
 			if (best_pos != koord::invalid) {
 				// then built it
@@ -3295,7 +3295,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 		if (desc) {
 			koord total_size = koord(2 + desc->get_x(), 2 + desc->get_y());
 			sint16 radius = koord_distance( get_rechtsunten(), get_linksoben() )/2 + 10;
-			koord best_pos(monument_platz_sucher_t(welt, radius).suche_platz(pos, total_size.x, total_size.y, desc->get_allowed_climate_bits()));
+			koord best_pos(monument_placefinder_t(welt, radius).find_place(pos, total_size.x, total_size.y, desc->get_allowed_climate_bits()));
 
 			if (best_pos != koord::invalid) {
 				// check if borders around the monument are inside the map limits
@@ -3436,7 +3436,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 					for (k.x = 0; k.x < groesse_alt.x; k.x++) {
 						// for buildings with holes the hole could be on a different height ->gr==NULL
 						bool ok = false;
-						if (grund_t *gr = welt->lookup(koord3d(k, 0) + pos)) {
+						if (grund_t *gr = welt->lookup_kartenboden(k + pos)) {
 							if (gebaeude_t *gb_part = gr->find<gebaeude_t>()) {
 								// there may be buildings with holes, so we only remove our building!
 								if (gb_part->get_tile() == desc_alt->get_tile(old_layout, k.x, k.y)) {
@@ -3553,7 +3553,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 				road1.y = desc->get_y(layout);
 		}
 		if (neugruendung || umziehen) {
-			best_pos = townhallplatz_sucher_t(welt, dir).suche_platz(pos, desc->get_x(layout) + (dir & ribi_t::eastwest ? 1 : 0), desc->get_y(layout) + (dir & ribi_t::northsouth ? 1 : 0), desc->get_allowed_climate_bits());
+			best_pos = townhall_placefinder_t(welt, dir).find_place(pos, desc->get_x(layout) + (dir & ribi_t::eastwest ? 1 : 0), desc->get_y(layout) + (dir & ribi_t::northsouth ? 1 : 0), desc->get_allowed_climate_bits());
 		}
 		// check, if the was something found
 		if(best_pos==koord::invalid) {
@@ -3782,7 +3782,7 @@ void process_city_street(grund_t& gr, const way_desc_t* cr)
 	// Check whether any changes are needed.
 	if((!weg->hat_gehweg() || weg->get_desc() != cr) && make_public == true)
 	{
-		player_t::add_maintenance(player, -weg->get_desc()->get_wartung(), road_wt);
+		player_t::add_maintenance(player, -weg->get_desc()->get_maintenance(), road_wt);
 		weg->set_gehweg(true);
 		weg->set_owner(NULL); // make public
 		if(cr->is_at_least_as_good_as(weg->get_desc())) 
@@ -4626,11 +4626,11 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 	slope_t::type slope = bd->get_grund_hang();
 	if (!slope_t::is_way(slope)) {
 		climate c = welt->get_climate(k);
-		if (welt->can_ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true)) {
-			welt->ebne_planquadrat(NULL, k, bd->get_hoehe()+1, true);
+		if (welt->can_flatten_tile(NULL, k, bd->get_hoehe()+1, true)) {
+			welt->flatten_tile(NULL, k, bd->get_hoehe()+1, true);
 		}
-		else if(  bd->get_hoehe() > welt->get_water_hgt(k)  &&  welt->can_ebne_planquadrat(NULL, k, bd->get_hoehe() )  ) {
-			welt->ebne_planquadrat(NULL, k, bd->get_hoehe());
+		else if(  bd->get_hoehe() > welt->get_water_hgt(k)  &&  welt->can_flatten_tile(NULL, k, bd->get_hoehe() )  ) {
+			welt->flatten_tile(NULL, k, bd->get_hoehe());
 		}
 		else {
 			return false;
@@ -4827,7 +4827,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 			koord zv = koord(direction);
 			grund_t *bd_next = welt->lookup_kartenboden( k + zv );
 			if(  bd_next &&
-			     (bd_next->ist_wasser() || bd_next->hat_weg(water_wt) || bd_next->hat_weg(track_wt) || bd_next->hat_weg(narrowgauge_wt) ||
+			     (bd_next->is_water() || bd_next->hat_weg(water_wt) || bd_next->hat_weg(track_wt) || bd_next->hat_weg(narrowgauge_wt) ||
 			       bd_next->hat_weg(monorail_wt) || bd_next->hat_weg(maglev_wt) || (bd_next->hat_weg(road_wt) && !bd_next->get_weg(road_wt)->is_public_right_of_way()))) {
 				// There is a river, a canal, railway, a private road, or a lake in the way. Build a bridge.
 				build_bridge(bd, direction);
@@ -4875,7 +4875,7 @@ void stadt_t::build(bool new_town)
 			uint32 offset = simrand(num_house_rules, "void stadt_t::build");	// start with random rule
 			for(  uint32 i = 0;  i < num_house_rules  &&  !best_haus.found();  i++  ) {
 				uint32 rule = ( i+offset ) % num_house_rules;
-				bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
+				bewerte_haus(k, 8 + house_rules[rule]->distribution_weight, *house_rules[rule]);
 			}
 			// one rule applied?
 			if(  best_haus.found()  ) {
@@ -4953,7 +4953,7 @@ void stadt_t::build(bool new_town)
 			uint32 offset = simrand(num_house_rules, "void stadt_t::build");	// start with random rule
 			for (uint32 i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
 				uint32 rule = ( i+offset ) % num_house_rules;
-				bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
+				bewerte_haus(k, 8 + house_rules[rule]->distribution_weight, *house_rules[rule]);
 			}
 			// one rule applied?
 			if (best_haus.found()) {
@@ -4965,7 +4965,7 @@ void stadt_t::build(bool new_town)
 			candidates.remove_at(idx, false);
 		}
 		// Oooh.  We tried every candidate location and we couldn't build.
-		// (Admittedly, this may be because percentage-chance rules told us not to.)
+		// (Admittedly, this may be because percentage-distribution_weight rules told us not to.)
 		// Anyway, if this happened, enlarge the city limits and try again.
 		bool could_enlarge = enlarge_city_borders();
 		if (!could_enlarge) {
@@ -5051,7 +5051,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 		for (pos.x = 2; pos.x < wl_size.x-2; pos.x++ ) {
 			koord my_grid_pos(pos.x/grid_step, pos.y/grid_step);
 			grund_t *gr = wl->lookup_kartenboden(pos);
-			if ( gr->get_hoehe() <= wl->get_grundwasser()  || ( gr->hat_weg(water_wt) && gr->get_max_speed() )  ) {
+			if ( gr->get_hoehe() <= wl->get_groundwater()  || ( gr->hat_weg(water_wt) && gr->get_max_speed() )  ) {
 				koord dpos;
 				for ( dpos.y = -4; dpos.y < 5; dpos.y++) {
 					for ( dpos.x = -4; dpos.x < 5 ; dpos.x++) {
@@ -5106,7 +5106,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 			}
 			else {
 				int weight;
-				const sint16 height_above_water = wl->lookup_hgt(pos) - wl->get_grundwasser();
+				const sint16 height_above_water = wl->lookup_hgt(pos) - wl->get_groundwater();
 				switch(height_above_water)
 				{
 					case 1: weight = 24; break;

@@ -78,6 +78,7 @@ void dr_play_sample(int sample_number, int volume)
 {
 	if(use_sound!=0  &&  sample_number>=0  &&  sample_number<64  &&  volume>1) {
 
+		// Too late: DirectSound is deprecated.
 		/* TODO: Use DirectSound to render the sound in Windows 32-bit
 		 * so as to enable better quality sound playback without 
 		 * interfering with system volume levels.

@@ -21,7 +21,7 @@
 #include "../dataobj/scenario.h"
 #include "../dataobj/loadsave.h"
 
-// for headquarter construction only ...
+// for headquarters construction only ...
 #include "../simmenu.h"
 #include "../bauer/hausbauer.h"
 
@@ -430,34 +430,34 @@ money_frame_t::money_frame_t(player_t *player)
 	add_component(&chart);
 	add_component(&mchart);
 
-	// easier headquarter access
-	old_level = player->get_headquarter_level();
+	// easier headquarters access
+	old_level = player->get_headquarters_level();
 	old_pos = player->get_headquarter_pos();
 	headquarter_tooltip[0] = 0;
 
 	// Headquarters is at upper right
 	if(  player->get_ai_id()!=player_t::HUMAN  ) {
-		// misuse headquarter button for AI configure
-		headquarter.init(button_t::box, "Configure AI", scr_coord(c3_btn_x, 0), scr_size(BUTTONWIDTH, BUTTONSPACE));
-		headquarter.add_listener(this);
-		add_component(&headquarter);
-		headquarter.set_tooltip( "Configure AI setttings" );
+		// misuse headquarters button for AI configure
+		headquarters.init(button_t::box, "Configure AI", scr_coord(c3_btn_x, 0), scr_size(BUTTONWIDTH, BUTTONSPACE));
+		headquarters.add_listener(this);
+		add_component(&headquarters);
+		headquarters.set_tooltip( "Configure AI setttings" );
 	}
 	else if(old_level > 0  ||  hausbauer_t::get_headquarter(0,welt->get_timeline_year_month())!=NULL) {
 
-		headquarter.init(button_t::box, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", scr_coord(c3_btn_x, 0), scr_size(BUTTONWIDTH, BUTTONSPACE));
-		headquarter.add_listener(this);
-		add_component(&headquarter);
-		headquarter.set_tooltip( NULL );
-		headquarter.disable();
+		headquarters.init(button_t::box, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", scr_coord(c3_btn_x, 0), scr_size(BUTTONWIDTH, BUTTONSPACE));
+		headquarters.add_listener(this);
+		add_component(&headquarters);
+		headquarters.set_tooltip( NULL );
+		headquarters.disable();
 
 		// reuse tooltip from tool_headquarter_t
 		const char * c = tool_t::general_tool[TOOL_HEADQUARTER]->get_tooltip(player);
 		if(c) {
-			// only true, if the headquarter can be built/updated
+			// only true, if the headquarters can be built/updated
 			tstrncpy(headquarter_tooltip, c, lengthof(headquarter_tooltip));
-			headquarter.set_tooltip( headquarter_tooltip );
-			headquarter.enable();
+			headquarters.set_tooltip( headquarter_tooltip );
+			headquarters.enable();
 		}
 	}
 
@@ -623,43 +623,43 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 		}
 	}
 
-	headquarter.disable();
+	headquarters.disable();
 	if(  player->get_ai_id()!=player_t::HUMAN  ) {
-		headquarter.set_tooltip( "Configure AI setttings" );
-		headquarter.set_text( "Configure AI" );
-		headquarter.enable();
+		headquarters.set_tooltip( "Configure AI setttings" );
+		headquarters.set_text( "Configure AI" );
+		headquarters.enable();
 	}
 	else if(player!=welt->get_active_player()) {
-		headquarter.set_tooltip( NULL );
+		headquarters.set_tooltip( NULL );
 	}
 	else {
 		// I am on my own => allow upgrading
-		if(old_level!=player->get_headquarter_level()) {
+		if(old_level!=player->get_headquarters_level()) {
 
 			// reuse tooltip from tool_headquarter_t
 			const char * c = tool_t::general_tool[TOOL_HEADQUARTER]->get_tooltip(player);
 			if(c) {
-				// only true, if the headquarter can be built/updated
+				// only true, if the headquarters can be built/updated
 				tstrncpy(headquarter_tooltip, c, lengthof(headquarter_tooltip));
-				headquarter.set_tooltip( headquarter_tooltip );
+				headquarters.set_tooltip( headquarter_tooltip );
 			}
 			else {
 				headquarter_tooltip[0] = 0;
-				headquarter.set_tooltip( NULL );
+				headquarters.set_tooltip( NULL );
 			}
 		}
 		// HQ construction still possible ...
 		if(  headquarter_tooltip[0]  ) {
-			headquarter.enable();
+			headquarters.enable();
 		}
 	}
 
-	if(old_level!=player->get_headquarter_level()  ||  old_pos!=player->get_headquarter_pos()) {
+	if(old_level!=player->get_headquarters_level()  ||  old_pos!=player->get_headquarter_pos()) {
 		if( player->get_ai_id() == player_t::HUMAN ) {
-			headquarter.set_text( player->get_headquarter_pos()!=koord::invalid ? "upgrade HQ" : "build HQ" );
+			headquarters.set_text( player->get_headquarter_pos()!=koord::invalid ? "upgrade HQ" : "build HQ" );
 		}
 		remove_component(&headquarter_view);
-		old_level = player->get_headquarter_level();
+		old_level = player->get_headquarters_level();
 		old_pos = player->get_headquarter_pos();
 		if(  old_pos!=koord::invalid  ) {
 			headquarter_view.set_location( welt->lookup_kartenboden(old_pos)->get_pos() );
@@ -689,7 +689,7 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 
 bool money_frame_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
-	if(comp==&headquarter) {
+	if(comp==&headquarters) {
 		if(  player->get_ai_id()!=player_t::HUMAN  ) {
 			create_win( new ai_option_t(player), w_info, magic_ai_options_t+player->get_player_nr() );
 		}

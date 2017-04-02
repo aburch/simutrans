@@ -38,7 +38,7 @@ class image_writer_t : public obj_writer_t {
 		void write_obj(FILE* fp, obj_node_t& parent, std::string imagekey, uint32 index);
 
 	private:
-		bool block_laden(const char* fname);
+		bool block_load(const char* fname);
 
 		/**
 		 * Encodes an image into a sprite data structure, considers

@@ -328,7 +328,7 @@ bool movingobj_t::check_next_tile( const grund_t *gr ) const
 		if(gr->hat_wege()  &&  (!gr->hat_weg(road_wt)  ||  gr->get_weg(road_wt)->hat_gehweg())) {
 			return false;
 		}
-		if(!desc->can_built_trees_here()) {
+		if(!desc->can_build_trees_here()) {
 			return gr->find<baum_t>()==NULL;
 		}
 	}
@@ -345,7 +345,7 @@ bool movingobj_t::check_next_tile( const grund_t *gr ) const
 		if(!gr->ist_natur()  ||  !slope_t::is_way(gr->get_grund_hang())) {
 			return false;
 		}
-		if(!desc->can_built_trees_here()) {
+		if(!desc->can_build_trees_here()) {
 			return gr->find<baum_t>()==NULL;
 		}
 	}

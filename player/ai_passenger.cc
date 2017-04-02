@@ -53,7 +53,7 @@ ai_passenger_t::ai_passenger_t(karte_t *wl, uint8 nr) : ai_t( wl, nr )
 
 	start_stadt = end_stadt = NULL;
 	ziel = NULL;
-	end_ausflugsziel = NULL;
+	end_attraction = NULL;
 }
 
 
@@ -161,7 +161,7 @@ koord ai_passenger_t::find_harbour_pos(karte_t* welt, const stadt_t *s )
 				if(  testdist<bestdist  ) {
 					grund_t *gr = welt->lookup_kartenboden(k);
 					slope_t::type hang = gr->get_grund_hang();
-					if(  gr->ist_natur()  &&  gr->get_hoehe() == welt->get_water_hgt(k)  &&  slope_t::is_way(hang)  &&  welt->ist_wasser( k - koord(hang), koord(hang) * 4 + koord(1, 1) )  ) {
+					if(  gr->ist_natur()  &&  gr->get_hoehe() == welt->get_water_hgt(k)  &&  slope_t::is_way(hang)  &&  welt->is_water( k - koord(hang), koord(hang) * 4 + koord(1, 1) )  ) {
 						// can built busstop here?
 						koord bushalt = k+koord(hang);
 						gr = welt->lookup_kartenboden(bushalt);
@@ -197,7 +197,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 	if(gb  &&  gb->is_townhall()) {
 		end_stadt = gb->get_stadt();
 	}
-	else if(!ziel->is_halt()  ||  !ziel->ist_wasser()) {
+	else if(!ziel->is_halt()  ||  !ziel->is_water()) {
 		// not townhall, not factory => we will not built this line for attractions!
 		return false;
 	}
@@ -291,7 +291,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 		if(town_road!=bushalt) {
 			way_builder_t bauigel(this);
 			// no bridges => otherwise first tile might be bridge start ...
-			bauigel.init_builder(way_builder_t::strasse, way_builder_t::weg_search(road_wt, road_vehicle->get_geschw(), road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1), tunnel_builder_t::get_tunnel_desc(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()), NULL );
+			bauigel.init_builder(way_builder_t::strasse, way_builder_t::weg_search(road_wt, road_vehicle->get_topspeed(), road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1), tunnel_builder_t::get_tunnel_desc(road_wt,road_vehicle->get_topspeed(),welt->get_timeline_year_month()), NULL );
 			bauigel.set_keep_existing_faster_ways(true);
 			bauigel.set_keep_city_roads(true);
 			bauigel.set_maximum(10000);
@@ -309,7 +309,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 		if(town_road!=bushalt) {
 			way_builder_t bauigel(this);
 			// no bridges => otherwise first tile might be bridge start ...
-			bauigel.init_builder(way_builder_t::strasse, way_builder_t::weg_search(road_wt, road_vehicle->get_geschw(), road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1), tunnel_builder_t::get_tunnel_desc(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()), NULL );
+			bauigel.init_builder(way_builder_t::strasse, way_builder_t::weg_search(road_wt, road_vehicle->get_topspeed(), road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1), tunnel_builder_t::get_tunnel_desc(road_wt,road_vehicle->get_topspeed(),welt->get_timeline_year_month()), NULL );
 			bauigel.set_keep_existing_faster_ways(true);
 			bauigel.set_keep_city_roads(true);
 			bauigel.set_maximum(10000);
@@ -398,7 +398,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 			const planquadrat_t *plan = welt->access(p);
 			if(plan) {
 				grund_t *gr = plan->get_kartenboden();
-				if(  gr->ist_wasser()  &&  !gr->get_halt().is_bound()  ) {
+				if(  gr->is_water()  &&  !gr->get_halt().is_bound()  ) {
 					if(plan->get_haltlist_count()>=1  &&  plan->get_haltlist()[0].halt == start_hub  &&  shortest_distance(start_pos,end_harbour)>shortest_distance(p,end_harbour)) {
 						start_pos = p;
 					}
@@ -415,7 +415,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 			const planquadrat_t *plan = welt->access(p);
 			if(plan) {
 				grund_t *gr = plan->get_kartenboden();
-				if(  gr->ist_wasser()  &&  !gr->get_halt().is_bound()  ) {
+				if(  gr->is_water()  &&  !gr->get_halt().is_bound()  ) {
 					if(plan->get_haltlist_count()>=1  &&  plan->get_haltlist()[0].halt == end_hub  &&  shortest_distance(end_pos,start_harbour)>shortest_distance(p,start_harbour)) {
 						end_pos = p;
 					}
@@ -494,7 +494,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	const koord dx( size.x/2, size.y/2 );
 	for(  sint16 i=0;  i!=size.y+dx.y;  i+=dx.y  ) {
 		for( sint16 j=0;  j!=size.x+dx.x;  j+=dx.x  ) {
-			if(!welt->ebne_planquadrat(this,pos+koord(j,i),h)) {
+			if(!welt->flatten_tile(this,pos+koord(j,i),h)) {
 				return halthandle_t();
 			}
 		}
@@ -517,7 +517,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	uint32 length=9999;
 	rotation=-1;
 
-	bauigel.init_builder(way_builder_t::strasse, way_builder_t::weg_search(road_wt, road_vehicle->get_geschw(), road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1), tunnel_builder_t::get_tunnel_desc(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()) );
+	bauigel.init_builder(way_builder_t::strasse, way_builder_t::weg_search(road_wt, road_vehicle->get_topspeed(), road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1), tunnel_builder_t::get_tunnel_desc(road_wt,road_vehicle->get_topspeed(),welt->get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,road_vehicle->get_topspeed(),welt->get_timeline_year_month()) );
 	bauigel.set_keep_existing_faster_ways(true);
 	bauigel.set_keep_city_roads(true);
 	bauigel.set_maximum(10000);
@@ -885,7 +885,7 @@ void ai_passenger_t::walk_city(linehandle_t const line, grund_t* const start, in
 					const building_desc_t* bs = hausbauer_t::get_random_station(building_desc_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX);
 					if(  call_general_tool( TOOL_BUILD_STATION, to->get_pos().get_2d(), bs->get_name() )  ) {
 						//add to line
-						line->get_schedule()->append(to,0); // no need to register it yet; done automatically, when convois will be assinged
+						line->get_schedule()->append(to,0); // no need to register it yet; done automatically, when convois will be assigned
 					}
 				}
 				// start road, but no houses anywhere => stop searching
@@ -974,14 +974,14 @@ void ai_passenger_t::step()
 				return;
 			}
 
-			const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
+			const weighted_vector_tpl<stadt_t*>& staedte = welt->get_cities();
 			int count = staedte.get_count();
 			int offset = (count>1) ? simrand(count-1, "ai_passenger_t::step()") : 0;
 			// start with previous target
 			const stadt_t* last_start_stadt=start_stadt;
 			start_stadt = end_stadt;
 			end_stadt = NULL;
-			end_ausflugsziel = NULL;
+			end_attraction = NULL;
 			ziel = NULL;
 			platz2 = koord::invalid;
 			// if no previous town => find one
@@ -1006,7 +1006,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using place (%i,%i) for start",
 			if(count==1  ||  simrand(3, "ai_passenger_t::step()")==0) {
 DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 				// 25 % of all connections are tourist attractions
-				const weighted_vector_tpl<gebaeude_t*> &ausflugsziele = welt->get_ausflugsziele();
+				const weighted_vector_tpl<gebaeude_t*> &world_attractions = welt->get_ausflugsziele();
 				// this way, we are sure, our factory is connected to this town ...
 				unsigned	last_dist = 0xFFFFFFFF;
 				bool ausflug=simrand(2, "ai_passenger_t::step()")!=0;	// holidays first ...
@@ -1015,7 +1015,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 					unsigned	dist;
 					koord pos, size;
 					if(ausflug) {
-						const gebaeude_t* a = ausflugsziele[i];
+						const gebaeude_t* a = world_attractions[i];
 						if (a->get_adjusted_mail_demand() <= 25) {
 							// not a good object to go to ...
 							continue;
@@ -1023,7 +1023,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 						pos  = a->get_pos().get_2d();
 						size = a->get_tile()->get_desc()->get_size(a->get_tile()->get_layout());
 					}
-					const stadt_t *next_town = welt->suche_naechste_stadt(pos);
+					const stadt_t *next_town = welt->find_nearest_city(pos);
 					if(next_town==NULL  ||  start_stadt==next_town) {
 						// this is either a town already served (so we do not create a new hub)
 						// or a lonely point somewhere
@@ -1037,7 +1037,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 							if(dist+simrand(50, "ai_passenger_t::step()")<last_dist  &&   dist>3) {
 								// but closer than the others
 								if(ausflug) {
-									end_ausflugsziel = ausflugsziele[i];
+									end_attraction = world_attractions[i];
 								}
 								last_dist = dist;
 								platz2 = test_platz;
@@ -1049,7 +1049,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 				if(platz2!=koord::invalid) {
 					// found something
 					state = NR_SAMMLE_ROUTEN;
-DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","decision: %s wants to built network between %s and %s",get_name(),start_stadt->get_name(),ausflug?end_ausflugsziel->get_tile()->get_desc()->get_name():ziel->get_name());
+DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","decision: %s wants to built network between %s and %s",get_name(),start_stadt->get_name(),ausflug?end_attraction->get_tile()->get_desc()->get_name():ziel->get_name());
 				}
 			}
 			else {
@@ -1128,9 +1128,9 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","no suitable hub found");
 			road_vehicle = vehicle_search( road_wt, 50, 80, goods_manager_t::passengers, false);
 			if(road_vehicle!=NULL) {
 				// find the best => AI will never survive
-//				road_weg = way_builder_t::weg_search( road_wt, road_vehicle->get_geschw(), welt->get_timeline_year_month(),type_flat );
+//				road_weg = way_builder_t::weg_search( road_wt, road_vehicle->get_topspeed(), welt->get_timeline_year_month(),type_flat );
 				// find the really cheapest road
-				road_weg = way_builder_t::weg_search(road_wt, road_vehicle->get_geschw(), road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1);
+				road_weg = way_builder_t::weg_search(road_wt, road_vehicle->get_topspeed(), road_vehicle->get_weight(), welt->get_timeline_year_month(), type_flat, 1);
 				state = NR_BAUE_STRASSEN_ROUTE;
 DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->get_name(),road_weg->get_name());
 			}
@@ -1176,9 +1176,9 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 					state = NR_SUCCESS;
 					// tell the player
 					cbuffer_t buf;
-					if(end_ausflugsziel!=NULL) {
-						platz1 = end_ausflugsziel->get_pos().get_2d();
-						buf.printf(translator::translate("%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n"), get_name(), start_stadt->get_name(), make_single_line_string(translator::translate(end_ausflugsziel->get_tile()->get_desc()->get_name()),2), platz1.x, platz1.y );
+					if(end_attraction!=NULL) {
+						platz1 = end_attraction->get_pos().get_2d();
+						buf.printf(translator::translate("%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n"), get_name(), start_stadt->get_name(), make_single_line_string(translator::translate(end_attraction->get_tile()->get_desc()->get_name()),2), platz1.x, platz1.y );
 						end_stadt = start_stadt;
 					}
 					else if(ziel!=NULL) {
@@ -1204,7 +1204,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				state = NR_BAUE_AIRPORT_ROUTE;
 				break;
 			}
-			if(  end_ausflugsziel == NULL  &&  ship_transport  &&
+			if(  end_attraction == NULL  &&  ship_transport  &&
 					create_water_transport_vehicle(start_stadt, end_stadt ? end_stadt->get_pos() : ziel->get_pos().get_2d())) {
 				// add two intown routes
 				cover_city_with_bus_route( get_our_hub(start_stadt)->get_basis_pos(), 6);
@@ -1221,7 +1221,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				state = NR_SUCCESS;
 			}
 			else {
-				if(  end_ausflugsziel==NULL  &&  ziel==NULL  ) {
+				if(  end_attraction==NULL  &&  ziel==NULL  ) {
 					state = NR_BAUE_AIRPORT_ROUTE;
 				}
 				else {
@@ -1421,7 +1421,7 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 		k.rdwr(file);
 		k = end_stadt ? end_stadt->get_pos() : koord::invalid;
 		k.rdwr(file);
-		koord3d k3d = end_ausflugsziel ? end_ausflugsziel->get_pos() : koord3d::invalid;
+		koord3d k3d = end_attraction ? end_attraction->get_pos() : koord3d::invalid;
 		k3d.rdwr(file);
 		k3d = ziel ? ziel->get_pos() : koord3d::invalid;
 		k3d.rdwr(file);
@@ -1433,12 +1433,12 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 		// reinit current pointers
 		koord k;
 		k.rdwr(file);
-		start_stadt = welt->suche_naechste_stadt(k);
+		start_stadt = welt->find_nearest_city(k);
 		k.rdwr(file);
-		end_stadt = welt->suche_naechste_stadt(k);
+		end_stadt = welt->find_nearest_city(k);
 		koord3d k3d;
 		k3d.rdwr(file);
-		end_ausflugsziel = welt->lookup(k3d) ? welt->lookup(k3d)->find<gebaeude_t>() : NULL;
+		end_attraction = welt->lookup(k3d) ? welt->lookup(k3d)->find<gebaeude_t>() : NULL;
 		k3d.rdwr(file);
 		ziel = fabrik_t::get_fab(k3d.get_2d() );
 	}

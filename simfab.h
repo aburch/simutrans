@@ -272,11 +272,11 @@ private:
 	sint32 prodfactor_pax;
 	sint32 prodfactor_mail;
 
-	array_tpl<ware_production_t> eingang; ///< array for input/consumed goods
-	array_tpl<ware_production_t> ausgang; ///< array for output/produced goods
+	array_tpl<ware_production_t> input; ///< array for input/consumed goods
+	array_tpl<ware_production_t> output; ///< array for output/produced goods
 
 	// The adjusted "max intransit percentage" for each type of input goods
-	// indexed against the catg of each "eingang" (the input goods).
+	// indexed against the catg of each "input" (the input goods).
 	inthashtable_tpl<uint8, uint16> max_intransit_percentages;
 
 	/**
@@ -666,8 +666,8 @@ public:
 	 * total and current procduction/storage values
 	 * @author Hj. Malthaner
 	 */
-	const array_tpl<ware_production_t>& get_eingang() const { return eingang; }
-	const array_tpl<ware_production_t>& get_ausgang() const { return ausgang; }
+	const array_tpl<ware_production_t>& get_input() const { return input; }
+	const array_tpl<ware_production_t>& get_output() const { return output; }
 
 	/**
 	 * Production multipliers
@@ -716,12 +716,12 @@ public:
 	 * Return the scaled electricity amount and pax/mail demand
 	 * @author Knightly
 	 */
-	uint32 get_scaled_electric_amount() const { return scaled_electric_amount; }
+	uint32 get_scaled_electric_demand() const { return scaled_electric_amount; }
 	uint32 get_scaled_pax_demand() const { return scaled_pax_demand; }
 	uint32 get_monthly_pax_demand() const;
 	uint32 get_scaled_mail_demand() const { return scaled_mail_demand; }
 
-	bool is_end_consumer() const { return (ausgang.empty() && !desc->is_electricity_producer()); }
+	bool is_end_consumer() const { return (output.empty() && !desc->is_electricity_producer()); }
 
 	/**
 	 * Returns a list of goods produced by this factory.
