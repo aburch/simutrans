@@ -166,7 +166,7 @@ public:
 	inline void set_image( image_id b ) { image = b; }
 	virtual image_id get_image() const {return image;}
 
-	sint8 get_hoff() const;
+	sint16 get_hoff(const sint16 raster_width = 1) const;
 	uint8 get_steps() const {return steps;} // number of steps pass on the current tile.
 	uint8 get_steps_next() const {return steps_next;} // total number of steps to pass on the current tile - 1. Mostly VEHICLE_STEPS_PER_TILE - 1 for straight route or diagonal_vehicle_steps_per_tile - 1 for a diagonal route.
 
