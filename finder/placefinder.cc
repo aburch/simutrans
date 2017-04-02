@@ -12,7 +12,7 @@
 #include "../simworld.h"
 #include "../simintr.h"
 #include "../simtypes.h"
-#include "platzsucher.h"
+#include "placefinder.h"
 
 pos_list_t::pos_list_t(sint16 max_radius)
 {

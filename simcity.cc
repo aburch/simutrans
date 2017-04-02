@@ -53,7 +53,7 @@
 #include "dataobj/environment.h"
 #include "dataobj/route.h"
 
-#include "sucher/bauplatz_sucher.h"
+#include "finder/building_placefinder.h"
 #include "bauer/brueckenbauer.h"
 #include "bauer/tunnelbauer.h"
 #include "bauer/fabrikbauer.h"

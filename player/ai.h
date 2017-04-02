@@ -12,7 +12,7 @@
 
 #include "simplay.h"
 
-#include "../sucher/bauplatz_sucher.h"
+#include "../finder/building_placefinder.h"
 #include "../descriptor/goods_desc.h"
 
 class karte_t;

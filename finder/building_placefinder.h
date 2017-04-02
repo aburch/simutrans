@@ -8,7 +8,7 @@
 #ifndef building_placefinder_t_h
 #define building_placefinder_t_h
 
-#include "platzsucher.h"
+#include "placefinder.h"
 #include "../simworld.h"
 
 /**
