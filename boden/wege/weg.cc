@@ -44,6 +44,7 @@
 #include "../../obj/tunnel.h"
 #include "../../obj/gebaeude.h" // for ::should_city_adopt_this
 #include "../../utils/cbuffer_t.h"
+#include "../../dataobj/environment.h" // TILE_HEIGHT_STEP
 #include "../../dataobj/translator.h"
 #include "../../dataobj/loadsave.h"
 #include "../../dataobj/environment.h"
@@ -709,7 +710,7 @@ bool weg_t::check_season(const bool calc_only_season_change)
 	grund_t *from = welt->lookup( get_pos() );
 
 	// use snow image if above snowline and above ground
-	bool snow = (from->ist_karten_boden()  ||  !from->ist_tunnel())  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate);
+	bool snow = (from->ist_karten_boden() || !from->ist_tunnel()) && (get_pos().z + from->get_weg_yoff() / TILE_HEIGHT_STEP >= welt->get_snowline() || welt->get_climate(get_pos().get_2d()) == arctic_climate);
 	bool old_snow = (flags&IS_SNOW) != 0;
 	if(  !(snow ^ old_snow)  ) {
 		// season is not changing ...
@@ -804,7 +805,7 @@ void weg_t::calc_image()
 	}
 	else {
 		// use snow image if above snowline and above ground
-		bool snow = (from->ist_karten_boden()  ||  !from->ist_tunnel())  &&  (get_pos().z >= welt->get_snowline() || welt->get_climate( get_pos().get_2d() ) == arctic_climate  );
+		bool snow = (from->ist_karten_boden() || !from->ist_tunnel()) && (get_pos().z + from->get_weg_yoff() / TILE_HEIGHT_STEP >= welt->get_snowline() || welt->get_climate(get_pos().get_2d()) == arctic_climate);
 		flags &= ~IS_SNOW;
 		if(  snow  ) {
 			flags |= IS_SNOW;
