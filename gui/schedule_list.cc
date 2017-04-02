@@ -136,6 +136,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	scl.set_pos(scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP));
 	scl.set_size(scr_size(3*D_BUTTON_WIDTH+2*D_H_SPACE, SCL_HEIGHT));
 	scl.set_highlight_color(color_idx_to_rgb(player->get_player_color1()+1));
+	scl.set_focusable(false);
 	scl.add_listener(this);
 
 	// tab panel
@@ -182,8 +183,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&tabs);
 
 	// below line list: line filter
-	lbl_filter.set_pos(scr_coord( D_MARGIN_LEFT,
-		D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_GET_CENTER_ALIGN_OFFSET(LINESPACE, D_BUTTON_HEIGHT)) );
+	lbl_filter.set_pos(scr_coord( D_MARGIN_LEFT, D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_GET_CENTER_ALIGN_OFFSET(LINESPACE, D_BUTTON_HEIGHT)) );
 	add_component(&lbl_filter);
 
 	inp_filter.set_pos( scr_coord( D_MARGIN_LEFT+D_BUTTON_WIDTH+D_H_SPACE,
@@ -244,7 +244,6 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	scrolly_convois.set_scroll_amount_y(40);
 	scrolly_convois.set_visible(false);
 	add_component(&scrolly_convois);
-
 
 	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All",
 		scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP+SCL_HEIGHT+D_BUTTON_HEIGHT+D_V_SPACE), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
