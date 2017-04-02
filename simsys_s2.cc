@@ -32,8 +32,8 @@ extern char **__argv;
 #include "gui/components/gui_component.h"
 #include "gui/components/gui_textinput.h"
 
-// Both backends have critical bugs...
-#if !defined(_WIN32) && !defined(__linux__)
+// Maybe Linux is not fine too, had critical bugs...
+#if !defined(__linux__)
 #define USE_SDL_TEXTEDITING
 #else
 #endif
@@ -116,7 +116,7 @@ bool dr_auto_scale(bool on_off)
 #if SDL_VERSION_ATLEAST(2,0,4)
 	if (on_off) {
 		float hdpi, vdpi;
-		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE);
+		SDL_Init(SDL_INIT_VIDEO);
 		if (SDL_GetDisplayDPI(0, NULL, &hdpi, &vdpi) == 0) {
 			x_scale = ((long)hdpi * 32 + 1) / 96;
 			y_scale = ((long)vdpi * 32 + 1) / 96;
@@ -143,7 +143,7 @@ bool dr_auto_scale(bool on_off)
 */
 bool dr_os_init(const int* parameter)
 {
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) != 0) {
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
 		return false;
 	}
@@ -273,6 +273,7 @@ int dr_os_open(int width, int height, int const fullscreen)
 	if (w <= 0) {
 		w = 16;
 	}
+	width = (w*x_scale) / 32l;
 
 	Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_RESIZABLE;
 	window = SDL_CreateWindow(SIM_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
@@ -316,20 +317,17 @@ void dr_os_close()
 
 
 // resizes screen
-int dr_textur_resize(unsigned short** const textur, int width, int const height)
+int dr_textur_resize(unsigned short** const textur, int w, int const h)
 {
-	int w = (width * 32l) / x_scale;
-	int h = (height * 32l) / y_scale;
-
-	// some cards need those alignments
-	// especially 64bit want a border of 8bytes
+	// enforce multiple of 16 pixels, or there are likely mismatches
 	w = (w + 15) & 0x7FF0;
-	if (w <= 0) {
-		w = 16;
-	}
+
+	// w, h are the width in pixel, we calculate now the scree size
+	int width = (w*x_scale) / 32l;
+	int height = (h*y_scale) / 32l;
 
 	SDL_UnlockTexture(screen_tx);
-	if (w != screen->w || h != screen->h) {
+	if (width != screen->w || height != screen->h) {
 		// Recreate the SDL surfaces at the new resolution.
 		// First free surface and then renderer.
 		SDL_FreeSurface(screen);
@@ -348,9 +346,10 @@ int dr_textur_resize(unsigned short** const textur, int width, int const height)
 		}
 		fflush(NULL);
 	}
+	display_set_actual_width(screen->w);
 	SDL_SetWindowSize(window, width, height);
 	*textur = dr_textur_init();
-	return w;
+	return screen->w;
 }
 
 
@@ -479,11 +478,10 @@ static int conv_mouse_buttons(Uint8 const state)
 
 static void internal_GetEvents(bool const wait)
 {
-#ifdef __APPLE__
 	// Apparently Cocoa SDL posts key events that meant to be used by IM...
 	// Ignoring SDL_KEYDOWN during preedit seems to work fine.
 	static bool composition_is_underway = false;
-#endif
+
 	SDL_Event event;
 	event.type = 1;
 	if (wait) {
@@ -520,8 +518,8 @@ static void internal_GetEvents(bool const wait)
 		if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
 			sys_event.type = SIM_SYSTEM;
 			sys_event.code = SYSTEM_RESIZE;
-			sys_event.mx = event.window.data1;
-			sys_event.my = event.window.data2;
+			sys_event.mx = (event.window.data1 * 32l) / x_scale;
+			sys_event.my = (event.window.data2 * 32l) / y_scale;
 		}
 		// Ignore other window events.
 		break;
@@ -561,11 +559,19 @@ static void internal_GetEvents(bool const wait)
 		break;
 	}
 	case SDL_KEYDOWN: {
-#ifdef __APPLE__
+		// Hack: when 2 byte character composition is under way, we have to leave the key processing with the IME
+		// BUT: if not, we have to do it ourselves, or the cursor or return will not be recognised
 		if (composition_is_underway) {
-			break;
+			if (gui_component_t *c = win_get_focus()) {
+				if (gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)) {
+					if (tinp->get_composition()[0]) {
+						// pending string, handled by IME
+						break;
+	}
+	}
+}
 		}
-#endif
+
 		unsigned long code;
 #ifdef _WIN32
 		// SDL doesn't set numlock state correctly on startup. Revert to win32 function as workaround.
@@ -631,7 +637,7 @@ static void internal_GetEvents(bool const wait)
 		sys_event.type = SIM_KEYBOARD;
 		sys_event.code = code;
 		break;
-	}
+		}
 	case SDL_TEXTINPUT: {
 		size_t in_pos = 0;
 		utf16 uc = utf8_to_utf16((utf8 *)event.text.text, &in_pos);
@@ -647,20 +653,16 @@ static void internal_GetEvents(bool const wait)
 			sys_event.ptr = (void*)textinput;
 		}
 		sys_event.key_mod = ModifierKeys();
-#ifdef __APPLE__
 		composition_is_underway = false;
-#endif
 		break;
 	}
 #ifdef USE_SDL_TEXTEDITING
 	case SDL_TEXTEDITING: {
 		//printf( "SDL_TEXTEDITING {timestamp=%d, \"%s\", start=%d, length=%d}\n", event.edit.timestamp, event.edit.text, event.edit.start, event.edit.length );
 		strcpy(textinput, event.edit.text);
-#ifdef __APPLE__
 		if (!textinput[0]) {
 			composition_is_underway = false;
 		}
-#endif
 		int i = 0;
 		int start = 0;
 		for (; i<event.edit.start; ++i) {
@@ -676,9 +678,7 @@ static void internal_GetEvents(bool const wait)
 				tinp->set_composition_status(textinput, start, end - start);
 			}
 		}
-#ifdef __APPLE__
 		composition_is_underway = true;
-#endif
 		break;
 	}
 #endif
