@@ -107,9 +107,10 @@ DBG_MESSAGE("event","HOWDY!");
 		return ev->ev_code == SIM_KEY_ENTER;
 	}
 
-	if(  IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTRELEASE(ev)  ) {
+	if(  IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTRELEASE(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev)  ) {
 
 		if(first_call) {
+
 			// ignore clicks outside if closed
 			scr_rect this_comp( get_size() );
 			if(  !droplist.is_visible()  &&  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
@@ -123,7 +124,7 @@ DBG_MESSAGE("event","HOWDY!");
 			}
 			first_call = false;
 
-			// else prepare for selection
+			// else prepare for selection (after a left mbutton release event!)
 			droplist.set_visible(true);
 			droplist.set_pos(scr_coord(this->pos.x, this->pos.y + D_EDIT_HEIGHT + D_V_SPACE / 2));
 			droplist.request_size(scr_size(this->size.w, max_size.h - D_EDIT_HEIGHT - D_V_SPACE / 2));
@@ -149,11 +150,16 @@ DBG_MESSAGE("event","HOWDY!");
 				translate_event(&ev2, 0, -D_EDIT_HEIGHT - D_V_SPACE/2);
 			}
 
-			if(droplist.getroffen(ev->cx + pos.x, ev->cy + pos.y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
-				droplist.infowin_event(&ev2);
-				// we selected something?
-				if(finish  &&  IS_LEFTRELEASE(ev)) {
-					close_box();
+			if( droplist.getroffen(ev->cx + pos.x, ev->cy + pos.y)  ) {
+				int old_selection = droplist.get_selection();
+				if(  droplist.infowin_event(&ev2)  ) {
+					if(  droplist.get_selection() !=  old_selection  ) {
+						call_listeners( droplist.get_selection() );
+					}
+					// we selected something?
+					if(finish  &&  IS_LEFTRELEASE(ev)) {
+						close_box();
+					}
 				}
 				return true;
 			}
