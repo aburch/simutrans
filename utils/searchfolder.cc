@@ -1,7 +1,7 @@
 #include <string>
 #include <string.h>
 
-#ifndef _MSC_VER
+#ifndef _WIN32
 #include <dirent.h>
 #else
 #define NOMINMAX
@@ -95,7 +95,7 @@ int searchfolder_t::search_path(const std::string &filepath, const std::string &
 			path = path.substr(0, slash + 1);
 		}
 	}
-#ifdef _MSC_VER
+#ifdef _WIN32
 	lookfor = path + name + ext;
 	struct _wfinddata_t entry;
 	WCHAR path_inW[1024];
