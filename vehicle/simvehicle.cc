@@ -4421,6 +4421,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	uint16 brake_tiles = brake_steps / VEHICLE_STEPS_PER_TILE;
 	roadsign_t::signal_aspects next_time_interval_state = roadsign_t::danger;
 	roadsign_t::signal_aspects first_time_interval_state = roadsign_t::advance_caution; // A time interval signal will never be in advance caution, so this is a placeholder to indicate that this value has not been set.
+	signal_t* station_signal_to_clear_for_entry = NULL;
+
 	if(working_method == drive_by_sight)
 	{
 		const sint32 max_speed_drive_by_sight = welt->get_settings().get_max_speed_drive_by_sight();
@@ -4553,14 +4555,19 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			const uint32 station_signals_ahead = check_halt.is_bound() ? check_halt->get_station_signals_count() : 0;
 			bool station_signals_in_advance = false;
 			const bool signal_here = sch1->has_signal() || station_signals;
+			bool station_signal_to_clear_only = false;
 
 			if(!signal_here && station_signals_ahead)
 			{
 				halthandle_t destination_halt = haltestelle_t::get_halt(cnv->get_schedule()->get_current_eintrag().pos, get_owner()); 
 				station_signals_in_advance = check_halt != this_halt && check_halt != destination_halt; 
+				if (check_halt != this_halt && check_halt == destination_halt)
+				{
+					station_signal_to_clear_only = true;
+				}
 			}
 			
-			if(signal_here || station_signals_in_advance)
+			if(signal_here || station_signals_in_advance || station_signal_to_clear_only)
 			{			 
 				signal_t* signal = NULL;
 				halthandle_t station_signal_halt;
@@ -4572,7 +4579,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					check_station_signals = station_signals;
 					station_signal_halt = this_halt;
 				}
-				else if(station_signals_ahead)
+				else if(station_signals_ahead || station_signal_to_clear_only)
 				{
 					// This finds a station signal in a station in advance
 					check_station_signals = station_signals_ahead;
@@ -4607,6 +4614,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								}
 							}
 						}
+					}
+					if (station_signal_to_clear_only)
+					{
+						station_signal_to_clear_for_entry = signal;
+						goto station_signal_to_clear_only_point;
 					}
 				}
 				else
@@ -5073,6 +5085,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 				}
 			}
+
+			station_signal_to_clear_only_point:
 			
 			if(next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph)
 			{
@@ -5567,6 +5581,19 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				first_station_signal->set_state(first_time_interval_state);
 			}
 		}
+		if (station_signal_to_clear_for_entry)
+		{
+			// Clear the station signal when a train is arriving.
+			// TODO: Consider whether to make this optional on a setting in the signal's .dat file
+			if (station_signal_to_clear_for_entry->get_desc()->get_aspects() > 2)
+			{
+				station_signal_to_clear_for_entry->set_state(station_signal == inverse ? roadsign_t::caution : roadsign_t::caution_no_choose);
+			}
+			else
+			{
+				station_signal_to_clear_for_entry->set_state(station_signal == inverse ? roadsign_t::clear : roadsign_t::clear_no_choose);
+			}
+		}
 
 		sint32 counter = (signs.get_count() - 1) + choose_return;
 		bool time_interval_junction_signal = false;
@@ -5576,6 +5603,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			counter ++;
 			time_interval_junction_signal = true;
 		}
+
 		FOR(slist_tpl<grund_t*>, const g, signs)
 		{
 			if(signal_t* const signal = g->find<signal_t>())
