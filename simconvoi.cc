@@ -911,7 +911,10 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 					uint32 sp_hat = fahr[0]->do_drive(1<<YARDS_PER_VEHICLE_STEP_SHIFT);
 					int v_nr = get_vehicle_at_length((++steps_driven)>>4);
 					// stop when depot reached
-					if(state==INITIAL  ||  state==ROUTING_1) {
+					if (state==INITIAL) {
+						return SYNC_REMOVE;
+					}
+					if (state==ROUTING_1) {
 						break;
 					}
 					// until all are moving or something went wrong (sp_hat==0)
@@ -1345,6 +1348,7 @@ void convoi_t::step()
 
 		// just waiting for action here
 		case INITIAL:
+			welt->sync.remove(this);
 		case EDIT_SCHEDULE:
 		case NO_ROUTE:
 			wait_lock = max( wait_lock, 25000 );
