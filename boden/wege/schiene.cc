@@ -91,7 +91,7 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 		
 		buf.append(reserve_text);
 		buf.append("\n   ");
-		buf.append(translator::translate( reserved->get_name()));
+		buf.append(translator::translate(reserved->get_name()));
 		buf.append("\n   ");
 
 		rail_vehicle_t* rail_vehicle = NULL;
@@ -154,9 +154,16 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 			buf.append(number_actual);
 			buf.append("km");
 		}
+		buf.append(", ");
+		buf.append(speed_to_kmh(reserved->get_akt_speed()));
+		buf.append(translator::translate("km/h"));
 
-
-
+		vehicle_t* vehicle = NULL;
+		vehicle = (vehicle_t*)reserved->front();
+		
+		buf.append(" (");
+		buf.append(get_directions_name(vehicle->get_direction()));
+		buf.append(")");
 
 #ifdef DEBUG_PBS
 		reserved->show_info();

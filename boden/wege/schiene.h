@@ -217,21 +217,21 @@ public:
 		case 2:
 			return "east";
 		case 3:
-			return "north_and_east";
+			return "north_east";
 		case 4:
 			return "south";
 		case 5:
-			return "north_and_south";
+			return "north_south";
 		case 6:
-			return "south_and_east";
+			return "south_east";
 		case 8:
 			return "west";
 		case 9:
-			return "north_and_west";
+			return "north_west";
 		case 10:
-			return "east_and_west";
+			return "east_west";
 		case 12:
-			return "south_and_west";
+			return "south_west";
 		default:
 			return "unknown";
 		};
