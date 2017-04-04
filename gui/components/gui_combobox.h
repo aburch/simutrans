@@ -34,6 +34,8 @@ private:
 	button_t bt_prev;
 	button_t bt_next;
 
+	scr_size closed_size;
+
 	/**
 	 * the drop box list
 	 * @author hsiegeln

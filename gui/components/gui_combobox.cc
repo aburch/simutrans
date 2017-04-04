@@ -43,7 +43,7 @@ gui_combobox_t::gui_combobox_t() :
 	wrapping = true;
 	droplist.set_visible(false);
 	droplist.add_listener(this);
-	set_size(get_size());
+	closed_size = get_size();
 	max_size = scr_size(0,10*LINESPACE);
 	set_highlight_color(color_idx_to_rgb(COL_SOFT_BLUE));
 }
@@ -128,13 +128,13 @@ DBG_MESSAGE("event","HOWDY!");
 
 			// else prepare for selection (after a left mbutton release event!)
 			droplist.set_visible(true);
-			droplist.set_pos(scr_coord(this->pos.x, this->pos.y + D_EDIT_HEIGHT + D_V_SPACE / 2));
-			droplist.request_size(scr_size(this->size.w, max_size.h - D_EDIT_HEIGHT - D_V_SPACE / 2));
-			set_size(droplist.get_size() + scr_size(0, D_EDIT_HEIGHT + D_V_SPACE / 2));
+			droplist.set_pos( gui_component_t::get_pos() + scr_size(0,textinp.get_size().h) );
+			droplist.request_size(scr_size(this->size.w, max_size.h - closed_size.h) );
+			gui_component_t::set_size( droplist.get_size() + scr_size(0, (closed_size.h + D_V_SPACE) / 2) );
 			// find out if list is outside window
 			opened_at_bottom = ( pos.y + D_EDIT_HEIGHT + D_V_SPACE/2 + droplist.get_size().h > win_get_top()->get_windowsize().h );
 			if(  opened_at_bottom  ) {
-				droplist.set_pos(scr_coord(this->pos.x, this->pos.y - D_V_SPACE/2 - droplist.get_size().h ));
+				droplist.set_pos( gui_component_t::get_pos() + scr_size(0,D_V_SPACE/4 - droplist.get_size().h) );
 			}
 
 			int sel = droplist.get_selection();
@@ -302,7 +302,7 @@ void gui_combobox_t::close_box()
 		finish = false;
 	}
 	droplist.set_visible(false);
-	set_size(scr_size(size.w, D_EDIT_HEIGHT));
+	gui_component_t::set_size(closed_size);
 	first_call = true;
 }
 
@@ -310,17 +310,27 @@ void gui_combobox_t::close_box()
 void gui_combobox_t::set_pos(scr_coord pos_par)
 {
 	gui_component_t::set_pos( pos_par );
+
 	droplist.set_pos( scr_coord( pos_par.x, pos_par.y + textinp.get_size().h ) );
 }
 
 
 void gui_combobox_t::set_size(scr_size size)
 {
+	closed_size = size;
+
 	gui_component_t::set_size( size );
 
-	textinp.set_size( scr_size( size.w - bt_prev.get_size().w - bt_next.get_size().w - 3 * D_H_SPACE / 2, D_EDIT_HEIGHT ) );
-	textinp.align_to( &bt_prev, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( pos.x + D_H_SPACE / 2, pos.y ) );
+	textinp.set_size( scr_size( size.w - bt_prev.get_size().w - bt_next.get_size().w - 2 * D_H_SPACE, closed_size.h-D_V_SPACE/2  ) );
+	if(  opened_at_bottom  ) {
+		droplist.set_pos( gui_component_t::get_pos() + scr_size(0,D_V_SPACE/4 - droplist.get_size().h) );
+	}
+	else {
+		droplist.set_pos( gui_component_t::get_pos() + scr_size(0,textinp.get_size().h) );
+	}
 
+	bt_prev.set_pos( scr_coord(0,(size.h-D_POS_BUTTON_HEIGHT)/2) );
+	textinp.align_to( &bt_prev, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( pos.x + D_H_SPACE / 2, pos.y ) );
 	bt_next.align_to( &textinp, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( -pos.x + D_H_SPACE / 2, -pos.y ) );
 }
 
@@ -332,9 +342,9 @@ void gui_combobox_t::set_size(scr_size size)
 void gui_combobox_t::set_max_size(scr_size max)
 {
 	max_size = max;
-	droplist.request_size( scr_size( size.w, max_size.h - D_EDIT_HEIGHT - D_V_SPACE / 2 ) );
+	droplist.request_size( scr_size( size.w, max_size.h - closed_size.h ) );
 	if(  droplist.is_visible()  ) {
-		set_size( droplist.get_size() + scr_size( 0, D_EDIT_HEIGHT + D_V_SPACE / 2 ) );
+		gui_component_t::set_size( droplist.get_size() + scr_size( 0, closed_size.h ) );
 		droplist.adjust_scrollbar();
 	}
 }
