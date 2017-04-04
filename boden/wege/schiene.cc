@@ -110,13 +110,13 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 		
 		// We dont need to specify if the reservation is a "block" type. Only show the two other more interresting reservation types
 		if (get_reservation_type() != block) {
-			buf.append(get_reservation_type_name(get_reservation_type()));
+			buf.append(translator::translate(get_reservation_type_name(get_reservation_type())));
 			if (get_reservation_type() == directional)
 			{
 				buf.append(", ");
 				buf.append(translator::translate("reservation_heading"));
 				buf.append(": ");
-				buf.append(get_directions_name(get_reserved_direction()));
+				buf.append(translator::translate(get_directions_name(get_reserved_direction())));
 			}
 			textlines += 1;
 			buf.append("\n   ");
@@ -162,7 +162,7 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 		vehicle = (vehicle_t*)reserved->front();
 		
 		buf.append(" (");
-		buf.append(get_directions_name(vehicle->get_direction()));
+		buf.append(translator::translate(get_directions_name(vehicle->get_direction())));
 		buf.append(")");
 
 #ifdef DEBUG_PBS
