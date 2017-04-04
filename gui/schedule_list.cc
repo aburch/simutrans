@@ -724,11 +724,16 @@ void schedule_list_gui_t::show_lineinfo(linehandle_t line)
 
 	if(  line.is_bound()  ) {
 		// rebuilding line list will also show selection
-		for(  uint8 i=0;  i<max_idx;  i++  ) {
-			if(  tabs_to_lineindex[i]==line->get_linetype()  ) {
-				tabs.set_active_tab_index( i );
-				build_line_list( i );
-				break;
+		if(  tabs.get_active_tab_index()==0  ) {
+			build_line_list( 0 );
+		}
+		else {
+			for(  uint8 i=0;  i<max_idx;  i++  ) {
+				if(  tabs_to_lineindex[i]==line->get_linetype()  ) {
+					tabs.set_active_tab_index( i );
+					build_line_list( i );
+					break;
+				}
 			}
 		}
 	}
