@@ -558,7 +558,7 @@ void depot_frame_t::layout(scr_size *size)
 	vehicle_filter.set_size( scr_size((DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) - (DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT) * 3 / 4 - 3, D_BUTTON_HEIGHT));
 	vehicle_filter.set_max_size( scr_size( D_BUTTON_WIDTH + 60, ((size &&  size->h>0) ? size->h : gui_frame_t::get_windowsize().h)-INFO_VSTART-D_BUTTON_HEIGHT-D_MARGIN_BOTTOM-D_TITLEBAR_HEIGHT ) );
 
-	lb_vehicle_filter.align_to(&vehicle_filter, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(D_V_SPACE,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT)));
+	lb_vehicle_filter.align_to(&vehicle_filter, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(0,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT)));
 
 	name_filter_input.set_size( vehicle_filter.get_size() );
 	name_filter_input.set_pos( vehicle_filter.get_pos()+scr_coord(0,2+D_BUTTON_HEIGHT));
