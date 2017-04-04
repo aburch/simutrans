@@ -22,9 +22,10 @@ schiene_info_t::schiene_info_t(schiene_t* const s) :
 	sch(s)
 
 {
-		reserving_vehicle_button.init(button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, get_windowsize().h - 26 - (sch->get_textlines() * LINESPACE)));
-		reserving_vehicle_button.set_tooltip("goto_vehicle");
-		reserving_vehicle_button.add_listener(this);
+	reserving_vehicle_button.init(button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, get_windowsize().h - 26 - (sch->get_textlines() * LINESPACE)));
+	reserving_vehicle_button.set_tooltip("goto_vehicle");
+	reserving_vehicle_button.add_listener(this);
+	add_component(&reserving_vehicle_button);
 }
 
 
@@ -45,16 +46,19 @@ bool schiene_info_t::action_triggered( gui_action_creator_t *comp, value_t)
 	return true;
 }
 
-/**
+/*
 * Draw new component. The values to be passed refer to the window
 * i.e. It's the screen coordinates of the window where the
 * component is displayed.
 */
+/*
 void schiene_info_t::draw(scr_coord pos, scr_size size)
 {
 	buf.clear();
 	info(buf);
 //	textarea.recalc_size();
+
+
 
 	gui_frame_t::draw(pos, size);
 
@@ -67,4 +71,4 @@ void schiene_info_t::draw(scr_coord pos, scr_size size)
 	{
 		add_component(&reserving_vehicle_button);
 	}
-}
+}*/

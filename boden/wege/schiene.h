@@ -167,6 +167,33 @@ public:
 
 	uint8 get_textlines() const { return textlines_in_info_window; }
 
+	static const char* get_working_method_name(working_method_t wm)
+	{
+		switch (wm)
+		{
+		case drive_by_sight:
+			return "drive_by_sight";
+		case time_interval:
+			return "time_interval";
+		case absolute_block:
+			return "absolute_block";
+		case token_block:
+			return "token_block";
+		case track_circuit_block:
+			return "track_circuit_block";
+		case cab_signalling:
+			return "cab_signalling";
+		case moving_block:
+			return "moving_block";
+		case one_train_staff:
+			return "one_train_staff";
+		case time_interval_with_telegraph:
+			return "time_interval_with_telegraph";
+		default:
+			return "unknown";
+		};
+	}
+
 	static const char* get_reservation_type_name(reservation_type rt)
 	{
 		switch (rt)

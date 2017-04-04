@@ -79,6 +79,8 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 
 	schiene_t* sch = (schiene_t*)this;
 
+	uint8 textlines = 1; // to locate the clickable button
+
 	if(reserved.is_bound()) 
 	{
 		const char* reserve_text = translator::translate("\nis reserved by:");
@@ -86,11 +88,31 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 		if (reserve_text[0] == '\n') {
 			reserve_text++;
 		}
-		uint8 textlines = 3; // to locate the clickable button
+		
 		buf.append(reserve_text);
 		buf.append("\n   ");
 		buf.append(reserved->get_name());
 		buf.append("\n   ");
+
+//		vehicle_t* vehicle = reserved->front();		
+//		rail_vehicle_t* rv = vehicle;
+//		working_method_t wm = rv->get_working_method();
+
+		rail_vehicle_t* rail_vehicle = NULL;
+		switch (reserved->front()->get_waytype())
+		{
+		case track_wt:
+		case narrowgauge_wt:
+		case tram_wt:
+		case monorail_wt:
+		case maglev_wt:
+			rail_vehicle = (rail_vehicle_t*)reserved->front();
+
+		}
+		buf.append(translator::translate(get_working_method_name(rail_vehicle->get_working_method())));
+		textlines +=1;
+		buf.append("\n   ");
+		
 		buf.append(get_reservation_type_name(get_reservation_type()));
 		if (get_reservation_type() == directional)
 		{
@@ -99,13 +121,13 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 			buf.append(": ");
 			buf.append(get_directions_name(get_reserved_direction()));
 		}
+		textlines +=1;
 		buf.append("\n   ");
+
 		buf.append(translator::translate("distance_to_vehicle"));
 		buf.append(": ");
-	/*	working_method_t wm = reserved->get_working_method();
-		buf.append(wm);
-		buf.append("\n");
-		*/
+		textlines +=1;
+
 		koord3d vehpos = reserved->get_pos();
 		koord3d schpos = sch->get_pos();
 		const uint32 tiles_to_vehicle = shortest_distance(schpos.get_2d(), vehpos.get_2d());
@@ -135,7 +157,7 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 			buf.append("km");
 		}
 
-		sch->textlines_in_info_window = textlines;
+
 
 
 #ifdef DEBUG_PBS
@@ -146,7 +168,9 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 	{
 		buf.append(translator::translate("track_not_reserved"));
 		buf.append("\n\n");
+		textlines +=1;
 	}
+	sch->textlines_in_info_window = textlines;
 }
 
 
