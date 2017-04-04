@@ -5092,7 +5092,7 @@ void karte_t::load(loadsave_t *file)
 	intr_disable();
 	dbg->message("karte_t::laden()", "Prepare for loading" );
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		selected_tool[i] = tool_t::general_tool[TOOL_QUERY];
+		set_tool(tool_t::general_tool[TOOL_QUERY], get_player(i));
 	}
 	destroy_all_win(true);
 
