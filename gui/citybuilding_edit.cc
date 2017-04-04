@@ -180,16 +180,23 @@ bool citybuilding_edit_frame_t::action_triggered( gui_action_creator_t *comp,val
 		fill_list( is_show_trans_name );
 	}
 	else if(desc) {
-		if(  comp==&bt_left_rotate  &&  rotation!=254) {
-			if(rotation==0) {
-				rotation = 255;
+		if(  comp==&bt_left_rotate  ) {
+			// random, auto, max_rotaions-1 ... 0
+			if(rotation==254) {
+				rotation = desc->get_all_layouts()-1;
 			}
 			else {
 				rotation --;
 			}
 		}
-		else if(  comp==&bt_right_rotate  &&  rotation!=desc->get_all_layouts()-1) {
-			rotation ++;
+		else if(  comp==&bt_right_rotate  ) {
+			// 0...max-rotation, auto, random
+			if(  rotation==desc->get_all_layouts()-1  ) {
+				rotation = 254;
+			}
+			else {
+				rotation ++;
+			}
 		}
 		// update info ...
 		change_item_info( scl.get_selection() );
@@ -242,7 +249,7 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 
 			// orientation (254=auto, 255=random)
 			if(desc->get_all_layouts()>1) {
-				rotation = 255; // no definition yet
+				rotation = 254; // no definition yet, choose auto
 			}
 			else {
 				rotation = 0;
