@@ -3230,3 +3230,31 @@ east_and_west
 East and West
 goto_signalbox
 Go to signalbox
+goto_vehicle
+Go to vehicle
+reservation_heading
+heading
+distance_to_vehicle
+Distance to vehicle
+km/h
+km/h
+track_not_reserved
+Track is not reserved
+block_reservation
+Block reservation
+directional_reservation
+Directional_reservation
+priority_reservation
+Priority reservation
+north_east
+North/East
+north_south
+North/South
+south_east
+South/East
+north_west
+North/West
+east_west
+East/West
+south_west
+South/West
