@@ -41,7 +41,7 @@ bool schiene_info_t::action_triggered( gui_action_creator_t *comp, value_t)
 {
 	if (comp == &reserving_vehicle_button)
 	{
-	welt->get_viewport()->set_follow_convoi(sch->get_reserved_convoi());
+		welt->get_viewport()->set_follow_convoi(sch->get_reserved_convoi());
 	}
 	return true;
 }

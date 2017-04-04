@@ -91,12 +91,8 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 		
 		buf.append(reserve_text);
 		buf.append("\n   ");
-		buf.append(reserved->get_name());
+		buf.append(translator::translate( reserved->get_name()));
 		buf.append("\n   ");
-
-//		vehicle_t* vehicle = reserved->front();		
-//		rail_vehicle_t* rv = vehicle;
-//		working_method_t wm = rv->get_working_method();
 
 		rail_vehicle_t* rail_vehicle = NULL;
 		switch (reserved->front()->get_waytype())
@@ -107,22 +103,24 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 		case monorail_wt:
 		case maglev_wt:
 			rail_vehicle = (rail_vehicle_t*)reserved->front();
-
 		}
 		buf.append(translator::translate(get_working_method_name(rail_vehicle->get_working_method())));
 		textlines +=1;
 		buf.append("\n   ");
 		
-		buf.append(get_reservation_type_name(get_reservation_type()));
-		if (get_reservation_type() == directional)
-		{
-			buf.append(" ");
-			buf.append(translator::translate("heading"));
-			buf.append(": ");
-			buf.append(get_directions_name(get_reserved_direction()));
+		// We dont need to specify if the reservation is a "block" type. Only show the two other more interresting reservation types
+		if (get_reservation_type() != block) {
+			buf.append(get_reservation_type_name(get_reservation_type()));
+			if (get_reservation_type() == directional)
+			{
+				buf.append(" ");
+				buf.append(translator::translate("heading"));
+				buf.append(": ");
+				buf.append(get_directions_name(get_reserved_direction()));
+			}
+			textlines += 1;
+			buf.append("\n   ");
 		}
-		textlines +=1;
-		buf.append("\n   ");
 
 		buf.append(translator::translate("distance_to_vehicle"));
 		buf.append(": ");
