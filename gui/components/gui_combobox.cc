@@ -132,7 +132,7 @@ DBG_MESSAGE("event","HOWDY!");
 			droplist.request_size(scr_size(this->size.w, max_size.h - closed_size.h) );
 			gui_component_t::set_size( droplist.get_size() + scr_size(0, (closed_size.h + D_V_SPACE) / 2) );
 			// find out if list is outside window
-			opened_at_bottom = ( pos.y + D_EDIT_HEIGHT + D_V_SPACE/2 + droplist.get_size().h > win_get_top()->get_windowsize().h );
+			opened_at_bottom = ( pos.y + textinp.get_size().h + D_V_SPACE/2 + droplist.get_size().h + D_TITLEBAR_HEIGHT > win_get_top()->get_windowsize().h );
 			if(  opened_at_bottom  ) {
 				droplist.set_pos( gui_component_t::get_pos() + scr_size(0,D_V_SPACE/4 - droplist.get_size().h) );
 			}

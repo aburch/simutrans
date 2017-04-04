@@ -87,13 +87,13 @@ ki_kontroll_t::ki_kontroll_t() :
 		cursor.x += D_ARROW_RIGHT_WIDTH + D_H_SPACE;
 
 		// Prepare finances button
-		player_get_finances[i].init( button_t::box, "", cursor, scr_size( L_FINANCE_WIDTH, D_EDIT_HEIGHT ) );
+		player_get_finances[i].init( button_t::box, "", cursor, scr_size( L_FINANCE_WIDTH, D_BUTTON_HEIGHT ) );
 		player_get_finances[i].background_color = PLAYER_FLAG | color_idx_to_rgb((player_ ? player_->get_player_color1():i*8)+4);
 		player_get_finances[i].add_listener(this);
 
 		// Player type selector, Combobox
 		player_select[i].set_pos( cursor );
-		player_select[i].set_size( scr_size( L_FINANCE_WIDTH, D_EDIT_HEIGHT ) );
+		player_select[i].set_size( scr_size( L_FINANCE_WIDTH, D_BUTTON_HEIGHT ) );
 		player_select[i].set_focusable( false );
 
 		// Create combobox list data
@@ -124,14 +124,14 @@ ki_kontroll_t::ki_kontroll_t() :
 		cursor.x += L_FINANCE_WIDTH + D_H_SPACE;
 
 		// password/locked button
-		player_lock[i].init(button_t::box, "", cursor, scr_size(D_EDIT_HEIGHT,D_EDIT_HEIGHT));
+		player_lock[i].init(button_t::box, "", cursor, scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT));
 		player_lock[i].background_color = color_idx_to_rgb((player_ && player_->is_locked()) ? (player_->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN);
 		player_lock[i].enable( welt->get_player(i) );
 		player_lock[i].add_listener(this);
 		if (player_tools_allowed) {
 			add_component( player_lock+i );
 		}
-		cursor.x += D_EDIT_HEIGHT + D_H_SPACE;
+		cursor.x += D_BUTTON_HEIGHT + D_H_SPACE;
 
 		// Income label
 		account_str[i][0] = 0;
@@ -144,7 +144,7 @@ ki_kontroll_t::ki_kontroll_t() :
 			player_active[i-2].align_to( &player_lock[i], ALIGN_CENTER_V );
 		}
 
-		cursor.y += D_EDIT_HEIGHT + D_V_SPACE;
+		cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
 		cursor.x  = D_MARGIN_LEFT;
 	}
 
