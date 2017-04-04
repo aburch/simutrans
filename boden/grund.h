@@ -88,7 +88,7 @@ template<typename T> static inline T* obj_cast(obj_t* const d)
  * in simu abgeleitet. Jedes Planquadrat hat einen Untergrund.</p>
  *
  * <p>Der Boden hat Eigenschaften, die abgefragt werden koennen
- * ist_natur(), ist_wasser(), hat_wegtyp(), ist_bruecke().
+ * ist_natur(), is_water(), hat_wegtyp(), ist_bruecke().
  * In dieser Basisklasse sind all Eigenschaften false, sie werden erst
  * in den Subklassen redefiniert.</p>
  *
@@ -312,7 +312,7 @@ public:
 	void set_text(const char* text);
 
 	virtual bool ist_natur() const {return false;}
-	virtual bool ist_wasser() const {return false;}
+	virtual bool is_water() const {return false;}
 
 	/**
 	* This is called very often, it must be inlined and therefore

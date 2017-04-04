@@ -227,14 +227,14 @@ public:
 
 	// default vehicle (used for way search and similar tasks)
 	// since it has no images and not even a name node any calls to this will case a crash
-	vehicle_desc_t(uint8 wtyp, uint16 speed, engine_t engine, uint16 al = 0, uint32 weight = 1) : geared_power(0), geared_force(0) {
-		freight_image_type = livery_image_type = cost = upgrade_price = capacity = overcrowded_capacity = running_cost = intro_date = leader_count = trailer_count = catering_level = upgrades = 0;
+	vehicle_desc_t(uint8 wtype, uint16 speed, engine_t engine, uint16 al = 0, uint32 weight = 1) : geared_power(0), geared_force(0) {
+		freight_image_type = livery_image_type = price = upgrade_price = capacity = overcrowded_capacity = running_cost = intro_date = leader_count = trailer_count = catering_level = upgrades = 0;
 		fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 		power = comfort = 1;
 		gear = GEAR_FACTOR;
 		len = 8;
 		sound = -1;
-		wt = wtyp;
+		wtyp = wtype;
 		axle_load = al;
 		weight = weight;
 		engine_type = (uint8)engine;
@@ -649,7 +649,7 @@ public:
 	* @return time when no longer in production
 	* @author prissi
 	*/
-	uint16 get_retire_year_month() const { return obsolete_date; }
+	uint16 get_retire_year_month() const { return retire_date; }
 
 	/**
 	* @return time when the vehicle is obsolete
@@ -669,7 +669,7 @@ public:
 	*/
 	bool is_retired (const uint16 month_now) const
 	{
-		return month_now  &&  (obsolete_date <= month_now);
+		return month_now  &&  (retire_date <= month_now);
 	}
 
 	/**

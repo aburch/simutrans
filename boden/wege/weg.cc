@@ -44,6 +44,7 @@
 #include "../../obj/tunnel.h"
 #include "../../obj/gebaeude.h" // for ::should_city_adopt_this
 #include "../../utils/cbuffer_t.h"
+#include "../../dataobj/environment.h" // TILE_HEIGHT_STEP
 #include "../../dataobj/translator.h"
 #include "../../dataobj/loadsave.h"
 #include "../../dataobj/environment.h"
@@ -147,7 +148,7 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 	if(desc)
 	{
 		// Remove the old maintenance cost
-		sint32 old_maint = get_desc()->get_wartung();
+		sint32 old_maint = get_desc()->get_maintenance();
 		check_diagonal();
 		if(is_diagonal())
 		{
@@ -159,7 +160,7 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 	
 	desc = b;
 	// Add the new maintenance cost
-	sint32 maint = get_desc()->get_wartung();
+	sint32 maint = get_desc()->get_maintenance();
 	if(is_diagonal())
 	{
 		maint *= 10;
@@ -345,7 +346,7 @@ weg_t::~weg_t()
 		player_t *player = get_owner();
 		if (player  &&  desc)
 		{
-			sint32 maint = desc->get_wartung();
+			sint32 maint = desc->get_maintenance();
 			if (is_diagonal())
 			{
 				maint *= 10;
@@ -488,7 +489,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append(" ");
 	buf.append(max_speed);
 	buf.append(translator::translate("km/h\n"));
-	if(desc->get_styp() == type_elevated || waytype == air_wt || waytype == water_wt)
+	if(desc->get_styp() == type_elevated || wtyp == air_wt || wtyp == water_wt)
 	{
 		buf.append(translator::translate("\nMax. weight:"));
 	}
@@ -679,8 +680,8 @@ void weg_t::set_images(image_type typ, uint8 ribi, bool snow, bool switch_nw)
 			set_after_image( desc->get_image_id( ribi, snow, true ) );
 			break;
 		case image_slope:
-			set_image( desc->get_hang_image_nr( (slope_t::type)ribi, snow ) );
-			set_after_image( desc->get_hang_image_nr( (slope_t::type)ribi, snow, true ) );
+			set_image( desc->get_slope_image_id( (slope_t::type)ribi, snow ) );
+			set_after_image( desc->get_slope_image_id( (slope_t::type)ribi, snow, true ) );
 			break;
 		case image_switch:
 			set_image( desc->get_image_nr_switch(ribi, snow, switch_nw) );
@@ -709,7 +710,7 @@ bool weg_t::check_season(const bool calc_only_season_change)
 	grund_t *from = welt->lookup( get_pos() );
 
 	// use snow image if above snowline and above ground
-	bool snow = (from->ist_karten_boden()  ||  !from->ist_tunnel())  &&  (get_pos().z >= welt->get_snowline()  ||  welt->get_climate( get_pos().get_2d() ) == arctic_climate);
+	bool snow = (from->ist_karten_boden() || !from->ist_tunnel()) && (get_pos().z + from->get_weg_yoff() / TILE_HEIGHT_STEP >= welt->get_snowline() || welt->get_climate(get_pos().get_2d()) == arctic_climate);
 	bool old_snow = (flags&IS_SNOW) != 0;
 	if(  !(snow ^ old_snow)  ) {
 		// season is not changing ...
@@ -804,7 +805,7 @@ void weg_t::calc_image()
 	}
 	else {
 		// use snow image if above snowline and above ground
-		bool snow = (from->ist_karten_boden()  ||  !from->ist_tunnel())  &&  (get_pos().z >= welt->get_snowline() || welt->get_climate( get_pos().get_2d() ) == arctic_climate  );
+		bool snow = (from->ist_karten_boden() || !from->ist_tunnel()) && (get_pos().z + from->get_weg_yoff() / TILE_HEIGHT_STEP >= welt->get_snowline() || welt->get_climate(get_pos().get_2d()) == arctic_climate);
 		flags &= ~IS_SNOW;
 		if(  snow  ) {
 			flags |= IS_SNOW;
@@ -921,7 +922,7 @@ void weg_t::finish_rd()
 	player_t *player=get_owner();
 	if(player && desc) 
 	{
-		sint32 maint = desc->get_wartung();
+		sint32 maint = desc->get_maintenance();
 		check_diagonal();
 		if(is_diagonal())
 		{
@@ -1018,7 +1019,7 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 			case building_desc_t::factory: // factory
 			case building_desc_t::townhall: // town hall
 			case building_desc_t::generic_extension:
-			case building_desc_t::headquarter: // HQ
+			case building_desc_t::headquarters: // HQ
 			case building_desc_t::dock: // dock
 			case building_desc_t::flat_dock: 
 				has_neighbouring_building = (bool)welt->get_city(pos);
@@ -1132,7 +1133,7 @@ void weg_t::degrade()
 		// Instead, take them out of private ownership and renew them with the default way.
 		const bool initially_unowned = get_owner() == NULL;
 		set_owner(NULL); 
-		if(waytype == road_wt)
+		if(wtyp == road_wt)
 		{
 			const stadt_t* city = welt->get_city(get_pos().get_2d()); 
 			if (!initially_unowned && welt->get_timeline_year_month())
@@ -1181,6 +1182,11 @@ void weg_t::degrade()
 signal_t *weg_t::get_signal(ribi_t::ribi direction_of_travel) const
 {
 	signal_t* sig = welt->lookup(get_pos())->find<signal_t>();
+	if (sig && sig->get_desc()->get_working_method() == one_train_staff)
+	{
+		// This allows a single one train staff cabinet to work for trains passing in both directions.
+		return sig;
+	}
 	ribi_t::ribi way_direction = (ribi_t::ribi)ribi_maske;
 	if((direction_of_travel & way_direction) == 0)
 	{

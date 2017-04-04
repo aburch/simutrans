@@ -117,6 +117,9 @@ road_user_t::road_user_t(grund_t* bd, uint16 random) :
 			break;
 	}
 
+	set_xoff((dx<0) ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS);
+	set_yoff((dy<0) ? OBJECT_OFFSET_STEPS / 2 : -OBJECT_OFFSET_STEPS / 2);
+
 	if(to) {
 		pos_next = to->get_pos();
 	}
@@ -364,7 +367,7 @@ static bool compare_stadtauto_desc(const citycar_desc_t* a, const citycar_desc_t
 {
 	int diff = a->get_intro_year_month() - b->get_intro_year_month();
 	if (diff == 0) {
-		diff = a->get_geschw() - b->get_geschw();
+		diff = a->get_topspeed() - b->get_topspeed();
 	}
 	if (diff == 0) {
 		/* same Level - we introduce an artificial, but unique resort
@@ -397,7 +400,7 @@ void private_car_t::build_timeline_list(karte_t *welt)
 	}
 	liste_timeline.resize( temp_liste.get_count() );
 	FOR(vector_tpl<citycar_desc_t const*>, const i, temp_liste) {
-		liste_timeline.append(i, i->get_chance());
+		liste_timeline.append(i, i->get_distribution_weight());
 	}
 }
 
@@ -703,7 +706,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 										frei = false;
 									}
 								} else if(  private_car_t* const caut = obj_cast<private_car_t>(dt)  ) {
-									if(  !can_overtake(caut, caut->get_desc()->get_geschw(), VEHICLE_STEPS_PER_TILE)  ) {
+									if(  !can_overtake(caut, caut->get_desc()->get_topspeed(), VEHICLE_STEPS_PER_TILE)  ) {
 										frei = false;
 									}
 								}
@@ -871,7 +874,7 @@ grund_t* private_car_t::hop_check()
 					if(w->has_sign()) {
 						const roadsign_t* rs = to->find<roadsign_t>();
 						const roadsign_desc_t* rs_desc = rs->get_desc();
-						if(rs_desc->get_min_speed()>desc->get_geschw()  ||  (rs_desc->is_private_way()  &&  (rs->get_player_mask()&2)==0)  ) {
+						if(rs_desc->get_min_speed()>desc->get_topspeed()  ||  (rs_desc->is_private_way()  &&  (rs->get_player_mask()&2)==0)  ) {
 							// not allowed to go here
 							ribi &= ~ribi_t::nsew[r];
 							continue;
@@ -1010,7 +1013,7 @@ void private_car_t::calc_image()
 void private_car_t::calc_current_speed(grund_t* gr)
 {
 	const weg_t * weg = get_weg();
-	sint32 max_speed = desc ? desc->get_geschw() : kmh_to_speed(90);
+	sint32 max_speed = desc ? desc->get_topspeed() : kmh_to_speed(90);
 	const sint32 speed_limit = weg ? kmh_to_speed(weg->get_max_speed()) : max_speed;
 	current_speed += max_speed>>2;
 	if(current_speed > max_speed) {
@@ -1032,7 +1035,7 @@ void private_car_t::info(cbuffer_t & buf, bool dummy) const
 #endif
 	const char* origin_name = origin_city ? origin_city->get_name() : translator::translate("keine");
 	const char* destination_name = destination_city ? destination_city->get_name() : translator::translate("keine");
-	buf.printf(translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(desc->get_name()), speed_to_kmh(current_speed), speed_to_kmh(desc->get_geschw()), dx, dy);
+	buf.printf(translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(desc->get_name()), speed_to_kmh(current_speed), speed_to_kmh(desc->get_topspeed()), dx, dy);
 	buf.printf(translator::translate("\nOrigin: %s\nDestination: %s"), origin_name, destination_name);
 }
 
@@ -1137,7 +1140,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 	 * convoi_length for city cars? ==> a bit over half a tile (10)
 	 */
 	sint32 time_overtaking = 0;
-	sint32 distance = current_speed*((10<<4)+steps_other)/max(desc->get_geschw()-other_speed,diff_speed);
+	sint32 distance = current_speed*((10<<4)+steps_other)/max(desc->get_topspeed()-other_speed,diff_speed);
 
 	// Conditions for overtaking:
 	// Flat tiles, with no stops, no crossings, no signs, no change of road speed limit
@@ -1173,7 +1176,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 			const roadsign_t *rs = gr->find<roadsign_t>(1);
 			if(rs) {
 				const roadsign_desc_t *rb = rs->get_desc();
-				if(rb->get_min_speed()>desc->get_geschw()  ||  rb->is_private_way()  ||  rb->is_traffic_light()  ) {
+				if(rb->get_min_speed()>desc->get_topspeed()  ||  rb->is_private_way()  ||  rb->is_traffic_light()  ) {
 					// do not overtake when road is closed for cars, there is a traffic light or a too high min speed limit
 					return false;
 				}
@@ -1186,7 +1189,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		}
 
 		// street gets too slow (TODO: should be able to be correctly accounted for)
-		//if(  desc->get_geschw() > kmh_to_speed(str->get_max_speed())  ) {
+		//if(  desc->get_topspeed() > kmh_to_speed(str->get_max_speed())  ) {
 		if(  current_speed > kmh_to_speed(str->get_max_speed())  ) {
 			return false;
 		}

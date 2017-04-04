@@ -185,7 +185,7 @@ leitung_t::~leitung_t()
 			delete net;
 		}
 		if(!gr->ist_tunnel()) {
-			player_t::add_maintenance(get_owner(), -desc->get_wartung(), powerline_wt);
+			player_t::add_maintenance(get_owner(), -desc->get_maintenance(), powerline_wt);
 		}
 	}
 }
@@ -314,7 +314,7 @@ void leitung_t::calc_image()
 	image_id old_image = get_image();
 	slope_t::type hang = gr->get_weg_hang();
 	if(hang != slope_t::flat) {
-		set_image( desc->get_hang_image_nr(hang, snow));
+		set_image( desc->get_slope_image_id(hang, snow));
 	}
 	else {
 		if(gr->hat_wege()) {
@@ -434,7 +434,7 @@ void leitung_t::finish_rd()
 	const grund_t *gr = welt->lookup(get_pos());
 	assert(gr); (void)gr;
 
-	player_t::add_maintenance(get_owner(), desc->get_wartung(), powerline_wt);
+	player_t::add_maintenance(get_owner(), desc->get_maintenance(), powerline_wt);
 }
 
 

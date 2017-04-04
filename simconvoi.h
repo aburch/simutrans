@@ -130,7 +130,7 @@ public:
 	enum { max_vehicle=8, max_rail_vehicle = 64 };
 
 	enum states {INITIAL,
-		EDIT_SCHEDULE, // "Schedule enter" (Google)
+		EDIT_SCHEDULE, 
 		ROUTING_1,
 		ROUTING_2,
 		DUMMY5,

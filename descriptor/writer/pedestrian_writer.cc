@@ -14,7 +14,7 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 
 	write_head(fp, node, obj);
 
-	uint16 const chance = obj.get_int("distributionweight", 1);
+	uint16 const dist_weight = obj.get_int("distributionweight", 1);
 
 	static const char* const dir_codes[] = {
 		"s", "w", "sw", "se", "n", "e", "ne", "nw"
@@ -34,12 +34,12 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
 	intro_date += obj.get_int("intro_month", 1) - 1;
 
-	uint16 obsolete_date = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
-	obsolete_date += obj.get_int("retire_month", 1) - 1;
+	uint16 retire_date = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
+	retire_date += obj.get_int("retire_month", 1) - 1;
 
-	node.write_uint16(fp, chance,					 0);
+	node.write_uint16(fp, dist_weight,					 0);
 	node.write_uint16(fp, intro_date,				     2); // Formerly dummy
-	node.write_uint16(fp, obsolete_date,				 4); 
+	node.write_uint16(fp, retire_date,				 4); 
 
 	node.write(fp);
 }

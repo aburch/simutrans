@@ -46,7 +46,7 @@ void factory_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input((uint8)placement);
 	chk->input(productivity);
 	chk->input(range);
-	chk->input(chance);
+	chk->input(distribution_weight);
 	chk->input(color);
 	chk->input(supplier_count);
 	chk->input(product_count);
@@ -60,7 +60,7 @@ void factory_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(electric_boost);
 	chk->input(pax_boost);
 	chk->input(mail_boost);
-	chk->input(electric_amount);
+	chk->input(electric_demand);
 	chk->input(pax_demand);
 	chk->input(mail_demand);
 

@@ -69,7 +69,7 @@ class obj_reader_t
 	static obj_map* obj_reader;
 	//
 	// object addresses needed for resolving xrefs later
-	// - stored in a hashhash table with type and name
+	// - stored in a hash table with type and name
 	//
 	static inthashtable_tpl<obj_type, stringhashtable_tpl<obj_desc_t *> > loaded;
 	typedef inthashtable_tpl<obj_type, stringhashtable_tpl<slist_tpl<obj_desc_t**> > > unresolved_map;
@@ -114,7 +114,7 @@ public:
 	 */
 	static bool load(const char *path, const char *message);
 
-	// Only for single files, must take care ob all the cleanup/registering matrix themeselves
+	// Only for single files, must take care of all the cleanup/registering matrix themselves
 	static void read_file(const char *name);
 };
 

@@ -178,14 +178,14 @@ mail_packets_per_month_hundredths = 10
 # This setting determines the maximum number of onward trips that passengers may make on a journey.
 # The actual number of onward trips for any given packet of passengers is a random number of anywhere
 # between 1 and this figure. This is only applicable if passengers are in fact going to make an onward
-# trip, the chance of which is determined by a different setting (see below).
+# trip, the distribution_weight of which is determined by a different setting (see below).
 max_onward_trips = 3
 
 # This figure determines how likely that it is that passengers will make any onward trips at all. It
 # is expressed in percentage terms.
 onward_trip_chance_percent = 25
 
-# This is the chance, in percentage, that any given passenger journey will be a commuting trip. Any
+# This is the distribution_weight, in percentage, that any given passenger journey will be a commuting trip. Any
 # trip that is not a commuting trip is classed as a visiting trip.
 commuting_trip_chance_percent = 67
 
@@ -238,7 +238,7 @@ max_factory_spacing_percentage = 25
 # best to leave it in default position. (only on for simuTTD)
 crossconnect_factories = 0
 
-# how big is the chance for crossconnections in percent
+# how big is the distribution_weight for crossconnections in percent
 # (100% will give nearly the same results as crossconnect_factories=1)
 crossconnect_factories_percentage = 33
 

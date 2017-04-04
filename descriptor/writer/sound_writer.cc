@@ -8,7 +8,7 @@
 
 void sound_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	// eventuall direct name input
+	// eventual direct name input
 	std::string str = obj.get("sound_name");
 	uint16 len = str.size();
 
@@ -18,7 +18,7 @@ void sound_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 
 	// Hajo: version number
 	// Hajo: Version needs high bit set as trigger -> this is required
-	//       as marker because formerly nodes were unversionend
+	//       as marker because formerly nodes were unversioned
 	uint16 uv16 = 0x8002;
 	node.write_uint16(fp, uv16, 0);
 

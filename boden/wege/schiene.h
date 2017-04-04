@@ -118,7 +118,7 @@ public:
 	bool unreserve(vehicle_t *);
 
 	/* called befor deletion;
-	 * last chance to unreserve tiles ...
+	 * last distribution_weight to unreserve tiles ...
 	 */
 	virtual void cleanup(player_t *player);
 

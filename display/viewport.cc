@@ -172,7 +172,7 @@ grund_t* viewport_t::get_ground_on_screen_coordinate(scr_coord screen_pos, sint3
 	grund_t *gr = NULL;
 	// for the calculation of hmin/hmax see simview.cc
 	// for the definition of underground_level see grund_t::set_underground_mode
-	const sint8 hmin = grund_t::underground_mode != grund_t::ugm_all ? min( world->get_grundwasser() - 4, grund_t::underground_level ) : world->get_minimumheight();
+	const sint8 hmin = grund_t::underground_mode != grund_t::ugm_all ? min( world->get_groundwater() - 4, grund_t::underground_level ) : world->get_minimumheight();
 	const sint8 hmax = grund_t::underground_mode == grund_t::ugm_all ? world->get_maximumheight() : min( grund_t::underground_level, world->get_maximumheight() );
 
 	// find matching and visible grund

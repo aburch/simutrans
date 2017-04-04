@@ -1904,7 +1904,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		n += sprintf( buf + n, "%s %4.1fkN\n", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0); // Extended only
 		n += sprintf( buf + n, "%s %4.3fkN\n", translator::translate("Rolling resistance:"), veh_type->get_rolling_resistance().to_double() * (double)veh_type->get_weight() / 1000.0); // Extended only
 		
-		n += sprintf( buf + n, "%s %3d km/h", translator::translate("Max. speed:"), veh_type->get_geschw() );
+		n += sprintf( buf + n, "%s %3d km/h", translator::translate("Max. speed:"), veh_type->get_topspeed() );
 
 		// Permissive way constraints
 		// (If vehicle has, way must have)

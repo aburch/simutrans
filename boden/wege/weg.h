@@ -141,7 +141,7 @@ private:
 	way_constraints_of_way_t way_constraints;
 
 	// BG, 24.02.2012 performance enhancement avoid virtual method call, use inlined get_waytype()
-	waytype_t waytype;
+	waytype_t    wtyp;
 	
 
 	
@@ -190,8 +190,8 @@ protected:
 	void degrade();
 
 public:
-	inline weg_t(waytype_t waytype, loadsave_t*) : obj_no_info_t(obj_t::way), waytype(waytype) { init(); }
-	inline weg_t(waytype_t waytype) : obj_no_info_t(obj_t::way), waytype(waytype) { init(); }
+	inline weg_t(waytype_t waytype, loadsave_t*) : obj_no_info_t(obj_t::way), wtyp(waytype) { init(); }
+	inline weg_t(waytype_t waytype) : obj_no_info_t(obj_t::way), wtyp(waytype) { init(); }
 
 	virtual ~weg_t();
 
@@ -280,9 +280,9 @@ public:
 	/**
 	* Wetype zurückliefern
 	*/
-	waytype_t get_waytype() const { return waytype; }
+	waytype_t get_waytype() const { return wtyp; }
 
-	bool is_rail_type() const { return waytype == track_wt || waytype == maglev_wt || waytype == tram_wt || waytype == narrowgauge_wt || waytype == monorail_wt;  }
+	bool is_rail_type() const { return wtyp == track_wt || wtyp == maglev_wt || wtyp == tram_wt || wtyp == narrowgauge_wt || wtyp == monorail_wt;  }
 
 	/**
 	* 'Jedes Ding braucht einen Typ.'

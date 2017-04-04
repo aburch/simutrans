@@ -83,7 +83,7 @@ wayobj_t::~wayobj_t()
 	if(!desc) {
 		return;
 	}
-	player_t::add_maintenance(get_owner(), -desc->get_wartung(), get_waytype());
+	player_t::add_maintenance(get_owner(), -desc->get_maintenance(), get_waytype());
 	if(desc->is_overhead_line()) {
 		grund_t *gr=welt->lookup(get_pos());
 		weg_t *weg=NULL;
@@ -312,7 +312,7 @@ void wayobj_t::finish_rd()
 		}
 	}
 
-	player_t::add_maintenance(get_owner(), desc->get_wartung(), desc->get_wtyp());
+	player_t::add_maintenance(get_owner(), desc->get_maintenance(), desc->get_wtyp());
 }
 
 

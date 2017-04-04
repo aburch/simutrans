@@ -28,7 +28,7 @@
  *  Child nodes:
  *	0   Name
  *	1   Copyright
- *	2   Image list (Image-list)
+ *	2   Image list
  */
 class roadsign_desc_t : public obj_desc_transport_infrastructure_t {
 	friend class roadsign_reader_t;

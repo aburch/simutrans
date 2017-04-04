@@ -24,14 +24,14 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 		"nse1", "new1", "nsw1", "sew1", "nsew1",	// different crossings: northwest/southeast is straight
 		"nse2", "new2", "nsw2", "sew2", "nsew2",
 	};
-	int ribi, hang;
+	int ribi, slope;
 
 	// node size is 46 bytes
 	obj_node_t node(this, 49, &parent);
 
 
 	// Hajo: Version needs high bit set as trigger -> this is required
-	//       as marker because formerly nodes were unversionend
+	//       as marker because formerly nodes were unversioned
 	uint16 version     = 0x8006;
 
 	// This is the overlay flag for Simutrans-Extended
@@ -56,8 +56,8 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	uint32 way_only_cost		= obj.get_int("way_only_cost", price);
 	uint8 upgrade_group			= obj.get_int("upgrade_group", 0); 
 
-	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
-	intro += obj.get_int("intro_month", 1) - 1;
+	uint16 intro_date = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+	intro_date += obj.get_int("intro_month", 1) - 1;
 
 	uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
 	retire += obj.get_int("retire_month", 1) - 1;
@@ -79,7 +79,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	// true to draw as foregrund and not much earlier (default)
 	uint8 draw_as_obj = (obj.get_int("draw_as_ding", 0) == 1);
 	draw_as_obj = (obj.get_int("draw_as_obj", draw_as_obj) == 1);
-	sint8 number_seasons = 0;
+	sint8 number_of_seasons = 0;
 
 	// Way constraints
 	// One byte for permissive, one byte for prohibitive.
@@ -118,7 +118,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint32(outfp, price,						2);
 	node.write_uint32(outfp, maintenance,				6);
 	node.write_sint32(outfp, topspeed,					10);
-	node.write_uint16(outfp, intro,						14);
+	node.write_uint16(outfp, intro_date,				14);
 	node.write_uint16(outfp, retire,					16);
 	node.write_uint16(outfp, axle_load,                 18);
 	node.write_uint8 (outfp, wtyp,						20);
@@ -143,7 +143,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	sprintf(buf, "image[%s][0]", ribi_codes[0]);
 	string str = obj.get(buf);
 	if (str.empty()) {
-		node.write_data_at(outfp, &number_seasons, 23, 1);
+		node.write_data_at(outfp, &number_of_seasons, 23, 1);
 		write_head(outfp, node, obj);
 
 		sprintf(buf, "image[%s]", ribi_codes[0]);
@@ -167,17 +167,17 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 			imagelist_writer_t::instance()->write_obj(outfp, node, keys);
 
 			keys.clear();
-			for(  hang = 3;  hang <= 12;  hang += 3  ) {
+			for(  slope = 3;  slope <= 12;  slope += 3  ) {
 				char buf[40];
 
-				sprintf( buf, "%simageup[%d]", image_type[backtofront], hang );
+				sprintf( buf, "%simageup[%d]", image_type[backtofront], slope );
 				string str = obj.get(buf);
 				keys.append(str);
 			}
-			for(  hang = 3;  hang <= 12;  hang += 3  ) {
+			for(  slope = 3;  slope <= 12;  slope += 3  ) {
 				char buf[40];
 
-				sprintf( buf, "%simageup2[%d]", image_type[backtofront], hang );
+				sprintf( buf, "%simageup2[%d]", image_type[backtofront], slope );
 				string str = obj.get(buf);
 				if(  !str.empty()  ) {
 					keys.append(str);
@@ -207,19 +207,19 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 			}
 		}
 	} else {
-		sprintf(buf, "image[%s][%d]", ribi_codes[0], number_seasons+1);
+		sprintf(buf, "image[%s][%d]", ribi_codes[0], number_of_seasons+1);
 		if (!strempty(obj.get(buf))) {
-			number_seasons++;
+			number_of_seasons++;
 		}
 
-		node.write_data_at(outfp, &number_seasons, 23, 1);
+		node.write_data_at(outfp, &number_of_seasons, 23, 1);
 		write_head(outfp, node, obj);
 
 		// has switch images for both directions?
 		const uint8 ribinr = *(obj.get("image[new2][0]"))==0 ? 16 : 26;
 
 		for(int backtofront = 0; backtofront<2; backtofront++) {
-			for (uint8 season = 0; season <= number_seasons ; season++) {
+			for (uint8 season = 0; season <= number_of_seasons ; season++) {
 				for (ribi = 0; ribi < ribinr; ribi++) {
 					char buf[40];
 
@@ -230,17 +230,17 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 				imagelist_writer_t::instance()->write_obj(outfp, node, keys);
 
 				keys.clear();
-				for(  hang = 3;  hang <= 12;  hang += 3  ) {
+				for(  slope = 3;  slope <= 12;  slope += 3  ) {
 					char buf[40];
 
-					sprintf( buf, "%simageup[%d][%d]", image_type[backtofront], hang, season );
+					sprintf( buf, "%simageup[%d][%d]", image_type[backtofront], slope, season );
 					string str = obj.get(buf);
 					keys.append(str);
 				}
-				for(  hang = 3;  hang <= 12;  hang += 3  ) {
+				for(  slope = 3;  slope <= 12;  slope += 3  ) {
 					char buf[40];
 
-					sprintf( buf, "%simageup2[%d][%d]", image_type[backtofront], hang, season );
+					sprintf( buf, "%simageup2[%d][%d]", image_type[backtofront], slope, season );
 					string str = obj.get(buf);
 					if(  !str.empty()  ) {
 						keys.append(str);

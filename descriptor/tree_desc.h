@@ -17,7 +17,7 @@
  *      Volker Meyer
  *
  *  Description:
- *      Description eines Baumes in Simutrans
+ *      Tree type description in Simutrans
  *
  *  Child nodes:
  *	0   Name

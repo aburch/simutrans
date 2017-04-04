@@ -99,7 +99,7 @@ void interrupt_check(const char* caller_info)
 	DBG_DEBUG4("interrupt_check", "called from (%s)", caller_info);
 	if(enabled) {
 		static uint32 last_ms = 0;
-		if(  !welt_modell->is_fast_forward()  ||  welt_modell->get_zeit_ms() != last_ms  ) {
+		if(  !welt_modell->is_fast_forward()  ||  welt_modell->get_ticks() != last_ms  ) {
 			const long now = dr_time();
 			if((now-last_time)*FRAME_TIME_MULTI < frame_time) {
 				return;
@@ -112,7 +112,7 @@ void interrupt_check(const char* caller_info)
 				enabled = true;
 			}
 		}
-		last_ms = welt_modell->get_zeit_ms();
+		last_ms = welt_modell->get_ticks();
 	}
 	(void)caller_info;
 }
@@ -253,7 +253,7 @@ char const *tick_to_string( sint64 ticks, bool show_full )
 
 		// suppress as much as possible, assuming this is an relative offset to the current month
 		sint32 num_days = ( ticks * (env_t::show_month==env_t::DATE_FMT_MONTH? 3 : tage_per_month[month]) ) >> welt_modell->ticks_per_world_month_shift;
-		num_days -= ( (welt_modell->get_zeit_ms() % welt_modell->ticks_per_world_month) * (env_t::show_month==env_t::DATE_FMT_MONTH? 3 : tage_per_month[month]) ) >> welt_modell->ticks_per_world_month_shift;
+		num_days -= ( (welt_modell->get_ticks() % welt_modell->ticks_per_world_month) * (env_t::show_month==env_t::DATE_FMT_MONTH? 3 : tage_per_month[month]) ) >> welt_modell->ticks_per_world_month_shift;
 		char days[64];
 		static struct lang_info_t
 		{

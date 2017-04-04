@@ -209,13 +209,13 @@ void tunnel_t::finish_rd()
 			{
 				weg->set_max_speed(desc->get_topspeed());
 			}
-			player_t::add_maintenance( player, -weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype());
+			player_t::add_maintenance( player, -weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
 		}
 		leitung_t *lt = gr->get_leitung();
 		if(lt) {
-			player_t::add_maintenance( player, -lt->get_desc()->get_wartung(), powerline_wt );
+			player_t::add_maintenance( player, -lt->get_desc()->get_maintenance(), powerline_wt );
 		}
-		player_t::add_maintenance( player,  desc->get_wartung(), desc->get_finance_waytype() );
+		player_t::add_maintenance( player,  desc->get_maintenance(), desc->get_finance_waytype() );
 	}
 }
 
@@ -248,9 +248,9 @@ void tunnel_t::cleanup( player_t *player2 )
 			}
 			weg->set_max_axle_load( weg->get_desc()->get_max_axle_load() );
 			weg->add_way_constraints(desc->get_way_constraints());
-			player_t::add_maintenance( player,  weg->get_desc()->get_wartung(), weg->get_desc()->get_finance_waytype());
+			player_t::add_maintenance( player,  weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
 		}
-		player_t::add_maintenance( player,  -desc->get_wartung(), desc->get_finance_waytype() );
+		player_t::add_maintenance( player,  -desc->get_maintenance(), desc->get_finance_waytype() );
 	}
 	player_t::book_construction_costs(player2, -desc->get_value(), get_pos().get_2d(), desc->get_finance_waytype() );
 }
@@ -290,7 +290,7 @@ void tunnel_t::set_desc(const tunnel_desc_t *_desc)
 	if(desc)
 	{
 		// Remove the old maintenance cost
-		sint32 old_maint = get_desc()->get_wartung();
+		sint32 old_maint = get_desc()->get_maintenance();
 		if(way->is_diagonal())
 		{
 			old_maint *= 10;
@@ -301,7 +301,7 @@ void tunnel_t::set_desc(const tunnel_desc_t *_desc)
 	
 	desc = _desc;
 	// Add the new maintenance cost
-	sint32 maint = get_desc()->get_wartung();
+	sint32 maint = get_desc()->get_maintenance();
 	if(way->is_diagonal())
 	{
 		maint *= 10;
