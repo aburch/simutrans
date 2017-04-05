@@ -558,14 +558,14 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 		const int y_offset = pos.y+offset.y+D_GET_CENTER_ALIGN_OFFSET(LINESPACE,size.h);
 
 		// display text (before composition)
-		display_text_proportional_len_clip_rgb(x_base_offset, y_offset, text, ALIGN_LEFT, textcol, true, head_cursor_pos);
+		display_text_proportional_len_clip_rgb(x_base_offset, y_offset, text, ALIGN_LEFT | DT_CLIP, textcol, true, head_cursor_pos);
 		int x_offset = proportional_string_len_width(text, head_cursor_pos);
 
 		// IME text to display?
 		if(  composition.len()  ) {
 //			assert(head_cursor_pos==tail_cursor_pos);
 
-			display_proportional_clip_rgb(x_base_offset+x_offset, y_offset, composition.get_str(), ALIGN_LEFT, textcol, true);
+			display_proportional_clip_rgb(x_base_offset+x_offset, y_offset, composition.get_str(), ALIGN_LEFT | DT_CLIP, textcol, true);
 
 			// draw underline
 			int composition_width = proportional_string_width(composition.get_str());
@@ -581,7 +581,7 @@ void gui_textinput_t::display_with_cursor(scr_coord offset, bool cursor_active, 
 		}
 
 		// display text (after composition)
-		display_proportional_clip_rgb(x_base_offset+x_offset, y_offset, text+head_cursor_pos, ALIGN_LEFT, textcol, true);
+		display_proportional_clip_rgb(x_base_offset+x_offset, y_offset, text+head_cursor_pos, ALIGN_LEFT | DT_CLIP, textcol, true);
 
 		if(  cursor_active  ) {
 			// Knightly : display selected text block with light grey text on charcoal bounding box
@@ -670,7 +670,7 @@ void gui_hidden_textinput_t::display_with_cursor(scr_coord const offset, bool, b
 			}
 			c = utf8_decoder_t::decode((utf8 const *&)text_pos);
 			if(c) {
-				xpos += display_proportional_clip_rgb( xpos, pos.y+offset.y+1+(size.h-LINESPACE)/2, "*", ALIGN_LEFT, textcol, true);
+				xpos += display_proportional_clip_rgb( xpos, pos.y+offset.y+1+(size.h-LINESPACE)/2, "*", ALIGN_LEFT | DT_CLIP, textcol, true);
 			}
 		}
 		while(  text_pos < end  &&  c != UNICODE_NUL  );
