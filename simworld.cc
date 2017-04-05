@@ -5091,8 +5091,11 @@ void karte_t::load(loadsave_t *file)
 
 	intr_disable();
 	dbg->message("karte_t::load()", "Prepare for loading" );
-	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		set_tool(tool_t::general_tool[TOOL_QUERY], get_player(i));
+
+	for(  uint8 sp_nr=0;  sp_nr<MAX_PLAYER_COUNT;  sp_nr++  ) {
+		if (two_click_tool_t* tool = dynamic_cast<two_click_tool_t*>(selected_tool[sp_nr])) {
+			tool->cleanup();
+		}
 	}
 	destroy_all_win(true);
 
