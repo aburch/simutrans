@@ -261,6 +261,8 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	snowline_winter.set_value( snowline_winter.get_value() );
 
 	sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
+	summer_snowline.set_text_pointer(snowline_txt);
+	summer_snowline.align_to(&mountain_roughness,ALIGN_RIGHT,scr_coord(D_ARROW_RIGHT_WIDTH,0));
 	return true;
 }
 
