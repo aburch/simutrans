@@ -213,6 +213,7 @@ class settings_climates_stats_t : protected settings_stats_t, public gui_contain
 private:
 	cbuffer_t buf;
 	settings_t* local_sets;
+	gui_label_t *summer;
 public:
 	void init(settings_t*);
 	void read(settings_t*);
