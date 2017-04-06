@@ -615,17 +615,20 @@ void display_obj_fg(const sint16 xpos, const sint16 ypos, const bool is_global, 
 	* @author Hj. Malthaner
 	*/
 	weg_t *get_weg(waytype_t typ) const {
-		if (flags & has_way1)
-		{
-			objlist_t::const_iterator i = objlist.begin();
-			weg_t* w = static_cast<weg_t *>(*i);
-			if (w->get_waytype() == typ)
+		if (weg_t* const w = get_weg_nr(0)) {
+			const waytype_t wt = w->get_waytype();
+			if (wt == typ || (typ == any_wt && wt > 0)) {
 				return w;
-			if (flags & has_way2)
-			{
-				w = static_cast<weg_t *>(*++i);
-				if (w->get_waytype() == typ)
+			}
+			else if (wt > typ) {
+				// ways are ordered wrt to waytype
+				return NULL;
+			}
+			// try second way (if exists)
+			if (weg_t* const w = get_weg_nr(1)) {
+				if (w->get_waytype() == typ) {
 					return w;
+				}
 			}
 		}
 		return NULL;
