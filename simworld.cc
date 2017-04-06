@@ -7460,7 +7460,7 @@ bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx) const
 
 void karte_t::save(const char *filename, loadsave_t::mode_t savemode, const char *version_str, const char *ex_version_str, const char* ex_revision_str, bool silent )
 {
-DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
+DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 	loadsave_t  file;
 	bool save_temp = strstart( filename, "save/" );
 	const char *savename = save_temp ? "save/_temp.sve" : filename;
@@ -7473,7 +7473,7 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 	}
 	if(!file.wr_open( savename, savemode, env_t::objfilename.c_str(), version_str, ex_version_str, ex_revision_str )) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
-		dbg->error("karte_t::speichern()","cannot open file for writing! check permissions!");
+		dbg->error("karte_t::save()","cannot open file for writing! check permissions!");
 	}
 	else {
 		save(&file,silent);
@@ -7504,7 +7504,7 @@ void karte_t::save(loadsave_t *file, bool silent)
 	bool needs_redraw = false;
 
 	loadingscreen_t *ls = NULL;
-DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
+DBG_MESSAGE("karte_t::save(loadsave_t *file)", "start");
 	if(!silent) {
 		ls = new loadingscreen_t( translator::translate("Saving map ..."), get_size().y );
 	}
@@ -7524,14 +7524,14 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 			needs_redraw = true;
 		}
 		if(  nosave  ) {
-			dbg->error( "karte_t::speichern()","Map cannot be saved in any rotation!" );
+			dbg->error( "karte_t::save()","Map cannot be saved in any rotation!" );
 			create_win( new news_img("Map may be not saveable in any rotation!"), w_info, magic_none);
 			// still broken, but we try anyway to save it ...
 		}
 	}
 	// only broken buildings => just warn
 	if(nosave_warning) {
-		dbg->error( "karte_t::speichern()","Some buildings may be broken by saving!" );
+		dbg->error( "karte_t::save()","Some buildings may be broken by saving!" );
 	}
 
 	/* If the current tool is a two_click_werkzeug, call cleanup() in order to delete dummy grounds (tunnel + monorail preview)
@@ -7597,7 +7597,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 			INT_CHECK("saving");
 		}
 	}
-DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities ok");
+DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved cities ok");
 
 	for(int j=0; j<get_size().y; j++) {
 		for(int i=0; i<get_size().x; i++) {
@@ -7610,14 +7610,14 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved cities ok");
 			ls->set_progress(j);
 		}
 	}
-DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
+DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved tiles");
 
 	if(  file->get_version()<=102001  ) {
 		// not needed any more
 		for(int j=0; j<(get_size().y+1)*(sint32)(get_size().x+1); j++) {
 			file->rdwr_byte(grid_hgts[j]);
 		}
-	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved hgt");
+	DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved hgt");
 	}
 
 	sint32 fabs = fab_list.get_count();
@@ -7628,14 +7628,14 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
 			INT_CHECK("saving");
 		}
 	}
-DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
+DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved fabs");
 
 	sint32 haltcount=haltestelle_t::get_alle_haltestellen().get_count();
 	file->rdwr_long(haltcount);
 	FOR(vector_tpl<halthandle_t>, const s, haltestelle_t::get_alle_haltestellen()) {
 		s->rdwr(file);
 	}
-DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved stops");
+DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved stops");
 
 	// save number of convois
 	if(  file->get_version()>=101000  ) {
@@ -7652,7 +7652,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved stops");
 	if(silent) {
 		INT_CHECK("saving");
 	}
-DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_array.get_count());
+DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved %i convois",convoi_array.get_count());
 
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 // **** REMOVE IF SOON! *********
@@ -7675,13 +7675,13 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_ar
 			}
 		}
 	}
-DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
+DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved players");
 
 	// saving messages
 	if(  file->get_version()>=102005  ) {
 		msg->rdwr(file);
 	}
-DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
+DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 
 	// centered on what?
 	sint32 dummy = viewport->get_world_position().x;
@@ -7869,7 +7869,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 
 		chdir( env_t::user_dir );
 		// maybe show message about server
-DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "motd filename %s", env_t::server_motd_filename.c_str() );
+DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server_motd_filename.c_str() );
 		if(  FILE *fmotd = fopen( env_t::server_motd_filename.c_str(), "r" )  ) {
 			struct stat st;
 			stat( env_t::server_motd_filename.c_str(), &st );
@@ -10619,7 +10619,7 @@ void karte_t::privatecar_init(const std::string &objfilename)
 
 /**
 * Reads/writes private car ownership data from/to a savegame
-* called from karte_t::speichern and karte_t::load
+* called from karte_t::save and karte_t::load
 * only written for networkgames
 * @author jamespetts
 */
