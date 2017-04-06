@@ -3920,7 +3920,7 @@ void karte_t::set_tool( tool_t *tool, player_t *player )
 	}
 	bool scripted_call = tool->is_scripted();
 	// check for scenario conditions
-	if(  !scripted_call  &&  !scenario->is_tool_allowed(player, tool->get_id(), tool->get_waytype())  ) {
+	if(  !scripted_call  &&  (scenario && !scenario->is_tool_allowed(player, tool->get_id(), tool->get_waytype()))  ) {
 		return;
 	}
 
@@ -3964,9 +3964,12 @@ void karte_t::local_set_tool( tool_t *tool, player_t * player )
 {
 	tool->flags |= tool_t::WFL_LOCAL;
 
-	if (get_scenario()->is_scripted()  &&  !get_scenario()->is_tool_allowed(player, tool->get_id()) ) {
-		tool->flags = 0;
-		return;
+	if (get_scenario())
+	{
+		if (get_scenario()->is_scripted() && !get_scenario()->is_tool_allowed(player, tool->get_id())) {
+			tool->flags = 0;
+			return;
+		}
 	}
 	// now call init
 	bool init_result = tool->init(player);
