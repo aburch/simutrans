@@ -5029,6 +5029,7 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	display_set_clip_wh(0, 0, disp_width, disp_height);
 
 	// Hajo: Calculate daylight rgbmap and save it for unshaded tile drawing
+	player_day = 0;
 	display_day_night_shift(0);
 	memcpy(specialcolormap_all_day, specialcolormap_day_night, 256 * sizeof(PIXVAL));
 	memcpy(rgbmap_all_day, rgbmap_day_night, RGBMAPSIZE * sizeof(PIXVAL));
