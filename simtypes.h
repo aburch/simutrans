@@ -106,7 +106,8 @@ enum waytype_t {
 	narrowgauge_wt   =   8,
 	air_wt           =  16,
 	noise_barrier_wt =  17,
-	powerline_wt     = 128
+	powerline_wt     = 128,
+	any_wt			 = 255
 };
 
 /**

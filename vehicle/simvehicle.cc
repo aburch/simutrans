@@ -5534,7 +5534,9 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			{
 				// Restore the curtailed route above: the original route works, but the choose route does not.
 				bool re_reserve_succeeded = true;
-				for (uint32 n = curtailment_index; n < next_signal_index; n++)
+				const uint32 route_count = route->get_count();
+				uint32 limit = min(next_signal_index, route_count);
+				for (uint32 n = curtailment_index; n < limit; n++)
 				{
 					grund_t* gr_this = welt->lookup(route->at(n));
 					schiene_t * sch1 = gr_this ? (schiene_t *)gr_this->get_weg(get_waytype()) : NULL;
