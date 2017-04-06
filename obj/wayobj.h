@@ -115,7 +115,7 @@ public:
 	static const way_obj_desc_t *default_oberleitung;
 
 	// use this constructor; it will extend a matching existing wayobj
-	static void extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_desc_t *desc);
+	static void extend_wayobj(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_desc_t *desc, bool keep_existing_faster_way);
 
 	static bool register_desc(way_obj_desc_t *desc);
 	static bool successfully_loaded();

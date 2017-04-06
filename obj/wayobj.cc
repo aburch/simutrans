@@ -348,14 +348,14 @@ void wayobj_t::calc_image()
 
 /* better use this constrcutor for new wayobj; it will extend a matching obj or make an new one
  */
-void wayobj_t::extend_wayobj_t(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_desc_t *desc)
+void wayobj_t::extend_wayobj(koord3d pos, player_t *owner, ribi_t::ribi dir, const way_obj_desc_t *desc, bool keep_existing_faster_way)
 {
 	grund_t *gr=welt->lookup(pos);
 	if(gr) {
 		wayobj_t *existing_wayobj = gr->get_wayobj( desc->get_wtyp() );
 		if( existing_wayobj ) {
-			if(  existing_wayobj->get_desc()->get_topspeed() < desc->get_topspeed()  &&  player_t::check_owner(owner, existing_wayobj->get_owner())  ) {
-				// replace slower by faster
+			if(  ( existing_wayobj->get_desc()->get_topspeed() < desc->get_topspeed()  ||  !keep_existing_faster_way)  &&  player_t::check_owner(owner, existing_wayobj->get_owner())  ) {
+				// replace slower by faster if desired
 				dir = dir | existing_wayobj->get_dir();
 				gr->set_flag(grund_t::dirty);
 				delete existing_wayobj;

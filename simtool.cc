@@ -3373,6 +3373,8 @@ void tool_build_wayobj_t::mark_tiles( player_t* player, const koord3d &start, co
 	if( can_built ) {
 		sint32 cost_estimate = 0;
 
+		bool keep_existing_faster_ways = !is_ctrl_pressed();
+
 		for( uint32 j = 0; j < verbindung.get_count(); j++ ) {
 			koord3d pos = verbindung.at(j);
 			grund_t *gr = welt->lookup(pos);
@@ -3385,7 +3387,7 @@ void tool_build_wayobj_t::mark_tiles( player_t* player, const koord3d &start, co
 				if( wayobj ) {
 					show = show | wayobj->get_dir();
 					// Already a catenary here -> costs only, if new catenary is faster
-					if(  wayobj->get_desc()->get_topspeed() >= desc->get_topspeed()  ) {
+					if(  wayobj->get_desc()->get_topspeed() >= desc->get_topspeed()  &&  keep_existing_faster_ways) {
 						cost_estimate -= desc->get_price();
 					}
 				}
@@ -3438,11 +3440,13 @@ const char *tool_build_wayobj_t::do_work( player_t* player, const koord3d &start
 		return "Ways not connected";
 	}
 
-	// built wayobj ...
+	bool keep_existing_faster_ways = !is_ctrl_pressed();
+
+	// build wayobj ...
 	koord3d_vector_t const& r = verbindung.get_route();
 	for(uint32 i=0;  i<verbindung.get_count();  i++  ) {
 		if( build ) {
-			wayobj_t::extend_wayobj_t(r[i], player, r.get_ribi(i), desc);
+			wayobj_t::extend_wayobj(r[i], player, r.get_ribi(i), desc, keep_existing_faster_ways);
 		}
 		else {
 			grund_t *gr = welt->lookup(r[i]);
