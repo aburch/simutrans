@@ -365,7 +365,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 
 					// if we are going east we must be drawn as the first in east direction (after north and northeast)
 					for(uint8 i=start;  i<end;  i++  ) {
-						if ((((const vehicle_t*)obj.some[i])->get_direction()&ribi_t::northeast) != 0) {
+						if ((((const vehicle_base_t*)obj.some[i])->get_direction()&ribi_t::northeast) != 0) {
 							intern_insert_at(new_obj, i);
 							return true;
 						}
@@ -388,7 +388,7 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 				else {
 					for(uint8 i=start;  i<end;  i++  ) {
 						// west or northwest: append after all westwards
-						if ((((const vehicle_t*)obj.some[i])->get_direction()&ribi_t::southwest) == 0) {
+						if ((((const vehicle_base_t*)obj.some[i])->get_direction()&ribi_t::southwest) == 0) {
 							intern_insert_at(new_obj, i);
 							return true;
 						}
