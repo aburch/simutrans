@@ -1722,6 +1722,7 @@
     <ClCompile Include="gui\obj_info.cc" />
     <ClCompile Include="gui\privatesign_info.cc" />
     <ClCompile Include="gui\scenario_info.cc" />
+    <ClCompile Include="gui\schiene_info.cc" />
     <ClCompile Include="gui\server_frame.cc" />
     <ClCompile Include="gui\signal_info.cc" />
     <ClCompile Include="gui\simwin.cc" />
@@ -2162,6 +2163,7 @@
     <ClInclude Include="gui\obj_info.h" />
     <ClInclude Include="gui\privatesign_info.h" />
     <ClInclude Include="gui\scenario_info.h" />
+    <ClInclude Include="gui\schiene_info.h" />
     <ClInclude Include="gui\server_frame.h" />
     <ClInclude Include="gui\signal_info.h" />
     <ClInclude Include="gui\simwin.h" />
