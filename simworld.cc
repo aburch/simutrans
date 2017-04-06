@@ -1435,7 +1435,7 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	}
 
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
-		selected_tool[i] = tool_t::general_tool[TOOL_QUERY];
+		set_tool(tool_t::general_tool[TOOL_QUERY], get_player(i));
 	}
 	if(is_display_init()) {
 		display_show_pointer(false);
