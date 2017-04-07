@@ -157,12 +157,14 @@ DBG_MESSAGE("event","HOWDY!");
 				if(  droplist.infowin_event(&ev2)  ) {
 					if(  droplist.get_selection() !=  old_selection  ) {
 						call_listeners( droplist.get_selection() );
+						finish = true;
 					}
 					// we selected something?
 					if(finish  &&  IS_LEFTRELEASE(ev)) {
 						close_box();
 					}
 				}
+				return true;
 			}
 			else {
 				// acting on "release" is better than checking for "new selection"
