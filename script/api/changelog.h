@@ -4,7 +4,12 @@
  *
  * @section api-trunk Current trunk
  *
- * - Add map_object_x::mark and unmark
+ * - Added simple_heap_x, way_planner_x, bridge_planner_x
+ * - Added map_object_x::is_marked
+ *
+ * @section api-120-2 Release 120.2
+ *
+ * - Added map_object_x::mark and unmark
  *
  * @section api-120-2 Release 120.2
  *
