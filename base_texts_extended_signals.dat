@@ -397,6 +397,7 @@ name=call_ontime_choose
 note=A time interval choose signal showing a call on aspect
 -
 obj=program_text
+<<<<<<< HEAD
 name=track_speed
 note=The speed of the track underneath the sign/signal is shown in the sign/signals info window
 -
@@ -451,4 +452,60 @@ note=shown in signs info window if it is a private way sign
 obj=program_text
 name=end_of_choose_sign
 note=shown in signs info window if it is an end of choose sign
+=======
+name=reservation_heading
+note=Shown in the way info window, telling which direction the railway reservation is heading
+-
+obj=program_text
+name=distance_to_vehicle
+note=Shown in the way info window, telling how far the reserving rail vehicle is
+-
+obj=program_text
+name=km/h
+note=Speed designation, shown in the way info window.
+-
+obj=program_text
+name=track_not_reserved
+note=Shown in the way info window when the track is not reserved by any vehicle
+-
+obj=program_text
+name=goto_vehicle
+note=Shown as a tooltip in the way info window when you hoover above the goto vehicle button
+-
+obj=program_text
+name=block_reservation
+note=Shown in the way info window, telling which kind of reservation is made (block)
+-
+obj=program_text
+name=directional_reservation
+note=Shown in the way info window, telling which kind of reservation is made (directional)
+-
+obj=program_text
+name=priority_reservation
+note=Shown in the way info window, telling which kind of reservation is made (priority)
+-
+obj=program_text
+name=north_east
+note=Shown in the way info window, telling which direction is reserved (north_east)
+-
+obj=program_text
+name=north_south
+note=Shown in the way info window, telling which direction is reserved (north_south)
+-
+obj=program_text
+name=south_east
+note=Shown in the way info window, telling which direction is reserved (south_east)
+-
+obj=program_text
+name=north_west
+note=Shown in the way info window, telling which direction is reserved (north_west)
+-
+obj=program_text
+name=east_west
+note=Shown in the way info window, telling which direction is reserved (east_west)
+-
+obj=program_text
+name=south_west
+note=Shown in the way info window, telling which direction is reserved (south_west)
+>>>>>>> refs/remotes/origin/master
 -

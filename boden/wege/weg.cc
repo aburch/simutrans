@@ -1182,6 +1182,11 @@ void weg_t::degrade()
 signal_t *weg_t::get_signal(ribi_t::ribi direction_of_travel) const
 {
 	signal_t* sig = welt->lookup(get_pos())->find<signal_t>();
+	if (sig && sig->get_desc()->get_working_method() == one_train_staff)
+	{
+		// This allows a single one train staff cabinet to work for trains passing in both directions.
+		return sig;
+	}
 	ribi_t::ribi way_direction = (ribi_t::ribi)ribi_maske;
 	if((direction_of_travel & way_direction) == 0)
 	{

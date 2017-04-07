@@ -327,6 +327,7 @@ SOURCES += gui/savegame_frame.cc
 SOURCES += gui/scenario_frame.cc
 SOURCES += gui/scenario_info.cc
 SOURCES += gui/schedule_list.cc
+SOURCES += gui/schiene_info.cc
 SOURCES += gui/server_frame.cc
 SOURCES += gui/settings_frame.cc
 SOURCES += gui/settings_stats.cc

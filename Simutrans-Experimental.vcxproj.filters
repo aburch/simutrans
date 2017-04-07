@@ -975,6 +975,9 @@
     <ClCompile Include="gui\signal_info.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+<<<<<<< HEAD
+    <ClCompile Include="gui\schiene_info.cc">
+=======
     <ClCompile Include="dataobj\schedule.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -982,6 +985,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="besch\vehikel_besch.cc">
+>>>>>>> refs/remotes/origin/master
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -2192,6 +2196,10 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+<<<<<<< HEAD
+    <ClInclude Include="gui\schiene_info.h">
+      <Filter>Source Files</Filter>
+=======
     <ClInclude Include="revision.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -2206,6 +2214,7 @@
     </ClInclude>
     <ClInclude Include="besch\obj_desc_std_name.h">
       <Filter>Header Files</Filter>
+>>>>>>> refs/remotes/origin/master
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
