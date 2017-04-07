@@ -717,7 +717,8 @@ uint32 get_color_rgb(uint8 idx)
 	}
 	//if it uses one of the special colours it's under display_day_lights
 	if (idx <= 224 + LIGHT_COUNT) {
-		return display_day_lights[idx*3 + 0]<<16 | display_day_lights[idx*3 + 1]<<8 | display_day_lights[idx*3 + 2];
+		uint8 lidx = idx - 224;
+		return display_day_lights[lidx*3 + 0]<<16 | display_day_lights[lidx*3 + 1]<<8 | display_day_lights[lidx*3 + 2];
 	}
 	// Return black for anything else
 	return 0;
