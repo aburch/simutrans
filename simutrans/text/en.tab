@@ -3258,3 +3258,5 @@ east_west
 East/West
 south_west
 South/West
+Vehicle weighs %it, but max weight is %it
+The vehicle's axle load is %it, but the maximum is %it
