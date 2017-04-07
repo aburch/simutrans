@@ -3230,7 +3230,6 @@ east_and_west
 East and West
 goto_signalbox
 Go to signalbox
-<<<<<<< HEAD
 underground_signal
 Underground signal
 underground_sign
@@ -3259,7 +3258,6 @@ permitted_direction
 Permitted direction
 current_clear_directions
 Current clear directions
-=======
 goto_vehicle
 Go to vehicle
 reservation_heading
@@ -3288,4 +3286,3 @@ east_west
 East/West
 south_west
 South/West
->>>>>>> refs/remotes/origin/master

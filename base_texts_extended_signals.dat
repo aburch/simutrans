@@ -397,7 +397,6 @@ name=call_ontime_choose
 note=A time interval choose signal showing a call on aspect
 -
 obj=program_text
-<<<<<<< HEAD
 name=track_speed
 note=The speed of the track underneath the sign/signal is shown in the sign/signals info window
 -
@@ -452,7 +451,7 @@ note=shown in signs info window if it is a private way sign
 obj=program_text
 name=end_of_choose_sign
 note=shown in signs info window if it is an end of choose sign
-=======
+-
 name=reservation_heading
 note=Shown in the way info window, telling which direction the railway reservation is heading
 -
@@ -507,5 +506,4 @@ note=Shown in the way info window, telling which direction is reserved (east_wes
 obj=program_text
 name=south_west
 note=Shown in the way info window, telling which direction is reserved (south_west)
->>>>>>> refs/remotes/origin/master
 -
