@@ -259,6 +259,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 					// not handled oneself
 					call_listeners((long)new_selection);
 				}
+				return true;
 			}
 		}
 	}

@@ -139,6 +139,7 @@ DBG_MESSAGE("event","HOWDY!");
 				if(finish  &&  IS_LEFTRELEASE(ev)) {
 					close_box();
 				}
+				return true;
 			}
 			else {
 				// acting on "release" is better than checking for "new selection"
