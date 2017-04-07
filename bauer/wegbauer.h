@@ -148,7 +148,7 @@ public:
 	* B) if allowed, calculate the cost for the step from from to to
 	* @author prissi
 	*/
-	bool is_allowed_step(const grund_t *from, const grund_t *to, sint32 *costs);
+	bool is_allowed_step(const grund_t *from, const grund_t *to, sint32 *costs) const;
 
 private:
 	// checks, if we can built a bridge here ...
@@ -225,7 +225,7 @@ public:
 	// allowed slope?
 	bool check_slope( const grund_t *from, const grund_t *to );
 
-	bool check_terraforming( const grund_t *from, const grund_t *to, uint8* new_from_slope=NULL, uint8* new_to_slope=NULL);
+	bool check_terraforming( const grund_t *from, const grund_t *to, uint8* new_from_slope=NULL, uint8* new_to_slope=NULL) const;
 	void do_terraforming();
 
 	void build();

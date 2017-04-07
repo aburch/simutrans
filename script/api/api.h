@@ -24,6 +24,8 @@ void export_string_methods(HSQUIRRELVM vm);  // api_scenario.cc
 void export_tiles(HSQUIRRELVM vm);
 void export_world(HSQUIRRELVM vm);
 
+void export_pathfinding(HSQUIRRELVM vm);
+
 void export_global_constants(HSQUIRRELVM vm);
 
 
