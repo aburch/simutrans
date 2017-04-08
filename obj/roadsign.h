@@ -75,7 +75,7 @@ public:
 #else
 	typ get_typ() const { return roadsign; }
 #endif
-	const char* get_name() const { return "Roadsign"; }
+	const char* get_name() const { return desc->get_name(); }
 
 	// assuming this is a private way sign
 	uint16 get_player_mask() const { return (ticks_ow<<8)|ticks_ns; }
