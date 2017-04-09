@@ -6037,6 +6037,13 @@ void rail_vehicle_t::leave_tile()
 									{
 										break;
 									}
+									
+									working_method_t swm = signal_route->get_desc()->get_working_method();
+									if (swm != track_circuit_block && swm != cab_signalling)
+									{
+										// Only re-set track circuit block type signals to permissive aspects here.
+										break;
+									}
 
 									switch(signals_count)
 									{
