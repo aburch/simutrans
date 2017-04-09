@@ -73,17 +73,21 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	png_set_packing(png_ptr);
 
 	/* Expand paletted colors into true RGB triplets */
-    if(  color_type == PNG_COLOR_TYPE_PALETTE  ) {
-        png_set_expand(png_ptr);
-		png_set_swap_alpha(png_ptr);
-		png_set_invert_alpha(png_ptr);
+	if(  color_type == PNG_COLOR_TYPE_PALETTE  ) {
+		png_set_expand(png_ptr);
+		if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
+			png_set_swap_alpha(png_ptr);
+			png_set_invert_alpha(png_ptr);
+		} else {
+			png_set_filler(png_ptr, 0, PNG_FILLER_BEFORE);
+		}
 	}
 	else if (color_type == PNG_COLOR_TYPE_RGB) {
-		// add zero aplpha channel
+		// add zero alpha channel
 		png_set_filler(png_ptr, 0, PNG_FILLER_BEFORE);
 	}
 	else if (color_type == PNG_COLOR_TYPE_RGB_ALPHA) {
-        png_set_swap_alpha(png_ptr);
+		png_set_swap_alpha(png_ptr);
 		png_set_invert_alpha(png_ptr);
 		/* alpha 0 is opaque, alpha 255 is transparent */
 	}
