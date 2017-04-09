@@ -47,7 +47,19 @@ protected:
 
 public:
 	// Max. 16 (15 incl. 0)
-	enum signal_aspects {danger = 0, clear = 1, caution = 2, preliminary_caution = 3, advance_caution = 4, clear_no_choose = 5, caution_no_choose = 6, preliminary_caution_no_choose = 7, advance_caution_no_choose = 8, call_on = 9 }; 
+	enum signal_aspects 
+	{
+		danger = 0,
+		clear = 1, 
+		caution = 2, 
+		preliminary_caution = 3, 
+		advance_caution = 4, 
+		clear_no_choose = 5, 
+		caution_no_choose = 6, 
+		preliminary_caution_no_choose = 7,
+		advance_caution_no_choose = 8, 
+		call_on = 9 
+	}; 
 
 	/*
 	 * return direction or the state of the traffic light

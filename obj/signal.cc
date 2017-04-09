@@ -689,6 +689,18 @@ void signal_t::calc_image()
 				modified_state = danger;
 			}
 
+			if (state == call_on && desc->get_has_call_on())
+			{
+				if (desc->get_has_selective_choose())
+				{
+					modified_state = desc->get_aspects() + (desc->get_aspects() - 1);
+				}
+				else
+				{
+					modified_state = desc->get_aspects();
+				}
+			}
+
 			if(state == clear_no_choose && !desc->get_has_selective_choose())
 			{
 				modified_state = clear;
