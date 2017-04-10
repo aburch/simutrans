@@ -196,15 +196,15 @@ scr_coord_val factorylist_stats_t::draw( scr_coord pos, scr_coord_val width, boo
 
 	xpos += D_INDICATOR_WIDTH+D_H_SPACE;
 	if(  fab->get_prodfactor_electric()>0  &&  skinverwaltung_t::electricity->get_image(0)  ) {
-		display_color_img( skinverwaltung_t::electricity->get_image_id(0), xpos, pos.x+(h-skinverwaltung_t::electricity->get_image(0)->get_pic()->h)/2, 0, false, true);
+		display_color_img( skinverwaltung_t::electricity->get_image_id(0), xpos, pos.y+(h-skinverwaltung_t::electricity->get_image(0)->get_pic()->h)/2, 0, false, true);
 	}
 	xpos += 8+D_H_SPACE;
 	if(  fab->get_prodfactor_pax()>0  &&  skinverwaltung_t::passengers->get_image(0)  ) {
-		display_color_img( skinverwaltung_t::passengers->get_image_id(0), xpos, pos.x+(h-skinverwaltung_t::passengers->get_image(0)->get_pic()->h)/2, 0, false, true);
+		display_color_img( skinverwaltung_t::passengers->get_image_id(0), xpos, pos.y+(h-skinverwaltung_t::passengers->get_image(0)->get_pic()->h)/2, 0, false, true);
 	}
 	xpos += 8+D_H_SPACE;
 	if(  fab->get_prodfactor_mail()>0  &&  skinverwaltung_t::mail->get_image(0)  ) {
-		display_color_img( skinverwaltung_t::mail->get_image_id(0), xpos, pos.x+(h-skinverwaltung_t::mail->get_image(0)->get_pic()->h)/2, 0, false, true);
+		display_color_img( skinverwaltung_t::mail->get_image_id(0), xpos, pos.y+(h-skinverwaltung_t::mail->get_image(0)->get_pic()->h)/2, 0, false, true);
 	}
 	xpos += 8+D_H_SPACE;
 	display_proportional_clip_rgb( xpos, pos.y+(h-LINESPACE)/2, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
