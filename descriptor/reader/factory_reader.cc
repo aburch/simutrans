@@ -277,12 +277,12 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// Whether the read file is from Simutrans-Extended
 	// @author: jamespetts
 
-	const bool extended = version > 0 ? v & EXP_VER : false;
+	const bool extended = version > 0 ? v & EX_VER : false;
 	uint16 extended_version = 0;
 	if(extended)
 	{
 		// Extended version to start at 0 and increment.
-		version = version & EXP_VER ? version & 0x3FFF : 0;
+		version = version & EX_VER ? version & 0x3FFF : 0;
 		while(version > 0x100)
 		{
 			version -= 0x100;
@@ -317,7 +317,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->inverse_electricity_proportion = 100 / desc->electricity_proportion;
 
 			desc->upgrades = decode_uint8(p);
-			
+
 			if (extended_version > 3)
 			{
 				// Check for incompatible future versions
@@ -345,7 +345,14 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->base_max_distance_to_consumer = 65535;
 		}
 		desc->sound_interval = decode_uint32(p);
-		desc->sound_id = decode_sint8(p);
+		if (extended_version >= 3)
+		{
+			desc->sound_id = decode_sint16(p);
+		}
+		else
+		{
+			desc->sound_id = decode_sint8(p);
+		}
 		
 		DBG_DEBUG("factory_reader_t::read_node()", "version=4, platz=%i, supplier_count=%i, pax=%i, sound_interval=%li, sound_id=%i", desc->placement, desc->supplier_count, desc->pax_level, desc->sound_interval, desc->sound_id);
 	}
@@ -380,10 +387,10 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			{
 				desc->upgrades = 0;
 			}
-			if(extended_version > 3)
+			if(extended_version > 4)
 			{
 				// Check for incompatible future versions
-				dbg->fatal( "factory_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", extended_version );
+				dbg->fatal( "factory_reader_t::read_node()","Incompatible pak file version for Simutrans-Extended, number %i", extended_version );
 			}
 		}
 		desc->expand_probability = rescale_probability( decode_uint16(p) );

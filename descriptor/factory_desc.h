@@ -235,7 +235,7 @@ private:
 	uint16 mail_demand; // Kept for backwards compatibility only. This is now read from the associated gebaeude_t object.
 	uint16 base_max_distance_to_consumer;
 	uint16 max_distance_to_consumer;
-	sint8 sound_id;
+	sint16 sound_id;
 	uint32 sound_interval;
 
 public:

@@ -184,11 +184,11 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// how long between sounds
 	uint32 const sound_interval = obj.get_int("sound_interval", 0xFFFFFFFFul);
 
-	uint16 total_len = 44;
+	uint16 total_len = 45;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim(obj.get("sound"));
-	sint8 sound_id = NO_SOUND;
+	sint16 sound_id = NO_SOUND;
 	if (!sound_str.empty()) {
 		// ok, there is some sound
 		sound_id = atoi(sound_str.c_str());
@@ -291,7 +291,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	// This is the overlay flag for Simutrans-Extended
 	// This sets the *second* highest bit to 1. 
-	version |= EXP_VER;
+	version |= EX_VER;
 
 	// Finally, this is the extended version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
@@ -300,13 +300,14 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// 0x200 - version 7.0 and greater. Includes xref factories for upgrades.
 	// 0x300 - version 12.0 and greater. Removes passenger/mail parameters,
 	// which are now in the gebaeude_t objects, and adds max_distance_to_consumer.
-	version += 0x300;
+	// 0x400 - 16-bit sound ID
+	version += 0x400;
 	
-	node.write_uint16(fp, version,						0); // version
+	node.write_uint16(fp, version,						0); 
 	node.write_uint16(fp, placement,					2);
 	node.write_uint16(fp, productivity,					4);
 	node.write_uint16(fp, range,						6);
-	node.write_uint16(fp, dist_weight,						8);
+	node.write_uint16(fp, dist_weight,					8);
 	node.write_uint8 (fp, color,						10);
 	node.write_uint8 (fp, fields,						11);
 	node.write_uint16(fp, supplier_count,				12);
@@ -323,13 +324,13 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp,  electric_demand,				33);
 	node.write_uint16(fp, max_distance_to_consumer,		35);
 	node.write_uint32(fp, sound_interval,				37);
-	node.write_uint8(fp, sound_id,						41);
+	node.write_uint16(fp, sound_id,						41);
 
 	// this should be always at the end
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
-		node.write_sint8(fp, sound_str_len, 42);
-		node.write_data_at(fp, sound_str.c_str(), 43, sound_str_len);
+		node.write_sint8(fp, sound_str_len, 43);
+		node.write_data_at(fp, sound_str.c_str(), 44, sound_str_len);
 	}
 
 	node.write(fp);
