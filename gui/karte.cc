@@ -132,11 +132,9 @@ static uint8 colore_idx = 0;
 static inthashtable_tpl< int, slist_tpl<schedule_t *> > waypoint_hash;
 
 
-
 // add the schedule to the map (if there is a valid one)
 void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 {
-	PIXVAL colore;
 	// make sure this is valid!
 	if(  !cnv.is_bound()  ) {
 		return;
@@ -150,7 +148,6 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 				colore_idx = 0;
 			}
 		}
-		colore = color_idx_to_rgb( colore_idx );
 	}
 	else {
 		//TODO: extract common part from with schedule_list_gui_t::display()
@@ -182,10 +179,10 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 		// conv can consist of only 1 vehicle, which has no cap (eg. locomotive)
 		// and we do not like to divide by zero, do we?
 		if(capacity > 0) {
-			colore = color_idx_to_rgb(severity_color[MAX_SEVERITY_COLORS-load * MAX_SEVERITY_COLORS / capacity]);
+			colore_idx = severity_color[MAX_SEVERITY_COLORS-load * MAX_SEVERITY_COLORS / capacity];
 		}
 		else {
-			colore = color_idx_to_rgb(severity_color[MAX_SEVERITY_COLORS-1]);
+			colore_idx = severity_color[MAX_SEVERITY_COLORS-1];
 		}
 	}
 
@@ -239,7 +236,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 			if(  (temp_stop.x-old_stop.x)*(temp_stop.y-old_stop.y) == 0  ) {
 				last_diagonal = false;
 			}
-			if(  !schedule_cache.insert_unique_ordered( line_segment_t( temp_stop, temp_offset, old_stop, old_offset, schedule, cnv->get_owner(), colore, last_diagonal ), LineSegmentOrdering() )  &&  add_schedule  ) {
+			if(  !schedule_cache.insert_unique_ordered( line_segment_t( temp_stop, temp_offset, old_stop, old_offset, schedule, cnv->get_owner(), colore_idx, last_diagonal ), LineSegmentOrdering() )  &&  add_schedule  ) {
 				// append if added and not yet there
 				if(  !pt_list->is_contained( schedule )  ) {
 					pt_list->append( schedule );
@@ -268,7 +265,7 @@ void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoin
 	if(  stops > 2 && !schedule->is_mirrored()  ) {
 		// connect to start
 		last_diagonal ^= true;
-		schedule_cache.insert_unique_ordered( line_segment_t( first_stop, first_offset, old_stop, old_offset, schedule, cnv->get_owner(), colore, last_diagonal ), LineSegmentOrdering() );
+		schedule_cache.insert_unique_ordered( line_segment_t( first_stop, first_offset, old_stop, old_offset, schedule, cnv->get_owner(), colore_idx, last_diagonal ), LineSegmentOrdering() );
 	}
 }
 
@@ -1595,11 +1592,11 @@ void reliefkarte_t::draw(scr_coord pos)
 		// DISPLAY STATIONS AND AIRPORTS: moved here so station spots are not overwritten by lines drawn
 		FOR(  vector_tpl<line_segment_t>, seg, schedule_cache  ) {
 
-			PIXVAL color = seg.colorcount;
+			uint8 color = seg.colorcount;
 			if(  event_get_last_control_shift()==2  ||  current_cnv.is_bound()  ) {
 				// on control / single convoi use only player colors
-				static PIXVAL last_color = color;
-				color = color_idx_to_rgb(seg.player->get_player_color1()+1);
+				static uint8 last_color = color;
+				color = seg.player->get_player_color1()+1;
 				// all lines same thickness if same color
 				if(  color == last_color  ) {
 					offset = 0;
@@ -1617,7 +1614,7 @@ void reliefkarte_t::draw(scr_coord pos)
 				diagonal = seg.start_diagonal;
 			}
 			// and finally draw ...
-			line_segment_draw( seg.wtyp, k1, seg.start_offset*offset, k2, seg.end_offset*offset, diagonal, color );
+			line_segment_draw( seg.wtyp, k1, seg.start_offset*offset, k2, seg.end_offset*offset, diagonal, color_idx_to_rgb(color) );
 		}
 	}
 
