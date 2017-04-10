@@ -2020,7 +2020,7 @@ end_loop:
 			{
 				rail_vehicle_t* rv = (rail_vehicle_t*)back();
 				rail_vehicle_t* rv_front = (rail_vehicle_t*)front();
-				if (rv_front->get_working_method() != one_train_staff)
+				if (rv_front->get_working_method() != one_train_staff && rv_front->get_working_method() != token_block)
 				{
 					rv->unreserve_station();
 				}
