@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansj�rg Malthaner
+ *  Copyright (c) 1997 - 2002 by Volker Meyer & Hansjörg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  */

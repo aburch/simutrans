@@ -550,7 +550,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 	obj_t::rdwr(file);
 
 	uint8 dummy=0;
-	if(  file->get_version()>=120005  ) {
+	if(  file->get_version()>=120006  ) {
 		dummy = lane_fix;
 		file->rdwr_byte(dummy);
 		lane_fix = dummy;

@@ -492,13 +492,11 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 	if(  get_pos()==pos_next_next  ) {
 		// turning around => single check
 		const uint8 next_direction = ribi_t::backward(this_direction);
-		//frei = (NULL == no_cars_blocking( gr, NULL, next_direction, next_direction, next_direction, this ));
 		dt = no_cars_blocking( gr, NULL, next_direction, next_direction, next_direction, this );
 
 		// do not block railroad crossing
 		if(dt==NULL  &&  str->is_crossing()) {
 			const grund_t *gr = welt->lookup(get_pos());
-			//frei = (NULL == no_cars_blocking( gr, NULL, next_direction, next_direction, next_direction, this ));
 			dt = no_cars_blocking( gr, NULL, next_direction, next_direction, next_direction, this );
 		}
 	}
@@ -646,7 +644,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 					}
 				}
 			}
- 		}
+		}
 
 		// do not block railroad crossing
 		if(  frei  &&  str->is_crossing()  ) {
@@ -902,7 +900,6 @@ grund_t* private_car_t::hop_check()
 	// no free tiles => assume traffic jam ...
 	pos_next_next = koord3d::invalid;
 	current_speed = 0;
-	//set_tiles_overtaking( 0 );
 	return NULL;
 }
 
@@ -1279,7 +1276,6 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 	} while( time_overtaking > 0 );
 
 	set_tiles_overtaking( 1+n_tiles );
-	//other_overtaker->set_tiles_overtaking( -1-(n_tiles/2) );
 
 	return true;
 }

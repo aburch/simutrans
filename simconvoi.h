@@ -334,7 +334,7 @@ private:
 
 	/**
 	* Mark first and last vehicle.
-	* @author Hanjs�rg Malthaner
+	* @author Hanjsörg Malthaner
 	*/
 	void set_erstes_letztes();
 
@@ -410,7 +410,7 @@ private:
 	 */
 	sint32 yielding_quit_index;
 
-	// 0: not fixed, -1: fixed to traffic lane, 1:fixed to passing lane
+	// 0: not fixed, -1: fixed to traffic lane, 1: fixed to passing lane
 	sint8 lane_fix;
 	uint32 lane_fix_end_index;
 
@@ -485,7 +485,7 @@ public:
 
 	/**
 	 * The profit in this year
-	 * @author Hanjs�rg Malthaner
+	 * @author Hanjsörg Malthaner
 	 */
 	const sint64 & get_jahresgewinn() const {return jahresgewinn;}
 

@@ -22,24 +22,24 @@ class roadsign_t;
  */
 class onewaysign_info_t : public obj_infowin_t, public action_listener_t
 {
- private:
-	roadsign_t* sign;
-	button_t direction[2];
+	private:
+		roadsign_t* sign;
+		button_t direction[2];
 
- public:
-	onewaysign_info_t(roadsign_t* s, koord3d first_intersection);
+	public:
+		onewaysign_info_t(roadsign_t* s, koord3d first_intersection);
 
-	/**
-	 * Set the window associated helptext
-	 * @return the filename for the helptext, or NULL
-	 * @author Hj. Malthaner
-	 */
-	const char *get_help_filename() const {return "onewaysign_info.txt";}
+		/**
+		 * Set the window associated helptext
+		 * @return the filename for the helptext, or NULL
+		 * @author Hj. Malthaner
+		 */
+		const char *get_help_filename() const {return "onewaysign_info.txt";}
 
-	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+		bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	// called, after external change
-	void update_data();
+		// called, after external change
+		void update_data();
 };
 
 #endif

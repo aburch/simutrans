@@ -241,22 +241,22 @@ void weg_t::info(cbuffer_t & buf) const
 		// Display overtaking_info
 		switch (get_overtaking_info()) {
 			case 0:
-				buf.printf("%s%s\n", translator::translate("Overtaking:"),translator::translate("one-way"));
+				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("one-way"));
 				break;
 			case 1:
-				buf.printf("%s%s\n", translator::translate("Overtaking:"),translator::translate("two-way"));
+				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("two-way"));
 				break;
 			case 2:
-				buf.printf("%s%s\n", translator::translate("Overtaking:"),translator::translate("only loading convoi"));
+				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("only loading convoi"));
 				break;
 			case 3:
-				buf.printf("%s%s\n", translator::translate("Overtaking:"),translator::translate("prohibited"));
+				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("prohibited"));
 				break;
 			case 4:
-				buf.printf("%s%s\n", translator::translate("Overtaking:"),translator::translate("passing lane only"));
+				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("passing lane only"));
 				break;
 			default:
-				buf.printf("%s%s\n", translator::translate("Overtaking:"),translator::translate("ERROR"));
+				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("ERROR"));
 				break;
 		}
 	}

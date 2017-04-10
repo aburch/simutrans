@@ -106,7 +106,7 @@ protected:
 	virtual void calc_image() = 0;
 
 	// check for road vehicle, if next tile is free
-	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction ) { return no_cars_blocking(gr,cnv,current_direction,next_direction,next_90direction,NULL); }
+	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction ) { return no_cars_blocking(gr, cnv, current_direction, next_direction, next_90direction, NULL); }
 
 	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction, const private_car_t *pcar );
 

@@ -1,6 +1,6 @@
 /**
  * convoi_t Class for vehicle associations
- * Hansj�rg Malthaner
+ * Hansjörg Malthaner
  */
 
 #include <stdlib.h>
@@ -1004,7 +1004,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 
 /**
  * Berechne route von Start- zu Zielkoordinate
- * @author Hanjs�rg Malthaner
+ * @author Hanjsörg Malthaner
  */
 bool convoi_t::drive_to()
 {
@@ -1162,7 +1162,7 @@ bool convoi_t::drive_to()
 /**
  * Ein Fahrzeug hat ein Problem erkannt und erzwingt die
  * Berechnung einer neuen Route
- * @author Hanjs�rg Malthaner
+ * @author Hanjsörg Malthaner
  */
 void convoi_t::suche_neue_route()
 {
@@ -2578,7 +2578,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_short( next_reservation_index );
 	}
 
-	if(  file->get_version()>=120005  ) {
+	if(  file->get_version()>=120006  ) {
 		file->rdwr_long(yielding_quit_index);
 		file->rdwr_byte(lane_fix);
 		file->rdwr_long(lane_fix_end_index);
@@ -3848,11 +3848,6 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			break;
 		}
 		// cannot check for oncoming traffic over crossings
-		/*
-		if(  ribi_t::is_threeway(str->get_ribi()) ) {
-			return false;
-		}
-		*/
 
 		if(  ribi_t::is_straight(str->get_ribi())  ) {
 			time_overtaking -= (VEHICLE_STEPS_PER_TILE<<16) / kmh_to_speed(str->get_max_speed());
