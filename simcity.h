@@ -18,6 +18,7 @@
 
 #include <string>
 
+class building_desc_t;
 class karte_ptr_t;
 class player_t;
 class rule_t;
@@ -433,6 +434,9 @@ public:
 	const factory_set_t& get_target_factories_for_mail() const { return target_factories_mail; }
 	factory_set_t& access_target_factories_for_pax() { return target_factories_pax; }
 	factory_set_t& access_target_factories_for_mail() { return target_factories_mail; }
+
+	// calculated the "best" orietation of city buildings, also used by editor, thus public
+	static int orient_city_building(const koord k, const building_desc_t *h );
 
 	// this function removes houses from the city house list
 	// (called when removed by player, or by town)

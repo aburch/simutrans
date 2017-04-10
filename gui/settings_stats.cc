@@ -500,6 +500,8 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	INIT_NUM_NEW( "Map roughness", mountain_roughness_start, 0, min(10, 11-((mountain_height_start+99)/100)), gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_LB( "Summer snowline" );
+	summer = label.back();
+
 	INIT_NUM( "Winter snowline", sets->get_winter_snowline(), sets->get_groundwater(), 24, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	// other climate borders ...
@@ -510,10 +512,9 @@ void settings_climates_stats_t::init(settings_t* const sets)
 			arctic = sets->get_climate_borders()[i];
 		}
 	}
-	numinp.at(3)->set_limits( 0, arctic );
 	buf.clear();
 	buf.printf( "%s %i", translator::translate( "Summer snowline" ), arctic );
-	label.at(3)->set_text( buf );
+	summer->set_text( buf );
 	SEPERATOR
 	INIT_BOOL( "lake", sets->get_lake() );
 	INIT_NUM_NEW( "Number of rivers", sets->get_river_number(), 0, 1024, gui_numberinput_t::AUTOLINEAR, false );
@@ -562,10 +563,9 @@ void settings_climates_stats_t::read(settings_t* const sets)
 			arctic = ch;
 		}
 	}
-	numinp.at(3)->set_limits( 0, arctic );
 	buf.clear();
 	buf.printf( "%s %i", translator::translate( "Summer snowline" ), arctic );
-	label.at(3)->set_text( buf );
+	summer->set_text( buf );
 	READ_BOOL_VALUE( sets->lake );
 	READ_NUM_VALUE_NEW( sets->river_number );
 	READ_NUM_VALUE_NEW( sets->min_river_length );

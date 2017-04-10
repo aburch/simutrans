@@ -1250,6 +1250,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		dbg->warning("fabrik_t::rdwr", "Mismatch of input slot count for factory %s at %s: savegame = %d, pak = %d", get_name(), pos_origin.get_fullstr(), input_count, desc->get_supplier_count());
 		// resize input to match the descriptor
 		input.resize( desc->get_supplier_count() );
+		mismatch = true;
 	}
 	if (mismatch) {
 		array_tpl<ware_production_t> dummy;
@@ -1259,13 +1260,17 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 		for(uint16 i=0; i<desc->get_supplier_count(); i++) {
 			// search for matching type
+			bool missing = true;
 			const goods_desc_t* goods = desc->get_supplier(i)->get_input_type();
-			for(uint16 j=0; j<desc->get_supplier_count(); j++) {
+			for(uint16 j=0; j<desc->get_supplier_count()  &&  missing; j++) {
 				if (dummy[j].get_typ() == goods) {
 					input[i] = dummy[j];
 					dummy[j].set_typ(NULL);
-					break;
+					missing = false;
 				}
+			}
+			if (missing) {
+				input[i].set_typ(goods);
 			}
 		}
 	}
@@ -1334,6 +1339,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		dbg->warning("fabrik_t::rdwr", "Mismatch of output slot count for factory %s at %s: savegame = %d, pak = %d", get_name(), pos_origin.get_fullstr(), output_count, desc->get_product_count());
 		// resize output to match the descriptor
 		output.resize( desc->get_product_count() );
+		mismatch = true;
 	}
 	if (mismatch) {
 		array_tpl<ware_production_t> dummy;
@@ -1343,13 +1349,17 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 		for(uint16 i=0; i<desc->get_product_count(); i++) {
 			// search for matching type
+			bool missing = true;
 			const goods_desc_t* goods = desc->get_product(i)->get_output_type();
-			for(uint16 j=0; j<desc->get_product_count(); j++) {
+			for(uint16 j=0; j<desc->get_product_count()  &&  missing; j++) {
 				if (dummy[j].get_typ() == goods) {
 					output[i] = dummy[j];
 					dummy[j].set_typ(NULL);
-					break;
+					missing = false;
 				}
+			}
+			if (missing) {
+				output[i].set_typ(goods);
 			}
 		}
 	}

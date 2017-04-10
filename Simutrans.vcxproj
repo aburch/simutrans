@@ -155,6 +155,7 @@
     <ClCompile Include="script\api\api_map_objects.cc" />
     <ClCompile Include="script\api\api_obj_desc.cc" />
     <ClCompile Include="script\api\api_obj_desc_base.cc" />
+    <ClCompile Include="script\api\api_pathfinding.cc" />
     <ClCompile Include="script\api\api_schedule.cc" />
     <ClCompile Include="script\api\api_simple.cc" />
     <ClCompile Include="script\api_class.cc" />

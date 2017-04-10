@@ -432,7 +432,7 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb )
 								ground_recalc = false;
 							}
 							welt->access(newk)->kartenboden_setzen( new boden_t( koord3d( newk, new_hgt ), new_slope ) );
-							welt->calc_climate( newk, true );
+							// climate is stored in planquadrat, and hence automatically preserved
 						}
 						// there might be walls from foundations left => thus some tiles may need to be redrawn
 						if(ground_recalc) {

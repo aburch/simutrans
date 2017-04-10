@@ -35,6 +35,7 @@ class stadt_t;
 class tool_t;
 class ware_production_t;
 class weg_t;
+class way_builder_t;
 
 /**
  * @namespace script_api The namespace contains all functions necessary to communicate
@@ -358,6 +359,7 @@ namespace script_api {
 	declare_specialized_param(const factory_product_desc_t*, "t|x|y", "factory_production_x");
 	declare_param_mask(ware_production_t*, "t|x|y", "factory_production_x");
 	declare_specialized_param(tool_t*, "x", "command_x");
+	declare_specialized_param(way_builder_t*, "t|x|y", "way_planner_x");
 
 	// export of obj_t derived classes in api/map_objects.cc
 	declare_specialized_param(obj_t*, "t|x|y", "map_object_x");

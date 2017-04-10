@@ -2308,8 +2308,8 @@ void tool_build_way_t::start_at( koord3d &new_start )
 	if(  is_shift_pressed()  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)  ) {
 		grund_t *gr=welt->lookup(new_start);
 		if(  weg_t *way = gr->get_weg( desc->get_waytype() )  ) {
-			if(  way->get_desc()->get_styp() == type_elevated  ) {
-				new_start.z -= 1;
+			if(  way->get_desc()->get_styp() == type_elevated  &&  welt->lookup(new_start-koord3d(0,0,welt->get_settings().get_way_height_clearance()))  ) {
+				new_start.z -= welt->get_settings().get_way_height_clearance();
 			}
 		}
 	}
@@ -2393,10 +2393,10 @@ void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 	koord3d my_start = start;
 	// special check to replace elevated ways
 	if(  is_shift_pressed()  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)  ) {
-		grund_t *gr=welt->lookup(start);
+		grund_t *gr=welt->lookup(my_start);
 		if(  weg_t *way = gr->get_weg( desc->get_waytype() )  ) {
-			if(  way->get_desc()->get_styp() == type_elevated  ) {
-				my_start.z += 1;
+			if(  way->get_desc()->get_styp() == type_elevated  &&  welt->lookup( my_start + koord3d(0,0,welt->get_settings().get_way_height_clearance()) )  ) {
+				my_start.z += welt->get_settings().get_way_height_clearance();
 			}
 		}
 	}
@@ -3373,6 +3373,8 @@ void tool_build_wayobj_t::mark_tiles( player_t* player, const koord3d &start, co
 	if( can_built ) {
 		sint32 cost_estimate = 0;
 
+		bool keep_existing_faster_ways = !is_ctrl_pressed();
+
 		for( uint32 j = 0; j < verbindung.get_count(); j++ ) {
 			koord3d pos = verbindung.at(j);
 			grund_t *gr = welt->lookup(pos);
@@ -3385,7 +3387,7 @@ void tool_build_wayobj_t::mark_tiles( player_t* player, const koord3d &start, co
 				if( wayobj ) {
 					show = show | wayobj->get_dir();
 					// Already a catenary here -> costs only, if new catenary is faster
-					if(  wayobj->get_desc()->get_topspeed() >= desc->get_topspeed()  ) {
+					if(  wayobj->get_desc()->get_topspeed() >= desc->get_topspeed()  &&  keep_existing_faster_ways) {
 						cost_estimate -= desc->get_price();
 					}
 				}
@@ -3438,11 +3440,13 @@ const char *tool_build_wayobj_t::do_work( player_t* player, const koord3d &start
 		return "Ways not connected";
 	}
 
-	// built wayobj ...
+	bool keep_existing_faster_ways = !is_ctrl_pressed();
+
+	// build wayobj ...
 	koord3d_vector_t const& r = verbindung.get_route();
 	for(uint32 i=0;  i<verbindung.get_count();  i++  ) {
 		if( build ) {
-			wayobj_t::extend_wayobj_t(r[i], player, r.get_ribi(i), desc);
+			wayobj_t::extend_wayobj(r[i], player, r.get_ribi(i), desc, keep_existing_faster_ways);
 		}
 		else {
 			grund_t *gr = welt->lookup(r[i]);
@@ -5265,20 +5269,10 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 	else if(  default_param[1]=='A'  ) {
 		if(  desc->get_type()!=building_desc_t::attraction_land  &&  desc->get_type()!=building_desc_t::attraction_city  ) {
 			// auto rotation only valid for city buildings
-			int streetdir = 0;
-			for(  int i = 1;  i < 8;  i+=2  ) {
-				grund_t *gr2 = welt->lookup_kartenboden(k + koord::neighbours[i]);
-				if(  gr2  &&  gr2->get_weg_hang() == gr2->get_grund_hang()  &&  gr2->get_weg(road_wt) != NULL  ) {
-					// update directions - note this is SENW, conversion from neighbours to SENW is
-					// neighbours SENW
-					// 3          0
-					// 5          1
-					// 7          2
-					// 1          3
-					streetdir += (1 << (((i-3)/2)&3));
-				}
+			rotation = stadt_t::orient_city_building( k, desc );
+			if(  rotation < 0 ) {
+				return NOTICE_UNSUITABLE_GROUND;
 			}
-			rotation = building_layout[streetdir];
 		}
 		else {
 			rotation = simrand(desc->get_all_layouts());

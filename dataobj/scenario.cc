@@ -545,8 +545,8 @@ const char* scenario_t::is_schedule_allowed(const player_t* player, const schedu
 	if (schedule == NULL) {
 		return "";
 	}
-	if (schedule->empty()  ||  env_t::server) {
-		// empty schedule, networkgame: all allowed
+	if (env_t::server) {
+		// networkgame: allowed
 		return NULL;
 	}
 	// call script

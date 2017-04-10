@@ -17,6 +17,7 @@
 #include "gui_combobox.h"
 #include "../../simevent.h"
 #include "../../display/simgraph.h"
+#include "../../display/scr_coord.h"
 #include "../../simcolor.h"
 #include "../../gui/simwin.h"
 #include "../../utils/simstring.h"
@@ -31,6 +32,8 @@ gui_combobox_t::gui_combobox_t() :
 
 	bt_next.set_typ(button_t::arrowright);
 
+	set_focusable( true );	// needed, otherwise fails on closing when clicking elsewhere!
+
 	editstr[0] = 0;
 	old_editstr[0] = 0;
 	textinp.add_listener(this);
@@ -40,7 +43,7 @@ gui_combobox_t::gui_combobox_t() :
 	wrapping = true;
 	droplist.set_visible(false);
 	droplist.add_listener(this);
-	set_size(get_size());
+	closed_size = get_size();
 	max_size = scr_size(0,10*LINESPACE);
 	set_highlight_color(color_idx_to_rgb(COL_SOFT_BLUE));
 }
@@ -106,25 +109,34 @@ DBG_MESSAGE("event","HOWDY!");
 		return true;
 	}
 
-	if(  IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTRELEASE(ev)  ) {
+	if(  IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTRELEASE(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev)  ) {
 
 		if(first_call) {
-			// prepare for selection
 
-			// swallow the first mouse click
-			if(IS_LEFTRELEASE(ev)) {
-				// close all droplist in the current window
-				event_t ev(INFOWIN);
-				ev.ev_code = WIN_UNTOP;
-				win_get_top()->infowin_event( &ev );
-
-				first_call = false;
+			// ignore clicks outside if closed
+			scr_rect this_comp( get_size() );
+			if(  !droplist.is_visible()  &&  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
+				// not us, just in old focus from previous selection or tab
+				return false;
 			}
 
+			// swallow the first mouse click
+			if(  !IS_LEFTRELEASE(ev)  ) {
+				return false;
+			}
+			first_call = false;
+
+			// else prepare for selection (after a left mbutton release event!)
 			droplist.set_visible(true);
-			droplist.set_pos(scr_coord(this->pos.x, this->pos.y + D_EDIT_HEIGHT + D_V_SPACE / 2));
-			droplist.request_size(scr_size(this->size.w, max_size.h - D_EDIT_HEIGHT - D_V_SPACE / 2));
-			set_size(droplist.get_size() + scr_size(0, D_EDIT_HEIGHT + D_V_SPACE / 2));
+			droplist.set_pos( gui_component_t::get_pos() + scr_size(0,textinp.get_size().h) );
+			droplist.request_size(scr_size(this->size.w, max_size.h - closed_size.h) );
+			gui_component_t::set_size( droplist.get_size() + scr_size(0, (closed_size.h + D_V_SPACE) / 2) );
+			// find out if list is outside window
+			opened_at_bottom = ( pos.y + textinp.get_size().h + D_V_SPACE/2 + droplist.get_size().h + D_TITLEBAR_HEIGHT > win_get_top()->get_windowsize().h );
+			if(  opened_at_bottom  ) {
+				droplist.set_pos( gui_component_t::get_pos() + scr_size(0,D_V_SPACE/4 - droplist.get_size().h) );
+			}
+
 			int sel = droplist.get_selection();
 			if((uint32)sel>=(uint32)droplist.get_count()  ||  !droplist.get_element(sel)->is_valid()) {
 				sel = 0;
@@ -133,20 +145,32 @@ DBG_MESSAGE("event","HOWDY!");
 		}
 		else if (droplist.is_visible()) {
 			event_t ev2 = *ev;
-			translate_event(&ev2, 0, -D_EDIT_HEIGHT - D_V_SPACE / 2);
+			if(  opened_at_bottom  ) {
+				translate_event(&ev2, 0, D_V_SPACE/2 + droplist.get_size().h );
+			}
+			else {
+				translate_event(&ev2, 0, -D_EDIT_HEIGHT - D_V_SPACE/2);
+			}
 
-			if(droplist.getroffen(ev->cx + pos.x, ev->cy + pos.y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
-				droplist.infowin_event(&ev2);
-				// we selected something?
-				if(finish  &&  IS_LEFTRELEASE(ev)) {
-					close_box();
+			if( droplist.getroffen(ev->cx + pos.x, ev->cy + pos.y)  ) {
+				int old_selection = droplist.get_selection();
+				if(  droplist.infowin_event(&ev2)  ) {
+					if(  droplist.get_selection() !=  old_selection  ) {
+						call_listeners( droplist.get_selection() );
+						finish = true;
+					}
+					// we selected something?
+					if(finish  &&  IS_LEFTRELEASE(ev)) {
+						close_box();
+					}
 				}
+				return true;
 			}
 			else {
 				// acting on "release" is better than checking for "new selection"
-				if (IS_LEFTRELEASE(ev)) {
-DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
+				if(  IS_LEFTRELEASE(ev)  ) {
 					close_box();
+					return false;
 				}
 			}
 		}
@@ -155,10 +179,6 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 	else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_CLOSE  ||  ev->ev_code==WIN_UNTOP)  ) {
 DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 		textinp.infowin_event(ev);
-		droplist.set_visible(false);
-		close_box();
-		// update "mouse-click-catch-area"
-		set_size(scr_size(size.w, droplist.is_visible() ? max_size.h : D_EDIT_HEIGHT));
 		return true;
 	}
 	else {
@@ -284,7 +304,7 @@ void gui_combobox_t::close_box()
 		finish = false;
 	}
 	droplist.set_visible(false);
-	set_size(scr_size(size.w, D_EDIT_HEIGHT));
+	gui_component_t::set_size(closed_size);
 	first_call = true;
 }
 
@@ -292,17 +312,27 @@ void gui_combobox_t::close_box()
 void gui_combobox_t::set_pos(scr_coord pos_par)
 {
 	gui_component_t::set_pos( pos_par );
+
 	droplist.set_pos( scr_coord( pos_par.x, pos_par.y + textinp.get_size().h ) );
 }
 
 
 void gui_combobox_t::set_size(scr_size size)
 {
+	closed_size = size;
+
 	gui_component_t::set_size( size );
 
-	textinp.set_size( scr_size( size.w - bt_prev.get_size().w - bt_next.get_size().w - 3 * D_H_SPACE / 2, D_EDIT_HEIGHT ) );
-	textinp.align_to( &bt_prev, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( pos.x + D_H_SPACE / 2, pos.y ) );
+	textinp.set_size( scr_size( size.w - bt_prev.get_size().w - bt_next.get_size().w - 2 * D_H_SPACE, closed_size.h-D_V_SPACE/2  ) );
+	if(  opened_at_bottom  ) {
+		droplist.set_pos( gui_component_t::get_pos() + scr_size(0,D_V_SPACE/4 - droplist.get_size().h) );
+	}
+	else {
+		droplist.set_pos( gui_component_t::get_pos() + scr_size(0,textinp.get_size().h) );
+	}
 
+	bt_prev.set_pos( scr_coord(0,(size.h-D_POS_BUTTON_HEIGHT)/2) );
+	textinp.align_to( &bt_prev, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( pos.x + D_H_SPACE / 2, pos.y ) );
 	bt_next.align_to( &textinp, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord( -pos.x + D_H_SPACE / 2, -pos.y ) );
 }
 
@@ -314,9 +344,9 @@ void gui_combobox_t::set_size(scr_size size)
 void gui_combobox_t::set_max_size(scr_size max)
 {
 	max_size = max;
-	droplist.request_size( scr_size( size.w, max_size.h - D_EDIT_HEIGHT - D_V_SPACE / 2 ) );
+	droplist.request_size( scr_size( size.w, max_size.h - closed_size.h ) );
 	if(  droplist.is_visible()  ) {
-		set_size( droplist.get_size() + scr_size( 0, D_EDIT_HEIGHT + D_V_SPACE / 2 ) );
+		gui_component_t::set_size( droplist.get_size() + scr_size( 0, closed_size.h ) );
 		droplist.adjust_scrollbar();
 	}
 }

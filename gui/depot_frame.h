@@ -113,6 +113,9 @@ private:
 	button_t bt_obsolete;
 	button_t bt_show_all;
 
+	static char name_filter_value[64];
+	gui_textinput_t name_filter_input;
+
 	gui_tab_panel_t tabs;
 	gui_divider_t div_tabbottom;
 

@@ -153,9 +153,14 @@ void gebaeude_t::rotate90()
 		koord new_offset = tile->get_offset();
 
 		if(building_desc->get_type() == building_desc_t::unknown  ||  building_desc->get_all_layouts()<=4) {
-			layout = (layout & 4) + ((layout+3) % building_desc->get_all_layouts() & 3);
+			layout = ((layout+3) % building_desc->get_all_layouts() & 3);
+		}
+		else if(  building_desc->get_all_layouts()==8  &&  building_desc->get_type() >= building_desc_t::city_res  ) {
+			// eight layout city building
+			layout = (layout & 4) + ((layout+3) & 3);
 		}
 		else {
+			// 8 & 16 tile lyoutout for stations
 			static uint8 layout_rotate[16] = { 1, 8, 5, 10, 3, 12, 7, 14, 9, 0, 13, 2, 11, 4, 15, 6 };
 			layout = layout_rotate[layout] % building_desc->get_all_layouts();
 		}

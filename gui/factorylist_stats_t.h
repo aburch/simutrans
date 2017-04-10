@@ -12,9 +12,11 @@
 #ifndef factorylist_stats_t_h
 #define factorylist_stats_t_h
 
-#include "../tpl/vector_tpl.h"
-#include "components/gui_komponente.h"
+#include "components/gui_scrolled_list.h"
+#include "../display/simgraph.h"
+#include "../simfab.h"
 
+class karte_ptr_t;
 class fabrik_t;
 
 
@@ -26,32 +28,31 @@ namespace factorylist {
  * Factory list stats display
  * @author Hj. Malthaner
  */
-class factorylist_stats_t : public gui_world_component_t
+// City list stats display
+class factorylist_stats_t : public gui_scrolled_list_t::scrollitem_t
 {
 private:
-	vector_tpl<fabrik_t*> fab_list;
-	uint32 line_selected;
+	fabrik_t *fab;
+	bool mouse_over;  // flag to remember, whether last pressed mouse button on this
 
-	factorylist::sort_mode_t sortby;
-	bool sortreverse;
+	static scr_coord_val h;
+
+	static bool compare( gui_scrolled_list_t::scrollitem_t *a, gui_scrolled_list_t::scrollitem_t *b );
 
 public:
-	factorylist_stats_t(factorylist::sort_mode_t sortby, bool sortreverse);
+	static int sort_mode;
+	static bool reverse;
 
-	void sort(factorylist::sort_mode_t sortby, bool sortreverse);
+public:
+	factorylist_stats_t(fabrik_t *);
 
-	bool infowin_event(event_t const*) OVERRIDE;
+	scr_coord_val get_height() const { return h; }
 
-	/**
-	 * Recalc the size required to display everything and set size (size).
-	 */
-	void recalc_size();
-
-	/**
-	* Draw the component
-	* @author Hj. Malthaner
-	*/
-	void draw(scr_coord offset);
+	scr_coord_val draw( scr_coord pos, scr_coord_val width, bool is_selected, bool has_focus );
+	char const* get_text() const { return fab->get_name(); }
+	bool sort( vector_tpl<scrollitem_t *> &, int, void * ) const;
+	bool infowin_event(const event_t *);
 };
+
 
 #endif

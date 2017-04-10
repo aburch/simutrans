@@ -246,6 +246,10 @@ void_t unmark_object(obj_t* obj)
 	obj->set_flag(obj_t::dirty);
 	return void_t();
 }
+bool object_is_marked(obj_t* obj)
+{
+	return obj->get_flag(obj_t::highlight);
+}
 
 // markers / labels
 call_tool_work create_marker(koord pos, player_t* player, const char* text)
@@ -369,6 +373,10 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * Unmarks the object for highlighting.
 	 */
 	register_method(vm, &unmark_object, "unmark", true);
+	/**
+	 * @returns whether object is highlighted.
+	 */
+	register_method(vm, &object_is_marked, "is_marked", true);
 	end_class(vm);
 
 

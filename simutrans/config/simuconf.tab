@@ -436,7 +436,7 @@ toll_waycost_percentage = 0
 #cost_maintain_transformer=20
 
 # how many months of maintainance the make public tool costs
-#cst_make_public_months=60
+#cost_make_public_months=60
 
 ###################################other stuff##################################
 #

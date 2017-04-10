@@ -517,7 +517,7 @@ bool way_builder_t::check_building( const grund_t *to, const koord dir ) const
  * B) if allowed, calculate the cost for the step from from to to
  * @author prissi
  */
-bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint32 *costs)
+bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint32 *costs) const
 {
 	const koord from_pos=from->get_pos().get_2d();
 	const koord to_pos=to->get_pos().get_2d();
@@ -867,7 +867,7 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 }
 
 
-bool way_builder_t::check_terraforming( const grund_t *from, const grund_t *to, uint8* new_from_slope, uint8* new_to_slope)
+bool way_builder_t::check_terraforming( const grund_t *from, const grund_t *to, uint8* new_from_slope, uint8* new_to_slope) const
 {
 	// only for normal green tiles
 	const slope_t::type from_slope = from->get_weg_hang();

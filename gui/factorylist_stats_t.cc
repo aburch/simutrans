@@ -27,228 +27,190 @@
 #include "../descriptor/skin_desc.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
+#include <algorithm>
 
 
-factorylist_stats_t::factorylist_stats_t(factorylist::sort_mode_t sortby, bool sortreverse)
+scr_coord_val factorylist_stats_t::h = LINESPACE;
+int factorylist_stats_t::sort_mode = factorylist::by_name;
+bool factorylist_stats_t::reverse = false;
+
+
+
+factorylist_stats_t::factorylist_stats_t(fabrik_t *fab)
 {
-	sort(sortby,sortreverse);
-	recalc_size();
-	line_selected = 0xFFFFFFFFu;
+	this->fab = fab;
+	h = max( gui_theme_t::gui_pos_button_size.h, LINESPACE );
+	mouse_over = false;
 }
 
 
-class compare_factories
+
+bool factorylist_stats_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_scrolled_list_t::scrollitem_t *bb )
 {
-	public:
-		compare_factories(factorylist::sort_mode_t sortby_, bool reverse_) :
-			sortby(sortby_),
-			reverse(reverse_)
-		{}
+	factorylist_stats_t* fa = dynamic_cast<factorylist_stats_t*>(aa);
+	factorylist_stats_t* fb = dynamic_cast<factorylist_stats_t*>(bb);
+	// good luck with mixed lists
+	assert(fa != NULL  &&  fb != NULL);
+	fabrik_t *a=fa->fab, *b=fb->fab;
 
-		bool operator ()(const fabrik_t* a, const fabrik_t* b)
+	int cmp;
+	switch (sort_mode) {
+		default:
+		case factorylist::by_name:
+			cmp = 0;
+			break;
+
+		case factorylist::by_input:
 		{
-			int cmp;
-			switch (sortby) {
-				default:
-				case factorylist::by_name:
-					cmp = 0;
-					break;
-
-				case factorylist::by_input:
-				{
-					int a_in = a->get_input().empty() ? -1 : (int)a->get_total_in();
-					int b_in = b->get_input().empty() ? -1 : (int)b->get_total_in();
-					cmp = a_in - b_in;
-					break;
-				}
-
-				case factorylist::by_transit:
-				{
-					int a_transit = a->get_input().empty() ? -1 : (int)a->get_total_transit();
-					int b_transit = b->get_input().empty() ? -1 : (int)b->get_total_transit();
-					cmp = a_transit - b_transit;
-					break;
-				}
-
-				case factorylist::by_available:
-				{
-					int a_in = a->get_input().empty() ? -1 : (int)(a->get_total_in()+a->get_total_transit());
-					int b_in = b->get_input().empty() ? -1 : (int)(b->get_total_in()+b->get_total_transit());
-					cmp = a_in - b_in;
-					break;
-				}
-
-				case factorylist::by_output:
-				{
-					int a_out = a->get_output().empty() ? -1 : (int)a->get_total_out();
-					int b_out = b->get_output().empty() ? -1 : (int)b->get_total_out();
-					cmp = a_out - b_out;
-					break;
-				}
-
-				case factorylist::by_maxprod:
-					cmp = a->get_base_production()*a->get_prodfactor() - b->get_base_production()*b->get_prodfactor();
-					break;
-
-				case factorylist::by_status:
-					cmp = a->get_status() - b->get_status();
-					break;
-
-				case factorylist::by_power:
-					cmp = a->get_prodfactor_electric() - b->get_prodfactor_electric();
-					break;
-			}
-			if (cmp == 0) {
-				cmp = STRICMP(a->get_name(), b->get_name());
-			}
-			return reverse ? cmp > 0 : cmp < 0;
+			int a_in = a->get_input().empty() ? -1 : (int)a->get_total_in();
+			int b_in = b->get_input().empty() ? -1 : (int)b->get_total_in();
+			cmp = a_in - b_in;
+			break;
 		}
 
-	private:
-		const factorylist::sort_mode_t sortby;
-		const bool reverse;
-};
+		case factorylist::by_transit:
+		{
+			int a_transit = a->get_input().empty() ? -1 : (int)a->get_total_transit();
+			int b_transit = b->get_input().empty() ? -1 : (int)b->get_total_transit();
+			cmp = a_transit - b_transit;
+			break;
+		}
 
+		case factorylist::by_available:
+		{
+			int a_in = a->get_input().empty() ? -1 : (int)(a->get_total_in()+a->get_total_transit());
+			int b_in = b->get_input().empty() ? -1 : (int)(b->get_total_in()+b->get_total_transit());
+			cmp = a_in - b_in;
+			break;
+		}
 
-void factorylist_stats_t::sort(factorylist::sort_mode_t sb, bool sr)
-{
-	sortby = sb;
-	sortreverse = sr;
+		case factorylist::by_output:
+		{
+			int a_out = a->get_output().empty() ? -1 : (int)a->get_total_out();
+			int b_out = b->get_output().empty() ? -1 : (int)b->get_total_out();
+			cmp = a_out - b_out;
+			break;
+		}
 
-	fab_list.clear();
-	fab_list.resize(welt->get_fab_list().get_count());
+		case factorylist::by_maxprod:
+			cmp = a->get_base_production()*a->get_prodfactor() - b->get_base_production()*b->get_prodfactor();
+			break;
 
-	FOR(slist_tpl<fabrik_t*>, const f, welt->get_fab_list()) {
-		fab_list.insert_ordered(f, compare_factories(sortby, sortreverse));
+		case factorylist::by_status:
+			cmp = a->get_status() - b->get_status();
+			break;
+
+		case factorylist::by_power:
+			cmp = a->get_prodfactor_electric() - b->get_prodfactor_electric();
+			break;
 	}
+	if (cmp == 0) {
+		cmp = STRICMP(a->get_name(), b->get_name());
+	}
+	return reverse ? cmp > 0 : cmp < 0;
 }
 
 
-/**
- * Events werden hiermit an die GUI-Komponenten
- * gemeldet
- * @author Hj. Malthaner
- */
+bool factorylist_stats_t::sort( vector_tpl<scrollitem_t *>&v, int offset, void * ) const
+{
+	vector_tpl<scrollitem_t *>::iterator start = v.begin();
+	while(  offset-->0  ) {
+		++start;
+	}
+	std::sort( start, v.end(), factorylist_stats_t::compare );
+	return true;
+}
+
+
+
+
 bool factorylist_stats_t::infowin_event(const event_t * ev)
 {
-	const unsigned int line = (ev->cy) / (LINESPACE+1);
-	line_selected = 0xFFFFFFFFu;
-	if (line >= fab_list.get_count()) {
-		return false;
-	}
-
-	fabrik_t* fab = fab_list[line];
-	if (!fab) {
-		return false;
-	}
-
-	// un-press goto button
-	if(  ev->button_state>0  &&  ev->cx>0  &&  ev->cx<15  ) {
-		line_selected = line;
-	}
-
-	if (IS_LEFTRELEASE(ev)) {
-		if(ev->cx>0  &&  ev->cx<15) {
-			const koord3d pos = fab->get_pos();
-			welt->get_viewport()->change_world_position(pos);
+	mouse_over = false;
+	if(  ev->ev_class!=EVENT_KEYBOARD  ) {
+		// find out, if in pos box
+		scr_rect pos_xywh( scr_coord(D_H_SPACE, (h-gui_theme_t::gui_pos_button_size.h)/2), gui_theme_t::gui_pos_button_size );
+		bool pos_box_hit = pos_xywh.contains( scr_coord(ev->mx,ev->my) );
+		if(  (IS_LEFTRELEASE(ev)  &&  pos_box_hit)  ||  IS_RIGHTRELEASE(ev)  ) {
+			world()->get_viewport()->change_world_position( fab->get_pos() );
+			mouse_over = true;
 		}
-		else {
+		else if(  IS_LEFTRELEASE(ev)  ) {
 			fab->open_info_window();
 		}
+		else {
+			mouse_over = (ev->button_state & 3)  &&  pos_box_hit;
+		}
 	}
-	else if (IS_RIGHTRELEASE(ev)) {
-		const koord3d pos = fab->get_pos();
-		welt->get_viewport()->change_world_position(pos);
-	}
+
+	// never notify parent
 	return false;
-} // end of function factorylist_stats_t::infowin_event(const event_t * ev)
-
-
-void factorylist_stats_t::recalc_size()
-{
-	// show_scroll_x==false ->> size.w not important ->> no need to calc text pixel length
-	set_size( scr_size(210, welt->get_fab_list().get_count() * (LINESPACE+1) ) );
 }
 
 
-/**
- * Draw the component
- * @author Hj. Malthaner
- */
-void factorylist_stats_t::draw(scr_coord offset)
+
+scr_coord_val factorylist_stats_t::draw( scr_coord pos, scr_coord_val width, bool selected, bool )
 {
-	clip_dimension const cd = display_get_clip_wh();
-	const int start = cd.y-LINESPACE-1;
-	const int end = cd.yy+LINESPACE+1;
+	PIXVAL indikatorfarbe = color_idx_to_rgb(fabrik_t::status_to_color[fab->get_status()]);
 
-	static cbuffer_t buf;
-	int xoff = offset.x+D_POS_BUTTON_WIDTH+D_H_SPACE;
-	int yoff = offset.y;
+	cbuffer_t buf;
+	buf.append(fab->get_name());
+	buf.append(" (");
 
-	if(  fab_list.get_count()!=welt->get_fab_list().get_count()  ) {
-		// some deleted/ added => resort
-		sort( sortby, sortreverse );
-		recalc_size();
+	if (!fab->get_input().empty()) {
+		buf.printf( "%i+%i", fab->get_total_in(), fab->get_total_transit() );
 	}
+	else {
+		buf.append("-");
+	}
+	buf.append(", ");
 
-	uint32 sel = line_selected;
-	FORX(vector_tpl<fabrik_t*>, const fab, fab_list, yoff += LINESPACE + 1) {
-		if (yoff >= end) break;
+	if (!fab->get_output().empty()) {
+		buf.append(fab->get_total_out(),0);
+	}
+	else {
+		buf.append("-");
+	}
+	buf.append(", ");
 
-		// skip invisible lines
-		if (yoff < start) continue;
+	buf.append(fab->get_current_production(),0);
+	buf.append(") ");
 
-		if(fab) {
-			PIXVAL indikatorfarbe = color_idx_to_rgb(fabrik_t::status_to_color[fab->get_status()]);
-
-			buf.clear();
-			buf.append(fab->get_name());
-			buf.append(" (");
-
-			if (!fab->get_input().empty()) {
-				buf.printf( "%i+%i", fab->get_total_in(), fab->get_total_transit() );
-			}
-			else {
-				buf.append("-");
-			}
-			buf.append(", ");
-
-			if (!fab->get_output().empty()) {
-				buf.append(fab->get_total_out(),0);
-			}
-			else {
-				buf.append("-");
-			}
-			buf.append(", ");
-
-			buf.append(fab->get_current_production(),0);
-			buf.append(") ");
-
-
-			//display_ddd_box_clip_rgb(xoff+7, yoff+2, 8, 8, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
-			display_fillbox_wh_clip_rgb(xoff+2, yoff+2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indikatorfarbe, true);
-
-			if(  fab->get_prodfactor_electric()>0  ) {
-				display_color_img(skinverwaltung_t::electricity->get_image_id(0), xoff+4+D_INDICATOR_WIDTH, yoff, 0, false, true);
-			}
-			if(  fab->get_prodfactor_pax()>0  ) {
-				display_color_img(skinverwaltung_t::passengers->get_image_id(0), xoff+4+8+D_INDICATOR_WIDTH, yoff, 0, false, true);
-			}
-			if(  fab->get_prodfactor_mail()>0  ) {
-				display_color_img(skinverwaltung_t::mail->get_image_id(0), xoff+4+18+D_INDICATOR_WIDTH, yoff, 0, false, true);
-			}
-
-			// show text
-			display_proportional_clip_rgb(xoff+D_INDICATOR_WIDTH+6+28,yoff,buf,ALIGN_LEFT,SYSCOL_TEXT,true);
-
-			// goto button
-			bool selected = sel==0  ||  welt->get_viewport()->is_on_center( fab->get_pos() );
-			display_img_aligned( gui_theme_t::pos_button_img[ selected ], scr_rect( offset.x, yoff, D_POS_BUTTON_WIDTH, LINESPACE ), ALIGN_CENTER_V | ALIGN_CENTER_H, true );
-			sel --;
-
-			if(  win_get_magic( (ptrdiff_t)fab )  ) {
-				display_blend_wh_rgb( xoff, yoff, size.w+D_INDICATOR_WIDTH, LINESPACE, color_idx_to_rgb(COL_BLACK), 25 );
-			}
+	// goto button
+	bool info_open = win_get_magic( (ptrdiff_t)fab );
+	scr_rect pos_xywh( scr_coord(pos.x+D_H_SPACE, pos.y+(h-gui_theme_t::gui_pos_button_size.h)/2), gui_theme_t::gui_pos_button_size );
+	if(  selected  ||  mouse_over  ||  info_open  ) {
+		// still on center?
+		selected = world()->get_viewport()->is_on_center( fab->get_pos() );
+		if(  mouse_over  ) {
+			// still+pressed? (release will be extra event)
+			scr_coord_val mx = get_mouse_x(), my = get_mouse_y();
+			mouse_over = mx>=pos.x  &&  mx<pos.x+width  &&  my>=pos.y  &&  my<pos.y+h;
+			selected |= mouse_over;
 		}
 	}
+	display_img_aligned( gui_theme_t::pos_button_img[ selected ], pos_xywh, ALIGN_CENTER_V | ALIGN_CENTER_H, true );
+
+	int xpos = pos.x + D_MARGIN_LEFT + gui_theme_t::gui_pos_button_size.w + D_H_SPACE;
+	display_fillbox_wh_clip_rgb( xpos, pos.y+(h-D_INDICATOR_HEIGHT)/2, D_INDICATOR_WIDTH, D_INDICATOR_HEIGHT, indikatorfarbe, true);
+
+	xpos += D_INDICATOR_WIDTH+D_H_SPACE;
+	if(  fab->get_prodfactor_electric()>0  &&  skinverwaltung_t::electricity->get_image(0)  ) {
+		display_color_img( skinverwaltung_t::electricity->get_image_id(0), xpos, pos.x+(h-skinverwaltung_t::electricity->get_image(0)->get_pic()->h)/2, 0, false, true);
+	}
+	xpos += 8+D_H_SPACE;
+	if(  fab->get_prodfactor_pax()>0  &&  skinverwaltung_t::passengers->get_image(0)  ) {
+		display_color_img( skinverwaltung_t::passengers->get_image_id(0), xpos, pos.x+(h-skinverwaltung_t::passengers->get_image(0)->get_pic()->h)/2, 0, false, true);
+	}
+	xpos += 8+D_H_SPACE;
+	if(  fab->get_prodfactor_mail()>0  &&  skinverwaltung_t::mail->get_image(0)  ) {
+		display_color_img( skinverwaltung_t::mail->get_image_id(0), xpos, pos.x+(h-skinverwaltung_t::mail->get_image(0)->get_pic()->h)/2, 0, false, true);
+	}
+	xpos += 8+D_H_SPACE;
+	display_proportional_clip_rgb( xpos, pos.y+(h-LINESPACE)/2, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+
+	if(  info_open  ) {
+		display_blend_wh_rgb( pos.x, pos.y, width, h, color_idx_to_rgb(COL_BLACK), 25 );
+	}
+	return true;
 }

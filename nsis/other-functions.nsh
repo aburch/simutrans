@@ -43,7 +43,7 @@ Function SplitFirstStrPart
 FunctionEnd
 
 
-; we just ask for Artistic licences, the other re only asked for certain paks
+; we just ask for Artistic licences, the other are only asked for certain paks
 PageEx license
  LicenseData "license.rtf"
 PageExEnd
@@ -225,6 +225,26 @@ FunctionEnd
 PageEx License
  LicenseData "GPL.txt"
  PageCallbacks CheckForGPL "" ""
+PageExEnd
+
+
+
+; Some pak192.comic is CC
+Function CheckForCC
+
+  SectionGetFlags ${pak192comic} $R0
+  IntOp $R0 $R0 & ${SF_SELECTED}
+  IntCmp $R0 ${SF_SELECTED} showCC
+
+  Abort
+
+showCC:
+  ; here is ok
+FunctionEnd
+
+PageEx License
+ LicenseData "CC-BY-SA.txt"
+ PageCallbacks CheckForCC "" ""
 PageExEnd
 
 
