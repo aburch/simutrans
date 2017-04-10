@@ -2754,12 +2754,6 @@ static koord const neighbors[] = {
 };
 
 
-// return layout
-#define CHECK_NEIGHBOUR (128)
-static int const building_layout[] = { CHECK_NEIGHBOUR | 0, 0, 1, 4, 2, CHECK_NEIGHBOUR | 0, 5, CHECK_NEIGHBOUR | 1, 3, 7, CHECK_NEIGHBOUR | 1, CHECK_NEIGHBOUR | 0, 6, CHECK_NEIGHBOUR | 3, CHECK_NEIGHBOUR | 2, CHECK_NEIGHBOUR | 0 };
-
-
-
 bool process_city_street(grund_t& gr, const way_desc_t* cr)
 {
 	weg_t* const weg = gr.get_weg(road_wt);
@@ -2782,6 +2776,102 @@ bool process_city_street(grund_t& gr, const way_desc_t* cr)
 }
 
 
+// return layout
+#define CHECK_NEIGHBOUR (128)
+static int const building_layout[] = { CHECK_NEIGHBOUR | 0, 0, 1, 4, 2, 0, 5, CHECK_NEIGHBOUR | 1, 3, 7, 1, CHECK_NEIGHBOUR | 0, 6, CHECK_NEIGHBOUR | 3, CHECK_NEIGHBOUR | 2, CHECK_NEIGHBOUR | 0 };
+
+
+// calculates the "best" oreintation of a citybuilding
+int stadt_t::orient_city_building(const koord k, const building_desc_t *h )
+{
+	/*******************************************************
+	* these are the layout possible for city buildings
+	********************************************************
+	dims=1,1,1
+	+---+
+	|000|
+	|0 0|
+	|000|
+	+---+
+	dims=1,1,2
+	+---+
+	|001|
+	|1 1|
+	|100|
+	+---+
+	dims=1,1,4
+	+---+
+	|221|
+	|3 1|
+	|300|
+	+---+
+	dims=1,1,8
+	+---+
+	|625|
+	|3 1|
+	|704|
+	+---+
+	********************************************************/
+
+	// we have something to built here ...
+	if(  h == NULL  ) {
+		return -1;
+	}
+	if(  grund_t *gr = welt->lookup_kartenboden(k)  ) {
+		int rotation = 0;
+		int max_layout = h->get_all_layouts()-1;
+		if(  max_layout  ) {
+			// check for pavement
+			int streetdir = 0;
+			for(  int i = 0;  i < 4;  i++  ) {
+				// Neighbors goes through these in 'preferred' order, orthogonal first
+				gr = welt->lookup_kartenboden(k + neighbors[i]);
+				if(  gr  &&  gr->get_weg_hang() == gr->get_grund_hang()  &&  process_city_street(*gr, welt->get_city_road())  ){
+					streetdir += (1 << i);
+				}
+			}
+			// not completely unique layout, see if any of the neighbouring building gives a hint
+			rotation = building_layout[streetdir] & ~CHECK_NEIGHBOUR;
+			// for four rotation stop here ...
+			if(  max_layout<7  ) {
+				return rotation & max_layout;
+			}
+			// now this is an eight roation building, so we must put in more effort
+			bool unique_orientation = !(building_layout[streetdir] & CHECK_NEIGHBOUR);
+			if(  !unique_orientation  ) {
+				// no unique answer, check nearby buildings (more likely to fail)
+				int gb_dir = 0;
+				for(  int i = 0;  i < 4;  i++  ) {
+					// look for adjacent buildings
+					gr = welt->lookup_kartenboden(k + neighbors[i]);
+					if(  gr  &&  gr->get_typ()==grund_t::fundament  ){
+						if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
+							gb_dir |= (1<<i);
+						}
+					}
+				}
+				// lets hope this gives an unique answer
+				static uint8 gb_dir_to_layout[16] = { CHECK_NEIGHBOUR, 1, 0, 6, 1, 1, 7, CHECK_NEIGHBOUR, 0, 5, 0, CHECK_NEIGHBOUR, 4, CHECK_NEIGHBOUR, CHECK_NEIGHBOUR, CHECK_NEIGHBOUR };
+				if(  gb_dir_to_layout[gb_dir] == CHECK_NEIGHBOUR  ) {
+					return rotation;
+				}
+				// ok our answer is unique, now we just check for left and right via street nearby
+				rotation = gb_dir_to_layout[gb_dir];
+				if(  rotation<2  ) {
+					// check on which side is the road
+					if(  streetdir & 0x0C  ) {
+						return rotation + 2;
+					}
+				}
+			}
+		}
+		return rotation;
+	}
+	return -1;
+}
+
+	
+	
 void stadt_t::build_city_building(const koord k)
 {
 	grund_t* gr = welt->lookup_kartenboden(k);
@@ -2860,81 +2950,8 @@ void stadt_t::build_city_building(const koord k)
 		}
 	}
 
-	/*******************************************************
-		* this are the layout possible for city buildings
-	********************************************************
-	dims=1,1,1
-	+---+
-	|000|
-	|0 0|
-	|000|
-	+---+
-	dims=1,1,2
-	+---+
-	|001|
-	|1 1|
-	|100|
-	+---+
-	dims=1,1,4
-	+---+
-	|221|
-	|3 1|
-	|300|
-	+---+
-	dims=1,1,8
-	+---+
-	|625|
-	|3 1|
-	|704|
-	+---+
-	********************************************************/
-
-	// we have something to built here ...
-	if(  h != NULL  ) {
-		int rotation = 0;
-		if(  h->get_all_layouts()>1  ) {
-			// check for pavement
-			int streetdir = 0;
-			for(  int i = 0;  i < 4;  i++  ) {
-				// Neighbors goes through these in 'preferred' order, orthogonal first
-				gr = welt->lookup_kartenboden(k + neighbors[i]);
-				if(  gr  &&  gr->get_weg_hang() == gr->get_grund_hang()  &&  process_city_street(*gr, welt->get_city_road())  ){
-					streetdir += (1 << i);
-				}
-			}
-			// not completely unique layout, see if any of the neighbouring building gives a hint
-			rotation = building_layout[streetdir] & ~CHECK_NEIGHBOUR;
-			bool unique_orientation = !(building_layout[streetdir] & CHECK_NEIGHBOUR);
-			// only streets in diagonal corners => make a house there in L direction
-			if(  !streetdir  ) {
-				int count = 0;
-				for(  int i = 4;  i < 8;  i++  ) {
-					// Neighbors goes through these in 'preferred' order, orthogonal first
-					gr = welt->lookup_kartenboden(k + neighbors[i]);
-					if(  gr  &&  gr->get_weg_hang() == gr->get_grund_hang()  &&  process_city_street(*gr, welt->get_city_road())  ){
-						rotation = i;
-						count ++;
-					}
-				}
-				unique_orientation = (count==1);
-			}
-			if(  !unique_orientation  ) {
-				int max_layout = h->get_all_layouts()-1;
-				for(  int i = 0;  i < 4;  i++  ) {
-					// Neighbors goes through these in 'preferred' order, orthogonal first
-					gr = welt->lookup_kartenboden(k + neighbors[i]);
-					if(  gr  &&  gr->get_typ()==grund_t::fundament  ){
-						if(  gebaeude_t *gb = gr->find<gebaeude_t>()  ) {
-							if(  gb->get_tile()->get_desc()->get_all_layouts() > max_layout  ) {
-								// so take the roation of the next bilding with similar or more rotations
-								rotation = gb->get_tile()->get_layout();
-								max_layout = gb->get_tile()->get_desc()->get_all_layouts();
-							}
-						}
-					}
-				}
-			}
-		}
+	int rotation = orient_city_building( k, h );
+	if(  rotation >= 0  ) {
 		const gebaeude_t* gb = hausbauer_t::build(NULL, pos, rotation, h);
 		add_gebaeude_to_stadt(gb);
 	}
