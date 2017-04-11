@@ -36,7 +36,7 @@ struct sample {
 
 /* this list contains all the samples
  */
-static sample samples[64];
+static sample samples[1024];
 
 /* all samples are stored chronologically there
  */
@@ -162,7 +162,7 @@ bool dr_init_sound()
  */
 int dr_load_sample(const char *filename)
 {
-	if(use_sound>0  &&  samplenumber<64) {
+	if(use_sound>0  &&  samplenumber < 1024) {
 
 		SDL_AudioSpec wav_spec;
 		SDL_AudioCVT  wav_cvt;
