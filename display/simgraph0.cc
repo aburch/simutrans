@@ -231,7 +231,12 @@ display_alpha_proc display_alpha = display_base_img_alpha;
 
 signed short current_tile_raster_width = 0;
 
-void display_blend_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, int)
+PIXVAL display_blend_colors(PIXVAL, PIXVAL, int)
+{
+	return 0;
+}
+
+void display_blend_wh_rgb(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PIXVAL, int )
 {
 }
 
