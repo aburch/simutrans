@@ -21,6 +21,7 @@ extern int __argc;
 extern char **__argv;
 #endif
 
+#include "../simconst.h"
 #include "../display/simgraph.h"
 #include "../simdebug.h"
 #include "../gui/simwin.h"
@@ -36,9 +37,6 @@ extern char **__argv;
 #ifndef GET_WHEEL_DELTA_WPARAM
 #	define GET_WHEEL_DELTA_WPARAM(wparam) ((short)HIWORD(wparam))
 #endif
-
-// 16 Bit may be much slower than 15 unfortunately on some hardware
-#define USE_16BIT_DIB
 
 #include "../simmem.h"
 #include "simsys_w32_png.h"
@@ -297,10 +295,10 @@ unsigned short *dr_textur_init()
  */
 unsigned int get_system_color(unsigned int r, unsigned int g, unsigned int b)
 {
-#ifdef USE_16BIT_DIB
-	return ((r & 0x00F8) << 8) | ((g & 0x00FC) << 3) | (b >> 3);
-#else
+#ifdef RGB555
 	return ((r & 0x00F8) << 7) | ((g & 0x00F8) << 2) | (b >> 3); // 15 Bit
+#else
+	return ((r & 0x00F8) << 8) | ((g & 0x00FC) << 3) | (b >> 3);
 #endif
 }
 
@@ -406,10 +404,10 @@ void set_pointer(int loading)
  */
 int dr_screenshot(const char *filename, int x, int y, int w, int h)
 {
-#if defined USE_16BIT_DIB
-	int const bpp = COLOUR_DEPTH;
-#else
+#if defined RGB555
 	int const bpp = 15;
+#else
+	int const bpp = COLOUR_DEPTH;
 #endif
 	if (!dr_screenshot_png(filename, w, h, AllDib->bmiHeader.biWidth, (unsigned short*)AllDibData+x+y*AllDib->bmiHeader.biWidth, bpp)) {
 		// not successful => save full screen as BMP
@@ -490,10 +488,10 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					MEMZERO(settings);
 					settings.dmSize = sizeof(settings);
 					settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-#if defined USE_16BIT_DIB
-					settings.dmBitsPerPel = COLOUR_DEPTH;
-#else
+#ifdef RGB555
 					settings.dmBitsPerPel = 15;
+#else
+					settings.dmBitsPerPel = COLOUR_DEPTH;
 #endif
 					settings.dmPelsWidth  = MaxSize.right;
 					settings.dmPelsHeight = MaxSize.bottom;
