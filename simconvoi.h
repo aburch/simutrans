@@ -437,7 +437,7 @@ private:
 	* Number of vehicles in this convoi.
 	* @author Hj. Malthaner
 	*/
-	uint8 anz_vehicle;
+	uint8 vehicle_count;
 
 	/* Number of steps the current convoi did already
 	 * (only needed for leaving/entering depot)
@@ -1113,7 +1113,7 @@ public:
 	* @return Vehicle count
 	* @author Hj. Malthaner
 	*/
-	inline uint8 get_vehicle_count() const { return anz_vehicle; }
+	inline uint8 get_vehicle_count() const { return vehicle_count; }
 
 	/**
 	 * @return Vehicle at position i
@@ -1126,11 +1126,11 @@ public:
 
 	vehicle_t* front() const { return *vehicle.begin(); }
 
-	vehicle_t* back() const { return vehicle.begin()[anz_vehicle - 1]; }
+	vehicle_t* back() const { return vehicle.begin()[vehicle_count - 1]; }
 
 	typedef array_tpl<vehicle_t*>::const_iterator const_iterator;
 	inline array_tpl<vehicle_t*>::const_iterator begin() const { return vehicle.begin(); }
-	inline array_tpl<vehicle_t*>::const_iterator end() const { return vehicle.begin() + anz_vehicle; }
+	inline array_tpl<vehicle_t*>::const_iterator end() const { return vehicle.begin() + vehicle_count; }
 
 	/**
 	* Adds a vehicel at the start or end of the convoi.

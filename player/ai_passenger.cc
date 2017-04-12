@@ -781,7 +781,7 @@ bool ai_passenger_t::create_air_transport_vehicle(const stadt_t *start_stadt, co
 /* creates a more general road transport
  * @author prissi
  */
-void ai_passenger_t::create_bus_transport_vehicle(koord startpos2d,int anz_vehicle,koord *stops,int count,bool do_wait)
+void ai_passenger_t::create_bus_transport_vehicle(koord startpos2d,int vehicle_count,koord *stops,int count,bool do_wait)
 {
 DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehicle()","bus at (%i,%i)",startpos2d.x,startpos2d.y);
 	// now start all vehicle one field before, so they load immediately
@@ -799,7 +799,7 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehicle()","bus at (%i,%i)",st
 	delete schedule;
 
 	// now create all vehicles as convois
-	for(int i=0;  i<anz_vehicle;  i++) {
+	for(int i=0;  i<vehicle_count;  i++) {
 		vehicle_t* v = vehicle_builder_t::build(startpos, this, NULL, road_vehicle);
 		if(  convoihandle_t::is_exhausted()  ) {
 			// too many convois => cannot do anything about this ...
