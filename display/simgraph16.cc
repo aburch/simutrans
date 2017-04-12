@@ -3070,42 +3070,42 @@ void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 
 
 // Blends two colors 
-PIXVAL display_blend_colors(PIXVAL dest, PIXVAL src, int percent_blend)
+PIXVAL display_blend_colors(PIXVAL background, PIXVAL foreground, int percent_blend)
 {
 	const PIXVAL alpha = (percent_blend*64)/100;
 
 	switch( alpha ) {
 		case 0:	// nothing to do ...
-			return src;
+			return background;
 		case 16:
 		{
 			const PIXVAL two = (bitdepth==16) ? TWO_OUT_16 : TWO_OUT_15;
-			return (3*(((src)>>2) & two)) + (((dest)>>2) & two);
+			return (3*(((background)>>2) & two)) + (((foreground)>>2) & two);
 		}
 		case 32:
 		{
 			const PIXVAL one = (bitdepth==16) ? ONE_OUT_16 : ONE_OUT_15;
-			return ((((src)>>1) & one)) + (((dest)>>1) & one);
+			return ((((background)>>1) & one)) + (((foreground)>>1) & one);
 		}
 		case 48:
 		{
 			const PIXVAL two = (bitdepth==16) ? TWO_OUT_16 : TWO_OUT_15;
-			return ((((src)>>2) & two)) + (3*((dest)>>2) & two);
+			return ((((background)>>2) & two)) + (3*((foreground)>>2) & two);
 		}
 
 		case 64:
-			return dest;
+			return foreground;
 
 		default:
 			// any percentage blending: SLOW!
 			if(  bitdepth == 16  ) {
 				// 555 BITMAPS
-				const PIXVAL r_src = (src >> 10) & 0x1F;
-				const PIXVAL g_src = (src >> 5) & 0x1F;
-				const PIXVAL b_src = src & 0x1F;
-				const PIXVAL r_dest = (dest >> 10) & 0x1F;
-				const PIXVAL g_dest = (dest >> 5) & 0x1F;
-				const PIXVAL b_dest = (dest & 0x1F);
+				const PIXVAL r_src = (background >> 10) & 0x1F;
+				const PIXVAL g_src = (background >> 5) & 0x1F;
+				const PIXVAL b_src = background & 0x1F;
+				const PIXVAL r_dest = (foreground >> 10) & 0x1F;
+				const PIXVAL g_dest = (foreground >> 5) & 0x1F;
+				const PIXVAL b_dest = (foreground & 0x1F);
 				const PIXVAL r = r_dest + ( ( (r_src - r_dest) * alpha ) >> 6 );
 				const PIXVAL g = g_dest + ( ( (g_src - g_dest) * alpha ) >> 6 );
 				const PIXVAL b = b_dest + ( ( (b_src - b_dest) * alpha ) >> 6 );
@@ -3113,12 +3113,12 @@ PIXVAL display_blend_colors(PIXVAL dest, PIXVAL src, int percent_blend)
 			}
 			else {
 				// 565 colors
-				const PIXVAL r_src = (src >> 11);
-				const PIXVAL g_src = (src >> 5) & 0x3F;
-				const PIXVAL b_src = src & 0x1F;
-				const PIXVAL r_dest = (dest >> 11);
-				const PIXVAL g_dest = (dest >> 5) & 0x3F;
-				const PIXVAL b_dest = (dest & 0x1F);
+				const PIXVAL r_src = (background >> 11);
+				const PIXVAL g_src = (background >> 5) & 0x3F;
+				const PIXVAL b_src = background & 0x1F;
+				const PIXVAL r_dest = (foreground >> 11);
+				const PIXVAL g_dest = (foreground >> 5) & 0x3F;
+				const PIXVAL b_dest = (foreground & 0x1F);
 				const PIXVAL r = r_dest + ( ( (r_src - r_dest) * alpha ) >> 6 );
 				const PIXVAL g = g_dest + ( ( (g_src - g_dest) * alpha ) >> 6 );
 				const PIXVAL b = b_dest + ( ( (b_src - b_dest) * alpha ) >> 6 );
@@ -4863,39 +4863,45 @@ void display_ddd_box_clip_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL
 
 
 // if width equals zero, take default value
-void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, PIXVAL ddd_farbe, PIXVAL text_farbe, const char *text, int dirty)
+void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, FLAGGED_PIXVAL ddd_color, FLAGGED_PIXVAL text_color, const char *text, int dirty)
 {
 	int halfheight = large_font_total_height / 2 + 1;
 
-	display_fillbox_wh_rgb( xpos - 2, ypos - halfheight - hgt - 1, width, halfheight * 2 + 2, ddd_farbe, dirty );
+	PIXVAL lighter = display_blend_colors(ddd_color, color_idx_to_rgb(COL_WHITE), 25);
+	PIXVAL darker  = display_blend_colors(ddd_color, color_idx_to_rgb(COL_BLACK), 25);
 
-	display_blend_wh_rgb( xpos - 1, ypos - halfheight - 1 - hgt, width - 2, 1, color_idx_to_rgb(COL_WHITE), 25 );
-	display_blend_wh_rgb( xpos - 1, ypos - halfheight - hgt,     width - 2, 1, color_idx_to_rgb(COL_BLACK), 25 );
+	display_fillbox_wh_rgb( xpos - 2, ypos - halfheight - hgt - 1, width, halfheight * 2 + 2, ddd_color, dirty );
 
-	display_blend_wh_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, 1, halfheight * 2 + 2, color_idx_to_rgb(COL_WHITE), 25 );
-	display_blend_wh_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, 1, halfheight * 2 + 2, color_idx_to_rgb(COL_BLACK), 25 );
+	display_fillbox_wh_rgb( xpos - 1, ypos - halfheight - 1 - hgt, width - 2, 1, lighter, dirty );
+	display_fillbox_wh_rgb( xpos - 1, ypos + halfheight - hgt,     width - 2, 1, darker,  dirty );
 
-	display_text_proportional_len_clip_rgb(xpos + 2, ypos - halfheight + 1, text, ALIGN_LEFT, text_farbe, dirty, -1);
+	display_vline_wh_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 2, lighter, dirty );
+	display_vline_wh_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 2, darker,  dirty );
+
+	display_text_proportional_len_clip_rgb(xpos + 2, ypos - halfheight + 1, text, ALIGN_LEFT, text_color, dirty, -1);
 }
 
 
 /**
-* display text in 3d box with clipping
-* @author: hsiegeln
-*/
-void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, FLAGGED_PIXVAL ddd_farbe, FLAGGED_PIXVAL text_farbe, const char *text, int dirty  CLIP_NUM_DEF)
+ * display text in 3d box with clipping
+ * @author: hsiegeln
+ */
+void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, KOORD_VAL hgt, FLAGGED_PIXVAL ddd_color, FLAGGED_PIXVAL text_color, const char *text, int dirty  CLIP_NUM_DEF)
 {
 	const int halfheight = large_font_total_height / 2 + 1;
 
-	display_fillbox_wh_clip_rgb( xpos - 2, ypos - halfheight - 1 - hgt, width, halfheight * 2 + 2, ddd_farbe, dirty CLIP_NUM_PAR);
+	PIXVAL lighter = display_blend_colors(ddd_color, color_idx_to_rgb(COL_WHITE), 25);
+	PIXVAL darker  = display_blend_colors(ddd_color, color_idx_to_rgb(COL_BLACK), 25);
 
-	display_blend_wh_rgb( xpos - 1, ypos - halfheight - 1 - hgt, width - 2, 1, color_idx_to_rgb(COL_WHITE), 25 );
-	display_blend_wh_rgb( xpos - 1, ypos + halfheight - hgt    , width - 2, 1, color_idx_to_rgb(COL_BLACK), 25 );
+	display_fillbox_wh_clip_rgb( xpos - 2, ypos - halfheight - 1 - hgt, width, halfheight * 2 + 2, ddd_color, dirty CLIP_NUM_PAR );
 
-	display_blend_wh_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, 1, halfheight * 2 + 2, color_idx_to_rgb(COL_WHITE), 25 );
-	display_blend_wh_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, 1, halfheight * 2 + 2, color_idx_to_rgb(COL_BLACK), 25 );
+	display_fillbox_wh_rgb( xpos - 1, ypos - halfheight - 1 - hgt, width - 2, 1, lighter, dirty );
+	display_fillbox_wh_rgb( xpos - 1, ypos + halfheight - hgt,     width - 2, 1, darker,  dirty );
 
-	display_text_proportional_len_clip_rgb(xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_farbe, dirty, -1);
+	display_vline_wh_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 2, lighter, dirty );
+	display_vline_wh_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 2, darker,  dirty );
+
+	display_text_proportional_len_clip_rgb( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_color, dirty, -1);
 }
 
 

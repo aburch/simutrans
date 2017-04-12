@@ -164,6 +164,7 @@ static bool destroy_framed_win(simwin_t *win);
  */
 static int display_gadget_box(sint8 code,
 			      int const x, int const y,
+			      PIXVAL lighter, PIXVAL darker,
 			      bool const pushed)
 {
 
@@ -175,8 +176,8 @@ static int display_gadget_box(sint8 code,
 	}
 
 	if(pushed) {
-		mark_rect_dirty_wc(x, y, D_GADGET_WIDTH, D_TITLEBAR_HEIGHT);
-		display_blend_wh_rgb(x+1, y+1, D_GADGET_WIDTH-2, D_TITLEBAR_HEIGHT-2, color_idx_to_rgb(COL_WHITE), 50);
+		// mark_rect_dirty_wc(x, y, D_GADGET_WIDTH, D_TITLEBAR_HEIGHT);
+		display_fillbox_wh_rgb(x, y, D_GADGET_WIDTH, D_TITLEBAR_HEIGHT, lighter, false);
 	}
 
 	// Do we have a gadget image?
@@ -206,8 +207,8 @@ static int display_gadget_box(sint8 code,
 	}
 
 	int side = x+REVERSE_GADGETS*D_GADGET_WIDTH-1;
-	display_blend_wh_rgb(side,   y+1, 1, D_TITLEBAR_HEIGHT-2, color_idx_to_rgb(COL_BLACK), 25);
-	display_blend_wh_rgb(side+1, y+1, 1, D_TITLEBAR_HEIGHT-2, color_idx_to_rgb(COL_WHITE), 25);
+	display_vline_wh_rgb(side+1, y+1, D_TITLEBAR_HEIGHT-2, lighter, false);
+	display_vline_wh_rgb(side,   y+1, D_TITLEBAR_HEIGHT-2, darker,  false);
 
 	// Hajo: return width of gadget
 	return D_GADGET_WIDTH;
@@ -219,6 +220,8 @@ static int display_gadget_box(sint8 code,
 static int display_gadget_boxes(
 	simwin_gadget_flags_t* flags,
 	int x, int y,
+	PIXVAL lighter,
+	PIXVAL darker,
 	uint16 gadget_state,
 	bool sticky_pushed,
 	bool goto_pushed
@@ -228,25 +231,25 @@ static int display_gadget_boxes(
 
 	// Only the close and sticky gadget can be pushed.
 	if(  flags->close  ) {
-		width += k*display_gadget_box( SKIN_GADGET_CLOSE, x + width, y, gadget_state & (1<<SKIN_GADGET_CLOSE) );
+		width += k*display_gadget_box( SKIN_GADGET_CLOSE, x + width, y, lighter, darker, gadget_state & (1<<SKIN_GADGET_CLOSE) );
 	}
 	if(  flags->size  ) {
-		width += k*display_gadget_box( SKIN_GADGET_MINIMIZE, x + width, y, gadget_state & (1<<SKIN_GADGET_MINIMIZE) );
+		width += k*display_gadget_box( SKIN_GADGET_MINIMIZE, x + width, y, lighter, darker, gadget_state & (1<<SKIN_GADGET_MINIMIZE) );
 	}
 	if(  flags->help  ) {
-		width += k*display_gadget_box( SKIN_GADGET_HELP, x + width, y, gadget_state & (1<<SKIN_GADGET_HELP) );
+		width += k*display_gadget_box( SKIN_GADGET_HELP, x + width, y, lighter, darker, gadget_state & (1<<SKIN_GADGET_HELP) );
 	}
 	if(  flags->prev  ) {
-		width += k*display_gadget_box( SKIN_BUTTON_PREVIOUS, x + width, y, gadget_state & (1<<SKIN_BUTTON_PREVIOUS) );
+		width += k*display_gadget_box( SKIN_BUTTON_PREVIOUS, x + width, y, lighter, darker, gadget_state & (1<<SKIN_BUTTON_PREVIOUS) );
 	}
 	if(  flags->next  ) {
-		width += k*display_gadget_box( SKIN_BUTTON_NEXT, x + width, y, gadget_state & (1<<SKIN_BUTTON_NEXT) );
+		width += k*display_gadget_box( SKIN_BUTTON_NEXT, x + width, y, lighter, darker, gadget_state & (1<<SKIN_BUTTON_NEXT) );
 	}
 	if(  flags->gotopos  ) {
-		width += k*display_gadget_box( SKIN_GADGET_GOTOPOS, x + width, y, goto_pushed  ||  (gadget_state & (1<<SKIN_GADGET_GOTOPOS)) );
+		width += k*display_gadget_box( SKIN_GADGET_GOTOPOS, x + width, y, lighter, darker, goto_pushed  ||  (gadget_state & (1<<SKIN_GADGET_GOTOPOS)) );
 	}
 	if(  flags->sticky  ) {
-		width += k*display_gadget_box( sticky_pushed ? SKIN_GADGET_PINNED : SKIN_GADGET_NOTPINNED, x + width, y, gadget_state & (1<<SKIN_GADGET_NOTPINNED) );
+		width += k*display_gadget_box( sticky_pushed ? SKIN_GADGET_PINNED : SKIN_GADGET_NOTPINNED, x + width, y, lighter, darker, gadget_state & (1<<SKIN_GADGET_NOTPINNED) );
 	}
 
 	return abs( width );
@@ -325,19 +328,21 @@ static void win_draw_window_title(const scr_coord pos, const scr_size size,
 		simwin_gadget_flags_t &flags )
 {
 	PUSH_CLIP(pos.x, pos.y, size.w, size.h);
-	display_fillbox_wh_clip_rgb(pos.x, pos.y, size.w, 1, title_color, false);
-	if ( title_color&TRANSPARENT_FLAGS) {
-		display_blend_wh_rgb( pos.x, pos.y, size.w, D_TITLEBAR_HEIGHT, color_idx_to_rgb(COL_BLACK), env_t::bottom_window_darkness);
-	}
-	display_blend_wh_rgb(pos.x + 1, pos.y,                         size.w - 2, 1, color_idx_to_rgb(COL_WHITE), 25);
-	display_blend_wh_rgb(pos.x + 1, pos.y + D_TITLEBAR_HEIGHT - 1, size.w - 2, 1, color_idx_to_rgb(COL_BLACK), 25);
 
-	display_blend_wh_rgb(pos.x,              pos.y, 1, D_TITLEBAR_HEIGHT, color_idx_to_rgb(COL_WHITE), 25);
-	display_blend_wh_rgb(pos.x + size.w - 1, pos.y, 1, D_TITLEBAR_HEIGHT, color_idx_to_rgb(COL_BLACK), 25);
+	PIXVAL lighter = display_blend_colors(title_color, color_idx_to_rgb(COL_WHITE), 25);
+	PIXVAL darker  = display_blend_colors(title_color, color_idx_to_rgb(COL_BLACK), 25);
+
+	display_fillbox_wh_clip_rgb(pos.x, pos.y, size.w, D_TITLEBAR_HEIGHT, title_color, false);
+
+	display_fillbox_wh_rgb( pos.x + 1, pos.y,                         size.w - 2, 1, lighter, false );
+	display_fillbox_wh_rgb( pos.x + 1, pos.y + D_TITLEBAR_HEIGHT - 1, size.w - 2, 1, darker,  false );
+
+	display_vline_wh_rgb( pos.x,              pos.y, D_TITLEBAR_HEIGHT, lighter, false );
+	display_vline_wh_rgb( pos.x + size.w - 1, pos.y, D_TITLEBAR_HEIGHT, darker,  false );
 
 	// Draw the gadgets and then move left and draw text.
 	flags.gotopos = (welt_pos != koord3d::invalid);
-	int width = display_gadget_boxes( &flags, pos.x+(REVERSE_GADGETS?0:size.w-D_GADGET_WIDTH), pos.y, gadget_state, sticky, goto_pushed );
+	int width = display_gadget_boxes( &flags, pos.x+(REVERSE_GADGETS?0:size.w-D_GADGET_WIDTH), pos.y, lighter, darker, gadget_state, sticky, goto_pushed );
 	int titlewidth = display_proportional_clip_rgb( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(D_TITLEBAR_HEIGHT-LINEASCENT)/2, text, ALIGN_LEFT, text_color, false );
 	if(  flags.gotopos  ) {
 		display_proportional_clip_rgb( pos.x + (REVERSE_GADGETS?width+4:4)+titlewidth+8, pos.y+(D_TITLEBAR_HEIGHT-LINEASCENT)/2, welt_pos.get_2d().get_fullstr(), ALIGN_LEFT, text_color, false );
@@ -887,8 +892,8 @@ void display_win(int win)
 	FLAGGED_PIXVAL title_color = (comp->get_titlecolor()&0xFFFF);
 	FLAGGED_PIXVAL text_color = env_t::front_window_text_color;
 	if(  (unsigned)win!=wins.get_count()-1  ) {
-		// not top => maximum brightness
-		title_color = title_color | TRANSPARENT_FLAGS;
+		// not top => darker
+		title_color = display_blend_colors(title_color, color_idx_to_rgb(COL_BLACK), env_t::bottom_window_darkness);
 		text_color = env_t::bottom_window_text_color;
 	}
 	bool need_dragger = comp->get_resizemode() != gui_frame_t::no_resize;
