@@ -1511,7 +1511,7 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 		ribi = (static_cast<const wasser_t*>(this))->get_weg_ribi(water_wt);
 	}
 
-	// now ways? - no clipping needed, avoid all the ribi-checks
+	// no ways? - no clipping needed, avoid all the ribi-checks
 	if (ribi==ribi_t::none) {
 		// display background
 		const uint8 offset_vh = display_obj_bg( xpos, ypos, is_global, true, visible CLIP_NUM_PAR );
@@ -1526,9 +1526,14 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 
 	// ships might be large and could be clipped by vertical walls on our tile
 	const bool ontile_se = back_imageid  &&  is_water();
-
 	// get slope of way as displayed
 	const uint8 slope = get_disp_way_slope();
+	// tunnel portals need special clipping
+	bool tunnel_portal = ist_tunnel()  &&  ist_karten_boden();
+	if (tunnel_portal) {
+		// pretend tunnel portal is connected to the inside
+		ribi |= ribi_t::reverse_single(ribi) & (corner_se(slope)>0 ?  ribi_t::southeast : ribi_t::northwest);
+	}
 	// clip
 	const int hgt_step = tile_raster_scale_y( TILE_HEIGHT_STEP, raster_tile_width);
 	// .. nonconvex n/w if not both n/w are active and if we have back image
@@ -1550,9 +1555,15 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 		const int dh = corner_se(slope) * hgt_step;
 		add_poly_clip(xpos - 1, ypos + 3 * raster_tile_width / 4 - dh, xpos + raster_tile_width / 2 - 1, ypos + raster_tile_width - dh, ribi_t::south | 16  CLIP_NUM_PAR);
 	}
+
 	// display background
+	if (!tunnel_portal) {
+		activate_ribi_clip( (ribi_t::northwest & ribi) | 16 CLIP_NUM_PAR );	}
+	else {
+		// also clip along the upper edge of the tunnel tile
+		activate_ribi_clip( ribi | 16 CLIP_NUM_PAR );
+	}
 	// get offset of first vehicle
-	activate_ribi_clip( (ribi_t::northwest & ribi) | 16 CLIP_NUM_PAR );
 	const uint8 offset_vh = display_obj_bg( xpos, ypos, is_global, false, visible CLIP_NUM_PAR );
 	if(  !visible  ) {
 		// end of clipping
@@ -1643,11 +1654,20 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 		gr_se->display_obj_vh( xpos, ypos + raster_tile_width / 2 - tile_raster_scale_y( (gr_se->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::southeast, ontile_se CLIP_NUM_PAR );
 	}
 
-	// end of clipping
-	clear_all_poly_clip( CLIP_NUM_VAR );
-
 	// foreground
+	if (tunnel_portal) {
+		// clip at the upper edge
+		activate_ribi_clip( (ribi & (corner_se(slope)>0 ?  ribi_t::southeast : ribi_t::northwest) )| 16 CLIP_NUM_PAR );
+	}
+	else {
+		clear_all_poly_clip( CLIP_NUM_VAR );
+	}
 	display_obj_fg( xpos, ypos, is_global, offset_fg CLIP_NUM_PAR );
+
+	// end of clipping
+	if (tunnel_portal) {
+		clear_all_poly_clip( CLIP_NUM_VAR );
+	}
 }
 
 
