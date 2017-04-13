@@ -13,6 +13,7 @@
 
 #include "../gui/simwin.h"
 #include "../simworld.h"
+#include "../simmenu.h"
 
 #include "../dataobj/environment.h"
 #include "../dataobj/scenario.h"
@@ -55,6 +56,7 @@ bool scenario_frame_t::item_action(const char *fullpath)
 		// open scenario info window
 		destroy_win(magic_scenario_info);
 		create_win(new scenario_info_t(), w_info, magic_scenario_info);
+		tool_t::update_toolbars();
 	}
 	else {
 		create_win(new news_img(err), w_info, magic_none);
