@@ -617,9 +617,9 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 		}
 		else {
 			// since start may have been changed
-			const uint8 vehicle_count = vehicle_count - 1;
-			uint16 last_route_index = vehicle[vehicle_count]->get_route_index();
-			if(last_route_index > route.get_count() - 1 && vehicle_count > 0)
+			const uint8 v_count = vehicle_count - 1;
+			uint16 last_route_index = vehicle[v_count]->get_route_index();
+			if(last_route_index > route.get_count() - 1 && v_count > 0)
 			{
 				last_route_index = 0;
 				dbg->warning("convoi_t::finish_rd()", "Convoy %i's route index is out of range: resetting to zero", self.get_id());
