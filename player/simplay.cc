@@ -460,7 +460,7 @@ void player_t::ai_bankrupt()
 
 		cnv->self_destruct();
 		// convois not in depots must step to really get rid of them
-		if(  cnv->get_state() != convoi_t::INITIAL  ) {
+		if(  cnv.is_bound()  &&  cnv->get_state() != convoi_t::INITIAL  ) {
 			cnv->step();
 		}
 
