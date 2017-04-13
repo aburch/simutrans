@@ -1468,7 +1468,9 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 	if(  ribi & ribi_t::west  ) {
 		grund_t *gr;
 		if(  get_neighbour( gr, invalid_wt, ribi_t::west )  ) {
-			gr->display_obj_vh( xpos - raster_tile_width / 2, ypos - raster_tile_width / 4 - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::west, false CLIP_NUM_PAR );
+			if (!tunnel_portal  ||  gr->is_visible()) {
+				gr->display_obj_vh( xpos - raster_tile_width / 2, ypos - raster_tile_width / 4 - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::west, false CLIP_NUM_PAR );
+			}
 			if(  ribi & ribi_t::south  ) {
 				gr->get_neighbour( gr_nw, invalid_wt, ribi_t::north );
 			}
@@ -1480,7 +1482,9 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 	if(  ribi & ribi_t::north  ) {
 		grund_t *gr;
 		if(  get_neighbour( gr, invalid_wt, ribi_t::north )  ) {
-			gr->display_obj_vh( xpos + raster_tile_width / 2, ypos - raster_tile_width / 4 - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::north, false CLIP_NUM_PAR );
+			if (!tunnel_portal  ||  gr->is_visible()) {
+				gr->display_obj_vh( xpos + raster_tile_width / 2, ypos - raster_tile_width / 4 - tile_raster_scale_y( (gr->get_hoehe() - pos.z) * TILE_HEIGHT_STEP, raster_tile_width ), 0, ribi_t::north, false CLIP_NUM_PAR );
+			}
 			if(  (ribi & ribi_t::east)  &&  (gr_nw == NULL)  ) {
 				gr->get_neighbour( gr_nw, invalid_wt, ribi_t::west );
 			}
