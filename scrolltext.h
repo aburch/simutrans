@@ -235,6 +235,8 @@
 " Kubanskiloewe of Youtube", "",
 " The Mart Ban of Youtube", "",
 " Swearingkevo of Youtube", "",
+" Jorge ATC of Youtube", "",
+" 24tohayes of Youtube", "",
 "","",
 "Translation:","",
 "","",
