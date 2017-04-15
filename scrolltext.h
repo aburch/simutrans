@@ -238,6 +238,7 @@
 " Jorge ATC of Youtube", "",
 " 24tohayes of Youtube", "",
 " Antman09ful1 of Youtube", "",
+" LAX Spotter 97 of Youtube", "",
 "","",
 "Translation:","",
 "","",
