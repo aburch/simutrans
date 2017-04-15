@@ -237,6 +237,7 @@
 " Swearingkevo of Youtube", "",
 " Jorge ATC of Youtube", "",
 " 24tohayes of Youtube", "",
+" Antman09ful1 of Youtube", "",
 "","",
 "Translation:","",
 "","",
