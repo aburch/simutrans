@@ -41,6 +41,7 @@ void gui_flowtext_t::set_text(const char *text)
 
 	// hyperref param
 	std::string param;
+	bool link_it = false; // behind opening <a> tag
 
 	while (*tail) {
 		if (*lead == '<') {
@@ -85,10 +86,18 @@ void gui_flowtext_t::set_text(const char *text)
 					else {
 						param = "";
 					}
+					link_it = true;
 				}
 				else {
-					att = ATT_A_END;
-					links.append(hyperlink_t(param));
+					if (link_it) {
+						att = ATT_A_END;
+						links.append(hyperlink_t(param));
+						link_it = false;
+					}
+					else {
+						// ignore closing </a> without opening <a>
+						att = ATT_UNKNOWN;
+					}
 				}
 			}
 			else if (word[0] == 'h' && word[1] == '1') {
