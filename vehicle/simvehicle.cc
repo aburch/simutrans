@@ -1673,7 +1673,8 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		if(steps_to_180)
 		{
 			// A 180 degree curve can be made in a minimum of 4 tiles and will have a minimum radius of half the meters_per_tile value
-			steps_to_180 = max(steps_to_180 - 3, 1);
+			// The steps_to_x values are the *manhattan* distance, which is exactly twice the actual radius. Thus, halve this here.
+			steps_to_180 /= 2;
 
 			radius = (steps_to_180 * meters_per_tile) / 2;
 			// See here for formula: https://books.google.co.uk/books?id=NbYqQSQcE2MC&pg=PA30&lpg=PA30&dq=curve+radius+speed+limit+formula+rail&source=imglist&ots=mbfC3lCnX4&sig=qClyuNSarnvL-zgOj4HlTVgYOr8&hl=en&sa=X&ei=sBGwVOSGHMyBU4mHgNAC&ved=0CCYQ6AEwATgK#v=onepage&q=curve%20radius%20speed%20limit%20formula%20rail&f=false
@@ -1683,7 +1684,8 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		if(steps_to_135)
 		{
 			// A 135 degree curve can be made in a minimum of 4 tiles and will have a minimum radius of 2/3rds the meters_per_tile value
-			steps_to_135 = max(steps_to_135 - 3, 1);
+			// The steps_to_x values are the *manhattan* distance, which is exactly twice the actual radius. Thus, halve this here.
+			steps_to_135 /= 2;
 
 			radius = ((steps_to_135 * meters_per_tile) * 2) / 3;
 			corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
@@ -1692,30 +1694,27 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		if(steps_to_90)
 		{
 			// A 90 degree curve can be made in a minimum of 3 tiles and will have a minimum radius of the meters_per_tile value
-			steps_to_90 = max(steps_to_90 - 2, 1);
+			// The steps_to_x values are the *manhattan* distance, which is exactly twice the actual radius. Thus, halve this here.
+			steps_to_90 /= 2;
 
 			radius = steps_to_90 * meters_per_tile;
 			corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
 		}
 		
-		if(steps_to_second_45)
+		if(steps_to_second_45 && !steps_to_90)
 		{
+			// Go here only if this is a pair of *self-correcting* 45 degree turns, not a pair
+			// that between them add up to 90 degrees, the algorithm for which is above.
 			uint32 assumed_radius = welt->get_settings().get_assumed_curve_radius_45_degrees();
 			
 			// If assumed_radius == 0, then do not impose any speed limit for 45 degree turns alone.
 			if(assumed_radius > 0)
-			{
-				if(assumed_radius == 9999)
-				{
-					// A pair of self-correcting 45 degree corners can be made in a minimum of 4 tiles and will have a minimum radius of twice the meters per tile value
-					// However, this is too harsh for most uses; allow it only by a special value of assumed_radius.
-					steps_to_second_45 = max(steps_to_second_45 - 3, 1);
-					radius = (steps_to_second_45 * meters_per_tile) * 2;
-				}
-				else
-				{
-					radius = assumed_radius;
-				}
+			{			
+				// A pair of self-correcting 45 degree corners can be made in a minimum of 4 tiles and will have a minimum radius of twice the meters per tile value
+				// However, this is too harsh for most uses, so set the assumed radius as the minimum here. 
+				steps_to_second_45 = max(steps_to_second_45 - 3, 1);
+				radius = max(assumed_radius, ((steps_to_second_45 * meters_per_tile) * 2));
+
 				corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
 			}
 		}
