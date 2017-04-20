@@ -21,6 +21,7 @@
 class searchfolder_t {
 public:
 	~searchfolder_t();
+
 	/**
 	 * Executes the requested file search
 	 * @param filepath Base path to search in.
@@ -54,16 +55,18 @@ public:
 private:
 	/**
 	 * Real implementation of the search.
-	 * @param filepath Base path to search in.
+	 * @param filepath Base path to search in. (This path can have either / or \ as deliminator on windows
 	 * @param extension Extension of files to search for. Input a empty string to not enforce the restriction.
 	 * @param only_directories Extra restriction, will only consider directory entries.
 	 * @param prepend_path Will force prepending the base path to the output on each entry.
 	 */
 	int search_path(const std::string &filepath, const std::string &extension, const bool only_directories = false, const bool prepend_path = true);
+
 	/**
 	 * We store the result of the search on this list
 	 */
 	vector_tpl<char*> files;
+
 	/**
 	 * Adds one entry to the list.
 	 * @param path Qualified path to the directory of the entry.
@@ -71,6 +74,7 @@ private:
 	 * @param prepend Add the full path to the file or just the file name.
 	 */
 	void add_entry(const std::string &path, const char *entry, const bool prepend );
+
 	/**
 	 * Clears the search results.
 	 */
