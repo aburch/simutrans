@@ -8,7 +8,7 @@
 #define COMPILER_VERSION_CODE (0 * 1000000 + 1 * 1000 + 3)
 
 //The extended subversion
-#define EXP_VER 0x4000
+#define EX_VER 0x4000
 
 /*
  * obj_type value are stored inside the pak-files. Values are choosen to make

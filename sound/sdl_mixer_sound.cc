@@ -17,7 +17,7 @@ static int use_sound = 0;
 
 /* this list contains all the samples
  */
-static Mix_Chunk *samples[64];
+static Mix_Chunk *samples[1024];
 
 /* all samples are stored chronologically there
  */
@@ -89,7 +89,7 @@ bool dr_init_sound()
  */
 int dr_load_sample(const char *filename)
 {
-	if(use_sound>0  &&  samplenumber<64) {
+	if(use_sound>0  &&  samplenumber<1024) {
 
 		Mix_Chunk *smp;
 

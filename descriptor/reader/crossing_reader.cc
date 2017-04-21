@@ -38,7 +38,23 @@ obj_desc_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// Hajo: old versions of PAK files have no version stamp.
 	// But we know, the higher most bit was always cleared.
 	const uint16 v = decode_uint16(p);
-	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+	int version = v & 0x8000 ? v & 0x7FFF : 0;
+
+	// Whether the read file is from Simutrans-Extended
+	//@author: jamespetts
+	const bool extended = version > 0 ? v & EX_VER : false;
+	uint16 extended_version = 0;
+	if (extended)
+	{
+		// Extended version to start at 0 and increment.
+		version = version & EX_VER ? version & 0x3FFF : 0;
+		while (version > 0x100)
+		{
+			version -= 0x100;
+			extended_version++;
+		}
+		extended_version -= 1;
+	}
 
 	if(version == 0) {
 		dbg->error("crossing_reader_t::read_node()","Old version of crossings cannot be used!");
@@ -48,14 +64,21 @@ obj_desc_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->topspeed1 = 0;
 		desc->topspeed2 = 0;
 	}
-	else if(  version==1  ||  version==2  ) {
+	else if (version == 1 || version == 2) {
 		desc->waytype1 = (waytype_t)decode_uint8(p);
 		desc->waytype2 = (waytype_t)decode_uint8(p);
 		desc->topspeed1 = decode_uint16(p);
 		desc->topspeed2 = decode_uint16(p);
 		desc->open_animation_time = decode_uint32(p);
 		desc->closed_animation_time = decode_uint32(p);
-		desc->sound = decode_sint8(p);
+		if (extended)
+		{
+			desc->sound = decode_sint16(p);
+		}
+		else
+		{
+			desc->sound = decode_sint8(p);
+		}
 
 		if(desc->sound==LOAD_SOUND) {
 			uint8 len=decode_sint8(p);
@@ -64,11 +87,11 @@ obj_desc_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			for(uint8 i=0; i<len; i++) {
 				wavname[i] = decode_sint8(p);
 			}
-			desc->sound = (sint8)sound_desc_t::get_sound_id(wavname);
+			desc->sound = (sint16)sound_desc_t::get_sound_id(wavname);
 		}
 		else if(desc->sound>=0  &&  desc->sound<=MAX_OLD_SOUNDS) {
 			sint16 old_id = desc->sound;
-			desc->sound = (sint8)sound_desc_t::get_compatible_sound_id((sint8)old_id);
+			desc->sound = sound_desc_t::get_compatible_sound_id(old_id);
 		}
 
 		desc->intro_date = 0;

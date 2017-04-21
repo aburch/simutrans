@@ -11,7 +11,7 @@
 #include "../simtypes.h"
 
 #define NO_SOUND (sint16)(0xFFFFu)
-#define LOAD_SOUND (sint8)(0xFFFEu)
+#define LOAD_SOUND (sint16)(0xFFFEu)
 
 #define AMBIENT_SOUND_INTERVALL (13000)
 

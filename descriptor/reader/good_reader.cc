@@ -53,12 +53,12 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 	// Whether the read file is from Simutrans-Extended
 	//@author: jamespetts
-	const bool extended = version > 0 ? v & EXP_VER : false;
+	const bool extended = version > 0 ? v & EX_VER : false;
 	uint16 extended_version = 0;
 	if(extended)
 	{
 		// Extended version to start at 0 and increment.
-		version = version & EXP_VER ? version & 0x3FFF : 0;
+		version = version & EX_VER ? version & 0x3FFF : 0;
 		while(version > 0x100)
 		{
 			version -= 0x100;

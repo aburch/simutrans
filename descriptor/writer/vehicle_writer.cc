@@ -82,11 +82,11 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 84;
+	int total_len = 85;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
-	sint8 sound_id=NO_SOUND;
+	sint16 sound_id=NO_SOUND;
 	if (!sound_str.empty()) {
 		// ok, there is some sound
 		sound_id = atoi(sound_str.c_str());
@@ -120,7 +120,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	
 	// This is the overlay flag for Simutrans-Extended
 	// This sets the *second* highest bit to 1. 
-	version |= EXP_VER;
+	version |= EX_VER;
 
 	// Finally, this is the extended version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
@@ -129,7 +129,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Standard 10, 0x100 - everything from minimum runway length and earlier.
 	// Standard 10, 0x200 - range, wear factor.
 	// Standard 10, 0x300 - whether tall (for height restricted bridges)
-	version += 0x300;
+	// Standard 11, 0x400 - 16-bit sound 
+	version += 0x400;
 
 	node.write_uint16(fp, version, pos);
 
@@ -224,8 +225,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	pos += sizeof(uint8);
 
 	// sound id byte
-	node.write_sint8(fp, sound_id, pos);
-	pos += sizeof(uint8);
+	node.write_sint16(fp, sound_id, pos);
+	pos += sizeof(sint16); // Was sint8
 
 	// engine
 	if (waytype == overheadlines_wt) {

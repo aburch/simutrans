@@ -25,7 +25,7 @@ static int use_sound = 0;
 
 /* this list contains all the samples
  */
-static void *samples[64];
+static void *samples[1024];
 static int sample_number = 0;
 
 
@@ -47,7 +47,7 @@ bool dr_init_sound()
  */
 int dr_load_sample(char const* filename)
 {
-	if(use_sound  &&  sample_number>=0  &&  sample_number<64) {
+	if(use_sound  &&  sample_number>=0  &&  sample_number < 1024) {
 		if (FILE* const fIn = fopen(filename, "rb")) {
 			long len;
 			fseek( fIn, 0, SEEK_END );

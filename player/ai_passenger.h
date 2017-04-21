@@ -75,7 +75,7 @@ private:
 	// tries to cover a city with bus stops that does not overlap much and cover as much as possible
 	void cover_city_with_bus_route(koord start_pos, int number_of_stops);
 
-	void create_bus_transport_vehicle(koord startpos,int anz_vehicle,koord *stops,int count,bool do_wait);
+	void create_bus_transport_vehicle(koord startpos,int vehicle_count,koord *stops,int count,bool do_wait);
 
 public:
 	ai_passenger_t(karte_t *wl, uint8 nr);

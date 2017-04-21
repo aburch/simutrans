@@ -1551,19 +1551,21 @@ void gebaeude_t::cleanup(player_t *player)
 		cost /= 2;
 		
 		// However, the land value is restored to the player who, by bulldozing, is relinquishing ownership of the land if there are not already ways on the land.
+		// Note: Cost and land value are negative numbers here.
+
 		const sint64 land_value = welt->get_land_value(get_pos()) * desc->get_size().x * desc->get_size().y;
 		if(welt->lookup(get_pos()) && !welt->lookup(get_pos())->get_weg_nr(0))
 		{
 			if(player == get_owner())
 			{
-				cost -= land_value;
+				cost += land_value;
 			}
 			else
 			{
-				player_t::book_construction_costs(get_owner(), -land_value, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
+				player_t::book_construction_costs(get_owner(), land_value, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
 			}
 		}
-		player_t::book_construction_costs(player, -cost, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
+		player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
 	}
 
 	// may need to update next buildings, in the case of start, middle, end buildings

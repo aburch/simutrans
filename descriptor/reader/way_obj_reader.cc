@@ -47,12 +47,12 @@ obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	//@author: jamespetts
 
 	way_constraints_of_way_t way_constraints;
-	const bool extended = version > 0 ? v & EXP_VER : false;
+	const bool extended = version > 0 ? v & EX_VER : false;
 	uint16 extended_version = 0;
 	if(extended)
 	{
 		// Extended version to start at 0 and increment.
-		version = version & EXP_VER ? version & 0x3FFF : 0;
+		version = version & EX_VER ? version & 0x3FFF : 0;
 		while(version > 0x100)
 		{
 			version -= 0x100;
@@ -77,9 +77,9 @@ obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				way_constraints.set_permissive(decode_uint8(p));
 				way_constraints.set_prohibitive(decode_uint8(p));
 			}
-			else
+			else if(extended_version != 16)
 			{
-				dbg->fatal( "way_obj_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", extended_version );
+				dbg->fatal( "way_obj_reader_t::read_node()","Incompatible pak file version for Simutrans-Extended, number %i", extended_version );
 			}
 		}
 	}

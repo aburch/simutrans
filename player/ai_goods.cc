@@ -353,7 +353,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 /* build docks and ships
  * @author prissi
  */
-bool ai_goods_t::create_ship_transport_vehicle(fabrik_t *qfab, int anz_vehicle)
+bool ai_goods_t::create_ship_transport_vehicle(fabrik_t *qfab, int vehicle_count)
 {
 	// pak64 has barges ...
 	const vehicle_desc_t *v_second = NULL;
@@ -372,7 +372,7 @@ bool ai_goods_t::create_ship_transport_vehicle(fabrik_t *qfab, int anz_vehicle)
 			ship_vehicle = v_second->get_leader(0);
 		}
 	}
-	DBG_MESSAGE( "ai_goods_t::create_ship_transport_vehicle()", "for %i ships", anz_vehicle );
+	DBG_MESSAGE( "ai_goods_t::create_ship_transport_vehicle()", "for %i ships", vehicle_count );
 
 	if(  convoihandle_t::is_exhausted()  ) {
 		// too many convois => cannot do anything about this ...
@@ -422,7 +422,7 @@ bool ai_goods_t::create_ship_transport_vehicle(fabrik_t *qfab, int anz_vehicle)
 	delete schedule;
 
 	// now create all vehicles as convois
-	for(int i=0;  i<anz_vehicle;  i++) {
+	for(int i=0;  i<vehicle_count;  i++) {
 		if(  convoihandle_t::is_exhausted()  ) {
 			// too many convois => cannot do anything about this ...
 			return i>0;
@@ -454,7 +454,7 @@ bool ai_goods_t::create_ship_transport_vehicle(fabrik_t *qfab, int anz_vehicle)
 /* changed to use vehicles searched before
  * @author prissi
  */
-void ai_goods_t::create_road_transport_vehicle(fabrik_t *qfab, int anz_vehicle)
+void ai_goods_t::create_road_transport_vehicle(fabrik_t *qfab, int vehicle_count)
 {
 	const building_desc_t* fh = hausbauer_t::get_random_station(building_desc_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	// succeed in frachthof creation
@@ -486,7 +486,7 @@ void ai_goods_t::create_road_transport_vehicle(fabrik_t *qfab, int anz_vehicle)
 		delete schedule;
 
 		// now create all vehicles as convois
-		for(int i=0;  i<anz_vehicle;  i++) {
+		for(int i=0;  i<vehicle_count;  i++) {
 			if(  convoihandle_t::is_exhausted()  ) {
 				// too many convois => cannot do anything about this ...
 				return;
@@ -509,7 +509,7 @@ void ai_goods_t::create_road_transport_vehicle(fabrik_t *qfab, int anz_vehicle)
 /* now obeys timeline and use "more clever" scheme for vehicle selection *
  * @author prissi
  */
-void ai_goods_t::create_rail_transport_vehicle(const koord platz1, const koord platz2, int anz_vehicle, int minimum_loading)
+void ai_goods_t::create_rail_transport_vehicle(const koord platz1, const koord platz2, int vehicle_count, int minimum_loading)
 {
 	schedule_t *schedule;
 	if(  convoihandle_t::is_exhausted()  ) {
@@ -539,12 +539,12 @@ void ai_goods_t::create_rail_transport_vehicle(const koord platz1, const koord p
 	cnv->set_name(rail_engine->get_name());
 	cnv->add_vehicle( v );
 
-	DBG_MESSAGE( "ai_goods_t::create_rail_transport_vehicle","for %i cars",anz_vehicle);
+	DBG_MESSAGE( "ai_goods_t::create_rail_transport_vehicle","for %i cars",vehicle_count);
 
 	/* now we add cars:
 	 * check here also for introduction years
 	 */
-	for(int i = 0; i < anz_vehicle; i++) {
+	for(int i = 0; i < vehicle_count; i++) {
 		// use the vehicle we searched before
 		vehicle_t* v = vehicle_builder_t::build(start_pos, this, NULL, rail_vehicle);
 		cnv->add_vehicle( v );
@@ -568,9 +568,9 @@ void ai_goods_t::create_rail_transport_vehicle(const koord platz1, const koord p
  * Can fail even though check has been done before
  * @author prissi
  */
-int ai_goods_t::baue_bahnhof(const koord* p, int anz_vehicle)
+int ai_goods_t::baue_bahnhof(const koord* p, int vehicle_count)
 {
-	int laenge = max(((rail_vehicle->get_length()*anz_vehicle)+rail_engine->get_length()+CARUNITS_PER_TILE-1)/CARUNITS_PER_TILE,1);
+	int laenge = max(((rail_vehicle->get_length()*vehicle_count)+rail_engine->get_length()+CARUNITS_PER_TILE-1)/CARUNITS_PER_TILE,1);
 
 	int baulaenge = 0;
 	ribi_t::ribi ribi = welt->lookup_kartenboden(*p)->get_weg_ribi(track_wt);
@@ -623,7 +623,7 @@ int ai_goods_t::baue_bahnhof(const koord* p, int anz_vehicle)
 		}
 	}
 
-	laenge = min( anz_vehicle, (baulaenge*CARUNITS_PER_TILE - rail_engine->get_length())/rail_vehicle->get_length() );
+	laenge = min( vehicle_count, (baulaenge*CARUNITS_PER_TILE - rail_engine->get_length())/rail_vehicle->get_length() );
 //DBG_MESSAGE("ai_goods_t::baue_bahnhof","Final station at (%i,%i) with %i tiles for %i cars",p->x,p->y,baulaenge,laenge);
 	return laenge;
 }

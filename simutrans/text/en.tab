@@ -2683,7 +2683,7 @@ An upgrade to a %s is now available:\n%s\n
 Use timeline start year
 Use timeline from year:
 Vehicle %s can't find a route!
-Vehicle %s\ncannot find a route. Check the weight limit of ways and bridges on its route.
+Vehicle %s cannot find a route. Check the weight limit of ways and bridges on its route.
 Vehicle %s is stucked!
 Vehicle %s is stuck.
 Vehicle details
@@ -3286,3 +3286,5 @@ east_west
 East/West
 south_west
 South/West
+Vehicle weighs %it, but max weight is %it
+The vehicle's axle load is %it, but the maximum is %it

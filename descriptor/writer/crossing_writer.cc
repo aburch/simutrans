@@ -41,11 +41,11 @@ static void write_list(FILE* const fp, obj_node_t& node, slist_tpl<string> const
 
 void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	int total_len = 21;
+	int total_len = 22;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
-	sint8 sound_id=NO_SOUND;
+	sint16 sound_id=NO_SOUND;
 	if (!sound_str.empty()) {
 		// ok, there is some sound
 		sound_id = atoi(sound_str.c_str());
@@ -71,6 +71,18 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversioned
 	uint16 uv16 = 0x8002;
+
+	// This is the overlay flag for Simutrans-Extended
+	// This sets the *second* highest bit to 1. 
+	uv16 |= EX_VER;
+
+	// Finally, this is the extended version number. This is *added*
+	// to the standard version number, to be subtracted again when read.
+	// Start at 0x100 and increment in hundreds (hex).
+	// Counting can restart at 0x100 if the Standard version increases.
+	// Standard 10, 0x100 - 16-bit sound ID
+	uv16 += 0x100;
+
 	node.write_uint16(fp, uv16, 0);
 
 	// waytypes, waytype 2 will be on top
@@ -103,8 +115,8 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uv32 = obj.get_int("animation_time_closed", 0);
 	node.write_uint32(fp, uv32, 12);
 
-	node.write_uint8(fp, sound_id, 16);
-	uint8 index = 17;
+	node.write_sint16(fp, sound_id, 16);
+	uint8 index = 18;
 
 	if (!sound_str.empty()) {
 		sint8 sv8 = sound_str.size();

@@ -120,7 +120,7 @@ private:
 	uint16 gear;				// engine gear (power multiplier), 64=100
 
 	uint8 len;					// length (=8 is half a tile, the old default)
-	sint8 sound;
+	sint16 sound;
 
 	uint8 leader_count;			// all defined leading vehicles
 	uint8 trailer_count;			// all defined trailer
