@@ -279,6 +279,10 @@ public:
 			return "clear3";
 		case 2:
 			return "caution3";
+		case 5:
+			return "clear3";
+		case 6:
+			return "caution3";
 		case 9:
 			return "call_on";
 		default:
@@ -295,6 +299,12 @@ public:
 		case 2:
 			return "caution4";
 		case 3:
+			return "preliminary_caution4";
+		case 5:
+			return "clear4";
+		case 6:
+			return "caution4";
+		case 7:
 			return "preliminary_caution4";
 		case 9:
 			return "call_on";
@@ -314,6 +324,14 @@ public:
 		case 3:
 			return "preliminary_caution5";
 		case 4:
+			return "advanced_caution5";
+		case 5:
+			return "clear5";
+		case 6:
+			return "caution5";
+		case 7:
+			return "preliminary_caution5";
+		case 8:
 			return "advanced_caution5";
 		case 9:
 			return "call_on";
