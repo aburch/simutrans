@@ -403,7 +403,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	
 	// This is the overlay flag for Simutrans-Extended
 	// This sets the *second* highest bit to 1. 
-	version |= EXP_VER;
+	version |= EX_VER;
 
 	// Finally, this is the extended version number. This is *added*
 	// to the standard version number, to be subtracted again when read.

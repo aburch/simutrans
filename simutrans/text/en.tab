@@ -2683,7 +2683,7 @@ An upgrade to a %s is now available:\n%s\n
 Use timeline start year
 Use timeline from year:
 Vehicle %s can't find a route!
-Vehicle %s\ncannot find a route.
+Vehicle %s cannot find a route. Check the weight limit of ways and bridges on its route.
 Vehicle %s is stucked!
 Vehicle %s is stuck.
 Vehicle details
@@ -3103,19 +3103,19 @@ Time interval with telegraph
 #------------------------------------
 #-- Signals states and information:--
 choose_signal
-Choose Signal
+Choose signal
 station_signal
-Station Signal
+Station signal
 longblock_signal
-Longblock Signal
+Longblock signal
 combined_signal
-Combined Signal
+Combined signal
 distant_signal
-Distant Signal
+Distant signal
 intermediate_signal
-Intermediate Signal
+Intermediate signal
 permissive_signal
-Permissive Signal
+Permissive signal
 current_state
 Current state
 infinite_range
@@ -3125,7 +3125,7 @@ Radius
 underground
 Underground
 underground_signal
-Underground Signal
+Underground signal
 max_dist_between_signals
 Max dist. between beacons
 danger
@@ -3230,6 +3230,34 @@ east_and_west
 East and West
 goto_signalbox
 Go to signalbox
+underground_signal
+Underground signal
+underground_sign
+Underground sign
+track_speed
+Track speed
+way_speed
+Way speed
+maintenance
+Maintenance
+no_maintenance_costs
+No maintenance costs
+choose_sign
+Choose sign
+traffic_light
+Traffic light
+one_way_sign
+One way sign
+private_way_sign
+Private way sign
+end_of_choose_sign
+End of choose sign
+min_speed
+Min. speed
+permitted_direction
+Permitted direction
+current_clear_directions
+Current clear directions
 goto_vehicle
 Go to vehicle
 reservation_heading
@@ -3258,3 +3286,5 @@ east_west
 East/West
 south_west
 South/West
+Vehicle weighs %it, but max weight is %it
+The vehicle's axle load is %it, but the maximum is %it

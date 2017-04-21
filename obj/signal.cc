@@ -182,7 +182,41 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(translator::translate("underground_signal"));
 		buf.append("\n");
 	}
-	buf.printf("%s%s%d%s%s", translator::translate("Max. speed:")," ", speed_to_kmh(desc->get_max_speed()), " ", "km/h");
+	if (desc->get_working_method() == drive_by_sight)
+	{
+		const sint32 max_speed_drive_by_sight = welt->get_settings().get_max_speed_drive_by_sight();
+		if (max_speed_drive_by_sight && get_desc()->get_waytype() != tram_wt)
+		{
+			buf.printf("%s%s%d%s%s", translator::translate("Max. speed:"), " ", speed_to_kmh(max_speed_drive_by_sight), " ", "km/h");
+			buf.append("\n");
+		}
+	}
+	else
+	{
+
+		buf.printf("%s%s%d%s%s", translator::translate("Max. speed:"), " ", speed_to_kmh(desc->get_max_speed()), " ", "km/h");
+		buf.append("\n");
+
+		const grund_t* sig_gr3d = welt->lookup(sig_pos);
+		const weg_t* way = sig_gr3d->get_weg(desc->get_wtyp() != tram_wt ? desc->get_wtyp() : track_wt);
+		//	if (way->get_max_speed() * 2 >= speed_to_kmh(desc->get_max_speed()))  // Wether this information only shall be shown when the track speed is close to or above the max speed of the signal
+		//	{
+		buf.printf("%s%s%s%d%s%s%s", "(", translator::translate("track_speed"), ": ", way->get_max_speed(), " ", "km/h", ")");
+		buf.append("\n");
+		//	}
+	}
+
+	if (desc->get_maintenance() > 0)
+	{
+		char maintenance_number[64];
+		money_to_string(maintenance_number, (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) / 100.0);
+		buf.printf("%s%s", translator::translate("maintenance"), ": ");
+		buf.append(maintenance_number);
+	}
+	else
+	{
+		buf.append(translator::translate("no_maintenance_costs"));
+	}
 	buf.append("\n");
 
 	buf.append(translator::translate("Direction"));
@@ -340,6 +374,10 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		else
 			buf.append(translator::translate("danger"));
 			buf.append(translator::translate("\n"));
+	}
+	if (get_state() != danger)
+	{
+		// Possible information about how many blocks are reserved, or speed restrictions for time interval signals
 	}
 	buf.append(translator::translate("\n"));
 
@@ -649,6 +687,18 @@ void signal_t::calc_image()
 			if(state == call_on && !desc->get_has_call_on())
 			{
 				modified_state = danger;
+			}
+
+			if (state == call_on && desc->get_has_call_on())
+			{
+				if (desc->get_has_selective_choose())
+				{
+					modified_state = desc->get_aspects() + (desc->get_aspects() - 1);
+				}
+				else
+				{
+					modified_state = desc->get_aspects();
+				}
 			}
 
 			if(state == clear_no_choose && !desc->get_has_selective_choose())

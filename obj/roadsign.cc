@@ -239,31 +239,128 @@ void roadsign_t::show_info()
  */
 void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 {
-	obj_t::info( buf );
-	if(  desc->is_private_way()  ) {
-		buf.append( "\n\n\n\n\n\n\n\n\n\n\n\n\n\n" );
-	}
-	else {
-		buf.append(translator::translate("Roadsign"));
+	obj_t::info(buf);
+	roadsign_t* rs = (roadsign_t*)this;
+
+	buf.append(translator::translate(desc->get_name()));
+	buf.append("\n\n");
+
+	if (desc->is_choose_sign())
+	{
+		buf.append(translator::translate("choose_sign"));
 		buf.append("\n");
-		if(desc->is_single_way()) {
-			buf.append(translator::translate("\nsingle way"));
+	}
+	if (desc->is_traffic_light())
+	{
+		buf.append(translator::translate("traffic_light"));
+		buf.append("\n");
+	}
+	if (desc->is_single_way())
+	{
+		buf.append(translator::translate("one_way_sign"));
+		buf.append("\n");
+	}
+	if (desc->is_private_way())
+	{
+		buf.append(translator::translate("private_way_sign"));
+		buf.append("\n");
+	}
+	if (desc->is_end_choose_signal())
+	{
+		buf.append(translator::translate("end_of_choose_sign"));
+		buf.append("\n");
+	}
+	if (desc->get_min_speed() != 0)
+	{
+		buf.printf("%s%s%d%s%s", translator::translate("min_speed"), ": ", speed_to_kmh(desc->get_min_speed()), " ", "km/h");
+		buf.append("\n");
+	}
+
+	koord3d rs_pos = rs->get_pos();
+
+	const grund_t* rs_gr3d = welt->lookup(rs_pos);
+	const weg_t* way = rs_gr3d->get_weg(desc->get_wtyp() != tram_wt ? desc->get_wtyp() : track_wt);
+	if (way->get_max_speed() * 2 >= speed_to_kmh(desc->get_max_speed()))
+	{
+		buf.printf("%s%s%d%s%s", translator::translate("Max. speed:"), " ", speed_to_kmh(desc->get_max_speed()), " ", "km/h");
+		buf.append("\n");
+
+		if (way->is_rail_type())
+		{
+			buf.printf("%s%s%s%d%s%s%s", "(", translator::translate("track_speed"), ": ", way->get_max_speed(), " ", "km/h", ")");
 		}
-		if(desc->get_min_speed()!=0) {
-			buf.printf("%s%d", translator::translate("\nminimum speed:"), speed_to_kmh(desc->get_min_speed()));
+		else
+		{
+			buf.printf("%s%s%s%d%s%s%s", "(", translator::translate("way_speed"), ": ", way->get_max_speed(), " ", "km/h", ")");
 		}
+		buf.append("\n");
+	}
+	
+
+	const grund_t *rs_gr = welt->lookup_kartenboden(rs_pos.x, rs_pos.y);
+	if (rs_gr->get_hoehe() > rs_pos.z == true)
+	{
+		buf.append(translator::translate("underground_sign"));
+		buf.append("\n");
+	}
+
+	if (desc->get_maintenance() > 0)
+	{
+		char maintenance_number[64];
+		money_to_string(maintenance_number, (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) / 100.0);
+		buf.printf("%s%s", translator::translate("maintenance"), ": ");
+		buf.append(maintenance_number);
+	}
+	else
+	{
+		buf.append(translator::translate("no_maintenance_costs"));
+	}
+	buf.append("\n");
+	buf.append("\n");
+
+	if (desc->is_single_way())
+	{
+		buf.printf("%s%s%s", translator::translate("permitted_direction"), ": ", translator::translate(get_directions_name(get_dir()))); // Perhaps: "direction_of_travel" ?
+		buf.append("\n");
+	}
+	else if (desc->is_traffic_light())
+	{
+		buf.printf("%s%s%s", translator::translate("current_clear_directions"), ":\n", translator::translate(get_directions_name(get_dir()))); // Perhaps: "direction_of_travel" ?
+		buf.append("\n");
+	}
+	else
+	{
+		buf.append(translator::translate("Direction"));
+		buf.append(": ");
+		buf.append(translator::translate(get_directions_name(get_dir())));
+		buf.append("\n");
+	}
+
+	// Did not figure out how to make the sign registrate a passing train // Ves
+	/*
+	buf.append(translator::translate("Time since a train last passed"));
+	buf.append(": ");
+	char time_since_train_last_passed[32];
+	welt->sprintf_ticks(time_since_train_last_passed, sizeof(time_since_train_last_passed), welt->get_zeit_ms() - rs->get_train_last_passed());
+	buf.append(time_since_train_last_passed);
+	buf.append("\n");
+	*/
 #ifdef DEBUG
-		buf.append(translator::translate("\ndirection:"));
-		buf.append(dir);
-		buf.append("\n");
+	buf.append(translator::translate("\ndirection:"));
+	buf.append(dir);
+	buf.append("\n");
 #endif
-		if(  automatic  ) {
-			buf.append(translator::translate("\nSet phases:"));
-			buf.append("\n\n");;
-		}
+	if (desc->is_traffic_light())
+	{
+		buf.append(translator::translate("\nSet phases:"));
+		buf.append("\n\n");
 	}
-	// Signal specific information is dealt with in void signal_t::info(cbuffer_t & buf, bool dummy) const (in signal.cc)
+	if (desc->is_private_way()) // Must be last, as the \n\n\n... section is the free height for the buttons // Ves
+	{
+		buf.append("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+	}
 }
+	// Signal specific information is dealt with in void signal_t::info(cbuffer_t & buf, bool dummy) const (in signal.cc)
 
 
 // could be still better aligned for drive_left settings ...

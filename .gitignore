@@ -10,6 +10,7 @@
 *.opensdf
 *.tar.gz
 *.log
+simutrans/
 *.out
 *.exe
 *.app

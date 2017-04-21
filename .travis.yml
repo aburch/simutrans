@@ -1,0 +1,26 @@
+language: cpp
+dist: trusty
+compiler:
+- gcc
+sudo: false
+os:
+- linux
+addons:
+  apt:
+    packages:
+      - zlib1g-dev
+      - libpng-dev
+      - libsdl2-dev
+before_install:
+before_script:
+      - echo "BACKEND=sdl2" >> config.default
+      - echo "COLOUR_DEPTH=16" >> config.default
+      - echo "OSTYPE=linux" >> config.default
+      - echo "MULTI_THREAD=1" >> config.default
+      - echo "FLAGS += -fno-delete-null-pointer-checks -fno-strict-aliasing -std=c++11" >> config.default
+      - echo "FLAGS += -DUSE_C" >> config.default
+      - echo "OPTIMISE=1" >> config.default
+script:
+      - make VERBOSE=1
+      - cd makeobj && make VERBOSE=1
+      - cd ../nettools && make VERBOSE=1

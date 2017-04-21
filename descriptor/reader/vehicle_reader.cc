@@ -48,12 +48,12 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	
 	// Whether the read file is from Simutrans-Extended
 	//@author: jamespetts
-	const bool extended = version > 0 ? v & EXP_VER : false;
+	const bool extended = version > 0 ? v & EX_VER : false;
 	uint16 extended_version = 0;
 	if(extended)
 	{
 		// Extended version to start at 0 and increment.
-		version = version & EXP_VER ? version & 0x3FFF : 0;
+		version = version & EX_VER ? version & 0x3FFF : 0;
 		while(version > 0x100)
 		{
 			version -= 0x100;
@@ -300,8 +300,8 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->sound = decode_sint8(p);
 		desc->engine_type = decode_uint8(p);
 		desc->len = decode_uint8(p);
-		desc->leader_count = decode_uint8(p);		//"Predecessors" (Google)
-		desc->trailer_count = decode_uint8(p);		//"Successor" (Google)
+		desc->leader_count = decode_uint8(p);		
+		desc->trailer_count = decode_uint8(p);		
 		desc->freight_image_type = decode_uint8(p);
 		if(extended)
 		{
@@ -396,11 +396,11 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			}
 		}
 	}
-	else if (version==10 || version == 11) {
+	else if (version == 10 || version == 11) {
 		// new: weight in kgs
 		desc->base_cost = decode_uint32(p);
 		desc->capacity = decode_uint16(p);
-		if(!extended)
+		if (!extended)
 		{
 			// The new Standard datum for loading times is read here.
 			desc->min_loading_time = desc->max_loading_time = decode_uint16(p);
@@ -410,7 +410,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->axle_load = decode_uint16(p);
 		desc->power = decode_uint32(p);
 		desc->running_cost = decode_uint16(p);
-		if(!extended)
+		if (!extended)
 		{
 			// Extended has this as a 32-bit integer, and reads it later.
 			desc->base_fixed_cost = decode_uint16(p);
@@ -421,7 +421,14 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->gear = decode_uint16(p);
 
 		desc->wtyp = decode_uint8(p);
-		desc->sound = decode_sint8(p);
+		if (extended_version >= 3)
+		{
+			desc->sound = decode_sint16(p);
+		}
+		else
+		{
+			desc->sound = decode_sint8(p);
+		}
 		desc->engine_type = decode_uint8(p);
 		desc->len = decode_uint8(p);
 		desc->leader_count = decode_uint8(p);
@@ -429,7 +436,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->freight_image_type = decode_uint8(p);
 		if(extended)
 		{
-			if(extended_version < 3)
+			if(extended_version < 4)
 			{
 				// NOTE: Extended version reset to 1 with incrementing of
 				// Standard version to 10.
@@ -505,7 +512,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->weight = decode_uint16(p);
 		desc->power = decode_uint16(p);
 		desc->running_cost = decode_uint16(p);
-		desc->sound = (sint8)decode_sint16(p);
+		desc->sound = decode_sint16(p);
 		desc->leader_count = (sint8)decode_uint16(p);
 		desc->trailer_count = (sint8)decode_uint16(p);
 
@@ -629,12 +636,12 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		for(uint8 i=0; i<len; i++) {
 			wavname[i] = decode_sint8(p);
 		}
-		desc->sound = (sint8)sound_desc_t::get_sound_id(wavname);
+		desc->sound = (sint16)sound_desc_t::get_sound_id(wavname);
 DBG_MESSAGE("vehicle_reader_t::register_obj()","sound %s to %i",wavname,desc->sound);
 	}
 	else if(desc->sound>=0  &&  desc->sound<=MAX_OLD_SOUNDS) {
 		sint16 old_id = desc->sound;
-		desc->sound = (sint8)sound_desc_t::get_compatible_sound_id((sint8)old_id);
+		desc->sound = (sint16)sound_desc_t::get_compatible_sound_id(old_id);
 DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc->sound);
 	}
 	desc->loaded();

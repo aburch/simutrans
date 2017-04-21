@@ -1673,7 +1673,8 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		if(steps_to_180)
 		{
 			// A 180 degree curve can be made in a minimum of 4 tiles and will have a minimum radius of half the meters_per_tile value
-			steps_to_180 = max(steps_to_180 - 3, 1);
+			// The steps_to_x values are the *manhattan* distance, which is exactly twice the actual radius. Thus, halve this here.
+			steps_to_180 /= 2;
 
 			radius = (steps_to_180 * meters_per_tile) / 2;
 			// See here for formula: https://books.google.co.uk/books?id=NbYqQSQcE2MC&pg=PA30&lpg=PA30&dq=curve+radius+speed+limit+formula+rail&source=imglist&ots=mbfC3lCnX4&sig=qClyuNSarnvL-zgOj4HlTVgYOr8&hl=en&sa=X&ei=sBGwVOSGHMyBU4mHgNAC&ved=0CCYQ6AEwATgK#v=onepage&q=curve%20radius%20speed%20limit%20formula%20rail&f=false
@@ -1683,7 +1684,8 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		if(steps_to_135)
 		{
 			// A 135 degree curve can be made in a minimum of 4 tiles and will have a minimum radius of 2/3rds the meters_per_tile value
-			steps_to_135 = max(steps_to_135 - 3, 1);
+			// The steps_to_x values are the *manhattan* distance, which is exactly twice the actual radius. Thus, halve this here.
+			steps_to_135 /= 2;
 
 			radius = ((steps_to_135 * meters_per_tile) * 2) / 3;
 			corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
@@ -1692,30 +1694,27 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		if(steps_to_90)
 		{
 			// A 90 degree curve can be made in a minimum of 3 tiles and will have a minimum radius of the meters_per_tile value
-			steps_to_90 = max(steps_to_90 - 2, 1);
+			// The steps_to_x values are the *manhattan* distance, which is exactly twice the actual radius. Thus, halve this here.
+			steps_to_90 /= 2;
 
 			radius = steps_to_90 * meters_per_tile;
 			corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
 		}
 		
-		if(steps_to_second_45)
+		if(steps_to_second_45 && !steps_to_90)
 		{
+			// Go here only if this is a pair of *self-correcting* 45 degree turns, not a pair
+			// that between them add up to 90 degrees, the algorithm for which is above.
 			uint32 assumed_radius = welt->get_settings().get_assumed_curve_radius_45_degrees();
 			
 			// If assumed_radius == 0, then do not impose any speed limit for 45 degree turns alone.
 			if(assumed_radius > 0)
-			{
-				if(assumed_radius == 9999)
-				{
-					// A pair of self-correcting 45 degree corners can be made in a minimum of 4 tiles and will have a minimum radius of twice the meters per tile value
-					// However, this is too harsh for most uses; allow it only by a special value of assumed_radius.
-					steps_to_second_45 = max(steps_to_second_45 - 3, 1);
-					radius = (steps_to_second_45 * meters_per_tile) * 2;
-				}
-				else
-				{
-					radius = assumed_radius;
-				}
+			{			
+				// A pair of self-correcting 45 degree corners can be made in a minimum of 4 tiles and will have a minimum radius of twice the meters per tile value
+				// However, this is too harsh for most uses, so set the assumed radius as the minimum here. 
+				steps_to_second_45 = max(steps_to_second_45 - 3, 1);
+				radius = max(assumed_radius, ((steps_to_second_45 * meters_per_tile) * 2));
+
 				corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
 			}
 		}
@@ -3888,7 +3887,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		return false;
 	}
 
-	if((destination_is_nonreversing_waypoint || starting_from_stand) && working_method != one_train_staff && (signal_current || this_halt_has_station_signals))
+	if((destination_is_nonreversing_waypoint || starting_from_stand) && working_method != one_train_staff && (signal_current || this_halt_has_station_signals) && (this_halt_has_station_signals || !signal_current->get_desc()->get_permissive() || signal_current->get_no_junctions_to_next_signal() == false))
 	{	
 		if(!block_reserver(cnv->get_route(), max(route_index, 1) - 1, welt->get_settings().get_sighting_distance_tiles(), next_signal, 0, true, false))
 		{		
@@ -4685,7 +4684,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 					}
 
-					if(next_signal_working_method == drive_by_sight || one_train_staff_loop_complete || (working_method != one_train_staff && (first_one_train_staff_index < INVALID_INDEX)))
+					if(next_signal_working_method == drive_by_sight || one_train_staff_loop_complete || (working_method != one_train_staff && (first_one_train_staff_index < INVALID_INDEX && first_one_train_staff_index > start_index)))
 					{
 						// Do not reserve through end of signalling signs or one train staff cabinets
 						next_signal_index = i;
@@ -5606,6 +5605,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			time_interval_junction_signal = true;
 		}
 
+		bool last_signal_was_track_circuit_block = false;
+
 		FOR(slist_tpl<grund_t*>, const g, signs)
 		{
 			if(signal_t* const signal = g->find<signal_t>())
@@ -5617,7 +5618,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					if(signal->get_desc()->get_working_method() == absolute_block || signal->get_desc()->get_working_method() == token_block || signal->get_desc()->get_working_method() == cab_signalling)
 					{
 						// There is no need to set a combined signal to clear here, as this is set below in the pre-signals clearing loop.
-						signal->set_state(use_no_choose_aspect && signal->get_state() != roadsign_t::clear ? roadsign_t::clear_no_choose : signal->get_desc()->is_combined_signal() ? roadsign_t::caution : roadsign_t::clear);
+						if (!last_signal_was_track_circuit_block || count >= 0 || next_signal_index > route->get_count() - 1 || signal->get_pos() != route->at(next_signal_index))
+						{
+							signal->set_state(use_no_choose_aspect && signal->get_state() != roadsign_t::clear ? roadsign_t::clear_no_choose : signal->get_desc()->is_combined_signal() ? roadsign_t::caution : roadsign_t::clear);
+						}
 					}
 
 					if((signal->get_desc()->get_working_method() == time_interval || signal->get_desc()->get_working_method() == time_interval_with_telegraph) && (end_of_block || i >= last_stop_signal_index + 1 || time_interval_junction_signal))
@@ -5723,6 +5727,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 					}
 				}
+				last_signal_was_track_circuit_block = signal->get_desc()->get_working_method() == track_circuit_block;
 			}
 			else
 			{
@@ -6029,6 +6034,13 @@ void rail_vehicle_t::leave_tile()
 									}
 									if(!signal_route->get_desc()->is_pre_signal() && (!signal_route->get_no_junctions_to_next_signal() || signal_route->get_desc()->is_choose_sign() || signal_route->get_desc()->get_normal_danger()))
 									{
+										break;
+									}
+									
+									working_method_t swm = signal_route->get_desc()->get_working_method();
+									if (swm != track_circuit_block && swm != cab_signalling)
+									{
+										// Only re-set track circuit block type signals to permissive aspects here.
 										break;
 									}
 
