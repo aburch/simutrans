@@ -177,7 +177,7 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 		for(  int i=0;  i<schedule->get_count();  i++  ) {
 			// only if convoi found
 			if(schedule->entries[i].pos==get_pos()) {
-				schedule->set_aktuell( i );
+				schedule->set_current_stop( i );
 				schedule->remove();
 				acnv->set_schedule(schedule);
 			}
@@ -465,7 +465,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 				new_cnv = add_convoi(local_execution);
 			}
 			new_cnv->set_line(old_cnv->get_line());
-			new_cnv->get_schedule()->set_aktuell( old_cnv->get_schedule()->get_aktuell() );
+			new_cnv->get_schedule()->set_current_stop( old_cnv->get_schedule()->get_current_stop() );
 		}
 		else 
 		{

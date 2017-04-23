@@ -38,7 +38,7 @@ class schedule_gui_stats_t : public gui_world_component_t
 {
 private:
 	static cbuffer_t buf;
-	static zeiger_t *aktuell_mark;
+	static zeiger_t *current_stop_mark;
 
 
 	schedule_t* schedule;

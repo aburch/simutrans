@@ -1114,7 +1114,7 @@ void vehicle_t::remove_stale_cargo()
 			}
 			if(  !found  ) {
 				// the target halt may have been joined or there is a closer one now, thus our original target is no longer valid
-				const int offset = cnv->get_schedule()->get_aktuell();
+				const int offset = cnv->get_schedule()->get_current_stop();
 				const int max_count = cnv->get_schedule()->entries.get_count();
 				for(  int i=0;  i<max_count;  i++  ) {
 					// try to unload on next stop
@@ -4034,7 +4034,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			route_t target_rt;
 			schedule_t *schedule = cnv->get_schedule();
 			const koord3d start_pos = route.at(last_index);
-			uint8 index = schedule->get_aktuell();
+			uint8 index = schedule->get_current_stop();
 			bool reversed = cnv->get_reverse_schedule();
 			schedule->increment_index(&index, &reversed);
 			const koord3d next_ziel = schedule->entries[index].pos;
@@ -4042,16 +4042,16 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			weg_frei = !target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), cnv->get_tile_length(), welt->get_settings().get_max_route_steps(), cnv->get_weight_summary().weight / 1000);
 			if(!weg_frei)
 			{
-				if(schedule->entries[schedule->get_aktuell()].reverse == -1)
+				if(schedule->entries[schedule->get_current_stop()].reverse == -1)
 				{
-					schedule->entries[schedule->get_aktuell()].reverse = cnv->check_destination_reverse(NULL, &target_rt);
+					schedule->entries[schedule->get_current_stop()].reverse = cnv->check_destination_reverse(NULL, &target_rt);
 					linehandle_t line = cnv->get_line();
 					if(line.is_bound())
 					{
 						simlinemgmt_t::update_line(line);
 					}
 				}
-				if(schedule->entries[schedule->get_aktuell()].reverse == 0)
+				if(schedule->entries[schedule->get_current_stop()].reverse == 0)
 				{
 					// Extending the route if the convoy needs to reverse would interfere with tile reservations.
 					// This convoy can pass waypoint without reversing/stopping. Append route to next stop/waypoint.
@@ -5354,7 +5354,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	{
 		route_t target_rt;
 		schedule_t *schedule = cnv->get_schedule();
-		uint8 schedule_index = schedule->get_aktuell();
+		uint8 schedule_index = schedule->get_current_stop();
 		bool rev = cnv->get_reverse_schedule();
 		bool no_reverse = schedule->entries[schedule_index].reverse != 1;
 		schedule->increment_index(&schedule_index, &rev);
@@ -5409,7 +5409,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				{
 					success = false;
 				}
-			} while((schedule_index != cnv->get_schedule()->get_aktuell()) && token_block_blocks && no_reverse);
+			} while((schedule_index != cnv->get_schedule()->get_current_stop()) && token_block_blocks && no_reverse);
 		}
 
 		if(token_block_blocks && !bidirectional_reservation)
@@ -7128,7 +7128,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		{
 			// we need a longer route to decide, whether we will have to throttle:
 			schedule_t *schedule = cnv->get_schedule();
-			uint8 index = schedule->get_aktuell();
+			uint8 index = schedule->get_current_stop();
 			bool reversed = cnv->get_reverse_schedule();
 			schedule->increment_index(&index, &reversed);
 			if (reroute(last_index, schedule->entries[index].pos))
