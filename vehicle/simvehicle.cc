@@ -4138,7 +4138,8 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				|| ((working_method == time_interval || time_interval_with_telegraph || working_method == track_circuit_block) && signal->get_state() == signal_t::clear_no_choose) 
 				|| signal->get_state() == signal_t::caution_no_choose 
 				|| signal->get_state() == signal_t::preliminary_caution_no_choose
-				|| signal->get_state() == signal_t::advance_caution_no_choose))
+				|| signal->get_state() == signal_t::advance_caution_no_choose
+				|| (working_method == token_block && signal->get_state() == signal_t::danger)))
 			{
 				// We come accross a signal at caution: try (again) to free the block ahead.
 				const bool ok = block_reserver(cnv->get_route(), route_index, modified_sighting_distance_tiles - (tiles_to_check - 1), next_signal, 0, true, false);
