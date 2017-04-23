@@ -510,7 +510,7 @@ SQRESULT sq_setclosureroot(HSQUIRRELVM v,SQInteger idx)
 		v->Pop();
 		return SQ_OK;
 	}
-	return sq_throwerror(v, _SC("ivalid type"));
+	return sq_throwerror(v, _SC("invalid type"));
 }
 
 SQRESULT sq_getclosureroot(HSQUIRRELVM v,SQInteger idx)
@@ -558,7 +558,7 @@ SQRESULT sq_setroottable(HSQUIRRELVM v)
 		v->Pop();
 		return SQ_OK;
 	}
-	return sq_throwerror(v, _SC("ivalid type"));
+	return sq_throwerror(v, _SC("invalid type"));
 }
 
 SQRESULT sq_setconsttable(HSQUIRRELVM v)
@@ -569,7 +569,7 @@ SQRESULT sq_setconsttable(HSQUIRRELVM v)
 		v->Pop();
 		return SQ_OK;
 	}
-	return sq_throwerror(v, _SC("ivalid type, expected table"));
+	return sq_throwerror(v, _SC("invalid type, expected table"));
 }
 
 void sq_setforeignptr(HSQUIRRELVM v,SQUserPointer p)
@@ -657,6 +657,10 @@ SQRESULT sq_getinteger(HSQUIRRELVM v,SQInteger idx,SQInteger *i)
 		*i = tointeger(o);
 		return SQ_OK;
 	}
+	if(sq_isbool(o)) {
+		*i = SQVM::IsFalse(o)?SQFalse:SQTrue;
+		return SQ_OK;
+	}
 	return SQ_ERROR;
 }
 
@@ -678,6 +682,15 @@ SQRESULT sq_getbool(HSQUIRRELVM v,SQInteger idx,SQBool *b)
 		return SQ_OK;
 	}
 	return SQ_ERROR;
+}
+
+SQRESULT sq_getstringandsize(HSQUIRRELVM v,SQInteger idx,const SQChar **c,SQInteger *size)
+{
+	SQObjectPtr *o = NULL;
+	_GETSAFE_OBJ(v, idx, OT_STRING,o);
+	*c = _stringval(*o);
+	*size = _string(*o)->_len;
+	return SQ_OK;
 }
 
 SQRESULT sq_getstring(HSQUIRRELVM v,SQInteger idx,const SQChar **c)
@@ -958,7 +971,11 @@ SQRESULT sq_setdelegate(HSQUIRRELVM v,SQInteger idx)
 	switch(type) {
 	case OT_TABLE:
 		if(type(mt) == OT_TABLE) {
-			if(!_table(self)->SetDelegate(_table(mt))) return sq_throwerror(v, _SC("delagate cycle")); v->Pop();}
+			if(!_table(self)->SetDelegate(_table(mt))) {
+				return sq_throwerror(v, _SC("delegate cycle"));
+			}
+			v->Pop();
+		}
 		else if(type(mt)==OT_NULL) {
 			_table(self)->SetDelegate(NULL); v->Pop(); }
 		else return sq_aux_invalidtype(v,type);
@@ -1239,7 +1256,7 @@ SQRESULT sq_writeclosure(HSQUIRRELVM v,SQWRITEFUNC w,SQUserPointer up)
 	_GETSAFE_OBJ(v, -1, OT_CLOSURE,o);
 	unsigned short tag = SQ_BYTECODE_STREAM_TAG;
 	if(_closure(*o)->_function->_noutervalues)
-		return sq_throwerror(v,_SC("a closure with free valiables bound it cannot be serialized"));
+		return sq_throwerror(v,_SC("a closure with free variables bound cannot be serialized"));
 	if(w(up,&tag,2) != 2)
 		return sq_throwerror(v,_SC("io error"));
 	if(!_closure(*o)->Save(v,up,w))
