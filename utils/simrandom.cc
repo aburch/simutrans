@@ -74,10 +74,14 @@ static void MTgenerate()
 // returns current seed value
 uint32 get_random_seed()
 {
+#ifdef DISABLE_RANDOMNESS
+	return 1;
+#else
 	if (mersenne_twister_index >= MERSENNE_TWISTER_N) { /* generate N words at one time */
 		MTgenerate();
 	}
 	return mersenne_twister[mersenne_twister_index];
+#endif
 }
 
 
@@ -135,7 +139,11 @@ uint32 simrand(const uint32 max, const char*)
 	simrand_plain();
 	return max - 1;
 #else
+#ifdef DISABLE_RANDOMNESS
+	return max / 2;
+#else
 	return simrand_plain() % max;
+#endif
 #endif
 }
 
