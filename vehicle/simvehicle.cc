@@ -3898,6 +3898,10 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		{
 			cnv->set_next_stop_index(next_signal);
 		}
+		if (working_method != one_train_staff && (signal_current->get_desc()->get_working_method() != one_train_staff || signal_current->get_pos() != cnv->get_last_signal_pos()))
+		{
+			set_working_method(signal_current->get_desc()->get_working_method());
+		}
 		return true;
 	}
 
