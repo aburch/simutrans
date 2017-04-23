@@ -4167,14 +4167,14 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 	const sint32 max_element = cnv->get_route_infos().get_count() - 1u;
 
-	if((working_method == cab_signalling || working_method == moving_block) && w_current->has_signal())
+	if(w_current->has_signal())
 	{	
 		// With cab signalling, even if we need do nothing else at this juncture, we may need to change the working method.
 		const uint16 check_route_index = next_block <= 0 ? 0 : next_block - 1u;
 		ribi_t::ribi ribi = ribi_type(cnv->get_route()->at(max(1u, check_route_index) - 1u), cnv->get_route()->at(min(max_element, check_route_index + 1u)));
 		signal_t* signal = w_current->get_signal(ribi); 
 	
-		if(signal)
+		if(signal && (working_method == cab_signalling || working_method == moving_block || signal->get_desc()->get_working_method() == cab_signalling || signal->get_desc()->get_working_method() == moving_block))
 		{
 			set_working_method(signal->get_desc()->get_working_method());
 		}
