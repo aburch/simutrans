@@ -43,10 +43,10 @@
 
 
 // shows/deletes highlighting of tiles
-void schedule_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking )
+void schedule_gui_stats_t::highlight_schedule( schedule_t *markschedule, bool marking )
 {
 	marking &= env_t::visualize_schedule;
-	FOR(minivec_tpl<schedule_entry_t>, const& i, markfpl->entries) {
+	FOR(minivec_tpl<schedule_entry_t>, const& i, markschedule->entries) {
 		if (grund_t* const gr = welt->lookup(i.pos)) {
 			for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
 				obj_t *obj = gr->obj_bei(idx);
@@ -80,8 +80,8 @@ void schedule_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking
 		aktuell_mark->set_pos( koord3d::invalid );
 	}
 	// add if required
-	if(  marking  &&  markfpl->get_aktuell() < markfpl->get_count() ) {
-		aktuell_mark->set_pos( markfpl->entries[markfpl->get_aktuell()].pos );
+	if(  marking  &&  markschedule->get_aktuell() < markschedule->get_count() ) {
+		aktuell_mark->set_pos( markschedule->entries[markschedule->get_aktuell()].pos );
 		if(  grund_t *gr = welt->lookup(aktuell_mark->get_pos())  ) {
 			gr->obj_add( aktuell_mark );
 			aktuell_mark->set_flag( obj_t::dirty );
