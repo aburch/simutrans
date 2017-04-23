@@ -1119,8 +1119,8 @@ void convoi_info_t::set_windowsize(scr_size size)
 	const scr_coord_val width = right - D_MARGIN_LEFT;
 	scr_coord_val y = D_MARGIN_TOP;
 
-	input.set_size(scr_size(width, D_BUTTON_HEIGHT));
-	y += D_BUTTON_HEIGHT + D_V_SPACE;
+	input.set_size(scr_size(width, D_EDIT_HEIGHT));
+	y += D_EDIT_HEIGHT + D_V_SPACE;
 
 	const scr_coord_val y0 = y + LINESPACE * 7;
 	line_button.set_pos(scr_coord(D_MARGIN_LEFT, y0 - LINESPACE));

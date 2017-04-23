@@ -90,7 +90,7 @@ server_frame_t::server_frame_t() :
 		// Add server input/button
 		addinput.set_pos( scr_coord( D_MARGIN_LEFT, pos_y ) );
 		addinput.set_text( newserver_name, sizeof( newserver_name ) );
-		addinput.set_size( scr_size( ww - D_MARGIN_LEFT - D_MARGIN_RIGHT - D_BUTTON_WIDTH - D_H_SPACE, D_BUTTON_HEIGHT ) );
+		addinput.set_size( scr_size( ww - D_MARGIN_LEFT - D_MARGIN_RIGHT - D_BUTTON_WIDTH - D_H_SPACE, D_EDIT_HEIGHT ) );
 		addinput.add_listener( this );
 		add_component( &addinput );
 
@@ -137,7 +137,7 @@ server_frame_t::server_frame_t() :
 	nick.set_pos( scr_coord( D_MARGIN_LEFT + D_H_SPACE + nick_width, pos_y ) );
 	nick.add_listener(this);
 	nick.set_text( nick_buf, lengthof( nick_buf ) );
-	nick.set_size( scr_size( ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT - nick_width, D_BUTTON_HEIGHT ) );
+	nick.set_size( scr_size( ww - D_MARGIN_LEFT - D_H_SPACE - D_MARGIN_RIGHT - nick_width, D_EDIT_HEIGHT ) );
 	tstrncpy( nick_buf, env_t::nickname.c_str(), min( lengthof( nick_buf ), env_t::nickname.length() + 1 ) );
 	add_component( &nick );
 

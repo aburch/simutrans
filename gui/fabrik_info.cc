@@ -201,7 +201,7 @@ void fabrik_info_t::set_windowsize(scr_size size)
 	const uint8 alert_icon_with = skinverwaltung_t::alerts ? skinverwaltung_t::alerts->get_image(0)->get_pic()->w + 4 : 0;
 
 	// would be only needed in case of enabling horizontal resizes
-	input.set_size(scr_size(get_windowsize().w - view.get_size().w - D_MARGINS_X - D_H_SPACE, D_BUTTON_HEIGHT));
+	input.set_size(scr_size(get_windowsize().w - view.get_size().w - D_MARGINS_X - D_H_SPACE, D_EDIT_HEIGHT));
 	view.set_pos( scr_coord(get_windowsize().w - view.get_size().w - D_MARGIN_RIGHT , D_MARGIN_TOP));
 	lbl_factory_status.set_pos(scr_coord(get_windowsize().w - view.get_size().w - D_MARGIN_RIGHT, D_MARGIN_TOP + D_V_SPACE + view.get_size().h + D_INDICATOR_HEIGHT+2));
 	lbl_factory_status.set_size(scr_size(view.get_size().w - alert_icon_with, LINESPACE));

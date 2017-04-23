@@ -14,7 +14,7 @@ trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
 	ampel(s)
 {
 	ns.set_pos( scr_coord(10,get_windowsize().h-85) );
-	ns.set_size( scr_size(52, 12) );
+	ns.set_size( scr_size(52, D_EDIT_HEIGHT) );
 	ns.set_limits( 1, 255 );
 	ns.set_value( s->get_ticks_ns() );
 	ns.wrap_mode( false );
@@ -22,7 +22,7 @@ trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
 	add_component( &ns );
 
 	ow.set_pos( scr_coord(66,get_windowsize().h-85) );
-	ow.set_size( scr_size(52, 12) );
+	ow.set_size( scr_size(52, D_EDIT_HEIGHT) );
 	ow.set_limits( 1, 255 );
 	ow.set_value( s->get_ticks_ow() );
 	ow.wrap_mode( false );
@@ -30,7 +30,7 @@ trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
 	add_component( &ow );
 
 	offset.set_pos( scr_coord(122,get_windowsize().h-85) );
-	offset.set_size( scr_size(52, 12) );
+	offset.set_size( scr_size(52, D_EDIT_HEIGHT) );
 	offset.set_limits( 0, 255 );
 	offset.set_value( s->get_ticks_offset() );
 	offset.wrap_mode( false );

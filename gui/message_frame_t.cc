@@ -110,7 +110,7 @@ void message_frame_t::resize(const scr_coord delta)
 {
 	gui_frame_t::resize(delta);
 	scr_size size = get_windowsize()-scr_size(0,D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT);
-	input.set_size(scr_size(size.w-D_SCROLLBAR_WIDTH-BUTTON2_X, D_BUTTON_HEIGHT));
+	input.set_size(scr_size(size.w-D_SCROLLBAR_WIDTH-BUTTON2_X, D_EDIT_HEIGHT));
 	tabs.set_size(size);
 	scrolly.set_size(size-scr_size(0,D_BUTTON_HEIGHT+4+1));
 }

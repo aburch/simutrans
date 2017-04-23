@@ -106,7 +106,7 @@ convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m
 	yp += D_BUTTON_HEIGHT;
 
 	name_filter_input.set_pos(scr_coord(D_MARGIN_LEFT, yp - 2));
-	name_filter_input.set_size(scr_size(100, D_BUTTON_HEIGHT));
+	name_filter_input.set_size(scr_size(100, D_EDIT_HEIGHT));
 	name_filter_input.set_text( name_filter_text, lengthof(name_filter_text) );
 	name_filter_input.add_listener(this);
 	add_component(&name_filter_input);
@@ -229,7 +229,7 @@ void convoi_filter_frame_t::resize(const scr_coord delta)
 	const scr_coord_val pos2 = size.w-w2;
 	const scr_coord_val h = (size.h-2-2*D_BUTTON_HEIGHT-4);
 
-	name_filter_input.set_size(scr_size(min(w1-14,142), D_BUTTON_HEIGHT));
+	name_filter_input.set_size(scr_size(min(w1-14,142), D_EDIT_HEIGHT));
 
 	// column 2
 	filter_buttons_pos[1] = scr_coord(pos2, 2);

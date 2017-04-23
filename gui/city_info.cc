@@ -84,7 +84,7 @@ city_info_t::city_info_t(stadt_t* city_) :
 	minimap2_offset = scr_coord(minimaps_size.w + PAX_DEST_MARGIN, 0);
 
 	name_input.set_pos(scr_coord(8, 4));
-	name_input.set_size(scr_size(CITY_NAME_LABEL_WIDTH, 13));
+	name_input.set_size(scr_size(CITY_NAME_LABEL_WIDTH, D_EDIT_HEIGHT));
 	name_input.add_listener( this );
 
 	add_component(&name_input);

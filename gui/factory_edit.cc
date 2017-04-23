@@ -89,7 +89,7 @@ factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 	add_component(&lb_production_info);
 
 	inp_production.set_pos(scr_coord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4-2 ));
-	inp_production.set_size(scr_size( 76, 12 ));
+	inp_production.set_size(scr_size( 76, D_EDIT_HEIGHT ));
 	inp_production.set_limits(0,9999);
 	inp_production.add_listener( this );
 	add_component(&inp_production);
