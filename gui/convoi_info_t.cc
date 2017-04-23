@@ -529,7 +529,7 @@ void convoi_info_t::set_windowsize(scr_size size)
 {
 	gui_frame_t::set_windowsize(size);
 
-	input.set_size(scr_size(get_windowsize().w - D_MARGIN_LEFT-D_MARGIN_RIGHT, D_BUTTON_HEIGHT));
+	input.set_size(scr_size(get_windowsize().w - D_MARGIN_LEFT-D_MARGIN_RIGHT, D_EDIT_HEIGHT));
 
 	view.set_pos( scr_coord(get_windowsize().w - view.get_size().w - D_MARGIN_LEFT, D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE ));
 	follow_button.set_pos( view.get_pos() + scr_coord( 0, view.get_size().h ) );

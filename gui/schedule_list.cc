@@ -188,7 +188,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	inp_filter.set_pos( scr_coord( D_MARGIN_LEFT+D_BUTTON_WIDTH+D_H_SPACE,
 		D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE ) );
-	inp_filter.set_size( scr_size( 2*D_BUTTON_WIDTH+D_H_SPACE, D_BUTTON_HEIGHT ) );
+	inp_filter.set_size( scr_size( 2*D_BUTTON_WIDTH+D_H_SPACE, D_EDIT_HEIGHT ) );
 	inp_filter.set_text( schedule_filter, lengthof(schedule_filter) );
 	inp_filter.add_listener(this);
 	add_component(&inp_filter);
@@ -227,7 +227,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	// editable line name
 	inp_name.add_listener(this);
 	inp_name.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP + SCL_HEIGHT));
-	inp_name.set_size(scr_size(D_BUTTON_HEIGHT, D_BUTTON_WIDTH));
+	inp_name.set_size(scr_size(D_BUTTON_HEIGHT, D_EDIT_HEIGHT));
 	inp_name.set_visible(false);
 	add_component(&inp_name);
 

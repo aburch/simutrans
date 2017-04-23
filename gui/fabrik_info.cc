@@ -131,7 +131,7 @@ void fabrik_info_t::set_windowsize(scr_size size)
 	gui_frame_t::set_windowsize(size);
 
 	// would be only needed in case of enabling horizontal resizes
-	input.set_size(scr_size(get_windowsize().w-D_MARGIN_LEFT-D_MARGIN_RIGHT, D_BUTTON_HEIGHT));
+	input.set_size(scr_size(get_windowsize().w-D_MARGIN_LEFT-D_MARGIN_RIGHT, D_EDIT_HEIGHT));
 	view.set_pos(scr_coord(get_windowsize().w - view.get_size().w - D_MARGIN_RIGHT , D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE ));
 
 	scrolly.set_size(get_client_windowsize()-scrolly.get_pos());

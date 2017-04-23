@@ -552,7 +552,7 @@ void halt_info_t::set_windowsize(scr_size size)
 {
 	gui_frame_t::set_windowsize(size);
 
-	input.set_size(scr_size(get_windowsize().w-20, 13));
+	input.set_size(scr_size(get_windowsize().w-20, D_EDIT_HEIGHT));
 
 	view.set_pos(scr_coord(get_windowsize().w - view.get_size().w - 10 , 21));
 

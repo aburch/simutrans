@@ -59,7 +59,7 @@ city_info_t::city_info_t(stadt_t* city) :
 
 	// add city name input field
 	name_input.set_pos(scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP));
-	name_input.set_size(scr_size(2*D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	name_input.set_size(scr_size(2*D_BUTTON_WIDTH, D_EDIT_HEIGHT));
 	name_input.add_listener( this );
 	add_component(&name_input);
 

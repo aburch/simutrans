@@ -560,7 +560,7 @@ void depot_frame_t::layout(scr_size *size)
 
 	lb_vehicle_filter.align_to(&vehicle_filter, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(0,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT)));
 
-	name_filter_input.set_size( scr_size( vehicle_filter.get_size().w, D_BUTTON_HEIGHT ) );
+	name_filter_input.set_size( scr_size( vehicle_filter.get_size().w, D_EDIT_HEIGHT ) );
 	name_filter_input.set_pos( vehicle_filter.get_pos()+scr_coord(0,2+D_BUTTON_HEIGHT) );
 
 	const scr_coord_val margin = 4;
