@@ -89,19 +89,12 @@ const way_desc_t *way_builder_t::leitung_desc = NULL;
 static stringhashtable_tpl <const way_desc_t *> desc_table;
 
 
-static void set_default(way_desc_t const*& def, waytype_t const wtyp, sint32 const speed_limit = 1)
+static void set_default(way_desc_t const*& def, waytype_t const wtyp, systemtype_t const system_type = type_flat, sint32 const speed_limit = 1)
 {
-	def = way_builder_t::weg_search(wtyp, speed_limit, 0, type_flat);
-}
-
-
-static void set_default(way_desc_t const*& def, waytype_t const wtyp, systemtype_t const system_type, sint32 const speed_limit = 1)
-{
-	set_default(def, wtyp, speed_limit);
-	if (def) {
-		return;
+	def = way_builder_t::weg_search(wtyp, speed_limit, 0, system_type);
+	if (def == NULL) {
+		def = way_builder_t::weg_search(wtyp, 1, 0, type_all);
 	}
-	def = way_builder_t::weg_search(wtyp, 1, 0, system_type);
 }
 
 
@@ -119,7 +112,7 @@ bool way_builder_t::successfully_loaded()
 	set_default(maglev_t::default_maglev,           maglev_wt,      type_elevated); // Only elevated?
 	set_default(narrowgauge_t::default_narrowgauge, narrowgauge_wt);
 	set_default(kanal_t::default_kanal,             water_wt,       type_all); // Also find hidden rivers.
-	set_default(runway_t::default_runway,           air_wt);
+	set_default(runway_t::default_runway,           air_wt,         type_runway);
 	set_default(way_builder_t::leitung_desc,          powerline_wt);
 
 	return true;
