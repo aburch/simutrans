@@ -5232,6 +5232,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 	return msg;
 }
 
+uint8 tool_build_roadsign_t::signal_info::spacing = 16;
 
 char const* tool_build_roadsign_t::get_tooltip(player_t const*) const
 {
@@ -5688,7 +5689,7 @@ void tool_build_roadsign_t::set_values( player_t *player, uint8 spacing, bool re
 
 void tool_build_roadsign_t::get_values( player_t *player, uint8 &spacing, bool &remove, bool &replace, koord3d &signalbox )
 {
-	signal_info const& s = signal[player->get_player_nr()];
+	signal_info &s = signal[player->get_player_nr()];
 	spacing = s.spacing;
 	remove  = s.remove_intermediate;
 	replace = s.replace_other;

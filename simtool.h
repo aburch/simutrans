@@ -412,9 +412,9 @@ private:
 
 public:
 	struct signal_info {
-		signal_info() : spacing(16), remove_intermediate(true), replace_other(true), signalbox(koord3d::invalid) {}
+		signal_info() : remove_intermediate(true), replace_other(true), signalbox(koord3d::invalid) {}
 
-		uint8 spacing; // place signals every n tiles
+		static uint8 spacing; // place signals every n tiles
 		bool  remove_intermediate;
 		bool  replace_other;
 		koord3d signalbox;
