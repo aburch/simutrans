@@ -218,7 +218,7 @@ convoi_t::convoi_t(loadsave_t* file) : vehicle(max_vehicle, NULL)
 
 	no_route_retry_count = 0;
 	rdwr(file);
-	current_stop = schedule == NULL ? 255 : schedule->get_aktuell() - 1;
+	current_stop = schedule == NULL ? 255 : schedule->get_current_stop() - 1;
 
 	// Added by : Knightly
 	old_schedule = NULL;
@@ -1322,7 +1322,7 @@ bool convoi_t::prepare_for_routing()
 		if (min_range > 0)
 		{
 			int count = 0;
-			const uint8 original_index = schedule->get_aktuell();
+			const uint8 original_index = schedule->get_current_stop();
 			const grund_t* gr = welt->lookup(ziel);
 			const depot_t* depot = gr ? gr->get_depot() : NULL;
 			while (count < schedule->get_count() && !haltestelle_t::get_halt(ziel, owner).is_bound() && !depot)
@@ -1344,7 +1344,7 @@ bool convoi_t::prepare_for_routing()
 			{
 				distance = (shortest_distance(start.get_2d(), ziel.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
 			}
-			schedule->set_aktuell(original_index);
+			schedule->set_current_stop(original_index);
 			ziel = original_ziel;
 			if (distance > min_range)
 			{
@@ -1424,18 +1424,18 @@ bool convoi_t::drive_to()
 		// to avoid ignoring signals.
 		int counter = schedule->get_count();
 
-		schedule_entry_t* schedule_entry = &schedule->entries[schedule->get_aktuell()];
+		schedule_entry_t* schedule_entry = &schedule->entries[schedule->get_current_stop()];
 		bool update_line = false;
 		while(success && counter--)
 		{
 			if(schedule_entry->reverse == -1)
 			{
 				schedule_entry->reverse = check_destination_reverse() ? 1 : 0;
-				schedule->set_reverse(schedule_entry->reverse, schedule->get_aktuell()); 
+				schedule->set_reverse(schedule_entry->reverse, schedule->get_current_stop()); 
 				if(line.is_bound())
 				{
 					schedule_t* line_schedule = line->get_schedule();
-					schedule_entry_t &line_entry = line_schedule->entries[schedule->get_aktuell()];
+					schedule_entry_t &line_entry = line_schedule->entries[schedule->get_current_stop()];
 					line_entry.reverse = schedule_entry->reverse;
 					update_line = true;	
 				}
@@ -1447,7 +1447,7 @@ bool convoi_t::drive_to()
 				break;
 			}
 			advance_schedule();
-			schedule_entry = &schedule->entries[schedule->get_aktuell()];
+			schedule_entry = &schedule->entries[schedule->get_current_stop()];
 			success = front()->reroute(route.get_count() - 1, schedule_entry->pos);
 		}
 
@@ -1483,7 +1483,7 @@ bool convoi_t::drive_to()
 	}
 	else {
 		bool route_ok = true;
-		const uint8 current_stop = schedule->get_aktuell();
+		const uint8 current_stop = schedule->get_current_stop();
 		if(  front()->get_waytype() != water_wt  ) {
 			air_vehicle_t *plane = dynamic_cast<air_vehicle_t *>(front());
 			uint32 takeoff = 0, search = 0, landing = 0;
@@ -1504,7 +1504,7 @@ bool convoi_t::drive_to()
 				schedule->advance();
 				ziel = schedule->get_current_eintrag().pos;
 
-				if(  schedule->get_aktuell() == current_stop  ) {
+				if(  schedule->get_current_stop() == current_stop  ) {
 					// looped around without finding a halt => entire schedule is waypoints.
 					break;
 				}
@@ -1584,7 +1584,7 @@ bool convoi_t::drive_to()
 			}
 		}
 
-		schedule->set_aktuell(current_stop);
+		schedule->set_current_stop(current_stop);
 		fpl_target = ziel;
 		if(  route_ok  ) {
 			// When this was single threaded, this was an immediate call to vorfahren(), but this cannot be called when multi-threaded.
@@ -1832,7 +1832,7 @@ end_loop:
 		case REVERSING:
 			if(wait_lock == 0)
 			{
-				position = schedule ? schedule->get_aktuell() : 0;
+				position = schedule ? schedule->get_current_stop() : 0;
 				rev = !reverse_schedule;
 				schedule->increment_index(&position, &rev);
 				halthandle_t this_halt = haltestelle_t::get_halt(front()->get_pos(), owner);
@@ -1969,7 +1969,7 @@ end_loop:
 			}
 			else {
 				// check first, if we are already there:
-				assert(schedule->get_aktuell()<schedule->get_count());
+				assert(schedule->get_current_stop()<schedule->get_count());
 				if (v->get_pos() == schedule->get_current_eintrag().pos) {
 					advance_schedule();
 				}
@@ -2078,7 +2078,7 @@ end_loop:
 
 			if (wait_lock < 1)
 			{
-				position = schedule ? schedule->get_aktuell() : 0;
+				position = schedule ? schedule->get_current_stop() : 0;
 				rev = !reverse_schedule;
 				schedule->increment_index(&position, &rev);
 				halthandle_t this_halt = haltestelle_t::get_halt(front()->get_pos(), owner);
@@ -2179,15 +2179,15 @@ end_loop:
 }
 
 void convoi_t::advance_schedule() {
-	if(schedule->get_aktuell() == 0) {
+	if(schedule->get_current_stop() == 0) {
 		arrival_to_first_stop.add_to_tail(welt->get_ticks());
 	}
 
 	// check if the convoi should switch direction
-	if(  schedule->is_mirrored() && schedule->get_aktuell()==schedule->get_count()-1  ) {
+	if(  schedule->is_mirrored() && schedule->get_current_stop()==schedule->get_count()-1  ) {
 		reverse_schedule = true;
 	}
-	else if( schedule->is_mirrored() && schedule->get_aktuell()==0  ) {
+	else if( schedule->is_mirrored() && schedule->get_current_stop()==0  ) {
 		reverse_schedule = false;
 	}
 	// advance the schedule cursor
@@ -3290,7 +3290,7 @@ void convoi_t::vorfahren()
 		bool need_to_update_line = false;
 		while(counter > 0 && sch->get_count() > 0)
 		{
-			uint8 stop = sch->get_aktuell();
+			uint8 stop = sch->get_current_stop();
 			bool rev = !reverse_schedule;
 			sch->increment_index(&stop, &rev);
 			if(stop < sch->get_count())
@@ -4274,7 +4274,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			if(gr && schedule)
 			{
 				departure_data_t dep;
-				uint8 entry = schedule->get_aktuell();
+				uint8 entry = schedule->get_current_stop();
 				bool rev = !reverse_schedule;
 				schedule->increment_index(&entry, &rev);
 				departure_point_t departure_point(entry, !rev);
@@ -4888,7 +4888,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	// a more accurate distance can be used. Query whether the formula from halt_detail.cc should be used here instead
 	// (That formula has the effect of finding the distance between the nearest points of two halts).
 
-	departure_point_t departure(schedule->get_aktuell(), reverse_schedule);
+	departure_point_t departure(schedule->get_current_stop(), reverse_schedule);
 	const koord3d pos3d = front()->get_pos();
 	koord pos;
 	halthandle_t new_halt = haltestelle_t::get_halt(pos3d, front()->get_owner());
@@ -4956,7 +4956,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		}
 
 		bool rev = !reverse_schedule;
-		uint8 schedule_entry = schedule->get_aktuell();
+		uint8 schedule_entry = schedule->get_current_stop();
 		schedule->increment_index(&schedule_entry, &rev); 
 		departure_point_t this_departure(schedule_entry, !rev);
 		sint64 latest_journey_time;
@@ -5114,7 +5114,7 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	// Because the "departures" hashtable now contains not halts but timetable entries, it is necessary to iterate
 	// through the timetable to find the last time that this convoy called at the stop in question.
 
-	uint8 entry = schedule->get_aktuell();
+	uint8 entry = schedule->get_current_stop();
 	bool rev = !reverse_schedule; // Must be negative as going through the schedule backwards: must reverse this when used.
 	const int schedule_count = schedule->is_mirrored() ? schedule->get_count() * 2 : schedule->get_count();
 	departure_data_t dep;
@@ -5467,7 +5467,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		if(line_data.line.is_bound())
 		{
 			line_data.reversed = is_reversed();
-			line_data.current_stop = get_schedule()->get_aktuell();
+			line_data.current_stop = get_schedule()->get_current_stop();
 
 			// flag all categories that have already had all available freight loaded onto convois on this line from this halt this step
 			FOR(vector_tpl<lines_loaded_t>, const& i, halt->access_lines_loaded())
@@ -6005,7 +6005,7 @@ void convoi_t::check_pending_updates()
 			schedule = create_schedule();
 		}
 		schedule_t* new_fpl = line_update_pending->get_schedule();
-		uint8 current_stop = schedule->get_aktuell(); // save current position of schedule
+		uint8 current_stop = schedule->get_current_stop(); // save current position of schedule
 		bool is_same = false;
 		bool is_depot = false;
 		koord3d current = koord3d::invalid, depot = koord3d::invalid;
@@ -6089,7 +6089,7 @@ void convoi_t::check_pending_updates()
 
 				if(how_good_matching==0) {
 					// nothing matches => take the one from the line
-					current_stop = new_fpl->get_aktuell();
+					current_stop = new_fpl->get_current_stop();
 				}
 				// if we go to same, then we do not need route recalculation ...
 				is_same = current_stop < new_fpl->get_count() && matches_halt(current,new_fpl->entries[current_stop].pos);
@@ -6107,12 +6107,12 @@ end_check:
 		// destroy old schedule and all related windows
 		if(!schedule->is_editing_finished()) {
 			schedule->copy_from( new_fpl );
-			schedule->set_aktuell(current_stop); // set new schedule current position to best match
+			schedule->set_current_stop(current_stop); // set new schedule current position to best match
 			schedule->start_editing();
 		}
 		else {
 			schedule->copy_from( new_fpl );
-			schedule->set_aktuell(current_stop); // set new schedule current position to one before best match
+			schedule->set_current_stop(current_stop); // set new schedule current position to one before best match
 		}
 
 		if(is_depot) {
@@ -6187,7 +6187,7 @@ bool convoi_t::check_destination_reverse(route_t* current_route, route_t* target
 	bool success = target_rt; 
 	if(!target_rt)
 	{
-		uint8 index = schedule->get_aktuell();
+		uint8 index = schedule->get_current_stop();
 		koord3d start_pos = schedule->entries[index].pos;
 		bool rev = get_reverse_schedule();
 		schedule->increment_index(&index, &rev);
@@ -7197,7 +7197,7 @@ void convoi_t::clear_replace()
 		// Only book a departure time if this convoy is at a station/stop.
 		departure_data_t dep;
 		dep.departure_time = time;
-		uint8 schedule_entry = schedule->get_aktuell();
+		uint8 schedule_entry = schedule->get_current_stop();
 		bool rev_rev = !reverse_schedule;
 		schedule->increment_index(&schedule_entry, &rev_rev);
 		departure_point_t departure_point(schedule_entry, !rev_rev);
@@ -7406,7 +7406,7 @@ void convoi_t::emergency_go_to_depot()
 #endif
 			// Do NOT do the convoi_arrived here: it's done in enter_depot!
 			state = INITIAL;
-			schedule->set_aktuell(0);
+			schedule->set_current_stop(0);
 		}
 		else
 		{
@@ -7589,7 +7589,7 @@ void convoi_t::clear_estimated_times()
 		return;
 	}
 	halthandle_t halt;
-	uint8 entry = schedule->get_aktuell();
+	uint8 entry = schedule->get_current_stop();
 	bool rev = reverse_schedule;
 	for(int i = 0; i < schedule->get_count(); i++)
 	{		

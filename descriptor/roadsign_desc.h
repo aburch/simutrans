@@ -89,6 +89,10 @@ private:
 	// will be normal danger. 
 	bool normal_danger;
 
+	// Whether this signal will clear only if the next signal
+	// on the route is clear.
+	bool double_block;
+
 	// The maximum speed at which this signal may be approached.
 	// Used for system speeds. 
 	uint32 max_speed;
@@ -166,6 +170,8 @@ public:
 	bool get_intermediate_block() const { return intermediate_block; }
 
 	bool get_normal_danger() const { return normal_danger; }
+
+	bool get_double_block() const { return double_block; }
 
 	uint32 get_max_speed() const { return max_speed; }
 

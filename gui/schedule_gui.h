@@ -38,7 +38,7 @@ class schedule_gui_stats_t : public gui_world_component_t
 {
 private:
 	static cbuffer_t buf;
-	static zeiger_t *aktuell_mark;
+	static zeiger_t *current_stop_mark;
 
 
 	schedule_t* schedule;
@@ -50,7 +50,7 @@ public:
 
 	void set_schedule( schedule_t* f ) { schedule = f; }
 
-	void highlight_schedule( schedule_t *markfpl, bool marking );
+	void highlight_schedule( schedule_t *markschedule, bool marking );
 
 	// Draw the component
 	void draw(scr_coord offset);

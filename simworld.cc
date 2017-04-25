@@ -197,9 +197,6 @@ void station_check(const char *who, karte_t *welt)
 #endif
 #endif
 
-
-
-
 // advance 201 ms per sync_step in fast forward mode
 #define MAGIC_STEP (201)
 

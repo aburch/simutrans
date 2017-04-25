@@ -2275,7 +2275,7 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const goods_desc_t *
 		while(!goods_to_check.empty())
 		{
 			ware_t* const next_to_load = goods_to_check.pop();
-			uint8 index = schedule->get_aktuell();
+			uint8 index = schedule->get_current_stop();
 			bool reverse = cnv->get_reverse_schedule();
 			if(cnv->get_state() != convoi_t::REVERSING)
 			{
@@ -2283,7 +2283,7 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const goods_desc_t *
 			}
 
 			int count = 0;
-			while(index != schedule->get_aktuell() || (cnv->get_state() == convoi_t::REVERSING && count == 0))
+			while(index != schedule->get_current_stop() || (cnv->get_state() == convoi_t::REVERSING && count == 0))
 			{
 				halthandle_t& schedule_halt = cached_halts[index];
 				if(schedule_halt.is_null())
@@ -2391,10 +2391,10 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const goods_desc_t *
 						{
 							// Check for the same part of the timetable, as the convoy may either be going in a circle in a reverse direction
 							// or otherwise call at this stop at different parts of its timetable.
-							uint8 check_index = schedule->get_aktuell();
+							uint8 check_index = schedule->get_current_stop();
 							bool check_reverse = cnv->get_reverse_schedule();
 							schedule_t* fast_schedule = fast_convoy->get_schedule();
-							uint8 fast_index = fast_schedule->get_aktuell();
+							uint8 fast_index = fast_schedule->get_current_stop();
 							bool fast_reverse = fast_convoy->get_reverse_schedule();
 							const player_t* player = cnv->get_owner();
 							halthandle_t fast_convoy_halt;
@@ -2573,11 +2573,11 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 		const uint8 count = schedule->get_count();
 
 		// uses schedule->increment_index to iterate over stops
-		uint8 index = schedule->get_aktuell();
+		uint8 index = schedule->get_current_stop();
 		bool reverse = cnv->get_reverse_schedule();
 		schedule->increment_index(&index, &reverse);
 
-		while (index != schedule->get_aktuell()) {
+		while (index != schedule->get_current_stop()) {
 			const halthandle_t plan_halt = haltestelle_t::get_halt(schedule->entries[index].pos, player);
 			if(plan_halt == self) 
 			{
@@ -5139,11 +5139,11 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 			continue;
 		}
 		if((*i)->get_line() == line &&
-			((*i)->get_schedule()->get_aktuell() == cnv->get_schedule()->get_aktuell()
+			((*i)->get_schedule()->get_current_stop() == cnv->get_schedule()->get_current_stop()
 			|| ((*i)->get_state() == convoi_t::REVERSING
 			&& (*i)->get_reverse_schedule() ?
-				(*i)->get_schedule()->get_aktuell() + 1 == cnv->get_schedule()->get_aktuell() :
-				(*i)->get_schedule()->get_aktuell() - 1 == cnv->get_schedule()->get_aktuell())))
+				(*i)->get_schedule()->get_current_stop() + 1 == cnv->get_schedule()->get_current_stop() :
+				(*i)->get_schedule()->get_current_stop() - 1 == cnv->get_schedule()->get_current_stop())))
 		{
 			count++;
 		}

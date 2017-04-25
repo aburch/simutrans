@@ -43,10 +43,10 @@
 
 
 // shows/deletes highlighting of tiles
-void schedule_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking )
+void schedule_gui_stats_t::highlight_schedule( schedule_t *markschedule, bool marking )
 {
 	marking &= env_t::visualize_schedule;
-	FOR(minivec_tpl<schedule_entry_t>, const& i, markfpl->entries) {
+	FOR(minivec_tpl<schedule_entry_t>, const& i, markschedule->entries) {
 		if (grund_t* const gr = welt->lookup(i.pos)) {
 			for(  uint idx=0;  idx<gr->get_top();  idx++  ) {
 				obj_t *obj = gr->obj_bei(idx);
@@ -73,22 +73,22 @@ void schedule_gui_stats_t::highlight_schedule( schedule_t *markfpl, bool marking
 		}
 	}
 	// always remove
-	if(  grund_t *old_gr = welt->lookup(aktuell_mark->get_pos())  ) {
-		aktuell_mark->mark_image_dirty( aktuell_mark->get_image(), 0 );
-		old_gr->obj_remove( aktuell_mark );
+	if(  grund_t *old_gr = welt->lookup(current_stop_mark->get_pos())  ) {
+		current_stop_mark->mark_image_dirty( current_stop_mark->get_image(), 0 );
+		old_gr->obj_remove( current_stop_mark );
 		old_gr->set_flag( grund_t::dirty );
-		aktuell_mark->set_pos( koord3d::invalid );
+		current_stop_mark->set_pos( koord3d::invalid );
 	}
 	// add if required
-	if(  marking  &&  markfpl->get_aktuell() < markfpl->get_count() ) {
-		aktuell_mark->set_pos( markfpl->entries[markfpl->get_aktuell()].pos );
-		if(  grund_t *gr = welt->lookup(aktuell_mark->get_pos())  ) {
-			gr->obj_add( aktuell_mark );
-			aktuell_mark->set_flag( obj_t::dirty );
+	if(  marking  &&  markschedule->get_current_stop() < markschedule->get_count() ) {
+		current_stop_mark->set_pos( markschedule->entries[markschedule->get_current_stop()].pos );
+		if(  grund_t *gr = welt->lookup(current_stop_mark->get_pos())  ) {
+			gr->obj_add( current_stop_mark );
+			current_stop_mark->set_flag( obj_t::dirty );
 			gr->set_flag( grund_t::dirty );
 		}
 	}
-	aktuell_mark->clear_flag( obj_t::highlight );
+	current_stop_mark->clear_flag( obj_t::highlight );
 }
 
 
@@ -192,7 +192,7 @@ void schedule_gui_t::gimme_short_stop_name(cbuffer_t& buf, player_t const* const
 
 
 
-zeiger_t *schedule_gui_stats_t::aktuell_mark = NULL;
+zeiger_t *schedule_gui_stats_t::current_stop_mark = NULL;
 cbuffer_t schedule_gui_stats_t::buf;
 
 void schedule_gui_stats_t::draw(scr_coord offset)
@@ -209,7 +209,7 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 	}
 	else {
 		int    i     = 0;
-		size_t sel   = schedule->get_aktuell();
+		size_t sel   = schedule->get_current_stop();
 		sint16 width = get_size().w - D_MARGIN_LEFT - D_MARGIN_RIGHT;
 		offset.x += D_MARGIN_LEFT;
 		offset.y += D_V_SPACE;
@@ -282,9 +282,9 @@ schedule_gui_stats_t::schedule_gui_stats_t(player_t *s)
 {
 	schedule = NULL;
 	player = s;
-	if(  aktuell_mark==NULL  ) {
-		aktuell_mark = new zeiger_t(koord3d::invalid, NULL );
-		aktuell_mark->set_image( tool_t::general_tool[TOOL_SCHEDULE_ADD]->cursor );
+	if(  current_stop_mark==NULL  ) {
+		current_stop_mark = new zeiger_t(koord3d::invalid, NULL );
+		current_stop_mark->set_image( tool_t::general_tool[TOOL_SCHEDULE_ADD]->cursor );
 	}
 }
 
@@ -292,11 +292,11 @@ schedule_gui_stats_t::schedule_gui_stats_t(player_t *s)
 
 schedule_gui_stats_t::~schedule_gui_stats_t()
 {
-	if(  grund_t *gr = welt->lookup(aktuell_mark->get_pos())  ) {
-		aktuell_mark->mark_image_dirty( aktuell_mark->get_image(), 0 );
-		gr->obj_remove(aktuell_mark);
+	if(  grund_t *gr = welt->lookup(current_stop_mark->get_pos())  ) {
+		current_stop_mark->mark_image_dirty( current_stop_mark->get_image(), 0 );
+		gr->obj_remove(current_stop_mark);
 	}
-	aktuell_mark->set_pos( koord3d::invalid );
+	current_stop_mark->set_pos( koord3d::invalid );
 }
 
 
@@ -587,8 +587,8 @@ void schedule_gui_t::update_selection()
 	bt_wait_next.disable();
 
 	if(  !schedule->empty()  ) {
-		schedule->set_aktuell( min(schedule->get_count()-1,schedule->get_aktuell()) );
-		const uint8 current_stop = schedule->get_aktuell();
+		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
+		const uint8 current_stop = schedule->get_current_stop();
 		bt_wait_for_time.pressed = schedule->get_current_eintrag().wait_for_time;
 		if(  haltestelle_t::get_halt(schedule->entries[current_stop].pos, player).is_bound()  ) {
 			if(!schedule->get_current_eintrag().wait_for_time)
@@ -657,7 +657,7 @@ bool schedule_gui_t::infowin_event(const event_t *ev)
 					welt->get_viewport()->change_world_position( schedule->entries[line].pos );
 				}
 				else if(  ev->mx<scrolly.get_size().w-11  ) {
-					schedule->set_aktuell( line );
+					schedule->set_current_stop( line );
 					if(  mode == removing  ) {
 						stats.highlight_schedule( schedule, false );
 						schedule->remove();
@@ -686,7 +686,7 @@ bool schedule_gui_t::infowin_event(const event_t *ev)
 					// if the selected line is different to the convoi's line, apply it
 					if(  new_line!=cnv->get_line()  ) {
 						char id[16];
-						sprintf( id, "%i,%i", new_line.get_id(), schedule->get_aktuell() );
+						sprintf( id, "%i,%i", new_line.get_id(), schedule->get_current_stop() );
 						cnv->call_convoi_tool( 'l', id );
 					}
 					else {
@@ -754,13 +754,13 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	}
 	else if(comp == &numimp_load) {
 		if (!schedule->empty()) {
-			schedule->entries[schedule->get_aktuell()].minimum_loading = (uint16)p.i;
+			schedule->entries[schedule->get_current_stop()].minimum_loading = (uint16)p.i;
 			update_selection();
 		}
 	}
 	else if(comp == &bt_wait_prev) {
 		if(!schedule->empty()) {
-			sint8& wait = schedule->entries[schedule->get_aktuell()].waiting_time_shift;
+			sint8& wait = schedule->entries[schedule->get_current_stop()].waiting_time_shift;
 			if(wait>7) {
 				wait --;
 			}
@@ -775,7 +775,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	}
 	else if(comp == &bt_wait_next) {
 		if(!schedule->empty()) {
-			sint8& wait = schedule->entries[schedule->get_aktuell()].waiting_time_shift;
+			sint8& wait = schedule->entries[schedule->get_current_stop()].waiting_time_shift;
 			if(wait==0) {
 				wait = 7;
 			}
@@ -799,7 +799,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 					schedule->entries[i].spacing_shift = p.i;
 				}
 			} else {
-				schedule->entries[schedule->get_aktuell()].spacing_shift = p.i;
+				schedule->entries[schedule->get_current_stop()].spacing_shift = p.i;
 			}
 			update_selection();
 		}
@@ -814,7 +814,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 		schedule->set_same_spacing_shift(bt_same_spacing_shift.pressed);
 		if ( schedule->is_same_spacing_shift() ) {
 		    for(  uint8 i=0;  i<schedule->entries.get_count();  i++  ) {
-				schedule->entries[i].spacing_shift = schedule->entries[schedule->get_aktuell()].spacing_shift;
+				schedule->entries[i].spacing_shift = schedule->entries[schedule->get_current_stop()].spacing_shift;
 			}
 		}
 	} 
@@ -822,7 +822,7 @@ DBG_MESSAGE("schedule_gui_t::action_triggered()","comp=%p combo=%p",comp,&line_s
 	{
 		if(!schedule->empty())
 		{
-			schedule->entries[schedule->get_aktuell()].wait_for_time = bt_wait_for_time.pressed;
+			schedule->entries[schedule->get_current_stop()].wait_for_time = bt_wait_for_time.pressed;
 			update_selection();
 		}
 	}

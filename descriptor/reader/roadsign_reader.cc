@@ -74,7 +74,7 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->retire_date = decode_uint16(p);
 		if(extended)
 		{
-			if(extended_version > 2)
+			if(extended_version > 3)
 			{
 				dbg->fatal( "roadsign_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", extended_version );
 			}
@@ -110,6 +110,14 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->upgrade_group = 0;
 				desc->intermediate_block = false;
 				desc->normal_danger = false;
+			}
+			if (extended_version >= 2)
+			{
+				desc->double_block = decode_uint8(p);
+			}
+			else
+			{
+				desc->double_block = false; 
 			}
 		}
 	}
@@ -180,6 +188,11 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->upgrade_group = 0;
 		desc->intermediate_block = false;
 		desc->normal_danger = false;
+	}
+
+	if (!extended || extended_version < 2)
+	{
+		desc->double_block = false;
 	}
 
 	DBG_DEBUG("roadsign_reader_t::read_node()",

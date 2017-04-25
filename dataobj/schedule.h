@@ -57,7 +57,7 @@ public:
 	* get current stop of the schedule (schedule)
 	* @author hsiegeln
 	*/
-	uint8 get_aktuell() const { return current_stop; }
+	uint8 get_current_stop() const { return current_stop; }
 
 	// always returns a valid entry to the current stop
 	schedule_entry_t const& get_current_eintrag() const { return current_stop >= entries.get_count() ? dummy_entry : entries[current_stop]; }
@@ -67,7 +67,7 @@ private:
 	 * Fix up current_stop value, which we may have made out of range
 	 * @author neroden
 	 */
-	void make_aktuell_valid() {
+	void make_current_stop_valid() {
 		uint8 count = entries.get_count();
 		if(  count == 0  ) {
 			current_stop = 0;
@@ -83,9 +83,9 @@ public:
 	 * if new value is bigger than stops available, the max stop will be used
 	 * @author hsiegeln
 	 */
-	void set_aktuell(uint8 new_aktuell) {
-		current_stop = new_aktuell;
-		make_aktuell_valid();
+	void set_current_stop(uint8 new_current_stop) {
+		current_stop = new_current_stop;
+		make_current_stop_valid();
 	}
 
 	// advance entry by one ...
@@ -220,11 +220,10 @@ private:
 };
 
 /**
- * Eine Spezialisierung des Fahrplans die nur Stops auf Schienen
- * zul‰ﬂt.
- *
- * @author Hj. Malthaner
- */
+* Schedules with stops on tracks.
+*
+* @author Hj. Malthaner
+*/
 class train_schedule_t : public schedule_t
 {
 public:
@@ -255,11 +254,10 @@ public:
 
 
 /**
- * Eine Spezialisierung des Fahrplans die nur Stops auf Straﬂen
- * zul‰ﬂt.
- *
- * @author Hj. Malthaner
- */
+* Schedules with stops on roads.
+*
+* @author Hj. Malthaner
+*/
 class truck_schedule_t : public schedule_t
 {
 public:
@@ -275,11 +273,10 @@ public:
 
 
 /**
- * Eine Spezialisierung des Fahrplans die nur Stops auf Water
- * zul‰ﬂt.
- *
- * @author Hj. Malthaner
- */
+* Schedules with stops on water.
+*
+* @author Hj. Malthaner
+*/
 class ship_schedule_t : public schedule_t
 {
 public:
@@ -294,9 +291,11 @@ public:
 };
 
 
-/* the schedule for air ...
- * @author Hj. Malthaner
- */
+/**
+* Schedules for airplanes.
+*
+* @author Hj. Malthaner
+*/
 class airplane_schedule_ : public schedule_t
 {
 public:
@@ -310,9 +309,10 @@ public:
 	waytype_t get_waytype() const { return air_wt; }
 };
 
-/* the schedule for monorail ...
- * @author Hj. Malthaner
- */
+/**
+* Schedules with stops on mono-rails.
+* @author Hj. Malthaner
+*/
 class monorail_schedule_t : public schedule_t
 {
 public:
@@ -326,9 +326,10 @@ public:
 	waytype_t get_waytype() const { return monorail_wt; }
 };
 
-/* the schedule for maglev ...
- * @author Hj. Malthaner
- */
+/**
+* Schedules with stops on maglev tracks.
+* @author Hj. Malthaner
+*/
 class maglev_schedule_t : public schedule_t
 {
 public:
@@ -342,9 +343,11 @@ public:
 	waytype_t get_waytype() const { return maglev_wt; }
 };
 
-/* and narrow guage ...
- * @author Hj. Malthaner
- */
+/**
+* Schedules with stops on narrowgauge tracks.
+*
+* @author Hj. Malthaner
+*/
 class narrowgauge_schedule_t : public schedule_t
 {
 public:

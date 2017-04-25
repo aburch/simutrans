@@ -2096,8 +2096,6 @@ public:
 
 	~karte_t();
 
-
-
 	/**
 	 * Returns an index to a halt at koord k
 	 * optionally limit to that owned by player player

@@ -14,7 +14,7 @@ using std::string;
 
 void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	obj_node_t node(this, 44, &parent);
+	obj_node_t node(this, 45, &parent);
 
 	uint32                 const price      = obj.get_int("cost",      500) * 100;
 	uint16                 const min_speed = obj.get_int("min_speed",   0);
@@ -95,6 +95,7 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint8 upgrade_group = obj.get_int("upgrade_group", 0);
 	uint8 intermediate_block = obj.get_int("intermediate_block", 0);
 	uint8 normal_danger = obj.get_int("normal_danger", 0);
+	uint8 double_block = obj.get_int("double_block", 0); 
 
 	uint16 version = 0x8004; // version 4
 	
@@ -107,7 +108,8 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// Start at 0x100 and increment in hundreds (hex).
 	// 0x100: Allow underground
 	// 0x200: New signalling system (major version 12)
-	version += 0x200;
+	// 0x300: Double block signals
+	version += 0x300;
 	
 	// Hajo: write version data
 	node.write_uint16(fp, version,     0);
@@ -139,6 +141,7 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint8(fp, upgrade_group, 41); 
 	node.write_uint8(fp, intermediate_block, 42);
 	node.write_uint8(fp, normal_danger, 43); 
+	node.write_uint8(fp, double_block, 44); 
 	
 	write_head(fp, node, obj);
 
