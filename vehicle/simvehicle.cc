@@ -5486,7 +5486,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			curtailment_index = last_non_directional_index;
 		}
-		else if(will_choose)
+		else if(will_choose && last_double_block_signal_index > next_signal_index)
 		{
 			curtailment_index = last_choose_signal_index;
 		}
