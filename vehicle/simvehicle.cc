@@ -4408,6 +4408,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	uint16 last_non_directional_index = start_index; 
 	uint16 first_oneway_sign_index = INVALID_INDEX;
 	uint16 last_station_tile = INVALID_INDEX;
+	uint16 last_double_block_signal_index = INVALID_INDEX;
+	uint32 stop_signals_since_last_double_block_signal = 0;
 	halthandle_t stop_at_station_signal;
 	bool do_not_clear_distant = false;
 	working_method_t next_signal_working_method = working_method;
@@ -4552,7 +4554,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				if(directional_only)
 				{
 					// Stop a directional reservation when a one way sign is encountered
-					count--;
+					count --;
 					if(is_from_directional)
 					{
 						reached_end_of_loop = true;
@@ -4652,8 +4654,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						first_station_signal = signal;
 						set_first_station_signal = true;
 					}
-					
-					
+								
 					if(!directional_only && (signal->get_desc()->is_longblock_signal() || signal->is_bidirectional()))
 					{
 						last_bidirectional_signal_index = i;
@@ -4707,6 +4708,16 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 					if(!signal->get_desc()->is_pre_signal()) // Stop signal or multiple aspect signal
 					{
+						if (signal->get_desc()->get_double_block() == true)
+						{
+							last_double_block_signal_index = i;
+							stop_signals_since_last_double_block_signal = 0;
+						}
+						else
+						{
+							stop_signals_since_last_double_block_signal++;
+						}
+
 						if(signal->get_desc()->get_working_method() == time_interval || signal->get_desc()->get_working_method() == time_interval_with_telegraph)
 						{
 							// Note that this gives the pure time interval state, ignoring whether the signal protects any junctions. 
@@ -4780,7 +4791,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 										last_distant_signal_was_intermediate_block = signal->get_desc()->get_intermediate_block();
 										signs.append(gr);
 									}
-									else
+									else if (last_double_block_signal_index != last_stop_signal_index)
 									{
 										// The last combined signal is not compatible with this signal's signalbox: 
 										// do not treat it as a distant signal.
@@ -4793,7 +4804,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 									}
 								}
 								else if(signalbox_last_distant_signal != signal->get_signalbox() 
-									|| (signal->get_desc()->get_intermediate_block() ^ last_distant_signal_was_intermediate_block)) // XOR - allow intermediate block in advance or in rear, but do not allow them to be chained.
+									|| (signal->get_desc()->get_intermediate_block() ^ last_distant_signal_was_intermediate_block) // XOR - allow intermediate block in advance or in rear, but do not allow them to be chained.
+									&& last_double_block_signal_index != last_stop_signal_index) 
 								{
 									count --;
 									end_of_block = true;
@@ -4808,11 +4820,15 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								directional_only = true;
 								last_stop_signal_index = i;
 							}
-							else
+							else if(last_double_block_signal_index != last_stop_signal_index)
 							{
 								count --;
 							}
-							end_of_block = true;
+							
+							if(last_double_block_signal_index != last_stop_signal_index)
+							{
+								end_of_block = true;
+							}
 						}
 
 						if(stop_at_station_signal.is_bound() && stop_at_station_signal != check_halt)
@@ -4830,7 +4846,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							{
 								directional_only = true;
 							}
-							else
+							else if(last_double_block_signal_index != last_stop_signal_index)
 							{
 								next_signal_index = i;
 								count --;
@@ -4865,7 +4881,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								directional_only = true;
 								last_stop_signal_index = i;
 							}
-							else
+							else if(last_double_block_signal_index != last_stop_signal_index)
 							{
 								count --;
 							}
@@ -4890,7 +4906,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						if(signal->get_desc()->is_choose_sign())
 						{
 							last_choose_signal_index = i;
-							if(directional_only && last_bidirectional_signal_index < i)
+							if(directional_only && last_bidirectional_signal_index < i && last_double_block_signal_index != last_stop_signal_index)
 							{
 								// If a choose signal is encountered, assume that there is no need to check whether this is free any further.
 								count --;
@@ -4958,7 +4974,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							{
 								remaining_aspects = signal->get_desc()->get_aspects(); 
 							}
-							if(is_from_token && (working_method == token_block || working_method == absolute_block || next_signal_working_method == token_block || next_signal_working_method == absolute_block))
+							if(is_from_token && (working_method == token_block || working_method == absolute_block || next_signal_working_method == token_block || next_signal_working_method == absolute_block) && last_double_block_signal_index != last_stop_signal_index)
 							{
 								// Do not try to reserve beyond the first signal if this is called recursively from a token block signal.
 								count --;
@@ -4968,9 +4984,9 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							remaining_aspects = min(remaining_aspects - 1, signal->get_desc()->get_aspects()); 
 						}
-						else if(next_signal_working_method == absolute_block && pre_signals.empty())
+						else if(next_signal_working_method == absolute_block && pre_signals.empty() && last_double_block_signal_index != last_stop_signal_index)
 						{
-							// No distant signals: just reserve one block beyond the first stop signal and no more.
+							// No distant signals: just reserve one block beyond the first stop signal and no more (unless the last signal is a double block signal).
 							count --;
 						}
 						else if(next_signal_working_method == time_interval && (last_longblock_signal_index >= INVALID_INDEX || !next_signal_protects_no_junctions) && signal->get_state() == roadsign_t::danger && next_signal_protects_no_junctions && pre_signals.empty())
@@ -5125,6 +5141,18 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			if(attempt_reservation && !sch1->reserve(cnv->self, ribi_type(route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u,i+1u))), rt, (working_method == time_interval || working_method == time_interval_with_telegraph)))
 			{
 				not_entirely_free = true;
+
+				if (last_double_block_signal_index < INVALID_INDEX && stop_signals_since_last_double_block_signal < 2)
+				{
+					// If the last but one signal is a double block signal, do not allow the train to pass beyond that signal
+					// even if the route to the next signal is free
+					last_stop_signal_index = last_double_block_signal_index;
+					if (next_signal_index > last_stop_signal_index)
+					{
+						next_signal_index = last_stop_signal_index;
+					}
+				}
+
 				if(next_signal_index == i && (next_signal_working_method == absolute_block || next_signal_working_method == token_block || next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling))
 				{
 					// If the very last tile of a block is not free, do not enter the block.
@@ -5133,12 +5161,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				if((next_signal_working_method == drive_by_sight || next_signal_working_method == moving_block) && !directional_only && last_choose_signal_index >= INVALID_INDEX && !is_choosing)
 				{
 					next_signal_index = i - 1;
-					// The below prevents jittering of stationary drive by sight convoys, but
-					// causes them to stop dead rather than decelerate properly.
-					/*if(working_method == drive_by_sight && i < start_index + 2)
-					{
-						success = false;
-					}*/
 					break;
 				}
 
