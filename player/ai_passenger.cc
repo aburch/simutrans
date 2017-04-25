@@ -428,7 +428,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 	schedule_t *schedule=new ship_schedule_t();
 	schedule->append( welt->lookup_kartenboden(start_pos), 0, 0 );
 	schedule->append( welt->lookup_kartenboden(end_pos), 90, 0 );
-	schedule->set_aktuell( 1 );
+	schedule->set_current_stop( 1 );
 	schedule->finish_editing();
 	linehandle_t line=simlinemgmt.create_line(simline_t::shipline,this,schedule);
 	delete schedule;
@@ -748,7 +748,7 @@ bool ai_passenger_t::create_air_transport_vehicle(const stadt_t *start_stadt, co
 	schedule_t *schedule=new airplane_schedule_();
 	schedule->append( start, 0, 0 );
 	schedule->append( end, 90, 0 );
-	schedule->set_aktuell( 1 );
+	schedule->set_current_stop( 1 );
 	schedule->finish_editing();
 	linehandle_t line=simlinemgmt.create_line(simline_t::airline,this,schedule);
 	delete schedule;
@@ -793,7 +793,7 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehicle()","bus at (%i,%i)",st
 	for(int j=0;  j<count;  j++) {
 		schedule->append(welt->lookup_kartenboden(stops[j]), j == 0 || !do_wait ? 0 : 10);
 	}
-	schedule->set_aktuell( stops[0]==startpos2d );
+	schedule->set_current_stop( stops[0]==startpos2d );
 	schedule->finish_editing();
 	linehandle_t line=simlinemgmt.create_line(simline_t::truckline,this,schedule);
 	delete schedule;

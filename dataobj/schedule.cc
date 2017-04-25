@@ -47,7 +47,7 @@ void schedule_t::copy_from(const schedule_t *src)
 	FOR(minivec_tpl<schedule_entry_t>, const& i, src->entries) {
 		entries.append(i);
 	}
-	set_aktuell( src->get_aktuell() );
+	set_current_stop( src->get_current_stop() );
 
 	editing_finished = src->is_editing_finished();
 	spacing = src->get_spacing();
@@ -237,7 +237,7 @@ void schedule_t::cleanup()
 			entries[i].minimum_loading = 0;
 		}
 	}
-	make_aktuell_valid();
+	make_current_stop_valid();
 }
 
 
@@ -245,7 +245,7 @@ void schedule_t::cleanup()
 bool schedule_t::remove()
 {
 	bool ok = entries.remove_at(current_stop);
-	make_aktuell_valid();
+	make_current_stop_valid();
 	return ok;
 }
 
@@ -255,7 +255,7 @@ void schedule_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t f( file, "schedule_t" );
 
-	make_aktuell_valid();
+	make_current_stop_valid();
 
 	uint8 size = entries.get_count();
 	if(  file->get_version()<=101000  ) {

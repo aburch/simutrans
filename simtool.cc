@@ -5232,6 +5232,7 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 	return msg;
 }
 
+uint8 tool_build_roadsign_t::signal_info::spacing = 16;
 
 char const* tool_build_roadsign_t::get_tooltip(player_t const*) const
 {
@@ -5688,7 +5689,7 @@ void tool_build_roadsign_t::set_values( player_t *player, uint8 spacing, bool re
 
 void tool_build_roadsign_t::get_values( player_t *player, uint8 &spacing, bool &remove, bool &replace, koord3d &signalbox )
 {
-	signal_info const& s = signal[player->get_player_nr()];
+	signal_info &s = signal[player->get_player_nr()];
 	spacing = s.spacing;
 	remove  = s.remove_intermediate;
 	replace = s.replace_other;
@@ -7949,10 +7950,10 @@ bool tool_change_convoi_t::init( player_t *player )
 					}
 					if(  count==1 ) {
 						// current_stop was not supplied -> take it from line schedule
-						current_stop = l->get_schedule()->get_aktuell();
+						current_stop = l->get_schedule()->get_current_stop();
 					}
 					cnv->set_line( l );
-					cnv->get_schedule()->set_aktuell((uint8)current_stop);
+					cnv->get_schedule()->set_current_stop((uint8)current_stop);
 					cnv->get_schedule()->finish_editing();
 				}
 			}
@@ -8938,7 +8939,7 @@ bool tool_access_t::init(player_t *player)
 				{
 					continue;
 				}
-				current_aktuell = schedule->get_aktuell();
+				current_aktuell = schedule->get_current_stop();
 				wtyp = schedule->get_waytype();
 				for(uint8 n = 0; n < schedule->get_count(); n ++)
 				{
@@ -8969,9 +8970,9 @@ bool tool_access_t::init(player_t *player)
 				
 				ITERATE(entries_to_remove, j)
 				{
-					schedule->set_aktuell(j);
+					schedule->set_current_stop(j);
 					schedule->remove();
-					schedule->set_aktuell(current_aktuell);
+					schedule->set_current_stop(current_aktuell);
 					schedule->cleanup();
 					if(halt.is_bound())
 					{
@@ -9001,7 +9002,7 @@ bool tool_access_t::init(player_t *player)
 			{
 				continue;
 			}
-			current_aktuell = schedule->get_aktuell();
+			current_aktuell = schedule->get_current_stop();
 			wtyp = schedule->get_waytype();
 			for(uint8 n = 0; n < schedule->get_count(); n ++)
 			{
@@ -9033,9 +9034,9 @@ bool tool_access_t::init(player_t *player)
 
 			ITERATE(entries_to_remove, j)
 			{
-				schedule->set_aktuell(j);
+				schedule->set_current_stop(j);
 				schedule->remove();
-				schedule->set_aktuell(current_aktuell);
+				schedule->set_current_stop(current_aktuell);
 				schedule->cleanup();
 				if(halt.is_bound())
 				{				

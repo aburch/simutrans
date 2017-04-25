@@ -961,7 +961,7 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stucked!", cnv->get_n
 					// Make sure that we are not incorrectly calculating the distance to a waypoint.
 					schedule_t* const sch = cnv->get_schedule();
 					bool rev = cnv->is_reversed();
-					uint8 index = sch->get_aktuell();
+					uint8 index = sch->get_current_stop();
 					sch->increment_index(&index, &rev);
 					destination = sch->entries.get_element(index).pos.get_2d(); 
 				}
