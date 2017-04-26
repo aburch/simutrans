@@ -79,103 +79,113 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 
 	schiene_t* sch = (schiene_t*)this;
 
-	uint8 textlines = 1; // to locate the clickable button
 
-	if(reserved.is_bound()) 
+	if (get_desc()->get_styp() != air_wt)
+	{
+
+	uint8 textlines = 1; // to locate the clickable button
+	if (reserved.is_bound())
 	{
 		const char* reserve_text = translator::translate("\nis reserved by:");
 		// ignore linebreak
 		if (reserve_text[0] == '\n') {
 			reserve_text++;
 		}
-		
+
 		buf.append(reserve_text);
 		buf.append("\n   ");
 		buf.append(translator::translate(reserved->get_name()));
 		buf.append("\n   ");
 
-		rail_vehicle_t* rail_vehicle = NULL;
-		switch (reserved->front()->get_waytype())
-		{
-		case track_wt:
-		case narrowgauge_wt:
-		case tram_wt:
-		case monorail_wt:
-		case maglev_wt:
-			rail_vehicle = (rail_vehicle_t*)reserved->front();
-		}
-		buf.append(translator::translate(get_working_method_name(rail_vehicle->get_working_method())));
-		textlines +=1;
-		buf.append("\n   ");
+//		if (get_desc()->get_styp() == monorail_wt || maglev_wt || tram_wt || narrowgauge_wt)
+
 		
-		// We dont need to specify if the reservation is a "block" type. Only show the two other more interresting reservation types
-		if (get_reservation_type() != block) {
-			buf.append(translator::translate(get_reservation_type_name(get_reservation_type())));
-			if (get_reservation_type() == directional)
+
+			rail_vehicle_t* rail_vehicle = NULL;
+			switch (reserved->front()->get_waytype())
 			{
-				buf.append(", ");
-				buf.append(translator::translate("reservation_heading"));
-				buf.append(": ");
-				buf.append(translator::translate(get_directions_name(get_reserved_direction())));
+			case track_wt:
+			case narrowgauge_wt:
+			case tram_wt:
+			case monorail_wt:
+			case maglev_wt:
+				rail_vehicle = (rail_vehicle_t*)reserved->front();
 			}
+			buf.append(translator::translate(get_working_method_name(rail_vehicle->get_working_method())));
 			textlines += 1;
 			buf.append("\n   ");
-		}
 
-		buf.append(translator::translate("distance_to_vehicle"));
-		buf.append(": ");
-		textlines +=1;
 
-		koord3d vehpos = reserved->get_pos();
-		koord3d schpos = sch->get_pos();
-		const uint32 tiles_to_vehicle = shortest_distance(schpos.get_2d(), vehpos.get_2d());
-		const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
-		const double km_to_vehicle = (double)tiles_to_vehicle * km_per_tile;
+			// We dont need to specify if the reservation is a "block" type. Only show the two other more interresting reservation types
+			if (get_reservation_type() != block) {
+				buf.append(translator::translate(get_reservation_type_name(get_reservation_type())));
+				if (get_reservation_type() == directional)
+				{
+					buf.append(", ");
+					buf.append(translator::translate("reservation_heading"));
+					buf.append(": ");
+					buf.append(translator::translate(get_directions_name(get_reserved_direction())));
+				}
+				textlines += 1;
+				buf.append("\n   ");
+			}
 
-		if (km_to_vehicle < 1)
-		{
-			float m_to_vehicle = km_to_vehicle * 1000;
-			buf.append(m_to_vehicle);
-			buf.append("m");
-		}
-		else
-		{
-			uint n_actual;
-			if (km_to_vehicle < 20)
+			buf.append(translator::translate("distance_to_vehicle"));
+			buf.append(": ");
+			textlines += 1;
+
+			koord3d vehpos = reserved->get_pos();
+			koord3d schpos = sch->get_pos();
+			const uint32 tiles_to_vehicle = shortest_distance(schpos.get_2d(), vehpos.get_2d());
+			const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
+			const double km_to_vehicle = (double)tiles_to_vehicle * km_per_tile;
+
+			if (km_to_vehicle < 1)
 			{
-				n_actual = 1;
+				float m_to_vehicle = km_to_vehicle * 1000;
+				buf.append(m_to_vehicle);
+				buf.append("m");
 			}
 			else
 			{
-				n_actual = 0;
+				uint n_actual;
+				if (km_to_vehicle < 20)
+				{
+					n_actual = 1;
+				}
+				else
+				{
+					n_actual = 0;
+				}
+				char number_actual[10];
+				number_to_string(number_actual, km_to_vehicle, n_actual);
+				buf.append(number_actual);
+				buf.append("km");
 			}
-			char number_actual[10];
-			number_to_string(number_actual, km_to_vehicle, n_actual);
-			buf.append(number_actual);
-			buf.append("km");
-		}
-		buf.append(", ");
-		buf.append(speed_to_kmh(reserved->get_akt_speed()));
-		buf.append(translator::translate("km/h"));
+			buf.append(", ");
+			buf.append(speed_to_kmh(reserved->get_akt_speed()));
+			buf.append(translator::translate("km/h"));
 
-		vehicle_t* vehicle = NULL;
-		vehicle = (vehicle_t*)reserved->front();
-		
-		buf.append(" (");
-		buf.append(translator::translate(get_directions_name(vehicle->get_direction())));
-		buf.append(")");
+			vehicle_t* vehicle = NULL;
+			vehicle = (vehicle_t*)reserved->front();
+
+			buf.append(" (");
+			buf.append(translator::translate(get_directions_name(vehicle->get_direction())));
+			buf.append(")");
 
 #ifdef DEBUG_PBS
-		reserved->show_info();
+			reserved->show_info();
 #endif
+		
 	}
 	else
 	{
 		buf.append(translator::translate("track_not_reserved"));
 		buf.append("\n\n");
-		textlines +=1;
+		textlines += 1;
 	}
 	sch->textlines_in_info_window = textlines;
+	}
 }
 
 

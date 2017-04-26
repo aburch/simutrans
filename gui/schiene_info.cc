@@ -22,10 +22,13 @@ schiene_info_t::schiene_info_t(schiene_t* const s) :
 	sch(s)
 
 {
-	reserving_vehicle_button.init(button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, get_windowsize().h - 26 - (sch->get_textlines() * LINESPACE)));
-	reserving_vehicle_button.set_tooltip("goto_vehicle");
-	reserving_vehicle_button.add_listener(this);
-	add_component(&reserving_vehicle_button);
+	if (sch->get_desc()->get_styp() == monorail_wt || maglev_wt || tram_wt || narrowgauge_wt)
+	{
+		reserving_vehicle_button.init(button_t::posbutton, NULL, scr_coord(D_MARGIN_LEFT, get_windowsize().h - 26 - (sch->get_textlines() * LINESPACE)));
+		reserving_vehicle_button.set_tooltip("goto_vehicle");
+		reserving_vehicle_button.add_listener(this);
+		add_component(&reserving_vehicle_button);
+	}
 }
 
 
