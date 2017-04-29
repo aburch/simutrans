@@ -26,6 +26,7 @@
 #include "../script/export_objs.h"
 #include "../script/api/api.h"
 #include "../script/api_param.h"
+#include "../script/api_class.h"
 
 #include "../tpl/plainstringhashtable_tpl.h"
 
@@ -557,6 +558,28 @@ const char* scenario_t::is_schedule_allowed(const player_t* player, const schedu
 		return err == NULL ? msg.c_str() : NULL;
 	}
 	return NULL;
+}
+
+
+const char* scenario_t::is_convoy_allowed(const player_t* player, convoihandle_t cnv, depot_t* depot)
+{
+	// sanity checks
+	if (!cnv.is_bound()  ||  depot == NULL) {
+		return "";
+	}
+	if (env_t::server) {
+		// networkgame: allowed
+		return NULL;
+	}
+	// call script
+	if (what_scenario == SCRIPTED) {
+		static plainstring msg;
+		const char *err = script->call_function(script_vm_t::FORCE, "is_convoy_allowed", msg, (uint8)(player  ?  player->get_player_nr() : PLAYER_UNOWNED), cnv, (obj_t*)depot);
+
+		return err == NULL ? msg.c_str() : NULL;
+	}
+	return NULL;
+
 }
 
 

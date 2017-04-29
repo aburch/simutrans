@@ -381,6 +381,9 @@ bool depot_t::start_all_convoys()
 	return (convois.get_count() == 0);
 }
 
+// implementation in simtool.cc
+bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, depot_t* depot, bool local);
+
 
 bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 {
@@ -418,6 +421,9 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 				buf.printf( translator::translate("Vehicle %s can't find a route!"), cnv->get_name() );
 				create_win( new news_img(buf), w_time_delete, magic_none);
 			}
+		}
+		else if (!scenario_check_convoy(welt, get_owner(), cnv, this, local_execution) ) {
+			// not allowed by scenario
 		}
 		else {
 			// convoi can start now

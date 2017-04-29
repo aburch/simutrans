@@ -7,12 +7,14 @@
 #include "../utils/plainstring.h"
 #include "../script/dynamic_string.h"
 #include "../dataobj/ribi.h"
+#include "../convoihandle_t.h"
 
 class loadsave_t;
 class stadt_t;
 class fabrik_t;
 class karte_t;
 class schedule_t;
+class depot_t;
 
 /**
  * @class scenario_t
@@ -408,6 +410,17 @@ public:
 	 */
 	const char* is_schedule_allowed(const player_t* player, const schedule_t* schedule);
 
+	/**
+	 * Checks if player can use this convoy.
+	 * Called when player wants to start convoy at depot.
+	 *
+	 * @param player player
+	 * @param cnv convoy
+	 * @param depot depot
+	 *
+	 * @return null if allowed, an error message otherwise
+	 */
+	const char* is_convoy_allowed(const player_t* player, convoihandle_t cnv, depot_t* depot);
 
 	/// @return debug dump of forbidden tools
 	const char* get_forbidden_text();

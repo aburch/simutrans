@@ -6618,6 +6618,23 @@ static bool scenario_check_schedule(karte_t *welt, player_t *player, schedule_t 
 }
 
 
+bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, depot_t* depot, bool local)
+{
+	if (!is_scenario()) {
+		return true;
+	}
+	const char* err = welt->get_scenario()->is_convoy_allowed(player, cnv, depot);
+	if (err) {
+		if (*err  &&  local) {
+			open_error_msg_win(err);
+		}
+		return false;
+	}
+	return true;
+}
+
+
+
 /* Handles all action of convois in depots. Needs a default param:
  * [function],[convoi_id],addition stuff
  * following simple command exists:

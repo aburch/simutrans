@@ -7,6 +7,7 @@
  * - Added @ref simple_heap_x, @ref way_planner_x, @ref bridge_planner_x
  * - Added map_object_x::is_marked
  * - Added gui::open_info_win_at
+ * - Added ::is_convoy_allowed
  *
  * @section api-120-2-2 Release 120.2.2
  *
