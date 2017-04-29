@@ -80,11 +80,11 @@ obj_desc_t * crossing_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->sound = decode_sint8(p);
 		}
 
-		if(desc->sound==LOAD_SOUND) {
-			uint8 len=decode_sint8(p);
-			char wavname[256];
+		if (desc->sound == LOAD_SOUND) {
+			uint8 len = decode_sint8(p);
+			char wavname[512];
 			wavname[len] = 0;
-			for(uint8 i=0; i<len; i++) {
+			for (uint8 i = 0; i<len; i++) {
 				wavname[i] = decode_sint8(p);
 			}
 			desc->sound = (sint16)sound_desc_t::get_sound_id(wavname);
