@@ -39,6 +39,8 @@ class way_obj_desc_t;
 
 char *tooltip_with_price(const char * tip, sint64 price);
 
+void open_error_msg_win(const char* error);
+
 /************************ general tool *******************************/
 
 // query tile info: default tool

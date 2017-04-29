@@ -1197,13 +1197,7 @@ void player_t::tell_tool_result(tool_t *tool, koord3d, const char *err)
 			sound_play(SFX_FAILURE);
 			// look for coordinate in error message
 			// syntax: either @x,y or (x,y)
-			koord pos = message_t::get_coord_from_text(err);
-			if (pos != koord::invalid) {
-				create_win(new news_loc(err, pos), w_time_delete, magic_none);
-			}
-			else {
-				create_win(new news_img(err), w_time_delete, magic_none);
-			}
+			open_error_msg_win(err);
 		}
 	}
 }
