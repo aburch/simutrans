@@ -4765,6 +4765,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								first_time_interval_state = next_time_interval_state;
 							}
 
+							// Sometimes the signal's state might be incorrect (e.g. if it was formerly incorrectly registered as protecting a junction),
+							// so set it here to correct in so far as necessary. 
+							signal->set_state(next_time_interval_state);
+
 							if (first_double_block_signal_index < INVALID_INDEX && first_double_block_signal_index == last_stop_signal_index)
 							{					
 								// We are checking here whether to clear the double block stop signal before a time interval signal.
