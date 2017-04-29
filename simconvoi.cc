@@ -1584,7 +1584,6 @@ bool convoi_t::drive_to()
 			}
 		}
 
-		schedule->set_current_stop(current_stop);
 		fpl_target = ziel;
 		if(  route_ok  ) {
 			// When this was single threaded, this was an immediate call to vorfahren(), but this cannot be called when multi-threaded.
