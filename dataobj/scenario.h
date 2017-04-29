@@ -277,9 +277,9 @@ public:
 	void update_scenario_texts();
 
 	/**
-	 * opens scenario info window at result tab
+	 * opens scenario info window at tab @p tab.
 	 */
-	bool open_info_win() const;
+	bool open_info_win(const char* tab = "result") const;
 
 
 	/**

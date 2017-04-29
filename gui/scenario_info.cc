@@ -20,6 +20,18 @@ void scenario_info_t::update_dynamic_texts(gui_flowtext_t &flow, dynamic_string 
 }
 
 
+uint16 scenario_info_t::get_tab_index(const char* which)
+{
+	const char *shorts[] = { "info", "goal", "rules", "result", "about" };
+	for (uint i = 0; i<lengthof(shorts); i++) {
+		if (strcmp(which, shorts[i]) == 0) {
+			return i;
+		}
+	}
+	return 0;
+}
+
+
 scenario_info_t::scenario_info_t() :
 	gui_frame_t( translator::translate("Scenario information") ),
 	scrolly_info(&info),
@@ -147,15 +159,7 @@ bool scenario_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 				}
 			}
 			else {
-				const char *shorts[] = { "info", "goal", "rules", "result", "about" };
-				for (uint i = 0; i<lengthof(shorts); i++) {
-					if (strcmp(link, shorts[i]) == 0) {
-						tabs.set_active_tab_index(i);
-						resize(scr_coord(0,0));
-						set_dirty();
-						return true;
-					}
-				}
+				open_tab(link);
 			}
 		}
 	}
@@ -163,9 +167,9 @@ bool scenario_info_t::action_triggered( gui_action_creator_t *comp, value_t v)
 }
 
 
-void scenario_info_t::open_result_tab()
+void scenario_info_t::open_tab(const char* which)
 {
-	tabs.set_active_tab_index(3);
+	tabs.set_active_tab_index(get_tab_index(which));
 	resize(scr_coord(0,0));
 	set_dirty();
 }

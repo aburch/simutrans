@@ -4,10 +4,11 @@
  *
  * @section api-trunk Current trunk
  *
- * - Added simple_heap_x, way_planner_x, bridge_planner_x
+ * - Added @ref simple_heap_x, @ref way_planner_x, @ref bridge_planner_x
  * - Added map_object_x::is_marked
+ * - Added gui::open_info_win_at
  *
- * @section api-120-2 Release 120.2
+ * @section api-120-2-2 Release 120.2.2
  *
  * - Added map_object_x::mark and unmark
  *
