@@ -159,14 +159,19 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 	}
 	
 	desc = b;
-	// Add the new maintenance cost
-	sint32 maint = get_desc()->get_maintenance();
-	if(is_diagonal())
+	if (!from_saved_game)
 	{
-		maint *= 10;
-		maint /= 14;
+		// Add the new maintenance cost
+		// Do not set this here if loading a saved game,
+		// as this is already set in finish_rd
+		sint32 maint = get_desc()->get_maintenance();
+		if (is_diagonal())
+		{
+			maint *= 10;
+			maint /= 14;
+		}
+		player_t::add_maintenance(get_owner(), maint, get_desc()->get_finance_waytype());
 	}
-	player_t::add_maintenance(get_owner(), maint, get_desc()->get_finance_waytype());
 
 	grund_t* gr = welt->lookup(get_pos());
 	if(!gr)
