@@ -212,6 +212,17 @@ static char const* tooltip_with_price_maintenance_capacity(karte_t* const welt, 
 }
 
 
+void open_error_msg_win(const char* error)
+{
+	koord pos = message_t::get_coord_from_text(error);
+	if (pos != koord::invalid) {
+		create_win( new news_loc(error, pos), w_time_delete, magic_none);
+	}
+	else {
+		create_win( new news_img(error), w_time_delete, magic_none);
+	}
+}
+
 
 /**
  * sucht Haltestelle um Umkreis +1/-1 um (pos, b, h)
@@ -6599,13 +6610,7 @@ static bool scenario_check_schedule(karte_t *welt, player_t *player, schedule_t 
 	const char* err = welt->get_scenario()->is_schedule_allowed(player, schedule);
 	if (err) {
 		if (*err  &&  local) {
-			koord pos = message_t::get_coord_from_text(err);
-			if (pos != koord::invalid) {
-				create_win( new news_loc(err, pos), w_time_delete, magic_none);
-			}
-			else {
-				create_win( new news_img(err), w_time_delete, magic_none);
-			}
+			open_error_msg_win(err);
 		}
 		return false;
 	}
