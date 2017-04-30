@@ -5860,7 +5860,7 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 {
 	if (cost == PRICE_MAGIC)
 	{
-		cost = welt->get_settings().cst_multiply_station * desc->get_level();
+		cost = -welt->get_settings().cst_multiply_station * desc->get_level();
 	}
 	
 	if ( !player_t::can_afford(player, -cost) ) {
@@ -6010,6 +6010,10 @@ char const* tool_signalbox_t::get_tooltip(player_t const*) const
 	if (maintenance == PRICE_MAGIC)
 	{
 		maintenance = desc->get_level() * world()->get_settings().maint_building;
+	}
+	else
+	{
+		maintenance = -maintenance;
 	}
 
 	return tooltip_with_price_maintenance(welt, tip, price, maintenance);
