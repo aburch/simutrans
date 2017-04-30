@@ -1515,7 +1515,7 @@ void gebaeude_t::cleanup(player_t *player)
 	if(desc->is_transport_building() || desc->is_signalbox())
 	{
 		sint64 bulldoze_cost;
-		if(desc->is_signalbox())
+		if(desc->is_signalbox() && desc->get_price() != PRICE_MAGIC)
 		{
 			bulldoze_cost = desc->get_price() / 2;
 		}
