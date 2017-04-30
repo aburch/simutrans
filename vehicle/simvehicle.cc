@@ -1589,7 +1589,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 
 	// Reduce speed for overweight vehicles
 
-	if((highest_axle_load > max_axle_load || total_weight > bridge_weight_limit) && welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3)
+	if((highest_axle_load > max_axle_load || total_weight > bridge_weight_limit) && (welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3))
 	{
 		if((max_axle_load != 0 && (highest_axle_load * 100) / max_axle_load <= 110) && (bridge_weight_limit != 0 && (total_weight * 100) / bridge_weight_limit <= 110))
 		{
