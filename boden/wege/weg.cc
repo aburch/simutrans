@@ -887,7 +887,7 @@ void weg_t::check_diagonal()
 	ribi_t::ribi r2 = ribi_t::none;
 
 	// get the ribis of the ways that connect to us
-	// r1 will be 45 degree clockwise ribi (eg nordost->east), r2 will be anticlockwise ribi (eg nordost->north)
+	// r1 will be 45 degree clockwise ribi (eg northeast->east), r2 will be anticlockwise ribi (eg northeast->north)
 	if(  from->get_neighbour(to, get_waytype(), ribi_t::rotate45(ribi))  ) {
 		r1 = to->get_weg_ribi_unmasked(get_waytype());
 	}
