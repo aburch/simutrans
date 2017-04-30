@@ -94,12 +94,12 @@ bool goods_manager_t::successfully_loaded()
 			}
 		}
 	}
-	// passenger and good colors
+	// passenger and mail colors
 	if(goods[0]->color==255) {
-		goods[0]->color = color_idx_to_rgb(COL_GREY3);
+		goods[0]->color = COL_GREY3;
 	}
 	if(goods[1]->color==255) {
-		goods[1]->color = color_idx_to_rgb(COL_YELLOW);
+		goods[1]->color = COL_YELLOW;
 	}
 	// none should never be loaded to something ...
 	// however, some place do need the dummy ...
