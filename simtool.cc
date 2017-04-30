@@ -6006,14 +6006,14 @@ char const* tool_signalbox_t::get_tooltip(player_t const*) const
 	{
 		price = desc->get_level() * world()->get_settings().cst_multiply_station; 
 	}
+	else
+	{
+		price = -price;
+	}
 
 	if (maintenance == PRICE_MAGIC)
 	{
 		maintenance = desc->get_level() * world()->get_settings().maint_building;
-	}
-	else
-	{
-		maintenance = -maintenance;
 	}
 
 	return tooltip_with_price_maintenance(welt, tip, price, maintenance);
