@@ -2551,7 +2551,7 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 		return;
 	}
 
-	int catg_index =  goods_manager_t::passengers->get_catg_index();
+	int catg_index = goods_manager_t::passengers->get_catg_index();
 	FOR(connexions_map, const& iter, *(connexions[catg_index]))
 	{
 		iter.value->alternative_seats = 0;

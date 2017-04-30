@@ -7278,12 +7278,22 @@ const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &la
 	{
 		koord3d sb_location = sig->get_signalbox();
 		grund_t* gr_sb = welt->lookup(sb_location);
-		gebaeude_t* gb_sb = gr_sb->get_building()->access_first_tile();
+		gebaeude_t* building_x = gr_sb->get_building();
+		gebaeude_t* building_sb = building_x ? building_x->access_first_tile() : NULL;
 		signalbox_t* sb = NULL;
-		if(gb_sb && gb_sb->get_tile()->get_desc()->is_signalbox())
+		if(sb_end && building_sb && building_sb->get_tile()->get_desc()->is_signalbox())
 		{
-			sb = (signalbox_t*)gb_sb;
+			sb = (signalbox_t*)building_sb;
 			if(sb_end->transfer_signal(sig, sb))
+			{
+				return "";
+			}
+		}
+		else if (sb_end)
+		{
+			// It is theoretically possible that a player might transfer a signal
+			// not assigned to a signalbox to a signalbox. Account for this here.
+			if (sb_end->add_signal(sig))
 			{
 				return "";
 			}
