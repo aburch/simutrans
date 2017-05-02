@@ -123,6 +123,12 @@ SQInteger generic_get_line_by_index(HSQUIRRELVM vm)
 	return SQ_ERROR;
 }
 
+SQInteger generic_get_line_count(HSQUIRRELVM vm)
+{
+	vector_tpl<linehandle_t> const* list = generic_get_line_list(vm, 1);
+	return param<uint32>::push(vm, list ? list->get_count() : 0);
+}
+
 void export_line(HSQUIRRELVM vm)
 {
 	/**
@@ -148,6 +154,11 @@ void export_line(HSQUIRRELVM vm)
 	 * @typemask line_x()
 	 */
 	register_function(vm, generic_get_line_by_index, "_get",    2, "xi");
+	/**
+	 * Returns number of lines in the list.
+	 * @typemask integer()
+	 */
+	register_function(vm, generic_get_line_count, "get_count",  1, "x");
 	end_class(vm);
 
 	/**

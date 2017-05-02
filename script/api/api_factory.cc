@@ -141,6 +141,11 @@ SQInteger world_get_factory_by_index(HSQUIRRELVM vm)
 	return param<fabrik_t*>::push(vm, fab);
 }
 
+SQInteger world_get_factory_count(HSQUIRRELVM vm)
+{
+	return param<uint32>::push(vm, welt->get_fab_list().get_count());
+}
+
 
 void export_factory(HSQUIRRELVM vm)
 {
@@ -164,6 +169,11 @@ void export_factory(HSQUIRRELVM vm)
 	 * Meta-method to be used in foreach loops. Do not call them directly.
 	 */
 	register_function(vm, world_get_factory_by_index, "_get",    2, "xi");
+	/**
+	 * Returns number of factories in the list.
+	 * @typemask integer()
+	 */
+	register_function(vm, world_get_factory_count, "get_count",  1, "x");
 
 	end_class(vm);
 
