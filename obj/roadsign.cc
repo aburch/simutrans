@@ -945,7 +945,7 @@ const roadsign_desc_t* roadsign_t::find_best_upgrade(bool underground)
 			&& new_roadsign_type->get_upgrade_group() == desc->get_upgrade_group()
 			&& new_roadsign_type->get_wtyp() == desc->get_wtyp()
 			&& new_roadsign_type->get_flags() == desc->get_flags() 
-			&& new_roadsign_type->get_working_method() == desc->get_working_method()
+			&& (new_roadsign_type->get_working_method() == desc->get_working_method() || (new_roadsign_type->get_working_method() == cab_signalling && desc->get_working_method() == track_circuit_block) || (new_roadsign_type->get_working_method() == track_circuit_block && desc->get_working_method() == cab_signalling))
 			&& (new_roadsign_type->get_allow_underground() == 2
 			|| (underground && new_roadsign_type->get_allow_underground() == 1)
 			|| (!underground && new_roadsign_type->get_allow_underground() == 0)))
