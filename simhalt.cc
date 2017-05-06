@@ -1164,9 +1164,9 @@ void haltestelle_t::check_transferring_cargoes()
 	{
 		FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes[i])
 		{
-			const uint32 ready_seconds = world()->ticks_to_seconds((tc.ready_time - current_time));
-			const uint32 ready_minutes = ready_seconds / 60;
-			const uint32 ready_hours = ready_minutes / 60;
+			//const uint32 ready_seconds = world()->ticks_to_seconds((tc.ready_time - current_time));
+			//const uint32 ready_minutes = ready_seconds / 60;
+			//const uint32 ready_hours = ready_minutes / 60;
 			bool removed; // This check is necessary because, for some odd reason, the iterator sometimes repeats a tc object.
 			if (tc.ready_time <= current_time)
 			{
