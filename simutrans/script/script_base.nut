@@ -69,16 +69,16 @@ function recursive_save(table, indent, table_stack)
 					str += "null"
 				}
 				break
+			case "generator":
+				str += "null"
+				break
 			case "instance":
+			default:
 				if ("_save" in val) {
 					str += val._save()
 					break
 				}
-			case "generator":
-				str += "null"
-				break
-			default:
-				str += "\"unknown\""
+				str += "\"unknown(" + typeof(val) + ")\""
 		}
 		if (str.slice(-1) != "\n") {
 			str += ",\n"
