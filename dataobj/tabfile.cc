@@ -346,7 +346,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 									value = atoi(token_ptr);
 									if (i == 0 && parameter_name[0][0] != 0) {
 										value = parameter_values[i];
-										sprintf(parameter_name[value], "%.*s", strcspn(buffer+name_length+1,","), buffer+name_length+1);
+										sprintf(parameter_name[value], "%.*s", (int)strcspn(buffer+name_length+1,","), buffer+name_length+1);
 										name_length += strcspn(buffer+name_length+1,",") + 1;
 									}
 									parameter_value[i][parameter_values[i]++] = value;
@@ -354,7 +354,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 								case '-':
 									if (i == 0 &&  parameter_name[0][0] != 0) {
 										value = parameter_values[i];
-										sprintf(parameter_name[value], "%.*s", strcspn(buffer+name_length+1,","), buffer+name_length+1);
+										sprintf(parameter_name[value], "%.*s", (int)strcspn(buffer+name_length+1,","), buffer+name_length+1);
 										name_length += strcspn(buffer+name_length+1,",") + 1;
 										parameter_value[i][parameter_values[i]++] = value;
 									}
