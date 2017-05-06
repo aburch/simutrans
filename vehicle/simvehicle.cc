@@ -4766,8 +4766,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							}
 
 							// Sometimes the signal's state might be incorrect (e.g. if it was formerly incorrectly registered as protecting a junction),
-							// so set it here to correct in so far as necessary. 
-							signal->set_state(next_time_interval_state);
+							// so set it here to correct in so far as necessary (but only if it is on plain track, otherwise this will need to be set
+							// separately). 
+							if (signal->get_no_junctions_to_next_signal())
+							{
+								signal->set_state(next_time_interval_state);
+							}
 
 							if (first_double_block_signal_index < INVALID_INDEX && first_double_block_signal_index == last_stop_signal_index)
 							{					
