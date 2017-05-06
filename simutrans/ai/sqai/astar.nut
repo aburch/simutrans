@@ -301,7 +301,7 @@ class astar_builder extends astar
 				local err
 
 				if (route[i-1].flag == 0) {
-					w.set_flags(2)
+					w.set_flags(0)
 					err = w.work(our_player, route[i-1], route[i], way.get_name() )
 				}
 				else if (route[i-1].flag == 1) {
