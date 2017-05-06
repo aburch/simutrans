@@ -47,7 +47,7 @@ static const char *sort_text[halt_info_t::SORT_MODES] = {
 	"Menge",
 	"origin (detail)",
 	"origin (amount)",
-	"destination (detail)"
+	"destination (detail)",
 	"transferring time"
 };
 

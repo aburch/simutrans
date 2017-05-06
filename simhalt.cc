@@ -1168,6 +1168,7 @@ void haltestelle_t::check_transferring_cargoes()
 			const uint32 ready_minutes = ready_seconds / 60;
 			const uint32 ready_hours = ready_minutes / 60;
 			bool removed; // This check is necessary because, for some odd reason, the iterator sometimes repeats a tc object.
+			
 			if (tc.ready_time <= current_time)
 			{
 				ware = tc.ware;
@@ -1178,12 +1179,14 @@ void haltestelle_t::check_transferring_cargoes()
 					// at their ultimate end point.
 					
 					world()->deposit_ware_at_destination(ware);
+					resort_freight_info = true;
 				}
 				else if (removed)
 				{
 					// This is just a transfer - add this to the stop's
 					// internal storage for onward travel.
 					add_ware_to_halt(ware);
+					resort_freight_info = true;
 				}
 			}
 		}
@@ -3120,21 +3123,22 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 			if (warray)
 			{
 				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting");
+				buf.append("\n");
 			}
 		}
 
+		if (get_transferring_cargoes_count() > 0)
+		{
+			buf.printf("%s:\n", translator::translate("transfers"));
+		}
 		vector_tpl<ware_t> ware_transfers;
 		ware_t ware;
-
-
 		const sint64 current_time = welt->get_ticks();
-
 #ifdef MULTI_THREAD
 		sint32 po = world()->get_parallel_operations();
 #else
 		sint32 po = 1;
 #endif
-
 		for (sint32 i = 0; i < po; i++)
 		{
 			FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes[i])
@@ -3146,7 +3150,6 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		// show new info
 		freight_list_sorter_t::sort_freight(ware_transfers, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "transferring");
 	}
-
 }
 
 void haltestelle_t::get_short_freight_info(cbuffer_t & buf) const

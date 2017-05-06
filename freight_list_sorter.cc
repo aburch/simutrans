@@ -129,6 +129,26 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 				return true;
 			}
 		}
+		case by_transfer_time: // Should only be used with transfer goods
+		{
+			const sint64 current_time = welt->get_ticks();
+
+			transferring_cargo_t tc1;
+			transferring_cargo_t tc2;
+			tc1.ware = w1;
+			tc2.ware = w2;
+			const uint32 rs1 = world()->ticks_to_seconds((tc1.ready_time - current_time));
+			const uint32 rs2 = world()->ticks_to_seconds((tc2.ready_time - current_time));
+
+		
+			int const order = rs2 - rs1;
+			if (order != 0)
+			{
+				return order < 0;
+			}
+			/* FALLTHROUGH */
+		}
+		// no break
 	}
 	return false;
 }
@@ -232,7 +252,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			}
 		}
 
-		if((sort_mode == by_name || sort_mode == by_via || sort_mode == by_amount) && pos > 0) 
+		if((sort_mode == by_name || sort_mode == by_via || sort_mode == by_amount || by_transfer_time) && pos > 0)
 		{
 			for(int i = 0; i < pos; i++) 
 			{
@@ -323,6 +343,18 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			// detail amount
 			goods_desc_t const& desc = *ware.get_desc();
 			buf.printf("   %u%s %s %c ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()), ">>>>><>"[sortby]);
+
+			const sint64 current_time = welt->get_ticks();
+
+			char transfer_time_left[32] = "";
+			if (halt->get_transferring_cargoes_count() > 0)
+			{
+				transferring_cargo_t tc;
+				tc.ware = ware;
+				const uint32 ready_seconds = world()->ticks_to_seconds(tc.ready_time - current_time);				
+				welt->sprintf_ticks(transfer_time_left, sizeof(transfer_time_left), ready_seconds);
+			}
+
 			// the target name is not correct for the via sort
 			if(sortby != by_via_sum && sortby != by_origin_amount) 
 			{
@@ -365,12 +397,13 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				}
 			}
 
-			if(sortby == by_name || sortby == by_destination_detail || sortby == by_amount || sortby == by_origin || (sortby == by_via_sum && via_halt == halt) || sortby == by_via)
+			if(sortby == by_name || sortby == by_destination_detail || sortby == by_amount || sortby == by_origin || (sortby == by_via_sum && via_halt == halt) || sortby == by_via || sortby == by_transfer_time)
 			{
 				const char *destination_name = translator::translate("unknown");
 				if(halt.is_bound()) 
 				{
 					destination_name = halt->get_name();
+					buf.printf(" (%s) ", transfer_time_left);
 				}
 				if(sortby == by_destination_detail)
 				{
