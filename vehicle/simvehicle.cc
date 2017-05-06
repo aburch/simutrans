@@ -1674,7 +1674,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		{
 			// A 180 degree curve can be made in a minimum of 4 tiles and will have a minimum radius of half the meters_per_tile value
 			// The steps_to_x values are the *manhattan* distance, which is exactly twice the actual radius. Thus, halve this here.
-			steps_to_180 /= 2;
+			steps_to_180 = max(1, steps_to_180 / 2);
 
 			radius = (steps_to_180 * meters_per_tile) / 2;
 			// See here for formula: https://books.google.co.uk/books?id=NbYqQSQcE2MC&pg=PA30&lpg=PA30&dq=curve+radius+speed+limit+formula+rail&source=imglist&ots=mbfC3lCnX4&sig=qClyuNSarnvL-zgOj4HlTVgYOr8&hl=en&sa=X&ei=sBGwVOSGHMyBU4mHgNAC&ved=0CCYQ6AEwATgK#v=onepage&q=curve%20radius%20speed%20limit%20formula%20rail&f=false
@@ -1685,7 +1685,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		{
 			// A 135 degree curve can be made in a minimum of 4 tiles and will have a minimum radius of 2/3rds the meters_per_tile value
 			// The steps_to_x values are the *manhattan* distance, which is exactly twice the actual radius. Thus, halve this here.
-			steps_to_135 /= 2;
+			steps_to_135 = max(1, steps_to_135 / 2);
 
 			radius = ((steps_to_135 * meters_per_tile) * 2) / 3;
 			corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
@@ -1695,7 +1695,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		{
 			// A 90 degree curve can be made in a minimum of 3 tiles and will have a minimum radius of the meters_per_tile value
 			// The steps_to_x values are the *manhattan* distance, which is exactly twice the actual radius. Thus, halve this here.
-			steps_to_90 /= 2;
+			steps_to_90 = max(1, steps_to_90 / 2);
 
 			radius = steps_to_90 * meters_per_tile;
 			corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
