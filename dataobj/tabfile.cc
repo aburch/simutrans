@@ -308,27 +308,48 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 					int parameter_value[10][256];
 					int parameter_length[10];
 					int parameter_values[10];
+					char parameter_name[256][5];
 					int combinations=1;
+					parameter_name[0][0] = 0;
 
 					for(int i=0; i<parameters; i++) {
 						char *token_ptr;
 						parameter_length[i] = strcspn(param[i],"]");
 						parameter_values[i] = 0;
 						sprintf(buffer, "%.*s", parameter_length[i], param[i]);
+						int name_length = strcspn(buffer,",");
 
-						parameter_value[i][parameter_values[i]++] = atoi(buffer);
+						int value = atoi(buffer);
+						if (value == 0 && (tolower(buffer[0]) == 'n' || tolower(buffer[0]) == 's' || tolower(buffer[0]) == 'e' || tolower(buffer[0]) == 'w')) {
+							sprintf(parameter_name[0], "%.*s", name_length, buffer);
+						}
+						parameter_value[i][parameter_values[i]++] = value;
 
 						token_ptr = strtok(buffer,"-,");
 						while (token_ptr != NULL && parameter_values[i]<256) {
 							switch(param[i][token_ptr-buffer-1]) {
 								case ',':
-									parameter_value[i][parameter_values[i]++] = atoi(token_ptr);
+									value = atoi(token_ptr);
+									if (i == 0 && parameter_name[0][0] != 0) {
+										value = parameter_values[i];
+										sprintf(parameter_name[value], "%.*s", strcspn(buffer+name_length+1,","), buffer+name_length+1);
+										name_length += strcspn(buffer+name_length+1,",") + 1;
+									}
+									parameter_value[i][parameter_values[i]++] = value;
 								break;
 								case '-':
-									int start_range = parameter_value[i][parameter_values[i]-1];
-									int end_range = atoi(token_ptr);
-									for(int range=start_range; range<end_range; range++) {
-										parameter_value[i][parameter_values[i]++] = range+1;
+									if (i == 0 &&  parameter_name[0][0] != 0) {
+										value = parameter_values[i];
+										sprintf(parameter_name[value], "%.*s", strcspn(buffer+name_length+1,","), buffer+name_length+1);
+										name_length += strcspn(buffer+name_length+1,",") + 1;
+										parameter_value[i][parameter_values[i]++] = value;
+									}
+									else {
+										int start_range = parameter_value[i][parameter_values[i]-1];
+										int end_range = atoi(token_ptr);
+										for(int range=start_range; range<end_range; range++) {
+											parameter_value[i][parameter_values[i]++] = range+1;
+										}
 									}
 							}
 							token_ptr = strtok(NULL, "-,");
@@ -346,7 +367,12 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 								}
 								combination[j]%=parameter_values[j];
 							}
-							sprintf(line_expand, "%.*s%d", param[0]-line, line, parameter_value[0][combination[0]]);
+							if (parameter_name[0][0] != 0) {
+								sprintf(line_expand, "%.*s%s", (int)(param[0]-line), line, parameter_name[i]);
+							}
+							else {
+								sprintf(line_expand, "%.*s%d", (int)(param[0]-line), line, parameter_value[0][combination[0]]);
+							}
 							for(int i=1; i<parameters; i++) {
 								char *prev_end = param[i-1]+parameter_length[i-1];
 								sprintf(buffer, "%.*s%d", param[i]-prev_end, prev_end, parameter_value[i][combination[i]]);
