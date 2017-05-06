@@ -1176,6 +1176,7 @@ void haltestelle_t::check_transferring_cargoes()
 				{
 					// This is the final destination: register the cargoes
 					// at their ultimate end point.
+					
 					world()->deposit_ware_at_destination(ware);
 				}
 				else if (removed)
@@ -1188,6 +1189,9 @@ void haltestelle_t::check_transferring_cargoes()
 		}
 	}
 }
+
+
+
 
 void haltestelle_t::step()
 {
@@ -3104,21 +3108,46 @@ void haltestelle_t::info(cbuffer_t & buf, bool dummy) const
  */
 void haltestelle_t::get_freight_info(cbuffer_t & buf)
 {
-	if(resort_freight_info) {
+	if (resort_freight_info)
+	{
 		// resort only inf absolutely needed ...
 		resort_freight_info = false;
 		buf.clear();
 
-		for(unsigned i=0; i<goods_manager_t::get_max_catg_index(); i++) {
+		for (unsigned i = 0; i < goods_manager_t::get_max_catg_index(); i++)
+		{
 			const vector_tpl<ware_t> * warray = cargo[i];
-			if(warray) {
+			if (warray)
+			{
 				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting");
 			}
 		}
+
+		vector_tpl<ware_t> ware_transfers;
+		ware_t ware;
+
+
+		const sint64 current_time = welt->get_ticks();
+
+#ifdef MULTI_THREAD
+		sint32 po = world()->get_parallel_operations();
+#else
+		sint32 po = 1;
+#endif
+
+		for (sint32 i = 0; i < po; i++)
+		{
+			FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes[i])
+			{
+				ware = tc.ware;
+				ware_transfers.append(ware);
+			}
+		}
+		// show new info
+		freight_list_sorter_t::sort_freight(ware_transfers, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "transferring");
 	}
+
 }
-
-
 
 void haltestelle_t::get_short_freight_info(cbuffer_t & buf) const
 {
