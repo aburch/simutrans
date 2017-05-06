@@ -1493,6 +1493,8 @@ bool convoi_t::drive_to()
 				plane->get_event_index( plane_state, takeoff, search, landing );
 			}
 
+			ziel = schedule->get_current_eintrag().pos;
+
 			// set next schedule target position if next is a waypoint
 			if(  is_waypoint(ziel)  ) {
 				fpl_target = ziel;
