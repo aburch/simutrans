@@ -113,14 +113,17 @@ class factorysearcher_t extends manager_t
 	static function plan_connection(fsrc, fdest, freight)
 	{
 		if (industry_manager.get_link_state(fsrc, fdest, freight) != industry_link_t.st_free) {
-			return
+			dbgprint("Link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y + " state is " + industry_manager.get_link_state(fsrc, fdest, freight) );
+			return false
 		}
 		dbgprint("Close link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y)
 
 		industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_planned);
 
 		local icp = industry_connection_planner_t(fsrc, fdest, freight);
+
 		append_child(icp)
+		return true
 	}
 
 	/**
@@ -309,11 +312,14 @@ class factorysearcher_t extends manager_t
 			// go down in tree
 			foreach(good, supplier_slot in best.inputs) {
 				planned += plan_consumption_connection(supplier_slot, best.supplier, good, indent + "  ")
+				dbgprint(indent + "Planned for " + best_supply + " (total = " + planned + ")")
 			}
 			// plan this connection
 			if (planned==0) {
-				plan_connection(best.supplier, fdest, freight)
-				planned++
+				if (plan_connection(best.supplier, fdest, freight)) {
+					dbgprint(indent + "Planned to consumer ")
+					planned++
+				}
 			}
 			// disable this tree
 			needed -= best_supply

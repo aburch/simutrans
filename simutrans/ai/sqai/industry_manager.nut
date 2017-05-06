@@ -7,10 +7,13 @@ class industry_link_t
 	state = 0
 	lines = null   // array<line_x>
 
+	next_check = 0 // only set for st_missing, next time availability has to be checked
+
 	static st_free    = 0 /// not registered
 	static st_planned = 1 /// link is planned
 	static st_failed  = 2 /// construction failed, do not try again
 	static st_built   = 3 /// connection successfully built
+	static st_missing = 4 /// missing infrastructure, try again later
 
 	constructor(s,d,f)
 	{
@@ -64,6 +67,7 @@ class industry_manager_t extends manager_t
 			l.state = state
 			link_list[k] <- l
 		}
+
 		if (state == industry_link_t.st_built) {
 			local text = ""
 			text = "Transport " + translate(fre) + " from "
@@ -71,6 +75,10 @@ class industry_manager_t extends manager_t
 			text += coord(des.x, des.y).href(des.get_name()) + "<br>"
 
 			info_text += text
+		}
+
+		if (state == industry_link_t.st_missing) {
+			link_list[k].next_check = world.get_time().next_month_ticks
 		}
 	}
 
@@ -121,8 +129,19 @@ class industry_manager_t extends manager_t
 
 	function check_link(link)
 	{
-		if (link.state != industry_link_t.st_built  ||  link.lines.len()==0) {
-			return
+		switch(link.state) {
+			case industry_link_t.st_free:
+			case industry_link_t.st_planned:
+			case industry_link_t.st_failed:
+				return
+			case industry_link_t.st_built:
+				if (link.lines.len()==0) return
+				break
+			case industry_link_t.st_missing:
+				if (link.next_check >= world.get_time().ticks) return
+				// try to plan again
+				link.state = industry_link_t.st_free
+				break
 		}
 		local line = link.lines[0]
 		dbgprint("Check line " + line.get_name())
