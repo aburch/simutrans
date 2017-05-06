@@ -5680,8 +5680,17 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	}
 	else
 	{
+		
+		if (loading_level < loading_limit && !wait_for_time)
+		{
+			wait_lock = (earliest_departure_time - now) / 2;
+		}
+		else
+		{
+			wait_lock = (go_on_ticks - now) / 2;
+		}
 		// The random extra wait here is designed to avoid processing every convoy at once
-		wait_lock = (go_on_ticks - now) / 2 + (self.get_id()) % 1024;
+		wait_lock += (self.get_id()) % 1024;
 		if (wait_lock < 0 )
 		{
 			wait_lock = 0;
