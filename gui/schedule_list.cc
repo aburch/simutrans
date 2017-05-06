@@ -193,15 +193,17 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	inp_filter.add_listener(this);
 	add_component(&inp_filter);
 
+	sint16 bt_y = D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_EDIT_HEIGHT+D_V_SPACE ;
+
 	// normal buttons edit new remove
 	bt_new_line.init(button_t::roundbox, "New Line",
-		scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_BUTTON_HEIGHT+D_V_SPACE),
+		scr_coord(D_MARGIN_LEFT, bt_y),
 		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	bt_new_line.add_listener(this);
 	add_component(&bt_new_line);
 
 	bt_edit_line.init(button_t::roundbox, "Update Line",
-		scr_coord(D_MARGIN_LEFT+D_BUTTON_WIDTH+D_H_SPACE, D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_BUTTON_HEIGHT+D_V_SPACE),
+		scr_coord(D_MARGIN_LEFT+D_BUTTON_WIDTH+D_H_SPACE, bt_y),
 		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	bt_edit_line.set_tooltip("Modify the selected line");
 	bt_edit_line.add_listener(this);
@@ -209,7 +211,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	add_component(&bt_edit_line);
 
 	bt_delete_line.init(button_t::roundbox, "Delete Line",
-		scr_coord(D_MARGIN_LEFT+2*(D_BUTTON_WIDTH+D_H_SPACE), D_MARGIN_TOP+SCL_HEIGHT+D_V_SPACE+D_BUTTON_HEIGHT+D_V_SPACE),
+		scr_coord(D_MARGIN_LEFT+2*(D_BUTTON_WIDTH+D_H_SPACE), bt_y),
 		scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	bt_delete_line.set_tooltip("Delete the selected line (if without associated convois).");
 	bt_delete_line.add_listener(this);
@@ -218,7 +220,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	// lower left corner: halt list of selected line
 	cont_haltestellen.set_size(scr_size(3*D_BUTTON_WIDTH+2*D_H_SPACE, 28));
-	scrolly_haltestellen.set_pos(scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP + SCL_HEIGHT+2*(D_BUTTON_HEIGHT+D_V_SPACE)));
+	scrolly_haltestellen.set_pos(scr_coord(D_MARGIN_LEFT, bt_y + D_BUTTON_HEIGHT+ D_V_SPACE));
 	scrolly_haltestellen.set_show_scroll_x(true);
 	scrolly_haltestellen.set_scroll_amount_y(28);
 	scrolly_haltestellen.set_visible(false);
@@ -226,8 +228,8 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	// editable line name
 	inp_name.add_listener(this);
-	inp_name.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP + SCL_HEIGHT));
-	inp_name.set_size(scr_size(D_BUTTON_HEIGHT, D_EDIT_HEIGHT));
+	inp_name.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP + SCL_HEIGHT + D_V_SPACE));
+	inp_name.set_size(scr_size(D_BUTTON_WIDTH, D_EDIT_HEIGHT));
 	inp_name.set_visible(false);
 	add_component(&inp_name);
 
@@ -239,14 +241,14 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	// convoi list
 	cont.set_size(scr_size(200, 40));
-	scrolly_convois.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP + SCL_HEIGHT+ 2*D_BUTTON_HEIGHT+D_V_SPACE+2*LINESPACE+D_V_SPACE));
+	scrolly_convois.set_pos(scr_coord(RIGHT_COLUMN_OFFSET, bt_y + D_BUTTON_HEIGHT+ D_V_SPACE + 2*LINESPACE));
 	scrolly_convois.set_show_scroll_x(true);
 	scrolly_convois.set_scroll_amount_y(40);
 	scrolly_convois.set_visible(false);
 	add_component(&scrolly_convois);
 
 	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All",
-		scr_coord(RIGHT_COLUMN_OFFSET, D_MARGIN_TOP+SCL_HEIGHT+D_BUTTON_HEIGHT+D_V_SPACE), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+		scr_coord(RIGHT_COLUMN_OFFSET, bt_y), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	bt_withdraw_line.set_tooltip("Convoi is sold when all wagons are empty.");
 	bt_withdraw_line.set_visible(false);
 	bt_withdraw_line.add_listener(this);
@@ -533,14 +535,15 @@ void schedule_list_gui_t::display(scr_coord pos)
 			break;
 		}
 	}
+	sint16 text_y = D_TITLEBAR_HEIGHT+bt_withdraw_line.get_pos().y + bt_withdraw_line.get_size().h + D_V_SPACE;
 	int len=display_proportional_clip_rgb(pos.x+RIGHT_COLUMN_OFFSET,
-		pos.y+D_TITLEBAR_HEIGHT+D_MARGIN_TOP+SCL_HEIGHT+2*D_BUTTON_HEIGHT+D_V_SPACE, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
+		pos.y+text_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 
 	int len2 = display_proportional_clip_rgb(pos.x+RIGHT_COLUMN_OFFSET,
-		pos.y+D_TITLEBAR_HEIGHT+D_MARGIN_TOP+SCL_HEIGHT+2*D_BUTTON_HEIGHT+D_V_SPACE+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true );
+		pos.y+text_y+LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, SYSCOL_TEXT, true );
 	money_to_string(ctmp, profit/100.0);
 	len2 += display_proportional_clip_rgb(pos.x+RIGHT_COLUMN_OFFSET+len2,
-		pos.y+D_TITLEBAR_HEIGHT+D_MARGIN_TOP+SCL_HEIGHT+2*D_BUTTON_HEIGHT+D_V_SPACE+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
+		pos.y+text_y+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
 	if(  capacity>0  ) {
 		int rest_width = max( (get_windowsize().w-RIGHT_COLUMN_OFFSET)/2, max(len2,len) );
@@ -565,7 +568,7 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 	scrolly_haltestellen.set_size( scr_size(RIGHT_COLUMN_OFFSET-2*D_V_SPACE, get_client_windowsize().h-scrolly_haltestellen.get_pos().y) );
 
 	chart.set_size( scr_size( rest_width, SCL_HEIGHT-D_MARGIN_TOP-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE)) ) );
-	inp_name.set_size(scr_size(rest_width, D_BUTTON_HEIGHT));
+	inp_name.set_size(scr_size(rest_width, D_EDIT_HEIGHT));
 	filled_bar.set_size(scr_size(rest_width, 4));
 
 	int y = D_MARGIN_TOP + SCL_HEIGHT-D_V_SPACE-(button_rows*(D_BUTTON_HEIGHT+D_V_SPACE));
