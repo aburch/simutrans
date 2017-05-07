@@ -131,8 +131,6 @@ sint8 vehicle_base_t::driveleft_base_offsets[8][2] =
 // [0]=xoff [1]=yoff
 sint8 vehicle_base_t::overtaking_base_offsets[8][2];
 
-bool vehicle_base_t::left_driving = false;
-
 // recalc offsets for overtaking
 void vehicle_base_t::set_overtaking_offsets( bool driving_on_the_left )
 {
@@ -158,8 +156,6 @@ void vehicle_base_t::set_overtaking_offsets( bool driving_on_the_left )
 	overtaking_base_offsets[5][1] = -sign * YOFF;
 	overtaking_base_offsets[6][1] = -sign * YOFF;
 	overtaking_base_offsets[7][1] = 0;
-
-	left_driving = driving_on_the_left;
 }
 
 
@@ -632,10 +628,11 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 bool vehicle_base_t::judge_lane_crossing( const uint8 current_direction, const uint8 next_direction, const uint8 other_next_direction, const bool is_overtaking, const bool forced_to_change_lane )
 {
 	bool on_left = false;
-	if(  is_overtaking  &&  !left_driving  ) {
+	const bool drives_on_left = welt->get_settings().is_drive_left();
+	if(  is_overtaking  &&  !drives_on_left  ) {
 		on_left = true;
 	}
-	if(  !is_overtaking  &&  left_driving  ) {
+	if(  !is_overtaking  &&  drives_on_left  ) {
 		on_left = true;
 	}
 	// go straight = 0, turn right = -1, turn left = 1.
@@ -2208,7 +2205,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			const strasse_t* str_next = route_index < r.get_count() - 1u ? (strasse_t *)welt->lookup(r.at(route_index + 1u))->get_weg(road_wt) : NULL;
 			if(str_prev && str_next && str_prev->get_overtaking_info() > 0  && str_next->get_overtaking_info() == 0) {
 				const koord3d pos_next2 = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
-				if(  (!left_driving  &&  ribi_t::rotate90l(get_90direction()) == calc_direction(pos_next,pos_next2))  ||  (left_driving  &&  ribi_t::rotate90(get_90direction()) == calc_direction(pos_next,pos_next2))  ) {
+				if(  (!welt->get_settings().is_drive_left()  &&  ribi_t::rotate90l(get_90direction()) == calc_direction(pos_next,pos_next2))  ||  (welt->get_settings().is_drive_left()  &&  ribi_t::rotate90(get_90direction()) == calc_direction(pos_next,pos_next2))  ) {
 					// next: enter passing lane.
 					next_enter_passing_lane = true;
 				}
