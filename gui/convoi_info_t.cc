@@ -436,21 +436,21 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		COLOR_VAL speed_color = COL_BLACK;
 		const int pos_y = pos_y0; // line 1
 		char speed_text[256];
-		bool hide_speed = false;
 		switch (cnv->get_state())
 		{
-		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH || convoi_t::WAITING_FOR_CLEARANCE || convoi_t::CAN_START || convoi_t::CAN_START_ONE_MONTH:
+		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
+		case convoi_t::WAITING_FOR_CLEARANCE:
+		case convoi_t::CAN_START:
+		case convoi_t::CAN_START_ONE_MONTH:
 
-			sprintf(speed_text, translator::translate("waiting_for_clearance"));
-			speed_color = COL_ORANGE;
-			hide_speed = true;
+			sprintf(speed_text, translator::translate("Waiting for clearance!"));
+			speed_color = COL_YELLOW;
 			break;
 
 		case convoi_t::EMERGENCY_STOP:
 
 			sprintf(speed_text, translator::translate("emergency_stop"));
 			speed_color = COL_RED;
-			hide_speed = true;
 			break;
 
 		case convoi_t::LOADING:
@@ -477,7 +477,6 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				sprintf(speed_text, translator::translate("Loading. %s left!"), waiting_time);
 			}
 			speed_color = COL_YELLOW;
-			hide_speed = true;
 			break;
 
 		case convoi_t::REVERSING:
@@ -486,7 +485,6 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			cnv->snprintf_remaining_reversing_time(reversing_time, sizeof(reversing_time));
 			sprintf(speed_text, translator::translate("Reversing. %s left"), reversing_time);
 			speed_color = COL_YELLOW;
-			hide_speed = true;
 			break;
 
 		case convoi_t::CAN_START_TWO_MONTHS:
@@ -494,25 +492,21 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 			sprintf(speed_text, translator::translate("clf_chk_stucked"));
 			speed_color = COL_ORANGE;
-			hide_speed = true;
 			break;
 
 		case convoi_t::NO_ROUTE:
 
 			sprintf(speed_text, translator::translate("clf_chk_noroute"));
 			speed_color = COL_RED;
-			hide_speed = true;
 			break;
 
 		case convoi_t::OUT_OF_RANGE:
 
 			sprintf(speed_text, translator::translate("out of range"));
 			speed_color = COL_RED;
-			hide_speed = true;
 			break;
 
 		default:
-			hide_speed = false;
 			speed_color = COL_BLACK;
 			const air_vehicle_t* air = (const air_vehicle_t*)this;
 
@@ -520,7 +514,6 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			{
 				sprintf(speed_text, translator::translate("Runway too short"), cnv->get_name());
 				speed_color = COL_RED;
-				hide_speed = true;
 			}
 			else
 			{
