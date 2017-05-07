@@ -90,7 +90,7 @@ public:
 		return (flags&(SIGN_SIGNAL|SIGN_PRE_SIGNAL|SIGN_LONGBLOCK_SIGNAL))!=0;
 	}
 
-	types get_flags() const { return (types)flags; }
+	uint8 get_flags() const { return flags; }
 
 	sint8 get_offset_left() const { return offset_left; }
 

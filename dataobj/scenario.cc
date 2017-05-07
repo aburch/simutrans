@@ -26,6 +26,7 @@
 #include "../script/export_objs.h"
 #include "../script/api/api.h"
 #include "../script/api_param.h"
+#include "../script/api_class.h"
 
 #include "../tpl/plainstringhashtable_tpl.h"
 
@@ -560,6 +561,28 @@ const char* scenario_t::is_schedule_allowed(const player_t* player, const schedu
 }
 
 
+const char* scenario_t::is_convoy_allowed(const player_t* player, convoihandle_t cnv, depot_t* depot)
+{
+	// sanity checks
+	if (!cnv.is_bound()  ||  depot == NULL) {
+		return "";
+	}
+	if (env_t::server) {
+		// networkgame: allowed
+		return NULL;
+	}
+	// call script
+	if (what_scenario == SCRIPTED) {
+		static plainstring msg;
+		const char *err = script->call_function(script_vm_t::FORCE, "is_convoy_allowed", msg, (uint8)(player  ?  player->get_player_nr() : PLAYER_UNOWNED), cnv, (obj_t*)depot);
+
+		return err == NULL ? msg.c_str() : NULL;
+	}
+	return NULL;
+
+}
+
+
 const char* scenario_t::get_error_text()
 {
 	if (script) {
@@ -736,7 +759,7 @@ plainstring scenario_t::load_language_file(const char* filename)
 	return text;
 }
 
-bool scenario_t::open_info_win() const
+bool scenario_t::open_info_win(const char* tab) const
 {
 	// pop up for the win
 	scenario_info_t *si = (scenario_info_t*)win_get_magic(magic_scenario_info);
@@ -744,7 +767,7 @@ bool scenario_t::open_info_win() const
 		si = new scenario_info_t();
 		create_win(si, w_info, magic_scenario_info);
 	}
-	si->open_result_tab();
+	si->open_tab(tab);
 	return true; // dummy return value
 }
 

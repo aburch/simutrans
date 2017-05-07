@@ -29,7 +29,7 @@
 // remembers last settings
 static uint32 bFilterStates[MAX_PLAYER_COUNT];
 
-#define BUTTONSPACE 14
+#define BUTTONSPACE max(D_BUTTON_HEIGHT, LINESPACE)
 
 // @author hsiegeln
 const char *money_frame_t::cost_type_name[MAX_PLAYER_COST_BUTTON] =
@@ -232,12 +232,24 @@ money_frame_t::money_frame_t(player_t *player)
 
 	this->player = player;
 
-	const scr_coord_val top =  30;
-	const scr_coord_val left = 12;
+	const scr_coord_val top0 = D_MARGIN_TOP;  // first row of elements
+	const scr_coord_val left = D_MARGIN_LEFT;
 
 	const scr_coord_val tyl_x = left+140+55;
 	const scr_coord_val lyl_x = left+240+55;
 
+	scr_coord_val tab_y = top0; // tabs
+
+	// scenario name
+	if(player->get_player_nr()!=1  &&  welt->get_scenario()->active()) {
+		scenario.set_pos( scr_coord(top0, D_MARGIN_LEFT) );
+		welt->get_scenario()->update_scenario_texts();
+		scenario.set_text( welt->get_scenario()->description_text );
+		add_component(&scenario);
+		tab_y += LINESPACE + D_V_SPACE;
+	}
+	scr_coord_val top = tab_y  + D_TAB_HEADER_HEIGHT + D_V_SPACE + BUTTONSPACE; // second row of buttons
+	top += (BUTTONSPACE-LINESPACE) / 2;
 	// left column
 	tylabel.set_pos(scr_coord(left+120,top-1*BUTTONSPACE));
 	tylabel.set_width(tyl_x-left-120+25);
@@ -270,10 +282,10 @@ money_frame_t::money_frame_t(player_t *player)
 	old_tmoney.set_pos(scr_coord(lyl_x,top+8*BUTTONSPACE));
 
 	// right column
-	maintenance_label.set_pos(scr_coord(left+340+80-maintenance_label.get_size().w, top+2*BUTTONSPACE-2));
-	maintenance_money.set_pos(scr_coord(left+340+55, top+3*BUTTONSPACE));
+	maintenance_label.set_pos(scr_coord(left+335+D_H_SPACE, top+2*BUTTONSPACE));
+	maintenance_money.set_pos(scr_coord(left+335+D_H_SPACE+maintenance_label.get_size().w, top+3*BUTTONSPACE));
 
-	tylabel2.set_pos(scr_coord(left+140+80+335-tylabel2.get_size().w,top+4*BUTTONSPACE-2));
+	tylabel2.set_pos(scr_coord(left+140+80+335-tylabel2.get_size().w,top+4*BUTTONSPACE));
 	gtmoney.set_pos(scr_coord(left+140+335+55, top+5*BUTTONSPACE));
 	vtmoney.set_pos(scr_coord(left+140+335+55, top+6*BUTTONSPACE));
 	margin.set_pos(scr_coord(left+140+335+55, top+7*BUTTONSPACE));
@@ -281,16 +293,10 @@ money_frame_t::money_frame_t(player_t *player)
 
 	// return money or else stuff ...
 	warn.set_pos(scr_coord(left+335, top+9*BUTTONSPACE));
-	if(player->get_player_nr()!=1  &&  welt->get_scenario()->active()) {
-		scenario.set_pos( scr_coord( 10,1 ) );
-		welt->get_scenario()->update_scenario_texts();
-		scenario.set_text( welt->get_scenario()->description_text );
-		add_component(&scenario);
-	}
 
 	//CHART YEAR
 	chart.set_pos(scr_coord(D_MARGIN_LEFT,top+10*BUTTONSPACE));
-	chart.set_size(scr_size(582-D_MARGIN_LEFT-D_MARGIN_RIGHT,340-(top+10*BUTTONSPACE)-D_MARGIN_BOTTOM-D_TITLEBAR_HEIGHT));
+	chart.set_size(scr_size(582-D_MARGIN_LEFT-D_MARGIN_RIGHT,8*BUTTONSPACE));
 	chart.set_dimension(MAX_PLAYER_HISTORY_YEARS, 10000);
 	chart.set_seed(welt->get_last_year());
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
@@ -298,7 +304,7 @@ money_frame_t::money_frame_t(player_t *player)
 
 	//CHART MONTH
 	mchart.set_pos(scr_coord(D_MARGIN_LEFT,top+10*BUTTONSPACE));
-	mchart.set_size(scr_size(582-D_MARGIN_LEFT-D_MARGIN_RIGHT,340-(top+10*BUTTONSPACE)-D_MARGIN_BOTTOM-D_TITLEBAR_HEIGHT));
+	mchart.set_size(scr_size(582-D_MARGIN_LEFT-D_MARGIN_RIGHT,8*BUTTONSPACE));
 	mchart.set_dimension(MAX_PLAYER_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(SYSCOL_CHART_BACKGROUND);
@@ -315,7 +321,7 @@ money_frame_t::money_frame_t(player_t *player)
 	// tab (month/year)
 	year_month_tabs.add_tab( &year_dummy, translator::translate("Years"));
 	year_month_tabs.add_tab( &month_dummy, translator::translate("Months"));
-	year_month_tabs.set_pos(scr_coord(0, LINESPACE-2));
+	year_month_tabs.set_pos(scr_coord(0, tab_y));
 	year_month_tabs.set_size(scr_size(lyl_x+25, D_TAB_HEADER_HEIGHT));
 	add_component(&year_month_tabs);
 
@@ -363,14 +369,14 @@ money_frame_t::money_frame_t(player_t *player)
 
 	if(  player->get_ai_id()!=player_t::HUMAN  ) {
 		// misuse headquarter button for AI configure
-		headquarter.init(button_t::roundbox, "Configure AI", scr_coord(582-12-120, 0), scr_size(120, BUTTONSPACE));
+		headquarter.init(button_t::roundbox, "Configure AI", scr_coord(582-12-120, top0), scr_size(120, BUTTONSPACE));
 		headquarter.add_listener(this);
 		add_component(&headquarter);
 		headquarter.set_tooltip( "Configure AI setttings" );
 	}
 	else if(old_level > 0  ||  hausbauer_t::get_headquarters(0,welt->get_timeline_year_month())!=NULL) {
 
-		headquarter.init(button_t::roundbox, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", scr_coord(582-12-120, 0), scr_size(120, BUTTONSPACE));
+		headquarter.init(button_t::roundbox, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", scr_coord(582-12-120, top0), scr_size(120, BUTTONSPACE));
 		headquarter.add_listener(this);
 		add_component(&headquarter);
 		headquarter.set_tooltip( NULL );
@@ -389,10 +395,11 @@ money_frame_t::money_frame_t(player_t *player)
 	if(old_pos!=koord::invalid) {
 		headquarter_view.set_location( welt->lookup_kartenboden( player->get_headquarter_pos() )->get_pos() );
 	}
-	headquarter_view.set_pos( scr_coord(582-12-120, BUTTONSPACE) );
+	headquarter_view.set_pos( scr_coord(582-12-120, top0 + BUTTONSPACE) );
 	add_component(&headquarter_view);
 
 	// add filter buttons
+	top -= (BUTTONSPACE-LINESPACE) / 2;
 	for(int ibutton=0;  ibutton<9;  ibutton++) {
 		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], scr_coord(left, top+ibutton*BUTTONSPACE-2), scr_size(120, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
@@ -418,7 +425,7 @@ money_frame_t::money_frame_t(player_t *player)
 		}
 	}
 
-	transport_type_c.set_pos( scr_coord(left+335-12-2, 0) );
+	transport_type_c.set_pos( scr_coord(left+335-12-2, top0) );
 	transport_type_c.set_size( scr_size(116,D_BUTTON_HEIGHT) );
 	transport_type_c.set_max_size( scr_size( 116, 1*BUTTONSPACE ) );
 	for(int i=0, count=0; i<TT_MAX; ++i) {
@@ -434,7 +441,7 @@ money_frame_t::money_frame_t(player_t *player)
 
 	set_focus( &transport_type_c );
 
-	set_windowsize(scr_size(582, 340));
+	set_windowsize(scr_size(582, top + 20*BUTTONSPACE));
 }
 
 

@@ -12,12 +12,6 @@
 #include "squserdata.h"
 #include "sqclass.h"
 
-//SQObjectPtr _null_;
-//SQObjectPtr _true_(true);
-//SQObjectPtr _false_(false);
-//SQObjectPtr _one_((SQInteger)1);
-//SQObjectPtr _minusone_((SQInteger)-1);
-
 SQSharedState::SQSharedState()
 {
 	_compilererrorhandler = NULL;
@@ -282,7 +276,6 @@ SQInteger SQSharedState::ResurrectUnreachable(SQVM *vm)
 
 	SQCollectable *resurrected = _gc_chain;
 	SQCollectable *t = resurrected;
-	//SQCollectable *nx = NULL;
 
 	_gc_chain = tchain;
 

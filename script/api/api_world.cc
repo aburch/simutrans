@@ -89,6 +89,10 @@ SQInteger world_get_attraction_list(HSQUIRRELVM vm)
 	return push_instance(vm, "attraction_list_x");
 }
 
+SQInteger world_get_attraction_count(HSQUIRRELVM vm)
+{
+	return param<uint32>::push(vm, welt->get_attractions().get_count());
+}
 
 SQInteger world_get_convoy_list(HSQUIRRELVM vm)
 {
@@ -333,6 +337,11 @@ void export_world(HSQUIRRELVM vm)
 	 * Meta-method to be used in foreach loops to loop over all attractions on the map. Do not call it directly.
 	 */
 	register_method(vm,   world_attraction_list_get,   "_get", true);
+	/**
+	 * Returns number of attractions in the list.
+	 * @typemask integer()
+	 */
+	register_function(vm, world_get_attraction_count, "get_count",  1, "x");
 
 	end_class(vm);
 }

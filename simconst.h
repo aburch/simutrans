@@ -5,6 +5,9 @@
 #ifndef simconst_h
 #define simconst_h
 
+// color depth (default assumes RGB565), undefine only for rgb555 builds!
+//#define RGB555
+
 // number of player
 #define MAX_PLAYER_COUNT (16)
 #define PLAYER_UNOWNED (15)

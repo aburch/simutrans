@@ -68,6 +68,15 @@ int searchfolder_t::search_path(const std::string &filepath, const std::string &
 	std::string lookfor;
 	std::string ext;
 
+#ifdef _WIN32
+	// since we assume hardcoded path are using / we need to correct this for windows
+	for(  int i=0;  i<path.size();  i++  ) {
+		if(  path[i]=='\\'  ) {
+			path[i] = '/';
+		}
+	}
+#endif
+
 	if(extension.empty()) {
 		//path=name;
 		name = std::string("*");
@@ -140,8 +149,21 @@ int searchfolder_t::search_path(const std::string &filepath, const std::string &
 	return files.get_count();
 }
 
+
+#ifdef _WIN32
+std::string searchfolder_t::complete(const std::string &filepath_raw, const std::string &extension)
+{
+	std::string filepath(filepath_raw);
+	// since we assume hardcoded path are using / we need to correct this for windows
+	for(  int i=0;  i<filepath.size();  i++  ) {
+		if(  filepath[i]=='\\'  ) {
+			filepath[i] = '/';
+		}
+	}
+#else
 std::string searchfolder_t::complete(const std::string &filepath, const std::string &extension)
 {
+#endif
 	if(filepath[filepath.size() - 1] != '/') {
 		int slash = filepath.rfind('/');
 		int dot = filepath.rfind('.');

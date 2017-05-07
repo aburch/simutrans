@@ -212,6 +212,17 @@ static char const* tooltip_with_price_maintenance_capacity(karte_t* const welt, 
 }
 
 
+void open_error_msg_win(const char* error)
+{
+	koord pos = message_t::get_coord_from_text(error);
+	if (pos != koord::invalid) {
+		create_win( new news_loc(error, pos), w_time_delete, magic_none);
+	}
+	else {
+		create_win( new news_img(error), w_time_delete, magic_none);
+	}
+}
+
 
 /**
  * sucht Haltestelle um Umkreis +1/-1 um (pos, b, h)
@@ -3390,7 +3401,7 @@ void tool_build_wayobj_t::mark_tiles( player_t* player, const koord3d &start, co
 				if( wayobj ) {
 					show = show | wayobj->get_dir();
 					// Already a catenary here -> costs only, if new catenary is faster
-					if(  wayobj->get_desc()->get_topspeed() >= desc->get_topspeed()  &&  keep_existing_faster_ways) {
+					if(  (wayobj->get_desc()->get_topspeed() >= desc->get_topspeed()  &&  keep_existing_faster_ways)  || wayobj->get_desc() == desc ) {
 						cost_estimate -= desc->get_price();
 					}
 				}
@@ -6602,18 +6613,29 @@ static bool scenario_check_schedule(karte_t *welt, player_t *player, schedule_t 
 	const char* err = welt->get_scenario()->is_schedule_allowed(player, schedule);
 	if (err) {
 		if (*err  &&  local) {
-			koord pos = message_t::get_coord_from_text(err);
-			if (pos != koord::invalid) {
-				create_win( new news_loc(err, pos), w_time_delete, magic_none);
-			}
-			else {
-				create_win( new news_img(err), w_time_delete, magic_none);
-			}
+			open_error_msg_win(err);
 		}
 		return false;
 	}
 	return true;
 }
+
+
+bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, depot_t* depot, bool local)
+{
+	if (!is_scenario()) {
+		return true;
+	}
+	const char* err = welt->get_scenario()->is_convoy_allowed(player, cnv, depot);
+	if (err) {
+		if (*err  &&  local) {
+			open_error_msg_win(err);
+		}
+		return false;
+	}
+	return true;
+}
+
 
 
 /* Handles all action of convois in depots. Needs a default param:

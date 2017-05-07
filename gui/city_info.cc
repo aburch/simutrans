@@ -59,7 +59,7 @@ city_info_t::city_info_t(stadt_t* city) :
 
 	// add city name input field
 	name_input.set_pos(scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP));
-	name_input.set_size(scr_size(2*D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	name_input.set_size(scr_size(2*D_BUTTON_WIDTH, D_EDIT_HEIGHT));
 	name_input.add_listener( this );
 	add_component(&name_input);
 
@@ -310,7 +310,7 @@ void city_info_t::draw(scr_coord pos, scr_size size)
 	buf.append( c->get_homeless(), 0 );
 
 	display_multiline_text_rgb(pos.x + D_MARGIN_LEFT,
-		pos.y+D_TITLEBAR_HEIGHT + D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE, buf, SYSCOL_TEXT );
+		pos.y+D_TITLEBAR_HEIGHT + D_MARGIN_TOP+D_EDIT_HEIGHT+D_V_SPACE, buf, SYSCOL_TEXT );
 
 	const uint32 current_pax_destinations = c->get_pax_destinations_new_change();
 	if(  pax_destinations_last_change > current_pax_destinations  ) {

@@ -166,7 +166,7 @@ class prototyper_t extends node_t
 
 			// check if convoy finished
 			if (test.can_be_last()  &&  !c.missing_freight  &&  c.min_top_speed >= min_speed) {
-				// TODO valuate this candidate
+				// evaluate this candidate
 				if (valuate) {
 					local value = valuate.call(getroottable(), c)
 // 					print(" === " + value)
@@ -232,7 +232,7 @@ class valuator_simple_t {
 		local tpm = convoy_x.speed_to_tiles_per_month(speed) / 2 + 1
 
 		// needed convoys to transport everything
-		local n1 = volume * 2 * distance / (tpm * cnv.capacity)
+		local n1 = max(1, volume * 2 * distance / (tpm * cnv.capacity))
 
 		// realistic number of convoys
 		local ncnv = min(n1, min(max_cnvs, max(distance / 8, 3) ) )
@@ -250,7 +250,7 @@ class valuator_simple_t {
 		}
 
 		// monthly costs and revenue
-		local value = ncnv*( (frev*cnv.capacity+1500)/3000*tpm/2 - cnv.running_cost*tpm - cnv.maintenance) - distance * way_maintenance
+		local value = ncnv*( (frev*cnv.capacity+1500)/3000*tpm - cnv.running_cost*tpm - cnv.maintenance) - distance * way_maintenance
 
 		return value
 	}

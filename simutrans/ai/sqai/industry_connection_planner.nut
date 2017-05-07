@@ -53,7 +53,10 @@ class industry_connection_planner_t extends node_t
 
 		if (planned_convoy == null) {
 			if (prototyper.step().has_failed()) {
-				return r_t(RT_ERROR)
+				dbgprint("Set link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y + " to MISSING")
+
+				industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_missing)
+				return r_t(RT_TOTAL_FAIL)
 			}
 
 			planned_convoy = prototyper.best
@@ -105,7 +108,11 @@ class industry_connection_planner_t extends node_t
 		}
 
 		if (planned_convoy == null  ||  planned_way == null || planned_station == null || planned_depot == null) {
-			return r_t(RT_ERROR)
+
+			dbgprint("Set link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y + " to MISSING")
+
+			industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_missing)
+			return r_t(RT_TOTAL_FAIL)
 		}
 
 		// successfull - complete report

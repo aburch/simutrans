@@ -30,6 +30,12 @@ SQInteger get_object_index(HSQUIRRELVM vm)
 	return param<obj_t*>::push(vm, obj);
 }
 
+SQInteger get_object_count(HSQUIRRELVM vm)
+{
+	grund_t *gr = param<grund_t*>::get(vm, 1);
+	return param<uint8>::push(vm, gr ? gr->get_top() : 0);
+}
+
 call_tool_work tile_remove_object(grund_t* gr, player_t* player, obj_t::typ type)
 {
 	cbuffer_t buf;
@@ -245,6 +251,11 @@ void export_tiles(HSQUIRRELVM vm)
 	 * Meta-method to be used in foreach loops to loop over all objects on the tile. Do not call it directly.
 	 */
 	register_function(vm, get_object_index, "_get",    2, "x i|s");
+	/**
+	 * Returns number of objects on the tile.
+	 * @typemask integer()
+	 */
+	register_function(vm, get_object_count, "get_count",  1, "x");
 
 	end_class(vm);
 

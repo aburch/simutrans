@@ -134,6 +134,7 @@ BEGIN {
 	export_types["good_desc_x::get_weight_per_unit"] = "integer()"
 	export_types["good_desc_x::calc_revenue"] = "integer(way_types, integer)"
 	export_types["::open_info_win"] = "bool()"
+	export_types["::open_info_win_at"] = "bool(string)"
 	export_types["gui::add_message_at"] = "void(string, coord)"
 	export_types["gui::add_message"] = "string(player_x, string)"
 	export_types["halt_x::get_name"] = "string()"

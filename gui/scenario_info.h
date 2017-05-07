@@ -34,7 +34,7 @@ private:
 
 	void update_dynamic_texts(gui_flowtext_t &flow, dynamic_string &text, scr_size size, bool init);
 
-
+	uint16 get_tab_index(const char* which);
 public:
 	scenario_info_t();
 
@@ -58,7 +58,7 @@ public:
 
 	void update_scenario_texts(bool init);
 
-	void open_result_tab();
+	void open_tab(const char* which);
 };
 
 #endif

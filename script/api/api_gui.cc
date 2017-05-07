@@ -33,6 +33,10 @@ call_tool_init add_scenario_message(player_t* player, const char* text)
 	return call_tool_init(TOOL_ADD_MESSAGE | SIMPLE_TOOL, (const char*)buf, 0, player ? player : welt->get_active_player());
 }
 
+bool open_info_win_result(scenario_t* scen)
+{
+	return scen->open_info_win();
+}
 
 void export_gui(HSQUIRRELVM vm, bool scenario)
 {
@@ -43,10 +47,17 @@ void export_gui(HSQUIRRELVM vm, bool scenario)
 
 	if (scenario) {
 		/**
-		* Opens scenario info window.
-		* @note Only available in scenario mode.
-		*/
-		STATIC register_method(vm, &scenario_t::open_info_win, "open_info_win");
+		 * Opens scenario info window and shows 'result' tab.
+		 * @note Only available in scenario mode.
+		 */
+		STATIC register_method(vm, &open_info_win_result, "open_info_win", true);
+
+		/**
+		 * Opens scenario info window with specific tab open.
+		 * @param tab possible values are "info", "goal", "rules", "result", "about"
+		 * @note Only available in scenario mode.
+		 */
+		STATIC register_method(vm, &scenario_t::open_info_win, "open_info_win_at");
 
 		/**
 		* Adds message to the players mailboxes.

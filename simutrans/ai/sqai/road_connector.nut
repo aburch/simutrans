@@ -38,21 +38,22 @@ class road_connector_t extends manager_t
 					c_end   = find_station_place(fdest, c_start, true)
 				}
 
-				if (c_start  &&  c_end) {
+				if (c_start.len()>0  &&  c_end.len()>0) {
 					phase ++
 				}
 				else {
+					print("No station places found")
+					error_handler()
 					return r_t(RT_TOTAL_FAIL)
 				}
 			case 1: // build way
 				{
 					sleep()
 					local d = pl.get_current_cash();
-					local w = command_x(tool_build_way);
-					local err = w.work(pl, c_start, c_end, planned_way.get_name() )
+					local err = construct_road(pl, c_start, c_end, planned_way )
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
 					if (err) {
-						print("Failed to build way from " + coord_to_string(c_start)+ " to " + coord_to_string(c_end))
+						print("Failed to build way from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]))
 						error_handler()
 						return r_t(RT_TOTAL_FAIL)
 					}
@@ -83,12 +84,14 @@ class road_connector_t extends manager_t
 					phase ++
 				}
 			case 3: // find depot place
-				c_depot = find_depot_place(c_start, c_start)
-				if (c_depot) {
-					phase ++
-				}
-				else  {
-					return r_t(RT_TOTAL_FAIL)
+				{
+					local err = construct_road_to_depot(pl, c_start, planned_way)
+					if (err) {
+						print("Failed to build depot access from " + coord_to_string(c_start))
+						error_handler()
+						return r_t(RT_TOTAL_FAIL)
+					}
+					phase += 2
 				}
 			case 4: // build way to depot
 				{
@@ -236,18 +239,41 @@ class road_connector_t extends manager_t
 		return best
 	}
 
+	function find_empty_places(area)
+	{
+		local list = []
+		// check for flat and empty ground
+		for(local i = 0; i<area.len(); i++) {
+
+			local h = area[i]
+			if (i>0  &&  h == area[i-1]) continue;
+
+			local x = h >> 16
+			local y = h & 0xffff
+
+			if (world.is_coord_valid({x=x,y=y})) {
+				local tile = square_x(x, y).get_ground_tile()
+
+				if (tile.is_empty()  &&  tile.get_slope()==0) {
+					list.append(tile)
+				}
+			}
+		}
+		return list.len() > 0 ?  list : []
+	}
+
 	function find_station_place(factory, target, unload = false)
 	{
 		if (unload) {
 			// try unload station from station manager
 			local res = ::station_manager.access_freight_station(factory).road_unload
 			if (res) {
-				return res
+				return [res]
 			}
 		}
 		local area = get_tiles_near_factory(factory)
 
-		return find_empty_place(area, target)
+		return find_empty_places(area)
 	}
 
 	function find_depot_place(start, target)
@@ -322,4 +348,79 @@ class road_connector_t extends manager_t
 		}
 		return find_empty_place(area, target)
 	}
+
+	function construct_road(pl, starts, ends, way)
+	{
+		local as = astar_builder()
+		as.builder = way_planner_x(pl)
+		as.way = way
+		as.builder.set_build_types(way)
+		as.bridger = pontifex(pl, way)
+		if (as.bridger.bridge == null) {
+			as.bridger = null
+		}
+		local res = as.search_route(starts, ends)
+
+		if ("err" in res) {
+			return res.err
+		}
+		c_start = res.start
+		c_end   = res.end
+	}
+
+	function construct_road_to_depot(pl, start, way)
+	{
+		local as = depot_pathfinder()
+		as.builder = way_planner_x(pl)
+		as.way = way
+		as.builder.set_build_types(way)
+		local res = as.search_route(start)
+
+		if ("err" in res) {
+			return res.err
+		}
+		local d = res.end
+		c_depot = tile_x(d.x, d.y, d.z)
+	}
 }
+
+
+class depot_pathfinder extends astar_builder
+{
+	function estimate_distance(c)
+	{
+		local t = tile_x(c.x, c.y, c.z)
+		if (t.is_empty()  &&  t.get_slope()==0) {
+			return 0
+		}
+		return 10
+	}
+	function search_route(start)
+	{
+		prepare_search()
+
+		local dist = estimate_distance(start)
+		add_to_open(ab_node(start, null, 1, dist+1, dist, 0), dist+1)
+
+		search()
+
+		if (route.len() > 0) {
+			local w = command_x(tool_build_way);
+			w.set_flags(2)
+
+			for (local i = 1; i<route.len(); i++) {
+				local err = w.work(our_player, route[i-1], route[i], way.get_name() )
+				if (err) {
+					label_x.create(node, our_player, "<" + err + ">")
+					return { err =  err }
+				}
+			}
+			return { start = route[ route.len()-1], end = route[0] }
+		}
+		print("No route found")
+		return { err =  "No route" }
+	}
+}
+
+
+
