@@ -177,6 +177,14 @@ name=underground_signal
 note=This text shows in the signal info panel when the signal is underground
 -
 obj=program_text
+name=double_block_signal
+note=This text shows in the signal info panel when the signal is a double block signal
+-
+obj=program_text
+name=this_signal_will_not_clear_until_next_signal_is_clear
+note=This text shows in the signal info panel when the signal is a double block signal
+-
+obj=program_text
 name=max_dist_between_signals
 note=This text shows on moving block signals and refers to the max distance to signalbox value. for moving blocks, however, this value represents the distance between signals before changing to drive by sight
 -

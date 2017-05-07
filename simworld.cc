@@ -2993,7 +2993,6 @@ void karte_t::set_scale()
 	}
 
 	// Signs and signals
-
 	roadsign_t::set_scale(scale_factor);
 
 	// Settings

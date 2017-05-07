@@ -143,6 +143,11 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(translator::translate("choose_signal"));
 		buf.append("\n");
 	}
+	if (desc->get_double_block() == true)
+	{
+		buf.append(translator::translate("double_block_signal"));
+		buf.append("\n");
+	}
 	if (desc->is_longblock_signal() && (desc->get_working_method() == time_interval || desc->get_working_method() == time_interval_with_telegraph || desc->get_working_method() == absolute_block))
 	{
 		buf.append(translator::translate("station_signal"));
@@ -387,6 +392,11 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		buf.append(translator::translate("\n\n"));
 	}
 
+	if (desc->get_double_block() == true)
+	{
+		buf.append(translator::translate("this_signal_will_not_clear_until_next_signal_is_clear"));
+		buf.append(translator::translate("\n\n"));
+	}
 
 	// Deal with station signals where the time since the train last passed is standardised for the whole station.
 	halthandle_t this_tile_halt = haltestelle_t::get_halt(sig->get_pos(), get_owner()); 

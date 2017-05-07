@@ -36,7 +36,7 @@ public:
 
 	static const goods_desc_t *passengers;
 	static const goods_desc_t *mail;
-	static const goods_desc_t *none; //"Nothing".
+	static const goods_desc_t *none; 
 
 	static bool successfully_loaded();
 	static bool register_desc(goods_desc_t *desc);

@@ -160,14 +160,19 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 	}
 	
 	desc = b;
-	// Add the new maintenance cost
-	sint32 maint = get_desc()->get_maintenance();
-	if(is_diagonal())
+	if (!from_saved_game)
 	{
-		maint *= 10;
-		maint /= 14;
+		// Add the new maintenance cost
+		// Do not set this here if loading a saved game,
+		// as this is already set in finish_rd
+		sint32 maint = get_desc()->get_maintenance();
+		if (is_diagonal())
+		{
+			maint *= 10;
+			maint /= 14;
+		}
+		player_t::add_maintenance(get_owner(), maint, get_desc()->get_finance_waytype());
 	}
-	player_t::add_maintenance(get_owner(), maint, get_desc()->get_finance_waytype());
 
 	grund_t* gr = welt->lookup(get_pos());
 	if(!gr)
@@ -1094,7 +1099,7 @@ void weg_t::check_diagonal()
 	ribi_t::ribi r2 = ribi_t::none;
 
 	// get the ribis of the ways that connect to us
-	// r1 will be 45 degree clockwise ribi (eg nordost->east), r2 will be anticlockwise ribi (eg nordost->north)
+	// r1 will be 45 degree clockwise ribi (eg northeast->east), r2 will be anticlockwise ribi (eg northeast->north)
 	if(  from->get_neighbour(to, get_waytype(), ribi_t::rotate45(ribi))  ) {
 		r1 = to->get_weg_ribi_unmasked(get_waytype());
 	}

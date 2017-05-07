@@ -31,7 +31,7 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		(obj.get_int("is_longblocksignal", 0) > 0 ? roadsign_desc_t::SIGN_LONGBLOCK_SIGNAL : roadsign_desc_t::NONE) |
 		(obj.get_int("end_of_choose",      0) > 0 ? roadsign_desc_t::END_OF_CHOOSE_AREA    : roadsign_desc_t::NONE);
 	
-	uint8 allow_underground = obj.get_int("allow_underground", 0);
+	uint8 allow_underground = obj.get_int("allow_underground", 2);
 
 	if(allow_underground > 2)
 	{
