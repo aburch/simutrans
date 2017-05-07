@@ -452,7 +452,8 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 		lb_spacing.set_pos( scr_coord( 10, ypos+2 ) );
 		add_component(&lb_spacing);
 		numimp_spacing.set_pos( scr_coord( BUTTON3_X, ypos+2 ) );
-		numimp_spacing.set_width( 60 );
+		//numimp_spacing.set_width( 60 );
+		numimp_spacing.set_width_by_len(3);
 		numimp_spacing.set_value( schedule->get_spacing() );
 		numimp_spacing.set_limits( 0, 999 );
 		numimp_spacing.set_increment_mode( 1 );
@@ -463,10 +464,11 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 		int spacing_shift_mode = welt->get_settings().get_spacing_shift_mode();
 		if ( spacing_shift_mode > settings_t::SPACING_SHIFT_DISABLED) {
 			numimp_spacing_shift.set_pos( scr_coord( numimp_spacing.get_pos().x + numimp_spacing.get_size().w + D_H_SPACE, ypos+2 ) );
-			numimp_spacing_shift.set_width( 60 );
+			//numimp_spacing_shift.set_width( 60 );
+			numimp_spacing_shift.set_width_by_len(3);
 			numimp_spacing_shift.set_value( schedule->get_current_eintrag().spacing_shift  );
 			numimp_spacing_shift.set_limits( 0,welt->get_settings().get_spacing_shift_divisor() );
-			numimp_spacing_shift.set_increment_mode(1); 
+			numimp_spacing_shift.set_increment_mode( 1 ); 
 			numimp_spacing_shift.add_listener(this);
 			add_component(&numimp_spacing_shift);
 		}
@@ -574,9 +576,7 @@ void schedule_gui_t::update_selection()
 	lb_spacing.set_color( COL_GREY3 );
 	lb_spacing_as_clock.set_color( COL_GREY3 );
 	numimp_spacing.disable();
-	numimp_spacing.set_value(0);
 	numimp_spacing_shift.disable();
-	numimp_spacing_shift.set_value(0);
 	sprintf(str_spacing_as_clock, "%s", translator::translate("off") );
 	lb_spacing_shift.set_color( COL_GREY3 );
 	lb_spacing_shift_as_clock.set_color( COL_GREY3 );
@@ -610,8 +610,6 @@ void schedule_gui_t::update_selection()
 				lb_spacing.set_color( SYSCOL_TEXT );
 				numimp_spacing.enable();
 				numimp_spacing_shift.enable();
-				numimp_spacing.set_value(schedule->get_spacing());
-				numimp_spacing_shift.set_value(schedule->entries[current_stop].spacing_shift);
 				if (schedule->get_spacing() ) {
 					lb_spacing_shift.set_color( SYSCOL_TEXT );
 					lb_spacing_as_clock.set_color( SYSCOL_TEXT );
