@@ -555,11 +555,15 @@ void convoi_t::finish_rd()
 							step_pos += ribi_t::is_bend(v->get_direction()) ? diagonal_vehicle_steps_per_tile : VEHICLE_STEPS_PER_TILE;
 						}
 						DBG_MESSAGE("convoi_t::finish_rd()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_desc()->get_length()*16, v->get_direction(),  drive_pos.get_2d().get_str(), step_pos);
+						/*
+						// This causes convoys re-loading from diagonal tiles to fail in Simutrans-Extended
+						// and no longer seems to be necessary. This might conceivably also cause network
+						// desyncs in some cases, although this has not been tested. 
 						if(  abs( v->get_steps() - step_pos )>15  ) {
 							// not where it should be => realing
 							realing_position = true;
 							dbg->warning( "convoi_t::finish_rd()", "convoi (%s) is broken => realign", get_name() );
-						}
+						}*/
 					}
 					step_pos -= v->get_desc()->get_length_in_steps();
 					drive_pos = v->get_pos();
@@ -1492,6 +1496,8 @@ bool convoi_t::drive_to()
 				// due to the complex state system of aircrafts, we have to save index and state
 				plane->get_event_index( plane_state, takeoff, search, landing );
 			}
+
+			ziel = schedule->get_current_eintrag().pos;
 
 			// set next schedule target position if next is a waypoint
 			if(  is_waypoint(ziel)  ) {
@@ -5680,8 +5686,17 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	}
 	else
 	{
+		
+		if (loading_level < loading_limit && !wait_for_time)
+		{
+			wait_lock = (earliest_departure_time - now) / 2;
+		}
+		else
+		{
+			wait_lock = (go_on_ticks - now) / 2;
+		}
 		// The random extra wait here is designed to avoid processing every convoy at once
-		wait_lock = (go_on_ticks - now) / 2 + (self.get_id()) % 1024;
+		wait_lock += (self.get_id()) % 1024;
 		if (wait_lock < 0 )
 		{
 			wait_lock = 0;

@@ -5858,6 +5858,11 @@ built_sign:
 // Build signalboxes
 const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, const building_desc_t* desc, sint64 cost)
 {
+	if (cost == PRICE_MAGIC)
+	{
+		cost = -welt->get_settings().cst_multiply_station * desc->get_level();
+	}
+	
 	if ( !player_t::can_afford(player, -cost) ) {
 		return NOTICE_INSUFFICIENT_FUNDS;
 	}
@@ -5986,7 +5991,7 @@ image_id tool_signalbox_t::get_icon(player_t* player) const
 
 char const* tool_signalbox_t::get_tooltip(player_t const*) const
 {
-	building_desc_t const* desc    = hausbauer_t::find_tile(default_param, 0)->get_desc();
+	building_desc_t const* desc = hausbauer_t::find_tile(default_param, 0)->get_desc();
 	if (desc == NULL) 
 	{
 		return NULL;
@@ -5994,7 +5999,24 @@ char const* tool_signalbox_t::get_tooltip(player_t const*) const
 	char tip[256];
 	sprintf(tip, "%s, %s: %i%s, %s: %i", translator::translate(desc->get_name()), translator::translate("Radius"), desc->get_radius(), translator::translate("m"), translator::translate("Max. signals"), desc->get_capacity());
 
-	return tooltip_with_price_maintenance(welt, tip, -desc->get_price(), desc->get_maintenance());
+	sint64 price = desc->get_price();
+	sint64 maintenance = desc->get_maintenance();
+
+	if (price == PRICE_MAGIC)
+	{
+		price = desc->get_level() * world()->get_settings().cst_multiply_station; 
+	}
+	else
+	{
+		price = -price;
+	}
+
+	if (maintenance == PRICE_MAGIC)
+	{
+		maintenance = desc->get_level() * world()->get_settings().maint_building;
+	}
+
+	return tooltip_with_price_maintenance(welt, tip, price, maintenance);
 }
 
 const char* tool_signalbox_t::check_pos(player_t *, koord3d pos)
@@ -7278,12 +7300,22 @@ const char *tool_reassign_signal_t::do_work( player_t *player, const koord3d &la
 	{
 		koord3d sb_location = sig->get_signalbox();
 		grund_t* gr_sb = welt->lookup(sb_location);
-		gebaeude_t* gb_sb = gr_sb->get_building()->access_first_tile();
+		gebaeude_t* building_x = gr_sb->get_building();
+		gebaeude_t* building_sb = building_x ? building_x->access_first_tile() : NULL;
 		signalbox_t* sb = NULL;
-		if(gb_sb && gb_sb->get_tile()->get_desc()->is_signalbox())
+		if(sb_end && building_sb && building_sb->get_tile()->get_desc()->is_signalbox())
 		{
-			sb = (signalbox_t*)gb_sb;
+			sb = (signalbox_t*)building_sb;
 			if(sb_end->transfer_signal(sig, sb))
+			{
+				return "";
+			}
+		}
+		else if (sb_end)
+		{
+			// It is theoretically possible that a player might transfer a signal
+			// not assigned to a signalbox to a signalbox. Account for this here.
+			if (sb_end->add_signal(sig))
 			{
 				return "";
 			}

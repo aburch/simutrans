@@ -25,7 +25,7 @@ void goods_reader_t::register_obj(obj_desc_t *&data)
 
 bool goods_reader_t::successfully_loaded() const
 {
-	return goods_manager_t::successfully_loaded(); //"Alles geladen" = "Everything laoded" (Babelfish)
+	return goods_manager_t::successfully_loaded(); 
 }
 
 

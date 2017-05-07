@@ -1589,7 +1589,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 
 	// Reduce speed for overweight vehicles
 
-	if((highest_axle_load > max_axle_load || total_weight > bridge_weight_limit) && welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3)
+	if((highest_axle_load > max_axle_load || total_weight > bridge_weight_limit) && (welt->get_settings().get_enforce_weight_limits() == 1 || welt->get_settings().get_enforce_weight_limits() == 3))
 	{
 		if((max_axle_load != 0 && (highest_axle_load * 100) / max_axle_load <= 110) && (bridge_weight_limit != 0 && (total_weight * 100) / bridge_weight_limit <= 110))
 		{
@@ -1674,7 +1674,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		{
 			// A 180 degree curve can be made in a minimum of 4 tiles and will have a minimum radius of half the meters_per_tile value
 			// The steps_to_x values are the *manhattan* distance, which is exactly twice the actual radius. Thus, halve this here.
-			steps_to_180 /= 2;
+			steps_to_180 = max(1, steps_to_180 / 2);
 
 			radius = (steps_to_180 * meters_per_tile) / 2;
 			// See here for formula: https://books.google.co.uk/books?id=NbYqQSQcE2MC&pg=PA30&lpg=PA30&dq=curve+radius+speed+limit+formula+rail&source=imglist&ots=mbfC3lCnX4&sig=qClyuNSarnvL-zgOj4HlTVgYOr8&hl=en&sa=X&ei=sBGwVOSGHMyBU4mHgNAC&ved=0CCYQ6AEwATgK#v=onepage&q=curve%20radius%20speed%20limit%20formula%20rail&f=false
@@ -1685,7 +1685,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		{
 			// A 135 degree curve can be made in a minimum of 4 tiles and will have a minimum radius of 2/3rds the meters_per_tile value
 			// The steps_to_x values are the *manhattan* distance, which is exactly twice the actual radius. Thus, halve this here.
-			steps_to_135 /= 2;
+			steps_to_135 = max(1, steps_to_135 / 2);
 
 			radius = ((steps_to_135 * meters_per_tile) * 2) / 3;
 			corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
@@ -1695,7 +1695,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		{
 			// A 90 degree curve can be made in a minimum of 3 tiles and will have a minimum radius of the meters_per_tile value
 			// The steps_to_x values are the *manhattan* distance, which is exactly twice the actual radius. Thus, halve this here.
-			steps_to_90 /= 2;
+			steps_to_90 = max(1, steps_to_90 / 2);
 
 			radius = steps_to_90 * meters_per_tile;
 			corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
@@ -4706,7 +4706,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 					}
 
-					if((next_signal_working_method == drive_by_sight || one_train_staff_loop_complete || (working_method != one_train_staff && (first_one_train_staff_index < INVALID_INDEX && first_one_train_staff_index > start_index))) && first_double_block_signal_index != last_stop_signal_index)
+					if(next_signal_working_method == drive_by_sight || one_train_staff_loop_complete || ((working_method != one_train_staff && (first_one_train_staff_index < INVALID_INDEX && first_one_train_staff_index > start_index))) && first_double_block_signal_index != last_stop_signal_index)
 					{
 						// Do not reserve through end of signalling signs or one train staff cabinets
 						next_signal_index = i;
@@ -4766,8 +4766,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							}
 
 							// Sometimes the signal's state might be incorrect (e.g. if it was formerly incorrectly registered as protecting a junction),
-							// so set it here to correct in so far as necessary. 
-							signal->set_state(next_time_interval_state);
+							// so set it here to correct in so far as necessary (but only if it is on plain track, otherwise this will need to be set
+							// separately). 
+							if (signal->get_no_junctions_to_next_signal())
+							{
+								signal->set_state(next_time_interval_state);
+							}
 
 							if (first_double_block_signal_index < INVALID_INDEX && first_double_block_signal_index == last_stop_signal_index)
 							{					
