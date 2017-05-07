@@ -5625,7 +5625,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					grund_t* const signal_ground = welt->lookup(last_choose_pos);
 					if (signal_ground)
 					{
-						signs.append(signal_ground);
+						signs.append_unique(signal_ground);
 					}
 				}
 			}
