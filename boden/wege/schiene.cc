@@ -97,22 +97,9 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 		buf.append(translator::translate(reserved->get_name()));
 		buf.append("\n   ");
 
-<<<<<<< HEAD
+
 //		if (get_desc()->get_styp() == monorail_wt || maglev_wt || tram_wt || narrowgauge_wt)
 
-		
-
-			rail_vehicle_t* rail_vehicle = NULL;
-			switch (reserved->front()->get_waytype())
-			{
-			case track_wt:
-			case narrowgauge_wt:
-			case tram_wt:
-			case monorail_wt:
-			case maglev_wt:
-				rail_vehicle = (rail_vehicle_t*)reserved->front();
-			}
-=======
 		rail_vehicle_t* rail_vehicle = NULL;
 		switch (reserved->front()->get_waytype())
 		{
@@ -125,12 +112,11 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 		}
 		if (rail_vehicle)
 		{
->>>>>>> refs/remotes/origin/master
+
 			buf.append(translator::translate(get_working_method_name(rail_vehicle->get_working_method())));
 			textlines += 1;
 			buf.append("\n   ");
 
-<<<<<<< HEAD
 
 			// We dont need to specify if the reservation is a "block" type. Only show the two other more interresting reservation types
 			if (get_reservation_type() != block) {
@@ -150,7 +136,6 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 			buf.append(": ");
 			textlines += 1;
 
-=======
 			// We dont need to specify if the reservation is a "block" type. Only show the two other more interresting reservation types
 			if (get_reservation_type() != block) {
 				buf.append(translator::translate(get_reservation_type_name(get_reservation_type())));
@@ -169,7 +154,6 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 			buf.append(": ");
 			textlines += 1;
 
->>>>>>> refs/remotes/origin/master
 			koord3d vehpos = reserved->get_pos();
 			koord3d schpos = sch->get_pos();
 			const uint32 tiles_to_vehicle = shortest_distance(schpos.get_2d(), vehpos.get_2d());
@@ -208,10 +192,8 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 			buf.append(" (");
 			buf.append(translator::translate(get_directions_name(vehicle->get_direction())));
 			buf.append(")");
-<<<<<<< HEAD
-=======
+
 		}
->>>>>>> refs/remotes/origin/master
 
 #ifdef DEBUG_PBS
 			reserved->show_info();
