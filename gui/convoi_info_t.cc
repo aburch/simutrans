@@ -440,11 +440,16 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		{
 		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 		case convoi_t::WAITING_FOR_CLEARANCE:
+
+			sprintf(speed_text, translator::translate("Waiting for clearance!"));
+			speed_color = COL_YELLOW;
+			break;
+
 		case convoi_t::CAN_START:
 		case convoi_t::CAN_START_ONE_MONTH:
 
 			sprintf(speed_text, translator::translate("Waiting for clearance!"));
-			speed_color = COL_YELLOW;
+			speed_color = COL_BLACK;
 			break;
 
 		case convoi_t::EMERGENCY_STOP:
@@ -460,23 +465,27 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			if (cnv->get_schedule()->get_current_eintrag().wait_for_time)
 			{
 				sprintf(speed_text, translator::translate("Waiting for schedule. %s left"), waiting_time);
+				speed_color = COL_YELLOW;
 			}
 			else if (cnv->get_loading_limit())
 			{
 				if (!cnv->is_wait_infinite() && strcmp(waiting_time, "0:00"))
 				{
 					sprintf(speed_text, translator::translate("Loading (%i->%i%%), %s left!"), cnv->get_loading_level(), cnv->get_loading_limit(), waiting_time);
+					speed_color = COL_YELLOW;
 				}
 				else
 				{
 					sprintf(speed_text, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit());
+					speed_color = COL_YELLOW;
 				}
 			}
 			else
 			{
 				sprintf(speed_text, translator::translate("Loading. %s left!"), waiting_time);
+				speed_color = COL_BLACK;
 			}
-			speed_color = COL_YELLOW;
+			
 			break;
 
 		case convoi_t::REVERSING:
@@ -484,7 +493,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			char reversing_time[64];
 			cnv->snprintf_remaining_reversing_time(reversing_time, sizeof(reversing_time));
 			sprintf(speed_text, translator::translate("Reversing. %s left"), reversing_time);
-			speed_color = COL_YELLOW;
+			speed_color = COL_BLACK;
 			break;
 
 		case convoi_t::CAN_START_TWO_MONTHS:
