@@ -436,13 +436,22 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		COLOR_VAL speed_color = COL_BLACK;
 		const int pos_y = pos_y0; // line 1
 		char speed_text[256];
+		const air_vehicle_t* air = (const air_vehicle_t*)this;
 		switch (cnv->get_state())
 		{
 		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 		case convoi_t::WAITING_FOR_CLEARANCE:
 
-			sprintf(speed_text, translator::translate("Waiting for clearance!"));
-			speed_color = COL_YELLOW;
+			if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
+			{
+				sprintf(speed_text, translator::translate("Runway too short"), cnv->get_name());
+				speed_color = COL_RED;
+			}
+			else
+			{
+				sprintf(speed_text, translator::translate("Waiting for clearance!"));
+				speed_color = COL_YELLOW;
+			}
 			break;
 
 		case convoi_t::CAN_START:
@@ -499,13 +508,28 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		case convoi_t::CAN_START_TWO_MONTHS:
 		case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
 
-			sprintf(speed_text, translator::translate("clf_chk_stucked"));
-			speed_color = COL_ORANGE;
+			if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
+			{
+				sprintf(speed_text, translator::translate("Runway too short"), cnv->get_name());
+				speed_color = COL_RED;
+			}
+			else
+			{
+				sprintf(speed_text, translator::translate("clf_chk_stucked"));
+				speed_color = COL_ORANGE;
+			}
 			break;
 
 		case convoi_t::NO_ROUTE:
 
-			sprintf(speed_text, translator::translate("clf_chk_noroute"));
+			if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
+			{
+				sprintf(speed_text, translator::translate("Runway too short"), cnv->get_name());
+			}
+			else
+			{
+				sprintf(speed_text, translator::translate("clf_chk_noroute"));
+			}
 			speed_color = COL_RED;
 			break;
 
@@ -516,24 +540,14 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			break;
 
 		default:
+			//use median speed to avoid flickering
+			mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed() * 4);
+			mean_convoi_speed /= 2;
+			const sint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
+			const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
+			sprintf(speed_text, translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"),
+				(mean_convoi_speed + 3) / 4, min_speed, translator::translate("..."), max_speed);
 			speed_color = COL_BLACK;
-			const air_vehicle_t* air = (const air_vehicle_t*)this;
-
-			if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
-			{
-				sprintf(speed_text, translator::translate("Runway too short"), cnv->get_name());
-				speed_color = COL_RED;
-			}
-			else
-			{
-				//use median speed to avoid flickering
-				mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed() * 4);
-				mean_convoi_speed /= 2;
-				const sint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
-				const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
-				sprintf(speed_text, translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"),
-					(mean_convoi_speed + 3) / 4, min_speed, translator::translate("..."), max_speed);
-			}
 		}
 
 		display_proportional(pos_x, pos_y, speed_text, ALIGN_LEFT, speed_color, true);
