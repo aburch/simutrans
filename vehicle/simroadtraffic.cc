@@ -517,6 +517,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			if(  str->get_overtaking_info() == 0  ) {
 				const weg_t* str_prev = welt->lookup(get_pos())->get_weg(road_wt);
 				const weg_t* str_next = welt->lookup(pos_next)->get_weg(road_wt);
+				const bool left_driving = welt->get_settings().is_drive_left();
 				if(str_prev && str_next && str_prev->get_overtaking_info() > 0  && str_next->get_overtaking_info() == 0) {
 					if(  (!left_driving  &&  ribi_t::rotate90l(get_90direction()) == calc_direction(pos_next,pos_next_next))  ||  (left_driving  &&  ribi_t::rotate90(get_90direction()) == calc_direction(pos_next,pos_next_next))  ) {
 						// next: enter passing lane.
