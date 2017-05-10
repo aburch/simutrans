@@ -1712,7 +1712,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 			{			
 				// A pair of self-correcting 45 degree corners can be made in a minimum of 4 tiles and will have a minimum radius of twice the meters per tile value
 				// However, this is too harsh for most uses, so set the assumed radius as the minimum here. 
-				steps_to_second_45 = max(steps_to_second_45 - 3, 1);
+				steps_to_second_45 = max(steps_to_second_45 / 2, 1);
 				radius = max(assumed_radius, ((steps_to_second_45 * meters_per_tile) * 2));
 
 				corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
@@ -4798,7 +4798,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							signs.append(gr);
 						}
-						if(pre_signals.get_count() || combined_signals.get_count())
+						if (pre_signals.get_count() || combined_signals.get_count())
 						{
 							// Do not reserve after a stop signal not covered by a distant or combined signal 
 							// (or multiple aspect signals with the requisite number of aspects).
