@@ -4057,13 +4057,13 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 						simlinemgmt_t::update_line(line);
 					}
 				}
-				if(schedule->entries[schedule->get_current_stop()].reverse == 0)
+				if(schedule->entries[schedule->get_current_stop()].reverse == 0 && haltestelle_t::get_halt(schedule->entries[schedule->get_current_stop()].pos, get_owner()).is_bound() == false)
 				{
 					// Extending the route if the convoy needs to reverse would interfere with tile reservations.
-					// This convoy can pass waypoint without reversing/stopping. Append route to next stop/waypoint.
+					// This convoy can pass a waypoint without reversing/stopping. Append route to the next stop/waypoint.
 					
 					// This is still needed after the new (November 2015) system as there are some (possibly 
-					// transitional)cases in which next_block is still ahead of the calculated route. 
+					// transitional) cases in which next_block is still ahead of the calculated route. 
 
 					if(reversed)
 					{
