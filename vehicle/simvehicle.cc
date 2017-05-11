@@ -1684,10 +1684,10 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		if(steps_to_135)
 		{
 			// A 135 degree curve can be made in a minimum of 4 tiles and will have a minimum radius of 2/3rds the meters_per_tile value
-			// The steps_to_x values are the *manhattan* distance, which is exactly twice the actual radius. Thus, halve this here.
-			steps_to_135 = max(1, steps_to_135 / 2);
+			// The steps_to_x values are the *manhattan* distance, which is exactly twice the actual radius. 
+			// This was formerly halved, but then multiplied by 2 again, which was redundant, so remove both instead.
 
-			radius = ((steps_to_135 * meters_per_tile) * 2) / 3;
+			radius = (steps_to_135 * meters_per_tile) / 3;
 			corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
 		}
 		
@@ -1695,9 +1695,8 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		{
 			// A 90 degree curve can be made in a minimum of 3 tiles and will have a minimum radius of the meters_per_tile value
 			// The steps_to_x values are the *manhattan* distance, which is exactly twice the actual radius. Thus, halve this here.
-			steps_to_90 = max(1, steps_to_90 / 2);
+			radius = (steps_to_90 * meters_per_tile) / 2;
 
-			radius = steps_to_90 * meters_per_tile;
 			corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
 		}
 		
@@ -1712,8 +1711,8 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 			{			
 				// A pair of self-correcting 45 degree corners can be made in a minimum of 4 tiles and will have a minimum radius of twice the meters per tile value
 				// However, this is too harsh for most uses, so set the assumed radius as the minimum here. 
-				steps_to_second_45 = max(steps_to_second_45 / 2, 1);
-				radius = max(assumed_radius, ((steps_to_second_45 * meters_per_tile) * 2));
+				// There is no need to divide steos_to_second_45 by 2 only to multiply it by 2 again.
+				radius = max(assumed_radius, (steps_to_second_45 * meters_per_tile));
 
 				corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
 			}
