@@ -912,6 +912,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	else
 	{
 		buf.append(translator::translate("keine"));
+		buf.append("\n");
 	}
 
 	if (way_constraints.get_permissive() || way_constraints.get_prohibitive())
