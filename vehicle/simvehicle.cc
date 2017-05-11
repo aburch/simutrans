@@ -1712,7 +1712,7 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 			{			
 				// A pair of self-correcting 45 degree corners can be made in a minimum of 4 tiles and will have a minimum radius of twice the meters per tile value
 				// However, this is too harsh for most uses, so set the assumed radius as the minimum here. 
-				steps_to_second_45 = max(steps_to_second_45 - 3, 1);
+				steps_to_second_45 = max(steps_to_second_45 / 2, 1);
 				radius = max(assumed_radius, ((steps_to_second_45 * meters_per_tile) * 2));
 
 				corner_limit_kmh = min(corner_limit_kmh, sqrt_i32((87 * radius) / corner_force_divider)); 
@@ -4057,13 +4057,13 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 						simlinemgmt_t::update_line(line);
 					}
 				}
-				if(schedule->entries[schedule->get_current_stop()].reverse == 0)
+				if(schedule->entries[schedule->get_current_stop()].reverse == 0 && haltestelle_t::get_halt(schedule->entries[schedule->get_current_stop()].pos, get_owner()).is_bound() == false)
 				{
 					// Extending the route if the convoy needs to reverse would interfere with tile reservations.
-					// This convoy can pass waypoint without reversing/stopping. Append route to next stop/waypoint.
+					// This convoy can pass a waypoint without reversing/stopping. Append route to the next stop/waypoint.
 					
 					// This is still needed after the new (November 2015) system as there are some (possibly 
-					// transitional)cases in which next_block is still ahead of the calculated route. 
+					// transitional) cases in which next_block is still ahead of the calculated route. 
 
 					if(reversed)
 					{
@@ -4798,7 +4798,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							signs.append(gr);
 						}
-						if(pre_signals.get_count() || combined_signals.get_count())
+						if (pre_signals.get_count() || combined_signals.get_count())
 						{
 							// Do not reserve after a stop signal not covered by a distant or combined signal 
 							// (or multiple aspect signals with the requisite number of aspects).
@@ -5625,7 +5625,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					grund_t* const signal_ground = welt->lookup(last_choose_pos);
 					if (signal_ground)
 					{
-						signs.append(signal_ground);
+						signs.append_unique(signal_ground);
 					}
 				}
 			}
