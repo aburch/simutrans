@@ -4246,7 +4246,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					|| working_method == one_train_staff && shortest_distance(get_pos().get_2d(), signal->get_pos().get_2d()) < 2)
  				{
 					// Brake for the signal unless we can see it somehow. -1 because this is checked on entering the tile.
-					const bool allow_block_reserver = (working_method != time_interval && working_method != time_interval_with_telegraph) || !signal->get_no_junctions_to_next_signal() || signal->get_state() != roadsign_t::danger; 
+					const bool allow_block_reserver = ((working_method != time_interval && working_method != time_interval_with_telegraph) || !signal->get_no_junctions_to_next_signal() || signal->get_state() != roadsign_t::danger) && (signal->get_desc()->get_working_method() != one_train_staff || route_index == next_block);
 					if(allow_block_reserver && !block_reserver(cnv->get_route(), next_block, modified_sighting_distance_tiles, next_signal, 0, true, false, cnv->get_is_choosing()))
 					{					
 						restart_speed = 0;
@@ -4706,7 +4706,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						}
 					}
 
-					if(next_signal_working_method == drive_by_sight || one_train_staff_loop_complete || ((working_method != one_train_staff && (first_one_train_staff_index < INVALID_INDEX && first_one_train_staff_index > start_index))) && first_double_block_signal_index != last_stop_signal_index)
+					if(next_signal_working_method == drive_by_sight || one_train_staff_loop_complete || ((working_method != one_train_staff && (first_one_train_staff_index < INVALID_INDEX && first_one_train_staff_index > start_index))) && (first_double_block_signal_index == INVALID_INDEX || first_double_block_signal_index != last_stop_signal_index))
 					{
 						// Do not reserve through end of signalling signs or one train staff cabinets
 						next_signal_index = i;
@@ -5418,7 +5418,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	// However, do not call this if we are in the block reserver already called from this method to prevent infinite recursion.
 	const bool bidirectional_reservation = (working_method == track_circuit_block || working_method == cab_signalling || working_method == moving_block) 
 		&& last_bidirectional_signal_index < INVALID_INDEX;
-	if(!is_from_token && !is_from_directional && (((working_method == token_block || (first_double_block_signal_index < INVALID_INDEX && stop_signals_since_last_double_block_signal)) && last_token_block_signal_index < INVALID_INDEX) || bidirectional_reservation || working_method == one_train_staff) && next_signal_index == INVALID_INDEX)
+	if(!is_from_token && !is_from_directional && (((working_method == token_block || (first_double_block_signal_index < INVALID_INDEX && stop_signals_since_last_double_block_signal)) && last_token_block_signal_index < INVALID_INDEX) || bidirectional_reservation || working_method == one_train_staff || (start_index == first_one_train_staff_index)) && next_signal_index == INVALID_INDEX)
 	{
 		route_t target_rt;
 		schedule_t *schedule = cnv->get_schedule();
