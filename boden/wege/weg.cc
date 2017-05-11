@@ -600,6 +600,151 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		buf.append("\n");
 	}
 
+	if (desc->get_styp() == type_runway)
+	{
+		bool runway_36_18 = false;
+		bool runway_09_27 = false;
+
+		switch (get_ribi())
+		{
+		case 1: // north
+		case 4: // south
+		case 5: // north-south
+		case 7: // north-south-east
+		case 13: // north-south-west
+			runway_36_18 = true;
+			break;
+		case 2: // east
+		case 8: // west
+		case 10: // east-west
+		case 11: // east-west-north
+		case 14: // east-west-south
+			runway_09_27 = true;
+			break;
+		case 15: // all
+			runway_36_18 = true;
+			runway_09_27 = true;
+			break;
+		default:
+			runway_36_18 = false;
+			runway_09_27 = false;
+			break;
+		}
+
+
+		uint32 runway_tiles = 0;
+		koord3d pos = get_pos();
+		bool more_runway_left = true;
+		bool counting_runway_forward = true;
+		const double km_per_tile = welt->get_settings().get_meters_per_tile();
+
+		if (runway_36_18 == true)
+		{
+			for (uint32 i = 0; more_runway_left == true; i++)
+			{
+				grund_t *gr = welt->lookup_kartenboden(pos.x, pos.y);
+				runway_t * sch1 = gr ? (runway_t *)gr->get_weg(air_wt) : NULL;
+				if (counting_runway_forward == true)
+				{
+					if (sch1 != NULL)
+					{
+						pos.y += 1;
+						if ((sch1->get_ribi_unmasked() == 1))
+						{
+							counting_runway_forward = false;
+							pos = get_pos();
+						}
+					}
+					else
+					{
+						counting_runway_forward = false;
+						pos = get_pos();
+					}
+				}
+
+				else
+				{
+					if (sch1 != NULL)
+					{
+						pos.y -= 1;
+						if ((sch1->get_ribi_unmasked() == 4))
+						{
+							more_runway_left = false;
+							runway_tiles = i;
+						}
+					}
+					else
+					{
+						more_runway_left = false;
+						runway_tiles = i;
+					}
+				}
+			}
+		const double runway_meters_36_18 = (double)runway_tiles * km_per_tile;
+		
+		buf.printf("%s: ", translator::translate("runway_38/18"));
+		buf.append(runway_meters_36_18);
+		buf.append(translator::translate("m"));
+		buf.append("\n");
+		}
+
+		runway_tiles = 0;
+		pos = get_pos();
+		more_runway_left = true;
+		counting_runway_forward = true;
+
+		if (runway_09_27 == true)
+		{
+			for (uint32 i = 0; more_runway_left == true; i++)
+			{
+				grund_t *gr = welt->lookup_kartenboden(pos.x, pos.y);
+				runway_t * sch1 = gr ? (runway_t *)gr->get_weg(air_wt) : NULL;
+				if (counting_runway_forward == true)
+				{
+					if (sch1 != NULL)
+					{
+						pos.x += 1;
+						if ((sch1->get_ribi_unmasked() == 8))
+						{
+							counting_runway_forward = false;
+							pos = get_pos();
+						}
+					}
+					else
+					{
+						counting_runway_forward = false;
+						pos = get_pos();
+					}
+				}
+
+				else
+				{
+					if (sch1 != NULL)
+					{
+						pos.x -= 1;
+						if ((sch1->get_ribi_unmasked() == 2))
+						{
+							more_runway_left = false;
+							runway_tiles = i;
+						}
+					}
+					else
+					{
+						more_runway_left = false;
+						runway_tiles = i;
+					}
+				}
+			}
+			
+			const double runway_meters_09_27 = (double)runway_tiles * km_per_tile;
+
+			buf.printf("%s: ", translator::translate("runway_09/27"));
+			buf.append(runway_meters_09_27);
+			buf.append(translator::translate("m"));
+			buf.append("\n");
+		}
+	}
+
 	buf.append("\n");
 	buf.append(translator::translate("Condition"));
 	buf.append(": ");
