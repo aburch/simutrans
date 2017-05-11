@@ -4226,7 +4226,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			ribi_t::ribi ribi = ribi_type(cnv->get_route()->at(max(1u, (min(max_element, check_route_index))) - 1u), cnv->get_route()->at(min(max_element, check_route_index + 1u)));
 			signal_t* signal = sch1->get_signal(ribi); 
 	
-			if(signal)
+			if(signal && (check_tile - route_index <= sighting_distance_tiles))
 			{
 				if(working_method != token_block)
 				{
@@ -5856,7 +5856,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, schiene_t* sch)
 {
 	route_t* route = cnv ? cnv->get_route() : NULL;
-	if(sig && (sig->get_desc()->get_working_method() != token_block) && cnv->get_state() != convoi_t::REVERSING)
+	if(sig && (sig->get_desc()->get_working_method() != token_block && sig->get_desc()->get_working_method() != one_train_staff) && cnv->get_state() != convoi_t::REVERSING)
 	{
 		w->set_working_method(sig->get_desc()->get_working_method());
 	}
