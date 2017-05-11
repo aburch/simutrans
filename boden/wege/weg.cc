@@ -496,7 +496,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append(translator::translate(desc->get_name()));
 	if (wayobj)
 	{
-		buf.printf(", %s %s", translator::translate("with"), translator::translate(wayobj->get_desc()->get_name()));
+		buf.printf(", %s %s", translator::translate("with_wayobj"), translator::translate(wayobj->get_desc()->get_name()));
 	}
 	buf.append("\n\n");
 
@@ -570,34 +570,6 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 			buf.append(translator::translate("tonnen"));
 			buf.append("\n");
 		}
-	}
-
-	if (desc->get_maintenance() > 0)
-	{
-		char maintenance_number[64];
-		money_to_string(maintenance_number, (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) / 100.0);
-		buf.printf("%s: %s", translator::translate("maintenance"), maintenance_number);
-
-		char maintenance_km_number[64];
-		money_to_string(maintenance_km_number, (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) / 100 * tiles_pr_km);
-		buf.printf(", (%s/%s)", maintenance_km_number, translator::translate("km"));
-		buf.append("\n");
-	}
-	if (wayobj && wayobj->get_desc()->get_maintenance() > 0)
-	{
-			char maintenance_wayobj_number[64];
-			money_to_string(maintenance_wayobj_number, ((double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) + (double)welt->calc_adjusted_monthly_figure(wayobj->get_desc()->get_maintenance())) / 100.0);
-			buf.printf("%s: %s", translator::translate("maint_incl_wayobj"), maintenance_wayobj_number);
-
-			char maintenance_wayobj_km_number[64];
-			money_to_string(maintenance_wayobj_km_number, ((double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) + (double)welt->calc_adjusted_monthly_figure(wayobj->get_desc()->get_maintenance())) / 100.0 * tiles_pr_km);
-			buf.printf(", (%s/%s)", maintenance_wayobj_km_number, translator::translate("km"));
-			buf.append("\n");
-	}
-	if ((desc->get_maintenance() <= 0) && (!wayobj || (wayobj && wayobj->get_desc()->get_maintenance() <= 0)))
-	{
-		buf.append(translator::translate("no_maintenance_costs"));
-		buf.append("\n");
 	}
 
 	if (desc->get_styp() == type_runway)
@@ -680,12 +652,12 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 					}
 				}
 			}
-		const double runway_meters_36_18 = (double)runway_tiles * km_per_tile;
-		
-		buf.printf("%s: ", translator::translate("runway_38/18"));
-		buf.append(runway_meters_36_18);
-		buf.append(translator::translate("m"));
-		buf.append("\n");
+			const double runway_meters_36_18 = (double)runway_tiles * km_per_tile;
+
+			buf.printf("%s: ", translator::translate("runway_38/18"));
+			buf.append(runway_meters_36_18);
+			buf.append(translator::translate("meter"));
+			buf.append("\n");
 		}
 
 		runway_tiles = 0;
@@ -735,15 +707,47 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 					}
 				}
 			}
-			
+
 			const double runway_meters_09_27 = (double)runway_tiles * km_per_tile;
 
 			buf.printf("%s: ", translator::translate("runway_09/27"));
 			buf.append(runway_meters_09_27);
-			buf.append(translator::translate("m"));
+			buf.append(translator::translate("meter"));
 			buf.append("\n");
 		}
 	}
+
+	if (desc->get_maintenance() > 0)
+	{
+		char maintenance_number[64];
+		money_to_string(maintenance_number, (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) / 100.0);
+		buf.printf("%s: %s", translator::translate("monthly_maintenance_cost"), maintenance_number);
+
+
+
+		char maintenance_km_number[64];
+		money_to_string(maintenance_km_number, (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) / 100 * tiles_pr_km);
+		buf.printf(", (%s/%s)", maintenance_km_number, translator::translate("km"));
+		buf.append("\n");
+	}
+	if (wayobj && wayobj->get_desc()->get_maintenance() > 0)
+	{
+			char maintenance_wayobj_number[64];
+			money_to_string(maintenance_wayobj_number, ((double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) + (double)welt->calc_adjusted_monthly_figure(wayobj->get_desc()->get_maintenance())) / 100.0);
+			buf.printf("%s: %s", translator::translate("maint_incl_wayobj"), maintenance_wayobj_number);
+
+			char maintenance_wayobj_km_number[64];
+			money_to_string(maintenance_wayobj_km_number, ((double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) + (double)welt->calc_adjusted_monthly_figure(wayobj->get_desc()->get_maintenance())) / 100.0 * tiles_pr_km);
+			buf.printf(", (%s/%s)", maintenance_wayobj_km_number, translator::translate("km"));
+			buf.append("\n");
+	}
+	if ((desc->get_maintenance() <= 0) && (!wayobj || (wayobj && wayobj->get_desc()->get_maintenance() <= 0)))
+	{
+		buf.append(translator::translate("no_maintenance_costs"));
+		buf.append("\n");
+	}
+
+	
 
 	buf.append("\n");
 	buf.append(translator::translate("Condition"));
@@ -764,7 +768,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	}
 	else
 	{
-		buf.append(translator::translate("degraded"));
+		buf.append(translator::translate("Degraded"));
 	}
 	buf.append(": ");
 	char tmpbuf_renewed[40];
@@ -793,7 +797,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		{
 			if (!degraded)
 			{
-				buf.append(translator::translate("same_as_existing"));
+				buf.append(translator::translate("same_as_current"));
 			}
 			else
 			{
@@ -879,6 +883,29 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 				char maintenance_replacement_difference_km_number[64];
 				money_to_string(maintenance_replacement_difference_km_number, ((double)welt->calc_adjusted_monthly_figure(replacement_way->get_maintenance()) - (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance())) / 100.0 * tiles_pr_km);
 				buf.printf(", (%s%s/%s)", maintenance_symbol_text, maintenance_replacement_difference_km_number, translator::translate("km"));
+				buf.append("\n");
+			}
+
+			const long double wear_capacity_fractional_orig = (long double)desc->get_wear_capacity() / 10000.0;
+			const long double wear_capacity_fractional_replac = (long double)replacement_way->get_wear_capacity() / 10000.0;
+
+			if (wear_capacity_fractional_replac != wear_capacity_fractional_orig)
+			{
+				buf.printf("- %s ", translator::translate("new_way_is"));
+				if (wear_capacity_fractional_replac > wear_capacity_fractional_orig)
+				{
+					
+					const double way_wear_stronger = (wear_capacity_fractional_replac - wear_capacity_fractional_orig) / wear_capacity_fractional_orig * 100;
+					buf.append(way_wear_stronger);
+					buf.printf("%s", translator::translate("%_stronger"));
+				}
+				else // Same equation, but with a minus sign to avoid a percentage preceded with a "-" sign
+				{
+					const double way_wear_weaker = (-(wear_capacity_fractional_replac - wear_capacity_fractional_orig))/ wear_capacity_fractional_orig *100;
+					buf.append(way_wear_weaker);
+					buf.printf("%s", translator::translate("%_weaker"));
+				}
+				buf.append("\n");
 			}
 		}
 	}
@@ -886,12 +913,30 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	{
 		buf.append(translator::translate("keine"));
 	}
-	buf.append("\n");
 
-	bool any_permissive = false;
-	for (sint8 i = 0; i < way_constraints.get_count(); i++)
+	if (way_constraints.get_permissive() || way_constraints.get_prohibitive())
 	{
-		if (way_constraints.get_permissive(i))
+	//	buf.append("\n");
+		bool any_permissive = false;
+		for (sint8 i = 0; i < way_constraints.get_count(); i++)
+		{
+			if (way_constraints.get_permissive(i))
+			{
+				if (!any_permissive)
+				{
+					buf.append("\n");
+					buf.append("assets");
+					buf.append(":");
+					buf.append("\n");
+				}
+				any_permissive = true;
+				char tmpbuf[30];
+				sprintf(tmpbuf, "Permissive %i", i);
+				buf.append(translator::translate(tmpbuf));
+				buf.append("\n");
+			}
+		}
+		if (is_electrified() && !way_constraints.get_permissive())
 		{
 			if (!any_permissive)
 			{
@@ -900,31 +945,28 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 				buf.append(":");
 				buf.append("\n");
 			}
-			any_permissive = true;
-			char tmpbuf[30];
-			sprintf(tmpbuf, "Permissive %i", i);
-			buf.append(translator::translate(tmpbuf));
+			buf.append(translator::translate("elektrified"));
 			buf.append("\n");
 		}
-	}
-	if (is_electrified() && !way_constraints.get_permissive())
-	{
-		if (!any_permissive)
+		bool any_prohibitive = false;
+		for (sint8 i = 0; i < way_constraints.get_count(); i++)
 		{
-			buf.append("\n");
-			buf.append("assets");
-			buf.append(":");
-			buf.append("\n");
+			if (way_constraints.get_prohibitive(i))
+			{
+				if (!any_prohibitive)
+				{
+					buf.append("\n");
+					buf.append("Restrictions:");
+					buf.append("\n");
+				}
+				any_prohibitive = true;
+				char tmpbuf[30];
+				sprintf(tmpbuf, "Prohibitive %i", i);
+				buf.append(translator::translate(tmpbuf));
+				buf.append("\n");
+			}
 		}
-		buf.append(translator::translate("elektrified"));
-		buf.append("\n");
-	}
-
-
-	bool any_prohibitive = false;
-	for (sint8 i = 0; i < way_constraints.get_count(); i++)
-	{
-		if (way_constraints.get_prohibitive(i))
+		if (is_height_restricted())
 		{
 			if (!any_prohibitive)
 			{
@@ -932,24 +974,11 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 				buf.append("Restrictions:");
 				buf.append("\n");
 			}
-			any_prohibitive = true;
-			char tmpbuf[30];
-			sprintf(tmpbuf, "Prohibitive %i", i);
-			buf.append(translator::translate(tmpbuf));
-			buf.append("\n");
+			buf.append(translator::translate("Low bridge"));
+			buf.append("\n\n");
 		}
 	}
-	if (is_height_restricted())
-	{
-		if (!any_prohibitive)
-		{
-			buf.append("\n");
-			buf.append("Restrictions:");
-			buf.append("\n");
-		}
-		buf.append(translator::translate("Low bridge"));
-		buf.append("\n\n");
-	}
+	
 	#ifdef DEBUG
 	buf.append(translator::translate("\nRibi (unmasked)"));
 	buf.append(get_ribi_unmasked());
@@ -960,7 +989,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 #endif
 	
 #if 1
-	buf.append("\n");
+	//buf.append("\n");
 	buf.printf(translator::translate("convoi passed last\nmonth %i\n"), statistics[1][1]);
 #else
 	// Debug - output stats
@@ -972,7 +1001,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		buf.append("\n");
 	}
 #endif
-	buf.append("\n\n");
+	buf.append("\n");
 }
 
 
