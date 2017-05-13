@@ -28,6 +28,7 @@ private:
 
 	static void add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max, const ware_t *ware, const char *what_doing );
 
+	vector_tpl<transferring_cargo_t> *transferring_cargoes;
 };
 
 

@@ -191,6 +191,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 	// added sorting to ware's destination list
 	int pos = 0;
 	ware_t* wlist;
+	//ware_t* tclist;
 	const int warray_size = warray.get_count() * sizeof(ware_t);
 #ifdef _MSC_VER
 	const int max_stack_size = 838860; 
@@ -207,12 +208,36 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		wlist = (ware_t*) malloc(warray_size);
 	}
 
+	const sint64 current_time = welt->get_ticks();
+	//transferring_cargo_t tc;
+
+	uint32 rs = tc.ready_time;
+
+	//const uint32 rs = world()->ticks_to_seconds((tc.ready_time - current_time));
+
 
 	FOR(vector_tpl<ware_t>, const& ware, warray) {
 		if(  ware.get_desc() == goods_manager_t::none  ||  ware.menge == 0  ) {
 			continue;
 		}
 		wlist[pos] = ware;
+		if (sort_mode == by_transfer_time && pos > 0)
+		{		
+			for (int i = 0; i < pos; i++)
+			{
+				FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes[i])
+				{
+					ware = tc.ware;
+					ware_transfers.append(ware);
+
+					if (wlist[i].get_index() == wlist[pos].get_index() && wlist[i].tc.ready_time == tclist[pos].ready_time)
+					{
+						wlist[i].menge += wlist[pos--].menge;
+						break;
+					}
+				}
+			}
+		}
 		// for the sorting via the number for the next stop we unify entries
 		if(sort_mode == by_via_sum && pos > 0) 
 		{
@@ -252,7 +277,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			}
 		}
 
-		if((sort_mode == by_name || sort_mode == by_via || sort_mode == by_amount || by_transfer_time) && pos > 0)
+		if((sort_mode == by_name || sort_mode == by_via || sort_mode == by_amount) && pos > 0)
 		{
 			for(int i = 0; i < pos; i++) 
 			{
