@@ -22,7 +22,8 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	// Finally, this is the extended version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x100;
+	// 0x200 - number of classes (12.2)
+	version += 0x200;
 
 	int pos = 0;
 	uint32 len = 3; // Should end up as 11 for Extended version 1 combined with Standard version 3.
@@ -42,6 +43,9 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 
 	const uint8 mapcolor = obj.get_int("mapcolor", 255);
 	len += sizeof(mapcolor);
+
+	const uint8 number_of_classes = obj.get_int("number_of_classes", 1); 
+	len += sizeof(number_of_classes);
 
 	uint16 val = 0;
 	uint16 to_distance = 0;
@@ -91,8 +95,10 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	pos += sizeof(speed_bonus);
 	node.write_uint16(fp, weight_per_unit,  pos);
 	pos += sizeof(weight_per_unit);
-	node.write_uint8 (fp, mapcolor,			pos);
+	node.write_uint8(fp, mapcolor,			pos);
 	pos += sizeof(mapcolor);
+	node.write_uint8(fp, number_of_classes,	pos);
+	pos += sizeof(number_of_classes); 
 	node.write_uint8(fp, fare_stages,		pos);
 	pos += sizeof(fare_stages);
 

@@ -264,7 +264,9 @@ path_explorer_t::compartment_t::compartment_t()
 	transfer_count = 0;
 
 	catg = 255;
+	g_class = 255;
 	catg_name = NULL;
+	class_name = NULL;
 	step_count = 0;
 
 	paths_available = false;
@@ -507,7 +509,7 @@ void path_explorer_t::compartment_t::step()
 #endif
 
 #ifdef DEBUG_COMPARTMENT_STEP
-	printf("\n\nCategory :  %s \n", translator::translate( catg_name ) );
+	printf("\n\nCategory :  %s; Class : %s \n", translator::translate(catg_name), translator::translate(class_name));
 #endif
 
 	// For timing use
@@ -1775,6 +1777,24 @@ void path_explorer_t::compartment_t::set_category(uint8 category)
 	catg = category;
 	const goods_desc_t *ware_type = goods_manager_t::get_info_catg_index(catg);
 	catg_name = ware_type->get_catg() == 0 ? ware_type->get_name() : ware_type->get_catg_name();
+}
+
+void path_explorer_t::compartment_t::set_class(uint8 value)
+{
+	g_class = value;
+
+	if (catg == goods_manager_t::INDEX_PAS)
+	{
+		printf(class_name, "%s_%u", translator::translate("p_class"), g_class); 
+	}
+	else if (catg == goods_manager_t::INDEX_MAIL)
+	{
+		printf(class_name, "%s_%u", translator::translate("m_class"), g_class);
+	}
+	else
+	{
+		printf(class_name, "%s_%u", translator::translate("g_class"), g_class);
+	}
 }
 
 

@@ -92,6 +92,13 @@ class goods_desc_t : public obj_named_desc_t {
 	*/
 	uint16 weight_per_unit;
 
+	/* 
+	* The number of different classes in which this comes
+	* This is used only for passengers and mail
+	* @author: jamespetts, May 2017
+	*/
+	uint8 number_of_classes;
+
 public:
 	// the measure for that good (crates, people, bags ... )
 	const char *get_mass() const
@@ -129,6 +136,13 @@ public:
 	*/
 	const char * get_catg_name() const;
 
+	/*
+	* The number of different classes in which this comes
+	* This is used only for passengers and mail
+	* @author: jamespetts, May 2017
+	*/
+	uint8 get_number_of_classes() const { return number_of_classes; }
+
 	/**
 	* Checks if this good can be interchanged with the other, in terms of
 	* transportability.
@@ -153,6 +167,7 @@ public:
 		chk->input(catg);
 		chk->input(speed_bonus);
 		chk->input(weight_per_unit);
+		chk->input(number_of_classes); 
 	}
 
 	/**

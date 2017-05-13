@@ -253,7 +253,9 @@ private:
 		uint16 transfer_count;
 
 		uint8 catg;				// category managed by this compartment
+		uint8 g_class;			// Class managed by this compartment
 		const char *catg_name;	// name of the category
+		const char *class_name;// Name of the class
 		uint16 step_count;		// number of steps done so far for a path refresh request
 
 		// coordination flags
@@ -370,12 +372,14 @@ private:
 		uint32 get_total_iterations() { const uint32 ti = total_iterations; total_iterations = 0; return ti; }
 
 		void set_category(uint8 category);
+		void set_class(uint8 value); 
 		void set_refresh() { refresh_requested = true; }
 
 		bool get_path_between(const halthandle_t origin_halt, const halthandle_t target_halt,
 							  uint32 &aggregate_time, halthandle_t &next_transfer);
 
 		const char *get_category_name() const { return ( catg_name ? catg_name : "" ); }
+		const char *get_class_name() const { return ( class_name ? class_name : "" );  }
 		const char *get_current_phase_name() const { return phase_name[current_phase]; }
 
 		static void initialise_connexion_list();
