@@ -3106,7 +3106,7 @@ void fabrik_t::calc_max_intransit_percentages()
 {
 	max_intransit_percentages.clear();
 
-	if(!path_explorer_t::get_paths_available(path_explorer_t::get_current_compartment()))
+	if(!path_explorer_t::get_paths_available(path_explorer_t::get_current_compartment_category()))
 	{
 		has_calculated_intransit_percentages = false;
 		return;
