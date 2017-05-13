@@ -457,7 +457,7 @@ public:
 
 	static void full_instant_refresh();
 	static void refresh_all_categories(const bool reset_working_set);
-	static void refresh_category(const uint8 category, const uint8 g_class = 0) { goods_compartment[category][g_class].set_refresh(); }
+	static void refresh_category(const uint8 category);
 	static bool get_catg_path_between(const uint8 category, const halthandle_t origin_halt, const halthandle_t target_halt,
 									  uint32 &aggregate_time, halthandle_t &next_transfer, uint8 g_class = 0)
 	{

@@ -90,7 +90,7 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->color = decode_uint8(p);
 		if(extended)
 		{
-			if (extended_version > 1)
+			if (extended_version >= 1)
 			{
 				desc->number_of_classes = decode_uint8(p); 
 			}
@@ -121,7 +121,7 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->catg = (uint8)decode_uint16(p);
 	}
 
-	if (!extended || extended_version <= 1)
+	if (!extended || extended_version < 1)
 	{
 		desc->number_of_classes = 1; 
 	}

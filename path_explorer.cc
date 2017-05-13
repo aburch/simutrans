@@ -101,8 +101,12 @@ void path_explorer_t::step()
 	}
 #endif
 	// at most check all goods categories once
-	for (uint8 i = 0; i < max_categories; ++i)
+	const uint8 max_runs = (max_categories - 2) + goods_manager_t::passengers->get_number_of_classes() + goods_manager_t::mail->get_number_of_classes();
+	for (uint8 i = 0; i < max_runs; ++i)
 	{
+		bool TEST_refresh_completed = goods_compartment[current_compartment_category][current_compartment_class].is_refresh_completed();
+		bool TEST_refresh_requested = goods_compartment[current_compartment_category][current_compartment_class].is_refresh_requested();
+
 		if ( current_compartment_category != category_empty
 			 && (!goods_compartment[current_compartment_category][current_compartment_class].is_refresh_completed() 
 			     || goods_compartment[current_compartment_category][current_compartment_class].is_refresh_requested() ) )
@@ -120,7 +124,7 @@ void path_explorer_t::step()
 			return;
 		}
 
-		// advance to the next category only if compartment.step() is not invoked
+		// advance to the next category or class only if compartment.step() is not invoked
 		next_compartment();
 	}
 
@@ -269,6 +273,28 @@ void path_explorer_t::refresh_all_categories(const bool reset_working_set)
 				goods_compartment[ca][cl].set_refresh();
 			}
 		}
+	}
+}
+
+void path_explorer_t::refresh_category(uint8 category)
+{
+	if (category == goods_manager_t::INDEX_PAS)
+	{
+		for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+		{
+			goods_compartment[category][i].set_refresh();
+		}
+	}
+	else if (category == goods_manager_t::INDEX_MAIL)
+	{
+		for (uint8 i = 0; i < goods_manager_t::mail->get_number_of_classes(); i++)
+		{
+			goods_compartment[category][i].set_refresh();
+		}
+	}
+	else
+	{
+		goods_compartment[category][0].set_refresh();
 	}
 }
 
