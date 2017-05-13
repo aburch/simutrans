@@ -6050,7 +6050,22 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			start_halts.clear();
 			get_nearby_halts_of_tiles(tile_list, wtyp, start_halts);
 		}
-			
+
+		ware_t pax(wtyp);
+		pax.is_commuting_trip = trip == commuting_trip;
+		halthandle_t start_halt;
+		uint32 best_journey_time;
+		uint32 walking_time;
+		route_status = initialising;
+
+		// Initialise the class of the passengers or mail.
+		const uint8 max_class = wtyp->get_number_of_classes();
+		{
+			// TODO: Allow buildings to specify the probabilities of each class generated thereby.
+			pax.g_class = simrand(max_class, "karte_t::generate_passengers_and_mail (class)");
+		}
+		
+		// TODO: Have destination choice influenced by passenger class
 		first_destination = find_destination(trip);
 		current_destination = first_destination;
 
@@ -6100,28 +6115,21 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		}
 
 		uint32 car_minutes = UINT32_MAX_VALUE;
-
 		best_bad_destination = first_destination.location;
 		best_bad_start_halt = 0;
 		too_slow_already_set = false;
 		overcrowded_already_set = false;
-		ware_t pax(wtyp);
-		pax.is_commuting_trip = trip == commuting_trip;
-		halthandle_t start_halt;
-		uint32 best_journey_time;
-		uint32 walking_time;
-		route_status = initialising;
 
 		for(int n = 0; n < destination_count && route_status != public_transport && route_status != private_car && route_status != on_foot; n++)
 		{
 			destination_pos = current_destination.location;
 			if(trip == commuting_trip)
 			{
-				gebaeude_t* gb = current_destination.building;
+				gebaeude_t* dest_building = current_destination.building;
 #ifdef DISABLE_JOB_EFFECTS
-				if(!gb)
+				if(!dest_building)
 #else
-				if(!gb || !gb->jobs_available())
+				if(!dest_building || !dest_building->jobs_available())
 #endif
 				{
 					if(route_status == initialising)

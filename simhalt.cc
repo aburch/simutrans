@@ -2068,7 +2068,7 @@ uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 	{
 		uint32 test_time;
 		halthandle_t test_transfer;
-		path_explorer_t::get_catg_path_between(ware_catg, self, *destination_halt, test_time, test_transfer);
+		path_explorer_t::get_catg_path_between(ware_catg, self, *destination_halt, test_time, test_transfer, ware.g_class);
 
 		if(!destination_halt->is_bound()) 
 		{
@@ -2331,7 +2331,7 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const goods_desc_t *
 						// here.
 						uint32 test_time = 0;
 						halthandle_t test_transfer;
-						path_explorer_t::get_catg_path_between(catg_index, self, destination, test_time, test_transfer);
+						path_explorer_t::get_catg_path_between(catg_index, self, destination, test_time, test_transfer, next_to_load->g_class);
 						const sint64 test_time_in_ticks = welt->get_seconds_to_ticks(test_time * 6);
 						best_arrival_time = test_time_in_ticks + welt->get_ticks();
 					}

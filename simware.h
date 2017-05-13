@@ -29,6 +29,9 @@ public:
 	// jobs taken on arrival.
 	bool is_commuting_trip : 1;
 
+	/// The class of mail/passengers. Not used for goods.
+	uint8 g_class;
+
 private:
 	/**
 	 * Handle of target station.
@@ -86,7 +89,6 @@ public:
 	ware_t();
 	ware_t(const goods_desc_t *typ);
 	ware_t(const goods_desc_t *typ, halthandle_t o);
-//	ware_t(karte_t *welt,loadsave_t *file);
 	ware_t(loadsave_t *file);
 
 	/**
@@ -125,21 +127,23 @@ public:
 		return	menge == w.menge &&
 			zwischenziel == w.zwischenziel &&
 			arrival_time == w.arrival_time &&
-			index  == w.index  &&
-			ziel  == w.ziel  &&
+			index == w.index  &&
+			ziel == w.ziel  &&
 			zielpos == w.zielpos &&
-			origin == w.origin && 
-			last_transfer == w.last_transfer;
+			origin == w.origin &&
+			last_transfer == w.last_transfer &&
+			g_class == w.g_class;
 	}
 
 	bool can_merge_with(const ware_t &w)
 	{
 		return zwischenziel == w.zwischenziel &&
-		index  == w.index  &&
-		ziel  == w.ziel  &&
-		zielpos == w.zielpos &&
-		origin == w.origin && 
-		last_transfer == w.last_transfer;
+			index == w.index  &&
+			ziel == w.ziel  &&
+			zielpos == w.zielpos &&
+			origin == w.origin &&
+			last_transfer == w.last_transfer &&
+			g_class == w.g_class;
 	}
 
 	bool operator <= (const ware_t &w)
@@ -148,7 +152,7 @@ public:
 		return arrival_time <= w.arrival_time;
 	}
 
-	int operator!=(const ware_t &w) { return !(*this == w); 	}
+	int operator!=(const ware_t &w) { return !(*this == w); }
 
 	/**
 	 * Adjust target coordinates.
