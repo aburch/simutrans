@@ -537,16 +537,22 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	text_colour = SYSCOL_TEXT;
 	figure_colour = SYSCOL_TEXT_TITLE;
 
-	char status_string[32];
+	char status_string[128];
 	if ( path_explorer_t::is_processing() )
 	{
+		sprintf(status_string, "%s (%s) / %s", translator::translate(path_explorer_t::get_current_category_name()), path_explorer_t::get_current_class_name(), path_explorer_t::get_current_phase_name()); 
+		/*
 		tstrncpy(status_string, translator::translate( path_explorer_t::get_current_category_name() ), 15);
+		strcat(status_string, " (");
+		tstrncpy(status_string, (path_explorer_t::get_current_class_name()), 32);
+		strcat(status_string, ")");
 		strcat(status_string, " / ");
 		strncat(status_string, translator::translate( path_explorer_t::get_current_phase_name() ), 8);
+		*/
 	}
 	else
 	{
-		strcpy(status_string, "stand-by");
+		sprintf(status_string, "stand-by");
 	}
 
 	len = 15+display_proportional_clip(x+10, y+PHASE_REBUILD_CONNEXIONS, translator::translate("Rebuild connexions:"), ALIGN_LEFT, text_colour, true);

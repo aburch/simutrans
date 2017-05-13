@@ -255,7 +255,7 @@ private:
 		uint8 catg;				// category managed by this compartment
 		uint8 g_class;			// Class managed by this compartment
 		const char *catg_name;	// name of the category
-		const char *class_name;// Name of the class
+		char *class_name;// Name of the class
 		uint16 step_count;		// number of steps done so far for a path refresh request
 
 		// coordination flags
@@ -477,6 +477,7 @@ public:
 	static uint32 get_limit_reroute_goods() { return compartment_t::get_limit_reroute_goods(); }
 	static bool is_processing() { return processing; }
 	static const char *get_current_category_name() { return goods_compartment[current_compartment_category][current_compartment_class].get_category_name(); }
+	static const char *get_current_class_name() { return  goods_compartment[current_compartment_category][current_compartment_class].get_class_name(); }
 	static const char *get_current_phase_name() { return goods_compartment[current_compartment_category][current_compartment_class].get_current_phase_name(); }
 	
 	// Note that these are only used for the client/server synchronisation checklist for diagnostic purposes.

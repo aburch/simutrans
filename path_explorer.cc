@@ -1855,15 +1855,15 @@ void path_explorer_t::compartment_t::set_class(uint8 value)
 
 	if (catg == goods_manager_t::INDEX_PAS)
 	{
-		printf(class_name, "%s_%u", translator::translate("p_class"), g_class); 
+		sprintf(class_name, "%s_%u", translator::translate("p_class"), g_class); 
 	}
 	else if (catg == goods_manager_t::INDEX_MAIL)
 	{
-		printf(class_name, "%s_%u", translator::translate("m_class"), g_class);
+		sprintf(class_name, "%s_%u", translator::translate("m_class"), g_class);
 	}
 	else
 	{
-		printf(class_name, "%s_%u", translator::translate("g_class"), g_class);
+		sprintf(class_name, "%s_%u", translator::translate("g_class"), g_class);
 	}
 }
 
