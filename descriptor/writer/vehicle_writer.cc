@@ -82,7 +82,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 85;
+	int total_len = 86;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -104,13 +104,52 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		}
 	}
 
+	// The maximum payload of the vehicle, by each class that the vehicle
+	// accommodates. If this is not specified, class 0 will be assumed.
 
-	obj_node_t	node(this, total_len, &parent);
+	// This must be done here, as it will affect the length of the header.
+
+	uint32 current_class_capacity;
+	vector_tpl<uint8> class_capacities(1);
+
+	for (uint8 i = 0; i < 256; i++)
+	{
+		// Check for multiple classes with a separate capacity each
+		char buf[12];
+		sprintf(buf, "payload[%u]", i);
+		current_class_capacity = obj.get_int(buf, UINT32_MAX_VALUE);
+		if (current_class_capacity == UINT32_MAX_VALUE)
+		{
+			if (i == 0)
+			{
+				// If there are no class defined capacities, look for the old/basic
+				// keyword defining a single capacity.
+				class_capacities.append(obj.get_int("payload", 0));
+			}
+			else
+			{
+				// Increase the length of the header by 2 for each additional 
+				// class capacity stored: one for capacity and one for comfort.
+				total_len += 2;
+			}
+			break;
+		}
+		else
+		{
+			// Increase the length of the header by 2 for each additional 
+			// class capacity stored: one for capacity and one for comfort.
+			total_len += 2;
+			class_capacities.append(current_class_capacity);
+		}
+	}
+
+
+	obj_node_t node(this, total_len, &parent);
 
 	write_head(fp, node, obj);
 	
 	// This variable counts the number of bytes written so far in the file semi-automatically.
-	// It is important that data are read back in exactly the same order as they were written.
+	// It is important that data be read back in exactly the same order as they were written.
 	uint16 pos = 0;
 
 	// Hajo: version number
@@ -130,7 +169,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Standard 10, 0x200 - range, wear factor.
 	// Standard 10, 0x300 - whether tall (for height restricted bridges)
 	// Standard 11, 0x400 - 16-bit sound 
-	version += 0x400;
+	// Standard 11, 0x500 - classes
+	version += 0x500;
 
 	node.write_uint16(fp, version, pos);
 
@@ -141,10 +181,17 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint32(fp, cost, pos);
 	pos += sizeof(uint32);
 
-	// Hajodoc: Maximum payload of this vehicle
-	uint16 capacity = obj.get_int("payload", 0);
-	node.write_uint16(fp, capacity, pos);
-	pos += sizeof(uint16);
+	// The number of classes.
+	uint8 number_of_classes = min(255, class_capacities.get_count());
+	node.write_uint8(fp, number_of_classes, pos); 
+	pos += sizeof(uint8);
+
+	// Capacities by class
+	FOR(vector_tpl<uint8>, capacity, class_capacities)
+	{
+		node.write_uint16(fp, capacity, pos);
+		pos += sizeof(uint16);
+	}	
 
 	/*
 	* This duplicates a system used in Extended for some time.
@@ -765,13 +812,41 @@ end:
 	pos += sizeof(uint8);
 
 	// Passenger comfort rating - affects revenue on longer journies.
+	// Now segregated by class of passenger.
 	//@author: jamespetts
-	uint8 comfort = (obj.get_int("comfort", 100));
-	node.write_uint8(fp, comfort, pos);
-	pos += sizeof(uint8);
+	uint32 current_class_comfort;
+	for (uint32 i = 0; i < number_of_classes; i++)
+	{
+		// Check for multiple classes with a separate capacity each
+		char buf[12];
+		sprintf(buf, "comfort[%u]", i);
+		current_class_comfort = obj.get_int(buf, UINT32_MAX_VALUE);
+		if (current_class_comfort == UINT32_MAX_VALUE)
+		{
+			if (i == 0)
+			{
+				// If there are no class defined capacities, look for the old/basic
+				// keyword defining a single level of comfort.
+				uint8 comfort = (obj.get_int("comfort", 100));
+				node.write_uint8(fp, comfort, pos);
+				pos += sizeof(uint8);
+			}
+			break;
+		}
+		else
+		{
+			node.write_uint8(fp, (uint8)current_class_comfort, pos);
+			pos += sizeof(uint8);
+		}
+	}
+		
 
 	// Overcrowded capacity - can take this much *in addition to* normal capacity,
 	// but revenue will be lower and dwell times higher. Mainly for passengers.
+	// A single overcrowded capacity is maintained in spite of multiple classes
+	// as it is not necessary to have different classes of, in effect, standing
+	// passengers.
+
 	//@author: jamespetts
 	uint16 overcrowded_capacity = (obj.get_int("overcrowded_capacity", 0));
 	node.write_uint16(fp, overcrowded_capacity, pos);
@@ -779,7 +854,8 @@ end:
 
 	// The time in ms that it takes the vehicle to load and unload at stations (i.e.,  
 	// the dwell time). The default is 2,000 because that is the value used in 
-	// Simutrans-Standard.
+	// Simutrans-Standard. This is the old system, and is superceded by a min/max
+	// loading time now.
 	//@author: jamespetts
 
 	uint16 default_loading_time;

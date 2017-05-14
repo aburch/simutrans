@@ -68,7 +68,8 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Versioned node, version 1
 
 		desc->base_cost = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
+		desc->capacity = new uint16[1];
+		desc->capacity[0] = decode_uint16(p);
 		desc->topspeed = decode_uint16(p);
 		desc->weight = decode_uint16(p);
 		desc->power = decode_uint16(p);
@@ -88,7 +89,8 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Versioned node, version 2
 
 		desc->base_cost = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
+		desc->capacity = new uint16[1];
+		desc->capacity[0] = decode_uint16(p);
 		desc->topspeed = decode_uint16(p);
 		desc->weight = decode_uint16(p);
 		desc->power = decode_uint16(p);
@@ -111,7 +113,8 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// version 5 just uses the new scheme for data calculation
 
 		desc->base_cost = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
+		desc->capacity = new uint16[1];
+		desc->capacity[0] = decode_uint16(p);
 		desc->topspeed = decode_uint16(p);
 		desc->weight = decode_uint16(p);
 		desc->power = decode_uint16(p);
@@ -131,7 +134,8 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// version 5 just 32 bit for power and 16 Bit for gear
 
 		desc->base_cost = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
+		desc->capacity = new uint16[1];
+		desc->capacity[0] = decode_uint16(p);
 		desc->topspeed = decode_uint16(p);
 		desc->weight = decode_uint16(p);
 		desc->power = decode_uint32(p);
@@ -151,7 +155,8 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// different length of cars ...
 
 		desc->base_cost = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
+		desc->capacity = new uint16[1];
+		desc->capacity[0] = decode_uint16(p);
 		desc->topspeed = decode_uint16(p);
 		desc->weight = decode_uint16(p);
 		desc->power = decode_uint32(p);
@@ -172,7 +177,8 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// multiple freight images...
 
 		desc->base_cost = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
+		desc->capacity = new uint16[1];
+		desc->capacity[0] = decode_uint16(p);
 		desc->topspeed = decode_uint16(p);
 		desc->weight = decode_uint16(p);
 		desc->power = decode_uint32(p);
@@ -193,13 +199,15 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			if(extended_version <= 6)
 			{
+				desc->classes = 1;
 				desc->is_tilting = decode_uint8(p);
 				way_constraints.set_permissive(decode_uint8(p));
 				way_constraints.set_prohibitive(decode_uint8(p));
 				desc->catering_level = decode_uint8(p);
 				desc->bidirectional = decode_uint8(p);
 				desc->can_lead_from_rear = decode_uint8(p);
-				desc->comfort = decode_uint8(p);
+				desc->comfort = new uint8[1];
+				desc->comfort[0] = decode_uint8(p);
 				desc->overcrowded_capacity = decode_uint16(p);
 				desc->min_loading_time = desc->max_loading_time = decode_uint16(p);
 				desc->upgrades = decode_uint8(p);
@@ -275,7 +283,8 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if (version==9) {
 		// new: fixed_cost (previously Extended only), loading_time, axle_load
 		desc->base_cost = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
+		desc->capacity = new uint16[1];
+		desc->capacity[0] = decode_uint16(p);
 		if(extended_version == 0)
 		{
 			// The new Standard datum for loading times is read here.
@@ -307,13 +316,15 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			if(extended_version <= 7)
 			{
+				desc->classes = 1;
 				desc->is_tilting = decode_uint8(p);
 				way_constraints.set_permissive(decode_uint8(p));
 				way_constraints.set_prohibitive(decode_uint8(p));
 				desc->catering_level = decode_uint8(p);
 				desc->bidirectional = decode_uint8(p);
 				desc->can_lead_from_rear = decode_uint8(p);
-				desc->comfort = decode_uint8(p);
+				desc->comfort = new uint8[1];
+				desc->comfort[0] = decode_uint8(p);
 				desc->overcrowded_capacity = decode_uint16(p);
 				desc->min_loading_time = desc->max_loading_time = decode_uint16(p);
 				desc->upgrades = decode_uint8(p);
@@ -399,7 +410,26 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if (version == 10 || version == 11) {
 		// new: weight in kgs
 		desc->base_cost = decode_uint32(p);
-		desc->capacity = decode_uint16(p);
+
+		if (extended && extended_version >= 4)
+		{
+			// Multiple classes, therefore multiple capacities.
+			desc->classes = decode_uint8(p);
+		}
+		else
+		{
+			desc->classes = 1;
+		}
+	
+		// Initialise the arrays
+		desc->capacity = new uint16[desc->classes];
+		desc->comfort = new uint8[desc->classes];
+
+		for (uint32 i = 0; i < desc->classes; i++)
+		{
+			desc->capacity[i] = decode_uint16(p);
+		}
+		
 		if (!extended)
 		{
 			// The new Standard datum for loading times is read here.
@@ -436,7 +466,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->freight_image_type = decode_uint8(p);
 		if(extended)
 		{
-			if(extended_version < 4)
+			if(extended_version < 5)
 			{
 				// NOTE: Extended version reset to 1 with incrementing of
 				// Standard version to 10.
@@ -446,7 +476,10 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->catering_level = decode_uint8(p);
 				desc->bidirectional = decode_uint8(p);
 				desc->can_lead_from_rear = decode_uint8(p);
-				desc->comfort = decode_uint8(p);
+				for (uint32 i = 0; i < desc->classes; i++)
+				{
+					desc->comfort[i] = decode_uint8(p);
+				}
 				desc->overcrowded_capacity = decode_uint16(p);
 				desc->min_loading_time = desc->max_loading_time = decode_uint16(p);
 				desc->upgrades = decode_uint8(p);
@@ -506,7 +539,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// old node, version 0
 
 		desc->wtyp = (sint8)v;
-		desc->capacity = decode_uint16(p);
+		desc->capacity[0] = decode_uint16(p);
 		desc->base_cost = decode_uint32(p);
 		desc->topspeed = decode_uint16(p);
 		desc->weight = decode_uint16(p);
@@ -564,11 +597,13 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(!extended)
 	{
 		// Default values for items not in the standard vehicle format.
+		desc->classes = 1;
 		desc->is_tilting = false;
 		desc->catering_level = 0;
 		desc->bidirectional = false;
 		desc->can_lead_from_rear = false;
-		desc->comfort = 100;
+		desc->comfort = new uint8[1];
+		desc->comfort[0] = 100;
 		desc->overcrowded_capacity = 0;
 		desc->tractive_effort = 0;
 
@@ -648,13 +683,15 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,desc-
 
 	DBG_DEBUG("vehicle_reader_t::read_node()",
 		"version=%d "
-		"way=%d capacity=%d cost=%d topspeed=%d weight=%g axle_load=%d power=%d "
+		"way=%d classes=%d capacity=%d comfort=%d cost=%d topspeed=%d weight=%g axle_load=%d power=%d "
 		"betrieb=%d sound=%d vor=%d nach=%d "
 		"date=%d/%d gear=%d engine_type=%d len=%d is_tilting=%d catering_level=%d "
 		"way_constraints_permissive=%d way_constraints_prohibitive%d bidirectional%d can_lead_from_rear%d",
 		version,
 		desc->wtyp,
-		desc->capacity,
+		desc->classes,
+		desc->capacity[0],
+		desc->comfort[0],
 		desc->base_cost,
 		desc->topspeed,
 		desc->weight/1000.0,
