@@ -52,6 +52,7 @@
 #include "../../descriptor/tunnel_desc.h"
 #include "../../descriptor/roadsign_desc.h"
 #include "../../descriptor/building_desc.h" // for ::should_city_adopt_this
+#include "../../utils/simstring.h"
 
 #include "../../bauer/wegbauer.h"
 
@@ -473,47 +474,280 @@ bool weg_t::is_height_restricted() const
 void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 {
 	obj_t::info(buf);
-	if(public_right_of_way)
+
+	// There are some texts that is shown above here on some of the way info windows. Those should be rearranged to look more appropriate and fill less space.
+	const double tiles_pr_km = (1000 / welt->get_settings().get_meters_per_tile());
+	grund_t *gr = welt->lookup(get_pos());
+	const wayobj_t *wayobj = gr ? gr->get_wayobj(get_waytype()) : NULL;
+	const bruecke_t *bridge = gr ? gr->find<bruecke_t>() : NULL;
+	const tunnel_t *tunnel = gr ? gr->find<tunnel_t>() : NULL;
+
+	const sint32 city_road_topspeed = welt->get_city_road()->get_topspeed();
+	const sint32 wayobj_topspeed = wayobj->get_desc()->get_topspeed();
+	const sint32 bridge_topspeed = bridge->get_desc()->get_topspeed();
+	const sint32 tunnel_topspeed = tunnel->get_desc()->get_topspeed();
+	const sint32 topspeed = desc->get_topspeed();
+
+	if (public_right_of_way)
 	{
 		buf.append(translator::translate("Public right of way"));
-		buf.append("\n\n");
+		buf.append("\n");
 	}
-	if(degraded)
+	buf.append(translator::translate(desc->get_name()));
+	if (wayobj)
+	{
+		buf.printf(", %s %s", translator::translate("with_wayobj"), translator::translate(wayobj->get_desc()->get_name()));
+	}
+	buf.append("\n\n");
+
+	if (degraded)
 	{
 		buf.append(translator::translate("Degraded"));
 		buf.append("\n\n");
-	}
-
-	if (is_height_restricted())
-	{
-		buf.append(translator::translate("Low bridge"));
+		buf.append(translator::translate("way_cannot_be_used_by_any_vehicle"));
 		buf.append("\n\n");
 	}
 
-	buf.append(translator::translate("Max. speed:"));
-	buf.append(" ");
-	buf.append(max_speed);
-	buf.append(translator::translate("km/h\n"));
-	if(desc->get_styp() == type_elevated || wtyp == air_wt || wtyp == water_wt)
+
+
+	if (!degraded)
 	{
-		buf.append(translator::translate("\nMax. weight:"));
-	}
-	else
-	{
-		buf.append(translator::translate("\nMax. axle load:"));
-	}
-	buf.append(" ");
-	buf.append(max_axle_load);
-	buf.append(translator::translate("tonnen"));
-	buf.append("\n");
-	if(is_bridge && bridge_weight_limit < UINT32_MAX_VALUE)
-	{
-		buf.append(translator::translate("Max. bridge weight:"));
+		buf.append(translator::translate("Max. speed:"));
 		buf.append(" ");
-		buf.append(bridge_weight_limit);
+		buf.append(max_speed);
+		buf.append(translator::translate("km/h"));
+		buf.append("\n");
+
+		if (topspeed > max_speed)
+		{
+			if (tunnel)
+			{
+				if (max_speed == tunnel->get_desc()->get_topspeed() || tunnel->get_desc()->get_topspeed_gradient_1() || tunnel->get_desc()->get_topspeed_gradient_2())
+				{
+					buf.append(translator::translate("(speed_restricted_by_tunnel)"));
+				}
+			}
+			else if (bridge)
+			{
+				if (max_speed == bridge->get_desc()->get_topspeed() || bridge->get_desc()->get_topspeed_gradient_1() || bridge->get_desc()->get_topspeed_gradient_2())
+				{
+					buf.append(translator::translate("(speed_restricted_by_bridge)"));
+				}
+			}
+			else if (wayobj)
+			{
+				if (max_speed == wayobj->get_desc()->get_topspeed() || wayobj->get_desc()->get_topspeed_gradient_1() || wayobj->get_desc()->get_topspeed_gradient_2())
+
+				{
+					buf.append(translator::translate("(speed_restricted_by_wayobj)"));
+				}
+			}
+
+			else
+			{
+				buf.append(translator::translate("(speed_restricted_by_city)"));
+			}
+			buf.append("\n");
+		}
+		
+		if (desc->get_styp() == type_elevated || wtyp == air_wt || wtyp == water_wt)
+		{
+			buf.append(translator::translate("Max. weight:"));
+		}
+		else
+		{
+			buf.append(translator::translate("Max. axle load:"));
+		}
+		buf.append(" ");
+		buf.append(max_axle_load);
 		buf.append(translator::translate("tonnen"));
 		buf.append("\n");
+		if (is_bridge && bridge_weight_limit < UINT32_MAX_VALUE)
+		{
+			buf.append(translator::translate("Max. weight:"));
+			buf.append(" ");
+			buf.append(bridge_weight_limit);
+			buf.append(translator::translate("tonnen"));
+			buf.append("\n");
+		}
 	}
+
+	if (desc->get_styp() == type_runway)
+	{
+		bool runway_36_18 = false;
+		bool runway_09_27 = false;
+
+		switch (get_ribi())
+		{
+		case 1: // north
+		case 4: // south
+		case 5: // north-south
+		case 7: // north-south-east
+		case 13: // north-south-west
+			runway_36_18 = true;
+			break;
+		case 2: // east
+		case 8: // west
+		case 10: // east-west
+		case 11: // east-west-north
+		case 14: // east-west-south
+			runway_09_27 = true;
+			break;
+		case 15: // all
+			runway_36_18 = true;
+			runway_09_27 = true;
+			break;
+		default:
+			runway_36_18 = false;
+			runway_09_27 = false;
+			break;
+		}
+
+
+		uint32 runway_tiles = 0;
+		koord3d pos = get_pos();
+		bool more_runway_left = true;
+		bool counting_runway_forward = true;
+		const double km_per_tile = welt->get_settings().get_meters_per_tile();
+
+		if (runway_36_18 == true)
+		{
+			for (uint32 i = 0; more_runway_left == true; i++)
+			{
+				grund_t *gr = welt->lookup_kartenboden(pos.x, pos.y);
+				runway_t * sch1 = gr ? (runway_t *)gr->get_weg(air_wt) : NULL;
+				if (counting_runway_forward == true)
+				{
+					if (sch1 != NULL)
+					{
+						pos.y += 1;
+						if ((sch1->get_ribi_unmasked() == 1))
+						{
+							counting_runway_forward = false;
+							pos = get_pos();
+						}
+					}
+					else
+					{
+						counting_runway_forward = false;
+						pos = get_pos();
+					}
+				}
+
+				else
+				{
+					if (sch1 != NULL)
+					{
+						pos.y -= 1;
+						if ((sch1->get_ribi_unmasked() == 4))
+						{
+							more_runway_left = false;
+							runway_tiles = i;
+						}
+					}
+					else
+					{
+						more_runway_left = false;
+						runway_tiles = i;
+					}
+				}
+			}
+			const double runway_meters_36_18 = (double)runway_tiles * km_per_tile;
+
+			buf.printf("%s: ", translator::translate("runway_38/18"));
+			buf.append(runway_meters_36_18);
+			buf.append(translator::translate("meter"));
+			buf.append("\n");
+		}
+
+		runway_tiles = 0;
+		pos = get_pos();
+		more_runway_left = true;
+		counting_runway_forward = true;
+
+		if (runway_09_27 == true)
+		{
+			for (uint32 i = 0; more_runway_left == true; i++)
+			{
+				grund_t *gr = welt->lookup_kartenboden(pos.x, pos.y);
+				runway_t * sch1 = gr ? (runway_t *)gr->get_weg(air_wt) : NULL;
+				if (counting_runway_forward == true)
+				{
+					if (sch1 != NULL)
+					{
+						pos.x += 1;
+						if ((sch1->get_ribi_unmasked() == 8))
+						{
+							counting_runway_forward = false;
+							pos = get_pos();
+						}
+					}
+					else
+					{
+						counting_runway_forward = false;
+						pos = get_pos();
+					}
+				}
+
+				else
+				{
+					if (sch1 != NULL)
+					{
+						pos.x -= 1;
+						if ((sch1->get_ribi_unmasked() == 2))
+						{
+							more_runway_left = false;
+							runway_tiles = i;
+						}
+					}
+					else
+					{
+						more_runway_left = false;
+						runway_tiles = i;
+					}
+				}
+			}
+
+			const double runway_meters_09_27 = (double)runway_tiles * km_per_tile;
+
+			buf.printf("%s: ", translator::translate("runway_09/27"));
+			buf.append(runway_meters_09_27);
+			buf.append(translator::translate("meter"));
+			buf.append("\n");
+		}
+	}
+
+	if (desc->get_maintenance() > 0)
+	{
+		char maintenance_number[64];
+		money_to_string(maintenance_number, (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) / 100.0);
+		buf.printf("%s: %s", translator::translate("monthly_maintenance_cost"), maintenance_number);
+
+
+
+		char maintenance_km_number[64];
+		money_to_string(maintenance_km_number, (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) / 100 * tiles_pr_km);
+		buf.printf(", (%s/%s)", maintenance_km_number, translator::translate("km"));
+		buf.append("\n");
+	}
+	if (wayobj && wayobj->get_desc()->get_maintenance() > 0)
+	{
+			char maintenance_wayobj_number[64];
+			money_to_string(maintenance_wayobj_number, ((double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) + (double)welt->calc_adjusted_monthly_figure(wayobj->get_desc()->get_maintenance())) / 100.0);
+			buf.printf("%s: %s", translator::translate("maint_incl_wayobj"), maintenance_wayobj_number);
+
+			char maintenance_wayobj_km_number[64];
+			money_to_string(maintenance_wayobj_km_number, ((double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) + (double)welt->calc_adjusted_monthly_figure(wayobj->get_desc()->get_maintenance())) / 100.0 * tiles_pr_km);
+			buf.printf(", (%s/%s)", maintenance_wayobj_km_number, translator::translate("km"));
+			buf.append("\n");
+	}
+	if ((desc->get_maintenance() <= 0) && (!wayobj || (wayobj && wayobj->get_desc()->get_maintenance() <= 0)))
+	{
+		buf.append(translator::translate("no_maintenance_costs"));
+		buf.append("\n");
+	}
+
+	
 
 	buf.append("\n");
 	buf.append(translator::translate("Condition"));
@@ -525,66 +759,228 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append(translator::translate("Built"));
 	buf.append(": ");
 	char tmpbuf_built[40];
-	sprintf(tmpbuf_built, "%s, %i", translator::get_month_name(creation_month_year%12), creation_month_year/12 );
+	sprintf(tmpbuf_built, "%s, %i", translator::get_month_name(creation_month_year % 12), creation_month_year / 12);
 	buf.append(tmpbuf_built);
 	buf.append("\n");
-	buf.append(translator::translate("Last renewed"));
+	if (!degraded)
+	{
+		buf.append(translator::translate("Last renewed"));
+	}
+	else
+	{
+		buf.append(translator::translate("Degraded"));
+	}
 	buf.append(": ");
 	char tmpbuf_renewed[40];
-	sprintf(tmpbuf_renewed, "%s, %i", translator::get_month_name(last_renewal_month_year%12), last_renewal_month_year/12 );
+	sprintf(tmpbuf_renewed, "%s, %i", translator::get_month_name(last_renewal_month_year % 12), last_renewal_month_year / 12);
 	buf.append(tmpbuf_renewed);
 	buf.append("\n");
 	buf.append(translator::translate("To be renewed with"));
-	buf.append(": ");
-	if(replacement_way)
+	buf.append(":\n- ");
+	if (replacement_way)
 	{
 		const uint16 time = welt->get_timeline_year_month();
 		bool is_current = !time || replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month();
-		if(!is_current)
+
+		if (replacement_way->get_name() != get_desc()->get_name())
 		{
-			buf.append(translator::translate(way_builder_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity())->get_name()));
+			if (!is_current)
+			{
+				buf.append(translator::translate(way_builder_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity())->get_name()));
+			}
+			else
+			{
+				buf.append(translator::translate(replacement_way->get_name()));
+			}
 		}
 		else
 		{
-			buf.append(translator::translate(replacement_way->get_name()));
+			if (!degraded)
+			{
+				buf.append(translator::translate("same_as_current"));
+			}
+			else
+			{
+				buf.append(translator::translate("keine"));
+			}
+		}
+		if (replacement_way->is_mothballed() == false)
+		{
+			buf.append("\n");
+			char upgrade_cost_number[64];
+			money_to_string(upgrade_cost_number, (double)welt->calc_adjusted_monthly_figure(desc->get_upgrade_group() == replacement_way->get_upgrade_group() ? replacement_way->get_way_only_cost() : replacement_way->get_value()) / 100 / 2);
+			buf.printf("- %s: %s", translator::translate("renewal_costs"), upgrade_cost_number);
+
+			char upgrade_cost_pr_km_number[64];
+			money_to_string(upgrade_cost_pr_km_number, (double)welt->calc_adjusted_monthly_figure(desc->get_upgrade_group() == replacement_way->get_upgrade_group() ? replacement_way->get_way_only_cost() : replacement_way->get_value()) / 100 / 2 * tiles_pr_km); 
+			buf.printf(", (%s/%s)", upgrade_cost_pr_km_number, translator::translate("km"));
+			buf.append("\n");
+			
+
+			if (replacement_way->get_axle_load() != desc->get_axle_load())
+			{
+				const char* weight_incr_text = NULL;
+				const char* weight_decr_text = NULL;
+
+				if (desc->get_styp() == type_elevated || wtyp == air_wt || wtyp == water_wt)
+				{
+					weight_incr_text = translator::translate("increased_max_weight");
+					weight_decr_text = translator::translate("decreased_max_weight");
+				}
+				else
+				{
+					weight_incr_text = translator::translate("increased_axle_load");
+					weight_decr_text = translator::translate("decreased_axle_load");
+				}
+
+				if (replacement_way->get_axle_load() > desc->get_axle_load())
+				{
+					buf.printf("- %s: +", weight_incr_text);
+					buf.append(replacement_way->get_axle_load() - desc->get_axle_load());
+					buf.append(translator::translate("tonnen"));
+					buf.append("\n");
+				}
+				if (replacement_way->get_axle_load() < desc->get_axle_load())
+				{
+					buf.printf("- %s: -", weight_decr_text);
+					buf.append(desc->get_axle_load() - replacement_way->get_axle_load());
+					buf.append(translator::translate("tonnen"));
+					buf.append("\n");
+				}
+			}
+			if (replacement_way->get_topspeed() > desc->get_topspeed())
+			{
+				buf.printf("- %s: +", translator::translate("increased_speed"));
+				buf.append(replacement_way->get_topspeed() - desc->get_topspeed());
+				buf.append(translator::translate("km/h"));
+				buf.append("\n");
+			}
+			if (replacement_way->get_topspeed() < desc->get_topspeed())
+			{
+				buf.printf("- %s: -", translator::translate("decreased_speed"));
+				buf.append(desc->get_topspeed() - replacement_way->get_topspeed());
+				buf.append(translator::translate("km/h"));
+				buf.append("\n");
+			}
+			if (replacement_way->get_maintenance() != desc->get_maintenance())
+			{
+				const char* maintenance_text = NULL;
+				const char* maintenance_symbol_text = NULL;
+				if (replacement_way->get_maintenance() > desc->get_maintenance())
+				{
+					maintenance_text = translator::translate("increased_maintenance");
+					maintenance_symbol_text = "+";
+				}
+				else
+				{
+					maintenance_text = translator::translate("decreased_maintenance");
+					maintenance_symbol_text = "";
+				}
+				char maintenance_replacement_difference_number[64];
+				money_to_string(maintenance_replacement_difference_number, ((double)welt->calc_adjusted_monthly_figure(replacement_way->get_maintenance()) - (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance())) / 100.0);
+				buf.printf("- %s: %s%s", maintenance_text, maintenance_symbol_text, maintenance_replacement_difference_number);
+
+				char maintenance_replacement_difference_km_number[64];
+				money_to_string(maintenance_replacement_difference_km_number, ((double)welt->calc_adjusted_monthly_figure(replacement_way->get_maintenance()) - (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance())) / 100.0 * tiles_pr_km);
+				buf.printf(", (%s%s/%s)", maintenance_symbol_text, maintenance_replacement_difference_km_number, translator::translate("km"));
+				buf.append("\n");
+			}
+
+			const long double wear_capacity_fractional_orig = (long double)desc->get_wear_capacity() / 10000.0;
+			const long double wear_capacity_fractional_replac = (long double)replacement_way->get_wear_capacity() / 10000.0;
+
+			if (wear_capacity_fractional_replac != wear_capacity_fractional_orig)
+			{
+				buf.printf("- %s ", translator::translate("new_way_is"));
+				if (wear_capacity_fractional_replac > wear_capacity_fractional_orig)
+				{
+					
+					const double way_wear_stronger = (wear_capacity_fractional_replac - wear_capacity_fractional_orig) / wear_capacity_fractional_orig * 100;
+					buf.append(way_wear_stronger);
+					buf.printf("%s", translator::translate("%_stronger"));
+				}
+				else // Same equation, but with a minus sign to avoid a percentage preceded with a "-" sign
+				{
+					const double way_wear_weaker = (-(wear_capacity_fractional_replac - wear_capacity_fractional_orig))/ wear_capacity_fractional_orig *100;
+					buf.append(way_wear_weaker);
+					buf.printf("%s", translator::translate("%_weaker"));
+				}
+				buf.append("\n");
+			}
 		}
 	}
 	else
 	{
 		buf.append(translator::translate("keine"));
+		buf.append("\n");
 	}
-	buf.append("\n");
-	
-	for(sint8 i = 0; i < way_constraints.get_count(); i ++)
+
+	if (way_constraints.get_permissive() || way_constraints.get_prohibitive())
 	{
-		if(way_constraints.get_permissive(i))
+	//	buf.append("\n");
+		bool any_permissive = false;
+		for (sint8 i = 0; i < way_constraints.get_count(); i++)
 		{
-			buf.append("\n");
-			char tmpbuf[30];
-			sprintf(tmpbuf, "Permissive %i", i);
-			buf.append(translator::translate(tmpbuf));
+			if (way_constraints.get_permissive(i))
+			{
+				if (!any_permissive)
+				{
+					buf.append("\n");
+					buf.append("assets");
+					buf.append(":");
+					buf.append("\n");
+				}
+				any_permissive = true;
+				char tmpbuf[30];
+				sprintf(tmpbuf, "Permissive %i", i);
+				buf.append(translator::translate(tmpbuf));
+				buf.append("\n");
+			}
+		}
+		if (is_electrified() && !way_constraints.get_permissive())
+		{
+			if (!any_permissive)
+			{
+				buf.append("\n");
+				buf.append("assets");
+				buf.append(":");
+				buf.append("\n");
+			}
+			buf.append(translator::translate("elektrified"));
 			buf.append("\n");
 		}
-	}
-	bool any_prohibitive = false;
-	for(sint8 i = 0; i < way_constraints.get_count(); i ++)
-	{
-		if(way_constraints.get_prohibitive(i))
+		bool any_prohibitive = false;
+		for (sint8 i = 0; i < way_constraints.get_count(); i++)
 		{
-			if(!any_prohibitive)
+			if (way_constraints.get_prohibitive(i))
+			{
+				if (!any_prohibitive)
+				{
+					buf.append("\n");
+					buf.append("Restrictions:");
+					buf.append("\n");
+				}
+				any_prohibitive = true;
+				char tmpbuf[30];
+				sprintf(tmpbuf, "Prohibitive %i", i);
+				buf.append(translator::translate(tmpbuf));
+				buf.append("\n");
+			}
+		}
+		if (is_height_restricted())
+		{
+			if (!any_prohibitive)
 			{
 				buf.append("\n");
 				buf.append("Restrictions:");
+				buf.append("\n");
 			}
-			any_prohibitive = true;
-			buf.append("\n");
-			char tmpbuf[30];
-			sprintf(tmpbuf, "Prohibitive %i", i);
-			buf.append(translator::translate(tmpbuf));
-			buf.append("\n");
+			buf.append(translator::translate("Low bridge"));
+			buf.append("\n\n");
 		}
 	}
-#ifdef DEBUG
+	
+	#ifdef DEBUG
 	buf.append(translator::translate("\nRibi (unmasked)"));
 	buf.append(get_ribi_unmasked());
 
@@ -592,27 +988,18 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append(get_ribi());
 	buf.append("\n");
 #endif
-	if(has_sign()) {
-		buf.append(translator::translate("\nwith sign/signal\n"));
-	}
-
-	if(is_electrified()) {
-		buf.append(translator::translate("\nelektrified"));
-	}
-	else {
-		buf.append(translator::translate("\nnot elektrified"));
-	}
-
+	
 #if 1
+	//buf.append("\n");
 	buf.printf(translator::translate("convoi passed last\nmonth %i\n"), statistics[1][1]);
 #else
 	// Debug - output stats
 	buf.append("\n");
-	for (int type=0; type<MAX_WAY_STATISTICS; type++) {
-		for (int month=0; month<MAX_WAY_STAT_MONTHS; month++) {
+	for (int type = 0; type < MAX_WAY_STATISTICS; type++) {
+		for (int month = 0; month < MAX_WAY_STAT_MONTHS; month++) {
 			buf.printf("%d ", statistics[month][type]);
 		}
-	buf.append("\n");
+		buf.append("\n");
 	}
 #endif
 	buf.append("\n");

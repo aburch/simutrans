@@ -515,3 +515,111 @@ obj=program_text
 name=south_west
 note=Shown in the way info window, telling which direction is reserved (south_west)
 -
+obj=program_text
+name=with_wayobj
+note=Shown in the way info window, as the word between the name of the way and the name of the wayobj
+-
+obj=program_text
+name=way_cannot_be_used_by_any_vehicle
+note=Shown in the way info window, 
+-
+obj=program_text
+name=km/h
+note=Shown in the way info window, speed designation
+-
+obj=program_text
+name=(speed_restricted_by_tunnel)
+note=Shown in the way info window, when the maximum speed of the way is restricted
+-
+obj=program_text
+name=(speed_restricted_by_bridge)
+note=Shown in the way info window, when the maximum speed of the way is restricted
+-
+obj=program_text
+name=(speed_restricted_by_wayobj)
+note=Shown in the way info window, when the maximum speed of the way is restricted
+-
+obj=program_text
+name=(speed_restricted_by_city)
+note=Shown in the way info window, when the maximum speed of the way is restricted
+-
+obj=program_text
+name=runway_38/18
+note=Shown in the way info window for runways
+-
+obj=program_text
+name=runway_09/27
+note=Shown in the way info window for runways
+-
+obj=program_text
+name=meter
+note=Shown in the way info window for runways
+-
+obj=program_text
+name=monthly_maintenance_cost
+note=Shown in the way info window, for the ways fixed monthly costs
+-
+obj=program_text
+name=maint_incl_wayobj
+note=Shown in the way info window, for the way and wayobj fixed monthly costs
+-
+obj=program_text
+name=same_as_current
+note=Shown in the way info window, when the upgrading way is the same as the existing way
+-
+obj=program_text
+name=renewal_costs
+note=Shown in the way info window, the renewal cost for upgraidng the way
+-
+obj=program_text
+name=increased_max_weight
+note=Shown in the way info window, showing the differences between new and old way
+-
+obj=program_text
+name=decreased_max_weight
+note=Shown in the way info window, showing the differences between new and old way
+-
+obj=program_text
+name=increased_axle_load
+note=Shown in the way info window, showing the differences between new and old way
+-
+obj=program_text
+name=decreased_axle_load
+note=Shown in the way info window, showing the differences between new and old way
+-
+obj=program_text
+name=increased_speed
+note=Shown in the way info window, showing the differences between new and old way
+-
+obj=program_text
+name=decreased_speed
+note=Shown in the way info window, showing the differences between new and old way
+-
+obj=program_text
+name=increased_maintenance
+note=Shown in the way info window, showing the differences between new and old way
+-
+obj=program_text
+name=decreased_maintenance
+note=Shown in the way info window, showing the differences between new and old way
+-
+obj=program_text
+name=new_way_is
+note=Shown in the way info window, showing the differences of the way strength
+-
+obj=program_text
+name=%_stronger
+note=Shown in the way info window, showing the differences of the way strength
+-
+obj=program_text
+name=%_weaker
+note=Shown in the way info window, showing the differences of the way strength
+-
+obj=program_text
+name=assets
+note=Shown in the way info window, displaying which permissive attributes this way has
+-
+obj=program_text
+name=runway_not_reserved
+note=Shown in the way info window for runways
+-
