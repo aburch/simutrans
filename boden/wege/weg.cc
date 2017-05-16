@@ -483,9 +483,9 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	const tunnel_t *tunnel = gr ? gr->find<tunnel_t>() : NULL;
 
 	const sint32 city_road_topspeed = welt->get_city_road()->get_topspeed();
-	const sint32 wayobj_topspeed = wayobj->get_desc()->get_topspeed();
-	const sint32 bridge_topspeed = bridge->get_desc()->get_topspeed();
-	const sint32 tunnel_topspeed = tunnel->get_desc()->get_topspeed();
+	const sint32 wayobj_topspeed = wayobj ? wayobj->get_desc()->get_topspeed() : UINT32_MAX_VALUE;
+	const sint32 bridge_topspeed = bridge ?  bridge->get_desc()->get_topspeed() : UINT32_MAX_VALUE;
+	const sint32 tunnel_topspeed = tunnel ? tunnel->get_desc()->get_topspeed() : UINT32_MAX_VALUE;
 	const sint32 topspeed = desc->get_topspeed();
 
 	if (public_right_of_way)
