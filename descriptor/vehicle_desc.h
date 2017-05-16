@@ -571,7 +571,17 @@ public:
 
 	bool can_follow_any() const { return trailer_count==0; }
 
+	uint8 get_number_of_classes() const { return classes; }
 	uint16 get_capacity(uint32 g_class = 0) const { return classes == 0 ? 0 : g_class >= classes ? capacity[0] : capacity[g_class]; }
+	uint16 get_total_capacity() const
+	{
+		uint16 cap = 0;
+		for (uint8 i = 0; i < classes; i++)
+		{
+			cap += get_capacity(i);
+		}
+		return cap;
+	}
 	uint32 get_weight() const { return weight; }
 	uint16 get_running_cost() const { return running_cost; }
 	uint16 get_running_cost(const class karte_t *welt) const; //Overloaded method - includes increase for obsolescence.

@@ -100,6 +100,7 @@ public:
 	inline const char *get_mass() const { return get_desc()->get_mass(); }
 	inline uint8 get_catg() const { return get_desc()->get_catg(); }
 	inline uint8 get_index() const { return index; }
+	inline uint8 get_class() const { return g_class; }
 
 	//@author: jamespetts
 	inline halthandle_t get_origin() const { return origin; }

@@ -2244,13 +2244,12 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 }
 
 
-// will load something compatible with wtyp into the car which schedule is schedule
-bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const goods_desc_t *wtyp, uint32 maxi, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded)
+bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded, const uint8 g_class, const bool use_lower_classes)
 {
 	bool skipped = false;
-	const uint8 catg_index = wtyp->get_catg_index();
+	const uint8 catg_index = good_category->get_catg_index();
 	vector_tpl<ware_t> *warray = cargo[catg_index];
-	if(warray  &&  warray->get_count() > 0)
+	if(warray && warray->get_count() > 0)
 	{		
 		binary_heap_tpl<ware_t*> goods_to_check;
 		for(uint32 i = 0;  i < warray->get_count();  )
@@ -2261,9 +2260,13 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const goods_desc_t *
 			if(ware->menge > 0)
 			{
 				i++;
-				goods_to_check.insert(ware);
+				if (ware->get_class() == g_class || (use_lower_classes && ware->get_class() < g_class))
+				{
+					goods_to_check.insert(ware);
+				}
 			}
-			else {
+			else 
+			{
 				// There is no need any longer to have empty ware packets hanging around.
 				warray->remove_at(i, false);
 			}
@@ -2496,24 +2499,24 @@ bool haltestelle_t::fetch_goods( slist_tpl<ware_t> &fracht, const goods_desc_t *
 
 					// not too much?
 					ware_t neu(*next_to_load);
-					if(next_to_load->menge > maxi)
+					if(next_to_load->menge > requested_amount)
 					{
 						// not all can be loaded
-						neu.menge = maxi;
-						next_to_load->menge -= maxi;
-						maxi = 0;
+						neu.menge = requested_amount;
+						next_to_load->menge -= requested_amount;
+						requested_amount = 0;
 					}
 					else
 					{
-						maxi -= next_to_load->menge;
+						requested_amount -= next_to_load->menge;
 						next_to_load->menge = 0; // leave an empty entry => will be deleted next time for performance
 					}
-					fracht.insert(neu);
+					load.insert(neu);
 
 					book(neu.menge, HALT_DEPARTED);
 					resort_freight_info = true;
 
-					if(maxi == 0)
+					if(requested_amount == 0)
 					{
 						goods_to_check.clear();
 						break;

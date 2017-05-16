@@ -1546,6 +1546,10 @@ public:
 	void clear_departures();
 
 	void clear_estimated_times();
+
+	void get_classes_carried(uint8 catg, vector_tpl<uint8>* classes_carried) const; 
+
+	bool carries_class(uint8 catg, uint8 g_class) const;
 };
 
 #endif

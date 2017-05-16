@@ -2214,7 +2214,10 @@ uint16 convoi_t::get_overcrowded() const
 	uint16 overcrowded = 0;
 	for(uint8 i = 0; i < vehicle_count; i ++)
 	{
-		overcrowded += vehicle[i]->get_overcrowding();
+		for (uint8 j = 0; j < vehicle[i]->get_desc()->get_number_of_classes(); j++)
+		{
+			overcrowded += vehicle[i]->get_overcrowding(j);
+		}
 	}
 	return overcrowded;
 }
@@ -4765,16 +4768,20 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 				max_loaded_waren[ware_desc->get_index()] += menge;
 			}
 
-			// then add the actual load
-			FOR(slist_tpl<ware_t>, ware, v->get_cargo())
+			const uint8 classes_to_check = v->get_desc()->get_number_of_classes();
+			
+			for (uint8 j = 0; j < classes_to_check; j++)
 			{
-				// if != 0 we could not join it to existing => load it
-				if(ware.menge != 0) 
+				// then add the actual load
+				FOR(slist_tpl<ware_t>, ware, v->get_cargo(j))
 				{
-					total_fracht.append(ware);
+					// if != 0 we could not join it to existing => load it
+					if (ware.menge != 0)
+					{
+						total_fracht.append(ware);
+					}
 				}
 			}
-
 			INT_CHECK("simconvoi 2643");
 		}
 		buf.clear();
@@ -5346,7 +5353,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 	// This holds the revenues as apportioned to different players by track
 	// Initialize it to the correct size and blank out all entries
-	// It will be added to by ::entladen for each vehicle
+	// It will be added to by the load_cargo method for each vehicle
 	array_tpl<sint64> apportioned_revenues (MAX_PLAYER_COUNT, 0);
 
 	grund_t *gr = welt->lookup(front()->get_pos());
@@ -5483,11 +5490,15 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				}
 			}
 		}
-		// Load vehicles to their regular level. And then load vehicles to their overcrowded level.
-		// Modified by TurfIt, March 2014
-		for(int j = 0;  j < 2;  j++)
+		
+		// Three passes at loading vehicles:
+		// (1) without overcrowding, and only to the correct class;
+		// (2) without overcrowding, but to any available lower class of accommodation; and
+		// (3) with overcrowding, to any available equal or lower class of accommodation.
+		for(int j = 0;  j < 3;  j++)
 		{
-			const bool overcrowd = (j == 1);
+			const bool use_lower_classes = (j >= 1);
+			const bool overcrowd = (j == 2);
 			for(int i = 0; i < number_loadable_vehicles ; i++)
 			{
 				vehicle_t* v = vehicle[i];
@@ -5496,7 +5507,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				{
 					bool skip_convois = false;
 					bool skip_vehicles = false;
-					changed_loading_level += v->load_cargo(halt, overcrowd, &skip_convois, &skip_vehicles);
+					changed_loading_level += v->load_cargo(halt, overcrowd, &skip_convois, &skip_vehicles, use_lower_classes);
 					if(skip_convois  ||  skip_vehicles)
 					{
 						// not enough freight was available to fill vehicle, or the stop can't supply this type of cargo ..> don't try to load this category again from this halt onto vehicles in convois on this line this step
@@ -7180,25 +7191,29 @@ void convoi_t::clear_replace()
 	 const uint16 airport_wait = front()->get_typ() == obj_t::air_vehicle ? welt->get_settings().get_min_wait_airport() : 0;
 	 for(uint8 i = 0; i < vehicle_count; i++) 
 	 {
-		FOR(slist_tpl< ware_t>, const& iter, vehicle[i]->get_cargo())
-		{
-			if(iter.get_last_transfer().get_id() == halt.get_id())
-			{
-				waiting_minutes = max(get_waiting_minutes(current_time - iter.arrival_time), airport_wait);
-				// Only times of one minute or larger are registered, to avoid registering zero wait-time when a passenger
-				// alights a convoy and then immediately re-boards that same convoy.
-				if(waiting_minutes > 0)
-				{
+		 const uint8 classes_to_check = vehicle[i]->get_desc()->get_number_of_classes(); 
+		 for (uint8 j = 0; j < classes_to_check; j++)
+		 {
+			 FOR(slist_tpl< ware_t>, const& iter, vehicle[i]->get_cargo(j))
+			 {
+				 if (iter.get_last_transfer().get_id() == halt.get_id())
+				 {
+					 waiting_minutes = max(get_waiting_minutes(current_time - iter.arrival_time), airport_wait);
+					 // Only times of one minute or larger are registered, to avoid registering zero wait-time when a passenger
+					 // alights a convoy and then immediately re-boards that same convoy.
+					 if (waiting_minutes > 0)
+					 {
 #ifdef MULTI_THREAD
-					pthread_mutex_lock(&step_convois_mutex);
+						 pthread_mutex_lock(&step_convois_mutex);
 #endif
-					halt->add_waiting_time(waiting_minutes, iter.get_zwischenziel(), iter.get_desc()->get_catg_index());
+						 halt->add_waiting_time(waiting_minutes, iter.get_zwischenziel(), iter.get_desc()->get_catg_index());
 #ifdef MULTI_THREAD
-					pthread_mutex_unlock(&step_convois_mutex);
+						 pthread_mutex_unlock(&step_convois_mutex);
 #endif
-				}
-			}
-		}
+					 }
+				 }
+			 }
+		 }
 	}
  }
 
@@ -7616,4 +7631,47 @@ void convoi_t::clear_estimated_times()
 
 		schedule->increment_index(&entry, &rev);
 	}
+}
+
+void convoi_t::get_classes_carried(uint8 catg, vector_tpl<uint8>* classes_carried) const
+{
+	uint8 number_of_classes_global = catg == goods_manager_t::INDEX_PAS ? goods_manager_t::passengers->get_number_of_classes() : catg == goods_manager_t::INDEX_MAIL ? goods_manager_t::mail->get_number_of_classes() : 0; 
+	if (number_of_classes_global == 0)
+	{
+		classes_carried->append(0);
+		return;
+	}
+
+	for (const_iterator i = begin(); i != end(); ++i)
+	{
+		const vehicle_t &v = **i;
+		for (uint8 j = 0; j < number_of_classes_global; j++)
+		{
+			if (v.get_desc()->get_freight_type()->get_catg() == catg)
+			{
+				if (v.get_capacity(j) > 0)
+				{
+					classes_carried->append(j);
+				}
+			}
+		}
+	}
+}
+
+bool convoi_t::carries_class(uint8 catg, uint8 g_class) const
+{
+	for (const_iterator i = begin(); i != end(); ++i)
+	{
+		const vehicle_t &v = **i;
+		if (v.get_desc()->get_freight_type()->get_catg() != catg)
+		{
+			continue;
+		}
+		if (v.get_capacity(g_class) > 0)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
