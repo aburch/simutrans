@@ -225,17 +225,14 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		{		
 			for (int i = 0; i < pos; i++)
 			{
-				FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes[i])
-				{
-					ware = tc.ware;
-					ware_transfers.append(ware);
-
-					if (wlist[i].get_index() == wlist[pos].get_index() && wlist[i].tc.ready_time == tclist[pos].ready_time)
+				uint32 rt_i = wlist[i] == tc.ware ? tc.ready_time : NULL;
+				uint32 rt_pos = wlist[pos] == tc.ware ? tc.ready_time : NULL;
+					if (wlist[i].get_index() == wlist[pos].get_index() && rt_i == rt_pos)
 					{
 						wlist[i].menge += wlist[pos--].menge;
 						break;
 					}
-				}
+	
 			}
 		}
 		// for the sorting via the number for the next stop we unify entries
@@ -375,9 +372,11 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			if (halt->get_transferring_cargoes_count() > 0)
 			{
 				transferring_cargo_t tc;
-				tc.ware = ware;
-				const uint32 ready_seconds = world()->ticks_to_seconds(tc.ready_time - current_time);				
-				welt->sprintf_ticks(transfer_time_left, sizeof(transfer_time_left), ready_seconds);
+
+			//	uint32 rt_i = wlist[j] == tc.ware ? tc.ready_time : NULL;
+				const uint32 tc_ready_time = tc.ware == ware ? world()->ticks_to_seconds(tc.ready_time - current_time) : NULL;
+			//	const uint32 ready_seconds = world()->ticks_to_seconds(tc.ready_time - current_time);				
+				welt->sprintf_ticks(transfer_time_left, sizeof(transfer_time_left), tc_ready_time);
 			}
 
 			// the target name is not correct for the via sort
