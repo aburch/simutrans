@@ -231,9 +231,9 @@ public:
 	// since it has no images and not even a name node any calls to this will case a crash
 	// Also, capacity and comfort are not initialised here
 	vehicle_desc_t(uint8 wtype, uint16 speed, engine_t engine, uint16 al = 0, uint32 weight = 1) : geared_power(0), geared_force(0) {
-		freight_image_type = livery_image_type = price = upgrade_price = overcrowded_capacity = classes = running_cost = intro_date = leader_count = trailer_count = catering_level = upgrades = 0;
+		freight_image_type = livery_image_type = price = upgrade_price = overcrowded_capacity = running_cost = intro_date = leader_count = trailer_count = catering_level = upgrades = 0;
 		fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
-		power = 1;
+		classes = power = 1;
 		gear = GEAR_FACTOR;
 		len = 8;
 		sound = -1;
@@ -254,6 +254,8 @@ public:
 		brake_force = BRAKE_FORCE_UNKNOWN;
 		minimum_runway_length = 3;
 		range = 0;
+		comfort = NULL;
+		capacity = NULL;
 	}
 
 	virtual ~vehicle_desc_t()

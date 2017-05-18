@@ -224,6 +224,7 @@ convoi_t::convoi_t(loadsave_t* file) : vehicle(max_vehicle, NULL)
 	old_schedule = NULL;
 	free_seats = 0;
 	recalc_catg_index();
+	calc_classes_carried();
 	has_obsolete = calc_obsolescence(welt->get_timeline_year_month());
 
 	validate_vehicle_summary();
@@ -293,7 +294,8 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 			// New method - recalculate as necessary
 
 			// Added by : Knightly
-			haltestelle_t::refresh_routing(schedule, goods_catg_index, owner);
+			
+			haltestelle_t::refresh_routing(schedule, goods_catg_index, NULL, owner); // NULL because if we are refreshing all goods categories, there is no need to refresh the classes, too, as these are subsets.
 		}
 		delete schedule;
 	}
@@ -1664,8 +1666,16 @@ void convoi_t::step()
 
 				// Knightly : before replacing, copy the existing set of goods category indices
 				minivec_tpl<uint8> old_goods_catg_index(goods_catg_index.get_count());
+				vector_tpl<uint8> old_classes_carried[2];
 				for( uint8 i = 0; i < goods_catg_index.get_count(); ++i )
 				{
+					if (i == goods_manager_t::INDEX_PAS || i == goods_manager_t::INDEX_MAIL)
+					{
+						for (uint8 j = 0; j < classes_carried[i].get_count(); ++j)
+						{
+							old_classes_carried[i].append(classes_carried[i][j]);
+						}
+					}
 					old_goods_catg_index.append( goods_catg_index[i] );
 				}
 
@@ -1788,15 +1798,41 @@ end_loop:
 
 					// Knightly : recalculate goods category index and determine if refresh is needed
 					recalc_catg_index();
+					// Also recalculate classes carried
+					calc_classes_carried();
 
-					minivec_tpl<uint8> differences(goods_catg_index.get_count() + old_goods_catg_index.get_count());
+					minivec_tpl<uint8> catg_differences(goods_catg_index.get_count() + old_goods_catg_index.get_count());
+					minivec_tpl<uint8> class_differences[2];
 
-					// removed categories : present in old category list but not in new category list
+					// removed categories and classes: present in old category list but not in new category list
 					for ( uint8 i = 0; i < old_goods_catg_index.get_count(); ++i )
 					{
 						if ( ! goods_catg_index.is_contained( old_goods_catg_index[i] ) )
 						{
-							differences.append( old_goods_catg_index[i] );
+							catg_differences.append( old_goods_catg_index[i] );
+						}
+						else
+						{
+							// The categories are the same in both: but what about the classes?
+							// Only relevant for passengers and mail.
+							if (i == goods_manager_t::INDEX_PAS || i == goods_manager_t::INDEX_MAIL)
+							{
+								for (uint8 j = 0; j < classes_carried[i].get_count(); j++)
+								{
+									if (!classes_carried[i].is_contained(old_classes_carried[i].get_element(j)))
+									{
+										class_differences[i].append(j);
+									}
+								}
+
+								for (uint8 j = 0; j < old_classes_carried[i].get_count(); j++)
+								{
+									if (!old_classes_carried[i].is_contained(classes_carried[i].get_element(j)))
+									{
+										class_differences[i].append(j);
+									}
+								}
+							}
 						}
 					}
 
@@ -1805,11 +1841,11 @@ end_loop:
 					{
 						if ( ! old_goods_catg_index.is_contained( goods_catg_index[i] ) )
 						{
-							differences.append( goods_catg_index[i] );
+							catg_differences.append( goods_catg_index[i] );
 						}
 					}
 
-					if ( differences.get_count() > 0 )
+					if (catg_differences.get_count() > 0 )
 					{
 						if ( line.is_bound() )
 						{
@@ -1819,7 +1855,7 @@ end_loop:
 						else
 						{
 							// refresh only those categories which are either removed or added to the category list
-							haltestelle_t::refresh_routing(schedule, differences, owner);
+							haltestelle_t::refresh_routing(schedule, catg_differences, class_differences, owner);
 						}
 					}
 
@@ -2491,7 +2527,7 @@ void convoi_t::start()
 			// New method - recalculate as necessary
 
 			// Added by : Knightly
-			haltestelle_t::refresh_routing(schedule, goods_catg_index, owner);
+			haltestelle_t::refresh_routing(schedule, goods_catg_index, NULL, owner);
 		}
 		wait_lock = 0;
 
@@ -2610,17 +2646,6 @@ DBG_MESSAGE("convoi_t::add_vehicle()","extend array_tpl to %i totals.",max_rail_
 		}
 		vehicle_count ++;
 
-		// Added by		: Knightly
-		// Adapted from : simline_t
-		// Purpose		: Try to update supported goods category of this convoy
-		if (v->get_cargo_max() > 0)
-		{
-			const goods_desc_t *ware_type = v->get_cargo_type();
-			if (ware_type != goods_manager_t::none)
-				goods_catg_index.append_unique(ware_type->get_catg_index(), 1);
-		}
-
-
 		const vehicle_desc_t *info = v->get_desc();
 		if(info->get_power()) {
 			is_electric |= info->get_engine_type()==vehicle_desc_t::electric;
@@ -2639,10 +2664,13 @@ DBG_MESSAGE("convoi_t::add_vehicle()","extend array_tpl to %i totals.",max_rail_
 		invalidate_vehicle_summary();
 		freight_info_resort = true;
 		// Add good_catg_index:
-		if(v->get_cargo_max() != 0) {
+		if(v->get_cargo_max() > 0) 
+		{
 			const goods_desc_t *ware=v->get_cargo_type();
-			if(ware!=goods_manager_t::none  ) {
+			if(ware!=goods_manager_t::none  )
+			{
 				goods_catg_index.append_unique( ware->get_catg_index() );
+				calc_classes_carried();
 			}
 		}
 		// check for obsolete
@@ -2737,6 +2765,7 @@ DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicl
 	invalidate_vehicle_summary();
 	freight_info_resort = true;
 	recalc_catg_index();
+	calc_classes_carried();
 
 	// check for obsolete
 	if(has_obsolete)
@@ -2776,6 +2805,7 @@ vehicle_t *convoi_t::remove_vehicle_bei(uint16 i)
 			// Added by		: Knightly
 			// Purpose		: To recalculate the list of supported goods category
 			recalc_catg_index();
+			calc_classes_carried();
 
 			//const vehicle_desc_t *info = v->get_desc();
 			//sum_power -= info->get_power();
@@ -2803,6 +2833,7 @@ vehicle_t *convoi_t::remove_vehicle_bei(uint16 i)
 		}
 
 		recalc_catg_index();
+		calc_classes_carried();
 
 		// still requires electrifications?
 		if(is_electric) {
@@ -2898,17 +2929,17 @@ bool convoi_t::set_schedule(schedule_t * sch)
 		{
 			if ( !old_schedule->matches(welt, schedule) )
 			{
-				haltestelle_t::refresh_routing(old_schedule, goods_catg_index, owner);
-				haltestelle_t::refresh_routing(schedule, goods_catg_index, owner);
+				haltestelle_t::refresh_routing(old_schedule, goods_catg_index, NULL, owner);
+				haltestelle_t::refresh_routing(schedule, goods_catg_index, NULL, owner);
 			}
 		}
 		else
 		{
 			if (schedule != sch)
 			{
-				haltestelle_t::refresh_routing(schedule, goods_catg_index, owner);
+				haltestelle_t::refresh_routing(schedule, goods_catg_index, NULL, owner);
 			}
-			haltestelle_t::refresh_routing(sch, goods_catg_index, owner);
+			haltestelle_t::refresh_routing(sch, goods_catg_index, NULL, owner);
 		}
 	}
 
@@ -4679,6 +4710,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	// This must come *after* all the loading/saving.
 	if(  file->is_loading()  ) {
 		recalc_catg_index();
+		calc_classes_carried();
 	}
 
 	if (akt_speed < 0)
@@ -7633,40 +7665,59 @@ void convoi_t::clear_estimated_times()
 	}
 }
 
-void convoi_t::get_classes_carried(uint8 catg, vector_tpl<uint8>* classes_carried) const
+void convoi_t::calc_classes_carried()
 {
-	uint8 number_of_classes_global = catg == goods_manager_t::INDEX_PAS ? goods_manager_t::passengers->get_number_of_classes() : catg == goods_manager_t::INDEX_MAIL ? goods_manager_t::mail->get_number_of_classes() : 0; 
-	if (number_of_classes_global == 0)
+	for(uint8 catg = 0; catg < 2; catg ++)
 	{
-		classes_carried->append(0);
-		return;
-	}
-
-	for (const_iterator i = begin(); i != end(); ++i)
-	{
-		const vehicle_t &v = **i;
-		for (uint8 j = 0; j < number_of_classes_global; j++)
+		classes_carried[catg].clear();
+		for (const_iterator i = begin(); i != end(); ++i)
 		{
-			if (v.get_desc()->get_freight_type()->get_catg() == catg)
+			const vehicle_t &v = **i;
+			for (uint8 j = 0; j < v.get_desc()->get_number_of_classes(); j++)
 			{
-				if (v.get_capacity(j) > 0)
+				if (v.get_desc()->get_freight_type()->get_catg_index() == catg)
 				{
-					classes_carried->append(j);
+					if (v.get_capacity(j) > 0)
+					{
+						classes_carried[catg].append(j);
+					}
 				}
 			}
 		}
 	}
 }
 
-bool convoi_t::carries_class(uint8 catg, uint8 g_class) const
+bool convoi_t::carries_this_or_lower_class(uint8 catg, uint8 g_class) const
+{
+	const bool carries_this_class = classes_carried[catg].is_contained(g_class);
+	if (carries_this_class)
+	{
+		return true;
+	}
+
+	// Check whether a lower class is carried, as passengers may board vehicles of a lower, but not a higher, class
+
+	FOR(minivec_tpl<uint8>, i, classes_carried[catg])
+	{
+		if (i < g_class)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool convoi_t::check_fresh_carries_class(uint8 catg, uint8 g_class) const
 {
 	for (const_iterator i = begin(); i != end(); ++i)
 	{
 		const vehicle_t &v = **i;
-		if (v.get_desc()->get_freight_type()->get_catg() != catg)
+		if (v.get_desc()->get_freight_type()->get_catg_index() != catg)
 		{
 			continue;
 		}
+
 		if (v.get_capacity(g_class) > 0)
 		{
 			return true;

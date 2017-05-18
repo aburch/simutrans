@@ -765,6 +765,11 @@ private:
 	// The maximum speed allowed by the current signalling system
 	sint32 max_signal_speed; 
 
+	// The classes of passengers/mail carried by this convoy
+	// Cached to reduce recalculation times in the path
+	// explorer. Indexed by passengers (0) and mail (1)
+	minivec_tpl<uint8> classes_carried[2];
+
 public: 
 	/**
 	 * Some precalculated often used infos about a tile of the convoy's route.
@@ -1547,9 +1552,13 @@ public:
 
 	void clear_estimated_times();
 
-	void get_classes_carried(uint8 catg, vector_tpl<uint8>* classes_carried) const; 
+	void calc_classes_carried();
 
-	bool carries_class(uint8 catg, uint8 g_class) const;
+	bool carries_this_or_lower_class(uint8 catg, uint8 g_class) const;
+
+	bool check_fresh_carries_class(uint8 catg, uint8 g_class) const;
+
+	const minivec_tpl<uint8>* get_classes_carried(uint8 catg) const { return catg < 2 ? &classes_carried[catg] : NULL; } 
 };
 
 #endif

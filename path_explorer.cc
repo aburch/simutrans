@@ -298,6 +298,11 @@ void path_explorer_t::refresh_category(uint8 category)
 	}
 }
 
+void path_explorer_t::refresh_class_category(uint8 category, uint8 g_class)
+{
+	goods_compartment[category][g_class].set_refresh();
+}
+
 ///////////////////////////////////////////////
 
 // compartment_t
@@ -741,7 +746,7 @@ void path_explorer_t::compartment_t::step()
 			{
 				current_convoy = *i;
 				// only consider lineless convoys which support this compartment's goods catetory which are not in the depot
-				if (!current_convoy->in_depot() && !current_convoy->get_line().is_bound() && current_convoy->get_goods_catg_index().is_contained(catg) )
+				if (!current_convoy->in_depot() && !current_convoy->get_line().is_bound() && (catg >= 2 || current_convoy->carries_this_or_lower_class(catg, g_class)) && current_convoy->get_goods_catg_index().is_contained(catg) )
 				{
 					temp_linkage.convoy = current_convoy;
 					linkages->append(temp_linkage);
@@ -765,8 +770,8 @@ void path_explorer_t::compartment_t::step()
 					 end = current_player->simlinemgmt.get_all_lines().end(); j != end; j++) 
 				{
 					current_line = *j;
-					// only consider lines which support this compartment's goods category
-					if ( current_line->get_goods_catg_index().is_contained(catg) && current_line->count_convoys() > 0)
+					// only consider lines which support this compartment's goods category and, where applicable, class
+					if ( current_line->get_goods_catg_index().is_contained(catg) && (catg >= 2 || current_line->carries_this_or_lower_class(catg, g_class)) && current_line->count_convoys() > 0)
 					{
 						temp_linkage.line = current_line;
 						linkages->append(temp_linkage);
@@ -972,7 +977,7 @@ void path_explorer_t::compartment_t::step()
 						// Check the journey times to the connexion
 						id_pair halt_pair(halt_list[h].get_id(), halt_list[t].get_id());
 						new_connexion = new haltestelle_t::connexion;
-						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
+						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg); // TODO: Separate waiting times by class
 						new_connexion->transfer_time = catg != goods_manager_t::passengers->get_catg_index() ? halt_list[h]->get_transshipment_time() : halt_list[h]->get_transfer_time();
 						if(current_linkage.line.is_bound())
 						{

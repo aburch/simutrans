@@ -196,6 +196,8 @@ public:
 
 	virtual waytype_t get_waytype() const = 0;
 
+	void set_class_reassignment(uint8 original_class, uint8 new_class);
+
 	// true, if this vehicle did not moved for some time
 	virtual bool is_stuck() { return true; }
 
@@ -459,6 +461,9 @@ public:
 #endif
 
 	~vehicle_t();
+
+	/// Note that the original class is the accommodation index *not* the previously re-assigned class (if different)
+	void set_class_reassignment(uint8 original_class, uint8 new_class);
 
 	void make_smoke() const;
 

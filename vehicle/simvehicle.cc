@@ -81,6 +81,8 @@
 #include "simvehicle.h"
 #include "simroadtraffic.h"
 
+#include "../path_explorer.h"
+
 
 /* get dx and dy from dir (just to remind you)
  * any vehicle (including city cars and pedestrians)
@@ -1361,7 +1363,7 @@ vehicle_t::vehicle_t() :
 		number_of_classes = desc->get_number_of_classes();
 	}
 
-	class_reassignments = new uint8[1];
+	class_reassignments = new uint8[number_of_classes];
 	fracht = new slist_tpl<ware_t>[number_of_classes];
 	class_reassignments[0] = 0;
 }
@@ -2795,6 +2797,17 @@ vehicle_t::~vehicle_t()
 
 	delete[] class_reassignments;
 	delete[] fracht; 
+}
+
+void vehicle_t::set_class_reassignment(uint8 original_class, uint8 new_class)
+{
+	const bool different = class_reassignments[original_class] != new_class;
+	class_reassignments[original_class] = new_class;
+	if (different)
+	{
+		path_explorer_t::refresh_class_category(get_desc()->get_freight_type()->get_catg(), original_class);
+		path_explorer_t::refresh_class_category(get_desc()->get_freight_type()->get_catg(), new_class);
+	}
 }
 
 

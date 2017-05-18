@@ -84,6 +84,11 @@ private:
 	 */
 	minivec_tpl<uint8> goods_catg_index;
 
+	// The classes of passengers/mail carried by this line
+	// Cached to reduce recalculation times in the path
+	// explorer. Indexed by passengers (0) and mail (1)
+	minivec_tpl<uint8> classes_carried[2];
+
 	/*
 	 * struct holds new financial history for line
 	 * @author hsiegeln
@@ -233,6 +238,10 @@ public:
 
 	// recalculates the good transported by this line and (in case of changes) will start schedule recalculation
 	void recalc_catg_index();
+
+	void calc_classes_carried();
+
+	bool carries_this_or_lower_class(uint8 catg, uint8 g_class);
 
 	int get_replacing_convoys_count() const;
 
