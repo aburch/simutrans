@@ -242,7 +242,7 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(classes);
 	for(uint32 i = 0; i < classes; i ++)
 	{
-		chk->input(capacity[classes]); 
+		chk->input(capacity[i]); 
 	}
 	chk->input(weight);
 	chk->input(power);
@@ -278,7 +278,7 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(can_be_at_rear ? 1 : 0);
 	for (uint32 i = 0; i < classes; i++)
 	{
-		chk->input(comfort[classes]);
+		chk->input(comfort[i]);
 	}
 	chk->input(max_loading_time_seconds);
 	chk->input(min_loading_time_seconds);
