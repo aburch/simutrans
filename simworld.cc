@@ -136,10 +136,15 @@ static pthread_t path_explorer_thread;
 
 static pthread_attr_t thread_attributes;
 
-static pthread_mutex_t private_car_route_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t karte_t::step_passengers_and_mail_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t path_explorer_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t karte_t::unreserve_route_mutex = PTHREAD_MUTEX_INITIALIZER;
+//static pthread_mutex_t private_car_route_mutex = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t karte_t::step_passengers_and_mail_mutex = PTHREAD_MUTEX_INITIALIZER;
+//static pthread_mutex_t path_explorer_mutex = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t karte_t::unreserve_route_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+static pthread_mutex_t private_car_route_mutex;
+pthread_mutex_t karte_t::step_passengers_and_mail_mutex;
+static pthread_mutex_t path_explorer_mutex;
+pthread_mutex_t karte_t::unreserve_route_mutex;
 
 static simthread_barrier_t private_car_barrier;
 simthread_barrier_t karte_t::unreserve_route_barrier;
@@ -547,7 +552,7 @@ void karte_t::destroy()
 {
 	is_sound = false; // karte_t::play_sound_area_clipped needs valid zeiger (pointer/drawer)
 	destroying = true;
-DBG_MESSAGE("karte_t::destroy()", "destroying world");
+	DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 #ifdef MULTI_THREAD
 	destroy_threads();
@@ -583,7 +588,7 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 		dbg->fatal( "karte_t::destroy()","Map cannot be cleanly destroyed in any rotation!" );
 	}
 
-DBG_MESSAGE("karte_t::destroy()", "label clear");
+	DBG_MESSAGE("karte_t::destroy()", "label clear");
 	labels.clear();
 
 	if(zeiger) {
@@ -601,7 +606,7 @@ DBG_MESSAGE("karte_t::destroy()", "label clear");
 	sync_way_eyecandy.clear();
 	old_progress += cached_size.x*cached_size.y;
 	ls.set_progress( old_progress );
-DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
+	DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 
 	// all convois aufraeumen
 	while (!convoi_array.empty()) {
@@ -613,12 +618,12 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 		}
 	}
 	convoi_array.clear();
-DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 
 	// all haltestellen aufraeumen
 	old_progress += haltestelle_t::get_alle_haltestellen().get_count();
 	haltestelle_t::destroy_all();
-DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 	ls.set_progress( old_progress );
 
 	// delete towns first (will also delete all their houses)
@@ -633,7 +638,7 @@ DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 	}
 	settings.set_city_count(no_of_cities);
 
-DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
 	ls.set_progress( old_progress );
 
@@ -644,7 +649,7 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 		delete [] plan;
 		plan = NULL;
 	}
-DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
 
 	old_progress += (cached_size.x*cached_size.y)/2;
 	ls.set_progress( old_progress );
@@ -667,7 +672,7 @@ DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
 			players[i] = NULL;
 		}
 	}
-DBG_MESSAGE("karte_t::destroy()", "player destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 
 	old_progress += (cached_size.x*cached_size.y)/4;
 	ls.set_progress( old_progress );
@@ -678,14 +683,14 @@ DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 		delete f;
 	}
 	fab_list.clear();
-DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
 
 	// hier nur entfernen, aber nicht loeschen
 	world_attractions.clear();
-DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 
 	weg_t::clear_list_of__ways();
-DBG_MESSAGE("karte_t::destroy()", "way list destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "way list destroyed");
 
 	delete scenario;
 	scenario = NULL;
@@ -696,7 +701,7 @@ DBG_MESSAGE("karte_t::destroy()", "way list destroyed");
 	bool empty_depot_list = depot_t::get_depot_list().empty();
 	assert( empty_depot_list );
 
-DBG_MESSAGE("karte_t::destroy()", "world destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 
 	// Added by : B.Gabriel
 	route_t::TERM_NODES();
@@ -1983,6 +1988,12 @@ void karte_t::init_threads()
 	simthread_barrier_init(&step_convoys_barrier_external, NULL, 2);
 	simthread_barrier_init(&step_convoys_barrier_internal, NULL, parallel_operations + 1);	
 	simthread_barrier_init(&start_path_explorer_barrier, NULL, 2);
+
+	// Initialise mutexes
+	pthread_mutex_init(&private_car_route_mutex, NULL);
+	pthread_mutex_init(&step_passengers_and_mail_mutex, NULL);
+	pthread_mutex_init(&path_explorer_mutex, NULL);
+	pthread_mutex_init(&unreserve_route_mutex, NULL);
 	
 	pthread_t thread;
 	
@@ -2111,6 +2122,12 @@ void karte_t::destroy_threads()
 #ifdef MULTI_THREAD_PATH_EXPLORER
 		simthread_barrier_destroy(&start_path_explorer_barrier);
 #endif 
+
+		// Destroy mutexes
+		pthread_mutex_destroy(&private_car_route_mutex);
+		pthread_mutex_destroy(&step_passengers_and_mail_mutex);
+		pthread_mutex_destroy(&path_explorer_mutex);
+		pthread_mutex_destroy(&unreserve_route_mutex);
 	}
 
 	first_step = 1;
