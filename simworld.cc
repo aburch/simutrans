@@ -135,6 +135,7 @@ static pthread_t convoy_step_master_thread;
 static pthread_t path_explorer_thread;
 
 static pthread_attr_t thread_attributes;
+static pthread_mutexattr_t mutex_attributes;
 
 //static pthread_mutex_t private_car_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 //pthread_mutex_t karte_t::step_passengers_and_mail_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -1627,7 +1628,8 @@ void *check_road_connexions_threaded(void *args)
 			stadt_t* city;
 			city = world()->cities_awaiting_private_car_route_check.remove_first();
 			karte_t::cities_to_process--;
-			pthread_mutex_unlock(&private_car_route_mutex);
+			int error = pthread_mutex_unlock(&private_car_route_mutex);
+			assert(error == 0);
 
 			if (!city)
 			{
@@ -1639,7 +1641,8 @@ void *check_road_connexions_threaded(void *args)
 
 			simthread_barrier_wait(&private_car_barrier);
 		}
-		pthread_mutex_unlock(&private_car_route_mutex);
+		int error = pthread_mutex_unlock(&private_car_route_mutex);
+		assert(error == 0);
 		// Having two barrier waits here is intentional.
 		simthread_barrier_wait(&private_car_barrier);
 	} while (!world()->is_terminating_threads());
@@ -1772,7 +1775,8 @@ void *step_passengers_and_mail_threaded(void* args)
 		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 		karte_t::world->next_step_passenger -= (total_units_passenger * karte_t::world->passenger_step_interval);
 		karte_t::world->next_step_mail -= (total_units_mail * karte_t::world->mail_step_interval);
-		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		int error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		assert(error == 0);
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
 	} while (!karte_t::world->is_terminating_threads());
 
@@ -1863,7 +1867,8 @@ void* path_explorer_threaded(void* args)
 		if (karte_t::world->is_terminating_threads())
 		{
 			karte_t::path_explorer_step_progress = 2;
-			pthread_mutex_unlock(&path_explorer_mutex);
+			int error = pthread_mutex_unlock(&path_explorer_mutex);
+			assert(error == 0);
 			break;
 		}
 	
@@ -1873,7 +1878,8 @@ void* path_explorer_threaded(void* args)
 
 		pthread_cond_signal(&path_explorer_conditional_end);
 		karte_t::path_explorer_step_progress = 2;
-		pthread_mutex_unlock(&path_explorer_mutex);
+		int error = pthread_mutex_unlock(&path_explorer_mutex);
+		assert(error == 0);
 	} while (!karte_t::world->is_terminating_threads());
 		
 	karte_t::path_explorer_step_progress = -1;
@@ -1885,14 +1891,16 @@ void* path_explorer_threaded(void* args)
 void karte_t::stop_path_explorer()
 {
 #ifdef MULTI_THREAD_PATH_EXPLORER
-	pthread_mutex_lock(&path_explorer_mutex);
+	int error = pthread_mutex_lock(&path_explorer_mutex);
+	assert(error == 0);
 	
 	if (path_explorer_step_progress < 2 && path_explorer_step_progress >= 0)
 	{
 		pthread_cond_wait(&path_explorer_conditional_end, &path_explorer_mutex);
 	}
 		
-	pthread_mutex_unlock(&path_explorer_mutex);
+	error = pthread_mutex_unlock(&path_explorer_mutex);
+	assert(error == 0);
 #endif
 }
 
@@ -1914,7 +1922,8 @@ void karte_t::start_path_explorer()
 	{
 		simthread_barrier_wait(&start_path_explorer_barrier);
 	}
-	pthread_mutex_unlock(&path_explorer_mutex);
+	int error = pthread_mutex_unlock(&path_explorer_mutex);
+	assert(error == 0);
 #endif 
 }
 
@@ -1934,7 +1943,8 @@ void* unreserve_route_threaded(void* args)
 		}
 		if (convoi_t::current_unreserver == 0)
 		{
-			pthread_mutex_unlock(&karte_t::unreserve_route_mutex);
+			int error = pthread_mutex_unlock(&karte_t::unreserve_route_mutex);
+			assert(error == 0);
 			continue;
 		}
 
@@ -1987,10 +1997,13 @@ void karte_t::init_threads()
 	simthread_barrier_init(&start_path_explorer_barrier, NULL, 2);
 
 	// Initialise mutexes
-	pthread_mutex_init(&private_car_route_mutex, NULL);
-	pthread_mutex_init(&step_passengers_and_mail_mutex, NULL);
-	pthread_mutex_init(&path_explorer_mutex, NULL);
-	pthread_mutex_init(&unreserve_route_mutex, NULL);
+	pthread_mutexattr_init(&mutex_attributes);
+	pthread_mutexattr_settype(&mutex_attributes, PTHREAD_MUTEX_ERRORCHECK);
+
+	pthread_mutex_init(&private_car_route_mutex, &mutex_attributes);
+	pthread_mutex_init(&step_passengers_and_mail_mutex, &mutex_attributes);
+	pthread_mutex_init(&path_explorer_mutex, &mutex_attributes);
+	pthread_mutex_init(&unreserve_route_mutex, &mutex_attributes);
 	
 	pthread_t thread;
 	
@@ -2125,6 +2138,8 @@ void karte_t::destroy_threads()
 		pthread_mutex_destroy(&step_passengers_and_mail_mutex);
 		pthread_mutex_destroy(&path_explorer_mutex);
 		pthread_mutex_destroy(&unreserve_route_mutex);
+
+		pthread_mutexattr_destroy(&mutex_attributes);
 	}
 
 	first_step = 1;
@@ -5931,7 +5946,8 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #endif
 		city->set_generated_passengers(units_this_step, history_type + 1);
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		int error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		assert(error == 0);
 #endif
 	}
 	
@@ -6041,7 +6057,8 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #endif
 				city->set_generated_passengers(units_this_step, history_type + 1);
 #ifdef MULTI_THREAD
-				pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				int error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				assert(error == 0);
 #endif
 			}
 
@@ -6090,7 +6107,8 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #endif
 			first_origin->add_passengers_generated_commuting(units_this_step);
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			int error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			assert(error == 0);
 #endif
 		}
 			
@@ -6101,7 +6119,8 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #endif
 			first_origin->add_passengers_generated_visiting(units_this_step);
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			int error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			assert(error == 0);
 #endif
 		}
 
@@ -6371,7 +6390,8 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #endif
 					dbg->error("simworld.cc", "Incorrect destination type detected");
 #ifdef MULTI_THREAD
-					pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+					int error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+					assert(error == 0);
 #endif
 				};
 
@@ -6470,13 +6490,15 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 #ifdef MULTI_THREAD
 		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		int error;
 #endif
 
 		switch(route_status)
 		{
 		case public_transport:
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			assert(error == 0);
 #endif
 			if(tolerance < UINT32_MAX_VALUE)
 			{
@@ -6550,7 +6572,8 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
 			}
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			assert(error == 0);
 #endif
 			add_to_waiting_list(pax, origin_pos.get_2d());
 #ifdef MULTI_THREAD
@@ -6601,7 +6624,8 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				
 			}
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			assert(error == 0);
 			// Prevent deadlocks because of double-locking:
 			// there is already a mutex lock in the add_to_waiting_list
 #endif
@@ -6711,7 +6735,8 @@ no_route:
 #endif
 				destination_town->set_generated_passengers(units_this_step, history_type + 1);
 #ifdef MULTI_THREAD
-				pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				int error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				assert(error == 0);
 #endif
 #endif
 			}
@@ -6723,7 +6748,8 @@ no_route:
 #endif
 				city->set_generated_passengers(units_this_step, history_type + 1);
 #ifdef MULTI_THREAD
-				pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				int error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				assert(error == 0);
 #endif
 #endif
 				// Cannot add success figures for buildings here as cannot get a building from a koord. 
@@ -6740,7 +6766,8 @@ no_route:
 #endif
 				current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == goods_manager_t::passengers ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED));
 #ifdef MULTI_THREAD
-				pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				int error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				assert(error == 0);
 #endif
 #endif
 			}
@@ -6844,7 +6871,8 @@ no_route:
 #endif
 								current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == goods_manager_t::passengers ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
 #ifdef MULTI_THREAD
-								pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+								int error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+								assert(error == 0);
 #endif
 							}
 						}
@@ -6862,7 +6890,8 @@ no_route:
 #endif
 								ret_halt->add_pax_unhappy(units_this_step);
 #ifdef MULTI_THREAD
-								pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+								int error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+								assert(error == 0); 
 #endif
 							}
 						}
@@ -6883,7 +6912,8 @@ no_route:
 #endif
 						ret_halt->add_pax_no_route(units_this_step);
 #ifdef MULTI_THREAD
-						pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+						int error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+						assert(error == 0);
 #endif
 					}
 				}
@@ -6941,7 +6971,8 @@ no_route:
 					}
 				}
 #ifdef MULTI_THREAD
-				pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				int error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				assert(error == 0);
 #endif
 			}
 return_on_foot:
@@ -6988,7 +7019,8 @@ return_on_foot:
 					current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp==goods_manager_t::passengers ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
 				}
 #ifdef MULTI_THREAD
-				pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				int error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				assert(error == 0);
 #endif
 			}
 

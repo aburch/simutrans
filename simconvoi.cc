@@ -69,6 +69,7 @@
 static pthread_mutex_t step_convois_mutex = PTHREAD_MUTEX_INITIALIZER;
 static vector_tpl<pthread_t> unreserve_threads;
 static pthread_attr_t thread_attributes;
+static pthread_mutexattr_t mutex_attributes;
 waytype_t convoi_t::current_waytype = road_wt; 
 uint16 convoi_t::current_unreserver = 0;
 #endif
@@ -1465,7 +1466,8 @@ bool convoi_t::drive_to()
 #endif
 			simlinemgmt_t::update_line(line);
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock(&step_convois_mutex);
+			int error = pthread_mutex_unlock(&step_convois_mutex);
+			assert(error == 0);
 #endif
 		}
 	}
@@ -1481,7 +1483,8 @@ bool convoi_t::drive_to()
 #endif
 			get_owner()->report_vehicle_problem( self, ziel );
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock(&step_convois_mutex);
+			int error = pthread_mutex_unlock(&step_convois_mutex);
+			assert(error == 0);
 #endif
 		}
 		// wait 25s before next attempt
@@ -1531,7 +1534,8 @@ bool convoi_t::drive_to()
 #endif
 						get_owner()->report_vehicle_problem( self, ziel );
 #ifdef MULTI_THREAD
-						pthread_mutex_unlock(&step_convois_mutex);
+						int error = pthread_mutex_unlock(&step_convois_mutex);
+						assert(error == 0);
 #endif
 					}
 					// wait 25s before next attempt
@@ -7240,7 +7244,8 @@ void convoi_t::clear_replace()
 #endif
 						 halt->add_waiting_time(waiting_minutes, iter.get_zwischenziel(), iter.get_desc()->get_catg_index());
 #ifdef MULTI_THREAD
-						 pthread_mutex_unlock(&step_convois_mutex);
+						int error = pthread_mutex_unlock(&step_convois_mutex);
+						assert(error == 0);
 #endif
 					 }
 				 }
@@ -7463,7 +7468,8 @@ void convoi_t::emergency_go_to_depot()
 
 			enter_depot(dep);
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock(&step_convois_mutex);
+			int error = pthread_mutex_unlock(&step_convois_mutex);
+			assert(error == 0);
 #endif
 			// Do NOT do the convoi_arrived here: it's done in enter_depot!
 			state = INITIAL;
@@ -7487,7 +7493,8 @@ void convoi_t::emergency_go_to_depot()
 
 			destroy();
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock(&step_convois_mutex);
+			int error = pthread_mutex_unlock(&step_convois_mutex);
+			assert(error == 0);
 #endif
 		}
 	}
