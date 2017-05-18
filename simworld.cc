@@ -140,11 +140,13 @@ static pthread_mutexattr_t mutex_attributes;
 //static pthread_mutex_t private_car_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 //pthread_mutex_t karte_t::step_passengers_and_mail_mutex = PTHREAD_MUTEX_INITIALIZER;
 //static pthread_mutex_t path_explorer_mutex = PTHREAD_MUTEX_INITIALIZER;
+//static pthread_mutex_t path_explorer_cond_mutex = PTHREAD_MUTEX_INITIALIZER;
 //pthread_mutex_t karte_t::unreserve_route_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static pthread_mutex_t private_car_route_mutex;
 pthread_mutex_t karte_t::step_passengers_and_mail_mutex;
 static pthread_mutex_t path_explorer_mutex;
+static pthread_mutex_t path_explorer_cond_mutex;
 pthread_mutex_t karte_t::unreserve_route_mutex;
 
 static simthread_barrier_t private_car_barrier;
@@ -1862,7 +1864,8 @@ void* path_explorer_threaded(void* args)
 		simthread_barrier_wait(&start_path_explorer_barrier);
 		karte_t::path_explorer_step_progress = 0;
 		simthread_barrier_wait(&start_path_explorer_barrier);
-		pthread_mutex_lock(&path_explorer_mutex);
+		int error_lock = pthread_mutex_lock(&path_explorer_mutex);
+		assert(error_lock == 0);
 			
 		if (karte_t::world->is_terminating_threads())
 		{
@@ -1896,7 +1899,10 @@ void karte_t::stop_path_explorer()
 	
 	if (path_explorer_step_progress < 2 && path_explorer_step_progress >= 0)
 	{
-		pthread_cond_wait(&path_explorer_conditional_end, &path_explorer_mutex);
+		pthread_cond_wait(&path_explorer_conditional_end, &path_explorer_cond_mutex);
+
+		error = pthread_mutex_unlock(&path_explorer_cond_mutex);
+		assert(error == 0);
 	}
 		
 	error = pthread_mutex_unlock(&path_explorer_mutex);
@@ -1913,7 +1919,8 @@ void karte_t::start_path_explorer()
 		// or else we will get a thread deadlock.
 		return;
 	}
-	pthread_mutex_lock(&path_explorer_mutex);
+	int error = pthread_mutex_lock(&path_explorer_mutex);
+	assert(error == 0);
 	if (path_explorer_step_progress > 0)
 	{
 		simthread_barrier_wait(&start_path_explorer_barrier);
@@ -1922,7 +1929,7 @@ void karte_t::start_path_explorer()
 	{
 		simthread_barrier_wait(&start_path_explorer_barrier);
 	}
-	int error = pthread_mutex_unlock(&path_explorer_mutex);
+	error = pthread_mutex_unlock(&path_explorer_mutex);
 	assert(error == 0);
 #endif 
 }
@@ -2002,6 +2009,7 @@ void karte_t::init_threads()
 
 	pthread_mutex_init(&private_car_route_mutex, &mutex_attributes);
 	pthread_mutex_init(&step_passengers_and_mail_mutex, &mutex_attributes);
+	pthread_mutex_init(&path_explorer_cond_mutex, &mutex_attributes); 
 	pthread_mutex_init(&path_explorer_mutex, &mutex_attributes);
 	pthread_mutex_init(&unreserve_route_mutex, &mutex_attributes);
 	
@@ -2137,6 +2145,7 @@ void karte_t::destroy_threads()
 		pthread_mutex_destroy(&private_car_route_mutex);
 		pthread_mutex_destroy(&step_passengers_and_mail_mutex);
 		pthread_mutex_destroy(&path_explorer_mutex);
+		pthread_mutex_destroy(&path_explorer_cond_mutex); 
 		pthread_mutex_destroy(&unreserve_route_mutex);
 
 		pthread_mutexattr_destroy(&mutex_attributes);
