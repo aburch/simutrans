@@ -492,7 +492,7 @@ private:
 	 * Calculates the earliest time in ticks that passengers/mail/goods can arrive
 	 * at the given halt in light of the current estimated departure times.
 	 */
-	sint64 calc_earliest_arrival_time_at(halthandle_t halt, convoihandle_t &convoi, uint8 catg_index) const;
+	sint64 calc_earliest_arrival_time_at(halthandle_t halt, convoihandle_t &convoi, uint8 catg_index, uint8 g_class) const;
 
 	/**
 	* This will check the list of transferring cargoes

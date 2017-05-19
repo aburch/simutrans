@@ -7696,6 +7696,10 @@ void convoi_t::calc_classes_carried()
 
 bool convoi_t::carries_this_or_lower_class(uint8 catg, uint8 g_class) const
 {
+	if (catg > 1)
+	{
+		return true;
+	}
 	const bool carries_this_class = classes_carried[catg].is_contained(g_class);
 	if (carries_this_class)
 	{
