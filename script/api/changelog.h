@@ -8,6 +8,7 @@
  * - Added map_object_x::is_marked
  * - Added gui::open_info_win_at
  * - Added ::is_convoy_allowed
+ * - Added convoy_x::is_in_depot
  *
  * @section api-120-2-2 Release 120.2.2
  *

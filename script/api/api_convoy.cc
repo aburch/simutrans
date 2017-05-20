@@ -311,6 +311,10 @@ void export_convoy(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &convoi_t::get_withdraw, "is_withdrawn");
 	/**
+	 * @returns true if convoy is in depot
+	 */
+	register_method(vm, &convoi_t::in_depot, "is_in_depot");
+	/**
 	 * Destroy the convoy.
 	 * @ingroup game_cmd
 	 */
