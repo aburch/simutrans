@@ -2545,7 +2545,7 @@ void convoi_t::ziel_erreicht()
 				}
 			}
 		}
-		else {
+		else if(schedule->get_current_eintrag().pos == get_pos()) {
 			// Neither depot nor station: waypoint
 			advance_schedule();
 			state = ROUTING_1;
@@ -2554,6 +2554,10 @@ void convoi_t::ziel_erreicht()
 				no_load=false;
 				go_to_depot(false);
 			}
+		}
+		else
+		{
+			state = ROUTING_1;
 		}
 	}
 	wait_lock = 0;
