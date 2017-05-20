@@ -78,8 +78,27 @@ void sqstd_printcallstack(HSQUIRRELVM v)
 					pf(v,_SC("- - - [%s] CLASS\n"),name);
 					break;
 				case OT_INSTANCE:
+				{
+					// try to obtain class name
+					sq_getclass(v, -1);
+					sq_pushnull(v);
+					if (SQ_SUCCEEDED(sq_getattributes(v, -2))) {
+						// stack: instance, class, attributes
+						sq_pushstring(v, "classname", -1);
+						if (SQ_SUCCEEDED(sq_get(v, -2))) {
+							const char* cn;
+							if (SQ_SUCCEEDED(sq_getstring(v, -1, &cn))) {
+								pf(v,_SC("- - - [%s] INSTANCE(%s)\n"),name, cn);
+								sq_pop(v, 3);
+								break;
+							}
+						}
+						sq_poptop(v);
+					}
+					sq_poptop(v);
 					pf(v,_SC("- - - [%s] INSTANCE\n"),name);
 					break;
+				}
 				case OT_WEAKREF:
 					pf(v,_SC("- - - [%s] WEAKREF\n"),name);
 					break;
