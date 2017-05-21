@@ -3313,7 +3313,7 @@ void convoi_t::vorfahren()
 					sch->increment_index(&stop, &rev);
 				}
 				
-				if(sch->entries[stop].reverse == 1 != (state == REVERSING))
+				if((sch->entries[stop].reverse == 1 != (state == REVERSING)) && (state != ROUTE_JUST_FOUND || front()->get_waytype() != road_wt))
 				{
 					need_to_update_line = true;
 					const sint8 reverse_state = state == REVERSING ? 1 : 0;
