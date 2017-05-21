@@ -3123,10 +3123,10 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 			if (warray)
 			{
 				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting");
-				buf.append("\n");
 			}
 		}
 
+		buf.append("\n");
 		if (get_transferring_cargoes_count() > 0)
 		{
 			buf.printf("%s:\n", translator::translate("transfers"));

@@ -47,8 +47,8 @@ static const char *sort_text[halt_info_t::SORT_MODES] = {
 	"Menge",
 	"origin (detail)",
 	"origin (amount)",
-	"destination (detail)",
-	"transferring time"
+	"destination (detail)"/*,
+	"transferring time"*/
 };
 
 static const char cost_type[MAX_HALT_COST][64] =
@@ -363,12 +363,12 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		// information about the passengers happiness
 		info_buf.clear();
 		halt->info(info_buf);
-//#ifdef DEBUG
+#ifdef DEBUG
 		// This system currently only gives the number of
 		// packets, not the actual number of passengers (etc.). 
 		// Useful only for debugging therefore.
 		info_buf.printf(transferring);
-//#endif
+#endif
 		display_multiline_text(pos.x + D_MARGIN_LEFT, top, info_buf, SYSCOL_TEXT);
 	}
 }

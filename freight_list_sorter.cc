@@ -129,7 +129,7 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 				return true;
 			}
 		}
-		case by_transfer_time: // Should only be used with transfer goods
+		/*case by_transfer_time: // Should only be used with transfer goods
 		{
 			const sint64 current_time = welt->get_ticks();
 
@@ -146,8 +146,7 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 			{
 				return order < 0;
 			}
-			/* FALLTHROUGH */
-		}
+		}*/
 		// no break
 	}
 	return false;
@@ -208,20 +207,13 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		wlist = (ware_t*) malloc(warray_size);
 	}
 
-	const sint64 current_time = welt->get_ticks();
-	//transferring_cargo_t tc;
-
-	uint32 rs = tc.ready_time;
-
-	//const uint32 rs = world()->ticks_to_seconds((tc.ready_time - current_time));
-
 
 	FOR(vector_tpl<ware_t>, const& ware, warray) {
 		if(  ware.get_desc() == goods_manager_t::none  ||  ware.menge == 0  ) {
 			continue;
 		}
 		wlist[pos] = ware;
-		if (sort_mode == by_transfer_time && pos > 0)
+	/*	if (sort_mode == by_transfer_time && pos > 0)
 		{		
 			for (int i = 0; i < pos; i++)
 			{
@@ -234,7 +226,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					}
 	
 			}
-		}
+		}*/
 		// for the sorting via the number for the next stop we unify entries
 		if(sort_mode == by_via_sum && pos > 0) 
 		{
@@ -368,7 +360,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 
 			const sint64 current_time = welt->get_ticks();
 
-			char transfer_time_left[32] = "";
+		/*	char transfer_time_left[32] = "";
 			if (halt->get_transferring_cargoes_count() > 0)
 			{
 				transferring_cargo_t tc;
@@ -378,7 +370,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			//	const uint32 ready_seconds = world()->ticks_to_seconds(tc.ready_time - current_time);				
 				welt->sprintf_ticks(transfer_time_left, sizeof(transfer_time_left), tc_ready_time);
 			}
-
+			*/
 			// the target name is not correct for the via sort
 			if(sortby != by_via_sum && sortby != by_origin_amount) 
 			{
@@ -421,13 +413,12 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				}
 			}
 
-			if(sortby == by_name || sortby == by_destination_detail || sortby == by_amount || sortby == by_origin || (sortby == by_via_sum && via_halt == halt) || sortby == by_via || sortby == by_transfer_time)
+			if(sortby == by_name || sortby == by_destination_detail || sortby == by_amount || sortby == by_origin || (sortby == by_via_sum && via_halt == halt) || sortby == by_via)
 			{
 				const char *destination_name = translator::translate("unknown");
 				if(halt.is_bound()) 
 				{
 					destination_name = halt->get_name();
-					buf.printf(" (%s) ", transfer_time_left);
 				}
 				if(sortby == by_destination_detail)
 				{
