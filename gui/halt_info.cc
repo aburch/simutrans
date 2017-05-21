@@ -47,7 +47,8 @@ static const char *sort_text[halt_info_t::SORT_MODES] = {
 	"Menge",
 	"origin (detail)",
 	"origin (amount)",
-	"destination (detail)"
+	"destination (detail)"/*,
+	"transferring time"*/
 };
 
 static const char cost_type[MAX_HALT_COST][64] =
@@ -252,6 +253,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		// buffer update now only when needed by halt itself => dedicated buffer for this
 		int old_len = freight_info.len();
 		halt->get_freight_info(freight_info);
+
 		if(  toggler_departures.pressed  ) {
 			old_len = -1;
 		}
@@ -263,7 +265,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		}
 
 		char transferring[64];
-		sprintf(transferring, "%i %s", halt->get_transferring_cargoes_count(), translator::translate("units transferring"));
+		sprintf(transferring, "%i %s", halt->get_transferring_cargoes_count(), translator::translate("packages transferring"));
 		text.recalc_size();
 
 		gui_frame_t::draw(pos, size);
