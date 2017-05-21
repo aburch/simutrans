@@ -1,0 +1,30 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum major release 12 of Simutrans-Experimental
+#
+# Author: jamespetts
+# Created: July 2013
+#
+obj=program_text
+name=transferring
+note=Shown in the station info window in the good section for the amount of people/cargo that is currently transferring
+-
+obj=program_text
+name=transfers
+note=Shown in the station info window in the good section to distinguish the transferring section from the waiting section
+-
+obj=program_text
+name=
+note=
+-
+obj=program_text
+name=
+note=
+-
+obj=program_text
+name=
+note=
+-
+obj=program_text
+name=
+note=
+-
