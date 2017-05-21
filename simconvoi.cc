@@ -284,7 +284,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 
 	// force asynchronous recalculation
 	if(schedule) {
-		if(!schedule->is_editing_finished()) { //"is completed" (Google)
+		if(!schedule->is_editing_finished()) {
 			destroy_win((ptrdiff_t)schedule);
 		}
 
@@ -1875,7 +1875,7 @@ end_loop:
 					return;
 				}
 				else
-				{
+				{				
 					// The schedule window might be closed whilst this vehicle is still loading.
 					// Do not allow the player to cheat by sending the vehicle on its way before it has finished.
 					bool can_go = true;
@@ -6169,10 +6169,16 @@ end_check:
  */
 void convoi_t::register_stops()
 {
-	if(  schedule  ) {
-		FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
+	if(schedule)
+	{
+		FOR(minivec_tpl<schedule_entry_t>, &i, schedule->entries)
+		{
 			halthandle_t const halt = haltestelle_t::get_halt(i.pos, get_owner());
-			if(  halt.is_bound()  ) {
+			// Reset the reversing status when the schedule changes, as changes to the schedule
+			// might affect where reversing is needed.
+			i.reverse = -1;
+			if(halt.is_bound())
+			{
 				halt->add_convoy(self);
 			}
 		}
