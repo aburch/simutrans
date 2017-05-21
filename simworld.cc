@@ -1892,7 +1892,7 @@ void karte_t::stop_path_explorer()
 		pthread_cond_wait(&path_explorer_conditional_end, &path_explorer_mutex);
 	}
 	
-	if (path_explorer_mutex)
+	if (&path_explorer_mutex)
 	{
 		pthread_mutex_unlock(&path_explorer_mutex);
 	}
