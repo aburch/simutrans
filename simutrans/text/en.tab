@@ -3292,12 +3292,10 @@ double_block_signal
 Double block signal
 this_signal_will_not_clear_until_next_signal_is_clear
 This signal will not clear until next signal is clear
-<<<<<<< HEAD
 transferring
 transferring
 transfers
 Transfers
-=======
 with_wayobj
 with
 way_cannot_be_used_by_any_vehicle
@@ -3352,4 +3350,3 @@ assets
 Assets
 runway_not_reserved
 Runway not reserved
->>>>>>> refs/remotes/origin/master
