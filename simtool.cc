@@ -5863,8 +5863,11 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 	{
 		cost = -welt->get_settings().cst_multiply_station * desc->get_level();
 	}
+
+	cost += welt->get_land_value(pos); 
 	
-	if ( !player_t::can_afford(player, -cost) ) {
+	if ( !player_t::can_afford(player, -cost) ) 
+	{
 		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
