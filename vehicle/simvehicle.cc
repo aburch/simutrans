@@ -1779,6 +1779,7 @@ sint16 get_friction_of_waytype(waytype_t waytype)
  */
 void vehicle_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, const int h_neu)
 {
+	
 	if(gr == NULL)
 	{
 		return;
@@ -1799,6 +1800,8 @@ void vehicle_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 
 	// or a hill?
 	// Cumulative drag for hills: @author: jamespetts
+	// See here for an explanation of the additional resistance
+	// from hills: https://en.wikibooks.org/wiki/Fundamentals_of_Transportation/Grade
 	const slope_t::type hang = gr->get_weg_hang();
 	if(hang != slope_t::flat) 
 	{

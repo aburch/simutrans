@@ -198,7 +198,7 @@ sint32 convoy_t::calc_max_speed(const weight_summary_t &weight)
 	
 	// this iterative version is a bit more precise as it uses the correct speed.
 	/*
-	float32e8_t v = vehicle.max_speed * kmh2ms;
+	float32e8_t v = vehicle_summary.max_speed * kmh2ms;
 	float32e8_t F = get_force(v);
 	float32e8_t Ff = adverse.cf * v * v;
 	if (Frs + Ff > F)
