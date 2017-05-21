@@ -264,9 +264,9 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			}
 		}
 
-		char transferring[64];
+		/*char transferring[64];
 		sprintf(transferring, "%i %s", halt->get_transferring_cargoes_count(), translator::translate("packages transferring"));
-		text.recalc_size();
+		text.recalc_size();*/
 
 		gui_frame_t::draw(pos, size);
 		set_dirty();
@@ -367,7 +367,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		// This system currently only gives the number of
 		// packets, not the actual number of passengers (etc.). 
 		// Useful only for debugging therefore.
-		info_buf.printf(transferring);
+		//info_buf.printf(transferring);
 #endif
 		display_multiline_text(pos.x + D_MARGIN_LEFT, top, info_buf, SYSCOL_TEXT);
 	}
