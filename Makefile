@@ -1,6 +1,9 @@
 CFG ?= default
 -include config.$(CFG)
 
+HOSTCC?=$(CC)
+HOSTCXX?=$(CXX)
+
 BACKENDS      = allegro gdi opengl sdl sdl2 mixer_sdl posix
 COLOUR_DEPTHS = 0 16
 OSTYPES       = amiga beos cygwin freebsd haiku linux mingw mac

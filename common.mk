@@ -19,7 +19,7 @@ all: $(PROGDIR)/$(PROG)
 
 $(PROGDIR)/$(PROG): $(OBJS)
 	@echo "===> LD  $@"
-	$(Q)$(CXX) $(OBJS) $(LDFLAGS) $(LIBS) -o $(PROGDIR)/$(PROG)
+	$(Q)$(HOSTCXX) $(OBJS) $(LDFLAGS) $(LIBS) -o $(PROGDIR)/$(PROG)
 
 clean:
 	@echo "===> Cleaning up"
@@ -36,21 +36,21 @@ clean:
 
 $(BUILDDIR)/%.o: %.mm
 	@echo "===> Obj-c OSX $<"
-	$(Q)$(CXX) $(CXXFLAGS) $(OBJCFLAGS) -c -MMD -o $@ $<
+	$(Q)$(HOSTCXX) $(CXXFLAGS) $(OBJCFLAGS) -c -MMD -o $@ $<
 
 $(BUILDDIR)/%.o: %.m
 	@echo "===> Obj-c OSX $<"
-	$(Q)$(CXX) $(CXXFLAGS) $(OBJCFLAGS) -c -MMD -o $@ $<
+	$(Q)$(HOSTCXX) $(CXXFLAGS) $(OBJCFLAGS) -c -MMD -o $@ $<
 
 $(BUILDDIR)/%.o: %.c
 	@echo "===> HOSTCC  $<"
-	$(Q)$(CC) $(CCFLAGS) -c -MMD -o $@ $<
+	$(Q)$(HOSTCC) $(CCFLAGS) -c -MMD -o $@ $<
 
 $(BUILDDIR)/%.o: %.cc
 	@echo "===> HOSTCXX $<"
-	$(Q)$(CXX) $(CXXFLAGS) -c -MMD -o $@ $<
+	$(Q)$(HOSTCXX) $(CXXFLAGS) -c -MMD -o $@ $<
 
 $(BUILDDIR)/%.o: %.rc
 	@echo "===> RES $<"
-#	$(Q)$(WINDRES) --preprocessor "$(CXX) -E -xc -DRC_INVOKED -MMD -MF $(@:%.o=%.d) -MT $@" -O COFF $< $@
-	$(Q)$(WINDRES) --preprocessor "$(CXX) -E -xc -DRC_INVOKED -MMD -MT $@" -O COFF $< $@
+#	$(Q)$(WINDRES) --preprocessor "$(HOSTCXX) -E -xc -DRC_INVOKED -MMD -MF $(@:%.o=%.d) -MT $@" -O COFF $< $@
+	$(Q)$(WINDRES) --preprocessor "$(HOSTCXX) -E -xc -DRC_INVOKED -MMD -MT $@" -O COFF $< $@
