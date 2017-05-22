@@ -120,6 +120,19 @@ enum systemtype_t {
 	type_all      = 255,	///< special ?
 };
 
+/**
+ * conditions for overtaking on roads
+ * @author teamhimeH
+ */
+ enum overtaking_mode_t {
+	 invalid_mode      = -1,
+	 oneway_mode       = 0,  // condition for one-way road
+	 twoway_mode       = 1,  // condition for two-way road
+	 loading_only_mode = 2,  // overtake a loading convoy only
+	 prohibited_mode   = 3,  // overtaking is completely forbidden
+	 passing_only      = 4   // vehicles can go only on passing lane
+ };
+
 
 // makros are not very safe: thus use these macro like functions
 // otherwise things may fail or functions are called uneccessarily twice
