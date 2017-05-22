@@ -120,8 +120,8 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	if (!sound_str.empty()) {
 		sint8 sv8 = sound_str.size();
-		node.write_data_at(fp, &sv8, 17, sizeof(sint8));
-		node.write_data_at(fp, sound_str.c_str(), 18, sound_str.size());
+		node.write_data_at(fp, &sv8, 18, sizeof(sint8));
+		node.write_data_at(fp, sound_str.c_str(), 19, sound_str.size());
 		index += 1 + sound_str.size();
 	}
 

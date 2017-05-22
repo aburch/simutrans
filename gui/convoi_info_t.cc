@@ -296,7 +296,7 @@ convoi_info_t::~convoi_info_t()
  */
 void convoi_info_t::draw(scr_coord pos, scr_size size)
 {
-	if(!cnv.is_bound() || cnv->in_depot() || cnv->get_vehicle_count() == 0) 
+	if (!cnv.is_bound() || cnv->in_depot() || cnv->get_vehicle_count() == 0)
 	{
 		destroy_win(this);
 	}
@@ -326,17 +326,17 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		input.set_color(cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : SYSCOL_TEXT);
 
 		// make titlebar dirty to display the correct coordinates
-		if(cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()) {
-			if(  line_bound  &&  !cnv->get_line().is_bound()  ) {
-				remove_component( &line_button );
+		if (cnv->get_owner() == welt->get_active_player() && !welt->get_active_player()->is_locked()) {
+			if (line_bound && !cnv->get_line().is_bound()) {
+				remove_component(&line_button);
 				line_bound = false;
 			}
-			else if(  !line_bound  &&  cnv->get_line().is_bound()  ) {
-				add_component( &line_button );
+			else if (!line_bound  &&  cnv->get_line().is_bound()) {
+				add_component(&line_button);
 				line_bound = true;
 			}
 			button.enable();
-			details_button.pressed = win_get_magic( magic_convoi_detail+cnv.get_id() );
+			details_button.pressed = win_get_magic(magic_convoi_detail + cnv.get_id());
 			go_home_button.enable(); // Will be disabled, if convoy goes to a depot.
 			if (!cnv->get_schedule()->empty()) {
 				const grund_t* g = welt->lookup(cnv->get_schedule()->get_current_eintrag().pos);
@@ -347,29 +347,29 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 					goto enable_home;
 				}
 			}
-			else 
+			else
 			{
-enable_home:
+			enable_home:
 				go_home_button.enable();
 			}
 
-			if(  grund_t* gr=welt->lookup(cnv->get_schedule()->get_current_eintrag().pos)  ) {
+			if (grund_t* gr = welt->lookup(cnv->get_schedule()->get_current_eintrag().pos)) {
 				go_home_button.pressed = gr->get_depot() != NULL;
 			}
-			details_button.pressed = win_get_magic( magic_convoi_detail+cnv.get_id() );
+			details_button.pressed = win_get_magic(magic_convoi_detail + cnv.get_id());
 
 			no_load_button.pressed = cnv->get_no_load();
 			no_load_button.enable();
 			replace_button.pressed = cnv->get_replace();
-			replace_button.set_text(cnv->get_replace()?"Replacing":"Replace");
+			replace_button.set_text(cnv->get_replace() ? "Replacing" : "Replace");
 			replace_button.enable();
 			reverse_button.pressed = cnv->get_reverse_schedule();
 			reverse_button.enable();
 		}
 		else {
-			if(  line_bound  ) {
+			if (line_bound) {
 				// do not jump to other player line window
-				remove_component( &line_button );
+				remove_component(&line_button);
 				line_bound = false;
 			}
 			button.disable();
@@ -378,23 +378,23 @@ enable_home:
 			replace_button.disable();
 			reverse_button.disable();
 		}
-		follow_button.pressed = (welt->get_viewport()->get_follow_convoi()==cnv);
+		follow_button.pressed = (welt->get_viewport()->get_follow_convoi() == cnv);
 
 		// buffer update now only when needed by convoi itself => dedicated buffer for this
-		const int old_len=freight_info.len();
+		const int old_len = freight_info.len();
 		cnv->get_freight_info(freight_info);
-		if(  old_len!=freight_info.len()  ) {
+		if (old_len != freight_info.len()) {
 			text.recalc_size();
 		}
 
-		route_bar.set_base(cnv->get_route()->get_count()-1);
+		route_bar.set_base(cnv->get_route()->get_count() - 1);
 		cnv_route_index = cnv->front()->get_route_index() - 1;
 
 		// all gui stuff set => display it
 		gui_frame_t::draw(pos, size);
 		set_dirty();
 
-		PUSH_CLIP(pos.x+1,pos.y+D_TITLEBAR_HEIGHT,size.w-2,size.h-D_TITLEBAR_HEIGHT);
+		PUSH_CLIP(pos.x + 1, pos.y + D_TITLEBAR_HEIGHT, size.w - 2, size.h - D_TITLEBAR_HEIGHT);
 
 		//indicator
 		{
@@ -405,20 +405,20 @@ enable_home:
 			COLOR_VAL color = COL_BLACK;
 			switch (cnv->get_state())
 			{
-			case convoi_t::INITIAL: 
-				color = COL_WHITE; 
+			case convoi_t::INITIAL:
+				color = COL_WHITE;
 				break;
 			case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 			case convoi_t::CAN_START_ONE_MONTH:
-				color = COL_ORANGE; 
+				color = COL_ORANGE;
 				break;
-				
+
 			default:
-				if (cnv->get_state() == convoi_t::NO_ROUTE) 
+				if (cnv->get_state() == convoi_t::NO_ROUTE)
 					color = COL_RED;
 			}
 			display_ddd_box_clip(ipos.x, ipos.y, isize.w, 8, MN_GREY0, MN_GREY4);
-			display_fillbox_wh_clip(ipos.x + 1, ipos.y + 1, isize.w-2, 6, color, true);
+			display_fillbox_wh_clip(ipos.x + 1, ipos.y + 1, isize.w - 2, 6, color, true);
 		}
 
 
@@ -428,21 +428,131 @@ enable_home:
 		const int pos_y0 = pos.y + view.get_pos().y + LINESPACE + D_V_SPACE + 2;
 		const char *caption = translator::translate("%s:");
 
-		//use median speed to avoid flickering
-		mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed()*4);
-		mean_convoi_speed /= 2;
+
 
 		uint32 empty_weight = convoy.get_vehicle_summary().weight;
 		uint32 gross_weight = convoy.get_weight_summary().weight;
+
+		COLOR_VAL speed_color = COL_BLACK;
+		const int pos_y = pos_y0; // line 1
+		char speed_text[256];
+		const air_vehicle_t* air = (const air_vehicle_t*)this;
+		switch (cnv->get_state())
 		{
-			const int pos_y = pos_y0; // line 1
-			char tmp[256];
+		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
+		case convoi_t::WAITING_FOR_CLEARANCE:
+
+			if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
+			{
+				sprintf(speed_text, translator::translate("Runway too short"), cnv->get_name());
+				speed_color = COL_RED;
+			}
+			else
+			{
+				sprintf(speed_text, translator::translate("Waiting for clearance!"));
+				speed_color = COL_YELLOW;
+			}
+			break;
+
+		case convoi_t::CAN_START:
+		case convoi_t::CAN_START_ONE_MONTH:
+
+			sprintf(speed_text, translator::translate("Waiting for clearance!"));
+			speed_color = COL_BLACK;
+			break;
+
+		case convoi_t::EMERGENCY_STOP:
+
+			sprintf(speed_text, translator::translate("emergency_stop"));
+			speed_color = COL_RED;
+			break;
+
+		case convoi_t::LOADING:
+
+			char waiting_time[64];
+			cnv->snprintf_remaining_loading_time(waiting_time, sizeof(waiting_time));
+			if (cnv->get_schedule()->get_current_eintrag().wait_for_time)
+			{
+				sprintf(speed_text, translator::translate("Waiting for schedule. %s left"), waiting_time);
+				speed_color = COL_YELLOW;
+			}
+			else if (cnv->get_loading_limit())
+			{
+				if (!cnv->is_wait_infinite() && strcmp(waiting_time, "0:00"))
+				{
+					sprintf(speed_text, translator::translate("Loading (%i->%i%%), %s left!"), cnv->get_loading_level(), cnv->get_loading_limit(), waiting_time);
+					speed_color = COL_YELLOW;
+				}
+				else
+				{
+					sprintf(speed_text, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit());
+					speed_color = COL_YELLOW;
+				}
+			}
+			else
+			{
+				sprintf(speed_text, translator::translate("Loading. %s left!"), waiting_time);
+				speed_color = COL_BLACK;
+			}
+			
+			break;
+
+		case convoi_t::REVERSING:
+
+			char reversing_time[64];
+			cnv->snprintf_remaining_reversing_time(reversing_time, sizeof(reversing_time));
+			sprintf(speed_text, translator::translate("Reversing. %s left"), reversing_time);
+			speed_color = COL_BLACK;
+			break;
+
+		case convoi_t::CAN_START_TWO_MONTHS:
+		case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
+
+			if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
+			{
+				sprintf(speed_text, translator::translate("Runway too short"), cnv->get_name());
+				speed_color = COL_RED;
+			}
+			else
+			{
+				sprintf(speed_text, translator::translate("clf_chk_stucked"));
+				speed_color = COL_ORANGE;
+			}
+			break;
+
+		case convoi_t::NO_ROUTE:
+
+			if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
+			{
+				sprintf(speed_text, translator::translate("Runway too short"), cnv->get_name());
+			}
+			else
+			{
+				sprintf(speed_text, translator::translate("clf_chk_noroute"));
+			}
+			speed_color = COL_RED;
+			break;
+
+		case convoi_t::OUT_OF_RANGE:
+
+			sprintf(speed_text, translator::translate("out of range"));
+			speed_color = COL_RED;
+			break;
+
+		default:
+			//use median speed to avoid flickering
+			mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed() * 4);
+			mean_convoi_speed /= 2;
 			const sint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
 			const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
-			sprintf(tmp, translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"), 
-				(mean_convoi_speed+3)/4, min_speed, translator::translate("..."), max_speed );
-			display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
+			sprintf(speed_text, translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"),
+				(mean_convoi_speed + 3) / 4, min_speed, translator::translate("..."), max_speed);
+			speed_color = COL_BLACK;
 		}
+
+		display_proportional(pos_x, pos_y, speed_text, ALIGN_LEFT, speed_color, true);
+
+
 
 		//next important: income stuff
 		{
@@ -450,27 +560,27 @@ enable_home:
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Profit"));
-			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true ) + 5;
-			money_to_string(tmp, cnv->get_jahresgewinn()/100.0 );
-			len += display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS, true ) + 5;
+			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
+			money_to_string(tmp, cnv->get_jahresgewinn() / 100.0);
+			len += display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_jahresgewinn() > 0 ? MONEY_PLUS : MONEY_MINUS, true) + 5;
 			// Bernd Gabriel, 17.06.2009: add fixed maintenance info
 			uint32 fixed_monthly = welt->calc_adjusted_monthly_figure(cnv->get_fixed_cost());
 			if (fixed_monthly)
 			{
 				char tmp_2[64];
 				tmp_2[0] = '(';
-				money_to_string( tmp_2+1, cnv->get_per_kilometre_running_cost()/100.0 );
-				strcat(tmp_2, translator::translate("/km)"));				
-				sprintf(tmp, tmp_2, translator::translate(" %1.2f$/mon)"), fixed_monthly/100.0 );
+				money_to_string(tmp_2 + 1, cnv->get_per_kilometre_running_cost() / 100.0);
+				strcat(tmp_2, translator::translate("/km)"));
+				sprintf(tmp, tmp_2, translator::translate(" %1.2f$/mon)"), fixed_monthly / 100.0);
 			}
 			else
 			{
 				//sprintf(tmp, translator::translate("(%1.2f$/km)"), cnv->get_per_kilometre_running_cost()/100.0 );
 				tmp[0] = '(';
-				money_to_string( tmp+1, cnv->get_per_kilometre_running_cost()/100.0 );
-				strcat( tmp, "/km)" );
+				money_to_string(tmp + 1, cnv->get_per_kilometre_running_cost() / 100.0);
+				strcat(tmp, "/km)");
 			}
-			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : SYSCOL_TEXT, true );
+			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : SYSCOL_TEXT, true);
 		}
 
 		//Average round trip time
@@ -482,9 +592,9 @@ enable_home:
 			if (average_round_trip_time) {
 				char as_clock[32];
 				welt->sprintf_ticks(as_clock, sizeof(as_clock), average_round_trip_time);
-				info_buf.printf(" %s",  as_clock);
+				info_buf.printf(" %s", as_clock);
 			}
-			display_proportional(pos_x, pos_y, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true );
+			display_proportional(pos_x, pos_y, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		}
 
 		// the weight entry
@@ -493,13 +603,13 @@ enable_home:
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Gewicht"));
-			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true ) + 5;
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
 			const int freight_weight = gross_weight - empty_weight; // cnv->get_sum_gesamtweight() - cnv->get_sum_weight();
 			sprintf(tmp, translator::translate(freight_weight ? "%g (%g) t" : "%g t"), gross_weight * 0.001f, freight_weight * 0.001f);
-			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, 
+			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT,
 				cnv->get_overcrowded() > 0 ? COL_DARK_PURPLE : // overcrowded
 				!cnv->get_finance_history(0, convoi_t::CONVOI_TRANSPORTED_GOODS) && !cnv->get_finance_history(1, convoi_t::CONVOI_TRANSPORTED_GOODS) ? COL_YELLOW : // nothing moved in this and past month
-				SYSCOL_TEXT, true );
+				SYSCOL_TEXT, true);
 		}
 
 		{
@@ -508,25 +618,25 @@ enable_home:
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Fahrtziel")); // "Destination"
-			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true ) + 5;
+			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
 			info_buf.clear();
 			const schedule_t *schedule = cnv->get_schedule();
 			schedule_gui_t::gimme_short_stop_name(info_buf, cnv->get_owner(), schedule, schedule->get_current_stop(), 34);
-			len += display_proportional_clip(pos_x + len, pos_y, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true ) + 5;
+			len += display_proportional_clip(pos_x + len, pos_y, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
 		}
 
 		/*
 		 * only show assigned line, if there is one!
 		 * @author hsiegeln
 		 */
-		if(  cnv->get_line().is_bound()  ) {
+		if (cnv->get_line().is_bound()) {
 			const int pos_y = pos_y0 + 5 * LINESPACE; // line 6
 			const int line_x = pos_x + line_bound * 12;
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Serves Line"));
-			int len = display_proportional(line_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true ) + 5;
-			display_proportional_clip(line_x + len, pos_y, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true );
+			int len = display_proportional(line_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
+			display_proportional_clip(line_x + len, pos_y, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
 		}
 
 #ifdef DEBUG_PHYSICS
@@ -538,9 +648,9 @@ enable_home:
 			const sint32 brk_meters = convoy.calc_min_braking_distance(convoy.get_weight_summary(), speed_to_v(cnv->get_akt_speed()));
 			char tmp[256];
 			sprintf(tmp, translator::translate("minimum brake distance"));
-			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true);
 			sprintf(tmp, translator::translate(": %im"), brk_meters);
-			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_akt_speed() <= cnv->get_akt_speed_soll() ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG, true );
+			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->get_akt_speed() <= cnv->get_akt_speed_soll() ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG, true);
 		}
 		{
 			const int pos_y = pos_y0 + 7 * LINESPACE; // line 8
@@ -553,16 +663,16 @@ enable_home:
 				sprintf(tmp, translator::translate("max %ikm/h in %im, brake in %im "), kmh, m_til_limit, m_til_brake);
 			else
 				sprintf(tmp, translator::translate("stop in %im, brake in %im "), m_til_limit, m_til_brake);
-			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true);
 		}
 		{
 			const int pos_y = pos_y0 + 8 * LINESPACE; // line 9
 			const sint32 current_friction = cnv->front()->get_frictionfactor();
 			char tmp[256];
 			sprintf(tmp, translator::translate("current friction factor"));
-			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true );
+			const int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true);
 			sprintf(tmp, translator::translate(": %i"), current_friction);
-			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, current_friction <= 20 ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG, true );
+			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, current_friction <= 20 ? SYSCOL_TEXT : SYSCOL_TEXT_STRONG, true);
 		}
 #endif
 		POP_CLIP();

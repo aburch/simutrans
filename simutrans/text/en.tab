@@ -3292,3 +3292,61 @@ double_block_signal
 Double block signal
 this_signal_will_not_clear_until_next_signal_is_clear
 This signal will not clear until next signal is clear
+transferring
+transferring
+transfers
+Transfers
+with_wayobj
+with
+way_cannot_be_used_by_any_vehicle
+This way cannot be used by any vehicle!
+km/h
+km/h
+(speed_restricted_by_tunnel)
+(The speed is restricted by the tunnel)
+(speed_restricted_by_bridge)
+(The speed is restricted by the bridge)
+(speed_restricted_by_wayobj)
+(The speed is restricted by the wayobject)
+(speed_restricted_by_city)
+(The speed is restricted by the city)
+runway_38/18
+Runway 38/18
+runway_09/27
+Runway 09/27
+meter
+m
+monthly_maintenance_cost
+Monthly maintenance cost
+maint_incl_wayobj
+Maint. incl. wayobj
+same_as_current
+Same as current
+renewal_costs
+Renewal costs
+increased_max_weight
+Increased max weight
+decreased_max_weight
+Decreased max weight
+increased_axle_load
+Increased axle load
+decreased_axle_load
+Decreased axle load
+increased_speed
+Increased speed
+decreased_speed
+Decreased speed
+increased_maintenance
+Increased maintenance
+decreased_maintenance
+Decreased maintenance
+new_way_is
+New way is
+%_stronger
+% stronger
+%_weaker
+% weaker
+assets
+Assets
+runway_not_reserved
+Runway not reserved
