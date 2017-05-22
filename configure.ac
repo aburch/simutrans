@@ -5,6 +5,9 @@ AC_INIT(simutrans, version-0.1)
 AC_PROG_CC
 AC_LANG(C++)
 
+HOSTCC=${HOSTCC:=${CC}}
+AC_SUBST(HOSTCC)
+
 # architecture
 AC_C_BIGENDIAN([AC_SUBST(endian, '-DSIM_BIG_ENDIAN')], [AC_SUBST(endian, '')], [AC_SUBST(endian, '')], [AC_SUBST(endian, '')])
 
