@@ -18,6 +18,9 @@ AC_CHECK_LIB(bz2, BZ2_bzReadOpen, [], [AC_MSG_WARN([Error, libbz2 is missing!])]
 #optional freetype
 AC_CHECK_LIB(freetype2, load_FT_font, [AC_SUBST(freetype2, '-DUSE_FREETYPE')], [AC_SUBST(freetype2, '')] )
 
+# since Xcode comes without autotools, lets assume we build QT version
+#AC_SUBST(AV_FOUNDATION, 0);
+
 # optional (but highly recommended) multithreading
 AC_SEARCH_LIBS(pthread_mutex_destroy, pthread, [AC_SUBST(multithread, 1)], [AC_SUBST(multithread, 0)] )
 
