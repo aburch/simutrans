@@ -110,8 +110,7 @@ public:
 	/*
 	* @author teamhimeH
 	*/
-	sint8 get_overtaking_info() const { return desc->get_overtaking_info(); }
-	bool is_info_changer() const { return desc->get_overtaking_info()>-1; }
+	overtaking_mode_t get_overtaking_mode() const { return desc->get_overtaking_mode(); }
 
 	/* the static routines */
 private:

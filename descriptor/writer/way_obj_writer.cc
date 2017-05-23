@@ -41,7 +41,7 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	uint8 wtyp     =  get_waytype(obj.get("waytype"));
 	uint8 own_wtyp =  get_waytype(obj.get("own_waytype"));
 
-	sint8 o_info   =  obj.get_int("overtaking_info",-1);
+	overtaking_mode_t o_mode   =  obj.get_int("overtaking_mode",invalid_mode);
 
 	node.write_uint16(outfp, version,      0);
 	node.write_uint32(outfp, price,        2);
@@ -51,7 +51,7 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	node.write_uint16(outfp, retire,      16);
 	node.write_uint8 (outfp, wtyp,        18);
 	node.write_uint8 (outfp, own_wtyp,    19);
-	node.write_sint8 (outfp, o_info,      20);
+	node.write_sint8 (outfp, o_mode,      20); // not clear whether this works fine.
 
 	write_head(outfp, node, obj);
 

@@ -32,16 +32,6 @@ enum way_statistics {
 	WAY_STAT_CONVOIS = 1  ///< number of convois that passed this way
 };
 
-// These should be used to handle overtaking_info?
-enum overtaking_info {
-	ONE_WAY           = 0,
-	TWO_WAY           = 1,
-	LOADING_CAR_ONLY  = 2,
-	PROHIBITED        = 3,
-	PASSING_LANE_ONLY = 4
-};
-
-
 /**
  * <p>Der Weg ist die Basisklasse fuer alle Verkehrswege in Simutrans.
  * Wege "gehören" immer zu einem Grund. Sie besitzen Richtungsbits sowie
@@ -222,15 +212,15 @@ public:
 	const char *get_name() const { return desc->get_name(); }
 
 	/**
-	* Overtaking info
-	* 0 = condition for one-way road
-	* 1 = condition for two-way road
-	* 2 = overtaking a loading convoy only
-	* 3 = overtaking is completely forbidden
-	* 4 = vehicles can go only on passing lane
+	* Overtaking mode (declared in simtypes.h)
+	* oneway_mode = condition for one-way road
+	* twoway_mode = condition for two-way road
+	* loading_only_mode = overtaking a loading convoy only
+	* prohibited_mode = overtaking is completely forbidden
+	* passing_only_mode = vehicles can go only on passing lane
 	* @author teamhimeH
 	*/
-	sint8 get_overtaking_info() const;
+	overtaking_mode_t get_overtaking_mode() const;
 
 	/**
 	* Add direction bits (ribi) for a way.

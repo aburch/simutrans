@@ -51,7 +51,7 @@ obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->retire_date = decode_uint16(p);
 		desc->wtyp = decode_uint8(p);
 		desc->own_wtyp = decode_uint8(p);
-		desc->overtaking_info = decode_sint8(p); //new!
+		desc->overtaking_mode = decode_sint8(p); //new!
 	}
 	else if(version==1) {
 		// Versioned node, version 1
@@ -62,7 +62,7 @@ obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->retire_date = decode_uint16(p);
 		desc->wtyp = decode_uint8(p);
 		desc->own_wtyp = decode_uint8(p);
-		desc->overtaking_info = -1;
+		desc->overtaking_mode = invalid_mode;
 	}
 	else {
 		dbg->fatal("way_obj_reader_t::read_node()","Invalid version %d", version);
@@ -78,7 +78,7 @@ obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	     desc->topspeed,
 	     desc->wtyp,
 	     desc->own_wtyp,
-	     desc->overtaking_info,
+	     desc->overtaking_mode,
 	     (desc->intro_date%12)+1,
 	     desc->intro_date/12,
 	     (desc->retire_date%12)+1,

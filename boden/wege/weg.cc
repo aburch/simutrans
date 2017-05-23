@@ -609,24 +609,17 @@ const char *weg_t::is_deletable(const player_t *player)
 	return obj_t::is_deletable(player);
 }
 
-sint8 weg_t::get_overtaking_info() const {
-	// any_wt has priority.
-	// If there is no any_wt wayobj or any_wt wayobj does not change o_info, road_wt wayobj has effect.
-	sint8 o_info = desc->get_overtaking_info();
+overtaking_mode_t weg_t::get_overtaking_mode() const {
+	// If there is not wayobj of overtake_wt or it indicates invalid_mode, this returns twoway_mode
 	grund_t* gr = welt->lookup(get_pos());
 	if(  gr  ) {
 		for(  uint8 i=0;  i<gr->get_top();  i++  ) {
 			if(  wayobj_t *w = obj_cast<wayobj_t>(gr->obj_bei(i))  ) {
-				if(  w->is_info_changer()  ) {
-					if(  w->get_waytype()==any_wt  ) {
-						return w->get_overtaking_info();
-					}
-					else if(  w->get_waytype()==road_wt  ) {
-						o_info = w->get_overtaking_info();
-					}
+				if(  w->get_waytype()==overtake_wt  &&  w->get_overtaking_mode()!=invalid_mode  ) {
+					return w->get_overtaking_mode();
 				}
 			}
 		}
 	}
-	return o_info;
+	return twoway_mode;
 }

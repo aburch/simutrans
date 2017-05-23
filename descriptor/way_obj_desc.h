@@ -42,13 +42,13 @@ private:
 	 */
 	uint8 own_wtyp;
 
-	sint8 overtaking_info;
+	overtaking_mode_t overtaking_mode;
 
 public:
 
 	bool is_overhead_line() const { return (waytype_t)own_wtyp == overheadlines_wt; }
 
-	sint8 get_overtaking_info() const { return overtaking_info; }
+	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode; }
 
 	// way objects can have a front and a backimage, unlike ways ...
 	image_id get_front_image_id(ribi_t::ribi ribi) const { return get_child<image_list_t>(2)->get_image_id(ribi); }

@@ -65,12 +65,6 @@ private:
 	bool front_images;
 
 	/**
-	* Overtaking info (0 = condition for one-way road, 1 = condition for two-way road, 2 = overtaking a loading convoy only, 3 = overtaking is completely forbidden)
-	* @author teamhimeH
-	*/
-	sint8 overtaking_info;
-
-	/**
 	 * calculates index of image list for flat ways
 	 * for winter and/or front images
 	 * add +1 and +2 to get slope and straight diagonal images, respectively
@@ -220,10 +214,6 @@ public:
 	}
 
 	void calc_checksum(checksum_t *chk) const;
-
-	sint8 get_overtaking_info() const {
-		return overtaking_info;
-	}
 };
 
 #endif
