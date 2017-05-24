@@ -10,4 +10,6 @@
  */
 waytype_t get_waytype(char const* waytype);
 
+overtaking_mode_t get_overtaking_mode(char const* o_mode);
+
 #endif

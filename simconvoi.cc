@@ -1310,7 +1310,7 @@ void convoi_t::step()
 					akt_speed = restart_speed;
 				}
 				if(  fahr[0]->get_waytype()==road_wt  ) {
-					sint8 overtaking_info = welt->lookup(get_pos())->get_weg(road_wt)->get_overtaking_info();
+					sint8 overtaking_info = welt->lookup(get_pos())->get_weg(road_wt)->get_overtaking_mode();
 					if(  (state==CAN_START  ||  state==CAN_START_ONE_MONTH)  &&  overtaking_info!=0  &&  overtaking_info!=4  ) {
 						set_tiles_overtaking( 0 );
 					}
@@ -1330,7 +1330,7 @@ void convoi_t::step()
 					akt_speed = restart_speed;
 				}
 				if(  fahr[0]->get_waytype()==road_wt  ) {
-					sint8 overtaking_info = welt->lookup(get_pos())->get_weg(road_wt)->get_overtaking_info();
+					sint8 overtaking_info = welt->lookup(get_pos())->get_weg(road_wt)->get_overtaking_mode();
 					if(  state!=DRIVING  &&  overtaking_info!=0  &&  overtaking_info!=4  ) {
 						set_tiles_overtaking( 0 );
 					}
@@ -3615,7 +3615,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		// also this is not possible, since a car loads in front of is!?!
 		return false;
 	}
-	sint8 overtaking_info = str->get_overtaking_info();
+	sint8 overtaking_info = str->get_overtaking_mode();
 	if (  !other_overtaker->can_be_overtaken()  &&  overtaking_info != 0  ) {
 		return false;
 	}
@@ -3754,7 +3754,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			return false;
 		}
 		//Overtaking info (0 = condition for one-way road, 1 = condition for two-way road, 2 = overtaking a loading convoy only, 3 = overtaking is completely forbidden)
-		sint8 overtaking_info_loop = str->get_overtaking_info();
+		sint8 overtaking_info_loop = str->get_overtaking_mode();
 		if(  overtaking_info_loop != 0  &&  gr->get_weg_hang() != slope_t::flat  ) {
 			return false;
 		}
@@ -3972,7 +3972,7 @@ bool convoi_t::calc_lane_fix(uint8 lane_fix_sign)
 				return false;
 			}
 			strasse_t *str = (strasse_t *)gr->get_weg(road_wt);
-			if(  !str  ||  gr->get_top() > 250  ||  str->get_overtaking_info() != 0  ) {
+			if(  !str  ||  gr->get_top() > 250  ||  str->get_overtaking_mode() != 0  ) {
 				// too many cars here or no street or not one-way road
 				return false;
 			}

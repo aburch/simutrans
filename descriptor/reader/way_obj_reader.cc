@@ -51,7 +51,7 @@ obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->retire_date = decode_uint16(p);
 		desc->wtyp = decode_uint8(p);
 		desc->own_wtyp = decode_uint8(p);
-		desc->overtaking_mode = decode_sint8(p); //new!
+		desc->overtaking_mode = static_cast<overtaking_mode_t>(decode_sint8(p)); //new!
 	}
 	else if(version==1) {
 		// Versioned node, version 1

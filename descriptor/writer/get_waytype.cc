@@ -44,3 +44,31 @@ waytype_t get_waytype(const char* waytype)
 
 	return uv8;
 }
+
+/**
+ * Convert overtaking_mode string to enum overtaking_mode_t
+ * @author teamhimeH
+ */
+overtaking_mode_t get_overtaking_mode(const char* o_mode)
+{
+	overtaking_mode_t uv8 = invalid_mode;
+
+	if (!STRICMP(o_mode, "oneway")) {
+		uv8 = oneway_mode;
+	} else if (!STRICMP(o_mode, "twoway")) {
+		uv8 = twoway_mode;
+	} else if (!STRICMP(o_mode, "loading_convoy_only")) {
+		uv8 = loading_only_mode;
+	} else if (!STRICMP(o_mode, "passing_lane_only")) {
+		uv8 = passing_only_mode;
+	} else if (!STRICMP(o_mode, "prohibited")) {
+		uv8 = prohibited_mode;
+	} else if (!STRICMP(o_mode, "none")  ||  !STRICMP(o_mode, "")) {
+		uv8 = invalid_mode;
+	} else {
+		dbg->fatal("get_overtaking_mode()","invalid overtaking_mode \"%s\"\n", o_mode);
+		exit(1);
+	}
+
+	return uv8;
+}

@@ -239,20 +239,20 @@ void weg_t::info(cbuffer_t & buf) const
 
 	if(  get_waytype() == road_wt  ) {
 		// Display overtaking_info
-		switch (get_overtaking_info()) {
-			case 0:
+		switch (get_overtaking_mode()) {
+			case oneway_mode:
 				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("one-way"));
 				break;
-			case 1:
+			case twoway_mode:
 				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("two-way"));
 				break;
-			case 2:
+			case loading_only_mode:
 				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("only loading convoi"));
 				break;
-			case 3:
+			case prohibited_mode:
 				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("prohibited"));
 				break;
-			case 4:
+			case passing_only_mode:
 				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("passing lane only"));
 				break;
 			default:
