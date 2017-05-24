@@ -145,6 +145,7 @@ static pthread_mutex_t private_car_route_mutex;
 pthread_mutex_t karte_t::step_passengers_and_mail_mutex;
 static pthread_mutex_t path_explorer_mutex;
 pthread_mutex_t karte_t::unreserve_route_mutex;
+pthread_mutexattr_t mutex_attributes;
 
 static simthread_barrier_t private_car_barrier;
 simthread_barrier_t karte_t::unreserve_route_barrier;
@@ -1995,11 +1996,13 @@ void karte_t::init_threads()
 	simthread_barrier_init(&start_path_explorer_barrier, NULL, 2);
 
 	// Initialise mutexes
-	pthread_mutex_init(&private_car_route_mutex, NULL);
-	pthread_mutex_init(&step_passengers_and_mail_mutex, NULL);
-	pthread_mutex_init(&path_explorer_mutex, NULL);
-	pthread_mutex_init(&unreserve_route_mutex, NULL);
-	
+	pthread_mutexattr_init(&mutex_attributes);
+	pthread_mutexattr_settype(&mutex_attributes, PTHREAD_MUTEX_ERRORCHECK);
+
+	pthread_mutex_init(&private_car_route_mutex, &mutex_attributes);
+	pthread_mutex_init(&step_passengers_and_mail_mutex, &mutex_attributes);
+	pthread_mutex_init(&path_explorer_mutex, &mutex_attributes);
+	pthread_mutex_init(&unreserve_route_mutex, &mutex_attributes);
 	pthread_t thread;
 	
 	for (uint32 i = 0; i < parallel_operations; i++)
@@ -2133,6 +2136,8 @@ void karte_t::destroy_threads()
 		pthread_mutex_destroy(&step_passengers_and_mail_mutex);
 		pthread_mutex_destroy(&path_explorer_mutex);
 		pthread_mutex_destroy(&unreserve_route_mutex);
+
+		pthread_mutexattr_destroy(&mutex_attributes);
 	}
 
 	first_step = 1;
