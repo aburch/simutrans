@@ -41,7 +41,7 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	uint8 wtyp     =  get_waytype(obj.get("waytype"));
 	uint8 own_wtyp =  get_waytype(obj.get("own_waytype"));
 
-	uin8 o_mode   =  get_overtaking_mode(obj.get("overtaking_mode"));
+	uint8 o_mode   =  get_overtaking_mode(obj.get("overtaking_mode"));
 
 	node.write_uint16(outfp, version,      0);
 	node.write_uint32(outfp, price,        2);
