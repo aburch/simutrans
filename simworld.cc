@@ -1769,11 +1769,13 @@ void *step_passengers_and_mail_threaded(void* args)
 #endif
 
 		simthread_barrier_wait(&step_passengers_and_mail_barrier); // Having three of these is intentional.
-		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 		karte_t::world->next_step_passenger -= (total_units_passenger * karte_t::world->passenger_step_interval);
 		karte_t::world->next_step_mail -= (total_units_mail * karte_t::world->mail_step_interval);
-		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
+		assert(mutex_error == 0);
 	} while (!karte_t::world->is_terminating_threads());
 
 	pthread_exit(NULL);
