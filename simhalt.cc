@@ -2886,7 +2886,8 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		// This was the 5th consecutive attempt to walk between stations.  Fail.
 		// UPDATE December 2016: Walking between stations now does take actual time. Is this still needed?
 #ifdef MULTI_THREAD
-		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s has walked between too many consecutive stops: terminating early to avoid infinite loops", ware.menge, translator::translate(ware.get_name()), get_name() );
 #ifdef MULTI_THREAD
@@ -2906,11 +2907,13 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		
 		// write a log entry and discard the goods
 #ifdef MULTI_THREAD
-		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer a route to their destination!", ware.menge, translator::translate(ware.get_name()), get_name() );
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		return;
 	}
@@ -2923,11 +2926,13 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	{
 		// Destination factory has been deleted: write a log entry and discard the goods.
 #ifdef MULTI_THREAD
-		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s were intended for a factory that has been deleted.", ware.menge, translator::translate(ware.get_name()), get_name() );
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		return;
 	}
@@ -2979,11 +2984,13 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	if (ware.get_ziel() == self)
 	{
 #ifdef MULTI_THREAD
-		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		DBG_MESSAGE("haltestelle_t::liefere_an()", "%s has discovered that it is quicker to walk to its destination from %s than take its previously planned route.", translator::translate(ware.get_name()), get_name());
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		if (!twice)
 		{
@@ -3010,12 +3017,14 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		//INT_CHECK("simhalt 1364");
 
 #ifdef MULTI_THREAD
-		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		// target halt no longer there => delete and remove from fab in transit
 		fabrik_t::update_transit( ware, false );
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		return;
 	}
