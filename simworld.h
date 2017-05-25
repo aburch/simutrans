@@ -44,7 +44,7 @@
 #else
 #define sprintf_s snprintf
 #endif 
-
+#undef MULTI_THREAD
 #ifdef MULTI_THREAD
 #include "utils/simthread.h"
 #endif
