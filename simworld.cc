@@ -1677,7 +1677,7 @@ void *step_passengers_and_mail_threaded(void* args)
 		}
 
 		// The generate passengers function is called many times (often well > 100) each step; the mail version is called only once or twice each step, sometimes not at all.
-		uint32 units_this_step = 0;
+		sint32 units_this_step = 0;
 		total_units_passenger = 0;
 		total_units_mail = 0;
 
@@ -5684,7 +5684,7 @@ void karte_t::step_passengers_and_mail(uint32 delta_t)
 	next_step_mail += delta_t;
 
 	// The generate passengers function is called many times (often well > 100) each step; the mail version is called only once or twice each step, sometimes not at all.
-	uint32 units_this_step;
+	sint32 units_this_step;
 	while(passenger_step_interval <= next_step_passenger) 
 	{
 		if(passenger_origins.get_count() == 0)
@@ -5911,7 +5911,7 @@ void karte_t::deposit_ware_at_destination(ware_t ware)
 	}
 }
 
-uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
+sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 {
 	const city_cost history_type = (wtyp == goods_manager_t::passengers) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
 	const uint32 units_this_step = simrand((uint32)settings.get_passenger_routing_packet_size(), "void karte_t::generate_passengers_and_mail(uint32 delta_t) passenger/mail packet size") + 1;
@@ -7033,7 +7033,7 @@ return_on_foot:
 
 		} // Set return trip
 	} // Onward journeys (for loop)
-	return units_this_step;
+	return (sint32)units_this_step;
 }
 
 karte_t::destination karte_t::find_destination(trip_type trip)

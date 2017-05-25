@@ -975,7 +975,7 @@ private:
 
 	sint32 calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const;
 
-	uint32 generate_passengers_or_mail(const goods_desc_t * wtyp);
+	sint32 generate_passengers_or_mail(const goods_desc_t * wtyp);
 
 	destination find_destination(trip_type trip);
 
