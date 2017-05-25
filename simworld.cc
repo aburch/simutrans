@@ -1686,22 +1686,11 @@ void *step_passengers_and_mail_threaded(void* args)
 
 		next_step_mail_this_thread = karte_t::world->next_step_mail / (karte_t::world->get_parallel_operations());
 
-#ifdef FORBID_PARALLELL_PASSENGER_GENERATION
-		if (karte_t::passenger_generation_thread_number == 0)
-		{
-			next_step_passenger_this_thread = karte_t::world->next_step_passenger;
-		}
-		else
-		{
-			next_step_passenger_this_thread = 0;
-		}
-#else
-
-		if (next_step_passenger_this_thread < karte_t::world->passenger_step_interval && karte_t::world->next_step_passenger > karte_t::world->passenger_step_interval)
+#ifdef FORBID_PARALLELL_PASSENGER_GENERATION_IN_NETWORK_MODE
+		if (env_t::networkmode)
 		{
 			if (karte_t::passenger_generation_thread_number == 0)
 			{
-				// In case of very small numbers, make this effectively single threaded, or else rounding errors will prevent any passenger generation.
 				next_step_passenger_this_thread = karte_t::world->next_step_passenger;
 			}
 			else
@@ -1709,26 +1698,46 @@ void *step_passengers_and_mail_threaded(void* args)
 				next_step_passenger_this_thread = 0;
 			}
 		}
-		else if (karte_t::passenger_generation_thread_number == 0)
+		else
 		{
-			next_step_passenger_this_thread += karte_t::world->next_step_passenger % (karte_t::world->get_parallel_operations());
-		}
+#else
 
-		if (next_step_mail_this_thread < karte_t::world->mail_step_interval && karte_t::world->next_step_mail > karte_t::world->mail_step_interval)
-		{
-			if (karte_t::passenger_generation_thread_number == 0)
+			if (next_step_passenger_this_thread < karte_t::world->passenger_step_interval && karte_t::world->next_step_passenger > karte_t::world->passenger_step_interval)
 			{
-				// In case of very small numbers, make this effectively single threaded, or else rounding errors will prevent any mail generation.
-				next_step_mail_this_thread = karte_t::world->next_step_mail;
+				if (karte_t::passenger_generation_thread_number == 0)
+				{
+					// In case of very small numbers, make this effectively single threaded, or else rounding errors will prevent any passenger generation.
+					next_step_passenger_this_thread = karte_t::world->next_step_passenger;
+				}
+				else
+				{
+					next_step_passenger_this_thread = 0;
+				}
 			}
-			else
+			else if (karte_t::passenger_generation_thread_number == 0)
 			{
-				next_step_mail_this_thread = 0;
+				next_step_passenger_this_thread += karte_t::world->next_step_passenger % (karte_t::world->get_parallel_operations());
 			}
-		}
-		else if (karte_t::passenger_generation_thread_number == 0)
-		{
-			next_step_mail_this_thread += karte_t::world->next_step_mail % (karte_t::world->get_parallel_operations());
+
+			if (next_step_mail_this_thread < karte_t::world->mail_step_interval && karte_t::world->next_step_mail > karte_t::world->mail_step_interval)
+			{
+				if (karte_t::passenger_generation_thread_number == 0)
+				{
+					// In case of very small numbers, make this effectively single threaded, or else rounding errors will prevent any mail generation.
+					next_step_mail_this_thread = karte_t::world->next_step_mail;
+				}
+				else
+				{
+					next_step_mail_this_thread = 0;
+				}
+			}
+			else if (karte_t::passenger_generation_thread_number == 0)
+			{
+				next_step_mail_this_thread += karte_t::world->next_step_mail % (karte_t::world->get_parallel_operations());
+			}
+#endif
+
+#ifdef FORBID_PARALLELL_PASSENGER_GENERATION_IN_NETWORK_MODE
 		}
 #endif
 			

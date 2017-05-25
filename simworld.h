@@ -77,7 +77,7 @@ class records_t;
 #define CACHE_TRANSIT
 
 #ifdef MULTI_THREAD
-#define FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
+//#define FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
 //#define FORBID_MULTI_THREAD_PATH_EXPLORER
 #define MULTI_THREAD_PASSENGER_GENERATION 
 #ifndef FORBID_MULTI_THREAD_CONVOYS
@@ -100,7 +100,7 @@ class records_t;
 //#define FORBID_PUBLIC_TRANSPORT // This appears to prevent the rare desync when enabled (January 2017)
 //#define FORBID_RETURN_TRIPS // This appears to prevent the rare desync when enabled (January 2017)
 //#define DISABLE_GLOBAL_WAITING_LIST // Has no effect on rare desync (January 2017)
-//#define FORBID_PARALLELL_PASSENGER_GENERATION // This prevents the desync (January 2017)
+//#define FORBID_PARALLELL_PASSENGER_GENERATION_IN_NETWORK_MODE // Revised to work only in network mode for testing VS/GCC desync (May 2017)
 //#define FORBID_SWITCHING_TO_RETURN_ON_FOOT // Has no effect on rare desync (January 2017)
 //#define FORBID_SET_GENERATED_PASSENGERS // Has no effect on rare desync (January 2017)
 //#define FORBID_RECORDING_RETURN_FACTORY_PASSENGERS  // Has no effect on rare desync (January 2017)
