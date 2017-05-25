@@ -7863,6 +7863,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 	{
 		file->rdwr_long(next_step_passenger);
 		file->rdwr_long(next_step_mail);
+
 		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 13)
 		{
 			if (env_t::networkmode)
