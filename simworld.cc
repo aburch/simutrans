@@ -7861,8 +7861,15 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 
 	if(file->get_extended_version() >= 12)
 	{
+#ifdef MULTI_THREAD
+		pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 		file->rdwr_long(next_step_passenger);
 		file->rdwr_long(next_step_mail);
+
+#ifdef MULTI_THREAD
+		pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 
 		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 13)
 		{
@@ -8999,8 +9006,15 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 
 	if(file->get_extended_version() >= 12)
 	{
+#ifdef MULTI_THREAD
+		pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 		file->rdwr_long(next_step_passenger);
 		file->rdwr_long(next_step_mail);
+
+#ifdef MULTI_THREAD
+		pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 
 		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 13)
 		{
