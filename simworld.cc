@@ -1680,7 +1680,7 @@ void *step_passengers_and_mail_threaded(void* args)
 		sint32 units_this_step = 0;
 		total_units_passenger = 0;
 		total_units_mail = 0;
-#define FIXED_PASSENGER_NUMBERS_PER_STEP_FOR_TESTING
+
 #ifndef FIXED_PASSENGER_NUMBERS_PER_STEP_FOR_TESTING
 		next_step_passenger_this_thread = karte_t::world->next_step_passenger / (karte_t::world->get_parallel_operations());
 
