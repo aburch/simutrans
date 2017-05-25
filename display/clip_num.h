@@ -1,6 +1,6 @@
 #ifndef clip_num_h
 #define clip_num_h
-#undef MULTI_THREAD
+
 #include "../simtypes.h"
 /**
  * Macros to pass clip_num parameter around for
