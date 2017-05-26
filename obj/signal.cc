@@ -251,6 +251,27 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 	else
 	{
 		// yay!
+		buf.append(translator::translate("aspects"));
+		buf.append(": ");
+		if (desc->is_longblock_signal() && desc->get_working_method() == absolute_block)
+		{
+			buf.append("2");
+			// A station signal using the absolute block working method returns the value from get_aspect() as 3, but it has practically only 2 aspects.
+		}
+		else
+		{
+			buf.append(desc->get_aspects());
+		}
+		if (desc->is_choose_sign())
+		{
+			buf.printf("+%s", translator::translate("alt_route"));
+		}
+		if (desc->get_permissive() == true)
+		{
+			buf.printf("+%s", translator::translate("callon"));
+		}
+		buf.append("\n");
+
 		buf.append(translator::translate("current_state"));
 		buf.append(": ");
 		if (get_state() != danger)
