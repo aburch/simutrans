@@ -17,7 +17,7 @@ BEGIN {
 }
 
 # match end of SQAPI_DOC block
-/^#endif/ {
+/^#(endif|else)/ {
 	if (within_sqapi_doc == 1) {
 		within_sqapi_doc = 0
 	}
