@@ -1885,14 +1885,17 @@ void* path_explorer_threaded(void* args)
 void karte_t::stop_path_explorer()
 {
 #ifdef MULTI_THREAD_PATH_EXPLORER
-	pthread_mutex_lock(&path_explorer_mutex);
+	if (path_explorer_step_progress >= 0)
+	{
+		pthread_mutex_lock(&path_explorer_mutex);
+	}
 	
 	if (path_explorer_step_progress < 2 && path_explorer_step_progress >= 0)
 	{
 		pthread_cond_wait(&path_explorer_conditional_end, &path_explorer_mutex);
 	}
 	
-	if (&path_explorer_mutex)
+	if (path_explorer_step_progress >= 0)
 	{
 		pthread_mutex_unlock(&path_explorer_mutex);
 	}
