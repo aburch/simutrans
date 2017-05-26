@@ -1874,7 +1874,7 @@ void* path_explorer_threaded(void* args)
 			
 		if (karte_t::world->is_terminating_threads())
 		{
-			karte_t::path_explorer_step_progress = 2;
+			karte_t::path_explorer_step_progress = -1;
 			pthread_mutex_unlock(&path_explorer_mutex);
 			break;
 		}
