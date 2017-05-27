@@ -5341,7 +5341,7 @@ int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_spe
 		return 0xFFFF;
 	}
 
-	const uint32 max_tile_speed = w->get_max_speed(); // This returns speed in km/h.
+	const sint32 max_tile_speed = w->get_max_speed(); // This returns speed in km/h.
 	const planquadrat_t* plan = welt->access_nocheck(gr->get_pos().get_2d());
 	const stadt_t* city = plan->get_city();
 	const bool is_diagonal = w->is_diagonal();
@@ -5362,7 +5362,7 @@ int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_spe
 	last_city = city;
 	last_tile_speed = max_tile_speed;
 
-	uint32 speed = min(max_speed, max_tile_speed);
+	sint32 speed = min(max_speed, max_tile_speed);
 #ifndef FORBID_CONGESTION_EFFECTS
 	if(city)
 	{
@@ -5374,7 +5374,7 @@ int private_car_destination_finder_t::get_cost(const grund_t* gr, sint32 max_spe
 		// compiled by the satellite navigation company of that name, which provides useful research data.
 		// See: http://www.tomtom.com/lib/doc/congestionindex/2012-0704-TomTom%20Congestion-index-2012Q1europe-mi.pdf
 
-		const uint32 congestion = (uint32)city->get_congestion() + 100;
+		const sint32 congestion = (sint32)city->get_congestion() + 100;
 		speed = (speed * 100) / congestion;
 		speed = max(4, speed);
 	}

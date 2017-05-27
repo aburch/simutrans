@@ -4832,8 +4832,8 @@ void karte_t::new_month()
 	if(actual_industry_density < target_industry_density)
 	{
 		// Only add one chain per month, and randomise (with a minimum of 8% distribution_weight to ensure that any industry deficiency is, on average, remedied in about a year).
-		const uint32 percentage = max((((target_industry_density - actual_industry_density) * 100) / target_industry_density), 8);
-		const uint32 distribution_weight = simrand(100, "void karte_t::new_month()");
+		const uint32 percentage = max((((target_industry_density - actual_industry_density) * 100u) / target_industry_density), 8u);
+		const uint32 distribution_weight = simrand(100u, "void karte_t::new_month()");
 		if(distribution_weight < percentage)
 		{
 			factory_builder_t::increase_industry_density(true, true);
