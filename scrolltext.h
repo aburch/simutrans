@@ -187,6 +187,7 @@
 " Tomas Kubes","",
 " Guillermo 'raven' Mateo","",
 " Alexander Brose","",
+" Emmanuel Baranger," "",
 "","",
 "and many more","",
 "","",
