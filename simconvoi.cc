@@ -286,7 +286,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 
 	// force asynchronous recalculation
 	if(schedule) {
-		if(!schedule->is_editing_finished()) { //"is completed" (Google)
+		if(!schedule->is_editing_finished()) {
 			destroy_win((ptrdiff_t)schedule);
 		}
 
@@ -1419,13 +1419,14 @@ bool convoi_t::drive_to()
 	koord3d ziel = schedule->get_current_eintrag().pos;
 	const koord3d original_ziel = ziel;
 
-	const bool rail_type = front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
+	const bool check_onwards = front()->get_waytype() == road_wt || front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
 	
 	bool success = calc_route(start, ziel, speed_to_kmh(get_min_top_speed()));
 		
 	grund_t* gr = welt->lookup(ziel);
+	grund_t* gr_current = welt->lookup(start); 
 
-	if(rail_type && gr && !gr->get_depot())
+	if(check_onwards && gr && !gr->get_depot())
 	{
 		// We need to calculate the full route through to the next signal or reversing point
 		// to avoid ignoring signals.
@@ -1435,7 +1436,7 @@ bool convoi_t::drive_to()
 		bool update_line = false;
 		while(success && counter--)
 		{
-			if(schedule_entry->reverse == -1)
+			if(schedule_entry->reverse == -1 && (!gr_current || !gr_current->get_depot()))
 			{
 				schedule_entry->reverse = check_destination_reverse() ? 1 : 0;
 				schedule->set_reverse(schedule_entry->reverse, schedule->get_current_stop()); 
@@ -1914,7 +1915,7 @@ end_loop:
 					return;
 				}
 				else
-				{
+				{				
 					// The schedule window might be closed whilst this vehicle is still loading.
 					// Do not allow the player to cheat by sending the vehicle on its way before it has finished.
 					bool can_go = true;
@@ -2588,7 +2589,7 @@ void convoi_t::ziel_erreicht()
 				}
 			}
 		}
-		else {
+		else if(schedule->get_current_eintrag().pos == get_pos()) {
 			// Neither depot nor station: waypoint
 			advance_schedule();
 			state = ROUTING_1;
@@ -2597,6 +2598,10 @@ void convoi_t::ziel_erreicht()
 				no_load=false;
 				go_to_depot(false);
 			}
+		}
+		else
+		{
+			state = ROUTING_1;
 		}
 	}
 	wait_lock = 0;
@@ -3346,7 +3351,7 @@ void convoi_t::vorfahren()
 					sch->increment_index(&stop, &rev);
 				}
 				
-				if(sch->entries[stop].reverse == 1 != (state == REVERSING))
+				if((sch->entries[stop].reverse == 1 != (state == REVERSING)) && (state != ROUTE_JUST_FOUND || front()->get_waytype() != road_wt))
 				{
 					need_to_update_line = true;
 					const sint8 reverse_state = state == REVERSING ? 1 : 0;
@@ -6211,10 +6216,16 @@ end_check:
  */
 void convoi_t::register_stops()
 {
-	if(  schedule  ) {
-		FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
+	if(schedule)
+	{
+		FOR(minivec_tpl<schedule_entry_t>, &i, schedule->entries)
+		{
 			halthandle_t const halt = haltestelle_t::get_halt(i.pos, get_owner());
-			if(  halt.is_bound()  ) {
+			// Reset the reversing status when the schedule changes, as changes to the schedule
+			// might affect where reversing is needed.
+			i.reverse = -1;
+			if(halt.is_bound())
+			{
 				halt->add_convoy(self);
 			}
 		}
@@ -6253,7 +6264,7 @@ bool convoi_t::check_destination_reverse(route_t* current_route, route_t* target
 		bool rev = get_reverse_schedule();
 		schedule->increment_index(&index, &rev);
 		const koord3d next_ziel = schedule->entries[index].pos;
-		success = next_route.calc_route(welt, start_pos, next_ziel, front(), speed_to_kmh(get_min_top_speed()), get_highest_axle_load(), has_tall_vehicles(), welt->get_settings().get_max_route_steps(), get_tile_length(), get_weight_summary().weight / 1000);
+		success = next_route.calc_route(welt, start_pos, next_ziel, front(), speed_to_kmh(get_min_top_speed()), get_highest_axle_load(), has_tall_vehicles(), get_tile_length(), welt->get_settings().get_max_route_steps(), get_weight_summary().weight / 1000);
 		target_rt = &next_route;
 	}
 

@@ -1471,6 +1471,15 @@ void gui_convoy_assembler_t::update_data()
 					}
 				}
 				const weg_t* way = depot_frame ? welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype()) : NULL;
+				if (!way && depot_frame)
+				{
+					// Might be tram depot, using way no. 2.
+					const grund_t* gr_depot = welt->lookup(depot_frame->get_depot()->get_pos()); 
+					if (gr_depot)
+					{
+						way = gr_depot->get_weg_nr(0);
+					}
+				}
 				if(way && !missing_way_constraints_t(i.key->get_way_constraints(), way->get_way_constraints()).check_next_tile())
 				{
 					// Do not allow purchasing of vehicle if depot is on an incompatible way.
@@ -1480,10 +1489,11 @@ void gui_convoy_assembler_t::update_data()
 
 				if(depot_frame &&
 					(way &&
-					(welt->get_settings().get_enforce_weight_limits() == 2
+					((welt->get_settings().get_enforce_weight_limits() == 2
+						&& welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype())
 						&& i.key->get_axle_load() > welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype())->get_max_axle_load())
 					|| (welt->get_settings().get_enforce_weight_limits() == 3
-						&& (i.key->get_axle_load() * 100) / way->get_max_axle_load() > 110)))
+						&& (i.key->get_axle_load() * 100) / way->get_max_axle_load() > 110))))
 					
 				{
 					// Indicate if vehicles are too heavy

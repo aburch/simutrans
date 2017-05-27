@@ -403,7 +403,7 @@ void fabrik_t::update_scaled_pax_demand()
 		const uint32 visitor_demand = (uint32)((base_visitor_demand * (sint64)prodbase + (prod_adjust >> 1) ) / prod_adjust);
 
 		// then, scaling based on month length
-		scaled_pax_demand = max(welt->calc_adjusted_monthly_figure(worker_demand), 1);
+		scaled_pax_demand = max_64(welt->calc_adjusted_monthly_figure(worker_demand), 1ll);
 		const uint32 scaled_visitor_demand = max(welt->calc_adjusted_monthly_figure(visitor_demand), 1);
 
 		// pax demand for fixed period length
