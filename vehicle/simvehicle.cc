@@ -6965,6 +6965,7 @@ bool air_vehicle_t::calc_route_internal(
 		route.clear();
 		route.append( start );
 		state = flying;
+		play_sound();
 		if(flying_height==0) {
 			flying_height = 3*TILE_HEIGHT_STEP;
 		}
@@ -7606,6 +7607,7 @@ void air_vehicle_t::hop(grund_t* gr)
 				 (min_runway_length_meters && runway_meters_so_far >= min_runway_length_meters)   //  has reached minimum runway length
 			) {
 				state = flying;
+				play_sound();
 				new_friction = 1;
 				block_reserver( takeoff, takeoff+100, false );
 				flying_height = h_cur - h_next;
