@@ -8021,6 +8021,7 @@ void air_vehicle_t::hop(grund_t* gr)
 				 (min_runway_length_meters && runway_meters_so_far >= min_runway_length_meters)   //  has reached minimum runway length
 			) {
 				state = flying;
+				play_sound();
 				new_friction = 1;
 				block_reserver( takeoff, takeoff+100, false );
 				flying_height = h_cur - h_next;

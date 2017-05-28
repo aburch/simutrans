@@ -2183,6 +2183,10 @@ end_loop:
 			{
 				register_stops();
 			}
+			if (front()->get_waytype() != air_wt)
+			{
+				front()->play_sound();
+			}
 			// Fallthrough intended.
 		case SELF_DESTRUCT:
 		case ENTERING_DEPOT:
@@ -3392,7 +3396,7 @@ void convoi_t::vorfahren()
 				if(front()->can_enter_tile(restart_speed, 0)) 
 				{
 					// can reserve new block => drive on
-					if(haltestelle_t::get_halt(k0, owner).is_bound())
+					if(haltestelle_t::get_halt(k0, owner).is_bound() && front()->get_waytype() != air_wt) // Aircraft play sounds on taking off instead of taxiing.
 					{
 						front()->play_sound();
 					}
