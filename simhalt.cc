@@ -93,7 +93,7 @@ void haltestelle_t::step_all()
 	const uint32 count = alle_haltestellen.get_count();
 	if (count)
 	{
-		const uint32 loops = min(count, 256);
+		const uint32 loops = min(count, 256u);
 		static vector_tpl<halthandle_t>::iterator iter;
 		for (uint32 i = 0; i < loops; ++i) 
 		{
@@ -2886,7 +2886,8 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		// This was the 5th consecutive attempt to walk between stations.  Fail.
 		// UPDATE December 2016: Walking between stations now does take actual time. Is this still needed?
 #ifdef MULTI_THREAD
-		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s has walked between too many consecutive stops: terminating early to avoid infinite loops", ware.menge, translator::translate(ware.get_name()), get_name() );
 #ifdef MULTI_THREAD
@@ -2906,11 +2907,13 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		
 		// write a log entry and discard the goods
 #ifdef MULTI_THREAD
-		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s have no longer a route to their destination!", ware.menge, translator::translate(ware.get_name()), get_name() );
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		return;
 	}
@@ -2923,11 +2926,13 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	{
 		// Destination factory has been deleted: write a log entry and discard the goods.
 #ifdef MULTI_THREAD
-		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		dbg->warning("haltestelle_t::liefere_an()","%d %s delivered to %s were intended for a factory that has been deleted.", ware.menge, translator::translate(ware.get_name()), get_name() );
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		return;
 	}
@@ -2979,11 +2984,13 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	if (ware.get_ziel() == self)
 	{
 #ifdef MULTI_THREAD
-		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		DBG_MESSAGE("haltestelle_t::liefere_an()", "%s has discovered that it is quicker to walk to its destination from %s than take its previously planned route.", translator::translate(ware.get_name()), get_name());
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		if (!twice)
 		{
@@ -3010,12 +3017,14 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 		//INT_CHECK("simhalt 1364");
 
 #ifdef MULTI_THREAD
-		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		// target halt no longer there => delete and remove from fab in transit
 		fabrik_t::update_transit( ware, false );
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		return;
 	}
@@ -3718,7 +3727,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				if(file->get_version() <= 112002 || file->get_extended_version() <= 10)
 				{
 					const uint32 count = warray->get_count();
-					uint16 short_count = min(count, 65535);
+					uint16 short_count = min(count, 65535u);
 					file->rdwr_short(short_count);
 					has_uint16_count = true;
 				}
@@ -4116,7 +4125,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 		else
 		{
-			uint16 old_tt = min(transfer_time, 65535);
+			uint16 old_tt = min(transfer_time, 65535u);
 			file->rdwr_short(old_tt);
 			if (old_tt == 65535)
 			{
@@ -5286,11 +5295,11 @@ void haltestelle_t::calc_transfer_time()
 	const uint32 walking_around = welt->walking_time_tenths_from_distance(length_around);
 	// Guess that someone has to walk roughly from the middle to one end, so divide by *4*.
 	// Finally, round down to a uint16 (just in case).
-	transfer_time = min(walking_around / 4, UINT32_MAX_VALUE);
+	transfer_time = min(walking_around / 4u, UINT32_MAX_VALUE);
 
 	// Repeat the process for the transshipment time.  (This is all inlined.)
 	const uint32 hauling_around = welt->walk_haulage_time_tenths_from_distance(length_around);
-	transshipment_time = min(hauling_around / 4, UINT32_MAX_VALUE);
+	transshipment_time = min(hauling_around / 4u, UINT32_MAX_VALUE);
 
 	// Adjust for overcrowding - transfer time increases with a more crowded stop.
 	// TODO: Better separate waiting times for different types of goods.
@@ -5320,13 +5329,13 @@ void haltestelle_t::calc_transfer_time()
 	if(capacity[0] > 0 && waiting_passengers > capacity[0])
 	{
 		const sint64 overcrowded_proporion_passengers = waiting_passengers * 10ll / capacity[0];
-		transfer_time = min(max(transfer_time, ((uint32)overcrowded_proporion_passengers * (2 * (uint32)overcrowded_proporion_passengers)) / 10), transfer_time * 10);
+		transfer_time = (uint32)min_64(max_64((sint64)transfer_time, (overcrowded_proporion_passengers * (2ll * overcrowded_proporion_passengers)) / 10ll), (sint64)transfer_time * 10ll);
 	}
 
 	if(capacity[2] > 0 && waiting_goods > capacity[2])
 	{
 		const sint64 overcrowded_proportion_goods = waiting_goods * 10ll / capacity[2];
-		transshipment_time = min(max(transshipment_time, ((uint32)overcrowded_proportion_goods * (2 * (uint32)overcrowded_proportion_goods)) / 10), transshipment_time * 10);
+		transshipment_time = (uint32)min_64(max_64((sint64)transshipment_time, (overcrowded_proportion_goods * (2ll *overcrowded_proportion_goods)) / 10ll), (sint64)transshipment_time * 10ll);
 	}
 
 	// For reference, with a transshipment speed of 1 km/h and a walking speed of 5 km/h,

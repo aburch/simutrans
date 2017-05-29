@@ -1620,11 +1620,11 @@ sint32 vehicle_t::calc_speed_limit(const weg_t *w, const weg_t *weg_previous, fi
 		const sint16 direction = get_direction_degrees(ribi_t::get_dir(current_direction));
 		uint16 tmp;
 
-		int counter = 0;
-		int steps_to_second_45 = 0;
-		int steps_to_90 = 0;
-		int steps_to_135 = 0;
-		int steps_to_180 = 0;
+		sint32 counter = 0;
+		sint32 steps_to_second_45 = 0;
+		sint32 steps_to_90 = 0;
+		sint32 steps_to_135 = 0;
+		sint32 steps_to_180 = 0;
 		const uint16 meters_per_tile = welt->get_settings().get_meters_per_tile();
 		int direction_changes = 0;
 		sint16 previous_direction = direction;
@@ -6965,6 +6965,7 @@ bool air_vehicle_t::calc_route_internal(
 		route.clear();
 		route.append( start );
 		state = flying;
+		play_sound();
 		if(flying_height==0) {
 			flying_height = 3*TILE_HEIGHT_STEP;
 		}
@@ -7606,6 +7607,7 @@ void air_vehicle_t::hop(grund_t* gr)
 				 (min_runway_length_meters && runway_meters_so_far >= min_runway_length_meters)   //  has reached minimum runway length
 			) {
 				state = flying;
+				play_sound();
 				new_friction = 1;
 				block_reserver( takeoff, takeoff+100, false );
 				flying_height = h_cur - h_next;
