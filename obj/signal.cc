@@ -262,14 +262,24 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 		{
 			buf.append(desc->get_aspects());
 		}
-		if (desc->is_choose_sign())
+		if (desc->is_choose_sign() || desc->get_permissive() == true)
 		{
-			buf.printf("+%s", translator::translate("alt_route"));
+			buf.append(" + ");
+			if (desc->is_choose_sign() && desc->get_permissive() == true)
+			{
+				buf.append(translator::translate("alt_route_and_callon"));
+			}
+			else if (desc->is_choose_sign())
+			{
+				buf.append(translator::translate("alt_route"));
+			}
+			else
+			{
+				buf.append(translator::translate("callon"));
+			}
+			
 		}
-		if (desc->get_permissive() == true)
-		{
-			buf.printf("+%s", translator::translate("callon"));
-		}
+
 		buf.append("\n");
 
 		buf.append(translator::translate("current_state"));
