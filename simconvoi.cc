@@ -904,6 +904,17 @@ void convoi_t::increment_odometer(uint32 steps)
 		must_add = true;
 		running_cost -= v.get_desc()->get_running_cost(welt);
 	}
+
+	if (waytype == air_wt)
+	{
+		// Halve the running cost if we are circling or taxiing.
+		air_vehicle_t* aircraft = (air_vehicle_t*)front(); 
+		if (!aircraft->is_using_full_power())
+		{
+			running_cost /= 2;
+		}
+	}
+
 	if (must_add)
 	{
 		add_running_cost(running_cost, weg);
@@ -5945,7 +5956,7 @@ sint32 convoi_t::get_running_cost() const
 sint32 convoi_t::get_per_kilometre_running_cost() const
 {
 	sint32 running_cost = 0;
-	for (unsigned i = 0; i<get_vehicle_count(); i++) { //"anzahl" = "number" (Babelfish)
+	for (unsigned i = 0; i<get_vehicle_count(); i++) { 
 		sint32 vehicle_running_cost = vehicle[i]->get_desc()->get_running_cost(welt);
 		running_cost += vehicle_running_cost;
 	}
