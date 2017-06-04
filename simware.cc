@@ -245,7 +245,7 @@ void ware_t::rdwr(loadsave_t *file)
 		is_commuting_trip = commuting;
 	}
 
-	if (file->get_extended_version() >= 13 || (file->get_extended_version() == 12 && file->get_extended_revision() >= 19))
+	if (file->get_extended_version() >= 13 || (file->get_extended_version() == 12 && file->get_extended_revision() >= 20))
 	{
 		file->rdwr_byte(g_class); 
 	}

@@ -2306,7 +2306,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 
 	obj_t::rdwr(file);
 
-	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 19)
+	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 20)
 	{
 		// We need to save this in case "desc" cannot be found on re-loading because
 		// of some pakset changes.
@@ -2351,7 +2351,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		}
 	}
 
-	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 19)
+	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 20)
 	{
 		file->rdwr_bool(create_dummy_ware);
 	}
@@ -2404,7 +2404,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		file->rdwr_long(speed_limit);
 		file->rdwr_enum(direction);
 		file->rdwr_enum(previous_direction);
-		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 19)
+		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 20)
 		{
 			for (uint8 i = 0; i < number_of_classes; i++)
 			{
@@ -2513,7 +2513,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	}
 	else // Loading
 	{
-		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 19)
+		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 20)
 		{
 			for (uint8 i = 0; i < number_of_classes; i++)
 			{
@@ -2687,7 +2687,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		current_livery = "default";
 	}
 
-	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 19)
+	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 20)
 	{
 		for (uint8 i = 0; i < number_of_classes; i++)
 		{
