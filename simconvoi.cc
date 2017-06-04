@@ -3207,10 +3207,9 @@ void convoi_t::vorfahren()
 			{				
 				switch(front()->get_waytype())
 				{
-					case road_wt:
 					case air_wt:
 					case water_wt:
-						// Road vehicles, boats and aircraft do not need to change direction
+						// Boats and aircraft do not need to change direction
 						book_departure_time(welt->get_ticks());
 						book_waiting_times();
 						break;
@@ -7163,7 +7162,12 @@ void convoi_t::clear_replace()
 
  uint32 convoi_t::calc_reverse_delay() const
  {
-	uint32 reverse_delay;
+	if (front()->get_waytype() == road_wt)
+	{ 
+		return welt->get_settings().get_road_reverse_time();
+	}
+
+	 uint32 reverse_delay;
 
 	if(reversable)
 	{
