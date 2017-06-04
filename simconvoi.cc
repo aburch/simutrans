@@ -5707,7 +5707,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	else
 	{
 		
-		if (loading_level > 0 && !wait_for_time)
+		if (loading_limit > 0 && !wait_for_time)
 		{
 			wait_lock = (earliest_departure_time - now) / 2;
 		}
