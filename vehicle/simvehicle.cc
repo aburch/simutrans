@@ -5523,13 +5523,23 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		const bool will_choose = last_choose_signal_index < INVALID_INDEX && !is_choosing && not_entirely_free;
 		// free reservation
 		uint16 curtailment_index;
+		bool do_not_increment_curtailment_index_directional = false;
 		if(!success)
 		{
-			curtailment_index = start_index;
+			const uint16 next_stop_index = cnv->get_next_stop_index();
+			if (next_stop_index == start_index + 1)
+			{
+				curtailment_index = start_index;
+			}
+			else
+			{
+				curtailment_index = max(start_index, cnv->get_next_stop_index());
+			}
 		}
 		else if(!directional_reservation_succeeded)
 		{
 			curtailment_index = last_non_directional_index;
+			do_not_increment_curtailment_index_directional = true;
 		}
 		else if(will_choose && first_double_block_signal_index > next_signal_index)
 		{
@@ -5540,7 +5550,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			curtailment_index = next_signal_index;
 		}
 
-		if(!directional_only)
+		if(!directional_only && !do_not_increment_curtailment_index_directional)
 		{
 			curtailment_index ++;
 		}
