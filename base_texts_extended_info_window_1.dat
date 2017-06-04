@@ -12,3 +12,19 @@ obj=program_text
 name=transfers
 note=Shown in the station info window in the good section to distinguish the transferring section from the waiting section
 -
+obj=program_text
+name=aspects
+note=Shown in the signal info window
+-
+obj=program_text
+name=alt_route
+note=Shown in the signal info window together with the "aspect" value
+-
+obj=program_text
+name=callon
+note=Shown in the signal info window together with the "aspect" value
+-
+obj=program_text
+name=alt_route_and_callon
+note=Shown in the signal info window together with the "aspect" value
+-

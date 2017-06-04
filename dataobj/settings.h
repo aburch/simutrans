@@ -474,10 +474,12 @@ public:
 	uint32 unit_reverse_time;
 	uint32 hauled_reverse_time;
 	uint32 turntable_reverse_time;
+	uint32 road_reverse_time;
 
 	uint16 unit_reverse_time_seconds;
 	uint16 hauled_reverse_time_seconds;
 	uint16 turntable_reverse_time_seconds;
+	uint16 road_reverse_time_seconds;
 
 	//@author: jamespetts
 	uint16 global_power_factor_percent; 
@@ -917,10 +919,12 @@ public:
 	uint32 get_unit_reverse_time() const { return unit_reverse_time; }
 	uint32 get_hauled_reverse_time() const { return hauled_reverse_time; }
 	uint32 get_turntable_reverse_time() const { return turntable_reverse_time; }
+	uint32 get_road_reverse_time() const { return road_reverse_time; }
 
 	uint16 get_unit_reverse_time_seconds() const { return unit_reverse_time_seconds; }
 	uint16 get_hauled_reverse_time_seconds() const { return hauled_reverse_time_seconds; }
 	uint16 get_turntable_reverse_time_seconds() const { return turntable_reverse_time_seconds; }
+	uint16 get_road_reverse_time_seconds() const { return road_reverse_time_seconds; }
 
 	uint16 get_global_power_factor_percent() const { return global_power_factor_percent; }
 	void set_global_power_factor_percent(uint16 value) { global_power_factor_percent = value; }

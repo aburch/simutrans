@@ -907,6 +907,17 @@ void convoi_t::increment_odometer(uint32 steps)
 		must_add = true;
 		running_cost -= v.get_desc()->get_running_cost(welt);
 	}
+
+	if (waytype == air_wt)
+	{
+		// Halve the running cost if we are circling or taxiing.
+		air_vehicle_t* aircraft = (air_vehicle_t*)front(); 
+		if (!aircraft->is_using_full_power())
+		{
+			running_cost /= 2;
+		}
+	}
+
 	if (must_add)
 	{
 		add_running_cost(running_cost, weg);
@@ -3234,10 +3245,9 @@ void convoi_t::vorfahren()
 			{				
 				switch(front()->get_waytype())
 				{
-					case road_wt:
 					case air_wt:
 					case water_wt:
-						// Road vehicles, boats and aircraft do not need to change direction
+						// Boats and aircraft do not need to change direction
 						book_departure_time(welt->get_ticks());
 						book_waiting_times();
 						break;
@@ -3396,7 +3406,7 @@ void convoi_t::vorfahren()
 				if(front()->can_enter_tile(restart_speed, 0)) 
 				{
 					// can reserve new block => drive on
-					if(haltestelle_t::get_halt(k0, owner).is_bound() && front()->get_waytype() != air_wt) // Aircraft play sounds on taking off instead of taxiing.
+					if (haltestelle_t::get_halt(k0, owner).is_bound() && front()->get_waytype() != air_wt) // Aircraft play sounds on taking off instead of taxiing
 					{
 						front()->play_sound();
 					}
@@ -5743,7 +5753,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	else
 	{
 		
-		if (loading_level > 0 && !wait_for_time)
+		if (loading_limit > 0 && !wait_for_time)
 		{
 			wait_lock = (earliest_departure_time - now) / 2;
 		}
@@ -5992,7 +6002,7 @@ sint32 convoi_t::get_running_cost() const
 sint32 convoi_t::get_per_kilometre_running_cost() const
 {
 	sint32 running_cost = 0;
-	for (unsigned i = 0; i<get_vehicle_count(); i++) { //"anzahl" = "number" (Babelfish)
+	for (unsigned i = 0; i<get_vehicle_count(); i++) { 
 		sint32 vehicle_running_cost = vehicle[i]->get_desc()->get_running_cost(welt);
 		running_cost += vehicle_running_cost;
 	}
@@ -7199,7 +7209,12 @@ void convoi_t::clear_replace()
 
  uint32 convoi_t::calc_reverse_delay() const
  {
-	uint32 reverse_delay;
+	if (front()->get_waytype() == road_wt)
+	{ 
+		return welt->get_settings().get_road_reverse_time();
+	}
+
+	 uint32 reverse_delay;
 
 	if(reversable)
 	{
