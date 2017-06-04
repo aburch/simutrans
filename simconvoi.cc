@@ -6232,12 +6232,9 @@ void convoi_t::register_stops()
 {
 	if(schedule)
 	{
-		FOR(minivec_tpl<schedule_entry_t>, &i, schedule->entries)
+		FOR(minivec_tpl<schedule_entry_t>, const &i, schedule->entries)
 		{
 			halthandle_t const halt = haltestelle_t::get_halt(i.pos, get_owner());
-			// Reset the reversing status when the schedule changes, as changes to the schedule
-			// might affect where reversing is needed.
-			i.reverse = -1;
 			if(halt.is_bound())
 			{
 				halt->add_convoy(self);

@@ -4566,7 +4566,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		ribi_t::ribi ribi = next_block < INVALID_INDEX ? ribi_type(cnv->get_route()->at(max(1u, check_route_index) - 1u), cnv->get_route()->at(min(max_element, check_route_index + 1u))) : ribi_t::all; 
 		signal_t* signal = w_current->get_signal(ribi); 
 
-		if (signal && working_method && one_train_staff && starting_from_stand)
+		if (signal && working_method == one_train_staff && starting_from_stand)
 		{
 			const bool ok = block_reserver(cnv->get_route(), route_index - 1, modified_sighting_distance_tiles, next_signal, 0, true, false);
 			cnv->set_next_stop_index(next_signal);
