@@ -355,7 +355,7 @@ public:
 	int get_y_placement() const { return -25; }
 	int get_x_grid() const { return 24; }
 	int get_y_grid() const { return 24; }
-	unsigned get_max_convoi_length() const { return 4; }
+	unsigned get_max_convoi_length() const;
 
 	obj_t::typ get_typ() const { return strassendepot; }
 	const char *get_name() const {return "Strassendepot";}
@@ -392,7 +392,7 @@ public:
 	int get_x_grid() const { return 60; }
 	int get_y_grid() const { return 46; }
 
-	unsigned get_max_convoi_length() const { return 4; }
+	unsigned get_max_convoi_length() const;
 	obj_t::typ get_typ() const { return schiffdepot; }
 	const char *get_name() const {return "Schiffdepot";}
 };
@@ -422,7 +422,7 @@ public:
 	int get_y_placement() const {return -23; }
 	int get_x_grid() const { return 36; }
 	int get_y_grid() const { return 36; }
-	unsigned get_max_convoi_length() const { return 1; }
+	unsigned get_max_convoi_length() const;
 
 	obj_t::typ get_typ() const { return airdepot; }
 	const char *get_name() const {return "Hangar";}

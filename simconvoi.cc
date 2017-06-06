@@ -166,7 +166,7 @@ void convoi_t::init(player_t *player)
 }
 
 
-convoi_t::convoi_t(loadsave_t* file) : fahr(max_vehicle, NULL)
+convoi_t::convoi_t(loadsave_t* file) : fahr(default_vehicle_length, NULL)
 {
 	self = convoihandle_t();
 	init(0);
@@ -174,7 +174,7 @@ convoi_t::convoi_t(loadsave_t* file) : fahr(max_vehicle, NULL)
 }
 
 
-convoi_t::convoi_t(player_t* player_) : fahr(max_vehicle, NULL)
+convoi_t::convoi_t(player_t* player_) : fahr(default_vehicle_length, NULL)
 {
 	self = convoihandle_t(this);
 	player_->book_convoi_number(1);
@@ -1617,11 +1617,11 @@ void convoi_t::warten_bis_weg_frei(sint32 restart_speed)
 
 bool convoi_t::add_vehikel(vehicle_t *v, bool infront)
 {
-DBG_MESSAGE("convoi_t::add_vehikel()","at pos %i of %i totals.",anz_vehikel,max_vehicle);
-	// extend array if requested (only needed for trains)
-	if(anz_vehikel == max_vehicle) {
-DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_vehicle);
-		fahr.resize(max_rail_vehicle, NULL);
+DBG_MESSAGE("convoi_t::add_vehikel()","at pos %i of %i total vehikels.",anz_vehikel,fahr.get_count());
+	// extend array if requested
+	if(anz_vehikel == fahr.get_count()) {
+		fahr.resize(anz_vehikel+1,NULL);
+DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",fahr.get_count());
 	}
 	// now append
 	if (anz_vehikel < fahr.get_count()) {
@@ -1669,7 +1669,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 	// der convoi hat jetzt ein neues ende
 	set_erstes_letztes();
 
-DBG_MESSAGE("convoi_t::add_vehikel()","now %i of %i total vehikels.",anz_vehikel,max_vehicle);
+DBG_MESSAGE("convoi_t::add_vehikel()","now %i of %i total vehikels.",anz_vehikel,fahr.get_count());
 	return true;
 }
 
@@ -2215,8 +2215,8 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	if(file->is_loading()) {
 		// extend array if requested (only needed for trains)
-		if(anz_vehikel > max_vehicle) {
-			fahr.resize(max_rail_vehicle, NULL);
+		if(anz_vehikel > fahr.get_count()) {
+			fahr.resize(anz_vehikel, NULL);
 		}
 		owner_p = welt->get_player( owner_n );
 

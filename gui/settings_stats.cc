@@ -39,7 +39,11 @@ static char const* const version[] =
 	"0.111.4",
 	"0.112.0",
 	"0.112.2",
-	"0.120.1"
+	"0.120.1",
+	"0.120.2",
+	"0.120.3",
+	"0.120.4",
+	"0.120.5"
 };
 
 
@@ -275,21 +279,29 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_INIT
 	INIT_NUM( "remove_dummy_player_months", sets->get_remove_dummy_player_months(), 0, MAX_PLAYER_HISTORY_YEARS*12, 12, false );
 	INIT_NUM( "unprotect_abandoned_player_months", sets->get_unprotect_abandoned_player_months(), 0, MAX_PLAYER_HISTORY_YEARS*12, 12, false );
+	INIT_NUM( "ai_construction_speed", sets->get_default_ai_construction_speed(), 0, 1000000000, 1000, false );
 	SEPERATOR
+
 	INIT_COST( "starting_money", sets->get_starting_money(sets->get_starting_year()), 1, 0x7FFFFFFFul, 10000, false );
 	INIT_NUM( "pay_for_total_distance", sets->get_pay_for_total_distance_mode(), 0, 2, gui_numberinput_t::AUTOLINEAR, true );
 	INIT_NUM( "bonus_basefactor", sets->get_bonus_basefactor(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL_NEW( "first_beginner", sets->get_beginner_mode() );
 	INIT_NUM( "beginner_price_factor", sets->get_beginner_price_factor(), 1, 25000, gui_numberinput_t::AUTOLINEAR, false );
+	SEPERATOR
+
 	INIT_BOOL( "allow_buying_obsolete_vehicles", sets->get_allow_buying_obsolete_vehicles() );
-	INIT_NUM( "used_vehicle_reduction", sets->get_used_vehicle_reduction(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "used_vehicle_reduction", sets->get_used_vehicle_reduction(), 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_rail_convoi_length", sets->get_max_rail_convoi_length(), 1, 254, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_road_convoi_length", sets->get_max_road_convoi_length(), 1, 254, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_ship_convoi_length", sets->get_max_ship_convoi_length(), 1, 254, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_air_convoi_length", sets->get_max_air_convoi_length(), 1, 254, gui_numberinput_t::AUTOLINEAR, false );
+	SEPERATOR
+
 	INIT_NUM( "toll_runningcost_percentage", sets->get_way_toll_runningcost_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "toll_waycost_percentage", sets->get_way_toll_waycost_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL("disable_make_way_public", sets->get_disable_make_way_public());
 	SEPERATOR
 
-	INIT_NUM( "ai_construction_speed", sets->get_default_ai_construction_speed(), 0, 1000000000, 1000, false );
-	SEPERATOR
 	INIT_NUM( "just_in_time", sets->get_just_in_time(), 0, 2, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "maximum_intransit_percentage", sets->get_factory_maximum_intransit_percentage(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "crossconnect_factories", sets->is_crossconnect_factories() );
@@ -360,6 +372,8 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	sint64 start_money_temp;
 	READ_NUM_VALUE( sets->remove_dummy_player_months );
 	READ_NUM_VALUE( sets->unprotect_abandoned_player_months );
+	READ_NUM_VALUE( sets->default_ai_construction_speed );
+	env_t::default_ai_construction_speed = sets->get_default_ai_construction_speed();
 	READ_COST_VALUE( start_money_temp );
 	if(  sets->get_starting_money(sets->get_starting_year())!=start_money_temp  ) {
 		// because this will render the table based values invalid, we do this only when needed
@@ -369,14 +383,18 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->bonus_basefactor );
 	READ_BOOL_VALUE_NEW( sets->beginner_mode );
 	READ_NUM_VALUE( sets->beginner_price_factor );
+
 	READ_BOOL_VALUE( sets->allow_buying_obsolete_vehicles );
 	READ_NUM_VALUE( sets->used_vehicle_reduction );
+	READ_NUM_VALUE( sets->max_rail_convoi_length );
+	READ_NUM_VALUE( sets->max_road_convoi_length );
+	READ_NUM_VALUE( sets->max_ship_convoi_length );
+	READ_NUM_VALUE( sets->max_air_convoi_length );
+
 	READ_NUM_VALUE( sets->way_toll_runningcost_percentage );
 	READ_NUM_VALUE( sets->way_toll_waycost_percentage );
 	READ_BOOL_VALUE(sets->disable_make_way_public);
 
-	READ_NUM_VALUE( sets->default_ai_construction_speed );
-	env_t::default_ai_construction_speed = sets->get_default_ai_construction_speed();
 	READ_NUM_VALUE( env_t::just_in_time );
 	sets->just_in_time = env_t::just_in_time;
 	READ_NUM_VALUE( sets->factory_maximum_intransit_percentage );

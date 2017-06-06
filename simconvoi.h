@@ -55,7 +55,7 @@ public:
 	/* Constants
 	 * @author prissi
 	 */
-	enum { max_vehicle=4, max_rail_vehicle = 24 };
+	enum { default_vehicle_length=4};
 
 	enum states {INITIAL,
 		EDIT_SCHEDULE,

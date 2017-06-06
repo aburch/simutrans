@@ -1,6 +1,7 @@
 	FIX: crash when resizing isometric minimap
 	FIX: problems with scrolled lists
 	ADD: (Ichou) force replacement of wayobj by holding ctrl key while building
+	ADD: (THLeader) long convoi patch
 
 Release of 120.2.2: (r8163 on 31-3-2017):
 	ADD: Name filter in depot window
