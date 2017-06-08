@@ -876,8 +876,8 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 						if(tmp.get_origin().is_bound() && get_owner()->get_finance()->get_account_balance() > 0)
 						{
 							// Cannot refund unless we know the origin.
-							// Also, ought not refund unless the player is solvent.
-							// Players ought not be put out of business by refunds, as this makes gameplay too unpredictable,
+							// Also, ought not to refund unless the player is solvent.
+							// Players ought not to be put out of business by refunds, as this makes gameplay too unpredictable,
 							// especially in online games, where joining one player's network to another might lead to a large
 							// influx of passengers which one of the networks cannot cope with.
 							const uint16 distance = shortest_distance(halt->get_basis_pos(), tmp.get_origin()->get_basis_pos());

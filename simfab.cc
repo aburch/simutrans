@@ -3171,7 +3171,7 @@ uint32 fabrik_t::get_lead_time(const goods_desc_t* wtype)
 				FOR(vector_tpl<nearby_halt_t>, const& nearby_halt, fab->nearby_freight_halts) 
 				{
 					// now search route
-					const uint32 transfer_time = ((uint32)nearby_halt.distance * transfer_journey_time_factor) / 100;
+					const uint32 transfer_time = (((uint32)nearby_halt.distance * transfer_journey_time_factor) / 100) + nearby_halt.halt->get_transshipment_time(); 
 					ware_t tmp;
 					tmp.set_desc(wtype);
 					tmp.set_zielpos(pos.get_2d());

@@ -2880,7 +2880,7 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	if (walked_between_stations > 4) 
 	{
 		// With repeated walking between stations -- and as long as the walking takes no actual time
-		// (which is a bug which should be fixed) -- there is some danger of infinite loops.
+		// (which is a bug which should be fixed [and now has been fixed]) -- there is some danger of infinite loops.
 		// Check for an excessively long number of walking steps.  If we have one, complain and fail.
 		//
 		// This was the 5th consecutive attempt to walk between stations.  Fail.
