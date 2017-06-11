@@ -1918,8 +1918,18 @@ void vehicle_t::calc_drag_coefficient(const grund_t *gr) //,const int h_alt, con
 		if(ribi_type(hang) & direction)
 		{
 			// Uphill
-			const sint16 additional_base_friction = slope_height == 1 ? 40 : 80;
-			const sint16 additional_current_friction = slope_height == 1 ? 23 : 47;
+
+			//  HACK: For some reason yet to be discerned, some road vehicles struggled with hills to the extent of
+			// stalling (reverting to the minimum speed of 1km/h). Until we find out where the problem ultimately lies,
+			// assume that hills are less teep for road vehicles as for anything else.
+			const sint16 abf_1 = get_waytype() == road_wt ? 18 : 40;
+			const sint16 abf_2 = get_waytype() == road_wt ? 35 : 80;
+
+			const sint16 acf_1 = get_waytype() == road_wt ? 10 : 23;
+			const sint16 acf_2 = get_waytype() == road_wt ? 19 : 47;
+
+			const sint16 additional_base_friction = slope_height == 1 ? abf_1 : abf_2;
+			const sint16 additional_current_friction = slope_height == 1 ? acf_1 : acf_2;
 			current_friction = min(base_friction + additional_base_friction, current_friction + additional_current_friction);
 		}
 		else

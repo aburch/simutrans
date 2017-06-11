@@ -112,8 +112,19 @@
  */
 char *tooltip_with_price(const char * tip, sint64 price)
 {
-	const int n = sprintf(tool_t::toolstr, "%s, ", translator::translate(tip) );
+	const int n = sprintf(tool_t::toolstr, "%s: ", translator::translate(tip) );
 	money_to_string(tool_t::toolstr+n, (double)price/-100.0);
+	return tool_t::toolstr;
+}
+
+char *tooltip_with_price_and_distance(const char * tip, sint64 price, uint32 distance)
+{
+	int n = sprintf(tool_t::toolstr, "%s: ", translator::translate(tip));
+	money_to_string(tool_t::toolstr + n, (double)price / -100.0);
+
+	n = strlen(tool_t::toolstr);
+	n += sprintf(tool_t::toolstr + n, ", %u%s", distance, translator::translate("m"));
+
 	return tool_t::toolstr;
 }
 
@@ -2633,7 +2644,8 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 
 	if(  bauigel.get_count()>1  ) {
 		// Set tooltip first (no dummygrounds, if bauigel.calc_casts() is called).
-		win_set_static_tooltip( tooltip_with_price("Building costs estimates", -bauigel.calc_costs() ) );
+		const uint32 distance = bauigel.get_count() * welt->get_settings().get_meters_per_tile();
+		win_set_static_tooltip( tooltip_with_price_and_distance("Building costs estimates", -bauigel.calc_costs(), distance) );
 
 		// make dummy route from bauigel
 		for(  uint32 j=0;  j<bauigel.get_count();  j++   ) {
