@@ -3532,7 +3532,7 @@ PIXVAL convoi_t::get_status_color() const
 uint16 convoi_t::get_tile_length() const
 {
 	uint16 carunits=0;
-	for(sint8 i=0;  i<anz_vehikel-1;  i++) {
+	for(uint8 i=0;  i<anz_vehikel-1;  i++) {
 		carunits += fahr[i]->get_desc()->get_length();
 	}
 	// the last vehicle counts differently in stations and for reserving track
