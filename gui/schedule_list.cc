@@ -45,7 +45,6 @@
 #include "../boden/wege/strasse.h"
 
 
-#include "halt_list_stats.h"
 #include "karte.h"
 
 
@@ -120,7 +119,9 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	scrolly_convois(&cont),
 	scrolly_haltestellen(&cont_haltestellen),
 	scl(gui_scrolled_list_t::listskin),
-	lbl_filter("Line Filter")
+	lbl_filter("Line Filter"),
+	convoy_infos(),
+	stop_infos()
 {
 	capacity = load = 0;
 	selection = -1;
@@ -628,11 +629,16 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		icnv = new_line->count_convoys();
 		// display convoys of line
 		cont.remove_all();
+		while(  !convoy_infos.empty()  ) {
+			delete convoy_infos.pop_back();
+		}
+		convoy_infos.resize(icnv);
 		scr_coord_val ypos = 0;
 		for(  uint32 i=0;  i<icnv;  i++  ) {
 			gui_convoiinfo_t* const cinfo = new gui_convoiinfo_t(new_line->get_convoy(i));
 			cinfo->set_pos(scr_coord(0, ypos));
 			cinfo->set_size(scr_size(400, 40));
+			convoy_infos.append(cinfo);
 			cont.add_component(cinfo);
 			ypos += 40;
 		}
@@ -653,6 +659,10 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 
 		// fill haltestellen container with info of stops of the line
 		cont_haltestellen.remove_all();
+		while(  !stop_infos.empty()  ) {
+			delete stop_infos.pop_back();
+		}
+		stop_infos.resize(new_line->get_schedule()->entries.get_count());
 		ypos = 0;
 		FOR(minivec_tpl<schedule_entry_t>, const& i, new_line->get_schedule()->entries) {
 			halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
@@ -660,6 +670,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 				halt_list_stats_t* cinfo = new halt_list_stats_t(halt);
 				cinfo->set_pos(scr_coord(0, ypos));
 				cinfo->set_size(scr_size(500, 28));
+				stop_infos.append(cinfo);
 				cont_haltestellen.add_component(cinfo);
 				ypos += 28;
 			}
