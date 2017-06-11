@@ -304,14 +304,24 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 
 				int parameters = 0;
 				int expansions = 0;
+				/*
+				@line, the whole parameter text (everything before =)
+				@delim, the whole value text (everything after =)
+				@parameters, number of fields enclosed by square brackets []
+				@expansions, number of expansions included in the value (text inside angle brackets <>)
+				@param, array containing the text inside each [] field
+				@expansion, array containing the text inside each <> field
+				 */
 				if(find_parameter_expansion(line, delim, &parameters, &expansions, param, expansion) > 0) {
 					int parameter_value[10][256];
 					int parameter_length[10];
-					int parameter_values[10];
-					char parameter_name[256][5];
+					int parameter_values[10]; // number of possible 'values' inside each [] field | e.g. [0-4]=5 / [n,s,w]=3
+					char parameter_name[256][6]; // non-numeric ribis strings
+
 					int combinations=1;
 					parameter_name[0][0] = 0;
 
+					// analyse and obtain all parameter expansions
 					for(int i=0; i<parameters; i++) {
 						char *token_ptr;
 						parameter_length[i] = strcspn(param[i],"]");
@@ -338,7 +348,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 									parameter_value[i][parameter_values[i]++] = value;
 								break;
 								case '-':
-									if (i == 0 &&  parameter_name[0][0] != 0) {
+									if (i == 0 && parameter_name[0][0] != 0) {
 										value = parameter_values[i];
 										sprintf(parameter_name[value], "%.*s", strcspn(buffer+name_length+1,","), buffer+name_length+1);
 										name_length += strcspn(buffer+name_length+1,",") + 1;
@@ -357,9 +367,11 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 						combinations*=parameter_values[i];
 					}
 
+					// start expansion of the parameter
 					for(int i=0; i<combinations; i++) {
 						int combination[10];
 						if(parameters>0) {
+							// warp values around the number of parameters the expansion has
 							for(int j=0; j<parameters; j++) {
 								combination[j] = i;
 								for(int k=0; k<j; k++) {
@@ -367,12 +379,15 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 								}
 								combination[j]%=parameter_values[j];
 							}
+							// if expanding non-numerical parameters
 							if (parameter_name[0][0] != 0) {
-								sprintf(line_expand, "%.*s%s", (int)(param[0]-line), line, parameter_name[i]);
+								sprintf(line_expand, "%.*s%s", (int)(param[0]-line), line, parameter_name[combination[0]]);
 							}
+							// if expanding numerical parameters
 							else {
 								sprintf(line_expand, "%.*s%d", (int)(param[0]-line), line, parameter_value[0][combination[0]]);
 							}
+							// expand second field and onwards
 							for(int i=1; i<parameters; i++) {
 								char *prev_end = param[i-1]+parameter_length[i-1];
 								sprintf(buffer, "%.*s%d", param[i]-prev_end, prev_end, parameter_value[i][combination[i]]);
@@ -384,6 +399,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 							strcpy(line_expand, line);
 						}
 
+						// expand the value
 						if(expansions>0) {
 							int expansion_length[10];
 							int expansion_value[10];
