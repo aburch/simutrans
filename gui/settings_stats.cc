@@ -291,10 +291,10 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 
 	INIT_BOOL( "allow_buying_obsolete_vehicles", sets->get_allow_buying_obsolete_vehicles() );
 	INIT_NUM( "used_vehicle_reduction", sets->get_used_vehicle_reduction(), 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "max_rail_convoi_length", sets->get_max_rail_convoi_length(), 1, 254, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "max_road_convoi_length", sets->get_max_road_convoi_length(), 1, 254, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "max_ship_convoi_length", sets->get_max_ship_convoi_length(), 1, 254, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "max_air_convoi_length", sets->get_max_air_convoi_length(), 1, 254, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_rail_convoi_length", sets->get_max_rail_convoi_length(), 1, 255, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_road_convoi_length", sets->get_max_road_convoi_length(), 1, 255, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_ship_convoi_length", sets->get_max_ship_convoi_length(), 1, 255, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_air_convoi_length", sets->get_max_air_convoi_length(), 1, 255, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 
 	INIT_NUM( "toll_runningcost_percentage", sets->get_way_toll_runningcost_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
