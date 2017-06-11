@@ -304,6 +304,16 @@ schedule_list_gui_t::~schedule_list_gui_t()
 	delete last_schedule;
 	// change line name if necessary
 	rename_line();
+
+	// delete all convoy info objects
+	while(  !convoy_infos.empty()  ) {
+		delete convoy_infos.pop_back();
+	}
+
+	// delete all stop info objects
+	while(  !stop_infos.empty()  ) {
+		delete stop_infos.pop_back();
+	}
 }
 
 
