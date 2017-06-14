@@ -7897,7 +7897,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 			}
 			else
 			{
-				sint32 dummy;
+				sint32 dummy = -1;
 				file->rdwr_long(dummy);
 				parallel_operations = -1;
 			}
@@ -7911,7 +7911,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 		ware_t ware;
 #ifdef MULTI_THREAD
 		count = 0;
-		for (sint32 i = 0; i < parallel_operations; i++)
+		for (sint32 i = 0; i < get_parallel_operations(); i++)
 		{
 			count += transferring_cargoes[i].get_count();
 		}
@@ -7923,7 +7923,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 
 		sint32 po;
 #ifdef MULTI_THREAD
-		po = parallel_operations;
+		po = get_parallel_operations();
 #else
 		po = 1;
 #endif
@@ -9059,21 +9059,10 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 
 	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 15)
 	{
-		uint32 count;
+		uint32 count = 0;
 		sint64 ready;
 		ware_t ware;
 
-#ifdef MULTI_THREAD
-		count = 0;
-		for (sint32 i = 0; i < parallel_operations; i++)
-		{
-			transferring_cargoes[i].clear();
-		}
-#else
-		transferring_cargoes[0].clear();
-#endif
-
-	
 		file->rdwr_long(count);
 
 		for (uint32 i = 0; i < count; i++)
