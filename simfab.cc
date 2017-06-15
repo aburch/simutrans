@@ -3180,9 +3180,12 @@ uint32 fabrik_t::get_lead_time(const goods_desc_t* wtype)
 					if (current_journey_time < UINT32_MAX_VALUE)
 					{
 						current_journey_time += origin_transfer_time;
-						const uint32 destination_distance_to_stop = tmp.get_ziel().is_bound() ? shortest_distance(tmp.get_zielpos(), tmp.get_ziel()->get_basis_pos()) : 0;
-						const uint32 destination_transfer_time = ((destination_distance_to_stop * transfer_journey_time_factor) / 100) + tmp.get_ziel()->get_transshipment_time();
-						current_journey_time += destination_transfer_time;
+						if (tmp.get_ziel().is_bound())
+						{
+							const uint32 destination_distance_to_stop = shortest_distance(tmp.get_zielpos(), tmp.get_ziel()->get_basis_pos());
+							const uint32 destination_transfer_time = ((destination_distance_to_stop * transfer_journey_time_factor) / 100) + tmp.get_ziel()->get_transshipment_time();
+							current_journey_time += destination_transfer_time;
+						}
 
 						if (current_journey_time < best_journey_time)
 						{
