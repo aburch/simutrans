@@ -4132,10 +4132,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	if(file->get_extended_version() >= 11)
 	{
-		// We considered caching the transfer time at the halt,
-		// but this was a bad idea since the algorithm has not settled down
-		// and it's pretty fast to compute during loading
-
 		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 14)
 		{
 			file->rdwr_long(transfer_time);

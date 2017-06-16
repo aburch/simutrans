@@ -7910,7 +7910,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 			}
 			else
 			{
-				sint32 dummy;
+				sint32 dummy = -1;
 				file->rdwr_long(dummy);
 				parallel_operations = -1;
 			}
@@ -7924,7 +7924,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 		ware_t ware;
 #ifdef MULTI_THREAD
 		count = 0;
-		for (sint32 i = 0; i < parallel_operations; i++)
+		for (sint32 i = 0; i < get_parallel_operations(); i++)
 		{
 			count += transferring_cargoes[i].get_count();
 		}
@@ -7936,7 +7936,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 
 		sint32 po;
 #ifdef MULTI_THREAD
-		po = parallel_operations;
+		po = get_parallel_operations();
 #else
 		po = 1;
 #endif
@@ -9072,21 +9072,10 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 
 	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 15)
 	{
-		uint32 count;
+		uint32 count = 0;
 		sint64 ready;
 		ware_t ware;
 
-#ifdef MULTI_THREAD
-		count = 0;
-		for (sint32 i = 0; i < parallel_operations; i++)
-		{
-			transferring_cargoes[i].clear();
-		}
-#else
-		transferring_cargoes[0].clear();
-#endif
-
-	
 		file->rdwr_long(count);
 
 		for (uint32 i = 0; i < count; i++)
@@ -9977,13 +9966,14 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 		// this was the random number at the previous sync step on the server
 		const checklist_t &server_checklist = nwcheck->server_checklist;
 		const uint32 server_sync_step = nwcheck->server_sync_step;
+		const checklist_t client_checklist = LCHKLST(server_sync_step);
 		char buf[2048];
 		const int offset = server_checklist.print(buf, "server");
 		assert(offset < 2048);
-		const int offset2 = offset + LCHKLST(server_sync_step).print(buf + offset, "client");
+		const int offset2 = offset + client_checklist.print(buf + offset, "client");
 		assert(offset2 < 2048);
 		dbg->warning("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf);
-		if(  LCHKLST(server_sync_step)!=server_checklist  ) {
+		if(client_checklist != server_checklist) {
 			dbg->warning("karte_t:::do_network_world_command", "disconnecting due to checklist mismatch" );
 			network_disconnect();
 		}

@@ -543,7 +543,7 @@ void convoi_t::finish_rd()
 					realing_position |= ribi_t::is_bend(v->get_direction())  &&  (state==DRIVING  ||  is_waiting());
 				}
 				// if version is 99.17 or lower, some convois are broken, i.e. had too large gaps between vehicles
-				if(  !realing_position  &&  state!=INITIAL  &&  state!=LEAVING_DEPOT  ) {
+				/*if(  !realing_position  &&  state!=INITIAL  &&  state!=LEAVING_DEPOT  ) {
 					if(  i==0  ) {
 						step_pos = v->get_steps();
 					}
@@ -566,11 +566,11 @@ void convoi_t::finish_rd()
 							// not where it should be => realing
 							realing_position = true;
 							dbg->warning( "convoi_t::finish_rd()", "convoi (%s) is broken => realign", get_name() );
-						}*/
+						} // /*
 					}
 					step_pos -= v->get_desc()->get_length_in_steps();
 					drive_pos = v->get_pos();
-				}
+				}*/
 			}
 		}
 DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
