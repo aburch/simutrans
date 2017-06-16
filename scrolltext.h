@@ -48,7 +48,7 @@
 " Isidoro","developer (vehicle replacement)",
 " Toshio Kuratomi" "patches",
 " Zhaop", "Mac OSX patch and fixes",
-" Vladki", "patch",
+" Vladki", "patch, online servers",
 " Hanczar","profiling, fixes",
 " Octavius","patch",
 " TurfIt","patches",
