@@ -7701,6 +7701,12 @@ void convoi_t::clear_estimated_times()
 
 void convoi_t::calc_classes_carried()
 {
+	if (welt->is_destroying())
+	{
+		// Some of the data below may already have been destroyed
+		// if the world is shutting down
+		return;
+	}
 	for(uint8 catg = 0; catg < 2; catg ++)
 	{
 		classes_carried[catg].clear();

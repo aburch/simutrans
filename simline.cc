@@ -89,8 +89,12 @@ simline_t::~simline_t()
 {
 	DBG_DEBUG("simline_t::~simline_t()", "deleting schedule=%p", schedule);
 
-	assert(count_convoys()==0);
-	unregister_stops();
+	if (!welt->is_destroying())
+	{
+		assert(count_convoys() == 0);
+		unregister_stops();
+	}
+	
 
 	delete schedule;
 	self.detach();
@@ -195,7 +199,7 @@ void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 
 void simline_t::remove_convoy(convoihandle_t cnv)
 {
-	if(line_managed_convoys.is_contained(cnv)) {
+	if(line_managed_convoys.is_contained(cnv) && !welt->is_destroying()) {
 		line_managed_convoys.remove(cnv);
 		recalc_catg_index();
 		financial_history[0][LINE_CONVOIS] = count_convoys();
@@ -632,6 +636,10 @@ bool simline_t::has_overcrowded() const
 
 void simline_t::calc_classes_carried()
 {
+	if (welt->is_destroying())
+	{
+		return;
+	}
 	for (uint8 catg = 0; catg < 2; catg++)
 	{
 		classes_carried[catg].clear();
