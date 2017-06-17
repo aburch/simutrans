@@ -1908,14 +1908,16 @@ void karte_t::stop_path_explorer()
 		return;
 	}
 
-	pthread_mutex_lock(&path_explorer_mutex);
+	int error = pthread_mutex_lock(&path_explorer_mutex);
+	assert(error == 0);
 
 	while (path_explorer_step_progress == 0 || path_explorer_step_progress == 1)
 	{
 		pthread_cond_wait(&path_explorer_conditional_end, &path_explorer_mutex);
 	}
 
-	pthread_mutex_unlock(&path_explorer_mutex);
+	error = pthread_mutex_unlock(&path_explorer_mutex);
+	assert(error == 0);
 
 #endif
 }
