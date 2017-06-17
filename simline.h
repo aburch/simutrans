@@ -86,8 +86,9 @@ private:
 
 	// The classes of passengers/mail carried by this line
 	// Cached to reduce recalculation times in the path
-	// explorer. Indexed by passengers (0) and mail (1)
-	minivec_tpl<uint8> classes_carried[2];
+	// explorer. 
+	minivec_tpl<uint8> passenger_classes_carried;
+	minivec_tpl<uint8> mail_classes_carried;
 
 	/*
 	 * struct holds new financial history for line

@@ -14,6 +14,7 @@
 #include "ifc/sync_steppable.h"
 
 #include "dataobj/route.h"
+#include "bauer/goods_manager.h"
 #include "vehicle/overtaker.h"
 #include "tpl/array_tpl.h"
 #include "tpl/fixed_list_tpl.h"
@@ -765,10 +766,11 @@ private:
 	// The maximum speed allowed by the current signalling system
 	sint32 max_signal_speed; 
 
-	// The classes of passengers/mail carried by this convoy
+	// The classes of passengers/mail carried by this line
 	// Cached to reduce recalculation times in the path
-	// explorer. Indexed by passengers (0) and mail (1)
-	minivec_tpl<uint8> classes_carried[2];
+	// explorer. 
+	minivec_tpl<uint8> passenger_classes_carried;
+	minivec_tpl<uint8> mail_classes_carried;
 
 public: 
 	/**
@@ -1558,7 +1560,21 @@ public:
 
 	bool check_fresh_carries_class(uint8 catg, uint8 g_class) const;
 
-	const minivec_tpl<uint8>* get_classes_carried(uint8 catg) const { return catg < 2 ? &classes_carried[catg] : NULL; } 
+	const minivec_tpl<uint8>* get_classes_carried(uint8 catg) const 
+	{ 
+		if (catg == goods_manager_t::INDEX_PAS)
+		{
+			return &passenger_classes_carried;
+		}
+		if (catg == goods_manager_t::INDEX_MAIL)
+		{
+			return &mail_classes_carried;
+		}
+		else
+		{
+			return NULL;
+		}
+	} 
 };
 
 #endif

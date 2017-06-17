@@ -1937,7 +1937,7 @@ void haltestelle_t::reset_connexions(uint8 category)
 // Adapted from : Jamespetts' code
 // Purpose		: To notify relevant halts to rebuild connexions
 // @jamespetts: modified the code to combine with previous method and provide options about partially delayed refreshes for performance.
-void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const minivec_tpl<uint8> *classes, const player_t *const player)
+void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const minivec_tpl<uint8> *passenger_classes, const minivec_tpl<uint8> *mail_classes, const player_t *const player)
 {
 	halthandle_t tmp_halt;
 
@@ -1956,16 +1956,23 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 			path_explorer_t::refresh_category(categories[i]);
 		}
 
-		// The array of minivecs of classes, indexed by 0 for passengers and 1 for mail
-		if (classes)
+		if (passenger_classes != NULL && categories.is_contained(goods_manager_t::INDEX_PAS));
 		{
-			for (uint8 i = 0; i < 2; i++)
+
+			// These minivecs should only have anything in them if their respective categories have not been refreshed entirely.
+			FOR(minivec_tpl<uint8>, const & g_class, *passenger_classes)
 			{
-				// These minivecs should only have anything in them if their respective categories have not been refreshed entirely.
-				FOR(minivec_tpl<uint8>, const & g_class, classes[i])
-				{
-					path_explorer_t::refresh_class_category(i, g_class);
-				}
+				path_explorer_t::refresh_class_category(goods_manager_t::INDEX_PAS, g_class);
+			}
+		}
+
+		if (mail_classes != NULL && categories.is_contained(goods_manager_t::INDEX_MAIL));
+		{
+
+			// These minivecs should only have anything in them if their respective categories have not been refreshed entirely.
+			FOR(minivec_tpl<uint8>, const & g_class, *mail_classes)
+			{
+				path_explorer_t::refresh_class_category(goods_manager_t::INDEX_MAIL, g_class);
 			}
 		}
 	}
