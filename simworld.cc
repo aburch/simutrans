@@ -2094,13 +2094,17 @@ void karte_t::init_threads()
 
 void karte_t::destroy_threads()
 {
-	terminating_threads = true;
-
 	if (threads_initialised)
 	{
 		pthread_attr_destroy(&thread_attributes);
 
 		// Send waiting threads to their doom
+
+		// HACK: The below sleep allows the convoy threads to synchronise to avoid
+		// thread deadlocks that otherwise might result.
+		dr_sleep(100);
+
+		terminating_threads = true;
 #ifdef MULTI_THREAD_CONVOYS
 		simthread_barrier_wait(&step_convoys_barrier_external);
 		simthread_barrier_wait(&step_convoys_barrier_internal);
