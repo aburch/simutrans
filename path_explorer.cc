@@ -104,9 +104,6 @@ void path_explorer_t::step()
 	const uint8 max_runs = (max_categories - 2) + goods_manager_t::passengers->get_number_of_classes() + goods_manager_t::mail->get_number_of_classes();
 	for (uint8 i = 0; i < max_runs; ++i)
 	{
-		bool TEST_refresh_completed = goods_compartment[current_compartment_category][current_compartment_class].is_refresh_completed();
-		bool TEST_refresh_requested = goods_compartment[current_compartment_category][current_compartment_class].is_refresh_requested();
-
 		if ( current_compartment_category != category_empty
 			 && (!goods_compartment[current_compartment_category][current_compartment_class].is_refresh_completed() 
 			     || goods_compartment[current_compartment_category][current_compartment_class].is_refresh_requested() ) )
