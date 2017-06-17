@@ -1876,12 +1876,14 @@ void* path_explorer_threaded(void* args)
 		simthread_barrier_wait(&start_path_explorer_barrier);
 		karte_t::path_explorer_step_progress = 0;
 		simthread_barrier_wait(&start_path_explorer_barrier);
-		pthread_mutex_lock(&path_explorer_mutex);
+		int error = pthread_mutex_lock(&path_explorer_mutex);
+		assert(error == 0);
 
 		if (karte_t::world->is_terminating_threads())
 		{
 			karte_t::path_explorer_step_progress = -1;
-			pthread_mutex_unlock(&path_explorer_mutex);
+			error = pthread_mutex_unlock(&path_explorer_mutex);
+			assert(error == 0);
 			break;
 		}
 
@@ -1891,7 +1893,8 @@ void* path_explorer_threaded(void* args)
 
 		pthread_cond_signal(&path_explorer_conditional_end);
 		karte_t::path_explorer_step_progress = 2;
-		pthread_mutex_unlock(&path_explorer_mutex);
+		error = pthread_mutex_unlock(&path_explorer_mutex);
+		assert(error == 0);
 	} while (!karte_t::world->is_terminating_threads());
 
 	karte_t::path_explorer_step_progress = -1;
