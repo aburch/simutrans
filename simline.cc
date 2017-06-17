@@ -799,7 +799,7 @@ bool simline_t::carries_this_or_lower_class(uint8 catg, uint8 g_class)
 	// Check whether a lower class is carried, as passengers may board vehicles of a lower, but not a higher, class
 	if (catg == goods_manager_t::INDEX_PAS)
 	{
-		FOR(minivec_tpl<uint8>, i, passenger_classes_carried)
+		FOR(vector_tpl<uint8>, i, passenger_classes_carried)
 		{
 			if (i < g_class)
 			{
@@ -809,7 +809,7 @@ bool simline_t::carries_this_or_lower_class(uint8 catg, uint8 g_class)
 	}
 	else
 	{
-		FOR(minivec_tpl<uint8>, i, mail_classes_carried)
+		FOR(vector_tpl<uint8>, i, mail_classes_carried)
 		{
 			if (i < g_class)
 			{
