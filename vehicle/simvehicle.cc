@@ -5934,6 +5934,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			{
 				curtailment_index = start_index;
 			}
+			else if (!directional_reservation_succeeded && next_signal_working_method == time_interval_with_telegraph)
+			{
+				curtailment_index = next_signal_index;
+			}
 			else
 			{
 				curtailment_index = max(start_index, cnv->get_next_stop_index());
