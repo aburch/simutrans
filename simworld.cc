@@ -1622,7 +1622,8 @@ void *check_road_connexions_threaded(void *args)
 		{
 			break;
 		}
-		pthread_mutex_lock(&private_car_route_mutex);
+		int error = pthread_mutex_lock(&private_car_route_mutex);
+		assert(error == 0);
 		if (karte_t::cities_to_process > 0)
 		{
 			stadt_t* city;
@@ -1641,8 +1642,11 @@ void *check_road_connexions_threaded(void *args)
 
 			simthread_barrier_wait(&private_car_barrier);
 		}
-		int error = pthread_mutex_unlock(&private_car_route_mutex);
-		assert(error == 0);
+		else
+		{
+			int error = pthread_mutex_unlock(&private_car_route_mutex);
+			assert(error == 0);
+		}
 		// Having two barrier waits here is intentional.
 		simthread_barrier_wait(&private_car_barrier);
 	} while (!world()->is_terminating_threads());
