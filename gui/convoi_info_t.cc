@@ -437,6 +437,9 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		const int pos_y = pos_y0; // line 1
 		char speed_text[256];
 		const air_vehicle_t* air = (const air_vehicle_t*)this;
+
+		speed_bar.set_visible(false);
+
 		switch (cnv->get_state())
 		{
 		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
@@ -544,6 +547,8 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			break;
 
 		default:
+
+			speed_bar.set_visible(true);
 			//use median speed to avoid flickering
 			mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed() * 4);
 			mean_convoi_speed /= 2;
