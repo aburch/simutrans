@@ -1312,9 +1312,10 @@ public:
 	void snprintf_remaining_loading_time(char *p, size_t size) const;
 
 	/**
-	 * Format remaining reversing time from go_on_ticks
+	 * Format remaining reversing and emergency stop time from go_on_ticks
 	 */
 	void snprintf_remaining_reversing_time(char *p, size_t size) const;
+	void snprintf_remaining_emergency_stop_time(char *p, size_t size) const;
 
 	/**
 	 * How many free seats for passengers in convoy? Used in overcrowded loading

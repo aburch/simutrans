@@ -437,6 +437,9 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		const int pos_y = pos_y0; // line 1
 		char speed_text[256];
 		const air_vehicle_t* air = (const air_vehicle_t*)this;
+
+		speed_bar.set_visible(false);
+
 		switch (cnv->get_state())
 		{
 		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
@@ -460,10 +463,13 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			sprintf(speed_text, translator::translate("Waiting for clearance!"));
 			speed_color = COL_BLACK;
 			break;
-
+			
 		case convoi_t::EMERGENCY_STOP:
 
-			sprintf(speed_text, translator::translate("emergency_stop"));
+			char emergency_stop_time[64];
+			cnv->snprintf_remaining_emergency_stop_time(emergency_stop_time, sizeof(emergency_stop_time));
+
+			sprintf(speed_text, translator::translate("emergency_stop %s left"), emergency_stop_time);
 			speed_color = COL_RED;
 			break;
 
@@ -537,9 +543,12 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 			sprintf(speed_text, translator::translate("out of range"));
 			speed_color = COL_RED;
+			/*TODO: Add this convoys maximum range*/
 			break;
 
 		default:
+
+			speed_bar.set_visible(true);
 			//use median speed to avoid flickering
 			mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed() * 4);
 			mean_convoi_speed /= 2;

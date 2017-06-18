@@ -3358,3 +3358,5 @@ callon
 call on
 alt_route_and_callon
 alt. route and call on
+emergency_stop %s left
+Emergency stop! %s until restart

@@ -7066,6 +7066,11 @@ void convoi_t::snprintf_remaining_reversing_time(char *p, size_t size) const
 	welt->sprintf_ticks(p, size, wait_lock);
 }
 
+void convoi_t::snprintf_remaining_emergency_stop_time(char *p, size_t size) const
+{
+	welt->sprintf_ticks(p, size, wait_lock);
+}
+
 uint32 convoi_t::calc_highest_axle_load()
 {
 	uint32 heaviest = 0;
