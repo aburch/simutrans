@@ -2766,6 +2766,7 @@
     <None Include="base_texts_extended_forgotten_items_2.dat" />
     <None Include="base_texts_extended_forgotten_items_3.dat" />
     <None Include="base_texts_extended_info_window_1.dat" />
+    <None Include="base_texts_extended_info_window_3.dat" />
     <None Include="base_texts_extended_modified_comfort.dat" />
     <None Include="base_texts_extended_transshipment.dat" />
     <None Include="base_texts_phil_fix.dat" />
