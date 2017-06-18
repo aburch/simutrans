@@ -270,12 +270,6 @@ private:
 	bool load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehicles, bool use_lower_classes);
 
 	// @author: jamespetts
-	// uint16 local_bonus_supplement;
-	// A supplementary bonus for local transportation,
-	// if needed, to compensate for not having the effect
-	// of the long-distance speed bonus.
-
-	// @author: jamespetts
 	// Cornering settings.
 
 	fixed_list_tpl<sint16, 192> pre_corner_direction;
@@ -527,7 +521,7 @@ public:
 	/**
 	* Get the maximum capacity
 	*/
-	uint16 get_cargo_max() const {return desc->get_capacity(); }
+	uint16 get_cargo_max() const {return desc->get_total_capacity(); }
 
 	const char * get_cargo_mass() const;
 

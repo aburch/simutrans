@@ -22,7 +22,7 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	// Finally, this is the extended version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	// 0x200 - number of classes (12.2)
+	// 0x200 - number of classes (12.3)
 	version += 0x200;
 
 	int pos = 0;
@@ -79,6 +79,19 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	// For each fare stage, there are 2x 16-bit variables.
 	len += (fare_stages * 4);
 
+	vector_tpl<uint16> class_revenue_percents(number_of_classes); 
+	uint16 class_revenue_percent;
+	char buf_crp[56];
+
+	for (uint8 i = 0; i < number_of_classes; i++)
+	{
+		// The revenue factor percentages for each class
+		sprintf(buf_crp, "class_revenue_percent[%i]", i); 
+		class_revenue_percent = obj.get_int(buf_crp, 100); 
+		class_revenue_percents.append(class_revenue_percent); 
+		len += 2;
+	}
+
 	obj_node_t node(this, len, &parent);
 
 	node.write_uint16(fp, version, pos);
@@ -102,12 +115,18 @@ void good_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint8(fp, fare_stages,		pos);
 	pos += sizeof(fare_stages);
 
-	for(int n = 0; n < fare_stages; n ++)
+	for(uint8 n = 0; n < fare_stages; n ++)
 	{
 		node.write_uint16(fp, staged_distances[n], pos);
 		pos += sizeof(uint16);
 		node.write_uint16(fp, staged_values[n], pos);
 		pos += sizeof(uint16);
+	}
+
+	for (uint8 i = 0; i < number_of_classes; i++)
+	{
+		node.write_uint16(fp, class_revenue_percents[i], pos);
+		pos += sizeof(uint16); 
 	}
 
 	node.write(fp);

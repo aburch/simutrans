@@ -32,7 +32,7 @@ private:
 	static uint8 max_catg_index;
 
 public:
-	enum { INDEX_PAS=0, INDEX_MAIL=1, INDEX_NONE=2 }; // These values cannot be changed without causing significant difficulties for the class system, as it relies on passengesr being zero and mail being one.
+	enum { INDEX_PAS=0, INDEX_MAIL=1, INDEX_NONE=2 }; 
 
 	static const goods_desc_t *passengers;
 	static const goods_desc_t *mail;

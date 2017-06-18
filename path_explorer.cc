@@ -1891,6 +1891,10 @@ void path_explorer_t::compartment_t::set_class(uint8 value)
 	{
 		sprintf(class_name, "%s_%u", translator::translate("m_class"), g_class);
 	}
+	else
+	{
+		sprintf(class_name, ""); 
+	}
 }
 
 

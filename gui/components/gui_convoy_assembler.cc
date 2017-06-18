@@ -701,12 +701,12 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 
 			switch(  ware->get_catg_index()  ) {
 				case goods_manager_t::INDEX_PAS: {
-					total_pax += desc->get_capacity();
+					total_pax += desc->get_total_capacity(); // TODO: Consider whether to add UI to distinguish between different classes here (Ves?).
 					total_standing_pax += desc->get_overcrowded_capacity();
 					break;
 				}
 				case goods_manager_t::INDEX_MAIL: {
-					total_mail += desc->get_capacity();
+					total_mail += desc->get_total_capacity(); // TODO: Consider whether to add UI to distinguish between different classes here (Ves?).
 					break;
 				}
 				default: {
@@ -852,7 +852,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 				{
 					pax++;
 				}
-				else if(info->get_power() > 0  ||  info->get_capacity()==0) 
+				else if(info->get_power() > 0  ||  info->get_total_capacity()==0)
 				{
 					loks++;
 				}
@@ -1029,7 +1029,7 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehicle_desc_t *info)
 	// Check if vehicle should be filtered
 	const goods_desc_t *freight = info->get_freight_type();
 	// Only filter when required and never filter engines
-	if (selected_filter > 0 && info->get_capacity() > 0) 
+	if (selected_filter > 0 && info->get_total_capacity() > 0)
 	{
 		if (selected_filter == VEHICLE_FILTER_RELEVANT) 
 		{
@@ -1120,7 +1120,7 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehicle_desc_t *info)
 		pas_vec.append(img_data);
 		vehicle_map.set(info, pas_vec.back());
 	}
-	else if(info->get_power() > 0  || (info->get_capacity()==0  && (info->get_leader_count() > 0 || info->get_trailer_count() > 0)))
+	else if(info->get_power() > 0  || (info->get_total_capacity()==0  && (info->get_leader_count() > 0 || info->get_trailer_count() > 0)))
 	{
 		loks_vec.append(img_data);
 		vehicle_map.set(info, loks_vec.back());
@@ -1884,9 +1884,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		{
 			cap[0] = '\0';
 		}
-		if(  veh_type->get_capacity() > 0  ) { // Standard translation is "Capacity: %3d%s %s\n", as Standard has no overcrowding
-			n += sprintf(buf + n, translator::translate("Capacity: %3d %s%s %s\n"),
-				veh_type->get_capacity(),
+		if(  veh_type->get_total_capacity() > 0  ) { // Standard translation is "Capacity: %3d%s %s\n", as Standard has no overcrowding
+			n += sprintf(buf + n, translator::translate("Capacity: %3d %s%s %s\n"), // TODO: Distinguish between the capacity of classes here (Ves?). 
+				veh_type->get_total_capacity(),
 				cap,
 				translator::translate( veh_type->get_freight_type()->get_mass() ),
 				veh_type->get_freight_type()->get_catg()==0 ? translator::translate( veh_type->get_freight_type()->get_name() ) : translator::translate( veh_type->get_freight_type()->get_catg_name() )
@@ -1960,7 +1960,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf( buf + n, "\n");
 		}
 
-		if(veh_type->get_capacity() > 0)
+		if(veh_type->get_total_capacity() > 0)
 		{
 			char min_loading_time_as_clock[32];
 			char max_loading_time_as_clock[32];
@@ -1977,7 +1977,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		if(veh_type->get_freight_type()->get_catg_index() == 0)
 		{
 			//Comfort only applies to passengers.
-			uint8 comfort = veh_type->get_comfort();
+			uint8 comfort = veh_type->get_comfort(); // TODO: Show this for each class (Ves?)
 			n += sprintf(buf + n, "%s %i ", translator::translate("Comfort:"), comfort);
 			char timebuf[32];
 			welt->sprintf_time_secs(timebuf, sizeof(timebuf), welt->get_settings().max_tolerable_journey(comfort) );

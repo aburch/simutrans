@@ -109,6 +109,16 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			{
 				desc->base_values.append(fare_stage_t(0, base_value));
 			}
+
+			if (extended_version >= 1)
+			{
+				uint16 class_revenue_percentage;
+				for (uint8 i = 0; i < desc->number_of_classes; i++)
+				{
+					class_revenue_percentage = decode_uint16(p);
+					desc->class_revenue_percentages.append(class_revenue_percentage);
+				}
+			}
 		}
 		else
 		{
@@ -124,6 +134,7 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if (!extended || extended_version < 1)
 	{
 		desc->number_of_classes = 1; 
+		desc->class_revenue_percentages.append(100);
 	}
 
 	DBG_DEBUG("goods_reader_t::read_node()", "version=%d, value=%d, catg=%d, bonus=%d, weight=%i, color=%i",
@@ -132,7 +143,8 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->catg, 
 		desc->speed_bonus,
 		desc->weight_per_unit,
-		desc->color);
+		desc->color,
+		desc->number_of_classes);
 
 
   return desc;

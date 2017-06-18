@@ -2307,22 +2307,22 @@ uint16 convoi_t::get_overcrowded() const
 	return overcrowded;
 }
 
-uint8 convoi_t::get_comfort() const
+uint8 convoi_t::get_comfort(uint8 g_class) const
 {
 	uint32 comfort = 0;
 	uint8 passenger_vehicles = 0;
 	uint16 passenger_seating = 0;
 
 	uint16 capacity;
-	const uint8 catering_level = get_catering_level(0);
+	const uint8 catering_level = get_catering_level(goods_manager_t::INDEX_PAS);
 
 	for(uint8 i = 0; i < vehicle_count; i ++)
 	{
 		if(vehicle[i]->get_cargo_type()->get_catg_index() == 0)
 		{
 			passenger_vehicles ++;
-			capacity = vehicle[i]->get_desc()->get_capacity();
-			comfort += vehicle[i]->get_comfort(catering_level) * capacity;
+			capacity = vehicle[i]->get_desc()->get_capacity(g_class); 
+			comfort += vehicle[i]->get_comfort(catering_level, g_class) * capacity;
 			passenger_seating += capacity;
 		}
 	}
@@ -3595,7 +3595,7 @@ void convoi_t::reverse_order(bool rev)
 		}
 
 		// Check whether this is a Garrett type vehicle (with unpowered front units).
-		if(vehicle[0]->get_desc()->get_power() == 0 && vehicle[0]->get_desc()->get_capacity() == 0)
+		if(vehicle[0]->get_desc()->get_power() == 0 && vehicle[0]->get_desc()->get_total_capacity() == 0)
 		{
 			// Possible Garrett
 			const uint8 count = front()->get_desc()->get_trailer_count();
@@ -4847,7 +4847,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 			// first add to capacity indicator
 			const goods_desc_t* ware_desc = v->get_desc()->get_freight_type();
-			const uint16 menge = v->get_desc()->get_capacity();
+			const uint16 menge = v->get_desc()->get_total_capacity();
 			if(menge>0  &&  ware_desc!=goods_manager_t::none) {
 				max_loaded_waren[ware_desc->get_index()] += menge;
 			}
@@ -5138,10 +5138,15 @@ void convoi_t::laden() //"load" (Babelfish)
 		}
 
 		// Recalculate comfort
-		const uint8 comfort = get_comfort();
+		// TODO: This currently gives only the comfort of class 0. 
+		// Consider whether to use the average of all comfort types, or
+		// to add a graph for the comfort of all classes.
+		const uint8 g_class = 0;
+
+		const uint8 comfort = get_comfort(g_class);
 		if(comfort)
 		{
-			book(get_comfort(), CONVOI_COMFORT);
+			book(comfort, CONVOI_COMFORT);
 		}
 
 		FOR(departure_map, & iter, departures)
@@ -5150,7 +5155,7 @@ void convoi_t::laden() //"load" (Babelfish)
 			iter.value.add_overall_distance(journey_distance);
 		}
 
-		if(state == EDIT_SCHEDULE) //"ENTER SCHEDULE" (Google)
+		if(state == EDIT_SCHEDULE)
 		{
 			return;
 		}
@@ -5158,7 +5163,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	
 	if(halt.is_bound())
 	{
-		//const player_t* owner = halt->get_owner(); //"get owner" (Google)
+		//const player_t* owner = halt->get_owner(); 
 		const grund_t* gr = welt->lookup(schedule->get_current_eintrag().pos);
 		const weg_t *w = gr ? gr->get_weg(schedule->get_waytype()) : NULL;
 		bool tram_stop_public = false;
@@ -5191,7 +5196,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	}
 }
 
-sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportioned_revenues)
+sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportioned_revenues, uint8 g_class)
 {
 	// Cannot not charge for journey if the journey distance is more than a certain proportion of the straight line distance.
 	// This eliminates the possibility of cheating by building circuitous routes, or the need to prevent that by always using
@@ -5327,67 +5332,33 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	const uint32 revenue_distance_meters = revenue_distance * welt->get_settings().get_meters_per_tile();
 	const uint32 starting_distance_meters = starting_distance * welt->get_settings().get_meters_per_tile();
 
-	const sint64 ref_speed = welt->get_average_speed(front()->get_desc()->get_waytype());
-	const sint64 relative_speed_percentage = (100ll * average_speed) / ref_speed - 100ll;
-
 	const goods_desc_t* goods = ware.get_desc();
 
 	sint64 fare;
 	if (ware.is_passenger())
 	{
-		// Comfort
 		// First get our comfort.
-
-		// Again, use the average for the line for revenue computation.
-		// (neroden believes we should use the ACTUAL comfort on THIS trip;
-		// although it is "less realistic" it provides faster revenue responsiveness
-		// for the player to improvements in comfort)
-
-		uint8 comfort = 100;
-		if(line.is_bound())
-		{
-			if(line->get_finance_history(1, LINE_COMFORT) < 1)
-			{
-				comfort = line->get_finance_history(0, LINE_COMFORT);
-			} 
-			else 
-			{
-				comfort = line->get_finance_history(1, LINE_COMFORT);
-			}
-		} else {
-			// No line - must use convoy
-			if(financial_history[1][CONVOI_COMFORT] < 1)
-			{
-				comfort = financial_history[0][CONVOI_COMFORT];
-			} 
-			else 
-			{
-				comfort = financial_history[1][CONVOI_COMFORT];
-			}
-		}
+		// Note: This takes into account overcrowding.
+		const uint8 comfort = get_comfort(g_class);
 
 		// Now, get our catering level.
-		uint8 catering_level = get_catering_level(goods->get_catg_index());
+		const uint8 catering_level = get_catering_level(goods->get_catg_index());
 
 		// Finally, get the fare.
-		fare = goods->get_fare_with_comfort_catering_speedbonus( welt, comfort, catering_level, journey_tenths,
-					(sint16)relative_speed_percentage, revenue_distance_meters, starting_distance_meters);
+		fare = goods->get_total_fare(revenue_distance_meters, starting_distance_meters, comfort, catering_level, g_class, journey_tenths);
 	} 
 	else if(ware.is_mail())
 	{
-		// Make an arbitrary comfort, mail doesn't care about comfort
-		const uint8 comfort = 0;
 		// Get our "TPO" level.
-		uint8 catering_level = get_catering_level(goods->get_catg_index());
+		const uint8 catering_level = get_catering_level(goods->get_catg_index());
 		// Finally, get the fare.
-		fare = goods->get_fare_with_comfort_catering_speedbonus( welt, comfort, catering_level, journey_tenths,
-					(sint16)relative_speed_percentage, revenue_distance_meters, starting_distance_meters);
+		fare = goods->get_total_fare(revenue_distance_meters, starting_distance_meters, 0u, catering_level, g_class, journey_tenths);
 	} 
 	else
 	{
 		// Freight ignores comfort and catering and TPO.
 		// So here we can skip the complicated version for speed.
-		fare = goods->get_fare_with_speedbonus( (sint16)relative_speed_percentage, revenue_distance_meters, starting_distance_meters);
+		fare = goods->get_total_fare(revenue_distance_meters, starting_distance_meters);
 	}
 	// Note that fare comes out in units of 1/4096 of a simcent, for computational precision
 
@@ -5400,7 +5371,7 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	{
 		total_way_distance += dep.get_way_distance(i);
 	}
-	// The apportioned revenue array is passed in.  It should be the right size already.
+	// The apportioned revenue array is passed in. It should be the right size already.
 	// Make sure our returned array is the right size (should do nothing)
 	apportioned_revenues.resize(MAX_PLAYER_COUNT);
 	// It will have some accumulated revenues in it from unloading previous vehicles in the same convoi.
@@ -7458,7 +7429,7 @@ void convoi_t::clear_replace()
 	uint16 total_capacity = 0;
 	for(uint8 i = 0; i < vehicle_count; i ++)
 	{
-		total_capacity += vehicle[i]->get_desc()->get_capacity();
+		total_capacity += vehicle[i]->get_desc()->get_total_capacity();
 		total_capacity += vehicle[i]->get_desc()->get_overcrowded_capacity();
 	}
 	// Multiply this by 2, as goods/passengers can both board and alight, so

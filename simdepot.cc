@@ -272,7 +272,7 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehicle_desc_t* vb)
 					}
 				}		
 				//Check whether this is a Garrett type vehicle (this is code for the exceptional case where a Garrett is upgraded to another Garrett)
-				if(cnv->get_vehicle(0)->get_desc()->get_power() == 0 && cnv->get_vehicle(0)->get_desc()->get_capacity() == 0)
+				if(cnv->get_vehicle(0)->get_desc()->get_power() == 0 && cnv->get_vehicle(0)->get_desc()->get_total_capacity() == 0)
 				{
 					// Possible Garrett
 					const uint8 count = cnv->get_vehicle(0)->get_desc()->get_trailer_count();

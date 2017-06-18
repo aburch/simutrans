@@ -243,6 +243,86 @@ sint64 goods_desc_t::get_fare_with_comfort_catering_speedbonus(karte_t* world,
 	return fare;
 }
 
+sint64 goods_desc_t::get_total_fare(uint32 distance_meters, uint32 starting_distance, uint8 comfort, uint8 catering_level, uint8 g_class, sint64 journey_tenths) const
+{
+	sint64 fare = get_base_fare(distance_meters, starting_distance); 
+	
+	// Apply the modifiers for passengers/mail: class, comfort and catering
+	if (get_index() == goods_manager_t::INDEX_PAS || get_index() == goods_manager_t::INDEX_MAIL)
+	{
+		if (fare <= 0)
+		{
+			// Quick escape and sanity check
+			return 0;
+		}
+
+		// First, class modifications.
+		fare *= (sint64)class_revenue_percentages[g_class];
+		fare /= 100ll;
+
+		// Now, the comfort modifiers
+		if (get_index() == goods_manager_t::INDEX_PAS)
+		{
+			/*
+			* Passengers: apply luxury bonus or discomfort penalty
+			*/
+
+			// Grab the tolerable comfort from the settings table
+			const sint16 tolerable_comfort = world()->get_settings().tolerable_comfort(journey_tenths);
+			// See how far off we are
+			const sint16 comfort_diff = (sint16)comfort - tolerable_comfort;
+			// This gets the "full" percentage bonus or penalty -- it may be negative!
+			const sint64 multiplier = world()->get_settings().base_comfort_revenue(comfort_diff);
+
+			// Comfort has less of an effect for shorter trips.  This gets the derating factor
+			// as a percentage (2 digits)
+			const sint64 comfort_modifier = world()->get_settings().comfort_derating(journey_tenths);
+
+			// Combine the derating factor with the full percentage to get...
+			const sint64 comfort_fare = (fare * multiplier * comfort_modifier) / 10000ll;
+
+			// Always receive minimum of 95% of fare even with discomfort penalty
+			fare = max(fare + comfort_fare, fare * 19 / 20);
+
+			if (catering_level > 0) 
+			{
+				/*
+				* We have catering.  Apply catering revenue.
+				*/
+				assert(catering_level <= 5);
+
+				// Passengers can only afford to pay for catering at their class level. +1 because 0 means no catering at all. 
+				// The maximum catering spend is *also* limited by maximum journey time (which is dealt with below).
+				// Note that this uses the accommodation class for the passengers rather than the inherent class. This is
+				// because it is assumed that higher level catering is simply not available in lower levels of accommodation.
+				catering_level = min(g_class + 1, catering_level);
+
+				// Use the catering revenues table for this catering level. It is a functional.
+				fare += world()->get_settings().catering_revenues[catering_level](journey_tenths);
+			}
+		}
+
+		else if (get_index() == goods_manager_t::INDEX_MAIL) 
+		{
+			if (catering_level > 0)
+			{
+				/*
+				* It's a TPO.  Apply TPO revenue.
+				*/
+
+				// TODO: Consider how to deal with TPO revenue in the future.
+
+				// Use the TPO revenue table.  It is a functional.
+				fare += world()->get_settings().tpo_revenues(journey_tenths);
+			}
+		}
+	}
+	
+	// TODO: Add inflation here
+
+	return fare;
+}
+
 
 /**
  * This is used solely when refunds must be calculated -- hopefully rarely.

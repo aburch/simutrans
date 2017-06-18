@@ -1934,7 +1934,8 @@ void karte_t::start_path_explorer()
 		// or else we will get a thread deadlock.
 		return;
 	}
-	pthread_mutex_lock(&path_explorer_mutex);
+	int error = pthread_mutex_lock(&path_explorer_mutex);
+	assert(error == 0); 
 	if (path_explorer_step_progress > 0)
 	{
 		simthread_barrier_wait(&start_path_explorer_barrier);
@@ -1943,7 +1944,8 @@ void karte_t::start_path_explorer()
 	{
 		simthread_barrier_wait(&start_path_explorer_barrier);
 	}
-	pthread_mutex_unlock(&path_explorer_mutex);
+	error = pthread_mutex_unlock(&path_explorer_mutex);
+	assert(error == 0); 
 #endif 
 }
 

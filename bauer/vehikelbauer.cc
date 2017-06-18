@@ -278,11 +278,11 @@ static bool compare_vehicle_desc(const vehicle_desc_t* a, const vehicle_desc_t* 
 			cmp = a->get_freight_type()->get_index() - b->get_freight_type()->get_index();
 		}
 		if (cmp == 0) {
-			cmp = a->get_capacity() - b->get_capacity();
+			cmp = a->get_total_capacity() - b->get_total_capacity();
 			if (cmp == 0) {
 				// to handle tender correctly
-				uint8 b_engine = (a->get_capacity() + a->get_power() == 0 ? (uint8)vehicle_desc_t::steam : a->get_engine_type());
-				uint8 a_engine = (b->get_capacity() + b->get_power() == 0 ? (uint8)vehicle_desc_t::steam : b->get_engine_type());
+				uint8 b_engine = (a->get_total_capacity() + a->get_power() == 0 ? (uint8)vehicle_desc_t::steam : a->get_engine_type());
+				uint8 a_engine = (b->get_total_capacity() + b->get_power() == 0 ? (uint8)vehicle_desc_t::steam : b->get_engine_type());
 				cmp = b_engine - a_engine;
 				if (cmp == 0) {
 					cmp = a->get_topspeed() - b->get_topspeed();
@@ -397,13 +397,13 @@ const vehicle_desc_t *vehicle_builder_t::vehicle_search( waytype_t wt, const uin
 			if(target_freight) 
 			{
 				// this is either a railcar/trailer or a truck/boat/plane
-				if(  test_desc->get_capacity()==0  ||  !test_desc->get_freight_type()->is_interchangeable(target_freight)  )
+				if(  test_desc->get_total_capacity()==0  ||  !test_desc->get_freight_type()->is_interchangeable(target_freight)  )
 				{
 					continue;
 				}
 
 				test.index = -100000;
-				test.payload_per_maintenance = test_desc->get_capacity() / max(test_desc->get_running_cost(), 1);
+				test.payload_per_maintenance = test_desc->get_total_capacity() / max(test_desc->get_running_cost(), 1);
 
 				sint32 difference=0;	// smaller is better
 				// assign this vehicle if we have not found one yet, or we only found one too weak
@@ -433,7 +433,7 @@ const vehicle_desc_t *vehicle_builder_t::vehicle_search( waytype_t wt, const uin
 			}
 			else {
 				// engine/tugboat/truck for trailer
-				if(  test_desc->get_capacity()!=0  ||  !test_desc->can_follow(NULL)  ) {
+				if(  test_desc->get_total_capacity()!=0  ||  !test_desc->can_follow(NULL)  ) {
 					continue;
 				}
 				// finally, we might be able to use this vehicle
@@ -517,7 +517,7 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 
 			// likely tender => replace with some engine ...
 			if(target_freight==0  &&  target_weight==0) {
-				if(  test_desc->get_capacity()!=0  ) {
+				if(  test_desc->get_total_capacity()!=0  ) {
 					continue;
 				}
 			}
@@ -531,7 +531,7 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 			if(target_freight) 
 			{
 				// this is either a railcar/trailer or a truck/boat/plane
-				if(  test_desc->get_capacity()==0  ||  !test_desc->get_freight_type()->is_interchangeable(target_freight)  ) {
+				if(  test_desc->get_total_capacity()==0  ||  !test_desc->get_freight_type()->is_interchangeable(target_freight)  ) {
 					continue;
 				}
 
@@ -540,7 +540,7 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 				if(  desc!=NULL  ) 
 				{
 					// it is cheaper to run? (this is most important)
-					difference += (desc->get_capacity()*1000)/(1+desc->get_running_cost()) < (test_desc->get_capacity()*1000)/(1+test_desc->get_running_cost()) ? -20 : 20;
+					difference += (desc->get_total_capacity()*1000)/(1+desc->get_running_cost()) < (test_desc->get_total_capacity()*1000)/(1+test_desc->get_running_cost()) ? -20 : 20;
 					if(  target_weight>0  ) 
 					{
 						// it is strongere?

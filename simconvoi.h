@@ -1490,7 +1490,7 @@ public:
 	// @author: jamespetts
 	// Returns the average comfort of this convoy,
 	// taking into account any catering.
-	uint8 get_comfort() const;
+	uint8 get_comfort(uint8 g_class) const;
 
 	/** The new revenue calculation method for per-leg
 	 * based revenue calculation, rather than per-hop
@@ -1501,7 +1501,7 @@ public:
 	 * players based on track usage.
 	 * @author: jamespetts, neroden, Knightly
 	 */
-	sint64 calc_revenue(const ware_t &ware, array_tpl<sint64> & apportioned_revenues);
+	sint64 calc_revenue(const ware_t &ware, array_tpl<sint64> & apportioned_revenues, uint8 g_class);
 
 	uint16 get_livery_scheme_index() const;
 	void set_livery_scheme_index(uint16 value) { livery_scheme_index = value; }

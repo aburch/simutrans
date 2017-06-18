@@ -246,8 +246,10 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 					}
 					const uint16 journey_tenths = (uint16) tenths_from_meters_and_kmh(distance_meters, relevant_speed);
 
-					price[i] = w[i]->get_fare_with_comfort_catering_speedbonus(welt,
-							comfort, catering_level, journey_tenths, relative_speed_percentage, distance_meters);
+					const uint8 g_class = 0; // TODO: Add GUI for setting this (Ves?).
+
+					price[i] = w[i]->get_total_fare(distance_meters, 0, comfort, catering_level, g_class, journey_tenths);
+//						comfort, catering_level, journey_tenths, relative_speed_percentage, distance_meters)
 				}
 
 				order = price[0] - price[1];

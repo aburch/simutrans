@@ -85,9 +85,11 @@ void goods_stats_t::draw(scr_coord offset)
 		}
 		const sint64 journey_tenths = tenths_from_meters_and_kmh(distance_meters, relevant_speed);
 
-		sint64 revenue = wtyp->get_fare_with_comfort_catering_speedbonus(welt,
-				comfort, catering_level, journey_tenths, relative_speed_percentage, distance_meters);
-		// Convert to simcents.  Should be very fast.
+		const uint8 g_class = 0; // TODO: Add GUI for setting this (Ves?). 
+
+		sint64 revenue = wtyp->get_total_fare(distance_meters, 0u, comfort, catering_level, g_class, journey_tenths);
+
+		// Convert to simucents.  Should be very fast.
 		sint64 price = (revenue + 2048) / 4096;
 
 		money_to_string( money_buf, (double)price/100.0 );

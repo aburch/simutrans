@@ -333,11 +333,6 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 		char number[64];
 		cbuffer_t buf;
 
-		// for bonus stuff
-		const sint32 ref_kmh = welt->get_average_speed( cnv->front()->get_waytype() );
-		const sint32 cnv_kmh = cnv->get_line().is_bound() ? cnv->get_line()->get_finance_history(1, LINE_AVERAGE_SPEED): cnv->get_finance_history(1, convoi_t::CONVOI_AVERAGE_SPEED);
-		const sint32 relative_speed_percentage = (100 * cnv_kmh) / ref_kmh - 100;
-
 		static cbuffer_t freight_info;
 		for(unsigned veh=0;  veh<cnv->get_vehicle_count(); veh++ ) {
 			vehicle_t *v=cnv->get_vehicle(veh);
@@ -450,7 +445,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				extra_y += LINESPACE;
 			}
 
-			if(v->get_desc()->get_capacity() > 0)
+			if(v->get_desc()->get_total_capacity() > 0)
 			{
 				char min_loading_time_as_clock[32];
 				char max_loading_time_as_clock[32];
@@ -465,18 +460,18 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			if(v->get_cargo_type()->get_catg_index() == 0)
 			{
 				buf.clear();
-				buf.printf("%s %i", translator::translate("Comfort:"), v->get_comfort() );
+				buf.printf("%s %i", translator::translate("Comfort:"), v->get_comfort() ); // TODO: Add class specific comfort here (Ves?)
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 				extra_y += LINESPACE;
 			}
 			
 			if(v->get_cargo_max() > 0) {
 
-				// bonus stuff
+				// Revenue
 				int len = 5+display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, translator::translate("Base profit per km (when full):"), ALIGN_LEFT, SYSCOL_TEXT, true );
 				// Revenue for moving 1 unit 1000 meters -- comes in 1/4096 of simcent, convert to simcents
-				// Excludes TPO/catering revenue, and comfort effects.  FIXME --neroden
-				sint64 fare = v->get_cargo_type()->get_fare_with_speedbonus(relative_speed_percentage, 1000);
+				// Excludes TPO/catering revenue, class and comfort effects.  FIXME --neroden
+				sint64 fare = v->get_cargo_type()->get_total_fare(1000); // Class needs to be added here (Ves?)
 				// Multiply by capacity, convert to simcents, subtract running costs
 				sint64 profit = (v->get_cargo_max()*fare + 2048ll) / 4096ll - v->get_running_cost(welt);
 				money_to_string( number, profit/100.0 );
@@ -493,7 +488,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 				goods_desc_t const& g    = *v->get_cargo_type();
 				char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
-				freight_info.printf("%u/%u%s %s\n", v->get_total_cargo(), v->get_cargo_max(), translator::translate(v->get_cargo_mass()), name);
+				freight_info.printf("%u/%u%s %s\n", v->get_total_cargo(), v->get_cargo_max(), translator::translate(v->get_cargo_mass()), name); // TODO: Consider whether to differentiate classes here (Ves?)
 				v->get_cargo_info(freight_info);
 				// show it
 				const int px_len = display_multiline_text( pos.x+offset.x+w, pos.y+offset.y+total_height+extra_y, freight_info, SYSCOL_TEXT );

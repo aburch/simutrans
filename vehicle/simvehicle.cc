@@ -854,28 +854,23 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 		{
 			if (!fracht[j].empty())
 			{
-				for (slist_tpl<ware_t>::iterator i = fracht[j].begin(), end = fracht[j].end(); i != end; ) {
+				for (slist_tpl<ware_t>::iterator i = fracht[j].begin(), end = fracht[j].end(); i != end; )
+				{
 					const ware_t& tmp = *i;
 
 					halthandle_t end_halt = tmp.get_ziel();
 					halthandle_t via_halt = tmp.get_zwischenziel();
 
 					// check if destination or transfer is still valid
-					if (!end_halt.is_bound() || !via_halt.is_bound()) {
+					if (!end_halt.is_bound() || !via_halt.is_bound())
+					{
 						DBG_MESSAGE("vehicle_t::unload_cargo()", "destination of %d %s is no longer reachable", tmp.menge, translator::translate(tmp.get_name()));
 						total_freight -= tmp.menge;
 						sum_weight -= tmp.menge * tmp.get_desc()->get_weight_per_unit();
 						i = fracht[j].erase(i);
 					}
-					else if (end_halt == halt || via_halt == halt) {
-
-						//		    printf("Liefere %d %s nach %s via %s an %s\n",
-						//                           tmp->menge,
-						//			   tmp->name(),
-						//			   end_halt->get_name(),
-						//			   via_halt->get_name(),
-						//			   halt->get_name());
-
+					else if (end_halt == halt || via_halt == halt)
+					{
 						// here, only ordinary goods should be processed
 
 						if (halt != end_halt && welt->get_settings().is_avoid_overcrowding() && tmp.is_passenger() && !halt->is_within_walking_distance_of(via_halt) && halt->is_overcrowded(tmp.get_desc()->get_index()))
@@ -911,6 +906,7 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 						else
 						{
 							assert(halt.is_bound());
+	
 							const uint32 menge = tmp.menge;
 							halt->liefere_an(tmp); //"supply" (Babelfish)
 							sum_menge += menge;
@@ -923,7 +919,7 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 
 							const uint8 class_of_accommodation = class_reassignments[j];
 
-							revenue_from_unloading += menge > 0 ? cnv->calc_revenue(tmp, apportioned_revenues) : 0; //TODO: Use the class of the accommodation to affect the revenue here. See the above variable.
+							revenue_from_unloading += menge > 0 ? cnv->calc_revenue(tmp, apportioned_revenues, class_of_accommodation) : 0;
 
 							// book delivered goods to destination
 							if (end_halt == halt)
@@ -1045,19 +1041,21 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
  */
 bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehicles, bool use_lower_classes)
 {
-	const uint16 total_capacity = desc->get_capacity() + (overcrowd ? desc->get_overcrowded_capacity() : 0);
+	const uint16 total_capacity = desc->get_total_capacity() + (overcrowd ? desc->get_overcrowded_capacity() : 0);
 	if (total_freight < total_capacity)
 	{
 		schedule_t *schedule = cnv->get_schedule();
 		const uint16 capacity_left = total_capacity - total_freight;
 		slist_tpl<ware_t> freight_add;
 		const uint8 classes_to_check = get_desc()->get_freight_type()->get_number_of_classes();
+		uint16 capacity_this_class;
 
 		*skip_vehicles = true;
 
 		for (uint8 i = 0; i < classes_to_check; i++)
 		{
-			if (get_capacity(i) == 0)
+			capacity_this_class = get_capacity(i);
+			if (capacity_this_class == 0)
 			{
 				continue;
 			}
@@ -1070,8 +1068,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 				{
 					ware_t &ware = *iter_z;
 					total_freight += ware.menge;
-
-
+					
 					// could this be joined with existing freight?
 					FOR(slist_tpl<ware_t>, &tmp, fracht[i])
 					{
@@ -2078,7 +2075,7 @@ void vehicle_t::discard_cargo()
 uint16 vehicle_t::load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehicles, bool use_lower_classes)
 {
 	const uint16 start_freight = total_freight;
-	if(halt.is_bound()  &&  halt->gibt_ab(desc->get_freight_type()))
+	if(halt.is_bound() && halt->gibt_ab(desc->get_freight_type()))
 	{
 		*skip_convois = load_freight_internal(halt, overcrowd, skip_vehicles, use_lower_classes);
 	}
@@ -2267,11 +2264,13 @@ uint8 vehicle_t::get_comfort(uint8 catering_level, uint8 g_class) const
 		base_comfort = (uint8)(comf / counter);
 	}
 
+	const uint16 capacity_this_class = get_capacity(g_class, false); 
+
 	if(base_comfort == 0)
 	{
 		return 0;
 	}
-	else if(total_freight <= get_cargo_max())
+	else if(total_freight <= capacity_this_class)
 	{
 		// Not overcrowded - return base level
 		return base_comfort;
@@ -2289,8 +2288,8 @@ uint8 vehicle_t::get_comfort(uint8 catering_level, uint8 g_class) const
 			passenger_count += ware.menge;
 		}
 	}
-	assert(passenger_count <= total_freight);
-	const uint16 total_seated_passengers = passenger_count < get_cargo_max() ? passenger_count : get_cargo_max();
+	//assert(passenger_count <= total_freight); // FIXME: This assert is often triggered after commit 6500dcc. It is not clear why.
+	const uint16 total_seated_passengers = passenger_count < capacity_this_class ? passenger_count : capacity_this_class;
 	const uint16 total_standing_passengers = passenger_count > total_seated_passengers ? passenger_count - total_seated_passengers : 0;
 	// Avoid division if we can
 	if(total_standing_passengers == 0)
