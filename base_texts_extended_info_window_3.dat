@@ -1,0 +1,10 @@
+# Simutranslator settings for Simutrans-Extended texts
+# Addendum major release 12 of Simutrans-Extended
+#
+# Author: Victor
+# Created: May 2017
+#
+obj=program_text
+name=emergency_stop %s left
+note=Shown in the vehicle info window and tooltip when the vehicle has performed an emergency stop
+-
