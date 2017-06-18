@@ -332,7 +332,7 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 
 void convoi_t::unreserve_route_range(route_range_specification range)
 {
-	const vector_tpl<weg_t *> all_ways = weg_t::get_alle_wege();
+	const vector_tpl<weg_t *> &all_ways = weg_t::get_alle_wege();
 	for (uint32 i = range.start; i < range.end; i++)
 	{
 		weg_t* const way = all_ways[i];
