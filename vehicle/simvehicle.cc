@@ -2506,7 +2506,10 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				break;
 
 			case convoi_t::EMERGENCY_STOP:
-				strncpy( tooltip_text, translator::translate("Emergency stop"), lengthof(tooltip_text) );
+
+				char emergency_stop_time[64];
+				cnv->snprintf_remaining_emergency_stop_time(emergency_stop_time, sizeof(emergency_stop_time));
+				sprintf( tooltip_text, translator::translate("emergency_stop %s left"),emergency_stop_time/*, lengthof(tooltip_text) */);
 					color = COL_RED;
 
 			case convoi_t::LOADING:

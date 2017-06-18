@@ -460,11 +460,11 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			sprintf(speed_text, translator::translate("Waiting for clearance!"));
 			speed_color = COL_BLACK;
 			break;
-
+			
 		case convoi_t::EMERGENCY_STOP:
 
 			char emergency_stop_time[64];
-			cnv->snprintf_remaining_loading_time(emergency_stop_time, sizeof(emergency_stop_time));
+			cnv->snprintf_remaining_emergency_stop_time(emergency_stop_time, sizeof(emergency_stop_time));
 
 			sprintf(speed_text, translator::translate("emergency_stop %s left"), emergency_stop_time);
 			speed_color = COL_RED;
@@ -540,6 +540,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 			sprintf(speed_text, translator::translate("out of range"));
 			speed_color = COL_RED;
+			/*TODO: Add this convoys maximum range*/
 			break;
 
 		default:
