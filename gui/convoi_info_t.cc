@@ -463,7 +463,10 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 		case convoi_t::EMERGENCY_STOP:
 
-			sprintf(speed_text, translator::translate("emergency_stop"));
+			char emergency_stop_time[64];
+			cnv->snprintf_remaining_loading_time(emergency_stop_time, sizeof(emergency_stop_time));
+
+			sprintf(speed_text, translator::translate("emergency_stop %s left"), emergency_stop_time);
 			speed_color = COL_RED;
 			break;
 
