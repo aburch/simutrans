@@ -302,6 +302,8 @@ void planquadrat_t::rdwr(loadsave_t *file, koord pos )
 			}
 		} while(gr != 0);
 	}
+
+	// TODO: Cache the halt_list here, as this will save tremendous amounts of time when loading.
 }
 
 

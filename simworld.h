@@ -74,7 +74,7 @@ class records_t;
 
 // Without this, the in-transit numbers are recalculated on every load/save
 // and this goes wrong. 
-#define CACHE_TRANSIT
+//#define CACHE_TRANSIT
 
 #ifdef MULTI_THREAD
 //#define FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE

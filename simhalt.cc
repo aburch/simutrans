@@ -3678,7 +3678,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			// prissi: now check, if there is a building -> we allow no longer ground without building!
 			const gebaeude_t* gb = gr ? gr->find<gebaeude_t>() : NULL;
 			const building_desc_t *desc=gb ? gb->get_tile()->get_desc():NULL;
-			if(desc) {
+			if(desc)
+			{
+				// TODO: Cache the data for proximity, as this takes
+				// huge amounts of computational effort on reloading
+				// a large map.
 				add_grund( gr, false /*do not relink factories now*/ );
 				// verbinde_fabriken will be called in finish_rd
 			}
@@ -4300,6 +4304,14 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					tc.ready_time = ready;
 					tc.ware = ware;
 					transferring_cargoes[0].append(tc);
+#ifndef CACHE_TRANSIT
+					fabrik_t* fab = fabrik_t::get_fab(tc.ware.get_zielpos());
+					if (fab)
+					{
+						fab->update_transit(tc.ware, true); 
+					}
+#endif // !CACHE_TRANSIT
+
 				}
 			}
 		}
