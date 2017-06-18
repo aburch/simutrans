@@ -463,7 +463,7 @@ private:
 	// Getter method will need to average the waiting times.
 	// @author: jamespetts
 
-	waiting_time_map * waiting_times;
+	waiting_time_map **waiting_times;
 
 	// Store the service frequencies to all other halts so that this does not need to be
 	// recalculated frequently. These are used as proxies for waiting times when no
@@ -581,6 +581,7 @@ public:
 	 * @param catg_index freight category index
 	 * @return 0 - not connected, 1 - connected, -1 - undecided (call again later...)
 	 */
+	// TODO: Check whetehr this can be removed entirely
 	sint8 is_connected(halthandle_t halt, uint8 catg_index) const;
 
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
@@ -908,9 +909,9 @@ public:
 
 	// Getting and setting average waiting times in minutes
 	// @author: jamespetts
-	uint32 get_average_waiting_time(halthandle_t halt, uint8 category);
+	uint32 get_average_waiting_time(halthandle_t halt, uint8 category, uint8 g_class);
 
-	void add_waiting_time(uint32 time, halthandle_t halt, uint8 category, bool do_not_reset_month = false);
+	void add_waiting_time(uint32 time, halthandle_t halt, uint8 category, uint8 g_class, bool do_not_reset_month = false);
 
 	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*>* connexions_map_single;
 	connexions_map_single get_connexions(uint8 c) { return connexions[c]; }

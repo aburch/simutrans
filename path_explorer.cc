@@ -79,6 +79,8 @@ void path_explorer_t::initialise(karte_t *welt)
 
 void path_explorer_t::finalise()
 {
+	// See here for an explanation of the below: http://stackoverflow.com/questions/29375797/copy-2d-array-using-memcpy/29375830#29375830
+	// This is not a true 2d array as the number of categories is not fixed. 
 	delete[] goods_compartment[0];
 	delete[] goods_compartment;
 	goods_compartment = NULL;
@@ -974,7 +976,7 @@ void path_explorer_t::compartment_t::step()
 						// Check the journey times to the connexion
 						id_pair halt_pair(halt_list[h].get_id(), halt_list[t].get_id());
 						new_connexion = new haltestelle_t::connexion;
-						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg); // TODO: Separate waiting times by class
+						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg, g_class); 
 						new_connexion->transfer_time = catg != goods_manager_t::passengers->get_catg_index() ? halt_list[h]->get_transshipment_time() : halt_list[h]->get_transfer_time();
 						if(current_linkage.line.is_bound())
 						{
@@ -1888,10 +1890,6 @@ void path_explorer_t::compartment_t::set_class(uint8 value)
 	else if (catg == goods_manager_t::INDEX_MAIL)
 	{
 		sprintf(class_name, "%s_%u", translator::translate("m_class"), g_class);
-	}
-	else
-	{
-		sprintf(class_name, "%s_%u", translator::translate("g_class"), g_class);
 	}
 }
 

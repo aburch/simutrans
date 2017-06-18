@@ -7298,7 +7298,7 @@ void convoi_t::clear_replace()
 #ifdef MULTI_THREAD
 						 pthread_mutex_lock(&step_convois_mutex);
 #endif
-						 halt->add_waiting_time(waiting_minutes, iter.get_zwischenziel(), iter.get_desc()->get_catg_index());
+						 halt->add_waiting_time(waiting_minutes, iter.get_zwischenziel(), iter.get_desc()->get_catg_index(), j);
 #ifdef MULTI_THREAD
 						int error = pthread_mutex_unlock(&step_convois_mutex);
 						assert(error == 0);
