@@ -136,10 +136,16 @@ static pthread_t path_explorer_thread;
 
 static pthread_attr_t thread_attributes;
 
-static pthread_mutex_t private_car_route_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t karte_t::step_passengers_and_mail_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t path_explorer_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t karte_t::unreserve_route_mutex = PTHREAD_MUTEX_INITIALIZER;
+//static pthread_mutex_t private_car_route_mutex = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t karte_t::step_passengers_and_mail_mutex = PTHREAD_MUTEX_INITIALIZER;
+//static pthread_mutex_t path_explorer_mutex = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t karte_t::unreserve_route_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+static pthread_mutex_t private_car_route_mutex;
+pthread_mutex_t karte_t::step_passengers_and_mail_mutex;
+static pthread_mutex_t path_explorer_mutex;
+pthread_mutex_t karte_t::unreserve_route_mutex;
+pthread_mutexattr_t mutex_attributes;
 
 static simthread_barrier_t private_car_barrier;
 simthread_barrier_t karte_t::unreserve_route_barrier;
@@ -547,7 +553,7 @@ void karte_t::destroy()
 {
 	is_sound = false; // karte_t::play_sound_area_clipped needs valid zeiger (pointer/drawer)
 	destroying = true;
-DBG_MESSAGE("karte_t::destroy()", "destroying world");
+	DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 #ifdef MULTI_THREAD
 	destroy_threads();
@@ -583,7 +589,7 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 		dbg->fatal( "karte_t::destroy()","Map cannot be cleanly destroyed in any rotation!" );
 	}
 
-DBG_MESSAGE("karte_t::destroy()", "label clear");
+	DBG_MESSAGE("karte_t::destroy()", "label clear");
 	labels.clear();
 
 	if(zeiger) {
@@ -601,7 +607,7 @@ DBG_MESSAGE("karte_t::destroy()", "label clear");
 	sync_way_eyecandy.clear();
 	old_progress += cached_size.x*cached_size.y;
 	ls.set_progress( old_progress );
-DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
+	DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 
 	// all convois aufraeumen
 	while (!convoi_array.empty()) {
@@ -613,12 +619,12 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 		}
 	}
 	convoi_array.clear();
-DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 
 	// all haltestellen aufraeumen
 	old_progress += haltestelle_t::get_alle_haltestellen().get_count();
 	haltestelle_t::destroy_all();
-DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 	ls.set_progress( old_progress );
 
 	// delete towns first (will also delete all their houses)
@@ -633,7 +639,7 @@ DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 	}
 	settings.set_city_count(no_of_cities);
 
-DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
 	ls.set_progress( old_progress );
 
@@ -644,7 +650,7 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 		delete [] plan;
 		plan = NULL;
 	}
-DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
 
 	old_progress += (cached_size.x*cached_size.y)/2;
 	ls.set_progress( old_progress );
@@ -667,7 +673,7 @@ DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
 			players[i] = NULL;
 		}
 	}
-DBG_MESSAGE("karte_t::destroy()", "player destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 
 	old_progress += (cached_size.x*cached_size.y)/4;
 	ls.set_progress( old_progress );
@@ -678,14 +684,14 @@ DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 		delete f;
 	}
 	fab_list.clear();
-DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
 
 	// hier nur entfernen, aber nicht loeschen
 	world_attractions.clear();
-DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 
 	weg_t::clear_list_of__ways();
-DBG_MESSAGE("karte_t::destroy()", "way list destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "way list destroyed");
 
 	delete scenario;
 	scenario = NULL;
@@ -696,7 +702,7 @@ DBG_MESSAGE("karte_t::destroy()", "way list destroyed");
 	bool empty_depot_list = depot_t::get_depot_list().empty();
 	assert( empty_depot_list );
 
-DBG_MESSAGE("karte_t::destroy()", "world destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 
 	// Added by : B.Gabriel
 	route_t::TERM_NODES();
@@ -1671,7 +1677,7 @@ void *step_passengers_and_mail_threaded(void* args)
 		}
 
 		// The generate passengers function is called many times (often well > 100) each step; the mail version is called only once or twice each step, sometimes not at all.
-		uint32 units_this_step = 0;
+		sint32 units_this_step = 0;
 		total_units_passenger = 0;
 		total_units_mail = 0;
 
@@ -1680,22 +1686,11 @@ void *step_passengers_and_mail_threaded(void* args)
 
 		next_step_mail_this_thread = karte_t::world->next_step_mail / (karte_t::world->get_parallel_operations());
 
-#ifdef FORBID_PARALLELL_PASSENGER_GENERATION
-		if (karte_t::passenger_generation_thread_number == 0)
-		{
-			next_step_passenger_this_thread = karte_t::world->next_step_passenger;
-		}
-		else
-		{
-			next_step_passenger_this_thread = 0;
-		}
-#else
-
-		if (next_step_passenger_this_thread < karte_t::world->passenger_step_interval && karte_t::world->next_step_passenger > karte_t::world->passenger_step_interval)
+#ifdef FORBID_PARALLELL_PASSENGER_GENERATION_IN_NETWORK_MODE
+		if (env_t::networkmode)
 		{
 			if (karte_t::passenger_generation_thread_number == 0)
 			{
-				// In case of very small numbers, make this effectively single threaded, or else rounding errors will prevent any passenger generation.
 				next_step_passenger_this_thread = karte_t::world->next_step_passenger;
 			}
 			else
@@ -1703,26 +1698,46 @@ void *step_passengers_and_mail_threaded(void* args)
 				next_step_passenger_this_thread = 0;
 			}
 		}
-		else if (karte_t::passenger_generation_thread_number == 0)
+		else
 		{
-			next_step_passenger_this_thread += karte_t::world->next_step_passenger % (karte_t::world->get_parallel_operations());
-		}
+#else
 
-		if (next_step_mail_this_thread < karte_t::world->mail_step_interval && karte_t::world->next_step_mail > karte_t::world->mail_step_interval)
-		{
-			if (karte_t::passenger_generation_thread_number == 0)
+			if (next_step_passenger_this_thread < karte_t::world->passenger_step_interval && karte_t::world->next_step_passenger > karte_t::world->passenger_step_interval)
 			{
-				// In case of very small numbers, make this effectively single threaded, or else rounding errors will prevent any mail generation.
-				next_step_mail_this_thread = karte_t::world->next_step_mail;
+				if (karte_t::passenger_generation_thread_number == 0)
+				{
+					// In case of very small numbers, make this effectively single threaded, or else rounding errors will prevent any passenger generation.
+					next_step_passenger_this_thread = karte_t::world->next_step_passenger;
+				}
+				else
+				{
+					next_step_passenger_this_thread = 0;
+				}
 			}
-			else
+			else if (karte_t::passenger_generation_thread_number == 0)
 			{
-				next_step_mail_this_thread = 0;
+				next_step_passenger_this_thread += karte_t::world->next_step_passenger % (karte_t::world->get_parallel_operations());
 			}
-		}
-		else if (karte_t::passenger_generation_thread_number == 0)
-		{
-			next_step_mail_this_thread += karte_t::world->next_step_mail % (karte_t::world->get_parallel_operations());
+
+			if (next_step_mail_this_thread < karte_t::world->mail_step_interval && karte_t::world->next_step_mail > karte_t::world->mail_step_interval)
+			{
+				if (karte_t::passenger_generation_thread_number == 0)
+				{
+					// In case of very small numbers, make this effectively single threaded, or else rounding errors will prevent any mail generation.
+					next_step_mail_this_thread = karte_t::world->next_step_mail;
+				}
+				else
+				{
+					next_step_mail_this_thread = 0;
+				}
+			}
+			else if (karte_t::passenger_generation_thread_number == 0)
+			{
+				next_step_mail_this_thread += karte_t::world->next_step_mail % (karte_t::world->get_parallel_operations());
+			}
+#endif
+
+#ifdef FORBID_PARALLELL_PASSENGER_GENERATION_IN_NETWORK_MODE
 		}
 #endif
 			
@@ -1764,11 +1779,13 @@ void *step_passengers_and_mail_threaded(void* args)
 #endif
 
 		simthread_barrier_wait(&step_passengers_and_mail_barrier); // Having three of these is intentional.
-		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 		karte_t::world->next_step_passenger -= (total_units_passenger * karte_t::world->passenger_step_interval);
 		karte_t::world->next_step_mail -= (total_units_mail * karte_t::world->mail_step_interval);
-		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 		simthread_barrier_wait(&step_passengers_and_mail_barrier);
+		assert(mutex_error == 0);
 	} while (!karte_t::world->is_terminating_threads());
 
 	pthread_exit(NULL);
@@ -1857,7 +1874,7 @@ void* path_explorer_threaded(void* args)
 			
 		if (karte_t::world->is_terminating_threads())
 		{
-			karte_t::path_explorer_step_progress = 2;
+			karte_t::path_explorer_step_progress = -1;
 			pthread_mutex_unlock(&path_explorer_mutex);
 			break;
 		}
@@ -1880,17 +1897,20 @@ void* path_explorer_threaded(void* args)
 void karte_t::stop_path_explorer()
 {
 #ifdef MULTI_THREAD_PATH_EXPLORER
+	if (path_explorer_step_progress == -1)
+	{
+		return;
+	}
+
 	pthread_mutex_lock(&path_explorer_mutex);
 	
-	if (path_explorer_step_progress < 2 && path_explorer_step_progress >= 0)
+	while (path_explorer_step_progress == 0 || path_explorer_step_progress == 1)
 	{
 		pthread_cond_wait(&path_explorer_conditional_end, &path_explorer_mutex);
-		pthread_mutex_unlock(&path_explorer_mutex);
 	}
-	else
-	{
-		pthread_mutex_unlock(&path_explorer_mutex);
-	}
+	
+	pthread_mutex_unlock(&path_explorer_mutex);
+
 #endif
 }
 
@@ -1983,7 +2003,15 @@ void karte_t::init_threads()
 	simthread_barrier_init(&step_convoys_barrier_external, NULL, 2);
 	simthread_barrier_init(&step_convoys_barrier_internal, NULL, parallel_operations + 1);	
 	simthread_barrier_init(&start_path_explorer_barrier, NULL, 2);
-	
+
+	// Initialise mutexes
+	pthread_mutexattr_init(&mutex_attributes);
+	pthread_mutexattr_settype(&mutex_attributes, PTHREAD_MUTEX_ERRORCHECK);
+
+	pthread_mutex_init(&private_car_route_mutex, &mutex_attributes);
+	pthread_mutex_init(&step_passengers_and_mail_mutex, &mutex_attributes);
+	pthread_mutex_init(&path_explorer_mutex, &mutex_attributes);
+	pthread_mutex_init(&unreserve_route_mutex, &mutex_attributes);
 	pthread_t thread;
 	
 	for (uint32 i = 0; i < parallel_operations; i++)
@@ -2111,6 +2139,14 @@ void karte_t::destroy_threads()
 #ifdef MULTI_THREAD_PATH_EXPLORER
 		simthread_barrier_destroy(&start_path_explorer_barrier);
 #endif 
+
+		// Destroy mutexes
+		pthread_mutex_destroy(&private_car_route_mutex);
+		pthread_mutex_destroy(&step_passengers_and_mail_mutex);
+		pthread_mutex_destroy(&path_explorer_mutex);
+		pthread_mutex_destroy(&unreserve_route_mutex);
+
+		pthread_mutexattr_destroy(&mutex_attributes);
 	}
 
 	first_step = 1;
@@ -4796,8 +4832,8 @@ void karte_t::new_month()
 	if(actual_industry_density < target_industry_density)
 	{
 		// Only add one chain per month, and randomise (with a minimum of 8% distribution_weight to ensure that any industry deficiency is, on average, remedied in about a year).
-		const uint32 percentage = max((((target_industry_density - actual_industry_density) * 100) / target_industry_density), 8);
-		const uint32 distribution_weight = simrand(100, "void karte_t::new_month()");
+		const uint32 percentage = max((((target_industry_density - actual_industry_density) * 100u) / target_industry_density), 8u);
+		const uint32 distribution_weight = simrand(100u, "void karte_t::new_month()");
 		if(distribution_weight < percentage)
 		{
 			factory_builder_t::increase_industry_density(true, true);
@@ -5641,7 +5677,7 @@ void karte_t::step_time_interval_signals()
 sint32 karte_t::calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const
 {
 	const uint32 median_packet_size = (uint32)(get_settings().get_passenger_routing_packet_size() + 1) / 2;	
-	const uint64 trips_per_month = max((((uint64)weight * calc_adjusted_monthly_figure(trips_per_month_hundredths)) / 100u) / median_packet_size, 1);
+	const uint64 trips_per_month = max_64((((sint64)weight * (sint64)calc_adjusted_monthly_figure(trips_per_month_hundredths)) / 100ll) / (sint64)median_packet_size, 1ll);
 		
 	return (sint32)((uint64)ticks_per_world_month > trips_per_month ? (uint64) ticks_per_world_month / trips_per_month : 1);
 }
@@ -5657,7 +5693,7 @@ void karte_t::step_passengers_and_mail(uint32 delta_t)
 	next_step_mail += delta_t;
 
 	// The generate passengers function is called many times (often well > 100) each step; the mail version is called only once or twice each step, sometimes not at all.
-	uint32 units_this_step;
+	sint32 units_this_step;
 	while(passenger_step_interval <= next_step_passenger) 
 	{
 		if(passenger_origins.get_count() == 0)
@@ -5792,9 +5828,9 @@ void karte_t::check_transferring_cargoes()
 	{
 		FOR(vector_tpl<transferring_cargo_t>, tc, transferring_cargoes[i])
 		{
-			const uint32 ready_seconds = ticks_to_seconds((tc.ready_time - current_time));
+			/*const uint32 ready_seconds = ticks_to_seconds((tc.ready_time - current_time));
 			const uint32 ready_minutes = ready_seconds / 60;
-			const uint32 ready_hours = ready_minutes / 60;
+			const uint32 ready_hours = ready_minutes / 60;*/
 			if (tc.ready_time <= current_time)
 			{
 				ware = tc.ware;
@@ -5884,7 +5920,7 @@ void karte_t::deposit_ware_at_destination(ware_t ware)
 	}
 }
 
-uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
+sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 {
 	const city_cost history_type = (wtyp == goods_manager_t::passengers) ? HIST_PAS_TRANSPORTED : HIST_MAIL_TRANSPORTED;
 	const uint32 units_this_step = simrand((uint32)settings.get_passenger_routing_packet_size(), "void karte_t::generate_passengers_and_mail(uint32 delta_t) passenger/mail packet size") + 1;
@@ -5913,11 +5949,13 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		// Mail is generated in non-city buildings such as attractions.
 		// That will be the only legitimate case in which this condition is not fulfilled.
 #ifdef MULTI_THREAD
-		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 		city->set_generated_passengers(units_this_step, history_type + 1);
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 	}
 	
@@ -6023,11 +6061,13 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			if(city)
 			{
 #ifdef MULTI_THREAD
-				pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+				int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+				assert(mutex_error == 0);
 #endif
 				city->set_generated_passengers(units_this_step, history_type + 1);
 #ifdef MULTI_THREAD
-				pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				assert(mutex_error == 0);
 #endif
 			}
 
@@ -6057,22 +6097,26 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		if(trip == commuting_trip)
 		{
 #ifdef MULTI_THREAD
-			pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+			int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
 #endif
 			first_origin->add_passengers_generated_commuting(units_this_step);
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
 #endif
 		}
 			
 		else if(trip == visiting_trip)
 		{
 #ifdef MULTI_THREAD
-			pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+			int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
 #endif
 			first_origin->add_passengers_generated_visiting(units_this_step);
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
 #endif
 		}
 
@@ -6345,11 +6389,13 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				default:
 					//Some error - this should not be reached.
 #ifdef MULTI_THREAD
-					pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+					int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+					assert(mutex_error == 0);
 #endif
 					dbg->error("simworld.cc", "Incorrect destination type detected");
 #ifdef MULTI_THREAD
-					pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+					mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+					assert(mutex_error == 0);
 #endif
 				};
 
@@ -6447,14 +6493,16 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		stadt_t* destination_town;
 
 #ifdef MULTI_THREAD
-		pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 
 		switch(route_status)
 		{
 		case public_transport:
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
 #endif
 			if(tolerance < UINT32_MAX_VALUE)
 			{
@@ -6464,7 +6512,8 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			pax.set_origin(start_halt);
 			start_halt->starte_mit_route(pax, origin_pos.get_2d());
 #ifdef MULTI_THREAD
-			pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+			mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
 #endif
 			if(city && wtyp == goods_manager_t::passengers)
 			{
@@ -6528,11 +6577,13 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
 			}
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
 #endif
 			add_to_waiting_list(pax, origin_pos.get_2d());
 #ifdef MULTI_THREAD
-			pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+			mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
 #endif
 			break;
 
@@ -6579,14 +6630,16 @@ uint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				
 			}
 #ifdef MULTI_THREAD
-			pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
 			// Prevent deadlocks because of double-locking:
 			// there is already a mutex lock in the add_to_waiting_list
 #endif
 			add_to_waiting_list(pax, origin_pos.get_2d());
 			// Do nothing if trip == mail.
 #ifdef MULTI_THREAD
-			pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+			mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
 #endif
 			break;
 
@@ -6664,7 +6717,8 @@ no_route:
 		};
 
 #ifdef MULTI_THREAD
-		pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
 #endif
 #ifdef FORBID_RETURN_TRIPS
 		if(false)
@@ -6685,11 +6739,13 @@ no_route:
 			{
 #ifndef FORBID_SET_GENERATED_PASSENGERS
 #ifdef MULTI_THREAD
-				pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+				mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+				assert(mutex_error == 0);
 #endif
 				destination_town->set_generated_passengers(units_this_step, history_type + 1);
 #ifdef MULTI_THREAD
-				pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				assert(mutex_error == 0);
 #endif
 #endif
 			}
@@ -6697,11 +6753,13 @@ no_route:
 			{
 #ifndef FORBID_SET_GENERATED_PASSENGERS
 #ifdef MULTI_THREAD
-				pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+				mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+				assert(mutex_error == 0);
 #endif
 				city->set_generated_passengers(units_this_step, history_type + 1);
 #ifdef MULTI_THREAD
-				pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				assert(mutex_error == 0);
 #endif
 #endif
 				// Cannot add success figures for buildings here as cannot get a building from a koord. 
@@ -6714,11 +6772,13 @@ no_route:
 				// from home (etc.).
 #ifndef FORBID_RECORDING_RETURN_FACTORY_PASSENGERS
 #ifdef MULTI_THREAD
-				pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+				mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+				assert(mutex_error == 0);
 #endif
 				current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == goods_manager_t::passengers ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED));
 #ifdef MULTI_THREAD
-				pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				assert(mutex_error == 0);
 #endif
 #endif
 			}
@@ -6818,11 +6878,13 @@ no_route:
 								// that they have successfully arrived. However, this is not easy to implement for factories, as passengers do not store their ultimate
 								// origin, so the origin factory is not known by the time that the passengers reach the end of their journey.
 #ifdef MULTI_THREAD
-								pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+								mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+								assert(mutex_error == 0);
 #endif
 								current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp == goods_manager_t::passengers ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
 #ifdef MULTI_THREAD
-								pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+								mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+								assert(mutex_error == 0);
 #endif
 							}
 						}
@@ -6836,11 +6898,13 @@ no_route:
 							else
 							{
 #ifdef MULTI_THREAD
-								pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+								mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+								assert(mutex_error == 0);
 #endif
 								ret_halt->add_pax_unhappy(units_this_step);
 #ifdef MULTI_THREAD
-								pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+								mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+								assert(mutex_error == 0);
 #endif
 							}
 						}
@@ -6857,11 +6921,13 @@ no_route:
 					else
 					{
 #ifdef MULTI_THREAD
-						pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+						mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+						assert(mutex_error == 0);
 #endif
 						ret_halt->add_pax_no_route(units_this_step);
 #ifdef MULTI_THREAD
-						pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+						mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+						assert(mutex_error == 0);
 #endif
 					}
 				}
@@ -6870,7 +6936,8 @@ no_route:
 			if(return_in_private_car)
 			{
 #ifdef MULTI_THREAD
-				pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+				mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+				assert(mutex_error == 0);
 #endif
 				if(car_minutes < UINT32_MAX_VALUE)
 				{
@@ -6919,14 +6986,16 @@ no_route:
 					}
 				}
 #ifdef MULTI_THREAD
-				pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				assert(mutex_error == 0);
 #endif
 			}
 return_on_foot:
 			if(return_on_foot)
 			{
 #ifdef MULTI_THREAD
-				pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+				mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+				assert(mutex_error == 0);
 #endif
 				if(wtyp == goods_manager_t::passengers)
 				{
@@ -6966,13 +7035,14 @@ return_on_foot:
 					current_destination.building->get_fabrik()->book_stat(units_this_step, (wtyp==goods_manager_t::passengers ? FAB_PAX_DEPARTED : FAB_MAIL_DEPARTED));
 				}
 #ifdef MULTI_THREAD
-				pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+				assert(mutex_error == 0);
 #endif
 			}
 
 		} // Set return trip
 	} // Onward journeys (for loop)
-	return units_this_step;
+	return (sint32)units_this_step;
 }
 
 karte_t::destination karte_t::find_destination(trip_type trip)
@@ -7800,8 +7870,16 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 
 	if(file->get_extended_version() >= 12)
 	{
+#ifdef MULTI_THREAD
+		pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 		file->rdwr_long(next_step_passenger);
 		file->rdwr_long(next_step_mail);
+
+#ifdef MULTI_THREAD
+		pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
+
 		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 13)
 		{
 			if (env_t::networkmode)
@@ -7819,7 +7897,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 			}
 			else
 			{
-				sint32 dummy;
+				sint32 dummy = -1;
 				file->rdwr_long(dummy);
 				parallel_operations = -1;
 			}
@@ -7833,7 +7911,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 		ware_t ware;
 #ifdef MULTI_THREAD
 		count = 0;
-		for (sint32 i = 0; i < parallel_operations; i++)
+		for (sint32 i = 0; i < get_parallel_operations(); i++)
 		{
 			count += transferring_cargoes[i].get_count();
 		}
@@ -7845,7 +7923,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 
 		sint32 po;
 #ifdef MULTI_THREAD
-		po = parallel_operations;
+		po = get_parallel_operations();
 #else
 		po = 1;
 #endif
@@ -8937,8 +9015,15 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 
 	if(file->get_extended_version() >= 12)
 	{
+#ifdef MULTI_THREAD
+		pthread_mutex_lock(&step_passengers_and_mail_mutex);
+#endif
 		file->rdwr_long(next_step_passenger);
 		file->rdwr_long(next_step_mail);
+
+#ifdef MULTI_THREAD
+		pthread_mutex_unlock(&step_passengers_and_mail_mutex);
+#endif
 
 		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 13)
 		{
@@ -8974,21 +9059,10 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 
 	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 15)
 	{
-		uint32 count;
+		uint32 count = 0;
 		sint64 ready;
 		ware_t ware;
 
-#ifdef MULTI_THREAD
-		count = 0;
-		for (sint32 i = 0; i < parallel_operations; i++)
-		{
-			transferring_cargoes[i].clear();
-		}
-#else
-		transferring_cargoes[0].clear();
-#endif
-
-	
 		file->rdwr_long(count);
 
 		for (uint32 i = 0; i < count; i++)
@@ -9879,13 +9953,14 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 		// this was the random number at the previous sync step on the server
 		const checklist_t &server_checklist = nwcheck->server_checklist;
 		const uint32 server_sync_step = nwcheck->server_sync_step;
+		const checklist_t client_checklist = LCHKLST(server_sync_step);
 		char buf[2048];
 		const int offset = server_checklist.print(buf, "server");
 		assert(offset < 2048);
-		const int offset2 = offset + LCHKLST(server_sync_step).print(buf + offset, "client");
+		const int offset2 = offset + client_checklist.print(buf + offset, "client");
 		assert(offset2 < 2048);
 		dbg->warning("karte_t:::do_network_world_command", "sync_step=%u  %s", server_sync_step, buf);
-		if(  LCHKLST(server_sync_step)!=server_checklist  ) {
+		if(client_checklist != server_checklist) {
 			dbg->warning("karte_t:::do_network_world_command", "disconnecting due to checklist mismatch" );
 			network_disconnect();
 		}

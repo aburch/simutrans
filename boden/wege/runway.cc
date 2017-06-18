@@ -87,4 +87,11 @@ void runway_t::rdwr(loadsave_t *file)
 		}
 #endif
 	}
+
+	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 20)
+	{
+		uint16 reserved_index = reserved.get_id();
+		file->rdwr_short(reserved_index);
+		reserved.set_id(reserved_index);
+	}
 }

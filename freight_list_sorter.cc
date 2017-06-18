@@ -129,6 +129,25 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 				return true;
 			}
 		}
+		/*case by_transfer_time: // Should only be used with transfer goods
+		{
+			const sint64 current_time = welt->get_ticks();
+
+			transferring_cargo_t tc1;
+			transferring_cargo_t tc2;
+			tc1.ware = w1;
+			tc2.ware = w2;
+			const uint32 rs1 = world()->ticks_to_seconds((tc1.ready_time - current_time));
+			const uint32 rs2 = world()->ticks_to_seconds((tc2.ready_time - current_time));
+
+		
+			int const order = rs2 - rs1;
+			if (order != 0)
+			{
+				return order < 0;
+			}
+		}*/
+		// no break
 	}
 	return false;
 }
@@ -171,6 +190,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 	// added sorting to ware's destination list
 	int pos = 0;
 	ware_t* wlist;
+	//ware_t* tclist;
 	const int warray_size = warray.get_count() * sizeof(ware_t);
 #ifdef _MSC_VER
 	const int max_stack_size = 838860; 
@@ -193,6 +213,20 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			continue;
 		}
 		wlist[pos] = ware;
+	/*	if (sort_mode == by_transfer_time && pos > 0)
+		{		
+			for (int i = 0; i < pos; i++)
+			{
+				uint32 rt_i = wlist[i] == tc.ware ? tc.ready_time : NULL;
+				uint32 rt_pos = wlist[pos] == tc.ware ? tc.ready_time : NULL;
+					if (wlist[i].get_index() == wlist[pos].get_index() && rt_i == rt_pos)
+					{
+						wlist[i].menge += wlist[pos--].menge;
+						break;
+					}
+	
+			}
+		}*/
 		// for the sorting via the number for the next stop we unify entries
 		if(sort_mode == by_via_sum && pos > 0) 
 		{
@@ -232,7 +266,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			}
 		}
 
-		if((sort_mode == by_name || sort_mode == by_via || sort_mode == by_amount) && pos > 0) 
+		if((sort_mode == by_name || sort_mode == by_via || sort_mode == by_amount) && pos > 0)
 		{
 			for(int i = 0; i < pos; i++) 
 			{
@@ -323,6 +357,20 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			// detail amount
 			goods_desc_t const& desc = *ware.get_desc();
 			buf.printf("   %u%s %s %c ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()), ">>>>><>"[sortby]);
+
+			const sint64 current_time = welt->get_ticks();
+
+		/*	char transfer_time_left[32] = "";
+			if (halt->get_transferring_cargoes_count() > 0)
+			{
+				transferring_cargo_t tc;
+
+			//	uint32 rt_i = wlist[j] == tc.ware ? tc.ready_time : NULL;
+				const uint32 tc_ready_time = tc.ware == ware ? world()->ticks_to_seconds(tc.ready_time - current_time) : NULL;
+			//	const uint32 ready_seconds = world()->ticks_to_seconds(tc.ready_time - current_time);				
+				welt->sprintf_ticks(transfer_time_left, sizeof(transfer_time_left), tc_ready_time);
+			}
+			*/
 			// the target name is not correct for the via sort
 			if(sortby != by_via_sum && sortby != by_origin_amount) 
 			{

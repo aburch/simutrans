@@ -56,6 +56,14 @@ bool line_management_gui_t::infowin_event(const event_t *ev)
 			if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
 				if (!schedule->matches(welt, line->get_schedule()))
 				{
+					FOR(minivec_tpl<schedule_entry_t>, &i, schedule->entries)
+					{
+						// It is necessary to re-set the reversing status here, as
+						// the reversing status of one stop may well change depending on
+						// what other stops are next to it in the schedule.
+						i.reverse = -1;
+					}
+					
 					// update all convoys of this line!
 					// update line schedule via tool!
 					tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );

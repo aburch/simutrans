@@ -403,7 +403,7 @@ void fabrik_t::update_scaled_pax_demand()
 		const uint32 visitor_demand = (uint32)((base_visitor_demand * (sint64)prodbase + (prod_adjust >> 1) ) / prod_adjust);
 
 		// then, scaling based on month length
-		scaled_pax_demand = max(welt->calc_adjusted_monthly_figure(worker_demand), 1);
+		scaled_pax_demand = max_64(welt->calc_adjusted_monthly_figure(worker_demand), 1ll);
 		const uint32 scaled_visitor_demand = max(welt->calc_adjusted_monthly_figure(visitor_demand), 1);
 
 		// pax demand for fixed period length
@@ -3171,7 +3171,7 @@ uint32 fabrik_t::get_lead_time(const goods_desc_t* wtype)
 				FOR(vector_tpl<nearby_halt_t>, const& nearby_halt, fab->nearby_freight_halts) 
 				{
 					// now search route
-					const uint32 transfer_time = ((uint32)nearby_halt.distance * transfer_journey_time_factor) / 100;
+					const uint32 origin_transfer_time = (((uint32)nearby_halt.distance * transfer_journey_time_factor) / 100) + nearby_halt.halt->get_transshipment_time(); 
 					ware_t tmp;
 					tmp.set_desc(wtype);
 					tmp.set_zielpos(pos.get_2d());
@@ -3179,7 +3179,14 @@ uint32 fabrik_t::get_lead_time(const goods_desc_t* wtype)
 					uint32 current_journey_time = (uint32)nearby_halt.halt->find_route(tmp, best_journey_time);
 					if (current_journey_time < UINT32_MAX_VALUE)
 					{
-						current_journey_time += transfer_time;
+						current_journey_time += origin_transfer_time;
+						if (tmp.get_ziel().is_bound())
+						{
+							const uint32 destination_distance_to_stop = shortest_distance(tmp.get_zielpos(), tmp.get_ziel()->get_basis_pos());
+							const uint32 destination_transfer_time = ((destination_distance_to_stop * transfer_journey_time_factor) / 100) + tmp.get_ziel()->get_transshipment_time();
+							current_journey_time += destination_transfer_time;
+						}
+
 						if (current_journey_time < best_journey_time)
 						{
 							best_journey_time = current_journey_time;

@@ -78,6 +78,7 @@ class records_t;
 
 #ifdef MULTI_THREAD
 //#define FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
+//#define FORBID_MULTI_THREAD_PATH_EXPLORER
 #define MULTI_THREAD_PASSENGER_GENERATION 
 #ifndef FORBID_MULTI_THREAD_CONVOYS
 #define MULTI_THREAD_CONVOYS 
@@ -91,21 +92,21 @@ class records_t;
 #endif
 
 #ifndef FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
-//#define FORBID_SYNC_OBJECTS // Has no effect on rare desync (January 2017)
-//#define FORBID_PRIVATE_CARS  // Has no effect on rare desync (January 2017)
-//#define FORBID_PEDESTRIANS // Has no effect on rare desync (January 2017)
-//#define FORBID_CONGESTION_EFFECTS //  Has no effect on rare desync (January 2017)
-//#define DISABLE_JOB_EFFECTS // Has no effect on rare desync (January 2017)
-//#define FORBID_PUBLIC_TRANSPORT // This appears to prevent the rare desync when enabled (January 2017)
-//#define FORBID_RETURN_TRIPS // This appears to prevent the rare desync when enabled (January 2017)
-//#define DISABLE_GLOBAL_WAITING_LIST // Has no effect on rare desync (January 2017)
-//#define FORBID_PARALLELL_PASSENGER_GENERATION // This prevents the desync (January 2017)
-//#define FORBID_SWITCHING_TO_RETURN_ON_FOOT // Has no effect on rare desync (January 2017)
-//#define FORBID_SET_GENERATED_PASSENGERS // Has no effect on rare desync (January 2017)
-//#define FORBID_RECORDING_RETURN_FACTORY_PASSENGERS  // Has no effect on rare desync (January 2017)
-//#define FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_1 // When this is defined, it will not desync: when it is undefined, it will desync.
-//#define FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_2 // Undefining this one does not seem to make a difference: still no desync.
-//#define FORBID_STARTE_MIT_ROUTE_FOR_RETURNING_PASSENGERS // Has no effect on rare desync (January 2017)
+//#define FORBID_SYNC_OBJECTS 
+//#define FORBID_PRIVATE_CARS 
+//#define FORBID_PEDESTRIANS 
+//#define FORBID_CONGESTION_EFFECTS
+//#define DISABLE_JOB_EFFECTS
+//#define FORBID_PUBLIC_TRANSPORT 
+//#define FORBID_RETURN_TRIPS 
+//#define DISABLE_GLOBAL_WAITING_LIST 
+//#define FORBID_PARALLELL_PASSENGER_GENERATION_IN_NETWORK_MODE // Revised to work only in network mode for testing VS/GCC desync (May 2017)
+//#define FORBID_SWITCHING_TO_RETURN_ON_FOOT 
+//#define FORBID_SET_GENERATED_PASSENGERS
+//#define FORBID_RECORDING_RETURN_FACTORY_PASSENGERS  
+//#define FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_1 
+//#define FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_2 
+//#define FORBID_STARTE_MIT_ROUTE_FOR_RETURNING_PASSENGERS 
 #endif
 
 struct checklist_t
@@ -974,7 +975,7 @@ private:
 
 	sint32 calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const;
 
-	uint32 generate_passengers_or_mail(const goods_desc_t * wtyp);
+	sint32 generate_passengers_or_mail(const goods_desc_t * wtyp);
 
 	destination find_destination(trip_type trip);
 

@@ -442,15 +442,15 @@ void simline_t::finish_rd()
 
 void simline_t::register_stops(schedule_t * schedule)
 {
-DBG_DEBUG("simline_t::register_stops()", "%d schedule entries in schedule %p", schedule->get_count(),schedule);
-	FOR(minivec_tpl<schedule_entry_t>, const& i, schedule->entries) {
+	DBG_DEBUG("simline_t::register_stops()", "%d schedule entries in schedule %p", schedule->get_count(),schedule);
+	FOR(minivec_tpl<schedule_entry_t>,const &i, schedule->entries) {
 		halthandle_t const halt = haltestelle_t::get_halt(i.pos, player);
 		if(halt.is_bound()) {
-//DBG_DEBUG("simline_t::register_stops()", "halt not null");
+	//DBG_DEBUG("simline_t::register_stops()", "halt not null");
 			halt->add_line(self);
 		}
 		else {
-DBG_DEBUG("simline_t::register_stops()", "halt null");
+	DBG_DEBUG("simline_t::register_stops()", "halt null");
 		}
 	}
 	financial_history[0][LINE_DEPARTURES_SCHEDULED] = calc_departures_scheduled();

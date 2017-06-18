@@ -332,7 +332,7 @@ private:
 		static const uint8 phase_reroute_goods = 6;
 
 		// absolute time limits
-		static const uint32 time_midpoint = 24;
+		static const uint32 time_midpoint = 64; // The higher this number, the more processing will be done per step and the more quickly that a refresh will complete, but the more computationally intensive that it will be. Knightly's original setting was 24. 
 		static const uint32 time_deviation = 2;
 		static const uint32 time_lower_limit = time_midpoint - time_deviation;
 		static const uint32 time_upper_limit = time_midpoint + time_deviation;
@@ -401,6 +401,7 @@ private:
 			return limit_set_t( limit_rebuild_connexions, limit_filter_eligible, limit_fill_matrix, limit_explore_paths, limit_reroute_goods );
 		}
 
+		// This is only used in network mode.
 		static void set_limits(const limit_set_t &limit_set)
 		{
 			limit_rebuild_connexions = limit_set.rebuild_connexions;

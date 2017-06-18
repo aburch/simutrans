@@ -382,10 +382,12 @@ settings_t::settings_t() :
 	unit_reverse_time = 0;
 	hauled_reverse_time = 0;
 	turntable_reverse_time = 0;
+	road_reverse_time = 0;
 
 	unit_reverse_time_seconds = 65535;
 	hauled_reverse_time_seconds = 65535;
 	turntable_reverse_time_seconds = 65535;
+	road_reverse_time_seconds = 65535;
 
 	// Global power factor
 	// @author: jamespetts
@@ -1266,10 +1268,18 @@ void settings_t::rdwr(loadsave_t *file)
 				file->rdwr_long(unit_reverse_time);
 				file->rdwr_long(hauled_reverse_time);
 				file->rdwr_long(turntable_reverse_time);
+				if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 19)
+				{
+					file->rdwr_long(road_reverse_time);
+				}
 
 				file->rdwr_short(unit_reverse_time_seconds);
 				file->rdwr_short(hauled_reverse_time_seconds);
 				file->rdwr_short(turntable_reverse_time_seconds);
+				if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 19)
+				{
+					file->rdwr_short(road_reverse_time_seconds);
+				}
 			}
 			else
 			{
@@ -1287,8 +1297,12 @@ void settings_t::rdwr(loadsave_t *file)
 					{
 						turntable_reverse_time = 65535;
 					}
+					if (road_reverse_time > 65535)
+					{
+						road_reverse_time = 65535;
+					}
 
-					turntable_reverse_time_seconds = hauled_reverse_time_seconds = unit_reverse_time_seconds = 65535;
+					road_reverse_time_seconds = turntable_reverse_time_seconds = hauled_reverse_time_seconds = unit_reverse_time_seconds = 65535;
 				}
 				uint16 short_unit_reverse_time = unit_reverse_time < 65535 ? unit_reverse_time : 65535;
 				uint16 short_hauled_reverse_time = hauled_reverse_time < 65535 ? hauled_reverse_time : 65535;
@@ -2368,10 +2382,12 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	unit_reverse_time = contents.get_int("unit_reverse_time", unit_reverse_time);
 	hauled_reverse_time = contents.get_int("hauled_reverse_time", hauled_reverse_time);
 	turntable_reverse_time = contents.get_int("turntable_reverse_time", turntable_reverse_time);
+	road_reverse_time = contents.get_int("road_reverse_time", road_reverse_time);	
 
 	unit_reverse_time_seconds = contents.get_int("unit_reverse_time_seconds", unit_reverse_time_seconds);
 	hauled_reverse_time_seconds = contents.get_int("hauled_reverse_time_seconds", hauled_reverse_time_seconds);
-	turntable_reverse_time_seconds = contents.get_int("turntable_reverse_time_seconds", turntable_reverse_time_seconds);
+	turntable_reverse_time_seconds = contents.get_int("turntable_reverse_time_seconds", turntable_reverse_time_seconds); 
+	road_reverse_time_seconds = contents.get_int("road_reverse_time_seconds", road_reverse_time_seconds);
 
 	// Global power factor
 	// @author: jamespetts
@@ -2850,6 +2866,11 @@ void settings_t::set_scale()
 	if(turntable_reverse_time_seconds < 65535)
 	{
 		turntable_reverse_time = (uint32)seconds_to_ticks(turntable_reverse_time_seconds, meters_per_tile);
+	}
+
+	if (road_reverse_time_seconds < 65535)
+	{
+		road_reverse_time = (uint32)seconds_to_ticks(road_reverse_time_seconds, meters_per_tile);
 	}
 }
 

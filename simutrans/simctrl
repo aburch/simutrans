@@ -4,7 +4,7 @@ VERBOSE=0
 # Number of seconds to allow for server to start/stop
 startstopgracetime=5
 
-pathtosimutrans=/usr/share/games/simutrans-experimental/sources/simutrans-experimental
+pathtosimutrans=/usr/share/games/simutrans-extended
 
 log() {
     if [ "$1" != "ERROR" ]; then
@@ -81,10 +81,10 @@ if [ -z "${debug:+x}" ]; then
 fi
 
 
-# We do not use the $revision system at present for the Experimental server.
+# We do not use the $revision system at present for the Extended server.
 
-simpath="$pathtosimutrans/simutrans/simutrans-experimental"
-#simpath="$pathtosimutrans/$revision/simutrans/sim"
+simpath="$pathtosimutrans/simutrans-extended"
+#simpath="$pathtosimutrans/$revision/simutrans-extended"
 
 simutrans_stop() {
     # Check if process is running
