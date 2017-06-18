@@ -3810,9 +3810,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						 * It's very easy for in-transit information to get corrupted,
 						 * if an intermediate program version fails to compute it right.
 						 * So *always* compute it fresh.
-						 *
-						 * This no longer works properly with Extended because cargo
-						 * may be in a queue waiting to be loaded at a station.
 						 */ 
 							fabrik_t::update_transit( ware, true );
 #endif
