@@ -83,6 +83,7 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	lb_veh_action("Fahrzeuge:", SYSCOL_TEXT, gui_label_t::right),
 	convoi_pics(depot->get_max_convoi_length()),
 	convoi(&convoi_pics),
+	scrolly_convoi(&cont_convoi),
 	pas(&pas_vec),
 	electrics(&electrics_vec),
 	loks(&loks_vec),
@@ -91,7 +92,6 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	scrolly_electrics(&cont_electrics),
 	scrolly_loks(&cont_loks),
 	scrolly_waggons(&cont_waggons),
-	scrolly_convoi(&cont_convoi),
 	lb_vehicle_filter("Filter:", SYSCOL_TEXT, gui_label_t::right)
 {
 	scr_size size = scr_size(0,0);
@@ -362,7 +362,6 @@ void depot_frame_t::layout(scr_size *size)
 	const scr_coord_val CLIST_WIDTH = depot->get_max_convoi_length() * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER;
 	const scr_coord_val CLIST_HEIGHT = grid.y + 2 * gui_image_list_t::BORDER + 5;
 	const scr_coord_val CINFO_HEIGHT = LINESPACE * 3 + D_BUTTON_HEIGHT + 1;
-	const scr_coord_val CONVOI_WIDTH = CLIST_WIDTH + placement_dx;
 
 	/*
 	*	Structure of [ACTIONS] is a row of buttons:
