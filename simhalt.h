@@ -664,7 +664,7 @@ public:
 	 * Add tile to list of station tiles.
 	 * @param relink_factories if true call verbinde_fabriken, if not true take care of factory connections yourself
 	 */
-	bool add_grund(grund_t *gb, bool relink_factories = true);
+	bool add_grund(grund_t *gb, bool relink_factories = true, bool recalc_nearby_halts = true);
 	bool rem_grund(grund_t *gb);
 
 	uint32 get_capacity(uint8 typ) const { return capacity[typ]; }

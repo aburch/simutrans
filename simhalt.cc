@@ -3680,10 +3680,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			const building_desc_t *desc=gb ? gb->get_tile()->get_desc():NULL;
 			if(desc)
 			{
-				// TODO: Cache the data for proximity, as this takes
-				// huge amounts of computational effort on reloading
-				// a large map.
-				add_grund( gr, false /*do not relink factories now*/ );
+				add_grund( gr, true /*do not relink factories now*/, !(file->get_extended_version() >= 13 || file->get_extended_revision() >= 21) /*do not recalculate nearby halts now unless loading an older version*/  );
 				// verbinde_fabriken will be called in finish_rd
 			}
 			else {
@@ -4698,7 +4695,7 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 
 
 
-bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
+bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories, bool recalc_nearby_halts)
 {
 	assert(gr!=NULL);
 
@@ -4727,7 +4724,10 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 			koord p=pos+koord(x,y);
 			planquadrat_t *plan = welt->access(p);
 			if(plan) {
-				plan->add_to_haltlist( self );
+				if (recalc_nearby_halts)
+				{
+					plan->add_to_haltlist(self);
+				}
 				grund_t* gr = plan->get_kartenboden();
 				gr->set_flag(grund_t::dirty);
 				// If there's a factory here, add it to the working list
@@ -4750,9 +4750,12 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 	// Update nearby factories' lists of connected halts.
 	// Must be done AFTER updating the planquadrats,
 	// AND after updating our own list.  Yuck!
-	FOR (vector_tpl<fabrik_t*>, fab, affected_fab_list)
+	if (recalc_nearby_halts)
 	{
-		fab->recalc_nearby_halts();
+		FOR(vector_tpl<fabrik_t*>, fab, affected_fab_list)
+		{
+			fab->recalc_nearby_halts();
+		}
 	}
 
 	signal_t* signal = gr->find<signal_t>();
@@ -4825,7 +4828,10 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 	assert(gr->is_halt());
 
 	init_pos = tiles.front().grund->get_pos().get_2d();
-	check_nearby_halts();
+	if (recalc_nearby_halts)
+	{
+		check_nearby_halts();
+	}
 	calc_transfer_time();
 
 #ifdef MULTI_THREAD
