@@ -5316,22 +5316,29 @@ void haltestelle_t::calc_transfer_time()
 	// TODO: Better separate waiting times for different types of goods.
 
 	const uint8 max_categories = goods_manager_t::get_max_catg_index();
-	const sint64 waiting_passengers = cargo[0] ? cargo[0]->get_count() : 0;
+	sint64 waiting_passengers = 0;
 	sint64 waiting_goods = 0;
+	// TODO: Consider adding waiting mail here, too
+	// This would require a separete mail transfer time.
 
-	for(uint8 i = 2; i < max_categories; i++)
+	for(uint8 i = 0; i < max_categories; i++)
 	{
 		if(cargo[i])
 		{
-			FOR(vector_tpl<ware_t>, const &w, *cargo[i])
+			if (i == goods_manager_t::INDEX_PAS)
 			{
-				if(cargo[i])
+				vector_tpl<ware_t> * warray = cargo[i];
+				FOR(vector_tpl<ware_t>, &w, *warray)
 				{
-					vector_tpl<ware_t> * warray = cargo[i];
-					FOR(vector_tpl<ware_t>, & j, *warray)
-					{
-						waiting_goods += j.menge;
-					}
+					waiting_passengers += w.menge;
+				}
+			}
+			else if (i > goods_manager_t::INDEX_NONE)
+			{
+				vector_tpl<ware_t> * warray = cargo[i];
+				FOR(vector_tpl<ware_t>, &w, *warray)
+				{
+					waiting_goods += w.menge;
 				}
 			}
 		}
