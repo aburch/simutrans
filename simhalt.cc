@@ -4005,7 +4005,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				uint8 passenger_classes;
 				uint8 mail_classes;
 
-				if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 21)
+				if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
 				{
 					passenger_classes = goods_manager_t::passengers->get_number_of_classes();
 					mail_classes = goods_manager_t::mail->get_number_of_classes();
@@ -4100,7 +4100,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				uint8 passenger_classes;
 				uint8 mail_classes;
 
-				if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 21)
+				if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
 				{
 					file->rdwr_byte(passenger_classes);
 					file->rdwr_byte(mail_classes);
