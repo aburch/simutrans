@@ -1461,7 +1461,7 @@ void vehicle_t::hop(grund_t* gr)
 	//const grund_t *gr_prev = get_grund();
 	const weg_t * weg_prev = get_weg();
 
-	leave_tile(); //"Verlasse" = "leave" (Babelfish)
+	leave_tile(); 
 
 	pos_prev = get_pos();
 	set_pos( pos_next );  // next field
@@ -3802,6 +3802,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uint8)
 {
 	assert(leading);
+	cnv = get_convoi(); // This should not be necessary, but for some unfathomable reason, cnv is sometimes not equal to get_convoi(), even though get_convoi() just returns cnv (!?!)
 	uint16 next_signal = INVALID_INDEX;
 	schedule_entry_t destination = cnv->get_schedule()->get_current_eintrag();
 
@@ -3896,7 +3897,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 	}
 
-	if(signal_current && (working_method == time_interval || working_method == time_interval_with_telegraph) && signal_current->get_state() == roadsign_t::danger && signal_current->get_no_junctions_to_next_signal())
+	if(signal_current && (working_method == time_interval || working_method == time_interval_with_telegraph) && signal_current->get_state() == roadsign_t::danger && signal_current->get_no_junctions_to_next_signal() && (signal_current->get_desc()->get_working_method() != one_train_staff || !starting_from_stand))
 	{
 		restart_speed = 0;
 		return false;

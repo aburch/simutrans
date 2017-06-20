@@ -2082,6 +2082,11 @@ end_loop:
 		case WAITING_FOR_CLEARANCE:
 			{
 				sint32 restart_speed = -1;
+				if (front()->get_convoi() != this)
+				{
+					front()->set_convoi(this);
+				}
+
 				if (front()->can_enter_tile(restart_speed,0)) {
 					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
 				}
