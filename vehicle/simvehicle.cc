@@ -4599,7 +4599,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 					next_signal_index = last_stop_signal_index;
 				}
-				if(last_bidirectional_signal_index < INVALID_INDEX)
+				if(last_bidirectional_signal_index < INVALID_INDEX || last_longblock_signal_index < INVALID_INDEX)
 				{
 					first_oneway_sign_index = i;
 				}
@@ -4884,7 +4884,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 						if(!directional_only && (next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling) && remaining_aspects <= 2 && remaining_aspects >= 0)
 						{
-							if(last_bidirectional_signal_index < INVALID_INDEX && first_oneway_sign_index >= INVALID_INDEX)
+							if((last_bidirectional_signal_index < INVALID_INDEX || last_longblock_signal_index < INVALID_INDEX) && first_oneway_sign_index >= INVALID_INDEX)
 							{
 								directional_only = true;
 								last_stop_signal_index = i;
@@ -4945,7 +4945,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						else if(!directional_only && (next_signal_working_method == moving_block && working_method != moving_block) || (next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling) && remaining_aspects >= 0 && remaining_aspects <= 2)
 						{
 							// If there are no more caution aspects, or this is a transition to moving block signalling do not reserve any further at this juncture.
-							if(last_bidirectional_signal_index < INVALID_INDEX && first_oneway_sign_index >= INVALID_INDEX || (next_signal_working_method == moving_block && working_method != moving_block))
+							if((last_bidirectional_signal_index < INVALID_INDEX || last_longblock_signal_index < INVALID_INDEX) && first_oneway_sign_index >= INVALID_INDEX || (next_signal_working_method == moving_block && working_method != moving_block))
 							{
 								directional_only = true;
 								last_stop_signal_index = i;
@@ -4956,7 +4956,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							}
 						}
 
-						if(working_method == moving_block && (last_bidirectional_signal_index < INVALID_INDEX && first_oneway_sign_index >= INVALID_INDEX))
+						if(working_method == moving_block && ((last_bidirectional_signal_index < INVALID_INDEX || last_longblock_signal_index < INVALID_INDEX) && first_oneway_sign_index >= INVALID_INDEX))
 						{
 							directional_only = true;
 						}
@@ -5487,7 +5487,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					// There is a signal in a later part of the route to which we can reserve now.
 					if(bidirectional_reservation)
 					{
-						if(signal_t* sg = welt->lookup(route->at(next_next_signal))->get_weg(get_waytype())->get_signal(ribi_type((route->at(next_next_signal - 1)), route->at(next_next_signal))))
+						if(signal_t* sg = welt->lookup(target_rt.at(next_next_signal))->get_weg(get_waytype())->get_signal(ribi_type((target_rt.at(next_next_signal - 1)), target_rt.at(next_next_signal))))
 						{
 							if(!sg->is_bidirectional() || sg->get_desc()->is_longblock_signal())
 							{
