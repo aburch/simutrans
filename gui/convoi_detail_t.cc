@@ -478,7 +478,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 						
 						
 						buf.clear();
-						buf.printf(translator::translate("  capacity: %i %i"), v->get_capacity(i), v->get_overcrowding(i));
+						buf.printf(translator::translate("  capacity: %i (%i)"), v->get_capacity(i), v->get_overcrowding(i));
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						extra_y += LINESPACE;
 
