@@ -335,7 +335,7 @@ bool convoi_t::is_waypoint( koord3d ziel ) const
 
 void convoi_t::unreserve_route_range(route_range_specification range)
 {
-	const vector_tpl<weg_t *> all_ways = weg_t::get_alle_wege();
+	const vector_tpl<weg_t *> &all_ways = weg_t::get_alle_wege();
 	for (uint32 i = range.start; i < range.end; i++)
 	{
 		weg_t* const way = all_ways[i];
@@ -2151,6 +2151,11 @@ end_loop:
 		case WAITING_FOR_CLEARANCE:
 			{
 				sint32 restart_speed = -1;
+				if (front()->get_convoi() != this)
+				{
+					front()->set_convoi(this);
+				}
+
 				if (front()->can_enter_tile(restart_speed,0)) {
 					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
 				}

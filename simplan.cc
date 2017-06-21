@@ -302,6 +302,49 @@ void planquadrat_t::rdwr(loadsave_t *file, koord pos )
 			}
 		} while(gr != 0);
 	}
+
+	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 21)
+	{
+		// Cache the halt_list as this saves a huge amount of time re-calculating this on loading.
+
+		if (file->is_saving())
+		{
+			file->rdwr_byte(halt_list_count);
+
+			if (halt_list_count > 0)
+			{
+				for (uint8 i = 0; i < halt_list_count; i++)
+				{
+					nearby_halt_t nearby_halt = halt_list[i];
+
+					file->rdwr_byte(nearby_halt.distance);
+					uint16 halt_id = nearby_halt.halt.get_id();
+					file->rdwr_short(halt_id);
+				}
+			}
+		}
+			
+		else // Loading
+		{
+			uint8 halt_list_count_from_file;
+
+			file->rdwr_byte(halt_list_count_from_file);
+
+			for (uint8 i = 0; i < halt_list_count_from_file; i++)
+			{
+				uint8 distance;
+				file->rdwr_byte(distance);
+
+				uint16 halt_id;
+				file->rdwr_short(halt_id);
+				halthandle_t halt;
+				halt.set_id(halt_id);
+
+				halt_list_insert_at(halt, i, distance);
+			}
+		}
+
+	}
 }
 
 

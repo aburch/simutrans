@@ -3762,8 +3762,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			// prissi: now check, if there is a building -> we allow no longer ground without building!
 			const gebaeude_t* gb = gr ? gr->find<gebaeude_t>() : NULL;
 			const building_desc_t *desc=gb ? gb->get_tile()->get_desc():NULL;
-			if(desc) {
-				add_grund( gr, false /*do not relink factories now*/ );
+			if(desc)
+			{
+				add_grund( gr, true /*do not relink factories now*/, !(file->get_extended_version() >= 13 || file->get_extended_revision() >= 21) /*do not recalculate nearby halts now unless loading an older version*/  );
 				// verbinde_fabriken will be called in finish_rd
 			}
 			else {
@@ -3890,9 +3891,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						 * It's very easy for in-transit information to get corrupted,
 						 * if an intermediate program version fails to compute it right.
 						 * So *always* compute it fresh.
-						 *
-						 * This no longer works properly with Extended because cargo
-						 * may be in a queue waiting to be loaded at a station.
 						 */ 
 							fabrik_t::update_transit( ware, true );
 #endif
@@ -4005,7 +4003,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				uint8 passenger_classes;
 				uint8 mail_classes;
 
-				if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 21)
+				if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
 				{
 					passenger_classes = goods_manager_t::passengers->get_number_of_classes();
 					mail_classes = goods_manager_t::mail->get_number_of_classes();
@@ -4100,7 +4098,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				uint8 passenger_classes;
 				uint8 mail_classes;
 
-				if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 21)
+				if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
 				{
 					file->rdwr_byte(passenger_classes);
 					file->rdwr_byte(mail_classes);
@@ -4450,6 +4448,14 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					tc.ready_time = ready;
 					tc.ware = ware;
 					transferring_cargoes[0].append(tc);
+#ifndef CACHE_TRANSIT
+					fabrik_t* fab = fabrik_t::get_fab(tc.ware.get_zielpos());
+					if (fab)
+					{
+						fab->update_transit(tc.ware, true); 
+					}
+#endif // !CACHE_TRANSIT
+
 				}
 			}
 		}
@@ -4664,7 +4670,7 @@ void haltestelle_t::recalc_status()
 
 	uint64 total_sum = 0;
 	if(get_pax_enabled()) {
-		const uint32 max_ware = get_capacity(0);
+		const uint32 max_ware = get_capacity(goods_manager_t::INDEX_PAS);
 		total_sum += get_ware_summe(goods_manager_t::passengers);
 		if(total_sum>max_ware) {
 			overcrowded[0] |= 1;
@@ -4678,7 +4684,7 @@ void haltestelle_t::recalc_status()
 	}
 
 	if(get_mail_enabled()) {
-		const uint32 max_ware = get_capacity(1);
+		const uint32 max_ware = get_capacity(goods_manager_t::INDEX_MAIL);
 		const uint32 mail = get_ware_summe(goods_manager_t::mail);
 		total_sum += mail;
 		if(mail>max_ware) {
@@ -4839,7 +4845,7 @@ void haltestelle_t::display_status(KOORD_VAL xpos, KOORD_VAL ypos)
 
 
 
-bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
+bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories, bool recalc_nearby_halts)
 {
 	assert(gr!=NULL);
 
@@ -4868,7 +4874,10 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 			koord p=pos+koord(x,y);
 			planquadrat_t *plan = welt->access(p);
 			if(plan) {
-				plan->add_to_haltlist( self );
+				if (recalc_nearby_halts)
+				{
+					plan->add_to_haltlist(self);
+				}
 				grund_t* gr = plan->get_kartenboden();
 				gr->set_flag(grund_t::dirty);
 				// If there's a factory here, add it to the working list
@@ -4891,9 +4900,12 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 	// Update nearby factories' lists of connected halts.
 	// Must be done AFTER updating the planquadrats,
 	// AND after updating our own list.  Yuck!
-	FOR (vector_tpl<fabrik_t*>, fab, affected_fab_list)
+	if (recalc_nearby_halts)
 	{
-		fab->recalc_nearby_halts();
+		FOR(vector_tpl<fabrik_t*>, fab, affected_fab_list)
+		{
+			fab->recalc_nearby_halts();
+		}
 	}
 
 	signal_t* signal = gr->find<signal_t>();
@@ -4966,7 +4978,10 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 	assert(gr->is_halt());
 
 	init_pos = tiles.front().grund->get_pos().get_2d();
-	check_nearby_halts();
+	if (recalc_nearby_halts)
+	{
+		check_nearby_halts();
+	}
 	calc_transfer_time();
 
 #ifdef MULTI_THREAD
@@ -5451,22 +5466,29 @@ void haltestelle_t::calc_transfer_time()
 	// TODO: Better separate waiting times for different types of goods.
 
 	const uint8 max_categories = goods_manager_t::get_max_catg_index();
-	const sint64 waiting_passengers = cargo[0] ? cargo[0]->get_count() : 0;
+	sint64 waiting_passengers = 0;
 	sint64 waiting_goods = 0;
+	// TODO: Consider adding waiting mail here, too
+	// This would require a separete mail transfer time.
 
-	for(uint8 i = 2; i < max_categories; i++)
+	for(uint8 i = 0; i < max_categories; i++)
 	{
 		if(cargo[i])
 		{
-			FOR(vector_tpl<ware_t>, const &w, *cargo[i])
+			if (i == goods_manager_t::INDEX_PAS)
 			{
-				if(cargo[i])
+				vector_tpl<ware_t> * warray = cargo[i];
+				FOR(vector_tpl<ware_t>, &w, *warray)
 				{
-					vector_tpl<ware_t> * warray = cargo[i];
-					FOR(vector_tpl<ware_t>, & j, *warray)
-					{
-						waiting_goods += j.menge;
-					}
+					waiting_passengers += w.menge;
+				}
+			}
+			else if (i > goods_manager_t::INDEX_NONE)
+			{
+				vector_tpl<ware_t> * warray = cargo[i];
+				FOR(vector_tpl<ware_t>, &w, *warray)
+				{
+					waiting_goods += w.menge;
 				}
 			}
 		}

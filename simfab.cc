@@ -745,8 +745,6 @@ fabrik_t::fabrik_t(loadsave_t* file)
 				}
 			}
 		}
-		// Must rebuild the nearby halt database
-		recalc_nearby_halts();
 	}
 }
 
@@ -2828,6 +2826,8 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 
 void fabrik_t::finish_rd()
 {
+	recalc_nearby_halts();
+	
 	city = check_local_city();
 	if(city != NULL)
 	{
