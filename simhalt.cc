@@ -4670,7 +4670,7 @@ void haltestelle_t::recalc_status()
 
 	uint64 total_sum = 0;
 	if(get_pax_enabled()) {
-		const uint32 max_ware = get_capacity(0);
+		const uint32 max_ware = get_capacity(goods_manager_t::INDEX_PAS);
 		total_sum += get_ware_summe(goods_manager_t::passengers);
 		if(total_sum>max_ware) {
 			overcrowded[0] |= 1;
@@ -4684,7 +4684,7 @@ void haltestelle_t::recalc_status()
 	}
 
 	if(get_mail_enabled()) {
-		const uint32 max_ware = get_capacity(1);
+		const uint32 max_ware = get_capacity(goods_manager_t::INDEX_MAIL);
 		const uint32 mail = get_ware_summe(goods_manager_t::mail);
 		total_sum += mail;
 		if(mail>max_ware) {
