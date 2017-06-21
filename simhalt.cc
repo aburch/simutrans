@@ -2347,8 +2347,11 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 			if(ware->menge > 0)
 			{
 				i++;
-				if (ware->get_class() == g_class || (use_lower_classes && ware->get_class() < g_class))
+				if (ware->get_class() >= g_class)
 				{
+					// We know at this stage that we cannot load passengers of a *lower* class into higher class accommodation, 
+					// but we cannot yet know whether or not to load passengers of a higher class into lower class accommodation.
+					// Note that this method is called for each class of accommodation in each vehicle in each convoy.
 					goods_to_check.insert(ware);
 				}
 			}
@@ -2406,8 +2409,8 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 
 				if(schedule_halt.is_bound() && (bound_for_next_transfer || bound_for_destination) && schedule_halt->is_enabled(catg_index))
 				{
-					// Check to see whether this is the convoy departing from this stop that will arrive at the next transfer or ultimate destination the soonest.
-		
+					
+					// Check to see whether this is the convoy departing from this stop that will arrive at the next transfer or ultimate destination the soonest.	
 					convoihandle_t fast_convoy;
 					sint64 best_arrival_time;
 					if (bound_for_next_transfer)
@@ -2573,6 +2576,47 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 						// The direct route is faster than the planned route:
 						// update the next transfer to reflect this.
 						next_to_load->set_zwischenziel(destination); 
+					}
+
+					if (next_to_load->is_passenger() && next_to_load->g_class > 0 && cnv->get_classes_carried(goods_manager_t::INDEX_PAS)->get_count() > 1)
+					{
+						// For passengers, check whether to downgrade to or from this class.
+						const sint64 journey_time_ticks = this_arrival_time - welt->get_ticks();
+						const sint64 journey_time_seconds = welt->ticks_to_seconds(journey_time_ticks);
+
+						const sint64 ideal_comfort_time_multiplier = 120ll; //TODO: Have this set from simuconf.tab OR set and randomised per passenger (will take memory)
+						const sint64 ideal_comfort_time = (journey_time_seconds * ideal_comfort_time_multiplier) / 100ll;
+
+						uint8 best_class = g_class;
+
+						if (!use_lower_classes)
+						{
+							// If there is overcrowding, load willy nilly: any class that hte passengers can board will do.
+
+							// The classes are called in non-deterministic order. We must therefore have an algorithm that 
+							// deterministically decides to which, if any, class that any given passengers will downgrade.
+							for (uint8 current_class = next_to_load->g_class; current_class > 0; current_class--)
+							{
+								// Find the ideal class, assuming space available in all classes
+								if (current_class == g_class || cnv->get_classes_carried(goods_manager_t::INDEX_PAS)->is_contained(current_class))
+								{
+									const uint8 comfort_this_class = cnv->get_comfort(current_class);
+									const uint32 max_tolerable_journey_this_comfort = welt->get_settings().max_tolerable_journey(current_class);
+
+									if (max_tolerable_journey_this_comfort >= ideal_comfort_time)
+									{
+										best_class = current_class;
+									}
+								}
+							}
+						}
+
+						if (g_class != best_class)
+						{
+							// Wait for a better class of accommodation
+							schedule->increment_index(&index, &reverse);
+							continue;
+						}
 					}
 	
 					// Refuse to be overcrowded if alternative exists
