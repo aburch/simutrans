@@ -459,6 +459,10 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			
 			if(v->get_cargo_type()->get_catg_index() == 0)
 			{
+				buf.clear();
+				buf.printf(translator::translate("accommodations:"));
+				display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				extra_y += LINESPACE;
 				for (uint8 i = 0; i < v->get_desc()->get_number_of_classes(); i++)
 				{
 					if (v->get_capacity(i) > 0)
@@ -467,14 +471,14 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 						char class_name_untranslated[32];
 						sprintf(class_name_untranslated, "p_class[%u]", i);
 						const char* class_name = translator::translate(class_name_untranslated);
-						buf.printf("%s:", class_name);
+						buf.printf(" %s:", class_name);
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						extra_y += LINESPACE;
 
 						
 						
 						buf.clear();
-						buf.printf(translator::translate("  capacity: %i %s"), v->get_capacity(i), v->get_overcrowding(i));
+						buf.printf(translator::translate("  capacity: %i %i"), v->get_capacity(i), v->get_overcrowding(i));
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						extra_y += LINESPACE;
 
