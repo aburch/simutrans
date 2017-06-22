@@ -330,6 +330,8 @@ public:
 	* Note: this is measured in *adjusted* jobs.
 	*/
 	sint32 check_remaining_available_jobs() const;
+
+	uint8 get_random_passenger_class();
 };
 
 

@@ -6118,12 +6118,8 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		route_status = initialising;
 
 		// Initialise the class of the passengers or mail.
-		const uint8 max_class = wtyp->get_number_of_classes();
-		{
-			// TODO: Allow buildings to specify the probabilities of each class generated thereby.
-			pax.g_class = simrand(max_class, "karte_t::generate_passengers_and_mail (class)");
-		}
-		
+		pax.g_class = first_origin->get_random_passenger_class();
+
 		// TODO: Have destination choice influenced by passenger class
 		first_destination = find_destination(trip);
 		current_destination = first_destination;

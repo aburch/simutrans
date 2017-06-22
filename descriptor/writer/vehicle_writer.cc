@@ -115,7 +115,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	for (uint8 i = 0; i < 256; i++)
 	{
 		// Check for multiple classes with a separate capacity each
-		char buf[12];
+		char buf[13];
 		sprintf(buf, "payload[%u]", i);
 		current_class_capacity = obj.get_int(buf, UINT32_MAX_VALUE);
 		if (current_class_capacity == UINT32_MAX_VALUE)

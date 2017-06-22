@@ -1710,3 +1710,36 @@ bool gebaeude_t::jobs_available() const
 	bool difference = available_jobs_by_time <= ticks;
 	return difference;
 }
+
+uint8 gebaeude_t::get_random_passenger_class() 
+{
+	// This currently simply uses the building type's proportions. 
+	// TODO: Allow this to be modified when dynamic building occupation
+	// is introduced with the (eventual) new town growth code.
+
+	const uint8 number_of_classes = goods_manager_t::passengers->get_number_of_classes();
+	const uint32 sum = get_tile()->get_desc()->get_class_proportions_sum();
+
+	if (sum == 0)
+	{
+		// If the building has a zero sum of class proportions, as is the default, assume
+		// an equal chance of any given class being generated from here.
+		return (uint8)simrand(number_of_classes, "uint8 gebaeude_t::get_random_passenger_class() const (fixed)"); 
+	}	
+
+	const uint8 iterations = min(get_tile()->get_desc()->get_number_of_class_proportions(), number_of_classes);
+	const uint16 random = simrand(sum + 1, "uint8 gebaeude_t::get_random_passenger_class() const (multiple classes)");
+
+	uint8 g_class = 0;
+
+	for (uint8 i = 0; i < iterations; i++)
+	{
+		if (random <= get_tile()->get_desc()->get_class_proportion(i))
+		{
+			g_class = i;
+			break;
+		}
+	}
+
+	return g_class;
+}
