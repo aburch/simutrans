@@ -1360,6 +1360,7 @@ vehicle_t::vehicle_t() :
 	// classes yet, which is set in desc.
 	number_of_classes = 0;
 	fracht = NULL;	
+	class_reassignments = NULL;
 }
 
 void vehicle_t::set_desc(const vehicle_desc_t* value)
