@@ -1354,18 +1354,12 @@ vehicle_t::vehicle_t() :
     hill_up = 0;
     hill_down = 0;
 	current_livery = "default";
-	if (!desc)
-	{
-		number_of_classes = 1;
-	}
-	else
-	{
-		number_of_classes = desc->get_number_of_classes();
-	}
-
-	class_reassignments = new uint8[number_of_classes];
-	fracht = new slist_tpl<ware_t>[number_of_classes];
-	class_reassignments[0] = 0;
+	
+	// These cannot be set substantively here
+	// because we do not know the number of 
+	// classes yet, which is set in desc.
+	number_of_classes = 0;
+	fracht = NULL;	
 }
 
 void vehicle_t::set_desc(const vehicle_desc_t* value)
@@ -2333,6 +2327,13 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	{
 		number_of_classes = 1;
 	}
+
+	// We must initialise fracht[] here, as only now do we
+	// know the correct number of classes.
+
+	class_reassignments = new uint8[number_of_classes];
+	fracht = new slist_tpl<ware_t>[number_of_classes];
+	class_reassignments[0] = 0;
 
 	sint32 total_fracht_count = 0;
 	sint32 *fracht_count = new sint32[number_of_classes];
