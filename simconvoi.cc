@@ -5471,6 +5471,12 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	// in order to get them into the cars in the front of the station.  Just like
 	// real conductors do.
 	//
+	// Query: this makes sense only for passenger carriages with gangways.
+	// Is it really sensible to implement this for all vehicles, including
+	// older passenger carriages without gangways, mail carriages and goods
+	// trucks, where passing through the train is not possible?
+	//
+	//
 	// This will require tracking platform length in the schedule object.
 	// --neroden
 
@@ -5500,7 +5506,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		}
 		// hat_gehalten can be called when the convoy hasn't moved... at all.
 		// We should avoid the unloading code when this happens (for speed).
-		if(  old_last_stop_pos != front()->get_pos()  ) {
+		if(old_last_stop_pos != front()->get_pos()) 
+		{
 			//Unload
 			sint64 revenue_from_unloading = 0;
 			uint16 amount_unloaded = v->unload_cargo(halt, revenue_from_unloading, apportioned_revenues);
@@ -5508,7 +5515,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 			// Convert from units of 1/4096 of a simcent to units of ONE simcent.  Should be FAST (powers of two).
 			sint64 revenue_cents_from_unloading = (revenue_from_unloading + 2048ll) / 4096ll;
-			if (amount_unloaded && revenue_cents_from_unloading == 0) {
+			if (amount_unloaded && revenue_cents_from_unloading == 0)
+			{
 				// if we unloaded something, provide some minimum revenue.  But not if we unloaded nothing.
 				revenue_cents_from_unloading = 1;
 			}
@@ -5518,7 +5526,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 			// But add up the total for the port and station use charges
 			accumulated_revenue += revenue_cents_from_unloading;
 			book(revenue_cents_from_unloading, CONVOI_PROFIT);
-			book(revenue_cents_from_unloading, CONVOI_REVENUE);
+			book(revenue_cents_from_unloading, CONVOI_REVENUE);		
 		}
 	}
 	if(no_load)
@@ -5526,7 +5534,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		for(int i = 0; i < number_loadable_vehicles ; i++)
 		{
 			vehicle_t* v = vehicle[i];
-			// do not load -- but call load_cargo() to recalculate vehicle weight
+			// Do not load, but call load_cargo() to recalculate vehicle weight as there might be *un*loading happening.
 			v->load_cargo(halthandle_t());
 		}
 	}
@@ -5550,7 +5558,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				}
 			}
 		}
-		
+
+			
 		// Three passes at loading vehicles:
 		// (1) without overcrowding, and only to the correct class;
 		// (2) without overcrowding, but to any available lower class of accommodation; and
@@ -5568,9 +5577,9 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 					bool skip_convois = false;
 					bool skip_vehicles = false;
 					changed_loading_level += v->load_cargo(halt, overcrowd, &skip_convois, &skip_vehicles, use_lower_classes);
-					if(skip_convois  ||  skip_vehicles)
+					if(skip_convois || skip_vehicles)
 					{
-						// not enough freight was available to fill vehicle, or the stop can't supply this type of cargo ..> don't try to load this category again from this halt onto vehicles in convois on this line this step
+						// Not enough freight was available to fill vehicle, or the stop can't supply this type of cargo: don't try to load this category again from this halt onto vehicles in convois on this line this step.
 						skip_catg[catg_index] = true;
 						if(!skip_vehicles  &&  line_data.line.is_bound())
 						{

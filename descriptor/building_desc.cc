@@ -175,4 +175,6 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 
 	//Extended settings
 	chk->input(is_control_tower);
+	chk->input(radius);
+	chk->input(class_proportions.get_count());
 }

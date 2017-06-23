@@ -508,7 +508,7 @@ private:
 	sint32 wait_lock;
 
 	/**
-	* akkumulierter gewinn über ein jahr hinweg
+	* accumulated profit over a year
 	* @author Hanjsörg Malthaner
 	*/
 	sint64 jahresgewinn;
