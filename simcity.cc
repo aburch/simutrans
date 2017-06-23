@@ -1066,7 +1066,7 @@ private:
 // this function adds houses to the city house list
 // Please note: this is called during loading, on *every tile*.
 // It's therefore not OK to recalc city borders in here.
-void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered)
+void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered, bool map_generation)
 {
 	if (gb != NULL)
 	{
@@ -2359,12 +2359,12 @@ void stadt_t::show_info()
 
 /* change size of city
  * @author prissi */
-void stadt_t::change_size( sint64 delta_citizen, bool new_town)
+void stadt_t::change_size( sint64 delta_citizen, bool new_town, bool map_generation)
 {
 	DBG_MESSAGE("stadt_t::change_size()", "%i + %i", bev, delta_citizen);
 	if(  delta_citizen > 0  ) {
 		unsupplied_city_growth += delta_citizen * CITYGROWTH_PER_CITICEN;
-		step_grow_city(new_town);
+		step_grow_city(new_town, map_generation);
 	}
 	if(  delta_citizen < 0  ) {
 		if(  bev > -delta_citizen  ) {
@@ -2374,7 +2374,7 @@ void stadt_t::change_size( sint64 delta_citizen, bool new_town)
 //				remove_city();
 			bev = 1;
 		}
-		step_grow_city(new_town);
+		step_grow_city(new_town, map_generation);
 	}
 	DBG_MESSAGE("stadt_t::change_size()", "%i+%i", bev, delta_citizen);
 }
@@ -2848,7 +2848,7 @@ void stadt_t::city_growth_monthly(uint32 const month)
 
 
 // does constructions ...
-void stadt_t::step_grow_city(bool new_town)
+void stadt_t::step_grow_city(bool new_town, bool map_generation)
 {
 	// Do not try to expand further after we failed.
 	bool failure = false;
@@ -2871,7 +2871,7 @@ void stadt_t::step_grow_city(bool new_town)
 			int i;
 
 			for (i = 0; i < num_tries && bev * 2 > won + arb + 100; i++) {
-				build(new_town);
+				build(new_town, map_generation);
 			}
 
 			failure = i == num_tries;
@@ -3491,7 +3491,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 						if (gr  &&  gr->ist_natur() &&  gr->kann_alle_obj_entfernen(NULL) == NULL  &&
 							  (  gr->get_grund_hang() == slope_t::flat  ||  welt->lookup(koord3d(k, welt->max_hgt(k))) == NULL  ) ) {
 							DBG_MESSAGE("stadt_t::check_bau_townhall()", "fill empty spot at (%s)", pos.get_str());
-							build_city_building(pos, new_town);
+							build_city_building(pos, new_town, false);
 						}
 					}
 				}
@@ -4069,7 +4069,7 @@ int stadt_t::get_best_layout(const building_desc_t* h, const koord & k) const {
 }
 
 
-void stadt_t::build_city_building(const koord k, bool new_town)
+void stadt_t::build_city_building(const koord k, bool new_town, bool map_generation)
 {
 	grund_t* gr = welt->lookup_kartenboden(k);
 	if (!gr)
@@ -4178,7 +4178,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 		int layout = get_best_layout(h, k);
 
 		gebaeude_t* gb = hausbauer_t::build(NULL, pos, layout, h);
-		add_gebaeude_to_stadt(gb);
+		add_gebaeude_to_stadt(gb, false, map_generation);
 		reset_city_borders();
 
 		switch(want_to_have) {
@@ -4191,7 +4191,7 @@ void stadt_t::build_city_building(const koord k, bool new_town)
 }
 
 
-bool stadt_t::renovate_city_building(gebaeude_t* gb)
+bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 {
 	const building_desc_t::btype alt_typ = gb->get_tile()->get_desc()->get_type();
 	if (!gb->is_city_building()) {
@@ -4371,7 +4371,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 		// We *can* skip most of the work in add_gebaeude_to_stadt, because we *just* cleared the location,
 		// so it must be valid.  Our borders also should not have changed.
 		new_gb->set_stadt(this);
-		add_building_to_list(new_gb);
+		add_building_to_list(new_gb, map_generation);
 		switch(want_to_have) {
 			case building_desc_t::city_res:   won += h->get_level() * 10; break;
 			case building_desc_t::city_com:   arb +=  h->get_level() * 20; break;
@@ -4383,7 +4383,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb)
 	return false;
 }
 
-void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered)
+void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered, bool map_generation)
 {
 	update_city_stats_with_building(building, false);
 	
@@ -4397,7 +4397,13 @@ void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered)
 	}
 
 	// Also add to the world list for passenger generation purposes.
-	welt->add_building_to_world_list(building, ordered);
+	if (!map_generation)
+	{
+		// Do not add builings one by one to the world list as the map is being generated;
+		// rather, add them all at the end. This reduces duplication and therefore saves 
+		// CPU time, as buildings are upgraded many times during map generation.
+		welt->add_building_to_world_list(building, ordered);
+	}
 }
 
 void stadt_t::add_all_buildings_to_world_list()
@@ -4582,7 +4588,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 		if (pl) {
 			stadt_t const* tile_city = pl->get_city();
 			if (tile_city && tile_city == this) {
-				build_city_building(appropriate_locs[i], true);
+				build_city_building(appropriate_locs[i], true, false);
 				if (buildings.get_count() != old_count) {
 					// Successful construction.
 					// Fix city limits.
@@ -4843,7 +4849,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 /**
  * Enlarge a city by building another building or extending a road.
  */
-void stadt_t::build(bool new_town)
+void stadt_t::build(bool new_town, bool map_generation)
 {
 	if(welt->get_settings().get_quick_city_growth())
 	{
@@ -4879,7 +4885,7 @@ void stadt_t::build(bool new_town)
 			}
 			// one rule applied?
 			if(  best_haus.found()  ) {
-				build_city_building(best_haus.get_pos(), new_town);
+				build_city_building(best_haus.get_pos(), new_town, map_generation);
 				INT_CHECK("simcity 5112");
 				return;
 			}
@@ -4900,7 +4906,7 @@ void stadt_t::build(bool new_town)
 			const uint32 dist(koord_distance(c, gb->get_pos()));
 			const uint32 distance_rate = 100 - (dist * 100) / maxdist;
 			if(  player_t::check_owner(gb->get_owner(),NULL)  && simrand(100, "void stadt_t::build") < distance_rate) {
-				if(renovate_city_building(gb)) { was_renovated++;}
+				if(renovate_city_building(gb, map_generation)) { was_renovated++;}
 			}
 		}
 		INT_CHECK("simcity 5134");
@@ -4957,7 +4963,7 @@ void stadt_t::build(bool new_town)
 			}
 			// one rule applied?
 			if (best_haus.found()) {
-				build_city_building(best_haus.get_pos(), new_town);
+				build_city_building(best_haus.get_pos(), new_town, map_generation);
 				INT_CHECK("simcity 5192");
 				return;
 			}

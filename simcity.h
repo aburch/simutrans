@@ -295,7 +295,7 @@ private:
 
 public:
 
-	void add_building_to_list(gebaeude_t* building, bool ordered = false);
+	void add_building_to_list(gebaeude_t* building, bool ordered = false, bool map_generation = false);
 
 	/**
 	 * Returns pointer to history for city
@@ -374,7 +374,7 @@ private:
 	 * Build new buildings when growing city
 	 * @author Hj. Malthaner
 	 */
-	void step_grow_city(bool new_town = false);
+	void step_grow_city(bool new_town = false, bool map_generation = false);
 
 	enum pax_return_type { no_return, factory_return, tourist_return, city_return };
 
@@ -402,8 +402,8 @@ private:
 	/**
 	 * Build/renovates a city building at Planquadrat x,y
 	 */
-	void build_city_building(koord pos, bool new_town);
-	bool renovate_city_building(gebaeude_t *gb);
+	void build_city_building(koord pos, bool new_town, bool map_generation);
+	bool renovate_city_building(gebaeude_t *gb, bool map_generation = false);
 	// Subroutines for build_city_building and renovate_city_buiding
 	// @author neroden
 	const gebaeude_t* get_citybuilding_at(const koord k) const;
@@ -426,7 +426,7 @@ private:
 	bool maybe_build_road(koord k);
 	bool build_road(const koord k, player_t *player, bool forced);
 
-	void build(bool new_town);
+	void build(bool new_town, bool map_generation);
 
 	/**
 	 * @param pos position to check
@@ -480,7 +480,7 @@ public:
 	* This function adds buildings to the city building list; 
 	* ordered for multithreaded loading.
 	*/
-	void add_gebaeude_to_stadt(gebaeude_t *gb, bool ordered=false);
+	void add_gebaeude_to_stadt(gebaeude_t *gb, bool ordered = false, bool map_generation = false);
 
 	static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
 	{
@@ -614,7 +614,7 @@ public:
 
 	/* change size of city
 	* @author prissi */
-	void change_size( sint64 delta_citizens, bool new_town = false );
+	void change_size(sint64 delta_citizens, bool new_town = false, bool map_generation = false );
 
 	// when ng is false, no town growth any more
 	void set_citygrowth_yesno( bool ng ) { allow_citygrowth = ng; }
