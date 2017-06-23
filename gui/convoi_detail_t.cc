@@ -456,6 +456,9 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 				extra_y += LINESPACE;
 			}
+
+			goods_desc_t const& g = *v->get_cargo_type();
+			char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
 			
 			if(v->get_cargo_type()->get_catg_index() == 0)
 			{
@@ -475,13 +478,15 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						extra_y += LINESPACE;
 
-						buf.clear();
+						/*buf.clear();
 						buf.printf(translator::translate("  modified class: %i"), v->set_class_reassignment(i,i));
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-						extra_y += LINESPACE;
+						extra_y += LINESPACE;*/
 						
 						buf.clear();
-						buf.printf(translator::translate("  capacity: %i (%i)"), v->get_capacity(i), v->get_overcrowding(i));
+						char capacity[32];
+						sprintf(capacity, v->get_overcrowding(i) > 0 ? "%i (%i)" : "%i", v->get_capacity(i), v->get_overcrowding(i));
+						buf.printf(translator::translate("  capacity: %s %s"), capacity, name);
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						extra_y += LINESPACE;
 
@@ -519,8 +524,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					extra_y += LINESPACE;
 				}
 
-				goods_desc_t const& g    = *v->get_cargo_type();
-				char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
+
 				freight_info.printf("%u/%u%s %s\n", v->get_total_cargo(), v->get_cargo_max(), translator::translate(v->get_cargo_mass()), name); // TODO: Consider whether to differentiate classes here (Ves?)
 				v->get_cargo_info(freight_info);
 				// show it
