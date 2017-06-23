@@ -469,13 +469,16 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					{
 						buf.clear();
 						char class_name_untranslated[32];
-						sprintf(class_name_untranslated, "p_class[%u]", i);
+						sprintf(class_name_untranslated, "p_class[%u]", i); // TODO: Add potential modified class to be displayed after this class
 						const char* class_name = translator::translate(class_name_untranslated);
 						buf.printf(" %s:", class_name);
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						extra_y += LINESPACE;
 
-						
+						buf.clear();
+						buf.printf(translator::translate("  modified class: %i"), v->set_class_reassignment(i,i));
+						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+						extra_y += LINESPACE;
 						
 						buf.clear();
 						buf.printf(translator::translate("  capacity: %i (%i)"), v->get_capacity(i), v->get_overcrowding(i));
@@ -491,7 +494,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			}
 
 			buf.clear();
-			buf.printf(translator::translate("possible_amount_of_classes: %i"), v->get_desc()->get_number_of_classes()); // TODO: Add class specific comfort here (Ves?)
+			buf.printf(translator::translate("possible_amount_of_classes: %i"), v->get_desc()->get_number_of_classes());
 			display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			extra_y += LINESPACE;
 			
