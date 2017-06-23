@@ -60,7 +60,7 @@
 
 #include "path_explorer.h"
 
-#if MULTI_THREAD>1
+#if MULTI_THREAD
 #include "utils/simthread.h"
 static pthread_mutex_t sync_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t add_to_world_list_mutex = PTHREAD_MUTEX_INITIALIZER;

@@ -1070,7 +1070,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 				while(  current_bev < citizens  ) {
 					growth = min( citizens-current_bev, growth*2 );
 					current_bev = stadt[i]->get_einwohner();
-					stadt[i]->change_size( growth, new_town );
+					stadt[i]->change_size( growth, new_town, true );
 					// Only "new" for the first change_size call
 					new_town = false;
 					if(  current_bev > citizens/2  &&  not_updated  ) {
@@ -2755,6 +2755,16 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	}
 
 	distribute_groundobjs_cities(sets, old_x, old_y);
+
+	// Now add all the buildings to the world list.
+	// This is not done in distribute_groundobjs_cities
+	// to save the time taken by constantly adding and
+	// removing them during the iterative renovation that
+	// is involved in map generation/enlargement.
+	FOR(weighted_vector_tpl<stadt_t*>, const city, stadt)
+	{
+		city->add_all_buildings_to_world_list();
+	}
 
 	// hausbauer_t::new_world(); <- this would reinit monuments! do not do this!
 	factory_builder_t::new_world();
@@ -5167,7 +5177,7 @@ void karte_t::set_schedule_counter()
 
 void karte_t::step()
 {
-rands[8] = get_random_seed();
+	rands[8] = get_random_seed();
 	DBG_DEBUG4("karte_t::step", "start step");
 	uint32 time = dr_time();
 
@@ -5193,7 +5203,7 @@ rands[8] = get_random_seed();
 		DBG_DEBUG4("karte_t::step", "calling new_month");
 		new_month();
 	}
-rands[9] = get_random_seed();
+	rands[9] = get_random_seed();
 
 	DBG_DEBUG4("karte_t::step", "time calculations");
 	if(  step_mode==NORMAL  ) {
@@ -5275,7 +5285,7 @@ rands[9] = get_random_seed();
 #endif	
 	}
 
-rands[10] = get_random_seed();
+	rands[10] = get_random_seed();
 
 #ifdef MULTI_THREAD_CONVOYS
 	if (first_step == 1)
@@ -5311,7 +5321,7 @@ rands[10] = get_random_seed();
 		}
 	}
 
-rands[11] = get_random_seed();
+	rands[11] = get_random_seed();
 
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step 1");
@@ -5323,7 +5333,7 @@ rands[11] = get_random_seed();
 	// Knightly : calling global path explorer
 	path_explorer_t::step();
 #endif
-rands[12] = get_random_seed();
+	rands[12] = get_random_seed();
 	
 	INT_CHECK("karte_t::step 2");
 
@@ -5358,7 +5368,7 @@ rands[12] = get_random_seed();
 		}
 	}
 
-rands[13] = get_random_seed();	
+	rands[13] = get_random_seed();	
 
 	// NOTE: Original position of the start of multi-threaded convoy stepping
 
@@ -5370,7 +5380,7 @@ rands[13] = get_random_seed();
 		rands[21] += i->get_einwohner();
 		rands[22] += i->get_buildings();
 	}
-rands[14] = get_random_seed();
+	rands[14] = get_random_seed();
 
 #ifdef MULTI_THREAD
 	// The placement of this barrier must be before any code that in any way relies on the private car routes between cities, most especially the mail and passenger generation (step_passengers_and_mail(delta_t)).
@@ -5380,15 +5390,15 @@ rands[14] = get_random_seed();
 	}
 #endif	
 
-rands[24] = 0;
-rands[25] = 0;
-rands[26] = 0;
-rands[27] = 0;
-rands[28] = 0;
-rands[29] = 0;
-rands[30] = 0;
-rands[31] = 0;
-rands[23] = 0;
+	rands[24] = 0;
+	rands[25] = 0;
+	rands[26] = 0;
+	rands[27] = 0;
+	rands[28] = 0;
+	rands[29] = 0;
+	rands[30] = 0;
+	rands[31] = 0;
+	rands[23] = 0;
 
 	// This is quite computationally intensive, but not as much as the path explorer. It can be more or less than the convoys, depending on the map.
 	// Multi-threading the passenger and mail generation is currently not working well as dividing the number of passengers/mail to be generated per
@@ -5427,7 +5437,7 @@ rands[23] = 0;
 #endif
 	DBG_DEBUG4("karte_t::step", "step generate passengers and mail");
 
-rands[15] = get_random_seed();
+	rands[15] = get_random_seed();
 
 	// the inhabitants stuff
 	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = 0;
@@ -5520,7 +5530,7 @@ rands[15] = get_random_seed();
 	FOR(vector_tpl<fabrik_t*>, const f, fab_list) {
 		f->step(delta_t);
 	}
-rands[16] = get_random_seed();
+	rands[16] = get_random_seed();
 
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
@@ -5530,7 +5540,7 @@ rands[16] = get_random_seed();
 	pumpe_t::step_all( delta_t );
 	senke_t::step_all( delta_t );
 	powernet_t::step_all( delta_t );
-rands[17] = get_random_seed();
+	rands[17] = get_random_seed();
 
 	INT_CHECK("karte_t::step 6");
 
@@ -5542,14 +5552,14 @@ rands[17] = get_random_seed();
 			players[i]->step();
 		}
 	}
-rands[18] = get_random_seed();
+	rands[18] = get_random_seed();
 
 	INT_CHECK("karte_t::step 7");
 
 	// This is not computationally intensive
 	DBG_DEBUG4("karte_t::step", "step halts");
 	haltestelle_t::step_all();
-rands[19] = get_random_seed();
+	rands[19] = get_random_seed();
 
 	// Re-check paths if the time has come. 
 	// Long months means that it might be necessary to do
@@ -5654,7 +5664,7 @@ rands[19] = get_random_seed();
 	}
 
 	DBG_DEBUG4("karte_t::step", "end");
-rands[20] = get_random_seed();
+	rands[20] = get_random_seed();
 }
 
 void karte_t::step_time_interval_signals()
@@ -10562,6 +10572,7 @@ player_t *karte_t::get_public_player() const
 void karte_t::add_building_to_world_list(gebaeude_t *gb, bool ordered)
 {
 	assert(gb);
+	gb->set_in_world_list(true);
 	if(gb != gb->get_first_tile())
 	{
 		return;
@@ -10607,6 +10618,11 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, bool ordered)
 
 void karte_t::remove_building_from_world_list(gebaeude_t *gb)
 {
+	if (!gb || !gb->get_is_in_world_list())
+	{
+		return;
+	}
+
 	// We do not need to specify the type here, as we can try removing from all lists.
 	passenger_origins.remove_all(gb);
 	commuter_targets.remove_all(gb);
@@ -10615,6 +10631,8 @@ void karte_t::remove_building_from_world_list(gebaeude_t *gb)
 
 	passenger_step_interval = calc_adjusted_step_interval(passenger_origins.get_sum_weight(), get_settings().get_passenger_trips_per_month_hundredths());
 	mail_step_interval = calc_adjusted_step_interval(mail_origins_and_targets.get_sum_weight(), get_settings().get_mail_packets_per_month_hundredths());
+
+	gb->set_in_world_list(false);
 }
 
 void karte_t::update_weight_of_building_in_world_list(gebaeude_t *gb)

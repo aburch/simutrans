@@ -152,6 +152,9 @@ private:
 	*/
 	sint64 available_jobs_by_time;
 
+	// This is true of the building is in one or more world lists.
+	bool is_in_world_list;
+
 #ifdef INLINE_OBJ_TYPE
 protected:
 	gebaeude_t(obj_t::typ type);
@@ -332,6 +335,10 @@ public:
 	sint32 check_remaining_available_jobs() const;
 
 	uint8 get_random_passenger_class();
+
+	bool get_is_in_world_list() const { return is_in_world_list; }
+	void set_in_world_list(bool value) { is_in_world_list = value; }
+
 };
 
 
