@@ -225,8 +225,6 @@ stadt_t* gebaeude_t::get_stadt() const
  */
 gebaeude_t::~gebaeude_t()
 {
-	welt->remove_building_from_world_list(this);
-
 	if(welt->is_destroying()) 
 	{
 		return;
@@ -245,6 +243,10 @@ gebaeude_t::~gebaeude_t()
 	if(our_city) 
 	{
 		our_city->remove_gebaeude_from_stadt(this);
+	}
+	else
+	{
+		welt->remove_building_from_world_list(this);
 	}
 
 
