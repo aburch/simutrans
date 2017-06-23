@@ -456,14 +456,52 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 				extra_y += LINESPACE;
 			}
+
+			goods_desc_t const& g = *v->get_cargo_type();
+			char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
 			
 			if(v->get_cargo_type()->get_catg_index() == 0)
 			{
 				buf.clear();
-				buf.printf("%s %i", translator::translate("Comfort:"), v->get_comfort() ); // TODO: Add class specific comfort here (Ves?)
-				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
+				buf.printf(translator::translate("accommodations:"));
+				display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				extra_y += LINESPACE;
+				for (uint8 i = 0; i < v->get_desc()->get_number_of_classes(); i++)
+				{
+					if (v->get_capacity(i) > 0)
+					{
+						buf.clear();
+						char class_name_untranslated[32];
+						sprintf(class_name_untranslated, "p_class[%u]", i); // TODO: Add potential modified class to be displayed after this class
+						const char* class_name = translator::translate(class_name_untranslated);
+						buf.printf(" %s:", class_name);
+						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+						extra_y += LINESPACE;
+
+						/*buf.clear();
+						buf.printf(translator::translate("  modified class: %i"), v->set_class_reassignment(i,i));
+						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+						extra_y += LINESPACE;*/
+						
+						buf.clear();
+						char capacity[32];
+						sprintf(capacity, v->get_overcrowding(i) > 0 ? "%i (%i)" : "%i", v->get_capacity(i), v->get_overcrowding(i));
+						buf.printf(translator::translate("  capacity: %s %s"), capacity, name);
+						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+						extra_y += LINESPACE;
+
+						buf.clear();
+						buf.printf(translator::translate("  comfort: %i"), v->get_comfort(0, i));
+						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+						extra_y += LINESPACE;
+					}
+				}
 			}
+
+			buf.clear();
+			buf.printf(translator::translate("possible_amount_of_classes: %i"), v->get_desc()->get_number_of_classes());
+			display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			extra_y += LINESPACE;
 			
 			if(v->get_cargo_max() > 0) {
 
@@ -486,8 +524,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					extra_y += LINESPACE;
 				}
 
-				goods_desc_t const& g    = *v->get_cargo_type();
-				char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
+
 				freight_info.printf("%u/%u%s %s\n", v->get_total_cargo(), v->get_cargo_max(), translator::translate(v->get_cargo_mass()), name); // TODO: Consider whether to differentiate classes here (Ves?)
 				v->get_cargo_info(freight_info);
 				// show it

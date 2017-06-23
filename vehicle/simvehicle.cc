@@ -2031,15 +2031,15 @@ void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 			empty = false;
 			FOR(slist_tpl<ware_t>, const& ware, fracht[i])
 			{
-				const char * name = "Error in Routing";
+				const char * halt_name = "Error in Routing";
 
 				halthandle_t halt = ware.get_ziel();
 				if (halt.is_bound())
 				{
-					name = halt->get_name();
+					halt_name = halt->get_name();
 				}
 
-				buf.printf("   %u%s %s > %s\n", ware.menge, translator::translate(ware.get_mass()), translator::translate(ware.get_name()), name);
+				buf.printf("   %u%s %s > %s\n", ware.menge, translator::translate(ware.get_mass()), translator::translate(ware.get_name()), halt_name);
 			}
 		}
 	}
