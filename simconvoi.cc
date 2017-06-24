@@ -6041,6 +6041,11 @@ sint64 convoi_t::get_purchase_cost() const
 	return purchase_cost;
 }
 
+void convoi_t::clear_average_speed()
+{
+	financial_history[0][CONVOI_AVERAGE_SPEED] = 0;
+	financial_history[1][CONVOI_AVERAGE_SPEED] = 0;
+}
 
 /**
 * set line
@@ -6050,16 +6055,29 @@ sint64 convoi_t::get_purchase_cost() const
 void convoi_t::set_line(linehandle_t org_line)
 {
 	// to remove a convoi from a line, call unset_line(); passing a NULL is not allowed!
-	if(!org_line.is_bound()) {
+	bool need_to_reset_average_speed = false;
+	if(!org_line.is_bound())
+	{
 		return;
 	}
-	if(  line.is_bound()  ) {
+	if(line.is_bound())
+	{
 		unset_line();
+		need_to_reset_average_speed = true;
 	}
-	else {
+	else
+	{
+		need_to_reset_average_speed = !schedule->matches(welt, org_line->get_schedule());
+
 		// Knightly : originally a lineless convoy -> unregister itself from stops as it now belongs to a line
-		unregister_stops();
+		unregister_stops();	
 	}
+	
+	if (need_to_reset_average_speed)
+	{
+		clear_average_speed();
+	}
+
 	line_update_pending = org_line;
 	check_pending_updates();
 }
