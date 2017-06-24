@@ -5937,6 +5937,11 @@ void karte_t::deposit_ware_at_destination(ware_t ware)
 				// Only book arriving passengers for commuting trips.
 				fab->liefere_an(ware.get_desc(), ware.menge);
 			}
+			else if(fab->is_end_consumer())
+			{
+				// Add visiting passengers as consumers
+				fab->add_consuming_passengers(ware.menge);
+			}
 			gb_dest =lookup(fab->get_pos())->find<gebaeude_t>();
 		}
 		else
@@ -6249,14 +6254,41 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 						// This is the lowest priority route status.
 						route_status = destination_unavailable;
 					}
-						/**
-						* As there are no jobs, this is not a destination for commuting
-						*/
+					/**
+					* As there are no jobs, this is not a destination for commuting
+					*/
 					if(n < destination_count - 1)
 					{
 						current_destination = find_destination(trip, pax.get_class());
 					}
 					continue;
+				}
+			}
+			else if (trip == visiting_trip)
+			{
+				gebaeude_t* dest_building = current_destination.building;
+#ifdef DISABLE_JOB_EFFECTS
+				if (!dest_building)
+#else
+				if (!dest_building)
+#endif
+				{
+					if (route_status == initialising)
+					{
+						// This is the lowest priority route status.
+						route_status = destination_unavailable;
+					}
+				}
+				else if(dest_building->get_is_factory() && dest_building->get_fabrik()->is_end_consumer())
+				{
+					// If the visiting passengers are bound for a shop that has run out of goods to sell, 
+					// do not allow the passengers to go here.
+					fabrik_t* fab = dest_building->get_fabrik();
+					if (!fab || fab->out_of_stock_selective())
+					{
+						// This is the lowest priority route status.
+						route_status = destination_unavailable;
+					}
 				}
 			}
 

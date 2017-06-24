@@ -1607,6 +1607,77 @@ sint32 fabrik_t::liefere_an(const goods_desc_t *typ, sint32 menge)
 	return -1;
 }
 
+void fabrik_t::add_consuming_passengers(sint32 number_of_passengers)
+{
+	if (desc->is_electricity_producer())
+	{
+		// Visiting passengers do not alter power stations' consumption of resources.
+		return;
+	}
+
+	const sint64 passenger_demand_ticks_per_month = welt->ticks_per_world_month / (sint64)building->get_adjusted_visitor_demand();
+	const sint64 delta_t = passenger_demand_ticks_per_month * number_of_passengers;
+	
+	const uint64 max_prod = (uint64)prodbase * (uint64)(get_prodfactor());
+	const uint64 want_prod_long = (max_prod >> (18 - 10 + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits)) * (uint64)delta_t + (uint64)menge_remainder;
+	const uint32 prod = (uint32)(want_prod_long / (uint64)PRODUCTION_DELTA_T);
+	menge_remainder = (uint32)(want_prod_long - (uint64)prod * (uint64)PRODUCTION_DELTA_T);
+
+	// Consume stock in proportion to passengers' visits
+	for (uint32 index = 0; index < input.get_count(); index++)
+	{
+		const uint32 v = prod;
+		if ((uint32)input[index].menge > v + 1)
+		{
+			input[index].menge -= v;
+			input[index].book_stat((sint64)v * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
+			// to find out if storage changed
+			delta_menge += v;
+		}	
+		else
+		{
+			delta_menge += input[index].menge;
+
+			input[index].book_stat((sint64)input[index].menge * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
+			input[index].menge = 0;
+		}
+	}
+}
+
+bool fabrik_t::out_of_stock_selective() 
+{
+	if (input.get_count() == 1)
+	{
+		// Very simple if only one thing is sold: save CPU time
+		return input[0].menge <= 0;
+	}
+
+	sint32 weight_of_out_of_stock_items = 0;
+	sint32 weight_of_all_items = 0;
+	bool all_out_of_stock = true;
+
+	FOR(array_tpl<ware_production_t>, const& i, input)
+	{
+		if (i.menge <= 0)
+		{
+			weight_of_out_of_stock_items += i.max;
+		}
+		else
+		{
+			all_out_of_stock = false;
+		}
+		weight_of_all_items += i.max;
+	}
+
+	if (all_out_of_stock)
+	{
+		return true;
+	}
+
+	const uint32 random = simrand(weight_of_all_items + 1, "bool fabrik_t::out_of_stock_selective()");
+	return random < weight_of_out_of_stock_items;
+}
+
 
 sint8 fabrik_t::is_needed(const goods_desc_t *typ) const
 {
@@ -1693,38 +1764,53 @@ void fabrik_t::step(uint32 delta_t)
 		currently_producing = false;
 		power_demand = 0;
 
-		if(  output.empty()  ) {
-			// consumer only ...
-			if(  desc->is_electricity_producer()  ) {
-				// power station => start with no production
-				power = 0;
-			}
+		if(output.empty() && desc->is_electricity_producer())
+		{
+			// This formerly provided for all consumption for end consumers. 
+			// However, consumption for end consumers other than power stations
+			// is now handled by arriving passengers. 
+
+			// power station => start with no production
+			power = 0;
 
 			// finally consume stock
-			for (uint32 index = 0; index < input.get_count(); index++) {
+			for (uint32 index = 0; index < input.get_count(); index++)
+			{
 				const uint32 v = prod;
 
-				if ((uint32)input[index].menge > v + 1) {
+				if ((uint32)input[index].menge > v + 1)
+				{
 					input[index].menge -= v;
 					input[index].book_stat((sint64)v * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
 					currently_producing = true;
-					if (desc->is_electricity_producer()) {
-						// power station => produce power
-						power += (uint32)(((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS);
-					}
+					
+					// power station => produce power
+					power += (uint32)(((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS);
 
-					// to find out, if storage changed
+					// to find out if storage changed
 					delta_menge += v;
 				}
-				else {
-					if (desc->is_electricity_producer()) {
-						// power station => produce power
-						power += (uint32)((((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS) * input[index].menge / (v + 1));
-					}
+				else 
+				{
+					// power station => produce power
+					power += (uint32)((((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS) * input[index].menge / (v + 1));
+
 					delta_menge += input[index].menge;
 
 					input[index].book_stat((sint64)input[index].menge * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
 					input[index].menge = 0;
+				}
+			}
+		}
+		else if (output.empty())
+		{
+			// Calculate here whether the end consumer is operative.
+			for (uint32 index = 0; index < input.get_count(); index++)
+			{
+				if (input[index].menge > (sint32)prod + 1)
+				{
+					currently_producing = true;
+					break;
 				}
 			}
 		}
@@ -2650,7 +2736,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 			const uint16 max_intransit_percentage = max_intransit_percentages.get(input[index].get_typ()->get_catg());
 
 			if(  max_intransit_percentage  ) {
-				buf.printf("\n - %s %u/%i(%i)/%u %s, %u%%",
+				buf.printf("\n - %s %i/%i(%i)/%u %s, %u%%",
 					translator::translate(input[index].get_typ()->get_name()),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					input[index].get_in_transit(),
@@ -2661,7 +2747,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 				);
 			}
 			else {
-				buf.printf("\n - %s %u/%i/%u %s, %u%%",
+				buf.printf("\n - %s %i/%i/%u %s, %u%%",
 					translator::translate(input[index].get_typ()->get_name()),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					input[index].get_in_transit(),

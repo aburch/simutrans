@@ -586,6 +586,23 @@ public:
 
 	sint32 liefere_an(const goods_desc_t *, sint32 menge);
 
+	/*
+	* This method is used when visiting passengers arrive at an
+	* end consumer industry. This logs their consumption of 
+	* products sold at this end-consumer industry.
+	*/
+	void add_consuming_passengers(sint32 number_of_passengers); 
+	
+	/*
+	* Returns true if this industry has no stock left.
+	* If the industry has some types of stock left but not
+	* others, whether true or false is returned is random, 
+	* weighted by the proportions of each.
+	* This is for use in determining whether passengers may
+	* travel to this destination.
+	*/
+	bool out_of_stock_selective();
+
 	void step(uint32 delta_t);                  // factory muss auch arbeiten ("factory must also work")
 
 	void new_month();
