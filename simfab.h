@@ -759,6 +759,8 @@ public:
 	int get_passenger_level_jobs() const;
 	int get_passenger_level_visitors() const;
 	int get_mail_level() const;
+
+	bool is_input_empty() const;
 };
 
 #endif

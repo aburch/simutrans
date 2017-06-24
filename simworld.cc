@@ -6246,7 +6246,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #ifdef DISABLE_JOB_EFFECTS
 				if(!dest_building)
 #else
-				if(!dest_building || !dest_building->jobs_available())
+				if(!dest_building || !dest_building->jobs_available() || (dest_building->get_is_factory() && dest_building->get_fabrik()->is_input_empty()))
 #endif
 				{
 					if(route_status == initialising)
@@ -6254,6 +6254,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 						// This is the lowest priority route status.
 						route_status = destination_unavailable;
 					}
+
 					/**
 					* As there are no jobs, this is not a destination for commuting
 					*/
@@ -6267,11 +6268,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			else if (trip == visiting_trip)
 			{
 				gebaeude_t* dest_building = current_destination.building;
-#ifdef DISABLE_JOB_EFFECTS
 				if (!dest_building)
-#else
-				if (!dest_building)
-#endif
 				{
 					if (route_status == initialising)
 					{
@@ -6286,8 +6283,17 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					fabrik_t* fab = dest_building->get_fabrik();
 					if (!fab || fab->out_of_stock_selective())
 					{
-						// This is the lowest priority route status.
-						route_status = destination_unavailable;
+						if (route_status == initialising)
+						{
+							// This is the lowest priority route status.
+							route_status = destination_unavailable;
+						}
+
+						if (n < destination_count - 1)
+						{
+							current_destination = find_destination(trip, pax.get_class());
+						}
+						continue;
 					}
 				}
 			}

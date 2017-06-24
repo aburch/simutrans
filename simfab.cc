@@ -2722,6 +2722,24 @@ void fabrik_t::recalc_factory_status()
 	}
 }
 
+bool fabrik_t::is_input_empty() const
+{
+	if (input.empty())
+	{
+		return false;
+	}
+
+	for (uint32 index = 0; index < input.get_count(); index++)
+	{		
+		if (input[index].menge > 0)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 
 void fabrik_t::show_info()
 {
