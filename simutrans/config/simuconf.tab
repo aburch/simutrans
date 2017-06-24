@@ -271,6 +271,23 @@ factory_arrival_periods = 4
 # whether factory's pax/mail demands are enforced or not; default is on
 factory_enforce_demand = 1
 
+# The following settings determine the thresholds for deciding whether an industry is short
+# of staff. 
+# 
+# minimum_staffing_percentage_consumer_industry is for consumer industries (i.e. shops): it
+# is the threshold (in percentage of the total complement of staff) below which the shop
+# must close until more staff can be found. No visiting passengers can start their journeys
+# to a consumer industry whose staffing level is below this proportion.
+#
+# minimum_staffing_percentage_full_production_producer_industry is for producer industries:
+# it is the threshold below which the production of the industry will be scaled back
+# to match the proportion of the available staff. For example, when this setting is at
+# its default value of 80, if the industry has 81% of staff, it produces at full capacity.
+# If the industry has 75% of staff, it produces at 75% of capacity, and so forth.
+
+minimum_staffing_percentage_consumer_industry = 66
+minimum_staffing_percentage_full_production_producer_industry = 80
+
 ################################# Display settings ################################
 
 # if defined, the default tool will try to calculate straight ways (like OpenTTD)

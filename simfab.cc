@@ -1681,9 +1681,8 @@ bool fabrik_t::out_of_stock_selective()
 	// therefore nobody can buy anything. 
 
 	const sint32 staffing_percentage = building->get_staffing_level_percentage();
-	const sint32 minimum_staffing_percentage_consumer_industry = 66; // TODO: Set this from simuconf.tab
 
-	if (staffing_percentage < minimum_staffing_percentage_consumer_industry)
+	if (staffing_percentage < welt->get_settings().get_minimum_staffing_percentage_consumer_industry())
 	{
 		return false;
 	}
@@ -2656,8 +2655,7 @@ void fabrik_t::recalc_factory_status()
 		}
 		
 		// Staff shortage takes priority over other states as this affects production
-		const sint32 minimum_full_production_staff_percentage_producer = 80; // TODO: Set this from simuconf.tab
-		if (building->get_staffing_level_percentage() < minimum_full_production_staff_percentage_producer)
+		if (building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry())
 		{
 			status = staff_shortage;
 		}
@@ -2686,8 +2684,7 @@ void fabrik_t::recalc_factory_status()
 		}
 
 		// Staff shortage takes priority over other states as this affects production
-		const sint32 minimum_full_production_staff_percentage_producer = 80; // TODO: Set this from simuconf.tab
-		if (building->get_staffing_level_percentage() < minimum_full_production_staff_percentage_producer)
+		if (building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry())
 		{
 			status = staff_shortage;
 		}
@@ -2714,8 +2711,7 @@ void fabrik_t::recalc_factory_status()
 		}
 
 		// Staff shortage takes priority over other states as this affects production
-		const sint32 minimum_full_production_staff_percentage_producer = 80; // TODO: Set this from simuconf.tab
-		if (building->get_staffing_level_percentage() < minimum_full_production_staff_percentage_producer)
+		if (building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry())
 		{
 			status = staff_shortage;
 		}
