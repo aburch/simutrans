@@ -6011,9 +6011,10 @@ void convoi_t::set_line(linehandle_t org_line)
 	}
 	else
 	{
-		// Knightly : originally a lineless convoy -> unregister itself from stops as it now belongs to a line
-		unregister_stops();
 		need_to_reset_average_speed = !schedule->matches(welt, org_line->get_schedule());
+
+		// Knightly : originally a lineless convoy -> unregister itself from stops as it now belongs to a line
+		unregister_stops();	
 	}
 	
 	if (need_to_reset_average_speed)
