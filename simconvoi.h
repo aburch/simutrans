@@ -880,6 +880,13 @@ public:
 	*/
 	void set_line(linehandle_t );
 
+	/*
+	* Clears the average speed of this vehicle for this month and last.
+	* Used when re-assigning a line to avoid stale data being used in
+	* service frequency and other computations. 
+	*/
+	void clear_average_speed();
+
 	// updates a line schedule and tries to find the best next station to go
 	void check_pending_updates();
 
