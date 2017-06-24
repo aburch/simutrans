@@ -894,16 +894,18 @@ private:
 	/**
 	 * This contains all buildings in the world to which passengers make
 	 * journeys to work, weighted by their (adjusted) level.
+	 * This is an array indexed by class.
 	 * @author: jamespetts
 	 */
-	weighted_vector_tpl <gebaeude_t *> commuter_targets;
+	weighted_vector_tpl <gebaeude_t *> *commuter_targets;
 
 	/**
 	 * This contains all buildings in the world to which passengers make
 	 * journeys other than to work, weighted by their (adjusted) level.
+	 * This is an array indexed by class.
 	 * @author: jamespetts
 	 */
-	weighted_vector_tpl <gebaeude_t *> visitor_targets;
+	weighted_vector_tpl <gebaeude_t *> *visitor_targets;
 
 	/**
 	 * This contains all buildings in the world to and from which mail
@@ -934,6 +936,9 @@ private:
 	// 0: this is the network server: broadcast the number of threads
 	// >0: This is the number of parallel operations to use.
 	sint32 parallel_operations;
+
+	// A helper method for use in init/new month
+	void recalc_passenger_destination_weights();
 
 #ifdef MULTI_THREAD
 	// Check whether this is the first time that karte_t::step() has been run
@@ -977,7 +982,7 @@ private:
 
 	sint32 generate_passengers_or_mail(const goods_desc_t * wtyp);
 
-	destination find_destination(trip_type trip);
+	destination find_destination(trip_type trip, uint8 g_class);
 
 #ifdef MULTI_THREAD
 	friend void *check_road_connexions_threaded(void* args);

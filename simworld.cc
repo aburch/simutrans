@@ -564,9 +564,13 @@ void karte_t::destroy()
 #endif
 
 	passenger_origins.clear();
-	commuter_targets.clear();
-	visitor_targets.clear();
 	mail_origins_and_targets.clear();
+
+	for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+	{
+		commuter_targets[i].clear();
+		visitor_targets[i].clear();
+	}
 
 	uint32 max_display_progress = 256+stadt.get_count()*10 + haltestelle_t::get_alle_haltestellen().get_count() + convoi_array.get_count() + (cached_size.x*cached_size.y)*2;
 	uint32 old_progress = 0;
@@ -1594,8 +1598,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	// The population is not counted at this point, so cannot set this here.
 	industry_density_proportion = 0;
 
-	settings.update_max_alternative_destinations_commuting(commuter_targets.get_sum_weight());
-	settings.update_max_alternative_destinations_visiting(visitor_targets.get_sum_weight());
+	recalc_passenger_destination_weights();
 
 	pedestrian_t::check_timeline_pedestrians();
 
@@ -1605,6 +1608,27 @@ DBG_DEBUG("karte_t::init()","built timeline");
 #else
 	transferring_cargoes = new vector_tpl<transferring_cargo_t>[1];
 #endif
+}
+
+void karte_t::recalc_passenger_destination_weights()
+{
+	// This averages the weight over all classes.
+	// TODO: Consider whether to have separate numbers of alternative destinations
+	// for each different class.
+	uint64 total_sum_wieght_commuter_targets = 0;
+	uint64 total_sum_weight_visitor_targets = 0;
+
+	for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+	{
+		total_sum_wieght_commuter_targets += commuter_targets[i].get_sum_weight();
+		total_sum_weight_visitor_targets += visitor_targets[i].get_sum_weight();
+	}
+
+	total_sum_wieght_commuter_targets /= goods_manager_t::passengers->get_number_of_classes();
+	total_sum_weight_visitor_targets /= goods_manager_t::passengers->get_number_of_classes();
+
+	settings.update_max_alternative_destinations_commuting(total_sum_wieght_commuter_targets);
+	settings.update_max_alternative_destinations_visiting(total_sum_weight_visitor_targets);
 }
 
 #ifdef MULTI_THREAD
@@ -2969,6 +2993,10 @@ karte_t::karte_t() :
 
 	parallel_operations = -1;
 
+	const uint8 number_of_passenger_classes = goods_manager_t::passengers->get_number_of_classes();
+	commuter_targets = new weighted_vector_tpl<gebaeude_t*>[number_of_passenger_classes];
+	visitor_targets = new weighted_vector_tpl<gebaeude_t*>[number_of_passenger_classes];
+
 #ifdef MULTI_THREAD
 	first_step = 1;
 #endif
@@ -2989,6 +3017,9 @@ karte_t::~karte_t()
 	delete viewport;
 	delete msg;
 	delete records;
+
+	delete[] commuter_targets;
+	delete[] visitor_targets;
 
 	// unset single instance
 	if (world == this) {
@@ -5000,8 +5031,7 @@ void karte_t::new_month()
 		save( buf, loadsave_t::autosave_mode, env_t::savegame_version_str, env_t::savegame_ex_version_str, env_t::savegame_ex_revision_str, true );
 	}
 
-	settings.update_max_alternative_destinations_commuting(commuter_targets.get_sum_weight());
-	settings.update_max_alternative_destinations_visiting(visitor_targets.get_sum_weight());
+	recalc_passenger_destination_weights();
 
 	set_citycar_speed_average();
 	calc_generic_road_time_per_tile_city();
@@ -6144,7 +6174,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		pax.g_class = first_origin->get_random_passenger_class();
 
 		// TODO: Have destination choice influenced by passenger class
-		first_destination = find_destination(trip);
+		first_destination = find_destination(trip, pax.get_class());
 		current_destination = first_destination;
 
 		if(trip == commuting_trip)
@@ -6224,7 +6254,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 						*/
 					if(n < destination_count - 1)
 					{
-						current_destination = find_destination(trip);
+						current_destination = find_destination(trip, pax.get_class());
 					}
 					continue;
 				}
@@ -6250,7 +6280,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					*/
 				if(n < destination_count - 1)
 				{
-					current_destination = find_destination(trip);
+					current_destination = find_destination(trip, pax.get_class());
 				}
 				continue;
 			}
@@ -6530,7 +6560,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				// or if this is the last destination to be assigned,
 				// or else entirely the wrong information will be recorded
 				// below!
-				current_destination = find_destination(trip);
+				current_destination = find_destination(trip, pax.get_class());
 			}
 
 		} // For loop (route_status)
@@ -7092,7 +7122,7 @@ return_on_foot:
 	return (sint32)units_this_step;
 }
 
-karte_t::destination karte_t::find_destination(trip_type trip)
+karte_t::destination karte_t::find_destination(trip_type trip, uint8 g_class)
 {
 	destination current_destination;
 	current_destination.type = karte_t::invalid;
@@ -7101,11 +7131,11 @@ karte_t::destination karte_t::find_destination(trip_type trip)
 	switch(trip)
 	{
 	case commuting_trip: 
-		gb = pick_any_weighted(commuter_targets);
+		gb = pick_any_weighted(commuter_targets[g_class]);
 		break;
 
 	case visiting_trip:
-		gb = pick_any_weighted(visitor_targets);
+		gb = pick_any_weighted(visitor_targets[g_class]);
 		break;
 
 	default:
@@ -10606,13 +10636,19 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, bool ordered)
 
 	if(ordered)
 	{
-		commuter_targets.insert_ordered(gb, gb->get_adjusted_jobs(), stadt_t::compare_gebaeude_pos);
-		visitor_targets.insert_ordered(gb, gb->get_adjusted_visitor_demand(), stadt_t::compare_gebaeude_pos);
+		for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+		{
+			commuter_targets[i].insert_ordered(gb, (gb->get_tile()->get_desc()->get_class_proportions_sum() > 0 ? (gb->get_adjusted_jobs() * gb->get_tile()->get_desc()->get_class_proportion(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum() : gb->get_adjusted_jobs()), stadt_t::compare_gebaeude_pos);
+			visitor_targets[i].insert_ordered(gb, (gb->get_tile()->get_desc()->get_class_proportions_sum() > 0 ? (gb->get_adjusted_visitor_demand() * gb->get_tile()->get_desc()->get_class_proportion(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum() : gb->get_adjusted_visitor_demand()), stadt_t::compare_gebaeude_pos);
+		}
 	}
 	else
 	{
-		commuter_targets.append(gb, gb->get_adjusted_jobs());
-		visitor_targets.append(gb, gb->get_adjusted_visitor_demand());
+		for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+		{
+			commuter_targets[i].append(gb, (gb->get_tile()->get_desc()->get_class_proportions_sum() > 0 ? (gb->get_adjusted_jobs() * gb->get_tile()->get_desc()->get_class_proportion(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum() : gb->get_adjusted_jobs()));
+			visitor_targets[i].append(gb, (gb->get_tile()->get_desc()->get_class_proportions_sum() > 0 ? (gb->get_adjusted_visitor_demand() * gb->get_tile()->get_desc()->get_class_proportion(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum() : gb->get_adjusted_visitor_demand()));
+		}
 	}
 
 	if(gb->get_adjusted_mail_demand() > 0)
@@ -10638,8 +10674,11 @@ void karte_t::remove_building_from_world_list(gebaeude_t *gb)
 
 	// We do not need to specify the type here, as we can try removing from all lists.
 	passenger_origins.remove_all(gb);
-	commuter_targets.remove_all(gb);
-	visitor_targets.remove_all(gb);
+	for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+	{
+		commuter_targets[i].remove_all(gb);
+		visitor_targets[i].remove_all(gb);
+	}
 	mail_origins_and_targets.remove_all(gb);
 
 	passenger_step_interval = calc_adjusted_step_interval(passenger_origins.get_sum_weight(), get_settings().get_passenger_trips_per_month_hundredths());
@@ -10664,16 +10703,18 @@ void karte_t::update_weight_of_building_in_world_list(gebaeude_t *gb)
 		passenger_step_interval = calc_adjusted_step_interval(passenger_origins.get_sum_weight(), get_settings().get_passenger_trips_per_month_hundredths());
 	}
 
-	if(commuter_targets.is_contained(gb))
+	for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
 	{
-		commuter_targets.update_at(commuter_targets.index_of(gb), gb->get_adjusted_jobs());
-	}
+		if (commuter_targets[i].is_contained(gb))
+		{
+			commuter_targets[i].update_at(commuter_targets[i].index_of(gb), (gb->get_tile()->get_desc()->get_class_proportions_sum() > 0 ? (gb->get_adjusted_jobs() * gb->get_tile()->get_desc()->get_class_proportion(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum() : gb->get_adjusted_jobs()));
+		}
 
-	if(visitor_targets.is_contained(gb))
-	{
-		visitor_targets.update_at(visitor_targets.index_of(gb), gb->get_adjusted_visitor_demand());
+		if (visitor_targets[i].is_contained(gb))
+		{
+			visitor_targets[i].update_at(visitor_targets[i].index_of(gb), (gb->get_tile()->get_desc()->get_class_proportions_sum() > 0 ? (gb->get_adjusted_visitor_demand() * gb->get_tile()->get_desc()->get_class_proportion(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum() : gb->get_adjusted_visitor_demand()));
+		}
 	}
-
 	if(mail_origins_and_targets.is_contained(gb))
 	{
 		mail_origins_and_targets.update_at(mail_origins_and_targets.index_of(gb), gb->get_adjusted_mail_demand());
