@@ -703,8 +703,8 @@ public:
 	sint32 get_current_production() const { return (sint32) (welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + prodfactor_pax + prodfactor_mail)))) >> 8l; }
 
 	/* prissi: returns the status of the current factory, as well as output */
-	enum { bad, medium, good, inactive, nothing };
-	static unsigned status_to_color[5];
+	enum { bad, medium, good, inactive, nothing, staff_shortage };
+	static unsigned status_to_color[6];
 
 	uint8  get_status() const { return status; }
 	uint32 get_total_in() const { return total_input; }

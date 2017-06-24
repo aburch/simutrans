@@ -97,7 +97,8 @@ static const char *revision_ex[] =
 	"19",
 	"20",
 	"21",
-	"22"
+	"22",
+	"23"
 };
 
 // just free memory

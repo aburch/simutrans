@@ -734,8 +734,11 @@ fabrik_t::fabrik_t(loadsave_t* file)
 		dbg->warning( "fabrik_t::fabrik_t()", "%s is not a valid position! (Will not be built!)", pos_origin.get_str() );
 		desc = NULL; // to get rid of this broken factory later...
 	}
-	else {
+	else
+	{
+		// This will create a new gebaeude_t object if our existing one has not already been saved and re-loaded.
 		build(rotate, false, false);
+
 		// now get rid of construction image
 		for(  sint16 y=0;  y<desc->get_building()->get_y(rotate);  y++  ) {
 			for(  sint16 x=0;  x<desc->get_building()->get_x(rotate);  x++  ) {
@@ -1005,10 +1008,20 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 {
 	this->rotate = rotate;
 	pos_origin = welt->lookup_kartenboden(pos_origin.get_2d())->get_pos();
+	if (building && building->get_pos() == koord3d::invalid)
+	{
+		const sint64 available_jobs_by_time = building->get_available_jobs_by_time();
+		const uint16 passengers_succeeded_visiting = building->get_passengers_succeeded_visiting();
+		delete building;
+		building = hausbauer_t::build(owner, pos_origin, rotate, desc->get_building(), this);
+		building->set_available_jobs_by_time(available_jobs_by_time);
+		building->add_passengers_succeeded_visiting(passengers_succeeded_visiting);
+	}
 	if(!building)
 	{
- 		building = hausbauer_t::build(owner, pos_origin, rotate, desc->get_building(), this);
+		building = hausbauer_t::build(owner, pos_origin, rotate, desc->get_building(), this);
 	}
+
 	pos = building->get_pos();
 	pos_origin.z = pos.z;
 
@@ -1477,6 +1490,18 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 	}
 
+	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 23)
+	{
+		if (file->is_loading())
+		{
+			building = new gebaeude_t(file);
+		}
+		else // Saving
+		{
+			building->rdwr(file); 
+		}
+	}
+
 	has_calculated_intransit_percentages = false;
 	// Cannot calculate intransit percentages here,
 	// as this can only be done when paths are available.
@@ -1650,6 +1675,17 @@ bool fabrik_t::out_of_stock_selective()
 	{
 		// Very simple if only one thing is sold: save CPU time
 		return input[0].menge <= 0;
+	}
+
+	// If the shop has insufficient staff, it cannot open and
+	// therefore nobody can buy anything. 
+
+	const sint32 staffing_percentage = building->get_staffing_level_percentage();
+	const sint32 minimum_staffing_percentage_consumer_industry = 66; // TODO: Set this from simuconf.tab
+
+	if (staffing_percentage < minimum_staffing_percentage_consumer_industry)
+	{
+		return false;
 	}
 
 	sint32 weight_of_out_of_stock_items = 0;
@@ -1826,10 +1862,17 @@ void fabrik_t::step(uint32 delta_t)
 				}
 
 				// produces something
-				for (uint32 product = 0; product < output.get_count(); product++) {
+				for (uint32 product = 0; product < output.get_count(); product++)
+				{
 					// calculate production
-					const sint32 p_menge = (sint32)scale_output_production(product, prod);
-
+					sint32 p_menge = (sint32)scale_output_production(product, prod);
+					if (status == staff_shortage)
+					{
+						// Do not reduce production unless the staff numbers
+						// are below the shortage threshold.
+						p_menge *= building->get_staffing_level_percentage();
+						p_menge /= 100;
+					}
 
 					const sint32 menge_out = p_menge < min_menge ? p_menge : min_menge;  // production smaller than possible due to consumption
 					if (menge_out > consumed_menge) {
@@ -2509,7 +2552,7 @@ void fabrik_t::new_month()
 }
 
 // static !
-unsigned fabrik_t::status_to_color[5] = {COL_RED, COL_ORANGE, COL_GREEN, COL_YELLOW, COL_WHITE };
+unsigned fabrik_t::status_to_color[6] = {COL_RED, COL_ORANGE, COL_GREEN, COL_YELLOW, COL_WHITE, COL_DARK_PURPLE };
 
 #define FL_WARE_NULL           1
 #define FL_WARE_ALLENULL       2
@@ -2584,17 +2627,22 @@ void fabrik_t::recalc_factory_status()
 	total_output = warenlager;
 
 	// now calculate status bar
-	if(  input.empty()  ) {
+	if(  input.empty()  ) 
+	{
 		// does not consume anything, should just produce
 
-		if(  output.empty()  ) {
+		if(  output.empty()  ) 
+		{
 			// does also not produce anything
 			status = nothing;
 		}
-		else if(  status_aus&FL_WARE_ALLEUEBER75  ||  status_aus&FL_WARE_UEBER75  ) {
+		else if(  status_aus&FL_WARE_ALLEUEBER75  ||  status_aus&FL_WARE_UEBER75  )
+		{
 			status = inactive;	// not connected?
-			if(haltcount>0) {
-				if(status_aus&FL_WARE_ALLEUEBER75) {
+			if(haltcount>0) 
+			{
+				if(status_aus&FL_WARE_ALLEUEBER75)
+				{
 					status = bad;	// connect => needs better service
 				}
 				else {
@@ -2602,8 +2650,16 @@ void fabrik_t::recalc_factory_status()
 				}
 			}
 		}
-		else {
+		else 
+		{	
 			status = good;
+		}
+		
+		// Staff shortage takes priority over other states as this affects production
+		const sint32 minimum_full_production_staff_percentage_producer = 80; // TODO: Set this from simuconf.tab
+		if (building->get_staffing_level_percentage() < minimum_full_production_staff_percentage_producer)
+		{
+			status = staff_shortage;
 		}
 	}
 	else if(  output.empty()  ) {
@@ -2624,8 +2680,16 @@ void fabrik_t::recalc_factory_status()
 				status = bad;
 			}
 		}
-		else {
+		else
+		{
 			status = good;
+		}
+
+		// Staff shortage takes priority over other states as this affects production
+		const sint32 minimum_full_production_staff_percentage_producer = 80; // TODO: Set this from simuconf.tab
+		if (building->get_staffing_level_percentage() < minimum_full_production_staff_percentage_producer)
+		{
+			status = staff_shortage;
 		}
 	}
 	else {
@@ -2644,8 +2708,16 @@ void fabrik_t::recalc_factory_status()
 			// not producing but out of supply
 			status = medium;
 		}
-		else {
+		else
+		{
 			status = good;
+		}
+
+		// Staff shortage takes priority over other states as this affects production
+		const sint32 minimum_full_production_staff_percentage_producer = 80; // TODO: Set this from simuconf.tab
+		if (building->get_staffing_level_percentage() < minimum_full_production_staff_percentage_producer)
+		{
+			status = staff_shortage;
 		}
 	}
 }
