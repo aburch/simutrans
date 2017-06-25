@@ -39,6 +39,8 @@
 
 
 
+#define SCL_HEIGHT (15*LINESPACE)
+
 convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 : gui_frame_t( cnv->get_name(), cnv->get_owner() ),
   scrolly(&veh_info),
@@ -64,6 +66,8 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	scrolly.set_pos(scr_coord(0, 2+16+5*LINESPACE));
 	scrolly.set_show_scroll_x(true);
 	add_component(&scrolly);
+
+	
 
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+17*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-6));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+3*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-3));
@@ -236,6 +240,26 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t /* */)
 		else if(comp==&retire_button) {
 			cnv->call_convoi_tool( 'T', NULL );
 			return true;
+		}
+		else if (comp == &livery_selector)
+		{
+			int livery_selection = livery_selector.get_selection();
+			if (livery_selection < 0)
+			{
+				livery_selector.set_selection(0);
+				livery_selection = 0;
+			}
+			livery_scheme_index = livery_scheme_indices.empty() ? 0 : livery_scheme_indices[livery_selection];
+			if (line.is_bound())
+			{
+				tool_t *tool = create_tool(TOOL_CHANGE_LINE | SIMPLE_TOOL);
+				cbuffer_t buf;
+				buf.printf("V,%i,%i", line.get_id(), livery_scheme_index);
+				tool->set_default_param(buf);
+				welt->set_tool(tool, player);
+				// since init always returns false, it is save to delete immediately
+				delete tool;
+			}
 		}
 	}
 	return false;
@@ -478,6 +502,28 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						extra_y += LINESPACE;
 
+						livery_selector.set_pos(scr_coord(11 + 0 * D_BUTTON_WIDTH * 2 + 92, 8 + SCL_HEIGHT + D_BUTTON_HEIGHT + D_BUTTON_HEIGHT));
+						livery_selector.set_size(scr_size(185, D_BUTTON_HEIGHT));
+						livery_selector.set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 3 + 2 + 16));
+						livery_selector.set_highlight_color(1);
+						livery_selector.clear_elements();
+						vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
+						livery_scheme_indices.clear();
+						ITERATE_PTR(schemes, i)
+						{
+							livery_scheme_t* scheme = schemes->get_element(i);
+							if (scheme->is_available(welt->get_timeline_year_month()))
+							{
+								livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), SYSCOL_TEXT));
+								livery_scheme_indices.append(i);
+							}
+						}
+						livery_selector.add_listener(this);
+						add_component(&livery_selector);
+						livery_selector.set_focusable(false);
+
+
+
 						/*buf.clear();
 						buf.printf(translator::translate("  modified class: %i"), v->set_class_reassignment(i,i));
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -493,6 +539,17 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 						buf.clear();
 						buf.printf(translator::translate("  comfort: %i"), v->get_comfort(0, i));
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+						extra_y += LINESPACE;
+
+						// Compartment revenue
+						int len = 5 + display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, translator::translate("   income_pr_km_(when_full):"), ALIGN_LEFT, SYSCOL_TEXT, true);
+						// Revenue for moving 1 unit 1000 meters -- comes in 1/4096 of simcent, convert to simcents
+						// Excludes TPO/catering revenue, class and comfort effects.  FIXME --neroden
+						sint64 fare = v->get_cargo_type()->get_total_fare(1000,0, v->get_comfort(0,i),0,i);
+																				 // Multiply by capacity, convert to simcents, subtract running costs
+						sint64 profit = ((v->get_capacity(i)+v->get_overcrowding(i))*fare + 2048ll) / 4096ll;
+						money_to_string(number, profit / 100.0);
+						display_proportional_clip(pos.x + w + offset.x + len, pos.y + offset.y + total_height + extra_y, number, ALIGN_LEFT, profit>0 ? MONEY_PLUS : MONEY_MINUS, true);
 						extra_y += LINESPACE;
 					}
 				}
@@ -592,3 +649,4 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 		set_size(size);
 	}
 }
+
