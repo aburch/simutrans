@@ -2763,7 +2763,8 @@ void fabrik_t::recalc_factory_status()
 		}
 		
 		// Staff shortage takes priority over other states as this affects production
-		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry())
+		// TODO: Remove the check for water industries if and when a satisfactory method of conveying passengers to these can be found (helecopters might work for oil platforms; fisheries can have their workers set to zero).
+		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water))
 		{
 			status = staff_shortage;
 		}
@@ -2792,7 +2793,8 @@ void fabrik_t::recalc_factory_status()
 		}
 
 		// Staff shortage takes priority over other states as this affects production
-		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry())
+		// TODO: Remove the check for water industries if and when a satisfactory method of conveying passengers to these can be found (helecopters might work for oil platforms; fisheries can have their workers set to zero).
+		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water))
 		{
 			status = staff_shortage;
 		}
@@ -2819,7 +2821,8 @@ void fabrik_t::recalc_factory_status()
 		}
 
 		// Staff shortage takes priority over other states as this affects production
-		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry())
+		// TODO: Remove the check for water industries if and when a satisfactory method of conveying passengers to these can be found (helecopters might work for oil platforms; fisheries can have their workers set to zero).
+		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water))
 		{
 			status = staff_shortage;
 		}
