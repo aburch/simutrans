@@ -2329,12 +2329,15 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		number_of_classes = 1;
 	}
 
-	// We must initialise fracht[] here, as only now do we
-	// know the correct number of classes.
+	if (file->is_loading())
+	{
+		// We must initialise fracht[] here, as only now do we
+		// know the correct number of classes.
 
-	class_reassignments = new uint8[number_of_classes];
-	fracht = new slist_tpl<ware_t>[number_of_classes];
-	class_reassignments[0] = 0;
+		class_reassignments = new uint8[number_of_classes];
+		fracht = new slist_tpl<ware_t>[number_of_classes];
+		class_reassignments[0] = 0;
+	}
 
 	sint32 total_fracht_count = 0;
 	sint32 *fracht_count = new sint32[number_of_classes];
@@ -2343,6 +2346,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	{
 		fracht_count[i] = 0;
 	}
+
 
 	if (file->is_saving()) 
 	{
@@ -2583,9 +2587,6 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 					* It's very easy for in-transit information to get corrupted,
 					* if an intermediate program version fails to compute it right.
 					* So *always* compute it fresh.
-					*
-					* This no longer works properly with Extended because cargo
-					* may be in a queue waiting to be loaded at a station.
 					*/
 					if (file->get_version() <= 112000)
 #endif
@@ -2705,7 +2706,9 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	{
 		for (uint8 i = 0; i < number_of_classes; i++)
 		{
-			file->rdwr_byte(class_reassignments[i]); 
+			uint8 cr = class_reassignments[i];
+			file->rdwr_byte(cr); 
+			class_reassignments[i] = cr;
 		}
 	}
 

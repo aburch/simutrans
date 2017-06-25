@@ -53,7 +53,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 /**
- * Initializes all variables with save, usable values
+ * Initializes all variables with safe, usable values
  * @author Hj. Malthaner
  */
 void gebaeude_t::init()
@@ -77,6 +77,7 @@ void gebaeude_t::init()
 	passengers_succeeded_visiting = 0;
 	passenger_success_percent_last_year_visiting = 65535;
 	available_jobs_by_time = -9223372036854775808ll;
+	is_in_world_list = false;
 }
 
 
@@ -225,8 +226,6 @@ stadt_t* gebaeude_t::get_stadt() const
  */
 gebaeude_t::~gebaeude_t()
 {
-	welt->remove_building_from_world_list(this);
-
 	if(welt->is_destroying()) 
 	{
 		return;
@@ -245,6 +244,10 @@ gebaeude_t::~gebaeude_t()
 	if(our_city) 
 	{
 		our_city->remove_gebaeude_from_stadt(this);
+	}
+	else
+	{
+		welt->remove_building_from_world_list(this);
 	}
 
 
