@@ -67,9 +67,6 @@ obj_desc_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else {
 		dbg->fatal("way_obj_reader_t::read_node()","Invalid version %d", version);
 	}
-	if ((waytype_t)desc->wtyp == road_wt && (waytype_t)desc->own_wtyp == road_wt) {
-		desc->wtyp = overtake_wt;
-	}
 	DBG_DEBUG("way_obj_reader_t::read_node()",
 	     "version=%d price=%d maintenance=%d topspeed=%d wtype=%d own_wtype=%d overtaking_info=%d intro=%i/%i, retire=%i/%i",
 	     version,
