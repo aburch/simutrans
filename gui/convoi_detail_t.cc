@@ -106,7 +106,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		offset_y += LINESPACE;
 
 		buf.clear();
-		buf.printf("%s %i", translator::translate("Station tiles:"), cnv->get_tile_length() );
+		buf.printf("%s %i %s %i", translator::translate("Vehicle count:"), cnv->get_vehicle_count(), translator::translate("Station tiles:"), cnv->get_tile_length());
 		display_proportional_clip_rgb( pos.x+10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 		offset_y += LINESPACE;
 

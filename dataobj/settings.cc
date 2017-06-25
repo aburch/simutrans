@@ -55,6 +55,12 @@ settings_t::settings_t() :
 
 	show_pax = true;
 
+	// default maximum length of convoi
+	max_rail_convoi_length = 24;
+	max_road_convoi_length = 4;
+	max_ship_convoi_length = 4;
+	max_air_convoi_length = 1;
+
 	// default climate zones
 	set_default_climates( );
 	winter_snowline = 7;	// not mediterranean
@@ -792,6 +798,12 @@ void settings_t::rdwr(loadsave_t *file)
 		if(  file->get_version() > 120003  ) {
 			file->rdwr_bool(disable_make_way_public);
 		}
+		if(  file->get_version() > 120005  ) {
+			file->rdwr_byte(max_rail_convoi_length);
+			file->rdwr_byte(max_road_convoi_length);
+			file->rdwr_byte(max_ship_convoi_length);
+			file->rdwr_byte(max_air_convoi_length);
+		}
 		// otherwise the default values of the last one will be used
 	}
 }
@@ -1386,6 +1398,11 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	fullscreen = contents.get_int("fullscreen", fullscreen );
 
 	with_private_paks = contents.get_int("with_private_paks", with_private_paks)!=0;
+
+	max_rail_convoi_length = contents.get_int("max_rail_convoi_length",max_rail_convoi_length);
+	max_road_convoi_length = contents.get_int("max_road_convoi_length",max_road_convoi_length);
+	max_ship_convoi_length = contents.get_int("max_ship_convoi_length",max_ship_convoi_length);
+	max_air_convoi_length = contents.get_int("max_air_convoi_length",max_air_convoi_length);
 
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", "" ) );

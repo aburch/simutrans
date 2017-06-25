@@ -9,6 +9,7 @@
  * - Added gui::open_info_win_at
  * - Added ::is_convoy_allowed
  * - Added convoy_x::is_in_depot
+ * - Added scriptable hyperlinks in scenario info window
  *
  * @section api-120-2-2 Release 120.2.2
  *

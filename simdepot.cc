@@ -618,5 +618,17 @@ void depot_t::update_all_win()
 
 unsigned bahndepot_t::get_max_convoi_length() const
 {
-	return convoi_t::max_rail_vehicle;
+	return welt->get_settings().get_max_rail_convoi_length();
+}
+unsigned strassendepot_t::get_max_convoi_length() const
+{
+	return welt->get_settings().get_max_road_convoi_length();
+}
+unsigned schiffdepot_t::get_max_convoi_length() const
+{
+	return welt->get_settings().get_max_ship_convoi_length();
+}
+unsigned airdepot_t::get_max_convoi_length() const
+{
+	return welt->get_settings().get_max_air_convoi_length();
 }

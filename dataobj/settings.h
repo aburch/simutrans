@@ -93,6 +93,12 @@ private:
 
 	uint16 station_coverage_size;
 
+	// the maximum length of each convoi
+	uint8 max_rail_convoi_length;
+	uint8 max_road_convoi_length;
+	uint8 max_ship_convoi_length;
+	uint8 max_air_convoi_length;
+
 	/**
 	 * At which level buildings generate traffic?
 	 */
@@ -386,6 +392,11 @@ public:
 	double get_map_roughness() const {return map_roughness;}
 
 	uint16 get_station_coverage() const {return station_coverage_size;}
+
+	uint8 get_max_rail_convoi_length() const {return max_rail_convoi_length;}
+	uint8 get_max_road_convoi_length() const {return max_road_convoi_length;}
+	uint8 get_max_ship_convoi_length() const {return max_ship_convoi_length;}
+	uint8 get_max_air_convoi_length() const {return max_air_convoi_length;}
 
 	void set_allow_player_change(char n) {allow_player_change=n;}	// prissi, Oct-2005
 	uint8 get_allow_player_change() const {return allow_player_change;}

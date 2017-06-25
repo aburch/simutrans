@@ -390,6 +390,14 @@ disable_make_way_public = 0
 # the loss is given in 1/1000th, i.e 300 mean the value will be 70%
 used_vehicle_reduction = 0
 
+# convois can have a maximum number of trailing vehicles (up to 250)
+# These are the dafult values. Pakset with airplanes with dual cargo holds
+# may need to increase the air counter!
+max_rail_convoi_length = 24
+max_road_convoi_length = 4
+max_ship_convoi_length = 4
+max_air_convoi_length = 1
+
 # lowest possible income with speedbonus (1000=1) default 125 (=1/8th)
 bonus_basefactor = 125
 

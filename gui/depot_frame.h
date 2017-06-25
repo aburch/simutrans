@@ -93,6 +93,9 @@ private:
 	button_t line_button;	// goto line ...
 
 	gui_label_t lb_convoi_count;
+
+	gui_label_t lb_convoi_number;
+
 	gui_label_t lb_convoi_speed;
 	gui_label_t lb_convoi_cost;
 	gui_label_t lb_convoi_value;
@@ -133,6 +136,9 @@ private:
 
 	vector_tpl<gui_image_list_t::image_data_t*> convoi_pics;
 	gui_image_list_t convoi;
+
+	gui_scrollpane_t scrolly_convoi;
+	gui_container_t cont_convoi;
 
 	/// image list of passenger cars
 	vector_tpl<gui_image_list_t::image_data_t*> pas_vec;
@@ -181,6 +187,7 @@ private:
 	cbuffer_t txt_convois;
 
 	cbuffer_t txt_convoi_count;
+	cbuffer_t txt_convoi_number;
 	cbuffer_t txt_convoi_value;
 	cbuffer_t txt_convoi_speed;
 	cbuffer_t txt_convoi_cost;
