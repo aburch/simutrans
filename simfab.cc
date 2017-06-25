@@ -1650,11 +1650,19 @@ void fabrik_t::add_consuming_passengers(sint32 number_of_passengers)
 	menge_remainder = (uint32)(want_prod_long - (uint64)prod * (uint64)PRODUCTION_DELTA_T);
 
 	// Consume stock in proportion to passengers' visits
+	uint32 last_good_index = UINT32_MAX_VALUE;
+	uint32 bad_count = 0;
 	for (uint32 index = 0; index < input.get_count(); index++)
 	{
-		const uint32 v = prod;
+		uint32 v = prod;
 		if ((uint32)input[index].menge > v + 1)
 		{
+			last_good_index = index;
+			if (bad_count > 0)
+			{
+				v *= (bad_count + 1);
+				bad_count = 0;
+			}
 			input[index].menge -= v;
 			input[index].book_stat((sint64)v * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
 			// to find out if storage changed
@@ -1663,6 +1671,28 @@ void fabrik_t::add_consuming_passengers(sint32 number_of_passengers)
 		else
 		{
 			delta_menge += input[index].menge;
+
+			if (last_good_index == UINT32_MAX_VALUE)
+			{
+				bad_count++;
+			}
+			else
+			{
+				const uint32 missing_consumption = v - input[index].menge;
+				if (input[last_good_index].menge > missing_consumption)
+				{
+					input[last_good_index].menge -= missing_consumption;
+					delta_menge += missing_consumption;
+					input[last_good_index].book_stat((sint64)missing_consumption * (sint64)desc->get_supplier(last_good_index)->get_consumption(), FAB_GOODS_CONSUMED);
+				}
+				else
+				{
+					bad_count++;
+					delta_menge += input[last_good_index].menge;
+					input[last_good_index].menge = 0;
+					input[last_good_index].book_stat((sint64)input[index].menge * (sint64)desc->get_supplier(last_good_index)->get_consumption(), FAB_GOODS_CONSUMED);
+				}
+			}
 
 			input[index].book_stat((sint64)input[index].menge * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
 			input[index].menge = 0;
