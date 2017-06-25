@@ -48,7 +48,7 @@ settings_t::settings_t() :
 	size_x = 256;
 	size_y = 256;
 
-	map_number = 33;
+	map_number = sim_async_rand(SINT32_MAX_VALUE);
 
 	/* new setting since version 0.85.01
 	 * @author prissi
