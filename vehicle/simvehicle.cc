@@ -2329,12 +2329,15 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		number_of_classes = 1;
 	}
 
-	// We must initialise fracht[] here, as only now do we
-	// know the correct number of classes.
+	if (file->is_loading())
+	{
+		// We must initialise fracht[] here, as only now do we
+		// know the correct number of classes.
 
-	class_reassignments = new uint8[number_of_classes];
-	fracht = new slist_tpl<ware_t>[number_of_classes];
-	class_reassignments[0] = 0;
+		class_reassignments = new uint8[number_of_classes];
+		fracht = new slist_tpl<ware_t>[number_of_classes];
+		class_reassignments[0] = 0;
+	}
 
 	sint32 total_fracht_count = 0;
 	sint32 *fracht_count = new sint32[number_of_classes];
@@ -2343,6 +2346,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	{
 		fracht_count[i] = 0;
 	}
+
 
 	if (file->is_saving()) 
 	{
