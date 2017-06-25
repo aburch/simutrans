@@ -395,7 +395,8 @@ void fabrik_t::update_scaled_pax_demand()
 		const uint16 employment_capacity = desc->get_building()->get_employment_capacity();
 		const int passenger_level = get_passenger_level_jobs();
 
-		const sint64 base_visitor_demand = building ? building->get_visitor_demand() : desc->get_building()->get_population_and_visitor_demand_capacity();
+		const sint64 base_visitor_demand_raw = building ? building->get_visitor_demand() : desc->get_building()->get_population_and_visitor_demand_capacity();
+		const sint64 base_visitor_demand = base_visitor_demand_raw == 65535 ? (sint64)get_passenger_level_visitors() : base_visitor_demand_raw;
 		const sint64 base_worker_demand = employment_capacity == 65535 ? passenger_level : employment_capacity;
 		
 		// formula : base_pax_demand * (current_production_base / desc_production_base); (prod >> 1) is for rounding
@@ -2419,8 +2420,8 @@ void fabrik_t::new_month()
 						fab->get_building()->get_x() == desc->get_building()->get_x() &&
 						fab->get_building()->get_y() == desc->get_building()->get_y() &&
 						fab->get_building()->get_size() == desc->get_building()->get_size() &&
-						//fab->get_building()->get_intro_year_month() <= welt->get_timeline_year_month() &&
-						//fab->get_building()->get_retire_year_month() >= welt->get_timeline_year_month() &&
+						fab->get_building()->get_intro_year_month() <= welt->get_timeline_year_month() &&
+						fab->get_building()->get_retire_year_month() >= welt->get_timeline_year_month() &&
 						adjusted_density < (max_density + (100u / fab->get_distribution_weight())))
 					{
 						upgrade_list.append_unique(fab);
@@ -2462,6 +2463,24 @@ void fabrik_t::new_month()
 						dbg->error("void fabrik_t::new_month()", "Unknown industry status type %i", status);
 						upgrade_chance_percent = 33;
 					};
+
+					if (is_end_consumer())
+					{
+						// If this is an end consumer, check whether we have a good number
+						// of customers before deciding whether to close/upgrade.
+
+						const uint32 passengers_visiting_this_year = (uint32)building->get_passengers_succeeded_visiting();
+						const uint32 visitor_demand = (uint32)building->get_adjusted_visitor_demand();
+
+						const uint32 current_month = world()->get_last_month();
+						const uint32 visitor_demand_this_year_so_far = (visitor_demand * current_month) / 12u;
+						const uint32 visitors_this_year_so_far = max(1, (uint32)building->get_passengers_succeeded_visiting()); // A zero here will guarantee deletion, which is too harsh.
+
+						const uint32 percentage = visitor_demand_this_year_so_far > 0 ? (visitors_this_year_so_far * 100u) / visitor_demand_this_year_so_far : 100;
+						uint32 upgrade_chance_percent = 100;
+						upgrade_chance_percent *= percentage;
+						upgrade_chance_percent /= 100;
+					}
 
 					const uint32 probability = simrand(101, "void fabrik_t::new_month()");	
 
