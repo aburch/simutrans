@@ -2391,16 +2391,16 @@ void fabrik_t::new_month()
 
 		if(closedown)
 		{
-			char buf[192];
+			char buf[256];
 			
-			const int upgrades_count = desc->get_upgrades_count();
+			const sint32 upgrades_count = desc->get_upgrades_count();
 			if(upgrades_count > 0)
 			{
 				// This factory has some upgrades: consider upgrading.
 				minivec_tpl<const factory_desc_t*> upgrade_list(upgrades_count);
-				const uint32 max_density = (welt->get_target_industry_density() * 150) / 100;
-				const uint32 adjusted_density = welt->get_actual_industry_density() - (100 / desc->get_distribution_weight());
-				for(uint16 i = 0; i < upgrades_count; i ++)
+				const uint32 max_density = welt->get_target_industry_density() == 0 ? SINT32_MAX_VALUE : (welt->get_target_industry_density() * 150u) / 100u;
+				const uint32 adjusted_density = welt->get_actual_industry_density() - (100u / desc->get_distribution_weight());
+				for(sint32 i = 0; i < upgrades_count; i ++)
 				{
 					// Check whether any upgrades are suitable.
 					// Currently, they must be of identical size, as the 
@@ -2419,9 +2419,9 @@ void fabrik_t::new_month()
 						fab->get_building()->get_x() == desc->get_building()->get_x() &&
 						fab->get_building()->get_y() == desc->get_building()->get_y() &&
 						fab->get_building()->get_size() == desc->get_building()->get_size() &&
-						fab->get_building()->get_intro_year_month() <= welt->get_timeline_year_month() &&
-						fab->get_building()->get_retire_year_month() >= welt->get_timeline_year_month() &&
-						adjusted_density < (max_density + (100 / fab->get_distribution_weight())))
+						//fab->get_building()->get_intro_year_month() <= welt->get_timeline_year_month() &&
+						//fab->get_building()->get_retire_year_month() >= welt->get_timeline_year_month() &&
+						adjusted_density < (max_density + (100u / fab->get_distribution_weight())))
 					{
 						upgrade_list.append_unique(fab);
 					}
@@ -2430,17 +2430,53 @@ void fabrik_t::new_month()
 				const uint8 list_count = upgrade_list.get_count();
 				if(list_count > 0)
 				{
-					uint32 total_density = 0;
-					FOR(minivec_tpl<const factory_desc_t*>, upgrade, upgrade_list)
+					// Upgrade if this industry is well served, otherwise close. 
+
+					// TODO: Use statistics for a longer-term view. The statuses are just a snapshot. 
+					// However, the statistics need some reworking when town growth is implemented to
+					// remove redundancy - they are also somewhat opaque at present.
+
+					uint32 upgrade_chance_percent;
+					switch (status)
+					{ 
+					case good:
+						upgrade_chance_percent = 100;
+						break;
+					case nothing:
+						upgrade_chance_percent = 90;
+						break;
+					case medium:
+						upgrade_chance_percent = 75;
+						break;
+					case staff_shortage:
+						upgrade_chance_percent = 66;
+						break;
+					case bad:
+						upgrade_chance_percent = 50;
+						break;
+					case inactive:
+						upgrade_chance_percent = 25;
+						break;
+					default:
+						// Should not be reached.
+						dbg->error("void fabrik_t::new_month()", "Unknown industry status type %i", status);
+						upgrade_chance_percent = 33;
+					};
+
+					const uint32 probability = simrand(101, "void fabrik_t::new_month()");	
+
+					if(upgrade_chance_percent > probability)
 					{
-						total_density += (100 / upgrade->get_distribution_weight());
-					}
-					const uint32 average_density = total_density / list_count;
-					const uint32 probability = 1 / ((100 - ((adjusted_density + average_density) / max_density)) * upgrade_list.get_count()) / 100;
-					const uint32 distribution_weight = simrand(probability, "void fabrik_t::new_month()");
-					if(distribution_weight < list_count)
-					{
-						// All the conditions are met: upgrade.
+						// Upgrade
+						uint32 total_density = 0;
+						FOR(minivec_tpl<const factory_desc_t*>, upgrade, upgrade_list)
+						{
+							total_density += (100u / upgrade->get_distribution_weight());
+						}
+						const uint32 average_density = total_density / list_count;
+						const uint32 probability = 1 / ((100u - ((adjusted_density + average_density) / max_density)) * (uint32)list_count) / 100u;
+						const uint32 distribution_weight = simrand(probability, "void fabrik_t::new_month()");
+
 						const int old_distributionweight = desc->get_distribution_weight();
 						const factory_desc_t* new_type = upgrade_list[distribution_weight];
 						welt->decrease_actual_industry_density(100 / old_distributionweight);
@@ -2678,7 +2714,7 @@ void fabrik_t::recalc_factory_status()
 		}
 		
 		// Staff shortage takes priority over other states as this affects production
-		if (building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry())
+		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry())
 		{
 			status = staff_shortage;
 		}
@@ -2707,7 +2743,7 @@ void fabrik_t::recalc_factory_status()
 		}
 
 		// Staff shortage takes priority over other states as this affects production
-		if (building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry())
+		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry())
 		{
 			status = staff_shortage;
 		}
@@ -2734,7 +2770,7 @@ void fabrik_t::recalc_factory_status()
 		}
 
 		// Staff shortage takes priority over other states as this affects production
-		if (building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry())
+		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry())
 		{
 			status = staff_shortage;
 		}
