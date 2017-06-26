@@ -40,7 +40,7 @@ settings_t::settings_t() :
 {
 	// These control when settings from a savegame
 	// are overridden by simuconf.tab files
-	// The version in default_einstellungen is *always* used
+	// The version in default_settings is *always* used
 	progdir_overrides_savegame_settings = false;
 	pak_overrides_savegame_settings = false;
 	userdir_overrides_savegame_settings = false;
