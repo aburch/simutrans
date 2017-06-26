@@ -37,7 +37,9 @@ private:
 	 */
 	convoihandle_t cnv;
 
-	gui_combobox_t livery_selector;
+	gui_combobox_t class_selector;
+
+	slist_tpl<gui_combobox_t *> classselectors;
 
 	vector_tpl<uint16> livery_scheme_indices;
 
