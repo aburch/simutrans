@@ -2333,11 +2333,10 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 
 	sint32 total_fracht_count = 0;
 	sint32* fracht_count = new sint32[number_of_classes];
-	bool create_dummy_ware;
+	bool create_dummy_ware = false;
 
 	if (file->is_saving()) 
 	{
-		bool create_dummy_ware = false;
 		for (uint8 i = 0; i < number_of_classes; i++)
 		{
 			fracht_count[i] = fracht[i].get_count();
@@ -2508,6 +2507,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			ware.rdwr(file);
 		}
 
+		uint8 cr;
 		for (uint8 i = 0; i < number_of_classes; i++)
 		{
 			FOR(slist_tpl<ware_t>, ware, fracht[i])
@@ -2523,11 +2523,11 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		{
 			class_reassignments = new uint8[desc->get_number_of_classes()];
 			fracht = new slist_tpl<ware_t>[desc->get_number_of_classes()];
-			class_reassignments[0] = 0;
+			uint8 cr;
 
 			for (uint8 i = 0; i < number_of_classes; i++)
 			{
-				const uint8 x = min(number_of_classes - 1, desc->get_number_of_classes() - 1); 
+				const uint8 x = min(i, desc->get_number_of_classes() - 1);
 				const uint32 assumed_count = max((create_dummy_ware && (total_fracht_count) > 0 ? 1 : 0), fracht_count[x]);
 				for (uint32 j = 0; j < assumed_count; j++)
 				{
@@ -2574,7 +2574,6 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 
 			class_reassignments = new uint8[desc->get_number_of_classes()];
 			fracht = new slist_tpl<ware_t>[desc->get_number_of_classes()];
-			class_reassignments[0] = 0;
 
 			for (int i = 0; i < total_fracht_count; i++)
 			{
@@ -2712,6 +2711,13 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			uint8 cr = class_reassignments[i];
 			file->rdwr_byte(cr); 
 			class_reassignments[i] = cr;
+		}
+	}
+	else
+	{
+		for (uint8 i = 0; i < desc->get_number_of_classes(); i++)
+		{
+			class_reassignments[i] = i;
 		}
 	}
 
