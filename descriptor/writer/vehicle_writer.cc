@@ -815,6 +815,7 @@ end:
 	// Now segregated by class of passenger.
 	//@author: jamespetts
 	uint32 current_class_comfort;
+	uint8 last_comfort = 100;
 	for (uint32 i = 0; i < number_of_classes; i++)
 	{
 		// Check for multiple classes with a separate capacity each
@@ -829,9 +830,17 @@ end:
 				// keyword defining a single level of comfort.
 				uint8 comfort = (obj.get_int("comfort", 100));
 				node.write_uint8(fp, comfort, pos);
+				last_comfort = comfort;
 				pos += sizeof(uint8);
 			}
-			break;
+			else
+			{
+				// It is essential to write the same number of comfort
+				// entries as payload entries, as this is what the 
+				// reader expects.
+				node.write_uint8(fp, last_comfort, pos);
+				pos += sizeof(uint8);
+			}
 		}
 		else
 		{
