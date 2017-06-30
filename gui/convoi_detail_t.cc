@@ -244,7 +244,7 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t v/* */
 		/*else if (v.i&~1) {
 			koord k = *(const koord *)v.p;
 			uint16 j = k.y;
-			if (j < classselectors.get_count())
+			if (j < class_selectors.get_count())
 			int	class_selection = class_selector->get_selection();
 			if (class_selection < 0)
 			{
@@ -496,44 +496,41 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 						buf.clear();
 						char reassigned_class_name_untranslated[32];
-						sprintf(reassigned_class_name_untranslated, "p_class[%u]", v->get_reassigned_class(i)); // TODO: Add potential modified class to be displayed after this class
-						const char* class_name = translator::translate(reassigned_class_name_untranslated);
-						buf.printf(" %s:", class_name);
+						sprintf(reassigned_class_name_untranslated, "p_class[%u]", v->get_reassigned_class(i));
+						const char* reassigned_class_name = translator::translate(reassigned_class_name_untranslated);
+						buf.printf(" %s:", reassigned_class_name);
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						extra_y += LINESPACE;
 
 
 						// This commented out section is an attempt to add a selector where player can choose new class. I will revisit this later.
-						/*buf.clear();
+/*						buf.clear();
 						gui_combobox_t *class_selector = new gui_combobox_t();
 
-						class_selector->set_pos(scr_coord(11 + 0 * D_BUTTON_WIDTH * 2 + 92, 8 + SCL_HEIGHT + D_BUTTON_HEIGHT + D_BUTTON_HEIGHT));
+						class_selector->set_pos(scr_coord(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y));
 						class_selector->set_size(scr_size(185, D_BUTTON_HEIGHT));
 						class_selector->set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 3 + 2 + 16));
 						class_selector->set_highlight_color(1);
 						class_selector->clear_elements();
-						vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
-						//class_scheme_indices.clear();
-						ITERATE_PTR(schemes, i)
+				
+						class_indices.clear();
+						for (uint8 j = 0; j < v->get_desc()->get_number_of_classes(); j++)
 						{
-							livery_scheme_t* scheme = schemes->get_element(i);
-							if (scheme->is_available(welt->get_timeline_year_month()))
-							{
-								class_selector->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), SYSCOL_TEXT));
-								//livery_scheme_indices.append(i);
-							}
+							char class_selector_name_untranslated[32];
+							sprintf(class_selector_name_untranslated, "p_class[%u]", j);
+							const char* class_selector_name = translator::translate(class_selector_name_untranslated);
+							class_selector->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(class_selector_name), SYSCOL_TEXT));
+							class_indices.append(j);
 						}
+
+						cont.add_component(class_selector);
 						class_selector->add_listener(this);
-						buf.append(class_selector);
 						class_selector->set_focusable(false);
+						extra_y += LINESPACE;
 
 						//pb->add_listener(this);
-						//scrolly.add_component(pb);*/
-
-						/*buf.clear();
-						buf.printf(translator::translate("  modified class: %i"), v->set_class_reassignment(i,i));
-						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-						extra_y += LINESPACE;*/
+*/
+			
 						
 						buf.clear();
 						char capacity[32];

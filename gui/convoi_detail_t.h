@@ -39,9 +39,9 @@ private:
 
 	gui_combobox_t class_selector;
 
-	slist_tpl<gui_combobox_t *> classselectors;
+	slist_tpl<gui_combobox_t *> class_selectors;
 
-	vector_tpl<uint16> livery_scheme_indices;
+	vector_tpl<uint16> class_indices;
 
 public:
 	/**
