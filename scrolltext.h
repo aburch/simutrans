@@ -46,6 +46,7 @@
 " Nathanael Nerode","developer",
 " Inkelyad", "developer",
 " Isidoro","developer (vehicle replacement)",
+" Phystam", "patch",
 " Toshio Kuratomi" "patches",
 " Zhaop", "Mac OSX patch and fixes",
 " Vladki", "patch, online servers",
