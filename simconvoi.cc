@@ -472,6 +472,10 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 		else {
 			// since start may have been changed
 			uint16 start_index = max(1,fahr[anz_vehikel-1]->get_route_index())-1;
+			if (start_index > route.get_count()) {
+				dbg->error( "convoi_t::finish_rd()", "Routeindex of last vehicle of (%s) too large!", get_name() );
+				start_index = 0;
+			}
 
 			uint32 train_length = move_to(start_index) + 1;
 			const koord3d last_start = fahr[0]->get_pos();
