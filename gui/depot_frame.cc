@@ -275,7 +275,6 @@ void depot_frame_t::layout(scr_size *size)
 	*	Structure of [VINFO] is one multiline text.
 	*/
 
-//	const scr_coord_val VINFO_HEIGHT = convoy_assembler.get_number_of_rows()*LINESPACE;
 	const scr_coord_val VINFO_HEIGHT = 12 * LINESPACE - 1;
 
 	/*
@@ -297,14 +296,13 @@ void depot_frame_t::layout(scr_size *size)
 	* build_vehicle_lists() fills loks_vec and waggon_vec.
 	* Total width will be expanded to match complete columns in panel.
 	*/
-	convoy_assembler.set_panel_rows(size && size->h == 0 ? -1 : win_size.h - ASSEMBLER_VSTART- (VINFO_HEIGHT/2));
-	//convoy_assembler.set_panel_rows(size && size->h == 0 ? -1 : VINFO_HEIGHT);
+	convoy_assembler.set_panel_rows(size && size->h == 0 ? -1 : win_size.h - ASSEMBLER_VSTART - (VINFO_HEIGHT/2));
 
 	/*
 	 *	Now we can do the complete vertical adjustment:
 	 */
 	const scr_coord_val TOTAL_HEIGHT     = min(display_get_height(), ASSEMBLER_VSTART + convoy_assembler.get_height());
-	const scr_coord_val MIN_TOTAL_HEIGHT = min(display_get_height(), ASSEMBLER_VSTART + convoy_assembler.get_min_height()+VINFO_HEIGHT);
+	const scr_coord_val MIN_TOTAL_HEIGHT = min(display_get_height(), ASSEMBLER_VSTART + convoy_assembler.get_min_height()/*+VINFO_HEIGHT*/);
 
 	/*
 	* DONE with layout planning - now build everything.
