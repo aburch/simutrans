@@ -147,6 +147,10 @@ void fabrik_info_t::set_windowsize(scr_size size)
  */
 void fabrik_info_t::draw(scr_coord pos, scr_size size)
 {
+	if (world()->closed_factories_this_month.is_contained(fab))
+	{
+		return;
+	}
 	const scr_size old_size = txt.get_size();
 
 	fab->info_prod( prod_buf );

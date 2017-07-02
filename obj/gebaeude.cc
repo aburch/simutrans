@@ -1707,6 +1707,12 @@ sint32 gebaeude_t::check_remaining_available_jobs() const
 	//}
 }
 
+sint32 gebaeude_t::get_staffing_level_percentage() const
+{
+	const sint32 percentage = (adjusted_jobs - check_remaining_available_jobs()) * 100 / adjusted_jobs;
+	return percentage;
+}
+
 bool gebaeude_t::jobs_available() const
 { 
 	const sint64 ticks = welt->get_ticks();

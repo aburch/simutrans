@@ -40,7 +40,7 @@ settings_t::settings_t() :
 {
 	// These control when settings from a savegame
 	// are overridden by simuconf.tab files
-	// The version in default_einstellungen is *always* used
+	// The version in default_settings is *always* used
 	progdir_overrides_savegame_settings = false;
 	pak_overrides_savegame_settings = false;
 	userdir_overrides_savegame_settings = false;
@@ -48,7 +48,7 @@ settings_t::settings_t() :
 	size_x = 256;
 	size_y = 256;
 
-	map_number = 33;
+	map_number = sim_async_rand(SINT32_MAX_VALUE);
 
 	/* new setting since version 0.85.01
 	 * @author prissi
@@ -520,6 +520,9 @@ settings_t::settings_t() :
 	time_interval_seconds_to_caution = 300;
 
 	town_road_speed_limit = 50;
+
+	minimum_staffing_percentage_consumer_industry = 66;
+	minimum_staffing_percentage_full_production_producer_industry = 80;
 }
 
 void settings_t::set_default_climates()
@@ -1677,6 +1680,17 @@ void settings_t::rdwr(loadsave_t *file)
 			mail_packets_per_month_hundredths = (mail_packets_per_month_hundredths * 16) / old_passenger_factor;
 			way_degradation_fraction = 7;
 		}
+
+		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 23)
+		{
+			file->rdwr_long(minimum_staffing_percentage_consumer_industry);
+			file->rdwr_long(minimum_staffing_percentage_full_production_producer_industry);
+		}
+		else
+		{
+			minimum_staffing_percentage_consumer_industry = 66;
+			minimum_staffing_percentage_full_production_producer_industry = 80;
+		}
 	}
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -2531,6 +2545,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	time_interval_seconds_to_caution = contents.get_int("time_interval_seconds_to_caution", time_interval_seconds_to_caution);
 	
 	town_road_speed_limit = contents.get_int("town_road_speed_limit", town_road_speed_limit);
+
+	minimum_staffing_percentage_consumer_industry = contents.get_int("minimum_staffing_percentage_consumer_industry", minimum_staffing_percentage_consumer_industry); 
+	minimum_staffing_percentage_full_production_producer_industry = contents.get_int("minimum_staffing_percentage_full_production_producer_industry", minimum_staffing_percentage_full_production_producer_industry); 
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.

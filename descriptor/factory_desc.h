@@ -287,7 +287,7 @@ public:
 
 	const factory_desc_t *get_upgrades(int i) const { return (i >= 0 && i < upgrades) ? get_child<factory_desc_t>(2 + supplier_count + product_count + fields + i) : NULL; }
 
-	int get_upgrades_count() const { return upgrades; }
+	sint32 get_upgrades_count() const { return upgrades; }
 
 	uint16 get_expand_probability() const { return expand_probability; }
 	uint16 get_expand_minumum() const { return expand_minimum; }

@@ -334,11 +334,18 @@ public:
 	*/
 	sint32 check_remaining_available_jobs() const;
 
+	/*
+	* Returns a percentage of the staffing level for this building
+	*/
+	sint32 get_staffing_level_percentage() const;
+
 	uint8 get_random_passenger_class();
 
 	bool get_is_in_world_list() const { return is_in_world_list; }
 	void set_in_world_list(bool value) { is_in_world_list = value; }
 
+	sint64 get_available_jobs_by_time() const { return available_jobs_by_time; }
+	void set_available_jobs_by_time(sint64 value) { available_jobs_by_time = value; }
 };
 
 

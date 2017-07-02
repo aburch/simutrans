@@ -97,7 +97,8 @@ static const char *revision_ex[] =
 	"19",
 	"20",
 	"21",
-	"22"
+	"22",
+	"23"
 };
 
 // just free memory
@@ -231,6 +232,8 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM("time_interval_seconds_to_clear", sets->get_time_interval_seconds_to_clear(), 0, 10000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("time_interval_seconds_to_caution", sets->get_time_interval_seconds_to_caution(), 0, 10000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("town_road_speed_limit", sets->get_town_road_speed_limit(), 0, 500, gui_numberinput_t::AUTOLINEAR, false);
+	INIT_NUM("minimum_staffing_percentage_consumer_industry", sets->get_minimum_staffing_percentage_consumer_industry(), 0, 100, gui_numberinput_t::AUTOLINEAR, false);
+	INIT_NUM("minimum_staffing_percentage_full_production_producer_industry", sets->get_minimum_staffing_percentage_full_production_producer_industry(), 0, 100, gui_numberinput_t::AUTOLINEAR, false);
 	
 	SEPERATOR;
 	INIT_NUM("population_per_level", sets->get_population_per_level(), 1, 1000, 1, false);
@@ -365,6 +368,8 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->time_interval_seconds_to_clear );
 	READ_NUM_VALUE( sets->time_interval_seconds_to_caution );
 	READ_NUM_VALUE( sets->town_road_speed_limit );
+	READ_NUM_VALUE(sets->minimum_staffing_percentage_consumer_industry);
+	READ_NUM_VALUE(sets->minimum_staffing_percentage_full_production_producer_industry);
 	
 	READ_NUM_VALUE(sets->population_per_level);
 	READ_NUM_VALUE(sets->visitor_demand_per_level);

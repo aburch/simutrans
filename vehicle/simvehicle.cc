@@ -2343,27 +2343,14 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	}
 	else if (file->is_loading())
 	{
+		// We need to re-set this to the correct value
+		// after we load desc.
 		number_of_classes = 1;
 	}
 
-	if (file->is_loading())
-	{
-		// We must initialise fracht[] here, as only now do we
-		// know the correct number of classes.
-
-		class_reassignments = new uint8[number_of_classes];
-		fracht = new slist_tpl<ware_t>[number_of_classes];
-		class_reassignments[0] = 0;
-	}
-
 	sint32 total_fracht_count = 0;
-	sint32 *fracht_count = new sint32[number_of_classes];
+	sint32* fracht_count = new sint32[number_of_classes];
 	bool create_dummy_ware = false;
-	for (uint8 i = 0; i < number_of_classes; i++)
-	{
-		fracht_count[i] = 0;
-	}
-
 
 	if (file->is_saving()) 
 	{
@@ -2416,7 +2403,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		file->rdwr_long(l);
 		route_index = (uint16)l;
 		purchase_time = (purchase_time >> welt->ticks_per_world_month_shift) + welt->get_settings().get_starting_year();
-DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12)+1,purchase_time/12);
+	DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12)+1,purchase_time/12);
 	}
 	else {
 		// prissi: changed several data types to save runtime memory
@@ -2537,6 +2524,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 			ware.rdwr(file);
 		}
 
+		uint8 cr;
 		for (uint8 i = 0; i < number_of_classes; i++)
 		{
 			FOR(slist_tpl<ware_t>, ware, fracht[i])
@@ -2550,16 +2538,21 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	{
 		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
 		{
+			class_reassignments = new uint8[desc->get_number_of_classes()];
+			fracht = new slist_tpl<ware_t>[desc->get_number_of_classes()];
+			uint8 cr;
+
 			for (uint8 i = 0; i < number_of_classes; i++)
 			{
-				const uint32 assumed_count = max((create_dummy_ware && (total_fracht_count) > 0 ? 1 : 0), fracht_count[i]);
+				const uint8 x = min(i, desc->get_number_of_classes() - 1);
+				const uint32 assumed_count = max((create_dummy_ware && (total_fracht_count) > 0 ? 1 : 0), fracht_count[x]);
 				for (uint32 j = 0; j < assumed_count; j++)
 				{
 					ware_t ware(file);
 					if ((desc == NULL || ware.menge > 0) && welt->is_within_limits(ware.get_zielpos()) && ware.get_desc())
 					{
 						// also add, of the desc is unknown to find matching replacement
-						fracht[i].insert(ware);
+						fracht[x].insert(ware);
 #ifdef CACHE_TRANSIT
 						/*
 						* It's very easy for in-transit information to get corrupted,
@@ -2588,8 +2581,17 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 				}
 			}
 		}
-		else
+		else // Older, pre-classes version
 		{
+			// We must initialise fracht[] here, as only now do we
+			// know the correct number of classes when loading an
+			// older saved game: for those games, the number of 
+			// clases defaults to 1 and we have to read this from
+			// desc.
+
+			class_reassignments = new uint8[desc->get_number_of_classes()];
+			fracht = new slist_tpl<ware_t>[desc->get_number_of_classes()];
+
 			for (int i = 0; i < total_fracht_count; i++)
 			{
 				// From an older version with no classes, so put all the ware
@@ -2726,6 +2728,13 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 			uint8 cr = class_reassignments[i];
 			file->rdwr_byte(cr); 
 			class_reassignments[i] = cr;
+		}
+	}
+	else
+	{
+		for (uint8 i = 0; i < desc->get_number_of_classes(); i++)
+		{
+			class_reassignments[i] = i;
 		}
 	}
 
