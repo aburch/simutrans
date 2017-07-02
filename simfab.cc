@@ -948,10 +948,9 @@ fabrik_t::~fabrik_t()
 	mark_connected_roads(true);
 	delete_all_fields();
 
-	welt->remove_building_from_world_list(get_building());
-
 	if(!welt->is_destroying())
 	{
+		welt->remove_building_from_world_list(get_building());
 		if(city)
 		{
 			city->remove_city_factory(this);
