@@ -416,25 +416,25 @@ void gui_convoy_assembler_t::layout()
 
 	lb_convoi_count.set_pos(scr_coord(c1_x, y));
 	lb_convoi_count.set_size(lb_size);
-	cont_convoi_capacity.set_pos(scr_coord(c2_x, y));
+	lb_convoi_value.set_pos(scr_coord(c2_x, y));
+	lb_convoi_value.set_size(lb_size);
+	cont_convoi_capacity.set_pos(scr_coord(c3_x, y));
 	cont_convoi_capacity.set_size(lb_size);
-	lb_convoi_way_wear_factor.set_pos(scr_coord(c3_x, y));
-	lb_convoi_way_wear_factor.set_size(lb_size); 
 	y += LINESPACE + 1;
 	lb_convoi_cost.set_pos(scr_coord(c1_x, y));
 	lb_convoi_cost.set_size(lb_size);
-	lb_convoi_value.set_pos(scr_coord(c2_x, y));
-	lb_convoi_value.set_size(lb_size);
-	y += LINESPACE + 1;
-	lb_convoi_power.set_pos(scr_coord(c1_x, y));
-	lb_convoi_power.set_size(lb_size);
 	lb_convoi_weight.set_pos(scr_coord(c2_x, y));
 	lb_convoi_weight.set_size(lb_size);
 	y += LINESPACE + 1;
-	lb_convoi_brake_force.set_pos(scr_coord(c1_x, y));
-	lb_convoi_brake_force.set_size(lb_size);
+	lb_convoi_power.set_pos(scr_coord(c1_x, y));
+	lb_convoi_power.set_size(lb_size);
 	lb_convoi_rolling_resistance.set_pos(scr_coord(c2_x, y));
 	lb_convoi_rolling_resistance.set_size(lb_size);
+	y += LINESPACE + 1;
+	lb_convoi_brake_force.set_pos(scr_coord(c1_x, y));
+	lb_convoi_brake_force.set_size(lb_size);
+	lb_convoi_way_wear_factor.set_pos(scr_coord(c2_x, y));
+	lb_convoi_way_wear_factor.set_size(lb_size);
 	y += LINESPACE + 1;
 	lb_convoi_speed.set_pos(scr_coord(c1_x, y));
 	lb_convoi_speed.set_size(sp_size);
@@ -687,9 +687,11 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		uint32 maint_per_km = 0;
 		uint32 maint_per_month = 0;
 		double way_wear_factor = 0.0;
+		char passenger_entries[32];
 
 		for(  unsigned i = 0;  i < number_of_vehicles;  i++  ) {
 			const vehicle_desc_t *desc = vehicles.get_element(i);
+			//const vehicle_t *act_veh;
 			const goods_desc_t* const ware = desc->get_freight_type();
 
 			total_cost += desc->get_value();
@@ -700,9 +702,28 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 			way_wear_factor += (double)desc->get_way_wear_factor();
 
 			switch(  ware->get_catg_index()  ) {
-				case goods_manager_t::INDEX_PAS: {
+				case goods_manager_t::INDEX_PAS:
+				{
 					total_pax += desc->get_total_capacity(); // TODO: Consider whether to add UI to distinguish between different classes here (Ves?).
 					total_standing_pax += desc->get_overcrowded_capacity();
+					
+			/*		for (uint8 j = 0; j < desc->get_number_of_classes(); j++)
+					{
+						if (desc->get_capacity(j) > 0)
+						{
+							char class_entry[32];
+							sprintf(class_entry, "p_class[%u]", j); //replace with teh reassigned class value when I know how to find the value: act_veh->get_reassigned_class(j));
+							const char* class_name = translator::translate(class_entry);
+							sprintf(class_entry, "%s: %i\n", class_name, desc->get_capacity(j));
+							passenger_buf.append(class_entry);
+							
+						}
+					}
+					if (desc->get_overcrowded_capacity() > 0)
+					{
+						const char* overcrowded = translator::translate("overcrowded");
+						sprintf(passenger_entries, "%s: %i", overcrowded, desc->get_overcrowded_capacity());
+					}*/
 					break;
 				}
 				case goods_manager_t::INDEX_MAIL: {
@@ -716,7 +737,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 			}
 		}
 		way_wear_factor /= 10000.0;
-		cont_convoi_capacity.set_totals( total_pax, total_standing_pax, total_mail, total_goods );
+		cont_convoi_capacity.set_totals(total_pax, total_standing_pax, total_mail, total_goods );
 
 		txt_convoi_count.printf("%s %d (%s %i)",
 			translator::translate("Fahrzeuge:"), vehicles.get_count(),
@@ -1884,13 +1905,43 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		{
 			cap[0] = '\0';
 		}
-		if(  veh_type->get_total_capacity() > 0  ) { // Standard translation is "Capacity: %3d%s %s\n", as Standard has no overcrowding
-			n += sprintf(buf + n, translator::translate("Capacity: %3d %s%s %s\n"), // TODO: Distinguish between the capacity of classes here (Ves?). 
-				veh_type->get_total_capacity(),
-				cap,
-				translator::translate( veh_type->get_freight_type()->get_mass() ),
-				veh_type->get_freight_type()->get_catg()==0 ? translator::translate( veh_type->get_freight_type()->get_name() ) : translator::translate( veh_type->get_freight_type()->get_catg_name() )
+		if (veh_type->get_total_capacity() > 0)
+		{ // Standard translation is "Capacity: %3d%s %s\n", as Standard has no overcrowding
+
+			if (veh_type->get_freight_type()->get_catg() == 0)
+			{
+				for (uint8 i = 0; i < veh_type->get_number_of_classes(); i++)
+				{
+					if (veh_type->get_capacity(i) > 0)
+					{
+						char class_name_untranslated[32];
+						sprintf(class_name_untranslated, "p_class[%u]", i);
+						const char* class_name = translator::translate(class_name_untranslated);
+						n += sprintf(buf + n, "%s: ", class_name);
+						n += sprintf(buf + n, "\n");
+
+						char capacity[32];
+						sprintf(capacity, "%i", veh_type->get_capacity(i));
+						n += sprintf(buf + n, translator::translate("capacity: %s %s"), capacity, veh_type->get_freight_type()->get_name());
+						n += sprintf(buf + n, "\n");
+						n += sprintf(buf + n, translator::translate("comfort: %i"), veh_type->get_comfort(i));
+						n += sprintf(buf + n, "\n");
+					}
+				}
+			}
+			else if (veh_type->get_freight_type()->get_catg() == 1)
+			{
+
+			}
+			else
+			{
+				n += sprintf(buf + n, translator::translate("Capacity: %3d %s%s %s\n"), // TODO: Distinguish between the capacity of classes here (Ves?). 
+					veh_type->get_total_capacity(),
+					cap,
+					translator::translate(veh_type->get_freight_type()->get_mass()),
+					veh_type->get_freight_type()->get_catg() == 0 ? translator::translate(veh_type->get_freight_type()->get_name()) : translator::translate(veh_type->get_freight_type()->get_catg_name())
 				);
+			}
 		}
 		else {
 			n += sprintf( buf + n, "\n");
