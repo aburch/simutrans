@@ -951,6 +951,7 @@ fabrik_t::~fabrik_t()
 	if(!welt->is_destroying())
 	{
 		welt->remove_building_from_world_list(get_building());
+
 		if(city)
 		{
 			city->remove_city_factory(this);
