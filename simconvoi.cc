@@ -7270,7 +7270,14 @@ void convoi_t::clear_replace()
 		dep.departure_time = time;
 		uint8 schedule_entry = schedule->get_current_stop();
 		bool rev_rev = !reverse_schedule;
-		schedule->increment_index(&schedule_entry, &rev_rev);
+		bool has_not_found_halt = true;
+		while (has_not_found_halt)
+		{
+			schedule->increment_index(&schedule_entry, &rev_rev);
+			const koord3d halt_position = schedule->entries.get_element(schedule_entry).pos;
+			const halthandle_t halt = haltestelle_t::get_halt(halt_position, front()->get_owner());
+			has_not_found_halt = !halt.is_bound();
+		}
 		departure_point_t departure_point(schedule_entry, !rev_rev);
 
 		departures.set(departure_point, dep);
