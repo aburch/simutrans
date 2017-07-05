@@ -64,6 +64,7 @@ bool pedestrian_t::successfully_loaded()
 pedestrian_t::pedestrian_t(loadsave_t *file)
  : road_user_t()
 {
+	animation_steps = 0;
 	rdwr(file);
 	if(desc) {
 		welt->sync.add(this);
@@ -75,6 +76,7 @@ pedestrian_t::pedestrian_t(grund_t *gr) :
 	road_user_t(gr, simrand(65535)),
 	desc(pick_any_weighted(list))
 {
+	animation_steps = 0;
 	time_to_life = pick_any(strecke);
 	calc_image();
 }
@@ -93,6 +95,17 @@ void pedestrian_t::calc_image()
 	set_image(desc->get_image_id(ribi_t::get_dir(get_direction())));
 }
 
+
+image_id pedestrian_t::get_image() const
+{
+	if (desc->get_steps_per_frame() > 0) {
+		uint16 frame = ((animation_steps + steps) / desc->get_steps_per_frame()) % desc->get_animation_count(ribi_t::get_dir(direction));
+		return desc->get_image_id(ribi_t::get_dir(get_direction()), frame);
+	}
+	else {
+		return image;
+	}
+}
 
 
 void pedestrian_t::rdwr(loadsave_t *file)
@@ -198,7 +211,6 @@ void pedestrian_t::hop(grund_t *gr)
 {
 	leave_tile();
 	set_pos(gr->get_pos());
-	calc_image();
 	// no need to call enter_tile();
 	gr->obj_add(this);
 
@@ -234,4 +246,14 @@ void pedestrian_t::hop(grund_t *gr)
 		// .. but this looks ugly, so disappear
 		time_to_life = 0;
 	}
+	// carry over remainder to next tile for continuous animation during straight movement
+	uint16 steps_per_animation = desc->get_steps_per_frame() * desc->get_animation_count(ribi_t::get_dir(direction));
+	if (steps_per_animation > 0) {
+		animation_steps = (animation_steps + steps_next + 1) % steps_per_animation;
+	}
+	else {
+		animation_steps = 0;
+	}
+
+	calc_image();
 }

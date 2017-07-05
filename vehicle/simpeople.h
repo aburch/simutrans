@@ -18,6 +18,7 @@ private:
 
 private:
 	const pedestrian_desc_t *desc;
+	uint16 animation_steps;
 
 protected:
 	void rdwr(loadsave_t *file);
@@ -41,6 +42,9 @@ public:
 	typ get_typ() const { return pedestrian; }
 
 	sync_result sync_step(uint32 delta_t);
+
+	// overloaded to enable animations
+	virtual image_id get_image() const;
 
 	virtual grund_t* hop_check();
 	virtual void hop(grund_t* gr);
