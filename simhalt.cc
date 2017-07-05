@@ -637,9 +637,13 @@ haltestelle_t::~haltestelle_t()
 
 	if(!welt->is_destroying())
 	{
+#ifdef MULTI_THREAD
+		welt->stop_path_explorer();
+#endif
 		for(uint8 i = 0; i < max_categories; i++)	
 		{
 			reset_connexions(i);
+			path_explorer_t::refresh_category(i); 
 		}
 		delete connexions[i];
 	}
