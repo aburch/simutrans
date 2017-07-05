@@ -11,7 +11,7 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 {
 	int i;
 
-	obj_node_t node(this, 6, &parent);
+	obj_node_t node(this, 8, &parent);
 
 	write_head(fp, node, obj);
 
@@ -63,6 +63,8 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 		imagelist_writer_t::instance()->write_obj(fp, node, keys);
 	}
 
+	uint16 offset = obj.get_int("offset", 20);
+
 
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
@@ -70,6 +72,7 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 	node.write_uint16(fp, version,             0);
 	node.write_uint16(fp, distribution_weight, 2);
 	node.write_uint16(fp, steps_per_frame,     4);
+	node.write_uint16(fp, offset,              6);
 
 	node.write(fp);
 }

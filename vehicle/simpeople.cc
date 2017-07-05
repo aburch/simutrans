@@ -65,9 +65,12 @@ pedestrian_t::pedestrian_t(loadsave_t *file)
  : road_user_t()
 {
 	animation_steps = 0;
+	on_left = false;
+	steps_offset = 0;
 	rdwr(file);
 	if(desc) {
 		welt->sync.add(this);
+		ped_offset = desc->get_offset();
 	}
 }
 
@@ -77,7 +80,10 @@ pedestrian_t::pedestrian_t(grund_t *gr) :
 	desc(pick_any_weighted(list))
 {
 	animation_steps = 0;
+	on_left = simrand(2) > 0;
+	steps_offset = 0;
 	time_to_life = pick_any(strecke);
+	ped_offset = desc->get_offset();
 	calc_image();
 }
 
@@ -130,6 +136,11 @@ void pedestrian_t::rdwr(loadsave_t *file)
 
 	if(file->get_version()<89004) {
 		time_to_life = pick_any(strecke);
+	}
+
+	if (file->get_version() > 120005) {
+		file->rdwr_short(steps_offset);
+		file->rdwr_bool(on_left);
 	}
 }
 
@@ -209,43 +220,73 @@ grund_t* pedestrian_t::hop_check()
 
 void pedestrian_t::hop(grund_t *gr)
 {
+	koord3d from = get_pos();
+
+	// hop
 	leave_tile();
 	set_pos(gr->get_pos());
 	// no need to call enter_tile();
 	gr->obj_add(this);
 
+	// determine pos_next
 	const weg_t *weg = gr->get_weg(road_wt);
 	// new target
 	grund_t *to = NULL;
+	// current single direction
+	ribi_t::ribi current_direction = get_direction();
+	if (!ribi_t::is_single(current_direction)) {
+		current_direction = ribi_type(from, get_pos());
+	}
 	// ribi opposite to current direction
-	ribi_t::ribi reverse_direction = ribi_t::backward( get_direction() );
+	ribi_t::ribi reverse_direction = ribi_t::reverse_single( current_direction );
 	// all possible directions
 	ribi_t::ribi ribi = weg->get_ribi_unmasked() & (~reverse_direction);
 	// randomized offset
 	const uint8 offset = (ribi > 0  &&  ribi_t::is_single(ribi)) ? 0 : simrand(4);
 
+	ribi_t::ribi new_direction;
 	for(uint r = 0; r < 4; r++) {
-		ribi_t::ribi const test_ribi = ribi_t::nsew[ (r+offset) & 3];
+		new_direction = ribi_t::nsew[ (r+offset) & 3];
 
-		if(  (ribi & test_ribi)!=0  &&  gr->get_neighbour(to, road_wt, test_ribi) )	{
+		if(  (ribi & new_direction)!=0  &&  gr->get_neighbour(to, road_wt, new_direction) ) {
 			// this is our next target
 			break;
 		}
 	}
+	steps_offset = 0;
 
 	if (to) {
 		pos_next = to->get_pos();
-		direction = calc_set_direction(get_pos(), pos_next);
+
+		if (new_direction == current_direction) {
+			// going straight
+			direction = calc_set_direction(get_pos(), pos_next);
+		}
+		else {
+			ribi_t::ribi turn_ribi = on_left ? ribi_t::rotate90l(current_direction) : ribi_t::rotate90(current_direction);
+
+			if (turn_ribi == new_direction) {
+				// short diagonal (turn but do not cross street)
+				direction = calc_set_direction(from, pos_next);
+				steps_next = (ped_offset*181) / 128; // * sqrt(2)
+				steps_offset = 0;
+			}
+			else {
+				// do not cross street diagonally, change side
+				on_left = !on_left;
+				direction = calc_set_direction(get_pos(), pos_next);
+			}
+		}
 	}
 	else {
-		// turn around
-		direction = reverse_direction;
-		dx = -dx;
-		dy = -dy;
-		pos_next = get_pos();
-		// .. but this looks ugly, so disappear
-		time_to_life = 0;
+		// dead end, turn
+		pos_next = from;
+		direction = calc_set_direction(get_pos(), pos_next);
+		steps_offset = VEHICLE_STEPS_PER_TILE - ped_offset;
+		steps_next   = ped_offset;
+		on_left = !on_left;
 	}
+
 	// carry over remainder to next tile for continuous animation during straight movement
 	uint16 steps_per_animation = desc->get_steps_per_frame() * desc->get_animation_count(ribi_t::get_dir(direction));
 	if (steps_per_animation > 0) {
@@ -257,3 +298,30 @@ void pedestrian_t::hop(grund_t *gr)
 
 	calc_image();
 }
+
+void pedestrian_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const
+{
+	// vehicles needs finer steps to appear smoother
+	sint32 display_steps = (uint32)(steps + steps_offset)*(uint16)raster_width;
+	if(dx*dy) {
+		display_steps &= 0xFFFFFC00;
+	}
+	else {
+		display_steps = (display_steps*diagonal_multiplier)>>10;
+	}
+	xoff += (display_steps*dx) >> 10;
+	yoff += ((display_steps*dy) >> 10) + (get_hoff(raster_width))/(4*16);
+
+	if (on_left) {
+		sint32 left_off_steps = ( (VEHICLE_STEPS_PER_TILE - 2*ped_offset)*(uint16)raster_width ) & 0xFFFFFC00;
+
+		if (dx*dy==0) {
+			// diagonal
+			left_off_steps /= 2;
+		}
+		// turn left (dx,dy) increments
+		xoff += (left_off_steps*2*dy) >> 10;
+		yoff -= (left_off_steps*dx) >> (10+1);
+	}
+}
+

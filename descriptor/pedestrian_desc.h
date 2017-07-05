@@ -30,6 +30,7 @@ class pedestrian_desc_t : public obj_named_desc_t {
 
 	uint16 distribution_weight;
 	uint16 steps_per_frame;
+	uint16 offset;
 
 public:
 	image_id get_image_id(ribi_t::dir dir, uint16 phase=0) const
@@ -58,6 +59,8 @@ public:
 		chk->input(distribution_weight);
 	}
 
+	// images are offset steps away from boundary
+	uint16 get_offset() const { return offset; }
 };
 
 #endif

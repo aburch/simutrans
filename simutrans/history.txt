@@ -6,6 +6,8 @@
 	ADD: animated pedestrians, parameters:
 		steps_per_frame (internal steps per frame, straight movement across tile is 256 steps)
 		image[dir][a] (dir - direction, a - animation counter, a=0,1,..)
+	CHG: pedestrian movement, new dat parameter:
+		offset (of pedestrian image relative to right tile boundary, 0..255, default 20, 0 = on the right edge of tile, 128 = on center line of tile)
 
 Release of 120.2.2: (r8163 on 31-3-2017):
 	ADD: Name filter in depot window
