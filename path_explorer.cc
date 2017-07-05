@@ -875,8 +875,6 @@ void path_explorer_t::compartment_t::step()
 
 						// Check the journey times to the connexion
 						id_pair halt_pair(halt_list[h].get_id(), halt_list[t].get_id());
-						const char* TEST_halt_name_1 = halt_list[h]->get_name();
-						const char* TEST_halt_name_2 = halt_list[t]->get_name();
 						new_connexion = new haltestelle_t::connexion;
 						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
 						new_connexion->transfer_time = catg != goods_manager_t::passengers->get_catg_index() ? halt_list[h]->get_transshipment_time() : halt_list[h]->get_transfer_time();
@@ -908,7 +906,6 @@ void path_explorer_t::compartment_t::step()
 						}
 						new_connexion->best_convoy = current_linkage.convoy;
 						new_connexion->best_line = current_linkage.line;
-						const char* TEST_name = new_connexion->best_line.is_bound() ? new_connexion->best_line->get_name() : "No line"; 
 						new_connexion->alternative_seats = 0;
 
 						// Check whether this is the best connexion so far, and, if so, add it.
@@ -1240,8 +1237,6 @@ void path_explorer_t::compartment_t::step()
 
 					// update corresponding matrix element
 					working_matrix[phase_counter][reachable_halt_index].next_transfer = reachable_halt;
-					const char* TEST_reachable_halt_name = reachable_halt->get_name();
-					const char* TEST_current_halt_name = current_halt->get_name();
 					working_matrix[phase_counter][reachable_halt_index].aggregate_time = current_connexion->waiting_time + current_connexion->journey_time + current_connexion->transfer_time;
 					transport_matrix[phase_counter][reachable_halt_index].first_transport 
 						= transport_matrix[phase_counter][reachable_halt_index].last_transport 
@@ -1420,13 +1415,6 @@ void path_explorer_t::compartment_t::step()
 													 + working_matrix[via][target].aggregate_time ) 
 											< working_matrix[origin][target].aggregate_time			   )
 								{
-									halthandle_t TEST_handle_origin;
-									TEST_handle_origin.set_id(origin);
-									halthandle_t TEST_handle_target;
-									TEST_handle_target.set_id(target); 
-									const char* TEST_name_origin = TEST_handle_origin.is_bound() ? TEST_handle_origin->get_name() : "No origin"; 
-									const char* TEST_name_target = TEST_handle_target.is_bound() ? TEST_handle_target->get_name() : "No target"; 
-									const char* TEST_name_transfer = working_matrix[origin][via].next_transfer.is_bound() ? working_matrix[origin][via].next_transfer->get_name() : "No transfer";
 									working_matrix[origin][target].aggregate_time = combined_time;
 									working_matrix[origin][target].next_transfer = working_matrix[origin][via].next_transfer;
 									transport_matrix[origin][target].first_transport = transport_matrix[origin][via].first_transport;
