@@ -72,6 +72,7 @@ pedestrian_t::pedestrian_t(loadsave_t *file)
 		welt->sync.add(this);
 		ped_offset = desc->get_offset();
 	}
+	calc_disp_lane();
 }
 
 
@@ -85,6 +86,7 @@ pedestrian_t::pedestrian_t(grund_t *gr) :
 	time_to_life = pick_any(strecke);
 	ped_offset = desc->get_offset();
 	calc_image();
+	calc_disp_lane();
 }
 
 
@@ -142,9 +144,25 @@ void pedestrian_t::rdwr(loadsave_t *file)
 		file->rdwr_short(steps_offset);
 		file->rdwr_bool(on_left);
 	}
+
+	if (file->is_loading()) {
+		calc_disp_lane();
+	}
+}
+
+void pedestrian_t::calc_disp_lane()
+{
+	// walking in the back or the front
+	ribi_t::ribi test_dir = on_left ? ribi_t::northeast : ribi_t::southwest;
+	disp_lane = direction & test_dir ? 0 : 4;
 }
 
 
+void pedestrian_t::rotate90()
+{
+	road_user_t::rotate90();
+	calc_disp_lane();
+}
 
 // create a number (count) of pedestrians (if possible)
 void pedestrian_t::generate_pedestrians_at(const koord3d k, int &count)
@@ -287,6 +305,7 @@ void pedestrian_t::hop(grund_t *gr)
 		on_left = !on_left;
 	}
 
+	calc_disp_lane();
 	// carry over remainder to next tile for continuous animation during straight movement
 	uint16 steps_per_animation = desc->get_steps_per_frame() * desc->get_animation_count(ribi_t::get_dir(direction));
 	if (steps_per_animation > 0) {

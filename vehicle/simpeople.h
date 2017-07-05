@@ -47,6 +47,13 @@ public:
 
 	sync_result sync_step(uint32 delta_t);
 
+	///@ returns true if pedestrian walks on the left side of the road
+	bool is_on_left() const { return on_left; }
+
+	void calc_disp_lane();
+
+	virtual void rotate90();
+
 	// overloaded to enable animations
 	virtual image_id get_image() const;
 

@@ -185,6 +185,7 @@ vehicle_base_t::vehicle_base_t():
 	dx = 0;
 	dy = 0;
 	zoff_start = zoff_end = 0;
+	disp_lane = 2;
 }
 
 
@@ -200,6 +201,7 @@ vehicle_base_t::vehicle_base_t(koord3d pos):
 	dx = 0;
 	dy = 0;
 	zoff_start = zoff_end = 0;
+	disp_lane = 2;
 }
 
 
@@ -219,6 +221,7 @@ void vehicle_base_t::rotate90()
 	sint8 neu_yoff = get_xoff()/2;
 	set_xoff( -get_yoff()*2 );
 	set_yoff( neu_yoff );
+	// adjust disp_lane individually
 }
 
 
@@ -1841,9 +1844,24 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 		if(  desc  ) {
 			last_desc = desc;
 		}
+		calc_disp_lane();
 	}
 }
 
+
+void road_vehicle_t::rotate90()
+{
+	vehicle_t::rotate90();
+	calc_disp_lane();
+}
+
+
+void road_vehicle_t::calc_disp_lane()
+{
+	// driving in the back or the front
+	ribi_t::ribi test_dir = welt->get_settings().is_drive_left() ? ribi_t::northeast : ribi_t::southwest;
+	disp_lane = get_direction() & test_dir ? 1 : 3;
+}
 
 // need to reset halt reservation (if there was one)
 bool road_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
@@ -2282,6 +2300,7 @@ overtaker_t* road_vehicle_t::get_overtaker()
 void road_vehicle_t::enter_tile(grund_t* gr)
 {
 	vehicle_t::enter_tile(gr);
+	calc_disp_lane();
 
 	const int cargo = get_total_cargo();
 	weg_t *str = gr->get_weg(road_wt);
