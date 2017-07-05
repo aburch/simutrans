@@ -5989,6 +5989,8 @@ void convoi_t::clear_average_speed()
 {
 	financial_history[0][CONVOI_AVERAGE_SPEED] = 0;
 	financial_history[1][CONVOI_AVERAGE_SPEED] = 0;
+
+	arrival_to_first_stop.clear();
 }
 
 /**
