@@ -301,7 +301,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	inp_other_industries.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
 	inp_other_industries.set_size(edit_size);
 	inp_other_industries.add_listener(this);
-	inp_other_industries.set_limits(0,999);
+	inp_other_industries.set_limits(0,16384);
 	inp_other_industries.set_value(abs(sets->get_factory_count()) );
 	add_component( &inp_other_industries );
 

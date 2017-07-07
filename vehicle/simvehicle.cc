@@ -4058,8 +4058,8 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			schedule_t *schedule = cnv->get_schedule();
 			const koord3d start_pos = route.at(last_index);
 			uint8 index = schedule->get_current_stop();
-			bool reversed = cnv->get_reverse_schedule();
-			schedule->increment_index(&index, &reversed);
+			bool rev = cnv->get_reverse_schedule();
+			schedule->increment_index(&index, &rev);
 			const koord3d next_ziel = schedule->entries[index].pos;
 
 			way_is_free = !target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), cnv->get_tile_length(), welt->get_settings().get_max_route_steps(), cnv->get_weight_summary().weight / 1000);
@@ -4082,7 +4082,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					// This is still needed after the new (November 2015) system as there are some (possibly 
 					// transitional) cases in which next_block is still ahead of the calculated route. 
 
-					if(reversed)
+					if(rev)
 					{
 						schedule->advance_reverse();
 					}
