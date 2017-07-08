@@ -69,6 +69,9 @@
 #define L_BUTTON_NARROW ( (L_DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT - D_V_SPACE + 2) / 3 )
 #define L_BUTTON_WIDE   (((L_DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT - D_V_SPACE) * 2) / 3 )
 
+uint32 welt_gui_t::max_map_dimension_fixed = 32766;
+uint32 welt_gui_t::max_map_dimension_numerator = 33554432;
+
 
 welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	gui_frame_t( translator::translate("Neue Welt" ) ),
@@ -176,7 +179,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	cursor.y += LINESPACE;
 
 	// Map X size edit
-	inp_x_size.init( sets->get_size_x(), 8, min(32000,min(32000,16777216/sets->get_size_y())), sets->get_size_x()>=512 ? 128 : 64, false );
+	inp_x_size.init( sets->get_size_x(), 8, min(max_map_dimension_fixed,min(max_map_dimension_fixed, welt_gui_t::max_map_dimension_numerator/sets->get_size_y())), sets->get_size_x()>=512 ? 128 : 64, false );
 	inp_x_size.set_pos( scr_coord(L_COLUMN2_X,cursor.y) );
 	inp_x_size.set_size(edit_size);
 	inp_x_size.add_listener(this);
@@ -193,7 +196,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Map size Y edit
-	inp_y_size.init( sets->get_size_y(), 8, min(32000,16777216/sets->get_size_x()), sets->get_size_y()>=512 ? 128 : 64, false );
+	inp_y_size.init( sets->get_size_y(), 8, min(max_map_dimension_fixed, welt_gui_t::max_map_dimension_numerator/sets->get_size_x()), sets->get_size_y()>=512 ? 128 : 64, false );
 	inp_y_size.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
 	inp_y_size.set_size(edit_size);
 	inp_y_size.add_listener(this);
@@ -539,7 +542,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		if(  !loaded_heightfield  ) {
 			sets->set_size_x( v.i );
 			inp_x_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-			inp_y_size.set_limits( 8, min(32000,16777216/sets->get_size_x()) );
+			inp_y_size.set_limits( 8, min(max_map_dimension_fixed, welt_gui_t::max_map_dimension_numerator /sets->get_size_x()) );
 			update_densities();
 		}
 		else {
@@ -550,7 +553,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		if(  !loaded_heightfield  ) {
 			sets->set_size_y( v.i );
 			inp_y_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-			inp_x_size.set_limits( 8, min(32000,16777216/sets->get_size_y()) );
+			inp_x_size.set_limits( 8, min(max_map_dimension_fixed, welt_gui_t::max_map_dimension_numerator /sets->get_size_y()) );
 			update_densities();
 		}
 		else {
