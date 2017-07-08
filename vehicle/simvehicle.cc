@@ -391,7 +391,7 @@ void vehicle_base_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 {
 	// vehicles needs finer steps to appear smoother
 	sint32 display_steps = (uint32)steps*(uint16)raster_width;
-	if(dx*dy) {
+	if(dx && dy) {
 		display_steps &= 0xFFFFFC00;
 	}
 	else {
@@ -1508,7 +1508,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		set_xoff( ddx-(16-i)*dx );
 		set_yoff( ddy-(16-i)*dy );
 		if(file->is_loading()) {
-			if(dx*dy) {
+			if(dx && dy) {
 				steps = min( VEHICLE_STEPS_PER_TILE - 1, VEHICLE_STEPS_PER_TILE - 1-(i*16) );
 				steps_next = VEHICLE_STEPS_PER_TILE - 1;
 			}
