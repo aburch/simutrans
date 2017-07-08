@@ -21,12 +21,16 @@ SQInteger command_constructor(HSQUIRRELVM vm)
 	// create tool
 	uint16 id = param<uint16>::get(vm, 2);
 
-	if (tool_t *tool = create_tool(id)) {
-		my_tool_t* mtool = new my_tool_t(tool);
-		attach_instance(vm, 1, mtool);
-		return 0;
+	if (id & GENERAL_TOOL) {
+		// we do not want scripts to open dialogues or quitting the game etc
+
+		if (tool_t *tool = create_tool(id)) {
+			my_tool_t* mtool = new my_tool_t(tool);
+			attach_instance(vm, 1, mtool);
+			return 0;
+		}
 	}
-	return -1;
+	return sq_raise_error(vm, "Invalid tool called (%d / 0x%x)", id & 0xfff, id);
 }
 
 
