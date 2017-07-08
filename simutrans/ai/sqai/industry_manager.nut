@@ -7,6 +7,9 @@ class industry_link_t
 	state = 0
 	lines = null   // array<line_x>
 
+	// next check needed if ticks > next_check
+	// state == st_missing: check availability again
+	// state == st_build: check for possible upgrades
 	next_check = 0 // only set for st_missing, next time availability has to be checked
 
 	static st_free    = 0 /// not registered
@@ -69,6 +72,8 @@ class industry_manager_t extends manager_t
 		}
 
 		if (state == industry_link_t.st_built) {
+			link_list[k].next_check = world.get_time().next_month_ticks
+
 			local text = ""
 			text = "Transport " + translate(fre) + " from "
 			text += coord(src.x, src.y).href(src.get_name()) + " to "
@@ -161,9 +166,12 @@ class industry_manager_t extends manager_t
 			return
 		}
 		// try to upgrade
-		if (cnv.has_obsolete_vehicles()) {
-			upgrade_link(link)
-			return
+		if (cnv.has_obsolete_vehicles()  &&  link.next_check < world.get_time().ticks) {
+			link.next_check = world.get_time().next_month_ticks
+			if (upgrade_link(link)) {
+				// update successful
+				return
+			}
 		}
 
 		local lf = link.freight
@@ -349,7 +357,7 @@ class industry_manager_t extends manager_t
 			different = !cnv_veh[i].is_equal(pro_veh[i])
 		}
 		if (!different) {
-			return // TODO process return value
+			return false
 		}
 
 		dbgprint("Upgrade line "  + line.get_name())
@@ -364,6 +372,7 @@ class industry_manager_t extends manager_t
 		c.p_count    = min(planned_convoy.nr_convoys, 3)
 		c.p_withdraw = true
 		append_child(c)
+		return true
 	}
 
 	function _save()
