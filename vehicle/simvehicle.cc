@@ -2509,17 +2509,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			next_enter_passing_lane = true;
 			return true;
 		}
-		// If this vehicle is forced to go back to traffic lane at the next tile and traffic lane is not safe to change lane, this vehicle should wait.
-		if(  str->get_overtaking_mode() > 0  &&  str->get_overtaking_mode() < 4  &&  cnv->get_tiles_overtaking() == 1  ) {
-			if(  vehicle_base_t* v = other_lane_blocked()  ) {
-				if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next2), v->get_90direction(), true, true)) {
-					restart_speed = 0;
-					cnv->reset_waiting();
-					next_cross_lane = true;
-					return false;
-				}
-			}
-		}
 		// If 2 tiles ahead is a crossing, lane crossing must be checked before entering.
 		const koord3d pos_next3 = route_index < r.get_count() - 2u ? r.at(route_index + 2u) : pos_next2;
 		const grund_t *gr = route_index < r.get_count() - 1u ? welt->lookup(r.at(route_index+1u)) : NULL;
