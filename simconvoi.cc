@@ -3869,7 +3869,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		pos = pos_next;
 	}
 
-	set_tiles_overtaking( 2+n_tiles );
+	set_tiles_overtaking( 1+n_tiles );
 	//The parameter about being overtaken is no longer meaningful on one-way road.
 	if(  overtaking_info != 0  ) {
 		other_overtaker->set_tiles_overtaking( -1-(n_tiles*(akt_speed-diff_speed))/akt_speed );
