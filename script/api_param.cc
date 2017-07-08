@@ -10,6 +10,7 @@
 #include "../player/simplay.h"
 #include "../utils/plainstring.h"
 #include "api/api_command.h" // script_api::my_tool_t
+#include "api/api_simple.h"  // my_ribi_t
 
 
 template<typename T> T clamp(T v, T l, T u) { return v < l ? l : (v > u ? u :v); }
@@ -342,6 +343,20 @@ namespace script_api {
 			k = koord::invalid;
 		}
 		return push_instance(vm, "coord3d", k.x, k.y, v.z);
+	}
+// directions / ribis
+	SQInteger param<my_ribi_t>::push(HSQUIRRELVM vm, my_ribi_t const& v)
+	{
+		ribi_t::ribi ribi = v;
+		coordinate_transform_t::ribi_w2sq(ribi);
+		return param<uint8>::push(vm, ribi);
+	}
+
+	my_ribi_t param<my_ribi_t>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		ribi_t::ribi ribi = param<uint8>::get(vm, index) & ribi_t::all;
+		coordinate_transform_t::ribi_sq2w(ribi);
+		return ribi;
 	}
 
 // pointers to classes

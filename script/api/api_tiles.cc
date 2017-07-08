@@ -52,22 +52,18 @@ static SQInteger get_way_ribi(HSQUIRRELVM vm)
 
 	ribi_t::ribi ribi = gr ? (masked ? gr->get_weg_ribi(wt) : gr->get_weg_ribi_unmasked(wt) ) : 0;
 
-	return push_ribi(vm, ribi);
+	return param<my_ribi_t>::push(vm, ribi);
 }
 
 
 // we have to implement a wrapper, to correctly rotate ribi
-SQInteger get_neighbour(HSQUIRRELVM vm)
+grund_t* get_neighbour(grund_t *gr, waytype_t wt, my_ribi_t ribi)
 {
-	grund_t *gr  = param<grund_t*>::get(vm, 1);
-	waytype_t wt = param<waytype_t>::get(vm, 2);
-	ribi_t::ribi ribi = get_ribi(vm, 3);
-
 	grund_t *to = NULL;
 	if (gr  &&  ribi_t::is_single(ribi)) {
 		gr->get_neighbour(to, wt, ribi);
 	}
-	return param<grund_t*>::push(vm, to);
+	return to;
 }
 
 halthandle_t get_first_halt_on_square(planquadrat_t* plan)
@@ -218,9 +214,8 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @param wt waytype, if equal to @ref wt_all then ways are ignored.
 	 * @param d direction
 	 * @return neighbour tile or null
-	 * @typemask tile_x(waytypes,dir)
 	 */
-	register_function(vm, &get_neighbour, "get_neighbour", 3, "xii");
+	register_method(vm, &get_neighbour, "get_neighbour", true);
 
 #ifdef SQAPI_DOC // document members
 	/**

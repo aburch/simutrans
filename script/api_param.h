@@ -24,6 +24,7 @@ class koord3d;
 class label_t;
 class loadsave_t;
 struct schedule_entry_t;
+class my_ribi_t;
 class planquadrat_t;
 class plainstring;
 class scenario_t;
@@ -327,6 +328,7 @@ namespace script_api {
 	declare_specialized_param(systemtype_t, "i", "way_system_types");
 	declare_specialized_param(obj_t::typ, "i", "map_objects");
 	declare_specialized_param(climate, "i", "climates");
+	declare_specialized_param(my_ribi_t, "i", "dir");
 
 	declare_specialized_param(double, "i|f", "float");
 
@@ -467,12 +469,12 @@ namespace script_api {
 		static void koord_sq2w(koord &);
 
 		/**
-		 * rotate original direction to actual world coordinates direction
+		 * rotate actual world coordinates direction to original direction
 		 */
 		static void ribi_w2sq(ribi_t::ribi &r);
 
 		/**
-		 * rotate actual world coordinates direction to original direction
+		 * rotate original direction to actual world coordinates direction
 		 */
 		static void ribi_sq2w(ribi_t::ribi &r);
 

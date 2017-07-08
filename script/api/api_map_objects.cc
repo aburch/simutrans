@@ -212,7 +212,7 @@ static SQInteger get_way_ribi(HSQUIRRELVM vm)
 
 	ribi_t::ribi ribi = w ? (masked ? w->get_ribi() : w->get_ribi_unmasked() ) : 0;
 
-	return push_ribi(vm, ribi);
+	return param<my_ribi_t>::push(vm, ribi);
 }
 
 // create class
