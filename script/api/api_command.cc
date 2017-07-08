@@ -3,6 +3,8 @@
 /** @file api_command.cc exports the command_x class, which encodes the tools to manipulate a game */
 
 #include "api_command.h"
+#include "api_obj_desc_base.h"
+#include "api_simple.h"
 #include "../api_param.h"
 #include "../api_class.h"
 #include "../api_function.h"
@@ -10,6 +12,8 @@
 #include "../../simworld.h"
 #include "../../dataobj/environment.h"
 #include "../../script/script.h"
+#include "../../descriptor/bridge_desc.h"
+#include "../../descriptor/building_desc.h"
 
 #include <memory> // auto_ptr
 
@@ -266,6 +270,65 @@ void* script_api::param<tool_t*>::tag()
 }
 
 
+call_tool_work build_way(player_t* pl, koord3d start, koord3d end, const way_desc_t* way, bool straight)
+{
+	if (way == NULL) {
+		return call_tool_work("No way provided");
+	}
+	return call_tool_work(TOOL_BUILD_WAY | GENERAL_TOOL, way->get_name(), straight ? 2 : 0, pl, start, end);
+}
+
+call_tool_work build_station(player_t* pl, koord3d pos, const building_desc_t* building)
+{
+	if (building == NULL  ||  !building->is_transport_building()) {
+		return call_tool_work("No building provided");
+	}
+	return call_tool_work(TOOL_BUILD_STATION | GENERAL_TOOL, building->get_name(), 0, pl, pos);
+}
+
+call_tool_work build_depot(player_t* pl, koord3d pos, const building_desc_t* building)
+{
+	if (building == NULL  ||  !building->is_depot()) {
+		return call_tool_work("No depot provided");
+	}
+	return call_tool_work(TOOL_BUILD_DEPOT | GENERAL_TOOL, building->get_name(), 0, pl, pos);
+}
+
+call_tool_work build_bridge(player_t* pl, koord3d start, koord3d end, const bridge_desc_t* bridge)
+{
+	if (bridge == NULL) {
+		return call_tool_work("No bridge provided");
+	}
+	return call_tool_work(TOOL_BUILD_BRIDGE | GENERAL_TOOL, bridge->get_name(), 2, pl, start, end);
+}
+
+call_tool_work build_bridge_at(player_t* pl, koord3d start, const bridge_desc_t* bridge)
+{
+	if (bridge == NULL) {
+		return call_tool_work("No bridge provided");
+	}
+	return call_tool_work(TOOL_BUILD_BRIDGE | GENERAL_TOOL, bridge->get_name(), 0, pl, start);
+}
+
+call_tool_work set_slope(player_t* pl, koord3d start, my_slope_t slope)
+{
+	static char buf[8];
+	sprintf(buf, "%2d", (uint8)slope);
+	return call_tool_work(TOOL_SETSLOPE | GENERAL_TOOL, buf, 0, pl, start);
+}
+
+call_tool_work restore_slope(player_t* pl, koord3d start)
+{
+	return call_tool_work(TOOL_RESTORESLOPE | GENERAL_TOOL, "", 0, pl, start);
+}
+
+
+
+// call_tool_work(uint16 id, const char* dp, uint8 f, player_t* pl, koord3d pos1, koord3d pos2)
+
+// err = w.work(our_player, route[i-1], route[i], way.get_name() )
+
+
 void export_commands(HSQUIRRELVM vm)
 {
 	/**
@@ -333,6 +396,59 @@ void export_commands(HSQUIRRELVM vm)
 	 */
 	register_function(vm,, "work");
 #endif
+	/**
+	 * Build a way.
+	 * @param pl player to pay for the work
+	 * @param start coordinate, where work begins
+	 * @param end   coordinate, where work ends
+	 * @param way type of way to be built
+	 * @param straight force building of straight ways, similar as building way with control key pressed
+	 */
+	register_method(vm, build_way, "build_way", false, true);
+	/**
+	 * Build a depot.
+	 * @param pl player to pay for the work
+	 * @param pos position to place the depot
+	 * @param depot type of depot to be built
+	 */
+	register_method(vm, build_depot, "build_depot", false, true);
+	/**
+	 * Build a station or station extension building.
+	 * @param pl player to pay for the work
+	 * @param pos position to place the depot
+	 * @param station type of station to be built
+	 */
+	register_method(vm, build_station, "build_station", false, true);
+	/**
+	 * Build a bridge.
+	 * Similar to drag-and-build of bridges in-game.
+	 * @param pl player to pay for the work
+	 * @param start coordinate, where bridge begins
+	 * @param end   coordinate, where bridge ends
+	 * @param bridge type of bridge to be built
+	 */
+	register_method(vm, build_bridge, "build_bridge", false, true);
+	/**
+	 * Build a bridge.
+	 * Similar to one click with mouse on suitable start tile: program will figure out bridge span itself.
+	 * @param pl player to pay for the work
+	 * @param start coordinate, where bridge begins, the end point will be automatically determined
+	 * @param bridge type of bridge to be built
+	 */
+	register_method(vm, build_bridge_at, "build_bridge_at", false, true);
+	/**
+	 * Modify the slope of one tile.
+	 * @param pl player to pay for the work
+	 * @param pos position of tile
+	 * @param slope new slope, can also be one of @ref slope::all_up_slope or @ref slope::all_down_slope.
+	 */
+	register_method(vm, set_slope, "set_slope", false, true);
+	/**
+	 * Restore natural slope of one tile.
+	 * @param pl player to pay for the work
+	 * @param pos position of tile
+	 */
+	register_method(vm, restore_slope, "restore_slope", false, true);
 
 	end_class(vm);
 }

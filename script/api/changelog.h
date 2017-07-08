@@ -10,6 +10,8 @@
  * - Added ::is_convoy_allowed
  * - Added convoy_x::is_in_depot
  * - Added scriptable hyperlinks in scenario info window
+ * - Added @ref slope
+ * - Added functions to build stuff: command_x::build_way, command_x::build_depot, command_x::build_station, command_x::build_bridge, command_x::build_bridge_at, command_x::set_slope, command_x::restore_slope
  *
  * @section api-120-2-2 Release 120.2.2
  *

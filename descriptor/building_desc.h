@@ -260,6 +260,7 @@ public:
 	bool is_factory()       const { return is_type(factory); }
 	bool is_city_building() const { return is_type(city_res) || is_type(city_com) || is_type(city_ind); }
 	bool is_transport_building() const { return type > headquarters  && type <= flat_dock; }
+	bool is_depot() const { return is_type(depot); }
 
 	bool is_connected_with_town() const;
 
