@@ -66,6 +66,12 @@ grund_t* get_neighbour(grund_t *gr, waytype_t wt, my_ribi_t ribi)
 	return to;
 }
 
+my_slope_t get_slope(grund_t *gr)
+{
+	return gr->get_grund_hang();
+}
+
+
 halthandle_t get_first_halt_on_square(planquadrat_t* plan)
 {
 	return plan->get_halt(NULL);
@@ -167,7 +173,7 @@ void export_tiles(HSQUIRRELVM vm)
 	 * Returns encoded slope of tile, zero means flat tile.
 	 * @returns slope
 	 */
-	register_method(vm, &grund_t::get_grund_hang, "get_slope");
+	register_method(vm, &get_slope, "get_slope", true);
 
 	/**
 	 * Returns text of a sign on this tile (station sign, city name, label).

@@ -89,6 +89,16 @@ map_ribi_any(is_straight, bool);
 map_ribi_any(doubles, my_ribi_t);
 map_ribi_any(backward, my_ribi_t);
 
+my_slope_t ribi_to_slope(my_ribi_t ribi)
+{
+	return slope_type((ribi_t::ribi)ribi);
+}
+
+my_ribi_t slope_to_ribi(my_slope_t slope)
+{
+	return ribi_type((slope_t::type)slope);
+}
+
 void export_simple(HSQUIRRELVM vm)
 {
 
@@ -231,5 +241,42 @@ void export_simple(HSQUIRRELVM vm)
 	 */
 	STATIC register_method(vm, &export_backward,  "backward", false, true);
 
+	/**
+	 * Converts direction to slope: direction goes upward on slope.
+	 * @param d direction
+	 */
+	STATIC register_method(vm, &ribi_to_slope, "to_slope", false, true);
+	end_class(vm);
+
+	/**
+	 * Class holding static methods to work with slopes.
+	 * Slopes are just integers.
+	 */
+	begin_class(vm, "slope");
+
+#ifdef SQAPI_DOC // document members
+	/** @name Named slopes. */
+	//@{
+	static const slope flat
+	static const slope north      ///< North slope
+	static const slope west       ///< West slope
+	static const slope east       ///< East slope
+	static const slope south      ///< South slope
+	static const slope northwest  ///< NW corner
+	static const slope northeast  ///< NE corner
+	static const slope southeast  ///< SE corner
+	static const slope southwest  ///< SW corner
+	static const slope raised     ///< special meaning: used as slope of bridgeheads
+	static const slope all_up_slope   = 82 ///< used for terraforming tools
+	static const slope all_down_slope = 83 ///< used for terraforming tools
+	//@}
+#endif
+
+	/**
+	 * Converts slope to dir: direction goes upward on slope.
+	 * If slope cannot be walked on, it returns @ref dir::none.
+	 * @param s slope
+	 */
+	STATIC register_method(vm, &ribi_to_slope, "to_dir", false, true);
 	end_class(vm);
 }

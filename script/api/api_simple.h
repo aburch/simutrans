@@ -16,6 +16,12 @@ struct my_ribi_t {
 	operator ribi_t::ribi() const { return data; }
 };
 
+struct my_slope_t {
+	uint8 data;
+	my_slope_t(slope_t::type r) : data(r) { }
+	operator slope_t::type() const { return data; }
+};
+
 
 namespace script_api {
 

@@ -75,6 +75,24 @@ namespace script_api {
 		}
 	}
 
+	void coordinate_transform_t::slope_w2sq(slope_t::type &s)
+	{
+		if (s < slope_t::raised) {
+			for(uint8 i=1; i <= 4-rotation; i++) {
+				s = slope_t::rotate90(s);
+			}
+		}
+	}
+
+	void coordinate_transform_t::slope_sq2w(slope_t::type &s)
+	{
+		if (s < slope_t::raised) {
+			for(uint8 i=1; i <= rotation; i++) {
+				s = slope_t::rotate90(s);
+			}
+		}
+	}
+
 // void parameter
 	SQInteger param<void_t>::push(HSQUIRRELVM, void_t const&)
 	{
@@ -357,6 +375,20 @@ namespace script_api {
 		ribi_t::ribi ribi = param<uint8>::get(vm, index) & ribi_t::all;
 		coordinate_transform_t::ribi_sq2w(ribi);
 		return ribi;
+	}
+// slopes
+	SQInteger param<my_slope_t>::push(HSQUIRRELVM vm, my_slope_t const& v)
+	{
+		slope_t::type slope = v;
+		coordinate_transform_t::slope_w2sq(slope);
+		return param<uint8>::push(vm, slope);
+	}
+
+	my_slope_t param<my_slope_t>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		slope_t::type slope = param<uint8>::get(vm, index);
+		coordinate_transform_t::slope_sq2w(slope);
+		return slope;
 	}
 
 // pointers to classes
