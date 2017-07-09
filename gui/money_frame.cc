@@ -603,7 +603,7 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 	}
 	else if(  player->get_finance()->get_history_com_year(0, ATC_NETWEALTH)*10 < welt->get_settings().get_starting_money(welt->get_current_month()/12)  ){
 		warn.set_color( MONEY_MINUS );
-		tstrncpy(str_buf[15], translator::translate("Net wealth negative"), lengthof(str_buf[15]) );
+		tstrncpy(str_buf[15], translator::translate("Net wealth near zero"), lengthof(str_buf[15]) );
 	}
 	else if(  player->get_account_overdrawn()  ) {
 		warn.set_color( COL_YELLOW );

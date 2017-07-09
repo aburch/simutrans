@@ -69,6 +69,9 @@
 #define L_BUTTON_NARROW ( (L_DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT - D_V_SPACE + 2) / 3 )
 #define L_BUTTON_WIDE   (((L_DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT - D_V_SPACE) * 2) / 3 )
 
+uint32 welt_gui_t::max_map_dimension_fixed = 32766;
+uint32 welt_gui_t::max_map_dimension_numerator = 33554432;
+
 
 welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	gui_frame_t( translator::translate("Neue Welt" ) ),
@@ -86,8 +89,8 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 
 	double size = sqrt((double)sets->get_size_x()*sets->get_size_y());
 	city_density       = sets->get_city_count()      ? size / sets->get_city_count()      : 0.0;
-	industry_density   = sets->get_factory_count()       ? size / sets->get_factory_count()       : 0.0;
-	attraction_density = sets->get_tourist_attractions() ? size / sets->get_tourist_attractions() : 0.0;
+	industry_density   = sets->get_factory_count()       ? (double)sets->get_factory_count()  / (double)sets->get_city_count()      : 0.0;
+	attraction_density = sets->get_tourist_attractions() ? (double)sets->get_tourist_attractions() / (double)sets->get_city_count() : 0.0;
 	river_density      = sets->get_river_number()        ? size / sets->get_river_number()        : 0.0;
 
 	// find earliest start and end date ...
@@ -176,7 +179,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	cursor.y += LINESPACE;
 
 	// Map X size edit
-	inp_x_size.init( sets->get_size_x(), 8, min(32000,min(32000,16777216/sets->get_size_y())), sets->get_size_x()>=512 ? 128 : 64, false );
+	inp_x_size.init( sets->get_size_x(), 8, min(max_map_dimension_fixed,min(max_map_dimension_fixed, welt_gui_t::max_map_dimension_numerator/sets->get_size_y())), sets->get_size_x()>=512 ? 128 : 64, false );
 	inp_x_size.set_pos( scr_coord(L_COLUMN2_X,cursor.y) );
 	inp_x_size.set_size(edit_size);
 	inp_x_size.add_listener(this);
@@ -193,7 +196,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	cursor.y += D_EDIT_HEIGHT;
 
 	// Map size Y edit
-	inp_y_size.init( sets->get_size_y(), 8, min(32000,16777216/sets->get_size_x()), sets->get_size_y()>=512 ? 128 : 64, false );
+	inp_y_size.init( sets->get_size_y(), 8, min(max_map_dimension_fixed, welt_gui_t::max_map_dimension_numerator/sets->get_size_x()), sets->get_size_y()>=512 ? 128 : 64, false );
 	inp_y_size.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
 	inp_y_size.set_size(edit_size);
 	inp_y_size.add_listener(this);
@@ -301,7 +304,7 @@ welt_gui_t::welt_gui_t(settings_t* const sets_par) :
 	inp_other_industries.set_pos(scr_coord(L_COLUMN2_X,cursor.y) );
 	inp_other_industries.set_size(edit_size);
 	inp_other_industries.add_listener(this);
-	inp_other_industries.set_limits(0,999);
+	inp_other_industries.set_limits(0,16384);
 	inp_other_industries.set_value(abs(sets->get_factory_count()) );
 	add_component( &inp_other_industries );
 
@@ -460,11 +463,11 @@ void welt_gui_t::update_densities()
 		sets->set_city_count( inp_number_of_towns.get_value() );
 	}
 	if(  industry_density!=0.0  ) {
-		inp_other_industries.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_size_x()*sets->get_size_y())/industry_density) ) );
+		inp_other_industries.set_value(max(1, (sint32)(double)sets->get_city_count() * industry_density));
 		sets->set_factory_count( inp_other_industries.get_value() );
 	}
 	if(  attraction_density!=0.0  ) {
-		inp_tourist_attractions.set_value( max( 1, (sint32)(0.5+sqrt((double)sets->get_size_x()*sets->get_size_y())/attraction_density) ) );
+		inp_tourist_attractions.set_value( max( 1, (sint32)((double)sets->get_city_count() *attraction_density) ) );
 		sets->set_tourist_attractions( inp_tourist_attractions.get_value() );
 	}
 	if(  river_density!=0.0  ) {
@@ -539,7 +542,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		if(  !loaded_heightfield  ) {
 			sets->set_size_x( v.i );
 			inp_x_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-			inp_y_size.set_limits( 8, min(32000,16777216/sets->get_size_x()) );
+			inp_y_size.set_limits( 8, min(max_map_dimension_fixed, welt_gui_t::max_map_dimension_numerator /sets->get_size_x()) );
 			update_densities();
 		}
 		else {
@@ -550,7 +553,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		if(  !loaded_heightfield  ) {
 			sets->set_size_y( v.i );
 			inp_y_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-			inp_x_size.set_limits( 8, min(32000,16777216/sets->get_size_y()) );
+			inp_x_size.set_limits( 8, min(max_map_dimension_fixed, welt_gui_t::max_map_dimension_numerator /sets->get_size_y()) );
 			update_densities();
 		}
 		else {
@@ -564,6 +567,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 			env_t::number_of_big_cities = 0;
 			inp_number_of_big_cities.set_limits(0,0);
 			inp_number_of_big_cities.set_value(0);
+			
 		}
 		else {
 			inp_number_of_big_cities.set_limits(0, v.i);
@@ -579,6 +583,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 			env_t::number_of_clusters = v.i/4;
 			inp_number_of_clusters.set_value(v.i/4);
 		}
+		update_densities();
 	}
 	else if(comp==&inp_number_of_big_cities) {
 		env_t::number_of_big_cities = v.i;
@@ -598,11 +603,11 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 	}
 	else if(comp==&inp_other_industries) {
 		sets->set_factory_count( v.i );
-		industry_density = sets->get_factory_count() ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_factory_count() : 0.0;
+		industry_density = sets->get_factory_count() ? (double)sets->get_factory_count() / (double)sets->get_city_count() : 0.0;
 	}
 	else if(comp==&inp_tourist_attractions) {
 		sets->set_tourist_attractions( v.i );
-		attraction_density = sets->get_tourist_attractions() ? sqrt((double)sets->get_size_x()*sets->get_size_y()) / sets->get_tourist_attractions() : 0.0;
+		attraction_density = sets->get_tourist_attractions() ? (double)sets->get_factory_count() / (double)sets->get_tourist_attractions() : 0.0;
 	}
 	else if(comp==&inp_intro_date) {
 		sets->set_starting_year( (sint16)(v.i) );

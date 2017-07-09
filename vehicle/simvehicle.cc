@@ -3887,6 +3887,7 @@ route_t::route_result_t rail_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 	// use length > 8888 tiles to advance to the end of terminus stations
 	const sint16 tile_length = (cnv->get_schedule()->get_current_eintrag().reverse == 1 ? 8888 : 0) + cnv->get_tile_length();
 	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), is_tall, tile_length, SINT64_MAX_VALUE, cnv ? cnv->get_weight_summary().weight / 1000 : get_total_weight());
+	cnv->set_next_stop_index(0);
  	if(r == route_t::valid_route_halt_too_short)
 	{
 		cbuffer_t buf;
@@ -4452,8 +4453,8 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			schedule_t *schedule = cnv->get_schedule();
 			const koord3d start_pos = route.at(last_index);
 			uint8 index = schedule->get_current_stop();
-			bool reversed = cnv->get_reverse_schedule();
-			schedule->increment_index(&index, &reversed);
+			bool rev = cnv->get_reverse_schedule();
+			schedule->increment_index(&index, &rev);
 			const koord3d next_ziel = schedule->entries[index].pos;
 
 			way_is_free = !target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), cnv->get_tile_length(), welt->get_settings().get_max_route_steps(), cnv->get_weight_summary().weight / 1000);
@@ -4476,7 +4477,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					// This is still needed after the new (November 2015) system as there are some (possibly 
 					// transitional) cases in which next_block is still ahead of the calculated route. 
 
-					if(reversed)
+					if(rev)
 					{
 						schedule->advance_reverse();
 					}
@@ -4766,7 +4767,7 @@ void rail_vehicle_t::set_working_method(working_method_t value)
  * if (!reserve && force_unreserve) then un-reserve everything till the end of the route
  * @author prissi
  */
-sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 modified_sighting_distance_tiles, uint16 &next_signal_index, int count, bool reserve, bool force_unreserve, bool is_choosing, bool is_from_token, bool is_from_starter, bool is_from_directional, uint32 brake_steps, uint16 first_one_train_staff_index, bool from_call_on)
+sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16 modified_sighting_distance_tiles, uint16 &next_signal_index, int count, bool reserve, bool force_unreserve, bool is_choosing, bool is_from_token, bool is_from_starter, bool is_from_directional, uint32 brake_steps, uint16 first_one_train_staff_index, bool from_call_on, bool *break_loop)
 {
 	bool success = true;
 	sint32 max_tiles = 2 * welt->get_settings().get_max_choose_route_steps(); // max tiles to check for choosesignals
@@ -4991,6 +4992,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					if(is_from_directional)
 					{
 						reached_end_of_loop = true;
+						if (break_loop)
+						{
+							*break_loop = true;
+						}
 					}
 					next_signal_index = last_stop_signal_index;
 				}
@@ -5863,6 +5868,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		sint32 token_block_blocks = 0;
 		if(no_reverse || working_method == one_train_staff)
 		{
+			bool break_loop_recursive = false;
 			do
 			{
 				// Search for route until the next signal is found.
@@ -5874,7 +5880,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					{
 						cnv->set_last_signal_pos(route->at(first_one_train_staff_index));
 					}
-					token_block_blocks = block_reserver(&target_rt, 1, modified_sighting_distance_tiles, next_next_signal, 0, true, false, false, !bidirectional_reservation, false, bidirectional_reservation, brake_steps, working_method == one_train_staff ? first_one_train_staff_index : INVALID_INDEX);
+							
+					token_block_blocks = block_reserver(&target_rt, 1, modified_sighting_distance_tiles, next_next_signal, 0, true, false, false, !bidirectional_reservation, false, bidirectional_reservation, brake_steps, working_method == one_train_staff ? first_one_train_staff_index : INVALID_INDEX, false, &break_loop_recursive);
 				}
 
 				if(token_block_blocks && next_next_signal < INVALID_INDEX) 
@@ -5912,8 +5919,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				{
 					success = false;
 				}
-			} while((schedule_index != cnv->get_schedule()->get_current_stop()) && token_block_blocks && no_reverse);
+			} while((schedule_index != cnv->get_schedule()->get_current_stop()) && token_block_blocks && no_reverse && !break_loop_recursive);
 		}
+
+		
 
 		if(token_block_blocks && !bidirectional_reservation)
 		{
@@ -6039,11 +6048,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			const uint32 route_count = route->get_count();
 			if(is_from_token || is_from_directional)
 			{
-				modified_route_index  = route_index - route_count;
+				modified_route_index = min(route_count, (route_index - route_count)); 
 			}
 			else
 			{
-				modified_route_index = route_index;
+				modified_route_index = min(route_index, route_count);
 			}
 
 			const koord3d check_tile_mid = route->at(route_count / 2u);
