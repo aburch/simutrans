@@ -217,7 +217,7 @@ public:
 	* twoway_mode = condition for two-way road
 	* loading_only_mode = overtaking a loading convoy only
 	* prohibited_mode = overtaking is completely forbidden
-	* passing_only_mode = vehicles can go only on passing lane
+	* inverted_mode = vehicles can go only on passing lane
 	* @author teamhimeH
 	*/
 	overtaking_mode_t get_overtaking_mode() const;

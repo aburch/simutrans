@@ -61,8 +61,8 @@ overtaking_mode_t get_overtaking_mode(const char* o_mode)
 		uv8 = twoway_mode;
 	} else if (!STRICMP(o_mode, "loading_convoy_only")) {
 		uv8 = loading_only_mode;
-	} else if (!STRICMP(o_mode, "passing_lane_only")) {
-		uv8 = passing_only_mode;
+	} else if (!STRICMP(o_mode, "inverted")) {
+		uv8 = inverted_mode;
 	} else if (!STRICMP(o_mode, "prohibited")) {
 		uv8 = prohibited_mode;
 	} else if (!STRICMP(o_mode, "none")  ||  !STRICMP(o_mode, "")) {

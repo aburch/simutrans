@@ -1310,8 +1310,8 @@ void convoi_t::step()
 					akt_speed = restart_speed;
 				}
 				if(  fahr[0]->get_waytype()==road_wt  ) {
-					sint8 overtaking_info = welt->lookup(get_pos())->get_weg(road_wt)->get_overtaking_mode();
-					if(  (state==CAN_START  ||  state==CAN_START_ONE_MONTH)  &&  overtaking_info!=0  &&  overtaking_info!=4  ) {
+					sint8 overtaking_mode = welt->lookup(get_pos())->get_weg(road_wt)->get_overtaking_mode();
+					if(  (state==CAN_START  ||  state==CAN_START_ONE_MONTH)  &&  overtaking_mode!=oneway_mode  &&  overtaking_mode!=inverted_mode  ) {
 						set_tiles_overtaking( 0 );
 					}
 				}
@@ -1330,8 +1330,8 @@ void convoi_t::step()
 					akt_speed = restart_speed;
 				}
 				if(  fahr[0]->get_waytype()==road_wt  ) {
-					sint8 overtaking_info = welt->lookup(get_pos())->get_weg(road_wt)->get_overtaking_mode();
-					if(  state!=DRIVING  &&  overtaking_info!=0  &&  overtaking_info!=4  ) {
+					sint8 overtaking_mode = welt->lookup(get_pos())->get_weg(road_wt)->get_overtaking_mode();
+					if(  state!=DRIVING  &&  overtaking_mode!=oneway_mode  &&  overtaking_mode!=inverted_mode  ) {
 						set_tiles_overtaking( 0 );
 					}
 				}
@@ -3615,13 +3615,13 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		// also this is not possible, since a car loads in front of is!?!
 		return false;
 	}
-	sint8 overtaking_info = str->get_overtaking_mode();
-	if (  !other_overtaker->can_be_overtaken()  &&  overtaking_info != 0  ) {
+	sint8 overtaking_mode = str->get_overtaking_mode();
+	if (  !other_overtaker->can_be_overtaken()  &&  overtaking_mode != oneway_mode  ) {
 		return false;
 	}
 
 	//Overtaking info (0 = condition for one-way road, 1 = condition for two-way road, 2 = overtaking a loading convoy only, 3 = overtaking is completely forbidden, 4 = vehicles can go only on passing lane)
-	if(  overtaking_info == 3  ){
+	if(  overtaking_mode == prohibited_mode  ){
 		// This road prohibits overtaking.
 		return false;
 	}
@@ -3652,11 +3652,11 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			if(  str->is_crossing() ) {
 				return false;
 			}
-			if(  ribi_t::is_threeway(str->get_ribi())  &&  overtaking_info != 0  ) {
+			if(  ribi_t::is_threeway(str->get_ribi())  &&  overtaking_mode != oneway_mode  ) {
 				// On one-way road, overtaking on threeway is allowed.
 				return false;
 			}
-			if(  overtaking_info != 0  ) {
+			if(  overtaking_mode != oneway_mode  ) {
 				// Check for other vehicles on the next tile
 				const uint8 top = gr->get_top();
 				//These conditions is abandoned on one-way road to overtake in traffic jam.
@@ -3695,7 +3695,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	int diff_speed = akt_speed - other_speed;
 	if(  diff_speed < kmh_to_speed(5)  ) {
 		// Overtaking in traffic jam is only accepted on one-way road.
-		if(  overtaking_info == 0  ) {
+		if(  overtaking_mode == oneway_mode  ) {
 			grund_t *gr = welt->lookup(get_pos());
 			strasse_t *str=(strasse_t *)gr->get_weg(road_wt);
 			if(  str==NULL  ) {
@@ -3754,12 +3754,12 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			return false;
 		}
 		//Overtaking info (0 = condition for one-way road, 1 = condition for two-way road, 2 = overtaking a loading convoy only, 3 = overtaking is completely forbidden)
-		sint8 overtaking_info_loop = str->get_overtaking_mode();
-		if(  overtaking_info_loop != 0  &&  gr->get_weg_hang() != slope_t::flat  ) {
+		sint8 overtaking_mode_loop = str->get_overtaking_mode();
+		if(  overtaking_mode_loop != oneway_mode  &&  gr->get_weg_hang() != slope_t::flat  ) {
 			return false;
 		}
 
-		if(  overtaking_info_loop > 1  ){
+		if(  overtaking_mode_loop > twoway_mode  ){
 			// Since the other vehicle is moving...
 			return false;
 		}
@@ -3773,17 +3773,17 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 					return false;
 				}
 				//We consider traffic-lights on two-way road.
-				if(  rb->is_traffic_light()  &&  overtaking_info_loop >= 1  ) {
+				if(  rb->is_traffic_light()  &&  overtaking_mode_loop >= twoway_mode  ) {
 					return false;
 				}
 			}
 		}
 		// not overtaking on railroad crossings or on normal crossings ...
-		if(  overtaking_info_loop >= 1  &&  (str->is_crossing()  ||  ribi_t::is_threeway(str->get_ribi()))  ) {
+		if(  overtaking_mode_loop >= twoway_mode  &&  (str->is_crossing()  ||  ribi_t::is_threeway(str->get_ribi()))  ) {
 			return false;
 		}
 		// street gets too slow (TODO: should be able to be correctly accounted for)
-		if(  overtaking_info_loop >= 1  &&  akt_speed > kmh_to_speed(str->get_max_speed())  ) {
+		if(  overtaking_mode_loop >= twoway_mode  &&  akt_speed > kmh_to_speed(str->get_max_speed())  ) {
 			return false;
 		}
 
@@ -3799,7 +3799,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 				const overtaker_t *ov = v->get_overtaker();
 				if(ov) {
 					if(this!=ov  &&  other_overtaker!=ov) {
-						if(  overtaking_info_loop == 0  ) {
+						if(  overtaking_mode_loop == oneway_mode  ) {
 							//If ov goes same directory, should not return false
 							ribi_t::ribi their_direction = ribi_t::backward( fahr[0]->calc_direction(pos_prev, pos_next) );
 							vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));
@@ -3871,7 +3871,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 
 	set_tiles_overtaking( 1+n_tiles );
 	//The parameter about being overtaken is no longer meaningful on one-way road.
-	if(  overtaking_info != 0  ) {
+	if(  overtaking_mode != oneway_mode  ) {
 		other_overtaker->set_tiles_overtaking( -1-(n_tiles*(akt_speed-diff_speed))/akt_speed );
 	}
 	return true;
@@ -3972,7 +3972,7 @@ bool convoi_t::calc_lane_fix(uint8 lane_fix_sign)
 				return false;
 			}
 			strasse_t *str = (strasse_t *)gr->get_weg(road_wt);
-			if(  !str  ||  gr->get_top() > 250  ||  str->get_overtaking_mode() != 0  ) {
+			if(  !str  ||  gr->get_top() > 250  ||  str->get_overtaking_mode() != oneway_mode  ) {
 				// too many cars here or no street or not one-way road
 				return false;
 			}

@@ -252,8 +252,8 @@ void weg_t::info(cbuffer_t & buf) const
 			case prohibited_mode:
 				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("prohibited"));
 				break;
-			case passing_only_mode:
-				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("passing lane only"));
+			case inverted_mode:
+				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("Inverted"));
 				break;
 			default:
 				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("ERROR"));
