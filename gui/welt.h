@@ -121,6 +121,10 @@ private:
 	void update_densities();
 
 public:
+
+	static uint32 max_map_dimension_fixed;
+	static uint32 max_map_dimension_numerator;
+
 	welt_gui_t(settings_t*);
 
 	/**

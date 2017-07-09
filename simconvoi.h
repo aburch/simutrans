@@ -1516,7 +1516,7 @@ public:
 
 	void apply_livery_scheme();
 	sint64 get_average_round_trip_time() {
-		int items = arrival_to_first_stop.get_count();
+		uint8 items = arrival_to_first_stop.get_count();
 		if (items>1) {
 			return (arrival_to_first_stop[items-1] - arrival_to_first_stop[0])/(items-1);
 		} else {

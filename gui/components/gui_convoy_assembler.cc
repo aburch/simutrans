@@ -1493,7 +1493,7 @@ void gui_convoy_assembler_t::update_data()
 						&& welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype())
 						&& i.key->get_axle_load() > welt->lookup(depot_frame->get_depot()->get_pos())->get_weg(depot_frame->get_depot()->get_waytype())->get_max_axle_load())
 					|| (welt->get_settings().get_enforce_weight_limits() == 3
-						&& (i.key->get_axle_load() * 100) / way->get_max_axle_load() > 110))))
+						&& (way->get_max_axle_load() > 0 && (i.key->get_axle_load() * 100) / way->get_max_axle_load() > 110)))))
 					
 				{
 					// Indicate if vehicles are too heavy
