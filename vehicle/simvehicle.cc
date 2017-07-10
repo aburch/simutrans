@@ -446,13 +446,11 @@ uint32 vehicle_base_t::do_drive(uint32 distance)
 // to make smaller steps than the tile granularity, we have to use this trick
 void vehicle_base_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const
 {
-	// Just TESTing for now (all below code before the space)
-	//  length-8*(paksize/16))
 	sint32 adjusted_steps = steps;
 	const vehicle_t* veh = obj_cast<vehicle_t>(this);
-	if (veh && (veh->is_leading() || (veh->get_desc()->get_leader_count() > 0 && veh->get_desc()->get_trailer_count() == 0 && veh->get_desc()->get_power() == 0)) && veh->get_convoi()->is_reversed())
+	if (veh  &&  veh->is_reversed()) 
 	{
-		adjusted_steps -= (veh->get_desc()->get_length_in_steps() - VEHICLE_STEPS_PER_CARUNIT);
+		adjusted_steps += (VEHICLE_STEPS_PER_TILE / 2 - veh->get_desc()->get_length_in_steps());
 	}
 
 	// vehicles needs finer steps to appear smoother
