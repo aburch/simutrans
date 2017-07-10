@@ -483,16 +483,16 @@ class dir {
 }
 
 class slope {
-	static flat=0,
-	static north = 3+1,    ///< North slope
-	static west = 9+3,     ///< West slope
-	static east = 27+1,    ///< East slope
-	static south = 27+9,   ///< South slope
-	static northwest = 27, ///< NW corner
-	static northeast = 9,  ///< NE corner
-	static southeast = 3,  ///< SE corner
-	static southwest = 1,  ///< SW corner
-	static raised = 80,    ///< special meaning: used as slope of bridgeheads
+	static flat=0
+	static north = 3+1     ///< North slope
+	static west = 9+3      ///< West slope
+	static east = 27+1     ///< East slope
+	static south = 27+9    ///< South slope
+	static northwest = 27  ///< NW corner
+	static northeast = 9   ///< NE corner
+	static southeast = 3   ///< SE corner
+	static southwest = 1   ///< SW corner
+	static raised = 80     ///< special meaning: used as slope of bridgeheads
 	static all_up_slope   = 82 ///< used for terraforming tools
 	static all_down_slope = 83 ///< used for terraforming tools
 }
