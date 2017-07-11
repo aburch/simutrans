@@ -488,7 +488,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					{
 						buf.clear();
 						char class_name_untranslated[32];
-						sprintf(class_name_untranslated, "p_class[%u]", i); // TODO: Add potential modified class to be displayed after this class
+						sprintf(class_name_untranslated, "p_class[%u]", i);
 						const char* class_name = translator::translate(class_name_untranslated);
 						buf.printf(" %s:", class_name);
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
