@@ -1853,7 +1853,7 @@ end_loop:
 
 								for (uint8 j = 0; j < old_passenger_classes_carried.get_count(); j++)
 								{
-									if (!old_passenger_classes_carried.is_contained(passenger_classes_carried.get_element(j)))
+									if(passenger_classes_carried.get_count() <= j || !old_passenger_classes_carried.is_contained(passenger_classes_carried.get_element(j)))
 									{
 										passenger_class_differences.append(j);
 									}
@@ -1872,7 +1872,7 @@ end_loop:
 
 								for (uint8 j = 0; j < old_mail_classes_carried.get_count(); j++)
 								{
-									if (!old_mail_classes_carried.is_contained(mail_classes_carried.get_element(j)))
+									if (mail_classes_carried.get_count() <= j || !old_mail_classes_carried.is_contained(mail_classes_carried.get_element(j)))
 									{
 										mail_class_differences.append(j);
 									}
@@ -6045,6 +6045,8 @@ void convoi_t::clear_average_speed()
 {
 	financial_history[0][CONVOI_AVERAGE_SPEED] = 0;
 	financial_history[1][CONVOI_AVERAGE_SPEED] = 0;
+
+	arrival_to_first_stop.clear();
 }
 
 /**
@@ -7329,7 +7331,14 @@ void convoi_t::clear_replace()
 		dep.departure_time = time;
 		uint8 schedule_entry = schedule->get_current_stop();
 		bool rev_rev = !reverse_schedule;
-		schedule->increment_index(&schedule_entry, &rev_rev);
+		bool has_not_found_halt = true;
+		while (has_not_found_halt)
+		{
+			schedule->increment_index(&schedule_entry, &rev_rev);
+			const koord3d halt_position = schedule->entries.get_element(schedule_entry).pos;
+			const halthandle_t halt = haltestelle_t::get_halt(halt_position, front()->get_owner());
+			has_not_found_halt = !halt.is_bound();
+		}
 		departure_point_t departure_point(schedule_entry, !rev_rev);
 
 		departures.set(departure_point, dep);

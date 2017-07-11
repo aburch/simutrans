@@ -168,7 +168,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	{
 		uint16 shifter;
 		bool first = true;
-		for(uint16 i = 0; i < (vehicle_desc_t::MAX_TRACTION_TYPE - 1); i ++)
+		for(uint16 i = 0; i < (vehicle_desc_t::MAX_TRACTION_TYPE); i ++)
 		{
 			shifter = 1 << i;
 			if((shifter & depot->get_tile()->get_desc()->get_enabled()))
