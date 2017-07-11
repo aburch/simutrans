@@ -3332,7 +3332,7 @@ void convoi_t::vorfahren()
 			// now advance all convoi until it is completely on the track
 			front()->set_leading(false); // switches off signal checks ...
 
-			if(reversed && (reversable || front()->is_reversed()))
+			/*if(reversed && (reversable || front()->is_reversed()))
 			{
 				//train_length -= front()->get_desc()->get_length();
 				train_length = 0;
@@ -3348,7 +3348,7 @@ void convoi_t::vorfahren()
 			}
 
 			else
-			{
+			{*/
 				//if(!reversable && front()->get_desc()->is_bidirectional())
 				//{
 				//	//This can sometimes relieve excess setting back on reversing.
@@ -3364,7 +3364,7 @@ void convoi_t::vorfahren()
 					train_length -= v->get_desc()->get_length();
 					// this gives the length in carunits, 1/CARUNITS_PER_TILE of a full tile => all cars closely coupled!
 					v->get_smoke(true);
-				}
+				//}
 
 			}
 			front()->set_leading(true);
