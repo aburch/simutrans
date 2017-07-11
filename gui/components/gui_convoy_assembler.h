@@ -31,23 +31,17 @@
 class depot_convoi_capacity_t : public gui_container_t
 {
 private:
-	uint32* total_pax_class;
 	uint32 total_pax;
 	uint32 total_standing_pax;
 	uint32 total_mail;
 	uint32 total_goods;
 
-	uint32 total_pax_number_of_classes;
 
 	// The selected convoy so far...
 	vector_tpl<const vehicle_desc_t *> vehicles;
 public:
 	depot_convoi_capacity_t();
-	void set_totals(uint32 pax, uint32* pax_class, uint32 pax_number_of_classes, uint32 standing_pax, uint32 mail, uint32 goods);
-	//void set_totals(uint32 pax, uint32 * pax_class, uint32 pax_number_of_classes, uint32 standing_pax, uint32 mail, uint32 goods);
-	//void set_totals(uint32 * pax_slot, uint32 pax_number_of_classes, uint32 standing_pax, uint32 mail, uint32 goods);
-	//void set_totals(uint32 * pax_slot, uint32 standing_pax, uint32 mail, uint32 goods);
-	//void set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods);
+	void set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods);
 	void draw(scr_coord offset);
 };
 
@@ -185,7 +179,6 @@ class gui_convoy_assembler_t :
 	cbuffer_t txt_convoi_way_wear_factor;
 	cbuffer_t txt_traction_types;
 	cbuffer_t txt_vehicle_count;
-	//cbuffer_t txt_vehicle_capacity;
 
 	KOORD_VAL second_column_x; // x position of the second text column
 

@@ -262,78 +262,10 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 		}
 	}
 
-	/*gui_combobox_t *class_selector = new gui_combobox_t();
-
-	class_selector->set_pos(scr_coord(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y));
-	class_selector->set_size(scr_size(185, D_BUTTON_HEIGHT));
-	class_selector->set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 3 + 2 + 16));
-	class_selector->set_highlight_color(1);
-	class_selector->clear_elements();
-
-	class_indices.clear();
-	for (uint8 j = 0; j < v->get_desc()->get_number_of_classes(); j++)
-	{
-		char class_selector_name_untranslated[32];
-		sprintf(class_selector_name_untranslated, "p_class[%u]", j);
-		const char* class_selector_name = translator::translate(class_selector_name_untranslated);
-		class_selector->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(class_selector_name), SYSCOL_TEXT));
-		class_indices.append(j);
-	}
-
-	cont.add_component(class_selector);
-	class_selector->add_listener(this);
-	class_selector->set_focusable(false);*/
-
-
 	// Here all the class selectors, Ves
 	sint16 y= LINESPACE + 12 + (3 * D_BUTTON_HEIGHT);
 	const scr_size column4_size(96, D_BUTTON_HEIGHT);
 	const scr_coord_val column4_x = size.w - column4_size.w - D_MARGIN_RIGHT;
-
-	for (uint8 j = 0; j < goods_manager_t::passengers->get_number_of_classes(); j++)
-	{
-		gui_combobox_t *cs_pass = new gui_combobox_t();
-		cs_pass->add_listener(this);
-		add_component(cs_pass);
-		cs_pass->clear_elements();
-		cs_pass_indicies.clear();
-		cs_pass->set_pos(scr_coord(column4_x, y));
-		cs_pass->set_size(column4_size);
-		cs_pass->set_max_size(scr_size(column4_size.w - 8, LINESPACE * 2 + 2 + 16));
-		cs_pass->set_highlight_color(1);
-		y += 4 + D_BUTTON_HEIGHT;
-
-		for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
-		{
-			char class_name_untranslated[32];
-			sprintf(class_name_untranslated, "p_class[%u]", i);
-			const char* class_name = translator::translate(class_name_untranslated);
-
-			cs_pass->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(class_name_untranslated), SYSCOL_TEXT));
-			cs_pass_indicies.append(i);
-
-
-		}
-		cs_pass->set_selection(j);
-	}
-
-	// Below section works and looks nice. Only updating the list is an issue currently
-/*	cs_pass_0.add_listener(this);
-	add_component(&cs_pass_0);
-	cs_pass_0.clear_elements();
-	cs_pas_0_indicies.clear();
-	for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
-	{
-		char class_name_untranslated[32];
-		sprintf(class_name_untranslated, "p_class[%u]", i);
-		const char* class_name = translator::translate(class_name_untranslated);
-
-		cs_pass_0.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(class_name_untranslated), SYSCOL_TEXT));
-		cs_pas_0_indicies.append(i);
-	}
-	cs_pass_0.set_selection(0);
-*/
-
 
 
 	lb_convoi_count.set_text_pointer(txt_convoi_count);
@@ -345,8 +277,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	lb_convoi_brake_force.set_text_pointer(txt_convoi_brake_force);
 	lb_convoi_rolling_resistance.set_text_pointer(txt_convoi_rolling_resistance);
 	lb_convoi_way_wear_factor.set_text_pointer(txt_convoi_way_wear_factor);
-	//cont_convoi_capacity.set(txt_vehicle_capacity);
-
+	
 	lb_traction_types.set_text_pointer(txt_traction_types);
 	lb_vehicle_count.set_text_pointer(txt_vehicle_count);
 
@@ -494,7 +425,7 @@ void gui_convoy_assembler_t::layout()
 	lb_convoi_value.set_pos(scr_coord(c2_x, y));
 	lb_convoi_value.set_size(lb_size);
 	cont_convoi_capacity.set_pos(scr_coord(c3_x, y));
-	//cont_convoi_capacity.set_size(lb_size);
+	cont_convoi_capacity.set_size(lb_size);
 	y += LINESPACE + 1;
 	lb_convoi_cost.set_pos(scr_coord(c1_x, y));
 	lb_convoi_cost.set_size(lb_size);
@@ -713,20 +644,6 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *comp,value_
 
 
 		}
-
-		/*else if (comp == &cs_pass_0)
-		{
-			sint32 class_selection_pass_0 = p.i;
-			if (class_selection_pass_0 < 0)
-			{
-				cs_pass_0.set_selection(0);
-				class_selection_pass_0 = 0;
-			}
-			convoihandle_t cnv = depot_frame->get_convoy();
-			vehicle_t veh = cnv-
-			if (cnv.is_bound())
-			veh->set_class_reassignment(0,p);
-		}*/
 		else 
 		{
 			return false;
@@ -775,9 +692,9 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		uint32 total_mail = 0;
 		uint32 total_goods = 0;
 
+		// Some good way to display the classes currently in the convoy
+		//uint32 pax_number_of_classes = goods_manager_t::passengers->get_number_of_classes();
 
-		uint32 pax_number_of_classes = goods_manager_t::passengers->get_number_of_classes();
-		uint32 *total_pax_class;
 
 		// Läs mer här om pointers etc: http://www.cplusplus.com/doc/tutorial/pointers/
 
@@ -809,20 +726,6 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 				{
 					total_pax += desc->get_total_capacity();
 					total_standing_pax += desc->get_overcrowded_capacity();
-
-					for (uint8 j = 0; j > desc->get_number_of_classes(); j++)
-					{
-						// This below attempt was to use the depot_convoi_capacity_t to summon the convoy capacity
-						if (desc->get_capacity(j) > 0)
-						{
-							total_pax_class[j] += desc->get_capacity(j); // TODO: take into account the class reassignments as well.
-						}
-						else
-						{
-							total_pax_class[j] += 0;
-						}
-					}
-					break;
 				}
 				case goods_manager_t::INDEX_MAIL: {
 					total_mail += desc->get_total_capacity(); // TODO: Consider whether to add UI to distinguish between different classes here (Ves?).
@@ -835,8 +738,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 			}
 		}
 		way_wear_factor /= 10000.0;
-		cont_convoi_capacity.set_totals(total_pax, *total_pax_class, pax_number_of_classes, total_standing_pax, total_mail, total_goods );
-		//cont_convoi_capacity.append(txt_vehicle_capacity);
+		cont_convoi_capacity.set_totals(total_pax, total_standing_pax, total_mail, total_goods );
 		txt_convoi_count.printf("%s %d (%s %i)",
 			translator::translate("Fahrzeuge:"), vehicles.get_count(),
 			translator::translate("Station tiles:"), vsum.tiles);
@@ -2301,11 +2203,9 @@ depot_convoi_capacity_t::depot_convoi_capacity_t()
 }
 
 
-void depot_convoi_capacity_t::set_totals(uint32 pax, uint32* pax_class, uint32 pax_number_of_classes, uint32 standing_pax, uint32 mail, uint32 goods)
+void depot_convoi_capacity_t::set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods)
 {
 	total_pax = pax;
-	total_pax_class = pax_class;
-	total_pax_number_of_classes = pax_number_of_classes;
 	total_standing_pax = standing_pax;
 	total_mail = mail;
 	total_goods = goods;
@@ -2327,20 +2227,17 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 
 	if (total_pax > 0)
 	{
-		for (uint16 i = 0; i < total_pax_number_of_classes; i++)
-		{
-			if (&total_pax_class[i]>0 && &total_pax_class[i] != NULL)
-			{
+		
 				cbuf.clear();
 				char class_name_untranslated[32];
-				sprintf(class_name_untranslated, "p_class[%u]", i);
+				//sprintf(class_name_untranslated, "p_class[%u]", i);
 				const char* class_name = translator::translate(class_name_untranslated);
-				cbuf.printf(" %s: %u", class_name, &total_pax_class[i]);
+				cbuf.printf(" %s: %u", class_name, total_pax);
 				display_proportional_clip(pos.x + offset.x + w, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				//display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 				y += LINESPACE + 1;
-			}
-		}
+	
+		
 		cbuf.clear();
 		cbuf.printf("%s: %d", translator::translate("Overcrowded capacity:"), total_standing_pax);
 		w += display_proportional_clip(pos.x + offset.x + w, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
