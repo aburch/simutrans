@@ -46,6 +46,7 @@
 " Nathanael Nerode","developer",
 " Inkelyad", "developer",
 " Isidoro","developer (vehicle replacement)",
+" TurfIt", "patch",
 " Phystam", "patch",
 " Toshio Kuratomi" "patches",
 " Zhaop", "Mac OSX patch and fixes",

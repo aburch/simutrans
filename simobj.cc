@@ -319,6 +319,7 @@ void obj_t::display_after(int xpos, int ypos, bool) const
 	}
 }
 
+#include "simconvoi.h"
 
 /*
  * when a vehicle moves or a cloud moves, it needs to mark the old spot as dirty (to copy to screen)
@@ -332,7 +333,7 @@ void obj_t::mark_image_dirty(image_id image, sint16 yoff) const
 		int xpos=0, ypos=0;
 		if(  is_moving()  ) {
 			vehicle_base_t const* const v = obj_cast<vehicle_base_t>(this);
-			// vehicles need finer steps to appear smoother
+			// vehicles need finer steps to appear smoother			
 			v->get_screen_offset( xpos, ypos, get_tile_raster_width() );
 		}
 
