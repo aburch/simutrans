@@ -341,6 +341,7 @@ SOURCES += gui/station_building_select.cc
 SOURCES += gui/themeselector.cc
 SOURCES += gui/obj_info.cc
 SOURCES += gui/trafficlight_info.cc
+SOURCES += gui/vehicle_class_manager.cc
 SOURCES += gui/welt.cc
 SOURCES += gui/tool_selector
 SOURCES += network/checksum.cc
