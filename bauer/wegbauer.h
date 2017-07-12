@@ -125,6 +125,12 @@ private:
 	const tunnel_desc_t * tunnel_desc;
 
 	/**
+	 * Only for road
+	 * @author Hj. Malthaner
+	 */
+	 overtaking_mode_t overtaking_mode;
+
+	/**
 	 * If a way is built on top of another way, should the type
 	 * of the former way be kept or replaced (true == keep)
 	 * @author Hj. Malthaner
@@ -204,6 +210,8 @@ public:
 	void init_builder(bautyp_t wt, const way_desc_t * desc, const tunnel_desc_t *tunnel_desc=NULL, const bridge_desc_t *bridge_desc=NULL);
 
 	void set_maximum(uint32 n) { maximum = n; }
+
+	void set_overtaking_mode(overtaking_mode_t o) { overtaking_mode = o; }
 
 	way_builder_t(player_t *player_);
 

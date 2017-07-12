@@ -608,18 +608,3 @@ const char *weg_t::is_deletable(const player_t *player)
 	}
 	return obj_t::is_deletable(player);
 }
-
-overtaking_mode_t weg_t::get_overtaking_mode() const {
-	// If there is not wayobj of overtake_wt or it indicates invalid_mode, this returns twoway_mode
-	grund_t* gr = welt->lookup(get_pos());
-	if(  gr  ) {
-		for(  uint8 i=0;  i<gr->get_top();  i++  ) {
-			if(  wayobj_t *w = obj_cast<wayobj_t>(gr->obj_bei(i))  ) {
-				if(  w->get_waytype()==overtake_wt  &&  w->get_overtaking_mode()!=invalid_mode  ) {
-					return w->get_overtaking_mode();
-				}
-			}
-		}
-	}
-	return twoway_mode;
-}

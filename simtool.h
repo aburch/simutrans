@@ -260,6 +260,8 @@ public:
 class tool_build_way_t : public two_click_tool_t {
 private:
 	static const way_desc_t *defaults[17];	// default ways for all types
+	overtaking_mode_t overtaking_mode[MAX_PLAYER_COUNT];
+	player_t* player;
 
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
@@ -273,7 +275,9 @@ protected:
 	virtual void start_at( koord3d &new_start );
 
 public:
-	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), desc() {}
+	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), desc() {
+		for(int i = 0; i < MAX_PLAYER_COUNT; i++) overtaking_mode[i] = twoway_mode; //initialize overtaking_mode
+	 }
 	image_id get_icon(player_t*) const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	char const* get_default_param(player_t*) const OVERRIDE;
@@ -283,6 +287,8 @@ public:
 	waytype_t get_waytype() const OVERRIDE;
 	// remove preview necessary while building elevated ways
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click()  &&  (desc  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)); }
+	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode[player->get_player_nr()] = ov; }
+	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode[player->get_player_nr()]; }
 };
 
 class tool_build_cityroad : public tool_build_way_t {

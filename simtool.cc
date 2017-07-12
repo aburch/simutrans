@@ -53,6 +53,7 @@
 #include "gui/player_frame_t.h"
 #include "gui/schedule_list.h"
 #include "gui/signal_spacing.h"
+#include "gui/overtaking_mode.h"
 #include "gui/city_info.h"
 #include "gui/trafficlight_info.h"
 #include "gui/privatesign_info.h"
@@ -2289,6 +2290,7 @@ bool tool_build_way_t::is_selected() const
 bool tool_build_way_t::init( player_t *player )
 {
 	two_click_tool_t::init( player );
+	this->player = player;
 	if( ok_sound == NO_SOUND ) {
 		ok_sound = SFX_CASH;
 	}
@@ -2301,6 +2303,10 @@ bool tool_build_way_t::init( player_t *player )
 	if(  desc  &&  !desc->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()  ) {
 		// non available way => fail
 		return false;
+	}
+
+	if (is_ctrl_pressed()  &&  can_use_gui()) {
+		create_win(new overtaking_mode_frame_t(player, this), w_info, (ptrdiff_t)this);
 	}
 	return desc!=NULL;
 }
@@ -2426,6 +2432,7 @@ const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, c
 {
 	way_builder_t bauigel(player);
 	calc_route( bauigel, start, end );
+	bauigel.set_overtaking_mode(overtaking_mode[player->get_player_nr()]);
 	if(  bauigel.get_route().get_count()>1  ) {
 		welt->mute_sound(true);
 		bauigel.build();

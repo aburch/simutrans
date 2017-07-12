@@ -1158,6 +1158,7 @@ way_builder_t::way_builder_t(player_t* player_) : next_gr(32)
 	player_builder     = player_;
 	bautyp = strasse;   // kann mit init_builder() gesetzt werden
 	maximum = 2000;// CA $ PER TILE
+	overtaking_mode = invalid_mode;
 
 	keep_existing_ways = false;
 	keep_existing_city_roads = false;
@@ -2219,6 +2220,7 @@ void way_builder_t::build_road()
 				// cost is the more expensive one, so downgrading is between removing and new building
 				cost -= max( weg->get_desc()->get_price(), desc->get_price() );
 				weg->set_desc(desc);
+				weg->set_overtaking_mode(overtaking_mode);
 				// respect max speed of catenary
 				wayobj_t const* const wo = gr->get_wayobj(desc->get_wtyp());
 				if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
@@ -2236,6 +2238,7 @@ void way_builder_t::build_road()
 			strasse_t * str = new strasse_t();
 
 			str->set_desc(desc);
+			str->set_overtaking_mode(overtaking_mode);
 			str->set_gehweg(add_sidewalk);
 			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), player_builder)-desc->get_price();
 

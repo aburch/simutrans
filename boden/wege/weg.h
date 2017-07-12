@@ -110,6 +110,11 @@ private:
 	image_id foreground_image;
 
 	/**
+	* @author THLeaderH
+	*/
+	overtaking_mode_t overtaking_mode;
+
+	/**
 	* Initializes all member variables
 	* @author Hj. Malthaner
 	*/
@@ -220,7 +225,8 @@ public:
 	* inverted_mode = vehicles can go only on passing lane
 	* @author teamhimeH
 	*/
-	overtaking_mode_t get_overtaking_mode() const;
+	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode; };
+	void set_overtaking_mode(overtaking_mode_t o) { overtaking_mode = o; };
 
 	/**
 	* Add direction bits (ribi) for a way.

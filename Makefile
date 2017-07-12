@@ -327,6 +327,7 @@ SOURCES += gui/messagebox.cc
 SOURCES += gui/money_frame.cc
 SOURCES += gui/onewaysign_info.cc
 SOURCES += gui/optionen.cc
+SOURCES += gui/overtaking_mode.cc
 SOURCES += gui/pakselector.cc
 SOURCES += gui/password_frame.cc
 SOURCES += gui/player_frame_t.cc
