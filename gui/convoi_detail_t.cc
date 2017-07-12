@@ -39,6 +39,8 @@
 
 
 
+#define SCL_HEIGHT (15*LINESPACE)
+
 convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 : gui_frame_t( cnv->get_name(), cnv->get_owner() ),
   scrolly(&veh_info),
@@ -64,6 +66,8 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	scrolly.set_pos(scr_coord(0, 2+16+5*LINESPACE));
 	scrolly.set_show_scroll_x(true);
 	add_component(&scrolly);
+
+	
 
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+17*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-6));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+50+3*(LINESPACE+1)+D_SCROLLBAR_HEIGHT-3));
@@ -222,7 +226,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
  * This method is called if an action is triggered
  * @author Markus Weber
  */
-bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
+bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t v/* */)           // 28-Dec-01    Markus Weber    Added
 {
 	if(cnv.is_bound()) {
 		if(comp==&sale_button) {
@@ -237,6 +241,18 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *comp,value_t /* */)
 			cnv->call_convoi_tool( 'T', NULL );
 			return true;
 		}
+		/*else if (v.i&~1) {
+			koord k = *(const koord *)v.p;
+			uint16 j = k.y;
+			if (j < class_selectors.get_count())
+			int	class_selection = class_selector->get_selection();
+			if (class_selection < 0)
+			{
+				class_selector.set_selection(0);
+				class_selection = 0;
+			}
+			
+		}*/
 	}
 	return false;
 }
@@ -472,16 +488,49 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					{
 						buf.clear();
 						char class_name_untranslated[32];
-						sprintf(class_name_untranslated, "p_class[%u]", i); // TODO: Add potential modified class to be displayed after this class
+						sprintf(class_name_untranslated, "p_class[%u]", i);
 						const char* class_name = translator::translate(class_name_untranslated);
 						buf.printf(" %s:", class_name);
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						extra_y += LINESPACE;
 
-						/*buf.clear();
-						buf.printf(translator::translate("  modified class: %i"), v->set_class_reassignment(i,i));
+						buf.clear();
+						char reassigned_class_name_untranslated[32];
+						sprintf(reassigned_class_name_untranslated, "p_class[%u]", v->get_reassigned_class(i));
+						const char* reassigned_class_name = translator::translate(reassigned_class_name_untranslated);
+						buf.printf(" %s:", reassigned_class_name);
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-						extra_y += LINESPACE;*/
+						extra_y += LINESPACE;
+
+
+						// This commented out section is an attempt to add a selector where player can choose new class. I will revisit this later.
+/*						buf.clear();
+						gui_combobox_t *class_selector = new gui_combobox_t();
+
+						class_selector->set_pos(scr_coord(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y));
+						class_selector->set_size(scr_size(185, D_BUTTON_HEIGHT));
+						class_selector->set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 3 + 2 + 16));
+						class_selector->set_highlight_color(1);
+						class_selector->clear_elements();
+				
+						class_indices.clear();
+						for (uint8 j = 0; j < v->get_desc()->get_number_of_classes(); j++)
+						{
+							char class_selector_name_untranslated[32];
+							sprintf(class_selector_name_untranslated, "p_class[%u]", j);
+							const char* class_selector_name = translator::translate(class_selector_name_untranslated);
+							class_selector->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(class_selector_name), SYSCOL_TEXT));
+							class_indices.append(j);
+						}
+
+						cont.add_component(class_selector);
+						class_selector->add_listener(this);
+						class_selector->set_focusable(false);
+						extra_y += LINESPACE;
+
+						//pb->add_listener(this);
+*/
+			
 						
 						buf.clear();
 						char capacity[32];
@@ -493,6 +542,17 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 						buf.clear();
 						buf.printf(translator::translate("  comfort: %i"), v->get_comfort(0, i));
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+						extra_y += LINESPACE;
+
+						// Compartment revenue
+						int len = 5 + display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, translator::translate("  income_pr_km_(when_full):"), ALIGN_LEFT, SYSCOL_TEXT, true);
+						// Revenue for moving 1 unit 1000 meters -- comes in 1/4096 of simcent, convert to simcents
+						// Excludes TPO/catering revenue, class and comfort effects.  FIXME --neroden
+						sint64 fare = v->get_cargo_type()->get_total_fare(1000,0, v->get_comfort(0,i),0,v->get_reassigned_class(i));
+																				 // Multiply by capacity, convert to simcents, subtract running costs
+						sint64 profit = ((v->get_capacity(i)+v->get_overcrowding(i))*fare + 2048ll) / 4096ll;
+						money_to_string(number, profit / 100.0);
+						display_proportional_clip(pos.x + w + offset.x + len, pos.y + offset.y + total_height + extra_y, number, ALIGN_LEFT, profit>0 ? MONEY_PLUS : MONEY_MINUS, true);
 						extra_y += LINESPACE;
 					}
 				}
@@ -511,7 +571,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				// Excludes TPO/catering revenue, class and comfort effects.  FIXME --neroden
 				sint64 fare = v->get_cargo_type()->get_total_fare(1000); // Class needs to be added here (Ves?)
 				// Multiply by capacity, convert to simcents, subtract running costs
-				sint64 profit = (v->get_cargo_max()*fare + 2048ll) / 4096ll - v->get_running_cost(welt);
+				sint64 profit = (v->get_cargo_max()*fare + 2048ll) / 4096ll/* - v->get_running_cost(welt)*/;
 				money_to_string( number, profit/100.0 );
 				display_proportional_clip( pos.x+w+offset.x+len, pos.y+offset.y+total_height+extra_y, number, ALIGN_LEFT, profit>0?MONEY_PLUS:MONEY_MINUS, true );
 				extra_y += LINESPACE;
@@ -592,3 +652,4 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 		set_size(size);
 	}
 }
+

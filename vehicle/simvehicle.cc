@@ -2048,8 +2048,19 @@ void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 				{
 					halt_name = halt->get_name();
 				}
+				char class_name_untranslated[32];
+				sprintf(class_name_untranslated, "");
+				if (ware.get_catg() == 0)
+				{
+					sprintf(class_name_untranslated, "p_class[%u]", i);
+				}
+				if (ware.get_catg() == 1)
+				{
+					sprintf(class_name_untranslated, "m_class[%u]", i);
+				}
 
-				buf.printf("   %u%s %s > %s\n", ware.menge, translator::translate(ware.get_mass()), translator::translate(ware.get_name()), halt_name);
+				const char* class_name = translator::translate(class_name_untranslated);
+				buf.printf("   %u%s %s %s > %s\n", ware.menge, translator::translate(ware.get_mass()), class_name, translator::translate(ware.get_name()), halt_name);
 			}
 		}
 	}
@@ -2219,6 +2230,12 @@ uint16 vehicle_t::get_total_cargo_by_class(uint8 g_class) const
 	}
 
 	return carried;
+}
+
+uint16 vehicle_t::get_reassigned_class(uint8 g_class) const
+{ 
+	uint16 reassigned_class = class_reassignments[g_class];
+	return reassigned_class;
 }
 
 uint16 vehicle_t::get_overcrowding(uint8 g_class) const

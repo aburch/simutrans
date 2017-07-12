@@ -35,6 +35,10 @@ private:
 	uint32 total_standing_pax;
 	uint32 total_mail;
 	uint32 total_goods;
+
+
+	// The selected convoy so far...
+	vector_tpl<const vehicle_desc_t *> vehicles;
 public:
 	depot_convoi_capacity_t();
 	void set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods);
@@ -114,6 +118,8 @@ class gui_convoy_assembler_t :
 	// @author: jamespetts, April 2010
 	gui_label_t lb_traction_types;
 	gui_label_t lb_vehicle_count;
+	// Display the load
+	//gui_container_t cont_convoi_capacity;
 
 	depot_convoi_capacity_t cont_convoi_capacity;
 
@@ -136,6 +142,8 @@ class gui_convoy_assembler_t :
 	
 	gui_label_t lb_livery_selector;
 	gui_combobox_t livery_selector;
+
+	button_t bt_class_management;
 
 	vector_tpl<gui_image_list_t::image_data_t*> convoi_pics;
 	gui_image_list_t convoi;
@@ -214,6 +222,9 @@ class gui_convoy_assembler_t :
 
 	static uint16 livery_scheme_index;
 	vector_tpl<uint16> livery_scheme_indices;
+	//vector_tpl<uint16> cs_pas_0_indicies;
+	vector_tpl<uint16> cs_pass_indicies;
+
 
 public:
 	// Last selected vehicle filter

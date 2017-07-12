@@ -505,6 +505,8 @@ public:
 
 	uint16 get_total_cargo_by_class(uint8 g_class) const;
 
+	uint16 get_reassigned_class(uint8 g_class) const;
+
 	/**
 	* Calculate transported cargo total weight in KG
 	* @author Hj. Malthaner

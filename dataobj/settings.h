@@ -683,6 +683,9 @@ public:
 
 	uint32 town_road_speed_limit;
 
+	uint32 minimum_staffing_percentage_consumer_industry;
+	uint32 minimum_staffing_percentage_full_production_producer_industry;
+
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
 	 * Set to empty string in order to avoid loading.
@@ -1151,6 +1154,9 @@ public:
 	uint32 get_time_interval_seconds_to_caution() const { return time_interval_seconds_to_caution; }
 
 	uint32 get_town_road_speed_limit() const { return town_road_speed_limit; }
+
+	uint32 get_minimum_staffing_percentage_consumer_industry() const { return minimum_staffing_percentage_consumer_industry; }
+	uint32 get_minimum_staffing_percentage_full_production_producer_industry() const { return minimum_staffing_percentage_full_production_producer_industry; }
 };
 
 #endif 

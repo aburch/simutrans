@@ -220,8 +220,8 @@ sint64 goods_desc_t::get_fare_with_comfort_catering_speedbonus(karte_t* world,
 		// Combine the derating factor with the full percentage to get...
 		const sint64 comfort_fare = (fare * multiplier * comfort_modifier) / 10000ll;
 
-		// Always receive minimum of 95% of fare even with discomfort penalty
-		fare = max(fare + comfort_fare, fare * 19 / 20 );
+		// Always receive minimum of 75% of fare even with discomfort penalty
+		fare = max(fare + comfort_fare, fare * 3 / 4 );
 
 		if (catering_level > 0) {
 			/*

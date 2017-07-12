@@ -28,7 +28,7 @@ class scr_coord;
  * One element of the vehicle list display
  * @author prissi
  */
-class gui_vehicleinfo_t : public gui_container_t
+class gui_class_vehicleinfo_t : public gui_container_t
 {
 private:
 	/**
@@ -37,18 +37,19 @@ private:
 	 */
 	convoihandle_t cnv;
 
-	gui_combobox_t class_selector;
-
-	slist_tpl<gui_combobox_t *> class_selectors;
-
 	vector_tpl<uint16> class_indices;
+	slist_tpl<gui_combobox_t *> class_selectors;
+	gui_container_t cont;
 
 public:
 	/**
 	 * @param cnv, the handler for displaying the convoi.
 	 * @author Hj. Malthaner
 	 */
-	gui_vehicleinfo_t(convoihandle_t cnv);
+	gui_class_vehicleinfo_t(convoihandle_t cnv);
+
+
+	bool action_triggered(gui_action_creator_t*, value_t);
 
 	void set_cnv( convoihandle_t c ) { cnv = c; }
 
@@ -66,7 +67,7 @@ public:
  * @author Hj. Malthaner
  * @date 22-Aug-01
  */
-class convoi_detail_t : public gui_frame_t , private action_listener_t
+class vehicle_class_manager_t : public gui_frame_t , private action_listener_t
 {
 public:
 	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
@@ -74,15 +75,19 @@ public:
 private:
 
 	gui_scrollpane_t scrolly;
-	gui_vehicleinfo_t veh_info;
+	gui_class_vehicleinfo_t veh_info;
 
 	convoihandle_t cnv;
 	button_t	sale_button;
 	button_t	withdraw_button;
 	button_t	retire_button;
 
+	gui_combobox_t class_selector;
+
+
+
 public:
-	convoi_detail_t(convoihandle_t cnv);
+	vehicle_class_manager_t(convoihandle_t cnv);
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -113,7 +118,7 @@ public:
 	void update_data() { set_dirty(); }
 
 	// this constructor is only used during loading
-	convoi_detail_t();
+	vehicle_class_manager_t();
 
 	void rdwr( loadsave_t *file );
 
