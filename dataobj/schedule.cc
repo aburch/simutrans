@@ -214,7 +214,7 @@ void schedule_t::cleanup()
 	// first and last must not be the same!
 	koord3d lastpos = entries.back().pos;
 	// now we have to check all entries ...
-	for(  uint8 i=0;  i<entries.get_count();  i++  ) {
+	for(  sint32 i=0;  i<entries.get_count();  i++  ) {
 		if(  entries[i].pos == lastpos  ) {
 			// ignore double entries just one after the other
 			entries.remove_at(i);
@@ -231,7 +231,7 @@ void schedule_t::cleanup()
 			lastpos = entries[i].pos;
 		}
 
-		if(entries[i].wait_for_time)
+		if(i > 0 && entries[i].wait_for_time)
 		{
 			// "minimum_loading" (wait for load) and wait_for_time are not compatible.
 			entries[i].minimum_loading = 0;
