@@ -37,12 +37,19 @@ private:
 	 */
 	convoihandle_t cnv;
 
+	vector_tpl<uint16> class_indices;
+	slist_tpl<gui_combobox_t *> class_selectors;
+	gui_container_t cont;
+
 public:
 	/**
 	 * @param cnv, the handler for displaying the convoi.
 	 * @author Hj. Malthaner
 	 */
 	gui_class_vehicleinfo_t(convoihandle_t cnv);
+
+
+	bool action_triggered(gui_action_creator_t*, value_t);
 
 	void set_cnv( convoihandle_t c ) { cnv = c; }
 
@@ -74,6 +81,10 @@ private:
 	button_t	sale_button;
 	button_t	withdraw_button;
 	button_t	retire_button;
+
+	gui_combobox_t class_selector;
+
+
 
 public:
 	vehicle_class_manager_t(convoihandle_t cnv);
