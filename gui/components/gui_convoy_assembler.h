@@ -142,7 +142,8 @@ class gui_convoy_assembler_t :
 	
 	gui_label_t lb_livery_selector;
 	gui_combobox_t livery_selector;
-	//gui_combobox_t cs_pass_0;
+
+	button_t bt_class_management;
 
 	vector_tpl<gui_image_list_t::image_data_t*> convoi_pics;
 	gui_image_list_t convoi;

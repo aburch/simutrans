@@ -16,7 +16,10 @@
 #include "../../simskin.h"
 #include "../../simworld.h"
 #include "../../simconvoi.h"
+#include "../simwin.h"
 #include "../../convoy.h"
+#include "../vehicle_class_manager.h"
+
 
 #include "../../bauer/goods_manager.h"
 #include "../../bauer/vehikelbauer.h"
@@ -262,11 +265,11 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 		}
 	}
 
-	// Here all the class selectors, Ves
-	sint16 y= LINESPACE + 12 + (3 * D_BUTTON_HEIGHT);
-	const scr_size column4_size(96, D_BUTTON_HEIGHT);
-	const scr_coord_val column4_x = size.w - column4_size.w - D_MARGIN_RIGHT;
-
+	bt_class_management.set_typ(button_t::roundbox);
+	bt_class_management.set_text("class_management");
+	bt_class_management.add_listener(this);
+	bt_class_management.set_tooltip("see_and_change_the_class_assignments");
+	add_component(&bt_class_management);
 
 	lb_convoi_count.set_text_pointer(txt_convoi_count);
 	lb_convoi_speed.set_text_pointer(txt_convoi_speed);
@@ -424,13 +427,17 @@ void gui_convoy_assembler_t::layout()
 	lb_convoi_count.set_size(lb_size);
 	lb_convoi_value.set_pos(scr_coord(c2_x, y));
 	lb_convoi_value.set_size(lb_size);
-	cont_convoi_capacity.set_pos(scr_coord(c3_x, y));
-	cont_convoi_capacity.set_size(lb_size);
+	bt_class_management.set_pos(scr_coord(c3_x, y));
+	bt_class_management.set_size(scr_size(size.w - c3_x-5, LINESPACE));
+	bt_class_management.pressed = win_get_magic(magic_class_manager);
+	//bt_class_management.pressed = show_class_management;
 	y += LINESPACE + 1;
 	lb_convoi_cost.set_pos(scr_coord(c1_x, y));
 	lb_convoi_cost.set_size(lb_size);
 	lb_convoi_weight.set_pos(scr_coord(c2_x, y));
 	lb_convoi_weight.set_size(lb_size);
+	cont_convoi_capacity.set_pos(scr_coord(c3_x, y));
+	cont_convoi_capacity.set_size(lb_size);
 	y += LINESPACE + 1;
 	lb_convoi_power.set_pos(scr_coord(c1_x, y));
 	lb_convoi_power.set_size(lb_size);
@@ -609,7 +616,11 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *comp,value_
 				update_data();
 				}
 		} 
-		
+		else if (comp == &bt_class_management) {
+			convoihandle_t cnv = depot_frame->get_convoy();
+			create_win(20, 20, new vehicle_class_manager_t(cnv), w_info, magic_class_manager+ cnv.get_id());
+			return true;
+		}
 		else if(comp == &vehicle_filter) 
 		{
 			selected_filter = vehicle_filter.get_selection();
@@ -673,9 +684,10 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 	txt_convoi_brake_force.clear();
 	txt_convoi_rolling_resistance.clear();
 	txt_convoi_way_wear_factor.clear();
-//	txt_vehicle_capacity.clear();
 	cont_convoi_capacity.set_visible(!vehicles.empty());
+	bt_class_management.set_visible(false);
 	if (!vehicles.empty()) {
+		bt_class_management.set_visible(true);
 		potential_convoy_t convoy(vehicles);
 		const vehicle_summary_t &vsum = convoy.get_vehicle_summary();
 		const sint32 friction = convoy.get_current_friction();
