@@ -5489,7 +5489,7 @@ void haltestelle_t::clear_service_intervals(schedule_t* sch)
 		if (halt.is_bound())
 		{
 			service_frequency_specifier spec;
-			spec.x = halt.get_id();
+			spec.y = halt.get_id();
 			for (uint8 c = 0; c < goods_manager_t::get_max_catg_index(); c++)
 			{
 				spec.x = c;

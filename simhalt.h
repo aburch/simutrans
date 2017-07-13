@@ -333,7 +333,9 @@ public:
 
 	struct service_frequency_specifier
 	{
+		// Category
 		uint16 x;
+		// Halt ID
 		uint8 y;
 
 		service_frequency_specifier operator - (service_frequency_specifier s)
