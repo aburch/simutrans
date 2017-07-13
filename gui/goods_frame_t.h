@@ -34,28 +34,30 @@
 class goods_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
-	enum sort_mode_t { unsortiert=0, nach_name=1, nach_gewinn=2, nach_bonus=3, nach_catg=4, by_weight=5, SORT_MODES=6 };
+	enum sort_mode_t { unsortiert=0, nach_name=1, nach_gewinn=2, nach_catg=3, by_weight=4, SORT_MODES=5 };
 	static const char *sort_text[SORT_MODES];
 
 	// static, so we remember the last settings
-	static int relative_speed_percentage;
 	// Distance in meters
 	static uint32 distance_meters;
 	// Distance in km
 	static uint16 distance;
+	
+	static uint32 vehicle_speed;
 	static uint8 comfort;
 	static uint8 catering_level;
+	static uint8 g_class;
 	static bool sortreverse;
 	static sort_mode_t sortby;
 	static bool filter_goods;
-	static waytype_t wtype;
 
-	char	speed_bonus[6];
-	char	distance_txt[6];
-	char	comfort_txt[6];
-	char	catering_txt[6];
-	cbuffer_t	speed_message;
-	uint16 good_list[256];
+	char		speed[6];
+	char		distance_txt[6];
+	char		comfort_txt[6];
+	char		catering_txt[6];
+	char		class_txt[6];
+	cbuffer_t	descriptive_text;
+	uint16		good_list[256];
 
 	gui_label_t		sort_label;
 	button_t		sortedby;
@@ -64,6 +66,7 @@ private:
 	gui_label_t		change_distance_label;
 	gui_label_t		change_comfort_label;
 	gui_label_t		change_catering_label;
+	gui_label_t		change_class_label;
 
 	/*
 	button_t		speed_up;
@@ -78,10 +81,8 @@ private:
 	
 	// replace button list with numberinput components for faster navigation
 	// @author: HeinBloed, April 2012
-	gui_numberinput_t distance_input, comfort_input, catering_input, speed_input;
+	gui_numberinput_t distance_input, comfort_input, catering_input, speed_input, class_input;
 
-
-	gui_combobox_t	way_type;
 	button_t		filter_goods_toggle;
 
 	goods_stats_t goods_stats;
