@@ -2548,8 +2548,8 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	{
 		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
 		{
-			class_reassignments = new uint8[desc->get_number_of_classes()];
-			fracht = new slist_tpl<ware_t>[desc->get_number_of_classes()];
+			class_reassignments = new uint8[desc ? desc->get_number_of_classes() : number_of_classes];
+			fracht = new slist_tpl<ware_t>[desc ? desc->get_number_of_classes() : number_of_classes];
 			uint8 cr;
 
 			for (uint8 i = 0; i < number_of_classes; i++)
@@ -2599,8 +2599,8 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			// clases defaults to 1 and we have to read this from
 			// desc.
 
-			class_reassignments = new uint8[desc->get_number_of_classes()];
-			fracht = new slist_tpl<ware_t>[desc->get_number_of_classes()];
+			class_reassignments = new uint8[desc ? desc->get_number_of_classes() : number_of_classes];
+			fracht = new slist_tpl<ware_t>[desc ? desc->get_number_of_classes() : number_of_classes];
 
 			for (int i = 0; i < total_fracht_count; i++)
 			{
@@ -2742,7 +2742,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	}
 	else
 	{
-		for (uint8 i = 0; i < desc->get_number_of_classes(); i++)
+		for (uint8 i = 0; i < (desc ? desc->get_number_of_classes() : number_of_classes); i++)
 		{
 			class_reassignments[i] = i;
 		}

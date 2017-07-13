@@ -110,7 +110,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// This must be done here, as it will affect the length of the header.
 
 	uint32 current_class_capacity;
-	vector_tpl<uint8> class_capacities(1);
+	vector_tpl<uint16> class_capacities(1);
 
 	for (uint8 i = 0; i < 256; i++)
 	{
@@ -187,7 +187,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	pos += sizeof(uint8);
 
 	// Capacities by class
-	FOR(vector_tpl<uint8>, capacity, class_capacities)
+	FOR(vector_tpl<uint16>, capacity, class_capacities)
 	{
 		node.write_uint16(fp, capacity, pos);
 		pos += sizeof(uint16);
