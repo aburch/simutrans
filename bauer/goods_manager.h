@@ -70,11 +70,6 @@ public:
 	 * used for the beginner mode
 	 */
 	static void set_multiplier(sint32 multiplier, uint16 scale_factor);
-
-	/*
-	 * Update the cache of speedbonuses by distance
-	 */
-	static void cache_speedbonuses(uint32 min_d, uint32 med_d, uint32 max_d, uint16 multiplier);
 };
 
 #endif

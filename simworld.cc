@@ -1482,8 +1482,6 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	else {
 		goods_manager_t::set_multiplier(1000, settings.get_meters_per_tile());
 	}
-	// Must do this just after set_multiplier, since it depends on goods_manager_t having registered all wares:
-	settings.cache_speedbonuses();
 
 	recalc_season_snowline(false);
 
@@ -2939,8 +2937,6 @@ karte_t::karte_t() :
 
 	// standard prices
 	goods_manager_t::set_multiplier( 1000, settings.get_meters_per_tile() );
-	// Must do this just after set_multiplier, since it depends on goods_manager_t having registered all wares:
-	settings.cache_speedbonuses();
 
 	zeiger = 0;
 	plan = 0;
@@ -5061,9 +5057,6 @@ void karte_t::new_year()
 		}
 	}
 
-DBG_MESSAGE("karte_t::new_year()","speedbonus for %d %i, %i, %i, %i, %i, %i, %i, %i", last_year,
-			average_speed[0], average_speed[1], average_speed[2], average_speed[3], average_speed[4], average_speed[5], average_speed[6], average_speed[7] );
-
 	cbuffer_t buf;
 	buf.printf( translator::translate("Year %i has started."), last_year );
 	msg->add_message(buf,koord::invalid,message_t::general,COL_BLACK,skinverwaltung_t::neujahrsymbol->get_image_id(0));
@@ -5095,13 +5088,6 @@ void karte_t::recalc_average_speed()
 {
 	// retire/allocate vehicles
 	private_car_t::build_timeline_list(this);
-
-	const uint32 speed_bonus_percent = get_settings().get_speed_bonus_multiplier_percent();
-	for(int i=road_wt; i<=narrowgauge_wt; i++) {
-		const int typ = i==4 ? 3 : (i-1)&7;
-		const uint32 base_speed_bonus = vehicle_builder_t::get_speedbonus( this->get_timeline_year_month(), i==4 ? air_wt : (waytype_t)i );
-		average_speed[typ] = (base_speed_bonus * speed_bonus_percent) / 100;
-	}
 
 	//	DBG_MESSAGE("karte_t::recalc_average_speed()","");
 	if(use_timeline())
@@ -7768,7 +7754,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "start");
 				privatecar_rdwr(file);
 			}
 			stadt_t::electricity_consumption_rdwr(file);
-			if(file->get_version()>102003 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9)) 
+			if(file->get_extended_version() < 13 && file->get_extended_revision() < 24 && file->get_version()>102003 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9)) 
 			{
 				vehicle_builder_t::rdwr_speedbonus(file);
 			}
@@ -8506,8 +8492,6 @@ void karte_t::load(loadsave_t *file)
 	else {
 		goods_manager_t::set_multiplier( 1000, settings.get_meters_per_tile() );
 	}
-	// Must do this just after set_multiplier, since it depends on goods_manager_t having registered all wares:
-	settings.cache_speedbonuses();
 
 	if(old_scale_factor != get_settings().get_meters_per_tile())
 	{
@@ -8657,17 +8641,10 @@ DBG_MESSAGE("karte_t::load()", "init player");
 			}
 
 			// Finally speedbonus
-			if(file->get_version()>102003 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9)) 
+			if(file->get_extended_version() < 13 && file->get_extended_revision() < 24 && file->get_version()>102003 && (file->get_extended_version() == 0 || file->get_extended_version() >= 9)) 
 			{
+				// Retained for save game compatibility with older games saved with versions that still had the speed bonus.
 				vehicle_builder_t::rdwr_speedbonus(file);
-				if (  !env_t::networkmode || env_t::server  ) {
-					if (pak_overrides) {
-						chdir( env_t::program_dir );
-						printf("stadt_t::speedbonus_init in pak dir (%s) for override of save file: ", env_t::objfilename.c_str() );
-						vehicle_builder_t::speedbonus_init( env_t::objfilename );
-						chdir( env_t::user_dir );
-					}
-				}
 			}
 		}
 	}

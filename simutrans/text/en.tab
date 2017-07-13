@@ -1910,8 +1910,6 @@ Gewinn
 Revenue
 Give the selected vehicle(s) an individual schedule
 Give the selected vehicle(s) an individual schedule.
-gl_btn_sort_bonus
-by bonus
 gl_btn_sort_name
 by name
 gl_btn_sort_revenue
@@ -2540,8 +2538,6 @@ special freight
 Special Freight
 SPECIALTOOLS
 Special Construction Tools
-Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
-Speed bonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
 Speedlimit
 Speed limit
 Speichern
@@ -2916,8 +2912,6 @@ replace all in line
 Replace all in line
 replace all
 Replace all
-Distance\nComfort\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
-Distance (km)\nComfort\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
 Abspanntransformator
 Downstream substation
 Aufspanntransformator

@@ -95,10 +95,6 @@ void goods_stats_t::draw(scr_coord offset)
 		display_proportional_clip(offset.x + 170, yoff, buf, 	ALIGN_RIGHT, 	SYSCOL_TEXT, true);
 
 		buf.clear();
-		buf.printf("%d%%", wtyp->get_adjusted_speed_bonus(distance_meters));
-		display_proportional_clip(offset.x + 205, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
-
-		buf.clear();
 		buf.printf( "%s",	translator::translate(wtyp->get_catg_name()));
 		display_proportional_clip(offset.x + 220, yoff, buf, 	ALIGN_LEFT, SYSCOL_TEXT, 	true);
 

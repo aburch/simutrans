@@ -7,7 +7,6 @@
 #include "../simunits.h"
 #include "livery_scheme.h"
 #include "../tpl/piecewise_linear_tpl.h" // for various revenue tables
-#include "../bauer/goods_manager.h" // for speed bonus tables
 
 /**
  * Game settings
@@ -347,14 +346,6 @@ public:
 
 	uint8 max_rerouting_interval_months;
 
-protected:
-	//@author: jamespetts
-	// Revenue calibration settings
-	uint16 min_bonus_max_distance;
-	uint16 max_bonus_min_distance;
-	uint16 median_bonus_distance;
-	uint16 max_bonus_multiplier_percent;
-
 public:
 
 	uint16 meters_per_tile;
@@ -488,11 +479,6 @@ public:
 	// Whether and how weight limits are enforced
 	// @author: jamespetts
 	uint8 enforce_weight_limits;
-
-	// Adjustment of the speed bonus for use with
-	// speedbonus.tab files from Simutrans-Standard
-	// @author: jamespetts
-	uint16 speed_bonus_multiplier_percent;
 
 	bool allow_airports_without_control_towers;
 
@@ -828,14 +814,6 @@ public:
 
 	bool is_separate_halt_capacities() const { return separate_halt_capacities ; }
 
-	uint16 get_min_bonus_max_distance() const { return min_bonus_max_distance; }
-	uint16 get_median_bonus_distance() const { return median_bonus_distance; }
-	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
-	uint16 get_max_bonus_multiplier_percent() const { return max_bonus_multiplier_percent; }
-	// Cache the above settings directly in goods_desc_t objects.
-	// During loading you must call this *after* goods_manager_t is done registering wares.
-	void cache_speedbonuses();
-
 	uint16 get_meters_per_tile() const { return meters_per_tile; }
 	void   set_meters_per_tile(uint16 value);
 	uint32 get_steps_per_km() const { return steps_per_km; }
@@ -936,8 +914,6 @@ public:
 
 	uint8 get_enforce_weight_limits() const { return enforce_weight_limits; }
 	void set_enforce_weight_limits(uint8 value) { enforce_weight_limits = value; }
-
-	uint16 get_speed_bonus_multiplier_percent() const { return speed_bonus_multiplier_percent; }
 
 	bool get_allow_airports_without_control_towers() const { return allow_airports_without_control_towers; }
 	void set_allow_airports_without_control_towers(bool value) { allow_airports_without_control_towers = value; }

@@ -1027,9 +1027,6 @@ int simu_main(int argc, char** argv)
 	dbg->important("Reading city configuration ...");
 	stadt_t::cityrules_init(env_t::objfilename);
 
-	dbg->important("Reading speedbonus configuration ...");
-	vehicle_builder_t::speedbonus_init(env_t::objfilename);
-
 	dbg->important("Reading private car ownership configuration ...");
 	karte_t::privatecar_init(env_t::objfilename);
 

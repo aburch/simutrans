@@ -35,7 +35,7 @@
  * journey time, which in turn affects comfort. Adaopted from the old speed
  * bonus code, which was put into its present form by Neroden circa 2013.
  */
-uint32 goods_frame_t::vehicle_speed = 0;
+uint32 goods_frame_t::vehicle_speed = 50;
 
 /**
  * This variable defines by which column the table is sorted
@@ -201,21 +201,18 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 				sint64 price[2];
 				for(uint8 i = 0; i < 2; i ++)
 				{
-					const uint16 journey_tenths = (uint16) tenths_from_meters_and_kmh(distance_meters, vehicle_speed);
+					const uint16 journey_tenths = (uint16)tenths_from_meters_and_kmh(distance_meters, vehicle_speed);
 
-					price[i] = w[i]->get_total_fare(distance_meters, 0, comfort, catering_level, g_class, journey_tenths);
+					price[i] = w[i]->get_total_fare(distance_meters, 0, comfort, catering_level, min(g_class, w[i]->get_number_of_classes() - 1), journey_tenths);
 				}
 
 				order = price[0] - price[1];
 			}
 			break;
-		case 3: // sort by speed bonus
-			order = w[0]->get_adjusted_speed_bonus(distance_meters) - w[1]->get_adjusted_speed_bonus(distance_meters);
-			break;
-		case 4: // sort by catg_index
+		case 3: // sort by catg_index
 			order = w[1]->get_catg()-w[0]->get_catg();
 			break;
-		case 5: // sort by weight
+		case 4: // sort by weight
 			order = w[0]->get_weight_per_unit() - w[1]->get_weight_per_unit();
 		default: ; // make compiler happy, order will be determined below anyway
 	}
