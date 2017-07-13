@@ -24,10 +24,7 @@
 
 class scr_coord;
 
-/**
- * One element of the vehicle list display
- * @author prissi
- */
+
 class gui_class_vehicleinfo_t : public gui_container_t
 {
 private:
@@ -38,7 +35,7 @@ private:
 	convoihandle_t cnv;
 
 	vector_tpl<uint16> class_indices;
-	slist_tpl<gui_combobox_t *> class_selectors;
+	vector_tpl<gui_combobox_t *> class_selectors;
 	gui_container_t cont;
 
 public:
@@ -61,12 +58,7 @@ public:
 };
 
 
-/**
- * Displays an information window for a convoi
- *
- * @author Hj. Malthaner
- * @date 22-Aug-01
- */
+
 class vehicle_class_manager_t : public gui_frame_t , private action_listener_t
 {
 public:
