@@ -749,6 +749,10 @@ void simline_t::recalc_catg_index()
 		for (uint8 i = 0; i < passenger_classes_carried.get_count(); i++)
 		{
 			// Classes present previously not present now
+			if (old_passenger_classes_carried.get_count() >= i)
+			{
+				break;
+			}
 			if (!old_passenger_classes_carried.is_contained(old_passenger_classes_carried.get_element(i)))
 			{
 				passenger_class_differences.append(i);
