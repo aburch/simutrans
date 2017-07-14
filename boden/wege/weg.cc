@@ -169,6 +169,7 @@ void weg_t::init()
 	flags = 0;
 	image = IMG_EMPTY;
 	foreground_image = IMG_EMPTY;
+	overtaking_mode = twoway_mode;
 }
 
 
@@ -185,6 +186,13 @@ weg_t::~weg_t()
 void weg_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "weg_t" );
+
+	if(  file->get_version() >= 120006  ) {
+		sint8 ov = get_overtaking_mode();
+		file->rdwr_byte(ov);
+		overtaking_mode_t nov = (overtaking_mode_t)ov;
+		set_overtaking_mode(nov);
+	}
 
 	// save owner
 	if(  file->get_version() >= 99006  ) {
