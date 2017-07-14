@@ -19,9 +19,9 @@
  *      3-dimentional image array
  *
  *  Child nodes:
- *	0   1. Image-list
- *	1   2. Image-list
- *  2   3. Image-list
+ *	0   1. Image list
+ *	1   2. Image list
+ *  2   3. Image list
  *	... ...
  */
 class image_array_3d_t : public obj_desc_t {

@@ -411,6 +411,11 @@ public:
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
 			image_array_3d_t const* const list3d = get_child<image_array_3d_t>(5);
+			if (!list3d)
+			{
+				dbg->warning("image_id get_image_id()", "Cannot read 3d image list from memory");
+				return IMG_EMPTY;
+			}
 			image = list3d->get_image(dir, livery_index, goods_index);
 			if(!image) 
 			{
