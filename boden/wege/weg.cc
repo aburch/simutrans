@@ -104,6 +104,15 @@ weg_t* weg_t::alloc(waytype_t wt)
 }
 
 
+ribi_t::ribi weg_t::get_ribi() const {
+	if(  overtaking_mode==oneway_mode  ) {
+		return (ribi_t::ribi)((ribi & ~ribi_maske) & ~ribi_mask_oneway);
+	} else {
+		return (ribi_t::ribi)(ribi & ~ribi_maske);
+	}
+}
+
+
 // returns a string with the "official name of the waytype"
 const char *weg_t::waytype_to_string(waytype_t wt)
 {
@@ -161,7 +170,7 @@ void weg_t::init_statistics()
  */
 void weg_t::init()
 {
-	ribi = ribi_maske = ribi_t::none;
+	ribi = ribi_maske = ribi_mask_oneway =ribi_t::none;
 	max_speed = 450;
 	desc = 0;
 	init_statistics();

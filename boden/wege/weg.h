@@ -94,6 +94,13 @@ private:
 	*/
 	uint8 ribi_maske:4;
 
+
+	/**
+	* Mask used by oneway_mode road
+	* @author THLeaderH
+	*/
+	uint8 ribi_mask_oneway:4;
+
 	/**
 	* flags like walkway, electrification, road sings
 	* @author Hj. Malthaner
@@ -266,7 +273,7 @@ public:
 	/**
 	* Get the masked direction bits (ribi) for the way (with signals or other ribi changer).
 	*/
-	ribi_t::ribi get_ribi() const { return (ribi_t::ribi)(ribi & ~ribi_maske); }
+	ribi_t::ribi get_ribi() const;
 
 	/**
 	* für Signale ist es notwendig, bestimmte Richtungsbits auszumaskieren
@@ -275,6 +282,9 @@ public:
 	*/
 	void set_ribi_maske(ribi_t::ribi ribi) { ribi_maske = (uint8)ribi; }
 	ribi_t::ribi get_ribi_maske() const { return (ribi_t::ribi)ribi_maske; }
+
+	void set_ribi_mask_oneway(ribi_t::ribi ribi) { ribi_mask_oneway = (uint8)ribi; }
+	ribi_t::ribi get_ribi_mask_oneway() const { return (ribi_t::ribi)ribi_mask_oneway; }
 
 	/**
 	 * called during map rotation

@@ -2205,37 +2205,39 @@ void way_builder_t::build_road()
 			continue;
 		}
 
+		strasse_t * str;
+
 		if(extend) {
-			weg_t * weg = gr->get_weg(road_wt);
+			str = (strasse_t*)gr->get_weg(road_wt);
 
 			// keep faster ways or if it is the same way ... (@author prissi)
-			if((weg->get_desc()==desc  &&  weg->get_overtaking_mode()==overtaking_mode  )  ||  keep_existing_ways  ||  (keep_existing_city_roads  &&  weg->hat_gehweg())  ||  (keep_existing_faster_ways  &&  weg->get_desc()->get_topspeed()>desc->get_topspeed())  ||  (player_builder!=NULL  &&  weg->is_deletable(player_builder)!=NULL) || (gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0)) {
+			if((str->get_desc()==desc  &&  str->get_overtaking_mode()==overtaking_mode  )  ||  keep_existing_ways  ||  (keep_existing_city_roads  &&  str->hat_gehweg())  ||  (keep_existing_faster_ways  &&  str->get_desc()->get_topspeed()>desc->get_topspeed())  ||  (player_builder!=NULL  &&  str->is_deletable(player_builder)!=NULL) || (gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0)) {
 				//nothing to be done
 //DBG_MESSAGE("way_builder_t::build_road()","nothing to do at (%i,%i)",k.x,k.y);
 			}
 			else {
 				// we take ownership => we take care to maintain the roads completely ...
-				player_t *s = weg->get_owner();
-				player_t::add_maintenance(s, -weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
+				player_t *s = str->get_owner();
+				player_t::add_maintenance(s, -str->get_desc()->get_maintenance(), str->get_desc()->get_finance_waytype());
 				// cost is the more expensive one, so downgrading is between removing and new building
-				cost -= max( weg->get_desc()->get_price(), desc->get_price() );
-				weg->set_desc(desc);
-				weg->set_overtaking_mode(overtaking_mode);
+				cost -= max( str->get_desc()->get_price(), desc->get_price() );
+				str->set_desc(desc);
+				str->set_overtaking_mode(overtaking_mode);
 				// respect max speed of catenary
 				wayobj_t const* const wo = gr->get_wayobj(desc->get_wtyp());
-				if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
-					weg->set_max_speed( wo->get_desc()->get_topspeed() );
+				if (wo  &&  wo->get_desc()->get_topspeed() < str->get_max_speed()) {
+					str->set_max_speed( wo->get_desc()->get_topspeed() );
 				}
-				weg->set_gehweg(add_sidewalk);
-				player_t::add_maintenance( player_builder, weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
-				weg->set_owner(player_builder);
+				str->set_gehweg(add_sidewalk);
+				player_t::add_maintenance( player_builder, str->get_desc()->get_maintenance(), str->get_desc()->get_finance_waytype());
+				str->set_owner(player_builder);
 				// respect speed limit of crossing
-				weg->count_sign();
+				str->count_sign();
 			}
 		}
 		else {
 			// make new way
-			strasse_t * str = new strasse_t();
+			str = new strasse_t();
 
 			str->set_desc(desc);
 			str->set_overtaking_mode(overtaking_mode);
@@ -2246,6 +2248,14 @@ void way_builder_t::build_road()
 			if(player_builder!=NULL) {
 				// intercity roads have no owner, so we must check for an owner
 				player_builder->add_undo( route[i] );
+			}
+		}
+		//update ribi_mask_oneway if road is oneway_mode.
+		if(  str  ) {
+			if(  overtaking_mode==oneway_mode  &&  i<get_count()-1  ) {
+				str->set_ribi_mask_oneway(ribi_type(route[i+1],route[i]));
+			} else {
+				str->set_ribi_mask_oneway(ribi_t::none);
 			}
 		}
 		gr->calc_image();	// because it may be a crossing ...
