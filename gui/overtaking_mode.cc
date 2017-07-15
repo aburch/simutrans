@@ -19,9 +19,30 @@ char overtaking_mode_frame_t::mode_name[5][20] = {"oneway", "twoway", "loading_c
 overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_way_t* tool_) :
 	gui_frame_t( translator::translate("set overtaking_mode") )
 {
+	tool_class = 0;
+	tool_w = tool_;
+	init(player_, tool_w->get_overtaking_mode());
+}
+
+overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_bridge_t* tool_) :
+	gui_frame_t( translator::translate("set overtaking_mode") )
+{
+	tool_class = 1;
+	tool_b = tool_;
+	init(player_, tool_b->get_overtaking_mode());
+}
+
+overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_tunnel_t* tool_) :
+	gui_frame_t( translator::translate("set overtaking_mode") )
+{
+	tool_class = 2;
+	tool_tu = tool_;
+	init(player_, tool_tu->get_overtaking_mode());
+}
+
+void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtaking_mode_ ) {
 	player = player_;
-	tool = tool_;
-	overtaking_mode = tool->get_overtaking_mode();
+	overtaking_mode = overtaking_mode_;
 
 	scr_coord cursor(D_MARGIN_LEFT, D_MARGIN_TOP);
 
@@ -71,6 +92,18 @@ bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, valu
 			mode_button[i].pressed = false;
 		}
 	}
-	tool->set_overtaking_mode(overtaking_mode);
+	switch(  tool_class  ) {
+		case 0:
+		tool_w->set_overtaking_mode(overtaking_mode);
+		break;
+		case 1:
+		tool_b->set_overtaking_mode(overtaking_mode);
+		break;
+		case 2:
+		tool_tu->set_overtaking_mode(overtaking_mode);
+		break;
+		default:
+		assert(false);
+	}
 	return true;
 }
