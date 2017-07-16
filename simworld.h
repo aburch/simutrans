@@ -1013,9 +1013,10 @@ private:
 
 	static const sint16 default_car_ownership_percent = 25;
 
-	static vector_tpl<car_ownership_record_t> car_ownership;
+	// This is an array indexed by the number of passenger classes.
+	static vector_tpl<car_ownership_record_t>* car_ownership;
 
-	sint16 get_private_car_ownership(sint32 monthyear) const;
+	sint16 get_private_car_ownership(sint32 monthyear, uint8 g_class) const;
 	void privatecar_rdwr(loadsave_t *file);
 
 public:

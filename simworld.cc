@@ -6024,9 +6024,11 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 	vector_tpl<nearby_halt_t> start_halts(tile_list.empty() ? 0 : tile_list[0]->get_haltlist_count() * size);
 	get_nearby_halts_of_tiles(tile_list, wtyp, start_halts);
 
-	// Check whether this batch of passengers has access to a private car each.
-		
-	const sint16 private_car_percent = wtyp == goods_manager_t::passengers ? get_private_car_ownership(get_timeline_year_month()) : 0; 
+	// Initialise the class out of the loop, as the passengers remain the same class no matter what their trip.
+	const uint8 g_class = first_origin->get_random_passenger_class();
+
+	// Check whether this batch of passengers has access to a private car each.	
+	const sint16 private_car_percent = wtyp == goods_manager_t::passengers ? get_private_car_ownership(get_timeline_year_month(), g_class) : 0;
 	// Only passengers have private cars
 	// QUERY: Should people be taken to be able to deliver mail packets in their own cars?
 	bool has_private_car = private_car_percent > 0 ? simrand(100, "karte_t::generate_passengers_and_mail() (has private car?)") <= (uint16)private_car_percent : false;
@@ -6154,11 +6156,8 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		uint32 best_journey_time;
 		uint32 walking_time;
 		route_status = initialising;
+		pax.g_class = g_class;
 
-		// Initialise the class of the passengers or mail.
-		pax.g_class = first_origin->get_random_passenger_class();
-
-		// TODO: Have destination choice influenced by passenger class
 		first_destination = find_destination(trip, pax.get_class());
 		current_destination = first_destination;
 
@@ -7361,7 +7360,19 @@ void karte_t::update_history()
 	finance_history_month[0][WORLD_TRANSPORTED_GOODS] = transported;
 	finance_history_year[0][WORLD_TRANSPORTED_GOODS] = transported_year;
 
-	finance_history_month[0][WORLD_CAR_OWNERSHIP] = get_private_car_ownership(get_timeline_year_month());
+	// Find the global average car ownership.
+	// TODO: Consider whether we need separate graphs for each class of passenger here.
+
+	sint64 average_car_ownership_percent = 0;
+
+	for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+	{
+		average_car_ownership_percent += get_private_car_ownership(get_timeline_year_month(), i);
+	}
+	average_car_ownership_percent /= goods_manager_t::passengers->get_number_of_classes();
+
+	finance_history_month[0][WORLD_CAR_OWNERSHIP] = average_car_ownership_percent;
+	
 
 	// Average the annual figure
 	sint64 car_ownership_sum = 0;
@@ -10731,45 +10742,61 @@ void karte_t::update_weight_of_building_in_world_list(gebaeude_t *gb)
 	}
 }
 
-vector_tpl<car_ownership_record_t> karte_t::car_ownership;
+vector_tpl<car_ownership_record_t> *karte_t::car_ownership;
 
-sint16 karte_t::get_private_car_ownership(sint32 monthyear) const
+sint16 karte_t::get_private_car_ownership(sint32 monthyear, uint8 g_class) const
 {
-
-	if(monthyear == 0) 
+	const uint8 number_of_passenger_classes = goods_manager_t::passengers->get_number_of_classes();
+	if(monthyear == 0 || !car_ownership)
 	{
-		return default_car_ownership_percent;
+		if (number_of_passenger_classes > 1 && g_class == number_of_passenger_classes - 1)
+		{
+			// By default, the highest class of passenger always has access to a private car where there are multiple classes of passengers
+			// defined.
+			return 100;
+		}
+		else
+		{
+			return default_car_ownership_percent;
+		}
 	}
 
 	// ok, now lets see if we have data for this
-	if(car_ownership.get_count()) 
+	if(car_ownership[g_class].get_count())
 	{
 		uint i=0;
-		while(i < car_ownership.get_count() && monthyear >= car_ownership[i].year)
+		while(i < car_ownership[g_class].get_count() && monthyear >= car_ownership[g_class][i].year)
 		{
 			i++;
 		}
-		if(i == car_ownership.get_count()) 
+		if(i == car_ownership[g_class].get_count())
 		{
-			// maxspeed already?
-			return car_ownership[i-1].ownership_percent;
+			return car_ownership[g_class][i-1].ownership_percent;
 		}
 		else if(i == 0) 
 		{
-			// minspeed below
-			return car_ownership[0].ownership_percent;
+			return car_ownership[g_class][0].ownership_percent;
 		}
 		else 
 		{
-			// interpolate linear
-			const sint32 delta_ownership_percent = car_ownership[i].ownership_percent - car_ownership[i-1].ownership_percent;
-			const sint64 delta_years = car_ownership[i].year - car_ownership[i-1].year;
-			return ((delta_ownership_percent * (monthyear-car_ownership[i-1].year)) / delta_years ) + car_ownership[i-1].ownership_percent;
+			// Interpolate linear
+			const sint32 delta_ownership_percent = car_ownership[g_class][i].ownership_percent - car_ownership[g_class][i-1].ownership_percent;
+			const sint64 delta_years = car_ownership[g_class][i].year - car_ownership[g_class][i-1].year;
+			return ((delta_ownership_percent * (monthyear-car_ownership[g_class][i-1].year)) / delta_years ) + car_ownership[g_class][i-1].ownership_percent;
 		}
 	}
 	else
 	{
-		return default_car_ownership_percent;
+		if (number_of_passenger_classes > 1 && g_class == number_of_passenger_classes - 1)
+		{
+			// By default, the highest class of passenger always has access to a private car where there are multiple classes of passengers
+			// defined.
+			return 100;
+		}
+		else
+		{
+			return default_car_ownership_percent;
+		}
 	}
 }
 
@@ -10779,30 +10806,80 @@ void karte_t::privatecar_init(const std::string &objfilename)
 	// first take user data, then user global data
 	if(!ownership_file.open((objfilename+"config/privatecar.tab").c_str()))
 	{
-		dbg->message("stadt_t::privatecar_init()", "Error opening config/privatecar.tab.\nWill use default value." );
+		dbg->message("stadt_t::privatecar_init()", "Error opening config/privatecar.tab.\nWill use default values." );
 		return;
 	}
 
+	const uint8 number_of_passenger_classes = goods_manager_t::passengers->get_number_of_classes();
+
 	tabfileobj_t contents;
 	ownership_file.read(contents);
+	car_ownership = new vector_tpl<car_ownership_record_t>[number_of_passenger_classes];
 
 	/* init the values from line with the form year, proportion, year, proportion
 	 * must be increasing order!
 	 */
-	int *tracks = contents.get_ints("car_ownership");
-	if((tracks[0]&1) == 1) 
+	bool wrote_any_data = false;
+	for (uint8 cl = 0; cl < number_of_passenger_classes; cl++)
 	{
-		dbg->message("stadt_t::privatecar_init()", "Ill formed line in config/privatecar.tab.\nWill use default value. Format is year,ownership percentage[ year,ownership percentage]!" );
-		car_ownership.clear();
+		char buf[40];
+		sprintf(buf, "car_ownership[%i]", cl);
+		int *tracks = contents.get_ints(buf);
+		if ((tracks[0] & 1) == 1)
+		{
+			dbg->message("stadt_t::privatecar_init()", "Ill formed line in config/privatecar.tab.\nWill use default value. Format is year,ownership percentage[ year,ownership percentage]!");
+			car_ownership[cl].clear();
+			delete[] tracks;
+			return;
+		}
+		car_ownership[cl].resize(tracks[0] / 2);
+		for (int i = 1; i < tracks[0]; i += 2)
+		{
+			car_ownership_record_t c(tracks[i], tracks[i + 1]);
+			car_ownership[cl].append(c);
+			wrote_any_data = true;
+		}
+		delete[] tracks;
+	}
+
+	if (wrote_any_data)
+	{
 		return;
 	}
-	car_ownership.resize(tracks[0] / 2);
-	for(int i = 1; i < tracks[0]; i += 2) 
+
+	for (uint8 cl = 0; cl < number_of_passenger_classes; cl++)
 	{
-		car_ownership_record_t c(tracks[i], tracks[i+1]);
-		car_ownership.append(c);
+		if (number_of_passenger_classes == 1 || cl < number_of_passenger_classes - 1)
+		{
+			int *tracks = contents.get_ints("car_ownership");
+			if ((tracks[0] & 1) == 1)
+			{
+				dbg->message("stadt_t::privatecar_init()", "Ill formed line in config/privatecar.tab.\nWill use default value. Format is year,ownership percentage[ year,ownership percentage]!");
+				car_ownership[cl].clear();
+				delete[] tracks;
+				return;
+			}
+			car_ownership[cl].resize(tracks[0] / 2);
+			for (int i = 1; i < tracks[0]; i += 2)
+			{
+				car_ownership_record_t c(tracks[i], tracks[i + 1]);
+				car_ownership[cl].append(c);
+			}
+			delete[] tracks;
+		}
+		else
+		{
+			// In the case of an old style privatecar.tab,
+			// assume that the highest class (where there are
+			// multiple passenger classes) always has access
+			// to a private car at all times in history.
+			car_ownership_record_t c(0, 100);
+			car_ownership[cl].append(c);
+			c.year = 5000;
+			c.ownership_percent = 100;
+			car_ownership[cl].append(c);
+		}
 	}
-	delete [] tracks;
 }
 
 /**
@@ -10817,34 +10894,73 @@ void karte_t::privatecar_rdwr(loadsave_t *file)
 	{
 		 return;
 	}
+	
+	uint8 number_of_passenger_classes = file->get_extended_version() >= 13 || file->get_extended_revision() >= 24 ? goods_manager_t::passengers->get_number_of_classes() : 1;
 
-	if(file->is_saving())
+	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 24)
 	{
-		uint32 count = car_ownership.get_count();
-		file->rdwr_long(count);
-		ITERATE(car_ownership, i)
-		{
-			
-			file->rdwr_longlong(car_ownership.get_element(i).year);
-			file->rdwr_short(car_ownership.get_element(i).ownership_percent);
-		}	
+		file->rdwr_byte(number_of_passenger_classes);
 	}
 
-	else
+	for (uint8 cl = 0; cl < number_of_passenger_classes && cl < goods_manager_t::passengers->get_number_of_classes(); cl++)
 	{
-		car_ownership.clear();
-		uint32 counter;
-		file->rdwr_long(counter);
-		sint64 year = 0;
-		uint16 ownership_percent = 0;
-		for(uint32 c = 0; c < counter; c ++)
+		if (file->is_saving())
 		{
-			file->rdwr_longlong(year);
-			file->rdwr_short(ownership_percent);
-			car_ownership_record_t cow(year / 12, ownership_percent);
-			car_ownership.append(cow);
+			uint32 count = car_ownership[cl].get_count();
+			file->rdwr_long(count);
+			ITERATE(car_ownership[cl], i)
+			{
+				file->rdwr_longlong(car_ownership[cl].get_element(i).year);
+				file->rdwr_short(car_ownership[cl].get_element(i).ownership_percent);
+			}
+		}
+
+		else
+		{
+			car_ownership[cl].clear();
+			uint32 counter;
+			file->rdwr_long(counter);
+			sint64 year = 0;
+			uint16 ownership_percent = 0;
+			for (uint32 c = 0; c < counter; c++)
+			{
+				file->rdwr_longlong(year);
+				file->rdwr_short(ownership_percent);
+				car_ownership_record_t cow(year / 12, ownership_percent);
+				car_ownership[cl].append(cow);
+			}
 		}
 	}
+
+	// The below is probably redundant, as the remaining classes will be filled in by whatever is in privatecar.tab
+	/*
+	if (file->is_loading() && number_of_passenger_classes < goods_manager_t::passengers->get_number_of_classes())
+	{
+		// Must fill in additional classes with data from the classes that we have when loading older games.
+		for (uint8 cl = number_of_passenger_classes; cl < goods_manager_t::passengers->get_number_of_classes(); cl++)
+		{
+			car_ownership[cl].clear();
+			if (cl < number_of_passenger_classes - 1)
+			{
+				FOR(vector_tpl<car_ownership_record_t>, car_own, car_ownership[number_of_passenger_classes - 1])
+				{
+					car_ownership[cl].append(car_own);
+				}
+			}
+			else
+			{
+				// In the case of an old style privatecar.tab,
+				// assume that the highest class (where there are
+				// multiple passenger classes) always has access
+				// to a private car at all times in history.
+				car_ownership_record_t c(0, 100);
+				car_ownership[cl].append(c);
+				c.year = 5000;
+				c.ownership_percent = 100;
+				car_ownership[cl].append(c);
+			}
+		}
+	}*/
 }
 
 sint64 karte_t::get_land_value (koord3d k)
