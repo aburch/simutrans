@@ -10761,7 +10761,7 @@ sint16 karte_t::get_private_car_ownership(sint32 monthyear, uint8 g_class) const
 		}
 	}
 
-	// ok, now lets see if we have data for this
+	// Check for data
 	if(car_ownership[g_class].get_count())
 	{
 		uint i=0;
