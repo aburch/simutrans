@@ -105,7 +105,7 @@ weg_t* weg_t::alloc(waytype_t wt)
 
 
 ribi_t::ribi weg_t::get_ribi() const {
-	if(  overtaking_mode==oneway_mode  ) {
+	if(  get_waytype()==road_wt  &&  overtaking_mode==oneway_mode  ) {
 		return (ribi_t::ribi)((ribi & ~ribi_maske) & ~ribi_mask_oneway);
 	} else {
 		return (ribi_t::ribi)(ribi & ~ribi_maske);
@@ -197,6 +197,9 @@ void weg_t::rdwr(loadsave_t *file)
 	xml_tag_t t( file, "weg_t" );
 
 	if(  file->get_version() >= 120006  ) {
+		uint8 mask_oneway = get_ribi_mask_oneway();
+		file->rdwr_byte(mask_oneway);
+		set_ribi_mask_oneway(mask_oneway);
 		sint8 ov = get_overtaking_mode();
 		file->rdwr_byte(ov);
 		overtaking_mode_t nov = (overtaking_mode_t)ov;
