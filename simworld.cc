@@ -790,12 +790,6 @@ void karte_t::init_tiles()
 	active_player = players[0];
 	active_player_nr = 0;
 
-	// defaults without timeline
-	average_speed[0] = 60;
-	average_speed[1] = 80;
-	average_speed[2] = 40;
-	average_speed[3] = 350;
-
 	// clear world records
 	records->clear_speed_records();
 
