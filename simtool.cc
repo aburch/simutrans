@@ -2305,7 +2305,7 @@ bool tool_build_way_t::init( player_t *player )
 		return false;
 	}
 
-	if (is_ctrl_pressed()  &&  can_use_gui()) {
+	if (is_ctrl_pressed()  &&  can_use_gui()  &&  desc->get_waytype()==road_wt  ) {
 		create_win(new overtaking_mode_frame_t(player, this), w_info, (ptrdiff_t)this);
 	}
 	return desc!=NULL;
@@ -2538,10 +2538,14 @@ waytype_t tool_build_bridge_t::get_waytype() const
 bool tool_build_bridge_t::init( player_t *player )
 {
 	two_click_tool_t::init( player );
+	this->player = player;
 	// now get current desc
 	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
 	if(  desc  &&  !desc->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()  ) {
 		return false;
+	}
+	if (is_ctrl_pressed()  &&  can_use_gui()  &&  desc->get_waytype()==road_wt  ) {
+		create_win(new overtaking_mode_frame_t(player, this), w_info, (ptrdiff_t)this);
 	}
 	return desc!=NULL;
 }
@@ -2551,7 +2555,7 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 {
 	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
 	if (end==koord3d::invalid) {
-		return bridge_builder_t::build( player, start, desc );
+		return bridge_builder_t::build( player, start, desc, overtaking_mode[player->get_player_nr()] );
 	}
 	else {
 		const koord zv(ribi_type(end-start));
@@ -2559,7 +2563,7 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 		const char *error;
 		koord3d end2 = bridge_builder_t::find_end_pos(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
 		assert(end2 == end); (void)end2;
-		bridge_builder_t::build_bridge( player, start, end, zv, bridge_height, desc, way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat));
+		bridge_builder_t::build_bridge( player, start, end, zv, bridge_height, desc, way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat), overtaking_mode[player->get_player_nr()]);
 		return NULL; // all checks are performed before building.
 	}
 }
@@ -2813,10 +2817,14 @@ waytype_t tool_build_tunnel_t::get_waytype() const
 bool tool_build_tunnel_t::init( player_t *player )
 {
 	two_click_tool_t::init( player );
+	this->player = player;
 	// now get current desc
 	const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
 	if(  desc  &&  !desc->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()  ) {
 		return false;
+	}
+	if (is_ctrl_pressed()  &&  can_use_gui()  &&  desc->get_waytype()==road_wt  ) {
+		create_win(new overtaking_mode_frame_t(player, this), w_info, (ptrdiff_t)this);
 	}
 	return desc!=NULL;
 }

@@ -1884,7 +1884,7 @@ void way_builder_t::build_tunnel_and_bridges()
 
 			if(start->get_grund_hang()==0  ||  start->get_grund_hang()==slope_type(zv*(-1))) {
 				// bridge here, since the route is saved backwards, we have to build it at the posterior end
-				bridge_builder_t::build( player_builder, route[i+1], bridge_desc);
+				bridge_builder_t::build( player_builder, route[i+1], bridge_desc, overtaking_mode );
 			}
 			else {
 				// tunnel
@@ -1914,7 +1914,7 @@ void way_builder_t::build_tunnel_and_bridges()
 						if( bridge_desc ) {
 							wi->set_ribi(ribi_type(h));
 							wi1->set_ribi(ribi_type(slope_t::opposite(h)));
-							bridge_builder_t::build( player_builder, route[i], bridge_desc);
+							bridge_builder_t::build( player_builder, route[i], bridge_desc, overtaking_mode );
 						}
 					}
 					else if( tunnel_desc ) {
