@@ -1888,7 +1888,7 @@ void way_builder_t::build_tunnel_and_bridges()
 			}
 			else {
 				// tunnel
-				tunnel_builder_t::build( player_builder, route[i].get_2d(), tunnel_desc, true );
+				tunnel_builder_t::build( player_builder, route[i].get_2d(), tunnel_desc, true, overtaking_mode );
 			}
 			INT_CHECK( "wegbauer 1584" );
 		}
@@ -1921,7 +1921,7 @@ void way_builder_t::build_tunnel_and_bridges()
 						// make a short tunnel
 						wi->set_ribi(ribi_type(slope_t::opposite(h)));
 						wi1->set_ribi(ribi_type(h));
-						tunnel_builder_t::build( player_builder, route[i].get_2d(), tunnel_desc, true );
+						tunnel_builder_t::build( player_builder, route[i].get_2d(), tunnel_desc, true, overtaking_mode );
 					}
 					INT_CHECK( "wegbauer 1584" );
 				}
@@ -2091,6 +2091,12 @@ bool way_builder_t::build_tunnel_tile()
 				tunnel->neuen_weg_bauen(weg, route.get_ribi(i), player_builder);
 				tunnel->obj_add(new tunnel_t(route[i], player_builder, tunnel_desc));
 				weg->set_max_speed(tunnel_desc->get_topspeed());
+				weg->set_overtaking_mode(overtaking_mode);
+				if(  overtaking_mode==oneway_mode  &&  i<get_count()-1  ) {
+					weg->set_ribi_mask_oneway(ribi_type(route[i+1],route[i]));
+				} else {
+					weg->set_ribi_mask_oneway(ribi_t::none);
+				}
 				player_t::add_maintenance( player_builder, -weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
 			}
 			else {
@@ -2121,6 +2127,12 @@ bool way_builder_t::build_tunnel_tile()
 					weg_t *weg = gr->get_weg(tunnel_desc->get_waytype());
 					weg->set_desc(wb);
 					weg->set_max_speed(tunnel_desc->get_topspeed());
+					weg->set_overtaking_mode(overtaking_mode);
+					if(  overtaking_mode==oneway_mode  &&  i<get_count()-1  ) {
+						weg->set_ribi_mask_oneway(ribi_type(route[i+1],route[i]));
+					} else {
+						weg->set_ribi_mask_oneway(ribi_t::none);
+					}
 					// respect max speed of catenary
 					wayobj_t const* const wo = gr->get_wayobj(tunnel_desc->get_waytype());
 					if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
