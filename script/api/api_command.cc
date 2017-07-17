@@ -14,6 +14,7 @@
 #include "../../script/script.h"
 #include "../../descriptor/bridge_desc.h"
 #include "../../descriptor/building_desc.h"
+#include "../../descriptor/roadsign_desc.h"
 
 #include <memory> // auto_ptr
 
@@ -322,6 +323,13 @@ call_tool_work restore_slope(player_t* pl, koord3d start)
 	return call_tool_work(TOOL_RESTORESLOPE | GENERAL_TOOL, "", 0, pl, start);
 }
 
+call_tool_work build_sign_at(player_t* pl, koord3d start, const roadsign_desc_t* sign)
+{
+	if (sign == NULL) {
+		return call_tool_work("No sign provided");
+	}
+	return call_tool_work(TOOL_BUILD_ROADSIGN | GENERAL_TOOL, sign->get_name(), 0, pl, start);
+}
 
 
 void export_commands(HSQUIRRELVM vm)
@@ -444,6 +452,14 @@ void export_commands(HSQUIRRELVM vm)
 	 * @param pos position of tile
 	 */
 	STATIC register_method(vm, restore_slope, "restore_slope", false, true);
+
+	/**
+	 * Build signal / road-sign. If such a sign already exists then change its direction.
+	 * @param pl player to pay for the work
+	 * @param pos position of tile
+	 * @param sign type of road-sign or signal to be built
+	 */
+	STATIC register_method(vm, build_sign_at, "build_sign_at", false, true);
 
 	end_class(vm);
 }
