@@ -12,12 +12,14 @@
 #include "../../descriptor/building_desc.h"
 #include "../../descriptor/vehicle_desc.h"
 #include "../../descriptor/goods_desc.h"
+#include "../../descriptor/roadsign_desc.h"
 #include "../../bauer/brueckenbauer.h"
 #include "../../bauer/hausbauer.h"
 #include "../../bauer/tunnelbauer.h"
 #include "../../bauer/vehikelbauer.h"
 #include "../../bauer/goods_manager.h"
 #include "../../bauer/wegbauer.h"
+#include "../../obj/roadsign.h"
 #include "../../simhalt.h"
 #include "../../simware.h"
 #include "../../simworld.h"
@@ -225,6 +227,11 @@ namespace script_api {
 		return (building_desc_t::btype)param<uint16>::get(vm, index);
 	}
 };
+
+bool is_traffic_light(const roadsign_desc_t *d)
+{
+	return !d->is_signal_type()  &&  d->is_traffic_light();
+}
 
 
 void export_goods_desc(HSQUIRRELVM vm)
@@ -603,4 +610,50 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &ware_t::calc_revenue, "calc_revenue", true);
 	end_class(vm);
+
+	/**
+	 * Descriptor of roadsigns and signals.
+	 */
+	begin_desc_class(vm, "sign_desc_x", "obj_desc_x", (GETDESCFUNC)param<const roadsign_desc_t*>::getfunc());
+
+	/**
+	 * @returns true if sign is one-way sign
+	 */
+	register_method(vm, &roadsign_desc_t::is_single_way, "is_one_way");
+	/**
+	 * @returns true if sign is private-way sign
+	 */
+	register_method(vm, &roadsign_desc_t::is_private_way, "is_private_way");
+	/**
+	 * @returns true if sign is traffic light
+	 */
+	register_method(vm, &is_traffic_light, "is_traffic_light", true);
+	/**
+	 * @returns true if sign is choose sign
+	 */
+	register_method(vm, &roadsign_desc_t::is_choose_sign, "is_choose_sign");
+	/**
+	 * @returns true if sign is signal
+	 */
+	register_method(vm, &roadsign_desc_t::is_signal, "is_signal");
+	/**
+	 * @returns true if sign is pre signal (distant signal)
+	 */
+	register_method(vm, &roadsign_desc_t::is_pre_signal, "is_pre_signal");
+	/**
+	 * @returns true if sign is long-block signal
+	 */
+	register_method(vm, &roadsign_desc_t::is_longblock_signal, "is_longblock_signal");
+	/**
+	 * @returns true if sign is end-of-choose sign
+	 */
+	register_method(vm, &roadsign_desc_t::is_end_choose_signal, "is_end_choose_signal");
+	/**
+	 * Returns a list with available bridge types.
+	 * @param wt waytype
+	 */
+	STATIC register_method(vm, roadsign_t::get_available_signs, "get_available_signs", false, true);
+
+	end_class(vm);
+
 }

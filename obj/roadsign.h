@@ -14,6 +14,7 @@
 #include "../ifc/sync_steppable.h"
 #include "../tpl/stringhashtable_tpl.h"
 
+template<class T> class vector_tpl;
 class tool_selector_t;
 
 /**
@@ -161,6 +162,8 @@ public:
 	static const roadsign_desc_t *roadsign_search(roadsign_desc_t::types flag, const waytype_t wt, const uint16 time);
 
 	static const roadsign_desc_t *find_desc(const char *name) { return table.get(name); }
+
+	static const vector_tpl<const roadsign_desc_t*>& get_available_signs(const waytype_t wt);
 };
 
 #endif
