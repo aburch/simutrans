@@ -2311,6 +2311,12 @@ bool tool_build_way_t::init( player_t *player )
 	return desc!=NULL;
 }
 
+bool tool_build_way_t::exit( player_t *player )
+{
+	destroy_win((ptrdiff_t)this);
+	return two_click_tool_t::exit(player);
+}
+
 waytype_t tool_build_way_t::get_waytype() const
 {
 	const way_desc_t *desc = get_desc( welt->get_timeline_year_month(), false );
@@ -2498,6 +2504,7 @@ const char *tool_build_cityroad::do_work( player_t *player, const koord3d &start
 {
 	way_builder_t bauigel(player);
 	bauigel.set_build_sidewalk(true);
+	bauigel.set_overtaking_mode(overtaking_mode[player->get_player_nr()]);
 	calc_route( bauigel, start, end );
 	if(  bauigel.get_route().get_count()>1  ) {
 		welt->mute_sound(true);
@@ -2550,6 +2557,12 @@ bool tool_build_bridge_t::init( player_t *player )
 	return desc!=NULL;
 }
 
+
+bool tool_build_bridge_t::exit( player_t *player )
+{
+	destroy_win((ptrdiff_t)this);
+	return two_click_tool_t::exit(player);
+}
 
 const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
@@ -2829,6 +2842,12 @@ bool tool_build_tunnel_t::init( player_t *player )
 	return desc!=NULL;
 }
 
+
+bool tool_build_tunnel_t::exit( player_t *player )
+{
+	destroy_win((ptrdiff_t)this);
+	return two_click_tool_t::exit(player);
+}
 
 const char *tool_build_tunnel_t::check_pos( player_t *player, koord3d pos)
 {

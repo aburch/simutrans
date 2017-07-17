@@ -2654,6 +2654,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 				bauigel.init_builder(way_builder_t::strasse, welt->get_city_road(), NULL, NULL);
 				bauigel.set_build_sidewalk(true);
 				bauigel.calc_straight_route(welt->lookup_kartenboden(best_pos + road0)->get_pos(), welt->lookup_kartenboden(best_pos + road1)->get_pos());
+				bauigel.set_overtaking_mode(twoway_mode);
 				bauigel.build();
 			}
 			else {
@@ -3320,6 +3321,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 			// Hajo: city roads should not belong to any player => so we can ignore any construction costs ...
 			weg->set_desc(welt->get_city_road());
 			weg->set_gehweg(true);
+			weg->set_overtaking_mode(twoway_mode);
 			bd->neuen_weg_bauen(weg, connection_roads, player_);
 			bd->calc_image();	// otherwise the
 		}
