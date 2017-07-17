@@ -324,11 +324,6 @@ call_tool_work restore_slope(player_t* pl, koord3d start)
 
 
 
-// call_tool_work(uint16 id, const char* dp, uint8 f, player_t* pl, koord3d pos1, koord3d pos2)
-
-// err = w.work(our_player, route[i-1], route[i], way.get_name() )
-
-
 void export_commands(HSQUIRRELVM vm)
 {
 	/**
@@ -404,21 +399,21 @@ void export_commands(HSQUIRRELVM vm)
 	 * @param way type of way to be built
 	 * @param straight force building of straight ways, similar as building way with control key pressed
 	 */
-	register_method(vm, build_way, "build_way", false, true);
+	STATIC register_method(vm, build_way, "build_way", false, true);
 	/**
 	 * Build a depot.
 	 * @param pl player to pay for the work
 	 * @param pos position to place the depot
 	 * @param depot type of depot to be built
 	 */
-	register_method(vm, build_depot, "build_depot", false, true);
+	STATIC register_method(vm, build_depot, "build_depot", false, true);
 	/**
 	 * Build a station or station extension building.
 	 * @param pl player to pay for the work
 	 * @param pos position to place the depot
 	 * @param station type of station to be built
 	 */
-	register_method(vm, build_station, "build_station", false, true);
+	STATIC register_method(vm, build_station, "build_station", false, true);
 	/**
 	 * Build a bridge.
 	 * Similar to drag-and-build of bridges in-game.
@@ -427,7 +422,7 @@ void export_commands(HSQUIRRELVM vm)
 	 * @param end   coordinate, where bridge ends
 	 * @param bridge type of bridge to be built
 	 */
-	register_method(vm, build_bridge, "build_bridge", false, true);
+	STATIC register_method(vm, build_bridge, "build_bridge", false, true);
 	/**
 	 * Build a bridge.
 	 * Similar to one click with mouse on suitable start tile: program will figure out bridge span itself.
@@ -435,20 +430,20 @@ void export_commands(HSQUIRRELVM vm)
 	 * @param start coordinate, where bridge begins, the end point will be automatically determined
 	 * @param bridge type of bridge to be built
 	 */
-	register_method(vm, build_bridge_at, "build_bridge_at", false, true);
+	STATIC register_method(vm, build_bridge_at, "build_bridge_at", false, true);
 	/**
 	 * Modify the slope of one tile.
 	 * @param pl player to pay for the work
 	 * @param pos position of tile
 	 * @param slope new slope, can also be one of @ref slope::all_up_slope or @ref slope::all_down_slope.
 	 */
-	register_method(vm, set_slope, "set_slope", false, true);
+	STATIC register_method(vm, set_slope, "set_slope", false, true);
 	/**
 	 * Restore natural slope of one tile.
 	 * @param pl player to pay for the work
 	 * @param pos position of tile
 	 */
-	register_method(vm, restore_slope, "restore_slope", false, true);
+	STATIC register_method(vm, restore_slope, "restore_slope", false, true);
 
 	end_class(vm);
 }
