@@ -185,7 +185,7 @@ vehicle_base_t::vehicle_base_t():
 	dx = 0;
 	dy = 0;
 	zoff_start = zoff_end = 0;
-	next_enter_passing_lane = false;
+	next_lane = 0;
 	next_cross_lane = false;
 }
 
@@ -202,7 +202,7 @@ vehicle_base_t::vehicle_base_t(koord3d pos):
 	dx = 0;
 	dy = 0;
 	zoff_start = zoff_end = 0;
-	next_enter_passing_lane = false;
+	next_lane = 0;
 	next_cross_lane = false;
 }
 
@@ -537,7 +537,8 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 	if(  pcar  ) {
 		cnv_overtaking = pcar -> is_overtaking();
 	}
-	if(  next_enter_passing_lane  ) cnv_overtaking = true; //treated as convoi is overtaking.
+	if(  next_lane==1  ) cnv_overtaking = true; //treated as convoi is overtaking.
+	if(  next_lane==-1  ) cnv_overtaking = false; //treated as convoi is not overtaking.
 	// Search vehicle
 	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
 		if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
@@ -2199,7 +2200,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 		// At a crossing, decide whether the convoi should go on passing lane.
 		// side road -> main road from passing lane side: vehicle should enter passing lane on main road.
-		next_enter_passing_lane = false;
+		next_lane = 0;
 		if(  (str->get_ribi_unmasked() == ribi_t::all  ||  ribi_t::is_threeway(str->get_ribi_unmasked()))  &&  str->get_overtaking_mode() == oneway_mode  ) {
 			const strasse_t* str_prev = route_index == 0 ? NULL : (strasse_t *)welt->lookup(r.at(route_index - 1u))->get_weg(road_wt);
 			const strasse_t* str_next = route_index < r.get_count() - 1u ? (strasse_t *)welt->lookup(r.at(route_index + 1u))->get_weg(road_wt) : NULL;
@@ -2207,8 +2208,17 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				const koord3d pos_next2 = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
 				if(  (!welt->get_settings().is_drive_left()  &&  ribi_t::rotate90l(get_90direction()) == calc_direction(pos_next,pos_next2))  ||  (welt->get_settings().is_drive_left()  &&  ribi_t::rotate90(get_90direction()) == calc_direction(pos_next,pos_next2))  ) {
 					// next: enter passing lane.
-					next_enter_passing_lane = true;
+					next_lane = 1;
 				}
+			}
+		}
+
+		// When overtaking_mode changes from inverted_mode to others, no cars blocking must work as the convoi is on traffic lane. Otherwise, no_cars_blocking cannot recognize vehicles on the traffic lane of the next tile.
+		//next_lane = -1 does NOT mean that the vehicle must go traffic lane on the next tile.
+		const strasse_t* current_str = route_index == 0 ? NULL : (strasse_t *)welt->lookup(r.at(route_index - 1u))->get_weg(road_wt);
+		if(  current_str  &&  current_str->get_overtaking_mode()==inverted_mode  ) {
+			if(  str->get_overtaking_mode()<inverted_mode  ) {
+				next_lane = -1;
 			}
 		}
 
@@ -2384,7 +2394,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 							if(  ocnv->get_yielding_quit_index() != -1  &&  this->get_speed_limit() - ocnv->get_speed_limit() < kmh_to_speed(10)  ) {
 								yielding_factor = false;
 							}
-							if(  cnv->get_lane_fix() != -1  &&  !next_enter_passing_lane  &&  !cnv->is_overtaking()  &&  !other_lane_blocked()  &&  yielding_factor  &&  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : ocnv->get_akt_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
+							if(  cnv->get_lane_fix() != -1  &&  next_lane<1  &&  !cnv->is_overtaking()  &&  !other_lane_blocked()  &&  yielding_factor  &&  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : ocnv->get_akt_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
 								return true;
 							}
 							strasse_t *str=(strasse_t *)gr->get_weg(road_wt);
@@ -2395,7 +2405,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 								ocnv->set_requested_change_lane(true);
 							}
 							//For the case that the faster convoi is on traffic lane.
-							if(  cnv->get_lane_fix() != -1  &&  !next_enter_passing_lane  &&  !cnv->is_overtaking() && kmh_to_speed(10) <  cnv_max_speed - other_max_speed  ) {
+							if(  cnv->get_lane_fix() != -1  &&  next_lane<1  &&  !cnv->is_overtaking() && kmh_to_speed(10) <  cnv_max_speed - other_max_speed  ) {
 								if(  vehicle_base_t* const br = car->other_lane_blocked()  ) {
 									if(  road_vehicle_t const* const blk = obj_cast<road_vehicle_t>(br)  ) {
 										if(  car->get_direction() == blk->get_direction() && abs(car->get_convoi()->get_speed_limit() - blk->get_convoi()->get_speed_limit()) < kmh_to_speed(5)  ){
@@ -2407,7 +2417,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 							}
 						}
 						else if(  private_car_t* const caut = obj_cast<private_car_t>(obj)  ) {
-							if(  cnv->get_lane_fix() != -1  &&  !next_enter_passing_lane  &&  !cnv->is_overtaking()  &&  !other_lane_blocked()  &&  cnv->can_overtake(caut, caut->get_current_speed(), VEHICLE_STEPS_PER_TILE)  ) {
+							if(  cnv->get_lane_fix() != -1  &&  next_lane<1  &&  !cnv->is_overtaking()  &&  !other_lane_blocked()  &&  cnv->can_overtake(caut, caut->get_current_speed(), VEHICLE_STEPS_PER_TILE)  ) {
 								return true;
 							}
 						}
@@ -2506,7 +2516,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				}
 			}
 			// There is no vehicle on passing lane.
-			next_enter_passing_lane = true;
+			next_lane = 1;
 			return true;
 		}
 		// If 2 tiles ahead is a crossing, lane crossing must be checked before entering.
@@ -2650,9 +2660,9 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 	if (  leading  )  {
 		str->book(1, WAY_STAT_CONVOIS);
 		cnv->update_tiles_overtaking();
-		if(  next_enter_passing_lane  ) {
+		if(  next_lane==1  ) {
 			cnv->set_tiles_overtaking(3);
-			next_enter_passing_lane = false;
+			next_lane = 0;
 		}
 		//decide if overtaking convoi should go back to the traffic lane.
 		if(  cnv->get_tiles_overtaking() == 1  &&  str->get_overtaking_mode() == oneway_mode  ){
