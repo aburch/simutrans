@@ -867,6 +867,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 					bauigel.set_maximum(20);
 					bauigel.init_builder( (way_builder_t::bautyp_t)desc->get_waytype(), way_desc, NULL, NULL );
 					bauigel.calc_route( pos, to->get_pos() );
+					bauigel.set_overtaking_mode(overtaking_mode);
 					if(  bauigel.get_count() == 2  ) {
 						bauigel.build();
 					}
