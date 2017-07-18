@@ -284,12 +284,14 @@ public:
 	bool is_selected() const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
 	bool exit(player_t*) OVERRIDE;
+	void draw_after(scr_coord, bool dirty) const OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 	// remove preview necessary while building elevated ways
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click()  &&  (desc  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)); }
 	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode[player->get_player_nr()] = ov; }
 	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode[player->get_player_nr()]; }
+	static void set_mode_str(char* str, overtaking_mode_t overtaking_mode);
 };
 
 class tool_build_cityroad : public tool_build_way_t {
@@ -325,6 +327,7 @@ public:
 	void rdwr_custom_data(memory_rw_t*) OVERRIDE;
 	bool init(player_t*) OVERRIDE;
 	bool exit(player_t*) OVERRIDE;
+	void draw_after(scr_coord, bool dirty) const OVERRIDE;
 	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode[player->get_player_nr()] = ov; }
 	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode[player->get_player_nr()]; }
 };
@@ -349,6 +352,7 @@ public:
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click(); }
 	bool init(player_t*) OVERRIDE;
 	bool exit(player_t*) OVERRIDE;
+	void draw_after(scr_coord, bool dirty) const OVERRIDE;
 	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode[player->get_player_nr()] = ov; }
 	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode[player->get_player_nr()]; }
 };

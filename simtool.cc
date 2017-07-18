@@ -2317,6 +2317,16 @@ bool tool_build_way_t::exit( player_t *player )
 	return two_click_tool_t::exit(player);
 }
 
+void tool_build_way_t::draw_after(scr_coord k, bool dirty) const
+{
+	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
+		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
+		char level_str[16];
+		tool_build_way_t::set_mode_str(level_str, overtaking_mode[player->get_player_nr()]);
+		display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+	}
+}
+
 waytype_t tool_build_way_t::get_waytype() const
 {
 	const way_desc_t *desc = get_desc( welt->get_timeline_year_month(), false );
@@ -2493,6 +2503,29 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 	}
 }
 
+void tool_build_way_t::set_mode_str(char* str, overtaking_mode_t overtaking_mode) {
+	assert(str);
+	switch (overtaking_mode) {
+		case oneway_mode:
+			sprintf(str, "O");
+		break;
+		case twoway_mode:
+			sprintf(str, "T");
+		break;
+		case loading_only_mode:
+			sprintf(str, "L");
+		break;
+		case prohibited_mode:
+			sprintf(str, "P");
+		break;
+		case inverted_mode:
+			sprintf(str, "I");
+		break;
+		default:
+			sprintf(str, "X");
+		break;
+	}
+}
 
 /* city road construction */
 const way_desc_t *tool_build_cityroad::get_desc(uint16,bool) const
@@ -2562,6 +2595,16 @@ bool tool_build_bridge_t::exit( player_t *player )
 {
 	destroy_win((ptrdiff_t)this);
 	return two_click_tool_t::exit(player);
+}
+
+void tool_build_bridge_t::draw_after(scr_coord k, bool dirty) const
+{
+	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
+		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
+		char level_str[16];
+		tool_build_way_t::set_mode_str(level_str, overtaking_mode[player->get_player_nr()]);
+		display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+	}
 }
 
 const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
@@ -2842,6 +2885,15 @@ bool tool_build_tunnel_t::init( player_t *player )
 	return desc!=NULL;
 }
 
+void tool_build_tunnel_t::draw_after(scr_coord k, bool dirty) const
+{
+	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
+		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
+		char level_str[16];
+		tool_build_way_t::set_mode_str(level_str, overtaking_mode[player->get_player_nr()]);
+		display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+	}
+}
 
 bool tool_build_tunnel_t::exit( player_t *player )
 {
