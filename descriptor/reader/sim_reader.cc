@@ -3,6 +3,7 @@
 #include "image_reader.h"
 #include "imagelist_reader.h"
 #include "imagelist2d_reader.h"
+#include "imagelist3d_reader.h"
 #include "bridge_reader.h"
 #include "tunnel_reader.h"
 #include "building_reader.h"
@@ -36,6 +37,7 @@ text_reader_t text_reader_t::the_instance;
 image_reader_t image_reader_t::the_instance;
 imagelist_reader_t imagelist_reader_t::the_instance;
 imagelist2d_reader_t imagelist2d_reader_t::the_instance;
+imagelist3d_reader_t imagelist3d_reader_t::the_instance;
 root_reader_t root_reader_t::the_instance;
 xref_reader_t xref_reader_t::the_instance;
 

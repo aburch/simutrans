@@ -760,11 +760,6 @@ private:
 	message_t *msg;
 
 	/**
-	 * Array indexed per way type. Used to determine the speedbonus.
-	 */
-	sint32 average_speed[8];
-
-	/**
 	 * Used to distribute the workload when changing seasons to several steps.
 	 */
 	uint32 tile_counter;
@@ -775,7 +770,8 @@ private:
 	uint32 map_counter;
 
 	/**
-	 * Recalculated speed bonuses for different vehicles.
+	 * Re-calculate vehicle details monthly.
+	 * Used to be used for the speed bonus
 	 */
 	void recalc_average_speed();
 
@@ -1017,9 +1013,10 @@ private:
 
 	static const sint16 default_car_ownership_percent = 25;
 
-	static vector_tpl<car_ownership_record_t> car_ownership;
+	// This is an array indexed by the number of passenger classes.
+	static vector_tpl<car_ownership_record_t>* car_ownership;
 
-	sint16 get_private_car_ownership(sint32 monthyear) const;
+	sint16 get_private_car_ownership(sint32 monthyear, uint8 g_class) const;
 	void privatecar_rdwr(loadsave_t *file);
 
 public:
@@ -1179,13 +1176,6 @@ public:
 
 	settings_t const& get_settings() const { return settings; }
 	settings_t&       get_settings()       { return settings; }
-
-	// returns current speed bonus
-	sint32 get_average_speed(waytype_t typ) const 
-	{ 
-		const sint32 return_value = average_speed[ (typ==16 ? 3 : (int)(typ-1)&7 ) ];
-		return return_value > 0 ? return_value : 1;
-	}
 
 	/// speed record management
 	sint32 get_record_speed( waytype_t w ) const;

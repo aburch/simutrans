@@ -5842,7 +5842,7 @@ void convoi_t::calc_loading()
 }
 
 
-// return the current bonus speed
+// return the current average speed
 uint32 convoi_t::get_average_kmh() 
 {
 	halthandle_t halt = haltestelle_t::get_halt(schedule->get_current_eintrag().pos, owner);

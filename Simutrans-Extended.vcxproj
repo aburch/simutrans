@@ -1782,6 +1782,7 @@
     <ClCompile Include="bauer\goods_manager.cc" />
     <ClCompile Include="descriptor\factory_desc.cc" />
     <ClCompile Include="descriptor\obj_base_desc.cc" />
+    <ClCompile Include="descriptor\reader\imagelist3d_reader.cc" />
     <ClCompile Include="descriptor\vehicle_desc.cc" />
     <ClCompile Include="descriptor\way_desc.cc" />
     <ClCompile Include="clipboard_w32.cc" />
@@ -2325,6 +2326,8 @@
     <ClInclude Include="dataobj\objlist.h" />
     <ClInclude Include="dataobj\records.h" />
     <ClInclude Include="dataobj\settings.h" />
+    <ClInclude Include="descriptor\image_array_3d.h" />
+    <ClInclude Include="descriptor\reader\imagelist3d_reader.h" />
     <ClInclude Include="display\clip_num.h" />
     <ClInclude Include="display\font.h" />
     <ClInclude Include="display\scr_coord.h" />
@@ -2546,7 +2549,6 @@
     <ClInclude Include="descriptor\reader\image_reader.h" />
     <ClInclude Include="descriptor\writer\image_writer.h" />
     <ClInclude Include="descriptor\reader\imagelist2d_reader.h" />
-    <ClInclude Include="descriptor\writer\imagelist2d_writer.h" />
     <ClInclude Include="descriptor\reader\imagelist_reader.h" />
     <ClInclude Include="descriptor\writer\imagelist_writer.h" />
     <ClInclude Include="tpl\inthashtable_tpl.h" />

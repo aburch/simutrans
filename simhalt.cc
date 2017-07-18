@@ -1921,8 +1921,9 @@ uint32 haltestelle_t::calc_service_frequency(halthandle_t destination, uint8 cat
 		if (registered_lines[i]->get_schedule()->get_spacing() > 0)
 		{
 			// Check whether the spacing setting affects things.
-			sint64 spacing_ticks = welt->ticks_per_world_month / (sint64)registered_lines[i]->get_schedule()->get_spacing();
-			const uint32 spacing_time = welt->ticks_to_tenths_of_minutes(spacing_ticks);
+			const sint64 spacing_ticks = welt->ticks_per_world_month / (sint64)registered_lines[i]->get_schedule()->get_spacing();
+			uint32 spacing_time = welt->ticks_to_tenths_of_minutes(spacing_ticks);
+			spacing_time /= (number_of_calls_at_this_stop == 0 ? 1 : number_of_calls_at_this_stop);
 			timing = max(spacing_time, timing);
 		}
 
@@ -5660,7 +5661,7 @@ void haltestelle_t::update_service_intervals(schedule_t* sch)
 		if (halt.is_bound())
 		{
 			service_frequency_specifier spec;
-			spec.x = halt.get_id();
+			spec.y = halt.get_id();
 			uint32 freq; 
 			for(uint8 c = 0; c < goods_manager_t::get_max_catg_index(); c ++)
 			{
@@ -5682,7 +5683,7 @@ void haltestelle_t::clear_service_intervals(schedule_t* sch)
 		if (halt.is_bound())
 		{
 			service_frequency_specifier spec;
-			spec.x = halt.get_id();
+			spec.y = halt.get_id();
 			for (uint8 c = 0; c < goods_manager_t::get_max_catg_index(); c++)
 			{
 				spec.x = c;

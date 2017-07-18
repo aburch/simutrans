@@ -14,15 +14,16 @@
  *      Volker Meyer
  *
  *  Description:
- *      2 dimensionales Bilder-Array
+ *      2 dimensional image array
  *
  *  Child nodes:
- *	0   1. Image-list
- *	1   2. Image-list
+ *	0   1. Image list
+ *	1   2. Image list
  *	... ...
  */
 class image_array_t : public obj_desc_t {
 	friend class imagelist2d_reader_t;
+	friend class imagelist_3d_reader_t;
 
 	uint16  count;
 

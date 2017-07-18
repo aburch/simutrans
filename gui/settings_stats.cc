@@ -193,14 +193,10 @@ void settings_stats_t::set_cell_component(gui_component_table_t &tbl, gui_compon
 void settings_extended_general_stats_t::init( settings_t *sets )
 {
 	INIT_INIT;
-	INIT_NUM( "min_bonus_max_distance", sets->get_min_bonus_max_distance(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "median_bonus_distance", sets->get_median_bonus_distance(), 10, 10000, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "max_bonus_min_distance", sets->get_max_bonus_min_distance(), 100, 25000, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "max_bonus_multiplier_percent", sets->get_max_bonus_multiplier_percent(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	{
 		gui_component_table_t &tbl = new_table(scr_coord(0, ypos), 3, 2);
 		int row = 0;
-		set_cell_component(tbl, new_textarea(scr_coord(2, 0),translator::translate("revenue of")), 0, 0);
+		set_cell_component(tbl, new_textarea(scr_coord(2, 0), translator::translate("revenue of")), 0, 0);
 		set_cell_component(tbl, new_textarea(scr_coord(2, 0), translator::translate("above\nminutes")), 1, 0);
 		set_cell_component(tbl, new_textarea(scr_coord(2, 0), translator::translate("get\nrevenue $")), 2, 0);
 		row++;
@@ -210,6 +206,7 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 		INIT_TABLE_END(tbl);
 	}
 	SEPERATOR;
+
 	INIT_NUM( "city_threshold_size", sets->get_city_threshold_size(), 1000, 100000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "capital_threshold_size", sets->get_capital_threshold_size(), 10000, 1000000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_small_city_size", sets->get_max_small_city_size(), 1000, 100000, gui_numberinput_t::AUTOLINEAR, false );
@@ -336,11 +333,6 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 {
 	READ_INIT;
 
-	READ_NUM_VALUE( sets->min_bonus_max_distance );
-	READ_NUM_VALUE( sets->median_bonus_distance );
-	READ_NUM_VALUE( sets->max_bonus_min_distance );
-	READ_NUM_VALUE( sets->max_bonus_multiplier_percent );
-
 	READ_NUM( sets->set_tpo_min_minutes );
 	READ_NUM( sets->set_tpo_revenue );
 
@@ -414,8 +406,6 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 			sets->set_default_increase_maintenance_after_years((waytype_t)i, default_increase_maintenance_after_years_other);
 		}
 	}
-	// And convert to the form used in-game...
-	sets->cache_speedbonuses();
 }
 
 

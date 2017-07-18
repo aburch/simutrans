@@ -203,24 +203,6 @@ public:
 		// Use the functional... it should be loaded by goods_manager_t::cache_speedbonuses
 		return adjusted_speed_bonus(distance);
 	}
-
-	/**
-	 * Base fare with speedbonus adjustment but without comfort or catering/TPO
-	 * In units of 1/4096 of a simcent, for computational precision
-	 * (see .cc file for details on the formulas)
-	 */
-	sint64 get_fare_with_speedbonus(sint16 relative_speed_percentage, uint32 distance_meters, uint32 starting_distance = 0) const;
-
-	/**
-	 * This gets the fare with speedbonus, comfort, and catering adjustments -- the final fare.
-	 * In units of 1/4096 of a simcent, for computational precision
-	 *
-	 * Requires the world for stupid technical reasons.
-	 */
-	sint64 get_fare_with_comfort_catering_speedbonus(class karte_t* world,
-					uint8 comfort, uint8 catering_level, sint64 journey_tenths,
-					sint16 relative_speed_percentage, uint32 distance_meters, uint32 starting_distance = 0) const;
-
 	
 	/*
 	* This gets the total fare taking into account fare stages, comfort and catering, as well as the class

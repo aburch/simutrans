@@ -31,136 +31,23 @@ static stringhashtable_tpl< vehicle_desc_t*> name_fahrzeuge;
 #define GET_WAYTYPE_INDEX(wt) ((int)(wt)>8 ? 0 : (wt))
 static slist_tpl<vehicle_desc_t*> typ_fahrzeuge[9];
 
-class bonus_record_t {
-public:
-	sint64 year;
-	sint32 speed;
-	bonus_record_t( sint64 y=0, sint32 kmh=0 ) {
-		year = y*12;
-		speed = kmh;
-	};
-	void rdwr(loadsave_t *file) {
-		file->rdwr_longlong(year);
-		file->rdwr_long(speed);
-	}
-};
-
-// speed bonus
-static vector_tpl<bonus_record_t>speedbonus[8];
-
-static sint32 default_speedbonus[8] =
-{
-	80,	// road
-	80,	// track
-	35,	// water
-	80,	// air
-	80,	// monorail
-	80,	// maglev
-	80,	// tram
-	80	// narrowgauge
-};
-
-bool vehicle_builder_t::speedbonus_init(const std::string &objfilename)
-{
-	tabfile_t bonusconf;
-	// first take user data, then user global data
-	if (!bonusconf.open((objfilename+"config/speedbonus.tab").c_str())) {
-		dbg->warning("vehicle_builder_t::speedbonus_init()", "Can't read speedbonus.tab" );
-		return false;
-	}
-
-	tabfileobj_t contents;
-	bonusconf.read(contents);
-
-	/* init the values from line with the form year, speed, year, speed
-	 * must be increasing order!
-	 */
-	for(  int j=0;  j<8;  j++  ) {
-		int *tracks = contents.get_ints(weg_t::waytype_to_string(j==3?air_wt:(waytype_t)(j+1)));
-		if((tracks[0]&1)==1) {
-			dbg->warning( "vehicle_builder_t::speedbonus_init()", "Ill formed line in speedbonus.tab\nFormat is year,speed[,year,speed]!" );
-			tracks[0]--;
-		}
-		speedbonus[j].resize( tracks[0]/2 );
-		for(  int i=1;  i<tracks[0];  i+=2  ) {
-			bonus_record_t b( tracks[i], tracks[i+1] );
-			speedbonus[j].append( b );
-		}
-		delete [] tracks;
-	}
-
-	return true;
-}
-
-
-sint32 vehicle_builder_t::get_speedbonus( sint32 monthyear, waytype_t wt )
-{
-	const int typ = wt==air_wt ? 3 : (wt-1)&7;
-
-	if(  monthyear==0  ) {
-		return default_speedbonus[typ];
-	}
-
-	// ok, now lets see if we have data for this
-	vector_tpl<bonus_record_t> const& b = speedbonus[typ];
-	if (!b.empty()) {
-		uint i=0;
-		while (i < b.get_count() && monthyear >= b[i].year) {
-			i++;
-		}
-		if (i == b.get_count()) {
-			// maxspeed already?
-			return b[i - 1].speed;
-		}
-		else if(i==0) {
-			// minspeed below
-			return b[0].speed;
-		}
-		else {
-			// interpolate linear
-			sint32 const delta_speed = b[i].speed - b[i - 1].speed;
-			sint32 const delta_years = b[i].year  - b[i - 1].year;
-			return delta_speed * (monthyear - b[i - 1].year) / delta_years + b[i - 1].speed;
-		}
-	}
-	else {
-		sint32 speed_sum = 0;
-		sint32 num_averages = 0;
-		// needs to do it the old way => iterate over all vehicles with this type ...
-		const int wtidx = GET_WAYTYPE_INDEX(wt);
-		if(  !typ_fahrzeuge[wtidx].empty()  ) {
-			FOR(slist_tpl<vehicle_desc_t *>, info, typ_fahrzeuge[wtidx]) 
-			{
-				if(info->get_power()>0  &&  info->is_available(monthyear)) {
-					speed_sum += info->get_topspeed();
-					num_averages ++;
-				}
-			}
-		}
-		if(  num_averages>0  ) {
-			return speed_sum / num_averages;
-		}
-	}
-
-	// no vehicles => return default
-	return default_speedbonus[typ];
-}
-
 
 void vehicle_builder_t::rdwr_speedbonus(loadsave_t *file)
 {
-	for(  int j=0;  j<8;  j++  ) {
-		uint32 count = speedbonus[j].get_count();
+	// Former speed bonus settings, now deprecated.
+	// This is necessary to load old saved games that
+	// contained speed bonus data.
+	for(uint32 j = 0; j < 8; j++)
+	{
+		uint32 count = 1;
 		file->rdwr_long(count);
-		if (file->is_loading()) {
-			speedbonus[j].clear();
-			speedbonus[j].resize(count);
-		}
-		for(uint32 i=0; i<count; i++) {
-			if (file->is_loading()) {
-				speedbonus[j].append(bonus_record_t());
-			}
-			speedbonus[j][i].rdwr(file);
+		
+		for(uint32 i=0; i<count; i++)
+		{
+			sint64 dummy = 0;
+			uint32 dummy_2 = 0;
+			file->rdwr_longlong(dummy);
+			file->rdwr_long(dummy_2);
 		}
 	}
 }

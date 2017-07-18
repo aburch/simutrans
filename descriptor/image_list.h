@@ -17,8 +17,8 @@
  *      Description eines eindimensionalen Arrays von Bildern.
  *
  *  Child nodes:
- *	0   1. Bild
- *	1   2. Bild
+ *	0   1. Image
+ *	1   2. Image
  *	... ...
  */
 class image_list_t : public obj_desc_t {

@@ -148,24 +148,26 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
  * This method is called if an action is triggered
  * @author Markus Weber
  */
-bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp,value_t v/* */)           // 28-Dec-01    Markus Weber    Added
+bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t v) 
 {
+/*
 	if(cnv.is_bound()) 
 	{
-
-		/*else if (v.i&~1) {
+		if (v.i&~1) 
+		{
 			koord k = *(const koord *)v.p;
 			uint16 j = k.y;
 			if (j < class_selectors.get_count())
-			int	class_selection = class_selector->get_selection();
-			if (class_selection < 0)
 			{
-				class_selector.set_selection(0);
-				class_selection = 0;
+				int	class_selection = class_selectors[j]->get_selection();
+				if (class_selection < 0)
+				{
+					class_selectors[j].set_selection(0);
+					class_selection = 0;
+				}
 			}
-			
-		}*/
-	}
+		}
+	}*/
 	return false;
 }
 
@@ -348,7 +350,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 
 
 							// This commented out section is an attempt to add a selector where player can choose new class. I will revisit this later.
-	/*						buf.clear();
+							buf.clear();
 							gui_combobox_t *class_selector = new gui_combobox_t();
 
 							class_selector->set_pos(scr_coord(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y));
@@ -368,12 +370,14 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 							}
 
 							cont.add_component(class_selector);
-							class_selector->add_listener(this);
+							// FIXME: The below line does not compile. Reconsider this.
+							//class_selector->add_listener(this);
 							class_selector->set_focusable(false);
+							class_selectors.append(class_selector);
 							extra_y += LINESPACE;
 
 							//pb->add_listener(this);
-	*/
+	
 
 
 							buf.clear();
