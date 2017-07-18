@@ -82,8 +82,13 @@ protected:
 	// cached image
 	image_id image;
 
-	// true, if this vehicle will enter passing lane in the next tile
-	bool next_enter_passing_lane;
+	/**
+	 * this vehicle will enter passing lane in the next tile -> 1
+	 * this vehicle will enter traffic lane in the next tile -> -1
+	 * Unclear -> 0
+	 * @author THLeaderH
+	 */
+	sint8 next_lane;
 
 	// true, if this vehicle will cross lane and block other vehicles.
 	bool next_cross_lane;
