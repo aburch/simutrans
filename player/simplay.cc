@@ -107,7 +107,7 @@ void player_t::book_construction_costs(player_t * const player, const sint64 amo
 }
 
 
-sint32 player_t::add_maintenance(sint32 change, waytype_t const wt)
+sint64 player_t::add_maintenance(sint64 change, waytype_t const wt)
 {
 	int tmp = 0;
 #ifdef MULTI_THREAD

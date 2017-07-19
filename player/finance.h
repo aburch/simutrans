@@ -173,13 +173,13 @@ class finance_t {
  	 * Monthly maintenance cost
  	 * @author Hj. Malthaner
  	 */
-	sint32 maintenance[TT_MAX];
+	sint64 maintenance[TT_MAX];
 
 	/**
 	 * Monthly vehicle maintenance cost per transport type.
  	 * @author jk271
  	 */
-	sint32 vehicle_maintenance[TT_MAX];
+	sint64 vehicle_maintenance[TT_MAX];
 
 public:
 	finance_t(player_t * _player, karte_t * _world);
@@ -213,7 +213,7 @@ public:
 	 * @param wt - waytype for accounting purposes
 	 * @param utyp - used for distinguishing of transport type of buildings. Used with buildings only.
 	 */
-	inline sint32 book_maintenance(sint32 change, waytype_t const wt)
+	inline sint64 book_maintenance(sint64 change, waytype_t const wt)
 	{
 		transport_type tt = translate_waytype_to_tt(wt);
 		maintenance[tt] += change;
@@ -389,7 +389,7 @@ public:
 	 * @returns maintenance
 	 * @param tt transport type (Truck, Ship Air, ...)
 	 */
-	sint32 get_maintenance(transport_type tt=TT_ALL) const { assert(tt<TT_MAX); return maintenance[tt]; }
+	sint64 get_maintenance(transport_type tt=TT_ALL) const { assert(tt<TT_MAX); return maintenance[tt]; }
 
 	/**
 	 * @returns maintenance scaled with bits_per_month
