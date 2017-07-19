@@ -1856,7 +1856,7 @@ uint32 haltestelle_t::calc_service_frequency(halthandle_t destination, uint8 cat
 		}
 
 		// Divide the round trip time by the number of convoys in the line and by the number of times that it calls at this stop in its schedule.
-		timing /= (registered_lines[i]->count_convoys() * number_of_calls_at_this_stop == 0 ? 1 : number_of_calls_at_this_stop);
+		timing /= (registered_lines[i]->count_convoys() * (number_of_calls_at_this_stop == 0 ? 1 : number_of_calls_at_this_stop));
 
 		if (registered_lines[i]->get_schedule()->get_spacing() > 0)
 		{
