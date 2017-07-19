@@ -2972,13 +2972,14 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories)
 
 	// appends this to the ground
 	// after that, the surrounding ground will know of this station
+	bool insert_unsorted = !relink_factories;
 	int const cov = welt->get_settings().get_station_coverage();
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
 			koord p=pos+koord(x,y);
 			planquadrat_t *plan = welt->access(p);
 			if(plan) {
-				plan->add_to_haltlist( self );
+				plan->add_to_haltlist( self, insert_unsorted);
 				plan->get_kartenboden()->set_flag(grund_t::dirty);
 			}
 		}

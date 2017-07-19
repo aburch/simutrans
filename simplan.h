@@ -210,11 +210,12 @@ private:
 	void halt_list_insert_at( halthandle_t halt, uint8 pos );
 
 public:
-	/*
-	* The following three functions takes about 4 bytes of memory per tile but speed up passenger generation
-	* @author prissi
-	*/
-	void add_to_haltlist(halthandle_t halt);
+	/**
+	 * The following three functions takes about 4 bytes of memory per tile but speed up passenger generation
+	 * @author prissi
+	 * @param unsorted if true then halt list will be sorted later by call to sort_haltlist, see karte_t::plans_finish_rd.
+	 */
+	void add_to_haltlist(halthandle_t halt, bool unsorted = false);
 
 	/**
 	* removes the halt from a ground
@@ -222,6 +223,12 @@ public:
 	* @author prissi
 	*/
 	void remove_from_haltlist(halthandle_t halt);
+
+	/**
+	 * sort list of connected halts, ascending wrt distance to this tile
+	 */
+	void sort_haltlist();
+
 
 	bool is_connected(halthandle_t halt) const;
 

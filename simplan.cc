@@ -677,31 +677,76 @@ void planquadrat_t::halt_list_insert_at( halthandle_t halt, uint8 pos )
 /* The following functions takes at least 8 bytes of memory per tile but speed up passenger generation *
  * @author prissi
  */
-void planquadrat_t::add_to_haltlist(halthandle_t halt)
+void planquadrat_t::add_to_haltlist(halthandle_t halt, bool unsorted)
 {
 	if(halt.is_bound()) {
-		// quick and dirty way to our 2d koodinates ...
-		const koord pos = get_kartenboden()->get_pos().get_2d();
+		if (!unsorted) {
+			// quick and dirty way to our 2d koodinates ...
+			const koord pos = get_kartenboden()->get_pos().get_2d();
 
-		if(  halt_list_count > 0  ) {
+			if(  halt_list_count > 0  ) {
 
-			// since only the first one gets all, we want the closest halt one to be first
-			halt_list_remove(halt);
-			const koord halt_next_pos = halt->get_next_pos(pos);
-			for(unsigned insert_pos=0;  insert_pos<halt_list_count;  insert_pos++) {
+				// since only the first one gets all, we want the closest halt one to be first
+				halt_list_remove(halt);
+				uint32 dist = koord_distance(halt->get_next_pos(pos), pos);
+				for(unsigned insert_pos=0;  insert_pos<halt_list_count;  insert_pos++) {
 
-				if(  koord_distance(halt_list[insert_pos]->get_next_pos(pos), pos) > koord_distance(halt_next_pos, pos)  ) {
-					halt_list_insert_at( halt, insert_pos );
-					return;
+					if(  koord_distance(halt_list[insert_pos]->get_next_pos(pos), pos) > dist  ) {
+						halt_list_insert_at( halt, insert_pos );
+						return;
+					}
+				}
+				// not found
+			}
+			// first just or just append to the end ...
+			halt_list_insert_at( halt, halt_list_count );
+		}
+		else {
+			// insert only if not already present
+			for(uint8 i = 0; i<halt_list_count; i++) {
+				if (halt_list[i] == halt) {
+					return; // already inserted
 				}
 			}
-			// not found
+			halt_list_insert_at( halt, halt_list_count );
 		}
-		// first just or just append to the end ...
-		halt_list_insert_at( halt, halt_list_count );
 	}
 }
 
+/**
+ * Helper class to generate list of connected halts sorted by distance.
+ */
+struct halt_dist_node {
+	halthandle_t halt;
+	uint32 dist;
+
+	halt_dist_node(halthandle_t h = halthandle_t(), uint32 d=0) : halt(h), dist(d) {}
+
+	static bool comp(const halt_dist_node& a, const halt_dist_node& b)
+	{
+		return a.dist < b.dist;
+	}
+	friend bool operator== (const halt_dist_node& a, const halt_dist_node& b)
+	{
+		return a.halt == b.halt;
+	}
+};
+
+void planquadrat_t::sort_haltlist()
+{
+	vector_tpl<halt_dist_node> halts(halt_list_count);
+	// sort with respect to distance to pos
+	const koord pos = get_kartenboden()->get_pos().get_2d();
+	for(uint8 i = 0; i<halt_list_count; i++) {
+		uint32 dist = koord_distance(halt_list[i]->get_next_pos(pos), pos);
+		halt_dist_node n(halt_list[i], dist);
+		halts.insert_unique_ordered(n, halt_dist_node::comp);
+	}
+	// put back into halt_list
+	for(uint8 i = 0; i<halt_list_count; i++) {
+		halt_list[i] = halts[i].halt;
+	}
+}
 
 /**
  * removes the halt from a ground
