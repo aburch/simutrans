@@ -22,12 +22,12 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	};
 	int ribi, slope;
 
-	obj_node_t node(this, 21, &parent);
+	obj_node_t node(this, 20, &parent);
 
 
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 version     = 0x8002;
+	uint16 version     = 0x8001;
 	uint32 price       = obj.get_int("cost",        100);
 	uint32 maintenance = obj.get_int("maintenance", 100);
 	sint32 topspeed    = obj.get_int("topspeed",    999);
@@ -41,8 +41,6 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	uint8 wtyp     =  get_waytype(obj.get("waytype"));
 	uint8 own_wtyp =  get_waytype(obj.get("own_waytype"));
 
-	uint8 o_mode   =  get_overtaking_mode(obj.get("overtaking_mode"));
-
 	node.write_uint16(outfp, version,      0);
 	node.write_uint32(outfp, price,        2);
 	node.write_uint32(outfp, maintenance,  6);
@@ -51,7 +49,6 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	node.write_uint16(outfp, retire,      16);
 	node.write_uint8 (outfp, wtyp,        18);
 	node.write_uint8 (outfp, own_wtyp,    19);
-	node.write_sint8 (outfp, o_mode,      20);
 
 	write_head(outfp, node, obj);
 
