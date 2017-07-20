@@ -631,7 +631,7 @@ public:
 				// ways are ordered wrt to waytype
 				return NULL;
 			}
-			if(wt == typ || (typ == any_wt && wt > 0) || (typ == overtake_wt && wt == road_wt)) {
+			if(wt == typ || (typ == any_wt && wt > 0)) {
 				return w;
 			}
 			// try second way (if exists)

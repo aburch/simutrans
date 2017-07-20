@@ -3432,9 +3432,6 @@ bool tool_build_wayobj_t::calc_route( route_t &verbindung, player_t *player, con
 	if (waytype == any_wt) {
 		waytype = welt->lookup(start)->get_weg(wt)->get_waytype();
 	}
-	else if (waytype == overtake_wt) {
-		waytype = road_wt;
-	}
 	// get a default vehikel
 	vehicle_desc_t remover_desc( waytype, 500, vehicle_desc_t::diesel );
 	vehicle_t* test_vehicle = vehicle_builder_t::build(start, player, NULL, &remover_desc);
