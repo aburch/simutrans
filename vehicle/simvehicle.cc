@@ -4384,7 +4384,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	if(!w->can_reserve(cnv->self, ribi))
 	{
 		restart_speed = 0;
-		if((working_method == time_interval || working_method == time_interval_with_telegraph) && cnv->get_state() == convoi_t::DRIVING)
+		if(((working_method == time_interval || working_method == time_interval_with_telegraph) && cnv->get_state() == convoi_t::DRIVING && !(signal_current && signal_current->get_state() == roadsign_t::danger)))
 		{
 			const sint32 emergency_stop_duration = welt->get_seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_caution() / 2);
 			convoihandle_t c = w->get_reserved_convoi();

@@ -1916,14 +1916,13 @@ uint32 haltestelle_t::calc_service_frequency(halthandle_t destination, uint8 cat
 		}
 
 		// Divide the round trip time by the number of convoys in the line and by the number of times that it calls at this stop in its schedule.
-		timing /= (registered_lines[i]->count_convoys() * number_of_calls_at_this_stop == 0 ? 1 : number_of_calls_at_this_stop);
+		timing /= (registered_lines[i]->count_convoys() * (number_of_calls_at_this_stop == 0 ? 1 : number_of_calls_at_this_stop));
 
 		if (registered_lines[i]->get_schedule()->get_spacing() > 0)
 		{
 			// Check whether the spacing setting affects things.
 			const sint64 spacing_ticks = welt->ticks_per_world_month / (sint64)registered_lines[i]->get_schedule()->get_spacing();
 			uint32 spacing_time = welt->ticks_to_tenths_of_minutes(spacing_ticks);
-			spacing_time /= (number_of_calls_at_this_stop == 0 ? 1 : number_of_calls_at_this_stop);
 			timing = max(spacing_time, timing);
 		}
 
