@@ -113,6 +113,18 @@ ribi_t::ribi weg_t::get_ribi() const {
 }
 
 
+void weg_t::update_ribi_mask_oneway(ribi_t::ribi ribi)
+{
+	if(  (ribi_t::reverse_single(ribi)&ribi_mask_oneway)!=0  ) {
+		// contains backward ribi
+		ribi_mask_oneway -= ribi_t::reverse_single(ribi); //remove
+		ribi_mask_oneway |= ribi;
+	} else {
+		ribi_mask_oneway |= ribi; //just add
+	}
+}
+
+
 // returns a string with the "official name of the waytype"
 const char *weg_t::waytype_to_string(waytype_t wt)
 {
@@ -627,16 +639,4 @@ const char *weg_t::is_deletable(const player_t *player)
 		return NULL;
 	}
 	return obj_t::is_deletable(player);
-}
-
-
-void weg_t::update_ribi_mask_oneway(ribi_t::ribi ribi)
-{
-	if(  (ribi_t::reverse_single(ribi)&ribi_mask_oneway)!=0  ) {
-		// contains backward ribi
-		ribi_mask_oneway -= ribi_t::reverse_single(ribi); //remove
-		ribi_mask_oneway |= ribi;
-	} else {
-		ribi_mask_oneway |= ribi; //just add
-	}
 }
