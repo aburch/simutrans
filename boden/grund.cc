@@ -1830,7 +1830,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 		weg->mark_image_dirty(get_image(), 0);
 
 		if(ribi_rem) {
-			ribi_t::ribi ribi = weg->get_ribi();
+			ribi_t::ribi ribi = weg->get_ribi_unmasked();
 			grund_t *to;
 
 			for(int r = 0; r < 4; r++) {
