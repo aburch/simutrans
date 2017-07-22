@@ -1008,7 +1008,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 
 /**
  * Berechne route von Start- zu Zielkoordinate
- * @author HanjsÃ¶rg Malthaner
+ * @author Hanjsörg Malthaner
  */
 bool convoi_t::drive_to()
 {
@@ -1166,7 +1166,7 @@ bool convoi_t::drive_to()
 /**
  * Ein Fahrzeug hat ein Problem erkannt und erzwingt die
  * Berechnung einer neuen Route
- * @author HanjsÃ¶rg Malthaner
+ * @author Hanjsörg Malthaner
  */
 void convoi_t::suche_neue_route()
 {

@@ -256,7 +256,7 @@ private:
 	 * The convoi is not processed every sync step for various actions
 	 * (like waiting before signals, loading etc.) Such action will only
 	 * continue after a waiting time larger than wait_lock
-	 * @author HanjsÃ¶rg Malthaner
+	 * @author Hanjsörg Malthaner
 	 */
 	sint32 wait_lock;
 
@@ -274,7 +274,7 @@ private:
 
 	/**
 	* accumulated profit over a year
-	* @author HanjsÃ¶rg Malthaner
+	* @author Hanjsörg Malthaner
 	*/
 	sint64 jahresgewinn;
 
@@ -313,14 +313,14 @@ private:
 
 	/**
 	* Calculate route from Start to Target Coordinate
-	* @author HanjsÃ¶rg Malthaner
+	* @author Hanjsörg Malthaner
 	*/
 	bool drive_to();
 
 	/**
 	* Setup vehicles for moving in same direction than before
 	* if the direction is the same as before
-	* @author HanjsÃ¶rg Malthaner
+	* @author Hanjsörg Malthaner
 	*/
 	bool can_go_alte_richtung();
 
@@ -334,7 +334,7 @@ private:
 
 	/**
 	* Mark first and last vehicle.
-	* @author HanjsÃ¶rg Malthaner
+	* @author Hanjsörg Malthaner
 	*/
 	void set_erstes_letztes();
 
@@ -479,13 +479,13 @@ public:
 	/**
 	* The handle for ourselves. In Anlehnung an 'this' aber mit
 	* allen checks beim Zugriff.
-	* @author HanjsÃ¶rg Malthaner
+	* @author Hanjsörg Malthaner
 	*/
 	convoihandle_t self;
 
 	/**
 	 * The profit in this year
-	 * @author HanjsÃ¶rg Malthaner
+	 * @author Hanjsörg Malthaner
 	 */
 	const sint64 & get_jahresgewinn() const {return jahresgewinn;}
 
@@ -534,7 +534,7 @@ public:
 
 	/**
 	* Called if a vehicle enters a depot
-	* @author HanjsÃ¶rg Malthaner
+	* @author Hanjsörg Malthaner
 	*/
 	void betrete_depot(depot_t *dep);
 
@@ -639,7 +639,7 @@ public:
 	/**
 	* When a vehicle has detected a problem
 	* force calculate a new route
-	* @author HanjsÃ¶rg Malthaner
+	* @author Hanjsörg Malthaner
 	*/
 	void suche_neue_route();
 
@@ -756,7 +756,7 @@ public:
 
 	/**
 	* Setup vehicles before starting to move
-	* @author HanjsÃ¶rg Malthaner
+	* @author Hanjsörg Malthaner
 	*/
 	void vorfahren();
 
