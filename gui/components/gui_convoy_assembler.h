@@ -35,13 +35,16 @@ private:
 	uint32 total_standing_pax;
 	uint32 total_mail;
 	uint32 total_goods;
+	int total_pax_classes[255] = { 0 };
+	int total_mail_classes[255] = { 0 };
 
 
 	// The selected convoy so far...
 	vector_tpl<const vehicle_desc_t *> vehicles;
 public:
 	depot_convoi_capacity_t();
-	void set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods);
+	//void set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods, int pax_classes[255] = { 0 }, int mail_classes[255] = { 0 });
+	void set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods, int* pax_classes, int* mail_classes);
 	void draw(scr_coord offset);
 };
 

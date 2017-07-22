@@ -296,7 +296,7 @@ void depot_frame_t::layout(scr_size *size)
 	* build_vehicle_lists() fills loks_vec and waggon_vec.
 	* Total width will be expanded to match complete columns in panel.
 	*/
-	convoy_assembler.set_panel_rows(size && size->h == 0 ? -1 : win_size.h - ASSEMBLER_VSTART - (VINFO_HEIGHT/2));
+	convoy_assembler.set_panel_rows(size && size->h == 0 ? -1 : win_size.h - ASSEMBLER_VSTART - (VINFO_HEIGHT/3 /*2*/));
 
 	/*
 	 *	Now we can do the complete vertical adjustment:

@@ -687,7 +687,6 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 	cont_convoi_capacity.set_visible(!vehicles.empty());
 	bt_class_management.set_visible(false);
 	if (!vehicles.empty()) {
-		bt_class_management.set_visible(true);
 		potential_convoy_t convoy(vehicles);
 		const vehicle_summary_t &vsum = convoy.get_vehicle_summary();
 		const sint32 friction = convoy.get_current_friction();
@@ -704,11 +703,8 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		uint32 total_mail = 0;
 		uint32 total_goods = 0;
 
-		// Some good way to display the classes currently in the convoy
-		//uint32 pax_number_of_classes = goods_manager_t::passengers->get_number_of_classes();
-
-
-		// Läs mer här om pointers etc: http://www.cplusplus.com/doc/tutorial/pointers/
+		int pass_class_capacity[255] = { 0 };
+		int mail_class_capacity[255] = { 0 };
 
 
 		uint32 total_power = 0;
@@ -733,24 +729,42 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
  			maint_per_month += desc->get_adjusted_monthly_fixed_cost(welt);
 			way_wear_factor += (double)desc->get_way_wear_factor();
 
-			switch(  ware->get_catg_index()  ) {
+			switch(  ware->get_catg_index()  )
+			{
 				case goods_manager_t::INDEX_PAS:
 				{
 					total_pax += desc->get_total_capacity();
 					total_standing_pax += desc->get_overcrowded_capacity();
-				}
-				case goods_manager_t::INDEX_MAIL: {
-					total_mail += desc->get_total_capacity(); // TODO: Consider whether to add UI to distinguish between different classes here (Ves?).
+					for (uint8 j = 0; j < desc->get_number_of_classes(); j++)
+					{
+						if (desc->get_capacity(j) > 0)
+						{
+							pass_class_capacity[j] += desc->get_capacity(j);
+						}
+					}
 					break;
 				}
-				default: {
+				case goods_manager_t::INDEX_MAIL:
+				{
+					total_mail += desc->get_total_capacity();
+					for (uint8 j = 0; j < goods_manager_t::mail->get_number_of_classes(); j++)
+					{
+						if (desc->get_capacity(j) > 0)
+						{
+							mail_class_capacity[j] += desc->get_capacity(j);
+						}
+					}
+					break;
+				}
+				default:
+				{
 					total_goods += desc->get_capacity();
 					break;
 				}
 			}
 		}
 		way_wear_factor /= 10000.0;
-		cont_convoi_capacity.set_totals(total_pax, total_standing_pax, total_mail, total_goods );
+		cont_convoi_capacity.set_totals(total_pax, total_standing_pax, total_mail, total_goods, pass_class_capacity, mail_class_capacity);
 		txt_convoi_count.printf("%s %d (%s %i)",
 			translator::translate("Fahrzeuge:"), vehicles.get_count(),
 			translator::translate("Station tiles:"), vsum.tiles);
@@ -834,8 +848,12 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		}
 		txt_convoi_way_wear_factor.clear();
 		txt_convoi_way_wear_factor.printf("%s: %.4f", translator::translate("Way wear factor"), way_wear_factor);
-	}
 
+		if (total_pax > 0 || total_standing_pax > 0 || total_mail > 0)
+		{
+			bt_class_management.set_visible(true);
+		}
+	}
 	bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed
 	bt_show_all.pressed = show_all;					// otherwise the button would not show depressed
 	draw_vehicle_info_text(parent_pos+pos);
@@ -2215,12 +2233,14 @@ depot_convoi_capacity_t::depot_convoi_capacity_t()
 }
 
 
-void depot_convoi_capacity_t::set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods)
+void depot_convoi_capacity_t::set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods, int* pax_classes, int* mail_classes)
 {
 	total_pax = pax;
 	total_standing_pax = standing_pax;
 	total_mail = mail;
 	total_goods = goods;
+	*total_pax_classes =  *pax_classes ;
+	*total_mail_classes =  *mail_classes ;
 }
 
 
@@ -2239,24 +2259,29 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 
 	if (total_pax > 0)
 	{
-		
+		for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+		{
+			if (total_pax_classes[i] > 0)
+			{
 				cbuf.clear();
 				char class_name_untranslated[32];
-				//sprintf(class_name_untranslated, "p_class[%u]", i);
+				sprintf(class_name_untranslated, "p_class[%u]", i);
 				const char* class_name = translator::translate(class_name_untranslated);
-				cbuf.printf(" %s: %u", class_name, total_pax);
+				cbuf.printf("%s: %u", class_name, total_pax_classes[i]);
 				display_proportional_clip(pos.x + offset.x + w, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				//display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 				y += LINESPACE + 1;
-	
-		
+			}
+		}
+
+
 		cbuf.clear();
 		cbuf.printf("%s: %d", translator::translate("Overcrowded capacity:"), total_standing_pax);
 		w += display_proportional_clip(pos.x + offset.x + w, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
-	//	display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
+		//	display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + offset.x + w, pos.y + offset.y, 0, false, false);
 		y += LINESPACE + 1;
-	}
 
+	}
 	w += 16;
 	cbuf.clear();
 	cbuf.printf("%d", total_mail );

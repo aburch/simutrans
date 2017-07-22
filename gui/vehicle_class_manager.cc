@@ -143,7 +143,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					char class_name_untranslated[32];
 					sprintf(class_name_untranslated, "p_class[%u]", i);
 					const char* class_name = translator::translate(class_name_untranslated);
-					buf.printf("%s:  %i", class_name, pass_class_capacity[i]);
+					buf.printf("%s: %i", class_name, pass_class_capacity[i]);
 					display_proportional_clip(pos.x + 10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					offset_y += LINESPACE;
 				}
@@ -171,7 +171,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					char class_name_untranslated[32];
 					sprintf(class_name_untranslated, "m_class[%u]", i);
 					const char* class_name = translator::translate(class_name_untranslated);
-					buf.printf("%s:  %i", class_name, mail_class_capacity[i]);
+					buf.printf("%s: %i", class_name, mail_class_capacity[i]);
 					display_proportional_clip(pos.x + 10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					offset_y += LINESPACE;
 				}
