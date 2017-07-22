@@ -34,9 +34,7 @@ private:
 	 */
 	convoihandle_t cnv;
 
-	vector_tpl<uint16> class_indices;
-	vector_tpl<gui_combobox_t *> class_selectors;
-	gui_container_t cont;
+	
 
 public:
 	/**
@@ -74,9 +72,9 @@ private:
 	button_t	withdraw_button;
 	button_t	retire_button;
 
-	gui_combobox_t class_selector;
-
-
+	vector_tpl<uint16> class_indices;
+	vector_tpl<gui_combobox_t *> class_selectors;
+	gui_container_t cont;
 
 public:
 	vehicle_class_manager_t(convoihandle_t cnv);
