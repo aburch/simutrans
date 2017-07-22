@@ -1,6 +1,6 @@
 /**
  * convoi_t Class for vehicle associations
- * HansjÃ¶rg Malthaner
+ * Hansjörg Malthaner
  */
 
 #include <stdlib.h>
