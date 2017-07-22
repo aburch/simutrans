@@ -2264,10 +2264,10 @@ void way_builder_t::build_road()
 		}
 		//update ribi_mask_oneway if road is oneway_mode.
 		if(  str  ) {
-			if(  overtaking_mode==oneway_mode  &&  i<get_count()-1  ) {
-				str->set_ribi_mask_oneway(ribi_type(route[i+1],route[i]));
-			} else {
+			if(  str->get_overtaking_mode()!=oneway_mode  ) {
 				str->set_ribi_mask_oneway(ribi_t::none);
+			} else if(  overtaking_mode==oneway_mode  &&  i<get_count()-1  ){ //of course street is oneway_mode
+				str->update_ribi_mask_oneway(ribi_type(route[i+1],route[i]));
 			}
 		}
 		gr->calc_image();	// because it may be a crossing ...
