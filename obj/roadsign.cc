@@ -760,10 +760,9 @@ const koord3d roadsign_t::get_intersection() const
 		if(  ribi_t::is_single(current_ribi)  ) {
 			if(  current_gr->get_neighbour(next_gr,road_wt,current_ribi)  ) {
 				// grund found
-				//printf("(%d,%d)->(%d,%d), ribi:%d\n", current_gr->get_pos().x,current_gr->get_pos().y,next_gr->get_pos().x,next_gr->get_pos().y,current_ribi);
 				strasse_t *str = (strasse_t *)next_gr->get_weg(road_wt);
 				if(  str  &&  str->get_overtaking_mode() == oneway_mode  ) {
-					ribi_t::ribi str_ribi = str->get_ribi();
+					ribi_t::ribi str_ribi = str->get_ribi_unmasked();
 					if(  str_ribi == ribi_t::all  ||  ribi_t::is_threeway(str_ribi)  ) {
 						// This point is a crossing!
 						return next_gr->get_pos();
