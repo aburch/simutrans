@@ -107,7 +107,7 @@ namespace script_api {
 
 		call_tool_work(uint16 id, const char* dp, uint8 f, player_t* pl, koord3d pos1, koord3d pos2)
 		: call_tool_base_t(id, dp, f, pl),
-		  start(pos1), end(pos2), twoclick(false) {
+		  start(pos1), end(pos2), twoclick(true) {
 		}
 
 		call_tool_work(const char* err)

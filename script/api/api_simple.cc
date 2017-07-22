@@ -74,34 +74,10 @@ mytime_t param<mytime_t>::get(HSQUIRRELVM vm, SQInteger index)
 }
 
 
-SQInteger script_api::push_ribi(HSQUIRRELVM vm, ribi_t::ribi ribi)
-{
-	coordinate_transform_t::ribi_w2sq(ribi);
-	return param<uint8>::push(vm, ribi);
-}
-
-
-ribi_t::ribi script_api::get_ribi(HSQUIRRELVM vm, SQInteger index)
-{
-	ribi_t::ribi ribi = param<uint8>::get(vm, index) & ribi_t::all;
-	coordinate_transform_t::ribi_sq2w(ribi);
-	return ribi;
-}
-
-#define map_ribi_ribi(f) \
-	SQInteger export_## f(HSQUIRRELVM vm) \
-	{ \
-		ribi_t::ribi ribi = get_ribi(vm, -1); \
-		ribi = ribi_t::f(ribi); \
-		return push_ribi(vm, ribi); \
-	}
-
 #define map_ribi_any(f,type) \
-	SQInteger export_## f(HSQUIRRELVM vm) \
+	type export_## f(my_ribi_t r) \
 	{ \
-		ribi_t::ribi ribi = get_ribi(vm, -1); \
-		type ret = ribi_t::f(ribi); \
-		return script_api::param<type>::push(vm, ret); \
+		return ribi_t::f(r); \
 	}
 
 // export the ribi functions
@@ -110,8 +86,18 @@ map_ribi_any(is_twoway, bool);
 map_ribi_any(is_threeway, bool);
 map_ribi_any(is_bend, bool);
 map_ribi_any(is_straight, bool);
-map_ribi_ribi(doubles);
-map_ribi_ribi(backward);
+map_ribi_any(doubles, my_ribi_t);
+map_ribi_any(backward, my_ribi_t);
+
+my_slope_t ribi_to_slope(my_ribi_t ribi)
+{
+	return slope_type((ribi_t::ribi)ribi);
+}
+
+my_ribi_t slope_to_ribi(my_slope_t slope)
+{
+	return ribi_type((slope_t::type)slope);
+}
 
 void export_simple(HSQUIRRELVM vm)
 {
@@ -197,48 +183,100 @@ void export_simple(HSQUIRRELVM vm)
 	 * Directions are just bit-encoded integers.
 	 */
 	begin_class(vm, "dir");
+
+#ifdef SQAPI_DOC // document members
+	/** @name Named directions. */
+	//@{
+	static const dir none;
+	static const dir north;
+	static const dir east;
+	static const dir northeast;
+	static const dir south;
+	static const dir northsouth;
+	static const dir southeast;
+	static const dir northsoutheast;
+	static const dir west;
+	static const dir northwest;
+	static const dir eastwest;
+	static const dir northeastwest;
+	static const dir southwest;
+	static const dir northsouthwest;
+	static const dir southeastwest;
+	static const dir all;
+	//@}
+#endif
 	/**
 	 * @param d direction to test
 	 * @return whether direction is single direction, i.e. just one of n/s/e/w
-	 * @typemask bool(dir)
 	 */
-	STATIC register_function(vm, &export_is_single,  "is_single",  2, "yi");
+	STATIC register_method(vm, &export_is_single,  "is_single", false, true);
 	/**
 	 * @param d direction to test
 	 * @return whether direction is double direction, e.g. n+e, n+s.
-	 * @typemask bool(dir)
 	 */
-	STATIC register_function(vm, &export_is_twoway,  "is_twoway",  2, "yi");
+	STATIC register_method(vm, &export_is_twoway,  "is_twoway", false, true);
 	/**
 	 * @param d direction to test
 	 * @return whether direction is triple direction, e.g. n+s+e.
-	 * @typemask bool(dir)
 	 */
-	STATIC register_function(vm, &export_is_threeway,  "is_threeway",  2, "yi");
+	STATIC register_method(vm, &export_is_threeway,  "is_threeway", false, true);
 	/**
 	 * @param d direction to test
 	 * @return whether direction is curve, e.g. n+e, s+w.
-	 * @typemask bool(dir)
 	 */
-	STATIC register_function(vm, &export_is_bend,  "is_curve",  2, "yi");
+	STATIC register_method(vm, &export_is_bend,  "is_curve", false, true);
 	/**
 	 * @param d direction to test
 	 * @return whether direction is straight and has no curves in it, e.g. n+w, w.
-	 * @typemask bool(dir)
 	 */
-	STATIC register_function(vm, &export_is_straight,  "is_straight",  2, "yi");
+	STATIC register_method(vm, &export_is_straight,  "is_straight", false, true);
 	/**
 	 * @param d direction
 	 * @return complements direction to complete straight, i.e. w -> w+e, but n+w -> 0.
-	 * @typemask dir(dir)
 	 */
-	STATIC register_function(vm, &export_doubles,  "double",  2, "yi");
+	STATIC register_method(vm, &export_doubles,  "double", false, true);
 	/**
 	 * @param d direction to test
 	 * @return backward direction, e.g. w -> e, n+w -> s+e, n+w+s -> e.
-	 * @typemask dir(dir)
 	 */
-	STATIC register_function(vm, &export_backward,  "backward",  2, "yi");
+	STATIC register_method(vm, &export_backward,  "backward", false, true);
 
+	/**
+	 * Converts direction to slope: direction goes upward on slope.
+	 * @param d direction
+	 */
+	STATIC register_method(vm, &ribi_to_slope, "to_slope", false, true);
+	end_class(vm);
+
+	/**
+	 * Class holding static methods to work with slopes.
+	 * Slopes are just integers.
+	 */
+	begin_class(vm, "slope");
+
+#ifdef SQAPI_DOC // document members
+	/** @name Named slopes. */
+	//@{
+	static const slope flat
+	static const slope north      ///< North slope
+	static const slope west       ///< West slope
+	static const slope east       ///< East slope
+	static const slope south      ///< South slope
+	static const slope northwest  ///< NW corner
+	static const slope northeast  ///< NE corner
+	static const slope southeast  ///< SE corner
+	static const slope southwest  ///< SW corner
+	static const slope raised     ///< special meaning: used as slope of bridgeheads
+	static const slope all_up_slope   = 82 ///< used for terraforming tools
+	static const slope all_down_slope = 83 ///< used for terraforming tools
+	//@}
+#endif
+
+	/**
+	 * Converts slope to dir: direction goes upward on slope.
+	 * If slope cannot be walked on, it returns @ref dir::none.
+	 * @param s slope
+	 */
+	STATIC register_method(vm, &ribi_to_slope, "to_dir", false, true);
 	end_class(vm);
 }

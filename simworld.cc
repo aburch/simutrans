@@ -5045,7 +5045,8 @@ void karte_t::plans_finish_rd( sint16 x_min, sint16 x_max, sint16 y_min, sint16 
 	sint8 min_h = min_height, max_h = max_height;
 	for(  int y = y_min;  y < y_max;  y++  ) {
 		for(  int x = x_min; x < x_max;  x++  ) {
-			const planquadrat_t *plan = access_nocheck(x,y);
+			planquadrat_t *plan = access_nocheck(x,y);
+			plan->sort_haltlist();
 			const int boden_count = plan->get_boden_count();
 			for(  int schicht = 0;  schicht < boden_count;  schicht++  ) {
 				grund_t *gr = plan->get_boden_bei(schicht);

@@ -750,6 +750,7 @@ const roadsign_desc_t *roadsign_t::roadsign_search(roadsign_desc_t::types const 
 	return NULL;
 }
 
+
 const koord3d roadsign_t::get_intersection() const
 {
 	grund_t* current_gr = welt->lookup(get_pos());
@@ -785,4 +786,19 @@ const koord3d roadsign_t::get_intersection() const
 		}
 	}
 	return koord3d::invalid;
+}
+
+
+const vector_tpl<const roadsign_desc_t*>& roadsign_t::get_available_signs(const waytype_t wt)
+{
+	static vector_tpl<const roadsign_desc_t*> dummy;
+	dummy.clear();
+	const uint16 time = welt->get_timeline_year_month();
+	FOR(stringhashtable_tpl<roadsign_desc_t const*>, const& i, table) {
+		roadsign_desc_t const* const desc = i.value;
+		if(  desc->is_available(time)  &&  desc->get_wtyp()==wt) {
+			dummy.append(desc);
+		}
+	}
+	return dummy;
 }

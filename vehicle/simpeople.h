@@ -18,6 +18,11 @@ private:
 
 private:
 	const pedestrian_desc_t *desc;
+	uint16 animation_steps;
+
+	uint16 steps_offset;
+	uint16 ped_offset;
+	bool on_left;
 
 protected:
 	void rdwr(loadsave_t *file);
@@ -41,6 +46,18 @@ public:
 	typ get_typ() const { return pedestrian; }
 
 	sync_result sync_step(uint32 delta_t);
+
+	///@ returns true if pedestrian walks on the left side of the road
+	bool is_on_left() const { return on_left; }
+
+	void calc_disp_lane();
+
+	virtual void rotate90();
+
+	// overloaded to enable animations
+	virtual image_id get_image() const;
+
+	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
 
 	virtual grund_t* hop_check();
 	virtual void hop(grund_t* gr);

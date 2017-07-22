@@ -292,21 +292,14 @@ class astar_builder extends astar
 		search()
 
 		if (route.len() > 0) {
-			local w = command_x(tool_build_way);
-			w.set_flags(2)
-			local b = command_x(tool_build_bridge);
-			b.set_flags(2)
-
 			for (local i = 1; i<route.len(); i++) {
 				local err
 
 				if (route[i-1].flag == 0) {
-					w.set_flags(0)
-					err = w.work(our_player, route[i-1], route[i], way.get_name() )
+					err = command_x.build_way(our_player, route[i-1], route[i], way, false)
 				}
 				else if (route[i-1].flag == 1) {
-					b.set_flags(2)
-					err = b.work(our_player, route[i], route[i-1], bridger.bridge.get_name() )
+					err = command_x.build_bridge(our_player, route[i], route[i-1], bridger.bridge)
 				}
 				if (err) {
 					label_x.create(route[i], our_player, "<" + err + "> " + coord3d_to_string(route[i-1]) + " / " +  route[i-1].flag + " / " + route[i].flag )

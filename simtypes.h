@@ -29,12 +29,28 @@
 #	define NOT_REACHED
 #endif
 
-#define GCC_ATLEAST(major, minor) (defined __GNUC__ && (__GNUC__ > (major) || (__GNUC__ == (major) && __GNUC_MINOR__ >= (minor))))
+#if defined (__GNUC__)
+#	define GNUC_DEFINED 1
+#else
+#	define GNUC_DEFINED 0
+#endif
+#if defined (__GXX_EXPERIMENTAL_CXX0X__)
+#	define GXXEXP_DEFINED 1
+#else
+#	define GXXEXP_DEFINED 0
+#endif
+#if defined (_MSC_VER)
+#	define MSC_DEFINED 1
+#else
+#	define MSC_DEFINED 0
+#endif
+
+#define GCC_ATLEAST(major, minor) (GNUC_DEFINED && (__GNUC__ > (major) || (__GNUC__ == (major) && __GNUC_MINOR__ >= (minor))))
 
 #define CXX11(gcc_major, gcc_minor, msc_ver) ( \
 	__cplusplus >= 201103L || \
-	(defined __GXX_EXPERIMENTAL_CXX0X__ && GCC_ATLEAST((gcc_major), (gcc_minor))) || \
-	(defined _MSC_VER && (msc_ver) != 0 && _MSC_VER >= (msc_ver)) \
+	(GXXEXP_DEFINED && GCC_ATLEAST((gcc_major), (gcc_minor))) || \
+	(MSC_DEFINED && (msc_ver) != 0 && _MSC_VER >= (msc_ver)) \
 )
 
 #if CXX11(4, 4, 0)

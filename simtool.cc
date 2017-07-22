@@ -2618,7 +2618,9 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 		sint8 bridge_height;
 		const char *error;
 		koord3d end2 = bridge_builder_t::find_end_pos(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
-		assert(end2 == end); (void)end2;
+		if (end2 != end) {
+			return "End position is not valid"; // could only happen for scripts
+		}
 		bridge_builder_t::build_bridge( player, start, end, zv, bridge_height, desc, way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat), overtaking_mode[player->get_player_nr()]);
 		return NULL; // all checks are performed before building.
 	}
@@ -7602,6 +7604,7 @@ bool tool_rename_t::init(player_t *player)
 				other->set_name(p);
 				return false;
 			}
+			break;
 		}
 
 		case 'f':

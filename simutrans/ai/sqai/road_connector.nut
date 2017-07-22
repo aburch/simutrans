@@ -61,14 +61,13 @@ class road_connector_t extends manager_t
 				}
 			case 2: // build station
 				{
-					local w = command_x(tool_build_station);
-					local err = w.work(pl, c_start, planned_station.get_name() )
+					local err = command_x.build_station(pl, c_start, planned_station )
 					if (err) {
 						print("Failed to build station at " + coord_to_string(c_start))
 						error_handler()
 						return r_t(RT_TOTAL_FAIL)
 					}
-					local err = w.work(pl, c_end, planned_station.get_name() )
+					local err = command_x.build_station(pl, c_end, planned_station )
 					if (err) {
 						print("Failed to build station at " + coord_to_string(c_end))
 						error_handler()
@@ -95,8 +94,7 @@ class road_connector_t extends manager_t
 				}
 			case 4: // build way to depot
 				{
-					local w = command_x(tool_build_way);
-					local err = w.work(pl, c_start, c_depot, planned_way.get_name() )
+					local err = command_x.build_way(pl, c_start, c_depot, planned_way, false)
 					if (err) {
 						print("Failed to build depot access from " + coord_to_string(c_start)+ " to " + coord_to_string(c_depot))
 						error_handler()
@@ -109,8 +107,7 @@ class road_connector_t extends manager_t
 					// depot already existing ?
 					if (c_depot.find_object(mo_depot_road) == null) {
 						// no: build
-						local w = command_x(tool_build_depot);
-						local err = w.work(pl, c_depot, planned_depot.get_name() )
+						local err = command_x.build_depot(pl, c_depot, planned_depot )
 						if (err) {
 							print("Failed to build depot at " + coord_to_string(c_depot))
 							error_handler()
@@ -405,11 +402,9 @@ class depot_pathfinder extends astar_builder
 		search()
 
 		if (route.len() > 0) {
-			local w = command_x(tool_build_way);
-			w.set_flags(2)
 
 			for (local i = 1; i<route.len(); i++) {
-				local err = w.work(our_player, route[i-1], route[i], way.get_name() )
+				local err = command_x.build_way(our_player, route[i-1], route[i], way, false )
 				if (err) {
 					label_x.create(node, our_player, "<" + err + ">")
 					return { err =  err }

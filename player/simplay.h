@@ -97,7 +97,7 @@ protected:
 	 * @return the new maintenance costs
 	 * @author Hj. Malthaner
 	 */
-	sint32 add_maintenance(sint32 change, waytype_t const wt=ignore_wt);
+	sint64 add_maintenance(sint64 change, waytype_t const wt=ignore_wt);
 
 	/**
 	 * Is this player an AI player?

@@ -198,7 +198,7 @@ void road_user_t::rdwr(loadsave_t *file)
 		set_xoff( ddx-(16-i)*dx );
 		set_yoff( ddy-(16-i)*dy );
 		if(file->is_loading()) {
-			if(dx*dy) {
+			if(dx && dy) {
 				steps = min( VEHICLE_STEPS_PER_TILE - 1, VEHICLE_STEPS_PER_TILE - 1 - (i*16) );
 				steps_next = VEHICLE_STEPS_PER_TILE - 1;
 			}
@@ -330,6 +330,7 @@ private_car_t::private_car_t(loadsave_t *file) :
 	rdwr(file);
 	ms_traffic_jam = 0;
 	max_power_speed = 0; // should be calculated somehow!
+	calc_disp_lane();
 	if(desc) {
 		welt->sync.add(this);
 	}
@@ -352,6 +353,7 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 	(void)target;
 #endif
 	calc_image();
+	calc_disp_lane();
 	welt->buche( +1, karte_t::WORLD_CITYCARS );
 }
 
@@ -462,7 +464,6 @@ void private_car_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(tiles_overtaking);
 		set_tiles_overtaking( tiles_overtaking );
 	}
-
 	// do not start with zero speed!
 	current_speed ++;
 }
@@ -766,6 +767,7 @@ void private_car_t::enter_tile(grund_t* gr)
 	}
 #endif
 	vehicle_base_t::enter_tile(gr);
+	calc_disp_lane();
 	gr->get_weg(road_wt)->book(1, WAY_STAT_CONVOIS);
 }
 
@@ -1010,6 +1012,18 @@ void private_car_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster
 }
 
 
+void private_car_t::calc_disp_lane()
+{
+	// driving in the back or the front
+	ribi_t::ribi test_dir = welt->get_settings().is_drive_left() ? ribi_t::northeast : ribi_t::southwest;
+	disp_lane = get_direction() & test_dir ? 1 : 3;
+}
+
+void private_car_t::rotate90()
+{
+	road_user_t::rotate90();
+	calc_disp_lane();
+}
 
 /**
  * conditions for a city car to overtake another overtaker.

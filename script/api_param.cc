@@ -10,6 +10,7 @@
 #include "../player/simplay.h"
 #include "../utils/plainstring.h"
 #include "api/api_command.h" // script_api::my_tool_t
+#include "api/api_simple.h"  // my_ribi_t
 
 
 template<typename T> T clamp(T v, T l, T u) { return v < l ? l : (v > u ? u :v); }
@@ -71,6 +72,24 @@ namespace script_api {
 	{
 		if (rotation) {
 			r = ( ( (r << 4) | r) << rotation) >> 4 & 15;
+		}
+	}
+
+	void coordinate_transform_t::slope_w2sq(slope_t::type &s)
+	{
+		if (s < slope_t::raised) {
+			for(uint8 i=1; i <= 4-rotation; i++) {
+				s = slope_t::rotate90(s);
+			}
+		}
+	}
+
+	void coordinate_transform_t::slope_sq2w(slope_t::type &s)
+	{
+		if (s < slope_t::raised) {
+			for(uint8 i=1; i <= rotation; i++) {
+				s = slope_t::rotate90(s);
+			}
 		}
 	}
 
@@ -342,6 +361,34 @@ namespace script_api {
 			k = koord::invalid;
 		}
 		return push_instance(vm, "coord3d", k.x, k.y, v.z);
+	}
+// directions / ribis
+	SQInteger param<my_ribi_t>::push(HSQUIRRELVM vm, my_ribi_t const& v)
+	{
+		ribi_t::ribi ribi = v;
+		coordinate_transform_t::ribi_w2sq(ribi);
+		return param<uint8>::push(vm, ribi);
+	}
+
+	my_ribi_t param<my_ribi_t>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		ribi_t::ribi ribi = param<uint8>::get(vm, index) & ribi_t::all;
+		coordinate_transform_t::ribi_sq2w(ribi);
+		return ribi;
+	}
+// slopes
+	SQInteger param<my_slope_t>::push(HSQUIRRELVM vm, my_slope_t const& v)
+	{
+		slope_t::type slope = v;
+		coordinate_transform_t::slope_w2sq(slope);
+		return param<uint8>::push(vm, slope);
+	}
+
+	my_slope_t param<my_slope_t>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		slope_t::type slope = param<uint8>::get(vm, index);
+		coordinate_transform_t::slope_sq2w(slope);
+		return slope;
 	}
 
 // pointers to classes

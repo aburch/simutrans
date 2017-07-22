@@ -16,7 +16,11 @@ class industry_connection_planner_t extends node_t
 	planned_convoy = null   // prototyper_t
 	plan_report = null      // report_t
 
-	constructor(s,d,f) { base.constructor("industry_connection_planner_t"); fsrc = s; fdest = d; freight = f; }
+	constructor(s,d,f)
+	{
+		base.constructor("industry_connection_planner_t");
+		fsrc = s; fdest = d; freight = f;
+	}
 
 	function step()
 	{

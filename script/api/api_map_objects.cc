@@ -15,6 +15,8 @@
 #include "../../obj/baum.h"
 #include "../../obj/gebaeude.h"
 #include "../../obj/label.h"
+#include "../../obj/roadsign.h"
+#include "../../obj/signal.h"
 
 // for depot tools
 #include "../../simconvoi.h"
@@ -109,7 +111,14 @@ SQInteger exp_obj_pos_constructor(HSQUIRRELVM vm) // parameters: sint16 x, sint1
 	if (grund_t *gr = welt->lookup(koord3d(pos, z))) {
 		obj_t::typ type = (obj_t::typ)param<uint8>::get(vm, 5);
 		obj_t *obj = NULL;
-		if (type != obj_t::old_airdepot) { // special treatment of depots
+		if (type == obj_t::roadsign  ||  type == obj_t::signal) {
+			// special treatment of signals/roadsigns
+			obj = gr->suche_obj(obj_t::roadsign);
+			if (obj == NULL) {
+				obj = gr->suche_obj(obj_t::signal);
+			}
+		}
+		else if (type != obj_t::old_airdepot) { // special treatment of depots
 			obj = gr->suche_obj(type);
 		}
 		else {
@@ -143,8 +152,8 @@ getpush_obj_pos(gebaeude_t, obj_t::gebaeude);
 getpush_obj_pos(label_t, obj_t::label);
 getpush_obj_pos(weg_t, obj_t::way);
 
-// each depot has its own class
 namespace script_api {
+	// each depot has its own class
 	declare_specialized_param(depot_t*, "t|x|y", "depot_x");
 	declare_specialized_param(airdepot_t*, "t|x|y", "depot_x");
 	declare_specialized_param(narrowgaugedepot_t*, "t|x|y", "depot_x");
@@ -154,6 +163,11 @@ namespace script_api {
 	declare_specialized_param(monoraildepot_t*, "t|x|y", "depot_x");
 	declare_specialized_param(tramdepot_t*, "t|x|y", "depot_x");
 	declare_specialized_param(maglevdepot_t*, "t|x|y", "depot_x");
+
+	// map roadsign_t and signal_t to the same class
+	declare_specialized_param(roadsign_t*, "t|x|y", "sign_x");
+	declare_specialized_param(signal_t*, "t|x|y", "sign_x");
+
 };
 // base depot class, use old_airdepot as identifier here
 getpush_obj_pos(depot_t, obj_t::old_airdepot);
@@ -166,6 +180,9 @@ getpush_obj_pos(schiffdepot_t, obj_t::schiffdepot);
 getpush_obj_pos(monoraildepot_t, obj_t::monoraildepot);
 getpush_obj_pos(tramdepot_t, obj_t::tramdepot);
 getpush_obj_pos(maglevdepot_t, obj_t::maglevdepot);
+// roadsigns/signals
+getpush_obj_pos(roadsign_t, obj_t::roadsign);
+getpush_obj_pos(signal_t, obj_t::signal);
 
 #define case_resolve_obj(D) \
 	case bind_code<D>::objtype: \
@@ -184,6 +201,8 @@ SQInteger script_api::param<obj_t*>::push(HSQUIRRELVM vm, obj_t* const& obj)
 		case_resolve_obj(gebaeude_t);
 		case_resolve_obj(label_t);
 		case_resolve_obj(weg_t);
+		case_resolve_obj(roadsign_t);
+		case_resolve_obj(signal_t);
 
 		case_resolve_obj(airdepot_t);
 		case_resolve_obj(narrowgaugedepot_t);
@@ -212,7 +231,7 @@ static SQInteger get_way_ribi(HSQUIRRELVM vm)
 
 	ribi_t::ribi ribi = w ? (masked ? w->get_ribi() : w->get_ribi_unmasked() ) : 0;
 
-	return push_ribi(vm, ribi);
+	return param<my_ribi_t>::push(vm, ribi);
 }
 
 // create class
@@ -540,5 +559,15 @@ void export_map_objects(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &label_get_text, "get_text", true);
 
+	end_class(vm);
+
+	/**
+	 * Roadsigns and railway signals.
+	 */
+	begin_obj_class<roadsign_t>(vm, "sign_x", "map_object_x");
+	/**
+	 * @returns object descriptor.
+	 */
+	register_method(vm, &roadsign_t::get_desc, "get_desc");
 	end_class(vm);
 }

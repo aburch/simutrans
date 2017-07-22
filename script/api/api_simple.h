@@ -6,11 +6,24 @@
 
 /** @file api_simple.h Helper functions to export simple datatypes: ribi & friends */
 
+
+/**
+ * Use own type for ribis and slopes
+ */
+struct my_ribi_t {
+	uint8 data;
+	my_ribi_t(ribi_t::ribi r) : data(r) { }
+	operator ribi_t::ribi() const { return data; }
+};
+
+struct my_slope_t {
+	uint8 data;
+	my_slope_t(slope_t::type r) : data(r) { }
+	operator slope_t::type() const { return data; }
+};
+
+
 namespace script_api {
-
-	SQInteger push_ribi(HSQUIRRELVM vm, ribi_t::ribi ribi);
-
-	ribi_t::ribi get_ribi(HSQUIRRELVM vm, SQInteger index);
 
 	struct mytime_t
 	{

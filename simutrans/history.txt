@@ -3,6 +3,11 @@
 	ADD: (Ichou) force replacement of wayobj by holding ctrl key while building
 	ADD: (THLeader) long convoi patch
 	FIX: Removed line management window memory leaks
+	ADD: animated pedestrians, parameters:
+		steps_per_frame (internal steps per frame, straight movement across tile is 256 steps)
+		image[dir][a] (dir - direction, a - animation counter, a=0,1,..)
+	CHG: pedestrian movement, new dat parameter:
+		offset (of pedestrian image relative to right tile boundary, 0..255, default 20, 0 = on the right edge of tile, 128 = on center line of tile)
 
 Release of 120.2.2: (r8163 on 31-3-2017):
 	ADD: Name filter in depot window
@@ -54,7 +59,7 @@ Release of 120.2: (r8077 on 12-Feb-2016):
 	CHG: various improvements to JIT2 to improve factory and electricity network stability
 	CHG: factories which produce power log the amount of power production consumed instead of the amount of power produced
 	CHG: factories which consume power log the amount consumed as negative
-	FIX: F12 no longer brings up the ingame help window in the Steam version of Simutrans 
+	FIX: F12 no longer brings up the ingame help window in the Steam version of Simutrans
 
 Release of 120.1.3: (r7753 on 2-Feb-2016):
 	FIX: road vehicles search for new route when arriving at intersection and old route is invalid
