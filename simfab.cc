@@ -1600,11 +1600,15 @@ sint32 fabrik_t::liefere_an(const goods_desc_t *typ, sint32 menge)
 				const uint32 prod_factor = desc->get_supplier(in)->get_consumption();
 				const sint32 prod_delta = (sint32)((((sint64)menge << (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
 
+				ware.menge += prod_delta;
+
 				// Hajo: avoid overflow
-				if(  ware.menge < (FAB_MAX_INPUT - menge) << precision_bits  ) {
-					ware.menge += menge << precision_bits;
-					ware.book_stat(menge, FAB_GOODS_RECEIVED);
+				const sint32 max = (sint32)((((sint64)FAB_MAX_INPUT << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
+				if (ware.menge >= max) {
+					menge -= (sint32)(((sint64)menge * (sint64)(ware.menge - max) + (sint64)(prod_delta >> 1)) / (sint64)prod_delta);
+					ware.menge = max - 1;
 				}
+				ware.book_stat(menge, FAB_GOODS_RECEIVED);
 				return menge;
 			}
 		}
