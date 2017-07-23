@@ -218,25 +218,30 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
  */
 bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t v)
 {
-	/*if (cnv.is_bound())
+	if (v.i&~1)
 	{
-		if (v.i&~1)
+		koord k = *(const koord *)v.p;
 		{
-			koord k = *(const koord *)v.p;
+	//		if (comp == class_selectors.)
 			{
 				uint16 j = k.y;
-				if (j < class_indices.get_count())
+				uint16 selection = v.i;
+				if (class_selectors[selection] < 0)
 				{
-					int	class_selection = class_selectors[j]->get_selection();
-					if (class_selection < 0)
+					class_selectors[selection]->set_selection(0);
+					class_selectors[selection] = 0;
+				}
+				for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+				{
+					vehicle_t* v = cnv->get_vehicle(veh);
+					if (v->get_cargo_type()->get_catg_index() == 0)
 					{
-						class_selectors[j]->set_selection(0);
-						class_selection = 0;
+						v->set_class_reassignment(selection, j);
 					}
 				}
 			}
 		}
-	}*/
+	}
 	return false;
 }
 
