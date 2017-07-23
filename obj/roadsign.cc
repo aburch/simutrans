@@ -754,7 +754,13 @@ const roadsign_desc_t *roadsign_t::roadsign_search(roadsign_desc_t::types const 
 const koord3d roadsign_t::get_intersection() const
 {
 	grund_t* current_gr = welt->lookup(get_pos());
-	ribi_t::ribi current_ribi = ribi_t::reverse_single(dir);
+	strasse_t* first_str = (strasse_t*)current_gr->get_weg(road_wt);
+	ribi_t::ribi current_ribi = ribi_t::none;
+	if(  !first_str  ) {
+		return koord3d::invalid;
+	} else {
+		current_ribi = first_str->get_ribi_unmasked()&(~dir);
+	}
 	for(int step = 0; step < 500; step++) {
 		grund_t *next_gr;
 		if(  ribi_t::is_single(current_ribi)  ) {
