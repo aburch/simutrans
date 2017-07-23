@@ -48,6 +48,36 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
 
+
+	//char pass_class_name_untranslated[32][255];
+
+	//pass_class_selector.add_listener(this);
+	//add_component(&pass_class_selector);
+	//pass_class_selector.clear_elements();
+	//pass_class_selector_indices.clear();
+	//int pass_class_capacity[255] = { 0 };
+	//for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+	//{
+	//	for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+	//	{
+	//		vehicle_t* v = cnv->get_vehicle(veh);
+	//		if (v->get_cargo_type()->get_catg_index() == 0)
+	//		{
+	//			pass_class_capacity[i] += v->get_desc()->get_capacity(i);
+	//		}
+	//	}
+	//	if (pass_class_capacity[i] > 0)
+	//	{
+	//		i++;
+	//		sprintf(pass_class_name_untranslated[i], "p_class[%u]", i - 1);
+	//		pass_class_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[i]), SYSCOL_TEXT));
+	//		pass_class_selector_indices.append(0);
+	//		i--;
+	//	}
+
+	//}
+
+
 	int pass_class_capacity[255] = { 0 };
 	for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
 	{
@@ -70,16 +100,14 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 			class_selector->clear_elements();
 
 			class_indices.clear();
-			for (uint8 j = 0; j < goods_manager_t::passengers->get_number_of_classes(); j++)
+			
+			for (int j = 1; j < goods_manager_t::passengers->get_number_of_classes()+1; j++)
 			{
-				char class_selector_name_untranslated[32];
-				sprintf(class_selector_name_untranslated, "p_class[%u]", j);
-				class_selector->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(class_selector_name_untranslated), SYSCOL_TEXT));
-				class_indices.append(j);
-				class_selector->set_selection(j);
+				char pass_class_name_untranslated[32][510];
+				sprintf(pass_class_name_untranslated[j], "p_class[%u]", j-1);
+				class_selector->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
+				class_indices.append(0);
 			}
-
-
 			add_component(class_selector);
 			class_selector->add_listener(this);
 			class_selector->set_focusable(false);
@@ -190,7 +218,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
  */
 bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t v)
 {
-	if (cnv.is_bound())
+	/*if (cnv.is_bound())
 	{
 		if (v.i&~1)
 		{
@@ -208,7 +236,7 @@ bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value
 				}
 			}
 		}
-	}
+	}*/
 	return false;
 }
 
