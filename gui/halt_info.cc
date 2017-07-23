@@ -264,10 +264,6 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			}
 		}
 
-		/*char transferring[64];
-		sprintf(transferring, "%i %s", halt->get_transferring_cargoes_count(), translator::translate("packages transferring"));
-		text.recalc_size();*/
-
 		gui_frame_t::draw(pos, size);
 		set_dirty();
 
