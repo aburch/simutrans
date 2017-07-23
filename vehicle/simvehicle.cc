@@ -4369,7 +4369,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	if(starting_from_stand && cnv->get_next_stop_index() == route_index && !signal_current && working_method != drive_by_sight && working_method != moving_block)
 	{
 		// If we are starting from stand, have no reservation beyond here and there is no signal, assume that it has been deleted and revert to drive by sight.
-		if (working_method == token_block)
+		if (working_method == token_block || working_method == one_train_staff)
 		{
 			cnv->set_next_stop_index(INVALID_INDEX);
 		}
