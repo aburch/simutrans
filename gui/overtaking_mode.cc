@@ -14,10 +14,10 @@
 #define L_DIALOG_WIDTH (200)
 
 overtaking_mode_t overtaking_mode_frame_t::overtaking_mode = twoway_mode;
-char overtaking_mode_frame_t::mode_name[5][20] = {"oneway", "twoway", "loading_convoy_only", "prohibited", "inverted"};
+char overtaking_mode_frame_t::mode_name[5][20] = {"oneway", "twoway", "only loading convoi", "prohibited", "inverted"};
 
 overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_way_t* tool_) :
-	gui_frame_t( translator::translate("set overtaking_mode") )
+	gui_frame_t( translator::translate("set overtaking mode") )
 {
 	tool_class = 0;
 	tool_w = tool_;
@@ -25,7 +25,7 @@ overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_w
 }
 
 overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_bridge_t* tool_) :
-	gui_frame_t( translator::translate("set overtaking_mode") )
+	gui_frame_t( translator::translate("set overtaking mode") )
 {
 	tool_class = 1;
 	tool_b = tool_;
@@ -33,7 +33,7 @@ overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_b
 }
 
 overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_tunnel_t* tool_) :
-	gui_frame_t( translator::translate("set overtaking_mode") )
+	gui_frame_t( translator::translate("set overtaking mode") )
 {
 	tool_class = 2;
 	tool_tu = tool_;

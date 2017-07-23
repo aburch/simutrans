@@ -273,10 +273,10 @@ void weg_t::info(cbuffer_t & buf) const
 		// Display overtaking_info
 		switch (get_overtaking_mode()) {
 			case oneway_mode:
-				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("one-way"));
+				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("oneway"));
 				break;
 			case twoway_mode:
-				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("two-way"));
+				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("twoway"));
 				break;
 			case loading_only_mode:
 				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("only loading convoi"));
@@ -285,7 +285,7 @@ void weg_t::info(cbuffer_t & buf) const
 				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("prohibited"));
 				break;
 			case inverted_mode:
-				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("Inverted"));
+				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("inverted"));
 				break;
 			default:
 				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("ERROR"));
