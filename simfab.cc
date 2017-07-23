@@ -1615,16 +1615,26 @@ sint32 fabrik_t::liefere_an(const goods_desc_t *typ, sint32 menge)
 	}
 	else {
 		// case : freight
-		FOR(  array_tpl<ware_production_t>, & ware, input) {
+		for (uint32 in = 0; in < input.get_count(); in++) {
+			ware_production_t& ware = input[in];
 			if(  ware.get_typ() == typ  ) {
 				// Can't use update_transit for interface reasons; we don't take a ware argument.
 				// We should, however.
 				ware.book_stat( -menge, FAB_GOODS_TRANSIT );
+
+				// Resolve how much normalized production arrived, rounding up (since we rounded up when we removed it).
+				const uint32 prod_factor = desc->get_supplier(in)->get_consumption();
+				const sint32 prod_delta = (sint32)((((sint64)menge << (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
+
+				ware.menge += prod_delta;
+
 				// Hajo: avoid overflow
-				if(  ware.menge < (FAB_MAX_INPUT - menge) << precision_bits  ) {
-					ware.menge += menge << precision_bits;
-					ware.book_stat(menge, FAB_GOODS_RECEIVED);
+				const sint32 max = (sint32)((((sint64)FAB_MAX_INPUT << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
+				if (ware.menge >= max) {
+					menge -= (sint32)(((sint64)menge * (sint64)(ware.menge - max) + (sint64)(prod_delta >> 1)) / (sint64)prod_delta);
+					ware.menge = max - 1;
 				}
+				ware.book_stat(menge, FAB_GOODS_RECEIVED);
 				return menge;
 			}
 		}
