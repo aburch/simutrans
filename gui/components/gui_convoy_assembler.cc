@@ -747,7 +747,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 				case goods_manager_t::INDEX_MAIL:
 				{
 					total_mail += desc->get_total_capacity();
-					for (uint8 j = 0; j < goods_manager_t::mail->get_number_of_classes(); j++)
+					for (uint8 j = 0; j < desc->get_number_of_classes(); j++)
 					{
 						if (desc->get_capacity(j) > 0)
 						{

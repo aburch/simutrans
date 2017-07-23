@@ -42,9 +42,9 @@
 #define SCL_HEIGHT (15*LINESPACE)
 
 vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
-: gui_frame_t( cnv->get_name(), cnv->get_owner() ),
-  scrolly(&veh_info),
-  veh_info(cnv)
+	: gui_frame_t(cnv->get_name(), cnv->get_owner()),
+	scrolly(&veh_info),
+	veh_info(cnv)
 {
 	this->cnv = cnv;
 
@@ -78,6 +78,7 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 				class_indices.append(j);
 				class_selector->set_selection(j);
 			}
+
 
 			add_component(class_selector);
 			class_selector->add_listener(this);
@@ -187,26 +188,27 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
  * This method is called if an action is triggered
  * @author Markus Weber
  */
-bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t v) 
+bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t v)
 {
-
-	/*if(cnv.is_bound()) 
+	if (cnv.is_bound())
 	{
-		if (v.i&~1) 
+		if (v.i&~1)
 		{
 			koord k = *(const koord *)v.p;
-			uint16 j = k.y;
-			if (j < class_selectors.get_count())
 			{
-				int	class_selection = class_selectors[j]->get_selection();
-				if (class_selection < 0)
+				uint16 j = k.y;
+				if (j < class_indices.get_count())
 				{
-					class_selectors[j].set_selection(0);
-					class_selection = 0;
+					int	class_selection = class_selectors[j]->get_selection();
+					if (class_selection < 0)
+					{
+						class_selectors[j]->set_selection(0);
+						class_selection = 0;
+					}
 				}
 			}
 		}
-	}*/
+	}
 	return false;
 }
 
