@@ -2097,9 +2097,11 @@ bool way_builder_t::build_tunnel_tile()
 						weg->set_ribi_mask_oneway(ribi_t::none);
 					} else if(  overtaking_mode==oneway_mode  ){ //of course street is oneway_mode
 						if(  i==0  ) {
-							weg->update_ribi_mask_oneway(ribi_type(route[1],route[0]));
+							weg->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]));
+						} else if(  i==get_count()-1  ) {
+							weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none);
 						} else {
-							weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]));
+							weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
 						}
 					}
 				}
@@ -2151,9 +2153,11 @@ bool way_builder_t::build_tunnel_tile()
 						weg->set_ribi_mask_oneway(ribi_t::none);
 					} else if(  overtaking_mode==oneway_mode  ){ //of course street is oneway_mode
 						if(  i==0  ) {
-							weg->update_ribi_mask_oneway(ribi_type(route[1],route[0]));
+							weg->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]));
+						} else if(  i==get_count()-1  ) {
+							weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none);
 						} else {
-							weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]));
+							weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
 						}
 					}
 				}
@@ -2280,9 +2284,11 @@ void way_builder_t::build_road()
 			str->set_ribi_mask_oneway(ribi_t::none);
 		} else if(  overtaking_mode==oneway_mode  ){ //of course street is oneway_mode
 			if(  i==0  ) {
-				str->update_ribi_mask_oneway(ribi_type(route[1],route[0]));
+				str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]));
+			} else if(  i==get_count()-1  ) {
+				str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none);
 			} else {
-				str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]));
+				str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
 			}
 		}
 		gr->calc_image();	// because it may be a crossing ...

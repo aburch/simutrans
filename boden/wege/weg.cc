@@ -113,14 +113,28 @@ ribi_t::ribi weg_t::get_ribi() const {
 }
 
 
-void weg_t::update_ribi_mask_oneway(ribi_t::ribi ribi)
+void weg_t::update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow)
 {
-	if(  (ribi_t::reverse_single(ribi)&ribi_mask_oneway)!=0  ) {
-		// contains backward ribi
-		ribi_mask_oneway -= ribi_t::reverse_single(ribi); //remove
-		ribi_mask_oneway |= ribi;
+	// assertion. @mask and @allow must be single or none.
+	if(!(ribi_t::is_single(mask)||(mask==ribi_t::none))) dbg->error( "weg_t::update_ribi_mask_oneway()", "mask is not single or none.");
+	if(!(ribi_t::is_single(allow)||(allow==ribi_t::none))) dbg->error( "weg_t::update_ribi_mask_oneway()", "allow is not single or none.");
+
+	if(  mask==ribi_t::none  ) {
+		if(  ribi_t::is_twoway(get_ribi_unmasked())  ) {
+			// auto complete
+			ribi_mask_oneway |= (get_ribi_unmasked()-allow);
+		}
 	} else {
-		ribi_mask_oneway |= ribi; //just add
+		ribi_mask_oneway |= mask;
+	}
+	// remove backward ribi
+	if(  allow==ribi_t::none  ) {
+		if(  ribi_t::is_twoway(get_ribi_unmasked())  ) {
+			// auto complete
+			ribi_mask_oneway &= ~(get_ribi_unmasked()-mask);
+		}
+	} else {
+		ribi_mask_oneway &= ~allow;
 	}
 }
 

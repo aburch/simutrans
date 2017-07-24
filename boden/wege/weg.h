@@ -284,7 +284,8 @@ public:
 	ribi_t::ribi get_ribi_maske() const { return (ribi_t::ribi)ribi_maske; }
 
 	void set_ribi_mask_oneway(ribi_t::ribi ribi) { ribi_mask_oneway = (uint8)ribi; }
-	void update_ribi_mask_oneway(ribi_t::ribi ribi); //used in wegbauer
+	// used in wegbauer. param @allow is ribi in which vehicles can go. without this, ribi cannot be updated correctly at intersections.
+	void update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow);
 	ribi_t::ribi get_ribi_mask_oneway() const { return (ribi_t::ribi)ribi_mask_oneway; }
 
 	/**
