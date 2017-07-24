@@ -569,7 +569,7 @@ DBG_MESSAGE("tool_remover()", "bound=%i",halt.is_bound());
 		// halt and not a factory (oil rig etc.)
 		const player_t* owner = halt->get_owner();
 
-		if(player_t::check_owner( owner, player ) || player->is_public_serivce())
+		if(player_t::check_owner( owner, player ) || (player && player->is_public_serivce()))
 		{
 			return haltestelle_t::remove(player, gr->get_pos());
 		}

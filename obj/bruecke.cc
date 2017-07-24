@@ -322,7 +322,7 @@ void bruecke_t::rotate90()
 // players can remove public owned ways
 const char *bruecke_t:: is_deletable(const player_t *player, bool allow_public)
 {
-	if(allow_public && get_owner()->is_public_serivce())
+	if(allow_public && get_owner() && get_owner()->is_public_serivce())
 	{
 		return NULL;
 	}

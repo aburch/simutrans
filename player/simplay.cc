@@ -237,11 +237,7 @@ bool player_t::can_afford(player_t* player, sint64 price)
 }
 
 bool player_t::is_public_serivce() const
- {
-	if (!this)
-	{
-		return false;
-	}
+{
 	return get_player_nr() == 1;
 }
 
