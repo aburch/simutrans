@@ -223,7 +223,7 @@ void player_t::book_delivered(const sint64 amount, const waytype_t wt, int index
 
 bool player_t::can_afford(const sint64 price) const
 {
-	return (is_public_serivce() || finance->can_afford(price));
+	return (is_public_service() || finance->can_afford(price));
 }
 
 bool player_t::can_afford(player_t* player, sint64 price)
@@ -234,11 +234,6 @@ bool player_t::can_afford(player_t* player, sint64 price)
 	} else {
 		return player->can_afford(price);
 	}
-}
-
-bool player_t::is_public_serivce() const
-{
-	return get_player_nr() == 1;
 }
 
 /* returns the name of the player; "player -1" sits in front of the screen
@@ -582,7 +577,7 @@ void player_t::set_scenario_completion(sint32 percent)
 
 bool player_t::check_owner( const player_t *owner, const player_t *test )
 {
-	return owner == test || owner == NULL || (test != NULL  &&  test->is_public_serivce());
+	return owner == test || owner == NULL || (test != NULL  &&  test->is_public_service());
 }
 
 

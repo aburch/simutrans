@@ -1330,7 +1330,7 @@ void weg_t::finish_rd()
 // players can remove public owned ways (Depracated)
 const char *weg_t:: is_deletable(const player_t *player, bool allow_public)
 {
-	if(allow_public && get_owner() && get_owner()->is_public_serivce()) 
+	if(allow_public && get_owner() && get_owner()->is_public_service()) 
 	{
 		return NULL;
 	}
