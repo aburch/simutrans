@@ -3607,12 +3607,13 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			if(!self.is_bound())
 			{
 				// Something has gone a bit wrong here, as the handle to self is not bound.
-				if(!this)
+				// Disabled, as this is apparently undefined.
+				/*if(!this)
 				{
 					// Probably superfluous, but best to be sure that this is really not a dud pointer.
 					dbg->error("void haltestelle_t::rdwr(loadsave_t *file)", "Handle to self not bound when saving a halt");
 					return;
-				}
+				}*/
 				if(self.get_rep() != this)
 				{
 					uint16 id = self.get_id();

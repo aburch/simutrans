@@ -2345,7 +2345,7 @@ static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koo
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
 		}
-		if(bd->is_halt() && (!player_t::check_owner(player, bd->get_halt()->get_owner()) && (w != NULL && !w->get_owner()->allows_access_to(player->get_player_nr()))))
+		if(bd->is_halt() && (!player_t::check_owner(player, bd->get_halt()->get_owner()) && (w != NULL && !(w->get_owner() == NULL || w->get_owner()->allows_access_to(player->get_player_nr())))))
 		{
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
@@ -2538,7 +2538,7 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 
 		if(way) {
 			// allow to connect to any road, or anywhere where the player has been granted access rights.
-			if(desc->get_wtyp() == road_wt || way->get_owner()->allows_access_to(player->get_player_nr()))
+			if(desc->get_wtyp() == road_wt || way->get_owner() == NULL || way->get_owner()->allows_access_to(player->get_player_nr()))
 			{
 				return 2;
 			}
@@ -2548,7 +2548,7 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 		leitung_t* lt = gr->get_leitung();
 		if(lt)
 		{
-			if(lt->get_owner()->allows_access_to(player->get_player_nr()))
+			if(!lt->get_owner() || lt->get_owner()->allows_access_to(player->get_player_nr()))
 			{
 				return 2;
 			}

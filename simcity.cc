@@ -2974,29 +2974,16 @@ uint32 stadt_t::check_road_connexion_to(const gebaeude_t* attraction) const
 
 void stadt_t::add_road_connexion(uint32 journey_time_per_tile, const stadt_t* city)
 {
-	if(this == NULL)
-	{
-		return;
-	}
 	connected_cities.set(city->get_pos(), journey_time_per_tile);
 }
 
 void stadt_t::add_road_connexion(uint32 journey_time_per_tile, const fabrik_t* industry)
 {
-	if(this == NULL)
-	{
-		return;
-	}
 	connected_industries.set(industry->get_pos().get_2d(), journey_time_per_tile);
 }
 
 void stadt_t::add_road_connexion(uint32 journey_time_per_tile, const gebaeude_t* attraction)
 {
-	if(this == NULL)
-	{
-		return;
-	}
-
 	const koord3d attraction_pos = attraction->get_pos();
 	connected_attractions.set(attraction_pos.get_2d(), journey_time_per_tile);
 

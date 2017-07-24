@@ -72,7 +72,7 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 			// both ground or both tunnel or both not tunnel
 			bool const ok = (gr->ist_karten_boden()  &&  gr_base->ist_karten_boden())  ||  (gr->ist_tunnel()==gr_base->ist_tunnel());
 			if(  lt  &&  (ribi_t::backward(ribi_t::nsew[i]) & get_powerline_ribi(gr))  &&  ok  ) {
-				if(lt->get_owner()->allows_access_to(get_owner()->get_player_nr()) || get_owner()->is_public_service())
+				if(!lt->get_owner() || lt->get_owner()->allows_access_to(get_owner()->get_player_nr()) || get_owner()->is_public_service())
 				{
 					conn[i] = lt;
 					count++;

@@ -1597,7 +1597,7 @@ sint32 fabrik_t::liefere_an(const goods_desc_t *typ, sint32 menge)
 				ware.book_stat( -menge, FAB_GOODS_TRANSIT );
 
 				// Resolve how much normalized production arrived, rounding up (since we rounded up when we removed it).
-				const uint32 prod_factor = desc->get_supplier(in)->get_consumption();
+				const uint32 prod_factor = desc->get_supplier(in) ? desc->get_supplier(in)->get_consumption() : 1;
 				const sint32 prod_delta = (sint32)((((sint64)menge << (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
 
 				ware.menge += prod_delta;
@@ -2656,7 +2656,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 			{
 				continue;
 			}
-			const sint64 pfactor = (sint64)desc->get_supplier(index)->get_consumption();
+			const sint64 pfactor = desc->get_supplier(index) ? (sint64)desc->get_supplier(index)->get_consumption() : 1ll;
 			const uint16 max_intransit_percentage = max_intransit_percentages.get(input[index].get_typ()->get_catg());
 
 			if(  max_intransit_percentage  ) {
