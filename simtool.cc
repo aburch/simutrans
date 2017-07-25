@@ -6854,6 +6854,7 @@ bool tool_change_line_t::init( player_t *player )
 				line->get_schedule()->sscanf_schedule( p );
 				// check scenario conditions
 				if (!scenario_check_schedule(welt, player, line->get_schedule(), can_use_gui())) {
+					player->simlinemgmt.delete_line(line);
 					break;
 				}
 
