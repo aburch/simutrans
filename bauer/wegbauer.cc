@@ -1159,6 +1159,7 @@ way_builder_t::way_builder_t(player_t* player_) : next_gr(32)
 	bautyp = strasse;   // kann mit init_builder() gesetzt werden
 	maximum = 2000;// CA $ PER TILE
 	overtaking_mode = invalid_mode;
+	route_reversed = false;
 
 	keep_existing_ways = false;
 	keep_existing_city_roads = false;
@@ -1818,6 +1819,7 @@ uint32 ms = dr_time();
 		}
 	}
 	else {
+		route_reversed = true;
 		keep_existing_city_roads |= (bautyp&bot_flag)!=0;
 		sint32 cost2 = intern_calc_route( start, ziel );
 		INT_CHECK("wegbauer 1165");
@@ -1825,6 +1827,7 @@ uint32 ms = dr_time();
 		if(cost2<0) {
 			// not successful: try backwards
 			intern_calc_route(ziel,start);
+			route_reversed = false;
 			return;
 		}
 
@@ -1833,6 +1836,7 @@ uint32 ms = dr_time();
 		vector_tpl<uint32> terraform_index2(0);
 		swap(route, route2);
 		swap(terraform_index, terraform_index2);
+		route_reversed = false;
 		sint32 cost = intern_calc_route( ziel, start );
 		INT_CHECK("wegbauer 1165");
 
@@ -1840,6 +1844,7 @@ uint32 ms = dr_time();
 		if(  cost2 < cost  ||  cost < 0  ) {
 			swap(route, route2);
 			swap(terraform_index, terraform_index2);
+			route_reversed = true;
 		}
 #endif
 	}
@@ -2095,13 +2100,16 @@ bool way_builder_t::build_tunnel_tile()
 					weg->set_overtaking_mode(overtaking_mode);
 					if(  weg->get_overtaking_mode()!=oneway_mode  ) {
 						weg->set_ribi_mask_oneway(ribi_t::none);
-					} else if(  overtaking_mode==oneway_mode  ){ //of course street is oneway_mode
+					} else if(  overtaking_mode==oneway_mode  &&  get_count()>1   ){ //of course street is oneway_mode
 						if(  i==0  ) {
-							weg->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]));
+							if(  route_reversed  ) weg->update_ribi_mask_oneway(ribi_type(route[0],route[1]),ribi_t::none);
+							if(  !route_reversed  ) weg->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]));
 						} else if(  i==get_count()-1  ) {
-							weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none);
+							if(  route_reversed  ) weg->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[i],route[i-1]));
+							if(  !route_reversed  ) weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none);
 						} else {
-							weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
+							if(  route_reversed  )  weg->update_ribi_mask_oneway(ribi_type(route[i],route[i+1]),ribi_type(route[i],route[i-1]));
+							if(  !route_reversed  )  weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
 						}
 					}
 				}
@@ -2151,13 +2159,16 @@ bool way_builder_t::build_tunnel_tile()
 					weg_t *weg = gr->get_weg(road_wt);
 					if(  weg->get_overtaking_mode()!=oneway_mode  ) {
 						weg->set_ribi_mask_oneway(ribi_t::none);
-					} else if(  overtaking_mode==oneway_mode  ){ //of course street is oneway_mode
+					} else if(  overtaking_mode==oneway_mode  &&  get_count()>1   ){ //of course street is oneway_mode
 						if(  i==0  ) {
-							weg->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]));
+							if(  route_reversed  ) weg->update_ribi_mask_oneway(ribi_type(route[0],route[1]),ribi_t::none);
+							if(  !route_reversed  ) weg->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]));
 						} else if(  i==get_count()-1  ) {
-							weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none);
+							if(  route_reversed  ) weg->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[i],route[i-1]));
+							if(  !route_reversed  ) weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none);
 						} else {
-							weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
+							if(  route_reversed  )  weg->update_ribi_mask_oneway(ribi_type(route[i],route[i+1]),ribi_type(route[i],route[i-1]));
+							if(  !route_reversed  )  weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
 						}
 					}
 				}
@@ -2282,13 +2293,16 @@ void way_builder_t::build_road()
 		//update ribi_mask_oneway if road is oneway_mode.
 		if(  str->get_overtaking_mode()!=oneway_mode  ) {
 			str->set_ribi_mask_oneway(ribi_t::none);
-		} else if(  overtaking_mode==oneway_mode  ){ //of course street is oneway_mode
+		} else if(  overtaking_mode==oneway_mode  &&  get_count()>1  ){ //of course street is oneway_mode
 			if(  i==0  ) {
-				str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]));
+				if(  route_reversed  ) str->update_ribi_mask_oneway(ribi_type(route[0],route[1]),ribi_t::none);
+				if(  !route_reversed  ) str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]));
 			} else if(  i==get_count()-1  ) {
-				str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none);
+				if(  route_reversed  ) str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[i],route[i-1]));
+				if(  !route_reversed  ) str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none);
 			} else {
-				str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
+				if(  route_reversed  )  str->update_ribi_mask_oneway(ribi_type(route[i],route[i+1]),ribi_type(route[i],route[i-1]));
+				if(  !route_reversed  )  str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
 			}
 		}
 		gr->calc_image();	// because it may be a crossing ...

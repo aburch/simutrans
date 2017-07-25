@@ -126,7 +126,7 @@ private:
 
 	/**
 	 * Only for road
-	 * @author Hj. Malthaner
+	 * @author THLeaderH
 	 */
 	 overtaking_mode_t overtaking_mode;
 
@@ -146,6 +146,7 @@ private:
 	koord3d_vector_t route;
 	// index in route with terraformed tiles
 	vector_tpl<uint32> terraform_index;
+	bool route_reversed;
 
 public:
 	/* This is the core routine for the way search

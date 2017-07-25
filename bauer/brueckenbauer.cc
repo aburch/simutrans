@@ -734,7 +734,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 	if(  slope  ||  bridge_height != 0  ) {
 		// needs a ramp to start on ground
 		add_height = slope ?  slope_t::max_diff(slope) : bridge_height;
-		build_ramp( player, start, ribi, slope?0:slope_type(zv)*add_height, desc, overtaking_mode );
+		build_ramp( player, start, ribi, slope?0:slope_type(zv)*add_height, desc, overtaking_mode, true );
 		if(  desc->get_waytype() != powerline_wt  ) {
 			ribi = welt->lookup(start)->get_weg_ribi_unmasked(desc->get_waytype());
 		}
@@ -776,7 +776,9 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 			weg_t * const weg = weg_t::alloc(desc->get_waytype());
 			weg->set_desc(way_desc);
 			weg->set_overtaking_mode(overtaking_mode);
-			weg->set_ribi_mask_oneway(ribi_t::reverse_single(ribi_type(zv)));
+			if(  way_desc->get_waytype()==road_wt  &&  overtaking_mode==oneway_mode  ) {
+				weg->set_ribi_mask_oneway(ribi_t::reverse_single(ribi_type(zv)));
+			}
 			bruecke->neuen_weg_bauen(weg, ribi_t::doubles(ribi), player);
 		}
 		else {
@@ -818,7 +820,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 	grund_t *gr = welt->lookup(end);
 	if(  need_auffahrt  ) {
 		// not ending at a bridge
-		build_ramp(player, end, ribi_type(-zv), gr->get_weg_hang()?0:slope_type(-zv)*(pos.z-end.z), desc, overtaking_mode);
+		build_ramp(player, end, ribi_type(-zv), gr->get_weg_hang()?0:slope_type(-zv)*(pos.z-end.z), desc, overtaking_mode, false);
 	}
 	else {
 		// ending on a slope/elevated way
@@ -866,6 +868,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 					bauigel.set_keep_city_roads(true);
 					bauigel.set_maximum(20);
 					bauigel.init_builder( (way_builder_t::bautyp_t)desc->get_waytype(), way_desc, NULL, NULL );
+					printf("route start:%s, end:%s\n", pos.get_str(), to->get_pos().get_str());
 					bauigel.calc_route( pos, to->get_pos() );
 					bauigel.set_overtaking_mode(overtaking_mode);
 					if(  bauigel.get_count() == 2  ) {
@@ -878,7 +881,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 }
 
 
-void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t* desc, overtaking_mode_t overtaking_mode)
+void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t* desc, overtaking_mode_t overtaking_mode, bool beginning)
 {
 	assert(weg_hang < 81);
 
@@ -906,6 +909,10 @@ void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ri
 		}
 		weg->set_max_speed( desc->get_topspeed() );
 		weg->set_overtaking_mode(overtaking_mode);
+		if(  desc->get_waytype()==road_wt  &&  overtaking_mode==oneway_mode  ) {
+			if(  beginning  ) weg->set_ribi_mask_oneway(ribi_t::reverse_single(ribi_neu));
+			if(  !beginning  ) weg->set_ribi_mask_oneway(ribi_neu);
+		}
 	}
 	else {
 		leitung_t *lt = bruecke->get_leitung();
