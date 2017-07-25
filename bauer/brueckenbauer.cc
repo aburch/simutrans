@@ -868,7 +868,6 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 					bauigel.set_keep_city_roads(true);
 					bauigel.set_maximum(20);
 					bauigel.init_builder( (way_builder_t::bautyp_t)desc->get_waytype(), way_desc, NULL, NULL );
-					printf("route start:%s, end:%s\n", pos.get_str(), to->get_pos().get_str());
 					bauigel.calc_route( pos, to->get_pos() );
 					bauigel.set_overtaking_mode(overtaking_mode);
 					if(  bauigel.get_count() == 2  ) {

@@ -437,7 +437,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 		way_desc = way_builder_t::weg_search( wegtyp, desc->get_topspeed(), 0, type_flat );
 	}
 
-	build_tunnel_portal(player, pos, zv, desc, way_desc, cost, overtaking_mode);
+	build_tunnel_portal(player, pos, zv, desc, way_desc, cost, overtaking_mode, true);
 
 	ribi = ribi_type(-zv);
 	// don't move on to next tile if only one tile long
@@ -488,7 +488,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 		}
 		else if (gr_end->ist_karten_boden()) {
 			// if end is above ground construct an exit
-			build_tunnel_portal(player, pos, -zv, desc, way_desc, cost, overtaking_mode);
+			build_tunnel_portal(player, pos, -zv, desc, way_desc, cost, overtaking_mode, false);
 			gr_end = NULL; // invalid - replaced by tunnel ground
 			// calc new back image for the ground
 			if (end!=start && grund_t::underground_mode) {
@@ -533,7 +533,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 }
 
 
-void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, int &cost, overtaking_mode_t overtaking_mode)
+void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, int &cost, overtaking_mode_t overtaking_mode, bool beginning)
 {
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi = 0;
@@ -567,6 +567,10 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 		player_t::add_maintenance( player, -weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype() );
 		weg->set_max_speed( desc->get_topspeed() );
 		weg->set_overtaking_mode(overtaking_mode);
+		if(  desc->get_waytype()==road_wt  &&  overtaking_mode==oneway_mode  ) {
+			if(  beginning  ) weg->set_ribi_mask_oneway(ribi_type(-zv));
+			if(  !beginning  ) weg->set_ribi_mask_oneway(ribi_type(zv));
+		}
 	}
 	else {
 		leitung_t *lt = tunnel->get_leitung();

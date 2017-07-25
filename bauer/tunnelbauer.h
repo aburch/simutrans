@@ -31,7 +31,7 @@ private:
 	static karte_ptr_t welt;
 
 	static bool build_tunnel(player_t *player, koord3d pos, koord3d end, koord zv, const tunnel_desc_t *desc, overtaking_mode_t overtaking_mode);
-	static void build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, int &cost, overtaking_mode_t overtaking_mode);
+	static void build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, int &cost, overtaking_mode_t overtaking_mode, bool beginning);
 
 	tunnel_builder_t() {} // private -> no instance please
 
