@@ -1733,7 +1733,7 @@ void fabrik_t::step(uint32 delta_t)
 					}
 					delta_menge += input[index].menge;
 
-					input[index].book_stat((sint64)input[index].menge * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
+					input[index].book_stat((sint64)input[index].menge * (desc->get_supplier(index) ? (sint64)desc->get_supplier(index)->get_consumption() : 1), FAB_GOODS_CONSUMED);
 					input[index].menge = 0;
 				}
 			}
