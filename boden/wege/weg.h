@@ -56,6 +56,8 @@ public:
 	*/
 	static const slist_tpl <weg_t *> & get_alle_wege();
 
+	static bool show_masked_ribi;
+
 	enum {
 		HAS_SIDEWALK   = 0x01,
 		IS_ELECTRIFIED = 0x02,
@@ -109,6 +111,7 @@ private:
 
 	image_id image;
 	image_id foreground_image;
+
 
 	/**
 	* Initializes all member variables
