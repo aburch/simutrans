@@ -268,7 +268,7 @@ void export_line(HSQUIRRELVM vm)
 	 * Delete line
 	 * @ingroup game_cmd
 	 */
-	register_method(vm, line_delete, "delete", true);
+	register_method(vm, line_delete, "destroy", true);
 
 	end_class(vm);
 }
