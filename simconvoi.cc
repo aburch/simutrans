@@ -5559,7 +5559,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 	if(accumulated_revenue)
 	{
-		jahresgewinn += accumulated_revenue; //"annual profit" (Babelfish)
+		jahresgewinn += accumulated_revenue; 
 
 		// Check the apportionment of revenue.
 		// The proportion paid to other players is
