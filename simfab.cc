@@ -1814,10 +1814,11 @@ void fabrik_t::step(uint32 delta_t)
 	if(  delta_sum > PRODUCTION_DELTA_T  ) {
 		delta_sum = delta_sum % PRODUCTION_DELTA_T;
 
-		// distribute, if there are more than 10 waiting ...
+		// distribute, if there is more than 1 waiting ...
+		// Changed from the original 10 by jamespetts, July 2017
 		for(  uint32 product = 0;  product < output.get_count();  product++  ) {
 			// either more than ten or nearly full (if there are less than ten output)
-			if(  output[product].menge > (10 << precision_bits)  ||  output[product].menge*2 > output[product].max  ) {
+			if(  output[product].menge > (1 << precision_bits)  ||  output[product].menge*2 > output[product].max  ) {
 
 				verteile_waren(product);
 				INT_CHECK("simfab 636");
@@ -1930,9 +1931,10 @@ void fabrik_t::verteile_waren(const uint32 product)
 	/* prissi: distribute goods to factory
 	 * that has not an overflowing input storage
 	 * also prevent stops from overflowing, if possible
-	 * Since we can called with menge>max/2 are at least 10 are there, we must first limit the amount we distribute
+	 * Since we can called with menge>max/2 are at least 1 are there, we must first limit the amount we distribute
+	 * Changed to 1 from the original 10: jamespetts, July 2017
 	 */
-	sint32 menge = min( (prodbase > 640 ? (prodbase>>6) : 10), output[product].menge >> precision_bits );
+	sint32 menge = min( (prodbase > 64 ? (prodbase>>6) : 1), output[product].menge >> precision_bits );
 
 	// Check to see whether any consumers are within carting distance: there is no point in boarding transport
 	// if the consumer industry is next door.
