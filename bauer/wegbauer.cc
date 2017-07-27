@@ -1158,7 +1158,7 @@ way_builder_t::way_builder_t(player_t* player_) : next_gr(32)
 	player_builder     = player_;
 	bautyp = strasse;   // kann mit init_builder() gesetzt werden
 	maximum = 2000;// CA $ PER TILE
-	overtaking_mode = invalid_mode;
+	overtaking_mode = twoway_mode;
 	route_reversed = false;
 
 	keep_existing_ways = false;
