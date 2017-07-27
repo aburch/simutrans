@@ -137,6 +137,8 @@ public:
 	static const skin_desc_t *senke;
 	/// texture to be shown beneath ways in tunnel
 	static const skin_desc_t *tunnel_texture;
+	/// arrow that shows way's ribi masked
+	static const skin_desc_t *ribi_arrow;
 
 	static bool register_desc(skintyp_t type, const skin_desc_t *desc);
 	static bool successfully_loaded(skintyp_t type);

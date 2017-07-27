@@ -957,7 +957,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("view masked ribi"); }
 	bool is_selected() const OVERRIDE { return weg_t::show_masked_ribi; }
 	bool init( player_t * ) {
-		weg_t::show_masked_ribi = true;
+		weg_t::show_masked_ribi ^= 1;
 		welt->set_dirty();
 		return false;
 	}

@@ -72,6 +72,7 @@ const skin_desc_t* skinverwaltung_t::fussweg            = NULL;
 const skin_desc_t* skinverwaltung_t::pumpe              = NULL;
 const skin_desc_t* skinverwaltung_t::senke              = NULL;
 const skin_desc_t* skinverwaltung_t::tunnel_texture     = NULL;
+const skin_desc_t* skinverwaltung_t::ribi_arrow         = NULL;
 
 slist_tpl<const skin_desc_t *>skinverwaltung_t::extra_obj;
 
@@ -82,6 +83,7 @@ static special_obj_tpl<skin_desc_t> const misc_objekte[] = {
 	{ &skinverwaltung_t::construction_site, "Construction" },
 	{ &skinverwaltung_t::fussweg,           "Sidewalk"     },
 	{ &skinverwaltung_t::tunnel_texture,    "TunnelTexture"},
+	{ &skinverwaltung_t::ribi_arrow,        "RibiArrow"    },
 	{ NULL, NULL }
 };
 
