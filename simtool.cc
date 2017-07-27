@@ -2319,11 +2319,15 @@ bool tool_build_way_t::exit( player_t *player )
 
 void tool_build_way_t::draw_after(scr_coord k, bool dirty) const
 {
-	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
-		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
-		char level_str[16];
-		tool_build_way_t::set_mode_str(level_str, overtaking_mode[player->get_player_nr()]);
-		display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+	if(  desc  &&  desc->get_waytype()==road_wt  ) {
+		if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
+			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
+			char level_str[16];
+			tool_build_way_t::set_mode_str(level_str, overtaking_mode[player->get_player_nr()]);
+			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+		}
+	} else {
+		two_click_tool_t::draw_after(k,dirty);
 	}
 }
 
@@ -2599,11 +2603,16 @@ bool tool_build_bridge_t::exit( player_t *player )
 
 void tool_build_bridge_t::draw_after(scr_coord k, bool dirty) const
 {
-	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
-		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
-		char level_str[16];
-		tool_build_way_t::set_mode_str(level_str, overtaking_mode[player->get_player_nr()]);
-		display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
+	if(  desc  &&  desc->get_waytype()==road_wt  ) {
+		if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
+			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
+			char level_str[16];
+			tool_build_way_t::set_mode_str(level_str, overtaking_mode[player->get_player_nr()]);
+			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+		}
+	} else {
+		two_click_tool_t::draw_after(k,dirty);
 	}
 }
 
@@ -2889,11 +2898,16 @@ bool tool_build_tunnel_t::init( player_t *player )
 
 void tool_build_tunnel_t::draw_after(scr_coord k, bool dirty) const
 {
-	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
-		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
-		char level_str[16];
-		tool_build_way_t::set_mode_str(level_str, overtaking_mode[player->get_player_nr()]);
-		display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+	const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
+	if(  desc  &&  desc->get_waytype()==road_wt  ) {
+		if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
+			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
+			char level_str[16];
+			tool_build_way_t::set_mode_str(level_str, overtaking_mode[player->get_player_nr()]);
+			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+		}
+	} else {
+		two_click_tool_t::draw_after(k,dirty);
 	}
 }
 
