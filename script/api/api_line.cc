@@ -70,6 +70,17 @@ call_tool_init line_change_schedule(simline_t* line, player_t *player, schedule_
 	return "Invalid schedule provided";
 }
 
+call_tool_init line_delete(simline_t* line, player_t *player)
+{
+	if (line->count_convoys() > 0) {
+		cbuffer_t buf;
+		buf.printf( "d,%i", line->get_handle().get_id() );
+
+		return call_tool_init(TOOL_CHANGE_LINE | SIMPLE_TOOL, buf, 0, player);
+	}
+	return "Cannot delete lines with associated convoys";
+}
+
 SQInteger line_export_convoy_list(HSQUIRRELVM vm)
 {
 	linehandle_t line = param<linehandle_t>::get(vm, 1);
@@ -252,6 +263,12 @@ void export_line(HSQUIRRELVM vm)
 	 * @ingroup game_cmd
 	 */
 	register_method(vm, line_change_schedule, "change_schedule", true);
+
+	/**
+	 * Delete line
+	 * @ingroup game_cmd
+	 */
+	register_method(vm, line_delete, "destroy", true);
 
 	end_class(vm);
 }

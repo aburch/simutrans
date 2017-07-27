@@ -178,6 +178,7 @@ BEGIN {
 	export_types["line_x::get_way_tolls"] = "array<integer>()"
 	export_types["line_x::get_waytype"] = "way_types()"
 	export_types["line_x::change_schedule"] = "string(player_x, schedule_x)"
+	export_types["line_x::destroy"] = "string(player_x)"
 	export_types["map_object_x::get_owner"] = "player_x()"
 	export_types["map_object_x::get_name"] = "string()"
 	export_types["map_object_x::get_waytype"] = "way_types()"

@@ -6938,8 +6938,13 @@ bool tool_change_line_t::init( player_t *player )
 				while(  *p  &&  *p++!=','  ) {
 				}
 
-				// no need to check schedule for scenario conditions, as schedule is only copied
 				line->get_schedule()->sscanf_schedule( p );
+				// check scenario conditions
+				if (!scenario_check_schedule(welt, player, line->get_schedule(), can_use_gui())) {
+					player->simlinemgmt.delete_line(line);
+					break;
+				}
+
 				line->get_schedule()->finish_editing();	// just in case ...
 				if(  can_use_gui()  ) {
 					schedule_gui_t *fg = dynamic_cast<schedule_gui_t *>(win_get_magic((ptrdiff_t)t));
