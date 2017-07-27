@@ -343,6 +343,7 @@ void weg_t::rotate90()
 	obj_t::rotate90();
 	ribi = ribi_t::rotate90( ribi );
 	ribi_maske = ribi_t::rotate90( ribi_maske );
+	ribi_mask_oneway = ribi_t::rotate90( ribi_mask_oneway );
 }
 
 
