@@ -246,7 +246,7 @@ public:
 	smoke_desc_t const* get_smoke() const { return get_child<smoke_desc_t>(1); }
 
 	// we must take care, for the case of no producer/consumer
-	const factory_supplier_desc_t *get_supplier(int i) const //"supplier" (Babelfish)
+	const factory_supplier_desc_t *get_supplier(int i) const 
 	{
 		return 0 <= i && i < supplier_count ? get_child<factory_supplier_desc_t>(2 + i) : 0;
 	}
@@ -261,21 +261,21 @@ public:
 		return get_child<field_group_desc_t>(2 + supplier_count + product_count);
 	}
 
-	uint16 get_supplier_count() const { return supplier_count; } // Suppliers
-	uint16 get_product_count() const { return product_count; } // Consumers
+	uint16 get_supplier_count() const { return supplier_count; } 
+	uint16 get_product_count() const { return product_count; } 
 
 	bool is_consumer_only() const { return product_count    == 0; }
 	bool is_producer_only() const { return supplier_count == 0; }
 
-	/* where to built */
+	/* where to build */
 	site_t get_placement() const { return placement; }
-	int get_distribution_weight() const { return distribution_weight;     }
+	int get_distribution_weight() const { return distribution_weight; }
 
 	uint8 get_kennfarbe() const { return color; } //"identification colour code" (Babelfish)
 
 	void set_productivity(int p) { productivity=p; }
 	int get_productivity() const { return productivity; }
-	int get_range() const { return range; } //"range" (Babelfish)
+	int get_range() const { return range; } 
 
 	/* level for mail and passenger generation */
 	int get_pax_level() const { return pax_level; }
