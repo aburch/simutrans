@@ -2721,7 +2721,7 @@ void stadt_t::calc_growth()
 	}
 
 	// Scale up growth to have a larger fractional component. This allows small growth units to accumulate in the case of long months.
-	sint64 new_unsupplied_city_growth = growth_factor * (CITYGROWTH_PER_CITICEN / 16);
+	sint64 new_unsupplied_city_growth = (sint64)growth_factor * (CITYGROWTH_PER_CITICEN / 16ll);
 
 	// Growth is scaled down by month length.
 	// The result is that ~ the same monthly growth will occur independent of month length.
