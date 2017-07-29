@@ -343,7 +343,7 @@ void depot_frame_t::layout(scr_size *size)
 	*
 	*  PREV and NEXT are small buttons - Label is adjusted to total width.
 	*/
-	const scr_coord_val SELECT_HEIGHT = 14;
+	const scr_coord_val SELECT_HEIGHT = D_BUTTON_HEIGHT;
 	const scr_coord_val selector_x = max(max(max(max(max(102, proportional_string_width(translator::translate("no convois")) + 4),
 		proportional_string_width(translator::translate("1 convoi")) + 4),
 		proportional_string_width(translator::translate("%d convois")) + 4),
@@ -375,7 +375,7 @@ void depot_frame_t::layout(scr_size *size)
 	/*
 	*	Structure of [VINFO] is one multiline text.
 	*/
-	const scr_coord_val VINFO_HEIGHT =  6*LINESPACE + D_BUTTON_HEIGHT*2 + D_V_SPACE;
+	const scr_coord_val VINFO_HEIGHT =  6*LINESPACE + D_BUTTON_HEIGHT + D_EDIT_HEIGHT + 2*D_V_SPACE;
 
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.
@@ -1653,7 +1653,9 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		buf.printf( "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_weight() / 1000.0 );
 		buf.printf( "%s %3d km/h", translator::translate("Max. speed:"), veh_type->get_topspeed() );
 
-		display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_size().h + D_V_SPACE + D_BUTTON_HEIGHT*2 - LINESPACE*3, buf, SYSCOL_TEXT);
+		int yyy = pos.y + D_TITLEBAR_HEIGHT + name_filter_input.get_pos().y + name_filter_input.get_size().h
+		          - LINESPACE;
+		display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, yyy, buf, SYSCOL_TEXT);
 
 		// column 2
 		buf.clear();
@@ -1692,7 +1694,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 			buf.printf( "%s %8s", translator::translate("Restwert:"), tmp );
 		}
 
-		display_multiline_text_rgb( pos.x + second_column_x, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_size().h + D_V_SPACE + D_BUTTON_HEIGHT*2 - LINESPACE*2, buf, SYSCOL_TEXT);
+		display_multiline_text_rgb( pos.x + second_column_x, yyy + LINESPACE, buf, SYSCOL_TEXT);
 
 		// update speedbar
 		new_vehicle_length_sb = new_vehicle_length_sb_force_zero ? 0 : convoi_length_ok_sb + convoi_length_slower_sb + convoi_length_too_slow_sb + veh_type->get_length();
