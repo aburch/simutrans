@@ -1327,10 +1327,11 @@ public:
 	 * Scales value proportionally with month length.
 	 * Used to scale monthly maintenance costs and factory production.
 	 * @returns value << ( ticks_per_world_month_shift -18 )
+	 * DEPRECATED - use calc_adjusted_montly_figure() instead
 	 */
 	sint64 scale_with_month_length(sint64 value)
 	{
-		const int left_shift = ticks_per_world_month_shift - 18;
+		const int left_shift = ticks_per_world_month_shift - (sint64)get_settings().get_base_bits_per_month();
 		if (left_shift >= 0) {
 			return value << left_shift;
 		} else {
@@ -1344,7 +1345,7 @@ public:
 	 */
 	sint64 inverse_scale_with_month_length(sint64 value)
 	{
-		const int left_shift = 18 - ticks_per_world_month_shift;
+		const int left_shift = (sint64)get_settings().get_base_bits_per_month() - ticks_per_world_month_shift;
 		if (left_shift >= 0) {
 			return value << left_shift;
 		} else {
@@ -1453,6 +1454,26 @@ public:
 		}
 	}
 
+	uint64 calc_adjusted_monthly_figure(uint64 nominal_monthly_figure) const
+	{
+		// Adjust for meters per tile
+		const uint64 base_meters_per_tile = (uint64)get_settings().get_base_meters_per_tile();
+		const uint64 base_bits_per_month = (uint64)get_settings().get_base_bits_per_month();
+		const uint64 adjustment_factor = base_meters_per_tile / (uint64)get_settings().get_meters_per_tile();
+
+		// Adjust for bits per month
+		if (ticks_per_world_month_shift >= base_bits_per_month)
+		{
+			const uint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
+			return (adjusted_monthly_figure << -(base_bits_per_month - ticks_per_world_month_shift));
+		}
+		else
+		{
+			const uint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
+			return adjusted_monthly_figure >> (base_bits_per_month - ticks_per_world_month_shift);
+		}
+	}
+
 	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure) const
 	{
 		// Adjust for meters per tile
@@ -1471,6 +1492,38 @@ public:
 			const uint32 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
 			return (uint32)(adjusted_monthly_figure >> (base_bits_per_month - ticks_per_world_month_shift)); 
 		}
+	}
+
+	uint64 scale_for_distance_only(uint64 value) const
+	{
+		const uint64 base_meters_per_tile = (uint64)get_settings().get_base_meters_per_tile();
+		const uint64 adjustment_factor = base_meters_per_tile / (uint64)get_settings().get_meters_per_tile();
+
+		return value / adjustment_factor;
+	}
+
+	uint32 scale_for_distance_only(uint32 value) const
+	{
+		const uint32 base_meters_per_tile = (uint32)get_settings().get_base_meters_per_tile();
+		const uint32 adjustment_factor = base_meters_per_tile / (uint32)get_settings().get_meters_per_tile();
+
+		return value / adjustment_factor;
+	}
+
+	sint32 scale_for_distance_only(sint32 value) const
+	{
+		const sint32 base_meters_per_tile = (sint32)get_settings().get_base_meters_per_tile();
+		const sint32 adjustment_factor = base_meters_per_tile / (sint32)get_settings().get_meters_per_tile();
+
+		return value / adjustment_factor;
+	}
+
+	sint64 scale_for_distance_only(sint64 value) const
+	{
+		const sint64 base_meters_per_tile = (sint64)get_settings().get_base_meters_per_tile();
+		const sint64 adjustment_factor = base_meters_per_tile / (sint64)get_settings().get_meters_per_tile();
+
+		return value / adjustment_factor;
 	}
 
 	/**

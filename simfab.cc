@@ -372,6 +372,8 @@ void fabrik_t::update_scaled_electric_amount()
 	if(  scaled_electric_amount == 0  ) {
 		prodfactor_electric = 0;
 	}
+
+	scaled_electric_amount = welt->scale_for_distance_only(scaled_electric_amount);
 }
 
 
@@ -574,7 +576,7 @@ void fabrik_t::recalc_storage_capacities()
 					if (g.get_typ() == input->get_input_type()) {
 						// Inputs are now normalized to factory production.
 						uint32 prod_factor = input->get_consumption();
-						g.max = (sint32)((((sint64)((input->get_capacity() << precision_bits) + share) << DEFAULT_PRODUCTION_FACTOR_BITS) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
+						g.max = (sint32)(welt->scale_for_distance_only((((sint64)((input->get_capacity() << precision_bits) + share) << DEFAULT_PRODUCTION_FACTOR_BITS) + (sint64)(prod_factor - 1)) / (sint64)prod_factor));
 					}
 				}
 			}
@@ -585,7 +587,7 @@ void fabrik_t::recalc_storage_capacities()
 					if (g.get_typ() == output->get_output_type()) {
 						// Outputs are now normalized to factory production.
 						uint32 prod_factor = output->get_factor();
-						g.max = (sint32)((((sint64)((output->get_capacity() << precision_bits) + share) << DEFAULT_PRODUCTION_FACTOR_BITS) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
+						g.max = (sint32)(welt->scale_for_distance_only((((sint64)((output->get_capacity() << precision_bits) + share) << DEFAULT_PRODUCTION_FACTOR_BITS) + (sint64)(prod_factor - 1)) / (sint64)prod_factor));
 					}
 				}
 			}
@@ -600,7 +602,7 @@ void fabrik_t::recalc_storage_capacities()
 				if (g.get_typ() == input->get_input_type()) {
 					// Inputs are now normalized to factory production.
 					uint32 prod_factor = input->get_consumption();
-					g.max = (sint32)(((((sint64)input->get_capacity() * (sint64)prodbase) << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / ((sint64)desc->get_productivity() * (sint64)prod_factor));
+					g.max = (sint32)(welt->scale_for_distance_only(((((sint64)input->get_capacity() * (sint64)prodbase) << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / ((sint64)desc->get_productivity() * (sint64)prod_factor)));
 				}
 			}
 		}
@@ -611,7 +613,7 @@ void fabrik_t::recalc_storage_capacities()
 				if (g.get_typ() == output->get_output_type()) {
 					// Outputs are now normalized to factory production.
 					uint32 prod_factor = output->get_factor();
-					g.max = (sint32)(((((sint64)output->get_capacity() * (sint64)prodbase) << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / ((sint64)desc->get_productivity() * (sint64)prod_factor));
+					g.max = (sint32)(welt->scale_for_distance_only(((((sint64)output->get_capacity() * (sint64)prodbase) << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / ((sint64)desc->get_productivity() * (sint64)prod_factor)));
 				}
 			}
 		}
@@ -1832,7 +1834,7 @@ void fabrik_t::step(uint32 delta_t)
 
 		// calculate the production per delta_t; scaled to PRODUCTION_DELTA_T
 		// Calculate actual production. A remainder is used for extra precision.
-		const uint64 want_prod_long = (uint64)prodbase * (uint64)boost * (uint64)delta_t + (uint64)menge_remainder;
+		const uint64 want_prod_long = welt->scale_for_distance_only((uint64)prodbase * (uint64)boost * (uint64)delta_t + (uint64)menge_remainder);
 		const sint32 prod = (uint32)(want_prod_long >> (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits));
 		menge_remainder = (uint32)(want_prod_long & ((1 << (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits)) - 1));
 

@@ -693,7 +693,7 @@ public:
 	void set_base_production(sint32 p);
 
 	// TODO: Consider refctoring so as to avoid calling this method every step (although preliminary tests indicate that this does not seem to cause much slow-down compared to the previous method).
-	sint32 get_current_production() const { return (sint32) (welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + prodfactor_pax + prodfactor_mail)))) >> 8l; }
+	sint32 get_current_production() const { return (sint32)welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)get_prodfactor()) >> 8ll); }
 
 	/* prissi: returns the status of the current factory, as well as output */
 	enum { bad, medium, good, inactive, nothing };
