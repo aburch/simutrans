@@ -445,13 +445,16 @@ void depot_frame_t::layout(scr_size *size)
 	 * [SELECT ROUTE]:
 	 * @author hsiegeln
 	 */
-	line_button.set_pos(scr_coord(D_MARGIN_LEFT, SELECT_VSTART + D_BUTTON_HEIGHT + 3));
-	lb_convoi_line.set_pos(scr_coord(D_MARGIN_LEFT + line_button.get_size().w + 2, SELECT_VSTART + D_BUTTON_HEIGHT + 3));
+	line_button.set_pos(scr_coord(D_MARGIN_LEFT, SELECT_VSTART + D_BUTTON_HEIGHT));
+	lb_convoi_line.set_pos(scr_coord(D_MARGIN_LEFT + line_button.get_size().w + 2, SELECT_VSTART + D_BUTTON_HEIGHT));
 	lb_convoi_line.set_width(selector_x - line_button.get_size().w - 2 - D_H_SPACE);
 
 	line_selector.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART + D_BUTTON_HEIGHT));
 	line_selector.set_size(scr_size(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, D_BUTTON_HEIGHT));
 	line_selector.set_max_size(scr_size(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, LINESPACE * 13 + 2 + 16));
+
+	line_button.align_to(&line_selector, ALIGN_CENTER_V);
+	lb_convoi_line.align_to(&line_selector, ALIGN_CENTER_V);
 
 	/*
 	 * [CONVOI]
@@ -585,6 +588,8 @@ void depot_frame_t::layout(scr_size *size)
 
 	lb_vehicle_filter.align_to(&vehicle_filter, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(0,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT)));
 
+	bt_show_all.align_to(&vehicle_filter, ALIGN_CENTER_V);
+	bt_obsolete.align_to(&vehicle_filter, ALIGN_CENTER_V);
 	name_filter_input.set_size( scr_size( vehicle_filter.get_size().w, D_EDIT_HEIGHT ) );
 	name_filter_input.set_pos( vehicle_filter.get_pos()+scr_coord(0,2+D_BUTTON_HEIGHT) );
 
