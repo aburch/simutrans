@@ -3637,7 +3637,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 
 		uint16 idx = fahr[0]->get_route_index();
 		//TODO: This initialization of "tiles" should be considered again. 2 is not appropriate considering LC patch.
-		const sint32 tiles = other_speed == 0 ? 2 : (steps_other-1)/(CARUNITS_PER_TILE*VEHICLE_STEPS_PER_CARUNIT) + get_tile_length() + 1;
+		const sint32 tiles = (steps_other-1)/(CARUNITS_PER_TILE*VEHICLE_STEPS_PER_CARUNIT) + get_tile_length() + 1;
 		if(  tiles > 0  &&  idx+(uint32)tiles >= route.get_count()  ) {
 			// needs more space than there
 			return false;

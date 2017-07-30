@@ -584,7 +584,6 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 
 				const ribi_t::ribi other_90direction = (gr->get_pos().get_2d() == v->get_pos_next().get_2d()) ? other_direction : calc_direction(gr->get_pos(), v->get_pos_next());
 				if(  other_90direction == next_90direction   &&  cnv_overtaking == other_overtaking  ) {
-					//Whether this code is safe is not clear!!(can ignore cars on the other lane?)
 					// Want to exit in same as other   ~50% of the time
 					return v;
 				}
@@ -615,7 +614,6 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 					return v;
 				}
 				else if(  other_direction == current_direction  &&  current_90direction == ribi_t::none  ) {
-					// !It is not clear whether we should consider opposite lane in this case!
 					// entering same diagonal waypoint as other   ~1%
 					return v;
 				}
