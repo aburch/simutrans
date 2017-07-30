@@ -710,7 +710,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 	}
 
 	// how much do we need?
-	sint32 consumption = our_fab->get_base_production() * supplier->get_consumption();
+	sint32 consumption = our_fab->get_base_production() * (supplier ? supplier->get_consumption() : 1);
 
 	slist_tpl<fabs_to_crossconnect_t> factories_to_correct;
 	slist_tpl<fabrik_t *> new_factories;	      // since the cross-correction must be done later
@@ -921,15 +921,23 @@ DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need 
 /* This method is called whenever it is time for industry growth.
  * If there is still a pending consumer, it will first complete another chain for it
  * If not, it will decide to either built a power station (if power is needed)
- * or built a new consumer near the indicated position
+ * or built a new consumer near the indicated position, unless, as a 25% chance,
+ * a new consumer is to be added in any event. This latter change is needed to make
+ * sure that enough consumer industries get built.
  * @return: number of factories built
  */
 int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_beyond_target_density, bool power_stations_only )
 {
 	int nr = 0;
 
+	// TODO: This is a somewhat hackish mechanism for ensuring that there are sufficient consumer industries.
+	// In the future, the building of pure consumer industries other than power stations should be part of
+	// the city growth system and taken out of this entirely. That would leave this system free to complete
+	// industry chains as needed.
+	const bool force_add_consumer = 75 > simrand(100, "factory_builder_t::increase_industry_density()");
+
 	// Build a list of all industries with incomplete supply chains.
-	if(!power_stations_only && !welt->get_fab_list().empty()) 
+	if(!force_add_consumer && !power_stations_only && !welt->get_fab_list().empty())
 	{
 		// A collection of all consumer industries that are not fully linked to suppliers.
 		slist_tpl<fabrik_t*> unlinked_consumers;
@@ -946,7 +954,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 				const vector_tpl<koord> suppliers = fab->get_suppliers();
 				
 				// Check how much of this product that the current factory needs
-				const sint32 consumption_level = fab->get_base_production() * supplier_type->get_consumption();
+				const sint32 consumption_level = fab->get_base_production() * (supplier_type ? supplier_type->get_consumption() : 1);
 				
 				FOR(vector_tpl<koord>, supplier_koord, suppliers)
 				{
@@ -976,7 +984,8 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 									const goods_desc_t* wcc = consumer_type->get_output_type();
 									if(wcc == wp)
 									{
-										used_output += competing_consumer->get_base_production() * competing_consumer->get_desc()->get_supplier(x)->get_consumption();
+										const factory_supplier_desc_t* sup = competing_consumer->get_desc()->get_supplier(x);
+										used_output += competing_consumer->get_base_production() * (sup ? sup->get_consumption() : 1);
 									}
 								}
 								const sint32 remaining_output = total_output - used_output;
@@ -1107,9 +1116,9 @@ next_ware_check:
 	}
 
 	// now decide producer of electricity or normal ...
-	const sint64 promille = ((sint64)electric_productivity * 4000l )/ total_electric_demand;
+	const sint64 promille = ((sint64)electric_productivity * 4000l) / total_electric_demand;
 	const sint64 target_promille = (sint64)welt->get_settings().get_electric_promille();
-	int no_electric = promille > target_promille;
+	int no_electric = force_add_consumer || (promille >= target_promille) ? 1 : 0;
 	DBG_MESSAGE( "factory_builder_t::increase_industry_density()", "production of electricity/total electrical demand is %i/%i (%i o/oo)", electric_productivity, total_electric_demand, promille );
 
 	while(  no_electric<2  ) {
@@ -1120,7 +1129,7 @@ next_ware_check:
 			if(fab) {
 				if(do_not_add_beyond_target_density && !fab->is_electricity_producer())
 				{
-					//Make sure that industries are not added beyond target density.
+					// Make sure that industries are not added beyond target density.
 					if(100 / fab->get_distribution_weight() > (welt->get_target_industry_density() - welt->get_actual_industry_density()))
 					{
 						continue;
@@ -1131,7 +1140,7 @@ next_ware_check:
 					// we cannot build this factory here
 					continue;
 				}
-				koord   testpos = in_city ? pick_any_weighted(welt->get_cities())->get_pos() : koord::koord_random(welt->get_size().x, welt->get_size().y);
+				koord testpos = in_city ? pick_any_weighted(welt->get_cities())->get_pos() : koord::koord_random(welt->get_size().x, welt->get_size().y);
 				koord3d pos = welt->lookup_kartenboden( testpos )->get_pos();
 				int rotation = simrand(fab->get_building()->get_all_layouts()-1, "factory_builder_t::increase_industry_density()");
 				if(!in_city) {

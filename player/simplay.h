@@ -302,12 +302,6 @@ public:
 	sint8 get_player_nr() const {return player_nr; }
 
 	/**
-	 * Test if this player is a public service player.
-	 * @return true if the player is a public service player, otherwise false.
-	 */
-	bool is_public_serivce() const;
-
-	/**
 	 * return true, if the owner is none, myself or player(1), i.e. the ownership _can be taken by player test
 	 * @author prissi
 	 */
@@ -478,7 +472,7 @@ public:
 
 	void ai_bankrupt();
 
-	bool allows_access_to(uint8 other_player_nr) const { return this == NULL || player_nr == other_player_nr || access[other_player_nr]; }
+	bool allows_access_to(uint8 other_player_nr) const { return player_nr == other_player_nr || access[other_player_nr]; }
 	void set_allow_access_to(uint8 other_player_nr, bool allow) { access[other_player_nr] = allow; }
 
 	void set_selected_signalbox(signalbox_t* sb);

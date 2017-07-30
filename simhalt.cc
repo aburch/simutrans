@@ -215,7 +215,7 @@ halthandle_t haltestelle_t::get_halt(const koord3d pos, const player_t *player )
 		// Stops on public roads, even those belonging to other players, should be able to be used by all players.
 		if(gr->get_halt().is_bound() && (gr->get_halt()->check_access(player) ||
 			(w && player_t::check_owner(w->get_owner(), player))) ||
-			(w && (w->get_waytype() == road_wt || w->get_waytype() == tram_wt) && (w->get_owner() == NULL || w->get_owner()->is_public_serivce())))
+			(w && (w->get_waytype() == road_wt || w->get_waytype() == tram_wt) && (w->get_owner() == NULL || w->get_owner()->is_public_service())))
 		{
 			return gr->get_halt();
 		}
@@ -1916,14 +1916,13 @@ uint32 haltestelle_t::calc_service_frequency(halthandle_t destination, uint8 cat
 		}
 
 		// Divide the round trip time by the number of convoys in the line and by the number of times that it calls at this stop in its schedule.
-		timing /= (registered_lines[i]->count_convoys() * number_of_calls_at_this_stop == 0 ? 1 : number_of_calls_at_this_stop);
+		timing /= (registered_lines[i]->count_convoys() * (number_of_calls_at_this_stop == 0 ? 1 : number_of_calls_at_this_stop));
 
 		if (registered_lines[i]->get_schedule()->get_spacing() > 0)
 		{
 			// Check whether the spacing setting affects things.
 			const sint64 spacing_ticks = welt->ticks_per_world_month / (sint64)registered_lines[i]->get_schedule()->get_spacing();
 			uint32 spacing_time = welt->ticks_to_tenths_of_minutes(spacing_ticks);
-			spacing_time /= (number_of_calls_at_this_stop == 0 ? 1 : number_of_calls_at_this_stop);
 			timing = max(spacing_time, timing);
 		}
 
@@ -2868,6 +2867,7 @@ void haltestelle_t::add_to_waiting_list(ware_t ware, sint64 ready_time)
 #else
 	transferring_cargoes[0].append(tc);
 #endif
+	resort_freight_info = true;
 }
 
 sint64 haltestelle_t::calc_ready_time(ware_t ware, bool arriving_from_vehicle, koord origin_pos) const
@@ -3736,12 +3736,13 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			if(!self.is_bound())
 			{
 				// Something has gone a bit wrong here, as the handle to self is not bound.
-				if(!this)
+				// Disabled, as this is apparently undefined.
+				/*if(!this)
 				{
 					// Probably superfluous, but best to be sure that this is really not a dud pointer.
 					dbg->error("void haltestelle_t::rdwr(loadsave_t *file)", "Handle to self not bound when saving a halt");
 					return;
-				}
+				}*/
 				if(self.get_rep() != this)
 				{
 					uint16 id = self.get_id();

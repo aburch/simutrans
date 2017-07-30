@@ -2721,7 +2721,7 @@ void stadt_t::calc_growth()
 	}
 
 	// Scale up growth to have a larger fractional component. This allows small growth units to accumulate in the case of long months.
-	sint64 new_unsupplied_city_growth = growth_factor * (CITYGROWTH_PER_CITICEN / 16);
+	sint64 new_unsupplied_city_growth = (sint64)growth_factor * (CITYGROWTH_PER_CITICEN / 16ll);
 
 	// Growth is scaled down by month length.
 	// The result is that ~ the same monthly growth will occur independent of month length.
@@ -2974,29 +2974,16 @@ uint32 stadt_t::check_road_connexion_to(const gebaeude_t* attraction) const
 
 void stadt_t::add_road_connexion(uint32 journey_time_per_tile, const stadt_t* city)
 {
-	if(this == NULL)
-	{
-		return;
-	}
 	connected_cities.set(city->get_pos(), journey_time_per_tile);
 }
 
 void stadt_t::add_road_connexion(uint32 journey_time_per_tile, const fabrik_t* industry)
 {
-	if(this == NULL)
-	{
-		return;
-	}
 	connected_industries.set(industry->get_pos().get_2d(), journey_time_per_tile);
 }
 
 void stadt_t::add_road_connexion(uint32 journey_time_per_tile, const gebaeude_t* attraction)
 {
-	if(this == NULL)
-	{
-		return;
-	}
-
 	const koord3d attraction_pos = attraction->get_pos();
 	connected_attractions.set(attraction_pos.get_2d(), journey_time_per_tile);
 

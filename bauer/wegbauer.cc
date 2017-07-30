@@ -903,7 +903,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 			// do not connect to other powerlines
 			{
 				leitung_t *lt = to->get_leitung();
-				ok &= (lt==NULL)  || lt->get_owner()->allows_access_to(player->get_player_nr()) || check_owner(player, lt->get_owner());
+				ok &= (lt==NULL)  || !lt->get_owner() || lt->get_owner()->allows_access_to(player->get_player_nr()) || check_owner(player, lt->get_owner());
 			}
 
 			if(to->get_typ()!=grund_t::tunnelboden) {

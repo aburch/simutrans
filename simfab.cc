@@ -119,7 +119,7 @@ void ware_production_t::init_stats()
 }
 
 
-void ware_production_t::roll_stats(sint64 aggregate_weight)
+void ware_production_t::roll_stats(uint32 factor, sint64 aggregate_weight)
 {
 	// calculate weighted average storage first
 	if(  aggregate_weight>0  ) {
@@ -141,7 +141,7 @@ void ware_production_t::roll_stats(sint64 aggregate_weight)
 	weighted_sum_storage = 0;
 
 	// restore current storage level
-	set_stat( menge, FAB_GOODS_STORAGE );
+	set_stat((sint64)menge * (sint64)factor, FAB_GOODS_STORAGE);
 }
 
 
@@ -201,10 +201,11 @@ void ware_production_t::rdwr(loadsave_t *file)
 }
 
 
-void ware_production_t::book_weighted_sum_storage(sint64 delta_time)
+void ware_production_t::book_weighted_sum_storage(uint32 factor, sint64 delta_time)
 {
-	weighted_sum_storage += (sint64)menge * delta_time;
-	set_stat( menge, FAB_GOODS_STORAGE );
+	const sint64 amount = (sint64)menge * (sint64)factor;
+	weighted_sum_storage += amount * delta_time;
+	set_stat(amount, FAB_GOODS_STORAGE);
 }
 
 
@@ -330,21 +331,21 @@ void fabrik_t::book_weighted_sums(sint64 delta_time)
 	aggregate_weight += delta_time;
 
 	// storage level of input/output stores
-	FOR(array_tpl<ware_production_t>, & g, input) {
-		g.book_weighted_sum_storage(delta_time);
+	for (uint32 in = 0; in < input.get_count(); in++) {
+		input[in].book_weighted_sum_storage(desc->get_supplier(in)->get_consumption(), delta_time);
 	}
-	FOR(array_tpl<ware_production_t>, & g, output) {
-		g.book_weighted_sum_storage(delta_time);
+	for (uint32 out = 0; out < output.get_count(); out++) {
+		output[out].book_weighted_sum_storage(desc->get_product(out)->get_factor(), delta_time);
 	}
 
 	// production level
 	const sint32 current_prod = get_current_production();
 	weighted_sum_production += current_prod * delta_time;
-	set_stat( current_prod, FAB_PRODUCTION );
+	set_stat(current_prod, FAB_PRODUCTION);
 
 	// electricity, pax and mail boosts
 	weighted_sum_boost_electric += prodfactor_electric * delta_time;
-	set_stat( prodfactor_electric, FAB_BOOST_ELECTRIC );
+	set_stat(prodfactor_electric, FAB_BOOST_ELECTRIC);
 	weighted_sum_boost_pax += prodfactor_pax * delta_time;
 	weighted_sum_boost_mail += prodfactor_mail * delta_time;
 
@@ -371,6 +372,8 @@ void fabrik_t::update_scaled_electric_amount()
 	if(  scaled_electric_amount == 0  ) {
 		prodfactor_electric = 0;
 	}
+
+	scaled_electric_amount = welt->scale_for_distance_only(scaled_electric_amount);
 }
 
 
@@ -556,32 +559,36 @@ void fabrik_t::update_prodfactor_mail()
 
 void fabrik_t::recalc_storage_capacities()
 {
-	if(  desc->get_field_group()  ) {
+	if (desc->get_field_group()) {
 		// with fields -> calculate based on capacities contributed by fields
 		const uint32 ware_types = input.get_count() + output.get_count();
-		if(  ware_types>0  ) {
+		if (ware_types>0) {
 			// calculate total storage capacity contributed by fields
 			const field_group_desc_t *const field_group = desc->get_field_group();
 			sint32 field_capacities = 0;
 			FOR(vector_tpl<field_data_t>, const& f, fields) {
 				field_capacities += field_group->get_field_class(f.field_class_index)->get_storage_capacity();
 			}
-			const sint32 share = (sint32)( ( (sint64)field_capacities << precision_bits ) / (sint64)ware_types );
+			const sint32 share = (sint32)(((sint64)field_capacities << precision_bits) / (sint64)ware_types);
 			// first, for input goods
-			FOR(array_tpl<ware_production_t>, & g, input) {
-				for(  int b=0;  b<desc->get_supplier_count();  ++b  ) {
+			FOR(array_tpl<ware_production_t>, &g, input) {
+				for (int b = 0; b<desc->get_supplier_count(); ++b) {
 					const factory_supplier_desc_t *const input = desc->get_supplier(b);
 					if (g.get_typ() == input->get_input_type()) {
-						g.max = (input->get_capacity() << precision_bits) + share;
+						// Inputs are now normalized to factory production.
+						uint32 prod_factor = input->get_consumption();
+						g.max = (sint32)(welt->scale_for_distance_only((((sint64)((input->get_capacity() << precision_bits) + share) << DEFAULT_PRODUCTION_FACTOR_BITS) + (sint64)(prod_factor - 1)) / (sint64)prod_factor));
 					}
 				}
 			}
 			// then, for output goods
-			FOR(array_tpl<ware_production_t>, & g, output) {
-				for(  uint b=0;  b<desc->get_product_count();  ++b  ) {
+			FOR(array_tpl<ware_production_t>, &g, output) {
+				for (uint b = 0; b<desc->get_product_count(); ++b) {
 					const factory_product_desc_t *const output = desc->get_product(b);
 					if (g.get_typ() == output->get_output_type()) {
-						g.max = (output->get_capacity() << precision_bits) + share;
+						// Outputs are now normalized to factory production.
+						uint32 prod_factor = output->get_factor();
+						g.max = (sint32)(welt->scale_for_distance_only((((sint64)((output->get_capacity() << precision_bits) + share) << DEFAULT_PRODUCTION_FACTOR_BITS) + (sint64)(prod_factor - 1)) / (sint64)prod_factor));
 					}
 				}
 			}
@@ -590,23 +597,33 @@ void fabrik_t::recalc_storage_capacities()
 	else {
 		// without fields -> scaling based on prodbase
 		// first, for input goods
-		FOR(array_tpl<ware_production_t>, & g, input) {
-			for(  int b=0;  b<desc->get_supplier_count();  ++b  ) {
+		FOR(array_tpl<ware_production_t>, &g, input) {
+			for (int b = 0; b<desc->get_supplier_count(); ++b) {
 				const factory_supplier_desc_t *const input = desc->get_supplier(b);
 				if (g.get_typ() == input->get_input_type()) {
-					g.max = (sint32)((sint64)(input->get_capacity() << precision_bits) * (sint64)prodbase / (sint64)desc->get_productivity());
+					// Inputs are now normalized to factory production.
+					uint32 prod_factor = input->get_consumption();
+					g.max = (sint32)(welt->scale_for_distance_only(((((sint64)input->get_capacity() * (sint64)prodbase) << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / ((sint64)desc->get_productivity() * (sint64)prod_factor)));
 				}
 			}
 		}
 		// then, for output goods
-		FOR(array_tpl<ware_production_t>, & g, output) {
-			for(  uint b=0;  b<desc->get_product_count();  ++b  ) {
+		FOR(array_tpl<ware_production_t>, &g, output) {
+			for (uint b = 0; b<desc->get_product_count(); ++b) {
 				const factory_product_desc_t *const output = desc->get_product(b);
 				if (g.get_typ() == output->get_output_type()) {
-					g.max = (sint32)((sint64)(output->get_capacity() << precision_bits) * (sint64)prodbase / (sint64)desc->get_productivity());
+					// Outputs are now normalized to factory production.
+					uint32 prod_factor = output->get_factor();
+					g.max = (sint32)(welt->scale_for_distance_only(((((sint64)output->get_capacity() * (sint64)prodbase) << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / ((sint64)desc->get_productivity() * (sint64)prod_factor)));
 				}
 			}
 		}
+	}
+
+	// Now that the maximum is known, work out the recommended shipment size for outputs in normalized units.
+	for (uint32 out = 0; out < output.get_count(); out++) {
+		const uint32 prod_factor = desc->get_product(out)->get_factor();
+		// Shipment size logic from Standard omitted
 	}
 }
 
@@ -1243,9 +1260,11 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	if(  file->is_loading()  ) {
 		input.resize( input_count );
 	}
+	bool mismatch = false;
 	for(  i=0;  i<input_count;  ++i  ) {
 		ware_production_t &ware = input[i];
 		const char *ware_name = NULL;
+		sint32 menge = ware.menge;
 		if(  file->is_saving()  ) {
 			ware_name = ware.get_typ()->get_name();
 		}
@@ -1255,17 +1274,59 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			// max storage is only loaded/saved for older versions
 			file->rdwr_long(ware.max);
 		}
+
+		/*
+		* The below is from Standard, but it is hard to implement in Extended because of the need
+		* to detect whether a JIT2 setting, set elsewhere, was set or not when the game was saved.
+		* Hence, Standard games with this set will not be loadable in Extended.
+		*/
+		/*
+		//  JIT2 needs to store input demand buffer
+		if (welt->get_settings().get_just_in_time() >= 2 && file->get_version() > 120000) {
+			file->rdwr_long(ware.demand_buffer);
+		}
+		*/
+
 		ware.rdwr( file );
+
 		if(  file->is_loading()  ) {
+
 			ware.set_typ( goods_manager_t::get_info(ware_name) );
-			guarded_free(const_cast<char *>(ware_name));
-			// Hajo: repair files that have 'insane' values
-			if(  ware.menge<0  ) {
+
+			if (!desc || !desc->get_supplier(i)) {
+				if (desc) dbg->warning("fabrik_t::rdwr()", "Factory at %s requested producer for %s but has none!", pos_origin.get_fullstr(), ware_name);
 				ware.menge = 0;
 			}
-			if(  ware.menge>(FAB_MAX_INPUT<<precision_bits)  ) {
-				ware.menge = (FAB_MAX_INPUT << precision_bits);
+
+			else {
+
+				// Inputs used to be with respect to actual units of production. They now are normalized with respect to factory production so require conversion.
+				const uint32 prod_factor = desc ? desc->get_supplier(i)->get_consumption() : 1;
+				if (file->get_version() <= 120000) {
+					ware.menge = (sint32)(((sint64)menge << DEFAULT_PRODUCTION_FACTOR_BITS) / (sint64)prod_factor);
+				}
+				else {
+					ware.menge = menge;
+				}
+
+				// Hajo: repair files that have 'insane' values
+				const sint32 max = (sint32)((((sint64)FAB_MAX_INPUT << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
+				if (ware.menge < 0) {
+					ware.menge = 0;
+				}
+				if (ware.menge > max) {
+					ware.menge = max;
+				}
+
+				if (ware.get_typ() != desc->get_supplier(i)->get_input_type()) {
+					mismatch = true;
+					dbg->warning("fabrik_t::rdwr", "Factory at %s: producer[%d] mismatch in savegame=%s/%s, in pak=%s",
+						pos_origin.get_fullstr(), i, ware_name, ware.get_typ()->get_name(), desc->get_supplier(i)->get_input_type()->get_name());
+				}
 			}
+
+			guarded_free(const_cast<char *>(ware_name));
+
 			/*
 			* It's very easy for in-transit information to get corrupted,
 			* if an intermediate program version fails to compute it right.
@@ -1278,12 +1339,33 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 	}
 
-	if (desc) {
-		// in case of missing producer, we have to remove the superflous entires
-		while (input_count > 0 && desc->get_supplier(input_count - 1) == NULL) {
-			input_count--;
+	if (desc  &&  input_count != desc->get_supplier_count()) {
+		dbg->warning("fabrik_t::rdwr", "Mismatch of input slot count for factory %s at %s: savegame = %d, pak = %d", get_name(), pos_origin.get_fullstr(), input_count, desc->get_supplier_count());
+		// resize input to match the descriptor
+		input.resize(desc->get_supplier_count());
+		mismatch = true;
+	}
+	if (mismatch) {
+		array_tpl<ware_production_t> dummy;
+		dummy.resize(desc->get_supplier_count());
+		for (uint16 i = 0; i<desc->get_supplier_count(); i++) {
+			dummy[i] = input[i];
 		}
-		input.resize(input_count);
+		for (uint16 i = 0; i<desc->get_supplier_count(); i++) {
+			// search for matching type
+			bool missing = true;
+			const goods_desc_t* goods = desc->get_supplier(i)->get_input_type();
+			for (uint16 j = 0; j<desc->get_supplier_count() && missing; j++) {
+				if (dummy[j].get_typ() == goods) {
+					input[i] = dummy[j];
+					dummy[j].set_typ(NULL);
+					missing = false;
+				}
+			}
+			if (missing) {
+				input[i].set_typ(goods);
+			}
+		}
 	}
 
 	// now rebuilt information for produced goods
@@ -1291,11 +1373,17 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	if(  file->is_loading()  ) {
 		output.resize( output_count );
 	}
+	mismatch = false;
 	for(  i=0;  i<output_count;  ++i  ) {
 		ware_production_t &ware = output[i];
 		const char *ware_name = NULL;
+		sint32 menge = ware.menge;
 		if(  file->is_saving()  ) {
 			ware_name = ware.get_typ()->get_name();
+			// correct scaling for older saves
+			if (file->get_version() <= 120000) {
+				menge = (sint32)(((sint64)ware.menge * desc->get_product(i)->get_factor()) >> DEFAULT_PRODUCTION_FACTOR_BITS);
+			}
 		}
 		file->rdwr_str(ware_name);
 		file->rdwr_long(ware.menge);
@@ -1309,12 +1397,62 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			file->rdwr_long(abgabe_letzt);
 		}
 		ware.rdwr( file );
-		if(  file->is_loading()  ) {
-			ware.set_typ( goods_manager_t::get_info(ware_name) );
-			guarded_free(const_cast<char *>(ware_name));
-			// Hajo: repair files that have 'insane' values
-			if(  ware.menge<0  ) {
+		if (file->is_loading()) {
+			ware.set_typ(goods_manager_t::get_info(ware_name));
+
+			if (!desc || !desc->get_product(i)) {
+				if (desc) dbg->warning("fabrik_t::rdwr()", "Factory at %s requested consumer for %s but has none!", pos_origin.get_fullstr(), ware_name);
 				ware.menge = 0;
+			}
+			else {
+				// Outputs used to be with respect to actual units of production. They now are normalized with respect to factory production so require conversion.
+				if (file->get_version() <= 120000) {
+					const uint32 prod_factor = desc ? desc->get_product(i)->get_factor() : 1;
+					ware.menge = (sint32)(((sint64)menge << DEFAULT_PRODUCTION_FACTOR_BITS) / (sint64)prod_factor);
+				}
+				else {
+					ware.menge = menge;
+				}
+
+				// Hajo: repair files that have 'insane' values
+				if (ware.menge < 0) {
+					ware.menge = 0;
+				}
+
+				if (ware.get_typ() != desc->get_product(i)->get_output_type()) {
+					mismatch = true;
+					dbg->warning("fabrik_t::rdwr", "Factory at %s: consumer[%d] mismatch in savegame=%s/%s, in pak=%s",
+						pos_origin.get_fullstr(), i, ware_name, ware.get_typ()->get_name(), desc->get_product(i)->get_output_type()->get_name());
+				}
+			}
+			guarded_free(const_cast<char *>(ware_name));
+		}
+	}
+	if (desc  &&  output_count != desc->get_product_count()) {
+		dbg->warning("fabrik_t::rdwr", "Mismatch of output slot count for factory %s at %s: savegame = %d, pak = %d", get_name(), pos_origin.get_fullstr(), output_count, desc->get_product_count());
+		// resize output to match the descriptor
+		output.resize(desc->get_product_count());
+		mismatch = true;
+	}
+	if (mismatch) {
+		array_tpl<ware_production_t> dummy;
+		dummy.resize(desc->get_product_count());
+		for (uint16 i = 0; i<desc->get_product_count(); i++) {
+			dummy[i] = output[i];
+		}
+		for (uint16 i = 0; i<desc->get_product_count(); i++) {
+			// search for matching type
+			bool missing = true;
+			const goods_desc_t* goods = desc->get_product(i)->get_output_type();
+			for (uint16 j = 0; j<desc->get_product_count() && missing; j++) {
+				if (dummy[j].get_typ() == goods) {
+					output[i] = dummy[j];
+					dummy[j].set_typ(NULL);
+					missing = false;
+				}
+			}
+			if (missing) {
+				output[i].set_typ(goods);
 			}
 		}
 	}
@@ -1615,16 +1753,26 @@ sint32 fabrik_t::liefere_an(const goods_desc_t *typ, sint32 menge)
 	}
 	else {
 		// case : freight
-		FOR(  array_tpl<ware_production_t>, & ware, input) {
+		for (uint32 in = 0; in < input.get_count(); in++) {
+			ware_production_t& ware = input[in];
 			if(  ware.get_typ() == typ  ) {
 				// Can't use update_transit for interface reasons; we don't take a ware argument.
 				// We should, however.
 				ware.book_stat( -menge, FAB_GOODS_TRANSIT );
+
+				// Resolve how much normalized production arrived, rounding up (since we rounded up when we removed it).
+				const uint32 prod_factor = desc->get_supplier(in) ? desc->get_supplier(in)->get_consumption() : 1;
+				const sint32 prod_delta = (sint32)((((sint64)menge << (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
+
+				ware.menge += prod_delta;
+
 				// Hajo: avoid overflow
-				if(  ware.menge < (FAB_MAX_INPUT - menge) << precision_bits  ) {
-					ware.menge += menge << precision_bits;
-					ware.book_stat(menge, FAB_GOODS_RECEIVED);
+				const sint32 max = (sint32)((((sint64)FAB_MAX_INPUT << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
+				if (ware.menge >= max) {
+					menge -= (sint32)(((sint64)menge * (sint64)(ware.menge - max) + (sint64)(prod_delta >> 1)) / (sint64)prod_delta);
+					ware.menge = max - 1;
 				}
+				ware.book_stat(menge, FAB_GOODS_RECEIVED);
 				return menge;
 			}
 		}
@@ -1644,10 +1792,13 @@ void fabrik_t::add_consuming_passengers(sint32 number_of_passengers)
 	const sint64 passenger_demand_ticks_per_month = welt->ticks_per_world_month / (sint64)building->get_adjusted_visitor_demand();
 	const sint64 delta_t = passenger_demand_ticks_per_month * number_of_passengers;
 	
-	const uint64 max_prod = (uint64)prodbase * (uint64)(get_prodfactor());
-	const uint64 want_prod_long = (max_prod >> (18 - 10 + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits)) * (uint64)delta_t + (uint64)menge_remainder;
-	const uint32 prod = (uint32)(want_prod_long / (uint64)PRODUCTION_DELTA_T);
-	menge_remainder = (uint32)(want_prod_long - (uint64)prod * (uint64)PRODUCTION_DELTA_T);
+	const sint32 boost = get_prodfactor();
+
+	// calculate the production per delta_t; scaled to PRODUCTION_DELTA_T
+	// Calculate actual production. A remainder is used for extra precision.
+	const uint64 want_prod_long = welt->scale_for_distance_only((uint64)prodbase * (uint64)boost * (uint64)delta_t + (uint64)menge_remainder);
+	const sint32 prod = (uint32)(want_prod_long >> (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits));
+	menge_remainder = (uint32)(want_prod_long & ((1 << (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits)) - 1));
 
 	// Consume stock in proportion to passengers' visits
 	uint32 last_good_index = UINT32_MAX_VALUE;
@@ -1819,12 +1970,13 @@ void fabrik_t::step(uint32 delta_t)
 
 		}
 
+		const sint32 boost = get_prodfactor();
+
 		// calculate the production per delta_t; scaled to PRODUCTION_DELTA_T
-		// default prodfactor = 256 => shift 8, default time = 1024 => shift 10, rest precision
-		const uint64 max_prod = (uint64)prodbase * (uint64)(get_prodfactor());
-		const uint64 want_prod_long = (max_prod >> (18-10+DEFAULT_PRODUCTION_FACTOR_BITS-fabrik_t::precision_bits)) * (uint64)delta_t + (uint64)menge_remainder;
-		const uint32 prod = (uint32)(want_prod_long / (uint64)PRODUCTION_DELTA_T);
-		menge_remainder = (uint32)(want_prod_long - (uint64)prod * (uint64)PRODUCTION_DELTA_T);
+		// Calculate actual production. A remainder is used for extra precision.
+		const uint64 want_prod_long = welt->scale_for_distance_only((uint64)prodbase * (uint64)boost * (uint64)delta_t + (uint64)menge_remainder);
+		const sint32 prod = (uint32)(want_prod_long >> (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits));
+		menge_remainder = (uint32)(want_prod_long & ((1 << (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits)) - 1));
 
 		// needed for electricity
 		currently_producing = false;
@@ -1887,7 +2039,7 @@ void fabrik_t::step(uint32 delta_t)
 
 					delta_menge += input[index].menge;
 
-					input[index].book_stat((sint64)input[index].menge * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
+					input[index].book_stat((sint64)input[index].menge * (desc->get_supplier(index) ? (sint64)desc->get_supplier(index)->get_consumption() : 1), FAB_GOODS_CONSUMED);
 					input[index].menge = 0;
 				}
 			}
@@ -1986,10 +2138,11 @@ void fabrik_t::step(uint32 delta_t)
 	if(  delta_sum > PRODUCTION_DELTA_T  ) {
 		delta_sum = delta_sum % PRODUCTION_DELTA_T;
 
-		// distribute, if there are more than 10 waiting ...
+		// distribute, if there is more than 1 waiting ...
+		// Changed from the original 10 by jamespetts, July 2017
 		for(  uint32 product = 0;  product < output.get_count();  product++  ) {
 			// either more than ten or nearly full (if there are less than ten output)
-			if(  output[product].menge > (10 << precision_bits)  ||  output[product].menge*2 > output[product].max  ) {
+			if(  output[product].menge > (1 << precision_bits)  ||  output[product].menge*2 > output[product].max  ) {
 
 				verteile_waren(product);
 				INT_CHECK("simfab 636");
@@ -2102,9 +2255,12 @@ void fabrik_t::verteile_waren(const uint32 product)
 	/* prissi: distribute goods to factory
 	 * that has not an overflowing input storage
 	 * also prevent stops from overflowing, if possible
-	 * Since we can called with menge>max/2 are at least 10 are there, we must first limit the amount we distribute
+	 * Since we can called with menge>max/2 are at least 1 are there, we must first limit the amount we distribute
 	 */
-	sint32 menge = min( (prodbase > 640 ? (prodbase>>6) : 10), output[product].menge >> precision_bits );
+
+	// We already know the distribution amount. However it has to be converted from factory units into real units.
+	const uint32 prod_factor = desc->get_product(product)->get_factor();
+	sint32 menge = (sint32)(((sint64)output[product].menge * (sint64)(prod_factor)) >> (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits));
 
 	// Check to see whether any consumers are within carting distance: there is no point in boarding transport
 	// if the consumer industry is next door.
@@ -2287,7 +2443,12 @@ void fabrik_t::verteile_waren(const uint32 product)
 				return;
 			}
 		}
-		output[product].menge -= menge << precision_bits;
+
+		// Since menge might have been mutated, it must be converted back. This might introduce some error with some prod factors which is always rounded up.
+		const sint32 prod_delta = (sint32)((((sint64)menge << (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
+
+		output[product].menge -= prod_delta;
+
 		if (best_halt.is_bound())
 		{
 			best_halt->starte_mit_route(best_ware, get_pos().get_2d());
@@ -2329,6 +2490,22 @@ out_of_loop:
 
 void fabrik_t::new_month()
 {
+	// update statistics for input and output goods
+	for (uint32 in = 0; in < input.get_count(); in++) {
+		input[in].roll_stats(desc->get_supplier(in)->get_consumption(), aggregate_weight);
+	}
+	for (uint32 out = 0; out < output.get_count(); out++) {
+		output[out].roll_stats(desc->get_product(out)->get_factor(), aggregate_weight);
+	}
+	lieferziele_active_last_month = 0;
+
+	// advance statistics a month
+	for (int s = 0; s<MAX_FAB_STAT; ++s) {
+		for (int m = MAX_MONTH - 1; m>0; --m) {
+			statistics[m][s] = statistics[m - 1][s];
+		}
+	}
+
 	// calculate weighted averages
 	if(  aggregate_weight>0  ) {
 		set_stat( weighted_sum_production / aggregate_weight, FAB_PRODUCTION );
@@ -2337,15 +2514,6 @@ void fabrik_t::new_month()
 		set_stat( weighted_sum_boost_mail / aggregate_weight, FAB_BOOST_MAIL );
 		set_stat( weighted_sum_power / aggregate_weight, FAB_POWER );
 	}
-
-	// update statistics for input and output goods
-	FOR(array_tpl<ware_production_t>, & g, input) {
-		g.roll_stats(aggregate_weight);
-	}
-	FOR(array_tpl<ware_production_t>, & g, output) {
-		g.roll_stats(aggregate_weight);
-	}
-	lieferziele_active_last_month = 0;
 
 	// update statistics
 	for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
@@ -2673,56 +2841,58 @@ unsigned fabrik_t::status_to_color[6] = {COL_RED, COL_ORANGE, COL_GREEN, COL_YEL
 /* returns the status of the current factory, as well as output */
 void fabrik_t::recalc_factory_status()
 {
-	unsigned long warenlager;
+	uint64 warenlager;
 	char status_ein;
 	char status_aus;
 
-	int haltcount = nearby_freight_halts.get_count();
+	int haltcount = welt->access(pos.get_2d())->get_haltlist_count();
 
 	// set bits for input
 	warenlager = 0;
 	total_transit = 0;
 	status_ein = FL_WARE_ALLELIMIT;
-	FOR( array_tpl<ware_production_t>, const& j, input ) {
-		if(  j.menge >= j.max  ) {
+	uint32 i = 0;
+	FOR(array_tpl<ware_production_t>, const& j, input) {
+		if (j.menge >= j.max) {
 			status_ein |= FL_WARE_LIMIT;
 		}
 		else {
 			status_ein &= ~FL_WARE_ALLELIMIT;
 		}
-		warenlager += j.menge;
+		warenlager += (uint64)j.menge * (uint64)(desc->get_supplier(i++)->get_consumption());
 		total_transit += j.get_in_transit();
-		if(  (j.menge >> fabrik_t::precision_bits) == 0  ) {
+		if ((j.menge >> fabrik_t::precision_bits) == 0) {
 			status_ein |= FL_WARE_FEHLT_WAS;
 		}
 
 	}
-	warenlager >>= fabrik_t::precision_bits;
-	if(  warenlager==0  ) {
+	warenlager >>= fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS;
+	if (warenlager == 0) {
 		status_ein |= FL_WARE_ALLENULL;
 	}
-	total_input = warenlager;
+	total_input = (uint32)warenlager;
 
 	// one ware missing, but producing
-	if(  status_ein & FL_WARE_FEHLT_WAS  &&  !output.empty()  &&  haltcount > 0  ) {
+	if (status_ein & FL_WARE_FEHLT_WAS && !output.empty() && haltcount > 0) {
 		status = bad;
 		return;
 	}
 
 	// set bits for output
 	warenlager = 0;
-	status_aus = FL_WARE_ALLEUEBER75|FL_WARE_ALLENULL;
-	FOR( array_tpl<ware_production_t>, const& j, output ) {
-		if(  j.menge > 0  ) {
+	status_aus = FL_WARE_ALLEUEBER75 | FL_WARE_ALLENULL;
+	i = 0;
+	FOR(array_tpl<ware_production_t>, const& j, output) {
+		if (j.menge > 0) {
 
 			status_aus &= ~FL_WARE_ALLENULL;
-			if(  j.menge >= 0.75 * j.max  ) {
+			if (j.menge >= 0.75 * j.max) {
 				status_aus |= FL_WARE_UEBER75;
 			}
 			else {
 				status_aus &= ~FL_WARE_ALLEUEBER75;
 			}
-			warenlager += j.menge;
+			warenlager += (uint64)j.menge * (uint64)(desc->get_product(i)->get_factor());
 			status_aus &= ~FL_WARE_ALLENULL;
 		}
 		else {
@@ -2730,26 +2900,21 @@ void fabrik_t::recalc_factory_status()
 			status_aus &= ~FL_WARE_ALLEUEBER75;
 		}
 	}
-	warenlager >>= fabrik_t::precision_bits;
-	total_output = warenlager;
+	warenlager >>= fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS;
+	total_output = (uint32)warenlager;
 
 	// now calculate status bar
-	if(  input.empty()  ) 
-	{
+	if (input.empty()) {
 		// does not consume anything, should just produce
 
-		if(  output.empty()  ) 
-		{
+		if (output.empty()) {
 			// does also not produce anything
 			status = nothing;
 		}
-		else if(  status_aus&FL_WARE_ALLEUEBER75  ||  status_aus&FL_WARE_UEBER75  )
-		{
+		else if (status_aus&FL_WARE_ALLEUEBER75 || status_aus&FL_WARE_UEBER75) {
 			status = inactive;	// not connected?
-			if(haltcount>0) 
-			{
-				if(status_aus&FL_WARE_ALLEUEBER75)
-				{
+			if (haltcount>0) {
+				if (status_aus&FL_WARE_ALLEUEBER75) {
 					status = bad;	// connect => needs better service
 				}
 				else {
@@ -2769,20 +2934,20 @@ void fabrik_t::recalc_factory_status()
 			status = staff_shortage;
 		}
 	}
-	else if(  output.empty()  ) {
+	else if (output.empty()) {
 		// nothing to produce
 
-		if(status_ein&FL_WARE_ALLELIMIT) {
+		if (status_ein&FL_WARE_ALLELIMIT) {
 			// we assume not served
 			status = bad;
 		}
-		else if(status_ein&FL_WARE_LIMIT) {
+		else if (status_ein&FL_WARE_LIMIT) {
 			// served, but still one at limit
 			status = medium;
 		}
-		else if(status_ein&FL_WARE_ALLENULL) {
+		else if (status_ein&FL_WARE_ALLENULL) {
 			status = inactive;	// assume not served
-			if(haltcount>0) {
+			if (haltcount>0) {
 				// there is a halt => needs better service
 				status = bad;
 			}
@@ -2801,17 +2966,17 @@ void fabrik_t::recalc_factory_status()
 	}
 	else {
 		// produces and consumes
-		if((status_ein&FL_WARE_ALLELIMIT)!=0  &&  (status_aus&FL_WARE_ALLEUEBER75)!=0) {
+		if ((status_ein&FL_WARE_ALLELIMIT) != 0 && (status_aus&FL_WARE_ALLEUEBER75) != 0) {
 			status = bad;
 		}
-		else if((status_ein&FL_WARE_ALLELIMIT)!=0  ||  (status_aus&FL_WARE_ALLEUEBER75)!=0) {
+		else if ((status_ein&FL_WARE_ALLELIMIT) != 0 || (status_aus&FL_WARE_ALLEUEBER75) != 0) {
 			status = medium;
 		}
-		else if((status_ein&FL_WARE_ALLENULL)!=0  &&  (status_aus&FL_WARE_ALLENULL)!=0) {
+		else if ((status_ein&FL_WARE_ALLENULL) != 0 && (status_aus&FL_WARE_ALLENULL) != 0) {
 			// not producing
 			status = inactive;
 		}
-		else if(haltcount>0  &&  ((status_ein&FL_WARE_ALLENULL)!=0  ||  (status_aus&FL_WARE_ALLENULL)!=0)) {
+		else if (haltcount>0 && ((status_ein&FL_WARE_ALLENULL) != 0 || (status_aus&FL_WARE_ALLENULL) != 0)) {
 			// not producing but out of supply
 			status = medium;
 		}
@@ -2929,7 +3094,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 			{
 				continue;
 			}
-			const sint64 pfactor = (sint64)desc->get_supplier(index)->get_consumption();
+			const sint64 pfactor = desc->get_supplier(index) ? (sint64)desc->get_supplier(index)->get_consumption() : 1ll;
 			const uint16 max_intransit_percentage = max_intransit_percentages.get(input[index].get_typ()->get_catg());
 
 			if(  max_intransit_percentage  ) {

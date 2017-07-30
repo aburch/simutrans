@@ -295,13 +295,13 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				if(destination_city && destination_city->get_townhall_road() == k.get_2d())
 				{
 					// This is a city destination.
-					if(start.get_2d() == k.get_2d())
+					if(origin_city && start.get_2d() == k.get_2d())
 					{
 						// Very rare, but happens occasionally - two cities share a townhall road tile.
 						// Must treat specially in order to avoid a division by zero error
 						origin_city->add_road_connexion(10, destination_city);
 					}
-					else
+					else if(origin_city)
 					{
 						const uint16 straight_line_distance = shortest_distance(origin_city->get_townhall_road(), k.get_2d());
 						origin_city->add_road_connexion(tmp->g / straight_line_distance, welt->access(k.get_2d())->get_city());
@@ -332,12 +332,12 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 							journey_time_per_tile = tmp->g / straight_line_distance;
 						}
 						const fabrik_t* fab = gb->get_fabrik();
-						if(fab)
+						if(fab && origin_city)
 						{
 							// This is an industry
 							origin_city->add_road_connexion(journey_time_per_tile, fab);
 						}
-						else
+						else if (origin_city)
 						{
 							origin_city->add_road_connexion(journey_time_per_tile, gb);
 						}

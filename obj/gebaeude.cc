@@ -1517,25 +1517,28 @@ void gebaeude_t::cleanup(player_t *player)
 
 	if(desc->is_transport_building() || desc->is_signalbox())
 	{
-		sint64 bulldoze_cost;
-		if(desc->is_signalbox() && desc->get_price() != PRICE_MAGIC)
+		if(desc->get_price() != PRICE_MAGIC)
 		{
-			bulldoze_cost = -desc->get_price() / 2;
+			cost = -desc->get_price() / 2;
 		}
 		else
 		{
-			bulldoze_cost = welt->get_settings().cst_multiply_remove_haus * (desc->get_level());
+			cost = welt->get_settings().cst_multiply_remove_haus * (desc->get_level());
 		}
+		
 		// If the player does not own the building, the land is not bought by bulldozing, so do not add the purchase cost.
 		// (A player putting a marker on the tile will have to pay to buy the land again).
 		// If the player does already own the building, the player is refunded the empty tile cost, as bulldozing a tile with a building
 		// means that the player no longer owns the tile, and will have to pay again to purcahse it.
-		const sint64 land_value = welt->get_land_value(get_pos()) * desc->get_size().x * desc->get_size().y;
-		cost = player == get_owner() ? bulldoze_cost + abs(land_value) : bulldoze_cost; // land_valueand bulldoze_cost are *both* negative numbers.
-		player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
-		if(player != get_owner())
+		
+		if(player != get_owner() && desc->get_type() != building_desc_t::generic_stop) // A stop is built on top of a way, so building one does not require buying land, and, likewise, removing one does not involve releasing land.
 		{
-			player_t::book_construction_costs(get_owner(), land_value, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
+			const sint64 land_value = abs(welt->get_land_value(get_pos()) * desc->get_size().x * desc->get_size().y);
+			player_t::book_construction_costs(get_owner(), land_value + cost, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
+		}
+		else
+		{
+			player_t::book_construction_costs(player, cost, get_pos().get_2d(), tile->get_desc()->get_finance_waytype());
 		}
 	}
 	else 
