@@ -1897,6 +1897,7 @@ end_loop:
 
 					grund_t *gr = welt->lookup(schedule->get_current_eintrag().pos);
 					depot_t * this_depot = NULL;
+					bool go_to_depot = false;
 					if (gr)
 					{
 						this_depot = gr->get_depot();
@@ -1915,12 +1916,13 @@ end_loop:
 								// The go to depot command has been set previously and has not been unset.
 								can_go = true;
 								wait_lock = (arrival_time + ((sint64)current_loading_time - (sint64)reversing_time)) - welt->get_ticks();
+								go_to_depot = true;
 							}
 						}
 					}
 
 					halthandle_t h = haltestelle_t::get_halt(get_pos(), get_owner());
-					if (h.is_bound() && h == haltestelle_t::get_halt(schedule->get_current_eintrag().pos, get_owner()))
+					if (!go_to_depot && h.is_bound() && h == haltestelle_t::get_halt(schedule->get_current_eintrag().pos, get_owner()))
 					{
 						// We are at the station we are scheduled to be at
 						// (possibly a different platform)
