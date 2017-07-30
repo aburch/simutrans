@@ -33,7 +33,6 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	convoihandle_t cnv;
-
 	
 
 public:
@@ -73,7 +72,7 @@ private:
 	button_t	retire_button;
 
 	vector_tpl<uint16> class_indices;
-	vector_tpl<gui_combobox_t *> class_selectors;
+	gui_combobox_t pass_class_sel[255];
 	gui_container_t cont;
 
 public:
