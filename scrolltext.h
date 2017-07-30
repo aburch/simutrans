@@ -51,7 +51,7 @@
 " Toshio Kuratomi" "patches",
 " Zhaop", "Mac OSX patch and fixes",
 " Vladki", "patch, online servers",
-" Hanczar","profiling, fixes",
+" Hanczar","profiling, fixes, testing",
 " Octavius","patch",
 " TurfIt","patches",
 " S_N_C","patches",
