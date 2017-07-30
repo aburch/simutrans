@@ -2828,7 +2828,7 @@ bool vehicle_t::check_way_constraints(const weg_t &way) const
 
 bool vehicle_t::check_access(const weg_t* way) const
 {
-	if(get_owner() && get_owner()->is_public_serivce())
+	if(get_owner() && get_owner()->is_public_service())
 	{
 		// The public player can always connect to ways.
 		return true;
@@ -4852,6 +4852,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	next_signal_index = INVALID_INDEX;
 	bool unreserve_now = false;
 
+	enum set_by_distant
+	{
+		uninitialised, not_set, set
+	};
+
 	koord3d pos = route->at(start_index);
 	koord3d last_pos = start_index > 0 ? route->at(start_index - 1) : pos;
 	const halthandle_t this_halt = haltestelle_t::get_halt(pos, get_owner());
@@ -4873,6 +4878,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	halthandle_t stop_at_station_signal;
 	bool do_not_clear_distant = false;
 	working_method_t next_signal_working_method = working_method;
+	working_method_t old_working_method = working_method;
+	set_by_distant working_method_set_by_distant_only = uninitialised;
 	bool next_signal_protects_no_junctions = false;
 	koord3d signalbox_last_distant_signal = koord3d::invalid;
 	bool last_distant_signal_was_intermediate_block = false;
@@ -5141,13 +5148,20 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							remaining_aspects = signal->get_desc()->get_aspects();
 						}
 						
-						next_signal_working_method = nwm;
-						
+						next_signal_working_method = nwm;			
 					}
 					next_signal_protects_no_junctions = signal->get_no_junctions_to_next_signal();
 					if(working_method == drive_by_sight && sch1->can_reserve(cnv->self, ribi) && (signal->get_pos() != cnv->get_last_signal_pos() || signal->get_desc()->get_working_method() != one_train_staff))
 					{
 						set_working_method(next_signal_working_method);
+						if (signal->get_desc()->is_pre_signal() && working_method_set_by_distant_only == uninitialised)
+						{
+							working_method_set_by_distant_only = set;
+						}
+						else if(!signal->get_desc()->is_pre_signal())
+						{
+							working_method_set_by_distant_only = not_set;
+						}
 					}
 
 					if(next_signal_working_method == one_train_staff && first_one_train_staff_index == INVALID_INDEX)
@@ -5874,7 +5888,23 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	}
 	// here we go only with reserve
 
-	const koord3d signal_pos = next_signal_index < INVALID_INDEX ? route->at(next_signal_index) : koord3d::invalid;
+	koord3d signal_pos;
+	if (i >= route->get_count())
+	{
+		if (next_signal_index == i)
+		{
+			// This deals with a very specific problem in which the route is truncated
+			signal_pos = pos;
+		}
+		else
+		{
+			signal_pos = koord3d::invalid;
+		}
+	}
+	else
+	{
+		signal_pos = next_signal_index < INVALID_INDEX ? route->at(next_signal_index) : koord3d::invalid;
+	}
 	bool platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(signal_pos, get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt) && first_stop_signal_index == last_stop_signal_index;
 
 	// If we are in token block or one train staff mode, one train staff mode or making directional reservations, reserve to the end of the route if there is not a prior signal.
@@ -5986,6 +6016,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		if(!success)
 		{
 			const uint16 next_stop_index = cnv->get_next_stop_index();
+
+			if (working_method_set_by_distant_only == set)
+			{
+				working_method = old_working_method;
+			}
 			if (next_stop_index == start_index + 1)
 			{
 				curtailment_index = start_index;

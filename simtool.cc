@@ -569,7 +569,7 @@ DBG_MESSAGE("tool_remover()", "bound=%i",halt.is_bound());
 		// halt and not a factory (oil rig etc.)
 		const player_t* owner = halt->get_owner();
 
-		if(player_t::check_owner( owner, player ) || player->is_public_serivce())
+		if(player_t::check_owner( owner, player ) || (player && player->is_public_service()))
 		{
 			return haltestelle_t::remove(player, gr->get_pos());
 		}
@@ -2345,7 +2345,7 @@ static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koo
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
 		}
-		if(bd->is_halt() && (!player_t::check_owner(player, bd->get_halt()->get_owner()) && (w != NULL && !w->get_owner()->allows_access_to(player->get_player_nr()))))
+		if(bd->is_halt() && (!player_t::check_owner(player, bd->get_halt()->get_owner()) && (w != NULL && !(w->get_owner() == NULL || w->get_owner()->allows_access_to(player->get_player_nr())))))
 		{
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
@@ -2538,7 +2538,7 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 
 		if(way) {
 			// allow to connect to any road, or anywhere where the player has been granted access rights.
-			if(desc->get_wtyp() == road_wt || way->get_owner()->allows_access_to(player->get_player_nr()))
+			if(desc->get_wtyp() == road_wt || way->get_owner() == NULL || way->get_owner()->allows_access_to(player->get_player_nr()))
 			{
 				return 2;
 			}
@@ -2548,7 +2548,7 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 		leitung_t* lt = gr->get_leitung();
 		if(lt)
 		{
-			if(lt->get_owner()->allows_access_to(player->get_player_nr()))
+			if(!lt->get_owner() || lt->get_owner()->allows_access_to(player->get_player_nr()))
 			{
 				return 2;
 			}
@@ -7389,7 +7389,7 @@ bool tool_daynight_level_t::init( player_t * ) {
 bool tool_make_stop_public_t::init( player_t *player )
 {
 	win_set_static_tooltip( NULL );
-	return welt->get_settings().get_allow_making_public() || player && player->is_public_serivce();
+	return welt->get_settings().get_allow_making_public() || player && player->is_public_service();
 }
 
 const char *tool_make_stop_public_t::get_tooltip(const player_t *player) const 
@@ -7417,7 +7417,7 @@ const char *tool_make_stop_public_t::move(player_t *player, uint16, koord3d p)
 
 const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 {
-	sint64 const COST_MONTHS_MAINTAINANCE = welt->scale_with_month_length(welt->get_settings().cst_make_public_months);
+	sint64 const COST_MONTHS_MAINTAINANCE = welt->calc_adjusted_monthly_figure(welt->get_settings().cst_make_public_months);
 	player_t *const psplayer = welt->get_public_player();
 	grund_t const *gr = welt->lookup(p);
 	if (!gr || !gr->get_halt().is_bound() || gr->get_halt()->get_owner() == psplayer) {
@@ -7457,7 +7457,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 				}
 				else
 				{
-					construction_cost = welt->scale_with_month_length(maintenance_cost * welt->get_settings().cst_make_public_months);
+					construction_cost = welt->calc_adjusted_monthly_figure(maintenance_cost * welt->get_settings().cst_make_public_months);
 				}
 
 #ifdef MULTI_THREAD
@@ -7484,7 +7484,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					}
 					else
 					{
-						construction_cost = welt->scale_with_month_length(maintenance_cost * welt->get_settings().cst_make_public_months);
+						construction_cost = welt->calc_adjusted_monthly_figure(maintenance_cost * welt->get_settings().cst_make_public_months);
 					}
 					if(t->get_owner() == psplayer)
 					{
@@ -7506,7 +7506,7 @@ const char *tool_make_stop_public_t::work( player_t *player, koord3d p )
 					}
 					else
 					{
-						construction_cost = welt->scale_with_month_length(maintenance_cost * welt->get_settings().cst_make_public_months);
+						construction_cost = welt->calc_adjusted_monthly_figure(maintenance_cost * welt->get_settings().cst_make_public_months);
 					}
 					if(b->get_owner() == psplayer)
 					{
