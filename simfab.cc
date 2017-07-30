@@ -1792,10 +1792,13 @@ void fabrik_t::add_consuming_passengers(sint32 number_of_passengers)
 	const sint64 passenger_demand_ticks_per_month = welt->ticks_per_world_month / (sint64)building->get_adjusted_visitor_demand();
 	const sint64 delta_t = passenger_demand_ticks_per_month * number_of_passengers;
 	
-	const uint64 max_prod = (uint64)prodbase * (uint64)(get_prodfactor());
-	const uint64 want_prod_long = (max_prod >> (18 - 10 + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits)) * (uint64)delta_t + (uint64)menge_remainder;
-	const uint32 prod = (uint32)(want_prod_long / (uint64)PRODUCTION_DELTA_T);
-	menge_remainder = (uint32)(want_prod_long - (uint64)prod * (uint64)PRODUCTION_DELTA_T);
+	const sint32 boost = get_prodfactor();
+
+	// calculate the production per delta_t; scaled to PRODUCTION_DELTA_T
+	// Calculate actual production. A remainder is used for extra precision.
+	const uint64 want_prod_long = welt->scale_for_distance_only((uint64)prodbase * (uint64)boost * (uint64)delta_t + (uint64)menge_remainder);
+	const sint32 prod = (uint32)(want_prod_long >> (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits));
+	menge_remainder = (uint32)(want_prod_long & ((1 << (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits)) - 1));
 
 	// Consume stock in proportion to passengers' visits
 	uint32 last_good_index = UINT32_MAX_VALUE;
