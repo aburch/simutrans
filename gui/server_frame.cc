@@ -192,9 +192,8 @@ void server_frame_t::update_error (const char* errortext)
 }
 
 
-void server_frame_t::update_info ()
+void server_frame_t::update_info()
 {
-
 	display_map = true;
 
 	// Compare with current world to determine status
@@ -203,11 +202,11 @@ void server_frame_t::update_info ()
 	bool pakset_match = false;
 
 	// Zero means do not know => assume match
-	if (  current.get_game_engine_revision() == 0  ||  gi.get_game_engine_revision() == 0  ||  current.get_game_engine_revision() == gi.get_game_engine_revision()  ) {
+	if(  current.get_game_engine_revision() == 0  ||  gi.get_game_engine_revision() == 0  ||  current.get_game_engine_revision() == gi.get_game_engine_revision()  ) {
 		engine_match = true;
 	}
 
-	if (  gi.get_pakset_checksum() == current.get_pakset_checksum()  ) {
+	if(  gi.get_pakset_checksum() == current.get_pakset_checksum()  ) {
 		pakset_match = true;
 		find_mismatch.disable();
 	}
@@ -216,7 +215,7 @@ void server_frame_t::update_info ()
 	}
 
 	// State of join button
-	if (  (serverlist.get_selection() >= 0  ||  custom_valid)  &&  pakset_match  &&  engine_match  ) {
+	if(  (serverlist.get_selection() >= 0  ||  custom_valid)  &&  pakset_match  &&  engine_match  ) {
 		join.enable();
 	}
 	else {
@@ -292,7 +291,7 @@ bool server_frame_t::update_serverlist ()
 	const char* pakset = NULL;
 	gameinfo_t current( welt );
 
-	if (  !show_mismatched.pressed  ) {
+	if(  !show_mismatched.pressed  ) {
 		revision = current.get_game_engine_revision();
 		pakset   = current.get_pak_name();
 	}
@@ -300,7 +299,7 @@ bool server_frame_t::update_serverlist ()
 	// Download game listing from listings server into memory
 	cbuffer_t buf;
 
-	if (  const char *err = network_http_get( ANNOUNCE_SERVER, ANNOUNCE_LIST_URL, buf )  ) {
+	if(  const char *err = network_http_get( ANNOUNCE_SERVER, ANNOUNCE_LIST_URL, buf )  ) {
 		dbg->error( "server_frame_t::update_serverlist", "could not download list: %s", err );
 		return false;
 	}
@@ -318,16 +317,21 @@ bool server_frame_t::update_serverlist ()
 		ret = csvdata.get_next_field( servername );
 		dbg->message( "server_frame_t::update_serverlist", "servername: %s", servername.get_str() );
 		// Skip invalid lines
-		if (  ret <= 0  ) { continue; }
+		if(  ret <= 0  ) {
+			continue;
+		}
 
 		// Second field is dns name of server
 		cbuffer_t serverdns;
 		ret = csvdata.get_next_field( serverdns );
 		dbg->message( "server_frame_t::update_serverlist", "serverdns: %s", serverdns.get_str() );
-		if (  ret <= 0  ) { continue; }
+		if(  ret <= 0  ) {
+			continue;
+		}
+
 		cbuffer_t serverdns2;
 		// Strip default port
-		if (  strcmp(serverdns.get_str() + strlen(serverdns.get_str()) - 6, ":13353") == 0  ) {
+		if(  strcmp(serverdns.get_str() + strlen(serverdns.get_str()) - 6, ":13353") == 0  ) {
 			dbg->message( "server_frame_t::update_serverlist", "stripping default port from entry %s", serverdns.get_str() );
 			serverdns2.append( serverdns.get_str(), strlen( serverdns.get_str() ) - 6 );
 			serverdns = serverdns2;
@@ -337,9 +341,12 @@ bool server_frame_t::update_serverlist ()
 		cbuffer_t serverrevision;
 		ret = csvdata.get_next_field( serverrevision );
 		dbg->message( "server_frame_t::update_serverlist", "serverrevision: %s", serverrevision.get_str() );
-		if (  ret <= 0  ) { continue; }
+		if(  ret <= 0  ) {
+			continue;
+		}
+
 		uint32 serverrev = atol( serverrevision.get_str() );
-		if (  revision != 0  &&  revision != serverrev  ) {
+		if(  revision != 0  &&  revision != serverrev  ) {
 			// do not add mismatched servers
 			dbg->warning( "server_frame_t::update_serverlist", "revision %i does not match our revision (%i), skipping", serverrev, revision );
 			continue;
@@ -349,7 +356,10 @@ bool server_frame_t::update_serverlist ()
 		cbuffer_t serverpakset;
 		ret = csvdata.get_next_field( serverpakset );
 		dbg->message( "server_frame_t::update_serverlist", "serverpakset: %s", serverpakset.get_str() );
-		if (  ret <= 0  ) { continue; }
+		if(  ret <= 0  ) {
+			continue;
+		}
+
 		// now check pakset match
 		if (  pakset != NULL  ) {
 			if (!strstart(serverpakset.get_str(), pakset)) {
@@ -364,17 +374,17 @@ bool server_frame_t::update_serverlist ()
 		dbg->message( "server_frame_t::update_serverlist", "serverstatus: %s", serverstatus.get_str() );
 
 		uint32 status = 0;
-		if (  ret > 0  ) {
+		if(  ret > 0  ) {
 			status = atol( serverstatus.get_str() );
 		}
 
 		// Only show offline servers if the checkbox is set
-		if (  status == 1  ||  show_offline.pressed  ) {
+		if(  status == 1  ||  show_offline.pressed  ) {
 			serverlist.append_element( new server_scrollitem_t( servername, serverdns, status, status == 1 ? color_idx_to_rgb(COL_BLUE) : SYSCOL_TEXT_STRONG ) );
 			dbg->message( "server_frame_t::update_serverlist", "Appended %s (%s) to list", servername.get_str(), serverdns.get_str() );
 		}
 
-	} while ( csvdata.next_line() );
+	} while( csvdata.next_line() );
 
 	// Set no default selection
 	serverlist.set_selection( -1 );
@@ -392,8 +402,8 @@ bool server_frame_t::infowin_event (const event_t *ev)
 bool server_frame_t::action_triggered (gui_action_creator_t *komp, value_t p)
 {
 	// Selection has changed
-	if (  &serverlist == komp  ) {
-		if (  p.i <= -1  ) {
+	if(  &serverlist == komp  ) {
+		if(  p.i <= -1  ) {
 			join.disable();
 			gi = gameinfo_t(welt);
 			update_info();
@@ -403,7 +413,7 @@ bool server_frame_t::action_triggered (gui_action_creator_t *komp, value_t p)
 			server_scrollitem_t *item = (server_scrollitem_t*)serverlist.get_element( p.i );
 			if(  item->online()  ) {
 				const char *err = network_gameinfo( ((server_scrollitem_t*)serverlist.get_element( p.i ))->get_dns(), &gi );
-				if (  err == NULL  ) {
+				if(  err == NULL  ) {
 					item->set_color( SYSCOL_TEXT );
 					update_info();
 				}
