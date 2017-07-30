@@ -209,6 +209,9 @@ loadsave_t::~loadsave_t()
 	set_buffered(false);
 	close();
 	delete fd;
+	if(  last_error != FILE_ERROR_OK  ) {
+		dbg->error( "loadsave_t()", "failed %s with error %i", (saving ? "saving" : "reading"), (int)last_error );
+	}
 }
 
 
@@ -272,6 +275,7 @@ void loadsave_t::set_buffered(bool enable)
 bool loadsave_t::rd_open(const char *filename_utf8 )
 {
 	close();
+	last_error = FILE_ERROR_OK; // no error
 
 	version = 0;
 	mode = zipped;
@@ -280,6 +284,7 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 	fd->fp = dr_fopen(filename_utf8, "rb");
 	if(  fd->fp==NULL  ) {
 		// most likely not existing
+		last_error = FILE_ERROR_NOT_EXISTING;
 		return false;
 	}
 	// now check for BZ2 format
@@ -309,6 +314,7 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 		}
 		// BZ-Header but wrong data ...
 		if(  !ok  ) {
+			last_error = FILE_ERROR_BZ_CORRUPT;
 			close();
 			return false;
 		}
@@ -320,6 +326,7 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 		fd->gzfp = dr_gzopen(filename_utf8, "rb");
 		if(fd->gzfp==NULL) {
 			return false;
+			last_error = FILE_ERROR_GZ_CORRUPT;
 		}
 		gzgets(fd->gzfp, buf, 512);
 	}
@@ -329,12 +336,18 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 		combined_version versions = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode, pak_extension);
 		version = versions.version;
 		extended_version = versions.extended_version;
+		if(  version == 0  ) {
+			close();
+			last_error = FILE_ERROR_NO_VERSION;
+			return false;
+		}
 	}
 	else if (strstart(buf, XML_SAVEGAME_PREFIX)) {
 		mode |= xml;
 		while (lsgetc() != '<') { /* nothing */ }
 		read(buf, sizeof(SAVEGAME_PREFIX) - 1);
 		if (!strstart(buf, SAVEGAME_PREFIX)) {
+			last_error = FILE_ERROR_NO_VERSION;
 			close();
 			// not a simutrans XML file ...
 			return false;
@@ -354,6 +367,11 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 		combined_version versions = int_version(str, &mode, pak_extension);
 		version = versions.version;
 		extended_version = versions.extended_version;
+		if(  version == 0  ) {
+			close();
+			last_error = FILE_ERROR_NO_VERSION;
+			return false;
+		}
 
 		read(buf, sizeof(" pak=\"") - 1);
 		if (version > 0) {
@@ -368,12 +386,29 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 			*s = 0;
 			while (lsgetc() != '>');
 		}
-	} else {
+
+		/*
+		 * reading future versions will almost certainly lead to exceptions
+		 * so we close here
+		 * It would be nice to give a detailed message what failed (like the fatal error does)
+		 * But this error may happening also in regular installations after running a nighly
+		 * so we just record the failure and return false
+		 */
+		if(  version > (SIM_VERSION_MAJOR*1000 + SIM_SERVER_MINOR)  ) {
+			close();
+			last_error = FILE_ERROR_FUTURE_VERSION;
+			return false;
+		}
+	}
+	else {
 		close();
+		last_error = FILE_ERROR_NO_VERSION;
 		return false;
 	}
+
 	if(mode==text) {
 		close();
+		last_error = FILE_ERROR_NO_VERSION;
 		dbg->error("loadsave_t::rd_open()","text mode no longer supported." );
 		return false;
 	}
@@ -414,6 +449,7 @@ void loadsave_t::rdwr_string(std::string &s) {
 bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex, const char *)
 {
 	mode = m;
+	last_error = FILE_ERROR_OK; // no error
 	close();
 
 	if(  is_zipped()  ) {
@@ -1373,7 +1409,6 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 	while(*version_text  &&  *version_text++ != '.')
 		;
 	if(!*version_text) {
-		dbg->fatal( "loadsave_t::int_version()","Really broken version string!" );
 		combined_version dud;
 		dud.version = 0;
 		dud.extended_version = 0;
@@ -1385,7 +1420,6 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 	while(*version_text  &&  *version_text++ != '.')
 		;
 	if(!*version_text) {
-		dbg->fatal( "loadsave_t::int_version()","Really broken version string!" );
 		combined_version dud;
 		dud.version = 0;
 		dud.extended_version = 0;
