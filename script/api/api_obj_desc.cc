@@ -46,13 +46,13 @@ bool are_equal(const obj_named_desc_t* a, const obj_named_desc_t* b)
 
 sint64 get_scaled_maintenance(const obj_desc_transport_related_t* desc)
 {
-	return desc ? welt->scale_with_month_length(desc->get_maintenance()) : 0;
+	return desc ? welt->calc_adjusted_monthly_figure(desc->get_maintenance()) : 0;
 }
 
 
 sint64 get_scaled_maintenance_building(const building_desc_t* desc)
 {
-	return desc ? welt->scale_with_month_length(desc->get_maintenance()) : 0;
+	return desc ? welt->calc_adjusted_monthly_figure(desc->get_maintenance()) : 0;
 }
 
 

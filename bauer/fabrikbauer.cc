@@ -710,7 +710,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 	}
 
 	// how much do we need?
-	sint32 consumption = our_fab->get_base_production() * supplier->get_consumption();
+	sint32 consumption = our_fab->get_base_production() * (supplier ? supplier->get_consumption() : 1);
 
 	slist_tpl<fabs_to_crossconnect_t> factories_to_correct;
 	slist_tpl<fabrik_t *> new_factories;	      // since the cross-correction must be done later
@@ -946,7 +946,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 				const vector_tpl<koord> suppliers = fab->get_suppliers();
 				
 				// Check how much of this product that the current factory needs
-				const sint32 consumption_level = fab->get_base_production() * supplier_type->get_consumption();
+				const sint32 consumption_level = fab->get_base_production() * (supplier_type ? supplier_type->get_consumption() : 1);
 				
 				FOR(vector_tpl<koord>, supplier_koord, suppliers)
 				{
@@ -976,7 +976,8 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 									const goods_desc_t* wcc = consumer_type->get_output_type();
 									if(wcc == wp)
 									{
-										used_output += competing_consumer->get_base_production() * competing_consumer->get_desc()->get_supplier(x)->get_consumption();
+										const factory_supplier_desc_t* sup = competing_consumer->get_desc()->get_supplier(x);
+										used_output += competing_consumer->get_base_production() * (sup ? sup->get_consumption() : 1);
 									}
 								}
 								const sint32 remaining_output = total_output - used_output;

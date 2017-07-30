@@ -67,7 +67,8 @@ class ware_t;
 
 
 // production happens in every second
-#define PRODUCTION_DELTA_T (1024)
+#define PRODUCTION_DELTA_T_BITS (10)
+#define PRODUCTION_DELTA_T (1 << PRODUCTION_DELTA_T_BITS)
 // default production factor
 #define DEFAULT_PRODUCTION_FACTOR_BITS (8)
 #define DEFAULT_PRODUCTION_FACTOR (1 << DEFAULT_PRODUCTION_FACTOR_BITS)
@@ -105,7 +106,7 @@ public:
 	void set_typ(const goods_desc_t *t) { type=t; }
 
 	// Knightly : functions for manipulating goods statistics
-	void roll_stats(sint64 aggregate_weight);
+	void roll_stats(uint32 factor, sint64 aggregate_weight);
 	void rdwr(loadsave_t *file);
 	const sint64* get_stats() const { return *statistics; }
 	void book_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_GOODS_STAT); statistics[0][stat_type] += value; }
@@ -116,14 +117,23 @@ public:
 	 * convert internal units to displayed values
 	 */
 	sint64 get_stat_converted(int month, int stat_type) const {
-		assert(stat_type<MAX_FAB_GOODS_STAT);
+		assert(stat_type<MAX_FAB_STAT);
 		sint64 value = statistics[month][stat_type];
-		if (stat_type==FAB_GOODS_STORAGE  ||  stat_type==FAB_GOODS_CONSUMED) {
-			value = convert_goods(value);
+		switch (stat_type) {
+		case FAB_POWER:
+			value = convert_power(value);
+			break;
+		case FAB_BOOST_ELECTRIC:
+		case FAB_BOOST_PAX:
+		case FAB_BOOST_MAIL:
+			value = convert_boost(value);
+			break;
+		default:;
 		}
 		return value;
 	}
-	void book_weighted_sum_storage(sint64 delta_time);
+
+	void book_weighted_sum_storage(uint32 factor, sint64 delta_time);
 
 	sint32 menge;	// in internal units shifted by precision_bits (see step)
 	sint32 max;
@@ -699,8 +709,8 @@ public:
 	sint32 get_base_production() const { return prodbase; }
 	void set_base_production(sint32 p);
 
-	// TODO: Consider refctoring so as to avoid calling this method every step (although preliminary tests indicate that this does not seem to cause much slow-down compared to the previous method).
-	sint32 get_current_production() const { return (sint32) (welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + prodfactor_pax + prodfactor_mail)))) >> 8l; }
+	// This is done this way rather than reusing get_prodfactor() because the latter causes a lack of precision (everything being rounded to the nearest 16). 
+	sint32 get_current_production() const { return (sint32)(welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + prodfactor_pax + prodfactor_mail)))) >> 8l; }
 
 	/* prissi: returns the status of the current factory, as well as output */
 	enum { bad, medium, good, inactive, nothing, staff_shortage };
