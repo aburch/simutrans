@@ -68,11 +68,12 @@ private:
 
 	convoihandle_t cnv;
 	button_t	sale_button;
-	button_t	withdraw_button;
+	button_t	reset_all_classes_button;
 	button_t	retire_button;
 
 	vector_tpl<uint16> class_indices;
 	gui_combobox_t pass_class_sel[255];
+	gui_combobox_t mail_class_sel[255];
 	gui_container_t cont;
 
 public:

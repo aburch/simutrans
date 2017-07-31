@@ -48,8 +48,13 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
 	int offset_y = LINESPACE;
+
 	int pass_class_capacity[255] = { 0 };
-	for (int i = goods_manager_t::passengers->get_number_of_classes(); i >= 0; i--)
+	int mail_class_capacity[255] = { 0 };
+	uint16 pass_classes = goods_manager_t::passengers->get_number_of_classes();
+	uint16 mail_classes = goods_manager_t::mail->get_number_of_classes();
+
+	for (int i = 0; i < pass_classes; i++)
 	{
 		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 		{
@@ -61,30 +66,63 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 		}
 		if (pass_class_capacity[i] > 0)
 		{
-			pass_class_sel[i].set_pos(scr_coord(100, offset_y));
-			pass_class_sel[i].set_size(scr_size(185, D_BUTTON_HEIGHT));
-			pass_class_sel[i].set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 3 + 2 + 16));
 			pass_class_sel[i].set_highlight_color(1);
 			pass_class_sel[i].clear_elements();
+			//class_indices.clear();
 
-			class_indices.clear();
-
-			for (int j = goods_manager_t::passengers->get_number_of_classes(); j > 0; j--)
+			for (int j = 0; j < pass_classes; j++)
 			{
-				char pass_class_name_untranslated[32][510];
-				sprintf(pass_class_name_untranslated[j], "p_class[%u]", j - 1);
+				char pass_class_name_untranslated[32][1020];
+				sprintf(pass_class_name_untranslated[j], "p_class[%u]", j /*- 1*/);
 				pass_class_sel[i].append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
-				class_indices.append(j);
+				//class_indices.append(j);
 			}
-			add_component(pass_class_sel +i);
+			add_component(pass_class_sel + i);
 			pass_class_sel[i].add_listener(this);
 			pass_class_sel[i].set_focusable(false);
 			offset_y += LINESPACE;
 		}
 	}
 
+	for (int i = 0; i < mail_classes; i++)
+	{
+		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+		{
+			vehicle_t* v = cnv->get_vehicle(veh);
+			if (v->get_cargo_type()->get_catg_index() == 1)
+			{
+				mail_class_capacity[i] += v->get_desc()->get_capacity(i);
+			}
+		}
+		if (mail_class_capacity[i] > 0)
+		{
+			mail_class_sel[i].set_highlight_color(1);
+			mail_class_sel[i].clear_elements();
+			//class_indices.clear();
 
-	scrolly.set_pos(scr_coord(0, 2 + 16 + 5 * LINESPACE));
+			for (int j = 0; j < mail_classes; j++)
+			{
+				char mail_class_name_untranslated[32][1020];
+				sprintf(mail_class_name_untranslated[j], "m_class[%u]", j /*- 1*/);
+				mail_class_sel[i].append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(mail_class_name_untranslated[j]), SYSCOL_TEXT));
+				//class_indices.append(j);
+			}
+			add_component(mail_class_sel + i);
+			mail_class_sel[i].add_listener(this);
+			mail_class_sel[i].set_focusable(false);
+			offset_y += LINESPACE;
+		}
+	}
+
+	reset_all_classes_button.set_typ(button_t::roundbox);
+	reset_all_classes_button.set_text("reset_all_classes");
+	reset_all_classes_button.add_listener(this);
+	reset_all_classes_button.set_tooltip("resets_all_classes_to_their_defaults");
+	add_component(&reset_all_classes_button);
+
+
+	//scrolly.set_pos(scr_coord(0, 2 + 16 + 5 * LINESPACE));
+	scrolly.set_pos(scr_coord(0, (offset_y*2)+(LINESPACE*3)));
 	scrolly.set_show_scroll_x(true);
 	add_component(&scrolly);
 
@@ -106,6 +144,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 		// all gui stuff set => display it
 		gui_frame_t::draw(pos, size);
 		int offset_y = pos.y + 2 + 16;
+		int sel_offset_y = LINESPACE;
 
 		// current value
 		if (cnv.is_bound())
@@ -117,6 +156,8 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			// This is the different compartments in the train. Each compartment have a combobox associated to it to change the class to another.
 			int pass_class_desc_capacity[255] = { 0 };
 			int mail_class_desc_capacity[255] = { 0 };
+			uint16 pass_classes = goods_manager_t::passengers->get_number_of_classes();
+			uint16 mail_classes = goods_manager_t::mail->get_number_of_classes();
 			uint32 overcrowded_capacity = 0;
 
 			buf.clear();
@@ -124,7 +165,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			display_proportional_clip(pos.x + 10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			offset_y += LINESPACE;
 
-			for (int i = goods_manager_t::passengers->get_number_of_classes(); i >= 0; i--)
+			for (int i = 0; i < pass_classes; i++)
 			{
 				for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 				{		
@@ -146,9 +187,11 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					offset_y += LINESPACE;
 
 					// Did not get this to work properly. Now it is set in vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
-					//pass_class_sel[i].set_pos(scr_coord(100, offset_y));
-					//pass_class_sel[i].set_size(scr_size(185, D_BUTTON_HEIGHT));
-					//pass_class_sel[i].set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 3 + 2 + 16));
+					pass_class_sel[i].set_pos(scr_coord(get_windowsize().w-200, sel_offset_y));
+					pass_class_sel[i].set_size(scr_size(190, D_BUTTON_HEIGHT));
+					pass_class_sel[i].set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 3 + 2 + 16));
+					//pass_class_sel[i].append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
+					sel_offset_y += LINESPACE;
 									
 				}
 			}
@@ -158,8 +201,9 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				buf.printf("%s:  %i",translator::translate("overcrowded_capacity"), overcrowded_capacity);
 				display_proportional_clip(pos.x + 10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				offset_y += LINESPACE;
+				sel_offset_y += LINESPACE;
 			}
-			for (int i = goods_manager_t::mail->get_number_of_classes(); i >= 0; i--)
+			for (int i = 0; i < mail_classes; i++)
 			{
 				for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 				{
@@ -178,6 +222,11 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					buf.printf("%s: %i", class_name, mail_class_desc_capacity[i]);
 					display_proportional_clip(pos.x + 10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					offset_y += LINESPACE;
+
+					mail_class_sel[i].set_pos(scr_coord(get_windowsize().w - 200, sel_offset_y));
+					mail_class_sel[i].set_size(scr_size(190, D_BUTTON_HEIGHT));
+					mail_class_sel[i].set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 3 + 2 + 16));
+					sel_offset_y += LINESPACE;
 				}
 			}
 
@@ -191,7 +240,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			display_proportional_clip(pos.x + 10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			offset_y += LINESPACE;
 
-			for (int i = goods_manager_t::passengers->get_number_of_classes(); i >= 0; i--)
+			for (int i = 0; i < pass_classes; i++)
 			{
 				for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 				{
@@ -213,7 +262,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				}
 			}
 
-			for (int i = goods_manager_t::mail->get_number_of_classes(); i >= 0; i--)
+			for (int i = 0; i < mail_classes; i++)
 			{
 				for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 				{
@@ -246,16 +295,17 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
  */
 bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t p)
 {
-	for (int i = 0; i< goods_manager_t::passengers->get_number_of_classes(); i++)
+	for (int i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
 	{
-	if (comp == pass_class_sel +i)
-	{
-			sint32 new_class = goods_manager_t::passengers->get_number_of_classes() - pass_class_sel[i].get_selection()-1;
-				if (new_class < 0)
-				{
-					pass_class_sel[i].set_selection(0);
-					new_class = 0;
-				}
+		if (comp == pass_class_sel + i)
+		{
+			sint32 new_class = pass_class_sel[i].get_selection();
+			//sint32 new_class = goods_manager_t::passengers->get_number_of_classes() - pass_class_sel[i].get_selection() - 1;
+			if (new_class < 0)
+			{
+				pass_class_sel[i].set_selection(0);
+				new_class = 0;
+			}
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 			{
 				vehicle_t* v = cnv->get_vehicle(veh);
@@ -268,9 +318,55 @@ bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value
 			{
 				break;
 			}
+			return false;
 		}
 	}
-	return false;
+	for (int i = 0; i < goods_manager_t::mail->get_number_of_classes(); i++)
+	{
+		if (comp == mail_class_sel + i)
+		{
+			sint32 new_class = mail_class_sel[i].get_selection();
+			//sint32 new_class = goods_manager_t::mail->get_number_of_classes() - mail_class_sel[i].get_selection() - 1;
+			if (new_class < 0)
+			{
+				mail_class_sel[i].set_selection(0);
+				new_class = 0;
+			}
+			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+			{
+				vehicle_t* v = cnv->get_vehicle(veh);
+				if (v->get_cargo_type()->get_catg_index() == 1)
+				{
+					v->set_class_reassignment(i, new_class);
+				}
+			}
+			if (i < 0)
+			{
+				break;
+			}
+			return false;
+		}
+	}
+	if (comp == &reset_all_classes_button)
+	{
+		for (int i = 0; i < max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes()); i++)
+		{
+			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+			{
+				vehicle_t* v = cnv->get_vehicle(veh);
+				v->set_class_reassignment(i, i);
+				if (v->get_cargo_type()->get_catg_index() == 0)
+				{
+					pass_class_sel[i].set_selection(i);
+				}		
+				if (v->get_cargo_type()->get_catg_index() == 1)
+				{
+					mail_class_sel[i].set_selection(i);
+				}
+			}
+		}
+		return true;
+	}
 }
 
 
