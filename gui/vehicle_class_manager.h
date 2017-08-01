@@ -34,6 +34,10 @@ private:
 	 */
 	convoihandle_t cnv;
 	
+	gui_combobox_t pass_class_veh_sel[255];
+	gui_combobox_t mail_class_veh_sel[255];
+
+	gui_container_t cont;
 
 public:
 	/**
@@ -43,7 +47,8 @@ public:
 	gui_class_vehicleinfo_t(convoihandle_t cnv);
 
 
-	bool action_triggered(gui_action_creator_t*, value_t);
+
+	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void set_cnv( convoihandle_t c ) { cnv = c; }
 
