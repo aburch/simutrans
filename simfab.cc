@@ -1891,8 +1891,8 @@ void fabrik_t::step(uint32 delta_t)
 				// produces something
 				for (uint32 product = 0; product < output.get_count(); product++) {
 					// calculate production
-					const sint32 p_menge = (sint32)scale_output_production(product, prod);
-
+					//const sint32 p_menge = (sint32)scale_output_production(product, prod);
+					const sint32 p_menge = prod;
 
 					const sint32 menge_out = p_menge < min_menge ? p_menge : min_menge;  // production smaller than possible due to consumption
 					if (menge_out > consumed_menge) {
