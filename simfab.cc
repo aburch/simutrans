@@ -2071,7 +2071,9 @@ void fabrik_t::step(uint32 delta_t)
 			for (uint32 product = 0; product < output.get_count(); product++)
 			{
 				// calculate production
-				sint32 p_menge = (sint32)scale_output_production(product, prod);
+				// sint32 p_menge = (sint32)scale_output_production(product, prod);
+				sint32 p_menge = prod;
+
 				if (status == staff_shortage)
 				{
 					// Do not reduce production unless the staff numbers
