@@ -2271,7 +2271,7 @@ uint8 vehicle_t::get_comfort(uint8 catering_level, uint8 g_class) const
 
 	for (uint8 i = 0; i < desc->get_number_of_classes(); i++)
 	{
-		if (class_reassignments[i] == g_class)
+		if (class_reassignments[i] == g_class && desc->get_capacity(i) > 0)
 		{
 			comf += desc->get_adjusted_comfort(catering_level, i);
 			counter++;
