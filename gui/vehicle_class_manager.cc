@@ -389,6 +389,10 @@ bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 			{
 				vehicle_t* v = cnv->get_vehicle(veh);
+				if (v->get_desc()->get_number_of_classes() <= i)
+				{
+					continue; 
+				}
 				v->set_class_reassignment(i, i);
 				pass_class_sel[i].set_selection(i);
 				mail_class_sel[i].set_selection(i);

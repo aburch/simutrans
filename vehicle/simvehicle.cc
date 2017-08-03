@@ -2223,7 +2223,7 @@ uint16 vehicle_t::get_total_cargo_by_class(uint8 g_class) const
 	uint16 carried = 0;
 	for (uint8 i = 0; i < desc->get_number_of_classes(); i++)
 	{
-		if (class_reassignments[i] == g_class)
+		if(class_reassignments[i] == g_class && desc->get_capacity(i) > 0)
 		{
 			carried += fracht[i].get_count();
 		}
@@ -2857,6 +2857,11 @@ vehicle_t::~vehicle_t()
 
 void vehicle_t::set_class_reassignment(uint8 original_class, uint8 new_class)
 {
+	if (original_class > number_of_classes)
+	{
+		dbg->error("vehicle_t::set_class_reassignment()", "Attempt to set class out of range");
+		return;
+	}
 	const bool different = class_reassignments[original_class] != new_class;
 	class_reassignments[original_class] = new_class;
 	if (different)
