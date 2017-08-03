@@ -34,6 +34,7 @@
 
 #include "../boden/grund.h"
 #include "../boden/wege/weg.h"
+#include "../boden/wege/strasse.h"
 
 #include "../descriptor/citycar_desc.h"
 #include "../descriptor/roadsign_desc.h"
@@ -477,7 +478,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 	}
 
 	// road still there?
-	weg_t * str = gr->get_weg(road_wt);
+	strasse_t * str = (strasse_t*)gr->get_weg(road_wt);
 	if(str==NULL) {
 		time_to_life = 0;
 		return false;
@@ -516,8 +517,8 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			// side road -> main road from passing lane side: vehicle should enter passing lane on main road.
 			next_lane = 0;
 			if(  str->get_overtaking_mode() == oneway_mode  ) {
-				const weg_t* str_prev = welt->lookup(get_pos())->get_weg(road_wt);
-				const weg_t* str_next = welt->lookup(pos_next)->get_weg(road_wt);
+				const strasse_t* str_prev = (strasse_t*)(welt->lookup(get_pos())->get_weg(road_wt));
+				const strasse_t* str_next = (strasse_t*)(welt->lookup(pos_next)->get_weg(road_wt));
 				const bool left_driving = welt->get_settings().is_drive_left();
 				if(str_prev && str_next && str_prev->get_overtaking_mode() > oneway_mode  && str_next->get_overtaking_mode() == oneway_mode) {
 					if(  (!left_driving  &&  ribi_t::rotate90l(get_90direction()) == calc_direction(pos_next,pos_next_next))  ||  (left_driving  &&  ribi_t::rotate90(get_90direction()) == calc_direction(pos_next,pos_next_next))  ) {
@@ -529,7 +530,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 
 			// When overtaking_mode changes from inverted_mode to others, no cars blocking must work as the convoi is on traffic lane. Otherwise, no_cars_blocking cannot recognize vehicles on the traffic lane of the next tile.
 			//next_lane = -1 does NOT mean that the vehicle must go traffic lane on the next tile.
-			const weg_t* current_str = welt->lookup(get_pos())->get_weg(road_wt);
+			const strasse_t* current_str = (strasse_t*)(welt->lookup(get_pos())->get_weg(road_wt));
 			if(  current_str  &&  current_str->get_overtaking_mode()==inverted_mode  ) {
 				if(  str->get_overtaking_mode()<inverted_mode  ) {
 					next_lane = -1;
@@ -936,7 +937,7 @@ void private_car_t::hop(grund_t* to)
 
 	calc_current_speed(to);
 
-	weg_t *str = to->get_weg(road_wt);
+	strasse_t *str = (strasse_t*)(to->get_weg(road_wt));
 	//decide if overtaking citycar should go back to the traffic lane.
 	if(  get_tiles_overtaking() == 1  &&  str->get_overtaking_mode() == oneway_mode  ){
 		vehicle_base_t* v = NULL;
@@ -1037,7 +1038,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		// should never happen, since there is a vehicle in front of us ...
 		return false;
 	}
-	const weg_t *str = gr->get_weg(road_wt);
+	const strasse_t *str = (strasse_t*)(gr->get_weg(road_wt));
 	if(  str==0  ) {
 		// also this is not possible, since a car loads in front of is!?!
 		return false;
@@ -1063,7 +1064,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 			if(  gr==NULL  ) {
 				return false;
 			}
-			weg_t *str = gr->get_weg(road_wt);
+			strasse_t *str = (strasse_t*)(gr->get_weg(road_wt));
 			if(  str==0  ) {
 				return false;
 			}
@@ -1197,7 +1198,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		pos_prev = check_pos.get_2d();
 
 		// nowhere to go => nobody can come against us ...
-		if(to==NULL  ||  (str=to->get_weg(road_wt))==NULL) {
+		if(to==NULL  ||  (str=(strasse_t*)(to->get_weg(road_wt)))==NULL) {
 			return false;
 		}
 
@@ -1209,7 +1210,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 				const overtaker_t *ov = v->get_overtaker();
 				if(ov) {
 					if(this!=ov  &&  other_overtaker!=ov) {
-						if(  gr->get_weg(road_wt)->get_overtaking_mode() == oneway_mode  ) {
+						if(  static_cast<strasse_t*>(gr->get_weg(road_wt))->get_overtaking_mode() == oneway_mode  ) {
 							//If ov goes same directory, should not return false
 							if (v && v->get_direction() != direction && v->get_overtaker()) {
 								return false;
@@ -1275,7 +1276,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		pos_prev = check_pos.get_2d();
 
 		// nowhere to go => nobody can come against us ...
-		if(to==NULL  ||  (str=to->get_weg(road_wt))==NULL) {
+		if(to==NULL  ||  (str=(strasse_t*)(to->get_weg(road_wt)))==NULL) {
 			break;
 		}
 

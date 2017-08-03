@@ -1314,7 +1314,7 @@ void convoi_t::step()
 					akt_speed = restart_speed;
 				}
 				if(  fahr[0]->get_waytype()==road_wt  ) {
-					sint8 overtaking_mode = welt->lookup(get_pos())->get_weg(road_wt)->get_overtaking_mode();
+					sint8 overtaking_mode = static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode();
 					if(  (state==CAN_START  ||  state==CAN_START_ONE_MONTH)  &&  overtaking_mode!=oneway_mode  &&  overtaking_mode!=inverted_mode  ) {
 						set_tiles_overtaking( 0 );
 					}
@@ -1334,7 +1334,7 @@ void convoi_t::step()
 					akt_speed = restart_speed;
 				}
 				if(  fahr[0]->get_waytype()==road_wt  ) {
-					sint8 overtaking_mode = welt->lookup(get_pos())->get_weg(road_wt)->get_overtaking_mode();
+					sint8 overtaking_mode = static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode();
 					if(  state!=DRIVING  &&  overtaking_mode!=oneway_mode  &&  overtaking_mode!=inverted_mode  ) {
 						set_tiles_overtaking( 0 );
 					}
@@ -3614,7 +3614,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		// should never happen, since there is a vehicle in front of us ...
 		return false;
 	}
-	weg_t *str = gr->get_weg(road_wt);
+	strasse_t *str = (strasse_t*)gr->get_weg(road_wt);
 	if(  str==0  ) {
 		// also this is not possible, since a car loads in front of is!?!
 		return false;
@@ -3753,7 +3753,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		if(  gr==NULL  ) {
 			return false;
 		}
-		weg_t *str = gr->get_weg(road_wt);
+		strasse_t *str = (strasse_t*)gr->get_weg(road_wt);
 		if(  str==NULL  ) {
 			return false;
 		}

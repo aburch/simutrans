@@ -38,6 +38,8 @@ strasse_t::strasse_t() : weg_t()
 {
 	set_gehweg(false);
 	set_desc(default_strasse);
+	ribi_mask_oneway =ribi_t::none;
+	overtaking_mode = twoway_mode;
 }
 
 
@@ -47,6 +49,19 @@ void strasse_t::rdwr(loadsave_t *file)
 	xml_tag_t s( file, "strasse_t" );
 
 	weg_t::rdwr(file);
+
+	if(  file->get_version() >= 120006  ) {
+		uint8 mask_oneway = get_ribi_mask_oneway();
+		file->rdwr_byte(mask_oneway);
+		set_ribi_mask_oneway(mask_oneway);
+		sint8 ov = get_overtaking_mode();
+		file->rdwr_byte(ov);
+		overtaking_mode_t nov = (overtaking_mode_t)ov;
+		set_overtaking_mode(nov);
+	} else {
+		set_ribi_mask_oneway(ribi_t::none);
+		set_overtaking_mode(twoway_mode);
+	}
 
 	if(file->get_version()<89000) {
 		bool gehweg;
@@ -80,4 +95,45 @@ void strasse_t::rdwr(loadsave_t *file)
 			set_max_speed(50);
 		}
 	}
+}
+
+void strasse_t::update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow)
+{
+	// assertion. @mask and @allow must be single or none.
+	if(!(ribi_t::is_single(mask)||(mask==ribi_t::none))) dbg->error( "weg_t::update_ribi_mask_oneway()", "mask is not single or none.");
+	if(!(ribi_t::is_single(allow)||(allow==ribi_t::none))) dbg->error( "weg_t::update_ribi_mask_oneway()", "allow is not single or none.");
+
+	if(  mask==ribi_t::none  ) {
+		if(  ribi_t::is_twoway(get_ribi_unmasked())  ) {
+			// auto complete
+			ribi_mask_oneway |= (get_ribi_unmasked()-allow);
+		}
+	} else {
+		ribi_mask_oneway |= mask;
+	}
+	// remove backward ribi
+	if(  allow==ribi_t::none  ) {
+		if(  ribi_t::is_twoway(get_ribi_unmasked())  ) {
+			// auto complete
+			ribi_mask_oneway &= ~(get_ribi_unmasked()-mask);
+		}
+	} else {
+		ribi_mask_oneway &= ~allow;
+	}
+}
+
+
+ribi_t::ribi strasse_t::get_ribi() const {
+	ribi_t::ribi ribi = get_ribi_unmasked();
+	ribi_t::ribi ribi_maske = get_ribi_maske();
+	if(  get_waytype()==road_wt  &&  overtaking_mode==oneway_mode  ) {
+		return (ribi_t::ribi)((ribi & ~ribi_maske) & ~ribi_mask_oneway);
+	} else {
+		return (ribi_t::ribi)(ribi & ~ribi_maske);
+	}
+}
+
+void strasse_t::rotate90() {
+	weg_t::rotate90();
+	ribi_mask_oneway = ribi_t::rotate90( ribi_mask_oneway );
 }

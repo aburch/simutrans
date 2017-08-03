@@ -104,41 +104,6 @@ weg_t* weg_t::alloc(waytype_t wt)
 }
 
 
-ribi_t::ribi weg_t::get_ribi() const {
-	if(  get_waytype()==road_wt  &&  overtaking_mode==oneway_mode  ) {
-		return (ribi_t::ribi)((ribi & ~ribi_maske) & ~ribi_mask_oneway);
-	} else {
-		return (ribi_t::ribi)(ribi & ~ribi_maske);
-	}
-}
-
-
-void weg_t::update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow)
-{
-	// assertion. @mask and @allow must be single or none.
-	if(!(ribi_t::is_single(mask)||(mask==ribi_t::none))) dbg->error( "weg_t::update_ribi_mask_oneway()", "mask is not single or none.");
-	if(!(ribi_t::is_single(allow)||(allow==ribi_t::none))) dbg->error( "weg_t::update_ribi_mask_oneway()", "allow is not single or none.");
-
-	if(  mask==ribi_t::none  ) {
-		if(  ribi_t::is_twoway(get_ribi_unmasked())  ) {
-			// auto complete
-			ribi_mask_oneway |= (get_ribi_unmasked()-allow);
-		}
-	} else {
-		ribi_mask_oneway |= mask;
-	}
-	// remove backward ribi
-	if(  allow==ribi_t::none  ) {
-		if(  ribi_t::is_twoway(get_ribi_unmasked())  ) {
-			// auto complete
-			ribi_mask_oneway &= ~(get_ribi_unmasked()-mask);
-		}
-	} else {
-		ribi_mask_oneway &= ~allow;
-	}
-}
-
-
 // returns a string with the "official name of the waytype"
 const char *weg_t::waytype_to_string(waytype_t wt)
 {
@@ -196,7 +161,7 @@ void weg_t::init_statistics()
  */
 void weg_t::init()
 {
-	ribi = ribi_maske = ribi_mask_oneway =ribi_t::none;
+	ribi = ribi_maske = ribi_t::none;
 	max_speed = 450;
 	desc = 0;
 	init_statistics();
@@ -204,7 +169,6 @@ void weg_t::init()
 	flags = 0;
 	image = IMG_EMPTY;
 	foreground_image = IMG_EMPTY;
-	overtaking_mode = twoway_mode;
 }
 
 
@@ -221,16 +185,6 @@ weg_t::~weg_t()
 void weg_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "weg_t" );
-
-	if(  file->get_version() >= 120006  ) {
-		uint8 mask_oneway = get_ribi_mask_oneway();
-		file->rdwr_byte(mask_oneway);
-		set_ribi_mask_oneway(mask_oneway);
-		sint8 ov = get_overtaking_mode();
-		file->rdwr_byte(ov);
-		overtaking_mode_t nov = (overtaking_mode_t)ov;
-		set_overtaking_mode(nov);
-	}
 
 	// save owner
 	if(  file->get_version() >= 99006  ) {
@@ -284,8 +238,10 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.printf("%s%u\n",  translator::translate("\nRibi (masked)"),   get_ribi());
 
 	if(  get_waytype() == road_wt  ) {
+		strasse_t* str = (strasse_t*) this;
+		assert(str);
 		// Display overtaking_info
-		switch (get_overtaking_mode()) {
+		switch (str->get_overtaking_mode()) {
 			case oneway_mode:
 				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("oneway"));
 				break;
@@ -343,7 +299,6 @@ void weg_t::rotate90()
 	obj_t::rotate90();
 	ribi = ribi_t::rotate90( ribi );
 	ribi_maske = ribi_t::rotate90( ribi_maske );
-	ribi_mask_oneway = ribi_t::rotate90( ribi_mask_oneway );
 }
 
 

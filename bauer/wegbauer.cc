@@ -2097,19 +2097,21 @@ bool way_builder_t::build_tunnel_tile()
 				tunnel->obj_add(new tunnel_t(route[i], player_builder, tunnel_desc));
 				weg->set_max_speed(tunnel_desc->get_topspeed());
 				if(  tunnel_desc->get_waytype()==road_wt  ) {
-					weg->set_overtaking_mode(overtaking_mode);
-					if(  weg->get_overtaking_mode()!=oneway_mode  ) {
-						weg->set_ribi_mask_oneway(ribi_t::none);
+					strasse_t* str = (strasse_t*) weg;
+					assert(str);
+					str->set_overtaking_mode(overtaking_mode);
+					if(  str->get_overtaking_mode()!=oneway_mode  ) {
+						str->set_ribi_mask_oneway(ribi_t::none);
 					} else if(  overtaking_mode==oneway_mode  &&  get_count()>1   ){ //of course street is oneway_mode
 						if(  i==0  ) {
-							if(  route_reversed  ) weg->update_ribi_mask_oneway(ribi_type(route[0],route[1]),ribi_t::none);
-							if(  !route_reversed  ) weg->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]));
+							if(  route_reversed  ) str->update_ribi_mask_oneway(ribi_type(route[0],route[1]),ribi_t::none);
+							if(  !route_reversed  ) str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]));
 						} else if(  i==get_count()-1  ) {
-							if(  route_reversed  ) weg->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[i],route[i-1]));
-							if(  !route_reversed  ) weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none);
+							if(  route_reversed  ) str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[i],route[i-1]));
+							if(  !route_reversed  ) str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none);
 						} else {
-							if(  route_reversed  )  weg->update_ribi_mask_oneway(ribi_type(route[i],route[i+1]),ribi_type(route[i],route[i-1]));
-							if(  !route_reversed  )  weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
+							if(  route_reversed  )  str->update_ribi_mask_oneway(ribi_type(route[i],route[i+1]),ribi_type(route[i],route[i-1]));
+							if(  !route_reversed  )  str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
 						}
 					}
 				}
@@ -2143,7 +2145,11 @@ bool way_builder_t::build_tunnel_tile()
 					weg_t *weg = gr->get_weg(tunnel_desc->get_waytype());
 					weg->set_desc(wb);
 					weg->set_max_speed(tunnel_desc->get_topspeed());
-					weg->set_overtaking_mode(overtaking_mode);
+					if(  tunnel_desc->get_waytype()==road_wt  ) {
+						strasse_t* str = (strasse_t*)gr->get_weg(road_wt);
+						assert(str);
+						str->set_overtaking_mode(overtaking_mode);
+					}
 					// respect max speed of catenary
 					wayobj_t const* const wo = gr->get_wayobj(tunnel_desc->get_waytype());
 					if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
@@ -2156,19 +2162,19 @@ bool way_builder_t::build_tunnel_tile()
 					cost -= tunnel_desc->get_price();
 				}
 				if(  tunnel_desc->get_waytype()==road_wt  ) {
-					weg_t *weg = gr->get_weg(road_wt);
-					if(  weg->get_overtaking_mode()!=oneway_mode  ) {
-						weg->set_ribi_mask_oneway(ribi_t::none);
+					strasse_t *str = (strasse_t*)gr->get_weg(road_wt);
+					if(  str->get_overtaking_mode()!=oneway_mode  ) {
+						str->set_ribi_mask_oneway(ribi_t::none);
 					} else if(  overtaking_mode==oneway_mode  &&  get_count()>1   ){ //of course street is oneway_mode
 						if(  i==0  ) {
-							if(  route_reversed  ) weg->update_ribi_mask_oneway(ribi_type(route[0],route[1]),ribi_t::none);
-							if(  !route_reversed  ) weg->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]));
+							if(  route_reversed  ) str->update_ribi_mask_oneway(ribi_type(route[0],route[1]),ribi_t::none);
+							if(  !route_reversed  ) str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]));
 						} else if(  i==get_count()-1  ) {
-							if(  route_reversed  ) weg->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[i],route[i-1]));
-							if(  !route_reversed  ) weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none);
+							if(  route_reversed  ) str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[i],route[i-1]));
+							if(  !route_reversed  ) str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_t::none);
 						} else {
-							if(  route_reversed  )  weg->update_ribi_mask_oneway(ribi_type(route[i],route[i+1]),ribi_type(route[i],route[i-1]));
-							if(  !route_reversed  )  weg->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
+							if(  route_reversed  )  str->update_ribi_mask_oneway(ribi_type(route[i],route[i+1]),ribi_type(route[i],route[i-1]));
+							if(  !route_reversed  )  str->update_ribi_mask_oneway(ribi_type(route[i],route[i-1]),ribi_type(route[i],route[i+1]));
 						}
 					}
 				}

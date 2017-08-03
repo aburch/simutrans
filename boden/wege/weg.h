@@ -94,13 +94,6 @@ private:
 	*/
 	uint8 ribi_maske:4;
 
-
-	/**
-	* Mask used by oneway_mode road
-	* @author THLeaderH
-	*/
-	uint8 ribi_mask_oneway:4;
-
 	/**
 	* flags like walkway, electrification, road sings
 	* @author Hj. Malthaner
@@ -115,11 +108,6 @@ private:
 
 	image_id image;
 	image_id foreground_image;
-
-	/**
-	* @author THLeaderH
-	*/
-	overtaking_mode_t overtaking_mode;
 
 	/**
 	* Initializes all member variables
@@ -224,18 +212,6 @@ public:
 	const char *get_name() const { return desc->get_name(); }
 
 	/**
-	* Overtaking mode (declared in simtypes.h)
-	* oneway_mode = condition for one-way road
-	* twoway_mode = condition for two-way road
-	* loading_only_mode = overtaking a loading convoy only
-	* prohibited_mode = overtaking is completely forbidden
-	* inverted_mode = vehicles can go only on passing lane
-	* @author teamhimeH
-	*/
-	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode; };
-	void set_overtaking_mode(overtaking_mode_t o) { overtaking_mode = o; };
-
-	/**
 	* Add direction bits (ribi) for a way.
 	*
 	* Nachdem die ribis geändert werden, ist das weg_image des
@@ -273,7 +249,7 @@ public:
 	/**
 	* Get the masked direction bits (ribi) for the way (with signals or other ribi changer).
 	*/
-	ribi_t::ribi get_ribi() const;
+	virtual ribi_t::ribi get_ribi() const { return (ribi_t::ribi)(ribi & ~ribi_maske); };
 
 	/**
 	* für Signale ist es notwendig, bestimmte Richtungsbits auszumaskieren
@@ -283,16 +259,11 @@ public:
 	void set_ribi_maske(ribi_t::ribi ribi) { ribi_maske = (uint8)ribi; }
 	ribi_t::ribi get_ribi_maske() const { return (ribi_t::ribi)ribi_maske; }
 
-	void set_ribi_mask_oneway(ribi_t::ribi ribi) { ribi_mask_oneway = (uint8)ribi; }
-	// used in wegbauer. param @allow is ribi in which vehicles can go. without this, ribi cannot be updated correctly at intersections.
-	void update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow);
-	ribi_t::ribi get_ribi_mask_oneway() const { return (ribi_t::ribi)ribi_mask_oneway; }
-
 	/**
 	 * called during map rotation
 	 * @author priss
 	 */
-	void rotate90();
+	virtual void rotate90();
 
 	/**
 	* book statistics - is called very often and therefore inline

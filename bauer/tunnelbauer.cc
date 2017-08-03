@@ -20,6 +20,7 @@
 #include "../descriptor/tunnel_desc.h"
 
 #include "../boden/tunnelboden.h"
+#include "../boden/wege/strasse.h"
 
 #include "../dataobj/scenario.h"
 #include "../dataobj/environment.h"
@@ -459,8 +460,12 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 			weg = weg_t::alloc(desc->get_waytype());
 			weg->set_desc(way_desc);
 			weg->set_max_speed(desc->get_topspeed());
-			weg->set_overtaking_mode(overtaking_mode);
-			weg->set_ribi_mask_oneway(ribi_type(-zv));
+			if(  wegtyp==road_wt  ) {
+				strasse_t* str = (strasse_t*) weg;
+				assert(str);
+				str->set_overtaking_mode(overtaking_mode);
+				str->set_ribi_mask_oneway(ribi_type(-zv));
+			}
 			tunnel->neuen_weg_bauen(weg, ribi_t::doubles(ribi), player);
 			player_t::add_maintenance( player, -weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype() );
 		}
@@ -566,11 +571,16 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 		}
 		player_t::add_maintenance( player, -weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype() );
 		weg->set_max_speed( desc->get_topspeed() );
-		weg->set_overtaking_mode(overtaking_mode);
-		if(  desc->get_waytype()==road_wt  &&  overtaking_mode==oneway_mode  ) {
-			if(  beginning  ) weg->set_ribi_mask_oneway(ribi_type(-zv));
-			if(  !beginning  ) weg->set_ribi_mask_oneway(ribi_type(zv));
+		if(  desc->get_waytype()==road_wt  ) {
+			strasse_t* str = (strasse_t*)weg;
+			assert(weg);
+			str->set_overtaking_mode(overtaking_mode);
+			if(  desc->get_waytype()==road_wt  &&  overtaking_mode==oneway_mode  ) {
+				if(  beginning  ) str->set_ribi_mask_oneway(ribi_type(-zv));
+				if(  !beginning  ) str->set_ribi_mask_oneway(ribi_type(zv));
+			}
 		}
+
 	}
 	else {
 		leitung_t *lt = tunnel->get_leitung();

@@ -20,6 +20,7 @@
 
 #include "../boden/boden.h"
 #include "../boden/brueckenboden.h"
+#include "../boden/wege/strasse.h"
 
 #include "../gui/tool_selector.h"
 #include "../gui/karte.h"
@@ -775,9 +776,12 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 		if(  desc->get_waytype() != powerline_wt  ) {
 			weg_t * const weg = weg_t::alloc(desc->get_waytype());
 			weg->set_desc(way_desc);
-			weg->set_overtaking_mode(overtaking_mode);
-			if(  way_desc->get_waytype()==road_wt  &&  overtaking_mode==oneway_mode  ) {
-				weg->set_ribi_mask_oneway(ribi_t::reverse_single(ribi_type(zv)));
+			if(  way_desc->get_waytype()==road_wt  ) {
+				strasse_t* str = (strasse_t*) weg;
+				str->set_overtaking_mode(overtaking_mode);
+				if(  overtaking_mode==oneway_mode  ) {
+					str->set_ribi_mask_oneway(ribi_t::reverse_single(ribi_type(zv)));
+				}
 			}
 			bruecke->neuen_weg_bauen(weg, ribi_t::doubles(ribi), player);
 		}
@@ -831,7 +835,11 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 				// builds new way
 				weg_t * const weg = weg_t::alloc( desc->get_waytype() );
 				weg->set_desc( way_desc );
-				weg->set_overtaking_mode( overtaking_mode );
+				if(  weg->get_waytype()==road_wt  ) {
+					strasse_t* str = (strasse_t*)weg;
+					assert(str);
+					str->set_overtaking_mode( overtaking_mode );
+				}
 				player_t::book_construction_costs( player, -gr->neuen_weg_bauen( weg, ribi, player ) -weg->get_desc()->get_price(), end.get_2d(), weg->get_waytype());
 			}
 			gr->calc_image();
@@ -907,10 +915,14 @@ void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ri
 			player_t::book_construction_costs(player, -bruecke->neuen_weg_bauen( weg, ribi_neu, player ), end.get_2d(), desc->get_waytype());
 		}
 		weg->set_max_speed( desc->get_topspeed() );
-		weg->set_overtaking_mode(overtaking_mode);
-		if(  desc->get_waytype()==road_wt  &&  overtaking_mode==oneway_mode  ) {
-			if(  beginning  ) weg->set_ribi_mask_oneway(ribi_t::reverse_single(ribi_neu));
-			if(  !beginning  ) weg->set_ribi_mask_oneway(ribi_neu);
+		if(  desc->get_waytype()==road_wt  ) {
+			strasse_t* str = (strasse_t*) weg;
+			assert(str);
+			str->set_overtaking_mode(overtaking_mode);
+			if(  overtaking_mode==oneway_mode  ) {
+				if(  beginning  ) str->set_ribi_mask_oneway(ribi_t::reverse_single(ribi_neu));
+				if(  !beginning  ) str->set_ribi_mask_oneway(ribi_neu);
+			}
 		}
 	}
 	else {
