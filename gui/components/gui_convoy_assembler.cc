@@ -1940,7 +1940,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 
 			if (veh_type->get_freight_type()->get_catg() == 0)
 			{
-				for (uint8 i = 0; i < veh_type->get_number_of_classes(); i++)
+				for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
 				{
 					if (veh_type->get_capacity(i) > 0)
 					{
@@ -1961,7 +1961,22 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			}
 			else if (veh_type->get_freight_type()->get_catg() == 1)
 			{
+				for (uint8 i = 0; i < goods_manager_t::mail->get_number_of_classes(); i++)
+				{
+					if (veh_type->get_capacity(i) > 0)
+					{
+						char class_name_untranslated[32];
+						sprintf(class_name_untranslated, "m_class[%u]", i);
+						const char* class_name = translator::translate(class_name_untranslated);
+						n += sprintf(buf + n, "%s: ", class_name);
+						n += sprintf(buf + n, "\n");
 
+						char capacity[32];
+						sprintf(capacity, "%i", veh_type->get_capacity(i));
+						n += sprintf(buf + n, translator::translate("capacity: %s %s"), capacity, veh_type->get_freight_type()->get_name());
+						n += sprintf(buf + n, "\n");
+					}
+				}
 			}
 			else
 			{
