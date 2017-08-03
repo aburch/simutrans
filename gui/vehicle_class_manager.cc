@@ -49,35 +49,53 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 	this->cnv = cnv;
 	int offset_y = LINESPACE;
 
-	uint16 pass_classes = goods_manager_t::passengers->get_number_of_classes();
-	uint16 mail_classes = goods_manager_t::mail->get_number_of_classes();
-	char pass_class_name_untranslated[32][1020];
+	uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
+	uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
+	char *class_name;
+	char *pass_class_name_untranslated[32];
 	for (int i = 0; i < pass_classes; i++)
 	{
+		class_name = new char[32];
+		sprintf(class_name, "p_class[%u]", i);
+		pass_class_name_untranslated[i]= class_name;
+	}
+
+	char *mail_class_name_untranslated[32];
+	for (int i = 0; i < mail_classes; i++)
+	{
+		class_name = new char[32];
+		sprintf(class_name, "p_class[%u]", i);
+		mail_class_name_untranslated[i] = class_name;
+	}
+	
+	for (int i = 0; i < pass_classes; i++)
+	{
+		/*gui_combobox_t *class_selector = new gui_combobox_t();
+		class_selector->set_highlight_color(1);*/
+
+
 		pass_class_sel[i].set_highlight_color(1);
 		pass_class_sel[i].clear_elements();
 		//class_indices.clear();
-
-		
+		/*char pass_class_name_untranslated[32][514];*/
 		for (int j = 0; j < pass_classes; j++)
-		{
-			sprintf(pass_class_name_untranslated[j], "p_class[%u]", j /*- 1*/);
+		{	
 			pass_class_sel[i].append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
-			//class_indices.append(j);
+			
 		}
 		add_component(pass_class_sel + i);
 		pass_class_sel[i].add_listener(this);
 		pass_class_sel[i].set_focusable(false);
 		offset_y += LINESPACE;
 	}
-	char mail_class_name_untranslated[32][1020];
+
+
+
 	for (int i = 0; i < mail_classes; i++)
 	{
 		mail_class_sel[i].set_highlight_color(1);
 		mail_class_sel[i].clear_elements();
 		//class_indices.clear();
-
-		
 		for (int j = 0; j < mail_classes; j++)
 		{
 			sprintf(mail_class_name_untranslated[j], "m_class[%u]", j /*- 1*/);
@@ -85,6 +103,7 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 			//class_indices.append(j);
 		}
 		add_component(mail_class_sel + i);
+		
 		mail_class_sel[i].add_listener(this);
 		mail_class_sel[i].set_focusable(false);
 		offset_y += LINESPACE;
@@ -109,6 +128,16 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 	resize(scr_coord(0, 0));
 }
 
+//vehicle_class_manager_t::~vehicle_class_manager_t()
+//{
+//	clear_ptr_vector(pass_class_sel);
+//	clear_ptr_vector(mail_class_sel);
+//
+//	for (int i = 0; i < max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes()); i++)
+//	{
+//		delete mail_class_sel[i];
+//	}
+//}
 
 void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 {
@@ -299,6 +328,8 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
  */
 bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t p)
 {
+
+	// TODO: Create and make this call "call_vehicle_tool(blablabla)". Im not sure how to do that properly yet, either I figure it out my self or maybe James could take a look.
 	for (int i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
 	{
 		if (comp == pass_class_sel + i)
@@ -440,38 +471,38 @@ gui_class_vehicleinfo_t::gui_class_vehicleinfo_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
 
-	int pass_class_capacity[255] = { 0 };
-	int mail_class_capacity[255] = { 0 };
-	uint16 pass_classes = goods_manager_t::passengers->get_number_of_classes();
-	uint16 mail_classes = goods_manager_t::mail->get_number_of_classes();
+	//int pass_class_capacity[255] = { 0 };
+	//int mail_class_capacity[255] = { 0 };
+	//uint16 pass_classes = goods_manager_t::passengers->get_number_of_classes();
+	//uint16 mail_classes = goods_manager_t::mail->get_number_of_classes();
 
-	for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
-	{
-		vehicle_t* v = cnv->get_vehicle(veh);
-		if (v->get_cargo_type()->get_catg_index() == 0)
-		{
-			for (int i = 0; i < pass_classes; i++)
-			{
-				if (v->get_desc()->get_capacity(i) > 0)
-				{
-					pass_class_veh_sel[i].set_highlight_color(1);
-					pass_class_veh_sel[i].clear_elements();
+	//for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+	//{
+	//	vehicle_t* v = cnv->get_vehicle(veh);
+	//	if (v->get_cargo_type()->get_catg_index() == 0)
+	//	{
+	//		for (int i = 0; i < pass_classes; i++)
+	//		{
+	//			if (v->get_desc()->get_capacity(i) > 0)
+	//			{
+	//				pass_class_veh_sel[i].set_highlight_color(1);
+	//				pass_class_veh_sel[i].clear_elements();
 
-					char pass_class_name_untranslated[32][1020];
-					for (int j = 0; j < pass_classes; j++)
-					{
-						sprintf(pass_class_name_untranslated[j], "p_class[%u]", j /*- 1*/);
-						pass_class_veh_sel[i].append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
-						//class_indices.append(j);
-					}
-					add_component(pass_class_veh_sel + i);
-					pass_class_veh_sel[i].add_listener(this);
-					pass_class_veh_sel[i].set_focusable(false);
+	//				char pass_class_name_untranslated[32][1020];
+	//				for (int j = 0; j < pass_classes; j++)
+	//				{
+	//					sprintf(pass_class_name_untranslated[j], "p_class[%u]", j /*- 1*/);
+	//					pass_class_veh_sel[i].append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
+	//					//class_indices.append(j);
+	//				}
+	//				add_component(pass_class_veh_sel + i);
+	//				pass_class_veh_sel[i].add_listener(this);
+	//				pass_class_veh_sel[i].set_focusable(false);
 
-				}
-			}
-		}
-	}
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 
@@ -618,8 +649,8 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 * This method is called if an action is triggered
 * @author Markus Weber
 */
-bool gui_class_vehicleinfo_t::action_triggered(gui_action_creator_t *comp, value_t p)
-{
-	return false;
-}
+//bool gui_class_vehicleinfo_t::action_triggered(gui_action_creator_t *comp, value_t p)
+//{
+//	return false;
+//}
 
