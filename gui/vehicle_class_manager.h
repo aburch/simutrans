@@ -34,8 +34,8 @@ private:
 	 */
 	convoihandle_t cnv;
 	
-	gui_combobox_t pass_class_veh_sel[255];
-	gui_combobox_t mail_class_veh_sel[255];
+	gui_combobox_t pass_class_veh_sel[256];
+	gui_combobox_t mail_class_veh_sel[256];
 
 	gui_container_t cont;
 
@@ -48,7 +48,7 @@ public:
 
 
 
-	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+	//bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void set_cnv( convoihandle_t c ) { cnv = c; }
 
@@ -76,7 +76,7 @@ private:
 	button_t	reset_all_classes_button;
 	button_t	retire_button;
 
-	vector_tpl<uint16> class_indices;
+	vector_tpl<char> class_indices;
 	gui_combobox_t pass_class_sel[255];
 	gui_combobox_t mail_class_sel[255];
 	gui_container_t cont;
