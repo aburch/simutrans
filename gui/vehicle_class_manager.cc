@@ -51,41 +51,45 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 
 	uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
 	uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
+
+	// First, create the list of the names of the classes
 	char *class_name;
 	char *pass_class_name_untranslated[32];
 	for (int i = 0; i < pass_classes; i++)
 	{
 		class_name = new char[32];
 		sprintf(class_name, "p_class[%u]", i);
-		pass_class_name_untranslated[i]= class_name;
+		pass_class_name_untranslated[i] = class_name;
 	}
 
 	char *mail_class_name_untranslated[32];
 	for (int i = 0; i < mail_classes; i++)
 	{
 		class_name = new char[32];
-		sprintf(class_name, "p_class[%u]", i);
+		sprintf(class_name, "m_class[%u]", i);
 		mail_class_name_untranslated[i] = class_name;
 	}
 	
 	for (int i = 0; i < pass_classes; i++)
 	{
-		/*gui_combobox_t *class_selector = new gui_combobox_t();
-		class_selector->set_highlight_color(1);*/
+		gui_combobox_t *class_selector = new gui_combobox_t();
+		class_selector->set_highlight_color(1);
+		class_selector->set_pos(scr_coord(100, offset_y));
+		class_selector->set_size(scr_size(190, D_BUTTON_HEIGHT));
+		class_selector->set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 3 + 2 + 16));
+		class_selector->set_visible(true);
 
-
-		pass_class_sel[i].set_highlight_color(1);
-		pass_class_sel[i].clear_elements();
-		//class_indices.clear();
-		/*char pass_class_name_untranslated[32][514];*/
 		for (int j = 0; j < pass_classes; j++)
 		{	
-			pass_class_sel[i].append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
-			
+			class_selector->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));	
 		}
-		add_component(pass_class_sel + i);
-		pass_class_sel[i].add_listener(this);
-		pass_class_sel[i].set_focusable(false);
+		add_component(class_selector);
+		class_selector->add_listener(this);
+		class_selector->set_focusable(false);
+
+		pass_class_sel[i] = class_selector;
+
+		//pass_class_sel[i]=class_selector;
 		offset_y += LINESPACE;
 	}
 
@@ -161,7 +165,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			// Set all comboboxes to invisible, so we later can pick the ones we want to see.
 			for (int i = 0; i < max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes()); i++)
 			{
-				pass_class_sel[i].set_visible(false);
+				//pass_class_sel[i].set_visible(false);
 				mail_class_sel[i].set_visible(false);
 			}
 
@@ -201,10 +205,10 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					display_proportional_clip(pos.x + 10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					offset_y += LINESPACE;
 
-					pass_class_sel[i].set_pos(scr_coord(get_windowsize().w-200, sel_offset_y));
-					pass_class_sel[i].set_size(scr_size(190, D_BUTTON_HEIGHT));
-					pass_class_sel[i].set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 3 + 2 + 16));
-					pass_class_sel[i].set_visible(true);
+					//pass_class_sel[i].set_pos(scr_coord(get_windowsize().w-200, sel_offset_y));
+					//pass_class_sel[i].set_size(scr_size(190, D_BUTTON_HEIGHT));
+					//pass_class_sel[i].set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 3 + 2 + 16));
+					//pass_class_sel[i].set_visible(true);
 					//pass_class_sel[i].append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
 					sel_offset_y += LINESPACE;
 									

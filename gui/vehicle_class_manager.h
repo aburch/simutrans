@@ -77,7 +77,8 @@ private:
 	button_t	retire_button;
 
 	vector_tpl<char> class_indices;
-	gui_combobox_t pass_class_sel[255];
+	gui_combobox_t *pass_class_sel;
+	//slist_tpl<gui_combobox_t *> pass_class_sel;
 	gui_combobox_t mail_class_sel[255];
 	gui_container_t cont;
 
