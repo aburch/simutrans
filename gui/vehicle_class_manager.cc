@@ -393,6 +393,10 @@ bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 			{
 				vehicle_t* v = cnv->get_vehicle(veh);
+				if (v->get_desc()->get_number_of_classes() <= i)
+				{
+					continue; 
+				}
 				v->set_class_reassignment(i, i);
 				pass_class_sel[i].set_selection(i);
 				mail_class_sel[i].set_selection(i);
@@ -611,8 +615,6 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 							display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 							extra_y += LINESPACE;
 	
-
-
 							buf.clear();
 							char capacity[32];
 							sprintf(capacity, v->get_overcrowding(i) > 0 ? "%i (%i)" : "%i", v->get_desc()->get_capacity(i), v->get_overcrowding(i));
@@ -621,7 +623,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 							extra_y += LINESPACE;
 
 							buf.clear();
-							buf.printf(translator::translate("  comfort: %i"), v->get_comfort(0, i));
+							buf.printf(translator::translate("  comfort: %i"), v->get_comfort(0, v->get_reassigned_class(i)));
 							display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 							extra_y += LINESPACE;
 
@@ -629,9 +631,9 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 							int len = 5 + display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, translator::translate("  income_pr_km_(when_full):"), ALIGN_LEFT, SYSCOL_TEXT, true);
 							// Revenue for moving 1 unit 1000 meters -- comes in 1/4096 of simcent, convert to simcents
 							// Excludes TPO/catering revenue, class and comfort effects.  FIXME --neroden
-							sint64 fare = v->get_cargo_type()->get_total_fare(1000, 0, v->get_comfort(0, i), 0, v->get_reassigned_class(i));
+							sint64 fare = v->get_cargo_type()->get_total_fare(1000, 0, v->get_comfort(0, v->get_reassigned_class(i)), 0, v->get_reassigned_class(i));
 							// Multiply by capacity, convert to simcents, subtract running costs
-							sint64 profit = ((v->get_capacity(i) + v->get_overcrowding(i))*fare + 2048ll) / 4096ll;
+							sint64 profit = ((v->get_capacity(v->get_reassigned_class(i)) + v->get_overcrowding(v->get_reassigned_class(i)))*fare + 2048ll) / 4096ll;
 							money_to_string(number, profit / 100.0);
 							display_proportional_clip(pos.x + w + offset.x + len, pos.y + offset.y + total_height + extra_y, number, ALIGN_LEFT, profit > 0 ? MONEY_PLUS : MONEY_MINUS, true);
 							extra_y += LINESPACE;
