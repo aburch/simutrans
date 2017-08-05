@@ -28,6 +28,7 @@ private:
 	slist_tpl <gui_component_t *> components;
 
 	// holds the GUI component that has the focus in this window
+	// focused component of this container can only be one of its immediate children
 	gui_component_t *comp_focus;
 
 	bool list_dirty:1;
