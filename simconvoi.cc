@@ -3980,7 +3980,7 @@ bool convoi_t::calc_lane_fix(uint8 lane_fix_sign)
 				// too many cars here or no street or not one-way road
 				return false;
 			}
-			ribi_t::ribi str_ribi = str->get_ribi();
+			ribi_t::ribi str_ribi = str->get_ribi_unmasked();
 			if(  str_ribi == ribi_t::all  ||  ribi_t::is_threeway(str_ribi)  ) {
 				// It's a intersection.
 				if(  test_index == 0  ||  test_index == route.get_count() - 1  ) {

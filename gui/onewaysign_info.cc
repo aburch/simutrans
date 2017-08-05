@@ -44,10 +44,10 @@ bool onewaysign_info_t::action_triggered( gui_action_creator_t *komp, value_t /*
 			fix ^= (i+1);
 		}
 	}
-	sign->set_lane_fix(fix);
-	for(  int i=0;  i<2;  i++  ) {
-		direction[i].pressed = (sign->get_lane_fix() & (i+1)) != 0;
-	}
+	char param[256];
+	sprintf( param, "%s,%i", sign->get_pos().get_str(), fix );
+	tool_t::simple_tool[TOOL_CHANGE_ROADSIGN]->set_default_param( param );
+	welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_ROADSIGN], welt->get_active_player() );
 	return true;
 }
 

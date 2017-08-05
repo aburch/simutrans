@@ -1068,6 +1068,13 @@ public:
 	bool is_init_network_save() const OVERRIDE { return false; }
 };
 
+class tool_change_roadsign_t : public tool_t {
+public:
+	tool_change_roadsign_t() : tool_t(TOOL_CHANGE_ROADSIGN | SIMPLE_TOOL) {}
+	bool init(player_t*) OVERRIDE;
+	bool is_init_network_save() const OVERRIDE { return false; }
+};
+
 // change city: (dis)allow growth
 class tool_change_city_t : public tool_t {
 public:

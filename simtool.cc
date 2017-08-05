@@ -53,6 +53,7 @@
 #include "gui/player_frame_t.h"
 #include "gui/schedule_list.h"
 #include "gui/signal_spacing.h"
+#include "gui/onewaysign_info.h"
 #include "gui/overtaking_mode.h"
 #include "gui/city_info.h"
 #include "gui/trafficlight_info.h"
@@ -7548,6 +7549,32 @@ bool tool_change_traffic_light_t::init( player_t *player )
 						trafficlight_win->update_data();
 					}
 				}
+			}
+		}
+	}
+	return false;
+}
+
+
+/* Sets overtaking_mode via default_param:
+ *
+ */
+bool tool_change_roadsign_t::init( player_t *player )
+{
+	koord3d pos;
+	sint16 z, inst;
+	if(  4!=sscanf( default_param, "%hi,%hi,%hi,%hi", &pos.x, &pos.y, &z, &inst )  ) {
+		return false;
+	}
+	pos.z = (sint8)z;
+	if(  grund_t *gr = welt->lookup(pos)  ) {
+		if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
+			if(  rs->get_intersection()!=koord3d::invalid  ) {
+				rs->set_lane_fix(inst);
+			}
+			onewaysign_info_t* onewaysign_win = (onewaysign_info_t*)win_get_magic((ptrdiff_t)rs);
+			if (onewaysign_win) {
+				onewaysign_win->update_data();
 			}
 		}
 	}
