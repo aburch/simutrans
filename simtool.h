@@ -29,6 +29,8 @@ class way_builder_t;
 class building_desc_t;
 class roadsign_desc_t;
 class way_desc_t;
+class bridge_desc_t;
+class tunnel_desc_t;
 class route_t;
 class way_obj_desc_t;
 
@@ -260,11 +262,13 @@ public:
 class tool_build_way_t : public two_click_tool_t {
 private:
 	static const way_desc_t *defaults[17];	// default ways for all types
-	player_t* player;
+	uint8 player_number;
 
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
+
+	static char toolstring[256];
 
 protected:
 	const way_desc_t *desc;
@@ -289,8 +293,8 @@ public:
 	waytype_t get_waytype() const OVERRIDE;
 	// remove preview necessary while building elevated ways
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click()  &&  (desc  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)); }
-	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode[player->get_player_nr()] = ov; }
-	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode[player->get_player_nr()]; }
+	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode[player_number] = ov; }
+	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode[player_number]; }
 	static void set_mode_str(char* str, overtaking_mode_t overtaking_mode);
 };
 
@@ -310,17 +314,21 @@ class tool_build_bridge_t : public two_click_tool_t {
 private:
 	ribi_t::ribi ribi;
 	overtaking_mode_t overtaking_mode[MAX_PLAYER_COUNT];
-	player_t* player;
+	uint8 player_number;
 
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
+	bridge_desc_t const* get_desc() const;
+
+	static char toolstring[256];
 public:
 	tool_build_bridge_t() : two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) {
 		for(int i = 0; i < MAX_PLAYER_COUNT; i++) overtaking_mode[i] = twoway_mode; //initialize overtaking_mode
 	}
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
 	char const* get_tooltip(player_t const*) const OVERRIDE;
+	//char const* get_default_param(player_t*) const OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click(); }
@@ -328,19 +336,21 @@ public:
 	bool init(player_t*) OVERRIDE;
 	bool exit(player_t*) OVERRIDE;
 	void draw_after(scr_coord, bool dirty) const OVERRIDE;
-	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode[player->get_player_nr()] = ov; }
-	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode[player->get_player_nr()]; }
+	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode[player_number] = ov; }
+	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode[player_number]; }
 };
 
 class tool_build_tunnel_t : public two_click_tool_t {
 private:
 	overtaking_mode_t overtaking_mode[MAX_PLAYER_COUNT];
-	player_t* player;
+	uint8 player_number;
 
 	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d &);
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
+
+	static char toolstring[256];
 public:
 	tool_build_tunnel_t() : two_click_tool_t(TOOL_BUILD_TUNNEL | GENERAL_TOOL) {
 		for(int i = 0; i < MAX_PLAYER_COUNT; i++) overtaking_mode[i] = twoway_mode; //initialize overtaking_mode
@@ -353,8 +363,8 @@ public:
 	bool init(player_t*) OVERRIDE;
 	bool exit(player_t*) OVERRIDE;
 	void draw_after(scr_coord, bool dirty) const OVERRIDE;
-	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode[player->get_player_nr()] = ov; }
-	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode[player->get_player_nr()]; }
+	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode[player_number] = ov; }
+	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode[player_number]; }
 };
 
 class tool_wayremover_t : public two_click_tool_t {

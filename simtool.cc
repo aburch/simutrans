@@ -2189,10 +2189,19 @@ const char *tool_schedule_ins_t::work( player_t *player, koord3d pos )
 
 /* way construction */
 const way_desc_t *tool_build_way_t::defaults[17] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+char tool_build_way_t::toolstring[256];
 
 const way_desc_t *tool_build_way_t::get_desc( uint16 timeline_year_month, bool remember ) const
 {
-	const way_desc_t *desc = default_param ? way_builder_t::get_desc(default_param,0) :NULL;
+	char name[256]="";
+	uint32 i;
+	if(  default_param  ) {
+		for(i=0; default_param[i]!=0  &&  default_param[i]!=','; i++) {
+			name[i]=default_param[i];
+		}
+		name[i]=0;
+	}
+	const way_desc_t *desc = default_param ? way_builder_t::get_desc(name,0) :NULL;
 	if(  desc==NULL  &&  default_param  ) {
 		waytype_t wt = (waytype_t)atoi(default_param);
 		desc = defaults[wt&63];
@@ -2260,7 +2269,8 @@ const char* tool_build_way_t::get_default_param(player_t *player) const
 		return default_param;
 	}
 	if (desc) {
-		return desc->get_name();
+		sprintf(toolstring,"%s,%d",desc->get_name(),overtaking_mode[player_number]);
+		return toolstring;
 	}
 	else {
 		if (default_param == NULL) {
@@ -2290,7 +2300,7 @@ bool tool_build_way_t::is_selected() const
 bool tool_build_way_t::init( player_t *player )
 {
 	two_click_tool_t::init( player );
-	this->player = player;
+	player_number = player->get_player_nr();
 	if( ok_sound == NO_SOUND ) {
 		ok_sound = SFX_CASH;
 	}
@@ -2323,7 +2333,7 @@ void tool_build_way_t::draw_after(scr_coord k, bool dirty) const
 		if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
 			char level_str[16];
-			tool_build_way_t::set_mode_str(level_str, overtaking_mode[player->get_player_nr()]);
+			tool_build_way_t::set_mode_str(level_str, overtaking_mode[player_number]);
 			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
 		}
 	} else {
@@ -2450,9 +2460,20 @@ void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 
 const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
+	// First, we have to check default_param to set overtaking_mode correct.
+	uint32 i;
+	overtaking_mode_t mode = twoway_mode;
+	for(i=0; default_param[i]!=0  &&  default_param[i]!=','; i++) {}
+	if(  desc  &&  default_param[i]  ) {
+		sint8 o_mode_i = overtaking_mode[player_number];
+		sscanf(default_param+i, ",%d", &o_mode_i);
+		mode = (overtaking_mode_t)o_mode_i;
+	} else {
+		mode = overtaking_mode[player_number];
+	}
 	way_builder_t bauigel(player);
 	calc_route( bauigel, start, end );
-	bauigel.set_overtaking_mode(overtaking_mode[player->get_player_nr()]);
+	bauigel.set_overtaking_mode(mode);
 	if(  bauigel.get_route().get_count()>1  ) {
 		welt->mute_sound(true);
 		bauigel.build();
@@ -2555,9 +2576,11 @@ const char *tool_build_cityroad::do_work( player_t *player, const koord3d &start
 
 
 /* bridge construction */
+char tool_build_bridge_t::toolstring[256];
+
 const char* tool_build_bridge_t::get_tooltip(const player_t *) const
 {
-	const bridge_desc_t * desc = bridge_builder_t::get_desc(default_param);
+	const bridge_desc_t * desc = get_desc();
 	if (desc == NULL) {
 		return "";
 	}
@@ -2574,22 +2597,63 @@ const char* tool_build_bridge_t::get_tooltip(const player_t *) const
 
 waytype_t tool_build_bridge_t::get_waytype() const
 {
-	const bridge_desc_t * desc = bridge_builder_t::get_desc(default_param);
+	const bridge_desc_t * desc = get_desc();
 	return desc ? desc->get_waytype() : invalid_wt;
+}
+
+/*
+const char* tool_build_bridge_t::get_default_param(player_t* player) const {
+	if(player==NULL) {
+		return default_param;
+	}
+	char name[256];
+	if(  default_param  ) {
+		uint8 i=0;
+		for(; default_param[i]!=0  &&  default_param[i]!=','; i++) {
+			name[i] = default_param[i];
+		}
+		if(i>0) {
+			sprintf(toolstring,"%s,%d",name,overtaking_mode[player->get_player_nr()]);
+			return toolstring;
+		}
+	}
+	return default_param;
+}
+*/
+
+
+bridge_desc_t const* tool_build_bridge_t::get_desc() const {
+	char name[256]="";
+	uint32 i = 0;
+	if(  default_param  ) {
+		for(i=0; default_param[i]!=0  &&  default_param[i]!=','; i++) {
+			name[i]=default_param[i];
+		}
+		name[i]=0;
+	}
+	if(  i>0  &&  default_param  ) {
+		return bridge_builder_t::get_desc(name);
+	}
+	return NULL;
 }
 
 
 bool tool_build_bridge_t::init( player_t *player )
 {
 	two_click_tool_t::init( player );
-	this->player = player;
+	player_number = player->get_player_nr();
 	// now get current desc
-	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
+	const bridge_desc_t *desc = get_desc();
 	if(  desc  &&  !desc->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()  ) {
 		return false;
 	}
 	if (is_ctrl_pressed()  &&  can_use_gui()  &&  desc->get_waytype()==road_wt  ) {
 		create_win(new overtaking_mode_frame_t(player, this), w_info, (ptrdiff_t)this);
+	}
+	// update default_param
+	if(  desc  &&  player  ) {
+		sprintf(toolstring,"%s,%d",desc->get_name(),overtaking_mode[player_number]);
+		// set_default_param(toolstring);
 	}
 	return desc!=NULL;
 }
@@ -2603,12 +2667,12 @@ bool tool_build_bridge_t::exit( player_t *player )
 
 void tool_build_bridge_t::draw_after(scr_coord k, bool dirty) const
 {
-	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
+	const bridge_desc_t *desc = get_desc();
 	if(  desc  &&  desc->get_waytype()==road_wt  ) {
 		if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
 			char level_str[16];
-			tool_build_way_t::set_mode_str(level_str, overtaking_mode[player->get_player_nr()]);
+			tool_build_way_t::set_mode_str(level_str, overtaking_mode[player_number]);
 			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
 		}
 	} else {
@@ -2618,9 +2682,19 @@ void tool_build_bridge_t::draw_after(scr_coord k, bool dirty) const
 
 const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
-	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
+	overtaking_mode_t mode = twoway_mode;
+	const bridge_desc_t *desc = get_desc();
+	uint8 i=0;
+	for(i=0; default_param[i]!=0  &&  default_param[i]!=','; i++) {}
+	if(  desc  &&  default_param[i]  ) {
+		sint8 o_mode_i = overtaking_mode[player->get_player_nr()];
+		sscanf(default_param+i, ",%d", &o_mode_i);
+		mode = (overtaking_mode_t)o_mode_i;
+	} else {
+		mode = overtaking_mode[player->get_player_nr()];
+	}
 	if (end==koord3d::invalid) {
-		return bridge_builder_t::build( player, start, desc, overtaking_mode[player->get_player_nr()] );
+		return bridge_builder_t::build( player, start, desc, mode );
 	}
 	else {
 		const koord zv(ribi_type(end-start));
@@ -2630,7 +2704,7 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 		if (end2 != end) {
 			return "End position is not valid"; // could only happen for scripts
 		}
-		bridge_builder_t::build_bridge( player, start, end, zv, bridge_height, desc, way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat), overtaking_mode[player->get_player_nr()]);
+		bridge_builder_t::build_bridge( player, start, end, zv, bridge_height, desc, way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat), mode);
 		return NULL; // all checks are performed before building.
 	}
 }
@@ -2647,7 +2721,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 {
 	const ribi_t::ribi ribi_mark = ribi_type(end-start);
 	const koord zv(ribi_mark);
-	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
+	const bridge_desc_t *desc = get_desc();
 	const char *error;
 	sint8 bridge_height;
 	koord3d end2 = bridge_builder_t::find_end_pos(player, start, zv, desc, error, bridge_height, false, koord_distance(start, end), is_ctrl_pressed());
@@ -2760,7 +2834,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 
 uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, const char *&error, const koord3d &start )
 {
-	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
+	const bridge_desc_t *desc = get_desc();
 	const waytype_t wt = desc->get_waytype();
 
 	error = NULL;
@@ -2884,7 +2958,7 @@ waytype_t tool_build_tunnel_t::get_waytype() const
 bool tool_build_tunnel_t::init( player_t *player )
 {
 	two_click_tool_t::init( player );
-	this->player = player;
+	player_number = player->get_player_nr();
 	// now get current desc
 	const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
 	if(  desc  &&  !desc->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()  ) {
@@ -2903,7 +2977,7 @@ void tool_build_tunnel_t::draw_after(scr_coord k, bool dirty) const
 		if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
 			char level_str[16];
-			tool_build_way_t::set_mode_str(level_str, overtaking_mode[player->get_player_nr()]);
+			tool_build_way_t::set_mode_str(level_str, overtaking_mode[player_number]);
 			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
 		}
 	} else {
