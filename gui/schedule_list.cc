@@ -410,7 +410,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 				buf.printf( "V,%i,%i", line.get_id(), livery_scheme_index );
 				tool->set_default_param(buf);
 				welt->set_tool( tool, player );
-				// since init always returns false, it is save to delete immediately
+				// since init always returns false, it is safe to delete immediately
 				delete tool;
 			}
 	}
