@@ -1421,7 +1421,8 @@ void haltestelle_t::new_month()
 			// After a month, values of the estimated waiting time are appended to the list of waiting times.
 			// This helps gradually to reduce times which were high as a result of a one-off problem,
 			// whilst still allowing rarely-travelled connections to have sensible waiting times.
-			if (iter.value.month >= 1)
+			//const uint32 clear_values_after = 12u; 
+			if (iter.value.month >= 1 /*&& iter.value.month < clear_values_after*/)
 			{
 				halthandle_t check_halt;
 				check_halt.set_id(iter.key);
@@ -1429,24 +1430,27 @@ void haltestelle_t::new_month()
 				const uint32 service_frequency = get_service_frequency(check_halt, category);
 				const uint32 estimated_waiting_time = service_frequency / 2;
 
-				if (get_average_waiting_time(check_halt, category) > service_frequency)
+				const uint32 average_waiting_time = get_average_waiting_time(check_halt, category);
+
+				if (average_waiting_time > service_frequency)
 				{
 					iter.value.times.clear();
 					iter.value.month = 0;
 				}
-				else
+				else if(iter.value.month > 2)
 				{
-					for (int i = 0; i < 8; i++)
+					const uint32 max_iteration = average_waiting_time > average_waiting_time ? min(8, iter.value.month) : 1;
+					for (uint32 i = 0; i < max_iteration; i++)
 					{
 						iter.value.times.add_to_tail(estimated_waiting_time);
 					}
 				}
 			}
-			else if(iter.value.month > 2)
+			/*else if(iter.value.month > clear_values_after)
 			{
 				iter.value.times.clear();
 				iter.value.month = 0;
-			}
+			}*/
 			// Update the waiting time timing records.
 			// This is how many months that it has been since
 			// any waiting time data were actually stored here.
