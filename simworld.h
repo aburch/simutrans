@@ -1497,9 +1497,9 @@ public:
 	uint64 scale_for_distance_only(uint64 value) const
 	{
 		const uint64 base_meters_per_tile = (uint64)get_settings().get_base_meters_per_tile();
-		const uint64 adjustment_factor = base_meters_per_tile / (uint64)get_settings().get_meters_per_tile();
+		const uint64 set_meters_per_tile = (uint64)get_settings().get_meters_per_tile();
 
-		return value / adjustment_factor;
+		return (value * set_meters_per_tile) / base_meters_per_tile;
 	}
 
 	uint32 scale_for_distance_only(uint32 value) const
