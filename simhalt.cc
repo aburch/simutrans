@@ -1477,24 +1477,21 @@ void haltestelle_t::new_month()
 
 					const uint32 service_frequency = get_service_frequency(check_halt, category); // Note that service frequency is currently class agnostic
 					const uint32 estimated_waiting_time = service_frequency / 2;
+					const uint32 average_waiting_time = get_average_waiting_time(check_halt, category, g_class);
 
-					if (get_average_waiting_time(check_halt, category, g_class) > service_frequency)
+					if (average_waiting_time > service_frequency)
 					{
 						iter.value.times.clear();
 						iter.value.month = 0;
 					}
-					else
+					else if (iter.value.month > 2)
 					{
-						for (int i = 0; i < 8; i++)
+						const uint32 max_iteration = average_waiting_time > average_waiting_time ? min(8, iter.value.month) : 1;
+						for (uint32 i = 0; i < max_iteration; i++)
 						{
 							iter.value.times.add_to_tail(estimated_waiting_time);
 						}
 					}
-				}
-				else if (iter.value.month > 2)
-				{
-					iter.value.times.clear();
-					iter.value.month = 0;
 				}
 				// Update the waiting time timing records.
 				// This is how many months that it has been since

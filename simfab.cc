@@ -1921,8 +1921,10 @@ sint8 fabrik_t::is_needed(const goods_desc_t *typ) const
 			// return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.get_in_transit() + (i.menge >> fabrik_t::precision_bits)) * 50) < ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
 
 			// Improved version (Octavius):
-			return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.get_in_transit() + (i.menge >> fabrik_t::precision_bits) - (i.max >> (fabrik_t::precision_bits + 1))) * 100) < ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
+			//return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.get_in_transit() + (i.menge >> fabrik_t::precision_bits) - (i.max >> (fabrik_t::precision_bits + 1))) * 100) <= ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
 
+			// Version that respects the new industry internal scale and is also more efficient than the above (there is no need to compare numbers of different scales using this method that makes use of the i.max_transit variable
+			return (typ->get_catg() == 0 && i.menge < i.max) || i.get_in_transit() < i.max_transit;
 		}
 	}
 	return -1;  // not needed here
@@ -1974,8 +1976,8 @@ void fabrik_t::step(uint32 delta_t)
 
 		// calculate the production per delta_t; scaled to PRODUCTION_DELTA_T
 		// Calculate actual production. A remainder is used for extra precision.
-		const uint64 want_prod_long = welt->scale_for_distance_only((uint64)prodbase * (uint64)boost * (uint64)delta_t + (uint64)menge_remainder);
-		const sint32 prod = (uint32)(want_prod_long >> (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits));
+		const uint64 want_prod_long = welt->scale_for_distance_only(((uint64)prodbase * (uint64)boost * (uint64)delta_t)) + (uint64)menge_remainder;
+		const uint32 prod = (uint32)(want_prod_long >> (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits));
 		menge_remainder = (uint32)(want_prod_long & ((1 << (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits)) - 1));
 
 		// needed for electricity
@@ -1991,7 +1993,7 @@ void fabrik_t::step(uint32 delta_t)
 			// power station => start with no production
 			power = 0;
 
-			// finally consume stock
+			// Consume stock
 			for (uint32 index = 0; index < input.get_count(); index++)
 			{
 				uint32 v = prod;
@@ -2142,10 +2144,12 @@ void fabrik_t::step(uint32 delta_t)
 
 		// distribute, if there is more than 1 waiting ...
 		// Changed from the original 10 by jamespetts, July 2017
-		for(  uint32 product = 0;  product < output.get_count();  product++  ) {
-			// either more than ten or nearly full (if there are less than ten output)
-			if(  output[product].menge > (1 << precision_bits)  ||  output[product].menge*2 > output[product].max  ) {
-
+		for(  uint32 product = 0;  product < output.get_count();  product++  )
+		{
+			const sint32 units = (sint32)(((sint64)output[product].menge * (sint64)(get_prodfactor())) >> ((sint64)DEFAULT_PRODUCTION_FACTOR_BITS + (sint64)precision_bits));
+			//if(  output[product].menge > (1 << precision_bits)  ||  output[product].menge*2 > output[product].max  )
+			if(units)
+			{
 				verteile_waren(product);
 				INT_CHECK("simfab 636");
 			}
@@ -2184,7 +2188,6 @@ void fabrik_t::step(uint32 delta_t)
 			// reset for next cycle
 			delta_menge = 0;
 		}
-
 	}
 
 	// Knightly : advance arrival slot at calculated interval and recalculate boost where necessary
