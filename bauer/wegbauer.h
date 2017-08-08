@@ -20,6 +20,7 @@ class karte_ptr_t;
 class player_t;
 class grund_t;
 class tool_selector_t;
+class strasse_t;
 
 
 /**
@@ -182,6 +183,8 @@ private:
 	void build_river();
 
 	uint32 calc_distance( const koord3d &pos, const koord3d &mini, const koord3d &maxi );
+
+	void update_ribi_mask_oneway(strasse_t* str, uint32 i);
 
 public:
 	const koord3d_vector_t &get_route() const { return route; }
