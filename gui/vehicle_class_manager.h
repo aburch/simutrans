@@ -78,16 +78,24 @@ private:
 
 	vector_tpl<char> class_indices;
 
-	//gui_combobox_t *pass_class_sel;
-
 	slist_tpl<gui_combobox_t *> pass_class_sel;
+	slist_tpl<gui_combobox_t *> mail_class_sel;
 
-	//gui_combobox_t pass_class_sel[255];
-	gui_combobox_t mail_class_sel[255];
 	gui_container_t cont;
+
+	uint16 pax_current_number_of_classes;
+	uint16 pax_old_number_of_classes;
+
+	uint16 mail_current_number_of_classes;
+	uint16 mail_old_number_of_classes;
 
 public:
 	vehicle_class_manager_t(convoihandle_t cnv);
+
+	/**
+	* Do the dynamic component layout
+	*/
+	void layout();
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
