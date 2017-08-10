@@ -491,7 +491,7 @@ ifeq ($(BACKEND),sdl)
 		endif
   else
     SOURCES  += sound/sdl_sound.cc
-    ifeq ($(OSTYPE),mingw)
+    ifneq ($(OSTYPE),mingw)
       SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
