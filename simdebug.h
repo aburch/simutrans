@@ -39,6 +39,7 @@ void init_logging(const char *logname, bool force_flush, bool log_debug, const c
 
 #if MSG_LEVEL >= 4
 #define DBG_DEBUG4 dbg->debug
+#define DBG_MESSAGE dbg->message
 #define DBG_DEBUG dbg->message
 
 #elif MSG_LEVEL == 3
