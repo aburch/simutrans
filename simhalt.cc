@@ -1720,6 +1720,11 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 			}
 		}
 
+		// not start halt, not transfer halt -> do not expand further
+		if(  current_halt_data.depth > 0   &&  !current_node.halt->is_transfer(ware_catg_idx)  ) {
+			continue;
+		}
+
 		if(  current_halt_data.depth > max_transfers  ) {
 			// maximum transfer limit is reached -> do not add reachable halts to open list
 			continue;
