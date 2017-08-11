@@ -282,8 +282,8 @@ private:
 	sint32 prodfactor_pax;
 	sint32 prodfactor_mail;
 
-	array_tpl<ware_production_t> input; ///< array for input/consumed goods
-	array_tpl<ware_production_t> output; ///< array for output/produced goods
+	array_tpl<ware_production_t> input; //< array for input/consumed goods
+	array_tpl<ware_production_t> output; /// array for output/produced goods
 
 	// The adjusted "max intransit percentage" for each type of input goods
 	// indexed against the catg of each "input" (the input goods).

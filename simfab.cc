@@ -1372,7 +1372,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			}
 		}
 		file->rdwr_str(ware_name);
-		file->rdwr_long(ware.menge);
+		file->rdwr_long(menge);
 		if(  file->get_version()<110005  ) {
 			// max storage is only loaded/saved for older versions
 			file->rdwr_long(ware.max);
