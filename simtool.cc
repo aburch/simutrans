@@ -2318,10 +2318,8 @@ void tool_build_way_t::start_at( koord3d &new_start )
 {
 	if(  is_shift_pressed()  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)  ) {
 		grund_t *gr=welt->lookup(new_start);
-		if(  weg_t *way = gr->get_weg( desc->get_waytype() )  ) {
-			if(  way->get_desc()->get_styp() == type_elevated  &&  welt->lookup(new_start-koord3d(0,0,welt->get_settings().get_way_height_clearance()))  ) {
-				new_start.z -= welt->get_settings().get_way_height_clearance();
-			}
+		if(  gr->get_weg( desc->get_waytype() )  ) {
+			new_start.z -= welt->get_settings().get_way_height_clearance();
 		}
 	}
 	// elevated ways with SHIFT will selected the current layer, when already on an elevated way
@@ -2401,23 +2399,22 @@ void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 	else {
 		bauigel.set_keep_existing_faster_ways( true );
 	}
-	koord3d my_start = start;
-	// special check to replace elevated ways
+
+	koord3d my_end = end;
+	// ending point is applied that elevated ways with SHIFT selects the current layer, when already on an elevated way
 	if(  is_shift_pressed()  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)  ) {
-		grund_t *gr=welt->lookup(my_start);
-		if(  weg_t *way = gr->get_weg( desc->get_waytype() )  ) {
-			if(  way->get_desc()->get_styp() == type_elevated  &&  welt->lookup( my_start + koord3d(0,0,welt->get_settings().get_way_height_clearance()) )  ) {
-				my_start.z += welt->get_settings().get_way_height_clearance();
-			}
+		grund_t *gr=welt->lookup(my_end);
+		if(  gr->get_weg( desc->get_waytype() )  ) {
+			my_end.z -= welt->get_settings().get_way_height_clearance();
 		}
 	}
 	// and continue as normal ...
 	if(  is_ctrl_pressed()  ||  (env_t::straight_way_without_control  &&  !env_t::networkmode  &&  !is_scripted())  ) {
 		DBG_MESSAGE("tool_build_way_t()", "try straight route");
-		bauigel.calc_straight_route(my_start,end);
+		bauigel.calc_straight_route(start,my_end);
 	}
 	else {
-		bauigel.calc_route(my_start,end);
+		bauigel.calc_route(start,my_end);
 	}
 	DBG_MESSAGE("tool_build_way_t()", "builder found route with %d squares length.", bauigel.get_count());
 }
