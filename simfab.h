@@ -96,9 +96,6 @@ private:
 public:
 	ware_production_t() : type(NULL), menge(0), max(0)/*, transit(statistics[0][FAB_GOODS_TRANSIT])*/, max_transit(0), index_offset(0)
 	{
-#ifdef TRANSIT_DISTANCE
-		count_suppliers = 0;
-#endif
 		init_stats();
 	}
 
@@ -141,9 +138,6 @@ public:
 	const sint32 get_in_transit() const { return statistics[0][FAB_GOODS_TRANSIT]; }
 	/// Current limit on cargo in transit, depending on suppliers mean distance.
 	sint32 max_transit;
-#ifdef TRANSIT_DISTANCE
-	sint32 count_suppliers;	// only needed for averaging
-#endif
 
 	uint32 index_offset; // used for haltlist and lieferziele searches in verteile_waren to produce round robin results
 };
@@ -282,8 +276,8 @@ private:
 	sint32 prodfactor_pax;
 	sint32 prodfactor_mail;
 
-	array_tpl<ware_production_t> input; ///< array for input/consumed goods
-	array_tpl<ware_production_t> output; ///< array for output/produced goods
+	array_tpl<ware_production_t> input; /// array for input/consumed goods
+	array_tpl<ware_production_t> output; /// array for output/produced goods
 
 	// The adjusted "max intransit percentage" for each type of input goods
 	// indexed against the catg of each "input" (the input goods).
@@ -587,12 +581,11 @@ public:
 	void set_transformer_connected(leitung_t* connected) { transformer_connected = connected; }
 
 	/**
-	 * @return 1 wenn consumption,
-	 * 0 wenn Produktionsstopp,
-	 * -1 wenn Ware nicht verarbeitet wird
+	 * Return the number of goods needed
+	 * in internal units
 	 */
 
-	sint8 is_needed(const goods_desc_t *) const;
+	sint32 goods_needed(const goods_desc_t *) const;
 
 	sint32 liefere_an(const goods_desc_t *, sint32 menge);
 

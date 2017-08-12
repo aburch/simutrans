@@ -1269,7 +1269,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			ware_name = ware.get_typ()->get_name();
 		}
 		file->rdwr_str(ware_name);
-		file->rdwr_long(ware.menge);
+		file->rdwr_long(menge);
 		if(  file->get_version()<110005  ) {
 			// max storage is only loaded/saved for older versions
 			file->rdwr_long(ware.max);
@@ -1386,7 +1386,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			}
 		}
 		file->rdwr_str(ware_name);
-		file->rdwr_long(ware.menge);
+		file->rdwr_long(menge);
 		if(  file->get_version()<110005  ) {
 			// max storage is only loaded/saved for older versions
 			file->rdwr_long(ware.max);
@@ -1896,35 +1896,20 @@ bool fabrik_t::out_of_stock_selective()
 }
 
 
-sint8 fabrik_t::is_needed(const goods_desc_t *typ) const
+sint32 fabrik_t::goods_needed(const goods_desc_t *typ) const
 {
-	/* NOTE for merging with the latest Standard nightlies:
-	* this code is changed in the latest Standard nightlies. The
-	* idea of the change appears to be to scale the effect
-	* of the intransit percentage to the output store of the
-	* producing industry. This is not necessary in Extended,
-	* as the max_intransit percentage is in any event scaled
-	* based on the lead time and consumption rate. Therefore, the
-	* additional code from Standard for this feature should be
-	* removed/deleted on merging, and the below original code
-	* should remain. 
-	*/
+	for (uint32 in = 0; in < input.get_count(); in++)
+	{
+		const ware_production_t& ware = input[in];
+		if (ware.get_typ() == typ)
+		{
+			// not needed (< 1) if overflowing or too much already sent	
 
-	FOR(array_tpl<ware_production_t>, const& i, input) {
-		if(  i.get_typ() == typ  ) {
-			// not needed (false) if overflowing or too much already sent			
+			const uint32 prod_factor = desc->get_supplier(in)->get_consumption();
+			const uint32 transit_internal_units = (((ware.get_in_transit() << fabrik_t::precision_bits) << DEFAULT_PRODUCTION_FACTOR_BITS) + prod_factor - 1) / prod_factor;
 			
-			// Original version (reported to have a bug: see http://forum.simutrans.com/index.php?topic=13898.0)
-			// return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.get_in_transit() + (i.menge >> fabrik_t::precision_bits)) * 200) < ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
-
-			// Version with fix:
-			// return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.get_in_transit() + (i.menge >> fabrik_t::precision_bits)) * 50) < ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
-
-			// Improved version (Octavius):
-			//return max_intransit_percentages.get(typ->get_catg()) == 0 ? (i.menge < i.max) : ((i.get_in_transit() + (i.menge >> fabrik_t::precision_bits) - (i.max >> (fabrik_t::precision_bits + 1))) * 100) <= ((i.max >> fabrik_t::precision_bits) * (sint32)max_intransit_percentages.get(typ->get_catg()));
-
-			// Version that respects the new industry internal scale and is also more efficient than the above (there is no need to compare numbers of different scales using this method that makes use of the i.max_transit variable
-			return (typ->get_catg() == 0 && i.menge < i.max) || i.get_in_transit() < i.max_transit;
+			// Version that respects the new industry internal scale and properly deals with the just in time setting being disabled
+			return typ->get_catg() == 0 || !welt->get_settings().get_just_in_time() ? ware.max - ware.menge : ware.max_transit - (transit_internal_units + ware.menge - ware.max);
 		}
 	}
 	return -1;  // not needed here
@@ -2102,8 +2087,8 @@ void fabrik_t::step(uint32 delta_t)
 						currently_producing |= (output[product].menge * 4 < output[product].max * 3);
 					}
 					else {
-						output[product].book_stat((sint64)(output[product].max - 1 - output[product].menge) * (sint64)desc->get_product(product)->get_factor(), FAB_GOODS_PRODUCED);
-						output[product].menge = output[product].max - 1;
+						output[product].book_stat((sint64)(output[product].max - output[product].menge) * (sint64)desc->get_product(product)->get_factor(), FAB_GOODS_PRODUCED);
+						output[product].menge = output[product].max;
 					}
 				}
 			}
@@ -2271,7 +2256,8 @@ void fabrik_t::verteile_waren(const uint32 product)
 	// if the consumer industry is next door.
 
 	bool can_cart_to_consumer = false;
-	sint8 needed = 0;
+	sint32 needed = 0;
+	sint32 needed_base_units = 0;
 
 	for (uint32 n = 0; n < lieferziele.get_count(); n++)
 	{
@@ -2284,8 +2270,9 @@ void fabrik_t::verteile_waren(const uint32 product)
 			
 			if (ziel_fab && !(get_desc()->get_placement() == factory_desc_t::Water)) // Goods cannot be carted over water.
 			{
-				needed = ziel_fab->is_needed(output[product].get_typ());
-				if (needed >= 0) 
+				needed = ziel_fab->goods_needed(output[product].get_typ());
+				needed_base_units = (sint32)(((sint64)needed * (sint64)(prod_factor)) >> (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits));
+				if (needed >= 0)
 				{
 					can_cart_to_consumer = true;
 
@@ -2314,8 +2301,8 @@ void fabrik_t::verteile_waren(const uint32 product)
 					}
 					else if (needed > 0)
 					{
-						// we are not overflowing: Station can only store up to a maximum amount of goods per square
-						dist_list.insert_ordered(distribute_ware_t(nh, 0, 0, 0, ware), distribute_ware_t::compare);
+						// Carted goods need care not about any particular stop, but still care about the consumer's storage/in-transit value
+						dist_list.insert_ordered(distribute_ware_t(nh, needed_base_units, 0, 0, ware), distribute_ware_t::compare);
 					}
 				}
 			}
@@ -2334,36 +2321,43 @@ void fabrik_t::verteile_waren(const uint32 product)
 		nearby_halt_t nearby_halt = nearby_freight_halts[(i + output[product].index_offset) % count];
 
 		// Über all Ziele iterieren ("Iterate over all targets" - Google)
-		for(  uint32 n=0;  n<lieferziele.get_count();  n++  ) {
+		for(uint32 n = 0; n < lieferziele.get_count(); n ++)
+		{
 			// prissi: this way, the halt that is tried first will change. As a result, if all destinations are empty, it will be spread evenly
 			const koord lieferziel = lieferziele[(n + output[product].index_offset) % lieferziele.get_count()];
 			fabrik_t * ziel_fab = get_fab(lieferziel);
 
-			if(  ziel_fab  ) {
-				const sint8 needed = ziel_fab->is_needed(output[product].get_typ());
-				if(  needed>=0  ) {
+			if(ziel_fab)
+			{
+				needed = ziel_fab->goods_needed(output[product].get_typ());
+				needed_base_units = (sint32)(((sint64)needed * (sint64)(prod_factor)) >> (DEFAULT_PRODUCTION_FACTOR_BITS + precision_bits));
+				if(needed >= 0)
+				{
 					ware_t ware(output[product].get_typ(), nearby_halt.halt);
 					ware.menge = menge;
-					ware.set_zielpos( lieferziel );
+					ware.set_zielpos(lieferziel);
 					ware.arrival_time = welt->get_ticks();
 
 					uint32 w;
 					// find the index in the target factory
-					for(  w = 0;  w < ziel_fab->get_input().get_count()  &&  ziel_fab->get_input()[w].get_typ() != ware.get_desc();  w++  ) {
+					for(w = 0; w < ziel_fab->get_input().get_count() && ziel_fab->get_input()[w].get_typ() != ware.get_desc(); w++)
+					{
 						// empty
 					}
 
 					// if only overflown factories found => deliver to first
 					// else deliver to non-overflown factory
-					if(  !welt->get_settings().get_just_in_time()  ) {
+					if(!welt->get_settings().get_just_in_time()) 
+					{
 						// without production stop when target overflowing, distribute to least overflow target
 						const sint32 fab_left = ziel_fab->get_input()[w].max - ziel_fab->get_input()[w].menge;
-						dist_list.insert_ordered( distribute_ware_t(nearby_halt, fab_left, ziel_fab->get_input()[w].max, (sint32)nearby_halt.halt->get_ware_fuer_zielpos(output[product].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare);
+						dist_list.insert_ordered(distribute_ware_t(nearby_halt, fab_left, ziel_fab->get_input()[w].max, (sint32)nearby_halt.halt->get_ware_fuer_zielpos(output[product].get_typ(),ware.get_zielpos()), ware), distribute_ware_t::compare);
 					}
-					else if(  needed > 0  ) {
-						// we are not overflowing: Station can only store up to a maximum amount of goods per square
-						const sint32 halt_left = (sint32)nearby_halt.halt->get_capacity(2) - (sint32)nearby_halt.halt->get_ware_summe(ware.get_desc());
-						dist_list.insert_ordered( distribute_ware_t(nearby_halt, halt_left, nearby_halt.halt->get_capacity(2), (sint32)nearby_halt.halt->get_ware_fuer_zielpos(output[product].get_typ(),ware.get_zielpos()), ware ), distribute_ware_t::compare);
+					else if(needed > 0)
+					{
+						// we are not overflowing: Station can only store up to a maximum amount of goods
+						const sint32 halt_left = (sint32)nearby_halt.halt->get_capacity(2) - (sint32)nearby_halt.halt->get_ware_summe(ware.get_desc());			
+						dist_list.insert_ordered(distribute_ware_t(nearby_halt, min(halt_left, needed_base_units), nearby_halt.halt->get_capacity(2), (sint32)nearby_halt.halt->get_ware_fuer_zielpos(output[product].get_typ(),ware.get_zielpos()), ware), distribute_ware_t::compare);
 					}
 				}
 			}
@@ -2377,7 +2371,7 @@ void fabrik_t::verteile_waren(const uint32 product)
 		distribute_ware_t *best = NULL;
 		// Assume a fixed 1km/h transshipment time of goods to industries. This gives a minimum transfer time
 		// of 15 minutes for each stop at 125m/tile.
-		const uint32 transfer_journey_time_factor = ((uint32)welt->get_settings().get_meters_per_tile() * 6) * 10;
+		const uint32 transfer_journey_time_factor = ((uint32)welt->get_settings().get_meters_per_tile() * 6u) * 10u;
 		uint32 current_journey_time;
 		FOR(vector_tpl<distribute_ware_t>, & i, dist_list) 
 		{
@@ -2406,8 +2400,8 @@ void fabrik_t::verteile_waren(const uint32 product)
 		ware_t       &best_ware = best->ware;
 
 		// now process found route
-		const sint32 space_left = best_halt.is_bound() ? welt->get_settings().get_just_in_time() ? best->space_left : (sint32)best_halt->get_capacity(2) - (sint32)best_halt->get_ware_summe(best_ware.get_desc()) : needed - 9;
-		menge = min( menge, 9 + space_left );
+		const sint32 space_left = best_halt.is_bound() ? welt->get_settings().get_just_in_time() ? best->space_left : (sint32)best_halt->get_capacity(2) - (sint32)best_halt->get_ware_summe(best_ware.get_desc()) : needed_base_units;
+		menge = min(menge, space_left);
 		// ensure amount is not negative ...
 		if(  menge<0  ) {
 			menge = 0;
@@ -3107,7 +3101,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 					translator::translate(input[index].get_typ()->get_name()),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					input[index].get_in_transit(),
-					input[index].max_transit,
+					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max_transit * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					translator::translate(input[index].get_typ()->get_mass()),
 					(uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS)
@@ -3375,17 +3369,8 @@ void fabrik_t::add_supplier(koord ziel)
 				// now update transit limits
 				FOR(  array_tpl<ware_production_t>,  &w,  input ) {
 					if(  w_out.get_typ() == w.get_typ()  ) {
-#ifdef TRANSIT_DISTANCE
-						sint64 distance = shortest_distance( fab->get_pos(), get_pos() );
-						// calculate next mean by the following formula: average + (next - average)/(n+1)
-						w.count_suppliers ++;
-						sint64 next = 1 + ( distance * welt->get_settings().get_factory_maximum_intransit_percentage() * (w.max >> fabrik_t::precision_bits) ) / 131072;
-						w.max_transit += (next - w.max_transit)/(w.count_suppliers);
-#else
-						// 64-bit to avoid overflows
-						sint64 max_storage = 1ll + (((sint64)w_out.max * (sint64)welt->get_settings().get_factory_maximum_intransit_percentage()) >> (sint64)fabrik_t::precision_bits) / 100ll;
-						w.max_transit += (sint32)max_storage;
-#endif
+						sint32 max_storage = w_out.max * welt->get_settings().get_factory_maximum_intransit_percentage();
+						w.max_transit += max_storage;
 						break;
 					}
 				}
@@ -3415,16 +3400,8 @@ void fabrik_t::rem_supplier(koord pos)
 					// now update transit limits
 					FOR(  array_tpl<ware_production_t>,  &w,  input ) {
 						if(  w_out.get_typ() == w.get_typ()  ) {
-#ifdef TRANSIT_DISTANCE
-							sint64 distance = shortest_distance( fab->get_pos(), get_pos() );
-							// calculate next mean by the following formula: average + (next - average)/(n+1)
-							w.count_suppliers ++;
-							sint64 next = 1 + ( distance * welt->get_settings().get_factory_maximum_intransit_percentage() * (w.max >> fabrik_t::precision_bits) ) / 131072;
-							w.max_transit += (next - w.max_transit)/(w.count_suppliers);
-#else
-							sint64 max_storage = 1ll + (((sint64)w_out.max * (sint64)welt->get_settings().get_factory_maximum_intransit_percentage() ) >> (sint64)fabrik_t::precision_bits) / 100ll;
-							w.max_transit += (sint32)max_storage;
-#endif
+							sint32 max_storage = w_out.max * welt->get_settings().get_factory_maximum_intransit_percentage();
+							w.max_transit += max_storage;
 							break;
 						}
 					}
@@ -3593,6 +3570,7 @@ void fabrik_t::calc_max_intransit_percentages()
 		const uint32 ratio = ((uint32)lead_time * 1000 / (uint32)time_to_consume);
 		const uint32 modified_max_intransit_percentage = (ratio * (uint32)base_max_intransit_percentage) / 1000;
 		max_intransit_percentages.put(catg, (uint16)modified_max_intransit_percentage);
+		input[index].max_transit = max(1, (modified_max_intransit_percentage * input[index].max) / 100u); // This puts max_transit in internal units
 		index ++;
 	}
 }
