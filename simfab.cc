@@ -1899,8 +1899,8 @@ void fabrik_t::step(uint32 delta_t)
 							currently_producing |= (output[product].menge * 4 < output[product].max * 3);
 						}
 						else {
-							output[product].book_stat((sint64)(output[product].max - 1 - output[product].menge) * (sint64)desc->get_product(product)->get_factor(), FAB_GOODS_PRODUCED);
-							output[product].menge = output[product].max - 1;
+							output[product].book_stat((sint64)(output[product].max - output[product].menge) * (sint64)desc->get_product(product)->get_factor(), FAB_GOODS_PRODUCED);
+							output[product].menge = output[product].max;
 						}
 					}
 				}
