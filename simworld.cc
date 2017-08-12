@@ -6197,16 +6197,16 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		* walk for long distances, as it is tiring, especially with luggage.
 		* (Neroden suggests that this be reconsidered)
 		*/
-		uint32 quasi_tolerance = tolerance;
+		uint32 walking_tolerance = tolerance;
 		if(wtyp == goods_manager_t::mail)
 		{
 			// People will walk long distances with mail: it is not heavy.
-			quasi_tolerance = simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::generate_passengers_and_mail (quasi tolerance)") + min_visiting_tolerance;
+			walking_tolerance = simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::generate_passengers_and_mail (quasi tolerance)") + min_visiting_tolerance;
 		}
 		else
 		{
 			// Passengers. 
-			quasi_tolerance = max(quasi_tolerance / 2, min(tolerance, 300));
+			walking_tolerance = max(tolerance / 2, min(tolerance, 300));
 		}
 
 		uint32 car_minutes = UINT32_MAX_VALUE;
@@ -6286,7 +6286,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			walking_time = walking_time_tenths_from_distance(straight_line_distance);
 			car_minutes = UINT32_MAX_VALUE;
 
-			const bool can_walk = walking_time <= quasi_tolerance;
+			const bool can_walk = walking_time <= walking_tolerance;
 
 			if(!has_private_car && !can_walk && start_halts.empty())
 			{
@@ -6340,6 +6340,16 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				* for the origin is also the only stop for the destintation.
 				*/
 				start_halt = start_halts[0].halt;
+
+				if (can_walk)
+				{
+					const grund_t* destination_gr = lookup_kartenboden(current_destination.location);
+					if (destination_gr && !destination_gr->is_water())
+					{
+						// People cannot walk on water. This is relevant for fisheries and oil rigs in particular.
+						route_status = on_foot;
+					}
+				}
 			}
 			else
 			{
@@ -6599,7 +6609,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			if(tolerance < UINT32_MAX_VALUE)
 			{
 				tolerance -= best_journey_time;
-				quasi_tolerance -= best_journey_time;
+				walking_tolerance -= best_journey_time;
 			}
 			pax.set_origin(start_halt);
 			start_halt->starte_mit_route(pax, origin_pos.get_2d());
@@ -6635,7 +6645,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			if(tolerance < UINT32_MAX_VALUE)
 			{
 				tolerance -= car_minutes;
-				quasi_tolerance -= car_minutes;
+				walking_tolerance -= car_minutes;
 			}
 					
 			destination_town = current_destination.type == town ? current_destination.building->get_stadt() : NULL;
@@ -6686,7 +6696,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			if(tolerance < UINT32_MAX_VALUE)
 			{
 				tolerance -= walking_time;
-				quasi_tolerance -= walking_time;
+				walking_tolerance -= walking_time;
 			}	
 
 			// Walking passengers are not marked as "happy", as the player has not made them happy.
