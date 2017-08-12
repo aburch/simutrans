@@ -6066,8 +6066,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 	// Find passenger destination
 
 	// Mail does not make onward journeys.
-	const uint16 onward_trips = simrand(100, "void stadt_t::generate_passengers_and_mail() (any onward trips?)") < settings.get_onward_trip_chance_percent() &&
-		wtyp == goods_manager_t::passengers ? simrand(max_onward_trips, "void stadt_t::step_passengers() (how many onward trips?)") + 1 : 1;
+	const uint16 onward_trips = simrand(100, "void stadt_t::generate_passengers_and_mail() (any onward trips?)") < settings.get_onward_trip_chance_percent() &&	wtyp == goods_manager_t::passengers ? simrand(max_onward_trips, "void stadt_t::step_passengers() (how many onward trips?)") + 1 : 1;
 
 	route_status = initialising;
 
