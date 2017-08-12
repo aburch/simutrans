@@ -431,7 +431,10 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb ) //gebaeude = "build
 						gb_part->set_stadt(city);
 					}
 					gb_part->cleanup( player );	
-					city->remove_gebaeude_from_stadt(gb_part); 
+					if (city)
+					{
+						city->remove_gebaeude_from_stadt(gb_part);
+					}
 					delete gb_part;
 					// if this was a station building: delete ground
 					if(gr->get_halt().is_bound()) {
