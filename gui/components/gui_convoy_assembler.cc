@@ -1938,14 +1938,22 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		if (veh_type->get_total_capacity() > 0)
 		{ // Standard translation is "Capacity: %3d%s %s\n", as Standard has no overcrowding
 
-			if (veh_type->get_freight_type()->get_catg() == goods_manager_t::INDEX_PAS || veh_type->get_freight_type()->get_catg() == goods_manager_t::INDEX_MAIL)
+			if (veh_type->get_freight_type()->get_catg_index() == goods_manager_t::INDEX_PAS || veh_type->get_freight_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
 			{
 				for (uint8 i = 0; i < veh_type->get_number_of_classes(); i++)
 				{
 					if (veh_type->get_capacity(i) > 0)
 					{
 						char class_name_untranslated[32];
-						sprintf(class_name_untranslated, "p_class[%u]", i);
+						switch (veh_type->get_freight_type()->get_catg_index())
+						{
+						case goods_manager_t::INDEX_MAIL:
+							sprintf(class_name_untranslated, "m_class[%u]", i);
+							break;
+						default:
+							sprintf(class_name_untranslated, "p_class[%u]", i);
+							break;
+						}
 						const char* class_name = translator::translate(class_name_untranslated);
 						n += sprintf(buf + n, "%s: ", class_name);
 						n += sprintf(buf + n, "\n");
@@ -1954,7 +1962,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 						sprintf(capacity, "%i", veh_type->get_capacity(i));
 						n += sprintf(buf + n, translator::translate("capacity: %s %s"), capacity, veh_type->get_freight_type()->get_name());
 						n += sprintf(buf + n, "\n");
-						if (veh_type->get_freight_type()->get_catg() == goods_manager_t::INDEX_PAS)
+						if (veh_type->get_freight_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
 						{
 							n += sprintf(buf + n, translator::translate("comfort: %i"), veh_type->get_comfort(i));
 							n += sprintf(buf + n, "\n");
