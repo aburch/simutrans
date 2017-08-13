@@ -3369,7 +3369,7 @@ void fabrik_t::add_supplier(koord ziel)
 				// now update transit limits
 				FOR(  array_tpl<ware_production_t>,  &w,  input ) {
 					if(  w_out.get_typ() == w.get_typ()  ) {
-						sint32 max_storage = w_out.max * welt->get_settings().get_factory_maximum_intransit_percentage();
+						sint32 max_storage = (w_out.max * welt->get_settings().get_factory_maximum_intransit_percentage()) / 100;
 						w.max_transit += max_storage;
 						break;
 					}
@@ -3400,7 +3400,7 @@ void fabrik_t::rem_supplier(koord pos)
 					// now update transit limits
 					FOR(  array_tpl<ware_production_t>,  &w,  input ) {
 						if(  w_out.get_typ() == w.get_typ()  ) {
-							sint32 max_storage = w_out.max * welt->get_settings().get_factory_maximum_intransit_percentage();
+							sint32 max_storage = (w_out.max * welt->get_settings().get_factory_maximum_intransit_percentage()) / 100;
 							w.max_transit += max_storage;
 							break;
 						}
