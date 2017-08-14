@@ -1121,6 +1121,14 @@ void settings_t::rdwr(loadsave_t *file)
 			{
 				file->rdwr_short(max_alternative_destinations_commuting);
 				file->rdwr_short(max_alternative_destinations_visiting);
+				if (max_alternative_destinations_commuting == 0)
+				{
+					max_alternative_destinations_commuting = 1;
+				}
+				if (max_alternative_destinations_visiting == 0)
+				{
+					max_alternative_destinations_visiting = 1;
+				}
 				file->rdwr_long(max_alternative_destinations_per_job_millionths);
 				file->rdwr_long(max_alternative_destinations_per_visitor_demand_millionths);
 			}

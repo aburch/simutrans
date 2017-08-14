@@ -49,7 +49,7 @@ enum city_cost {
 	HIST_GROWTH,			// growth (just for convenience)
 	HIST_BUILDING,			// number of buildings
 	HIST_CITYCARS,			// Amount of private traffic produced by the city
-	HIST_PAS_TRANSPORTED,	// number of passengers who could start their journey
+	HIST_PAS_TRANSPORTED,	// number of passengers that successfully complete their journeys
 	HIST_PAS_GENERATED,		// total number generated
 	HIST_PAS_WALKED,		// The number of passengers who walked to their destination.
 	HIST_MAIL_TRANSPORTED,	// letters that could be sent
