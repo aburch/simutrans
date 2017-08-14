@@ -86,10 +86,11 @@ private:
 
 	gui_container_t cont;
 
-	uint16 pax_current_number_of_classes;
-	uint16 pax_old_number_of_classes;
-	uint16 mail_current_number_of_classes;
-	uint16 mail_old_number_of_classes;
+	uint16 current_number_of_classes;
+	uint16 old_number_of_classes;
+	uint16 current_number_of_compartments;
+	uint16 old_number_of_compartments;
+	uint16 header_height;
 
 	uint32 overcrowded_capacity;
 

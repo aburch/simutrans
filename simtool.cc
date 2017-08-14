@@ -8126,15 +8126,42 @@ bool tool_change_convoi_t::init( player_t *player )
 	}
 	case 'c': // reassign class
 
-		uint16 compartment, new_class;
-		sscanf(p, "%hi,%hi", &compartment, &new_class);
+		uint8 compartment, new_class;
+		int good_type; // 0 = Passenger, 1 = Mail, 2 = both
+		sscanf(p, "%hi,%hi,%i", &compartment, &new_class, &good_type);
 		//uint16 new_class = atoi(p);
-		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+		if (good_type == 2)
 		{
-			vehicle_t* v = cnv->get_vehicle(veh);
-			if( compartment <= v->get_desc()->get_number_of_classes())
+			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 			{
-				v->set_class_reassignment(compartment, new_class);
+				vehicle_t* v = cnv->get_vehicle(veh);
+				uint8 classes_amount = v->get_desc()->get_number_of_classes();
+				for (int i = 0; i < classes_amount; i++)
+				{
+					v->set_class_reassignment(i, i);
+				}
+			}
+		}
+		else
+		{
+			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+			{
+				vehicle_t* v = cnv->get_vehicle(veh);
+				uint8 classes_amount = v->get_desc()->get_number_of_classes();
+				if (good_type == 0 && v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
+				{
+					if (compartment <= classes_amount)
+					{
+						v->set_class_reassignment(compartment, new_class);
+					}
+				}
+				if (good_type == 1 && v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
+				{
+					if (compartment <= classes_amount)
+					{
+						v->set_class_reassignment(compartment, new_class);
+					}
+				}
 			}
 		}
 		break;

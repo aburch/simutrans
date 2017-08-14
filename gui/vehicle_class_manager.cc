@@ -103,6 +103,7 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 	scrolly.set_show_scroll_x(true);
 
 	layout();
+	build_class_entries();
 
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0, 0));
@@ -159,24 +160,25 @@ void vehicle_class_manager_t::build_class_entries()
 
 void vehicle_class_manager_t::layout()
 {
-	uint16 pass_classes = goods_manager_t::passengers->get_number_of_classes();
-	uint16 mail_classes = goods_manager_t::mail->get_number_of_classes();
+	//uint16 pass_classes = goods_manager_t::passengers->get_number_of_classes();
+	//uint16 mail_classes = goods_manager_t::mail->get_number_of_classes();
 	int pass_class_desc_capacity[255] = { 0 };
 	int mail_class_desc_capacity[255] = { 0 };
 
 	for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 	{
 		vehicle_t* v = cnv->get_vehicle(veh);
+		uint8 classes_amount = v->get_desc()->get_number_of_classes();
 		if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
 		{
-			for (int i = 0; i < pass_classes; i++)
+			for (int i = 0; i < classes_amount; i++)
 			{
 				pass_class_desc_capacity[i] += v->get_desc()->get_capacity(i);
 			}
 		}
 		else if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
 		{
-			for (int i = 0; i < mail_classes; i++)
+			for (int i = 0; i < classes_amount; i++)
 			{
 				mail_class_desc_capacity[i] += v->get_desc()->get_capacity(i);
 			}
@@ -184,7 +186,7 @@ void vehicle_class_manager_t::layout()
 	}
 	sint16 y = LINESPACE;
 	sint16 button_width = 190;
-	sint16 header_height = 0;
+	//sint16 header_height = 0;
 	const scr_coord_val pos_x = get_min_windowsize().w - button_width - D_MARGIN_RIGHT; // Possibly calculate how long the longest class name is and use that as the placement
 
 
@@ -202,7 +204,7 @@ void vehicle_class_manager_t::layout()
 
 		}
 	}
-	if (pax_current_number_of_classes > 0)
+	if (pass_class_sel.get_count() > 0)
 	{
 		y += 2 * LINESPACE;
 	}
@@ -229,9 +231,10 @@ void vehicle_class_manager_t::layout()
 		y += LINESPACE;
 	}
 
-	build_class_entries();
+	//build_class_entries();
 
-	header_height = y + ((pax_current_number_of_classes + mail_current_number_of_classes) * LINESPACE);
+	header_height = y + (current_number_of_classes * LINESPACE);
+	//header_height = header_height - (3 * LINESPACE);
 
 	scrolly.set_pos(scr_coord(0, header_height));
 	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT + header_height));
@@ -255,6 +258,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 		// all gui stuff set => display it
 		gui_frame_t::draw(pos, size);
 		int offset_y = pos.y + 2 + 16;
+		header_height = 0;
 
 		// current value
 		if (cnv.is_bound())
@@ -264,8 +268,8 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				layout();
 				convoy_bound = true;
 			}
-			pax_current_number_of_classes = 0;
-			mail_current_number_of_classes = 0;
+			current_number_of_compartments = 0;
+			current_number_of_classes = 0;
 			overcrowded_capacity = 0;
 
 			cbuffer_t buf;
@@ -282,9 +286,10 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 			{
 				vehicle_t* v = cnv->get_vehicle(veh);
+				uint8 classes_amount = v->get_desc()->get_number_of_classes();
 				if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
 				{
-					for (int i = 0; i < pass_classes; i++)
+					for (int i = 0; i < classes_amount; i++)
 					{
 						pass_class_desc_capacity[i] += v->get_desc()->get_capacity(i);
 					}
@@ -309,7 +314,8 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					const char* class_name = translator::translate(class_name_untranslated);
 					buf.printf("%s: %i", class_name, pass_class_desc_capacity[i]);
 					display_proportional_clip(pos.x + 10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-					offset_y += LINESPACE;					
+					offset_y += LINESPACE;
+					current_number_of_compartments++;
 				}
 			}
 			if (any_pass)
@@ -320,9 +326,10 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 			{
 				vehicle_t* v = cnv->get_vehicle(veh);
+				uint8 classes_amount = v->get_desc()->get_number_of_classes();
 				if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
 				{
-					for (int i = 0; i < mail_classes; i++)
+					for (int i = 0; i < classes_amount; i++)
 					{
 						mail_class_desc_capacity[i] += v->get_desc()->get_capacity(i);
 					}
@@ -348,6 +355,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					buf.printf("%s: %i", class_name, mail_class_desc_capacity[i]);
 					display_proportional_clip(pos.x + 10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					offset_y += LINESPACE;
+					current_number_of_compartments++;
 				}
 			}
 
@@ -388,7 +396,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					buf.printf("%s: %i %s", class_name, pass_class_capacity[i], translator::translate("Passagiere"));
 					display_proportional_clip(pos.x + 10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					offset_y += LINESPACE;
-					pax_current_number_of_classes++;
+					current_number_of_classes++;
 				}
 			}
 			if (overcrowded_capacity > 0)
@@ -397,6 +405,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				buf.printf("%s: %i %s", translator::translate("overcrowded_capacity"), overcrowded_capacity, translator::translate("Passagiere"));
 				display_proportional_clip(pos.x + 10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				offset_y += LINESPACE;
+				current_number_of_classes++;
 			}
 
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
@@ -421,18 +430,20 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					buf.printf("%s: %i %s", class_name, mail_class_capacity[i], translator::translate("Post"));
 					display_proportional_clip(pos.x + 10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					offset_y += LINESPACE;
-					mail_current_number_of_classes++;
+					current_number_of_classes++;
 				}
 			}
 		}
-		if (pax_old_number_of_classes != pax_current_number_of_classes)
+		if (old_number_of_compartments != current_number_of_compartments)
 		{
-			pax_old_number_of_classes = pax_current_number_of_classes;
+			old_number_of_compartments = current_number_of_compartments;
+			header_height = offset_y;
 			layout();
 		}
-		if (mail_old_number_of_classes != mail_current_number_of_classes)
+		if (old_number_of_classes != current_number_of_classes)
 		{
-			mail_old_number_of_classes = mail_current_number_of_classes;
+			old_number_of_classes = current_number_of_classes;
+			header_height = offset_y;
 			layout();
 		}
 	}
@@ -446,10 +457,6 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
  */
 bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t p)
 {
-
-	// TODO: Create and make this call "call_vehicle_tool(blablabla)". Im not sure how to do that properly yet, either I figure it out my self or maybe James could take a look.
-	// TODO: Make the class reassigning logic never exceed the amount of classes that a given vehicle has,
-	// possibly by changing the order of for (int i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++) and for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 	for (int i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
 	{
 		if (comp == pass_class_sel.at(i))
@@ -461,15 +468,9 @@ bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value
 				pass_class_sel.at(i)->set_selection(0);
 				new_class = 0;
 			}
-
-			//tool_t *tool = create_tool(TOOL_CHANGE_CONVOI | SIMPLE_TOOL);
+			int good_type = 0; // 0 = Passenger, 1 = Mail, 2 = both
 			cbuffer_t buf;
-			buf.printf("%i,%i", i, new_class);
-			//tool->set_default_param(buf);
-			//welt->set_tool(tool, cnv->get_owner());
-			//// since init always returns false, it is safe to delete immediately
-			//delete tool;
-
+			buf.printf("%i,%i,%i", i, new_class, good_type);
 			cnv->call_convoi_tool('c', buf);
 
 			if (i < 0)
@@ -490,14 +491,11 @@ bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value
 				mail_class_sel.at(i)->set_selection(0);
 				new_class = 0;
 			}
-			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
-			{
-				vehicle_t* v = cnv->get_vehicle(veh);
-				if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
-				{
-					v->set_class_reassignment(i, new_class);
-				}
-			}
+			int good_type = 1; // 0 = Passenger, 1 = Mail, 2 = both
+			cbuffer_t buf;
+			buf.printf("%i,%i,%i", i, new_class, good_type);
+			cnv->call_convoi_tool('c', buf);
+
 			if (i < 0)
 			{
 				break;
@@ -507,32 +505,20 @@ bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value
 	}
 	if (comp == &reset_all_classes_button)
 	{
-		for (int i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+		int good_type = 2; // 0 = Passenger, 1 = Mail, 2 = both
+		cbuffer_t buf;
+		buf.printf("%i,%i,%i", 0, 0, good_type);
+		cnv->call_convoi_tool('c', buf);
+
+		for (int i = 0; i < pass_class_sel.get_count(); i++)
 		{
-			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
-			{
-				vehicle_t* v = cnv->get_vehicle(veh);
-				if (v->get_desc()->get_number_of_classes() <= i)
-				{
-					continue;
-				}
-				v->set_class_reassignment(i, i);
-				pass_class_sel.at(i)->set_selection(i);
-			}
+			pass_class_sel.at(i)->set_selection(i);
 		}
-		for (int i = 0; i < goods_manager_t::mail->get_number_of_classes(); i++)
+		for (int i = 0; i < mail_class_sel.get_count(); i++)
 		{
-			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
-			{
-				vehicle_t* v = cnv->get_vehicle(veh);
-				if (v->get_desc()->get_number_of_classes() <= i)
-				{
-					continue;
-				}
-				v->set_class_reassignment(i, i);
-				mail_class_sel.at(i)->set_selection(i);
-			}
+			mail_class_sel.at(i)->set_selection(i);
 		}
+
 		layout();
 		return true;
 
