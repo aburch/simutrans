@@ -350,9 +350,15 @@ settings_t::settings_t() :
 	passenger_routing_packet_size = 7;
 	max_alternative_destinations_commuting = 3;
 	max_alternative_destinations_visiting = 5;
+
+	min_alternative_destinations_visiting = 1;
+	min_alternative_destinations_commuting = 2;
+
 	// With a default value of zero, the absolute number of "max_alternative_destinations" will be used.
 	max_alternative_destinations_per_job_millionths = 0;
 	max_alternative_destinations_per_visitor_demand_millionths = 0;
+	min_alternative_destinations_per_job_millionths = 0;
+	min_alternative_destinations_per_visitor_demand_millionths = 0;
 
 	always_prefer_car_percent = 10;
 	congestion_density_factor = 12;
@@ -1121,16 +1127,47 @@ void settings_t::rdwr(loadsave_t *file)
 			{
 				file->rdwr_short(max_alternative_destinations_commuting);
 				file->rdwr_short(max_alternative_destinations_visiting);
-				if (max_alternative_destinations_commuting == 0)
+				
+
+				if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 25)
+				{
+					file->rdwr_short(min_alternative_destinations_visiting);
+					file->rdwr_short(min_alternative_destinations_commuting);
+
+					file->rdwr_long(min_alternative_destinations_per_visitor_demand_millionths);
+					file->rdwr_long(min_alternative_destinations_per_job_millionths); 
+				}
+				else
+				{
+					// In earlier versions, the maxima for alternative destinations were stored without
+					// adjustment for the minima. Subtract the minima here as they are added back
+					// after the random number is generated.
+
+					max_alternative_destinations_visiting -= min_alternative_destinations_visiting;
+					max_alternative_destinations_commuting -= min_alternative_destinations_commuting;
+				}
+
+				if (max_alternative_destinations_commuting + min_alternative_destinations_commuting == 0)
 				{
 					max_alternative_destinations_commuting = 1;
 				}
-				if (max_alternative_destinations_visiting == 0)
+				if (max_alternative_destinations_visiting + min_alternative_destinations_visiting == 0)
 				{
 					max_alternative_destinations_visiting = 1;
 				}
+
 				file->rdwr_long(max_alternative_destinations_per_job_millionths);
 				file->rdwr_long(max_alternative_destinations_per_visitor_demand_millionths);
+
+				// These are necessary to prevent underflows when the actual maxima are calculated
+				if (max_alternative_destinations_per_job_millionths < min_alternative_destinations_per_job_millionths)
+				{
+					max_alternative_destinations_per_job_millionths = min_alternative_destinations_per_job_millionths * 2;
+				}
+				if (max_alternative_destinations_per_visitor_demand_millionths < min_alternative_destinations_per_visitor_demand_millionths)
+				{
+					max_alternative_destinations_per_visitor_demand_millionths = min_alternative_destinations_per_visitor_demand_millionths * 2;
+				}
 			}
 			else
 			{
@@ -2329,11 +2366,20 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	{
 		passenger_routing_packet_size = 7;
 	}
+
+	min_alternative_destinations_visiting = contents.get_int("min_alternative_destinations_visiting", min_alternative_destinations_visiting);
+	min_alternative_destinations_commuting = contents.get_int("min_alternative_destinations_commuting", min_alternative_destinations_commuting);
+
+	// Subtract the minima from the maxima because these are added again when the random numbers are generated
 	const uint16 old_max_alternative_destinations = contents.get_int("max_alternative_destinations", max_alternative_destinations_visiting);
-	max_alternative_destinations_visiting = contents.get_int("max_alternative_destinations_visiting", old_max_alternative_destinations);
-	max_alternative_destinations_commuting = contents.get_int("max_alternative_destinations_commuting", max_alternative_destinations_commuting);
+	max_alternative_destinations_visiting = contents.get_int("max_alternative_destinations_visiting", old_max_alternative_destinations) - min_alternative_destinations_visiting;
+	max_alternative_destinations_commuting = contents.get_int("max_alternative_destinations_commuting", max_alternative_destinations_commuting) - min_alternative_destinations_commuting;
+
 	max_alternative_destinations_per_job_millionths = contents.get_int("max_alternative_destinations_per_job_millionths", max_alternative_destinations_per_job_millionths); 
 	max_alternative_destinations_per_visitor_demand_millionths = contents.get_int("max_alternative_destinations_per_visitor_demand_millionths", max_alternative_destinations_per_visitor_demand_millionths); 
+
+	min_alternative_destinations_per_job_millionths = contents.get_int("min_alternative_destinations_per_job_millionths", min_alternative_destinations_per_job_millionths);
+	min_alternative_destinations_per_visitor_demand_millionths = contents.get_int("min_alternative_destinations_per_visitor_demand_millionths", min_alternative_destinations_per_visitor_demand_millionths);
 
 	always_prefer_car_percent = contents.get_int("always_prefer_car_percent", always_prefer_car_percent);
 	congestion_density_factor = contents.get_int("congestion_density_factor", congestion_density_factor);

@@ -1730,6 +1730,12 @@ uint8 gebaeude_t::get_random_passenger_class()
 	// is introduced with the (eventual) new town growth code.
 
 	const uint8 number_of_classes = goods_manager_t::passengers->get_number_of_classes();
+
+	if (number_of_classes == 1)
+	{
+		return 0;
+	}
+
 	const uint32 sum = get_tile()->get_desc()->get_class_proportions_sum();
 
 	if (sum == 0)

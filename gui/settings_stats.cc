@@ -51,6 +51,8 @@ static char const* const version[] =
 	"0.120.1",
 	"0.120.2",
 	"0.120.3",
+	"0.120.4",
+	"0.120.5",
 	"0.120.7",
 	"0.120.1.2",
 	"0.120.2.1"
@@ -98,7 +100,8 @@ static const char *revision_ex[] =
 	"20",
 	"21",
 	"22",
-	"23"
+	"23",
+	"24"
 };
 
 // just free memory
@@ -422,6 +425,10 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 	INIT_NUM( "max_alternative_destinations_commuting", sets->get_max_alternative_destinations_commuting(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_alternative_destinations_per_visitor_demand_millionths", sets->get_max_alternative_destinations_per_visitor_demand_millionths(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_alternative_destinations_per_job_millionths", sets->get_max_alternative_destinations_per_job_millionths(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("min_alternative_destinations_visiting", sets->get_min_alternative_destinations_visiting(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false);
+	INIT_NUM("min_alternative_destinations_commuting", sets->get_min_alternative_destinations_commuting(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false);
+	INIT_NUM("min_alternative_destinations_per_visitor_demand_millionths", sets->get_min_alternative_destinations_per_visitor_demand_millionths(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false);
+	INIT_NUM("min_alternative_destinations_per_job_millionths", sets->get_min_alternative_destinations_per_job_millionths(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false);
 	INIT_NUM("passenger_max_wait", sets->get_passenger_max_wait(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("min_wait_airport", sets->get_min_wait_airport(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("random_mode_commuting", sets->get_random_mode_commuting(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
@@ -539,6 +546,10 @@ void settings_extended_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->max_alternative_destinations_commuting );
 	READ_NUM_VALUE( sets->max_alternative_destinations_per_visitor_demand_millionths );
 	READ_NUM_VALUE( sets->max_alternative_destinations_per_job_millionths );
+	READ_NUM_VALUE(sets->min_alternative_destinations_visiting);
+	READ_NUM_VALUE(sets->min_alternative_destinations_commuting);
+	READ_NUM_VALUE(sets->min_alternative_destinations_per_visitor_demand_millionths);
+	READ_NUM_VALUE(sets->min_alternative_destinations_per_job_millionths);
 	READ_NUM_VALUE( sets->passenger_max_wait );
 	READ_NUM_VALUE( sets->min_wait_airport );
 	READ_NUM_VALUE( sets->random_mode_commuting );

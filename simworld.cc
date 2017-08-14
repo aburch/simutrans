@@ -1619,6 +1619,9 @@ void karte_t::recalc_passenger_destination_weights()
 	total_sum_wieght_commuter_targets /= goods_manager_t::passengers->get_number_of_classes();
 	total_sum_weight_visitor_targets /= goods_manager_t::passengers->get_number_of_classes();
 
+	settings.update_min_alternative_destinations_commuting(total_sum_wieght_commuter_targets);
+	settings.update_min_alternative_destinations_visiting(total_sum_weight_visitor_targets);
+
 	settings.update_max_alternative_destinations_commuting(total_sum_wieght_commuter_targets);
 	settings.update_max_alternative_destinations_visiting(total_sum_weight_visitor_targets);
 }
@@ -6053,8 +6056,8 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 	// Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations 
 	// Mail does not have alternative destinations: people do not send mail to one place because they cannot reach another. Mail has specific desinations.
-	const uint32 max_destinations = trip == commuting_trip ? settings.get_max_alternative_destinations_commuting() : 
-									trip == visiting_trip ? settings.get_max_alternative_destinations_visiting() : 1;
+	const uint32 min_destinations = trip == commuting_trip ? settings.get_min_alternative_destinations_commuting() : trip == visiting_trip ? settings.get_min_alternative_destinations_visiting() : 1;
+	const uint32 max_destinations = trip == commuting_trip ? settings.get_max_alternative_destinations_commuting() : trip == visiting_trip ? settings.get_max_alternative_destinations_visiting() : 1;
 	koord destination_pos;
 	route_status_type route_status;
 	destination current_destination;
@@ -6073,7 +6076,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 	for(uint32 trip_count = 0; trip_count < onward_trips && route_status != no_route && route_status != too_slow && route_status != overcrowded && route_status != destination_unavailable; trip_count ++)
 	{
 		// Permit onward journeys - but only for successful journeys
-		const uint32 destination_count = simrand(max_destinations, "void stadt_t::generate_passengers_and_mail() (number of destinations?)") + 1;
+		const uint32 destination_count = simrand(max_destinations, "void stadt_t::generate_passengers_and_mail() (number of destinations?)") + min_destinations;
 		// Split passengers between commuting trips and other trips.
 		if(trip_count == 0)
 		{

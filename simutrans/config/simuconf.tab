@@ -219,6 +219,30 @@ commuting_trip_chance_percent = 67
 random_mode_commuting = 2
 random_mode_visiting = 2
 
+# Some passengers who are not able to find a route will be content to go to an alternative destination. 
+# This is set separately for visiting passengers and commuting passengers. It can either be set in
+# absolute figures using max_alternative_destinations_visiting and max_alternative_destinations_commuting,
+# or set as a proportion of the total number of jobs and total level of visitor demand, using 
+# max_alternative_destinations_per_visitor_demand_millionths and max_alternative_destinations_per_job_millionths.
+# Using the relative settings is recommended, as this scales much better to the map size.
+# 
+# This is specified as the maximum number of alternative destinations, as the actual number for any
+# given packet of passengers will be randomised between zero and this number. 
+#
+# This figure strongly affects how many passengers will travel, and also can have a significant effect on
+# the computational load.
+
+#max_alternative_destinations_commuting = 6
+#max_alternative_destinations_visiting = 12
+#min_alternative_destinations_commuting = 2
+#min_alternative_destinations_visiting = 1
+
+max_alternative_destinations_per_visitor_demand_millionths = 2750
+max_alternative_destinations_per_job_millionths = 5000
+
+min_alternative_destinations_per_visitor_demand_millionths = 750
+min_alternative_destinations_per_job_millionths = 2500
+
 ################################## Industry settings #################################
 
 # when a city reaches 2^n times of this number
