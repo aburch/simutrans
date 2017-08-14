@@ -81,13 +81,26 @@ private:
 	slist_tpl<gui_combobox_t *> pass_class_sel;
 	slist_tpl<gui_combobox_t *> mail_class_sel;
 
+	slist_tpl<gui_combobox_t *> pass_veh_class_sel;
+	slist_tpl<gui_combobox_t *> mail_veh_class_sel;
+
 	gui_container_t cont;
 
-	uint16 pax_current_number_of_classes;
-	uint16 pax_old_number_of_classes;
+	uint16 current_number_of_classes;
+	uint16 old_number_of_classes;
+	uint16 current_number_of_compartments;
+	uint16 old_number_of_compartments;
+	uint16 header_height;
 
-	uint16 mail_current_number_of_classes;
-	uint16 mail_old_number_of_classes;
+	uint32 overcrowded_capacity;
+
+	bool convoy_bound = false;
+
+	char *class_name;
+	char *pass_class_name_untranslated[32];
+	char *mail_class_name_untranslated[32];
+
+
 
 public:
 	vehicle_class_manager_t(convoihandle_t cnv);
@@ -96,6 +109,12 @@ public:
 	* Do the dynamic component layout
 	*/
 	void layout();
+
+	/**
+	* Build the class lists
+	*/
+
+	void build_class_entries();
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
