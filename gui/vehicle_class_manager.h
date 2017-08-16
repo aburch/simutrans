@@ -34,8 +34,8 @@ private:
 	 */
 	convoihandle_t cnv;
 	
-	gui_combobox_t pass_class_veh_sel[256];
-	gui_combobox_t mail_class_veh_sel[256];
+	//gui_combobox_t pass_class_veh_sel[256];
+	//gui_combobox_t mail_class_veh_sel[256];
 
 	gui_container_t cont;
 
@@ -91,6 +91,7 @@ private:
 	uint16 current_number_of_compartments;
 	uint16 old_number_of_compartments;
 	uint16 header_height;
+	int longest_class_name;
 
 	uint32 overcrowded_capacity;
 
@@ -99,7 +100,6 @@ private:
 	char *class_name;
 	char *pass_class_name_untranslated[32];
 	char *mail_class_name_untranslated[32];
-
 
 
 public:
