@@ -8144,7 +8144,7 @@ bool tool_change_convoi_t::init( player_t *player )
 		}
 		else
 		{
-			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+			for (uint8 veh = 0; veh < cnv->get_vehicle_count(); veh++)
 			{
 				vehicle_t* v = cnv->get_vehicle(veh);
 				uint8 classes_amount = v->get_desc()->get_number_of_classes();
