@@ -2387,8 +2387,8 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 		{
 			cbuf.clear();
 			cbuf.printf("%s: %d", translator::translate("good_units"), total_goods);
-			display_color_img(skinverwaltung_t::goods->get_image_id(0), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
 			display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			display_color_img(skinverwaltung_t::goods->get_image_id(0), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
 			y += LINESPACE + 1;
 		}
 		else
@@ -2398,6 +2398,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 				cbuf.clear();
 				cbuf.printf("%d%s %s", good_type_0_amount, translator::translate(goods_manager_t::get_info_catg_index(good_type_0)->get_mass()), translator::translate(goods_manager_t::get_info_catg_index(good_type_0)->get_catg_name()));
 				display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				display_color_img(skinverwaltung_t::goods->get_image_id(0), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
 				y += LINESPACE + 1;
 			}
 			if (good_type_1 != NULL)
