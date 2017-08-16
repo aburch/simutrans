@@ -288,7 +288,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			int column_1 = 10;
 			int column_2;
 			int compartment_height;
-			uint8 highest_catering;
+			uint8 highest_catering = 0;
 			bool is_tpo = false;
 
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
@@ -747,15 +747,12 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 
 				goods_desc_t const& g = *v->get_cargo_type();
 				char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
-
+				uint8 base_comfort = 0;
+				uint8 additional_comfort = 0;
 
 
 				if (pass_veh || mail_veh)
 				{
-					/*buf.clear();
-					buf.printf("%s:", translator::translate("compartments"));
-					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-					extra_y += LINESPACE;*/
 					for (uint8 i = 0; i < v->get_desc()->get_number_of_classes(); i++)
 					{
 						reassigned = false;
@@ -798,8 +795,8 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 								int len = display_proportional_clip(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 								if (higest_catering)
 								{
-									uint8 base_comfort = v->get_comfort(0, v->get_reassigned_class(i));
-									uint8 additional_comfort = v->get_comfort(higest_catering, v->get_reassigned_class(i))-base_comfort;
+									base_comfort = v->get_comfort(0, v->get_reassigned_class(i));
+									additional_comfort = v->get_comfort(higest_catering, v->get_reassigned_class(i))-base_comfort;
 									buf.clear();
 									buf.printf(translator::translate(" + %i"), additional_comfort);
 									display_proportional_clip(pos.x + w + offset.x + extra_w + len, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -810,7 +807,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 							int len = 5 + display_proportional_clip(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, translator::translate("income_pr_km_(when_full):"), ALIGN_LEFT, SYSCOL_TEXT, true);
 							// Revenue for moving 1 unit 1000 meters -- comes in 1/4096 of simcent, convert to simcents
 							// Excludes TPO/catering revenue, class and comfort effects.  FIXME --neroden
-							sint64 fare = v->get_cargo_type()->get_total_fare(1000, 0, v->get_comfort(0, v->get_reassigned_class(i)), 0, v->get_reassigned_class(i));
+							sint64 fare = v->get_cargo_type()->get_total_fare(1000, 0, base_comfort+ additional_comfort, v->get_desc()->get_catering_level(), v->get_reassigned_class(i));
 							// Multiply by capacity, convert to simcents, subtract running costs
 							sint64 profit = ((v->get_capacity(v->get_reassigned_class(i)) + v->get_overcrowding(v->get_reassigned_class(i)))*fare + 2048ll) / 4096ll;
 							money_to_string(number, profit / 100.0);
