@@ -713,11 +713,13 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		uint8 good_type_1 = NULL;
 		uint8 good_type_2 = NULL;
 		uint8 good_type_3 = NULL;
+		uint8 good_type_4 = NULL;
 
 		uint32 good_type_0_amount = 0;
 		uint32 good_type_1_amount = 0;
 		uint32 good_type_2_amount = 0;
 		uint32 good_type_3_amount = 0;
+		uint32 good_type_4_amount = 0;
 		uint32 rest_good_amount = 0;
 
 		uint32 total_power = 0;
@@ -807,6 +809,11 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 							good_type_3 = ware->get_catg_index();
 							good_type_3_amount += desc->get_capacity();
 						}
+						else if (good_type_4 == NULL || good_type_4 == desc->get_freight_type()->get_catg_index())
+						{
+							good_type_4 = ware->get_catg_index();
+							good_type_4_amount += desc->get_capacity();
+						}
 						else
 						{
 							rest_good_amount += desc->get_capacity();
@@ -836,7 +843,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 
 
 		// (total_pax, total_standing_pax, pax_classes, total_mail, mail_classes, total_goods)
-		cont_convoi_capacity.set_totals(total_pax, total_standing_pax, total_mail, total_goods, total_pax_classes, total_mail_classes, good_type_0, good_type_1, good_type_2, good_type_3, good_type_0_amount, good_type_1_amount, good_type_2_amount, good_type_3_amount, rest_good_amount);
+		cont_convoi_capacity.set_totals(total_pax, total_standing_pax, total_mail, total_goods, total_pax_classes, total_mail_classes, good_type_0, good_type_1, good_type_2, good_type_3, good_type_4, good_type_0_amount, good_type_1_amount, good_type_2_amount, good_type_3_amount, good_type_4_amount, rest_good_amount);
 
 		way_wear_factor /= 10000.0;
 		txt_convoi_count.printf("%s %d (%s %i)",
@@ -2314,7 +2321,7 @@ depot_convoi_capacity_t::depot_convoi_capacity_t()
 }
 
 //(total_pax, total_standing_pax, total_mail, total_goods, pax_classes, mail_classes)
-void depot_convoi_capacity_t::set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods, uint8 pax_classes, uint8 mail_classes, uint8 good_0, uint8 good_1, uint8 good_2, uint8 good_3, uint32 good_0_amount, uint32 good_1_amount, uint32 good_2_amount, uint32 good_3_amount, uint32 rest_good)
+void depot_convoi_capacity_t::set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods, uint8 pax_classes, uint8 mail_classes, uint8 good_0, uint8 good_1, uint8 good_2, uint8 good_3, uint8 good_4, uint32 good_0_amount, uint32 good_1_amount, uint32 good_2_amount, uint32 good_3_amount, uint32 good_4_amount, uint32 rest_good)
 {
 	total_pax = pax;
 	total_standing_pax = standing_pax;
@@ -2327,11 +2334,13 @@ void depot_convoi_capacity_t::set_totals(uint32 pax, uint32 standing_pax, uint32
 	good_type_1 = good_1;
 	good_type_2 = good_2;
 	good_type_3 = good_3;
+	good_type_4 = good_4;
 
 	good_type_0_amount = good_0_amount;
 	good_type_1_amount = good_1_amount;
 	good_type_2_amount = good_2_amount;
 	good_type_3_amount = good_3_amount;
+	good_type_4_amount = good_4_amount;
 	rest_good_amount = rest_good;
 }
 
@@ -2413,7 +2422,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 				if (good_type_3 > 0)
 				{
 					cbuf.clear();
-					cbuf.printf("%d %s", rest_good_amount + good_type_3_amount + good_type_2_amount, translator::translate("more_units"));
+					cbuf.printf("%d %s", rest_good_amount + good_type_4_amount + good_type_3_amount + good_type_2_amount, translator::translate("more_units"));
 					display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					y += LINESPACE + 1;
 				}
@@ -2434,17 +2443,24 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 					display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					y += LINESPACE + 1;
 				}
-				if (rest_good_amount > 0)
-				{
-					cbuf.clear();
-					cbuf.printf("%d %s", rest_good_amount + good_type_3_amount, translator::translate("more_units"));
-					display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
-					y += LINESPACE + 1;
-				}
-				else if (good_type_3 != NULL)
+				if (good_type_3 != NULL)
 				{
 					cbuf.clear();
 					cbuf.printf("%d%s %s", good_type_3_amount, translator::translate(goods_manager_t::get_info_catg_index(good_type_3)->get_mass()), translator::translate(goods_manager_t::get_info_catg_index(good_type_3)->get_catg_name()));
+					display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
+					y += LINESPACE + 1;
+				}
+				if (rest_good_amount > 0)
+				{
+					cbuf.clear();
+					cbuf.printf("%d %s", rest_good_amount + good_type_4_amount, translator::translate("more_units"));
+					display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
+					y += LINESPACE + 1;
+				}
+				else if (good_type_4 != NULL)
+				{
+					cbuf.clear();
+					cbuf.printf("%d%s %s", good_type_4_amount, translator::translate(goods_manager_t::get_info_catg_index(good_type_4)->get_mass()), translator::translate(goods_manager_t::get_info_catg_index(good_type_4)->get_catg_name()));
 					display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					y += LINESPACE + 1;
 				}

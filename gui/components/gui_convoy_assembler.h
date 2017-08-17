@@ -43,18 +43,20 @@ private:
 	uint8 good_type_1 = NULL;
 	uint8 good_type_2 = NULL;
 	uint8 good_type_3 = NULL;
+	uint8 good_type_4 = NULL;
 
 	uint32 good_type_0_amount;
 	uint32 good_type_1_amount;
 	uint32 good_type_2_amount;
 	uint32 good_type_3_amount;
+	uint32 good_type_4_amount;
 	uint32 rest_good_amount;
 
 	// The selected convoy so far...
 	vector_tpl<const vehicle_desc_t *> vehicles;
 public:
 	depot_convoi_capacity_t();
-	void set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods, uint8 pax_classes, uint8 mail_classes, uint8 good_0, uint8 good_1, uint8 good_2, uint8 good_3, uint32 good_0_amount, uint32 good_1_amount, uint32 good_2_amount, uint32 good_3_amount, uint32 rest_good);
+	void set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods, uint8 pax_classes, uint8 mail_classes, uint8 good_0, uint8 good_1, uint8 good_2, uint8 good_3, uint8 good_4, uint32 good_0_amount, uint32 good_1_amount, uint32 good_2_amount, uint32 good_3_amount, uint32 good_4_amount, uint32 rest_good);
 	void draw(scr_coord offset);
 };
 
