@@ -1968,6 +1968,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 	if(veh_type) {
 		// column 1
 		vehicle_as_potential_convoy_t convoy(*veh_type);
+		int linespace_skips = 0;
 
 		int n = sprintf(buf, "%s", translator::translate(veh_type->get_name(),welt->get_settings().get_name_language_id()));
 
@@ -2007,63 +2008,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		n += sprintf( buf + n, translator::translate("Cost: %8s\n"), tmp);
 		n += sprintf( buf + n, translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), veh_type->get_running_cost() / 100.0, veh_type->get_adjusted_monthly_fixed_cost(welt)/100.0);
 		
-		char cap[8];
-		if(veh_type->get_overcrowded_capacity())
-		{
-			sprintf(cap, "(%d)", veh_type->get_overcrowded_capacity());
-		}
-		else
-		{
-			cap[0] = '\0';
-		}
-		if (veh_type->get_total_capacity() > 0)
-		{ // Standard translation is "Capacity: %3d%s %s\n", as Standard has no overcrowding
 
-			if (veh_type->get_freight_type()->get_catg_index() == goods_manager_t::INDEX_PAS || veh_type->get_freight_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
-			{
-				for (uint8 i = 0; i < veh_type->get_number_of_classes(); i++)
-				{
-					if (veh_type->get_capacity(i) > 0)
-					{
-						char class_name_untranslated[32];
-						switch (veh_type->get_freight_type()->get_catg_index())
-						{
-						case goods_manager_t::INDEX_MAIL:
-							sprintf(class_name_untranslated, "m_class[%u]", i);
-							break;
-						default:
-							sprintf(class_name_untranslated, "p_class[%u]", i);
-							break;
-						}
-						const char* class_name = translator::translate(class_name_untranslated);
-						n += sprintf(buf + n, "%s: ", class_name);
-						n += sprintf(buf + n, "\n");
 
-						char capacity[32];
-						sprintf(capacity, "%i", veh_type->get_capacity(i));
-						n += sprintf(buf + n, translator::translate("capacity: %s %s"), capacity, veh_type->get_freight_type()->get_name());
-						n += sprintf(buf + n, "\n");
-						if (veh_type->get_freight_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
-						{
-							n += sprintf(buf + n, translator::translate("comfort: %i"), veh_type->get_comfort(i));
-							n += sprintf(buf + n, "\n");
-						}
-					}
-				}
-			}
-			else
-			{
-				n += sprintf(buf + n, translator::translate("Capacity: %3d %s%s %s\n"),
-					veh_type->get_total_capacity(),
-					cap,
-					translator::translate(veh_type->get_freight_type()->get_mass()),
-					veh_type->get_freight_type()->get_catg() == 0 ? translator::translate(veh_type->get_freight_type()->get_name()) : translator::translate(veh_type->get_freight_type()->get_catg_name())
-				);
-			}
-		}
-		else {
-			n += sprintf( buf + n, "\n");
-		}
 
 		if(  veh_type->get_power() > 0  ) { // LOCO
 			// Standard translation is "Power: %4d kW\n", as Standard has no tractive effort
@@ -2112,7 +2058,119 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		display_multiline_text( pos.x + 4, pos.y + tabs.get_pos().y + tabs.get_size().h + 31 + LINESPACE*1 + 4 + 16, buf, SYSCOL_TEXT);
 
 		// column 2
-		n = sprintf( buf, "%s %s %04d\n",
+		n = 0;
+		if (veh_type->get_total_capacity() > 0)
+		{
+			bool pass_veh = veh_type->get_freight_type()->get_catg_index() == goods_manager_t::INDEX_PAS;
+			bool mail_veh = veh_type->get_freight_type()->get_catg_index() == goods_manager_t::INDEX_MAIL;
+
+			if (pass_veh || mail_veh)
+			{
+				uint8 classes_amount = veh_type->get_number_of_classes() < 1 ? 1 : veh_type->get_number_of_classes();
+				char extra_pass[8];
+				if (veh_type->get_overcrowded_capacity() > 0) // Find out wether there are any overcrowded capacity and divide it by the amount of classes
+				{
+					sprintf(extra_pass, "(%i)", veh_type->get_overcrowded_capacity());
+				}
+				else
+				{
+					extra_pass[0] = '\0';
+				}
+
+				for (uint8 i = 0; i < classes_amount; i++)
+				{
+					if (veh_type->get_capacity(i) > 0)
+					{
+						char class_name_untranslated[32];
+						if (mail_veh)
+						{
+							sprintf(class_name_untranslated, "m_class[%u]", i);
+						}
+						else
+						{
+							sprintf(class_name_untranslated, "p_class[%u]", i);
+						}
+						const char* class_name = translator::translate(class_name_untranslated);
+						n += sprintf(buf + n, "%s: %3d%s%s %s", class_name, veh_type->get_capacity(i), extra_pass, translator::translate(veh_type->get_freight_type()->get_mass()), translator::translate(veh_type->get_freight_type()->get_name()));
+						n += sprintf(buf + n, "\n");
+						extra_pass[0] = '\0'; // To avoid the overcrowded message to display on the other classes
+
+						if (pass_veh)
+						{
+							char timebuf[32];
+							uint8 base_comfort = veh_type->get_comfort(i);
+							uint8 modified_comfort = veh_type->get_catering_level() > 0 ? veh_type->get_adjusted_comfort(veh_type->get_catering_level(), i) - base_comfort : 0;
+							char extra_comfort[8];
+							if (modified_comfort > 0)
+							{
+								sprintf(extra_comfort, "+%i", modified_comfort);
+							}
+							else
+							{
+								extra_comfort[0] = '\0';
+							}
+
+							n += sprintf(buf + n, " %s %i", translator::translate("Comfort:"), base_comfort);
+							welt->sprintf_time_secs(timebuf, sizeof(timebuf), welt->get_settings().max_tolerable_journey(base_comfort + modified_comfort));
+							n += sprintf(buf + n, "%s %s %s%s", extra_comfort, translator::translate("(Max. comfortable journey time: "), timebuf, ")\n");
+						}
+						else
+						{
+							linespace_skips++;
+						}
+					}
+
+				}
+				if (veh_type->get_catering_level() > 0)
+				{
+					if (mail_veh)
+					{
+						//Catering vehicles that carry mail are treated as TPOs.
+						n += sprintf(buf + n, "%s\n", translator::translate("This is a travelling post office"));
+					}
+					else
+					{
+						n += sprintf(buf + n, translator::translate("Catering level: %i\n"), veh_type->get_catering_level());
+					}
+				}
+				else
+				{
+					linespace_skips++;
+				}
+			}
+			else
+			{
+				n += sprintf(buf + n, translator::translate("Capacity: %3d %s %s\n"),
+					veh_type->get_total_capacity(),
+					translator::translate(veh_type->get_freight_type()->get_mass()),
+					veh_type->get_freight_type()->get_catg() == 0 ? translator::translate(veh_type->get_freight_type()->get_name()) : translator::translate(veh_type->get_freight_type()->get_catg_name()));
+				linespace_skips += 3;
+			}
+
+
+			char min_loading_time_as_clock[32];
+			char max_loading_time_as_clock[32];
+			//Loading time is only relevant if there is something to load.
+			welt->sprintf_ticks(min_loading_time_as_clock, sizeof(min_loading_time_as_clock), veh_type->get_min_loading_time());
+			welt->sprintf_ticks(max_loading_time_as_clock, sizeof(max_loading_time_as_clock), veh_type->get_max_loading_time());
+			n += sprintf(buf + n, "%s %s - %s \n", translator::translate("Loading time:"), min_loading_time_as_clock, max_loading_time_as_clock);
+
+
+		}
+		else
+		{
+			linespace_skips += 5;
+		}
+		if (linespace_skips > 0)
+		{
+			for (int i = 0; i < linespace_skips; i++)
+			{
+				n += sprintf(buf + n, "\n");
+			}
+			linespace_skips = 0;
+		}
+
+		n += sprintf( buf + n, "%s %s %04d\n",
 			translator::translate("Intro. date:"),
 			translator::get_month_name( veh_type->get_intro_year_month() % 12 ),
 			veh_type->get_intro_year_month() / 12
@@ -2126,52 +2184,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				);
 		}
 		else {
-			n += sprintf( buf + n, "\n");
-		}
-
-		if(veh_type->get_total_capacity() > 0)
-		{
-			char min_loading_time_as_clock[32];
-			char max_loading_time_as_clock[32];
-			//Loading time is only relevant if there is something to load.
-			welt->sprintf_ticks(min_loading_time_as_clock, sizeof(min_loading_time_as_clock), veh_type->get_min_loading_time());
-			welt->sprintf_ticks(max_loading_time_as_clock, sizeof(max_loading_time_as_clock), veh_type->get_max_loading_time());
-			n += sprintf(buf + n, "%s %s - %s \n", translator::translate("Loading time:"), min_loading_time_as_clock, max_loading_time_as_clock);
-		}
-		else
-		{
-			n += sprintf(buf + n, "\n");
-		}
-
-		if(veh_type->get_freight_type()->get_catg_index() == 0)
-		{
-			//Comfort only applies to passengers.
-			uint8 comfort = veh_type->get_comfort(); // TODO: Show this for each class (Ves?)
-			n += sprintf(buf + n, "%s %i ", translator::translate("Comfort:"), comfort);
-			char timebuf[32];
-			welt->sprintf_time_secs(timebuf, sizeof(timebuf), welt->get_settings().max_tolerable_journey(comfort) );
-			n += sprintf(buf + n, "%s %s%s", translator::translate("(Max. comfortable journey time: "), timebuf, ")\n");
-		}
-		else 
-		{
-			n += sprintf(buf + n, "\n");
-		}
-
-		if(veh_type->get_catering_level() > 0)
-		{
-			if(veh_type->get_freight_type()->get_catg_index() == 1)
-			{
-				//Catering vehicles that carry mail are treated as TPOs.
-				n +=  sprintf(buf + n, "%s", translator::translate("This is a travelling post office"));
-			}
-			else
-			{
-				n += sprintf(buf + n, translator::translate("Catering level: %i"), veh_type->get_catering_level());
-				char timebuf[32];
-				uint8 modified_comfort = veh_type->get_adjusted_comfort(veh_type->get_catering_level());
-				welt->sprintf_time_secs(timebuf, sizeof(timebuf), welt->get_settings().max_tolerable_journey(modified_comfort) );
-				n += sprintf(buf + n, " (%s: %i, %s)", translator::translate("Modified comfort"), modified_comfort, timebuf);
-			}
 			n += sprintf( buf + n, "\n");
 		}
 
