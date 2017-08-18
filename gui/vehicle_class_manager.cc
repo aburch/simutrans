@@ -102,9 +102,10 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 	add_component(&scrolly);
 	scrolly.set_show_scroll_x(true);
 
-	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT + 50 + 17 * (LINESPACE + 1) + D_SCROLLBAR_HEIGHT - 6));
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0, 0));
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT + 50 + 17 * (LINESPACE + 1) + D_SCROLLBAR_HEIGHT - 6));
+
 
 	layout();
 	build_class_entries();
@@ -810,7 +811,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 							buf.clear();
 							buf.printf(translator::translate("comfort: %i"), v->get_comfort(0, v->get_reassigned_class(i)));
 							int len = display_proportional_clip(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-							if (higest_catering > 0)
+							if (v->get_reassigned_class(i) >= higest_catering && higest_catering > 0)
 							{
 								base_comfort = v->get_comfort(0, v->get_reassigned_class(i));
 								additional_comfort = v->get_comfort(higest_catering, v->get_reassigned_class(i)) - base_comfort;
@@ -884,12 +885,12 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 					char catering_service[32];
 					if (mail_veh)
 					{
-						sprintf(catering_service, "tpo_income_pr_kmh_(when_convoy_full):");
+						sprintf(catering_service, "tpo_income_pr_km_(full_convoy):");
 						unit_count = mail_count;
 					}
 					else
 					{
-						sprintf(catering_service, "catering_income_pr_kmh_(when_convoy_full):");
+						sprintf(catering_service, "catering_income_pr_km_(full_convoy):");
 						unit_count = passenger_count;
 					}
 					extra_y += LINESPACE;
@@ -898,8 +899,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 					sint64 fare = v->get_cargo_type()->get_total_fare(1000, 0, 0, v->get_desc()->get_catering_level());
 					sint64 profit = (unit_count*fare + 2048ll) / 4096ll;
 					money_to_string(number, profit / 100.0);
-					display_proportional_clip(pos.x + w + offset.x + len + extra_w, pos.y + offset.y + total_height + extra_y, number, ALIGN_LEFT, profit > 0 ? MONEY_PLUS : MONEY_MINUS, true);
-					extra_y += LINESPACE + 2;
+					display_proportional_clip(pos.x + w + offset.x + len, pos.y + offset.y + total_height + extra_y, number, ALIGN_LEFT, profit > 0 ? MONEY_PLUS : MONEY_MINUS, true);
 				}
 				extra_y += LINESPACE + 2;
 

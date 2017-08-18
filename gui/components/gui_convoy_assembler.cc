@@ -2147,7 +2147,11 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 						{
 							char timebuf[32];
 							uint8 base_comfort = veh_type->get_comfort(i);
-							uint8 modified_comfort = veh_type->get_catering_level() > 0 ? veh_type->get_adjusted_comfort(veh_type->get_catering_level(), i) - base_comfort : 0;
+							uint8 modified_comfort = 0;
+							if (i >= veh_type->get_catering_level())
+							{ 
+								modified_comfort = veh_type->get_catering_level() > 0 ? veh_type->get_adjusted_comfort(veh_type->get_catering_level(), i) - base_comfort : 0;
+							}
 							char extra_comfort[8];
 							if (modified_comfort > 0)
 							{
