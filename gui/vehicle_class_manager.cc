@@ -102,6 +102,7 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 	add_component(&scrolly);
 	scrolly.set_show_scroll_x(true);
 
+	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT + 50 + 17 * (LINESPACE + 1) + D_SCROLLBAR_HEIGHT - 6));
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0, 0));
 
@@ -126,6 +127,7 @@ void vehicle_class_manager_t::build_class_entries()
 		for (int j = 0; j < pass_classes; j++) // j = the entries of this combobox
 		{
 			pass_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
+			pass_class_sel.at(i)->set_selection(i);
 		}
 
 		// Below an attempt to make a new entry if a vehicle has its class changed individually
@@ -154,6 +156,7 @@ void vehicle_class_manager_t::build_class_entries()
 		for (int j = 0; j < mail_classes; j++)
 		{
 			mail_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(mail_class_name_untranslated[j]), SYSCOL_TEXT));
+			mail_class_sel.at(i)->set_selection(i);
 		}
 	}
 }
@@ -238,24 +241,18 @@ void vehicle_class_manager_t::layout()
 
 	header_height = y + (current_number_of_classes * LINESPACE);
 	int actual_width = column_2 + button_width + 10;
+	int old_window_h = get_windowsize().h;
+	int default_window_h = D_TITLEBAR_HEIGHT + 50 + 17 * (LINESPACE + 1) + D_SCROLLBAR_HEIGHT - 6;
 
 	scrolly.set_pos(scr_coord(0, header_height));
 	set_min_windowsize(scr_size(max(D_DEFAULT_WIDTH, actual_width), D_TITLEBAR_HEIGHT + header_height));
-	set_windowsize(scr_size(max(D_DEFAULT_WIDTH, actual_width), D_TITLEBAR_HEIGHT + 50 + 17 * (LINESPACE + 1) + D_SCROLLBAR_HEIGHT - 6));
+	set_windowsize(scr_size(max(D_DEFAULT_WIDTH, actual_width), max(default_window_h, old_window_h)));
 
 }
 
 void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 {
 	if(!cnv.is_bound()) {
-		for (int i = 0; i < mail_class_sel.get_count(); i++)
-		{
-			delete mail_class_sel.at(i);
-		}
-		for (int i = 0; i < pass_class_sel.get_count(); i++)
-		{
-			delete pass_class_sel.at(i);
-		}
 		destroy_win(this);
 	}
 	else {	
@@ -267,11 +264,8 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 		// current value
 		if (cnv.is_bound())
 		{
-			if (!convoy_bound)
-			{
-				layout();
-				convoy_bound = true;
-			}
+
+			current_number_of_vehicles = 0;
 			current_number_of_compartments = 0;
 			current_number_of_classes = 0;
 			overcrowded_capacity = 0;
@@ -298,6 +292,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 			{
+				current_number_of_vehicles++;
 				vehicle_t* v = cnv->get_vehicle(veh);
 				uint8 classes_amount = v->get_desc()->get_number_of_classes();
 				if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
@@ -494,17 +489,18 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				compartment_height += LINESPACE;
 			}
 		}
+
 		if (old_number_of_compartments != current_number_of_compartments)
 		{
 			old_number_of_compartments = current_number_of_compartments;
-			header_height = offset_y;
 			layout();
+			header_height = offset_y;
 		}
-		if (old_number_of_classes != current_number_of_classes)
+		if (old_number_of_vehicles != current_number_of_vehicles)
 		{
-			old_number_of_classes = current_number_of_classes;
-			header_height = offset_y;
+			old_number_of_vehicles = current_number_of_vehicles;
 			layout();
+			header_height = offset_y;
 		}
 	}
 }
@@ -710,13 +706,32 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 		cbuffer_t buf;
 		static cbuffer_t freight_info;
 		uint8 higest_catering = 0;
+		uint8 higest_tpo = 0;
+		uint32 passenger_count = 0;
+		uint32 mail_count = 0;
 
-		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+
+		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++) // Run this check first to find the amount of passengers and mail along with any catering or TPO's
 		{
 			vehicle_t *v = cnv->get_vehicle(veh);
-			if (v->get_desc()->get_catering_level() > higest_catering);
+			bool pass_veh = v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS;
+			bool mail_veh = v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL;
+
+			if (pass_veh)
 			{
-				higest_catering = v->get_desc()->get_catering_level();
+				passenger_count += v->get_desc()->get_total_capacity() - v->get_desc()->get_overcrowded_capacity();
+				if (v->get_desc()->get_catering_level() > higest_catering)
+				{
+					higest_catering = v->get_desc()->get_catering_level();
+				}
+			}
+			else // is mail vehicle
+			{
+				mail_count += v->get_desc()->get_total_capacity();
+				if (v->get_desc()->get_catering_level() > higest_catering)
+				{
+					higest_tpo = v->get_desc()->get_catering_level();
+				}
 			}
 		}
 
@@ -726,7 +741,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 			bool pass_veh = v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS;
 			bool mail_veh = v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL;
 
-			if (pass_veh || mail_veh)
+			if ((pass_veh || mail_veh) && v->get_desc()->get_total_capacity() > 0)
 			{
 				int returns = 0;
 				freight_info.clear();
@@ -808,32 +823,31 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 						// Compartment revenue
 						int len = 5 + display_proportional_clip(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, translator::translate("income_pr_km_(when_full):"), ALIGN_LEFT, SYSCOL_TEXT, true);
 						// Revenue for moving 1 unit 1000 meters -- comes in 1/4096 of simcent, convert to simcents
-						// Excludes TPO/catering revenue, class and comfort effects.  FIXME --neroden
 						sint64 fare = v->get_cargo_type()->get_total_fare(1000, 0, base_comfort + additional_comfort, v->get_desc()->get_catering_level(), v->get_reassigned_class(i));
-						// Multiply by capacity, convert to simcents, subtract running costs
 						sint64 profit = ((v->get_capacity(v->get_reassigned_class(i)) + v->get_overcrowding(v->get_reassigned_class(i)))*fare + 2048ll) / 4096ll;
 						money_to_string(number, profit / 100.0);
 						display_proportional_clip(pos.x + w + offset.x + len + extra_w, pos.y + offset.y + total_height + extra_y, number, ALIGN_LEFT, profit > 0 ? MONEY_PLUS : MONEY_MINUS, true);
-						extra_y += LINESPACE + 2;
+							
+						extra_y += LINESPACE + 2;						
 						total_income += fare;
 					}
 					extra_y += 2;
 				}
-				
 				//Catering or postoffice?
 				if (v->get_desc()->get_catering_level() > 0)
 				{
-					buf.clear();
-					if (v->get_desc()->get_freight_type()->get_catg_index() == 1)
+					if (pass_veh)
 					{
-						//Catering vehicles that carry mail are treated as TPOs.
-						buf.printf("%s", translator::translate("This is a travelling post office\n"));
+						buf.clear();
+						buf.printf(translator::translate("Catering level: %i\n"), v->get_desc()->get_catering_level());
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						extra_y += LINESPACE;
 					}
 					else
 					{
-						buf.printf(translator::translate("Catering level: %i\n"), v->get_desc()->get_catering_level());
+						//Catering vehicles that carry mail are treated as TPOs.
+						buf.clear();
+						buf.printf("%s", translator::translate("This is a travelling post office\n"));
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						extra_y += LINESPACE;
 					}
@@ -863,6 +877,30 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 				sint64 profit = (v->get_cargo_max()*total_income + 2048ll) / 4096ll - v->get_running_cost(welt);
 				money_to_string(number, profit / 100.0);
 				display_proportional_clip(pos.x + w + offset.x + len, pos.y + offset.y + total_height + extra_y, number, ALIGN_LEFT, profit>0 ? MONEY_PLUS : MONEY_MINUS, true);
+
+				if (v->get_desc()->get_catering_level() > 0)
+				{
+					uint32 unit_count = 0;
+					char catering_service[32];
+					if (mail_veh)
+					{
+						sprintf(catering_service, "tpo_income_pr_kmh_(when_convoy_full):");
+						unit_count = mail_count;
+					}
+					else
+					{
+						sprintf(catering_service, "catering_income_pr_kmh_(when_convoy_full):");
+						unit_count = passenger_count;
+					}
+					extra_y += LINESPACE;
+					int len = 5 + display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, catering_service, ALIGN_LEFT, SYSCOL_TEXT, true);
+					// Revenue for moving 1 unit 1000 meters -- comes in 1/4096 of simcent, convert to simcents
+					sint64 fare = v->get_cargo_type()->get_total_fare(1000, 0, 0, v->get_desc()->get_catering_level());
+					sint64 profit = (unit_count*fare + 2048ll) / 4096ll;
+					money_to_string(number, profit / 100.0);
+					display_proportional_clip(pos.x + w + offset.x + len + extra_w, pos.y + offset.y + total_height + extra_y, number, ALIGN_LEFT, profit > 0 ? MONEY_PLUS : MONEY_MINUS, true);
+					extra_y += LINESPACE + 2;
+				}
 				extra_y += LINESPACE + 2;
 
 				//skip at least five lines
