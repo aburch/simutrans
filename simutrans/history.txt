@@ -9,6 +9,7 @@
 	CHG: pedestrian movement, new dat parameter:
 		offset (of pedestrian image relative to right tile boundary, 0..255, default 20, 0 = on the right edge of tile, 128 = on center line of tile
 	FIX: corrected container UI component focus logic (fixes http://forum.simutrans.com/index.php?topic=17277)
+	FIX: added redraw logic for field removal (fixes http://forum.simutrans.com/index.php?topic=17308)
 
 Release of 120.2.2: (r8163 on 31-3-2017):
 	ADD: Name filter in depot window

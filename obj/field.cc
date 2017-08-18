@@ -33,6 +33,9 @@ field_t::field_t(koord3d p, player_t *player, const field_class_desc_t *desc, fa
 
 field_t::~field_t()
 {
+	// mark field image area as dirty for removal
+	mark_image_dirty( get_image(), 0 );
+
 	fab->remove_field_at( get_pos().get_2d() );
 }
 
