@@ -275,7 +275,7 @@ void depot_frame_t::layout(scr_size *size)
 	*	Structure of [VINFO] is one multiline text.
 	*/
 
-	const scr_coord_val VINFO_HEIGHT = 12 * LINESPACE - 1;
+	const scr_coord_val VINFO_HEIGHT = 14 * LINESPACE - 1;
 
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.
@@ -302,7 +302,7 @@ void depot_frame_t::layout(scr_size *size)
 	 *	Now we can do the complete vertical adjustment:
 	 */
 	const scr_coord_val TOTAL_HEIGHT     = min(display_get_height(), ASSEMBLER_VSTART + convoy_assembler.get_height());
-	const scr_coord_val MIN_TOTAL_HEIGHT = min(display_get_height(), ASSEMBLER_VSTART + convoy_assembler.get_min_height()/*+VINFO_HEIGHT*/);
+	const scr_coord_val MIN_TOTAL_HEIGHT = min(display_get_height(), ASSEMBLER_VSTART + convoy_assembler.get_min_height()+VINFO_HEIGHT);
 
 	/*
 	* DONE with layout planning - now build everything.

@@ -1971,17 +1971,58 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		int linespace_skips = 0;
 
 		int n = sprintf(buf, "%s", translator::translate(veh_type->get_name(),welt->get_settings().get_name_language_id()));
+		n += sprintf(buf + n, "\n");
 
-		if(  veh_type->get_power() > 0 ) { // LOCO
-			n += sprintf( buf + n, " (%s)\n", translator::translate( engine_type_names[veh_type->get_engine_type()+1] ) );
-		}
-		else {
-			n += sprintf( buf + n, "\n");
+		char tmp[128];
+		money_to_string(tmp, veh_type->get_value() / 100.0, false);
+		// These two lines differ from the Standard translation texts, as Standard does not have a monthly cost.
+		// Cost information:
+		n += sprintf(buf + n, translator::translate("Cost: %8s\n"), tmp);
+		n += sprintf(buf + n, translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), veh_type->get_running_cost() / 100.0, veh_type->get_adjusted_monthly_fixed_cost(welt) / 100.0);
+		n += sprintf(buf + n, "\n");
+		if (resale_value != -1.0) {
+			char tmp[128];
+			money_to_string(tmp, resale_value / 100.0, false);
+			sprintf(buf + n, "%s %8s", translator::translate("Restwert:"), tmp);
 		}
 
-		if(veh_type->get_power() > 0) 
-		{  
-			// LOCO
+		// Physical information:
+		n += sprintf(buf + n, "%s %3d km/h\n", translator::translate("Max. speed:"), veh_type->get_topspeed());
+		n += sprintf(buf + n, "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_weight() / 1000.0); // Convert kg to tonnes
+		if (veh_type->get_waytype() != water_wt)
+		{
+			n += sprintf(buf + n, "%s %it\n", translator::translate("Axle load:"), veh_type->get_axle_load());
+		}
+		char tmpbuf[16];
+		const double reduced_way_wear_factor = veh_type->get_way_wear_factor() / 10000.0;
+		number_to_string(tmpbuf, reduced_way_wear_factor, 4);
+		n += sprintf(buf + n, "%s: %s\n", translator::translate("Way wear factor"), tmpbuf);
+		n += sprintf(buf + n, "%s %4.1fkN\n", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0); // Extended only
+		n += sprintf(buf + n, "%s %4.3fkN\n", translator::translate("Rolling resistance:"), veh_type->get_rolling_resistance().to_double() * (double)veh_type->get_weight() / 1000.0); // Extended only
+
+		n += sprintf(buf + n, "%s: ", translator::translate("Range"));
+		if (veh_type->get_range() == 0)
+		{
+			n += sprintf(buf + n, translator::translate("unlimited"));
+		}
+		else
+		{
+			n += sprintf(buf + n, "%i km", veh_type->get_range());
+		}
+		n += sprintf(buf + n, "\n");
+		if (veh_type->get_waytype() == air_wt)
+		{
+			n += sprintf(buf + n, "%s: %i m \n", translator::translate("Minimum runway length"), veh_type->get_minimum_runway_length());
+		}
+		n += sprintf(buf + n, "\n");
+
+
+		// Engine information:
+		linespace_skips = 0;
+		if (veh_type->get_power() > 0)
+		{ // LOCO
+			n += sprintf(buf + n, "(%s) ", translator::translate(engine_type_names[veh_type->get_engine_type() + 1]));
+
 			sint32 friction = convoy.get_current_friction();
 			sint32 max_weight = convoy.calc_max_starting_weight(friction);
 			sint32 min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, friction));
@@ -1992,73 +2033,80 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				min_weight = convoy.get_vehicle_summary().weight;
 				max_speed = convoy.calc_max_speed(weight_summary_t(min_weight, friction));
 			}
-			n += sprintf(buf + n, "%s:", translator::translate("Pulls")); 
-			n += sprintf(buf + n,  
-				min_speed == max_speed ? " %g t @ %d km/h " : " %g t @ %d km/h %s %g t @ %d km/h", 
+			n += sprintf(buf + n, "%s:", translator::translate("Pulls"));
+			n += sprintf(buf + n,
+				min_speed == max_speed ? translator::translate(" %gt @ %d km/h ") : translator::translate(" %gt @ %dkm/h%s%gt @ %dkm/h")  /*" %g t @ %d km/h " : " %g t @ %d km/h %s %g t @ %d km/h"*/,
 				min_weight * 0.001f, max_speed, translator::translate("..."), max_weight * 0.001f, min_speed);
-			n += sprintf( buf + n, "\n");
-		}
-		else {
-			n += sprintf( buf + n, "\n");
-		}
-		
-		char tmp[128];
-		money_to_string( tmp, veh_type->get_value() / 100.0, false );
-		// These two lines differ from the Standard translation texts, as Standard does not have a monthly cost.
-		n += sprintf( buf + n, translator::translate("Cost: %8s\n"), tmp);
-		n += sprintf( buf + n, translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), veh_type->get_running_cost() / 100.0, veh_type->get_adjusted_monthly_fixed_cost(welt)/100.0);
-		
+			n += sprintf(buf + n, "\n");
 
-
-
-		if(  veh_type->get_power() > 0  ) { // LOCO
 			// Standard translation is "Power: %4d kW\n", as Standard has no tractive effort
-			n += sprintf( buf + n, translator::translate("Power/tractive force: %4d kW / %d kN\n"), veh_type->get_power(), veh_type->get_tractive_effort());
-		}
-		else {
-			n += sprintf( buf + n, "\n");
-		}
+			n += sprintf(buf + n, translator::translate("Power/tractive force: %4d kW / %d kN\n"), veh_type->get_power(), veh_type->get_tractive_effort());
 
-		n += sprintf( buf + n, "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_weight() / 1000.0 ); // Convert kg to tonnes
-		if(veh_type->get_waytype() != water_wt)
-		{
-			n += sprintf( buf + n, "%s %it\n", translator::translate("Axle load:"), veh_type->get_axle_load()); // Extended only
+			if (veh_type->get_gear() != 64) // Do this entry really have to be here...??? If not, it should be skipped. Space is precious..
+			{
+				n += sprintf(buf + n, "%s %0.2f : 1", translator::translate("Gear:"), veh_type->get_gear() / 64.0);
+			}
+			else
+			{
+				//linespace_skips++;
+			}
+			n += sprintf(buf + n, "\n");
 		}
 		else
 		{
-			n += sprintf( buf + n, "\n");
+			n += sprintf(buf + n, "%s ", translator::translate("unpowered"));
+			linespace_skips =+ 2;
 		}
-		n += sprintf( buf + n, "%s %4.1fkN\n", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0); // Extended only
-		n += sprintf( buf + n, "%s %4.3fkN\n", translator::translate("Rolling resistance:"), veh_type->get_rolling_resistance().to_double() * (double)veh_type->get_weight() / 1000.0); // Extended only
-		
-		n += sprintf( buf + n, "%s %3d km/h", translator::translate("Max. speed:"), veh_type->get_topspeed() );
-
-		// Permissive way constraints
-		// (If vehicle has, way must have)
-		// @author: jamespetts
-		const way_constraints_t &way_constraints = veh_type->get_way_constraints();
-		for(uint8 i = 0; i < way_constraints.get_count(); i++)
+		if (linespace_skips > 0)
 		{
-			if(way_constraints.get_permissive(i))
+			for (int i = 0; i < linespace_skips; i++)
 			{
-				n += sprintf( buf + n, "\n");
-				n += sprintf(buf + n, "%s", translator::translate("\nMUST USE: "));
-				char tmpbuf[30];
-				sprintf(tmpbuf, "Permissive %i", i);
-				n += sprintf(buf + n, "%s", translator::translate(tmpbuf));
-			}
+				n += sprintf(buf + n, "\n");
+			}		
 		}
-
-		if (veh_type->get_is_tall())
+		linespace_skips = 0;
+			
+		// Copyright information:
+		if (char const* const copyright = veh_type->get_copyright())
 		{
-			n += sprintf(buf + n, "\n");
-			n += sprintf(buf + n, "%s", translator::translate("Too tall for low bridges"));
+			n += sprintf(buf + n, translator::translate("Constructed by %s"), copyright);
 		}
+		n += sprintf(buf + n, "\n");
+
+
+		
+
+
 
 		display_multiline_text( pos.x + 4, pos.y + tabs.get_pos().y + tabs.get_size().h + 31 + LINESPACE*1 + 4 + 16, buf, SYSCOL_TEXT);
 
 		// column 2
+		// Vehicle intro and retire information:
 		n = 0;
+		linespace_skips = 0;
+		
+		n += sprintf( buf + n, "%s %s %04d\n",
+			translator::translate("Intro. date:"),
+			translator::get_month_name( veh_type->get_intro_year_month() % 12 ),
+			veh_type->get_intro_year_month() / 12
+			);
+
+		if(  veh_type->get_retire_year_month() != DEFAULT_RETIRE_DATE * 12  )
+		{
+			n += sprintf( buf + n, "%s %s %04d\n",
+				translator::translate("Retire. date:"),
+				translator::get_month_name( veh_type->get_retire_year_month() % 12 ),
+				veh_type->get_retire_year_month() / 12
+				);
+		}
+		else 
+		{
+			n += sprintf(buf + n, "\n");
+		}
+		n += sprintf(buf + n, "\n");
+
+		// Capacity information:
+		linespace_skips = 0;
 		if (veh_type->get_total_capacity() > 0)
 		{
 			bool pass_veh = veh_type->get_freight_type()->get_catg_index() == goods_manager_t::INDEX_PAS;
@@ -2110,7 +2158,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 								extra_comfort[0] = '\0';
 							}
 
-							n += sprintf(buf + n, " %s %i", translator::translate("Comfort:"), base_comfort);
+							n += sprintf(buf + n, " - %s %i", translator::translate("Comfort:"), base_comfort);
 							welt->sprintf_time_secs(timebuf, sizeof(timebuf), welt->get_settings().max_tolerable_journey(base_comfort + modified_comfort));
 							n += sprintf(buf + n, "%s %s %s%s", extra_comfort, translator::translate("(Max. comfortable journey time: "), timebuf, ")\n");
 						}
@@ -2121,22 +2169,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 					}
 
 				}
-				if (veh_type->get_catering_level() > 0)
-				{
-					if (mail_veh)
-					{
-						//Catering vehicles that carry mail are treated as TPOs.
-						n += sprintf(buf + n, "%s\n", translator::translate("This is a travelling post office"));
-					}
-					else
-					{
-						n += sprintf(buf + n, translator::translate("Catering level: %i\n"), veh_type->get_catering_level());
-					}
-				}
-				else
-				{
-					linespace_skips++;
-				}
 			}
 			else
 			{
@@ -2144,7 +2176,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 					veh_type->get_total_capacity(),
 					translator::translate(veh_type->get_freight_type()->get_mass()),
 					veh_type->get_freight_type()->get_catg() == 0 ? translator::translate(veh_type->get_freight_type()->get_name()) : translator::translate(veh_type->get_freight_type()->get_catg_name()));
-				linespace_skips += 3;
+				linespace_skips += 2;
 			}
 
 
@@ -2155,11 +2187,28 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			welt->sprintf_ticks(max_loading_time_as_clock, sizeof(max_loading_time_as_clock), veh_type->get_max_loading_time());
 			n += sprintf(buf + n, "%s %s - %s \n", translator::translate("Loading time:"), min_loading_time_as_clock, max_loading_time_as_clock);
 
+			if (veh_type->get_catering_level() > 0)
+			{
+				if (mail_veh)
+				{
+					//Catering vehicles that carry mail are treated as TPOs.
+					n += sprintf(buf + n, "%s\n", translator::translate("This is a travelling post office"));
+				}
+				else
+				{
+					n += sprintf(buf + n, translator::translate("Catering level: %i\n"), veh_type->get_catering_level());
+				}
+			}
+			else
+			{
+				linespace_skips++;
+			}
 
 		}
 		else
 		{
-			linespace_skips += 5;
+			n += sprintf(buf + n, "%s ", translator::translate("this_vehicle_carries_no_good"));
+			linespace_skips += 3;
 		}
 		if (linespace_skips > 0)
 		{
@@ -2169,87 +2218,72 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			}
 			linespace_skips = 0;
 		}
-
-		n += sprintf( buf + n, "%s %s %04d\n",
-			translator::translate("Intro. date:"),
-			translator::get_month_name( veh_type->get_intro_year_month() % 12 ),
-			veh_type->get_intro_year_month() / 12
-			);
-
-		if(  veh_type->get_retire_year_month() != DEFAULT_RETIRE_DATE * 12  ) {
-			n += sprintf( buf + n, "%s %s %04d\n",
-				translator::translate("Retire. date:"),
-				translator::get_month_name( veh_type->get_retire_year_month() % 12 ),
-				veh_type->get_retire_year_month() / 12
-				);
-		}
-		else {
-			n += sprintf( buf + n, "\n");
-		}
-
-		if (veh_type->get_tilting())
-		{
-			n += sprintf(buf + n, "%s", translator::translate("This is a tilting vehicle\n"));
-		}
-
-		n += sprintf(buf + n, "%s: ", translator::translate("Range"));
-		if(veh_type->get_range() == 0)
-		{
-			n += sprintf(buf + n, translator::translate("unlimited"));
-		}
-		else
-		{
-			n += sprintf(buf + n, "%i km", veh_type->get_range());
-		}
-
 		n += sprintf(buf + n, "\n");
 
-		char tmpbuf[16];
-		const double reduced_way_wear_factor = veh_type->get_way_wear_factor() / 10000.0;
-		number_to_string(tmpbuf, reduced_way_wear_factor, 4);
-		n += sprintf(buf + n, "%s: %s", translator::translate("Way wear factor"), tmpbuf);
-
-		n += sprintf(buf + n, "\n");
-
-		if(veh_type->get_waytype() == air_wt)
+		// Permissive way constraints
+		// (If vehicle has, way must have)
+		// @author: jamespetts
+		const way_constraints_t &way_constraints = veh_type->get_way_constraints();
+		bool any_permissive = false;
+		for (uint8 i = 0; i < way_constraints.get_count(); i++)
 		{
-			n += sprintf(buf + n, "%s: %i m \n", translator::translate("Minimum runway length"), veh_type->get_minimum_runway_length());
+			if (way_constraints.get_permissive(i))
+			{
+				if (!any_permissive)
+				{
+					n += sprintf(buf + n, "%s", translator::translate("this_vehicle_must_use:"));
+				}
+				any_permissive = true;
+				n += sprintf(buf + n, "\n");
+				char tmpbuf[30];
+				sprintf(tmpbuf, "Permissive %i", i);
+				n += sprintf(buf + n, "%s", translator::translate(tmpbuf));
+			}
 		}
+		if (veh_type->get_is_tall())
+		{
+			if (!any_permissive)
+			{
+				n += sprintf(buf + n, "%s", translator::translate("this_vehicle_must_use:"));
+			}
+			any_permissive = true;
+			n += sprintf(buf + n, "\n");
+			n += sprintf(buf + n, "%s", translator::translate("high_clearance_under_bridges_(no_low_bridges)"));
+		}
+		n += sprintf(buf + n, "\n\n");
 
-		if(  veh_type->get_power() > 0  &&  veh_type->get_gear() != 64  ) {
-			n += sprintf( buf + n, "%s %0.2f : 1\n", translator::translate("Gear:"), veh_type->get_gear() / 64.0 );
-		}
-		else {
-			n += sprintf( buf + n, "\n");
-		}
 
-		if(  char const* const copyright = veh_type->get_copyright()  ) {
-			n += sprintf( buf + n, translator::translate("Constructed by %s"), copyright );
-		}
-		n += sprintf( buf +  n, "\n");
-
-		if(  resale_value != -1.0  ) {
-			char tmp[128];
-			money_to_string(  tmp, resale_value / 100.0, false );
-			sprintf( buf + n, "%s %8s", translator::translate("Restwert:"), tmp );
-		}
-
-		
 		// Prohibitibve way constraints
 		// (If way has, vehicle must have)
 		// @author: jamespetts
-		for(uint8 i = 0; i < way_constraints.get_count(); i++)
+		bool any_prohibitive = false;
+		for (uint8 i = 0; i < way_constraints.get_count(); i++)
 		{
-			if(way_constraints.get_prohibitive(i))
+			if (way_constraints.get_prohibitive(i))
 			{
-				n += sprintf(buf + n, "%s", translator::translate("\nMAY USE: "));
+				if (!any_prohibitive)
+				{
+					n += sprintf(buf + n, "%s:", translator::translate("this_vehicle_can_use/is_equiped_with"));
+				}
+				any_prohibitive = true;
+				n += sprintf(buf + n, "\n");
 				char tmpbuf[30];
 				sprintf(tmpbuf, "Prohibitive %i", i);
 				n += sprintf(buf + n, "%s", translator::translate(tmpbuf));
 			}
 		}
+		if (veh_type->get_tilting())
+		{
+			if (!any_prohibitive)
+			{
+				n += sprintf(buf + n, "%s:", translator::translate("this_vehicle_can_use/is_equiped_with"));
+			}
+			any_prohibitive = true;
+			n += sprintf(buf + n, "\n");
+			n += sprintf(buf + n, "%s", translator::translate("tilting_vehicle_equipment"));
+		}
 
-		display_multiline_text(pos.x + 370, pos.y + tabs.get_pos().y + tabs.get_size().h + 31 + LINESPACE * 2 + 4 + 16, buf, SYSCOL_TEXT);
+		display_multiline_text(pos.x + 335/*370*/, pos.y + tabs.get_pos().y + tabs.get_size().h + 31 + LINESPACE * 2 + 4 + 16, buf, SYSCOL_TEXT);
 
 		// update speedbar
 		new_vehicle_length_sb = new_vehicle_length_sb_force_zero ? 0 : convoi_length_ok_sb + convoi_length_slower_sb + convoi_length_too_slow_sb + veh_type->get_length();
