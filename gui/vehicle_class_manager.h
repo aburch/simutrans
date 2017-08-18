@@ -95,6 +95,8 @@ private:
 	uint32 current_number_of_vehicles;
 	uint32 old_number_of_vehicles;
 
+	uint8 highest_catering;
+
 	uint16 header_height;
 
 	int longest_class_name;

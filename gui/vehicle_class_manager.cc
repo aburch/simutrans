@@ -253,10 +253,10 @@ void vehicle_class_manager_t::layout()
 
 void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 {
-	if(!cnv.is_bound()) {
+	if (!cnv.is_bound()) {
 		destroy_win(this);
 	}
-	else {	
+	else {
 		// all gui stuff set => display it
 		gui_frame_t::draw(pos, size);
 		int offset_y = pos.y + 2 + 16;
@@ -270,6 +270,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			current_number_of_compartments = 0;
 			current_number_of_classes = 0;
 			overcrowded_capacity = 0;
+			highest_catering = 0;
 
 			cbuffer_t buf;
 
@@ -285,7 +286,6 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			int column_1 = 10;
 			int column_2;
 			int compartment_height;
-			uint8 highest_catering = 0;
 			bool is_tpo = false;
 
 			char const*  const  pass_name = translator::translate(goods_manager_t::passengers->get_name());
@@ -385,7 +385,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			}
 
 			offset_y += LINESPACE;
-		
+
 			// This section shows the reassigned classes after they have been modified.
 			// If nothing is modified, they will show the same as the above section.
 			int pass_class_capacity[255] = { 0 };
@@ -397,10 +397,10 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			{
 				longest_class_name = len;
 			}
-			offset_y += LINESPACE;			
+			offset_y += LINESPACE;
 			compartment_height = offset_y;
-			
-			
+
+
 
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 			{
@@ -475,6 +475,8 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			}
 			column_2 = longest_class_name + 30;
 
+
+
 			if (highest_catering > 0)
 			{
 				buf.clear();
@@ -489,19 +491,21 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				display_proportional_clip(pos.x + column_2, compartment_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				compartment_height += LINESPACE;
 			}
-		}
 
-		if (old_number_of_compartments != current_number_of_compartments)
-		{
-			old_number_of_compartments = current_number_of_compartments;
-			layout();
-			header_height = offset_y;
-		}
-		if (old_number_of_vehicles != current_number_of_vehicles)
-		{
-			old_number_of_vehicles = current_number_of_vehicles;
-			layout();
-			header_height = offset_y;
+
+
+			if (old_number_of_compartments != current_number_of_compartments)
+			{
+				old_number_of_compartments = current_number_of_compartments;
+				layout();
+				header_height = offset_y;
+			}
+			if (old_number_of_vehicles != current_number_of_vehicles)
+			{
+				old_number_of_vehicles = current_number_of_vehicles;
+				layout();
+				header_height = offset_y;
+			}
 		}
 	}
 }
