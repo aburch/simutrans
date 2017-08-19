@@ -210,13 +210,13 @@ public:
 	enum site_t { Land, Water, City };
 
 private:
-	site_t placement; //"placement" (Babelfish)
-	uint16 productivity; //"productivity" (Babelfish)
-	uint16 range; //"range" (Babelfish)
+	site_t placement; 
+	uint16 productivity; 
+	uint16 range;
 	uint16 distribution_weight;	// probability of construction of this factory
 	uint8 color; //"identification colour code" (Babelfish)
-	uint16 supplier_count; //"supplier" (Babelfish)
-	uint16 product_count; //"products" (Babelfish)
+	uint16 supplier_count; 
+	uint16 product_count; 
 	uint8 fields;	// only if there are any ...
 	uint16 pax_level; // Kept for backwards compatibility only. This is now read from the associated gebaeude_t object.
 	uint16 electricity_proportion; // Modifier of electricity consumption (a legacy setting for Extended only)

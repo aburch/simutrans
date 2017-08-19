@@ -415,9 +415,18 @@ void fabrik_t::update_scaled_pax_demand()
 		arrival_stats_pax.set_scaled_demand(worker_demand);
 		
 		if(building)
-		{
-			building->set_adjusted_jobs(scaled_pax_demand);
-			building->set_adjusted_visitor_demand(scaled_visitor_demand);
+		{		
+			const uint32 percentage = (get_base_production() * 100) / get_desc()->get_productivity();
+			if (percentage > 100)
+			{
+				get_building()->set_adjusted_jobs((scaled_pax_demand * percentage) / 100);
+				get_building()->set_adjusted_visitor_demand((scaled_visitor_demand * percentage) / 100);
+			}
+			else
+			{
+				building->set_adjusted_jobs(scaled_pax_demand);
+				building->set_adjusted_visitor_demand(scaled_visitor_demand);
+			}
 			// Must update the world building list to take into account the new passenger demand (weighting)
 			welt->update_weight_of_building_in_world_list(building);
 		}
@@ -457,7 +466,15 @@ void fabrik_t::update_scaled_mail_demand()
 		arrival_stats_mail.set_scaled_demand(mail_demand);
 		if(building)
 		{
-			building->set_adjusted_mail_demand(scaled_mail_demand);
+			const uint32 percentage = (get_base_production() * 100) / get_desc()->get_productivity();
+			if (percentage > 100)
+			{
+				get_building()->set_adjusted_jobs((scaled_mail_demand * percentage) / 100);
+			}
+			else
+			{
+				building->set_adjusted_mail_demand(scaled_mail_demand);
+			}
 
 			// Must update the world building list to take into account the new passenger demand (weighting)
 			welt->update_weight_of_building_in_world_list(building);
@@ -3275,13 +3292,6 @@ void fabrik_t::finish_rd()
 {
 	recalc_nearby_halts();
 	
-	city = check_local_city();
-	if(city != NULL)
-	{
-		city->add_city_factory(this);
-		city->update_city_stats_with_building(get_building(), false);
-	}
-	
 	// adjust production base to be at least as large as fields productivity
 	uint32 prodbase_adjust = 1;
 	const field_group_desc_t *fd = desc->get_field_group();
@@ -3321,6 +3331,13 @@ void fabrik_t::finish_rd()
 	// adjust production base to be at least as large as fields productivity
 	adjust_production_for_fields();
 
+	city = check_local_city();
+	if (city != NULL)
+	{
+		city->add_city_factory(this);
+		city->update_city_stats_with_building(get_building(), false);
+	}
+
 	mark_connected_roads(false);
 	add_to_world_list();
 }
@@ -3337,8 +3354,10 @@ void fabrik_t::adjust_production_for_fields()
 			}
 		}
 	}
+
 	// set production, update all production related numbers
 	set_base_production( max(prodbase, prodbase_adjust) );
+
 }
 
 void fabrik_t::rotate90( const sint16 y_size )

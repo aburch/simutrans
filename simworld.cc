@@ -10722,7 +10722,7 @@ void karte_t::remove_building_from_world_list(gebaeude_t *gb)
 void karte_t::update_weight_of_building_in_world_list(gebaeude_t *gb)
 {
 	gb = gb->access_first_tile();
-	if(!gb || gb->get_is_factory() && gb->get_fabrik() == NULL)
+	if(!gb || (gb->get_is_factory() && gb->get_fabrik() == NULL))
 	{
 		// The tile will be set to "is_factory" but the factory pointer will be NULL when
 		// this is called from a field of a factory that is closing down.
