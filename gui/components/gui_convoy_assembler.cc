@@ -2458,15 +2458,13 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 	{
 		cbuf.clear();
 		cbuf.printf("%s: %i", translator::translate("catering_level"), highest_catering);
-		display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
 		display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		y += LINESPACE + 1;
 	}
 	if (total_mail > 0 && is_tpo && total_goods == 0)
 	{
 		cbuf.clear();
-		cbuf.printf("%s: %i", translator::translate("catering_level"), highest_catering);
-		display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
+		cbuf.printf("%s", translator::translate("traveling_post_office"));
 		display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		y += LINESPACE + 1;
 	}
