@@ -412,7 +412,7 @@ void gui_convoy_assembler_t::layout()
 	const scr_size sp_size(size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, LINESPACE);
 	const scr_size lb_size((sp_size.w - D_V_SPACE) / 2, LINESPACE);
 	const scr_coord_val c2_x = c1_x + ((lb_size.w / 5) * 4) + D_V_SPACE;
-	const scr_coord_val c3_x = c2_x + ((lb_size.w / 5) * 4) + D_V_SPACE;
+	const scr_coord_val c3_x = c2_x + ((lb_size.w / 4) * 3) + D_V_SPACE;
 
 	/*
 	 * [CONVOI]
@@ -722,6 +722,9 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		uint32 good_type_4_amount = 0;
 		uint32 rest_good_amount = 0;
 
+		uint8 highest_catering = 0;
+		bool is_tpo = false;
+
 		uint32 total_power = 0;
 		uint32 total_force = 0;
 		uint32 total_empty_weight = min_weight;
@@ -769,6 +772,10 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 						{
 							pass_class_capacity[j] += v->get_capacity(j);
 						}
+						if (v->get_desc()->get_catering_level() > highest_catering)
+						{
+							highest_catering = v->get_desc()->get_catering_level();
+						}
 					}
 					break;
 				}
@@ -781,6 +788,11 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 						{
 							mail_class_capacity[j] += v->get_capacity(j);
 						}
+						if (v->get_desc()->get_catering_level() > 0)
+						{
+							is_tpo = true;
+						}
+
 					}
 					break;
 				}
@@ -843,7 +855,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 
 
 		// (total_pax, total_standing_pax, pax_classes, total_mail, mail_classes, total_goods)
-		cont_convoi_capacity.set_totals(total_pax, total_standing_pax, total_mail, total_goods, total_pax_classes, total_mail_classes, good_type_0, good_type_1, good_type_2, good_type_3, good_type_4, good_type_0_amount, good_type_1_amount, good_type_2_amount, good_type_3_amount, good_type_4_amount, rest_good_amount);
+		cont_convoi_capacity.set_totals(total_pax, total_standing_pax, total_mail, total_goods, total_pax_classes, total_mail_classes, good_type_0, good_type_1, good_type_2, good_type_3, good_type_4, good_type_0_amount, good_type_1_amount, good_type_2_amount, good_type_3_amount, good_type_4_amount, rest_good_amount, highest_catering, is_tpo);
 
 		way_wear_factor /= 10000.0;
 		txt_convoi_count.printf("%s %d (%s %i)",
@@ -1971,6 +1983,10 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		int linespace_skips = 0;
 
 		int n = sprintf(buf, "%s", translator::translate(veh_type->get_name(),welt->get_settings().get_name_language_id()));
+		if (veh_type->get_power() > 0)
+		{
+			n += sprintf(buf + n, " (%s)", translator::translate(engine_type_names[veh_type->get_engine_type() + 1]));
+		}
 		n += sprintf(buf + n, "\n");
 
 		char tmp[128];
@@ -2021,8 +2037,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		linespace_skips = 0;
 		if (veh_type->get_power() > 0)
 		{ // LOCO
-			n += sprintf(buf + n, "(%s) ", translator::translate(engine_type_names[veh_type->get_engine_type() + 1]));
-
 			sint32 friction = convoy.get_current_friction();
 			sint32 max_weight = convoy.calc_max_starting_weight(friction);
 			sint32 min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, friction));
@@ -2040,6 +2054,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf(buf + n, "\n");
 
 			// Standard translation is "Power: %4d kW\n", as Standard has no tractive effort
+			n += sprintf(buf + n, "(%s) ", translator::translate(engine_type_names[veh_type->get_engine_type() + 1]));
 			n += sprintf(buf + n, translator::translate("Power/tractive force: %4d kW / %d kN\n"), veh_type->get_power(), veh_type->get_tractive_effort());
 
 			if (veh_type->get_gear() != 64) // Do this entry really have to be here...??? If not, it should be skipped. Space is precious..
@@ -2139,7 +2154,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 							sprintf(class_name_untranslated, "p_class[%u]", i);
 						}
 						const char* class_name = translator::translate(class_name_untranslated);
-						n += sprintf(buf + n, "%s: %3d%s%s %s", class_name, veh_type->get_capacity(i), extra_pass, translator::translate(veh_type->get_freight_type()->get_mass()), translator::translate(veh_type->get_freight_type()->get_name()));
+						n += sprintf(buf + n, "%s: %3d %s%s %s", class_name, veh_type->get_capacity(i), extra_pass, translator::translate(veh_type->get_freight_type()->get_mass()), translator::translate(veh_type->get_freight_type()->get_name()));
 						n += sprintf(buf + n, "\n");
 						extra_pass[0] = '\0'; // To avoid the overcrowded message to display on the other classes
 
@@ -2371,7 +2386,7 @@ depot_convoi_capacity_t::depot_convoi_capacity_t()
 }
 
 //(total_pax, total_standing_pax, total_mail, total_goods, pax_classes, mail_classes)
-void depot_convoi_capacity_t::set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods, uint8 pax_classes, uint8 mail_classes, uint8 good_0, uint8 good_1, uint8 good_2, uint8 good_3, uint8 good_4, uint32 good_0_amount, uint32 good_1_amount, uint32 good_2_amount, uint32 good_3_amount, uint32 good_4_amount, uint32 rest_good)
+void depot_convoi_capacity_t::set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods, uint8 pax_classes, uint8 mail_classes, uint8 good_0, uint8 good_1, uint8 good_2, uint8 good_3, uint8 good_4, uint32 good_0_amount, uint32 good_1_amount, uint32 good_2_amount, uint32 good_3_amount, uint32 good_4_amount, uint32 rest_good, uint8 catering, bool tpo)
 {
 	total_pax = pax;
 	total_standing_pax = standing_pax;
@@ -2392,6 +2407,9 @@ void depot_convoi_capacity_t::set_totals(uint32 pax, uint32 standing_pax, uint32
 	good_type_3_amount = good_3_amount;
 	good_type_4_amount = good_4_amount;
 	rest_good_amount = rest_good;
+
+	highest_catering = catering;
+	is_tpo = tpo;
 }
 
 
@@ -2415,7 +2433,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 			sprintf(classes, "class");
 		}
 		cbuf.clear();
-		cbuf.printf("%d %s: %d(%d)", total_pax_classes, translator::translate(classes), total_pax, total_standing_pax);
+		cbuf.printf("%d %s: %d (%d)", total_pax_classes, translator::translate(classes), total_pax, total_standing_pax);
 		display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
 		display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		y += LINESPACE + 1;
@@ -2433,6 +2451,22 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 		cbuf.clear();
 		cbuf.printf("%d %s: %d", total_mail_classes, translator::translate(classes), total_mail);
 		display_color_img(skinverwaltung_t::mail->get_image_id(0), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
+		display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
+		y += LINESPACE + 1;
+	}
+	if (total_pax > 0 && highest_catering > 0 && total_goods == 0)
+	{
+		cbuf.clear();
+		cbuf.printf("%s: %i", translator::translate("catering_level"), highest_catering);
+		display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
+		display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
+		y += LINESPACE + 1;
+	}
+	if (total_mail > 0 && is_tpo && total_goods == 0)
+	{
+		cbuf.clear();
+		cbuf.printf("%s: %i", translator::translate("catering_level"), highest_catering);
+		display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
 		display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		y += LINESPACE + 1;
 	}
