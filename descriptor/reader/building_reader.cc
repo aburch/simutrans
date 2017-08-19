@@ -313,6 +313,17 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					last_class_proportion += class_proportion;
 				}
 				desc->class_proportions_sum = last_class_proportion;
+
+				uint8 number_of_classes_jobs = decode_uint8(p);
+				uint16 last_class_proportion_jobs = 0;
+				for (uint8 i = 0; i < number_of_classes_jobs; i++)
+				{
+					// Add the figures here for easier random access later
+					const uint16 class_proportion_jobs = decode_uint16(p);
+					desc->class_proportions_jobs.append(class_proportion_jobs + last_class_proportion_jobs);
+					last_class_proportion_jobs += class_proportion_jobs;
+				}
+				desc->class_proportions_sum_jobs = last_class_proportion_jobs;
 			}
 			else
 			{

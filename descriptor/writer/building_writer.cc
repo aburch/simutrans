@@ -348,6 +348,36 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint8 number_of_classes = min(255, class_proportions.get_count());
 	total_len += 1;
 
+	vector_tpl<uint16> class_proportions_jobs(2);
+	for (uint8 i = 0; i < 256; i++)
+	{
+		// Check for multiple classes with a separate proportion each
+		char buf[25];
+		sprintf(buf, "class_proportion_jobs[%u]", i);
+		current_class_proportion = obj.get_int(buf, 65535);
+		if (current_class_proportion == 65535)
+		{
+			if (i != 0)
+			{
+				// Increase the length of the header by 2 for each additional 
+				// class proportion stored (for uint16).
+				total_len += 2;
+			}
+			break;
+		}
+		else
+		{
+			// Increase the length of the header by 2 for each additional 
+			// class proportion stored (for uint16).
+			total_len += 2;
+			class_proportions_jobs.append(current_class_proportion);
+		}
+	}
+
+	// The number of classes.
+	uint8 number_of_classes_jobs = min(255, class_proportions_jobs.get_count());
+	total_len += 1;
+
 	// Hajo: take care, hardcoded size of node on disc here!
 	obj_node_t node(this, total_len, &parent);
 	write_head(fp, node, obj);
@@ -530,6 +560,15 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 	// Class proportions
 	FOR(vector_tpl<uint16>, class_proportion, class_proportions)
+	{
+		node.write_uint16(fp, class_proportion, pos);
+		pos += sizeof(uint16);
+	}
+
+	node.write_uint8(fp, number_of_classes_jobs, pos);
+	pos += sizeof(uint8);
+	
+	FOR(vector_tpl<uint16>, class_proportion, class_proportions_jobs)
 	{
 		node.write_uint16(fp, class_proportion, pos);
 		pos += sizeof(uint16);
