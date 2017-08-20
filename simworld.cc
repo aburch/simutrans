@@ -10673,7 +10673,7 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, bool ordered)
 
 	if(ordered)
 	{
-		for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+		for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes() && i < gb->get_tile()->get_desc()->get_number_of_class_proportions() && i < i < gb->get_tile()->get_desc()->get_number_of_class_proportions_jobs(); i++)
 		{
 			commuter_targets[i].insert_ordered(gb, (gb->get_tile()->get_desc()->get_class_proportions_sum_jobs() > 0 ? (gb->get_adjusted_jobs() * gb->get_tile()->get_desc()->get_class_proportion_jobs(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum_jobs() : gb->get_adjusted_jobs()), stadt_t::compare_gebaeude_pos);
 			visitor_targets[i].insert_ordered(gb, (gb->get_tile()->get_desc()->get_class_proportions_sum() > 0 ? (gb->get_adjusted_visitor_demand() * gb->get_tile()->get_desc()->get_class_proportion(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum() : gb->get_adjusted_visitor_demand()), stadt_t::compare_gebaeude_pos);
@@ -10681,7 +10681,7 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, bool ordered)
 	}
 	else
 	{
-		for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+		for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes() && i < gb->get_tile()->get_desc()->get_number_of_class_proportions() && i < i < gb->get_tile()->get_desc()->get_number_of_class_proportions_jobs(); i++)
 		{
 			commuter_targets[i].append(gb, (gb->get_tile()->get_desc()->get_class_proportions_sum_jobs() > 0 ? (gb->get_adjusted_jobs() * gb->get_tile()->get_desc()->get_class_proportion_jobs(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum_jobs() : gb->get_adjusted_jobs()));
 			visitor_targets[i].append(gb, (gb->get_tile()->get_desc()->get_class_proportions_sum() > 0 ? (gb->get_adjusted_visitor_demand() * gb->get_tile()->get_desc()->get_class_proportion(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum() : gb->get_adjusted_visitor_demand()));
