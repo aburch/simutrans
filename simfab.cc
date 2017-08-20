@@ -1075,10 +1075,10 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 			const field_group_desc_t& field_group = *desc->get_field_group();
 			const uint16 spawn_fields = field_group.get_min_fields() + simrand( field_group.get_start_fields() - field_group.get_min_fields(), "fabrik_t::build" );
 			while(  fields.get_count() < spawn_fields  &&  add_random_field(10000u)  ) {
-				if (fields.get_count() > desc->get_field_group()->get_min_fields()  &&  prodbase >= 2*org_prodbase) {
+				/*if (fields.get_count() > desc->get_field_group()->get_min_fields()  &&  prodbase >= 2*org_prodbase) {
 					// too much productivity, no more fields needed
 					break;
-				}
+				}*/
 			}
 			sint32 field_prod = prodbase - org_prodbase;
 			// adjust prodbase
