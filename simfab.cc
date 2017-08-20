@@ -380,39 +380,20 @@ void fabrik_t::update_scaled_electric_amount()
 void fabrik_t::update_scaled_pax_demand()
 {
 	if(!welt->is_destroying())
-	{
-		// first, scaling based on current production base
-		const sint64 prod = desc->get_productivity() > 0 ? desc->get_productivity() : 1;
-		// Take into account fields
-		sint64 prod_adjust = prod;
-		const field_group_desc_t *fd = desc->get_field_group();
-		if(fd) {
-			for(uint32 i=0; i<fields.get_count(); i++) {
-				const field_class_desc_t *fc = fd->get_field_class( fields[i].field_class_index );
-				if (fc) {
-					prod_adjust += fc->get_field_production();
-				}
-			}
-		}
-	
+	{	
 		const uint16 employment_capacity = desc->get_building()->get_employment_capacity();
 		const int passenger_level = get_passenger_level_jobs();
 
 		const sint64 base_visitor_demand_raw = building ? building->get_visitor_demand() : desc->get_building()->get_population_and_visitor_demand_capacity();
 		const sint64 base_visitor_demand = base_visitor_demand_raw == 65535 ? (sint64)get_passenger_level_visitors() : base_visitor_demand_raw;
 		const sint64 base_worker_demand = employment_capacity == 65535 ? passenger_level : employment_capacity;
-		
-		// formula : base_pax_demand * (current_production_base / desc_production_base); (prod >> 1) is for rounding
-		const sint64 worker_demand = (base_worker_demand * (sint64)prodbase + (prod_adjust >> 1) ) / prod_adjust;
-		const uint32 visitor_demand = (uint32)((base_visitor_demand * (sint64)prodbase + (prod_adjust >> 1) ) / prod_adjust);
 
-		// then, scaling based on month length
-		scaled_pax_demand = max_64(welt->calc_adjusted_monthly_figure(worker_demand), 1ll);
-		const uint32 scaled_visitor_demand = max(welt->calc_adjusted_monthly_figure(visitor_demand), 1);
+		scaled_pax_demand = max_64(welt->calc_adjusted_monthly_figure(base_worker_demand), 1ll);
+		const uint32 scaled_visitor_demand = max(welt->calc_adjusted_monthly_figure(base_visitor_demand), 1);
 
 		// pax demand for fixed period length
 		// Intentionally not the scaled value.
-		arrival_stats_pax.set_scaled_demand(worker_demand);
+		arrival_stats_pax.set_scaled_demand(base_worker_demand);
 		
 		if(building)
 		{		
