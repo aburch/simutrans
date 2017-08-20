@@ -1047,10 +1047,18 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 	{
 		const sint64 available_jobs_by_time = building->get_available_jobs_by_time();
 		const uint16 passengers_succeeded_visiting = building->get_passengers_succeeded_visiting();
+		const uint16 passengers_succeeded_visiting_last_year = building->get_passenger_success_percent_last_year_visiting();
+		const uint16 passengers_succeeded_commuting = building->get_passenger_success_percent_this_year_commuting();
+		const uint16 passengers_succeeded_commuting_last_year = building->get_passenger_success_percent_last_year_commuting();
+
 		delete building;
 		building = hausbauer_t::build(owner, pos_origin, rotate, desc->get_building(), this);
+
 		building->set_available_jobs_by_time(available_jobs_by_time);
 		building->add_passengers_succeeded_visiting(passengers_succeeded_visiting);
+		building->add_passengers_succeeded_commuting(passengers_succeeded_commuting);
+		building->set_passengers_visiting_last_year(passengers_succeeded_visiting_last_year); 
+		building->set_passengers_commuting_last_year(passengers_succeeded_commuting_last_year);
 	}
 	if(!building)
 	{
@@ -3066,15 +3074,19 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		buf.append("\n");
 		buf.printf("%s: %d\n", translator::translate("Visitor demand"), building->get_adjusted_visitor_demand());
 		buf.printf("%s %i\n", translator::translate("Visitors this year:"), building->get_passengers_succeeded_visiting());
+		if (building->get_passenger_success_percent_last_year_visiting() < 65535)
+		{
+			buf.printf("%s %i\n", translator::translate("Visitors last year:"), building->get_passenger_success_percent_last_year_visiting());
+		}
+		else
+		{
+			buf.printf("\n"); 
+		}
 #ifdef DEBUG
 		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), building->get_adjusted_jobs(), building->check_remaining_available_jobs());
 #else
 		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), building->get_adjusted_jobs(), max(0, building->check_remaining_available_jobs()));
 #endif
-		if(building->get_passenger_success_percent_last_year_visiting() < 65535)
-		{
-			buf.printf("%s %i\n", translator::translate("Visitors last year:"), building->get_passenger_success_percent_last_year_visiting());
-		}
 	}
 
 	if (!output.empty()) {
@@ -3102,7 +3114,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 	}
 
 	if (!input.empty()) {
-		buf.append("\n\n");
+		buf.append("\n");
 		buf.append(translator::translate("Verbrauch"));
 
 		for (uint32 index = 0; index < input.get_count(); index++) {

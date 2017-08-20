@@ -287,6 +287,9 @@ public:
 	void add_passengers_generated_visiting(uint16 number) { passengers_generated_visiting += number; }
 	void add_passengers_succeeded_visiting(uint16 number) { passengers_succeeded_visiting += number; }
 
+	void set_passengers_visiting_last_year(uint16 value) { passenger_success_percent_last_year_visiting = value; }
+	void set_passengers_commuting_last_year(uint16 value) { passenger_success_percent_last_year_commuting = value; }
+
 	uint16 get_passenger_success_percent_this_year_visiting() const { return passengers_generated_visiting > 0 ? (passengers_succeeded_visiting * 100) / passengers_generated_visiting : 65535; }
 	uint16 get_passenger_success_percent_last_year_visiting() const { return passenger_success_percent_last_year_visiting; }
 	uint16 get_average_passenger_success_percent_visiting() const { return (get_passenger_success_percent_this_year_visiting() + passenger_success_percent_last_year_visiting) / 2; }

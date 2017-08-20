@@ -5073,6 +5073,11 @@ void karte_t::new_year()
 		(*a)->new_year();
 	}
 
+	FOR(vector_tpl<fabrik_t*>, const fab, fab_list)
+	{
+		fab->get_building()->new_year();
+	}
+
 	finance_history_year[0][WORLD_CITYCARS] = 0;
 
 	scenario->new_year();
