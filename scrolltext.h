@@ -261,6 +261,7 @@
 " Rémi Denis-Courmont","French",
 " Ferencz Szekely","Hungary & Romanian",
 " Alex Revo","Russian",
+" Grivlad", "Russian (Extended)",
 " Roman Schwörer","French & German",
 " Yannis Kaskamanid", "Greek",
 " Igor Eliezer", "Portuguese",
