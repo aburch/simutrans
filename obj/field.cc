@@ -46,7 +46,7 @@ field_t::~field_t()
 const char *field_t:: is_deletable(const player_t *)
 {
 	// Allow removal provided that the number of fields do not fall below half the minimum
-	return (fab->get_field_count() > fab->get_desc()->get_field_group()->get_min_fields() / 2) ? NULL : "Not enough fields would remain.";
+	return (fab->get_field_count() > fab->get_desc()->get_field_group()->get_min_fields() / 4) ? NULL : "Not enough fields would remain.";
 }
 
 
