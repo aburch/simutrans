@@ -617,12 +617,6 @@ void fabrik_t::recalc_storage_capacities()
 			}
 		}
 	}
-
-	// Now that the maximum is known, work out the recommended shipment size for outputs in normalized units.
-	for (uint32 out = 0; out < output.get_count(); out++) {
-		const uint32 prod_factor = desc->get_product(out)->get_factor();
-		// Shipment size logic from Standard omitted
-	}
 }
 
 void fabrik_t::set_base_production(sint32 p)
@@ -2293,6 +2287,13 @@ void fabrik_t::verteile_waren(const uint32 product)
 						// empty
 					}
 
+					const bool needs_max_amount = needed >= ziel_fab->get_input()[w].max;
+
+					if (needs_max_amount && (needed_base_units == 0))
+					{
+						needed_base_units = 1;
+					}
+
 					// if only overflown factories found => deliver to first
 					// else deliver to non-overflown factory
 					nearby_halt_t nh;
@@ -2349,6 +2350,13 @@ void fabrik_t::verteile_waren(const uint32 product)
 					for(w = 0; w < ziel_fab->get_input().get_count() && ziel_fab->get_input()[w].get_typ() != ware.get_desc(); w++)
 					{
 						// empty
+					}
+
+					const bool needs_max_amount = needed >= ziel_fab->get_input()[w].max;
+
+					if (needs_max_amount && (needed_base_units == 0))
+					{
+						needed_base_units = 1;
 					}
 
 					// if only overflown factories found => deliver to first
