@@ -566,6 +566,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void verbinde_fabriken();
+	void add_factory(fabrik_t* fab); 
 	void remove_fabriken(fabrik_t *fab);
 
 	void rotate90( const sint16 y_size );

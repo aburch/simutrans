@@ -631,12 +631,8 @@ haltestelle_t::~haltestelle_t()
 			}
 		}
 
-		// Update our list of factories.
-		verbinde_fabriken();
-
 		// Update nearby factories' lists of connected halts.
-		// Must be done AFTER updating the planquadrats,
-		// AND after updating our own list.
+		// Must be done AFTER updating the planquadrats
 		FOR (vector_tpl<fabrik_t*>, fab, affected_fab_list)
 		{
 			fab->recalc_nearby_halts();
@@ -767,9 +763,6 @@ void haltestelle_t::rotate90( const sint16 y_size )
 
 	// West becomes North
 	train_last_departed[0] = temp_last_departed[3];
-
-	// Update our list of factories.
-	verbinde_fabriken();
 
 	// Simworld will update nearby factories' lists of connected halts.
 }
@@ -1637,13 +1630,22 @@ uint32 haltestelle_t::reroute_goods(const uint8 catg)
 	}
 }
 
+void haltestelle_t::add_factory(fabrik_t* fab)
+{
+	fab_list.append_unique(fab); 
+}
 
 /*
- * connects a factory to a halt
+ * Checks for local industries. The industries now
+ * take care of adding halts themselves, but this old
+ * method from Standard is still needed in some cases,
+ * e.g. when a halt is expanded.
  */
 void haltestelle_t::verbinde_fabriken()
 {
-	fab_list.clear();
+	// Do not do this any longer:
+	// this is a residue from when this used to do all of the recalculation.
+	//fab_list.clear();
 
 	if (tiles.begin() != tiles.end())
 	{
@@ -1692,12 +1694,20 @@ void haltestelle_t::verbinde_fabriken()
 			for (k.x = p0.x; k.x <= p1.x; ++k.x) {
 				if (halt_row[k.x - p0.x]) {
 					fabrik_t *fab = fabrik_t::get_fab(k);
-					if(fab && !fab_list.is_contained(fab)) {
+					if(fab && !fab_list.is_contained(fab)) 
+					{
+						// This is slower than the old Standard logic, as
+						// the checking for nearby halts has to be done twice,
+						// but this is much more rarely used.
+						fab->recalc_nearby_halts();
+
+						// The old Standard logic is below
+						/*
 						// water factories can only connect to docks
 						if(  fab->get_desc()->get_placement() != factory_desc_t::Water  ||  (station_type & dock) > 0  ) {
 							// do no link to oil rigs via stations ...
 							fab_list.insert(fab);
-						}
+						}*/
 					}
 				}
 			}
@@ -3812,7 +3822,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			if(desc)
 			{
 				add_grund( gr, true /*do not relink factories now*/, !(file->get_extended_version() >= 13 || file->get_extended_revision() >= 21) /*do not recalculate nearby halts now unless loading an older version*/  );
-				// verbinde_fabriken will be called in finish_rd
+				// Factories will be re-linked on loading
 			}
 			else {
 				dbg->warning("haltestelle_t::rdwr()", "will no longer add ground without building at %s!", k.get_str() );
@@ -4526,9 +4536,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 
 void haltestelle_t::finish_rd(bool need_recheck_for_walking_distance)
-{
-	verbinde_fabriken();
-	
+{	
 	stale_convois.clear();
 	stale_lines.clear();
 	// fix good destination coordinates
@@ -4940,19 +4948,11 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories, bool recalc_ne
 	}
 
 	// Update our list of factories.
-	if (relink_factories) {
-		verbinde_fabriken();
-	}
-
-	// Update nearby factories' lists of connected halts.
-	// Must be done AFTER updating the planquadrats,
-	// AND after updating our own list.  Yuck!
-	if (recalc_nearby_halts)
+	if (relink_factories)
 	{
-		FOR(vector_tpl<fabrik_t*>, fab, affected_fab_list)
-		{
-			fab->recalc_nearby_halts();
-		}
+		// This now tells the factories to add themselves to this halt
+		// if they are within coverage range.
+		verbinde_fabriken();
 	}
 
 	signal_t* signal = gr->find<signal_t>();
@@ -5128,12 +5128,9 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 			}
 		}
 
-		// Update our list of factories.
-		verbinde_fabriken();
 
 		// Update nearby factories' lists of connected halts.
 		// Must be done AFTER updating the planquadrats,
-		// AND after updating our own list.  Yuck!
 		FOR (vector_tpl<fabrik_t*>, fab, affected_fab_list)
 		{
 			fab->recalc_nearby_halts();
