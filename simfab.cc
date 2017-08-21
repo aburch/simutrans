@@ -603,7 +603,6 @@ void fabrik_t::recalc_storage_capacities()
 					// Inputs are now normalized to factory production.
 					uint32 prod_factor = input->get_consumption();
 					g.max = (sint32)(welt->scale_for_distance_only(((((sint64)input->get_capacity() * (sint64)prodbase) << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / ((sint64)desc->get_productivity() * (sint64)prod_factor)));
-					int TEST = 1 + 1;
 				}
 			}
 		}
@@ -2094,6 +2093,13 @@ void fabrik_t::verteile_waren(const uint32 product)
 						// empty
 					}
 
+					const bool needs_max_amount = needed >= ziel_fab->get_input()[w].max;
+
+					if (needs_max_amount && (needed_base_units == 0))
+					{
+						needed_base_units = 1;
+					}
+
 					// if only overflown factories found => deliver to first
 					// else deliver to non-overflown factory
 					nearby_halt_t nh;
@@ -2150,6 +2156,13 @@ void fabrik_t::verteile_waren(const uint32 product)
 					for(w = 0; w < ziel_fab->get_input().get_count() && ziel_fab->get_input()[w].get_typ() != ware.get_desc(); w++)
 					{
 						// empty
+					}
+
+					const bool needs_max_amount = needed >= ziel_fab->get_input()[w].max;
+
+					if (needs_max_amount && (needed_base_units == 0))
+					{
+						needed_base_units = 1;
 					}
 
 					// if only overflown factories found => deliver to first
