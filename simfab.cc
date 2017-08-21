@@ -2901,18 +2901,18 @@ void fabrik_t::recalc_nearby_halts()
 					if(!duplicate)
 					{
 						nearby_halts.append(new_nearby_halt);
-						if(new_nearby_halt.halt->get_pax_enabled())
+						if(new_nearby_halt.halt.is_bound() && new_nearby_halt.halt->get_pax_enabled())
 						{
 							nearby_passenger_halts.append(new_nearby_halt);
 						}
-						if(new_nearby_halt.halt->get_mail_enabled())
+						if (new_nearby_halt.halt.is_bound() && new_nearby_halt.halt->get_mail_enabled())
 						{
 							nearby_mail_halts.append(new_nearby_halt);
 						}
 					}
 					if(!duplicate_freight)
 					{
-						if(new_nearby_halt.halt->get_ware_enabled() && new_nearby_halt.distance <= welt->get_settings().get_station_coverage_factories() + 2) // We add 2 here as we do not count the first or last tile in the distance
+						if(new_nearby_halt.halt.is_bound() && new_nearby_halt.halt->get_ware_enabled() && new_nearby_halt.distance <= welt->get_settings().get_station_coverage_factories() + 2) // We add 2 here as we do not count the first or last tile in the distance
 						{
 							// Halt is within freight coverage distance (shorter than regular) and handles freight...
 							if(get_desc()->get_placement() == factory_desc_t::Water && (new_nearby_halt.halt->get_station_type() & haltestelle_t::dock) == 0)
@@ -2924,6 +2924,7 @@ void fabrik_t::recalc_nearby_halts()
 							{
 								// Add to the list of freight halts.
 								nearby_freight_halts.append(new_nearby_halt);
+								new_nearby_halt.halt->add_factory(this); 
 							}
 						}
 					}
@@ -3081,6 +3082,8 @@ void fabrik_t::rotate90( const sint16 y_size )
 	FOR(vector_tpl<field_data_t>, & i, fields) {
 		i.location.rotate90(y_size);
 	}
+
+	recalc_nearby_halts();
 }
 
 

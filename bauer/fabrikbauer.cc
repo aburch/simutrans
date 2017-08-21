@@ -502,19 +502,6 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 		// search for nearby stations and connect factory to them
 		koord k, dim = info->get_building()->get_size(rotate);
 
-		for(  k.x=pos.x;  k.x<pos.x+dim.x;  k.x++  ) {
-			for(  k.y=pos.y;  k.y<pos.y+dim.y;  k.y++  ) {
-				const planquadrat_t *plan = welt->access(k);
-				const nearby_halt_t *halt_list = plan->get_haltlist();
-				for(  unsigned h=0;  h<plan->get_haltlist_count();  h++  ) 
-				{
-					if(halt_list[h].distance <= welt->get_settings().get_station_coverage_factories())
-					{
-						halt_list[h].halt->verbinde_fabriken();
-					}
-				}
-			}
-		}
 		// Must recalc nearby halts after the halt is set up
 		fab->recalc_nearby_halts();
 	}
