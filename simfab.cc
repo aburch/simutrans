@@ -603,6 +603,7 @@ void fabrik_t::recalc_storage_capacities()
 					// Inputs are now normalized to factory production.
 					uint32 prod_factor = input->get_consumption();
 					g.max = (sint32)(welt->scale_for_distance_only(((((sint64)input->get_capacity() * (sint64)prodbase) << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / ((sint64)desc->get_productivity() * (sint64)prod_factor)));
+					int TEST = 1 + 1;
 				}
 			}
 		}
@@ -617,12 +618,6 @@ void fabrik_t::recalc_storage_capacities()
 				}
 			}
 		}
-	}
-
-	// Now that the maximum is known, work out the recommended shipment size for outputs in normalized units.
-	for (uint32 out = 0; out < output.get_count(); out++) {
-		const uint32 prod_factor = desc->get_product(out)->get_factor();
-		// Shipment size logic from Standard omitted
 	}
 }
 
