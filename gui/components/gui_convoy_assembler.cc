@@ -2211,11 +2211,13 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				if (mail_veh)
 				{
 					//Catering vehicles that carry mail are treated as TPOs.
-					n += sprintf(buf + n, "%s\n", translator::translate("This is a travelling post office"));
+					n += sprintf(buf + n, translator::translate("This is a travelling post office"));
+					n += sprintf(buf + n, "\n");
 				}
 				else
 				{
-					n += sprintf(buf + n, translator::translate("Catering level: %i\n"), veh_type->get_catering_level());
+					n += sprintf(buf + n, translator::translate("Catering level: %i"), veh_type->get_catering_level());
+					n += sprintf(buf + n, "\n");
 				}
 			}
 			else
@@ -2457,7 +2459,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 	if (total_pax > 0 && highest_catering > 0 && total_goods == 0)
 	{
 		cbuf.clear();
-		cbuf.printf("%s: %i", translator::translate("catering_level"), highest_catering);
+		cbuf.printf(translator::translate("Catering level: %i"), highest_catering);
 		display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		y += LINESPACE + 1;
 	}

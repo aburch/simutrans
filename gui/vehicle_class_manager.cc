@@ -480,7 +480,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			if (highest_catering > 0)
 			{
 				buf.clear();
-				buf.printf("%s: %i", translator::translate("catering_level"), highest_catering);
+				buf.printf(translator::translate("Catering level: %i"), highest_catering);
 				display_proportional_clip(pos.x + column_2, compartment_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				compartment_height += LINESPACE;
 			}
@@ -844,7 +844,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 					if (pass_veh)
 					{
 						buf.clear();
-						buf.printf(translator::translate("Catering level: %i\n"), v->get_desc()->get_catering_level());
+						buf.printf(translator::translate("Catering level: %i"), v->get_desc()->get_catering_level());
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						extra_y += LINESPACE;
 					}
@@ -852,7 +852,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 					{
 						//Catering vehicles that carry mail are treated as TPOs.
 						buf.clear();
-						buf.printf("%s", translator::translate("This is a travelling post office\n"));
+						buf.printf("%s", translator::translate("This is a travelling post office"));
 						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						extra_y += LINESPACE;
 					}
