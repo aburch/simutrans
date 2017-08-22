@@ -79,9 +79,7 @@ private:
 	gui_class_vehicleinfo_t veh_info;
 
 	convoihandle_t cnv;
-	button_t	sale_button;
 	button_t	reset_all_classes_button;
-	button_t	retire_button;
 
 	vector_tpl<char> class_indices;
 
