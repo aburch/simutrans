@@ -106,7 +106,7 @@ koord
 Lade Relief
 Загрузить рельеф
 Load game
-Загруз. Игру
+Загрузить
 Load scenario
 Загрузить сценарий
 Optionen
@@ -122,15 +122,15 @@ Starte Spiel
 arctic
 арктический климат
 desert
-пустынный климат
+пустыня
 mediterran
-умеренный климат
+субтропики
 rocky
-горный
+горный климат
 temperate
-умеренный
+умеренный климат
 tropic
-тропический климат
+тропики
 tundra
 тундра
 #__________________________________error_text___________________________________
@@ -552,7 +552,7 @@ clf_chk_ships
 clf_chk_spezial_filter
 Спец. фильтр:
 clf_chk_stucked
-закреплено
+застрял
 clf_chk_trains
 Поезда
 clf_chk_trams
