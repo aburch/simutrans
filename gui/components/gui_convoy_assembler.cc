@@ -2527,5 +2527,13 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 				}
 			}
 		}
+	}	
+	if (total_pax == 0 && total_mail == 0 && total_goods == 0)
+	{
+		y = -LINESPACE - 1; // To make the text appear at line with the rest of the window //Ves
+		cbuf.clear();
+		cbuf.printf(translator::translate("no_storage_capacity"));
+		display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
+		y += LINESPACE + 1;
 	}
 }
