@@ -144,12 +144,13 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0, 0));
-	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT + 50 + 17 * (LINESPACE + 1) + D_SCROLLBAR_HEIGHT - 6));
 
+	
 
-	//layout();
+	layout();
 	build_class_entries();
 
+	//set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT + 50 + 17 * (LINESPACE + 1) + D_SCROLLBAR_HEIGHT - 6));
 
 
 }
@@ -235,8 +236,12 @@ void vehicle_class_manager_t::layout()
 	}
 	sint16 y = LINESPACE;
 	sint16 button_width = 190;
+
+	int assumed_longest_class_name = 5 * 32;
+
 	const scr_coord_val column_1 = D_MARGIN_LEFT;
-	const scr_coord_val column_2 = longest_class_name + 30;
+	//const scr_coord_val column_2 = longest_class_name + 30;
+	const scr_coord_val column_2 = assumed_longest_class_name + 30;
 
 	for (int i = 0; i < pass_class_sel.get_count(); i++)
 	{
@@ -280,15 +285,18 @@ void vehicle_class_manager_t::layout()
 	}
 
 	//build_class_entries();
-
-	header_height = y + (current_number_of_classes * LINESPACE);
+	
+	header_height = y + (current_number_of_classes * LINESPACE) + LINESPACE;
 	int actual_width = column_2 + button_width + 10;
-	int old_window_h = get_windowsize().h;
 	int default_window_h = D_TITLEBAR_HEIGHT + 50 + 17 * (LINESPACE + 1) + D_SCROLLBAR_HEIGHT - 6;
+	int old_window_h = min(get_windowsize().h, default_window_h);
+
 
 	scrolly.set_pos(scr_coord(0, header_height));
-	set_min_windowsize(scr_size(max(D_DEFAULT_WIDTH, actual_width), D_TITLEBAR_HEIGHT + header_height));
-	set_windowsize(scr_size(max(D_DEFAULT_WIDTH, actual_width), max(default_window_h, old_window_h)));
+	set_min_windowsize(scr_size(max(D_DEFAULT_WIDTH, column_2), D_TITLEBAR_HEIGHT + header_height+50));
+
+	//set_windowsize(scr_size(max(D_DEFAULT_WIDTH, actual_width), max(default_window_h, old_window_h)));
+	set_windowsize(scr_size(max(D_DEFAULT_WIDTH, column_2), max(default_window_h, old_window_h)));
 
 }
 

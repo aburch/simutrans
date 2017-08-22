@@ -616,8 +616,17 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *comp,value_
 				update_data();
 				}
 		} 
-		else if (comp == &bt_class_management) {
-			convoihandle_t cnv = depot_frame->get_convoy();
+		else if (comp == &bt_class_management) 
+		{
+			convoihandle_t cnv;
+			if (depot_frame)
+			{
+				cnv = depot_frame->get_convoy();
+			}
+			else if (replace_frame)
+			{
+				cnv = replace_frame->get_convoy();
+			}
 			create_win(20, 20, new vehicle_class_manager_t(cnv), w_info, magic_class_manager+ cnv.get_id());
 			return true;
 		}
@@ -2451,7 +2460,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 	{
 		if (total_pax == 0 && total_mail == 0)
 		{
-			y = -LINESPACE - 1; // This ensures that we use the space optimum in the window, ie taking the place from the class manager button //Ves
+			y = -LINESPACE - 1; // To make the text appear in line with the other text //Ves
 		}
 		if ((total_pax > 0 && total_mail > 0) && good_type_2 > 0)
 		{
@@ -2530,7 +2539,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 	}	
 	if (total_pax == 0 && total_mail == 0 && total_goods == 0)
 	{
-		y = -LINESPACE - 1; // To make the text appear at line with the rest of the window //Ves
+		y = -LINESPACE - 1; // To make the text appear in line with the other text //Ves
 		cbuf.clear();
 		cbuf.printf(translator::translate("no_storage_capacity"));
 		display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
