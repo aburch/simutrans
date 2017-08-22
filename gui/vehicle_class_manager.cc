@@ -77,6 +77,7 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 			class_selector->set_focusable(false);
 
 			pass_class_sel.append(class_selector);
+
 		}
 	}
 	
@@ -102,12 +103,51 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 	add_component(&scrolly);
 	scrolly.set_show_scroll_x(true);
 
+
+	//// Now create all class selectors for the individual vehicles
+	//int y = 0;
+	//for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+	//{
+	//	vehicle_t* v = cnv->get_vehicle(veh);
+	//	uint8 classes_amount = v->get_desc()->get_number_of_classes();
+	//	if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
+	//	{
+	//		for (int i = 0; i < classes_amount; i++)
+	//		{
+	//			if (v->get_capacity(i) > 0)
+	//			{
+	//				gui_combobox_t *class_selector = new (nothrow) gui_combobox_t();
+	//				if (class_selector != nullptr)
+	//				{
+	//					add_component(class_selector);
+	//					class_selector->set_focusable(false);
+
+	//					class_selector->set_pos(scr_coord(D_MARGIN_LEFT, y));
+	//					class_selector->set_highlight_color(1);
+	//					class_selector->set_size(scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	//					class_selector->set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 3 + 2 + 16));
+
+	//					veh_info.add_component(class_selector);
+	//					class_selector->add_listener(&veh_info);
+	//					y += LINESPACE;
+	//					veh_info.
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
+
+		
+	
+
+
+
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0, 0));
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT + 50 + 17 * (LINESPACE + 1) + D_SCROLLBAR_HEIGHT - 6));
 
 
-	layout();
+	//layout();
 	build_class_entries();
 
 
@@ -195,6 +235,7 @@ void vehicle_class_manager_t::layout()
 	}
 	sint16 y = LINESPACE;
 	sint16 button_width = 190;
+	const scr_coord_val column_1 = D_MARGIN_LEFT;
 	const scr_coord_val column_2 = longest_class_name + 30;
 
 	for (int i = 0; i < pass_class_sel.get_count(); i++)
@@ -271,6 +312,8 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			current_number_of_classes = 0;
 			overcrowded_capacity = 0;
 			highest_catering = 0;
+			is_tpo = false;
+			vehicle_count = cnv->get_vehicle_count();
 
 			cbuffer_t buf;
 
@@ -286,7 +329,6 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			int column_1 = 10;
 			int column_2;
 			int compartment_height;
-			bool is_tpo = false;
 
 			char const*  const  pass_name = translator::translate(goods_manager_t::passengers->get_name());
 			char const*  const  mail_name = translator::translate(goods_manager_t::mail->get_name());
@@ -423,7 +465,8 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					sprintf(class_name_untranslated, "p_class[%u]", i);
 					const char* class_name = translator::translate(class_name_untranslated);
 					buf.printf("%s: %i %s", class_name, pass_class_capacity[i], pass_name);
-					len = display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);			if (len > longest_class_name)
+					len = display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);		
+					if (len > longest_class_name)
 					{
 						longest_class_name = len;
 					}
@@ -492,9 +535,14 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				compartment_height += LINESPACE;
 			}
 
+			if (old_vehicle_count != vehicle_count)
+			{
+				old_vehicle_count = vehicle_count;
+				layout();
+				header_height = offset_y;
+			}
 
-
-			if (old_number_of_compartments != current_number_of_compartments)
+			/*if (old_number_of_compartments != current_number_of_compartments)
 			{
 				old_number_of_compartments = current_number_of_compartments;
 				layout();
@@ -505,7 +553,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				old_number_of_vehicles = current_number_of_vehicles;
 				layout();
 				header_height = offset_y;
-			}
+			}*/
 		}
 	}
 }
@@ -659,38 +707,78 @@ gui_class_vehicleinfo_t::gui_class_vehicleinfo_t(convoihandle_t cnv)
 {
 	this->cnv = cnv;
 
-	//int pass_class_capacity[255] = { 0 };
-	//int mail_class_capacity[255] = { 0 };
-	//uint16 pass_classes = goods_manager_t::passengers->get_number_of_classes();
-	//uint16 mail_classes = goods_manager_t::mail->get_number_of_classes();
+	// When comboboxes eventually makes it to this part of the window....
 
+	//uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
+	//uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
+
+	//// First, create the lists of the names of classes
+	//for (int i = 0; i < pass_classes; i++)
+	//{
+	//	class_name = new (nothrow) char[32];
+	//	sprintf(class_name, "p_class[%u]", i);
+	//	pass_class_name_untranslated[i] = class_name;
+	//}
+
+	//for (int i = 0; i < mail_classes; i++)
+	//{
+	//	class_name = new (nothrow) char[32];
+	//	sprintf(class_name, "m_class[%u]", i);
+	//	mail_class_name_untranslated[i] = class_name;
+	//}
 	//for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 	//{
-	//	vehicle_t* v = cnv->get_vehicle(veh);
-	//	if (v->get_cargo_type()->get_catg_index() == 0)
+	//	vehicle_t *v = cnv->get_vehicle(veh);
+	//	bool pass_veh = v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS;
+	//	bool mail_veh = v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL;
+	//	if (pass_veh)
 	//	{
-	//		for (int i = 0; i < pass_classes; i++)
+	//		for (uint8 i = 0; i < v->get_desc()->get_number_of_classes(); i++)
 	//		{
 	//			if (v->get_desc()->get_capacity(i) > 0)
 	//			{
-	//				pass_class_veh_sel[i].set_highlight_color(1);
-	//				pass_class_veh_sel[i].clear_elements();
-
-	//				char pass_class_name_untranslated[32][1020];
-	//				for (int j = 0; j < pass_classes; j++)
+	//				gui_combobox_t *class_selector = new (nothrow) gui_combobox_t();
+	//				if (class_selector != nullptr)
 	//				{
-	//					sprintf(pass_class_name_untranslated[j], "p_class[%u]", j /*- 1*/);
-	//					pass_class_veh_sel[i].append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
-	//					//class_indices.append(j);
-	//				}
-	//				add_component(pass_class_veh_sel + i);
-	//				pass_class_veh_sel[i].add_listener(this);
-	//				pass_class_veh_sel[i].set_focusable(false);
+	//					add_component(class_selector);
+	//					class_selector->add_listener(this);
+	//					class_selector->set_focusable(false);
 
+	//					for (int j = 0; j < pass_classes; j++) // j = the entries of this combobox
+	//					{
+	//						class_selector->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
+	//						class_selector->set_selection(i);
+	//					}
+
+	//					pass_class_sel.append(class_selector);
+
+	//				}
+	//			}
+	//		}
+	//	}
+	//	if (mail_veh)
+	//	{
+	//		for (uint8 i = 0; i < v->get_desc()->get_number_of_classes(); i++)
+	//		{
+	//			if (v->get_desc()->get_capacity(i) > 0)
+	//			{
+	//				gui_combobox_t *class_selector = new (nothrow) gui_combobox_t();
+	//				if (class_selector != nullptr)
+	//				{
+	//					add_component(class_selector);
+	//					class_selector->add_listener(this);
+	//					class_selector->set_focusable(false);
+
+	//					mail_class_sel.append(class_selector);
+
+	//				}
 	//			}
 	//		}
 	//	}
 	//}
+
+	
+	
 }
 
 
@@ -714,7 +802,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 		uint8 higest_tpo = 0;
 		uint32 passenger_count = 0;
 		uint32 mail_count = 0;
-
+		const scr_coord_val column_2 = 100;
 
 		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++) // Run this check first to find the amount of passengers and mail along with any catering or TPO's
 		{
@@ -739,6 +827,10 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 				}
 			}
 		}
+
+
+		// When comboboxes eventually makes it to this part of the window....
+		//uint8 class_selector_counter = 0;
 
 		for(unsigned veh=0;  veh<cnv->get_vehicle_count(); veh++ ) 
 		{
@@ -770,6 +862,14 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 				display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, translator::translate(v->get_desc()->get_name()), ALIGN_LEFT, SYSCOL_TEXT, true);
 				extra_y += LINESPACE;
 
+				// { // In order to debug the amount of class selectors
+				//	buf.clear();
+				//	char class_selectors[32];
+				//	sprintf(class_selectors, "amount_of_class_selectors: %i", pass_class_sel.get_count());
+				//	display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, class_selectors, ALIGN_LEFT, SYSCOL_TEXT, true);
+				//	extra_y += LINESPACE;
+				//}
+
 				goods_desc_t const& g = *v->get_cargo_type();
 				char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
 				uint8 base_comfort = 0;
@@ -791,6 +891,18 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 						const char* class_name = translator::translate(class_name_untranslated);
 						buf.printf("%s: ", class_name);
 						reassigned_w = display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
+						
+
+						// When comboboxes eventually makes it to this part of the window....
+						//if (pass_veh)
+						//{
+						//	pass_class_sel.at(class_selector_counter)->set_pos(scr_coord(column_2, pos.y + offset.y + total_height + extra_y));
+						//	//pass_class_sel.at(class_selector_counter)->set_pos(scr_coord(pos.x + w + offset.x + reassigned_w, pos.y + offset.y + total_height + extra_y));
+						//	pass_class_sel.at(class_selector_counter)->set_highlight_color(1);
+						//	pass_class_sel.at(class_selector_counter)->set_size(scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+						//	pass_class_sel.at(class_selector_counter)->set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 3 + 2 + 16));
+						//	class_selector_counter++;
+						//}
 
 						if (reassigned)
 						{
