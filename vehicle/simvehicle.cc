@@ -2031,8 +2031,6 @@ const char *vehicle_t::get_cargo_name() const
 
 void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 {
-	// TODO: (Ves?) Add GUI elements here showing the class of passengers/mail
-
 	bool empty = true;
 	for (uint8 i = 0; i < number_of_classes; i++)
 	{
@@ -2050,13 +2048,13 @@ void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 				}
 				char class_name_untranslated[32];
 				sprintf(class_name_untranslated, "");
-				if (ware.get_catg() == 0)
+				if (ware.get_catg() == goods_manager_t::INDEX_PAS)
 				{
-					sprintf(class_name_untranslated, "p_class[%u]", i);
+					sprintf(class_name_untranslated, "p_class[%u]", ware.get_class());
 				}
-				if (ware.get_catg() == 1)
+				if (ware.get_catg() == goods_manager_t::INDEX_MAIL)
 				{
-					sprintf(class_name_untranslated, "m_class[%u]", i);
+					sprintf(class_name_untranslated, "m_class[%u]", ware.get_class());
 				}
 
 				const char* class_name = translator::translate(class_name_untranslated);
@@ -2073,6 +2071,43 @@ void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 	} 
 }
 
+void vehicle_t::get_cargo_class_info(cbuffer_t & buf, uint8 g_class) const
+{
+	bool empty = true;
+	for (uint8 i = 0; i < number_of_classes; i++)
+	{
+		if (i == get_reassigned_class(g_class))
+		{
+			if (!fracht[i].empty())
+			{
+				empty = false;
+				FOR(slist_tpl<ware_t>, const& ware, fracht[i])
+				{
+					const char * halt_name = "Error in Routing";
+
+					halthandle_t halt = ware.get_ziel();
+					if (halt.is_bound())
+					{
+						halt_name = halt->get_name();
+					}
+					char class_name_untranslated[32];
+					sprintf(class_name_untranslated, "");
+					if (ware.get_catg() == goods_manager_t::INDEX_PAS)
+					{
+						sprintf(class_name_untranslated, "p_class[%u]", ware.get_class());
+					}
+					if (ware.get_catg() == goods_manager_t::INDEX_MAIL)
+					{
+						sprintf(class_name_untranslated, "m_class[%u]", ware.get_class());
+					}
+
+					const char* class_name = translator::translate(class_name_untranslated);
+					buf.printf("   %u%s %s %s > %s\n", ware.menge, translator::translate(ware.get_mass()), class_name, translator::translate(ware.get_name()), halt_name);
+				}
+			}
+		}
+	}
+}
 
 /**
  * Delete all vehicle load
@@ -2228,6 +2263,24 @@ uint16 vehicle_t::get_total_cargo_by_class(uint8 g_class) const
 			carried += fracht[i].get_count();
 		}
 	}
+
+	return carried;
+}
+
+uint16 vehicle_t::get_total_cargo_by_class_compartment(uint8 compartment) const
+{
+	uint16 carried = 0;
+	if (desc->get_capacity(compartment) > 0)
+	{
+		if (!fracht[get_reassigned_class(compartment)].empty())
+		{
+			FOR(slist_tpl<ware_t>, const& ware, fracht[get_reassigned_class(compartment)])
+			{
+				carried += ware.menge;
+			}
+		}
+	}
+
 
 	return carried;
 }

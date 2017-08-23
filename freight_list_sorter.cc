@@ -213,20 +213,6 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			continue;
 		}
 		wlist[pos] = ware;
-	/*	if (sort_mode == by_transfer_time && pos > 0)
-		{		
-			for (int i = 0; i < pos; i++)
-			{
-				uint32 rt_i = wlist[i] == tc.ware ? tc.ready_time : NULL;
-				uint32 rt_pos = wlist[pos] == tc.ware ? tc.ready_time : NULL;
-					if (wlist[i].get_index() == wlist[pos].get_index() && rt_i == rt_pos)
-					{
-						wlist[i].menge += wlist[pos--].menge;
-						break;
-					}
-	
-			}
-		}*/
 		// for the sorting via the number for the next stop we unify entries
 		if(sort_mode == by_via_sum && pos > 0) 
 		{
@@ -289,6 +275,21 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				}
 			}
 		}
+
+		/*	if (sort_mode == by_transfer_time && pos > 0)
+		{
+			for (int i = 0; i < pos; i++)
+			{
+				uint32 rt_i = wlist[i] == tc.ware ? tc.ready_time : NULL;
+				uint32 rt_pos = wlist[pos] == tc.ware ? tc.ready_time : NULL;
+				if (wlist[i].get_index() == wlist[pos].get_index() && rt_i == rt_pos)
+				{
+					wlist[i].menge += wlist[pos--].menge;
+					break;
+				}
+			}
+		}*/
+
 		pos++;
 	}
 
@@ -358,9 +359,9 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			goods_desc_t const& desc = *ware.get_desc();
 			buf.printf("   %u%s %s %c ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()), ">>>>><>"[sortby]);
 
-			const sint64 current_time = welt->get_ticks();
-
-		/*	char transfer_time_left[32] = "";
+			
+		/*	const sint64 current_time = welt->get_ticks();
+			char transfer_time_left[32] = "";
 			if (halt->get_transferring_cargoes_count() > 0)
 			{
 				transferring_cargo_t tc;
@@ -370,7 +371,9 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			//	const uint32 ready_seconds = world()->ticks_to_seconds(tc.ready_time - current_time);				
 				welt->sprintf_ticks(transfer_time_left, sizeof(transfer_time_left), tc_ready_time);
 			}
-			*/
+		*/
+
+
 			// the target name is not correct for the via sort
 			if(sortby != by_via_sum && sortby != by_origin_amount) 
 			{
@@ -387,17 +390,29 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					dbuf.append(translator::translate("Unknown destination"));
 				}
 				const stadt_t* city = welt->get_city(zielpos);
+
+				char g_class[32] = "\0";
+				if (ware.is_passenger())
+				{				
+						sprintf(g_class, translator::translate("p_class[%u]"), ware.get_class());
+				}
+				if (ware.is_mail())
+				{
+					sprintf(g_class, translator::translate("m_class[%u]"), ware.get_class());
+				}
+
+
 				if(ware.is_passenger() && sortby == by_destination_detail)
 				{
 					const char* trip_type = (ware.is_commuting_trip ? translator::translate("commuting") : translator::translate("visiting"));
 
 					if(city)
 					{ 
-						buf.printf("%s <%i, %i> (%s; %s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name(), trip_type);
+						buf.printf("%s <%i, %i> (%s; %s; %s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name(), trip_type, g_class);
 					}
 					else 
 					{
-						buf.printf("%s <%i, %i> (%s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, trip_type);
+						buf.printf("%s <%i, %i> (%s; %s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, trip_type, g_class);
 					}
 				}
 				else if(sortby == by_destination_detail)

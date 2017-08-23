@@ -505,6 +505,8 @@ public:
 
 	uint16 get_total_cargo_by_class(uint8 g_class) const;
 
+	uint16 get_total_cargo_by_class_compartment(uint8 compartment) const;
+
 	uint16 get_reassigned_class(uint8 g_class) const;
 
 	/**
@@ -533,6 +535,8 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void get_cargo_info(cbuffer_t & buf) const;
+
+	void get_cargo_class_info(cbuffer_t & buf, uint8 g_class) const;
 
 	// Check for straightness of way.
 	//@author jamespetts
