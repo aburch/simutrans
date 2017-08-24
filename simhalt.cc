@@ -3821,7 +3821,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			const building_desc_t *desc=gb ? gb->get_tile()->get_desc():NULL;
 			if(desc)
 			{
-				add_grund( gr, true /*do not relink factories now*/, !(file->get_extended_version() >= 13 || file->get_extended_revision() >= 21) /*do not recalculate nearby halts now unless loading an older version*/  );
+				add_grund( gr, false /*do not relink factories now*/, !(file->get_extended_version() >= 13 || file->get_extended_revision() >= 21) /*do not recalculate nearby halts now unless loading an older version*/  );
 				// Factories will be re-linked on loading
 			}
 			else {
