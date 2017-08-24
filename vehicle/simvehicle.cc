@@ -2636,9 +2636,9 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			// older saved game: for those games, the number of 
 			// clases defaults to 1 and we have to read this from
 			// desc.
-
-			class_reassignments = new uint8[desc ? desc->get_number_of_classes() : number_of_classes];
-			fracht = new slist_tpl<ware_t>[desc ? desc->get_number_of_classes() : number_of_classes];
+			
+			class_reassignments = new uint8[desc ? desc->get_number_of_classes() : max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes())];
+			fracht = new slist_tpl<ware_t>[desc ? desc->get_number_of_classes() : max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes())];
 
 			for (int i = 0; i < total_fracht_count; i++)
 			{
