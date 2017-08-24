@@ -10677,20 +10677,72 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, bool ordered)
 		passenger_step_interval = calc_adjusted_step_interval(passenger_origins.get_sum_weight(), get_settings().get_passenger_trips_per_month_hundredths());
 	}	
 
+	const uint8 number_of_classes_visitors = gb->get_tile()->get_desc()->get_number_of_class_proportions();
+	const uint8 number_of_classes_commuters = gb->get_tile()->get_desc()->get_number_of_class_proportions_jobs();
+
 	if(ordered)
 	{
-		for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes() && i < gb->get_tile()->get_desc()->get_number_of_class_proportions() && i < i < gb->get_tile()->get_desc()->get_number_of_class_proportions_jobs(); i++)
+		
+		if (number_of_classes_visitors > 0)
 		{
-			commuter_targets[i].insert_ordered(gb, (gb->get_tile()->get_desc()->get_class_proportions_sum_jobs() > 0 ? (gb->get_adjusted_jobs() * gb->get_tile()->get_desc()->get_class_proportion_jobs(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum_jobs() : gb->get_adjusted_jobs()), stadt_t::compare_gebaeude_pos);
-			visitor_targets[i].insert_ordered(gb, (gb->get_tile()->get_desc()->get_class_proportions_sum() > 0 ? (gb->get_adjusted_visitor_demand() * gb->get_tile()->get_desc()->get_class_proportion(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum() : gb->get_adjusted_visitor_demand()), stadt_t::compare_gebaeude_pos);
+			for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes() && i < number_of_classes_visitors; i++)
+			{
+				visitor_targets[i].insert_ordered(gb, (gb->get_tile()->get_desc()->get_class_proportions_sum() > 0 ? (gb->get_adjusted_visitor_demand() * gb->get_tile()->get_desc()->get_class_proportion(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum() : gb->get_adjusted_visitor_demand()), stadt_t::compare_gebaeude_pos);
+			}
 		}
+		else
+		{
+			for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+			{
+				visitor_targets[i].insert_ordered(gb, (gb->get_adjusted_visitor_demand()), stadt_t::compare_gebaeude_pos);
+			}
+		}
+
+		if (number_of_classes_commuters > 0)
+		{
+			for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes() && i < number_of_classes_commuters; i++)
+			{
+				commuter_targets[i].insert_ordered(gb, (gb->get_tile()->get_desc()->get_class_proportions_sum_jobs() > 0 ? (gb->get_adjusted_jobs() * gb->get_tile()->get_desc()->get_class_proportion_jobs(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum_jobs() : gb->get_adjusted_jobs()), stadt_t::compare_gebaeude_pos);
+			}
+		}
+		else
+		{
+			for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+			{
+				commuter_targets[i].insert_ordered(gb, (gb->get_adjusted_jobs()), stadt_t::compare_gebaeude_pos);
+			}
+		}		
 	}
 	else
 	{
-		for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes() && i < gb->get_tile()->get_desc()->get_number_of_class_proportions() && i < i < gb->get_tile()->get_desc()->get_number_of_class_proportions_jobs(); i++)
+		if (number_of_classes_visitors > 0)
 		{
-			commuter_targets[i].append(gb, (gb->get_tile()->get_desc()->get_class_proportions_sum_jobs() > 0 ? (gb->get_adjusted_jobs() * gb->get_tile()->get_desc()->get_class_proportion_jobs(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum_jobs() : gb->get_adjusted_jobs()));
-			visitor_targets[i].append(gb, (gb->get_tile()->get_desc()->get_class_proportions_sum() > 0 ? (gb->get_adjusted_visitor_demand() * gb->get_tile()->get_desc()->get_class_proportion(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum() : gb->get_adjusted_visitor_demand()));
+			for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes() && i < number_of_classes_visitors; i++)
+			{
+				visitor_targets[i].append(gb, (gb->get_tile()->get_desc()->get_class_proportions_sum() > 0 ? (gb->get_adjusted_visitor_demand() * gb->get_tile()->get_desc()->get_class_proportion(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum() : gb->get_adjusted_visitor_demand()));
+			}
+		}
+		else
+		{
+			for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+			{
+				visitor_targets[i].append(gb, (gb->get_adjusted_visitor_demand()));
+			}
+		}
+
+		if (number_of_classes_commuters > 0)
+		{
+			for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes() && i < number_of_classes_commuters; i++)
+			{
+				commuter_targets[i].append(gb, (gb->get_tile()->get_desc()->get_class_proportions_sum_jobs() > 0 ? (gb->get_adjusted_jobs() * gb->get_tile()->get_desc()->get_class_proportion_jobs(i)) / gb->get_tile()->get_desc()->get_class_proportions_sum_jobs() : gb->get_adjusted_jobs()));
+			}
+		}
+		else
+		{
+			for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+			{
+				commuter_targets[i].append(gb, (gb->get_adjusted_jobs()));
+			}
 		}
 	}
 
