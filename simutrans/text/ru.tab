@@ -428,7 +428,7 @@ Beenden
 Beginner mode
 Режим обучения
 Besonderes Gebaeude
-Достопримечательность
+Диковина
 BF
 станция
 bio
@@ -482,7 +482,7 @@ Buildings
 Built artifical slopes
 Построить искусственные склоны
 Built random attraction
-Построить случайную достопримечательность
+Построить случайную диковину
 Bus_tab
 Автобусы
 Cancel
@@ -508,7 +508,7 @@ chooses a random map
 citicens
 Население
 City attraction
-Достопр. в городах
+Городские диковины
 City industries
 Промышл. в городах
 City list
@@ -604,9 +604,9 @@ Costs
 Create a new line based on this schedule
 Создать новую линию, основываясь на этом расписании
 curiosity builder
-Создать диковинку
+Создать диковину
 curlist_title
-Список достопримечательностей
+Список диковин
 Currently playing:
 Сейчас звучит:
 Deccelerate time
@@ -624,7 +624,7 @@ Delete this file.
 Denkmal
 Монумент
 Departed
-Ушли
+Отправлено
 Depots
 Депо
 Destination
@@ -632,7 +632,7 @@ Destination
 Details
 Детали
 diesel
-дизельный привод
+дизель
 Direkt erreichbare Haltestellen
 Прямые маршруты отсюда
 disable midi
@@ -754,7 +754,7 @@ Groundobj
 Grow city
 Увеличить город
 Growth
-Рост города
+Прирост
 H
 остановка
 Hangar
@@ -862,7 +862,7 @@ Kreuzung
 Laden
 Загрузить
 Land attraction
-Загородная достопримечательность
+Загородные диковины
 Land industries
 Произв. цепочки:
 LANG_CHOOSE\n
@@ -1060,7 +1060,7 @@ paletten
 Pas_tab
 Пассажирские поезда
 Passagiere
-Пассажиров
+Пассажиры
 Passagierrate
 Наличие пассажиров
 Passagierziele
@@ -1072,7 +1072,7 @@ Passengers %d %s, %d %s, %d no route
 Pause
 Пауза
 Plant tree
-Посадить дерево
+Высадка деревьев
 player -1
 человек
 player 0
@@ -1092,7 +1092,7 @@ player 6
 Please choose vehicles first\n
 Сначала выберите т/с\n
 Post
-почта
+Почта
 Postrate
 Наличие почты
 Power
@@ -1188,7 +1188,7 @@ Screenshot
 Seasons
 Время года
 Sehenswuerdigkeit
-Достопримечательность
+Диковина
 Sell the selected vehicle(s)
 Продать выбранные т/с
 sended
@@ -1322,9 +1322,9 @@ tonnen
 Total inhabitants:
 Всего населения:
 Tourist attractions
-Достопримечательности
+Диковины
 Tourists
-Достопримечательности
+Диковины
 Town: %s\n
 Город %s\n
 Towns
@@ -1352,7 +1352,7 @@ Trams are not available yet!
 Transformer only next to factory!
 Трансформаторная подстанция должна быть около предприятия
 Translation
-Перевод
+Название
 transparent station coverage
 прозрачная зона покрытия
 Transported
@@ -1394,13 +1394,13 @@ Verbrauch
 verkaufen
 Продажа
 Verkehrsteilnehmer
-городской транспорт
+Трафик
 via
-через (детали)
+транзит
 via %s\n
- через %s\n
+ транзит %s\n
 via Menge
-через (кол-во)
+транзит (кол-во)
 voranstellen
 Вывести
 Waggon_tab
@@ -1624,7 +1624,7 @@ per 1 km
 Percentage of revenue retained as profit
 Отношение разницы между выручкой и затратами к выручке
 Power demand
-Потреб мощн:
+Потреб мощн
 Rebuild connexions:
 Востановленные связи:
 Recurring expenses of infrastructure maintenance
