@@ -564,7 +564,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 							extra_y += LINESPACE;
 
 							freight_info_class.clear();
-							freight_info_class.printf("%u/%u%s %s\n", v->get_total_cargo_by_class_compartment(i), v->get_desc()->get_capacity(i), translator::translate(v->get_cargo_mass()), name);
+							freight_info_class.printf("%u/%u%s %s\n", v->get_total_cargo_by_class(i), v->get_desc()->get_capacity(i), translator::translate(v->get_cargo_mass()), name);
 							v->get_cargo_class_info(freight_info_class, i);
 							// show it
 							const int px_len = display_multiline_text(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, freight_info_class, SYSCOL_TEXT);

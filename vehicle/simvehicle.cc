@@ -2260,27 +2260,12 @@ uint16 vehicle_t::get_total_cargo_by_class(uint8 g_class) const
 	{
 		if(class_reassignments[i] == g_class && desc->get_capacity(i) > 0)
 		{
-			carried += fracht[i].get_count();
-		}
-	}
-
-	return carried;
-}
-
-uint16 vehicle_t::get_total_cargo_by_class_compartment(uint8 compartment) const
-{
-	uint16 carried = 0;
-	if (desc->get_capacity(compartment) > 0)
-	{
-		if (!fracht[get_reassigned_class(compartment)].empty())
-		{
-			FOR(slist_tpl<ware_t>, const& ware, fracht[get_reassigned_class(compartment)])
+			FOR(slist_tpl<ware_t>, const& ware, fracht[i])
 			{
 				carried += ware.menge;
 			}
 		}
 	}
-
 
 	return carried;
 }
