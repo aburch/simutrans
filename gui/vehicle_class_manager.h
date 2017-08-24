@@ -25,7 +25,7 @@
 class scr_coord;
 
 
-class gui_class_vehicleinfo_t : public gui_container_t
+class gui_class_vehicleinfo_t : public gui_container_t/*, private action_listener_t*/
 {
 private:
 	/**
@@ -33,11 +33,18 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	convoihandle_t cnv;
-	
-	//gui_combobox_t pass_class_veh_sel[256];
-	//gui_combobox_t mail_class_veh_sel[256];
+
+
+	// When comboboxes eventually makes it to this part of the window....
+	//slist_tpl<gui_combobox_t *> pass_class_sel;
+	//slist_tpl<gui_combobox_t *> mail_class_sel;
 
 	gui_container_t cont;
+
+	// below a duplication of code, for the moment until I can get it automatically
+	//char *class_name;
+	//char *pass_class_name_untranslated[32];
+	//char *mail_class_name_untranslated[32];
 
 public:
 	/**
@@ -72,17 +79,12 @@ private:
 	gui_class_vehicleinfo_t veh_info;
 
 	convoihandle_t cnv;
-	button_t	sale_button;
 	button_t	reset_all_classes_button;
-	button_t	retire_button;
 
 	vector_tpl<char> class_indices;
 
 	slist_tpl<gui_combobox_t *> pass_class_sel;
 	slist_tpl<gui_combobox_t *> mail_class_sel;
-
-	slist_tpl<gui_combobox_t *> pass_veh_class_sel;
-	slist_tpl<gui_combobox_t *> mail_veh_class_sel;
 
 	gui_container_t cont;
 
@@ -96,6 +98,10 @@ private:
 	uint32 old_number_of_vehicles;
 
 	uint8 highest_catering;
+	bool is_tpo;
+
+	uint8 vehicle_count;
+	uint8 old_vehicle_count;
 
 	uint16 header_height;
 
@@ -112,6 +118,7 @@ private:
 
 public:
 	vehicle_class_manager_t(convoihandle_t cnv);
+
 
 	/**
 	* Do the dynamic component layout
@@ -157,5 +164,5 @@ public:
 
 	void rdwr( loadsave_t *file );
 
-	uint32 get_rdwr_id() { return magic_convoi_detail; }
+	uint32 get_rdwr_id() { return magic_class_manager; }
 };

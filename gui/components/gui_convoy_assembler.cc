@@ -616,8 +616,17 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *comp,value_
 				update_data();
 				}
 		} 
-		else if (comp == &bt_class_management) {
-			convoihandle_t cnv = depot_frame->get_convoy();
+		else if (comp == &bt_class_management) 
+		{
+			convoihandle_t cnv;
+			if (depot_frame)
+			{
+				cnv = depot_frame->get_convoy();
+			}
+			else if (replace_frame)
+			{
+				cnv = replace_frame->get_convoy();
+			}
 			create_win(20, 20, new vehicle_class_manager_t(cnv), w_info, magic_class_manager+ cnv.get_id());
 			return true;
 		}
@@ -2054,8 +2063,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf(buf + n, "\n");
 
 			// Standard translation is "Power: %4d kW\n", as Standard has no tractive effort
-			n += sprintf(buf + n, "(%s) ", translator::translate(engine_type_names[veh_type->get_engine_type() + 1]));
-			n += sprintf(buf + n, translator::translate("Power/tractive force: %4d kW / %d kN\n"), veh_type->get_power(), veh_type->get_tractive_effort());
+			//n += sprintf(buf + n, "(%s) ", translator::translate(engine_type_names[veh_type->get_engine_type() + 1]));
+			n += sprintf(buf + n, translator::translate("Power/tractive force (%s): %4d kW / %d kN\n"), translator::translate(engine_type_names[veh_type->get_engine_type() + 1]), veh_type->get_power(), veh_type->get_tractive_effort());
 
 			if (veh_type->get_gear() != 64) // Do this entry really have to be here...??? If not, it should be skipped. Space is precious..
 			{
@@ -2211,11 +2220,13 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				if (mail_veh)
 				{
 					//Catering vehicles that carry mail are treated as TPOs.
-					n += sprintf(buf + n, "%s\n", translator::translate("This is a travelling post office"));
+					n += sprintf(buf + n, translator::translate("This is a travelling post office"));
+					n += sprintf(buf + n, "\n");
 				}
 				else
 				{
-					n += sprintf(buf + n, translator::translate("Catering level: %i\n"), veh_type->get_catering_level());
+					n += sprintf(buf + n, translator::translate("Catering level: %i"), veh_type->get_catering_level());
+					n += sprintf(buf + n, "\n");
 				}
 			}
 			else
@@ -2237,23 +2248,16 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			}
 			linespace_skips = 0;
 		}
-		n += sprintf(buf + n, "\n");
 
 		// Permissive way constraints
 		// (If vehicle has, way must have)
 		// @author: jamespetts
 		const way_constraints_t &way_constraints = veh_type->get_way_constraints();
-		bool any_permissive = false;
 		for (uint8 i = 0; i < way_constraints.get_count(); i++)
 		{
 			if (way_constraints.get_permissive(i))
 			{
-				if (!any_permissive)
-				{
-					n += sprintf(buf + n, "%s", translator::translate("this_vehicle_must_use:"));
-				}
-				any_permissive = true;
-				n += sprintf(buf + n, "\n");
+				n += sprintf(buf + n, "%s", translator::translate("\nMUST USE: "));
 				char tmpbuf[30];
 				sprintf(tmpbuf, "Permissive %i", i);
 				n += sprintf(buf + n, "%s", translator::translate(tmpbuf));
@@ -2261,31 +2265,19 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		}
 		if (veh_type->get_is_tall())
 		{
-			if (!any_permissive)
-			{
-				n += sprintf(buf + n, "%s", translator::translate("this_vehicle_must_use:"));
-			}
-			any_permissive = true;
-			n += sprintf(buf + n, "\n");
+			n += sprintf(buf + n, "%s", translator::translate("\nMUST USE: "));
 			n += sprintf(buf + n, "%s", translator::translate("high_clearance_under_bridges_(no_low_bridges)"));
 		}
-		n += sprintf(buf + n, "\n\n");
 
 
 		// Prohibitibve way constraints
 		// (If way has, vehicle must have)
 		// @author: jamespetts
-		bool any_prohibitive = false;
 		for (uint8 i = 0; i < way_constraints.get_count(); i++)
 		{
 			if (way_constraints.get_prohibitive(i))
 			{
-				if (!any_prohibitive)
-				{
-					n += sprintf(buf + n, "%s:", translator::translate("this_vehicle_can_use/is_equiped_with"));
-				}
-				any_prohibitive = true;
-				n += sprintf(buf + n, "\n");
+				n += sprintf(buf + n, "%s", translator::translate("\nMAY USE: "));
 				char tmpbuf[30];
 				sprintf(tmpbuf, "Prohibitive %i", i);
 				n += sprintf(buf + n, "%s", translator::translate(tmpbuf));
@@ -2293,12 +2285,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		}
 		if (veh_type->get_tilting())
 		{
-			if (!any_prohibitive)
-			{
-				n += sprintf(buf + n, "%s:", translator::translate("this_vehicle_can_use/is_equiped_with"));
-			}
-			any_prohibitive = true;
 			n += sprintf(buf + n, "\n");
+			n += sprintf(buf + n, "%s: ", translator::translate("equipped_with"));
 			n += sprintf(buf + n, "%s", translator::translate("tilting_vehicle_equipment"));
 		}
 
@@ -2457,7 +2445,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 	if (total_pax > 0 && highest_catering > 0 && total_goods == 0)
 	{
 		cbuf.clear();
-		cbuf.printf("%s: %i", translator::translate("catering_level"), highest_catering);
+		cbuf.printf(translator::translate("Catering level: %i"), highest_catering);
 		display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		y += LINESPACE + 1;
 	}
@@ -2472,7 +2460,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 	{
 		if (total_pax == 0 && total_mail == 0)
 		{
-			y = -LINESPACE - 1; // This ensures that we use the space optimum in the window, ie taking the place from the class manager button //Ves
+			y = -LINESPACE - 1; // To make the text appear in line with the other text //Ves
 		}
 		if ((total_pax > 0 && total_mail > 0) && good_type_2 > 0)
 		{
@@ -2548,5 +2536,13 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 				}
 			}
 		}
+	}	
+	if (total_pax == 0 && total_mail == 0 && total_goods == 0)
+	{
+		y = -LINESPACE - 1; // To make the text appear in line with the other text //Ves
+		cbuf.clear();
+		cbuf.printf(translator::translate("no_storage_capacity"));
+		display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
+		y += LINESPACE + 1;
 	}
 }
