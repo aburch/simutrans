@@ -91,8 +91,8 @@ private:
 	uint16 current_number_of_classes;
 	uint16 old_number_of_classes;
 
-	uint16 current_number_of_compartments;
-	uint16 old_number_of_compartments;
+	uint16 current_number_of_accommodations;
+	uint16 old_number_of_accommodations;
 
 	uint32 current_number_of_vehicles;
 	uint32 old_number_of_vehicles;

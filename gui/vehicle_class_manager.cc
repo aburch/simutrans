@@ -316,7 +316,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 		{
 
 			current_number_of_vehicles = 0;
-			current_number_of_compartments = 0;
+			current_number_of_accommodations = 0;
 			current_number_of_classes = 0;
 			overcrowded_capacity = 0;
 			highest_catering = 0;
@@ -325,8 +325,8 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 
 			cbuffer_t buf;
 
-			// This is the different compartments in the train.
-			// Each compartment have a combobox associated to it to change the class to another.
+			// This is the different accommodations in the train.
+			// Each accommodation have a combobox associated to it to change the class to another.
 			int pass_class_desc_capacity[255] = { 0 };
 			int mail_class_desc_capacity[255] = { 0 };
 			uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
@@ -336,7 +336,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			int len = 0;
 			int column_1 = 10;
 			int column_2;
-			int compartment_height;
+			int accommodation_height;
 
 			char const*  const  pass_name = translator::translate(goods_manager_t::passengers->get_name());
 			char const*  const  mail_name = translator::translate(goods_manager_t::mail->get_name());
@@ -365,7 +365,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					if (!any_pass)
 					{
 						buf.clear();
-						buf.printf("%s (%s):", translator::translate("compartments"), pass_name);
+						buf.printf("%s (%s):", translator::translate("accommodations"), pass_name);
 						display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						offset_y += LINESPACE;
 					}
@@ -382,7 +382,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 						longest_class_name = len;
 					}
 					offset_y += LINESPACE;
-					current_number_of_compartments++;
+					current_number_of_accommodations++;
 				}
 			}
 			if (any_pass && any_mail)
@@ -413,7 +413,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					if (!any_mail)
 					{
 						buf.clear();
-						buf.printf("%s (%s):", translator::translate("compartments"), mail_name);
+						buf.printf("%s (%s):", translator::translate("accommodations"), mail_name);
 						display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						offset_y += LINESPACE;
 					}
@@ -430,7 +430,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 						longest_class_name = len;
 					}
 					offset_y += LINESPACE;
-					current_number_of_compartments++;
+					current_number_of_accommodations++;
 				}
 			}
 
@@ -448,7 +448,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				longest_class_name = len;
 			}
 			offset_y += LINESPACE;
-			compartment_height = offset_y;
+			accommodation_height = offset_y;
 
 
 
@@ -532,15 +532,15 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			{
 				buf.clear();
 				buf.printf(translator::translate("Catering level: %i"), highest_catering);
-				display_proportional_clip(pos.x + column_2, compartment_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-				compartment_height += LINESPACE;
+				display_proportional_clip(pos.x + column_2, accommodation_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				accommodation_height += LINESPACE;
 			}
 			if (is_tpo)
 			{
 				buf.clear();
 				buf.printf("%s", translator::translate("traveling_post_office"));
-				display_proportional_clip(pos.x + column_2, compartment_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-				compartment_height += LINESPACE;
+				display_proportional_clip(pos.x + column_2, accommodation_height, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				accommodation_height += LINESPACE;
 			}
 
 			if (old_vehicle_count != vehicle_count)
@@ -550,9 +550,9 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				header_height = offset_y;
 			}
 
-			/*if (old_number_of_compartments != current_number_of_compartments)
+			/*if (old_number_of_accommodations != current_number_of_accommodations)
 			{
-				old_number_of_compartments = current_number_of_compartments;
+				old_number_of_accommodations = current_number_of_accommodations;
 				layout();
 				header_height = offset_y;
 			}
@@ -933,23 +933,23 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 						if (pass_veh)
 						{
 							buf.clear();
-							buf.printf(translator::translate("comfort: %i"), v->get_comfort(0, v->get_reassigned_class(i)));
+							buf.printf(translator::translate("comfort: %i"), v->get_desc()->get_comfort(i));
 							int len = display_proportional_clip(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 							if (v->get_reassigned_class(i) >= higest_catering && higest_catering > 0)
 							{
-								base_comfort = v->get_comfort(0, v->get_reassigned_class(i));
-								additional_comfort = v->get_comfort(higest_catering, v->get_reassigned_class(i)) - base_comfort;
+								base_comfort = v->get_desc()->get_comfort(v->get_reassigned_class(i));
+								additional_comfort = v->get_comfort(higest_catering, v->get_reassigned_class(i)) - v->get_comfort(0, v->get_reassigned_class(i));
 								buf.clear();
 								buf.printf(translator::translate(" + %i"), additional_comfort);
 								display_proportional_clip(pos.x + w + offset.x + extra_w + len, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 							}
 							extra_y += LINESPACE;
 						}
-						// Compartment revenue
+						// accommodation revenue
 						int len = 5 + display_proportional_clip(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, translator::translate("income_pr_km_(when_full):"), ALIGN_LEFT, SYSCOL_TEXT, true);
 						// Revenue for moving 1 unit 1000 meters -- comes in 1/4096 of simcent, convert to simcents
 						sint64 fare = v->get_cargo_type()->get_total_fare(1000, 0, base_comfort + additional_comfort, v->get_desc()->get_catering_level(), v->get_reassigned_class(i));
-						sint64 profit = ((v->get_capacity(v->get_reassigned_class(i)) + v->get_overcrowding(v->get_reassigned_class(i)))*fare + 2048ll) / 4096ll;
+						sint64 profit = (v->get_desc()->get_capacity(i)*fare + 2048ll) / 4096ll;
 						money_to_string(number, profit / 100.0);
 						display_proportional_clip(pos.x + w + offset.x + len + extra_w, pos.y + offset.y + total_height + extra_y, number, ALIGN_LEFT, profit > 0 ? MONEY_PLUS : MONEY_MINUS, true);
 							
