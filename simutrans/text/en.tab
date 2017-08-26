@@ -2841,7 +2841,7 @@ Loading paks ...
 Loading addon paks ...
 Loading addon paks ...
 PaxDest
-Pass. dest.
+Destinations
 Passenger destinations
 Passenger destinations
 The main game window can be scrolled by right-clicking and dragging the ground.
@@ -2993,7 +2993,7 @@ Queueing
 Show level of city buildings
 Show the density of urban buildings
 Overlay passenger destinations when a town window is open
-Overlay passenger destinations from a city when a city information window is open
+Show where passengers from the currently selected town are trying to go and whether they got there successfully
 Highlite tourist attraction
 Show the location of attractions
 Highlite factories

@@ -366,7 +366,7 @@ void fabrik_t::update_scaled_electric_amount()
 	}
 
 	// If the demand is specified in the pakset, do not use the Extended electricity proportion.
-	const sint64 prod = desc->get_productivity();
+	const sint64 prod = max(1, desc->get_productivity());
 	scaled_electric_amount = (uint32)( (( (sint64)(desc->get_electric_amount()) * (sint64)prodbase + (prod >> 1) ) / prod) << POWER_TO_MW );
 
 	if(  scaled_electric_amount == 0  ) {
@@ -397,7 +397,7 @@ void fabrik_t::update_scaled_pax_demand()
 		
 		if(building)
 		{		
-			const uint32 percentage = (get_base_production() * 100) / get_desc()->get_productivity();
+			const uint32 percentage = (get_base_production() * 100) / max(1, get_desc()->get_productivity());
 			if (percentage > 100)
 			{
 				get_building()->set_adjusted_jobs((scaled_pax_demand * percentage) / 100);
@@ -447,10 +447,10 @@ void fabrik_t::update_scaled_mail_demand()
 		arrival_stats_mail.set_scaled_demand(mail_demand);
 		if(building)
 		{
-			const uint32 percentage = (get_base_production() * 100) / get_desc()->get_productivity();
+			const uint32 percentage = (get_base_production() * 100) / max(1, get_desc()->get_productivity());
 			if (percentage > 100)
 			{
-				get_building()->set_adjusted_jobs((scaled_mail_demand * percentage) / 100);
+				get_building()->set_adjusted_mail_demand((scaled_mail_demand * percentage) / 100);
 			}
 			else
 			{
@@ -1075,6 +1075,12 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 				}*/
 			}
 			sint32 field_prod = prodbase - org_prodbase;
+			if (desc->get_field_output_divider() > 1)
+			{
+				// Reduce field production if necessary.
+				field_prod /= desc->get_field_output_divider();
+				prodbase = org_prodbase + field_prod;
+			}
 			// adjust prodbase
 			if (force_initial_prodbase) {
 				set_base_production( max(field_prod, org_prodbase) );
@@ -3297,13 +3303,22 @@ void fabrik_t::finish_rd()
 	// adjust production base to be at least as large as fields productivity
 	uint32 prodbase_adjust = 1;
 	const field_group_desc_t *fd = desc->get_field_group();
-	if(fd) {
-		for(uint32 i=0; i<fields.get_count(); i++) {
+	uint16 field_production = 0;
+	if(fd) 
+	{
+		for(uint32 i=0; i<fields.get_count(); i++) 
+		{
 			const field_class_desc_t *fc = fd->get_field_class( fields[i].field_class_index );
-			if (fc) {
-				prodbase_adjust += fc->get_field_production();
+			if (fc) 
+			{
+				field_production += fc->get_field_production();
 			}
 		}
+		if (desc->get_field_output_divider() > 1)
+		{
+			field_production /= desc->get_field_output_divider();
+		}
+		prodbase_adjust += field_production;
 	}
 
 	// set production, update all production related numbers
@@ -3348,13 +3363,22 @@ void fabrik_t::adjust_production_for_fields()
 {
 	uint32 prodbase_adjust = 1;
 	const field_group_desc_t *fd = desc->get_field_group();
-	if(fd) {
-		for(uint32 i=0; i<fields.get_count(); i++) {
-			const field_class_desc_t *fc = fd->get_field_class( fields[i].field_class_index );
-			if (fc) {
-				prodbase_adjust += fc->get_field_production();
+	uint16 field_production = 0;
+	if (fd)
+	{
+		for (uint32 i = 0; i<fields.get_count(); i++)
+		{
+			const field_class_desc_t *fc = fd->get_field_class(fields[i].field_class_index);
+			if (fc)
+			{
+				field_production += fc->get_field_production();
 			}
 		}
+		if (desc->get_field_output_divider() > 1)
+		{
+			field_production /= desc->get_field_output_divider();
+		}
+		prodbase_adjust += field_production;
 	}
 
 	// set production, update all production related numbers
