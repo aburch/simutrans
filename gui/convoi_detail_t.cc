@@ -564,30 +564,33 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 							extra_y += LINESPACE;
 
 							freight_info_class.clear();
-							freight_info_class.printf("%u/%u%s %s\n", v->get_total_cargo_by_class(i), v->get_desc()->get_capacity(i), translator::translate(v->get_cargo_mass()), name);
+							freight_info_class.printf("%u/%u%s %s\n", v->get_total_cargo_by_class(v->get_reassigned_class(i)), v->get_desc()->get_capacity(i), translator::translate(v->get_cargo_mass()), name);
 							v->get_cargo_class_info(freight_info_class, i);
 							// show it
 							const int px_len = display_multiline_text(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, freight_info_class, SYSCOL_TEXT);
 							if (px_len + w > x_size)
 							{
 								x_size = px_len + w;
-								// count returns
-								const char *p = freight_info_class;
-								for (int i = 0; i < freight_info_class.len(); i++)
+							}
+							// count returns
+							returns = 0;
+							const char *p = freight_info_class;
+							for (int i = 0; i < freight_info_class.len(); i++)
+							{
+								if (p[i] == '\n')
 								{
-									if (p[i] == '\n')
-									{
-										returns++;
-									}
+									returns++;
 								}
 							}
+
 							extra_y += returns*LINESPACE;
-							extra_y += LINESPACE;
+							//extra_y += LINESPACE;
 						}
 					}
+					//extra_y += 2 * LINESPACE;
 				}
-				extra_y += 2*LINESPACE;
-				//else
+				
+				else
 				{
 					freight_info.printf("%u/%u%s %s\n", v->get_total_cargo(), v->get_cargo_max(), translator::translate(v->get_cargo_mass()), name);
 					v->get_cargo_info(freight_info);
@@ -598,6 +601,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					}
 
 					// count returns
+					returns = 0;
 					const char *p = freight_info;
 					for (int i = 0; i < freight_info.len(); i++) {
 						if (p[i] == '\n') {
