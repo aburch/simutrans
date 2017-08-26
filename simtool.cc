@@ -675,7 +675,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 		{
 			return false;
 		}
-		hausbauer_t::remove( player, sb );
+		hausbauer_t::remove( player, sb, false );
 		welt->set_dirty(); // May delete lots of signals
 		return true;
 	}
@@ -717,7 +717,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 				return false;
 			}
 			// townhall is also removed during town removal
-			hausbauer_t::remove( player, gb );
+			hausbauer_t::remove( player, gb, false );
 		}
 		return true;
 	}
@@ -6790,7 +6790,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 			// did not upgrade old one, need to remove it
 			if( !built ) {
 				// remove previous one
-				hausbauer_t::remove( player, prev_hq );
+				hausbauer_t::remove( player, prev_hq, false );
 				// resize cursor
 				init(player);
 			}

@@ -151,7 +151,7 @@ public:
 	/* use this to remove an arbitrary building
 	 * it will also take care of factories and foundations
 	 */
-	static void remove( player_t *player, gebaeude_t *gb );
+	static void remove( player_t *player, gebaeude_t *gb, bool map_generation );
 
 	/* Main function for all non-traffic buildings, including factories and signalboxes
 	 * building size can be larger than 1x1

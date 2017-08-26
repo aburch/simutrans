@@ -990,7 +990,7 @@ fabrik_t::~fabrik_t()
 			{
 				// Orphaned, must be deleted.
 				gebaeude_t* gb = tmp->get_building();
-				hausbauer_t::remove(welt->get_public_player(), gb);
+				hausbauer_t::remove(welt->get_public_player(), gb, false);
 			}
 		}
 
@@ -1001,7 +1001,7 @@ fabrik_t::~fabrik_t()
 			{
 				// Orphaned, must be deleted.
 				gebaeude_t* gb = tmp->get_building();
-				hausbauer_t::remove(welt->get_public_player(), gb);
+				hausbauer_t::remove(welt->get_public_player(), gb, false);
 			}
 		}
 		if(transformer_connected)

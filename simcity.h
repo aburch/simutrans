@@ -414,7 +414,7 @@ private:
 	 *
 	 * @author neroden
 	 */
-	bool build_bridge(grund_t* bd, ribi_t::ribi direction);
+	bool build_bridge(grund_t* bd, ribi_t::ribi direction, bool map_generation);
 
 	/**
 	 * baut ein Stueck Strasse
@@ -423,8 +423,8 @@ private:
 	 *
 	 * @author Hj. Malthaner, V. Meyer
 	 */
-	bool maybe_build_road(koord k);
-	bool build_road(const koord k, player_t *player, bool forced);
+	bool maybe_build_road(koord k, bool map_generation);
+	bool build_road(const koord k, player_t *player, bool forced, bool map_generation);
 
 	void build(bool new_town, bool map_generation);
 
@@ -469,7 +469,7 @@ public:
 
 	// this function removes houses from the city house list
 	// (called when removed by player, or by town)
-	void remove_gebaeude_from_stadt(gebaeude_t *gb);
+	void remove_gebaeude_from_stadt(gebaeude_t *gb, bool map_generation);
 
 	// This is necessary to be separate from add/remove gebaeude_to_stadt
 	// because of the need for the present to retain the existing pattern
