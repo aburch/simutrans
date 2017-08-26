@@ -4881,7 +4881,7 @@ void karte_t::new_month()
 		if(fab_list.is_contained(fab)) 
 		{
 			gebaeude_t* gb = fab->get_building();
-			hausbauer_t::remove(get_public_player(), gb);
+			hausbauer_t::remove(get_public_player(), gb, false);
 		}
 	}
 

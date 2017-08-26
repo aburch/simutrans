@@ -233,6 +233,7 @@ gebaeude_t::~gebaeude_t()
 	}
 	
 	stadt_t* our_city = get_stadt();
+	const bool has_city_defined = our_city != NULL;
 	if(!our_city /* && tile->get_desc()->get_type() == building_desc_t::townhall*/)
 	{
 		our_city = welt->get_city(get_pos().get_2d());
@@ -243,7 +244,7 @@ gebaeude_t::~gebaeude_t()
 	}
 	if(our_city) 
 	{
-		our_city->remove_gebaeude_from_stadt(this);
+		our_city->remove_gebaeude_from_stadt(this, !has_city_defined);
 	}
 	else
 	{
@@ -1463,18 +1464,7 @@ void gebaeude_t::finish_rd()
 	{
 		if (tile->get_desc()->is_connected_with_town())
 		{
-			stadt_t *city;
-			if (is_factory)
-			{
-				// Do we actually want to do this?
-				//city = ptr.fab->get_city();
-				city = NULL;
-			}
-			else
-			{
-				city = (ptr.stadt == NULL) ? welt->find_nearest_city(get_pos().get_2d()) : ptr.stadt;
-			}
-
+			stadt_t *city = (ptr.stadt == NULL) ? welt->find_nearest_city(get_pos().get_2d()) : ptr.stadt;
 			if (city)
 			{
 #ifdef MULTI_THREAD

@@ -646,7 +646,7 @@ sint32 stadt_t::bewerte_pos(const koord pos, const rule_t &regel)
 	return 0;
 }
 
-bool stadt_t::maybe_build_road(koord k)
+bool stadt_t::maybe_build_road(koord k, bool map_generation)
 {
 	best_strasse.reset(k);
 	const uint32 num_road_rules = road_rules.get_count();
@@ -661,7 +661,7 @@ bool stadt_t::maybe_build_road(koord k)
 	}
 
 	if (best_strasse.found()) {
-		bool success = build_road(best_strasse.get_pos(), NULL, false);
+		bool success = build_road(best_strasse.get_pos(), NULL, false, map_generation);
 		INT_CHECK("simcity 5095");
 		return success;
 	}
@@ -1085,9 +1085,9 @@ void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered, bool map_gener
 						buildings.remove(add_gb);
 						welt->remove_building_from_world_list(add_gb);
 					}
-					else 
+					else
 					{
-						add_building_to_list(add_gb, ordered);
+						add_building_to_list(add_gb, ordered, map_generation);
 					}
 					add_gb->set_stadt(this);
 					if (add_gb->get_tile()->get_desc()->is_townhall()) {
@@ -1132,11 +1132,15 @@ void stadt_t::update_city_stats_with_building(gebaeude_t* building, bool remove)
 }
 
 // this function removes houses from the city house list
-void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb)
+void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb, bool map_generation)
 {
-	update_city_stats_with_building(gb, true);
+	if (!map_generation)
+	{
+		update_city_stats_with_building(gb, true);
+		welt->remove_building_from_world_list(gb);
+	}
 	buildings.remove(gb);
-	welt->remove_building_from_world_list(gb);
+	
 	gb->set_stadt(NULL);
 	reset_city_borders();
 }
@@ -1436,7 +1440,7 @@ stadt_t::~stadt_t()
 				else
 				{
 					gb->set_stadt( this );
-					hausbauer_t::remove(welt->get_public_player(), gb);
+					hausbauer_t::remove(welt->get_public_player(), gb, false);
 				}
 			}
 			// Remove substations
@@ -3340,13 +3344,13 @@ void stadt_t::check_bau_spezial(bool new_town)
 							if(gr->get_hoehe()==h  &&  gr->get_grund_hang()==0) {
 								gebaeude_t *gb = gr->find<gebaeude_t>();
 								if (gb) {
-									hausbauer_t::remove(NULL, gb);
+									hausbauer_t::remove(NULL, gb, false);
 								}
 								if (gr->hat_weg(road_wt)) {
 									continue;
 								}
 
-								bool success = build_road(k, NULL, true);
+								bool success = build_road(k, NULL, true, false);
 
 								assert(success);
 							}
@@ -3465,7 +3469,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 			// remove old townhall
 			if(  gb  ) {
 				DBG_MESSAGE("stadt_t::check_bau_townhall()", "delete townhall at (%s)", pos_alt.get_str());
-				hausbauer_t::remove(NULL, gb);
+				hausbauer_t::remove(NULL, gb, false);
 			}
 
 			// replace old space by normal houses level 0 (must be 1x1!)
@@ -3574,7 +3578,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 				bauigel.build();
 			}
 			else {
-				build_road(best_pos + road0, NULL, true);
+				build_road(best_pos + road0, NULL, true, false);
 			}
 			townhall_road = best_pos + road0;
 		}
@@ -4351,14 +4355,14 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		// The building is being replaced.  The surrounding landscape may have changed since it was
 		// last built, and the new building should change height along with it, rather than maintain the old
 		// height.  So delete and rebuild, even though it's slower.
-		hausbauer_t::remove( NULL, gb );
+		hausbauer_t::remove( NULL, gb, map_generation );
 
 		koord3d pos = welt->lookup_kartenboden(k)->get_pos();
 		gebaeude_t* new_gb = hausbauer_t::build(NULL, pos, layout, h);
 		// We *can* skip most of the work in add_gebaeude_to_stadt, because we *just* cleared the location,
 		// so it must be valid.  Our borders also should not have changed.
 		new_gb->set_stadt(this);
-		add_building_to_list(new_gb, map_generation);
+		add_building_to_list(new_gb, false, map_generation);
 		switch(want_to_have) {
 			case building_desc_t::city_res:   won += h->get_level() * 10; break;
 			case building_desc_t::city_com:   arb +=  h->get_level() * 20; break;
@@ -4372,7 +4376,10 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 
 void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered, bool map_generation)
 {
-	update_city_stats_with_building(building, false);
+	if (!map_generation)
+	{
+		update_city_stats_with_building(building, false);
+	}
 	
 	if(ordered) 
 	{
@@ -4397,8 +4404,9 @@ void stadt_t::add_all_buildings_to_world_list()
 {
 	for(weighted_vector_tpl<gebaeude_t*>::const_iterator i = buildings.begin(); i != buildings.end(); ++i) 
 	{
-		gebaeude_t* gb = *i;
-		welt->add_building_to_world_list(gb);
+		gebaeude_t* building = *i;
+		update_city_stats_with_building(building, false);
+		welt->add_building_to_world_list(building);
 	}
 }
 
@@ -4464,7 +4472,7 @@ void stadt_t::generate_private_cars(koord pos, uint32 journey_tenths_of_minutes,
  * bd == startirng ground
  * zv == direction of construction (must be N, S, E, or W)
  */
-bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
+bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction, bool map_generation) {
 	koord k = bd->get_pos().get_2d();
 	koord zv = koord(direction);
 
@@ -4503,7 +4511,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 	bool successfully_built_past_end = false;
 	// Build a road past the end of the future bridge (even if it has no connections yet)
 	// This may fail, in which case we shouldn't build the bridge
-	successfully_built_past_end = build_road( (end+zv).get_2d(), NULL, true);
+	successfully_built_past_end = build_road( (end+zv).get_2d(), NULL, true, map_generation);
 
 	if (!successfully_built_past_end) {
 		return false;
@@ -4512,7 +4520,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 	bridge_builder_t::build_bridge(NULL, bd->get_pos(), end, zv, bridge_height, bridge, welt->get_city_road());
 	// Now connect the bridge to the road we built
 	// (Is there an easier way?)
-	build_road( (end+zv).get_2d(), NULL, false );
+	build_road( (end+zv).get_2d(), NULL, false, map_generation );
 
 	// Attempt to expand the city repeatedly in the bridge direction
 	bool reached_end_plus_2=false;
@@ -4575,7 +4583,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
 		if (pl) {
 			stadt_t const* tile_city = pl->get_city();
 			if (tile_city && tile_city == this) {
-				build_city_building(appropriate_locs[i], true, false);
+				build_city_building(appropriate_locs[i], true, map_generation);
 				if (buildings.get_count() != old_count) {
 					// Successful construction.
 					// Fix city limits.
@@ -4596,7 +4604,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction) {
  *
  * @author Hj. Malthaner, V. Meyer
  */
-bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
+bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map_generation)
 {
 	grund_t* bd = welt->lookup_kartenboden(k);
 
@@ -4823,7 +4831,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 			     (bd_next->is_water() || bd_next->hat_weg(water_wt) || bd_next->hat_weg(track_wt) || bd_next->hat_weg(narrowgauge_wt) ||
 			       bd_next->hat_weg(monorail_wt) || bd_next->hat_weg(maglev_wt) || (bd_next->hat_weg(road_wt) && !bd_next->get_weg(road_wt)->is_public_right_of_way()))) {
 				// There is a river, a canal, railway, a private road, or a lake in the way. Build a bridge.
-				build_bridge(bd, direction);
+				build_bridge(bd, direction, map_generation);
 			}
 		}
 		return true;
@@ -4856,7 +4864,7 @@ void stadt_t::build(bool new_town, bool map_generation)
 
 		// checks only make sense on empty ground
 		if(gr->ist_natur()) {
-			if (maybe_build_road(k)) {
+			if (maybe_build_road(k, map_generation)) {
 				INT_CHECK("simcity 5095");
 				return;
 			}
@@ -4934,7 +4942,7 @@ void stadt_t::build(bool new_town, bool map_generation)
 			const uint32 idx = simrand( candidates.get_count(), "void stadt_t::build" );
 			const koord k = candidates[idx];
 
-			if (maybe_build_road(k)) {
+			if (maybe_build_road(k, map_generation)) {
 				INT_CHECK("simcity 5095");
 				return;
 			}
@@ -5437,4 +5445,16 @@ double stadt_t::get_land_area() const
 	const uint32 area_square_meters = (uint32)x_dimension_meters * (uint32)y_dimension_meters;
 	const double area_square_km = (double)area_square_meters / 1000000.0;
 	return area_square_km;
+}
+
+void stadt_t::add_city_factory(fabrik_t *fab)
+{
+	update_city_stats_with_building(fab->get_building()->access_first_tile(), false);
+	city_factories.append_unique(fab);
+}
+
+void stadt_t::remove_city_factory(fabrik_t *fab)
+{
+	update_city_stats_with_building(fab->get_building()->access_first_tile(), true);
+	city_factories.remove(fab);
 }
