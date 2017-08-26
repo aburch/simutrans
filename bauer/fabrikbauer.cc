@@ -462,7 +462,7 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 	// We need to adjust the jobs/visitor demand based on the extent to which the range has altered base production.
 	// The relevant ratio is fab->prodbase : fab->get_desc()->get_productivity().
 
-	const uint32 percentage = (fab->get_base_production() * 100) / fab->get_desc()->get_productivity();
+	const uint32 percentage = (fab->get_base_production() * 100) / max(1, fab->get_desc()->get_productivity());
 	if (percentage > 100)
 	{
 		fab->get_building()->set_adjusted_jobs((fab->get_building()->get_adjusted_jobs() * percentage) / 100);

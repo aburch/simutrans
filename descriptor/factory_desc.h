@@ -48,11 +48,11 @@ class field_group_desc_t : public obj_desc_t {
 	friend class factory_field_group_reader_t;
 
 private:
-	uint16 probability;		// between 0 ...10000
-	uint16 max_fields;		// maximum number of fields around a single factory
-	uint16 min_fields;		// minimum number of fields around a single factory
-	uint16 start_fields;	// number of fields between min and start_fields to spawn on creation
-	uint16 field_classes;	// number of field classes
+	uint16 probability;			// between 0 ...10000
+	uint16 max_fields;			// maximum number of fields around a single factory
+	uint16 min_fields;			// minimum number of fields around a single factory
+	uint16 start_fields;		// number of fields between min and start_fields to spawn on creation
+	uint16 field_classes;		// number of field classes
 
 	weighted_vector_tpl<uint16> field_class_indices;
 
@@ -237,6 +237,7 @@ private:
 	uint16 max_distance_to_consumer;
 	sint16 sound_id;
 	uint32 sound_interval;
+	uint8 field_output_divider; // The number by which the total production of all fields is divided.
 
 public:
 
@@ -306,6 +307,8 @@ public:
 	uint32 get_sound_interval_ms() const { return sound_interval; }
 	
 	uint16 get_max_distance_to_consumer() const { return max_distance_to_consumer; }
+
+	uint8 get_field_output_divider() const { return field_output_divider; }
 
 	void set_scale(uint16 scale_factor)
 	{
