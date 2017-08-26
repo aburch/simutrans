@@ -1463,18 +1463,7 @@ void gebaeude_t::finish_rd()
 	{
 		if (tile->get_desc()->is_connected_with_town())
 		{
-			stadt_t *city;
-			if (is_factory)
-			{
-				// Do we actually want to do this?
-				//city = ptr.fab->get_city();
-				city = NULL;
-			}
-			else
-			{
-				city = (ptr.stadt == NULL) ? welt->find_nearest_city(get_pos().get_2d()) : ptr.stadt;
-			}
-
+			stadt_t *city = (ptr.stadt == NULL) ? welt->find_nearest_city(get_pos().get_2d()) : ptr.stadt;
 			if (city)
 			{
 #ifdef MULTI_THREAD

@@ -702,8 +702,10 @@ public:
 	// This is actually last month's congestion - but this is necessary
 	uint8 get_congestion() const { return (uint8) city_history_month[0][HIST_CONGESTION]; }
 
-	void add_city_factory(fabrik_t *fab) { city_factories.append_unique(fab); }
-	void remove_city_factory(fabrik_t *fab) { city_factories.remove(fab); }
+	void add_city_factory(fabrik_t *fab);
+
+	void remove_city_factory(fabrik_t *fab);
+
 	const vector_tpl<fabrik_t*>& get_city_factories() const { return city_factories; }
 
 	uint32 get_power_demand() const;

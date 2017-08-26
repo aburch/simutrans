@@ -1085,7 +1085,7 @@ void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered, bool map_gener
 						buildings.remove(add_gb);
 						welt->remove_building_from_world_list(add_gb);
 					}
-					else 
+					else
 					{
 						add_building_to_list(add_gb, ordered);
 					}
@@ -5437,4 +5437,16 @@ double stadt_t::get_land_area() const
 	const uint32 area_square_meters = (uint32)x_dimension_meters * (uint32)y_dimension_meters;
 	const double area_square_km = (double)area_square_meters / 1000000.0;
 	return area_square_km;
+}
+
+void stadt_t::add_city_factory(fabrik_t *fab)
+{
+	update_city_stats_with_building(fab->get_building()->access_first_tile(), false);
+	city_factories.append_unique(fab);
+}
+
+void stadt_t::remove_city_factory(fabrik_t *fab)
+{
+	update_city_stats_with_building(fab->get_building()->access_first_tile(), true);
+	city_factories.remove(fab);
 }
