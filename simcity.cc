@@ -4814,6 +4814,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 			}
 		} else {
 			weg_t *weg = new strasse_t();
+			welt->set_recheck_road_connexions();
 			// Hajo: city roads should not belong to any player => so we can ignore any construction costs ...
 			weg->set_desc(welt->get_city_road());
 			strasse_t *str = static_cast<strasse_t *>(weg);
