@@ -1159,7 +1159,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 		welt->access(k)->boden_ersetzen(gr, gr2);
 		gr2->obj_add( new field_t(gr2->get_pos(), owner, field_class, this ) );
 		// Knightly : adjust production base and storage capacities
-		set_base_production( prodbase + field_class->get_field_production() );
+		adjust_production_for_fields();
 		if(lt) {
 			gr2->obj_add( lt );
 		}
@@ -1178,7 +1178,7 @@ void fabrik_t::remove_field_at(koord pos)
 	const field_class_desc_t *const field_class = desc->get_field_group()->get_field_class( field.field_class_index );
 	fields.remove(field);
 	// Knightly : revert the field's effect on production base and storage capacities
-	set_base_production( prodbase - field_class->get_field_production() );
+	adjust_production_for_fields();
 }
 
 // "Are there any?" (Google Translate)
@@ -3300,30 +3300,6 @@ void fabrik_t::finish_rd()
 {
 	recalc_nearby_halts();
 	
-	// adjust production base to be at least as large as fields productivity
-	uint32 prodbase_adjust = 1;
-	const field_group_desc_t *fd = desc->get_field_group();
-	uint16 field_production = 0;
-	if(fd) 
-	{
-		for(uint32 i=0; i<fields.get_count(); i++) 
-		{
-			const field_class_desc_t *fc = fd->get_field_class( fields[i].field_class_index );
-			if (fc) 
-			{
-				field_production += fc->get_field_production();
-			}
-		}
-		if (desc->get_field_output_divider() > 1)
-		{
-			field_production /= desc->get_field_output_divider();
-		}
-		prodbase_adjust += field_production;
-	}
-
-	// set production, update all production related numbers
-	set_base_production( max(prodbase, prodbase_adjust) );
-
 	// now we have a valid storage limit
 	if (welt->get_settings().is_crossconnect_factories()) {
 		add_all_suppliers();
@@ -3345,7 +3321,7 @@ void fabrik_t::finish_rd()
 		}
 	}
 
-	// adjust production base to be at least as large as fields productivity
+	// Set field production
 	adjust_production_for_fields();
 
 	city = check_local_city();
@@ -3361,9 +3337,8 @@ void fabrik_t::finish_rd()
 
 void fabrik_t::adjust_production_for_fields()
 {
-	uint32 prodbase_adjust = 1;
 	const field_group_desc_t *fd = desc->get_field_group();
-	uint16 field_production = 0;
+	uint32 field_production = 0;
 	if (fd)
 	{
 		for (uint32 i = 0; i<fields.get_count(); i++)
@@ -3378,11 +3353,10 @@ void fabrik_t::adjust_production_for_fields()
 		{
 			field_production /= desc->get_field_output_divider();
 		}
-		prodbase_adjust += field_production;
 	}
 
 	// set production, update all production related numbers
-	set_base_production( max(prodbase, prodbase_adjust) );
+	set_base_production(prodbase + field_production);
 
 }
 
