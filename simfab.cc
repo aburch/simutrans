@@ -424,12 +424,20 @@ void fabrik_t::update_scaled_mail_demand()
 		// Take into account fields
 		sint64 prod_adjust = prod;
 		const field_group_desc_t *fd = desc->get_field_group();
-		if(fd) {
-			for(uint32 i=0; i<fields.get_count(); i++) {
+		if(fd)
+		{
+			for(uint32 i=0; i<fields.get_count(); i++)
+			{
 				const field_class_desc_t *fc = fd->get_field_class( fields[i].field_class_index );
-				if (fc) {
+				if (fc) 
+				{
 					prod_adjust += fc->get_field_production();
 				}
+			}
+
+			if (desc->get_field_output_divider() > 1)
+			{
+				prod_adjust /= desc->get_field_output_divider();
 			}
 		}
 
