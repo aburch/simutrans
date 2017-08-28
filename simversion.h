@@ -88,8 +88,7 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 /*********************** Settings related to network games ********************/
 
 /* Server to announce status to */
-//#define ANNOUNCE_SERVER "servers.extended.simutrans.org:80"
-#define ANNOUNCE_SERVER "server.exp.simutrans.com:8080"
+#define ANNOUNCE_SERVER "list.extended.simutrans.org:8080"
 
 /* Relative URL of the announce function on server */
 #define ANNOUNCE_URL "/announce"
