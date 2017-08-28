@@ -1702,6 +1702,10 @@ sint32 gebaeude_t::check_remaining_available_jobs() const
 
 sint32 gebaeude_t::get_staffing_level_percentage() const
 {
+	if (adjusted_jobs == 0)
+	{
+		return 100;
+	}
 	const sint32 percentage = (adjusted_jobs - check_remaining_available_jobs()) * 100 / adjusted_jobs;
 	return percentage;
 }

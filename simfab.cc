@@ -389,7 +389,7 @@ void fabrik_t::update_scaled_pax_demand()
 		const sint64 base_worker_demand = employment_capacity == 65535 ? passenger_level : employment_capacity;
 
 		scaled_pax_demand = max_64(welt->calc_adjusted_monthly_figure(base_worker_demand), 1ll);
-		const uint32 scaled_visitor_demand = max(welt->calc_adjusted_monthly_figure(base_visitor_demand), 1);
+		const uint32 scaled_visitor_demand = welt->calc_adjusted_monthly_figure(base_visitor_demand);
 
 		// pax demand for fixed period length
 		// Intentionally not the scaled value.
@@ -437,7 +437,7 @@ void fabrik_t::update_scaled_mail_demand()
 
 			if (desc->get_field_output_divider() > 1)
 			{
-				prod_adjust /= desc->get_field_output_divider();
+				prod_adjust = max(1, prod_adjust / desc->get_field_output_divider());
 			}
 		}
 
@@ -1070,32 +1070,24 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 				}
 			}
 		}
-		else if(  build_fields  ) {
+		else if(  build_fields  ) 
+		{
 			// make sure not to exceed initial prodbase too much
 			sint32 org_prodbase = prodbase;
 			// we will start with a minimum number and try to get closer to start_fields
 			const field_group_desc_t& field_group = *desc->get_field_group();
 			const uint16 spawn_fields = field_group.get_min_fields() + simrand( field_group.get_start_fields() - field_group.get_min_fields(), "fabrik_t::build" );
-			while(  fields.get_count() < spawn_fields  &&  add_random_field(10000u)  ) {
+			while(  fields.get_count() < spawn_fields  &&  add_random_field(10000u)  ) 
+			{
 				/*if (fields.get_count() > desc->get_field_group()->get_min_fields()  &&  prodbase >= 2*org_prodbase) {
 					// too much productivity, no more fields needed
 					break;
 				}*/
 			}
-			sint32 field_prod = prodbase - org_prodbase;
-			if (desc->get_field_output_divider() > 1)
-			{
-				// Reduce field production if necessary.
-				field_prod /= desc->get_field_output_divider();
-				prodbase = org_prodbase + field_prod;
-			}
-			// adjust prodbase
-			if (force_initial_prodbase) {
-				set_base_production( max(field_prod, org_prodbase) );
-			}
 		}
 	}
-	else {
+	else
+	{
 		fields.clear();
 	}
 }
@@ -3364,7 +3356,13 @@ void fabrik_t::adjust_production_for_fields()
 	}
 
 	// set production, update all production related numbers
-	set_base_production(prodbase + field_production);
+	if (field_production > 0)
+	{
+		// This does not take into account the "range" of the base production;
+		// but this is not stored other than in "prodbase", which is overwritten 
+		// by the fields value.
+		set_base_production(desc->get_productivity() + field_production);
+	}
 
 }
 
