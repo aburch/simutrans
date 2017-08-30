@@ -1243,6 +1243,8 @@ St. Michael
 Martin's 
 &3B_CITY_PREFIX
 Royal 
+&3C_CITY_PREFIX
+Corn 
 #
 # Town name suffixes.
 # There can be up to 256 of these.
@@ -1365,6 +1367,10 @@ heath
  Ponds
 &37_CITY_SUFFIX
  Rise
+&38_CITY_SUFFIX
+ Spa
+&39_CITY_SUFFIX
+ Hale
 # 
 # Other strings
 # 

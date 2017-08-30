@@ -317,7 +317,7 @@ DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, p
 				halt->remove_control_tower();
 				halt->recalc_status();
 			}
-			hausbauer_t::remove( player, gb );
+			hausbauer_t::remove( player, gb, false );
 			bd = NULL;	// no need to recalc image
 			// removing the building could have destroyed this halt already
 			if (!halt.is_bound()){
@@ -859,14 +859,24 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 
 	// now we have a city
 	const char *city_name = stadt->get_name();
+
 	sint16 li_gr = stadt->get_linksoben().x - 2;
 	sint16 re_gr = stadt->get_rechtsunten().x + 2;
 	sint16 ob_gr = stadt->get_linksoben().y - 2;
 	sint16 un_gr = stadt->get_rechtsunten().y + 2;
 
-	// strings for intown / outside of town
+	// The location is anywhere inside the town boundary
 	const bool inside = (li_gr < k.x  &&  re_gr > k.x  &&  ob_gr < k.y  &&  un_gr > k.y);
+
+	// The location is a short distance outside the town boundary
 	const bool suburb = !inside  &&  (li_gr - 6 < k.x  &&  re_gr + 6 > k.x  &&  ob_gr - 6 < k.y  &&  un_gr + 6 > k.y);
+
+	const koord townhall_pos = stadt->get_townhall_road();
+	//const uint16 tiles_to_edge = inside ? max(max(k.x - li_gr, k.y - ob_gr), max(un_gr - k.y, re_gr - k.x)) : 1;
+	const uint16 townhall_tiles_to_edge = max(max(townhall_pos.x - li_gr, townhall_pos.y - ob_gr), max(un_gr - townhall_pos.y, re_gr - townhall_pos.x));
+	
+	// This location is in the geographical centre of the town
+	const bool inner = shortest_distance(k, townhall_pos) < townhall_tiles_to_edge / 2;
 
 	if (!welt->get_settings().get_numbered_stations()) {
 		static const koord next_building[24] = {
@@ -980,49 +990,32 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			}
 		}
 
-		// if there are street names, use them
-		if(  inside  ||  suburb  ) {
-			const vector_tpl<char*>& street_names( translator::get_street_name_list() );
-			// make sure we do only ONE random call regardless of how many names are available (to avoid desyncs in network games)
-			if(  const uint32 count = street_names.get_count()  ) {
-				uint32 idx = simrand( count, "char* haltestelle_t::create_name(koord const k, char const* const typ)" );
-				static const uint32 some_primes[] = { 19, 31, 109, 199, 409, 571, 631, 829, 1489, 1999, 2341, 2971, 3529, 4621, 4789, 7039, 7669, 8779, 9721 };
-				// find prime that does not divide count
-				uint32 offset = 1;
-				for(uint8 i=0; i<lengthof(some_primes); i++) {
-					if (count % some_primes[i]!=0) {
-						offset = some_primes[i];
-						break;
-					}
-				}
-				// as count % offset != 0 we are guaranteed to test all street names
-				for(uint32 i=0; i<count; i++) {
-					buf.clear();
-					if (cbuffer_t::check_format_strings("%s %s", street_names[idx])) {
-						buf.printf( street_names[idx], city_name, stop );
-						if(  !all_names.get(buf).is_bound()  ) {
-							return strdup(buf);
-						}
-					}
-					idx = (idx+offset) % count;
-				}
-				buf.clear();
+		// Use the standard naming scheme before reverting to street names:
+		// this way, the major stops in a town will be likely to be distinguished
+		// automatically from the minor stops by name automatically.
+
+		char numbername[10];
+		if(inside) 
+		{
+			if (inner)
+			{
+				// Names for town centre locations
+				strcpy(numbername, "0center");
 			}
-			else {
-				/* the one random call to avoid desyncs */
-				simrand(5, "char* haltestelle_t::create_name(koord const k, char const* const typ) dummy");
+			else
+			{
+				// Names for locations inside the towns, but in their periphery
+				strcpy(numbername, "0outer");
 			}
 		}
-
-		// still all names taken => then try the normal naming scheme ...
-		char numbername[10];
-		if(inside) {
-			strcpy( numbername, "0center" );
-		} else if(suburb) {
-			// close to the city we use a different scheme, with suburbs
+		else if(suburb) 
+		{
+			// Names for locations just outside towns
 			strcpy( numbername, "0suburb" );
 		}
-		else {
+		else
+		{
+			// Names for locations a long way outside towns
 			strcpy( numbername, "0extern" );
 		}
 
@@ -1091,18 +1084,60 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 				buf.clear();
 			}
 			// here we did not find a suitable name ...
-			// ok, no suitable city names, try the suburb ones ...
-			if(  strcmp(numbername+1,"center")==0  ) {
-				strcpy( numbername, "0suburb" );
+			// ok, no suitable city names, try the outer ones ...
+			if(  strcmp(numbername+1,"center")==0  )
+			{
+				strcpy( numbername, "0outer" );
+			}
+			// Try suburb names if the outer names cannot be found
+			if (strcmp(numbername + 1, "outer") == 0)
+			{
+				strcpy(numbername, "0suburb");
 			}
 			// ok, no suitable suburb names, try the external ones (if not inside city) ...
-			else if(  strcmp(numbername+1,"suburb")==0  &&  !inside  ) {
+			else if(  strcmp(numbername+1,"suburb")==0  &&  !inside  )
+			{
 				strcpy( numbername, "0extern" );
 			}
-			else {
+			else 
+			{
 				// no suitable unique name found at all ...
 				break;
 			}
+		}
+	}
+
+	// If we cannot use a standard name, use a name from the list of street names
+	if (inside || suburb) {
+		const vector_tpl<char*>& street_names(translator::get_street_name_list());
+		// make sure we do only ONE random call regardless of how many names are available (to avoid desyncs in network games)
+		if (const uint32 count = street_names.get_count()) {
+			uint32 idx = simrand(count, "char* haltestelle_t::create_name(koord const k, char const* const typ)");
+			static const uint32 some_primes[] = { 19, 31, 109, 199, 409, 571, 631, 829, 1489, 1999, 2341, 2971, 3529, 4621, 4789, 7039, 7669, 8779, 9721 };
+			// find prime that does not divide count
+			uint32 offset = 1;
+			for (uint8 i = 0; i<lengthof(some_primes); i++) {
+				if (count % some_primes[i] != 0) {
+					offset = some_primes[i];
+					break;
+				}
+			}
+			// as count % offset != 0 we are guaranteed to test all street names
+			for (uint32 i = 0; i<count; i++) {
+				buf.clear();
+				if (cbuffer_t::check_format_strings("%s %s", street_names[idx])) {
+					buf.printf(street_names[idx], city_name, stop);
+					if (!all_names.get(buf).is_bound()) {
+						return strdup(buf);
+					}
+				}
+				idx = (idx + offset) % count;
+			}
+			buf.clear();
+		}
+		else {
+			/* the one random call to avoid desyncs */
+			simrand(5, "char* haltestelle_t::create_name(koord const k, char const* const typ) dummy");
 		}
 	}
 

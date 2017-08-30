@@ -85,6 +85,7 @@ bool building_desc_t::is_connected_with_town() const
 		case city_com:
 		case city_ind:    // normal town buildings (RES, COM, IND)
 		case monument:     // monuments
+		case attraction_city: // city attractions
 		case townhall:     // townhalls
 		case headquarters:  // headquarters
 			return true;

@@ -685,7 +685,7 @@ void player_t::ai_bankrupt()
 								}
 								break;
 							case obj_t::gebaeude:
-								hausbauer_t::remove( this, (gebaeude_t *)obj );
+								hausbauer_t::remove( this, (gebaeude_t *)obj, false );
 								break;
 							case obj_t::way:
 							{

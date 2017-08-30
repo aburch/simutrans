@@ -328,7 +328,8 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 		INIT_TABLE_END(tbl);
 	}	
 	clear_dirty();
-	set_size( scr_size(width, ypos) );
+	height = ypos;
+	set_size(settings_stats_t::get_size());
 }
 
 
@@ -529,7 +530,8 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 		INIT_TABLE_END(tbl);
 	}
 	clear_dirty();
-	set_size( scr_size(width, ypos) );
+	height = ypos;
+	set_size(settings_stats_t::get_size());
 }
 
 

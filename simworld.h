@@ -1439,13 +1439,31 @@ public:
 		// Adjust for bits per month
 		if(ticks_per_world_month_shift >= base_bits_per_month)
 		{
-			const sint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-			return (adjusted_monthly_figure << -(base_bits_per_month - ticks_per_world_month_shift)); 
+			if (nominal_monthly_figure < adjustment_factor)
+			{
+				// This situation can lead to loss of precision. 
+				const sint64 adjusted_monthly_figure = (nominal_monthly_figure * 100ll) / adjustment_factor;
+				return (adjusted_monthly_figure << -(base_bits_per_month - ticks_per_world_month_shift)) / 100ll;
+			}
+			else
+			{
+				const sint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
+				return (adjusted_monthly_figure << -(base_bits_per_month - ticks_per_world_month_shift));
+			}
 		} 
 		else 
 		{			
-			const sint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-			return adjusted_monthly_figure >> (base_bits_per_month - ticks_per_world_month_shift); 
+			if (nominal_monthly_figure < adjustment_factor)
+			{
+				// This situation can lead to loss of precision. 
+				const sint64 adjusted_monthly_figure = (nominal_monthly_figure * 100ll) / adjustment_factor;
+				return (adjusted_monthly_figure >> (base_bits_per_month - ticks_per_world_month_shift)) / 100ll;
+			}
+			else
+			{
+				const sint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
+				return adjusted_monthly_figure >> (base_bits_per_month - ticks_per_world_month_shift);
+			}
 		}
 	}
 

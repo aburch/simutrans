@@ -4881,7 +4881,7 @@ void karte_t::new_month()
 		if(fab_list.is_contained(fab)) 
 		{
 			gebaeude_t* gb = fab->get_building();
-			hausbauer_t::remove(get_public_player(), gb);
+			hausbauer_t::remove(get_public_player(), gb, false);
 		}
 	}
 
@@ -6218,7 +6218,9 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			walking_tolerance = max(tolerance / 2, min(tolerance, 300));
 		}
 
-		uint32 car_minutes = UINT32_MAX_VALUE;
+
+		uint32 car_minutes;
+
 		best_bad_destination = first_destination.location;
 		best_bad_start_halt = 0;
 		too_slow_already_set = false;
