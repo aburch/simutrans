@@ -447,7 +447,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			buf.printf("%s %u kN", translator::translate("Max. brake force:"), v->get_desc()->get_brake_force());
 			display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			extra_y += LINESPACE;
-			
+
 			// friction
 			if (v->get_frictionfactor() != 1)
 			{
@@ -487,8 +487,6 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 			if (v->get_desc()->get_total_capacity() > 0)
 			{
-				goods_desc_t const& g = *v->get_cargo_type();
-				char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
 
 				//Loading time
 				char min_loading_time_as_clock[32];
@@ -499,97 +497,116 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				buf.printf("%s %s - %s", translator::translate("Loading time:"), min_loading_time_as_clock, max_loading_time_as_clock);
 				display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				extra_y += LINESPACE;
-
-				//Catering
-				if (v->get_desc()->get_catering_level() > 0)
-				{
-					buf.clear();
-					if (v->get_desc()->get_freight_type()->get_catg_index() == 1)
-					{
-						//Catering vehicles that carry mail are treated as TPOs.
-						buf.printf("%s", translator::translate("This is a travelling post office"));
-						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-						extra_y += LINESPACE;
-					}
-					else
-					{
-						buf.printf(translator::translate("Catering level: %i"), v->get_desc()->get_catering_level());
-						display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-						extra_y += LINESPACE;
-					}
-				}
-
+			}
+				//Catering - A vehicle can be a catering vehicle without carrying passengers.
+			if (v->get_desc()->get_catering_level() > 0)
+			{
 				buf.clear();
-				char capacity[32];
-				sprintf(capacity, v->get_desc()->get_overcrowded_capacity() > 0 ? "%i (%i)" : "%i", v->get_desc()->get_total_capacity(), v->get_desc()->get_overcrowded_capacity());
-				buf.printf(translator::translate("capacity: %s %s"), capacity, name);
-				display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-				extra_y += LINESPACE;
+				if (v->get_desc()->get_freight_type()->get_catg_index() == 1)
+				{
+					//Catering vehicles that carry mail are treated as TPOs.
+					buf.printf("%s", translator::translate("This is a travelling post office"));
+					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+					extra_y += LINESPACE;
+				}
+				else
+				{
+					buf.printf(translator::translate("Catering level: %i"), v->get_desc()->get_catering_level());
+					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+					extra_y += LINESPACE;
+				}
+			}
+				if (v->get_desc()->get_total_capacity() > 0)
+				{
 
 				// Class entries, if passenger or mail vehicle
 				bool pass_veh = v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS;
 				bool mail_veh = v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL;
+
+				uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
+				uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
+
+				goods_desc_t const& g = *v->get_cargo_type();
+				char const*  const  name = translator::translate(g.get_catg() == 0 ? g.get_name() : g.get_catg_name());
+
 				if (pass_veh || mail_veh)
 				{
+					int classes_counter = 0;
+					int classes_reassigned_counter = 0;
+
+					char classes_display[32];
+					int w_icon = 16;
+					int classes_to_check = pass_veh ? pass_classes : mail_classes;
+						for (uint8 i = 0; i < classes_to_check; i++)
+						{
+							if (v->get_capacity(i) > 0)
+							{
+								classes_counter++;
+							}
+						}
+					
 					for (uint8 i = 0; i < v->get_desc()->get_number_of_classes(); i++)
 					{
 						if (v->get_desc()->get_capacity(i) > 0)
 						{
 							if (v->get_reassigned_class(i) != i)
 							{
-								reassigned = true;
+								classes_reassigned_counter++;
 							}
-							buf.clear();
-							char class_name_untranslated[32];
-							sprintf(class_name_untranslated, pass_veh ? "p_class[%u]" : "m_class[%u]", reassigned ? v->get_reassigned_class(i) : i);
-							const char* class_name = translator::translate(class_name_untranslated);
-							buf.printf("%s: ", class_name);
-							reassigned_w = display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-
-							if (reassigned)
-							{
-								buf.clear();
-								char reassigned_class_name_untranslated[32];
-								sprintf(reassigned_class_name_untranslated, pass_veh ? "p_class[%u]" : "m_class[%u]", i);
-								const char* reassigned_class_name = translator::translate(reassigned_class_name_untranslated);
-								buf.printf("(%s)", reassigned_class_name);
-								display_proportional_clip(pos.x + w + offset.x + reassigned_w, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_EDIT_TEXT_DISABLED, true);
-
-							}
-							extra_y += LINESPACE + 2;
-
-							buf.clear();
-							buf.printf(translator::translate("comfort: %i"), v->get_comfort(0, v->get_reassigned_class(i)));
-							display_proportional_clip(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-							extra_y += LINESPACE;
-
-							freight_info_class.clear();
-							freight_info_class.printf("%u/%u%s %s\n", v->get_total_cargo_by_class(v->get_reassigned_class(i)), v->get_desc()->get_capacity(i), translator::translate(v->get_cargo_mass()), name);
-							v->get_cargo_class_info(freight_info_class, i);
-							// show it
-							const int px_len = display_multiline_text(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, freight_info_class, SYSCOL_TEXT);
-							if (px_len + w > x_size)
-							{
-								x_size = px_len + w;
-							}
-							// count returns
-							returns = 0;
-							const char *p = freight_info_class;
-							for (int i = 0; i < freight_info_class.len(); i++)
-							{
-								if (p[i] == '\n')
-								{
-									returns++;
-								}
-							}
-
-							extra_y += returns*LINESPACE;
-							//extra_y += LINESPACE;
 						}
 					}
-					//extra_y += 2 * LINESPACE;
-				}
-				
+
+					buf.clear();
+					sprintf(classes_display, classes_counter > 1 ? "classes" : "class");
+					buf.printf("%d %s: %d (%d)", classes_counter, translator::translate(classes_display), v->get_desc()->get_total_capacity(), v->get_desc()->get_overcrowded_capacity());
+					display_color_img(pass_veh ? skinverwaltung_t::passengers->get_image_id(0) : skinverwaltung_t::mail->get_image_id(0), pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, 0, false, false);
+					reassigned_w = display_proportional_clip(pos.x + w + offset.x + w_icon, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+
+					if (classes_reassigned_counter > 0)
+					{
+						buf.clear();
+						sprintf(classes_display, classes_counter > 1 ? "reassigned_classes" : "reassigned_class");
+						buf.printf(" (%i %s)", classes_reassigned_counter, classes_display);
+						display_proportional_clip(pos.x + w + offset.x + reassigned_w + w_icon, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_EDIT_TEXT_DISABLED, true);
+					}
+					extra_y += LINESPACE + 2;
+
+					
+					for (uint8 i = 0; i < classes_to_check; i++)
+					{
+						if (v->get_capacity(i) > 0) // make sure that a class is only showed once
+						{
+							{
+								freight_info_class.clear();
+
+								char class_name_untranslated[32];
+								sprintf(class_name_untranslated, pass_veh ? "p_class[%u]" : "m_class[%u]", i);
+								const char* class_name = translator::translate(class_name_untranslated);
+
+								freight_info_class.printf("%u/%u%s %s (%s)\n", v->get_total_cargo_by_class(i), v->get_capacity(i), translator::translate(v->get_cargo_mass()), name, class_name);
+								v->get_cargo_class_info(freight_info_class,i);
+								// show it
+								const int px_len = display_multiline_text(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, freight_info_class, SYSCOL_TEXT);
+								if (px_len + w > x_size)
+								{
+									x_size = px_len + w;
+								}
+								// count returns
+								returns = 0;
+								const char *p = freight_info_class;
+								for (int i = 0; i < freight_info_class.len(); i++)
+								{
+									if (p[i] == '\n')
+									{
+										returns++;
+									}
+								}
+
+								extra_y += returns*LINESPACE;
+							}
+						}
+					}
+				}			
 				else
 				{
 					freight_info.printf("%u/%u%s %s\n", v->get_total_cargo(), v->get_cargo_max(), translator::translate(v->get_cargo_mass()), name);
