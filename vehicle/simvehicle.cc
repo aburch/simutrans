@@ -1081,13 +1081,13 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 				{
 					ware_t &ware = *iter_z;
 					total_freight += ware.menge;
-					
-					// could this be joined with existing freight?
+
+					// could this be joined with existing freight?			
 					FOR(slist_tpl<ware_t>, &tmp, fracht[i])
 					{
 						// New system: only merges if origins are alike.
 						// @author: jamespetts
-						if(ware.can_merge_with(tmp))
+						if (ware.can_merge_with(tmp))
 						{
 							tmp.menge += ware.menge;
 							ware.menge = 0;
@@ -1106,6 +1106,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 						iter_z = freight_add.erase(iter_z);
 					}
 				}
+			
 
 				if (!freight_add.empty())
 				{
@@ -2586,8 +2587,9 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	{
 		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
 		{
-			class_reassignments = new uint8[desc ? desc->get_number_of_classes() : number_of_classes];
-			fracht = new slist_tpl<ware_t>[desc ? desc->get_number_of_classes() : number_of_classes];
+			const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+			class_reassignments = new uint8[desc ? max(max_classes, desc->get_number_of_classes()) : max_classes];
+			fracht = new slist_tpl<ware_t>[desc ? max(max_classes, desc->get_number_of_classes()) : max_classes];
 			uint8 cr;
 
 			for (uint8 i = 0; i < number_of_classes; i++)
@@ -2637,8 +2639,9 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			// clases defaults to 1 and we have to read this from
 			// desc.
 			
-			class_reassignments = new uint8[desc ? desc->get_number_of_classes() : max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes())];
-			fracht = new slist_tpl<ware_t>[desc ? desc->get_number_of_classes() : max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes())];
+			const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+			class_reassignments = new uint8[desc ? max(max_classes, desc->get_number_of_classes()) : max_classes];
+			fracht = new slist_tpl<ware_t>[desc ? max(max_classes, desc->get_number_of_classes()) : max_classes];
 
 			for (int i = 0; i < total_fracht_count; i++)
 			{
