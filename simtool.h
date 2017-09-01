@@ -380,7 +380,6 @@ public:
 
 class tool_build_station_t : public tool_t {
 private:
-	static char toolstring[256];
 	const char *tool_station_building_aux(player_t *, bool, koord3d, const building_desc_t *, sint8 rotation );
 	const char *tool_station_dock_aux(player_t *, koord3d, const building_desc_t * );
 	const char *tool_station_flat_dock_aux(player_t *, koord3d, const building_desc_t *, sint8 );
@@ -445,7 +444,6 @@ public:
 
 class tool_build_depot_t : public tool_t {
 private:
-	static char toolstring[256];
 	const char *tool_depot_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype);
 public:
 	tool_build_depot_t() : tool_t(TOOL_BUILD_DEPOT | GENERAL_TOOL) {}
