@@ -3301,11 +3301,41 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		resort_freight_info = false;
 		buf.clear();
 
+		vector_tpl<ware_t> * ware_class;
+		ware_t ware;
+
 		for (unsigned i = 0; i < goods_manager_t::get_max_catg_index(); i++)
 		{
 			const vector_tpl<ware_t> * warray = cargo[i];
 			if (warray)
 			{
+				// Below an attempt to sort the passengers and mail per class. However, there is a problem by using "vector_tpl<ware_t> * ware_class;" (with an asterisk *)
+				// which causes some strange error.
+				//
+				/*if (i == goods_manager_t::INDEX_PAS || i == goods_manager_t::INDEX_MAIL)
+				{
+					for (uint32 j = 0; j < warray->get_count(); j++)
+					{
+						ware = warray->get_element(j);
+						for (uint8 k = 0; k < max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes()); k++)
+						{
+							ware_class[k].clear();
+							if (ware.get_class() == k)
+							{
+								ware_class[k].append(ware);
+							}
+						}
+					}
+					for (uint8 k = 0; k < max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes()); k++)
+					{
+						char class_name_untranslated[32];
+						sprintf(class_name_untranslated, goods_manager_t::INDEX_PAS ? "p_class[%u]" : "m_class[%u]", k);
+						const char* class_name = translator::translate(class_name_untranslated);
+						char what_doing[32];
+						sprintf(what_doing, translator::translate("waiting (%s)"), class_name);
+						freight_list_sorter_t::sort_freight(ware_class[k], buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, what_doing);
+					}
+				}*/
 				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting");
 			}
 		}
@@ -3316,7 +3346,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 			buf.printf("%s:\n", translator::translate("transfers"));
 		}
 		vector_tpl<ware_t> ware_transfers;
-		ware_t ware;
+		//ware_t ware;
 		const sint64 current_time = welt->get_ticks();
 #ifdef MULTI_THREAD
 		sint32 po = world()->get_parallel_operations();
