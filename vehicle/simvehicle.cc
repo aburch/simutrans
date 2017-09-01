@@ -2107,6 +2107,12 @@ void vehicle_t::get_cargo_class_info(cbuffer_t & buf, uint8 g_class) const
 			}
 		}
 	}
+	if (empty)
+	{
+		buf.append("  ");
+		buf.append(translator::translate("leer"));
+		buf.append("\n");
+	}
 }
 
 /**
