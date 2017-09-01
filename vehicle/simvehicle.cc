@@ -2260,21 +2260,40 @@ void vehicle_t::set_reversed(bool value)
 
 uint16 vehicle_t::get_total_cargo_by_class(uint8 g_class) const
 {
-	// Take into account class reassignments. 
+	// Take into account class reassignments.
 	uint16 carried = 0;
-	for (uint8 i = 0; i < desc->get_number_of_classes(); i++)
 	{
-		if(class_reassignments[i] == g_class && desc->get_capacity(i) > 0)
+		for (uint8 j = 0; j < desc->get_number_of_classes(); j++)
 		{
-			FOR(slist_tpl<ware_t>, const& ware, fracht[i])
+			if (j == g_class)
+				// then add the actual load
+				FOR(slist_tpl<ware_t>, ware, fracht[j])
 			{
-				carried += ware.menge;
+				// if != 0 we could not join it to existing => load it
+				if (ware.menge != 0)
+				{
+					carried += ware.menge;
+				}
 			}
 		}
 	}
-
 	return carried;
 }
+
+	//uint16 carried = 0;
+	//for (uint8 i = 0; i < desc->get_number_of_classes(); i++)
+	//{
+	//	if(class_reassignments[i] == g_class && desc->get_capacity(i) > 0)
+	//	{
+	//		FOR(slist_tpl<ware_t>, const& ware, fracht[i])
+	//		{
+	//			carried += ware.menge;
+	//		}
+	//	}
+	//}
+//
+//	return carried;
+//}
 
 uint16 vehicle_t::get_reassigned_class(uint8 g_class) const
 { 
