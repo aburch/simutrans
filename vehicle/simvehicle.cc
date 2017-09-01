@@ -2267,13 +2267,15 @@ uint16 vehicle_t::get_total_cargo_by_class(uint8 g_class) const
 		for (uint8 j = 0; j < desc->get_number_of_classes(); j++)
 		{
 			if (j == g_class)
+			{
 				// then add the actual load
 				FOR(slist_tpl<ware_t>, ware, fracht[j])
-			{
-				// if != 0 we could not join it to existing => load it
-				if (ware.menge != 0)
 				{
-					carried += ware.menge;
+					// if != 0 we could not join it to existing => load it
+					if (ware.menge != 0)
+					{
+						carried += ware.menge;
+					}
 				}
 			}
 		}
