@@ -411,11 +411,11 @@ private:
 		uint8 spacing; // place signals every n tiles
 		bool  remove_intermediate;
 		bool  replace_other;
-	} signal[MAX_PLAYER_COUNT];
-
-	static char toolstring[256];
-	// read the variables from the default_param
-	void read_default_param(player_t *player);
+	};
+	// default values for this tool per player
+	signal_info signal[MAX_PLAYER_COUNT];
+	// values that will be used to build
+	signal_info current;
 
 	const char* check_pos_intern(player_t *, koord3d);
 	bool calc_route( route_t &, player_t *, const koord3d& start, const koord3d &to );
@@ -438,7 +438,7 @@ public:
 	void get_values(player_t *player, uint8 &spacing, bool &remove, bool &replace );
 	bool is_init_network_save() const OVERRIDE { return true; }
 	void draw_after(scr_coord, bool dirty) const OVERRIDE;
-	char const* get_default_param(player_t*) const OVERRIDE;
+	void rdwr_custom_data(memory_rw_t*) OVERRIDE;
 	waytype_t get_waytype() const OVERRIDE;
 };
 
