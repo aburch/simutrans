@@ -571,7 +571,23 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					}
 					extra_y += LINESPACE + 2;
 
-					
+					for (uint8 i = 0; i < classes_to_check; i++)
+					{
+						if (v->get_total_cargo_by_class(i) > 0 && v->get_capacity(i) == 0) // make sure that a class is only showed once
+						{
+							{
+								freight_info_class.clear();
+
+								char class_name_untranslated[32];
+								sprintf(class_name_untranslated, pass_veh ? "p_class[%u]" : "m_class[%u]", i);
+								const char* class_name = translator::translate(class_name_untranslated);
+
+								freight_info_class.printf("%u%s %s (%s, %s)", v->get_total_cargo_by_class(i), translator::translate(v->get_cargo_mass()), name, translator::translate("previously"), class_name);
+								const int px_len = display_multiline_text(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, freight_info_class, SYSCOL_EDIT_TEXT_DISABLED);
+								extra_y += LINESPACE;
+							}
+						}
+					}
 					for (uint8 i = 0; i < classes_to_check; i++)
 					{
 						if (v->get_capacity(i) > 0) // make sure that a class is only showed once
@@ -584,7 +600,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 								const char* class_name = translator::translate(class_name_untranslated);
 
 								freight_info_class.printf("%u/%u%s %s (%s)\n", v->get_total_cargo_by_class(i), v->get_capacity(i), translator::translate(v->get_cargo_mass()), name, class_name);
-								v->get_cargo_class_info(freight_info_class,i);
+								v->get_cargo_class_info(freight_info_class, i);
 								// show it
 								const int px_len = display_multiline_text(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, freight_info_class, SYSCOL_TEXT);
 								if (px_len + w > x_size)
