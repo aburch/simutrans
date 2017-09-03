@@ -1013,7 +1013,40 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 #endif
 		buf.printf("%s: %d\n", translator::translate("Mail demand/output"), get_adjusted_mail_demand());
 
+		// class entries
+		char p_class[32] = "\0";
+		char m_class[32] = "\0";
+		//sprintf(m_class, translator::translate("m_class[%u]"), i);
+			
 		building_desc_t const& h = *tile->get_desc();
+		uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
+		if (h.get_class_proportions_sum() > 0)
+		{
+			buf.printf("%s: %d\n", translator::translate("class_proportions_sum"), h.get_class_proportions_sum());
+		}
+		if (h.get_class_proportions_sum_jobs() > 0)
+		{
+			buf.printf("%s: %d\n", translator::translate("class_proportions_sum_jobs"), h.get_class_proportions_sum_jobs());
+		}
+		for (int i = 0; i < h.get_number_of_class_proportions(); i++)
+		{
+			if (h.get_class_proportion(i) > 0)
+			{
+				sprintf(p_class, translator::translate("p_class[%u]"), i);
+				buf.printf("%s %s: %d\n", translator::translate("class_proportion"), p_class, h.get_class_proportion(i));
+			}
+		}		
+		for (int i = 0; i < h.get_number_of_class_proportions_jobs(); i++)
+		{
+			if (h.get_class_proportion_jobs(i) > 0)
+			{
+				sprintf(p_class, translator::translate("p_class[%u]"), i);
+				buf.printf("%s %s: %d\n", translator::translate("class_proportion_jobs"), p_class, h.get_class_proportion_jobs(i));
+			}
+		}
+
+
+
 		buf.printf("%s%u", translator::translate("\nBauzeit von"), h.get_intro_year_month() / 12);
 		if (h.get_retire_year_month() != DEFAULT_RETIRE_DATE * 12) {
 			buf.printf("%s%u", translator::translate("\nBauzeit bis"), h.get_retire_year_month() / 12);
