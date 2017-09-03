@@ -2345,10 +2345,8 @@ void tool_build_way_t::start_at( koord3d &new_start )
 {
 	if(  is_shift_pressed()  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)  ) {
 		grund_t *gr=welt->lookup(new_start);
-		if(  weg_t *way = gr->get_weg( desc->get_waytype() )  ) {
-			if(  way->get_desc()->get_styp() == type_elevated  &&  welt->lookup(new_start-koord3d(0,0,welt->get_settings().get_way_height_clearance()))  ) {
-				new_start.z -= welt->get_settings().get_way_height_clearance();
-			}
+		if(  gr->get_weg( desc->get_waytype() )  ) {
+			new_start.z -= welt->get_settings().get_way_height_clearance();
 		}
 	}
 	// elevated ways with SHIFT will selected the current layer, when already on an elevated way
@@ -2428,23 +2426,22 @@ void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 	else {
 		bauigel.set_keep_existing_faster_ways( true );
 	}
-	koord3d my_start = start;
-	// special check to replace elevated ways
+
+	koord3d my_end = end;
+	// ending point is applied that elevated ways with SHIFT selects the current layer, when already on an elevated way
 	if(  is_shift_pressed()  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)  ) {
-		grund_t *gr=welt->lookup(my_start);
-		if(  weg_t *way = gr->get_weg( desc->get_waytype() )  ) {
-			if(  way->get_desc()->get_styp() == type_elevated  &&  welt->lookup( my_start + koord3d(0,0,welt->get_settings().get_way_height_clearance()) )  ) {
-				my_start.z += welt->get_settings().get_way_height_clearance();
-			}
+		grund_t *gr=welt->lookup(my_end);
+		if(  gr->get_weg( desc->get_waytype() )  ) {
+			my_end.z -= welt->get_settings().get_way_height_clearance();
 		}
 	}
 	// and continue as normal ...
 	if(  is_ctrl_pressed()  ||  (env_t::straight_way_without_control  &&  !env_t::networkmode  &&  !is_scripted())  ) {
 		DBG_MESSAGE("tool_build_way_t()", "try straight route");
-		bauigel.calc_straight_route(my_start,end);
+		bauigel.calc_straight_route(start,my_end);
 	}
 	else {
-		bauigel.calc_route(my_start,end);
+		bauigel.calc_route(start,my_end);
 	}
 	DBG_MESSAGE("tool_build_way_t()", "builder found route with %d squares length.", bauigel.get_count());
 }
@@ -4759,7 +4756,7 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 	const char * error = "Hier kann kein\nSignal aufge-\nstellt werden!\n";
 	if (desc==NULL) {
 		// read data from string
-		read_default_param(player);
+		desc = roadsign_t::find_desc(default_param);
 	}
 	if (desc==NULL) {
 		return error;
@@ -4826,57 +4823,27 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 	return error;
 }
 
-char tool_build_roadsign_t::toolstring[256];
 
-const char* tool_build_roadsign_t::get_default_param(player_t *player) const
+void tool_build_roadsign_t::rdwr_custom_data(memory_rw_t *packet)
 {
-	if (desc  &&  player) {
-		signal_info const& s = signal[player->get_player_nr()];
-		sprintf(toolstring, "%s,%d,%d,%d", desc->get_name(), s.spacing, s.remove_intermediate, s.replace_other);
-		return toolstring;
-	}
-	else {
-		return default_param;
-	}
+	two_click_tool_t::rdwr_custom_data(packet);
+	packet->rdwr_byte(current.spacing);
+	packet->rdwr_bool(current.remove_intermediate);
+	packet->rdwr_bool(current.replace_other);
 }
+
 
 waytype_t tool_build_roadsign_t::get_waytype() const
 {
 	return desc ? desc->get_wtyp() : invalid_wt;
 }
 
-// read variables from default_param if cmd comes from network
-// default_param: sign_name,signal_spacing,remove,replace
-// if the static variable toolstring is the default_param then reset default_param to name of signal
-void tool_build_roadsign_t::read_default_param(player_t * player)
-{
-	char name[256]="";
-	uint32 i;
-	for(i=0; default_param[i]!=0  &&  default_param[i]!=','; i++) {
-		name[i]=default_param[i];
-	}
-	name[i]=0;
-	desc = roadsign_t::find_desc(name);
 
-	if (default_param[i]) {
-		signal_info& s = signal[player->get_player_nr()];
-		int i_signal_spacing              = s.spacing;
-		int i_remove_intermediate_signals = s.remove_intermediate;
-		int i_replace_other_signals       = s.replace_other;
-		sscanf(default_param+i, ",%d,%d,%d", &i_signal_spacing, &i_remove_intermediate_signals, &i_replace_other_signals);
-		s.spacing             = (uint8)i_signal_spacing;
-		s.remove_intermediate = i_remove_intermediate_signals != 0;
-		s.replace_other       = i_replace_other_signals       != 0;
-	}
-	if (default_param==toolstring) {
-		default_param = desc->get_name();
-	}
-}
-
-bool tool_build_roadsign_t::init( player_t * player)
+bool tool_build_roadsign_t::init( player_t *player)
 {
-	// read data from string
-	read_default_param(player);
+	desc = roadsign_t::find_desc(default_param);
+	// take default values from players settings
+	current = signal[player->get_player_nr()];
 
 	if (is_ctrl_pressed()  &&  can_use_gui()) {
 		create_win(new signal_spacing_frame_t(player, this), w_info, (ptrdiff_t)this);
@@ -4940,7 +4907,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 	if (!calc_route(route, player, start, ziel)) {
 		return;
 	}
-	signal_info const& s              = signal[player->get_player_nr()];
+	signal_info const& s              = current;
 	uint8       const  signal_density = 2 * s.spacing;      // measured in half tiles (straight track count as 2, diagonal as 1, since sqrt(1/2) = 1/2 ;)
 	uint8              next_signal    = signal_density + 1; // to place a sign asap
 	sint32             cost           = 0;
@@ -5018,7 +4985,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &start, const koord3d &end)
 {
 	// read data from string
-	read_default_param(player);
+	desc = roadsign_t::find_desc(default_param);
 	// single click ->place signal
 	if( end == koord3d::invalid  ||  start == end ) {
 		grund_t *gr = welt->lookup(start);
@@ -5080,6 +5047,7 @@ void tool_build_roadsign_t::set_values( player_t *player, uint8 spacing, bool re
 	s.spacing             = spacing;
 	s.remove_intermediate = remove;
 	s.replace_other       = replace;
+	current = s;
 }
 
 

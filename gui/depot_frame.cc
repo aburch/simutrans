@@ -343,7 +343,7 @@ void depot_frame_t::layout(scr_size *size)
 	*
 	*  PREV and NEXT are small buttons - Label is adjusted to total width.
 	*/
-	const scr_coord_val SELECT_HEIGHT = 14;
+	const scr_coord_val SELECT_HEIGHT = D_BUTTON_HEIGHT;
 	const scr_coord_val selector_x = max(max(max(max(max(102, proportional_string_width(translator::translate("no convois")) + 4),
 		proportional_string_width(translator::translate("1 convoi")) + 4),
 		proportional_string_width(translator::translate("%d convois")) + 4),
@@ -375,7 +375,7 @@ void depot_frame_t::layout(scr_size *size)
 	/*
 	*	Structure of [VINFO] is one multiline text.
 	*/
-	const scr_coord_val VINFO_HEIGHT =  6*LINESPACE + D_BUTTON_HEIGHT*2 + D_V_SPACE;
+	const scr_coord_val VINFO_HEIGHT =  6*LINESPACE + D_BUTTON_HEIGHT + D_EDIT_HEIGHT + 2*D_V_SPACE;
 
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.
@@ -445,13 +445,16 @@ void depot_frame_t::layout(scr_size *size)
 	 * [SELECT ROUTE]:
 	 * @author hsiegeln
 	 */
-	line_button.set_pos(scr_coord(D_MARGIN_LEFT, SELECT_VSTART + D_BUTTON_HEIGHT + 3));
-	lb_convoi_line.set_pos(scr_coord(D_MARGIN_LEFT + line_button.get_size().w + 2, SELECT_VSTART + D_BUTTON_HEIGHT + 3));
+	line_button.set_pos(scr_coord(D_MARGIN_LEFT, SELECT_VSTART + D_BUTTON_HEIGHT));
+	lb_convoi_line.set_pos(scr_coord(D_MARGIN_LEFT + line_button.get_size().w + 2, SELECT_VSTART + D_BUTTON_HEIGHT));
 	lb_convoi_line.set_width(selector_x - line_button.get_size().w - 2 - D_H_SPACE);
 
 	line_selector.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART + D_BUTTON_HEIGHT));
 	line_selector.set_size(scr_size(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, D_BUTTON_HEIGHT));
 	line_selector.set_max_size(scr_size(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, LINESPACE * 13 + 2 + 16));
+
+	line_button.align_to(&line_selector, ALIGN_CENTER_V);
+	lb_convoi_line.align_to(&line_selector, ALIGN_CENTER_V);
 
 	/*
 	 * [CONVOI]
@@ -585,6 +588,8 @@ void depot_frame_t::layout(scr_size *size)
 
 	lb_vehicle_filter.align_to(&vehicle_filter, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(0,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT)));
 
+	bt_show_all.align_to(&vehicle_filter, ALIGN_CENTER_V);
+	bt_obsolete.align_to(&vehicle_filter, ALIGN_CENTER_V);
 	name_filter_input.set_size( scr_size( vehicle_filter.get_size().w, D_EDIT_HEIGHT ) );
 	name_filter_input.set_pos( vehicle_filter.get_pos()+scr_coord(0,2+D_BUTTON_HEIGHT) );
 
@@ -1653,7 +1658,9 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 		buf.printf( "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_weight() / 1000.0 );
 		buf.printf( "%s %3d km/h", translator::translate("Max. speed:"), veh_type->get_topspeed() );
 
-		display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_size().h + D_V_SPACE + D_BUTTON_HEIGHT*2 - LINESPACE*3, buf, SYSCOL_TEXT);
+		int yyy = pos.y + D_TITLEBAR_HEIGHT + name_filter_input.get_pos().y + name_filter_input.get_size().h
+		          - LINESPACE;
+		display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, yyy, buf, SYSCOL_TEXT);
 
 		// column 2
 		buf.clear();
@@ -1692,7 +1699,7 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 			buf.printf( "%s %8s", translator::translate("Restwert:"), tmp );
 		}
 
-		display_multiline_text_rgb( pos.x + second_column_x, pos.y + D_TITLEBAR_HEIGHT + bt_show_all.get_pos().y + bt_show_all.get_size().h + D_V_SPACE + D_BUTTON_HEIGHT*2 - LINESPACE*2, buf, SYSCOL_TEXT);
+		display_multiline_text_rgb( pos.x + second_column_x, yyy + LINESPACE, buf, SYSCOL_TEXT);
 
 		// update speedbar
 		new_vehicle_length_sb = new_vehicle_length_sb_force_zero ? 0 : convoi_length_ok_sb + convoi_length_slower_sb + convoi_length_too_slow_sb + veh_type->get_length();

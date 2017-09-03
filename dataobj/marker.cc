@@ -10,6 +10,7 @@
 #include "marker.h"
 
 marker_t marker_t::the_instance;
+marker_t marker_t::second_instance;
 
 
 void marker_t::init(int world_size_x, int world_size_y)
@@ -35,6 +36,12 @@ marker_t& marker_t::instance(int world_size_x, int world_size_y)
 {
 	the_instance.init(world_size_x, world_size_y);
 	return the_instance;
+}
+
+marker_t& marker_t::instance_second(int world_size_x, int world_size_y)
+{
+	second_instance.init(world_size_x, world_size_y);
+	return second_instance;
 }
 
 marker_t::~marker_t()

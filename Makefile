@@ -4,9 +4,9 @@ CFG ?= default
 HOSTCC?=$(CC)
 HOSTCXX?=$(CXX)
 
-BACKENDS      = allegro gdi opengl sdl sdl2 mixer_sdl posix
+BACKENDS      = allegro gdi opengl sdl sdl2 mixer_sdl mixer_sdl2 posix
 COLOUR_DEPTHS = 0 16
-OSTYPES       = amiga beos cygwin freebsd haiku linux mingw mac
+OSTYPES       = amiga beos freebsd haiku linux mingw mac
 
 ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
   $(error Unkown BACKEND "$(BACKEND)", must be one of "$(BACKENDS)")
@@ -29,36 +29,29 @@ else
   ifeq ($(OSTYPE),beos)
     LIBS += -lnet
   else
-    ifneq ($(findstring $(OSTYPE), cygwin mingw),)
-      ifeq ($(OSTYPE),cygwin)
-        CFLAGS += -I/usr/include/mingw -mwin32
-      else
-        ifeq ($(OSTYPE),mingw)
-          CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
-          LDFLAGS += -static-libgcc -static-libstdc++ -Wl,-Bstatic -lpthread -lbz2 -lz -Wl,-Bdynamic -Wl,--large-address-aware
-          ifneq ($(STATIC),)
-            ifeq ($(shell expr $(STATIC) \>= 1), 1)
-              CFLAGS  += -static
-              LDFLAGS += -Wl,-Bstatic -lbz2 -Wl,-Bdynamic
-							# other libs like SDL2 MUST be dynamic!
-            endif
-          endif
-          LIBS += -lmingw32
-        endif
-      endif
-      SOURCES += simsys_w32_png.cc
-      CFLAGS  += -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
-      LIBS    += -lgdi32 -lwinmm -lws2_32 -limm32
-      # Disable the console on Windows unless WIN32_CONSOLE is set or graphics are disabled
-      ifneq ($(WIN32_CONSOLE),)
-        LDFLAGS += -mconsole
-      else
-        ifeq ($(BACKEND),posix)
-          LDFLAGS += -mconsole
-        else
-          LDFLAGS += -mwindows
-        endif
-      endif
+		ifeq ($(OSTYPE),mingw)
+			CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
+			LDFLAGS += -static-libgcc -static-libstdc++ -Wl,-Bstatic -lpthread -lbz2 -lz -Wl,-Bdynamic -Wl,--large-address-aware
+			ifneq ($(STATIC),)
+				ifeq ($(shell expr $(STATIC) \>= 1), 1)
+					CFLAGS  += -static
+					LDFLAGS += -Wl,-Bstatic -lbz2 -Wl,-Bdynamic
+					# other libs like SDL2 MUST be dynamic!
+				endif
+			endif
+			SOURCES += simsys_w32_png.cc
+			CFLAGS  += -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
+			LIBS    += -lmingw32 -lgdi32 -lwinmm -lws2_32 -limm32
+			# Disable the console on Windows unless WIN32_CONSOLE is set or graphics are disabled
+			ifneq ($(WIN32_CONSOLE),)
+				LDFLAGS += -mconsole
+			else
+				ifeq ($(BACKEND),posix)
+					LDFLAGS += -mconsole
+				else
+					LDFLAGS += -mwindows
+				endif
+			endif
     else
 # Haiku (needs to activate the GCC 4x)
       ifeq ($(OSTYPE),haiku)
@@ -500,7 +493,7 @@ ifeq ($(BACKEND),sdl)
 		endif
   else
     SOURCES  += sound/sdl_sound.cc
-    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+    ifneq ($(OSTYPE),mingw)
       SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
@@ -546,7 +539,7 @@ ifeq ($(BACKEND),sdl2)
 	endif
   else
     SOURCES  += sound/sdl_sound.cc
-    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+    ifneq ($(OSTYPE),mingw)
       SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
@@ -574,6 +567,34 @@ ifeq ($(BACKEND),sdl2)
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS)
+endif
+
+ifeq ($(BACKEND),mixer_sdl2)
+  SOURCES += simsys_s2.cc
+  ifeq ($(SDL2_CONFIG),)
+    ifeq ($(OSTYPE),mac)
+      SDL_CFLAGS  := -I/Library/Frameworks/SDL2.framework/Headers
+      SDL_LDFLAGS := -framework SDL2
+    else
+      SDL_CFLAGS  := -I$(MINGDIR)/include/SDL2 -Dmain=SDL_main
+      SDL_LDFLAGS := -lSDL2main -lSDL2
+    endif
+  else
+		SOURCES += sound/sdl_mixer_sound.cc
+		SOURCES += music/sdl_midi.cc
+    SDL_CFLAGS  := $(shell $(SDL2_CONFIG) --cflags)
+    ifneq ($(STATIC),)
+      ifeq ($(shell expr $(STATIC) \>= 1), 1)
+        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
+      else
+        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
+      endif
+    else
+      SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
+    endif
+  endif
+  CFLAGS += $(SDL_CFLAGS)
+  LIBS   += $(SDL_LDFLAGS) -lSDL2_mixer
 endif
 
 ifeq ($(BACKEND),mixer_sdl)
@@ -607,7 +628,7 @@ ifeq ($(BACKEND),opengl)
 	endif
   else
     SOURCES  += sound/sdl_sound.cc
-    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+    ifneq ($(OSTYPE),mingw)
       SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
@@ -637,7 +658,7 @@ endif
 
 CFLAGS += -DCOLOUR_DEPTH=$(COLOUR_DEPTH)
 
-ifneq ($(findstring $(OSTYPE), cygwin mingw),)
+ifeq ($(OSTYPE),mingw)
   SOURCES += simres.rc
   WINDRES ?= windres
 endif

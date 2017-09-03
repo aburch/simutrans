@@ -86,6 +86,7 @@ private:
 		build_straight = 1,      ///< next step has to be straight
 		terraform      = 2,      ///< terraform this tile
 		build_tunnel_bridge = 4, ///< bridge/tunnel ends here
+		is_upperlayer = 8,       ///only used when elevated  true:upperlayer
 	};
 
 	struct next_gr_t
@@ -120,7 +121,7 @@ private:
 	const bridge_desc_t * bridge_desc;
 
 	/**
-	 * Type of bridges to build (zero=>no bridges)
+	 * Type of tunnels to build (zero=>no bridges)
 	 * @author Hj. Malthaner
 	 */
 	const tunnel_desc_t * tunnel_desc;
@@ -156,7 +157,7 @@ public:
 	* B) if allowed, calculate the cost for the step from from to to
 	* @author prissi
 	*/
-	bool is_allowed_step(const grund_t *from, const grund_t *to, sint32 *costs) const;
+	bool is_allowed_step(const grund_t *from, const grund_t *to, sint32 *costs, bool is_upperlayer = false ) const;
 
 private:
 	// checks, if we can built a bridge here ...
@@ -165,6 +166,8 @@ private:
 
 	sint32 intern_calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel);
 	void intern_calc_straight_route(const koord3d start, const koord3d ziel);
+
+	sint32 intern_calc_route_elevated(const koord3d start, const koord3d ziel);
 
 	// runways need to meet some special conditions enforced here
 	bool intern_calc_route_runways(koord3d start, const koord3d ziel);

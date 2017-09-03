@@ -46,6 +46,7 @@ gui_combobox_t::gui_combobox_t() :
 	closed_size = get_size();
 	max_size = scr_size(0,10*LINESPACE);
 	set_highlight_color(color_idx_to_rgb(COL_SOFT_BLUE));
+	opened_at_bottom = false;
 }
 
 

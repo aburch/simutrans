@@ -161,13 +161,13 @@ bool gui_container_t::infowin_event(const event_t *ev)
 
 		// Handle the focus!
 		if(  comp_focus  ) {
-			gui_component_t *comp = comp_focus;
+			gui_component_t *const comp = comp_focus;
 			event_t ev2 = *ev;
-			translate_event(&ev2, -comp_focus->get_pos().x, -comp_focus->get_pos().y);
-			swallowed = comp_focus->infowin_event(&ev2);
+			translate_event(&ev2, -comp->get_pos().x, -comp->get_pos().y);
+			swallowed = comp->infowin_event(&ev2);
 
 			// set focus for component, if component allows focus
-			gui_component_t *focus = comp->get_focus();
+			gui_component_t *const focus = comp->get_focus() ? comp : NULL;
 			if(  focus  &&  IS_LEFTCLICK(ev)  &&  comp->getroffen(ev->cx, ev->cy)  ) {
 				/* the focus swallow all following events;
 				 * due to the activation action
@@ -228,7 +228,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 				// CAUTION : call to infowin_event() should not delete the component itself!
 				swallowed = comp->infowin_event(&ev2);
 
-				// focused component of this container can only be one of its immediate children
+				// set focus for component, if component allows focus
 				gui_component_t *focus = comp->get_focus() ? comp : NULL;
 
 				// set focus for component, if component allows focus

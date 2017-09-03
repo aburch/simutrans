@@ -135,6 +135,10 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 			delete pgi;
 			fd.close();
 		}
+		else {
+			// some more insets, while things may have failed
+			err = fd.get_last_error() == loadsave_t::FILE_ERROR_FUTURE_VERSION ? "Server version too new" : "Server busy";
+		}
 		remove( filename );
 		socket_list_t::remove_client( my_client_socket );
 	}

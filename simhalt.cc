@@ -1622,7 +1622,7 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 		// for all halts with halt_data.weight < explored_weight one of the best routes is found
 		const uint16 explored_weight = open_list.empty()  ? 65535u : open_list.front().aggregate_weight;
 
-		if (best_destination_weight <= explored_weight) {
+		if (best_destination_weight <= explored_weight  &&  best_destination_weight < 65535u) {
 			// we explored best route to this destination in last run
 			// (any other not yet explored connection will have larger weight)
 			// no need to search route for this ware
@@ -1718,6 +1718,11 @@ void haltestelle_t::search_route_resumable(  ware_t &ware   )
 			if(  !current_node.halt->is_transfer(ware_catg_idx)  ) {
 				continue;
 			}
+		}
+
+		// not start halt, not transfer halt -> do not expand further
+		if(  current_halt_data.depth > 0   &&  !current_node.halt->is_transfer(ware_catg_idx)  ) {
+			continue;
 		}
 
 		if(  current_halt_data.depth > max_transfers  ) {

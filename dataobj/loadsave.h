@@ -35,8 +35,10 @@ struct file_descriptors_t;
 class loadsave_t {
 public:
 	enum mode_t { text=1, xml=2, binary=0, zipped=4, xml_zipped=6, bzip2=8, xml_bzip2=10 };
+	enum file_error_t { FILE_ERROR_OK=0, FILE_ERROR_NOT_EXISTING, FILE_ERROR_BZ_CORRUPT, FILE_ERROR_GZ_CORRUPT, FILE_ERROR_NO_VERSION, FILE_ERROR_FUTURE_VERSION };
 
 private:
+	file_error_t last_error;
 	int mode;
 	bool saving;
 	bool buffered;
@@ -87,6 +89,8 @@ public:
 	bool rd_open(const char *filename);
 	bool wr_open(const char *filename, mode_t mode, const char *pak_extension, const char *savegame_version );
 	const char *close();
+
+	file_error_t get_last_error() { return last_error; }
 
 	static void set_savemode(mode_t mode) { save_mode = mode; }
 	static void set_autosavemode(mode_t mode) { autosave_mode = mode; }

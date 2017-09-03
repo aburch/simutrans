@@ -43,6 +43,7 @@ class marker_t {
 
 	/// the instance
 	static marker_t the_instance;
+	static marker_t second_instance;
 public:
 	/**
 	 * Return handle to marker instance.
@@ -51,6 +52,14 @@ public:
 	 * @returns handle to the singleton instance
 	 */
 	static marker_t& instance(int world_size_x, int world_size_y);
+
+	/**
+	 * Return handle to marker instance.
+	 * @param world_size_x x-size of map
+	 * @param world_size_y y-size of map
+	 * @returns handle to the singleton instance
+	 */
+	static marker_t& instance_second(int world_size_x, int world_size_y);
 
 	/**
 	 * Marks tile as visited.
