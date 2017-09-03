@@ -573,7 +573,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 					for (uint8 i = 0; i < classes_to_check; i++)
 					{
-						if (v->get_total_cargo_by_class(i) > 0 && v->get_capacity(i) == 0) // make sure that a class is only showed once
+						if (v->get_total_cargo_by_class(i) > 0 && v->get_capacity(i) == 0) // make sure this is only showed when there is no current capacity for the class, ie its been reassigned to another one.
 						{
 							{
 								freight_info_class.clear();
@@ -590,7 +590,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					}
 					for (uint8 i = 0; i < classes_to_check; i++)
 					{
-						if (v->get_capacity(i) > 0) // make sure that a class is only showed once
+						if (v->get_capacity(i) > 0)
 						{
 							{
 								freight_info_class.clear();
