@@ -355,9 +355,23 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					}
 				}
 			}
+
+			char g_class[32] = "\0";
+			char g_class_entry[32] = "\0";
+			if (ware.is_passenger())
+			{
+				sprintf(g_class, translator::translate("p_class[%u]"), ware.get_class());
+				sprintf(g_class_entry, " (%s)", g_class);
+			}
+			if (ware.is_mail())
+			{
+				sprintf(g_class, translator::translate("m_class[%u]"), ware.get_class());
+				sprintf(g_class_entry, " (%s)", g_class);
+			}
+
 			// detail amount
 			goods_desc_t const& desc = *ware.get_desc();
-			buf.printf("   %u%s %s %c ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()), ">>>>><>"[sortby]);
+			buf.printf("   %u%s %s%s %c ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()), g_class_entry, ">>>>><>"[sortby]);
 
 			
 		/*	const sint64 current_time = welt->get_ticks();
@@ -390,17 +404,6 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 					dbuf.append(translator::translate("Unknown destination"));
 				}
 				const stadt_t* city = welt->get_city(zielpos);
-
-				char g_class[32] = "\0";
-				if (ware.is_passenger())
-				{				
-						sprintf(g_class, translator::translate("p_class[%u]"), ware.get_class());
-				}
-				if (ware.is_mail())
-				{
-					sprintf(g_class, translator::translate("m_class[%u]"), ware.get_class());
-				}
-
 
 				if(ware.is_passenger() && sortby == by_destination_detail)
 				{
