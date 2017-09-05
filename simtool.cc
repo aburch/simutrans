@@ -7486,7 +7486,7 @@ bool tool_change_roadsign_t::init( player_t *player )
 	if(  grund_t *gr = welt->lookup(pos)  ) {
 		if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
 			if(  rs->get_intersection()!=koord3d::invalid  ) {
-				rs->set_lane_fix(inst);
+				rs->set_lane_affinity(inst);
 			}
 			onewaysign_info_t* onewaysign_win = (onewaysign_info_t*)win_get_magic((ptrdiff_t)rs);
 			if (onewaysign_win) {

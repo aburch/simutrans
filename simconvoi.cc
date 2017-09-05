@@ -165,7 +165,7 @@ void convoi_t::init(player_t *player)
 
 	home_depot = koord3d::invalid;
 	yielding_quit_index = -1;
-	lane_fix = 0;
+	lane_affinity = 0;
 
 	recalc_data_front = true;
 	recalc_data = true;
@@ -2584,8 +2584,8 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()>=120006  ) {
 		file->rdwr_long(yielding_quit_index);
-		file->rdwr_byte(lane_fix);
-		file->rdwr_long(lane_fix_end_index);
+		file->rdwr_byte(lane_affinity);
+		file->rdwr_long(lane_affinity_end_index);
 	}
 
 	if(  file->is_loading()  ) {
@@ -3965,9 +3965,9 @@ void convoi_t::yield_lane_space()
 	}
 }
 
-bool convoi_t::calc_lane_fix(uint8 lane_fix_sign)
+bool convoi_t::calc_lane_affinity(uint8 lane_affinity_sign)
 {
-	if(  lane_fix_sign!=0  &&  lane_fix_sign<4  ) {
+	if(  lane_affinity_sign!=0  &&  lane_affinity_sign<4  ) {
 		uint16 test_index = fahr[0]->get_route_index();
 		while(  test_index < route.get_count()  ) {
 			grund_t *gr = welt->lookup(route.at(test_index));
@@ -3991,26 +3991,26 @@ bool convoi_t::calc_lane_fix(uint8 lane_fix_sign)
 				ribi_t::ribi next_dir = vehicle_base_t::calc_direction(welt->lookup(route.at(test_index))->get_pos(),welt->lookup(route.at(test_index+1))->get_pos());
 				ribi_t::ribi str_left = (ribi_t::rotate90l(prev_dir) & str_ribi) == 0 ? prev_dir : ribi_t::rotate90l(prev_dir);
 				ribi_t::ribi str_right = (ribi_t::rotate90(prev_dir) & str_ribi) == 0 ? prev_dir : ribi_t::rotate90(prev_dir);
-				if(  next_dir == str_left  &&  (lane_fix_sign & 1) != 0  ) {
+				if(  next_dir == str_left  &&  (lane_affinity_sign & 1) != 0  ) {
 					// fix to left lane
 					if(  welt->get_settings().is_drive_left()  ) {
-						lane_fix = -1;
+						lane_affinity = -1;
 					}
 					else {
-						lane_fix = 1;
+						lane_affinity = 1;
 					}
-					lane_fix_end_index = test_index;
+					lane_affinity_end_index = test_index;
 					return true;
 				}
-				else if(  next_dir == str_right  &&  (lane_fix_sign & 2) != 0  ) {
+				else if(  next_dir == str_right  &&  (lane_affinity_sign & 2) != 0  ) {
 					// fix to right lane
 					if(  welt->get_settings().is_drive_left()  ) {
-						lane_fix = 1;
+						lane_affinity = 1;
 					}
 					else {
-						lane_fix = -1;
+						lane_affinity = -1;
 					}
-					lane_fix_end_index = test_index;
+					lane_affinity_end_index = test_index;
 					return true;
 				}
 				else {

@@ -82,7 +82,7 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	state = 0;
 	ticks_ns = ticks_ow = 16;
 	ticks_offset = 0;
-	lane_fix = 4;
+	lane_affinity = 4;
 	set_owner( player );
 	if(  desc->is_private_way()  ) {
 		// init ownership of private ways
@@ -176,12 +176,12 @@ void roadsign_t::show_info()
 	}
 	else if(  desc->is_single_way()  ) {
 		if(  (intersection_pos = get_intersection()) == koord3d::invalid  ) {
-			set_lane_fix(4);
+			set_lane_affinity(4);
 			obj_t::show_info();
 		}
 		else {
 			// off the "not applied" bit flag
-			lane_fix = ~((~lane_fix)|4);
+			lane_affinity = ~((~lane_affinity)|4);
 			create_win(new onewaysign_info_t(this, intersection_pos), w_info, (ptrdiff_t)this );
 		}
 	}
@@ -551,12 +551,12 @@ void roadsign_t::rdwr(loadsave_t *file)
 
 	uint8 dummy=0;
 	if(  file->get_version()>=120006  ) {
-		dummy = lane_fix;
+		dummy = lane_affinity;
 		file->rdwr_byte(dummy);
-		lane_fix = dummy;
+		lane_affinity = dummy;
 	}
 	else {
-		lane_fix = 4; // not applied
+		lane_affinity = 4; // not applied
 	}
 	if(  file->get_version()<=102002  ) {
 		file->rdwr_byte(dummy);

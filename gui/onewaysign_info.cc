@@ -21,8 +21,8 @@ onewaysign_info_t::onewaysign_info_t(roadsign_t* s, koord3d first_intersection) 
 	direction[1].init( button_t::square_state, translator::translate("Right"), scr_coord(110,get_windowsize().h - 40), scr_size(80,D_BUTTON_HEIGHT) );
 	direction[0].add_listener( this );
 	direction[1].add_listener( this );
-	direction[0].pressed = (sign->get_lane_fix() & 1) != 0;
-	direction[1].pressed = (sign->get_lane_fix() & 2) != 0;
+	direction[0].pressed = (sign->get_lane_affinity() & 1) != 0;
+	direction[1].pressed = (sign->get_lane_affinity() & 2) != 0;
 	add_component( &direction[0] );
 	add_component( &direction[1] );
 }
@@ -38,7 +38,7 @@ onewaysign_info_t::onewaysign_info_t(roadsign_t* s, koord3d first_intersection) 
  */
 bool onewaysign_info_t::action_triggered( gui_action_creator_t *komp, value_t /* */)
 {
-	uint8 fix = sign->get_lane_fix();
+	uint8 fix = sign->get_lane_affinity();
 	for(  int i=0;  i<2;  i++  ) {
 		if(komp == &direction[i]) {
 			fix ^= (i+1);
@@ -56,6 +56,6 @@ bool onewaysign_info_t::action_triggered( gui_action_creator_t *komp, value_t /*
 void onewaysign_info_t::update_data()
 {
 	for(  int i=0;  i<2;  i++  ) {
-		direction[i].pressed = (sign->get_lane_fix() & (i+1)) != 0;
+		direction[i].pressed = (sign->get_lane_affinity() & (i+1)) != 0;
 	}
 }
