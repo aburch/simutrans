@@ -2188,7 +2188,7 @@ uint32 ms = dr_time();
 		}
 	}
 	else {
-		route_reversed = true;
+		route_reversed = false;
 		keep_existing_city_roads |= (bautyp&bot_flag)!=0;
 		sint32 cost2;
 		if(desc->get_styp() == type_elevated) {
@@ -2196,7 +2196,7 @@ uint32 ms = dr_time();
 			INT_CHECK("wegbauer 1165");
 			if(cost2 < 0) {
 				intern_calc_route_elevated(ziel[0], start[0]);
-				route_reversed = false;
+				route_reversed = true;
 				return;
 			}
 		}
@@ -2205,7 +2205,7 @@ uint32 ms = dr_time();
 			INT_CHECK("wegbauer 1165");
 			if(cost2 < 0) {
 				intern_calc_route( ziel, start );
-				route_reversed = false;
+				route_reversed = true;
 				return;
 			}
 		}
@@ -2215,7 +2215,7 @@ uint32 ms = dr_time();
 		vector_tpl<uint32> terraform_index2(0);
 		swap(route, route2);
 		swap(terraform_index, terraform_index2);
-		route_reversed = false;
+		route_reversed = true;
 		sint32 cost;
 		if(desc->get_styp() == type_elevated) {
 			cost = intern_calc_route_elevated(start[0], ziel[0]);
@@ -2229,7 +2229,7 @@ uint32 ms = dr_time();
 		if(  cost2 < cost  ||  cost < 0  ) {
 			swap(route, route2);
 			swap(terraform_index, terraform_index2);
-			route_reversed = true;
+			route_reversed = false;
 		}
 #endif
 	}
