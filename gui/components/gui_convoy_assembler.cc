@@ -2002,14 +2002,18 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		money_to_string(tmp, veh_type->get_value() / 100.0, false);
 		// These two lines differ from the Standard translation texts, as Standard does not have a monthly cost.
 		// Cost information:
-		n += sprintf(buf + n, translator::translate("Cost: %8s\n"), tmp);
-		n += sprintf(buf + n, translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), veh_type->get_running_cost() / 100.0, veh_type->get_adjusted_monthly_fixed_cost(welt) / 100.0);
-		n += sprintf(buf + n, "\n");
+
+		char resale_entry[32] = "\0";
 		if (resale_value != -1.0) {
 			char tmp[128];
 			money_to_string(tmp, resale_value / 100.0, false);
-			sprintf(buf + n, "%s %8s", translator::translate("Restwert:"), tmp);
+			sprintf(resale_entry, "(%s %8s)", translator::translate("Restwert:"), tmp);
 		}
+		n += sprintf(buf + n, translator::translate("Cost: %8s %s"), tmp, resale_entry);
+		n += sprintf(buf + n, "\n");
+		n += sprintf(buf + n, translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), veh_type->get_running_cost() / 100.0, veh_type->get_adjusted_monthly_fixed_cost(welt) / 100.0);
+		n += sprintf(buf + n, "\n");
+
 
 		// Physical information:
 		n += sprintf(buf + n, "%s %3d km/h\n", translator::translate("Max. speed:"), veh_type->get_topspeed());
