@@ -447,7 +447,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 			if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
 			{
-				sprintf(speed_text, translator::translate("Runway too short"), cnv->get_name());
+				sprintf(speed_text, translator::translate("runway_too_short (need %i m)"), cnv->front()->get_desc()->get_minimum_runway_length());
 				speed_color = COL_RED;
 			}
 			else
@@ -514,12 +514,12 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		case convoi_t::CAN_START_TWO_MONTHS:
 		case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
 
-			if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
+			/*if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
 			{
-				sprintf(speed_text, translator::translate("Runway too short"), cnv->get_name());
+				sprintf(speed_text, translator::translate("runway_too_short (need %i m)"), cnv->front()->get_desc()->get_minimum_runway_length());
 				speed_color = COL_RED;
 			}
-			else
+			else*/
 			{
 				sprintf(speed_text, translator::translate("clf_chk_stucked"));
 				speed_color = COL_ORANGE;
@@ -528,11 +528,11 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 		case convoi_t::NO_ROUTE:
 
-			if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
+			/*if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
 			{
-				sprintf(speed_text, translator::translate("Runway too short"), cnv->get_name());
+				sprintf(speed_text, translator::translate("runway_too_short (need %i m)"), cnv->front()->get_desc()->get_minimum_runway_length());
 			}
-			else
+			else*/
 			{
 				sprintf(speed_text, translator::translate("clf_chk_noroute"));
 			}
@@ -541,9 +541,8 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 		case convoi_t::OUT_OF_RANGE:
 
-			sprintf(speed_text, translator::translate("out of range"));
+			sprintf(speed_text, translator::translate("out_of_range (max %i km)"), cnv->front()->get_desc()->get_range());
 			speed_color = COL_RED;
-			/*TODO: Add this convoys maximum range*/
 			break;
 
 		default:
