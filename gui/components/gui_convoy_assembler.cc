@@ -212,20 +212,12 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	action_selector.add_listener(this);
 	add_component(&action_selector);
 	action_selector.clear_elements();
-	static const char *txt_veh_action[3] = { "anhaengen", "voranstellen", "verkaufen" };
+	static const char *txt_veh_action[4] = { "anhaengen", "voranstellen", "verkaufen", "Upgrade" };
 	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[0]), SYSCOL_TEXT ) );
 	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[1]), SYSCOL_TEXT ) );
 	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[2]), SYSCOL_TEXT ) );
+	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[3]), SYSCOL_TEXT ) );
 	action_selector.set_selection( 0 );
-
-	upgrade = u_buy;
-	upgrade_selector.add_listener(this);
-	add_component(&upgrade_selector);
-	upgrade_selector.clear_elements();
-	static const char *txt_upgrade[2] = { "Buy/sell", "Upgrade" };
-	upgrade_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_upgrade[0]), SYSCOL_TEXT ) );
-	upgrade_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_upgrade[1]), SYSCOL_TEXT ) );
-	upgrade_selector.set_selection(0);
 
 	bt_obsolete.set_typ(button_t::square);
 	bt_obsolete.set_text("Show obsolete");
@@ -538,10 +530,6 @@ void gui_convoy_assembler_t::layout()
 
 	bt_obsolete.set_pos(scr_coord(c1_x, y));
 	bt_obsolete.pressed = show_retired_vehicles;
-	upgrade_selector.set_pos(scr_coord(column4_x, y));
-	upgrade_selector.set_size(column4_size);
-	upgrade_selector.set_max_size(scr_size(column4_size.w - 8, LINESPACE*2+2+16));
-	upgrade_selector.set_highlight_color(1);
 	y += 4 + D_BUTTON_HEIGHT;
 
 	const livery_scheme_t* const liv = welt->get_settings().get_livery_scheme(livery_scheme_index);
@@ -592,7 +580,7 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *comp,value_
 				action_selector.set_selection(0);
 				selection=0;
 			}
-				if(  (unsigned)(selection)<=va_sell  ) {
+				if(  (unsigned)(selection)<= va_upgrade) {
 				veh_action=(unsigned)(selection);
 				build_vehicle_lists();
 				update_data();
@@ -615,22 +603,6 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *comp,value_
 			livery_scheme_index = livery_scheme_indices.empty() ? 0 : livery_scheme_indices[livery_selection];
 		} 
 
-		else if(comp == &upgrade_selector) 
-		{
-			sint32 upgrade_selection = p.i;
-			if ( upgrade_selection < 0 ) 
-			{
-				upgrade_selector.set_selection(0);
-				upgrade_selection=0;
-			}
-			if(  (unsigned)(upgrade_selection)<=u_upgrade  ) 
-			{
-				upgrade=(unsigned)(upgrade_selection);
-				build_vehicle_lists();
-				update_data();
-			}
-
-		} 
 		else 
 		{
 			return false;
@@ -919,7 +891,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 					{
 						append = info->can_follow(veh)  &&  (veh==NULL  ||  veh->can_lead(info));
 					}
-					if(upgrade == u_upgrade)
+					if(veh_action == va_upgrade)
 					{
 						vector_tpl<const vehicle_desc_t*> vehicle_list;
 						upgradeable = false;
@@ -990,7 +962,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 						append = false;
 					}
 				}
-				if((append && upgrade == u_buy) || (upgradeable &&  upgrade == u_upgrade))
+				if((append && veh_action == va_append) || (upgradeable &&  veh_action == va_upgrade))
 				{
 					add_to_vehicle_list( info );
 				}
@@ -1208,7 +1180,7 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 			{
 				depot->call_depot_tool( 's', convoihandle_t(), image_data->text, livery_scheme_index );
 			}
-			else if(upgrade != u_upgrade)
+			else if(veh_action != va_upgrade)
 			{
 				depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, image_data->text, livery_scheme_index );
 			}
@@ -1233,7 +1205,7 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 			/*&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true)*/)) 
 		{
 			//replace_frame->replace.add_vehicle(info);
-			if(upgrade == u_upgrade)
+			if(veh_action == va_upgrade)
 			{
 				uint8 count;
 				ITERATE(vehicles,n)
@@ -1443,7 +1415,7 @@ void gui_convoy_assembler_t::update_data()
 			if(img.lcolor == ok_color || img.lcolor == COL_YELLOW)
 			{
 				// Only flag as too expensive that which could be purchased but for its price.
-				if(upgrade == u_buy)
+				if(veh_action != va_upgrade)
 				{
 					if(!player->can_afford(info->get_value()))
 					{
@@ -1509,7 +1481,7 @@ void gui_convoy_assembler_t::update_data()
 			img.rcolor = COL_RED;
 		}
 
-		if(upgrade == u_upgrade)
+		if(veh_action == va_upgrade)
 		{
 			//Check whether there are any vehicles to upgrade
 			img.lcolor = COL_DARK_PURPLE;
@@ -2113,11 +2085,6 @@ bool gui_convoy_assembler_t::infowin_event(const event_t *ev)
 		return true;
 	}
 
-	if(IS_LEFTCLICK(ev) &&  !upgrade_selector.getroffen(ev->cx, ev->cy-16)) {
-		// close combo box; we must do it ourselves, since the box does not recieve outside events ...
-		upgrade_selector.close_box();
-		return true;
-	}
 	return false;
 }
 

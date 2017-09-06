@@ -129,9 +129,6 @@ class gui_convoy_assembler_t :
 	gui_label_t lb_veh_action;
 	gui_combobox_t action_selector;
 
-	//gui_label_t lb_upgrade;
-	gui_combobox_t upgrade_selector;
-
 	gui_label_t lb_too_heavy_notice;
 	
 	gui_label_t lb_livery_selector;
@@ -175,9 +172,8 @@ class gui_convoy_assembler_t :
 
 	KOORD_VAL second_column_x; // x position of the second text column
 
-	enum { va_append, va_insert, va_sell };
+	enum { va_append, va_insert, va_sell, va_upgrade };
 	uint8 veh_action;
-	uint8 upgrade;
 
 	// text for the tabs is defaulted to the train names
 	static const char * get_electrics_name(waytype_t wt);
@@ -304,7 +300,7 @@ public:
 
 	void set_electrified( bool ele );
 
-	inline uint8 get_upgrade() const { return upgrade; }
+	inline uint8 get_upgrade() const { return veh_action == va_upgrade; }
 	inline uint8 get_action() const { return veh_action; }
 
 	static uint16 get_livery_scheme_index() { return livery_scheme_index; }
