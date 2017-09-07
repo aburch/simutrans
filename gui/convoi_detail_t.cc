@@ -69,7 +69,18 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 	add_component(&class_management_button);
 	class_management_button.add_listener(this);
 
-	scrolly.set_pos(scr_coord(0, 2+16+5*LINESPACE));
+
+	int header_height = 2 + 16 + 6 * LINESPACE;
+	if (any_obsoletes)
+	{
+		header_height += LINESPACE;
+	}
+	if (any_upgrades)
+	{
+		header_height += LINESPACE;
+	}
+
+	scrolly.set_pos(scr_coord(0, header_height));
 	scrolly.set_show_scroll_x(true);
 	add_component(&scrolly);
 
@@ -216,7 +227,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		
 		if (vehicle_count > 0)
 		{
-
+			any_obsoletes = false;
 		/* Bernd Gabriel, 17.06.2009:
 		The average percentage tells nothing about the real cost increase: If a cost-intensive 
 		loco is very old and at max increase (1 * 400% * 1000 cr/month, but 15 low-cost cars are 
@@ -274,6 +285,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 			{
 				display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, COL_DARK_BLUE, true );
 				offset_y += LINESPACE;
+				any_obsoletes = true;
 			}
 
 		}
