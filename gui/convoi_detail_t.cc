@@ -179,10 +179,41 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 			display_proportional_clip( pos.x+10, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 			offset_y += LINESPACE;
 		}
+
+		uint16 vehicle_count = cnv->get_vehicle_count();
+
+		// Upgrades
+		const uint16 month_now = welt->get_timeline_year_month();
+		int amount_of_upgradeable_vehicles = 0;
+		bool any_upgrades = false;
+
+		for (uint16 i = 0; i < vehicle_count; i++)
+		{
+			any_upgrades = false;
+			const vehicle_desc_t *desc = cnv->get_vehicle(i)->get_desc();
+			for (int i = 0; i < desc->get_upgrades_count(); i++)
+			{
+				if (any_upgrades == false)
+				{
+					if (!desc->get_upgrades(i)->is_future(month_now) && (!desc->get_upgrades(i)->is_retired(month_now)))
+					{
+						amount_of_upgradeable_vehicles++;
+						any_upgrades = true;
+					}
+				}
+			}
+		}
+		if (amount_of_upgradeable_vehicles > 0)
+		{
+			buf.clear();
+			buf.printf("%s: %i", translator::translate("upgradeable_vehicles"), amount_of_upgradeable_vehicles);
+			display_proportional_clip(pos.x + 10, offset_y, buf, ALIGN_LEFT, COL_PURPLE, true);
+			offset_y += LINESPACE;
+		}
 		
 		// Bernd Gabriel, 16.06.2009: current average obsolescence increase percentage
-		uint16 count = cnv->get_vehicle_count();
-		if (count > 0)
+		
+		if (vehicle_count > 0)
 		{
 
 		/* Bernd Gabriel, 17.06.2009:
@@ -194,10 +225,10 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		early years of the loco.
 
 			uint32 percentage = 0;
-			for (uint16 i = 0; i < count; i++) {
+			for (uint16 i = 0; i < vehicle_count; i++) {
 				percentage += cnv->get_vehicle(i)->get_desc()->calc_running_cost(welt, 10000);
 			}
-			percentage = percentage / (count * 100) - 100;
+			percentage = percentage / (vehicle_count * 100) - 100;
 			if (percentage > 0)
 			{
 				sprintf( tmp, "%s: %d%%", translator::translate("Obsolescence increase"), percentage);
@@ -210,7 +241,7 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		*/
 			uint32 run_actual = 0, run_nominal = 0, run_percent = 0;
 			uint32 mon_actual = 0, mon_nominal = 0, mon_percent = 0;
-			for (uint16 i = 0; i < count; i++) {
+			for (uint16 i = 0; i < vehicle_count; i++) {
 				const vehicle_desc_t *desc = cnv->get_vehicle(i)->get_desc();
 				run_nominal += desc->get_running_cost();
 				run_actual  += desc->get_running_cost(welt);
@@ -386,6 +417,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			// now add the other info
 			int extra_y = 0;
 			int extra_w = 10;
+			int even_more_extra_w = 30;
 			int reassigned_w = 0;
 			bool reassigned = false;
 
@@ -448,7 +480,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			extra_y += LINESPACE;
 
-			// friction
+			// Friction
 			if (v->get_frictionfactor() != 1)
 			{
 				buf.clear();
@@ -457,13 +489,53 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				extra_y += LINESPACE;
 			}
 
-			//Tilting
+			// Tilting
 			if (v->get_desc()->get_tilting())
 			{
 				buf.clear();
 				buf.printf("%s", translator::translate("This is a tilting vehicle\n"));
 				display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				extra_y += LINESPACE;
+			}
+
+			// Upgrades
+			if (v->get_desc()->get_upgrades_count() > 0)
+			{
+				const uint16 month_now = welt->get_timeline_year_month();
+				int amount_of_upgrades = 0;
+				int max_display_of_upgrades = 3;
+				for (int i = 0; i < v->get_desc()->get_upgrades_count(); i++)
+				{
+					//if (v->get_desc()->get_upgrades(i)->is_available(month_now));
+					if (!v->get_desc()->get_upgrades(i)->is_future(month_now) && (!v->get_desc()->get_upgrades(i)->is_retired(month_now)))
+					{
+						amount_of_upgrades++;
+					}
+				}
+				if (amount_of_upgrades > 0)
+				{
+					buf.clear();
+					buf.printf("%s:", translator::translate("this_vehicle_can_upgrade_to"));
+					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, COL_PURPLE, true);
+					extra_y += LINESPACE;
+					for (uint8 i = 0; i < min(v->get_desc()->get_upgrades_count(), max_display_of_upgrades); i++)
+					{
+						if (!v->get_desc()->get_upgrades(i)->is_future(month_now) && (!v->get_desc()->get_upgrades(i)->is_retired(month_now)))
+						{
+							buf.clear();
+							buf.printf("%s", translator::translate(v->get_desc()->get_upgrades(i)->get_name()));
+							display_proportional_clip(pos.x + w + offset.x + even_more_extra_w, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+							extra_y += LINESPACE;
+						}
+					}
+					if (amount_of_upgrades > max_display_of_upgrades)
+					{
+						buf.clear();
+						buf.printf("+ %i %s", amount_of_upgrades - max_display_of_upgrades, translator::translate("additional_upgrades"));
+						display_proportional_clip(pos.x + w + offset.x + even_more_extra_w, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+						extra_y += LINESPACE;
+					}
+				}
 			}
 
 			// Revenue
