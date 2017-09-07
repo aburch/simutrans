@@ -89,19 +89,6 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		destroy_win(this);
 	}
 	else {
-		if(cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()) {
-			withdraw_button.enable();
-			sale_button.enable();
-			retire_button.enable();
-		}
-		else {
-			withdraw_button.disable();
-			sale_button.disable();
-			retire_button.disable();
-		}
-		withdraw_button.pressed = cnv->get_withdraw();
-		retire_button.pressed = cnv->get_depot_when_empty();
-
 		bool any_class = false;
 		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 		{
@@ -114,14 +101,28 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 				}
 			}
 		}
-		if (any_class)
-		{
-			class_management_button.enable();
+
+		if(cnv->get_owner()==welt->get_active_player()  &&  !welt->get_active_player()->is_locked()) {
+			withdraw_button.enable();
+			sale_button.enable();
+			retire_button.enable();
+			if (any_class)
+			{
+				class_management_button.enable();
+			}
+			else
+			{
+				class_management_button.disable();
+			}
 		}
-		else
-		{
+		else {
+			withdraw_button.disable();
+			sale_button.disable();
+			retire_button.disable();
 			class_management_button.disable();
 		}
+		withdraw_button.pressed = cnv->get_withdraw();
+		retire_button.pressed = cnv->get_depot_when_empty();
 		class_management_button.pressed = win_get_magic(magic_class_manager);
 
 		// all gui stuff set => display it
