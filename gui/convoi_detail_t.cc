@@ -512,6 +512,11 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			}
 
 			// Upgrades
+
+			buf.clear();
+			buf.printf("%s: %i", translator::translate("possible_upgrades"), v->get_desc()->get_upgrades_count());
+			display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			extra_y += LINESPACE;
 			if (v->get_desc()->get_upgrades_count() > 0)
 			{
 				const uint16 month_now = welt->get_timeline_year_month();
@@ -519,7 +524,6 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				int max_display_of_upgrades = 3;
 				for (int i = 0; i < v->get_desc()->get_upgrades_count(); i++)
 				{
-					//if (v->get_desc()->get_upgrades(i)->is_available(month_now));
 					if (!v->get_desc()->get_upgrades(i)->is_future(month_now) && (!v->get_desc()->get_upgrades(i)->is_retired(month_now)))
 					{
 						amount_of_upgrades++;

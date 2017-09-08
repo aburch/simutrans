@@ -613,12 +613,46 @@ void simline_t::recalc_status()
 	{
 		// Has obsolete vehicles.
 		bool has_obsolete = false;
-		FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) {
-			has_obsolete = i->has_obsolete_vehicles();
-			if (has_obsolete) break;
+		bool has_obsolete_that_can_upgrade = false;
+		const uint16 month_now = welt->get_timeline_year_month();
+
+		FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys)
+		{
+			if (i->has_obsolete_vehicles())
+			{
+				has_obsolete = true;
+			}
+
+			for (uint16 j = 0; j < i->get_vehicle_count(); j++)
+			{
+				vehicle_t *v = i->get_vehicle(j);
+				if (v->get_desc()->get_upgrades_count() > 0)
+				{
+					for (int k = 0; k < v->get_desc()->get_upgrades_count(); k++)
+					{
+						if (!v->get_desc()->get_upgrades(k)->is_future(month_now) && (!v->get_desc()->get_upgrades(k)->is_retired(month_now)))
+						{
+							has_obsolete_that_can_upgrade = true;
+						}
+					}
+				}
+			}
+
 		}
 		// now we have to set it
-		state_color = has_obsolete ? COL_DARK_BLUE : COL_BLACK;
+		if (has_obsolete)
+		{
+			state_color = COL_DARK_BLUE;
+		}
+		else if (has_obsolete_that_can_upgrade)
+		{
+			state_color = COL_PURPLE;
+		}
+		else
+		{
+			state_color = COL_BLACK;
+		}
+
 	}
 }
 
