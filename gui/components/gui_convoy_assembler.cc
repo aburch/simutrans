@@ -2003,6 +2003,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		// These two lines differ from the Standard translation texts, as Standard does not have a monthly cost.
 		// Cost information:
 
+		// TODO: differentiate between "buy new" value and "upgrade to" value
+
 		char resale_entry[32] = "\0";
 		if (resale_value != -1.0) {
 			char tmp[128];
