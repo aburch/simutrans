@@ -1609,6 +1609,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		owner_n = welt->sp2num(owner);
 	}
 	file->rdwr_str(name);
+	DBG_DEBUG("stadt_t::rdwr", "city'%s'", name);
 	pos.rdwr(file);
 	uint32 lli = lo.x;
 	uint32 lob = lo.y;
@@ -1667,7 +1668,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	// we probably need to load/save the city history
 	if (file->get_version() < 86000) 
 	{
-		DBG_DEBUG("stadt_t::rdwr()", "is old version: No history!");
+		//DBG_DEBUG("stadt_t::rdwr()", "is old version: No history!");
 	}
 	else if(file->get_version() < 99016) 
 	{
@@ -1717,36 +1718,84 @@ void stadt_t::rdwr(loadsave_t* file)
 		// Extended version 3 extended it further, so skip the last step.
 		// For extended versions *before* 3, power history was treated as congestion
 		// (they are now separate), so that must be handled differently.
-		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) 
+		if (file->get_version() <= 120000)
 		{
-			for (uint hist_type = 0; hist_type < 14; hist_type++) 
+			for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++)
 			{
-				if(hist_type == HIST_PAS_WALKED || hist_type == HIST_JOBS || hist_type == HIST_VISITOR_DEMAND)
+				for (uint hist_type = 0; hist_type < 14; hist_type++)
 				{
-					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers, and versions earlier than 12 did not record jobs or visitor demand.
-					city_history_year[year][hist_type] = 0;
-					continue;
+					if (hist_type == HIST_PAS_WALKED || hist_type == HIST_JOBS || hist_type == HIST_VISITOR_DEMAND)
+					{
+						// Versions earlier than 111.1 Ex 10.8 did not record walking passengers, and versions earlier than 12 did not record jobs or visitor demand.
+						//city_history_year[year][hist_type] = 0;
+						continue;
+					}
+					file->rdwr_longlong(city_history_year[year][hist_type]);
 				}
-				file->rdwr_longlong(city_history_year[year][hist_type]);
 			}
+			for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++)
+			{
+				for (uint hist_type = 0; hist_type < 14; hist_type++)
+				{
+					if (hist_type == HIST_PAS_WALKED || hist_type == HIST_JOBS || hist_type == HIST_VISITOR_DEMAND)
+					{
+						// Versions earlier than 111.1 Ex 10.8 did not record walking passengers, and versions earlier than 12 did not record jobs or visitor demand.
+						//city_history_month[month][hist_type] = 0;
+						continue;
+					}
+					file->rdwr_longlong(city_history_month[month][hist_type]);
+				}
+			}
+			// save button settings for this town
+			file->rdwr_long(stadtinfo_options);
 		}
-		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) 
+		else
 		{
-			for (uint hist_type = 0; hist_type < 14; hist_type++) 
+			// 120,001 with walking (direct connections) recored seperately
+			sint64 dummy_hist_mail_walked = 0L;
+			for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++)
 			{
-				if(hist_type == HIST_PAS_WALKED || hist_type == HIST_JOBS || hist_type == HIST_VISITOR_DEMAND)
+				for (uint hist_type = 0; hist_type < 14; hist_type++)
 				{
-					// Versions earlier than 111.1 Ex 10.8 did not record walking passengers, and versions earlier than 12 did not record jobs or visitor demand.
-					city_history_month[month][hist_type] = 0;
-					continue;
+					switch (hist_type)
+					{
+						case HIST_JOBS:
+						case HIST_VISITOR_DEMAND:
+							// Versions earlier than 111.1 Ex 10.8 did not record walking passengers, and versions earlier than 12 did not record jobs or visitor demand.
+							//city_history_year[year][hist_type] = 0;
+							continue;
+
+						case HIST_MAIL_GENERATED:
+							file->rdwr_longlong(dummy_hist_mail_walked);
+							break;
+					}
+					file->rdwr_longlong(city_history_year[year][hist_type]);
 				}
-				file->rdwr_longlong(city_history_month[month][hist_type]);
 			}
+			for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++)
+			{
+				for (uint hist_type = 0; hist_type < 14; hist_type++)
+				{
+					switch (hist_type)
+					{
+						case HIST_JOBS:
+						case HIST_VISITOR_DEMAND:
+							// Versions earlier than 111.1 Ex 10.8 did not record walking passengers, and versions earlier than 12 did not record jobs or visitor demand.
+							//city_history_year[year][hist_type] = 0;
+							continue;
+
+						case HIST_MAIL_GENERATED:
+							file->rdwr_longlong(dummy_hist_mail_walked);
+							break;
+					}
+					file->rdwr_longlong(city_history_year[month][hist_type]);
+				}
+			}
+			// save button settings for this town
+			file->rdwr_long(stadtinfo_options);
 		}
-		// save button settings for this town
-		file->rdwr_long(stadtinfo_options);
 	}
-	else if(file->get_extended_version() > 0 && (file->get_extended_version() < 3 || file->get_extended_version() == 0))
+	else if(file->get_extended_version() > 0 && file->get_extended_version() < 3)
 	{
 		// Move congestion history to the correct place (shares with power received).
 		
@@ -1865,6 +1914,33 @@ void stadt_t::rdwr(loadsave_t* file)
 		// These will be set later when buildings are added.
 		city_history_month[0][HIST_CITICENS] = 0;
 		city_history_year[0][HIST_CITICENS] = 0;
+	}
+
+	// differential history
+	if (file->get_version() <= 120000 || (file->get_extended_version() > 0 && file->get_extended_version() < 22)) {
+		if (file->is_loading()) {
+			// Initalize differential statistics assuming a differential of 0.
+			city_growth_get_factors(city_growth_factor_previous, 0);
+		}
+	}
+	else if (file->get_extended_version() == 0) {
+		if (file->is_loading()) {
+			// Initalize differential statistics assuming a differential of 0.
+			city_growth_get_factors(city_growth_factor_previous, 0);
+		}
+
+		// load/save differential statistics.
+		for (uint32 i = 0; i < 3; i++) {
+			file->rdwr_longlong(city_growth_factor_previous[i].demand);
+			file->rdwr_longlong(city_growth_factor_previous[i].supplied);
+		}
+	}
+	else {
+		// load/save differential statistics.
+		for (uint32 i = 0; i < GROWTH_FACTOR_NUMBER; i++) {
+			file->rdwr_longlong(city_growth_factor_previous[i].demand);
+			file->rdwr_longlong(city_growth_factor_previous[i].supplied);
+		}
 	}
 
 	if(file->get_version()>99014  &&  file->get_version()<99016) {
