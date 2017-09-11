@@ -202,7 +202,7 @@ static inline sint64 max_64(const sint64 a, const sint64 b)
 	return a > b ? a : b;
 }
 
-static inline int min_64(const sint64 a, const sint64 b)
+static inline sint64 min_64(const sint64 a, const sint64 b)
 {
 	return a < b ? a : b;
 }

@@ -388,12 +388,12 @@ public:
 #undef max
 #endif
 
-static inline float32e8_t min(const float32e8_t a, const float32e8_t b)
+static inline float32e8_t fl_min(const float32e8_t a, const float32e8_t b)
 {
 	return a < b ? a : b;
 }
 
-static inline float32e8_t max(const float32e8_t a, const float32e8_t b)
+static inline float32e8_t fl_max(const float32e8_t a, const float32e8_t b)
 {
 	return a > b ? a : b;
 }
