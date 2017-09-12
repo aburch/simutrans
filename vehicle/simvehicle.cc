@@ -627,7 +627,7 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 	return NULL;
 }
 
-bool vehicle_base_t::judge_lane_crossing( const uint8 current_direction, const uint8 next_direction, const uint8 other_next_direction, const bool is_overtaking, const bool forced_to_change_lane )
+bool vehicle_base_t::judge_lane_crossing( const uint8 current_direction, const uint8 next_direction, const uint8 other_next_direction, const bool is_overtaking, const bool forced_to_change_lane ) const
 {
 	bool on_left = false;
 	const bool drives_on_left = welt->get_settings().is_drive_left();
@@ -2509,8 +2509,9 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		// When condition changes, overtaking should be quitted once.
 		if(  (cnv->is_overtaking()  &&  str->get_overtaking_mode()==prohibited_mode)  ||  (cnv->is_overtaking()  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode()<inverted_mode  &&  static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode()==oneway_mode)  ) {
 			// TODO:other_lane_blocked() method is inappropriate for the condition.
-			if(  vehicle_base_t* v = other_lane_blocked()  ) {
-				if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next2), v->get_90direction(), true, true)) {
+			if(  vehicle_base_t* v = other_lane_blocked_offset()  ) {
+				if(  v->get_waytype() == road_wt  ) {
+					printf("%s: lane change denied. pos:%d,%d str:%d,%d v:%d,%d\n", cnv->get_name(), get_pos().x, get_pos().y, str->get_pos().x, str->get_pos().y, v->get_pos().x, v->get_pos().y);
 					restart_speed = 0;
 					cnv->reset_waiting();
 					next_cross_lane = true;
@@ -2519,12 +2520,13 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 			// There is no vehicle on traffic lane.
 			cnv->set_tiles_overtaking(0);
+			printf("%s: There is no vehicle on traffic lane. pos:%s, str:%s\n", cnv->get_name(), get_pos().get_str(), str->get_pos().get_str());
 			return true;
 		}
 		// If this vehicle is on traffic lane and the next tile forces to go passing lane, this vehicle must wait until passing lane become safe.
 		if(  !cnv->is_overtaking()  &&  str->get_overtaking_mode() == inverted_mode  ) {
-			if(  vehicle_base_t* v = other_lane_blocked()  ) {
-				if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next2), v->get_90direction(), false, true)) {
+			if(  vehicle_base_t* v = other_lane_blocked_offset()  ) {
+				if(  v->get_waytype() == road_wt  ) {
 					restart_speed = 0;
 					cnv->reset_waiting();
 					next_cross_lane = true;
@@ -2597,13 +2599,16 @@ convoi_t* road_vehicle_t::get_overtaker_cv()
 	return cnv;
 }
 
-vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top) const{
+vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, sint8 offset) const{
 	//This function calculate whether the convoi can change lane.
 	if(  leading  ){
 		route_t const& r = *cnv->get_route();
+		bool can_reach_tail = false;
 		// only_search_top == false: check whether there's no car in -1 ~ +1 section.
 		// only_search_top == true: check whether there's no car in front of this vehicle. (Not the same lane.)
-		for(uint32 test_index = route_index < r.get_count() ? route_index : r.get_count() - 1u; test_index >= route_index - 2u; test_index--){
+		if(route_index<r.get_count()) printf("%s: starting pos:%d,%d\n", cnv->get_name(), r.at(route_index).x, r.at(route_index).y);
+		for(uint32 test_index = route_index < r.get_count() ? route_index : r.get_count() - 1u;; test_index--){
+			printf("examine pos:%d,%d\n", r.at(test_index).x, r.at(test_index).y);
 			grund_t *gr = welt->lookup(r.at(test_index));
 			if(  !gr  ) {
 				cnv->suche_neue_route();
@@ -2632,7 +2637,17 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top) c
 							}
 							continue;
 						}
-						if(  test_index == route_index - 2u  &&  at->get_convoi()->get_akt_speed() == 0  ) {
+						// Ignore stopping convoi on the tile behind this convoi to change lane in traffic jam.
+						if(  can_reach_tail  &&  at->get_convoi()->get_akt_speed() == 0  ) {
+							continue;
+						}
+						if(  can_reach_tail  ||  r.at(test_index)==cnv->back()->get_pos()  ){
+							if(  can_reach_tail  ) offset += 1;
+							printf("%s: other_lane_blocked() cur:%d,%d next:%d,%d, n_next:%d,%d offset:%d\n ", cnv->get_name(), r.at(test_index-1u+offset).x, r.at(test_index-1u+offset).y, r.at(test_index+offset).x, r.at(test_index+offset).y, r.at(test_index+offset+1u).x, r.at(test_index+offset+1u).y, offset);
+							printf("%s: other_lane_blocked() this:%d, next:%d, other:%d\n", cnv->get_name(), calc_direction(r.at(test_index-1u+offset),r.at(test_index+offset)), calc_direction(r.at(test_index+offset),r.at(test_index+1u+offset)),  v->get_90direction());
+							if(  test_index+offset>=1  &&  test_index+offset<r.get_count()-1u  &&   judge_lane_crossing(calc_direction(r.at(test_index-1u+offset),r.at(test_index+offset)), calc_direction(r.at(test_index+offset),r.at(test_index+1u+offset)),  v->get_90direction(), cnv->is_overtaking(), true)  ){
+								return v;
+							}
 							continue;
 						}
 						return v;
@@ -2651,12 +2666,27 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top) c
 							}
 							continue;
 						}
-						if(  test_index == route_index - 2u  &&  caut->get_current_speed() == 0  ) {
+						// Ignore stopping convoi on the tile behind this convoi to change lane in traffic jam.
+						if(  can_reach_tail  &&  caut->get_current_speed() == 0  ) {
+							continue;
+						}
+						if(  can_reach_tail  ||  r.at(test_index)==cnv->back()->get_pos()  ){
+							if(  can_reach_tail  ) offset += 1;
+							if(  test_index>=1  &&  test_index<r.get_count()-1u  &&   judge_lane_crossing(calc_direction(r.at(test_index-1u),r.at(test_index)), calc_direction(r.at(test_index),r.at(test_index+1u)),  v->get_90direction(), cnv->is_overtaking(), true)  ){
+								return v;
+							}
 							continue;
 						}
 						return v;
 					}
 				}
+			}
+			if(  can_reach_tail  ){
+				// we finished the examination of the tile behind the tail of convoy.
+				break;
+			}
+			if(  r.at(test_index)==cnv->back()->get_pos()  ) {
+				can_reach_tail = true;
 			}
 			if(  test_index == 0  ||  only_search_top  ) {
 				break;

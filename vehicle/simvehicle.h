@@ -126,7 +126,7 @@ protected:
 	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction, const private_car_t *pcar );
 
 	// If true, two vehicles might crash by lane crossing.
-	bool judge_lane_crossing( const uint8 current_direction, const uint8 next_direction, const uint8 other_next_direction, const bool is_overtaking, const bool forced_to_change_lane );
+	bool judge_lane_crossing( const uint8 current_direction, const uint8 next_direction, const uint8 other_next_direction, const bool is_overtaking, const bool forced_to_change_lane ) const;
 
 	// only needed for old way of moving vehicles to determine position at loading time
 	bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const;
@@ -557,8 +557,10 @@ public:
 	virtual overtaker_t* get_overtaker();
 	virtual convoi_t* get_overtaker_cv();
 
-	virtual vehicle_base_t* other_lane_blocked() const { return other_lane_blocked(false); }
-	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top) const;
+	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top, sint8 offset) const;
+	virtual vehicle_base_t* other_lane_blocked() const { return other_lane_blocked(false,0); }
+	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top) const { return other_lane_blocked(only_search_top,0); }
+	virtual vehicle_base_t* other_lane_blocked_offset() const { return other_lane_blocked(false,1); }
 };
 
 
