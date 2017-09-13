@@ -802,12 +802,12 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				display_proportional(pos_x, pos_y, runway_too_short, ALIGN_LEFT, SYSCOL_TEXT, true);
 				debug_row++;
 			}	
-			if (cnv->front()->get_is_overweight())
+			if (cnv->front()->get_is_overweight() == true) // This doesnt flag!
 			{
 				const int pos_y = pos_y0 + debug_row * LINESPACE;
-				char get_is_overweight[32];
-				sprintf(get_is_overweight, "is_overweight");
-				display_proportional(pos_x, pos_y, get_is_overweight, ALIGN_LEFT, SYSCOL_TEXT, true);
+				char too_heavy[32];
+				sprintf(too_heavy, "is_overweight");
+				display_proportional(pos_x, pos_y, too_heavy, ALIGN_LEFT, SYSCOL_TEXT, true);
 				debug_row++;
 			}
 		}

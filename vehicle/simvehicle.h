@@ -480,6 +480,8 @@ public:
 	*/
 	inline uint32 get_total_weight() const { return sum_weight; }
 
+	bool get_is_overweight() { return is_overweight; }
+
 	// returns speedlimit of ways (and if convoi enters station etc)
 	// the convoi takes care of the max_speed of the vehicle
 	// In Extended this is mostly for entering stations etc.,
