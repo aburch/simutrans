@@ -1,4 +1,4 @@
-#/*
+/*
  * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
@@ -7066,7 +7066,8 @@ bool air_vehicle_t::calc_route_internal(
 			flying_height = 3*TILE_HEIGHT_STEP;
 		}
 		takeoff = 0;
-		target_height = ((sint16)start.z+3)*TILE_HEIGHT_STEP;
+		//		target_height = ((sint16)start.z+3)*TILE_HEIGHT_STEP;
+				target_height = ((sint16)start.z+SET_FLIGHT_HEIGHT)*TILE_HEIGHT_STEP;
 	}
 
 //DBG_MESSAGE("air_vehicle_t::calc_route()","take off ok");
