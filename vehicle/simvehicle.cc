@@ -7082,7 +7082,7 @@ bool air_vehicle_t::calc_route_internal(
 			// add the start
 			const grund_t *gr;
 			int endi = 1;
-			int over = 3;
+			int over = SET_LANDING_OFFSET;
 			// now add all runway + 3 ...
 			do {
 				if(!welt->is_within_limits(search_end.get_2d()+(end_dir*endi)) ) {
@@ -7708,7 +7708,7 @@ void air_vehicle_t::hop(grund_t* gr)
 				new_friction = 1;
 				block_reserver( takeoff, takeoff+100, false );
 				flying_height = h_cur - h_next;
-				target_height = h_cur+TILE_HEIGHT_STEP*3;
+				target_height = h_cur+TILE_HEIGHT_STEP*SET_FLIGHT_HEIGHT;//modified
 			}
 			break;
 		}
@@ -7731,11 +7731,11 @@ void air_vehicle_t::hop(grund_t* gr)
 			}
 			flying_height -= h_next;
 			// did we have to change our flight height?
-			if(  target_height-h_next > TILE_HEIGHT_STEP*5  ) {
+			if(  target_height-h_next > TILE_HEIGHT_STEP*(SET_FLIGHT_HEIGHT+2)  ) {
 				// Move down
 				target_height -= TILE_HEIGHT_STEP*2;
 			}
-			else if(  target_height-h_next < TILE_HEIGHT_STEP*2  ) {
+			else if(  target_height-h_next < TILE_HEIGHT_STEP*(SET_FLIGHT_HEIGHT-1)  ) {
 				// Move up
 				target_height += TILE_HEIGHT_STEP*2;
 			}
