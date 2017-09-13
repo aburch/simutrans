@@ -41,7 +41,7 @@ class schiene_t;
 // offset of end tile of the holding pattern before touchdown tile.
 #define HOLDING_PATTERN_OFFSET 3
 #define SET_FLIGHT_HEIGHT 10
-#define SET_LANDING_OFFSET 3
+#define SET_LANDING_OFFSET SET_FLIGHT_HEIGHT
 /*----------------------- Movables ------------------------------------*/
 
 /**

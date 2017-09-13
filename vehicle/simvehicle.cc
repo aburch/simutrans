@@ -7384,9 +7384,9 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 //DBG_MESSAGE("air_vehicle_t::can_enter_tile()","index %i<>%i",route_index,touchdown);
 
 	// check for another circle ...
-	if(  route_index == touchdown - HOLDING_PATTERN_OFFSET  )
+	if(  route_index == touchdown - HOLDING_PATTERN_OFFSET )
 	{
-		const int runway_state = block_reserver( touchdown, search_for_stop+1, true );
+		const int runway_state = block_reserver( touchdown + SET_LANDING_OFFSET, search_for_stop+1, true );
 		if( runway_state != 1 )
 		{
 
@@ -7414,7 +7414,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 	if(  route_index == touchdown - HOLDING_PATTERN_LENGTH - HOLDING_PATTERN_OFFSET  &&  state != circling  )
 	{
 		// just check, if the end of runway is free; we will wait there
-		const int runway_state = block_reserver( touchdown, search_for_stop+1, true );
+		const int runway_state = block_reserver( touchdown + SET_LANDING_OFFSET, search_for_stop+1, true );
 		if(runway_state == 1)
 		{
 			route_index += HOLDING_PATTERN_LENGTH;
@@ -7752,7 +7752,7 @@ void air_vehicle_t::hop(grund_t* gr)
 				flying_height = (flying_height-TILE_HEIGHT_STEP);
 			}
 
-			if (route_index >= touchdown)  {
+			if (route_index >= touchdown - SET_LANDING_OFFSET)  { //modified. "too short"
 				// come down, now!
 				target_height = h_next;
 
