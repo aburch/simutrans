@@ -1039,6 +1039,7 @@ public:
 	virtual bool is_flying() const { return !is_on_ground(); }
 
 	bool runway_too_short;
+	bool is_runway_too_short() {return runway_too_short; }
 
 	virtual sint32 get_takeoff_route_index() const { return (sint32) takeoff; }
 	virtual sint32 get_touchdown_route_index() const { return (sint32) touchdown; }
