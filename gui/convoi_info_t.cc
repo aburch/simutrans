@@ -451,7 +451,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 		case convoi_t::WAITING_FOR_CLEARANCE:
 
-			if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
+			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
 			{
 				sprintf(speed_text, translator::translate("runway_too_short (need %i m)"), cnv->front()->get_desc()->get_minimum_runway_length());
 				speed_color = COL_RED;
@@ -520,12 +520,12 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		case convoi_t::CAN_START_TWO_MONTHS:
 		case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
 
-			/*if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
+			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
 			{
 				sprintf(speed_text, translator::translate("runway_too_short (need %i m)"), cnv->front()->get_desc()->get_minimum_runway_length());
 				speed_color = COL_RED;
 			}
-			else*/
+			else
 			{
 				sprintf(speed_text, translator::translate("clf_chk_stucked"));
 				speed_color = COL_ORANGE;
@@ -534,11 +534,11 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 		case convoi_t::NO_ROUTE:
 
-			/*if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
+			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
 			{
 				sprintf(speed_text, translator::translate("runway_too_short (need %i m)"), cnv->front()->get_desc()->get_minimum_runway_length());
 			}
-			else*/
+			else
 			{
 				sprintf(speed_text, translator::translate("clf_chk_noroute"));
 			}
