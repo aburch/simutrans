@@ -436,6 +436,12 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		COLOR_VAL speed_color = COL_BLACK;
 		const int pos_y = pos_y0; // line 1
 		char speed_text[256];
+
+		air_vehicle_t* air_vehicle = NULL;
+		if (cnv->front()->get_waytype() == air_wt)
+		{
+			air_vehicle = (air_vehicle_t*)cnv->front();
+		}
 		const air_vehicle_t* air = (const air_vehicle_t*)this;
 
 		speed_bar.set_visible(false);
@@ -646,7 +652,165 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			int len = display_proportional(line_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
 			display_proportional_clip(line_x + len, pos_y, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
 		}
+		{
+			// Debug: show covnoy states
+			int debug_row = 6;
+			{
+				const int pos_y = pos_y0 + debug_row * LINESPACE;
 
+				char state_text[32];
+				switch (cnv->get_state())
+				{
+				case convoi_t::INITIAL:
+
+					sprintf(state_text, "INITIAL");
+					break;
+
+				case convoi_t::EDIT_SCHEDULE:
+
+
+					sprintf(state_text, "EDIT_SCHEDULE");
+					break;
+
+				case convoi_t::ROUTING_1:
+
+
+					sprintf(state_text, "ROUTING_1");
+					break;
+
+				case convoi_t::ROUTING_2:
+
+					sprintf(state_text, "ROUTING_2");
+					break;
+
+				case convoi_t::DUMMY5:
+
+
+					sprintf(state_text, "DUMMY5");
+					break;
+
+				case convoi_t::NO_ROUTE:
+
+
+					sprintf(state_text, "NO_ROUTE");
+					break;
+
+				case convoi_t::DRIVING:
+
+
+					sprintf(state_text, "DRIVING");
+					break;
+
+				case convoi_t::LOADING:
+
+
+					sprintf(state_text, "LOADING");
+					break;
+
+				case convoi_t::WAITING_FOR_CLEARANCE:
+
+
+					sprintf(state_text, "WAITING_FOR_CLEARANCE");
+					break;
+
+				case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
+
+
+					sprintf(state_text, "WAITING_FOR_CLEARANCE_ONE_MONTH");
+					break;
+
+				case convoi_t::CAN_START:
+
+
+					sprintf(state_text, "CAN_START");
+					break;
+
+				case convoi_t::CAN_START_ONE_MONTH:
+
+
+					sprintf(state_text, "CAN_START_ONE_MONTH");
+					break;
+
+				case convoi_t::SELF_DESTRUCT:
+
+
+					sprintf(state_text, "SELF_DESTRUCT");
+					break;
+
+				case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
+
+
+					sprintf(state_text, "WAITING_FOR_CLEARANCE_TWO_MONTHS");
+					break;
+
+				case convoi_t::CAN_START_TWO_MONTHS:
+
+
+					sprintf(state_text, "CAN_START_TWO_MONTHS");
+					break;
+
+				case convoi_t::LEAVING_DEPOT:
+
+
+					sprintf(state_text, "LEAVING_DEPOT");
+					break;
+
+				case convoi_t::ENTERING_DEPOT:
+
+
+					sprintf(state_text, "ENTERING_DEPOT");
+					break;
+
+				case convoi_t::REVERSING:
+
+
+					sprintf(state_text, "REVERSING");
+					break;
+
+				case convoi_t::OUT_OF_RANGE:
+
+
+					sprintf(state_text, "OUT_OF_RANGE");
+					break;
+
+				case convoi_t::EMERGENCY_STOP:
+
+
+					sprintf(state_text, "EMERGENCY_STOP");
+					break;
+
+				case convoi_t::ROUTE_JUST_FOUND:
+
+					sprintf(state_text, "ROUTE_JUST_FOUND");
+					break;
+
+				default:
+
+					sprintf(state_text, "default");
+					break;
+
+				}
+
+				display_proportional(pos_x, pos_y, state_text, ALIGN_LEFT, SYSCOL_TEXT, true);
+				debug_row++;
+			}
+			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
+			{
+				const int pos_y = pos_y0 + debug_row * LINESPACE;
+				char runway_too_short[32];
+				sprintf(runway_too_short, "air->runway_too_short");
+				display_proportional(pos_x, pos_y, runway_too_short, ALIGN_LEFT, SYSCOL_TEXT, true);
+				debug_row++;
+			}	
+			if (cnv->front()->get_is_overweight())
+			{
+				const int pos_y = pos_y0 + debug_row * LINESPACE;
+				char get_is_overweight[32];
+				sprintf(get_is_overweight, "is_overweight");
+				display_proportional(pos_x, pos_y, get_is_overweight, ALIGN_LEFT, SYSCOL_TEXT, true);
+				debug_row++;
+			}
+		}
 #ifdef DEBUG_PHYSICS
 		/*
 		 * Show braking distance
