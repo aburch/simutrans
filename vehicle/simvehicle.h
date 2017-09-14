@@ -521,6 +521,8 @@ private:
 protected:
 	bool check_next_tile(const grund_t *bd) const;
 
+	koord3d pos_prev; //used in enter_tile()
+
 public:
 	virtual void enter_tile(grund_t*);
 
@@ -556,6 +558,8 @@ public:
 
 	virtual overtaker_t* get_overtaker();
 	virtual convoi_t* get_overtaker_cv();
+
+	void rdwr_from_convoi(loadsave_t *file);
 
 	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top, sint8 offset) const;
 	virtual vehicle_base_t* other_lane_blocked() const { return other_lane_blocked(false,0); }

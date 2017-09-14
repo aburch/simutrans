@@ -1893,6 +1893,7 @@ road_vehicle_t::road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t
 	vehicle_t(pos, desc, player_)
 {
 	cnv = cn;
+	pos_prev = koord3d::invalid;
 }
 
 
@@ -1925,6 +1926,17 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 			last_desc = desc;
 		}
 		calc_disp_lane();
+	}
+}
+
+void road_vehicle_t::rdwr_from_convoi(loadsave_t *file){
+	vehicle_t::rdwr_from_convoi(file);
+	if(  file->get_version()>=120006  ) {
+		koord3d pos_prev_rdwr = this->pos_prev;
+		pos_prev_rdwr.rdwr(file);
+		this->pos_prev = pos_prev_rdwr;
+	} else {
+		pos_prev = koord3d::invalid;
 	}
 }
 
@@ -2505,11 +2517,19 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 
 		const koord3d pos_next2 = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
+		// We have to calculate offset.
+		uint32 offset = 0;
+		if(  str->get_pos()!=r.at(route_index)  ){
+			for(uint32 test_index = route_index+1u; test_index<r.get_count(); test_index++){
+				offset += 1;
+				if(  str->get_pos()==r.at(test_index)  ) break;
+			}
+		}
 		// If this vehicle is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
 		// When condition changes, overtaking should be quitted once.
 		if(  (cnv->is_overtaking()  &&  str->get_overtaking_mode()==prohibited_mode)  ||  (cnv->is_overtaking()  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode()<inverted_mode  &&  static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode()==oneway_mode)  ) {
 			// TODO:other_lane_blocked() method is inappropriate for the condition.
-			if(  vehicle_base_t* v = other_lane_blocked_offset()  ) {
+			if(  vehicle_base_t* v = other_lane_blocked(false, offset)  ) {
 				if(  v->get_waytype() == road_wt  ) {
 					restart_speed = 0;
 					cnv->reset_waiting();
@@ -2518,12 +2538,12 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				}
 			}
 			// There is no vehicle on traffic lane.
-			cnv->set_tiles_overtaking(0);
+			// cnv->set_tiles_overtaking(0); is done in enter_tile()
 			return true;
 		}
 		// If this vehicle is on traffic lane and the next tile forces to go passing lane, this vehicle must wait until passing lane become safe.
 		if(  !cnv->is_overtaking()  &&  str->get_overtaking_mode() == inverted_mode  ) {
-			if(  vehicle_base_t* v = other_lane_blocked_offset()  ) {
+			if(  vehicle_base_t* v = other_lane_blocked(false, offset)  ) {
 				if(  v->get_waytype() == road_wt  ) {
 					restart_speed = 0;
 					cnv->reset_waiting();
@@ -2765,6 +2785,17 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 		if(  cnv->get_lane_affinity_end_index() == route_index  ) {
 			cnv->reset_lane_affinity();
 		}
+		// If this tile is two-way ~ prohibited and the previous tile is oneway, the convoy have to move on traffic lane. Safety is confirmed in can_enter_tile().
+		if(  pos_prev!=koord3d::invalid  ) {
+			grund_t* prev_gr = welt->lookup(pos_prev);
+			if(  prev_gr  ){
+				strasse_t* prev_str = (strasse_t*)prev_gr->get_weg(road_wt);
+				if(  (prev_str  &&  (prev_str->get_overtaking_mode()==oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode()<inverted_mode))  ||  str->get_overtaking_mode()==prohibited_mode  ){
+					cnv->set_tiles_overtaking(0);
+				}
+			}
+		}
+		pos_prev = gr->get_pos();
 	}
 }
 
