@@ -2638,7 +2638,7 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 				if(test_pos==cnv->front()->get_pos()) break;
 			}
 		}
-		for(uint32 test_index = route_index+offset < r.get_count() ? route_index+offset : r.get_count() - 1u;; test_index--){
+		for(sint32 test_index = route_index+offset < (sint32)r.get_count() ? route_index+offset : r.get_count() - 1u;; test_index--){
 			grund_t *gr = welt->lookup(r.at(test_index));
 			if(  !gr  ) {
 				cnv->suche_neue_route();
@@ -2674,7 +2674,7 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 						if(  test_index==tail_index-1+offset  ||  test_index==tail_index+offset  ){
 							uint8 tail_offset = 0;
 							if(  test_index==tail_index-1+offset  ) tail_offset = 1;
-							if(  test_index+tail_offset>=1  &&  test_index+tail_offset<r.get_count()-1u  &&   judge_lane_crossing(calc_direction(r.at(test_index-1u+tail_offset),r.at(test_index+tail_offset)), calc_direction(r.at(test_index+tail_offset),r.at(test_index+1u+tail_offset)),  v->get_90direction(), cnv->is_overtaking(), true)  ){
+							if(  test_index+tail_offset>=1  &&  test_index+tail_offset<(sint32)r.get_count()-1  &&   judge_lane_crossing(calc_direction(r.at(test_index-1u+tail_offset),r.at(test_index+tail_offset)), calc_direction(r.at(test_index+tail_offset),r.at(test_index+1u+tail_offset)),  v->get_90direction(), cnv->is_overtaking(), true)  ){
 								return v;
 							}
 							continue;
@@ -2702,7 +2702,7 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 						if(  test_index==tail_index-1+offset  ||  test_index==tail_index+offset  ){
 							uint8 tail_offset = 0;
 							if(  test_index==tail_index-1+offset  ) tail_offset = 1;
-							if(  test_index+tail_offset>=1  &&  test_index+tail_offset<r.get_count()-1u  &&   judge_lane_crossing(calc_direction(r.at(test_index-1u+tail_offset),r.at(test_index+tail_offset)), calc_direction(r.at(test_index+tail_offset),r.at(test_index+1u+tail_offset)),  v->get_90direction(), cnv->is_overtaking(), true)  ){
+							if(  test_index+tail_offset>=1  &&  test_index+tail_offset<(sint32)r.get_count()-1  &&   judge_lane_crossing(calc_direction(r.at(test_index-1u+tail_offset),r.at(test_index+tail_offset)), calc_direction(r.at(test_index+tail_offset),r.at(test_index+1u+tail_offset)),  v->get_90direction(), cnv->is_overtaking(), true)  ){
 								return v;
 							}
 							continue;
