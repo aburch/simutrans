@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 HansjÃ¶rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
@@ -932,13 +932,13 @@ private:
 	sint16 target_height;
 	uint32 search_for_stop, touchdown, takeoff;
 
-	sint16 altitude_limit; // for AFHP
+	sint16 altitude_level; // for AFHP
 	sint16 landing_distance; // for AFHP
 
-	void calc_altitude_limit(sint32 speed_limit_kmh){
-		altitude_limit = max(5, speed_limit_kmh/33);
-		landing_distance = altitude_limit - 1;
-		std::cout << "air_vehicle_t::altitude_limit = " << altitude_limit << std::endl;
+	void calc_altitude_level(sint32 speed_limit_kmh){
+		altitude_level = max(5, speed_limit_kmh/33);
+		landing_distance = altitude_level - 1;
+		std::cout << "air_vehicle_t::altitude_level = " << altitude_level << std::endl;
 	}
 	// BG, 07.08.2012: extracted from calc_route()
 	bool calc_route_internal(

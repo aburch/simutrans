@@ -6949,7 +6949,7 @@ bool air_vehicle_t::calc_route_internal(
 	{
 		// see, if we find a direct route: We are finished
 		state = air_vehicle_t::taxiing;
-		calc_altitude_limit( get_desc()->get_topspeed() );
+		calc_altitude_level( get_desc()->get_topspeed() );
 		if(route.calc_route( welt, start, ziel, this, max_speed, weight, false, 0))
 		{
 			// ok, we can taxi to our location
@@ -7054,7 +7054,7 @@ bool air_vehicle_t::calc_route_internal(
 			dbg->error("air_vehicle_t::calc_route()","Invalid route calculation: start is on a single direction field ...");
 		}
 		state = taxiing;
-		//		calc_altitude_limit( desc->get_topspeed() ); // added for AFHP
+		//		calc_altitude_level( desc->get_topspeed() ); // added for AFHP
 		flying_height = 0;
 		target_height = (sint16)start.z*TILE_HEIGHT_STEP;
 	}
@@ -7064,13 +7064,13 @@ bool air_vehicle_t::calc_route_internal(
 		route.append( start );
 		state = flying;
 		play_sound();
-		//		calc_altitude_limit( desc->get_topspeed() ); // added for AFHP
+		//		calc_altitude_level( desc->get_topspeed() ); // added for AFHP
 		if(flying_height==0) {
 			flying_height = 3*TILE_HEIGHT_STEP;
 		}
 		takeoff = 0;
 		//		target_height = ((sint16)start.z+3)*TILE_HEIGHT_STEP;
-		target_height = ((sint16)start.z+altitude_limit)*TILE_HEIGHT_STEP;
+		target_height = ((sint16)start.z+altitude_level)*TILE_HEIGHT_STEP;
 	}
 //DBG_MESSAGE("air_vehicle_t::calc_route()","take off ok");
 
@@ -7379,7 +7379,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		}
 		// stop shortly at the end of the runway
 		state = departing;
-		//calc_altitude_limit( desc->get_topspeed() ); // added for AFHP
+		//calc_altitude_level( desc->get_topspeed() ); // added for AFHP
 		restart_speed = 0;
 		return false;
 	}
@@ -7410,7 +7410,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 			return true;
 		}
 		state = landing;
-		//		calc_altitude_limit( desc->get_topspeed()/3 ); // added for AFHP
+		//		calc_altitude_level( desc->get_topspeed()/3 ); // added for AFHP
 
 		return true;
 		runway_too_short = false;
@@ -7426,7 +7426,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 			route_index += HOLDING_PATTERN_LENGTH;
 			// can land => set landing height
 			state = landing;
-			//			calc_altitude_limit( desc->get_topspeed()/3 ); // added for AFHP
+			//			calc_altitude_level( desc->get_topspeed()/3 ); // added for AFHP
 			runway_too_short = false;
 		}
 		else
@@ -7443,7 +7443,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 
 			// circle slowly next round
 			state = circling;
-			//			calc_altitude_limit( desc->get_topspeed()/3 ); // added for AFHP
+			//			calc_altitude_level( desc->get_topspeed()/3 ); // added for AFHP
 
 			cnv->must_recalc_data();
 		}
@@ -7545,7 +7545,7 @@ air_vehicle_t::air_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* 
 	flying_height = 0;
 	target_height = pos.z;
 	runway_too_short = false;
-	//	calc_altitude_limit( desc->get_topspeed() );
+	//	calc_altitude_level( desc->get_topspeed() );
 }
 
 
@@ -7661,8 +7661,8 @@ void air_vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	file->rdwr_long(search_for_stop);
 	file->rdwr_long(touchdown);
 	file->rdwr_long(takeoff);
-	calc_altitude_limit(speed_to_kmh(speed_limit));
-	// file->rdwr_short(altitude_limit);//AFHP
+	calc_altitude_level(speed_to_kmh(speed_limit));
+	// file->rdwr_short(altitude_level);//AFHP
 	// file->rdwr_short(landing_distance);//AFHP
 }
 
@@ -7720,9 +7720,9 @@ void air_vehicle_t::hop(grund_t* gr)
 				play_sound();
 				new_friction = 1;
 				block_reserver( takeoff, takeoff+100, false );
-				calc_altitude_limit( desc->get_topspeed() );
+				calc_altitude_level( desc->get_topspeed() );
 				flying_height = h_cur - h_next;
-				target_height = h_cur+TILE_HEIGHT_STEP*altitude_limit;//modified
+				target_height = h_cur+TILE_HEIGHT_STEP*altitude_level;//modified
 			}
 			break;
 		}
@@ -7745,11 +7745,11 @@ void air_vehicle_t::hop(grund_t* gr)
 			}
 			flying_height -= h_next;
 			// did we have to change our flight height?
-			if(  target_height-h_next > TILE_HEIGHT_STEP*(altitude_limit+2)  ) {
+			if(  target_height-h_next > TILE_HEIGHT_STEP*(altitude_level+2)  ) {
 				// Move down
 				target_height -= TILE_HEIGHT_STEP*2;
 			}
-			else if(  target_height-h_next < TILE_HEIGHT_STEP*(altitude_limit-1)  ) {
+			else if(  target_height-h_next < TILE_HEIGHT_STEP*(altitude_level-1)  ) {
 				// Move up
 				target_height += TILE_HEIGHT_STEP*2;
 			}
