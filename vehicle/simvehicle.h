@@ -40,8 +40,8 @@ class schiene_t;
 #define HOLDING_PATTERN_LENGTH 16
 // offset of end tile of the holding pattern before touchdown tile.
 #define HOLDING_PATTERN_OFFSET 3
-#define SET_FLIGHT_HEIGHT 20
-#define SET_LANDING_OFFSET SET_FLIGHT_HEIGHT-1
+// #define SET_FLIGHT_HEIGHT 20
+// #define SET_LANDING_OFFSET SET_FLIGHT_HEIGHT-1
 /*----------------------- Movables ------------------------------------*/
 
 /**
@@ -932,6 +932,14 @@ private:
 	sint16 target_height;
 	uint32 search_for_stop, touchdown, takeoff;
 
+	sint16 altitude_limit; // for AFHP
+	sint16 landing_distance; // for AFHP
+
+	void calc_altitude_limit(sint32 speed_limit_kmh){
+		altitude_limit = speed_limit_kmh/30;
+		landing_distance = altitude_limit - 1;
+		std::cout << "air_vehicle_t::altitude_limit = " << speed_limit_kmh/30 << std::endl;
+	}
 	// BG, 07.08.2012: extracted from calc_route()
 	bool calc_route_internal(
 		karte_t *welt,
