@@ -2732,6 +2732,7 @@
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
     <None Include="base-texts-depot-window-refurbish.dat" />
+    <None Include="base-texts-new-convoy-debug-information.dat" />
     <None Include="base_textes_extended_10.17.dat" />
     <None Include="base_texts_extended-passenger-generation.dat" />
     <None Include="base_texts_bridge-change.dat" />

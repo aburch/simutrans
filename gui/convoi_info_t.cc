@@ -453,7 +453,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
 			{
-				sprintf(speed_text, translator::translate("runway_too_short (need %i m)"), cnv->front()->get_desc()->get_minimum_runway_length());
+				sprintf(speed_text, "%s (%s) %i%s", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
 				speed_color = COL_RED;
 			}
 			else
@@ -522,7 +522,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
 			{
-				sprintf(speed_text, translator::translate("runway_too_short (need %i m)"), cnv->front()->get_desc()->get_minimum_runway_length());
+				sprintf(speed_text, "%s (%s %i%s)", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
 				speed_color = COL_RED;
 			}
 			else
@@ -536,7 +536,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
 			{
-				sprintf(speed_text, translator::translate("runway_too_short (need %i m)"), cnv->front()->get_desc()->get_minimum_runway_length());
+				sprintf(speed_text, "%s (%s %i%s)", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
 			}
 			else
 			{
@@ -547,21 +547,29 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 		case convoi_t::OUT_OF_RANGE:
 
-			sprintf(speed_text, translator::translate("out_of_range (max %i km)"), cnv->front()->get_desc()->get_range());
+			//sprintf(speed_text, translator::translate("out_of_range (max %i km)"), cnv->front()->get_desc()->get_range());
+			sprintf(speed_text, "%s (%s %i%s)", translator::translate("out of range"), translator::translate("max"), cnv->front()->get_desc()->get_range(), translator::translate("km"));
 			speed_color = COL_RED;
 			break;
 
 		default:
-
-			speed_bar.set_visible(true);
-			//use median speed to avoid flickering
-			mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed() * 4);
-			mean_convoi_speed /= 2;
-			const sint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
-			const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
-			sprintf(speed_text, translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"),
-				(mean_convoi_speed + 3) / 4, min_speed, translator::translate("..."), max_speed);
-			speed_color = COL_BLACK;
+			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
+			{
+				sprintf(speed_text, "%s (%s %i%s)", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
+				speed_color = COL_RED;
+			}
+			else
+			{
+				speed_bar.set_visible(true);
+				//use median speed to avoid flickering
+				mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed() * 4);
+				mean_convoi_speed /= 2;
+				const sint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
+				const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
+				sprintf(speed_text, translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"),
+					(mean_convoi_speed + 3) / 4, min_speed, translator::translate("..."), max_speed);
+				speed_color = COL_BLACK;
+			}
 		}
 
 		display_proportional(pos_x, pos_y, speed_text, ALIGN_LEFT, speed_color, true);
@@ -652,6 +660,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			int len = display_proportional(line_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
 			display_proportional_clip(line_x + len, pos_y, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
 		}
+#ifdef DEBUG_CONVOY_STATES
 		{
 			// Debug: show covnoy states
 			int debug_row = 6;
@@ -811,6 +820,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				debug_row++;
 			}
 		}
+#endif
 #ifdef DEBUG_PHYSICS
 		/*
 		 * Show braking distance
