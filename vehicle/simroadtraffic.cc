@@ -491,6 +491,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 	const uint8 this_direction = get_direction();
 	bool frei = false;
 	vehicle_base_t *dt = NULL;
+	const strasse_t* current_str = (strasse_t*)(welt->lookup(get_pos())->get_weg(road_wt));
 	if(  get_pos()==pos_next_next  ) {
 		// turning around => single check
 		const uint8 next_direction = ribi_t::backward(this_direction);
@@ -530,7 +531,6 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 
 			// When overtaking_mode changes from inverted_mode to others, no cars blocking must work as the convoi is on traffic lane. Otherwise, no_cars_blocking cannot recognize vehicles on the traffic lane of the next tile.
 			//next_lane = -1 does NOT mean that the vehicle must go traffic lane on the next tile.
-			const strasse_t* current_str = (strasse_t*)(welt->lookup(get_pos())->get_weg(road_wt));
 			if(  current_str  &&  current_str->get_overtaking_mode()==inverted_mode  ) {
 				if(  str->get_overtaking_mode()<inverted_mode  ) {
 					next_lane = -1;
@@ -553,22 +553,29 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			frei = true;
 		}
 		//If this car is overtaking, the car must avoid a head-on crash.
-		if(  is_overtaking()  ) {
+		if(  is_overtaking()  &&  current_str  &&  current_str->get_overtaking_mode()!=inverted_mode  ) {
 			grund_t* sg[2];
 			sg[0] = welt->lookup(pos_next);
 			sg[1] = welt->lookup(pos_next_next);
 			for(uint8 i = 0; i < 2; i++) {
 				for(  uint8 pos=1;  pos<(volatile uint8)sg[i]->get_top();  pos++  ) {
 					if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(sg[i]->obj_bei(pos))  ) {
+						ribi_t:: ribi other_direction = 255;
 						if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
-							ribi_t::ribi other_direction = at->get_direction();
-							if(  !at->get_convoi()->is_overtaking()  &&  ribi_t::backward(get_direction()) == other_direction  ) {
-								set_tiles_overtaking(0);
+							if(  !at->get_convoi()->is_overtaking()  ) {
+								other_direction = at->get_direction();
 							}
 						}
 						else if(  private_car_t* const caut = obj_cast<private_car_t>(v)  ) {
-							ribi_t::ribi other_direction = caut->get_direction();
-							if(  !caut->is_overtaking()  &&  ribi_t::backward(get_direction()) == other_direction  ) {
+							if(  !caut->is_overtaking()  ) {
+								other_direction = caut->get_direction();
+							}
+						}
+						if(  other_direction!=255  ) {
+							if(  i==0  &&  ribi_t::reverse_single(get_90direction())==other_direction  ) {
+								set_tiles_overtaking(0);
+							}
+							if(  i==1  &&  ribi_t::reverse_single(ribi_type(pos_next, pos_next_next))==other_direction  ) {
 								set_tiles_overtaking(0);
 							}
 						}

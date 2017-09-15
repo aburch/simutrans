@@ -2243,7 +2243,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 		// When overtaking_mode changes from inverted_mode to others, no cars blocking must work as the convoi is on traffic lane. Otherwise, no_cars_blocking cannot recognize vehicles on the traffic lane of the next tile.
 		//next_lane = -1 does NOT mean that the vehicle must go traffic lane on the next tile.
-		const strasse_t* current_str = route_index == 0 ? NULL : (strasse_t *)welt->lookup(r.at(route_index - 1u))->get_weg(road_wt);
+		const strasse_t* current_str = (strasse_t*)(welt->lookup(get_pos())->get_weg(road_wt));
 		if(  current_str  &&  current_str->get_overtaking_mode()==inverted_mode  ) {
 			if(  str->get_overtaking_mode()<inverted_mode  ) {
 				next_lane = -1;
@@ -2251,7 +2251,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 
 		vehicle_base_t *obj = NULL;
-		uint32 test_index = route_index + 1u;
+		uint32 test_index = route_index;
 
 		// way should be clear for overtaking: we checked previously
 		// Now we have to consider even if convoi is overtaking!
@@ -2268,8 +2268,8 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		bool int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction)) & str->get_ribi_unmasked())  ||  curr_90direction != next_90direction  ||  (rs  &&  rs->get_desc()->is_traffic_light()));
 
 		//If this convoi is overtaking, the convoi must avoid a head-on crash.
-		if(  cnv->is_overtaking()  ){
-			while(  test_index < route_index + 4u && test_index < r.get_count()  ){
+		if(  cnv->is_overtaking()  &&  current_str->get_overtaking_mode()!=inverted_mode  ){
+			while(  test_index < route_index + 2u && test_index < r.get_count()  ){
 				grund_t *grn = welt->lookup(r.at(test_index));
 				if(  !grn  ) {
 					cnv->suche_neue_route();
@@ -2283,20 +2283,25 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 						ribi_t::ribi other_direction=255;
 						if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
 							//ignore ourself
-							if(  cnv == at->get_convoi()  ){
+							if(  cnv == at->get_convoi()  ||  at->get_convoi()->is_overtaking()  ){
 								continue;
 							}
-							other_direction = at->get_direction();
+							other_direction = at->get_90direction();
 						}
 						//check for city car
-						else if(  v->get_waytype() == road_wt  ) {
-							other_direction = v->get_direction();
+						else if(  private_car_t* const caut = obj_cast<private_car_t>(v)  ) {
+							if(  caut->is_overtaking()  ) {
+								continue;
+							}
+							other_direction = v->get_90direction();
 						}
 						if(  other_direction != 255  ){
 							//There is another car. We have to check if this convoi is facing or not.
-							//calc_direction(next,get_pos()):opposite direction of next_direction.
-							if(  calc_direction(next,get_pos()) == other_direction  ) {
-								//printf("crash avoid. (%d,%d)\n", get_pos().x, get_pos().y);
+							ribi_t::ribi this_direction;
+							if(  test_index-route_index==0  ) this_direction = get_90direction();
+							if(  test_index-route_index==1  ) this_direction = get_next_90direction();
+							if(  ribi_t::reverse_single(this_direction) == other_direction  ) {
+								//printf("%s: crash avoid. (%d,%d)\n", cnv->get_name(), get_pos().x, get_pos().y);
 								cnv->set_tiles_overtaking(0);
 							}
 						}
@@ -2306,7 +2311,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 		}
 
-		test_index = route_index + 1u;//reset test_index
+		test_index = route_index + 1u; //reset test_index
 
 		// check exit from crossings and intersections, allow to proceed after 4 consecutive
 		while(  !obj   &&  (str->is_crossing()  ||  int_block)  &&  test_index < r.get_count()  &&  test_index < route_index + 4u  ) {
