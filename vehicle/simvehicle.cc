@@ -7660,8 +7660,8 @@ void air_vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	file->rdwr_long(search_for_stop);
 	file->rdwr_long(touchdown);
 	file->rdwr_long(takeoff);
-	file->rdwr_short(altitude_limit);//AFHP
-	file->rdwr_short(landing_distance);//AFHP
+	// file->rdwr_short(altitude_limit);//AFHP
+	// file->rdwr_short(landing_distance);//AFHP
 }
 
 
