@@ -7662,8 +7662,9 @@ void air_vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	file->rdwr_long(search_for_stop);
 	file->rdwr_long(touchdown);
 	file->rdwr_long(takeoff);
-	altitude_level = flying_height;
+	altitude_level = flying_height/TILE_HEIGHT_STEP;
 	landing_distance = altitude_level - 1;
+	std::cout << "air_vehicle_t::altitude_level = " << altitude_level << std::endl;
 	// file->rdwr_short(altitude_level);//AFHP
 	// file->rdwr_short(landing_distance);//AFHP
 }
@@ -7751,7 +7752,7 @@ void air_vehicle_t::hop(grund_t* gr)
 				// Move down
 				target_height -= TILE_HEIGHT_STEP*2;
 			}
-			else if(  target_height-h_next < TILE_HEIGHT_STEP*(altitude_level-1)  ) {
+			else if(  target_height-h_next < TILE_HEIGHT_STEP*(altitude_level-2)  ) {
 				// Move up
 				target_height += TILE_HEIGHT_STEP*2;
 			}
