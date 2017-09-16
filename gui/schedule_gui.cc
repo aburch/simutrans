@@ -610,6 +610,7 @@ void schedule_gui_t::update_selection()
 				lb_spacing.set_color( SYSCOL_TEXT );
 				numimp_spacing.enable();
 				numimp_spacing_shift.enable();
+				numimp_spacing_shift.set_value(schedule->get_current_eintrag().spacing_shift);
 				if (schedule->get_spacing() ) {
 					lb_spacing_shift.set_color( SYSCOL_TEXT );
 					lb_spacing_as_clock.set_color( SYSCOL_TEXT );
