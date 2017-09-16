@@ -1017,36 +1017,159 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		char p_class[32] = "\0";
 		char m_class[32] = "\0";
 		//sprintf(m_class, translator::translate("m_class[%u]"), i);
-			
 		building_desc_t const& h = *tile->get_desc();
-		uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
-		if (h.get_class_proportions_sum() > 0)
+			
 		{
-			buf.printf("%s: %d\n", translator::translate("class_proportions_sum"), h.get_class_proportions_sum());
+			// This section between the brackets is a debug area, used to track down issues with whatever stuffs arizing
+			uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
+			if (h.get_class_proportions_sum() > 0)
+			{
+				buf.printf("%s: %d\n", translator::translate("class_proportions_sum"), h.get_class_proportions_sum());
+			}
+			if (h.get_class_proportions_sum_jobs() > 0)
+			{
+				buf.printf("%s: %d\n", translator::translate("class_proportions_sum_jobs"), h.get_class_proportions_sum_jobs());
+			}
+			for (int i = 0; i < h.get_number_of_class_proportions(); i++)
+			{
+				if (h.get_class_proportion(i) > 0)
+				{
+					sprintf(p_class, translator::translate("p_class[%u]"), i);
+					buf.printf("%s %s: %d\n", translator::translate("class_proportion"), p_class, h.get_class_proportion(i));
+				}
+			}
+			for (int i = 0; i < h.get_number_of_class_proportions_jobs(); i++)
+			{
+				if (h.get_class_proportion_jobs(i) > 0)
+				{
+					sprintf(p_class, translator::translate("p_class[%u]"), i);
+					buf.printf("%s %s: %d\n", translator::translate("class_proportion_jobs"), p_class, h.get_class_proportion_jobs(i));
+				}
+			}
 		}
-		if (h.get_class_proportions_sum_jobs() > 0)
-		{
-			buf.printf("%s: %d\n", translator::translate("class_proportions_sum_jobs"), h.get_class_proportions_sum_jobs());
-		}
+
+		// Show as a text
+		
+		// Decide which threasholds there should be as a percentage to the maximum value for this building,
+		// above which the classes will be threated as "equally" possible
+		int most_probable = 90; // probability=4
+		int fifty_fifty_probable = 50; // probability=3
+		int kind_of_probable = 30; // probability=2
+		int might_happen = 10; // probability=1
+		int only_in_theory = 0; // probability=0
+
+		int amount_most_probable = 0;
+		int amount_fifty_fifty_probable = 0;
+		int amount_kind_of_probable = 0;
+		int amount_might_happen = 0;
+		int amount_only_in_theory = 0;
+
+		int probability[255] = { 0 };
+
+		// First, calculate the percentage of each class
+		// NOTE: this method will show rounding errors if no decimals is shown.
+		long double class_proportions_sum = h.get_class_proportions_sum();
+		long double class_percentage[255] = { 0 };
+		//for (int i = 0; i < h.get_number_of_class_proportions(); i++)
+		//{
+		//	//if (h.get_class_proportion(i) > 0)
+		//	{
+		//		class_proportions_sum += h.get_class_proportion(i);
+		//	}
+		//}
+		buf.append(class_proportions_sum);
+		buf.append("\n");
 		for (int i = 0; i < h.get_number_of_class_proportions(); i++)
 		{
-			if (h.get_class_proportion(i) > 0)
+			class_percentage[i] = h.get_class_proportion(i) / class_proportions_sum * 100;
+			if (class_percentage[i] >= most_probable)
 			{
-				sprintf(p_class, translator::translate("p_class[%u]"), i);
-				buf.printf("%s %s: %d\n", translator::translate("class_proportion"), p_class, h.get_class_proportion(i));
+				probability[i] = 4;
 			}
-		}		
-		for (int i = 0; i < h.get_number_of_class_proportions_jobs(); i++)
-		{
-			if (h.get_class_proportion_jobs(i) > 0)
+			else if (class_percentage[i] >= fifty_fifty_probable)
 			{
-				sprintf(p_class, translator::translate("p_class[%u]"), i);
-				buf.printf("%s %s: %d\n", translator::translate("class_proportion_jobs"), p_class, h.get_class_proportion_jobs(i));
+				probability[i] = 3;
+			}
+			else if (class_percentage[i] >= kind_of_probable)
+			{
+				probability[i] = 2;
+			}
+			else if (class_percentage[i] >= might_happen)
+			{
+				probability[i] = 1;
+			}
+
+
+			//char class_percentage[6];
+			//number_to_string(class_percentage, h.get_class_proportion(i) / class_total_amount * 100, 1);
+			sprintf(p_class, translator::translate("p_class[%u]"), i);
+			buf.printf("%s: ", p_class);
+			buf.append(class_percentage[i]);
+			buf.append("% ");
+			buf.append(probability[i]);
+			buf.append("\n");
+		}
+		buf.append("\n");
+		for (int i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+		{
+			for (int j = 0; j < goods_manager_t::passengers->get_number_of_classes(); j++)
+			{
+				if (probability[i] == probability[j])
+				{
+					if (probability[i] == 4)
+					{
+						amount_most_probable++;
+					}
+					else if (probability[i] == 3)
+					{
+						amount_fifty_fifty_probable++;
+					}
+					else if (probability[i] == 2)
+					{
+						amount_kind_of_probable++;
+					}
+					else if (probability[i] == 1)
+					{
+						amount_might_happen++;
+					}
+					else if (probability[i] == 0)
+					{
+						amount_only_in_theory++;
+					}
+				}
 			}
 		}
+		if (amount_most_probable == h.get_number_of_class_proportions())
+		{
+			buf.printf("%s", translator::translate("residents_travels_on_all_classes"));
+		}
+		else 
+		{
+			buf.printf("%s", translator::translate("residents_travels_mostly_on"));
+			int search_counter = 0;
+			for (int i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+			{
+				if (probability[i] == 4)
+				{
+					sprintf(p_class, translator::translate("p_class[%u]"), i);
+					buf.printf("%s", p_class);
+					search_counter = i;
+					
+				}
+			}
+			if (amount_most_probable > 1)
+			{
+				buf.printf(" %s %s", translator::translate("and"), p_class);
+			}
+					
 
 
+			buf.printf(" %s %s", translator::translate("but_also_on"), p_class);
+			buf.printf(" %s %s", translator::translate("and"), p_class);
 
+			buf.printf(" %s %s", translator::translate("and_only_few_on"), p_class);
+			buf.printf(" %s %s", translator::translate("and"), p_class);
+		}
 		buf.printf("%s%u", translator::translate("\nBauzeit von"), h.get_intro_year_month() / 12);
 		if (h.get_retire_year_month() != DEFAULT_RETIRE_DATE * 12) {
 			buf.printf("%s%u", translator::translate("\nBauzeit bis"), h.get_retire_year_month() / 12);
