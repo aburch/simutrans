@@ -5709,7 +5709,10 @@ void haltestelle_t::remove_convoy(convoihandle_t convoy)
 			connexions[i]->clear();
 		}
 	}
-	update_service_intervals(convoy->get_schedule());
+	if (!welt->is_destroying())
+	{
+		update_service_intervals(convoy->get_schedule());
+	}
 }
 
 void haltestelle_t::update_service_intervals(schedule_t* sch)
