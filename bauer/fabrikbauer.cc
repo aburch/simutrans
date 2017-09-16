@@ -809,8 +809,8 @@ DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need 
 			koord3d parent_pos = our_fab->get_pos();
 
 			INT_CHECK("fabrikbauer 697");
-
-			koord3d k = find_random_construction_site( our_fab->get_pos().get_2d(), min(max_factory_spacing_general, producer_d->get_max_distance_to_consumer()), producer_d->get_building()->get_size(rotate),producer_d->get_placement()==factory_desc_t::Water, producer_d->get_building(), ignore_climates, 20000 );
+			const int max_distance_to_consumer = producer_d->get_max_distance_to_consumer() == 0 ? max_factory_spacing_general : producer_d->get_max_distance_to_consumer();
+			koord3d k = find_random_construction_site( our_fab->get_pos().get_2d(), min(max_factory_spacing_general, max_distance_to_consumer), producer_d->get_building()->get_size(rotate),producer_d->get_placement()==factory_desc_t::Water, producer_d->get_building(), ignore_climates, 20000 );
 			if(  k == koord3d::invalid  ) {
 				// this factory cannot build in the desired vincinity
 				producer.remove( producer_d );
@@ -913,7 +913,7 @@ DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need 
  * sure that enough consumer industries get built.
  * @return: number of factories built
  */
-int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_beyond_target_density, bool power_stations_only )
+int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_beyond_target_density, bool power_stations_only, bool disallow_force_consumer )
 {
 	int nr = 0;
 
@@ -924,7 +924,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 	const bool force_add_consumer = 75 > simrand(100, "factory_builder_t::increase_industry_density()");
 
 	// Build a list of all industries with incomplete supply chains.
-	if(!force_add_consumer && !power_stations_only && !welt->get_fab_list().empty())
+	if((disallow_force_consumer || !force_add_consumer) && !power_stations_only && !welt->get_fab_list().empty())
 	{
 		// A collection of all consumer industries that are not fully linked to suppliers.
 		slist_tpl<fabrik_t*> unlinked_consumers;
@@ -1105,7 +1105,7 @@ next_ware_check:
 	// now decide producer of electricity or normal ...
 	const sint64 promille = ((sint64)electric_productivity * 4000l) / total_electric_demand;
 	const sint64 target_promille = (sint64)welt->get_settings().get_electric_promille();
-	int no_electric = force_add_consumer || (promille >= target_promille) ? 1 : 0;
+	int no_electric = (force_add_consumer && !disallow_force_consumer) || (promille >= target_promille) ? 1 : 0;
 	DBG_MESSAGE( "factory_builder_t::increase_industry_density()", "production of electricity/total electrical demand is %i/%i (%i o/oo)", electric_productivity, total_electric_demand, promille );
 
 	while(  no_electric<2  ) {
