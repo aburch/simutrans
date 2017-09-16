@@ -7509,6 +7509,7 @@ air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) :
 #endif
 {
 	rdwr_from_convoi(file);
+	calc_altitude_level( desc->get_topspeed() );
 	runway_too_short = false;
 
 	if(  file->is_loading()  ) {
@@ -7545,6 +7546,7 @@ air_vehicle_t::air_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* 
 	flying_height = 0;
 	target_height = pos.z;
 	runway_too_short = false;
+	calc_altitude_level( desc->get_topspeed() );
 }
 
 
@@ -7661,10 +7663,6 @@ void air_vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	file->rdwr_long(search_for_stop);
 	file->rdwr_long(touchdown);
 	file->rdwr_long(takeoff);
-	//	altitude_level = flying_height/TILE_HEIGHT_STEP + get_hoff()*TILE_HEIGHT_STEP;
-		altitude_level = target_height/TILE_HEIGHT_STEP + get_hoff()*TILE_HEIGHT_STEP;
-	landing_distance = altitude_level - 1;
-	std::cout << "air_vehicle_t::altitude_level = " << altitude_level <<  std::endl;
 }
 
 
@@ -7729,6 +7727,7 @@ void air_vehicle_t::hop(grund_t* gr)
 		}
 		case circling: {
 			new_speed_limit = kmh_to_speed(desc->get_topspeed())/3;
+			calc_altitude_level( desc->get_topspeed() );
 			new_friction = 4;
 			// do not change height any more while circling
 			flying_height += h_cur;
