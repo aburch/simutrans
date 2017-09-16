@@ -6878,7 +6878,7 @@ route_t::route_result_t air_vehicle_t::calc_route(koord3d start, koord3d ziel, s
 			block_reserver( takeoff, takeoff+100, false );
 		}
 		else if(route_index>=touchdown-1  &&  state!=taxiing) {
-			block_reserver( touchdown, search_for_stop+1, false );
+			block_reserver( touchdown + landing_distance - HOLDING_PATTERN_OFFSET, search_for_stop+1, false );
 		}
 	}
 	target_halt = halthandle_t();	// no block reserved
@@ -7443,8 +7443,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 
 			// circle slowly next round
 			state = circling;
-			//			calc_altitude_level( desc->get_topspeed()/3 ); // added for AFHP
-
+			calc_altitude_level( desc->get_topspeed()/3 ); // added for AFHP
 			cnv->must_recalc_data();
 		}
 	}
@@ -7460,7 +7459,8 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		// nothing free here?
 		if(find_route_to_stop_position()) {
 			// stop reservation successful
-			block_reserver( touchdown, search_for_stop+1, false );
+			//			block_reserver( touchdown, search_for_stop+1, false );
+			block_reserver( touchdown + landing_distance - HOLDING_PATTERN_OFFSET, search_for_stop+1, false );
 			state = taxiing;
 			return true;
 		}
@@ -7579,7 +7579,8 @@ air_vehicle_t::set_convoi(convoi_t *c)
 				block_reserver( takeoff, takeoff+100, false );
 			}
 			else if(route_index>=touchdown-1  &&  state!=taxiing) {
-				block_reserver( touchdown, search_for_stop+1, false );
+				//				block_reserver( touchdown, search_for_stop+1, false );
+				block_reserver( touchdown + landing_distance - HOLDING_PATTERN_OFFSET, search_for_stop+1, false );
 			}
 		}
 	}
@@ -7605,7 +7606,7 @@ air_vehicle_t::set_convoi(convoi_t *c)
 							block_reserver( takeoff, takeoff+100, true );
 						}
 						else if(  route_index>=touchdown-1  &&  state!=taxiing  ) {
-							block_reserver( touchdown, search_for_stop+1, true );
+							block_reserver( touchdown + landing_distance - HOLDING_PATTERN_OFFSET, search_for_stop+1, true );
 						}
 					}
 				}
@@ -7661,7 +7662,8 @@ void air_vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	file->rdwr_long(search_for_stop);
 	file->rdwr_long(touchdown);
 	file->rdwr_long(takeoff);
-	calc_altitude_level(speed_to_kmh(speed_limit));
+	altitude_level = flying_height;
+	landing_distance = altitude_level - 1;
 	// file->rdwr_short(altitude_level);//AFHP
 	// file->rdwr_short(landing_distance);//AFHP
 }
