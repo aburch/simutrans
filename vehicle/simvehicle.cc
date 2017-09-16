@@ -7054,7 +7054,6 @@ bool air_vehicle_t::calc_route_internal(
 			dbg->error("air_vehicle_t::calc_route()","Invalid route calculation: start is on a single direction field ...");
 		}
 		state = taxiing;
-		//		calc_altitude_level( desc->get_topspeed() ); // added for AFHP
 		flying_height = 0;
 		target_height = (sint16)start.z*TILE_HEIGHT_STEP;
 	}
@@ -7064,7 +7063,7 @@ bool air_vehicle_t::calc_route_internal(
 		route.append( start );
 		state = flying;
 		play_sound();
-		//		calc_altitude_level( desc->get_topspeed() ); // added for AFHP
+		calc_altitude_level( desc->get_topspeed() ); // added for AFHP
 		if(flying_height==0) {
 			flying_height = 3*TILE_HEIGHT_STEP;
 		}
@@ -7379,7 +7378,6 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		}
 		// stop shortly at the end of the runway
 		state = departing;
-		//calc_altitude_level( desc->get_topspeed() ); // added for AFHP
 		restart_speed = 0;
 		return false;
 	}
@@ -7410,7 +7408,6 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 			return true;
 		}
 		state = landing;
-		//		calc_altitude_level( desc->get_topspeed()/3 ); // added for AFHP
 
 		return true;
 		runway_too_short = false;
@@ -7426,7 +7423,6 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 			route_index += HOLDING_PATTERN_LENGTH;
 			// can land => set landing height
 			state = landing;
-			//			calc_altitude_level( desc->get_topspeed()/3 ); // added for AFHP
 			runway_too_short = false;
 		}
 		else
@@ -7443,7 +7439,6 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 
 			// circle slowly next round
 			state = circling;
-			//			calc_altitude_level( desc->get_topspeed()/3 ); // added for AFHP
 			cnv->must_recalc_data();
 		}
 	}
