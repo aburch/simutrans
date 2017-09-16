@@ -7443,7 +7443,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 
 			// circle slowly next round
 			state = circling;
-			calc_altitude_level( desc->get_topspeed()/3 ); // added for AFHP
+			//			calc_altitude_level( desc->get_topspeed()/3 ); // added for AFHP
 			cnv->must_recalc_data();
 		}
 	}
@@ -7662,7 +7662,7 @@ void air_vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	file->rdwr_long(search_for_stop);
 	file->rdwr_long(touchdown);
 	file->rdwr_long(takeoff);
-	altitude_level = flying_height/TILE_HEIGHT_STEP;
+	altitude_level = (flying_height+hoff)/TILE_HEIGHT_STEP;
 	landing_distance = altitude_level - 1;
 	std::cout << "air_vehicle_t::altitude_level = " << altitude_level << std::endl;
 	// file->rdwr_short(altitude_level);//AFHP
