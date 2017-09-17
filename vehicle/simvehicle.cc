@@ -7750,7 +7750,6 @@ void air_vehicle_t::hop(grund_t* gr)
 			}
 			flying_height -= h_next;
 			// did we have to change our flight height?
-			std::cout << "target_height - h_next = "<< target_height-h_next << ", h_cur = " << (sint16)get_pos().z << std::endl;
 			if(  target_height-h_next > TILE_HEIGHT_STEP*altitude_level*4/3 + (sint16)get_pos().z  ) {
 				// Move down
 				target_height -= TILE_HEIGHT_STEP*2;
@@ -7788,6 +7787,8 @@ void air_vehicle_t::hop(grund_t* gr)
 						new_speed_limit = min( new_speed_limit, runway_left*runway_left*taxi_speed ); // ...approach 540 240 60 60
 						const sint32 runway_left_fr = max( 0, 6-runway_left );
 						new_friction = max( new_friction, min( desc->get_topspeed()/12, 4 + 4*(runway_left_fr*runway_left_fr+1) )); // ...8 8 12 24 44 72 108 152
+						std::cout << "state = "<< state <<" ,new_speed_limit = "<< speed_to_kmh(new_speed_limit) << std::endl;
+
 					}
 				}
 			}
@@ -7818,7 +7819,7 @@ void air_vehicle_t::hop(grund_t* gr)
 
 	// hop to next tile
 	vehicle_t::hop(gr);
-
+	
 	speed_limit = new_speed_limit;
 	current_friction = new_friction;
 }
