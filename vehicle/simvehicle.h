@@ -936,7 +936,9 @@ private:
 	sint16 landing_distance; // for AFHP
 
 	void calc_altitude_level(sint32 speed_limit_kmh){
+		//5 <= altitude level <= 30
 		altitude_level = max(5, speed_limit_kmh/33);
+		altitude_level = min(altitude_level, 30);
 		landing_distance = altitude_level - 1;
 		std::cout << "air_vehicle_t::altitude_level = " << altitude_level << std::endl;
 	}

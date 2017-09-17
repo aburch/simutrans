@@ -7740,11 +7740,11 @@ void air_vehicle_t::hop(grund_t* gr)
 			}
 			flying_height -= h_next;
 			// did we have to change our flight height?
-			if(  target_height-h_next > TILE_HEIGHT_STEP*(altitude_level+2)  ) {
+			if(  target_height-h_next > TILE_HEIGHT_STEP*(altitude_level*4/3)  ) {
 				// Move down
 				target_height -= TILE_HEIGHT_STEP*2;
 			}
-			else if(  target_height-h_next < TILE_HEIGHT_STEP*(altitude_level-2)  ) {
+			else if(  target_height-h_next < TILE_HEIGHT_STEP*(altitude_level*2/3)  ) {
 				// Move up
 				target_height += TILE_HEIGHT_STEP*2;
 			}
