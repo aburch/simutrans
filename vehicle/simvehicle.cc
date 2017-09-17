@@ -7716,7 +7716,7 @@ void air_vehicle_t::hop(grund_t* gr)
 				block_reserver( takeoff, takeoff+100, false );
 				calc_altitude_level( desc->get_topspeed() );
 				flying_height = h_cur - h_next;
-				target_height = h_cur+TILE_HEIGHT_STEP*altitude_level;//modified
+				target_height = h_cur+TILE_HEIGHT_STEP*(altitude_level+(sint16)get_pos().z);//modified
 			}
 			break;
 		}
