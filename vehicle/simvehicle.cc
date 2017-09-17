@@ -2627,7 +2627,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 		const air_vehicle_t* air = (const air_vehicle_t*)this;
 		if(get_waytype() == air_wt && air->runway_too_short)
 		{
-			sprintf(tooltip_text, translator::translate("Runway too short"), cnv->get_name());
+			sprintf(tooltip_text, translator::translate("Runway too short, require %dm"), desc->get_minimum_runway_length() );
 			color = COL_ORANGE;
 		}
 
@@ -7727,6 +7727,16 @@ void air_vehicle_t::hop(grund_t* gr)
 			// do not change height any more while circling
 			flying_height += h_cur;
 			flying_height -= h_next;
+			// did we have to change our flight height?
+			if(  target_height-h_next > TILE_HEIGHT_STEP*altitude_level*4/3 + (sint16)get_pos().z  ) {
+				// Move down
+				target_height -= TILE_HEIGHT_STEP*2;
+			}
+			else if(  target_height-h_next < TILE_HEIGHT_STEP*altitude_level*2/3 + (sint16)get_pos().z  ) {
+				// Move up
+				target_height += TILE_HEIGHT_STEP*2;
+			}
+
 			break;
 		}
 		case flying: {
@@ -7740,11 +7750,12 @@ void air_vehicle_t::hop(grund_t* gr)
 			}
 			flying_height -= h_next;
 			// did we have to change our flight height?
-			if(  target_height-h_next > TILE_HEIGHT_STEP*(altitude_level*4/3)  ) {
+			std::cout << "target_height - h_next = "<< target_height-h_next << ", h_cur = " << (sint16)get_pos().z << std::endl;
+			if(  target_height-h_next > TILE_HEIGHT_STEP*altitude_level*4/3 + (sint16)get_pos().z  ) {
 				// Move down
 				target_height -= TILE_HEIGHT_STEP*2;
 			}
-			else if(  target_height-h_next < TILE_HEIGHT_STEP*(altitude_level*2/3)  ) {
+			else if(  target_height-h_next < TILE_HEIGHT_STEP*altitude_level*2/3 + (sint16)get_pos().z   ) {
 				// Move up
 				target_height += TILE_HEIGHT_STEP*2;
 			}
