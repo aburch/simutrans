@@ -1112,13 +1112,12 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 		// Hajo: connect some cities with roads
 		ls.set_what(translator::translate("Connecting cities ..."));
 		way_desc_t const* desc = settings.get_intercity_road_type(get_timeline_year_month());
-		if(desc == NULL || !settings.get_use_timeline()) 
-		{
+		if(desc == NULL || !settings.get_use_timeline()) {
 			// Hajo: try some default (might happen with timeline ... )
-			desc = way_builder_t::weg_search(road_wt, 80, 8, type_flat);
+			desc = way_builder_t::weg_search(road_wt, 80, get_timeline_year_month(), type_flat);
 		}
 
-		way_builder_t bauigel (NULL);
+		way_builder_t bauigel (get_public_player());
 		bauigel.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, desc, tunnel_builder_t::get_tunnel_desc(road_wt,15,get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt,15,get_timeline_year_month()) );
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(env_t::intercity_road_length);
