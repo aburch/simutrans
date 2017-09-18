@@ -7211,12 +7211,11 @@ int air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) cons
 
 	bool start_now = false;
 
-	uint16 runway_tiles = end - start;
+	uint16 runway_tiles = end - start - 32;//32:magic number
 	uint16 runway_meters = runway_tiles * welt->get_settings().get_meters_per_tile();
 	const uint16 min_runway_length_meters = desc->get_minimum_runway_length();
-	if(runway_tiles != 100){
-		std::cout << "min = "<<min_runway_length_meters <<", len = "<<runway_meters << std::endl;
-	}
+	std::cout << "min = "<<min_runway_length_meters <<", len = "<<runway_meters << std::endl;
+
 	int success = runway_meters >= min_runway_length_meters ? 1 : 2;
 
 	for(  uint32 i=start;  success  &&  i<end  &&  i<route->get_count();  i++) {
@@ -7228,7 +7227,8 @@ int air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) cons
 				if(!start_now)
 				{
 					// touched down here
-					start = i;
+					start = i - landing_distance - 8;//8:magic number
+;
 				}
 				else
 				{
@@ -7252,10 +7252,9 @@ int air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) cons
 				if(i>start  &&  ribi_t::is_single(sch1->get_ribi_unmasked())  )
 				{
 					//this code is mistery...
-					//					runway_tiles = (i + 1) - start;
-					runway_tiles = (i + landing_distance + HOLDING_PATTERN_OFFSET) - start;
+					runway_tiles = (i + 1) - start;
 					runway_meters = runway_tiles * welt->get_settings().get_meters_per_tile();
-					std::cout << "end of runway? min = "<<min_runway_length_meters <<", len = "<<runway_meters << std::endl;
+					std::cout << "end of runway? min = "<<min_runway_length_meters <<", len = "<<runway_meters << ", i="<<i<<std::endl;
 					success = success == 0 ? 0 : runway_meters >= min_runway_length_meters ? 1 : 2;
 					return success;
 				}
@@ -7395,9 +7394,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 	// check for another circle ...
 	if(  route_index == touchdown - HOLDING_PATTERN_OFFSET  )
 	{
-		std::cout << "block_reserver 1 is called: "<<state<<" "<< touchdown - HOLDING_PATTERN_OFFSET << std::endl;
-		
-		//		const int runway_state = block_reserver( touchdown + landing_distance - HOLDING_PATTERN_OFFSET, search_for_stop+1, true );
+		std::cout << "block_reserver 1 is called: "<<state<<" "<< touchdown << std::endl;
 		const int runway_state = block_reserver( touchdown, search_for_stop+1, true );
 		if( runway_state != 1 )
 		{
@@ -7427,10 +7424,8 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 	if(  route_index == touchdown - HOLDING_PATTERN_LENGTH - HOLDING_PATTERN_OFFSET  &&  state != circling  ) 
 	{
 		// just check, if the end of runway is free; we will wait there
-		//		const int runway_state = block_reserver( touchdown, search_for_stop+1, true ); // 
 		std::cout << "block_reserver 2 is called: "<<state<<" "<< touchdown << std::endl;
-		//		const int runway_state = block_reserver( touchdown + landing_distance - HOLDING_PATTERN_OFFSET, search_for_stop+1, true ); // LOOKS OKAY!
-		const int runway_state = block_reserver( touchdown, search_for_stop+1, true ); // LOOKS OKAY!
+		const int runway_state = block_reserver( touchdown, search_for_stop+1, true );
 		if(runway_state == 1)
 		{
 			route_index += HOLDING_PATTERN_LENGTH;
@@ -7456,8 +7451,8 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		}
 	}
 
-			if(route_index==search_for_stop  &&  state==landing) {
-	//	if(route_index==search_for_stop - HOLDING_PATTERN_LENGTH - HOLDING_PATTERN_OFFSET &&  state==landing) {
+	//if(route_index==search_for_stop  &&  state==landing) {
+	if(route_index==search_for_stop + landing_distance &&  state==landing) {
 
 		// we will wait in a step, much more simulation friendly
 		// and the route finder is not reentrant!
@@ -7470,7 +7465,6 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 			// stop reservation successful
 			block_reserver( touchdown, search_for_stop+1, false );
 			std::cout << "block_reserver 3 is called: "<< state <<" "<< touchdown << std::endl;
-			//block_reserver( touchdown + landing_distance - HOLDING_PATTERN_OFFSET, search_for_stop+1, false );
 			state = taxiing;
 			return true;
 		}
