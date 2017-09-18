@@ -7395,11 +7395,10 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 //DBG_MESSAGE("air_vehicle_t::can_enter_tile()","index %i<>%i",route_index,touchdown);
 
 	// check for another circle ...
-	//changeing
 	//	if(  route_index == touchdown - HOLDING_PATTERN_OFFSET )
 	//circling now!
 	if(  route_index == touchdown - landing_distance){ 
-		std::cout << "reserve 1: "<<state<<" "<< touchdown <<" "<<search_for_stop+1<< std::endl;
+		//		std::cout << "reserve 1: "<<state<<" "<< touchdown <<" "<<search_for_stop+1<< std::endl;
 		const int runway_state = block_reserver( touchdown, search_for_stop+1 , true );
 		if( runway_state != 1 )
 		{
@@ -7429,7 +7428,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 	if(  route_index == touchdown - HOLDING_PATTERN_LENGTH - landing_distance &&  state != circling  ) 
 	{
 		// just check, if the end of runway is free; we will wait there
-		std::cout << "reserve 2: "<<state<<" "<< touchdown <<" "<<search_for_stop+1<< std::endl;
+		//		std::cout << "reserve 2: "<<state<<" "<< touchdown <<" "<<search_for_stop+1<< std::endl;
 		const int runway_state = block_reserver( touchdown , search_for_stop+1 , true );
 		if(runway_state == 1)
 		{
@@ -7470,7 +7469,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 			// stop reservation successful
 			// unreserve when the aircraft reached the end of runway
 			block_reserver( touchdown, search_for_stop+1, false );
-			std::cout << "unreserve 3: "<< state <<" "<< touchdown << std::endl;
+			//			std::cout << "unreserve 3: "<< state <<" "<< touchdown << std::endl;
 			state = taxiing;
 			return true;
 		}
