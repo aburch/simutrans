@@ -942,7 +942,7 @@ private:
 		altitude_level = max(5, speed_limit_kmh/33);
 		altitude_level = min(altitude_level, 30);
 		landing_distance = altitude_level - 1;
-		std::cout << "air_vehicle_t::altitude_level = " << altitude_level << std::endl;
+		//		std::cout << "air_vehicle_t::altitude_level = " << altitude_level << std::endl;
 	}
 	// BG, 07.08.2012: extracted from calc_route()
 	bool calc_route_internal(
