@@ -6878,7 +6878,7 @@ route_t::route_result_t air_vehicle_t::calc_route(koord3d start, koord3d ziel, s
 			block_reserver( takeoff, takeoff+100, false );
 		}
 		else if(route_index>=touchdown-1  &&  state!=taxiing) {
-			std::cout << "block_reserver 6 is called: "<< state <<" "<< touchdown << std::endl;
+			//			std::cout << "block_reserver 6 is called: "<< state <<" "<< touchdown << std::endl;
 			block_reserver( touchdown - landing_distance, search_for_stop+1, false );
 		}
 	}
@@ -7590,7 +7590,7 @@ air_vehicle_t::set_convoi(convoi_t *c)
 			}
 			else if(route_index>=touchdown-1  &&  state!=taxiing) {
 				//				block_reserver( touchdown, search_for_stop+1, false );
-				std::cout << "unreserve 4: "<<state<<" "<< touchdown << std::endl;
+				//				std::cout << "unreserve 4: "<<state<<" "<< touchdown << std::endl;
 				block_reserver( touchdown, search_for_stop+1, false );
 			}
 		}
@@ -7617,7 +7617,7 @@ air_vehicle_t::set_convoi(convoi_t *c)
 							block_reserver( takeoff, takeoff+100, true );
 						}
 						else if(  route_index>=touchdown-1  &&  state!=taxiing  ) {
-							std::cout << "reserve 5: "<<state<<" "<< touchdown << std::endl;
+							//							std::cout << "reserve 5: "<<state<<" "<< touchdown << std::endl;
 							block_reserver( touchdown, search_for_stop+1, true );
 						}
 					}
