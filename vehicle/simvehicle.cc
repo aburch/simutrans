@@ -6879,7 +6879,6 @@ route_t::route_result_t air_vehicle_t::calc_route(koord3d start, koord3d ziel, s
 		}
 		else if(route_index>=touchdown-1  &&  state!=taxiing) {
 			std::cout << "block_reserver 6 is called: "<< state <<" "<< touchdown << std::endl;
-			//			block_reserver( touchdown + landing_distance - HOLDING_PATTERN_OFFSET, search_for_stop+1, false );
 			block_reserver( touchdown, search_for_stop+1, false );
 		}
 	}
@@ -7392,7 +7391,9 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 //DBG_MESSAGE("air_vehicle_t::can_enter_tile()","index %i<>%i",route_index,touchdown);
 
 	// check for another circle ...
-	if(  route_index == touchdown - HOLDING_PATTERN_OFFSET  )
+	//changeing
+	//	if(  route_index == touchdown - HOLDING_PATTERN_OFFSET  )
+	if(  route_index == touchdown - landing_distance  )
 	{
 		std::cout << "block_reserver 1 is called: "<<state<<" "<< touchdown << std::endl;
 		const int runway_state = block_reserver( touchdown, search_for_stop+1, true );
@@ -7421,7 +7422,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		runway_too_short = false;
 	}
 
-	if(  route_index == touchdown - HOLDING_PATTERN_LENGTH - HOLDING_PATTERN_OFFSET  &&  state != circling  ) 
+	if(  route_index == touchdown - HOLDING_PATTERN_LENGTH - landing_distance  &&  state != circling  ) 
 	{
 		// just check, if the end of runway is free; we will wait there
 		std::cout << "block_reserver 2 is called: "<<state<<" "<< touchdown << std::endl;
@@ -7587,7 +7588,6 @@ air_vehicle_t::set_convoi(convoi_t *c)
 				//				block_reserver( touchdown, search_for_stop+1, false );
 				std::cout << "block_reserver 4 is called: "<<state<<" "<< touchdown << std::endl;
 				block_reserver( touchdown, search_for_stop+1, false );
-				//				block_reserver( touchdown + landing_distance - HOLDING_PATTERN_OFFSET, search_for_stop+1, false );
 			}
 		}
 	}
@@ -7614,7 +7614,6 @@ air_vehicle_t::set_convoi(convoi_t *c)
 						}
 						else if(  route_index>=touchdown-1  &&  state!=taxiing  ) {
 							std::cout << "block_reserver 5 is called: "<<state<<" "<< touchdown << std::endl;
-							//							block_reserver( touchdown + landing_distance - HOLDING_PATTERN_OFFSET, search_for_stop+1, true );
 							block_reserver( touchdown, search_for_stop+1, true );
 						}
 					}
