@@ -1322,12 +1322,12 @@ void way_builder_t::init_builder(bautyp_t wt, const way_desc_t *b, const tunnel_
 	else if(  bautyp != river  ) {
 #ifdef AUTOMATIC_BRIDGES
 		if(  bridge_desc == NULL  ) {
-			bridge_desc = bridge_builder_t::find_bridge(b->get_wtyp(), 25, welt->get_timeline_year_month());
+			bridge_desc = bridge_builder_t::find_bridge(b->get_wtyp(), b->get_topspeed(), welt->get_timeline_year_month());
 		}
 #endif
 #ifdef AUTOMATIC_TUNNELS
 		if(  tunnel_desc == NULL  ) {
-			tunnel_desc = tunnel_builder_t::get_tunnel_desc(b->get_wtyp(), 25, welt->get_timeline_year_month());
+			tunnel_desc = tunnel_builder_t::get_tunnel_desc(b->get_wtyp(), b->get_topspeed(), welt->get_timeline_year_month());
 		}
 #endif
 	}
