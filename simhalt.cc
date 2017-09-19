@@ -3301,8 +3301,9 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		resort_freight_info = false;
 		buf.clear();
 
-		vector_tpl<ware_t> * ware_class;
+		vector_tpl<ware_t> ware_class;
 		ware_t ware;
+		bool is_any_class_passenger = false;
 
 		for (unsigned i = 0; i < goods_manager_t::get_max_catg_index(); i++)
 		{
@@ -3312,31 +3313,36 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 				// Below an attempt to sort the passengers and mail per class. However, there is a problem by using "vector_tpl<ware_t> * ware_class;" (with an asterisk *)
 				// which causes some strange error.
 				//
-				/*if (i == goods_manager_t::INDEX_PAS || i == goods_manager_t::INDEX_MAIL)
+				if (i == goods_manager_t::INDEX_PAS || i == goods_manager_t::INDEX_MAIL)
 				{
-					for (uint32 j = 0; j < warray->get_count(); j++)
+					uint8 classes_to_check = i == goods_manager_t::INDEX_PAS ? goods_manager_t::passengers->get_number_of_classes() : goods_manager_t::mail->get_number_of_classes();
+					for (unsigned j = 0; j < classes_to_check; j++)
 					{
-						ware = warray->get_element(j);
-						for (uint8 k = 0; k < max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes()); k++)
+						ware_class.clear();
+						is_any_class_passenger = false;
+						for (unsigned k = 0; k < warray->get_count(); k++)
 						{
-							ware_class[k].clear();
-							if (ware.get_class() == k)
+							ware = warray->get_element(k);
+							if (ware.get_class() == j)
 							{
-								ware_class[k].append(ware);
+								ware_class.append(ware);
+								is_any_class_passenger = true;
 							}
 						}
+						if (is_any_class_passenger)
+						{
+							char class_name_untranslated[32];
+							char class_entry[32];
+							sprintf(class_name_untranslated, i == goods_manager_t::INDEX_PAS ? "p_class[%u]" : "m_class[%u]", j);
+							sprintf(class_entry, "(%s) %s", translator::translate(class_name_untranslated), translator::translate("waiting"));
+							freight_list_sorter_t::sort_freight(ware_class, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, class_entry);
+						}
 					}
-					for (uint8 k = 0; k < max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes()); k++)
-					{
-						char class_name_untranslated[32];
-						sprintf(class_name_untranslated, goods_manager_t::INDEX_PAS ? "p_class[%u]" : "m_class[%u]", k);
-						const char* class_name = translator::translate(class_name_untranslated);
-						char what_doing[32];
-						sprintf(what_doing, translator::translate("waiting (%s)"), class_name);
-						freight_list_sorter_t::sort_freight(ware_class[k], buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, what_doing);
-					}
-				}*/
-				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting");
+				}
+				//else
+				{
+					freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting");
+				}
 			}
 		}
 
