@@ -7029,7 +7029,7 @@ bool air_vehicle_t::calc_route_internal(
 					break;
 				}
 				gr = welt->lookup_kartenboden(search_start.get_2d()+(start_dir*endi));
-				if(over<3  ||  (gr->get_weg_ribi(air_wt)&start_ribi)==0) {
+				if(over<landing_distance/3  ||  (gr->get_weg_ribi(air_wt)&start_ribi)==0) {
 					over --;
 				}
 				endi ++;
@@ -7742,16 +7742,6 @@ void air_vehicle_t::hop(grund_t* gr)
 			// do not change height any more while circling
 			flying_height += h_cur;
 			flying_height -= h_next;
-			// did we have to change our flight height?
-			if(  target_height-h_next > TILE_HEIGHT_STEP*altitude_level*11/10 + (sint16)get_pos().z  ) {
-				// Move down
-				target_height -= TILE_HEIGHT_STEP;
-			}
-			else if(  target_height-h_next < TILE_HEIGHT_STEP*altitude_level*9/10 + (sint16)get_pos().z  ) {
-				// Move up
-				target_height += TILE_HEIGHT_STEP;
-			}
-
 			break;
 		}
 		case flying: {
