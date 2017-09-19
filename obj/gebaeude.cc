@@ -1184,37 +1184,41 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 		if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
 		{
-			uint16 success_rate = get_passenger_success_percent_this_year_commuting();
 			buf.printf("%s", translator::translate("Passenger success rate this year (local):"));
-			if (success_rate < 65535)
+			if (get_passenger_success_percent_this_year_commuting() < 65535)
 			{
-				buf.printf(" %i%%", success_rate);
+				buf.printf(" %i%%", get_passenger_success_percent_this_year_commuting());
+			}
+			else
+			{
+				buf.printf(" 0%%");
+			}
+
+			buf.printf("\n");			
+			buf.printf("%s", translator::translate("Passenger success rate this year (non-local):"));
+			if (get_passenger_success_percent_this_year_visiting() < 65535)
+			{
+				buf.printf(" %i%%", get_passenger_success_percent_this_year_visiting());
+			}
+			else
+			{
+				buf.printf(" 0%%");
 			}
 			buf.printf("\n");
 
-			success_rate = get_passenger_success_percent_last_year_commuting();
-			buf.printf(translator::translate("Passenger success rate last year (local):"));
-			if (success_rate < 65535)
+			if (get_passenger_success_percent_last_year_commuting() < 65535)
 			{
-				buf.printf(" %i%%", success_rate);
+				buf.printf(translator::translate("Passenger success rate last year (local):"));
+				buf.printf(" %i%%", get_passenger_success_percent_last_year_commuting());
+				buf.printf("\n");
 			}
-			buf.printf("\n");
 
-			buf.printf(translator::translate("Passenger success rate this year (non-local):"));
-			success_rate = get_passenger_success_percent_this_year_visiting();
-			if (success_rate < 65535)
+			if (get_passenger_success_percent_last_year_visiting() < 65535)
 			{
-				buf.printf(" %i%%", success_rate);
+				buf.printf(translator::translate("Passenger success rate last year (non-local):"));
+				buf.printf(" %i%%", get_passenger_success_percent_last_year_visiting());
+				buf.printf("\n");
 			}
-			buf.printf("\n");
-
-			success_rate = get_passenger_success_percent_last_year_visiting();
-			buf.printf(translator::translate("Passenger success rate last year (non-local):"));
-			if (success_rate < 65535)
-			{
-				buf.printf(" %i%%", success_rate);
-			}
-			buf.printf("\n");
 		}
 		else
 		{
@@ -1304,7 +1308,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				char walking_time_as_clock[32];
 				welt->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), max_walking_time);
 				buf.printf("\n");
-				buf.printf(translator::translate("%i more_stops, max_walking_time: %s "), stop_entry_counter - max_stop_entries, walking_time_as_clock);
+				buf.printf(translator::translate("%i more_stops,_max_walking_time: %s "), stop_entry_counter - max_stop_entries, walking_time_as_clock);
 				buf.append("(");
 				const double km_to_halt = (double)max_tiles_to_halt * km_per_tile;
 				if (km_to_halt < 1)
@@ -1386,7 +1390,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				char walking_time_as_clock[32];
 				welt->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), max_walking_time);
 				buf.printf("\n");
-				buf.printf(translator::translate("%i more_stops, max_walking_time: %s "), stop_entry_counter - max_stop_entries, walking_time_as_clock);
+				buf.printf(translator::translate("%i more_stops,_max_walking_time: %s "), stop_entry_counter - max_stop_entries, walking_time_as_clock);
 				buf.append("(");
 				const double km_to_halt = (double)max_tiles_to_halt * km_per_tile;
 				if (km_to_halt < 1)
