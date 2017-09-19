@@ -4,7 +4,7 @@ CFG ?= default
 
 BACKENDS      = allegro gdi opengl sdl sdl2 mixer_sdl posix
 COLOUR_DEPTHS = 0 16
-OSTYPES       = amiga beos cygwin freebsd haiku linux mingw mac
+OSTYPES       = amiga beos cygwin freebsd haiku linux mingw32 mingw64 mac
 
 ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
   $(error Unkown BACKEND "$(BACKEND)", must be one of "$(BACKENDS)")
@@ -27,14 +27,19 @@ else
   ifeq ($(OSTYPE),beos)
     LIBS += -lnet
   else
-    ifneq ($(findstring $(OSTYPE), cygwin mingw),)
+    ifneq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
       ifeq ($(OSTYPE),cygwin)
         CFLAGS  += -I/usr/include/mingw -mwin32
       else
-        ifeq ($(OSTYPE),mingw)
+        ifeq ($(OSTYPE), mingw32)
           CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -static
-					LDFLAGS += -static-libgcc -static-libstdc++ -static
-          LIBS    += -lmingw32
+          LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware -static
+          LIBS += -lmingw32
+        endif
+        ifeq ($(OSTYPE), mingw64)
+          CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -static
+          LDFLAGS += -static-libgcc -static-libstdc++ -static
+          LIBS += -lmingw32
         endif
       endif
       SOURCES += simsys_w32_png.cc
@@ -64,7 +69,7 @@ ifeq ($(OSTYPE),mac)
   LDFLAGS += -stdlib=libstdc++
 endif
 
-ifeq ($(OSTYPE),mingw)
+ifeq ($(OSTYPE),mingw32 mingw64)
   SOURCES += clipboard_w32.cc
 else
   SOURCES += clipboard_internal.cc
@@ -124,7 +129,7 @@ endif
 ifneq ($(MULTI_THREAD),)
   ifeq ($(shell expr $(MULTI_THREAD) \>= 1), 1)
     CFLAGS += -DMULTI_THREAD
-    ifeq ($(OSTYPE),mingw)
+    ifeq ($(OSTYPE),mingw32 mingw64)
 #use lpthreadGC2d for debug alternatively
 #		Disabled, as this does not work for cross-compiling
 #      LDFLAGS += -lpthreadGC2
@@ -490,7 +495,7 @@ ifeq ($(BACKEND),sdl)
     LIBS    += -framework Foundation -framework QTKit
   else
     SOURCES  += sound/sdl_sound.cc
-    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+    ifeq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
       SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
@@ -506,7 +511,7 @@ ifeq ($(BACKEND),sdl)
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-    ifeq ($(OSTYPE),mingw)
+    ifeq ($(OSTYPE),mingw32 mingw64)
 		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
 	else
 	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
@@ -525,7 +530,7 @@ ifeq ($(BACKEND),sdl2)
     LIBS    += -framework Foundation -framework QTKit
   else
     SOURCES  += sound/sdl_sound.cc
-    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+    ifeq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
       SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
@@ -556,7 +561,7 @@ ifeq ($(BACKEND),mixer_sdl)
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-	ifeq ($(OSTYPE),mingw)
+	ifeq ($(OSTYPE),mingw32 mingw64)
 		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
 	else
 	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
@@ -576,7 +581,7 @@ ifeq ($(BACKEND),opengl)
     LIBS    += -framework Foundation -framework QTKit
   else
     SOURCES  += sound/sdl_sound.cc
-    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
+    ifeq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
       SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
@@ -587,7 +592,7 @@ ifeq ($(BACKEND),opengl)
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-    ifeq ($(OSTYPE),mingw)
+    ifeq ($(OSTYPE),mingw32 mingw64)
 		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
 	else
 	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
@@ -598,7 +603,7 @@ ifeq ($(BACKEND),opengl)
   ifeq ($(OSTYPE),mac)
     LIBS += -framework OpenGL
   else
-    ifeq ($(OSTYPE),mingw)
+    ifeq ($(OSTYPE),mingw32 mingw64)
       LIBS += -lglew32 -lopengl32
     else
       LIBS += -lglew32 -lGL
@@ -614,11 +619,16 @@ endif
 
 CFLAGS += -DCOLOUR_DEPTH=$(COLOUR_DEPTH)
 
-ifneq ($(findstring $(OSTYPE), cygwin mingw),)
+ifneq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
   SOURCES += simres.rc
   # See https://sourceforge.net/p/mingw-w64/discussion/723798/thread/bf2a464d/
-  #WINDRES ?= windres -F pe-i386
-	WINDRES ?= x86_64-w64-mingw32-windres
+  ifeq ($(OSTYPE), mingw32)
+    WINDRES ?= windres -F pe-i386
+  else
+    ifeq ($(OSTYPE), mingw64)
+      WINDRES ?= x86_64-w64-mingw32-windres
+    endif
+  endif
 endif
 
 CCFLAGS  += $(CFLAGS)
@@ -626,8 +636,11 @@ CXXFLAGS += $(CFLAGS)
 
 BUILDDIR ?= build/$(CFG)
 PROGDIR  ?= $(BUILDDIR)
-PROG     ?= simutrans-extended.exe
-
+ifneq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
+  PROG     ?= simutrans-extended.exe
+else
+  PROG     ?= simutrans-extended
+endif
 
 include common.mk
 
