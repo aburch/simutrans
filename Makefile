@@ -587,10 +587,10 @@ ifeq ($(BACKEND),opengl)
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-    ifeq ($(OSTYPE),mingw)
+  ifeq ($(OSTYPE),mingw)
 		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
 	else
-	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
+		SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
 	endif
   endif
   CFLAGS += $(SDL_CFLAGS)
