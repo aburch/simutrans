@@ -637,7 +637,7 @@ CXXFLAGS += $(CFLAGS)
 BUILDDIR ?= build/$(CFG)
 PROGDIR  ?= $(BUILDDIR)
 ifneq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
-  PROG     ?= simutrans-extended.exe
+  PROG     ?= Simutrans-Extended.exe
 else
   PROG     ?= simutrans-extended
 endif
