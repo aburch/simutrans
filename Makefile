@@ -33,7 +33,7 @@ else
       else
         ifeq ($(OSTYPE),mingw)
           CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -static
-					LDFLAGS += -static-libgcc -static-libstdc++ -static
+					LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware -static
           LIBS    += -lmingw32
         endif
       endif
@@ -617,8 +617,7 @@ CFLAGS += -DCOLOUR_DEPTH=$(COLOUR_DEPTH)
 ifneq ($(findstring $(OSTYPE), cygwin mingw),)
   SOURCES += simres.rc
   # See https://sourceforge.net/p/mingw-w64/discussion/723798/thread/bf2a464d/
-  #WINDRES ?= windres -F pe-i386
-	WINDRES ?= x86_64-w64-mingw32-windres
+  WINDRES ?= windres -F pe-i386
 endif
 
 CCFLAGS  += $(CFLAGS)
@@ -626,7 +625,7 @@ CXXFLAGS += $(CFLAGS)
 
 BUILDDIR ?= build/$(CFG)
 PROGDIR  ?= $(BUILDDIR)
-PROG     ?= simutrans-extended.exe
+PROG     ?= simutrans-extended
 
 
 include common.mk
