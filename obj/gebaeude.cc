@@ -959,12 +959,13 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 	if (!is_factory && !zeige_baugrube)
 	{
-		buf.append("\n\n");
+		buf.append("\n");
 
 		// belongs to which city?
 		if (get_stadt() != NULL)
 		{
 			buf.printf(translator::translate("Town: %s\n"), ptr.stadt->get_name());
+			buf.append("\n");
 		}
 
 		if (tile->get_desc()->is_signalbox())
@@ -1002,10 +1003,10 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				buf.append(number_max);
 				buf.append("km");
 			}
-			buf.append("\n");
+			buf.append("\n\n");
 		}
 
-		buf.printf("\n%s: %d\n", translator::translate("citicens"), get_adjusted_population());
+		buf.printf("%s: %d\n", translator::translate("citicens"), get_adjusted_population());
 		buf.printf("%s: %d\n", translator::translate("Visitor demand"), get_adjusted_visitor_demand());
 #ifdef DEBUG
 		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), get_adjusted_jobs(), check_remaining_available_jobs());
@@ -1181,87 +1182,10 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		}
 		buf.append("\n");
 
-
-
-		buf.printf("%s%u", translator::translate("\nBauzeit von"), h.get_intro_year_month() / 12);
-		if (h.get_retire_year_month() != DEFAULT_RETIRE_DATE * 12) {
-			buf.printf("%s%u", translator::translate("\nBauzeit bis"), h.get_retire_year_month() / 12);
-		}
-
-		buf.append("\n");
-		if (get_owner() == NULL) {
-			buf.append("\n");
-			buf.append(translator::translate("Wert"));
-			buf.append(": ");
-			// The land value calculation below will need modifying if multi-tile city buildings are ever introduced.
-			buf.append(-(welt->get_land_value(get_pos())*(tile->get_desc()->get_level()) / 100) * 5);
-			buf.append("$\n");
-		}
-
-		if (char const* const maker = tile->get_desc()->get_copyright()) {
-			buf.append("\n");
-			buf.printf(translator::translate("Constructed by %s"), maker);
-		}
-
-		// List of stops potentially within walking distance.
-		const planquadrat_t* plan = welt->access(get_pos().get_2d());
-		const nearby_halt_t *const halt_list = plan->get_haltlist();
-		bool any_suitable_stops_passengers = false;
-		bool any_suitable_stops_mail = false;
-		buf.append("\n\n");
-
-		if (plan->get_haltlist_count() > 0)
-		{
-			for (int h = plan->get_haltlist_count() - 1; h >= 0; h--)
-			{
-				const halthandle_t halt = halt_list[h].halt;
-				if (halt->is_enabled(goods_manager_t::passengers))
-				{
-					if (!any_suitable_stops_passengers)
-					{
-						buf.append(translator::translate("Stops potentially within walking distance:"));
-						buf.printf("\n(%s)\n\n", translator::translate("Passagiere"));
-						any_suitable_stops_passengers = true;
-					}
-					const uint16 walking_time = welt->walking_time_tenths_from_distance(halt_list[h].distance);
-					char walking_time_as_clock[32];
-					welt->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time);
-					buf.printf("%s\n%s: %s\n", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
-				}
-			}
-
-			for (int h = plan->get_haltlist_count() - 1; h >= 0; h--)
-			{
-				const halthandle_t halt = halt_list[h].halt;
-				if (halt->is_enabled(goods_manager_t::mail))
-				{
-					if (!any_suitable_stops_mail)
-					{
-						buf.printf("\n(%s)\n\n", translator::translate("Post"));
-						any_suitable_stops_mail = true;
-					}
-					const uint16 walking_time = welt->walking_time_tenths_from_distance(halt_list[h].distance);
-					char walking_time_as_clock[32];
-					welt->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time);
-					buf.printf("%s\n%s: %s\n", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
-				}
-			}
-
-		}
-
-		if (!any_suitable_stops_passengers)
-		{
-			buf.append(translator::translate("No passenger stops within walking distance\n"));
-		}
-
-		if (!any_suitable_stops_mail)
-		{
-			buf.append(translator::translate("\nNo postboxes within walking distance"));
-		}
 		if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
 		{
 			uint16 success_rate = get_passenger_success_percent_this_year_commuting();
-			buf.printf("\n\n%s", translator::translate("Passenger success rate this year (local):"));
+			buf.printf("%s", translator::translate("Passenger success rate this year (local):"));
 			if (success_rate < 65535)
 			{
 				buf.printf(" %i%%", success_rate);
@@ -1294,7 +1218,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		}
 		else
 		{
-			buf.printf("\n\n%s %i\n", translator::translate("Visitors this year:"), passengers_succeeded_visiting);
+			buf.printf("%s %i\n", translator::translate("Visitors this year:"), passengers_succeeded_visiting);
 			buf.printf("%s %i\n", translator::translate("Commuters this year:"), passengers_succeeded_commuting);
 
 			if (passenger_success_percent_last_year_commuting < 65535)
@@ -1306,6 +1230,105 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				buf.printf("%s %i\n", translator::translate("Commuters last year:"), passenger_success_percent_last_year_commuting);
 			}
 		}
+
+		// List of stops potentially within walking distance.
+		const planquadrat_t* plan = welt->access(get_pos().get_2d());
+		const nearby_halt_t *const halt_list = plan->get_haltlist();
+		bool any_suitable_stops_passengers = false;
+		bool any_suitable_stops_mail = false;
+		int total_stop_entries = plan->get_haltlist_count();
+		int max_stop_entries = 6;
+		int stop_entry_counter = 0;
+
+		if (plan->get_haltlist_count() > 0)
+		{
+			buf.append("\n");
+			for (int h = total_stop_entries; h >= 0; h--)
+			{
+				const halthandle_t halt = halt_list[h].halt;
+				if (halt->is_enabled(goods_manager_t::passengers))
+				{
+					//if (stop_entry_counter < max_stop_entries)
+					{
+						if (!any_suitable_stops_passengers)
+						{
+							buf.append(translator::translate("Stops potentially within walking distance:"));
+							buf.printf("\n(%s)", translator::translate("Passagiere"));
+							any_suitable_stops_passengers = true;
+						}
+						const uint16 walking_time = welt->walking_time_tenths_from_distance(halt_list[h].distance);
+						char walking_time_as_clock[32];
+						welt->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time);
+						buf.printf("\n  %s\n    %s: %s", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
+					}
+					stop_entry_counter++;
+				}
+			}
+			if ((stop_entry_counter > max_stop_entries) && any_suitable_stops_mail)
+			{
+				buf.printf("\n  ");
+				buf.printf(translator::translate("and %i additional_stops"), stop_entry_counter - max_stop_entries);
+			}
+			buf.append("\n");
+			stop_entry_counter = 0;
+
+			for (int h = total_stop_entries; h >= 0; h--)
+			{
+				const halthandle_t halt = halt_list[h].halt;
+				if (halt->is_enabled(goods_manager_t::mail))
+				{
+					//if (stop_entry_counter < max_stop_entries)
+					{
+						if (!any_suitable_stops_mail)
+						{
+							buf.printf("\n(%s)", translator::translate("Post"));
+							any_suitable_stops_mail = true;
+						}
+						const uint16 walking_time = welt->walking_time_tenths_from_distance(halt_list[h].distance);
+						char walking_time_as_clock[32];
+						welt->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time);
+						buf.printf("\n  %s\n    %s: %s", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
+					}
+					stop_entry_counter++;
+				}
+			}
+			if ((stop_entry_counter > max_stop_entries) && any_suitable_stops_mail)
+			{
+				buf.printf("\n  ");
+				buf.printf(translator::translate("and %i additional_stops"), stop_entry_counter - max_stop_entries);
+			}
+
+		}
+		buf.printf("\n\n");
+
+
+		if (!any_suitable_stops_passengers)
+		{
+			buf.append(translator::translate("No passenger stops within walking distance\n"));
+		}
+
+		if (!any_suitable_stops_mail)
+		{
+			buf.append(translator::translate("\nNo postboxes within walking distance"));
+		}
+	
+		buf.printf("%s%u", translator::translate("\nBauzeit von"), h.get_intro_year_month() / 12);
+		if (h.get_retire_year_month() != DEFAULT_RETIRE_DATE * 12) {
+			buf.printf("%s%u", translator::translate("\nBauzeit bis"), h.get_retire_year_month() / 12);
+		}
+		buf.append("\n");
+		if (get_owner() == NULL) {
+			buf.append(translator::translate("Wert"));
+			buf.append(": ");
+			// The land value calculation below will need modifying if multi-tile city buildings are ever introduced.
+			buf.append(-(welt->get_land_value(get_pos())*(tile->get_desc()->get_level()) / 100) * 5);
+			buf.append("$\n");
+		}
+
+		if (char const* const maker = tile->get_desc()->get_copyright()) {
+			buf.printf(translator::translate("Constructed by %s"), maker);
+		}
+
 	}
 }
 
