@@ -1236,19 +1236,28 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		const nearby_halt_t *const halt_list = plan->get_haltlist();
 		bool any_suitable_stops_passengers = false;
 		bool any_suitable_stops_mail = false;
-		int total_stop_entries = plan->get_haltlist_count();
+		int total_stop_entries = plan->get_haltlist_count() -1;
 		int max_stop_entries = 6;
-		int stop_entry_counter = 0;
+		int stop_entry_counter;
+		uint16 max_walking_time;
+		uint32 max_tiles_to_halt;
+		const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
 
 		if (plan->get_haltlist_count() > 0)
 		{
 			buf.append("\n");
-			for (int h = total_stop_entries; h >= 0; h--)
+			stop_entry_counter = 0;
+			max_walking_time = 0;
+			max_tiles_to_halt = 0;
+
+			for (int h = 0; h < plan->get_haltlist_count(); h++)
 			{
 				const halthandle_t halt = halt_list[h].halt;
 				if (halt->is_enabled(goods_manager_t::passengers))
 				{
-					//if (stop_entry_counter < max_stop_entries)
+					const uint16 walking_time = welt->walking_time_tenths_from_distance(halt_list[h].distance);
+					const uint32 tiles_to_halt = halt_list[h].distance;
+					if (stop_entry_counter < max_stop_entries)
 					{
 						if (!any_suitable_stops_passengers)
 						{
@@ -1256,61 +1265,161 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 							buf.printf("\n(%s)", translator::translate("Passagiere"));
 							any_suitable_stops_passengers = true;
 						}
-						const uint16 walking_time = welt->walking_time_tenths_from_distance(halt_list[h].distance);
 						char walking_time_as_clock[32];
 						welt->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time);
-						buf.printf("\n  %s\n    %s: %s", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
+
+						buf.printf("\n  %s\n    %s: %s ", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
+
+						buf.append("(");
+						const double km_to_halt = (double)tiles_to_halt * km_per_tile;
+						if (km_to_halt < 1)
+						{
+							float m_to_halt = km_to_halt * 1000;
+							buf.append(m_to_halt);
+							buf.append("m");
+						}
+						else
+						{
+							char number_actual[10];
+							number_to_string(number_actual, km_to_halt, 1);
+							buf.append(number_actual);
+							buf.append("km");
+						}
+						buf.append(")");
+
+					}
+					if (walking_time > max_walking_time)
+					{
+						max_walking_time = walking_time;
+					}
+					if (tiles_to_halt > max_tiles_to_halt)
+					{
+						max_tiles_to_halt = tiles_to_halt;
 					}
 					stop_entry_counter++;
 				}
 			}
-			if ((stop_entry_counter > max_stop_entries) && any_suitable_stops_mail)
+			if (stop_entry_counter > max_stop_entries)
 			{
-				buf.printf("\n  ");
-				buf.printf(translator::translate("and %i additional_stops"), stop_entry_counter - max_stop_entries);
+				char walking_time_as_clock[32];
+				welt->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), max_walking_time);
+				buf.printf("\n");
+				buf.printf(translator::translate("%i more_stops, max_walking_time: %s "), stop_entry_counter - max_stop_entries, walking_time_as_clock);
+				buf.append("(");
+				const double km_to_halt = (double)max_tiles_to_halt * km_per_tile;
+				if (km_to_halt < 1)
+				{
+					float m_to_halt = km_to_halt * 1000;
+					buf.append(m_to_halt);
+					buf.append("m");
+				}
+				else
+				{
+					char number_actual[10];
+					number_to_string(number_actual, km_to_halt, 1);
+					buf.append(number_actual);
+					buf.append("km");
+				}
+				buf.append(")");
 			}
-			buf.append("\n");
-			stop_entry_counter = 0;
 
-			for (int h = total_stop_entries; h >= 0; h--)
+			if (any_suitable_stops_passengers)
+			{
+				buf.append("\n");
+			}
+			stop_entry_counter = 0;
+			max_walking_time = 0;
+			max_tiles_to_halt = 0;
+
+			for (int h = 0; h < plan->get_haltlist_count(); h++)
 			{
 				const halthandle_t halt = halt_list[h].halt;
 				if (halt->is_enabled(goods_manager_t::mail))
 				{
-					//if (stop_entry_counter < max_stop_entries)
+					const uint16 walking_time = welt->walking_time_tenths_from_distance(halt_list[h].distance);
+					const uint32 tiles_to_halt = halt_list[h].distance;
+					if (stop_entry_counter <= max_stop_entries)
 					{
 						if (!any_suitable_stops_mail)
 						{
+							if (!any_suitable_stops_passengers)
+							{
+								buf.append(translator::translate("Stops potentially within walking distance:"));
+							}
 							buf.printf("\n(%s)", translator::translate("Post"));
 							any_suitable_stops_mail = true;
 						}
-						const uint16 walking_time = welt->walking_time_tenths_from_distance(halt_list[h].distance);
 						char walking_time_as_clock[32];
 						welt->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), walking_time);
-						buf.printf("\n  %s\n    %s: %s", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
+						buf.printf("\n  %s\n    %s: %s ", halt->get_name(), translator::translate("Walking time"), walking_time_as_clock);
+
+						buf.append("(");
+						const double km_to_halt = (double)tiles_to_halt * km_per_tile;
+						if (km_to_halt < 1)
+						{
+							float m_to_halt = km_to_halt * 1000;
+							buf.append(m_to_halt);
+							buf.append("m");
+						}
+						else
+						{
+							char number_actual[10];
+							number_to_string(number_actual, km_to_halt, 1);
+							buf.append(number_actual);
+							buf.append("km");
+						}
+						buf.append(")");
+					}
+					if (walking_time > max_walking_time)
+					{
+						max_walking_time = walking_time;
+					}
+					if (tiles_to_halt > max_tiles_to_halt)
+					{
+						max_tiles_to_halt = tiles_to_halt;
 					}
 					stop_entry_counter++;
 				}
 			}
-			if ((stop_entry_counter > max_stop_entries) && any_suitable_stops_mail)
+			if (stop_entry_counter > max_stop_entries)
 			{
-				buf.printf("\n  ");
-				buf.printf(translator::translate("and %i additional_stops"), stop_entry_counter - max_stop_entries);
+				char walking_time_as_clock[32];
+				welt->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), max_walking_time);
+				buf.printf("\n");
+				buf.printf(translator::translate("%i more_stops, max_walking_time: %s "), stop_entry_counter - max_stop_entries, walking_time_as_clock);
+				buf.append("(");
+				const double km_to_halt = (double)max_tiles_to_halt * km_per_tile;
+				if (km_to_halt < 1)
+				{
+					float m_to_halt = km_to_halt * 1000;
+					buf.append(m_to_halt);
+					buf.append("m");
+				}
+				else
+				{
+					char number_actual[10];
+					number_to_string(number_actual, km_to_halt, 1);
+					buf.append(number_actual);
+					buf.append("km");
+				}
+				buf.append(")");
 			}
-
+			if (any_suitable_stops_mail)
+			{
+				buf.printf("\n");
+			}
 		}
-		buf.printf("\n\n");
-
 
 		if (!any_suitable_stops_passengers)
 		{
-			buf.append(translator::translate("No passenger stops within walking distance\n"));
+			buf.append(translator::translate("\nNo passenger stops within walking distance"));
 		}
 
 		if (!any_suitable_stops_mail)
 		{
 			buf.append(translator::translate("\nNo postboxes within walking distance"));
 		}
+		buf.printf("\n");
 	
 		buf.printf("%s%u", translator::translate("\nBauzeit von"), h.get_intro_year_month() / 12);
 		if (h.get_retire_year_month() != DEFAULT_RETIRE_DATE * 12) {
