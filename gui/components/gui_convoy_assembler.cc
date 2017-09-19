@@ -962,7 +962,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 						append = false;
 					}
 				}
-				if((append && veh_action == va_append) || (upgradeable &&  veh_action == va_upgrade))
+				if((append && (veh_action == va_append || veh_action == va_insert)) || (upgradeable &&  veh_action == va_upgrade))
 				{
 					add_to_vehicle_list( info );
 				}
