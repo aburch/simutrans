@@ -217,33 +217,7 @@ void world_view_t::set_size(scr_size size)
 void world_view_t::calc_offsets(scr_size size, sint16 dy_off)
 {
 	const sint16 max_dx = size.w/(raster/2) + 2;
-	const sint16 max_dy = (size.h/(raster/2) + dy_off)&0x0FFE;
-
-	offsets.clear();
-	for(  sint16 dy = -max_dy;  dy <= dy_off;  ) {
-		{
-			for(  sint16 dx =- 2;  dx < max_dx;  dx += 2  ) {
-				const koord check( (dy + dx) / 2, (dy - dx) / 2);
-				offsets.append(check);
-			}
-		}
-		dy++;
-		for(  sint16 dx = -1;  dx < max_dx;  dx += 2  ) {
-			const koord check( (dy + dx) / 2, (dy - dx) / 2);
-			offsets.append(check);
-		}
-		dy++;
-	}
-}
-
-/**
- * Recalculates the number of tiles needed
- overrided function
- */
-void world_view_t::calc_offsets(scr_size size, sint16 dx_off, sint16 dy_off)
-{
-	const sint16 max_dx = size.w/(raster/2) + dx_off;
-	const sint16 max_dy = (size.h/(raster/2) + dy_off + 8)&0x0FFE; // +8 for highly flying aircraft
+	const sint16 max_dy = (size.h/(raster/2) + dy_off + 8)&0x0FFE; //+8 for highly flying aircraft
 
 	offsets.clear();
 	for(  sint16 dy = -max_dy;  dy <= dy_off;  ) {
