@@ -417,7 +417,6 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				if (cnv->get_state() == convoi_t::NO_ROUTE)
 					color = COL_RED;
 			}
-			//			display_ddd_box_clip(ipos.x, ipos.y, isize.w, 8, MN_GREY0, MN_GREY4);
 			display_ddd_box_clip(ipos.x, ipos.y, isize.w, 8, MN_GREY0, MN_GREY4);
 			display_fillbox_wh_clip(ipos.x + 1, ipos.y + 1, isize.w - 2, 6, color, true);
 		}
