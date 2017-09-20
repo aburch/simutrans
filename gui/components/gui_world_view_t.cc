@@ -101,7 +101,7 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 
 	const int clip_x = max(old_clip.x, pos.x);
 	const int clip_y = max(old_clip.y, pos.y);
-	//display_set_clip_wh(clip_x, clip_y, min(old_clip.xx, pos.x + size.w) - clip_x, min(old_clip.yy, pos.y + size.h) - clip_y); // trimming of the tracing window
+	display_set_clip_wh(clip_x, clip_y, min(old_clip.xx, pos.x + size.w) - clip_x, min(old_clip.yy, pos.y + size.h) - clip_y);
 
 	mark_rect_dirty_wc(pos.x, pos.y, pos.x + size.w, pos.y + size.h);
 
