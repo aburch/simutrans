@@ -81,6 +81,7 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 		air_vehicle_t const* const plane = obj_cast<air_vehicle_t>(obj);
 		if(plane) {
 			hgt += tile_raster_scale_y(plane->get_flyingheight(), raster);
+			//std::cout << "flying_height = "<< plane->get_flyingheight() << std::endl;
 		}
 	}
 
@@ -100,7 +101,7 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 
 	const int clip_x = max(old_clip.x, pos.x);
 	const int clip_y = max(old_clip.y, pos.y);
-	display_set_clip_wh(clip_x, clip_y, min(old_clip.xx, pos.x + size.w) - clip_x, min(old_clip.yy, pos.y + size.h) - clip_y);
+	//display_set_clip_wh(clip_x, clip_y, min(old_clip.xx, pos.x + size.w) - clip_x, min(old_clip.yy, pos.y + size.h) - clip_y); // trimming of the tracing window
 
 	mark_rect_dirty_wc(pos.x, pos.y, pos.x + size.w, pos.y + size.h);
 
@@ -195,7 +196,8 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 	}
 
 	display_set_clip_wh(old_clip.x, old_clip.y, old_clip.w, old_clip.h);
-	display_ddd_box_clip(pos.x - 1, pos.y - 1, size.w + 2, size.h + 2, MN_GREY0, MN_GREY4);
+	//	display_ddd_box_clip(pos.x - 1, pos.y - 1, size.w + 2, size.h + 2, MN_GREY0, MN_GREY4);
+		display_ddd_box_clip(pos.x - 2, pos.y - 2, size.w + 4, size.h + 4, MN_GREY0, MN_GREY4);
 }
 
 
@@ -219,7 +221,33 @@ void world_view_t::calc_offsets(scr_size size, sint16 dy_off)
 	const sint16 max_dy = (size.h/(raster/2) + dy_off)&0x0FFE;
 
 	offsets.clear();
-	for(  sint16 dy = -max_dy;  dy <= 5;  ) {
+	for(  sint16 dy = -max_dy;  dy <= dy_off;  ) {
+		{
+			for(  sint16 dx =- 2;  dx < max_dx;  dx += 2  ) {
+				const koord check( (dy + dx) / 2, (dy - dx) / 2);
+				offsets.append(check);
+			}
+		}
+		dy++;
+		for(  sint16 dx = -1;  dx < max_dx;  dx += 2  ) {
+			const koord check( (dy + dx) / 2, (dy - dx) / 2);
+			offsets.append(check);
+		}
+		dy++;
+	}
+}
+
+/**
+ * Recalculates the number of tiles needed
+ overrided function
+ */
+void world_view_t::calc_offsets(scr_size size, sint16 dx_off, sint16 dy_off)
+{
+	const sint16 max_dx = size.w/(raster/2) + dx_off;
+	const sint16 max_dy = (size.h/(raster/2) + dy_off)&0x0FFE;
+
+	offsets.clear();
+	for(  sint16 dy = -max_dy;  dy <= dy_off;  ) {
 		{
 			for(  sint16 dx =- 2;  dx < max_dx;  dx += 2  ) {
 				const koord check( (dy + dx) / 2, (dy - dx) / 2);

@@ -32,6 +32,7 @@ protected:
 	void internal_draw(scr_coord offset, obj_t const *);
 
 	void calc_offsets(scr_size size, sint16 dy_off);
+	void calc_offsets(scr_size size, sint16 dx_off, sint16 dy_off);
 
 public:
 	world_view_t(scr_size size);
