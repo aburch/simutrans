@@ -103,9 +103,6 @@ protected:
 	 */
 	sint8 next_lane;
 
-	// true, if this vehicle will cross lane and block other vehicles.
-	bool next_cross_lane;
-
 	/**
 	 * Vehicle movement: check whether this vehicle can enter the next tile (pos_next).
 	 * @returns NULL if check fails, otherwise pointer to the next tile
@@ -178,8 +175,6 @@ public:
 	ribi_t::ribi get_90direction() const {return ribi_type(get_pos(), get_pos_next());}
 
 	koord3d get_pos_next() const {return pos_next;}
-
-	bool get_next_cross_lane() const {return next_cross_lane;}
 
 	virtual waytype_t get_waytype() const = 0;
 

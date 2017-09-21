@@ -169,6 +169,8 @@ void convoi_t::init(player_t *player)
 
 	recalc_data_front = true;
 	recalc_data = true;
+
+	next_cross_lane = false;
 }
 
 

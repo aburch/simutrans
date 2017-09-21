@@ -186,7 +186,6 @@ vehicle_base_t::vehicle_base_t():
 	dy = 0;
 	zoff_start = zoff_end = 0;
 	next_lane = 0;
-	next_cross_lane = false;
 	disp_lane = 2;
 }
 
@@ -204,7 +203,6 @@ vehicle_base_t::vehicle_base_t(koord3d pos):
 	dy = 0;
 	zoff_start = zoff_end = 0;
 	next_lane = 0;
-	next_cross_lane = false;
 	disp_lane = 2;
 }
 
@@ -2538,7 +2536,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				if(  v->get_waytype() == road_wt  ) {
 					restart_speed = 0;
 					cnv->reset_waiting();
-					next_cross_lane = true;
+					cnv->set_next_cross_lane(true);
 					return false;
 				}
 			}
@@ -2552,7 +2550,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				if(  v->get_waytype() == road_wt  ) {
 					restart_speed = 0;
 					cnv->reset_waiting();
-					next_cross_lane = true;
+					cnv->set_next_cross_lane(true);
 					return false;
 				}
 			}
@@ -2560,19 +2558,19 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			next_lane = 1;
 			return true;
 		}
-		// If 2 tiles ahead is a crossing, lane crossing must be checked before entering.
-		const koord3d pos_next3 = route_index < r.get_count() - 2u ? r.at(route_index + 2u) : pos_next2;
-		const grund_t *gr = route_index < r.get_count() - 1u ? welt->lookup(r.at(route_index+1u)) : NULL;
+		// If the next tile is a crossing, lane crossing must be checked before entering.
+		// The other vehicle is ignored if it is stopping to avoid stuck.
+		const grund_t *gr = welt->lookup(r.at(route_index));
 		const strasse_t *stre= gr ? (strasse_t *)gr->get_weg(road_wt) : NULL;
 		const ribi_t::ribi way_ribi = stre ? stre->get_ribi_unmasked() : ribi_t::none;
 		if(  stre  &&  stre->get_overtaking_mode() == oneway_mode  &&  (way_ribi == ribi_t::all  ||  ribi_t::is_threeway(way_ribi))  ) {
 			if(  const vehicle_base_t* v = other_lane_blocked(true)  ) {
 				if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
-					if(  judge_lane_crossing(calc_direction(pos_next,pos_next2), calc_direction(pos_next2,pos_next3), at->get_next_90direction(), cnv->is_overtaking(), false)  ) {
+					if(  at->get_convoi()->get_akt_speed()!=0  &&  judge_lane_crossing(calc_direction(get_pos(),pos_next), calc_direction(pos_next,pos_next2), at->get_90direction(), cnv->is_overtaking(), false)  ) {
 						// vehicle must stop.
 						restart_speed = 0;
 						cnv->reset_waiting();
-						next_cross_lane = true;
+						cnv->set_next_cross_lane(true);
 						return false;
 					}
 				}
@@ -2596,11 +2594,13 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 		// If there is a vehicle that requests lane crossing, this vehicle must stop to yield space.
 		if(  vehicle_base_t* v = other_lane_blocked(true)  ) {
-			if(  v->get_waytype() == road_wt  &&  v->get_next_cross_lane()  ) {
-				// vehicle must stop.
-				restart_speed = 0;
-				cnv->reset_waiting();
-				return false;
+			if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
+				if(  at->get_convoi()->get_next_cross_lane()  &&  at==at->get_convoi()->back()  ) {
+					// vehicle must stop.
+					restart_speed = 0;
+					cnv->reset_waiting();
+					return false;
+				}
 			}
 		}
 
@@ -2778,7 +2778,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 		if(  str->get_overtaking_mode() == inverted_mode  ) {
 			cnv->set_tiles_overtaking(1);
 		}
-		next_cross_lane = false; // since this convoi moved...
+		cnv->set_next_cross_lane(false); // since this convoi moved...
 		// If there is one-way sign, calc lane_affinity. This should not be calculated in can_enter_tile().
 		if(  roadsign_t* rs = gr->find<roadsign_t>()  ) {
 			if(  rs->get_desc()->is_single_way()  ) {

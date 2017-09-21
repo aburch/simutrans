@@ -414,6 +414,9 @@ private:
 	sint8 lane_affinity;
 	uint32 lane_affinity_end_index;
 
+	// true, if this vehicle will cross lane and block other vehicles.
+	bool next_cross_lane;
+
 public:
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
@@ -920,6 +923,9 @@ public:
 	 uint32 get_lane_affinity_end_index() const { return lane_affinity_end_index; }
 	 sint8 get_lane_affinity() const { return lane_affinity; }
 	 void reset_lane_affinity() { lane_affinity = 0; }
+
+	 bool get_next_cross_lane() const { return next_cross_lane; }
+	 void set_next_cross_lane(bool n) { next_cross_lane = n; }
 };
 
 #endif

@@ -751,8 +751,11 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 	}
 	// If there is a vehicle that requests lane crossing, this vehicle must stop to yield space.
 	if(  vehicle_base_t* v = other_lane_blocked(true)  ) {
-		if(  v->get_waytype() == road_wt  &&  v->get_next_cross_lane()  ) {
-			return false;
+		if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
+			if(  at->get_convoi()->get_next_cross_lane()  &&  at==at->get_convoi()->back()  ) {
+				// vehicle must stop.
+				return false;
+			}
 		}
 	}
 
@@ -964,7 +967,6 @@ void private_car_t::hop(grund_t* to)
 	if(  str->get_overtaking_mode() == inverted_mode  ) {
 		set_tiles_overtaking(1);
 	}
-	next_cross_lane = false; // since this car moved...
 	pos_next = pos_next_next;
 	pos_next_next = koord3d::invalid;
 }
