@@ -4777,7 +4777,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					if(time_interval_after_double_block)
 					{
 						next_signal_index = i;
-						count--;
+						count --;
 					}
 
 					if(!signal->get_desc()->is_pre_signal()) // Stop signal or multiple aspect signal
@@ -5153,7 +5153,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							const bool platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(signal->get_pos(), get_owner())) == this_halt)
 								&& (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt) && (cnv->get_akt_speed() == 0);
 							// Do not reserve through a token block signal: the train must stop to take the token.
-							if((last_token_block_signal_index > first_stop_signal_index || (!starting_at_signal && !platform_starter)) && first_double_block_signal_index != last_stop_signal_index)
+							if((last_token_block_signal_index > first_stop_signal_index || (!starting_at_signal && !platform_starter)) && (first_double_block_signal_index != last_stop_signal_index) || (first_double_block_signal_index == INVALID_INDEX && last_stop_signal_index == INVALID_INDEX && !starting_at_signal))
 							{
 								count --;
 								end_of_block = true;
