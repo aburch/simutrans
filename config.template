@@ -20,7 +20,8 @@
 #OSTYPE = freebsd
 #OSTYPE = haiku
 #OSTYPE = linux
-#OSTYPE = mingw
+#OSTYPE = mingw32
+#OSTYPE = mingw64
 #OSTYPE = mac
 
 #DEBUG = 1    # Level 1-3, higher number means more debug-friendly but slower, see Makefile
@@ -29,8 +30,8 @@
 #PROFILE = 1  # Enable profiling
 #PROFILE = 2  # Enable profiling with optimisation flags, can be used with `OPTIMISE = 1'
 
-WITH_REVISION = 1 # adds the revision from Github; required for networkgames
-# if you do not use SVN, add -DREVISION="1234" to the FLAGS below
+WITH_REVISION = 1 # adds the commit number (truncated) from Github; important for network games
+# if you do not use Github and the related scripts for setting the commit number automatically, add -DREVISION="1234" to the FLAGS below
 
 #WIN32_CONSOLE = 1 # adds a console for windows debugging
 
@@ -86,4 +87,4 @@ MULTI_THREAD = 1 # Enable multithreading
 # NETTOOL_PROGDIR = $(shell pwd)
 # PROGDIR  = $(shell pwd)
 
-FLAGS = -DUSE_C -fno-delete-null-pointer-checks -fno-strict-aliasing 
+FLAGS = -DUSE_C -fno-delete-null-pointer-checks -fno-strict-aliasing -std=c++11
