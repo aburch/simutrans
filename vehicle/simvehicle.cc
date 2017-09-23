@@ -5157,6 +5157,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							{
 								count --;
 								end_of_block = true;
+								do_not_clear_distant = true;
 							}
 						}
 
