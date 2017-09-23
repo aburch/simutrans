@@ -400,7 +400,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		{
 			scr_coord ipos = pos + view.get_pos();
 			scr_size isize = view.get_size();
-			ipos.y += isize.h + 16;
+			ipos.y += isize.h + 16; //what is the magic number 16?
 
 			COLOR_VAL color = COL_BLACK;
 			switch (cnv->get_state())

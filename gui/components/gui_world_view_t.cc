@@ -81,6 +81,7 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 		air_vehicle_t const* const plane = obj_cast<air_vehicle_t>(obj);
 		if(plane) {
 			hgt += tile_raster_scale_y(plane->get_flyingheight(), raster);
+			//std::cout << "flying_height = "<< plane->get_flyingheight() << std::endl;
 		}
 	}
 
@@ -171,7 +172,7 @@ void world_view_t::internal_draw(const scr_coord offset, obj_t const* const obj)
 		const sint8 hmax = grund_t::underground_mode == grund_t::ugm_all ? h - !kb->ist_tunnel() : grund_t::underground_level;
 
 		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(kb->get_disp_height() * TILE_HEIGHT_STEP, raster);
-		if(  0 <= yypos + raster  &&  yypos - raster * 2 < size.h  ) {
+		if(  0 <= yypos + raster  &&  yypos - raster * 2 < size.h  * 5) { // * 5 for highly flying aircraft
 #ifdef MULTI_THREAD
 			plan->display_obj( pos.x + off_x, pos.y + yypos, raster, false, hmin, hmax, 0 );
 #else
@@ -216,10 +217,10 @@ void world_view_t::set_size(scr_size size)
 void world_view_t::calc_offsets(scr_size size, sint16 dy_off)
 {
 	const sint16 max_dx = size.w/(raster/2) + 2;
-	const sint16 max_dy = (size.h/(raster/2) + dy_off)&0x0FFE;
+	const sint16 max_dy = (size.h/(raster/2) + dy_off + 10)&0x0FFE; //+10 for highly flying aircraft
 
 	offsets.clear();
-	for(  sint16 dy = -max_dy;  dy <= 5;  ) {
+	for(  sint16 dy = -max_dy;  dy <= dy_off;  ) {
 		{
 			for(  sint16 dx =- 2;  dx < max_dx;  dx += 2  ) {
 				const koord check( (dy + dx) / 2, (dy - dx) / 2);
