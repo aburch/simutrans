@@ -1193,12 +1193,14 @@ void convoi_t::step()
 		check_pending_updates();
 	}
 
+	strasse_t* str;
 	switch(state) {
 
 		case LOADING:
 			laden();
 			//When loading, vehicle should not be on passing lane.
-			set_tiles_overtaking(0);
+			str = (strasse_t*)welt->lookup(get_pos())->get_weg(road_wt);
+			if(  str  &&  str->get_overtaking_mode()!=inverted_mode) set_tiles_overtaking(0);
 			break;
 
 		case DUMMY4:
@@ -2021,7 +2023,11 @@ void convoi_t::vorfahren()
 {
 	// Hajo: init speed settings
 	sp_soll = 0;
-	set_tiles_overtaking( 0 );
+	if(  get_tiles_overtaking()>0  ) {
+		set_tiles_overtaking(1);
+	} else {
+		set_tiles_overtaking(0);
+	}
 	recalc_data_front = true;
 	recalc_data = true;
 
