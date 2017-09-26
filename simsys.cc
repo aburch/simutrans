@@ -170,7 +170,7 @@ char const* dr_query_homedir()
 	static char buffer[PATH_MAX+24];
 
 #if defined _WIN32
-	WCHAR bufferW[PATH_MAX+24], bufferW2[PATH_MAX+24];
+	WCHAR bufferW[PATH_MAX+24];
 	if(  SHGetFolderPathW(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, bufferW)  ) {
 		DWORD len = PATH_MAX;
 		HKEY hHomeDir;
@@ -179,11 +179,8 @@ char const* dr_query_homedir()
 		}
 		RegQueryValueExW(hHomeDir, L"Personal", 0, 0, (LPBYTE)bufferW, &len);
 	}
-	// this is needed to access multibyte user driectories with ASCII names ...
 	wcscat( bufferW, L"\\Simutrans" );
-	CreateDirectoryW( bufferW, NULL );	// must create it, because otherwise the short name does not exist
-	GetShortPathNameW( bufferW, bufferW2, lengthof(bufferW2) );
-	WideCharToMultiByte( CP_UTF8, 0, bufferW2, -1, buffer, MAX_PATH, NULL, NULL );
+	WideCharToMultiByte( CP_UTF8, 0, bufferW, -1, buffer, MAX_PATH, NULL, NULL );
 #elif defined __APPLE__
 	sprintf(buffer, "%s/Library/Simutrans", getenv("HOME"));
 #elif defined __HAIKU__

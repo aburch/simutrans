@@ -79,6 +79,12 @@
 #include "vehicle/simvehicle.h"
 #include "vehicle/simroadtraffic.h"
 
+#ifdef _MSC_VER
+// Replace deprecated getcwd.
+#define getcwd _getcwd
+#endif
+
+
 using std::string;
 
 /* diagnostic routine:
