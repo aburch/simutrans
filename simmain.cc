@@ -484,8 +484,16 @@ int simu_main(int argc, char** argv)
 	if (gimme_arg(argc, argv, "-use_workdir", 0))
 #endif
 	{
+#if defined _WIN32
+		WCHAR bufferW[1024], bufferW2[1024];
+		// save the current directories, which need more effort on windows
+		GetCurrentDirectoryW( lengthof(bufferW), bufferW );
+		GetShortPathNameW( bufferW, bufferW2, lengthof(bufferW2) );
+		WideCharToMultiByte( CP_UTF8, 0, bufferW2, -1, env_t::program_dir, lengthof(env_t::program_dir), NULL, NULL );
+#else
 		// save the current directories
 		getcwd(env_t::program_dir, lengthof(env_t::program_dir));
+#endif
 		strcat( env_t::program_dir, path_sep );
 	}
 	else {
