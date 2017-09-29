@@ -2682,7 +2682,7 @@ private:
 	void calc_max_road_check_depth();
 
 	void process_network_commands(sint32* ms_difference);
-	void do_network_world_command(network_world_command_t *nwc);
+	bool do_network_world_command(network_world_command_t *nwc);
 	uint32 get_next_command_step();
 
 	sint32 get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const planquadrat_t*> &tile_list) const;
