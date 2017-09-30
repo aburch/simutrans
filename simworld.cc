@@ -1665,7 +1665,7 @@ void *step_passengers_and_mail_threaded(void* args)
 		seed_base /= 2;
 	}*/
 
-	const int seed = seed_base * karte_t::passenger_generation_thread_number;
+	const uint32 seed = (uint32)seed_base * karte_t::passenger_generation_thread_number;
 
 	// The random seed is now thread local, so this must be initialised here
 	// with values that will be deterministic between different clients in
