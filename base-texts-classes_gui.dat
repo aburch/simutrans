@@ -1,0 +1,34 @@
+# Simutranslator settings for Simutrans-Extended texts
+# Addendum for the reorganisation of the depot window
+#
+# Author: jamespetts
+# Created: April 2013
+#
+obj=program_text
+name=runway_36/18
+note=In the runway infowindow, this displays when the runway is going north to south
+-
+obj=program_text
+name=
+note=
+-
+obj=program_text
+name=
+note=
+-
+obj=program_text
+name=
+note=
+-
+obj=program_text
+name=
+note=
+-
+obj=program_text
+name=
+note=
+-
+obj=program_text
+name=
+note=
+-
