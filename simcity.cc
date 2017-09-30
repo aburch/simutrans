@@ -1119,11 +1119,7 @@ void stadt_t::update_city_stats_with_building(gebaeude_t* building, bool remove)
 		city_history_year[0][HIST_VISITOR_DEMAND]  -= building->get_adjusted_visitor_demand();
 	}
 	else
-	{
-		const uint32 TEST_jobs = building->get_adjusted_jobs();
-		const uint32 TEST_pop = building->get_adjusted_population();
-		const uint32 TEST_demand = building->get_adjusted_visitor_demand();
-		
+	{		
 		city_history_month[0][HIST_CITICENS] += building->get_adjusted_population();
 		city_history_year[0][HIST_CITICENS]  += building->get_adjusted_population();
 
