@@ -3293,11 +3293,11 @@ void fabrik_t::calc_max_intransit_percentages()
 			index ++;
 			continue;
 		}
-		const uint32 time_to_consume = max(1, get_time_to_consume_stock(index)); 
-		const uint32 ratio = ((uint32)lead_time * 1000 / (uint32)time_to_consume);
-		const uint32 modified_max_intransit_percentage = (ratio * (uint32)base_max_intransit_percentage) / 1000;
+		const uint32 time_to_consume = max(1u, get_time_to_consume_stock(index)); 
+		const sint32 ratio = ((sint32)lead_time * 1000 / (sint32)time_to_consume);
+		const sint32 modified_max_intransit_percentage = (ratio * (sint32)base_max_intransit_percentage) / 1000;
 		max_intransit_percentages.put(catg, (uint16)modified_max_intransit_percentage);
-		input[index].max_transit = max(1, (modified_max_intransit_percentage * input[index].max) / 100u); // This puts max_transit in internal units
+		input[index].max_transit = max(1, (modified_max_intransit_percentage * input[index].max) / 100); // This puts max_transit in internal units
 		index ++;
 	}
 }
