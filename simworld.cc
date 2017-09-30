@@ -5699,7 +5699,7 @@ void karte_t::step_time_interval_signals()
 sint32 karte_t::calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const
 {
 	const uint32 median_packet_size = (uint32)(get_settings().get_passenger_routing_packet_size() + 1) / 2;	
-	const uint64 trips_per_month = max_64((((sint64)weight * (sint64)calc_adjusted_monthly_figure(trips_per_month_hundredths)) / 100ll) / (sint64)median_packet_size, 1ll);
+	const uint64 trips_per_month = (std::max)((((sint64)weight * (sint64)calc_adjusted_monthly_figure(trips_per_month_hundredths)) / 100ll) / (sint64)median_packet_size, 1ll);
 		
 	return (sint32)((uint64)ticks_per_world_month > trips_per_month ? (uint64) ticks_per_world_month / trips_per_month : 1);
 }
