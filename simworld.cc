@@ -1652,20 +1652,15 @@ void *step_passengers_and_mail_threaded(void* args)
 {
 	const uint32* thread_number_ptr = (const uint32*)args;
 	karte_t::passenger_generation_thread_number = *thread_number_ptr;
-	delete thread_number_ptr;
 
-	sint64 seed_base = env_t::networkmode ? karte_t::world->get_settings().get_random_counter() : dr_time();
+	uint32 seed_base = env_t::networkmode ? karte_t::world->get_settings().get_random_counter() : dr_time();
 	
-	// The below is probably unnecessary, as underflow/overflow do not matter with a random seed.
+	// This may easily overflow, but this is irrelevant for the purposes of a random seed
+	// (so long as both server and client are using the same size of integer)
 
-	/*const sint64 max_value = SINT32_MAX_VALUE * karte_t::passenger_generation_thread_number;
+	const uint32 seed = seed_base * *thread_number_ptr;
 
-	while (seed_base > max_value)
-	{
-		seed_base /= 2;
-	}*/
-
-	const uint32 seed = (uint32)seed_base * karte_t::passenger_generation_thread_number;
+	delete thread_number_ptr;
 
 	// The random seed is now thread local, so this must be initialised here
 	// with values that will be deterministic between different clients in
