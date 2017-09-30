@@ -572,7 +572,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		}
 	}
 
-	if (desc->get_styp() == type_runway)
+	if (wtyp == air_wt && desc->get_styp() == type_runway)
 	{
 		bool runway_36_18 = false;
 		bool runway_09_27 = false;
@@ -654,7 +654,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 			}
 			const double runway_meters_36_18 = (double)runway_tiles * km_per_tile;
 
-			buf.printf("%s: ", translator::translate("runway_38/18"));
+			buf.printf("%s: ", translator::translate("runway_36/18"));
 			buf.append(runway_meters_36_18);
 			buf.append(translator::translate("meter"));
 			buf.append("\n");
