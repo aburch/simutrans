@@ -6477,7 +6477,6 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 				if(  !env_t::server  ) {
 					network_disconnect();
 				}
-				delete nwc;
 				return;
 			}
 		}
