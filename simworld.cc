@@ -9962,16 +9962,14 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 	while(  !command_queue.empty()  &&  (next_command_step<=sync_steps/*  ||  step_mode&PAUSE_FLAG*/)  ) {
 		network_world_command_t *nwc = command_queue.remove_first();
 		if (nwc) {
-			if (do_network_world_command(nwc))
-			{
-				delete nwc;
-			}
+			do_network_world_command(nwc);
+			delete nwc;
 		}
 		next_command_step = get_next_command_step();
 	}
 }
 
-bool karte_t::do_network_world_command(network_world_command_t *nwc)
+void karte_t::do_network_world_command(network_world_command_t *nwc)
 {
 	// want to execute something in the past?
 	if (nwc->get_sync_step() < sync_steps) {
@@ -10016,13 +10014,10 @@ bool karte_t::do_network_world_command(network_world_command_t *nwc)
 				if(  !env_t::server  ) {
 					network_disconnect();
 				}
-				delete nwc;
-				return false;
 			}
 		}
 		nwc->do_command(this);
 	}
-	return true;
 }
 
 uint32 karte_t::get_next_command_step()
