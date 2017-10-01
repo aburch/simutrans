@@ -7533,19 +7533,23 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_s
  */
 bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx) const
 {
-	if(is_sound  &&  zeiger) {
-		const int dist = koord_distance( k, zeiger->get_pos() );
+	if(is_sound && viewport) {
+		int dist = koord_distance(k, viewport->get_world_position());
+		bool play = false;
 
-		if(dist < 100) {
-			int xw = (2*display_get_width())/get_tile_raster_width();
+		if(dist < 96) {
+			int xw = (6*display_get_width())/get_tile_raster_width();
 			int yw = (4*display_get_height())/get_tile_raster_width();
 
-			uint8 const volume = (uint8)(255U * (xw + yw) / (xw + yw + 64 * dist));
+			dist = max(dist - 8, 0);
+
+			uint8 const volume = (uint8)(255U * (xw + yw) / (xw + yw + 32 * dist));
 			if (volume > 8) {
 				sound_play(idx, volume);
+				play = true;
 			}
 		}
-		return dist < 25;
+		return play;
 	}
 	return false;
 }
