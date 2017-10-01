@@ -4785,7 +4785,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 			char *motd = (char *)malloc( len );
 			fread( motd, len-1, 1, fmotd );
 			fclose( fmotd );
-			motd[len] = 0;
+			motd[len-1] = 0;
 			file->rdwr_str( motd, len );
 			free( motd );
 		}
