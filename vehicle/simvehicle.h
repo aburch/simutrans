@@ -139,7 +139,7 @@ public:
 	// if true, this convoi needs to restart for correct alignment
 	bool need_realignment() const;
 
-	uint32 do_drive(uint32 dist);	// basis movement code
+	virtual uint32 do_drive(uint32 dist);	// basis movement code
 
 	inline void set_image( image_id b ) { image = b; }
 	virtual image_id get_image() const {return image;}
@@ -517,6 +517,7 @@ protected:
 	bool check_next_tile(const grund_t *bd) const;
 
 	koord3d pos_prev; //used in enter_tile()
+	sint8 tiles_overtaking_prev;
 
 public:
 	virtual void enter_tile(grund_t*);
@@ -545,7 +546,8 @@ public:
 	virtual bool is_target(const grund_t *,const grund_t *) const;
 
 	// since we must consider overtaking, we use this for offset calculation
-	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
+	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width, bool prev_based ) const;
+	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const { get_screen_offset(xoff,yoff,raster_width,false); }
 
 	obj_t::typ get_typ() const { return road_vehicle; }
 
@@ -560,6 +562,8 @@ public:
 	virtual vehicle_base_t* other_lane_blocked() const { return other_lane_blocked(false,0); }
 	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top) const { return other_lane_blocked(only_search_top,0); }
 	virtual vehicle_base_t* other_lane_blocked_offset() const { return other_lane_blocked(false,1); }
+
+	virtual uint32 do_drive(uint32 dist);
 };
 
 
