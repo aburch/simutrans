@@ -170,7 +170,7 @@ char const* dr_query_homedir()
 	static char buffer[PATH_MAX+24];
 
 #if defined _WIN32
-	WCHAR bufferW[PATH_MAX+24], bufferW2[PATH_MAX+24];
+	WCHAR bufferW[PATH_MAX+24], bufferW2[PATH_MAX];
 	if(  SHGetFolderPathW(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, bufferW)  ) {
 		DWORD len = PATH_MAX;
 		HKEY hHomeDir;
@@ -179,11 +179,12 @@ char const* dr_query_homedir()
 		}
 		RegQueryValueExW(hHomeDir, L"Personal", 0, 0, (LPBYTE)bufferW, &len);
 	}
-	// this is needed to access multibyte user driectories with ASCII names ...
 	wcscat( bufferW, L"\\Simutrans" );
-	CreateDirectoryW( bufferW, NULL );	// must create it, because otherwise the short name does not exist
+	CreateDirectoryW( bufferW, NULL );
+	wcscat( bufferW, L"\\" );
 	GetShortPathNameW( bufferW, bufferW2, lengthof(bufferW2) );
-	WideCharToMultiByte( CP_UTF8, 0, bufferW2, -1, buffer, MAX_PATH, NULL, NULL );
+	WideCharToMultiByte( CP_UTF8, 0, bufferW2, -1, buffer, lengthof(buffer), NULL, NULL );
+
 #elif defined __APPLE__
 	sprintf(buffer, "%s/Library/Simutrans", getenv("HOME"));
 #elif defined __HAIKU__
@@ -194,21 +195,16 @@ char const* dr_query_homedir()
 	sprintf(buffer, "%s/simutrans", getenv("HOME"));
 #endif
 
-	dr_mkdir(buffer);
 
-	// create other subdirectories
-#ifdef _WIN32
-	strcat(buffer, "\\");
-#else
+	// create directory and subdirectories
+#ifndef _WIN32
+	dr_mkdir(buffer);
 	strcat(buffer, "/");
 #endif
-	char b2[PATH_MAX+24];
-	sprintf(b2, "%smaps", buffer);
-	dr_mkdir(b2);
-	sprintf(b2, "%ssave", buffer);
-	dr_mkdir(b2);
-	sprintf(b2, "%sscreenshot", buffer);
-	dr_mkdir(b2);
+	chdir( buffer );
+	dr_mkdir("maps");
+	dr_mkdir("save");
+	dr_mkdir("screenshots");
 
 	return buffer;
 }
