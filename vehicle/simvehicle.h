@@ -118,9 +118,7 @@ protected:
 	virtual void calc_image() = 0;
 
 	// check for road vehicle, if next tile is free
-	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction ) { return no_cars_blocking(gr, cnv, current_direction, next_direction, next_90direction, NULL); }
-
-	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction, const private_car_t *pcar );
+	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction, const private_car_t *pcar = NULL );
 
 	// If true, two vehicles might crash by lane crossing.
 	bool judge_lane_crossing( const uint8 current_direction, const uint8 next_direction, const uint8 other_next_direction, const bool is_overtaking, const bool forced_to_change_lane ) const;
@@ -558,9 +556,7 @@ public:
 
 	void rdwr_from_convoi(loadsave_t *file);
 
-	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top, sint8 offset) const;
-	virtual vehicle_base_t* other_lane_blocked() const { return other_lane_blocked(false,0); }
-	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top) const { return other_lane_blocked(only_search_top,0); }
+	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top = false, sint8 offset = 0) const;
 	virtual vehicle_base_t* other_lane_blocked_offset() const { return other_lane_blocked(false,1); }
 
 	virtual uint32 do_drive(uint32 dist);
