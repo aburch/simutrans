@@ -3644,7 +3644,6 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		 */
 
 		uint16 idx = fahr[0]->get_route_index();
-		//TODO: This initialization of "tiles" should be considered again. 2 is not appropriate considering LC patch.
 		const sint32 tiles = (steps_other-1)/(CARUNITS_PER_TILE*VEHICLE_STEPS_PER_CARUNIT) + get_tile_length() + 1;
 		if(  tiles > 0  &&  idx+(uint32)tiles >= route.get_count()  ) {
 			// needs more space than there
@@ -3656,7 +3655,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			if(  gr==NULL  ) {
 				return false;
 			}
-			weg_t *str = gr->get_weg(road_wt);
+			strasse_t *str = (strasse_t*)gr->get_weg(road_wt);
 			if(  str==0  ) {
 				return false;
 			}
@@ -3668,7 +3667,11 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 				// On one-way road, overtaking on threeway is allowed.
 				return false;
 			}
-			if(  overtaking_mode != oneway_mode  ) {
+			overtaking_mode_t mode_of_the_tile = str->get_overtaking_mode();
+			if(  mode_of_the_tile==prohibited_mode  ) {
+				return false;
+			}
+			if(  mode_of_the_tile != oneway_mode  ) {
 				// Check for other vehicles on the next tile
 				const uint8 top = gr->get_top();
 				//These conditions is abandoned on one-way road to overtake in traffic jam.
