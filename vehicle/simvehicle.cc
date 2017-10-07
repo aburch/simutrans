@@ -530,7 +530,7 @@ sint16 vehicle_base_t::get_hoff(const sint16 raster_width) const
 /* true, if one could pass through this field
  * also used for citycars, thus defined here
  */
-vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction, const private_car_t *pcar )
+vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction, const private_car_t *pcar, sint8 lane_on_the_tile )
 {
 	bool cnv_overtaking = false; //whether this convoi is on passing lane.
 	if(  cnv  ) {
@@ -539,8 +539,8 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 	if(  pcar  ) {
 		cnv_overtaking = pcar -> is_overtaking();
 	}
-	if(  next_lane==1  ) cnv_overtaking = true; //treated as convoi is overtaking.
-	if(  next_lane==-1  ) cnv_overtaking = false; //treated as convoi is not overtaking.
+	if(  lane_on_the_tile==1  ) cnv_overtaking = true; //treated as convoi is overtaking.
+	if(  lane_on_the_tile==-1  ) cnv_overtaking = false; //treated as convoi is not overtaking.
 	// Search vehicle
 	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
 		if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
@@ -2263,7 +2263,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		ribi_t::ribi curr_90direction = calc_direction(get_pos(), pos_next);
 		ribi_t::ribi next_direction   = calc_direction(get_pos(), next);
 		ribi_t::ribi next_90direction = calc_direction(pos_next, next);
-		obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction );
+		obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction, NULL, next_lane );
 
 		// do not block intersections
 		const bool drives_on_left = welt->get_settings().is_drive_left();
@@ -2314,7 +2314,9 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 
 		test_index = route_index + 1u; //reset test_index
-
+		// we have to assume the lane that this vehicle goes in the intersection.
+		sint8 lane_of_the_tile = next_lane;
+		overtaking_mode_t mode_of_start_point = str->get_overtaking_mode();
 		// check exit from crossings and intersections, allow to proceed after 4 consecutive
 		while(  !obj   &&  (str->is_crossing()  ||  int_block)  &&  test_index < r.get_count()  &&  test_index < route_index + 4u  ) {
 			if(  str->is_crossing()  ) {
@@ -2344,6 +2346,9 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				return false;
 			}
 
+			if(  mode_of_start_point==oneway_mode  &&  str->get_overtaking_mode()!=oneway_mode  ) lane_of_the_tile = -1;
+			if(  str->get_overtaking_mode()==inverted_mode  ) lane_of_the_tile = 1;
+
 			// check cars
 			curr_direction   = next_direction;
 			curr_90direction = next_90direction;
@@ -2351,7 +2356,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				next                 = r.at(test_index + 1u);
 				next_direction   = calc_direction(r.at(test_index - 1u), next);
 				next_90direction = calc_direction(r.at(test_index),      next);
-				obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction );
+				obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction, NULL, lane_of_the_tile );
 			}
 			else {
 				next                 = r.at(test_index);
@@ -2359,7 +2364,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				if(  curr_direction == next_90direction  ||  !gr->is_halt()  ) {
 					// check cars but allow to enter intersection if we are turning even when a car is blocking the halt on the last tile of our route
 					// preserves old bus terminal behaviour
-					obj = no_cars_blocking( gr, cnv, curr_direction, next_90direction, ribi_t::none );
+					obj = no_cars_blocking( gr, cnv, curr_direction, next_90direction, ribi_t::none, NULL, lane_of_the_tile );
 				}
 			}
 

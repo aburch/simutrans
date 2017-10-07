@@ -495,12 +495,12 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 	if(  get_pos()==pos_next_next  ) {
 		// turning around => single check
 		const uint8 next_direction = ribi_t::backward(this_direction);
-		dt = no_cars_blocking( gr, NULL, next_direction, next_direction, next_direction, this );
+		dt = no_cars_blocking( gr, NULL, next_direction, next_direction, next_direction, this, 0 );
 
 		// do not block railroad crossing
 		if(dt==NULL  &&  str->is_crossing()) {
 			const grund_t *gr = welt->lookup(get_pos());
-			dt = no_cars_blocking( gr, NULL, next_direction, next_direction, next_direction, this );
+			dt = no_cars_blocking( gr, NULL, next_direction, next_direction, next_direction, this, 0 );
 		}
 	}
 	else {
@@ -540,16 +540,16 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			grund_t *test = welt->lookup(pos_next_next);
 			if(  test  ) {
 				next_90direction = this->calc_direction(pos_next, pos_next_next);
-				dt = no_cars_blocking( gr, NULL, this_direction, next_direction, next_90direction, this);
+				dt = no_cars_blocking( gr, NULL, this_direction, next_direction, next_90direction, this, next_lane);
 				if(  !dt  ) {
-					dt = no_cars_blocking( test, NULL, next_direction, next_90direction, next_90direction, this );
+					dt = no_cars_blocking( test, NULL, next_direction, next_90direction, next_90direction, this, next_lane);
 				}
 			}
 			// this fails with two crossings together; however, I see no easy way out here ...
 		}
 		else {
-			// not a crossing => skip 90Â° check!
-			dt = no_cars_blocking( gr, NULL, this_direction, next_direction, next_90direction, this );
+			// not a crossing => skip 90° check!
+			dt = no_cars_blocking( gr, NULL, this_direction, next_direction, next_90direction, this, next_lane );
 			frei = true;
 		}
 		//If this car is overtaking, the car must avoid a head-on crash.
@@ -691,7 +691,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 				const uint8 next_direction = ribi_type(dir);
 				const uint8 nextnext_direction = ribi_type(dir);
 				// test next field after way crossing
-				if(no_cars_blocking( test, NULL, next_direction, nextnext_direction, nextnext_direction, this )) {
+				if(no_cars_blocking( test, NULL, next_direction, nextnext_direction, nextnext_direction, this, next_lane )) {
 					return false;
 				}
 				// ok, left the crossing
