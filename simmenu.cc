@@ -1023,7 +1023,12 @@ const char *two_click_tool_t::move(player_t *player, uint16 buttonstate, koord3d
 	}
 
 	if(  start == pos  ) {
-		init( player );
+		if(tool_build_way_t* t = dynamic_cast<tool_build_way_t*>(this)) {
+			// This is tool_build_way_t. The mode selection window should not be called.
+			t->init( player, true );
+		} else {
+			init( player );
+		}
 	}
 
 	const char *error = NULL;

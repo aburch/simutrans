@@ -282,7 +282,8 @@ public:
 	char const* get_default_param(player_t*) const OVERRIDE;
 	bool is_selected() const OVERRIDE;
 	void rdwr_custom_data(memory_rw_t*) OVERRIDE;
-	bool init(player_t*) OVERRIDE;
+	bool init(player_t* player) OVERRIDE { return init(player, false); }
+	bool init(player_t*,bool called_from_move);
 	bool exit(player_t*) OVERRIDE;
 	void draw_after(scr_coord, bool dirty) const OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }

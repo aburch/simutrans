@@ -2289,7 +2289,7 @@ bool tool_build_way_t::is_selected() const
 	return (selected  &&  selected->get_desc(welt->get_timeline_year_month(),false) == get_desc(welt->get_timeline_year_month(),false));
 }
 
-bool tool_build_way_t::init( player_t *player )
+bool tool_build_way_t::init( player_t *player, bool called_from_move )
 {
 	two_click_tool_t::init( player );
 	if( ok_sound == NO_SOUND ) {
@@ -2306,7 +2306,7 @@ bool tool_build_way_t::init( player_t *player )
 		return false;
 	}
 
-	if (is_ctrl_pressed()  &&  can_use_gui()  &&  desc->get_waytype()==road_wt  ) {
+	if (  !called_from_move  &&  is_ctrl_pressed()  &&  can_use_gui()  &&  desc->get_waytype()==road_wt  ) {
 		create_win(new overtaking_mode_frame_t(player, this), w_info, (ptrdiff_t)this);
 	}
 	return desc!=NULL;
