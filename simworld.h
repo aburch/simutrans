@@ -2680,6 +2680,8 @@ public:
 	void add_queued_city(stadt_t* stadt);
 
 	sint64 get_land_value(koord3d k);
+	double get_forge_cost(waytype_t waytype, koord3d position);
+	bool is_forge_cost_reduced(waytype_t waytype, koord3d position);
 
 	inline void add_time_interval_signal_to_check(signal_t* sig) { time_interval_signals_to_check.append_unique(sig); }
 	inline bool remove_time_interval_signal_to_check(signal_t* sig) { return time_interval_signals_to_check.remove(sig); }

@@ -3362,3 +3362,25 @@ alt_route_and_callon
 alt. route and call on
 emergency_stop %s left
 Emergency stop! %s until restart
+cap_tram_track
+Tram track
+cap_track
+Track
+cap_monorail_track
+Monorail track
+cap_maglev_track
+Maglev track
+cap_narrowgauge_track
+Narrow gauge track
+cap_road
+Road
+cap_water_canal
+Water canal
+cap_taxiway/runway
+Taxiway/runway
+already_forged
+Already forged
+partly_forged
+Partly forged
+forge_costs
+Forge costs

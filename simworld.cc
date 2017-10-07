@@ -11096,3 +11096,64 @@ sint64 karte_t::get_land_value (koord3d k)
 
 	return cost;
 }
+
+double karte_t::get_forge_cost(waytype_t waytype, koord3d position)
+{
+	sint64 forge_cost = get_settings().get_forge_cost(waytype);
+	const koord3d pos = position;
+
+	for (int n = 0; n < 8; n++)
+	{
+		const koord kn = pos.get_2d().neighbours[n] + pos.get_2d();
+		if (!is_within_grid_limits(kn))
+		{
+			continue;
+		}
+		const koord3d kn3d(kn, lookup_hgt(kn));
+		grund_t* to = lookup(kn3d);
+		const grund_t* gr_this_tile = lookup_kartenboden(pos.get_2d());
+		const grund_t* gr_neighbour = lookup_kartenboden(kn);
+		if (gr_this_tile && gr_this_tile->get_weg(waytype))
+		{
+			// There exists a way of the same waytype on this tile - no forge costs.
+			forge_cost = 0;
+			break;
+		}
+		else if (gr_neighbour && gr_neighbour->get_weg(waytype))
+		{
+			// This is a parallel way of the same type - reduce the forge cost.
+			forge_cost *= get_settings().get_parallel_ways_forge_cost_percentage(waytype);
+			forge_cost /= 100ll;
+			break;
+		}
+
+	}
+	return forge_cost;
+}
+
+bool karte_t::is_forge_cost_reduced(waytype_t waytype, koord3d position)
+{
+	sint64 forge_cost = get_settings().get_forge_cost(waytype);
+	const koord3d pos = position;
+	bool is_cost_reduced = false;
+
+	for (int n = 0; n < 8; n++)
+	{
+		const koord kn = pos.get_2d().neighbours[n] + pos.get_2d();
+		if (!is_within_grid_limits(kn))
+		{
+			continue;
+		}
+		const koord3d kn3d(kn, lookup_hgt(kn));
+		grund_t* to = lookup(kn3d);
+
+		const grund_t* gr_neighbour = lookup_kartenboden(kn);
+		if (gr_neighbour && gr_neighbour->get_weg(waytype))
+		{
+			// This is a parallel way of the same type - reduce the forge cost.
+			is_cost_reduced = true;
+			break;
+		}
+	}
+	return is_cost_reduced;
+}
