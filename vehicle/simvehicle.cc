@@ -4460,6 +4460,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	uint16 last_stop_signal_before_first_bidirectional_signal_index = INVALID_INDEX;
 	uint16 last_non_directional_index = start_index; 
 	uint16 first_oneway_sign_index = INVALID_INDEX;
+	uint16 last_oneway_sign_index = INVALID_INDEX;
 	uint16 last_station_tile = INVALID_INDEX;
 	uint16 first_double_block_signal_index = INVALID_INDEX;
 	uint32 stop_signals_since_last_double_block_signal = 0;
@@ -4605,25 +4606,33 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				last_station_tile = i;
 			}
 			
-			if(rs && rs->get_desc()->is_single_way() && first_oneway_sign_index >= INVALID_INDEX)
+			if (rs && rs->get_desc()->is_single_way())
 			{
-				if(directional_only)
+				if (first_oneway_sign_index >= INVALID_INDEX)
 				{
-					// Stop a directional reservation when a one way sign is encountered
-					count --;
-					if(is_from_directional)
+					if (directional_only)
 					{
-						reached_end_of_loop = true;
-						if (break_loop)
+						// Stop a directional reservation when a one way sign is encountered
+						count--;
+						if (is_from_directional)
 						{
-							*break_loop = true;
+							reached_end_of_loop = true;
+							if (break_loop)
+							{
+								*break_loop = true;
+							}
 						}
+						next_signal_index = last_stop_signal_index;
 					}
-					next_signal_index = last_stop_signal_index;
+					if (last_bidirectional_signal_index < INVALID_INDEX || last_longblock_signal_index < INVALID_INDEX)
+					{
+						first_oneway_sign_index = i;
+						last_oneway_sign_index = i;
+					}
 				}
-				if(last_bidirectional_signal_index < INVALID_INDEX || last_longblock_signal_index < INVALID_INDEX)
+				else
 				{
-					first_oneway_sign_index = i;
+					last_oneway_sign_index = i;
 				}
 			}
 
@@ -5499,7 +5508,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	// If we are in token block or one train staff mode, one train staff mode or making directional reservations, reserve to the end of the route if there is not a prior signal.
 	// However, do not call this if we are in the block reserver already called from this method to prevent infinite recursion.
 	const bool bidirectional_reservation = (working_method == track_circuit_block || working_method == cab_signalling || working_method == moving_block) 
-		&& last_bidirectional_signal_index < INVALID_INDEX;
+		&& last_bidirectional_signal_index < INVALID_INDEX && (last_oneway_sign_index >= INVALID_INDEX || last_oneway_sign_index < last_bidirectional_signal_index);
 	if(!is_from_token && !is_from_directional && (((working_method == token_block || (first_double_block_signal_index < INVALID_INDEX && stop_signals_since_last_double_block_signal)) && last_token_block_signal_index < INVALID_INDEX) || bidirectional_reservation || working_method == one_train_staff || (start_index == first_one_train_staff_index)) && next_signal_index == INVALID_INDEX)
 	{
 		route_t target_rt;

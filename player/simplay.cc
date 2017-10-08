@@ -157,7 +157,11 @@ void player_t::add_money_message(const sint64 amount, const koord pos)
 			add_message(amount, pos);
 
 			// and same for sound too ...
-			if(  amount>=10000  &&  !welt->is_fast_forward()  ) {
+#ifdef GDI_SOUND
+			if(  amount>=10000  &&  !welt->is_fast_forward() && vehicle_t::sound_ticks < world()->get_ticks() ) {
+#else
+			if (amount >= 10000 && !welt->is_fast_forward()) {
+#endif
 				welt->play_sound_area_clipped(pos, SFX_CASH);
 			}
 		}

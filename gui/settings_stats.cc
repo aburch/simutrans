@@ -232,65 +232,31 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM("town_road_speed_limit", sets->get_town_road_speed_limit(), 0, 500, gui_numberinput_t::AUTOLINEAR, false);
 	
 	SEPERATOR;
-	INIT_NUM("population_per_level", sets->get_population_per_level(), 1, 1000, 1, false);
-	INIT_NUM("visitor_demand_per_level", sets->get_visitor_demand_per_level(), 1, 1000, 1, false);
-	INIT_NUM("jobs_per_level", sets->get_jobs_per_level(), 1, 1000, 1, false);
-	INIT_NUM("mail_per_level", sets->get_mail_per_level(), 1, 1000, 1, false);
+	INIT_NUM("population_per_level", sets->get_population_per_level(), gui_numberinput_t::PLAIN, 1000, 1, false);
+	INIT_NUM("visitor_demand_per_level", sets->get_visitor_demand_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("jobs_per_level", sets->get_jobs_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("mail_per_level", sets->get_mail_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
 
 	SEPERATOR;
-	{
-		gui_component_table_t &tbl = new_table(scr_coord(0, ypos), 2, 17);
-		int row = 0;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_forge_cost_road(), 0, 1000000, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "forge_cost_road"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_forge_cost_track(), 0, 1000000, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "forge_cost_track"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_forge_cost_water(), 0, 1000000, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "forge_cost_water"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_forge_cost_monorail(), 0, 1000000, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "forge_cost_monorail"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_forge_cost_maglev(), 0, 1000000, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "forge_cost_maglev"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_forge_cost_tram(), 0, 1000000, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "forge_cost_tram"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_forge_cost_narrowgauge(), 0, 1000000, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "forge_cost_narrowgauge"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_forge_cost_air(), 0, 1000000, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "forge_cost_air"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_parallel_ways_forge_cost_percentage_road(), 0, 100, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "parallel_ways_forge_cost_percentage_road"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_parallel_ways_forge_cost_percentage_track(), 0, 100, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "parallel_ways_forge_cost_percentage_track"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_parallel_ways_forge_cost_percentage_water(), 0, 100, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "parallel_ways_forge_cost_percentage_water"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_parallel_ways_forge_cost_percentage_monorail(), 0, 100, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "parallel_ways_forge_cost_percentage_monorail"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_parallel_ways_forge_cost_percentage_maglev(), 0, 100, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "parallel_ways_forge_cost_percentage_maglev"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_parallel_ways_forge_cost_percentage_tram(), 0, 100, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "parallel_ways_forge_cost_percentage_tram"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_parallel_ways_forge_cost_percentage_narrowgauge(), 0, 100, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "parallel_ways_forge_cost_percentage_narrowgauge"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_parallel_ways_forge_cost_percentage_air(), 0, 100, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "parallel_ways_forge_cost_percentage_air"), 1, row);
-		INIT_TABLE_END(tbl);
-	}	
-	
+	INIT_NUM("forge_cost_road", sets->get_forge_cost_road(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("forge_cost_track", sets->get_forge_cost_track(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("forge_cost_water", sets->get_forge_cost_water(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("forge_cost_monorail", sets->get_forge_cost_monorail(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("forge_cost_maglev", sets->get_forge_cost_maglev(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("forge_cost_tram", sets->get_forge_cost_tram(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("forge_cost_narrowgauge", sets->get_forge_cost_narrowgauge(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("forge_cost_air", sets->get_forge_cost_air(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+
+	SEPERATOR;
+	INIT_NUM("parallel_ways_forge_cost_percentage_road", sets->get_parallel_ways_forge_cost_percentage_road(), 0, 100, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("parallel_ways_forge_cost_percentage_track", sets->get_parallel_ways_forge_cost_percentage_track(), 0, 100, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("parallel_ways_forge_cost_percentage_water", sets->get_parallel_ways_forge_cost_percentage_water(), 0, 100, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("parallel_ways_forge_cost_percentage_monorail", sets->get_parallel_ways_forge_cost_percentage_monorail(), 0, 100, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("parallel_ways_forge_cost_percentage_maglev", sets->get_parallel_ways_forge_cost_percentage_maglev(), 0, 100, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("parallel_ways_forge_cost_percentage_tram", sets->get_parallel_ways_forge_cost_percentage_tram(), 0, 100, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("parallel_ways_forge_cost_percentage_narrowgauge", sets->get_parallel_ways_forge_cost_percentage_narrowgauge(), 0, 100, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("parallel_ways_forge_cost_percentage_air", sets->get_parallel_ways_forge_cost_percentage_air(), 0, 100, gui_numberinput_t::PLAIN, false);
+
 	SEPERATOR;
 	{
 		gui_component_table_t &tbl = new_table(scr_coord(0, ypos), 2, 9);

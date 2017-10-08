@@ -82,12 +82,12 @@ public:
 	 */
 	void set_limits(sint32 _min, sint32 _max);
 
-	enum { AUTOLINEAR=0, POWER2=-1, PROGRESS=-2 };
+	enum { AUTOLINEAR=0, PLAIN = 1, POWER2=-1, PROGRESS=-2 };
 	/**
 	 * AUTOLINEAR: linear increment, scroll wheel 1% range
 	 * POWER2: 16, 32, 64, ...
 	 * PROGRESS: 0, 1, 5, 10, 25, 50, 75, 90, 95, 99, 100% of range
-	 * any other mode value: actual step size
+	 * PLAIN: actual step size
 	 */
 
 	void set_increment_mode( sint32 m ) { step_mode = m; }

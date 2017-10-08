@@ -7533,19 +7533,23 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_s
  */
 bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx) const
 {
-	if(is_sound  &&  zeiger) {
-		const int dist = koord_distance( k, zeiger->get_pos() );
+	if(is_sound && viewport) {
+		int dist = koord_distance(k, viewport->get_world_position());
+		bool play = false;
 
-		if(dist < 100) {
-			int xw = (2*display_get_width())/get_tile_raster_width();
+		if(dist < 96) {
+			int xw = (6*display_get_width())/get_tile_raster_width();
 			int yw = (4*display_get_height())/get_tile_raster_width();
 
-			uint8 const volume = (uint8)(255U * (xw + yw) / (xw + yw + 64 * dist));
+			dist = max(dist - 8, 0);
+
+			uint8 const volume = (uint8)(255U * (xw + yw) / (xw + yw + 32 * dist));
 			if (volume > 8) {
 				sound_play(idx, volume);
+				play = true;
 			}
 		}
-		return dist < 25;
+		return play;
 	}
 	return false;
 }
@@ -7978,7 +7982,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 			char *motd = (char *)malloc( len );
 			fread( motd, len-1, 1, fmotd );
 			fclose( fmotd );
-			motd[len] = 0;
+			motd[len-1] = 0;
 			file->rdwr_str( motd, len );
 			free( motd );
 		}
@@ -9958,16 +9962,14 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 	while(  !command_queue.empty()  &&  (next_command_step<=sync_steps/*  ||  step_mode&PAUSE_FLAG*/)  ) {
 		network_world_command_t *nwc = command_queue.remove_first();
 		if (nwc) {
-			if (do_network_world_command(nwc))
-			{
-				delete nwc;
-			}
+			do_network_world_command(nwc);
+			delete nwc;
 		}
 		next_command_step = get_next_command_step();
 	}
 }
 
-bool karte_t::do_network_world_command(network_world_command_t *nwc)
+void karte_t::do_network_world_command(network_world_command_t *nwc)
 {
 	// want to execute something in the past?
 	if (nwc->get_sync_step() < sync_steps) {
@@ -10012,13 +10014,10 @@ bool karte_t::do_network_world_command(network_world_command_t *nwc)
 				if(  !env_t::server  ) {
 					network_disconnect();
 				}
-				delete nwc;
-				return false;
 			}
 		}
 		nwc->do_command(this);
 	}
-	return true;
 }
 
 uint32 karte_t::get_next_command_step()
