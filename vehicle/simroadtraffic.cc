@@ -15,6 +15,7 @@
 #include "../simworld.h"
 #include "../utils/simrandom.h"
 #include "../display/simimg.h"
+#include "../display/viewport.h"
 #include "../simunits.h"
 #include "../simtypes.h"
 #include "../simconvoi.h"
@@ -1000,7 +1001,7 @@ void private_car_t::info(cbuffer_t & buf) const
 
 
 // to make smaller steps than the tile granularity, we have to use this trick
-void private_car_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const
+void private_car_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_width, bool prev_based ) const
 {
 	vehicle_base_t::get_screen_offset( xoff, yoff, raster_width );
 
@@ -1011,11 +1012,12 @@ void private_car_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster
 	}
 
 	// eventually shift position to take care of overtaking
-	if(  is_overtaking()  ) {
+	sint8 tiles_overtaking = prev_based ? get_prev_tiles_overtaking() : get_tiles_overtaking();
+	if(  tiles_overtaking>0  ) {  /* This means the car is overtaking other vehicles. */
 		xoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][0], raster_width);
 		yoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][1], raster_width);
 	}
-	else if(  is_overtaken()  ) {
+	else if(  tiles_overtaking<0  ) {  /* This means the car is overtaken by other vehicles. */
 		xoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][0], raster_width)/5;
 		yoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][1], raster_width)/5;
 	}
@@ -1390,4 +1392,14 @@ vehicle_base_t* private_car_t::is_there_car (grund_t *gr) const
 		}
 	}
 	return NULL;
+}
+
+void private_car_t::reflesh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaking) {
+	if(  (prev_tiles_overtaking==0)^(current_tiles_overtaking==0)  ){
+		int xpos=0, ypos=0;
+		get_screen_offset( xpos, ypos, get_tile_raster_width(), true );
+		viewport_t *vp = welt->get_viewport();
+		scr_coord scr_pos = vp->get_screen_coord(get_pos(), koord(get_xoff(), get_yoff()));
+		display_mark_img_dirty( image, scr_pos.x + xpos, scr_pos.y + ypos);
+	}
 }

@@ -1893,7 +1893,6 @@ road_vehicle_t::road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t
 {
 	cnv = cn;
 	pos_prev = koord3d::invalid;
-	tiles_overtaking_prev = 0;
 }
 
 
@@ -1903,7 +1902,6 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 
 	if(  file->is_loading()  ) {
 		static const vehicle_desc_t *last_desc = NULL;
-		tiles_overtaking_prev = 0;
 
 		if(is_first) {
 			last_desc = NULL;
@@ -2086,7 +2084,7 @@ void road_vehicle_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 
 	// eventually shift position to take care of overtaking
 	if(cnv) {
-		sint8 tiles_overtaking = prev_based ? tiles_overtaking_prev : cnv->get_tiles_overtaking();
+		sint8 tiles_overtaking = prev_based ? cnv->get_prev_tiles_overtaking() : cnv->get_tiles_overtaking();
 		if(  tiles_overtaking>0  ) { /* This means the convoy is overtaking other vehicles. */
 			xoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][0], raster_width);
 			yoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_direction())][1], raster_width);
@@ -2848,18 +2846,13 @@ void road_vehicle_t::set_convoi(convoi_t *c)
 	}
 }
 
-uint32 road_vehicle_t::do_drive(uint32 distance)
-{
-	sint8 tiles_overtaking = cnv->get_tiles_overtaking();
-	if(  (tiles_overtaking==0)^(tiles_overtaking_prev==0)  ){
-		int xpos=0, ypos=0;
-		get_screen_offset( xpos, ypos, get_tile_raster_width(), true );
-		viewport_t *vp = welt->get_viewport();
-		scr_coord scr_pos = vp->get_screen_coord(get_pos(), koord(get_xoff(), get_yoff()));
-		display_mark_img_dirty( image, scr_pos.x + xpos, scr_pos.y + ypos);
-	}
-	tiles_overtaking_prev = tiles_overtaking;
-	return vehicle_base_t::do_drive(distance);
+// To prevent glitch
+void road_vehicle_t::reflesh() const {
+	int xpos=0, ypos=0;
+	get_screen_offset( xpos, ypos, get_tile_raster_width(), true );
+	viewport_t *vp = welt->get_viewport();
+	scr_coord scr_pos = vp->get_screen_coord(get_pos(), koord(get_xoff(), get_yoff()));
+	display_mark_img_dirty( image, scr_pos.x + xpos, scr_pos.y + ypos);
 }
 
 

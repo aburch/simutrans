@@ -152,7 +152,8 @@ public:
 	static bool successfully_loaded();
 
 	// since we must consider overtaking, we use this for offset calculation
-	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
+	void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width, bool prev_based ) const;
+	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const { get_screen_offset(xoff,yoff,raster_width,false); }
 
 	virtual overtaker_t *get_overtaker() { return this; }
 
@@ -160,8 +161,9 @@ public:
 	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
 
 	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top) const;
-
 	vehicle_base_t* is_there_car(grund_t *gr) const; // This is a helper function of other_lane_blocked
+
+	virtual void reflesh(sint8,sint8);
 };
 
 #endif

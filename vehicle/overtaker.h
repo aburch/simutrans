@@ -24,6 +24,7 @@ protected:
 	 *        (other vehicle is overtaking us)
 	 */
 	sint8 tiles_overtaking;
+	sint8 prev_tiles_overtaking;
 	sint8 diff;
 
 	sint32 max_power_speed; // max achievable speed at current power/weight
@@ -38,6 +39,7 @@ public:
 	bool can_be_overtaken() const { return tiles_overtaking == 0; }
 
 	void set_tiles_overtaking(sint8 v) {
+		prev_tiles_overtaking = tiles_overtaking;
 		tiles_overtaking = v;
 		diff = 0;
 		if(tiles_overtaking>0) {
@@ -46,14 +48,17 @@ public:
 		else if(tiles_overtaking<0) {
 			diff ++;
 		}
+		reflesh(prev_tiles_overtaking, tiles_overtaking);
 	}
 
 	// change counter for overtaking
 	void update_tiles_overtaking() {
+		prev_tiles_overtaking = tiles_overtaking;
 		tiles_overtaking += diff;
 		if(tiles_overtaking==0) {
 			diff = 0;
 		}
+		reflesh(prev_tiles_overtaking, tiles_overtaking);
 	}
 
 	// since citycars and convois can react quite different
@@ -62,6 +67,10 @@ public:
 	sint32 get_max_power_speed() const { return max_power_speed; }
 
 	sint8 get_tiles_overtaking() const { return tiles_overtaking; }
+
+	sint8 get_prev_tiles_overtaking() const { return prev_tiles_overtaking; }
+
+	virtual void reflesh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaking) =0; // When the overtaker starts or ends overtaking, Mark image dirty to prevent glitch.
 };
 
 #endif
