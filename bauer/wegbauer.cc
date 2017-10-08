@@ -1822,9 +1822,11 @@ bool way_builder_t::intern_calc_route_runways(koord3d start3d, const koord3d zie
 	}
 	const ribi_t::ribi ribi_straight = ribi_t::doubles(ribi);
 
-	// not too close to the border?
-	if(	 !(welt->is_within_limits(start-koord(5,5))  &&  welt->is_within_limits(start+koord(5,5)))  ||
-		 !(welt->is_within_limits(ziel-koord(5,5))  &&  welt->is_within_limits(ziel+koord(5,5)))  ) {
+	// not too close to the border? 
+	//	if(	 !(welt->is_within_limits(start-koord(5,5))  &&  welt->is_within_limits(start+koord(5,5)))  ||
+	//	 !(welt->is_within_limits(ziel-koord(5,5))  &&  welt->is_within_limits(ziel+koord(5,5)))  ) {
+	if(	 !(welt->is_within_limits(start-koord(15,15))  &&  welt->is_within_limits(start+koord(15,15)))  ||
+		 !(welt->is_within_limits(ziel-koord(15,15))  &&  welt->is_within_limits(ziel+koord(15,15)))  ) {
 		if(player==welt->get_active_player()) {
 			create_win( new news_img("Zu nah am Kartenrand"), w_time_delete, magic_none);
 			return false;
