@@ -266,7 +266,6 @@
 " J1987", "",
 " Magedu", "",
 " Robinhood76", "",
-" 
 "","",
 "Translation:","",
 "","",
