@@ -263,6 +263,9 @@
 " DC Simon", "",
 " Simsym23", "",
 " Vikend Ratnik", "",
+" J1987", "",
+" Magedu", "",
+" Robinhood76", "",
 " 
 "","",
 "Translation:","",
