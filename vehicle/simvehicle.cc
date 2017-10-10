@@ -2631,6 +2631,12 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 			color = COL_ORANGE;
 		}
 
+		if(get_waytype() == air_wt && air->airport_too_close_to_the_edge)
+		{
+			sprintf(tooltip_text, translator::translate("Airport too close to the edge"));
+			color = COL_ORANGE;
+		}
+
 		// something to show?
 		if(  tooltip_text[0]  ) {
 			const int width = proportional_string_width(tooltip_text)+7;
@@ -6895,8 +6901,9 @@ route_t::route_result_t air_vehicle_t::calc_route(koord3d start, koord3d ziel, s
 	target_halt = halthandle_t();	// no block reserved
 
 	takeoff = touchdown = search_for_stop = INVALID_INDEX;
-	const bool pre_result = calc_route_internal(welt, start, ziel, max_speed, cnv->get_highest_axle_load(), state, flying_height, target_height, runway_too_short, takeoff, touchdown, search_for_stop, *route);
+	const bool pre_result = calc_route_internal(welt, start, ziel, max_speed, cnv->get_highest_axle_load(), state, flying_height, target_height, runway_too_short, airport_too_close_to_the_edge, takeoff, touchdown, search_for_stop, *route);
 	const route_t::route_result_t result = pre_result ? route_t::valid_route : route_t::no_route;
+	std::cout << "pre_result = " << pre_result << std::endl;
 	cnv->set_next_stop_index(INVALID_INDEX);
 	return result;
 }
@@ -6935,6 +6942,7 @@ bool air_vehicle_t::calc_route_internal(
 	sint16 &flying_height,               // input/output: at start
 	sint16 &target_height,           // output: at end of takeoff
 	bool &runway_too_short,          // output: either departure or arrival runway
+	bool &airport_too_close_to_the_edge, // output: either airport locates close to the edge or not
 	uint32 &takeoff,                 // output: route index to takeoff tile at departure airport
 	uint32 &touchdown,               // output: scheduled route index to touchdown tile at arrival airport
 	uint32 &search_for_stop,                  // output: scheduled route index to end of (required length of) arrival runway.
@@ -6944,6 +6952,7 @@ bool air_vehicle_t::calc_route_internal(
 
 	const bool vtol = get_desc()->get_minimum_runway_length() == 0;
 	runway_too_short = false;
+	airport_too_close_to_the_edge = false;
 	search_for_stop = takeoff = touchdown = INVALID_INDEX;
 	if(vtol)
 	{
@@ -7096,7 +7105,6 @@ bool air_vehicle_t::calc_route_internal(
 			int endi = 1;
 			//			int over = landing_distance;
 			int over = landing_distance;
-			// now add all runway + 3 ...
 			do {
 				if(!welt->is_within_limits(search_end.get_2d()+(end_dir*endi)) ) {
 					break;
@@ -7147,6 +7155,7 @@ bool air_vehicle_t::calc_route_internal(
 				// in new versions it should not possible to build a runway here
 				route.clear();
 				dbg->error("air_vehicle_t::calc_route()","airport too close to the edge! (Cannot go to %i,%i!)",circlepos.x,circlepos.y);
+				airport_too_close_to_the_edge = true;
 				return false;
 			}
 		}
@@ -7177,6 +7186,7 @@ bool air_vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel)
 	sint16 xflughoehe = flying_height;
 	sint16 xtarget_height;
 	bool xrunway_too_short;
+	bool xairport_too_close_to_the_edge;
 	uint32 xtakeoff;   // new route index to takeoff tile at departure airport
 	uint32 xtouchdown; // new scheduled route index to touchdown tile at arrival airport
 	uint32 xsuchen;    // new scheduled route index to end of (required length of) arrival runway.
@@ -7184,8 +7194,10 @@ bool air_vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel)
 
 	route_t &route = *cnv->get_route();
 	bool done = calc_route_internal(welt, route.at(reroute_index), ziel,
-		speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(),
-		xstate, xflughoehe, xtarget_height, xrunway_too_short, xtakeoff, xtouchdown, xsuchen, xroute);
+																	speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(),
+																	xstate, xflughoehe, xtarget_height,
+																	xrunway_too_short, xairport_too_close_to_the_edge,
+																	xtakeoff, xtouchdown, xsuchen, xroute);
 	if (done)
 	{
 		// convoy replaces existing route starting at reroute_index with found route.

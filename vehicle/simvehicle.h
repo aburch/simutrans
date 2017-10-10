@@ -40,8 +40,6 @@ class schiene_t;
 #define HOLDING_PATTERN_LENGTH 16
 // offset of end tile of the holding pattern before touchdown tile.
 #define HOLDING_PATTERN_OFFSET 3
-// #define SET_FLIGHT_HEIGHT 20
-// #define SET_LANDING_OFFSET SET_FLIGHT_HEIGHT-1
 /*----------------------- Movables ------------------------------------*/
 
 /**
@@ -955,6 +953,7 @@ private:
 		sint16 &flying_height,
 		sint16 &target_height,
 		bool &runway_too_short,
+		bool &airport_too_close_to_the_edge,
 		uint32 &takeoff,
 		uint32 &touchdown,
 		uint32 &search_for_stop,
@@ -1052,8 +1051,9 @@ public:
 	virtual bool is_flying() const { return !is_on_ground(); }
 
 	bool runway_too_short;
+	bool airport_too_close_to_the_edge;
 	bool is_runway_too_short() {return runway_too_short; }
-
+	bool is_airport_too_close_to_the_edge() { return airport_too_close_to_the_edge; }
 	virtual sint32 get_takeoff_route_index() const { return (sint32) takeoff; }
 	virtual sint32 get_touchdown_route_index() const { return (sint32) touchdown; }
 };
