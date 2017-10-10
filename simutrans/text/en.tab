@@ -3366,3 +3366,5 @@ alt_route_and_callon
 alt. route and call on
 emergency_stop %s left
 Emergency stop! %s until restart
+Airport too close to the edge
+Destination airport too close to the edge of the map
