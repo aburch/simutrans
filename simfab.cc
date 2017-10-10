@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
 
 #include "simdebug.h"
 #include "display/simimg.h"
@@ -406,7 +407,7 @@ void fabrik_t::update_scaled_pax_demand()
 		const uint32 visitor_demand = (uint32)((base_visitor_demand * (sint64)prodbase + (prod_adjust >> 1) ) / prod_adjust);
 
 		// then, scaling based on month length
-		scaled_pax_demand = max_64(welt->calc_adjusted_monthly_figure(worker_demand), 1ll);
+		scaled_pax_demand = (std::max)(welt->calc_adjusted_monthly_figure(worker_demand), 1ll);
 		const uint32 scaled_visitor_demand = max(welt->calc_adjusted_monthly_figure(visitor_demand), 1);
 
 		// pax demand for fixed period length
@@ -1859,47 +1860,52 @@ void fabrik_t::step(uint32 delta_t)
 			}
 		}
 		else 
-			// ok, calulate maximum allowed consumption.
+		// ok, calulate maximum allowed consumption.
+		{
+			sint32 min_menge = input.empty() ? 0x7FFFFFFF : input[0].menge;
+			sint32 consumed_menge = 0;
+			for (uint32 index = 1; index < input.get_count(); index++) {
+				if (input[index].menge < min_menge) {
+					min_menge = input[index].menge;
+				}
+			}
+
+			bool some_production = false;
+
+			// produces something
+			for (uint32 product = 0; product < output.get_count(); product++) {
+				// calculate production
+				//const sint32 p_menge = (sint32)scale_output_production(product, prod);
+				const sint32 p_menge = prod;
+
+				const sint32 menge_out = p_menge < min_menge ? p_menge : min_menge;  // production smaller than possible due to consumption
+				if (menge_out > consumed_menge) {
+					consumed_menge = menge_out;
+				}
+
+				if (menge_out > 0) {
+					const sint32 p = menge_out;
+
+					// produce
+					if (output[product].menge < output[product].max) {
+						// to find out, if storage changed
+						delta_menge += p;
+						output[product].menge += p;
+						output[product].book_stat((sint64)p * (sint64)desc->get_product(product)->get_factor() , FAB_GOODS_PRODUCED);
+						// if less than 3/4 filled we neary always consume power
+						currently_producing |= (output[product].menge * 4 < output[product].max * 3);
+						some_production = true;
+					}
+					else {
+						output[product].book_stat((sint64)(output[product].max - output[product].menge) * (sint64)desc->get_product(product)->get_factor(), FAB_GOODS_PRODUCED);
+						output[product].menge = output[product].max;
+					}
+				}
+			}
+
+			// and finally consume stock
+			if (some_production)
 			{
-				sint32 min_menge = input.empty() ? 0x7FFFFFFF : input[0].menge;
-				sint32 consumed_menge = 0;
-				for (uint32 index = 1; index < input.get_count(); index++) {
-					if (input[index].menge < min_menge) {
-						min_menge = input[index].menge;
-					}
-				}
-
-				// produces something
-				for (uint32 product = 0; product < output.get_count(); product++) {
-					// calculate production
-					//const sint32 p_menge = (sint32)scale_output_production(product, prod);
-					const sint32 p_menge = prod;
-
-					const sint32 menge_out = p_menge < min_menge ? p_menge : min_menge;  // production smaller than possible due to consumption
-					if (menge_out > consumed_menge) {
-						consumed_menge = menge_out;
-					}
-
-					if (menge_out > 0) {
-						const sint32 p = menge_out;
-
-						// produce
-						if (output[product].menge < output[product].max) {
-							// to find out, if storage changed
-							delta_menge += p;
-							output[product].menge += p;
-							output[product].book_stat((sint64)p * (sint64)desc->get_product(product)->get_factor() , FAB_GOODS_PRODUCED);
-							// if less than 3/4 filled we neary always consume power
-							currently_producing |= (output[product].menge * 4 < output[product].max * 3);
-						}
-						else {
-							output[product].book_stat((sint64)(output[product].max - output[product].menge) * (sint64)desc->get_product(product)->get_factor(), FAB_GOODS_PRODUCED);
-							output[product].menge = output[product].max;
-						}
-					}
-				}
-
-				// and finally consume stock
 				for (uint32 index = 0; index < input.get_count(); index++) {
 					const uint32 v = consumed_menge;
 
@@ -1912,6 +1918,7 @@ void fabrik_t::step(uint32 delta_t)
 						input[index].menge = 0;
 					}
 				}
+			}
 		}
 
 		if(  currently_producing || desc->get_product_count() == 0  ) {
@@ -3293,11 +3300,11 @@ void fabrik_t::calc_max_intransit_percentages()
 			index ++;
 			continue;
 		}
-		const uint32 time_to_consume = max(1, get_time_to_consume_stock(index)); 
-		const uint32 ratio = ((uint32)lead_time * 1000 / (uint32)time_to_consume);
-		const uint32 modified_max_intransit_percentage = (ratio * (uint32)base_max_intransit_percentage) / 1000;
+		const uint32 time_to_consume = max(1u, get_time_to_consume_stock(index)); 
+		const sint32 ratio = ((sint32)lead_time * 1000 / (sint32)time_to_consume);
+		const sint32 modified_max_intransit_percentage = (ratio * (sint32)base_max_intransit_percentage) / 1000;
 		max_intransit_percentages.put(catg, (uint16)modified_max_intransit_percentage);
-		input[index].max_transit = max(1, (modified_max_intransit_percentage * input[index].max) / 100u); // This puts max_transit in internal units
+		input[index].max_transit = max(1, (modified_max_intransit_percentage * input[index].max) / 100); // This puts max_transit in internal units
 		index ++;
 	}
 }

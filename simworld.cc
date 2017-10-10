@@ -1652,20 +1652,13 @@ void *step_passengers_and_mail_threaded(void* args)
 {
 	const uint32* thread_number_ptr = (const uint32*)args;
 	karte_t::passenger_generation_thread_number = *thread_number_ptr;
-	delete thread_number_ptr;
-
-	sint64 seed_base = env_t::networkmode ? karte_t::world->get_settings().get_random_counter() : dr_time();
 	
-	// The below is probably unnecessary, as underflow/overflow do not matter with a random seed.
+	// This may easily overflow, but this is irrelevant for the purposes of a random seed
+	// (so long as both server and client are using the same size of integer)
 
-	/*const sint64 max_value = SINT32_MAX_VALUE * karte_t::passenger_generation_thread_number;
+	const uint32 seed = karte_t::world->get_settings().get_random_counter() * *thread_number_ptr;
 
-	while (seed_base > max_value)
-	{
-		seed_base /= 2;
-	}*/
-
-	const int seed = seed_base * karte_t::passenger_generation_thread_number;
+	delete thread_number_ptr;
 
 	// The random seed is now thread local, so this must be initialised here
 	// with values that will be deterministic between different clients in
@@ -5699,7 +5692,7 @@ void karte_t::step_time_interval_signals()
 sint32 karte_t::calc_adjusted_step_interval(const uint32 weight, uint32 trips_per_month_hundredths) const
 {
 	const uint32 median_packet_size = (uint32)(get_settings().get_passenger_routing_packet_size() + 1) / 2;	
-	const uint64 trips_per_month = max_64((((sint64)weight * (sint64)calc_adjusted_monthly_figure(trips_per_month_hundredths)) / 100ll) / (sint64)median_packet_size, 1ll);
+	const uint64 trips_per_month = (std::max)((((sint64)weight * (sint64)calc_adjusted_monthly_figure(trips_per_month_hundredths)) / 100ll) / (sint64)median_packet_size, 1ll);
 		
 	return (sint32)((uint64)ticks_per_world_month > trips_per_month ? (uint64) ticks_per_world_month / trips_per_month : 1);
 }
@@ -7540,19 +7533,23 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_s
  */
 bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx) const
 {
-	if(is_sound  &&  zeiger) {
-		const int dist = koord_distance( k, zeiger->get_pos() );
+	if(is_sound && viewport) {
+		int dist = koord_distance(k, viewport->get_world_position());
+		bool play = false;
 
-		if(dist < 100) {
-			int xw = (2*display_get_width())/get_tile_raster_width();
+		if(dist < 96) {
+			int xw = (6*display_get_width())/get_tile_raster_width();
 			int yw = (4*display_get_height())/get_tile_raster_width();
 
-			uint8 const volume = (uint8)(255U * (xw + yw) / (xw + yw + 64 * dist));
+			dist = max(dist - 8, 0);
+
+			uint8 const volume = (uint8)(255U * (xw + yw) / (xw + yw + 32 * dist));
 			if (volume > 8) {
 				sound_play(idx, volume);
+				play = true;
 			}
 		}
-		return dist < 25;
+		return play;
 	}
 	return false;
 }
@@ -7985,7 +7982,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 			char *motd = (char *)malloc( len );
 			fread( motd, len-1, 1, fmotd );
 			fclose( fmotd );
-			motd[len] = 0;
+			motd[len-1] = 0;
 			file->rdwr_str( motd, len );
 			free( motd );
 		}
@@ -10017,8 +10014,6 @@ void karte_t::do_network_world_command(network_world_command_t *nwc)
 				if(  !env_t::server  ) {
 					network_disconnect();
 				}
-				delete nwc;
-				return;
 			}
 		}
 		nwc->do_command(this);

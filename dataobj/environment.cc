@@ -158,7 +158,7 @@ void env_t::init()
 	// settings for messages
 	message_flags[0] = 0x017F;
 	message_flags[1] = 0x0108;
-	message_flags[2] = 0x0080;
+	message_flags[2] = 0x00A0;
 	message_flags[3] = 0;
 
 	night_shift = false;
