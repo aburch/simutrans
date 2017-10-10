@@ -7542,6 +7542,7 @@ air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) :
 	rdwr_from_convoi(file);
 	calc_altitude_level( desc->get_topspeed() );
 	runway_too_short = false;
+	airport_too_close_to_the_edge = false;
 
 	if(  file->is_loading()  ) {
 		static const vehicle_desc_t *last_desc = NULL;
@@ -7577,6 +7578,7 @@ air_vehicle_t::air_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* 
 	flying_height = 0;
 	target_height = pos.z;
 	runway_too_short = false;
+	airport_too_close_to_the_edge = false;
 	calc_altitude_level( desc->get_topspeed() );
 }
 
