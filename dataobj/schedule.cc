@@ -130,6 +130,7 @@ bool schedule_t::insert(const grund_t* gr, uint8 minimum_loading, uint8 waiting_
 	if(  is_stop_allowed(gr)  ) {
 		entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift));
 		current_stop ++;
+		make_current_stop_valid();
 		return true;
 	}
 	else {

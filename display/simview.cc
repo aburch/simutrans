@@ -357,16 +357,16 @@ void main_view_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max
 						kb->display_if_visible( xpos, yypos, IMG_SIZE, clip_num, force_show_grid );
 #else
 						if(  env_t::hide_under_cursor  ) {
+							const bool saved_grid = grund_t::show_grid;
 							const uint32 cursor_dist = shortest_distance( pos, cursor_pos );
 							if(  cursor_dist <= env_t::cursor_hide_range + 2u  ) {
 								kb->set_flag( grund_t::dirty );
 								if(  cursor_dist <= env_t::cursor_hide_range  ) {
-									const bool saved_grid = grund_t::show_grid;
 									grund_t::show_grid = true;
-									kb->display_if_visible( xpos, yypos, IMG_SIZE );
-									grund_t::show_grid = saved_grid;
 								}
 							}
+							kb->display_if_visible( xpos, yypos, IMG_SIZE );
+							grund_t::show_grid = saved_grid;
 						}
 						else {
 							kb->display_if_visible( xpos, yypos, IMG_SIZE );
@@ -449,7 +449,7 @@ void main_view_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max
 							// If the corresponding setting is on, then hide trees and buildings under mouse cursor
 #ifdef MULTI_THREAD
 							if(  threaded  ) {
-								pthread_mutex_lock( &hide_mutex  );
+								pthread_mutex_lock( &hide_mutex );
 								if(  threads_req_pause  ) {
 									// another thread is requesting we pause
 									num_threads_paused++;
@@ -482,12 +482,12 @@ void main_view_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max
 
 									// unpause all threads
 									threads_req_pause = false;
-									pthread_mutex_unlock( &hide_mutex  );
 									pthread_cond_broadcast( &hiding_cond );
+									pthread_mutex_unlock( &hide_mutex );
 								}
 								else {
 									// not in the hidden area, draw multithreaded
-									pthread_mutex_unlock( &hide_mutex  );
+									pthread_mutex_unlock( &hide_mutex );
 									plan->display_obj( xpos, yypos, IMG_SIZE, true, hmin, hmax, clip_num );
 								}
 							}
@@ -523,10 +523,10 @@ void main_view_t::display_region( koord lt, koord wh, sint16 y_min, sint16 y_max
 #ifdef MULTI_THREAD
 	// show thread as paused when finished
 	if(  threaded  ) {
-		pthread_mutex_lock( &hide_mutex  );
+		pthread_mutex_lock( &hide_mutex );
 		num_threads_paused++;
 		pthread_cond_broadcast( &waiting_cond );
-		pthread_mutex_unlock( &hide_mutex  );
+		pthread_mutex_unlock( &hide_mutex );
 	}
 #endif
 }
