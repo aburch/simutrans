@@ -2847,12 +2847,15 @@ void road_vehicle_t::set_convoi(convoi_t *c)
 }
 
 // To prevent glitch
-void road_vehicle_t::reflesh() const {
+void road_vehicle_t::reflesh() {
 	int xpos=0, ypos=0;
 	get_screen_offset( xpos, ypos, get_tile_raster_width(), true );
 	viewport_t *vp = welt->get_viewport();
 	scr_coord scr_pos = vp->get_screen_coord(get_pos(), koord(get_xoff(), get_yoff()));
 	display_mark_img_dirty( image, scr_pos.x + xpos, scr_pos.y + ypos);
+	if(  !get_flag(obj_t::dirty)  ) {
+		set_flag( obj_t::dirty );
+	}
 }
 
 
