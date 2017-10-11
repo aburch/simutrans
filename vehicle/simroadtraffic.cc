@@ -1401,5 +1401,8 @@ void private_car_t::reflesh(sint8 prev_tiles_overtaking, sint8 current_tiles_ove
 		viewport_t *vp = welt->get_viewport();
 		scr_coord scr_pos = vp->get_screen_coord(get_pos(), koord(get_xoff(), get_yoff()));
 		display_mark_img_dirty( image, scr_pos.x + xpos, scr_pos.y + ypos);
+		if(  !get_flag(obj_t::dirty)  ) {
+		set_flag( obj_t::dirty );
+		}
 	}
 }
