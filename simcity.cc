@@ -1913,7 +1913,7 @@ void stadt_t::rdwr(loadsave_t* file)
 	}
 
 	// differential history
-	if (file->get_version() <= 120000 || (file->get_extended_version() > 0 && file->get_extended_version() < 22)) {
+	if (file->get_version() <= 120000 || (file->get_extended_version() > 0 && file->get_extended_version() < 25)) {
 		if (file->is_loading()) {
 			// Initalize differential statistics assuming a differential of 0.
 			city_growth_get_factors(city_growth_factor_previous, 0);
