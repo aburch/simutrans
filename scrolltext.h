@@ -47,7 +47,7 @@
 " Inkelyad", "developer",
 " Isidoro","developer (vehicle replacement)",
 " TurfIt", "patch",
-" Phystam", "patch",
+" Phystam", "patches",
 " Toshio Kuratomi" "patches",
 " Zhaop", "Mac OSX patch and fixes",
 " Vladki", "patch, online servers",
