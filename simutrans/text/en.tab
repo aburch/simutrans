@@ -3313,7 +3313,7 @@ km/h
 (speed_restricted_by_bridge)
 (The speed is restricted by the bridge)
 (speed_restricted_by_wayobj)
-(The speed is restricted by the wayobject)
+(The speed is restricted by the asset)
 (speed_restricted_by_city)
 (The speed is restricted by the city)
 runway_38/18
