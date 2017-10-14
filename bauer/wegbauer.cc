@@ -2513,7 +2513,7 @@ void way_builder_t::build_road()
 					str->set_gehweg(build_sidewalk);
 					str->set_public_right_of_way();
 				}
-				cost += gr->neuen_weg_bauen(str, route.get_short_ribi(i), player, &route) + desc->get_value();
+				cost += gr->neuen_weg_bauen(str, route.get_short_ribi(i), player, &route) - desc->get_value();
 				// respect speed limit of crossing
 				str->count_sign();
 				// prissi: into UNDO-list, so we can remove it later
