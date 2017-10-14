@@ -5646,7 +5646,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		if((!loading_limit || loading_level >= loading_limit) && !wait_for_time)
 		{
 			// Simple case: do not wait for a full load or a particular time.
-			go_on_ticks = (std::max)(departure_time, arrival_time);
+			go_on_ticks = std::max(departure_time, arrival_time);
 		}
 		else 
 		{
@@ -5667,8 +5667,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				// Maximum wait time
 				go_on_ticks_waiting = now + (welt->ticks_per_world_month >> (16ll - (sint64)schedule->get_current_eintrag().waiting_time_shift)) - (sint64)reversing_time;
 			}
-			go_on_ticks = (std::min)(go_on_ticks_spacing, go_on_ticks_waiting);
-			go_on_ticks = (std::max)(departure_time, go_on_ticks);
+			go_on_ticks = std::min(go_on_ticks_spacing, go_on_ticks_waiting);
+			go_on_ticks = std::max(departure_time, go_on_ticks);
 			running_late = wait_for_time && (go_on_ticks_waiting < go_on_ticks_spacing);
 			if(running_late)
 			{
