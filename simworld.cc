@@ -1117,8 +1117,8 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 			desc = way_builder_t::weg_search(road_wt, 80, get_timeline_year_month(), type_flat);
 		}
 
-		way_builder_t bauigel (get_public_player());
-		bauigel.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, desc, tunnel_builder_t::get_tunnel_desc(road_wt, desc->get_topspeed(), get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt, desc->get_topspeed(), get_timeline_year_month()) );
+		way_builder_t bauigel (NULL);
+		bauigel.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, desc, tunnel_builder_t::get_tunnel_desc(road_wt, desc->get_topspeed(), get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt, desc->get_topspeed(), get_timeline_year_month()));
 		bauigel.set_keep_existing_ways(true);
 		bauigel.set_maximum(env_t::intercity_road_length);
 
