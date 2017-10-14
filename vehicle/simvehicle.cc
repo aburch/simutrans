@@ -4229,7 +4229,12 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 	
 		else if(signal && (working_method == cab_signalling || working_method == moving_block || (signal->get_desc()->get_working_method() == cab_signalling && working_method != drive_by_sight) || signal->get_desc()->get_working_method() == moving_block))
-		{
+		{		
+			if ((working_method == cab_signalling || working_method == moving_block) && signal->get_desc()->get_working_method() != cab_signalling && signal->get_desc()->get_working_method() != moving_block)
+			{
+				// Transitioning out of a signalling system in which the stopping distance is not based on the position of the signals: run the block reserver again in case it was not run on this signal previously.
+				block_reserver(cnv->get_route(), next_block, modified_sighting_distance_tiles, next_signal, 0, true, false, cnv->get_is_choosing());
+			}
 			set_working_method(signal->get_desc()->get_working_method());
 		}
 
