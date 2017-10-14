@@ -2412,7 +2412,11 @@ const char* tool_build_way_t::get_tooltip(const player_t *) const
 	{
 		return "";
 	}
-	tooltip_with_price_maintenance(welt, desc->get_name(), (-desc->get_base_price() -welt->get_settings().get_forge_cost(desc->get_waytype())), desc->get_base_maintenance());
+	const sint64 tile_price = desc->get_value();
+	const sint64 km_price = (tile_price * welt->get_settings().get_base_meters_per_tile()) / welt->get_settings().get_meters_per_tile();
+	const sint64 tile_forge_cost = welt->get_settings().get_forge_cost(desc->get_waytype());
+	const sint64 km_forge_cost = (tile_forge_cost * welt->get_settings().get_base_meters_per_tile()) / welt->get_settings().get_meters_per_tile();
+	tooltip_with_price_maintenance(welt, desc->get_name(), (-km_price - km_forge_cost), desc->get_base_maintenance());
 	size_t n= strlen(toolstr);
 	n += sprintf(toolstr+n, " / km, %dkm/h, %dt",
 		desc->get_topspeed(),
@@ -2628,7 +2632,7 @@ const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, c
 		if(!is_shift_pressed())
 		{
 			sound_play(SFX_CASH);
-			}
+		}
 
 		return NULL;
 	}
