@@ -1652,11 +1652,12 @@ void *step_passengers_and_mail_threaded(void* args)
 {
 	const uint32* thread_number_ptr = (const uint32*)args;
 	karte_t::passenger_generation_thread_number = *thread_number_ptr;
+	const uint32 seed_base = karte_t::world->get_settings().get_random_counter();
 	
 	// This may easily overflow, but this is irrelevant for the purposes of a random seed
 	// (so long as both server and client are using the same size of integer)
 
-	const uint32 seed = karte_t::world->get_settings().get_random_counter() * *thread_number_ptr;
+	const uint32 seed = seed_base * karte_t::passenger_generation_thread_number;
 
 	delete thread_number_ptr;
 
