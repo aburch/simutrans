@@ -2416,7 +2416,9 @@ const char* tool_build_way_t::get_tooltip(const player_t *) const
 	const sint64 km_price = (tile_price * welt->get_settings().get_base_meters_per_tile()) / welt->get_settings().get_meters_per_tile();
 	const sint64 tile_forge_cost = welt->get_settings().get_forge_cost(desc->get_waytype());
 	const sint64 km_forge_cost = (tile_forge_cost * welt->get_settings().get_base_meters_per_tile()) / welt->get_settings().get_meters_per_tile();
-	tooltip_with_price_maintenance(welt, desc->get_name(), (-km_price - km_forge_cost), desc->get_base_maintenance());
+	const sint64 tile_maint = desc->get_maintenance();
+	const sint64 km_maint = (tile_maint * welt->get_settings().get_base_meters_per_tile()) / welt->get_settings().get_meters_per_tile();
+	tooltip_with_price_maintenance(welt, desc->get_name(), (-km_price - km_forge_cost), km_maint);
 	size_t n= strlen(toolstr);
 	n += sprintf(toolstr+n, " / km, %dkm/h, %dt",
 		desc->get_topspeed(),
