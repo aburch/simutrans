@@ -1657,7 +1657,8 @@ void *step_passengers_and_mail_threaded(void* args)
 	// This may easily overflow, but this is irrelevant for the purposes of a random seed
 	// (so long as both server and client are using the same size of integer)
 
-	const uint32 seed = seed_base + karte_t::passenger_generation_thread_number;
+	//const uint32 seed = seed_base * karte_t::passenger_generation_thread_number;
+	const uint32 seed = 100; // For TESTing only
 
 	delete thread_number_ptr;
 
