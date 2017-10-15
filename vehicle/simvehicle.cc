@@ -7169,10 +7169,9 @@ bool air_vehicle_t::calc_route_internal(
 
 
 		// now the route to ziel search point (+1, since it will check before entering the tile ...)
-		//keypoint
-		
 		search_for_stop = route.get_count()-1;
 
+		// define the endpoint on the runway
 		uint16 runway_tiles = search_for_stop - touchdown;
 		uint16 min_runway_tiles = desc->get_minimum_runway_length() / welt->get_settings().get_meters_per_tile() + 1;
 		uint16 excess_of_tiles = runway_tiles - min_runway_tiles;
@@ -7281,7 +7280,7 @@ int air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) cons
 					end = i;
 					break;
 				}
-				// reserve until reaching to the minimum runway length...
+				// reserve to the minimum runway length...
 				uint16 current_runway_length_meters = ((i+1)-start)*welt->get_settings().get_meters_per_tile();
 				if(i>start && current_runway_length_meters>min_runway_length_meters){
 					//					std::cout << "reached minimum runway length? min = "<<min_runway_length_meters <<", len = "<<runway_meters << ", i="<<i<<std::endl;
@@ -7289,12 +7288,11 @@ int air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) cons
 					return success;
 				}
 					
-				// end of runway?
+				// end of runway? <- this will not be executed.
 				if(i>start  &&  ribi_t::is_single(sch1->get_ribi_unmasked())  )
 				{
 					runway_tiles = (i + 1) - start;
 					runway_meters = runway_tiles * welt->get_settings().get_meters_per_tile();
-					//					std::cout << "end of runway? min = "<<min_runway_length_meters <<", len = "<<runway_meters << ", i="<<i<<std::endl;
 					success = success == 0 ? 0 : runway_meters >= min_runway_length_meters ? 1 : 2;
 					return success;
 				}
