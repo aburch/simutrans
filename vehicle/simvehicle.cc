@@ -6907,7 +6907,6 @@ route_t::route_result_t air_vehicle_t::calc_route(koord3d start, koord3d ziel, s
 	takeoff = touchdown = search_for_stop = INVALID_INDEX;
 	const bool pre_result = calc_route_internal(welt, start, ziel, max_speed, cnv->get_highest_axle_load(), state, flying_height, target_height, runway_too_short, airport_too_close_to_the_edge, takeoff, touchdown, search_for_stop, *route);
 	const route_t::route_result_t result = pre_result ? route_t::valid_route : route_t::no_route;
-	std::cout << "pre_result = " << pre_result << std::endl;
 	cnv->set_next_stop_index(INVALID_INDEX);
 	return result;
 }
@@ -7249,12 +7248,11 @@ int air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) cons
 	uint16 runway_meters = runway_tiles * welt->get_settings().get_meters_per_tile();
 	const uint16 min_runway_length_meters = desc->get_minimum_runway_length();
 	const uint16 min_runway_tiles = min_runway_length_meters / welt->get_settings().get_meters_per_tile() + 1;
-	std::cout << "min = "<<min_runway_length_meters <<", len = "<<runway_meters << std::endl;
+	//	std::cout << "min = "<<min_runway_length_meters <<", len = "<<runway_meters << std::endl;
 
 	int success = runway_meters >= min_runway_length_meters ? 1 : 2;
 
 	for(  uint32 i=start;  success  &&  i<end  &&  i<route->get_count();  i++) {
-		std::cout << "   i = "<< i << std::endl;
 		grund_t *gr = welt->lookup(route->at(i));
 		runway_t * sch1 = gr ? (runway_t *)gr->get_weg(air_wt) : NULL;
 
@@ -7286,7 +7284,7 @@ int air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) cons
 				// reserve until reaching to the minimum runway length...
 				uint16 current_runway_length_meters = ((i+1)-start)*welt->get_settings().get_meters_per_tile();
 				if(i>start && current_runway_length_meters>min_runway_length_meters){
-					std::cout << "reached minimum runway length? min = "<<min_runway_length_meters <<", len = "<<runway_meters << ", i="<<i<<std::endl;
+					//					std::cout << "reached minimum runway length? min = "<<min_runway_length_meters <<", len = "<<runway_meters << ", i="<<i<<std::endl;
 					success = success == 0 ? 0 : runway_meters >= min_runway_length_meters ? 1 : 2;
 					return success;
 				}
@@ -7296,7 +7294,7 @@ int air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) cons
 				{
 					runway_tiles = (i + 1) - start;
 					runway_meters = runway_tiles * welt->get_settings().get_meters_per_tile();
-					std::cout << "end of runway? min = "<<min_runway_length_meters <<", len = "<<runway_meters << ", i="<<i<<std::endl;
+					//					std::cout << "end of runway? min = "<<min_runway_length_meters <<", len = "<<runway_meters << ", i="<<i<<std::endl;
 					success = success == 0 ? 0 : runway_meters >= min_runway_length_meters ? 1 : 2;
 					return success;
 				}
