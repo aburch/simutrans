@@ -6899,7 +6899,6 @@ route_t::route_result_t air_vehicle_t::calc_route(koord3d start, koord3d ziel, s
 			block_reserver( takeoff, takeoff+100, false );
 		}
 		else if(route_index>=touchdown-1  &&  state!=taxiing) {
-			//			std::cout << "block_reserver 6 is called: "<< state <<" "<< touchdown << std::endl;
 			block_reserver( touchdown - landing_distance, search_for_stop+1, false );
 		}
 	}
@@ -6908,7 +6907,6 @@ route_t::route_result_t air_vehicle_t::calc_route(koord3d start, koord3d ziel, s
 	takeoff = touchdown = search_for_stop = INVALID_INDEX;
 	const bool pre_result = calc_route_internal(welt, start, ziel, max_speed, cnv->get_highest_axle_load(), state, flying_height, target_height, runway_too_short, airport_too_close_to_the_edge, takeoff, touchdown, search_for_stop, *route);
 	const route_t::route_result_t result = pre_result ? route_t::valid_route : route_t::no_route;
-	std::cout << "pre_result = " << pre_result << std::endl;
 	cnv->set_next_stop_index(INVALID_INDEX);
 	return result;
 }
@@ -7169,9 +7167,15 @@ bool air_vehicle_t::calc_route_internal(
 		touchdown = route.get_count() + landing_distance - 1;
 		route.append_straight_route(welt,search_end);
 
+
 		// now the route to ziel search point (+1, since it will check before entering the tile ...)
 		search_for_stop = route.get_count()-1;
 
+		// define the endpoint on the runway
+		uint16 runway_tiles = search_for_stop - touchdown;
+		uint16 min_runway_tiles = desc->get_minimum_runway_length() / welt->get_settings().get_meters_per_tile() + 1;
+		uint16 excess_of_tiles = runway_tiles - min_runway_tiles;
+		search_for_stop -= excess_of_tiles;
 		// now we just append the rest
 		for( int i=end_route.get_count()-2;  i>=0;  i--  ) {
 			route.append(end_route.at(i));
@@ -7242,24 +7246,21 @@ int air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) cons
 	uint16 runway_tiles = end - start;
 	uint16 runway_meters = runway_tiles * welt->get_settings().get_meters_per_tile();
 	const uint16 min_runway_length_meters = desc->get_minimum_runway_length();
-	std::cout << "min = "<<min_runway_length_meters <<", len = "<<runway_meters << std::endl;
+	const uint16 min_runway_tiles = min_runway_length_meters / welt->get_settings().get_meters_per_tile() + 1;
+	//	std::cout << "min = "<<min_runway_length_meters <<", len = "<<runway_meters << std::endl;
 
 	int success = runway_meters >= min_runway_length_meters ? 1 : 2;
 
 	for(  uint32 i=start;  success  &&  i<end  &&  i<route->get_count();  i++) {
-
 		grund_t *gr = welt->lookup(route->at(i));
 		runway_t * sch1 = gr ? (runway_t *)gr->get_weg(air_wt) : NULL;
-		// bool is_taxi_way = gr->get_weg(air_wt)->get_desc()->get_topspeed() < 50;
-		// if(is_taxi_way){
-		// 	std::cout << "this is taxi way."<<std::endl;
-		// }
+
 		if(sch1==NULL) {
 			if(reserve) {
 				if(!start_now)
 				{
 					// touched down here
-					start = i;//8:magic number
+					start = i;
 				}
 				else
 				{
@@ -7279,12 +7280,19 @@ int air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) cons
 					end = i;
 					break;
 				}
-				// end of runway?
+				// reserve to the minimum runway length...
+				uint16 current_runway_length_meters = ((i+1)-start)*welt->get_settings().get_meters_per_tile();
+				if(i>start && current_runway_length_meters>min_runway_length_meters){
+					//					std::cout << "reached minimum runway length? min = "<<min_runway_length_meters <<", len = "<<runway_meters << ", i="<<i<<std::endl;
+					success = success == 0 ? 0 : runway_meters >= min_runway_length_meters ? 1 : 2;
+					return success;
+				}
+					
+				// end of runway? <- this will not be executed.
 				if(i>start  &&  ribi_t::is_single(sch1->get_ribi_unmasked())  )
 				{
 					runway_tiles = (i + 1) - start;
 					runway_meters = runway_tiles * welt->get_settings().get_meters_per_tile();
-					std::cout << "end of runway? min = "<<min_runway_length_meters <<", len = "<<runway_meters << ", i="<<i<<std::endl;
 					success = success == 0 ? 0 : runway_meters >= min_runway_length_meters ? 1 : 2;
 					return success;
 				}
@@ -7425,7 +7433,6 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 	//	if(  route_index == touchdown - HOLDING_PATTERN_OFFSET )
 	//circling now!
 	if(  route_index == touchdown - landing_distance){ 
-		//		std::cout << "reserve 1: "<<state<<" "<< touchdown <<" "<<search_for_stop+1<< std::endl;
 		const int runway_state = block_reserver( touchdown, search_for_stop+1 , true );
 		if( runway_state != 1 )
 		{
