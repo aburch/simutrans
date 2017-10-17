@@ -158,10 +158,9 @@ int get_current_midi()
 int midi_init(const char *directory)
 {
 	// read a list of soundfiles
-	char full_path[1024];
+	std::string full_path = std::string(directory) + "music" + PATH_SEPARATOR + "music.tab";
 
-	sprintf( full_path, "%smusic/music.tab", directory );
-	if(  FILE* const file = fopen(full_path, "rb")  ) {
+	if(  FILE* const file = dr_fopen(full_path.c_str(), "rb")  ) {
 	  while(!feof(file)) {
 	    char buf[256];
 	    char title[256];
@@ -176,9 +175,9 @@ int midi_init(const char *directory)
 	      }
 
 	      if(  len > 1  ) {
-	        sprintf( full_path, "%s%s", directory, buf );
-	        printf("  Reading MIDI file '%s' - %s", full_path, title);
-	        max_midi = dr_load_midi(full_path);
+			full_path = std::string(directory) + buf;
+	        printf("  Reading MIDI file '%s' - %s", full_path.c_str(), title);
+	        max_midi = dr_load_midi(full_path.c_str());
 
 	        if(  max_midi >= 0  ) {
 	          len = strlen(title);

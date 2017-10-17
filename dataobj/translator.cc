@@ -638,7 +638,7 @@ void translator::load_files_from_folder(const char *folder_name, const char *wha
 
 bool translator::load(const string &path_to_pakset)
 {
-	chdir( env_t::program_dir );
+	dr_chdir( env_t::program_dir );
 	tstrncpy(pakset_path, path_to_pakset.c_str(), lengthof(pakset_path));
 
 	//initialize these values to 0(ie. nothing loaded)
@@ -680,12 +680,12 @@ bool translator::load(const string &path_to_pakset)
 	load_files_from_folder(folderName.c_str(), "pak");
 
 	if(  env_t::default_settings.get_with_private_paks()  ) {
-		chdir( env_t::user_dir );
+		dr_chdir( env_t::user_dir );
 		// now read the pakset specific text
 		// there can be more than one file per language, provided it is name like iso_xyz.tab
 		const string folderName("addons/" + path_to_pakset + "text/");
 		load_files_from_folder(folderName.c_str(), "pak addons");
-		chdir( env_t::program_dir );
+		dr_chdir( env_t::program_dir );
 	}
 
 	//if NO languages were loaded then game cannot continue
@@ -705,13 +705,13 @@ bool translator::load(const string &path_to_pakset)
 
 	// also addon compatibility ...
 	if(  env_t::default_settings.get_with_private_paks()  ) {
-		chdir( env_t::user_dir );
+		dr_chdir( env_t::user_dir );
 		if (FILE* const file = fopen(string("addons/"+path_to_pakset + "compat.tab").c_str(), "rb")) {
 			load_language_file_body(file, &compatibility, false, false, false );
 			DBG_MESSAGE("translator::load()", "pakset addon compatibility texts loaded.");
 			fclose(file);
 		}
-		chdir( env_t::program_dir );
+		dr_chdir( env_t::program_dir );
 	}
 
 #if DEBUG>=4

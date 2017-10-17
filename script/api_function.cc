@@ -6,6 +6,8 @@
 #include "api_function.h"
 #include <stdio.h>
 
+#include "../sys/simsys.h"
+
 #include "../dataobj/environment.h"
 
 /**
@@ -27,7 +29,7 @@ void script_api::start_squirrel_type_logging()
 	if (env_t::verbose_debug < 2) {
 		return;
 	}
-	file = fopen("squirrel_types.awk", "w");
+	file = dr_fopen("squirrel_types.awk", "w");
 	if (file) {
 		fprintf(file, "# file used to generate doxygen documentation of squirrel API\n");
 		fprintf(file, "# needs to be copied to trunk/script/api\n");

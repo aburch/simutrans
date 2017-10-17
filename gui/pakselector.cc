@@ -91,7 +91,7 @@ bool pakselector_t::check_file(const char *filename, const char *)
 {
 	cbuffer_t buf;
 	buf.printf("%s/ground.Outside.pak", filename);
-	if (FILE* const f = fopen(buf, "r")) {
+	if (FILE* const f = dr_fopen(buf, "r")) {
 		fclose(f);
 		return true;
 	}
@@ -144,8 +144,8 @@ void pakselector_t::add_file(const char *, const char *filename, const bool not_
 	if (has_addon_dir) {
 		char path[1024];
 		sprintf(path,"%s%s", env_t::user_dir, filename);
-		has_addon_dir = chdir( path ) == 0;
-		chdir( env_t::program_dir );
+		has_addon_dir = dr_chdir( path ) == 0;
+		dr_chdir( env_t::program_dir );
 	}
 	file_table.add_row( new gui_file_table_row_t( filename, buttontext, has_addon_dir ));
 }

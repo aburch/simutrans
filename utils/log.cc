@@ -406,7 +406,7 @@ log_t::log_t( const char *logfilename, bool force_flush, bool log_debug, bool lo
 		tee = NULL;
 #endif
 	} else {
-		log = fopen(logfilename,"wb");
+		log = dr_fopen(logfilename,"wb");
 
 		if(log == NULL) {
 			fprintf(stderr,"log_t::log_t: can't open file '%s' for writing\n", logfilename);
