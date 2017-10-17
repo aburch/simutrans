@@ -70,7 +70,7 @@ goods_frame_t::goods_frame_t() :
 	int y=D_BUTTON_HEIGHT+4-D_TITLEBAR_HEIGHT;
 
 	speed_bonus[0] = 0;
-	speed_down.init(button_t::repeatarrowleft, "", scr_coord(BUTTON4_X-20, y), scr_size(10,D_BUTTON_HEIGHT));
+	speed_down.init(button_t::repeatarrowleft, "", scr_coord(BUTTON4_X-20, y) );
 	speed_down.add_listener(this);
 	add_component(&speed_down);
 
