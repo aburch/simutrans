@@ -933,9 +933,9 @@ void dr_fatal_notify(char const* const msg)
 bool dr_download_pakset( const char *path_to_program, bool portable )
 {
 #ifdef _WIN32
-	char command[2048];
-	sprintf(command, "%s%s", (portable ? "/P /D=" : "/D="), path_to_program);
-	U16View const wparam(command);
+	std::string param(portable ? "/P /D=" : "/D=");
+	param.append(path_to_program);
+	U16View const wparam(param.c_str());
 	U16View const wpath_to_program(path_to_program);
 
 	SHELLEXECUTEINFOW shExInfo;
