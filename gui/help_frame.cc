@@ -189,21 +189,21 @@ void help_frame_t::open_help_on( const char *helpfilename )
 // just loads a whole help file as one chunk
 static const char *load_text(char const* const filename )
 {
-	std::string file_prefix("text/");
-	std::string fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
-	chdir(env_t::program_dir);
+	std::string file_prefix= std::string("text") + PATH_SEPARATOR;
+	std::string fullname = file_prefix + translator::get_lang()->iso + PATH_SEPARATOR + filename;
+	dr_chdir(env_t::program_dir);
 
-	FILE* file = fopen(fullname.c_str(), "rb");
+	FILE* file = dr_fopen(fullname.c_str(), "rb");
 	if (!file) {
 		//Check for the 'base' language(ie en from en_gb)
-		file = fopen((file_prefix + translator::get_lang()->iso_base + "/" + filename).c_str(), "rb");
+		file = dr_fopen((file_prefix + translator::get_lang()->iso_base + PATH_SEPARATOR + filename).c_str(), "rb");
 	}
 	if (!file) {
 		// Hajo: check fallback english
-		file = fopen((file_prefix + "/en/" + filename).c_str(), "rb");
+		file = dr_fopen((file_prefix + PATH_SEPARATOR + "en" + PATH_SEPARATOR + filename).c_str(), "rb");
 	}
 	// go back to load/save dir
-	chdir( env_t::user_dir );
+	dr_chdir( env_t::user_dir );
 
 	if(file) {
 		fseek(file,0,SEEK_END);
@@ -384,22 +384,22 @@ void help_frame_t::set_helpfile(const char *filename, bool resize_frame )
 FILE *help_frame_t::has_helpfile( char const* const filename, int &mode )
 {
 	mode = native;
-	std::string file_prefix("text/");
-	std::string fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
-	chdir(env_t::program_dir);
+	std::string file_prefix = std::string("text") + PATH_SEPARATOR;
+	std::string fullname = file_prefix + translator::get_lang()->iso + PATH_SEPARATOR + filename;
+	dr_chdir(env_t::program_dir);
 
-	FILE* file = fopen(fullname.c_str(), "rb");
+	FILE* file = dr_fopen(fullname.c_str(), "rb");
 	if(  !file  &&  strcmp(translator::get_lang()->iso,translator::get_lang()->iso_base)  ) {
 		//Check for the 'base' language(ie en from en_gb)
-		file = fopen(  (file_prefix + translator::get_lang()->iso_base + "/" + filename).c_str(), "rb"  );
+		file = dr_fopen(  (file_prefix + translator::get_lang()->iso_base + PATH_SEPARATOR + filename).c_str(), "rb"  );
 	}
 	if(  !file  ) {
 		// Hajo: check fallback english
-		file = fopen((file_prefix + "en/" + filename).c_str(), "rb");
+		file = dr_fopen((file_prefix + "en/" + filename).c_str(), "rb");
 		mode = english;
 	}
 	// go back to load/save dir
-	chdir( env_t::user_dir );
+	dr_chdir( env_t::user_dir );
 	// success?
 	if(  !file  ) {
 		mode = missing;

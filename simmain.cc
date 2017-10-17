@@ -79,12 +79,6 @@
 #include "vehicle/simvehicle.h"
 #include "vehicle/simroadtraffic.h"
 
-#ifdef _MSC_VER
-// Replace deprecated getcwd.
-#define getcwd _getcwd
-#endif
-
-
 using std::string;
 
 /* diagnostic routine:
@@ -469,14 +463,6 @@ int simu_main(int argc, char** argv)
 		return 0;
 	}
 
-#ifdef _WIN32
-#define PATHSEP "\\"
-#else
-#define PATHSEP "/"
-#endif
-	const char* path_sep = PATHSEP;
-
-
 #ifdef __BEOS__
 	if (1) // since BeOS only supports relative paths ...
 #else
@@ -484,21 +470,13 @@ int simu_main(int argc, char** argv)
 	if (gimme_arg(argc, argv, "-use_workdir", 0))
 #endif
 	{
-#if defined _WIN32
-		WCHAR bufferW[1024], bufferW2[1024];
-		// save the current directories, which need more effort on windows
-		GetCurrentDirectoryW( lengthof(bufferW), bufferW );
-		GetShortPathNameW( bufferW, bufferW2, lengthof(bufferW2) );
-		WideCharToMultiByte( CP_UTF8, 0, bufferW2, -1, env_t::program_dir, lengthof(env_t::program_dir), NULL, NULL );
-#else
 		// save the current directories
-		getcwd(env_t::program_dir, lengthof(env_t::program_dir));
-#endif
-		strcat( env_t::program_dir, path_sep );
+		dr_getcwd(env_t::program_dir, lengthof(env_t::program_dir));
+		strcat( env_t::program_dir, PATH_SEPARATOR );
 	}
 	else {
 		strcpy( env_t::program_dir, argv[0] );
-		*(strrchr( env_t::program_dir, path_sep[0] )+1) = 0;
+		*(strrchr( env_t::program_dir, PATH_SEPARATOR[0] )+1) = 0;
 
 #ifdef __APPLE__
 		// change working directory from binary dir to bundle dir
@@ -522,7 +500,7 @@ int simu_main(int argc, char** argv)
 		}
 #endif
 
-		chdir( env_t::program_dir );
+		dr_chdir( env_t::program_dir );
 	}
 	printf("Use work dir %s\n", env_t::program_dir);
 
@@ -540,7 +518,7 @@ int simu_main(int argc, char** argv)
 	tabfile_t simuconf;
 	char path_to_simuconf[24];
 	// was  config/simuconf.tab
-	sprintf(path_to_simuconf, "config%csimuconf.tab", path_sep[0]);
+	sprintf(path_to_simuconf, "config%csimuconf.tab", PATH_SEPARATOR[0]);
 	if(simuconf.open(path_to_simuconf)) {
 		tabfileobj_t contents;
 		simuconf.read(contents);
@@ -558,7 +536,7 @@ int simu_main(int argc, char** argv)
 		// save in program directory
 		env_t::user_dir = env_t::program_dir;
 	}
-	chdir( env_t::user_dir );
+	dr_chdir( env_t::user_dir );
 
 
 #ifdef REVISION
@@ -600,7 +578,7 @@ int simu_main(int argc, char** argv)
 		}
 	}
 	else if (gimme_arg(argc, argv, "-log", 0)) {
-		chdir( env_t::user_dir );
+		dr_chdir( env_t::user_dir );
 		char temp_log_name[256];
 		const char *logname = "simu.log";
 		if(  gimme_arg(argc, argv, "-server", 0)  ) {
@@ -625,7 +603,7 @@ int simu_main(int argc, char** argv)
 		if(  file.get_version()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL )  ) {
 			// too new => remove it
 			file.close();
-			remove( "settings.xml" );
+			dr_remove("settings.xml");
 		}
 		else {
 			found_settings = true;
@@ -640,7 +618,7 @@ int simu_main(int argc, char** argv)
 	}
 
 	// continue parsing ...
-	chdir( env_t::program_dir );
+	dr_chdir( env_t::program_dir );
 	if(  found_simuconf  ) {
 		if(simuconf.open(path_to_simuconf)) {
 			printf("parse_simuconf() at config/simuconf.tab: ");
@@ -822,36 +800,36 @@ int simu_main(int argc, char** argv)
 	// prepare skins first
 	bool themes_ok = false;
 	if(  const char *themestr = gimme_arg(argc, argv, "-theme", 1)  ) {
-		chdir( env_t::user_dir );
-		chdir( "themes" );
+		dr_chdir( env_t::user_dir );
+		dr_chdir( "themes" );
 		themes_ok = gui_theme_t::themes_init(themestr);
 		if(  !themes_ok  ) {
-			chdir( env_t::program_dir );
-			chdir( "themes" );
+			dr_chdir( env_t::program_dir );
+			dr_chdir( "themes" );
 			themes_ok = gui_theme_t::themes_init(themestr);
 		}
 	}
 	// next try the last used theme
 	if(  !themes_ok  &&  env_t::default_theme.c_str()!=NULL  ) {
-		chdir( env_t::user_dir );
-		chdir( "themes" );
+		dr_chdir( env_t::user_dir );
+		dr_chdir( "themes" );
 		themes_ok = gui_theme_t::themes_init( env_t::default_theme );
 		if(  !themes_ok  ) {
-			chdir( env_t::program_dir );
-			chdir( "themes" );
+			dr_chdir( env_t::program_dir );
+			dr_chdir( "themes" );
 			themes_ok = gui_theme_t::themes_init( env_t::default_theme );
 		}
 	}
 	// specified themes not found => try default themes
 	if(  !themes_ok  ) {
-		chdir( env_t::program_dir );
-		chdir( "themes" );
+		dr_chdir( env_t::program_dir );
+		dr_chdir( "themes" );
 		themes_ok = gui_theme_t::themes_init("themes.tab");
 	}
 	if(  !themes_ok  ) {
 		dbg->fatal( "simmain()", "No GUI themes found! Please re-install!" );
 	}
-	chdir( env_t::program_dir );
+	dr_chdir( env_t::program_dir );
 
 	// The loading screen needs to be initialized
 	show_pointer(1);
@@ -889,7 +867,7 @@ int simu_main(int argc, char** argv)
 		buf.append( env_t::objfilename.c_str() );
 		buf.append("ground.Outside.pak");
 
-		FILE* const f = fopen(buf, "r");
+		FILE* const f = dr_fopen(buf, "r");
 		if(  !f  ) {
 			dr_fatal_notify("*** No pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install a pak set (graphics).\n");
 			simgraph_exit();
@@ -1019,7 +997,7 @@ int simu_main(int argc, char** argv)
 	// Hajo: simgraph init loads default fonts, now we need to load
 	// the real fonts for the current language
 	sprachengui_t::init_font_from_lang();
-	chdir(env_t::program_dir);
+	dr_chdir(env_t::program_dir);
 
 	dbg->important("Reading city configuration ...");
 	stadt_t::cityrules_init(env_t::objfilename);
@@ -1035,12 +1013,12 @@ int simu_main(int argc, char** argv)
 	obj_reader_t::load(env_t::objfilename.c_str(), translator::translate("Loading paks ...") );
 	if(  env_t::default_settings.get_with_private_paks()  ) {
 		// try to read addons from private directory
-		chdir( env_t::user_dir );
+		dr_chdir( env_t::user_dir );
 		if(!obj_reader_t::load(("addons/" + env_t::objfilename).c_str(), translator::translate("Loading addon paks ..."))) {
 			fprintf(stderr, "reading addon object data failed (disabling).\n");
 			env_t::default_settings.set_with_private_paks( false );
 		}
-		chdir( env_t::program_dir );
+		dr_chdir( env_t::program_dir );
 	}
 	obj_reader_t::finish_loading();
 	pakset_info_t::calculate_checksum();
@@ -1063,7 +1041,7 @@ int simu_main(int argc, char** argv)
 
 	if(  gimme_arg(argc, argv, "-load", 0) != NULL  ) {
 		cbuffer_t buf;
-		chdir( env_t::user_dir );
+		dr_chdir( env_t::user_dir );
 		/**
 		 * Added automatic adding of extension
 		 */
@@ -1081,7 +1059,7 @@ int simu_main(int argc, char** argv)
 
 	// recover last server game
 	if(  new_world  &&  env_t::server  ) {
-		chdir( env_t::user_dir );
+		dr_chdir( env_t::user_dir );
 		loadsave_t file;
 		static char servername[128];
 		sprintf( servername, "server%d-network.sve", env_t::server );
@@ -1106,9 +1084,9 @@ int simu_main(int argc, char** argv)
 		pak_name.append( env_t::objfilename );
 		pak_name.erase( pak_name.length()-1 );
 		pak_name.append( ".sve" );
-		chdir( env_t::user_dir );
+		dr_chdir( env_t::user_dir );
 		unlink( "temp-load.sve" );
-		if(  rename( pak_name.c_str(), "temp-load.sve" )==0  ) {
+		if( dr_rename(pak_name.c_str(), "temp-load.sve") == 0 ) {
 			loadgame = "temp-load.sve";
 			new_world = false;
 		}
@@ -1117,11 +1095,11 @@ int simu_main(int argc, char** argv)
 
 	// still nothing to be loaded => search for demo games
 	if(  new_world  ) {
-		chdir( env_t::program_dir );
+		dr_chdir( env_t::program_dir );
 		char buffer[256];
 		sprintf(buffer, "%s%sdemo.sve", (const char*)env_t::program_dir, env_t::objfilename.c_str());
 		// access did not work!
-		if (FILE* const f = fopen(buffer, "rb")) {
+		if (FILE* const f = dr_fopen(buffer, "rb")) {
 			// there is a demo game to load
 			loadgame = buffer;
 			fclose(f);
@@ -1144,7 +1122,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	}
 
 	// now always writing in user dir (which points the the program dir in multiuser mode)
-	chdir( env_t::user_dir );
+	dr_chdir( env_t::user_dir );
 
 	// init midi before loading sounds
 	if(  dr_init_midi()  ) {
@@ -1213,7 +1191,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		env_t::server_admin_pw = ref_str;
 	}
 
-	chdir(env_t::user_dir);
+	dr_chdir(env_t::user_dir);
 
 	// reset random counter to true randomness
 	setsimrand(dr_time(), dr_time());
@@ -1367,7 +1345,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	intr_disable();
 
 	// save setting ...
-	chdir( env_t::user_dir );
+	dr_chdir( env_t::user_dir );
 	if(  file.wr_open("settings.xml",loadsave_t::xml,"settings only/",SAVEGAME_VER_NR)  ) {
 		env_t::rdwr(&file);
 		env_t::default_settings.rdwr(&file);

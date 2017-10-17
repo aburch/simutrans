@@ -309,7 +309,7 @@ bool interaction_t::process_event( event_t &ev )
 			env_t::server_save_game_on_quit = false;
 
 			// following code quite similar to nwc_sync_t::do_coomand
-			chdir( env_t::user_dir );
+			dr_chdir( env_t::user_dir );
 
 			// first save password hashes
 			char fn[256];

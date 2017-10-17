@@ -6,6 +6,7 @@
  */
 
 #include "../simdebug.h"
+#include "../simsys.h"
 
 #include "scenario_frame.h"
 #include "scenario_info.h"
@@ -81,7 +82,7 @@ bool scenario_frame_t::check_file( const char *filename, const char * )
 {
 	char buf[1024];
 	sprintf( buf, "%s/scenario.nut", filename );
-	if (FILE* const f = fopen(buf, "r")) {
+	if (FILE* const f = dr_fopen(buf, "r")) {
 		fclose(f);
 		return true;
 	}

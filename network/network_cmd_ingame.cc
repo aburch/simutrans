@@ -87,7 +87,7 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 			gi.rdwr( &fd );
 			fd.close();
 			// get gameinfo size
-			FILE *fh = fopen( "serverinfo.sve", "rb" );
+			FILE *fh = dr_fopen( "serverinfo.sve", "rb" );
 			fseek( fh, 0, SEEK_END );
 			nwgi.len = ftell( fh );
 			rewind( fh );
@@ -109,7 +109,7 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 				dbg->warning( "nwc_gameinfo_t::execute", "send of NWC_GAMEINFO failed" );
 			}
 			fclose( fh );
-			remove( "serverinfo.sve" );
+			dr_remove("serverinfo.sve");
 		}
 		socket_list_t::remove_client( s );
 	}
@@ -682,7 +682,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 	}
 	// transfer game, all clients need to sync (save, reload, and pause)
 	// now save and send
-	chdir( env_t::user_dir );
+	dr_chdir( env_t::user_dir );
 	if(  !env_t::server  ) {
 		char fn[256];
 		sprintf( fn, "client%i-network.sve", network_get_client_id() );

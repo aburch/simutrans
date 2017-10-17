@@ -124,15 +124,14 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 	RECT r = { 0, 0, w, h };
 	AdjustWindowRectEx(&r, style, false, ex_style);
 
-#if 0
-	// Try with a wide character window; need the title with full width
-	WCHAR *wSIM_TITLE = new wchar_t[lengthof(SIM_TITLE)];
-	size_t convertedChars = 0;
-	mbstowcs( wSIM_TITLE, SIM_TITLE, lengthof(SIM_TITLE) );
+	// Convert UTF-8 to UTF-16.
+	int const size = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, SIM_TITLE, -1, NULL, 0);
+	LPWSTR const wSIM_TITLE = new WCHAR[size];
+	MultiByteToWideChar(CP_UTF8, 0, SIM_TITLE, -1, wSIM_TITLE, size);
+
 	hwnd = CreateWindowExW(ex_style, L"Simu", wSIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
-#else
-	hwnd = CreateWindowExA(ex_style, "Simu", SIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
-#endif
+
+	delete[] wSIM_TITLE;
 
 	ShowWindow(hwnd, SW_SHOW);
 	SetTimer( hwnd, 0, 1111, NULL );	// HACK: so windows thinks we are not dead when processing a timer every 1111 ms ...
@@ -411,7 +410,7 @@ int dr_screenshot(const char *filename, int x, int y, int w, int h)
 #endif
 	if (!dr_screenshot_png(filename, w, h, AllDib->bmiHeader.biWidth, (unsigned short*)AllDibData+x+y*AllDib->bmiHeader.biWidth, bpp)) {
 		// not successful => save full screen as BMP
-		if (FILE* const fBmp = fopen(filename, "wb")) {
+		if (FILE* const fBmp = dr_fopen(filename, "wb")) {
 			BITMAPFILEHEADER bf;
 
 			// since the number of drawn pixel can be smaller than the actual width => only use the drawn pixel for bitmap

@@ -94,7 +94,7 @@ bool pakselector_t::check_file(const char *filename, const char *)
 	buf.printf("%s/ground.Outside.pak", filename);
 
 	// if we can open the file, it is valid.
-	if (FILE* const f = fopen(buf, "r")) {
+	if (FILE* const f = dr_fopen(buf, "r")) {
 		fclose(f);
 		return true;
 	}
@@ -130,7 +130,7 @@ void pakselector_t::fill_list()
 
 		// if we can't change directory to /addon
 		// Hide the addon button
-		if(  chdir( path ) != 0  ) {
+		if(  dr_chdir( path ) != 0  ) {
 			i.del->set_visible(false);
 			i.del->disable();
 
@@ -145,7 +145,7 @@ void pakselector_t::fill_list()
 		y += D_BUTTON_HEIGHT+D_FOCUS_OFFSET_V;
 	}
 	action_button_width += (D_H_SPACE<<1);
-	chdir( env_t::program_dir );
+	dr_chdir( env_t::program_dir );
 
 	if(entries.get_count() > this->num_sections+1) {
 		// empty path as more than one pakset is present, user has to choose
