@@ -63,7 +63,7 @@ public:
 			// It should never fail, since all file IO UTF8 comes either via keyborad input or filenames, i.e. a win32 api.
 			// log may not even initialising at this point, so we just fail.
 			dr_fatal_notify( "Unknown unicode character encountered!" );
-			exit();
+			exit(0);
 		}
 		LPWSTR const u16str = new WCHAR[size];
 		MultiByteToWideChar(CP_UTF8, 0, u8str, -1, u16str, size);
