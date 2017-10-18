@@ -141,11 +141,10 @@ int dr_mkdir(char const* const path)
 	// Translate error.
 	if (result != 0) {
 		DWORD const error = GetLastError();
-		if (error == ERROR_ALREADY_EXISTS) {
-			_set_errno(EEXIST);
-		}
-		else if (error == ERROR_PATH_NOT_FOUND) {
-			_set_errno(ENOENT);
+		if(error == ERROR_ALREADY_EXISTS) {
+			errno = EEXIST;
+		} else if(error == ERROR_PATH_NOT_FOUND) {
+			errno = ENOENT;
 		}
 }
 
@@ -209,11 +208,10 @@ int dr_remove(const char *path)
 	// Translate error.
 	if (!success) {
 		DWORD error = GetLastError();
-		if (error == ERROR_FILE_NOT_FOUND) {
-			_set_errno(ENOENT);
-		}
-		else if (error == ERROR_ACCESS_DENIED) {
-			_set_errno(EACCES);
+		if(error == ERROR_FILE_NOT_FOUND) {
+			errno = ENOENT;
+		} else if(error == ERROR_ACCESS_DENIED) {
+			errno = EACCES;
 		}
 	}
 
@@ -235,10 +233,9 @@ int dr_rename(const char *existing_utf8, const char *new_utf8)
 	if (!success) {
 		DWORD error = GetLastError();
 		if (error == ERROR_FILE_NOT_FOUND) {
-			_set_errno(ENOENT);
-		}
-		else if (error == ERROR_ACCESS_DENIED) {
-			_set_errno(EACCES);
+			errno = ENOENT;
+		} else if(error == ERROR_ACCESS_DENIED) {
+			errno = EACCES;
 		}
 	}
 
@@ -259,10 +256,9 @@ int dr_chdir(const char *path)
 	if (!success) {
 		DWORD error = GetLastError();
 		if (error == ERROR_FILE_NOT_FOUND) {
-			_set_errno(ENOENT);
-		}
-		else if (error == ERROR_ACCESS_DENIED) {
-			_set_errno(EACCES);
+			errno = ENOENT;
+		} else if(error == ERROR_ACCESS_DENIED) {
+			errno = EACCES;
 		}
 	}
 
@@ -337,7 +333,7 @@ char const *dr_query_homedir()
 		if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ, &hHomeDir) != ERROR_SUCCESS) {
 			return NULL;
 		}
-		LSTATUS status = RegQueryValueExW(hHomeDir, L"Personal", NULL, NULL, (LPBYTE)whomedir, &len);
+		LONG const status = RegQueryValueExW(hHomeDir, L"Personal", NULL, NULL, (LPBYTE)whomedir, &len);
 		RegCloseKey(hHomeDir);
 		if (status != ERROR_SUCCESS) {
 			return NULL;
