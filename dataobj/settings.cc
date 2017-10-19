@@ -878,7 +878,7 @@ void settings_t::rdwr(loadsave_t *file)
 			// cost for transformers
 			file->rdwr_longlong(cst_transformer );
 			file->rdwr_longlong(cst_maintain_transformer );
-			if (file->get_version() > 120002 && file->get_extended_revision() >= 16 || file->get_extended_version() >= 13)
+			if (file->get_version() > 120002 && (file->get_extended_revision() == 0 || file->get_extended_revision() >= 16) || file->get_extended_version() >= 13)
 			{
 				file->rdwr_longlong(cst_make_public_months);	
 			}
@@ -1599,7 +1599,7 @@ void settings_t::rdwr(loadsave_t *file)
 		// otherwise the default values of the last one will be used
 		}
 
-		if (file->get_version() > 120003 && file->get_extended_revision() >= 17 || file->get_extended_version() >= 13)
+		if (file->get_version() > 120003 && (file->get_extended_version() == 0 || file->get_extended_revision() >= 17) || file->get_extended_version() >= 13)
 		{
 			file->rdwr_bool(disable_make_way_public);
 		}

@@ -128,7 +128,7 @@ public:
 	 * or build a new consumer near the indicated position.
 	 * @returns number of factories built
 	 */
-	static int increase_industry_density( bool tell_me, bool do_not_add_beyond_target_density = false, bool power_station_only = false );
+	static int increase_industry_density(bool tell_me, bool do_not_add_beyond_target_density = false, bool power_station_only = false, bool disallow_force_consumer = false );
 
 	static bool power_stations_available();
 

@@ -373,16 +373,17 @@ void leitung_t::calc_neighbourhood()
 }
 
 
-void print_power(cbuffer_t & buf, uint64 power_in_kW, const char *fmt_MW, const char *fmt_KW)
+void print_power(cbuffer_t & buf, uint64 power_in_internal_units, const char *fmt_MW, const char *fmt_KW)
 {
-	uint64 power_in_MW = power_in_kW >> POWER_TO_MW;
+	uint64 power_in_MW = power_in_internal_units >> POWER_TO_MW;
+	float power_in_KW = (float)power_in_internal_units / (float)KW_DIVIDER;
 	if(power_in_MW)
 	{
 		buf.printf( translator::translate(fmt_MW), (uint) power_in_MW );
 	}
 	else
 	{
-		buf.printf( translator::translate(fmt_KW), (uint) ((power_in_kW * 1000) >> POWER_TO_MW) );
+		buf.printf(translator::translate(fmt_KW), power_in_KW);
 	}
 }
 
@@ -992,17 +993,10 @@ void senke_t::step(uint32 delta_t)
 		city->add_power_demand(adjusted_power_demand);
 	}
 	// Income
-	if(!fab || fab->get_desc()->get_electric_amount() == 65535)
-	{
-		// City, or factory demand not specified in pak: use old fixed demands
-		max_einkommen += last_power_demand * delta_t / modified_production_delta_t;
-		einkommen += power_load * delta_t / modified_production_delta_t;
-	}
-	else
-	{
-		max_einkommen += (last_power_demand * delta_t / modified_production_delta_t);
-		einkommen += (power_load * delta_t / modified_production_delta_t);
-	}
+	
+	max_einkommen += (last_power_demand * delta_t / modified_production_delta_t);
+	einkommen += (power_load * delta_t / modified_production_delta_t);
+
 
 	// Income rollover
 	if(max_einkommen>(2000<<11)) {
@@ -1133,8 +1127,8 @@ void senke_t::info(cbuffer_t & buf, bool dummy) const
 	obj_t::info( buf );
 
 	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
-	print_power(buf, last_power_demand, "Demand: %u MW\n", "Demand: %u KW\n");
-	print_power(buf, power_load, "Act. load: %u MW\n", "Act. load: %u KW\n");
+	print_power(buf, last_power_demand, "Demand: %u MW\n", "Demand: %.2f KW\n");
+	print_power(buf, power_load, "Act. load: %u MW\n", "Act. load: %.2f KW\n");
 	buf.printf( translator::translate("Usage: %u %%"), (100*power_load)/(last_power_demand>0?last_power_demand:1) );
 	if(city)
 	{

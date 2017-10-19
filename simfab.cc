@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
 
 #include "simdebug.h"
 #include "display/simimg.h"
@@ -388,8 +389,9 @@ void fabrik_t::update_scaled_pax_demand()
 		const sint64 base_visitor_demand = base_visitor_demand_raw == 65535 ? (sint64)get_passenger_level_visitors() : base_visitor_demand_raw;
 		const sint64 base_worker_demand = employment_capacity == 65535 ? passenger_level : employment_capacity;
 
-		scaled_pax_demand = max_64(welt->calc_adjusted_monthly_figure(base_worker_demand), 1ll);
-		const uint32 scaled_visitor_demand = welt->calc_adjusted_monthly_figure(base_visitor_demand);
+		// then, scaling based on month length
+		scaled_pax_demand = std::max(welt->calc_adjusted_monthly_figure(base_worker_demand), 1ll);
+		const uint32 scaled_visitor_demand = max(welt->calc_adjusted_monthly_figure(base_visitor_demand), 1);
 
 		// pax demand for fixed period length
 		// Intentionally not the scaled value.
@@ -1667,8 +1669,8 @@ void fabrik_t::smoke() const
 		koord ro = rada->get_pos_off(size,rot);
 		grund_t *gr = welt->lookup_kartenboden(pos_origin.get_2d()+ro);
 		// to get same random order on different compilers
-		const sint8 offsetx =  ((rada->get_xy_off(rot).x+sim_async_rand(7)-3)*OBJECT_OFFSET_STEPS)/16;
-		const sint8 offsety =  ((rada->get_xy_off(rot).y+sim_async_rand(7)-3)*OBJECT_OFFSET_STEPS)/16;
+		const sint8 offsetx = ((rada->get_xy_off(rot).x)*OBJECT_OFFSET_STEPS) / 16;
+		const sint8 offsety = ((rada->get_xy_off(rot).y)*OBJECT_OFFSET_STEPS) / 16;
 		wolke_t *smoke =  new wolke_t(gr->get_pos(), offsetx, offsety, rada->get_images() );
 		gr->obj_add(smoke);
 		welt->sync_way_eyecandy.add( smoke );
@@ -2049,7 +2051,7 @@ void fabrik_t::step(uint32 delta_t)
 				}
 			}
 		}
-		else 
+		else
 		{
 			// ok, calulate maximum allowed consumption.
 			sint32 min_menge = input.empty() ? 0x7FFFFFFF : input[0].menge;
@@ -2060,6 +2062,7 @@ void fabrik_t::step(uint32 delta_t)
 				}
 			}
 
+			bool some_production = false;
 			// produces something
 			for (uint32 product = 0; product < output.get_count(); product++)
 			{
@@ -2088,9 +2091,10 @@ void fabrik_t::step(uint32 delta_t)
 						// to find out, if storage changed
 						delta_menge += p;
 						output[product].menge += p;
-						output[product].book_stat((sint64)p * (sint64)desc->get_product(product)->get_factor() , FAB_GOODS_PRODUCED);
+						output[product].book_stat((sint64)p * (sint64)desc->get_product(product)->get_factor(), FAB_GOODS_PRODUCED);
 						// if less than 3/4 filled we neary always consume power
 						currently_producing |= (output[product].menge * 4 < output[product].max * 3);
+						some_production = true;
 					}
 					else {
 						output[product].book_stat((sint64)(output[product].max - output[product].menge) * (sint64)desc->get_product(product)->get_factor(), FAB_GOODS_PRODUCED);
@@ -2100,16 +2104,19 @@ void fabrik_t::step(uint32 delta_t)
 			}
 
 			// and finally consume stock
-			for (uint32 index = 0; index < input.get_count(); index++) {
-				const uint32 v = consumed_menge;
+			if (some_production)
+			{
+				for (uint32 index = 0; index < input.get_count(); index++) {
+					const uint32 v = consumed_menge;
 
-				if ((uint32)input[index].menge > v + 1) {
-					input[index].menge -= v;
-					input[index].book_stat((sint64)v * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
-				}
-				else {
-					input[index].book_stat((sint64)input[index].menge * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
-					input[index].menge = 0;
+					if ((uint32)input[index].menge > v + 1) {
+						input[index].menge -= v;
+						input[index].book_stat((sint64)v * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
+					}
+					else {
+						input[index].book_stat((sint64)input[index].menge * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
+						input[index].menge = 0;
+					}
 				}
 			}
 		}
@@ -3593,11 +3600,11 @@ void fabrik_t::calc_max_intransit_percentages()
 			index ++;
 			continue;
 		}
-		const uint32 time_to_consume = max(1, get_time_to_consume_stock(index)); 
-		const uint32 ratio = ((uint32)lead_time * 1000 / (uint32)time_to_consume);
-		const uint32 modified_max_intransit_percentage = (ratio * (uint32)base_max_intransit_percentage) / 1000;
+		const uint32 time_to_consume = max(1u, get_time_to_consume_stock(index)); 
+		const sint32 ratio = ((sint32)lead_time * 1000 / (sint32)time_to_consume);
+		const sint32 modified_max_intransit_percentage = (ratio * (sint32)base_max_intransit_percentage) / 1000;
 		max_intransit_percentages.put(catg, (uint16)modified_max_intransit_percentage);
-		input[index].max_transit = max(1, (modified_max_intransit_percentage * input[index].max) / 100u); // This puts max_transit in internal units
+		input[index].max_transit = max(1, (modified_max_intransit_percentage * input[index].max) / 100); // This puts max_transit in internal units
 		index ++;
 	}
 }

@@ -1,4 +1,4 @@
-#/*
+/*
  * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic license.
@@ -3048,7 +3048,13 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 		const air_vehicle_t* air = (const air_vehicle_t*)this;
 		if(get_waytype() == air_wt && air->runway_too_short)
 		{
-			sprintf(tooltip_text, translator::translate("Runway too short"), cnv->get_name());
+			sprintf(tooltip_text, translator::translate("Runway too short, require %dm"), desc->get_minimum_runway_length() );
+			color = COL_ORANGE;
+		}
+
+		if(get_waytype() == air_wt && air->airport_too_close_to_the_edge)
+		{
+			sprintf(tooltip_text, translator::translate("Airport too close to the edge"));
 			color = COL_ORANGE;
 		}
 
@@ -4681,7 +4687,12 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 	
 		else if(signal && (working_method == cab_signalling || working_method == moving_block || (signal->get_desc()->get_working_method() == cab_signalling && working_method != drive_by_sight) || signal->get_desc()->get_working_method() == moving_block))
-		{
+		{		
+			if ((working_method == cab_signalling || working_method == moving_block) && signal->get_desc()->get_working_method() != cab_signalling && signal->get_desc()->get_working_method() != moving_block)
+			{
+				// Transitioning out of a signalling system in which the stopping distance is not based on the position of the signals: run the block reserver again in case it was not run on this signal previously.
+				block_reserver(cnv->get_route(), next_block, modified_sighting_distance_tiles, next_signal, 0, true, false, cnv->get_is_choosing());
+			}
 			set_working_method(signal->get_desc()->get_working_method());
 		}
 
@@ -4918,6 +4929,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	uint16 last_stop_signal_before_first_bidirectional_signal_index = INVALID_INDEX;
 	uint16 last_non_directional_index = start_index; 
 	uint16 first_oneway_sign_index = INVALID_INDEX;
+	uint16 last_oneway_sign_index = INVALID_INDEX;
 	uint16 last_station_tile = INVALID_INDEX;
 	uint16 first_double_block_signal_index = INVALID_INDEX;
 	uint32 stop_signals_since_last_double_block_signal = 0;
@@ -5063,25 +5075,33 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				last_station_tile = i;
 			}
 			
-			if(rs && rs->get_desc()->is_single_way() && first_oneway_sign_index >= INVALID_INDEX)
+			if (rs && rs->get_desc()->is_single_way())
 			{
-				if(directional_only)
+				if (first_oneway_sign_index >= INVALID_INDEX)
 				{
-					// Stop a directional reservation when a one way sign is encountered
-					count --;
-					if(is_from_directional)
+					if (directional_only)
 					{
-						reached_end_of_loop = true;
-						if (break_loop)
+						// Stop a directional reservation when a one way sign is encountered
+						count--;
+						if (is_from_directional)
 						{
-							*break_loop = true;
+							reached_end_of_loop = true;
+							if (break_loop)
+							{
+								*break_loop = true;
+							}
 						}
+						next_signal_index = last_stop_signal_index;
 					}
-					next_signal_index = last_stop_signal_index;
+					if (last_bidirectional_signal_index < INVALID_INDEX || last_longblock_signal_index < INVALID_INDEX)
+					{
+						first_oneway_sign_index = i;
+						last_oneway_sign_index = i;
+					}
 				}
-				if(last_bidirectional_signal_index < INVALID_INDEX || last_longblock_signal_index < INVALID_INDEX)
+				else
 				{
-					first_oneway_sign_index = i;
+					last_oneway_sign_index = i;
 				}
 			}
 
@@ -5235,7 +5255,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					if(time_interval_after_double_block)
 					{
 						next_signal_index = i;
-						count--;
+						count --;
 					}
 
 					if(!signal->get_desc()->is_pre_signal()) // Stop signal or multiple aspect signal
@@ -5611,10 +5631,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							const bool platform_starter = (this_halt.is_bound() && (haltestelle_t::get_halt(signal->get_pos(), get_owner())) == this_halt)
 								&& (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt) && (cnv->get_akt_speed() == 0);
 							// Do not reserve through a token block signal: the train must stop to take the token.
-							if((last_token_block_signal_index > first_stop_signal_index || (!starting_at_signal && !platform_starter)) && first_double_block_signal_index != last_stop_signal_index)
+							if((last_token_block_signal_index > first_stop_signal_index || (!starting_at_signal && !platform_starter)) && (first_double_block_signal_index != last_stop_signal_index) || (first_double_block_signal_index == INVALID_INDEX && last_stop_signal_index == INVALID_INDEX && !starting_at_signal))
 							{
 								count --;
 								end_of_block = true;
+								do_not_clear_distant = true;
 							}
 						}
 
@@ -5956,7 +5977,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	// If we are in token block or one train staff mode, one train staff mode or making directional reservations, reserve to the end of the route if there is not a prior signal.
 	// However, do not call this if we are in the block reserver already called from this method to prevent infinite recursion.
 	const bool bidirectional_reservation = (working_method == track_circuit_block || working_method == cab_signalling || working_method == moving_block) 
-		&& last_bidirectional_signal_index < INVALID_INDEX;
+		&& last_bidirectional_signal_index < INVALID_INDEX && (last_oneway_sign_index >= INVALID_INDEX || last_oneway_sign_index < last_bidirectional_signal_index);
 	if(!is_from_token && !is_from_directional && (((working_method == token_block || (first_double_block_signal_index < INVALID_INDEX && stop_signals_since_last_double_block_signal)) && last_token_block_signal_index < INVALID_INDEX) || bidirectional_reservation || working_method == one_train_staff || (start_index == first_one_train_staff_index)) && next_signal_index == INVALID_INDEX)
 	{
 		route_t target_rt;
@@ -7355,13 +7376,13 @@ route_t::route_result_t air_vehicle_t::calc_route(koord3d start, koord3d ziel, s
 			block_reserver( takeoff, takeoff+100, false );
 		}
 		else if(route_index>=touchdown-1  &&  state!=taxiing) {
-			block_reserver( touchdown, search_for_stop+1, false );
+			block_reserver( touchdown - landing_distance, search_for_stop+1, false );
 		}
 	}
 	target_halt = halthandle_t();	// no block reserved
 
 	takeoff = touchdown = search_for_stop = INVALID_INDEX;
-	const bool pre_result = calc_route_internal(welt, start, ziel, max_speed, cnv->get_highest_axle_load(), state, flying_height, target_height, runway_too_short, takeoff, touchdown, search_for_stop, *route);
+	const bool pre_result = calc_route_internal(welt, start, ziel, max_speed, cnv->get_highest_axle_load(), state, flying_height, target_height, runway_too_short, airport_too_close_to_the_edge, takeoff, touchdown, search_for_stop, *route);
 	const route_t::route_result_t result = pre_result ? route_t::valid_route : route_t::no_route;
 	cnv->set_next_stop_index(INVALID_INDEX);
 	return result;
@@ -7401,6 +7422,7 @@ bool air_vehicle_t::calc_route_internal(
 	sint16 &flying_height,               // input/output: at start
 	sint16 &target_height,           // output: at end of takeoff
 	bool &runway_too_short,          // output: either departure or arrival runway
+	bool &airport_too_close_to_the_edge, // output: either airport locates close to the edge or not
 	uint32 &takeoff,                 // output: route index to takeoff tile at departure airport
 	uint32 &touchdown,               // output: scheduled route index to touchdown tile at arrival airport
 	uint32 &search_for_stop,                  // output: scheduled route index to end of (required length of) arrival runway.
@@ -7410,6 +7432,7 @@ bool air_vehicle_t::calc_route_internal(
 
 	const bool vtol = get_desc()->get_minimum_runway_length() == 0;
 	runway_too_short = false;
+	airport_too_close_to_the_edge = false;
 	search_for_stop = takeoff = touchdown = INVALID_INDEX;
 	if(vtol)
 	{
@@ -7426,6 +7449,7 @@ bool air_vehicle_t::calc_route_internal(
 	{
 		// see, if we find a direct route: We are finished
 		state = air_vehicle_t::taxiing;
+		calc_altitude_level( get_desc()->get_topspeed() );
 		if(route.calc_route( welt, start, ziel, this, max_speed, weight, false, 0))
 		{
 			// ok, we can taxi to our location
@@ -7497,14 +7521,14 @@ bool air_vehicle_t::calc_route_internal(
 			const grund_t *gr=NULL;
 			// add the start
 			int endi = 1;
-			int over = 3;
+			int over = landing_distance/3;
 			// now add all runway + 3 ...
 			do {
 				if(!welt->is_within_limits(search_start.get_2d()+(start_dir*endi)) ) {
 					break;
 				}
 				gr = welt->lookup_kartenboden(search_start.get_2d()+(start_dir*endi));
-				if(over<3  ||  (gr->get_weg_ribi(air_wt)&start_ribi)==0) {
+				if(over<landing_distance/3  ||  (gr->get_weg_ribi(air_wt)&start_ribi)==0) {
 					over --;
 				}
 				endi ++;
@@ -7539,13 +7563,14 @@ bool air_vehicle_t::calc_route_internal(
 		route.append( start );
 		state = flying;
 		play_sound();
+		calc_altitude_level( desc->get_topspeed() ); // added for AFHP
 		if(flying_height==0) {
 			flying_height = 3*TILE_HEIGHT_STEP;
 		}
 		takeoff = 0;
-		target_height = ((sint16)start.z+3)*TILE_HEIGHT_STEP;
+		//		target_height = ((sint16)start.z+3)*TILE_HEIGHT_STEP;
+		target_height = ((sint16)start.z+altitude_level)*TILE_HEIGHT_STEP;
 	}
-
 //DBG_MESSAGE("air_vehicle_t::calc_route()","take off ok");
 
 	koord3d landing_start=search_end;
@@ -7558,14 +7583,14 @@ bool air_vehicle_t::calc_route_internal(
 			// add the start
 			const grund_t *gr;
 			int endi = 1;
-			int over = 3;
-			// now add all runway + 3 ...
+			//			int over = landing_distance;
+			int over = landing_distance;
 			do {
 				if(!welt->is_within_limits(search_end.get_2d()+(end_dir*endi)) ) {
 					break;
 				}
 				gr = welt->lookup_kartenboden(search_end.get_2d()+(end_dir*endi));
-				if(over<3  ||  (gr->get_weg_ribi(air_wt)&end_ribi)==0) {
+				if(over< landing_distance  ||  (gr->get_weg_ribi(air_wt)&end_ribi)==0) {
 					over --;
 				}
 				endi ++;
@@ -7610,16 +7635,24 @@ bool air_vehicle_t::calc_route_internal(
 				// in new versions it should not possible to build a runway here
 				route.clear();
 				dbg->error("air_vehicle_t::calc_route()","airport too close to the edge! (Cannot go to %i,%i!)",circlepos.x,circlepos.y);
+				airport_too_close_to_the_edge = true;
 				return false;
 			}
 		}
 
-		touchdown = route.get_count() + 2;
+		//touchdown = route.get_count() + 2; //2 means HOLDING_PATTERN_OFFSET-1
+		touchdown = route.get_count() + landing_distance - 1;
 		route.append_straight_route(welt,search_end);
+
 
 		// now the route to ziel search point (+1, since it will check before entering the tile ...)
 		search_for_stop = route.get_count()-1;
 
+		// define the endpoint on the runway
+		uint16 runway_tiles = search_for_stop - touchdown;
+		uint16 min_runway_tiles = desc->get_minimum_runway_length() / welt->get_settings().get_meters_per_tile() + 1;
+		uint16 excess_of_tiles = runway_tiles - min_runway_tiles;
+		search_for_stop -= excess_of_tiles;
 		// now we just append the rest
 		for( int i=end_route.get_count()-2;  i>=0;  i--  ) {
 			route.append(end_route.at(i));
@@ -7639,6 +7672,7 @@ bool air_vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel)
 	sint16 xflughoehe = flying_height;
 	sint16 xtarget_height;
 	bool xrunway_too_short;
+	bool xairport_too_close_to_the_edge;
 	uint32 xtakeoff;   // new route index to takeoff tile at departure airport
 	uint32 xtouchdown; // new scheduled route index to touchdown tile at arrival airport
 	uint32 xsuchen;    // new scheduled route index to end of (required length of) arrival runway.
@@ -7646,8 +7680,10 @@ bool air_vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel)
 
 	route_t &route = *cnv->get_route();
 	bool done = calc_route_internal(welt, route.at(reroute_index), ziel,
-		speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(),
-		xstate, xflughoehe, xtarget_height, xrunway_too_short, xtakeoff, xtouchdown, xsuchen, xroute);
+																	speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(),
+																	xstate, xflughoehe, xtarget_height,
+																	xrunway_too_short, xairport_too_close_to_the_edge,
+																	xtakeoff, xtouchdown, xsuchen, xroute);
 	if (done)
 	{
 		// convoy replaces existing route starting at reroute_index with found route.
@@ -7687,12 +7723,15 @@ int air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) cons
 	uint16 runway_tiles = end - start;
 	uint16 runway_meters = runway_tiles * welt->get_settings().get_meters_per_tile();
 	const uint16 min_runway_length_meters = desc->get_minimum_runway_length();
+	const uint16 min_runway_tiles = min_runway_length_meters / welt->get_settings().get_meters_per_tile() + 1;
+	//	std::cout << "min = "<<min_runway_length_meters <<", len = "<<runway_meters << std::endl;
+
 	int success = runway_meters >= min_runway_length_meters ? 1 : 2;
 
 	for(  uint32 i=start;  success  &&  i<end  &&  i<route->get_count();  i++) {
-
 		grund_t *gr = welt->lookup(route->at(i));
 		runway_t * sch1 = gr ? (runway_t *)gr->get_weg(air_wt) : NULL;
+
 		if(sch1==NULL) {
 			if(reserve) {
 				if(!start_now)
@@ -7718,7 +7757,15 @@ int air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) cons
 					end = i;
 					break;
 				}
-				// end of runway?
+				// reserve to the minimum runway length...
+				uint16 current_runway_length_meters = ((i+1)-start)*welt->get_settings().get_meters_per_tile();
+				if(i>start && current_runway_length_meters>min_runway_length_meters){
+					//					std::cout << "reached minimum runway length? min = "<<min_runway_length_meters <<", len = "<<runway_meters << ", i="<<i<<std::endl;
+					success = success == 0 ? 0 : runway_meters >= min_runway_length_meters ? 1 : 2;
+					return success;
+				}
+					
+				// end of runway? <- this will not be executed.
 				if(i>start  &&  ribi_t::is_single(sch1->get_ribi_unmasked())  )
 				{
 					runway_tiles = (i + 1) - start;
@@ -7860,9 +7907,10 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 //DBG_MESSAGE("air_vehicle_t::can_enter_tile()","index %i<>%i",route_index,touchdown);
 
 	// check for another circle ...
-	if(  route_index == touchdown - HOLDING_PATTERN_OFFSET  )
-	{
-		const int runway_state = block_reserver( touchdown, search_for_stop+1, true );
+	//	if(  route_index == touchdown - HOLDING_PATTERN_OFFSET )
+	//circling now!
+	if(  route_index == touchdown - landing_distance){ 
+		const int runway_state = block_reserver( touchdown, search_for_stop+1 , true );
 		if( runway_state != 1 )
 		{
 
@@ -7883,14 +7931,16 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 			return true;
 		}
 		state = landing;
+
 		return true;
 		runway_too_short = false;
 	}
 
-	if(  route_index == touchdown - HOLDING_PATTERN_LENGTH - HOLDING_PATTERN_OFFSET  &&  state != circling  )
+	if(  route_index == touchdown - HOLDING_PATTERN_LENGTH - landing_distance &&  state != circling  ) 
 	{
 		// just check, if the end of runway is free; we will wait there
-		const int runway_state = block_reserver( touchdown, search_for_stop+1, true );
+		//		std::cout << "reserve 2: "<<state<<" "<< touchdown <<" "<<search_for_stop+1<< std::endl;
+		const int runway_state = block_reserver( touchdown , search_for_stop+1 , true );
 		if(runway_state == 1)
 		{
 			route_index += HOLDING_PATTERN_LENGTH;
@@ -7916,7 +7966,8 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		}
 	}
 
-	if(route_index==search_for_stop  &&  state==landing) {
+	//	if(route_index==search_for_stop  &&  state==landing) {
+	if(route_index==search_for_stop &&  state==landing) {
 
 		// we will wait in a step, much more simulation friendly
 		// and the route finder is not reentrant!
@@ -7927,7 +7978,9 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		// nothing free here?
 		if(find_route_to_stop_position()) {
 			// stop reservation successful
+			// unreserve when the aircraft reached the end of runway
 			block_reserver( touchdown, search_for_stop+1, false );
+			//			std::cout << "unreserve 3: "<< state <<" "<< touchdown << std::endl;
 			state = taxiing;
 			return true;
 		}
@@ -7976,7 +8029,9 @@ air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) :
 #endif
 {
 	rdwr_from_convoi(file);
+	calc_altitude_level( desc->get_topspeed() );
 	runway_too_short = false;
+	airport_too_close_to_the_edge = false;
 
 	if(  file->is_loading()  ) {
 		static const vehicle_desc_t *last_desc = NULL;
@@ -8029,6 +8084,8 @@ air_vehicle_t::air_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* 
 	flying_height = 0;
 	target_height = pos.z;
 	runway_too_short = false;
+	airport_too_close_to_the_edge = false;
+	calc_altitude_level( desc->get_topspeed() );
 }
 
 
@@ -8062,6 +8119,8 @@ air_vehicle_t::set_convoi(convoi_t *c)
 				block_reserver( takeoff, takeoff+100, false );
 			}
 			else if(route_index>=touchdown-1  &&  state!=taxiing) {
+				//				block_reserver( touchdown, search_for_stop+1, false );
+				//				std::cout << "unreserve 4: "<<state<<" "<< touchdown << std::endl;
 				block_reserver( touchdown, search_for_stop+1, false );
 			}
 		}
@@ -8088,6 +8147,7 @@ air_vehicle_t::set_convoi(convoi_t *c)
 							block_reserver( takeoff, takeoff+100, true );
 						}
 						else if(  route_index>=touchdown-1  &&  state!=taxiing  ) {
+							//							std::cout << "reserve 5: "<<state<<" "<< touchdown << std::endl;
 							block_reserver( touchdown, search_for_stop+1, true );
 						}
 					}
@@ -8200,8 +8260,9 @@ void air_vehicle_t::hop(grund_t* gr)
 				play_sound();
 				new_friction = 1;
 				block_reserver( takeoff, takeoff+100, false );
+				calc_altitude_level( desc->get_topspeed() );
 				flying_height = h_cur - h_next;
-				target_height = h_cur+TILE_HEIGHT_STEP*3;
+				target_height = h_cur+TILE_HEIGHT_STEP*(altitude_level+(sint16)get_pos().z);//modified
 			}
 			break;
 		}
@@ -8224,11 +8285,11 @@ void air_vehicle_t::hop(grund_t* gr)
 			}
 			flying_height -= h_next;
 			// did we have to change our flight height?
-			if(  target_height-h_next > TILE_HEIGHT_STEP*5  ) {
+			if(  target_height-h_next > TILE_HEIGHT_STEP*altitude_level*4/3 + (sint16)get_pos().z  ) {
 				// Move down
 				target_height -= TILE_HEIGHT_STEP*2;
 			}
-			else if(  target_height-h_next < TILE_HEIGHT_STEP*2  ) {
+			else if(  target_height-h_next < TILE_HEIGHT_STEP*altitude_level*2/3 + (sint16)get_pos().z   ) {
 				// Move up
 				target_height += TILE_HEIGHT_STEP*2;
 			}
@@ -8245,7 +8306,7 @@ void air_vehicle_t::hop(grund_t* gr)
 				flying_height = (flying_height-TILE_HEIGHT_STEP);
 			}
 
-			if (route_index >= touchdown)  {
+			if (route_index >= touchdown ) {
 				// come down, now!
 				target_height = h_next;
 
@@ -8291,7 +8352,7 @@ void air_vehicle_t::hop(grund_t* gr)
 
 	// hop to next tile
 	vehicle_t::hop(gr);
-
+	
 	speed_limit = new_speed_limit;
 	current_friction = new_friction;
 }

@@ -101,7 +101,8 @@ static const char *revision_ex[] =
 	"21",
 	"22",
 	"23",
-	"24"
+	"24",
+	"25"
 };
 
 // just free memory
@@ -217,6 +218,7 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM( "congestion_density_factor", sets->get_congestion_density_factor(), 0, 1024, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "quick_city_growth", sets->get_quick_city_growth());
 	INIT_BOOL( "assume_everywhere_connected_by_road", sets->get_assume_everywhere_connected_by_road());
+	INIT_BOOL("toll_free_public_roads", sets->get_toll_free_public_roads());
 	INIT_NUM( "spacing_shift_mode", sets->get_spacing_shift_mode(), 0, 2 , gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "spacing_shift_divisor", sets->get_spacing_shift_divisor(), 1, 32767 , gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "allow_routing_on_foot", sets->get_allow_routing_on_foot());
@@ -236,65 +238,31 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM("minimum_staffing_percentage_full_production_producer_industry", sets->get_minimum_staffing_percentage_full_production_producer_industry(), 0, 100, gui_numberinput_t::AUTOLINEAR, false);
 	
 	SEPERATOR;
-	INIT_NUM("population_per_level", sets->get_population_per_level(), 1, 1000, 1, false);
-	INIT_NUM("visitor_demand_per_level", sets->get_visitor_demand_per_level(), 1, 1000, 1, false);
-	INIT_NUM("jobs_per_level", sets->get_jobs_per_level(), 1, 1000, 1, false);
-	INIT_NUM("mail_per_level", sets->get_mail_per_level(), 1, 1000, 1, false);
+	INIT_NUM("population_per_level", sets->get_population_per_level(), gui_numberinput_t::PLAIN, 1000, 1, false);
+	INIT_NUM("visitor_demand_per_level", sets->get_visitor_demand_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("jobs_per_level", sets->get_jobs_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("mail_per_level", sets->get_mail_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
 
 	SEPERATOR;
-	{
-		gui_component_table_t &tbl = new_table(scr_coord(0, ypos), 2, 17);
-		int row = 0;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_forge_cost_road(), 0, 1000000, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "forge_cost_road"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_forge_cost_track(), 0, 1000000, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "forge_cost_track"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_forge_cost_water(), 0, 1000000, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "forge_cost_water"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_forge_cost_monorail(), 0, 1000000, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "forge_cost_monorail"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_forge_cost_maglev(), 0, 1000000, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "forge_cost_maglev"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_forge_cost_tram(), 0, 1000000, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "forge_cost_tram"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_forge_cost_narrowgauge(), 0, 1000000, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "forge_cost_narrowgauge"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_forge_cost_air(), 0, 1000000, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "forge_cost_air"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_parallel_ways_forge_cost_percentage_road(), 0, 100, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "parallel_ways_forge_cost_percentage_road"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_parallel_ways_forge_cost_percentage_track(), 0, 100, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "parallel_ways_forge_cost_percentage_track"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_parallel_ways_forge_cost_percentage_water(), 0, 100, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "parallel_ways_forge_cost_percentage_water"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_parallel_ways_forge_cost_percentage_monorail(), 0, 100, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "parallel_ways_forge_cost_percentage_monorail"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_parallel_ways_forge_cost_percentage_maglev(), 0, 100, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "parallel_ways_forge_cost_percentage_maglev"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_parallel_ways_forge_cost_percentage_tram(), 0, 100, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "parallel_ways_forge_cost_percentage_tram"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_parallel_ways_forge_cost_percentage_narrowgauge(), 0, 100, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "parallel_ways_forge_cost_percentage_narrowgauge"), 1, row);
-		row++;
-		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_parallel_ways_forge_cost_percentage_air(), 0, 100, 1), 0, row);
-		set_cell_component(tbl, new_label(scr_coord(2, 0), "parallel_ways_forge_cost_percentage_air"), 1, row);
-		INIT_TABLE_END(tbl);
-	}	
-	
+	INIT_NUM("forge_cost_road", sets->get_forge_cost_road(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("forge_cost_track", sets->get_forge_cost_track(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("forge_cost_water", sets->get_forge_cost_water(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("forge_cost_monorail", sets->get_forge_cost_monorail(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("forge_cost_maglev", sets->get_forge_cost_maglev(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("forge_cost_tram", sets->get_forge_cost_tram(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("forge_cost_narrowgauge", sets->get_forge_cost_narrowgauge(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("forge_cost_air", sets->get_forge_cost_air(), 0, 1000000, gui_numberinput_t::PLAIN, false);
+
+	SEPERATOR;
+	INIT_NUM("parallel_ways_forge_cost_percentage_road", sets->get_parallel_ways_forge_cost_percentage_road(), 0, 100, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("parallel_ways_forge_cost_percentage_track", sets->get_parallel_ways_forge_cost_percentage_track(), 0, 100, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("parallel_ways_forge_cost_percentage_water", sets->get_parallel_ways_forge_cost_percentage_water(), 0, 100, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("parallel_ways_forge_cost_percentage_monorail", sets->get_parallel_ways_forge_cost_percentage_monorail(), 0, 100, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("parallel_ways_forge_cost_percentage_maglev", sets->get_parallel_ways_forge_cost_percentage_maglev(), 0, 100, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("parallel_ways_forge_cost_percentage_tram", sets->get_parallel_ways_forge_cost_percentage_tram(), 0, 100, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("parallel_ways_forge_cost_percentage_narrowgauge", sets->get_parallel_ways_forge_cost_percentage_narrowgauge(), 0, 100, gui_numberinput_t::PLAIN, false);
+	INIT_NUM("parallel_ways_forge_cost_percentage_air", sets->get_parallel_ways_forge_cost_percentage_air(), 0, 100, gui_numberinput_t::PLAIN, false);
+
 	SEPERATOR;
 	{
 		gui_component_table_t &tbl = new_table(scr_coord(0, ypos), 2, 9);
@@ -347,6 +315,7 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM( sets->set_congestion_density_factor );
 	READ_BOOL( sets->set_quick_city_growth );
 	READ_BOOL( sets->set_assume_everywhere_connected_by_road );
+	READ_BOOL_VALUE(sets->toll_free_public_roads);
 	READ_NUM( sets->set_spacing_shift_mode );
 	READ_NUM( sets->set_spacing_shift_divisor);
 	READ_BOOL( sets->set_allow_routing_on_foot);
@@ -1011,7 +980,7 @@ void settings_costs_stats_t::init(settings_t const* const sets)
 	INIT_COST( "cost_depot_rail", -sets->cst_depot_rail, 1, 100000000, 10, false );
 	INIT_COST( "cost_depot_road", -sets->cst_depot_road, 1, 100000000, 10, false );
 	INIT_COST( "cost_depot_ship", -sets->cst_depot_ship, 1, 100000000, 10, false );
-	INIT_COST( "cost_buy_land", -sets->cst_buy_land, 1, 100000000, 10, false );
+	INIT_COST( "cost_buy_land", -sets->cst_buy_land, 0, 100000000, 10, false );
 	INIT_COST( "cost_alter_land", -sets->cst_alter_land, 1, 100000000, 10, false );
 	INIT_COST( "cost_set_slope", -sets->cst_set_slope, 1, 100000000, 10, false );
 	INIT_COST( "cost_alter_climate", -sets->cst_alter_climate, 1, 100000000, 10, false );

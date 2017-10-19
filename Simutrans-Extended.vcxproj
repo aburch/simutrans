@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug (command-line server)|Win32">
@@ -640,7 +640,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>C:\Users\Victor\Documents\GitHub\OpenTTD\shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -772,7 +772,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -1100,7 +1100,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;DEBUG_FREELIST;REVISION_FROM_FILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;DEBUG_FREELIST;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -1253,7 +1253,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>C:\Users\Victor\Documents\GitHub\OpenTTD\shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;REVISION_FROM_FILE;REVISION_FROM_FILE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;REVISION_FROM_FILE;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>
@@ -2736,7 +2736,7 @@
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
     <None Include="base-texts-depot-window-refurbish.dat" />
-    <None Include="base_textes_extended_10.17.dat" />
+    <None Include="base-texts-new-convoy-debug-information.dat" />
     <None Include="base_texts_extended-passenger-generation.dat" />
     <None Include="base_texts_bridge-change.dat" />
     <None Include="base_texts_extended.dat" />
@@ -2775,6 +2775,7 @@
     <None Include="base_texts_extended_transshipment.dat" />
     <None Include="base_texts_phil_fix.dat" />
     <None Include="base_texts_walking_passengers.dat" />
+    <None Include="bsae-texts-afhp.dat" />
     <None Include="common.mk" />
     <None Include="config.template" />
     <None Include="Makefile" />

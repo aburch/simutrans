@@ -7,6 +7,7 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <algorithm>
 
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
@@ -1647,7 +1648,7 @@ void gebaeude_t::set_commute_trip(uint16 number)
 	// Record the number of arriving workers by encoding the earliest time at which new workers can arrive.
 	const sint64 job_ticks = ((sint64)number * welt->get_settings().get_job_replenishment_ticks()) / ((sint64)adjusted_jobs < 1ll ? 1ll : (sint64)adjusted_jobs);
 	const sint64 new_jobs_by_time = welt->get_ticks() - welt->get_settings().get_job_replenishment_ticks();
-	available_jobs_by_time = max_64(new_jobs_by_time + job_ticks, available_jobs_by_time + job_ticks);
+	available_jobs_by_time = std::max(new_jobs_by_time + job_ticks, available_jobs_by_time + job_ticks);
 	add_passengers_succeeded_commuting(number);
 }
 

@@ -631,7 +631,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 				last_route_index = 0;
 				dbg->warning("convoi_t::finish_rd()", "Convoy %i's route index is out of range: resetting to zero", self.get_id());
 			}
-			uint16 start_index = min(max(1, vehicle[vehicle_count - 1]->get_route_index() - 1), route.get_count() - 1); 
+			uint16 start_index = min(max(1u, vehicle[vehicle_count - 1u]->get_route_index() - 1u), route.get_count() - 1u); 
 
 			uint32 train_length = move_to(start_index) + 1;
 			const koord3d last_start = front()->get_pos();
@@ -5702,7 +5702,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		if((!loading_limit || loading_level >= loading_limit) && !wait_for_time)
 		{
 			// Simple case: do not wait for a full load or a particular time.
-			go_on_ticks = (std::max)(departure_time, arrival_time);
+			go_on_ticks = std::max(departure_time, arrival_time);
 		}
 		else 
 		{
@@ -5723,8 +5723,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				// Maximum wait time
 				go_on_ticks_waiting = now + (welt->ticks_per_world_month >> (16ll - (sint64)schedule->get_current_eintrag().waiting_time_shift)) - (sint64)reversing_time;
 			}
-			go_on_ticks = (std::min)(go_on_ticks_spacing, go_on_ticks_waiting);
-			go_on_ticks = (std::max)(departure_time, go_on_ticks);
+			go_on_ticks = std::min(go_on_ticks_spacing, go_on_ticks_waiting);
+			go_on_ticks = std::max(departure_time, go_on_ticks);
 			running_late = wait_for_time && (go_on_ticks_waiting < go_on_ticks_spacing);
 			if(running_late)
 			{
@@ -7415,15 +7415,7 @@ void convoi_t::clear_replace()
 			{
 				// Add reversing time if this must reverse.
 				etd += reverse_delay;
-			}
-
-			/*const uint32 TEST_now = welt->ticks_to_tenths_of_minutes(time);
-			const uint32 TEST_journey_time = welt->ticks_to_tenths_of_minutes(journey_time_ticks);
-			const uint32 TEST_eta = welt->ticks_to_tenths_of_minutes(eta);
-			const uint32 TEST_etd = welt->ticks_to_tenths_of_minutes(etd);
-			const uint32 TEST_loading_time = welt->ticks_to_tenths_of_minutes(current_loading_time);
-			const char* TEST_halt_name = halt.is_bound() ? halt->get_name() : "Unknown";*/
-			
+			}			
 
 			if(halt.is_bound() && !halts_already_processed.is_contained(halt.get_id()))
 			{

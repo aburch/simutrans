@@ -1478,8 +1478,6 @@ public:
 	//@author: jamespetts
 	uint32 calc_longest_min_loading_time();
 	uint32 calc_longest_max_loading_time();
-	inline uint32 get_longest_min_loading_time() const { return longest_min_loading_time; }
-	inline uint32 get_longest_max_loading_time() const { return longest_max_loading_time; }
 
 	uint32 calc_current_loading_time(uint16 load_charge);
 	inline uint16 get_current_loading_time() const { return current_loading_time; }

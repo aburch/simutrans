@@ -2593,8 +2593,9 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 			costs -= weg_entfernen(wt, true);
 			if(owner == player)
 			{
-				// Need to sell the land on which the way is situated
-				costs =- welt->get_land_value(pos);
+				// Need to sell the land on which the way is situated: refund the land value.
+				// Note that get_land_value() produces a negative number.
+				costs -= welt->get_land_value(pos);
 			}
 			if(flags&is_kartenboden) {
 				// remove ribis from sea tiles

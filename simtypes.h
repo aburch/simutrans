@@ -197,16 +197,6 @@ static inline int max(const int a, const int b)
 }
 #endif
 
-static inline sint64 max_64(const sint64 a, const sint64 b)
-{
-	return a > b ? a : b;
-}
-
-static inline int min_64(const sint64 a, const sint64 b)
-{
-	return a < b ? a : b;
-}
-
 // @author: jamespetts, April 2011
 template<class T> static T set_scale_generic(T value, uint16 scale_factor) { return (value * (T)scale_factor) / (T)1000; }
 
