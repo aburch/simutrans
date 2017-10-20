@@ -8136,14 +8136,13 @@ bool tool_change_convoi_t::init( player_t *player )
 		sint32 good_type; // 0 = Passenger, 1 = Mail, 2 = both
 		sscanf(p, "%hi,%hi,%i", &compartment, &new_class, &good_type);
 		//uint16 new_class = atoi(p);
-		cnv->calc_classes_carried();
 		if (good_type == 2)
 		{
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 			{
 				vehicle_t* v = cnv->get_vehicle(veh);
 				uint8 classes_amount = v->get_desc()->get_number_of_classes();
-				for (int i = 0; i < classes_amount; i++)
+				for (sint32 i = 0; i < classes_amount; i++)
 				{
 					v->set_class_reassignment(i, i);
 				}
@@ -8171,6 +8170,8 @@ bool tool_change_convoi_t::init( player_t *player )
 				}
 			}
 		}
+		cnv->calc_classes_carried();
+		cnv->get_line()->calc_classes_carried();
 		break;
 	}
 

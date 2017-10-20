@@ -4864,7 +4864,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			for (uint8 j = 0; j < classes_to_check; j++)
 			{
 				// then add the actual load
-				FOR(slist_tpl<ware_t>, ware, v->get_cargo(j))
+				FOR(slist_tpl<ware_t>, ware, v->get_cargo(v->get_reassigned_class(j)))
 				{
 					// if != 0 we could not join it to existing => load it
 					if (ware.menge != 0)
@@ -7754,7 +7754,7 @@ void convoi_t::calc_classes_carried()
 	for (const_iterator i = begin(); i != end(); ++i)
 	{
 		const vehicle_t &v = **i;
-		for (uint8 j = 0; j < v.get_desc()->get_number_of_classes(); j++)
+		for (uint8 j = 0; j < max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes()); j++)
 		{
 			if (v.get_desc()->get_freight_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
 			{

@@ -646,6 +646,25 @@ void simline_t::calc_classes_carried()
 	FOR(vector_tpl<convoihandle_t>, const i, line_managed_convoys) 
 	{
 		convoi_t const& cnv = *i;
+
+		if (cnv.get_goods_catg_index().is_contained(goods_manager_t::INDEX_PAS))
+		{
+			FOR(const minivec_tpl<uint8>, const& g_class, *cnv.get_classes_carried(goods_manager_t::INDEX_PAS))
+			{
+				passenger_classes_carried.append(g_class);
+			}
+		}
+
+		if (cnv.get_goods_catg_index().is_contained(goods_manager_t::INDEX_MAIL))
+		{
+			FOR(const minivec_tpl<uint8>, const& g_class, *cnv.get_classes_carried(goods_manager_t::INDEX_MAIL))
+			{
+				mail_classes_carried.append(g_class);
+			}
+		}
+		
+		/*
+
 		for (uint8 j = 0; j < cnv.get_classes_carried(goods_manager_t::INDEX_PAS)->get_count(); j++)
 		{
 			if (cnv.get_goods_catg_index().is_contained(goods_manager_t::INDEX_PAS))
@@ -666,7 +685,7 @@ void simline_t::calc_classes_carried()
 					mail_classes_carried.append(j);
 				}
 			}
-		}
+		}*/
 	}
 }
 
