@@ -8133,9 +8133,10 @@ bool tool_change_convoi_t::init( player_t *player )
 	case 'c': // reassign class
 
 		uint8 compartment, new_class;
-		int good_type; // 0 = Passenger, 1 = Mail, 2 = both
+		sint32 good_type; // 0 = Passenger, 1 = Mail, 2 = both
 		sscanf(p, "%hi,%hi,%i", &compartment, &new_class, &good_type);
 		//uint16 new_class = atoi(p);
+		cnv->calc_classes_carried();
 		if (good_type == 2)
 		{
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
