@@ -82,6 +82,9 @@ private:
 	button_t	retire_button;
 	button_t	class_management_button;
 
+	bool any_upgrades;
+	bool any_obsoletes;
+
 public:
 	convoi_detail_t(convoihandle_t cnv);
 

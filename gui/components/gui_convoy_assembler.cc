@@ -1956,12 +1956,12 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 	}
 
 	buf[0]='\0';
-	if(veh_type) {
+	if (veh_type) {
 		// column 1
 		vehicle_as_potential_convoy_t convoy(*veh_type);
 		int linespace_skips = 0;
 
-		int n = sprintf(buf, "%s", translator::translate(veh_type->get_name(),welt->get_settings().get_name_language_id()));
+		int n = sprintf(buf, "%s", translator::translate(veh_type->get_name(), welt->get_settings().get_name_language_id()));
 		if (veh_type->get_power() > 0)
 		{
 			n += sprintf(buf + n, " (%s)", translator::translate(engine_type_names[veh_type->get_engine_type() + 1]));
@@ -1972,14 +1972,20 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		money_to_string(tmp, veh_type->get_value() / 100.0, false);
 		// These two lines differ from the Standard translation texts, as Standard does not have a monthly cost.
 		// Cost information:
-		n += sprintf(buf + n, translator::translate("Cost: %8s\n"), tmp);
-		n += sprintf(buf + n, translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), veh_type->get_running_cost() / 100.0, veh_type->get_adjusted_monthly_fixed_cost(welt) / 100.0);
-		n += sprintf(buf + n, "\n");
+
+		// TODO: differentiate between "buy new" value and "upgrade to" value
+
+		char resale_entry[32] = "\0";
 		if (resale_value != -1.0) {
 			char tmp[128];
 			money_to_string(tmp, resale_value / 100.0, false);
-			sprintf(buf + n, "%s %8s", translator::translate("Restwert:"), tmp);
+			sprintf(resale_entry, "(%s %8s)", translator::translate("Restwert:"), tmp);
 		}
+		n += sprintf(buf + n, translator::translate("Cost: %8s %s"), tmp, resale_entry);
+		n += sprintf(buf + n, "\n");
+		n += sprintf(buf + n, translator::translate("Maintenance: %1.2f$/km, %1.2f$/month\n"), veh_type->get_running_cost() / 100.0, veh_type->get_adjusted_monthly_fixed_cost(welt) / 100.0);
+		n += sprintf(buf + n, "\n");
+
 
 		// Physical information:
 		n += sprintf(buf + n, "%s %3d km/h\n", translator::translate("Max. speed:"), veh_type->get_topspeed());
@@ -2005,12 +2011,79 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf(buf + n, "%i km", veh_type->get_range());
 		}
 		n += sprintf(buf + n, "\n");
+
 		if (veh_type->get_waytype() == air_wt)
 		{
 			n += sprintf(buf + n, "%s: %i m \n", translator::translate("Minimum runway length"), veh_type->get_minimum_runway_length());
 		}
 		n += sprintf(buf + n, "\n");
 
+
+		//// (Upgrade information)
+		//if (veh_type->get_upgrades_count() > 0)
+		//{
+		//	const uint16 month_now = welt->get_timeline_year_month();
+		//	int amount_of_upgrades = 0;
+		//	int max_display_of_upgrades = 3;
+		//	for (int i = 0; i < veh_type->get_upgrades_count(); i++)
+		//	{
+		//		//if (!veh_type->get_upgrades(i)->is_future(month_now) && (!veh_type->get_upgrades(i)->is_retired(month_now)))
+		//		{
+		//			amount_of_upgrades++;
+		//		}
+		//	}
+		//	if (amount_of_upgrades > 0)
+		//	{
+		//		n += sprintf(buf + n, "%s:\n", translator::translate("this_vehicle_can_upgrade_to"));
+		//		for (uint8 i = 0; i < min(veh_type->get_upgrades_count(), max_display_of_upgrades); i++)
+		//		{
+		//			//if (!veh_type->get_upgrades(i)->is_future(month_now) && (!veh_type->get_upgrades(i)->is_retired(month_now)))
+		//			{
+		//				//money_to_string(tmp, veh_type->get_upgrades(i)->get_upgrade_price() / 100);
+		//				//n += sprintf(buf + n, " - %s (%8s)\n", translator::translate(veh_type->get_upgrades(i)->get_name()), tmp);
+		//				
+		//			}
+		//		}
+		//		if (amount_of_upgrades > max_display_of_upgrades)
+		//		{
+		//			
+		//			n += sprintf(buf + n, "+ %i %s\n", amount_of_upgrades - max_display_of_upgrades, translator::translate("additional_upgrades"));
+		//			}
+		//	}
+		//}
+		//else
+		//{
+		//	linespace_skips += 2;
+		//}
+		//// (Livery information)
+		//vector_tpl<livery_scheme_t*>* schemes = welt->get_settings().get_livery_schemes();
+		//ITERATE_PTR(schemes, i)
+		//{
+		//	livery_scheme_t* scheme = schemes->get_element(i);
+		//	//if (scheme->is_available(welt->get_timeline_year_month()))
+		//	{
+		//		if (veh_type->check_livery(scheme->get_name()))
+		//		{
+		//			n += sprintf(buf + n, "%s\n", scheme->get_name());
+		//		}
+		//	}
+		//}
+
+	
+		////else
+		//{
+		//	linespace_skips += 2;
+		//}
+
+		//
+		//if (linespace_skips > 0)
+		//{
+		//	for (int i = 0; i < linespace_skips; i++)
+		//	{
+		//		n += sprintf(buf + n, "\n");
+		//	}
+		//}
+		linespace_skips = 0;
 
 		// Engine information:
 		linespace_skips = 0;

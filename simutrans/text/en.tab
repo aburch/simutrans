@@ -3312,8 +3312,8 @@ km/h
 (The speed is restricted by the asset)
 (speed_restricted_by_city)
 (The speed is restricted by the city)
-runway_38/18
-Runway 38/18
+runway_36/18
+Runway 36/18
 runway_09/27
 Runway 09/27
 meter
@@ -3364,3 +3364,25 @@ emergency_stop %s left
 Emergency stop! %s until restart
 Airport too close to the edge
 Destination airport too close to the edge of the map
+cap_tram_track
+Tram track
+cap_track
+Track
+cap_monorail_track
+Monorail track
+cap_maglev_track
+Maglev track
+cap_narrowgauge_track
+Narrow gauge track
+cap_road
+Road
+cap_water_canal
+Water canal
+cap_taxiway/runway
+Taxiway/runway
+already_forged
+Already forged
+partly_forged
+Partly forged
+forge_costs
+Forge costs

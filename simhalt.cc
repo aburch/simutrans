@@ -3295,22 +3295,58 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		resort_freight_info = false;
 		buf.clear();
 
+		vector_tpl<ware_t> ware_class;
+		ware_t ware;
+		bool is_any_class_passenger = false;
+
 		for (unsigned i = 0; i < goods_manager_t::get_max_catg_index(); i++)
 		{
 			const vector_tpl<ware_t> * warray = cargo[i];
 			if (warray)
 			{
-				freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting");
+				// Below an attempt to sort the passengers and mail per class. However, there is a problem by using "vector_tpl<ware_t> * ware_class;" (with an asterisk *)
+				// which causes some strange error.
+				//
+				if (i == goods_manager_t::INDEX_PAS || i == goods_manager_t::INDEX_MAIL)
+				{
+					uint8 classes_to_check = i == goods_manager_t::INDEX_PAS ? goods_manager_t::passengers->get_number_of_classes() : goods_manager_t::mail->get_number_of_classes();
+					for (unsigned j = 0; j < classes_to_check; j++)
+					{
+						ware_class.clear();
+						is_any_class_passenger = false;
+						for (unsigned k = 0; k < warray->get_count(); k++)
+						{
+							ware = warray->get_element(k);
+							if (ware.get_class() == j)
+							{
+								ware_class.append(ware);
+								is_any_class_passenger = true;
+							}
+						}
+						if (is_any_class_passenger)
+						{
+							char class_name_untranslated[32];
+							char class_entry[32];
+							sprintf(class_name_untranslated, i == goods_manager_t::INDEX_PAS ? "p_class[%u]" : "m_class[%u]", j);
+							sprintf(class_entry, "(%s) %s", translator::translate(class_name_untranslated), translator::translate("waiting"));
+							freight_list_sorter_t::sort_freight(ware_class, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, class_entry);
+						}
+					}
+				}
+				else
+				{
+					freight_list_sorter_t::sort_freight(*warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting");
+				}
 			}
 		}
 
-		buf.append("\n");
 		if (get_transferring_cargoes_count() > 0)
 		{
+			buf.append("\n");
 			buf.printf("%s:\n", translator::translate("transfers"));
 		}
 		vector_tpl<ware_t> ware_transfers;
-		ware_t ware;
+		//ware_t ware;
 		const sint64 current_time = welt->get_ticks();
 #ifdef MULTI_THREAD
 		sint32 po = world()->get_parallel_operations();

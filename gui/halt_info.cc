@@ -172,6 +172,8 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	add_component(&sort_label);
 	cursor.y += D_LABEL_HEIGHT + D_V_SPACE;
 
+	// TODO: change the sorting button to a combobox, so we later can also sort by visitor/commuting, by classes and possibly more, without clicking 1000 times on the button.
+
 	// hsiegeln: added sort_button
 	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode], cursor, scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	sort_button.set_tooltip("Sort waiting list by");
