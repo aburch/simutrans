@@ -653,7 +653,7 @@ void grund_t::info(cbuffer_t& buf, bool dummy) const
 		buf.printf("%s: %s\n", translator::translate("Land value"), price);
 		if (!has_way || (flags&has_way1 && get_weg_nr(0)->is_degraded()) || (flags&has_way2 && get_weg_nr(1)->is_degraded()))
 		{
-			buf.printf("%s:\n", translator::translate("forge_costs"));
+			buf.printf("\n%s:\n", translator::translate("forge_costs"));
 			for (int i = 0; i < waytype_t::any_wt; i++)
 			{
 				char waytype_name[32] = "\0";
