@@ -546,6 +546,9 @@ public:
 	uint8 get_sortby() { return sortierung; }
 	void set_sortby(uint8 sm) { resort_freight_info =true; sortierung = sm; }
 
+	void force_resort() { resort_freight_info = true; }
+
+
 	/**
 	 * Calculates a status color for status bars
 	 * @author Hj. Malthaner
@@ -763,6 +766,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void get_freight_info(cbuffer_t & buf);
+	void get_freight_info_by_class(cbuffer_t & buf);
 
 	/**
 	 * @param buf the buffer to fill

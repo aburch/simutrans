@@ -50,6 +50,7 @@ private:
 	button_t sort_button;     // @author hsiegeln
 	button_t filterButtons[MAX_HALT_COST];
 	button_t toggler, toggler_departures;
+	button_t show_classes_button;
 
 	halthandle_t halt;
 	char edit_name[256];
@@ -57,6 +58,8 @@ private:
 	void show_hide_statistics( bool show );
 
 	char modified_name[320];
+
+	void show_hide_classes(bool show);
 
 	// departure stuff (departure and arrival times display)
 	class dest_info_t {
