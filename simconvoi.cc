@@ -4838,7 +4838,72 @@ void convoi_t::set_sortby(uint8 sort_order)
 
 
 // caches the last info; resorts only when needed
+// since the sorting of the classes is done here, we simply have two get_freight_info's...
 void convoi_t::get_freight_info(cbuffer_t & buf)
+{
+	if (freight_info_resort) {
+		freight_info_resort = false;
+		// rebuilt the list with goods ...
+		vector_tpl<ware_t> total_fracht;
+
+		size_t const n = goods_manager_t::get_count();
+		ALLOCA(uint32, max_loaded_waren, n);
+		MEMZERON(max_loaded_waren, n);
+
+		for (uint32 i = 0; i != vehicle_count; ++i) {
+			const vehicle_t* v = vehicle[i];
+
+			// first add to capacity indicator
+			const goods_desc_t* ware_desc = v->get_desc()->get_freight_type();
+			const uint16 menge = v->get_desc()->get_total_capacity();
+			if (menge>0 && ware_desc != goods_manager_t::none) {
+				max_loaded_waren[ware_desc->get_index()] += menge;
+			}
+
+			const uint8 classes_to_check = v->get_desc()->get_number_of_classes();
+
+			for (uint8 j = 0; j < classes_to_check; j++)
+			{
+				// then add the actual load
+				FOR(slist_tpl<ware_t>, ware, v->get_cargo(j))
+				{
+					// if != 0 we could not join it to existing => load it
+					if (ware.menge != 0)
+					{
+						total_fracht.append(ware);
+					}
+				}
+			}
+			INT_CHECK("simconvoi 2643");
+		}
+		buf.clear();
+
+		// apend info on total capacity
+		slist_tpl <ware_t>capacity;
+		for (size_t i = 0; i != n; ++i) {
+			if (max_loaded_waren[i]>0 && i != goods_manager_t::INDEX_NONE) {
+				ware_t ware(goods_manager_t::get_info(i));
+				ware.menge = max_loaded_waren[i];
+				// append to category?
+				slist_tpl<ware_t>::iterator j = capacity.begin();
+				slist_tpl<ware_t>::iterator end = capacity.end();
+				while (j != end && j->get_desc()->get_catg_index() < ware.get_desc()->get_catg_index()) ++j;
+				if (j != end && j->get_desc()->get_catg_index() == ware.get_desc()->get_catg_index()) {
+					j->menge += max_loaded_waren[i];
+				}
+				else {
+					// not yet there
+					capacity.insert(j, ware);
+				}
+			}
+		}
+
+		// show new info
+		freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded");
+	}
+}
+
+void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 {
 	if (freight_info_resort) {
 		freight_info_resort = false;

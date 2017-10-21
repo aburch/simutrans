@@ -1253,8 +1253,10 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void get_freight_info(cbuffer_t & buf);
+	void get_freight_info_by_class(cbuffer_t & buf);	
 	void set_sortby(uint8 order);
 	inline uint8 get_sortby() const { return freight_info_order; }
+	void force_resort() { freight_info_resort = true; }
 
 	/**
 	* Opens the schedule window

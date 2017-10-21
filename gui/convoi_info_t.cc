@@ -228,6 +228,12 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	sort_button.add_listener(this);
 	add_component(&sort_button);
 
+	show_classes_button.init(button_t::square_state, translator::translate("show/hide_classes"), dummy, scr_size(D_BUTTON_WIDTH * 2, D_BUTTON_HEIGHT));
+	show_classes_button.add_listener(this);
+	show_classes_button.set_tooltip(translator::translate("sort_the_freight_by_classes"));
+	show_classes_button.pressed = cnv->get_reverse_schedule();
+	add_component(&show_classes_button);
+
 	toggler.init(button_t::roundbox_state, "Chart", dummy, D_BUTTON_SIZE);
 	toggler.set_tooltip("Show/hide statistics");
 	toggler.add_listener(this);
@@ -382,7 +388,24 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 		// buffer update now only when needed by convoi itself => dedicated buffer for this
 		const int old_len = freight_info.len();
-		cnv->get_freight_info(freight_info);
+
+		int old_class_display;
+		int new_class_display;
+		if (old_class_display != new_class_display)
+		{
+			cnv->force_resort();
+			old_class_display = new_class_display;
+			if (show_classes_button.pressed)
+			{
+				cnv->get_freight_info_by_class(freight_info);
+			}
+			else
+			{
+				cnv->get_freight_info(freight_info);
+			}
+		}
+		new_class_display = show_classes_button.pressed;
+
 		if (old_len != freight_info.len()) {
 			text.recalc_size();
 		}
@@ -900,6 +923,11 @@ void convoi_info_t::show_hide_statistics( bool show )
 	}
 }
 
+// show the classes in the goods list
+void convoi_info_t::show_hide_classes(bool show)
+{
+	show_classes_button.pressed = show;
+}
 
 /**
  * This method is called if an action is triggered
@@ -941,6 +969,10 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		env_t::default_sortmode = (sort_mode_t)((int)(cnv->get_sortby()+1)%(int)SORT_MODES);
 		sort_button.set_text(sort_text[env_t::default_sortmode]);
 		cnv->set_sortby( env_t::default_sortmode );
+	}
+	if (comp == &show_classes_button)
+	{
+		show_classes_button.pressed = !show_classes_button.pressed;
 	}
 
 	// some actions only allowed, when I am the player
@@ -1105,6 +1137,9 @@ void convoi_info_t::set_windowsize(scr_size size)
 	reverse_button.set_pos(scr_coord(BUTTON3_X, y));
 	y += LINESPACE + D_V_SPACE;
 
+	show_classes_button.set_pos(scr_coord(BUTTON1_X, y));
+	y += LINESPACE + D_V_SPACE;
+
 	sort_button.set_pos(scr_coord(BUTTON1_X, y));
 	toggler.set_pos(scr_coord(BUTTON3_X, y));
 	details_button.set_pos(scr_coord(BUTTON4_X, y));
@@ -1167,13 +1202,15 @@ void convoi_info_t::rdwr(loadsave_t *file)
 	}
 	scr_size size = get_windowsize();
 	bool stats = toggler.pressed;
+	bool classes = show_classes_button.pressed;
 	sint32 xoff = scrolly.get_scroll_x();
 	sint32 yoff = scrolly.get_scroll_y();
 
 	size.rdwr( file );
 	file->rdwr_long( flags );
 	file->rdwr_byte( env_t::default_sortmode );
-	file->rdwr_bool( stats );
+	file->rdwr_bool(stats);
+	file->rdwr_bool(classes);
 	file->rdwr_long( xoff );
 	file->rdwr_long( yoff );
 
@@ -1220,7 +1257,14 @@ void convoi_info_t::rdwr(loadsave_t *file)
 		if(  stats  ) {
 			w->show_hide_statistics( true );
 		}
-		cnv->get_freight_info(w->freight_info);
+		if (classes) {
+			w->show_hide_classes(true);
+			cnv->get_freight_info_by_class(w->freight_info);
+		}
+		else
+		{
+			cnv->get_freight_info(w->freight_info);
+		}
 		w->text.recalc_size();
 		w->scrolly.set_scroll_position( xoff, yoff );
 		// we must invalidate halthandle

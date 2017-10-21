@@ -73,6 +73,7 @@ private:
 	button_t details_button;
 	button_t toggler;
 	button_t reverse_button;
+	button_t show_classes_button;
 
 	button_t line_button;	// goto line ...
 	bool line_bound;
@@ -104,6 +105,7 @@ private:
 	static const char *sort_text[SORT_MODES];
 
 	void show_hide_statistics( bool show );
+	void show_hide_classes(bool show);
 
 public:
 	convoi_info_t(convoihandle_t cnv);
