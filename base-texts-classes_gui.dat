@@ -9,6 +9,54 @@ name=runway_36/18
 note=In the runway infowindow, this displays when the runway is going north to south
 -
 obj=program_text
+name=cap_tram_track
+note=The waytype, when need to be shown with a capital beginning letter
+-
+obj=program_text
+name=cap_track
+note=The waytype, when need to be shown with a capital beginning letter
+-
+obj=program_text
+name=cap_monorail_track
+note=The waytype, when need to be shown with a capital beginning letter
+-
+obj=program_text
+name=cap_maglev_track
+note=The waytype, when need to be shown with a capital beginning letter
+-
+obj=program_text
+name=cap_narrowgauge_track
+note=The waytype, when need to be shown with a capital beginning letter
+-
+obj=program_text
+name=cap_road
+note=The waytype, when need to be shown with a capital beginning letter
+-
+obj=program_text
+name=cap_water_canal
+note=The waytype, when need to be shown with a capital beginning letter
+-
+obj=program_text
+name=cap_taxiway/runway
+note=The waytype, when need to be shown with a capital beginning letter
+-
+obj=program_text
+name=already_forged
+note=Text in the way info window, telling wether the tile is forged
+-
+obj=program_text
+name=partly_forged
+note=Text in the way info window, telling wether the tile is partly forged
+-
+obj=program_text
+name=forge_costs
+note=Text in the way info window, displaying the forge costs
+-
+obj=program_text
+name=
+note=
+-
+obj=program_text
 name=
 note=
 -
