@@ -356,26 +356,22 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				}
 			}
 
-			// If the classes should be shown from here in the freight list sorter, this section should be used.
-			//
-			//char g_class[32] = "\0";
-			//char g_class_entry[32] = "\0";
-			//if (ware.is_passenger())
-			//{
-			//	sprintf(g_class, translator::translate("p_class[%u]"), ware.get_class());
-			//	sprintf(g_class_entry, " (%s)", g_class);
-			//}
-			//if (ware.is_mail())
-			//{
-			//	sprintf(g_class, translator::translate("m_class[%u]"), ware.get_class());
-			//	sprintf(g_class_entry, " (%s)", g_class);
-			//}
+			// This is what the classes will look like.
+			char g_class[32] = "\0";
+			char g_class_entry[32] = "\0";
+			if (ware.is_passenger())
+			{
+				sprintf(g_class, translator::translate("p_class[%u]"), ware.get_class());
+				sprintf(g_class_entry, " (%s)", g_class);
+			}
+			if (ware.is_mail())
+			{
+				sprintf(g_class, translator::translate("m_class[%u]"), ware.get_class());
+				sprintf(g_class_entry, " (%s)", g_class);
+			}
 
 
-			//// detail amount
-			//goods_desc_t const& desc = *ware.get_desc();
-			//buf.printf("   %u%s %s%s %c ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()), g_class_entry, ">>>>><>"[sortby]);
-
+			// detail amount
 			goods_desc_t const& desc = *ware.get_desc();
 			buf.printf("   %u%s %s %c ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()), ">>>>><>"[sortby]);
 
@@ -417,14 +413,16 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 
 					if(city)
 					{
-						buf.printf("%s <%i, %i> (%s; %s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name(), trip_type);
-						//buf.printf("%s <%i, %i> (%s; %s; %s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name(), trip_type, g_class); // With class entries
+						buf.printf("%s <%i, %i> (%s; %s; %s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name(), trip_type, g_class); // With class entries
 					}
 					else 
 					{
-						buf.printf("%s <%i, %i> (%s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, trip_type);
-						//buf.printf("%s <%i, %i> (%s; %s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, trip_type, g_class); // With class entries
+						buf.printf("%s <%i, %i> (%s; %s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, trip_type, g_class); // With class entries
 					}
+				}
+				else if (ware.is_mail() && sortby == by_destination_detail)
+				{				
+					buf.printf("%s <%i, %i> (%s; %s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name(), g_class); // With class entries
 				}
 				else if(sortby == by_destination_detail)
 				{
@@ -482,8 +480,16 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				{
 					origin_name = origin_halt->get_name();
 				}
+				if (ware.is_passenger())
+				{
+					const char* trip_type = (ware.is_commuting_trip ? translator::translate("commuting") : translator::translate("visiting"));
 
-				buf.printf(translator::translate(" from %s"), origin_name);
+					buf.printf(translator::translate(" from %s (%s; %s)"), origin_name, trip_type, g_class); // With class entries
+				}
+				else if (ware.is_mail())
+				{
+					buf.printf(translator::translate(" from %s (%s)"), origin_name, g_class); // With class entries
+				}
 			}
 
 			buf.append("\n");
