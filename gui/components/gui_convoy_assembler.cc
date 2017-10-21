@@ -1961,6 +1961,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		vehicle_as_potential_convoy_t convoy(*veh_type);
 		int linespace_skips = 0;
 
+		// Name and traction type
 		int n = sprintf(buf, "%s", translator::translate(veh_type->get_name(), welt->get_settings().get_name_language_id()));
 		if (veh_type->get_power() > 0)
 		{
@@ -1968,13 +1969,10 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		}
 		n += sprintf(buf + n, "\n");
 
+		// Cost information:
+		// TODO: differentiate between "buy new" value and "upgrade to" value
 		char tmp[128];
 		money_to_string(tmp, veh_type->get_value() / 100.0, false);
-		// These two lines differ from the Standard translation texts, as Standard does not have a monthly cost.
-		// Cost information:
-
-		// TODO: differentiate between "buy new" value and "upgrade to" value
-
 		char resale_entry[32] = "\0";
 		if (resale_value != -1.0) {
 			char tmp[128];
@@ -1987,17 +1985,17 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		n += sprintf(buf + n, "\n");
 
 
-		// Physical information:
+		// Physics information:
 		n += sprintf(buf + n, "%s %3d km/h\n", translator::translate("Max. speed:"), veh_type->get_topspeed());
 		n += sprintf(buf + n, "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_weight() / 1000.0); // Convert kg to tonnes
 		if (veh_type->get_waytype() != water_wt)
 		{
 			n += sprintf(buf + n, "%s %it\n", translator::translate("Axle load:"), veh_type->get_axle_load());
+			char tmpbuf[16];
+			const double reduced_way_wear_factor = veh_type->get_way_wear_factor() / 10000.0;
+			number_to_string(tmpbuf, reduced_way_wear_factor, 4);
+			n += sprintf(buf + n, "%s: %s\n", translator::translate("Way wear factor"), tmpbuf);
 		}
-		char tmpbuf[16];
-		const double reduced_way_wear_factor = veh_type->get_way_wear_factor() / 10000.0;
-		number_to_string(tmpbuf, reduced_way_wear_factor, 4);
-		n += sprintf(buf + n, "%s: %s\n", translator::translate("Way wear factor"), tmpbuf);
 		n += sprintf(buf + n, "%s %4.1fkN\n", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0); // Extended only
 		n += sprintf(buf + n, "%s %4.3fkN\n", translator::translate("Rolling resistance:"), veh_type->get_rolling_resistance().to_double() * (double)veh_type->get_weight() / 1000.0); // Extended only
 
@@ -2104,11 +2102,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 				min_speed == max_speed ? translator::translate(" %gt @ %d km/h ") : translator::translate(" %gt @ %dkm/h%s%gt @ %dkm/h")  /*" %g t @ %d km/h " : " %g t @ %d km/h %s %g t @ %d km/h"*/,
 				min_weight * 0.001f, max_speed, translator::translate("..."), max_weight * 0.001f, min_speed);
 			n += sprintf(buf + n, "\n");
-
-			// Standard translation is "Power: %4d kW\n", as Standard has no tractive effort
-			//n += sprintf(buf + n, "(%s) ", translator::translate(engine_type_names[veh_type->get_engine_type() + 1]));
 			n += sprintf(buf + n, translator::translate("Power/tractive force (%s): %4d kW / %d kN\n"), translator::translate(engine_type_names[veh_type->get_engine_type() + 1]), veh_type->get_power(), veh_type->get_tractive_effort());
-
 			if (veh_type->get_gear() != 64) // Do this entry really have to be here...??? If not, it should be skipped. Space is precious..
 			{
 				n += sprintf(buf + n, "%s %0.2f : 1", translator::translate("Gear:"), veh_type->get_gear() / 64.0);
@@ -2139,11 +2133,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			n += sprintf(buf + n, translator::translate("Constructed by %s"), copyright);
 		}
 		n += sprintf(buf + n, "\n");
-
-
-		
-
-
 
 		display_multiline_text( pos.x + 4, pos.y + tabs.get_pos().y + tabs.get_size().h + 31 + LINESPACE*1 + 4 + 16, buf, SYSCOL_TEXT);
 
@@ -2182,8 +2171,16 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			if (pass_veh || mail_veh)
 			{
 				uint8 classes_amount = veh_type->get_number_of_classes() < 1 ? 1 : veh_type->get_number_of_classes();
+				uint8 accommodations = 0;
+				for (uint8 i = 0; i < classes_amount; i++) // find how many actual accommodations this vehicle has.
+				{
+					if (veh_type->get_capacity(i) > 0)
+					{
+						accommodations++;
+					}
+				}
 				char extra_pass[8];
-				if (veh_type->get_overcrowded_capacity() > 0) // Find out wether there are any overcrowded capacity and divide it by the amount of classes
+				if (veh_type->get_overcrowded_capacity() > 0)
 				{
 					sprintf(extra_pass, "(%i)", veh_type->get_overcrowded_capacity());
 				}
@@ -2192,6 +2189,13 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 					extra_pass[0] = '\0';
 				}
 
+				if (accommodations > 1) // Only show the total capacity if the vehicle has multiple compartments
+				{
+					n += sprintf(buf + n, translator::translate("total_capacity: %3d %s%s %s\n"),
+						veh_type->get_total_capacity(), extra_pass,
+						translator::translate(veh_type->get_freight_type()->get_mass()),
+						veh_type->get_freight_type()->get_catg() == 0 ? translator::translate(veh_type->get_freight_type()->get_name()) : translator::translate(veh_type->get_freight_type()->get_catg_name()));
+				}
 				for (uint8 i = 0; i < classes_amount; i++)
 				{
 					if (veh_type->get_capacity(i) > 0)
@@ -2206,9 +2210,15 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 							sprintf(class_name_untranslated, "p_class[%u]", i);
 						}
 						const char* class_name = translator::translate(class_name_untranslated);
-						n += sprintf(buf + n, "%s: %3d %s%s %s", class_name, veh_type->get_capacity(i), extra_pass, translator::translate(veh_type->get_freight_type()->get_mass()), translator::translate(veh_type->get_freight_type()->get_name()));
+						if (accommodations > 1) // no overcrowded passengers is shown, as it will be shown in the "total capacity"
+						{
+							n += sprintf(buf + n, "%s: %3d %s %s", class_name, veh_type->get_capacity(i), translator::translate(veh_type->get_freight_type()->get_mass()), translator::translate(veh_type->get_freight_type()->get_name()));
+						}
+						else // overcrowd message is shown
+						{
+							n += sprintf(buf + n, "%s: %3d %s%s %s", class_name, veh_type->get_capacity(i), extra_pass, translator::translate(veh_type->get_freight_type()->get_mass()), translator::translate(veh_type->get_freight_type()->get_name()));
+						}
 						n += sprintf(buf + n, "\n");
-						extra_pass[0] = '\0'; // To avoid the overcrowded message to display on the other classes
 
 						if (pass_veh)
 						{
