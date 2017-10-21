@@ -371,7 +371,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 	const scr_coord_val label_width = min( (D_BUTTON_WIDTH<<1) + D_H_SPACE, max( lb_load.get_size().w, lb_wait.get_size().w ) );
 
 	numimp_load.set_pos( scr_coord( D_MARGIN_LEFT + label_width + D_H_SPACE, ypos ) );
-	numimp_load.set_width( 75 );
+	numimp_load.set_width( 60 );
 	numimp_load.set_value( schedule->get_current_eintrag().minimum_loading );
 	numimp_load.set_limits( 0, 100 );
 	numimp_load.set_increment_mode(10);
@@ -610,6 +610,7 @@ void schedule_gui_t::update_selection()
 				lb_spacing.set_color( SYSCOL_TEXT );
 				numimp_spacing.enable();
 				numimp_spacing_shift.enable();
+				numimp_spacing_shift.set_value(schedule->get_current_eintrag().spacing_shift);
 				if (schedule->get_spacing() ) {
 					lb_spacing_shift.set_color( SYSCOL_TEXT );
 					lb_spacing_as_clock.set_color( SYSCOL_TEXT );

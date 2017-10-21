@@ -319,7 +319,7 @@ void translator::init_custom_names(int lang)
 				// appearing only where the town is
 				// actually by the sea). 
 
-				const uint32 random_percent = simrand(100, "translator::init_city_names (general)");
+				const uint32 random_percent = sim_async_rand(100);
 				
 				// TODO: Have these set from simuconf.tab
 				const uint32 prefix_probability = 5;
@@ -340,7 +340,7 @@ void translator::init_custom_names(int lang)
 					{
 						sprintf(name, "&%X_CITY_PREFIX", p);
 						const char *s3 = translator::translate(name, lang);
-						const uint32 random_percent_prefix = simrand(100, "translator::init_city_names (prefix)");
+						const uint32 random_percent_prefix = sim_async_rand(100);
 						
 						if (s3 == name || random_percent_prefix > prefix_probability)
 						{
@@ -365,7 +365,7 @@ void translator::init_custom_names(int lang)
 					{
 						sprintf(name, "&%X_CITY_SUFFIX", p);
 						const char *s3 = translator::translate(name, lang);
-						const uint32 random_percent_suffix = simrand(100, "translator::init_city_names (suffix)");
+						const uint32 random_percent_suffix = sim_async_rand(100);
 
 						if (s3 == name || random_percent_suffix > prefix_probability || strcmp(s3, s2) == 0)
 						{

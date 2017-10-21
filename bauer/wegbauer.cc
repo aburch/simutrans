@@ -1322,12 +1322,12 @@ void way_builder_t::init_builder(bautyp_t wt, const way_desc_t *b, const tunnel_
 	else if(  bautyp != river  ) {
 #ifdef AUTOMATIC_BRIDGES
 		if(  bridge_desc == NULL  ) {
-			bridge_desc = bridge_builder_t::find_bridge(b->get_wtyp(), 25, welt->get_timeline_year_month());
+			bridge_desc = bridge_builder_t::find_bridge(b->get_wtyp(), b->get_topspeed(), welt->get_timeline_year_month());
 		}
 #endif
 #ifdef AUTOMATIC_TUNNELS
 		if(  tunnel_desc == NULL  ) {
-			tunnel_desc = tunnel_builder_t::get_tunnel_desc(b->get_wtyp(), 25, welt->get_timeline_year_month());
+			tunnel_desc = tunnel_builder_t::get_tunnel_desc(b->get_wtyp(), b->get_topspeed(), welt->get_timeline_year_month());
 		}
 #endif
 	}
@@ -1823,8 +1823,11 @@ bool way_builder_t::intern_calc_route_runways(koord3d start3d, const koord3d zie
 	const ribi_t::ribi ribi_straight = ribi_t::doubles(ribi);
 
 	// not too close to the border?
-	if(	 !(welt->is_within_limits(start-koord(5,5))  &&  welt->is_within_limits(start+koord(5,5)))  ||
-		 !(welt->is_within_limits(ziel-koord(5,5))  &&  welt->is_within_limits(ziel+koord(5,5)))  ) {
+	const uint16 border=15;
+	//	if(	 !(welt->is_within_limits(start-koord(5,5))  &&  welt->is_within_limits(start+koord(5,5)))  ||
+	//	 !(welt->is_within_limits(ziel-koord(5,5))  &&  welt->is_within_limits(ziel+koord(5,5)))  ) {
+	if(	 !(welt->is_within_limits(start-koord(border,border))  &&  welt->is_within_limits(start+koord(border,border)))  ||
+		 !(welt->is_within_limits(ziel-koord(border,border))  &&  welt->is_within_limits(ziel+koord(border,border)))  ) {
 		if(player==welt->get_active_player()) {
 			create_win( new news_img("Zu nah am Kartenrand"), w_time_delete, magic_none);
 			return false;
@@ -2510,7 +2513,7 @@ void way_builder_t::build_road()
 					str->set_gehweg(build_sidewalk);
 					str->set_public_right_of_way();
 				}
-				cost += gr->neuen_weg_bauen(str, route.get_short_ribi(i), player, &route) + desc->get_value();
+				cost += gr->neuen_weg_bauen(str, route.get_short_ribi(i), player, &route) - desc->get_value();
 				// respect speed limit of crossing
 				str->count_sign();
 				// prissi: into UNDO-list, so we can remove it later

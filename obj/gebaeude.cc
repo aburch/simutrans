@@ -7,6 +7,7 @@
 
 #include <string.h>
 #include <ctype.h>
+#include <algorithm>
 
 #ifdef MULTI_THREAD
 #include "../utils/simthread.h"
@@ -1169,16 +1170,20 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		buf.printf("%s:\n", translator::translate("visitors_from_this_building"));
 		for (int i = 0; i < pass_classes; i++)
 		{
-			sprintf(p_class, translator::translate("p_class[%u]"), i);
-			buf.printf("  %i%% %s\n", class_percentage[i], p_class);
+			char class_name_untranslated[32];
+			sprintf(class_name_untranslated, "p_class[%u]", i);
+			const char* class_name = translator::translate(class_name_untranslated);
+			buf.printf("  %i%% %s\n", class_percentage[i], class_name);
 		}
 		buf.append("\n");
 
 		buf.printf("%s:\n", translator::translate("commuters_from_this_building"));
 		for (int i = 0; i < pass_classes; i++)
 		{
-			sprintf(p_class, translator::translate("p_class[%u]"), i);
-			buf.printf("  %i%% %s\n", class_percentage_job[i], p_class);
+			char class_name_untranslated[32];
+			sprintf(class_name_untranslated, "p_class[%u]", i);
+			const char* class_name = translator::translate(class_name_untranslated);
+			buf.printf("  %i%% %s\n", class_percentage_job[i], class_name);
 		}
 		buf.append("\n");
 
@@ -1957,7 +1962,7 @@ void gebaeude_t::set_commute_trip(uint16 number)
 	// Record the number of arriving workers by encoding the earliest time at which new workers can arrive.
 	const sint64 job_ticks = ((sint64)number * welt->get_settings().get_job_replenishment_ticks()) / ((sint64)adjusted_jobs < 1ll ? 1ll : (sint64)adjusted_jobs);
 	const sint64 new_jobs_by_time = welt->get_ticks() - welt->get_settings().get_job_replenishment_ticks();
-	available_jobs_by_time = max_64(new_jobs_by_time + job_ticks, available_jobs_by_time + job_ticks);
+	available_jobs_by_time = std::max(new_jobs_by_time + job_ticks, available_jobs_by_time + job_ticks);
 	add_passengers_succeeded_commuting(number);
 }
 

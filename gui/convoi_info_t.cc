@@ -400,7 +400,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		{
 			scr_coord ipos = pos + view.get_pos();
 			scr_size isize = view.get_size();
-			ipos.y += isize.h + 16;
+			ipos.y += isize.h + 16; //what is the magic number 16?
 
 			COLOR_VAL color = COL_BLACK;
 			switch (cnv->get_state())
@@ -436,6 +436,12 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		COLOR_VAL speed_color = COL_BLACK;
 		const int pos_y = pos_y0; // line 1
 		char speed_text[256];
+
+		air_vehicle_t* air_vehicle = NULL;
+		if (cnv->front()->get_waytype() == air_wt)
+		{
+			air_vehicle = (air_vehicle_t*)cnv->front();
+		}
 		const air_vehicle_t* air = (const air_vehicle_t*)this;
 
 		speed_bar.set_visible(false);
@@ -445,9 +451,9 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 		case convoi_t::WAITING_FOR_CLEARANCE:
 
-			if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
+			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
 			{
-				sprintf(speed_text, translator::translate("Runway too short"), cnv->get_name());
+				sprintf(speed_text, "%s (%s) %i%s", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
 				speed_color = COL_RED;
 			}
 			else
@@ -514,9 +520,9 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		case convoi_t::CAN_START_TWO_MONTHS:
 		case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
 
-			if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
+			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
 			{
-				sprintf(speed_text, translator::translate("Runway too short"), cnv->get_name());
+				sprintf(speed_text, "%s (%s %i%s)", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
 				speed_color = COL_RED;
 			}
 			else
@@ -528,9 +534,9 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 		case convoi_t::NO_ROUTE:
 
-			if (cnv->front()->get_waytype() == air_wt && air->runway_too_short)
+			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
 			{
-				sprintf(speed_text, translator::translate("Runway too short"), cnv->get_name());
+				sprintf(speed_text, "%s (%s %i%s)", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
 			}
 			else
 			{
@@ -541,22 +547,29 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 		case convoi_t::OUT_OF_RANGE:
 
-			sprintf(speed_text, translator::translate("out of range"));
+			//sprintf(speed_text, translator::translate("out_of_range (max %i km)"), cnv->front()->get_desc()->get_range());
+			sprintf(speed_text, "%s (%s %i%s)", translator::translate("out of range"), translator::translate("max"), cnv->front()->get_desc()->get_range(), translator::translate("km"));
 			speed_color = COL_RED;
-			/*TODO: Add this convoys maximum range*/
 			break;
 
 		default:
-
-			speed_bar.set_visible(true);
-			//use median speed to avoid flickering
-			mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed() * 4);
-			mean_convoi_speed /= 2;
-			const sint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
-			const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
-			sprintf(speed_text, translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"),
-				(mean_convoi_speed + 3) / 4, min_speed, translator::translate("..."), max_speed);
-			speed_color = COL_BLACK;
+			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
+			{
+				sprintf(speed_text, "%s (%s %i%s)", translator::translate("Runway too short"), translator::translate("requires"), cnv->front()->get_desc()->get_minimum_runway_length(), translator::translate("m"));
+				speed_color = COL_RED;
+			}
+			else
+			{
+				speed_bar.set_visible(true);
+				//use median speed to avoid flickering
+				mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed() * 4);
+				mean_convoi_speed /= 2;
+				const sint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
+				const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
+				sprintf(speed_text, translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"),
+					(mean_convoi_speed + 3) / 4, min_speed, translator::translate("..."), max_speed);
+				speed_color = COL_BLACK;
+			}
 		}
 
 		display_proportional(pos_x, pos_y, speed_text, ALIGN_LEFT, speed_color, true);
@@ -647,7 +660,167 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			int len = display_proportional(line_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
 			display_proportional_clip(line_x + len, pos_y, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
 		}
+#ifdef DEBUG_CONVOY_STATES
+		{
+			// Debug: show covnoy states
+			int debug_row = 6;
+			{
+				const int pos_y = pos_y0 + debug_row * LINESPACE;
 
+				char state_text[32];
+				switch (cnv->get_state())
+				{
+				case convoi_t::INITIAL:
+
+					sprintf(state_text, "INITIAL");
+					break;
+
+				case convoi_t::EDIT_SCHEDULE:
+
+
+					sprintf(state_text, "EDIT_SCHEDULE");
+					break;
+
+				case convoi_t::ROUTING_1:
+
+
+					sprintf(state_text, "ROUTING_1");
+					break;
+
+				case convoi_t::ROUTING_2:
+
+					sprintf(state_text, "ROUTING_2");
+					break;
+
+				case convoi_t::DUMMY5:
+
+
+					sprintf(state_text, "DUMMY5");
+					break;
+
+				case convoi_t::NO_ROUTE:
+
+
+					sprintf(state_text, "NO_ROUTE");
+					break;
+
+				case convoi_t::DRIVING:
+
+
+					sprintf(state_text, "DRIVING");
+					break;
+
+				case convoi_t::LOADING:
+
+
+					sprintf(state_text, "LOADING");
+					break;
+
+				case convoi_t::WAITING_FOR_CLEARANCE:
+
+
+					sprintf(state_text, "WAITING_FOR_CLEARANCE");
+					break;
+
+				case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
+
+
+					sprintf(state_text, "WAITING_FOR_CLEARANCE_ONE_MONTH");
+					break;
+
+				case convoi_t::CAN_START:
+
+
+					sprintf(state_text, "CAN_START");
+					break;
+
+				case convoi_t::CAN_START_ONE_MONTH:
+
+
+					sprintf(state_text, "CAN_START_ONE_MONTH");
+					break;
+
+				case convoi_t::SELF_DESTRUCT:
+
+
+					sprintf(state_text, "SELF_DESTRUCT");
+					break;
+
+				case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
+
+
+					sprintf(state_text, "WAITING_FOR_CLEARANCE_TWO_MONTHS");
+					break;
+
+				case convoi_t::CAN_START_TWO_MONTHS:
+
+
+					sprintf(state_text, "CAN_START_TWO_MONTHS");
+					break;
+
+				case convoi_t::LEAVING_DEPOT:
+
+
+					sprintf(state_text, "LEAVING_DEPOT");
+					break;
+
+				case convoi_t::ENTERING_DEPOT:
+
+
+					sprintf(state_text, "ENTERING_DEPOT");
+					break;
+
+				case convoi_t::REVERSING:
+
+
+					sprintf(state_text, "REVERSING");
+					break;
+
+				case convoi_t::OUT_OF_RANGE:
+
+
+					sprintf(state_text, "OUT_OF_RANGE");
+					break;
+
+				case convoi_t::EMERGENCY_STOP:
+
+
+					sprintf(state_text, "EMERGENCY_STOP");
+					break;
+
+				case convoi_t::ROUTE_JUST_FOUND:
+
+					sprintf(state_text, "ROUTE_JUST_FOUND");
+					break;
+
+				default:
+
+					sprintf(state_text, "default");
+					break;
+
+				}
+
+				display_proportional(pos_x, pos_y, state_text, ALIGN_LEFT, SYSCOL_TEXT, true);
+				debug_row++;
+			}
+			if (air_vehicle && air_vehicle->is_runway_too_short() == true)
+			{
+				const int pos_y = pos_y0 + debug_row * LINESPACE;
+				char runway_too_short[32];
+				sprintf(runway_too_short, "air->runway_too_short");
+				display_proportional(pos_x, pos_y, runway_too_short, ALIGN_LEFT, SYSCOL_TEXT, true);
+				debug_row++;
+			}	
+			if (cnv->front()->get_is_overweight() == true) // This doesnt flag!
+			{
+				const int pos_y = pos_y0 + debug_row * LINESPACE;
+				char too_heavy[32];
+				sprintf(too_heavy, "is_overweight");
+				display_proportional(pos_x, pos_y, too_heavy, ALIGN_LEFT, SYSCOL_TEXT, true);
+				debug_row++;
+			}
+		}
+#endif
 #ifdef DEBUG_PHYSICS
 		/*
 		 * Show braking distance

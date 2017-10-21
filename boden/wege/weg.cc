@@ -1478,10 +1478,10 @@ bool weg_t::renew()
 		return false;
 	}
 
-	player_t* const player = get_owner();
+	player_t* const owner = get_owner();
 	bool success = false;
 	const sint64 price = desc->get_upgrade_group() == replacement_way->get_upgrade_group() ? replacement_way->get_way_only_cost() : replacement_way->get_value();
-	if(welt->get_city(get_pos().get_2d()) || (player && (player->can_afford(price) || player->is_public_service())))
+	if(welt->get_city(get_pos().get_2d()) || (owner && (owner->can_afford(price) || owner->is_public_service())))
 	{
 		// Unowned ways in cities are assumed to be owned by the city and will be renewed by it.
 		waytype_t wt = replacement_way->get_waytype();
@@ -1503,15 +1503,22 @@ bool weg_t::renew()
 		
 		set_desc(replacement_way);
 		success = true;
-		if(player)
+		if(owner)
 		{
-			player->book_way_renewal(price, wt);
+			owner->book_way_renewal(price, wt);
 		}
 	}
-	else if(player && !player->get_has_been_warned_about_no_money_for_renewals())
+	else if(owner && !owner->get_has_been_warned_about_no_money_for_renewals())
 	{
-		welt->get_message()->add_message(translator::translate("Not enough money to carry out essential way renewal work.\n"), get_pos().get_2d(), message_t::warnings, player->get_player_nr());
-		player->set_has_been_warned_about_no_money_for_renewals(true); // Only warn once a month.
+		welt->get_message()->add_message(translator::translate("Not enough money to carry out essential way renewal work.\n"), get_pos().get_2d(), message_t::warnings, owner->get_player_nr());
+		owner->set_has_been_warned_about_no_money_for_renewals(true); // Only warn once a month.
+	}
+	else if (!owner && public_right_of_way && wtyp == road_wt)
+	{
+		// Unowned roads that are public rights of way should be renewed with the latest type.
+		const way_desc_t* wb = welt->get_timeline_year_month() ? welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month()) : NULL; // This search only works properly when the timeline is enabled
+		set_desc(wb ? wb : desc);
+		success = true;
 	}
 
 	return success;

@@ -653,7 +653,7 @@ void grund_t::info(cbuffer_t& buf, bool dummy) const
 		buf.printf("%s: %s\n", translator::translate("Land value"), price);
 		if (!has_way || (flags&has_way1 && get_weg_nr(0)->is_degraded()) || (flags&has_way2 && get_weg_nr(1)->is_degraded()))
 		{
-			buf.printf("%s:\n", translator::translate("forge_costs"));
+			buf.printf("\n%s:\n", translator::translate("forge_costs"));
 			for (int i = 0; i < waytype_t::any_wt; i++)
 			{
 				char waytype_name[32] = "\0";
@@ -2636,8 +2636,9 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 			costs -= weg_entfernen(wt, true);
 			if(owner == player)
 			{
-				// Need to sell the land on which the way is situated
-				costs =- welt->get_land_value(pos);
+				// Need to sell the land on which the way is situated: refund the land value.
+				// Note that get_land_value() produces a negative number.
+				costs -= welt->get_land_value(pos);
 			}
 			if(flags&is_kartenboden) {
 				// remove ribis from sea tiles
