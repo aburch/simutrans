@@ -646,14 +646,18 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 
 	// universal check for bridges: enter bridges in bridge direction
 	if( to->get_typ()==grund_t::brueckenboden ) {
-		weg_t *weg=to->get_weg_nr(0);
-		if(weg && !ribi_t::is_straight(weg->get_ribi_unmasked()|ribi_type(zv))) {
+		ribi_t::ribi br = ribi_type(zv);
+		br  = to->hat_wege()    ? to->get_weg_nr(0)->get_ribi_unmasked() : (ribi_t::ribi)ribi_t::none;
+		br |= to->get_leitung() ? to->get_leitung()->get_ribi()          : (ribi_t::ribi)ribi_t::none;
+		if(!ribi_t::is_straight(br)) {
 			return false;
 		}
 	}
 	if( from->get_typ()==grund_t::brueckenboden ) {
-		weg_t *weg=from->get_weg_nr(0);
-		if(weg && !ribi_t::is_straight(weg->get_ribi_unmasked()|ribi_type(zv))) {
+		ribi_t::ribi br = ribi_type(zv);
+		br  = from->hat_wege()    ? from->get_weg_nr(0)->get_ribi_unmasked() : (ribi_t::ribi)ribi_t::none;
+		br |= from->get_leitung() ? from->get_leitung()->get_ribi()          : (ribi_t::ribi)ribi_t::none;
+		if(!ribi_t::is_straight(br)) {
 			return false;
 		}
 	}
@@ -798,8 +802,8 @@ bool way_builder_t::is_allowed_step(const grund_t *from, const grund_t *to, sint
 
 			if(to->get_typ()!=grund_t::tunnelboden) {
 				// only fields are allowed
-				if(to->get_typ()!=grund_t::boden) {
-					ok &= to->get_typ() == grund_t::fundament && to->find<field_t>();
+				if(to->get_typ()==grund_t::fundament) {
+					ok &= to->find<field_t>()!=NULL;
 				}
 				// no bridges and monorails here in the air
 				ok &= (welt->access(to_pos)->get_boden_in_hoehe(to->get_pos().z+1)==NULL);
