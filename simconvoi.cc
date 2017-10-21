@@ -4974,12 +4974,12 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 					// then add the actual load
 					FOR(slist_tpl<ware_t>, ware, v->get_cargo(j))
 					{
-						if (v->get_capacity(j) > 0)
+						if (v->get_capacity(v->get_reassigned_class(j)) > 0)
 						{
 							// if != 0 we could not join it to existing => load it
 							if (ware.menge != 0)
 							{
-								pass_fracht[j].append(ware);
+								pass_fracht[v->get_reassigned_class(j)].append(ware);
 							}
 						}
 					}
@@ -4992,12 +4992,12 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 					// then add the actual load
 					FOR(slist_tpl<ware_t>, ware, v->get_cargo(j))
 					{
-						if (v->get_capacity(j) > 0)
+						if (v->get_capacity(v->get_reassigned_class(j)) > 0)
 						{
 							// if != 0 we could not join it to existing => load it
 							if (ware.menge != 0)
 							{
-								mail_fracht[j].append(ware);
+								mail_fracht[v->get_reassigned_class(j)].append(ware);
 							}
 						}
 					}
@@ -5023,7 +5023,7 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 		}
 		buf.clear();
 
-		// apend info on total capacity
+		// append info on total capacity
 		slist_tpl <ware_t>capacity;
 		for (size_t i = 0; i != n; ++i) {
 			if (max_loaded_waren[i] > 0 && i != goods_manager_t::INDEX_NONE) {
@@ -5042,7 +5042,7 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 				}
 			}
 		}	
-		// apend info on all the pass class capacities
+		// append info on all the pass class capacities
 		slist_tpl <ware_t>pass_capacity;
 		for (size_t i = 0; i != pass_classes; ++i) {
 			if (pass_amount_class[i] > 0) {
@@ -5061,7 +5061,7 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 				}
 			}
 		}
-		// apend info on all the mail class capacities
+		// append info on all the mail class capacities
 		slist_tpl <ware_t>mail_capacity;
 		for (size_t i = 0; i != mail_classes; ++i) {
 			if (mail_amount_class[i] > 0) {
