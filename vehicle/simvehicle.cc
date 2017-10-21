@@ -1057,14 +1057,14 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 		schedule_t *schedule = cnv->get_schedule();
 		const uint16 capacity_left = total_capacity - total_freight;
 		slist_tpl<ware_t> freight_add;
-		const uint8 classes_to_check = get_desc()->get_freight_type()->get_number_of_classes();
+		const uint8 classes_to_check = get_desc()->get_number_of_classes();
 		uint16 capacity_this_class;
 
 		*skip_vehicles = true;
 
 		for (uint8 i = 0; i < classes_to_check; i++)
 		{
-			capacity_this_class = get_capacity(i);
+			capacity_this_class = get_capacity(class_reassignments[i]);
 			if (capacity_this_class == 0)
 			{
 				continue;
@@ -1073,7 +1073,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 			// use_lower_classes as passed to this method indicates whether the higher class accommodation is full, hence
 			// the need for higher class passengers/mail to use lower class accommodation.
 
-			*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left, schedule, cnv->get_owner(), cnv, overcrowd, i, use_lower_classes);
+			*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left, schedule, cnv->get_owner(), cnv, overcrowd, class_reassignments[i], use_lower_classes);
 			if (!freight_add.empty())
 			{
 				cnv->invalidate_weight_summary();

@@ -2631,7 +2631,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 
 						if (!use_lower_classes)
 						{
-							// If there is overcrowding, load willy nilly: any class that hte passengers can board will do.
+							// If there is overcrowding, load willy nilly: any class that the passengers can board will do.
 
 							// The classes are called in non-deterministic order. We must therefore have an algorithm that 
 							// deterministically decides to which, if any, class that any given passengers will downgrade.
