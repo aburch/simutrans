@@ -8625,7 +8625,7 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "saved messages");
 		dr_chdir( env_t::user_dir );
 		// maybe show message about server
 DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server_motd_filename.c_str() );
-		if(  FILE *fmotd = fopen( env_t::server_motd_filename.c_str(), "r" )  ) {
+		if(  FILE *fmotd = dr_fopen( env_t::server_motd_filename.c_str(), "r" )  ) {
 			struct stat st;
 			stat( env_t::server_motd_filename.c_str(), &st );
 			sint32 len = min( 32760, st.st_size+1 );
