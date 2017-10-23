@@ -2171,14 +2171,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			if (pass_veh || mail_veh)
 			{
 				uint8 classes_amount = veh_type->get_number_of_classes() < 1 ? 1 : veh_type->get_number_of_classes();
-				uint8 accommodations = 0;
-				for (uint8 i = 0; i < classes_amount; i++) // find how many actual accommodations this vehicle has.
-				{
-					if (veh_type->get_capacity(i) > 0)
-					{
-						accommodations++;
-					}
-				}
 				char extra_pass[8];
 				if (veh_type->get_overcrowded_capacity() > 0)
 				{
@@ -2189,13 +2181,11 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 					extra_pass[0] = '\0';
 				}
 
-				if (accommodations > 1) // Only show the total capacity if the vehicle has multiple compartments
-				{
-					n += sprintf(buf + n, translator::translate("total_capacity: %3d %s%s %s\n"),
-						veh_type->get_total_capacity(), extra_pass,
-						translator::translate(veh_type->get_freight_type()->get_mass()),
-						veh_type->get_freight_type()->get_catg() == 0 ? translator::translate(veh_type->get_freight_type()->get_name()) : translator::translate(veh_type->get_freight_type()->get_catg_name()));
-				}
+				n += sprintf(buf + n, translator::translate("Capacity: %3d %s%s %s\n"),
+					veh_type->get_total_capacity(), extra_pass,
+					translator::translate(veh_type->get_freight_type()->get_mass()),
+					veh_type->get_freight_type()->get_catg() == 0 ? translator::translate(veh_type->get_freight_type()->get_name()) : translator::translate(veh_type->get_freight_type()->get_catg_name()));
+				
 				for (uint8 i = 0; i < classes_amount; i++)
 				{
 					if (veh_type->get_capacity(i) > 0)
@@ -2210,14 +2200,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 							sprintf(class_name_untranslated, "p_class[%u]", i);
 						}
 						const char* class_name = translator::translate(class_name_untranslated);
-						if (accommodations > 1) // no overcrowded passengers is shown, as it will be shown in the "total capacity"
-						{
-							n += sprintf(buf + n, "%s: %3d %s %s", class_name, veh_type->get_capacity(i), translator::translate(veh_type->get_freight_type()->get_mass()), translator::translate(veh_type->get_freight_type()->get_name()));
-						}
-						else // overcrowd message is shown
-						{
-							n += sprintf(buf + n, "%s: %3d %s%s %s", class_name, veh_type->get_capacity(i), extra_pass, translator::translate(veh_type->get_freight_type()->get_mass()), translator::translate(veh_type->get_freight_type()->get_name()));
-						}
+
+						n += sprintf(buf + n, "%s: %3d %s %s", class_name, veh_type->get_capacity(i), translator::translate(veh_type->get_freight_type()->get_mass()), translator::translate(veh_type->get_freight_type()->get_name()));
 						n += sprintf(buf + n, "\n");
 
 						if (pass_veh)
@@ -2253,8 +2237,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			}
 			else
 			{
-				n += sprintf(buf + n, translator::translate("Capacity: %3d %s %s\n"),
+				n += sprintf(buf + n, translator::translate("Capacity: %3d %s%s %s\n"),
 					veh_type->get_total_capacity(),
+					"\0",
 					translator::translate(veh_type->get_freight_type()->get_mass()),
 					veh_type->get_freight_type()->get_catg() == 0 ? translator::translate(veh_type->get_freight_type()->get_name()) : translator::translate(veh_type->get_freight_type()->get_catg_name()));
 				linespace_skips += 2;
