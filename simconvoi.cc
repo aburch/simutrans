@@ -5047,8 +5047,8 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 				ware_t ware(goods_manager_t::get_info(goods_manager_t::INDEX_PAS));
 				ware.menge = pass_amount_class[i];
 				// append to category?
-				slist_tpl<ware_t>::iterator j = capacity.begin();
-				slist_tpl<ware_t>::iterator end = capacity.end();
+				slist_tpl<ware_t>::iterator j = pass_capacity.begin();
+				slist_tpl<ware_t>::iterator end = pass_capacity.end();
 				while (j != end && j->get_class() < ware.get_class()) ++j;
 				if (j != end && j->get_class() == ware.get_class()) {
 					j->menge += pass_amount_class[i];
@@ -5066,8 +5066,8 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 				ware_t ware(goods_manager_t::get_info(goods_manager_t::INDEX_MAIL));
 				ware.menge = mail_amount_class[i];
 				// append to category?
-				slist_tpl<ware_t>::iterator j = capacity.begin();
-				slist_tpl<ware_t>::iterator end = capacity.end();
+				slist_tpl<ware_t>::iterator j = mail_capacity.begin();
+				slist_tpl<ware_t>::iterator end = mail_capacity.end();
 				while (j != end && j->get_class() < ware.get_class()) ++j;
 				if (j != end && j->get_class() == ware.get_class()) {
 					j->menge += mail_amount_class[i];
