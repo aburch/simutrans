@@ -7534,7 +7534,7 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_s
  */
 bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx) const
 {
-	if(is_sound && viewport) {
+	if(is_sound && viewport && zeiger) {
 		int dist = koord_distance(k, viewport->get_world_position());
 		bool play = false;
 
