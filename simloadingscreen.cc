@@ -67,6 +67,9 @@ void loadingscreen_t::display()
 	const int half_width = width>>1;
 	const int quarter_width = width>>2;
 	const int half_height = display_get_height()>>1;
+	KOORD_VAL const bar_height = max(LINESPACE + 10, 20);
+	KOORD_VAL const bar_y = half_height - bar_height / 2 + 1;
+	KOORD_VAL const bar_text_y = half_height - LINESPACE / 2 + 1;
 
 	const int bar_len = max_progress>0 ? (int) ( ((double)progress*(double)half_width)/(double)max_progress ) : 0;
 
@@ -76,12 +79,12 @@ void loadingscreen_t::display()
 		dr_prepare_flush();
 
 		if(  info  ) {
-			display_proportional_rgb( half_width, half_height - 8 - LINESPACE - 4, info, ALIGN_CENTER_H, color_idx_to_rgb(COL_WHITE), true );
+			display_proportional_rgb( half_width, bar_y - LINESPACE - 2, info, ALIGN_CENTER_H, color_idx_to_rgb(COL_WHITE), true );
 		}
 
 		// outline
-		display_ddd_box_rgb( quarter_width-2, half_height-9, half_width+4, 20, color_idx_to_rgb(COL_GREY6), color_idx_to_rgb(COL_GREY4), true );
-		display_ddd_box_rgb( quarter_width-1, half_height-8, half_width+2, 18, color_idx_to_rgb(COL_GREY4), color_idx_to_rgb(COL_GREY6), true );
+		display_ddd_box_rgb( quarter_width-2, bar_y, half_width+4, bar_height, color_idx_to_rgb(COL_GREY6), color_idx_to_rgb(COL_GREY4), true );
+		display_ddd_box_rgb( quarter_width-1, bar_y + 1, half_width+2, bar_height - 2, color_idx_to_rgb(COL_GREY4), color_idx_to_rgb(COL_GREY6), true );
 
 		// inner
 		display_cylinderbar_wh_clip_rgb( quarter_width, bar_y + 2, half_width, bar_height - 4, SYSCOL_LOADINGBAR_INNER, true);
@@ -90,7 +93,7 @@ void loadingscreen_t::display()
 		display_cylinderbar_wh_clip_rgb( quarter_width, bar_y + 4, bar_len,  bar_height - 8, SYSCOL_LOADINGBAR_PROGRESS, true );
 
 		if(  what  ) {
-			display_proportional_rgb( half_width, half_height-4, what, ALIGN_CENTER_H, SYSCOL_TEXT_HIGHLIGHT, false );
+			display_proportional_rgb( half_width, bar_text_y, what, ALIGN_CENTER_H, SYSCOL_TEXT_HIGHLIGHT, false );
 		}
 
 		dr_flush();
