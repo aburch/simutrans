@@ -22,6 +22,7 @@
 #include "components/gui_location_view_t.h"
 #include "components/action_listener.h"
 #include "components/gui_chart.h"
+#include "components/gui_combobox.h"
 
 #include "../utils/cbuffer_t.h"
 #include "../simhalt.h"
@@ -47,10 +48,12 @@ private:
 	gui_label_t sort_label;
 	location_view_t view;
 	button_t button;
-	button_t sort_button;     // @author hsiegeln
+	// button_t sort_button;     // @author hsiegeln
 	button_t filterButtons[MAX_HALT_COST];
 	button_t toggler, toggler_departures;
 	button_t show_classes_button;
+
+	gui_combobox_t freight_sort_selector;
 
 	halthandle_t halt;
 	char edit_name[256];

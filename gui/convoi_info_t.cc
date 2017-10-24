@@ -1049,9 +1049,11 @@ void convoi_info_t::set_windowsize(scr_size size)
 	reverse_button.set_pos(scr_coord(BUTTON3_X, y));
 	y += LINESPACE + D_V_SPACE;
 
+	// Freight sorted by class (remove?)
 	show_classes_button.set_pos(scr_coord(BUTTON1_X, y));
 	y += LINESPACE + D_V_SPACE;
 
+	// Freight sort combobox
 	freight_sort_selector.set_pos(scr_coord(BUTTON1_X, y));
 	freight_sort_selector.set_size(scr_size(D_BUTTON_WIDTH * 2, D_BUTTON_HEIGHT));
 	toggler.set_pos(scr_coord(BUTTON3_X, y));
