@@ -1135,7 +1135,9 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 
 		// calc route infos
 		route_infos.set_count(route_count);
-		uint32 i = min(max(0, current_route_index - 2), route_count - 1);
+		// The below may be a slight optimisation, but it causes uninitialised variables in aircraft in holding patterns.
+		//uint32 i = min(max(0, current_route_index - 2), route_count - 1);
+		uint32 i = 0;
 
 		koord3d current_tile = route.at(i);
 		convoi_t::route_info_t &start_info = route_infos.get_element(i);
