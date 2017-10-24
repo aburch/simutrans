@@ -4921,8 +4921,6 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 		uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
 
 		char *class_name;
-		char *pass_class_name_untranslated[32];
-		char *mail_class_name_untranslated[32];
 
 		size_t const n = goods_manager_t::get_count();
 		ALLOCA(uint32, max_loaded_waren, n);
@@ -5051,8 +5049,8 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 				ware_t ware(goods_manager_t::get_info(goods_manager_t::INDEX_PAS));
 				ware.menge = pass_amount_class[i];
 				// append to category?
-				slist_tpl<ware_t>::iterator j = capacity.begin();
-				slist_tpl<ware_t>::iterator end = capacity.end();
+				slist_tpl<ware_t>::iterator j = pass_capacity.begin();
+				slist_tpl<ware_t>::iterator end = pass_capacity.end();
 				while (j != end && j->get_class() < ware.get_class()) ++j;
 				if (j != end && j->get_class() == ware.get_class()) {
 					j->menge += pass_amount_class[i];
@@ -5070,8 +5068,8 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 				ware_t ware(goods_manager_t::get_info(goods_manager_t::INDEX_MAIL));
 				ware.menge = mail_amount_class[i];
 				// append to category?
-				slist_tpl<ware_t>::iterator j = capacity.begin();
-				slist_tpl<ware_t>::iterator end = capacity.end();
+				slist_tpl<ware_t>::iterator j = mail_capacity.begin();
+				slist_tpl<ware_t>::iterator end = mail_capacity.end();
 				while (j != end && j->get_class() < ware.get_class()) ++j;
 				if (j != end && j->get_class() == ware.get_class()) {
 					j->menge += mail_amount_class[i];
@@ -5091,9 +5089,8 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 			{
 				class_name = new (nothrow) char[32];
 				sprintf(class_name, "p_class[%u]", i);
-				pass_class_name_untranslated[i] = class_name;
-				char final_text[32];
-				sprintf(final_text, "(%s) %s", translator::translate(pass_class_name_untranslated[i]), translator::translate("loaded"));
+				char final_text[100];
+				sprintf(final_text, "(%s %s) %s", translator::translate(class_name), translator::translate("accommodation"), translator::translate("loaded"));
 				freight_list_sorter_t::sort_freight(pass_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &pass_capacity, final_text);
 			}
 		}
@@ -5103,9 +5100,8 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 			{
 				class_name = new (nothrow) char[32];
 				sprintf(class_name, "m_class[%u]", i);
-				pass_class_name_untranslated[i] = class_name;
-				char final_text[32];
-				sprintf(final_text, "(%s) %s", translator::translate(pass_class_name_untranslated[i]), translator::translate("loaded"));
+				char final_text[100];
+				sprintf(final_text, "(%s %s) %s", translator::translate(class_name), translator::translate("accommodation"), translator::translate("loaded"));
 				freight_list_sorter_t::sort_freight(mail_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &mail_capacity, final_text);
 			}
 		}
