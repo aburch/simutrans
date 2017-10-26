@@ -12,6 +12,7 @@
 	FIX: added redraw logic for field removal (fixes http://forum.simutrans.com/index.php?topic=17308)
 	FIX: added Unicode file path support for Windows builds
 	FIX: removed Windows builds file search resource leak
+	FIX: improved Windows build clipboard Unicode parsing
 
 Release of 120.2.2: (r8163 on 31-3-2017):
 	ADD: Name filter in depot window
