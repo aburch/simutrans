@@ -244,7 +244,7 @@ tool_t *create_tool(int toolnr)
 }
 
 
-static uint16 str_to_key( const char *str )
+static utf32 str_to_key( const char *str )
 {
 	if(  str[1]==','  ||  str[1]<=' ') {
 		return (uint8)*str;
@@ -252,8 +252,8 @@ static uint16 str_to_key( const char *str )
 	else {
 		// check for utf8
 		if(  127<(uint8)*str  ) {
-			size_t len=0;
-			uint16 c = utf8_to_utf16( (const utf8 *)str, &len );
+			size_t len = 0;
+			utf32 const c = utf8_decoder_t::decode((utf8 const *)str, len);
 			if(str[len]==',') {
 				return c;
 			}

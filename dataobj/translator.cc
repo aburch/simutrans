@@ -169,14 +169,12 @@ static char *recode(const char *src, bool translate_from_utf, bool translate_to_
 				}
 				else if(  translate_from_utf  ) {
 					// make latin from UTF8 (ignore overflows!)
-					size_t len = 0;
 					if(  !is_latin2  ) {
-						*dst++ = c = (uint8)utf8_to_utf16( (const utf8*)src, &len );
+						*dst++ = c = (uint8)utf8_decoder_t::decode((utf8 const *&)src);
 					}
 					else {
-						*dst++ = c = unicode_to_latin2( utf8_to_utf16( (const utf8*)src, &len ) );
+						*dst++ = c = unicode_to_latin2(utf8_decoder_t::decode((utf8 const *&)src));
 					}
-					src += len;
 				}
 			}
 			else if(c>=13) {
