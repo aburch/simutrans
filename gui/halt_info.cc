@@ -47,7 +47,9 @@ static const char *sort_text[halt_info_t::SORT_MODES] = {
 	"Menge",
 	"origin (detail)",
 	"origin (amount)",
-	"destination (detail)"/*,
+	"destination (detail)",
+	"class (detail)",
+	"class (via)"/*,
 	"transferring time"*/
 };
 
@@ -125,7 +127,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 
 	const scr_size button_size(max(D_BUTTON_WIDTH, 100), D_BUTTON_HEIGHT);
 	scr_size freight_selector_size = button_size;
-	freight_selector_size.w = button_size.w+20;
+	freight_selector_size.w = button_size.w+30;
 	scr_coord cursor(D_MARGIN_LEFT, D_MARGIN_TOP);
 
 	const sint16 offset_below_viewport = 21 + view.get_size().h;
@@ -172,12 +174,6 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	sort_label.set_pos(cursor);
 	sort_label.set_width(client_width);
 	add_component(&sort_label);
-	cursor.y += D_LABEL_HEIGHT + D_V_SPACE;
-
-	show_classes_button.init(button_t::square_state, translator::translate("show/hide_classes"), cursor, scr_size(client_width, D_BUTTON_HEIGHT));
-	show_classes_button.set_tooltip(translator::translate("sort_the_freight_by_classes"));
-	show_classes_button.add_listener(this);
-	add_component(&show_classes_button);
 	cursor.y += D_LABEL_HEIGHT + D_V_SPACE;
 
 	// hsiegeln: added sort_button
@@ -269,24 +265,9 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 {
 	if(halt.is_bound()) {
 
-		// buffer update now only when needed by halt itself unless forced => dedicated buffer for this
+		// buffer update now only when needed by halt itself => dedicated buffer for this
 		int old_len = freight_info.len();
-		int old_class_display;
-		int new_class_display;
-		if (old_class_display != new_class_display)
-		{
-			halt->force_resort();
-			old_class_display = new_class_display;
-			if (show_classes_button.pressed)
-			{
-				halt->get_freight_info_by_class(freight_info);
-			}
-			else
-			{
-				halt->get_freight_info(freight_info);
-			}
-		}
-		new_class_display = show_classes_button.pressed;
+		halt->get_freight_info(freight_info);
 
 		if(  toggler_departures.pressed  ) 
 		{
@@ -431,12 +412,6 @@ void halt_info_t::show_hide_departures( bool show )
 		joined_buf.clear();
 		text.set_buf( &freight_info );
 	}
-}
-
-// show the classes in the goods list
-void halt_info_t::show_hide_classes(bool show)
-{
-	show_classes_button.pressed = show;
 }
 
 // refreshes the departure string
@@ -592,10 +567,6 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			delete tool;
 		}
 	}
-	else if (comp == &show_classes_button)
-	{
-		show_classes_button.pressed = !show_classes_button.pressed;
-	}
 	else {
 		for( int i = 0; i<MAX_HALT_COST; i++) {
 			if (comp == &filterButtons[i]) {
@@ -636,15 +607,14 @@ void halt_info_t::set_windowsize(scr_size size)
 
 	scrolly.set_size(get_client_windowsize()-scrolly.get_pos());
 
+	freight_sort_selector.set_size(scr_size(D_BUTTON_WIDTH + 40, D_BUTTON_HEIGHT));
+
 	// the buttons shall be placed above the "waiting" scroll area. Thus they will start at 
 	// scrolly.get_pos().y - <button height> - D_V_SPACE.
-	freight_sort_selector.set_size(scr_size(D_BUTTON_WIDTH + 20, D_BUTTON_HEIGHT));
 	const scr_coord delta(0, scrolly.get_pos().y - freight_sort_selector.get_size().h - D_V_SPACE - freight_sort_selector.get_pos().y);
 
 	sort_label.set_pos(sort_label.get_pos() + delta );
 	sort_label.set_width(client_width);
-	show_classes_button.set_pos(show_classes_button.get_pos() + delta);
-	show_classes_button.set_width(client_width);
 	freight_sort_selector.set_pos(freight_sort_selector.get_pos() + delta);
 	toggler_departures.set_pos(toggler_departures.get_pos() + delta);
 	toggler.set_pos(toggler.get_pos() + delta);
@@ -677,7 +647,6 @@ void halt_info_t::rdwr(loadsave_t *file)
 	uint32 flags = 0;
 	bool stats = toggler.pressed;
 	bool departures = toggler_departures.pressed;
-	bool classes = show_classes_button.pressed;
 	sint32 xoff = scrolly.get_scroll_x();
 	sint32 yoff = scrolly.get_scroll_y();
 	if(  file->is_saving()  ) {
@@ -694,7 +663,6 @@ void halt_info_t::rdwr(loadsave_t *file)
 	file->rdwr_byte( env_t::default_sortmode );
 	file->rdwr_bool( stats );
 	file->rdwr_bool( departures );
-	file->rdwr_bool( classes );
 	file->rdwr_long( xoff );
 	file->rdwr_long( yoff );
 	if(  file->is_loading()  ) {
@@ -718,10 +686,6 @@ void halt_info_t::rdwr(loadsave_t *file)
 		}
 		if(  departures  ) {
 			w->show_hide_departures( true );
-		}
-		if (classes) {
-			w->show_hide_classes(true);
-			halt->get_freight_info_by_class(w->freight_info);
 		}
 		else
 		{

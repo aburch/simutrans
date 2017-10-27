@@ -51,7 +51,6 @@ private:
 	// button_t sort_button;     // @author hsiegeln
 	button_t filterButtons[MAX_HALT_COST];
 	button_t toggler, toggler_departures;
-	button_t show_classes_button;
 
 	gui_combobox_t freight_sort_selector;
 
@@ -87,7 +86,7 @@ private:
 	void show_hide_departures( bool show );
 
 public:
-	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, by_destination_detil = 6, SORT_MODES = 7 };
+	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, by_destination_detil = 6, by_class_detail = 7, by_class_via = 8, SORT_MODES = 9 };
 //	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, by_destination_detil = 6, by_transfer_time = 7, SORT_MODES = 8 };
 
 	halt_info_t(halthandle_t halt);
