@@ -47,15 +47,15 @@ utf32 utf8_decoder_t::decode(utf8 const *const buff, size_t &len) {
 		len = 2;
 	} else if(  character <= 0xEF  ) {
 		// 3 byte character.
-		if(  !(character == 0xE0 && buff[i] < 0xA0 ||
-			character == 0xED && buff[i] > 0x9F)  ) {
+		if(  !((character == 0xE0 && buff[i] < 0xA0) ||
+			(character == 0xED && buff[i] > 0x9F))  ) {
 			cp = character & 0xF;
 			len = 3;
 		}
 	} else if(  character <= 0xF4  ) {
 		// 4 byte character.
-		if(  !(character == 0xF0 && buff[i] < 0x90 ||
-			character == 0xF4 && buff[i] > 0x8F)  ) {
+		if(  !((character == 0xF0 && buff[i] < 0x90) ||
+			(character == 0xF4 && buff[i] > 0x8F))  ) {
 			cp = character & 0x7;
 			len = 4;
 		}
