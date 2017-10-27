@@ -766,7 +766,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void get_freight_info(cbuffer_t & buf);
-	void get_freight_info_by_class(cbuffer_t & buf);
 
 	/**
 	 * @param buf the buffer to fill
