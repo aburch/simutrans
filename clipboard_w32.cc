@@ -26,18 +26,15 @@ void dr_copy(const char *source, size_t length)
 {
 	if(  OpenClipboard(NULL)  ) {
 		if(  EmptyClipboard()  ) {
-			// Allocate required global space.
+			// Allocate clipboard space.
 			int const len = (int)length;
 			int const wsize = MultiByteToWideChar(CP_UTF8, 0, source, len, NULL, 0) + 1;
-			HGLOBAL hText = GlobalAlloc(GMEM_MOVEABLE, wsize * sizeof(WCHAR));
+			LPWSTR const wstr = (LPWSTR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, wsize * sizeof(WCHAR));
 
-			if(  hText != NULL  ) {
-				// Convert and give to clipboard.
-				LPWSTR const wstr = (LPWSTR)GlobalLock(hText);
+			if(  wstr != NULL  ) {
+				// Convert string. NUL appended implicitly by 0ed memory.
 				MultiByteToWideChar(CP_UTF8, 0, source, len, wstr, wsize);
-				wstr[wsize - 1] = 0;
-				GlobalUnlock(hText);
-				SetClipboardData(CF_UNICODETEXT, hText);
+				SetClipboardData(CF_UNICODETEXT, wstr);
 			}
 		}
 		CloseClipboard();
@@ -57,10 +54,9 @@ size_t dr_paste(char *target, size_t max_length)
 	size_t insert_len = 0;
 
 	if(  OpenClipboard(NULL)  ) {
-		HGLOBAL hText = GetClipboardData(CF_UNICODETEXT);
-		if(  hText != NULL  ) {
-			// Convert entire string to UTF8.
-			LPWSTR const wstr = (LPWSTR)GlobalLock(hText);
+		LPWSTR const wstr = (LPWSTR)GetClipboardData(CF_UNICODETEXT);
+		if(  wstr != NULL  ) {
+			// Convert entire clipboard to UTF-8.
 			int const size = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, NULL, 0, NULL, NULL);
 			char *const str = new char[size];
 			WideCharToMultiByte(CP_UTF8, 0, wstr, -1, str, size, NULL, NULL);
@@ -72,7 +68,6 @@ size_t dr_paste(char *target, size_t max_length)
 			memcpy(target, str, insert_len);
 
 			delete[] str;
-			GlobalUnlock(hText);
 		}
 		CloseClipboard();
 	}
