@@ -53,8 +53,8 @@ name=forge_costs
 note=Text in the way info window, displaying the forge costs
 -
 obj=program_text
-name=
-note=
+name=in class
+note=This text is shown in the convoy's information window when the player has chosen to display in which classes of accommodation that the passengers/mail aboard the convoy are travelling, in the format "X passengers loaded in class: Low"
 -
 obj=program_text
 name=

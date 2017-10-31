@@ -5090,7 +5090,7 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 				class_name = new (nothrow) char[32];
 				sprintf(class_name, "p_class[%u]", i);
 				char final_text[100];
-				sprintf(final_text, "(%s %s) %s", translator::translate(class_name), translator::translate("accommodation"), translator::translate("loaded"));
+				sprintf(final_text, "%s %s: %s ", translator::translate("loaded"), translator::translate("in class"), translator::translate(class_name));
 				freight_list_sorter_t::sort_freight(pass_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &pass_capacity, final_text);
 			}
 		}
@@ -5101,7 +5101,7 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 				class_name = new (nothrow) char[32];
 				sprintf(class_name, "m_class[%u]", i);
 				char final_text[100];
-				sprintf(final_text, "(%s %s) %s", translator::translate(class_name), translator::translate("accommodation"), translator::translate("loaded"));
+				sprintf(final_text, "%s %s: %s ", translator::translate("loaded"), translator::translate("in class"), translator::translate(class_name));
 				freight_list_sorter_t::sort_freight(mail_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &mail_capacity, final_text);
 			}
 		}
