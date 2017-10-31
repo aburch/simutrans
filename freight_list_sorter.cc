@@ -458,24 +458,17 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			// Classes preparations.
 			// Only show classes if we are not already sorting by classes
 			bool show_classes = false;
-			char g_class_translated[32] = "\0";
-			char g_class[32] = "\0";
-			char g_class_alone[32] = "\0";
-			if (sortby != by_class_detail && sortby != by_class_via)
+			char g_class[32];
+			char g_class_untranslated[32];
+			if (ware.is_passenger())
 			{
-				char g_class_untranslated[32] = "\0";
-				if (ware.is_passenger())
-				{
-					sprintf(g_class_untranslated,"p_class[%u]", ware.get_class());
-				}
-				if (ware.is_mail())
-				{
-					sprintf(g_class_untranslated,"m_class[%u]", ware.get_class());
-				}
-				sprintf(g_class, "; %s", g_class_translated);
-				sprintf(g_class_alone, " (%s)", g_class_translated);
+				sprintf(g_class_untranslated,"p_class[%u]", ware.get_class());
 			}
-
+			if (ware.is_mail())
+			{
+				sprintf(g_class_untranslated,"m_class[%u]", ware.get_class());
+			}
+			sprintf(g_class, "%s", translator::translate(g_class_untranslated));
 
 			// detail amount
 			goods_desc_t const& desc = *ware.get_desc();
