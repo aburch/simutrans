@@ -149,7 +149,6 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 					{
 						return via_order < 0;
 					}
-
 				}
 				else
 				{
@@ -472,10 +471,10 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				{
 					sprintf(g_class_untranslated,"m_class[%u]", ware.get_class());
 				}
+				sprintf(g_class_translated, translator::translate(g_class_untranslated));
 				sprintf(g_class, "; %s", g_class_translated);
 				sprintf(g_class_alone, " (%s)", g_class_translated);
 			}
-
 
 			// detail amount
 			goods_desc_t const& desc = *ware.get_desc();
@@ -519,16 +518,23 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 
 					if(city)
 					{
-						buf.printf("%s <%i, %i> (%s; %s; %s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name(), trip_type, g_class); // With class entries
+						buf.printf("%s <%i, %i> (%s; %s%s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name(), trip_type, g_class);
 					}
 					else 
 					{
-						buf.printf("%s <%i, %i> (%s; %s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, trip_type, g_class); // With class entries
+						buf.printf("%s <%i, %i> (%s%s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, trip_type, g_class);
 					}
 				}
 				else if (ware.is_mail() && (sortby == by_destination_detail || sortby == by_class_detail))
-				{				
-					buf.printf("%s <%i, %i> (%s; %s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name(), g_class); // With class entries
+				{
+					if (city)
+					{
+						buf.printf("%s <%i, %i> (%s%s)\n     ", dbuf.get_str(), zielpos.x, zielpos.y, city->get_name(), g_class);
+					}
+					else
+					{
+						buf.printf("%s <%i, %i>%s\n     ", dbuf.get_str(), zielpos.x, zielpos.y, g_class_alone);
+					}
 				}
 				else if(sortby == by_destination_detail)
 				{
@@ -590,11 +596,11 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				{
 					const char* trip_type = (ware.is_commuting_trip ? translator::translate("commuting") : translator::translate("visiting"));
 
-					buf.printf(translator::translate(" from %s (%s; %s)"), origin_name, trip_type, g_class); // With class entries
+					buf.printf(translator::translate(" from %s (%s%s)"), origin_name, trip_type, g_class); // With class entries
 				}
 				else if (ware.is_mail())
 				{
-					buf.printf(translator::translate(" from %s (%s)"), origin_name, g_class); // With class entries
+					buf.printf(translator::translate(" from %s%s"), origin_name, g_class_alone); // With class entries
 				}
 			}
 
