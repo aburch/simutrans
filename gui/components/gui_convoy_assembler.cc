@@ -258,7 +258,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	}
 
 	bt_class_management.set_typ(button_t::roundbox);
-	bt_class_management.set_text("class_management");
+	bt_class_management.set_text("class_manager");
 	bt_class_management.add_listener(this);
 	bt_class_management.set_tooltip("see_and_change_the_class_assignments");
 	add_component(&bt_class_management);
@@ -2574,7 +2574,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 	{
 		y = -LINESPACE - 1; // To make the text appear in line with the other text //Ves
 		cbuf.clear();
-		cbuf.printf(translator::translate("no_storage_capacity"));
+		cbuf.printf(translator::translate("no_cargo_capacity"));
 		display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		y += LINESPACE + 1;
 	}
