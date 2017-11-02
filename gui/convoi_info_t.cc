@@ -118,7 +118,9 @@ const char *convoi_info_t::sort_text[SORT_MODES] =
 	"Menge",
 	"origin (detail)",
 	"origin (amount)",
-	"destination (detail)"
+	"destination (detail)",
+	"class (detail)",
+	"class (via)"
 };
 
 
