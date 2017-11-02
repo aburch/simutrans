@@ -7,7 +7,6 @@
 #include "simtypes.h"
 
 utf32 const UNICODE_NUL = 0;
-utf32 const UNICODE_INVALID = 0xFFFD;
 
 static inline int is_1byte_seq(utf8 c) { return c<0x80; }	// normal ASCII (equivalent to (c & 0x80) == 0x00)
 static inline int is_2byte_seq(utf8 c) { return (c & 0xE0) == 0xC0; } // 2 Byte sequence, total letter value is 110xxxxx 10yyyyyy => 00000xxx xxyyyyyy
@@ -76,9 +75,9 @@ utf32 utf8_decoder_t::decode(utf8 const *const buff, size_t &len) {
 	}
 
 	if(  len == 0  ) {
-		// Replace invalid sequences with invalid character.
+		// Replace invalid sequences with code point of the single decoded character (ISO-8859-1).
 		len = 1;
-		cp = UNICODE_INVALID;
+		cp = character;
 	}
 
 	return cp;

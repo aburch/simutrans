@@ -19,12 +19,6 @@ typedef unsigned short utf16;
 extern utf32 const UNICODE_NUL;
 
 /**
- * Unicode code point emmited when decoding an invalid Unicode sequence.
- * Presence of this code point might signal an invalid Unicode sequence.
- */
-extern utf32 const UNICODE_INVALID;
-
-/**
  * UTF-8 string decoder that can be used to iterate through all code points.
  */
 class utf8_decoder_t
@@ -40,7 +34,7 @@ public:
 	 * Decodes a Unicode code point from the byte sequence pointed to by buff.
 	 * On return buff has been advanced to point at the beginning of the next Unicode code point.
 	 * Does not respect NUL terminator character, care should be taken to detect the emmited UNICODE_NUL when decoding C strings to avoid buffer over run errors.
-	 * Invalid Unicode sequences return UNICODE_INVALID and advance buff 1 byte.
+	 * Invalid Unicode sequences are intepreted using ISO-8859-1 and advance buff 1 byte.
 	 */
 	static utf32 decode(utf8 const *&buff);
 
@@ -48,7 +42,7 @@ public:
 	 * Decodes a Unicode code point from the byte sequence pointed to by buff.
 	 * On return len contains the length of the Unicode character in bytes.
 	 * Does not respect NUL terminator character, care should be taken to detect the emmited UNICODE_NUL when decoding C strings to avoid buffer over run errors.
-	 * Invalid Unicode sequences return UNICODE_INVALID with a length of 1 byte.
+	 * Invalid Unicode sequences are intepreted using ISO-8859-1 with a len of 1.
 	 */
 	static utf32 decode(utf8 const *const buff, size_t &len);
 
