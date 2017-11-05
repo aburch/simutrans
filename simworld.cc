@@ -9218,6 +9218,8 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 		}
 	}
 
+	vehicle_t::sound_ticks = 0;
+
 	// MUST be at the end of the load/save routine.
 	if(  file->get_version()>=102004  ) {
 		if(  env_t::restore_UI  ) {
