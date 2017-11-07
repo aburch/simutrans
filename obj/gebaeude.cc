@@ -980,7 +980,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			{
 				buf.append(translator::translate("infinite_range"));
 			}
-			else if (radius<1000)
+			else if (radius < 1000)
 
 			{
 				buf.append(radius);
@@ -1167,25 +1167,62 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 
 		// Now all class related stuff of the building should be ready for display
-		buf.printf("%s:\n", translator::translate("visitors_from_this_building"));
+		// Not all types of building has to show all classes entries, so some conditions for displaying it is applied
+
+		// Using the section below, two 'tables' of class entries will show up in a buildings window
+		//if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
+		//{
+		//	buf.printf("%s:\n", translator::translate("passenger_wealth"));
+		//}
+		//else
+		//{
+		//	buf.printf("%s:\n", translator::translate("wealth_of_visitors"));
+		//}
+		//for (int i = 0; i < pass_classes; i++)
+		//{
+		//	char class_name_untranslated[32];
+		//	sprintf(class_name_untranslated, "p_class[%u]", i);
+		//	const char* class_name = translator::translate(class_name_untranslated);
+		//	buf.printf("  %i%% %s\n", class_percentage[i], class_name);
+		//}
+		//buf.append("\n");
+
+		//if (get_tile()->get_desc()->get_type() != building_desc_t::city_res)
+		//{
+		//	buf.printf("%s:\n", translator::translate("wealth_of_commuters"));
+		//	for (int i = 0; i < pass_classes; i++)
+		//	{
+		//		char class_name_untranslated[32];
+		//		sprintf(class_name_untranslated, "p_class[%u]", i);
+		//		const char* class_name = translator::translate(class_name_untranslated);
+		//		buf.printf("  %i%% %s\n", class_percentage_job[i], class_name);
+		//	}
+		//	buf.append("\n");
+		//}
+
+		if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
+		{
+			buf.printf("%s:\n", translator::translate("passenger_wealth"));
+		}
+		else
+		{
+			buf.printf("%s:\n", translator::translate("wealth_of_visitors/commuters"));
+		}
 		for (int i = 0; i < pass_classes; i++)
 		{
 			char class_name_untranslated[32];
+			char commuters[32] = "\0";
 			sprintf(class_name_untranslated, "p_class[%u]", i);
 			const char* class_name = translator::translate(class_name_untranslated);
-			buf.printf("  %i%% %s\n", class_percentage[i], class_name);
+			if (get_tile()->get_desc()->get_type() != building_desc_t::city_res)
+			{
+				sprintf(commuters, "/%i%%", class_percentage_job[i]);
+			}
+			buf.printf("  %i%%%s %s\n", class_percentage[i], commuters, class_name);
 		}
 		buf.append("\n");
 
-		buf.printf("%s:\n", translator::translate("commuters_from_this_building"));
-		for (int i = 0; i < pass_classes; i++)
-		{
-			char class_name_untranslated[32];
-			sprintf(class_name_untranslated, "p_class[%u]", i);
-			const char* class_name = translator::translate(class_name_untranslated);
-			buf.printf("  %i%% %s\n", class_percentage_job[i], class_name);
-		}
-		buf.append("\n");
+
 
 		if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
 		{
@@ -1199,7 +1236,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				buf.printf(" 0%%");
 			}
 
-			buf.printf("\n");			
+			buf.printf("\n");
 			buf.printf("%s", translator::translate("Passenger success rate this year (non-local):"));
 			if (get_passenger_success_percent_this_year_visiting() < 65535)
 			{
@@ -1245,7 +1282,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		const nearby_halt_t *const halt_list = plan->get_haltlist();
 		bool any_suitable_stops_passengers = false;
 		bool any_suitable_stops_mail = false;
-		int total_stop_entries = plan->get_haltlist_count() -1;
+		int total_stop_entries = plan->get_haltlist_count() - 1;
 		int max_stop_entries = 6;
 		int stop_entry_counter;
 		uint16 max_walking_time;
@@ -1429,7 +1466,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			buf.append(translator::translate("\nNo postboxes within walking distance"));
 		}
 		buf.printf("\n");
-	
+
 		buf.printf("%s%u", translator::translate("\nBauzeit von"), h.get_intro_year_month() / 12);
 		if (h.get_retire_year_month() != DEFAULT_RETIRE_DATE * 12) {
 			buf.printf("%s%u", translator::translate("\nBauzeit bis"), h.get_retire_year_month() / 12);
