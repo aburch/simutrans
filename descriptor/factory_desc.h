@@ -235,7 +235,7 @@ private:
 	uint16 mail_demand; // Kept for backwards compatibility only. This is now read from the associated gebaeude_t object.
 	uint16 base_max_distance_to_consumer;
 	uint16 max_distance_to_consumer;
-	sint16 sound_id;
+	uint16 sound_id;
 	uint32 sound_interval;
 	uint8 field_output_divider; // The number by which the total production of all fields is divided.
 
@@ -303,7 +303,7 @@ public:
 	uint16 get_mail_demand() const { return mail_demand; }
 
 	// more effects when producing
-	sint8 get_sound() const { return sound_id; }
+	sint16 get_sound() const { return sound_id; }
 	uint32 get_sound_interval_ms() const { return sound_interval; }
 	
 	uint16 get_max_distance_to_consumer() const { return max_distance_to_consumer; }

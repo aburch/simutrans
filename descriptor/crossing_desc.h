@@ -32,7 +32,7 @@ private:
 	waytype_t waytype1;
 	waytype_t waytype2;
 
-	sint8 sound;
+	sint16 sound;
 
 	uint32 closed_animation_time;
 	uint32 open_animation_time;
@@ -73,7 +73,7 @@ public:
 	uint16 get_phases(bool open, bool front) const { return get_child<image_list_t>(6 - 4 * open + 2 * front)->get_count(); }
 	uint32 get_animation_time(bool open) const { return open ? open_animation_time : closed_animation_time; }
 
-	sint8 get_sound() const { return sound; }
+	sint16 get_sound() const { return sound; }
 
 	void calc_checksum(checksum_t *chk) const
 	{
