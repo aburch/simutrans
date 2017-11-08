@@ -1021,86 +1021,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 		building_desc_t const& h = *tile->get_desc();
 
-
-		// class entries
-		char p_class[32] = "\0";
-		char m_class[32] = "\0";
-		uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
-
-		// Now all class related stuff of the building should be ready for display
-		// Not all types of building has to show all classes entries, so some conditions for displaying it is applied
-
-		// Using the section below, two 'tables' of class entries will show up in a buildings window
-		//if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
-		//{
-		//	buf.printf("%s:\n", translator::translate("passenger_wealth"));
-		//}
-		//else
-		//{
-		//	buf.printf("%s:\n", translator::translate("wealth_of_visitors"));
-		//}
-		//for (int i = 0; i < pass_classes; i++)
-		//{
-		//	char class_name_untranslated[32];
-		//	sprintf(class_name_untranslated, "p_class[%u]", i);
-		//	const char* class_name = translator::translate(class_name_untranslated);
-		//	buf.printf("  %i%% %s\n", class_percentage[i], class_name);
-		//}
-		//buf.append("\n");
-
-		//if (get_tile()->get_desc()->get_type() != building_desc_t::city_res)
-		//{
-		//	buf.printf("%s:\n", translator::translate("wealth_of_commuters"));
-		//	for (int i = 0; i < pass_classes; i++)
-		//	{
-		//		char class_name_untranslated[32];
-		//		sprintf(class_name_untranslated, "p_class[%u]", i);
-		//		const char* class_name = translator::translate(class_name_untranslated);
-		//		buf.printf("  %i%% %s\n", class_percentage_job[i], class_name);
-		//	}
-		//	buf.append("\n");
-		//}
-
-		//int condition = 0; // 1 = visitors only, 2 = visitors + commuters, 3 = commuters only
-
-		//if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
-		//{
-		//	buf.printf("%s:\n", translator::translate("passenger_wealth"));
-		//	condition = 1;
-		//}
-		//else if (get_adjusted_visitor_demand() > 0 && get_adjusted_jobs() > 0)
-		//{
-		//	buf.printf("%s:\n", translator::translate("wealth_of_visitors_(commuters)"));
-		//	condition = 2;
-		//}
-		//else if (get_adjusted_visitor_demand() == 0 && get_adjusted_jobs() > 0)
-		//{
-		//	buf.printf("%s:\n", translator::translate("wealth_of_commuters"));
-		//	condition = 3;
-		//}
-		//else if (get_adjusted_visitor_demand() > 0 && get_adjusted_jobs() == 0)
-		//{
-		//	buf.printf("%s:\n", translator::translate("wealth_of_visitors"));
-		//	condition = 1;
-		//}
-		//for (int i = 0; i < pass_classes; i++)
-		//{
-		//	char class_name_untranslated[32];
-		//	sprintf(class_name_untranslated, "p_class[%u]", i);
-		//	const char* class_name = translator::translate(class_name_untranslated);
-		//	if (condition == 1)
-		//	{
-		//		buf.printf("  %i%% %s\n", get_class_percentage(i,false), class_name);
-		//	}
-		//	else if (condition == 2)
-		//	{
-		//		buf.printf("  %i%% (%i%%) %s\n", get_class_percentage(i, false), get_class_percentage(i, true), class_name);
-		//	}
-		//	if (condition == 3)
-		//	{
-		//		buf.printf("  %i%% %s\n", get_class_percentage(i, false), class_name);
-		//	}
-		//}
+		// Now all class related stuff that we just pickup from the function below:
 		get_class_percentage(buf);
 		buf.append("\n");
 
@@ -1108,7 +1029,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 		if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
 		{
-			buf.printf("%s", translator::translate("Passenger success rate this year (local):"));
+			buf.printf("%s", translator::translate("Residents success rate this year (local):"));
 			if (get_passenger_success_percent_this_year_commuting() < 65535)
 			{
 				buf.printf(" %i%%", get_passenger_success_percent_this_year_commuting());
@@ -1119,7 +1040,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			}
 
 			buf.printf("\n");
-			buf.printf("%s", translator::translate("Passenger success rate this year (non-local):"));
+			buf.printf("%s", translator::translate("Residents success rate this year (non-local):"));
 			if (get_passenger_success_percent_this_year_visiting() < 65535)
 			{
 				buf.printf(" %i%%", get_passenger_success_percent_this_year_visiting());
@@ -1132,14 +1053,14 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 			if (get_passenger_success_percent_last_year_commuting() < 65535)
 			{
-				buf.printf(translator::translate("Passenger success rate last year (local):"));
+				buf.printf(translator::translate("Residents success rate last year (local):"));
 				buf.printf(" %i%%", get_passenger_success_percent_last_year_commuting());
 				buf.printf("\n");
 			}
 
 			if (get_passenger_success_percent_last_year_visiting() < 65535)
 			{
-				buf.printf(translator::translate("Passenger success rate last year (non-local):"));
+				buf.printf(translator::translate("Residents success rate last year (non-local):"));
 				buf.printf(" %i%%", get_passenger_success_percent_last_year_visiting());
 				buf.printf("\n");
 			}
@@ -1314,8 +1235,8 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				char walking_time_as_clock[32];
 				welt->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), max_walking_time);
 				buf.printf("\n");
-				buf.printf(translator::translate("%i more_stops,_max_walking_time: %s "), stop_entry_counter - max_stop_entries, walking_time_as_clock);
-				buf.append("(");
+				buf.printf(translator::translate("%i more_stops,_max_walking_time: %s"), stop_entry_counter - max_stop_entries, walking_time_as_clock);
+				buf.append(" (");
 				const double km_to_halt = (double)max_tiles_to_halt * km_per_tile;
 				if (km_to_halt < 1)
 				{
@@ -1518,7 +1439,7 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 
 	if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
 	{
-		buf.printf("%s:\n", translator::translate("passenger_wealth"));
+		buf.printf("%s:\n", translator::translate("residents_wealth"));
 		condition = 1;
 	}
 	else if (get_adjusted_visitor_demand() > 0 && get_adjusted_jobs() > 0)
