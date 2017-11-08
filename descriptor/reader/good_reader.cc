@@ -92,5 +92,5 @@ obj_desc_t * goods_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->color);
 
 
-  return desc;
+	return desc;
 }

@@ -295,7 +295,7 @@ pedes_and_car_info = 0
 citycar_level = 5
 
 # After how many month a citycar breaks (and will be forever gone) ...
-# default is ten years
+# default is ten years (at bits_per_month setting of 20)
 default_citycar_life = 36
 
 # Show info on trees?
