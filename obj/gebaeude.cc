@@ -1153,8 +1153,8 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				char walking_time_as_clock[32];
 				welt->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), max_walking_time);
 				buf.printf("\n");
-				buf.printf(translator::translate("%i more_stops,_max_walking_time: %s "), stop_entry_counter - max_stop_entries, walking_time_as_clock);
-				buf.append("(");
+				buf.printf(translator::translate("%i_more_stops,_max_walking_time:_%s"), stop_entry_counter - max_stop_entries, walking_time_as_clock);
+				buf.append(" (");
 				const double km_to_halt = (double)max_tiles_to_halt * km_per_tile;
 				if (km_to_halt < 1)
 				{
@@ -1235,7 +1235,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				char walking_time_as_clock[32];
 				welt->sprintf_time_tenths(walking_time_as_clock, sizeof(walking_time_as_clock), max_walking_time);
 				buf.printf("\n");
-				buf.printf(translator::translate("%i more_stops,_max_walking_time: %s"), stop_entry_counter - max_stop_entries, walking_time_as_clock);
+				buf.printf(translator::translate("%i_more_stops,_max_walking_time:_%s"), stop_entry_counter - max_stop_entries, walking_time_as_clock);
 				buf.append(" (");
 				const double km_to_halt = (double)max_tiles_to_halt * km_per_tile;
 				if (km_to_halt < 1)
