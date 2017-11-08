@@ -272,6 +272,7 @@
 " Mark Appleby of Youtube", "",
 " 84asrd84boxy of Youtube", "",
 " Sans Pareil of Youtube", "",
+" Richard Walker of Youtube", "",
 "","",
 "Translation:","",
 "","",
