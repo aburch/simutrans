@@ -1006,8 +1006,10 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			}
 			buf.append("\n\n");
 		}
-
-		buf.printf("%s: %d\n", translator::translate("citicens"), get_adjusted_population());
+		if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
+		{
+			buf.printf("%s: %d\n", translator::translate("citicens"), get_adjusted_population());
+		}
 		buf.printf("%s: %d\n", translator::translate("Visitor demand"), get_adjusted_visitor_demand());
 #ifdef DEBUG
 		buf.printf("%s (%s): %d (%d)\n", translator::translate("Jobs"), translator::translate("available"), get_adjusted_jobs(), check_remaining_available_jobs());
@@ -1023,148 +1025,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		// class entries
 		char p_class[32] = "\0";
 		char m_class[32] = "\0";
-
-		int class_percentage[255] = { 0 };
-		int class_percentage_job[255] = { 0 };
 		uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
-
-		// Does this building have any class related stuff assigned?
-		if (h.get_number_of_class_proportions() == 0)
-		{
-			for (int i = 0; i < pass_classes; i++)
-			{
-				class_percentage[i] = 100 / pass_classes;
-			}
-		}
-
-		// Apparently it does (if it continues past this point), so lets get on with the calculations!
-		else
-		{
-			long double class_proportions_sum = 0;
-			int count_to_hundred = 0;
-
-			// Find the total amount
-			for (int i = 0; i < h.get_number_of_class_proportions(); i++)
-			{
-				{
-					class_proportions_sum += h.get_class_proportion(i);
-				}
-			}
-
-			// Calculate how much each class is as a percentage of the total amount
-			for (int i = 0; i < h.get_number_of_class_proportions(); i++)
-			{
-				class_percentage[i] = h.get_class_proportion(i) / class_proportions_sum * 100;
-				count_to_hundred += class_percentage[i];
-			}
-
-			// Since rounding errors occur, we need to correct that, so the total percentage stays at 100%
-			if (count_to_hundred < 100)
-			{
-				bool hundred_yet = false;
-				for (int i = 0; hundred_yet == false; i++)
-				{
-					for (int j = 0; j < h.get_number_of_class_proportions(); j++)
-					{
-						if (class_percentage[j] != 0 && count_to_hundred < 100)
-						{
-							class_percentage[j]++;
-							count_to_hundred++;
-						}
-					}
-					if (count_to_hundred >= 100)
-					{
-						hundred_yet = true;
-					}
-				}
-			}
-
-			// And just to make sure there is no rounding errors the other way too..
-			if (count_to_hundred > 100)
-			{
-				bool hundred_yet = false;
-				for (int i = 0; hundred_yet == false; i++)
-				{
-					for (int j = 0; j < h.get_number_of_class_proportions(); j++)
-					{
-						if (class_percentage[j] != 0 && count_to_hundred > 100)
-						{
-							class_percentage[j]--;
-							count_to_hundred--;
-						}
-					}
-					if (count_to_hundred <= 100)
-					{
-						hundred_yet = true;
-					}
-				}
-			}
-		}
-
-
-		// And now the poor commuters deserves the same threatment..
-		if (h.get_number_of_class_proportions_jobs() == 0)
-		{
-			for (int i = 0; i < pass_classes; i++)
-			{
-				class_percentage_job[i] = 100 / pass_classes;
-			}
-		}
-		else
-		{
-			long double class_proportions_sum = 0;
-			int count_to_hundred = 0;
-			for (int i = 0; i < h.get_number_of_class_proportions_jobs(); i++)
-			{
-				{
-					class_proportions_sum += h.get_class_proportion_jobs(i);
-				}
-			}
-			for (int i = 0; i < h.get_number_of_class_proportions_jobs(); i++)
-			{
-				class_percentage_job[i] = h.get_class_proportion_jobs(i) / class_proportions_sum * 100;
-				count_to_hundred += class_percentage_job[i];
-			}
-			if (count_to_hundred < 100)
-			{
-				bool hundred_yet = false;
-				for (int i = 0; hundred_yet == false; i++)
-				{
-					for (int j = 0; j < h.get_number_of_class_proportions_jobs(); j++)
-					{
-						if (class_percentage_job[j] != 0 && count_to_hundred < 100)
-						{
-							class_percentage_job[j]++;
-							count_to_hundred++;
-						}
-					}
-					if (count_to_hundred >= 100)
-					{
-						hundred_yet = true;
-					}
-				}
-			}
-			if (count_to_hundred > 100)
-			{
-				bool hundred_yet = false;
-				for (int i = 0; hundred_yet == false; i++)
-				{
-					for (int j = 0; j < h.get_number_of_class_proportions_jobs(); j++)
-					{
-						if (class_percentage_job[j] != 0 && count_to_hundred > 100)
-						{
-							class_percentage_job[j]--;
-							count_to_hundred--;
-						}
-					}
-					if (count_to_hundred <= 100)
-					{
-						hundred_yet = true;
-					}
-				}
-			}
-		}
-
 
 		// Now all class related stuff of the building should be ready for display
 		// Not all types of building has to show all classes entries, so some conditions for displaying it is applied
@@ -1200,26 +1061,47 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 		//	buf.append("\n");
 		//}
 
-		if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
-		{
-			buf.printf("%s:\n", translator::translate("passenger_wealth"));
-		}
-		else
-		{
-			buf.printf("%s:\n", translator::translate("wealth_of_visitors/commuters"));
-		}
-		for (int i = 0; i < pass_classes; i++)
-		{
-			char class_name_untranslated[32];
-			char commuters[32] = "\0";
-			sprintf(class_name_untranslated, "p_class[%u]", i);
-			const char* class_name = translator::translate(class_name_untranslated);
-			if (get_tile()->get_desc()->get_type() != building_desc_t::city_res)
-			{
-				sprintf(commuters, "/%i%%", class_percentage_job[i]);
-			}
-			buf.printf("  %i%%%s %s\n", class_percentage[i], commuters, class_name);
-		}
+		//int condition = 0; // 1 = visitors only, 2 = visitors + commuters, 3 = commuters only
+
+		//if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
+		//{
+		//	buf.printf("%s:\n", translator::translate("passenger_wealth"));
+		//	condition = 1;
+		//}
+		//else if (get_adjusted_visitor_demand() > 0 && get_adjusted_jobs() > 0)
+		//{
+		//	buf.printf("%s:\n", translator::translate("wealth_of_visitors_(commuters)"));
+		//	condition = 2;
+		//}
+		//else if (get_adjusted_visitor_demand() == 0 && get_adjusted_jobs() > 0)
+		//{
+		//	buf.printf("%s:\n", translator::translate("wealth_of_commuters"));
+		//	condition = 3;
+		//}
+		//else if (get_adjusted_visitor_demand() > 0 && get_adjusted_jobs() == 0)
+		//{
+		//	buf.printf("%s:\n", translator::translate("wealth_of_visitors"));
+		//	condition = 1;
+		//}
+		//for (int i = 0; i < pass_classes; i++)
+		//{
+		//	char class_name_untranslated[32];
+		//	sprintf(class_name_untranslated, "p_class[%u]", i);
+		//	const char* class_name = translator::translate(class_name_untranslated);
+		//	if (condition == 1)
+		//	{
+		//		buf.printf("  %i%% %s\n", get_class_percentage(i,false), class_name);
+		//	}
+		//	else if (condition == 2)
+		//	{
+		//		buf.printf("  %i%% (%i%%) %s\n", get_class_percentage(i, false), get_class_percentage(i, true), class_name);
+		//	}
+		//	if (condition == 3)
+		//	{
+		//		buf.printf("  %i%% %s\n", get_class_percentage(i, false), class_name);
+		//	}
+		//}
+		get_class_percentage(buf);
 		buf.append("\n");
 
 
@@ -1486,6 +1368,194 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 	}
 }
+
+void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
+{
+	building_desc_t const& h = *tile->get_desc();
+	uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
+	int class_percentage[255] = { 0 };
+	int class_percentage_job[255] = { 0 };
+
+	// Does this building have any class related stuff assigned?
+	if (h.get_number_of_class_proportions() == 0)
+	{
+		for (int i = 0; i < pass_classes; i++)
+		{
+			class_percentage[i] = 100 / pass_classes;
+		}
+	}
+
+	// Apparently it does (if it continues past this point), so lets get on with the calculations!
+	else
+	{
+		long double class_proportions_sum = 0;
+		int count_to_hundred = 0;
+
+		// Find the total amount
+		for (int i = 0; i < h.get_number_of_class_proportions(); i++)
+		{
+			{
+				class_proportions_sum += h.get_class_proportion(i);
+			}
+		}
+
+		// Calculate how much each class is as a percentage of the total amount
+		for (int i = 0; i < h.get_number_of_class_proportions(); i++)
+		{
+			class_percentage[i] = h.get_class_proportion(i) / class_proportions_sum * 100;
+			count_to_hundred += class_percentage[i];
+		}
+
+		// Since rounding errors occur, we need to correct that, so the total percentage stays at 100%
+		if (count_to_hundred < 100)
+		{
+			bool hundred_yet = false;
+			for (int i = 0; hundred_yet == false; i++)
+			{
+				for (int j = 0; j < h.get_number_of_class_proportions(); j++)
+				{
+					if (class_percentage[j] != 0 && count_to_hundred < 100)
+					{
+						class_percentage[j]++;
+						count_to_hundred++;
+					}
+				}
+				if (count_to_hundred >= 100)
+				{
+					hundred_yet = true;
+				}
+			}
+		}
+
+		// And just to make sure there is no rounding errors the other way too..
+		if (count_to_hundred > 100)
+		{
+			bool hundred_yet = false;
+			for (int i = 0; hundred_yet == false; i++)
+			{
+				for (int j = 0; j < h.get_number_of_class_proportions(); j++)
+				{
+					if (class_percentage[j] != 0 && count_to_hundred > 100)
+					{
+						class_percentage[j]--;
+						count_to_hundred--;
+					}
+				}
+				if (count_to_hundred <= 100)
+				{
+					hundred_yet = true;
+				}
+			}
+		}
+	}
+
+
+	// And now the poor commuters deserves the same threatment..
+	if (h.get_number_of_class_proportions_jobs() == 0)
+	{
+		for (int i = 0; i < pass_classes; i++)
+		{
+			class_percentage_job[i] = 100 / pass_classes;
+		}
+	}
+	else
+	{
+		long double class_proportions_sum = 0;
+		int count_to_hundred = 0;
+		for (int i = 0; i < h.get_number_of_class_proportions_jobs(); i++)
+		{
+			{
+				class_proportions_sum += h.get_class_proportion_jobs(i);
+			}
+		}
+		for (int i = 0; i < h.get_number_of_class_proportions_jobs(); i++)
+		{
+			class_percentage_job[i] = h.get_class_proportion_jobs(i) / class_proportions_sum * 100;
+			count_to_hundred += class_percentage_job[i];
+		}
+		if (count_to_hundred < 100)
+		{
+			bool hundred_yet = false;
+			for (int i = 0; hundred_yet == false; i++)
+			{
+				for (int j = 0; j < h.get_number_of_class_proportions_jobs(); j++)
+				{
+					if (class_percentage_job[j] != 0 && count_to_hundred < 100)
+					{
+						class_percentage_job[j]++;
+						count_to_hundred++;
+					}
+				}
+				if (count_to_hundred >= 100)
+				{
+					hundred_yet = true;
+				}
+			}
+		}
+		if (count_to_hundred > 100)
+		{
+			bool hundred_yet = false;
+			for (int i = 0; hundred_yet == false; i++)
+			{
+				for (int j = 0; j < h.get_number_of_class_proportions_jobs(); j++)
+				{
+					if (class_percentage_job[j] != 0 && count_to_hundred > 100)
+					{
+						class_percentage_job[j]--;
+						count_to_hundred--;
+					}
+				}
+				if (count_to_hundred <= 100)
+				{
+					hundred_yet = true;
+				}
+			}
+		}
+	}
+
+	
+	int condition = 0; // 1 = visitors only, 2 = visitors + commuters, 3 = commuters only
+
+	if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
+	{
+		buf.printf("%s:\n", translator::translate("passenger_wealth"));
+		condition = 1;
+	}
+	else if (get_adjusted_visitor_demand() > 0 && get_adjusted_jobs() > 0)
+	{
+		buf.printf("%s:\n", translator::translate("wealth_of_visitors_/_commuters"));
+		condition = 2;
+	}
+	else if (get_adjusted_visitor_demand() == 0 && get_adjusted_jobs() > 0)
+	{
+		buf.printf("%s:\n", translator::translate("wealth_of_commuters"));
+		condition = 3;
+	}
+	else if (get_adjusted_visitor_demand() > 0 && get_adjusted_jobs() == 0)
+	{
+		buf.printf("%s:\n", translator::translate("wealth_of_visitors"));
+		condition = 1;
+	}
+	for (int i = 0; i < pass_classes; i++)
+	{
+		char class_name_untranslated[32];
+		sprintf(class_name_untranslated, "p_class[%u]", i);
+		const char* class_name = translator::translate(class_name_untranslated);
+		if (condition == 1)
+		{
+			buf.printf("  %i%% %s\n", class_percentage[i], class_name);
+		}
+		else if (condition == 2)
+		{
+			buf.printf("  %i%% / %i%% %s\n", class_percentage[i], class_percentage[i], class_name);
+		}
+		if (condition == 3)
+		{
+			buf.printf("  %i%% %s\n", class_percentage[i], class_name);
+		}
+	}
+}
+	
 
 void gebaeude_t::new_year()
 {
