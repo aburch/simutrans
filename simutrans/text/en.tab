@@ -3068,14 +3068,14 @@ Only city chains
 Build a city chain of industries
 Only land chains
 Build a rural chain of industries
-Passenger success rate this year (local):
-Passenger success this year (commuting):
-Passenger success rate last year (local):
-Passenger success last year (commuting):
-Passenger success rate this year (non-local):
-Passenger success this year (visiting):
-Passenger success rate last year (non-local):
-Passenger success last year (visiting):
+Residents success rate this year (local):
+Residents success this year (commuting):
+Residents success rate last year (local):
+Residents success last year (commuting):
+Residents success rate this year (non-local):
+Residents success this year (visiting):
+Residents success rate last year (non-local):
+Residents success last year (visiting):
 lake
 Lakes
 The percentage of passengers transported in the region overall
@@ -3386,3 +3386,63 @@ partly_forged
 Partly forged
 forge_costs
 Forge costs
+class_manager
+Class manager
+reset_all_classes
+Reset all classes
+resets_all_classes_to_their_defaults
+Resets all classes to their defaults
+accommodations
+accommodations
+capacity_per_class
+Capacity per class
+overcrowded_capacity
+Overcrowded capacity
+traveling_post_office
+Traveling post office
+capacity: %s %s
+Capacity: %s %s
+comfort: %i
+Comfort: %i
+income_pr_km_(when_full):
+Income per km (when full):
+tpo_income_pr_km_(full_convoy):
+Traveling post office income per km (full convoy):
+catering_income_pr_km_(full_convoy):
+Catering income per km (full convoy):
+see_and_change_the_class_assignments
+See and change the class assignments
+unlimited
+Unlimited
+range
+Range
+Minimum runway length
+Minimum runway lenght
+unpowered
+Unpowered
+this_vehicle_carries_no_good
+This vehicle carries no good
+high_clearance_under_bridges_(no_low_bridges)
+High clearance under bridges (no low bridges)
+equipped_with
+Equipped with
+tilting_vehicle_equipment
+Tilting vehicle equipment
+classes
+classes
+class
+class
+good_units
+good units
+no_cargo_capacity
+No cargo capacity
+residents_wealth
+Residents wealth
+wealth_of_visitors_/_commuters
+Wealth of visitors / commuters
+wealth_of_commuters
+Wealth of commuters
+wealth_of_visitors
+Wealth of visitors
+%i_more_stops,_max_walking_time:_%s
+%i more stops, max walking time: %s
