@@ -6196,20 +6196,24 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		* by hand, the deliverer has a tolerance, but if it is sent through the postal system,
 		* the mail packet itself does not have a tolerance.
 		*
-		* In addition, walking tolerance is divided by two because passengers prefer not to
-		* walk for long distances, as it is tiring, especially with luggage.
-		* (Neroden suggests that this be reconsidered)
+		* In addition, walking tolerance for very long distance journeys (with a journey time greater than
+		* the maximum journey time for commuting passengers, as defined by threshold_tolerance, is divided
+		* by two because passengers prefer not to walk for extremely long distances, as it is tiring,
+		* especially with luggage. Formerly, this was applied to all walking journeys and termed,
+		* "quasi_tolerance", but this did not balance well, especially for commuting trips in early years,
+		* when workers did in reality walk long distances to work. 
 		*/
 		uint32 walking_tolerance = tolerance;
+		const uint32 threshold_tolerance = range_commuting_tolerance + min_commuting_tolerance;
 		if(wtyp == goods_manager_t::mail)
 		{
 			// People will walk long distances with mail: it is not heavy.
-			walking_tolerance = simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::generate_passengers_and_mail (quasi tolerance)") + min_visiting_tolerance;
+			walking_tolerance = simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::generate_passengers_and_mail (walking tolerance)") + min_visiting_tolerance;
 		}
-		else
+		else if(tolerance > threshold_tolerance)
 		{
-			// Passengers. 
-			walking_tolerance = max(tolerance / 2, min(tolerance, 300));
+			// Passengers
+			walking_tolerance = max(tolerance / 2, min(tolerance, threshold_tolerance));
 		}
 
 
