@@ -4340,7 +4340,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		}
 	}
 	// check for residence
-	// (sum_wohnung>sum_industrie  &&  sum_wohnung>sum_gewerbe
+	// (sum_residential > sum_industrial  &&  sum_residential > sum_commercial
 	if (  want_to_have == building_desc_t::unknown ) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == building_desc_t::city_res ? level + 1 : level);
