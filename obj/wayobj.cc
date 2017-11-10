@@ -80,7 +80,7 @@ wayobj_t::wayobj_t(koord3d const pos, player_t* const owner, ribi_t::ribi const 
 
 wayobj_t::~wayobj_t()
 {
-	if(!desc) {
+	if(!desc || welt->is_destroying()) {
 		return;
 	}
 	player_t::add_maintenance(get_owner(), -desc->get_maintenance(), get_waytype());
