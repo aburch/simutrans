@@ -4501,7 +4501,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	signal_t* first_station_signal = NULL;
 	enum station_signal_status { none, forward, inverse };
 	station_signal_status station_signal;
-	uint16 brake_tiles = brake_steps / VEHICLE_STEPS_PER_TILE;
+	uint32 steps_so_far = 0;
 	roadsign_t::signal_aspects next_time_interval_state = roadsign_t::danger;
 	roadsign_t::signal_aspects first_time_interval_state = roadsign_t::advance_caution; // A time interval signal will never be in advance caution, so this is a placeholder to indicate that this value has not been set.
 	signal_t* station_signal_to_clear_for_entry = NULL;
@@ -4528,6 +4528,15 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		grund_t *gr = welt->lookup(pos);
 		schiene_t* sch1 = gr ? (schiene_t *)gr->get_weg(get_waytype()) : NULL;
 
+		if (sch1->is_diagonal())
+		{
+			steps_so_far += diagonal_vehicle_steps_per_tile;
+		}
+		else
+		{
+			steps_so_far += VEHICLE_STEPS_PER_TILE;
+		}
+
 		if((working_method == drive_by_sight && (i - (start_index - 1)) > modified_sighting_distance_tiles) && (!this_halt.is_bound() || (haltestelle_t::get_halt(pos, get_owner())) != this_halt))
 		{
 			// In drive by sight mode, do not reserve further than can be seen (taking account of obstacles);
@@ -4539,8 +4548,9 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		if(working_method == moving_block && !directional_only && last_choose_signal_index >= INVALID_INDEX && !is_choosing)
 		{
 			next_signal_index = i;
+
 			// Do not reserve further than the braking distance in moving block mode.
-			if(i > (brake_tiles + start_index + 1))
+			if(steps_so_far > brake_steps + VEHICLE_STEPS_PER_TILE)
 			{
 				break;
 			}
