@@ -84,7 +84,7 @@ wayobj_t::~wayobj_t()
 		return;
 	}
 	player_t::add_maintenance(get_owner(), -desc->get_maintenance(), get_waytype());
-	if(desc->is_overhead_line()) {
+	if(desc->is_overhead_line() && !welt->is_destroying()) {
 		grund_t *gr=welt->lookup(get_pos());
 		weg_t *weg=NULL;
 		if(gr) {
