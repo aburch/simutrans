@@ -1029,7 +1029,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 		if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
 		{
-			buf.printf("%s", translator::translate("Residents success rate this year (local):"));
+			buf.printf("%s", translator::translate("Passenger success rate this year (local):"));
 			if (get_passenger_success_percent_this_year_commuting() < 65535)
 			{
 				buf.printf(" %i%%", get_passenger_success_percent_this_year_commuting());
@@ -1040,7 +1040,7 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			}
 
 			buf.printf("\n");
-			buf.printf("%s", translator::translate("Residents success rate this year (non-local):"));
+			buf.printf("%s", translator::translate("Passenger success rate this year (non-local):"));
 			if (get_passenger_success_percent_this_year_visiting() < 65535)
 			{
 				buf.printf(" %i%%", get_passenger_success_percent_this_year_visiting());
@@ -1053,14 +1053,14 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 
 			if (get_passenger_success_percent_last_year_commuting() < 65535)
 			{
-				buf.printf(translator::translate("Residents success rate last year (local):"));
+				buf.printf(translator::translate("Passenger success rate last year (local):"));
 				buf.printf(" %i%%", get_passenger_success_percent_last_year_commuting());
 				buf.printf("\n");
 			}
 
 			if (get_passenger_success_percent_last_year_visiting() < 65535)
 			{
-				buf.printf(translator::translate("Residents success rate last year (non-local):"));
+				buf.printf(translator::translate("Passenger success rate last year (non-local):"));
 				buf.printf(" %i%%", get_passenger_success_percent_last_year_visiting());
 				buf.printf("\n");
 			}

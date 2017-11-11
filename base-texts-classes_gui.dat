@@ -157,19 +157,19 @@ name=no_cargo_capacity
 note=depot/replacer window, this convoy hauls nothing..
 -
 obj=program_text
-name=Residents success rate this year (local):
+name=Passenger success rate this year (local):
 note=Building info window
 -
 obj=program_text
-name=Residents success rate this year (non-local):
+name=Passenger success rate this year (non-local):
 note=Building info window
 -
 obj=program_text
-name=Residents success rate last year (local):
+name=Passenger success rate last year (local):
 note=Building info window
 -
 obj=program_text
-name=Residents success rate last year (non-local):
+name=Passenger success rate last year (non-local):
 note=Building info window
 -
 obj=program_text
