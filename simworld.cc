@@ -936,7 +936,7 @@ void karte_t::add_queued_city(stadt_t* city)
 	cities_awaiting_private_car_route_check.append(city);
 }
 
-void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, sint16 old_y)
+void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sint16 old_y)
 {
 	sint32 new_city_count = abs(sets->get_city_count());
 
@@ -946,7 +946,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 	const uint32 max_small_city_size = sets->get_max_small_city_size();
 
 	dbg->important("Creating cities ...");
-	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
+	DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "prepare cities sizes");
 
 	const sint32 city_population_target_count = stadt.empty() ? new_city_count : new_city_count + stadt.get_count() + 1;
 
@@ -960,7 +960,7 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 	// We can generate a Pareto deviate from a uniform deviate on range [0,1)
 	// by taking m_x/u where u is the uniform deviate.
 
-	while(city_population.get_count() < city_population_target_count) {
+	while (city_population.get_count() < city_population_target_count) {
 		uint32 population;
 		do {
 			uint32 rand;
@@ -969,371 +969,371 @@ void karte_t::distribute_cities( settings_t const * const sets, sint16 old_x, si
 			} while (rand == 0);
 
 			population = ((double)median_population / 2) / ((double)rand / 0xffffffff);
-		} while ( city_population.get_count() <  number_of_big_cities && (population <= max_small_city_size  || population > max_city_size) ||
-			  city_population.get_count() >= number_of_big_cities &&  population >  max_small_city_size );
+		} while (city_population.get_count() < number_of_big_cities && (population <= max_small_city_size || population > max_city_size) ||
+			city_population.get_count() >= number_of_big_cities &&  population > max_small_city_size);
 
-		city_population.insert_ordered( population, std::greater<sint32>() );
+		city_population.insert_ordered(population, std::greater<sint32>());
 	}
 
 
 #ifdef DEBUG
-	for (sint32 i =0; i< city_population_target_count; i++) 
+	for (sint32 i = 0; i < city_population_target_count; i++)
 	{
 		DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "City rank %d -- %d", i, city_population[i]);
 	}
 
-	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
+	DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "prepare cities");
 #endif
 
 	vector_tpl<koord> *pos = stadt_t::random_place(this, &city_population, old_x, old_y);
 
-	if ( pos->empty() ) {
+	if (pos->empty()) {
 		// could not generate any town
-		if(pos) {
+		if (pos) {
 			delete pos;
 		}
 		settings.set_city_count(stadt.get_count()); // new number of towns (if we did not find enough positions)
 		return;
 	}
-		// Extra indentation here is to allow for better diff files; it used to be in a block
+	// Extra indentation here is to allow for better diff files; it used to be in a block
 
-		const sint32 old_city_count = stadt.get_count();
-		if (pos->get_count() < new_city_count) {
-			new_city_count = pos->get_count();
-			// Under no circumstances increase the number of new cities!
-		}
-		dbg->important("Creating cities: %d", new_city_count);
+	const sint32 old_city_count = stadt.get_count();
+	if (pos->get_count() < new_city_count) {
+		new_city_count = pos->get_count();
+		// Under no circumstances increase the number of new cities!
+	}
+	dbg->important("Creating cities: %d", new_city_count);
 
-		// prissi if we could not generate enough positions ...
-		settings.set_city_count(old_city_count);
-		int old_progress = 16;
+	// prissi if we could not generate enough positions ...
+	settings.set_city_count(old_city_count);
+	int old_progress = 16;
 
-		// Ansicht auf erste City zentrieren
-		if(  old_x+old_y == 0  ) {
-			viewport->change_world_position( koord3d((*pos)[0], min_hgt((*pos)[0])) );
-		}
-		uint32 max_progress = 16 + 2 * (old_city_count + new_city_count) + 2 * new_city_count + (old_x == 0 ? settings.get_factory_count() : 0);
-		loadingscreen_t ls( translator::translate( "distributing cities" ), max_progress, true, true );
+	// Ansicht auf erste City zentrieren
+	if (old_x + old_y == 0) {
+		viewport->change_world_position(koord3d((*pos)[0], min_hgt((*pos)[0])));
+	}
+	uint32 max_progress = 16 + 2 * (old_city_count + new_city_count) + 2 * new_city_count + (old_x == 0 ? settings.get_factory_count() : 0);
+	loadingscreen_t ls(translator::translate("distributing cities"), max_progress, true, true);
 
-		{
-			// Loop only new cities:
-			uint32 tbegin = dr_time();
-			for(  unsigned i=0;  i<new_city_count;  i++  ) {
-				stadt_t* s = new stadt_t(players[1], (*pos)[i], 1 );
-				DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
-				if (s->get_buildings() > 0) {
-					add_city(s);
-				}
-				else {
-					delete(s);
-				}
+	{
+		// Loop only new cities:
+		uint32 tbegin = dr_time();
+		for (unsigned i = 0; i < new_city_count; i++) {
+			stadt_t* s = new stadt_t(players[1], (*pos)[i], 1);
+			DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "Erzeuge stadt %i with %ld inhabitants", i, (s->get_city_history_month())[HIST_CITICENS]);
+			if (s->get_buildings() > 0) {
+				add_city(s);
 			}
+			else {
+				delete(s);
+			}
+		}
 
-			delete pos;
+		delete pos;
 #ifdef DEBUG
-				dbg->message("karte_t::distribute_groundobjs_cities()", "took %lu ms for all towns", dr_time() - tbegin);
+		dbg->message("karte_t::distribute_groundobjs_cities()", "took %lu ms for all towns", dr_time() - tbegin);
 #endif
 
-			uint32 game_start = current_month;
-			// townhalls available since?
-			FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_list(building_desc_t::townhall)) {
-				uint32 intro_year_month = desc->get_intro_year_month();
-				if(  intro_year_month<game_start  ) {
-					game_start = intro_year_month;
-				}
+		uint32 game_start = current_month;
+		// townhalls available since?
+		FOR(vector_tpl<building_desc_t const*>, const desc, *hausbauer_t::get_list(building_desc_t::townhall)) {
+			uint32 intro_year_month = desc->get_intro_year_month();
+			if (intro_year_month < game_start) {
+				game_start = intro_year_month;
 			}
-			// streets since when?
-			game_start = max( game_start, way_builder_t::get_earliest_way(road_wt)->get_intro_year_month() );
+		}
+		// streets since when?
+		game_start = max(game_start, way_builder_t::get_earliest_way(road_wt)->get_intro_year_month());
 
-			uint32 original_start_year = current_month;
-			uint32 original_industry_gorwth = settings.get_industry_increase_every();
-			settings.set_industry_increase_every( 0 );
+		uint32 original_start_year = current_month;
+		uint32 original_industry_gorwth = settings.get_industry_increase_every();
+		settings.set_industry_increase_every(0);
 
-			for(  uint32 i=old_city_count;  i<stadt.get_count();  i++  ) {
-				// Hajo: do final init after world was loaded/created
-				stadt[i]->finish_rd();
+		for (uint32 i = old_city_count; i < stadt.get_count(); i++) {
+			// Hajo: do final init after world was loaded/created
+			stadt[i]->finish_rd();
 
-				const uint32 citizens = city_population.get_count() > i ? city_population[i] : city_population.get_element(simrand(city_population.get_count() - 1, "void karte_t::distribute_groundobjs_cities"));
+			const uint32 citizens = city_population.get_count() > i ? city_population[i] : city_population.get_element(simrand(city_population.get_count() - 1, "void karte_t::distribute_groundobjs_cities"));
 
-				sint32 diff = (original_start_year-game_start)/2;
-				sint32 growth = 32;
-				sint32 current_bev = stadt[i]->get_einwohner();
+			sint32 diff = (original_start_year - game_start) / 2;
+			sint32 growth = 32;
+			sint32 current_bev = stadt[i]->get_einwohner();
 
-				/* grow gradually while aging
-				 * the difference to the current end year will be halved,
-				 * while the growth step is doubled
-				 */
-				current_month = game_start;
-				bool not_updated = false;
-				bool new_town = true;
-				while(  current_bev < citizens  ) {
-					growth = min( citizens-current_bev, growth*2 );
-					current_bev = stadt[i]->get_einwohner();
-					stadt[i]->change_size( growth, new_town, true );
-					// Only "new" for the first change_size call
-					new_town = false;
-					if(  current_bev > citizens/2  &&  not_updated  ) {
-						ls.set_progress( ++old_progress );
-						not_updated = true;
-					}
-					current_month += diff;
-					diff >>= 1;
+			/* grow gradually while aging
+			 * the difference to the current end year will be halved,
+			 * while the growth step is doubled
+			 */
+			current_month = game_start;
+			bool not_updated = false;
+			bool new_town = true;
+			while (current_bev < citizens) {
+				growth = min(citizens - current_bev, growth * 2);
+				current_bev = stadt[i]->get_einwohner();
+				stadt[i]->change_size(growth, new_town, true);
+				// Only "new" for the first change_size call
+				new_town = false;
+				if (current_bev > citizens / 2 && not_updated) {
+					ls.set_progress(++old_progress);
+					not_updated = true;
 				}
-
-				// the growth is slow, so update here the progress bar
-				ls.set_progress( ++old_progress );
+				current_month += diff;
+				diff >>= 1;
 			}
 
-			current_month = original_start_year;
-			settings.set_industry_increase_every( original_industry_gorwth );
-			msg->clear();
+			// the growth is slow, so update here the progress bar
+			ls.set_progress(++old_progress);
 		}
 
-		finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
-		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = 0;
-		finance_history_year[0][WORLD_JOBS] = finance_history_month[0][WORLD_JOBS] = 0;
-		finance_history_year[0][WORLD_VISITOR_DEMAND] = finance_history_month[0][WORLD_VISITOR_DEMAND] = 0;
+		current_month = original_start_year;
+		settings.set_industry_increase_every(original_industry_gorwth);
+		msg->clear();
+	}
 
-		FOR(weighted_vector_tpl<stadt_t*>, const city, stadt) 
-		{
-			finance_history_year[0][WORLD_CITICENS] += city->get_finance_history_month(0, HIST_CITICENS);  
-			finance_history_month[0][WORLD_CITICENS] += city->get_finance_history_year(0, HIST_CITICENS);
+	finance_history_year[0][WORLD_TOWNS] = finance_history_month[0][WORLD_TOWNS] = stadt.get_count();
+	finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = 0;
+	finance_history_year[0][WORLD_JOBS] = finance_history_month[0][WORLD_JOBS] = 0;
+	finance_history_year[0][WORLD_VISITOR_DEMAND] = finance_history_month[0][WORLD_VISITOR_DEMAND] = 0;
 
-			finance_history_month[0][WORLD_JOBS] += city->get_finance_history_month(0, HIST_JOBS);
-			finance_history_year[0][WORLD_JOBS] += city->get_finance_history_year(0, HIST_JOBS);
+	FOR(weighted_vector_tpl<stadt_t*>, const city, stadt)
+	{
+		finance_history_year[0][WORLD_CITICENS] += city->get_finance_history_month(0, HIST_CITICENS);
+		finance_history_month[0][WORLD_CITICENS] += city->get_finance_history_year(0, HIST_CITICENS);
 
-			finance_history_month[0][WORLD_VISITOR_DEMAND] += city->get_finance_history_month(0, HIST_VISITOR_DEMAND);
-			finance_history_year[0][WORLD_VISITOR_DEMAND] += city->get_finance_history_year(0, HIST_VISITOR_DEMAND);
-		}
+		finance_history_month[0][WORLD_JOBS] += city->get_finance_history_month(0, HIST_JOBS);
+		finance_history_year[0][WORLD_JOBS] += city->get_finance_history_year(0, HIST_JOBS);
 
-		
+		finance_history_month[0][WORLD_VISITOR_DEMAND] += city->get_finance_history_month(0, HIST_VISITOR_DEMAND);
+		finance_history_year[0][WORLD_VISITOR_DEMAND] += city->get_finance_history_year(0, HIST_VISITOR_DEMAND);
+	}
 
-		// Hajo: connect some cities with roads
-		ls.set_what(translator::translate("Connecting cities ..."));
-		way_desc_t const* desc = settings.get_intercity_road_type(get_timeline_year_month());
-		if(desc == NULL || !settings.get_use_timeline()) {
-			// Hajo: try some default (might happen with timeline ... )
-			desc = way_builder_t::weg_search(road_wt, 80, get_timeline_year_month(), type_flat);
-		}
 
-		way_builder_t bauigel (NULL);
-		bauigel.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, desc, tunnel_builder_t::get_tunnel_desc(road_wt, desc->get_topspeed(), get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt, desc->get_topspeed(), get_timeline_year_month()));
-		bauigel.set_keep_existing_ways(true);
-		bauigel.set_maximum(env_t::intercity_road_length);
 
-		// **** intercity road construction
-		int count = 0;
-		sint32 const n_cities  = settings.get_city_count();
-		int    const max_count = n_cities * (n_cities - 1) / 2 - old_city_count * (old_city_count - 1) / 2;
-		// something to do??
-		if(  max_count > 0  ) {
-			// print("Building intercity roads ...\n");
-			ls.set_max( 16 + 2 * (old_city_count + new_city_count) + 2 * new_city_count + (old_x == 0 ? settings.get_factory_count() : 0) );
-			// find townhall of city i and road in front of it
-			vector_tpl<koord3d> k;
-			for (int i = 0;  i < settings.get_city_count(); ++i) {
-				koord k1(stadt[i]->get_townhall_road());
-				if (lookup_kartenboden(k1)  &&  lookup_kartenboden(k1)->hat_weg(road_wt)) {
-					k.append(lookup_kartenboden(k1)->get_pos());
-				}
-				else {
-					// look for a road near the townhall
-					gebaeude_t const* const gb = obj_cast<gebaeude_t>(lookup_kartenboden(stadt[i]->get_pos())->first_obj());
-					bool ok = false;
-					if(  gb  &&  gb->is_townhall()  ) {
-						koord k_check = stadt[i]->get_pos() + koord(-1,-1);
-						const koord size = gb->get_tile()->get_desc()->get_size(gb->get_tile()->get_layout());
-						koord inc(1,0);
-						// scan all adjacent tiles, take the first that has a road
-						for(sint32 i=0; i<2*size.x+2*size.y+4  &&  !ok; i++) {
-							grund_t *gr = lookup_kartenboden(k_check);
-							if (gr  &&  gr->hat_weg(road_wt)) {
-								k.append(gr->get_pos());
-								ok = true;
-							}
-							k_check = k_check + inc;
-							if (i==size.x+1) {
-								inc = koord(0,1);
-							}
-							else if (i==size.x+size.y+2) {
-								inc = koord(-1,0);
-							}
-							else if (i==2*size.x+size.y+3) {
-								inc = koord(0,-1);
-							}
+	// Hajo: connect some cities with roads
+	ls.set_what(translator::translate("Connecting cities ..."));
+	way_desc_t const* desc = settings.get_intercity_road_type(get_timeline_year_month());
+	if (desc == NULL || !settings.get_use_timeline()) {
+		// Hajo: try some default (might happen with timeline ... )
+		desc = way_builder_t::weg_search(road_wt, 80, get_timeline_year_month(), type_flat);
+	}
+
+	way_builder_t bauigel(NULL);
+	bauigel.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, desc, tunnel_builder_t::get_tunnel_desc(road_wt, desc->get_topspeed(), get_timeline_year_month()), bridge_builder_t::find_bridge(road_wt, desc->get_topspeed(), get_timeline_year_month()));
+	bauigel.set_keep_existing_ways(true);
+	bauigel.set_maximum(env_t::intercity_road_length);
+
+	// **** intercity road construction
+	int count = 0;
+	sint32 const n_cities = settings.get_city_count();
+	int    const max_count = n_cities * (n_cities - 1) / 2 - old_city_count * (old_city_count - 1) / 2;
+	// something to do??
+	if (max_count > 0) {
+		// print("Building intercity roads ...\n");
+		ls.set_max(16 + 2 * (old_city_count + new_city_count) + 2 * new_city_count + (old_x == 0 ? settings.get_factory_count() : 0));
+		// find townhall of city i and road in front of it
+		vector_tpl<koord3d> k;
+		for (int i = 0; i < settings.get_city_count(); ++i) {
+			koord k1(stadt[i]->get_townhall_road());
+			if (lookup_kartenboden(k1) && lookup_kartenboden(k1)->hat_weg(road_wt)) {
+				k.append(lookup_kartenboden(k1)->get_pos());
+			}
+			else {
+				// look for a road near the townhall
+				gebaeude_t const* const gb = obj_cast<gebaeude_t>(lookup_kartenboden(stadt[i]->get_pos())->first_obj());
+				bool ok = false;
+				if (gb  &&  gb->is_townhall()) {
+					koord k_check = stadt[i]->get_pos() + koord(-1, -1);
+					const koord size = gb->get_tile()->get_desc()->get_size(gb->get_tile()->get_layout());
+					koord inc(1, 0);
+					// scan all adjacent tiles, take the first that has a road
+					for (sint32 i = 0; i < 2 * size.x + 2 * size.y + 4 && !ok; i++) {
+						grund_t *gr = lookup_kartenboden(k_check);
+						if (gr  &&  gr->hat_weg(road_wt)) {
+							k.append(gr->get_pos());
+							ok = true;
+						}
+						k_check = k_check + inc;
+						if (i == size.x + 1) {
+							inc = koord(0, 1);
+						}
+						else if (i == size.x + size.y + 2) {
+							inc = koord(-1, 0);
+						}
+						else if (i == 2 * size.x + size.y + 3) {
+							inc = koord(0, -1);
 						}
 					}
-					if (!ok) {
-						k.append( koord3d::invalid );
-					}
+				}
+				if (!ok) {
+					k.append(koord3d::invalid);
 				}
 			}
-			// compute all distances
-			uint8 conn_comp=1; // current connection component for phase 0
-			vector_tpl<uint8> city_flag; // city already connected to the graph? >0 nr of connection component
-			array2d_tpl<sint32> city_dist(settings.get_city_count(), settings.get_city_count());
-			for (sint32 i = 0; i < settings.get_city_count(); ++i) {
-				city_dist.at(i,i) = 0;
-				for (sint32 j = i + 1; j < settings.get_city_count(); ++j) {
-					city_dist.at(i,j) = koord_distance(k[i], k[j]);
-					city_dist.at(j,i) = city_dist.at(i,j);
-					// count unbuildable connections to new cities
-					if(  j>=old_city_count && city_dist.at(i,j) >= env_t::intercity_road_length  ) {
-						count++;
-					}
+		}
+		// compute all distances
+		uint8 conn_comp = 1; // current connection component for phase 0
+		vector_tpl<uint8> city_flag; // city already connected to the graph? >0 nr of connection component
+		array2d_tpl<sint32> city_dist(settings.get_city_count(), settings.get_city_count());
+		for (sint32 i = 0; i < settings.get_city_count(); ++i) {
+			city_dist.at(i, i) = 0;
+			for (sint32 j = i + 1; j < settings.get_city_count(); ++j) {
+				city_dist.at(i, j) = koord_distance(k[i], k[j]);
+				city_dist.at(j, i) = city_dist.at(i, j);
+				// count unbuildable connections to new cities
+				if (j >= old_city_count && city_dist.at(i, j) >= env_t::intercity_road_length) {
+					count++;
 				}
-				city_flag.append( i < old_city_count ? conn_comp : 0 );
-
-				// progress bar stuff
-				ls.set_progress( 16 + 2 * new_city_count + count * settings.get_city_count() * 2 / max_count );
 			}
-			// mark first town as connected
-			if (old_city_count==0) {
-				city_flag[0]=conn_comp;
-			}
+			city_flag.append(i < old_city_count ? conn_comp : 0);
 
-			// get a default vehicle
-			route_t verbindung;
-			vehicle_t* test_driver;
-			vehicle_desc_t test_drive_desc(road_wt, 500, vehicle_desc_t::diesel );
-			test_driver = vehicle_builder_t::build(koord3d(), players[1], NULL, &test_drive_desc);
-			test_driver->set_flag( obj_t::not_on_map );
+			// progress bar stuff
+			ls.set_progress(16 + 2 * new_city_count + count * settings.get_city_count() * 2 / max_count);
+		}
+		// mark first town as connected
+		if (old_city_count == 0) {
+			city_flag[0] = conn_comp;
+		}
 
-			bool ready=false;
-			uint8 phase=0;
-			// 0 - first phase: built minimum spanning tree (edge weights: city distance)
-			// 1 - second phase: try to complete the graph, avoid edges that
-			// == have similar length then already existing connection
-			// == lead to triangles with an angle >90 deg
+		// get a default vehicle
+		route_t verbindung;
+		vehicle_t* test_driver;
+		vehicle_desc_t test_drive_desc(road_wt, 500, vehicle_desc_t::diesel);
+		test_driver = vehicle_builder_t::build(koord3d(), players[1], NULL, &test_drive_desc);
+		test_driver->set_flag(obj_t::not_on_map);
 
-			while( phase < 2  ) {
-				ready = true;
-				koord conn = koord::invalid;
-				sint32 best = env_t::intercity_road_length;
+		bool ready = false;
+		uint8 phase = 0;
+		// 0 - first phase: built minimum spanning tree (edge weights: city distance)
+		// 1 - second phase: try to complete the graph, avoid edges that
+		// == have similar length then already existing connection
+		// == lead to triangles with an angle >90 deg
 
-				if(  phase == 0  ) {
-					// loop over all unconnected cities
-					for (int i = 0; i < settings.get_city_count(); ++i) {
-						if(  city_flag[i] == conn_comp  ) {
-							// loop over all connections to connected cities
-							for (int j = old_city_count; j < settings.get_city_count(); ++j) {
-								if(  city_flag[j] == 0  ) {
-									ready=false;
-									if(  city_dist.at(i,j) < best  ) {
-										best = city_dist.at(i,j);
-										conn = koord(i,j);
-									}
-								}
-							}
-						}
-					}
-					// did we completed a connection component?
-					if(  !ready  &&  best == env_t::intercity_road_length  ) {
-						// next component
-						conn_comp++;
-						// try the first not connected city
-						ready = true;
-						for(  int i = old_city_count;  i < settings.get_city_count();  ++i  ) {
-							if(  city_flag[i] ==0  ) {
-								city_flag[i] = conn_comp;
+		while (phase < 2) {
+			ready = true;
+			koord conn = koord::invalid;
+			sint32 best = env_t::intercity_road_length;
+
+			if (phase == 0) {
+				// loop over all unconnected cities
+				for (int i = 0; i < settings.get_city_count(); ++i) {
+					if (city_flag[i] == conn_comp) {
+						// loop over all connections to connected cities
+						for (int j = old_city_count; j < settings.get_city_count(); ++j) {
+							if (city_flag[j] == 0) {
 								ready = false;
-								break;
+								if (city_dist.at(i, j) < best) {
+									best = city_dist.at(i, j);
+									conn = koord(i, j);
+								}
 							}
 						}
 					}
 				}
-				else {
-					// loop over all unconnected cities
-					for (int i = 0; i < settings.get_city_count(); ++i) {
-						for (int j = max(old_city_count, i + 1);  j < settings.get_city_count(); ++j) {
-							if(  city_dist.at(i,j) < best  &&  city_flag[i] == city_flag[j]  ) {
-								bool ok = true;
-								// is there a connection i..l..j ? forbid stumpfe winkel
-								for (int l = 0; l < settings.get_city_count(); ++l) {
-									if(  city_flag[i] == city_flag[l]  &&  city_dist.at(i,l) == env_t::intercity_road_length  &&  city_dist.at(j,l) == env_t::intercity_road_length  ) {
-										// cosine < 0 ?
-										koord3d d1 = k[i]-k[l];
-										koord3d d2 = k[j]-k[l];
-										if(  d1.x*d2.x + d1.y*d2.y < 0  ) {
-											city_dist.at(i,j) = env_t::intercity_road_length+1;
-											city_dist.at(j,i) = env_t::intercity_road_length+1;
-											ok = false;
-											count ++;
-											break;
-										}
+				// did we completed a connection component?
+				if (!ready  &&  best == env_t::intercity_road_length) {
+					// next component
+					conn_comp++;
+					// try the first not connected city
+					ready = true;
+					for (int i = old_city_count; i < settings.get_city_count(); ++i) {
+						if (city_flag[i] == 0) {
+							city_flag[i] = conn_comp;
+							ready = false;
+							break;
+						}
+					}
+				}
+			}
+			else {
+				// loop over all unconnected cities
+				for (int i = 0; i < settings.get_city_count(); ++i) {
+					for (int j = max(old_city_count, i + 1); j < settings.get_city_count(); ++j) {
+						if (city_dist.at(i, j) < best  &&  city_flag[i] == city_flag[j]) {
+							bool ok = true;
+							// is there a connection i..l..j ? forbid stumpfe winkel
+							for (int l = 0; l < settings.get_city_count(); ++l) {
+								if (city_flag[i] == city_flag[l] && city_dist.at(i, l) == env_t::intercity_road_length  &&  city_dist.at(j, l) == env_t::intercity_road_length) {
+									// cosine < 0 ?
+									koord3d d1 = k[i] - k[l];
+									koord3d d2 = k[j] - k[l];
+									if (d1.x*d2.x + d1.y*d2.y < 0) {
+										city_dist.at(i, j) = env_t::intercity_road_length + 1;
+										city_dist.at(j, i) = env_t::intercity_road_length + 1;
+										ok = false;
+										count++;
+										break;
 									}
 								}
-								if(ok) {
-									ready = false;
-									best = city_dist.at(i,j);
-									conn = koord(i,j);
-								}
+							}
+							if (ok) {
+								ready = false;
+								best = city_dist.at(i, j);
+								conn = koord(i, j);
 							}
 						}
 					}
 				}
-				// valid connection?
-				if(  conn.x >= 0  ) {
-					// is there a connection already
-					const bool connected = (  phase==1  &&  verbindung.calc_route(this, k[conn.x], k[conn.y], test_driver, 0, 0, false, 0 )  );
-					// build this connection?
-					bool build = false;
-					// set appropriate max length for way builder
-					if(  connected  ) {
-						if(  2*verbindung.get_count() > (uint32)city_dist.at(conn)  ) {
-							bauigel.set_maximum(verbindung.get_count() / 2);
-							build = true;
-						}
-					}
-					else {
-						bauigel.set_maximum(env_t::intercity_road_length);
+			}
+			// valid connection?
+			if (conn.x >= 0) {
+				// is there a connection already
+				const bool connected = (phase == 1 && verbindung.calc_route(this, k[conn.x], k[conn.y], test_driver, 0, 0, false, 0));
+				// build this connection?
+				bool build = false;
+				// set appropriate max length for way builder
+				if (connected) {
+					if (2 * verbindung.get_count() > (uint32)city_dist.at(conn)) {
+						bauigel.set_maximum(verbindung.get_count() / 2);
 						build = true;
 					}
+				}
+				else {
+					bauigel.set_maximum(env_t::intercity_road_length);
+					build = true;
+				}
 
-					if(  build  ) {
-						bauigel.calc_route(k[conn.x],k[conn.y]);
+				if (build) {
+					bauigel.calc_route(k[conn.x], k[conn.y]);
+				}
+
+				if (build  &&  bauigel.get_count() >= 2) {
+					bauigel.build();
+					if (phase == 0) {
+						city_flag[conn.y] = conn_comp;
 					}
+					// mark as built
+					city_dist.at(conn) = env_t::intercity_road_length;
+					city_dist.at(conn.y, conn.x) = env_t::intercity_road_length;
+					count++;
+				}
+				else {
+					// do not try again
+					city_dist.at(conn) = env_t::intercity_road_length + 1;
+					city_dist.at(conn.y, conn.x) = env_t::intercity_road_length + 1;
+					count++;
 
-					if(  build  &&  bauigel.get_count() >= 2  ) {
-						bauigel.build();
-						if (phase==0) {
-							city_flag[ conn.y ] = conn_comp;
-						}
-						// mark as built
-						city_dist.at(conn) =  env_t::intercity_road_length;
-						city_dist.at(conn.y, conn.x) =  env_t::intercity_road_length;
-						count ++;
-					}
-					else {
-						// do not try again
-						city_dist.at(conn) =  env_t::intercity_road_length+1;
-						city_dist.at(conn.y, conn.x) =  env_t::intercity_road_length+1;
-						count ++;
-
-						if(  phase == 0  ) {
-							// do not try to connect to this connected component again
-							for(  int i = 0;  i < settings.get_city_count();  ++i  ) {
-								if(  city_flag[i] == conn_comp  && city_dist.at(i, conn.y)<env_t::intercity_road_length) {
-									city_dist.at(i, conn.y) =  env_t::intercity_road_length+1;
-									city_dist.at(conn.y, i) =  env_t::intercity_road_length+1;
-									count++;
-								}
+					if (phase == 0) {
+						// do not try to connect to this connected component again
+						for (int i = 0; i < settings.get_city_count(); ++i) {
+							if (city_flag[i] == conn_comp  && city_dist.at(i, conn.y) < env_t::intercity_road_length) {
+								city_dist.at(i, conn.y) = env_t::intercity_road_length + 1;
+								city_dist.at(conn.y, i) = env_t::intercity_road_length + 1;
+								count++;
 							}
 						}
 					}
 				}
-
-				// progress bar stuff
-				ls.set_progress( 16 + 2 * new_city_count + count * settings.get_city_count() * 2 / max_count );
-
-				// next phase?
-				if(ready) {
-					phase++;
-					ready = false;
-				}
 			}
-			delete test_driver;
+
+			// progress bar stuff
+			ls.set_progress(16 + 2 * new_city_count + count * settings.get_city_count() * 2 / max_count);
+
+			// next phase?
+			if (ready) {
+				phase++;
+				ready = false;
+			}
 		}
+		delete test_driver;
+	}
 }
 
 void karte_t::distribute_groundobjs_cities( settings_t const * const sets, sint16 old_x, sint16 old_y)
