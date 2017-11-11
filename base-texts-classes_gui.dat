@@ -53,8 +53,13 @@ name=forge_costs
 note=Text in the way info window, displaying the forge costs
 -
 obj=program_text
+<<<<<<< HEAD
 name=class_manager
 note=Class manager window, name of window
+=======
+name=in class
+note=This text is shown in the convoy's information window when the player has chosen to display in which classes of accommodation that the passengers/mail aboard the convoy are travelling, in the format "X passengers loaded in class: Low"
+>>>>>>> refs/remotes/origin/passenger-and-mail-classes
 -
 obj=program_text
 name=reset_all_classes

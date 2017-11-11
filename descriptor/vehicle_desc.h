@@ -595,7 +595,7 @@ public:
 	uint32 get_fixed_cost() const { return fixed_cost; }
 	uint32 get_fixed_cost(class karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
 	uint32 get_adjusted_monthly_fixed_cost(class karte_t *welt) const; // includes increase for obsolescence and adjustment for monthly figures
-	sint8 get_sound() const { return sound; }
+	sint16 get_sound() const { return sound; }
 	bool is_bidirectional() const { return bidirectional; }
 	bool get_can_lead_from_rear() const { return can_lead_from_rear; }
 	uint8 get_comfort(uint32 g_class = 0) const { return  classes == 0 ? 0: g_class >= classes ? comfort[0] : comfort[g_class]; }

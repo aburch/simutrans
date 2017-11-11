@@ -1135,7 +1135,9 @@ convoi_t::route_infos_t& convoi_t::get_route_infos()
 
 		// calc route infos
 		route_infos.set_count(route_count);
-		uint32 i = min(max(0, current_route_index - 2), route_count - 1);
+		// The below may be a slight optimisation, but it causes uninitialised variables in aircraft in holding patterns.
+		//uint32 i = min(max(0, current_route_index - 2), route_count - 1);
+		uint32 i = 0;
 
 		koord3d current_tile = route.at(i);
 		convoi_t::route_info_t &start_info = route_infos.get_element(i);
@@ -4907,6 +4909,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 {
+<<<<<<< HEAD
 	//if (freight_info_resort) {
 	//	freight_info_resort = false;
 	//	// rebuilt the list with goods ...
@@ -5107,6 +5110,208 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 	//	}
 	//	freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded");
 	//}
+=======
+	if (freight_info_resort) {
+		freight_info_resort = false;
+		// rebuilt the list with goods ...
+		vector_tpl<ware_t> total_fracht;
+		vector_tpl<ware_t> pass_fracht[255];
+		vector_tpl<ware_t> mail_fracht[255];
+
+		uint16 pass_amount_class[255] = { 0 };
+		uint16 mail_amount_class[255] = { 0 };
+
+		uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
+		uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
+
+		char *class_name;
+
+		size_t const n = goods_manager_t::get_count();
+		ALLOCA(uint32, max_loaded_waren, n);
+		MEMZERON(max_loaded_waren, n);
+
+		for (uint32 i = 0; i != vehicle_count; ++i) {
+			const vehicle_t* v = vehicle[i];
+
+			// first add to capacity indicator
+			const goods_desc_t* ware_desc = v->get_desc()->get_freight_type();
+			const uint16 menge = v->get_desc()->get_total_capacity();
+			if (menge > 0 && ware_desc != goods_manager_t::none && ware_desc != goods_manager_t::passengers && ware_desc != goods_manager_t::mail) {
+				max_loaded_waren[ware_desc->get_index()] += menge;
+			}
+			// Then add the maximum class capacities
+			bool pass_veh = v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS;
+			bool mail_veh = v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL;
+
+			if (pass_veh)
+			{
+				for (uint8 j = 0; j < pass_classes; j++)
+				{
+					if (v->get_capacity(j) > 0)
+					{
+						pass_amount_class[j] += v->get_capacity(j);
+					}
+				}
+
+			}
+			if (mail_veh)
+			{
+				for (uint8 j = 0; j < mail_classes; j++)
+				{
+					if (v->get_capacity(j) > 0)
+					{
+						mail_amount_class[j] += v->get_capacity(j);
+					}
+				}
+
+			}
+
+			// Now find out what cargo is onboard:
+			// Start with the passengers and mail
+
+			const uint8 classes_to_check = v->get_desc()->get_number_of_classes();
+
+			if (pass_veh)
+			{
+				for (uint8 j = 0; j < classes_to_check; j++)
+				{
+					// then add the actual load
+					FOR(slist_tpl<ware_t>, ware, v->get_cargo(j))
+					{
+						if (v->get_capacity(v->get_reassigned_class(j)) > 0)
+						{
+							// if != 0 we could not join it to existing => load it
+							if (ware.menge != 0)
+							{
+								pass_fracht[v->get_reassigned_class(j)].append(ware);
+							}
+						}
+					}
+				}
+			}
+			else if (mail_veh)
+			{
+				for (uint8 j = 0; j < classes_to_check; j++)
+				{
+					// then add the actual load
+					FOR(slist_tpl<ware_t>, ware, v->get_cargo(j))
+					{
+						if (v->get_capacity(v->get_reassigned_class(j)) > 0)
+						{
+							// if != 0 we could not join it to existing => load it
+							if (ware.menge != 0)
+							{
+								mail_fracht[v->get_reassigned_class(j)].append(ware);
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				for (uint8 j = 0; j < classes_to_check; j++)
+				{
+					// then add the actual load
+					FOR(slist_tpl<ware_t>, ware, v->get_cargo(v->get_reassigned_class(j)))
+					{
+						// if != 0 we could not join it to existing => load it
+						if (ware.menge != 0)
+						{
+							total_fracht.append(ware);
+						}
+					}
+				}
+			}
+			INT_CHECK("simconvoi 2643");
+
+		}
+		buf.clear();
+
+		// append info on total capacity
+		slist_tpl <ware_t>capacity;
+		for (size_t i = 0; i != n; ++i) {
+			if (max_loaded_waren[i] > 0 && i != goods_manager_t::INDEX_NONE) {
+				ware_t ware(goods_manager_t::get_info(i));
+				ware.menge = max_loaded_waren[i];
+				// append to category?
+				slist_tpl<ware_t>::iterator j = capacity.begin();
+				slist_tpl<ware_t>::iterator end = capacity.end();
+				while (j != end && j->get_desc()->get_catg_index() < ware.get_desc()->get_catg_index()) ++j;
+				if (j != end && j->get_desc()->get_catg_index() == ware.get_desc()->get_catg_index()) {
+					j->menge += max_loaded_waren[i];
+				}
+				else {
+					// not yet there
+					capacity.insert(j, ware);
+				}
+			}
+		}	
+		// append info on all the pass class capacities
+		slist_tpl <ware_t>pass_capacity;
+		for (size_t i = 0; i != pass_classes; ++i) {
+			if (pass_amount_class[i] > 0) {
+				ware_t ware(goods_manager_t::get_info(goods_manager_t::INDEX_PAS));
+				ware.menge = pass_amount_class[i];
+				// append to category?
+				slist_tpl<ware_t>::iterator j = pass_capacity.begin();
+				slist_tpl<ware_t>::iterator end = pass_capacity.end();
+				while (j != end && j->get_class() < ware.get_class()) ++j;
+				if (j != end && j->get_class() == ware.get_class()) {
+					j->menge += pass_amount_class[i];
+				}
+				else {
+					// not yet there
+					pass_capacity.insert(j, ware);
+				}
+			}
+		}
+		// append info on all the mail class capacities
+		slist_tpl <ware_t>mail_capacity;
+		for (size_t i = 0; i != mail_classes; ++i) {
+			if (mail_amount_class[i] > 0) {
+				ware_t ware(goods_manager_t::get_info(goods_manager_t::INDEX_MAIL));
+				ware.menge = mail_amount_class[i];
+				// append to category?
+				slist_tpl<ware_t>::iterator j = mail_capacity.begin();
+				slist_tpl<ware_t>::iterator end = mail_capacity.end();
+				while (j != end && j->get_class() < ware.get_class()) ++j;
+				if (j != end && j->get_class() == ware.get_class()) {
+					j->menge += mail_amount_class[i];
+				}
+				else {
+					// not yet there
+					mail_capacity.insert(j, ware);
+				}
+			}
+		}
+
+		// show new info
+		// Start with the classes:
+		for (uint8 i = 0; i < pass_classes; i++)
+		{
+			if (pass_amount_class[i] > 0)
+			{
+				class_name = new (nothrow) char[32];
+				sprintf(class_name, "p_class[%u]", i);
+				char final_text[100];
+				sprintf(final_text, "%s %s: %s ", translator::translate("loaded"), translator::translate("in class"), translator::translate(class_name));
+				freight_list_sorter_t::sort_freight(pass_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &pass_capacity, final_text);
+			}
+		}
+		for (uint8 i = 0; i < mail_classes; i++)
+		{
+			if (mail_amount_class[i] > 0)
+			{
+				class_name = new (nothrow) char[32];
+				sprintf(class_name, "m_class[%u]", i);
+				char final_text[100];
+				sprintf(final_text, "%s %s: %s ", translator::translate("loaded"), translator::translate("in class"), translator::translate(class_name));
+				freight_list_sorter_t::sort_freight(mail_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &mail_capacity, final_text);
+			}
+		}
+		freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded");
+	}
+>>>>>>> refs/remotes/origin/passenger-and-mail-classes
 }
 
 

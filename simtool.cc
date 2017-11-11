@@ -8171,7 +8171,11 @@ bool tool_change_convoi_t::init( player_t *player )
 			}
 		}
 		cnv->calc_classes_carried();
-		cnv->get_line()->calc_classes_carried();
+		linehandle_t line = cnv->get_line();
+		if(line.is_bound())
+		{
+			line->calc_classes_carried();
+		}
 		break;
 	}
 

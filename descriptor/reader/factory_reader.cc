@@ -264,7 +264,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	fread(desc_buf, node.size, 1, fp);
 
 	desc->sound_id = NO_SOUND;
-	desc->sound_interval = 0xFFFFFFFFul;
+	desc->sound_interval = 10000u;
 
 	char * p = desc_buf;
 

@@ -552,6 +552,7 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 void karte_t::destroy()
 {
 	is_sound = false; // karte_t::play_sound_area_clipped needs valid zeiger (pointer/drawer)
+	vehicle_t::sound_ticks = 0;
 	destroying = true;
 	DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
@@ -7633,7 +7634,7 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_s
  */
 bool karte_t::play_sound_area_clipped(koord const k, uint16 const idx) const
 {
-	if(is_sound && viewport) {
+	if(is_sound && viewport && display_get_width() > 0 && get_tile_raster_width() > 0) {
 		int dist = koord_distance(k, viewport->get_world_position());
 		bool play = false;
 
@@ -9217,6 +9218,8 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			create_win(win, w_info, magic_motd);
 		}
 	}
+
+	vehicle_t::sound_ticks = 0;
 
 	// MUST be at the end of the load/save routine.
 	if(  file->get_version()>=102004  ) {
