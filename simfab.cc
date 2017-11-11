@@ -3373,6 +3373,10 @@ void fabrik_t::adjust_production_for_fields()
 		// by the fields value.
 		set_base_production(desc->get_productivity() + field_production);
 	}
+	else
+	{
+		set_base_production(prodbase); 
+	}
 
 }
 
