@@ -205,7 +205,7 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 	bool sorting_by_class = sortby == by_class_detail || sortby == by_class_via ? true : false;
 	char class_name[32] = "\0";
 	char class_entry[32] = "\0";
-	if ((ware->get_index() == goods_manager_t::INDEX_PAS || ware->get_index() == goods_manager_t::INDEX_MAIL) && sorting_by_class)
+	if ((ware->get_index() == goods_manager_t::INDEX_PAS || ware->get_index() == goods_manager_t::INDEX_MAIL) && sorting_by_class && sum > 0)
 	{
 		sprintf(class_name, ware->get_index() == goods_manager_t::INDEX_PAS ? "p_class[%u]" : "m_class[%u]", g_class);
 		sprintf(class_entry, "(%s) ", translator::translate(class_name));
