@@ -1980,14 +1980,16 @@ void fabrik_t::step(uint32 delta_t)
 		currently_producing = false;
 		power_demand = 0;
 
-		if(output.empty() && desc->is_electricity_producer())
+		if(output.empty() && (desc->is_electricity_producer() || desc->get_building()->get_population_and_visitor_demand_capacity() == 0))
 		{
 			// This formerly provided for all consumption for end consumers. 
-			// However, consumption for end consumers other than power stations
-			// is now handled by arriving passengers. 
-
-			// power station => start with no production
-			power = 0;
+			// However, consumption for end consumers that have a visitor demand
+			// and are now power stations is handled by arriving passengers
+	
+			if (desc->is_electricity_producer()) {
+				// power station => start with no production
+				power = 0;
+			}
 
 			// Consume stock
 			for (uint32 index = 0; index < input.get_count(); index++)
@@ -2008,8 +2010,11 @@ void fabrik_t::step(uint32 delta_t)
 					input[index].book_stat((sint64)v * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
 					currently_producing = true;
 					
-					// power station => produce power
-					power += (uint32)(((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS);
+					if (desc->is_electricity_producer())
+					{
+						// power station => produce power
+						power += (uint32)(((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS);
+					}
 
 					if (status == staff_shortage)
 					{
@@ -2024,8 +2029,11 @@ void fabrik_t::step(uint32 delta_t)
 				}
 				else 
 				{
-					// power station => produce power
-					power += (uint32)((((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS) * input[index].menge / (v + 1));
+					if (desc->is_electricity_producer())
+					{
+						// power station => produce power
+						power += (uint32)((((sint64)scaled_electric_amount * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_pax + prodfactor_mail)) >> DEFAULT_PRODUCTION_FACTOR_BITS) * input[index].menge / (v + 1));
+					}
 
 					if (status == staff_shortage)
 					{
