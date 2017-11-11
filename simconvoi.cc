@@ -4909,7 +4909,6 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 {
-<<<<<<< HEAD
 	//if (freight_info_resort) {
 	//	freight_info_resort = false;
 	//	// rebuilt the list with goods ...
@@ -5110,7 +5109,6 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 	//	}
 	//	freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded");
 	//}
-=======
 	if (freight_info_resort) {
 		freight_info_resort = false;
 		// rebuilt the list with goods ...
@@ -5311,7 +5309,6 @@ void convoi_t::get_freight_info_by_class(cbuffer_t & buf)
 		}
 		freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded");
 	}
->>>>>>> refs/remotes/origin/passenger-and-mail-classes
 }
 
 
