@@ -1676,7 +1676,7 @@ void fabrik_t::smoke() const
 		welt->sync_way_eyecandy.add( smoke );
 	}
 	// maybe sound?
-	if (desc->get_sound() != NO_SOUND && (welt->get_ticks() > (last_sound_ms + desc->get_sound_interval_ms())))
+	if (!world()->is_fast_forward() && desc->get_sound() != NO_SOUND && (welt->get_ticks() > (last_sound_ms + desc->get_sound_interval_ms())))
 	{
 		welt->play_sound_area_clipped(get_pos().get_2d(), desc->get_sound());
 		// The below does not work because this is const - but without this, the whole sound interval does not work.
