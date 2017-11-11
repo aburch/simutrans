@@ -43,7 +43,7 @@
 #define SCL_HEIGHT (15*LINESPACE)
 
 vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
-	: gui_frame_t(translator::translate("class_management"), cnv->get_owner()),
+	: gui_frame_t(translator::translate("class_manager"), cnv->get_owner()),
 	scrolly(&veh_info),
 	veh_info(cnv)
 {
@@ -58,6 +58,8 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 		class_name = new (nothrow) char[32];
 		sprintf(class_name, "p_class[%u]", i);
 		pass_class_name_untranslated[i] = class_name;
+		pass_capacity_at_class = new (nothrow) int;
+		pass_capacity_at_accommodation = new (nothrow) int;
 	}
 
 	for (int i = 0; i < mail_classes; i++)
@@ -65,7 +67,10 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 		class_name = new (nothrow) char[32];
 		sprintf(class_name, "m_class[%u]", i);
 		mail_class_name_untranslated[i] = class_name;
+		mail_capacity_at_class = new (nothrow) int;
+		mail_capacity_at_accommodation = new (nothrow) int;
 	}
+
 		
 	for (int i = 0; i < pass_classes; i++)
 	{
@@ -147,7 +152,7 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 
 	
 
-	layout();
+	layout(scr_coord(0,0));
 	build_class_entries();
 
 	//set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT + 50 + 17 * (LINESPACE + 1) + D_SCROLLBAR_HEIGHT - 6));
@@ -206,12 +211,14 @@ void vehicle_class_manager_t::build_class_entries()
 
 
 
-void vehicle_class_manager_t::layout()
+void vehicle_class_manager_t::layout(scr_coord pos)
 {
-	int pass_class_desc_capacity[255] = { 0 };
-	int mail_class_desc_capacity[255] = { 0 };
+
+	uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
+	uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
 	bool any_pass = false;
 	bool any_mail = false;
+
 
 	for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 	{
@@ -221,7 +228,7 @@ void vehicle_class_manager_t::layout()
 		{
 			for (int i = 0; i < classes_amount; i++)
 			{
-				pass_class_desc_capacity[i] += v->get_desc()->get_capacity(i);
+				pass_capacity_at_accommodation[i] += v->get_desc()->get_capacity(i);
 				any_pass = true;
 			}
 		}
@@ -229,13 +236,14 @@ void vehicle_class_manager_t::layout()
 		{
 			for (int i = 0; i < classes_amount; i++)
 			{
-				mail_class_desc_capacity[i] += v->get_desc()->get_capacity(i);
+				mail_capacity_at_accommodation[i] += v->get_desc()->get_capacity(i);
 				any_mail = true;
 			}
 		}
 	}
 	sint16 y = LINESPACE;
 	sint16 button_width = 190;
+	cbuffer_t buf;
 
 	int assumed_longest_class_name = 5 * 32;
 
@@ -246,7 +254,7 @@ void vehicle_class_manager_t::layout()
 	for (int i = 0; i < pass_class_sel.get_count(); i++)
 	{
 		pass_class_sel.at(i)->set_visible(false);
-		if (pass_class_desc_capacity[i] > 0)
+		if (pass_capacity_at_accommodation[i] > 0)
 		{
 			pass_class_sel.at(i)->set_visible(true);
 			pass_class_sel.at(i)->set_pos(scr_coord(column_2, y));
@@ -264,7 +272,7 @@ void vehicle_class_manager_t::layout()
 	for (int i = 0; i < mail_class_sel.get_count(); i++)
 	{
 		mail_class_sel.at(i)->set_visible(false);
-		if (mail_class_desc_capacity[i] > 0)
+		if (mail_capacity_at_accommodation[i] > 0)
 		{
 			mail_class_sel.at(i)->set_visible(true);
 			mail_class_sel.at(i)->set_pos(scr_coord(column_2, y));
@@ -327,8 +335,10 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 
 			// This is the different accommodations in the train.
 			// Each accommodation have a combobox associated to it to change the class to another.
-			int pass_class_desc_capacity[255] = { 0 };
-			int mail_class_desc_capacity[255] = { 0 };
+			//int pass_class_desc_capacity[255] = { 0 };
+			//int mail_class_desc_capacity[255] = { 0 };
+
+
 			uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
 			uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
 			bool any_pass = false;
@@ -341,6 +351,19 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			char const*  const  pass_name = translator::translate(goods_manager_t::passengers->get_name());
 			char const*  const  mail_name = translator::translate(goods_manager_t::mail->get_name());
 
+			char class_name_untranslated[32];
+			const char* class_name = "\0";
+
+			for (int i = 0; i < pass_classes; i++)
+			{
+				pass_capacity_at_accommodation[i] = 0;
+				pass_capacity_at_class[i] = 0;
+			}			
+			for (int i = 0; i < mail_classes; i++)
+			{
+				mail_capacity_at_accommodation[i] = 0;
+				mail_capacity_at_class[i] = 0;
+			}
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 			{
 				current_number_of_vehicles++;
@@ -350,7 +373,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				{
 					for (int i = 0; i < classes_amount; i++)
 					{
-						pass_class_desc_capacity[i] += v->get_desc()->get_capacity(i);
+						pass_capacity_at_accommodation[i] += v->get_desc()->get_capacity(i);
 					}
 					if (v->get_desc()->get_catering_level() > highest_catering)
 					{
@@ -360,7 +383,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			}
 			for (int i = 0; i < pass_classes; i++)
 			{
-				if (pass_class_desc_capacity[i] > 0)
+				if (pass_capacity_at_accommodation[i] > 0)
 				{
 					if (!any_pass)
 					{
@@ -372,10 +395,9 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					any_pass = true;
 
 					buf.clear();
-					char class_name_untranslated[32];
 					sprintf(class_name_untranslated, "p_class[%u]", i);
-					const char* class_name = translator::translate(class_name_untranslated);
-					buf.printf("%s: %i", class_name, pass_class_desc_capacity[i]);
+					class_name = translator::translate(class_name_untranslated);
+					buf.printf("%s: %i", class_name, pass_capacity_at_accommodation[i]);
 					len = display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					if (len > longest_class_name)
 					{
@@ -398,7 +420,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				{
 					for (int i = 0; i < classes_amount; i++)
 					{
-						mail_class_desc_capacity[i] += v->get_desc()->get_capacity(i);
+						mail_capacity_at_accommodation[i] += v->get_desc()->get_capacity(i);
 					}
 					if (v->get_desc()->get_catering_level() > 0)
 					{
@@ -408,7 +430,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			}
 			for (int i = 0; i < mail_classes; i++)
 			{
-				if (mail_class_desc_capacity[i] > 0)
+				if (mail_capacity_at_accommodation[i] > 0)
 				{
 					if (!any_mail)
 					{
@@ -420,10 +442,9 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					any_mail = true;
 
 					buf.clear();
-					char class_name_untranslated[32];
 					sprintf(class_name_untranslated, "m_class[%u]", i);
-					const char* class_name = translator::translate(class_name_untranslated);
-					buf.printf("%s: %i", class_name, mail_class_desc_capacity[i]);
+					class_name = translator::translate(class_name_untranslated);
+					buf.printf("%s: %i", class_name, mail_capacity_at_accommodation[i]);
 					len = display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					if (len > longest_class_name)
 					{
@@ -438,8 +459,8 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 
 			// This section shows the reassigned classes after they have been modified.
 			// If nothing is modified, they will show the same as the above section.
-			int pass_class_capacity[255] = { 0 };
-			int mail_class_capacity[255] = { 0 };
+			//int pass_class_capacity[255] = { 0 };
+			//int mail_class_capacity[255] = { 0 };
 			buf.clear();
 			buf.printf("%s:", translator::translate("capacity_per_class"));
 			len = display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -460,19 +481,18 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					overcrowded_capacity += v->get_desc()->get_overcrowded_capacity();
 					for (int i = 0; i < pass_classes; i++)
 					{
-						pass_class_capacity[i] += v->get_capacity(i);
+						pass_capacity_at_class[i] += v->get_capacity(i);
 					}
 				}
 			}
 			for (int i = 0; i < pass_classes; i++)
 			{
-				if (pass_class_capacity[i] > 0)
+				if (pass_capacity_at_class[i] > 0)
 				{
 					buf.clear();
-					char class_name_untranslated[32];
 					sprintf(class_name_untranslated, "p_class[%u]", i);
-					const char* class_name = translator::translate(class_name_untranslated);
-					buf.printf("%s: %i %s", class_name, pass_class_capacity[i], pass_name);
+					class_name = translator::translate(class_name_untranslated);
+					buf.printf("%s: %i %s", class_name, pass_capacity_at_class[i], pass_name);
 					len = display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);		
 					if (len > longest_class_name)
 					{
@@ -502,19 +522,18 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				{
 					for (int i = 0; i < mail_classes; i++)
 					{
-						mail_class_capacity[i] += v->get_capacity(i);
+						mail_capacity_at_class[i] += v->get_capacity(i);
 					}
 				}
 			}
 			for (int i = 0; i < mail_classes; i++)
 			{
-				if (mail_class_capacity[i] > 0)
+				if (mail_capacity_at_class[i] > 0)
 				{
 					buf.clear();
-					char class_name_untranslated[32];
 					sprintf(class_name_untranslated, "m_class[%u]", i);
-					const char* class_name = translator::translate(class_name_untranslated);
-					buf.printf("%s: %i %s", class_name, mail_class_capacity[i], mail_name);
+					class_name = translator::translate(class_name_untranslated);
+					buf.printf("%s: %i %s", class_name, mail_capacity_at_class[i], mail_name);
 					len = display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					if (len > longest_class_name)
 					{
@@ -546,7 +565,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			if (old_vehicle_count != vehicle_count)
 			{
 				old_vehicle_count = vehicle_count;
-				layout();
+				layout(scr_coord(0, 0));
 				header_height = offset_y;
 			}
 
@@ -636,7 +655,7 @@ bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value
 			mail_class_sel.at(i)->set_selection(i);
 		}
 
-		layout();
+		layout(scr_coord(0, 0));
 		return true;
 
 	}
@@ -811,6 +830,8 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 		uint32 passenger_count = 0;
 		uint32 mail_count = 0;
 		const scr_coord_val column_2 = 100;
+		char class_name_untranslated[32];
+		const char* class_name = "\0";
 
 		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++) // Run this check first to find the amount of passengers and mail along with any catering or TPO's
 		{
@@ -894,9 +915,8 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 							reassigned = true;
 						}
 						buf.clear();
-						char class_name_untranslated[32];
 						sprintf(class_name_untranslated, pass_veh ? "p_class[%u]" : "m_class[%u]", reassigned ? v->get_reassigned_class(i) : i);
-						const char* class_name = translator::translate(class_name_untranslated);
+						class_name = translator::translate(class_name_untranslated);
 						buf.printf("%s: ", class_name);
 						reassigned_w = display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT_HIGHLIGHT, true);
 						
@@ -915,10 +935,8 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 						if (reassigned)
 						{
 							buf.clear();
-							char reassigned_class_name_untranslated[32];
-							sprintf(reassigned_class_name_untranslated, pass_veh ? "p_class[%u]" : "m_class[%u]", i);
-							const char* reassigned_class_name = translator::translate(reassigned_class_name_untranslated);
-							buf.printf("(%s)", reassigned_class_name);
+							sprintf(class_name_untranslated, pass_veh ? "p_class[%u]" : "m_class[%u]", i);
+							buf.printf("(%s)", translator::translate(class_name_untranslated));
 							display_proportional_clip(pos.x + w + offset.x + reassigned_w, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_EDIT_TEXT_DISABLED, true);
 
 						}
@@ -940,8 +958,18 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 								base_comfort = v->get_desc()->get_comfort(v->get_reassigned_class(i));
 								additional_comfort = v->get_comfort(higest_catering, v->get_reassigned_class(i)) - v->get_comfort(0, v->get_reassigned_class(i));
 								buf.clear();
-								buf.printf(translator::translate(" + %i"), additional_comfort);
+								buf.printf(" + %i", additional_comfort);
 								display_proportional_clip(pos.x + w + offset.x + extra_w + len, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+							}
+							if (v->get_reassigned_class(i) < higest_catering && higest_catering > 0)
+							{
+								extra_y += LINESPACE;
+								base_comfort = v->get_desc()->get_comfort(v->get_reassigned_class(i));
+								additional_comfort = v->get_comfort(higest_catering, v->get_reassigned_class(i)) - v->get_comfort(0, v->get_reassigned_class(i));
+								buf.clear();
+								sprintf(class_name_untranslated, "p_class[%i]", higest_catering);
+								buf.printf("%s %s: + %i", translator::translate(class_name_untranslated), name, additional_comfort);
+								display_proportional_clip(pos.x + w + offset.x + (extra_w * 2), pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 							}
 							extra_y += LINESPACE;
 						}
@@ -1009,12 +1037,12 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 					char catering_service[32];
 					if (mail_veh)
 					{
-						sprintf(catering_service, "tpo_income_pr_km_(full_convoy):");
+						sprintf(catering_service, translator::translate("tpo_income_pr_km_(full_convoy):"));
 						unit_count = mail_count;
 					}
 					else
 					{
-						sprintf(catering_service, "catering_income_pr_km_(full_convoy):");
+						sprintf(catering_service, translator::translate("catering_income_pr_km_(full_convoy):"));
 						unit_count = passenger_count;
 					}
 					extra_y += LINESPACE;
