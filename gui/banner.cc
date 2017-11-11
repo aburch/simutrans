@@ -225,6 +225,11 @@ void banner_t::draw(scr_coord pos, scr_size size )
 			color = colors[0];
 		}
 
+		if (scrolltext[text_line + row * 2 + 1] == NULL)
+		{
+			break;
+		}
+
 		if(  row == L_BANNER_ROWS  ||  row == 0  ) {
 			display_proportional_clip( left + L_BANNER_TEXT_INDENT,         cursor.y - text_offset, scrolltext[text_line + row*2    ], ALIGN_LEFT,  color, false);
 			display_proportional_clip( left + width - L_BANNER_TEXT_INDENT, cursor.y - text_offset, scrolltext[text_line + row*2 + 1], ALIGN_RIGHT, color, false);
