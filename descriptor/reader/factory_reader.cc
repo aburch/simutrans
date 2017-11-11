@@ -568,7 +568,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->sound_interval,
 		desc->color);
 
-	if (desc->sound_id == LOAD_SOUND) {
+	if ((sint16)desc->sound_id == LOAD_SOUND) {
 		uint8 len = decode_sint8(p);
 		char wavname[256];
 		wavname[len] = 0;
