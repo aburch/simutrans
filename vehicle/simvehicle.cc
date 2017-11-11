@@ -5033,7 +5033,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			next_signal_index = i;
 
 			// Do not reserve further than the braking distance in moving block mode.
-			if(steps_so_far > brake_steps + VEHICLE_STEPS_PER_TILE)
+			if(steps_so_far > brake_steps + (VEHICLE_STEPS_PER_TILE * 2))
 			{
 				break;
 			}
