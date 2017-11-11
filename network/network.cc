@@ -266,7 +266,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 			}
 
 			// Bind socket to local IP
-			if (bind(my_client_socket, walk_local->ai_addr, walk_local->ai_addrlen)) {
+			if (::bind(my_client_socket, walk_local->ai_addr, walk_local->ai_addrlen) == -1) {
 				DBG_MESSAGE("network_open_address()", "Unable to bind socket to local IP address! Error: \"%s\"", strerror(GET_LAST_ERROR()));
 				network_close_socket(my_client_socket);
 				my_client_socket = INVALID_SOCKET;
@@ -338,7 +338,7 @@ bool network_init_server(int port)
 	name.sin_port = htons(port);
 	name.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	if (bind(my, (struct sockaddr *)&name, sizeof(name)) == -1) {
+	if (::bind(my, (struct sockaddr *)&name, sizeof(name)) == -1) {
 		dbg->fatal("network_init_server()", "Bind failed!");
 		return false;
 	}
@@ -421,7 +421,7 @@ bool network_init_server(int port)
 				dbg->warning("network_init_server()", "Call to setsockopt(SO_REUSEADDR) failed for: \"%s\", error was: \"%s\"", ip.c_str(), strerror(GET_LAST_ERROR()));
 			}
 
-			if (bind(server_socket, walk->ai_addr, walk->ai_addrlen)) {
+			if (::bind(server_socket, walk->ai_addr, walk->ai_addrlen) == -1) {
 				/* Unable to bind a socket - abort execution as we are supposed to be a server on this interface */
 				dbg->fatal("network_init_server()", "Unable to bind socket to IP address: \"%s\", error was: \"%s\"", ipstr, strerror(GET_LAST_ERROR()));
 			}

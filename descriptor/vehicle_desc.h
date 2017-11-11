@@ -600,8 +600,8 @@ public:
 	bool get_can_lead_from_rear() const { return can_lead_from_rear; }
 	uint8 get_comfort(uint32 g_class = 0) const { return  classes == 0 ? 0: g_class >= classes ? comfort[0] : comfort[g_class]; }
 	uint16 get_overcrowded_capacity() const { return overcrowded_capacity; }
-	uint32 get_min_loading_time() const { return capacity > 0 ? min_loading_time : 0; }
-	uint32 get_max_loading_time() const { return capacity > 0 ? max_loading_time : 0; }
+	uint32 get_min_loading_time() const { return *capacity > 0 ? min_loading_time : 0; }
+	uint32 get_max_loading_time() const { return *capacity > 0 ? max_loading_time : 0; }
 	uint32 get_upgrade_price() const { return upgrade_price; }
 	bool is_available_only_as_upgrade() const { return available_only_as_upgrade; }
 

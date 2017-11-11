@@ -688,11 +688,11 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		int pass_class_capacity[255] = { 0 };
 		int mail_class_capacity[255] = { 0 };
 
-		uint8 good_type_0 = NULL;
-		uint8 good_type_1 = NULL;
-		uint8 good_type_2 = NULL;
-		uint8 good_type_3 = NULL;
-		uint8 good_type_4 = NULL;
+		uint8 good_type_0 = 0;
+		uint8 good_type_1 = 0;
+		uint8 good_type_2 = 0;
+		uint8 good_type_3 = 0;
+		uint8 good_type_4 = 0;
 
 		uint32 good_type_0_amount = 0;
 		uint32 good_type_1_amount = 0;
@@ -780,27 +780,27 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 					total_goods += desc->get_capacity();
 					if (desc->get_capacity() > 0)
 					{
-						if (good_type_0 == NULL || good_type_0 == desc->get_freight_type()->get_catg_index())
+						if (good_type_0 == 0 || good_type_0 == desc->get_freight_type()->get_catg_index())
 						{
 							good_type_0 = ware->get_catg_index();
 							good_type_0_amount += desc->get_capacity();
 						}
-						else if (good_type_1 == NULL || good_type_1 == desc->get_freight_type()->get_catg_index())
+						else if (good_type_1 == 0 || good_type_1 == desc->get_freight_type()->get_catg_index())
 						{
 							good_type_1 = ware->get_catg_index();
 							good_type_1_amount += desc->get_capacity();
 						}
-						else if (good_type_2 == NULL || good_type_2 == desc->get_freight_type()->get_catg_index())
+						else if (good_type_2 == 0 || good_type_2 == desc->get_freight_type()->get_catg_index())
 						{
 							good_type_2 = ware->get_catg_index();
 							good_type_2_amount += desc->get_capacity();
 						}
-						else if (good_type_3 == NULL || good_type_3 == desc->get_freight_type()->get_catg_index())
+						else if (good_type_3 == 0 || good_type_3 == desc->get_freight_type()->get_catg_index())
 						{
 							good_type_3 = ware->get_catg_index();
 							good_type_3_amount += desc->get_capacity();
 						}
-						else if (good_type_4 == NULL || good_type_4 == desc->get_freight_type()->get_catg_index())
+						else if (good_type_4 == 0 || good_type_4 == desc->get_freight_type()->get_catg_index())
 						{
 							good_type_4 = ware->get_catg_index();
 							good_type_4_amount += desc->get_capacity();
@@ -2505,7 +2505,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 		}
 		else
 		{
-			if (good_type_0 != NULL)
+			if (good_type_0 > 0)
 			{
 				cbuf.clear();
 				cbuf.printf("%d%s %s", good_type_0_amount, translator::translate(goods_manager_t::get_info_catg_index(good_type_0)->get_mass()), translator::translate(goods_manager_t::get_info_catg_index(good_type_0)->get_catg_name()));
@@ -2513,7 +2513,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 				display_color_img(skinverwaltung_t::goods->get_image_id(0), pos.x + offset.x + w_icon, pos.y + offset.y + y, 0, false, false);
 				y += LINESPACE + 1;
 			}
-			if (good_type_1 != NULL)
+			if (good_type_1 > 0)
 			{
 				cbuf.clear();
 				cbuf.printf("%d%s %s", good_type_1_amount, translator::translate(goods_manager_t::get_info_catg_index(good_type_1)->get_mass()), translator::translate(goods_manager_t::get_info_catg_index(good_type_1)->get_catg_name()));
@@ -2529,7 +2529,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 					display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					y += LINESPACE + 1;
 				}
-				else if (good_type_2 != NULL)
+				else if (good_type_2 > 0)
 				{
 					cbuf.clear();
 					cbuf.printf("%d%s %s", good_type_2_amount, translator::translate(goods_manager_t::get_info_catg_index(good_type_2)->get_mass()), translator::translate(goods_manager_t::get_info_catg_index(good_type_2)->get_catg_name()));
@@ -2539,14 +2539,14 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 			}
 			if (total_pax == 0 && total_mail == 0)
 			{
-				if (good_type_2 != NULL)
+				if (good_type_2 > 0)
 				{
 					cbuf.clear();
 					cbuf.printf("%d%s %s", good_type_2_amount, translator::translate(goods_manager_t::get_info_catg_index(good_type_2)->get_mass()), translator::translate(goods_manager_t::get_info_catg_index(good_type_2)->get_catg_name()));
 					display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					y += LINESPACE + 1;
 				}
-				if (good_type_3 != NULL)
+				if (good_type_3 > 0)
 				{
 					cbuf.clear();
 					cbuf.printf("%d%s %s", good_type_3_amount, translator::translate(goods_manager_t::get_info_catg_index(good_type_3)->get_mass()), translator::translate(goods_manager_t::get_info_catg_index(good_type_3)->get_catg_name()));
@@ -2560,7 +2560,7 @@ void depot_convoi_capacity_t::draw(scr_coord offset)
 					display_proportional_clip(pos.x + offset.x + w_text, pos.y + offset.y + y, cbuf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					y += LINESPACE + 1;
 				}
-				else if (good_type_4 != NULL)
+				else if (good_type_4 > 0)
 				{
 					cbuf.clear();
 					cbuf.printf("%d%s %s", good_type_4_amount, translator::translate(goods_manager_t::get_info_catg_index(good_type_4)->get_mass()), translator::translate(goods_manager_t::get_info_catg_index(good_type_4)->get_catg_name()));
