@@ -75,9 +75,13 @@ else
   SOURCES += clipboard_internal.cc
 endif
 
+ifeq ($(OSTYPE),openbsd)
+  CXXFLAGS +=  -std=c++11
+endif
+
 LIBS += -lbz2 -lz
 
- CFLAGS +=  -std=gnu++11
+CXXFLAGS +=  -std=gnu++11
 
 ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
@@ -609,7 +613,7 @@ ifeq ($(BACKEND),opengl)
     ifeq ($(OSTYPE),mingw32 mingw64)
       LIBS += -lglew32 -lopengl32
     else
-      LIBS += -lglew32 -lGL
+      LIBS += -lGLEW -lGL
     endif
   endif
 endif

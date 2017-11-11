@@ -39,11 +39,11 @@ private:
 	uint8 total_pax_classes;
 	uint8 total_mail_classes;
 
-	uint8 good_type_0 = NULL;
-	uint8 good_type_1 = NULL;
-	uint8 good_type_2 = NULL;
-	uint8 good_type_3 = NULL;
-	uint8 good_type_4 = NULL;
+	uint8 good_type_0 = 0;
+	uint8 good_type_1 = 0;
+	uint8 good_type_2 = 0;
+	uint8 good_type_3 = 0;
+	uint8 good_type_4 = 0;
 
 	uint32 good_type_0_amount;
 	uint32 good_type_1_amount;
