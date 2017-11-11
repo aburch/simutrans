@@ -665,7 +665,7 @@ void gui_hidden_textinput_t::display_with_cursor(scr_coord const offset, bool, b
 		utf32  c = 0;
 		do {
 			// cursor?
-			if(  cursor_visible  &&  text_pos - (utf8 const*)text == head_cursor_pos  ) {
+			if(  cursor_visible  &&  text_pos == (utf8 const*)text + head_cursor_pos  ) {
 				display_fillbox_wh_clip_rgb( xpos, pos.y+offset.y+1+(size.h-LINESPACE)/2, 1, LINESPACE, SYSCOL_CURSOR_BEAM, true);
 			}
 			c = utf8_decoder_t::decode((utf8 const *&)text_pos);
