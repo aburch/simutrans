@@ -1468,11 +1468,11 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 		}
 		else if (condition == 2)
 		{
-			buf.printf("  %i%% / %i%% %s\n", class_percentage[i], class_percentage[i], class_name);
+			buf.printf("  %i%% / %i%% %s\n", class_percentage[i], class_percentage_job[i], class_name);
 		}
 		if (condition == 3)
 		{
-			buf.printf("  %i%% %s\n", class_percentage[i], class_name);
+			buf.printf("  %i%% %s\n", class_percentage_job[i], class_name);
 		}
 	}
 }
