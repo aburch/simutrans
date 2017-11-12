@@ -51,8 +51,8 @@ void sprachengui_t::init_font_from_lang()
 	}
 
 	// load large font
-	chdir( env_t::program_dir );
-	chdir( FONT_PATH );
+	dr_chdir( env_t::program_dir );
+	dr_chdir( FONT_PATH );
 	bool ok = false;
 	char prop_font_file_name[1024];
 	tstrncpy( prop_font_file_name, prop_font_file, lengthof(prop_font_file_name) );
@@ -62,7 +62,7 @@ void sprachengui_t::init_font_from_lang()
 		f = strtok( NULL, ";" );
 	}
 	while(  !ok  &&  f  );
-	chdir( env_t::user_dir );
+	dr_chdir( env_t::user_dir );
 
 	const char * p = translator::translate("SEP_THOUSAND");
 	char c = ',';
@@ -117,8 +117,8 @@ sprachengui_t::sprachengui_t() :
 	cursor.y = max( seperator.get_pos().y + D_DIVIDER_HEIGHT, flags.get_pos().y + flags.get_size().h);
 
 	const translator::lang_info* lang = translator::get_langs();
-	chdir( env_t::program_dir );
-	chdir( FONT_PATH );
+	dr_chdir( env_t::program_dir );
+	dr_chdir( FONT_PATH );
 
 	for (int i = 0; i < translator::get_language_count(); ++i, ++lang) {
 		button_t* b = new button_t();
@@ -176,7 +176,7 @@ sprachengui_t::sprachengui_t() :
 		add_component( buttons[i].button );
 	}
 
-	chdir(env_t::user_dir);
+	dr_chdir(env_t::user_dir);
 
 	set_windowsize( scr_size(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + ((count+1)>>1)*(max(D_CHECKBOX_HEIGHT, LINESPACE)+D_V_SPACE) + D_MARGIN_BOTTOM ) );
 }

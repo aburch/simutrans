@@ -91,7 +91,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		tabfile_t simuconf;
 		env_t::init();
 		*sets = settings_t();
-		chdir( env_t::program_dir );
+		dr_chdir( env_t::program_dir );
 		if(simuconf.open("config/simuconf.tab")) {
 			sint16 dummy16;
 			string dummy_str;
@@ -99,15 +99,15 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 			sets->parse_colours( simuconf );
 		}
 		stadt_t::cityrules_init(env_t::objfilename);
-		chdir( env_t::program_dir );
-		chdir( env_t::objfilename.c_str() );
+		dr_chdir( env_t::program_dir );
+		dr_chdir( env_t::objfilename.c_str() );
 		if(simuconf.open("config/simuconf.tab")) {
 			sint16 dummy16;
 			string dummy_str;
 			sets->parse_simuconf( simuconf, dummy16, dummy16, dummy16, dummy_str );
 			sets->parse_colours( simuconf );
 		}
-		chdir(  env_t::user_dir  );
+		dr_chdir(  env_t::user_dir  );
 		if(simuconf.open("simuconf.tab")) {
 			sint16 dummy16;
 			string dummy_str;
@@ -127,7 +127,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 	else if(  komp==&revert_to_last_save  ) {
 		// load settings of last generated map
 		loadsave_t file;
-		chdir( env_t::user_dir  );
+		dr_chdir( env_t::user_dir  );
 		if(  file.rd_open("default.sve")  ) {
 			sets->rdwr(&file);
 			file.close();

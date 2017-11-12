@@ -39,7 +39,7 @@ station_building_select_t::station_building_select_t(const building_desc_t *desc
 {
 	this->desc = desc;
 
-	int layout = desc->get_all_layouts();
+	int layout = min(desc->get_all_layouts(),4);
 	int row = (layout > 2) ? 1 : 0;
 	sint16 rw = get_base_tile_raster_width()/4;
 	int width = (desc->get_x(0)==1) ? ((desc->get_y(0)==1) ? rw*4 : rw*6) : ((desc->get_y(0)==1) ? rw*6 : rw*8);

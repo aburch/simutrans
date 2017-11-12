@@ -374,12 +374,12 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 void color_gui_t::set_windowsize(scr_size size)
 {
 	scr_coord_val column;
-	scr_coord_val delta_w = size.w - D_MARGINS_X;
+	scr_coord_val delta_w = size.w - get_windowsize().w;
 
 	for(  int i=0;  i<COLORS_MAX_BUTTONS;  i++  ) {
 		if(  buttons[i].get_type() == button_t::square_state  ) {
 			// resize buttons too to fix text
-			buttons[i].set_size( scr_size(delta_w,buttons[i].get_size().h) );
+			buttons[i].set_width( buttons[i].get_size().w + delta_w );
 		}
 	}
 

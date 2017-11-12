@@ -10,6 +10,7 @@
 #include <mmsystem.h>
 
 #include "sound.h"
+#include "../simsys.h"
 
 
 /*
@@ -43,7 +44,7 @@ bool dr_init_sound()
 int dr_load_sample(char const* filename)
 {
 	if(use_sound  &&  sample_number>=0  &&  sample_number<64) {
-		if (FILE* const fIn = fopen(filename, "rb")) {
+		if (FILE* const fIn = dr_fopen(filename, "rb")) {
 			long len;
 			fseek( fIn, 0, SEEK_END );
 			len = ftell( fIn );

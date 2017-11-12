@@ -31,6 +31,7 @@
 #	endif
 #   undef PATH_MAX
 #	define PATH_MAX MAX_PATH
+#include "simdebug.h"
 #else
 #	include <limits.h>
 #	if !defined __AMIGA__ && !defined __BEOS__
@@ -40,6 +41,69 @@
 
 
 struct sys_event sys_event;
+
+
+#ifdef _WIN32
+/**
+ * Utility class to handle conversion of UTF-8 to UTF-16 for use by Windows APIs.
+ * Constructs a UTF-16 view of the current contents of a UTF-8 C string.
+ */
+class U16View {
+private:
+	LPCWSTR cu16str;
+public:
+	/**
+	 * Constructs a UTF-16 view of a UTF-8 C string.
+	 */
+	U16View(char const *const u8str)
+	{
+		// Convert UTF-8 to UTF-16.
+		int const size = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, u8str, -1, NULL, 0);
+		if(size == 0) {
+			// It should never fail, since all file IO UTF8 comes either via keyborad input or filenames, i.e. a win32 api.
+			// log may not even initialising at this point, so we just fail.
+			dr_fatal_notify( "Unknown unicode character encountered!" );
+			exit(0);
+		}
+		LPWSTR const u16str = new WCHAR[size];
+		MultiByteToWideChar(CP_UTF8, 0, u8str, -1, u16str, size);
+
+		cu16str = u16str;
+	}
+
+	/**
+	 * Copy constructor to allow safe movement.
+	 * Should also have move constructor to allow efficient movement but that requires C++11.
+	 */
+	U16View(U16View const& from)
+	{
+		LPWSTR const u16str = new WCHAR[wcslen(from.cu16str) + 1];
+		wcscpy(u16str, from.cu16str);
+		cu16str = u16str;
+	}
+
+	~U16View()
+	{
+		delete[] cu16str;
+	}
+
+	/**
+	 * Typecast operator to allow implicit use as a LPCWSTR.
+	 */
+	operator LPCWSTR() const
+	{
+		return cu16str;
+	}
+};
+#endif
+
+// Platform specific path separators.
+#ifdef _WIN32
+char const PATH_SEPARATOR[] = "\\";
+#else
+char const PATH_SEPARATOR[] = "/";
+#endif
+
 
 
 /**
@@ -63,128 +127,227 @@ int get_mouse_y()
 
 
 
-void dr_mkdir(char const* const path)
+int dr_mkdir(char const* const path)
 {
-#if defined(_WIN32) && !defined(__CYGWIN__)
-	WCHAR pathW[MAX_PATH];
-	MultiByteToWideChar( CP_UTF8, 0, path, -1, pathW, sizeof(pathW) );
-	CreateDirectoryW( pathW, NULL );
+#ifdef _WIN32
+	// Perform operation.
+	int const result = CreateDirectoryW(U16View(path), NULL) ? 0 : -1;
+
+	// Translate error.
+	if(result != 0) {
+		DWORD const error = GetLastError();
+		if(error == ERROR_ALREADY_EXISTS) {
+			errno = EEXIST;
+		} else if(error == ERROR_PATH_NOT_FOUND) {
+			errno = ENOENT;
+		}
+	}
+
+	return result;
 #else
-	mkdir(path, 0777);
+	return mkdir(path, 0777);
 #endif
 }
 
 
-#ifdef SIM_SYSTEM_TRASHBINAVAILABLE
-bool dr_movetotrash(const char *path) {
-	// We just have a Windows implementation so far
+
+bool dr_movetotrash(const char *path)
+{
 #ifdef _WIN32
-	SHFILEOPSTRUCTA  FileOp;
-
-	int len = strlen(path);
-
-	char * wfilename = new char [len+2];
-
-	strcpy(wfilename, path);
-
-	// Double \0 terminated string as required by the function.
-	wfilename[len+1]='\0';
-
-	ZeroMemory(&FileOp, sizeof(SHFILEOPSTRUCTA));
-
+	// Convert to full path name to allow use of recycle bin.
+	// Must be double null terminated for SHFILESTRUCT
+	U16View const wpath(path);
+	int const full_size = GetFullPathNameW(wpath, 0, NULL, NULL);
+	wchar_t *const full_wpath = new wchar_t[full_size + 1];
+	GetFullPathNameW(wpath, full_size, full_wpath, NULL);
+	full_wpath[full_size] = L'\0';
+	
+	// Initalize file operation structure.
+	SHFILEOPSTRUCTW  FileOp;
 	FileOp.hwnd = NULL;
 	FileOp.wFunc = FO_DELETE;
-	FileOp.fFlags = FOF_ALLOWUNDO|FOF_NOCONFIRMATION;
-	FileOp.pFrom = wfilename;
+	FileOp.pFrom = full_wpath;
 	FileOp.pTo = NULL;
+	FileOp.fFlags = FOF_ALLOWUNDO|FOF_NOCONFIRMATION;
 
-	int successful = SHFileOperationA(&FileOp);
+	// Perform operation.
+	int success = SHFileOperationW(&FileOp);
 
-	delete wfilename;
+	delete[] full_wpath;
 
-	return successful;
+	return success;
+#else
+	return remove(path);
 #endif
-
-}
-#endif
-
-
-// accecpt whatever encoding your filename has (assuming ANSI for windows) and returns the Unicode name
-const char *dr_system_filename_to_uft8( const char *path_in )
-{
-#if defined _WIN32
-	WCHAR bufferW[1024], bufferW2[1024];
-	static char buffer[1024*3];
-	MultiByteToWideChar( CP_UTF8, 0, path_in, -1, bufferW, lengthof(bufferW) );
-	GetLongPathNameW( bufferW, bufferW2, lengthof(bufferW2) );
-	WideCharToMultiByte( CP_UTF8, 0, bufferW2, -1, buffer, lengthof(buffer), NULL, NULL );
-	return buffer;
-#endif
-	return path_in;
 }
 
 
 
-// accecpt utf8 and returns (on windows) an ANSI filename
-const char *dr_utf8_to_system_filename( const char *path_in_utf8, bool create )
+bool dr_cantrash()
 {
-#if defined _WIN32
-	WCHAR bufferW[1024], bufferW2[1024];
-	static char buffer[1024*3];
-	MultiByteToWideChar( CP_UTF8, 0, path_in_utf8, -1, bufferW, lengthof(bufferW) );
-	if(  GetShortPathNameW( bufferW, bufferW2, lengthof(bufferW2) ) ==  0  ) {
-		if(  !create  ) {
-			// file does not exist, return input path
-			return path_in_utf8;
-		}
-		else {
-			CloseHandle( CreateFileW( bufferW, GENERIC_READ|GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL ) );
-			GetShortPathNameW( bufferW, bufferW2, lengthof(bufferW2) );
+#ifdef _WIN32
+	return true;
+#else
+	return false;
+#endif
+}
+
+
+
+int dr_remove(const char *path)
+{
+#ifdef _WIN32
+	// Perform operation.
+	bool success = DeleteFileW(U16View(path));
+
+	// Translate error.
+	if(!success) {
+		DWORD error = GetLastError();
+		if(error == ERROR_FILE_NOT_FOUND) {
+			errno = ENOENT;
+		} else if(error == ERROR_ACCESS_DENIED) {
+			errno = EACCES;
 		}
 	}
-	WideCharToMultiByte( CP_UTF8, 0, bufferW2, -1, buffer, lengthof(buffer), NULL, NULL );
-	return buffer;
+
+	return success ? 0 : -1;
+#else
+	return remove(path);
 #endif
-	(void)create;
-	return path_in_utf8;
 }
 
 
 
-void dr_rename( const char *existing_utf8, const char *new_utf8 )
+int dr_rename(const char *existing_utf8, const char *new_utf8)
 {
-#if defined _WIN32
-	WCHAR oldf[1024], newf[1024];
-	MultiByteToWideChar( CP_UTF8, 0, existing_utf8, -1, oldf, lengthof(oldf) );
-	MultiByteToWideChar( CP_UTF8, 0, new_utf8, -1, newf, lengthof(newf) );
-	MoveFileExW( oldf, newf, MOVEFILE_REPLACE_EXISTING );
+#ifdef _WIN32
+	// Perform operation.
+	bool success = MoveFileExW(U16View(existing_utf8), U16View(new_utf8), MOVEFILE_REPLACE_EXISTING);
+
+	// Translate error.
+	if(!success) {
+		DWORD error = GetLastError();
+		if (error == ERROR_FILE_NOT_FOUND) {
+			errno = ENOENT;
+		} else if(error == ERROR_ACCESS_DENIED) {
+			errno = EACCES;
+		}
+	}
+
+	return success ? 0 : -1;
 #else
 	remove( new_utf8 );
-	rename( existing_utf8, new_utf8 );
+	return rename( existing_utf8, new_utf8 );
 #endif
 }
 
-
-char const* dr_query_homedir()
+int dr_chdir(const char *path)
 {
-	static char buffer[PATH_MAX+24];
+#ifdef _WIN32
+	// Perform operation.
+	bool success = SetCurrentDirectoryW(U16View(path));
+
+	// Translate error.
+	if(!success) {
+		DWORD error = GetLastError();
+		if (error == ERROR_FILE_NOT_FOUND) {
+			errno = ENOENT;
+		} else if(error == ERROR_ACCESS_DENIED) {
+			errno = EACCES;
+		}
+	}
+
+	return success ? 0 : -1;
+#else
+	return chdir(path);
+#endif
+}
+
+char *dr_getcwd(char *buf, size_t size)
+{
+#ifdef _WIN32
+	DWORD wsize = GetCurrentDirectoryW(0, NULL);
+	WCHAR *const wpath = new WCHAR[wsize];
+	DWORD success = GetCurrentDirectoryW(wsize, wpath);
+
+	// Translate error.
+	if(!success) {
+		delete[] wpath;
+		return NULL;
+	}
+
+	// Convert UTF-16 to UTF-8.
+	int const convert_size = WideCharToMultiByte(CP_UTF8, 0, wpath, -1, buf, (int)size, NULL, NULL);
+	delete[] wpath;
+	if(convert_size == 0) {
+		return NULL;
+	}
+
+	return buf;
+#else
+	return getcwd(buf, size);
+#endif
+}
+
+FILE *dr_fopen (const char *filename, const char *mode)
+{
+#ifdef _WIN32
+	return _wfopen(U16View(filename), U16View(mode));
+#else
+	return fopen(filename, mode);
+#endif
+}
+
+gzFile dr_gzopen(const char *path, const char *mode)
+{
+#ifdef _WIN32
+	return gzopen_w(U16View(path), mode);
+#else
+	return gzopen(path, mode);
+#endif
+}
+
+int dr_stat(const char *path, struct stat *buf)
+{
+#ifdef _WIN32
+	return _wstat(U16View(path), (struct _stat*)buf);
+#else
+	return stat(path, buf);
+#endif
+}
+
+char const *dr_query_homedir()
+{
+	static char buffer[PATH_MAX + 24];
 
 #if defined _WIN32
-	WCHAR bufferW[PATH_MAX+24], bufferW2[PATH_MAX];
-	if(  SHGetFolderPathW(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, bufferW)  ) {
-		DWORD len = PATH_MAX;
+	WCHAR whomedir[MAX_PATH];
+	if(FAILED(SHGetFolderPathW(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, whomedir))) {
+		DWORD len = sizeof(whomedir);
 		HKEY hHomeDir;
-		if(  RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ, &hHomeDir) != ERROR_SUCCESS  ) {
-			return 0;
+		if(RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 0, KEY_READ, &hHomeDir) != ERROR_SUCCESS) {
+			return NULL;
 		}
-		RegQueryValueExW(hHomeDir, L"Personal", 0, 0, (LPBYTE)bufferW, &len);
+		LONG const status = RegQueryValueExW(hHomeDir, L"Personal", NULL, NULL, (LPBYTE)whomedir, &len);
+		RegCloseKey(hHomeDir);
+		if(status != ERROR_SUCCESS) {
+			return NULL;
+		}
 	}
-	wcscat( bufferW, L"\\Simutrans" );
-	CreateDirectoryW( bufferW, NULL );
-	wcscat( bufferW, L"\\" );
-	GetShortPathNameW( bufferW, bufferW2, lengthof(bufferW2) );
-	WideCharToMultiByte( CP_UTF8, 0, bufferW2, -1, buffer, lengthof(buffer), NULL, NULL );
 
+	// Convert UTF-16 to UTF-8.
+	int const convert_size = WideCharToMultiByte(CP_UTF8, 0, whomedir, -1, buffer, sizeof(buffer), NULL, NULL);
+	if(convert_size == 0) {
+		return NULL;
+	}
+
+	// Append Sumutrans folder.
+	char const foldername[] = "Simutrans";
+	if(lengthof(buffer) < strlen(buffer) + strlen(foldername) + 2 * strlen(PATH_SEPARATOR) + 1){
+		return NULL;
+	}
+	strcat(buffer, PATH_SEPARATOR);
+	strcat(buffer, foldername);
 #elif defined __APPLE__
 	sprintf(buffer, "%s/Library/Simutrans", getenv("HOME"));
 #elif defined __HAIKU__
@@ -195,13 +358,10 @@ char const* dr_query_homedir()
 	sprintf(buffer, "%s/simutrans", getenv("HOME"));
 #endif
 
-
 	// create directory and subdirectories
-#ifndef _WIN32
 	dr_mkdir(buffer);
-	strcat(buffer, "/");
-#endif
-	chdir( buffer );
+	strcat(buffer, PATH_SEPARATOR);
+	dr_chdir(buffer);
 	dr_mkdir("maps");
 	dr_mkdir("save");
 	dr_mkdir("screenshots");
@@ -210,20 +370,29 @@ char const* dr_query_homedir()
 }
 
 
-const char *dr_query_fontpath( const char *fontname )
+const char *dr_query_fontpath(const char *fontname)
 {
-#if defined _WIN32
+#ifdef _WIN32
 	static char buffer[PATH_MAX];
-
-	if(  SHGetFolderPathA(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, buffer)  ) {
-		strcpy( buffer, "C:\\Windows\\Fonts" );
+	WCHAR fontdir[MAX_PATH];
+	if(FAILED(SHGetFolderPathW(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, fontdir))) {
+		wcscpy(fontdir, L"C:\\Windows\\Fonts");
 	}
-	strcat( buffer, "\\" );
-	strcat( buffer, fontname );
+
+	// Convert UTF-16 to UTF-8.
+	int const convert_size = WideCharToMultiByte(CP_UTF8, 0, fontdir, -1, buffer, sizeof(buffer), NULL, NULL);
+	if(convert_size == 0) {
+		return fontname;
+	}
+
+	// Prevent possible buffer overrun error.
+	if(lengthof(buffer) < strlen(buffer) + strlen(fontname) + strlen(PATH_SEPARATOR) + 1) {
+		return fontname;
+	}
+
+	strcat(buffer, PATH_SEPARATOR);
+	strcat(buffer, fontname);
 	return buffer;
-#elif defined __APPLE__
-	// not implemented yet
-	return fontname;
 #else
 	// seems non-trivial to work on any system ...
 	return fontname;
@@ -752,15 +921,12 @@ void dr_fatal_notify(char const* const msg)
 bool dr_download_pakset( const char *path_to_program, bool portable )
 {
 #ifdef _WIN32
-	char param[2048];
-	if(  portable  ) {
-		sprintf( param, "/P /D=%s", path_to_program );
-	}
-	else {
-		sprintf( param, "/D=%s", path_to_program );
-	}
+	std::string param(portable ? "/P /D=" : "/D=");
+	param.append(path_to_program);
+	U16View const wparam(param.c_str());
+	U16View const wpath_to_program(path_to_program);
 
-	SHELLEXECUTEINFOA shExInfo;
+	SHELLEXECUTEINFOW shExInfo;
 	shExInfo.cbSize = sizeof(shExInfo);
 	shExInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
 	shExInfo.hwnd = 0;
@@ -769,14 +935,14 @@ bool dr_download_pakset( const char *path_to_program, bool portable )
 	 * Otherwise the waiting for installation will fail!
 	 * (no idea how this works on XP though)
 	 */
-	shExInfo.lpVerb = "runas";
-	shExInfo.lpFile = "download-paksets.exe";
-	shExInfo.lpParameters = param;
-	shExInfo.lpDirectory = path_to_program;
+	shExInfo.lpVerb = L"runas";
+	shExInfo.lpFile = L"download-paksets.exe";
+	shExInfo.lpParameters = wparam;
+	shExInfo.lpDirectory = wpath_to_program;
 	shExInfo.nShow = SW_SHOW;
 	shExInfo.hInstApp = 0;
 
-	if(  ShellExecuteExA(&shExInfo)  ) {
+	if(  ShellExecuteExW(&shExInfo)  ) {
 		WaitForSingleObject( shExInfo.hProcess, INFINITE );
 		CloseHandle( shExInfo.hProcess );
 	}
@@ -793,12 +959,26 @@ bool dr_download_pakset( const char *path_to_program, bool portable )
 int sysmain(int const argc, char** const argv)
 {
 #ifdef _WIN32
-	char pathname[1024];
-	// so simutran can has also a multibyte name ...
-	WCHAR pathnameW[MAX_PATH], pathnameW2[MAX_PATH];
-	GetModuleFileNameW(GetModuleHandle(0), pathnameW, sizeof(pathname) );
-	GetShortPathNameW( pathnameW, pathnameW2, lengthof(pathnameW2) );
-	WideCharToMultiByte( CP_UTF8, 0, pathnameW2, -1, pathname, MAX_PATH, NULL, NULL );
+	// Guess required buffer length, if too small then dynamically expand up to around 65536 characters.
+	// It is unlikely this loop will ever run more than once in practice but is required to cover flaws with the API.
+	size_t buffersize = MAX_PATH;
+	WCHAR *wpathname;
+	while(true) {
+		wpathname = new WCHAR[buffersize];
+		DWORD result = GetModuleFileNameW(GetModuleHandleW(0), wpathname, buffersize);
+		if(result < buffersize  ||  buffersize >= 1 << 16) {
+			break;
+		}
+		delete[] wpathname;
+		buffersize<<= 1;
+	}
+
+	// Convert UTF-16 to UTF-8
+	int const pathnamesize = WideCharToMultiByte(CP_UTF8, 0, wpathname, -1, NULL, 0, NULL, NULL);
+	char *const pathname = new char[pathnamesize];
+	WideCharToMultiByte(CP_UTF8, 0, wpathname, -1, pathname, pathnamesize, NULL, NULL);
+	delete[] wpathname;
+
 	argv[0] = pathname;
 #elif !defined __BEOS__
 #	if defined __GLIBC__ && !defined __AMIGA__
@@ -821,4 +1001,9 @@ int sysmain(int const argc, char** const argv)
 #endif
 
 	return simu_main(argc, argv);
+
+#ifdef _WIN32
+	// Cleanup for dynamic allocation, probably unnescescary.
+	delete[] pathname;
+#endif
 }

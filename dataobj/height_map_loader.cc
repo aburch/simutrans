@@ -7,6 +7,7 @@
 #include "environment.h"
 #include "height_map_loader.h"
 #include "../simio.h"
+#include "../simsys.h"
 
 
 height_map_loader_t::height_map_loader_t(bool new_format):
@@ -18,7 +19,7 @@ height_map_loader_t::height_map_loader_t(bool new_format):
 // read height data from bmp or ppm files
 bool height_map_loader_t::get_height_data_from_file( const char *filename, sint8 groundwater, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values )
 {
-	if (FILE* const file = fopen(filename, "rb")) {
+	if (FILE* const file = dr_fopen(filename, "rb")) {
 		char id[3];
 		// parsing the header of this mixed file format is nottrivial ...
 		id[0] = fgetc(file);
