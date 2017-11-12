@@ -406,7 +406,8 @@ log_t::log_t( const char *logfilename, bool force_flush, bool log_debug, bool lo
 		log = NULL;
 		tee = NULL;
 #endif
-	} else {
+	}
+	else {
 		log = fopen(logfilename,"wb");
 
 		if(log == NULL) {

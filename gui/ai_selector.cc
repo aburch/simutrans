@@ -4,6 +4,7 @@
  */
 
 #include "../simdebug.h"
+#include "../simsys.h"
 
 #include "ai_selector.h"
 #include "messagebox.h"
@@ -72,7 +73,7 @@ bool ai_selector_t::check_file( const char *filename, const char * )
 {
 	char buf[1024];
 	sprintf( buf, "%s/ai.nut", filename );
-	if (FILE* const f = fopen(buf, "r")) {
+	if (FILE* const f = dr_fopen(buf, "r")) {
 		fclose(f);
 		return true;
 	}

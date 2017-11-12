@@ -1,6 +1,7 @@
 #include "network_file_transfer.h"
 #include "../simdebug.h"
 #include "../simloadingscreen.h"
+#include "../simsys.h"
 
 #include <string.h>
 #include <errno.h>
@@ -18,7 +19,7 @@
 char const* network_receive_file( SOCKET const s, char const* const save_as, sint32 const length, sint32 const timeout )
 {
 	// ok, we have a socket to connect
-	remove(save_as);
+	dr_remove(save_as);
 
 	DBG_MESSAGE("network_receive_file", "File size %li", length );
 
@@ -30,7 +31,7 @@ char const* network_receive_file( SOCKET const s, char const* const save_as, sin
 		// good place to show a progress bar
 		char rbuf[4096];
 		sint32 length_read = 0;
-		if (FILE* const f = fopen(save_as, "wb")) {
+		if (FILE* const f = dr_fopen(save_as, "wb")) {
 			while(length_read < length) {
 				if(  timeout > 0  ) {
 					/** 10s for 4096 bytes:
@@ -89,6 +90,8 @@ char const* network_receive_file( SOCKET const s, char const* const save_as, sin
 #include "../simworld.h"
 #include "../utils/simstring.h"
 
+#include "../simsys.h"
+
 
 // connect to address (cp), receive gameinfo, close
 const char *network_gameinfo(const char *cp, gameinfo_t *gi)
@@ -139,7 +142,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 			// some more insets, while things may have failed
 			err = fd.get_last_error() == loadsave_t::FILE_ERROR_FUTURE_VERSION ? "Server version too new" : "Server busy";
 		}
-		remove( filename );
+		dr_remove( filename );
 		socket_list_t::remove_client( my_client_socket );
 	}
 end:
@@ -246,7 +249,7 @@ end:
 
 const char *network_send_file( uint32 client_id, const char *filename )
 {
-	FILE *fp = fopen(filename,"rb");
+	FILE *fp = dr_fopen(filename,"rb");
 	if (fp == NULL) {
 		dbg->warning("network_send_file", "could not open file %s", filename);
 		return "Could not open file";

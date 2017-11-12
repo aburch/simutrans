@@ -160,14 +160,14 @@ void gui_flowtext_t::set_text(const char *text)
 			att = ATT_NONE;
 			for(  int i = 0;  *lead != '<'  &&  (*lead > 32  ||  (i==0  &&  *lead==32))  &&  i < 511  &&  *lead != '&'; i++) {
 				if(  *lead>128  ) {
-					size_t skip = 0;
-					utf16 symbol = utf8_to_utf16( lead, &skip );
+					size_t len = 0;
+					utf32 symbol = utf8_decoder_t::decode(lead, len);
 					if(  symbol == 0x3000  ) {
 						// space ...
 						break;
 					}
-					lead += skip;
-					i += skip;
+					lead += len;
+					i += len;
 					if(  symbol == 0x3001  ||  symbol == 0x3002  ) {
 						att = ATT_NO_SPACE;
 						// CJK full stop, comma, space
@@ -204,10 +204,9 @@ void gui_flowtext_t::set_text(const char *text)
 				lead++;
 			}
 			// skip wide spaces
-			size_t skip = 0;
-			while(  utf8_to_utf16( lead, &skip )==0x3000  ) {
-				lead += skip;
-				skip = 0;
+			utf8 const *lead_search = lead;
+			while( utf8_decoder_t::decode(lead_search) == 0x3000 ){
+				lead = lead_search;
 			}
 		}
 		tail = lead;

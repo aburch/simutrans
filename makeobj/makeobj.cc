@@ -41,12 +41,11 @@ int main(int argc, char* argv[])
 			argv++, argc--;
 			debuglevel = 1;	// only fatal errors
 		}
+	}
 
-		if(  debuglevel>1  ) {
-			puts( "\nMakeobj version " MAKEOBJ_VERSION " for Simutrans " VERSION_NUMBER " and higher\n" );
-			puts( "(c) 2002-2012 V. Meyer, Hj. Malthaner, M. Pristovsek & Simutrans development team\n" );
-		}
-
+	if(  debuglevel>1  ) {
+		puts( "\nMakeobj version " MAKEOBJ_VERSION " for Simutrans " VERSION_NUMBER " and higher\n" );
+		puts( "(c) 2002-2012 V. Meyer, Hj. Malthaner, M. Pristovsek & Simutrans development team\n" );
 	}
 
 	if (argc && !STRICMP(argv[0], "capabilities")) {

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "../simsys.h"
 #include "../simtypes.h"
 #include "../simmem.h"
 #include "../simdebug.h"
@@ -361,7 +362,7 @@ void debug_font( font_type* fnt)
 
 bool load_font(font_type* fnt, const char* fname)
 {
-	FILE* f = fopen(fname, "rb");
+	FILE* f = dr_fopen(fname, "rb");
 	int c;
 
 #ifdef USE_FREETYPE

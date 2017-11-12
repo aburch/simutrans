@@ -6,7 +6,7 @@ HOSTCXX?=$(CXX)
 
 BACKENDS      = allegro gdi opengl sdl sdl2 mixer_sdl mixer_sdl2 posix
 COLOUR_DEPTHS = 0 16
-OSTYPES       = amiga beos freebsd haiku linux mingw mac
+OSTYPES       = amiga beos freebsd haiku linux mingw mac openbsd
 
 ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
   $(error Unkown BACKEND "$(BACKEND)", must be one of "$(BACKENDS)")

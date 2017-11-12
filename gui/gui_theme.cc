@@ -386,7 +386,7 @@ bool gui_theme_t::themes_init(const char *file_name)
 		else if(  char *s = strrchr( pathname, '\\' )  ) {
 			*s = 0;
 		}
-		chdir( pathname );
+		dr_chdir( pathname );
 		obj_reader_t::read_file(buttonpak.c_str());
 		gui_theme_t::init_gui_from_images();
 		free(pathname);

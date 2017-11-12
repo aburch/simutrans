@@ -640,7 +640,7 @@ static void internal_GetEvents(bool const wait)
 		}
 		case SDL_TEXTINPUT: {
 			size_t in_pos = 0;
-			utf16 uc = utf8_to_utf16( (utf8 *)event.text.text, &in_pos );
+			utf32 uc = utf8_decoder_t::decode((utf8 const*)event.text.text, in_pos);
 			if(  event.text.text[in_pos]==0  ) {
 				// single character
 				sys_event.type    = SIM_KEYBOARD;

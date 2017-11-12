@@ -289,7 +289,7 @@ void display_ddd_box_clip_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL
 size_t get_next_char(const char* text, size_t pos);
 sint32 get_prev_char(const char* text, sint32 pos);
 
-KOORD_VAL display_get_char_width(utf16 c);
+KOORD_VAL display_get_char_width(utf32 c);
 
 /* returns true, if this is a valid character */
 bool has_character( utf16 char_code );
@@ -317,7 +317,7 @@ unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte
  * CAUTION : The text pointer recedes to point to the previous logical character
  * @author Knightly
  */
-unsigned short get_prev_char_with_metrics(const char* &text, const char *const text_start, unsigned char &byte_length, unsigned char &pixel_width);
+utf32 get_prev_char_with_metrics(const char* &text, const char *const text_start, unsigned char &byte_length, unsigned char &pixel_width);
 
 /*
  * returns the index of the last character that would fit within the width

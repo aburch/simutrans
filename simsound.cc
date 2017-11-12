@@ -81,7 +81,7 @@ bool sound_get_mute()
 void sound_play(uint16 const idx, uint8 const volume)
 {
 	if(  idx != (uint16)NO_SOUND  &&  !env_t::mute_sound  ) {
-	  dr_play_sample(idx, volume * env_t::global_volume >> 8);
+		dr_play_sample(idx, volume * env_t::global_volume >> 8);
 	}
 }
 
@@ -108,7 +108,7 @@ void sound_set_shuffle_midi( bool shuffle )
 void sound_set_midi_volume(int volume)
 {
 	if(  !env_t::mute_midi  &&  max_midi > -1  ) {
-	  dr_set_midi_volume(volume);
+		dr_set_midi_volume(volume);
 	}
 	env_t::midi_volume = volume;
 }
@@ -134,10 +134,10 @@ int sound_get_midi_volume()
 const char *sound_get_midi_title(int index)
 {
 	if (  index >= 0  &&  index <= max_midi  ) {
-	  return midi_title[index];
+		return midi_title[index];
 	}
 	else {
-	  return "Invalid MIDI index!";
+		return "Invalid MIDI index!";
 	}
 }
 
@@ -160,47 +160,46 @@ int get_current_midi()
 int midi_init(const char *directory)
 {
 	// read a list of soundfiles
-	char full_path[1024];
+	std::string full_path = std::string(directory) + "music" + PATH_SEPARATOR + "music.tab";
 
-	sprintf( full_path, "%smusic/music.tab", directory );
-	if(  FILE* const file = fopen(full_path, "rb")  ) {
-	  while(!feof(file)) {
-	    char buf[256];
-	    char title[256];
-	    size_t len;
+	if(  FILE* const file = dr_fopen(full_path.c_str(), "rb")  ) {
+		while(!feof(file)) {
+			char buf[256];
+			char title[256];
+			size_t len;
 
-	    read_line(buf,   sizeof(buf),   file);
-	    read_line(title, sizeof(title), file);
-	    if(  !feof(file)  ) {
-	      len = strlen(buf);
-	      while(  len>0  &&  buf[--len] <= 32  ) {
-	        buf[len] = 0;
-	      }
+			read_line(buf,   sizeof(buf),   file);
+			read_line(title, sizeof(title), file);
+			if(  !feof(file)  ) {
+				len = strlen(buf);
+				while(  len>0  &&  buf[--len] <= 32  ) {
+					buf[len] = 0;
+				}
 
-	      if(  len > 1  ) {
-	        sprintf( full_path, "%s%s", directory, buf );
-	        printf("  Reading MIDI file '%s' - %s", full_path, title);
-	        max_midi = dr_load_midi(full_path);
+				if(  len > 1  ) {
+					full_path = std::string(directory) + buf;
+					printf("  Reading MIDI file '%s' - %s", full_path.c_str(), title);
+					max_midi = dr_load_midi(full_path.c_str());
 
-	        if(  max_midi >= 0  ) {
-	          len = strlen(title);
-	          while(  len > 0  &&  title[--len] <= 32  ) {
-	            title[len] = 0;
-	          }
-	          midi_title[max_midi] = title;
-	        }
-	      }
-	    }
-	  }
+					if(  max_midi >= 0  ) {
+						len = strlen(title);
+						while(  len > 0  &&  title[--len] <= 32  ) {
+							title[len] = 0;
+						}
+						midi_title[max_midi] = title;
+					}
+				}
+			}
+		}
 
-	  fclose(file);
+		fclose(file);
 	}
 	else {
-	  dbg->warning("midi_init()","can't open file '%s' for reading.", full_path);
+		dbg->warning("midi_init()","can't open file '%s' for reading.", full_path.c_str() );
 	}
 
 	if(  max_midi >= 0  ) {
-	  current_midi = 0;
+		current_midi = 0;
 	}
 	// success?
 	return (  max_midi >= 0  );
@@ -210,10 +209,10 @@ int midi_init(const char *directory)
 void midi_play(const int no)
 {
 	if(  no > max_midi  ) {
-	  dbg->warning("midi_play()", "MIDI index %d too high (total loaded: %d)", no, max_midi);
+		dbg->warning("midi_play()", "MIDI index %d too high (total loaded: %d)", no, max_midi);
 	}
 	else if(  !midi_get_mute()  ) {
-	  dr_play_midi(no);
+		dr_play_midi(no);
 	}
 }
 
@@ -221,7 +220,7 @@ void midi_play(const int no)
 void midi_stop()
 {
 	if(  !midi_get_mute()  ) {
-	  dr_stop_midi();
+		dr_stop_midi();
 	}
 }
 
@@ -231,17 +230,17 @@ void midi_set_mute(bool on)
 {
 	on |= (  max_midi == -1  );
 	if(  on  ) {
-	  if(  !env_t::mute_midi  ) {
-	    dr_stop_midi();
-	  }
-	  env_t::mute_midi = true;
+		if(  !env_t::mute_midi  ) {
+			dr_stop_midi();
+		}
+		env_t::mute_midi = true;
 	}
 	else {
-	  if(  env_t::mute_midi  ) {
-	    env_t::mute_midi = false;
-	    midi_play(current_midi);
-	  }
-	  dr_set_midi_volume(env_t::midi_volume);
+		if(  env_t::mute_midi  ) {
+			env_t::mute_midi = false;
+			midi_play(current_midi);
+		}
+		dr_set_midi_volume(env_t::midi_volume);
 	}
 }
 
@@ -299,7 +298,7 @@ void check_midi()
 void close_midi()
 {
 	if(  max_midi > -1  ) {
-	  dr_destroy_midi();
+		dr_destroy_midi();
 	}
 }
 
@@ -313,10 +312,10 @@ void midi_next_track()
 void midi_last_track()
 {
 	if (  current_midi == 0  ) {
-	  current_midi = max_midi - 1;
+		current_midi = max_midi - 1;
 	}
 	else {
-	  current_midi = current_midi - 2;
+		current_midi = current_midi - 2;
 	}
 	new_midi = true;
 }

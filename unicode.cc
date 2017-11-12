@@ -1,11 +1,97 @@
 #include "unicode.h"
 #include "simtypes.h"
 
+utf32 const UNICODE_NUL = 0;
 
 static inline int is_1byte_seq(utf8 c) { return c<0x80; }	// normal ASCII (equivalent to (c & 0x80) == 0x00)
 static inline int is_2byte_seq(utf8 c) { return (c & 0xE0) == 0xC0; } // 2 Byte sequence, total letter value is 110xxxxx 10yyyyyy => 00000xxx xxyyyyyy
 static inline int is_3byte_seq(utf8 c) { return (c & 0xF0) == 0xE0; }	// 3 Byte sequence, total letter value is 1110xxxx 10yyyyyy 10zzzzzz => xxxxyyyy yyzzzzzz
 static inline int is_cont_char(utf8 c) { return (c & 0xC0) == 0x80; }	// the bytes in a sequence have always the format 10xxxxxx
+
+utf8_decoder_t::utf8_decoder_t(utf8 const *const str)
+{
+	utf8str = str;
+}
+
+utf32 utf8_decoder_t::decode(utf8 const *&buff)
+{
+	size_t len = 0;
+	utf32 const code_point = decode(buff, len);
+	buff += len;
+	return code_point;
+}
+
+utf32 utf8_decoder_t::decode(utf8 const *const buff, size_t &len) {
+	// Implementation derived from RFC 3629.
+
+	// Process character byte.
+	size_t i = 0;
+	len = 0;
+	utf8 const character = buff[i++];
+	utf32 cp = 0;
+	if(  character <= 0x7F  ) {
+		// ASCII character.
+		cp = character;
+		len = 1;
+	} else if(  character < 0xC2  ) {
+		// Invalid character.
+	} else if(  character <= 0xDF  ) {
+		// 2 byte character.
+		cp = character & 0x1F;
+		len = 2;
+	} else if(  character <= 0xEF  ) {
+		// 3 byte character.
+		if(  !((character == 0xE0 && buff[i] < 0xA0) ||
+			(character == 0xED && buff[i] > 0x9F))  ) {
+			cp = character & 0xF;
+			len = 3;
+		}
+	} else if(  character <= 0xF4  ) {
+		// 4 byte character.
+		if(  !((character == 0xF0 && buff[i] < 0x90) ||
+			(character == 0xF4 && buff[i] > 0x8F))  ) {
+			cp = character & 0x7;
+			len = 4;
+		}
+	} else {
+		// Invalid character.
+	}
+
+	// Process tail bytes.
+	for(  ; i < len ; i++  ) {
+		utf8 const tail = buff[i];
+		if(  0x80 <= tail && tail <= 0xBF  ) {
+			cp <<= 6;
+			cp |= tail & 0x3F;
+		} else {
+			// Invalid tail.
+			len = 0;
+		}
+	}
+
+	if(  len == 0  ) {
+		// Replace invalid sequences with code point of the single decoded character (ISO-8859-1).
+		len = 1;
+		cp = character;
+	}
+
+	return cp;
+}
+
+bool utf8_decoder_t::has_next() const
+{
+	return utf8str[0] != UNICODE_NUL;
+}
+
+utf32 utf8_decoder_t::next()
+{
+	return has_next() ? decode(utf8str) : UNICODE_NUL;
+}
+
+utf8 const *utf8_decoder_t::get_position()
+{
+	return utf8str;
+}
 
 
 size_t utf8_get_next_char(const utf8* text, size_t pos)
@@ -33,46 +119,6 @@ sint32 utf8_get_prev_char(const utf8* text, sint32 pos)
 		pos--;
 	} while (pos>0  &&  is_cont_char(text[pos]));
 	return pos;
-}
-
-
-
-// these routines must be able to handle a mix of old and new, since after switching a
-// language the visible gui elements are not immediately retranslated
-utf16 utf8_to_utf16(const utf8* text, size_t* len)
-{
-	if (is_1byte_seq(text[0])) {
-		// ASCII
-		*len += 1;
-		return text[0];
-
-	}
-	else if (is_2byte_seq(text[0])) {
-		if (!is_cont_char(text[1])) {
-			// just assume a 8 Bit normal character then
-			*len += 1;
-			return text[0];
-		}
-		*len += 2;
-		// 2 Byte sequence, total letter value is 110xxxxx 10yyyyyy => 00000xxx xxyyyyyy
-		return ((text[0] & 0x1F) << 6) | (text[1] & 0x3F);
-
-	}
-	else if (is_3byte_seq(text[0])) {
-		if (!is_cont_char(text[1]) || !is_cont_char(text[2])) {
-			// just assume a 8 Bit normal character then
-			*len += 1;
-			return text[0];
-		}
-		*len += 3;
-		// 3 Byte sequence, total letter value is 1110xxxx 10yyyyyy 10zzzzzz => xxxxyyyy yyzzzzzz
-		return ((text[0] & 0x0F) << 12) | ((text[1] & 0x3F) << 6) | (text[2] & 0x3F);
-	}
-	else {
-		// 4 Byte characters are UTF32, which we do not support
-		*len += 1;
-		return text[0];
-	}
 }
 
 
