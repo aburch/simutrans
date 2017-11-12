@@ -1309,21 +1309,16 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 	// Apparently it does (if it continues past this point), so lets get on with the calculations!
 	else
 	{
-		long double class_proportions_sum = 0;
+		long double class_proportions_sum = h.get_class_proportions_sum();
 		int count_to_hundred = 0;
 
-		// Find the total amount
-		for (int i = 0; i < h.get_number_of_class_proportions(); i++)
-		{
-			{
-				class_proportions_sum += h.get_class_proportion(i);
-			}
-		}
-
 		// Calculate how much each class is as a percentage of the total amount
+		// Remember, each class proportion is *cumulative* with all previous class proportions.
+		long double last_class_proportion = 0.0;
 		for (int i = 0; i < h.get_number_of_class_proportions(); i++)
 		{
-			class_percentage[i] = h.get_class_proportion(i) / class_proportions_sum * 100;
+			class_percentage[i] = (h.get_class_proportion(i) - last_class_proportion) / class_proportions_sum * 100;
+			last_class_proportion = h.get_class_proportion(i);
 			count_to_hundred += class_percentage[i];
 		}
 
@@ -1381,17 +1376,14 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 	}
 	else
 	{
-		long double class_proportions_sum = 0;
+		long double class_proportions_sum = h.get_class_proportions_sum_jobs();
 		int count_to_hundred = 0;
+		long double last_class_proportion = 0.0;
+
 		for (int i = 0; i < h.get_number_of_class_proportions_jobs(); i++)
 		{
-			{
-				class_proportions_sum += h.get_class_proportion_jobs(i);
-			}
-		}
-		for (int i = 0; i < h.get_number_of_class_proportions_jobs(); i++)
-		{
-			class_percentage_job[i] = h.get_class_proportion_jobs(i) / class_proportions_sum * 100;
+			class_percentage_job[i] = (h.get_class_proportion_jobs(i) - last_class_proportion) / class_proportions_sum * 100;
+			last_class_proportion = h.get_class_proportion_jobs(i);
 			count_to_hundred += class_percentage_job[i];
 		}
 		if (count_to_hundred < 100)
