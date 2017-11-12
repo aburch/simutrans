@@ -3097,7 +3097,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		{
 			buf.printf("%s %i\n", translator::translate("Visitors this year:"), building->get_passengers_succeeded_visiting());
 		}
-		if (building->get_adjusted_jobs() > 0)
+		if (building->get_adjusted_jobs() > 0 && building->get_passengers_succeeded_commuting() != 65535)
 		{
 			buf.printf("%s %i\n", translator::translate("Commuters this year:"), building->get_passengers_succeeded_commuting());
 		}
