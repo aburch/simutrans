@@ -102,7 +102,8 @@ static const char *revision_ex[] =
 	"22",
 	"23",
 	"24",
-	"25"
+	"25",
+	"26"
 };
 
 // just free memory
