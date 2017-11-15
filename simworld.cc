@@ -6027,7 +6027,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 	get_nearby_halts_of_tiles(tile_list, wtyp, start_halts);
 
 	// Initialise the class out of the loop, as the passengers remain the same class no matter what their trip.
-	const uint8 g_class = first_origin->get_random_passenger_class();
+	const uint8 g_class = first_origin->get_random_class(wtyp);
 
 	// Check whether this batch of passengers has access to a private car each.	
 	const sint16 private_car_percent = wtyp == goods_manager_t::passengers ? get_private_car_ownership(get_timeline_year_month(), g_class) : 0;
