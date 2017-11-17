@@ -106,7 +106,6 @@ BEGIN {
 	export_types["vehicle_desc_x::get_length"] = "integer()"
 	export_types["vehicle_desc_x::is_coupling_allowed"] = "bool(vehicle_desc_x, vehicle_desc_x)"
 	export_types["building_desc_x::is_attraction"] = "bool()"
-	export_types["building_desc_x::get_size"] = "coord(integer)"
 	export_types["building_desc_x::get_maintenance"] = "integer()"
 	export_types["building_desc_x::get_cost"] = "integer()"
 	export_types["building_desc_x::get_capacity"] = "integer()"
