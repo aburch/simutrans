@@ -95,7 +95,7 @@ void line_time_measure_t::line_time_measure_info()
 		cont.add_component(b);
 		halt_buttons.append(b);
 
-		gui_label_t *l = new gui_label_t(halt->get_name());
+		gui_label_t *l = new gui_label_t(halt.is_bound() ? halt->get_name() : "Wegpunkt");
 		l->set_pos(scr_coord(D_MARGIN_LEFT+D_BUTTON_HEIGHT+D_H_SPACE, offset_y));
 		cont.add_component(l);
 		halt_name_labels.append(l);
