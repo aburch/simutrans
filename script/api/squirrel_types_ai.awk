@@ -262,7 +262,7 @@ BEGIN {
 	export_types["dir::double"] = "dir(dir)"
 	export_types["dir::backward"] = "dir(dir)"
 	export_types["dir::to_slope"] = "slope(dir)"
-	export_types["slope::to_dir"] = "slope(dir)"
+	export_types["slope::to_dir"] = "dir(slope)"
 	export_types["::translate"] = "string(string)"
 	export_types["::double_to_string"] = "string(float, integer)"
 	export_types["::integer_to_string"] = "string(integer)"
