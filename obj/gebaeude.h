@@ -15,6 +15,7 @@
 class building_tile_desc_t;
 class fabrik_t;
 class stadt_t;
+class goods_desc_t;
 
 /**
  * Asynchron oder synchron animierte Gebaeude für Simutrans.
@@ -346,7 +347,7 @@ public:
 	*/
 	sint32 get_staffing_level_percentage() const;
 
-	uint8 get_random_passenger_class();
+	uint8 get_random_class(const goods_desc_t* wtyp);
 
 	bool get_is_in_world_list() const { return is_in_world_list; }
 	void set_in_world_list(bool value) { is_in_world_list = value; }

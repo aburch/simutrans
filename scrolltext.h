@@ -274,6 +274,8 @@
 " Sans Pareil of Youtube", "",
 " Richard Walker of Youtube", "",
 " Magedu", ""
+" Phil Flyer of Youtube", "",
+" Henergy1994 of Youtube", "",
 "","",
 "Translation:","",
 "","",

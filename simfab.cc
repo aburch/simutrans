@@ -810,9 +810,9 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, s
 		city->update_city_stats_with_building(get_building(), false);
 	}
 
-	if(desc->get_placement() == 2 && city && desc->get_product_count() == 0)
+	if(desc->get_placement() == 2 && city && desc->get_product_count() == 0 && !desc->is_electricity_producer())
 	{
-		// City consumer industries set their consumption rates by the relative size of the city
+		// City consumer industries (other than power stations) set their consumption rates by the relative size of the city
 		const weighted_vector_tpl<stadt_t*>& cities = welt->get_cities();
 
 		sint64 biggest_city_population = 0;
@@ -850,7 +850,7 @@ fabrik_t::fabrik_t(koord3d pos_, player_t* player, const factory_desc_t* desc, s
 		}
 		prodbase = desc->get_productivity() + production;
 	}
-	else if(desc->get_placement() == 2 && !city && desc->get_product_count() == 0)
+	else if(desc->get_placement() == 2 && !city && desc->get_product_count() == 0 && !desc->is_electricity_producer())
 	{
 		prodbase = desc->get_productivity();
 	}
