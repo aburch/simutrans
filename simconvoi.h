@@ -1539,6 +1539,7 @@ public:
 	void emergency_go_to_depot();
 
 	journey_times_map& get_average_journey_times();
+	journey_times_map* get_average_journey_times_for_measurement();
 	inline const journey_times_map& get_average_journey_times_this_convoy_only() const { return average_journey_times; }
 
 	bool get_needs_full_route_flush() const { return needs_full_route_flush; }

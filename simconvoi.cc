@@ -1,5 +1,5 @@
 /**
- * convoi_t Klasse für Fahrzeugverbände
+ * convoi_t Klasse fE Fahrzeugverbände
  * von Hansjörg Malthaner
  */
 
@@ -726,7 +726,7 @@ void convoi_t::rotate90( const sint16 y_size )
 
 
 /**
- * Gibt die Position des Convois zurück.
+ * Gibt die Position des Convois zurEk.
  * @return Position des Convois
  * @author Hj. Malthaner
  */
@@ -5069,6 +5069,21 @@ void convoi_t::laden() //"load" (Babelfish)
 					else
 					{
 						get_average_journey_times().access(pair)->add_autoreduce(this_journey_time, timings_reduction_point);
+					}
+
+					if (line->is_in_journey_times_measurement()) {
+						journey_times_map &average_map = line->get_average_journey_times_for_measurement();
+						const average_tpl<uint32> *average_measurement = average_map.access(pair);
+						if(!average_measurement)
+						{
+							average_tpl<uint32> average_new;
+							average_new.add(this_journey_time);
+							average_map.put(pair, average_new);
+						}
+						else
+						{
+							average_map.access(pair)->add_autoreduce(this_journey_time, timings_reduction_point);
+						}
 					}
 				}
 			}

@@ -112,6 +112,9 @@ private:
 	*/
 	journey_times_map average_journey_times;
 
+	journey_times_map average_journey_times_for_measurement;
+	bool in_journey_times_measurement;
+
 public:
 	simline_t(player_t *player, linetype type);
 	simline_t(player_t *player, linetype type, loadsave_t *file);
@@ -256,6 +259,12 @@ public:
 	void propogate_livery_scheme();
 
 	inline journey_times_map& get_average_journey_times() { return average_journey_times; }
+	inline journey_times_map& get_average_journey_times_for_measurement() { return average_journey_times_for_measurement; }
+
+	void start_journey_time_measurement();
+	void stop_journey_time_measurement();
+
+	inline bool is_in_journey_times_measurement() { return in_journey_times_measurement; }
 
 	sint64 calc_departures_scheduled();
 };
