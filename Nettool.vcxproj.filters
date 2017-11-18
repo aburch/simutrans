@@ -108,4 +108,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="nettools\Makefile">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>
