@@ -6159,6 +6159,10 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		uint32 walking_time;
 		route_status = initialising;
 		pax.g_class = g_class;
+		if (wtyp == goods_manager_t::passengers)
+		{
+			pax.comfort_preference_percentage = simrand(settings.get_max_comfort_preference_percentage() - 100, "karte_t::generate_passengers_and_mail (comfort_preference_percentage)") + 100;
+		}
 
 		first_destination = find_destination(trip, pax.get_class());
 		current_destination = first_destination;
@@ -6941,6 +6945,7 @@ no_route:
 				return_passengers.set_ziel(start_halts[best_bad_start_halt].halt); 
 				return_passengers.set_zielpos(origin_pos.get_2d());
 				return_passengers.is_commuting_trip = trip == commuting_trip;
+				return_passengers.comfort_preference_percentage = pax.comfort_preference_percentage;
 
 				// Passengers will always use the same return route as the route out if available.
 				// (Passengers in real life are lazy, and this reduces compuational load)

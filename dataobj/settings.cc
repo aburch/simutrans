@@ -521,6 +521,8 @@ settings_t::settings_t() :
 
 	minimum_staffing_percentage_consumer_industry = 66;
 	minimum_staffing_percentage_full_production_producer_industry = 80;
+
+	max_comfort_preference_percentage = 500;
 }
 
 void settings_t::set_default_climates()
@@ -1709,6 +1711,15 @@ void settings_t::rdwr(loadsave_t *file)
 			minimum_staffing_percentage_consumer_industry = 66;
 			minimum_staffing_percentage_full_production_producer_industry = 80;
 		}
+
+		if (file->get_extended_version() >= 13 || (file->get_extended_version() == 12 && file->get_extended_revision() >= 27))
+		{
+			file->rdwr_short(max_comfort_preference_percentage);
+		}
+		else
+		{
+			max_comfort_preference_percentage = 500;
+		}
 	}
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -2569,6 +2580,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	minimum_staffing_percentage_consumer_industry = contents.get_int("minimum_staffing_percentage_consumer_industry", minimum_staffing_percentage_consumer_industry); 
 	minimum_staffing_percentage_full_production_producer_industry = contents.get_int("minimum_staffing_percentage_full_production_producer_industry", minimum_staffing_percentage_full_production_producer_industry); 
+
+	max_comfort_preference_percentage = contents.get_int("max_comfort_preference_percentage", max_comfort_preference_percentage);
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.
