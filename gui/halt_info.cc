@@ -48,8 +48,8 @@ static const char *sort_text[halt_info_t::SORT_MODES] = {
 	"origin (detail)",
 	"origin (amount)",
 	"destination (detail)",
-	"class (detail)",
-	"class (via)"/*,
+	"wealth (detail)",
+	"wealth (via)"/*,
 	"transferring time"*/
 };
 
