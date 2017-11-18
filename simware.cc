@@ -253,6 +253,15 @@ void ware_t::rdwr(loadsave_t *file)
 	{
 		g_class = 0;
 	}
+
+	if (file->get_extended_version() >= 13 || (file->get_extended_version() == 12 && file->get_extended_revision() >= 27))
+	{
+		file->rdwr_short(comfort_preference_percentage);
+	}
+	else if(file->is_loading())
+	{
+		comfort_preference_percentage = 500;
+	}
 }
 
 void ware_t::finish_rd(karte_t *welt)

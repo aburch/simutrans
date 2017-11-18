@@ -243,6 +243,18 @@ max_alternative_destinations_per_job_millionths = 5000
 min_alternative_destinations_per_visitor_demand_millionths = 750
 min_alternative_destinations_per_job_millionths = 2500
 
+# Passengers who can afford to travel in higher class accommodation on a convoy that also has
+# lower class accommodation will only spend the extra money if they consider the additional
+# comfort worthwhile. Each passenger's preference for this is randomised on creation. The
+# minimum is the same as the maximum comfortable journey time (i.e., at this minimum level,
+# the passengers will only pay to travel in more comfortable accommodation if the journey
+# time exceeds the maximum comfortable journey time for the lower class of accommodation).
+# The maximum a percentage of this figure, set below. For example, if this is set to 500%,
+# passengers will travel in a higher class of accommodation if the journey time is more 
+# than one fifth of the maximum comfortable journey time of the lower class of accommodation.
+
+max_comfort_preference_percentage = 500
+
 ################################## Industry settings #################################
 
 # when a city reaches 2^n times of this number

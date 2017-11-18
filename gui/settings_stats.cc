@@ -103,7 +103,8 @@ static const char *revision_ex[] =
 	"23",
 	"24",
 	"25",
-	"26"
+	"26",
+	"27"
 };
 
 // just free memory
@@ -499,6 +500,8 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_catering_level5_max_revenue(), 0, 10000, 1), 2, row);
 		INIT_TABLE_END(tbl);
 	}
+	SEPERATOR;
+	INIT_NUM("max_comfort_preference_percentage", sets->get_max_comfort_preference_percentage(), 100, 65535, gui_numberinput_t::AUTOLINEAR, false);
 	clear_dirty();
 	height = ypos;
 	set_size(settings_stats_t::get_size());
@@ -558,6 +561,8 @@ void settings_extended_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->catering_level4_max_revenue );
 	READ_NUM_VALUE( sets->catering_level5_minutes );
 	READ_NUM_VALUE( sets->catering_level5_max_revenue );
+
+	READ_NUM_VALUE(sets->max_comfort_preference_percentage);
 
 	// And convert to the form used in-game...
 	sets->cache_catering_revenues();

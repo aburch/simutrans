@@ -2624,7 +2624,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 						const sint64 journey_time_ticks = this_arrival_time - welt->get_ticks();
 						const sint64 journey_time_seconds = welt->ticks_to_seconds(journey_time_ticks);
 
-						const sint64 ideal_comfort_time_multiplier = 120ll; //TODO: Have this set from simuconf.tab OR set and randomised per passenger (will take memory)
+						const sint64 ideal_comfort_time_multiplier = (sint64)next_to_load->comfort_preference_percentage;
 						const sint64 ideal_comfort_time = (journey_time_seconds * ideal_comfort_time_multiplier) / 100ll;
 
 						uint8 best_class = g_class;
@@ -2633,15 +2633,15 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 						{
 							// If there is overcrowding, load willy nilly: any class that the passengers can board will do.
 
-							// The classes are called in non-deterministic order. We must therefore have an algorithm that 
-							// deterministically decides to which, if any, class that any given passengers will downgrade.
+							// The classes are called in non-deterministic order (because vehicles of any class may be in any order in the convoy).
+							// We must therefore have an algorithm that deterministically decides to which, if any, class that any given passengers will downgrade.
 							for (uint8 current_class = next_to_load->g_class; current_class > 0; current_class--)
 							{
 								// Find the ideal class, assuming space available in all classes
 								if (current_class == g_class || cnv->get_classes_carried(goods_manager_t::INDEX_PAS)->is_contained(current_class))
 								{
 									const uint8 comfort_this_class = cnv->get_comfort(current_class);
-									const uint32 max_tolerable_journey_this_comfort = welt->get_settings().max_tolerable_journey(current_class);
+									const uint32 max_tolerable_journey_this_comfort = welt->get_settings().max_tolerable_journey(comfort_this_class);
 
 									if (max_tolerable_journey_this_comfort >= ideal_comfort_time)
 									{

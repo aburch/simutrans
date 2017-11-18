@@ -32,6 +32,12 @@ public:
 	/// The class of mail/passengers. Not used for goods.
 	uint8 g_class;
 
+	/// The percentage of the maximum tolerable journey time for 
+	/// any given level of comfort that this packet of passengers 
+	/// (if passengers) will travel in a lower class of accommodation
+	/// than available on a convoy.
+	uint16 comfort_preference_percentage;
+
 private:
 	/**
 	 * Handle of target station.
