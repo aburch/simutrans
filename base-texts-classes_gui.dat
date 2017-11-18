@@ -193,13 +193,17 @@ name=%i_more_stops,_max_walking_time:_%s
 note=Building info window
 -
 obj=program_text
-name=
-note=Building info window
+name=wealth (detail)
+note=halt and convoy info window sort options
 -
 obj=program_text
-name=
-note=Building info window
+name=wealth (via)
+note=halt and convoy info window sort options
 -
 obj=program_text
-name=
-note=Building info window
+name=accommodation (detail)
+note=halt and convoy info window sort options
+-
+obj=program_text
+name=accommodation (via)
+note=halt and convoy info window sort options
