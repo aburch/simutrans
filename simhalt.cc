@@ -2641,7 +2641,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 								if (current_class == g_class || cnv->get_classes_carried(goods_manager_t::INDEX_PAS)->is_contained(current_class))
 								{
 									const uint8 comfort_this_class = cnv->get_comfort(current_class);
-									const uint32 max_tolerable_journey_this_comfort = welt->get_settings().max_tolerable_journey(current_class);
+									const uint32 max_tolerable_journey_this_comfort = welt->get_settings().max_tolerable_journey(comfort_this_class);
 
 									if (max_tolerable_journey_this_comfort >= ideal_comfort_time)
 									{
