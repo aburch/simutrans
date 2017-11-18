@@ -1,7 +1,7 @@
 CFG ?= default
 -include ../config.$(CFG)
 
-OSTYPES       = beos cygwin freebsd haiku linux mingw mac
+OSTYPES       = beos cygwin freebsd haiku linux mingw32 mac
 
 ifeq ($(findstring $(OSTYPE), $(OSTYPES)),)
   $(error Unkown OSTYPE "$(OSTYPE)", must be one of "$(OSTYPES)")
@@ -17,7 +17,7 @@ ifeq ($(OSTYPE),cygwin)
   STD_LIBS += -lwinmm -lcurses
 endif
 
-ifeq ($(OSTYPE),mingw)
+ifeq ($(OSTYPE),mingw32)
   CC ?= gcc
   OS_OPT   ?= -march=pentium
   # we need the libraries EXACTLY in this order to link
