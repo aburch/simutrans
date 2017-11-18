@@ -21,7 +21,7 @@ ifeq ($(OSTYPE),mingw32)
   CC ?= gcc
   OS_OPT   ?= -march=pentium
   # we need the libraries EXACTLY in this order to link
-  STD_LIBS = -lmingw32 -lstdc++ -lwsock32 -lWs2_32
+  STD_LIBS = -lmingw32 -lstdc++ -lwsock32 -lWS2_32
   CFLAGS  += -_WIN32_WINNT
 endif
 
