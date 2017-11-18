@@ -6209,17 +6209,27 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 		*/
 		uint32 walking_tolerance = tolerance;
 		const uint32 threshold_tolerance = range_commuting_tolerance + min_commuting_tolerance;
+
+		// Above this journey time, passengers will prefer not to walk even if walking is the quickest way
+		// of getting to their destination, provided that another means of transport is within their journey
+		// time tolerance. This simulates laziness. 
+		uint32 walking_time_preference_threshold;
+
 		if(wtyp == goods_manager_t::mail)
 		{
 			// People will walk long distances with mail: it is not heavy.
 			walking_tolerance = simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::generate_passengers_and_mail (walking tolerance)") + min_visiting_tolerance;
+			walking_time_preference_threshold = walking_tolerance;
 		}
-		else if(tolerance > threshold_tolerance)
+		else
 		{
 			// Passengers
-			walking_tolerance = max(tolerance / 2, min(tolerance, threshold_tolerance));
+			if (tolerance > threshold_tolerance)
+			{
+				walking_tolerance = max(tolerance / 2, min(tolerance, threshold_tolerance));
+			}
+			walking_time_preference_threshold = simrand(walking_tolerance > min_commuting_tolerance ? walking_tolerance - min_commuting_tolerance : min_commuting_tolerance, "karte_t::generate_passengers_and_mail (walking walking_time_preference_threshold)") + min_commuting_tolerance;
 		}
-
 
 		uint32 car_minutes;
 
@@ -6423,9 +6433,11 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					best_journey_time = 1;
 				}
 
-				if(can_walk && walking_time < best_journey_time)
+				if(can_walk && walking_time < best_journey_time && (walking_time <= walking_time_preference_threshold || best_journey_time > tolerance))
 				{
-					// If walking is faster than public transport, passengers will walk.
+					// If walking is faster than public transport, passengers will walk, unless
+					// the public transport journey is within passengers' tolerance and the walking
+					// time exceeds passenger' walking time preference threshold.
 					const grund_t* destination_gr = lookup_kartenboden(current_destination.location);
 					if(destination_gr && !destination_gr->is_water())
 					{
@@ -6569,9 +6581,10 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					// The passengers can get to their destination by car but not by public transport.
 					// Therefore, they will always use their car unless it is faster to walk and they 
 					// are not people who always prefer to use the car.
-					if(car_minutes > walking_time && can_walk && private_car_chance > settings.get_always_prefer_car_percent())
+					if(car_minutes > walking_time && can_walk && walking_time <= walking_time_preference_threshold && private_car_chance > settings.get_always_prefer_car_percent())
 					{
-						// If walking is faster than taking the car, passengers will walk.
+						// If walking is faster than taking the car, and the walking time is below passengers'
+						// walking time preference threshold, passengers will walk.
 						route_status = on_foot;
 					}
 					else
