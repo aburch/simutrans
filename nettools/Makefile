@@ -22,8 +22,8 @@ ifeq ($(OSTYPE),mingw32 mingw64)
   OS_OPT   ?= -march=pentium
   # we need the libraries EXACTLY in this order to link
   STD_LIBS = -lmingw32 -lstdc++ -lwsock32 -lws2_32
-  LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware -static
-  #CFLAGS  += -_WIN32_WINNT -static
+  #LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware -static
+  CFLAGS  += -_WIN32_WINNT -static
 endif
 
 ifeq ($(OSTYPE),mac)
