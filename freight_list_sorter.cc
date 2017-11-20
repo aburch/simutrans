@@ -191,12 +191,11 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 
 
 
-void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 max, const ware_t *ware, const char *what_doing, uint8 g_class, uint32 total_sum)
+void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 max, const ware_t *ware, const char *what_doing, uint8 g_class, uint32 total_pass_mail)
 {
 	goods_desc_t const& desc = *ware->get_desc();
 	char const*  const  name = translator::translate(ware->get_catg() != 0 ? desc.get_catg_name() : desc.get_name());
 	char const*  const  what = translator::translate(what_doing);
-	char class_name[32] = "\0";
 	char class_entry[32] = "\0";
 	char const*  unit = translator::translate(desc.get_mass());
 	bool sorting_by_wealth = sortby == by_wealth_detail || sortby == by_wealth_via ? true : false;
@@ -206,22 +205,27 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 	if (buf.len() > 0) {
 		buf.append("\n");
 	}
-	if (is_class_cargo && sorting_by_wealth && max > 0)// When sorting by wealth, there would be no maximum capacity per "wealth" entry, therefore show extra entry with maximum capacity
-	{
-		if (total_sum > 0)
-		{
-			buf.printf(" %u/%u", total_sum, max);
-			if (ware->get_catg() == goods_manager_t::INDEX_PAS) {
+	if (is_class_cargo && sorting_by_wealth && max > 0)
+	{// When sorting by wealth, there would be no maximum capacity per "wealth" entry, therefore we need to show one extra entry with maximum capacity for the pass or mail.
+		if (total_pass_mail > 0 || sum == 0)
+		{// This is apperently the first entry of either pass or mail, and therefore needs the maximum freight indicator.
+			buf.printf(" %u/%u", total_pass_mail, max);
+			if (ware->get_catg() == goods_manager_t::INDEX_PAS) 
+			{
 				buf.printf(" %s %s\n", name, what);
 			}
-			else if (ware->get_catg() == goods_manager_t::INDEX_MAIL) {
+			else 
+			{
 				buf.printf(" %s %s %s\n", unit, name, what);
 			}
 		}
-		buf.printf(" %u", sum);
+		//else 
+		{// No, this is not the first entry, only show the amount
+			buf.printf(" %u", sum);
+		}
 	}
 	else
-	{
+	{// This is either a non-class cargo or this is a list of freight in a station window.
 		buf.printf(" %u", sum);
 		if (max != 0) {
 			// convois
@@ -229,26 +233,30 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 		}
 	}
 
-	if (is_class_cargo && (sorting_by_wealth || sorting_by_accommodation) && sum > 0 && g_class < all_classes)
+	if (is_class_cargo && (sorting_by_wealth || sorting_by_accommodation))
 	{
+		char class_name[32];
 		sprintf(class_name, ware->get_index() == goods_manager_t::INDEX_PAS ? "p_class[%u]" : "m_class[%u]", g_class);
 		sprintf(class_entry, "(%s) ", translator::translate(class_name));
 	}
 	// Ensure consistent spacing
-	if (ware->get_catg() == goods_manager_t::INDEX_PAS)
-	{
-		buf.printf(" %s %s%s\n", name, class_entry, what);
-	}
-	else
-	{
-		// special freight (catg == 0) needs own name
-		buf.printf(" %s %s%s %s\n", unit, class_entry, name, what);
+	if (sorting_by_wealth && sum>0 || !sorting_by_wealth || !is_class_cargo)
+	{// Ensure that, if we sort by wealth, we only show this section below if there actually is something to show, alternatively if this is not a freight type with classes at all.
+		if (ware->get_catg() == goods_manager_t::INDEX_PAS)
+		{
+			buf.printf(" %s %s%s\n", name, class_entry, what);
+		}
+		else
+		{
+			// special freight (catg == 0) needs own name
+			buf.printf(" %s %s%s %s\n", unit, class_entry, name, what);
+		}
 	}
 }
 
 
 
-void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing, const uint8 accommodation, const uint32 accommodation_capacity )
+void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing, const uint8 accommodation, const uint32 accommodation_capacity , const ware_t *accommodation_ware)
 {
 	sortby = sort_mode;
 
@@ -415,7 +423,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		int last_ware_catg = -1;
 		int last_ware_class = -1;
 		bool new_section = false;
-		uint32 total_sum = 0;
+		uint32 total_pass_mail = 0;
 		uint32 last_capacity = 0;
 		ware_t last;
 		const bool sorting_by_wealth = sortby == by_wealth_detail || sortby == by_wealth_via ? true : false;
@@ -444,7 +452,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				last_goods_index = ware.get_index();
 				last_ware_catg = (ware.get_catg() != 0) ? ware.get_catg() : -1;
 				// First, if we are dealing with passengers and mail, we might need to know how many i total we have on board
-				total_sum = 0;
+				total_pass_mail = 0;
 				if (sorting_by_wealth && (ware.get_index() == goods_manager_t::INDEX_PAS || ware.get_index() == goods_manager_t::INDEX_MAIL))
 				{
 					for (int i = j; i < pos; i++) {
@@ -454,7 +462,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 								break;	// next category reached ...
 							}
 						}
-						total_sum += sumware.menge;
+						total_pass_mail += sumware.menge;
 					}
 				}
 			}
@@ -489,10 +497,10 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				last_ware_catg = (ware.get_catg() != 0) ? ware.get_catg() : -1;
 
 				// display all ware
-				if (full_list == NULL || full_list->get_count() == 0) 
+				if (full_list == NULL || full_list->get_count() == 0)
 				{
-					add_ware_heading(buf, sum, accommodation_capacity, &ware, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_sum);
-					total_sum = 0;
+					add_ware_heading(buf, sum, accommodation_capacity, &ware, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail);
+					total_pass_mail = 0;
 				}
 				else
 				{
@@ -504,25 +512,25 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 						last = current;
 						if (last_goods_index == current.get_index() || last_ware_catg == current.get_catg() || last_ware_class == current.get_class()) 
 						{
-							add_ware_heading(buf, sum, current.menge, &current, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_sum);
+							add_ware_heading(buf, sum, current.menge, &current, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail);
 							last_capacity = current.menge;
 							heading_added = true;
-							total_sum = 0;
+							total_pass_mail = 0;
 							break;
 						}
 						else
 						{
-							add_ware_heading(buf, 0, current.menge, &current, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_sum);
+							add_ware_heading(buf, 0, current.menge, &current, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail);
 							last_capacity = current.menge;
 							heading_added = true;
-							total_sum = 0;
+							total_pass_mail = 0;
 						}
 					}
 
 					if (new_section && !heading_added)
 					{
-						add_ware_heading(buf, sum, last_capacity, &last, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_sum);
-						total_sum = 0;
+						add_ware_heading(buf, sum, last_capacity, &last, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail);
+						total_pass_mail = 0;
 					}
 				}
 
@@ -680,6 +688,11 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			buf.append("\n");
 			// debug end
 		}
+	}	
+	// Is there any empty accommodations in the convoy?
+	else if (accommodation_capacity > 0)
+	{
+		add_ware_heading(buf, 0, accommodation_capacity, accommodation_ware, what_doing, accommodation);
 	}
 
 	// still entires left?
@@ -687,6 +700,8 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 		ware_t const& g = *full_i;
 		add_ware_heading(buf, 0, g.menge, &g, what_doing, g.get_class());
 	}
+
+
 
 #ifdef _MSC_VER
 	if(warray_size >= max_stack_size)

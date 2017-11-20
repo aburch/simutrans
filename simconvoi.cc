@@ -4930,43 +4930,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 		// apend info on total capacity
 		slist_tpl <ware_t>capacity;
-		slist_tpl <ware_t>capacity_pass;
-		slist_tpl <ware_t>capacity_mail;
 
-		for (size_t i = 0; i != pass_classes; ++i) {
-			if (max_loaded_pass[i] > 0) {
-				ware_t ware(goods_manager_t::passengers);
-				ware.menge = max_loaded_pass[i];
-				// append to category?
-				slist_tpl<ware_t>::iterator j = capacity_pass.begin();
-				slist_tpl<ware_t>::iterator end = capacity_pass.end();
-				while (j != end && j->menge < max_loaded_pass[i]) ++j;
-				if (j != end && j->menge == max_loaded_pass[i]) {
-					j->menge += max_loaded_pass[i];
-				}
-				else {
-					// not yet there
-					capacity_pass.insert(j, ware);
-				}
-			}
-		}
-		for (size_t i = 0; i != mail_classes; ++i) {
-			if (max_loaded_mail[i] > 0) {
-				ware_t ware(goods_manager_t::mail);
-				ware.menge = max_loaded_mail[i];
-				// append to category?
-				slist_tpl<ware_t>::iterator j = capacity_mail.begin();
-				slist_tpl<ware_t>::iterator end = capacity_mail.end();
-				while (j != end && j->menge < max_loaded_mail[i]) ++j;
-				if (j != end && j->menge == max_loaded_mail[i]) {
-					j->menge += max_loaded_mail[i];
-				}
-				else {
-					// not yet there
-					capacity_mail.insert(j, ware);
-				}
-			}
-		}
 		for (size_t i = 0; i != n; ++i) {
 			if (max_loaded_waren[i] > 0 && i != goods_manager_t::INDEX_NONE) {
 				ware_t ware(goods_manager_t::get_info(i));
@@ -4987,22 +4951,25 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		// show new info
 		if (sort_by_accommodation)
 		{
+			ware_t ware;
 			for (uint8 i = 0; i < pass_classes; i++)
 			{
 				if (max_loaded_pass[i] > 0)
 				{
-					freight_list_sorter_t::sort_freight(pass_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order,NULL, "loaded", i, max_loaded_pass[i]);
+					ware = goods_manager_t::passengers;
+					freight_list_sorter_t::sort_freight(pass_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_pass[i], &ware);
 				}
 			}
 			for (uint8 i = 0; i < mail_classes; i++)
 			{
 				if (max_loaded_mail[i] > 0)
 				{
-					freight_list_sorter_t::sort_freight(mail_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_pass[i]);
+					ware = goods_manager_t::mail;
+					freight_list_sorter_t::sort_freight(mail_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_mail[i], &ware);
 				}
 			}
 		}
-		freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded", NULL, NULL);
+		freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded", NULL, NULL, NULL);
 	}
 }
 
