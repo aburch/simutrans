@@ -4539,7 +4539,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		}
 		// we un-reserve also nonexistent tiles! (may happen during deletion)
 
-		if (sch1->is_diagonal())
+		if (reserve && sch1->is_diagonal())
 		{
 			steps_so_far += diagonal_vehicle_steps_per_tile;
 		}
