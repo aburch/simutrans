@@ -689,7 +689,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			// debug end
 		}
 	}	
-	// Is there any empty accommodations in the convoy?
+	// Is there any empty accommodation in the convoy?
 	else if (accommodation_capacity > 0)
 	{
 		add_ware_heading(buf, 0, accommodation_capacity, accommodation_ware, what_doing, accommodation);

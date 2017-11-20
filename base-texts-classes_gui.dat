@@ -69,8 +69,8 @@ name=resets_all_classes_to_their_defaults
 note=Class manager window, tooltip to said button
 -
 obj=program_text
-name=accommodations
-note=Class manager window, accommodations of vehicles
+name=accommodation
+note=Class manager window, accommodation of vehicles
 -
 obj=program_text
 name=capacity_per_class
