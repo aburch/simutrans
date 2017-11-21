@@ -185,7 +185,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 		freight_sort_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
 	}
 	freight_sort_selector.set_focusable(true);
-	freight_sort_selector.set_selection(halt->get_sortby());
+	freight_sort_selector.set_selection(env_t::default_sortmode);
 	freight_sort_selector.set_highlight_color(1);
 	freight_sort_selector.set_pos(cursor);
 	freight_sort_selector.set_size(freight_selector_size);

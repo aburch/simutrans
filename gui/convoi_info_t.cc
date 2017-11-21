@@ -235,7 +235,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 		freight_sort_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
 	}
 	freight_sort_selector.set_focusable(true);
-	freight_sort_selector.set_selection(cnv->get_sortby());
+	freight_sort_selector.set_selection(env_t::default_sortmode);
 	freight_sort_selector.set_highlight_color(1);
 	freight_sort_selector.set_pos(dummy);
 	freight_sort_selector.set_max_size(scr_size(D_BUTTON_WIDTH * 2, LINESPACE * 5 + 2 + 16));
