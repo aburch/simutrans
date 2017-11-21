@@ -4914,11 +4914,11 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 					// if != 0 we could not join it to existing => load it
 					if (ware.menge != 0)
 					{
-						if (sort_by_accommodation && ware.get_catg() == goods_manager_t::INDEX_PAS)
+						if (sort_by_accommodation && pass_veh)
 						{
 							pass_fracht[j].append(ware);
 						}
-						else if (sort_by_accommodation && ware.get_catg() == goods_manager_t::INDEX_MAIL)
+						else if (sort_by_accommodation && mail_veh)
 						{
 							mail_fracht[j].append(ware);
 						}
