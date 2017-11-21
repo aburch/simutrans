@@ -200,7 +200,7 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 	char const*  unit = translator::translate(desc.get_mass());
 	bool sorting_by_wealth = sortby == by_wealth_detail || sortby == by_wealth_via ? true : false;
 	bool sorting_by_accommodation = sortby == by_accommodation_detail || sortby == by_accommodation_via ? true : false;
-	bool is_class_cargo = ware->get_catg() == goods_manager_t::INDEX_PAS || ware->get_catg() == goods_manager_t::INDEX_MAIL ? true : false;
+	bool is_class_cargo = ware->get_index() == goods_manager_t::INDEX_PAS || ware->get_index() == goods_manager_t::INDEX_MAIL ? true : false;
 
 	if (buf.len() > 0) {
 		buf.append("\n");
@@ -210,7 +210,7 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 		if (total_pass_mail > 0 || sum == 0)
 		{// This is apperently the first entry of either pass or mail, and therefore needs the maximum freight indicator.
 			buf.printf(" %u/%u", total_pass_mail, max);
-			if (ware->get_catg() == goods_manager_t::INDEX_PAS) 
+			if (ware->get_index() == goods_manager_t::INDEX_PAS)
 			{
 				buf.printf(" %s %s\n", name, what);
 			}
@@ -242,7 +242,7 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 	// Ensure consistent spacing
 	if (sorting_by_wealth && sum>0 || !sorting_by_wealth || !is_class_cargo)
 	{// Ensure that, if we sort by wealth, we only show this section below if there actually is something to show, alternatively if this is not a freight type with classes at all.
-		if (ware->get_catg() == goods_manager_t::INDEX_PAS)
+		if (ware->get_index() == goods_manager_t::INDEX_PAS)
 		{
 			buf.printf(" %s %s%s\n", name, class_entry, what);
 		}
