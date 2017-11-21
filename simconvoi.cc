@@ -4885,16 +4885,25 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			// first add to capacity indicator
 			if (sort_by_accommodation)
 			{
-				for (uint8 j = 0; j < classes_to_check; j++)
+				if (pass_veh)
 				{
-					if (v->get_capacity(j) > 0 && pass_veh) {
-						max_loaded_pass[j] += v->get_capacity(j);
-					}
-					else if (v->get_capacity(j) > 0 && mail_veh) {
-						max_loaded_mail[j] += v->get_capacity(j);
+					for (uint8 j = 0; j < pass_classes; j++)
+					{
+						if (v->get_capacity(j) > 0) {
+							max_loaded_pass[j] += v->get_capacity(j);
+						}
 					}
 				}
-				if (menge > 0 && ware_desc != goods_manager_t::none && ware_desc != goods_manager_t::passengers && ware_desc != goods_manager_t::mail) {
+				else if (mail_veh)
+				{
+					for (uint8 j = 0; j < mail_classes; j++)
+					{
+						if (v->get_capacity(j) > 0) {
+							max_loaded_mail[j] += v->get_capacity(j);
+						}
+					}
+				}
+				if (menge > 0 && ware_desc != goods_manager_t::none && !pass_veh && !mail_veh) {
 					max_loaded_waren[ware_desc->get_index()] += menge;
 				}
 			}
