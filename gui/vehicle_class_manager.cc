@@ -333,7 +333,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 
 			cbuffer_t buf;
 
-			// This is the different accommodations in the train.
+			// This is the different accommodation in the train.
 			// Each accommodation have a combobox associated to it to change the class to another.
 			//int pass_class_desc_capacity[255] = { 0 };
 			//int mail_class_desc_capacity[255] = { 0 };
@@ -388,7 +388,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					if (!any_pass)
 					{
 						buf.clear();
-						buf.printf("%s (%s):", translator::translate("accommodations"), pass_name);
+						buf.printf("%s (%s):", translator::translate("accommodation"), pass_name);
 						display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						offset_y += LINESPACE;
 					}
@@ -435,7 +435,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					if (!any_mail)
 					{
 						buf.clear();
-						buf.printf("%s (%s):", translator::translate("accommodations"), mail_name);
+						buf.printf("%s (%s):", translator::translate("accommodation"), mail_name);
 						display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						offset_y += LINESPACE;
 					}

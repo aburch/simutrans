@@ -49,7 +49,7 @@ void simlinemgmt_t::delete_line(linehandle_t line)
 }
 
 
-void simlinemgmt_t::update_line(linehandle_t line)
+void simlinemgmt_t::update_line(linehandle_t line, bool do_not_renew_stops)
 {
 	// when a line is updated, all managed convoys must get the new schedule!
 	const int count = line->count_convoys();
@@ -68,10 +68,13 @@ void simlinemgmt_t::update_line(linehandle_t line)
 			cnv->check_pending_updates(); // apply new schedule immediately for convoys in depot
 		}
 	}
-	// finally de/register all stops
-	line->renew_stops();
-	if(  count>0  ) {
-		world()->set_schedule_counter();
+	if (!do_not_renew_stops)
+	{
+		// finally de/register all stops
+		line->renew_stops();
+		if (count > 0) {
+			world()->set_schedule_counter();
+		}
 	}
 }
 
