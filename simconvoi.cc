@@ -1478,7 +1478,9 @@ bool convoi_t::drive_to()
 			pthread_mutex_lock(&step_convois_mutex);
 			world()->stop_path_explorer();
 #endif
-			simlinemgmt_t::update_line(line);
+			// There is no need to renew stops here, as this update can only ever come 
+			// from a change in reversing status, which does not require renewing stops.
+			simlinemgmt_t::update_line(line, true);
 #ifdef MULTI_THREAD
 			int error = pthread_mutex_unlock(&step_convois_mutex);
 			assert(error == 0);
@@ -3426,7 +3428,10 @@ void convoi_t::vorfahren()
 			const linehandle_t line = get_line();
 			if(line.is_bound())
 			{
-				simlinemgmt_t::update_line(line);
+				// Set the bool flag to true, as a change in reversing status, which is all that this is ever called for here,
+				// can never necessitate renewing all the stops on a line. This will avoid unnecessary path explorer refreshes,
+				// especially as there are some circumstances where this is constantly altered for road lines.
+				simlinemgmt_t::update_line(line, true);
 			}
 		}
 
