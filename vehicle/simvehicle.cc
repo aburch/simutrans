@@ -2231,7 +2231,8 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		next_lane = 0;
 		if(  (str->get_ribi_unmasked() == ribi_t::all  ||  ribi_t::is_threeway(str->get_ribi_unmasked()))  &&  str->get_overtaking_mode() == oneway_mode  ) {
 			const strasse_t* str_prev = route_index == 0 ? NULL : (strasse_t *)welt->lookup(r.at(route_index - 1u))->get_weg(road_wt);
-			const strasse_t* str_next = route_index < r.get_count() - 1u ? (strasse_t *)welt->lookup(r.at(route_index + 1u))->get_weg(road_wt) : NULL;
+			const grund_t* gr_next = route_index < r.get_count() - 1u ? welt->lookup(r.at(route_index + 1u)) : NULL;
+			const strasse_t* str_next = gr_next ? (strasse_t*)gr_next -> get_weg(road_wt) : NULL;
 			if(str_prev && str_next && str_prev->get_overtaking_mode() > oneway_mode  && str_next->get_overtaking_mode() == oneway_mode) {
 				const koord3d pos_next2 = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
 				if(  (!welt->get_settings().is_drive_left()  &&  ribi_t::rotate90l(get_90direction()) == calc_direction(pos_next,pos_next2))  ||  (welt->get_settings().is_drive_left()  &&  ribi_t::rotate90(get_90direction()) == calc_direction(pos_next,pos_next2))  ) {
