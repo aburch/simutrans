@@ -85,6 +85,10 @@ To debug, I recommend to run drmingw -i once in a shell. You will get a
 caller history in case of an error. gdb does not really work well and is a
 pain to use with the text interface.
 
+The following instructions are for GNU/Linux build systems:
+-----------------------------------------------------------
+
+TODO Add autotools and instructions for them
 
 The following instructions are for MS Visual C Express:
 -------------------------------------------------------

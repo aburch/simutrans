@@ -1,0 +1,6 @@
+-*.log
+-/documentation
+-/build
+-/simutrans
+-/Debug
+-/Release
