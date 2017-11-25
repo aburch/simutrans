@@ -2774,8 +2774,6 @@
     <None Include="common.mk" />
     <None Include="config.template" />
     <None Include="Makefile" />
-    <None Include="makeobj\Makefile" />
-    <None Include="nettools\Makefile" />
     <None Include="revision.jse" />
     <None Include="simutrans\config\electricity.tab" />
     <None Include="simutrans\config\privatecar.tab" />

@@ -4528,7 +4528,18 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		grund_t *gr = welt->lookup(pos);
 		schiene_t* sch1 = gr ? (schiene_t *)gr->get_weg(get_waytype()) : NULL;
 
-		if (sch1->is_diagonal())
+		if (sch1 == NULL && reserve)
+		{
+			if (i < route->get_count() - 1)
+			{
+				// A way tile has been deleted; the route needs recalculating.
+				cnv->suche_neue_route();
+			}
+			break;
+		}
+		// we un-reserve also nonexistent tiles! (may happen during deletion)
+
+		if (reserve && sch1->is_diagonal())
 		{
 			steps_so_far += diagonal_vehicle_steps_per_tile;
 		}
@@ -4555,17 +4566,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				break;
 			}
 		}
-				
-		if(sch1 == NULL && reserve) 
-		{
-			if(i < route->get_count() - 1)
-			{
-				// A way tile has been deleted; the route needs recalculating.
-				cnv->suche_neue_route();
-			}
-			break;
-		}
-		// we un-reserve also nonexistent tiles! (may happen during deletion)
 
 		if(is_choosing && welt->get_settings().get_max_choose_route_steps())
 		{

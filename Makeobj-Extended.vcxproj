@@ -178,6 +178,9 @@
     <ClInclude Include="besch\ware_besch.h" />
     <ClInclude Include="besch\xref_besch.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="makeobj\Makefile" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

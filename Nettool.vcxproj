@@ -119,6 +119,9 @@
     <ClInclude Include="utils\log.h" />
     <ClInclude Include="utils\simstring.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="nettools\Makefile" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

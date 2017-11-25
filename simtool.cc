@@ -7153,7 +7153,7 @@ const char *tool_stop_moving_t::do_work( player_t *player, const koord3d &last_p
 
 		// Modified by : Knightly
 #ifdef MULTI_THREAD
-		//world()->stop_path_explorer();
+		world()->stop_path_explorer();
 #endif
 		path_explorer_t::refresh_all_categories(true);
 	}

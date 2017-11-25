@@ -3,7 +3,7 @@
 CFG ?= default
 -include ../config.$(CFG)
 
-OSTYPES       = beos cygwin freebsd haiku linux mingw mac
+OSTYPES       = amiga beos cygwin freebsd haiku linux mingw32 mingw64 mac
 
 ifeq ($(findstring $(OSTYPE), $(OSTYPES)),)
   $(error Unkown OSTYPE "$(OSTYPE)", must be one of "$(OSTYPES)")
@@ -31,7 +31,7 @@ ifeq ($(OSTYPE),cygwin)
   STD_LIBS += -lwinmm
 endif
 
-ifeq ($(OSTYPE),mingw)
+ifeq ($(OSTYPE),mingw32)
   CC ?= gcc
   OS_OPT   ?= -DPNG_STATIC -DZLIB_STATIC -march=pentium
   LDFLAGS += -static-libgcc -static-libstdc++
