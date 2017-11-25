@@ -3641,7 +3641,7 @@ Change prices
 reset_all_classes
 Reset all prices
 resets_all_classes_to_their_defaults
-Resets all classes to their defaults
+Resets all prices to their defaults
 accommodations
 accommodations
 capacity_per_class
@@ -3661,7 +3661,7 @@ Traveling post office income per km (full convoy):
 catering_income_pr_km_(full_convoy):
 Catering income per km (full convoy):
 see_and_change_the_class_assignments
-See and change the class assignments
+See and change the prices
 unlimited
 Unlimited
 range
