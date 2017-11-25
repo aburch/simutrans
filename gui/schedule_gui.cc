@@ -146,22 +146,22 @@ void schedule_gui_t::gimme_stop_name(cbuffer_t & buf, const player_t *player, co
 
 void schedule_gui_t::gimme_short_stop_name(cbuffer_t& buf, player_t const* const player, const schedule_t *schedule, int i, int max_chars)
 {
-	if(i<0  ||  schedule==NULL  ||  i>=schedule->get_count()) {
-		dbg->warning("void schedule_gui_t::gimme_short_stop_name()","tried to receive unused entry %i in schedule %p.",i,schedule);
+	if (i < 0 || schedule == NULL || i >= schedule->get_count()) {
+		dbg->warning("void schedule_gui_t::gimme_short_stop_name()", "tried to receive unused entry %i in schedule %p.", i, schedule);
 		return;
 	}
 	const schedule_entry_t& entry = schedule->entries[i];
 	const char* p;
 	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player);
-	if(halt.is_bound()) {
+	if (halt.is_bound()) {
 		p = halt->get_name();
 	}
 	else {
 		const grund_t* gr = welt->lookup(entry.pos);
-		if(gr==NULL) {
+		if (gr == NULL) {
 			p = translator::translate("Invalid coordinate");
 		}
-		else if(gr->get_depot() != NULL) {
+		else if (gr->get_depot() != NULL) {
 			p = translator::translate("Depot");
 		}
 		else {
@@ -169,24 +169,51 @@ void schedule_gui_t::gimme_short_stop_name(cbuffer_t& buf, player_t const* const
 		}
 	}
 
-		if(entry.wait_for_time)
+	// Finally start to append the entry. Start with the most complicated...
+	if (entry.wait_for_time && entry.reverse == 1)
 	{
-		buf.append("[*] ");
+		if (strlen(p) > (unsigned)max_chars - 8)
+		{
+			buf.printf("[*] %.*s... [<<]", max_chars - 12, p);
+		}
+		else
+		{
+			buf.append("[*] ");
+			buf.append(p);
+			buf.append(" [<<]");
+		}
 	}
-
-	// finally append
-	if(strlen(p)>(unsigned)max_chars)
+	else if (entry.wait_for_time)
+	{
+		if (strlen(p) > (unsigned)max_chars - 4)
+		{
+			buf.printf("[*] %.*s...", max_chars - 8, p);
+		}
+		else
+		{
+			buf.append("[*] ");
+			buf.append(p);
+		}
+	}
+	else if (entry.reverse == 1)
+	{
+		if (strlen(p) > (unsigned)max_chars - 4)
+		{
+			buf.printf("%.*s... [<<]", max_chars - 8, p);
+		}
+		else
+		{
+			buf.append(p);
+			buf.append(" [<<]");
+		}
+	}
+	else if (strlen(p) > (unsigned)max_chars)
 	{
 		buf.printf("%.*s...", max_chars - 3, p);
 	}
-	else 
+	else
 	{
 		buf.append(p);
-	}
-
-	if(entry.reverse == 1)
-	{
-		buf.append(" [<<]");
 	}
 }
 
