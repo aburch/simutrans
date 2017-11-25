@@ -643,8 +643,9 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
 			info_buf.clear();
 			int existing_caracters = len / 4;
+			int extra_caracters = (get_windowsize().w - get_min_windowsize().w) / 6;
 			const schedule_t *schedule = cnv->get_schedule();
-			schedule_gui_t::gimme_short_stop_name(info_buf, cnv->get_owner(), schedule, schedule->get_current_stop(), /*30*/ 43 - existing_caracters);
+			schedule_gui_t::gimme_short_stop_name(info_buf, cnv->get_owner(), schedule, schedule->get_current_stop(), 50 - existing_caracters + extra_caracters);
 			len += display_proportional_clip(pos_x + len, pos_y, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
 
 			pos_y = pos_y0 + 5 * LINESPACE; // line 6
