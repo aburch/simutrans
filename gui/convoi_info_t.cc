@@ -635,7 +635,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		}
 
 		{
-			const int pos_y = pos_y0 + 4 * LINESPACE; // line 5
+			int pos_y = pos_y0 + 4 * LINESPACE; // line 5 (and later 6)
 			// next stop
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
@@ -643,8 +643,40 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
 			info_buf.clear();
 			const schedule_t *schedule = cnv->get_schedule();
-			schedule_gui_t::gimme_short_stop_name(info_buf, cnv->get_owner(), schedule, schedule->get_current_stop(), 28);
+			schedule_gui_t::gimme_short_stop_name(info_buf, cnv->get_owner(), schedule, schedule->get_current_stop(), 30);
 			len += display_proportional_clip(pos_x + len, pos_y, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
+
+			pos_y = pos_y0 + 5 * LINESPACE; // line 6
+			sint32 cnv_route_index_left = cnv->get_route()->get_count() - 1 - cnv_route_index;
+			info_buf.clear();
+			const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
+			const double km_left = (double)cnv_route_index_left * km_per_tile;
+
+			if (km_left < 1)
+			{
+				float m_left = km_left * 1000;
+				info_buf.append(m_left);
+				info_buf.append("m ");
+			}
+			else
+			{
+				uint n_actual;
+				if (km_left < 5)
+				{
+					n_actual = 1;
+				}
+				else
+				{
+					n_actual = 0;
+				}
+				char number_actual[10];
+				number_to_string(number_actual, km_left, n_actual);
+				info_buf.append(number_actual);
+				info_buf.append("km ");
+			}
+			info_buf.append(translator::translate("left"));
+			int offset = 189;
+			display_proportional_clip(pos_x + offset, pos_y, info_buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 		}
 
 		/*
@@ -652,7 +684,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		 * @author hsiegeln
 		 */
 		if (cnv->get_line().is_bound()) {
-			const int pos_y = pos_y0 + 5 * LINESPACE; // line 6
+			const int pos_y = pos_y0 + 6 * LINESPACE; // line 7
 			const int line_x = pos_x + line_bound * 12;
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
@@ -1053,7 +1085,7 @@ void convoi_info_t::set_windowsize(scr_size size)
 	input.set_size(scr_size(width, D_BUTTON_HEIGHT));
 	y += D_BUTTON_HEIGHT + D_V_SPACE;
 
-	const scr_coord_val y0 = y + LINESPACE * 6;
+	const scr_coord_val y0 = y + LINESPACE * 7;
 	line_button.set_pos(scr_coord(D_MARGIN_LEFT, y0 - LINESPACE));
 
 	view.set_pos(scr_coord(right - view.get_size().w, y));
@@ -1123,7 +1155,7 @@ void convoi_info_t::set_windowsize(scr_size size)
 	filled_bar.set_size(scr_size(view.get_pos().x - BUTTON3_X - D_INDICATOR_HEIGHT, 4));
 
 	// convoi load indicator
-	route_bar.set_pos(scr_coord(BUTTON3_X,pos_y+4*LINESPACE));
+	route_bar.set_pos(scr_coord(BUTTON3_X,pos_y+5*LINESPACE));
 	route_bar.set_size(scr_size(view.get_pos().x - BUTTON3_X - D_INDICATOR_HEIGHT, 4));
 }
 
