@@ -698,7 +698,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			char convoy_line[256] = "\0";
 			sprintf(convoy_line, cnv->get_line()->get_name());
 			tmp[0] = '\0';
-			if (convoy_line[45-existing_caracters+extra_caracters] != '\0')
+			if (convoy_line[48-existing_caracters+extra_caracters] != '\0')
 			{
 				convoy_line[45-existing_caracters+extra_caracters] = '\0';
 				sprintf(tmp,"...");
