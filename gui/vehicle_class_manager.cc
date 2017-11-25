@@ -52,14 +52,14 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 	uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
 	uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
 
-	// First, create the lists of the names of classes
+	// First, create the list of the class names
 	for (int i = 0; i < pass_classes; i++)
 	{
 		class_name = new (nothrow) char[32];
 		sprintf(class_name, "p_class[%u]", i);
 		pass_class_name_untranslated[i] = class_name;
-		pass_capacity_at_class = new (nothrow) int;
-		pass_capacity_at_accommodation = new (nothrow) int;
+		pass_capacity_at_class = new (nothrow) uint32;
+		pass_capacity_at_accommodation = new (nothrow) uint32;
 	}
 
 	for (int i = 0; i < mail_classes; i++)
@@ -67,11 +67,11 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 		class_name = new (nothrow) char[32];
 		sprintf(class_name, "m_class[%u]", i);
 		mail_class_name_untranslated[i] = class_name;
-		mail_capacity_at_class = new (nothrow) int;
-		mail_capacity_at_accommodation = new (nothrow) int;
+		mail_capacity_at_class = new (nothrow) uint32;
+		mail_capacity_at_accommodation = new (nothrow) uint32;
 	}
 
-		
+		// Then create the list of comboboxes
 	for (int i = 0; i < pass_classes; i++)
 	{
 		gui_combobox_t *class_selector = new (nothrow) gui_combobox_t();
@@ -143,20 +143,11 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 	//}
 
 		
-	
-
-
-
 	set_resizemode(diagonal_resize);
 	resize(scr_coord(0, 0));
 
-	
-
 	layout(scr_coord(0,0));
 	build_class_entries();
-
-	//set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT + 50 + 17 * (LINESPACE + 1) + D_SCROLLBAR_HEIGHT - 6));
-
 
 }
 
@@ -216,10 +207,22 @@ void vehicle_class_manager_t::layout(scr_coord pos)
 
 	uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
 	uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
-	bool any_pass = false;
-	bool any_mail = false;
+	any_pass = false;
+	any_mail = false;
+	highest_catering = 0;
+	is_tpo = false;
 
+	// First a clean up
+	for (int i = 0; i < pass_classes; i++)
+	{
+		pass_capacity_at_accommodation[i] = 0;
+	}
+	for (int i = 0; i < mail_classes; i++)
+	{
+		mail_capacity_at_accommodation[i] = 0;
+	}
 
+	// Then find out how much space we have in this convoy.
 	for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 	{
 		vehicle_t* v = cnv->get_vehicle(veh);
@@ -229,7 +232,10 @@ void vehicle_class_manager_t::layout(scr_coord pos)
 			for (int i = 0; i < classes_amount; i++)
 			{
 				pass_capacity_at_accommodation[i] += v->get_desc()->get_capacity(i);
-				any_pass = true;
+			}
+			if (v->get_desc()->get_catering_level() > highest_catering)
+			{
+				highest_catering = v->get_desc()->get_catering_level();
 			}
 		}
 		else if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
@@ -237,20 +243,22 @@ void vehicle_class_manager_t::layout(scr_coord pos)
 			for (int i = 0; i < classes_amount; i++)
 			{
 				mail_capacity_at_accommodation[i] += v->get_desc()->get_capacity(i);
-				any_mail = true;
+			}
+			if (v->get_desc()->get_catering_level() > 0)
+			{
+				is_tpo = true;
 			}
 		}
 	}
+
+	// Now, put up all the comboboxes
 	sint16 y = LINESPACE;
 	sint16 button_width = 190;
 	cbuffer_t buf;
-
 	int assumed_longest_class_name = 5 * 32;
-
 	const scr_coord_val column_1 = D_MARGIN_LEFT;
 	//const scr_coord_val column_2 = longest_class_name + 30;
 	const scr_coord_val column_2 = assumed_longest_class_name + 30;
-
 	for (int i = 0; i < pass_class_sel.get_count(); i++)
 	{
 		pass_class_sel.at(i)->set_visible(false);
@@ -261,8 +269,8 @@ void vehicle_class_manager_t::layout(scr_coord pos)
 			pass_class_sel.at(i)->set_highlight_color(1);
 			pass_class_sel.at(i)->set_size(scr_size(button_width, D_BUTTON_HEIGHT));
 			pass_class_sel.at(i)->set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 3 + 2 + 16));
+			any_pass = true;
 			y += LINESPACE;
-
 		}
 	}
 	if (any_pass && any_mail)
@@ -279,6 +287,7 @@ void vehicle_class_manager_t::layout(scr_coord pos)
 			mail_class_sel.at(i)->set_highlight_color(1);
 			mail_class_sel.at(i)->set_size(scr_size(button_width, D_BUTTON_HEIGHT));
 			mail_class_sel.at(i)->set_max_size(scr_size(D_BUTTON_WIDTH - 8, LINESPACE * 3 + 2 + 16));
+			any_mail = true;
 			y += LINESPACE;
 		}
 	}
@@ -302,8 +311,6 @@ void vehicle_class_manager_t::layout(scr_coord pos)
 
 	scrolly.set_pos(scr_coord(0, header_height));
 	set_min_windowsize(scr_size(max(D_DEFAULT_WIDTH, column_2), D_TITLEBAR_HEIGHT + header_height+50));
-
-	//set_windowsize(scr_size(max(D_DEFAULT_WIDTH, actual_width), max(default_window_h, old_window_h)));
 	set_windowsize(scr_size(max(D_DEFAULT_WIDTH, column_2), max(default_window_h, old_window_h)));
 
 }
@@ -327,22 +334,18 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			current_number_of_accommodations = 0;
 			current_number_of_classes = 0;
 			overcrowded_capacity = 0;
-			highest_catering = 0;
-			is_tpo = false;
 			vehicle_count = cnv->get_vehicle_count();
 
 			cbuffer_t buf;
 
 			// This is the different accommodation in the train.
 			// Each accommodation have a combobox associated to it to change the class to another.
-			//int pass_class_desc_capacity[255] = { 0 };
-			//int mail_class_desc_capacity[255] = { 0 };
 
 
 			uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
 			uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
-			bool any_pass = false;
-			bool any_mail = false;
+			//bool any_pass = false;
+			//bool any_mail = false;
 			int len = 0;
 			int column_1 = 10;
 			int column_2;
@@ -356,31 +359,13 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 
 			for (int i = 0; i < pass_classes; i++)
 			{
-				pass_capacity_at_accommodation[i] = 0;
 				pass_capacity_at_class[i] = 0;
 			}			
 			for (int i = 0; i < mail_classes; i++)
 			{
-				mail_capacity_at_accommodation[i] = 0;
 				mail_capacity_at_class[i] = 0;
 			}
-			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
-			{
-				current_number_of_vehicles++;
-				vehicle_t* v = cnv->get_vehicle(veh);
-				uint8 classes_amount = v->get_desc()->get_number_of_classes();
-				if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
-				{
-					for (int i = 0; i < classes_amount; i++)
-					{
-						pass_capacity_at_accommodation[i] += v->get_desc()->get_capacity(i);
-					}
-					if (v->get_desc()->get_catering_level() > highest_catering)
-					{
-						highest_catering = v->get_desc()->get_catering_level();
-					}
-				}
-			}
+
 			for (int i = 0; i < pass_classes; i++)
 			{
 				if (pass_capacity_at_accommodation[i] > 0)
@@ -412,22 +397,6 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				offset_y += LINESPACE;
 			}
 
-			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
-			{
-				vehicle_t* v = cnv->get_vehicle(veh);
-				uint8 classes_amount = v->get_desc()->get_number_of_classes();
-				if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
-				{
-					for (int i = 0; i < classes_amount; i++)
-					{
-						mail_capacity_at_accommodation[i] += v->get_desc()->get_capacity(i);
-					}
-					if (v->get_desc()->get_catering_level() > 0)
-					{
-						is_tpo = true;
-					}
-				}
-			}
 			for (int i = 0; i < mail_classes; i++)
 			{
 				if (mail_capacity_at_accommodation[i] > 0)
@@ -459,8 +428,6 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 
 			// This section shows the reassigned classes after they have been modified.
 			// If nothing is modified, they will show the same as the above section.
-			//int pass_class_capacity[255] = { 0 };
-			//int mail_class_capacity[255] = { 0 };
 			buf.clear();
 			buf.printf("%s:", translator::translate("capacity_per_class"));
 			len = display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -568,19 +535,6 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				layout(scr_coord(0, 0));
 				header_height = offset_y;
 			}
-
-			/*if (old_number_of_accommodations != current_number_of_accommodations)
-			{
-				old_number_of_accommodations = current_number_of_accommodations;
-				layout();
-				header_height = offset_y;
-			}
-			if (old_number_of_vehicles != current_number_of_vehicles)
-			{
-				old_number_of_vehicles = current_number_of_vehicles;
-				layout();
-				header_height = offset_y;
-			}*/
 		}
 	}
 }
