@@ -711,7 +711,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 #ifdef DEBUG_CONVOY_STATES
 		{
 			// Debug: show covnoy states
-			int debug_row = 6;
+			int debug_row = 7;
 			{
 				const int pos_y = pos_y0 + debug_row * LINESPACE;
 
