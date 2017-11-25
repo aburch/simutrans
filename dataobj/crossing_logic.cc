@@ -361,10 +361,7 @@ void crossing_logic_t::add( crossing_t *start_cr, crossing_state_t state )
 // removes a crossing logic, if all crossings are removed
 void crossing_logic_t::remove( crossing_t *cr )
 {
-	if (!world()->is_destroying())
-	{
-		crossings.remove(cr);
-	}
+	crossings.remove( cr );
 	if(  crossings.empty()  ) {
 		delete this;
 	}
