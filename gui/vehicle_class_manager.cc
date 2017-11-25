@@ -344,8 +344,8 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 
 			uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
 			uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
-			//bool any_pass = false;
-			//bool any_mail = false;
+			bool pass_header = true;
+			bool mail_header = true;
 			int len = 0;
 			int column_1 = 10;
 			int column_2;
@@ -359,25 +359,16 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 
 			for (int i = 0; i < pass_classes; i++)
 			{
-				pass_capacity_at_class[i] = 0;
-			}			
-			for (int i = 0; i < mail_classes; i++)
-			{
-				mail_capacity_at_class[i] = 0;
-			}
-
-			for (int i = 0; i < pass_classes; i++)
-			{
 				if (pass_capacity_at_accommodation[i] > 0)
 				{
-					if (!any_pass)
+					if (pass_header)
 					{
 						buf.clear();
 						buf.printf("%s (%s):", translator::translate("accommodation"), pass_name);
 						display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						offset_y += LINESPACE;
 					}
-					any_pass = true;
+					pass_header = false;
 
 					buf.clear();
 					sprintf(class_name_untranslated, "p_class[%u]", i);
@@ -401,14 +392,14 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			{
 				if (mail_capacity_at_accommodation[i] > 0)
 				{
-					if (!any_mail)
+					if (!pass_header && mail_header)
 					{
 						buf.clear();
 						buf.printf("%s (%s):", translator::translate("accommodation"), mail_name);
 						display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 						offset_y += LINESPACE;
 					}
-					any_mail = true;
+					mail_header = false;
 
 					buf.clear();
 					sprintf(class_name_untranslated, "m_class[%u]", i);
@@ -427,19 +418,15 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 			offset_y += LINESPACE;
 
 			// This section shows the reassigned classes after they have been modified.
-			// If nothing is modified, they will show the same as the above section.
-			buf.clear();
-			buf.printf("%s:", translator::translate("capacity_per_class"));
-			len = display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			if (len > longest_class_name)
+			// First, clean up all capacities
+			for (int i = 0; i < pass_classes; i++)
 			{
-				longest_class_name = len;
+				pass_capacity_at_class[i] = 0;
 			}
-			offset_y += LINESPACE;
-			accommodation_height = offset_y;
-
-
-
+			for (int i = 0; i < mail_classes; i++)
+			{
+				mail_capacity_at_class[i] = 0;
+			}
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 			{
 				vehicle_t* v = cnv->get_vehicle(veh);
@@ -451,7 +438,25 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 						pass_capacity_at_class[i] += v->get_capacity(i);
 					}
 				}
+				if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
+				{
+					for (int i = 0; i < mail_classes; i++)
+					{
+						mail_capacity_at_class[i] += v->get_capacity(i);
+					}
+				}
 			}
+
+			// Now it should be ready to display
+			buf.clear();
+			buf.printf("%s:", translator::translate("capacity_per_class"));
+			len = display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			if (len > longest_class_name)
+			{
+				longest_class_name = len;
+			}
+			offset_y += LINESPACE;
+			accommodation_height = offset_y;
 			for (int i = 0; i < pass_classes; i++)
 			{
 				if (pass_capacity_at_class[i] > 0)
@@ -481,18 +486,6 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				offset_y += LINESPACE;
 				current_number_of_classes++;
 			}
-
-			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
-			{
-				vehicle_t* v = cnv->get_vehicle(veh);
-				if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
-				{
-					for (int i = 0; i < mail_classes; i++)
-					{
-						mail_capacity_at_class[i] += v->get_capacity(i);
-					}
-				}
-			}
 			for (int i = 0; i < mail_classes; i++)
 			{
 				if (mail_capacity_at_class[i] > 0)
@@ -510,10 +503,9 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 					current_number_of_classes++;
 				}
 			}
-			column_2 = longest_class_name + 30;
 
-
-
+			// Now, on the right side of the window, show wether this have any catering- or tpo facilities
+			column_2 = longest_class_name + 30;			
 			if (highest_catering > 0)
 			{
 				buf.clear();
@@ -529,6 +521,7 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
 				accommodation_height += LINESPACE;
 			}
 
+			// If anything vital has changed, we need to contact the layout department.
 			if (old_vehicle_count != vehicle_count)
 			{
 				old_vehicle_count = vehicle_count;

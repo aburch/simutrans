@@ -121,8 +121,8 @@ private:
 	uint32 *pass_capacity_at_accommodation = 0;
 	uint32 *mail_capacity_at_accommodation = 0;
 
-	bool any_pass;
-	bool any_mail;
+	bool any_pass = false;
+	bool any_mail = false;
 public:
 	vehicle_class_manager_t(convoihandle_t cnv);
 
