@@ -691,8 +691,22 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			char tmp[256];
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Serves Line"));
-			int len = display_proportional(line_x, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
-			display_proportional_clip(line_x + len, pos_y, cnv->get_line()->get_name(), ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
+			int len = display_proportional(line_x + 1, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
+			
+			int existing_caracters = len / 4;
+			int extra_caracters = (get_windowsize().w - get_min_windowsize().w) / 6;
+			char convoy_line[256] = "\0";
+			sprintf(convoy_line, cnv->get_line()->get_name());
+			tmp[0] = '\0';
+			if (convoy_line[45-existing_caracters+extra_caracters] != '\0')
+			{
+				convoy_line[45-existing_caracters+extra_caracters] = '\0';
+				sprintf(tmp,"...");
+			}
+			info_buf.clear();
+			info_buf.append(convoy_line);
+			info_buf.append(tmp);
+			display_proportional_clip(line_x + len, pos_y, info_buf, ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
 		}
 #ifdef DEBUG_CONVOY_STATES
 		{
