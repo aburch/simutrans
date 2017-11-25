@@ -1315,10 +1315,7 @@ void way_builder_t::init_builder(bautyp_t wt, const way_desc_t *b, const tunnel_
 	if((wt&bautyp_mask)==luft) {
 		wt &= bautyp_mask | bot_flag;
 	}
-	if(player==NULL) {
-		bridge_desc = NULL;
-		tunnel_desc = NULL;
-	}
+	
 	else if(  bautyp != river  ) {
 #ifdef AUTOMATIC_BRIDGES
 		if(  bridge_desc == NULL  ) {
