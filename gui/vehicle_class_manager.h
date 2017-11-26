@@ -86,6 +86,8 @@ private:
 	slist_tpl<gui_combobox_t *> pass_class_sel;
 	slist_tpl<gui_combobox_t *> mail_class_sel;
 
+	sint16 button_width = 190;
+
 	gui_container_t cont;
 
 	uint16 current_number_of_classes;
