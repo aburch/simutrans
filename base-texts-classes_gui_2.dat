@@ -25,8 +25,8 @@ name=additional_upgrades
 note=shown in convoy details window
 -
 obj=program_text
-name=
-note=
+name=reassign_classes
+note=shown in the class manager window
 -
 obj=program_text
 name=
