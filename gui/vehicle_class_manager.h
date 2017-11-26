@@ -111,22 +111,22 @@ private:
 
 	bool convoy_bound = false;
 
-	char *class_name;
-	char *pass_class_name_untranslated[32];
-	char *mail_class_name_untranslated[32];
+	char pass_class_name_untranslated[32][255] = { "\0" };
+	char mail_class_name_untranslated[32][255] = { "\0" };
 
-	uint32 *pass_capacity_at_class = 0;
-	uint32 *mail_capacity_at_class = 0;
+	uint32 pass_capacity_at_class[255] = { 0 };
+	uint32 mail_capacity_at_class[255] = { 0 };
 
-	uint32 *pass_capacity_at_accommodation = 0;
-	uint32 *mail_capacity_at_accommodation = 0;
+	uint32 pass_capacity_at_accommodation[255] = { 0 };
+	uint32 mail_capacity_at_accommodation[255] = { 0 };
 
 	bool any_pass = false;
 	bool any_mail = false;
+
 public:
+
 	vehicle_class_manager_t(convoihandle_t cnv);
-
-
+	
 	/**
 	* Do the dynamic component layout
 	*/
