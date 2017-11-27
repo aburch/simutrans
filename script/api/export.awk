@@ -20,6 +20,11 @@ BEGIN {
 /^#(endif|else)/ {
 	if (within_sqapi_doc == 1) {
 		within_sqapi_doc = 0
+		param_count = 0
+		delete params
+		delete ptypes
+		mask = ""
+		returns = "void"
 	}
 }
 

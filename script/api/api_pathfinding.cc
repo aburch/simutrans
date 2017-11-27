@@ -200,10 +200,10 @@ void export_pathfinding(HSQUIRRELVM vm)
 	 */
 	create_class(vm, "bridge_planner_x", 0);
 	/**
-	 * Find suitable end tile for bridge starting at @p pos going into direction @ribi.
+	 * Find suitable end tile for bridge starting at @p pos going into direction @p dir.
 	 * @param pl who wants to build a bridge
 	 * @param pos start tile for bridge
-	 * @param ribi direction
+	 * @param dir direction
 	 * @param bridge bridge descriptor
 	 * @param min_length bridge should have this minimal length
 	 * @returns coordinate of end tile or an invalid coordinate

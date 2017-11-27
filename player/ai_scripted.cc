@@ -106,6 +106,38 @@ bool ai_scripted_t::load_script(const char* filename)
 	return true;
 }
 
+
+const char* ai_scripted_t::reload_script()
+{
+	// save the script to string
+	plainstring str;
+	script->call_function(script_vm_t::FORCEX, "save", str);
+	// save old vm instance
+	script_vm_t *old_script = script;
+	script = NULL;
+
+	// ai script file
+	cbuffer_t buf;
+	buf.printf("%sai.nut", ai_path.c_str());
+	if (!load_script( buf )) {
+		dbg->warning("ai_scripted_t::reload_script", "could not reload script file %s", (const char*)buf);
+		delete script;
+		script = old_script;
+		return "Reloading ai script failed";
+	}
+	// restore persistent data
+	const char* err = script->eval_string(str);
+	if (err) {
+		dbg->warning("ai_scripted_t::reload_script", "error [%s] evaluating persistent ai data", err);
+		return "Reloading ai script data failed";
+	}
+	// resume
+	uint8 dummy = 0;
+	script->call_function(script_vm_t::QUEUE, "resume_game", dummy, get_player_nr());
+	return NULL;
+}
+
+
 void ai_scripted_t::step()
 {
 	if(!active) {
