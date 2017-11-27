@@ -99,6 +99,20 @@ my_ribi_t slope_to_ribi(my_slope_t slope)
 	return ribi_type((slope_t::type)slope);
 }
 
+
+template<int idx> SQInteger coord_to_ribi(HSQUIRRELVM vm)
+{
+	// get coordinate vector without transformation
+	sint16 x=-1, y=-1;
+	get_slot(vm, "x", x, idx);
+	get_slot(vm, "y", y, idx);
+	koord k(x,y);
+
+	my_ribi_t ribi = ribi_type(k);
+	return param<my_ribi_t>::push(vm, ribi);
+}
+
+
 void export_simple(HSQUIRRELVM vm)
 {
 
@@ -136,6 +150,12 @@ void export_simple(HSQUIRRELVM vm)
 	 */
 	string href(string text);
 #endif
+	/**
+	 * Helper function to convert direction vector to dir type.
+	 * @typemask dir()
+	 */
+	register_function(vm, coord_to_ribi<1>, "to_dir", 1, "t|x|y");
+
 	end_class(vm);
 
 	/**
@@ -177,6 +197,13 @@ void export_simple(HSQUIRRELVM vm)
 	string href(string text);
 #endif
 	end_class(vm);
+
+	/**
+	 * Helper function to convert direction vector to dir type.
+	 * @param dir
+	 * @typemask dir(coord)
+	 */
+	register_function(vm, coord_to_ribi<2>, "coord_to_dir", 2, "x t|x|y");
 
 	/**
 	 * Class holding static methods to work with directions.
@@ -257,18 +284,18 @@ void export_simple(HSQUIRRELVM vm)
 #ifdef SQAPI_DOC // document members
 	/** @name Named slopes. */
 	//@{
-	static const slope flat
-	static const slope north      ///< North slope
-	static const slope west       ///< West slope
-	static const slope east       ///< East slope
-	static const slope south      ///< South slope
-	static const slope northwest  ///< NW corner
-	static const slope northeast  ///< NE corner
-	static const slope southeast  ///< SE corner
-	static const slope southwest  ///< SW corner
-	static const slope raised     ///< special meaning: used as slope of bridgeheads
-	static const slope all_up_slope   = 82 ///< used for terraforming tools
-	static const slope all_down_slope = 83 ///< used for terraforming tools
+	static const slope flat;
+	static const slope north;      ///< North slope
+	static const slope west;       ///< West slope
+	static const slope east;       ///< East slope
+	static const slope south;      ///< South slope
+	static const slope northwest;  ///< NW corner
+	static const slope northeast;  ///< NE corner
+	static const slope southeast;  ///< SE corner
+	static const slope southwest;  ///< SW corner
+	static const slope raised;     ///< special meaning: used as slope of bridgeheads
+	static const slope all_up_slope   = 82; ///< used for terraforming tools
+	static const slope all_down_slope = 83; ///< used for terraforming tools
 	//@}
 #endif
 
@@ -277,6 +304,6 @@ void export_simple(HSQUIRRELVM vm)
 	 * If slope cannot be walked on, it returns @ref dir::none.
 	 * @param s slope
 	 */
-	STATIC register_method(vm, &ribi_to_slope, "to_dir", false, true);
+	STATIC register_method(vm, &slope_to_ribi, "to_dir", false, true);
 	end_class(vm);
 }

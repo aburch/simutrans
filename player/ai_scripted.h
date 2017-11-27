@@ -36,6 +36,12 @@ public:
 	 */
 	const char* init( const char *ai_base, const char *ai_name);
 
+	/**
+	 * Reloads script
+	 * @returns error message
+	 */
+	const char* reload_script();
+
 	bool has_script() const { return script; }
 
 	uint8 get_ai_id() const { return AI_SCRIPTED; }

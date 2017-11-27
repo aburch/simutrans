@@ -201,6 +201,12 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 				}
 			}
 			else {
+				// If turning on again, reload script
+				if (!env_t::networkmode  &&  !welt->get_player(i)->is_active()) {
+					if (ai_scripted_t *ai = dynamic_cast<ai_scripted_t*>(welt->get_player(i))) {
+						ai->reload_script();
+					}
+				}
 				// Current AI on/off
 				sprintf( param, "a,%i,%i", i, !welt->get_player(i)->is_active() );
 				tool_t::simple_tool[TOOL_CHANGE_PLAYER]->set_default_param( param );
