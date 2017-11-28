@@ -52,11 +52,9 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 	uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
 	uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
 
-
 	// Create the list of comboboxes, as well as the names of the classes
 	for (int i = 0; i < pass_classes; i++)
 	{
-		sprintf(pass_class_name_untranslated[i], "p_class[%u]", i);
 		gui_combobox_t *class_selector = new (nothrow) gui_combobox_t();
 		if (class_selector != nullptr)
 		{
@@ -64,12 +62,18 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 			class_selector->add_listener(this);
 			class_selector->set_focusable(false);
 			pass_class_sel.append(class_selector);
-		}		
+		}
+
+		char *class_name = new (nothrow) char[32]();
+		if (class_name != nullptr)
+		{
+			sprintf(class_name, "p_class[%u]", i);
+			pass_class_name_untranslated[i] = class_name;
+		}
 	}
-	
+
 	for (int i = 0; i < mail_classes; i++)
 	{
-		sprintf(mail_class_name_untranslated[i], "m_class[%u]", i);
 		gui_combobox_t *class_selector = new (nothrow) gui_combobox_t();
 		if (class_selector != nullptr)
 		{
@@ -77,6 +81,13 @@ vehicle_class_manager_t::vehicle_class_manager_t(convoihandle_t cnv)
 			class_selector->add_listener(this);
 			class_selector->set_focusable(false);
 			mail_class_sel.append(class_selector);
+		}
+
+		char *class_name = new (nothrow) char[32]();
+		if (class_name != nullptr)
+		{
+			sprintf(class_name, "m_class[%u]", i);
+			mail_class_name_untranslated[i] = class_name;
 		}
 	}
 
@@ -571,6 +582,41 @@ vehicle_class_manager_t::vehicle_class_manager_t()
   veh_info(convoihandle_t())
 {
 	cnv = convoihandle_t();
+}
+
+// destruction!
+vehicle_class_manager_t::~vehicle_class_manager_t()
+{
+	for (int i = 0; i < pass_class_sel.get_count(); i++)
+	{
+		if (pass_class_sel.at(i))
+		{
+			delete pass_class_sel.at(i);
+		}
+	}
+	for (int i = 0; i < mail_class_sel.get_count(); i++)
+	{
+		if (mail_class_sel.at(i))
+		{
+			delete mail_class_sel.at(i);
+		}
+	}
+	uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
+	uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
+	for (int i = 0; i < pass_classes; i++)
+	{
+		if (pass_class_name_untranslated[i] != nullptr)
+		{
+			delete pass_class_name_untranslated[i];
+		}
+	}
+	for (int i = 0; i < mail_classes; i++)
+	{
+		if (mail_class_name_untranslated[i])
+		{
+			delete mail_class_name_untranslated[i];
+		}
+	}
 }
 
 
