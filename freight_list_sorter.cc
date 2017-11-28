@@ -219,7 +219,7 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 				buf.printf(" %s %s %s\n", unit, name, what);
 			}
 		}
-		//else 
+		if (sum > 0)
 		{// No, this is not the first entry, only show the amount
 			buf.printf(" %u", sum);
 		}
