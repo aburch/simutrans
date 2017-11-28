@@ -331,7 +331,7 @@ void schedule_t::rdwr(loadsave_t *file)
 				if(file->get_extended_version() >= 10)
 				{
 					file->rdwr_byte(entries[i].reverse);
-					if(file->get_extended_revision() < 4 && entries[i].reverse)
+					if(file->get_extended_revision() < 4 && file->get_extended_version() < 13 && entries[i].reverse)
 					{
 						// Older versions had true as a default: set to indeterminate. 
 						entries[i].reverse = -1;

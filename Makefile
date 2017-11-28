@@ -496,10 +496,17 @@ endif
 ifeq ($(BACKEND),sdl)
   SOURCES += simsys_s.cc
   ifeq ($(OSTYPE),mac)
-    # Core Audio (Quicktime) base sound system routines
-    SOURCES += sound/core-audio_sound.mm
-    SOURCES += music/core-audio_midi.mm
-    LIBS    += -framework Foundation -framework QTKit
+		ifeq ($(AV_FOUNDATION),1)
+			# Core Audio (AVFoundation) base sound system routines
+			SOURCES += sound/AVF_core-audio_sound.mm
+			SOURCES += music/AVF_core-audio_midi.mm
+			LIBS    += -framework Foundation -framework AVFoundation
+		else
+			# Core Audio (Quicktime) base sound system routines
+			SOURCES += sound/core-audio_sound.mm
+			SOURCES += music/core-audio_midi.mm
+			LIBS    += -framework Foundation -framework QTKit
+		endif
   else
     SOURCES  += sound/sdl_sound.cc
     ifeq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
@@ -531,10 +538,17 @@ endif
 ifeq ($(BACKEND),sdl2)
   SOURCES += simsys_s2.cc
   ifeq ($(OSTYPE),mac)
-    # Core Audio (Quicktime) base sound system routines
-    SOURCES += sound/core-audio_sound.mm
-    SOURCES += music/core-audio_midi.mm
-    LIBS    += -framework Foundation -framework QTKit
+		ifeq ($(AV_FOUNDATION),1)
+			# Core Audio (AVFoundation) base sound system routines
+			SOURCES += sound/AVF_core-audio_sound.mm
+			SOURCES += music/AVF_core-audio_midi.mm
+			LIBS    += -framework Foundation -framework AVFoundation
+		else
+			# Core Audio (Quicktime) base sound system routines
+			SOURCES += sound/core-audio_sound.mm
+			SOURCES += music/core-audio_midi.mm
+			LIBS    += -framework Foundation -framework QTKit
+		endif
   else
     SOURCES  += sound/sdl_sound.cc
     ifeq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)
@@ -573,7 +587,7 @@ ifeq ($(BACKEND),mixer_sdl)
 	else
 	   SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
 	endif
- 
+
   endif
   CFLAGS += $(SDL_CFLAGS)
   LIBS   += $(SDL_LDFLAGS) -lSDL_mixer
@@ -582,10 +596,17 @@ endif
 ifeq ($(BACKEND),opengl)
   SOURCES += simsys_opengl.cc
   ifeq ($(OSTYPE),mac)
-    # Core Audio (Quicktime) base sound system routines
-    SOURCES += sound/core-audio_sound.mm
-    SOURCES += music/core-audio_midi.mm
-    LIBS    += -framework Foundation -framework QTKit
+		ifeq ($(AV_FOUNDATION),1)
+			# Core Audio (AVFoundation) base sound system routines
+			SOURCES += sound/AVF_core-audio_sound.mm
+			SOURCES += music/AVF_core-audio_midi.mm
+			LIBS    += -framework Foundation -framework AVFoundation
+		else
+			# Core Audio (Quicktime) base sound system routines
+			SOURCES += sound/core-audio_sound.mm
+			SOURCES += music/core-audio_midi.mm
+			LIBS    += -framework Foundation -framework QTKit
+		endif
   else
     SOURCES  += sound/sdl_sound.cc
     ifeq ($(findstring $(OSTYPE), cygwin mingw32 mingw64),)

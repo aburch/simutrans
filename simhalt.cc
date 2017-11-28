@@ -4436,7 +4436,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 	}
 	
-	if(file->get_extended_version() >= 12 && file->get_extended_revision() >= 11)
+	if((file->get_extended_version() >= 12 && file->get_extended_revision() >= 11) || file->get_extended_version() >= 13)
 	{
 		uint32 station_signals_count = station_signals.get_count();
 		file->rdwr_long(station_signals_count);

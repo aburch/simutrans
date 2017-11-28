@@ -1594,7 +1594,7 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long( default_ai_construction_speed );
 			// This feature is used in Standard only
 		}
-		if(  file->get_version() >=120002 && (file->get_extended_revision() >= 9 || file->get_extended_version() == 0 )) {
+		if(  file->get_version() >=120002 && (file->get_extended_revision() >= 9 || file->get_extended_version() == 0 || file->get_extended_version() >= 13)) {
 			file->rdwr_bool(lake);
 			file->rdwr_bool(no_trees);
 			file->rdwr_long(max_choose_route_steps );
@@ -1657,24 +1657,24 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_long(way_wear_power_factor_rail_type);
 			file->rdwr_short(standard_axle_load); 
 			file->rdwr_long(citycar_way_wear_factor);
-			if(file->get_extended_revision() >= 2)
+			if(file->get_extended_revision() >= 2 || file->get_extended_version() >= 13)
 			{
 				file->rdwr_long(sighting_distance_meters);
 				sighting_distance_tiles = sighting_distance_meters / meters_per_tile;
 				file->rdwr_long(assumed_curve_radius_45_degrees);
 			}
-			if(file->get_extended_revision() >= 3)
+			if(file->get_extended_revision() >= 3 || file->get_extended_version() >= 13)
 			{
 				file->rdwr_long(max_speed_drive_by_sight_kmh); 
 				max_speed_drive_by_sight = kmh_to_speed(max_speed_drive_by_sight_kmh);
 			}
 #endif
-			if(file->get_extended_revision() >= 5)
+			if(file->get_extended_revision() >= 5 || file->get_extended_version() >= 13)
 			{
 				file->rdwr_short(global_force_factor_percent);
 			}
 
-			if(file->get_extended_revision() >= 6)
+			if(file->get_extended_revision() >= 6 || file->get_extended_version() >= 13)
 			{
 				file->rdwr_long(time_interval_seconds_to_clear);
 				file->rdwr_long(time_interval_seconds_to_caution);
@@ -1684,7 +1684,7 @@ void settings_t::rdwr(loadsave_t *file)
 				time_interval_seconds_to_clear = 600;
 				time_interval_seconds_to_caution = 300;
 			}
-			if(file->get_extended_revision() >= 7)
+			if(file->get_extended_revision() >= 7 || file->get_extended_version() >= 13)
 			{
 				file->rdwr_long(town_road_speed_limit);
 			}
