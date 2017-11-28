@@ -191,7 +191,7 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 
 
 
-void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 max, const ware_t *ware, const char *what_doing, uint8 g_class, uint32 total_pass_mail)
+void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 max, const ware_t *ware, const char *what_doing, uint8 g_class, uint32 total_pass_mail, bool show_empty)
 {
 	goods_desc_t const& desc = *ware->get_desc();
 	char const*  const  name = translator::translate(ware->get_catg() != 0 ? desc.get_catg_name() : desc.get_name());
@@ -252,11 +252,15 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 			buf.printf(" %s %s%s %s\n", unit, class_entry, name, what);
 		}
 	}
+	if (sum == 0 && show_empty)
+	{
+		buf.printf("   %s\n", translator::translate("leer"));
+	}
 }
 
 
 
-void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing, const uint8 accommodation, const uint32 accommodation_capacity , const ware_t *accommodation_ware)
+void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing, const uint8 accommodation, const uint32 accommodation_capacity , const ware_t *accommodation_ware, const bool show_empty)
 {
 	sortby = sort_mode;
 
@@ -499,7 +503,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				// display all ware
 				if (full_list == NULL || full_list->get_count() == 0)
 				{
-					add_ware_heading(buf, sum, accommodation_capacity, &ware, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail);
+					add_ware_heading(buf, sum, accommodation_capacity, &ware, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail, show_empty);
 					total_pass_mail = 0;
 				}
 				else
@@ -512,7 +516,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 						last = current;
 						if (last_goods_index == current.get_index() || last_ware_catg == current.get_catg() || last_ware_class == current.get_class()) 
 						{
-							add_ware_heading(buf, sum, current.menge, &current, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail);
+							add_ware_heading(buf, sum, current.menge, &current, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail, show_empty);
 							last_capacity = current.menge;
 							heading_added = true;
 							total_pass_mail = 0;
@@ -520,7 +524,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 						}
 						else
 						{
-							add_ware_heading(buf, 0, current.menge, &current, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail);
+							add_ware_heading(buf, 0, current.menge, &current, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail, show_empty);
 							last_capacity = current.menge;
 							heading_added = true;
 							total_pass_mail = 0;
@@ -529,7 +533,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 
 					if (new_section && !heading_added)
 					{
-						add_ware_heading(buf, sum, last_capacity, &last, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail);
+						add_ware_heading(buf, sum, last_capacity, &last, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail, show_empty);
 						total_pass_mail = 0;
 					}
 				}
@@ -692,13 +696,13 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 	// Is there any empty accommodation in the convoy?
 	else if (accommodation_capacity > 0)
 	{
-		add_ware_heading(buf, 0, accommodation_capacity, accommodation_ware, what_doing, accommodation);
+		add_ware_heading(buf, 0, accommodation_capacity, accommodation_ware, what_doing, accommodation, 0, show_empty);
 	}
 
 	// still entires left?
 	for(  ; full_i != full_end; ++full_i  ) {
 		ware_t const& g = *full_i;
-		add_ware_heading(buf, 0, g.menge, &g, what_doing, g.get_class());
+		add_ware_heading(buf, 0, g.menge, &g, what_doing, g.get_class(), 0, show_empty);
 	}
 
 
