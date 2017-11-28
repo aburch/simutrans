@@ -82,6 +82,7 @@
 #include "simroadtraffic.h"
 
 #include "../path_explorer.h"
+#include "../freight_list_sorter.h"
 
 
 /* get dx and dy from dir (just to remind you)
@@ -2032,87 +2033,252 @@ const char *vehicle_t::get_cargo_name() const
 
 void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 {
-	bool empty = true;
-	for (uint8 i = 0; i < number_of_classes; i++)
+
+	// rebuilt the list with goods ...
+	vector_tpl<ware_t> total_fracht;
+	vector_tpl<ware_t> pass_fracht[255];
+	vector_tpl<ware_t> mail_fracht[255];
+
+	size_t const n = goods_manager_t::get_count();
+	ALLOCA(uint32, max_loaded_waren, n);
+	MEMZERON(max_loaded_waren, n);
+
+	size_t const pass_classes = goods_manager_t::passengers->get_number_of_classes();
+	size_t const mail_classes = goods_manager_t::mail->get_number_of_classes();
+
+	ALLOCA(uint32, max_loaded_pass, pass_classes);
+	MEMZERON(max_loaded_pass, pass_classes);
+
+	ALLOCA(uint32, max_loaded_mail, mail_classes);
+	MEMZERON(max_loaded_mail, mail_classes);
+
+
+
+	bool pass_veh = get_cargo_type() == goods_manager_t::passengers;
+	bool mail_veh = get_cargo_type() == goods_manager_t::mail;
+	const goods_desc_t* ware_desc = get_desc()->get_freight_type();
+	const uint16 menge = get_desc()->get_total_capacity();
+	const uint8 classes_to_check = get_desc()->get_number_of_classes();
+
+	// first add to capacity indicator
+
+	if (pass_veh)
 	{
-		if (!fracht[i].empty())
+		for (uint8 j = 0; j < pass_classes; j++)
 		{
-			empty = false;
-			FOR(slist_tpl<ware_t>, const& ware, fracht[i])
-			{
-				const char * halt_name = "Error in Routing";
-
-				halthandle_t halt = ware.get_ziel();
-				if (halt.is_bound())
-				{
-					halt_name = halt->get_name();
-				}
-				char class_name_untranslated[32];
-				sprintf(class_name_untranslated, "");
-				if (ware.get_catg() == goods_manager_t::INDEX_PAS)
-				{
-					sprintf(class_name_untranslated, "p_class[%u]", ware.get_class());
-				}
-				if (ware.get_catg() == goods_manager_t::INDEX_MAIL)
-				{
-					sprintf(class_name_untranslated, "m_class[%u]", ware.get_class());
-				}
-
-				const char* class_name = translator::translate(class_name_untranslated);
-				buf.printf("   %u%s %s %s > %s\n", ware.menge, translator::translate(ware.get_mass()), class_name, translator::translate(ware.get_name()), halt_name);
+			if (get_capacity(j) > 0) {
+				max_loaded_pass[j] += get_capacity(j);
 			}
 		}
 	}
-
-	if (empty) 
+	else if (mail_veh)
 	{
-		buf.append("  ");
-		buf.append(translator::translate("leer"));
-		buf.append("\n");
-	} 
+		for (uint8 j = 0; j < mail_classes; j++)
+		{
+			if (get_capacity(j) > 0) {
+				max_loaded_mail[j] += get_capacity(j);
+			}
+		}
+	}
+	else if (menge > 0 && ware_desc != goods_manager_t::none) {
+		max_loaded_waren[ware_desc->get_index()] += menge;
+	}
+
+
+	//
+	for (uint8 j = 0; j < classes_to_check; j++)
+	{
+		// then add the actual load
+		FOR(slist_tpl<ware_t>, ware, get_cargo(j))
+		{
+			// if != 0 we could not join it to existing => load it
+			if (ware.menge != 0)
+			{
+				if (pass_veh)
+				{
+					pass_fracht[j].append(ware);
+				}
+				else if (mail_veh)
+				{
+					mail_fracht[j].append(ware);
+				}
+				else
+				{
+					total_fracht.append(ware);
+				}
+			}
+		}
+	}
+	INT_CHECK("simconvoi 2643");
+
+	buf.clear();
+
+	// apend info on total capacity
+	slist_tpl <ware_t>capacity;
+
+	for (size_t i = 0; i != n; ++i) {
+		if (max_loaded_waren[i] > 0 && i != goods_manager_t::INDEX_NONE) {
+			ware_t ware(goods_manager_t::get_info(i));
+			ware.menge = max_loaded_waren[i];
+			// append to category?
+			slist_tpl<ware_t>::iterator j = capacity.begin();
+			slist_tpl<ware_t>::iterator end = capacity.end();
+			while (j != end && j->get_desc()->get_catg_index() < ware.get_desc()->get_catg_index()) ++j;
+			if (j != end && j->get_desc()->get_catg_index() == ware.get_desc()->get_catg_index()) {
+				j->menge += max_loaded_waren[i];
+			}
+			else {
+				// not yet there
+				capacity.insert(j, ware);
+			}
+		}
+	}
+	// show new info
+
+	uint8 freight_info_order = 9; // = by_accommodation_detail
+	ware_t ware;
+	for (uint8 i = 0; i < pass_classes; i++)
+	{
+		if (max_loaded_pass[i] > 0)
+		{
+			ware = goods_manager_t::passengers;
+			freight_list_sorter_t::sort_freight(pass_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_pass[i], &ware, true);
+		}
+	}
+	for (uint8 i = 0; i < mail_classes; i++)
+	{
+		if (max_loaded_mail[i] > 0)
+		{
+			ware = goods_manager_t::mail;
+			freight_list_sorter_t::sort_freight(mail_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_mail[i], &ware, true);
+		}
+	}
+	freight_info_order = 6; // = by_destination_detail
+	freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded", NULL, NULL, NULL, true);
 }
+//{
+//	bool empty = true;
+//	for (uint8 i = 0; i < number_of_classes; i++)
+//	{
+//		if (!fracht[i].empty())
+//		{
+//			empty = false;
+//			FOR(slist_tpl<ware_t>, const& ware, fracht[i])
+//			{
+//				const char * halt_name = "Error in Routing";
+//
+//				halthandle_t halt = ware.get_ziel();
+//				if (halt.is_bound())
+//				{
+//					halt_name = halt->get_name();
+//				}
+//				char class_name_untranslated[32];
+//				sprintf(class_name_untranslated, "");
+//				if (ware.get_catg() == goods_manager_t::INDEX_PAS)
+//				{
+//					sprintf(class_name_untranslated, "p_class[%u]", ware.get_class());
+//				}
+//				if (ware.get_catg() == goods_manager_t::INDEX_MAIL)
+//				{
+//					sprintf(class_name_untranslated, "m_class[%u]", ware.get_class());
+//				}
+//
+//				const char* class_name = translator::translate(class_name_untranslated);
+//				buf.printf("   %u%s %s %s > %s\n", ware.menge, translator::translate(ware.get_mass()), class_name, translator::translate(ware.get_name()), halt_name);
+//			}
+//		}
+//	}
+//
+//	if (empty) 
+//	{
+//		buf.append("  ");
+//		buf.append(translator::translate("leer"));
+//		buf.append("\n");
+//	} 
+//}
 
-void vehicle_t::get_cargo_class_info(cbuffer_t & buf, uint8 g_class) const
+void vehicle_t::get_cargo_class_info(cbuffer_t & buf) const
 {
-	bool empty = true;
-	for (uint8 i = 0; i < number_of_classes; i++)
+	vector_tpl<ware_t> pass_fracht[255];
+	vector_tpl<ware_t> mail_fracht[255];
+
+	size_t const pass_classes = goods_manager_t::passengers->get_number_of_classes();
+	size_t const mail_classes = goods_manager_t::mail->get_number_of_classes();
+
+	ALLOCA(uint32, max_loaded_pass, pass_classes);
+	MEMZERON(max_loaded_pass, pass_classes);
+
+	ALLOCA(uint32, max_loaded_mail, mail_classes);
+	MEMZERON(max_loaded_mail, mail_classes);
+
+	bool pass_veh = get_cargo_type() == goods_manager_t::passengers;
+	bool mail_veh = get_cargo_type() == goods_manager_t::mail;
+	const goods_desc_t* ware_desc = get_desc()->get_freight_type();
+	const uint16 menge = get_desc()->get_total_capacity();
+	const uint8 classes_to_check = get_desc()->get_number_of_classes();
+
+	// first add to capacity indicator
+	if (pass_veh)
 	{
-		if (i == get_reassigned_class(g_class))
+		for (uint8 j = 0; j < pass_classes; j++)
 		{
-			if (!fracht[i].empty())
+			if (get_capacity(j) > 0)
 			{
-				empty = false;
-				FOR(slist_tpl<ware_t>, const& ware, fracht[i])
+				max_loaded_pass[j] += get_capacity(j);
+			}
+		}
+	}
+	else if (mail_veh)
+	{
+		for (uint8 j = 0; j < mail_classes; j++)
+		{
+			if (get_capacity(j) > 0)
+			{
+				max_loaded_mail[j] += get_capacity(j);
+			}
+		}
+	}
+	//
+	for (uint8 j = 0; j < classes_to_check; j++)
+	{
+		// then add the actual load
+		FOR(slist_tpl<ware_t>, ware, get_cargo(j))
+		{
+			// if != 0 we could not join it to existing => load it
+			if (ware.menge != 0)
+			{
+				if (pass_veh)
 				{
-					const char * halt_name = "Error in Routing";
-
-					halthandle_t halt = ware.get_ziel();
-					if (halt.is_bound())
-					{
-						halt_name = halt->get_name();
-					}
-					char class_name_untranslated[32];
-					sprintf(class_name_untranslated, "");
-					if (ware.get_catg() == goods_manager_t::INDEX_PAS)
-					{
-						sprintf(class_name_untranslated, "p_class[%u]", ware.get_class());
-					}
-					if (ware.get_catg() == goods_manager_t::INDEX_MAIL)
-					{
-						sprintf(class_name_untranslated, "m_class[%u]", ware.get_class());
-					}
-
-					const char* class_name = translator::translate(class_name_untranslated);
-					buf.printf("   %u%s %s %s > %s\n", ware.menge, translator::translate(ware.get_mass()), class_name, translator::translate(ware.get_name()), halt_name);
+					pass_fracht[j].append(ware);
+				}
+				else if (mail_veh)
+				{
+					mail_fracht[j].append(ware);
 				}
 			}
 		}
 	}
-	if (empty)
+	INT_CHECK("simconvoi 2643");
+
+	// show new info
+	buf.clear();
+	uint8 freight_info_order = 9; // = by_accommodation_detail
+	ware_t ware;
+	for (uint8 i = 0; i < pass_classes; i++)
 	{
-		buf.append("  ");
-		buf.append(translator::translate("leer"));
-		buf.append("\n");
+		if (max_loaded_pass[i] > 0)
+		{
+			ware = goods_manager_t::passengers;
+			freight_list_sorter_t::sort_freight(pass_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_pass[i], &ware, true);
+		}
+	}
+	for (uint8 i = 0; i < mail_classes; i++)
+	{
+		if (max_loaded_mail[i] > 0)
+		{
+			ware = goods_manager_t::mail;
+			freight_list_sorter_t::sort_freight(mail_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_mail[i], &ware, true);
+		}
 	}
 }
 
