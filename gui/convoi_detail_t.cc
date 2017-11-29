@@ -404,12 +404,12 @@ gui_vehicleinfo_t::gui_vehicleinfo_t(convoihandle_t cnv)
 void gui_vehicleinfo_t::draw(scr_coord offset)
 {
 	// keep previous maximum width
-	int x_size = get_size().w-51-pos.x;
+	int x_size = get_size().w - 51 - pos.x;
 	karte_t *welt = world();
 	offset.y += LINESPACE;
 
 	int total_height = 0;
-	if(cnv.is_bound()) {
+	if (cnv.is_bound()) {
 		char number[64];
 		cbuffer_t buf;
 		cbuffer_t freight_info_class;
@@ -540,7 +540,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 						if (!v->get_desc()->get_upgrades(i)->is_future(month_now) && (!v->get_desc()->get_upgrades(i)->is_retired(month_now)))
 						{
 							buf.clear();
-							money_to_string(number, v->get_desc()->get_upgrades(i)->get_upgrade_price()/100);
+							money_to_string(number, v->get_desc()->get_upgrades(i)->get_upgrade_price() / 100);
 							buf.printf("%s (%8s)", translator::translate(v->get_desc()->get_upgrades(i)->get_name()), number);
 							display_proportional_clip(pos.x + w + offset.x + even_more_extra_w, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 							extra_y += LINESPACE;
@@ -588,7 +588,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				extra_y += LINESPACE;
 			}
-				//Catering - A vehicle can be a catering vehicle without carrying passengers.
+			//Catering - A vehicle can be a catering vehicle without carrying passengers.
 			if (v->get_desc()->get_catering_level() > 0)
 			{
 				buf.clear();
@@ -606,8 +606,8 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					extra_y += LINESPACE;
 				}
 			}
-				if (v->get_desc()->get_total_capacity() > 0)
-				{
+			if (v->get_desc()->get_total_capacity() > 0)
+			{
 
 				// Class entries, if passenger or mail vehicle
 				bool pass_veh = v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS;
@@ -627,14 +627,14 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					char classes_display[32];
 					int w_icon = 16;
 					int classes_to_check = pass_veh ? pass_classes : mail_classes;
-						for (uint8 i = 0; i < classes_to_check; i++)
+					for (uint8 i = 0; i < classes_to_check; i++)
+					{
+						if (v->get_capacity(i) > 0)
 						{
-							if (v->get_capacity(i) > 0)
-							{
-								classes_counter++;
-							}
+							classes_counter++;
 						}
-					
+					}
+
 					for (uint8 i = 0; i < v->get_desc()->get_number_of_classes(); i++)
 					{
 						if (v->get_desc()->get_capacity(i) > 0)
@@ -678,73 +678,38 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 							}
 						}
 					}
-					for (uint8 i = 0; i < classes_to_check; i++)
-					{
-						if (v->get_capacity(i) > 0)
-						{
-							{
-								freight_info_class.clear();
-
-								char class_name_untranslated[32];
-								sprintf(class_name_untranslated, pass_veh ? "p_class[%u]" : "m_class[%u]", i);
-								const char* class_name = translator::translate(class_name_untranslated);
-
-								freight_info_class.printf("%u/%u%s %s (%s)\n", v->get_total_cargo_by_class(i), v->get_capacity(i), translator::translate(v->get_cargo_mass()), name, class_name);
-								v->get_cargo_class_info(freight_info_class, i);
-								// show it
-								const int px_len = display_multiline_text(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, freight_info_class, SYSCOL_TEXT);
-								if (px_len + w > x_size)
-								{
-									x_size = px_len + w;
-								}
-								// count returns
-								returns = 0;
-								const char *p = freight_info_class;
-								for (int i = 0; i < freight_info_class.len(); i++)
-								{
-									if (p[i] == '\n')
-									{
-										returns++;
-									}
-								}
-
-								extra_y += returns*LINESPACE;
-							}
-						}
-					}
-				}			
-				else
+				}
+				// We get the freight info via the freight_list_sorter now, so no need to do anything but fetch it
+				v->get_cargo_info(freight_info);
+				// show it
+				const int px_len = display_multiline_text(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, freight_info, SYSCOL_TEXT);
+				if (px_len + w > x_size)
 				{
-					freight_info.printf("%u/%u%s %s\n", v->get_total_cargo(), v->get_cargo_max(), translator::translate(v->get_cargo_mass()), name);
-					v->get_cargo_info(freight_info);
-					// show it
-					const int px_len = display_multiline_text(pos.x + offset.x + w, pos.y + offset.y + total_height + extra_y, freight_info, SYSCOL_TEXT);
-					if (px_len + w > x_size) {
-						x_size = px_len + w;
-					}
-
-					// count returns
-					returns = 0;
-					const char *p = freight_info;
-					for (int i = 0; i < freight_info.len(); i++) {
-						if (p[i] == '\n') {
-							returns++;
-						}
+					x_size = px_len + w;
+				}
+				// count returns
+				returns = 0;
+				const char *p = freight_info;
+				for (int i = 0; i < freight_info.len(); i++)
+				{
+					if (p[i] == '\n')
+					{
+						returns++;
 					}
 				}
-				extra_y += returns*LINESPACE;
+				extra_y += (returns*LINESPACE) + (2 * LINESPACE);
 			}
-		
-			
+
+
 			const way_constraints_t &way_constraints = v->get_desc()->get_way_constraints();
 			// Permissive way constraints
 			// (If vehicle has, way must have)
 			// @author: jamespetts
 			//for(uint8 i = 0; i < 8; i++)
-			for(uint8 i = 0; i < way_constraints.get_count(); i++)
+			for (uint8 i = 0; i < way_constraints.get_count(); i++)
 			{
 				//if(v->get_desc()->permissive_way_constraint_set(i))
-				if(way_constraints.get_permissive(i))
+				if (way_constraints.get_permissive(i))
 				{
 					buf.clear();
 					char tmpbuf1[13];
@@ -752,17 +717,17 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					char tmpbuf[14];
 					sprintf(tmpbuf, "Permissive %i", i);
 					buf.printf("%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
-					display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
+					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					extra_y += LINESPACE;
 				}
 			}
-			
+
 			// Prohibitive way constraints
 			// (If way has, vehicle must have)
 			// @author: jamespetts
-			for(uint8 i = 0; i < way_constraints.get_count(); i++)
+			for (uint8 i = 0; i < way_constraints.get_count(); i++)
 			{
-				if(way_constraints.get_prohibitive(i))
+				if (way_constraints.get_prohibitive(i))
 				{
 					buf.clear();
 					char tmpbuf1[13];
@@ -770,18 +735,18 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					char tmpbuf[14];
 					sprintf(tmpbuf, "Prohibitive %i", i);
 					buf.printf("%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
-					display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true );
+					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					extra_y += LINESPACE;
 				}
 			}
-			
+
 			//skip at least five lines
-			total_height += max(extra_y+LINESPACE,5*LINESPACE);
+			total_height += max(extra_y + LINESPACE, 5 * LINESPACE);
 		}
 	}
 
-	scr_size size(max(x_size+pos.x,get_size().w),total_height);
-	if(  size!=get_size()  ) {
+	scr_size size(max(x_size + pos.x, get_size().w), total_height);
+	if (size != get_size()) {
 		set_size(size);
 	}
 }

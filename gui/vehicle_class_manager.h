@@ -79,12 +79,14 @@ private:
 	gui_class_vehicleinfo_t veh_info;
 
 	convoihandle_t cnv;
-	button_t	reset_all_classes_button;
+	button_t reset_all_classes_button;
 
 	vector_tpl<char> class_indices;
 
 	slist_tpl<gui_combobox_t *> pass_class_sel;
 	slist_tpl<gui_combobox_t *> mail_class_sel;
+
+	sint16 button_width = 190;
 
 	gui_container_t cont;
 
@@ -111,22 +113,24 @@ private:
 
 	bool convoy_bound = false;
 
-	char *class_name;
 	char *pass_class_name_untranslated[32];
 	char *mail_class_name_untranslated[32];
 
-	uint32 *pass_capacity_at_class = 0;
-	uint32 *mail_capacity_at_class = 0;
+	uint32 pass_capacity_at_class[255] = { 0 };
+	uint32 mail_capacity_at_class[255] = { 0 };
 
-	uint32 *pass_capacity_at_accommodation = 0;
-	uint32 *mail_capacity_at_accommodation = 0;
+	uint32 pass_capacity_at_accommodation[255] = { 0 };
+	uint32 mail_capacity_at_accommodation[255] = { 0 };
 
 	bool any_pass = false;
 	bool any_mail = false;
+
+
+
 public:
+
 	vehicle_class_manager_t(convoihandle_t cnv);
-
-
+	
 	/**
 	* Do the dynamic component layout
 	*/
@@ -172,4 +176,6 @@ public:
 	void rdwr( loadsave_t *file );
 
 	uint32 get_rdwr_id() { return magic_class_manager; }
+
+	vehicle_class_manager_t::~vehicle_class_manager_t();
 };

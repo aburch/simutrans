@@ -537,7 +537,7 @@ public:
 	*/
 	void get_cargo_info(cbuffer_t & buf) const;
 
-	void get_cargo_class_info(cbuffer_t & buf, uint8 g_class) const;
+	void get_cargo_class_info(cbuffer_t & buf) const;
 
 	// Check for straightness of way.
 	//@author jamespetts
