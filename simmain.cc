@@ -583,7 +583,7 @@ int simu_main(int argc, char** argv)
 
 
 #ifdef REVISION
-	const char *version = "Simutrans version " VERSION_NUMBER EXTENDED_VERSION " from " VERSION_DATE " r" QUOTEME(REVISION) "\n";
+	const char *version = "Simutrans version " VERSION_NUMBER EXTENDED_VERSION " from " VERSION_DATE " #" QUOTEME(REVISION) "\n";
 #else
 	const char *version = "Simutrans version " VERSION_NUMBER EXTENDED_VERSION " from " VERSION_DATE "\n";
 #endif

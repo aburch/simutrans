@@ -75,7 +75,7 @@ banner_t::banner_t() : gui_frame_t(""),
 	// Calculate dialogue width based on a few assumptions.
 	// When we have GUI controls for shadow text this will be much simpler...
 #ifdef REVISION
-	width = max( L_DIALOG_WIDTH, D_MARGINS_X + display_calc_proportional_string_len_width( "Version " VERSION_NUMBER " " VERSION_DATE " r" QUOTEME(REVISION) L_DEBUG_TEXT, -1 ) );
+	width = max( L_DIALOG_WIDTH, D_MARGINS_X + display_calc_proportional_string_len_width( "Version " VERSION_NUMBER " " VERSION_DATE " #" QUOTEME(REVISION) L_DEBUG_TEXT, -1 ) );
 #else
 	width = max( L_DIALOG_WIDTH, D_MARGINS_X + display_calc_proportional_string_len_width( "Version " VERSION_NUMBER " " VERSION_DATE L_DEBUG_TEXT, -1 ) );
 #endif
@@ -169,7 +169,7 @@ void banner_t::draw(scr_coord pos, scr_size size )
 #ifdef REVISION
 	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "Version " VERSION_NUMBER, true );
 	cursor.y += LINESPACE+2;
-	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, EXTENDED_VERSION " " VERSION_DATE " r" QUOTEME(REVISION), true );
+	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, EXTENDED_VERSION " " VERSION_DATE " #" QUOTEME(REVISION), true );
 #else
 	display_shadow_proportional( cursor.x, cursor.y, SYSCOL_TEXT_HIGHLIGHT, SYSCOL_TEXT_SHADOW, "Version " VERSION_NUMBER " " EXTENDED_VERSION " " VERSION_DATE, true );
 #endif
