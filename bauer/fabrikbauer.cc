@@ -566,7 +566,7 @@ bool factory_builder_t::can_factory_tree_rotate( const factory_desc_t *desc )
  * is the maximum number of good types for which suppliers chains are built
  * (meaning there are no unfinished factory chains).
  */
-int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, player_t* player, int number_of_chains )
+int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, player_t* player, int number_of_chains, bool ignore_climates)
 {
 	int n = 1;
 	int org_rotation = -1;
@@ -600,6 +600,8 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		// build consumer (factory) in town
 		stadt_t *city = welt->find_nearest_city(pos->get_2d());
 
+		climate_bits cl = ignore_climates ? ALL_CLIMATES : info->get_building()->get_allowed_climate_bits();
+
 		/* Three variants:
 		 * A:
 		 * A building site, preferably close to the town hall with a street next to it.
@@ -609,12 +611,12 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		 */
 		bool is_rotate=info->get_building()->get_all_layouts()>1  &&  size.x!=size.y  &&  info->get_building()->can_rotate();
 		// first try with standard orientation
-		koord k = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.x, size.y, info->get_building()->get_allowed_climate_bits());
+		koord k = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.x, size.y, cl);
 
 		// second try: rotated
 		koord k1 = koord::invalid;
 		if (is_rotate  &&  (k == koord::invalid  ||  simrand(256, " factory_builder_t::build_link")<128)) {
-			k1 = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.y, size.x, info->get_building()->get_allowed_climate_bits());
+			k1 = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.y, size.x, cl);
 		}
 
 		rotate = simrand( info->get_building()->get_all_layouts(), " factory_builder_t::build_link" );
@@ -841,7 +843,7 @@ DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need 
 			INT_CHECK("fabrikbauer 697");
 
 	DBG_MESSAGE("factory_builder_t::build_link","Try to built supplier %s at (%i,%i) r=%i for %s.",producer_d->get_name(),k.x,k.y,rotate,info->get_name());
-			n += build_link(&parent_pos, producer_d, -1 /*random prodbase */, rotate, &k, player, 10000 );
+			n += build_link(&parent_pos, producer_d, -1 /*random prodbase */, rotate, &k, player, 10000, ignore_climates);
 			lfound ++;
 
 			INT_CHECK( "fabrikbauer 702" );
@@ -1155,7 +1157,7 @@ next_ware_check:
 				}
 				if(welt->lookup(pos)) {
 					// Space found...
-					nr += build_link(NULL, fab, -1 /* random prodbase */, rotation, &pos, welt->get_public_player(), 1 );
+					nr += build_link(NULL, fab, -1 /* random prodbase */, rotation, &pos, welt->get_public_player(), 1, ignore_climates);
 					if(nr>0) {
 						fabrik_t *our_fab = fabrik_t::get_fab( pos.get_2d() );
 						reliefkarte_t::get_karte()->calc_map_size();

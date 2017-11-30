@@ -6407,7 +6407,8 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 	koord size = fab->get_building()->get_size(rotation);
 
 	// process ignore climates switch
-	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->get_building()->get_allowed_climate_bits();
+	bool ignore_climates = default_param  &&  default_param[0] == '1';
+	climate_bits cl = ignore_climates ? ALL_CLIMATES : fab->get_building()->get_allowed_climate_bits();
 
 	bool hat_platz = false;
 	if(fab->get_placement()==factory_desc_t::Water) {
@@ -6440,12 +6441,12 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 		}
 
 		koord3d build_pos = gr->get_pos();
-		int anzahl = factory_builder_t::build_link(NULL, fab, initial_prod, rotation, &build_pos, welt->get_public_player(), 10000 );
+		int count = factory_builder_t::build_link(NULL, fab, initial_prod, rotation, &build_pos, welt->get_public_player(), 10000, ignore_climates);
 
-		if(anzahl>0) {
+		if(count>0) {
 			// at least one factory has been built
 			welt->get_viewport()->change_world_position( build_pos );
-			player_t::book_construction_costs(player, anzahl * welt->get_settings().cst_multiply_found_industry, build_pos.get_2d(), ignore_wt);
+			player_t::book_construction_costs(player, count * welt->get_settings().cst_multiply_found_industry, build_pos.get_2d(), ignore_wt);
 
 			// crossconnect all?
 			if(welt->get_settings().is_crossconnect_factories()) 
@@ -6511,8 +6512,8 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 	}
 
 	pos = gr->get_pos();
-	int anzahl = factory_builder_t::build_link(NULL, fab, initial_prod, 0, &pos, welt->get_public_player(), 10000 );
-	if(anzahl>0) {
+	int count = factory_builder_t::build_link(NULL, fab, initial_prod, 0, &pos, welt->get_public_player(), 10000, false);
+	if(count>0) {
 		// at least one factory has been built
 		welt->get_viewport()->change_world_position( pos );
 
@@ -6525,7 +6526,7 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 			}
 		}
 		// ain't going to be cheap
-		player_t::book_construction_costs(player, anzahl * welt->get_settings().cst_multiply_found_industry, pos.get_2d(), ignore_wt);
+		player_t::book_construction_costs(player, count * welt->get_settings().cst_multiply_found_industry, pos.get_2d(), ignore_wt);
 		return NULL;
 	}
 	return NOTICE_UNSUITABLE_GROUND;
@@ -6579,7 +6580,7 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 	koord size = fab->get_building()->get_size(rotation);
 
 	// process ignore climates switch
-	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->get_building()->get_allowed_climate_bits();
+	climate_bits cl = (default_param  &&  default_param[0] == '1') ? ALL_CLIMATES : fab->get_building()->get_allowed_climate_bits();
 
 	bool hat_platz = false;
 	if(fab->get_placement()==factory_desc_t::Water) 
