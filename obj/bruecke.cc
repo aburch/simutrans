@@ -240,7 +240,7 @@ void bruecke_t::finish_rd()
 
 	// with double heights may need to correct image on load (not all desc have double images)
 	// at present only start images have 2 height variants, others to follow...
-	if(  !gr->is_kartenboden  ) {
+	if(  !gr->ist_karten_boden()) {
 		if(  desc->get_waytype() != powerline_wt  ) {
 			//img = desc->get_straight( gr->get_weg_ribi_unmasked( desc->get_waytype() ) );
 		}
