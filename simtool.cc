@@ -4246,11 +4246,11 @@ DBG_MESSAGE("tool_build_station_t::tool_station_dock_aux()","building dock from 
 	}
 
 	// oriented buildings here - get neighbouring layouts
-	gr = welt->lookup_kartenboden(k+dx2);
+	const grund_t* gr_neigh = welt->lookup_kartenboden(k + dx2);
 
 	// find out if middle end or start tile
-	if(gr  &&  gr->is_halt()  &&  player_t::check_owner( player, gr->get_halt()->get_owner() )) {
-		gebaeude_t *gb = gr->find<gebaeude_t>();
+	if (gr_neigh  &&  gr_neigh->is_halt() && player_t::check_owner(player, gr_neigh->get_halt()->get_owner())) {
+		gebaeude_t *gb = gr_neigh->find<gebaeude_t>();
 		if(gb  &&  (gb->get_tile()->get_desc()->get_type()==building_desc_t::dock  ||  gb->get_tile()->get_desc()->get_type()==building_desc_t::flat_dock)  ) {
 
 			if(change_layout) {
@@ -4265,9 +4265,9 @@ DBG_MESSAGE("tool_build_station_t::tool_station_dock_aux()","building dock from 
 		}
 	}
 
-	gr = welt->lookup_kartenboden(k-dx2);
-	if(gr  &&  gr->is_halt()  &&  player_t::check_owner( player, gr->get_halt()->get_owner() )) {
-		gebaeude_t *gb = gr->find<gebaeude_t>();
+	gr_neigh = welt->lookup_kartenboden(k - dx2);
+	if (gr_neigh  &&  gr_neigh->is_halt() && player_t::check_owner(player, gr_neigh->get_halt()->get_owner())) {
+		gebaeude_t *gb = gr_neigh->find<gebaeude_t>();
 		if(gb  &&  (gb->get_tile()->get_desc()->get_type()==building_desc_t::dock  ||  gb->get_tile()->get_desc()->get_type()==building_desc_t::flat_dock)  ) {
 			if(change_layout) {
 				layout -= 2;
