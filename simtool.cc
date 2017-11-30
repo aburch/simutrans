@@ -8926,6 +8926,7 @@ bool tool_rename_t::init(player_t *player)
 				other->set_name(p);
 				return false;
 			}
+			break;
 		}
 
 		case 'f':
