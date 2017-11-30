@@ -177,5 +177,5 @@ public:
 
 	uint32 get_rdwr_id() { return magic_class_manager; }
 
-	vehicle_class_manager_t::~vehicle_class_manager_t();
+	~vehicle_class_manager_t();
 };
