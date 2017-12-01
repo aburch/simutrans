@@ -585,38 +585,38 @@ void simline_t::recalc_status()
 	// Moved from an else statement at bottom
 	// to ensure that this value is always initialised.
 	state_color = COL_BLACK;
-	state = normal_state;
+	state = line_normal_state;
 
 	if(financial_history[0][LINE_CONVOIS]==0) 
 	{
 		// no convoys assigned to this line
 		state_color = COL_WHITE;
-		state = no_convoys;
+		state = line_no_convoys;
 		withdraw = false;
 	}
 	else if(financial_history[0][LINE_PROFIT]<0) 
 	{
 		// Loss-making
 		state_color = COL_RED;
-		state = loss_making;
+		state = line_loss_making;
 	}
 	else if((financial_history[0][LINE_OPERATIONS]|financial_history[1][LINE_OPERATIONS])==0) 
 	{
 		// nothing moved
 		state_color = COL_YELLOW;
-		state = nothing_moved;
+		state = line_nothing_moved;
 	}
 	else if(has_overcrowded())
 	{
 		// Overcrowded
 		state_color = COL_DARK_PURPLE;
-		state = overcrowded;
+		state = line_overcrowded;
 	}
 	else if(financial_history[1][LINE_DEPARTURES] < financial_history[1][LINE_DEPARTURES_SCHEDULED])
 	{
 		// Is missing scheduled slots.
 		state_color = COL_DARK_TURQUOISE;
-		state = is_missing_scheduled_slots;
+		state = line_missing_scheduled_slots;
 	}
 	
 
@@ -667,17 +667,17 @@ void simline_t::recalc_status()
 		if (has_obsolete_that_can_upgrade)
 		{
 			state_color = COL_PURPLE;
-			state = has_obsolete_vehicles_with_upgrades;
+			state = line_has_obsolete_vehicles_with_upgrades;
 		}
 		else if (has_obsolete)
 		{
 			state_color = COL_DARK_BLUE;
-			state = has_obsolete_vehicles;
+			state = line_has_obsolete_vehicles;
 		}
 		else
 		{
 			state_color = COL_BLACK;
-			state = normal_state;
+			state = line_normal_state;
 		}
 
 	}
