@@ -197,7 +197,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	// load display
 	filled_bar.add_color_value(&loadfactor, COL_GREEN);
-	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH, 6 + SCL_HEIGHT));
+	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH + 10, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 4 + 2));
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
 
@@ -537,6 +537,36 @@ void schedule_list_gui_t::display(scr_coord pos)
 	cbuffer_t buf;
 	char ctmp[128];
 
+	// First, show the state of the line, if interresting
+	buf.clear();
+	switch (line->get_state())
+	{
+	case simline_t::no_convoys:
+		buf.printf(translator::translate("this_line_has_no_convoys_assigned"));
+		break;
+	case simline_t::loss_making:
+		buf.printf(translator::translate("this_line_made_a_loss_last_month"));
+		break;
+	case simline_t::nothing_moved:
+		buf.printf(translator::translate("this_line_did_not_move_any_good_last_month"));
+		break;
+	case simline_t::overcrowded:
+		buf.printf(translator::translate("this_line_is_frequently_overcrowded"));
+		break;
+	case simline_t::is_missing_scheduled_slots:
+		buf.printf(translator::translate("this_line_where_missing_scheduled_slots_last_month"));
+		break;
+	case simline_t::has_obsolete_vehicles:
+		buf.printf(translator::translate("this_line_has_obsolete_vehicles"));
+		break;
+	case simline_t::has_obsolete_vehicles_with_upgrades:
+		buf.printf(translator::translate("this_line_has_obsolete_vehicles_with_upgrades"));
+		break;
+	default:
+		break;
+	}
+	display_proportional_clip(pos.x + LINE_NAME_COLUMN_WIDTH, pos.y + 7 + SCL_HEIGHT + D_MARGIN_TOP, buf, ALIGN_LEFT, line->get_state_color(), true);
+	
 	capacity = load = loadfactor = 0; // total capacity and load of line (=sum of all conv's cap/load)
 
 	sint64 profit = line->get_finance_history(0,LINE_PROFIT);
@@ -581,6 +611,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 		service_frequency = max(spacing_time, service_frequency);
 	}
 
+	buf.clear();
 	switch(icnv) {
 		case 0: {
 			buf.append( translator::translate("no convois") );
@@ -635,7 +666,7 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 
 	chart.set_size(scr_size(rest_width-58, SCL_HEIGHT-11-14-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))));
 	inp_name.set_size(scr_size(rest_width-8, 14));
-	filled_bar.set_size(scr_size(rest_width-8, 4));
+	filled_bar.set_size(scr_size(rest_width - 8 - D_BUTTON_WIDTH - 10, 4));
 
 	int y=SCL_HEIGHT-11-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))+14;
 	for (int i=0; i<MAX_LINE_COST; i++) {
