@@ -32,3 +32,11 @@ obj=program_text
 name=line_has_obsolete_vehicles_with_upgrades
 note=Shown in the line management window (schedule list window)
 -
+obj=program_text
+name=staff_shortage
+note=Shown in the factory window
+-
+obj=program_text
+name=
+note=Shown in the factory window
+-

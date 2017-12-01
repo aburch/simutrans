@@ -227,7 +227,7 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 		break;
 
 	case fabrik_t::inactive:
-		factory_status.append(translator::translate("inactive"));
+		//factory_status.append(translator::translate("inactive"));
 		break;
 
 	case fabrik_t::nothing:
