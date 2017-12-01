@@ -17,6 +17,7 @@
 #include "components/gui_speedbar.h"
 #include "components/gui_button.h"
 #include "components/gui_label.h"                  // 09-Dec-2001      Markus Weber    Added
+#include "components/gui_combobox.h"
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
 #include "../gui/simwin.h"
@@ -35,6 +36,12 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	convoihandle_t cnv;
+
+	gui_combobox_t class_selector;
+
+	slist_tpl<gui_combobox_t *> class_selectors;
+
+	vector_tpl<uint16> class_indices;
 
 public:
 	/**
@@ -73,6 +80,10 @@ private:
 	button_t	sale_button;
 	button_t	withdraw_button;
 	button_t	retire_button;
+	button_t	class_management_button;
+
+	bool any_upgrades;
+	bool any_obsoletes;
 
 public:
 	convoi_detail_t(convoihandle_t cnv);

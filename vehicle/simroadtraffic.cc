@@ -292,7 +292,7 @@ void road_user_t::rdwr(loadsave_t *file)
 		set_xoff( ddx-(16-i)*dx );
 		set_yoff( ddy-(16-i)*dy );
 		if(file->is_loading()) {
-			if(dx*dy) {
+			if(dx && dy) {
 				steps = min( VEHICLE_STEPS_PER_TILE - 1, VEHICLE_STEPS_PER_TILE - 1 - (i*16) );
 				steps_next = VEHICLE_STEPS_PER_TILE - 1;
 			}

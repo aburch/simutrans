@@ -107,41 +107,43 @@ public:
 
 
 private:
-	uint32 upgrade_price;		// Price if this vehicle is bought as an upgrade, not a new vehicle.
-	uint32 base_upgrade_price;  // Upgrade price (without scale factor)
-	uint16 capacity;			// Payload
-	uint16 overcrowded_capacity; // The capacity of a vehicle if overcrowded (usually expressed as the standing capacity).
-	uint32 weight;				// Weight in kg
-	uint32 power;			// Power in kW
-	uint16 running_cost;		// Per kilometre cost
-	uint32 fixed_cost;			// Monthly cost @author: jamespetts, April 2009
-	uint32 base_fixed_cost;		// Monthly cost (without scale factor)
+	uint32 upgrade_price;			// Price if this vehicle is bought as an upgrade, not a new vehicle.
+	uint32 base_upgrade_price;		// Upgrade price (without scale factor)
+	uint16 *capacity;				// Payload (pointer to an array of capacities per class)
+	uint16 overcrowded_capacity;	// The capacity of a vehicle if overcrowded (usually expressed as the standing capacity).
+	uint32 weight;					// Weight in kg
+	uint32 power;					// Power in kW
+	uint16 running_cost;			// Per kilometre cost
+	uint32 fixed_cost;				// Monthly cost @author: jamespetts, April 2009
+	uint32 base_fixed_cost;			// Monthly cost (without scale factor)
 
-	uint16 gear;				// engine gear (power multiplier), 64=100
+	uint16 gear;					// engine gear (power multiplier), 64=100
 
-	uint8 len;					// length (=8 is half a tile, the old default)
+	uint8 len;						// length (=8 is half a tile, the old default)
 	sint16 sound;
 
-	uint8 leader_count;			// all defined leading vehicles
+	uint8 leader_count;				// all defined leading vehicles
 	uint8 trailer_count;			// all defined trailer
-	uint8 upgrades;				// The number of vehicles that are upgrades of this vehicle.
+	uint8 upgrades;					// The number of vehicles that are upgrades of this vehicle.
 
-	uint8 engine_type;			// diesel, steam, electric (requires electrified ways), fuel_cell, etc.
+	uint8 engine_type;				// diesel, steam, electric (requires electrified ways), fuel_cell, etc.
 
-	uint8 freight_image_type;	// number of freight images (displayed for different goods)
-	uint8 livery_image_type;	// Number of different liveries (@author: jamespetts, April 2011)
+	uint8 freight_image_type;		// number of freight images (displayed for different goods)
+	uint8 livery_image_type;		// Number of different liveries (@author: jamespetts, April 2011)
 	
-	bool is_tilting;			 //Whether it is a tilting train (can take corners at higher speeds). 0 for no, 1 for yes. Anything other than 1 is assumed to be no.
+	bool is_tilting;				// Whether it is a tilting train (can take corners at higher speeds). 0 for no, 1 for yes. Anything other than 1 is assumed to be no.
 	
 	way_constraints_of_vehicle_t way_constraints;
 
-	uint8 catering_level;		 //The level of catering. 0 for no catering. Higher numbers for better catering.
+	uint8 catering_level;			// The level of catering. 0 for no catering. Higher numbers for better catering.
 
-	bool bidirectional;			//Whether must always travel in one direction
-	bool can_lead_from_rear;	//Whether vehicle can lead a convoy when it is at the rear.
-	bool can_be_at_rear;		//Whether the vehicle may be at the rear of a convoy (default = true).
+	bool bidirectional;				// Whether must always travel in one direction
+	bool can_lead_from_rear;		// Whether vehicle can lead a convoy when it is at the rear.
+	bool can_be_at_rear;			// Whether the vehicle may be at the rear of a convoy (default = true).
 
-	uint8 comfort;				// How comfortable that a vehicle is for passengers.
+	uint8 *comfort;					// How comfortable that a vehicle is for passengers. (Pointer to an array of comfort levels per class)
+
+	uint8 classes;					// The number of different classes that this vehicle accommodates
 
 	/** The time that the vehicle takes to load
 	  * in ticks. Min: if no passengers/goods
@@ -227,10 +229,11 @@ public:
 
 	// default vehicle (used for way search and similar tasks)
 	// since it has no images and not even a name node any calls to this will case a crash
+	// Also, capacity and comfort are not initialised here
 	vehicle_desc_t(uint8 wtype, uint16 speed, engine_t engine, uint16 al = 0, uint32 weight = 1) : geared_power(0), geared_force(0) {
-		freight_image_type = livery_image_type = price = upgrade_price = capacity = overcrowded_capacity = running_cost = intro_date = leader_count = trailer_count = catering_level = upgrades = 0;
+		freight_image_type = livery_image_type = price = upgrade_price = overcrowded_capacity = running_cost = intro_date = leader_count = trailer_count = catering_level = upgrades = 0;
 		fixed_cost = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
-		power = comfort = 1;
+		classes = power = 1;
 		gear = GEAR_FACTOR;
 		len = 8;
 		sound = -1;
@@ -251,12 +254,16 @@ public:
 		brake_force = BRAKE_FORCE_UNKNOWN;
 		minimum_runway_length = 3;
 		range = 0;
+		comfort = NULL;
+		capacity = NULL;
 	}
 
 	virtual ~vehicle_desc_t()
 	{
-		delete [] geared_power;
-		delete [] geared_force;
+		delete[] geared_power;
+		delete[] geared_force;
+		delete[] comfort;
+		delete[] capacity;
 	}
 
 	goods_desc_t const* get_freight_type() const { return get_child<goods_desc_t>(2); }
@@ -404,6 +411,11 @@ public:
 
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
 			image_array_3d_t const* const list3d = get_child<image_array_3d_t>(5);
+			if (!list3d)
+			{
+				dbg->warning("image_id get_image_id()", "Cannot read 3d image list from memory");
+				return IMG_EMPTY;
+			}
 			image = list3d->get_image(dir, livery_index, goods_index);
 			if(!image) 
 			{
@@ -566,51 +578,65 @@ public:
 
 	bool can_follow_any() const { return trailer_count==0; }
 
-	uint16 get_capacity() const { return capacity; }
+	uint8 get_number_of_classes() const { return classes; }
+	uint16 get_capacity(uint32 g_class = 0) const { return classes == 0 ? 0 : g_class >= classes ? capacity[0] : capacity[g_class]; }
+	uint16 get_total_capacity() const
+	{
+		uint16 cap = 0;
+		for (uint8 i = 0; i < classes; i++)
+		{
+			cap += get_capacity(i);
+		}
+		return cap;
+	}
 	uint32 get_weight() const { return weight; }
 	uint16 get_running_cost() const { return running_cost; }
 	uint16 get_running_cost(const class karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	uint32 get_fixed_cost() const { return fixed_cost; }
 	uint32 get_fixed_cost(class karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
 	uint32 get_adjusted_monthly_fixed_cost(class karte_t *welt) const; // includes increase for obsolescence and adjustment for monthly figures
-	sint8 get_sound() const { return sound; }
+	sint16 get_sound() const { return sound; }
 	bool is_bidirectional() const { return bidirectional; }
 	bool get_can_lead_from_rear() const { return can_lead_from_rear; }
-	uint8 get_comfort() const { return comfort; }
+	uint8 get_comfort(uint32 g_class = 0) const { return  classes == 0 ? 0: g_class >= classes ? comfort[0] : comfort[g_class]; }
 	uint16 get_overcrowded_capacity() const { return overcrowded_capacity; }
-	uint32 get_min_loading_time() const { return capacity > 0 ? min_loading_time : 0; }
-	uint32 get_max_loading_time() const { return capacity > 0 ? max_loading_time : 0; }
+	uint32 get_min_loading_time() const { return *capacity > 0 ? min_loading_time : 0; }
+	uint32 get_max_loading_time() const { return *capacity > 0 ? max_loading_time : 0; }
 	uint32 get_upgrade_price() const { return upgrade_price; }
 	bool is_available_only_as_upgrade() const { return available_only_as_upgrade; }
 
-	uint8 get_adjusted_comfort(uint8 catering_level) const
+	uint8 get_adjusted_comfort(uint8 catering_level, uint8 g_class = 0) const
 	{
-		int modified_comfort = (int)comfort;
+		if (g_class >= classes)
+		{
+			g_class = 0;
+		}
+		uint32 modified_comfort = (uint32)comfort[g_class];
 		switch(catering_level)
 		{
 		case 0:
-			modified_comfort = comfort > 0 ? comfort : 1;
+			modified_comfort = modified_comfort > 0 ? modified_comfort : 1;
 			break;
 
 		case 1:
-			modified_comfort = comfort + 5;
+			modified_comfort += 5;
 			break;
 
 		case 2:
-			modified_comfort = comfort + 10;
+			modified_comfort += 10;
 			break;
 
 		case 3:
-			modified_comfort = comfort + 16;
+			modified_comfort += 16;
 			break;
 
 		case 4:
-			modified_comfort = comfort + 20;
+			modified_comfort += 20;
 			break;
 
 		case 5:
 		default:
-			modified_comfort = comfort + 25;
+			modified_comfort += 25;
 			break;
 		};
 		return min(255, modified_comfort);

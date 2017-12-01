@@ -2563,7 +2563,7 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 		if(player!=NULL) {
 			for(uint8 i=0; i<gr->obj_count(); i++) {
 				obj_t* dt = gr->obj_bei(i);
-				if (!dt->is_moving()  &&  dt-> is_deletable(player)!=NULL) {
+				if (!dt->is_moving() && dt->is_deletable(player) != NULL  &&  dt->get_typ() != obj_t::label) {
 					error =  dt-> is_deletable(player); // "Das Feld gehoert\neinem anderen Spieler\n";
 					return 0;
 				}
@@ -4246,11 +4246,11 @@ DBG_MESSAGE("tool_build_station_t::tool_station_dock_aux()","building dock from 
 	}
 
 	// oriented buildings here - get neighbouring layouts
-	gr = welt->lookup_kartenboden(k+dx2);
+	const grund_t* gr_neigh = welt->lookup_kartenboden(k + dx2);
 
 	// find out if middle end or start tile
-	if(gr  &&  gr->is_halt()  &&  player_t::check_owner( player, gr->get_halt()->get_owner() )) {
-		gebaeude_t *gb = gr->find<gebaeude_t>();
+	if (gr_neigh  &&  gr_neigh->is_halt() && player_t::check_owner(player, gr_neigh->get_halt()->get_owner())) {
+		gebaeude_t *gb = gr_neigh->find<gebaeude_t>();
 		if(gb  &&  (gb->get_tile()->get_desc()->get_type()==building_desc_t::dock  ||  gb->get_tile()->get_desc()->get_type()==building_desc_t::flat_dock)  ) {
 
 			if(change_layout) {
@@ -4265,9 +4265,9 @@ DBG_MESSAGE("tool_build_station_t::tool_station_dock_aux()","building dock from 
 		}
 	}
 
-	gr = welt->lookup_kartenboden(k-dx2);
-	if(gr  &&  gr->is_halt()  &&  player_t::check_owner( player, gr->get_halt()->get_owner() )) {
-		gebaeude_t *gb = gr->find<gebaeude_t>();
+	gr_neigh = welt->lookup_kartenboden(k - dx2);
+	if (gr_neigh  &&  gr_neigh->is_halt() && player_t::check_owner(player, gr_neigh->get_halt()->get_owner())) {
+		gebaeude_t *gb = gr_neigh->find<gebaeude_t>();
 		if(gb  &&  (gb->get_tile()->get_desc()->get_type()==building_desc_t::dock  ||  gb->get_tile()->get_desc()->get_type()==building_desc_t::flat_dock)  ) {
 			if(change_layout) {
 				layout -= 2;
@@ -6407,7 +6407,8 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 	koord size = fab->get_building()->get_size(rotation);
 
 	// process ignore climates switch
-	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->get_building()->get_allowed_climate_bits();
+	bool ignore_climates = default_param  &&  default_param[0] == '1';
+	climate_bits cl = ignore_climates ? ALL_CLIMATES : fab->get_building()->get_allowed_climate_bits();
 
 	bool hat_platz = false;
 	if(fab->get_placement()==factory_desc_t::Water) {
@@ -6440,12 +6441,12 @@ const char *tool_build_land_chain_t::work( player_t *player, koord3d pos )
 		}
 
 		koord3d build_pos = gr->get_pos();
-		int anzahl = factory_builder_t::build_link(NULL, fab, initial_prod, rotation, &build_pos, welt->get_public_player(), 10000 );
+		int count = factory_builder_t::build_link(NULL, fab, initial_prod, rotation, &build_pos, welt->get_public_player(), 10000, ignore_climates);
 
-		if(anzahl>0) {
+		if(count>0) {
 			// at least one factory has been built
 			welt->get_viewport()->change_world_position( build_pos );
-			player_t::book_construction_costs(player, anzahl * welt->get_settings().cst_multiply_found_industry, build_pos.get_2d(), ignore_wt);
+			player_t::book_construction_costs(player, count * welt->get_settings().cst_multiply_found_industry, build_pos.get_2d(), ignore_wt);
 
 			// crossconnect all?
 			if(welt->get_settings().is_crossconnect_factories()) 
@@ -6511,8 +6512,8 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 	}
 
 	pos = gr->get_pos();
-	int anzahl = factory_builder_t::build_link(NULL, fab, initial_prod, 0, &pos, welt->get_public_player(), 10000 );
-	if(anzahl>0) {
+	int count = factory_builder_t::build_link(NULL, fab, initial_prod, 0, &pos, welt->get_public_player(), 10000, false);
+	if(count>0) {
 		// at least one factory has been built
 		welt->get_viewport()->change_world_position( pos );
 
@@ -6525,7 +6526,7 @@ const char *tool_city_chain_t::work( player_t *player, koord3d pos )
 			}
 		}
 		// ain't going to be cheap
-		player_t::book_construction_costs(player, anzahl * welt->get_settings().cst_multiply_found_industry, pos.get_2d(), ignore_wt);
+		player_t::book_construction_costs(player, count * welt->get_settings().cst_multiply_found_industry, pos.get_2d(), ignore_wt);
 		return NULL;
 	}
 	return NOTICE_UNSUITABLE_GROUND;
@@ -6579,7 +6580,7 @@ const char *tool_build_factory_t::work( player_t *player, koord3d pos )
 	koord size = fab->get_building()->get_size(rotation);
 
 	// process ignore climates switch
-	climate_bits cl = (default_param  &&  default_param[0]=='1') ? ALL_CLIMATES : fab->get_building()->get_allowed_climate_bits();
+	climate_bits cl = (default_param  &&  default_param[0] == '1') ? ALL_CLIMATES : fab->get_building()->get_allowed_climate_bits();
 
 	bool hat_platz = false;
 	if(fab->get_placement()==factory_desc_t::Water) 
@@ -7910,6 +7911,7 @@ static bool scenario_check_schedule(karte_t *welt, player_t *player, schedule_t 
  * 'T' : toggle 'retire'
  * 's' : change state to [number] (and maybe set open schedule flag)
  * 'l' : apply new line [number]
+ * 'c' : reassign classes
  */
 bool tool_change_convoi_t::init( player_t *player )
 {
@@ -7950,185 +7952,232 @@ bool tool_change_convoi_t::init( player_t *player )
 	}
 
 	// first letter is now the actual command
-	switch(  tool  ) {
-		case 'x': // self destruction ...
-			if(cnv.is_bound()) {
-				if (cnv->get_state()==convoi_t::INITIAL) {
-					// delete cnv in depot
-					if (grund_t *gr = welt->lookup(cnv->get_pos())) {
-						if (depot_t *dep = gr->get_depot()) {
-							dep->disassemble_convoi(cnv, true);
-							return false;
-						}
-					}
-				}
-				cnv->self_destruct();
-			}
-			return false;
-
-		case 'f': // open schedule
-			{
-				// we open the window only when executed on the same client that triggered the tool
-				// but the all clients must call the function anyway
-				cnv->open_schedule_window( is_local_execution() );
-			}
-			break;
-
-		case 'g': // change schedule
-			{
-				schedule_t *schedule = cnv->create_schedule()->copy();
-				schedule->finish_editing();
-				if (schedule->sscanf_schedule( p )  &&  scenario_check_schedule(welt, player, schedule, is_local_execution())) {
-					cnv->set_schedule( schedule );
-				}
-				else {
-					// could not read schedule, do not assign
-					delete schedule;
-				}
-			}
-			break;
-
-		case 'l': // change line
-			{
-				// read out id and new current_stop index
-				uint16 id=0, current_stop=0;
-				int count=sscanf( p, "%hi,%hi", &id, &current_stop );
-				linehandle_t l;
-				l.set_id( id );
-				if(  l.is_bound()  ) {
-					// sanity check for right line-type (compare schedule types ..)
-					schedule_t *schedule = cnv->create_schedule();
-					if(  schedule  &&  l->get_schedule()  &&  schedule->get_type()!=l->get_schedule()->get_type()  ) {
-						dbg->warning("tool_change_convoi_t::init", "types of convoi and line do not match");
+	switch (tool) {
+	case 'x': // self destruction ...
+		if (cnv.is_bound()) {
+			if (cnv->get_state() == convoi_t::INITIAL) {
+				// delete cnv in depot
+				if (grund_t *gr = welt->lookup(cnv->get_pos())) {
+					if (depot_t *dep = gr->get_depot()) {
+						dep->disassemble_convoi(cnv, true);
 						return false;
 					}
-					if(  count==1 ) {
-						// current_stop was not supplied -> take it from line schedule
-						current_stop = l->get_schedule()->get_current_stop();
-					}
-					cnv->set_line( l );
-					cnv->get_schedule()->set_current_stop((uint8)current_stop);
-					cnv->get_schedule()->finish_editing();
 				}
 			}
-			break;
-
-		case 'n': // change no_load
-			cnv->set_no_load( !cnv->get_no_load() );
-			if(  !cnv->get_no_load()  ) {
-				cnv->set_withdraw( false );
-			}
-			break;
-
-			case 'C': // Copy a replace datum
-			{
-				uint16 cnv_rpl_id;
-				sscanf(p, "%hi", &cnv_rpl_id);
-				convoihandle_t cnv_rpl;
-				cnv_rpl.set_id( cnv_rpl_id );
-				if(cnv_rpl.is_bound() && cnv_rpl->get_replace())
-				{
-					cnv->set_replace(cnv_rpl->get_replace());
-					cnv->set_depot_when_empty(cnv->get_replace()->get_autostart());
-					cnv->set_no_load(cnv->get_depot_when_empty());
-					// If already empty, no need to be emptied
-					if(cnv->get_replace() && cnv->get_depot_when_empty() && cnv->has_no_cargo()) 
-					{
-						cnv->set_depot_when_empty(false);
-						cnv->set_no_load(false);
-						cnv->go_to_depot(false);
-					}
-					break;	
-				}
-				// Else fallthrough
-			}
-		
-		case 'R': // Add new replace
-		{
-			replace_data_t* rpl = new replace_data_t();
-			if(rpl->sscanf_replace(p))
-			{
-				// If the above method returns false, the replace creating has not worked,
-				// possibly because the data are corrupted. The replace ought not be set
-				// in this case.
-
-				cnv->set_replace(rpl);
-				cnv->set_depot_when_empty(rpl->get_autostart());
-				cnv->set_no_load(cnv->get_depot_when_empty());
-				// If already empty, no need to be emptied
-				if(cnv->get_replace() && cnv->get_depot_when_empty() && cnv->has_no_cargo()) 
-				{
-					cnv->set_depot_when_empty(false);
-					cnv->set_no_load(false);
-					cnv->go_to_depot(false, rpl->get_use_home_depot());
-				}
-				break;
-			}
+			cnv->self_destruct();
 		}
+		return false;
 
-		case 'P': // Go to depot
-		{
-			cnv->go_to_depot(true);
-			break;
+	case 'f': // open schedule
+	{
+		// we open the window only when executed on the same client that triggered the tool
+		// but the all clients must call the function anyway
+		cnv->open_schedule_window(is_local_execution());
+	}
+	break;
+
+	case 'g': // change schedule
+	{
+		schedule_t *schedule = cnv->create_schedule()->copy();
+		schedule->finish_editing();
+		if (schedule->sscanf_schedule(p) && scenario_check_schedule(welt, player, schedule, is_local_execution())) {
+			cnv->set_schedule(schedule);
 		}
-
-		case 'V': // Reverse button
-		{
-			const bool rs = cnv->get_reverse_schedule();
-			cnv->set_reverse_schedule(!rs);
-			break;
+		else {
+			// could not read schedule, do not assign
+			delete schedule;
 		}
+	}
+	break;
 
-		case 'D': // Used for when "depot" is set in the replace frame
-			{
-				cnv->set_depot_when_empty(true);
-				cnv->set_no_load(true);
-			}
-			break;	
-
-		case 'T': // change retire
-			if(  player!=welt->get_active_player()  &&  !env_t::networkmode  ) {
-				// pop up error message here!
+	case 'l': // change line
+	{
+		// read out id and new current_stop index
+		uint16 id = 0, current_stop = 0;
+		int count = sscanf(p, "%hi,%hi", &id, &current_stop);
+		linehandle_t l;
+		l.set_id(id);
+		if (l.is_bound()) {
+			// sanity check for right line-type (compare schedule types ..)
+			schedule_t *schedule = cnv->create_schedule();
+			if (schedule  &&  l->get_schedule() && schedule->get_type() != l->get_schedule()->get_type()) {
+				dbg->warning("tool_change_convoi_t::init", "types of convoi and line do not match");
 				return false;
 			}
-			cnv->set_depot_when_empty(!cnv->get_depot_when_empty());
-			cnv->set_no_load(cnv->get_depot_when_empty());
-			cnv->set_replace(NULL);
-			break;
-
-		case 'X': // Clear replace
-			if(cnv->get_replace())
-			{
-				cnv->get_replace()->clear_all();
-				// This convoy might already have been sent to a depot. This will need to be undone.
-				schedule_t* sch = cnv->get_schedule();
-				const schedule_entry_t le = sch->get_current_eintrag();
-				const grund_t* gr = welt->lookup(le.pos);
-				if(gr && gr->get_depot())
-				{
-					sch->remove();
-					cnv->set_state(2);
-				}
+			if (count == 1) {
+				// current_stop was not supplied -> take it from line schedule
+				current_stop = l->get_schedule()->get_current_stop();
 			}
-			break;
+			cnv->set_line(l);
+			cnv->get_schedule()->set_current_stop((uint8)current_stop);
+			cnv->get_schedule()->finish_editing();
+		}
+	}
+	break;
 
-		case 'w': // change withdraw
-			cnv->set_withdraw( !cnv->get_withdraw() );
-			cnv->set_no_load( cnv->get_withdraw() );
-			cnv->set_replace(NULL);
-			break;
+	case 'n': // change no_load
+		cnv->set_no_load(!cnv->get_no_load());
+		if (!cnv->get_no_load()) {
+			cnv->set_withdraw(false);
+		}
+		break;
 
-		case 's': // change state
+	case 'C': // Copy a replace datum
+	{
+		uint16 cnv_rpl_id;
+		sscanf(p, "%hi", &cnv_rpl_id);
+		convoihandle_t cnv_rpl;
+		cnv_rpl.set_id(cnv_rpl_id);
+		if (cnv_rpl.is_bound() && cnv_rpl->get_replace())
 		{
-			int new_state = atoi(p);
-			if(  new_state>0  ) {
-				cnv->set_state( new_state );
-				if(  new_state==convoi_t::EDIT_SCHEDULE  ) {
-					cnv->get_schedule()->start_editing();
-				}
+			cnv->set_replace(cnv_rpl->get_replace());
+			cnv->set_depot_when_empty(cnv->get_replace()->get_autostart());
+			cnv->set_no_load(cnv->get_depot_when_empty());
+			// If already empty, no need to be emptied
+			if (cnv->get_replace() && cnv->get_depot_when_empty() && cnv->has_no_cargo())
+			{
+				cnv->set_depot_when_empty(false);
+				cnv->set_no_load(false);
+				cnv->go_to_depot(false);
 			}
 			break;
 		}
+		// Else fallthrough
+	}
+
+	case 'R': // Add new replace
+	{
+		replace_data_t* rpl = new replace_data_t();
+		if (rpl->sscanf_replace(p))
+		{
+			// If the above method returns false, the replace creating has not worked,
+			// possibly because the data are corrupted. The replace ought not be set
+			// in this case.
+
+			cnv->set_replace(rpl);
+			cnv->set_depot_when_empty(rpl->get_autostart());
+			cnv->set_no_load(cnv->get_depot_when_empty());
+			// If already empty, no need to be emptied
+			if (cnv->get_replace() && cnv->get_depot_when_empty() && cnv->has_no_cargo())
+			{
+				cnv->set_depot_when_empty(false);
+				cnv->set_no_load(false);
+				cnv->go_to_depot(false, rpl->get_use_home_depot());
+			}
+			break;
+		}
+	}
+
+	case 'P': // Go to depot
+	{
+		cnv->go_to_depot(true);
+		break;
+	}
+
+	case 'V': // Reverse button
+	{
+		const bool rs = cnv->get_reverse_schedule();
+		cnv->set_reverse_schedule(!rs);
+		break;
+	}
+
+	case 'D': // Used for when "depot" is set in the replace frame
+	{
+		cnv->set_depot_when_empty(true);
+		cnv->set_no_load(true);
+	}
+	break;
+
+	case 'T': // change retire
+		if (player != welt->get_active_player() && !env_t::networkmode) {
+			// pop up error message here!
+			return false;
+		}
+		cnv->set_depot_when_empty(!cnv->get_depot_when_empty());
+		cnv->set_no_load(cnv->get_depot_when_empty());
+		cnv->set_replace(NULL);
+		break;
+
+	case 'X': // Clear replace
+		if (cnv->get_replace())
+		{
+			cnv->get_replace()->clear_all();
+			// This convoy might already have been sent to a depot. This will need to be undone.
+			schedule_t* sch = cnv->get_schedule();
+			const schedule_entry_t le = sch->get_current_eintrag();
+			const grund_t* gr = welt->lookup(le.pos);
+			if (gr && gr->get_depot())
+			{
+				sch->remove();
+				cnv->set_state(2);
+			}
+		}
+		break;
+
+	case 'w': // change withdraw
+		cnv->set_withdraw(!cnv->get_withdraw());
+		cnv->set_no_load(cnv->get_withdraw());
+		cnv->set_replace(NULL);
+		break;
+
+	case 's': // change state
+	{
+		int new_state = atoi(p);
+		if (new_state > 0) {
+			cnv->set_state(new_state);
+			if (new_state == convoi_t::EDIT_SCHEDULE) {
+				cnv->get_schedule()->start_editing();
+			}
+		}
+		break;
+	}
+	case 'c': // reassign class
+
+		uint8 compartment, new_class;
+		sint32 good_type; // 0 = Passenger, 1 = Mail, 2 = both
+		sscanf(p, "%hi,%hi,%i", &compartment, &new_class, &good_type);
+		//uint16 new_class = atoi(p);
+		if (good_type == 2)
+		{
+			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+			{
+				vehicle_t* v = cnv->get_vehicle(veh);
+				uint8 classes_amount = v->get_desc()->get_number_of_classes();
+				for (sint32 i = 0; i < classes_amount; i++)
+				{
+					v->set_class_reassignment(i, i);
+				}
+			}
+		}
+		else
+		{
+			for (uint8 veh = 0; veh < cnv->get_vehicle_count(); veh++)
+			{
+				vehicle_t* v = cnv->get_vehicle(veh);
+				uint8 classes_amount = v->get_desc()->get_number_of_classes();
+				if (good_type == 0 && v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
+				{
+					if (compartment <= classes_amount)
+					{
+						v->set_class_reassignment(compartment, new_class);
+					}
+				}
+				if (good_type == 1 && v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
+				{
+					if (compartment <= classes_amount)
+					{
+						v->set_class_reassignment(compartment, new_class);
+					}
+				}
+			}
+		}
+		cnv->calc_classes_carried();
+		linehandle_t line = cnv->get_line();
+		if(line.is_bound())
+		{
+			line->calc_classes_carried();
+		}
+		break;
 	}
 
 	if(  cnv->in_depot()  &&  (tool=='g'  ||  tool=='l')  ) {
@@ -8878,6 +8927,7 @@ bool tool_rename_t::init(player_t *player)
 				other->set_name(p);
 				return false;
 			}
+			break;
 		}
 
 		case 'f':

@@ -50,7 +50,7 @@ bundle_dist: bundle
 ifeq ($(BACKEND),sdl)
 	$(Q)cp -r "$(SDL_PPC)"             "$(PROGDIR)/$(PROG).app/Contents/Frameworks/SDL-ppc.framework"
 	$(Q)cp -r "$(SDL_i386)"            "$(PROGDIR)/$(PROG).app/Contents/Frameworks/SDL-i386.framework"
-	endif
+endif
 ifeq ($(BACKEND),sdl2)
 	$(Q)cp -r "$(SDL2_i386)"           "$(PROGDIR)/$(PROG).app/Contents/Frameworks/SDL2.framework"
 endif

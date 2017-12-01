@@ -144,7 +144,7 @@ void adverse_summary_t::add_vehicle(const vehicle_desc_t &b, bool is_leading)
 
 void freight_summary_t::add_vehicle(const vehicle_desc_t &b)
 {
-	const sint32 payload = b.get_capacity();
+	const sint32 payload = b.get_total_capacity();
 	if (payload > 0)
 	{
 		sint32 min_weight, max_weight;

@@ -457,6 +457,19 @@ fabrik_t* factory_builder_t::build_factory(koord3d* parent, const factory_desc_t
 	welt->add_fab(fab);
 	add_factory_to_fab_map(welt, fab);
 
+	// TODO: Consider adding road connexions here.
+
+	// We need to adjust the jobs/visitor demand based on the extent to which the range has altered base production.
+	// The relevant ratio is fab->prodbase : fab->get_desc()->get_productivity().
+
+	const uint32 percentage = (fab->get_base_production() * 100) / max(1, fab->get_desc()->get_productivity());
+	if (percentage > 100)
+	{
+		fab->get_building()->set_adjusted_jobs((fab->get_building()->get_adjusted_jobs() * percentage) / 100);
+		fab->get_building()->set_adjusted_visitor_demand((fab->get_building()->get_adjusted_visitor_demand() * percentage) / 100);
+		fab->get_building()->set_adjusted_mail_demand((fab->get_building()->get_adjusted_mail_demand() * percentage) / 100);
+	}
+
 	// Update local roads
 	fab->mark_connected_roads(false);
 
@@ -553,7 +566,7 @@ bool factory_builder_t::can_factory_tree_rotate( const factory_desc_t *desc )
  * is the maximum number of good types for which suppliers chains are built
  * (meaning there are no unfinished factory chains).
  */
-int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, player_t* player, int number_of_chains )
+int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, sint32 initial_prod_base, int rotate, koord3d* pos, player_t* player, int number_of_chains, bool ignore_climates)
 {
 	int n = 1;
 	int org_rotation = -1;
@@ -587,6 +600,8 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		// build consumer (factory) in town
 		stadt_t *city = welt->find_nearest_city(pos->get_2d());
 
+		climate_bits cl = ignore_climates ? ALL_CLIMATES : info->get_building()->get_allowed_climate_bits();
+
 		/* Three variants:
 		 * A:
 		 * A building site, preferably close to the town hall with a street next to it.
@@ -596,12 +611,12 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		 */
 		bool is_rotate=info->get_building()->get_all_layouts()>1  &&  size.x!=size.y  &&  info->get_building()->can_rotate();
 		// first try with standard orientation
-		koord k = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.x, size.y, info->get_building()->get_allowed_climate_bits());
+		koord k = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.x, size.y, cl);
 
 		// second try: rotated
 		koord k1 = koord::invalid;
 		if (is_rotate  &&  (k == koord::invalid  ||  simrand(256, " factory_builder_t::build_link")<128)) {
-			k1 = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.y, size.x, info->get_building()->get_allowed_climate_bits());
+			k1 = factory_place_with_road_finder(welt).find_place(city->get_pos(), size.y, size.x, cl);
 		}
 
 		rotate = simrand( info->get_building()->get_all_layouts(), " factory_builder_t::build_link" );
@@ -828,7 +843,7 @@ DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need 
 			INT_CHECK("fabrikbauer 697");
 
 	DBG_MESSAGE("factory_builder_t::build_link","Try to built supplier %s at (%i,%i) r=%i for %s.",producer_d->get_name(),k.x,k.y,rotate,info->get_name());
-			n += build_link(&parent_pos, producer_d, -1 /*random prodbase */, rotate, &k, player, 10000 );
+			n += build_link(&parent_pos, producer_d, -1 /*random prodbase */, rotate, &k, player, 10000, ignore_climates);
 			lfound ++;
 
 			INT_CHECK( "fabrikbauer 702" );
@@ -1142,7 +1157,7 @@ next_ware_check:
 				}
 				if(welt->lookup(pos)) {
 					// Space found...
-					nr += build_link(NULL, fab, -1 /* random prodbase */, rotation, &pos, welt->get_public_player(), 1 );
+					nr += build_link(NULL, fab, -1 /* random prodbase */, rotation, &pos, welt->get_public_player(), 1, ignore_climates);
 					if(nr>0) {
 						fabrik_t *our_fab = fabrik_t::get_fab( pos.get_2d() );
 						reliefkarte_t::get_karte()->calc_map_size();

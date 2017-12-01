@@ -289,7 +289,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->allow_underground = decode_uint8(p);
 		if(extended)
 		{
-			if(extended_version > 3)
+			if(extended_version > 4)
 			{
 				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Extended, number %i", extended_version );
 			}
@@ -301,6 +301,34 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			{
 				desc->radius = decode_uint32(p);
 			}
+			if (extended_version >= 4)
+			{
+				uint8 number_of_classes = decode_uint8(p);
+				uint16 last_class_proportion = 0;
+				for (uint8 i = 0; i < number_of_classes; i++)
+				{
+					// Add the figures here for easier random access later
+					const uint16 class_proportion = decode_uint16(p);
+					desc->class_proportions.append(class_proportion + last_class_proportion);
+					last_class_proportion += class_proportion;
+				}
+				desc->class_proportions_sum = last_class_proportion;
+
+				uint8 number_of_classes_jobs = decode_uint8(p);
+				uint16 last_class_proportion_jobs = 0;
+				for (uint8 i = 0; i < number_of_classes_jobs; i++)
+				{
+					// Add the figures here for easier random access later
+					const uint16 class_proportion_jobs = decode_uint16(p);
+					desc->class_proportions_jobs.append(class_proportion_jobs + last_class_proportion_jobs);
+					last_class_proportion_jobs += class_proportion_jobs;
+				}
+				desc->class_proportions_sum_jobs = last_class_proportion_jobs;
+			}
+			else
+			{
+				desc->class_proportions_sum = 0;
+			}
 		}
 		else
 		{
@@ -309,6 +337,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->population_and_visitor_demand_capacity = 65535;
 			desc->employment_capacity = 65535;
 			desc->mail_demand_and_production_capacity = 65535;
+			desc->class_proportions_sum = 0;
 		}
 	}
 	else if(version == 7)
@@ -409,6 +438,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->price = decode_sint32(p);
 				desc->is_control_tower = 0;
 				desc->allow_underground = desc->type == building_desc_t::generic_stop ? 2 : 0; 
+				desc->class_proportions_sum = 0;
 			}
 		}
 	}
@@ -551,6 +581,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->allow_underground = desc->type == building_desc_t::generic_stop ? 2 : 0; 
 		}
 		desc->is_control_tower = 0;
+		desc->class_proportions_sum = 0;
 	}
 
 	if(!extended || extended_version < 1)

@@ -621,11 +621,13 @@ void grund_t::info(cbuffer_t& buf, bool dummy) const
 		}
 	}
 	buf.append("\n\n");
+	bool has_way = false;
 	if(!is_water()) {
 		if(flags&has_way1) {
 			buf.append(translator::translate(get_weg_nr(0)->get_name()));
 			buf.append("\n");
 			obj_bei(0)->info(buf, ist_bruecke());
+			has_way = true;
 			if(flags&has_way2) {
 				buf.append(translator::translate(get_weg_nr(1)->get_name()));
 				buf.append("\n");
@@ -644,9 +646,49 @@ void grund_t::info(cbuffer_t& buf, bool dummy) const
 
 	buf.printf("%s\n%s", translator::translate(get_name()), translator::translate(ground_desc_t::get_climate_name_from_bit(welt->get_climate(get_pos().get_2d()))) );
 	buf.append("\n\n");
-	char price[64];
-	money_to_string(price, abs(welt->get_land_value(pos)));
-	buf.printf("%s: %s\n", translator::translate("Land value"), price);
+	if (!is_water())
+	{
+		char price[64];
+		money_to_string(price, abs(welt->get_land_value(pos)));
+		buf.printf("%s: %s\n", translator::translate("Land value"), price);
+		if (!has_way || (flags&has_way1 && get_weg_nr(0)->is_degraded()) || (flags&has_way2 && get_weg_nr(1)->is_degraded()))
+		{
+			buf.printf("\n%s:\n", translator::translate("forge_costs"));
+			for (int i = 0; i < waytype_t::any_wt; i++)
+			{
+				char waytype_name[32] = "\0";
+				switch (waytype_t(i))
+				{
+				case tram_wt:	sprintf(waytype_name, "cap_tram_track"); break;
+				case track_wt:	sprintf(waytype_name, "cap_track"); break;
+				case monorail_wt: sprintf(waytype_name, "cap_monorail_track"); break;
+				case maglev_wt: sprintf(waytype_name, "cap_maglev_track"); break;
+				case narrowgauge_wt: sprintf(waytype_name, "cap_narrowgauge_track"); break;
+				case road_wt:	sprintf(waytype_name, "cap_road"); break;
+				case water_wt:	sprintf(waytype_name, "cap_water_canal"); break;
+				case air_wt:	sprintf(waytype_name, "cap_taxiway/runway"); break;
+				}
+
+				if (waytype_name[1] != '\0')
+				{
+					if (welt->get_forge_cost(waytype_t(i), pos) < 1000)
+					{
+						buf.append("  "); // To make the simucent signs position below each other
+					}
+					money_to_string(price, welt->get_forge_cost(waytype_t(i), pos));
+					buf.printf("  %s - %s\n",price, translator::translate(waytype_name));
+					if (welt->get_forge_cost(waytype_t(i), pos) == 0)
+					{
+						buf.printf("       %s\n", translator::translate("already_forged"));
+					}
+					else if (welt->is_forge_cost_reduced(waytype_t(i), pos))
+					{
+						buf.printf("       %s\n", translator::translate("partly_forged"));
+					}
+				}
+			}
+		}
+	}
 #if MSG_LEVEL >= 4
 	buf.printf("\nflags $%0X", flags );
 	buf.printf("\n\npos: (%s)",pos.get_str());
@@ -1782,6 +1824,7 @@ sint64 grund_t::remove_trees()
 	}
 	return cost;
 }
+
 
 
 sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player, koord3d_vector_t *route)

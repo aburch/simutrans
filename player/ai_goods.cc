@@ -863,7 +863,7 @@ void ai_goods_t::step()
 
 			// guess the "optimum" speed (usually a little too low)
 			sint32 best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->get_speed_bonus()*5, 140 );
-			sint32 best_road_speed = min(60+freight->get_adjusted_speed_bonus(distance_meters)*5, 130 );
+			sint32 best_road_speed = min(60+freight->get_adjusted_speed_bonus(distance_meters)*5, 130 ); //TODO: Consider what to do about this once the speed bonus is removed. The AI is largely deprecated in any event, so a hard coded number may suffice.
 
 			INT_CHECK("simplay 1265");
 
@@ -910,10 +910,10 @@ DBG_MESSAGE("do_ki()","check railway");
 				// if our car is faster: well use slower speed to save money
 				best_rail_speed = min(51, rail_vehicle->get_topspeed());
 				//for engine: guess number of cars
-				count_rail = (prod*dist) / (rail_vehicle->get_capacity()*best_rail_speed)+1;
+				count_rail = (prod*dist) / (rail_vehicle->get_total_capacity()*best_rail_speed)+1;
 				// assume the engine weight 100 tons for power needed calculation
-				int total_weight = count_rail*( rail_vehicle->get_capacity()*freight->get_weight_per_unit() + rail_vehicle->get_weight() );
-//				sint32 power_needed = (long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->get_weight()+rail_vehicle->get_capacity()*freight->get_weight_per_unit()*0.001)));
+				int total_weight = count_rail*( rail_vehicle->get_total_capacity()*freight->get_weight_per_unit() + rail_vehicle->get_weight() );
+//				sint32 power_needed = (long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->get_weight()+rail_vehicle->get_total_capacity()*freight->get_weight_per_unit()*0.001)));
 				rail_engine = vehicle_search( track_wt, total_weight/1000, best_rail_speed, NULL, wayobj_t::default_oberleitung!=NULL);
 				if(  rail_engine!=NULL  ) {
 					best_rail_speed = min(rail_engine->get_topspeed(),rail_vehicle->get_topspeed());
@@ -924,7 +924,7 @@ DBG_MESSAGE("do_ki()","check railway");
 							best_rail_speed = rail_weg->get_topspeed();
 						}
 						// no train can have more than 15 cars
-						count_rail = min( 22, (3*prod*dist) / (rail_vehicle->get_capacity()*best_rail_speed*2) );
+						count_rail = min( 22, (3*prod*dist) / (rail_vehicle->get_total_capacity()*best_rail_speed*2) );
 						// if engine too week, reduce number of cars
 						if(  count_rail*80*64>(int)(rail_engine->get_power()*rail_engine->get_gear())  ) {
 							count_rail = rail_engine->get_power()*rail_engine->get_gear()/(80*64);
@@ -955,7 +955,7 @@ DBG_MESSAGE("do_ki()","check railway");
 						best_road_speed = road_weg->get_topspeed();
 					}
 					// minimum vehicle is 1, maximum vehicle is 48, more just result in congestion
-					count_road = min( 254, (prod*dist) / (road_vehicle->get_capacity()*best_road_speed*2)+2 );
+					count_road = min( 254, (prod*dist) / (road_vehicle->get_total_capacity()*best_road_speed*2)+2 );
 DBG_MESSAGE("ai_goods_t::do_ki()","guess to need %d road cars %s for route %s", count_road, road_vehicle->get_name(), road_weg->get_name() );
 				}
 				else {
@@ -978,11 +978,11 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				// calculated here, since the above number was based on production
 				// only uneven number of cars bigger than 3 makes sense ...
 				count_rail = max( 3, count_rail );
-				const uint32 ref_speed = welt->get_average_speed(track_wt);
+
 				// Guess that average speed is half of "best" speed
 				const uint32 average_speed = best_rail_speed / 2;
-				const sint64 relative_speed_percentage = (100ll * average_speed) / ref_speed - 100ll;
-				const sint64 freight_revenue_per_trip = freight->get_fare_with_speedbonus(relative_speed_percentage, distance_meters) * rail_vehicle->get_capacity() * count_rail / 3000;
+
+				const sint64 freight_revenue_per_trip = freight->get_total_fare(distance_meters) * rail_vehicle->get_capacity() * count_rail / 3000;
 				const sint64 freight_cost_per_trip
 				  = ( (sint64) rail_vehicle->get_running_cost(welt) * count_rail
 					  + rail_engine->get_running_cost(welt)
@@ -1000,11 +1000,11 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				// for short distance: reduce number of cars
 				// calculated here, since the above number was based on production
 				count_road = CLIP( (sint32)(dist*15)/best_road_speed, 2, count_road );
-				const uint32 ref_speed = welt->get_average_speed(road_wt);
+;
 				// Guess that average speed is half of "best" speed
 				const uint32 average_speed = best_road_speed / 2;
-				const sint64 relative_speed_percentage = (100ll * average_speed) / ref_speed - 100ll;
-				const sint64 freight_revenue_per_trip = freight->get_fare_with_speedbonus(relative_speed_percentage, distance_meters) * road_vehicle->get_capacity() * count_road / 3000;
+
+				const sint64 freight_revenue_per_trip = freight->get_total_fare(distance_meters) * road_vehicle->get_capacity() * count_road / 3000;
 				const sint64 freight_cost_per_trip
 				  = ( (sint64) road_vehicle->get_running_cost(welt) * count_road
 				    )

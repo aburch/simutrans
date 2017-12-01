@@ -1,6 +1,7 @@
 #include "goods_desc.h"
 #include "../simworld.h"
 #include "../dataobj/settings.h"
+#include "../bauer/goods_manager.h"
 
 static const char * catg_names[32] = {
   "special freight",
@@ -77,7 +78,7 @@ void goods_desc_t::set_scale(uint16 scale_factor)
  * This method returns the *total* fare for these
  * goods over the given distance, in *meters*.
  *
- * This is the base fare, not adjusted for speedbonus...
+ * This is the base fare, not adjusted.
  * This returns values in units of 1/4096 of a simcent
  *
  * In extreme cases this may return values as high as:
@@ -116,130 +117,83 @@ sint64 goods_desc_t::get_base_fare(uint32 distance_meters, uint32 starting_dista
 	return total_fare;
 }
 
-/*
- * Speed bonus handling
- *
- * The world has a reference speed.
- * The packet of goods will be paid for based on a certain "revenue speed".
- * (As of June 2013 this is the line's average speed for the trip.  It would
- * be much simpler if it were the actual speed of the trip.)
- * The revenue speed divided by the reference speed gives a ratio.
- * Subtract 1 from that ratio;
- * then multiply by 100 to get the "relative speed percentage" for speed.
- * So if the speed is 10% faster than reference speed, the "relative speed percentage" is 10;
- * if it is 10% slower, the "relative speed percentage" is -10.
- *
- * The "speed bonus rating" is actually a factor, and a very funny one.
- * If it is 1, then for every 1% improvement in speed, the revenue goes up by 0.1%.
- * If it is 2, then for every 1% improvement in speed, the revenue goes up by 0.2%.
- * If it is 10, then for every 1% improvement in speed, the revenue goes up by 1.0%.
- *
- * So when we multiply the speed percentage by the speed bonus rating we get a per 1000 number.
- * This should be altered for future fast computation.
- *
- * OK.  Now consider the base fare.
- * The maximum fare is 4 times the base fare...
- * The minimum fare is 1/4 the base fare...
- * The standard fare is super freaking complicated for no good reason...
- * Roughly speaking, it is
- * standard_fare = base_fare * (1 + relative_speed_percentage * speed_bonus_rating)
- * where speed_bonus_rating is the official speed bonus "percentage", usually a one or
- * two digit number.
- *
-*/
-
-/**
- * This variant of get_fare gives the revenue *with* the speedbonus adjustment.
- * This does not take comfort and catering/TPO revenue into account.
- *
- * This returns values in units of 1/4096 of a simcent
- *
- * This must take the *relative speed percentage* as an argument.
- * See above for how this is defined; it is always a percent, with no greater
- * precision than that.  (Consider changing this.)
- * It will stay in the range of a sint16 unless the pak is completely broken.
- */
-sint64 goods_desc_t::get_fare_with_speedbonus(sint16 relative_speed_percentage, uint32 distance_meters, uint32 starting_distance) const
+sint64 goods_desc_t::get_total_fare(uint32 distance_meters, uint32 starting_distance, uint8 comfort, uint8 catering_level, uint8 g_class, sint64 journey_tenths) const
 {
-	sint64 base_fare = get_base_fare(distance_meters, starting_distance);
-		// We must be able to multiply by, say, 2^16;
-		// otherwise we may overflow computation computing the standard fare.
-		// Note that we may be getting a number as large as 2^48, so this is a real risk.
-		// It would require an unusually unbalanced pakset, however.
-		// Fares are usually orders of magnitude smaller than this.
-	assert (base_fare <= 0x00008FFFFFFFFFFFll );
-		// If the assertion fails, we can't safely multiply by 2^16.
-	sint64 min_fare = base_fare / 4ll; // minimum fare is 1/4 base
-	sint64 max_fare = base_fare * 4ll; // maximum fare is 4 * base
-	sint64 speed_bonus_rating = get_adjusted_speed_bonus(distance_meters);
-	// Recall the screwy definition of the speed_bonus_rating from above.
-	// Given a percentage of 1 and a speed bonus rating of 1, we increase revenue by 1/1000.
-	// Percentage may be as high as 1000, bonus rating as high as 50...
-	//
-	// Consider altering the definition to divide by 1024.  It reduces revenue *slightly*
-	// but not very much -- neroden
-	sint64 bonus_per_mill = (sint64)relative_speed_percentage * speed_bonus_rating;
-	sint64 standard_fare = base_fare + base_fare * bonus_per_mill / 1000ll;
-	sint64 actual_fare = min( max_fare, max(min_fare, standard_fare) );
-	return actual_fare;
-}
-
-/**
- * This is the even more complex version used for passenger and mail revenue, which
- * takes comfort and catering into account.
- *
- * It has to take the world as an argument for dumb reasons.
- */
-sint64 goods_desc_t::get_fare_with_comfort_catering_speedbonus(karte_t* world,
-				uint8 comfort, uint8 catering_level, sint64 journey_tenths,
-				sint16 relative_speed_percentage, uint32 distance_meters, uint32 starting_distance) const
-{
-	sint64 fare = get_fare_with_speedbonus(relative_speed_percentage, distance_meters, starting_distance);
-
-	if (fare <= 0) {
-		// Quick escape and sanity check
-		return 0;
-	}
-
-	if ( get_index() == goods_manager_t::INDEX_PAS ) {
-		/*
-		 * Passengers: apply luxury bonus or discomfort penalty
-		 */
-
-		// Grab the tolerable comfort from the settings table
-		const sint16 tolerable_comfort = world->get_settings().tolerable_comfort(journey_tenths);
-		// See how far off we are
-		const sint16 comfort_diff = (sint16)comfort - tolerable_comfort;
-		// This gets the "full" percentage bonus or penalty -- it may be negative!
-		const sint64 multiplier = world->get_settings().base_comfort_revenue(comfort_diff);
-
-		// Comfort has less of an effect for shorter trips.  This gets the derating factor
-		// as a percentage (2 digits)
-		const sint64 comfort_modifier = world->get_settings().comfort_derating(journey_tenths);
-
-		// Combine the derating factor with the full percentage to get...
-		const sint64 comfort_fare = (fare * multiplier * comfort_modifier) / 10000ll;
-
-		// Always receive minimum of 95% of fare even with discomfort penalty
-		fare = max(fare + comfort_fare, fare * 19 / 20 );
-
-		if (catering_level > 0) {
-			/*
-			 * We have catering.  Apply catering revenue.
-			 */
-			assert (catering_level <= 5);
-			// Use the catering revenues table for this catering level. It is a functional.
-			fare += world->get_settings().catering_revenues[catering_level](journey_tenths);
+	sint64 fare = get_base_fare(distance_meters, starting_distance); 
+	
+	// Apply the modifiers for passengers/mail: class, comfort and catering
+	if (get_index() == goods_manager_t::INDEX_PAS || get_index() == goods_manager_t::INDEX_MAIL)
+	{
+		if (fare <= 0)
+		{
+			// Quick escape and sanity check
+			return 0;
 		}
-	} else if ( get_index() == goods_manager_t::INDEX_MAIL ) {
-		if (catering_level > 0) {
+
+		// First, class modifications.
+		fare *= (sint64)class_revenue_percentages[g_class];
+		fare /= 100ll;
+
+		// Now, the comfort modifiers
+		if (get_index() == goods_manager_t::INDEX_PAS)
+		{
 			/*
-			 * It's a TPO.  Apply TPO revenue.
-			 */
-			// Use the TPO revenue table.  It is a functional.
-			fare += world->get_settings().tpo_revenues(journey_tenths);
+			* Passengers: apply luxury bonus or discomfort penalty
+			*/
+
+			// Grab the tolerable comfort from the settings table
+			const sint16 tolerable_comfort = world()->get_settings().tolerable_comfort(journey_tenths);
+			// See how far off we are
+			const sint16 comfort_diff = (sint16)comfort - tolerable_comfort;
+			// This gets the "full" percentage bonus or penalty -- it may be negative!
+			const sint64 multiplier = world()->get_settings().base_comfort_revenue(comfort_diff);
+
+			// Comfort has less of an effect for shorter trips.  This gets the derating factor
+			// as a percentage (2 digits)
+			const sint64 comfort_modifier = world()->get_settings().comfort_derating(journey_tenths);
+
+			// Combine the derating factor with the full percentage to get...
+			const sint64 comfort_fare = (fare * multiplier * comfort_modifier) / 10000ll;
+
+			// Always receive minimum of 95% of fare even with discomfort penalty
+			fare = max(fare + comfort_fare, fare * 19 / 20);
+
+			if (catering_level > 0) 
+			{
+				/*
+				* We have catering.  Apply catering revenue.
+				*/
+				assert(catering_level <= 5);
+
+				// Passengers can only afford to pay for catering at their class level. +1 because 0 means no catering at all. 
+				// The maximum catering spend is *also* limited by maximum journey time (which is dealt with below).
+				// Note that this uses the accommodation class for the passengers rather than the inherent class. This is
+				// because it is assumed that higher level catering is simply not available in lower levels of accommodation.
+				catering_level = min(g_class + 1, catering_level);
+
+				// Use the catering revenues table for this catering level. It is a functional.
+				fare += world()->get_settings().catering_revenues[catering_level](journey_tenths);
+			}
+		}
+
+		else if (get_index() == goods_manager_t::INDEX_MAIL) 
+		{
+			if (catering_level > 0)
+			{
+				/*
+				* It's a TPO.  Apply TPO revenue.
+				*/
+
+				// TODO: Consider how to deal with TPO revenue in the future.
+
+				// Use the TPO revenue table.  It is a functional.
+				fare += world()->get_settings().tpo_revenues(journey_tenths);
+			}
 		}
 	}
+	
+	// TODO: Add inflation here
+
 	return fare;
 }
 
@@ -252,8 +206,8 @@ sint64 goods_desc_t::get_fare_with_comfort_catering_speedbonus(karte_t* world,
  * We also don't know the actual speed of travel for the previous trip, or
  * even the waytype used (so, no average speed either).
  *
- * The approximation is chosen to be 2x the base fare ("no speedbonus") for the minimum distance.
- * This is in the same units as get_fare_with_speedbonus.
+ * The approximation is chosen to be 2x the base fare for the minimum distance.
+ * This is in the same units as get_total_fare
  */
 sint64 goods_desc_t::get_refund(uint32 distance_meters) const
 {

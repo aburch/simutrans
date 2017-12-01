@@ -1119,7 +1119,7 @@ void stadt_t::update_city_stats_with_building(gebaeude_t* building, bool remove)
 		city_history_year[0][HIST_VISITOR_DEMAND]  -= building->get_adjusted_visitor_demand();
 	}
 	else
-	{		
+	{
 		city_history_month[0][HIST_CITICENS] += building->get_adjusted_population();
 		city_history_year[0][HIST_CITICENS]  += building->get_adjusted_population();
 
@@ -1905,6 +1905,19 @@ void stadt_t::rdwr(loadsave_t* file)
 		file->rdwr_long(stadtinfo_options);
 	}
 
+	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 26)
+	{
+		// This load/save block used to be further down, but has been mvoed here
+		// because it is necessary to load outgoing_private_cars before the city
+		// growth factors.
+
+		file->rdwr_bool(check_road_connexions);
+
+		// Existing values now saved in order to prevent network desyncs
+		file->rdwr_long(outgoing_private_cars);
+		file->rdwr_long(incoming_private_cars);
+	}
+
 	if(file->is_loading())
 	{
 		// These will be set later when buildings are added.
@@ -1993,8 +2006,9 @@ void stadt_t::rdwr(loadsave_t* file)
 	//target_factories_pax.rdwr( file );
 	//target_factories_mail.rdwr( file );
 
-	if(file->get_extended_version() >=9 && file->get_version() >= 110000)
+	if(file->get_extended_version() >=9 && file->get_version() >= 110000 && file->get_extended_version() < 13 && file->get_extended_revision() < 26)
 	{
+		// This load/save block has been moved upwards because it is necessary to load outgoing_private_cars before setting the growth factors, which is done above.
 		file->rdwr_bool(check_road_connexions);
 		if(file->get_extended_version() < 11)
 		{
@@ -4340,7 +4354,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		}
 	}
 	// check for residence
-	// (sum_wohnung>sum_industrie  &&  sum_wohnung>sum_gewerbe
+	// (sum_residential > sum_industrial  &&  sum_residential > sum_commercial
 	if (  want_to_have == building_desc_t::unknown ) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == building_desc_t::city_res ? level + 1 : level);

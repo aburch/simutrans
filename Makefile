@@ -4,7 +4,7 @@ CFG ?= default
 
 BACKENDS      = allegro gdi opengl sdl sdl2 mixer_sdl posix
 COLOUR_DEPTHS = 0 16
-OSTYPES       = amiga beos cygwin freebsd haiku linux mingw32 mingw64 mac
+OSTYPES       = amiga beos cygwin freebsd haiku linux mingw32 mingw64 mac openbsd
 
 ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
   $(error Unkown BACKEND "$(BACKEND)", must be one of "$(BACKENDS)")
@@ -75,9 +75,13 @@ else
   SOURCES += clipboard_internal.cc
 endif
 
+ifeq ($(OSTYPE),openbsd)
+  CXXFLAGS +=  -std=c++11
+endif
+
 LIBS += -lbz2 -lz
 
- CFLAGS +=  -std=gnu++11
+CXXFLAGS +=  -std=gnu++11
 
 ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
@@ -175,6 +179,7 @@ SOURCES += descriptor/reader/ground_reader.cc
 SOURCES += descriptor/reader/groundobj_reader.cc
 SOURCES += descriptor/reader/image_reader.cc
 SOURCES += descriptor/reader/imagelist2d_reader.cc
+SOURCES += descriptor/reader/imagelist3d_reader.cc
 SOURCES += descriptor/reader/imagelist_reader.cc
 SOURCES += descriptor/reader/obj_reader.cc
 SOURCES += descriptor/reader/pedestrian_reader.cc
@@ -346,6 +351,7 @@ SOURCES += gui/station_building_select.cc
 SOURCES += gui/themeselector.cc
 SOURCES += gui/obj_info.cc
 SOURCES += gui/trafficlight_info.cc
+SOURCES += gui/vehicle_class_manager.cc
 SOURCES += gui/welt.cc
 SOURCES += gui/tool_selector
 SOURCES += network/checksum.cc
@@ -628,7 +634,7 @@ ifeq ($(BACKEND),opengl)
     ifeq ($(OSTYPE),mingw32 mingw64)
       LIBS += -lglew32 -lopengl32
     else
-      LIBS += -lglew32 -lGL
+      LIBS += -lGLEW -lGL
     endif
   endif
 endif

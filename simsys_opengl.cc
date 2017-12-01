@@ -338,7 +338,7 @@ void inline pbo_unmap(){
 // no autoscaling yet
 bool dr_auto_scale(bool)
 {
-	+return false;
+	return false;
 }
 
 /*

@@ -81,6 +81,9 @@
 #include "simvehicle.h"
 #include "simroadtraffic.h"
 
+#include "../path_explorer.h"
+#include "../freight_list_sorter.h"
+
 
 /* get dx and dy from dir (just to remind you)
  * any vehicle (including city cars and pedestrians)
@@ -456,7 +459,7 @@ void vehicle_base_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 	// vehicles needs finer steps to appear smoother
 	sint32 display_steps = (uint32)adjusted_steps*(uint16)raster_width;
 
-	if(dx*dy) {
+	if(dx && dy) {
 		display_steps &= 0xFFFFFC00;
 	}
 	else {
@@ -777,8 +780,12 @@ void vehicle_t::rotate90()
 void vehicle_t::rotate90_freight_destinations(const sint16 y_size)
 {
 	// now rotate the freight
-	FOR(slist_tpl<ware_t>, & tmp, fracht) {
-		tmp.rotate90(y_size );
+	for (uint8 i = 0; i < number_of_classes; i++)
+	{
+		FOR(slist_tpl<ware_t>, &tmp, fracht[i])
+		{
+			tmp.rotate90(y_size);
+		}
 	}
 }
 
@@ -827,8 +834,12 @@ void vehicle_t::set_convoi(convoi_t *c)
 			}
 		}
 		// just correct freight destinations
-		FOR(slist_tpl<ware_t>, & c, fracht) {
-			c.finish_rd(welt);
+		for (uint8 i = 0; i < number_of_classes; i++)
+		{
+			FOR(slist_tpl<ware_t>, &c, fracht[i])
+			{
+				c.finish_rd(welt);
+			}
 		}
 	}
 }
@@ -842,7 +853,7 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 {
 	uint16 sum_menge = 0, sum_delivered = 0, index = 0;
 
-	revenue_from_unloading=0;
+	revenue_from_unloading = 0;
 
 	if(  !halt.is_bound()  ) {
 		return 0;
@@ -850,165 +861,166 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 
 	if(halt->is_enabled(get_cargo_type())) 
 	{
-		if (!fracht.empty())
+		for (uint8 j = 0; j < number_of_classes; j++)
 		{
-			for(  slist_tpl<ware_t>::iterator i = fracht.begin(), end = fracht.end();  i != end;  ) {
-				const ware_t& tmp = *i;
+			if (!fracht[j].empty())
+			{
+				for (slist_tpl<ware_t>::iterator i = fracht[j].begin(), end = fracht[j].end(); i != end; )
+				{
+					const ware_t& tmp = *i;
 
-				halthandle_t end_halt = tmp.get_ziel();
-				halthandle_t via_halt = tmp.get_zwischenziel();
-				
-				// check if destination or transfer is still valid
-				if(  !end_halt.is_bound() || !via_halt.is_bound()  ) {
-					DBG_MESSAGE("vehicle_t::unload_cargo()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.get_name()));
-					total_freight -= tmp.menge;
-					sum_weight -= tmp.menge * tmp.get_desc()->get_weight_per_unit();
-					i = fracht.erase( i );
-				}
-				else if(  end_halt == halt || via_halt == halt  ) {
+					halthandle_t end_halt = tmp.get_ziel();
+					halthandle_t via_halt = tmp.get_zwischenziel();
 
-					//		    printf("Liefere %d %s nach %s via %s an %s\n",
-					//                           tmp->menge,
-					//			   tmp->name(),
-					//			   end_halt->get_name(),
-					//			   via_halt->get_name(),
-					//			   halt->get_name());
-
-					// hier sollte nur ordentliche ware verabeitet werden
-					// "here only tidy commodity should be processed" (Babelfish)
-
-					if(halt != end_halt && welt->get_settings().is_avoid_overcrowding() && tmp.is_passenger() && !halt->is_within_walking_distance_of(via_halt) && halt->is_overcrowded(tmp.get_desc()->get_index()))
+					// check if destination or transfer is still valid
+					if (!end_halt.is_bound() || !via_halt.is_bound())
 					{
-						// The avoid_overcrowding setting is activated
-						// Halt overcrowded - discard passengers, and collect no revenue.
-						// Experimetal 7.2 - also calculate a refund.
-
-						if(tmp.get_origin().is_bound() && get_owner()->get_finance()->get_account_balance() > 0)
-						{
-							// Cannot refund unless we know the origin.
-							// Also, ought not to refund unless the player is solvent.
-							// Players ought not to be put out of business by refunds, as this makes gameplay too unpredictable,
-							// especially in online games, where joining one player's network to another might lead to a large
-							// influx of passengers which one of the networks cannot cope with.
-							const uint16 distance = shortest_distance(halt->get_basis_pos(), tmp.get_origin()->get_basis_pos());
-							const uint32 distance_meters = (uint32) distance * welt->get_settings().get_meters_per_tile();
-							// Refund is approximation.
-							const sint64 refund_amount = (tmp.menge * tmp.get_desc()->get_refund(distance_meters) + 2048ll) / 4096ll;
-
-							revenue_from_unloading -= refund_amount;
-
-							// Book refund to the convoi & line
-							// (the revenue accounting in simconvoi.cc will take care of the profit booking)
-							cnv->book(-refund_amount, convoi_t::CONVOI_REFUNDS);
-						}
-
-						// Add passengers to unhappy (due to overcrowding) passengers.
-						halt->add_pax_unhappy(tmp.menge);
-
+						DBG_MESSAGE("vehicle_t::unload_cargo()", "destination of %d %s is no longer reachable", tmp.menge, translator::translate(tmp.get_name()));
 						total_freight -= tmp.menge;
+						sum_weight -= tmp.menge * tmp.get_desc()->get_weight_per_unit();
+						i = fracht[j].erase(i);
 					}
-					else
+					else if (end_halt == halt || via_halt == halt)
 					{
-						assert(halt.is_bound());
-						const uint32 menge = tmp.menge;
-						halt->liefere_an(tmp); //"supply" (Babelfish)
-						sum_menge += menge;
-						index = tmp.get_index(); // Note that there is only one freight type per vehicle
-						total_freight -= tmp.menge;
-						cnv->invalidate_weight_summary();
+						// here, only ordinary goods should be processed
 
-						// Calculate the revenue for each packet.
-						// Also, add to the "apportioned revenues" for way tolls.
-						revenue_from_unloading += menge > 0 ? cnv->calc_revenue(tmp, apportioned_revenues) : 0;
-
-						// book delivered goods to destination
-						if(end_halt == halt)
+						if (halt != end_halt && welt->get_settings().is_avoid_overcrowding() && tmp.is_passenger() && !halt->is_within_walking_distance_of(via_halt) && halt->is_overcrowded(tmp.get_desc()->get_index()))
 						{
-							sum_delivered += menge;
-							if(tmp.is_passenger())
-							{
-								// New for Extended 7.2 - add happy passengers
-								// to the origin station and transported passengers/mail
-								// to the origin city only *after* they arrive at their
-								// destinations.
-								if(tmp.get_origin().is_bound())
-								{
-									// Check required because Simutrans-Standard saved games
-									// do not have origins. Also, the start halt might not
-									// be in (or be fully in) a city.
-									tmp.get_origin()->add_pax_happy(menge);
-									koord origin_pos = tmp.get_origin()->get_basis_pos();
-									stadt_t* origin_city = welt->get_city(origin_pos);
-									if(!origin_city)
-									{
-										// The origin stop is not within a city.
-										// If the stop is located outside the city, but the passengers
-										// come from a city, they will not record as transported.
-										origin_pos = tmp.get_origin()->get_init_pos();
-										origin_city = welt->get_city(origin_pos);
-									}
+							// The avoid_overcrowding setting is activated
+							// Halt overcrowded - discard passengers, and collect no revenue.
+							// Experimetal 7.2 - also calculate a refund.
 
-									if(!origin_city)
+							if (tmp.get_origin().is_bound() && get_owner()->get_finance()->get_account_balance() > 0)
+							{
+								// Cannot refund unless we know the origin.
+								// Also, ought not refund unless the player is solvent.
+								// Players ought not be put out of business by refunds, as this makes gameplay too unpredictable,
+								// especially in online games, where joining one player's network to another might lead to a large
+								// influx of passengers which one of the networks cannot cope with.
+								const uint16 distance = shortest_distance(halt->get_basis_pos(), tmp.get_origin()->get_basis_pos());
+								const uint32 distance_meters = (uint32)distance * welt->get_settings().get_meters_per_tile();
+								// Refund is approximation.
+								const sint64 refund_amount = (tmp.menge * tmp.get_desc()->get_refund(distance_meters) + 2048ll) / 4096ll;
+
+								revenue_from_unloading -= refund_amount;
+
+								// Book refund to the convoi & line
+								// (the revenue accounting in simconvoi.cc will take care of the profit booking)
+								cnv->book(-refund_amount, convoi_t::CONVOI_REFUNDS);
+							}
+
+							// Add passengers to unhappy (due to overcrowding) passengers.
+							halt->add_pax_unhappy(tmp.menge);
+
+							total_freight -= tmp.menge;
+						}
+						else
+						{
+							assert(halt.is_bound());
+	
+							const uint32 menge = tmp.menge;
+							halt->liefere_an(tmp); //"supply" (Babelfish)
+							sum_menge += menge;
+							index = tmp.get_index(); // Note that there is only one freight type per vehicle
+							total_freight -= tmp.menge;
+							cnv->invalidate_weight_summary();
+
+							// Calculate the revenue for each packet.
+							// Also, add to the "apportioned revenues" for way tolls.
+
+							const uint8 class_of_accommodation = class_reassignments[j];
+
+							revenue_from_unloading += menge > 0 ? cnv->calc_revenue(tmp, apportioned_revenues, class_of_accommodation) : 0;
+
+							// book delivered goods to destination
+							if (end_halt == halt)
+							{
+								sum_delivered += menge;
+								if (tmp.is_passenger())
+								{
+									// New for Extended 7.2 - add happy passengers
+									// to the origin station and transported passengers/mail
+									// to the origin city only *after* they arrive at their
+									// destinations.
+									if (tmp.get_origin().is_bound())
 									{
-										for(uint8 i = 0; i < 16; i ++)
+										// Check required because Simutrans-Standard saved games
+										// do not have origins. Also, the start halt might not
+										// be in (or be fully in) a city.
+										tmp.get_origin()->add_pax_happy(menge);
+										koord origin_pos = tmp.get_origin()->get_basis_pos();
+										stadt_t* origin_city = welt->get_city(origin_pos);
+										if (!origin_city)
 										{
-											koord pos(origin_pos + origin_pos.second_neighbours[i]);
-											origin_city = welt->get_city(pos);
-											if(origin_city)
+											// The origin stop is not within a city.
+											// If the stop is located outside the city, but the passengers
+											// come from a city, they will not record as transported.
+											origin_pos = tmp.get_origin()->get_init_pos();
+											origin_city = welt->get_city(origin_pos);
+										}
+
+										if (!origin_city)
+										{
+											for (uint8 i = 0; i < 16; i++)
 											{
-												break;
+												koord pos(origin_pos + origin_pos.second_neighbours[i]);
+												origin_city = welt->get_city(pos);
+												if (origin_city)
+												{
+													break;
+												}
 											}
 										}
-									}
 
-									if(origin_city)
-									{
-										origin_city->add_transported_passengers(menge);
+										if (origin_city)
+										{
+											origin_city->add_transported_passengers(menge);
+										}
 									}
 								}
-							}
-							else if(tmp.is_mail())
-							{
-								if(tmp.get_origin().is_bound())
+								else if (tmp.is_mail())
 								{
-									// Check required because Simutrans-Standard saved games
-									// do not have origins. Also, the start halt might not
-									// be in (or be fully in) a city.
-									koord origin_pos = tmp.get_origin()->get_basis_pos();
-									stadt_t* origin_city = welt->get_city(origin_pos);
-									if(!origin_city)
+									if (tmp.get_origin().is_bound())
 									{
-										// The origin stop is not within a city.
-										// If the stop is located outside the city, but the passengers
-										// come from a city, they will not record as transported.
-										origin_pos = tmp.get_origin()->get_init_pos();
-										origin_city = welt->get_city(origin_pos);
-									}
-
-									if(!origin_city)
-									{
-										for(uint8 i = 0; i < 16; i ++)
+										// Check required because Simutrans-Standard saved games
+										// do not have origins. Also, the start halt might not
+										// be in (or be fully in) a city.
+										koord origin_pos = tmp.get_origin()->get_basis_pos();
+										stadt_t* origin_city = welt->get_city(origin_pos);
+										if (!origin_city)
 										{
-											koord pos(origin_pos + origin_pos.second_neighbours[i]);
-											origin_city = welt->get_city(pos);
-											if(origin_city)
+											// The origin stop is not within a city.
+											// If the stop is located outside the city, but the passengers
+											// come from a city, they will not record as transported.
+											origin_pos = tmp.get_origin()->get_init_pos();
+											origin_city = welt->get_city(origin_pos);
+										}
+
+										if (!origin_city)
+										{
+											for (uint8 i = 0; i < 16; i++)
 											{
-												break;
+												koord pos(origin_pos + origin_pos.second_neighbours[i]);
+												origin_city = welt->get_city(pos);
+												if (origin_city)
+												{
+													break;
+												}
 											}
 										}
-									}
-									if(origin_city)
-									{
-										origin_city->add_transported_mail(menge);
+										if (origin_city)
+										{
+											origin_city->add_transported_mail(menge);
+										}
 									}
 								}
 							}
 						}
-					}				
-					i = fracht.erase( i );
-				}
-				else {
-					++i;
+						i = fracht[j].erase(i);
+					}
+					else {
+						++i;
+					}
 				}
 			}
 		}
@@ -1038,52 +1050,69 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
  * @return true if still space for more cargo
  * @author Hj. Malthaner
  */
-bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehicles)
+bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehicles, bool use_lower_classes)
 {
-	const uint16 total_capacity = desc->get_capacity() + (overcrowd ? desc->get_overcrowded_capacity() : 0);
-	if(total_freight < total_capacity)
+	const uint16 total_capacity = desc->get_total_capacity() + (overcrowd ? desc->get_overcrowded_capacity() : 0);
+	if (total_freight < total_capacity)
 	{
 		schedule_t *schedule = cnv->get_schedule();
-		const uint16 hinein = total_capacity - total_freight; //hinein = inside (Google)
-		slist_tpl<ware_t> capacity; //"Payload" (Google)
+		const uint16 capacity_left = total_capacity - total_freight;
+		slist_tpl<ware_t> freight_add;
+		const uint8 classes_to_check = get_desc()->get_number_of_classes();
+		uint16 capacity_this_class;
 
-		*skip_vehicles = halt->fetch_goods(capacity, desc->get_freight_type(), hinein, schedule, cnv->get_owner(), cnv, overcrowd);
-		if(!capacity.empty())
+		*skip_vehicles = true;
+
+		for (uint8 i = 0; i < classes_to_check; i++)
 		{
-			cnv->invalidate_weight_summary();
-			for(slist_tpl<ware_t>::iterator iter_z = capacity.begin();  iter_z != capacity.end();  )
+			capacity_this_class = get_capacity(class_reassignments[i]);
+			if (capacity_this_class == 0)
 			{
-				ware_t &ware = *iter_z;
-				total_freight += ware.menge;
-
-				// could this be joined with existing freight?
-				FOR(slist_tpl<ware_t>, &tmp, fracht)
-				{
-					// New system: only merges if origins are alike.
-					// @author: jamespetts
-					if(ware.can_merge_with(tmp))
-					{
-						tmp.menge += ware.menge;
-						ware.menge = 0;
-						break;
-					}
-				}
-
-				// if != 0 we could not join it to existing => load it
-				if(ware.menge != 0)
-				{
-					++iter_z;
-					// we add list directly
-				}
-				else
-				{
-					iter_z = capacity.erase(iter_z);
-				}
+				continue;
 			}
 
-			if(!capacity.empty())
+			// use_lower_classes as passed to this method indicates whether the higher class accommodation is full, hence
+			// the need for higher class passengers/mail to use lower class accommodation.
+
+			*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left, schedule, cnv->get_owner(), cnv, overcrowd, class_reassignments[i], use_lower_classes);
+			if (!freight_add.empty())
 			{
-				fracht.append_list(capacity);
+				cnv->invalidate_weight_summary();
+				for (slist_tpl<ware_t>::iterator iter_z = freight_add.begin(); iter_z != freight_add.end(); )
+				{
+					ware_t &ware = *iter_z;
+					total_freight += ware.menge;
+
+					// could this be joined with existing freight?			
+					FOR(slist_tpl<ware_t>, &tmp, fracht[i])
+					{
+						// New system: only merges if origins are alike.
+						// @author: jamespetts
+						if (ware.can_merge_with(tmp))
+						{
+							tmp.menge += ware.menge;
+							ware.menge = 0;
+							break;
+						}
+					}
+
+					// if != 0 we could not join it to existing => load it
+					if (ware.menge != 0)
+					{
+						++iter_z;
+						// we add list directly
+					}
+					else
+					{
+						iter_z = freight_add.erase(iter_z);
+					}
+				}
+			
+
+				if (!freight_add.empty())
+				{
+					fracht[i].append_list(freight_add);
+				}
 			}
 		}
 	}
@@ -1108,60 +1137,65 @@ void vehicle_t::remove_stale_cargo()
 	vector_tpl<ware_t> kill_queue;
 	total_freight = 0;
 
-	if (!fracht.empty()) {
-		FOR(slist_tpl<ware_t>, & tmp, fracht) {
+	for (uint8 i = 0; i < number_of_classes; i++)
+	{
+		if (!fracht[i].empty())
+		{
+			FOR(slist_tpl<ware_t>, &tmp, fracht[i])
+			{
 
-			bool found = false;
+				bool found = false;
 
-			if(  tmp.get_zwischenziel().is_bound()  ) {
-				// the original halt exists, but does we still go there?
-				FOR(minivec_tpl<schedule_entry_t>, const& i, cnv->get_schedule()->entries) {
-					if(  haltestelle_t::get_halt( i.pos, cnv->get_owner()) == tmp.get_zwischenziel()  ) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if(  !found  ) {
-				// the target halt may have been joined or there is a closer one now, thus our original target is no longer valid
-				const int offset = cnv->get_schedule()->get_current_stop();
-				const int max_count = cnv->get_schedule()->entries.get_count();
-				for(  int i=0;  i<max_count;  i++  ) {
-					// try to unload on next stop
-					halthandle_t halt = haltestelle_t::get_halt( cnv->get_schedule()->entries[ (i+offset)%max_count ].pos, cnv->get_owner() );
-					if(  halt.is_bound()  ) {
-						if(  halt->is_enabled(tmp.get_index())  ) {
-							// ok, lets change here, since goods are accepted here
-							tmp.access_zwischenziel() = halt;
-							if (!tmp.get_ziel().is_bound()) {
-								// set target, to prevent that unload_cargo drops cargo
-								tmp.set_ziel( halt );
-							}
+				if (tmp.get_zwischenziel().is_bound()) {
+					// the original halt exists, but does we still go there?
+					FOR(minivec_tpl<schedule_entry_t>, const& i, cnv->get_schedule()->entries) {
+						if (haltestelle_t::get_halt(i.pos, cnv->get_owner()) == tmp.get_zwischenziel()) {
 							found = true;
 							break;
 						}
 					}
 				}
+				if (!found) {
+					// the target halt may have been joined or there is a closer one now, thus our original target is no longer valid
+					const sint32 offset = cnv->get_schedule()->get_current_stop();
+					const sint32 max_count = cnv->get_schedule()->entries.get_count();
+					for (sint32 j = 0; j < max_count; j++) {
+						// try to unload on next stop
+						halthandle_t halt = haltestelle_t::get_halt(cnv->get_schedule()->entries[(i + offset) % max_count].pos, cnv->get_owner());
+						if (halt.is_bound()) {
+							if (halt->is_enabled(tmp.get_index())) {
+								// ok, lets change here, since goods are accepted here
+								tmp.access_zwischenziel() = halt;
+								if (!tmp.get_ziel().is_bound()) {
+									// set target, to prevent that unload_cargo drops cargo
+									tmp.set_ziel(halt);
+								}
+								found = true;
+								break;
+							}
+						}
+					}
+				}
+
+				if (!found)
+				{
+					kill_queue.append(tmp);
+				}
+				else {
+					// since we need to point at factory (0,0), we recheck this too
+					koord k = tmp.get_zielpos();
+					fabrik_t *fab = fabrik_t::get_fab(k);
+					tmp.set_zielpos(fab ? fab->get_pos().get_2d() : k);
+
+					total_freight += tmp.menge;
+				}
 			}
 
-			if (!found)
-			{
-				kill_queue.append(tmp);
+			FOR(vector_tpl<ware_t>, const& c, kill_queue) {
+				fabrik_t::update_transit(c, false);
+				fracht[i].remove(c);
+				cnv->invalidate_weight_summary();
 			}
-			else {
-				// since we need to point at factory (0,0), we recheck this too
-				koord k = tmp.get_zielpos();
-				fabrik_t *fab = fabrik_t::get_fab( k );
-				tmp.set_zielpos( fab ? fab->get_pos().get_2d() : k );
-
-				total_freight += tmp.menge;
-			}
-		}
-
-		FOR(vector_tpl<ware_t>, const& c, kill_queue) {
-			fabrik_t::update_transit( c, false );
-			fracht.remove(c);
-			cnv->invalidate_weight_summary();
 		}
 	}
 	sum_weight =  get_cargo_weight() + desc->get_weight();
@@ -1285,6 +1319,15 @@ vehicle_t::vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player) 
     hill_up = 0;
     hill_down = 0;
 	current_livery = "default";
+	number_of_classes = desc->get_number_of_classes();
+
+	class_reassignments = new uint8[number_of_classes];
+	fracht = new slist_tpl<ware_t>[number_of_classes];
+	for (uint32 i = 0; i <number_of_classes; i++)
+	{
+		// Initialise theese with default values.
+		class_reassignments[i] = i;
+	}
 }
 
 sint64 vehicle_t::sound_ticks = 0;
@@ -1323,6 +1366,67 @@ vehicle_t::vehicle_t() :
     hill_up = 0;
     hill_down = 0;
 	current_livery = "default";
+	
+	// These cannot be set substantively here
+	// because we do not know the number of 
+	// classes yet, which is set in desc.
+	number_of_classes = 0;
+	fracht = NULL;	
+	class_reassignments = NULL;
+}
+
+void vehicle_t::set_desc(const vehicle_desc_t* value)
+{
+	const uint8 new_number_of_classes = value ? value->get_number_of_classes() : 1; 
+
+	if (new_number_of_classes > number_of_classes)
+	{
+		// The array of class reassignments and loaded passengers need refreshing completely.
+		// Given that the new vehicle is a mystery, do not presume to copy the class reassignments.
+		slist_tpl<ware_t> *temp_fracht;
+		temp_fracht = new slist_tpl<ware_t>[number_of_classes];
+
+		for (uint8 i = 0; i < number_of_classes; i++)
+		{
+			FOR(slist_tpl<ware_t>, w, fracht[i])
+			{
+				temp_fracht[i].append(w);
+			}
+		}
+
+		delete[] fracht;
+		delete[] class_reassignments;
+		
+		class_reassignments = new uint8[new_number_of_classes];
+		fracht = new slist_tpl<ware_t>[new_number_of_classes];
+
+		for (uint8 i = 0; i < number_of_classes; i++)
+		{
+			FOR(slist_tpl<ware_t>, w, temp_fracht[i])
+			{
+				fracht[i].append(w);
+			}
+		}
+		delete[] temp_fracht;
+	}
+	else if (new_number_of_classes < number_of_classes)
+	{
+		for (uint8 i = new_number_of_classes - 1; i < number_of_classes; i++)
+		{
+			// Do not bother to delete the extra cells in the array: just copy the extra
+			// passengers (etc.) to class 0.
+			FOR(slist_tpl<ware_t>, w, fracht[i])
+			{
+				fracht[0].append(w);
+			}
+			fracht[i].clear();
+
+			// There is no need to bother clearing the class assignments here.
+		}
+	}
+
+	number_of_classes = new_number_of_classes;
+	desc = value;
 }
 
 
@@ -1880,7 +1984,7 @@ void vehicle_t::make_smoke() const
 	// does it smoke at all?
 	if(  smoke  &&  desc->get_smoke()  ) {
 		// Hajo: only produce smoke when heavily accelerating or steam engine
-		if(  cnv->get_akt_speed() < (sint32)((cnv->get_vehicle_summary().max_sim_speed * 7u) >> 3)  ||  desc->get_engine_type() == vehicle_desc_t::steam  ) {
+		if(  (cnv->get_akt_speed() < (sint32)((cnv->get_vehicle_summary().max_sim_speed * 7u) >> 3) && (route_index < cnv->get_route_infos().get_count() - 4)) ||  desc->get_engine_type() == vehicle_desc_t::steam  ) {
 			grund_t* const gr = welt->lookup( get_pos() );
 			if(  gr  ) {
 				wolke_t* const abgas = new wolke_t( get_pos(), get_xoff() + ((dx * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8), get_yoff() + ((dy * (sint16)((uint16)steps * OBJECT_OFFSET_STEPS)) >> 8) + get_hoff(), desc->get_smoke() );
@@ -1910,8 +2014,12 @@ const char *vehicle_t::get_cargo_mass() const
 uint32 vehicle_t::get_cargo_weight() const
 {
 	uint32 weight = 0;
-	FOR(slist_tpl<ware_t>, const& c, fracht) {
-		weight += c.menge * c.get_desc()->get_weight_per_unit();
+	for (uint8 i = 0; i < number_of_classes; i++)
+	{
+		FOR(slist_tpl<ware_t>, const& c, fracht[i])
+		{
+			weight += c.menge * c.get_desc()->get_weight_per_unit();
+		}
 	}
 	return weight;
 }
@@ -1925,24 +2033,254 @@ const char *vehicle_t::get_cargo_name() const
 
 void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 {
-	if (fracht.empty()) {
-		buf.append("  ");
-		buf.append(translator::translate("leer"));
-		buf.append("\n");
-	} else {
-		FOR(slist_tpl<ware_t>, const& ware, fracht) {
-			const char * name = "Error in Routing";
 
-			halthandle_t halt = ware.get_ziel();
-			if(halt.is_bound()) {
-				name = halt->get_name();
+	// rebuilt the list with goods ...
+	vector_tpl<ware_t> total_fracht;
+	vector_tpl<ware_t> pass_fracht[255];
+	vector_tpl<ware_t> mail_fracht[255];
+
+	size_t const n = goods_manager_t::get_count();
+	ALLOCA(uint32, max_loaded_waren, n);
+	MEMZERON(max_loaded_waren, n);
+
+	size_t const pass_classes = goods_manager_t::passengers->get_number_of_classes();
+	size_t const mail_classes = goods_manager_t::mail->get_number_of_classes();
+
+	ALLOCA(uint32, max_loaded_pass, pass_classes);
+	MEMZERON(max_loaded_pass, pass_classes);
+
+	ALLOCA(uint32, max_loaded_mail, mail_classes);
+	MEMZERON(max_loaded_mail, mail_classes);
+
+
+
+	bool pass_veh = get_cargo_type() == goods_manager_t::passengers;
+	bool mail_veh = get_cargo_type() == goods_manager_t::mail;
+	const goods_desc_t* ware_desc = get_desc()->get_freight_type();
+	const uint16 menge = get_desc()->get_total_capacity();
+	const uint8 classes_to_check = get_desc()->get_number_of_classes();
+
+	// first add to capacity indicator
+
+	if (pass_veh)
+	{
+		for (uint8 j = 0; j < pass_classes; j++)
+		{
+			if (get_capacity(j) > 0) {
+				max_loaded_pass[j] += get_capacity(j);
 			}
+		}
+	}
+	else if (mail_veh)
+	{
+		for (uint8 j = 0; j < mail_classes; j++)
+		{
+			if (get_capacity(j) > 0) {
+				max_loaded_mail[j] += get_capacity(j);
+			}
+		}
+	}
+	else if (menge > 0 && ware_desc != goods_manager_t::none) {
+		max_loaded_waren[ware_desc->get_index()] += menge;
+	}
 
-			buf.printf("   %u%s %s > %s\n", ware.menge, translator::translate(ware.get_mass()), translator::translate(ware.get_name()), name);
+
+	//
+	for (uint8 j = 0; j < classes_to_check; j++)
+	{
+		// then add the actual load
+		FOR(slist_tpl<ware_t>, ware, get_cargo(j))
+		{
+			// if != 0 we could not join it to existing => load it
+			if (ware.menge != 0)
+			{
+				if (pass_veh)
+				{
+					pass_fracht[j].append(ware);
+				}
+				else if (mail_veh)
+				{
+					mail_fracht[j].append(ware);
+				}
+				else
+				{
+					total_fracht.append(ware);
+				}
+			}
+		}
+	}
+	INT_CHECK("simconvoi 2643");
+
+	buf.clear();
+
+	// apend info on total capacity
+	slist_tpl <ware_t>capacity;
+
+	for (size_t i = 0; i != n; ++i) {
+		if (max_loaded_waren[i] > 0 && i != goods_manager_t::INDEX_NONE) {
+			ware_t ware(goods_manager_t::get_info(i));
+			ware.menge = max_loaded_waren[i];
+			// append to category?
+			slist_tpl<ware_t>::iterator j = capacity.begin();
+			slist_tpl<ware_t>::iterator end = capacity.end();
+			while (j != end && j->get_desc()->get_catg_index() < ware.get_desc()->get_catg_index()) ++j;
+			if (j != end && j->get_desc()->get_catg_index() == ware.get_desc()->get_catg_index()) {
+				j->menge += max_loaded_waren[i];
+			}
+			else {
+				// not yet there
+				capacity.insert(j, ware);
+			}
+		}
+	}
+	// show new info
+
+	uint8 freight_info_order = 9; // = by_accommodation_detail
+	ware_t ware;
+	for (uint8 i = 0; i < pass_classes; i++)
+	{
+		if (max_loaded_pass[i] > 0)
+		{
+			ware = goods_manager_t::passengers;
+			freight_list_sorter_t::sort_freight(pass_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_pass[i], &ware, true);
+		}
+	}
+	for (uint8 i = 0; i < mail_classes; i++)
+	{
+		if (max_loaded_mail[i] > 0)
+		{
+			ware = goods_manager_t::mail;
+			freight_list_sorter_t::sort_freight(mail_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_mail[i], &ware, true);
+		}
+	}
+	freight_info_order = 6; // = by_destination_detail
+	freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded", NULL, NULL, NULL, true);
+}
+//{
+//	bool empty = true;
+//	for (uint8 i = 0; i < number_of_classes; i++)
+//	{
+//		if (!fracht[i].empty())
+//		{
+//			empty = false;
+//			FOR(slist_tpl<ware_t>, const& ware, fracht[i])
+//			{
+//				const char * halt_name = "Error in Routing";
+//
+//				halthandle_t halt = ware.get_ziel();
+//				if (halt.is_bound())
+//				{
+//					halt_name = halt->get_name();
+//				}
+//				char class_name_untranslated[32];
+//				sprintf(class_name_untranslated, "");
+//				if (ware.get_catg() == goods_manager_t::INDEX_PAS)
+//				{
+//					sprintf(class_name_untranslated, "p_class[%u]", ware.get_class());
+//				}
+//				if (ware.get_catg() == goods_manager_t::INDEX_MAIL)
+//				{
+//					sprintf(class_name_untranslated, "m_class[%u]", ware.get_class());
+//				}
+//
+//				const char* class_name = translator::translate(class_name_untranslated);
+//				buf.printf("   %u%s %s %s > %s\n", ware.menge, translator::translate(ware.get_mass()), class_name, translator::translate(ware.get_name()), halt_name);
+//			}
+//		}
+//	}
+//
+//	if (empty) 
+//	{
+//		buf.append("  ");
+//		buf.append(translator::translate("leer"));
+//		buf.append("\n");
+//	} 
+//}
+
+void vehicle_t::get_cargo_class_info(cbuffer_t & buf) const
+{
+	vector_tpl<ware_t> pass_fracht[255];
+	vector_tpl<ware_t> mail_fracht[255];
+
+	size_t const pass_classes = goods_manager_t::passengers->get_number_of_classes();
+	size_t const mail_classes = goods_manager_t::mail->get_number_of_classes();
+
+	ALLOCA(uint32, max_loaded_pass, pass_classes);
+	MEMZERON(max_loaded_pass, pass_classes);
+
+	ALLOCA(uint32, max_loaded_mail, mail_classes);
+	MEMZERON(max_loaded_mail, mail_classes);
+
+	bool pass_veh = get_cargo_type() == goods_manager_t::passengers;
+	bool mail_veh = get_cargo_type() == goods_manager_t::mail;
+	const goods_desc_t* ware_desc = get_desc()->get_freight_type();
+	const uint16 menge = get_desc()->get_total_capacity();
+	const uint8 classes_to_check = get_desc()->get_number_of_classes();
+
+	// first add to capacity indicator
+	if (pass_veh)
+	{
+		for (uint8 j = 0; j < pass_classes; j++)
+		{
+			if (get_capacity(j) > 0)
+			{
+				max_loaded_pass[j] += get_capacity(j);
+			}
+		}
+	}
+	else if (mail_veh)
+	{
+		for (uint8 j = 0; j < mail_classes; j++)
+		{
+			if (get_capacity(j) > 0)
+			{
+				max_loaded_mail[j] += get_capacity(j);
+			}
+		}
+	}
+	//
+	for (uint8 j = 0; j < classes_to_check; j++)
+	{
+		// then add the actual load
+		FOR(slist_tpl<ware_t>, ware, get_cargo(j))
+		{
+			// if != 0 we could not join it to existing => load it
+			if (ware.menge != 0)
+			{
+				if (pass_veh)
+				{
+					pass_fracht[j].append(ware);
+				}
+				else if (mail_veh)
+				{
+					mail_fracht[j].append(ware);
+				}
+			}
+		}
+	}
+	INT_CHECK("simconvoi 2643");
+
+	// show new info
+	buf.clear();
+	uint8 freight_info_order = 9; // = by_accommodation_detail
+	ware_t ware;
+	for (uint8 i = 0; i < pass_classes; i++)
+	{
+		if (max_loaded_pass[i] > 0)
+		{
+			ware = goods_manager_t::passengers;
+			freight_list_sorter_t::sort_freight(pass_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_pass[i], &ware, true);
+		}
+	}
+	for (uint8 i = 0; i < mail_classes; i++)
+	{
+		if (max_loaded_mail[i] > 0)
+		{
+			ware = goods_manager_t::mail;
+			freight_list_sorter_t::sort_freight(mail_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_mail[i], &ware, true);
 		}
 	}
 }
-
 
 /**
  * Delete all vehicle load
@@ -1950,19 +2288,23 @@ void vehicle_t::get_cargo_info(cbuffer_t & buf) const
  */
 void vehicle_t::discard_cargo()
 {
-	FOR(  slist_tpl<ware_t>, w, fracht ) {
-		fabrik_t::update_transit( w, false );
+	for (uint8 i = 0; i < number_of_classes; i++)
+	{
+		FOR(slist_tpl<ware_t>, w, fracht[i])
+		{
+			fabrik_t::update_transit(w, false);
+		}
+		fracht[i].clear();
 	}
-	fracht.clear();
 	sum_weight =  desc->get_weight();
 }
 
-uint16 vehicle_t::load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehicles)
+uint16 vehicle_t::load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehicles, bool use_lower_classes)
 {
 	const uint16 start_freight = total_freight;
-	if(halt.is_bound()  &&  halt->gibt_ab(desc->get_freight_type()))
+	if(halt.is_bound() && halt->gibt_ab(desc->get_freight_type()))
 	{
-		*skip_convois = load_freight_internal(halt, overcrowd, skip_vehicles);
+		*skip_convois = load_freight_internal(halt, overcrowd, skip_vehicles, use_lower_classes);
 	}
 	else
 	{
@@ -1975,14 +2317,26 @@ uint16 vehicle_t::load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convo
 
 void vehicle_t::calc_image() 
 {
+	const goods_desc_t* gd;
+	bool empty = true;
+	for (uint8 i = 0; i < number_of_classes; i++)
+	{
+		if (!fracht[i].empty())
+		{
+			gd = fracht[i].front().get_desc();
+			empty = false;
+			break;
+		}
+	}
+	
 	image_id old_image=get_image();
-	if (fracht.empty())
+	if (empty)
 	{
 		set_image(desc->get_image_id(ribi_t::get_dir(get_direction_of_travel()), NULL, current_livery.c_str()));
 	}
 	else
 	{
-		set_image(desc->get_image_id(ribi_t::get_dir(get_direction_of_travel()), fracht.front().get_desc(), current_livery.c_str()));
+		set_image(desc->get_image_id(ribi_t::get_dir(get_direction_of_travel()), gd, current_livery.c_str()));
 	}
 	if(old_image!=get_image()) {
 		set_flag(obj_t::dirty);
@@ -1991,7 +2345,18 @@ void vehicle_t::calc_image()
 
 image_id vehicle_t::get_loaded_image() const
 {
-	return desc->get_image_id(ribi_t::dir_south, fracht.empty() ?  goods_manager_t::none  : fracht.front().get_desc());
+	const goods_desc_t* gd;
+	bool empty = true;
+	for (uint8 i = 0; i < number_of_classes; i++)
+	{
+		if (!fracht[i].empty())
+		{
+			gd = fracht[i].front().get_desc();
+			empty = false;
+			break;
+		}
+	}
+	return desc->get_image_id(ribi_t::dir_south, empty ?  goods_manager_t::none  : gd);
 }
 
 
@@ -2060,19 +2425,107 @@ void vehicle_t::set_reversed(bool value)
 	}
 }
 
-uint16 vehicle_t::get_overcrowding() const
+uint16 vehicle_t::get_total_cargo_by_class(uint8 g_class) const
 {
-	return total_freight - desc->get_capacity() > 0 ? total_freight - desc->get_capacity() : 0;
+	uint16 carried = 0;
+	for (uint8 i = 0; i < desc->get_number_of_classes(); i++)
+	{
+		if(class_reassignments[i] == g_class && desc->get_capacity(i) > 0)
+		{
+			FOR(slist_tpl<ware_t>, const& ware, fracht[i])
+			{
+				carried += ware.menge;
+			}
+		}
+	}
+
+	return carried;
+
+	// Below a different approach, but will have to wait continuing with this until classes can safely be reassigned on the run.
+	//	uint16 carried = 0;
+	//	{
+	//		for (uint8 j = 0; j < desc->get_number_of_classes(); j++)
+	//		{
+	//			if (j == g_class)
+	//			{
+	//				FOR(slist_tpl<ware_t>, ware, fracht[j])
+	//				{
+	//					// if != 0 we could not join it to existing => load it
+	//					if (ware.menge != 0)
+	//					{
+	//						carried += ware.menge;
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
+	//	return carried;
 }
 
-uint8 vehicle_t::get_comfort(uint8 catering_level) const
+uint16 vehicle_t::get_reassigned_class(uint8 g_class) const
+{ 
+	uint16 reassigned_class = class_reassignments[g_class];
+	return reassigned_class;
+}
+
+uint16 vehicle_t::get_overcrowding(uint8 g_class) const
 {
-	const uint8 base_comfort = desc->get_adjusted_comfort(catering_level);
+	const uint16 carried = get_total_cargo_by_class(g_class);
+	const uint16 capacity = get_capacity(g_class, true); // Do not count a vehicle as overcrowded if the higher class passengers can travel in lower class accommodation and still get a seat.
+
+	return carried - capacity > 0 ? carried - capacity : 0;
+}
+
+uint16 vehicle_t::get_capacity(uint8 g_class, bool include_lower_classes) const
+{
+	// Take into account class reassignments. 
+	uint16 cap = 0;
+	for (uint8 i = 0; i < desc->get_number_of_classes(); i++)
+	{
+		if (class_reassignments[i] == g_class || (include_lower_classes && class_reassignments[i] < g_class))
+		{
+			cap += desc->get_capacity(i);
+		}
+	}
+
+	return cap;
+}
+
+uint8 vehicle_t::get_comfort(uint8 catering_level, uint8 g_class) const
+{
+	// If we have more than one class of accommodation that has been reassigned
+	// to carry the same class of passengers, take an average of the various types
+	// weighted by capacity.
+	uint32 comf = 0;
+	uint32 counter = 0;
+
+	for (uint8 i = 0; i < desc->get_number_of_classes(); i++)
+	{
+		if (class_reassignments[i] == g_class && desc->get_capacity(i) > 0)
+		{
+			comf += desc->get_adjusted_comfort(catering_level, i);
+			counter++;
+		}
+	}
+
+	uint8 base_comfort;
+
+	if (counter == 0)
+	{
+		return 0;
+	}
+	else
+	{
+		base_comfort = (uint8)(comf / counter);
+	}
+
+	const uint16 capacity_this_class = get_capacity(g_class, false); 
+
 	if(base_comfort == 0)
 	{
 		return 0;
 	}
-	else if(total_freight <= get_cargo_max())
+	else if(total_freight <= capacity_this_class)
 	{
 		// Not overcrowded - return base level
 		return base_comfort;
@@ -2083,15 +2536,15 @@ uint8 vehicle_t::get_comfort(uint8 catering_level) const
 	// are very uncomfortable (no more than 10).
 	const uint8 standing_comfort = (base_comfort < 20) ? (base_comfort / 2) : 10;
 	uint16 passenger_count = 0;
-	FOR(slist_tpl<ware_t>, const& ware, fracht)
+	FOR(slist_tpl<ware_t>, const& ware, fracht[g_class])
 	{
 		if(ware.is_passenger())
 		{
 			passenger_count += ware.menge;
 		}
 	}
-	assert(passenger_count <= total_freight);
-	const uint16 total_seated_passengers = passenger_count < get_cargo_max() ? passenger_count : get_cargo_max();
+	//assert(passenger_count <= total_freight); // FIXME: This assert is often triggered after commit 6500dcc. It is not clear why.
+	const uint16 total_seated_passengers = passenger_count < capacity_this_class ? passenger_count : capacity_this_class;
 	const uint16 total_standing_passengers = passenger_count > total_seated_passengers ? passenger_count - total_seated_passengers : 0;
 	// Avoid division if we can
 	if(total_standing_passengers == 0)
@@ -2115,18 +2568,55 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 {
 	xml_tag_t r( file, "vehicle_t" );
 
-	sint32 fracht_count = 0;
+	obj_t::rdwr(file);
 
-	if(file->is_saving()) {
-		fracht_count = fracht.get_count();
-		// we try to have one freight count to guess the right freight
+	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
+	{
+		// We need to save this in case "desc" cannot be found on re-loading because
+		// of some pakset changes.
+
+		if (file->is_saving())
+		{
+			number_of_classes = desc->get_number_of_classes();
+		}
+		file->rdwr_byte(number_of_classes);
+	}
+	else if (file->is_loading())
+	{
+		// We need to re-set this to the correct value
+		// after we load desc.
+		number_of_classes = 1;
+	}
+
+	sint32 total_fracht_count = 0;
+	sint32* fracht_count = new sint32[number_of_classes];
+	bool create_dummy_ware = false;
+
+	if (file->is_saving()) 
+	{
+		for (uint8 i = 0; i < number_of_classes; i++)
+		{
+			fracht_count[i] = fracht[i].get_count();
+			total_fracht_count += fracht_count[i];
+		}
+
+		// we try to have one freight count in class zero to guess the right freight
 		// when no desc is given
-		if(fracht_count==0  &&  desc->get_freight_type()!=goods_manager_t::none  &&  desc->get_capacity()>0) {
-			fracht_count = 1;
+		if (total_fracht_count == 0 && (desc->get_freight_type() != goods_manager_t::none) && desc->get_total_capacity() > 0)
+		{
+			fracht_count[0] = 1;
+			create_dummy_ware = true;
+		}
+		else
+		{
+			int a = 1 + 1;
 		}
 	}
 
-	obj_t::rdwr(file);
+	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
+	{
+		file->rdwr_bool(create_dummy_ware);
+	}
 
 	// since obj_t does no longer save positions
 	if(  file->get_version()>=101000  ) {
@@ -2138,8 +2628,6 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	sint8 hoff = file->is_saving() ? get_hoff() : 0;
 
 	if(file->get_version()<86006) {
-		// parameter werden in der deklarierten rownfolge gespeichert
-		// "Parameters are declared in the order saved" (Translated by Google)
 		sint32 l;
 		file->rdwr_long(purchase_time);
 		file->rdwr_long(l);
@@ -2151,11 +2639,11 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		file->rdwr_long(speed_limit);
 		file->rdwr_enum(direction);
 		file->rdwr_enum(previous_direction);
-		file->rdwr_long(fracht_count);
+		file->rdwr_long(total_fracht_count);
 		file->rdwr_long(l);
 		route_index = (uint16)l;
 		purchase_time = (purchase_time >> welt->ticks_per_world_month_shift) + welt->get_settings().get_starting_year();
-DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12)+1,purchase_time/12);
+	DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12)+1,purchase_time/12);
 	}
 	else {
 		// prissi: changed several data types to save runtime memory
@@ -2178,7 +2666,17 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		file->rdwr_long(speed_limit);
 		file->rdwr_enum(direction);
 		file->rdwr_enum(previous_direction);
-		file->rdwr_long(fracht_count);
+		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
+		{
+			for (uint8 i = 0; i < number_of_classes; i++)
+			{
+				file->rdwr_long(fracht_count[i]); 
+			}
+		}
+		else
+		{
+			file->rdwr_long(total_fracht_count);
+		}
 		file->rdwr_short(route_index);
 		// restore dxdy information
 		dx = dxdy[ ribi_t::get_dir(direction)*2];
@@ -2199,7 +2697,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		set_xoff( ddx-(16-i)*dx );
 		set_yoff( ddy-(16-i)*dy );
 		if(file->is_loading()) {
-			if(dx*dy) {
+			if(dx && dy) {
 				steps = min( VEHICLE_STEPS_PER_TILE - 1, VEHICLE_STEPS_PER_TILE - 1-(i*16) );
 				steps_next = VEHICLE_STEPS_PER_TILE - 1;
 			}
@@ -2253,8 +2751,10 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		}
 	}
 
-	if(file->is_saving()) {
-		if (fracht.empty()  &&  fracht_count>0) {
+	if(file->is_saving())
+	{
+		if (create_dummy_ware)
+		{
 			// create dummy freight for savegame compatibility
 			ware_t ware( desc->get_freight_type() );
 			ware.menge = 0;
@@ -2263,38 +2763,104 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 			ware.set_zielpos( get_pos().get_2d() );
 			ware.rdwr(file);
 		}
-		else {
-			FOR(slist_tpl<ware_t>, ware, fracht) {
+
+		uint8 cr;
+		for (uint8 i = 0; i < number_of_classes; i++)
+		{
+			FOR(slist_tpl<ware_t>, ware, fracht[i])
+			{
 				ware.rdwr(file);
 			}
 		}
+
 	}
-	else {
-		for(int i=0; i<fracht_count; i++) {
-			ware_t ware(file);
-			if( (desc==NULL || ware.menge>0) && welt->is_within_limits(ware.get_zielpos()) && ware.get_desc() ) {
-				// also add, of the desc is unknown to find matching replacement
-				fracht.insert(ware);
+	else // Loading
+	{
+		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
+		{
+			const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+			class_reassignments = new uint8[desc ? max(max_classes, desc->get_number_of_classes()) : max_classes];
+			fracht = new slist_tpl<ware_t>[desc ? max(max_classes, desc->get_number_of_classes()) : max_classes];
+			uint8 cr;
+
+			for (uint8 i = 0; i < number_of_classes; i++)
+			{
+				const uint8 x = min(i, desc->get_number_of_classes() - 1);
+				const uint32 assumed_count = max((create_dummy_ware && (total_fracht_count) > 0 ? 1 : 0), fracht_count[x]);
+				for (uint32 j = 0; j < assumed_count; j++)
+				{
+					ware_t ware(file);
+					if ((desc == NULL || ware.menge > 0) && welt->is_within_limits(ware.get_zielpos()) && ware.get_desc())
+					{
+						// also add, of the desc is unknown to find matching replacement
+						fracht[x].insert(ware);
 #ifdef CACHE_TRANSIT
-				/*
-				* It's very easy for in-transit information to get corrupted,
-				* if an intermediate program version fails to compute it right.
-				* So *always* compute it fresh.
-				* 
-				* This no longer works properly with Extended because cargo
-				* may be in a queue waiting to be loaded at a station.
-				*/
-				if(  file->get_version() <= 112000  )
+						/*
+						* It's very easy for in-transit information to get corrupted,
+						* if an intermediate program version fails to compute it right.
+						* So *always* compute it fresh.
+						*
+						* This no longer works properly with Extended because cargo
+						* may be in a queue waiting to be loaded at a station.
+						*/
+						if (file->get_version() <= 112000)
 #endif
-					// restore in-transit information
-					fabrik_t::update_transit( ware, true );
-			}
-			else if(  ware.menge>0  ) {
-				if(  ware.get_desc()  ) {
-					dbg->error( "vehicle_t::rdwr_from_convoi()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );
+							// restore in-transit information
+							fabrik_t::update_transit(ware, true);
+					}
+					else if (ware.menge > 0)
+					{
+						if (ware.get_desc())
+						{
+							dbg->error("vehicle_t::rdwr_from_convoi()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str());
+						}
+						else 
+						{
+							dbg->error("vehicle_t::rdwr_from_convoi()", "%i of unknown to %s ignored!", ware.menge, ware.get_zielpos().get_str());
+						}
+					}
 				}
-				else {
-					dbg->error( "vehicle_t::rdwr_from_convoi()", "%i of unknown to %s ignored!", ware.menge, ware.get_zielpos().get_str() );
+			}
+		}
+		else // Older, pre-classes version
+		{
+			// We must initialise fracht[] here, as only now do we
+			// know the correct number of classes when loading an
+			// older saved game: for those games, the number of 
+			// clases defaults to 1 and we have to read this from
+			// desc.
+			
+			const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+			class_reassignments = new uint8[desc ? max(max_classes, desc->get_number_of_classes()) : max_classes];
+			fracht = new slist_tpl<ware_t>[desc ? max(max_classes, desc->get_number_of_classes()) : max_classes];
+
+			for (int i = 0; i < total_fracht_count; i++)
+			{
+				// From an older version with no classes, so put all the ware
+				// packets in class zero.
+				ware_t ware(file);
+				if ((desc == NULL || ware.menge > 0) && welt->is_within_limits(ware.get_zielpos()) && ware.get_desc())
+				{
+					// also add, of the desc is unknown to find matching replacement
+					fracht[0].insert(ware);
+#ifdef CACHE_TRANSIT
+					/*
+					* It's very easy for in-transit information to get corrupted,
+					* if an intermediate program version fails to compute it right.
+					* So *always* compute it fresh.
+					*/
+					if (file->get_version() <= 112000)
+#endif
+						// restore in-transit information
+						fabrik_t::update_transit(ware, true);
+				}
+				else if (ware.menge > 0) {
+					if (ware.get_desc()) {
+						dbg->error("vehicle_t::rdwr_from_convoi()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str());
+					}
+					else {
+						dbg->error("vehicle_t::rdwr_from_convoi()", "%i of unknown to %s ignored!", ware.menge, ware.get_zielpos().get_str());
+					}
 				}
 			}
 		}
@@ -2332,21 +2898,6 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 		else {
 			// current version, 3d
 			last_stop_pos.rdwr(file);
-		}
-	}
-
-	if(file->is_loading()) {
-		leading = last = false;	// dummy, will be set by convoi afterwards
-		if(desc) {
-			calc_image();
-
-			// full weight after loading
-			sum_weight = get_cargo_weight() + desc->get_weight();
-		}
-		// recalc total freight
-		total_freight = 0;
-		FOR(slist_tpl<ware_t>, const& c, fracht) {
-			total_freight += c.menge;
 		}
 	}
 
@@ -2411,6 +2962,48 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 	{
 		current_livery = "default";
 	}
+
+	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
+	{
+		for (uint8 i = 0; i < number_of_classes; i++)
+		{
+			uint8 cr = class_reassignments[i];
+			file->rdwr_byte(cr); 
+			class_reassignments[i] = cr;
+		}
+	}
+	else
+	{
+		for (uint8 i = 0; i < (desc ? desc->get_number_of_classes() : number_of_classes); i++)
+		{
+			class_reassignments[i] = i;
+		}
+	}
+
+	if (file->is_loading())
+	{
+		// Moved here from above to access the number_of_classes datum
+
+		leading = last = false;	// dummy, will be set by convoi afterwards
+		if (desc) {
+			calc_image();
+
+			// full weight after loading
+			sum_weight = get_cargo_weight() + desc->get_weight();
+		}
+		// recalc total freight
+		total_freight = 0;
+
+		for (uint8 i = 0; i < number_of_classes; i++)
+		{
+			FOR(slist_tpl<ware_t>, const& c, fracht[i])
+			{
+				total_freight += c.menge;
+			}
+		}
+	}
+
+	delete[]fracht_count;
 }
 
 
@@ -2488,6 +3081,25 @@ vehicle_t::~vehicle_t()
 	if(gr) {
 		// remove vehicle's marker from the relief map
 		reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
+	}
+
+	delete[] class_reassignments;
+	delete[] fracht; 
+}
+
+void vehicle_t::set_class_reassignment(uint8 original_class, uint8 new_class)
+{
+	if (original_class > number_of_classes)
+	{
+		dbg->error("vehicle_t::set_class_reassignment()", "Attempt to set class out of range");
+		return;
+	}
+	const bool different = class_reassignments[original_class] != new_class;
+	class_reassignments[original_class] = new_class;
+	if (different)
+	{
+		path_explorer_t::refresh_class_category(get_desc()->get_freight_type()->get_catg(), original_class);
+		path_explorer_t::refresh_class_category(get_desc()->get_freight_type()->get_catg(), new_class);
 	}
 }
 
@@ -2702,18 +3314,36 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) 
 			last_desc = NULL;
 		}
 		// try to find a matching vehicle
-		if(desc==NULL) {
-			const goods_desc_t* w = (!fracht.empty() ? fracht.front().get_desc() : goods_manager_t::passengers);
-			dbg->warning("road_vehicle_t::road_vehicle_t()","try to find a fitting vehicle for %s.",  w->get_name() );
-			desc = vehicle_builder_t::get_best_matching(road_wt, 0, (fracht.empty() ? 0 : 50), is_leading?50:0, speed_to_kmh(speed_limit), w, true, last_desc, is_last );
+		if(desc==NULL) 
+		{
+			bool empty = true;
+			const goods_desc_t* gd = NULL;
+			ware_t ware;
+			for (uint8 i = 0; i < number_of_classes; i++)
+			{
+				if (!fracht[i].empty())
+				{
+					ware = fracht[i].front();
+					gd = ware.get_desc();
+					empty = false;
+					break;
+				}
+			}
+			if (!gd)
+			{
+				gd = goods_manager_t::passengers;
+			}
+
+			dbg->warning("road_vehicle_t::road_vehicle_t()","try to find a fitting vehicle for %s.", gd->get_name() );
+			desc = vehicle_builder_t::get_best_matching(road_wt, 0, (empty ? 0 : 50), is_leading?50:0, speed_to_kmh(speed_limit), gd, true, last_desc, is_last );
 			if(desc) {
 				DBG_MESSAGE("road_vehicle_t::road_vehicle_t()","replaced by %s",desc->get_name());
 				// still wrong load ...
 				calc_image();
 			}
-			if(!fracht.empty()  &&  fracht.front().menge == 0) {
+			if(!empty  &&  fracht[0].front().menge == 0) {
 				// this was only there to find a matching vehicle
-				fracht.remove_first();
+				fracht[0].remove_first();
 			}
 		}
 		if(  desc  ) {
@@ -3379,9 +4009,28 @@ rail_vehicle_t::rail_vehicle_tloadsave_t *file, bool is_leading, bool is_last) :
 			last_desc = NULL;
 		}
 		// try to find a matching vehicle
-		if(desc==NULL) {
-			int power = (is_leading || fracht.empty() || fracht.front() == goods_manager_t::none) ? 500 : 0;
-			const goods_desc_t* w = fracht.empty() ? goods_manager_t::none : fracht.front().get_desc();
+		if(desc==NULL)
+		{
+			bool empty = true;
+			const goods_desc_t* gd = NULL;
+			ware_t ware;
+			for (uint8 i = 0; i < number_of_classes; i++)
+			{
+				if (!fracht[i].empty())
+				{
+					ware = fracht[i].front();
+					gd = ware.get_desc();
+					empty = false;
+					break;
+				}
+			}
+			if (!gd)
+			{
+				gd = goods_manager_t::passengers;
+			}
+
+			int power = (is_leading || empty || gd == goods_manager_t::none) ? 500 : 0;
+			const goods_desc_t* w = empty ? goods_manager_t::none : gd;
 			dbg->warning("rail_vehicle_t::rail_vehicle_t()","try to find a fitting vehicle for %s.", power>0 ? "engine": w->get_name() );
 			if(last_desc!=NULL  &&  last_desc->can_follow(last_desc)  &&  last_desc->get_freight_type()==w  &&  (!is_last  ||  last_desc->get_trailer(0)==NULL)) {
 				// same as previously ...
@@ -3398,9 +4047,9 @@ DBG_MESSAGE("rail_vehicle_t::rail_vehicle_t()","replaced by %s",desc->get_name()
 			else {
 				dbg->error("rail_vehicle_t::rail_vehicle_t()","no matching desc found for %s!",w->get_name());
 			}
-			if (!fracht.empty() && fracht.front().menge == 0) {
+			if (!empty && fracht[0].front().menge == 0) {
 				// this was only there to find a matching vehicle
-				fracht.remove_first();
+				fracht[0].remove_first();
 			}
 		}
 		// update last desc
@@ -6456,9 +7105,28 @@ water_vehicle_t::water_vehicle_t(loadsave_t *file, bool is_leading, bool is_last
 			last_desc = NULL;
 		}
 		// try to find a matching vehicle
-		if(desc==NULL) {
-			dbg->warning("water_vehicle_t::water_vehicle_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passengers");
-			desc = vehicle_builder_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht.front().get_desc() : goods_manager_t::passengers, true, last_desc, is_last );
+		if(desc==NULL) 
+		{
+			bool empty = true;
+			const goods_desc_t* gd = NULL;
+			ware_t w;
+			for (uint8 i = 0; i < number_of_classes; i++)
+			{
+				if (!fracht[i].empty())
+				{
+					w = fracht[i].front();
+					gd = w.get_desc();
+					empty = false;
+					break;
+				}
+			}
+			if (!gd)
+			{
+				gd = goods_manager_t::passengers;
+			}
+
+			dbg->warning("water_vehicle_t::water_vehicle_t()", "try to find a fitting vehicle for %s.", gd->get_name());
+			desc = vehicle_builder_t::get_best_matching(water_wt, 0, empty ? 0 : 30, 100, 40, gd, true, last_desc, is_last );
 			if(desc) {
 				calc_image();
 			}
@@ -7573,9 +8241,26 @@ air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) :
 			last_desc = NULL;
 		}
 		// try to find a matching vehicle
-		if(desc==NULL) {
-			dbg->warning("air_vehicle_t::air_vehicle_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passengers");
-			desc = vehicle_builder_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht.front().get_desc() : goods_manager_t::passengers, true, last_desc, is_last );
+		if(desc==NULL)
+		{
+			const goods_desc_t* gd = NULL;
+			ware_t w;
+			for (uint8 i = 0; i < number_of_classes; i++)
+			{
+				if (!fracht[i].empty())
+				{
+					w = fracht[i].front();
+					gd = w.get_desc();
+					break;
+				}
+			}
+			if (!gd)
+			{
+				gd = goods_manager_t::passengers;
+			}
+
+			dbg->warning("air_vehicle_t::air_vehicle_t()", "try to find a fitting vehicle for %s.", gd->get_name());
+			desc = vehicle_builder_t::get_best_matching(air_wt, 0, 101, 1000, 800, gd, true, last_desc, is_last );
 			if(desc) {
 				calc_image();
 			}

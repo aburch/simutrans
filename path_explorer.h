@@ -253,7 +253,9 @@ private:
 		uint16 transfer_count;
 
 		uint8 catg;				// category managed by this compartment
+		uint8 g_class;			// Class managed by this compartment
 		const char *catg_name;	// name of the category
+		char *class_name;// Name of the class
 		uint16 step_count;		// number of steps done so far for a path refresh request
 
 		// coordination flags
@@ -370,12 +372,14 @@ private:
 		uint32 get_total_iterations() { const uint32 ti = total_iterations; total_iterations = 0; return ti; }
 
 		void set_category(uint8 category);
+		void set_class(uint8 value); 
 		void set_refresh() { refresh_requested = true; }
 
 		bool get_path_between(const halthandle_t origin_halt, const halthandle_t target_halt,
 							  uint32 &aggregate_time, halthandle_t &next_transfer);
 
 		const char *get_category_name() const { return ( catg_name ? catg_name : "" ); }
+		const char *get_class_name() const { return ( class_name ? class_name : "" );  }
 		const char *get_current_phase_name() const { return phase_name[current_phase]; }
 
 		static void initialise_connexion_list();
@@ -432,11 +436,13 @@ private:
 
 	static karte_t *world;
 	static uint8 max_categories;
+	static uint8 max_classes;
 	static uint8 category_empty;
 public:
-	static compartment_t *goods_compartment;
+	static compartment_t **goods_compartment;
 private:
-	static uint8 current_compartment;
+	static uint8 current_compartment_category;
+	static uint8 current_compartment_class;
 	static bool processing;
 
 public:
@@ -447,14 +453,16 @@ public:
 	static void initialise(karte_t *welt);
 	static void finalise();
 	static void step();
+	static void next_compartment();
 
 	static void full_instant_refresh();
 	static void refresh_all_categories(const bool reset_working_set);
-	static void refresh_category(const uint8 category) { goods_compartment[category].set_refresh(); }
+	static void refresh_category(const uint8 category);
+	static void refresh_class_category(const uint8 category, const uint8 g_class);
 	static bool get_catg_path_between(const uint8 category, const halthandle_t origin_halt, const halthandle_t target_halt,
-									  uint32 &aggregate_time, halthandle_t &next_transfer)
+									  uint32 &aggregate_time, halthandle_t &next_transfer, uint8 g_class = 0)
 	{
-		return goods_compartment[category].get_path_between(origin_halt, target_halt, aggregate_time, next_transfer);
+		return goods_compartment[category][g_class].get_path_between(origin_halt, target_halt, aggregate_time, next_transfer);
 	}
 
 	static karte_t *get_world() { return world; }
@@ -469,21 +477,23 @@ public:
 	static uint64 get_limit_explore_paths() { return compartment_t::get_limit_explore_paths(); }
 	static uint32 get_limit_reroute_goods() { return compartment_t::get_limit_reroute_goods(); }
 	static bool is_processing() { return processing; }
-	static const char *get_current_category_name() { return goods_compartment[current_compartment].get_category_name(); }
-	static const char *get_current_phase_name() { return goods_compartment[current_compartment].get_current_phase_name(); }
+	static const char *get_current_category_name() { return goods_compartment[current_compartment_category][current_compartment_class].get_category_name(); }
+	static const char *get_current_class_name() { return  goods_compartment[current_compartment_category][current_compartment_class].get_class_name(); }
+	static const char *get_current_phase_name() { return goods_compartment[current_compartment_category][current_compartment_class].get_current_phase_name(); }
 	
 	// Note that these are only used for the client/server synchronisation checklist for diagnostic purposes.
-	static uint8 get_current_compartment() { return current_compartment; }
+	static uint8 get_current_compartment_category() { return current_compartment_category; }
+	static uint8 get_current_compartment_class() { return current_compartment_class;  }
 	static uint8 get_max_categories() { return max_categories; }
-	static bool get_paths_available(uint8 i) { return goods_compartment[i].are_paths_available(); }
-	static bool get_refresh_completed(uint8 i) { return goods_compartment[i].is_refresh_completed(); }
-	static bool get_refresh_requested(uint8 i) { return goods_compartment[i].is_refresh_requested(); }
-	static uint8 get_current_phase(uint8 i) { return goods_compartment[i].get_current_phase(); }
-	static uint16 get_phase_counter(uint8 i) { return goods_compartment[i].get_phase_counter(); }
-	static uint16 get_working_halt_count(uint8 i) { return goods_compartment[i].get_working_halt_count(); }
-	static uint16 get_all_halt_count(uint8 i) { return goods_compartment[i].get_all_halt_count(); }
-	static uint16 get_transfer_count(uint8 i) { return goods_compartment[i].get_transfer_count(); }
-	static uint32 get_total_iterations(uint8 i) { return goods_compartment[i].get_total_iterations(); }
+	static bool get_paths_available(uint8 catg, uint8 g_class = 0) { return goods_compartment[catg][g_class].are_paths_available(); }
+	static bool get_refresh_completed(uint8 catg, uint8 g_class) { return goods_compartment[catg][g_class].is_refresh_completed(); }
+	static bool get_refresh_requested(uint8 catg, uint8 g_class) { return goods_compartment[catg][g_class].is_refresh_requested(); }
+	static uint8 get_current_phase(uint8 catg, uint8 g_class) { return goods_compartment[catg][g_class].get_current_phase(); }
+	static uint16 get_phase_counter(uint8 catg, uint8 g_class) { return goods_compartment[catg][g_class].get_phase_counter(); }
+	static uint16 get_working_halt_count(uint8 catg, uint8 g_class) { return goods_compartment[catg][g_class].get_working_halt_count(); }
+	static uint16 get_all_halt_count(uint8 catg, uint8 g_class) { return goods_compartment[catg][g_class].get_all_halt_count(); }
+	static uint16 get_transfer_count(uint8 catg, uint8 g_class) { return goods_compartment[catg][g_class].get_transfer_count(); }
+	static uint32 get_total_iterations(uint8 catg, uint8 g_class) { return goods_compartment[catg][g_class].get_total_iterations(); }
 };
 
 #endif

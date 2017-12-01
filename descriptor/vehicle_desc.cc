@@ -239,7 +239,11 @@ uint16 vehicle_desc_t::get_obsolete_year_month(const karte_t *welt) const
 void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 {
 	obj_desc_transport_related_t::calc_checksum(chk);
-	chk->input(capacity);
+	chk->input(classes);
+	for(uint32 i = 0; i < classes; i ++)
+	{
+		chk->input(capacity[i]); 
+	}
 	chk->input(weight);
 	chk->input(power);
 	chk->input(running_cost);
@@ -272,7 +276,10 @@ void vehicle_desc_t::calc_checksum(checksum_t *chk) const
 	chk->input(bidirectional ? 1 : 0);
 	chk->input(can_lead_from_rear ? 1 : 0);
 	chk->input(can_be_at_rear ? 1 : 0);
-	chk->input(comfort);
+	for (uint32 i = 0; i < classes; i++)
+	{
+		chk->input(comfort[i]);
+	}
 	chk->input(max_loading_time_seconds);
 	chk->input(min_loading_time_seconds);
 	chk->input(tractive_effort);

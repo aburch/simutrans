@@ -24,11 +24,11 @@ class goods_stats_t : public gui_world_component_t
 {
 private:
 	uint16 *goodslist;
-	int relative_speed_percentage;
+	uint32 vehicle_speed;
 	uint8 comfort;
 	uint8 catering_level;
 	uint32 distance_meters;
-	waytype_t way_type;
+	uint8 g_class;
 
 	// The number of goods to be displayed. May be less than maximum number of goods possible,
 	// if we are filtering to only the goods being produced by factories in the current game.
@@ -38,7 +38,7 @@ public:
 	goods_stats_t();
 
 	// update list and resize
-	void update_goodslist(uint16 *g, int relative_speed_percentage, int listd_goods, uint32 distance, uint8 comfort, uint8 catering, waytype_t waytype);
+	void update_goodslist(uint16 *g, uint32 vehicle_speed, int listd_goods, uint32 distance, uint8 comfort, uint8 catering, uint8 g_class);
 
 	/**
 	* Draw the component

@@ -37,7 +37,7 @@ public:
 	 * update a line -> apply updated schedule to all convoys
 	 * @author hsiegeln
 	 */
-	static void update_line(linehandle_t line);
+	static void update_line(linehandle_t line, bool do_not_renew_stops = false);
 
 	/*
 	 * load or save the linemanagement

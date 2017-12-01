@@ -13,6 +13,7 @@
 #include "skin_desc.h"
 //#include "../obj/gebaeude.h"
 #include "../dataobj/koord.h"
+#include "../tpl/vector_tpl.h"
 
 class building_desc_t;
 class tool_t;
@@ -238,6 +239,17 @@ class building_desc_t : public obj_desc_timelined_t {
 	 */
 	uint8 is_control_tower;
 
+	// The class proportions for supply/demand of
+	// passengers to this building. This does not
+	// apply to mail.
+	vector_tpl<uint16> class_proportions;			
+
+	uint32 class_proportions_sum;
+
+	vector_tpl<uint16> class_proportions_jobs;
+
+	uint32 class_proportions_sum_jobs;
+
 	inline bool is_type(building_desc_t::btype b) const {
 		return type == b;
 	}
@@ -416,6 +428,13 @@ public:
 	uint16 get_population_and_visitor_demand_capacity() const { return population_and_visitor_demand_capacity; }
 	uint16 get_employment_capacity() const { return employment_capacity; }
 	uint16 get_mail_demand_and_production_capacity() const { return mail_demand_and_production_capacity; }
+
+	uint32 get_number_of_class_proportions() const { return class_proportions.get_count(); }
+	uint32 get_number_of_class_proportions_jobs() const { return class_proportions_jobs.get_count(); }
+	uint16 get_class_proportion(uint8 index) const { return class_proportions[index]; }
+	uint16 get_class_proportion_jobs(uint8 index) const { return class_proportions_jobs[index]; }
+	uint32 get_class_proportions_sum() const { return class_proportions_sum; }
+	uint32 get_class_proportions_sum_jobs() const { return class_proportions_sum_jobs; }
 };
 
 

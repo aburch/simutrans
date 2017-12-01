@@ -32,7 +32,7 @@ private:
 	static uint8 max_catg_index;
 
 public:
-	enum { INDEX_PAS=0, INDEX_MAIL=1, INDEX_NONE=2 };
+	enum { INDEX_PAS=0, INDEX_MAIL=1, INDEX_NONE=2 }; 
 
 	static const goods_desc_t *passengers;
 	static const goods_desc_t *mail;
@@ -70,11 +70,6 @@ public:
 	 * used for the beginner mode
 	 */
 	static void set_multiplier(sint32 multiplier, uint16 scale_factor);
-
-	/*
-	 * Update the cache of speedbonuses by distance
-	 */
-	static void cache_speedbonuses(uint32 min_d, uint32 med_d, uint32 max_d, uint16 multiplier);
 };
 
 #endif

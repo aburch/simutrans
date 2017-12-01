@@ -572,7 +572,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		}
 	}
 
-	if (desc->get_styp() == type_runway)
+	if (wtyp == air_wt && desc->get_styp() == type_runway)
 	{
 		bool runway_36_18 = false;
 		bool runway_09_27 = false;
@@ -654,7 +654,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 			}
 			const double runway_meters_36_18 = (double)runway_tiles * km_per_tile;
 
-			buf.printf("%s: ", translator::translate("runway_38/18"));
+			buf.printf("%s: ", translator::translate("runway_36/18"));
 			buf.append(runway_meters_36_18);
 			buf.append(translator::translate("meter"));
 			buf.append("\n");
@@ -721,7 +721,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	{
 		char maintenance_number[64];
 		money_to_string(maintenance_number, (double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) / 100.0);
-		buf.printf("%s: %s", translator::translate("monthly_maintenance_cost"), maintenance_number);
+		buf.printf("%s:\n%s", translator::translate("monthly_maintenance_cost"), maintenance_number);
 
 
 
@@ -734,7 +734,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	{
 			char maintenance_wayobj_number[64];
 			money_to_string(maintenance_wayobj_number, ((double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) + (double)welt->calc_adjusted_monthly_figure(wayobj->get_desc()->get_maintenance())) / 100.0);
-			buf.printf("%s: %s", translator::translate("maint_incl_wayobj"), maintenance_wayobj_number);
+			buf.printf("%s:\n%s", translator::translate("maint_incl_wayobj"), maintenance_wayobj_number);
 
 			char maintenance_wayobj_km_number[64];
 			money_to_string(maintenance_wayobj_km_number, ((double)welt->calc_adjusted_monthly_figure(desc->get_maintenance()) + (double)welt->calc_adjusted_monthly_figure(wayobj->get_desc()->get_maintenance())) / 100.0 * tiles_pr_km);

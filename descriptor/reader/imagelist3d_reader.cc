@@ -1,26 +1,23 @@
 #include <stdio.h>
 #include "../../simdebug.h"
 
-#include "../bildliste3d_besch.h"
+#include "../image_array_3d.h"
 
 #include "imagelist3d_reader.h"
 #include "../obj_node_info.h"
 
 
-obj_besch_t * imagelist3d_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_desc_t * imagelist3d_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
-	ALLOCA(char, besch_buf, node.size);
+	ALLOCA(char, desc_buf, node.size);
 
-	bildliste3d_besch_t *besch = new bildliste3d_besch_t();
-	besch->node_info = new obj_besch_t*[node.children];
+	image_array_3d_t *desc = new image_array_3d_t();
 
 	// Hajo: Read data
-	fread(besch_buf, node.size, 1, fp);
-	char * p = besch_buf;
+	fread(desc_buf, node.size, 1, fp);
+	char * p = desc_buf;
 
-	besch->anzahl = decode_uint16(p);
+	desc->count = decode_uint16(p);
 
-//	DBG_DEBUG("imagelist3d_reader_t::read_node()", "count=%d data read (node.size=%i)",besch->anzahl, node.size);
-
-	return besch;
+	return desc;
 }

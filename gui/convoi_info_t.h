@@ -22,6 +22,7 @@
 #include "components/gui_chart.h"
 #include "components/gui_obj_view_t.h"
 #include "components/action_listener.h"
+#include "components/gui_combobox.h"
 #include "../convoihandle_t.h"
 #include "../linehandle_t.h"
 #include "../simconvoi.h"
@@ -42,7 +43,20 @@
 class convoi_info_t : public gui_frame_t, private action_listener_t
 {
 public:
-	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, by_destination_detail = 6, SORT_MODES = 7 };
+	enum sort_mode_t { 
+		by_destination = 0,
+		by_via = 1,
+		by_amount_via = 2, 
+		by_amount = 3,
+		by_origin = 4,
+		by_origin_sum = 5, 
+		by_destination_detail = 6, 
+		by_wealth_detail = 7, 
+		by_wealth_via = 8, 
+		by_accommodation_detail = 9,
+		by_accommodation_via = 10,
+		SORT_MODES = 11
+	};
 
 private:
 
@@ -69,10 +83,11 @@ private:
 	button_t filterButtons[BUTTON_COUNT];
 	int statistics_height;
 
-	button_t sort_button;
 	button_t details_button;
 	button_t toggler;
 	button_t reverse_button;
+
+	gui_combobox_t freight_sort_selector;
 
 	button_t line_button;	// goto line ...
 	bool line_bound;

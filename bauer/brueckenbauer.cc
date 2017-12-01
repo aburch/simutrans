@@ -123,7 +123,7 @@ const bridge_desc_t *bridge_builder_t::find_bridge(const waytype_t wtyp, const s
 		if(  desc->get_waytype()==wtyp  &&  desc->is_available(time)  ) {
 			if(find_desc==NULL  ||
 				((find_desc->get_topspeed()<min_speed  &&  find_desc->get_topspeed()<desc->get_topspeed())  &&
-				(find_desc->get_max_weight()<max_weight  &&  find_desc->get_topspeed()<desc->get_max_weight()))  ||
+				(find_desc->get_max_weight()<max_weight  &&  find_desc->get_max_weight()<desc->get_max_weight()))  ||
 				(desc->get_topspeed()>=min_speed && desc->get_max_weight()>=max_weight  &&  (desc->get_maintenance()<find_desc->get_maintenance() ||
 				(desc->get_maintenance()==find_desc->get_maintenance() &&  desc->get_value()<find_desc->get_value())))
 			) {

@@ -105,7 +105,8 @@ enum magic_numbers {
 	magic_replace=magic_halt_detail+65536,
 	magic_toolbar=magic_replace+65536,
 	magic_info_pointer=magic_toolbar+256,
-	magic_max = magic_info_pointer+843
+	magic_class_manager=magic_info_pointer+ 65536,
+	magic_max = magic_class_manager+843
 };
 
 // Holding time for auto-closing windows

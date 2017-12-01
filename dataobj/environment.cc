@@ -444,7 +444,7 @@ void env_t::rdwr(loadsave_t *file)
 	 file->rdwr_str( default_theme );
 	}
 
-	if(  file->get_version()>=120002 && (file->get_extended_version() == 0  || file->get_extended_revision() >= 10))
+	if(  file->get_version()>=120002 && (file->get_extended_version() == 0  || file->get_extended_revision() >= 10 || file->get_extended_version() >= 13))
 	{
 		file->rdwr_bool( new_height_map_conversion );
 	}

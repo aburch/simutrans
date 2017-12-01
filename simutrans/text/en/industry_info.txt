@@ -6,7 +6,7 @@
 <strong>Industry Information</strong> shows details about a selected industry, and allows the main game window to be centered on the industry.
 </p>
 <p>
-An <em>industry</em> produces or consumes commodities that can be transported, such as goods, oil, coal, etc.. Many industries rely on other industries in order to operate: for example, a steel mill cannot produce steel unless it has a supply of iron ore from which to make the steel. In this way, a number of industries can be linked together to form a <em>chain</em>. For example, a steel mill may be linked to an iron ore mine and a coal mine, and then link to a car factory, which would in turn link to a car dealership in a town. Each industry has a specific contract with specific other industries in the chain: it cannot be linked to just any industry of the right type. See <em>consumers</em> and <em>suppliers</em> for a list of connected industries.
+An <em>industry</em> produces or consumes commodities, such as goods, oil, coal, etc., that can be transported. Many industries rely on other industries in order to operate: for example, a steel mill cannot produce steel unless it has a supply of iron ore from which to make the steel and coal to power its furnaces. In this way, a number of industries can be linked together to form a <em>chain</em>. For example, a steel mill may be linked to an iron ore mine and a coal mine, and then link to a car factory, which would in turn link to a car dealership. Each industry has a specific contract with specific other industries in the chain: it cannot be linked to just any industry of the right type. See <em>consumers</em> and <em>suppliers</em> for a list of connected industries.
 </p>
 <p>
 An industry cannot produce anything unless it has enough of a supply of the commodities that it demands. Each industry has an <em>input store</em>: whenever commodities are dropped off at the industry, they go into the input store. The input store has a finite capacity. When the input store has commodities in it of all the required types, the industry will produce its output commodity until the stores are depleted.  When the input stores are full, the industry that supplies the input commodity will also stop producing until there is some space in the input store, unless playing in <a href="new_world.txt">beginner mode</a>.
@@ -15,15 +15,15 @@ An industry cannot produce anything unless it has enough of a supply of the comm
 When an industry produces commodities, it stores them in its <em>output stores</em>. When these get full, the industry stops producing. Commodities for transport away from the industry are taken from the output stores.
 </p>
 <p>
-Because people need to work in industries, industries are also a destination for passengers and mail.
+Industries need workers in order to operate, and end consumer industries (industries other than power stations that consume but do not produce, such as shops) also need customers. Passengers bound for an industry may either be commuting there to work in it, or visiting it as customers (in the case of an end consumer industry) or in some other capacity (in other cases). Producing industries will reduce their production and eventually stop producing entirely if they are short of staff. End consumer industries will close to customers if they do not have enough staff to keep going. End consumer industries will also only consume goods when customers arrive and buy the goods. 
 </p>
 <p>
-To connect a <a href="station.txt">stop</a> to an industry, simply place the stop so that any part of the industry is within the stop's catchment area. More than one stop can serve the same industry. The <a href="station.txt">stop details window</a> shows which industries are connected to any given stop.<br>
+To connect a <a href="station.txt">stop</a> to an industry, simply place the stop so that any part of the industry is within the stop's catchment area. Note that the catchment area for goods is much smaller than the catchment area for passengers, as passengers can walk. More than one stop can serve the same industry. The <a href="station.txt">stop details window</a> shows which industries are connected to any given stop.<br>
 <em>Note</em>: Offshore industries have thier own, built-in stops. These are not listed in the list of stops, but function as a stop in every other way.
 </p>
 <p>
-When starting the game, the intial number of Industry Supply Chains can be set in <a href="new_world.txt">Create New World</a>.
-As <a href="citywindow.txt">urban areas</a> grow, more industries may appear. New industries appears each time the population of an urban area doubles, from about 2,000 onwards.<br>
+When starting the game, the intial number of industries can be set in <a href="new_world.txt">Create New World</a>.
+As <a href="citywindow.txt">urban areas</a> grow, more industries may appear. <br>
 <em>Tip</em>: Build and link industries manually by using the <strong>build industries</strong> tool in the <a href="edittools.txt">map editing</a> toolstrip. You must be the <a href="players.txt">public player</a> to do this. Change when new industries are generated in the <strong>cityrules.tab</strong> file: industry_increase_every = 0 generates no new industries.
 </p>
 <p>
@@ -41,12 +41,13 @@ Other information about selected industry and options include:
 <em>Industry picture</em> shows a view of the industry building. Click on  thepicture to centre the main game window on the industry.
 </p>
 <p>
-<em>Status colour bar</em> under the picture how and whether the industry is operating (also used in the <a href="factorylist_filter.txt">Industry List</a>):<br>
-- <em>White:</em> does not require input.<br>
-- <em>Yellow:</em> connected by transport, but the supply of input commodities is poor or non-existant.<br>
-- <em>Green:</em> at optimum status.<br>
-- <em>Orange:</em> operational but improvements are possible.<br>
-- <em>Red:</em> operational, but part of the industry supply chain has excess supply.
+The <em>Status colour bar</em> under the picture shows how and whether the industry is operating (also used in the <a href="factorylist_filter.txt">Industry List</a>):<br>
+- <em>white</em> means that the industry does not require input;<br>
+- <em>yellow</em> means that the industry is connected by transport, but the supply of input commodities is poor or non-existant;<br>
+- <em>green</em> means that the industry is at optimum status;<br>
+- <em>orange</em> means that the industry is operational but improvements are possible in the supply of goods (for example, only some commodities are supplied to an end consumer industry);<br>
+- <em>red</em> means that the industry is operational, but that part of the industry supply chain has excess supply; and
+- <em>purple</em>  means that the industry is short staffed.
 </p>
 <p>
 <em>Consumer:</em> lists the destinations in the industry supply chain for goods produced by the selected industry. <br>
@@ -57,23 +58,31 @@ Destination industries and their map co-ordinates are listed by an arrow button.
 Supplier industries and their map co-ordinates are listed by an arrow button. Click on the arrow button to centre the main game window on the supplier industry.
 </p>
 <p>
-<em>Workers live in:</em> shows in which nearby <a href="citywindow.txt">urban areas</a> workers of that industry live. Passengers and mail from those urban areas will can be transported to the selected industry.<br>
-Urban areas and their map co-ordinates are listed by an arrow button. Click on the arrow button to centre the main game window on the urban area in question.
+<em>City:</em> shows the town or city, if any, in which the industry is located. If the industry is located in a town, and that town is supplied with <a href="electricity.txt">electricity</a>, the industry will receive a supply of electricity from the town without being separately connected.
 </p>
 <p>
-<em>Passenger level:</em> is an indication of the number of passengers who work at, and therefore need to be transported to, that industry.
+<em>Electrical demand:</em> shows how much <a href="electricity.txt">electricity</a> that this industry demands . Industries that demand electricity can work without it, but they will be more productive if supplied with electricity.
 </p>
 <p>
-<em>Mail level:</em> gives a similar indication for mail.
+<em>Visitor demand:</em> shows the number of visiting passengers that this industry demands in a month. For end consumer industries, these are customers, and the industry will not sell its stock without these visitors arriving.
 </p>
 <p>
-<em>Production:</em> gives details on output of the ndustry.<br>
+<em>Visitors this year:</em> shows the number of visiting passengers that have arrived at this industry so far this year.
+</p>
+<p>
+<em>Jobs (available):</em> shows the number of people that this industry employs. The number in brackets shows the number of workers that this industry needs but who are not currently at work. If this number gets too high in proportion to the number of jobs, the industry might reduce production or close to customers. 
+</p>
+<p>
+<em>Production:</em> gives details on output of the industry.<br>
 Information shown includes: the name of the item; the quantity currently stored; the maximum storage capacity for that type of item; the <a href="goods_filter.txt">goods category</a>; and the percentage level of output compared to input.
 </p>
 <p>
 <em>Consumption:</em> gives details on inputs to the industry.<br>
-Information shown includes: the name of the item; the quantity currently stored; the maximum storage capacity for that type of item; the <a href="goods_filter.txt">goods category</a>; and the percentage level of input compared to output.
+Information shown includes: the name of the item; the quantity currently stored; the number of those items currently in transit towards the industry; (in brackets) the maximum number of those items that will be in transit to that industry before no further items will be put in transit; the maximum storage capacity for that type of item; the <a href="goods_filter.txt">goods category</a>; and the percentage level of input compared to output.
 </p>
 <p>
 <a href="station.txt"><em>Stops</em></a> which serve the Industry are listed at the bottom of the <strong>Industry Information</strong> window.
+</p>
+<p>
+The <em>Chart</em> shows more detailed historical statistics regarding the industry.
 </p>

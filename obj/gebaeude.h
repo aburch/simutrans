@@ -15,6 +15,7 @@
 class building_tile_desc_t;
 class fabrik_t;
 class stadt_t;
+class goods_desc_t;
 
 /**
  * Asynchron oder synchron animierte Gebaeude für Simutrans.
@@ -247,6 +248,8 @@ public:
 	 */
 	void info(cbuffer_t & buf, bool dummy = false) const;
 
+	void get_class_percentage(cbuffer_t & buf) const;
+
 	void rdwr(loadsave_t *file);
 
 	/**
@@ -275,21 +278,26 @@ public:
 
 	gebaeude_t* access_first_tile();
 
-	void add_passengers_generated_commuting(uint16 number) { passengers_generated_commuting += number; }
-	void add_passengers_succeeded_commuting(uint16 number) { passengers_succeeded_commuting += number; }
 
 	uint16 get_passengers_succeeded_visiting() const { return passengers_succeeded_visiting; }
+	uint16 get_passengers_succeeded_commuting() const { return passengers_succeeded_commuting; }
 
 	uint16 get_passenger_success_percent_this_year_commuting() const { return passengers_generated_commuting > 0 ? (passengers_succeeded_commuting * 100) / passengers_generated_commuting : 65535; }
 	uint16 get_passenger_success_percent_last_year_commuting() const { return passenger_success_percent_last_year_commuting; }
 	uint16 get_average_passenger_success_percent_commuting() const { return (get_passenger_success_percent_this_year_commuting() + passenger_success_percent_last_year_commuting) / 2; }
 
-	void add_passengers_generated_visiting(uint16 number) { passengers_generated_visiting += number; }
-	void add_passengers_succeeded_visiting(uint16 number) { passengers_succeeded_visiting += number; }
-
 	uint16 get_passenger_success_percent_this_year_visiting() const { return passengers_generated_visiting > 0 ? (passengers_succeeded_visiting * 100) / passengers_generated_visiting : 65535; }
 	uint16 get_passenger_success_percent_last_year_visiting() const { return passenger_success_percent_last_year_visiting; }
 	uint16 get_average_passenger_success_percent_visiting() const { return (get_passenger_success_percent_this_year_visiting() + passenger_success_percent_last_year_visiting) / 2; }
+
+	void add_passengers_generated_visiting(uint16 number) { passengers_generated_visiting += number; }
+	void add_passengers_succeeded_visiting(uint16 number) { passengers_succeeded_visiting += number; }
+
+	void add_passengers_generated_commuting(uint16 number) { passengers_generated_commuting += number; }
+	void add_passengers_succeeded_commuting(uint16 number) { passengers_succeeded_commuting += number; }
+
+	void set_passengers_visiting_last_year(uint16 value) { passenger_success_percent_last_year_visiting = value; }
+	void set_passengers_commuting_last_year(uint16 value) { passenger_success_percent_last_year_commuting = value; }
 
 	void new_year();
 
@@ -334,8 +342,18 @@ public:
 	*/
 	sint32 check_remaining_available_jobs() const;
 
+	/*
+	* Returns a percentage of the staffing level for this building
+	*/
+	sint32 get_staffing_level_percentage() const;
+
+	uint8 get_random_class(const goods_desc_t* wtyp);
+
 	bool get_is_in_world_list() const { return is_in_world_list; }
 	void set_in_world_list(bool value) { is_in_world_list = value; }
+
+	sint64 get_available_jobs_by_time() const { return available_jobs_by_time; }
+	void set_available_jobs_by_time(sint64 value) { available_jobs_by_time = value; }
 };
 
 

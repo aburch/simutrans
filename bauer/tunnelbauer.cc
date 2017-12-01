@@ -239,7 +239,7 @@ koord3d tunnel_builder_t::find_end_pos(player_t *player, koord3d pos, koord zv, 
 				raise.iterate(false);
 				lower.add_lower_node(pos.x, pos.y, hsw, hse, hne, hnw);
 				lower.iterate(false);
-				if (raise.can_lower_all(player, player->is_public_service()) || lower.can_lower_all(player, player->is_public_service())) {
+				if (!player || (raise.can_lower_all(player, player->is_public_service()) || lower.can_lower_all(player, player->is_public_service()))) {
 					// returned true therefore error reported
 					return koord3d::invalid;
 				}

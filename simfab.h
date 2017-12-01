@@ -589,6 +589,23 @@ public:
 
 	sint32 liefere_an(const goods_desc_t *, sint32 menge);
 
+	/*
+	* This method is used when visiting passengers arrive at an
+	* end consumer industry. This logs their consumption of 
+	* products sold at this end-consumer industry.
+	*/
+	void add_consuming_passengers(sint32 number_of_passengers); 
+	
+	/*
+	* Returns true if this industry has no stock left.
+	* If the industry has some types of stock left but not
+	* others, whether true or false is returned is random, 
+	* weighted by the proportions of each.
+	* This is for use in determining whether passengers may
+	* travel to this destination.
+	*/
+	bool out_of_stock_selective();
+
 	void step(uint32 delta_t);                  // factory muss auch arbeiten ("factory must also work")
 
 	void new_month();
@@ -689,8 +706,8 @@ public:
 	sint32 get_current_production() const { return (sint32)(welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + prodfactor_pax + prodfactor_mail)))) >> 8l; }
 
 	/* prissi: returns the status of the current factory, as well as output */
-	enum { bad, medium, good, inactive, nothing };
-	static unsigned status_to_color[5];
+	enum { bad, medium, good, inactive, nothing, staff_shortage };
+	static unsigned status_to_color[6];
 
 	uint8  get_status() const { return status; }
 	uint32 get_total_in() const { return total_input; }
@@ -745,6 +762,8 @@ public:
 	int get_passenger_level_jobs() const;
 	int get_passenger_level_visitors() const;
 	int get_mail_level() const;
+
+	bool is_input_empty() const;
 };
 
 #endif

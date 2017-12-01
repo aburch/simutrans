@@ -480,7 +480,7 @@
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|x64'">..\OpenTTD\shared\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug-64|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug-64|x64'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded old)|Win32'">..\OpenTTD\shared\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded old)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded old)|x64'">..\OpenTTD\shared\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (network)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (network)|x64'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
@@ -532,13 +532,13 @@
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (IP v. 4 only)|x64'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (command-line server)|x64'">..\OpenTTD\shared\include;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\include;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\shared\include;F:\My Documents\Development\Zlib\include;F:\My Documents\Development\Simutrans\SDL-1.2.13\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|x64'">F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\include;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\shared\include;F:\My Documents\Development\Zlib\include;F:\My Documents\Development\Simutrans\SDL-1.2.13\include;$(IncludePath)</IncludePath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">F:\My Documents\Development\Lib Png\bin;F:\My Documents\Development\Simutrans\SDL-1.2.13\lib;F:\My Documents\Development\Zlib\lib;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\library;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|x64'">F:\My Documents\Development\Lib Png\bin;F:\My Documents\Development\Simutrans\SDL-1.2.13\lib;F:\My Documents\Development\Zlib\lib;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\library;$(LibraryPath)</LibraryPath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|Win32'">F:\My Documents\Development\Zlib\source;$(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Release (SDL)|x64'">F:\My Documents\Development\Zlib\source;$(SourcePath)</SourcePath>
-    <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SourcePath)</SourcePath>
+    <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug (no randomness)|Win32'">$(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug (single threaded new)|Win32'">$(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug (graphical server)|Win32'">$(SourcePath)</SourcePath>
@@ -554,7 +554,7 @@
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug (network)|x64'">(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|Win32'">(SourcePath)</SourcePath>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Debug (command-line server)|x64'">(SourcePath)</SourcePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">F:\My Documents\Development\Simutrans\SDL-1.2.13\include;F:\My Documents\Development\Zlib\source;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\include;F:\My Documents\Development\Zlib\include;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\shared\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">..\OpenTTD\shared\include;..\bzip\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|x64'">F:\My Documents\Development\Simutrans\SDL-1.2.13\include;F:\My Documents\Development\Zlib\source;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\include;F:\My Documents\Development\Zlib\include;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\shared\include;$(IncludePath)</IncludePath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|Win32'">F:\My Documents\Development\Zlib\lib;F:\My Documents\Development\Lib Png\bin;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\library;F:\My Documents\Development\Simutrans\SDL-1.2.13\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug (SDL)|x64'">F:\My Documents\Development\Zlib\lib;F:\My Documents\Development\Lib Png\bin;F:\My Documents\Development\Simutrans\Open TTD binaries\OpenTTD essentials\win32\library;F:\My Documents\Development\Simutrans\SDL-1.2.13\lib;$(LibraryPath)</LibraryPath>
@@ -639,11 +639,11 @@
     </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Victor\Documents\GitHub\OpenTTD\shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3;%(PreprocessorDefinitions);COLOUR_DEPTH=16;DEBUG_FREELIST;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <StructMemberAlignment>Default</StructMemberAlignment>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <PrecompiledHeader>
@@ -655,7 +655,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <StringPooling>true</StringPooling>
-      <AdditionalOptions>/Zc:sizedDealloc-</AdditionalOptions>
+      <AdditionalOptions>/Zc:sizedDealloc- %(AdditionalOptions)/Zc:sizedDealloc-</AdditionalOptions>
       <ExceptionHandling>false</ExceptionHandling>
     </ClCompile>
     <Link>
@@ -1252,8 +1252,8 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Victor\Documents\GitHub\OpenTTD\shared\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NOMINMAX=1;ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;NDEBUG;%(PreprocessorDefinitions);COLOUR_DEPTH=16;MULTI_THREAD;REVISION_FROM_FILE;REVISION_FROM_FILE;GDI_SOUND</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>
@@ -1782,6 +1782,7 @@
     <ClCompile Include="bauer\goods_manager.cc" />
     <ClCompile Include="descriptor\factory_desc.cc" />
     <ClCompile Include="descriptor\obj_base_desc.cc" />
+    <ClCompile Include="descriptor\reader\imagelist3d_reader.cc" />
     <ClCompile Include="descriptor\vehicle_desc.cc" />
     <ClCompile Include="descriptor\way_desc.cc" />
     <ClCompile Include="clipboard_w32.cc" />
@@ -1849,6 +1850,7 @@
     <ClCompile Include="gui\signal_info.cc" />
     <ClCompile Include="gui\simwin.cc" />
     <ClCompile Include="gui\themeselector.cc" />
+    <ClCompile Include="gui\vehicle_class_manager.cc" />
     <ClCompile Include="network\checksum.cc" />
     <ClCompile Include="network\memory_rw.cc" />
     <ClCompile Include="network\network.cc" />
@@ -2324,6 +2326,8 @@
     <ClInclude Include="dataobj\objlist.h" />
     <ClInclude Include="dataobj\records.h" />
     <ClInclude Include="dataobj\settings.h" />
+    <ClInclude Include="descriptor\image_array_3d.h" />
+    <ClInclude Include="descriptor\reader\imagelist3d_reader.h" />
     <ClInclude Include="display\clip_num.h" />
     <ClInclude Include="display\font.h" />
     <ClInclude Include="display\scr_coord.h" />
@@ -2351,6 +2355,7 @@
     <ClInclude Include="gui\signal_info.h" />
     <ClInclude Include="gui\simwin.h" />
     <ClInclude Include="gui\themeselector.h" />
+    <ClInclude Include="gui\vehicle_class_manager.h" />
     <ClInclude Include="network\checksum.h" />
     <ClInclude Include="network\memory_rw.h" />
     <ClInclude Include="network\network.h" />
@@ -2544,7 +2549,6 @@
     <ClInclude Include="descriptor\reader\image_reader.h" />
     <ClInclude Include="descriptor\writer\image_writer.h" />
     <ClInclude Include="descriptor\reader\imagelist2d_reader.h" />
-    <ClInclude Include="descriptor\writer\imagelist2d_writer.h" />
     <ClInclude Include="descriptor\reader\imagelist_reader.h" />
     <ClInclude Include="descriptor\writer\imagelist_writer.h" />
     <ClInclude Include="tpl\inthashtable_tpl.h" />
@@ -2731,6 +2735,7 @@
     <None Include=".desktop" />
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
+    <None Include="base-texts-classes_gui.dat" />
     <None Include="base-texts-depot-window-refurbish.dat" />
     <None Include="base-texts-new-convoy-debug-information.dat" />
     <None Include="base_texts_extended-passenger-generation.dat" />
@@ -2766,6 +2771,7 @@
     <None Include="base_texts_extended_forgotten_items_2.dat" />
     <None Include="base_texts_extended_forgotten_items_3.dat" />
     <None Include="base_texts_extended_info_window_1.dat" />
+    <None Include="base_texts_extended_info_window_3.dat" />
     <None Include="base_texts_extended_modified_comfort.dat" />
     <None Include="base_texts_extended_transshipment.dat" />
     <None Include="base_texts_phil_fix.dat" />

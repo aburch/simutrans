@@ -35,9 +35,31 @@ private:
 	uint32 total_standing_pax;
 	uint32 total_mail;
 	uint32 total_goods;
+
+	uint8 total_pax_classes;
+	uint8 total_mail_classes;
+
+	uint8 good_type_0 = 0;
+	uint8 good_type_1 = 0;
+	uint8 good_type_2 = 0;
+	uint8 good_type_3 = 0;
+	uint8 good_type_4 = 0;
+
+	uint32 good_type_0_amount;
+	uint32 good_type_1_amount;
+	uint32 good_type_2_amount;
+	uint32 good_type_3_amount;
+	uint32 good_type_4_amount;
+	uint32 rest_good_amount;
+
+	uint8 highest_catering;
+	bool is_tpo;
+
+	// The selected convoy so far...
+	vector_tpl<const vehicle_desc_t *> vehicles;
 public:
 	depot_convoi_capacity_t();
-	void set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods);
+	void set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods, uint8 pax_classes, uint8 mail_classes, uint8 good_0, uint8 good_1, uint8 good_2, uint8 good_3, uint8 good_4, uint32 good_0_amount, uint32 good_1_amount, uint32 good_2_amount, uint32 good_3_amount, uint32 good_4_amount, uint32 rest_good, uint8 catering, bool tpo);
 	void draw(scr_coord offset);
 };
 
@@ -114,6 +136,8 @@ class gui_convoy_assembler_t :
 	// @author: jamespetts, April 2010
 	gui_label_t lb_traction_types;
 	gui_label_t lb_vehicle_count;
+	// Display the load
+	//gui_container_t cont_convoi_capacity;
 
 	depot_convoi_capacity_t cont_convoi_capacity;
 
@@ -133,6 +157,8 @@ class gui_convoy_assembler_t :
 	
 	gui_label_t lb_livery_selector;
 	gui_combobox_t livery_selector;
+
+	button_t bt_class_management;
 
 	vector_tpl<gui_image_list_t::image_data_t*> convoi_pics;
 	gui_image_list_t convoi;
@@ -206,10 +232,14 @@ class gui_convoy_assembler_t :
 	// add a single vehicle (helper function)
 	void add_to_vehicle_list(const vehicle_desc_t *info);
 
-	static const sint16 VINFO_HEIGHT = 186 + 14;
+	//static const sint16 VINFO_HEIGHT = 186 + 14;
+	static const sint16 VINFO_HEIGHT = 300/*250*/;
 
 	static uint16 livery_scheme_index;
 	vector_tpl<uint16> livery_scheme_indices;
+	//vector_tpl<uint16> cs_pas_0_indicies;
+	vector_tpl<uint16> cs_pass_indicies;
+
 
 public:
 	// Last selected vehicle filter
