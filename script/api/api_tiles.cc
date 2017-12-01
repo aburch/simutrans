@@ -222,6 +222,12 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @return neighbour tile or null
 	 */
 	register_method(vm, &get_neighbour, "get_neighbour", true);
+	/**
+	 * Checks whether player can delete all objects on the tile.
+	 * @param pl player
+	 * @return error message or null if player can delete everything
+	 */
+	register_method(vm, &grund_t::kann_alle_obj_entfernen, "can_remove_all_objects");
 
 #ifdef SQAPI_DOC // document members
 	/**
