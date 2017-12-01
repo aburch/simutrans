@@ -27,6 +27,8 @@
 #include "bauer/tunnelbauer.h"
 
 #include "descriptor/building_desc.h"
+#include "descriptor/bridge_desc.h"
+#include "descriptor/tunnel_desc.h"
 
 #include "boden/grund.h"
 #include "boden/wege/strasse.h"
@@ -124,6 +126,7 @@ tool_t *create_general_tool(int toolnr)
 	assert(tool->get_id()  ==  (toolnr | GENERAL_TOOL)  ||  toolnr==TOOL_SLICED_AND_UNDERGROUND_VIEW);
 	return tool;
 }
+
 
 tool_t *create_simple_tool(int toolnr)
 {
@@ -230,6 +233,95 @@ tool_t *create_tool(int toolnr)
 		dbg->error("create_tool()","cannot satisfy request for tool with id %i!",toolnr);
 	}
 	return tool;
+}
+
+
+/**
+ * Returns desc and tool pointer corresponding to the
+ * general toolid with name @p param_str.
+ */
+void general_tool_get_desc_builder(uint16 id, const char *param_str, const obj_desc_timelined_t* &desc, tool_t* &tool)
+{
+	if (  id & (SIMPLE_TOOL | DIALOGE_TOOL) ) {
+		return;
+	}
+	id = id & (~GENERAL_TOOL);
+	const obj_desc_transport_infrastructure_t* desc1 = NULL;
+
+	if (param_str) {
+		switch (id) {
+			case TOOL_BUILD_WAY:
+				desc1 = way_builder_t::get_desc(param_str);
+				break;
+			case TOOL_BUILD_BRIDGE:
+				desc1 = bridge_builder_t::get_desc(param_str);
+				break;
+			case TOOL_BUILD_TUNNEL:
+				desc1 = tunnel_builder_t::get_desc(param_str);
+				break;
+			case TOOL_BUILD_ROADSIGN:
+				desc1 = roadsign_t::find_desc(param_str);
+				break;
+			case TOOL_BUILD_WAYOBJ:
+				desc1 = wayobj_t::find_desc(param_str);
+				break;
+				// The following 3's descriptions are registered by hausbauer_t.
+			case TOOL_BUILD_DEPOT:
+			case TOOL_BUILD_STATION:
+			case TOOL_HEADQUARTER: {
+				const building_desc_t* desc2 = hausbauer_t::get_desc(param_str);
+				desc = desc2;
+				tool = desc2->get_builder();
+				return;
+			}
+			default: ;
+		}
+	}
+	if (desc1) {
+		desc = desc1;
+		tool = desc1->get_builder();
+	}
+}
+
+
+/**
+ * Set the defaults of a newly created general tool.
+ */
+void set_defaults_general_tool(tool_t *tool, const char *param_str)
+{
+	if (  tool  ==  NULL  ) {
+		return;
+	}
+	tool_t* copy_from = NULL;
+	const obj_desc_timelined_t* desc = NULL;
+
+	general_tool_get_desc_builder(tool->get_id(), param_str, desc, copy_from);
+
+	if (copy_from) {
+		*tool = *copy_from;
+	}
+}
+
+
+/**
+ * Checks whether a tool is available in the current timeline.
+ *
+ * Note that this function would return true on error. It is done so
+ * if no description was found, the previous toolbar button logic
+ * will still be applied - show buttons with icons regardless of
+ * whether the objects they build are available or not.
+ */
+bool check_tool_availability(const tool_t *tool, uint64 time)
+{
+	if (  tool  ==  NULL  ) {
+		return true;
+	}
+	tool_t* dummy = NULL;
+	const obj_desc_timelined_t* desc = NULL;
+
+	general_tool_get_desc_builder(tool->get_id(), tool->get_default_param(), desc, dummy);
+
+	return desc ? desc->is_available(time) : true;
 }
 
 
@@ -536,7 +628,7 @@ void tool_t::read_menu(const std::string &objfilename)
 						// now create tool
 						addtool = create_general_tool( toolnr );
 						// copy defaults
-						*addtool = *(general_tool[toolnr]);
+						set_defaults_general_tool(addtool, param_str);
 
 						general_tool.append( addtool );
 					}
@@ -808,6 +900,9 @@ void toolbar_t::update(player_t *player)
 			}
 			scenario_t *scen = welt->get_scenario();
 			if(  scen->is_scripted()  &&  !scen->is_tool_allowed(player, w->get_id(), w->get_waytype())) {
+				continue;
+			}
+			if ( !check_tool_availability(w,  welt->get_timeline_year_month()) ) {
 				continue;
 			}
 			// now add it to the toolbar gui
