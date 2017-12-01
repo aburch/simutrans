@@ -4,7 +4,7 @@
  *
  * @section api-trunk Current trunk
  *
- * - Added @ref coord_to_dir, @ref coord.to_dir
+ * - Added @ref coord_to_dir, @ref coord.to_dir, @ref dir.to_coord
  * - Added @ref simple_heap_x, @ref way_planner_x, @ref bridge_planner_x
  * - Added map_object_x::is_marked
  * - Added gui::open_info_win_at

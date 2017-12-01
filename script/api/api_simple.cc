@@ -113,6 +113,13 @@ template<int idx> SQInteger coord_to_ribi(HSQUIRRELVM vm)
 	return param<uint8>::push(vm, ribi);
 }
 
+SQInteger ribi_to_coord(HSQUIRRELVM vm)
+{
+	uint8 ribi = param<uint8>::get(vm, 2);
+	koord k( (ribi_t::ribi)ribi);
+	return push_instance(vm, "coord", k.x, k.y);
+}
+
 
 void export_simple(HSQUIRRELVM vm)
 {
@@ -274,6 +281,12 @@ void export_simple(HSQUIRRELVM vm)
 	 * @param d direction
 	 */
 	STATIC register_method(vm, &ribi_to_slope, "to_slope", false, true);
+	/**
+	 * Helper function to convert direction vector to dir type.
+	 * @typemask coord(dir)
+	 */
+	STATIC register_function(vm, ribi_to_coord, "to_coord", 2, ".i", true);
+
 	end_class(vm);
 
 	/**
