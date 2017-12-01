@@ -108,8 +108,9 @@ template<int idx> SQInteger coord_to_ribi(HSQUIRRELVM vm)
 	get_slot(vm, "y", y, idx);
 	koord k(x,y);
 
-	my_ribi_t ribi = ribi_type(k);
-	return param<my_ribi_t>::push(vm, ribi);
+	// and do not transform ribi either
+	uint8 ribi = ribi_type(k);
+	return param<uint8>::push(vm, ribi);
 }
 
 
