@@ -1841,7 +1841,7 @@
     <ClCompile Include="gui\factory_chart.cc" />
     <ClCompile Include="gui\gui_theme.cc" />
     <ClCompile Include="gui\line_item.cc" />
-    <ClCompile Include="gui\line_time_measure.cc" />
+    <ClCompile Include="gui\times_history.cc" />
     <ClCompile Include="gui\obj_info.cc" />
     <ClCompile Include="gui\privatesign_info.cc" />
     <ClCompile Include="gui\scenario_info.cc" />
@@ -1850,6 +1850,8 @@
     <ClCompile Include="gui\signal_info.cc" />
     <ClCompile Include="gui\simwin.cc" />
     <ClCompile Include="gui\themeselector.cc" />
+    <ClCompile Include="gui\times_history_container.cc" />
+    <ClCompile Include="gui\times_history_entry.cc" />
     <ClCompile Include="network\checksum.cc" />
     <ClCompile Include="network\memory_rw.cc" />
     <ClCompile Include="network\network.cc" />
@@ -2344,7 +2346,7 @@
     <ClInclude Include="gui\display_settings.h" />
     <ClInclude Include="gui\factory_chart.h" />
     <ClInclude Include="gui\gui_theme.h" />
-    <ClInclude Include="gui\line_time_measure.h" />
+    <ClInclude Include="gui\times_history.h" />
     <ClInclude Include="gui\obj_info.h" />
     <ClInclude Include="gui\privatesign_info.h" />
     <ClInclude Include="gui\scenario_info.h" />
@@ -2353,6 +2355,8 @@
     <ClInclude Include="gui\signal_info.h" />
     <ClInclude Include="gui\simwin.h" />
     <ClInclude Include="gui\themeselector.h" />
+    <ClInclude Include="gui\times_history_container.h" />
+    <ClInclude Include="gui\times_history_entry.h" />
     <ClInclude Include="network\checksum.h" />
     <ClInclude Include="network\memory_rw.h" />
     <ClInclude Include="network\network.h" />

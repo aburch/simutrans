@@ -5024,6 +5024,17 @@ void convoi_t::laden() //"load" (Babelfish)
 			ave.add((uint16)latest_journey_time);
 			journey_times_between_schedule_points.put(this_departure, ave);
 		}
+		if (!journey_times_history.is_contained(this_departure)) {
+			journey_times_history.put(this_departure, times_history_data_t());
+		}
+		journey_times_history.access(this_departure)->set(latest_journey_time);
+		if (line.is_bound()) {
+			times_history_map &line_history = line->get_journey_times_history();
+			if (!line_history.is_contained(this_departure)) {
+				line_history.put(this_departure, times_history_data_t());
+			}
+			line_history.access(this_departure)->set(latest_journey_time);
+		}
 
 		const sint32 average_speed = (journey_distance_meters * 3) / ((sint32)latest_journey_time * 5);
 
@@ -5069,21 +5080,6 @@ void convoi_t::laden() //"load" (Babelfish)
 					else
 					{
 						get_average_journey_times().access(pair)->add_autoreduce(this_journey_time, timings_reduction_point);
-					}
-
-					if (line->is_in_journey_times_measurement()) {
-						journey_times_map &average_map = line->get_average_journey_times_for_measurement();
-						const average_tpl<uint32> *average_measurement = average_map.access(pair);
-						if(!average_measurement)
-						{
-							average_tpl<uint32> average_new;
-							average_new.add(this_journey_time);
-							average_map.put(pair, average_new);
-						}
-						else
-						{
-							average_map.access(pair)->add_autoreduce(this_journey_time, timings_reduction_point);
-						}
 					}
 				}
 			}
@@ -7539,6 +7535,7 @@ void convoi_t::clear_departures()
 	departures.clear();
 	departures_already_booked.clear();
 	journey_times_between_schedule_points.clear();
+	journey_times_history.clear();
 	clear_estimated_times();
 }
 

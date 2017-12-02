@@ -675,3 +675,38 @@ bool schedule_t::is_contained (koord3d pos)
 	}
 	return false;
 }
+
+
+times_history_data_t::times_history_data_t() {
+	for (uint16 i = 0; i < TIMES_HISTORY_SIZE; i++) {
+		history[i] = 0;
+	}
+}
+
+uint32 times_history_data_t::get_entry(uint16 index) const {
+	if (index >= TIMES_HISTORY_SIZE) return 0;
+	return history[index];
+}
+
+void times_history_data_t::set(uint32 time) {
+	for (uint16 i = TIMES_HISTORY_SIZE - 1; i >= 1; i--) {
+		history[i] = history[i - 1];
+	}
+	history[0] = time;
+}
+
+uint32 times_history_data_t::get_average() const {
+	uint64 total = 0;
+	uint16 count = 0;
+	for (uint16 i = 0; i < TIMES_HISTORY_SIZE; i++) {
+		if (history[i] != 0) {
+			total += history[i];
+			count++;
+		}
+	}
+	if (count == 0) return 0;
+	return total / count;
+}
+
+void times_history_data_t::rdwr(loadsave_t *file) {
+}

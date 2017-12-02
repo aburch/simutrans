@@ -61,8 +61,6 @@ simline_t::simline_t(player_t* player, linetype type)
 	start_reversed = false;
 	livery_scheme_index = 0;
 
-	in_journey_times_measurement = false;
-
 	create_schedule();
 }
 
@@ -77,7 +75,6 @@ simline_t::simline_t(player_t* player, linetype type, loadsave_t *file)
 	withdraw = false;
 	create_schedule();
 	rdwr(file);
-	in_journey_times_measurement = false;
 
 	// now self has the right id but the this-pointer is not assigned to the quickstone handle yet
 	// do this explicitly
@@ -491,6 +488,7 @@ void simline_t::unregister_stops(schedule_t * schedule)
 			halt->remove_line(self);
 		}
 	}
+	journey_times_history.clear();
 	financial_history[0][LINE_DEPARTURES_SCHEDULED] = calc_departures_scheduled();
 }
 
@@ -698,16 +696,6 @@ void simline_t::propogate_livery_scheme()
 		line_managed_convoys[i]->set_livery_scheme_index(livery_scheme_index);
 		line_managed_convoys[i]->apply_livery_scheme();
 	}
-}
-
-void simline_t::start_journey_time_measurement()
-{
-	in_journey_times_measurement = true;
-	average_journey_times_for_measurement.clear();
-}
-void simline_t::stop_journey_time_measurement()
-{
-	in_journey_times_measurement = false;
 }
 
 sint64 simline_t::calc_departures_scheduled()

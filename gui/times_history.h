@@ -1,9 +1,11 @@
-#ifndef gui_line_time_measure_h
-#define gui_line_time_measure_h
+#ifndef gui_time_history_h
+#define gui_time_history_h
 
 #include "components/gui_textarea.h"
 
 #include "gui_frame.h"
+#include "times_history_entry.h"
+#include "times_history_container.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_label.h"
 
@@ -12,30 +14,33 @@
 
 class player_t;
 
-class line_time_measure_t : public gui_frame_t, action_listener_t
+// @author: suitougreentea
+class times_history_t : public gui_frame_t, action_listener_t
 {
 private:
+	const player_t *owner;
+	// if it is a history about convoi, line is null
 	linehandle_t line;
-	uint32 cached_schedule_count;
-	const char* cached_line_name;
+	// if it is a history about line, convoi is null
+	convoihandle_t convoi;
+	const char* cached_name;
 	uint32 update_time;
+	schedule_t *last_schedule = NULL;
+	bool last_mirrored;
+	bool last_reversed;
 
-	cbuffer_t buf;
+	cbuffer_t title_buf;
 
 	gui_container_t cont;
 	gui_scrollpane_t scrolly;
-	gui_textarea_t txt_info;
-	button_t bt_startstop;
-
-	slist_tpl<button_t *> halt_buttons;
-	slist_tpl<gui_label_t *> halt_name_labels;
+	slist_tpl <times_history_container_t *> history_conts;
 
 public:
-	line_time_measure_t(linehandle_t line);
+	times_history_t(linehandle_t line, convoihandle_t convoi);
 
-	~line_time_measure_t();
+	~times_history_t();
 
-	void line_time_measure_info();
+	void times_history_info();
 
 	// const char * get_help_filename() const { return ".txt"; }
 
@@ -48,7 +53,7 @@ public:
 	void draw( scr_coord pos, scr_size size );
 
 	// this constructor is only used during loading
-	line_time_measure_t();
+	times_history_t();
 };
 
 #endif

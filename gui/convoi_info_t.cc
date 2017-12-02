@@ -30,6 +30,7 @@
 #include "../dataobj/environment.h"
 #include "../dataobj/loadsave.h"
 #include "schedule_gui.h"
+#include "times_history.h"
 // @author hsiegeln
 #include "../simlinemgmt.h"
 #include "../simline.h"
@@ -164,6 +165,11 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	replace_button.set_tooltip("Automatically replace this convoy.");
 	add_component(&replace_button);
 	replace_button.add_listener(this);
+
+	time_history_button.init(button_t::roundbox, "Times History", dummy, D_BUTTON_SIZE);
+	time_history_button.set_tooltip("View journey times history of this convoy.");
+	add_component(&time_history_button);
+	time_history_button.add_listener(this);
 
 	//Position is set in convoi_info_t::set_fenstergroesse()
 	follow_button.init(button_t::roundbox_state, "follow me", dummy, scr_size(view.get_size().w, D_BUTTON_HEIGHT));
@@ -963,6 +969,12 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			return true;
 		}
 
+		if(comp == &time_history_button) 
+		{
+			create_win(20, 20, new times_history_t(linehandle_t(), cnv), w_info, magic_convoi_time_history + cnv.get_id() );
+			return true;
+		}
+
 		if(comp == &go_home_button) {
 			// limit update to certain states that are considered to be safe for schedule updates
 			if(cnv->is_locked())
@@ -1076,6 +1088,7 @@ void convoi_info_t::set_windowsize(scr_size size)
 	}
 
 	button.set_pos(scr_coord(BUTTON1_X, y));
+	time_history_button.set_pos(scr_coord(BUTTON1_X, y - D_V_SPACE - D_BUTTON_HEIGHT));
 	go_home_button.set_pos(scr_coord(BUTTON2_X, y));
 	no_load_button.set_pos(scr_coord(BUTTON3_X, y));
 	y += D_BUTTON_HEIGHT + D_V_SPACE; 

@@ -11,7 +11,7 @@
 
 #include "messagebox.h"
 #include "schedule_list.h"
-#include "line_time_measure.h"
+#include "times_history.h"
 #include "line_management_gui.h"
 #include "components/gui_convoiinfo.h"
 #include "line_item.h"
@@ -251,11 +251,11 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_withdraw_line.add_listener(this);
 	add_component(&bt_withdraw_line);
 
-	bt_measure_time.init(button_t::roundbox, "Measure Time", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH, 14+SCL_HEIGHT+D_BUTTON_HEIGHT+2), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
-	bt_measure_time.set_tooltip("Measure journey time.");
-	bt_measure_time.set_visible(true);
-	bt_measure_time.add_listener(this);
-	add_component(&bt_measure_time);
+	bt_time_history.init(button_t::roundbox, "Times History", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH, 14+SCL_HEIGHT+D_BUTTON_HEIGHT+2), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	bt_time_history.set_tooltip("View journey times history of this line.");
+	bt_time_history.set_visible(true);
+	bt_time_history.add_listener(this);
+	add_component(&bt_time_history);
 
 	// Select livery
 	livery_selector.set_pos(scr_coord(11+0*D_BUTTON_WIDTH*2 + 92, 8 + SCL_HEIGHT+D_BUTTON_HEIGHT+D_BUTTON_HEIGHT));
@@ -401,9 +401,9 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 			delete tool;
 		}
 	}
-	else if (comp == &bt_measure_time) {
+	else if (comp == &bt_time_history) {
 		if(line.is_bound()) {
-			create_win( new line_time_measure_t(line), w_info, (ptrdiff_t)line.get_rep() + 1 );
+			create_win( new times_history_t(line, convoihandle_t()), w_info, (ptrdiff_t)line.get_rep() + 1 );
 		}
 	}
 	else if(comp == &livery_selector) 
@@ -808,7 +808,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 	}
 	line = new_line;
 	bt_withdraw_line.set_visible( line.is_bound() );
-	bt_measure_time.set_visible( line.is_bound() );
+	bt_time_history.set_visible( line.is_bound() );
 
 	reset_line_name();
 }
