@@ -689,11 +689,16 @@ uint32 times_history_data_t::get_entry(uint16 index) const {
 	return history[index];
 }
 
-void times_history_data_t::set(uint32 time) {
+void times_history_data_t::put(uint32 time) {
 	for (uint16 i = TIMES_HISTORY_SIZE - 1; i >= 1; i--) {
 		history[i] = history[i - 1];
 	}
 	history[0] = time;
+}
+
+void times_history_data_t::set(uint16 index, uint32 time) {
+	if (index >= TIMES_HISTORY_SIZE) return;
+	history[index] = time;
 }
 
 uint32 times_history_data_t::get_average() const {
@@ -707,7 +712,4 @@ uint32 times_history_data_t::get_average() const {
 	}
 	if (count == 0) return 0;
 	return total / count;
-}
-
-void times_history_data_t::rdwr(loadsave_t *file) {
 }

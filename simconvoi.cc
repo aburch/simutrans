@@ -4717,6 +4717,49 @@ void convoi_t::rdwr(loadsave_t *file)
 		arrival_time = welt->get_ticks();
 	}
 
+	if (file->get_extended_version() >= 13 && file->get_extended_revision() >= 1) {
+		if(file->is_saving())
+		{
+			uint32 count = journey_times_history.get_count();
+			file->rdwr_long(count);
+
+			FOR(times_history_map, const& iter, journey_times_history)
+			{
+				departure_point_t idp = iter.key;
+				file->rdwr_short(idp.x);
+				file->rdwr_short(idp.y);
+				times_history_data_t value = iter.value;
+				for (int j = 0; j < TIMES_HISTORY_SIZE; j++) {
+					uint32 time = value.get_entry(j);
+					file->rdwr_long(time);
+				}
+			}
+		}
+		else
+		{
+			uint32 count = 0;
+			file->rdwr_long(count);
+			journey_times_history.clear();
+
+			for (uint32 i = 0; i < count; i++)
+			{
+				departure_point_t idp;
+				file->rdwr_short(idp.x);
+				file->rdwr_short(idp.y);
+
+				times_history_data_t data;
+
+				for (int j = 0; j < TIMES_HISTORY_SIZE; j++) {
+					uint32 time;
+					file->rdwr_long(time);
+					data.set(j, time);
+				}
+
+				journey_times_history.put(idp, data);
+			}
+		}
+	}
+
 	if(file->get_version() >= 111001 && file->get_extended_version() == 0)
 	{
 		uint32 dummy = 0;
@@ -5188,13 +5231,13 @@ void convoi_t::laden() //"load" (Babelfish)
 		if (!journey_times_history.is_contained(this_departure)) {
 			journey_times_history.put(this_departure, times_history_data_t());
 		}
-		journey_times_history.access(this_departure)->set(latest_journey_time);
+		journey_times_history.access(this_departure)->put(latest_journey_time);
 		if (line.is_bound()) {
 			times_history_map &line_history = line->get_journey_times_history();
 			if (!line_history.is_contained(this_departure)) {
 				line_history.put(this_departure, times_history_data_t());
 			}
-			line_history.access(this_departure)->set(latest_journey_time);
+			line_history.access(this_departure)->put(latest_journey_time);
 		}
 
 		const sint32 average_speed = (journey_distance_meters * 3) / ((sint32)latest_journey_time * 5);
