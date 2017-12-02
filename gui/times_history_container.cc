@@ -73,23 +73,34 @@ void times_history_container_t::update_container() {
 		sint16 first_halt_index = -1;
 		sint16 last_halt_index = -1;
 
-		for (sint16 i = 0; i < size; i++) {
+		for (sint16 i = 0; i < size - 1; i++) {
 			const halthandle_t halt = haltestelle_t::get_halt(entries[i].pos, owner);
 			if (halt.is_bound()) {
 				if (first_halt_index == -1 || i < first_halt_index) first_halt_index = i;
 				if (last_halt_index == -1 || i > last_halt_index) last_halt_index = i;
 				schedule_indices->append(i);
-				if (schedule_indices->get_count() > 1) {
-					time_keys->append(new departure_point_t(i - 1, false));
-				}
+				time_keys->append(new departure_point_t(i, false));
 			}
 		}
-		for (sint16 i = last_halt_index - 1; i >= 0; i--) {
+
+		const halthandle_t halt_last = haltestelle_t::get_halt(entries[size - 1].pos, owner);
+		if (halt_last.is_bound()) {
+			last_halt_index = size - 1;
+			schedule_indices->append(size - 1);
+			time_keys->append(new departure_point_t(size - 1, true));
+		}
+
+		for (sint16 i = size - 2; i >= 1; i--) {
 			const halthandle_t halt = haltestelle_t::get_halt(entries[i].pos, owner);
 			if (halt.is_bound()) {
 				schedule_indices->append(i);
-				time_keys->append(new departure_point_t(i + 1, true));
+				time_keys->append(new departure_point_t(i, true));
 			}
+		}
+
+		const halthandle_t halt_first = haltestelle_t::get_halt(entries[0].pos, owner);
+		if (halt_first.is_bound()) {
+			schedule_indices->append(0);
 		}
 	}
 	else if (reversed) {
@@ -101,13 +112,10 @@ void times_history_container_t::update_container() {
 			if (halt.is_bound()) {
 				if (first_halt_index == -1 || i > first_halt_index) first_halt_index = i;
 				schedule_indices->append(i);
-				if (schedule_indices->get_count() > 1) {
-					time_keys->append(new departure_point_t(i + 1, true));
-				}
+				time_keys->append(new departure_point_t(i, true));
 			}
 		}
 		schedule_indices->append(first_halt_index);
-		time_keys->append(&departure_point_t((first_halt_index + 1) % size, true));
 	}
 	else {
 		// Normal direction
@@ -118,13 +126,10 @@ void times_history_container_t::update_container() {
 			if (halt.is_bound()) {
 				if (first_halt_index == -1 || i < first_halt_index) first_halt_index = i;
 				schedule_indices->append(i);
-				if (schedule_indices->get_count() > 1) {
-					time_keys->append(new departure_point_t(i - 1, false));
-				}
+				time_keys->append(new departure_point_t(i, false));
 			}
 		}
 		schedule_indices->append(first_halt_index);
-		time_keys->append(&departure_point_t((first_halt_index - 1 + size) % size, false));
 	}
 
 	scr_coord_val y = LINESPACE + D_V_SPACE + LINESPACE + D_V_SPACE;

@@ -5192,10 +5192,11 @@ void convoi_t::laden() //"load" (Babelfish)
 			}
 		}
 
-		bool rev = !reverse_schedule;
 		uint8 schedule_entry = schedule->get_current_stop();
-		schedule->increment_index(&schedule_entry, &rev); 
-		departure_point_t this_departure(schedule_entry, !rev);
+		bool rev_rev = !reverse_schedule;
+		// decrement(see negation of reverse_schedule) index until previous halt
+		schedule->increment_index_until_next_halt(front()->get_owner(), &schedule_entry, &rev_rev);
+		departure_point_t this_departure(schedule_entry, reverse_schedule);
 		sint64 latest_journey_time;
 		const bool departure_missing = !departures.is_contained(this_departure);
 		const sint32 journey_distance_meters = journey_distance * welt->get_settings().get_meters_per_tile();
@@ -7479,13 +7480,8 @@ void convoi_t::clear_replace()
 		uint8 schedule_entry = schedule->get_current_stop();
 		bool rev_rev = !reverse_schedule;
 		bool has_not_found_halt = true;
-		while (has_not_found_halt)
-		{
-			schedule->increment_index(&schedule_entry, &rev_rev);
-			const koord3d halt_position = schedule->entries.get_element(schedule_entry).pos;
-			const halthandle_t halt = haltestelle_t::get_halt(halt_position, front()->get_owner());
-			has_not_found_halt = !halt.is_bound();
-		}
+		// decrement(see negation of reverse_schedule) index until previous halt
+		schedule->increment_index_until_next_halt(front()->get_owner(), &schedule_entry, &rev_rev);
 		departure_point_t departure_point(schedule_entry, !rev_rev);
 
 		departures.set(departure_point, dep);
@@ -7505,7 +7501,7 @@ void convoi_t::clear_replace()
 		sint64 etd = eta;
 		vector_tpl<uint16> halts_already_processed;
 		const uint32 reverse_delay = calc_reverse_delay();
-		schedule->increment_index(&schedule_entry, &rev);
+		schedule->increment_index_until_next_halt(front()->get_owner(), &schedule_entry, &rev);
 		for(uint8 i = 0; i < count; i++)
 		{		
 			uint32 journey_time_tenths_minutes = (uint32)journey_times_between_schedule_points.get(departure_point).get_average();
@@ -7513,7 +7509,7 @@ void convoi_t::clear_replace()
 			{
 				// Journey time uninitialised - use average or estimated average speed instead.
 				uint8 next_schedule_entry = schedule_entry;
-				schedule->increment_index(&next_schedule_entry, &rev);
+				schedule->increment_index_until_next_halt(front()->get_owner(), &schedule_entry, &rev);
 				const koord3d stop1_pos = schedule->entries[schedule_entry].pos;
 				const koord3d stop2_pos = schedule->entries[next_schedule_entry].pos;
 				const uint16 distance = shortest_distance(stop1_pos.get_2d(), stop2_pos.get_2d());
@@ -7567,7 +7563,8 @@ void convoi_t::clear_replace()
 				halt->set_estimated_departure_time(self.get_id(), etd);	
 				halts_already_processed.append(halt.get_id());
 			}
-			schedule->increment_index(&schedule_entry, &rev);
+
+			schedule->increment_index_until_next_halt(front()->get_owner(), &schedule_entry, &rev);
 			departure_point.entry = schedule_entry;
 			departure_point.reversed = rev;
 		}

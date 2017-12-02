@@ -517,6 +517,20 @@ void schedule_t::increment_index(uint8 *index, bool *reversed) const {
 }
 
 /**
+ * Same as increment_index(), but skips waypoints.
+ * @author suitougreentea
+ */
+void schedule_t::increment_index_until_next_halt(player_t *player, uint8 *index, bool *reversed) const {
+	while (true)
+	{
+		increment_index(index, reversed);
+		const koord3d halt_position = entries[*index].pos;
+		const halthandle_t halt = haltestelle_t::get_halt(halt_position, player);
+		if (halt.is_bound()) return;
+	}
+}
+
+/**
  * Ordering based on halt id
  */
 class HaltIdOrdering

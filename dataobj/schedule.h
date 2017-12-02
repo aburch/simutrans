@@ -123,6 +123,12 @@ public:
 	 */
 	void increment_index(uint8 *index, bool *reversed) const;
 
+	/**
+	 * Same as increment_index(), but skips waypoints.
+	 * @author suitougreentea
+	 */
+	void increment_index_until_next_halt(player_t* player, uint8 *index, bool *reversed) const;
+
 	/***
 	 * "Completed"
 	 */
