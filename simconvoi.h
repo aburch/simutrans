@@ -1513,7 +1513,6 @@ public:
 	void emergency_go_to_depot();
 
 	journey_times_map& get_average_journey_times();
-	journey_times_map* get_average_journey_times_for_measurement();
 	inline const journey_times_map& get_average_journey_times_this_convoy_only() const { return average_journey_times; }
 	inline times_history_map& get_journey_times_history() { return journey_times_history; }
 
