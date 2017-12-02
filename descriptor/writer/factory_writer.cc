@@ -182,9 +182,9 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 const  electric_demand =  obj.get_int("electricity_amount", 65535);
 	uint16 const max_distance_to_consumer = obj.get_int("max_distance_to_consumer", 65535); // In km, not tiles.
 	// how long between sounds
-	uint32 const sound_interval = obj.get_int("sound_interval", 0xFFFFFFFFul);
+	uint32 const sound_interval = obj.get_int("sound_interval", 10000u);
 
-	uint16 total_len = 45;
+	uint16 total_len = 46;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim(obj.get("sound"));
@@ -286,6 +286,8 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		}
 	} while (!str.empty());
 
+	uint8 const field_output_divider = obj.get_int("field_output_divider", 1);
+
 	// new version with factory boost, etc.
 	uint16 version = 0x8004;
 
@@ -325,12 +327,13 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, max_distance_to_consumer,		35);
 	node.write_uint32(fp, sound_interval,				37);
 	node.write_uint16(fp, sound_id,						41);
+	node.write_uint8(fp, field_output_divider, 			43);
 
 	// this should be always at the end
 	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
-		node.write_sint8(fp, sound_str_len, 43);
-		node.write_data_at(fp, sound_str.c_str(), 44, sound_str_len);
+		node.write_sint8(fp, sound_str_len, 44);
+		node.write_data_at(fp, sound_str.c_str(), 45, sound_str_len);
 	}
 
 	node.write(fp);

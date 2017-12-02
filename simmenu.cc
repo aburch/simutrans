@@ -877,7 +877,8 @@ bool two_click_tool_t::is_work_here_network_save(player_t *player, koord3d pos )
 	uint8 value = is_valid_pos( player, pos, error, koord3d::invalid );
 	DBG_MESSAGE("two_click_tool_t::is_work_here_network_save", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
-		return false;
+		// cannot work here at all -> safe
+		return true;
 	}
 
 	// work directly if possible and ctrl is NOT pressed

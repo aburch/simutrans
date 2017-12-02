@@ -29,6 +29,15 @@ public:
 	// jobs taken on arrival.
 	bool is_commuting_trip : 1;
 
+	/// The class of mail/passengers. Not used for goods.
+	uint8 g_class;
+
+	/// The percentage of the maximum tolerable journey time for 
+	/// any given level of comfort that this packet of passengers 
+	/// (if passengers) will travel in a lower class of accommodation
+	/// than available on a convoy.
+	uint16 comfort_preference_percentage;
+
 private:
 	/**
 	 * Handle of target station.
@@ -86,7 +95,6 @@ public:
 	ware_t();
 	ware_t(const goods_desc_t *typ);
 	ware_t(const goods_desc_t *typ, halthandle_t o);
-//	ware_t(karte_t *welt,loadsave_t *file);
 	ware_t(loadsave_t *file);
 
 	/**
@@ -98,6 +106,7 @@ public:
 	inline const char *get_mass() const { return get_desc()->get_mass(); }
 	inline uint8 get_catg() const { return get_desc()->get_catg(); }
 	inline uint8 get_index() const { return index; }
+	inline uint8 get_class() const { return g_class; }
 
 	//@author: jamespetts
 	inline halthandle_t get_origin() const { return origin; }
@@ -125,21 +134,23 @@ public:
 		return	menge == w.menge &&
 			zwischenziel == w.zwischenziel &&
 			arrival_time == w.arrival_time &&
-			index  == w.index  &&
-			ziel  == w.ziel  &&
+			index == w.index  &&
+			ziel == w.ziel  &&
 			zielpos == w.zielpos &&
-			origin == w.origin && 
-			last_transfer == w.last_transfer;
+			origin == w.origin &&
+			last_transfer == w.last_transfer &&
+			g_class == w.g_class;
 	}
 
 	bool can_merge_with(const ware_t &w)
 	{
 		return zwischenziel == w.zwischenziel &&
-		index  == w.index  &&
-		ziel  == w.ziel  &&
-		zielpos == w.zielpos &&
-		origin == w.origin && 
-		last_transfer == w.last_transfer;
+			index == w.index  &&
+			ziel == w.ziel  &&
+			zielpos == w.zielpos &&
+			origin == w.origin &&
+			last_transfer == w.last_transfer &&
+			g_class == w.g_class;
 	}
 
 	bool operator <= (const ware_t &w)
@@ -148,7 +159,7 @@ public:
 		return arrival_time <= w.arrival_time;
 	}
 
-	int operator!=(const ware_t &w) { return !(*this == w); 	}
+	int operator!=(const ware_t &w) { return !(*this == w); }
 
 	/**
 	 * Adjust target coordinates.

@@ -31,136 +31,23 @@ static stringhashtable_tpl< vehicle_desc_t*> name_fahrzeuge;
 #define GET_WAYTYPE_INDEX(wt) ((int)(wt)>8 ? 0 : (wt))
 static slist_tpl<vehicle_desc_t*> typ_fahrzeuge[9];
 
-class bonus_record_t {
-public:
-	sint64 year;
-	sint32 speed;
-	bonus_record_t( sint64 y=0, sint32 kmh=0 ) {
-		year = y*12;
-		speed = kmh;
-	};
-	void rdwr(loadsave_t *file) {
-		file->rdwr_longlong(year);
-		file->rdwr_long(speed);
-	}
-};
-
-// speed bonus
-static vector_tpl<bonus_record_t>speedbonus[8];
-
-static sint32 default_speedbonus[8] =
-{
-	80,	// road
-	80,	// track
-	35,	// water
-	80,	// air
-	80,	// monorail
-	80,	// maglev
-	80,	// tram
-	80	// narrowgauge
-};
-
-bool vehicle_builder_t::speedbonus_init(const std::string &objfilename)
-{
-	tabfile_t bonusconf;
-	// first take user data, then user global data
-	if (!bonusconf.open((objfilename+"config/speedbonus.tab").c_str())) {
-		dbg->warning("vehicle_builder_t::speedbonus_init()", "Can't read speedbonus.tab" );
-		return false;
-	}
-
-	tabfileobj_t contents;
-	bonusconf.read(contents);
-
-	/* init the values from line with the form year, speed, year, speed
-	 * must be increasing order!
-	 */
-	for(  int j=0;  j<8;  j++  ) {
-		int *tracks = contents.get_ints(weg_t::waytype_to_string(j==3?air_wt:(waytype_t)(j+1)));
-		if((tracks[0]&1)==1) {
-			dbg->warning( "vehicle_builder_t::speedbonus_init()", "Ill formed line in speedbonus.tab\nFormat is year,speed[,year,speed]!" );
-			tracks[0]--;
-		}
-		speedbonus[j].resize( tracks[0]/2 );
-		for(  int i=1;  i<tracks[0];  i+=2  ) {
-			bonus_record_t b( tracks[i], tracks[i+1] );
-			speedbonus[j].append( b );
-		}
-		delete [] tracks;
-	}
-
-	return true;
-}
-
-
-sint32 vehicle_builder_t::get_speedbonus( sint32 monthyear, waytype_t wt )
-{
-	const int typ = wt==air_wt ? 3 : (wt-1)&7;
-
-	if(  monthyear==0  ) {
-		return default_speedbonus[typ];
-	}
-
-	// ok, now lets see if we have data for this
-	vector_tpl<bonus_record_t> const& b = speedbonus[typ];
-	if (!b.empty()) {
-		uint i=0;
-		while (i < b.get_count() && monthyear >= b[i].year) {
-			i++;
-		}
-		if (i == b.get_count()) {
-			// maxspeed already?
-			return b[i - 1].speed;
-		}
-		else if(i==0) {
-			// minspeed below
-			return b[0].speed;
-		}
-		else {
-			// interpolate linear
-			sint32 const delta_speed = b[i].speed - b[i - 1].speed;
-			sint32 const delta_years = b[i].year  - b[i - 1].year;
-			return delta_speed * (monthyear - b[i - 1].year) / delta_years + b[i - 1].speed;
-		}
-	}
-	else {
-		sint32 speed_sum = 0;
-		sint32 num_averages = 0;
-		// needs to do it the old way => iterate over all vehicles with this type ...
-		const int wtidx = GET_WAYTYPE_INDEX(wt);
-		if(  !typ_fahrzeuge[wtidx].empty()  ) {
-			FOR(slist_tpl<vehicle_desc_t *>, info, typ_fahrzeuge[wtidx]) 
-			{
-				if(info->get_power()>0  &&  info->is_available(monthyear)) {
-					speed_sum += info->get_topspeed();
-					num_averages ++;
-				}
-			}
-		}
-		if(  num_averages>0  ) {
-			return speed_sum / num_averages;
-		}
-	}
-
-	// no vehicles => return default
-	return default_speedbonus[typ];
-}
-
 
 void vehicle_builder_t::rdwr_speedbonus(loadsave_t *file)
 {
-	for(  int j=0;  j<8;  j++  ) {
-		uint32 count = speedbonus[j].get_count();
+	// Former speed bonus settings, now deprecated.
+	// This is necessary to load old saved games that
+	// contained speed bonus data.
+	for(uint32 j = 0; j < 8; j++)
+	{
+		uint32 count = 1;
 		file->rdwr_long(count);
-		if (file->is_loading()) {
-			speedbonus[j].clear();
-			speedbonus[j].resize(count);
-		}
-		for(uint32 i=0; i<count; i++) {
-			if (file->is_loading()) {
-				speedbonus[j].append(bonus_record_t());
-			}
-			speedbonus[j][i].rdwr(file);
+		
+		for(uint32 i=0; i<count; i++)
+		{
+			sint64 dummy = 0;
+			uint32 dummy_2 = 0;
+			file->rdwr_longlong(dummy);
+			file->rdwr_long(dummy_2);
 		}
 	}
 }
@@ -278,11 +165,11 @@ static bool compare_vehicle_desc(const vehicle_desc_t* a, const vehicle_desc_t* 
 			cmp = a->get_freight_type()->get_index() - b->get_freight_type()->get_index();
 		}
 		if (cmp == 0) {
-			cmp = a->get_capacity() - b->get_capacity();
+			cmp = a->get_total_capacity() - b->get_total_capacity();
 			if (cmp == 0) {
 				// to handle tender correctly
-				uint8 b_engine = (a->get_capacity() + a->get_power() == 0 ? (uint8)vehicle_desc_t::steam : a->get_engine_type());
-				uint8 a_engine = (b->get_capacity() + b->get_power() == 0 ? (uint8)vehicle_desc_t::steam : b->get_engine_type());
+				uint8 b_engine = (a->get_total_capacity() + a->get_power() == 0 ? (uint8)vehicle_desc_t::steam : a->get_engine_type());
+				uint8 a_engine = (b->get_total_capacity() + b->get_power() == 0 ? (uint8)vehicle_desc_t::steam : b->get_engine_type());
 				cmp = b_engine - a_engine;
 				if (cmp == 0) {
 					cmp = a->get_topspeed() - b->get_topspeed();
@@ -397,13 +284,13 @@ const vehicle_desc_t *vehicle_builder_t::vehicle_search( waytype_t wt, const uin
 			if(target_freight) 
 			{
 				// this is either a railcar/trailer or a truck/boat/plane
-				if(  test_desc->get_capacity()==0  ||  !test_desc->get_freight_type()->is_interchangeable(target_freight)  )
+				if(  test_desc->get_total_capacity()==0  ||  !test_desc->get_freight_type()->is_interchangeable(target_freight)  )
 				{
 					continue;
 				}
 
 				test.index = -100000;
-				test.payload_per_maintenance = test_desc->get_capacity() / max(test_desc->get_running_cost(), 1);
+				test.payload_per_maintenance = test_desc->get_total_capacity() / max(test_desc->get_running_cost(), 1);
 
 				sint32 difference=0;	// smaller is better
 				// assign this vehicle if we have not found one yet, or we only found one too weak
@@ -433,7 +320,7 @@ const vehicle_desc_t *vehicle_builder_t::vehicle_search( waytype_t wt, const uin
 			}
 			else {
 				// engine/tugboat/truck for trailer
-				if(  test_desc->get_capacity()!=0  ||  !test_desc->can_follow(NULL)  ) {
+				if(  test_desc->get_total_capacity()!=0  ||  !test_desc->can_follow(NULL)  ) {
 					continue;
 				}
 				// finally, we might be able to use this vehicle
@@ -517,7 +404,7 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 
 			// likely tender => replace with some engine ...
 			if(target_freight==0  &&  target_weight==0) {
-				if(  test_desc->get_capacity()!=0  ) {
+				if(  test_desc->get_total_capacity()!=0  ) {
 					continue;
 				}
 			}
@@ -531,7 +418,7 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 			if(target_freight) 
 			{
 				// this is either a railcar/trailer or a truck/boat/plane
-				if(  test_desc->get_capacity()==0  ||  !test_desc->get_freight_type()->is_interchangeable(target_freight)  ) {
+				if(  test_desc->get_total_capacity()==0  ||  !test_desc->get_freight_type()->is_interchangeable(target_freight)  ) {
 					continue;
 				}
 
@@ -540,7 +427,7 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 				if(  desc!=NULL  ) 
 				{
 					// it is cheaper to run? (this is most important)
-					difference += (desc->get_capacity()*1000)/(1+desc->get_running_cost()) < (test_desc->get_capacity()*1000)/(1+test_desc->get_running_cost()) ? -20 : 20;
+					difference += (desc->get_total_capacity()*1000)/(1+desc->get_running_cost()) < (test_desc->get_total_capacity()*1000)/(1+test_desc->get_running_cost()) ? -20 : 20;
 					if(  target_weight>0  ) 
 					{
 						// it is strongere?

@@ -148,6 +148,9 @@ protected:
 	// only needed for old way of moving vehicles to determine position at loading time
 	bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const;
 
+	// Players are able to reassign classes of accommodation in vehicles manually
+	// during the game. Track these reassignments here with this array.
+	uint8 *class_reassignments;
 
 public:
 	// only called during load time: set some offsets
@@ -191,6 +194,8 @@ public:
 	koord3d get_pos_next() const {return pos_next;}
 
 	virtual waytype_t get_waytype() const = 0;
+
+	void set_class_reassignment(uint8 original_class, uint8 new_class);
 
 	// true, if this vehicle did not moved for some time
 	virtual bool is_stuck() { return true; }
@@ -261,13 +266,7 @@ private:
 
 	sint32 calc_modified_speed_limit(koord3d position, ribi_t::ribi current_direction, bool is_corner);
 	
-	bool load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehicles);
-
-	// @author: jamespetts
-	// uint16 local_bonus_supplement;
-	// A supplementary bonus for local transportation,
-	// if needed, to compensate for not having the effect
-	// of the long-distance speed bonus.
+	bool load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehicles, bool use_lower_classes);
 
 	// @author: jamespetts
 	// Cornering settings.
@@ -320,8 +319,8 @@ protected:
 	*/
 	uint16 route_index;
 
-	uint16 total_freight;	// since the sum is needed quite often, it is cached
-	slist_tpl<ware_t> fracht;   // list of goods being transported
+	uint16 total_freight;	// since the sum is needed quite often, it is cached (not differentiated by class)
+	slist_tpl<ware_t> *fracht;   // list of goods being transported (array for each class)
 
 	const vehicle_desc_t *desc;
 
@@ -332,6 +331,8 @@ protected:
 	* @author Hj. Malthaner
 	*/
 	koord3d pos_prev;
+
+	uint8 number_of_classes;
 
 	bool leading:1;	// true, if vehicle is first vehicle of a convoi
 	bool last:1;	// true, if vehicle is last vehicle of a convoi
@@ -412,7 +413,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 	const vehicle_desc_t *get_desc() const {return desc; }
-	void set_desc(const vehicle_desc_t* value) { desc = value; }
+	void set_desc(const vehicle_desc_t* value);
 
 	/**
 	* @return die running_cost in Cr/100Km
@@ -456,6 +457,9 @@ public:
 
 	~vehicle_t();
 
+	/// Note that the original class is the accommodation index *not* the previously re-assigned class (if different)
+	void set_class_reassignment(uint8 original_class, uint8 new_class);
+
 	void make_smoke() const;
 
 	void show_info();
@@ -490,7 +494,7 @@ public:
 	sint32 get_speed_limit() const { return speed_limit; }
 	static inline sint32 speed_unlimited() {return (std::numeric_limits<sint32>::max)(); }
 
-	const slist_tpl<ware_t> & get_cargo() const { return fracht;}   // list of goods being transported
+	const slist_tpl<ware_t> & get_cargo(uint8 g_class) const { return fracht[g_class];}   // list of goods being transported (indexed by class)
 
 	/**
 	 * Rotate freight target coordinates, has to be called after rotating factories.
@@ -501,6 +505,10 @@ public:
 	* Calculate the total quantity of goods moved
 	*/
 	uint16 get_total_cargo() const { return total_freight; }
+
+	uint16 get_total_cargo_by_class(uint8 g_class) const;
+
+	uint16 get_reassigned_class(uint8 g_class) const;
 
 	/**
 	* Calculate transported cargo total weight in KG
@@ -518,7 +526,7 @@ public:
 	/**
 	* Get the maximum capacity
 	*/
-	uint16 get_cargo_max() const {return desc->get_capacity(); }
+	uint16 get_cargo_max() const {return desc->get_total_capacity(); }
 
 	const char * get_cargo_mass() const;
 
@@ -528,6 +536,8 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void get_cargo_info(cbuffer_t & buf) const;
+
+	void get_cargo_class_info(cbuffer_t & buf) const;
 
 	// Check for straightness of way.
 	//@author jamespetts
@@ -585,8 +595,8 @@ public:
 	 * Load freight from halt
 	 * @return amount loaded
 	 */
-	uint16 load_cargo(halthandle_t halt)  { bool dummy; (void)dummy; return load_cargo(halt, false, &dummy, &dummy); }
-	uint16 load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehicles);
+	uint16 load_cargo(halthandle_t halt)  { bool dummy; (void)dummy; return load_cargo(halt, false, &dummy, &dummy, true); }
+	uint16 load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehicles, bool use_lower_classes);
 
 	/**
 	* Remove freight that no longer can reach it's destination
@@ -628,10 +638,12 @@ public:
 	uint16 get_sum_weight() const { return (sum_weight + 499) / 1000; }
 
 	// @author: jamespetts
-	uint16 get_overcrowding() const;
+	uint16 get_overcrowding(uint8 g_class) const;
 
 	// @author: jamespetts
-	uint8 get_comfort(uint8 catering_level = 0) const;
+	uint8 get_comfort(uint8 catering_level = 0, uint8 g_class = 0) const;
+
+	uint16 get_capacity(uint8 g_class, bool include_lower_classes = false) const;
 
 	// BG, 06.06.2009: update player's fixed maintenance
 	void finish_rd();

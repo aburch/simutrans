@@ -15,6 +15,7 @@
 
 #include "dataobj/route.h"
 #include "dataobj/schedule.h"
+#include "bauer/goods_manager.h"
 #include "vehicle/overtaker.h"
 #include "tpl/array_tpl.h"
 #include "tpl/fixed_list_tpl.h"
@@ -469,7 +470,7 @@ private:
 	sint32 wait_lock;
 
 	/**
-	* akkumulierter gewinn über ein jahr hinweg
+	* accumulated profit over a year
 	* @author Hanjsörg Malthaner
 	*/
 	sint64 jahresgewinn;
@@ -729,6 +730,12 @@ private:
 
 	// The maximum speed allowed by the current signalling system
 	sint32 max_signal_speed; 
+
+	// The classes of passengers/mail carried by this line
+	// Cached to reduce recalculation times in the path
+	// explorer. 
+	minivec_tpl<uint8> passenger_classes_carried;
+	minivec_tpl<uint8> mail_classes_carried;
 
 public: 
 	/**
@@ -1211,8 +1218,10 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void get_freight_info(cbuffer_t & buf);
+	void get_freight_info_by_class(cbuffer_t & buf);	
 	void set_sortby(uint8 order);
 	inline uint8 get_sortby() const { return freight_info_order; }
+	void force_resort() { freight_info_resort = true; }
 
 	/**
 	* Opens the schedule window
@@ -1454,7 +1463,7 @@ public:
 	// @author: jamespetts
 	// Returns the average comfort of this convoy,
 	// taking into account any catering.
-	uint8 get_comfort() const;
+	uint8 get_comfort(uint8 g_class) const;
 
 	/** The new revenue calculation method for per-leg
 	 * based revenue calculation, rather than per-hop
@@ -1465,7 +1474,7 @@ public:
 	 * players based on track usage.
 	 * @author: jamespetts, neroden, Knightly
 	 */
-	sint64 calc_revenue(const ware_t &ware, array_tpl<sint64> & apportioned_revenues);
+	sint64 calc_revenue(const ware_t &ware, array_tpl<sint64> & apportioned_revenues, uint8 g_class);
 
 	uint16 get_livery_scheme_index() const;
 	void set_livery_scheme_index(uint16 value) { livery_scheme_index = value; }
@@ -1519,6 +1528,28 @@ public:
 	void clear_departures();
 
 	void clear_estimated_times();
+
+	void calc_classes_carried();
+
+	bool carries_this_or_lower_class(uint8 catg, uint8 g_class) const;
+
+	bool check_fresh_carries_class(uint8 catg, uint8 g_class) const;
+
+	const minivec_tpl<uint8>* get_classes_carried(uint8 catg) const 
+	{ 
+		if (catg == goods_manager_t::INDEX_PAS)
+		{
+			return &passenger_classes_carried;
+		}
+		if (catg == goods_manager_t::INDEX_MAIL)
+		{
+			return &mail_classes_carried;
+		}
+		else
+		{
+			return NULL;
+		}
+	} 
 };
 
 #endif

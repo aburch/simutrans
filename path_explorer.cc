@@ -32,9 +32,11 @@ typedef quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> conne
 
 karte_t *path_explorer_t::world = NULL;
 uint8 path_explorer_t::max_categories = 0;
+uint8 path_explorer_t::max_classes = 0;
 uint8 path_explorer_t::category_empty = 255;
-path_explorer_t::compartment_t *path_explorer_t::goods_compartment = NULL;
-uint8 path_explorer_t::current_compartment = 0;
+path_explorer_t::compartment_t **path_explorer_t::goods_compartment = NULL;
+uint8 path_explorer_t::current_compartment_category = 0;
+uint8 path_explorer_t::current_compartment_class = 0;
 bool path_explorer_t::processing = false;
 #ifdef MULTI_THREAD
 bool thread_local path_explorer_t::allow_path_explorer_on_this_thread = false;
@@ -47,15 +49,28 @@ void path_explorer_t::initialise(karte_t *welt)
 		world = welt;
 	}
 	max_categories = goods_manager_t::get_max_catg_index();
+	max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes()); 
 	category_empty = goods_manager_t::none->get_catg_index();
-	goods_compartment = new compartment_t[max_categories];
+	// See here for an explanation of the below: http://stackoverflow.com/questions/29375797/copy-2d-array-using-memcpy/29375830#29375830
+	// This is not a true 2d array as the number of categories is not fixed. 
+	goods_compartment = new compartment_t*[max_categories];
+	goods_compartment[0] = new compartment_t[max_categories * max_classes];
+	for (uint8 i = 1; i < max_categories; i++)
+	{
+		goods_compartment[i] = goods_compartment[i - 1] + max_classes;
+	}
 
 	for (uint8 i = 0; i < max_categories; ++i)
 	{
-		goods_compartment[i].set_category(i);
+		for (uint8 j = 0; j < max_classes; j++)
+		{
+			goods_compartment[i][j].set_category(i);
+			goods_compartment[i][j].set_class(j);
+		}
 	}
 
-	current_compartment = 0;
+	current_compartment_category = 0;
+	current_compartment_class = 0;
 	processing = false;
 
 	compartment_t::initialise();
@@ -64,11 +79,16 @@ void path_explorer_t::initialise(karte_t *welt)
 
 void path_explorer_t::finalise()
 {
+	// See here for an explanation of the below: http://stackoverflow.com/questions/29375797/copy-2d-array-using-memcpy/29375830#29375830
+	// This is not a true 2d array as the number of categories is not fixed. 
+	delete[] goods_compartment[0];
 	delete[] goods_compartment;
 	goods_compartment = NULL;
-	current_compartment = 0;
+	current_compartment_category = 0;
+	current_compartment_class = 0;
 	category_empty = 255;
 	max_categories = 0;
+	max_classes = 0;
 	processing = false;
 
 	compartment_t::finalise();
@@ -83,29 +103,69 @@ void path_explorer_t::step()
 	}
 #endif
 	// at most check all goods categories once
-	for (uint8 i = 0; i < max_categories; ++i)
+	const uint8 max_runs = (max_categories - 2) + goods_manager_t::passengers->get_number_of_classes() + goods_manager_t::mail->get_number_of_classes();
+	for (uint8 i = 0; i < max_runs; ++i)
 	{
-		if ( current_compartment != category_empty
-			 && (!goods_compartment[current_compartment].is_refresh_completed() 
-			     || goods_compartment[current_compartment].is_refresh_requested() ) )
+		if ( current_compartment_category != category_empty
+			 && (!goods_compartment[current_compartment_category][current_compartment_class].is_refresh_completed() 
+			     || goods_compartment[current_compartment_category][current_compartment_class].is_refresh_requested() ) )
 		{
 			processing = true;	// this step performs something
 			// perform step
-			goods_compartment[current_compartment].step();
-			// if refresh is completed, move on to the next category
-			if ( goods_compartment[current_compartment].is_refresh_completed() )
+			goods_compartment[current_compartment_category][current_compartment_class].step();
+			
+			// if refresh is completed, move on to the next category or class as appropriate
+			if ( goods_compartment[current_compartment_category][current_compartment_class].is_refresh_completed() )
 			{
-				current_compartment = (current_compartment + 1) % max_categories;
+				next_compartment();
 			}
 			// each step process at most 1 goods category
 			return;
 		}
 
-		// advance to the next category only if compartment.step() is not invoked
-		current_compartment = (current_compartment + 1) % max_categories;
+		// advance to the next category or class only if compartment.step() is not invoked
+		next_compartment();
 	}
 
 	processing = false;	// this step performs nothing
+}
+
+void path_explorer_t::next_compartment()
+{
+	if (current_compartment_category == goods_manager_t::INDEX_PAS)
+	{
+		if (current_compartment_class < goods_manager_t::passengers->get_number_of_classes() - 1)
+		{
+			//  Only process the relevant number of passenger classes
+			current_compartment_class = (current_compartment_class + 1) % max_classes;
+		}
+		else
+		{
+			// Move onto the next category only when all classes are processed
+			current_compartment_category = (current_compartment_category + 1) % max_categories;
+			current_compartment_class = 0;
+		}
+	}
+	else if (current_compartment_category == goods_manager_t::INDEX_MAIL)
+	{
+		if (current_compartment_class < goods_manager_t::mail->get_number_of_classes() - 1)
+		{
+			//  Only process the relevant number of passenger classes
+			current_compartment_class = (current_compartment_class + 1) % max_classes;
+		}
+		else
+		{
+			// Move onto the next category only when all classes are processed
+			current_compartment_category = (current_compartment_category + 1) % max_categories;
+			current_compartment_class = 0;
+		}
+	}
+	else
+	{
+		// If not passengers or mail, then always simply advance the category, as there are not multiple classes of goods
+		// that are distinct from the categories.
+		current_compartment_category = (current_compartment_category + 1) % max_categories;
+	}
 }
 
 
@@ -116,7 +176,7 @@ void path_explorer_t::full_instant_refresh()
 #endif
 	uint16 curr_step = 0;
 	// exclude empty goods (none)
-	uint16 total_steps = (max_categories - 1) * 6;
+	uint16 total_steps = ((max_categories - 1) * (max_classes - 1) ) * 6;
 
 	processing = true;
 
@@ -135,28 +195,31 @@ void path_explorer_t::full_instant_refresh()
 	loadingscreen_t ls(translator::translate("Calculating paths ..."), total_steps, true, true);
 	ls.set_progress(curr_step);
 
-	for (uint8 c = 0; c < max_categories; ++c)
+	for (uint8 ca = 0; ca < max_categories; ++ca)
 	{
-		if ( c != category_empty )
+		for(uint8 cl = 0; cl < max_classes; ++cl)
 		{
-			// clear any previous leftovers
-			goods_compartment[c].reset(true);
+			if (ca != category_empty)
+			{
+				// clear any previous leftovers
+				goods_compartment[ca][cl].reset(true);
 
 #ifndef DEBUG_EXPLORER_SPEED
-			// go through all 6 phases
-			for (uint8 p = 0; p < 6; ++p)
-			{
-				// perform step
-				goods_compartment[c].step();
-				++curr_step;
-				ls.set_progress(curr_step);
-			}
+				// go through all 6 phases
+				for (uint8 p = 0; p < 6; ++p)
+				{
+					// perform step
+					goods_compartment[ca][cl].step();
+					++curr_step;
+					ls.set_progress(curr_step);
+				}
 #else
-			// one step should perform the compartment phases from the first phase till the path exploration phase
-			goods_compartment[c].step();
-			curr_step += 6;
-			ls.set_progress(curr_step);
+				// one step should perform the compartment phases from the first phase till the path exploration phase
+				goods_compartment[c].step();
+				curr_step += 6;
+				ls.set_progress(curr_step);
 #endif
+			}
 		}
 	}
 
@@ -169,7 +232,8 @@ void path_explorer_t::full_instant_refresh()
 	compartment_t::enable_limits(true);
 
 	// reset current category pointer
-	current_compartment = 0;
+	current_compartment_category = 0;
+	current_compartment_class = 0;
 
 	processing = false;
 #ifdef MULTI_THREAD
@@ -182,26 +246,60 @@ void path_explorer_t::refresh_all_categories(const bool reset_working_set)
 {
 	if (reset_working_set)
 	{
-		for (uint8 c = 0; c < max_categories; ++c)
+		for (uint8 ca = 0; ca < max_categories; ++ca)
 		{
-			// do not remove the finished matrix and halt index map
-			goods_compartment[c].reset(false);
+			for (uint8 cl = 0; cl < max_classes; ++cl)
+			{
+				// do not remove the finished matrix and halt index map
+				goods_compartment[ca][cl].reset(false);
+			}
 		}
 
 		// clear all connexion hash tables and reset serving transport counters
 		compartment_t::reset_connexion_list();
 
 		// reset current category pointer : refresh will start from passengers
-		current_compartment = 0;
+		current_compartment_category = 0;
+		current_compartment_class = 0;
 	}
 	else
 	{
-		for (uint8 c = 0; c < max_categories; ++c)
+		for (uint8 ca = 0; ca < max_categories; ++ca)
 		{
-			// only set flag
-			goods_compartment[c].set_refresh();
+			for (uint8 cl = 0; cl < max_classes; ++cl)
+			{
+				// only set flag
+				goods_compartment[ca][cl].set_refresh();
+			}
 		}
 	}
+}
+
+void path_explorer_t::refresh_category(uint8 category)
+{
+	if (category == goods_manager_t::INDEX_PAS)
+	{
+		for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+		{
+			goods_compartment[category][i].set_refresh();
+		}
+	}
+	else if (category == goods_manager_t::INDEX_MAIL)
+	{
+		for (uint8 i = 0; i < goods_manager_t::mail->get_number_of_classes(); i++)
+		{
+			goods_compartment[category][i].set_refresh();
+		}
+	}
+	else
+	{
+		goods_compartment[category][0].set_refresh();
+	}
+}
+
+void path_explorer_t::refresh_class_category(uint8 category, uint8 g_class)
+{
+	goods_compartment[category][g_class].set_refresh();
 }
 
 ///////////////////////////////////////////////
@@ -264,7 +362,9 @@ path_explorer_t::compartment_t::compartment_t()
 	transfer_count = 0;
 
 	catg = 255;
+	g_class = 255;
 	catg_name = NULL;
+	class_name = NULL;
 	step_count = 0;
 
 	paths_available = false;
@@ -507,7 +607,7 @@ void path_explorer_t::compartment_t::step()
 #endif
 
 #ifdef DEBUG_COMPARTMENT_STEP
-	printf("\n\nCategory :  %s \n", translator::translate( catg_name ) );
+	printf("\n\nCategory :  %s; Class : %s \n", translator::translate(catg_name), translator::translate(class_name));
 #endif
 
 	// For timing use
@@ -645,7 +745,7 @@ void path_explorer_t::compartment_t::step()
 			{
 				current_convoy = *i;
 				// only consider lineless convoys which support this compartment's goods catetory which are not in the depot
-				if (!current_convoy->in_depot() && !current_convoy->get_line().is_bound() && current_convoy->get_goods_catg_index().is_contained(catg) )
+				if (!current_convoy->in_depot() && !current_convoy->get_line().is_bound() && (catg >= 2 || current_convoy->carries_this_or_lower_class(catg, g_class)) && current_convoy->get_goods_catg_index().is_contained(catg) )
 				{
 					temp_linkage.convoy = current_convoy;
 					linkages->append(temp_linkage);
@@ -669,8 +769,8 @@ void path_explorer_t::compartment_t::step()
 					 end = current_player->simlinemgmt.get_all_lines().end(); j != end; j++) 
 				{
 					current_line = *j;
-					// only consider lines which support this compartment's goods category
-					if ( current_line->get_goods_catg_index().is_contained(catg) && current_line->count_convoys() > 0)
+					// only consider lines which support this compartment's goods category and, where applicable, class
+					if ( current_line->get_goods_catg_index().is_contained(catg) && (catg >= 2 || current_line->carries_this_or_lower_class(catg, g_class)) && current_line->count_convoys() > 0)
 					{
 						temp_linkage.line = current_line;
 						linkages->append(temp_linkage);
@@ -876,7 +976,7 @@ void path_explorer_t::compartment_t::step()
 						// Check the journey times to the connexion
 						id_pair halt_pair(halt_list[h].get_id(), halt_list[t].get_id());
 						new_connexion = new haltestelle_t::connexion;
-						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
+						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg, g_class); 
 						new_connexion->transfer_time = catg != goods_manager_t::passengers->get_catg_index() ? halt_list[h]->get_transshipment_time() : halt_list[h]->get_transfer_time();
 						if(current_linkage.line.is_bound())
 						{
@@ -1775,6 +1875,26 @@ void path_explorer_t::compartment_t::set_category(uint8 category)
 	catg = category;
 	const goods_desc_t *ware_type = goods_manager_t::get_info_catg_index(catg);
 	catg_name = ware_type->get_catg() == 0 ? ware_type->get_name() : ware_type->get_catg_name();
+}
+
+void path_explorer_t::compartment_t::set_class(uint8 value)
+{
+	g_class = value;
+	delete[] class_name;
+	class_name = new char[96];
+
+	if (catg == goods_manager_t::INDEX_PAS)
+	{
+		sprintf(class_name, "%s_%u", translator::translate("p_class"), g_class); 
+	}
+	else if (catg == goods_manager_t::INDEX_MAIL)
+	{
+		sprintf(class_name, "%s_%u", translator::translate("m_class"), g_class);
+	}
+	else
+	{
+		sprintf(class_name, ""); 
+	}
 }
 
 

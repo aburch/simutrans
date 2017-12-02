@@ -1,0 +1,210 @@
+# Simutranslator settings for Simutrans-Extended texts
+# Addendum for the reorganisation of the depot window
+#
+# Author: jamespetts
+# Created: April 2013
+#
+obj=program_text
+name=runway_36/18
+note=In the runway infowindow, this displays when the runway is going north to south
+-
+obj=program_text
+name=cap_tram_track
+note=The waytype, when need to be shown with a capital beginning letter
+-
+obj=program_text
+name=cap_track
+note=The waytype, when need to be shown with a capital beginning letter
+-
+obj=program_text
+name=cap_monorail_track
+note=The waytype, when need to be shown with a capital beginning letter
+-
+obj=program_text
+name=cap_maglev_track
+note=The waytype, when need to be shown with a capital beginning letter
+-
+obj=program_text
+name=cap_narrowgauge_track
+note=The waytype, when need to be shown with a capital beginning letter
+-
+obj=program_text
+name=cap_road
+note=The waytype, when need to be shown with a capital beginning letter
+-
+obj=program_text
+name=cap_water_canal
+note=The waytype, when need to be shown with a capital beginning letter
+-
+obj=program_text
+name=cap_taxiway/runway
+note=The waytype, when need to be shown with a capital beginning letter
+-
+obj=program_text
+name=already_forged
+note=Text in the way info window, telling wether the tile is forged
+-
+obj=program_text
+name=partly_forged
+note=Text in the way info window, telling wether the tile is partly forged
+-
+obj=program_text
+name=forge_costs
+note=Text in the way info window, displaying the forge costs
+-
+obj=program_text
+name=class_manager
+note=Class manager window, name of window
+-
+obj=program_text
+name=in class
+note=This text is shown in the convoy's information window when the player has chosen to display in which classes of accommodation that the passengers/mail aboard the convoy are travelling, in the format "X passengers loaded in class: Low"
+-
+obj=program_text
+name=reset_all_classes
+note=Class manager window, reset all classes button
+-
+obj=program_text
+name=resets_all_classes_to_their_defaults
+note=Class manager window, tooltip to said button
+-
+obj=program_text
+name=accommodation
+note=Class manager window, accommodation of vehicles
+-
+obj=program_text
+name=capacity_per_class
+note=Class manager window, displaying how much capacity each class has
+-
+obj=program_text
+name=overcrowded_capacity
+note=Class manager window, you guessed it..
+-
+obj=program_text
+name=traveling_post_office
+note=Class manager window, displayed when such a car is in the convoy
+-
+obj=program_text
+name=capacity: %s %s
+note=Class manager window, capacity: amount goodtype
+-
+obj=program_text
+name=comfort: %i
+note=Class manager window, comfort rating of a vehicle
+-
+obj=program_text
+name=income_pr_km_(when_full):
+note=Class manager window, displayed for each vehicle
+-
+obj=program_text
+name=tpo_income_pr_km_(full_convoy):
+note=Class manager window, traveling post office income per km
+-
+obj=program_text
+name=catering_income_pr_km_(full_convoy):
+note=Class manager window, catering vehicle income per km
+-
+obj=program_text
+name=see_and_change_the_class_assignments
+note=depot/replacer window, tooltip to class manager button
+-
+obj=program_text
+name=unlimited
+note=depot/replacer window, whenever something is unlimited, like the range
+-
+obj=program_text
+name=range
+note=depot/replacer window, the range parameter
+-
+obj=program_text
+name=Minimum runway length
+note=depot/replacer window, the minimum runway length required
+-
+obj=program_text
+name=unpowered
+note=depot/replacer window, 0 horsepower...
+-
+obj=program_text
+name=this_vehicle_carries_no_good
+note=depot/replacer window, displayed when true
+-
+obj=program_text
+name=high_clearance_under_bridges_(no_low_bridges)
+note=depot/replacer window, displayed when needed
+-
+obj=program_text
+name=equipped_with
+note=depot/replacer window, a part of the way constraint system
+-
+obj=program_text
+name=tilting_vehicle_equipment
+note=depot/replacer window, displayed when true
+-
+obj=program_text
+name=classes
+note=depot/replacer window, displayed in a sentence when there are more than one class
+-
+obj=program_text
+name=class
+note=depot/replacer window, displayed in a sentence when there in fact is only one class
+-
+obj=program_text
+name=good_units
+note=depot/replacer window, displayed in a sentence
+-
+obj=program_text
+name=no_cargo_capacity
+note=depot/replacer window, this convoy hauls nothing..
+-
+obj=program_text
+name=Passenger success rate this year (local):
+note=Building info window
+-
+obj=program_text
+name=Passenger success rate this year (non-local):
+note=Building info window
+-
+obj=program_text
+name=Passenger success rate last year (local):
+note=Building info window
+-
+obj=program_text
+name=Passenger success rate last year (non-local):
+note=Building info window
+-
+obj=program_text
+name=residents_wealth
+note=Building info window
+-
+obj=program_text
+name=wealth_of_visitors_/_commuters
+note=Building info window
+-
+obj=program_text
+name=wealth_of_commuters
+note=Building info window
+-
+obj=program_text
+name=wealth_of_visitors
+note=Building info window
+-
+obj=program_text
+name=%i_more_stops,_max_walking_time:_%s
+note=Building info window
+-
+obj=program_text
+name=wealth (detail)
+note=halt and convoy info window sort options
+-
+obj=program_text
+name=wealth (via)
+note=halt and convoy info window sort options
+-
+obj=program_text
+name=accommodation (detail)
+note=halt and convoy info window sort options
+-
+obj=program_text
+name=accommodation (via)
+note=halt and convoy info window sort options
+-

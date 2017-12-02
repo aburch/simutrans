@@ -465,7 +465,7 @@ private:
 	// Getter method will need to average the waiting times.
 	// @author: jamespetts
 
-	waiting_time_map * waiting_times;
+	waiting_time_map **waiting_times;
 
 	// Store the service frequencies to all other halts so that this does not need to be
 	// recalculated frequently. These are used as proxies for waiting times when no
@@ -494,7 +494,7 @@ private:
 	 * Calculates the earliest time in ticks that passengers/mail/goods can arrive
 	 * at the given halt in light of the current estimated departure times.
 	 */
-	sint64 calc_earliest_arrival_time_at(halthandle_t halt, convoihandle_t &convoi, uint8 catg_index) const;
+	sint64 calc_earliest_arrival_time_at(halthandle_t halt, convoihandle_t &convoi, uint8 catg_index, uint8 g_class) const;
 
 	/**
 	* This will check the list of transferring cargoes
@@ -546,6 +546,9 @@ public:
 	uint8 get_sortby() { return sortierung; }
 	void set_sortby(uint8 sm) { resort_freight_info =true; sortierung = sm; }
 
+	void force_resort() { resort_freight_info = true; }
+
+
 	/**
 	 * Calculates a status color for status bars
 	 * @author Hj. Malthaner
@@ -584,6 +587,7 @@ public:
 	 * @param catg_index freight category index
 	 * @return 0 - not connected, 1 - connected, -1 - undecided (call again later...)
 	 */
+	// TODO: Check whetehr this can be removed entirely
 	sint8 is_connected(halthandle_t halt, uint8 catg_index) const;
 
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
@@ -713,7 +717,7 @@ public:
 	 * @param fracht goods will be put into this list, vehicle has to load it
 	 * @author Hj. Malthaner, dwachs
 	 */
-	bool fetch_goods( slist_tpl<ware_t> &fracht, const goods_desc_t *warentyp, uint32 menge, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowd);
+	bool fetch_goods( slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowd, const uint8 g_class, const bool use_lower_classes);
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach
@@ -911,9 +915,9 @@ public:
 
 	// Getting and setting average waiting times in minutes
 	// @author: jamespetts
-	uint32 get_average_waiting_time(halthandle_t halt, uint8 category);
+	uint32 get_average_waiting_time(halthandle_t halt, uint8 category, uint8 g_class);
 
-	void add_waiting_time(uint32 time, halthandle_t halt, uint8 category, bool do_not_reset_month = false);
+	void add_waiting_time(uint32 time, halthandle_t halt, uint8 category, uint8 g_class, bool do_not_reset_month = false);
 
 	typedef quickstone_hashtable_tpl<haltestelle_t, connexion*>* connexions_map_single;
 	connexions_map_single get_connexions(uint8 c) { return connexions[c]; }
@@ -926,7 +930,7 @@ public:
 	// Purpose		: To notify relevant halts to rebuild connexions and to notify all halts to recalculate paths
 	// @jamespetts: modified the code to combine with previous method and provide options about partially delayed refreshes for performance.
 
-	static void refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const player_t *const player);
+	static void refresh_routing(const schedule_t *const sched, const minivec_tpl<uint8> &categories, const minivec_tpl<uint8> *passenger_classes, const minivec_tpl<uint8> *mail_classes, const player_t *const player);
 
 	// Added by		: Knightly
 	// Adapted from : haltestelle_t::add_connexion()

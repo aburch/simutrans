@@ -21,6 +21,7 @@
 #include "components/gui_combobox.h"
 #include "components/gui_label.h"
 #include "components/gui_convoiinfo.h"
+#include "halt_list_stats.h"
 #include "../simline.h"
 
 class player_t;
@@ -39,6 +40,12 @@ private:
 	gui_chart_t chart;
 	button_t filterButtons[MAX_LINE_COST];
 	gui_tab_panel_t tabs;
+
+	// vector of convoy info objects that are being displayed
+	vector_tpl<gui_convoiinfo_t *> convoy_infos;
+	
+	// vector of stop info objects that are being displayed
+	vector_tpl<halt_list_stats_t *> stop_infos;
 
 	gui_combobox_t livery_selector;
 

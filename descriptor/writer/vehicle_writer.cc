@@ -82,7 +82,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 85;
+	int total_len = 86;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	string sound_str = ltrim( obj.get("sound") );
@@ -104,13 +104,52 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		}
 	}
 
+	// The maximum payload of the vehicle, by each class that the vehicle
+	// accommodates. If this is not specified, class 0 will be assumed.
 
-	obj_node_t	node(this, total_len, &parent);
+	// This must be done here, as it will affect the length of the header.
+
+	uint32 current_class_capacity;
+	vector_tpl<uint16> class_capacities(1);
+
+	for (uint8 i = 0; i < 256; i++)
+	{
+		// Check for multiple classes with a separate capacity each
+		char buf[13];
+		sprintf(buf, "payload[%u]", i);
+		current_class_capacity = obj.get_int(buf, UINT32_MAX_VALUE);
+		if (current_class_capacity == UINT32_MAX_VALUE)
+		{
+			if (i == 0)
+			{
+				// If there are no class defined capacities, look for the old/basic
+				// keyword defining a single capacity.
+				class_capacities.append(obj.get_int("payload", 0));
+			}
+			else
+			{
+				// Increase the length of the header by 2 for each additional 
+				// class capacity stored: one for capacity and one for comfort.
+				total_len += 2;
+			}
+			break;
+		}
+		else
+		{
+			// Increase the length of the header by 2 for each additional 
+			// class capacity stored: one for capacity and one for comfort.
+			total_len += 2;
+			class_capacities.append(current_class_capacity);
+		}
+	}
+
+
+	obj_node_t node(this, total_len, &parent);
 
 	write_head(fp, node, obj);
 	
 	// This variable counts the number of bytes written so far in the file semi-automatically.
-	// It is important that data are read back in exactly the same order as they were written.
+	// It is important that data be read back in exactly the same order as they were written.
 	uint16 pos = 0;
 
 	// Hajo: version number
@@ -130,7 +169,8 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Standard 10, 0x200 - range, wear factor.
 	// Standard 10, 0x300 - whether tall (for height restricted bridges)
 	// Standard 11, 0x400 - 16-bit sound 
-	version += 0x400;
+	// Standard 11, 0x500 - classes
+	version += 0x500;
 
 	node.write_uint16(fp, version, pos);
 
@@ -141,10 +181,17 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint32(fp, cost, pos);
 	pos += sizeof(uint32);
 
-	// Hajodoc: Maximum payload of this vehicle
-	uint16 capacity = obj.get_int("payload", 0);
-	node.write_uint16(fp, capacity, pos);
-	pos += sizeof(uint16);
+	// The number of classes.
+	uint8 number_of_classes = min(255, class_capacities.get_count());
+	node.write_uint8(fp, number_of_classes, pos); 
+	pos += sizeof(uint8);
+
+	// Capacities by class
+	FOR(vector_tpl<uint16>, capacity, class_capacities)
+	{
+		node.write_uint16(fp, capacity, pos);
+		pos += sizeof(uint16);
+	}	
 
 	/*
 	* This duplicates a system used in Extended for some time.
@@ -271,48 +318,59 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	bool has_8_images = false;
 
 	// first: find out how many freight and liveries
-	for (i = 0; i < 127; i++)
-	{
-		// Freight with multiple types and single liveries
-		char buf[40];
-		sprintf(buf, "freightimage[%d][%s]", i, dir_codes[0]);
-		printf("Reading freightimage[%d][%s]\n", i, dir_codes[0]);
-		str = obj.get(buf);
-		if(str.empty())
-		{
-			freight_image_type += i;
-			break;
-		}
-	}
-	
-	for (i = 0; i < 127; i++)
+	bool multiple_livery_freight_images_detected = false;
+	for (int j = 0; j < 127; j++)
 	{
 		// Freight with multiple types and multiple liveries
-		for (int j = 0; j < 127; j++)
+		for (i = 0; i < 127; i++)
 		{
-			char buf[40];
+			char buf[64];
 			sprintf(buf, "freightimage[%d][%s][%d]", i, dir_codes[0], j);
-			printf("Reading freightimage[%d][%s][%d]\n", i, dir_codes[0], j);
 			str = obj.get(buf);
-			if(str.empty())
+			if (str.empty())
 			{
-				freight_image_type += i;
+				freight_image_type = max(freight_image_type, i);
+
 				// Do not increment livery_max here, as this will double count:
 				// liveries for loaded vehicles should be the same as for unloaded vehicles,
 				// and the liveries will have been counted already in empty images.
-				goto end;
+				break;
+			}
+			else
+			{
+				multiple_livery_freight_images_detected = true;
+			}
+		}
+		if (!multiple_livery_freight_images_detected)
+		{
+			break;
+		}
+	}
+
+end:
+
+
+	if (!multiple_livery_freight_images_detected)
+	{
+		for (i = 0; i < 127; i++)
+		{
+			// Freight with multiple types and single liveries
+			char buf[40];
+			sprintf(buf, "freightimage[%d][%s]", i, dir_codes[0]);
+			str = obj.get(buf);
+			if (str.empty())
+			{
+				freight_image_type = i;
+				break;
 			}
 		}
 	}
-	
-end:
 
 	for (i = 0; i < 127; i++)
 	{
 		// Empty images with multiple liveries
 		char buf[40];
 		sprintf(buf, "emptyimage[%s][%d]", dir_codes[0], i);
-		printf("Reading emptyimage[%s][%d]\n", dir_codes[0], i);
 		str = obj.get(buf);
 		if(str.empty())
 		{
@@ -327,7 +385,6 @@ end:
 	{
 		char buf[40];
 		sprintf(buf, "freightimage[%s][%d]", dir_codes[0], i);
-		printf("Reading freightimage[%s][%d]\n", dir_codes[0], i);
 		str = obj.get(buf);
 		if(str.empty())
 		{
@@ -344,7 +401,6 @@ end:
 	{
 		char buf[40];
 		sprintf(buf, "freightimage[%s]", dir_codes[0]);
-		printf("Reading freightimage[%s]\n", dir_codes[0]);
 		str = obj.get(buf);
 		if(str.empty())
 		{
@@ -355,7 +411,7 @@ end:
 	// now load the images strings
 	for (i = 0; i < 8; i++) 
 	{
-		char buf[40];
+		char buf[64];
 
 		// Hajodoc: Empty vehicle image for direction, direction in "s", "w", "sw", "se", asymmetric vehicles need also "n", "e", "ne", "nw"
 		if (livery_max == 0) 
@@ -387,7 +443,6 @@ end:
 				str = obj.get(buf);
 				if(!str.empty())
 				{
-					printf("Appending emptyimage[%s][%d]\n", dir_codes[i], livery);
 					liverykeys_empty.at(i).append(str);
 					if (i >= 4) 
 					{
@@ -426,7 +481,6 @@ end:
 					dbg->fatal( "Vehicle", "Missing freightimage[%d][%s]!", freight, dir_codes[i]);
 					exit(1);
 				}
-				printf("Appending freightimage[%d][%s]\n", freight, dir_codes[i]);
 				freightkeys.at(i).append(str);
 			}
 		}
@@ -445,7 +499,6 @@ end:
 					break;
 				}
 				printf("Appending freightimage[%s][%d]", dir_codes[i], livery);
-				//fprintf(stderr, "Appending freightimage[%s][%d]\n", dir_codes[i], livery);
 				liverykeys_freight_old.at(i).append(str);
 			}
 		}
@@ -463,22 +516,19 @@ end:
 					if(str.empty())
 					{
 						break;
-						printf("*** FATAL ***:\nMissing freightimage[%d][%s][%d]!\n", freight, dir_codes[i], livery);
-						//fprintf(stderr, "*** FATAL ***:\nMissing freightimage[%d][%s][%d]!\n", freight, dir_codes[i], livery);
+						dbg->fatal("Vehicle", "\nMissing freightimage[%d][%s][%d]!\n", freight, dir_codes[i], livery);
 						fflush(NULL);
-						exit(0);
+						exit(1);
 					}
 					liverykeys_freight.at(i).at(livery).append(str);
-					printf("Appending freightimage[%d][%s][%d]", freight, dir_codes[i], livery);
 				}
 			}
 		}
 		else
 		{
 			// This should never be reached.
-			printf("*** FATAL ***: Error in code");
-			//fprintf(stderr, "*** FATAL ***: Error in code");
-			exit(0);
+			dbg->fatal("Vehicle", "Unknown error");
+			exit(1);
 		}
 	}
 
@@ -499,27 +549,23 @@ end:
 	{
 		// Empty images, no multiple liveries
 		imagelist_writer_t::instance()->write_obj(fp, node, emptykeys);
-		printf("Writing %d single livery empty images\n", emptykeys.get_count());
 	}
 	else
 	{
 		// Empty images, multiple liveries
 		imagelist2d_writer_t::instance()->write_obj(fp, node, liverykeys_empty);
-		printf("Writing %d multiple livery empty images\n", liverykeys_empty.get_count() *  liverykeys_empty.front().get_count());
 	}
 	
 	if (freight_image_type > 0 && livery_max == 0) 
 	{
 		// Multiple freight images, no multiple liveries
 		imagelist2d_writer_t::instance()->write_obj(fp, node, freightkeys);
-		printf("Writing %d single livery multiple type freight images\n", (freightkeys.get_count() * freightkeys.front().get_count()));
 	} 
 	else if(freight_image_type > 0 && livery_max > 0)
 	{
 		// Multiple frieght images, multiple liveries
 		//fprintf(stderr, "Writing %d multiple livery multiple type freight images\n", (liverykeys_freight.get_count() * liverykeys_freight.front().get_count() * liverykeys_freight.front().front().get_count()));
 		imagelist3d_writer_t::instance()->write_obj(fp, node, liverykeys_freight);
-		printf("Writing %d multiple livery multiple type freight images\n", (liverykeys_freight.get_count() * liverykeys_freight.front().get_count() * liverykeys_freight.front().front().get_count()));
 		//fprintf(stderr, "Completed\n");
 	}
 	else if(freight_image_type == 0 && livery_max > 0 && basic_freight_images > 0)
@@ -528,7 +574,6 @@ end:
 		//fprintf(stderr, "Writing %d single type multiple livery freight images\n", liverykeys_freight_old.get_count() * liverykeys_freight_old.front().get_count());
 		imagelist2d_writer_t::instance()->write_obj(fp, node, liverykeys_freight_old);
 		freight_image_type = 255; // To indicate that there are indeed single freight images and multiple liveries available. 
-		printf("Writing %d single type multiple livery freight images\n", liverykeys_freight_old.get_count() * liverykeys_freight_old.front().get_count());
 		//fprintf(stderr, "Completed\n");
 	}
 	else if(freight_image_type == 0 && freight_image_type < 255 && livery_max == 0)
@@ -537,13 +582,11 @@ end:
 		if (freightkeys_old.get_count() == emptykeys.get_count()) 
 		{
 			imagelist_writer_t::instance()->write_obj(fp, node, freightkeys_old);
-			printf("Writing %d single type single livery freight images\n", freightkeys_old.get_count());
 		} 
 		else 
 		{
 			// really empty list ...
 			xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
-			printf("Writing %d non-images\n", freightkeys_old.get_count());
 		}
 	}
 
@@ -765,13 +808,50 @@ end:
 	pos += sizeof(uint8);
 
 	// Passenger comfort rating - affects revenue on longer journies.
+	// Now segregated by class of passenger.
 	//@author: jamespetts
-	uint8 comfort = (obj.get_int("comfort", 100));
-	node.write_uint8(fp, comfort, pos);
-	pos += sizeof(uint8);
+	uint32 current_class_comfort;
+	uint8 last_comfort = 100;
+	for (uint32 i = 0; i < number_of_classes; i++)
+	{
+		// Check for multiple classes with a separate capacity each
+		char buf[12];
+		sprintf(buf, "comfort[%u]", i);
+		current_class_comfort = obj.get_int(buf, UINT32_MAX_VALUE);
+		if (current_class_comfort == UINT32_MAX_VALUE)
+		{
+			if (i == 0)
+			{
+				// If there are no class defined capacities, look for the old/basic
+				// keyword defining a single level of comfort.
+				uint8 comfort = (obj.get_int("comfort", 100));
+				node.write_uint8(fp, comfort, pos);
+				last_comfort = comfort;
+				pos += sizeof(uint8);
+			}
+			else
+			{
+				// It is essential to write the same number of comfort
+				// entries as payload entries, as this is what the 
+				// reader expects.
+				node.write_uint8(fp, last_comfort, pos);
+				pos += sizeof(uint8);
+			}
+		}
+		else
+		{
+			node.write_uint8(fp, (uint8)current_class_comfort, pos);
+			pos += sizeof(uint8);
+		}
+	}
+		
 
 	// Overcrowded capacity - can take this much *in addition to* normal capacity,
 	// but revenue will be lower and dwell times higher. Mainly for passengers.
+	// A single overcrowded capacity is maintained in spite of multiple classes
+	// as it is not necessary to have different classes of, in effect, standing
+	// passengers.
+
 	//@author: jamespetts
 	uint16 overcrowded_capacity = (obj.get_int("overcrowded_capacity", 0));
 	node.write_uint16(fp, overcrowded_capacity, pos);
@@ -779,7 +859,8 @@ end:
 
 	// The time in ms that it takes the vehicle to load and unload at stations (i.e.,  
 	// the dwell time). The default is 2,000 because that is the value used in 
-	// Simutrans-Standard.
+	// Simutrans-Standard. This is the old system, and is superceded by a min/max
+	// loading time now.
 	//@author: jamespetts
 
 	uint16 default_loading_time;

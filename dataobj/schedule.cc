@@ -149,6 +149,7 @@ bool schedule_t::insert(const grund_t* gr, uint16 minimum_loading, uint8 waiting
 	if(  is_stop_allowed(gr)  ) {
 		entries.insert_at(current_stop, schedule_entry_t(gr->get_pos(), minimum_loading, waiting_time_shift, spacing_shift, -1, wait_for_time));
 		current_stop ++;
+		make_current_stop_valid();
 		return true;
 	}
 	else {
@@ -331,7 +332,7 @@ void schedule_t::rdwr(loadsave_t *file)
 				if(file->get_extended_version() >= 10)
 				{
 					file->rdwr_byte(entries[i].reverse);
-					if(file->get_extended_revision() < 4 && entries[i].reverse)
+					if(file->get_extended_revision() < 4 && file->get_extended_version() < 13 && entries[i].reverse)
 					{
 						// Older versions had true as a default: set to indeterminate. 
 						entries[i].reverse = -1;

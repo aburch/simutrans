@@ -760,11 +760,6 @@ private:
 	message_t *msg;
 
 	/**
-	 * Array indexed per way type. Used to determine the speedbonus.
-	 */
-	sint32 average_speed[8];
-
-	/**
 	 * Used to distribute the workload when changing seasons to several steps.
 	 */
 	uint32 tile_counter;
@@ -775,7 +770,8 @@ private:
 	uint32 map_counter;
 
 	/**
-	 * Recalculated speed bonuses for different vehicles.
+	 * Re-calculate vehicle details monthly.
+	 * Used to be used for the speed bonus
 	 */
 	void recalc_average_speed();
 
@@ -894,16 +890,18 @@ private:
 	/**
 	 * This contains all buildings in the world to which passengers make
 	 * journeys to work, weighted by their (adjusted) level.
+	 * This is an array indexed by class.
 	 * @author: jamespetts
 	 */
-	weighted_vector_tpl <gebaeude_t *> commuter_targets;
+	weighted_vector_tpl <gebaeude_t *> *commuter_targets;
 
 	/**
 	 * This contains all buildings in the world to which passengers make
 	 * journeys other than to work, weighted by their (adjusted) level.
+	 * This is an array indexed by class.
 	 * @author: jamespetts
 	 */
-	weighted_vector_tpl <gebaeude_t *> visitor_targets;
+	weighted_vector_tpl <gebaeude_t *> *visitor_targets;
 
 	/**
 	 * This contains all buildings in the world to and from which mail
@@ -934,6 +932,9 @@ private:
 	// 0: this is the network server: broadcast the number of threads
 	// >0: This is the number of parallel operations to use.
 	sint32 parallel_operations;
+
+	// A helper method for use in init/new month
+	void recalc_passenger_destination_weights();
 
 #ifdef MULTI_THREAD
 	// Check whether this is the first time that karte_t::step() has been run
@@ -977,7 +978,7 @@ private:
 
 	sint32 generate_passengers_or_mail(const goods_desc_t * wtyp);
 
-	destination find_destination(trip_type trip);
+	destination find_destination(trip_type trip, uint8 g_class);
 
 #ifdef MULTI_THREAD
 	friend void *check_road_connexions_threaded(void* args);
@@ -1012,9 +1013,10 @@ private:
 
 	static const sint16 default_car_ownership_percent = 25;
 
-	static vector_tpl<car_ownership_record_t> car_ownership;
+	// This is an array indexed by the number of passenger classes.
+	static vector_tpl<car_ownership_record_t>* car_ownership;
 
-	sint16 get_private_car_ownership(sint32 monthyear) const;
+	sint16 get_private_car_ownership(sint32 monthyear, uint8 g_class) const;
 	void privatecar_rdwr(loadsave_t *file);
 
 public:
@@ -1174,13 +1176,6 @@ public:
 
 	settings_t const& get_settings() const { return settings; }
 	settings_t&       get_settings()       { return settings; }
-
-	// returns current speed bonus
-	sint32 get_average_speed(waytype_t typ) const 
-	{ 
-		const sint32 return_value = average_speed[ (typ==16 ? 3 : (int)(typ-1)&7 ) ];
-		return return_value > 0 ? return_value : 1;
-	}
 
 	/// speed record management
 	sint32 get_record_speed( waytype_t w ) const;
@@ -1444,13 +1439,31 @@ public:
 		// Adjust for bits per month
 		if(ticks_per_world_month_shift >= base_bits_per_month)
 		{
-			const sint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-			return (adjusted_monthly_figure << -(base_bits_per_month - ticks_per_world_month_shift)); 
+			if (nominal_monthly_figure < adjustment_factor)
+			{
+				// This situation can lead to loss of precision. 
+				const sint64 adjusted_monthly_figure = (nominal_monthly_figure * 100ll) / adjustment_factor;
+				return (adjusted_monthly_figure << -(base_bits_per_month - ticks_per_world_month_shift)) / 100ll;
+			}
+			else
+			{
+				const sint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
+				return (adjusted_monthly_figure << -(base_bits_per_month - ticks_per_world_month_shift));
+			}
 		} 
 		else 
 		{			
-			const sint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
-			return adjusted_monthly_figure >> (base_bits_per_month - ticks_per_world_month_shift); 
+			if (nominal_monthly_figure < adjustment_factor)
+			{
+				// This situation can lead to loss of precision. 
+				const sint64 adjusted_monthly_figure = (nominal_monthly_figure * 100ll) / adjustment_factor;
+				return (adjusted_monthly_figure >> (base_bits_per_month - ticks_per_world_month_shift)) / 100ll;
+			}
+			else
+			{
+				const sint64 adjusted_monthly_figure = nominal_monthly_figure / adjustment_factor;
+				return adjusted_monthly_figure >> (base_bits_per_month - ticks_per_world_month_shift);
+			}
 		}
 	}
 
@@ -2667,6 +2680,8 @@ public:
 	void add_queued_city(stadt_t* stadt);
 
 	sint64 get_land_value(koord3d k);
+	double get_forge_cost(waytype_t waytype, koord3d position);
+	bool is_forge_cost_reduced(waytype_t waytype, koord3d position);
 
 	inline void add_time_interval_signal_to_check(signal_t* sig) { time_interval_signals_to_check.append_unique(sig); }
 	inline bool remove_time_interval_signal_to_check(signal_t* sig) { return time_interval_signals_to_check.remove(sig); }

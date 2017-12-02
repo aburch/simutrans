@@ -99,13 +99,10 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 
 void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	// Hajo: take care, hardcoded size of node on disc here!
-	obj_node_t node(this, 49, &parent);
-
-	write_head(fp, node, obj);
-
 	koord groesse(1, 1);
 	uint8 layouts = 0;
+
+	uint32 total_len = 0;
 
 	int* ints = obj.get_ints("dims");
 
@@ -318,6 +315,73 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	uint16 mail_demand_and_production_capacity = obj.get_int("mail_demand", 65535);	
 	mail_demand_and_production_capacity = obj.get_int("mail_demand_and_production_capacity", mail_demand_and_production_capacity);
 
+	total_len = 49;
+
+	uint16 current_class_proportion;
+	vector_tpl<uint16> class_proportions(2); 
+	for (uint8 i = 0; i < 256; i++)
+	{
+		// Check for multiple classes with a separate proportion each
+		char buf[21];
+		sprintf(buf, "class_proportion[%u]", i);
+		current_class_proportion = obj.get_int(buf, 65535);
+		if (current_class_proportion == 65535)
+		{
+			if (i != 0)
+			{
+				// Increase the length of the header by 2 for each additional 
+				// class proportion stored (for uint16).
+				total_len += 2;
+			}
+			break;
+		}
+		else
+		{
+			// Increase the length of the header by 2 for each additional 
+			// class proportion stored (for uint16).
+			total_len += 2;
+			class_proportions.append(current_class_proportion);
+		}
+	}
+
+	// The number of classes.
+	uint8 number_of_classes = min(255, class_proportions.get_count());
+	total_len += 1;
+
+	vector_tpl<uint16> class_proportions_jobs(2);
+	for (uint8 i = 0; i < 256; i++)
+	{
+		// Check for multiple classes with a separate proportion each
+		char buf[25];
+		sprintf(buf, "class_proportion_jobs[%u]", i);
+		current_class_proportion = obj.get_int(buf, 65535);
+		if (current_class_proportion == 65535)
+		{
+			if (i != 0)
+			{
+				// Increase the length of the header by 2 for each additional 
+				// class proportion stored (for uint16).
+				total_len += 2;
+			}
+			break;
+		}
+		else
+		{
+			// Increase the length of the header by 2 for each additional 
+			// class proportion stored (for uint16).
+			total_len += 2;
+			class_proportions_jobs.append(current_class_proportion);
+		}
+	}
+
+	// The number of classes.
+	uint8 number_of_classes_jobs = min(255, class_proportions_jobs.get_count());
+	total_len += 1;
+
+	// Hajo: take care, hardcoded size of node on disc here!
+	obj_node_t node(this, total_len, &parent);
+	write_head(fp, node, obj);
+
 	// scan for most number of seasons
 	int seasons = 1;
 	for (int l = 0; l < layouts; l++) { // each layout
@@ -411,35 +475,104 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// Reset to 0x100 for Standard 0x8008
 	// 0x200: Extended version 12: radii for buildings
 	// 0x300: 16-bit traction types
-	version += 0x300;
+	// 0x400: Unused due to versioning errors
+	// 0x500: Class proportions
+	version += 0x500;
+
+	int pos = 0;
 	
 	// Hajo: write version data
-	node.write_uint16(fp, version,									0);
+	node.write_uint16(fp, version, pos);
+	pos += sizeof(uint16); 
 
 	// Hajo: write desc data
-	node.write_uint8(fp,	 0,										2); // was gtyp
-	node.write_uint8 (fp, type,										3);
-	node.write_uint16(fp, level,									4);
-	node.write_uint32(fp, extra_data,								6);
-	node.write_uint16(fp, groesse.x,								10);
-	node.write_uint16(fp, groesse.y,								12);
-	node.write_uint8 (fp, layouts,									14);
-	node.write_uint16(fp, allowed_climates,							15);
-	node.write_uint16(fp, enables,									17);
-	node.write_uint8 (fp, flags,									19);
-	node.write_uint8 (fp, dist_weight,									20);
-	node.write_uint16(fp, intro_date,								21);
-	node.write_uint16(fp, retire_date,							23);
-	node.write_uint16(fp, animation_time,							25);
-	node.write_uint16(fp, capacity,									27);
-	node.write_sint32(fp, maintenance,								29);
-	node.write_sint32(fp, price,									33);
-	node.write_uint8 (fp, allow_underground,						37);
-	node.write_uint8 (fp, is_control_tower,							38);
-	node.write_uint16(fp, population_and_visitor_demand_capacity,	39);
-	node.write_uint16(fp, employment_capacity,						41);
-	node.write_uint16(fp, mail_demand_and_production_capacity,		43);
-	node.write_uint32(fp, radius,									45);
+	node.write_uint8(fp, 0, pos); // was gtyp
+	pos += sizeof(uint8);
+
+	node.write_uint8 (fp, type, pos);
+	pos += sizeof(uint8);
+
+	node.write_uint16(fp, level, pos);
+	pos += sizeof(uint16);
+
+	node.write_uint32(fp, extra_data, pos);
+	pos += sizeof(uint32);
+
+	node.write_uint16(fp, groesse.x, pos);
+	pos += sizeof(uint16);
+
+	node.write_uint16(fp, groesse.y, pos);
+	pos += sizeof(uint16);
+
+	node.write_uint8 (fp, layouts, pos);
+	pos += sizeof(uint8);
+
+	node.write_uint16(fp, allowed_climates, pos);
+	pos += sizeof(uint16);
+
+	node.write_uint16(fp, enables, pos);
+	pos += sizeof(uint16);
+
+	node.write_uint8 (fp, flags, pos);
+	pos += sizeof(uint8);
+
+	node.write_uint8 (fp, dist_weight, pos);
+	pos += sizeof(uint8);
+
+	node.write_uint16(fp, intro_date, pos);
+	pos += sizeof(uint16);
+
+	node.write_uint16(fp, retire_date, pos);
+	pos += sizeof(uint16);
+
+	node.write_uint16(fp, animation_time, pos);
+	pos += sizeof(uint16);
+
+	node.write_uint16(fp, capacity, pos);
+	pos += sizeof(uint16);
+
+	node.write_sint32(fp, maintenance, pos);
+	pos += sizeof(sint32);
+
+	node.write_sint32(fp, price, pos);
+	pos += sizeof(sint32);
+
+	node.write_uint8 (fp, allow_underground, pos);
+	pos += sizeof(uint8);
+
+	node.write_uint8 (fp, is_control_tower, pos);
+	pos += sizeof(uint8);
+
+	node.write_uint16(fp, population_and_visitor_demand_capacity, pos);
+	pos += sizeof(uint16);
+
+	node.write_uint16(fp, employment_capacity, pos);
+	pos += sizeof(uint16);
+
+	node.write_uint16(fp, mail_demand_and_production_capacity, pos);
+	pos += sizeof(uint16);
+
+	node.write_uint32(fp, radius, pos);
+	pos += sizeof(uint32);
+	
+	node.write_uint8(fp, number_of_classes, pos);
+	pos += sizeof(uint8);
+
+	// Class proportions
+	FOR(vector_tpl<uint16>, class_proportion, class_proportions)
+	{
+		node.write_uint16(fp, class_proportion, pos);
+		pos += sizeof(uint16);
+	}
+
+	node.write_uint8(fp, number_of_classes_jobs, pos);
+	pos += sizeof(uint8);
+	
+	FOR(vector_tpl<uint16>, class_proportion, class_proportions_jobs)
+	{
+		node.write_uint16(fp, class_proportion, pos);
+		pos += sizeof(uint16);
+	}
 	
 	// probably add some icons, if defined
 	slist_tpl<string> cursorkeys;
