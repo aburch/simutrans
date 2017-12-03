@@ -373,12 +373,34 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			left = 53+LINESPACE;
 		}
 		top += LINESPACE + D_V_SPACE;
+		left = pos.x + D_MARGIN_LEFT;
 
 		// Hajo: Reuse of info_buf buffer to get and display
 		// information about the passengers happiness
 		info_buf.clear();
 		halt->info(info_buf);
 		display_multiline_text(pos.x + D_MARGIN_LEFT, top, info_buf, SYSCOL_TEXT);
+		int returns = 1;
+		const char *p = info_buf;
+		for (int i = 0; i < info_buf.len(); i++)
+		{
+			if (p[i] == '\n')
+			{
+				returns++;
+			}
+		}
+		top += LINESPACE * returns;
+
+		// TODO: Display the status of the halt in written text and color
+		// There exists currently no fixed states for stations, so those will have to be invented // Ves
+		// Suggestions for states:
+		// - No convoys serviced last month
+		// - No goods where waiting last month
+		// - No control tower (for airports)
+		// - Station is overcrowded
+		// - *Some* explanations to whatever triggers the red states,
+		//   as it probably is more than one thing that triggers it, it would be nice to be specific
+
 	}
 }
 
