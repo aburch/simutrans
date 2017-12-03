@@ -1070,7 +1070,6 @@ void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered, bool map_gener
 {
 	if (gb != NULL)
 	{
-		
 		const building_tile_desc_t* tile = gb->get_tile();
 		koord size = tile->get_desc()->get_size(tile->get_layout());
 		const koord pos = gb->get_pos().get_2d() - tile->get_offset();
