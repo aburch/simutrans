@@ -29,6 +29,7 @@
 #include "../simmenu.h"
 #include "../utils/simstring.h"
 #include "../player/simplay.h"
+#include "../gui/line_class_manager.h"
 
 #include "../bauer/vehikelbauer.h"
 
@@ -197,7 +198,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	// load display
 	filled_bar.add_color_value(&loadfactor, COL_GREEN);
-	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH + 10, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 4 + 2));
+	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + 2*D_BUTTON_WIDTH + 10, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 4 + 2));
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
 
@@ -245,11 +246,17 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_delete_line.disable();
 	add_component(&bt_delete_line);
 
-	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All", scr_coord(LINE_NAME_COLUMN_WIDTH, 14+SCL_HEIGHT+D_BUTTON_HEIGHT+2), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All", scr_coord(LINE_NAME_COLUMN_WIDTH, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 2), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	bt_withdraw_line.set_tooltip("Convoi is sold when all wagons are empty.");
 	bt_withdraw_line.set_visible(false);
 	bt_withdraw_line.add_listener(this);
 	add_component(&bt_withdraw_line);
+
+	bt_line_class_manager.init(button_t::roundbox_state, "line_class_manager", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 2), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_line_class_manager.set_tooltip("change_the_classes_for_the_entire_line");
+	bt_line_class_manager.set_visible(false);
+	bt_line_class_manager.add_listener(this);
+	add_component(&bt_line_class_manager);
 
 	// Select livery
 	livery_selector.set_pos(scr_coord(11+0*D_BUTTON_WIDTH*2 + 92, 8 + SCL_HEIGHT+D_BUTTON_HEIGHT+D_BUTTON_HEIGHT));
@@ -394,6 +401,11 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 			// since init always returns false, it is safe to delete immediately
 			delete tool;
 		}
+	}
+	else if (comp == &bt_line_class_manager)
+	{
+		create_win(20, 20, new line_class_manager_t(line), w_info, magic_line_class_manager + line.get_id());
+		return true;
 	}
 	else if(comp == &livery_selector) 
 	{
@@ -666,7 +678,7 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 
 	chart.set_size(scr_size(rest_width-58, SCL_HEIGHT-11-14-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))));
 	inp_name.set_size(scr_size(rest_width-8, 14));
-	filled_bar.set_size(scr_size(rest_width - 8 - D_BUTTON_WIDTH - 10, 4));
+	filled_bar.set_size(scr_size(rest_width - 8 - 2*D_BUTTON_WIDTH - 10, 4));
 
 	int y=SCL_HEIGHT-11-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))+14;
 	for (int i=0; i<MAX_LINE_COST; i++) {
@@ -838,6 +850,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 	}
 	line = new_line;
 	bt_withdraw_line.set_visible( line.is_bound() );
+	bt_line_class_manager.set_visible(line.is_bound());
 
 	reset_line_name();
 }

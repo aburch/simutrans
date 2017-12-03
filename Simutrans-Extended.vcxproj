@@ -1841,6 +1841,7 @@
     <ClCompile Include="gui\display_settings.cc" />
     <ClCompile Include="gui\factory_chart.cc" />
     <ClCompile Include="gui\gui_theme.cc" />
+    <ClCompile Include="gui\line_class_manager.cc" />
     <ClCompile Include="gui\line_item.cc" />
     <ClCompile Include="gui\obj_info.cc" />
     <ClCompile Include="gui\privatesign_info.cc" />
@@ -2347,6 +2348,7 @@
     <ClInclude Include="gui\display_settings.h" />
     <ClInclude Include="gui\factory_chart.h" />
     <ClInclude Include="gui\gui_theme.h" />
+    <ClInclude Include="gui\line_class_manager.h" />
     <ClInclude Include="gui\obj_info.h" />
     <ClInclude Include="gui\privatesign_info.h" />
     <ClInclude Include="gui\scenario_info.h" />
