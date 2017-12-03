@@ -454,6 +454,16 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv, bool local_execution
 					// buy new vehicle
 					new_vehicle = vehicle_builder_t::build(get_pos(), get_owner(), NULL, info, false, old_cnv->get_livery_scheme_index());
 				}
+
+				// Reassign the classes:
+				uint8 classes_to_check = info->get_number_of_classes();
+				for (int j = 0; j < classes_to_check; j++)
+				{
+					if (old_cnv->get_vehicle(i)->get_reassigned_class(j) != j)
+					{
+						new_vehicle->set_class_reassignment(j, old_cnv->get_vehicle(i)->get_reassigned_class(j));
+					}
+				}
 				// append new vehicle
 				append_vehicle(new_cnv, new_vehicle, false, local_execution);
 			}
