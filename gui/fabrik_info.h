@@ -56,9 +56,11 @@ class fabrik_info_t : public gui_frame_t, public action_listener_t
 	karte_ptr_t welt;
 
 	cbuffer_t info_buf, prod_buf;
+	cbuffer_t factory_status;
 
 	factory_chart_t chart;
 	button_t chart_button;
+	gui_label_t lbl_factory_status;
 
 	button_t details_button;
 
