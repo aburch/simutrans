@@ -1066,7 +1066,7 @@ private:
 // this function adds houses to the city house list
 // Please note: this is called during loading, on *every tile*.
 // It's therefore not OK to recalc city borders in here.
-void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered, bool map_generation)
+void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered, bool do_not_add_to_world_list, bool do_not_update_stats)
 {
 	if (gb != NULL)
 	{
@@ -1086,12 +1086,11 @@ void stadt_t::add_gebaeude_to_stadt(gebaeude_t* gb, bool ordered, bool map_gener
 					}
 					else
 					{
-						add_building_to_list(add_gb, ordered, map_generation);
+						add_building_to_list(add_gb, ordered, do_not_add_to_world_list, do_not_update_stats);
 					}
 					add_gb->set_stadt(this);
 					if (add_gb->get_tile()->get_desc()->is_townhall()) {
-						has_townhall = true;
-						
+						has_townhall = true;					
 					}
 				}
 			}
@@ -4258,7 +4257,7 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 		int layout = get_best_layout(h, k);
 
 		gebaeude_t* gb = hausbauer_t::build(NULL, pos, layout, h);
-		add_gebaeude_to_stadt(gb, false, map_generation);
+		add_gebaeude_to_stadt(gb, false, map_generation, map_generation);
 		reset_city_borders();
 
 		switch(want_to_have) {
@@ -4451,7 +4450,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		// We *can* skip most of the work in add_gebaeude_to_stadt, because we *just* cleared the location,
 		// so it must be valid.  Our borders also should not have changed.
 		new_gb->set_stadt(this);
-		add_building_to_list(new_gb, false, map_generation);
+		add_building_to_list(new_gb, false, map_generation, map_generation);
 		switch(want_to_have) {
 			case building_desc_t::city_res:   won += h->get_level() * 10; break;
 			case building_desc_t::city_com:   arb +=  h->get_level() * 20; break;
@@ -4463,9 +4462,9 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 	return false;
 }
 
-void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered, bool map_generation)
+void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered, bool do_not_add_to_world_list, bool do_not_update_stats)
 {
-	if (!map_generation)
+	if (!do_not_update_stats)
 	{
 		update_city_stats_with_building(building, false);
 	}
@@ -4480,11 +4479,16 @@ void stadt_t::add_building_to_list(gebaeude_t* building, bool ordered, bool map_
 	}
 
 	// Also add to the world list for passenger generation purposes.
-	if (!map_generation)
+	if (!do_not_add_to_world_list)
 	{
 		// Do not add builings one by one to the world list as the map is being generated;
 		// rather, add them all at the end. This reduces duplication and therefore saves 
 		// CPU time, as buildings are upgraded many times during map generation.
+
+		// Likewise, when loading, do not add the building to the world list here, as, when
+		// loading multi-threadedly, these all have to be added with an insertion sort, which
+		// can make loading network games very slow; instead, these are now added single-
+		// threadedly when the game is loading.
 		welt->add_building_to_world_list(building, ordered);
 	}
 }

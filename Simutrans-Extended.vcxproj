@@ -2327,6 +2327,7 @@
     <ClInclude Include="dataobj\records.h" />
     <ClInclude Include="dataobj\settings.h" />
     <ClInclude Include="descriptor\image_array_3d.h" />
+    <ClInclude Include="descriptor\obj_base_desc.h" />
     <ClInclude Include="descriptor\reader\imagelist3d_reader.h" />
     <ClInclude Include="display\clip_num.h" />
     <ClInclude Include="display\font.h" />
@@ -2337,12 +2338,16 @@
     <ClInclude Include="display\viewport.h" />
     <ClInclude Include="gui\ai_option_t.h" />
     <ClInclude Include="gui\components\action_listener.h" />
+    <ClInclude Include="gui\components\ding_view_t.h" />
+    <ClInclude Include="gui\components\gui_action_creator.h" />
     <ClInclude Include="gui\components\gui_container.h" />
     <ClInclude Include="gui\components\gui_convoiinfo.h" />
     <ClInclude Include="gui\components\gui_fixedwidth_textarea.h" />
     <ClInclude Include="gui\components\gui_component.h" />
+    <ClInclude Include="gui\components\gui_location_view_t.h" />
     <ClInclude Include="gui\components\gui_map_preview.h" />
     <ClInclude Include="gui\components\gui_obj_view_t.h" />
+    <ClInclude Include="gui\components\location_view_t.h" />
     <ClInclude Include="gui\convoy_item.h" />
     <ClInclude Include="gui\display_settings.h" />
     <ClInclude Include="gui\factory_chart.h" />

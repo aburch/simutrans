@@ -1771,6 +1771,11 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		{
 			welt->add_attraction(this);
 		}
+
+		// Add this here: there is no advantage to adding buildings multi-threadedly
+		// to a single list, especially when that requires an insertion sort, and
+		// adding it here, single-threadedly, does not.
+		welt->add_building_to_world_list(this);
 	}
 }
 
@@ -1805,7 +1810,7 @@ void gebaeude_t::finish_rd()
 #ifdef MULTI_THREAD
 				pthread_mutex_lock(&add_to_city_mutex);
 #endif
-				city->add_gebaeude_to_stadt(this, env_t::networkmode);
+				city->add_gebaeude_to_stadt(this, env_t::networkmode, true, false);
 #ifdef MULTI_THREAD
 				pthread_mutex_unlock(&add_to_city_mutex);
 #endif
@@ -1816,19 +1821,6 @@ void gebaeude_t::finish_rd()
 	{
 		ptr.stadt = NULL;
 	}
-
-#ifdef MULTI_THREAD
-	pthread_mutex_lock(&add_to_city_mutex);
-#endif
-	if (tile->get_desc()->is_attraction() && !ptr.stadt)
-	{
-		// Add the building to the general world list if it is not added 
-		// by the town (industries are added separately)
-		welt->add_building_to_world_list(this, env_t::networkmode);
-	}
-#ifdef MULTI_THREAD
-	pthread_mutex_unlock(&add_to_city_mutex);
-#endif
 }
 
 

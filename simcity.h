@@ -295,7 +295,7 @@ private:
 
 public:
 
-	void add_building_to_list(gebaeude_t* building, bool ordered = false, bool map_generation = false);
+	void add_building_to_list(gebaeude_t* building, bool ordered = false, bool do_not_add_to_world_list = false, bool do_not_update_stats = false);
 
 	/**
 	 * Returns pointer to history for city
@@ -480,7 +480,7 @@ public:
 	* This function adds buildings to the city building list; 
 	* ordered for multithreaded loading.
 	*/
-	void add_gebaeude_to_stadt(gebaeude_t *gb, bool ordered = false, bool map_generation = false);
+	void add_gebaeude_to_stadt(gebaeude_t *gb, bool ordered = false, bool do_not_add_to_world_list = false, bool do_not_update_stats = false);
 
 	static bool compare_gebaeude_pos(const gebaeude_t* a, const gebaeude_t* b)
 	{
