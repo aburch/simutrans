@@ -784,27 +784,27 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 					total_goods += desc->get_capacity();
 					if (desc->get_capacity() > 0)
 					{
-						if (good_type_0 == 0 || good_type_0 == desc->get_freight_type()->get_catg_index())
+						if (good_type_0 < 0 || good_type_0 == desc->get_freight_type()->get_catg_index())
 						{
 							good_type_0 = ware->get_catg_index();
 							good_type_0_amount += desc->get_capacity();
 						}
-						else if (good_type_1 == 0 || good_type_1 == desc->get_freight_type()->get_catg_index())
+						else if (good_type_1 < 0 || good_type_1 == desc->get_freight_type()->get_catg_index())
 						{
 							good_type_1 = ware->get_catg_index();
 							good_type_1_amount += desc->get_capacity();
 						}
-						else if (good_type_2 == 0 || good_type_2 == desc->get_freight_type()->get_catg_index())
+						else if (good_type_2 < 0 || good_type_2 == desc->get_freight_type()->get_catg_index())
 						{
 							good_type_2 = ware->get_catg_index();
 							good_type_2_amount += desc->get_capacity();
 						}
-						else if (good_type_3 == 0 || good_type_3 == desc->get_freight_type()->get_catg_index())
+						else if (good_type_3 < 0 || good_type_3 == desc->get_freight_type()->get_catg_index())
 						{
 							good_type_3 = ware->get_catg_index();
 							good_type_3_amount += desc->get_capacity();
 						}
-						else if (good_type_4 == 0 || good_type_4 == desc->get_freight_type()->get_catg_index())
+						else if (good_type_4 < 0 || good_type_4 == desc->get_freight_type()->get_catg_index())
 						{
 							good_type_4 = ware->get_catg_index();
 							good_type_4_amount += desc->get_capacity();
