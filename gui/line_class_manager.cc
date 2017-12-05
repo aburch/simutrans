@@ -333,8 +333,7 @@ void line_class_manager_t::layout()
 		reset_all_pass_button.set_visible(true);		
 	}
 
-	y += 4;
-	y += LINESPACE*extra_pass_entries; // To get it to match up with the text from draw(...)
+	y = 2 + LINESPACE*pass_entries; // To get it to match up with the text from draw(...)
 	if (show_mail)
 	{
 		for (int i = 0; i < mail_class_sel.get_count(); i++)
@@ -377,7 +376,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 		{
 
 			convoy_count = line->count_convoys();
-			current_extra_pass_entries = 0;
+			current_pass_entries = 1;
 
 			cbuffer_t buf;
 			uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
@@ -414,6 +413,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 					buf.printf("%s (%s):", translator::translate("accommodation"), pass_name);
 					display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
 					offset_y += LINESPACE;
+					current_pass_entries++;
 				}
 				pass_header = false;
 				text_color = SYSCOL_TEXT;
@@ -429,9 +429,10 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 				buf.printf("%i %s", pass_capacity_at_accommodation[i], pass_name);
 				display_proportional_clip(pos.x + column_1andahalf + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
 				offset_y += LINESPACE;
+				current_pass_entries++;
 			}
 			offset_y += LINESPACE;
-			current_extra_pass_entries++;
+			current_pass_entries++;
 
 			// Only show what classes we have, if we have any
 			text_color = SYSCOL_TEXT;
@@ -441,7 +442,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 				buf.printf("%s:", translator::translate("capacity_per_class"));
 				display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
 				offset_y += LINESPACE;
-				current_extra_pass_entries++;
+				current_pass_entries++;
 				for (int i = 0; i < pass_classes; i++)
 				{
 					if (pass_capacity_at_class[i] > 0)
@@ -453,7 +454,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 						buf.printf("%i %s", pass_capacity_at_class[i], pass_name);
 						display_proportional_clip(pos.x + column_1andahalf + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
 						offset_y += LINESPACE;
-						current_extra_pass_entries++;
+						current_pass_entries++;
 					}
 				}
 
@@ -466,11 +467,11 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 				display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
 				buf.clear();
 				offset_y += LINESPACE;
-				current_extra_pass_entries++;
+				current_pass_entries++;
 				buf.printf("%i %s", overcrowded_capacity, pass_name);
 				display_proportional_clip(pos.x + column_1andahalf + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
 				offset_y += LINESPACE;
-				current_extra_pass_entries++;
+				current_pass_entries++;
 
 				if (show_pass)
 				{
@@ -495,11 +496,11 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 						buf.printf(translator::translate("(catering_levels: %s)"), catering);
 						display_proportional_clip(pos.x + column_1 + len + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
 						offset_y += LINESPACE;
-						current_extra_pass_entries++;
+						current_pass_entries++;
 					}
 				}
 				offset_y += LINESPACE;
-				current_extra_pass_entries++;
+				current_pass_entries++;
 			}
 
 			text_color = SYSCOL_TEXT;
@@ -577,9 +578,9 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 		offset_y += LINESPACE;
 
 		// If anything vital has changed, we need to contact the layout department.
-		if (old_vehicle_count != vehicle_count || extra_pass_entries != current_extra_pass_entries)
+		if (old_vehicle_count != vehicle_count || pass_entries != current_pass_entries)
 		{
-			extra_pass_entries = current_extra_pass_entries;
+			pass_entries = current_pass_entries;
 			old_vehicle_count = vehicle_count;
 			text_height = offset_y;
 			layout();
