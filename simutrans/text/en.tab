@@ -3751,8 +3751,8 @@ Catering cars: %i
 (catering_levels: %s)
 (levels: %s)
 tpo_cars: %i
-Traveling postoffices: %i
+Traveling post offices: %i
 line_class_manager
-Class manager
+Price manager
 change_the_classes_for_the_entire_line
-Change the classes for the entire line
+Change the prices for the entire line
