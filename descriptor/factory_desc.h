@@ -314,8 +314,8 @@ public:
 	{
 		if(base_max_distance_to_consumer < 65535)
 		{
-			uint32 mdc = (uint32)max_distance_to_consumer;
-			mdc *= 1000;
+			uint32 mdc = (uint32)base_max_distance_to_consumer;
+			mdc *= 1000u;
 			mdc /= scale_factor;
 			max_distance_to_consumer = (uint16)mdc;
 		}

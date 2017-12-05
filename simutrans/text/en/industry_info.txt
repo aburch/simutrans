@@ -46,8 +46,8 @@ The <em>Status colour bar</em> under the picture shows how and whether the indus
 - <em>yellow</em> means that the industry is connected by transport, but the supply of input commodities is poor or non-existant;<br>
 - <em>green</em> means that the industry is at optimum status;<br>
 - <em>orange</em> means that the industry is operational but improvements are possible in the supply of goods (for example, only some commodities are supplied to an end consumer industry);<br>
-- <em>red</em> means that the industry is operational, but that part of the industry supply chain has excess supply; and
-- <em>purple</em>  means that the industry is short staffed.
+- <em>red</em> means that the industry is operational, but that part of the industry supply chain has excess supply; and<br>
+- <em>purple</em> means that the industry is short staffed.
 </p>
 <p>
 <em>Consumer:</em> lists the destinations in the industry supply chain for goods produced by the selected industry. <br>

@@ -739,6 +739,10 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 			if (cnv.is_bound())
 			{
 				vehicle_t* v = cnv->get_vehicle(i);
+				if (v == NULL)
+				{
+					break;
+				}
 				switch (ware->get_catg_index())
 				{
 				case goods_manager_t::INDEX_PAS:
