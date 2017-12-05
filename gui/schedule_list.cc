@@ -662,6 +662,19 @@ void schedule_list_gui_t::display(scr_coord pos)
 		buf.printf( translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor );
 		display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width + 24, pos.y+16 + 14 + SCL_HEIGHT + D_BUTTON_HEIGHT*2 +4 , buf, SYSCOL_TEXT);
 	}
+	bt_line_class_manager.disable();
+	for (unsigned convoy = 0; convoy < line->count_convoys(); convoy++)
+	{
+		convoihandle_t cnv = line->get_convoy(convoy);
+		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+		{
+			vehicle_t* v = cnv->get_vehicle(veh);
+			if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS || v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
+			{
+				bt_line_class_manager.enable();
+			}
+		}
+	}
 }
 
 

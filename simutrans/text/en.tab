@@ -3734,3 +3734,23 @@ line_has_obsolete_vehicles_with_upgrades
 This line has obsolete vehicles with upgrades
 staff_shortage
 Staff shortage!
+reset_all_pass_classes
+Reset all passenger classes
+resets_all_passenger_classes_to_their_defaults
+Resets all passenger classes to their defaults
+reset_all_mail_classes
+Reset all mail classes
+resets_all_mail_classes_to_their_defaults
+Resets all mail classes to their defaults
+reassigned_to_multiple
+Reassigned to multiple
+catering_cars: %i
+Catering cars: %i
+(catering_levels: %s)
+(levels: %s)
+tpo_cars: %i
+Traveling postoffices: %i
+line_class_manager
+Class manager
+change_the_classes_for_the_entire_line
+Change the classes for the entire line

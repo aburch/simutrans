@@ -27,11 +27,9 @@ class scr_coord;
 class line_class_manager_t : public gui_frame_t , private action_listener_t
 {
 private:
-
-	//convoihandle_t cnv;
-
+	
 	linehandle_t line;
-	button_t reset_all_pass_button, reset_all_mail_button, show_pass_button, show_mail_button;
+	button_t reset_all_pass_button, reset_all_mail_button;
 
 	vector_tpl<char> class_indices;
 
@@ -42,11 +40,8 @@ private:
 
 	gui_container_t cont;
 
-	uint16 current_number_of_pass_entries;
-	uint16 old_number_of_pass_entries;
-
-	uint16 current_number_of_mail_entries;
-	uint16 old_number_of_mail_entries;
+	uint16 current_extra_pass_entries;
+	uint16 extra_pass_entries;
 
 	uint32 current_number_of_vehicles;
 	uint32 old_number_of_vehicles;
@@ -54,8 +49,13 @@ private:
 	uint32 current_number_of_convoys;
 	uint32 old_number_of_convoys;
 
+	uint32 text_height;
+
 	uint8 highest_catering;
+	uint8 lowest_catering;
+	uint32 catering_cars_amount;
 	bool is_tpo;
+	uint32 tpo_amount;
 
 	uint8 vehicle_count;
 	uint8 convoy_count;
@@ -81,6 +81,9 @@ private:
 	bool show_pass = false;
 	bool show_mail = false;
 
+	int individual_class_count;
+	int old_reassigned_class;
+
 
 
 public:
@@ -90,7 +93,7 @@ public:
 	/**
 	* Do the dynamic component layout
 	*/
-	void layout(scr_coord pos);
+	void layout();
 
 	/**
 	* Build the class lists
