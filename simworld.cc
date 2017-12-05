@@ -6287,7 +6287,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					// If the visiting passengers are bound for a shop that has run out of goods to sell, 
 					// do not allow the passengers to go here.
 					fabrik_t* fab = dest_building->get_fabrik();
-					if (!fab || fab->out_of_stock_selective())
+					if(!fab || fab->out_of_stock_selective())
 					{
 						if (route_status == initialising)
 						{
