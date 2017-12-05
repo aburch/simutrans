@@ -3055,11 +3055,20 @@ uint32 stadt_t::check_road_connexion_to(const gebaeude_t* attraction) const
 	{
 		return connected_attractions.get(pos);
 	}
-	else if(welt->get_city(pos))
+	// If this attraction is in a city, assume it to be connected to the same extent as the rest of the city.
+	else if (attraction->get_stadt())
 	{
-		// If this attraction is in a city. assume it to be connected to the same extent as the rest of the city.
-		return check_road_connexion_to(welt->get_city(pos));
+		return check_road_connexion_to(attraction->get_stadt());
 	}
+	/*else
+	{
+		// get_city() is very CPU intensive, so call it only if necessary
+		stadt_t* city = welt->get_city(pos);
+		if (city)
+		{
+			return check_road_connexion_to(city);
+		}
+	}*/
 
 	return UINT32_MAX_VALUE;
 }

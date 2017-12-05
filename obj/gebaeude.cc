@@ -1807,6 +1807,11 @@ void gebaeude_t::finish_rd()
 			stadt_t *city = (ptr.stadt == NULL) ? welt->find_nearest_city(get_pos().get_2d()) : ptr.stadt;
 			if (city)
 			{
+				if (!is_factory && ptr.stadt == NULL)
+				{
+					// This will save much time in looking this up when generating passengers/mail.
+					ptr.stadt = welt->get_city(get_pos().get_2d());
+				}
 #ifdef MULTI_THREAD
 				pthread_mutex_lock(&add_to_city_mutex);
 #endif
@@ -1816,10 +1821,16 @@ void gebaeude_t::finish_rd()
 #endif
 			}
 		}
+		else if (!is_factory && ptr.stadt == NULL)
+		{
+			// This will save much time in looking this up when generating passengers/mail.
+			ptr.stadt = welt->get_city(get_pos().get_2d());
+		}
 	}
-	else if (!is_factory)
+	else if(!is_factory && ptr.stadt == NULL)
 	{
-		ptr.stadt = NULL;
+		// This will save much time in looking this up when generating passengers/mail.
+		ptr.stadt = welt->get_city(get_pos().get_2d());
 	}
 }
 
