@@ -3064,7 +3064,7 @@ void display_base_img(const image_id n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 
 
 
-// Blends two colors 
+// Blends two colors
 PIXVAL display_blend_colors(PIXVAL background, PIXVAL foreground, int percent_blend)
 {
 	const PIXVAL alpha = (percent_blend*64)/100;
@@ -4224,7 +4224,7 @@ sint32 get_prev_char(const char* text, sint32 pos)
 }
 
 
-KOORD_VAL display_get_char_width(utf16 c)
+KOORD_VAL display_get_char_width(utf32 c)
 {
 	KOORD_VAL pixel_width;
 	if(  c >= large_font.num_chars  ||  (pixel_width = large_font.screen_width[c]) == 0xFF  ) {
@@ -4257,7 +4257,7 @@ KOORD_VAL display_get_char_max_width(const char* text, size_t len) {
 unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte_length, unsigned char &pixel_width)
 {
 	size_t len = 0;
-	unsigned short char_code = utf8_to_utf16((const utf8 *)text, &len);
+	utf32 const char_code = utf8_decoder_t::decode((utf8 const *)text, len);
 
 	if(  char_code==0  ) {
 		// case : end of text reached -> do not advance text pointer
@@ -4335,7 +4335,7 @@ size_t display_fit_proportional( const char *text, scr_coord_val max_width, scr_
  * CAUTION : The text pointer recedes to point to the previous logical character
  * @author Knightly
  */
-unsigned short get_prev_char_with_metrics(const char* &text, const char *const text_start, unsigned char &byte_length, unsigned char &pixel_width)
+utf32 get_prev_char_with_metrics(const char* &text, const char *const text_start, unsigned char &byte_length, unsigned char &pixel_width)
 {
 	if(  text<=text_start  ) {
 		// case : start of text reached or passed -> do not move the pointer backwards
@@ -4344,14 +4344,14 @@ unsigned short get_prev_char_with_metrics(const char* &text, const char *const t
 		return 0;
 	}
 
-	unsigned short char_code;
+	utf32 char_code;
 	// determine the start of the previous logical character
 	do {
 		--text;
 	} while (  text>text_start  &&  (*text & 0xC0)==0x80  );
 
 	size_t len = 0;
-	char_code = utf8_to_utf16((const utf8 *)text, &len);
+	char_code = utf8_decoder_t::decode((utf8 const *)text, len);
 	byte_length = len;
 
 	if(  char_code >= large_font.num_chars  ||  (pixel_width=large_font.screen_width[char_code]) == 0xFF  ) {
@@ -4369,19 +4369,17 @@ unsigned short get_prev_char_with_metrics(const char* &text, const char *const t
  * @author prissi
  * @date 29.11.04
  */
-int display_calc_proportional_string_len_width(const char* text, size_t len)
+int display_calc_proportional_string_len_width(const char *text, size_t len)
 {
 	const font_type* const fnt = &large_font;
 	unsigned int width = 0;
 	int w;
 
-	unsigned short iUnicode;
-	size_t	iLen = 0;
-
 	// decode char
-	while(  iLen < len  ) {
-		iUnicode = utf8_to_utf16((utf8 const*)text + iLen, &iLen);
-		if(  iUnicode == 0  ) {
+	const char *const end = text + len;
+	while(  text < end  ) {
+		utf32 iUnicode = utf8_decoder_t::decode((utf8 const *&)text);
+		if(  iUnicode == UNICODE_NUL  ) {
 			return width;
 		}
 		else if(  iUnicode >= fnt->num_chars  ||  (w = fnt->screen_width[iUnicode]) == 0xFF  ) {
@@ -4434,7 +4432,7 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 {
 	const font_type* const fnt = &large_font;
 	KOORD_VAL cL, cR, cT, cB;
-	uint32 c;
+	utf32 c;
 	size_t iTextPos = 0; // pointer on text position: prissi
 	int char_width_1, char_width_2; // 1 is char only, 2 includes room
 	int screen_pos;
@@ -4497,12 +4495,14 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 	}
 
 	// big loop, char by char
-	while (iTextPos < (size_t)len  &&  txt[iTextPos] != 0) {
+	utf8_decoder_t decoder((utf8 const*)txt);
+	while (iTextPos < (size_t)len  &&  decoder.has_next()) {
 		int h;
 		uint8 char_yoffset;
 
 		// decode char
-		c = utf8_to_utf16((utf8 const*)txt + iTextPos, &iTextPos);
+		c = decoder.next();
+		iTextPos = decoder.get_position() - (utf8 const*)txt;
 
 		// print unknown character?
 		if(  c >= fnt->num_chars  ||  fnt->screen_width[c] == 0xFF  ) {
@@ -4706,11 +4706,11 @@ void display_ddd_proportional_clip(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL wid
 
 	display_fillbox_wh_clip_rgb( xpos - 2, ypos - halfheight - 1 - hgt, width, halfheight * 2 + 2, ddd_color, dirty CLIP_NUM_PAR );
 
-	display_fillbox_wh_rgb( xpos - 1, ypos - halfheight - 1 - hgt, width - 2, 1, lighter, dirty );
-	display_fillbox_wh_rgb( xpos - 1, ypos + halfheight - hgt,     width - 2, 1, darker,  dirty );
+	display_fillbox_wh_clip_rgb( xpos - 1, ypos - halfheight - 1 - hgt, width - 2, 1, lighter, dirty );
+	display_fillbox_wh_clip_rgb( xpos - 1, ypos + halfheight - hgt,     width - 2, 1, darker,  dirty );
 
-	display_vline_wh_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 2, lighter, dirty );
-	display_vline_wh_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 2, darker,  dirty );
+	display_vline_wh_clip_rgb( xpos - 2,         ypos - halfheight - 1 - hgt, halfheight * 2 + 2, lighter, dirty );
+	display_vline_wh_clip_rgb( xpos + width - 3, ypos - halfheight - 1 - hgt, halfheight * 2 + 2, darker,  dirty );
 
 	display_text_proportional_len_clip_rgb( xpos + 2, ypos - 5 + (12 - large_font_total_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_color, dirty, -1);
 }

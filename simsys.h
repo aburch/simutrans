@@ -9,16 +9,13 @@
 
 #include <stddef.h>
 #include "simtypes.h"
+#include "zlib.h"
 
 // Provide chdir().
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #	include <direct.h>
 #else
 #	include <unistd.h>
-#endif
-
-#ifdef _WIN32
-#define SIM_SYSTEM_TRASHBINAVAILABLE
 #endif
 
 /* Variable for message processing */
@@ -61,14 +58,7 @@ struct sys_event
 
 extern struct sys_event sys_event;
 
-#ifdef SIM_SYSTEM_TRASHBINAVAILABLE
-/**
- * Moves the specified file to the system's trash bin.
- * @param path Path to the file to delete.
- * @return False on success.
- */
-bool dr_movetotrash(const char *path);
-#endif
+extern char const PATH_SEPARATOR[];
 
 // scale according to dpi setting
 bool dr_auto_scale(bool);
@@ -89,16 +79,43 @@ void dr_os_close();
 // returns the locale; NULL if unknown
 const char *dr_get_locale_string();
 
-void dr_mkdir(char const* path);
+// Functions the same as normal mkdir except path must be UTF-8 encoded and a default mode of 0777 is assumed.
+int dr_mkdir(char const* path);
 
-// accecpt whatever encoding your filename has (assuming ANSI for windows) and returns the Unicode name
-const char *dr_system_filename_to_uft8( const char *path_in );
+/**
+ * Moves the specified file to the system's trash bin.
+ * If trash is not available on the platform, removes file.
+ * @param path UTF-8 path to the file to delete.
+ * @return False on success.
+ */
+bool dr_movetotrash(const char *path);
 
-// accecpt utf8 and returns (on windows) an ANSI filename
-const char *dr_utf8_to_system_filename( const char *path_in_utf8, bool create=false );
+/**
+ * Returns true if platform supports recycle bin, otherwise false.
+ * Used to control which UI tooltip is shown for deletion.
+ */
+bool dr_cantrash();
+
+// Functions the same as cstdio remove except path must be UTF-8 encoded. 
+int dr_remove(const char *path);
 
 // rename a file and delete eventually existing file new_utf8
-void dr_rename( const char *existing_utf8, const char *new_utf8 );
+int dr_rename( const char *existing_utf8, const char *new_utf8 );
+
+// Functions the same as chdir except path must be UTF-8 encoded. 
+int dr_chdir(const char *path);
+
+// Functions the same as getcwd except path must be UTF-8 encoded. 
+char *dr_getcwd(char *buf, size_t size);
+
+// Functions the same as fopen except filename must be UTF-8 encoded.
+FILE *dr_fopen(const char *filename, const char *mode);
+
+// Functions the same as gzopen except path must be UTF-8 encoded.
+gzFile dr_gzopen(const char *path, const char *mode);
+
+// Functions the same as stat except path must be UTF-8 encoded.
+int dr_stat(const char *path, struct stat *buf);
 
 /* query home directory */
 char const* dr_query_homedir();

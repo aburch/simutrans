@@ -738,7 +738,7 @@ void vehicle_t::set_convoi(convoi_t *c)
  * @return sum of unloaded goods
  * @author Hj. Malthaner
  */
-uint16 vehicle_t::unload_cargo(halthandle_t halt)
+uint16 vehicle_t::unload_cargo(halthandle_t halt, bool unload_all )
 {
 	uint16 sum_menge = 0, sum_delivered = 0, index = 0;
 	if(  !halt.is_bound()  ) {
@@ -756,12 +756,14 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt)
 
 				// check if destination or transfer is still valid
 				if(  !end_halt.is_bound() || !via_halt.is_bound()  ) {
+					// target halt no longer there => delete and remove from fab in transit
+					fabrik_t::update_transit( &tmp, false );
 					DBG_MESSAGE("vehicle_t::unload_freight()", "destination of %d %s is no longer reachable",tmp.menge,translator::translate(tmp.get_name()));
 					total_freight -= tmp.menge;
 					sum_weight -= tmp.menge * tmp.get_desc()->get_weight_per_unit();
 					i = fracht.erase( i );
 				}
-				else if(  end_halt == halt || via_halt == halt  ) {
+				else if(  end_halt == halt || via_halt == halt  ||  unload_all  ) {
 
 					//		    printf("Liefere %d %s nach %s via %s an %s\n",
 					//                           tmp->menge,

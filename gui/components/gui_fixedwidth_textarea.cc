@@ -74,7 +74,7 @@ scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, co
 	const utf8 *line_end  = p;
 
 	// also in unicode *c==0 is end
-	while(*p!=0  ||  p!=line_end) {
+	while(  *p!= UNICODE_NUL  ||  p!=line_end  ) {
 
 		// force at end of text or newline
 		const scr_coord_val max_width = ( y<reserved_area.h ) ? get_size().w-reserved_area.w : get_size().w;
@@ -83,9 +83,7 @@ scr_size gui_fixedwidth_textarea_t::calc_display_text(const scr_coord offset, co
 		do {
 
 			// end of line?
-			size_t len = 0;
-			uint16 next_char = utf8_to_utf16(p, &len);
-			p += len;
+			utf32 next_char = utf8_decoder_t::decode(p);
 
 			if(next_char==0  ||  next_char=='\n') {
 				line_end = p-1;

@@ -150,7 +150,7 @@ const char *loadsave_frame_t::get_info(const char *fname)
 
 	// get file information
 	struct stat  sb;
-	if(stat( dr_utf8_to_system_filename(fname), &sb)!=0) {
+	if(dr_stat(fname, &sb) != 0) {
 		// file not found?
 		return date;
 	}

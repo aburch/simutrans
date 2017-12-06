@@ -359,8 +359,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 			}
 
 			while(  *in  ) {
-				in_pos = 0;
-				utf16 uc = utf8_to_utf16( in, &in_pos );
+				utf32 const uc = utf8_decoder_t::decode(in, in_pos);
 
 				text_dirty = true;
 
@@ -684,20 +683,21 @@ void gui_hidden_textinput_t::display_with_cursor(scr_coord const offset, bool, b
 		const int clip_x =  old_clip.x > text_clip_x ? old_clip.x : text_clip_x;
 		display_set_clip_wh( clip_x, old_clip.y, min(old_clip.xx, text_clip_x+text_clip_w)-clip_x, old_clip.h);
 
-		size_t text_pos=0;
+		utf8 const *text_pos = (utf8 const*)text;
+		utf8 const *end = (utf8 const*)text + max;
 		sint16 xpos = pos.x+offset.x+2;
-		utf16  c = 0;
+		utf32  c = 0;
 		do {
 			// cursor?
-			if(  cursor_visible  &&  text_pos==head_cursor_pos  ) {
+			if(  cursor_visible  &&  text_pos == (utf8 const*)text + head_cursor_pos  ) {
 				display_fillbox_wh_clip_rgb( xpos, pos.y+offset.y+1+(size.h-LINESPACE)/2, 1, LINESPACE, SYSCOL_CURSOR_BEAM, true);
 			}
-			c = utf8_to_utf16((utf8 const*)text + text_pos, &text_pos);
+			c = utf8_decoder_t::decode((utf8 const *&)text_pos);
 			if(c) {
 				xpos += display_proportional_clip_rgb( xpos, pos.y+offset.y+1+(size.h-LINESPACE)/2, "*", ALIGN_LEFT | DT_CLIP, textcol, true);
 			}
 		}
-		while(  text_pos<max  &&  c  );
+		while(  text_pos < end  &&  c != UNICODE_NUL  );
 
 		// reset clipping
 		display_set_clip_wh(old_clip.x, old_clip.y, old_clip.w, old_clip.h);

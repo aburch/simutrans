@@ -2954,9 +2954,11 @@ station_tile_search_ready: ;
 			v->last_stop_pos = v->get_pos();
 		}
 
-		uint16 amount = v->unload_cargo(halt);
+		const grund_t *gr = welt->lookup( schedule->entries[(schedule->get_current_stop()+1)%schedule->get_count()].pos );
+		const bool next_depot = gr  &&  gr->get_depot();
+		uint16 amount = v->unload_cargo(halt, next_depot  );
 
-		if(  !no_load  &&  v->get_total_cargo() < v->get_cargo_max()) {
+		if(  !no_load  &&  !next_depot  &&  v->get_total_cargo() < v->get_cargo_max()  ) {
 			// load if: unloaded something (might go back) or previous non-filled car requested different cargo type
 			if (amount>0  ||  cargo_type_prev==NULL  ||  !cargo_type_prev->is_interchangeable(v->get_cargo_type())) {
 				// load

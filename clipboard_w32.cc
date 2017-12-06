@@ -16,11 +16,6 @@
 #include "simdebug.h"
 #include "dataobj/translator.h"
 
-
-#define MAX_SIZE (4096)
-static char buffer[MAX_SIZE] = "";
-
-
 /**
  * Copy text to the clipboard
  * @param source : pointer to the start of the source text
@@ -29,41 +24,18 @@ static char buffer[MAX_SIZE] = "";
  */
 void dr_copy(const char *source, size_t length)
 {
-	// convert utf-8 strings into utf-16
-	assert( (length<<1)<MAX_SIZE );
-	utf16 *utf16_buffer = (utf16 *)buffer;
-	size_t utf16_count = 0;
-	utf16 char_code;
-	size_t offset = 0;
-	while(  (char_code=utf8_to_utf16((const utf8*)(source+offset), &offset))  &&  offset<=length  ) {
-		*utf16_buffer++ = char_code;
-		++utf16_count;
-	}
-	*utf16_buffer = 0;
-	source = buffer;
-	length = (utf16_count << 1) + 1;
-
-	// create a memory block and copy the text
-	HGLOBAL hText;	// handle to the memory block for holding the text
-	char *pText;	// pointer to the start of the memory block
-	if(  (hText=GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE,length+1))  &&  (pText=(char*)GlobalLock(hText))  ) {
-		while(  (length--)>0  ) {
-			*pText++ = *source++;
-		}
-		*pText = 0;
-		GlobalUnlock(hText);
-	}
-	else {
-		if(  hText  ) {
-			GlobalFree(hText);
-		}
-		return;
-	}
-
-	// open the clipboard and set the clipboard data
 	if(  OpenClipboard(NULL)  ) {
 		if(  EmptyClipboard()  ) {
-			SetClipboardData(CF_UNICODETEXT, hText);
+			// Allocate clipboard space.
+			int const len = (int)length;
+			int const wsize = MultiByteToWideChar(CP_UTF8, 0, source, len, NULL, 0) + 1;
+			LPWSTR const wstr = (LPWSTR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, wsize * sizeof(WCHAR));
+
+			if(  wstr != NULL  ) {
+				// Convert string. NUL appended implicitly by 0ed memory.
+				MultiByteToWideChar(CP_UTF8, 0, source, len, wstr, wsize);
+				SetClipboardData(CF_UNICODETEXT, wstr);
+			}
 		}
 		CloseClipboard();
 	}
@@ -79,44 +51,26 @@ void dr_copy(const char *source, size_t length)
  */
 size_t dr_paste(char *target, size_t max_length)
 {
-	size_t inserted_length = 0;
+	size_t insert_len = 0;
 
-	HGLOBAL hText;	// handle to the memory block for holding the text
-	const char *pText;	// pointer to the start of the memory block
 	if(  OpenClipboard(NULL)  ) {
-		if(  (hText=GetClipboardData(CF_UNICODETEXT))  &&  (pText=(const char*)GlobalLock(hText))  ) {
-			// convert clipboard text from utf-16 to utf-8
-			const utf16 *utf16_text = (const utf16 *)pText;
-			utf8 *utf8_buffer = (utf8 *)buffer;
-			size_t tmp_length = 0;
-			size_t byte_count;
-			while(  *utf16_text  &&  tmp_length+(byte_count=utf16_to_utf8(*utf16_text, utf8_buffer))<=max_length  ) {
-				tmp_length += byte_count;
-				utf8_buffer += byte_count;
-				++utf16_text;
-			}
-			pText = buffer;
-			max_length = tmp_length;
+		LPWSTR const wstr = (LPWSTR)GetClipboardData(CF_UNICODETEXT);
+		if(  wstr != NULL  ) {
+			// Convert entire clipboard to UTF-8.
+			int const size = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, NULL, 0, NULL, NULL);
+			char *const str = new char[size];
+			WideCharToMultiByte(CP_UTF8, 0, wstr, -1, str, size, NULL, NULL);
 
-			inserted_length = max_length;
+			// Insert string.
+			size_t const str_len = strlen(str);
+			insert_len = str_len <= max_length ? str_len : (size_t)utf8_get_prev_char((utf8 const *)str, max_length);
+			memmove(target + insert_len, target, strlen(target) + 1);
+			memcpy(target, str, insert_len);
 
-			// move the text to free up space for inserting the clipboard content
-			char *target_old_end = target + strlen(target);
-			char *target_new_end = target_old_end + max_length;
-			while(  target_old_end>=target  ) {
-				*target_new_end-- = *target_old_end--;
-			}
-
-			// insert the clipboard content
-			while(  (max_length--)>0  ) {
-				*target++ = *pText++;
-			}
-
-			GlobalUnlock(hText);
+			delete[] str;
 		}
 		CloseClipboard();
 	}
 
-	// return the inserted length for cursor advancing
-	return inserted_length;
+	return insert_len;
 }

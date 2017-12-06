@@ -1,6 +1,8 @@
 #include "api_function.h"
 #include <stdio.h>
 
+#include "../simsys.h"
+
 #include "../dataobj/environment.h"
 
 /**
@@ -24,7 +26,7 @@ void script_api::start_squirrel_type_logging(const char* suffix)
 	}
 	cbuffer_t buf;
 	buf.printf("squirrel_types_%s.awk", suffix);
-	file = fopen(buf, "w");
+	file = dr_fopen(buf, "w");
 	if (file) {
 		fprintf(file, "# file used to generate doxygen documentation of squirrel API\n");
 		fprintf(file, "# needs to be copied to trunk/script/api\n");

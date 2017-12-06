@@ -2394,7 +2394,7 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 		if(player!=NULL) {
 			for(uint8 i=0; i<gr->obj_count(); i++) {
 				obj_t* dt = gr->obj_bei(i);
-				if (!dt->is_moving()  &&  dt->is_deletable(player)!=NULL) {
+				if (!dt->is_moving()  &&  dt->is_deletable(player)!=NULL  &&  dt->get_typ()!=obj_t::label) {
 					error =  dt->is_deletable(player); // "Das Feld gehoert\neinem anderen Spieler\n";
 					return 0;
 				}
@@ -3957,11 +3957,11 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 	}
 
 	// oriented buildings here - get neighbouring layouts
-	gr = welt->lookup_kartenboden(k+dx2);
+	const grund_t* gr_neigh = welt->lookup_kartenboden(k+dx2);
 
 	// find out if middle end or start tile
-	if(gr  &&  gr->is_halt()  &&  player_t::check_owner( player, gr->get_halt()->get_owner() )) {
-		gebaeude_t *gb = gr->find<gebaeude_t>();
+	if(gr_neigh  &&  gr_neigh->is_halt()  &&  player_t::check_owner( player, gr_neigh->get_halt()->get_owner() )) {
+		gebaeude_t *gb = gr_neigh->find<gebaeude_t>();
 		if(gb  &&  (gb->get_tile()->get_desc()->get_type()==building_desc_t::dock  ||  gb->get_tile()->get_desc()->get_type()==building_desc_t::flat_dock)  ) {
 			if(change_layout) {
 				layout -= 4;
@@ -3975,9 +3975,9 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 		}
 	}
 
-	gr = welt->lookup_kartenboden(k-dx2);
-	if(gr  &&  gr->is_halt()  &&  player_t::check_owner( player, gr->get_halt()->get_owner() )) {
-		gebaeude_t *gb = gr->find<gebaeude_t>();
+	gr_neigh = welt->lookup_kartenboden(k-dx2);
+	if(gr_neigh  &&  gr_neigh->is_halt()  &&  player_t::check_owner( player, gr_neigh->get_halt()->get_owner() )) {
+		gebaeude_t *gb = gr_neigh->find<gebaeude_t>();
 		if(gb  &&  (gb->get_tile()->get_desc()->get_type()==building_desc_t::dock  ||  gb->get_tile()->get_desc()->get_type()==building_desc_t::flat_dock)  ) {
 			if(change_layout) {
 				layout -= 2;

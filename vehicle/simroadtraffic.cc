@@ -345,7 +345,7 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 	desc(liste_timeline.empty() ? 0 : pick_any_weighted(liste_timeline))
 {
 	pos_next_next = koord3d::invalid;
-	time_to_life = welt->get_settings().get_stadtauto_duration() << welt->ticks_per_world_month_shift;
+	time_to_life = welt->get_settings().get_stadtauto_duration() << 20;  // ignore welt->ticks_per_world_month_shift;
 	current_speed = 48;
 	ms_traffic_jam = 0;
 	max_power_speed = 0; // should be calculated somehow!

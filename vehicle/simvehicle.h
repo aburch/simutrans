@@ -451,7 +451,7 @@ public:
 	 * Unload freight to halt
 	 * @return sum of unloaded goods
 	 */
-	uint16 unload_cargo(halthandle_t halt);
+	uint16 unload_cargo(halthandle_t halt, bool all );
 
 	/**
 	 * Load freight from halt

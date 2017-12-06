@@ -77,6 +77,17 @@ bool building_enables(const building_desc_t* desc, uint8 which)
 	return desc ? desc->get_enabled() & which : 0;
 }
 
+SQInteger building_get_size(HSQUIRRELVM vm)
+{
+	const building_desc_t* desc = param<const building_desc_t*>::get(vm, 1);
+	uint8 rotation = param<uint8>::get(vm, 2);
+	if (desc) {
+		koord size = desc->get_size(rotation);
+		// no automatic coordinate transform please
+		return push_instance(vm, "coord", size.x, size.y);
+	}
+	return -1;
+}
 
 mytime_t get_intro_retire(const obj_desc_timelined_t* desc, bool intro)
 {
@@ -113,21 +124,27 @@ const vector_tpl<const building_desc_t*>& get_available_stations(building_desc_t
 	static vector_tpl<const building_desc_t*> dummy;
 	dummy.clear();
 
-	if (freight == NULL  ||  (type != building_desc_t::depot  &&  type != building_desc_t::generic_stop  &&  type != building_desc_t::generic_extension) ) {
-		return dummy;
+	switch(type) {
+		case building_desc_t::depot:
+		case building_desc_t::generic_stop:
+		case building_desc_t::generic_extension:
+		case building_desc_t::dock:
+		case building_desc_t::flat_dock:
+			break;
+		default:
+			return dummy;
 	}
 
 	const vector_tpl<const building_desc_t*>* p = hausbauer_t::get_list(type);
 
 	// translate freight to enables-flags
-	uint8 enables = haltestelle_t::WARE;
-	switch(freight->get_catg_index()) {
-		case goods_manager_t::INDEX_PAS:  enables = haltestelle_t::PAX;  break;
-		case goods_manager_t::INDEX_MAIL: enables = haltestelle_t::POST; break;
-		default: ;
-	}
-	if (type == building_desc_t::depot) {
-		enables = 0;
+	uint8 enables = 0;
+	if (freight  &&  type != building_desc_t::depot) {
+		switch(freight->get_catg_index()) {
+			case goods_manager_t::INDEX_PAS:  enables = haltestelle_t::PAX;  break;
+			case goods_manager_t::INDEX_MAIL: enables = haltestelle_t::POST; break;
+			default:                          enables = haltestelle_t::WARE;
+		}
 	}
 
 	uint16 time = welt->get_timeline_year_month();
@@ -386,8 +403,9 @@ void export_goods_desc(HSQUIRRELVM vm)
 	/**
 	 * @param rotation
 	 * @return size of building in the given @p rotation
+	 * @typemask coord(integer)
 	 */
-	register_method(vm, &building_desc_t::get_size, "get_size");
+	register_function(vm, building_get_size, "get_size", 2,  "x i");
 	/**
 	 * @return monthly maintenance cost
 	 */
@@ -472,7 +490,7 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * Entries are of type @ref building_desc_x.
 	 * @param type building type from @ref building_desc_x::building_type
 	 * @param wt waytype
-	 * @param freight station should accept this freight
+	 * @param freight station should accept this freight (if null then return all buildings)
 	 * @returns the list
 	 */
 	STATIC register_method(vm, &get_available_stations, "get_available_stations", false, true);
