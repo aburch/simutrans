@@ -300,6 +300,7 @@ BEGIN {
 	export_types["tile_x::has_ways"] = "bool()"
 	export_types["tile_x::has_two_ways"] = "bool()"
 	export_types["tile_x::get_neighbour"] = "tile_x(way_types, dir)"
+	export_types["tile_x::can_remove_all_objects"] = "string(player_x)"
 	export_types["square_x::get_halt"] = "halt_x()"
 	export_types["square_x::get_player_halt"] = "halt_x(player_x)"
 	export_types["square_x::get_tile_at_height"] = "tile_x(integer)"
