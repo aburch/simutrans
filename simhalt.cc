@@ -2659,6 +2659,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 						{
 							// Wait for a better class of accommodation
 							schedule->increment_index(&index, &reverse);
+							other_classes_available = true;
 							continue;
 						}
 					}
