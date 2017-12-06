@@ -1057,7 +1057,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 	if (total_freight < total_capacity)
 	{
 		schedule_t *schedule = cnv->get_schedule();
-		const uint16 capacity_left = total_capacity - total_freight;
+		uint16 capacity_left = total_capacity - total_freight;
 		slist_tpl<ware_t> freight_add;
 		const uint8 classes_to_check = get_desc()->get_number_of_classes();
 		uint16 capacity_this_class;
@@ -1109,6 +1109,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 					}
 				}
 			
+				capacity_left = total_capacity - total_freight;
 
 				if (!freight_add.empty())
 				{
