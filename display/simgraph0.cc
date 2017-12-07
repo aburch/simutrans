@@ -298,7 +298,7 @@ sint32 get_prev_char(const char*, sint32 pos)
 	return pos - 1;
 }
 
-KOORD_VAL display_get_char_width(utf16)
+KOORD_VAL display_get_char_width(utf32)
 {
 	return 0;
 }
@@ -313,7 +313,7 @@ unsigned short get_next_char_with_metrics(const char* &, unsigned char &, unsign
 	return 0;
 }
 
-unsigned short get_prev_char_with_metrics(const char* &, const char *const, unsigned char &, unsigned char &)
+utf32 get_prev_char_with_metrics(const char* &, const char *const, unsigned char &, unsigned char &)
 {
 	return 0;
 }
