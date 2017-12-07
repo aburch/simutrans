@@ -1849,7 +1849,7 @@ end_loop:
 							{
 								for (uint8 j = 0; j < passenger_classes_carried.get_count(); j++)
 								{
-									if (!passenger_classes_carried.is_contained(old_passenger_classes_carried.get_element(j)))
+									if (old_passenger_classes_carried.get_count() <= j || !passenger_classes_carried.is_contained(old_passenger_classes_carried.get_element(j)))
 									{
 										passenger_class_differences.append(j);
 									}
@@ -1868,7 +1868,7 @@ end_loop:
 							{
 								for (uint8 j = 0; j < mail_classes_carried.get_count(); j++)
 								{
-									if (!mail_classes_carried.is_contained(old_mail_classes_carried.get_element(j)))
+									if (old_mail_classes_carried.get_count() <= j || !mail_classes_carried.is_contained(old_mail_classes_carried.get_element(j)))
 									{
 										mail_class_differences.append(j);
 									}

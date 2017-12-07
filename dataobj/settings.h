@@ -887,14 +887,14 @@ public:
 
 	uint16 get_max_alternative_destinations_visiting() const { return max_alternative_destinations_visiting; }
 	// Subtract the minima from the maxima as these are added when the random number is generated.
-	void update_max_alternative_destinations_visiting(uint32 global_visitor_demand) { max_alternative_destinations_visiting = max_alternative_destinations_per_visitor_demand_millionths > 0 ? (((max_alternative_destinations_per_visitor_demand_millionths * global_visitor_demand) / 1000000) + 1) - min_alternative_destinations_visiting : max_alternative_destinations_visiting - min_alternative_destinations_visiting; }
+	void update_max_alternative_destinations_visiting(uint32 global_visitor_demand) { max_alternative_destinations_visiting = max_alternative_destinations_per_visitor_demand_millionths > 0 ? (uint32)((((uint64)max_alternative_destinations_per_visitor_demand_millionths * (uint64)global_visitor_demand) / 1000000ul) + 1ul) - min_alternative_destinations_visiting : max_alternative_destinations_visiting - min_alternative_destinations_visiting; }
 	uint16 get_max_alternative_destinations_commuting() const { return max_alternative_destinations_commuting; }
-	void update_max_alternative_destinations_commuting(uint32 global_jobs) { max_alternative_destinations_commuting = max_alternative_destinations_per_job_millionths > 0 ? (((max_alternative_destinations_per_job_millionths * global_jobs) / 1000000) + 1) - min_alternative_destinations_commuting : max_alternative_destinations_commuting - min_alternative_destinations_commuting; }
+	void update_max_alternative_destinations_commuting(uint32 global_jobs) { max_alternative_destinations_commuting = max_alternative_destinations_per_job_millionths > 0 ? (uint32)((((uint64)max_alternative_destinations_per_job_millionths * (uint64)global_jobs) / 1000000ul) + 1ul) - min_alternative_destinations_commuting : max_alternative_destinations_commuting - min_alternative_destinations_commuting; }
 
 	uint16 get_min_alternative_destinations_visiting() const { return min_alternative_destinations_visiting; }
-	void update_min_alternative_destinations_visiting(uint32 global_visitor_demand) { min_alternative_destinations_visiting = min_alternative_destinations_per_visitor_demand_millionths > 0 ? ((min_alternative_destinations_per_visitor_demand_millionths * global_visitor_demand) / 1000000) : min_alternative_destinations_visiting; }
+	void update_min_alternative_destinations_visiting(uint32 global_visitor_demand) { min_alternative_destinations_visiting = min_alternative_destinations_per_visitor_demand_millionths > 0 ? (uint32)(((uint64)min_alternative_destinations_per_visitor_demand_millionths * (uint64)global_visitor_demand) / 1000000ul) : min_alternative_destinations_visiting; }
 	uint16 get_min_alternative_destinations_commuting() const { return min_alternative_destinations_commuting; }
-	void update_min_alternative_destinations_commuting(uint32 global_jobs) { min_alternative_destinations_commuting = min_alternative_destinations_per_job_millionths > 0 ? ((min_alternative_destinations_per_job_millionths * global_jobs) / 1000000) : min_alternative_destinations_commuting; }
+	void update_min_alternative_destinations_commuting(uint32 global_jobs) { min_alternative_destinations_commuting = min_alternative_destinations_per_job_millionths > 0 ? (uint32)(((uint64)min_alternative_destinations_per_job_millionths * (uint64)global_jobs) / 1000000ul) : min_alternative_destinations_commuting; }
 	
 	uint32 get_max_alternative_destinations_per_job_millionths() const { return max_alternative_destinations_per_job_millionths; }
 	uint32 get_max_alternative_destinations_per_visitor_demand_millionths() const { return max_alternative_destinations_per_visitor_demand_millionths; }
