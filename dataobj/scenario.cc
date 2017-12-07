@@ -39,7 +39,7 @@
 static plainstringhashtable_tpl<plainstring> cached_text_files;
 
 
-scenario_t::scenario_t(karte_t *w) :
+scenario_t::scenario_t(world_t *w) :
 	description_text("get_short_description"),
 	info_text("get_info_text"),
 	goal_text("get_goal_text"),
@@ -69,7 +69,7 @@ scenario_t::~scenario_t()
 }
 
 
-const char* scenario_t::init( const char *scenario_base, const char *scenario_name_, karte_t *welt )
+const char* scenario_t::init( const char *scenario_base, const char *scenario_name_, world_t *welt )
 {
 	this->welt = welt;
 	scenario_name = scenario_name_;

@@ -6,7 +6,7 @@
 #include "descriptor/goods_desc.h"
 
 class goods_manager_t;
-class karte_t;
+class world_t;
 class player_t;
 
 /** Class to handle goods packets (and their destinations) */
@@ -84,7 +84,7 @@ public:
 
 	void rdwr(loadsave_t *file);
 
-	void finish_rd(karte_t *welt);
+	void finish_rd(world_t *welt);
 
 	// find out the category ...
 	bool is_passenger() const {  return index==0; }

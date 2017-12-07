@@ -1,6 +1,7 @@
 OBJS := $(patsubst %, $(BUILDDIR)/%.o, $(basename $(SOURCES)))
 DEPS := $(OBJS:%.o=%.d)
 DIRS := $(sort $(dir $(OBJS)))
+LDLIBS += $(LIBS)
 
 # Make build directories
 DUMMY := $(shell mkdir -p $(DIRS))
@@ -19,7 +20,7 @@ all: $(PROGDIR)/$(PROG)
 
 $(PROGDIR)/$(PROG): $(OBJS)
 	@echo "===> LD  $@"
-	$(Q)$(HOSTCXX) $(OBJS) $(LDFLAGS) $(LIBS) -o $(PROGDIR)/$(PROG)
+	$(Q)$(HOSTCXX) $(OBJS) $(LDFLAGS) $(LDLIBS) -o $(PROGDIR)/$(PROG)
 
 clean:
 	@echo "===> Cleaning up"

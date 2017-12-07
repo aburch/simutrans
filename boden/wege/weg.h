@@ -15,7 +15,7 @@
 #include "../../dataobj/koord3d.h"
 
 
-class karte_t;
+class world_t;
 class way_desc_t;
 class cbuffer_t;
 template <class T> class slist_tpl;

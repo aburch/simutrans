@@ -31,7 +31,7 @@
 
 #include "../utils/cbuffer_t.h"
 
-#include "../gui/karte.h"	// to update map after construction of new industry
+#include "../gui/world.h"	// to update map after construction of new industry
 
 
 karte_ptr_t factory_builder_t::welt;
@@ -49,7 +49,7 @@ static sint32 fab_map_w=0;
 /**
  * Marks factories and their exclusion region in the position map.
  */
-static void add_factory_to_fab_map(karte_t const* const welt, fabrik_t const* const fab)
+static void add_factory_to_fab_map(world_t const* const welt, fabrik_t const* const fab)
 {
 	koord3d      const& pos     = fab->get_pos();
 	sint16       const  spacing = welt->get_settings().get_min_factory_spacing();
@@ -70,7 +70,7 @@ static void add_factory_to_fab_map(karte_t const* const welt, fabrik_t const* co
 /**
  * Creates map with all factories and exclusion area.
  */
-void init_fab_map( karte_t *welt )
+void init_fab_map( world_t *welt )
 {
 	fab_map_w = ((welt->get_size().x+7)/8);
 	fab_map.resize( fab_map_w*welt->get_size().y );
@@ -112,7 +112,7 @@ void factory_builder_t::new_world()
 class factory_place_with_road_finder: public building_placefinder_t  {
 
 public:
-	factory_place_with_road_finder(karte_t* welt) : building_placefinder_t(welt) {}
+	factory_place_with_road_finder(world_t* welt) : building_placefinder_t(welt) {}
 
 	virtual bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const
 	{
@@ -405,7 +405,7 @@ void factory_builder_t::distribute_attractions(int max_number)
 
 	}
 	// update an open map
-	reliefkarte_t::get_karte()->calc_map_size();
+	reliefworld_t::get_karte()->calc_map_size();
 }
 
 /**
@@ -659,7 +659,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		DBG_MESSAGE("factory_builder_t::build_link()","update karte");
 
 		// update the map if needed
-		reliefkarte_t::get_karte()->calc_map_size();
+		reliefworld_t::get_karte()->calc_map_size();
 
 		INT_CHECK( "fabrikbauer 730" );
 
@@ -954,7 +954,7 @@ next_ware_check:
 				buf.printf( translator::translate("Factory chain extended\nfor %s near\n%s built with\n%i factories."), translator::translate(last_built_consumer->get_name()), stadt_name, nr );
 				welt->get_message()->add_message(buf, last_built_consumer->get_pos().get_2d(), message_t::industry, CITY_KI, last_built_consumer->get_desc()->get_building()->get_tile(0)->get_background(0, 0, 0));
 			}
-			reliefkarte_t::get_karte()->calc_map();
+			reliefworld_t::get_karte()->calc_map();
 			return nr;
 		}
 	}
@@ -1007,7 +1007,7 @@ next_ware_check:
 					nr += build_link(NULL, fab, -1 /* random prodbase */, rotation, &pos, welt->get_public_player(), 1, ignore_climates);
 					if(nr>0) {
 						fabrik_t *our_fab = fabrik_t::get_fab( pos.get_2d() );
-						reliefkarte_t::get_karte()->calc_map_size();
+						reliefworld_t::get_karte()->calc_map_size();
 						// tell the player
 						if(tell_me) {
 							const char *stadt_name = translator::translate("nowhere");

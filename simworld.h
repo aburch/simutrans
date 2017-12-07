@@ -77,7 +77,7 @@ struct checklist_t
 /**
  * Threaded function caller.
  */
-typedef void (karte_t::*xy_loop_func)(sint16, sint16, sint16, sint16);
+typedef void (world_t::*xy_loop_func)(sint16, sint16, sint16, sint16);
 
 
 /**
@@ -85,12 +85,12 @@ typedef void (karte_t::*xy_loop_func)(sint16, sint16, sint16, sint16);
  * @brief Stores all data and objects of the simulated world.
  * @author Hj. Malthaner
  */
-class karte_t
+class world_t
 {
-	friend karte_t* world();  // to access the single instance
+	friend world_t* world();  // to access the single instance
 	friend class karte_ptr_t; // to access the single instance
 
-	static karte_t* world; ///< static single instance
+	static world_t* world; ///< static single instance
 
 public:
 	/**
@@ -1372,9 +1372,9 @@ public:
 
 	void enlarge_map(settings_t const*, sint8 const* h_field);
 
-	karte_t();
+	world_t();
 
-	~karte_t();
+	~world_t();
 
 
 
@@ -1448,11 +1448,11 @@ public:
 		vector_tpl<node_t> list; ///< list of affected tiles
 		uint8 actual_flag;       ///< internal flag to iterate through list
 		bool ready;              ///< internal flag to signal iteration ready
-		karte_t* welt;
+		world_t* welt;
 
 		void add_node(bool raise, sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 	public:
-		terraformer_t(karte_t* w) { init(); welt = w; }
+		terraformer_t(world_t* w) { init(); welt = w; }
 
 		void init() { list.clear(); actual_flag = 1; ready = false; }
 
@@ -1545,7 +1545,7 @@ public:
 	void rotate90();
 
 	class sync_list_t {
-			friend class karte_t;
+			friend class world_t;
 		public:
 			sync_list_t() : currently_deleting(NULL), sync_step_running(false) {}
 			void add(sync_steppable *obj);
@@ -1820,9 +1820,9 @@ private:
 /**
  * Returns pointer to single instance of the world.
  */
-inline karte_t *world()
+inline world_t *world()
 {
-	return karte_t::world;
+	return world_t::world;
 }
 
 
@@ -1833,29 +1833,29 @@ inline karte_t *world()
 class karte_ptr_t
 {
 public:
-	/// dereference operator: karte_ptr_t can be used as it would be karte_t*
-	karte_t& operator*() {
-		assert( karte_t::world );
-		return *karte_t::world;
+	/// dereference operator: karte_ptr_t can be used as it would be world_t*
+	world_t& operator*() {
+		assert( world_t::world );
+		return *world_t::world;
 	}
-	const karte_t& operator*() const {
-		assert( karte_t::world );
-		return *karte_t::world;
+	const world_t& operator*() const {
+		assert( world_t::world );
+		return *world_t::world;
 	}
 
 	karte_ptr_t() {}
-	/// dereference operator: karte_ptr_t can be used as it would be karte_t*
-	karte_t* operator->() {
-		assert( karte_t::world );
-		return karte_t::world;
+	/// dereference operator: karte_ptr_t can be used as it would be world_t*
+	world_t* operator->() {
+		assert( world_t::world );
+		return world_t::world;
 	}
-	const karte_t* operator->() const {
-		assert( karte_t::world );
-		return karte_t::world;
+	const world_t* operator->() const {
+		assert( world_t::world );
+		return world_t::world;
 	}
 
-	/// cast to karte_t*
-	operator karte_t* () const { return karte_t::world; }
+	/// cast to world_t*
+	operator world_t* () const { return world_t::world; }
 private:
 	karte_ptr_t(const karte_ptr_t&);
 	karte_ptr_t& operator=(const karte_ptr_t&);

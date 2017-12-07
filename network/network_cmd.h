@@ -8,7 +8,7 @@
 #include "pwd_hash.h"
 
 class address_list_t;
-class karte_t;
+class world_t;
 class packet_t;
 class socket_info_t;
 
@@ -63,7 +63,7 @@ public:
 	// executes the command
 	// (see network_world_command_t::execute() )
 	// if returns true this can be deleted afterwards
-	virtual bool execute(karte_t *) { return true;}
+	virtual bool execute(world_t *) { return true;}
 
 	virtual const char* get_name() { return "network_command_t";}
 
@@ -121,7 +121,7 @@ public:
 	~nwc_service_t();
 
 #ifndef NETTOOL
-	virtual bool execute(karte_t *);
+	virtual bool execute(world_t *);
 #endif
 
 	virtual void rdwr();
@@ -143,7 +143,7 @@ public:
 	nwc_auth_player_t(uint8 nr, const pwd_hash_t& hash_) : network_command_t(NWC_AUTH_PLAYER), hash(hash_), player_unlocked(0), player_nr(nr)  { }
 
 #ifndef NETTOOL
-	virtual bool execute(karte_t *);
+	virtual bool execute(world_t *);
 #endif
 	virtual void rdwr();
 	virtual const char* get_name() { return "nwc_auth_player_t";}
@@ -154,7 +154,7 @@ public:
 	/**
 	 * sets unlocked flags for playing at server
 	 */
-	static void init_player_lock_server(karte_t *);
+	static void init_player_lock_server(world_t *);
 };
 
 #endif

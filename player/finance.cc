@@ -19,7 +19,7 @@
  * initialize finance history arrays
  * @author Jan Korbel
  */
-finance_t::finance_t(player_t * _player, karte_t * _world) :
+finance_t::finance_t(player_t * _player, world_t * _world) :
 	player(_player),
 	world(_world)
 {

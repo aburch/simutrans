@@ -273,7 +273,7 @@ static bool compare_stadtauto_desc(const citycar_desc_t* a, const citycar_desc_t
 }
 
 
-void private_car_t::build_timeline_list(karte_t *welt)
+void private_car_t::build_timeline_list(world_t *welt)
 {
 	// this list will contain all citycars
 	liste_timeline.clear();
@@ -320,7 +320,7 @@ private_car_t::~private_car_t()
 	if(time_to_life>0) {
 		welt->sync.remove(this);
 	}
-	welt->buche( -1, karte_t::WORLD_CITYCARS );
+	welt->buche( -1, world_t::WORLD_CITYCARS );
 }
 
 
@@ -333,7 +333,7 @@ private_car_t::private_car_t(loadsave_t *file) :
 	if(desc) {
 		welt->sync.add(this);
 	}
-	welt->buche( +1, karte_t::WORLD_CITYCARS );
+	welt->buche( +1, world_t::WORLD_CITYCARS );
 }
 
 
@@ -352,7 +352,7 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 #endif
 	calc_image();
 	calc_disp_lane();
-	welt->buche( +1, karte_t::WORLD_CITYCARS );
+	welt->buche( +1, world_t::WORLD_CITYCARS );
 }
 
 

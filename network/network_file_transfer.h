@@ -9,14 +9,14 @@
 #include "network.h"
 
 class cbuffer_t;
-class karte_t;
+class world_t;
 class gameinfo_t;
 
 // connect to address (cp), receive gameinfo, close
 const char *network_gameinfo(const char *cp, gameinfo_t *gi);
 
 // connects to server at (cp), receives game, save to client%i-network.sve
-const char* network_connect(const char *cp, karte_t *world);
+const char* network_connect(const char *cp, world_t *world);
 
 // sending file over network
 const char *network_send_file( uint32 client_id, const char *filename );

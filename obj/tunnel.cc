@@ -118,7 +118,7 @@ void tunnel_t::rdwr(loadsave_t *file)
 				desc = tunnel_builder_t::get_desc(translator::compatibility_name(buf));
 			}
 			if(  desc==NULL  ) {
-				welt->add_missing_paks( buf, karte_t::MISSING_WAY );
+				welt->add_missing_paks( buf, world_t::MISSING_WAY );
 			}
 		}
 		else {

@@ -24,7 +24,7 @@
 #include "../obj/zeiger.h"
 #include "../utils/simrandom.h"
 
-main_view_t::main_view_t(karte_t *welt)
+main_view_t::main_view_t(world_t *welt)
 {
 	this->welt = welt;
 	outside_visible = true;

@@ -282,7 +282,7 @@ void schedule_t::rotate90( sint16 y_size )
  * compare this schedule (schedule) with another, passed in schedule
  * @author hsiegeln
  */
-bool schedule_t::matches(karte_t *welt, const schedule_t *schedule)
+bool schedule_t::matches(world_t *welt, const schedule_t *schedule)
 {
 	if(  schedule == NULL  ) {
 		return false;

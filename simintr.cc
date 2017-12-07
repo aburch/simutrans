@@ -22,7 +22,7 @@
 
 #include "boden/wasser.h"
 
-static karte_t *welt_modell = NULL;
+static world_t *welt_modell = NULL;
 static main_view_t *welt_ansicht = NULL;
 
 
@@ -118,7 +118,7 @@ void interrupt_check(const char* caller_info)
 }
 
 
-void intr_set(karte_t *welt, main_view_t *view)
+void intr_set(world_t *welt, main_view_t *view)
 {
 	welt_modell = welt;
 	welt_ansicht = view;

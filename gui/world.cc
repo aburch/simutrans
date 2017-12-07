@@ -9,7 +9,7 @@
 #include "../boden/grund.h"
 #include "../simfab.h"
 #include "../simcity.h"
-#include "karte.h"
+#include "world.h"
 #include "schedule_gui.h"
 
 #include "../dataobj/translator.h"
@@ -33,8 +33,8 @@
 
 #include <math.h>
 
-sint32 reliefkarte_t::max_cargo=0;
-sint32 reliefkarte_t::max_passed=0;
+sint32 reliefworld_t::max_cargo=0;
+sint32 reliefworld_t::max_passed=0;
 
 static sint32 max_waiting_change = 1;
 
@@ -46,11 +46,11 @@ static sint32 max_service = 1;
 
 static sint32 max_building_level = 0;
 
-reliefkarte_t * reliefkarte_t::single_instance = NULL;
-karte_ptr_t reliefkarte_t::welt;
-reliefkarte_t::MAP_MODES reliefkarte_t::mode = MAP_TOWN;
-reliefkarte_t::MAP_MODES reliefkarte_t::last_mode = MAP_TOWN;
-bool reliefkarte_t::is_visible = false;
+reliefworld_t * reliefworld_t::single_instance = NULL;
+karte_ptr_t reliefworld_t::welt;
+reliefworld_t::MAP_MODES reliefworld_t::mode = MAP_TOWN;
+reliefworld_t::MAP_MODES reliefworld_t::last_mode = MAP_TOWN;
+bool reliefworld_t::is_visible = false;
 
 #define MAX_MAP_TYPE_LAND 31
 #define MAX_MAP_TYPE_WATER 5
@@ -98,7 +98,7 @@ static const uint8 map_type_color[MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND] =
 	224
 };
 
-const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
+const uint8 reliefworld_t::severity_color[MAX_SEVERITY_COLORS] =
 {
 	106,
 	2,
@@ -114,13 +114,13 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 
 
 // helper function for line segment_t
-bool reliefkarte_t::line_segment_t::operator == (const line_segment_t & k) const
+bool reliefworld_t::line_segment_t::operator == (const line_segment_t & k) const
 {
 	return start == k.start  &&  end == k.end  &&  player == k.player  &&  schedule->similar( k.schedule, player );
 }
 
 // Ordering based on first start then end coordinate
-bool reliefkarte_t::LineSegmentOrdering::operator()(const reliefkarte_t::line_segment_t& a, const reliefkarte_t::line_segment_t& b) const
+bool reliefworld_t::LineSegmentOrdering::operator()(const reliefworld_t::line_segment_t& a, const reliefworld_t::line_segment_t& b) const
 {
 	if(  a.start.x == b.start.x  ) {
 		// same start ...
@@ -135,7 +135,7 @@ static inthashtable_tpl< int, slist_tpl<schedule_t *> > waypoint_hash;
 
 
 // add the schedule to the map (if there is a valid one)
-void reliefkarte_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
+void reliefworld_t::add_to_schedule_cache( convoihandle_t cnv, bool with_waypoints )
 {
 	// make sure this is valid!
 	if(  !cnv.is_bound()  ) {
@@ -501,7 +501,7 @@ static void line_segment_draw( waytype_t type, scr_coord start, uint8 start_offs
 
 
 // converts map (karte) koordinates to screen koordinates
-scr_coord reliefkarte_t::karte_to_screen(const koord &k) const
+scr_coord reliefworld_t::world_to_screen(const koord &k) const
 {
 	assert(zoom_in ==1 || zoom_out ==1 );
 	sint32 x = (sint32)k.x * zoom_in;
@@ -517,7 +517,7 @@ scr_coord reliefkarte_t::karte_to_screen(const koord &k) const
 
 
 // and re-transform
-koord reliefkarte_t::screen_to_karte(const scr_coord &c) const
+koord reliefworld_t::screen_to_karte(const scr_coord &c) const
 {
 	sint32 x = ((sint32)c.x*zoom_out)/zoom_in;
 	sint32 y = ((sint32)c.y*zoom_out)/zoom_in;
@@ -530,7 +530,7 @@ koord reliefkarte_t::screen_to_karte(const scr_coord &c) const
 }
 
 
-bool reliefkarte_t::change_zoom_factor(bool magnify)
+bool reliefworld_t::change_zoom_factor(bool magnify)
 {
 	bool zoomed = false;
 	if(  magnify  ) {
@@ -569,18 +569,18 @@ bool reliefkarte_t::change_zoom_factor(bool magnify)
 }
 
 
-PIXVAL reliefkarte_t::calc_severity_color(sint32 amount, sint32 max_value)
+PIXVAL reliefworld_t::calc_severity_color(sint32 amount, sint32 max_value)
 {
 	if(max_value!=0) {
 		// color array goes from light blue to red
 		sint32 severity = amount * MAX_SEVERITY_COLORS / (max_value+1);
-		return color_idx_to_rgb(reliefkarte_t::severity_color[ clamp( severity, 0, MAX_SEVERITY_COLORS-1 ) ]);
+		return color_idx_to_rgb(reliefworld_t::severity_color[ clamp( severity, 0, MAX_SEVERITY_COLORS-1 ) ]);
 	}
-	return color_idx_to_rgb(reliefkarte_t::severity_color[0]);
+	return color_idx_to_rgb(reliefworld_t::severity_color[0]);
 }
 
 
-PIXVAL reliefkarte_t::calc_severity_color_log(sint32 amount, sint32 max_value)
+PIXVAL reliefworld_t::calc_severity_color_log(sint32 amount, sint32 max_value)
 {
 	if(  max_value>1  ) {
 		sint32 severity;
@@ -590,13 +590,13 @@ PIXVAL reliefkarte_t::calc_severity_color_log(sint32 amount, sint32 max_value)
 		else {
 			severity = (uint32)( log( (double)amount*(double)(1<<MAX_SEVERITY_COLORS)/(double)max_value) + 0.5 );
 		}
-		return color_idx_to_rgb(reliefkarte_t::severity_color[ clamp( severity, 0, MAX_SEVERITY_COLORS-1 ) ]);
+		return color_idx_to_rgb(reliefworld_t::severity_color[ clamp( severity, 0, MAX_SEVERITY_COLORS-1 ) ]);
 	}
-	return color_idx_to_rgb(reliefkarte_t::severity_color[0]);
+	return color_idx_to_rgb(reliefworld_t::severity_color[0]);
 }
 
 
-void reliefkarte_t::set_relief_color_clip( sint16 x, sint16 y, PIXVAL color )
+void reliefworld_t::set_relief_color_clip( sint16 x, sint16 y, PIXVAL color )
 {
 	if(  0<=x  &&  (uint16)x < relief->get_width()  &&  0<=y  &&  (uint16)y < relief->get_height()  ) {
 		relief->at( x, y ) = color;
@@ -604,7 +604,7 @@ void reliefkarte_t::set_relief_color_clip( sint16 x, sint16 y, PIXVAL color )
 }
 
 
-void reliefkarte_t::set_relief_farbe(koord k_, const PIXVAL color)
+void reliefworld_t::set_relief_farbe(koord k_, const PIXVAL color)
 {
 	// if map is in normal mode, set new color for map
 	// otherwise do nothing
@@ -613,7 +613,7 @@ void reliefkarte_t::set_relief_farbe(koord k_, const PIXVAL color)
 		return;
 	}
 
-	scr_coord c = karte_to_screen(k_);
+	scr_coord c = world_to_screen(k_);
 	c -= cur_off;
 
 	if(  isometric  ) {
@@ -654,7 +654,7 @@ void reliefkarte_t::set_relief_farbe(koord k_, const PIXVAL color)
  * @param groundwater water height
  * @author Hj. Malthaner
  */
-PIXVAL reliefkarte_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 groundwater)
+PIXVAL reliefworld_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 groundwater)
 {
 	return color_idx_to_rgb(map_type_color[clamp( (hoehe-groundwater)+MAX_MAP_TYPE_WATER-1, 0, MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND-1 )]);
 }
@@ -664,7 +664,7 @@ PIXVAL reliefkarte_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 groundwa
  * Updated Map color(Kartenfarbe) an Position k
  * @author Hj. Malthaner
  */
-PIXVAL reliefkarte_t::calc_relief_farbe(const grund_t *gr)
+PIXVAL reliefworld_t::calc_relief_farbe(const grund_t *gr)
 {
 	PIXVAL color = color_idx_to_rgb(COL_BLACK);
 
@@ -753,7 +753,7 @@ PIXVAL reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 }
 
 
-void reliefkarte_t::calc_map_pixel(const koord k)
+void reliefworld_t::calc_map_pixel(const koord k)
 {
 	// we ignore requests, when nothing visible ...
 	if(!is_visible) {
@@ -937,10 +937,10 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 }
 
 
-void reliefkarte_t::calc_map_size()
+void reliefworld_t::calc_map_size()
 {
-	scr_coord size = karte_to_screen( koord( welt->get_size().x, 0 ) );
-	scr_coord down= karte_to_screen( koord( welt->get_size().x, welt->get_size().y ) );
+	scr_coord size = world_to_screen( koord( welt->get_size().x, 0 ) );
+	scr_coord down= world_to_screen( koord( welt->get_size().x, welt->get_size().y ) );
 	size.y = down.y;
 	if(  isometric  ) {
 		size.x += zoom_in*2;
@@ -950,7 +950,7 @@ void reliefkarte_t::calc_map_size()
 }
 
 
-void reliefkarte_t::calc_map()
+void reliefworld_t::calc_map()
 {
 	// only use bitmap size like screen size
 	scr_size relief_size( min( get_size().w, new_size.w ), min( get_size().h, new_size.h ) );
@@ -990,7 +990,7 @@ void reliefkarte_t::calc_map()
 }
 
 
-reliefkarte_t::reliefkarte_t()
+reliefworld_t::reliefworld_t()
 {
 	relief = NULL;
 	zoom_in = 1;
@@ -1006,22 +1006,22 @@ reliefkarte_t::reliefkarte_t()
 }
 
 
-reliefkarte_t::~reliefkarte_t()
+reliefworld_t::~reliefworld_t()
 {
 	delete relief;
 }
 
 
-reliefkarte_t *reliefkarte_t::get_karte()
+reliefworld_t *reliefworld_t::get_karte()
 {
 	if(single_instance == NULL) {
-		single_instance = new reliefkarte_t();
+		single_instance = new reliefworld_t();
 	}
 	return single_instance;
 }
 
 
-void reliefkarte_t::init()
+void reliefworld_t::init()
 {
 	delete relief;
 	relief = NULL;
@@ -1036,19 +1036,19 @@ void reliefkarte_t::init()
 }
 
 
-void reliefkarte_t::set_mode(MAP_MODES new_mode)
+void reliefworld_t::set_mode(MAP_MODES new_mode)
 {
 	mode = new_mode;
 	needs_redraw = true;
 }
 
 
-void reliefkarte_t::new_month()
+void reliefworld_t::new_month()
 {
 	needs_redraw = true;
 }
 
-void reliefkarte_t::invalidate_map_lines_cache()
+void reliefworld_t::invalidate_map_lines_cache()
 {
 	last_schedule_counter = welt->get_schedule_counter() - 1;
 	needs_redraw = true;
@@ -1059,7 +1059,7 @@ void reliefkarte_t::invalidate_map_lines_cache()
 
 
 // handle event
-bool reliefkarte_t::infowin_event(const event_t *ev)
+bool reliefworld_t::infowin_event(const event_t *ev)
 {
 	scr_coord c( ev->mx, ev->my );
 	koord k = screen_to_karte(c);
@@ -1083,7 +1083,7 @@ bool reliefkarte_t::infowin_event(const event_t *ev)
 
 
 // helper function for finding nearby factory
-const fabrik_t* reliefkarte_t::get_fab( const koord, bool enlarge ) const
+const fabrik_t* reliefworld_t::get_fab( const koord, bool enlarge ) const
 {
 	const fabrik_t *fab = fabrik_t::get_fab(last_world_pos);
 	for(  int i=0;  i<4  && fab==NULL;  i++  ) {
@@ -1099,16 +1099,16 @@ const fabrik_t* reliefkarte_t::get_fab( const koord, bool enlarge ) const
 
 
 // helper function for redraw: factory connections
-const fabrik_t* reliefkarte_t::draw_fab_connections(const PIXVAL colour, const scr_coord pos) const
+const fabrik_t* reliefworld_t::draw_fab_connections(const PIXVAL colour, const scr_coord pos) const
 {
 	const fabrik_t* const fab = get_fab( last_world_pos, true );
 	if(fab) {
-		scr_coord fabpos = karte_to_screen( fab->get_pos().get_2d() ) + pos;
+		scr_coord fabpos = world_to_screen( fab->get_pos().get_2d() ) + pos;
 		const vector_tpl<koord>& lieferziele = event_get_last_control_shift() & 1 ? fab->get_suppliers() : fab->get_lieferziele();
 		FOR(vector_tpl<koord>, lieferziel, lieferziele) {
 			const fabrik_t * fab2 = fabrik_t::get_fab(lieferziel);
 			if (fab2) {
-				const scr_coord end = karte_to_screen( lieferziel ) + pos;
+				const scr_coord end = world_to_screen( lieferziel ) + pos;
 				display_direct_line_rgb(fabpos.x, fabpos.y, end.x, end.y, colour);
 				display_fillbox_wh_clip_rgb(end.x, end.y, 3, 3, ((welt->get_ticks() >> 10) & 1) == 0 ? color_idx_to_rgb(COL_RED) : color_idx_to_rgb(COL_WHITE), true);
 
@@ -1125,7 +1125,7 @@ const fabrik_t* reliefkarte_t::draw_fab_connections(const PIXVAL colour, const s
 
 
 // show the schedule on the minimap
-void reliefkarte_t::set_current_cnv( convoihandle_t c )
+void reliefworld_t::set_current_cnv( convoihandle_t c )
 {
 	current_cnv = c;
 	schedule_cache.clear();
@@ -1137,7 +1137,7 @@ void reliefkarte_t::set_current_cnv( convoihandle_t c )
 
 
 // draw the map (and the overlays!)
-void reliefkarte_t::draw(scr_coord pos)
+void reliefworld_t::draw(scr_coord pos)
 {
 	// sanity check, needed for overlarge maps
 	if(  (new_off.x|new_off.y)<0  ) {
@@ -1315,10 +1315,10 @@ void reliefkarte_t::draw(scr_coord pos)
 		if(  isometric  ) {
 			// isometric => lighten in three parts
 
-			scr_coord p1 = karte_to_screen( koord(0,0) );
-			scr_coord p2 = karte_to_screen( koord( welt->get_size().x, 0 ) );
-			scr_coord p3 = karte_to_screen( koord( welt->get_size().x, welt->get_size().y ) );
-			scr_coord p4 = karte_to_screen( koord( 0, welt->get_size().y ) );
+			scr_coord p1 = world_to_screen( koord(0,0) );
+			scr_coord p2 = world_to_screen( koord( welt->get_size().x, 0 ) );
+			scr_coord p3 = world_to_screen( koord( welt->get_size().x, welt->get_size().y ) );
+			scr_coord p4 = world_to_screen( koord( 0, welt->get_size().y ) );
 
 			// top and bottom part
 			const int toplines = min( p4.y, p2.y );
@@ -1360,10 +1360,10 @@ void reliefkarte_t::draw(scr_coord pos)
 			}
 			if(  seg.start != last_start  ||  seg.end != last_end  ) {
 				last_start = seg.start;
-				k1 = karte_to_screen( seg.start );
+				k1 = world_to_screen( seg.start );
 				k1 += pos;
 				last_end = seg.end;
-				k2 = karte_to_screen( seg.end );
+				k2 = world_to_screen( seg.end );
 				k2 += pos;
 				// use same diagonal for all parallel segments
 				diagonal = seg.start_diagonal;
@@ -1420,7 +1420,7 @@ void reliefkarte_t::draw(scr_coord pos)
 		int radius = 0;
 		PIXVAL color;
 		int diagonal_dist = 0;
-		scr_coord temp_stop = karte_to_screen( station->get_basis_pos() );
+		scr_coord temp_stop = world_to_screen( station->get_basis_pos() );
 		temp_stop = temp_stop + pos;
 
 		if(  mode & MAP_STATUS  ) {
@@ -1546,7 +1546,7 @@ void reliefkarte_t::draw(scr_coord pos)
 		}
 	}
 	if(  display_station.is_bound()  ) {
-		scr_coord temp_stop = karte_to_screen( display_station->get_basis_pos() );
+		scr_coord temp_stop = world_to_screen( display_station->get_basis_pos() );
 		temp_stop = temp_stop + pos;
 		display_ddd_proportional_clip( temp_stop.x + 10, temp_stop.y + 7, proportional_string_width( display_station->get_name() ) + 8, 0, color_idx_to_rgb(display_station->get_owner()->get_player_color1()+3), color_idx_to_rgb(COL_WHITE), display_station->get_name(), false );
 	}
@@ -1562,7 +1562,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			const char * name = stadt->get_name();
 
 			int w = proportional_string_width(name);
-			scr_coord p = karte_to_screen( stadt->get_pos() );
+			scr_coord p = world_to_screen( stadt->get_pos() );
 			p.x = clamp( p.x, 0, get_size().w-w );
 			p += pos;
 			display_proportional_clip_rgb( p.x, p.y, name, ALIGN_LEFT, col, true );
@@ -1587,7 +1587,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			// calculate and draw the rotated coordinates
 			scr_coord c[4];
 			for(uint i=0; i<lengthof(c); i++) {
-				c[i] = karte_to_screen(k[i]) + pos;
+				c[i] = world_to_screen(k[i]) + pos;
 			}
 
 			display_direct_line_dotted_rgb( c[0].x, c[0].y, c[1].x, c[1].y, 3, 3, color_idx_to_rgb(COL_ORANGE) );
@@ -1602,7 +1602,7 @@ void reliefkarte_t::draw(scr_coord pos)
 	if(  mode & MAP_TOURIST  ) {
 		FOR(  weighted_vector_tpl<gebaeude_t*>, const gb, welt->get_attractions()  ) {
 			if(  gb->get_first_tile() == gb  ) {
-				scr_coord gb_pos = karte_to_screen( gb->get_pos().get_2d() );
+				scr_coord gb_pos = world_to_screen( gb->get_pos().get_2d() );
 				gb_pos = gb_pos + pos;
 				int const pax = gb->get_passagier_level();
 				if(  max_tourist_ziele < pax  ) {
@@ -1626,7 +1626,7 @@ void reliefkarte_t::draw(scr_coord pos)
 					fab_tl_pos = gb->get_pos() - gb->get_tile()->get_offset();
 				}
 			}
-			scr_coord fab_pos = karte_to_screen( fab_tl_pos.get_2d() );
+			scr_coord fab_pos = world_to_screen( fab_tl_pos.get_2d() );
 			fab_pos = fab_pos + pos;
 			koord size = f->get_desc()->get_building()->get_size(f->get_rotate());
 			sint16 x_size = max( 5, size.x*zoom_in );
@@ -1639,7 +1639,7 @@ void reliefkarte_t::draw(scr_coord pos)
 	if(  mode & MAP_DEPOT  ) {
 		FOR(  slist_tpl<depot_t*>,  const d,  depot_t::get_depot_list()  ) {
 			if(  d->get_owner() == welt->get_active_player()  ) {
-				scr_coord depot_pos = karte_to_screen( d->get_pos().get_2d() );
+				scr_coord depot_pos = world_to_screen( d->get_pos().get_2d() );
 				depot_pos = depot_pos + pos;
 				// offset of one to avoid
 				static uint8 depot_typ_to_color[19]={ COL_ORANGE, COL_YELLOW, COL_RED, 0, 0, 0, 0, 0, 0, COL_PURPLE, COL_DARK_RED, COL_DARK_ORANGE, 0, 0, 0, 0, 0, 0, COL_LIGHT_RED };
@@ -1681,7 +1681,7 @@ void reliefkarte_t::draw(scr_coord pos)
 	scr_coord c[4];
 	// translate to coordinates in the minimap
 	for(  int i=0;  i<4;  i++  ) {
-		c[i] = karte_to_screen( view[i] ) + pos;
+		c[i] = world_to_screen( view[i] ) + pos;
 	}
 	for(  int i=0;  i<4;  i++  ) {
 		display_direct_line_rgb( c[i].x, c[i].y, c[(i+1)%4].x, c[(i+1)%4].y, color_idx_to_rgb(COL_YELLOW));
@@ -1695,7 +1695,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			get_fab( last_world_pos, false );
 
 		if(fab) {
-			scr_coord fabpos = karte_to_screen( fab->get_pos().get_2d() );
+			scr_coord fabpos = world_to_screen( fab->get_pos().get_2d() );
 			scr_coord boxpos = fabpos + scr_coord(10, 0);
 			const char * name = translator::translate(fab->get_name());
 			int name_width = proportional_string_width(name)+8;
@@ -1707,7 +1707,7 @@ void reliefkarte_t::draw(scr_coord pos)
 }
 
 
-void reliefkarte_t::set_city( const stadt_t* _city )
+void reliefworld_t::set_city( const stadt_t* _city )
 {
 	if(  city != _city  ) {
 		city = _city;
@@ -1719,14 +1719,14 @@ void reliefkarte_t::set_city( const stadt_t* _city )
 }
 
 
-void reliefkarte_t::rdwr(loadsave_t *file)
+void reliefworld_t::rdwr(loadsave_t *file)
 {
 	file->rdwr_short(zoom_out);
 	file->rdwr_short(zoom_in);
 }
 
 
-bool reliefkarte_t::is_matching_freight_catg(const minivec_tpl<uint8> &goods_catg_index)
+bool reliefworld_t::is_matching_freight_catg(const minivec_tpl<uint8> &goods_catg_index)
 {
 	// does this line/convoi has a matching freight
 	if(  freight_type_group_index_showed_on_map == goods_manager_t::passengers  ) {

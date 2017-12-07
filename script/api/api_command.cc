@@ -77,7 +77,7 @@ SQInteger param<call_tool_init>::push(HSQUIRRELVM vm, call_tool_init v)
 	uint32 callback_id = suspended_scripts_t::get_unique_key(tool);
 	tool->callback_id = callback_id;
 
-	// HACK call karte_t::set_tool
+	// HACK call world_t::set_tool
 	welt->set_tool(tool, player);
 	// in networkmode, call is suspended
 

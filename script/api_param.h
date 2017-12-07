@@ -17,7 +17,7 @@ class factory_product_desc_t;
 class gebaeude_t;
 class grund_t;
 class haltestelle_t;
-class karte_t;
+class world_t;
 class karte_ptr_t;
 class koord;
 class koord3d;
@@ -346,7 +346,7 @@ namespace script_api {
 	declare_specialized_param(grund_t*, "t|x|y", "tile_x");
 	declare_specialized_param(const haltestelle_t*, "t|x|y", "halt_x");
 	declare_param_mask(haltestelle_t*, "t|x|y", "halt_x");
-	declare_specialized_param(karte_t*, ".", "world");
+	declare_specialized_param(world_t*, ".", "world");
 	declare_specialized_param(planquadrat_t*, "t|x|y", "square_x");
 	declare_specialized_param(settings_t*, "t|x|y", "settings");
 	declare_specialized_param(schedule_t*, "t|x|y", "schedule_x");
@@ -449,7 +449,7 @@ namespace script_api {
 		/// called if a new world is initialized
 		static void new_world() { rotation=4; /*invalid*/ }
 
-		/// inits rotation from karte_t::settings
+		/// inits rotation from world_t::settings
 		static void initialize();
 
 		/// keep track of rotation
@@ -493,9 +493,9 @@ namespace script_api {
 		static uint8 get_rotation() { return rotation; }
 	};
 
-	/// called by karte_t directly
+	/// called by world_t directly
 	void rotate90();
-	/// called by karte_t directly
+	/// called by world_t directly
 	void new_world();
 
 }; // end of namespace

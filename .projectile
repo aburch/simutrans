@@ -1,0 +1,9 @@
+-*.log
+-/documentation
+-/build
+-/simutrans
+-/Debug
+-/Release
+-/GPATH
+-/GRTAGS
+-/GTAGS

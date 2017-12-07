@@ -11,7 +11,7 @@
 class cbuffer_t;
 class grund_t;
 class player_t;
-class karte_t;
+class world_t;
 
 
 /**
@@ -141,7 +141,7 @@ public:
 	 * if the passed in schedule matches "this", then return true
 	 * @author hsiegeln
 	 */
-	bool matches(karte_t *welt, const schedule_t *schedule);
+	bool matches(world_t *welt, const schedule_t *schedule);
 
 	/**
 	 * Compare this schedule with another, ignoring order and exact positions and waypoints.

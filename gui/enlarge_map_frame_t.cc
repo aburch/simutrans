@@ -9,7 +9,7 @@
 #include <string.h>
 
 #include "enlarge_map_frame_t.h"
-#include "karte.h"
+#include "world.h"
 #include "messagebox.h"
 
 #include "../simdebug.h"
@@ -231,13 +231,13 @@ void enlarge_map_frame_t::update_preview()
 				}
 				else {
 					const sint16 height = welt->lookup_hgt( pos );
-					color = reliefkarte_t::calc_hoehe_farbe(height, sets->get_groundwater());
+					color = reliefworld_t::calc_hoehe_farbe(height, sets->get_groundwater());
 				}
 			}
 			else {
 				// new part
-				const sint16 height = karte_t::perlin_hoehe(sets, pos, koord(old_x,old_y) );
-				color = reliefkarte_t::calc_hoehe_farbe(height, sets->get_groundwater());
+				const sint16 height = world_t::perlin_hoehe(sets, pos, koord(old_x,old_y) );
+				color = reliefworld_t::calc_hoehe_farbe(height, sets->get_groundwater());
 			}
 			karte[j*preview_size+i] = color;
 		}
@@ -261,7 +261,7 @@ void enlarge_map_frame_t::update_preview()
 	const uint sx = sets->get_size_x();
 	const uint sy = sets->get_size_y();
 	const sint32 memory = (
-		sizeof(karte_t) +
+		sizeof(world_t) +
 		sizeof(player_t) * 8 +
 		sizeof(convoi_t) * 1000 +
 		(sizeof(schiene_t) + sizeof(vehicle_t)) * 10 * (sx + sy) +

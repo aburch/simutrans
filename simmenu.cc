@@ -79,7 +79,7 @@ tool_t *create_general_tool(int toolnr)
 {
 	tool_t* tool = NULL;
 	switch(toolnr) {
-		case TOOL_QUERY:          tool = new tool_query_t(); break;
+		case TOOL_QUERY:            tool = new tool_query_t(); break;
 		case TOOL_REMOVER:          tool = new tool_remover_t(); break;
 		case TOOL_RAISE_LAND:       tool = new tool_raise_t(); break;
 		case TOOL_LOWER_LAND:       tool = new tool_lower_t(); break;
@@ -93,16 +93,16 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_PLANT_TREE:       tool = new tool_plant_tree_t(); break;
 		case TOOL_SCHEDULE_ADD:     tool = new tool_schedule_add_t(); break;
 		case TOOL_SCHEDULE_INS:     tool = new tool_schedule_ins_t(); break;
-		case TOOL_BUILD_WAY:          tool = new tool_build_way_t(); break;
-		case TOOL_BUILD_BRIDGE:      tool = new tool_build_bridge_t(); break;
-		case TOOL_BUILD_TUNNEL:        tool = new tool_build_tunnel_t(); break;
+		case TOOL_BUILD_WAY:        tool = new tool_build_way_t(); break;
+		case TOOL_BUILD_BRIDGE:     tool = new tool_build_bridge_t(); break;
+		case TOOL_BUILD_TUNNEL:     tool = new tool_build_tunnel_t(); break;
 		case TOOL_WAYREMOVER:       tool = new tool_wayremover_t(); break;
-		case TOOL_BUILD_WAYOBJ:           tool = new tool_build_wayobj_t(); break;
-		case TOOL_BUILD_STATION:          tool = new tool_build_station_t(); break;
-		case TOOL_BUILD_ROADSIGN:         tool = new tool_build_roadsign_t(); break;
-		case TOOL_BUILD_DEPOT:            tool = new tool_build_depot_t(); break;
-		case TOOL_BUILD_HOUSE:       tool = new tool_build_house_t(); break;
-		case TOOL_BUILD_LAND_CHAIN:       tool = new tool_build_land_chain_t(); break;
+		case TOOL_BUILD_WAYOBJ:     tool = new tool_build_wayobj_t(); break;
+		case TOOL_BUILD_STATION:    tool = new tool_build_station_t(); break;
+		case TOOL_BUILD_ROADSIGN:   tool = new tool_build_roadsign_t(); break;
+		case TOOL_BUILD_DEPOT:      tool = new tool_build_depot_t(); break;
+		case TOOL_BUILD_HOUSE:      tool = new tool_build_house_t(); break;
+		case TOOL_BUILD_LAND_CHAIN: tool = new tool_build_land_chain_t(); break;
 		case TOOL_CITY_CHAIN:       tool = new tool_city_chain_t(); break;
 		case TOOL_BUILD_FACTORY:    tool = new tool_build_factory_t(); break;
 		case TOOL_LINK_FACTORY:     tool = new tool_link_factory_t(); break;
@@ -115,7 +115,7 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_REMOVE_WAYOBJ:    tool = new tool_remove_wayobj_t(); break;
 		case TOOL_SLICED_AND_UNDERGROUND_VIEW: tool = new tool_show_underground_t(); break;
 		case TOOL_BUY_HOUSE:        tool = new tool_buy_house_t(); break;
-		case TOOL_BUILD_CITYROAD:         tool = new tool_build_cityroad(); break;
+		case TOOL_BUILD_CITYROAD:   tool = new tool_build_cityroad(); break;
 		case TOOL_ERROR_MESSAGE: tool = new tool_error_message_t(); break;
 		case TOOL_CHANGE_WATER_HEIGHT: tool = new tool_change_water_height_t(); break;
 		case TOOL_SET_CLIMATE:      tool = new tool_set_climate_t(); break;

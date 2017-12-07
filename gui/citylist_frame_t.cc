@@ -32,7 +32,7 @@ const char *citylist_frame_t::sort_text[citylist_stats_t::SORT_MODES] = {
 	"Growth"
 };
 
-const char citylist_frame_t::hist_type[karte_t::MAX_WORLD_COST][20] =
+const char citylist_frame_t::hist_type[world_t::MAX_WORLD_COST][20] =
 {
 	"citicens",
 	"Growth",
@@ -48,7 +48,7 @@ const char citylist_frame_t::hist_type[karte_t::MAX_WORLD_COST][20] =
 	"Goods"
 };
 
-const uint8 citylist_frame_t::hist_type_color[karte_t::MAX_WORLD_COST] =
+const uint8 citylist_frame_t::hist_type_color[world_t::MAX_WORLD_COST] =
 {
 	COL_WHITE,
 	COL_DARK_GREEN,
@@ -64,7 +64,7 @@ const uint8 citylist_frame_t::hist_type_color[karte_t::MAX_WORLD_COST] =
 	COL_BROWN
 };
 
-const uint8 citylist_frame_t::hist_type_type[karte_t::MAX_WORLD_COST] =
+const uint8 citylist_frame_t::hist_type_type[world_t::MAX_WORLD_COST] =
 {
 	STANDARD,
 	STANDARD,
@@ -116,26 +116,26 @@ citylist_frame_t::citylist_frame_t() :
 	year_month_tabs.set_visible(false);
 	add_component(&year_month_tabs);
 
-	const sint16 yb = CHART_HEIGHT-D_V_SPACE-D_TAB_HEADER_HEIGHT-(karte_t::MAX_WORLD_COST/4)*(D_BUTTON_HEIGHT+D_V_SPACE);
+	const sint16 yb = CHART_HEIGHT-D_V_SPACE-D_TAB_HEADER_HEIGHT-(world_t::MAX_WORLD_COST/4)*(D_BUTTON_HEIGHT+D_V_SPACE);
 	chart.set_pos(scr_coord(D_MARGIN_LEFT,D_TAB_HEADER_HEIGHT));
 	chart.set_size(scr_size(D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT,yb));
-	chart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_YEARS);
+	chart.set_dimension(12, world_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_YEARS);
 	chart.set_visible(false);
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
-	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
-		chart.add_curve(color_idx_to_rgb(hist_type_color[cost]), welt->get_finance_history_year(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_YEARS, hist_type_type[cost], false, true, (cost==1) ? 1 : 0 );
+	for (int cost = 0; cost<world_t::MAX_WORLD_COST; cost++) {
+		chart.add_curve(color_idx_to_rgb(hist_type_color[cost]), welt->get_finance_history_year(), world_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_YEARS, hist_type_type[cost], false, true, (cost==1) ? 1 : 0 );
 	}
 
 	mchart.set_pos(scr_coord(D_MARGIN_LEFT,D_TAB_HEADER_HEIGHT));
 	mchart.set_size(scr_size(D_DEFAULT_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT,yb));
-	mchart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_MONTHS);
+	mchart.set_dimension(12, world_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_MONTHS);
 	mchart.set_visible(false);
 	mchart.set_background(SYSCOL_CHART_BACKGROUND);
-	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
-		mchart.add_curve(color_idx_to_rgb(hist_type_color[cost]), welt->get_finance_history_month(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_MONTHS, hist_type_type[cost], false, true, (cost==1) ? 1 : 0 );
+	for (int cost = 0; cost<world_t::MAX_WORLD_COST; cost++) {
+		mchart.add_curve(color_idx_to_rgb(hist_type_color[cost]), welt->get_finance_history_month(), world_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_MONTHS, hist_type_type[cost], false, true, (cost==1) ? 1 : 0 );
 	}
 
-	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
+	for (int cost = 0; cost<world_t::MAX_WORLD_COST; cost++) {
 		filterButtons[cost].init(button_t::box_state, hist_type[cost], scr_coord(BUTTON1_X+(D_BUTTON_WIDTH+D_H_SPACE)*(cost%4), SCROLL_START+D_TAB_HEADER_HEIGHT+yb+(D_BUTTON_HEIGHT+D_V_SPACE)*(cost/4)), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
 		filterButtons[cost].background_color = color_idx_to_rgb(hist_type_color[cost]);
@@ -175,13 +175,13 @@ bool citylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 		chart.set_visible( show_stats.pressed );
 		year_month_tabs.set_visible( show_stats.pressed );
 		set_min_windowsize( scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+(show_stats.pressed ? SCROLL_START+CHART_HEIGHT : SCROLL_START)+3*max( gui_theme_t::gui_pos_button_size.h, LINESPACE ) ) );
-		for(  int i=0;  i<karte_t::MAX_WORLD_COST;  i++ ) {
+		for(  int i=0;  i<world_t::MAX_WORLD_COST;  i++ ) {
 			filterButtons[i].set_visible(show_stats.pressed);
 		}
 		resize( scr_coord(0,0) );
 	}
 	else {
-		for(  int i=0;  i<karte_t::MAX_WORLD_COST;  i++ ) {
+		for(  int i=0;  i<world_t::MAX_WORLD_COST;  i++ ) {
 			if(  komp == filterButtons+i  ) {
 				filterButtons[i].pressed = !filterButtons[i].pressed;
 				if (filterButtons[i].pressed) {

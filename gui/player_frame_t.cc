@@ -181,7 +181,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 
 	// Free play button?
 	if(  comp == &freeplay  ) {
-		welt->call_change_player_tool(karte_t::toggle_freeplay, 255, 0);
+		welt->call_change_player_tool(world_t::toggle_freeplay, 255, 0);
 		return true;
 	}
 
@@ -191,7 +191,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 			// switch AI on/off
 			if(  welt->get_player(i)==NULL  ) {
 				// create new AI
-				welt->call_change_player_tool(karte_t::new_player, i, player_select[i].get_selection());
+				welt->call_change_player_tool(world_t::new_player, i, player_select[i].get_selection());
 				player_lock[i].enable( welt->get_player(i) );
 
 				// if scripted ai without script -> open script selector window

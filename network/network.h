@@ -61,7 +61,7 @@
 
 class network_command_t;
 class gameinfo_t;
-class karte_t;
+class world_t;
 
 void network_close_socket( SOCKET sock );
 
@@ -87,7 +87,7 @@ network_command_t* network_get_received_command();
  * @return pointer to first received command
  * more commands can be obtained by call to network_get_received_command
  */
-network_command_t* network_check_activity(karte_t *welt, int timeout);
+network_command_t* network_check_activity(world_t *welt, int timeout);
 
 /**
  * send data to dest:

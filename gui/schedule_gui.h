@@ -71,7 +71,7 @@ public:
 	 * Append description of entry to buf.
 	 * short version, without loading level and position
 	 */
-	static void gimme_short_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* player_, schedule_entry_t const& entry, int max_chars);
+	static void gimme_short_stop_name(cbuffer_t& buf, world_t* welt, player_t const* player_, schedule_entry_t const& entry, int max_chars);
 
 private:
 	enum mode_t {adding, inserting, removing, undefined_mode};

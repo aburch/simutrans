@@ -83,7 +83,7 @@ public:
 
 	/**
 	* Return either ground tile in this height or NULL if not existing
-	* Inline, since called from karte_t::lookup() and thus extremely often
+	* Inline, since called from world_t::lookup() and thus extremely often
 	* @return NULL if not ground in this height
 	* @author Hj. Malthaner
 	*/
@@ -213,7 +213,7 @@ public:
 	/**
 	 * The following three functions takes about 4 bytes of memory per tile but speed up passenger generation
 	 * @author prissi
-	 * @param unsorted if true then halt list will be sorted later by call to sort_haltlist, see karte_t::plans_finish_rd.
+	 * @param unsorted if true then halt list will be sorted later by call to sort_haltlist, see world_t::plans_finish_rd.
 	 */
 	void add_to_haltlist(halthandle_t halt, bool unsorted = false);
 

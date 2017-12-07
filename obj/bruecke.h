@@ -1,7 +1,7 @@
 #ifndef obj_bruecke_h
 #define obj_bruecke_h
 
-class karte_t;
+class world_t;
 
 #include "../descriptor/bridge_desc.h"
 #include "../simobj.h"

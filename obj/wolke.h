@@ -6,7 +6,7 @@
 #include "../tpl/vector_tpl.h"
 #include "../display/simimg.h"
 
-class karte_t;
+class world_t;
 
 /**
  * smoke clouds (formerly sync_wolke_t)

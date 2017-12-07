@@ -73,7 +73,7 @@ void nwc_gameinfo_t::rdwr()
 
 
 // will send the gameinfo to the client
-bool nwc_gameinfo_t::execute(karte_t *welt)
+bool nwc_gameinfo_t::execute(world_t *welt)
 {
 	if (env_t::server) {
 		dbg->message("nwc_gameinfo_t::execute", "");
@@ -130,7 +130,7 @@ void nwc_nick_t::rdwr()
 /**
  * if server: checks whether nickname is taken and generates default nick
  */
-bool nwc_nick_t::execute(karte_t *welt)
+bool nwc_nick_t::execute(world_t *welt)
 {
 	if(env_t::server) {
 		uint32 client_id = socket_list_t::get_client_id(packet->get_sender());
@@ -170,7 +170,7 @@ generate_default_nick:
 }
 
 
-void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const char* nick)
+void nwc_nick_t::server_tools(world_t *welt, uint32 client_id, uint8 what, const char* nick)
 {
 	if (!socket_list_t::is_valid_client_id(client_id)) {
 		return;
@@ -273,7 +273,7 @@ void nwc_chat_t::rdwr()
 }
 
 
-void nwc_chat_t::add_message (karte_t* welt) const
+void nwc_chat_t::add_message (world_t* welt) const
 {
 	dbg->warning("nwc_chat_t::add_message", "");
 	cbuffer_t buf;  // Output which will be printed to chat window
@@ -303,7 +303,7 @@ void nwc_chat_t::add_message (karte_t* welt) const
 }
 
 
-bool nwc_chat_t::execute (karte_t* welt)
+bool nwc_chat_t::execute (world_t* welt)
 {
 	if (  message == NULL  ) {
 		dbg->warning("nwc_chat_t::execute", "null message");
@@ -396,7 +396,7 @@ void nwc_join_t::rdwr()
 }
 
 
-bool nwc_join_t::execute(karte_t *welt)
+bool nwc_join_t::execute(world_t *welt)
 {
 	if(env_t::server) {
 		dbg->message("nwc_join_t::execute", "");
@@ -469,7 +469,7 @@ void nwc_ready_t::clear_map_counters()
 }
 
 
-bool nwc_ready_t::execute(karte_t *welt)
+bool nwc_ready_t::execute(world_t *welt)
 {
 	if(  env_t::server  ) {
 		// compare checklist
@@ -528,7 +528,7 @@ void nwc_game_t::rdwr()
 }
 
 
-bool nwc_auth_player_t::execute(karte_t *welt)
+bool nwc_auth_player_t::execute(world_t *welt)
 {
 	dbg->message("nwc_auth_player_t::execute","plnr = %d  unlock = %d  our_client_id = %d", player_nr, player_unlocked, our_client_id);
 
@@ -592,7 +592,7 @@ bool nwc_auth_player_t::execute(karte_t *welt)
 }
 
 
-void nwc_auth_player_t::init_player_lock_server(karte_t *welt)
+void nwc_auth_player_t::init_player_lock_server(world_t *welt)
 {
 	uint16 player_unlocked = 0;
 	for(uint8 i=0; i<PLAYER_UNOWNED; i++) {
@@ -628,7 +628,7 @@ void network_world_command_t::rdwr()
 }
 
 
-bool network_world_command_t::execute(karte_t *welt)
+bool network_world_command_t::execute(world_t *welt)
 {
 	DBG_MESSAGE("network_world_command_t::execute","do_command %d at sync_step %d world now at %d", get_id(), get_sync_step(), welt->get_sync_steps());
 	// want to execute something in the past?
@@ -662,7 +662,7 @@ void nwc_sync_t::rdwr()
 
 
 // save, load, pause, if server send game
-void nwc_sync_t::do_command(karte_t *welt)
+void nwc_sync_t::do_command(world_t *welt)
 {
 	dbg->warning("nwc_sync_t::do_command", "sync_steps %d", get_sync_step());
 	// save screen coordinates & offsets
@@ -716,7 +716,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		}
 
 		// remove passwords before transfer on the server and set default client mask
-		// they will be restored in karte_t::laden
+		// they will be restored in world_t::laden
 		uint16 unlocked_players = 0;
 		for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
 			player_t *player = welt->get_player(i);
@@ -811,7 +811,7 @@ void network_broadcast_world_command_t::rdwr()
 }
 
 
-bool network_broadcast_world_command_t::execute(karte_t *welt)
+bool network_broadcast_world_command_t::execute(world_t *welt)
 {
 	if (exec) {
 		// append to command queue
@@ -860,7 +860,7 @@ void nwc_chg_player_t::rdwr()
 }
 
 
-network_broadcast_world_command_t* nwc_chg_player_t::clone(karte_t *welt)
+network_broadcast_world_command_t* nwc_chg_player_t::clone(world_t *welt)
 {
 	if (!socket_list_t::is_valid_client_id(our_client_id)) {
 		return NULL;
@@ -880,7 +880,7 @@ network_broadcast_world_command_t* nwc_chg_player_t::clone(karte_t *welt)
 	nwc_chg_player_t* nwc = new nwc_chg_player_t(get_sync_step(), get_map_counter(), cmd, player_nr, param);
 
 	// .. and store company_creator if necessary
-	if (cmd == karte_t::new_player) {
+	if (cmd == world_t::new_player) {
 		nwc->pending_company_creator = new connection_info_t(info);
 
 		dbg->warning("nwc_chg_player_t::clone", "pending_company_creator for %d is set to %s/%s", player_nr, info.address.get_str(), info.nickname.c_str());
@@ -905,12 +905,12 @@ void nwc_chg_player_t::company_removed(uint8 player_nr)
 }
 
 
-void nwc_chg_player_t::do_command(karte_t *welt)
+void nwc_chg_player_t::do_command(world_t *welt)
 {
 	welt->change_player_tool(cmd, player_nr, param, true, true);
 
 	// store IP of client who created this company
-	if (env_t::server  &&   cmd == karte_t::new_player  &&  player_nr < lengthof(company_creator)) {
+	if (env_t::server  &&   cmd == world_t::new_player  &&  player_nr < lengthof(company_creator)) {
 		company_creator[player_nr] =  pending_company_creator;
 
 		if (pending_company_creator) {
@@ -921,7 +921,7 @@ void nwc_chg_player_t::do_command(karte_t *welt)
 	}
 
 	// reset locked state
-	if (cmd == karte_t::new_player  ||  cmd == karte_t::delete_player) {
+	if (cmd == world_t::new_player  ||  cmd == world_t::delete_player) {
 		socket_list_t::unlock_player_all(player_nr, true);
 	}
 
@@ -1036,7 +1036,7 @@ void nwc_tool_t::init_tool()
 }
 
 
-network_broadcast_world_command_t* nwc_tool_t::clone(karte_t *welt)
+network_broadcast_world_command_t* nwc_tool_t::clone(world_t *welt)
 {
 	init_tool();
 	if (tool == NULL) {
@@ -1142,7 +1142,7 @@ bool nwc_tool_t::ignore_old_events() const
 }
 
 
-void nwc_tool_t::do_command(karte_t *welt)
+void nwc_tool_t::do_command(world_t *welt)
 {
 	if (tool == NULL) {
 		init_tool();
@@ -1221,7 +1221,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 
 extern address_list_t blacklist;
 
-bool nwc_service_t::execute(karte_t *welt)
+bool nwc_service_t::execute(world_t *welt)
 {
 	if (flag>=SRVC_MAX  ||  !env_t::server) {
 		// wrong flag, no server
@@ -1419,7 +1419,7 @@ bool nwc_service_t::execute(karte_t *welt)
 				break; // invalid number
 			}
 
-			nwc_chg_player_t *nwc = new nwc_chg_player_t(welt->get_sync_steps(), welt->get_map_counter(), karte_t::delete_player, number);
+			nwc_chg_player_t *nwc = new nwc_chg_player_t(welt->get_sync_steps(), welt->get_map_counter(), world_t::delete_player, number);
 			if (nwc->execute(welt)) {
 				delete nwc;
 			}

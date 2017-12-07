@@ -53,12 +53,12 @@ public:
 	static sint32 additional_client_frames_behind;
 
 	/// number of sync_steps before one step
-	/// @see karte_t::interactive()
+	/// @see world_t::interactive()
 	static sint32 network_frames_per_step;
 
 	/// server sends information to clients for checking synchronization
 	/// after this number of sync_steps
-	/// @see karte_t::interactive()
+	/// @see world_t::interactive()
 	static uint32 server_sync_steps_between_checks;
 
 	/// when true, restore the windows from a savegame

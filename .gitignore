@@ -17,6 +17,9 @@
 /simutrans/*pak*
 /simutrans/pak*
 /simutrans/text
+/simutrans/sim
+/simutrans/sim-*
+/documentation/doxygen
 *.bdf
 *.zip
 *.vcxproj

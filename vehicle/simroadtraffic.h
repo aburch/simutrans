@@ -19,7 +19,7 @@
 #include "../ifc/sync_steppable.h"
 
 class citycar_desc_t;
-class karte_t;
+class world_t;
 
 /**
  * Base class for traffic participants with random movement
@@ -145,7 +145,7 @@ public:
 	 * it should be called every month and in the beginning of a new game
 	 * @author prissi
 	 */
-	static void build_timeline_list(karte_t *welt);
+	static void build_timeline_list(world_t *welt);
 	static bool list_empty();
 
 	static bool register_desc(const citycar_desc_t *desc);

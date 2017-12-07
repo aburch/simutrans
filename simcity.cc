@@ -30,7 +30,7 @@
 #include "simmesg.h"
 #include "simcolor.h"
 
-#include "gui/karte.h"
+#include "gui/world.h"
 #include "gui/city_info.h"
 
 #include "descriptor/building_desc.h"
@@ -436,7 +436,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 
 /**
 * Reads/writes city configuration data from/to a savegame
-* called from karte_t::speichern and karte_t::laden
+* called from world_t::speichern and world_t::laden
 * only written for networkgames
 * @author Dwachs
 */
@@ -503,7 +503,7 @@ void stadt_t::cityrules_rdwr(loadsave_t *file)
  */
 class monument_placefinder_t : public placefinder_t {
 	public:
-		monument_placefinder_t(karte_t* welt, sint16 radius) : placefinder_t(welt, radius) {}
+		monument_placefinder_t(world_t* welt, sint16 radius) : placefinder_t(welt, radius) {}
 
 		virtual bool is_tile_ok(koord pos, koord d, climate_bits cl) const
 		{
@@ -546,7 +546,7 @@ class monument_placefinder_t : public placefinder_t {
  */
 class townhall_placefinder_t : public placefinder_t {
 	public:
-		townhall_placefinder_t(karte_t* welt, uint8 dir_) : placefinder_t(welt), dir(dir_) {}
+		townhall_placefinder_t(world_t* welt, uint8 dir_) : placefinder_t(welt), dir(dir_) {}
 
 		virtual bool is_tile_ok(koord pos, koord d, climate_bits cl) const
 		{
@@ -954,8 +954,8 @@ stadt_t::~stadt_t()
 	// close info win
 	destroy_win((ptrdiff_t)this);
 
-	if(  reliefkarte_t::get_karte()->get_city() == this  ) {
-		reliefkarte_t::get_karte()->set_city(NULL);
+	if(  reliefworld_t::get_karte()->get_city() == this  ) {
+		reliefworld_t::get_karte()->set_city(NULL);
 	}
 
 	// only if there is still a world left to delete from
@@ -2280,7 +2280,7 @@ class building_place_with_road_finder: public building_placefinder_t
 		/// if false, this will the check 'do not build next other to special buildings'
 		bool big_city;
 
-		building_place_with_road_finder(karte_t* welt, sint16 radius, bool big) : building_placefinder_t(welt, radius), big_city(big) {}
+		building_place_with_road_finder(world_t* welt, sint16 radius, bool big) : building_placefinder_t(welt, radius), big_city(big) {}
 
 		// get distance to next special building
 		int find_dist_next_special(koord pos) const
@@ -2770,7 +2770,7 @@ bool process_city_street(grund_t& gr, const way_desc_t* cr)
 		weg->set_gehweg(true);
 		weg->set_desc(cr);
 		gr.calc_image();
-		reliefkarte_t::get_karte()->calc_map_pixel(gr.get_pos().get_2d());
+		reliefworld_t::get_karte()->calc_map_pixel(gr.get_pos().get_2d());
 	}
 	return true;
 }
@@ -3436,10 +3436,10 @@ vector_tpl<koord>* stadt_t::random_place(const sint32 count, sint16 old_x, sint1
 			cl |= (1 << i);
 		}
 	}
-	DBG_DEBUG("karte_t::init()", "get random places in climates %x", cl);
+	DBG_DEBUG("world_t::init()", "get random places in climates %x", cl);
 	// search at least places which are 5x5 squares large
 	slist_tpl<koord>* list = welt->find_squares( 5, 5, (climate_bits)cl, old_x, old_y);
-	DBG_DEBUG("karte_t::init()", "found %i places", list->get_count());
+	DBG_DEBUG("world_t::init()", "found %i places", list->get_count());
 	vector_tpl<koord>* result = new vector_tpl<koord>(count);
 
 	// pre processed array: max 1 city from each square can be built

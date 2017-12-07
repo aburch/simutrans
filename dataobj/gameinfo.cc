@@ -18,7 +18,7 @@
 #include "../simhalt.h"
 #include "../descriptor/ground_desc.h"
 #include "../player/simplay.h"
-#include "../gui/karte.h"
+#include "../gui/world.h"
 #include "../utils/simrandom.h"
 #include "../utils/simstring.h"
 #include "loadsave.h"
@@ -29,7 +29,7 @@
 #define MINIMAP_SIZE (64)
 
 
-gameinfo_t::gameinfo_t(karte_t *welt) :
+gameinfo_t::gameinfo_t(world_t *welt) :
 	map(MINIMAP_SIZE,MINIMAP_SIZE),
 	game_comment(""),
 	file_name(""),
@@ -55,13 +55,13 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 		for( uint16 j = 0; j < MINIMAP_SIZE; j++ ) {
 			const koord pos(i * gr_x / MINIMAP_SIZE, j * gr_y / MINIMAP_SIZE);
 			const grund_t* gr = welt->lookup_kartenboden(pos);
-			map.at(i,j) = reliefkarte_t::calc_relief_farbe(gr);
+			map.at(i,j) = reliefworld_t::calc_relief_farbe(gr);
 		}
 	}
 
-	total_pass_transported = welt->get_finance_history_month(1,karte_t::WORLD_PAS_RATIO);
-	total_mail_transported = welt->get_finance_history_month(1,karte_t::WORLD_MAIL_RATIO);
-	total_goods_transported = welt->get_finance_history_month(1,karte_t::WORLD_GOODS_RATIO);
+	total_pass_transported = welt->get_finance_history_month(1,world_t::WORLD_PAS_RATIO);
+	total_mail_transported = welt->get_finance_history_month(1,world_t::WORLD_MAIL_RATIO);
+	total_goods_transported = welt->get_finance_history_month(1,world_t::WORLD_GOODS_RATIO);
 	convoi_count = welt->convoys().get_count();
 
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++ ) {

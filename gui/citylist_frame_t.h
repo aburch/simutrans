@@ -27,9 +27,9 @@ class citylist_frame_t : public gui_frame_t, private action_listener_t
 private:
 	static const char *sort_text[citylist_stats_t::SORT_MODES];
 
-	static const char hist_type[karte_t::MAX_WORLD_COST][20];
-	static const uint8 hist_type_color[karte_t::MAX_WORLD_COST];
-	static const uint8 hist_type_type[karte_t::MAX_WORLD_COST];
+	static const char hist_type[world_t::MAX_WORLD_COST][20];
+	static const uint8 hist_type_color[world_t::MAX_WORLD_COST];
+	static const uint8 hist_type_type[world_t::MAX_WORLD_COST];
 
 	gui_label_t sort_label;
 
@@ -40,7 +40,7 @@ private:
 
 	button_t    show_stats;
 	gui_chart_t chart, mchart;
-	button_t    filterButtons[karte_t::MAX_WORLD_COST];
+	button_t    filterButtons[world_t::MAX_WORLD_COST];
 	gui_tab_panel_t year_month_tabs;
 
 /*

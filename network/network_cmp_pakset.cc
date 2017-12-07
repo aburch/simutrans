@@ -20,7 +20,7 @@ nwc_pakset_info_t::~nwc_pakset_info_t()
 }
 
 
-bool nwc_pakset_info_t::execute(karte_t *)
+bool nwc_pakset_info_t::execute(world_t *)
 {
 	// server side of the communication
 	// client side in network_compare_pakset_with_server

@@ -7,7 +7,7 @@
 #include "dataobj/koord.h"
 #include "tpl/slist_tpl.h"
 
-class karte_t;
+class world_t;
 class karte_ptr_t;
 
 /* class for a simple message
@@ -30,7 +30,7 @@ public:
 
 		uint32 get_type_shifted() const { return 1<<(type & ~local_flag); }
 
-		FLAGGED_PIXVAL get_player_color(karte_t*) const;
+		FLAGGED_PIXVAL get_player_color(world_t*) const;
 	};
 
 	enum msg_typ {

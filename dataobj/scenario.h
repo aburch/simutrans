@@ -12,7 +12,7 @@
 class loadsave_t;
 class stadt_t;
 class fabrik_t;
-class karte_t;
+class world_t;
 class schedule_t;
 class depot_t;
 
@@ -23,7 +23,7 @@ class depot_t;
  * Scenarios are scripted. In network games, only the server has access to the script,
  * clients will be sent some results of the script.
  *
- * Each instance of karte_t carries a non-NULL pointer to a scenario_t
+ * Each instance of world_t carries a non-NULL pointer to a scenario_t
  * thus also the need for inactive scenarios.
  */
 class scenario_t
@@ -40,7 +40,7 @@ private:
 	uint16 what_scenario;
 
 	/// the world we are scripting in
-	karte_t *welt;
+	world_t *welt;
 
 
 	/// name of scenario, files are searched in scenario_path/scenario_name/...
@@ -194,13 +194,13 @@ private:
 
 public:
 
-	scenario_t(karte_t *w);
+	scenario_t(world_t *w);
 	~scenario_t();
 
 	/**
 	 * Initializes scripted scenario
 	 */
-	const char* init( const char *scenario_base, const char *scenario_name, karte_t *welt );
+	const char* init( const char *scenario_base, const char *scenario_name, world_t *welt );
 
 	/**
 	 * Load file with translations. Tries to load files in the following order
@@ -395,7 +395,7 @@ public:
 
 	/**
 	 * Checks if player can use this tool at all.
-	 * Called for instance in karte_t::local_set_tool to change active tool or when filling toolbars.
+	 * Called for instance in world_t::local_set_tool to change active tool or when filling toolbars.
 	 * @return true if player can use this tool.
 	 */
 	bool is_tool_allowed(const player_t* player, uint16 tool_id, sint16 wt = invalid_wt);

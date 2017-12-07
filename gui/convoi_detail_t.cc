@@ -228,7 +228,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 {
 	// keep previous maximum width
 	int x_size = get_size().w-51-pos.x;
-	karte_t *welt = world();
+	world_t *welt = world();
 
 	int total_height = 0;
 	if(cnv.is_bound()) {

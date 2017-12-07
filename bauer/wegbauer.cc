@@ -65,7 +65,7 @@
 
 #include "../tpl/stringhashtable_tpl.h"
 
-#include "../gui/karte.h"	// for debugging
+#include "../gui/world.h"	// for debugging
 #include "../gui/tool_selector.h"
 #include "../gui/messagebox.h"
 
@@ -1492,7 +1492,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 			if((step&0x03)==0) {
 				INT_CHECK( "wegbauer 1347" );
 #ifdef DEBUG_ROUTES
-				if((step&1023)==0) {reliefkarte_t::get_karte()->calc_map();}
+				if((step&1023)==0) {reliefworld_t::get_karte()->calc_map();}
 #endif
 			}
 
@@ -2001,7 +2001,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 			if((step&0x03)==0) {
 				INT_CHECK( "wegbauer 1347" );
 #ifdef DEBUG_ROUTES
-				if((step&1023)==0) {reliefkarte_t::get_karte()->calc_map();}
+				if((step&1023)==0) {reliefworld_t::get_karte()->calc_map();}
 #endif
 			}
 
@@ -2634,7 +2634,7 @@ void way_builder_t::build_road()
 			}
 		}
 		gr->calc_image();	// because it may be a crossing ...
-		reliefkarte_t::get_karte()->calc_map_pixel(k);
+		reliefworld_t::get_karte()->calc_map_pixel(k);
 		player_t::book_construction_costs(player_builder, cost, k, road_wt);
 	} // for
 }
@@ -2734,7 +2734,7 @@ void way_builder_t::build_track()
 			}
 
 			gr->calc_image();
-			reliefkarte_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );
+			reliefworld_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );
 			player_t::book_construction_costs(player_builder, cost, gr->get_pos().get_2d(), desc->get_finance_waytype());
 
 			if((i&3)==0) {
@@ -2786,7 +2786,7 @@ void way_builder_t::build_powerline()
 			player_t::book_construction_costs(player_builder, -desc->get_price(), gr->get_pos().get_2d(), powerline_wt);
 			// this adds maintenance
 			lt->leitung_t::finish_rd();
-			reliefkarte_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );
+			reliefworld_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );
 		}
 
 		if((i&3)==0) {

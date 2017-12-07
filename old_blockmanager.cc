@@ -82,7 +82,7 @@ oldsignal_t::rdwr(loadsave_t *file)
 
 // now the old block reader
 void
-old_blockmanager_t::rdwr_block(karte_t *,loadsave_t *file)
+old_blockmanager_t::rdwr_block(world_t *,loadsave_t *file)
 {
 	sint32 count;
 	short int typ = obj_t::signal;
@@ -114,7 +114,7 @@ old_blockmanager_t::rdwr_block(karte_t *,loadsave_t *file)
 
 
 void
-old_blockmanager_t::rdwr(karte_t *welt, loadsave_t *file)
+old_blockmanager_t::rdwr(world_t *welt, loadsave_t *file)
 {
 	signale.clear();
 	if(file->get_version()>=89000) {
@@ -137,7 +137,7 @@ old_blockmanager_t::rdwr(karte_t *welt, loadsave_t *file)
 
 
 void
-old_blockmanager_t::finish_rd(karte_t *welt)
+old_blockmanager_t::finish_rd(world_t *welt)
 {
 	DBG_MESSAGE("old_blockmanager::finish_rd()","convert old to new signals" );
 	char buf[256];

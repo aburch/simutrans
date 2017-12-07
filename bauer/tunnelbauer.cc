@@ -11,7 +11,7 @@
 
 #include "tunnelbauer.h"
 
-#include "../gui/karte.h"
+#include "../gui/world.h"
 
 #include "../simworld.h"
 #include "../player/simplay.h"
@@ -178,7 +178,7 @@ koord3d tunnel_builder_t::find_end_pos(player_t *player, koord3d pos, koord zv, 
 			sint8 hse = pos.z + corner_se(new_slope);
 			sint8 hne = pos.z + corner_ne(new_slope);
 			sint8 hnw = pos.z + corner_nw(new_slope);
-			karte_t::terraformer_t raise(welt);
+			world_t::terraformer_t raise(welt);
 			raise.add_raise_node(pos.x, pos.y, hsw, hse, hne, hnw);
 			raise.iterate(true);
 			if (raise.can_raise_all(player)) {
@@ -249,7 +249,7 @@ koord3d tunnel_builder_t::find_end_pos(player_t *player, koord3d pos, koord zv, 
 				sint8 hse = pos.z + corner_se(new_slope);
 				sint8 hne = pos.z + corner_ne(new_slope);
 				sint8 hnw = pos.z + corner_nw(new_slope);
-				karte_t::terraformer_t raise(welt), lower(welt);
+				world_t::terraformer_t raise(welt), lower(welt);
 				raise.add_raise_node(pos.x, pos.y, hsw, hse, hne, hnw);
 				raise.iterate(false);
 				lower.add_lower_node(pos.x, pos.y, hsw, hse, hne, hnw);
@@ -396,7 +396,7 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 
 		int n = 0;
 
-		karte_t::terraformer_t raise(welt),lower(welt);
+		world_t::terraformer_t raise(welt),lower(welt);
 		raise.add_raise_node(end.x, end.y, hsw, hse, hne, hnw);
 		lower.add_lower_node(end.x, end.y, hsw, hse, hne, hnw);
 		raise.iterate(true);
@@ -704,7 +704,7 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 		welt->access(pos.get_2d())->boden_entfernen(gr);
 		delete gr;
 
-		reliefkarte_t::get_karte()->calc_map_pixel( pos.get_2d() );
+		reliefworld_t::get_karte()->calc_map_pixel( pos.get_2d() );
 	}
 
 	// Und die Tunnelenden am Schluﬂ

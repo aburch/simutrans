@@ -17,7 +17,7 @@
 #include "../simtypes.h"
 #include "../simconst.h"
 
-class karte_t;
+class world_t;
 class scr_coord;
 class loadsave_t;
 class gui_frame_t;
@@ -170,7 +170,7 @@ bool win_change_zoom_factor(bool magnify);
 /**
  * Sets the world this window manager is attached to.
  */
-void win_set_world(karte_t *world);
+void win_set_world(world_t *world);
 
 /**
  * Forces the redraw of the world on next frame.

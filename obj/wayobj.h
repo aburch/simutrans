@@ -16,7 +16,7 @@
 #include "../tpl/stringhashtable_tpl.h"
 
 class player_t;
-class karte_t;
+class world_t;
 class koord;
 class grund_t;
 class tool_selector_t;

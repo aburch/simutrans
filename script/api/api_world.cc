@@ -13,17 +13,17 @@
 using namespace script_api;
 
 
-mytime_ticks_t world_get_time(karte_t*)
+mytime_ticks_t world_get_time(world_t*)
 {
 	return mytime_ticks_t(welt->get_current_month(), welt->get_ticks(), welt->scale_with_month_length(1<<18), welt->get_next_month_ticks());
 }
 
 
-vector_tpl<sint64> const& get_world_stat(karte_t* welt, bool monthly, sint32 INDEX)
+vector_tpl<sint64> const& get_world_stat(world_t* welt, bool monthly, sint32 INDEX)
 {
 	static vector_tpl<sint64> v;
 	v.clear();
-	if (0<=INDEX  &&  INDEX<karte_t::MAX_WORLD_COST) {
+	if (0<=INDEX  &&  INDEX<world_t::MAX_WORLD_COST) {
 		uint16 maxi = monthly ? MAX_WORLD_HISTORY_MONTHS : MAX_WORLD_HISTORY_YEARS;
 		for(uint16 i = 0; i < maxi; i++) {
 			if (monthly) {
@@ -38,18 +38,18 @@ vector_tpl<sint64> const& get_world_stat(karte_t* welt, bool monthly, sint32 IND
 }
 
 
-bool world_remove_player(karte_t *welt, player_t *player)
+bool world_remove_player(world_t *welt, player_t *player)
 {
 	if (player == NULL) {
 		return false;
 	}
 	// first test
-	bool ok = welt->change_player_tool(karte_t::delete_player, player->get_player_nr(), 0, true /*unlocked*/, false /*exec*/);
+	bool ok = welt->change_player_tool(world_t::delete_player, player->get_player_nr(), 0, true /*unlocked*/, false /*exec*/);
 	if (!ok) {
 		return false;
 	}
 	// now call - will not have immediate effect in network games
-	welt->call_change_player_tool(karte_t::delete_player, player->get_player_nr(), 0, true /*scripted*/);
+	welt->call_change_player_tool(world_t::delete_player, player->get_player_nr(), 0, true /*scripted*/);
 	return true;
 }
 
@@ -124,20 +124,20 @@ void export_world(HSQUIRRELVM vm)
 	 * @param k coordinate
 	 * @returns true if coordinate is valid
 	 */
-	STATIC register_method< bool(karte_t::*)(koord) const>(vm, &karte_t::is_within_limits,  "is_coord_valid");
+	STATIC register_method< bool(world_t::*)(koord) const>(vm, &world_t::is_within_limits,  "is_coord_valid");
 
 	/**
 	 * Searches city next to the given coordinate.
 	 * @param k coordinate
 	 * @returns city if there is any
 	 */
-	STATIC register_method(vm, &karte_t::find_nearest_city, "find_nearest_city");
+	STATIC register_method(vm, &world_t::find_nearest_city, "find_nearest_city");
 
 	/**
 	 * Current season.
 	 * @returns season (0=winter, 1=spring, 2=summer, 3=autumn)
 	 */
-	STATIC register_method(vm, &karte_t::get_season, "get_season");
+	STATIC register_method(vm, &world_t::get_season, "get_season");
 
 	/**
 	 * Removes player company: removes all assets. Use with care.
@@ -155,7 +155,7 @@ void export_world(HSQUIRRELVM vm)
 	 * Returns player number @p pl. If player does not exist, returns null.
 	 * @param pl player number
 	 */
-	STATIC register_method(vm, &karte_t::get_player, "get_player", true);
+	STATIC register_method(vm, &world_t::get_player, "get_player", true);
 
 	/**
 	 * @returns current in-game time.
@@ -165,136 +165,136 @@ void export_world(HSQUIRRELVM vm)
 	 * Get monthly statistics of total number of citizens.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_citizens",          freevariable2<bool,sint32>(true, karte_t::WORLD_CITICENS), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_citizens",          freevariable2<bool,sint32>(true, world_t::WORLD_CITICENS), true );
 	/**
 	 * Get monthly statistics of total city growth.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_growth",            freevariable2<bool,sint32>(true, karte_t::WORLD_GROWTH), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_growth",            freevariable2<bool,sint32>(true, world_t::WORLD_GROWTH), true );
 	/**
 	 * Get monthly statistics of total number of towns.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_towns",             freevariable2<bool,sint32>(true, karte_t::WORLD_TOWNS), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_towns",             freevariable2<bool,sint32>(true, world_t::WORLD_TOWNS), true );
 	/**
 	 * Get monthly statistics of total number of factories.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_factories",         freevariable2<bool,sint32>(true, karte_t::WORLD_FACTORIES), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_factories",         freevariable2<bool,sint32>(true, world_t::WORLD_FACTORIES), true );
 	/**
 	 * Get monthly statistics of total number of convoys.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_convoys",           freevariable2<bool,sint32>(true, karte_t::WORLD_CONVOIS), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_convoys",           freevariable2<bool,sint32>(true, world_t::WORLD_CONVOIS), true );
 	/**
 	 * Get monthly statistics of total number of citycars.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_citycars",          freevariable2<bool,sint32>(true, karte_t::WORLD_CITYCARS), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_citycars",          freevariable2<bool,sint32>(true, world_t::WORLD_CITYCARS), true );
 	/**
 	 * Get monthly statistics of ratio transported to generated passengers.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_ratio_pax",         freevariable2<bool,sint32>(true, karte_t::WORLD_PAS_RATIO), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_ratio_pax",         freevariable2<bool,sint32>(true, world_t::WORLD_PAS_RATIO), true );
 	/**
 	 * Get monthly statistics of total number of generated passengers.
 	 * @returns array, index [0] corresponds to current month
 	 * @see city_x::get_generated_pax city_x::get_transported_pax
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_generated_pax",     freevariable2<bool,sint32>(true, karte_t::WORLD_PAS_GENERATED), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_generated_pax",     freevariable2<bool,sint32>(true, world_t::WORLD_PAS_GENERATED), true );
 	/**
 	 * Get monthly statistics of ratio transported to generated mail.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_ratio_mail",        freevariable2<bool,sint32>(true, karte_t::WORLD_MAIL_RATIO), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_ratio_mail",        freevariable2<bool,sint32>(true, world_t::WORLD_MAIL_RATIO), true );
 	/**
 	 * Get monthly statistics of total number of generated mail.
 	 * @returns array, index [0] corresponds to current month
 	 * @see city_x::get_generated_mail city_x::get_transported_mail
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_generated_mail",    freevariable2<bool,sint32>(true, karte_t::WORLD_MAIL_GENERATED), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_generated_mail",    freevariable2<bool,sint32>(true, world_t::WORLD_MAIL_GENERATED), true );
 	/**
 	 * Get monthly statistics of ratio of factories that got supplied.
 	 * @returns array, index [0] corresponds to current month
 	 * @see city_x::get_generated_mail city_x::get_transported_mail
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_ratio_goods",       freevariable2<bool,sint32>(true, karte_t::WORLD_GOODS_RATIO), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_ratio_goods",       freevariable2<bool,sint32>(true, world_t::WORLD_GOODS_RATIO), true );
 	/**
 	 * Get monthly statistics of total number of transported goods.
 	 * @returns array, index [0] corresponds to current month
 	 * @see city_x::get_generated_mail city_x::get_transported_mail
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_transported_goods", freevariable2<bool,sint32>(true, karte_t::WORLD_TRANSPORTED_GOODS), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_transported_goods", freevariable2<bool,sint32>(true, world_t::WORLD_TRANSPORTED_GOODS), true );
 
 	/**
 	 * Get per year statistics of total number of citizens.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_year_citizens",          freevariable2<bool,sint32>(false, karte_t::WORLD_CITICENS), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_year_citizens",          freevariable2<bool,sint32>(false, world_t::WORLD_CITICENS), true );
 	/**
 	 * Get per year statistics of total city growth.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_year_growth",            freevariable2<bool,sint32>(false, karte_t::WORLD_GROWTH), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_year_growth",            freevariable2<bool,sint32>(false, world_t::WORLD_GROWTH), true );
 	/**
 	 * Get per year statistics of total number of towns.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_year_towns",             freevariable2<bool,sint32>(false, karte_t::WORLD_TOWNS), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_year_towns",             freevariable2<bool,sint32>(false, world_t::WORLD_TOWNS), true );
 	/**
 	 * Get per year statistics of total number of factories.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_year_factories",         freevariable2<bool,sint32>(false, karte_t::WORLD_FACTORIES), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_year_factories",         freevariable2<bool,sint32>(false, world_t::WORLD_FACTORIES), true );
 	/**
 	 * Get per year statistics of total number of convoys.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_year_convoys",           freevariable2<bool,sint32>(false, karte_t::WORLD_CONVOIS), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_year_convoys",           freevariable2<bool,sint32>(false, world_t::WORLD_CONVOIS), true );
 	/**
 	 * Get per year statistics of total number of citycars.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_year_citycars",          freevariable2<bool,sint32>(false, karte_t::WORLD_CITYCARS), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_year_citycars",          freevariable2<bool,sint32>(false, world_t::WORLD_CITYCARS), true );
 	/**
 	 * Get per year statistics of ratio transported to generated passengers.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_year_ratio_pax",         freevariable2<bool,sint32>(false, karte_t::WORLD_PAS_RATIO), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_year_ratio_pax",         freevariable2<bool,sint32>(false, world_t::WORLD_PAS_RATIO), true );
 	/**
 	 * Get per year statistics of total number of generated passengers.
 	 * @returns array, index [0] corresponds to current year
 	 * @see city_x::get_generated_pax city_x::get_transported_pax
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_year_generated_pax",     freevariable2<bool,sint32>(false, karte_t::WORLD_PAS_GENERATED), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_year_generated_pax",     freevariable2<bool,sint32>(false, world_t::WORLD_PAS_GENERATED), true );
 	/**
 	 * Get per year statistics of ratio transported to generated mail.
 	 * @returns array, index [0] corresponds to current year
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_year_ratio_mail",        freevariable2<bool,sint32>(false, karte_t::WORLD_MAIL_RATIO), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_year_ratio_mail",        freevariable2<bool,sint32>(false, world_t::WORLD_MAIL_RATIO), true );
 	/**
 	 * Get per year statistics of total number of generated mail.
 	 * @returns array, index [0] corresponds to current year
 	 * @see city_x::get_generated_mail city_x::get_transported_mail
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_year_generated_mail",    freevariable2<bool,sint32>(false, karte_t::WORLD_MAIL_GENERATED), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_year_generated_mail",    freevariable2<bool,sint32>(false, world_t::WORLD_MAIL_GENERATED), true );
 	/**
 	 * Get per year statistics of ratio of factories that got supplied.
 	 * @returns array, index [0] corresponds to current year
 	 * @see city_x::get_generated_mail city_x::get_transported_mail
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_year_ratio_goods",       freevariable2<bool,sint32>(false, karte_t::WORLD_GOODS_RATIO), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_year_ratio_goods",       freevariable2<bool,sint32>(false, world_t::WORLD_GOODS_RATIO), true );
 	/**
 	 * Get per year statistics of total number of transported goods.
 	 * @returns array, index [0] corresponds to current year
 	 * @see city_x::get_generated_mail city_x::get_transported_mail
 	 */
-	STATIC register_method_fv(vm, &get_world_stat, "get_year_transported_goods", freevariable2<bool,sint32>(false, karte_t::WORLD_TRANSPORTED_GOODS), true );
+	STATIC register_method_fv(vm, &get_world_stat, "get_year_transported_goods", freevariable2<bool,sint32>(false, world_t::WORLD_TRANSPORTED_GOODS), true );
 
 	/**
 	 * @returns true if timeline play is active
 	 */
-	STATIC register_method(vm, &karte_t::use_timeline, "use_timeline");
+	STATIC register_method(vm, &world_t::use_timeline, "use_timeline");
 
 	/**
 	 * Returns iterator through the list of attractions on the map.

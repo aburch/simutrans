@@ -47,7 +47,7 @@
 class cbuffer_t;
 class grund_t;
 class fabrik_t;
-class karte_t;
+class world_t;
 class karte_ptr_t;
 class koord3d;
 class loadsave_t;
