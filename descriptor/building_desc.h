@@ -15,7 +15,7 @@
 
 class building_desc_t;
 class tool_t;
-class karte_t;
+class world_t;
 class checksum_t;
 
 /*
@@ -341,8 +341,8 @@ public:
 	* @see above for maintenance/price/capacity variable information
 	* @author Kieron Green/jamespetts
 	*/
-	sint32 get_maintenance(karte_t *world) const;
-	sint32 get_price(karte_t *world) const;
+	sint32 get_maintenance(world_t *world) const;
+	sint32 get_price(world_t *world) const;
 	uint16 get_capacity() const { return capacity; }
 
 

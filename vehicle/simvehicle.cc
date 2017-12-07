@@ -52,7 +52,7 @@
 #include "../obj/crossing.h"
 #include "../obj/zeiger.h"
 
-#include "../gui/karte.h"
+#include "../gui/world.h"
 
 #include "../descriptor/citycar_desc.h"
 #include "../descriptor/goods_desc.h"
@@ -1046,7 +1046,7 @@ grund_t* vehicle_t::hop_check()
 			// don't continue
 			return NULL;
 		}
-		// we cache it here, hop() will use it to save calls to karte_t::lookup
+		// we cache it here, hop() will use it to save calls to world_t::lookup
 		return bd;
 	}
 	else {
@@ -1078,8 +1078,8 @@ void vehicle_t::leave_tile()
 {
 	vehicle_base_t::leave_tile();
 #ifndef DEBUG_ROUTES
-	if(last  &&  reliefkarte_t::is_visible) {
-			reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
+	if(last  &&  reliefworld_t::is_visible) {
+			reliefworld_t::get_karte()->calc_map_pixel(get_pos().get_2d());
 	}
 #endif
 }
@@ -1092,8 +1092,8 @@ void vehicle_t::enter_tile(grund_t* gr)
 {
 	vehicle_base_t::enter_tile(gr);
 
-	if(leading  &&  reliefkarte_t::is_visible  ) {
-		reliefkarte_t::get_karte()->calc_map_pixel( get_pos().get_2d() );
+	if(leading  &&  reliefworld_t::is_visible  ) {
+		reliefworld_t::get_karte()->calc_map_pixel( get_pos().get_2d() );
 	}
 }
 
@@ -1562,7 +1562,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(purchase_time%12
 			desc = vehicle_builder_t::get_info(translator::compatibility_name(s));
 		}
 		if(desc==NULL) {
-			welt->add_missing_paks( s, karte_t::MISSING_VEHICLE );
+			welt->add_missing_paks( s, world_t::MISSING_VEHICLE );
 			dbg->warning("vehicle_t::rdwr_from_convoi()","no vehicle pak for '%s' search for something similar", s);
 		}
 	}
@@ -1708,7 +1708,7 @@ const char *vehicle_t::is_deletable(const player_t *)
 vehicle_t::~vehicle_t()
 {
 	// remove vehicle's marker from the relief map
-	reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
+	reliefworld_t::get_karte()->calc_map_pixel(get_pos().get_2d());
 }
 
 

@@ -46,7 +46,7 @@ void runway_t::rdwr(loadsave_t *file)
 			desc = way_builder_t::weg_search(air_wt,old_max_speed>0 ? old_max_speed : 20, 0, (systemtype_t)(old_max_speed>250) );
 			if(desc==NULL) {
 				desc = default_runway;
-				welt->add_missing_paks( bname, karte_t::MISSING_WAY );
+				welt->add_missing_paks( bname, world_t::MISSING_WAY );
 			}
 			dbg->warning("runway_t::rdwr()", "Unknown runway %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}

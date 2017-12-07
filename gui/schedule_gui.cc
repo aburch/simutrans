@@ -38,7 +38,7 @@
 #include "line_item.h"
 
 #include "components/gui_button.h"
-#include "karte.h"
+#include "world.h"
 
 
 
@@ -97,7 +97,7 @@ void schedule_gui_stats_t::highlight_schedule( schedule_t *markschedule, bool ma
 /**
  * Append description of entry to buf.
  */
-static void gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* const player_, schedule_entry_t const& entry)
+static void gimme_stop_name(cbuffer_t& buf, world_t* welt, player_t const* const player_, schedule_entry_t const& entry)
 {
 	char const* what;
 	halthandle_t const halt = haltestelle_t::get_halt(entry.pos, player_);
@@ -127,7 +127,7 @@ static void gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* const
 }
 
 
-void schedule_gui_t::gimme_short_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* const player_, schedule_entry_t const& entry, int const max_chars)
+void schedule_gui_t::gimme_short_stop_name(cbuffer_t& buf, world_t* welt, player_t const* const player_, schedule_entry_t const& entry, int const max_chars)
 {
 	const char *p;
 	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player_);
@@ -230,7 +230,7 @@ schedule_gui_t::~schedule_gui_t()
 	if(  player  ) {
 		update_tool( false );
 		// hide schedule on minimap (may not current, but for safe)
-		reliefkarte_t::get_karte()->set_current_cnv( convoihandle_t() );
+		reliefworld_t::get_karte()->set_current_cnv( convoihandle_t() );
 	}
 	delete schedule;
 
@@ -261,7 +261,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	}
 	else {
 		// set this schedule as current to show on minimap if possible
-		reliefkarte_t::get_karte()->set_current_cnv( cnv );
+		reliefworld_t::get_karte()->set_current_cnv( cnv );
 		old_line = new_line = cnv_->get_line();
 	}
 	old_line_count = 0;

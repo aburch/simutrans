@@ -58,7 +58,7 @@ private:
 	/* builds harbours and ferries
 	 * @author prissi
 	 */
-	koord find_harbour_pos(karte_t* welt, const stadt_t *s );
+	koord find_harbour_pos(world_t* welt, const stadt_t *s );
 	bool create_water_transport_vehikel(const stadt_t* start_stadt, const koord target_pos);
 
 	// builds a simple 3x3 three stop airport with town connection road

@@ -9,7 +9,7 @@
 #define blockmanager_h
 
 
-class karte_t;
+class world_t;
 
 
 /**
@@ -19,11 +19,11 @@ class karte_t;
 class old_blockmanager_t
 {
 private:
-	static void rdwr_block(karte_t *welt,loadsave_t *file);
+	static void rdwr_block(world_t *welt,loadsave_t *file);
 
 public:
-	static void rdwr(karte_t *welt, loadsave_t *file);
-	static void finish_rd(karte_t *welt);
+	static void rdwr(world_t *welt, loadsave_t *file);
+	static void finish_rd(world_t *welt);
 };
 
 #endif

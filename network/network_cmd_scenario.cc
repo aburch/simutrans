@@ -39,7 +39,7 @@ void nwc_scenario_t::rdwr()
 }
 
 
-bool nwc_scenario_t::execute(karte_t *welt)
+bool nwc_scenario_t::execute(world_t *welt)
 {
 	scenario_t *scen = welt->get_scenario();
 	if (scen == NULL  ||  !scen->is_scripted()) {
@@ -86,7 +86,7 @@ bool nwc_scenario_t::execute(karte_t *welt)
 }
 
 
-void nwc_scenario_rules_t::do_command(karte_t *welt)
+void nwc_scenario_rules_t::do_command(world_t *welt)
 {
 	scenario_t *scen = welt->get_scenario();
 
@@ -111,7 +111,7 @@ nwc_scenario_rules_t::nwc_scenario_rules_t(const nwc_scenario_rules_t& nwr)
 }
 
 
-network_broadcast_world_command_t* nwc_scenario_rules_t::clone(karte_t *)
+network_broadcast_world_command_t* nwc_scenario_rules_t::clone(world_t *)
 {
 	// scenario scripts only run on server
 	if (socket_list_t::get_client_id(packet->get_sender()) != 0) {

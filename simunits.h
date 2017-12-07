@@ -38,8 +38,8 @@
  *
  * TIME units:
  * 1 -- ticks -- referred to as ms or milliseconds in old code
- * 2 -- months -- determined by karte_t::ticks_per_world_month
- *      -- you may also use karte_t::ticks_per_world_month_shift
+ * 2 -- months -- determined by world_t::ticks_per_world_month
+ *      -- you may also use world_t::ticks_per_world_month_shift
  * 3 -- days -- derived from months
  * 4 -- years -- derived from months
  * 5 -- hours & minutes -- NOT derived from months, implied by vehicle speed

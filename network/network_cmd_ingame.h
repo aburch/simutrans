@@ -24,7 +24,7 @@ class tool_t;
 class nwc_gameinfo_t : public network_command_t {
 public:
 	nwc_gameinfo_t() : network_command_t(NWC_GAMEINFO) { len = 0; }
-	virtual bool execute(karte_t *);
+	virtual bool execute(world_t *);
 	virtual void rdwr();
 	virtual const char* get_name() { return "nwc_gameinfo_t";}
 	uint32 client_id;
@@ -43,7 +43,7 @@ public:
 	nwc_nick_t(const char* nick=NULL)
 	: network_command_t(NWC_NICK), nickname(nick) {  }
 
-	virtual bool execute(karte_t *);
+	virtual bool execute(world_t *);
 	virtual void rdwr();
 	virtual const char* get_name() { return "nwc_nick_t";}
 	plainstring nickname;
@@ -55,7 +55,7 @@ public:
 	 * what = CHANGE_NICK .. change nickname: in socket_list per client, send new nick back to client, tell others as well
 	 * what = FAREWELL    .. player has left: send message
 	 */
-	static void server_tools(karte_t *welt, uint32 client_id, uint8 what, const char* nick);
+	static void server_tools(world_t *welt, uint32 client_id, uint8 what, const char* nick);
 
 private:
 	nwc_nick_t(const nwc_nick_t&);
@@ -74,10 +74,10 @@ public:
 	nwc_chat_t (const char* msg = NULL, sint8 pn = -1, const char* cn = NULL, const char* dn = NULL)
 	: network_command_t(NWC_CHAT), message(msg), player_nr(pn), clientname(cn), destination(dn) {}
 
-	virtual bool execute (karte_t *);
+	virtual bool execute (world_t *);
 	virtual void rdwr ();
 	virtual const char* get_name() { return "nwc_chat_t";}
-	void add_message (karte_t*) const;
+	void add_message (world_t*) const;
 
 	plainstring message;            // Message text
 	sint8 player_nr;                // Company number message was sent as
@@ -103,7 +103,7 @@ public:
 	nwc_join_t(const char* nick=NULL)
 	: nwc_nick_t(nick), client_id(0), answer(0) { id = NWC_JOIN; }
 
-	virtual bool execute(karte_t *);
+	virtual bool execute(world_t *);
 	virtual void rdwr();
 	virtual const char* get_name() { return "nwc_join_t";}
 	uint32 client_id;
@@ -135,7 +135,7 @@ class nwc_ready_t : public network_command_t {
 public:
 	nwc_ready_t() : network_command_t(NWC_READY), sync_step(0), map_counter(0) { }
 	nwc_ready_t(uint32 sync_step_, uint32 map_counter_, const checklist_t &checklist_) : network_command_t(NWC_READY), sync_step(sync_step_), map_counter(map_counter_), checklist(checklist_) { }
-	virtual bool execute(karte_t *);
+	virtual bool execute(world_t *);
 	virtual void rdwr();
 	virtual const char* get_name() { return "nwc_ready_t";}
 	uint32 sync_step;
@@ -172,9 +172,9 @@ public:
 	virtual void rdwr();
 	virtual const char* get_name() { return "network_world_command_t";}
 	// put it to the command queue
-	virtual bool execute(karte_t *);
+	virtual bool execute(world_t *);
 	// apply it to the world
-	virtual void do_command(karte_t*) {}
+	virtual void do_command(world_t*) {}
 	uint32 get_sync_step() const { return sync_step; }
 	uint32 get_map_counter() const { return map_counter; }
 	// ignore events that lie in the past?
@@ -202,7 +202,7 @@ public:
 	nwc_sync_t() : network_world_command_t(NWC_SYNC, 0, 0), client_id(0), new_map_counter(0) {};
 	nwc_sync_t(uint32 sync_steps, uint32 map_counter, uint32 send_to_client, uint32 _new_map_counter) : network_world_command_t(NWC_SYNC, sync_steps, map_counter), client_id(send_to_client), new_map_counter(_new_map_counter) { }
 	virtual void rdwr();
-	virtual void do_command(karte_t*);
+	virtual void do_command(world_t*);
 	virtual const char* get_name() { return "nwc_sync_t"; }
 	uint32 get_new_map_counter() const { return new_map_counter; }
 private:
@@ -215,14 +215,14 @@ private:
  * @from-server:
  *		@data checklist random seed and quickstone next check entries at previous sync_step
  *		clients: check random seed, if check fails disconnect.
- *		the check is done in karte_t::interactive
+ *		the check is done in world_t::interactive
  */
 class nwc_check_t : public network_world_command_t {
 public:
 	nwc_check_t() : network_world_command_t(NWC_CHECK, 0, 0), server_sync_step(0) { }
 	nwc_check_t(uint32 sync_steps, uint32 map_counter, const checklist_t &server_checklist_, uint32 server_sync_step_) : network_world_command_t(NWC_CHECK, sync_steps, map_counter), server_checklist(server_checklist_), server_sync_step(server_sync_step_) {};
 	virtual void rdwr();
-	virtual void do_command(karte_t*) { }
+	virtual void do_command(world_t*) { }
 	virtual const char* get_name() { return "nwc_check_t"; }
 	checklist_t server_checklist;
 	uint32 server_sync_step;
@@ -240,13 +240,13 @@ public:
 	: network_world_command_t(id, sync_step, map_counter), exec(false) { }
 
 	virtual void rdwr();
-	virtual bool execute(karte_t *);
+	virtual bool execute(world_t *);
 
 	// clones the command to be broadcasted
 	// all validity checks must be done here
 	// it must return a new command
 	// clone() must return NULL to indicate failure
-	virtual network_broadcast_world_command_t* clone(karte_t *) = 0;
+	virtual network_broadcast_world_command_t* clone(world_t *) = 0;
 
 	bool is_from_initiator() const { return !exec; }
 private:
@@ -259,7 +259,7 @@ private:
  * nwc_chg_player_t
  * 		commands that require special authentication checks: toggle freeplay, start AI player
  * @from-server:
- * 		@data cmd command to perform (see karte_t::change_player_tool)
+ * 		@data cmd command to perform (see world_t::change_player_tool)
  * 		@data player_nr affected player
  * 		@data param
  */
@@ -273,9 +273,9 @@ public:
 	~nwc_chg_player_t();
 
 	virtual void rdwr();
-	virtual void do_command(karte_t*);
+	virtual void do_command(world_t*);
 	// do some special checks
-	virtual network_broadcast_world_command_t* clone(karte_t *);
+	virtual network_broadcast_world_command_t* clone(world_t *);
 	virtual const char* get_name() { return "nwc_chg_player_t"; }
 
 	uint8 cmd;
@@ -327,10 +327,10 @@ public:
 	virtual void rdwr();
 
 	// clone performs authentication checks
-	virtual network_broadcast_world_command_t* clone(karte_t *);
+	virtual network_broadcast_world_command_t* clone(world_t *);
 
 	// really executes it, here exec should be true
-	virtual void do_command(karte_t*);
+	virtual void do_command(world_t*);
 	virtual const char* get_name() { return "nwc_tool_t"; }
 
 	void init_tool();

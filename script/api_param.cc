@@ -638,12 +638,12 @@ namespace script_api {
 		}
 	}
 
-	karte_t* param<karte_t*>::get(HSQUIRRELVM, SQInteger)
+	world_t* param<world_t*>::get(HSQUIRRELVM, SQInteger)
 	{
 		return welt;
 	}
 
-	SQInteger param<karte_t*>::push(HSQUIRRELVM vm, karte_t* const&)
+	SQInteger param<world_t*>::push(HSQUIRRELVM vm, world_t* const&)
 	{
 		sq_pushnull(vm); return 1;
 	}

@@ -4,7 +4,7 @@ Short Description of the Simutrans code
 
 Simutrans is actually quite hierarchical, as it was a learning project for OOP once.
 
-It starts all with karte_t, which holds an array of planquadrat_t (a 2D coordinate), which holds arrays of grund_t (the actual ground, or foundations, tunnel, bridges, highways, water). Each ground holds an objlist, which contains moving objects such as cars, trains and airplanes as well as other objects including buildings and trees. The objects are derived from obj_t and are located in the obj/ folder.
+It starts all with world_t, which holds an array of planquadrat_t (a 2D coordinate), which holds arrays of grund_t (the actual ground, or foundations, tunnel, bridges, highways, water). Each ground holds an objlist, which contains moving objects such as cars, trains and airplanes as well as other objects including buildings and trees. The objects are derived from obj_t and are located in the obj/ folder.
 
 Each stuff can have three periodic calls: for very regularly and fast actions which require exclusive access on the map (moving cars, collision avoidance) there is sync_step, called before every frame. Slower actions like route_finding, way building etc. is done in step(), where the map can change in between slightly. Some objects (most notable trees) require seasonal changes, which are covered by the relatively new action method of check_season();
 

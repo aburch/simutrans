@@ -26,11 +26,11 @@
  */
 
 class grund_t;
-class karte_t;
+class world_t;
 
 class ground_desc_t : public obj_named_desc_t {
 private:
-	static karte_t *world;
+	static world_t *world;
 
 	static image_id image_offset;
 
@@ -90,7 +90,7 @@ public:
 	/**
 	 * Generates ground texture images, transition maps, etc.
 	 */
-	static void init_ground_textures(karte_t *world);
+	static void init_ground_textures(world_t *world);
 
 	static image_id get_marker_image(slope_t::type slope_in, bool background)
 	{

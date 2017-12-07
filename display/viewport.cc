@@ -315,7 +315,7 @@ void viewport_t::rotate90( sint16 y_size )
 }
 
 
-viewport_t::viewport_t( karte_t *world, const koord ij_off , sint16 x_off , sint16 y_off )
+viewport_t::viewport_t( world_t *world, const koord ij_off , sint16 x_off , sint16 y_off )
 {
 	this->world = world;
 	assert(world);

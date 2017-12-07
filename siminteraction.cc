@@ -321,7 +321,7 @@ bool interaction_t::process_event( event_t &ev )
 			}
 
 			// remove passwords before transfer on the server and set default client mask
-			// they will be restored in karte_t::laden
+			// they will be restored in world_t::laden
 			uint16 unlocked_players = 0;
 			for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
 				player_t *player = world->get_player(i);

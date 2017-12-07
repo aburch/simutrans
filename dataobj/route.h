@@ -14,7 +14,7 @@
 
 #include "../tpl/vector_tpl.h"
 
-class karte_t;
+class world_t;
 class test_driver_t;
 class grund_t;
 
@@ -31,11 +31,11 @@ private:
 	 * The actual route search
 	 * @author Hj. Malthaner
 	 */
-	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, test_driver_t *tdriver, const sint32 max_kmh, const uint32 max_cost);
+	bool intern_calc_route(world_t *w, koord3d start, koord3d ziel, test_driver_t *tdriver, const sint32 max_kmh, const uint32 max_cost);
 
 	koord3d_vector_t route;           // The coordinates for the vehicle route
 
-	void postprocess_water_route(karte_t *welt);
+	void postprocess_water_route(world_t *welt);
 
 	static inline uint32 calc_distance( const koord3d &p1, const koord3d &target )
 	{
@@ -133,20 +133,20 @@ public:
 	 * Will return fals if fails
 	 * @author prissi
 	 */
-	bool append_straight_route( karte_t *w, koord3d target);
+	bool append_straight_route( world_t *w, koord3d target);
 
 	/**
 	 * Finds route to a location, where @p tdriver->is_target becomes true.
 	 * @param max_depth is the maximum length of a route
 	 * @author prissi
 	 */
-	bool find_route(karte_t *w, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth );
+	bool find_route(world_t *w, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth );
 
 	/**
 	 * Calculates the route from @p start to @p target
 	 * @author Hj. Malthaner
 	 */
-	route_result_t calc_route(karte_t *welt, koord3d start, koord3d target, test_driver_t *tdriver, const sint32 max_speed_kmh, sint32 max_tile_len );
+	route_result_t calc_route(world_t *welt, koord3d start, koord3d target, test_driver_t *tdriver, const sint32 max_speed_kmh, sint32 max_tile_len );
 
 	/**
 	 * Load/Save of the route.

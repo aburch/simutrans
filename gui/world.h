@@ -31,7 +31,7 @@ class goods_desc_t;
  *
  * @author Hj. Malthaner
  */
-class reliefkarte_t : public gui_component_t
+class reliefworld_t : public gui_component_t
 {
 public:
 	enum MAP_MODES {
@@ -66,9 +66,9 @@ public:
 private:
 	static karte_ptr_t welt;
 
-	reliefkarte_t();
+	reliefworld_t();
 
-	static reliefkarte_t *single_instance;
+	static reliefworld_t *single_instance;
 
 	// the terrain map
 	array2d_tpl<PIXVAL> *relief;
@@ -113,7 +113,7 @@ private:
 	class LineSegmentOrdering
 	{
 	public:
-		bool operator()(const reliefkarte_t::line_segment_t& a, const reliefkarte_t::line_segment_t& b) const;
+		bool operator()(const reliefworld_t::line_segment_t& a, const reliefworld_t::line_segment_t& b) const;
 	};
 	vector_tpl<line_segment_t> schedule_cache;
 	convoihandle_t current_cnv;
@@ -159,7 +159,7 @@ private:
 	bool is_matching_freight_catg(const minivec_tpl<uint8> &goods_catg_index);
 
 public:
-	scr_coord karte_to_screen(const koord &k) const;
+	scr_coord world_to_screen(const koord &k) const;
 
 	static bool is_visible;
 
@@ -198,7 +198,7 @@ public:
 	void set_relief_farbe(koord k, PIXVAL color);
 
 	// we are single instance ...
-	static reliefkarte_t *get_karte();
+	static reliefworld_t *get_karte();
 
 	// HACK! since we cannot get cleanly the current offset/size, we use this helper function
 	void set_xy_offset_size( scr_coord off, scr_size size ) {
@@ -216,7 +216,7 @@ public:
 	// calculates the current size of the map (but do not change anything else)
 	void calc_map_size();
 
-	~reliefkarte_t();
+	~reliefworld_t();
 
 	void init();
 

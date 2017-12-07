@@ -17,7 +17,7 @@
 #define VEHICLE_FILTER_GOODS_OFFSET 2
 
 
-class karte_t;
+class world_t;
 class vehicle_t;
 class depot_frame_t;
 class vehicle_desc_t;

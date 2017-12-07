@@ -143,7 +143,7 @@ koord ai_passenger_t::find_place_for_hub( const stadt_t *s ) const
 }
 
 
-koord ai_passenger_t::find_harbour_pos(karte_t* welt, const stadt_t *s )
+koord ai_passenger_t::find_harbour_pos(world_t* welt, const stadt_t *s )
 {
 	koord bestpos = koord::invalid, k;
 	sint32 bestdist = 999999;
@@ -589,7 +589,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 }
 
 
-static koord find_airport_pos(karte_t* welt, const stadt_t *s )
+static koord find_airport_pos(world_t* welt, const stadt_t *s )
 {
 	koord bestpos = koord::invalid, k;
 	sint32 bestdist = 999999;

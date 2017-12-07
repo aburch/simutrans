@@ -100,7 +100,7 @@ enum accounting_type_vehicles {
 
 
 class loadsave_t;
-class karte_t;
+class world_t;
 class player_t;
 class scenario_t;
 
@@ -131,7 +131,7 @@ class finance_t {
 	/** transport company */
 	player_t * player;
 
-	karte_t * world;
+	world_t * world;
 
 	/**
  	 * Amount of money, previously known as "konto"
@@ -182,7 +182,7 @@ class finance_t {
 	sint64 vehicle_maintenance[TT_MAX];
 
 public:
-	finance_t(player_t * _player, karte_t * _world);
+	finance_t(player_t * _player, world_t * _world);
 
 	/**
 	 * Adds construction cost to finance stats.

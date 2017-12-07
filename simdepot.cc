@@ -382,7 +382,7 @@ bool depot_t::start_all_convoys()
 }
 
 // implementation in simtool.cc
-bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, depot_t* depot, bool local);
+bool scenario_check_convoy(world_t *welt, player_t *player, convoihandle_t cnv, depot_t* depot, bool local);
 
 
 bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)

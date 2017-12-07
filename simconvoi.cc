@@ -23,7 +23,7 @@
 #include "simline.h"
 #include "freight_list_sorter.h"
 
-#include "gui/karte.h"
+#include "gui/world.h"
 #include "gui/convoi_info_t.h"
 #include "gui/schedule_gui.h"
 #include "gui/depot_frame.h"
@@ -2157,7 +2157,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(file->is_saving()) {
 		if(  file->get_version()<101000  ) {
 			file->wr_obj_id("Convoi");
-			// the matching read is in karte_t::laden(loadsave*)...
+			// the matching read is in world_t::laden(loadsave*)...
 		}
 	}
 

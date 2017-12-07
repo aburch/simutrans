@@ -47,7 +47,7 @@
 #include "gui/line_management_gui.h"
 #include "gui/tool_selector.h"
 #include "gui/station_building_select.h"
-#include "gui/karte.h"	// to update map after construction of new industry
+#include "gui/world.h"	// to update map after construction of new industry
 #include "gui/depot_frame.h"
 #include "gui/schedule_gui.h"
 #include "gui/player_frame_t.h"
@@ -164,7 +164,7 @@ char *tooltip_with_price(const char * tip, sint64 price)
  * Creates a tooltip from tip text and money value
  * @author Hj. Malthaner
  */
-char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 price, sint64 maintenance)
+char *tooltip_with_price_maintenance(world_t *welt, const char *tip, sint64 price, sint64 maintenance)
 {
 	int n = sprintf(tool_t::toolstr, "%s, ", translator::translate(tip) );
 	money_to_string(tool_t::toolstr+n, (double)price/-100.0);
@@ -181,7 +181,7 @@ char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 pric
 /**
  * Creates a tooltip from tip text and money value
  */
-static char const* tooltip_with_price_maintenance_capacity(karte_t* const welt, char const* const tip, sint64 const price, sint64 const maintenance, uint32 const capacity, uint8 const enables)
+static char const* tooltip_with_price_maintenance_capacity(world_t* const welt, char const* const tip, sint64 const price, sint64 const maintenance, uint32 const capacity, uint8 const enables)
 {
 	int n = sprintf(tool_t::toolstr, "%s, ", translator::translate(tip) );
 	money_to_string(tool_t::toolstr+n, (double)price/-100.0);
@@ -229,7 +229,7 @@ void open_error_msg_win(const char* error)
  * extended to search first in our direction
  * @author Hj. Malthaner, V.Meyer, prissi
  */
-static halthandle_t suche_nahe_haltestelle(player_t *player, karte_t *welt, koord3d pos, sint16 b=1, sint16 h=1)
+static halthandle_t suche_nahe_haltestelle(player_t *player, world_t *welt, koord3d pos, sint16 b=1, sint16 h=1)
 {
 	koord k(pos.get_2d());
 
@@ -292,7 +292,7 @@ static halthandle_t suche_nahe_haltestelle(player_t *player, karte_t *welt, koor
 
 
 // converts a 2d koord to a suitable ground pointer
-static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, koord3d pos, waytype_t wt)
+static grund_t *tool_intern_koord_to_weg_grund(player_t *player, world_t *welt, koord3d pos, waytype_t wt)
 {
 	// check for valid ground
 	grund_t *gr=welt->lookup(pos);
@@ -1388,7 +1388,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				else {
 					welt->set_grid_hgt(k, gr1->get_hoehe()+ corner_nw(gr1->get_grund_hang()) );
 				}
-				reliefkarte_t::get_karte()->calc_map_pixel(k);
+				reliefworld_t::get_karte()->calc_map_pixel(k);
 
 				welt->calc_climate( k, true );
 			}
@@ -1657,7 +1657,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 				stadt->verbinde_fabriken();
 
 				player_t::book_construction_costs(player, cost, k, ignore_wt);
-				reliefkarte_t::get_karte()->calc_map();
+				reliefworld_t::get_karte()->calc_map();
 				return NULL;
 			}
 		}
@@ -1825,7 +1825,7 @@ const char *tool_set_climate_t::do_work( player_t *player, const koord3d &start,
 					}
 					if(  ok  ) {
 						welt->set_climate( k, cl, true );
-						reliefkarte_t::get_karte()->calc_map_pixel( k );
+						reliefworld_t::get_karte()->calc_map_pixel( k );
 						n ++;
 					}
 				}
@@ -1842,7 +1842,7 @@ const char *tool_set_climate_t::do_work( player_t *player, const koord3d &start,
 						welt->set_water_hgt( k, gr->get_pos().z );
 						welt->access(k)->correct_water();
 						welt->set_climate( k, water_climate, true );
-						reliefkarte_t::get_karte()->calc_map_pixel( k );
+						reliefworld_t::get_karte()->calc_map_pixel( k );
 						n ++;
 					}
 				}
@@ -2135,7 +2135,7 @@ const char *tool_plant_tree_t::work( player_t *player, koord3d pos )
  * So if there is a halt, then it must be either public or ours!
  * @author prissi
  */
-static const char *tool_schedule_insert_aux(karte_t *welt, player_t *player, koord3d pos, schedule_t *schedule, bool append)
+static const char *tool_schedule_insert_aux(world_t *welt, player_t *player, koord3d pos, schedule_t *schedule, bool append)
 {
 	if(schedule == NULL) {
 		dbg->warning("tool_schedule_insert_aux()","Schedule is (null), doing nothing");
@@ -3006,7 +3006,7 @@ public:
 	 * @returns scenario_checker_t if scenario active, the supplied test_driver otherwise
 	 */
 	static test_driver_t* apply(test_driver_t *test_driver, player_t *player, tool_t *tool) {
-		karte_t *welt = world();
+		world_t *welt = world();
 		if (is_scenario()) {
 			scenario_checker_t *td2 = new scenario_checker_t();
 			td2->other = test_driver;
@@ -6573,7 +6573,7 @@ bool tool_zoom_out_t::init( player_t * )
 
 /************************* internal tools, only need for networking ***************/
 
-static bool scenario_check_schedule(karte_t *welt, player_t *player, schedule_t *schedule, bool local)
+static bool scenario_check_schedule(world_t *welt, player_t *player, schedule_t *schedule, bool local)
 {
 	if (!is_scenario()) {
 		return true;
@@ -6589,7 +6589,7 @@ static bool scenario_check_schedule(karte_t *welt, player_t *player, schedule_t 
 }
 
 
-bool scenario_check_convoy(karte_t *welt, player_t *player, convoihandle_t cnv, depot_t* depot, bool local)
+bool scenario_check_convoy(world_t *welt, player_t *player, convoihandle_t cnv, depot_t* depot, bool local)
 {
 	if (!is_scenario()) {
 		return true;

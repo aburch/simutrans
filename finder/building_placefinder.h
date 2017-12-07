@@ -20,7 +20,7 @@
  */
 class building_placefinder_t : public placefinder_t {
 public:
-	building_placefinder_t(karte_t *welt, sint16 radius = -1) : placefinder_t(welt, radius) {}
+	building_placefinder_t(world_t *welt, sint16 radius = -1) : placefinder_t(welt, radius) {}
 
 	virtual bool is_area_ok(koord pos, sint16 w, sint16 h, climate_bits cl) const {
 		return welt->square_is_free(pos, w, h, NULL, cl);

@@ -73,7 +73,7 @@ void route_t::remove_koord_from(uint32 i) {
  * Will return false if failed
  * @author prissi
  */
-bool route_t::append_straight_route(karte_t *welt, koord3d dest )
+bool route_t::append_straight_route(world_t *welt, koord3d dest )
 {
 	const koord ziel=dest.get_2d();
 
@@ -115,7 +115,7 @@ bool route_t::node_in_use=false;
 /* find the route to an unknown location
  * @author prissi
  */
-bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth )
+bool route_t::find_route(world_t *welt, const koord3d start, test_driver_t *tdriver, const uint32 max_khm, uint8 start_dir, uint32 max_depth )
 {
 	bool ok = false;
 
@@ -285,7 +285,7 @@ ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 
 
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_speed, const uint32 max_cost)
+bool route_t::intern_calc_route(world_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_speed, const uint32 max_cost)
 {
 	bool ok = false;
 
@@ -515,7 +515,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 #ifdef DEBUG_ROUTES
 	// display marked route
-	//reliefkarte_t::get_karte()->calc_map();
+	//reliefworld_t::get_karte()->calc_map();
 	DBG_DEBUG("route_t::intern_calc_route()","steps=%i  (max %i) in route, open %i, cost %u (max %u)",step,MAX_STEP,queue.get_count(),tmp->g,max_cost);
 #endif
 
@@ -568,7 +568,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
  *      ++
  *       +-->
  */
-void route_t::postprocess_water_route(karte_t *welt)
+void route_t::postprocess_water_route(world_t *welt)
 {
 	if (route.get_count() < 5) return;
 
@@ -665,7 +665,7 @@ void route_t::postprocess_water_route(karte_t *welt)
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
-route_t::route_result_t route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_khm, sint32 max_len )
+route_t::route_result_t route_t::calc_route(world_t *welt, const koord3d ziel, const koord3d start, test_driver_t *tdriver, const sint32 max_khm, sint32 max_len )
 {
 	route.clear();
 

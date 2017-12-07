@@ -108,14 +108,14 @@ static void show_sizes()
 	DBG_MESSAGE("sizes", "vehicle_t: %d", sizeof(vehicle_t));
 	DBG_MESSAGE("sizes", "haltestelle_t: %d\n", sizeof(haltestelle_t));
 
-	DBG_MESSAGE("sizes", "karte_t: %d", sizeof(karte_t));
+	DBG_MESSAGE("sizes", "world_t: %d", sizeof(world_t));
 	DBG_MESSAGE("sizes", "player_t: %d\n", sizeof(player_t));
 }
 
 
 
 // render tests ...
-static void show_times(karte_t *welt, main_view_t *view)
+static void show_times(world_t *welt, main_view_t *view)
 {
  	intr_set(welt, view);
 	welt->set_fast_forward(true);
@@ -197,7 +197,7 @@ static void show_times(karte_t *welt, main_view_t *view)
 
 
 
-void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*quit)() )
+void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, world_t *welt, bool (*quit)() )
 {
 	if(  display_get_width()==0  ) {
 		dbg->error( "modal_dialogue()", "called without a display driver => nothing will be shown!" );
@@ -1154,7 +1154,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		sound_set_midi_volume( env_t::midi_volume );
 	}
 
-	karte_t *welt = new karte_t();
+	world_t *welt = new world_t();
 	main_view_t *view = new main_view_t(welt);
 	welt->set_view( view );
 

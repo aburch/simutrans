@@ -182,7 +182,7 @@ void building_desc_t::calc_checksum(checksum_t *chk) const
 * @author jamespetts
 */
 
-sint32 building_desc_t::get_maintenance(karte_t *world) const
+sint32 building_desc_t::get_maintenance(world_t *world) const
 {
 	if(  maintenance == PRICE_MAGIC  ) {
 		return world->get_settings().maint_building*get_level();
@@ -193,7 +193,7 @@ sint32 building_desc_t::get_maintenance(karte_t *world) const
 }
 
 
-sint32 building_desc_t::get_price(karte_t *world) const
+sint32 building_desc_t::get_price(world_t *world) const
 {
 	if(  price == PRICE_MAGIC  ) {
 		settings_t const& s = world->get_settings();

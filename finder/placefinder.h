@@ -11,7 +11,7 @@
 #define __PLACEFINDER_H
 
 #include "../dataobj/koord.h"
-class karte_t;
+class world_t;
 
 /**
  * pos_list_t:
@@ -75,7 +75,7 @@ public:
  */
 class placefinder_t {
 protected:
-	karte_t *welt;
+	world_t *welt;
 	sint16 w;
 	sint16 h;
 	sint16 max_radius;
@@ -86,7 +86,7 @@ protected:
 
 	bool is_boundary_tile(koord d) const;
 
-	placefinder_t(karte_t *welt, sint16 _max_radius = - 1) { this->welt = welt; max_radius = _max_radius; }
+	placefinder_t(world_t *welt, sint16 _max_radius = - 1) { this->welt = welt; max_radius = _max_radius; }
 	virtual ~placefinder_t() {}
 public:
 	koord find_place(koord start, sint16 w, sint16 h, climate_bits cl, bool *r = NULL);

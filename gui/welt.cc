@@ -14,7 +14,7 @@
  */
 
 #include "welt.h"
-#include "karte.h"
+#include "world.h"
 
 #include "../simdebug.h"
 #include "../simworld.h"
@@ -364,7 +364,7 @@ bool welt_gui_t::update_from_heightfield(const char *filename)
 		const int my = sets->get_size_y()/map_size.h;
 		for(  int y=0;  y<map_size.h;  y++  ) {
 			for(  int x=0;  x<map_size.w;  x++  ) {
-				map.at(x,y) = reliefkarte_t::calc_hoehe_farbe( h_field[x*mx+y*my*w], sets->get_groundwater()-1 );
+				map.at(x,y) = reliefworld_t::calc_hoehe_farbe( h_field[x*mx+y*my*w], sets->get_groundwater()-1 );
 			}
 		}
 		map_preview.set_map_data(&map,map_size);
@@ -417,7 +417,7 @@ void welt_gui_t::update_preview(bool load_heightfield)
 		const int my = sets->get_size_y()/map_size.h;
 		for(  int y=0;  y<map_size.h;  y++  ) {
 			for(  int x=0;  x<map_size.w;  x++  ) {
-				map.at(x,y) = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(x*mx,y*my), koord::invalid ), sets->get_groundwater());
+				map.at(x,y) = reliefworld_t::calc_hoehe_farbe(world_t::perlin_hoehe( sets, koord(x*mx,y*my), koord::invalid ), sets->get_groundwater());
 			}
 		}
 		sets->heightfield = "";
@@ -644,7 +644,7 @@ void welt_gui_t::draw(scr_coord pos, scr_size size)
 	const uint sx = sets->get_size_x();
 	const uint sy = sets->get_size_y();
 	const uint64 memory = (
-		(uint64)sizeof(karte_t) +
+		(uint64)sizeof(world_t) +
 		sizeof(player_t) * 8 +
 		sizeof(convoi_t) * 1000 +
 		(sizeof(schiene_t) + sizeof(vehicle_t)) * 10 * (sx + sy) +

@@ -132,7 +132,7 @@ void pillar_t::rotate90()
 {
 	obj_t::rotate90();
 	// may need to hide/show asymmetric pillars
-	// this is done now in calc_image, which is called after karte_t::rotate anyway
+	// this is done now in calc_image, which is called after world_t::rotate anyway
 	// we cannot decide this here, since welt->lookup(get_pos())->get_grund_hang() cannot be called
 	// since we are in the middle of the rotation process
 

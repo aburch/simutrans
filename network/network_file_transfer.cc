@@ -155,7 +155,7 @@ end:
 
 
 // connect to address (cp), receive game, save to client%i-network.sve
-const char *network_connect(const char *cp, karte_t *world)
+const char *network_connect(const char *cp, world_t *world)
 {
 	// open from network
 	const char *err = NULL;

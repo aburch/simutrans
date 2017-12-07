@@ -13,7 +13,7 @@
 #include "../dataobj/koord3d.h"
 #include "../convoihandle_t.h"
 
-class karte_t;
+class world_t;
 class grund_t;
 
 /**
@@ -41,7 +41,7 @@ class viewport_t
 {
 private:
 	/// The simulated world this view is associated to.
-	karte_t *world;
+	world_t *world;
 	/**
 	 * @name Camera position
 	 *       This variables are related to the view camera position.
@@ -263,7 +263,7 @@ public:
 	 */
 	void rotate90( sint16 y_size );
 
-	viewport_t( karte_t *world, const koord ij_off = koord::invalid, sint16 x_off = 0, sint16 y_off = 0 );
+	viewport_t( world_t *world, const koord ij_off = koord::invalid, sint16 x_off = 0, sint16 y_off = 0 );
 };
 
 #endif

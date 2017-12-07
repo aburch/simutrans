@@ -58,7 +58,7 @@ void kanal_t::rdwr(loadsave_t *file)
 			desc = way_builder_t::get_desc(translator::compatibility_name(bname));
 			if(desc==NULL) {
 				desc = default_kanal;
-				welt->add_missing_paks( bname, karte_t::MISSING_WAY );
+				welt->add_missing_paks( bname, world_t::MISSING_WAY );
 			}
 			dbg->warning("kanal_t::rdwr()", "Unknown channel %s replaced by %s (old_max_speed %i)", bname, desc->get_name(), old_max_speed );
 		}

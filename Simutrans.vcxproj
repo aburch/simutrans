@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -270,7 +270,7 @@
     <ClCompile Include="descriptor\reader\imagelist_reader.cc" />
     <ClCompile Include="gui\jump_frame.cc" />
     <ClCompile Include="boden\wege\kanal.cc" />
-    <ClCompile Include="gui\karte.cc" />
+    <ClCompile Include="gui\world.cc" />
     <ClCompile Include="gui\kennfarbe.cc" />
     <ClCompile Include="dataobj\koord.cc" />
     <ClCompile Include="dataobj\koord3d.cc" />
@@ -580,7 +580,7 @@
     <ClInclude Include="descriptor\intro_dates.h" />
     <ClInclude Include="gui\jump_frame.h" />
     <ClInclude Include="boden\wege\kanal.h" />
-    <ClInclude Include="gui\karte.h" />
+    <ClInclude Include="gui\world.h" />
     <ClInclude Include="gui\kennfarbe.h" />
     <ClInclude Include="dataobj\koord.h" />
     <ClInclude Include="dataobj\koord3d.h" />

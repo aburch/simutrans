@@ -10,7 +10,7 @@
  * Hj. Malthaner
  */
 class loadsave_t;
-class karte_t;
+class world_t;
 
 class pillar_t : public obj_t
 {

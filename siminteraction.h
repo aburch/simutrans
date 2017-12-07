@@ -15,7 +15,7 @@ struct event_t;
 /**
  * User interaction class, it collects and processes all user and system events from the OS.
  * @brief Event manager of the game.
- * @see karte_t::interactive
+ * @see world_t::interactive
  */
 class interaction_t
 {

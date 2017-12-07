@@ -14,7 +14,7 @@
 class nwc_scenario_t : public network_command_t {
 public:
 	nwc_scenario_t() : network_command_t(NWC_SCENARIO), what(UNKNOWN), won(0), lost(0), function(NULL), result(NULL)  { }
-	virtual bool execute(karte_t *);
+	virtual bool execute(world_t *);
 	virtual void rdwr();
 	virtual const char* get_name() { return "nwc_scenario_t";}
 
@@ -56,9 +56,9 @@ class nwc_scenario_rules_t : public network_broadcast_world_command_t {
 public:
 	nwc_scenario_rules_t(uint32 sync_step=0, uint32 map_counter=0) : network_broadcast_world_command_t(NWC_SCENARIO_RULES, sync_step, map_counter), rule( new scenario_t::forbidden_t()), forbid(true) { }
 	~nwc_scenario_rules_t() { delete rule; }
-	virtual void do_command(karte_t *);
+	virtual void do_command(world_t *);
 	virtual void rdwr();
-	virtual network_broadcast_world_command_t* clone(karte_t *);
+	virtual network_broadcast_world_command_t* clone(world_t *);
 	virtual const char* get_name() { return "nwc_scenario_rules_t";}
 
 	scenario_t::forbidden_t *rule;

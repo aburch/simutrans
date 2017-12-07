@@ -1167,7 +1167,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		if(  desc==NULL  ) {
 			dbg->warning( "fabrik_t::rdwr()", "Pak-file for factory '%s' missing!", s );
 			// we continue loading even if desc==NULL
-			welt->add_missing_paks( s, karte_t::MISSING_FACTORY );
+			welt->add_missing_paks( s, world_t::MISSING_FACTORY );
 		}
 	}
 	pos_origin.rdwr(file);

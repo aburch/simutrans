@@ -48,7 +48,7 @@ void message_t::node::rdwr(loadsave_t *file)
 }
 
 
-FLAGGED_PIXVAL message_t::node::get_player_color(karte_t *welt) const
+FLAGGED_PIXVAL message_t::node::get_player_color(world_t *welt) const
 {
 	// correct for player color
 	FLAGGED_PIXVAL colorval = color;

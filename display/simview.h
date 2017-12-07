@@ -7,7 +7,7 @@
 #ifndef simview_h
 #define simview_h
 
-class karte_t;
+class world_t;
 class viewport_t;
 
 /**
@@ -19,7 +19,7 @@ class main_view_t
 {
 private:
 	/// The simulated world this view is associated to.
-	karte_t *welt;
+	world_t *welt;
 	/// We cache the camera here, it's the camera what we are supposed to render, not the whole world.
 	viewport_t *viewport;
 
@@ -27,7 +27,7 @@ private:
 	bool outside_visible;
 
 public:
-	main_view_t(karte_t *welt);
+	main_view_t(world_t *welt);
 
 	/**
 	 * Draws the visible world on screen.

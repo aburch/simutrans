@@ -403,7 +403,7 @@ static image_t* create_alpha_tile(const image_t* image_lightmap, slope_t::type s
 * the real textures are registered/calculated below
 */
 
-karte_t *ground_desc_t::world = NULL;
+world_t *ground_desc_t::world = NULL;
 
 
 /* convert double to single slopes
@@ -536,7 +536,7 @@ char const* ground_desc_t::get_climate_name_from_bit(climate n)
 }
 
 
-void ground_desc_t::init_ground_textures(karte_t *world)
+void ground_desc_t::init_ground_textures(world_t *world)
 {
 	ground_desc_t::world = world;
 

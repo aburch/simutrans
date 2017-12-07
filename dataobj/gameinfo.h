@@ -8,7 +8,7 @@
 #include "../tpl/array2d_tpl.h"
 #include "../network/checksum.h"
 
-class karte_t;
+class world_t;
 class loadsave_t;
 
 
@@ -52,7 +52,7 @@ private:
 	uint8 clients;	// currently connected players
 
 public:
-	gameinfo_t( karte_t *welt );
+	gameinfo_t( world_t *welt );
 	gameinfo_t( loadsave_t *file );
 
 	void rdwr( loadsave_t *file );

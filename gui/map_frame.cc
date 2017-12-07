@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <cmath>
 
-#include "karte.h"
+#include "world.h"
 #include "map_frame.h"
 
 #include "simwin.h"
@@ -73,33 +73,33 @@ typedef struct {
 	PIXVAL select_color;
 	const char *button_text;
 	const char *tooltip_text;
-	reliefkarte_t::MAP_MODES mode;
+	reliefworld_t::MAP_MODES mode;
 } map_button_t;
 
 
 map_button_t button_init[MAP_MAX_BUTTONS] = {
-	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Towns", "Overlay town names", reliefkarte_t::MAP_TOWN },
-	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "CityLimit", "Overlay city limits", reliefkarte_t::MAP_CITYLIMIT },
-	{ COL_WHITE,        COL_GREY5,       "Buildings", "Show level of city buildings", reliefkarte_t::MAP_LEVEL },
-	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "PaxDest", "Overlay passenger destinations when a town window is open", reliefkarte_t::MAP_PAX_DEST },
-	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Tourists", "Highlite tourist attraction", reliefkarte_t::MAP_TOURIST },
-	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Factories", "Highlite factories", reliefkarte_t::MAP_FACTORIES },
-	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW, "Passagiere", "Show passenger coverage/passenger network", reliefkarte_t::MAP_PASSENGER },
-	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW, "Post", "Show mail service coverage/mail network", reliefkarte_t::MAP_MAIL },
-	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW, "Fracht", "Show transported freight/freight network", reliefkarte_t::MAP_FREIGHT },
-	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Status", "Show capacity and if halt is overcrowded", reliefkarte_t::MAP_STATUS },
-	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "hl_btn_sort_waiting", "Show how many people/much is waiting at halts", reliefkarte_t::MAP_WAITING },
-	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Queueing", "Show the change of waiting at halts", reliefkarte_t::MAP_WAITCHANGE },
-	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Service", "Show how many convoi reach a station", reliefkarte_t::MAP_SERVICE },
-	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Transfers", "Sum of departure/arrivals at halts", reliefkarte_t::MAP_TRANSFER },
-	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Origin", "Show initial passenger departure", reliefkarte_t::MAP_ORIGIN },
-	{ COL_WHITE,        COL_GREY5,       "Traffic", "Show usage of network", reliefkarte_t::MAP_TRAFFIC },
-	{ COL_WHITE,        COL_GREY5,       "Speedlimit", "Show speedlimit of ways", reliefkarte_t::MAX_SPEEDLIMIT },
-	{ COL_WHITE,        COL_GREY5,       "Tracks", "Highlight railroad tracks", reliefkarte_t::MAP_TRACKS },
-	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Depots", "Highlite depots", reliefkarte_t::MAP_DEPOT },
-	{ COL_WHITE,        COL_GREY5,       "Powerlines", "Highlite electrical transmission lines", reliefkarte_t::MAP_POWERLINES },
-	{ COL_WHITE,        COL_GREY5,       "Forest", "Highlite forests", reliefkarte_t::MAP_FOREST },
-	{ COL_WHITE,        COL_GREY5,       "Ownership", "Show the owenership of infrastructure", reliefkarte_t::MAP_OWNER }
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Towns", "Overlay town names", reliefworld_t::MAP_TOWN },
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "CityLimit", "Overlay city limits", reliefworld_t::MAP_CITYLIMIT },
+	{ COL_WHITE,        COL_GREY5,       "Buildings", "Show level of city buildings", reliefworld_t::MAP_LEVEL },
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "PaxDest", "Overlay passenger destinations when a town window is open", reliefworld_t::MAP_PAX_DEST },
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Tourists", "Highlite tourist attraction", reliefworld_t::MAP_TOURIST },
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Factories", "Highlite factories", reliefworld_t::MAP_FACTORIES },
+	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW, "Passagiere", "Show passenger coverage/passenger network", reliefworld_t::MAP_PASSENGER },
+	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW, "Post", "Show mail service coverage/mail network", reliefworld_t::MAP_MAIL },
+	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW, "Fracht", "Show transported freight/freight network", reliefworld_t::MAP_FREIGHT },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Status", "Show capacity and if halt is overcrowded", reliefworld_t::MAP_STATUS },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "hl_btn_sort_waiting", "Show how many people/much is waiting at halts", reliefworld_t::MAP_WAITING },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Queueing", "Show the change of waiting at halts", reliefworld_t::MAP_WAITCHANGE },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Service", "Show how many convoi reach a station", reliefworld_t::MAP_SERVICE },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Transfers", "Sum of departure/arrivals at halts", reliefworld_t::MAP_TRANSFER },
+	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Origin", "Show initial passenger departure", reliefworld_t::MAP_ORIGIN },
+	{ COL_WHITE,        COL_GREY5,       "Traffic", "Show usage of network", reliefworld_t::MAP_TRAFFIC },
+	{ COL_WHITE,        COL_GREY5,       "Speedlimit", "Show speedlimit of ways", reliefworld_t::MAX_SPEEDLIMIT },
+	{ COL_WHITE,        COL_GREY5,       "Tracks", "Highlight railroad tracks", reliefworld_t::MAP_TRACKS },
+	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Depots", "Highlite depots", reliefworld_t::MAP_DEPOT },
+	{ COL_WHITE,        COL_GREY5,       "Powerlines", "Highlite electrical transmission lines", reliefworld_t::MAP_POWERLINES },
+	{ COL_WHITE,        COL_GREY5,       "Forest", "Highlite forests", reliefworld_t::MAP_FOREST },
+	{ COL_WHITE,        COL_GREY5,       "Ownership", "Show the owenership of infrastructure", reliefworld_t::MAP_OWNER }
 };
 
 #define MAP_TRANSPORT_TYPE_ITEMS (9)
@@ -122,7 +122,7 @@ transport_type_item_t transport_type_items[MAP_TRANSPORT_TYPE_ITEMS] = {
 
 map_frame_t::map_frame_t() :
 	gui_frame_t( translator::translate("Reliefkarte") ),
-	scrolly(reliefkarte_t::get_karte()),
+	scrolly(reliefworld_t::get_karte()),
 	zoom_label("map zoom"),
 	min_label("min"),
 	max_label("max")
@@ -135,14 +135,14 @@ map_frame_t::map_frame_t() :
 	zoomed = false;
 
 	// init map
-	reliefkarte_t *karte = reliefkarte_t::get_karte();
+	reliefworld_t *karte = reliefworld_t::get_karte();
 	karte->init();
 
 	const scr_size size = karte->get_size();
 	const scr_size s_size=scrolly.get_size();
 	const koord ij = welt->get_viewport()->get_world_position();
 	const scr_size win_size = size-s_size; // this is the visible area
-	karte->set_mode( (reliefkarte_t::MAP_MODES)env_t::default_mapmode );
+	karte->set_mode( (reliefworld_t::MAP_MODES)env_t::default_mapmode );
 	//show all players by default
 	karte->player_showed_on_map = -1;
 	scrolly.set_scroll_position(  max(0,min(ij.x-win_size.w/2,size.w)), max(0, min(ij.y-win_size.h/2,size.h)) );
@@ -222,7 +222,7 @@ map_frame_t::map_frame_t() :
 	b_overlay_networks.init(button_t::square_state, "Networks");
 	b_overlay_networks.set_tooltip("Overlay schedules/network");
 	b_overlay_networks.add_listener(this);
-	b_overlay_networks.pressed = (env_t::default_mapmode & reliefkarte_t::MAP_LINES)!=0;
+	b_overlay_networks.pressed = (env_t::default_mapmode & reliefworld_t::MAP_LINES)!=0;
 	filter_container.add_component( &b_overlay_networks );
 
 	// player combo for network overlay
@@ -240,7 +240,7 @@ map_frame_t::map_frame_t() :
 	}
 
 	viewed_player_c.set_selection(0);
-	reliefkarte_t::get_karte()->player_showed_on_map = -1;
+	reliefworld_t::get_karte()->player_showed_on_map = -1;
 	viewed_player_c.set_focusable( true );
 	viewed_player_c.add_listener( this );
 	filter_container.add_component(&viewed_player_c);
@@ -278,7 +278,7 @@ map_frame_t::map_frame_t() :
 		}
 	}
 	freight_type_c.set_selection(0);
-	reliefkarte_t::get_karte()->freight_type_group_index_showed_on_map = NULL;
+	reliefworld_t::get_karte()->freight_type_group_index_showed_on_map = NULL;
 	freight_type_c.set_focusable( true );
 	freight_type_c.add_listener( this );
 	filter_container.add_component(&freight_type_c);
@@ -294,7 +294,7 @@ map_frame_t::map_frame_t() :
 	}
 
 	transport_type_c.set_selection(0);
-	reliefkarte_t::get_karte()->transport_type_showed_on_map = simline_t::line;
+	reliefworld_t::get_karte()->transport_type_showed_on_map = simline_t::line;
 	transport_type_c.set_focusable( true );
 	transport_type_c.add_listener( this );
 	filter_container.add_component(&transport_type_c);
@@ -304,7 +304,7 @@ map_frame_t::map_frame_t() :
 	b_overlay_networks_load_factor.set_tooltip("Color according to transport capacity left");
 	b_overlay_networks_load_factor.add_listener(this);
 	b_overlay_networks_load_factor.pressed = 0;
-	reliefkarte_t::get_karte()->show_network_load_factor = 0;
+	reliefworld_t::get_karte()->show_network_load_factor = 0;
 	filter_container.add_component( &b_overlay_networks_load_factor );
 
 	// insert filter buttons in legend container
@@ -447,37 +447,37 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 	}
 	else if(  comp == &b_rotate45  ) {
 		// rotated/straight map
-		reliefkarte_t::get_karte()->isometric ^= 1;
-		b_rotate45.pressed = reliefkarte_t::get_karte()->isometric;
-		reliefkarte_t::get_karte()->calc_map_size();
+		reliefworld_t::get_karte()->isometric ^= 1;
+		b_rotate45.pressed = reliefworld_t::get_karte()->isometric;
+		reliefworld_t::get_karte()->calc_map_size();
 		scrolly.set_size( scrolly.get_size() );
 	}
 	else if(  comp == &b_overlay_networks  ) {
 		b_overlay_networks.pressed ^= 1;
 		if(  b_overlay_networks.pressed  ) {
-			env_t::default_mapmode |= reliefkarte_t::MAP_LINES;
+			env_t::default_mapmode |= reliefworld_t::MAP_LINES;
 		}
 		else {
-			env_t::default_mapmode &= ~reliefkarte_t::MAP_LINES;
+			env_t::default_mapmode &= ~reliefworld_t::MAP_LINES;
 		}
-		reliefkarte_t::get_karte()->set_mode(  (reliefkarte_t::MAP_MODES)env_t::default_mapmode  );
+		reliefworld_t::get_karte()->set_mode(  (reliefworld_t::MAP_MODES)env_t::default_mapmode  );
 	}
 	else if (  comp == &viewed_player_c  ) {
-		reliefkarte_t::get_karte()->player_showed_on_map = viewable_players[viewed_player_c.get_selection()];
-		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
+		reliefworld_t::get_karte()->player_showed_on_map = viewable_players[viewed_player_c.get_selection()];
+		reliefworld_t::get_karte()->invalidate_map_lines_cache();
 	}
 	else if (  comp == &transport_type_c  ) {
-		reliefkarte_t::get_karte()->transport_type_showed_on_map = viewable_transport_types[transport_type_c.get_selection()];
-		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
+		reliefworld_t::get_karte()->transport_type_showed_on_map = viewable_transport_types[transport_type_c.get_selection()];
+		reliefworld_t::get_karte()->invalidate_map_lines_cache();
 	}
 	else if (  comp == &freight_type_c  ) {
-		reliefkarte_t::get_karte()->freight_type_group_index_showed_on_map = viewable_freight_types[freight_type_c.get_selection()];
-		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
+		reliefworld_t::get_karte()->freight_type_group_index_showed_on_map = viewable_freight_types[freight_type_c.get_selection()];
+		reliefworld_t::get_karte()->invalidate_map_lines_cache();
 	}
 	else if (  comp == &b_overlay_networks_load_factor  ) {
-		reliefkarte_t::get_karte()->show_network_load_factor = !reliefkarte_t::get_karte()->show_network_load_factor;
+		reliefworld_t::get_karte()->show_network_load_factor = !reliefworld_t::get_karte()->show_network_load_factor;
 		b_overlay_networks_load_factor.pressed = !b_overlay_networks_load_factor.pressed;
-		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
+		reliefworld_t::get_karte()->invalidate_map_lines_cache();
 	}
 	else {
 		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
@@ -486,13 +486,13 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 					env_t::default_mapmode &= ~button_init[i].mode;
 				}
 				else {
-					if(  (button_init[i].mode & reliefkarte_t::MAP_MODE_FLAGS) == 0  ) {
+					if(  (button_init[i].mode & reliefworld_t::MAP_MODE_FLAGS) == 0  ) {
 						// clear all persistent states
-						env_t::default_mapmode &= reliefkarte_t::MAP_MODE_FLAGS;
+						env_t::default_mapmode &= reliefworld_t::MAP_MODE_FLAGS;
 					}
-					else if(  button_init[i].mode & reliefkarte_t::MAP_MODE_HALT_FLAGS  ) {
+					else if(  button_init[i].mode & reliefworld_t::MAP_MODE_HALT_FLAGS  ) {
 						// clear all other halt states
-						env_t::default_mapmode &= ~reliefkarte_t::MAP_MODE_HALT_FLAGS;
+						env_t::default_mapmode &= ~reliefworld_t::MAP_MODE_HALT_FLAGS;
 					}
 					env_t::default_mapmode |= button_init[i].mode;
 				}
@@ -500,7 +500,7 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 				break;
 			}
 		}
-		reliefkarte_t::get_karte()->set_mode(  (reliefkarte_t::MAP_MODES)env_t::default_mapmode  );
+		reliefworld_t::get_karte()->set_mode(  (reliefworld_t::MAP_MODES)env_t::default_mapmode  );
 		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
 			filter_buttons[i].pressed = (button_init[i].mode&env_t::default_mapmode)!=0;
 			filter_buttons[i].background_color = color_idx_to_rgb(filter_buttons[i].pressed ? button_init[i].select_color : button_init[i].color);
@@ -513,7 +513,7 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 
 void map_frame_t::zoom(bool magnify)
 {
-	if (reliefkarte_t::get_karte()->change_zoom_factor(magnify)) {
+	if (reliefworld_t::get_karte()->change_zoom_factor(magnify)) {
 		zoomed = true;
 		// recalc all the other data incl scrollbars
 		resize();
@@ -533,18 +533,18 @@ bool map_frame_t::infowin_event(const event_t *ev)
 
 	if(ev->ev_class == INFOWIN) {
 		if(ev->ev_code == WIN_OPEN) {
-			reliefkarte_t::get_karte()->set_xy_offset_size( scr_coord(0,0), scr_size(0,0) );
+			reliefworld_t::get_karte()->set_xy_offset_size( scr_coord(0,0), scr_size(0,0) );
 		}
 		else if(ev->ev_code == WIN_CLOSE) {
-			reliefkarte_t::get_karte()->is_visible = false;
+			reliefworld_t::get_karte()->is_visible = false;
 		}
 	}
 
-	if(  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
-		set_focus( reliefkarte_t::get_karte() );
+	if(  reliefworld_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
+		set_focus( reliefworld_t::get_karte() );
 	}
 
-	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
+	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  reliefworld_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
 		// otherwise these would go to the vertical scroll bar
 		zoom(IS_WHEELUP(ev));
 		return true;
@@ -567,7 +567,7 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		is_cursor_hidden = false;
 		return true;
 	}
-	else if(  IS_RIGHTDRAG(ev)  &&  (reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ||  reliefkarte_t::get_karte()->getroffen(ev2.cx,ev2.cy))  ) {
+	else if(  IS_RIGHTDRAG(ev)  &&  (reliefworld_t::get_karte()->getroffen(ev2.mx,ev2.my)  ||  reliefworld_t::get_karte()->getroffen(ev2.cx,ev2.cy))  ) {
 		int x = scrolly.get_scroll_x();
 		int y = scrolly.get_scroll_y();
 		const int scroll_direction = ( env_t::scroll_multi>0 ? 1 : -1 );
@@ -587,10 +587,10 @@ bool map_frame_t::infowin_event(const event_t *ev)
 
 		return true;
 	}
-	else if(  IS_LEFTDBLCLK(ev)  &&  reliefkarte_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
+	else if(  IS_LEFTDBLCLK(ev)  &&  reliefworld_t::get_karte()->getroffen(ev2.mx,ev2.my)  ) {
 		// re-center cursor by scrolling
 		koord ij = welt->get_viewport()->get_world_position();
-		scr_coord center = reliefkarte_t::get_karte()->karte_to_screen(ij);
+		scr_coord center = reliefworld_t::get_karte()->world_to_screen(ij);
 		const scr_size s_size = scrolly.get_size();
 
 		scrolly.set_scroll_position(max(0,center.x-(s_size.w/2)), max(0,center.y-(s_size.h/2)));
@@ -609,11 +609,11 @@ bool map_frame_t::infowin_event(const event_t *ev)
 
 		// then zoom back out to fit
 		const scr_size s_size = scrolly.get_size() - D_SCROLLBAR_SIZE;
-		scr_size size = reliefkarte_t::get_karte()->get_size();
+		scr_size size = reliefworld_t::get_karte()->get_size();
 		zoomed = true;
 		while(  zoomed  &&  max(size.w/s_size.w, size.h/s_size.h)  ) {
 			zoom(false);
-			size = reliefkarte_t::get_karte()->get_size();
+			size = reliefworld_t::get_karte()->get_size();
 		}
 		return true;
 	}
@@ -726,12 +726,12 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 	// update our stored screen position
 	screenpos = pos;
 
-	reliefkarte_t::get_karte()->set_xy_offset_size( scr_coord(scrolly.get_scroll_x(), scrolly.get_scroll_y()), scrolly.get_client().get_size() );
+	reliefworld_t::get_karte()->set_xy_offset_size( scr_coord(scrolly.get_scroll_x(), scrolly.get_scroll_y()), scrolly.get_client().get_size() );
 
 	// first: check if cursor within map screen size
 	koord ij = welt->get_viewport()->get_world_position();
 	if(welt->is_within_limits(ij)) {
-		scr_coord center = reliefkarte_t::get_karte()->karte_to_screen(ij);
+		scr_coord center = reliefworld_t::get_karte()->world_to_screen(ij);
 		// only re-center if zoomed or world position has changed and its outside visible area
 		const scr_size size = scrolly.get_size();
 		if(zoomed  ||  ( old_ij != ij  &&
@@ -746,7 +746,7 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 	}
 
 	// update zoom factors and zoom label
-	reliefkarte_t::get_karte()->get_zoom_factors(zoom_out, zoom_in);
+	reliefworld_t::get_karte()->get_zoom_factors(zoom_out, zoom_in);
 	sprintf( buf, "%i:%i", zoom_in, zoom_out );
 	zoom_value_label.set_text_pointer(buf,false);
 
@@ -760,7 +760,7 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 		double bar_width = (double)bar_client_x/(double)MAX_SEVERITY_COLORS;
 		// color bar
 		for(  int i=0;  i<MAX_SEVERITY_COLORS;  i++  ) {
-			display_fillbox_wh_rgb(bar_pos.x + min_label.get_size().w + D_H_SPACE + (i*bar_width), bar_pos.y+2,  bar_width+1, 7, reliefkarte_t::calc_severity_color(i, MAX_SEVERITY_COLORS-1), false);
+			display_fillbox_wh_rgb(bar_pos.x + min_label.get_size().w + D_H_SPACE + (i*bar_width), bar_pos.y+2,  bar_width+1, 7, reliefworld_t::calc_severity_color(i, MAX_SEVERITY_COLORS-1), false);
 		}
 	}
 
@@ -782,33 +782,33 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 
 	// may add compass
 	if(  skinverwaltung_t::compass_map  &&  env_t::compass_map_position!=0  ) {
-		display_img_aligned( skinverwaltung_t::compass_map->get_image_id( welt->get_settings().get_rotation()+reliefkarte_t::get_karte()->isometric*4 ), scrolly.get_client()+pos+scr_coord(4,4+D_TITLEBAR_HEIGHT)-scr_size(8,8), env_t::compass_map_position, false );
+		display_img_aligned( skinverwaltung_t::compass_map->get_image_id( welt->get_settings().get_rotation()+reliefworld_t::get_karte()->isometric*4 ), scrolly.get_client()+pos+scr_coord(4,4+D_TITLEBAR_HEIGHT)-scr_size(8,8), env_t::compass_map_position, false );
 	}
 }
 
 
 void map_frame_t::rdwr( loadsave_t *file )
 {
-	bool is_show_schedule = (env_t::default_mapmode & reliefkarte_t::MAP_LINES);
-	bool is_show_fab = (env_t::default_mapmode & reliefkarte_t::MAP_FACTORIES);
+	bool is_show_schedule = (env_t::default_mapmode & reliefworld_t::MAP_LINES);
+	bool is_show_fab = (env_t::default_mapmode & reliefworld_t::MAP_FACTORIES);
 
-	file->rdwr_bool( reliefkarte_t::get_karte()->isometric );
+	file->rdwr_bool( reliefworld_t::get_karte()->isometric );
 	if(  file->get_version()<111004  ) {
 		file->rdwr_bool( is_show_schedule );
 		file->rdwr_bool( is_show_fab );
 	}
-	reliefkarte_t::get_karte()->rdwr(file);
+	reliefworld_t::get_karte()->rdwr(file);
 	bool show_legend_state = legend_visible;
 	file->rdwr_bool( show_legend_state );
 	file->rdwr_bool( scale_visible );
 	file->rdwr_bool( directory_visible );
 	if(  file->get_version()<111004  ) {
-		sint8 mode = log2(env_t::default_mapmode & ~reliefkarte_t::MAP_MODE_FLAGS);
+		sint8 mode = log2(env_t::default_mapmode & ~reliefworld_t::MAP_MODE_FLAGS);
 		file->rdwr_byte( mode );
 		env_t::default_mapmode = 1 << mode;
 		env_t::default_mapmode = mode>=0 ? 1 << mode : 0;
-		env_t::default_mapmode |= is_show_schedule * reliefkarte_t::MAP_LINES;
-		env_t::default_mapmode |= is_show_fab * reliefkarte_t::MAP_FACTORIES;
+		env_t::default_mapmode |= is_show_schedule * reliefworld_t::MAP_LINES;
+		env_t::default_mapmode |= is_show_fab * reliefworld_t::MAP_FACTORIES;
 	}
 	else {
 		file->rdwr_long( env_t::default_mapmode );
@@ -821,7 +821,7 @@ void map_frame_t::rdwr( loadsave_t *file )
 		set_windowsize( savesize );
 		resize();
 		// notify minimap of new settings
-		reliefkarte_t::get_karte()->calc_map_size();
+		reliefworld_t::get_karte()->calc_map_size();
 		scrolly.set_size( scrolly.get_size() );
 
 		sint32 xoff;
@@ -830,7 +830,7 @@ void map_frame_t::rdwr( loadsave_t *file )
 		file->rdwr_long( yoff );
 		scrolly.set_scroll_position( xoff, yoff );
 
-		reliefkarte_t::get_karte()->set_mode((reliefkarte_t::MAP_MODES)env_t::default_mapmode);
+		reliefworld_t::get_karte()->set_mode((reliefworld_t::MAP_MODES)env_t::default_mapmode);
 		for (uint i=0;i<MAP_MAX_BUTTONS;i++) {
 			filter_buttons[i].pressed = i==env_t::default_mapmode;
 		}
@@ -839,7 +839,7 @@ void map_frame_t::rdwr( loadsave_t *file )
 		}
 		b_filter_factory_list.set_visible( directory_visible );
 
-		b_overlay_networks.pressed = (env_t::default_mapmode & reliefkarte_t::MAP_LINES)!=0;
+		b_overlay_networks.pressed = (env_t::default_mapmode & reliefworld_t::MAP_LINES)!=0;
 		// restore selection
 		sint16 idx;
 		file->rdwr_short(idx);

@@ -18,7 +18,7 @@
 
 
 #include "city_info.h"
-#include "karte.h"
+#include "world.h"
 
 #include "../display/simgraph.h"
 
@@ -245,7 +245,7 @@ void city_info_t::init_pax_dest( array2d_tpl<PIXVAL> &pax_dest )
 	for(  sint16 y = 0;  y < minimaps_size.h;  y++  ) {
 		for(  sint16 x = 0;  x < minimaps_size.w;  x++  ) {
 			const grund_t *gr = welt->lookup_kartenboden( koord( (x * size_x) / minimaps_size.w, (y * size_y) / minimaps_size.h ) );
-			pax_dest.at(x,y) = reliefkarte_t::calc_relief_farbe(gr);
+			pax_dest.at(x,y) = reliefworld_t::calc_relief_farbe(gr);
 		}
 	}
 }
@@ -376,7 +376,7 @@ void city_info_t::map_rotate90( sint16 )
 bool city_info_t::infowin_event(const event_t *ev)
 {
 	if(  IS_WINDOW_TOP(ev)  ) {
-		reliefkarte_t::get_karte()->set_city( city );
+		reliefworld_t::get_karte()->set_city( city );
 	}
 
 	uint16 my = ev->my;
