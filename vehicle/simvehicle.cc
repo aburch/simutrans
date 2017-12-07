@@ -2156,46 +2156,6 @@ void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 	freight_info_order = 6; // = by_destination_detail
 	freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded", NULL, NULL, NULL, true);
 }
-//{
-//	bool empty = true;
-//	for (uint8 i = 0; i < number_of_classes; i++)
-//	{
-//		if (!fracht[i].empty())
-//		{
-//			empty = false;
-//			FOR(slist_tpl<ware_t>, const& ware, fracht[i])
-//			{
-//				const char * halt_name = "Error in Routing";
-//
-//				halthandle_t halt = ware.get_ziel();
-//				if (halt.is_bound())
-//				{
-//					halt_name = halt->get_name();
-//				}
-//				char class_name_untranslated[32];
-//				sprintf(class_name_untranslated, "");
-//				if (ware.get_catg() == goods_manager_t::INDEX_PAS)
-//				{
-//					sprintf(class_name_untranslated, "p_class[%u]", ware.get_class());
-//				}
-//				if (ware.get_catg() == goods_manager_t::INDEX_MAIL)
-//				{
-//					sprintf(class_name_untranslated, "m_class[%u]", ware.get_class());
-//				}
-//
-//				const char* class_name = translator::translate(class_name_untranslated);
-//				buf.printf("   %u%s %s %s > %s\n", ware.menge, translator::translate(ware.get_mass()), class_name, translator::translate(ware.get_name()), halt_name);
-//			}
-//		}
-//	}
-//
-//	if (empty) 
-//	{
-//		buf.append("  ");
-//		buf.append(translator::translate("leer"));
-//		buf.append("\n");
-//	} 
-//}
 
 void vehicle_t::get_cargo_class_info(cbuffer_t & buf) const
 {
