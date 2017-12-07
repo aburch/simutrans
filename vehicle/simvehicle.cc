@@ -3080,7 +3080,7 @@ bool vehicle_t::check_access(const weg_t* way) const
 vehicle_t::~vehicle_t()
 {
 	grund_t *gr = welt->lookup(get_pos());
-	if(gr) {
+	if(gr && !welt->is_destroying()) {
 		// remove vehicle's marker from the relief map
 		reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
 	}
