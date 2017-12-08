@@ -199,7 +199,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	// load display
 	filled_bar.add_color_value(&loadfactor, COL_GREEN);
-	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + 2*D_BUTTON_WIDTH + 10, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 4 + 2));
+	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + 3*D_BUTTON_WIDTH + 10, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 4 + 2));
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
 
@@ -259,7 +259,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_line_class_manager.add_listener(this);
 	add_component(&bt_line_class_manager);
 
-	bt_time_history.init(button_t::roundbox, "Times History", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH, 14+SCL_HEIGHT+D_BUTTON_HEIGHT+2), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	bt_time_history.init(button_t::roundbox, "Times History", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH * 2, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 2), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	bt_time_history.set_tooltip("View journey times history of this line.");
 	bt_time_history.set_visible(true);
 	bt_time_history.add_listener(this);
@@ -703,7 +703,7 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 
 	chart.set_size(scr_size(rest_width-58, SCL_HEIGHT-11-14-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))));
 	inp_name.set_size(scr_size(rest_width-8, 14));
-	filled_bar.set_size(scr_size(rest_width - 8 - 2*D_BUTTON_WIDTH - 10, 4));
+	filled_bar.set_size(scr_size(rest_width - 8 - 3*D_BUTTON_WIDTH - 10, 4));
 
 	int y=SCL_HEIGHT-11-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))+14;
 	for (int i=0; i<MAX_LINE_COST; i++) {
