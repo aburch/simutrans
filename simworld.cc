@@ -1461,6 +1461,7 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 	steps = 0;
 	network_frame_count = 0;
 	sync_steps = 0;
+	sync_steps_barrier = sync_steps;
 	map_counter = 0;
 	recalc_average_speed();	// resets timeline
 
@@ -2906,6 +2907,7 @@ karte_t::karte_t() :
 	idle_time = 0;
 	network_frame_count = 0;
 	sync_steps = 0;
+	sync_steps_barrier = sync_steps;
 	next_step_passenger = 0;
 	next_step_mail = 0;
 	destroying = false;
@@ -8620,8 +8622,7 @@ void karte_t::load(loadsave_t *file)
 	network_frame_count = 0;
 	sync_steps = 0;
 	steps = 0;
-	network_frame_count = 0;
-	sync_steps = 0;
+	sync_steps_barrier = sync_steps;
 	step_mode = PAUSE_FLAG;
 
 DBG_MESSAGE("karte_t::load()","savegame loading at tick count %i",ticks);
@@ -9881,8 +9882,9 @@ void karte_t::stop(bool exit_game)
 void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 {
 	if (env_t::networkmode) {
-		time_multiplier = 16;	// reset to normal speed
+		time_multiplier = 16;// reset to normal speed
 		sync_steps = syncsteps_;
+		sync_steps_barrier = sync_steps;
 		steps = sync_steps / settings.get_frames_per_step();
 		network_frame_count = sync_steps % settings.get_frames_per_step();
 		dbg->warning("karte_t::network_game_set_pause", "steps=%d sync_steps=%d pause=%d", steps, sync_steps, pause_);
@@ -10034,6 +10036,14 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 				}
 			}
 		}
+		else if (nwc->get_id() == NWC_STEP) {
+				// advancing sync_steps_barrier
+				nwc_step_t* nwstep = (nwc_step_t*)nwc;
+				uint32 const ssbarrier = nwstep->get_sync_step();
+			if (sync_steps_barrier < ssbarrier) {
+				sync_steps_barrier = ssbarrier;
+			}
+		}
 
 		// check random number generator states
 		if(  env_t::server  &&  nwc->get_id()==NWC_TOOL  ) {
@@ -10179,6 +10189,7 @@ bool karte_t::interactive(uint32 quit_month)
 
 	finish_loop = false;
 	sync_steps = 0;
+	sync_steps_barrier = sync_steps;
 
 	network_frame_count = 0;
 	vector_tpl<uint16>hashes_ok;	// bit set: this client can do something with this player
@@ -10267,7 +10278,8 @@ bool karte_t::interactive(uint32 quit_month)
 		// time for the next step?
 		uint32 time = dr_time(); // - (env_t::server ? 0 : 5000);
 		if(  next_step_time<=time  ) {
-			if(  step_mode&PAUSE_FLAG  ) {
+			if (step_mode&PAUSE_FLAG ||
+				(env_t::networkmode && !env_t::server  &&  sync_steps >= sync_steps_barrier)) {
 				// only update display
 				sync_step( 0, false, true );
 #ifdef DEBUG_SIMRAND_CALLS
@@ -10335,8 +10347,12 @@ bool karte_t::interactive(uint32 quit_month)
 					dbg->warning("karte_t::interactive", "sync_step=%u  %s", sync_steps, buf);
 #endif
 
-					// some server sidetasks
+					// some server side tasks
 					if(  env_t::networkmode  &&  env_t::server  ) {
+						// broadcast step
+						nwc_step_t* nwcstep = new nwc_step_t(sync_steps, map_counter);
+						network_send_all(nwcstep, true);
+
 						// broadcast sync info regularly and when lagged
 						const sint64 timelag = (sint32)dr_time() - (sint32)next_step_time;
 						if(  (network_frame_count == 0  &&  timelag > fix_ratio_frame_time * settings.get_server_frames_ahead() / 2)  ||  (sync_steps % env_t::server_sync_steps_between_checks) == 0  ) {
