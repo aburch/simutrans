@@ -447,6 +447,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			}
 
 			ware_t const& ware = wlist[j];
+			bool is_class_cargo = ware.get_index() == goods_manager_t::INDEX_PAS || ware.get_index() == goods_manager_t::INDEX_MAIL ? true : false;
 			//if(ware.get_class() != accommodation && accommodation != all_classes)
 			//{
 			//	continue;
@@ -512,34 +513,44 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				{
 					// ok, we have a list of freight
 					bool heading_added = false;
-					while (full_i != full_end)
+
+					// For the entries to show up properly with classes, we need to take some precautions
+					if (!total_pass_mail && sorting_by_wealth && is_class_cargo)
 					{
-						ware_t const& current = *full_i++;
-						last = current;
-						if (last_goods_index == current.get_index() || last_ware_catg == current.get_catg() || last_ware_class == current.get_class())
+						add_ware_heading(buf, sum, 0, &ware, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail, show_empty);
+						last_capacity = ware.menge;
+						heading_added = true;
+						total_pass_mail = 0;
+					}
+					else
+					{
+						while (full_i != full_end)
 						{
-							add_ware_heading(buf, sum, current.menge, &current, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail, show_empty);
-							last_capacity = current.menge;
-							heading_added = true;
-							total_pass_mail = 0;
-							break;
-						}
-						else
-						{
-							add_ware_heading(buf, 0, current.menge, &current, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail, show_empty);
-							last_capacity = current.menge;
-							heading_added = true;
-							total_pass_mail = 0;
+							ware_t const& current = *full_i++;
+							last = current;
+							if (last_goods_index == current.get_index() || last_ware_catg == current.get_catg() || last_ware_class == current.get_class())
+							{
+								add_ware_heading(buf, sum, current.menge, &current, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail, show_empty);
+								last_capacity = current.menge;
+								heading_added = true;
+								total_pass_mail = 0;
+								break;
+							}
+							else
+							{
+								add_ware_heading(buf, 0, current.menge, &current, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail, show_empty);
+								last_capacity = current.menge;
+								heading_added = true;
+								total_pass_mail = 0;
+							}
 						}
 					}
-
 					if (new_section && !heading_added)
 					{
 						add_ware_heading(buf, sum, last_capacity, &last, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail, show_empty);
 						total_pass_mail = 0;
 					}
 				}
-
 				new_section = false;
 			}
 
@@ -549,7 +560,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			char g_class_untranslated[32] = "\0";
 			char g_class_text[32] = "\0";
 			char g_class_alone[32] = "\0";
-			if (!sorting_by_wealth)
+			//if (!sorting_by_wealth)
 			{
 				if (ware.is_passenger())
 				{
