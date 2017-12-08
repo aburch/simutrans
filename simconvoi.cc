@@ -277,11 +277,14 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	welt->sync.remove( this );
 	welt->rem_convoi( self );
 
-	clear_estimated_times();
+	if (!welt->is_destroying())
+	{
+		clear_estimated_times();
 
-	// Knightly : if lineless convoy -> unregister from stops
-	if(  !line.is_bound()  ) {
-		unregister_stops();
+		// Knightly : if lineless convoy -> unregister from stops
+		if (!line.is_bound()) {
+			unregister_stops();
+		}
 	}
 
 	// force asynchronous recalculation

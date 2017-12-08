@@ -2927,11 +2927,25 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 
 	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
 	{
-		for (uint8 i = 0; i < number_of_classes; i++)
+		for (uint8 i = 0; i < (desc ? desc->get_number_of_classes() : number_of_classes); i++)
 		{
-			uint8 cr = class_reassignments[i];
-			file->rdwr_byte(cr); 
-			class_reassignments[i] = cr;
+			if (i < number_of_classes)
+			{
+				uint8 cr = class_reassignments[i];
+				file->rdwr_byte(cr);
+				if (cr >= desc->get_number_of_classes())
+				{
+					// Broken saved game - fix this value
+					cr = i;
+				}
+				class_reassignments[i] = cr;
+			}
+			else
+			{
+				// Deal with the situation where the number of classes on a type of vehicle
+				// has increased since the game was saved.
+				class_reassignments[i] = i;
+			}
 		}
 	}
 	else
@@ -3040,7 +3054,7 @@ bool vehicle_t::check_access(const weg_t* way) const
 vehicle_t::~vehicle_t()
 {
 	grund_t *gr = welt->lookup(get_pos());
-	if(gr) {
+	if(gr && !welt->is_destroying()) {
 		// remove vehicle's marker from the relief map
 		reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
 	}

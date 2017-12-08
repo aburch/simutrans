@@ -964,7 +964,10 @@ void fabrik_t::delete_all_fields()
 
 fabrik_t::~fabrik_t()
 {
-	mark_connected_roads(true);
+	if (!welt->is_destroying())
+	{
+		mark_connected_roads(true);
+	}
 	delete_all_fields();
 
 	if(!welt->is_destroying())
