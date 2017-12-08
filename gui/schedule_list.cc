@@ -30,6 +30,7 @@
 #include "../simmenu.h"
 #include "../utils/simstring.h"
 #include "../player/simplay.h"
+#include "../gui/line_class_manager.h"
 
 #include "../bauer/vehikelbauer.h"
 
@@ -198,7 +199,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	// load display
 	filled_bar.add_color_value(&loadfactor, COL_GREEN);
-	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH, 6 + SCL_HEIGHT));
+	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + 2*D_BUTTON_WIDTH + 10, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 4 + 2));
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
 
@@ -246,11 +247,17 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_delete_line.disable();
 	add_component(&bt_delete_line);
 
-	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All", scr_coord(LINE_NAME_COLUMN_WIDTH, 14+SCL_HEIGHT+D_BUTTON_HEIGHT+2), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
+	bt_withdraw_line.init(button_t::roundbox_state, "Withdraw All", scr_coord(LINE_NAME_COLUMN_WIDTH, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 2), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
 	bt_withdraw_line.set_tooltip("Convoi is sold when all wagons are empty.");
 	bt_withdraw_line.set_visible(false);
 	bt_withdraw_line.add_listener(this);
 	add_component(&bt_withdraw_line);
+
+	bt_line_class_manager.init(button_t::roundbox_state, "line_class_manager", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 2), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_line_class_manager.set_tooltip("change_the_classes_for_the_entire_line");
+	bt_line_class_manager.set_visible(false);
+	bt_line_class_manager.add_listener(this);
+	add_component(&bt_line_class_manager);
 
 	bt_time_history.init(button_t::roundbox, "Times History", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH, 14+SCL_HEIGHT+D_BUTTON_HEIGHT+2), scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT));
 	bt_time_history.set_tooltip("View journey times history of this line.");
@@ -402,6 +409,11 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 			delete tool;
 		}
 	}
+	else if (comp == &bt_line_class_manager)
+	{
+		create_win(20, 20, new line_class_manager_t(line), w_info, magic_line_class_manager + line.get_id());
+		return true;
+        }
 	else if (comp == &bt_time_history) {
 		if(line.is_bound()) {
 			create_win( new times_history_t(line, convoihandle_t()), w_info, (ptrdiff_t)line.get_rep() + 1 );
@@ -549,6 +561,36 @@ void schedule_list_gui_t::display(scr_coord pos)
 	cbuffer_t buf;
 	char ctmp[128];
 
+	// First, show the state of the line, if interresting
+	buf.clear();
+	switch (line->get_state())
+	{
+	case simline_t::line_no_convoys:
+		buf.printf(translator::translate("line_no_convoys"));
+		break;
+	case simline_t::line_loss_making:
+		buf.printf(translator::translate("line_loss_making"));
+		break;
+	case simline_t::line_nothing_moved:
+		buf.printf(translator::translate("line_nothing_moved"));
+		break;
+	case simline_t::line_overcrowded:
+		buf.printf(translator::translate("line_overcrowded"));
+		break;
+	case simline_t::line_missing_scheduled_slots:
+		buf.printf(translator::translate("line_missing_scheduled_slots"));
+		break;
+	case simline_t::line_has_obsolete_vehicles:
+		buf.printf(translator::translate("line_has_obsolete_vehicles"));
+		break;
+	case simline_t::line_has_obsolete_vehicles_with_upgrades:
+		buf.printf(translator::translate("line_has_obsolete_vehicles_with_upgrades"));
+		break;
+	default:
+		break;
+	}
+	display_proportional_clip(pos.x + LINE_NAME_COLUMN_WIDTH, pos.y + 7 + SCL_HEIGHT + D_MARGIN_TOP, buf, ALIGN_LEFT, line->get_state_color(), true);
+	
 	capacity = load = loadfactor = 0; // total capacity and load of line (=sum of all conv's cap/load)
 
 	sint64 profit = line->get_finance_history(0,LINE_PROFIT);
@@ -593,6 +635,7 @@ void schedule_list_gui_t::display(scr_coord pos)
 		service_frequency = max(spacing_time, service_frequency);
 	}
 
+	buf.clear();
 	switch(icnv) {
 		case 0: {
 			buf.append( translator::translate("no convois") );
@@ -631,6 +674,19 @@ void schedule_list_gui_t::display(scr_coord pos)
 		buf.printf( translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor );
 		display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width + 24, pos.y+16 + 14 + SCL_HEIGHT + D_BUTTON_HEIGHT*2 +4 , buf, SYSCOL_TEXT);
 	}
+	bt_line_class_manager.disable();
+	for (unsigned convoy = 0; convoy < line->count_convoys(); convoy++)
+	{
+		convoihandle_t cnv = line->get_convoy(convoy);
+		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+		{
+			vehicle_t* v = cnv->get_vehicle(veh);
+			if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS || v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
+			{
+				bt_line_class_manager.enable();
+			}
+		}
+	}
 }
 
 
@@ -647,7 +703,7 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 
 	chart.set_size(scr_size(rest_width-58, SCL_HEIGHT-11-14-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))));
 	inp_name.set_size(scr_size(rest_width-8, 14));
-	filled_bar.set_size(scr_size(rest_width-8, 4));
+	filled_bar.set_size(scr_size(rest_width - 8 - 2*D_BUTTON_WIDTH - 10, 4));
 
 	int y=SCL_HEIGHT-11-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))+14;
 	for (int i=0; i<MAX_LINE_COST; i++) {
@@ -819,6 +875,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 	}
 	line = new_line;
 	bt_withdraw_line.set_visible( line.is_bound() );
+	bt_line_class_manager.set_visible(line.is_bound());
 	bt_time_history.set_visible( line.is_bound() );
 
 	reset_line_name();

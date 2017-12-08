@@ -1,0 +1,82 @@
+# Simutranslator settings for Simutrans-Extended texts
+# Addendum for the reorganisation of the depot window
+#
+# Author: jamespetts
+# Created: April 2013
+#
+obj=program_text
+name=line_no_convoys
+note=Shown in the line management window (schedule list window)
+-
+obj=program_text
+name=line_loss_making
+note=Shown in the line management window (schedule list window)
+-
+obj=program_text
+name=line_nothing_moved
+note=Shown in the line management window (schedule list window)
+-
+obj=program_text
+name=line_overcrowded
+note=Shown in the line management window (schedule list window)
+-
+obj=program_text
+name=line_missing_scheduled_slots
+note=Shown in the line management window (schedule list window)
+-
+obj=program_text
+name=line_has_obsolete_vehicles
+note=Shown in the line management window (schedule list window)
+-
+obj=program_text
+name=line_has_obsolete_vehicles_with_upgrades
+note=Shown in the line management window (schedule list window)
+-
+obj=program_text
+name=staff_shortage
+note=Shown in the factory window
+-
+obj=program_text
+name=reset_all_pass_classes
+note=Shown in the line class manager
+-
+obj=program_text
+name=resets_all_passenger_classes_to_their_defaults
+note=Shown in the line class manager
+-
+obj=program_text
+name=reset_all_mail_classes
+note=Shown in the line class manager
+-
+obj=program_text
+name=resets_all_mail_classes_to_their_defaults
+note=Shown in the line class manager
+-
+obj=program_text
+name=reassigned_to_multiple
+note=Shown in the line class manager
+-
+obj=program_text
+name=catering_cars: %i
+note=Shown in the line class manager
+-
+obj=program_text
+name=(catering_levels: %s)
+note=Shown in the line class manager
+-
+obj=program_text
+name=tpo_cars: %i
+note=Shown in the line class manager
+-
+obj=program_text
+name=line_class_manager
+note=Shown in the line class manager
+-
+obj=program_text
+name=change_the_classes_for_the_entire_line
+note=Shown in the line class manager
+-
+obj=program_text
+name=
+note=Shown in the line class manager
+-

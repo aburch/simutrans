@@ -1053,10 +1053,11 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehicles, bool use_lower_classes)
 {
 	const uint16 total_capacity = desc->get_total_capacity() + (overcrowd ? desc->get_overcrowded_capacity() : 0);
+	bool other_classes_available = false;
 	if (total_freight < total_capacity)
 	{
 		schedule_t *schedule = cnv->get_schedule();
-		const uint16 capacity_left = total_capacity - total_freight;
+		uint16 capacity_left = total_capacity - total_freight;
 		slist_tpl<ware_t> freight_add;
 		const uint8 classes_to_check = get_desc()->get_number_of_classes();
 		uint16 capacity_this_class;
@@ -1074,7 +1075,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 			// use_lower_classes as passed to this method indicates whether the higher class accommodation is full, hence
 			// the need for higher class passengers/mail to use lower class accommodation.
 
-			*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left, schedule, cnv->get_owner(), cnv, overcrowd, class_reassignments[i], use_lower_classes);
+			*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left, schedule, cnv->get_owner(), cnv, overcrowd, class_reassignments[i], use_lower_classes, other_classes_available);
 			if (!freight_add.empty())
 			{
 				cnv->invalidate_weight_summary();
@@ -1108,6 +1109,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 					}
 				}
 			
+				capacity_left = total_capacity - total_freight;
 
 				if (!freight_add.empty())
 				{
@@ -1116,7 +1118,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 			}
 		}
 	}
-	return (total_freight < total_capacity);
+	return (total_freight < total_capacity && !other_classes_available);
 }
 
 
@@ -2306,7 +2308,7 @@ uint16 vehicle_t::load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convo
 	{
 		*skip_convois = load_freight_internal(halt, overcrowd, skip_vehicles, use_lower_classes);
 	}
-	else
+	else if(desc->get_total_capacity() > 0)
 	{
 		*skip_convois = true; // don't try to load anymore from a stop that can't supply
 	}
@@ -2965,11 +2967,25 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 
 	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
 	{
-		for (uint8 i = 0; i < number_of_classes; i++)
+		for (uint8 i = 0; i < (desc ? desc->get_number_of_classes() : number_of_classes); i++)
 		{
-			uint8 cr = class_reassignments[i];
-			file->rdwr_byte(cr); 
-			class_reassignments[i] = cr;
+			if (i < number_of_classes)
+			{
+				uint8 cr = class_reassignments[i];
+				file->rdwr_byte(cr);
+				if (cr >= desc->get_number_of_classes())
+				{
+					// Broken saved game - fix this value
+					cr = i;
+				}
+				class_reassignments[i] = cr;
+			}
+			else
+			{
+				// Deal with the situation where the number of classes on a type of vehicle
+				// has increased since the game was saved.
+				class_reassignments[i] = i;
+			}
 		}
 	}
 	else
@@ -3078,7 +3094,7 @@ bool vehicle_t::check_access(const weg_t* way) const
 vehicle_t::~vehicle_t()
 {
 	grund_t *gr = welt->lookup(get_pos());
-	if(gr) {
+	if(gr && !welt->is_destroying()) {
 		// remove vehicle's marker from the relief map
 		reliefkarte_t::get_karte()->calc_map_pixel(get_pos().get_2d());
 	}

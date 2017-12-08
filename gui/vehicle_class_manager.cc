@@ -505,9 +505,10 @@ bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value
 				pass_class_sel.at(i)->set_selection(0);
 				new_class = 0;
 			}
-			int good_type = 0; // 0 = Passenger, 1 = Mail, 2 = both
+			int good_type = 0; // 0 = Passenger, 1 = Mail,
+			int reset = 0; // 0 = reset only single class, 1 = reset all classes
 			cbuffer_t buf;
-			buf.printf("%i,%i,%i", i, new_class, good_type);
+			buf.printf("%i,%i,%i,%i", i, new_class, good_type, reset);
 			cnv->call_convoi_tool('c', buf);
 
 			if (i < 0)
@@ -528,9 +529,10 @@ bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value
 				mail_class_sel.at(i)->set_selection(0);
 				new_class = 0;
 			}
-			int good_type = 1; // 0 = Passenger, 1 = Mail, 2 = both
+			int good_type = 1; // 0 = Passenger, 1 = Mail,
+			int reset = 0; // 0 = reset only single class, 1 = reset all classes
 			cbuffer_t buf;
-			buf.printf("%i,%i,%i", i, new_class, good_type);
+			buf.printf("%i,%i,%i,%i", i, new_class, good_type, reset);
 			cnv->call_convoi_tool('c', buf);
 
 			if (i < 0)
@@ -542,9 +544,15 @@ bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value
 	}
 	if (comp == &reset_all_classes_button)
 	{
-		int good_type = 2; // 0 = Passenger, 1 = Mail, 2 = both
+		int good_type = 0; // 0 = Passenger, 1 = Mail,
+		int reset = 1; // 0 = reset only single class, 1 = reset all classes
 		cbuffer_t buf;
-		buf.printf("%i,%i,%i", 0, 0, good_type);
+		buf.printf("%i,%i,%i,%i", 0, 0, good_type, reset);
+		cnv->call_convoi_tool('c', buf);
+
+		good_type = 1; // 0 = Passenger, 1 = Mail,
+		reset = 1; // 0 = reset only single class, 1 = reset all classes
+		buf.printf("%i,%i,%i,%i", 0, 0, good_type, reset);
 		cnv->call_convoi_tool('c', buf);
 
 		for (int i = 0; i < pass_class_sel.get_count(); i++)
@@ -655,7 +663,7 @@ void vehicle_class_manager_t::rdwr(loadsave_t *file)
 		// now we can open the window ...
 		scr_coord const& pos = win_get_pos(this);
 		vehicle_class_manager_t *w = new vehicle_class_manager_t(cnv);
-		create_win(pos.x, pos.y, w, w_info, magic_convoi_detail + cnv.get_id());
+		create_win(pos.x, pos.y, w, w_info, magic_class_manager + cnv.get_id());
 		w->set_windowsize( size );
 		w->scrolly.set_scroll_position( xoff, yoff );
 		// we must invalidate halthandle

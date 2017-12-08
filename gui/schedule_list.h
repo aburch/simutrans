@@ -30,7 +30,7 @@ class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 private:
 	player_t *player;
 
-	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line, bt_time_history;
+	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line, bt_line_class_manager, bt_time_history;
 	gui_container_t cont, cont_haltestellen;
 	gui_scrollpane_t scrolly_convois, scrolly_haltestellen;
 	gui_scrolled_list_t scl;

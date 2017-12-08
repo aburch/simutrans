@@ -964,7 +964,10 @@ void fabrik_t::delete_all_fields()
 
 fabrik_t::~fabrik_t()
 {
-	mark_connected_roads(true);
+	if (!welt->is_destroying())
+	{
+		mark_connected_roads(true);
+	}
 	delete_all_fields();
 
 	if(!welt->is_destroying())
@@ -1877,7 +1880,7 @@ bool fabrik_t::out_of_stock_selective()
 
 	if (staffing_percentage < welt->get_settings().get_minimum_staffing_percentage_consumer_industry())
 	{
-		return false;
+		return true;
 	}
 
 	sint32 weight_of_out_of_stock_items = 0;

@@ -842,7 +842,7 @@ DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need 
 
 			INT_CHECK("fabrikbauer 697");
 
-	DBG_MESSAGE("factory_builder_t::build_link","Try to built supplier %s at (%i,%i) r=%i for %s.",producer_d->get_name(),k.x,k.y,rotate,info->get_name());
+			DBG_MESSAGE("factory_builder_t::build_link","Try to built supplier %s at (%i,%i) r=%i for %s.",producer_d->get_name(),k.x,k.y,rotate,info->get_name());
 			n += build_link(&parent_pos, producer_d, -1 /*random prodbase */, rotate, &k, player, 10000, ignore_climates);
 			lfound ++;
 
@@ -851,7 +851,7 @@ DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need 
 			// now subtract current supplier
 			fabrik_t *fab = fabrik_t::get_fab(k.get_2d() );
 			if(fab==NULL) {
-	DBG_MESSAGE( "factory_builder_t::build_link", "Failed to build at %s", k.get_str() );
+				DBG_MESSAGE( "factory_builder_t::build_link", "Failed to build at %s", k.get_str() );
 				retry --;
 				continue;
 			}

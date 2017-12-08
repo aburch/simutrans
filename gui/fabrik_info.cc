@@ -38,7 +38,8 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	view(gb, scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
 	scrolly(&fab_info),
 	prod(&prod_buf),
-	txt(&info_buf)
+	txt(&info_buf),
+	lbl_factory_status(factory_status)
 {
 	lieferbuttons = supplierbuttons = NULL;
 
@@ -84,6 +85,9 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	fab->info_conn(info_buf);
 	txt.recalc_size();
 	update_info();
+
+	// The status label
+	add_component(&lbl_factory_status);
 
 	scrolly.set_pos(scr_coord(0, offset_below_viewport+D_BUTTON_HEIGHT+D_V_SPACE+12));
 	add_component(&scrolly);
@@ -134,6 +138,7 @@ void fabrik_info_t::set_windowsize(scr_size size)
 	// would be only needed in case of enabling horizontal resizes
 	input.set_size(scr_size(get_windowsize().w-D_MARGIN_LEFT-D_MARGIN_RIGHT, D_BUTTON_HEIGHT));
 	view.set_pos(scr_coord(get_windowsize().w - view.get_size().w - D_MARGIN_RIGHT , D_MARGIN_TOP+D_BUTTON_HEIGHT+D_V_SPACE ));
+	lbl_factory_status.set_pos(scr_coord(get_windowsize().w - view.get_size().w - D_MARGIN_RIGHT, D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + view.get_size().h + 8 + D_V_SPACE));
 
 	scrolly.set_size(get_client_windowsize()-scrolly.get_pos());
 }
@@ -153,56 +158,90 @@ void fabrik_info_t::draw(scr_coord pos, scr_size size)
 	}
 	const scr_size old_size = txt.get_size();
 
-	fab->info_prod( prod_buf );
-	fab->info_conn( info_buf );
+	fab->info_prod(prod_buf);
+	fab->info_conn(info_buf);
 
-	gui_frame_t::draw(pos,size);
+	gui_frame_t::draw(pos, size);
 	set_dirty();
 
-	if(  old_size != txt.get_size()  ) {
+	if (old_size != txt.get_size()) {
 		update_info();
 	}
 
 	prod_buf.clear();
-	prod_buf.append( translator::translate("Durchsatz") );
-	prod_buf.append( fab->get_current_production(), 0 );
-	prod_buf.append( translator::translate("units/day") );
+	prod_buf.append(translator::translate("Durchsatz"));
+	prod_buf.append(fab->get_current_production(), 0);
+	prod_buf.append(translator::translate("units/day"));
 
 	unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()];
 	display_ddd_box_clip(pos.x + view.get_pos().x, pos.y + view.get_pos().y + view.get_size().h + D_TITLEBAR_HEIGHT, view.get_size().w, D_INDICATOR_HEIGHT, MN_GREY0, MN_GREY4);
-	display_fillbox_wh_clip(pos.x + view.get_pos().x + 1, pos.y + view.get_pos().y + view.get_size().h + D_TITLEBAR_HEIGHT+1, view.get_size().w - 2, D_INDICATOR_HEIGHT-2, indikatorfarbe, true);
+	display_fillbox_wh_clip(pos.x + view.get_pos().x + 1, pos.y + view.get_pos().y + view.get_size().h + D_TITLEBAR_HEIGHT + 1, view.get_size().w - 2, D_INDICATOR_HEIGHT - 2, indikatorfarbe, true);
 	scr_coord_val x_view_pos = D_MARGIN_LEFT;
-	scr_coord_val x_prod_pos = D_MARGIN_LEFT+proportional_string_width(prod_buf)+10;
-	if(  skinverwaltung_t::electricity->get_image_id(0)!=IMG_EMPTY  ) {
+	scr_coord_val x_prod_pos = D_MARGIN_LEFT + proportional_string_width(prod_buf) + 10;
+	if (skinverwaltung_t::electricity->get_image_id(0) != IMG_EMPTY) {
 		// indicator for receiving
-		if(  fab->get_prodfactor_electric()>0  ) {
-			display_color_img(skinverwaltung_t::electricity->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
-			x_view_pos += skinverwaltung_t::electricity->get_image(0)->get_pic()->w+4;
+		if (fab->get_prodfactor_electric() > 0) {
+			display_color_img(skinverwaltung_t::electricity->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT + 4, 0, false, false);
+			x_view_pos += skinverwaltung_t::electricity->get_image(0)->get_pic()->w + 4;
 		}
 		// indicator for enabled
-		if(  fab->get_desc()->get_electric_boost()  ) {
-			display_color_img( skinverwaltung_t::electricity->get_image_id(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
-			x_prod_pos += skinverwaltung_t::electricity->get_image(0)->get_pic()->w+4;
+		if (fab->get_desc()->get_electric_boost()) {
+			display_color_img(skinverwaltung_t::electricity->get_image_id(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
+			x_prod_pos += skinverwaltung_t::electricity->get_image(0)->get_pic()->w + 4;
 		}
 	}
-	if(  skinverwaltung_t::passengers->get_image_id(0)!=IMG_EMPTY  ) {
-		if(  fab->get_prodfactor_pax()>0  ) {
-			display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
-			x_view_pos += skinverwaltung_t::passengers->get_image(0)->get_pic()->w+4;
+	if (skinverwaltung_t::passengers->get_image_id(0) != IMG_EMPTY) {
+		if (fab->get_prodfactor_pax() > 0) {
+			display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT + 4, 0, false, false);
+			x_view_pos += skinverwaltung_t::passengers->get_image(0)->get_pic()->w + 4;
 		}
-		if(  fab->get_desc()->get_pax_boost()  ) {
-			display_color_img( skinverwaltung_t::passengers->get_image_id(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
-			x_prod_pos += skinverwaltung_t::passengers->get_image(0)->get_pic()->w+4;
-		}
-	}
-	if(  skinverwaltung_t::mail->get_image_id(0)!=IMG_EMPTY  ) {
-		if(  fab->get_prodfactor_mail()>0  ) {
-			display_color_img(skinverwaltung_t::mail->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT+4, 0, false, false);
-		}
-		if(  fab->get_desc()->get_mail_boost()  ) {
-			display_color_img( skinverwaltung_t::mail->get_image_id(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
+		if (fab->get_desc()->get_pax_boost()) {
+			display_color_img(skinverwaltung_t::passengers->get_image_id(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
+			x_prod_pos += skinverwaltung_t::passengers->get_image(0)->get_pic()->w + 4;
 		}
 	}
+	if (skinverwaltung_t::mail->get_image_id(0) != IMG_EMPTY) {
+		if (fab->get_prodfactor_mail() > 0) {
+			display_color_img(skinverwaltung_t::mail->get_image_id(0), pos.x + view.get_pos().x + x_view_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT + 4, 0, false, false);
+		}
+		if (fab->get_desc()->get_mail_boost()) {
+			display_color_img(skinverwaltung_t::mail->get_image_id(0), pos.x + x_prod_pos, pos.y + view.get_pos().y + D_TITLEBAR_HEIGHT, 0, false, false);
+		}
+	}
+	// Status line written text	
+	// TODO: Make up more factory states which we can show here
+	factory_status.clear();
+	factory_status.append("");
+	switch (fab->get_status())
+	{
+	case fabrik_t::bad:
+		//factory_status.append(translator::translate("bad"));
+		break;
+
+	case fabrik_t::medium:
+		//factory_status.append(translator::translate("medium"));
+		break;
+
+	case fabrik_t::good:
+		//factory_status.append(translator::translate("good"));
+		break;
+
+	case fabrik_t::inactive:
+		//factory_status.append(translator::translate("inactive"));
+		break;
+
+	case fabrik_t::nothing:
+		//factory_status.append(translator::translate("nothing"));
+		break;
+
+	case fabrik_t::staff_shortage:
+		factory_status.append(translator::translate("staff_shortage"));
+		break;
+
+	default:
+		break;
+	}
+	lbl_factory_status.set_color(indikatorfarbe);
 }
 
 
