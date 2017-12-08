@@ -218,7 +218,7 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 			}
 			else
 			{
-				buf.printf(" %s %s %s\n", unit, name, what);
+				buf.printf("%s %s %s\n", unit, name, what);
 			}
 		}
 		if (sum > 0)
@@ -251,7 +251,7 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 		else
 		{
 			// special freight (catg == 0) needs own name
-			buf.printf(" %s %s%s %s\n", unit, class_entry, name, what);
+			buf.printf("%s %s%s %s\n", unit, class_entry, name, what);
 		}
 	}
 	if (sum == 0 && show_empty)
@@ -578,22 +578,21 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			goods_desc_t const& desc = *ware.get_desc();
 			buf.printf("   %u%s %s %c ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()), ">>>>><>>>>>"[sortby]); // one ">" per sort mode..
 
+			{
+			/*	const sint64 current_time = welt->get_ticks();
+				char transfer_time_left[32] = "";
+				if (halt->get_transferring_cargoes_count() > 0)
+				{
+					transferring_cargo_t tc;
+					uint32 rt_i = wlist[j] == tc.ware ? tc.ready_time : NULL;
+					const uint32 tc_ready_time = tc.ware == ware ? world()->ticks_to_seconds(tc.ready_time - current_time) : NULL;
+					const uint32 ready_seconds = world()->ticks_to_seconds(tc.ready_time - current_time);
+					welt->sprintf_ticks(transfer_time_left, sizeof(transfer_time_left), tc_ready_time);
+				}*/
 
-																																							 /*	const sint64 current_time = welt->get_ticks();
-																																							 char transfer_time_left[32] = "";
-																																							 if (halt->get_transferring_cargoes_count() > 0)
-																																							 {
-																																							 transferring_cargo_t tc;
+			}
 
-																																							 //	uint32 rt_i = wlist[j] == tc.ware ? tc.ready_time : NULL;
-																																							 const uint32 tc_ready_time = tc.ware == ware ? world()->ticks_to_seconds(tc.ready_time - current_time) : NULL;
-																																							 //	const uint32 ready_seconds = world()->ticks_to_seconds(tc.ready_time - current_time);
-																																							 welt->sprintf_ticks(transfer_time_left, sizeof(transfer_time_left), tc_ready_time);
-																																							 }
-																																							 */
-
-
-																																							 // the target name is not correct for the via sort
+			 // the target name is not correct for the via sort
 			if (sortby != by_via_sum && sortby != by_origin_amount && sortby != by_wealth_via && sortby != by_accommodation_via)
 			{
 				koord zielpos = ware.get_zielpos();
