@@ -116,6 +116,10 @@ private:
 	button_t bt_obsolete;
 	button_t bt_show_all;
 
+	gui_label_t lb_sort_by;
+	gui_combobox_t sort_by;
+
+	gui_label_t lb_name_filter_input;
 	static char name_filter_value[64];
 	gui_textinput_t name_filter_input;
 
@@ -194,7 +198,9 @@ private:
 	cbuffer_t txt_convoi_power;
 	cbuffer_t txt_convoi_weight;
 
+	scr_coord_val DEPOT_AREA_WIDTH;
 	scr_coord_val second_column_x; // x position of the second text column
+	scr_coord_val second_column_w;
 
 	enum { va_append, va_insert, va_sell };
 	uint8 veh_action;

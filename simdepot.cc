@@ -46,6 +46,7 @@ depot_t::depot_t(loadsave_t *file) : gebaeude_t()
 	}
 	all_depots.append(this);
 	selected_filter = VEHICLE_FILTER_RELEVANT;
+	selected_sort_by = SORT_BY_DEFAULT;
 	last_selected_line = linehandle_t();
 	command_pending = false;
 }
@@ -56,6 +57,7 @@ depot_t::depot_t(koord3d pos, player_t *player, const building_tile_desc_t *t) :
 {
 	all_depots.append(this);
 	selected_filter = VEHICLE_FILTER_RELEVANT;
+	selected_sort_by = SORT_BY_DEFAULT;
 	last_selected_line = linehandle_t();
 	command_pending = false;
 }
