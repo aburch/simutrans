@@ -220,6 +220,8 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	add_component(&scrolly);
 	cursor.y += scrolly.get_size().h;
 
+	halt->set_sortby(env_t::default_sortmode);
+
 	set_windowsize(scr_size(total_width, cursor.y + D_MARGIN_BOTTOM));
 	set_min_windowsize(scr_size(total_width, cursor.y - 5 * D_LABEL_HEIGHT + D_MARGIN_BOTTOM));
 
