@@ -1061,6 +1061,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 		slist_tpl<ware_t> freight_add;
 		const uint8 classes_to_check = get_desc()->get_number_of_classes();
 		uint16 capacity_this_class;
+		uint32 freight_this_class;
 
 		*skip_vehicles = true;
 
@@ -1072,10 +1073,30 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 				continue;
 			}
 
+			if (desc->get_freight_type() == goods_manager_t::passengers || desc->get_freight_type() == goods_manager_t::mail)
+			{
+				freight_this_class = 0;
+
+				if (!fracht[i].empty())
+				{
+					FOR(slist_tpl<ware_t>, const& w, fracht[i])
+					{
+						freight_this_class += w.menge;
+					}
+				}
+			}
+			else
+			{
+				// Things other than passengers and mail need not worry about class.
+				freight_this_class = total_freight;	
+			}
+
+			const uint32 capacity_left_this_class = capacity_this_class - freight_this_class; 
+
 			// use_lower_classes as passed to this method indicates whether the higher class accommodation is full, hence
 			// the need for higher class passengers/mail to use lower class accommodation.
 
-			*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left, schedule, cnv->get_owner(), cnv, overcrowd, class_reassignments[i], use_lower_classes, other_classes_available);
+			*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left_this_class, schedule, cnv->get_owner(), cnv, overcrowd, class_reassignments[i], use_lower_classes, other_classes_available);
 			if (!freight_add.empty())
 			{
 				cnv->invalidate_weight_summary();
