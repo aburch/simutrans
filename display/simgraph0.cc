@@ -308,7 +308,7 @@ KOORD_VAL display_get_char_max_width(const char*, size_t)
 	return 0;
 }
 
-unsigned short get_next_char_with_metrics(const char* &, unsigned char &, unsigned char &)
+utf32 get_next_char_with_metrics(const char* &, unsigned char &, unsigned char &)
 {
 	return 0;
 }
