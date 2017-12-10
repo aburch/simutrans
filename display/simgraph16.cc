@@ -4254,7 +4254,7 @@ KOORD_VAL display_get_char_max_width(const char* text, size_t len) {
  * CAUTION : The text pointer advances to point to the next logical character
  * @author Knightly
  */
-unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte_length, unsigned char &pixel_width)
+utf32 get_next_char_with_metrics(const char* &text, unsigned char &byte_length, unsigned char &pixel_width)
 {
 	size_t len = 0;
 	utf32 const char_code = utf8_decoder_t::decode((utf8 const *)text, len);

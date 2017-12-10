@@ -15,6 +15,7 @@
 
 #define VEHICLE_FILTER_RELEVANT 1
 #define VEHICLE_FILTER_GOODS_OFFSET 2
+#define SORT_BY_DEFAULT 0
 
 
 class karte_t;
@@ -53,6 +54,9 @@ protected:
 public:
 	// Last selected vehicle filter
 	int selected_filter;
+
+	// Last selected vehicle sort
+	int selected_sort_by;
 
 	// finds the next/previous depot relative to the current position
 	static depot_t *find_depot( koord3d start, const obj_t::typ depot_type, const player_t *player, bool next);
