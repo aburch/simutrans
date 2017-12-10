@@ -13,6 +13,7 @@
 	FIX: added Unicode file path support for Windows builds
 	FIX: removed Windows builds file search resource leak
 	FIX: improved Windows build clipboard Unicode parsing
+	ADD: sorting in depot (HyperSim)
 
 Release of 120.2.2: (r8163 on 31-3-2017):
 	ADD: Name filter in depot window
