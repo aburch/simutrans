@@ -186,7 +186,6 @@ public:
 protected:
 	uint32 sync_step; // when this has to be executed
 	uint32 map_counter; // cmd comes from world at this stage
-	// TODO: uint16 sub_step to have an order within one step
 };
 
 /**

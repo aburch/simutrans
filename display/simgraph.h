@@ -253,7 +253,7 @@ inline void display_set_image_proc( bool is_global )
 	}
 }
 
-// Blends two colors 
+// Blends two colors
 PIXVAL display_blend_colors(PIXVAL background, PIXVAL foreground, int percent_blend);
 
 // blends a rectangular region
@@ -309,7 +309,7 @@ KOORD_VAL display_get_char_max_width(const char* text, size_t len=0);
  * CAUTION : The text pointer advances to point to the next logical character
  * @author Knightly
  */
-unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte_length, unsigned char &pixel_width);
+utf32 get_next_char_with_metrics(const char* &text, unsigned char &byte_length, unsigned char &pixel_width);
 
 /**
  * For the previous logical character in the text, returns the character code
