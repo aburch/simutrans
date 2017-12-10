@@ -654,7 +654,7 @@ void simline_t::recalc_status()
 				{
 					for (int k = 0; k < v->get_desc()->get_upgrades_count(); k++)
 					{
-						if (!v->get_desc()->get_upgrades(k)->is_future(month_now) && (!v->get_desc()->get_upgrades(k)->is_retired(month_now)))
+						if (v->get_desc()->get_upgrades(k) && !v->get_desc()->get_upgrades(k)->is_future(month_now) && (!v->get_desc()->get_upgrades(k)->is_retired(month_now)))
 						{
 							has_obsolete_that_can_upgrade = true;
 						}
