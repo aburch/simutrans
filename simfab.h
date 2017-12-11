@@ -171,10 +171,10 @@ public:
 
 		// JIT Version 2 : Current demand for the good. Orders when greater than 0.
 		sint32 demand_buffer;
-
-		// The minimum shipment size. Used to control delivery to stops and for production ramp-down.
-		sint32 min_shipment;
 	};
+
+	// The minimum shipment size. Used to control delivery to stops and for production ramp-down.
+	sint32 min_shipment;
 
 	// Ordering lasts at least 1 tick period to allow all suppliers time to send (fair). Used by inputs.
 	bool placing_orders;
@@ -228,7 +228,7 @@ private:
 		// Consumers are at the top of every supply chain.
 		CL_CONS_CLASSIC, // Classic consumer logic. Can generate power.
 		CL_CONS_MANY,    // Consumer that consumes multiple inputs, possibly produces power.
-		// Electricity producers provider power.
+		// Electricity producers provide power.
 		CL_ELEC_PROD,    // Simple electricity source. (green energy)
 		CL_ELEC_CLASSIC, // Classic electricity producer behaviour with no inputs.
 	} control_type;
@@ -324,13 +324,6 @@ private:
 	array_tpl<ware_production_t> output; ///< array for output/produced goods
 
 	/**
-	 * Some handy cached numbers for active inputs and outputs.
-	 */
-	uint8 inactive_outputs;
-	uint8 inactive_inputs;
-	uint8 inactive_demands;
-
-	/**
 	 * Zeitakkumulator für Produktion
 	 * @author Hj. Malthaner
 	 */
@@ -353,6 +346,13 @@ private:
 
 	uint32 total_input, total_transit, total_output;
 	uint8 status;
+
+	/**
+	 * Inactive caches, used to speed up logic when dealing with inputs and outputs.
+	 */
+	uint8 inactive_outputs;
+	uint8 inactive_inputs;
+	uint8 inactive_demands;
 
 	/// Position of a building of the factory.
 	koord3d pos;
@@ -727,6 +727,9 @@ public:
 
 	// Returns a list of goods produced by this factory.
 	slist_tpl<const goods_desc_t*> *get_produced_goods() const;
+
+	// Rebuild the factory inactive caches.
+	void rebuild_inactive_cache();
 };
 
 #endif

@@ -644,6 +644,10 @@ void fabrik_t::recalc_storage_capacities()
 		// Now convert it into the prefered shipment size. Always round up to prevent "off by 1" error.
 		output[out].min_shipment = (sint32)((((sint64)shipment_size << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
 	}
+
+	if(  welt->get_settings().get_just_in_time() >= 2  ) {
+		rebuild_inactive_cache();
+	}
 }
 
 
@@ -3036,12 +3040,6 @@ void fabrik_t::finish_rd()
 			if( input[in].menge > input[in].max ) {
 				input[in].menge = input[in].max;
 			}
-			if( input[in].menge <= 0 ) {
-				inactive_inputs++;
-			}
-			if( input[in].demand_buffer >= input[in].max ) {
-				inactive_demands++;
-			}
 			input[in].placing_orders = (input[in].demand_buffer > 0);
 
 			// Also do a sanity check. People might try and force their saves to JIT2 mode via reloading so we need to catch any massive values.
@@ -3059,10 +3057,9 @@ void fabrik_t::finish_rd()
 			if( output[out].menge >= output[out].max ) {
 				output[out].menge = output[out].max;
 			}
-			if( output[out].menge >= output[out].max ) {
-				inactive_outputs++;
-			}
 		}
+
+		rebuild_inactive_cache();
 	}
 	else {
 		// Classic order logic.
@@ -3245,4 +3242,24 @@ slist_tpl<const goods_desc_t*> *fabrik_t::get_produced_goods() const
 	}
 
 	return goods;
+}
+
+void fabrik_t::rebuild_inactive_cache()
+{
+	inactive_inputs = inactive_outputs = inactive_demands = 0;
+
+	for(  uint32 i = 0;  i < input.get_count();  i++  ){
+		if(  input[i].menge <= 0  ) {
+			inactive_inputs++;
+		}
+		if(  input[i].demand_buffer >= input[i].max  ) {
+			inactive_demands++;
+		}
+	}
+
+	for(  uint32 i = 0 ; i < output.get_count() ; i++  ){
+		if(  output[i].menge >= output[i].max  ) {
+			inactive_outputs++;
+		}
+	}
 }
