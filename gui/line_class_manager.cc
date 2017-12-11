@@ -242,7 +242,6 @@ void line_class_manager_t::layout()
 	for (unsigned convoy = 0; convoy < line->count_convoys(); convoy++)
 	{
 		convoihandle_t cnv = line->get_convoy(convoy);
-		vehicle_count = cnv->get_vehicle_count();
 
 		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 		{
@@ -352,8 +351,6 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 		// current value
 		if (line.is_bound())
 		{
-
-			convoy_count = line->count_convoys();
 			current_pass_entries = 1;
 
 			cbuffer_t buf;
@@ -371,6 +368,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 
 			// We need to keep a constant tracking of what classes we have
 			overcrowded_capacity = 0;
+			vehicle_count = 0;
 			for (int i = 0; i < pass_classes; i++)
 			{
 				pass_capacity_at_class[i] = 0;
@@ -385,6 +383,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 				for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 				{
 					vehicle_t* v = cnv->get_vehicle(veh);
+					vehicle_count++;
 					if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
 					{
 						overcrowded_capacity += v->get_desc()->get_overcrowded_capacity();
@@ -597,6 +596,11 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 			text_height = offset_y;
 			layout();
 		}
+		if (need_to_update_comboboxes)
+		{
+			build_class_entries();
+			need_to_update_comboboxes = false;
+		}
 	}
 
 }
@@ -635,7 +639,7 @@ bool line_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t 
 			}
 			if (pass_class_sel.at(i)->count_elements() > goods_manager_t::passengers->get_number_of_classes())
 			{
-				build_class_entries();
+				need_to_update_comboboxes = true;
 			}
 			return false;
 		}
@@ -667,7 +671,7 @@ bool line_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t 
 			}
 			if (mail_class_sel.at(i)->count_elements() > goods_manager_t::mail->get_number_of_classes())
 			{
-				build_class_entries();
+				need_to_update_comboboxes = true;
 			}
 			return false;
 		}
@@ -689,7 +693,7 @@ bool line_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t 
 			pass_class_sel.at(i)->set_selection(i);
 			if (pass_class_sel.at(i)->count_elements() > goods_manager_t::passengers->get_number_of_classes())
 			{
-				build_class_entries();
+				need_to_update_comboboxes = true;
 			}
 		}
 		layout();
@@ -713,7 +717,7 @@ bool line_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t 
 			mail_class_sel.at(i)->set_selection(i);
 			if (mail_class_sel.at(i)->count_elements() > goods_manager_t::mail->get_number_of_classes())
 			{
-				build_class_entries();
+				need_to_update_comboboxes = true;
 			}
 		}
 		layout();

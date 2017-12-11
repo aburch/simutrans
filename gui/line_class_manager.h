@@ -84,7 +84,7 @@ private:
 	int individual_class_count;
 	int old_reassigned_class;
 
-
+	bool need_to_update_comboboxes = false;
 
 public:
 
