@@ -46,9 +46,9 @@ bool env_t::server_save_game_on_quit = false;
 bool env_t::reload_and_save_on_quit = true;
 
 sint32 env_t::server_frames_ahead = 4;
-sint32 env_t::additional_client_frames_behind = 0;
+sint32 env_t::additional_client_frames_behind = 4;
 sint32 env_t::network_frames_per_step = 4;
-uint32 env_t::server_sync_steps_between_checks = 256;
+uint32 env_t::server_sync_steps_between_checks = 24;
 bool env_t::pause_server_no_clients = false;
 
 std::string env_t::nickname = "";
