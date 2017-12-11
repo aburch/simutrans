@@ -1369,10 +1369,14 @@ bool convoi_t::prepare_for_routing()
 			}
 			schedule->set_current_stop(original_index);
 			ziel = original_ziel;
+			const bool already_out_of_range = state == OUT_OF_RANGE;
 			if (distance > min_range)
 			{
 				state = OUT_OF_RANGE;
-				get_owner()->report_vehicle_problem(self, ziel);
+				if (!already_out_of_range)
+				{
+					get_owner()->report_vehicle_problem(self, ziel);
+				}
 				return false;
 			}
 		}

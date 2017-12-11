@@ -951,14 +951,17 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stucked!", cnv->get_n
 		case convoi_t::OUT_OF_RANGE:
 			{
 				koord destination = ziel.get_2d();
-				while(!haltestelle_t::get_halt(destination, this).is_bound() && (welt->lookup_kartenboden(destination) == NULL || !welt->lookup_kartenboden(destination)->get_depot()))
+				schedule_t* const sch = cnv->get_schedule();
+				const uint8 entries = sch->get_count();
+				uint8 count = 0;
+				while(count <= entries && !haltestelle_t::get_halt(destination, this).is_bound() && (welt->lookup_kartenboden(destination) == NULL || !welt->lookup_kartenboden(destination)->get_depot()))
 				{
 					// Make sure that we are not incorrectly calculating the distance to a waypoint.
-					schedule_t* const sch = cnv->get_schedule();
 					bool rev = cnv->is_reversed();
 					uint8 index = sch->get_current_stop();
 					sch->increment_index(&index, &rev);
 					destination = sch->entries.get_element(index).pos.get_2d(); 
+					count++;
 				}
 				const uint16 distance = (shortest_distance(cnv->get_pos().get_2d(), destination) * welt->get_settings().get_meters_per_tile()) / 1000u;
 				const uint16 excess = distance - cnv->get_min_range();
