@@ -222,7 +222,6 @@ void line_class_manager_t::layout()
 	highest_catering = 0;
 	lowest_catering = 255;
 	catering_cars_amount = 0;
-	overcrowded_capacity = 0;
 	tpo_amount = 0;
 	is_tpo = false;
 	reset_all_pass_button.set_visible(false);
@@ -231,13 +230,11 @@ void line_class_manager_t::layout()
 	for (int i = 0; i < pass_classes; i++)
 	{
 		pass_capacity_at_accommodation[i] = 0;
-		pass_capacity_at_class[i] = 0;
 		pass_class_sel.at(i)->set_visible(false);
 	}
 	for (int i = 0; i < mail_classes; i++)
 	{
 		mail_capacity_at_accommodation[i] = 0;
-		mail_capacity_at_class[i] = 0;
 		mail_class_sel.at(i)->set_visible(false);
 	}
 
@@ -287,26 +284,7 @@ void line_class_manager_t::layout()
 				show_mail = true;
 			}
 		}
-		// Then what classes the accommodations possibly have been reassigned to.
-		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
-		{
-			vehicle_t* v = cnv->get_vehicle(veh);
-			if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
-			{
-				overcrowded_capacity += v->get_desc()->get_overcrowded_capacity();
-				for (int i = 0; i < pass_classes; i++)
-				{
-					pass_capacity_at_class[i] += v->get_capacity(i);
-				}
-			}
-			if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
-			{
-				for (int i = 0; i < mail_classes; i++)
-				{
-					mail_capacity_at_class[i] += v->get_capacity(i);
-				}
-			}
-		}
+
 	}
 
 	// Now, put up all the comboboxes
@@ -390,6 +368,40 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 			int column_2 = (5 * 32) + 35 + (button_width / 2);
 			COLOR_VAL text_color = SYSCOL_TEXT;
 
+
+			// We need to keep a constant tracking of what classes we have
+			overcrowded_capacity = 0;
+			for (int i = 0; i < pass_classes; i++)
+			{
+				pass_capacity_at_class[i] = 0;
+			}
+			for (int i = 0; i < mail_classes; i++)
+			{
+				mail_capacity_at_class[i] = 0;
+			}
+			for (unsigned convoy = 0; convoy < line->count_convoys(); convoy++)
+			{
+				convoihandle_t cnv = line->get_convoy(convoy);
+				for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+				{
+					vehicle_t* v = cnv->get_vehicle(veh);
+					if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
+					{
+						overcrowded_capacity += v->get_desc()->get_overcrowded_capacity();
+						for (int i = 0; i < pass_classes; i++)
+						{
+							pass_capacity_at_class[i] += v->get_capacity(i);
+						}
+					}
+					if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
+					{
+						for (int i = 0; i < mail_classes; i++)
+						{
+							mail_capacity_at_class[i] += v->get_capacity(i);
+						}
+					}
+				}
+			}
 
 			// This is the different accommodation in the train.
 			// Each accommodation have a combobox associated to it to change the class to another.
