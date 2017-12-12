@@ -528,7 +528,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 						{
 							ware_t const& current = *full_i++;
 							last = current;
-							if (last_goods_index == current.get_index() || last_ware_catg == current.get_catg() || last_ware_class == current.get_class())
+							if (last_goods_index == current.get_index() || last_ware_catg == current.get_catg() /*|| last_ware_class == current.get_class()*/)
 							{
 								add_ware_heading(buf, sum, current.menge, &current, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail, show_empty);
 								last_capacity = current.menge;
