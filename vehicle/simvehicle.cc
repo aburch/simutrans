@@ -1062,15 +1062,25 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 		const uint8 classes_to_check = get_desc()->get_number_of_classes();
 		uint16 capacity_this_class;
 		uint32 freight_this_class;
+		uint8 lowest_class_with_nonzero_capacity = 255;
 
 		*skip_vehicles = true;
 
 		for (uint8 i = 0; i < classes_to_check; i++)
 		{
-			capacity_this_class = get_capacity(class_reassignments[i]);
+			capacity_this_class = get_capacity(i);
 			if (capacity_this_class == 0)
 			{
 				continue;
+			}
+
+			if (lowest_class_with_nonzero_capacity == 255)
+			{
+				lowest_class_with_nonzero_capacity = i;
+				if (overcrowd)
+				{
+					capacity_this_class += desc->get_overcrowded_capacity();
+				}
 			}
 
 			if (desc->get_freight_type() == goods_manager_t::passengers || desc->get_freight_type() == goods_manager_t::mail)
@@ -2768,7 +2778,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 
 			for (uint8 i = 0; i < number_of_classes; i++)
 			{
-				const uint8 x = min(i, desc->get_number_of_classes() - 1);
+				const uint8 x = min(i, desc ? desc->get_number_of_classes() - 1 : 1);
 				const uint32 assumed_count = max((create_dummy_ware && (total_fracht_count) > 0 ? 1 : 0), fracht_count[x]);
 				for (uint32 j = 0; j < assumed_count; j++)
 				{
@@ -2954,7 +2964,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			{
 				uint8 cr = class_reassignments[i];
 				file->rdwr_byte(cr);
-				if (cr >= desc->get_number_of_classes())
+				if (desc && cr >= desc->get_number_of_classes())
 				{
 					// Broken saved game - fix this value
 					cr = i;
