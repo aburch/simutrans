@@ -560,7 +560,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			char g_class_untranslated[32] = "\0";
 			char g_class_text[32] = "\0";
 			char g_class_alone[32] = "\0";
-			//if (!sorting_by_wealth)
+			if (!sorting_by_wealth)
 			{
 				if (ware.is_passenger())
 				{
