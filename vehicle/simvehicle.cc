@@ -1068,7 +1068,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 
 		for (uint8 i = 0; i < classes_to_check; i++)
 		{
-			capacity_this_class = get_capacity(class_reassignments[i]);
+			capacity_this_class = get_capacity(i);
 			if (capacity_this_class == 0)
 			{
 				continue;
