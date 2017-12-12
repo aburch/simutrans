@@ -1062,6 +1062,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 		const uint8 classes_to_check = get_desc()->get_number_of_classes();
 		uint16 capacity_this_class;
 		uint32 freight_this_class;
+		uint8 lowest_class_with_nonzero_capacity = 255;
 
 		*skip_vehicles = true;
 
@@ -1071,6 +1072,15 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 			if (capacity_this_class == 0)
 			{
 				continue;
+			}
+
+			if (lowest_class_with_nonzero_capacity == 255)
+			{
+				lowest_class_with_nonzero_capacity = i;
+				if (overcrowd)
+				{
+					capacity_this_class += desc->get_overcrowded_capacity();
+				}
 			}
 
 			if (desc->get_freight_type() == goods_manager_t::passengers || desc->get_freight_type() == goods_manager_t::mail)
