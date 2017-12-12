@@ -2768,7 +2768,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 
 			for (uint8 i = 0; i < number_of_classes; i++)
 			{
-				const uint8 x = min(i, desc->get_number_of_classes() - 1);
+				const uint8 x = min(i, desc ? desc->get_number_of_classes() - 1 : 1);
 				const uint32 assumed_count = max((create_dummy_ware && (total_fracht_count) > 0 ? 1 : 0), fracht_count[x]);
 				for (uint32 j = 0; j < assumed_count; j++)
 				{
@@ -2954,7 +2954,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			{
 				uint8 cr = class_reassignments[i];
 				file->rdwr_byte(cr);
-				if (cr >= desc->get_number_of_classes())
+				if (desc && cr >= desc->get_number_of_classes())
 				{
 					// Broken saved game - fix this value
 					cr = i;
