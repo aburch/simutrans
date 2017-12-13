@@ -736,7 +736,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 				cnv = replace_frame->get_convoy();
 			}
 
-			if (cnv.is_bound())
+			if (cnv.is_bound() && cnv->get_vehicle_count() > i)
 			{
 				vehicle_t* v = cnv->get_vehicle(i);
 
