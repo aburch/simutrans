@@ -738,14 +738,42 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			}*/
 			if (message_lines < 2 && cnv->get_overcrowded() > 0)
 			{
-				sprintf(tmp, (translator::translate("is_frequently_overcrowded")));
+				sprintf(tmp, (translator::translate("frequently_overcrowded")));
 				status_color = COL_DARK_PURPLE;
 				display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
 				pos_y += LINESPACE;
 				message_lines++;
 			}
-			if (message_lines < 2 && cnv->has_obsolete_vehicles()) {
-				sprintf(tmp, (translator::translate("convoy_has_obsolete_vehicles")));
+
+			// Can upgrade while obsolete?
+			const uint16 month_now = welt->get_timeline_year_month();
+			int amount_of_upgradeable_vehicles = 0;
+			bool has_obsolete_that_can_upgrade = false;
+
+			for (uint16 i = 0; i < cnv->get_vehicle_count(); i++)
+			{
+				vehicle_t *v = cnv->get_vehicle(i);
+				if (v->get_desc()->get_upgrades_count() > 0)
+				{
+					for (int k = 0; k < v->get_desc()->get_upgrades_count(); k++)
+					{
+						if (v->get_desc()->get_upgrades(k) && !v->get_desc()->get_upgrades(k)->is_future(month_now) && (!v->get_desc()->get_upgrades(k)->is_retired(month_now)))
+						{
+							has_obsolete_that_can_upgrade = true;
+						}
+					}
+				}
+			}
+			if (message_lines < 2 && has_obsolete_that_can_upgrade)
+			{
+				sprintf(tmp, (translator::translate("obsolete_upgradeable_vehicles")));
+				status_color = COL_PURPLE;
+				display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
+				pos_y += LINESPACE;
+				message_lines++;
+			}			
+			if (message_lines < 2 && cnv->has_obsolete_vehicles() && !has_obsolete_that_can_upgrade) {
+				sprintf(tmp, (translator::translate("obsolete_vehicles")));
 				status_color = COL_DARK_BLUE;
 				display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
 				pos_y += LINESPACE;
