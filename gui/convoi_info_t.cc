@@ -766,7 +766,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			}
 			if (message_lines < 2 && has_obsolete_that_can_upgrade)
 			{
-				sprintf(tmp, (translator::translate("obsolete_upgradeable_vehicles")));
+				sprintf(tmp, (translator::translate("obsolete_vehicles_with_upgrades")));
 				status_color = COL_PURPLE;
 				display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
 				pos_y += LINESPACE;
