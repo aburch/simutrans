@@ -2582,7 +2582,7 @@ void way_builder_t::build_track()
 							(desc->get_styp() == 0 && weg->get_desc()->get_styp() == type_tram && gr->has_two_ways())     ||
 							keep_existing_ways                                                                      ||
 							(player != NULL && weg-> is_deletable(player) != NULL)											||
-							(keep_existing_faster_ways && !(desc->is_at_least_as_good_as(weg->get_desc())) )		||
+							((keep_existing_faster_ways || ((player && !player->is_public_service()) && weg->is_public_right_of_way())) && !(desc->is_at_least_as_good_as(weg->get_desc()))) ||
 							(gr->get_typ() == grund_t::monorailboden && !(bautyp & elevated_flag)  &&  gr->get_weg_nr(0)->get_waytype()==desc->get_wtyp()))
 					{
 						//nothing to be done
