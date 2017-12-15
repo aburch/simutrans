@@ -2757,7 +2757,6 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			ware.rdwr(file);
 		}
 
-		uint8 cr;
 		for (uint8 i = 0; i < number_of_classes; i++)
 		{
 			FOR(slist_tpl<ware_t>, ware, fracht[i])
@@ -2964,11 +2963,6 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			{
 				uint8 cr = class_reassignments[i];
 				file->rdwr_byte(cr);
-				if (desc && cr >= desc->get_number_of_classes())
-				{
-					// Broken saved game - fix this value
-					cr = i;
-				}
 				class_reassignments[i] = cr;
 			}
 			else
