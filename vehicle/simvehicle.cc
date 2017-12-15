@@ -2963,6 +2963,11 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			{
 				uint8 cr = class_reassignments[i];
 				file->rdwr_byte(cr);
+				if (desc && ((desc->get_freight_type() == goods_manager_t::passengers && cr >= goods_manager_t::passengers->get_number_of_classes()) || (desc->get_freight_type() == goods_manager_t::mail && cr >= goods_manager_t::mail->get_number_of_classes())))
+				{
+					// Broken saved game - fix this value
+					cr = i;
+				}
 				class_reassignments[i] = cr;
 			}
 			else
