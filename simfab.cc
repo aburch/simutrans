@@ -3107,11 +3107,11 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		{
 			buf.printf("%s %i\n", translator::translate("Commuters this year:"), building->get_passengers_succeeded_commuting());
 		}
-		if (building->get_passenger_success_percent_last_year_commuting() < 65535)
+		if (building->get_passenger_success_percent_last_year_visiting() < 65535)
 		{
 			buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), building->get_passenger_success_percent_last_year_visiting());
 		}
-		if (building->get_passenger_success_percent_last_year_visiting() < 65535)
+		if (building->get_passenger_success_percent_last_year_commuting() < 65535)
 		{
 			buf.printf("%s %i\n", translator::translate("Commuters last year:"), building->get_passenger_success_percent_last_year_commuting());
 		}
