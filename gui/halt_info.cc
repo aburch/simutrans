@@ -117,7 +117,6 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 		view(halt->get_basis_pos3d(), scr_size(max(64, get_base_tile_raster_width()), max(56, get_base_tile_raster_width() * 7 / 8)))
 {
 	this->halt = halt;
-	halt->set_sortby( env_t::default_sortmode );
 
 	if(halt->get_station_type() & haltestelle_t::airstop && halt->has_no_control_tower())
 	{
@@ -184,8 +183,10 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	{
 		freight_sort_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
 	}
+	uint8 sortmode = env_t::default_sortmode < SORT_MODES ? env_t::default_sortmode: env_t::default_sortmode-2; // If sorting by accommodation in vehicles, we might want to sort by classes
+	freight_sort_selector.set_selection(sortmode);
+	halt->set_sortby(sortmode);
 	freight_sort_selector.set_focusable(true);
-	freight_sort_selector.set_selection(env_t::default_sortmode);
 	freight_sort_selector.set_highlight_color(1);
 	freight_sort_selector.set_pos(cursor);
 	freight_sort_selector.set_size(freight_selector_size);
@@ -219,8 +220,6 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	scrolly.set_show_scroll_x(true);
 	add_component(&scrolly);
 	cursor.y += scrolly.get_size().h;
-
-	halt->set_sortby(env_t::default_sortmode);
 
 	set_windowsize(scr_size(total_width, cursor.y + D_MARGIN_BOTTOM));
 	set_min_windowsize(scr_size(total_width, cursor.y - 5 * D_LABEL_HEIGHT + D_MARGIN_BOTTOM));
