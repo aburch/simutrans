@@ -351,8 +351,8 @@ private:
 	 * @author Knightly
 	 */
 public:
-	void update_scaled_pax_demand();
-	void update_scaled_mail_demand();
+	void update_scaled_pax_demand(bool is_from_saved_game = false);
+	void update_scaled_mail_demand(bool is_from_saved_game = false);
 private:
 
 	/**
@@ -431,7 +431,7 @@ private:
 
 	bool has_calculated_intransit_percentages;
 
-	void adjust_production_for_fields();
+	void adjust_production_for_fields(bool is_from_saved_game = false);
 
 protected:
 
@@ -700,7 +700,7 @@ public:
 
 	/* does not takes month length into account */
 	sint32 get_base_production() const { return prodbase; }
-	void set_base_production(sint32 p);
+	void set_base_production(sint32 p, bool is_from_saved_game = false);
 
 	// This is done this way rather than reusing get_prodfactor() because the latter causes a lack of precision (everything being rounded to the nearest 16). 
 	sint32 get_current_production() const { return (sint32)(welt->calc_adjusted_monthly_figure(((sint64)prodbase * (sint64)(DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + prodfactor_pax + prodfactor_mail)))) >> 8l; }

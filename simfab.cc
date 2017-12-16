@@ -378,7 +378,7 @@ void fabrik_t::update_scaled_electric_amount()
 }
 
 
-void fabrik_t::update_scaled_pax_demand()
+void fabrik_t::update_scaled_pax_demand(bool is_from_saved_game)
 {
 	if(!welt->is_destroying())
 	{	
@@ -397,7 +397,7 @@ void fabrik_t::update_scaled_pax_demand()
 		// Intentionally not the scaled value.
 		arrival_stats_pax.set_scaled_demand(base_worker_demand);
 		
-		if(building)
+		if(building && (!is_from_saved_game || !building->get_loaded_passenger_and_mail_figres()))
 		{		
 			const uint32 percentage = (get_base_production() * 100) / max(1, get_desc()->get_productivity());
 			if (percentage > 100)
@@ -417,7 +417,7 @@ void fabrik_t::update_scaled_pax_demand()
 }
 
 
-void fabrik_t::update_scaled_mail_demand()
+void fabrik_t::update_scaled_mail_demand(bool is_from_saved_game)
 {
 	if(!welt->is_destroying())
 	{
@@ -455,7 +455,7 @@ void fabrik_t::update_scaled_mail_demand()
 		// mail demand for fixed period length
 		// Intentionally not the scaled value.
 		arrival_stats_mail.set_scaled_demand(mail_demand);
-		if(building)
+		if (building && (!is_from_saved_game || !building->get_loaded_passenger_and_mail_figres()))
 		{
 			const uint32 percentage = (get_base_production() * 100) / max(1, get_desc()->get_productivity());
 			if (percentage > 100)
@@ -629,13 +629,13 @@ void fabrik_t::recalc_storage_capacities()
 	}
 }
 
-void fabrik_t::set_base_production(sint32 p)
+void fabrik_t::set_base_production(sint32 p, bool is_from_saved_game)
 {
 	prodbase = p > 0 ? p : 1;
 	recalc_storage_capacities();
 	update_scaled_electric_amount();
-	update_scaled_pax_demand();
-	update_scaled_mail_demand();
+	update_scaled_pax_demand(is_from_saved_game);
+	update_scaled_mail_demand(is_from_saved_game);
 	update_prodfactor_pax();
 	update_prodfactor_mail();
 	calc_max_intransit_percentages();
@@ -1041,6 +1041,10 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 		const uint16 passengers_succeeded_visiting_last_year = building->get_passenger_success_percent_last_year_visiting();
 		const uint16 passengers_succeeded_commuting = building->get_passenger_success_percent_this_year_commuting();
 		const uint16 passengers_succeeded_commuting_last_year = building->get_passenger_success_percent_last_year_commuting();
+		const uint16 adjusted_jobs = building->get_adjusted_jobs();
+		const uint16 adjusted_visitor_demand = building->get_adjusted_visitor_demand();
+		const uint16 adjusted_mail_demand = building->get_adjusted_mail_demand(); 
+		const bool loaded_passenger_and_mail_figres = building->get_loaded_passenger_and_mail_figres();
 
 		delete building;
 		building = hausbauer_t::build(owner, pos_origin, rotate, desc->get_building(), this);
@@ -1050,6 +1054,10 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 		building->add_passengers_succeeded_commuting(passengers_succeeded_commuting);
 		building->set_passengers_visiting_last_year(passengers_succeeded_visiting_last_year); 
 		building->set_passengers_commuting_last_year(passengers_succeeded_commuting_last_year);
+		building->set_adjusted_jobs(adjusted_jobs);
+		building->set_adjusted_visitor_demand(adjusted_visitor_demand);
+		building->set_adjusted_mail_demand(adjusted_mail_demand);
+		building->set_loaded_passenger_and_mail_figres(loaded_passenger_and_mail_figres); 
 	}
 	if(!building)
 	{
@@ -3107,11 +3115,11 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		{
 			buf.printf("%s %i\n", translator::translate("Commuters this year:"), building->get_passengers_succeeded_commuting());
 		}
-		if (building->get_passenger_success_percent_last_year_commuting() < 65535)
+		if (building->get_passenger_success_percent_last_year_visiting() < 65535)
 		{
 			buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), building->get_passenger_success_percent_last_year_visiting());
 		}
-		if (building->get_passenger_success_percent_last_year_visiting() < 65535)
+		if (building->get_passenger_success_percent_last_year_commuting() < 65535)
 		{
 			buf.printf("%s %i\n", translator::translate("Commuters last year:"), building->get_passenger_success_percent_last_year_commuting());
 		}
@@ -3355,7 +3363,7 @@ void fabrik_t::finish_rd()
 	}
 
 	// Set field production
-	adjust_production_for_fields();
+	adjust_production_for_fields(true);
 
 	city = check_local_city();
 	if (city != NULL)
@@ -3368,7 +3376,7 @@ void fabrik_t::finish_rd()
 	add_to_world_list();
 }
 
-void fabrik_t::adjust_production_for_fields()
+void fabrik_t::adjust_production_for_fields(bool is_from_saved_game)
 {
 	const field_group_desc_t *fd = desc->get_field_group();
 	uint32 field_production = 0;
@@ -3394,11 +3402,11 @@ void fabrik_t::adjust_production_for_fields()
 		// This does not take into account the "range" of the base production;
 		// but this is not stored other than in "prodbase", which is overwritten 
 		// by the fields value.
-		set_base_production(desc->get_productivity() + field_production);
+		set_base_production(desc->get_productivity() + field_production, is_from_saved_game);
 	}
 	else
 	{
-		set_base_production(prodbase); 
+		set_base_production(prodbase, is_from_saved_game); 
 	}
 
 }

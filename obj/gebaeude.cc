@@ -79,6 +79,7 @@ void gebaeude_t::init()
 	passenger_success_percent_last_year_visiting = 65535;
 	available_jobs_by_time = -9223372036854775808ll;
 	is_in_world_list = false;
+	loaded_passenger_and_mail_figres = false;
 }
 
 
@@ -1720,6 +1721,19 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		file->rdwr_short(mail_demand);
 	}
 
+	if ((file->get_extended_version() == 13 && file->get_extended_revision() >= 1) || file->get_extended_version() >= 14)
+	{
+		loaded_passenger_and_mail_figres = true;
+
+		file->rdwr_short(jobs);
+		file->rdwr_short(people.visitor_demand);
+		file->rdwr_short(mail_demand); 
+
+		file->rdwr_short(adjusted_jobs);
+		file->rdwr_short(adjusted_people.visitor_demand); 
+		file->rdwr_short(adjusted_mail_demand);
+	}
+
 	if (file->is_loading())
 	{
 		anim_frame = 0;
@@ -1728,42 +1742,45 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 		const building_desc_t* building_type = tile->get_desc();
 
-		if (building_type->get_type() == building_desc_t::city_res)
+		if (!loaded_passenger_and_mail_figres)
 		{
-			people.population = building_type->get_population_and_visitor_demand_capacity() == 65535 ? building_type->get_level() * welt->get_settings().get_population_per_level() : building_type->get_population_and_visitor_demand_capacity();
-			adjusted_people.population = welt->calc_adjusted_monthly_figure(people.population);
-			if (people.population > 0 && adjusted_people.population == 0)
+			if (building_type->get_type() == building_desc_t::city_res)
 			{
-				adjusted_people.population = 1;
+				people.population = building_type->get_population_and_visitor_demand_capacity() == 65535 ? building_type->get_level() * welt->get_settings().get_population_per_level() : building_type->get_population_and_visitor_demand_capacity();
+				adjusted_people.population = welt->calc_adjusted_monthly_figure(people.population);
+				if (people.population > 0 && adjusted_people.population == 0)
+				{
+					adjusted_people.population = 1;
+				}
 			}
-		}
-		else if (building_type->get_type() == building_desc_t::city_ind)
-		{
-			people.visitor_demand = adjusted_people.visitor_demand = 0;
-		}
-		else
-		{
-			people.visitor_demand = building_type->get_population_and_visitor_demand_capacity() == 65535 ? building_type->get_level() * welt->get_settings().get_visitor_demand_per_level() : building_type->get_population_and_visitor_demand_capacity();
-			adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
-			if (people.visitor_demand > 0 && adjusted_people.visitor_demand == 0)
+			else if (building_type->get_type() == building_desc_t::city_ind)
 			{
-				adjusted_people.visitor_demand = 1;
+				people.visitor_demand = adjusted_people.visitor_demand = 0;
 			}
-		}
+			else
+			{
+				people.visitor_demand = building_type->get_population_and_visitor_demand_capacity() == 65535 ? building_type->get_level() * welt->get_settings().get_visitor_demand_per_level() : building_type->get_population_and_visitor_demand_capacity();
+				adjusted_people.visitor_demand = welt->calc_adjusted_monthly_figure(people.visitor_demand);
+				if (people.visitor_demand > 0 && adjusted_people.visitor_demand == 0)
+				{
+					adjusted_people.visitor_demand = 1;
+				}
+			}
 
-		jobs = building_type->get_employment_capacity() == 65535 ? (is_monument() || building_type->get_type() == building_desc_t::city_res) ? 0 : building_type->get_level() * welt->get_settings().get_jobs_per_level() : building_type->get_employment_capacity();
-		mail_demand = building_type->get_mail_demand_and_production_capacity() == 65535 ? is_monument() ? 0 : building_type->get_level() * welt->get_settings().get_mail_per_level() : building_type->get_mail_demand_and_production_capacity();
+			jobs = building_type->get_employment_capacity() == 65535 ? (is_monument() || building_type->get_type() == building_desc_t::city_res) ? 0 : building_type->get_level() * welt->get_settings().get_jobs_per_level() : building_type->get_employment_capacity();
+			mail_demand = building_type->get_mail_demand_and_production_capacity() == 65535 ? is_monument() ? 0 : building_type->get_level() * welt->get_settings().get_mail_per_level() : building_type->get_mail_demand_and_production_capacity();
 
-		adjusted_jobs = welt->calc_adjusted_monthly_figure(jobs);
-		if (jobs > 0 && adjusted_jobs == 0)
-		{
-			adjusted_jobs = 1;
-		}
+			adjusted_jobs = welt->calc_adjusted_monthly_figure(jobs);
+			if (jobs > 0 && adjusted_jobs == 0)
+			{
+				adjusted_jobs = 1;
+			}
 
-		adjusted_mail_demand = welt->calc_adjusted_monthly_figure(mail_demand);
-		if (mail_demand > 0 && adjusted_mail_demand == 0)
-		{
-			adjusted_mail_demand = 1;
+			adjusted_mail_demand = welt->calc_adjusted_monthly_figure(mail_demand);
+			if (mail_demand > 0 && adjusted_mail_demand == 0)
+			{
+				adjusted_mail_demand = 1;
+			}
 		}
 
 		// Hajo: rebuild tourist attraction list

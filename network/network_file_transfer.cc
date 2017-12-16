@@ -98,6 +98,13 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 	const char *err = NULL;
 	SOCKET const my_client_socket = network_open_address(cp, err);
 	if(  err==NULL  ) {
+		network_command_t *nwc;
+		nwc_gameinfo_t *nwgi;
+		uint32 len;
+		char filename[1024];
+		loadsave_t fd;
+		
+		socket_list_t::add_client(my_client_socket);
 		{
 			nwc_gameinfo_t nwgi;
 			nwgi.rdwr();
@@ -106,15 +113,13 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 				goto end;
 			}
 		}
-		socket_list_t::add_client( my_client_socket );
 		// wait for join command (tolerate some wrong commands)
-		network_command_t *nwc = NULL;
 		nwc = network_check_activity( NULL, 10000 );	// 10s should be enough for reply ...
 		if (nwc==NULL) {
 			err = "Server did not respond!";
 			goto end;
 		}
-		nwc_gameinfo_t *nwgi = dynamic_cast<nwc_gameinfo_t*>(nwc);
+		nwgi = dynamic_cast<nwc_gameinfo_t*>(nwc);
 		if (nwgi==NULL) {
 			err = "Protocol error (expected NWC_GAMEINFO)";
 			goto end;
@@ -123,23 +128,21 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 			err = "Server busy";
 			goto end;
 		}
-		uint32 len = nwgi->len;
-		char filename[1024];
+		len = nwgi->len;
 		sprintf( filename, "client%i-network.sve", nwgi->len );
 		err = network_receive_file( my_client_socket, filename, len );
 
 		// now into gameinfo
-		loadsave_t fd;
 		if(  fd.rd_open( filename )  ) {
 			gameinfo_t *pgi = new gameinfo_t( &fd );
 			*gi = *pgi;
 			delete pgi;
 			fd.close();
 		}
+	end:
 		remove( filename );
 		socket_list_t::remove_client( my_client_socket );
 	}
-end:
 	network_close_socket( my_client_socket );
 	if(err) {
 		dbg->warning("network_gameinfo", err);
