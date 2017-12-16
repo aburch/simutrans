@@ -156,6 +156,9 @@ private:
 	// This is true of the building is in one or more world lists.
 	bool is_in_world_list;
 
+	// Whether the passenger and mail figures need recalculating or not.
+	bool loaded_passenger_and_mail_figres;
+
 #ifdef INLINE_OBJ_TYPE
 protected:
 	gebaeude_t(obj_t::typ type);
@@ -354,6 +357,9 @@ public:
 
 	sint64 get_available_jobs_by_time() const { return available_jobs_by_time; }
 	void set_available_jobs_by_time(sint64 value) { available_jobs_by_time = value; }
+
+	bool get_loaded_passenger_and_mail_figres() const { return loaded_passenger_and_mail_figres; }
+	void set_loaded_passenger_and_mail_figres(bool value) { loaded_passenger_and_mail_figres = value; }
 };
 
 
