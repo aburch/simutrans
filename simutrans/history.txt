@@ -17,6 +17,7 @@
 	FIX: factories which gain or lose fields should no longer have a chance to break with JIT2 (fixes https://forum.simutrans.com/index.php?topic=17394 )
 	ADD: sync step barrier for multiplayer clients to prevent them running ahead of the server in the case of an unreliable connection
 	CHG: various multiplayer related settings have been given more reliable default values
+	FIX: fullscreen Windows GDI no longer alters display area when alt+tab cycled
 
 Release of 120.2.2: (r8163 on 31-3-2017):
 	ADD: Name filter in depot window
