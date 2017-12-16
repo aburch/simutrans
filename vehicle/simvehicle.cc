@@ -1059,7 +1059,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 		schedule_t *schedule = cnv->get_schedule();
 		uint16 capacity_left = total_capacity - total_freight;
 		slist_tpl<ware_t> freight_add;
-		const uint8 classes_to_check = get_desc()->get_number_of_classes();
+		const uint8 classes_to_check = get_desc()->get_freight_type() == goods_manager_t::passengers ? goods_manager_t::passengers->get_number_of_classes() : get_desc()->get_freight_type() == goods_manager_t::mail ? goods_manager_t::mail->get_number_of_classes() : 1; 
 		uint16 capacity_this_class;
 		uint32 freight_this_class;
 		uint8 lowest_class_with_nonzero_capacity = 255;
@@ -1106,7 +1106,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 			// use_lower_classes as passed to this method indicates whether the higher class accommodation is full, hence
 			// the need for higher class passengers/mail to use lower class accommodation.
 
-			*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left_this_class, schedule, cnv->get_owner(), cnv, overcrowd, class_reassignments[i], use_lower_classes, other_classes_available);
+			*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left_this_class, schedule, cnv->get_owner(), cnv, overcrowd, i, use_lower_classes, other_classes_available);
 			if (!freight_add.empty())
 			{
 				cnv->invalidate_weight_summary();
@@ -1144,7 +1144,19 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 
 				if (!freight_add.empty())
 				{
-					fracht[i].append_list(freight_add);
+					// We now have to unpick which class was reassigned to i.
+
+					const uint8 number_of_classes = desc->get_number_of_classes();
+					uint8 reassigned_from_class = 0;
+					for (; reassigned_from_class < number_of_classes; reassigned_from_class++)
+					{
+						if (class_reassignments[reassigned_from_class] == i)
+						{
+							break;
+						}
+					}
+
+					fracht[reassigned_from_class].append_list(freight_add);
 				}
 			}
 		}
