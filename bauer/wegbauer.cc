@@ -606,9 +606,9 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 
 	const sint8 altitude = max(from->get_pos().z, to->get_pos().z) - welt->get_groundwater();
 	const sint8 max_altitude = desc->get_max_altitude();
-	if(max_altitude > 0 && altitude > max_altitude)
+	if(max_altitude > 0 && altitude > max_altitude && (from->get_grund_hang() + to->get_grund_hang() == 0))
 	{
-		// Too high
+		// Too high - exclude slope tiles from this to allow canalising rapids
 		return false;
 	}
 
