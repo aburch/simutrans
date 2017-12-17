@@ -964,10 +964,7 @@ void fabrik_t::delete_all_fields()
 
 fabrik_t::~fabrik_t()
 {
-	// The below is suspected of causing heap corruption, although this has not been
-	// determined conclusively. It amounts to a real optimisation when enabled.
-	// The heap corruption, when present, is extremely hard to reproduce or trace.
-	//if (!welt->is_destroying())
+	if (!welt->is_destroying())
 	{
 		mark_connected_roads(true);
 	}
