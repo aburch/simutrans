@@ -947,6 +947,7 @@ void schedule_gui_t::draw(scr_coord pos, scr_size size)
 		// lines added or deleted
 		init_line_selector();
 		last_schedule_count = schedule->get_count();
+		update_selection();
 	}
 
 	// after loading in network games, the schedule might still being updated
