@@ -1,5 +1,5 @@
 /**
- * convoi_t Klasse für Fahrzeugverbände
+ * convoi_t Klasse fE Fahrzeugverbände
  * von Hansjörg Malthaner
  */
 
@@ -732,7 +732,7 @@ void convoi_t::rotate90( const sint16 y_size )
 
 
 /**
- * Gibt die Position des Convois zurück.
+ * Gibt die Position des Convois zurEk.
  * @return Position des Convois
  * @author Hj. Malthaner
  */
@@ -4724,6 +4724,49 @@ void convoi_t::rdwr(loadsave_t *file)
 		arrival_time = welt->get_ticks();
 	}
 
+	if (file->get_extended_version() >= 13 && file->get_extended_revision() >= 1) {
+		if(file->is_saving())
+		{
+			uint32 count = journey_times_history.get_count();
+			file->rdwr_long(count);
+
+			FOR(times_history_map, const& iter, journey_times_history)
+			{
+				departure_point_t idp = iter.key;
+				file->rdwr_short(idp.x);
+				file->rdwr_short(idp.y);
+				times_history_data_t value = iter.value;
+				for (int j = 0; j < TIMES_HISTORY_SIZE; j++) {
+					uint32 time = value.get_entry(j);
+					file->rdwr_long(time);
+				}
+			}
+		}
+		else
+		{
+			uint32 count = 0;
+			file->rdwr_long(count);
+			journey_times_history.clear();
+
+			for (uint32 i = 0; i < count; i++)
+			{
+				departure_point_t idp;
+				file->rdwr_short(idp.x);
+				file->rdwr_short(idp.y);
+
+				times_history_data_t data;
+
+				for (int j = 0; j < TIMES_HISTORY_SIZE; j++) {
+					uint32 time;
+					file->rdwr_long(time);
+					data.set(j, time);
+				}
+
+				journey_times_history.put(idp, data);
+			}
+		}
+	}
+
 	if(file->get_version() >= 111001 && file->get_extended_version() == 0)
 	{
 		uint32 dummy = 0;
@@ -5156,10 +5199,11 @@ void convoi_t::laden() //"load" (Babelfish)
 			}
 		}
 
-		bool rev = !reverse_schedule;
 		uint8 schedule_entry = schedule->get_current_stop();
-		schedule->increment_index(&schedule_entry, &rev); 
-		departure_point_t this_departure(schedule_entry, !rev);
+		bool rev_rev = !reverse_schedule;
+		// decrement(see negation of reverse_schedule) index until previous halt
+		schedule->increment_index_until_next_halt(front()->get_owner(), &schedule_entry, &rev_rev);
+		departure_point_t this_departure(schedule_entry, reverse_schedule);
 		sint64 latest_journey_time;
 		const bool departure_missing = !departures.is_contained(this_departure);
 		const sint32 journey_distance_meters = journey_distance * welt->get_settings().get_meters_per_tile();
@@ -5191,6 +5235,17 @@ void convoi_t::laden() //"load" (Babelfish)
 			average_tpl<uint16> ave;
 			ave.add((uint16)latest_journey_time);
 			journey_times_between_schedule_points.put(this_departure, ave);
+		}
+		if (!journey_times_history.is_contained(this_departure)) {
+			journey_times_history.put(this_departure, times_history_data_t());
+		}
+		journey_times_history.access(this_departure)->put(latest_journey_time);
+		if (line.is_bound()) {
+			times_history_map &line_history = line->get_journey_times_history();
+			if (!line_history.is_contained(this_departure)) {
+				line_history.put(this_departure, times_history_data_t());
+			}
+			line_history.access(this_departure)->put(latest_journey_time);
 		}
 
 		const sint32 average_speed = (journey_distance_meters * 3) / ((sint32)latest_journey_time * 5);
@@ -7440,13 +7495,8 @@ void convoi_t::clear_replace()
 		uint8 schedule_entry = schedule->get_current_stop();
 		bool rev_rev = !reverse_schedule;
 		bool has_not_found_halt = true;
-		while (has_not_found_halt)
-		{
-			schedule->increment_index(&schedule_entry, &rev_rev);
-			const koord3d halt_position = schedule->entries.get_element(schedule_entry).pos;
-			const halthandle_t halt = haltestelle_t::get_halt(halt_position, front()->get_owner());
-			has_not_found_halt = !halt.is_bound();
-		}
+		// decrement(see negation of reverse_schedule) index until previous halt
+		schedule->increment_index_until_next_halt(front()->get_owner(), &schedule_entry, &rev_rev);
 		departure_point_t departure_point(schedule_entry, !rev_rev);
 
 		departures.set(departure_point, dep);
@@ -7466,7 +7516,7 @@ void convoi_t::clear_replace()
 		sint64 etd = eta;
 		vector_tpl<uint16> halts_already_processed;
 		const uint32 reverse_delay = calc_reverse_delay();
-		schedule->increment_index(&schedule_entry, &rev);
+		schedule->increment_index_until_next_halt(front()->get_owner(), &schedule_entry, &rev);
 		for(uint8 i = 0; i < count; i++)
 		{		
 			uint32 journey_time_tenths_minutes = (uint32)journey_times_between_schedule_points.get(departure_point).get_average();
@@ -7474,7 +7524,7 @@ void convoi_t::clear_replace()
 			{
 				// Journey time uninitialised - use average or estimated average speed instead.
 				uint8 next_schedule_entry = schedule_entry;
-				schedule->increment_index(&next_schedule_entry, &rev);
+				schedule->increment_index_until_next_halt(front()->get_owner(), &schedule_entry, &rev);
 				const koord3d stop1_pos = schedule->entries[schedule_entry].pos;
 				const koord3d stop2_pos = schedule->entries[next_schedule_entry].pos;
 				const uint16 distance = shortest_distance(stop1_pos.get_2d(), stop2_pos.get_2d());
@@ -7528,7 +7578,8 @@ void convoi_t::clear_replace()
 				halt->set_estimated_departure_time(self.get_id(), etd);	
 				halts_already_processed.append(halt.get_id());
 			}
-			schedule->increment_index(&schedule_entry, &rev);
+
+			schedule->increment_index_until_next_halt(front()->get_owner(), &schedule_entry, &rev);
 			departure_point.entry = schedule_entry;
 			departure_point.reversed = rev;
 		}
@@ -7691,6 +7742,7 @@ void convoi_t::clear_departures()
 	departures.clear();
 	departures_already_booked.clear();
 	journey_times_between_schedule_points.clear();
+	journey_times_history.clear();
 	clear_estimated_times();
 }
 

@@ -11,6 +11,7 @@
 
 #include "messagebox.h"
 #include "schedule_list.h"
+#include "times_history.h"
 #include "line_management_gui.h"
 #include "components/gui_convoiinfo.h"
 #include "line_item.h"
@@ -198,7 +199,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 
 	// load display
 	filled_bar.add_color_value(&loadfactor, COL_GREEN);
-	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + 2*D_BUTTON_WIDTH + 10, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 4 + 2));
+	filled_bar.set_pos(scr_coord(LINE_NAME_COLUMN_WIDTH + 3*D_BUTTON_WIDTH + 10, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 4 + 2));
 	filled_bar.set_visible(false);
 	add_component(&filled_bar);
 
@@ -257,6 +258,12 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_line_class_manager.set_visible(false);
 	bt_line_class_manager.add_listener(this);
 	add_component(&bt_line_class_manager);
+
+	bt_time_history.init(button_t::roundbox, "Times History", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH * 2, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 2), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_time_history.set_tooltip("View journey times history of this line.");
+	bt_time_history.set_visible(true);
+	bt_time_history.add_listener(this);
+	add_component(&bt_time_history);
 
 	// Select livery
 	livery_selector.set_pos(scr_coord(11+0*D_BUTTON_WIDTH*2 + 92, 8 + SCL_HEIGHT+D_BUTTON_HEIGHT+D_BUTTON_HEIGHT));
@@ -406,6 +413,11 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *comp, value_t 
 	{
 		create_win(20, 20, new line_class_manager_t(line), w_info, magic_line_class_manager + line.get_id());
 		return true;
+        }
+	else if (comp == &bt_time_history) {
+		if(line.is_bound()) {
+			create_win( new times_history_t(line, convoihandle_t()), w_info, (ptrdiff_t)line.get_rep() + 1 );
+		}
 	}
 	else if(comp == &livery_selector) 
 	{
@@ -691,7 +703,7 @@ void schedule_list_gui_t::set_windowsize(scr_size size)
 
 	chart.set_size(scr_size(rest_width-58, SCL_HEIGHT-11-14-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))));
 	inp_name.set_size(scr_size(rest_width-8, 14));
-	filled_bar.set_size(scr_size(rest_width - 8 - 2*D_BUTTON_WIDTH - 10, 4));
+	filled_bar.set_size(scr_size(rest_width - 8 - 3*D_BUTTON_WIDTH - 10, 4));
 
 	int y=SCL_HEIGHT-11-(button_rows*(D_BUTTON_HEIGHT+D_H_SPACE))+14;
 	for (int i=0; i<MAX_LINE_COST; i++) {
@@ -864,6 +876,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 	line = new_line;
 	bt_withdraw_line.set_visible( line.is_bound() );
 	bt_line_class_manager.set_visible(line.is_bound());
+	bt_time_history.set_visible( line.is_bound() );
 
 	reset_line_name();
 }

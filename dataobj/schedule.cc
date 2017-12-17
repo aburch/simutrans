@@ -517,6 +517,20 @@ void schedule_t::increment_index(uint8 *index, bool *reversed) const {
 }
 
 /**
+ * Same as increment_index(), but skips waypoints.
+ * @author suitougreentea
+ */
+void schedule_t::increment_index_until_next_halt(player_t *player, uint8 *index, bool *reversed) const {
+	while (true)
+	{
+		increment_index(index, reversed);
+		const koord3d halt_position = entries[*index].pos;
+		const halthandle_t halt = haltestelle_t::get_halt(halt_position, player);
+		if (halt.is_bound()) return;
+	}
+}
+
+/**
  * Ordering based on halt id
  */
 class HaltIdOrdering
@@ -675,4 +689,41 @@ bool schedule_t::is_contained (koord3d pos)
 		}
 	}
 	return false;
+}
+
+
+times_history_data_t::times_history_data_t() {
+	for (uint16 i = 0; i < TIMES_HISTORY_SIZE; i++) {
+		history[i] = 0;
+	}
+}
+
+uint32 times_history_data_t::get_entry(uint16 index) const {
+	if (index >= TIMES_HISTORY_SIZE) return 0;
+	return history[index];
+}
+
+void times_history_data_t::put(uint32 time) {
+	for (uint16 i = TIMES_HISTORY_SIZE - 1; i >= 1; i--) {
+		history[i] = history[i - 1];
+	}
+	history[0] = time;
+}
+
+void times_history_data_t::set(uint16 index, uint32 time) {
+	if (index >= TIMES_HISTORY_SIZE) return;
+	history[index] = time;
+}
+
+uint32 times_history_data_t::get_average() const {
+	uint64 total = 0;
+	uint16 count = 0;
+	for (uint16 i = 0; i < TIMES_HISTORY_SIZE; i++) {
+		if (history[i] != 0) {
+			total += history[i];
+			count++;
+		}
+	}
+	if (count == 0) return 0;
+	return total / count;
 }
