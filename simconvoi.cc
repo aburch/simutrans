@@ -6840,26 +6840,26 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	}
 
 	// show result
-	const char* txt;
+	char txt[255];
 	bool success = false;
 	if (home_depot_found && transport_success)
 	{
-		txt = "The convoy has been sent\nto its home depot.\n";
+		sprintf(txt, "The convoy has been sent\nto its home depot.\n%s\n", get_name());
 		success = true;
 	}
 	else if (other_depot_found && transport_success)
 	{
-		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
+		sprintf(txt, "Convoi has been sent\nto the nearest depot\nof appropriate type.\n%s\n", get_name());
 		success = true;
 	}
 	else if (!home_depot_found && !other_depot_found)
 	{
-		txt = "No suitable depot found!\nYou need to send the\nconvoi to the depot\nmanually.";
+		sprintf(txt, "No suitable depot found!\nYou need to send the\nconvoi to the depot\nmanually.\n%s\n", get_name());
 		success = false;
 	}
 	else if (!transport_success)
 	{
-		txt = "Depot found but could not be inserted in schedule.  This is a bug!";
+		sprintf(txt, "Depot found but could not be inserted in schedule.  This is a bug!%s\n", get_name());
 		dbg->warning("convoi_t::go_to_depot()", "Depot found but could not be inserted in schedule for convoy %s", get_name());
 		success = false;
 	}
