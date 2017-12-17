@@ -1652,7 +1652,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	{
 		if (file->is_loading())
 		{
-			building = new gebaeude_t(file);
+			building = new gebaeude_t(file, true);
 		}
 		else // Saving
 		{

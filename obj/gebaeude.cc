@@ -78,7 +78,7 @@ void gebaeude_t::init()
 	passengers_succeeded_visiting = 0;
 	passenger_success_percent_last_year_visiting = 65535;
 	available_jobs_by_time = -9223372036854775808ll;
-	is_in_world_list = false;
+	is_in_world_list = 0;
 	loaded_passenger_and_mail_figres = false;
 }
 
@@ -94,7 +94,7 @@ gebaeude_t::gebaeude_t(obj_t::typ type) :
 }
 
 
-gebaeude_t::gebaeude_t(loadsave_t *file) :
+gebaeude_t::gebaeude_t(loadsave_t *file, bool do_not_add_to_world_list) :
 #ifdef INLINE_OBJ_TYPE
 	obj_t(obj_t::gebaeude)
 #else
@@ -102,6 +102,10 @@ gebaeude_t::gebaeude_t(loadsave_t *file) :
 #endif
 {
 	init();
+	if (do_not_add_to_world_list)
+	{
+		is_in_world_list = -1;
+	}
 	rdwr(file);
 	if (file->get_version()<88002) {
 		set_yoff(0);
@@ -248,7 +252,7 @@ gebaeude_t::~gebaeude_t()
 	{
 		our_city->remove_gebaeude_from_stadt(this, !has_city_defined);
 	}
-	else
+	else if(is_in_world_list > 0)
 	{
 		welt->remove_building_from_world_list(this);
 	}
@@ -1789,10 +1793,18 @@ void gebaeude_t::rdwr(loadsave_t *file)
 			welt->add_attraction(this);
 		}
 
-		// Add this here: there is no advantage to adding buildings multi-threadedly
-		// to a single list, especially when that requires an insertion sort, and
-		// adding it here, single-threadedly, does not.
-		welt->add_building_to_world_list(this);
+		if (is_in_world_list == -1)
+		{
+			// Do not add this to the world list when loading a building from a factory,
+			// as this needs to be taken out of the world list again, and this increases
+			// loading time considerably. 
+
+			// Add this here: there is no advantage to adding buildings multi-threadedly
+			// to a single list, especially when that requires an insertion sort, and
+			// adding it here, single-threadedly, does not.
+
+			welt->add_building_to_world_list(this);
+		}
 	}
 }
 
