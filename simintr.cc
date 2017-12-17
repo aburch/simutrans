@@ -186,7 +186,7 @@ char const *tick_to_string( sint64 ticks, bool show_full )
 	else if (env_t::show_month == env_t::DATE_FMT_INTERNAL_MINUTE) {
 		world()->sprintf_ticks(ticks_as_clock, sizeof(ticks_as_clock), ticks_this_month);
 		world()->sprintf_ticks(month_as_clock, sizeof(month_as_clock), world()->ticks_per_world_month);
-
+		tage = stunden = minuten = 0;
 	}
 	else {
 		tage = 0;

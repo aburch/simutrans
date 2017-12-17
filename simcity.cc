@@ -1270,6 +1270,7 @@ bool stadt_t::enlarge_city_borders() {
 				direction = ribi_t::north;
 				break;
 			case 1:
+			default:
 				direction = ribi_t::south;
 				break;
 			case 2:
