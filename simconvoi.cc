@@ -5816,11 +5816,19 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				const sint64 queue_pos = halt.is_bound() ? halt->get_queue_pos(self) : 1ll;
 				go_on_ticks_spacing = (wait_from_ticks + spacing * queue_pos) - reversing_time;
 			}
+			
 			if(schedule->get_current_eintrag().waiting_time_shift > 0)
 			{
 				// Maximum wait time
 				go_on_ticks_waiting = now + (welt->ticks_per_world_month >> (16ll - (sint64)schedule->get_current_eintrag().waiting_time_shift)) - (sint64)reversing_time;
 			}
+
+			if (schedule->get_spacing() && !line.is_bound())
+			{
+				// Spacing should not be possible without a line, but this can occasionally occur. Without this, the convoy will wait forever.
+				go_on_ticks_spacing = departure_time;
+			}
+
 			go_on_ticks = std::min(go_on_ticks_spacing, go_on_ticks_waiting);
 			go_on_ticks = std::max(departure_time, go_on_ticks);
 			running_late = wait_for_time && (go_on_ticks_waiting < go_on_ticks_spacing);
