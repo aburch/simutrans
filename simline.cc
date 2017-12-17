@@ -398,7 +398,8 @@ void simline_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	if (file->get_extended_version() >= 13 && file->get_extended_revision() >= 1) {
+	if ((file->get_extended_version() == 13 && file->get_extended_revision() >= 2) || file->get_extended_version() >= 14)
+	{
 		if(file->is_saving())
 		{
 			uint32 count = journey_times_history.get_count();
@@ -410,7 +411,8 @@ void simline_t::rdwr(loadsave_t *file)
 				file->rdwr_short(idp.x);
 				file->rdwr_short(idp.y);
 				times_history_data_t value = iter.value;
-				for (int j = 0; j < TIMES_HISTORY_SIZE; j++) {
+				for (int j = 0; j < TIMES_HISTORY_SIZE; j++) 
+				{
 					uint32 time = value.get_entry(j);
 					file->rdwr_long(time);
 				}
