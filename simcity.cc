@@ -4221,7 +4221,7 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 		}
 	}
 
-	if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_residential) {
+	if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_commercial) {
 		h = hausbauer_t::get_industrial(0, current_month, cl, new_town, neighbor_building_clusters);
 		if (h != NULL) {
 			want_to_have = building_desc_t::city_ind;
