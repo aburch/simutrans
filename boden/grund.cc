@@ -827,6 +827,12 @@ void grund_t::mark_image_dirty()
 	}
 }
 
+#if COLOUR_DEPTH == 0
+void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
+{
+	back_imageid = IMG_EMPTY;
+}
+#else
 // artificial walls from here on ...
 void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 {
@@ -985,6 +991,7 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 	}
 	this->back_imageid = (is_building != 0) ? -back_imageid : back_imageid;
 }
+#endif
 
 #ifdef MULTI_THREAD
 void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, const sint8 clip_num, const bool force_show_grid ) const
