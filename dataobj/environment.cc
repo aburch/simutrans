@@ -205,7 +205,7 @@ void env_t::init()
 
 	show_month = DATE_FMT_US;
 
-	intercity_road_length = 200;
+	intercity_road_length = 512;
 
 	river_types = 0;
 
