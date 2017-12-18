@@ -719,7 +719,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 				}
 
 				// Low bridges
-				if (is_tall && w->is_height_restricted())
+				if (is_tall && w && w->is_height_restricted())
 				{
 					continue;
 				}

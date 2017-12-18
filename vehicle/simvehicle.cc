@@ -1477,7 +1477,7 @@ void vehicle_t::set_desc(const vehicle_desc_t* value)
 
 route_t::route_result_t vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route)
 {
-	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), 0, is_tall, SINT64_MAX_VALUE, cnv != NULL ? cnv->get_weight_summary().weight / 1000 : get_total_weight());
+	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), is_tall, 0, SINT64_MAX_VALUE, cnv != NULL ? cnv->get_weight_summary().weight / 1000 : get_total_weight());
 }
 
 bool vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route)
@@ -3627,6 +3627,12 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			if(  !second_check_count  &&  !str) {
 					cnv->suche_neue_route();
 				}
+			return false;
+		}
+
+		if (str->is_height_restricted() && cnv->has_tall_vehicles())
+		{
+			cnv->suche_neue_route();
 			return false;
 		}
 
@@ -7270,6 +7276,12 @@ bool water_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, u
 		}
 
 		const weg_t *w = gr->get_weg(water_wt);
+
+		if (w && w->is_height_restricted() && cnv->has_tall_vehicles())
+		{
+			cnv->suche_neue_route();
+			return false;
+		}
 		
 		if(w  &&  w->is_crossing()) {
 			// ok, here is a draw/turn-bridge ...
