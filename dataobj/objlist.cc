@@ -913,7 +913,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 				{
 					// for compatibility reasons we may have to convert them to tram and monorail depots
 					bahndepot_t*                   bd;
-					gebaeude_t                     gb(file);
+					gebaeude_t                     gb(file, false);
 					building_tile_desc_t const* const tile = gb.get_tile();
 					if(  tile  ) {
 						switch (tile->get_desc()->get_extra()) {
@@ -1007,7 +1007,7 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 
 				case obj_t::gebaeude:
 				{
-					gebaeude_t *gb = new gebaeude_t(file);
+					gebaeude_t *gb = new gebaeude_t(file, false);
 					if(gb->get_tile()==NULL) {
 						// do not remove from this position, since there will be nothing
 						gb->set_flag(obj_t::not_on_map);

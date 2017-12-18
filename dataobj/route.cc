@@ -417,7 +417,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 					}
 				}
 
-				if(flags == choose_signal && w->has_sign())
+				if(flags == choose_signal && w && w->has_sign())
 				{
 					// Do not traverse routes with end of choose signs
 					 roadsign_t* rs = welt->lookup(w->get_pos())->find<roadsign_t>();

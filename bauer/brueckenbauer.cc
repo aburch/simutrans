@@ -296,7 +296,7 @@ bool bridge_builder_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, player_t
 			}
 
 			weg_t *w = gr2->get_weg_nr(0);
-			const bool public_service = player ? player->is_public_service() : false;
+			const bool public_service = player ? player->is_public_service() : true;
 			const sint8 player_nr = player ? player->get_player_nr() : -1;
 			if (w 
 				&& (w->get_max_speed() > 0
@@ -305,8 +305,8 @@ bool bridge_builder_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, player_t
 					&& w->get_desc()->get_waytype() != tram_wt
 					&& w->get_desc()->get_waytype() != water_wt)
 
-					|| (w->get_player_nr() != player_nr && public_service
-					|| (w->is_public_right_of_way() && !public_service)))))
+					|| (w->get_player_nr() != player_nr && !public_service)
+					|| (w->is_public_right_of_way() && !public_service))))
 			{
 				error_msg = "Bridge blocked by way below or above.";
 				return true;

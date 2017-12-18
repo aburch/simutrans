@@ -1700,14 +1700,14 @@ void convoi_t::step()
 				{
 					if (i == goods_manager_t::INDEX_PAS)
 					{
-						for (uint8 j = 0; j < passenger_classes_carried.get_count(); ++j)
+						for (uint32 j = 0; j < passenger_classes_carried.get_count(); ++j)
 						{
 							old_passenger_classes_carried.append(passenger_classes_carried[j]);
 						}
 					}
 					else if (i == goods_manager_t::INDEX_MAIL)
 					{
-						for (uint8 j = 0; j < mail_classes_carried.get_count(); ++j)
+						for (uint32 j = 0; j < mail_classes_carried.get_count(); ++j)
 						{
 							old_mail_classes_carried.append(mail_classes_carried[j]);
 						}
@@ -1854,7 +1854,7 @@ end_loop:
 							// Only relevant for passengers and mail.
 							if (i == goods_manager_t::INDEX_PAS)
 							{
-								for (uint8 j = 0; j < passenger_classes_carried.get_count(); j++)
+								for (uint32 j = 0; j < passenger_classes_carried.get_count(); j++)
 								{
 									if (old_passenger_classes_carried.get_count() <= j || !passenger_classes_carried.is_contained(old_passenger_classes_carried.get_element(j)))
 									{
@@ -1862,7 +1862,7 @@ end_loop:
 									}
 								}
 
-								for (uint8 j = 0; j < old_passenger_classes_carried.get_count(); j++)
+								for (uint32 j = 0; j < old_passenger_classes_carried.get_count(); j++)
 								{
 									if(passenger_classes_carried.get_count() <= j || !old_passenger_classes_carried.is_contained(passenger_classes_carried.get_element(j)))
 									{

@@ -21,7 +21,6 @@ public:
 
 	strasse_t(loadsave_t *file);
 	strasse_t();
-	~strasse_t();
 
 	//inline waytype_t get_waytype() const {return road_wt;}
 
