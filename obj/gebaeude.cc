@@ -1793,7 +1793,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 			welt->add_attraction(this);
 		}
 
-		if (is_in_world_list == -1)
+		if (is_in_world_list == 0)
 		{
 			// Do not add this to the world list when loading a building from a factory,
 			// as this needs to be taken out of the world list again, and this increases
