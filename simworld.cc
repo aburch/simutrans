@@ -9996,15 +9996,16 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 	// process the received command
 	while(  nwc  ) {
 		// check timing
-		if(  nwc->get_id() == NWC_CHECK  ) {
-			// checking for synchronisation
-			nwc_check_t* nwcheck = (nwc_check_t*)nwc;
+		uint16 const nwcid = nwc->get_id();
+		if(  nwcid == NWC_CHECK  ||  nwcid == NWC_STEP  ) {
+			// pull out server sync step
+			const uint32 server_sync_step = nwcid == NWC_CHECK ? dynamic_cast<nwc_check_t *>(nwc)->server_sync_step : dynamic_cast<nwc_step_t *>(nwc)->get_sync_step();
 
 			// are we on time?
 			*ms_difference = 0;
 			const uint32 timems = dr_time();
 			const sint32 time_to_next = (sint32)next_step_time - (sint32)timems; // +'ve - still waiting for next,  -'ve - lagging
-			const sint64 frame_timediff = ((sint64)nwcheck->server_sync_step - sync_steps - settings.get_server_frames_ahead() - env_t::additional_client_frames_behind) * fix_ratio_frame_time; // +'ve - server is ahead,  -'ve - client is ahead
+			const sint64 frame_timediff = ((sint64)server_sync_step - sync_steps - settings.get_server_frames_ahead() - env_t::additional_client_frames_behind) * fix_ratio_frame_time; // +'ve - server is ahead,  -'ve - client is ahead
 			const sint64 timediff = time_to_next + frame_timediff;
 			dbg->warning("NWC_CHECK", "time difference to server %lli", frame_timediff );
 
@@ -10018,7 +10019,7 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 					// already waiting longer than how far we're ahead, so set wait time shorter to the time ahead.
 					next_step_time = (sint64)timems - frame_timediff;
 			}
-			else {
+			else if(  nwcid == NWC_CHECK  ) {
 					// gentle slowing down
 					*ms_difference = timediff;
 				}
@@ -10030,23 +10031,19 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 					next_step_time = timems;
 					*ms_difference = frame_timediff;
 				}
-				else {
+				else if(  nwcid == NWC_CHECK  ) {
 					// gentle catching up
 					*ms_difference = timediff;
 				}
 			}
-		}
-		else if (nwc->get_id() == NWC_STEP) {
-				// advancing sync_steps_barrier
-				nwc_step_t* nwstep = (nwc_step_t*)nwc;
-				uint32 const ssbarrier = nwstep->get_sync_step();
-			if (sync_steps_barrier < ssbarrier) {
-				sync_steps_barrier = ssbarrier;
+
+			if(  sync_steps_barrier < server_sync_step  ) {
+				sync_steps_barrier = server_sync_step;
 			}
 		}
 
 		// check random number generator states
-		if(  env_t::server  &&  nwc->get_id()==NWC_TOOL  ) {
+		if(  env_t::server  &&  nwcid  ==  NWC_TOOL  ) {
 			nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
 			if(  nwt->is_from_initiator()  ) {
 				if(  nwt->last_sync_step>sync_steps  ) {
@@ -10057,11 +10054,9 @@ void karte_t::process_network_commands(sint32 *ms_difference)
 				// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
 				else if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
 					// lost synchronisation -> server kicks client out actively
-					char buf[2048];
+					char buf[256];
 					const int offset = LCHKLST(nwt->last_sync_step).print(buf, "server");
-					assert(offset < 2048);
-					const int offset2 = offset + nwt->last_checklist.print(buf + offset, "initiator");
-					assert(offset2 < 2048);
+					nwt->last_checklist.print(buf + offset, "initiator");
 					dbg->warning("karte_t::process_network_commands", "kicking client due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
 					socket_list_t::remove_client( nwc->get_sender() );
 					delete nwc;
@@ -10349,10 +10344,6 @@ bool karte_t::interactive(uint32 quit_month)
 
 					// some server side tasks
 					if(  env_t::networkmode  &&  env_t::server  ) {
-						// broadcast step
-						nwc_step_t* nwcstep = new nwc_step_t(sync_steps, map_counter);
-						network_send_all(nwcstep, true);
-
 						// broadcast sync info regularly and when lagged
 						const sint64 timelag = (sint32)dr_time() - (sint32)next_step_time;
 						if(  (network_frame_count == 0  &&  timelag > fix_ratio_frame_time * settings.get_server_frames_ahead() / 2)  ||  (sync_steps % env_t::server_sync_steps_between_checks) == 0  ) {
@@ -10360,8 +10351,14 @@ bool karte_t::interactive(uint32 quit_month)
 								// log when server is lagged more than one step
 								dbg->warning("karte_t::interactive", "server lagging by %lli", timelag );
 							}
+
 							nwc_check_t* nwc = new nwc_check_t(sync_steps + 1, map_counter, LCHKLST(sync_steps), sync_steps);
 							network_send_all(nwc, true);
+						}
+						else {
+							// broadcast sync_step
+							nwc_step_t* nwcstep = new nwc_step_t(sync_steps, map_counter);
+							network_send_all(nwcstep, true);
 						}
 					}
 #if DEBUG>4
