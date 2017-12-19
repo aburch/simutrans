@@ -2935,7 +2935,7 @@ void stadt_t::build_city_building(const koord k)
 		}
 	}
 
-	if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_residential) {
+	if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_commercial) {
 		h = hausbauer_t::get_industrial(0, current_month, cl, neighbor_building_clusters);
 		if (h != NULL) {
 			arb += (h->get_level()+1) * 20;
