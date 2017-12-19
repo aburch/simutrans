@@ -1562,6 +1562,7 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 	calc_traffic_level();
 
 	check_road_connexions = false;
+	welt->add_queued_city(this);
 
 	number_of_cars = 0;
 }
