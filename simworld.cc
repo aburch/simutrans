@@ -651,10 +651,8 @@ void karte_t::destroy()
 	// dinge aufraeumen
 	cached_grid_size.x = cached_grid_size.y = 1;
 	cached_size.x = cached_size.y = 0;
-	if(plan) {
-		delete [] plan;
-		plan = NULL;
-	}
+	delete[] plan;
+	plan = NULL;
 	DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
 
 	old_progress += (cached_size.x*cached_size.y)/2;
