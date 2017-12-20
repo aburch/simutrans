@@ -153,12 +153,6 @@ public:
 	}
 	void book_weighted_sum_storage(uint32 factor, sint64 delta_time);
 
-	/** Get the recommended work factor for an output.
-	 * Work factor ramps down as outputs fill.
-	 * Returns a fixed point fraction to precision WORK_BITS.
-	 */
-	sint32 get_work_factor();
-
 	sint32 menge;	// in internal units shifted by precision_bits (see step)
 	sint32 max;
 	/// Cargo currently in transit from/to this slot. Equivalent to statistics[0][FAB_GOODS_TRANSIT].
@@ -167,14 +161,14 @@ public:
 	/// Annonmyous union used to save memory and readability. Contains supply flow control limiters.
 	union{
 		// Classic : Current limit on cargo in transit (maximum network capacity), depending on sum of all supplier output storage.
-		sint32 max_transit;
+		sint32 max_transit; //JIT<2 Input
 
 		// JIT Version 2 : Current demand for the good. Orders when greater than 0.
-		sint32 demand_buffer;
-	};
+		sint32 demand_buffer; //JIT2 Input
 
-	// The minimum shipment size. Used to control delivery to stops and for production ramp-down.
-	sint32 min_shipment;
+		// The minimum shipment size. Used to control delivery to stops and for production ramp-down.
+		sint32 min_shipment; // Output
+	};
 
 	// Ordering lasts at least 1 tick period to allow all suppliers time to send (fair). Used by inputs.
 	bool placing_orders;
@@ -183,6 +177,12 @@ public:
 	sint32 count_suppliers;	// only needed for averaging
 #endif
 	uint32 index_offset; // used for haltlist and lieferziele searches in verteile_waren to produce round robin results
+
+	// Production rate for outputs. Returns fixed point with WORK_BITS fractional bits.
+	sint32 calculate_output_production_rate() const;
+
+	// Production rate for JIT2 demands. Returns fixed point with WORK_BITS fractional bits.
+	sint32 calculate_demand_production_rate() const;
 };
 
 
@@ -730,6 +730,17 @@ public:
 
 	// Rebuild the factory inactive caches.
 	void rebuild_inactive_cache();
+
+	double get_production_per_second() const;
+
+	/* Calculate work rate using a ramp function.
+	 * amount: The current amount.
+	 * minimum: Minimum amount before work rate starts ramp down.
+	 * maximum: Maximum before production stops.
+	 * (opt) precision: Work rate fixed point fractional precision.
+	 * returns: Work rate in fixed point form.
+	 */
+	static sint32 calculate_work_rate_ramp(sint32 const amount, sint32 const minimum, sint32 const maximum, uint32 const precision = WORK_BITS);
 };
 
 #endif
