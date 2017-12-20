@@ -58,11 +58,27 @@ obj_desc_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	const int version = v & 0x8000 ? v & 0x7FFF : 0;
 
+	desc->steps_per_frame = 0;
+	desc->offset = 20;
+
 	if(version == 0) {
 		// old, nonversion node
 		desc->distribution_weight = v;
 
 		// This was a spare datum set to zero on all older versions
+		uint16 intro = decode_uint16(p);
+		if (intro > 0)
+		{
+			desc->intro_date = intro;
+			desc->retire_date = decode_uint16(p);
+		}
+	}
+	else if (version == 1) {
+		desc->distribution_weight = decode_uint16(p);
+		desc->steps_per_frame = decode_uint16(p);
+		desc->offset = decode_uint16(p);
+
+		// Extended only
 		uint16 intro = decode_uint16(p);
 		if (intro > 0)
 		{

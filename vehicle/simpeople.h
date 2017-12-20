@@ -18,6 +18,7 @@ private:
 
 private:
 	const pedestrian_desc_t *desc;
+	uint16 animation_steps;
 
 	uint16 steps_offset;
 	uint16 ped_offset;
@@ -55,6 +56,9 @@ public:
 	void calc_disp_lane();
 
 	virtual void rotate90();
+
+	// overloaded to enable animations
+	virtual image_id get_image() const;
 
 	virtual grund_t* hop_check();
 	virtual void hop(grund_t* gr);
