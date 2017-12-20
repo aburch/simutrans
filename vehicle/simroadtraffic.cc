@@ -1057,6 +1057,18 @@ void private_car_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster
 	}
 }
 
+void private_car_t::calc_disp_lane()
+{
+	// driving in the back or the front
+	ribi_t::ribi test_dir = welt->get_settings().is_drive_left() ? ribi_t::northeast : ribi_t::southwest;
+	disp_lane = get_direction() & test_dir ? 1 : 3;
+}
+
+void private_car_t::rotate90()
+{
+	road_user_t::rotate90();
+	calc_disp_lane();
+}
 
 
 /**
