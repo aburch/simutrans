@@ -7319,6 +7319,11 @@ bool water_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, u
 
 bool water_vehicle_t::check_tile_occupancy(const grund_t* gr)
 {
+	if (gr->get_top() > 200)
+	{
+		return false;
+	}
+	
 	const uint8 base_max_vehicles_on_tile = 127;
 	const weg_t *w = gr->get_weg(water_wt);
 	uint8 max_water_vehicles_on_tile = w ? w->get_desc()->get_max_vehicles_on_tile() : base_max_vehicles_on_tile;
