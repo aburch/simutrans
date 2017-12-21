@@ -56,7 +56,27 @@ obj_desc_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// But we know, the higher most bit was always cleared.
 
 	const uint16 v = decode_uint16(p);
-	const int version = v & 0x8000 ? v & 0x7FFF : 0;
+	int version = v & 0x8000 ? v & 0x7FFF : 0;
+
+	// Whether the read file is from Simutrans-Extended
+	// @author: jamespetts
+
+	uint16 extended_version = 0;
+	const bool extended = version > 0 ? v & EX_VER : false;
+	if(version > 0)
+	{
+		if(extended)
+		{
+			// Extended version to start at 0 and increment.
+			version = version & EX_VER ? version & 0x3FFF : 0;
+			while(version > 0x100)
+			{
+				version -= 0x100;
+				extended_version ++;
+			}
+			extended_version -= 1;
+		}
+	}
 
 	desc->steps_per_frame = 0;
 	desc->offset = 20;
@@ -79,10 +99,9 @@ obj_desc_t * pedestrian_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->offset = decode_uint16(p);
 
 		// Extended only
-		uint16 intro = decode_uint16(p);
-		if (intro > 0)
+		if(extended)
 		{
-			desc->intro_date = intro;
+			desc->intro_date = decode_uint16(p);
 			desc->retire_date = decode_uint16(p);
 		}
 	}

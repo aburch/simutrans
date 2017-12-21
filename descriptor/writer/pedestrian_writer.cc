@@ -11,7 +11,7 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 {
 	int i;
 
-	obj_node_t node(this, 10, &parent);
+	obj_node_t node(this, 12, &parent);
 
 	write_head(fp, node, obj);
 
@@ -75,13 +75,23 @@ void pedestrian_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& 
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
 	uint16 version = 0x8001;
-	node.write_uint16(fp, version, 0);
-	node.write_uint16(fp, distribution_weight, 2);
-	node.write_uint16(fp, steps_per_frame, 4);
-	node.write_uint16(fp, offset, 6);
 
-	node.write_uint16(fp, intro_date,				 2);
-	node.write_uint16(fp, retire_date,				 4); 
+	// This is the overlay flag for Simutrans-Extended
+	// This sets the *second* highest bit to 1. 
+	version |= EX_VER;
+
+	// Finally, this is the extended version number. This is *added*
+	// to the standard version number, to be subtracted again when read.
+	// Start at 0x100 and increment in hundreds (hex).
+	version += 0x100;
+
+	node.write_uint16(fp, version, 					0);
+	node.write_uint16(fp, distribution_weight, 			2);
+	node.write_uint16(fp, steps_per_frame, 				4);
+	node.write_uint16(fp, offset, 					6);
+
+	node.write_uint16(fp, intro_date,				 8);
+	node.write_uint16(fp, retire_date,				 10); 
 
 	node.write(fp);
 }
