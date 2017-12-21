@@ -71,10 +71,14 @@ pedestrian_t::pedestrian_t(loadsave_t *file)
 #endif
 {
 	animation_steps = 0;
+	on_left = false;
+	steps_offset = 0;
 	rdwr(file);
 	if(desc) {
 		welt->sync.add(this);
+		ped_offset = desc->get_offset();
 	}
+	calc_disp_lane();
 }
 
 
@@ -87,8 +91,12 @@ pedestrian_t::pedestrian_t(grund_t *gr, uint32 time_to_live) :
 	desc(pick_any_weighted(current_pedestrians))
 {
 	animation_steps = 0;
-	time_to_life = time_to_live == 0 ? pick_any(strecke) : time_to_live;
+	on_left = simrand(2, "pedestrian_t::pedestrian_t(grund_t *gr, uint32 time_to_live)") > 0;
+	steps_offset = 0;
+	time_to_life = time_to_live;
+	ped_offset = desc->get_offset();
 	calc_image();
+	calc_disp_lane();
 }
 
 

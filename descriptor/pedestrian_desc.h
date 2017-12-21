@@ -57,6 +57,9 @@ public:
 	{
 		chk->input(distribution_weight);
 	}
+
+	// images are offset steps away from boundary
+	uint16 get_offset() const { return offset; }
 };
 
 #endif
