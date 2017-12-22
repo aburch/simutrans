@@ -8418,11 +8418,13 @@ void karte_t::load(loadsave_t *file)
 
 	intr_disable();
 	dbg->message("karte_t::load()", "Prepare for loading" );
+	dbg->message("karte_t::load()", "Time is now: %i", dr_time()); 
 	for (uint8 sp_nr = 0; sp_nr < MAX_PLAYER_COUNT; sp_nr++) {
 		if (two_click_tool_t* tool = dynamic_cast<two_click_tool_t*>(selected_tool[sp_nr])) {
 			tool->cleanup();
 		}
 	}
+
 	destroy_all_win(true);
 
 	clear_random_mode(~LOAD_RANDOM);
