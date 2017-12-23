@@ -27,19 +27,25 @@ times_history_container_t::times_history_container_t(const player_t *owner_, sch
 	add_component(&lbl_time_header);
 	add_component(&lbl_average_header);
 
+	last_schedule_indices = new slist_tpl<uint8>();
+
 	update_container();
 }
 
 times_history_container_t::~times_history_container_t() {
-	delete_components();
+	delete_buttons();
+	delete_labels();
 }
 
-void times_history_container_t::delete_components() {
+void times_history_container_t::delete_buttons() {
 	while (!buttons.empty()) {
 		button_t *b = buttons.remove_first();
 		remove_component(b);
 		delete b;
 	}
+}
+
+void times_history_container_t::delete_labels() {
 	while (!name_labels.empty()) {
 		gui_label_t *l = name_labels.remove_first();
 		remove_component(l);
@@ -53,18 +59,11 @@ void times_history_container_t::delete_components() {
 	}
 }
 
-void times_history_container_t::update_container() {
-	delete_components();
-
-	// Create list of entries displayed.
-	// This depends on mirror/reverse states of line/convoi
+void times_history_container_t::construct_data(slist_tpl<uint8> *schedule_indices, slist_tpl<departure_point_t *> *time_keys) {
 	const minivec_tpl<schedule_entry_t>& entries = schedule->entries;
 	const uint8 size = entries.get_count();
 
 	if (size <= 1) return;
-
-	slist_tpl<uint8> *schedule_indices = new slist_tpl<uint8>();
-	slist_tpl<departure_point_t *> *time_keys = new slist_tpl<departure_point_t *>();
 
 	if (mirrored) {
 		lbl_order.set_text("bidirectional_order");
@@ -128,18 +127,42 @@ void times_history_container_t::update_container() {
 		}
 		schedule_indices->append(first_halt_index);
 	}
+}
+
+bool times_history_container_t::updated_schedule_indices(slist_tpl<uint8> *schedule_indices) {
+	uint32 schedule_count = schedule_indices->get_count();
+	if (schedule_count != last_schedule_indices->get_count()) return true;
+	for (uint32 i = 0; i < schedule_count; i++) {
+		if (schedule_indices->at(i) != last_schedule_indices->at(i)) return true;
+	}
+	return false;
+}
+
+void times_history_container_t::update_container() {
+	const minivec_tpl<schedule_entry_t>& entries = schedule->entries;
+	slist_tpl<uint8> *schedule_indices = new slist_tpl<uint8>();
+	slist_tpl<departure_point_t *> *time_keys = new slist_tpl<departure_point_t *>();
+
+	construct_data(schedule_indices, time_keys);
+
+	bool update_buttons = updated_schedule_indices(schedule_indices);
+
+	if (update_buttons) delete_buttons();
+	delete_labels();
 
 	scr_coord_val y = LINESPACE + D_V_SPACE + LINESPACE + D_V_SPACE;
 	for (int i = 0; i < schedule_indices->get_count(); i++) {
 		const schedule_entry_t entry = entries[schedule_indices->at(i)];
 		const halthandle_t halt = haltestelle_t::get_halt(entry.pos, owner);
 
-		button_t *b = new button_t();
-		b->init(button_t::posbutton, NULL, scr_coord(0, y));
-		b->set_targetpos(entry.pos.get_2d());
-		b->add_listener(this);
-		add_component(b);
-		buttons.append(b);
+		if (update_buttons) {
+			button_t *b = new button_t();
+			b->init(button_t::posbutton, NULL, scr_coord(0, y));
+			b->set_targetpos(entry.pos.get_2d());
+			b->add_listener(this);
+			add_component(b);
+			buttons.append(b);
+		}
 
 		gui_label_t *name_label = new gui_label_t(NULL);
 		char *halt_name = new char[strlen(halt->get_name()) + 1];
@@ -165,7 +188,8 @@ void times_history_container_t::update_container() {
 
 	this->size.h = y - LINESPACE;
 
-	delete schedule_indices;
+	delete last_schedule_indices;
+	last_schedule_indices = schedule_indices;
 	delete time_keys;
 }
 

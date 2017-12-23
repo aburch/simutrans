@@ -26,8 +26,7 @@ private:
 	const char* cached_name;
 	uint32 update_time;
 	schedule_t *last_schedule = NULL;
-	bool last_mirrored;
-	bool last_reversed;
+	bool last_convoy_reversed;
 
 	cbuffer_t title_buf;
 
@@ -40,7 +39,8 @@ public:
 
 	~times_history_t();
 
-	void times_history_info();
+	void register_containers();
+	void update_components();
 
 	// const char * get_help_filename() const { return ".txt"; }
 
