@@ -5138,7 +5138,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 			pl->get_kartenboden()->set_flag(grund_t::dirty);
 		}
 
-		int const cov = welt->get_settings().get_station_coverage();
+		uint16 const cov = welt->get_settings().get_station_coverage();
 		vector_tpl<fabrik_t*> affected_fab_list;
 		for (int y = -cov; y <= cov; y++) {
 			for (int x = -cov; x <= cov; x++) {

@@ -409,15 +409,15 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 							// Avoid routing over ways for which the convoy is overweight.
 							continue;
 						}
-						else if(enforce_weight_limits == 3 && (way_max_axle_load > 0 && (axle_load * 100) / way_max_axle_load > 110) || (bridge_weight_limit > 0 && (adjusted_convoy_weight * 100) / bridge_weight_limit > 110))
+						else if(enforce_weight_limits == 3 && (way_max_axle_load == 0 || (axle_load * 100) / way_max_axle_load > 110) || (bridge_weight_limit == 0 || (adjusted_convoy_weight * 100) / bridge_weight_limit > 110))
 						{
-							// Avoid routing over ways for which the convoy is more than 10% overweight.
+							// Avoid routing over ways for which the convoy is more than 10% overweight or which have a zero weight limit.
 							continue;
 						}
 					}
 				}
 
-				if(flags == choose_signal && w->has_sign())
+				if(flags == choose_signal && w && w->has_sign())
 				{
 					// Do not traverse routes with end of choose signs
 					 roadsign_t* rs = welt->lookup(w->get_pos())->find<roadsign_t>();
@@ -719,7 +719,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 				}
 
 				// Low bridges
-				if (is_tall && w->is_height_restricted())
+				if (is_tall && w && w->is_height_restricted())
 				{
 					continue;
 				}

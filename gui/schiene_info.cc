@@ -22,7 +22,7 @@ schiene_info_t::schiene_info_t(schiene_t* const s) :
 	sch(s)
 
 {
-	bool rail_track = (sch->get_desc()->get_wtyp() == monorail_wt || maglev_wt || tram_wt || narrowgauge_wt) && sch->get_desc()->get_wtyp() != air_wt;
+	bool rail_track = (sch->get_desc()->get_wtyp() == monorail_wt || sch->get_desc()->get_wtyp() == maglev_wt || sch->get_desc()->get_wtyp() == tram_wt || sch->get_desc()->get_wtyp() == narrowgauge_wt) && sch->get_desc()->get_wtyp() != air_wt;
 	bool runway = sch->get_desc()->get_wtyp() == air_wt && sch->get_desc()->get_styp() == type_runway;
 
 	if (rail_track || runway)

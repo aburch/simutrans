@@ -153,8 +153,8 @@ private:
 	*/
 	sint64 available_jobs_by_time;
 
-	// This is true of the building is in one or more world lists.
-	bool is_in_world_list;
+	// This is true if the building is in one or more world lists.
+	sint8 is_in_world_list;
 
 	// Whether the passenger and mail figures need recalculating or not.
 	bool loaded_passenger_and_mail_figres;
@@ -166,7 +166,7 @@ protected:
 	void init(player_t *player, const building_tile_desc_t *t);
 
 public:
-	gebaeude_t(loadsave_t *file);
+	gebaeude_t(loadsave_t *file, bool do_not_add_to_world_list);
 	gebaeude_t(koord3d pos,player_t *player, const building_tile_desc_t *t);
 #else
 protected:
@@ -352,8 +352,8 @@ public:
 
 	uint8 get_random_class(const goods_desc_t* wtyp);
 
-	bool get_is_in_world_list() const { return is_in_world_list; }
-	void set_in_world_list(bool value) { is_in_world_list = value; }
+	bool get_is_in_world_list() const { return is_in_world_list > 0; }
+	void set_in_world_list(bool value) { value ? is_in_world_list = 1 : is_in_world_list = 0; }
 
 	sint64 get_available_jobs_by_time() const { return available_jobs_by_time; }
 	void set_available_jobs_by_time(sint64 value) { available_jobs_by_time = value; }

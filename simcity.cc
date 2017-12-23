@@ -1270,6 +1270,7 @@ bool stadt_t::enlarge_city_borders() {
 				direction = ribi_t::north;
 				break;
 			case 1:
+			default:
 				direction = ribi_t::south;
 				break;
 			case 2:
@@ -1561,6 +1562,7 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 	calc_traffic_level();
 
 	check_road_connexions = false;
+	welt->add_queued_city(this);
 
 	number_of_cars = 0;
 }
@@ -4220,7 +4222,7 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 		}
 	}
 
-	if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_residential) {
+	if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_commercial) {
 		h = hausbauer_t::get_industrial(0, current_month, cl, new_town, neighbor_building_clusters);
 		if (h != NULL) {
 			want_to_have = building_desc_t::city_ind;

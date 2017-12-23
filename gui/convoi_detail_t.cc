@@ -660,25 +660,8 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 						display_proportional_clip(pos.x + w + offset.x + reassigned_w + w_icon, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_EDIT_TEXT_DISABLED, true);
 					}
 					extra_y += LINESPACE + 2;
-
-					//for (uint8 i = 0; i < classes_to_check; i++)
-					//{
-					//	if (v->get_total_cargo_by_class(i) > 0 && v->get_capacity(i) == 0) // make sure this is only showed when there is no current capacity for the class, ie its been reassigned to another one.
-					//	{
-					//		{
-					//			freight_info_class.clear();
-
-					//			char class_name_untranslated[32];
-					//			sprintf(class_name_untranslated, pass_veh ? "p_class[%u]" : "m_class[%u]", i);
-					//			const char* class_name = translator::translate(class_name_untranslated);
-
-					//			freight_info_class.printf("%u%s %s (%s, %s)", v->get_total_cargo_by_class(i), translator::translate(v->get_cargo_mass()), name, translator::translate("previously"), class_name);
-					//			const int px_len = display_multiline_text(pos.x + w + offset.x + extra_w, pos.y + offset.y + total_height + extra_y, freight_info_class, SYSCOL_EDIT_TEXT_DISABLED);
-					//			extra_y += LINESPACE;
-					//		}
-					//	}
-					//}
 				}
+
 				// We get the freight info via the freight_list_sorter now, so no need to do anything but fetch it
 				v->get_cargo_info(freight_info);
 				// show it
@@ -720,6 +703,17 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					extra_y += LINESPACE;
 				}
+			}		
+			if (v->get_desc()->get_is_tall())
+			{
+				buf.clear();
+				char tmpbuf1[13];
+				sprintf(tmpbuf1, "\nMUST USE: ");
+				char tmpbuf[14];
+				sprintf(tmpbuf, "high_clearance_under_bridges_(no_low_bridges)");
+				buf.printf("%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
+				display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				extra_y += LINESPACE;
 			}
 
 			// Prohibitive way constraints
@@ -738,6 +732,17 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					extra_y += LINESPACE;
 				}
+			}
+			if (v->get_desc()->get_tilting())
+			{
+				buf.clear();
+				char tmpbuf1[13];
+				sprintf(tmpbuf1, "equipped_with");
+				char tmpbuf[14];
+				sprintf(tmpbuf, "tilting_vehicle_equipment");
+				buf.printf("%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
+				display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				extra_y += LINESPACE;
 			}
 
 			//skip at least five lines

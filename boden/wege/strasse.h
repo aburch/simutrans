@@ -2,10 +2,10 @@
 #define boden_wege_strasse_h
 
 #include "weg.h"
-#include "../../tpl/minivec_tpl.h"
+//#include "../../tpl/minivec_tpl.h"
 
 class fabrik_t;
-class gebaeude_t;
+//class gebaeude_t;
 
 /**
  * Cars are able to drive on roads.
@@ -17,11 +17,11 @@ class strasse_t : public weg_t
 public:
 	static const way_desc_t *default_strasse;
 
-	minivec_tpl<gebaeude_t*> connected_buildings;
+	// Being here rather than in weg_t might have caused heap corruption.
+	//minivec_tpl<gebaeude_t*> connected_buildings;
 
 	strasse_t(loadsave_t *file);
 	strasse_t();
-	~strasse_t();
 
 	//inline waytype_t get_waytype() const {return road_wt;}
 

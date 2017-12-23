@@ -721,7 +721,7 @@ int factory_builder_t::build_chain_link(const fabrik_t* our_fab, const factory_d
 	int lcount = supplier->get_supplier_count();
 	int lfound = 0;	// number of found producers
 
-DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need %i of %s)",info->get_supplier_count(),lcount,consumption,ware->get_name());
+	DBG_MESSAGE("factory_builder_t::build_link","supplier_count %i, lcount %i (need %i of %s)",info->get_supplier_count(),lcount,consumption,ware->get_name());
 
 	// Hajo: search if there already is one or two (crossconnect everything if possible)
 	FOR(vector_tpl<fabrik_t*>, const fab, welt->get_fab_list()) {
@@ -947,6 +947,8 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 
 		FOR(vector_tpl<fabrik_t*>, fab, welt->get_fab_list())
 		{
+			sint32 available_for_consumption;
+			sint32 consumption_level;
 			for(uint16 l = 0; l < fab->get_desc()->get_supplier_count(); l ++)
 			{
 				// Check the list of possible suppliers for this factory type.
@@ -956,7 +958,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 				const vector_tpl<koord> suppliers = fab->get_suppliers();
 				
 				// Check how much of this product that the current factory needs
-				const sint32 consumption_level = fab->get_base_production() * (supplier_type ? supplier_type->get_consumption() : 1);
+				consumption_level = fab->get_base_production() * (supplier_type ? supplier_type->get_consumption() : 1);
 				
 				FOR(vector_tpl<koord>, supplier_koord, suppliers)
 				{
@@ -966,7 +968,7 @@ int factory_builder_t::increase_industry_density( bool tell_me, bool do_not_add_
 					{
 						continue;
 					}
-					sint32 available_for_consumption = 0;
+					available_for_consumption = 0;
 					for(uint p = 0; p < supplier->get_desc()->get_product_count(); p ++)
 					{
 						const factory_product_desc_t* consumer_type = supplier->get_desc()->get_product(p);

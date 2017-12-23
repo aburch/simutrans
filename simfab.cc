@@ -58,6 +58,7 @@
 
 #include "gui/simwin.h"
 #include "display/simgraph.h"
+#include "utils/simstring.h"
 
 #include "path_explorer.h"
 
@@ -964,10 +965,7 @@ void fabrik_t::delete_all_fields()
 
 fabrik_t::~fabrik_t()
 {
-	// The below is suspected of causing heap corruption, although this has not been
-	// determined conclusively. It amounts to a real optimisation when enabled.
-	// The heap corruption, when present, is extremely hard to reproduce or trace.
-	//if (!welt->is_destroying())
+	if (!welt->is_destroying())
 	{
 		mark_connected_roads(true);
 	}
@@ -1655,7 +1653,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	{
 		if (file->is_loading())
 		{
-			building = new gebaeude_t(file);
+			building = new gebaeude_t(file, true);
 		}
 		else // Saving
 		{
@@ -3285,6 +3283,8 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 {
 	buf.clear();
 	bool has_previous = false;
+	double distance;
+	char distance_display[10];
 	if (!lieferziele.empty()) {
 		has_previous = true;
 		buf.append(translator::translate("Abnehmer"));
@@ -3292,11 +3292,24 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		FOR(vector_tpl<koord>, const& lieferziel, lieferziele) {
 			fabrik_t *fab = get_fab( lieferziel );
 			if(fab) {
-				if(  is_active_lieferziel(lieferziel)  ) {
-					buf.printf("\n      %s (%d,%d)", translator::translate(fab->get_name()), lieferziel.x, lieferziel.y);
+				distance = (double)(shortest_distance(get_pos().get_2d(), fab->get_pos().get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000.0;
+				if (distance < 1)
+				{
+					sprintf(distance_display, "%.0fm", distance * 1000);
+				}
+				else
+				{
+					uint n_actual = distance < 5 ? 1 : 0;
+					char tmp[10];
+					number_to_string(tmp, distance, n_actual);
+					sprintf(distance_display, "%skm", tmp);
+				}
+
+				if (is_active_lieferziel(lieferziel)) {
+					buf.printf("\n      %s - %s (%d,%d)", translator::translate(fab->get_name()), distance_display, lieferziel.x, lieferziel.y);
 				}
 				else {
-					buf.printf("\n   %s (%d,%d)", translator::translate(fab->get_name()), lieferziel.x, lieferziel.y);
+					buf.printf("\n   %s - %s (%d,%d)", translator::translate(fab->get_name()), distance_display, lieferziel.x, lieferziel.y);
 				}
 			}
 		}
@@ -3310,12 +3323,26 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		buf.append(translator::translate("Suppliers"));
 
 		FOR(vector_tpl<koord>, const& supplier, suppliers) {
-			if(  fabrik_t *src = get_fab( supplier )  ) {
-				if(  src->is_active_lieferziel(get_pos().get_2d())  ) {
-					buf.printf("\n      %s (%d,%d)", translator::translate(src->get_name()), supplier.x, supplier.y);
+			if(  fabrik_t *src = get_fab( supplier )  ) 
+			{
+				distance = (double)(shortest_distance(get_pos().get_2d(), src->get_pos().get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000.0;
+				if (distance < 1)
+				{
+					sprintf(distance_display, "%.0fm", distance * 1000);
+				}
+				else
+				{
+					uint n_actual = distance < 5 ? 1 : 0;
+					char tmp[10];
+					number_to_string(tmp, distance, n_actual);
+					sprintf(distance_display, "%skm", tmp);
+				}
+				if(  src->is_active_lieferziel(get_pos().get_2d())  ) 
+				{
+					buf.printf("\n      %s - %s (%d,%d)", translator::translate(src->get_name()), distance_display, supplier.x, supplier.y);
 				}
 				else {
-					buf.printf("\n   %s (%d,%d)", translator::translate(src->get_name()), supplier.x, supplier.y);
+					buf.printf("\n   %s - %s (%d,%d)", translator::translate(src->get_name()), distance_display, supplier.x, supplier.y);
 				}
 			}
 		}
