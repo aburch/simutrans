@@ -16,7 +16,7 @@ class times_history_entry_t : public gui_world_component_t
 {
 private:
 	char times_str[TIMES_HISTORY_SIZE][32];
-	char average_time_str[32] = "----";
+	char average_time_str[32];
 	times_history_data_t *history;
 
 public:

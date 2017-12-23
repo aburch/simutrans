@@ -171,8 +171,8 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_component(&replace_button);
 	replace_button.add_listener(this);
 
-	time_history_button.init(button_t::roundbox, "Times History", dummy, D_BUTTON_SIZE);
-	time_history_button.set_tooltip("View journey times history of this convoy.");
+	time_history_button.init(button_t::roundbox, "times_history", dummy, D_BUTTON_SIZE);
+	time_history_button.set_tooltip("view_journey_times_history_of_this_convoy");
 	add_component(&time_history_button);
 	time_history_button.add_listener(this);
 

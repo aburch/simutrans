@@ -3,6 +3,7 @@
 #include "../simline.h"
 #include "../dataobj/schedule.h"
 #include "../display/viewport.h"
+#include "../dataobj/translator.h"
 
 #include "times_history.h"
 
@@ -61,7 +62,7 @@ void times_history_t::times_history_info()
 		schedule = line->get_schedule();
 		map = &line->get_journey_times_history();
 		name = line->get_name();
-		title_buf.append("Line Times History: ");
+		title_buf.append(translator::translate("line_times_history"));
 
 		mirrored = schedule->is_mirrored();
 		reversed = false;
@@ -83,7 +84,7 @@ void times_history_t::times_history_info()
 		schedule = convoi->get_schedule();
 		map = &convoi->get_journey_times_history();
 		name = convoi->get_name();
-		title_buf.append("Convoy Times History: ");
+		title_buf.append(translator::translate("convoy_times_history"));
 
 		mirrored = schedule->is_mirrored();
 		reversed = convoi->get_reverse_schedule();

@@ -259,8 +259,8 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	bt_line_class_manager.add_listener(this);
 	add_component(&bt_line_class_manager);
 
-	bt_time_history.init(button_t::roundbox, "Times History", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH * 2, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 2), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-	bt_time_history.set_tooltip("View journey times history of this line.");
+	bt_time_history.init(button_t::roundbox, "times_history", scr_coord(LINE_NAME_COLUMN_WIDTH + D_BUTTON_WIDTH * 2, 14 + SCL_HEIGHT + D_BUTTON_HEIGHT + 2), scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
+	bt_time_history.set_tooltip("view_journey_times_history_of_this_line");
 	bt_time_history.set_visible(true);
 	bt_time_history.add_listener(this);
 	add_component(&bt_time_history);

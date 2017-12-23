@@ -14,9 +14,9 @@ times_history_container_t::times_history_container_t(const player_t *owner_, sch
 	mirrored(mirrored_),
 	reversed(reversed_),
 	lbl_order(NULL),
-	lbl_name_header("Stations"),
-	lbl_time_header("Latest 3"),
-	lbl_average_header("Average")
+	lbl_name_header("stations"),
+	lbl_time_header("latest_3"),
+	lbl_average_header("average")
 {
 	lbl_average_header.set_align(gui_label_t::centered);
 	lbl_time_header.set_align(gui_label_t::centered);
@@ -67,8 +67,7 @@ void times_history_container_t::update_container() {
 	slist_tpl<departure_point_t *> *time_keys = new slist_tpl<departure_point_t *>();
 
 	if (mirrored) {
-		// Mirrored direction
-		lbl_order.set_text("Bidirectional:");
+		lbl_order.set_text("bidirectional_order");
 
 		sint16 first_halt_index = -1;
 		sint16 last_halt_index = -1;
@@ -104,8 +103,7 @@ void times_history_container_t::update_container() {
 		}
 	}
 	else if (reversed) {
-		// Reversed direction
-		lbl_order.set_text("Reversed order:");
+		lbl_order.set_text("reversed_unidirectional_order");
 		sint16 first_halt_index = -1;
 		for (sint16 i = size - 1; i >= 0; i--) {
 			const halthandle_t halt = haltestelle_t::get_halt(entries[i].pos, owner);
@@ -118,8 +116,7 @@ void times_history_container_t::update_container() {
 		schedule_indices->append(first_halt_index);
 	}
 	else {
-		// Normal direction
-		lbl_order.set_text("Normal order:");
+		lbl_order.set_text("normal_unidirectional_order");
 		sint16 first_halt_index = -1;
 		for (sint16 i = 0; i < size; i++) {
 			const halthandle_t halt = haltestelle_t::get_halt(entries[i].pos, owner);
