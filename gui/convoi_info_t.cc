@@ -385,6 +385,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			replace_button.enable();
 			reverse_button.pressed = cnv->get_reverse_schedule();
 			reverse_button.enable();
+			time_history_button.enable();
 		}
 		else {
 			if (line_bound) {
@@ -397,6 +398,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			no_load_button.disable();
 			replace_button.disable();
 			reverse_button.disable();
+			time_history_button.disable();
 		}
 		follow_button.pressed = (welt->get_viewport()->get_follow_convoi() == cnv);
 
