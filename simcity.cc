@@ -4158,6 +4158,54 @@ int stadt_t::get_best_layout(const building_desc_t* h, const koord & k) const {
 	}
 }
 
+/*
+ * get available building sizes to renovate
+ *
+ */
+void stadt_t::get_available_building_size(const koord k, vector_tpl<koord> &sizes) const {
+	sizes.clear();
+	const uint8 LEN_LIM = 6;
+	for(uint8 w=1; w<=LEN_LIM; w++) {
+		for(uint8 h=1; h<=LEN_LIM; h++) {
+			bool check_continue = true;
+			for(uint8 x=0; x<w; x++) {
+				if(!check_continue) {
+					continue;
+				}
+				for(uint8 y=0; y<h; y++) {
+					koord p = k;
+					p.x += x;
+					p.y += y;
+					grund_t* gr = welt->lookup_kartenboden(p);
+					// the tile must be nature or a city building.
+					if(  !gr  ||  !(gr->ist_natur()  ||  (gr->get_building()  &&  gr->get_building()->is_city_building()))) {
+						check_continue = false;
+						continue;
+					}
+					// buildings in the area must not be in the outside of the area.
+					if(x==0  ||  y==0  ||  x==w-1  ||  y==h-1) {
+						if(const gebaeude_t* gb = gr->get_building()) {
+							const building_desc_t* desc = gb->get_tile();
+							if(gb->get_pos().x<k.x  ||  gb->get_pos().y<k.y) {
+								check_continue = false;
+								continue;
+							}
+							if(k.x+w<gb->get_pos().x+desc->get_size().x  ||  k.y+h<gb->get_pos().y+desc->get_size().y) {
+								check_continue = false;
+								continue;
+							}
+						}
+					}
+				}
+			}
+			if(check_continue) {
+				koord s(w,h);
+				
+			}
+		}
+	}
+}
+
 
 void stadt_t::build_city_building(const koord k, bool new_town, bool map_generation)
 {
