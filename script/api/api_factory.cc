@@ -182,7 +182,7 @@ void export_factory(HSQUIRRELVM vm)
 	 * Class to access information about factories.
 	 * Identified by coordinate.
 	 */
-	begin_class(vm, "factory_x", "extend_get,coord");
+	begin_class(vm, "factory_x", "extend_get,coord,ingame_object");
 
 	/**
 	 * Constructor.
@@ -221,6 +221,10 @@ void export_factory(HSQUIRRELVM vm)
 	 */
 	table<factory_production_x> output;
 #endif
+	/**
+	 * @returns if object is still valid.
+	 */
+	export_is_valid<fabrik_t*>(vm); //register_function("is_valid")
 
 	/**
 	 * Get list of consumers of this factory.

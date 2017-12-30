@@ -752,5 +752,20 @@ namespace script_api {
 	};
 
 
+	/**
+	 * Exports function to check whether pointer to in-game object is not null
+	 */
+	template<class P>	SQInteger is_ptr_valid(HSQUIRRELVM vm)
+	{
+		P ptr = param<P>::get(vm, 1);
+		sq_pushbool(vm, ptr != NULL);
+		return 1;
+	}
+	template<class P> void export_is_valid(HSQUIRRELVM vm)
+	{
+		register_function(vm, is_ptr_valid<P>, "is_valid", 1, param<P>::typemask());
+		log_squirrel_type(param<P>::squirrel_type(), "is_valid", "bool()");
+	}
+
 }; // end of namespace
 #endif

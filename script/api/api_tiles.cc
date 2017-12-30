@@ -104,7 +104,7 @@ void export_tiles(HSQUIRRELVM vm)
 	 * }
 	 * @endcode
 	 */
-	begin_class(vm, "tile_x", "extend_get,coord3d");
+	begin_class(vm, "tile_x", "extend_get,coord3d,ingame_object");
 
 	/**
 	 * Constructor. Returns tile at particular 3d coordinate.
@@ -118,7 +118,10 @@ void export_tiles(HSQUIRRELVM vm)
 	// actually defined in simutrans/script/script_base.nut
 	// register_function(..., "constructor", ...);
 
-
+	/**
+	 * @returns if object is still valid.
+	 */
+	export_is_valid<grund_t*>(vm); //register_function("is_valid")
 	/**
 	 * Search for a given object type on the tile.
 	 * @return some instance or null if not found
@@ -269,7 +272,7 @@ void export_tiles(HSQUIRRELVM vm)
 	/**
 	 * Class to map squares, which holds all the tiles on one particular coordinate.
 	 */
-	begin_class(vm, "square_x", "extend_get,coord");
+	begin_class(vm, "square_x", "extend_get,coord,ingame_object");
 
 	/**
 	 * Constructor. Returns map square at particular 2d coordinate.
@@ -280,6 +283,11 @@ void export_tiles(HSQUIRRELVM vm)
 	 */
 	// actually defined in simutrans/script/script_base.nut
 	// register_function(..., "constructor", ...);
+
+	/**
+	 * @returns if object is still valid.
+	 */
+	export_is_valid<planquadrat_t*>(vm); //register_function("is_valid")
 	/**
 	 * Access some halt at this square.
 	 * @deprecated Use square_x::get_player_halt or tile_x::get_halt instead!

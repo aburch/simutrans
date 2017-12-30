@@ -186,7 +186,11 @@ void export_convoy(HSQUIRRELVM vm)
 	 * Class to access a convoy.
 	 * Player vehicles are convoys, which themselves consist of individual vehicles (trucks, trailers, ...).
 	 */
-	begin_class(vm, "convoy_x", "extend_get");
+	begin_class(vm, "convoy_x", "extend_get,ingame_object");
+	/**
+	 * @returns if object is still valid.
+	 */
+	export_is_valid<convoi_t*>(vm); //register_function("is_valid")
 	/**
 	 * Does convoy needs electrified ways?
 	 * @returns true if this is the case
