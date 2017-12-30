@@ -56,6 +56,8 @@ private:
 	 */
 	static const building_desc_t* get_random_desc(vector_tpl<const building_desc_t*>& list, uint16 time, bool ignore_retire, climate cl);
 
+	static const building_desc_t* get_city_building_from_list(const vector_tpl<const building_desc_t*>& building_list, koord pos_origin, koord size, uint16 time, climate cl, bool allow_earlier, uint32 clusters);
+
 public:
 	/**
 	 * Finds a station building, which enables pas/mail/goods for the AI.
@@ -82,21 +84,21 @@ public:
 	 * eindeutig aufsteigend.
 	 * @author V. Meyer
 	 */
-	static const building_desc_t* get_commercial(int level, uint16 time, climate cl, bool allow_earlier = false, uint32 clusters = 0l);
+	static const building_desc_t* get_commercial(koord pos_origin, koord size, uint16 time, climate cl, bool allow_earlier = false, uint32 clusters = 0l);
 
 	/**
 	 * Industriegebäude passend zum Level liefern. Zur Zeit sind die Einträge
 	 * eindeutig aufsteigend.
 	 * @author V. Meyer
 	 */
-	static const building_desc_t* get_industrial(int level, uint16 time, climate cl, bool allow_earlier = false, uint32 clusters = 0l);
+	static const building_desc_t* get_industrial(koord pos_origin, koord size, uint16 time, climate cl, bool allow_earlier = false, uint32 clusters = 0l);
 
 	/**
 	 * Wohnhaus passend zum Level liefern. Zur Zeit sind die Einträge
 	 * eindeutig aufsteigend.
 	 * @author V. Meyer
 	 */
-	static const building_desc_t* get_residential(int level, uint16 time, climate cl, bool allow_earlier = false, uint32 clusters = 0l);
+	static const building_desc_t* get_residential(koord pos_origin, koord size, uint16 time, climate cl, bool allow_earlier = false, uint32 clusters = 0l);
 
 	/**
 	 * Returns Headquarters with Level level
