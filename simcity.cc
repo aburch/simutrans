@@ -4432,6 +4432,8 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		// Found no suitable building.  Return!
 		return false;
 	}
+	// TODO: this must be fixed somehow!
+	/*
 	if (h->get_clusters() == 0) {
 		// This is a non-clustering building.  Do not allow it next to an identical building.
 		// (This avoids "boring cities", supposedly.)
@@ -4444,10 +4446,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 			}
 		}
 	}
-
-	if (alt_typ != want_to_have) {
-		sum -= level * 10;
-	}
+	*/
 
 	// good enough to renovate, and we found a building?
 	if (sum > 0 && h != NULL)
@@ -4494,18 +4493,26 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 			}
 		}
 
-		switch(alt_typ) {
-			case building_desc_t::city_res:   won -= h->get_level() * 10; break;
-			case building_desc_t::city_com:   arb -=  h->get_level() * 20; break;
-			case building_desc_t::city_ind: arb -=  h->get_level() * 20; break;
-			default: break;
-		}
-
 		const int layout = get_best_layout(h, k);
 		// The building is being replaced.  The surrounding landscape may have changed since it was
 		// last built, and the new building should change height along with it, rather than maintain the old
 		// height.  So delete and rebuild, even though it's slower.
-		hausbauer_t::remove( NULL, gb, map_generation );
+		for(uint8 x=0; x<h->get_size().x; x++) {
+			for(uint8 y=0; y<h->get_size().y; y++) {
+				const grund_t* gr = welt->lookup_kartenboden(k+koord(x,y));
+				assert(gr);
+				const gebaeude_t* bldg = gr->get_building();
+				if(bldg) {
+					switch(bldg->get_type()) {
+						case building_desc_t::city_res: won -= h->get_level() * 10; break;
+						case building_desc_t::city_com: arb -= h->get_level() * 20; break;
+						case building_desc_t::city_ind: arb -= h->get_level() * 20; break;
+						default: break;
+					}
+					hausbauer_t::remove(NULL, bldg, map_generation);
+				}
+			}
+		}
 
 		koord3d pos = welt->lookup_kartenboden(k)->get_pos();
 		gebaeude_t* new_gb = hausbauer_t::build(NULL, pos, layout, h);
