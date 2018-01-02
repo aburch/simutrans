@@ -304,7 +304,7 @@ void hausbauer_t::new_world()
 
 
 
-void hausbauer_t::remove( player_t *player, gebaeude_t *gb, bool map_generation ) //gebaeude = "building" (Babelfish)
+void hausbauer_t::remove( player_t *player, const gebaeude_t *gb, bool map_generation ) //gebaeude = "building" (Babelfish)
 {
 	const building_tile_desc_t *tile  = gb->get_tile();
 	const building_desc_t *bdsc = tile->get_desc();

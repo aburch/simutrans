@@ -4260,25 +4260,26 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 	}
 
 	// Find a house to build
+	const koord size_single(1,1);
 	building_desc_t::btype want_to_have = building_desc_t::unknown;
 	const building_desc_t* h = NULL;
 
 	if (sum_commercial > sum_industrial  &&  sum_commercial > sum_residential) {
-		h = hausbauer_t::get_commercial(0, current_month, cl, new_town, neighbor_building_clusters);
+		h = hausbauer_t::get_commercial(0, size_single, current_month, cl, new_town, neighbor_building_clusters);
 		if (h != NULL) {
 			want_to_have = building_desc_t::city_com;
 		}
 	}
 
 	if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_commercial) {
-		h = hausbauer_t::get_industrial(0, current_month, cl, new_town, neighbor_building_clusters);
+		h = hausbauer_t::get_industrial(0, size_single, current_month, cl, new_town, neighbor_building_clusters);
 		if (h != NULL) {
 			want_to_have = building_desc_t::city_ind;
 		}
 	}
 
 	if (h == NULL  &&  sum_residential > sum_industrial  &&  sum_residential > sum_commercial) {
-		h = hausbauer_t::get_residential(0, current_month, cl, new_town, neighbor_building_clusters);
+		h = hausbauer_t::get_residential(0, size_single, current_month, cl, new_town, neighbor_building_clusters);
 		if (h != NULL) {
 			want_to_have = building_desc_t::city_res;
 		}
@@ -4396,7 +4397,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 	const building_desc_t* h = NULL;
 	if (sum_commercial > sum_industrial && sum_commercial > sum_residential) {
 		// we must check, if we can really update to higher level ...
-		h = hausbauer_t::get_commercial(gb->get_pos(), gb->get_tile()->get_desc()->get_size(), current_month, cl, false, neighbor_building_clusters);
+		h = hausbauer_t::get_commercial(k, gb->get_tile()->get_desc()->get_size(), current_month, cl, false, neighbor_building_clusters);
 		if(  h != NULL  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
 			want_to_have = building_desc_t::city_com;
 			sum = sum_commercial;
@@ -4406,8 +4407,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 	if(    (sum_industrial > sum_commercial  &&  sum_industrial > sum_residential)
       || (sum_commercial > sum_residential  &&  want_to_have == building_desc_t::unknown)  ) {
 		// we must check, if we can really update to higher level ...
-		const int try_level = (alt_typ == building_desc_t::city_com ? level + 1 : level);
-		h = hausbauer_t::get_industrial(gb->get_pos(), gb->get_tile()->get_desc()->get_size(), current_month, cl, false, neighbor_building_clusters);
+		h = hausbauer_t::get_industrial(k, gb->get_tile()->get_desc()->get_size(), current_month, cl, false, neighbor_building_clusters);
 		if(  h != NULL  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
 			want_to_have = building_desc_t::city_ind;
 			sum = sum_industrial;
@@ -4417,8 +4417,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 	// (sum_residential > sum_industrial  &&  sum_residential > sum_commercial
 	if (  want_to_have == building_desc_t::unknown ) {
 		// we must check, if we can really update to higher level ...
-		const int try_level = (alt_typ == building_desc_t::city_res ? level + 1 : level);
-		h = hausbauer_t::get_residential(gb->get_pos(), gb->get_tile()->get_desc()->get_size(), current_month, cl, false, neighbor_building_clusters);
+		h = hausbauer_t::get_residential(k, gb->get_tile()->get_desc()->get_size(), current_month, cl, false, neighbor_building_clusters);
 		if(  h != NULL  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
 			want_to_have = building_desc_t::city_res;
 			sum = sum_residential;
@@ -4503,7 +4502,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 				assert(gr);
 				const gebaeude_t* bldg = gr->get_building();
 				if(bldg) {
-					switch(bldg->get_type()) {
+					switch(bldg->get_tile()->get_desc()->get_type()) {
 						case building_desc_t::city_res: won -= h->get_level() * 10; break;
 						case building_desc_t::city_com: arb -= h->get_level() * 20; break;
 						case building_desc_t::city_ind: arb -= h->get_level() * 20; break;
