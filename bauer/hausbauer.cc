@@ -964,10 +964,9 @@ const building_desc_t* hausbauer_t::get_city_building_from_list(const vector_tpl
 	const uint16 level_replaced = sum_level;
 	const uint16 area_of_building = size.x*size.y;
 
-	FOR(vector_tpl<building_desc_t const*>, const desc, building_list)
-	{
+	FOR(vector_tpl<building_desc_t const*>, const desc, building_list) {
 		// only allow buildings of the designated size.
-		if(is_allowed_size(desc, size)) {
+		if(!is_allowed_size(desc, size)) {
 			continue;
 		}
 
@@ -988,7 +987,6 @@ const building_desc_t* hausbauer_t::get_city_building_from_list(const vector_tpl
 		if(  thislevel == sum_level  &&  desc->get_distribution_weight() > 0  ) {
 			if(  cl==MAX_CLIMATES  ||  desc->is_allowed_climate(cl)  ) {
 				if(  time == 0  ||  (desc->get_intro_year_month() <= time  &&  ((allow_earlier && random > 65) || desc->get_retire_year_month() > time ))  ) {
-//					DBG_MESSAGE("hausbauer_t::get_city_building_from_list()","appended %s at %i", desc->get_name(), thislevel );
 					/* Level, time period, and climate are all OK.
 					 * Now modify the distribution_weight rating by a factor based on the clusters.
 					 */

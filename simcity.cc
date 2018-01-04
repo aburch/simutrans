@@ -4170,17 +4170,15 @@ void stadt_t::get_available_building_size(const koord k, vector_tpl<koord> &size
 			bool check_continue = true;
 			for(uint8 x=0; x<w; x++) {
 				if(!check_continue) {
-					continue;
+					break;
 				}
 				for(uint8 y=0; y<h; y++) {
-					koord p = k;
-					p.x += x;
-					p.y += y;
+					koord p = k + koord(x,y);
 					grund_t* gr = welt->lookup_kartenboden(p);
 					// the tile must be nature or a city building.
 					if(  !gr  ||  !(gr->ist_natur()  ||  (gr->get_building()  &&  gr->get_building()->is_city_building()))) {
 						check_continue = false;
-						continue;
+						break;
 					}
 					// buildings in the area must not be in the outside of the area.
 					if(x==0  ||  y==0  ||  x==w-1  ||  y==h-1) {
@@ -4188,11 +4186,11 @@ void stadt_t::get_available_building_size(const koord k, vector_tpl<koord> &size
 							const building_desc_t* desc = gb->get_tile()->get_desc();
 							if(gb->get_pos().x<k.x  ||  gb->get_pos().y<k.y) {
 								check_continue = false;
-								continue;
+								break;
 							}
 							if(k.x+w<gb->get_pos().x+desc->get_size().x  ||  k.y+h<gb->get_pos().y+desc->get_size().y) {
 								check_continue = false;
-								continue;
+								break;
 							}
 						}
 					}
@@ -4337,10 +4335,6 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		return false; // only renovate res, com, ind
 	}
 
-	if (  gb->get_tile()->get_desc()->get_x()*gb->get_tile()->get_desc()->get_y() !=1  ) {
-		return false; // too big ...
-	}
-
 	// Now we are sure that this is a city building
 	const int level = gb->get_tile()->get_desc()->get_level();
 	const koord k = gb->get_pos().get_2d();
@@ -4391,38 +4385,50 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 
 	// get available building sizes.
 	vector_tpl<koord> available_sizes;
-	get_available_building_size(gb->get_pos().get_2d(),available_sizes);
+	get_available_building_size(k, available_sizes);
+	const uint8 size_offset = simrand(available_sizes.get_count(), "bool stadt_t::renovate_city_building");
 
 	// try to build
 	const building_desc_t* h = NULL;
 	if (sum_commercial > sum_industrial && sum_commercial > sum_residential) {
 		// we must check, if we can really update to higher level ...
-		h = hausbauer_t::get_commercial(k, gb->get_tile()->get_desc()->get_size(), current_month, cl, false, neighbor_building_clusters);
-		if(  h != NULL  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
-			want_to_have = building_desc_t::city_com;
-			sum = sum_commercial;
+		for(uint8 i=0; i<available_sizes.get_count(); i++) {
+			h = hausbauer_t::get_commercial(k, available_sizes[(i+size_offset)%available_sizes.get_count()], current_month, cl, false, neighbor_building_clusters);
+			if(  h != NULL  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
+				want_to_have = building_desc_t::city_com;
+				sum = sum_commercial;
+				break;
+			}
 		}
 	}
 	// check for industry, also if we wanted com, but there was no com good enough ...
 	if(    (sum_industrial > sum_commercial  &&  sum_industrial > sum_residential)
       || (sum_commercial > sum_residential  &&  want_to_have == building_desc_t::unknown)  ) {
 		// we must check, if we can really update to higher level ...
-		h = hausbauer_t::get_industrial(k, gb->get_tile()->get_desc()->get_size(), current_month, cl, false, neighbor_building_clusters);
-		if(  h != NULL  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
-			want_to_have = building_desc_t::city_ind;
-			sum = sum_industrial;
+		for(uint8 i=0; i<available_sizes.get_count(); i++) {
+			h = hausbauer_t::get_industrial(k, available_sizes[(i+size_offset)%available_sizes.get_count()], current_month, cl, false, neighbor_building_clusters);
+			if(  h != NULL  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
+				want_to_have = building_desc_t::city_ind;
+				sum = sum_industrial;
+				break;
+			}
 		}
 	}
 	// check for residence
 	// (sum_residential > sum_industrial  &&  sum_residential > sum_commercial
 	if (  want_to_have == building_desc_t::unknown ) {
 		// we must check, if we can really update to higher level ...
-		h = hausbauer_t::get_residential(k, gb->get_tile()->get_desc()->get_size(), current_month, cl, false, neighbor_building_clusters);
-		if(  h != NULL  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
-			want_to_have = building_desc_t::city_res;
-			sum = sum_residential;
+		bool found = false;
+		for(uint8 i=0; i<available_sizes.get_count(); i++) {
+			h = hausbauer_t::get_residential(k, available_sizes[(i+size_offset)%available_sizes.get_count()], current_month, cl, false, neighbor_building_clusters);
+			if(  h != NULL  &&  (max_level == 0 || h->get_level() <= max_level)  ) {
+				want_to_have = building_desc_t::city_res;
+				sum = sum_residential;
+				found = true;
+				break;
+			}
 		}
-		else {
+		if(!found) {
 			h = NULL;
 		}
 	}
