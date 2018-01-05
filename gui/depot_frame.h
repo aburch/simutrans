@@ -198,7 +198,6 @@ private:
 	cbuffer_t txt_convoi_power;
 	cbuffer_t txt_convoi_weight;
 
-	scr_coord_val DEPOT_AREA_WIDTH;
 	scr_coord_val second_column_x; // x position of the second text column
 	scr_coord_val second_column_w;
 
