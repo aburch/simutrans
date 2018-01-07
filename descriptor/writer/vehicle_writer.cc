@@ -907,6 +907,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// This is the cost of upgrading to this vehicle, rather than buying it new.
 	// By default, the cost is the same as a new purchase.
 	uint32 upgrade_price = (obj.get_int("upgrade_price", cost));
+	upgrade_price = (obj.get_int("upgrade_cost", upgrade_price)); 
 	node.write_uint32(fp, upgrade_price, pos);
 	pos += sizeof(uint32);
 
