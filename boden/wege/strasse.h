@@ -17,8 +17,7 @@ class strasse_t : public weg_t
 public:
 	static const way_desc_t *default_strasse;
 
-	// Being here rather than in weg_t might have caused heap corruption.
-	//minivec_tpl<gebaeude_t*> connected_buildings;
+	minivec_tpl<gebaeude_t*> connected_buildings;
 
 	strasse_t(loadsave_t *file);
 	strasse_t();
