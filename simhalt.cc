@@ -1334,7 +1334,7 @@ void haltestelle_t::step()
 				// Checks to see whether the freight has been waiting too long.
 				// If so, discard it.
 
-				if(tmp.get_desc()->get_speed_bonus() > 0u) // TODO: Consider what to do about this when speed boni are deprecated. Should the base data for speed boni be retained just for this?
+				if(tmp.get_desc()->get_speed_bonus() > 0u) // TODO: Consider what to do about this now that speed boni are deprecated. Should the base data for speed boni be retained just for this?
 				{
 					// Only consider for discarding if the goods (ever) care about their timings.
 					// Use 32-bit math; it's very easy to overflow 16 bits.
