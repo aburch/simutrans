@@ -701,6 +701,9 @@ void grund_t::info(cbuffer_t& buf, bool dummy) const
 	if(get_weg_ribi_unmasked(water_wt)) {
 		buf.printf("\nwater ribi: %i",get_weg_ribi_unmasked(water_wt));
 	}
+	if (is_water()) {
+		buf.printf("\ncanal ribi: %i", ((const wasser_t*)this)->get_canal_ribi());
+	}
 	buf.printf("\ndraw_as_obj= %i",(flags&draw_as_obj)!=0);
 	buf.append("\nclimates= ");
 	bool following = false;
