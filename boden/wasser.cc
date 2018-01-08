@@ -54,8 +54,10 @@ void wasser_t::calc_image_internal(const bool calc_only_snowline_change)
 		ribi = ribi_t::none;
 		for(  uint8 i = 0;  i < 4;  i++  ) {
 			grund_t *gr_neighbour = NULL;
-			if(  get_neighbour( gr_neighbour, invalid_wt, ribi_t::nsew[i] )  &&  (gr_neighbour->is_water()  ||  gr_neighbour->hat_weg( water_wt ))  ) {
-				ribi |= ribi_t::nsew[i];
+			if(  get_neighbour( gr_neighbour, invalid_wt, ribi_t::nsew[i] )  ) {
+				if (gr_neighbour->is_water()  ||  (gr_neighbour->get_weg_ribi(water_wt) & ribi_t::reverse_single(ribi_t::nsew[i]))!=0 ) {
+					ribi |= ribi_t::nsew[i];
+				}
 			}
 		}
 
