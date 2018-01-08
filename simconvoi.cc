@@ -5812,8 +5812,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				// Departures/month
 				const sint64 spacing = welt->ticks_per_world_month / (sint64)schedule->get_spacing();
 				const sint64 spacing_shift = (sint64)schedule->get_current_eintrag().spacing_shift * welt->ticks_per_world_month / (sint64)welt->get_settings().get_spacing_shift_divisor();
-				const sint64 wait_from_ticks = ((now - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
-				const sint64 queue_pos = halt.is_bound() ? halt->get_queue_pos(self) : 1ll;
+				const sint64 wait_from_ticks = ((now + reversing_time - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
+				sint64 queue_pos = halt.is_bound() ? halt->get_queue_pos(self) : 1ll;
 				go_on_ticks_spacing = (wait_from_ticks + spacing * queue_pos) - reversing_time;
 			}
 			
