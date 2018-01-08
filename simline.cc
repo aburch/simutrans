@@ -771,7 +771,7 @@ void simline_t::calc_classes_carried()
 		
 		/*
 
-		for (uint8 j = 0; j < cnv.get_classes_carried(goods_manager_t::INDEX_PAS)->get_count(); j++)
+		for (uint32 j = 0; j < cnv.get_classes_carried(goods_manager_t::INDEX_PAS)->get_count(); j++)
 		{
 			if (cnv.get_goods_catg_index().is_contained(goods_manager_t::INDEX_PAS))
 			{
@@ -782,7 +782,7 @@ void simline_t::calc_classes_carried()
 			}
 		}
 
-		for (uint8 j = 0; j < cnv.get_classes_carried(goods_manager_t::INDEX_MAIL)->get_count(); j++)
+		for (uint32 j = 0; j < cnv.get_classes_carried(goods_manager_t::INDEX_MAIL)->get_count(); j++)
 		{
 			if (cnv.get_goods_catg_index().is_contained(goods_manager_t::INDEX_MAIL))
 			{
@@ -821,12 +821,12 @@ void simline_t::recalc_catg_index()
 	minivec_tpl<uint8> old_passenger_classes_carried;
 	minivec_tpl<uint8> old_mail_classes_carried;
 
-	for (uint8 i = 0; i < passenger_classes_carried.get_count(); i++)
+	for (uint32 i = 0; i < passenger_classes_carried.get_count(); i++)
 	{
 		old_passenger_classes_carried.append(i);
 	}
 
-	for (uint8 i = 0; i < mail_classes_carried.get_count(); i++)
+	for (uint32 i = 0; i < mail_classes_carried.get_count(); i++)
 	{
 		old_mail_classes_carried.append(i);
 	}

@@ -1700,14 +1700,14 @@ void convoi_t::step()
 				{
 					if (i == goods_manager_t::INDEX_PAS)
 					{
-						for (uint8 j = 0; j < passenger_classes_carried.get_count(); ++j)
+						for (uint32 j = 0; j < passenger_classes_carried.get_count(); ++j)
 						{
 							old_passenger_classes_carried.append(passenger_classes_carried[j]);
 						}
 					}
 					else if (i == goods_manager_t::INDEX_MAIL)
 					{
-						for (uint8 j = 0; j < mail_classes_carried.get_count(); ++j)
+						for (uint32 j = 0; j < mail_classes_carried.get_count(); ++j)
 						{
 							old_mail_classes_carried.append(mail_classes_carried[j]);
 						}
@@ -1854,7 +1854,7 @@ end_loop:
 							// Only relevant for passengers and mail.
 							if (i == goods_manager_t::INDEX_PAS)
 							{
-								for (uint8 j = 0; j < passenger_classes_carried.get_count(); j++)
+								for (uint32 j = 0; j < passenger_classes_carried.get_count(); j++)
 								{
 									if (old_passenger_classes_carried.get_count() <= j || !passenger_classes_carried.is_contained(old_passenger_classes_carried.get_element(j)))
 									{
@@ -1862,7 +1862,7 @@ end_loop:
 									}
 								}
 
-								for (uint8 j = 0; j < old_passenger_classes_carried.get_count(); j++)
+								for (uint32 j = 0; j < old_passenger_classes_carried.get_count(); j++)
 								{
 									if(passenger_classes_carried.get_count() <= j || !old_passenger_classes_carried.is_contained(passenger_classes_carried.get_element(j)))
 									{
@@ -5869,8 +5869,8 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 				// Departures/month
 				const sint64 spacing = welt->ticks_per_world_month / (sint64)schedule->get_spacing();
 				const sint64 spacing_shift = (sint64)schedule->get_current_eintrag().spacing_shift * welt->ticks_per_world_month / (sint64)welt->get_settings().get_spacing_shift_divisor();
-				const sint64 wait_from_ticks = ((now - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
-				const sint64 queue_pos = halt.is_bound() ? halt->get_queue_pos(self) : 1ll;
+				const sint64 wait_from_ticks = ((now + reversing_time - spacing_shift) / spacing) * spacing + spacing_shift; // remember, it is integer division
+				sint64 queue_pos = halt.is_bound() ? halt->get_queue_pos(self) : 1ll;
 				go_on_ticks_spacing = (wait_from_ticks + spacing * queue_pos) - reversing_time;
 			}
 			

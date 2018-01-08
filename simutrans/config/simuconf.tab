@@ -578,7 +578,7 @@ cst_make_public_months = 60
 # 200 seems to be a good compromise between speed and road number
 # note: this will slow down map creation dramatically!
 #
-#intercity_road_length = 200
+intercity_road_length = 1024
 
 # This is the maximum number of tiles that a road, river or canal
 # that is a public right of way may be diverted for an existing

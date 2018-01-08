@@ -13,13 +13,14 @@
 #include "../../simobj.h"
 #include "../../descriptor/way_desc.h"
 #include "../../dataobj/koord3d.h"
-
+#include "../../tpl/minivec_tpl.h"
 
 class karte_t;
 class way_desc_t;
 class cbuffer_t;
 class player_t;
 class signal_t;
+class gebaeude_t;
 template <class T> class vector_tpl;
 
 

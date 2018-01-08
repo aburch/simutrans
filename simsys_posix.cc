@@ -165,7 +165,7 @@ void dr_sleep(uint32 msec)
 #ifdef _WIN32
 	Sleep( msec );
 #else
-	sleep( msec );
+	usleep( msec * 1000u );
 #endif
 }
 

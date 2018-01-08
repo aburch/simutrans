@@ -163,7 +163,7 @@ protected:
 	/**
 	 * Image of the walls
 	 */
-	sint8 back_image_nr;
+	sint8 back_imageid;
 
 	/**
 	 * Flags to indicate existence of halts, ways, to mark dirty
@@ -257,7 +257,7 @@ public:
 	* @author prissi
 	*/
 	image_id get_back_image(int leftback) const;
-	virtual void clear_back_image() {back_image_nr=0;}
+	virtual void clear_back_image() {back_imageid=0;}
 
 	/**
 	* if ground is deleted mark the old spot as dirty

@@ -2,10 +2,10 @@
 #define boden_wege_strasse_h
 
 #include "weg.h"
-#include "../../tpl/minivec_tpl.h"
+//#include "../../tpl/minivec_tpl.h"
 
 class fabrik_t;
-class gebaeude_t;
+//class gebaeude_t;
 
 /**
  * Cars are able to drive on roads.
@@ -21,7 +21,6 @@ public:
 
 	strasse_t(loadsave_t *file);
 	strasse_t();
-	~strasse_t();
 
 	//inline waytype_t get_waytype() const {return road_wt;}
 

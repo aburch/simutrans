@@ -497,10 +497,17 @@ void tabfile_t::add_operator_brackets(char *expression, char *processed)
 
 	// first remove any spaces
 	int j = 0;
+	bool buffer_initialised = false;
 	for(uint16 i = 0; i<=strlen(expression); i++) {
 		if(expression[i]!=' ') {
 			buffer[j++]=expression[i];
+			buffer_initialised = true;
 		}
+	}
+
+	if (!buffer_initialised)
+	{
+		buffer[0] = '\n';
 	}
 	strcpy(processed, buffer);
 

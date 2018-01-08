@@ -67,14 +67,6 @@ strasse_t::strasse_t() : weg_t(road_wt)
 	set_desc(default_strasse);
 }
 
-strasse_t::~strasse_t()
-{
-	// The below was implemented for testing but seems to have no 
-	// effect on the heap corruption issue from 10 Dec. 2017
-	//connected_buildings.clear();
-}
-
-
 
 void strasse_t::rdwr(loadsave_t *file)
 {

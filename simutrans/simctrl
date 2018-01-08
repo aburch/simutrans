@@ -51,10 +51,11 @@ if [ -z "${port:+x}" ]; then
     log "ERROR" "Config, parameter: 'port' not set for tag: $tag"
     exit 1
 fi
-if [ -z "${revision:+x}" ]; then 
-    log "ERROR" "Config, parameter: 'revision' not set for tag: $tag"
-    exit 1
-fi
+# The "Revision" is not curently used in Extended.
+#if [ -z "${revision:+x}" ]; then 
+#    log "ERROR" "Config, parameter: 'revision' not set for tag: $tag"
+#    exit 1
+#fi
 if [ -z "${objects:+x}" ]; then 
     log "ERROR" "Config, parameter: 'objects' not set for tag: $tag"
     exit 1

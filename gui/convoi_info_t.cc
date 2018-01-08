@@ -671,32 +671,27 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			pos_y = pos_y0 + 5 * LINESPACE; // line 6
 			sint32 cnv_route_index_left = cnv->get_route()->get_count() - 1 - cnv_route_index;
 			info_buf.clear();
-			const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
-			const double km_left = (double)cnv_route_index_left * km_per_tile;
 
-			if (km_left < 1)
+			double distance;
+			char distance_display[10];
+			distance = (double)(cnv_route_index_left * welt->get_settings().get_meters_per_tile()) / 1000.0;
+
+			if (distance <= 0)
 			{
-				float m_left = km_left * 1000;
-				info_buf.append(m_left);
-				info_buf.append("m ");
+				sprintf(distance_display, "0km");
+			}
+			else if (distance < 1)
+			{
+				sprintf(distance_display, "%.0fm", distance * 1000);
 			}
 			else
 			{
-				uint n_actual;
-				if (km_left < 5)
-				{
-					n_actual = 1;
-				}
-				else
-				{
-					n_actual = 0;
-				}
-				char number_actual[10];
-				number_to_string(number_actual, km_left, n_actual);
-				info_buf.append(number_actual);
-				info_buf.append("km ");
+				uint n_actual = distance < 5 ? 1 : 0;
+				char tmp[10];
+				number_to_string(tmp, distance, n_actual);
+				sprintf(distance_display, "%skm", tmp);
 			}
-			info_buf.append(translator::translate("left"));
+			info_buf.printf("%s %s", distance_display, translator::translate("left"));
 			int offset = 189;
 			display_proportional_clip(pos_x + offset, pos_y, info_buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 		}
