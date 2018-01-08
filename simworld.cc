@@ -1840,6 +1840,18 @@ void *step_convoys_threaded(void* args)
 		{
 			convoihandle_t cnv = world->convoi_array[i];
 			convoys_next_step.append(cnv);
+
+			//  Needed here as the new method does not do this.
+			if (world->is_terminating_threads())
+			{
+				simthread_barrier_wait(&step_convoys_barrier_internal);
+				simthread_barrier_wait(&step_convoys_barrier_internal); // The multiples of these is intentional: we must stop the individual threads before the clear() command is executed.
+				convoys_next_step.clear();
+				break;
+			}
+			
+			// Old method: less efficient, as only processed 4 convoys at a time.
+			/*
 			if ((convoys_next_step.get_count() == parallel_operations - 2) || (i == world->convoi_array.get_count() - 1))
 			{
 				simthread_barrier_wait(&step_convoys_barrier_internal); 
@@ -1849,8 +1861,17 @@ void *step_convoys_threaded(void* args)
 				{
 					break;
 				}
-			}
+			}*/
 		}
+
+		// New method: process all convoys at once in all threads.
+		if (!world->is_terminating_threads())
+		{
+			simthread_barrier_wait(&step_convoys_barrier_internal);
+			simthread_barrier_wait(&step_convoys_barrier_internal); // The multiples of these is intentional: we must stop the individual threads before the clear() command is executed.
+			convoys_next_step.clear();
+		}
+
 		simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
 	} while (!world->is_terminating_threads());
 	pthread_exit(NULL);
@@ -1872,6 +1893,32 @@ void* step_individual_convoy_threaded(void* args)
 		{
 			break;
 		}
+		
+		const uint32 convoys_next_step_count = convoys_next_step.get_count();
+		uint32 offset_counter = karte_t::world->get_parallel_operations();
+		bool start_counting = false;
+
+		for (uint32 i = 0; i < convoys_next_step_count; i++)
+		{
+			if (i == thread_number || offset_counter == 0)
+			{
+				start_counting = true;
+				offset_counter = karte_t::world->get_parallel_operations();
+				convoihandle_t cnv = convoys_next_step[i];
+				if (cnv.is_bound())
+				{
+					cnv->threaded_step();
+				}
+			}
+
+			if (start_counting)
+			{
+				offset_counter --;
+			}
+		}
+
+		/*
+		// Old method
 		if (convoys_next_step.get_count() > thread_number)
 		{
 			convoihandle_t cnv = convoys_next_step[thread_number];
@@ -1880,6 +1927,8 @@ void* step_individual_convoy_threaded(void* args)
 				cnv->threaded_step();
 			}
 		} 
+		*/
+
 		simthread_barrier_wait(&step_convoys_barrier_internal);
 	} while (!karte_t::world->is_terminating_threads());
 	
