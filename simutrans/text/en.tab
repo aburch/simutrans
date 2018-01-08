@@ -3764,3 +3764,27 @@ reassigned_class
 reassigned class
 reassigned_classes
 reassigned classes
+times_history
+Times History
+view_journey_times_history_of_this_line
+View journey times history of this line.
+view_journey_times_history_of_this_convoy
+View journey times history of this convoy.
+no_time_entry
+----
+stations
+Stations
+latest_3
+Latest 3
+average
+Average
+bidirectional_order
+Bidirectional order:
+reversed_unidirectional_order
+Reversed unidirectional order:
+normal_unidirectional_order
+Normal unidirectional order:
+line_times_history
+Line Times History: 
+convoy_times_history
+Convoy Times History: 

@@ -171,10 +171,10 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_component(&replace_button);
 	replace_button.add_listener(this);
 
-	time_history_button.init(button_t::roundbox, "Times History", dummy, D_BUTTON_SIZE);
-	time_history_button.set_tooltip("View journey times history of this convoy.");
-	add_component(&time_history_button);
-	time_history_button.add_listener(this);
+	times_history_button.init(button_t::roundbox, "times_history", dummy, D_BUTTON_SIZE);
+	times_history_button.set_tooltip("view_journey_times_history_of_this_convoy");
+	add_component(&times_history_button);
+	times_history_button.add_listener(this);
 
 	//Position is set in convoi_info_t::set_fenstergroesse()
 	follow_button.init(button_t::roundbox_state, "follow me", dummy, scr_size(view.get_size().w, D_BUTTON_HEIGHT));
@@ -385,6 +385,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			replace_button.enable();
 			reverse_button.pressed = cnv->get_reverse_schedule();
 			reverse_button.enable();
+			times_history_button.enable();
 		}
 		else {
 			if (line_bound) {
@@ -397,6 +398,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			no_load_button.disable();
 			replace_button.disable();
 			reverse_button.disable();
+			times_history_button.disable();
 		}
 		follow_button.pressed = (welt->get_viewport()->get_follow_convoi() == cnv);
 
@@ -992,7 +994,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			return true;
 		}
 
-		if(comp == &time_history_button) 
+		if(comp == &times_history_button) 
 		{
 			create_win(20, 20, new times_history_t(linehandle_t(), cnv), w_info, magic_convoi_time_history + cnv.get_id() );
 			return true;
@@ -1111,7 +1113,7 @@ void convoi_info_t::set_windowsize(scr_size size)
 	}
 
 	button.set_pos(scr_coord(BUTTON1_X, y));
-	time_history_button.set_pos(scr_coord(BUTTON1_X, y - D_V_SPACE - D_BUTTON_HEIGHT));
+	times_history_button.set_pos(scr_coord(BUTTON1_X, y - D_V_SPACE - D_BUTTON_HEIGHT));
 	go_home_button.set_pos(scr_coord(BUTTON2_X, y));
 	no_load_button.set_pos(scr_coord(BUTTON3_X, y));
 	y += D_BUTTON_HEIGHT + D_V_SPACE; 

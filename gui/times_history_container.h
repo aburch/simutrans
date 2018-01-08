@@ -28,9 +28,18 @@ private:
 	slist_tpl<gui_label_t *> name_labels;
 	slist_tpl<times_history_entry_t *> entry_labels;
 
+	slist_tpl<uint8> *last_schedule_indices;
+
 	static class karte_ptr_t welt;
 
-	void delete_components();
+	// Create list of entries displayed.
+	// This depends on mirror/reverse states of line/convoi
+	void construct_data(slist_tpl<uint8> *schedule_indices, slist_tpl<departure_point_t *> *time_keys);
+
+	bool updated_schedule_indices(slist_tpl<uint8> *schedule_indices);
+
+	void delete_buttons();
+	void delete_labels();
 
 public:
 	times_history_container_t() {}
@@ -42,6 +51,8 @@ public:
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	void draw(scr_coord offset);
+
+	inline void set_schedule(schedule_t *s) { schedule = s; }
 };
 
 #endif

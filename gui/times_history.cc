@@ -3,6 +3,7 @@
 #include "../simline.h"
 #include "../dataobj/schedule.h"
 #include "../display/viewport.h"
+#include "../dataobj/translator.h"
 
 #include "times_history.h"
 
@@ -14,7 +15,8 @@ times_history_t::times_history_t(linehandle_t line_, convoihandle_t convoi_) :
 	convoi(convoi_),
 	scrolly(&cont)
 {
-	times_history_info();
+	register_containers();
+	update_components();
 	set_name(title_buf);
 
 	scrolly.set_pos(scr_coord(0, 0));
@@ -41,7 +43,7 @@ times_history_t::~times_history_t()
 	delete last_schedule;
 }
 
-void times_history_t::times_history_info()
+void times_history_t::register_containers()
 {
 	while (!history_conts.empty()) {
 		times_history_container_t *c = history_conts.remove_first();
@@ -49,19 +51,14 @@ void times_history_t::times_history_info()
 		delete c;
 	}
 
-	title_buf.clear();
-
 	bool mirrored;
 	bool reversed;
 
 	schedule_t *schedule;
 	times_history_map *map;
-	const char *name;
 	if (line.is_bound()) {
 		schedule = line->get_schedule();
 		map = &line->get_journey_times_history();
-		name = line->get_name();
-		title_buf.append("Line Times History: ");
 
 		mirrored = schedule->is_mirrored();
 		reversed = false;
@@ -82,8 +79,6 @@ void times_history_t::times_history_info()
 	else if (convoi.is_bound()) {
 		schedule = convoi->get_schedule();
 		map = &convoi->get_journey_times_history();
-		name = convoi->get_name();
-		title_buf.append("Convoy Times History: ");
 
 		mirrored = schedule->is_mirrored();
 		reversed = convoi->get_reverse_schedule();
@@ -93,14 +88,37 @@ void times_history_t::times_history_info()
 	}
 	else return;
 
+	last_convoy_reversed = reversed;
+	if (last_schedule) delete last_schedule;
+	last_schedule = schedule->copy();
+}
+
+void times_history_t::update_components()
+{
+	schedule_t *schedule;
+	if (line.is_bound()) schedule = line->get_schedule();
+	else if (convoi.is_bound()) schedule = convoi->get_schedule();
+	else return;
+
+	const char *name;
+	title_buf.clear();
+	if (line.is_bound()) {
+		title_buf.append(translator::translate("line_times_history"));
+		name = line->get_name();
+	}
+	else if (convoi.is_bound()) {
+		title_buf.append(translator::translate("convoy_times_history"));
+		name = convoi->get_name();
+	}
 	title_buf.append(name);
+
+	FOR(slist_tpl<times_history_container_t *>, c, history_conts) {
+		c->set_schedule(schedule);
+		c->update_container();
+	}
 
 	cached_name = name;
 	update_time = welt->get_ticks();
-	last_mirrored = mirrored;
-	last_reversed = reversed;
-	if (last_schedule) delete last_schedule;
-	last_schedule = schedule->copy();
 }
 
 bool times_history_t::action_triggered(gui_action_creator_t *comp, value_t extra)
@@ -111,20 +129,22 @@ bool times_history_t::action_triggered(gui_action_creator_t *comp, value_t extra
 void times_history_t::draw(scr_coord pos, scr_size size)
 {
 	 if(line.is_bound()) {
-		if ((!line->get_schedule()->empty() && !line->get_schedule()->matches(welt, last_schedule)) ||
-			line->get_name() != cached_name || 
-		    welt->get_ticks() - update_time > 10000 ||
-			line->get_schedule()->is_mirrored() != last_mirrored) {
-			times_history_info();
+		if ((!line->get_schedule()->empty() && !line->get_schedule()->matches(welt, last_schedule))) {
+			register_containers();
+		}
+		if (line->get_name() != cached_name || 
+		    welt->get_ticks() - update_time > 10000) {
+			update_components();
 		}
 	}
 	else if (convoi.is_bound()) {
 		if ((!convoi->get_schedule()->empty() && !convoi->get_schedule()->matches(welt, last_schedule)) ||
-			convoi->get_name() != cached_name ||
-			welt->get_ticks() - update_time > 10000 ||
-			convoi->get_schedule()->is_mirrored() != last_mirrored ||
-			convoi->get_reverse_schedule() != last_reversed) {
-			times_history_info();
+			convoi->get_reverse_schedule() != last_convoy_reversed) {
+			register_containers();
+		}
+		if (convoi->get_name() != cached_name ||
+			welt->get_ticks() - update_time > 10000) {
+			update_components();
 		}
 	}
 

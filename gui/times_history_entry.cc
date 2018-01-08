@@ -1,15 +1,17 @@
 #include "times_history_entry.h"
 
 #include "../display/simgraph.h"
+#include "../dataobj/translator.h"
 
 times_history_entry_t::times_history_entry_t(times_history_data_t *history_) : history(history_) {
 	for (int i = 0; i < TIMES_HISTORY_SIZE; i++) {
-		strcpy(times_str[i], "----");
 		uint32 time = history->get_entry(i);
 		if (time != 0) welt->sprintf_time_tenths(times_str[i], 32, time);
+		else strcpy(times_str[i], translator::translate("no_time_entry"));
 	}
 	uint32 time = history->get_average();
 	if (time != 0) welt->sprintf_time_tenths(average_time_str, 32, time);
+	else strcpy(average_time_str, translator::translate("no_time_entry"));
 
 	size.w = TIMES_HISTORY_ENTRY_WIDTH;
 	size.h = LINESPACE;
