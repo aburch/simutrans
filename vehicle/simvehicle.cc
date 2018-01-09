@@ -1483,7 +1483,7 @@ route_t::route_result_t vehicle_t::calc_route(koord3d start, koord3d ziel, sint3
 	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), is_tall, 0, SINT64_MAX_VALUE, cnv != NULL ? cnv->get_weight_summary().weight / 1000 : get_total_weight());
 }
 
-bool vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route)
+route_t::route_result_t vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route)
 {
 	route_t xroute;    // new scheduled route from position at reroute_index to ziel
 	const bool live = route == NULL;
@@ -1491,8 +1491,8 @@ bool vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel, route_t
 	{
 		route = (cnv->get_route());
 	}
-	bool done = route && calc_route(route->at(reroute_index), ziel, speed_to_kmh(cnv->get_min_top_speed()), cnv->has_tall_vehicles(), &xroute);
-	if(done && live)
+	route_t::route_result_t done = route ? calc_route(route->at(reroute_index), ziel, speed_to_kmh(cnv->get_min_top_speed()), cnv->has_tall_vehicles(), &xroute) : route_t::no_route;
+	if(done == route_t::valid_route && live)
 	{
 		// convoy replaces existing route starting at reroute_index with found route.
 		cnv->update_route(reroute_index, xroute);
@@ -3246,6 +3246,11 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				color = COL_RED;
 				break;
 
+			case convoi_t::NO_ROUTE_TOO_COMPLEX:
+				tstrncpy(tooltip_text, translator::translate("clf_chk_noroute_too_complex"), lengthof(tooltip_text));
+				color = COL_RED;
+				break;
+
 			case convoi_t::OUT_OF_RANGE:
 				tstrncpy( tooltip_text, translator::translate("out of range"), lengthof(tooltip_text) );
 				color = COL_RED;
@@ -3405,7 +3410,8 @@ route_t::route_result_t road_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 	target_halt = halthandle_t();	// no block reserved
 	const uint32 routing_weight = cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight();
 	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, routing_weight, is_tall, cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000 );
-	if(  r == route_t::valid_route_halt_too_short  ) {
+	if(  r == route_t::valid_route_halt_too_short  )
+	{
 		cbuffer_t buf;
 		buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
 		welt->get_message()->add_message( (const char *)buf, ziel.get_2d(), message_t::traffic_jams, PLAYER_FLAG | cnv->get_owner()->get_player_nr(), cnv->front()->get_base_image() );
@@ -4471,7 +4477,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	{
 		// The target is an end of choose sign along the route.
 		const sint16 tile_length = (cnv->get_schedule()->get_current_eintrag().reverse ? 8888 : 0) + cnv->get_tile_length();
-		can_find_route = target_rt.calc_route(welt, route->at(start_block), target->get_pos(), this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000); 
+		can_find_route = target_rt.calc_route(welt, route->at(start_block), target->get_pos(), this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000) == route_t::valid_route; 
 		// This route only takes us to the end of choose sign, so we must calculate the route again beyond that point to the actual destination then concatenate them. 
 		if(can_find_route)
 		{
@@ -4767,7 +4773,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			schedule->increment_index(&index, &rev);
 			const koord3d next_ziel = schedule->entries[index].pos;
 
-			way_is_free = !target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), cnv->get_tile_length(), welt->get_settings().get_max_route_steps(), cnv->get_weight_summary().weight / 1000);
+			way_is_free = target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), cnv->get_tile_length(), welt->get_settings().get_max_route_steps(), cnv->get_weight_summary().weight / 1000) != route_t::valid_route;
 			if(!way_is_free)
 			{
 				if(schedule->entries[schedule->get_current_stop()].reverse == -1)
@@ -6243,7 +6249,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			do
 			{
 				// Search for route until the next signal is found.
-				route_success = target_rt.calc_route(welt, cur_pos, cnv->get_schedule()->entries[schedule_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), 8888 + cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000);
+				route_success = target_rt.calc_route(welt, cur_pos, cnv->get_schedule()->entries[schedule_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), 8888 + cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000) == route_t::valid_route;
 
 				if(route_success) 
 				{
@@ -7670,7 +7676,7 @@ Try to handle the transition tiles like (virtual) waypoints and the partial (gro
 - touchdown,
 - end of required length of arrival runway
 */
-bool air_vehicle_t::calc_route_internal(
+route_t::route_result_t air_vehicle_t::calc_route_internal(
 	karte_t *welt,
 	const koord3d &start,            // input: start of (partial) route to calculate
 	const koord3d &ziel,             // input: end of (partial) route to calculate
@@ -7708,10 +7714,11 @@ bool air_vehicle_t::calc_route_internal(
 		// see, if we find a direct route: We are finished
 		state = air_vehicle_t::taxiing;
 		calc_altitude_level( get_desc()->get_topspeed() );
-		if(route.calc_route( welt, start, ziel, this, max_speed, weight, false, 0))
+		route_t::route_result_t success = route.calc_route(welt, start, ziel, this, max_speed, weight, false, 0);
+		if(success == route_t::valid_route)
 		{
 			// ok, we can taxi to our location
-			return true;
+			return route_t::valid_route;
 		}
 	}
 
@@ -7739,7 +7746,7 @@ bool air_vehicle_t::calc_route_internal(
 #endif
 		if(!route.find_route( welt, start, this, max_speed, ribi_t::all, weight, cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, welt->get_settings().get_max_route_steps(), cnv->has_tall_vehicles())) {
 			DBG_MESSAGE("air_vehicle_t::calc_route()","failed");
-			return false;
+			return route_t::no_route;
 		}
 		// save the route
 		search_start = route.back();
@@ -7795,7 +7802,7 @@ bool air_vehicle_t::calc_route_internal(
 			// out of map
 			if(gr==NULL) {
 				dbg->error("air_vehicle_t::calc_route()","out of map!");
-				return false;
+				return route_t::no_route;
 			}
 			// need some extra step to avoid 180 deg turns
 			if( start_dir.x!=0  &&  sgn(start_dir.x)!=sgn(search_end.x-search_start.x)  ) {
@@ -7864,7 +7871,7 @@ bool air_vehicle_t::calc_route_internal(
 	if(!route.append_straight_route(welt,landing_start)) {
 		// should never fail ...
 		dbg->error( "air_vehicle_t::calc_route()", "No straight route found!" );
-		return false;
+		return route_t::no_route;
 	}
 
 	if(!end_in_air) {
@@ -7894,7 +7901,7 @@ bool air_vehicle_t::calc_route_internal(
 				route.clear();
 				dbg->error("air_vehicle_t::calc_route()","airport too close to the edge! (Cannot go to %i,%i!)",circlepos.x,circlepos.y);
 				airport_too_close_to_the_edge = true;
-				return false;
+				return route_t::no_route;
 			}
 		}
 
@@ -7918,12 +7925,12 @@ bool air_vehicle_t::calc_route_internal(
 	}
 
 	//DBG_MESSAGE("air_vehicle_t::calc_route_internal()","departing=%i  touchdown=%i   search_for_stop=%i   total=%i  state=%i",takeoff, touchdown, search_for_stop, route.get_count()-1, state );
-	return true;
+	return route_t::valid_route;
 }
 
 
 // BG, 08.08.2012: extracted from can_enter_tile()
-bool air_vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel)
+route_t::route_result_t air_vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel)
 {
 	// new aircraft state after successful routing:
 	air_vehicle_t::flight_state xstate = state;
@@ -7937,7 +7944,7 @@ bool air_vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel)
 	route_t xroute;    // new scheduled route from position at reroute_index to ziel
 
 	route_t &route = *cnv->get_route();
-	bool done = calc_route_internal(welt, route.at(reroute_index), ziel,
+	route_t::route_result_t done = calc_route_internal(welt, route.at(reroute_index), ziel,
 																	speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(),
 																	xstate, xflughoehe, xtarget_height,
 																	xrunway_too_short, xairport_too_close_to_the_edge,

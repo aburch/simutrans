@@ -2889,6 +2889,7 @@
     <None Include=".gitignore" />
     <None Include="base-texts-classes_gui.dat" />
     <None Include="base-texts-depot-window-refurbish.dat" />
+    <None Include="base-texts-extended-journey-time-measurement.dat" />
     <None Include="base-texts-new-convoy-debug-information.dat" />
     <None Include="base_texts_extended-passenger-generation.dat" />
     <None Include="base_texts_bridge-change.dat" />
@@ -2919,6 +2920,7 @@
     <None Include="base_texts_extended_an-dz_2.dat" />
     <None Include="base_texts_extended_an_dz.dat" />
     <None Include="base_texts_extended_braking_branch.dat" />
+    <None Include="base_texts_extended_complex_route.dat" />
     <None Include="base_texts_extended_forgotten_items_1.dat" />
     <None Include="base_texts_extended_forgotten_items_2.dat" />
     <None Include="base_texts_extended_forgotten_items_3.dat" />

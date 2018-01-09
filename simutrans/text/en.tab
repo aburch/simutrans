@@ -1954,6 +1954,8 @@ clf_chk_noline
 No line
 clf_chk_noroute
 No route
+clf_chk_noroute_too_complex
+No route (too long/complex)
 clf_chk_noschedule
 No schedule
 clf_chk_ships
@@ -1998,6 +2000,8 @@ cl_txt_filter
 Filter:
 cl_txt_sort
 Sort by:
+no_route_too_complex_message
+This vehicle is too far from its destination to find a route automatically. Try inserting some waypoints into its schedule to help it find the right way to go.
 Clear block reservation
 Show/clear block reservations
 COLOR_CHOOSE\n

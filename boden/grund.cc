@@ -2435,12 +2435,12 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 				const sint32 max_speed = w->get_waytype() == road_wt ?  min(default_road_speed, w->get_max_speed()): w->get_max_speed(); 
 				const uint32 bridge_weight_limit = gr->ist_bruecke() ? w->get_bridge_weight_limit() : 0;
 				const uint32 bridge_weight = max_axle_load * (w->get_waytype() == road_wt ? 2 : 1);  // This is something of a fudge, but it is reasonable to assume that most road vehicles have 2 axles.
-				if(diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight))
+				if(diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight) == route_t::valid_route)
 				{
 					// Only increment this counter if the ways were already connected.
 					necessary_diversions ++;
 				}
-				const bool route_good = !way_gr->ist_bruecke() && diversionary_route.calc_route(welt, start, end, diversion_checker, max_speed, max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight_limit, w->get_pos());
+				const bool route_good = !way_gr->ist_bruecke() && diversionary_route.calc_route(welt, start, end, diversion_checker, max_speed, max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight_limit, w->get_pos()) == route_t::valid_route;
 				if(route_good && (diversionary_route.get_count() < welt->get_settings().get_max_diversion_tiles()))
 				{
 					successful_diversions ++;

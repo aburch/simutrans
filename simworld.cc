@@ -1273,7 +1273,7 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 			// valid connection?
 			if (conn.x >= 0) {
 				// is there a connection already
-				const bool connected = (phase == 1 && verbindung.calc_route(this, k[conn.x], k[conn.y], test_driver, 0, 0, false, 0));
+				const bool connected = (phase == 1 && verbindung.calc_route(this, k[conn.x], k[conn.y], test_driver, 0, 0, false, 0)) == route_t::valid_route;
 				// build this connection?
 				bool build = false;
 				// set appropriate max length for way builder

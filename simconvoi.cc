@@ -113,7 +113,8 @@ static const char * state_names[convoi_t::MAX_STATES] =
 	"REVERSING",
 	"OUT_OF_RANGE",
 	"EMERGENCY_STOP",
-	"JUST_FOUND_ROUTE"
+	"JUST_FOUND_ROUTE",
+	"NO_ROUTE_TOO_COMPLEX"
 };
 
 // Reset some values.  Used in init and replacing.
@@ -943,16 +944,16 @@ bool convoi_t::has_tall_vehicles()
 }
 
 // BG, 06.11.2011
-bool convoi_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed)
+route_t::route_result_t convoi_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed)
 {
 	route_infos.clear();
 	const grund_t* gr = welt->lookup(ziel);
 	if(gr && front()->get_waytype() == air_wt && gr->get_halt().is_bound() && welt->lookup(ziel)->get_halt()->has_no_control_tower())
 	{
-		return false;
+		return route_t::no_control_tower;
 	}
 
-	bool success = front()->calc_route(start, ziel, max_speed, has_tall_vehicles(), &route);
+	route_t::route_result_t success = front()->calc_route(start, ziel, max_speed, has_tall_vehicles(), &route);
 	rail_vehicle_t* rail_vehicle = NULL;
 	switch(front()->get_waytype())
 	{
@@ -1210,6 +1211,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 		case DUMMY5:
 		case OUT_OF_RANGE:
 		case NO_ROUTE:
+		case NO_ROUTE_TOO_COMPLEX:
 		case CAN_START:
 		case CAN_START_ONE_MONTH:
 		case CAN_START_TWO_MONTHS:
@@ -1441,7 +1443,7 @@ bool convoi_t::drive_to()
 
 	const bool check_onwards = front()->get_waytype() == road_wt || front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
 	
-	bool success = calc_route(start, ziel, speed_to_kmh(get_min_top_speed()));
+	route_t::route_result_t success = calc_route(start, ziel, speed_to_kmh(get_min_top_speed()));
 		
 	grund_t* gr = welt->lookup(ziel);
 	grund_t* gr_current = welt->lookup(start); 
@@ -1454,7 +1456,7 @@ bool convoi_t::drive_to()
 
 		schedule_entry_t* schedule_entry = &schedule->entries[schedule->get_current_stop()];
 		bool update_line = false;
-		while(success && counter--)
+		while(success == route_t::valid_route && counter--)
 		{
 			if(schedule_entry->reverse == -1 && (!gr_current || !gr_current->get_depot()))
 			{
@@ -1495,11 +1497,11 @@ bool convoi_t::drive_to()
 		}
 	}
 
-	if(!success)
+	if(success != route_t::valid_route)
 	{
-		if(state != NO_ROUTE)
+		if(state != NO_ROUTE && state != NO_ROUTE_TOO_COMPLEX)
 		{
-			state = NO_ROUTE;
+			success == route_t::route_too_complex ? state = NO_ROUTE_TOO_COMPLEX : state = NO_ROUTE;
 			no_route_retry_count = 0;
 #ifdef MULTI_THREAD
 			pthread_mutex_lock(&step_convois_mutex);
@@ -1510,8 +1512,20 @@ bool convoi_t::drive_to()
 			assert(error == 0);
 #endif
 		}
-		// wait 25s before next attempt
-		wait_lock = 25000;
+		// wait before next attempt for a normal no route.
+		// For a "too complex" no route, wait much, much longer, as this can cause serious lag
+		// when repeated many times. The expectation is that the player will manually find
+		// another route in this state,
+		if (success == route_t::route_too_complex)
+		{
+			// 2 minutes
+			wait_lock = 7200000;
+		}
+		else
+		{
+			// 25 seconds
+			wait_lock = 25000;
+		}
 	}
 	else {
 		bool route_ok = true;
@@ -1544,14 +1558,16 @@ bool convoi_t::drive_to()
 				}
 
 				route_t next_segment;
-				if (!front()->calc_route(start, ziel, speed_to_kmh(get_min_top_speed()), has_tall_vehicles(), &next_segment)) {
+				const route_t::route_result_t result = front()->calc_route(start, ziel, speed_to_kmh(get_min_top_speed()), has_tall_vehicles(), &next_segment);
+				if (result != route_t::valid_route) {
 					// do we still have a valid route to proceed => then go until there
 					if(  route.get_count()>1  ) {
 						break;
 					}
 					// we are stuck on our first routing attempt => give up
-					if(  state != NO_ROUTE  ) {
-						state = NO_ROUTE;
+					if(  state != NO_ROUTE && state != NO_ROUTE_TOO_COMPLEX ) 
+					{
+						state = result == route_t::route_too_complex ? NO_ROUTE_TOO_COMPLEX : NO_ROUTE;
 #ifdef MULTI_THREAD
 						pthread_mutex_lock(&step_convois_mutex);
 #endif
@@ -2083,6 +2099,7 @@ end_loop:
 
 		case OUT_OF_RANGE:
 		case NO_ROUTE:
+		case NO_ROUTE_TOO_COMPLEX:
 		{
 			reserve_own_tiles();
 			// stuck vehicles
@@ -2415,7 +2432,7 @@ void convoi_t::new_month()
 	}
 
 	// remind every new month again
-	if(state == NO_ROUTE)
+	if(state == NO_ROUTE || state == NO_ROUTE_TOO_COMPLEX)
 	{
 		get_owner()->report_vehicle_problem(self, get_pos());
 	}
@@ -6474,7 +6491,7 @@ bool convoi_t::check_destination_reverse(route_t* current_route, route_t* target
 		bool rev = get_reverse_schedule();
 		schedule->increment_index(&index, &rev);
 		const koord3d next_ziel = schedule->entries[index].pos;
-		success = next_route.calc_route(welt, start_pos, next_ziel, front(), speed_to_kmh(get_min_top_speed()), get_highest_axle_load(), has_tall_vehicles(), get_tile_length(), welt->get_settings().get_max_route_steps(), get_weight_summary().weight / 1000);
+		success = next_route.calc_route(welt, start_pos, next_ziel, front(), speed_to_kmh(get_min_top_speed()), get_highest_axle_load(), has_tall_vehicles(), get_tile_length(), welt->get_settings().get_max_route_steps(), get_weight_summary().weight / 1000) == route_t::valid_route;
 		target_rt = &next_route;
 	}
 
@@ -6582,7 +6599,7 @@ COLOR_VAL convoi_t::get_status_color() const
 		// in depot/under assembly
 		return SYSCOL_TEXT_HIGHLIGHT;
 	}
-	else if (state == WAITING_FOR_CLEARANCE_ONE_MONTH || state == CAN_START_ONE_MONTH || get_state() == NO_ROUTE || get_state() == OUT_OF_RANGE || get_state() == EMERGENCY_STOP) {
+	else if (state == WAITING_FOR_CLEARANCE_ONE_MONTH || state == CAN_START_ONE_MONTH || get_state() == NO_ROUTE || get_state() == NO_ROUTE_TOO_COMPLEX || get_state() == OUT_OF_RANGE || get_state() == EMERGENCY_STOP) {
 		// stuck or no route
 		return COL_ORANGE;
 	}
@@ -6806,7 +6823,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		}
 		// The home depot seems OK, but what if we can't get there?
 		// Don't consider it a valid home depot if we already failed to get there.
-		if (home_depot_valid && (state == NO_ROUTE || state == OUT_OF_RANGE)) {
+		if (home_depot_valid && (state == NO_ROUTE || state == NO_ROUTE_TOO_COMPLEX || state == OUT_OF_RANGE)) {
 			if (schedule) {
 				const schedule_entry_t & current_entry = schedule->get_current_eintrag();
 				if ( current_entry.pos == get_home_depot() ) {

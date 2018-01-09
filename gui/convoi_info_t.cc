@@ -436,7 +436,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				break;
 
 			default:
-				if (cnv->get_state() == convoi_t::NO_ROUTE)
+				if (cnv->get_state() == convoi_t::NO_ROUTE || cnv->get_state() == convoi_t::NO_ROUTE_TOO_COMPLEX)
 					color = COL_RED;
 			}
 			display_ddd_box_clip(ipos.x, ipos.y, isize.w, 8, MN_GREY0, MN_GREY4);
@@ -564,6 +564,11 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			{
 				sprintf(speed_text, translator::translate("clf_chk_noroute"));
 			}
+			speed_color = COL_RED;
+			break;
+
+		case convoi_t::NO_ROUTE_TOO_COMPLEX:
+			sprintf(speed_text, translator::translate("no_route_too_complex_message"));
 			speed_color = COL_RED;
 			break;
 
@@ -808,6 +813,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				case convoi_t::ROUTING_2:		sprintf(state_text, "ROUTING_2");	break;
 				case convoi_t::DUMMY5:			sprintf(state_text, "DUMMY5");	break;
 				case convoi_t::NO_ROUTE:		sprintf(state_text, "NO_ROUTE");	break;
+				case convoi_t::NO_ROUTE_TOO_COMPLEX:		sprintf(state_text, "NO_ROUTE_TOO_COMPLEX");	break;
 				case convoi_t::DRIVING:			sprintf(state_text, "DRIVING");	break;
 				case convoi_t::LOADING:			sprintf(state_text, "LOADING");	break;
 				case convoi_t::WAITING_FOR_CLEARANCE:			sprintf(state_text, "WAITING_FOR_CLEARANCE");	break;

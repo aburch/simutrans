@@ -533,14 +533,14 @@ ribi_t::ribi *get_next_dirs(const koord3d& gr_pos, const koord3d& ziel)
 	return next_ribi;
 }
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t *tdriver, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, bool is_tall, const sint32 tile_length, koord3d avoid_tile)
+route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3d ziel, test_driver_t *tdriver, const sint32 max_speed, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, bool is_tall, const sint32 tile_length, koord3d avoid_tile)
 {
-	bool ok = false;
+	route_result_t ok = no_route;
 
 	// check for existing koordinates
 	const grund_t *gr=welt->lookup(start);
 	if(  gr == NULL  ||  welt->lookup(ziel) == NULL) {
-		return false;
+		return no_route;
 	}
 
 	// we clear it here probably twice: does not hurt ...
@@ -550,7 +550,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 
 	// first tile is not valid?!?
 	if(  !tdriver->check_next_tile(gr)  ) {
-		return false;
+		return no_route;
 	}
 
 	// some thing for the search
@@ -940,6 +940,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 	if(!ziel_erreicht  || step >= MAX_STEP  ||  tmp->parent==NULL) {
 		if(  step >= MAX_STEP  ) {
 			dbg->warning("route_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
+			ok = route_too_complex;
 		}
 	}
 	else {
@@ -961,7 +962,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d start, const koord3
 		if (use_jps  &&  tdriver->get_waytype()==water_wt) {
 			postprocess_water_route(welt);
 		}
-		ok = true;
+		ok = valid_route;
 	}
 
 	RELEASE_NODES(ni);
@@ -1096,20 +1097,20 @@ void route_t::postprocess_water_route(karte_t *welt)
 	// profiling for routes ...
 	long ms=dr_time();
 #endif
-	bool ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, max_cost, axle_load, convoy_weight, is_tall, max_len, avoid_tile);
+	route_result_t ok = intern_calc_route(welt, start, ziel, tdriver, max_khm, max_cost, axle_load, convoy_weight, is_tall, max_len, avoid_tile);
 #ifdef DEBUG_ROUTES
 	if(tdriver->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );}
 #endif
 
 //	INT_CHECK("route 343");
 
-	if(!ok)
+	if(ok != valid_route)
 	{
 		DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x, start.y, ziel.x, ziel.y);
 		// no route found
 		route.resize(1);
 		route.append(start); // just to be safe
-		return no_route;
+		return ok;
 	}
 
 	// advance so all convoy fits into a halt (only set for trains and cars)
@@ -1202,7 +1203,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 		}
 	}
 
-	return valid_route;
+	return ok;
 }
 
 
