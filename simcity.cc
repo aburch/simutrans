@@ -4161,10 +4161,13 @@ int stadt_t::get_best_layout(const building_desc_t* h, const koord & k) const {
 /*
  * get available building sizes to renovate
  *
+ * Tiles must be nature or a city building.
+ * Tile height must be same. If it is slope, it is treated as it is raised.
  */
 void stadt_t::get_available_building_size(const koord k, vector_tpl<koord> &sizes) const {
 	sizes.clear();
 	const uint8 LEN_LIM = 6;
+	sint8 height = -100;
 	for(uint8 w=1; w<=LEN_LIM; w++) {
 		for(uint8 h=1; h<=LEN_LIM; h++) {
 			bool check_continue = true;
@@ -4180,6 +4183,15 @@ void stadt_t::get_available_building_size(const koord k, vector_tpl<koord> &size
 						check_continue = false;
 						break;
 					}
+					// the tile must be in the same height as others.
+					const slope_t::type hang = gr->get_grund_hang();
+					const sint8 tile_height = hang==slope_t::flat ? gr->get_pos().z : gr->get_pos().z+slope_t::max_diff(hang);
+					if(height!=-100  &&  height!=tile_height) {
+						check_continue = false;
+						break;
+					}
+					printf("%s height check aproved. height:%d, hang:%d\n", gr->get_pos().get_str(), tile_height, hang);
+					height = tile_height;
 					// buildings in the area must not be in the outside of the area.
 					if(x==0  ||  y==0  ||  x==w-1  ||  y==h-1) {
 						if(const gebaeude_t* gb = gr->get_building()) {
