@@ -9,8 +9,8 @@ times_history_entry_t::times_history_entry_t(times_history_data_t *history_) : h
 		if (time != 0) welt->sprintf_time_tenths(times_str[i], 32, time);
 		else strcpy(times_str[i], translator::translate("no_time_entry"));
 	}
-	uint32 time = history->get_average();
-	if (time != 0) welt->sprintf_time_tenths(average_time_str, 32, time);
+	uint32 time = history->get_average_seconds();
+	if (time != 0) welt->sprintf_time_secs(average_time_str, 32, time);
 	else strcpy(average_time_str, translator::translate("no_time_entry"));
 
 	size.w = TIMES_HISTORY_ENTRY_WIDTH;

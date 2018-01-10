@@ -414,7 +414,7 @@ public:
 	uint32 get_entry(uint16 index) const;
 	void put(uint32 time);
 	void set(uint16 index, uint32 time);
-    uint32 get_average() const;
+    uint32 get_average_seconds() const;
 };
 
 typedef koordhashtable_tpl<departure_point_t, times_history_data_t> times_history_map;
