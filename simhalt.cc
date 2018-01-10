@@ -5420,6 +5420,7 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 		}
 		if((*i)->get_line() == line &&
 			((*i)->get_schedule()->get_current_stop() == cnv->get_schedule()->get_current_stop()
+			&& ((*i)->get_reverse_schedule() == cnv->get_reverse_schedule())
 			|| ((*i)->get_state() == convoi_t::REVERSING
 			&& (*i)->get_reverse_schedule() ?
 				(*i)->get_schedule()->get_current_stop() + 1 == cnv->get_schedule()->get_current_stop() :
