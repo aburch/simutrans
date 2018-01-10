@@ -716,12 +716,12 @@ void times_history_data_t::set(uint16 index, uint32 time) {
 	history[index] = time;
 }
 
-uint32 times_history_data_t::get_average() const {
+uint32 times_history_data_t::get_average_seconds() const {
 	uint64 total = 0;
 	uint16 count = 0;
 	for (uint16 i = 0; i < TIMES_HISTORY_SIZE; i++) {
 		if (history[i] != 0) {
-			total += history[i];
+			total += history[i] * 6;
 			count++;
 		}
 	}
