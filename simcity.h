@@ -209,38 +209,38 @@ private:
 	 * @author DrSuperGood
 	 */
 private:
-	 // The growth factor type in form of the amount demanded and what was received.
-	 struct city_growth_factor_t {
-		 // The wanted value.
-		 sint64 demand;
-		 // The received value.
-		 sint64 supplied;
+	// The growth factor type in form of the amount demanded and what was received.
+	struct city_growth_factor_t {
+		// The wanted value.
+		sint64 demand;
+		// The received value.
+		sint64 supplied;
 
-		 city_growth_factor_t() : demand(0), supplied(0){}
-	 };
+		city_growth_factor_t() : demand(0), supplied(0){}
+	};
 
-	 // The previous values of the growth factors. Used to get delta between ticks and must be saved for determinism.
-	 city_growth_factor_t city_growth_factor_previous[GROWTH_FACTOR_NUMBER];
+	// The previous values of the growth factors. Used to get delta between ticks and must be saved for determinism.
+	city_growth_factor_t city_growth_factor_previous[GROWTH_FACTOR_NUMBER];
 
-	 /* Method to generate comparable growth factor data.
+	/* Method to generate comparable growth factor data.
 	 * This allows one to alter the logic which computes growth.
 	 * @param factors factor array.
 	 * @param month the month which is to be used for the growth factors.
 	 */
-	 void city_growth_get_factors(city_growth_factor_t (&factors)[GROWTH_FACTOR_NUMBER], uint32 const month) const;
+	void city_growth_get_factors(city_growth_factor_t (&factors)[GROWTH_FACTOR_NUMBER], uint32 const month) const;
 
-	 /* Method to compute base growth using growth factors.
-	  * Logs differences in growth factors as well.
-	  * rprec : The returned fractional precision (out of sint32).
-	  * cprec : The computation fractional precision (out of sint32).
-	  */
-	 sint32 city_growth_base(uint32 const rprec = 6, uint32 const cprec = 16);
+	/* Method to compute base growth using growth factors.
+	 * Logs differences in growth factors as well.
+	 * rprec : The returned fractional precision (out of sint32).
+	 * cprec : The computation fractional precision (out of sint32).
+	 */
+	sint32 city_growth_base(uint32 const rprec = 6, uint32 const cprec = 16);
 
-	 /* Method to roll previous growth factors at end of month, called before history rolls over.
-	  * Needed to prevent loss of data (not set to 0) and while keeping reasonable (no insane values).
-	  * month : The month index of what is now the "last month".
-	  */
-	 void city_growth_monthly(uint32 const month);
+	/* Method to roll previous growth factors at end of month, called before history rolls over.
+	 * Needed to prevent loss of data (not set to 0) and while keeping reasonable (no insane values).
+	 * month : The month index of what is now the "last month".
+	 */
+	void city_growth_monthly(uint32 const month);
 
 public:
 	/**
@@ -383,7 +383,10 @@ private:
 	void build_city_building(koord pos);
 	void renovate_city_building(gebaeude_t *gb);
 
-	void generate_private_cars(koord pos, sint32 level,koord target);
+#ifdef DESTINATION_CITYCARS
+	sint16	number_of_cars; // allowed number of cars to spawn per month
+	void generate_private_cars(koord pos, koord target);
+#endif
 
 	/**
 	 * baut ein Stueck Strasse
