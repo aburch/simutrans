@@ -521,7 +521,8 @@ void schedule_t::increment_index(uint8 *index, bool *reversed) const {
  * @author suitougreentea
  */
 void schedule_t::increment_index_until_next_halt(player_t *player, uint8 *index, bool *reversed) const {
-	while (true)
+	uint32 counter = get_count();
+	while (counter --)
 	{
 		increment_index(index, reversed);
 		const koord3d halt_position = entries[*index].pos;
