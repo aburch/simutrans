@@ -3307,13 +3307,17 @@ void convoi_t::vorfahren()
 			//@author: jamespetts
 			if(must_change_direction)
 			{				
+				halthandle_t check_halt = haltestelle_t::get_halt(get_pos(), get_owner());
 				switch(front()->get_waytype())
 				{
 					case air_wt:
 					case water_wt:
-						// Boats and aircraft do not need to change direction
-						book_departure_time(welt->get_ticks());
-						book_waiting_times();
+						if (check_halt.is_bound())
+						{
+							// Boats and aircraft do not need to change direction
+							book_departure_time(welt->get_ticks());
+							book_waiting_times();
+						}
 						break;
 
 					default:
