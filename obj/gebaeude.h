@@ -11,11 +11,13 @@
 #include "../ifc/sync_steppable.h"
 #include "../simobj.h"
 #include "../simcolor.h"
+#include "../tpl/minivec_tpl.h"
 
 class building_tile_desc_t;
 class fabrik_t;
 class stadt_t;
 class goods_desc_t;
+class planquadrat_t;
 
 /**
  * Asynchron oder synchron animierte Gebaeude für Simutrans.
@@ -158,6 +160,8 @@ private:
 
 	// Whether the passenger and mail figures need recalculating or not.
 	bool loaded_passenger_and_mail_figres;
+
+	minivec_tpl<const planquadrat_t*> building_tiles;
 
 #ifdef INLINE_OBJ_TYPE
 protected:
@@ -360,6 +364,8 @@ public:
 
 	bool get_loaded_passenger_and_mail_figres() const { return loaded_passenger_and_mail_figres; }
 	void set_loaded_passenger_and_mail_figres(bool value) { loaded_passenger_and_mail_figres = value; }
+	
+	minivec_tpl<const planquadrat_t*> &get_tiles();
 };
 
 

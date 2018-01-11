@@ -169,6 +169,9 @@ vector_tpl<pedestrian_t*> *karte_t::pedestrians_added_threaded;
 vector_tpl<private_car_t*> *karte_t::private_cars_added_threaded;
 #endif
 
+thread_local vector_tpl<nearby_halt_t> karte_t::start_halts;
+thread_local vector_tpl<halthandle_t> karte_t::destination_list;
+
 #ifdef DEBUG_SIMRAND_CALLS
 bool karte_t::print_randoms = true;
 int karte_t::random_calls = 0;
@@ -5819,49 +5822,10 @@ void karte_t::step_passengers_and_mail(uint32 delta_t)
 	} 
 }
 
-sint32 karte_t::get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const planquadrat_t*> &tile_list) const
-{
-	const building_tile_desc_t* tile = gb->get_tile();
-	const building_desc_t *bdsc = tile->get_desc();
-	const koord size = bdsc->get_size(tile->get_layout());
-	if(size == koord(1,1))
-	{
-		// A single tiled building - just add the single tile.
-		tile_list.append(access_nocheck(gb->get_pos().get_2d()));
-	}
-	else
-	{
-		// A multi-tiled building: check all tiles. Any tile within the 
-		// coverage radius of a building connects the whole building.
-		koord3d k = gb->get_pos();
-		const koord start_pos = k.get_2d() - tile->get_offset();
-		const koord end_pos = k.get_2d() + size;
-		
-		for(k.y = start_pos.y; k.y < end_pos.y; k.y ++) 
-		{
-			for(k.x = start_pos.x; k.x < end_pos.x; k.x ++) 
-			{
-				grund_t *gr = lookup(k);
-				if(gr) 
-				{
-					/* This would fail for depots, but those are 1x1 buildings */
-					gebaeude_t *gb_part = gr->find<gebaeude_t>();
-					// There may be buildings with holes.
-					if(gb_part && gb_part->get_tile()->get_desc() == bdsc) 
-					{
-						tile_list.append(access_nocheck(k.get_2d()));
-					}
-				}
-			}
-		}
-	}
-	return size.x * size.y;
-}
-
-void karte_t::get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &tile_list, const goods_desc_t * wtyp, vector_tpl<nearby_halt_t> &halts) const
+void karte_t::get_nearby_halts_of_tiles(const minivec_tpl<const planquadrat_t*> &tile_list, const goods_desc_t * wtyp, vector_tpl<nearby_halt_t> &halts) const
 {
 	// Suitable start search (public transport)
-	FOR(vector_tpl<const planquadrat_t*>, const& current_tile, tile_list)
+	FOR(minivec_tpl<const planquadrat_t*>, const& current_tile, tile_list)
 	{
 		const nearby_halt_t* halt_list = current_tile->get_haltlist();
 		for(int h = current_tile->get_haltlist_count() - 1; h >= 0; h--) 
@@ -6068,11 +6032,11 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 	}
 	
 	koord3d origin_pos = gb->get_pos();
-	vector_tpl<const planquadrat_t*> tile_list;
-	sint32 size = get_tiles_of_gebaeude(first_origin, tile_list);
+	minivec_tpl<const planquadrat_t*> &tile_list = gb->get_tiles();
 
 	// Suitable start search (public transport)
-	vector_tpl<nearby_halt_t> start_halts(tile_list.empty() ? 0 : tile_list[0]->get_haltlist_count() * size);
+	//vector_tpl<nearby_halt_t> start_halts(tile_list.empty() ? 0 : tile_list[0]->get_haltlist_count() * tile_list.get_count());
+	start_halts.clear();
 	get_nearby_halts_of_tiles(tile_list, wtyp, start_halts);
 
 	// Initialise the class out of the loop, as the passengers remain the same class no matter what their trip.
@@ -6193,12 +6157,11 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			// TODO BG, 15.02.2014: first build a nearby_destination_list and then a destination_list from it.
 			//  Should be faster than finding all nearby halts again.
 
-			tile_list.clear();
-			get_tiles_of_gebaeude(gb, tile_list);
+			minivec_tpl<const planquadrat_t*> &tile_list_2 = gb->get_tiles();
 
 			// Suitable start search (public transport)
 			start_halts.clear();
-			get_nearby_halts_of_tiles(tile_list, wtyp, start_halts);
+			get_nearby_halts_of_tiles(tile_list_2, wtyp, start_halts);
 		}
 
 		ware_t pax(wtyp);
@@ -6384,17 +6347,17 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			// (default: 1), they can take passengers within the wider square of the passenger radius. This is intended,
 			// and is as a result of using the below method for all destination types.
 
-			tile_list.clear();
-			sint32 size = get_tiles_of_gebaeude(current_destination.building, tile_list);
+			minivec_tpl<const planquadrat_t*> &tile_list_3 = gb->get_tiles();
 
-			if(tile_list.empty())
+			if(tile_list_3.empty())
 			{
-				tile_list.append(access(current_destination.location));
+				tile_list_3.append(access(current_destination.location));
 			}
 
-			vector_tpl<halthandle_t> destination_list(tile_list[0]->get_haltlist_count() * size);
+			//vector_tpl<halthandle_t> destination_list(tile_list_3[0]->get_haltlist_count() * tile_list_3.get_count());
+			destination_list.clear();
 				
-			FOR(vector_tpl<const planquadrat_t*>, const& current_tile, tile_list)
+			FOR(minivec_tpl<const planquadrat_t*>, const& current_tile, tile_list_3)
 			{
 				const nearby_halt_t* halt_list = current_tile->get_haltlist();
 				for(int h = current_tile->get_haltlist_count() - 1; h >= 0; h--) 

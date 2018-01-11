@@ -940,6 +940,12 @@ private:
 	// A helper method for use in init/new month
 	void recalc_passenger_destination_weights();
 
+	// These are used so as to obviate the need to create and
+	// destroy a vector of start halts every time that the
+	// passenger generation is run.
+	static thread_local vector_tpl<nearby_halt_t> start_halts;
+	static thread_local vector_tpl<halthandle_t> destination_list;
+
 #ifdef MULTI_THREAD
 	// Check whether this is the first time that karte_t::step() has been run
 	// in order to know when to launch the background threads. 
@@ -2704,8 +2710,7 @@ private:
 	void do_network_world_command(network_world_command_t *nwc);
 	uint32 get_next_command_step();
 
-	sint32 get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const planquadrat_t*> &tile_list) const;
-	void get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &tile_list, const goods_desc_t * wtyp, vector_tpl<nearby_halt_t> &halts) const;
+	void get_nearby_halts_of_tiles(const minivec_tpl<const planquadrat_t*> &tile_list, const goods_desc_t * wtyp, vector_tpl<nearby_halt_t> &halts) const;
 };
 
 
