@@ -169,10 +169,8 @@ vector_tpl<pedestrian_t*> *karte_t::pedestrians_added_threaded;
 vector_tpl<private_car_t*> *karte_t::private_cars_added_threaded;
 #endif
 
-#ifdef CACHE_HALT_LISTS
-thread_local vector_tpl<nearby_halt_t> karte_t::start_halts;
-thread_local vector_tpl<halthandle_t> karte_t::destination_list;
-#endif
+vector_tpl<nearby_halt_t> *karte_t::start_halts;
+vector_tpl<halthandle_t> *karte_t::destination_list;
 
 #ifdef DEBUG_SIMRAND_CALLS
 bool karte_t::print_randoms = true;
@@ -2087,6 +2085,9 @@ void karte_t::init_threads()
 	transferring_cargoes = new vector_tpl<transferring_cargo_t>[parallel_operations + 1];
 	marker_t::markers = new marker_t[parallel_operations * 2]; 
 
+	start_halts = new vector_tpl<nearby_halt_t>[parallel_operations + 1];
+	destination_list = new vector_tpl<halthandle_t>[parallel_operations + 1];
+
 	pthread_attr_init(&thread_attributes);
 	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
 
@@ -2257,6 +2258,10 @@ void karte_t::destroy_threads()
 	transferring_cargoes = NULL;
 	delete[] marker_t::markers;
 	marker_t::markers = NULL;
+	delete[]start_halts;
+	start_halts = NULL;
+	delete[] destination_list;
+	destination_list = NULL;
 
 	threads_initialised = false;
 	terminating_threads = false;
@@ -6037,12 +6042,18 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 	minivec_tpl<const planquadrat_t*> &tile_list = gb->get_tiles();
 
 	// Suitable start search (public transport)
-#ifdef CACHE_HALT_LISTS
-	start_halts.clear();
+#ifdef MULTI_THREAD
+	start_halts[passenger_generation_thread_number].clear();
 #else
-	vector_tpl<nearby_halt_t> start_halts(tile_list.empty() ? 0 : tile_list[0]->get_haltlist_count() * tile_list.get_count());
-#endif	
+	start_halts.clear();
+#endif
+
+	//vector_tpl<nearby_halt_t> start_halts(tile_list.empty() ? 0 : tile_list[0]->get_haltlist_count() * tile_list.get_count());
+#ifdef MULTI_THREAD
+	get_nearby_halts_of_tiles(tile_list, wtyp, start_halts[passenger_generation_thread_number]);
+#else
 	get_nearby_halts_of_tiles(tile_list, wtyp, start_halts);
+#endif
 
 	// Initialise the class out of the loop, as the passengers remain the same class no matter what their trip.
 	const uint8 g_class = first_origin->get_random_class(wtyp);
@@ -6165,8 +6176,13 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			minivec_tpl<const planquadrat_t*> &tile_list_2 = gb->get_tiles();
 
 			// Suitable start search (public transport)
+#ifdef MULTI_THREAD
+			start_halts[passenger_generation_thread_number].clear();
+			get_nearby_halts_of_tiles(tile_list_2, wtyp, start_halts[passenger_generation_thread_number]);
+#else
 			start_halts.clear();
 			get_nearby_halts_of_tiles(tile_list_2, wtyp, start_halts);
+#endif
 		}
 
 		ware_t pax(wtyp);
@@ -6332,8 +6348,11 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			car_minutes = UINT32_MAX_VALUE;
 
 			const bool can_walk = walking_time <= walking_tolerance;
-
+#ifdef MULTI_THREAD 
+			if (!has_private_car && !can_walk && start_halts[passenger_generation_thread_number].empty())
+#else
 			if(!has_private_car && !can_walk && start_halts.empty())
+#endif
 			{
 				/**
 					* If the passengers have no private car, are not in reach of any public transport
@@ -6358,12 +6377,13 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			{
 				tile_list_3.append(access(current_destination.location));
 			}
-#ifdef CACHE_HALT_LISTS
-			destination_list.clear();
+#ifdef MULTI_THREAD
+			destination_list[passenger_generation_thread_number].clear();
 #else
-			vector_tpl<halthandle_t> destination_list(tile_list_3[0]->get_haltlist_count() * tile_list_3.get_count());
-#endif		
-				
+			destination_list.clear();
+#endif
+			//vector_tpl<halthandle_t> destination_list(tile_list_3[0]->get_haltlist_count() * tile_list_3.get_count());
+		
 			FOR(minivec_tpl<const planquadrat_t*>, const& current_tile, tile_list_3)
 			{
 				const nearby_halt_t* halt_list = current_tile->get_haltlist();
@@ -6375,18 +6395,30 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 						// Previous versions excluded overcrowded halts here, but we need to know which
 						// overcrowded halt would have been the best start halt if it was not overcrowded,
 						// so do that below.
+#ifdef MULTI_THREAD
+						destination_list[passenger_generation_thread_number].append(halt);
+#else
 						destination_list.append(halt);
+#endif
 					}
 				}
 			}
 
 			best_journey_time = UINT32_MAX_VALUE;
-			if(start_halts.get_count() == 1 && destination_list.get_count() == 1 && start_halts[0].halt == destination_list.get_element(0))
+#ifdef MULTI_THREAD
+			if (start_halts[passenger_generation_thread_number].get_count() == 1 && destination_list[passenger_generation_thread_number].get_count() == 1 && start_halts[passenger_generation_thread_number][0].halt == destination_list[passenger_generation_thread_number].get_element(0))
+#else
+			if (start_halts.get_count() == 1 && destination_list.get_count() == 1 && start_halts[0].halt == destination_list.get_element(0))
+#endif
 			{
 				/** There is no public transport route, as the only stop
 				* for the origin is also the only stop for the destintation.
 				*/
+#ifdef MULTI_THREAD 
+				start_halt = start_halts[passenger_generation_thread_number][0].halt;
+#else
 				start_halt = start_halts[0].halt;
+#endif
 
 				if (can_walk)
 				{
@@ -6414,18 +6446,29 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				uint32 best_journey_time_including_crowded_halts = UINT32_MAX_VALUE;
 
 				sint32 i = 0;
+#ifdef MULTI_THREAD
+				FOR(vector_tpl<nearby_halt_t>, const& nearby_halt, start_halts[passenger_generation_thread_number])
+#else
 				FOR(vector_tpl<nearby_halt_t>, const& nearby_halt, start_halts)
+#endif
 				{
 					halthandle_t current_halt = nearby_halt.halt;
-				
+#ifdef MULTI_THREAD
+					uint32 current_journey_time = current_halt->find_route(destination_list[passenger_generation_thread_number], pax, best_journey_time, destination_pos);
+#else 
 					uint32 current_journey_time = current_halt->find_route(destination_list, pax, best_journey_time, destination_pos);
+#endif
 					
 					// Add walking time from the origin to the origin stop. 
 					// Note that the walking time to the destination stop is already added by find_route.
 					if (current_journey_time < UINT32_MAX_VALUE)
 					{
 						// The above check is needed to prevent an overflow.
+#ifdef MULTI_THREAD
+						current_journey_time += walking_time_tenths_from_distance(start_halts[passenger_generation_thread_number][i].distance);
+#else
 						current_journey_time += walking_time_tenths_from_distance(start_halts[i].distance);
+#endif
 					}
 					// TODO: Add facility to check whether station/stop has car parking facilities, and add the possibility of a (faster) private car journey.
 					// Use the private car journey time per tile from the passengers' origin to the city in which the stop is located.
@@ -6492,9 +6535,15 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				else
 				{
 					// All passengers will use the quickest route.
-					if(start_halts.get_count() > 0)
+#ifdef MULTI_THREAD
+					if(start_halts[passenger_generation_thread_number].get_count() > 0)
+					{
+						start_halt = start_halts[passenger_generation_thread_number][best_start_halt].halt;
+#else
+					if (start_halts.get_count() > 0)
 					{
 						start_halt = start_halts[best_start_halt].halt;
+#endif
 					}
 				}
 			}
@@ -6802,10 +6851,15 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			{
 				city->merke_passagier_ziel(best_bad_destination, COL_RED);
 			}					
-					
-			if(start_halts.get_count() > 0)
+#ifdef MULTI_THREAD
+			if(start_halts[passenger_generation_thread_number].get_count() > 0)
 			{
-				start_halt = start_halts[best_bad_start_halt].halt; 					
+				start_halt = start_halts[passenger_generation_thread_number][best_bad_start_halt].halt; 
+#else
+			if (start_halts.get_count() > 0)
+			{
+				start_halt = start_halts[best_bad_start_halt].halt;
+#endif
 				if(start_halt.is_bound())
 				{
 					start_halt->add_pax_unhappy(units_this_step);
@@ -6831,12 +6885,19 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					goto no_route;
 				}
 			}
-
-			if(too_slow_already_set && !start_halts.empty())
+#ifdef MULTI_THREAD
+			if(too_slow_already_set && !start_halts[passenger_generation_thread_number].empty())
 			{
 				// This will be dud for a private car trip.
-				start_halt = start_halts[best_bad_start_halt].halt; 					
+				start_halt = start_halts[passenger_generation_thread_number][best_bad_start_halt].halt;
 			}
+#else
+			if (too_slow_already_set && !start_halts.empty())
+			{
+				// This will be dud for a private car trip.
+				start_halt = start_halts[best_bad_start_halt].halt;
+			}
+#endif
 			if(start_halt.is_bound() && best_journey_time < UINT32_MAX_VALUE)
 			{
 				start_halt->add_pax_too_slow(units_this_step);
@@ -6858,10 +6919,15 @@ no_route:
 					city->merke_passagier_ziel(first_destination.location, COL_DARK_ORANGE);
 				}
 			}
-					
-			if(route_status != destination_unavailable && start_halts.get_count() > 0)
+#ifdef MULTI_THREAD
+			if(route_status != destination_unavailable && start_halts[passenger_generation_thread_number].get_count() > 0)
 			{
-				start_halt = start_halts[best_bad_start_halt].halt; 					
+				start_halt = start_halts[passenger_generation_thread_number][best_bad_start_halt].halt;
+#else
+			if (route_status != destination_unavailable && start_halts.get_count() > 0)
+			{
+				start_halt = start_halts[best_bad_start_halt].halt;
+#endif
 				if(start_halt.is_bound())
 				{
 					start_halt->add_pax_no_route(units_this_step);
@@ -6974,7 +7040,11 @@ no_route:
 				// Overcrowding at the origin stop does not prevent a return to this stop.
 				// best_bad_start_halt is actually the best start halt irrespective of overcrowding:
 				// if the start halt is not overcrowded, this will be the actual start halt.
-				return_passengers.set_ziel(start_halts[best_bad_start_halt].halt); 
+#ifdef MULTI_THREAD
+				return_passengers.set_ziel(start_halts[passenger_generation_thread_number][best_bad_start_halt].halt); 
+#else
+				return_passengers.set_ziel(start_halts[best_bad_start_halt].halt);
+#endif
 				return_passengers.set_zielpos(origin_pos.get_2d());
 				return_passengers.is_commuting_trip = trip == commuting_trip;
 				return_passengers.comfort_preference_percentage = pax.comfort_preference_percentage;
@@ -6989,7 +7059,11 @@ no_route:
 				{
 					// Try to return to one of the other halts near the origin (now the destination)
 					uint32 return_journey_time = UINT32_MAX;
+#ifdef MULTI_THREAD
+					FOR(vector_tpl<nearby_halt_t>, const nearby_halt, start_halts[passenger_generation_thread_number])
+#else
 					FOR(vector_tpl<nearby_halt_t>, const nearby_halt, start_halts)
+#endif
 					{
 						halthandle_t test_halt = nearby_halt.halt;
 						haltestelle_t::connexion* cnx = test_halt->get_connexions(wtyp->get_catg_index())->get(ret_halt);
