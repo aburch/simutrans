@@ -142,7 +142,7 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 int dr_os_open(int const w, int const h, int fullscreen)
 {
 	MaxSize.right = ((w*x_scale)/32+15) & 0x7FF0;
-	MaxSize.bottom = (h*y_scale)/32+1;
+	MaxSize.bottom = (h*y_scale)/32;
 
 #ifdef MULTI_THREAD
 	InitializeCriticalSection( &redraw_underway );
@@ -159,7 +159,7 @@ int dr_os_open(int const w, int const h, int fullscreen)
 		settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 		settings.dmBitsPerPel = COLOUR_DEPTH;
 		settings.dmPelsWidth  = MaxSize.right;
-		settings.dmPelsHeight = MaxSize.bottom-1;
+		settings.dmPelsHeight = MaxSize.bottom;
 		settings.dmDisplayFrequency = 0;
 
 		if(  ChangeDisplaySettings(&settings, CDS_TEST)!=DISP_CHANGE_SUCCESSFUL  ) {
@@ -179,20 +179,20 @@ int dr_os_open(int const w, int const h, int fullscreen)
 		is_fullscreen = fullscreen;
 	}
 	if(  fullscreen  ) {
-		create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, MaxSize.right, MaxSize.bottom-1);
+		create_window(WS_EX_TOPMOST, WS_POPUP, 0, 0, MaxSize.right, MaxSize.bottom);
 	}
 	else {
-		create_window(0, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, MaxSize.right, MaxSize.bottom-1);
+		create_window(0, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, MaxSize.right, MaxSize.bottom);
 	}
 
 	WindowSize.right  = MaxSize.right;
-	WindowSize.bottom = MaxSize.bottom-1;
+	WindowSize.bottom = MaxSize.bottom;
 
 	AllDib = MALLOCF(BITMAPINFO, bmiColors, 3);
 	BITMAPINFOHEADER& header = AllDib->bmiHeader;
 	header.biSize          = sizeof(BITMAPINFOHEADER);
 	header.biWidth         = (w+15) & 0x7FF0;
-	header.biHeight        = h+1;
+	header.biHeight        = h;
 	header.biPlanes        = 1;
 	header.biBitCount      = COLOUR_DEPTH;
 	header.biCompression   = BI_RGB;
@@ -597,7 +597,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SYSTEM_RESIZE;
 
-				sys_event.mx = ((LOWORD(lParam) + 1)*32)/x_scale;
+				sys_event.mx = (LOWORD(lParam)*32)/x_scale;
 				if (sys_event.mx <= 0) {
 					sys_event.mx = 4;
 				}

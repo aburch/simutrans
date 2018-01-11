@@ -100,7 +100,7 @@ void export_city(HSQUIRRELVM vm)
 	/**
 	 * Class to access cities.
 	 */
-	begin_class(vm, "city_x", "extend_get,coord");
+	begin_class(vm, "city_x", "extend_get,coord,ingame_object");
 
 	/**
 	 * Constructor.
@@ -111,6 +111,10 @@ void export_city(HSQUIRRELVM vm)
 	// actually defined in simutrans/script/script_base.nut
 	// register_function(..., "constructor", ...);
 
+	/**
+	 * @returns if object is still valid.
+	 */
+	export_is_valid<stadt_t*>(vm); //register_function("is_valid")
 	/**
 	 * Return name of city
 	 * @returns name

@@ -269,6 +269,10 @@ void export_goods_desc(HSQUIRRELVM vm)
 	 * @return true if this==other
 	 */
 	register_method(vm, &are_equal, "is_equal", true);
+	/**
+	 * @returns if object is still valid.
+	 */
+	export_is_valid<const obj_named_desc_t*>(vm); //register_function("is_valid")
 	end_class(vm);
 
 	/**

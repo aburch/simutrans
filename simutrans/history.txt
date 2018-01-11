@@ -8,12 +8,18 @@
 		image[dir][a] (dir - direction, a - animation counter, a=0,1,..)
 	CHG: pedestrian movement, new dat parameter:
 		offset (of pedestrian image relative to right tile boundary, 0..255, default 20, 0 = on the right edge of tile, 128 = on center line of tile
-	FIX: corrected container UI component focus logic (fixes http://forum.simutrans.com/index.php?topic=17277)
-	FIX: added redraw logic for field removal (fixes http://forum.simutrans.com/index.php?topic=17308)
+	FIX: corrected container UI component focus logic (fixes http://forum.simutrans.com/index.php?topic=17277 )
+	FIX: added redraw logic for field removal (fixes http://forum.simutrans.com/index.php?topic=17308 )
 	FIX: added Unicode file path support for Windows builds
 	FIX: removed Windows builds file search resource leak
 	FIX: improved Windows build clipboard Unicode parsing
 	ADD: sorting in depot (HyperSim)
+	FIX: factories which gain or lose fields should no longer have a chance to break with JIT2 (fixes https://forum.simutrans.com/index.php?topic=17394 )
+	ADD: sync step barrier for multiplayer clients to prevent them running ahead of the server in the case of an unreliable connection
+	CHG: various multiplayer related settings have been given more reliable default values
+	FIX: fullscreen Windows GDI no longer alters display area when alt+tab cycled
+	ADD: JIT2 demand based production rate scaling
+	CHG: changed factory information view to be easier to understand, especially when operating with JIT2
 
 Release of 120.2.2: (r8163 on 31-3-2017):
 	ADD: Name filter in depot window

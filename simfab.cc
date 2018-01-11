@@ -208,25 +208,12 @@ void ware_production_t::book_weighted_sum_storage(uint32 factor, sint64 delta_ti
 	set_stat( amount, FAB_GOODS_STORAGE );
 }
 
-sint32 ware_production_t::get_work_factor(){
-	// the minimum amount of output product for rampdown to occur
-	const sint32 prod_scale_limit = min_shipment * OUTPUT_SCALE_RAMPDOWN_MULTIPLYER;
+sint32 ware_production_t::calculate_output_production_rate() const {
+	return fabrik_t::calculate_work_rate_ramp(menge, min_shipment * OUTPUT_SCALE_RAMPDOWN_MULTIPLYER, max);
+}
 
-	// only ramp down if greater than minimum
-	if(  menge  <=  prod_scale_limit  ){
-	    // full production (1.0)
-		return 1 << WORK_BITS;
-	}
-
-	// compute desired work factor
-	sint32 ramp_fact = (sint32)(((sint64)(max - menge) << WORK_BITS) / (sint64)(max - prod_scale_limit));
-
-	// apply work factor minimum limit
-	if( ramp_fact < WORK_SCALE_MINIMUM_FRACTION ){
-		ramp_fact = WORK_SCALE_MINIMUM_FRACTION;
-	}
-
-	return ramp_fact;
+sint32 ware_production_t::calculate_demand_production_rate() const {
+	return fabrik_t::calculate_work_rate_ramp(demand_buffer, max / 2, max);
 }
 
 void fabrik_t::arrival_statistics_t::init()
@@ -643,6 +630,10 @@ void fabrik_t::recalc_storage_capacities()
 
 		// Now convert it into the prefered shipment size. Always round up to prevent "off by 1" error.
 		output[out].min_shipment = (sint32)((((sint64)shipment_size << (precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)) + (sint64)(prod_factor - 1)) / (sint64)prod_factor);
+	}
+
+	if(  welt->get_settings().get_just_in_time() >= 2  ) {
+		rebuild_inactive_cache();
 	}
 }
 
@@ -1814,7 +1805,7 @@ void fabrik_t::step(uint32 delta_t)
 			// JIT1 implementation for power bonus.
 			if(  !desc->is_electricity_producer()  &&  scaled_electric_demand > 0  ) {
 				// one may be thinking of linking this to actual production only
-				prodfactor_electric = (sint32)(((sint64)desc->get_electric_boost() * (sint64)get_power_satisfaction() + (sint64)(1 << (leitung_t::FRACTION_PRECISION - 1))) >> leitung_t::FRACTION_PRECISION);
+				prodfactor_electric = (sint32)(((sint64)desc->get_electric_boost() * (sint64)get_power_satisfaction() + (sint64)((sint64)1 << (leitung_t::FRACTION_PRECISION - 1))) >> leitung_t::FRACTION_PRECISION);
 			}
 			break;
 		}
@@ -1926,7 +1917,7 @@ void fabrik_t::step(uint32 delta_t)
 					}
 
 					// get desired work factor
-					const sint32 work_fact = output[product].get_work_factor();
+					const sint32 work_fact = output[product].calculate_output_production_rate();
 
 					// compute desired production
 					prod_delta = work_scale_production(prod, work_fact);
@@ -2029,16 +2020,23 @@ void fabrik_t::step(uint32 delta_t)
 					const bool no_input = inactive_inputs > 0;
 
 					// Determine minimum input in form of production from all outputs. This limits production.
+					// Determine minimum demand work rate from all inputs. This limits production rate.
+					sint32 demand_work_limt = input[0].calculate_demand_production_rate();
+					cons_comp = input[0].menge;
+					for(  uint32 index = 1;  index < input.get_count();  index++  ) {
+						if(  input[index].menge < cons_comp  ) {
+							cons_comp = input[index].menge;
+						}
+						sint32 const work_limit = input[index].calculate_demand_production_rate();
+						if(  work_limit < demand_work_limt  ) {
+							demand_work_limt = work_limit;
+						}
+
+					}
+					cons_comp *= output.get_count();
+
 					if(  !no_input  ) {
 						currently_producing = true;
-
-						cons_comp = input[0].menge;
-						for(  uint32 index = 1;  index < input.get_count();  index++  ) {
-							if(  input[index].menge < cons_comp  ) {
-								cons_comp = input[index].menge;
-							}
-						}
-						cons_comp *= output.get_count();
 					}
 
 					for(  uint32 product = 0;  product < output.get_count();  product++  ) {
@@ -2050,7 +2048,7 @@ void fabrik_t::step(uint32 delta_t)
 						}
 
 						// get desired work factor
-						const sint32 work_fact = output[product].get_work_factor();
+						const sint32 work_fact = min(output[product].calculate_output_production_rate(), demand_work_limt);
 
 						// compute desired production
 						prod_delta = work_scale_production(prod, work_fact);
@@ -2088,7 +2086,7 @@ void fabrik_t::step(uint32 delta_t)
 						}
 
 						// credit output work done
-						work += work_fact;
+						work += prod_delta;
 
 						// Produce output
 						delta_menge += prod_delta;
@@ -2104,11 +2102,11 @@ void fabrik_t::step(uint32 delta_t)
 						break;
 					}
 
-					// normalize work with respect to output number
-					work /= output.get_count();
+					// compute work done
+					const sint32 consumed = work / output.get_count();
+					work = work_from_production(prod, consumed);
 
 					// consume inputs
-					const sint32 consumed = work_scale_production(prod, work);
 					for(  uint32 index = 0;  index < input.get_count();  index++  ) {
 						input[index].menge -= consumed;
 						input[index].book_stat((sint64)consumed * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
@@ -2190,11 +2188,13 @@ void fabrik_t::step(uint32 delta_t)
 						continue;
 					}
 
+					sint32 const consumption_prod = work_scale_production(prod, input[index].calculate_demand_production_rate());
+
 					// limit consumption to minimum of production or storage
-					prod_delta = input[index].menge > prod ? prod : input[index].menge;
+					prod_delta = input[index].menge > consumption_prod ? consumption_prod : input[index].menge;
 
 					// add to work done
-					work += work_from_production(prod, prod_delta);
+					work += prod_delta;
 
 					// consume input
 					delta_menge += prod_delta;
@@ -2210,8 +2210,8 @@ void fabrik_t::step(uint32 delta_t)
 					}
 				}
 
-				// normalize work with respect to input number
-				work /= input.get_count();
+				// normalise and convert work into work factor
+				work = work_from_production(prod, work / input.get_count());
 
 				if(  desc->is_electricity_producer()  ) {
 					// compute power production
@@ -2259,7 +2259,7 @@ void fabrik_t::step(uint32 delta_t)
 	/// Ordering logic.
 	switch(  demand_type  ) {
 		case DL_SYNC: {
-			// Synchronous ordering. All buffers are filled the same amount in parallel.
+			// Synchronous ordering. All buffers are filled the same amount in parallel based on desired work factor.
 
 			if(  want == 0  ||  inactive_demands > 0  ) {
 				// No ordering if any are overfull or there is no want.
@@ -2277,7 +2277,7 @@ void fabrik_t::step(uint32 delta_t)
 			break;
 		}
 		case DL_ASYNC: {
-			// Asynchronous ordering. Each buffer tries to order with full ones discarding orders.
+			// Asynchronous ordering. Each buffer tries to order scaled back by the demand work factor.
 
 			if(  want == 0  ||  inactive_demands == input.get_count()  ) {
 				// No ordering if all are overfull or no want.
@@ -2289,8 +2289,7 @@ void fabrik_t::step(uint32 delta_t)
 				if(  input[index].demand_buffer >= input[index].max  ) {
 					continue;
 				}
-
-				input[index].demand_buffer += want;
+				input[index].demand_buffer +=  max(work_scale_production(want, input[index].calculate_demand_production_rate()), 1);
 
 				// register inactive demand buffer
 				if(  input[index].demand_buffer >= input[index].max  ) {
@@ -2843,27 +2842,35 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 {
 	buf.clear();
 	buf.append( translator::translate("Durchsatz") );
-	buf.append( get_current_production(), 0 );
+	buf.append(get_current_production(), 0);
 	buf.append( translator::translate("units/day") );
+	buf.append("\n");
+	buf.printf(translator::translate("Produces: %.1f units/minute"),
+		get_production_per_second() * 60.0
+	);
 
 	if (!output.empty()) {
 		buf.append("\n\n");
 		buf.append(translator::translate("Produktion"));
 
 		for (uint32 index = 0; index < output.get_count(); index++) {
-			const goods_desc_t * type = output[index].get_typ();
-			const sint64 pfactor = (sint64)desc->get_product(index)->get_factor();
+			goods_desc_t const *const type = output[index].get_typ();
+			sint64 const pfactor = (sint64)desc->get_product(index)->get_factor();
 
+			buf.append("\n - ");
 			if(  welt->get_settings().get_just_in_time() >= 2  ) {
-				buf.printf( "\n - %s %u%% : %u/%u",
+				double const pfraction = (double)pfactor / (double)DEFAULT_PRODUCTION_FACTOR;
+				double const storage_unit = (double)(1 << fabrik_t::precision_bits);
+				buf.printf(translator::translate("%s %.0f%% : %.0f/%.0f @ %.1f%%"),
 					translator::translate(type->get_name()),
-					(uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)output[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)output[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS))
+					pfraction * 100.0,
+					(double)output[index].menge * pfraction / storage_unit,
+					(double)output[index].max * pfraction / storage_unit,
+					(double)output[index].calculate_output_production_rate() * 100.0 / (double)(1 << 16)
 				);
 			}
 			else {
-				buf.printf( "\n - %s %u/%u%s",
+				buf.printf("%s %u/%u%s",
 					translator::translate(type->get_name()),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)output[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)output[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
@@ -2885,20 +2892,23 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		buf.append(translator::translate("Verbrauch"));
 
 		for (uint32 index = 0; index < input.get_count(); index++) {
-			const sint64 pfactor = (sint64)desc->get_supplier(index)->get_consumption();
+			sint64 const pfactor = (sint64)desc->get_supplier(index)->get_consumption();
 
+			buf.append("\n - ");
 			if(  welt->get_settings().get_just_in_time() >= 2  ) {
-				buf.printf("\n - %s %u%% : %u/%u + %u (%+i)",
+				double const pfraction = (double)pfactor / (double)DEFAULT_PRODUCTION_FACTOR;
+				double const storage_unit = (double)(1 << fabrik_t::precision_bits);
+				buf.printf(translator::translate("%s %.0f%% : %.0f+%u/%.0f @ %.1f%%"),
 					translator::translate(input[index].get_typ()->get_name()),
-					(uint32)((FAB_PRODFACT_UNIT_HALF + (sint32)pfactor * 100) >> DEFAULT_PRODUCTION_FACTOR_BITS),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
-					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].max * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
+					pfraction * 100.0,
+					(double)input[index].menge * pfraction / storage_unit,
 					(uint32)input[index].get_in_transit(),
-					(sint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].demand_buffer * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS))
+					(double)input[index].max * pfraction / storage_unit,
+					(double)input[index].calculate_demand_production_rate() * 100.0 / (double)(1 << 16)
 				);
 			}
 			else if(  welt->get_settings().get_factory_maximum_intransit_percentage()  ) {
-				buf.printf("\n - %s %u/%i(%i)/%u%s, %u%%",
+				buf.printf("%s %u/%i(%i)/%u%s, %u%%",
 					translator::translate(input[index].get_typ()->get_name()),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					input[index].get_in_transit(),
@@ -3036,12 +3046,6 @@ void fabrik_t::finish_rd()
 			if( input[in].menge > input[in].max ) {
 				input[in].menge = input[in].max;
 			}
-			if( input[in].menge <= 0 ) {
-				inactive_inputs++;
-			}
-			if( input[in].demand_buffer >= input[in].max ) {
-				inactive_demands++;
-			}
 			input[in].placing_orders = (input[in].demand_buffer > 0);
 
 			// Also do a sanity check. People might try and force their saves to JIT2 mode via reloading so we need to catch any massive values.
@@ -3059,10 +3063,9 @@ void fabrik_t::finish_rd()
 			if( output[out].menge >= output[out].max ) {
 				output[out].menge = output[out].max;
 			}
-			if( output[out].menge >= output[out].max ) {
-				inactive_outputs++;
-			}
 		}
+
+		rebuild_inactive_cache();
 	}
 	else {
 		// Classic order logic.
@@ -3245,4 +3248,50 @@ slist_tpl<const goods_desc_t*> *fabrik_t::get_produced_goods() const
 	}
 
 	return goods;
+}
+
+void fabrik_t::rebuild_inactive_cache()
+{
+	inactive_inputs = inactive_outputs = inactive_demands = 0;
+
+	for(  uint32 i = 0;  i < input.get_count();  i++  ){
+		if(  input[i].menge <= 0  ) {
+			inactive_inputs++;
+		}
+		if(  input[i].demand_buffer >= input[i].max  ) {
+			inactive_demands++;
+		}
+	}
+
+	for(  uint32 i = 0 ; i < output.get_count() ; i++  ){
+		if(  output[i].menge >= output[i].max  ) {
+			inactive_outputs++;
+		}
+	}
+}
+
+double fabrik_t::get_production_per_second() const {
+	return (double)prodbase * (double)get_prodfactor() / (double)DEFAULT_PRODUCTION_FACTOR / (double)DEFAULT_PRODUCTION_FACTOR;
+}
+
+sint32 fabrik_t::calculate_work_rate_ramp(sint32 const amount, sint32 const minimum, sint32 const maximum, uint32 const precision)
+{
+	sint32 production_rate;
+	if(  minimum >= maximum  ||  minimum >= amount  ) {
+		// full production
+		production_rate = 1 << precision;
+	}
+	else if(  amount < maximum  ) {
+		// reduction production 
+		production_rate = (sint32)(((sint64)(maximum - amount) << precision) / (sint64)(maximum - minimum));
+		// apply work factor minimum limit
+		if(  production_rate < WORK_SCALE_MINIMUM_FRACTION  ){
+			production_rate = WORK_SCALE_MINIMUM_FRACTION;
+		}
+	}
+	else {
+		// no production
+		production_rate = 0;
+	}
+	return production_rate;
 }

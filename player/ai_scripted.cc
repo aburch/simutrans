@@ -228,10 +228,12 @@ void ai_scripted_t::rdwr(loadsave_t *file)
 		}
 	}
 	else {
+		plainstring str("");
 		if (script) {
-			plainstring str;
 			script->call_function(script_vm_t::FORCEX, "save", str);
 			dbg->warning("ai_scripted_t::rdwr", "write persistent ai data: %s", str.c_str());
+		}
+		if (ai_name  &&  *ai_name) { // valid name, save even if script is NULL
 			file->rdwr_str(str);
 		}
 	}

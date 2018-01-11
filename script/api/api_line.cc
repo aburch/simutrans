@@ -175,13 +175,12 @@ void export_line(HSQUIRRELVM vm)
 	/**
 	 * Class to access lines.
 	 */
-	begin_class(vm, "line_x", "extend_get");
+	begin_class(vm, "line_x", "extend_get,ingame_object");
 
 	/**
-	 * Is line a valid object:
+	 * @returns if object is still valid.
 	 */
-	register_method(vm, line_is_valid, "is_valid", true);
-
+	export_is_valid<simline_t*>(vm); //register_function("is_valid")
 	/**
 	 * Line name.
 	 * @returns name
