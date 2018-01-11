@@ -3,11 +3,11 @@
 SectionGroup "Pak64: main and addons" pak64group
 
 Section "!pak (64 size) (standard)" pak
-  AddSize 12216
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/120-2/simupak64-120-2.zip"
-  StrCpy $archievename "simupak64-120-2.zip"
+  AddSize 12240
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/120-3/simupak64-120-3.zip"
+  StrCpy $archievename "simupak64-120-3.zip"
   StrCpy $downloadname "pak"
-  StrCpy $VersionString "pak64 120.2 r1872"
+  StrCpy $VersionString "pak64 120.3 r1923"
   Call DownloadInstallZip
 SectionEnd
 
@@ -162,12 +162,12 @@ SectionEnd
 
 
 
-Section /o "pak128.German V10.2 for 120.x" pak128german
-  AddSize 228158
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_0.10.x_for_ST_120.x/PAK128.german_0.10.2_for_ST_120.x.zip"
-  StrCpy $archievename "PAK128.german_0.10.2_for_ST_120.x.zip"
+Section /o "pak128.German V10.4 for 120.x" pak128german
+  AddSize 243304
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_0.10.x_for_ST_120.x/PAK128.german_0.10.4_for_ST_120.x.zip"
+  StrCpy $archievename "PAK128.german_0.10.4_for_ST_120.x.zip"
   StrCpy $downloadname "pak128.German"
-  StrCpy $VersionString "  PAK128.german V 0.10.2 (Rev. 2086)"
+  StrCpy $VersionString "  PAK128.german V 0.10.4 (Rev. 2135) "
   Call DownloadInstallZip
 SectionEnd
 
@@ -183,12 +183,23 @@ Section /o "pak128.Japan for Simutrans 120.0" pak128japan
 SectionEnd
 
 
-Section /o "pak192.Comic 0.4.1 (CC-BY-SA)" pak192comic
-  AddSize 107311
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192comic%20for%20120-0/pak192comic-0.4.1-120-0up.zip"
-  StrCpy $archievename "pak192comic-0.4.1-120-0up.zip"
+; name does not match folder name (pak128.japan) but otherwise always selected for update
+Section /o "pak128.CZ (0.3)" pak128cz
+  AddSize 77913
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/Pak128.CS/nightly%20builds/pak128.CS.zip"
+  StrCpy $archievename "pak128.CS.zip"
+  StrCpy $downloadname "pak128.CZ"
+  StrCpy $VersionString "Pak128.CS 0.3.0"
+  Call DownloadInstallZipWithoutSimutrans
+SectionEnd
+
+
+Section /o "pak192.Comic 0.5 (CC-BY-SA)" pak192comic
+  AddSize 484130
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192comic%20for%20120-2-2/pak129.comic.0.5.zip"
+  StrCpy $archievename "pak129.comic.0.5.zip"
   StrCpy $downloadname "pak192.comic"
-  StrCpy $VersionString "pak192.comic 0.4.1 (rev560)"
+  StrCpy $VersionString "pak192.comic nightly-r717"
   Call DownloadInstallZip
 SectionEnd
 

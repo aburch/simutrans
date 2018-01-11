@@ -346,7 +346,7 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * Class to access objects on the map
 	 * These classes cannot modify anything.
 	 */
-	begin_class(vm, "map_object_x", "extend_get,coord3d");
+	begin_class(vm, "map_object_x", "extend_get,coord3d,ingame_object");
 	uint8 objtype = bind_code<obj_t>::objtype;
 	sq_settypetag(vm, -1, obj_t_tag + objtype);
 	/**
@@ -359,6 +359,10 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @typemask void(integer,integer,integer,map_objects)
 	 */
 	register_function(vm, exp_obj_pos_constructor, "constructor", 5, "xiiii");
+	/**
+	 * @returns if object is still valid.
+	 */
+	export_is_valid<obj_t*>(vm); //register_function("is_valid")
 	/**
 	 * @returns owner of the object.
 	 */

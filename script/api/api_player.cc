@@ -56,12 +56,6 @@ vector_tpl<sint64> const& get_player_stat(player_t *player, sint32 INDEX, sint32
 }
 
 
-bool player_active(player_t *player)
-{
-	return player != NULL;
-}
-
-
 // export of finance_t only here
 namespace script_api {
 	declare_specialized_param(finance_t*, param<player_t*>::typemask(), param<player_t*>::squirrel_type());
@@ -129,7 +123,7 @@ void export_player(HSQUIRRELVM vm, bool scenario)
 	 * Class to access player statistics.
 	 * Here, a player refers to one transport company, not to an individual playing simutrans.
 	 */
-	begin_class(vm, "player_x", "extend_get");
+	begin_class(vm, "player_x", "extend_get,ingame_object");
 
 	/**
 	 * Constructor.
@@ -138,6 +132,11 @@ void export_player(HSQUIRRELVM vm, bool scenario)
 	 */
 	// actually defined in simutrans/script/script_base.nut
 	// register_function(..., "constructor", ...);
+
+	/**
+	 * @returns if object is still valid.
+	 */
+	export_is_valid<player_t*>(vm); //register_function("is_valid")
 
 	if (!scenario) {
 		/**

@@ -320,4 +320,21 @@ void export_simple(HSQUIRRELVM vm)
 	 */
 	STATIC register_method(vm, &slope_to_ribi, "to_dir", false, true);
 	end_class(vm);
+
+#ifdef SQAPI_DOC
+	/**
+	 * Classes to access in-game objects.
+	 * Creating an instance of such classes will not create an object in the game.
+	 * Instead, these classes contain data to access the in-game object.
+	 * If the in-game object disappears, then any access to it via these classes will fail.
+	 * Use the method @r ingame_object::is_valid to check whether the in-game object is still alive.
+	 */
+	class ingame_object
+	{
+		/**
+		 * @returns true if in-game object can still be accessed.
+		 */
+		bool is_valid();
+	}
+#endif
 }

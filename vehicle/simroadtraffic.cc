@@ -772,10 +772,10 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 void private_car_t::enter_tile(grund_t* gr)
 {
 #ifdef DESTINATION_CITYCARS
-	if(target!=koord::invalid  &&  koord_distance(pos_next.get_2d(),target)<10) {
+	if(  target!=koord::invalid  &&  koord_distance(pos_next.get_2d(),target)<10  ) {
 		// delete it ...
 		time_to_life = 0;
-		pedestrian_t::generate_pedestrians_at(welt, get_pos(), 2);
+		// was generating pedestrians gere, but not possible with new sync system
 	}
 #endif
 	vehicle_base_t::enter_tile(gr);

@@ -1097,6 +1097,9 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 	}
 	city_history_year[0][HIST_CITICENS]  = get_einwohner();
 	city_history_month[0][HIST_CITICENS] = get_einwohner();
+#ifdef DESTINATION_CITYCARS
+	number_of_cars = 0;
+#endif
 }
 
 
@@ -1707,6 +1710,7 @@ void stadt_t::new_month( bool recalc_destinations )
 		uint32 factor = (uint32)( comp_stats(pax_stat, mail_stat) ? (comp_stats(good_stat, pax_stat) ? comp_factor(good_stat) : comp_factor(pax_stat)) : comp_factor(mail_stat) );
 		factor = log10(factor);
 
+#ifndef DESTINATION_CITYCARS
 		uint16 number_of_cars = simrand( factor * welt->get_settings().get_traffic_level() ) / 16;
 
 		city_history_month[0][HIST_CITYCARS] = number_of_cars;
@@ -1733,7 +1737,10 @@ void stadt_t::new_month( bool recalc_destinations )
 		// correct statistics for ungenerated cars
 		city_history_month[0][HIST_CITYCARS] -= number_of_cars;
 		city_history_year[0][HIST_CITYCARS] -= number_of_cars;
-
+#else
+		city_history_month[0][HIST_CITYCARS] = 0;
+		number_of_cars = simrand( factor * welt->get_settings().get_traffic_level() ) / 16;
+#endif
 	}
 }
 
@@ -1899,13 +1906,6 @@ void stadt_t::step_passagiere()
 				factory_entry->factory->book_stat(pax_left_to_do, ispass ? FAB_PAX_GENERATED : FAB_MAIL_GENERATED);
 			}
 
-#ifdef DESTINATION_CITYCARS
-			//citycars with destination
-			if (pax_routed == 0) {
-				generate_private_cars(start_halt->get_basis_pos(), step_count, ziel);
-			}
-#endif
-
 			ware_t pax(wtyp);
 			pax.set_zielpos(dest_pos);
 			pax.menge = pax_left_to_do;
@@ -1971,7 +1971,7 @@ void stadt_t::step_passagiere()
 				merke_passagier_ziel(dest_pos, color_idx_to_rgb(COL_DARK_ORANGE));
 #ifdef DESTINATION_CITYCARS
 				//citycars with destination
-				generate_private_cars(start_halt->get_basis_pos(), step_count, ziel);
+				generate_private_cars( origin_pos, dest_pos );
 #endif
 			}
 
@@ -2149,7 +2149,7 @@ void stadt_t::step_passagiere()
 
 #ifdef DESTINATION_CITYCARS
 		//citycars with destination
-		generate_private_cars(k, step_count, ziel);
+		generate_private_cars( origin_pos, ziel );
 #endif
 		merke_passagier_ziel(ziel, color_idx_to_rgb(COL_DARK_ORANGE));
 		// we do not show no route for destination stop!
@@ -2936,7 +2936,7 @@ void stadt_t::build_city_building(const koord k)
 		}
 	}
 
-	if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_residential) {
+	if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_commercial) {
 		h = hausbauer_t::get_industrial(0, current_month, cl, neighbor_building_clusters);
 		if (h != NULL) {
 			arb += (h->get_level()+1) * 20;
@@ -3121,32 +3121,29 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 }
 
 
-void stadt_t::generate_private_cars(koord pos, sint32 level, koord target)
+#ifdef DESTINATION_CITYCARS
+void stadt_t::generate_private_cars(koord pos, koord target)
 {
-	int const traffic_level = welt->get_settings().get_traffic_level();
-	if (traffic_level > 0 && level % (17 - traffic_level) == 0) {
+	if (!private_car_t::list_empty()  &&  number_of_cars>0  ) {
 		koord k;
 		for (k.y = pos.y - 1; k.y <= pos.y + 1; k.y++) {
 			for (k.x = pos.x - 1; k.x <= pos.x + 1; k.x++) {
-				if (welt->is_within_limits(k)) {
-					grund_t* gr = welt->lookup_kartenboden(k);
+				if(  grund_t* gr = welt->lookup_kartenboden(k) ) {
 					const weg_t* weg = gr->get_weg(road_wt);
-
 					if (weg != NULL && (
 								gr->get_weg_ribi_unmasked(road_wt) == ribi_t::northsouth ||
 								gr->get_weg_ribi_unmasked(road_wt) == ribi_t::eastwest
 							)) {
-#ifdef DESTINATION_CITYCARS
 						// already a car here => avoid congestion
 						if(gr->obj_bei(gr->get_top()-1)->is_moving()) {
 							continue;
 						}
-#endif
-						if (!private_car_t::list_empty()) {
-							private_car_t* vt = new private_car_t(gr, target);
-							gr->obj_add(vt);
-							welt->sync.add(vt);
-						}
+						private_car_t* vt = new private_car_t(gr, target);
+						gr->obj_add(vt);
+						welt->sync.add(vt);
+						city_history_month[0][HIST_CITYCARS] ++;
+						city_history_year[0][HIST_CITYCARS] ++;
+						number_of_cars --;
 						return;
 					}
 				}
@@ -3154,6 +3151,7 @@ void stadt_t::generate_private_cars(koord pos, sint32 level, koord target)
 		}
 	}
 }
+#endif
 
 
 /**

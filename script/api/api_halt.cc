@@ -143,8 +143,12 @@ void export_halt(HSQUIRRELVM vm)
 	/**
 	 * Class to access halts / stations / bus stops.
 	 */
-	begin_class(vm, "halt_x", "extend_get");
+	begin_class(vm, "halt_x", "extend_get,ingame_object");
 
+	/**
+	 * @returns if object is still valid.
+	 */
+	export_is_valid<const haltestelle_t*>(vm); //register_function("is_valid")
 	/**
 	 * Station name.
 	 * @returns name

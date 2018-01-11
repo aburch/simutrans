@@ -50,6 +50,7 @@ network_command_t* network_command_t::read_from_packet(packet_t *p)
 		case NWC_SCENARIO:    nwc = new nwc_scenario_t(); break;
 		case NWC_SCENARIO_RULES:
 		                      nwc = new nwc_scenario_rules_t(); break;
+		case NWC_STEP:        nwc = new nwc_step_t(); break;
 		default:
 			dbg->warning("network_command_t::read_from_socket", "received unknown packet id %d", p->get_id());
 	}
