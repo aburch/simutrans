@@ -10752,6 +10752,15 @@ void karte_t::add_building_to_world_list(gebaeude_t *gb, bool ordered)
 		return;
 	}
 
+	if (gb->get_tile()->get_desc()->get_mail_demand_and_production_capacity() == 0 && gb->get_tile()->get_desc()->get_population_and_visitor_demand_capacity() == 0 && gb->get_tile()->get_desc()->get_employment_capacity() == 0)
+	{
+		// This building is no longer capable of dealing with passengers/mail: do not add it.
+		gb->set_adjusted_jobs(0);
+		gb->set_adjusted_mail_demand(0);
+		gb->set_adjusted_visitor_demand(0);
+		return;
+	}
+
 	if(gb->get_adjusted_population() > 0)
 	{
 		if(ordered)
