@@ -943,8 +943,10 @@ private:
 	// These are used so as to obviate the need to create and
 	// destroy a vector of start halts every time that the
 	// passenger generation is run.
-	//static thread_local vector_tpl<nearby_halt_t> start_halts;
-	//static thread_local vector_tpl<halthandle_t> destination_list;
+#ifdef CACHE_HALT_LISTS
+	static thread_local vector_tpl<nearby_halt_t> start_halts;
+	static thread_local vector_tpl<halthandle_t> destination_list;
+#endif
 
 #ifdef MULTI_THREAD
 	// Check whether this is the first time that karte_t::step() has been run
