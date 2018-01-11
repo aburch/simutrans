@@ -153,12 +153,6 @@ public:
 	}
 	void book_weighted_sum_storage(uint32 factor, sint64 delta_time);
 
-	/** Get the recommended work factor for an output.
-	 * Work factor ramps down as outputs fill.
-	 * Returns a fixed point fraction to precision WORK_BITS.
-	 */
-	sint32 get_work_factor();
-
 	sint32 menge;	// in internal units shifted by precision_bits (see step)
 	sint32 max;
 	/// Cargo currently in transit from/to this slot. Equivalent to statistics[0][FAB_GOODS_TRANSIT].
@@ -167,13 +161,13 @@ public:
 	/// Annonmyous union used to save memory and readability. Contains supply flow control limiters.
 	union{
 		// Classic : Current limit on cargo in transit (maximum network capacity), depending on sum of all supplier output storage.
-		sint32 max_transit;
+		sint32 max_transit; //JIT<2 Input
 
 		// JIT Version 2 : Current demand for the good. Orders when greater than 0.
-		sint32 demand_buffer;
+		sint32 demand_buffer; //JIT2 Input
 
 		// The minimum shipment size. Used to control delivery to stops and for production ramp-down.
-		sint32 min_shipment;
+		sint32 min_shipment; // Output
 	};
 
 	// Ordering lasts at least 1 tick period to allow all suppliers time to send (fair). Used by inputs.
@@ -183,6 +177,12 @@ public:
 	sint32 count_suppliers;	// only needed for averaging
 #endif
 	uint32 index_offset; // used for haltlist and lieferziele searches in verteile_waren to produce round robin results
+
+	// Production rate for outputs. Returns fixed point with WORK_BITS fractional bits.
+	sint32 calculate_output_production_rate() const;
+
+	// Production rate for JIT2 demands. Returns fixed point with WORK_BITS fractional bits.
+	sint32 calculate_demand_production_rate() const;
 };
 
 
@@ -228,7 +228,7 @@ private:
 		// Consumers are at the top of every supply chain.
 		CL_CONS_CLASSIC, // Classic consumer logic. Can generate power.
 		CL_CONS_MANY,    // Consumer that consumes multiple inputs, possibly produces power.
-		// Electricity producers provider power.
+		// Electricity producers provide power.
 		CL_ELEC_PROD,    // Simple electricity source. (green energy)
 		CL_ELEC_CLASSIC, // Classic electricity producer behaviour with no inputs.
 	} control_type;
@@ -324,13 +324,6 @@ private:
 	array_tpl<ware_production_t> output; ///< array for output/produced goods
 
 	/**
-	 * Some handy cached numbers for active inputs and outputs.
-	 */
-	uint8 inactive_outputs;
-	uint8 inactive_inputs;
-	uint8 inactive_demands;
-
-	/**
 	 * Zeitakkumulator für Produktion
 	 * @author Hj. Malthaner
 	 */
@@ -353,6 +346,13 @@ private:
 
 	uint32 total_input, total_transit, total_output;
 	uint8 status;
+
+	/**
+	 * Inactive caches, used to speed up logic when dealing with inputs and outputs.
+	 */
+	uint8 inactive_outputs;
+	uint8 inactive_inputs;
+	uint8 inactive_demands;
 
 	/// Position of a building of the factory.
 	koord3d pos;
@@ -727,6 +727,20 @@ public:
 
 	// Returns a list of goods produced by this factory.
 	slist_tpl<const goods_desc_t*> *get_produced_goods() const;
+
+	// Rebuild the factory inactive caches.
+	void rebuild_inactive_cache();
+
+	double get_production_per_second() const;
+
+	/* Calculate work rate using a ramp function.
+	 * amount: The current amount.
+	 * minimum: Minimum amount before work rate starts ramp down.
+	 * maximum: Maximum before production stops.
+	 * (opt) precision: Work rate fixed point fractional precision.
+	 * returns: Work rate in fixed point form.
+	 */
+	static sint32 calculate_work_rate_ramp(sint32 const amount, sint32 const minimum, sint32 const maximum, uint32 const precision = WORK_BITS);
 };
 
 #endif

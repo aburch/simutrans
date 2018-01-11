@@ -46,16 +46,16 @@ bool env_t::server_save_game_on_quit = false;
 bool env_t::reload_and_save_on_quit = true;
 
 sint32 env_t::server_frames_ahead = 4;
-sint32 env_t::additional_client_frames_behind = 0;
+sint32 env_t::additional_client_frames_behind = 4;
 sint32 env_t::network_frames_per_step = 4;
-uint32 env_t::server_sync_steps_between_checks = 256;
+uint32 env_t::server_sync_steps_between_checks = 24;
 bool env_t::pause_server_no_clients = false;
 
 std::string env_t::nickname = "";
 
-// this is explicitly and interactively set by user => we do not touch it in init
+// this is explicitly and interactively set by user => we do not touch it on init
 const char *env_t::language_iso = "en";
-sint16 env_t::scroll_multi = 1;
+sint16 env_t::scroll_multi = -1; // start with same scrool as mouse as nowadays standard
 sint16 env_t::global_volume = 127;
 sint16 env_t::midi_volume = 127;
 bool env_t::mute_sound = false;

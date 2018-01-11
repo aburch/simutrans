@@ -645,9 +645,9 @@ fast_forward = 50
 #server_frames_ahead = 4
 
 # How much extra delay in command execution on the client side, on top of server_frames_ahead.
-# A larger number can compensate for larger fluctuations in communication latency.
+# A larger number can compensate for larger fluctuations in communication latency to smooth out play.
 # This is set by the client side.
-#additional_client_frames_behind = 0
+#additional_client_frames_behind = 4
 
 # In network mode, there will be a fixed number of screen updates before a step.
 # Reasonable values should result in 2-5 steps per second.
@@ -656,7 +656,7 @@ fast_forward = 50
 # The server sends after a fixed number of steps some information to the clients.
 # Large values here means: reduced server communication (if that is of importance...)
 # Small values should improve the timing of the clients.
-#server_frames_between_checks = 256
+#server_frames_between_checks = 24
 
 # Automatically announce server on the central server directory (http://servers.simutrans.org/)
 # 0 (default) = off, 1 = on

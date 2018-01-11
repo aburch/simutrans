@@ -62,14 +62,17 @@ void script_vm_t::errorfunc(HSQUIRRELVM vm, const SQChar *s_, ...)
 	if (strcmp(s, "<error>")==0) {
 		// start of error message
 		buf.clear();
-		buf.printf("<st>Your script has an error!</st><br>\n");
+		buf.printf("<st>An error occured within a script!</st><br>\n");
 	}
 	else if (strcmp(s, "</error>")==0) {
 		// end of error message
-		help_frame_t *win = new help_frame_t();
+		help_frame_t *win = dynamic_cast<help_frame_t*>(win_get_magic((ptrdiff_t)script));
+		if (win == NULL) {
+			win = new help_frame_t();
+			create_win( win, w_info, (ptrdiff_t)script);
+		}
 		win->set_text(buf);
 		win->set_name("Script error occurred");
-		create_win( win, w_info, magic_none);
 
 		if (script) {
 			script->set_error(buf);

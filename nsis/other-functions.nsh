@@ -147,6 +147,8 @@ Function componentsPre
   Call EnableSectionIfThere
   Push ${pak128japan}
   Call EnableSectionIfThere
+  Push ${pak128cz}
+  Call EnableSectionIfThere
   Push ${pak192comic}
   Call EnableSectionIfThere
   Push ${pak64scifi}

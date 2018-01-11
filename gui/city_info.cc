@@ -466,7 +466,7 @@ city_info_t::city_info_t() :
 	const int window_height = D_TITLEBAR_HEIGHT + D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE +
 		8*LINESPACE + D_V_SPACE + D_CHECKBOX_HEIGHT + D_V_SPACE + MIN_CHART_HEIGHT + 2*(D_BUTTON_HEIGHT + D_V_SPACE);
 
-	set_min_windowsize(scr_size(D_MARGIN_LEFT + 5*D_BUTTON_WIDTH + 4*D_H_SPACE + D_MARGIN_RIGHT, window_height));
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, window_height));
 	set_resizemode(diagonal_resize);
 }
 

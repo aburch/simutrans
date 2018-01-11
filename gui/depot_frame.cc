@@ -322,8 +322,6 @@ void depot_frame_t::layout(scr_size *size)
 	scr_coord_val grid_dx;
 	scr_coord_val placement_dx;
 
-	scr_size win_size = (size != NULL) ? *size : get_windowsize();
-
 	/*
 	* These parameter are adjusted to resolution.
 	* - Some extra space looks nicer.
@@ -334,6 +332,16 @@ void depot_frame_t::layout(scr_size *size)
 	placement.y = depot->get_y_placement() * get_base_tile_raster_width() / 64 + 2;
 	grid_dx = depot->get_x_grid() * get_base_tile_raster_width() / 64 / 2;
 	placement_dx = depot->get_x_grid() * get_base_tile_raster_width() / 64 / 4;
+
+	// calculate some useful default width first (since everything depends on width)
+	scr_size win_size = (size != NULL) ? *size : get_windowsize();
+	if (win_size.w <= 0) {
+		win_size.w = max(D_DEFAULT_WIDTH,(grid.x - grid_dx)*18);
+		win_size.h = 0;
+	}
+	if (size  &&  size->w == 0) {
+		size->w = D_DEFAULT_WIDTH;
+	}
 
 	/*
 	*	Dialog format:
@@ -362,6 +370,8 @@ void depot_frame_t::layout(scr_size *size)
 		line_button.get_size().w + 2 + proportional_string_width(translator::translate(lb_convoi_line.get_text_pointer())) + 4
 		);
 
+	const scr_coord_val BUTTON_WIDTH_DEPOT = max(D_BUTTON_WIDTH,(win_size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT - 4*D_H_SPACE) / 4);
+
 	/*
 	*	Structure of [CONVOI] is a image_list and an infos:
 	*
@@ -380,19 +390,10 @@ void depot_frame_t::layout(scr_size *size)
 	*	    [Start][Schedule][Destroy][Sell]
 	*	    [new Route][change Route][delete Route]
 	*/
-	const scr_coord_val ACTIONS_WIDTH = D_DEFAULT_WIDTH + 110; // because depot has a text input frame for search
-	const scr_coord_val ACTIONS_HEIGHT = D_BUTTON_HEIGHT;
-
 	/*
 	*	Structure of [VINFO] is one multiline text.
 	*/
 	const scr_coord_val VINFO_HEIGHT =  7*LINESPACE + D_BUTTON_HEIGHT + D_EDIT_HEIGHT + 5*D_V_SPACE;
-
-	/*
-	* Total width is the max from [CONVOI] and [ACTIONS] width.
-	*/
-	const scr_coord_val MIN_DEPOT_FRAME_WIDTH = ACTIONS_WIDTH;
-	const scr_coord_val DEPOT_FRAME_WIDTH = max(win_size.w, ACTIONS_WIDTH);
 
 	/*
 	*  Now we can do the first vertical adjustment:
@@ -400,9 +401,9 @@ void depot_frame_t::layout(scr_size *size)
 	*/
 	const scr_coord_val SELECT_VSTART = D_MARGIN_TOP;
 	const scr_coord_val CONVOI_VSTART = SELECT_VSTART + SELECT_HEIGHT + LINESPACE + D_V_SPACE;
-	const scr_coord_val CINFO_VSTART = CONVOI_VSTART + CLIST_HEIGHT +  D_SCROLLBAR_HEIGHT*(CLIST_WIDTH >= DEPOT_FRAME_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT);
+	const scr_coord_val CINFO_VSTART = CONVOI_VSTART + CLIST_HEIGHT +  D_SCROLLBAR_HEIGHT*(CLIST_WIDTH >= win_size.w-D_MARGIN_LEFT-D_MARGIN_RIGHT);
 	const scr_coord_val ACTIONS_VSTART = CINFO_VSTART + CINFO_HEIGHT;
-	const scr_coord_val PANEL_VSTART = ACTIONS_VSTART + ACTIONS_HEIGHT;
+	const scr_coord_val PANEL_VSTART = ACTIONS_VSTART + D_BUTTON_HEIGHT;
 
 	/*
 	* Now we determine the row/col layout for the panel and the total panel
@@ -425,23 +426,21 @@ void depot_frame_t::layout(scr_size *size)
 	const scr_coord_val TOTAL_HEIGHT = PANEL_VSTART + PANEL_HEIGHT + D_V_SPACE + VINFO_HEIGHT + D_TITLEBAR_HEIGHT + 1 + D_MARGIN_BOTTOM;
 	const scr_coord_val MIN_TOTAL_HEIGHT = PANEL_VSTART + MIN_PANEL_HEIGHT + D_V_SPACE + VINFO_HEIGHT + D_TITLEBAR_HEIGHT + 1 + D_MARGIN_BOTTOM;
 
+	// now we know also the height, so we can set the size of the whole dialogue
+	if(  win_size.h <= 0  ) {
+		// set default size on first call
+		win_size.h = TOTAL_HEIGHT;
+	}
+	win_size.h = max(win_size.h, MIN_TOTAL_HEIGHT);
+	if(  size  ) {
+		*size = win_size;
+	}
+	gui_frame_t::set_windowsize(win_size);
+	set_min_windowsize(scr_size(D_DEFAULT_WIDTH, MIN_TOTAL_HEIGHT));
+
 	/*
 	* DONE with layout planning - now build everything.
 	*/
-	set_min_windowsize(scr_size(MIN_DEPOT_FRAME_WIDTH, MIN_TOTAL_HEIGHT));
-	if (win_size.w < DEPOT_FRAME_WIDTH) {
-		gui_frame_t::set_windowsize(scr_size(MIN_DEPOT_FRAME_WIDTH, max(win_size.h, MIN_TOTAL_HEIGHT)));
-	}
-	if (size  &&  size->w == 0) {
-		size->w = DEPOT_FRAME_WIDTH;
-	}
-	if (size  &&  size->h == 0) {
-		size->h = TOTAL_HEIGHT;
-	}
-
-	DEPOT_AREA_WIDTH = DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT;
-	second_column_x = D_MARGIN_LEFT + DEPOT_AREA_WIDTH * 2 / 4;
-	second_column_w = DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - second_column_x;
 
 	/*
 	 * [SELECT]:
@@ -450,8 +449,8 @@ void depot_frame_t::layout(scr_size *size)
 	lb_convois.set_width(selector_x - D_H_SPACE);
 
 	convoy_selector.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART));
-	convoy_selector.set_size(scr_size(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, D_BUTTON_HEIGHT));
-	convoy_selector.set_max_size(scr_size(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, LINESPACE * 13 + 2 + 16));
+	convoy_selector.set_size(scr_size(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, D_BUTTON_HEIGHT));
+	convoy_selector.set_max_size(scr_size(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, LINESPACE * 13 + 2 + 16));
 
 	/*
 	 * [SELECT ROUTE]:
@@ -462,8 +461,8 @@ void depot_frame_t::layout(scr_size *size)
 	lb_convoi_line.set_width(selector_x - line_button.get_size().w - 2 - D_H_SPACE);
 
 	line_selector.set_pos(scr_coord(D_MARGIN_LEFT + selector_x, SELECT_VSTART + D_BUTTON_HEIGHT));
-	line_selector.set_size(scr_size(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, D_BUTTON_HEIGHT));
-	line_selector.set_max_size(scr_size(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, LINESPACE * 13 + 2 + 16));
+	line_selector.set_size(scr_size(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, D_BUTTON_HEIGHT));
+	line_selector.set_max_size(scr_size(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT - selector_x, LINESPACE * 13 + 2 + 16));
 
 	line_button.align_to(&line_selector, ALIGN_CENTER_V);
 	lb_convoi_line.align_to(&line_selector, ALIGN_CENTER_V);
@@ -480,7 +479,7 @@ void depot_frame_t::layout(scr_size *size)
 	sb_convoi_length.set_size(scr_size(CLIST_WIDTH - 10, 4));
 
 	cont_convoi.set_size(scr_size(CLIST_WIDTH, grid.y + 5 + 4));
-	scrolly_convoi.set_size(scr_size(DEPOT_FRAME_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT, cont_convoi.get_size().h + (3+D_SCROLLBAR_HEIGHT)*(CLIST_WIDTH >= DEPOT_FRAME_WIDTH-D_MARGIN_LEFT-D_MARGIN_RIGHT) ));
+	scrolly_convoi.set_size(scr_size(win_size.w - D_MARGIN_LEFT - D_MARGIN_RIGHT, cont_convoi.get_size().h + (3+D_SCROLLBAR_HEIGHT)*(CLIST_WIDTH >= win_size.w-D_MARGIN_LEFT-D_MARGIN_RIGHT) ));
 	scrolly_convoi.set_show_scroll_x(true);
 	scrolly_convoi.set_show_scroll_y(false);
 	scrolly_convoi.set_scroll_discrete_x(false);
@@ -490,49 +489,53 @@ void depot_frame_t::layout(scr_size *size)
 	lb_convoi_number.set_width(30);
 	lb_convoi_number.set_color(COL_WHITE);
 
+	// place for description text
+	second_column_x = D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT+D_H_SPACE*2)*2;
+	second_column_w = (BUTTON_WIDTH_DEPOT+D_H_SPACE)*2;
+
 	lb_convoi_count.set_pos(scr_coord(D_MARGIN_LEFT, CINFO_VSTART));
-	lb_convoi_count.set_width(second_column_w - D_H_SPACE);
+	lb_convoi_count.set_width(second_column_w);
 
 	cont_convoi_capacity.set_pos(scr_coord(second_column_x, CINFO_VSTART));
 	cont_convoi_capacity.set_width(second_column_w);
 
 	lb_convoi_cost.set_pos(scr_coord(D_MARGIN_LEFT, CINFO_VSTART + LINESPACE * 1));
-	lb_convoi_cost.set_width(second_column_w - D_H_SPACE);
+	lb_convoi_cost.set_width(second_column_w);
 	lb_convoi_value.set_pos(scr_coord(second_column_x, CINFO_VSTART + LINESPACE * 1));
 	lb_convoi_value.set_width(second_column_w);
 
 	lb_convoi_power.set_pos(scr_coord(D_MARGIN_LEFT, CINFO_VSTART + LINESPACE * 2));
-	lb_convoi_power.set_width(second_column_w - D_H_SPACE);
+	lb_convoi_power.set_width(second_column_w);
 	lb_convoi_weight.set_pos(scr_coord(second_column_x, CINFO_VSTART + LINESPACE * 2));
 	lb_convoi_weight.set_width(second_column_w);
 
 	lb_convoi_speed.set_pos(scr_coord(D_MARGIN_LEFT, CINFO_VSTART + LINESPACE * 3));
-	lb_convoi_speed.set_width(DEPOT_FRAME_WIDTH - D_MARGIN_RIGHT - D_MARGIN_LEFT);
+	lb_convoi_speed.set_width(win_size.w - D_MARGIN_RIGHT - D_MARGIN_LEFT);
 
 	/*
 	 * [ACTIONS]
 	 */
 	bt_start.set_pos(scr_coord(D_MARGIN_LEFT, ACTIONS_VSTART));
-	bt_start.set_size(scr_size(DEPOT_AREA_WIDTH / 4 - 3, D_BUTTON_HEIGHT));
+	bt_start.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
 	bt_start.set_text("Start");
 
-	bt_schedule.set_pos(scr_coord(D_MARGIN_LEFT + DEPOT_AREA_WIDTH / 4 + 1, ACTIONS_VSTART));
-	bt_schedule.set_size(scr_size(DEPOT_AREA_WIDTH * 2 / 4 - DEPOT_AREA_WIDTH / 4 - 3, D_BUTTON_HEIGHT));
+	bt_schedule.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE), ACTIONS_VSTART));
+	bt_schedule.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
 	bt_schedule.set_text("Fahrplan");
 
-	bt_copy_convoi.set_pos(scr_coord(D_MARGIN_LEFT + DEPOT_AREA_WIDTH * 2 / 4 + 2, ACTIONS_VSTART));
-	bt_copy_convoi.set_size(scr_size(DEPOT_AREA_WIDTH * 3 / 4 - DEPOT_AREA_WIDTH * 2 / 4 - 3, D_BUTTON_HEIGHT));
+	bt_copy_convoi.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*2, ACTIONS_VSTART));
+	bt_copy_convoi.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
 	bt_copy_convoi.set_text("Copy Convoi");
 
-	bt_sell.set_pos(scr_coord(D_MARGIN_LEFT + DEPOT_AREA_WIDTH * 3 / 4 + 3, ACTIONS_VSTART));
-	bt_sell.set_size(scr_size(DEPOT_AREA_WIDTH - DEPOT_AREA_WIDTH * 3 / 4 - 3, D_BUTTON_HEIGHT));
+	bt_sell.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT + D_H_SPACE)*3, ACTIONS_VSTART));
+	bt_sell.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
 	bt_sell.set_text("verkaufen");
 
 	/*
 	* [PANEL]
 	*/
 	tabs.set_pos(scr_coord(0, PANEL_VSTART));
-	tabs.set_size(scr_size(DEPOT_FRAME_WIDTH, PANEL_HEIGHT));
+	tabs.set_size(scr_size(win_size.w, PANEL_HEIGHT));
 
 	pas.set_grid(grid);
 	pas.set_placement(placement);
@@ -579,42 +582,42 @@ void depot_frame_t::layout(scr_size *size)
 	scrolly_waggons.set_size_corner(false);
 
 	div_tabbottom.set_pos(scr_coord(0, PANEL_VSTART + PANEL_HEIGHT));
-	div_tabbottom.set_width(DEPOT_FRAME_WIDTH);
+	div_tabbottom.set_width(win_size.w);
 
 	/*
 	* [BOTTOM]
 	*/
-	bt_veh_action.set_pos(scr_coord(D_MARGIN_LEFT + DEPOT_AREA_WIDTH * 3 / 4 + 3, INFO_VSTART));
-	bt_veh_action.set_size(scr_size(DEPOT_AREA_WIDTH - DEPOT_AREA_WIDTH * 3 / 4 - 3, D_BUTTON_HEIGHT));
+	bt_veh_action.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT+D_H_SPACE)*3, INFO_VSTART));
+	bt_veh_action.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
 
-	lb_veh_action.align_to(&bt_veh_action, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord(D_V_SPACE, 0));
+	lb_veh_action.align_to(&bt_veh_action, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord(D_H_SPACE, 0));
 
-	bt_show_all.set_pos(scr_coord(D_MARGIN_LEFT, INFO_VSTART + D_BUTTON_HEIGHT + 1));
+	vehicle_filter.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT+D_H_SPACE)*3, INFO_VSTART + D_BUTTON_HEIGHT + D_V_SPACE));
+	vehicle_filter.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
+	vehicle_filter.set_max_size(scr_size(D_BUTTON_WIDTH, LINESPACE*7));
 
-	const int w = max(72, bt_show_all.get_size().w);
-	bt_obsolete.set_pos(scr_coord(D_MARGIN_LEFT + w + 4 + 6, INFO_VSTART + D_BUTTON_HEIGHT + 1));
+	lb_vehicle_filter.align_to(&vehicle_filter, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(D_H_SPACE,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT)));
 
-	vehicle_filter.set_pos(scr_coord(D_MARGIN_LEFT + DEPOT_AREA_WIDTH * 3 / 4 + 3, INFO_VSTART + D_BUTTON_HEIGHT + D_V_SPACE));
-	vehicle_filter.set_size(scr_size(DEPOT_AREA_WIDTH - DEPOT_AREA_WIDTH * 3 / 4 - 3, D_BUTTON_HEIGHT));
-	vehicle_filter.set_max_size(scr_size(D_BUTTON_WIDTH + 60, LINESPACE * 7));
-
-	lb_vehicle_filter.align_to(&vehicle_filter, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(0,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT)));
-
+	bt_show_all.set_pos(scr_coord(D_MARGIN_LEFT, INFO_VSTART + D_BUTTON_HEIGHT + D_V_SPACE));
 	bt_show_all.align_to(&vehicle_filter, ALIGN_CENTER_V);
-	bt_obsolete.align_to(&vehicle_filter, ALIGN_CENTER_V);
-	name_filter_input.set_size( scr_size( vehicle_filter.get_size().w, D_EDIT_HEIGHT ) );
+
+	name_filter_input.set_size( scr_size( BUTTON_WIDTH_DEPOT, D_EDIT_HEIGHT ) );
 	name_filter_input.set_pos( vehicle_filter.get_pos()+scr_coord(0,D_V_SPACE+D_BUTTON_HEIGHT) );
-	lb_name_filter_input.align_to(&name_filter_input, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(0,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT)));
+	lb_name_filter_input.align_to(&name_filter_input, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(D_H_SPACE,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT)));
+
+	bt_obsolete.set_pos(scr_coord(D_MARGIN_LEFT, INFO_VSTART + (D_BUTTON_HEIGHT + D_V_SPACE)*2));
+	bt_obsolete.align_to(&name_filter_input, ALIGN_CENTER_V);
 
 	int y = name_filter_input.get_pos().y + name_filter_input.get_size().h + D_V_SPACE;
 
-	sort_by.set_pos(scr_coord(D_MARGIN_LEFT + DEPOT_AREA_WIDTH * 3 / 4 + 3, y));
-	sort_by.set_size(scr_size(DEPOT_AREA_WIDTH - DEPOT_AREA_WIDTH * 3 / 4 - 3, D_BUTTON_HEIGHT));
-	sort_by.set_max_size(scr_size(D_BUTTON_WIDTH + 60, LINESPACE * 7));
-	lb_sort_by.align_to(&sort_by, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(0,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT)));
+	sort_by.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT+D_H_SPACE)*3, y));
+	sort_by.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
+	sort_by.set_max_size(scr_size(D_BUTTON_WIDTH, LINESPACE * 7));
+	lb_sort_by.align_to(&sort_by, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(D_H_SPACE,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT)));
 
 	const scr_coord_val margin = 4;
 	img_bolt.set_pos(scr_coord(get_windowsize().w - skinverwaltung_t::electricity->get_image(0)->get_pic()->w - margin, margin));
+
 }
 
 
@@ -1214,7 +1217,11 @@ void depot_frame_t::update_data()
 			convoi_tile_length_sb = convoi_length + (cnv->get_tile_length() * CARUNITS_PER_TILE - cnv->get_length());
 
 			txt_convoi_count.clear();
-			txt_convoi_count.printf("%s %i %s %i", translator::translate("Vehicle count:"), cnv->get_vehicle_count(), translator::translate("Station tiles:"), cnv->get_tile_length());
+			if(  cnv->get_vehicle_count()>1  ) {
+				txt_convoi_count.printf( translator::translate("%i car(s),"), cnv->get_vehicle_count() );
+			}
+			txt_convoi_count.append( translator::translate("Station tiles:") );
+			txt_convoi_count.append( (double)cnv->get_tile_length(), 0 );
 
 			txt_convoi_speed.clear();
 			if(  empty_kmh != (use_sel_weight ? sel_kmh : min_kmh)  ) {

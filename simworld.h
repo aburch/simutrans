@@ -488,6 +488,9 @@ private:
 
 	/// @note variable used in interactive()
 	uint32 sync_steps;
+
+	// The maximum sync_steps that a client can safely advance to.
+	uint32 sync_steps_barrier;
 #define LAST_CHECKLISTS_COUNT 64
 	/// @note variable used in interactive()
 	checklist_t last_checklists[LAST_CHECKLISTS_COUNT];
