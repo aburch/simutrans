@@ -1014,7 +1014,7 @@ private:
 #else
 	public:
 	static const uint32 marker_index = UINT32_MAX_VALUE;
-	tatic vector_tpl<nearby_halt_t> start_halts;
+	static vector_tpl<nearby_halt_t> start_halts;
 	static vector_tpl<halthandle_t> destination_list;
 #endif
 
