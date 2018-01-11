@@ -194,6 +194,9 @@ public:
 	inline weg_t(waytype_t waytype, loadsave_t*) : obj_no_info_t(obj_t::way), wtyp(waytype) { init(); }
 	inline weg_t(waytype_t waytype) : obj_no_info_t(obj_t::way), wtyp(waytype) { init(); }
 
+	// This was in strasse_t, but being there possibly caused heap corruption.
+	minivec_tpl<gebaeude_t*> connected_buildings;
+
 	virtual ~weg_t();
 
 #ifdef MULTI_THREAD
