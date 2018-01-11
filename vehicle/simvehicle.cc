@@ -2681,6 +2681,13 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 							}
 							continue;
 						}
+						// the logic of other_lane_blocked cannot be applied to facing traffic.
+						if(test_index>0) {
+							const ribi_t::ribi this_prev_dir = calc_direction(r.at(test_index-1u), r.at(test_index));
+							if(ribi_t::backward(this_prev_dir)&at->get_previous_direction()) {
+								continue;
+							}
+						}
 						// Ignore stopping convoi on the tile behind this convoi to change lane in traffic jam.
 						if(  can_reach_tail  &&  at->get_convoi()->get_akt_speed() == 0  ) {
 							continue;

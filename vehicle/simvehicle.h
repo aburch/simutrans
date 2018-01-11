@@ -284,6 +284,8 @@ public:
 
 	virtual void rotate90();
 
+	ribi_t::ribi get_previous_direction() const { return previous_direction; }
+
 
 	/**
 	 * Method checks whether next tile is free to move on.
