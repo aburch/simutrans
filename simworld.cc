@@ -169,8 +169,8 @@ vector_tpl<pedestrian_t*> *karte_t::pedestrians_added_threaded;
 vector_tpl<private_car_t*> *karte_t::private_cars_added_threaded;
 #endif
 
-thread_local vector_tpl<nearby_halt_t> karte_t::start_halts;
-thread_local vector_tpl<halthandle_t> karte_t::destination_list;
+//thread_local vector_tpl<nearby_halt_t> karte_t::start_halts;
+//thread_local vector_tpl<halthandle_t> karte_t::destination_list;
 
 #ifdef DEBUG_SIMRAND_CALLS
 bool karte_t::print_randoms = true;
@@ -6035,7 +6035,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 	minivec_tpl<const planquadrat_t*> &tile_list = gb->get_tiles();
 
 	// Suitable start search (public transport)
-	//vector_tpl<nearby_halt_t> start_halts(tile_list.empty() ? 0 : tile_list[0]->get_haltlist_count() * tile_list.get_count());
+	vector_tpl<nearby_halt_t> start_halts(tile_list.empty() ? 0 : tile_list[0]->get_haltlist_count() * tile_list.get_count());
 	start_halts.clear();
 	get_nearby_halts_of_tiles(tile_list, wtyp, start_halts);
 
@@ -6353,8 +6353,8 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			{
 				tile_list_3.append(access(current_destination.location));
 			}
-
-			//vector_tpl<halthandle_t> destination_list(tile_list_3[0]->get_haltlist_count() * tile_list_3.get_count());
+			
+			vector_tpl<halthandle_t> destination_list(tile_list_3[0]->get_haltlist_count() * tile_list_3.get_count());
 			destination_list.clear();
 				
 			FOR(minivec_tpl<const planquadrat_t*>, const& current_tile, tile_list_3)
