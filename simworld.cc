@@ -168,9 +168,13 @@ sint32 karte_t::path_explorer_step_progress = -1;
 vector_tpl<pedestrian_t*> *karte_t::pedestrians_added_threaded;
 vector_tpl<private_car_t*> *karte_t::private_cars_added_threaded;
 #endif
-
+#ifdef MULTI_THREAD
 vector_tpl<nearby_halt_t> *karte_t::start_halts;
 vector_tpl<halthandle_t> *karte_t::destination_list;
+#else
+vector_tpl<nearby_halt_t> karte_t::start_halts;
+vector_tpl<halthandle_t> karte_t::destination_list;
+#endif
 
 #ifdef DEBUG_SIMRAND_CALLS
 bool karte_t::print_randoms = true;
