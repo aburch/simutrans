@@ -7,7 +7,7 @@
 *
 */
 #ifdef _MSC_VER
-#include "..\..\sdl2\include\SDL.h"
+#include <SDL.h>
 #else
 #include <SDL2/SDL.h>
 #endif
