@@ -37,6 +37,10 @@ Global
 		Release (IP v. 4 only)|x64 = Release (IP v. 4 only)|x64
 		Release (large address)|Win32 = Release (large address)|Win32
 		Release (large address)|x64 = Release (large address)|x64
+		Release (open GL 2)|Win32 = Release (open GL 2)|Win32
+		Release (open GL 2)|x64 = Release (open GL 2)|x64
+		Release (open GL)|Win32 = Release (open GL)|Win32
+		Release (open GL)|x64 = Release (open GL)|x64
 		Release (SDL)|Win32 = Release (SDL)|Win32
 		Release (SDL)|x64 = Release (SDL)|x64
 		Release (single threaded)|Win32 = Release (single threaded)|Win32
@@ -103,6 +107,14 @@ Global
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|Win32.Build.0 = Release (single threaded)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|x64.ActiveCfg = Release (single threaded)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (large address)|x64.Build.0 = Release (single threaded)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL 2)|Win32.ActiveCfg = Release (open GL 2)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL 2)|Win32.Build.0 = Release (open GL 2)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL 2)|x64.ActiveCfg = Release (open GL 2)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL 2)|x64.Build.0 = Release (open GL 2)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL)|Win32.ActiveCfg = Release (open GL)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL)|Win32.Build.0 = Release (open GL)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL)|x64.ActiveCfg = Release (open GL)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Release (open GL)|x64.Build.0 = Release (open GL)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (SDL)|Win32.ActiveCfg = Release (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (SDL)|Win32.Build.0 = Release (SDL)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Release (SDL)|x64.ActiveCfg = Release (SDL)|x64
