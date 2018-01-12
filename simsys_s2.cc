@@ -3,11 +3,14 @@
 *
 * This file is part of the Simutrans project under the artistic license.
 *
-* It contains the code to use the SDL2 backend for simutrans displayu
+* It contains the code to use the SDL2 backend for simutrans display
 *
 */
-
+#ifdef _MSC_VER
+#include "..\..\sdl2\include\SDL.h"
+#else
 #include <SDL2/SDL.h>
+#endif
 
 #ifdef _WIN32
 #include <windows.h>
