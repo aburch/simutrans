@@ -15,8 +15,8 @@ Global
 		Debug (no randomness)|x64 = Debug (no randomness)|x64
 		Debug (non-graphical server)|Win32 = Debug (non-graphical server)|Win32
 		Debug (non-graphical server)|x64 = Debug (non-graphical server)|x64
-		Debug (open GL 2)|Win32 = Debug (open GL 2)|Win32
-		Debug (open GL 2)|x64 = Debug (open GL 2)|x64
+		Debug (open GL)|Win32 = Debug (open GL)|Win32
+		Debug (open GL)|x64 = Debug (open GL)|x64
 		Debug (SDL 2)|Win32 = Debug (SDL 2)|Win32
 		Debug (SDL 2)|x64 = Debug (SDL 2)|x64
 		Debug (SDL)|Win32 = Debug (SDL)|Win32
@@ -65,10 +65,10 @@ Global
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (non-graphical server)|Win32.Build.0 = Debug (non-graphical server)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (non-graphical server)|x64.ActiveCfg = Debug (non-graphical server)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (non-graphical server)|x64.Build.0 = Debug (non-graphical server)|x64
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL 2)|Win32.ActiveCfg = Debug (open GL 2)|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL 2)|Win32.Build.0 = Debug (open GL 2)|Win32
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL 2)|x64.ActiveCfg = Debug (open GL 2)|x64
-		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL 2)|x64.Build.0 = Debug (open GL 2)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL)|Win32.ActiveCfg = Debug (open GL)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL)|Win32.Build.0 = Debug (open GL)|Win32
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL)|x64.ActiveCfg = Debug (open GL)|x64
+		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (open GL)|x64.Build.0 = Debug (open GL)|x64
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL 2)|Win32.ActiveCfg = Debug (SDL 2)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL 2)|Win32.Build.0 = Debug (SDL 2)|Win32
 		{0621B295-BEB7-4767-82F1-F27995610323}.Debug (SDL 2)|x64.ActiveCfg = Debug (SDL 2)|x64
