@@ -24,8 +24,8 @@ protected:
 	ribi_t::ribi canal_ribi;
 
 	/**
-	* This method also recalculates ribi and cache_ribi!
-	*/
+	 * This method also recalculates ribi and cache_ribi!
+	 */
 	void calc_image_internal(const bool calc_only_snowline_change);
 
 public:
