@@ -3767,8 +3767,10 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 			if (gr->get_hoehe() != pos.z) {
 				return NOTICE_UNSUITABLE_GROUND;
 			}
-			if (const char *msg = gr->kann_alle_obj_entfernen(player)) {
-				return msg;
+			if (i <= len) {
+				if (const char *msg = gr->kann_alle_obj_entfernen(player)) {
+					return msg;
+				}
 			}
 
 			if (i==0) {
