@@ -808,8 +808,9 @@ fullscreen = 0
 
 # For versions of Simutrans compiled to work in a multithreaded system (which will improve
 # certain aspects of performance on multiple core/processor machines), this is the number
-# of threads that will be used. Maximum: 12.
-threads = 6
+# of threads that will be used. It is best not to set this number higher than
+# the number of physical cores on your computer. Maximum: 12.
+threads = 4
 
 # maximum size of tool bars (0 = no limit)
 # if more tools than allowed by height,
