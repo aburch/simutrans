@@ -184,8 +184,13 @@ settings_t::settings_t() :
 	 */
 	pak_diagonal_multiplier = 724;
 
-	// assume single level is enough
-	way_height_clearance = 1;
+	// read default from env_t
+	// should be set in simmain.cc (taken from pak-set simuconf.tab
+	way_height_clearance = env_t::default_settings.get_way_height_clearance();
+	if (way_height_clearance < 0  ||  way_height_clearance >2) {
+		// if outside bounds, then set to default = 1
+		way_height_clearance = 1;
+	}
 
 	strcpy( language_code_names, "en" );
 
