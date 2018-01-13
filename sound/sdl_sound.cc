@@ -110,19 +110,20 @@ bool dr_init_sound()
 		// open an audio channel
 		SDL_AudioSpec desired;
 
-		desired.freq = 22050;
+		desired.freq = 48000;
 		desired.channels = 1;
 		desired.format = AUDIO_S16SYS;
-		desired.samples = 1024;
+		desired.samples = 4096;
 		desired.userdata = NULL;
 
 		desired.callback = sdl_sound_callback;
 
 		if (SDL_OpenAudio(&desired, &output_audio_format) != -1) {
 
-			// check if we got the right audi format
-			if (output_audio_format.format == AUDIO_S16SYS) {
-
+			// check if we got the right audio format
+			// The below seems not to work in Windows 64-bit; but disabling it allows the sound to work correctly.
+			//if (output_audio_format.format == AUDIO_S16SYS) {
+			if(true) { 
 				int i;
 
 				// finished initializing
