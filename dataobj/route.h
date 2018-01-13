@@ -31,12 +31,16 @@ class route_t
 private:
 
 	enum overweight_type { not_overweight, cannot_route, slowly_only };
+public:
+	typedef enum { no_route = 0, valid_route = 1, valid_route_halt_too_short = 3, route_too_complex = 4, no_control_tower = 5 } route_result_t;
+
+private:
 
 	/**
 	 * The actual route search
 	 * @author Hj. Malthaner
 	 */
-	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, test_driver_t *tdriver, const sint32 max_kmh, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, bool is_tall, const sint32 tile_length, const koord3d avoid_tile);
+	route_result_t intern_calc_route(karte_t *w, koord3d start, koord3d ziel, test_driver_t *tdriver, const sint32 max_kmh, const sint64 max_cost, const uint32 axle_load, const uint32 convoy_weight, bool is_tall, const sint32 tile_length, const koord3d avoid_tile);
 
 protected:
 	koord3d_vector_t route;           // The coordinates for the vehicle route
@@ -53,7 +57,6 @@ protected:
 	}
 
 public:
-	typedef enum { no_route=0, valid_route=1, valid_route_halt_too_short=3 } route_result_t;
 
 	// Constructor: set axle load and convoy weight to maximum possible value
 	route_t() : max_axle_load(0xFFFFFFFFl), max_convoy_weight(0xFFFFFFFFl) {};

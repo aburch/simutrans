@@ -30,6 +30,7 @@
 #include "../dataobj/environment.h"
 #include "../dataobj/loadsave.h"
 #include "schedule_gui.h"
+#include "times_history.h"
 // @author hsiegeln
 #include "../simlinemgmt.h"
 #include "../simline.h"
@@ -169,6 +170,11 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	replace_button.set_tooltip("Automatically replace this convoy.");
 	add_component(&replace_button);
 	replace_button.add_listener(this);
+
+	times_history_button.init(button_t::roundbox, "times_history", dummy, D_BUTTON_SIZE);
+	times_history_button.set_tooltip("view_journey_times_history_of_this_convoy");
+	add_component(&times_history_button);
+	times_history_button.add_listener(this);
 
 	//Position is set in convoi_info_t::set_fenstergroesse()
 	follow_button.init(button_t::roundbox_state, "follow me", dummy, scr_size(view.get_size().w, D_BUTTON_HEIGHT));
@@ -379,6 +385,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			replace_button.enable();
 			reverse_button.pressed = cnv->get_reverse_schedule();
 			reverse_button.enable();
+			times_history_button.enable();
 		}
 		else {
 			if (line_bound) {
@@ -391,6 +398,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			no_load_button.disable();
 			replace_button.disable();
 			reverse_button.disable();
+			times_history_button.disable();
 		}
 		follow_button.pressed = (welt->get_viewport()->get_follow_convoi() == cnv);
 
@@ -428,7 +436,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				break;
 
 			default:
-				if (cnv->get_state() == convoi_t::NO_ROUTE)
+				if (cnv->get_state() == convoi_t::NO_ROUTE || cnv->get_state() == convoi_t::NO_ROUTE_TOO_COMPLEX)
 					color = COL_RED;
 			}
 			display_ddd_box_clip(ipos.x, ipos.y, isize.w, 8, MN_GREY0, MN_GREY4);
@@ -556,6 +564,11 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			{
 				sprintf(speed_text, translator::translate("clf_chk_noroute"));
 			}
+			speed_color = COL_RED;
+			break;
+
+		case convoi_t::NO_ROUTE_TOO_COMPLEX:
+			sprintf(speed_text, translator::translate("no_route_too_complex_message"));
 			speed_color = COL_RED;
 			break;
 
@@ -800,6 +813,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				case convoi_t::ROUTING_2:		sprintf(state_text, "ROUTING_2");	break;
 				case convoi_t::DUMMY5:			sprintf(state_text, "DUMMY5");	break;
 				case convoi_t::NO_ROUTE:		sprintf(state_text, "NO_ROUTE");	break;
+				case convoi_t::NO_ROUTE_TOO_COMPLEX:		sprintf(state_text, "NO_ROUTE_TOO_COMPLEX");	break;
 				case convoi_t::DRIVING:			sprintf(state_text, "DRIVING");	break;
 				case convoi_t::LOADING:			sprintf(state_text, "LOADING");	break;
 				case convoi_t::WAITING_FOR_CLEARANCE:			sprintf(state_text, "WAITING_FOR_CLEARANCE");	break;
@@ -986,6 +1000,12 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			return true;
 		}
 
+		if(comp == &times_history_button) 
+		{
+			create_win(20, 20, new times_history_t(linehandle_t(), cnv), w_info, magic_convoi_time_history + cnv.get_id() );
+			return true;
+		}
+
 		if(comp == &go_home_button) {
 			// limit update to certain states that are considered to be safe for schedule updates
 			if(cnv->is_locked())
@@ -1099,6 +1119,7 @@ void convoi_info_t::set_windowsize(scr_size size)
 	}
 
 	button.set_pos(scr_coord(BUTTON1_X, y));
+	times_history_button.set_pos(scr_coord(BUTTON1_X, y - D_V_SPACE - D_BUTTON_HEIGHT));
 	go_home_button.set_pos(scr_coord(BUTTON2_X, y));
 	no_load_button.set_pos(scr_coord(BUTTON3_X, y));
 	y += D_BUTTON_HEIGHT + D_V_SPACE; 

@@ -14,6 +14,7 @@
 #include "ifc/sync_steppable.h"
 
 #include "dataobj/route.h"
+#include "dataobj/schedule.h"
 #include "bauer/goods_manager.h"
 #include "vehicle/overtaker.h"
 #include "tpl/array_tpl.h"
@@ -47,34 +48,13 @@ class schedule_t;
 class cbuffer_t;
 class ware_t;
 class replace_data_t;
+class departure_point_t;
 
 /**
 * The table of point-to-point average journey times.
 * @author jamespetts
 */
 typedef koordhashtable_tpl<id_pair, average_tpl<uint32> > journey_times_map;
-
-# define entry x
-# define reversed y
-
-struct departure_point_t
-{
-	sint16 entry;
-	sint16 reversed;
-
-	departure_point_t(uint8 e, bool rev)
-	{
-		entry = e;
-		reversed = rev;
-	}
-
-	departure_point_t()
-	{
-		entry = 0;
-		reversed = 0;
-	}
-
-};
 
 #ifdef MULTI_THREAD
 struct route_range_specification
@@ -83,24 +63,6 @@ struct route_range_specification
 	uint32 end;
 };
 #endif
-
-static inline bool operator == (const departure_point_t &a, const departure_point_t &b)
-{
-	// only this works with O3 optimisation!
-	return (a.entry - b.entry) == 0 && a.reversed == b.reversed;
-}
-
-static inline bool operator != (const departure_point_t &a, const departure_point_t &b)
-{
-	// only this works with O3 optimisation!
-	return (a.entry - b.entry) != 0 || a.reversed != b.reversed;
-}
-
-static inline bool operator == (const departure_point_t& a, int b)
-{
-	// For hashtable use.
-	return b == 0 && a == departure_point_t(0, true);
-}
 
 /**
  * Base class for all vehicle consists. Convoys can be referenced by handles, see halthandle_t.
@@ -151,6 +113,7 @@ public:
 		OUT_OF_RANGE,
 		EMERGENCY_STOP,
 		ROUTE_JUST_FOUND,
+		NO_ROUTE_TOO_COMPLEX,
 		MAX_STATES
 	};
 
@@ -683,6 +646,9 @@ private:
 	typedef koordhashtable_tpl<departure_point_t, average_tpl<uint16> > timings_map;
 	timings_map journey_times_between_schedule_points;
 
+	// @author: suitougreentea
+	times_history_map journey_times_history;
+
 	// When we arrived at current stop
 	// @author Inkelyad
 	sint64 arrival_time;
@@ -865,7 +831,7 @@ public:
 
 	route_t* get_route() { return &route; }
 	route_t* access_route() { return &route; }
-	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed);
+	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed);
 	void update_route(uint32 index, const route_t &replacement); // replace route with replacement starting at index.
 	void replace_route(const route_t &replacement); // Completely replace the route with that passed as a parameter.
 
@@ -1549,6 +1515,7 @@ public:
 
 	journey_times_map& get_average_journey_times();
 	inline const journey_times_map& get_average_journey_times_this_convoy_only() const { return average_journey_times; }
+	inline times_history_map& get_journey_times_history() { return journey_times_history; }
 
 	bool get_needs_full_route_flush() const { return needs_full_route_flush; }
 	void set_needs_full_route_flush(bool value) { needs_full_route_flush = value; }

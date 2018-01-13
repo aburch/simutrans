@@ -410,7 +410,7 @@ public:
 	void set_route_index(uint16 value) { route_index = value; }
 	const koord3d get_pos_prev() const {return pos_prev;}
 
-    virtual bool reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route = NULL);
+    virtual route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route = NULL);
 
 	/**
 	* Get the base image.
@@ -974,7 +974,7 @@ private:
 		landing_distance = altitude_level - 1;
 	}
 	// BG, 07.08.2012: extracted from calc_route()
-	bool calc_route_internal(
+	route_t::route_result_t calc_route_internal(
 		karte_t *welt,
 		const koord3d &start,
 		const koord3d &ziel,
@@ -1034,7 +1034,7 @@ public:
 	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route);
 
 	// BG, 08.08.2012: extracted from can_enter_tile()
-    bool reroute(const uint16 reroute_index, const koord3d &ziel);
+    route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel);
 
 #ifdef INLINE_OBJ_TYPE
 #else

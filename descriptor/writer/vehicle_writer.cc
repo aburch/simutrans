@@ -112,15 +112,16 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint32 current_class_capacity;
 	vector_tpl<uint16> class_capacities(1);
 
-	for (uint8 i = 0; i < 256; i++)
+	uint8 j = 0;
+	do
 	{
 		// Check for multiple classes with a separate capacity each
 		char buf[13];
-		sprintf(buf, "payload[%u]", i);
+		sprintf(buf, "payload[%u]", j);
 		current_class_capacity = obj.get_int(buf, UINT32_MAX_VALUE);
 		if (current_class_capacity == UINT32_MAX_VALUE)
 		{
-			if (i == 0)
+			if (j == 0)
 			{
 				// If there are no class defined capacities, look for the old/basic
 				// keyword defining a single capacity.
@@ -141,7 +142,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			total_len += 2;
 			class_capacities.append(current_class_capacity);
 		}
-	}
+	} while (j++ < 255); 
 
 
 	obj_node_t node(this, total_len, &parent);
@@ -346,9 +347,6 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			break;
 		}
 	}
-
-end:
-
 
 	if (!multiple_livery_freight_images_detected)
 	{
@@ -909,6 +907,7 @@ end:
 	// This is the cost of upgrading to this vehicle, rather than buying it new.
 	// By default, the cost is the same as a new purchase.
 	uint32 upgrade_price = (obj.get_int("upgrade_price", cost));
+	upgrade_price = (obj.get_int("upgrade_cost", upgrade_price)); 
 	node.write_uint32(fp, upgrade_price, pos);
 	pos += sizeof(uint32);
 

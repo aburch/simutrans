@@ -110,19 +110,20 @@ bool dr_init_sound()
 		// open an audio channel
 		SDL_AudioSpec desired;
 
-		desired.freq = 22050;
+		desired.freq = 48000;
 		desired.channels = 1;
 		desired.format = AUDIO_S16SYS;
-		desired.samples = 1024;
+		desired.samples = 4096;
 		desired.userdata = NULL;
 
 		desired.callback = sdl_sound_callback;
 
 		if (SDL_OpenAudio(&desired, &output_audio_format) != -1) {
 
-			// check if we got the right audi format
-			if (output_audio_format.format == AUDIO_S16SYS) {
-
+			// check if we got the right audio format
+			// The below seems not to work in Windows 64-bit; but disabling it allows the sound to work correctly.
+			//if (output_audio_format.format == AUDIO_S16SYS) {
+			if(true) { 
 				int i;
 
 				// finished initializing
@@ -135,19 +136,25 @@ bool dr_init_sound()
 				SDL_PauseAudio(0);
 
 			} else {
+#ifndef _MSC_VER		
 				printf("Open audio channel doesn't meet requirements. Muting\n");
+#endif
 				SDL_CloseAudio();
 				SDL_QuitSubSystem(SDL_INIT_AUDIO);
 			}
 
 
 		} else {
+#ifndef _MSC_VER	
 			printf("Could not open required audio channel. Muting\n");
+#endif
 			SDL_QuitSubSystem(SDL_INIT_AUDIO);
 		}
 	}
 	else {
+#ifndef _MSC_VER	
 		printf("Could not initialize sound system. Muting\n");
+#endif
 	}
 
 	use_sound = sound_ok ? 1: -1;
@@ -172,7 +179,9 @@ int dr_load_sample(const char *filename)
 
 		/* load the sample */
 		if (SDL_LoadWAV(filename, &wav_spec, &wav_data, &wav_length) == NULL) {
+#ifndef _MSC_VER	
 			printf("could not load wav (%s)\n", SDL_GetError());
+#endif
 			return -1;
 		}
 
@@ -182,7 +191,9 @@ int dr_load_sample(const char *filename)
 			    output_audio_format.format,
 			    output_audio_format.channels,
 			    output_audio_format.freq) < 0) {
+#ifndef _MSC_VER	
 			printf("could not create conversion structure\n");
+#endif
 			SDL_FreeWAV(wav_data);
 			return -1;
 		}
@@ -194,7 +205,9 @@ int dr_load_sample(const char *filename)
 		SDL_FreeWAV(wav_data);
 
 		if (SDL_ConvertAudio(&wav_cvt) < 0) {
+#ifndef _MSC_VER	
 			printf("could not convert wav to output format\n");
+#endif
 			return -1;
 		}
 
@@ -202,7 +215,9 @@ int dr_load_sample(const char *filename)
 		smp.audio_data = wav_cvt.buf;
 		smp.audio_len = wav_cvt.len_cvt;
 		samples[samplenumber] = smp;
+#ifndef _MSC_VER	
 		printf("Loaded %s to sample %i.\n",filename,samplenumber);
+#endif
 
 		return samplenumber++;
 	}
