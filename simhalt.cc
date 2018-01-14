@@ -646,8 +646,6 @@ haltestelle_t::~haltestelle_t()
 	// before it is needed for clearing up the planqudrat and tiles
 	self.detach();
 
-	destroy_win((long)this);
-
 	const uint8 max_categories = goods_manager_t::get_max_catg_index();
 
 	for(uint8 i = 0; i < max_categories; i++) {
