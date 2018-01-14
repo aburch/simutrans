@@ -3110,7 +3110,7 @@ vehicle_t::~vehicle_t()
 
 void vehicle_t::set_class_reassignment(uint8 original_class, uint8 new_class)
 {
-	if (original_class > number_of_classes)
+	if (original_class >= number_of_classes)
 	{
 		dbg->error("vehicle_t::set_class_reassignment()", "Attempt to set class out of range");
 		return;
