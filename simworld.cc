@@ -6051,7 +6051,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 	}
 	
 	koord3d origin_pos = gb->get_pos();
-	minivec_tpl<const planquadrat_t*> &tile_list = gb->get_tiles();
+	minivec_tpl<const planquadrat_t*> &tile_list = first_origin->get_tiles();
 
 	// Suitable start search (public transport)
 #ifdef MULTI_THREAD
@@ -6185,7 +6185,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			// TODO BG, 15.02.2014: first build a nearby_destination_list and then a destination_list from it.
 			//  Should be faster than finding all nearby halts again.
 
-			minivec_tpl<const planquadrat_t*> &tile_list_2 = gb->get_tiles();
+			minivec_tpl<const planquadrat_t*> &tile_list_2 = first_origin->get_tiles();
 
 			// Suitable start search (public transport)
 #ifdef MULTI_THREAD
@@ -6383,7 +6383,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			// (default: 1), they can take passengers within the wider square of the passenger radius. This is intended,
 			// and is as a result of using the below method for all destination types.
 
-			minivec_tpl<const planquadrat_t*> &tile_list_3 = gb->get_tiles();
+			minivec_tpl<const planquadrat_t*> &tile_list_3 = current_destination.building->get_tiles();
 
 			if(tile_list_3.empty())
 			{
