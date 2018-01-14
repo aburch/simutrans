@@ -1367,11 +1367,11 @@ vehicle_t::vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player) 
     hill_up = 0;
     hill_down = 0;
 	current_livery = "default";
-	number_of_classes = desc->get_number_of_classes();
+	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 
-	class_reassignments = new uint8[number_of_classes];
-	fracht = new slist_tpl<ware_t>[number_of_classes];
-	for (uint32 i = 0; i <number_of_classes; i++)
+	class_reassignments = new uint8[max_classes];
+	fracht = new slist_tpl<ware_t>[max_classes];
+	for (uint32 i = 0; i < max_classes; i++)
 	{
 		// Initialise theese with default values.
 		class_reassignments[i] = i;
@@ -1445,8 +1445,10 @@ void vehicle_t::set_desc(const vehicle_desc_t* value)
 		delete[] fracht;
 		delete[] class_reassignments;
 		
-		class_reassignments = new uint8[new_number_of_classes];
-		fracht = new slist_tpl<ware_t>[new_number_of_classes];
+		const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+
+		class_reassignments = new uint8[max_classes];
+		fracht = new slist_tpl<ware_t>[max_classes];
 
 		for (uint8 i = 0; i < number_of_classes; i++)
 		{

@@ -2084,20 +2084,20 @@ void karte_t::init_threads()
 
 	const sint32 parallel_operations = get_parallel_operations();
 
-	private_cars_added_threaded = new vector_tpl<private_car_t*>[parallel_operations + 1];
-	pedestrians_added_threaded = new vector_tpl<pedestrian_t*>[parallel_operations + 1];
-	transferring_cargoes = new vector_tpl<transferring_cargo_t>[parallel_operations + 1];
+	private_cars_added_threaded = new vector_tpl<private_car_t*>[parallel_operations + 2];
+	pedestrians_added_threaded = new vector_tpl<pedestrian_t*>[parallel_operations + 2];
+	transferring_cargoes = new vector_tpl<transferring_cargo_t>[parallel_operations + 2];
 	marker_t::markers = new marker_t[parallel_operations * 2]; 
 
-	start_halts = new vector_tpl<nearby_halt_t>[parallel_operations + 1];
-	destination_list = new vector_tpl<halthandle_t>[parallel_operations + 1];
+	start_halts = new vector_tpl<nearby_halt_t>[parallel_operations + 2];
+	destination_list = new vector_tpl<halthandle_t>[parallel_operations + 2];
 
 	pthread_attr_init(&thread_attributes);
 	pthread_attr_setdetachstate(&thread_attributes, PTHREAD_CREATE_JOINABLE);
 
 	simthread_barrier_init(&private_car_barrier, NULL, parallel_operations + 1);
-	simthread_barrier_init(&karte_t::unreserve_route_barrier, NULL, parallel_operations + 1);
-	simthread_barrier_init(&step_passengers_and_mail_barrier, NULL, parallel_operations + 1);
+	simthread_barrier_init(&karte_t::unreserve_route_barrier, NULL, parallel_operations + 2); // This and the next does not run concurrently with anything significant on the main thread, so the number of parallel operations need to be +1 compared to the others.
+	simthread_barrier_init(&step_passengers_and_mail_barrier, NULL, parallel_operations + 2); 
 	simthread_barrier_init(&step_convoys_barrier_external, NULL, 2);
 	simthread_barrier_init(&step_convoys_barrier_internal, NULL, parallel_operations + 1);	
 	simthread_barrier_init(&start_path_explorer_barrier, NULL, 2);
@@ -2113,8 +2113,12 @@ void karte_t::init_threads()
 
 	pthread_t thread;
 	
-	for (uint32 i = 0; i < parallel_operations; i++)
+	for (uint32 i = 0; i < parallel_operations + 1; i++)
 	{
+		if (i == parallel_operations)
+		{
+			goto non_concurrent_only;
+		}
 		uint32* thread_number_checker = new uint32;
 		*thread_number_checker = i;
 		rc = pthread_create(&thread, &thread_attributes, &check_road_connexions_threaded, (void*)thread_number_checker);
@@ -2127,6 +2131,8 @@ void karte_t::init_threads()
 			private_car_route_threads.append(thread);
 		}
 
+		// The next two need an extra thread compared with the others, as they do not run concurrently with anything non-trivial on the main thread
+	non_concurrent_only:
 		sint32* thread_number_unres = new sint32;
 		*thread_number_unres = i;
 		rc = pthread_create(&thread, &thread_attributes, &unreserve_route_threaded, (void*)thread_number_unres);
@@ -2152,6 +2158,10 @@ void karte_t::init_threads()
 			step_passengers_and_mail_threads.append(thread);
 		}
 #endif
+		if (i == parallel_operations)
+		{
+			break;
+		}
 
 #ifdef MULTI_THREAD_CONVOYS
 		uint32* thread_number_cnv = new uint32;
@@ -6410,7 +6420,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 			best_journey_time = UINT32_MAX_VALUE;
 #ifdef MULTI_THREAD
-			if (start_halts[passenger_generation_thread_number].get_count() == 1 && destination_list[passenger_generation_thread_number].get_count() == 1 && start_halts[passenger_generation_thread_number][0].halt == destination_list[passenger_generation_thread_number].get_element(0))
+			if (start_halts[passenger_generation_thread_number].get_count() == 1 && destination_list[passenger_generation_thread_number].get_count() == 1 && start_halts[passenger_generation_thread_number].get_element(0).halt == destination_list[passenger_generation_thread_number].get_element(0))
 #else
 			if (start_halts.get_count() == 1 && destination_list.get_count() == 1 && start_halts[0].halt == destination_list.get_element(0))
 #endif
@@ -6419,7 +6429,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				* for the origin is also the only stop for the destintation.
 				*/
 #ifdef MULTI_THREAD 
-				start_halt = start_halts[passenger_generation_thread_number][0].halt;
+				start_halt = start_halts[passenger_generation_thread_number].get_element(0).halt;
 #else
 				start_halt = start_halts[0].halt;
 #endif
@@ -6469,7 +6479,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					{
 						// The above check is needed to prevent an overflow.
 #ifdef MULTI_THREAD
-						current_journey_time += walking_time_tenths_from_distance(start_halts[passenger_generation_thread_number][i].distance);
+						current_journey_time += walking_time_tenths_from_distance(start_halts[passenger_generation_thread_number].get_element(i).distance);
 #else
 						current_journey_time += walking_time_tenths_from_distance(start_halts[i].distance);
 #endif
@@ -6542,7 +6552,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #ifdef MULTI_THREAD
 					if(start_halts[passenger_generation_thread_number].get_count() > 0)
 					{
-						start_halt = start_halts[passenger_generation_thread_number][best_start_halt].halt;
+						start_halt = start_halts[passenger_generation_thread_number].get_element(best_start_halt).halt;
 #else
 					if (start_halts.get_count() > 0)
 					{
@@ -6858,7 +6868,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #ifdef MULTI_THREAD
 			if(start_halts[passenger_generation_thread_number].get_count() > 0)
 			{
-				start_halt = start_halts[passenger_generation_thread_number][best_bad_start_halt].halt; 
+				start_halt = start_halts[passenger_generation_thread_number].get_element(best_bad_start_halt).halt;
 #else
 			if (start_halts.get_count() > 0)
 			{
@@ -6893,7 +6903,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			if(too_slow_already_set && !start_halts[passenger_generation_thread_number].empty())
 			{
 				// This will be dud for a private car trip.
-				start_halt = start_halts[passenger_generation_thread_number][best_bad_start_halt].halt;
+				start_halt = start_halts[passenger_generation_thread_number].get_element(best_bad_start_halt).halt;
 			}
 #else
 			if (too_slow_already_set && !start_halts.empty())
@@ -6926,7 +6936,7 @@ no_route:
 #ifdef MULTI_THREAD
 			if(route_status != destination_unavailable && start_halts[passenger_generation_thread_number].get_count() > 0)
 			{
-				start_halt = start_halts[passenger_generation_thread_number][best_bad_start_halt].halt;
+				start_halt = start_halts[passenger_generation_thread_number].get_element(best_bad_start_halt).halt;
 #else
 			if (route_status != destination_unavailable && start_halts.get_count() > 0)
 			{
@@ -7045,7 +7055,7 @@ no_route:
 				// best_bad_start_halt is actually the best start halt irrespective of overcrowding:
 				// if the start halt is not overcrowded, this will be the actual start halt.
 #ifdef MULTI_THREAD
-				return_passengers.set_ziel(start_halts[passenger_generation_thread_number][best_bad_start_halt].halt); 
+				return_passengers.set_ziel(start_halts[passenger_generation_thread_number].get_element(best_bad_start_halt).halt);
 #else
 				return_passengers.set_ziel(start_halts[best_bad_start_halt].halt);
 #endif
