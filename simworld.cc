@@ -6472,6 +6472,20 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #else 
 					uint32 current_journey_time = current_halt->find_route(destination_list, pax, best_journey_time, destination_pos);
 #endif
+					// Because it is possible to walk between stops in the route finder, check to make sure that this is not an all walking journey.
+					// We cannot test this recursively within a reasonable time, so check only for the first stop.
+					if (pax.get_ziel() == pax.get_zwischenziel())
+					{
+						halthandle_t test_halt = current_halt;
+						haltestelle_t::connexion* cnx = test_halt->get_connexions(wtyp->get_catg_index())->get(pax.get_zwischenziel());
+			
+						if (test_halt->is_within_walking_distance_of(pax.get_zwischenziel()) && !cnx->best_convoy.is_bound() && !cnx->best_line.is_bound())
+						{
+							// Do not treat this as a public transport route: if it is a viable walking route, it will be so treated elsewhere.
+							current_journey_time = UINT32_MAX_VALUE;
+						}
+					}
+
 					
 					// Add walking time from the origin to the origin stop. 
 					// Note that the walking time to the destination stop is already added by find_route.
@@ -6561,7 +6575,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					}
 				}
 			}
-			
+
 			if(has_private_car) 
 			{
 				// time_per_tile here is in 100ths of minutes per tile.
