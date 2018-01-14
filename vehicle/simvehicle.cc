@@ -1367,6 +1367,7 @@ vehicle_t::vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player) 
     hill_up = 0;
     hill_down = 0;
 	current_livery = "default";
+	number_of_classes = desc->get_number_of_classes();
 	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 
 	class_reassignments = new uint8[max_classes];
