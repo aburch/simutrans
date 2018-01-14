@@ -4547,10 +4547,10 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		// We *can* skip most of the work in add_gebaeude_to_stadt, because we *just* cleared the location,
 		// so it must be valid.  Our borders also should not have changed.
 
-		// Check that all tiles are same height. If it is different, we try to rebuild.
-		gebaeude_t* checked_gb = check_height_and_rebuild(new_gb, k, layout, map_generation);
+		// Check that all tiles are same height. If it is different, we remove that.
+		gebaeude_t* checked_gb = check_tiles_height(new_gb, k, layout, map_generation);
 		if(!checked_gb) {
-			// height was different and we failed to rebuild.
+			// height was different.
 			return false;
 		}
 		checked_gb->set_stadt(this);
@@ -4571,7 +4571,7 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
  * If successfully built, return the pointer of building.
  * If failed, return NULL.
  */
-gebaeude_t* stadt_t::check_height_and_rebuild(gebaeude_t* building, koord pos, uint8 layout, bool map_generation) {
+gebaeude_t* stadt_t::check_tiles_height(gebaeude_t* building, koord pos, uint8 layout, bool map_generation) {
 	// We check whether all tiles are same height because we sometimes fail to estimate the height.
 	const building_desc_t* desc = building->get_tile()->get_desc();
 	bool height_check_approved = true;
@@ -4594,50 +4594,9 @@ gebaeude_t* stadt_t::check_height_and_rebuild(gebaeude_t* building, koord pos, u
 		// all tiles are same height.
 		return building;
 	}
-	dbg->message("stadt_t::check_height_and_rebuild()", "rebuild started. pos:%s", pos.get_str());
-	// we try to rebuild. If we failed again, we give up.
+	dbg->message("stadt_t::check_tiles_height()", "height is different. we remove building at pos:%s", pos.get_str());
+	// height is different.
 	// remove all buildings in the area.
-	for(uint8 x=0; x<(layout&1?desc->get_size().y:desc->get_size().x); x++) {
-		for(uint8 y=0; y<(layout&1?desc->get_size().x:desc->get_size().y); y++) {
-			const grund_t* gr = welt->lookup_kartenboden(pos+koord(x,y));
-			if(!gr) {
-				dbg->error("stadt_t::check_height_and_rebuild()", "ground not found! pos:%s", (pos+koord(x,y)).get_str());
-			}
-			const gebaeude_t* bldg = gr->get_building();
-			if(bldg) {
-				if(!bldg->is_city_building()) {
-					dbg->error("stadt_t::check_height_and_rebuild()", "building is not a city building! pos:%s", (pos+koord(x,y)).get_str());
-				}
-				hausbauer_t::remove(NULL, bldg, map_generation);
-			}
-		}
-	}
-	// then rebuild the building.
-	const koord3d pos3d = welt->lookup_kartenboden(pos)->get_pos();
-	gebaeude_t* new_gb = hausbauer_t::build(NULL, pos3d, layout, desc);
-	// check tile height again!
-	height_check_approved = true;
-	tile_height = -100;
-	for(uint8 x=0; x<(layout&1?desc->get_size().y:desc->get_size().x); x++) {
-		for(uint8 y=0; y<(layout&1?desc->get_size().x:desc->get_size().y); y++) {
-			const grund_t* gr = welt->lookup_kartenboden(pos+koord(x,y));
-			if(!gr) {
-				dbg->error("stadt_t::check_height_and_rebuild()", "ground not found! pos:%s", (pos+koord(x,y)).get_str());
-			}
-			if(tile_height!=-100  &&  tile_height!=gr->get_pos().z) {
-				// height is different!
-				height_check_approved = false;
-				break;
-			}
-			tile_height = gr->get_pos().z;
-		}
-	}
-	if(height_check_approved) {
-		// rebuilding succeeded.
-		return new_gb;
-	}
-	// rebuilding failed.
-	// remove all buildings in the area again.
 	for(uint8 x=0; x<(layout&1?desc->get_size().y:desc->get_size().x); x++) {
 		for(uint8 y=0; y<(layout&1?desc->get_size().x:desc->get_size().y); y++) {
 			const grund_t* gr = welt->lookup_kartenboden(pos+koord(x,y));
