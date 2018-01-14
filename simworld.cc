@@ -6106,6 +6106,12 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 	uint32 time_per_tile;
 	uint32 tolerance;
 
+	halthandle_t start_halt;
+	halthandle_t current_halt;
+	halthandle_t test_halt;
+	halthandle_t ret_halt;
+	halthandle_t halt;
+
 	// Find passenger destination
 
 	// Mail does not make onward journeys.
@@ -6199,7 +6205,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 		ware_t pax(wtyp);
 		pax.is_commuting_trip = trip == commuting_trip;
-		halthandle_t start_halt;
+		start_halt.set_id(0);
 		uint32 best_journey_time;
 		uint32 walking_time;
 		route_status = initialising;
@@ -6401,7 +6407,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				const nearby_halt_t* halt_list = current_tile->get_haltlist();
 				for(int h = current_tile->get_haltlist_count() - 1; h >= 0; h--) 
 				{
-					halthandle_t halt = halt_list[h].halt;
+					halt = halt_list[h].halt;
 					if(halt->is_enabled(wtyp)) 
 					{
 						// Previous versions excluded overcrowded halts here, but we need to know which
@@ -6464,7 +6470,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				FOR(vector_tpl<nearby_halt_t>, const& nearby_halt, start_halts)
 #endif
 				{
-					halthandle_t current_halt = nearby_halt.halt;
+					current_halt = nearby_halt.halt;
 #ifdef MULTI_THREAD
 					uint32 current_journey_time = current_halt->find_route(destination_list[passenger_generation_thread_number], pax, best_journey_time, destination_pos);
 #else 
@@ -6474,7 +6480,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					// We cannot test this recursively within a reasonable time, so check only for the first stop.
 					if (pax.get_ziel() == pax.get_zwischenziel())
 					{
-						halthandle_t test_halt = current_halt;
+						test_halt = current_halt;
 						haltestelle_t::connexion* cnx = test_halt->get_connexions(wtyp->get_catg_index())->get(pax.get_zwischenziel());
 			
 						if (test_halt->is_within_walking_distance_of(pax.get_zwischenziel()) && !cnx->best_convoy.is_bound() && !cnx->best_line.is_bound())
@@ -7028,7 +7034,7 @@ no_route:
 #endif
 			}
 		
-			halthandle_t ret_halt = pax.get_ziel();
+			ret_halt = pax.get_ziel();
 			// Those who have driven out have to take thier cars back regardless of whether public transport is better - do not check again.
 			bool return_in_private_car = route_status == private_car;
 			bool return_on_foot = route_status == on_foot;
