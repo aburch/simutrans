@@ -6,11 +6,7 @@
 * It contains the code to use the SDL2 backend for simutrans display
 *
 */
-#ifdef _MSC_VER
-#include <SDL.h>
-#else
-#include <SDL2/SDL.h>
-#endif
+#include "SDL.h"
 
 #ifdef _WIN32
 #include <windows.h>
