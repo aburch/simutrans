@@ -6110,7 +6110,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 	halthandle_t current_halt;
 	halthandle_t test_halt;
 	halthandle_t ret_halt;
-	halthandle_t halt;
+	//halthandle_t halt;
 
 	// Find passenger destination
 
@@ -6407,7 +6407,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				const nearby_halt_t* halt_list = current_tile->get_haltlist();
 				for(int h = current_tile->get_haltlist_count() - 1; h >= 0; h--) 
 				{
-					halt = halt_list[h].halt;
+					halthandle_t halt = halt_list[h].halt;
 					if(halt->is_enabled(wtyp)) 
 					{
 						// Previous versions excluded overcrowded halts here, but we need to know which
