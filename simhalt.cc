@@ -2193,6 +2193,10 @@ uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 	bool found_a_halt = false;
 	for(vector_tpl<halthandle_t>::const_iterator destination_halt = destination_halts_list.begin(); destination_halt != destination_halts_list.end(); destination_halt++)
 	{
+		if (self == *destination_halt)
+		{
+			continue;
+		}
 		uint32 test_time;
 		halthandle_t test_transfer;
 		path_explorer_t::get_catg_path_between(ware_catg, self, *destination_halt, test_time, test_transfer, ware.g_class);
