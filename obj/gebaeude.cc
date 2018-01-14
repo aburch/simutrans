@@ -2130,6 +2130,12 @@ minivec_tpl<const planquadrat_t*> &gebaeude_t::get_tiles()
 	const koord size = bdsc->get_size(tile->get_layout());
 	if (building_tiles.empty())
 	{
+#ifdef MULTI_THREAD
+		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
+#endif
+		// Clear just in case another thread has just run this algorithm on the same building.
+		building_tiles.clear();
 		if (size == koord(1, 1))
 		{
 			// A single tiled building - just add the single tile.
@@ -2165,6 +2171,10 @@ minivec_tpl<const planquadrat_t*> &gebaeude_t::get_tiles()
 				}
 			}
 		}
+#ifdef MULTI_THREAD
+		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
+#endif
 	}
 	return building_tiles;
 }
