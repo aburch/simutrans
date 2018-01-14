@@ -2115,24 +2115,22 @@ void karte_t::init_threads()
 	
 	for (uint32 i = 0; i < parallel_operations + 1; i++)
 	{
-		if (i == parallel_operations)
+		if (i < parallel_operations)
 		{
-			goto non_concurrent_only;
-		}
-		uint32* thread_number_checker = new uint32;
-		*thread_number_checker = i;
-		rc = pthread_create(&thread, &thread_attributes, &check_road_connexions_threaded, (void*)thread_number_checker);
-		if (rc)
-		{
-			dbg->fatal("void karte_t::init_threads()", "Failed to create private car thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
-		}
-		else
-		{
-			private_car_route_threads.append(thread);
+			uint32* thread_number_checker = new uint32;
+			*thread_number_checker = i;
+			rc = pthread_create(&thread, &thread_attributes, &check_road_connexions_threaded, (void*)thread_number_checker);
+			if (rc)
+			{
+				dbg->fatal("void karte_t::init_threads()", "Failed to create private car thread, error %d. See here for a translation of the error numbers: http://epydoc.sourceforge.net/stdlib/errno-module.html", rc);
+			}
+			else
+			{
+				private_car_route_threads.append(thread);
+			}
 		}
 
 		// The next two need an extra thread compared with the others, as they do not run concurrently with anything non-trivial on the main thread
-	non_concurrent_only:
 		sint32* thread_number_unres = new sint32;
 		*thread_number_unres = i;
 		rc = pthread_create(&thread, &thread_attributes, &unreserve_route_threaded, (void*)thread_number_unres);
