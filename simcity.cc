@@ -4525,18 +4525,26 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		// The building is being replaced.  The surrounding landscape may have changed since it was
 		// last built, and the new building should change height along with it, rather than maintain the old
 		// height.  So delete and rebuild, even though it's slower.
+		// In case of failure, we stock the removed buildings.
+		class removed_building {
+		public:
+			const building_desc_t* desc;
+			koord3d pos;
+			uint8 layout;
+		};
+		vector_tpl<removed_building> removed_buildings;
 		for(uint8 x=0; x<(layout&1?h->get_size().y:h->get_size().x); x++) {
 			for(uint8 y=0; y<(layout&1?h->get_size().x:h->get_size().y); y++) {
 				const grund_t* gr = welt->lookup_kartenboden(k+koord(x,y));
 				assert(gr);
 				const gebaeude_t* bldg = gr->get_building();
 				if(bldg) {
-					switch(bldg->get_tile()->get_desc()->get_type()) {
-						case building_desc_t::city_res: won -= h->get_level() * 10; break;
-						case building_desc_t::city_com: arb -= h->get_level() * 20; break;
-						case building_desc_t::city_ind: arb -= h->get_level() * 20; break;
-						default: break;
-					}
+					const building_desc_t* desc = bldg->get_tile()->get_desc();
+					removed_building rb;
+					rb.desc = desc;
+					rb.pos = bldg->get_pos();
+					rb.layout = bldg->get_tile()->get_layout();
+					removed_buildings.append(rb);
 					hausbauer_t::remove(NULL, bldg, map_generation);
 				}
 			}
@@ -4550,17 +4558,32 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		// Check that all tiles are same height. If it is different, we remove that.
 		gebaeude_t* checked_gb = check_tiles_height(new_gb, k, layout, map_generation);
 		if(!checked_gb) {
-			// height was different.
+			// height was different. Let's recover.
+			for(uint8 j=0; j<removed_buildings.get_count(); j++) {
+				const removed_building rb = removed_buildings[j];
+				hausbauer_t::build(NULL, rb.pos, rb.layout, rb.desc);
+			}
 			return false;
 		}
-		checked_gb->set_stadt(this);
-		add_building_to_list(checked_gb, false, map_generation, map_generation);
+
+		// culculation of population
+		for(uint8 j=0; j<removed_buildings.get_count(); j++) {
+			const uint8 level = removed_buildings[j].desc->get_level();
+			switch(removed_buildings[j].desc->get_type()) {
+				case building_desc_t::city_res: won -= level * 10; break;
+				case building_desc_t::city_com: arb -= level * 20; break;
+				case building_desc_t::city_ind: arb -= level * 20; break;
+				default: break;
+			}
+		}
 		switch(want_to_have) {
 			case building_desc_t::city_res:   won += h->get_level() * 10; break;
 			case building_desc_t::city_com:   arb +=  h->get_level() * 20; break;
 			case building_desc_t::city_ind: arb +=  h->get_level() * 20; break;
 			default: break;
 		}
+		checked_gb->set_stadt(this);
+		add_building_to_list(checked_gb, false, map_generation, map_generation);
 		return true;
 	}
 	return false;
@@ -5148,7 +5171,9 @@ void stadt_t::build(bool new_town, bool map_generation)
 			const uint32 dist(koord_distance(c, gb->get_pos()));
 			const uint32 distance_rate = 100 - (dist * 100) / maxdist;
 			if(  player_t::check_owner(gb->get_owner(),NULL)  && simrand(100, "void stadt_t::build") < distance_rate) {
-				if(renovate_city_building(gb, map_generation)) { was_renovated++;}
+				if(renovate_city_building(gb, map_generation)) {
+					was_renovated++;
+				}
 			}
 		}
 		INT_CHECK("simcity 5134");
