@@ -6404,6 +6404,10 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			FOR(minivec_tpl<const planquadrat_t*>, const& current_tile, tile_list_3)
 			{
 				const nearby_halt_t* halt_list = current_tile->get_haltlist();
+				if (!halt_list)
+				{
+					continue;
+				}
 				for(int h = current_tile->get_haltlist_count() - 1; h >= 0; h--) 
 				{
 					halthandle_t halt = halt_list[h].halt;
