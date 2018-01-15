@@ -13,13 +13,14 @@
 #include "../../simobj.h"
 #include "../../descriptor/way_desc.h"
 #include "../../dataobj/koord3d.h"
-
+#include "../../tpl/minivec_tpl.h"
 
 class karte_t;
 class way_desc_t;
 class cbuffer_t;
 class player_t;
 class signal_t;
+class gebaeude_t;
 template <class T> class vector_tpl;
 
 
@@ -192,6 +193,9 @@ protected:
 public:
 	inline weg_t(waytype_t waytype, loadsave_t*) : obj_no_info_t(obj_t::way), wtyp(waytype) { init(); }
 	inline weg_t(waytype_t waytype) : obj_no_info_t(obj_t::way), wtyp(waytype) { init(); }
+
+	// This was in strasse_t, but being there possibly caused heap corruption.
+	minivec_tpl<gebaeude_t*> connected_buildings;
 
 	virtual ~weg_t();
 

@@ -210,6 +210,7 @@ vehicle_base_t::vehicle_base_t():
 	zoff_start = zoff_end = 0;
 	gr = NULL;
 	weg = NULL;
+	disp_lane = 2;
 }
 
 
@@ -233,6 +234,7 @@ vehicle_base_t::vehicle_base_t(koord3d pos):
 	zoff_start = zoff_end = 0;
 	gr = NULL;
 	weg = NULL;
+	disp_lane = 2;
 }
 
 
@@ -253,6 +255,7 @@ void vehicle_base_t::rotate90()
 	sint8 neu_yoff = get_xoff()/2;
 	set_xoff( -get_yoff()*2 );
 	set_yoff( neu_yoff );
+	// adjust disp_lane individually
 }
 
 
@@ -1365,10 +1368,11 @@ vehicle_t::vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player) 
     hill_down = 0;
 	current_livery = "default";
 	number_of_classes = desc->get_number_of_classes();
+	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 
-	class_reassignments = new uint8[number_of_classes];
-	fracht = new slist_tpl<ware_t>[number_of_classes];
-	for (uint32 i = 0; i <number_of_classes; i++)
+	class_reassignments = new uint8[max_classes];
+	fracht = new slist_tpl<ware_t>[max_classes];
+	for (uint32 i = 0; i < max_classes; i++)
 	{
 		// Initialise theese with default values.
 		class_reassignments[i] = i;
@@ -1442,8 +1446,10 @@ void vehicle_t::set_desc(const vehicle_desc_t* value)
 		delete[] fracht;
 		delete[] class_reassignments;
 		
-		class_reassignments = new uint8[new_number_of_classes];
-		fracht = new slist_tpl<ware_t>[new_number_of_classes];
+		const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
+
+		class_reassignments = new uint8[max_classes];
+		fracht = new slist_tpl<ware_t>[max_classes];
 
 		for (uint8 i = 0; i < number_of_classes; i++)
 		{
@@ -1477,10 +1483,10 @@ void vehicle_t::set_desc(const vehicle_desc_t* value)
 
 route_t::route_result_t vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route)
 {
-	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), 0, is_tall, SINT64_MAX_VALUE, cnv != NULL ? cnv->get_weight_summary().weight / 1000 : get_total_weight());
+	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), is_tall, 0, SINT64_MAX_VALUE, cnv != NULL ? cnv->get_weight_summary().weight / 1000 : get_total_weight());
 }
 
-bool vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route)
+route_t::route_result_t vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route)
 {
 	route_t xroute;    // new scheduled route from position at reroute_index to ziel
 	const bool live = route == NULL;
@@ -1488,8 +1494,8 @@ bool vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel, route_t
 	{
 		route = (cnv->get_route());
 	}
-	bool done = route && calc_route(route->at(reroute_index), ziel, speed_to_kmh(cnv->get_min_top_speed()), cnv->has_tall_vehicles(), &xroute);
-	if(done && live)
+	route_t::route_result_t done = route ? calc_route(route->at(reroute_index), ziel, speed_to_kmh(cnv->get_min_top_speed()), cnv->has_tall_vehicles(), &xroute) : route_t::no_route;
+	if(done == route_t::valid_route && live)
 	{
 		// convoy replaces existing route starting at reroute_index with found route.
 		cnv->update_route(reroute_index, xroute);
@@ -3107,7 +3113,7 @@ vehicle_t::~vehicle_t()
 
 void vehicle_t::set_class_reassignment(uint8 original_class, uint8 new_class)
 {
-	if (original_class > number_of_classes)
+	if (original_class >= number_of_classes)
 	{
 		dbg->error("vehicle_t::set_class_reassignment()", "Attempt to set class out of range");
 		return;
@@ -3243,6 +3249,11 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				color = COL_RED;
 				break;
 
+			case convoi_t::NO_ROUTE_TOO_COMPLEX:
+				tstrncpy(tooltip_text, translator::translate("clf_chk_noroute_too_complex"), lengthof(tooltip_text));
+				color = COL_RED;
+				break;
+
 			case convoi_t::OUT_OF_RANGE:
 				tstrncpy( tooltip_text, translator::translate("out of range"), lengthof(tooltip_text) );
 				color = COL_RED;
@@ -3372,6 +3383,19 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) 
 	drives_on_left = welt->get_settings().is_drive_left();
 }
 
+void road_vehicle_t::rotate90()
+{
+	vehicle_t::rotate90();
+	calc_disp_lane();
+}
+
+
+void road_vehicle_t::calc_disp_lane()
+{
+	// driving in the back or the front
+	ribi_t::ribi test_dir = welt->get_settings().is_drive_left() ? ribi_t::northeast : ribi_t::southwest;
+	disp_lane = get_direction() & test_dir ? 1 : 3;
+}
 
 
 // need to reset halt reservation (if there was one)
@@ -3389,7 +3413,8 @@ route_t::route_result_t road_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 	target_halt = halthandle_t();	// no block reserved
 	const uint32 routing_weight = cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight();
 	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, routing_weight, is_tall, cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000 );
-	if(  r == route_t::valid_route_halt_too_short  ) {
+	if(  r == route_t::valid_route_halt_too_short  )
+	{
 		cbuffer_t buf;
 		buf.printf( translator::translate("Vehicle %s cannot choose because stop too short!"), cnv->get_name());
 		welt->get_message()->add_message( (const char *)buf, ziel.get_2d(), message_t::traffic_jams, PLAYER_FLAG | cnv->get_owner()->get_player_nr(), cnv->front()->get_base_image() );
@@ -3627,6 +3652,12 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			if(  !second_check_count  &&  !str) {
 					cnv->suche_neue_route();
 				}
+			return false;
+		}
+
+		if (str->is_height_restricted() && cnv->has_tall_vehicles())
+		{
+			cnv->suche_neue_route();
 			return false;
 		}
 
@@ -4449,7 +4480,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	{
 		// The target is an end of choose sign along the route.
 		const sint16 tile_length = (cnv->get_schedule()->get_current_eintrag().reverse ? 8888 : 0) + cnv->get_tile_length();
-		can_find_route = target_rt.calc_route(welt, route->at(start_block), target->get_pos(), this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000); 
+		can_find_route = target_rt.calc_route(welt, route->at(start_block), target->get_pos(), this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000) == route_t::valid_route; 
 		// This route only takes us to the end of choose sign, so we must calculate the route again beyond that point to the actual destination then concatenate them. 
 		if(can_find_route)
 		{
@@ -4509,7 +4540,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		return false;
 	}
 
-	ribi_t::ribi ribi = ribi_type(cnv->get_route()->at(max(1u, route_index) - 1u), cnv->get_route()->at(min(cnv->get_route()->get_count() - 1u, route_index + 1u)));
+	ribi_t::ribi ribi = ribi_type(cnv->get_route()->at(max(1u, min(cnv->get_route()->get_count() - 1u, route_index)) - 1u), cnv->get_route()->at(min(cnv->get_route()->get_count() - 1u, route_index + 1u)));
 
 	if(working_method == one_train_staff && cnv->get_state() != convoi_t::LEAVING_DEPOT)
 	{
@@ -4745,7 +4776,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			schedule->increment_index(&index, &rev);
 			const koord3d next_ziel = schedule->entries[index].pos;
 
-			way_is_free = !target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), cnv->get_tile_length(), welt->get_settings().get_max_route_steps(), cnv->get_weight_summary().weight / 1000);
+			way_is_free = target_rt.calc_route(welt, start_pos, next_ziel, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), cnv->get_tile_length(), welt->get_settings().get_max_route_steps(), cnv->get_weight_summary().weight / 1000) != route_t::valid_route;
 			if(!way_is_free)
 			{
 				if(schedule->entries[schedule->get_current_stop()].reverse == -1)
@@ -5162,6 +5193,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	bool directional_reservation_succeeded = true;
 	bool one_train_staff_loop_complete = false;
 	bool time_interval_reservation = false;
+	enum ternery_uncertainty {
+		is_true, is_false, is_uncertain
+	};
+	ternery_uncertainty previous_time_interval_reservation = is_uncertain;
 	bool set_first_station_signal = false;
 	bool time_interval_after_double_block = false;
 	const uint32 station_signals = this_halt.is_bound() ? this_halt->get_station_signals_count() : 0;
@@ -5928,12 +5963,14 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				time_interval_reservation = 
 					   ((!next_signal_protects_no_junctions && this_stop_signal_index != i) || first_double_block_signal_index < INVALID_INDEX)
 					&& (this_stop_signal_index < INVALID_INDEX || last_stop_signal_index < INVALID_INDEX || last_choose_signal_index < INVALID_INDEX)
-					&& ((i - time_interval_starting_point < welt->get_settings().get_sighting_distance_tiles()) || next_signal_working_method == time_interval_with_telegraph || (check_halt.is_bound() && check_halt == last_step_halt)); // Time interval with telegraph signals have no distance limit for reserving.
+					&& ((i - time_interval_starting_point < welt->get_settings().get_sighting_distance_tiles()) || next_signal_working_method == time_interval_with_telegraph 
+						|| (check_halt.is_bound() && check_halt == last_step_halt && (next_signal_working_method == time_interval_with_telegraph || previous_time_interval_reservation == is_true || previous_time_interval_reservation == is_uncertain))); // Time interval with telegraph signals have no distance limit for reserving.
 			}
 			const bool telegraph_directional = time_interval_reservation && previous_telegraph_directional || (next_signal_working_method == time_interval_with_telegraph && (((last_longblock_signal_index == last_stop_signal_index && first_stop_signal_index == last_longblock_signal_index) && last_longblock_signal_index < INVALID_INDEX) || first_double_block_signal_index < INVALID_INDEX && next_signal_protects_no_junctions));
 			const schiene_t::reservation_type rt = directional_only || telegraph_directional ? schiene_t::directional : schiene_t::block;
-			bool attempt_reservation = directional_only || time_interval_reservation || previous_telegraph_directional || (next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph) && (!stop_at_station_signal.is_bound() || stop_at_station_signal == check_halt);
+			bool attempt_reservation = directional_only || time_interval_reservation || previous_telegraph_directional || ((next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph && (next_signal_working_method != drive_by_sight || i < start_index + modified_sighting_distance_tiles + 1)) && (!stop_at_station_signal.is_bound() || stop_at_station_signal == check_halt));
 			previous_telegraph_directional = telegraph_directional;
+			previous_time_interval_reservation = time_interval_reservation ? is_true : is_false;
 			if(attempt_reservation && !sch1->reserve(cnv->self, ribi_type(route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u,i+1u))), rt, (working_method == time_interval || working_method == time_interval_with_telegraph)))
 			{
 				not_entirely_free = true;
@@ -6215,7 +6252,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			do
 			{
 				// Search for route until the next signal is found.
-				route_success = target_rt.calc_route(welt, cur_pos, cnv->get_schedule()->entries[schedule_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), 8888 + cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000);
+				route_success = target_rt.calc_route(welt, cur_pos, cnv->get_schedule()->entries[schedule_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), 8888 + cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000) == route_t::valid_route;
 
 				if(route_success) 
 				{
@@ -6523,7 +6560,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							// Do not clear the last signal in the route, as nothing is reserved beyond it, unless there are no more signals beyond at all (count == 0)
 							sint32 add_value = 0;
-							if(reached_end_of_loop)
+							if(reached_end_of_loop && signs.get_count() == 1)
 							{
 								add_value = 1;
 							}
@@ -7270,6 +7307,12 @@ bool water_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, u
 		}
 
 		const weg_t *w = gr->get_weg(water_wt);
+
+		if (w && w->is_height_restricted() && cnv->has_tall_vehicles())
+		{
+			cnv->suche_neue_route();
+			return false;
+		}
 		
 		if(w  &&  w->is_crossing()) {
 			// ok, here is a draw/turn-bridge ...
@@ -7285,7 +7328,12 @@ bool water_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, u
 
 bool water_vehicle_t::check_tile_occupancy(const grund_t* gr)
 {
-	const uint8 base_max_vehicles_on_tile = 128;
+	if (gr->get_top() > 200)
+	{
+		return false;
+	}
+	
+	const uint8 base_max_vehicles_on_tile = 127;
 	const weg_t *w = gr->get_weg(water_wt);
 	uint8 max_water_vehicles_on_tile = w ? w->get_desc()->get_max_vehicles_on_tile() : base_max_vehicles_on_tile;
 	uint8 water_vehicles_on_tile = gr->get_top();
@@ -7631,7 +7679,7 @@ Try to handle the transition tiles like (virtual) waypoints and the partial (gro
 - touchdown,
 - end of required length of arrival runway
 */
-bool air_vehicle_t::calc_route_internal(
+route_t::route_result_t air_vehicle_t::calc_route_internal(
 	karte_t *welt,
 	const koord3d &start,            // input: start of (partial) route to calculate
 	const koord3d &ziel,             // input: end of (partial) route to calculate
@@ -7669,10 +7717,11 @@ bool air_vehicle_t::calc_route_internal(
 		// see, if we find a direct route: We are finished
 		state = air_vehicle_t::taxiing;
 		calc_altitude_level( get_desc()->get_topspeed() );
-		if(route.calc_route( welt, start, ziel, this, max_speed, weight, false, 0))
+		route_t::route_result_t success = route.calc_route(welt, start, ziel, this, max_speed, weight, false, 0);
+		if(success == route_t::valid_route)
 		{
 			// ok, we can taxi to our location
-			return true;
+			return route_t::valid_route;
 		}
 	}
 
@@ -7700,7 +7749,7 @@ bool air_vehicle_t::calc_route_internal(
 #endif
 		if(!route.find_route( welt, start, this, max_speed, ribi_t::all, weight, cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, welt->get_settings().get_max_route_steps(), cnv->has_tall_vehicles())) {
 			DBG_MESSAGE("air_vehicle_t::calc_route()","failed");
-			return false;
+			return route_t::no_route;
 		}
 		// save the route
 		search_start = route.back();
@@ -7756,7 +7805,7 @@ bool air_vehicle_t::calc_route_internal(
 			// out of map
 			if(gr==NULL) {
 				dbg->error("air_vehicle_t::calc_route()","out of map!");
-				return false;
+				return route_t::no_route;
 			}
 			// need some extra step to avoid 180 deg turns
 			if( start_dir.x!=0  &&  sgn(start_dir.x)!=sgn(search_end.x-search_start.x)  ) {
@@ -7825,7 +7874,7 @@ bool air_vehicle_t::calc_route_internal(
 	if(!route.append_straight_route(welt,landing_start)) {
 		// should never fail ...
 		dbg->error( "air_vehicle_t::calc_route()", "No straight route found!" );
-		return false;
+		return route_t::no_route;
 	}
 
 	if(!end_in_air) {
@@ -7855,7 +7904,7 @@ bool air_vehicle_t::calc_route_internal(
 				route.clear();
 				dbg->error("air_vehicle_t::calc_route()","airport too close to the edge! (Cannot go to %i,%i!)",circlepos.x,circlepos.y);
 				airport_too_close_to_the_edge = true;
-				return false;
+				return route_t::no_route;
 			}
 		}
 
@@ -7879,12 +7928,12 @@ bool air_vehicle_t::calc_route_internal(
 	}
 
 	//DBG_MESSAGE("air_vehicle_t::calc_route_internal()","departing=%i  touchdown=%i   search_for_stop=%i   total=%i  state=%i",takeoff, touchdown, search_for_stop, route.get_count()-1, state );
-	return true;
+	return route_t::valid_route;
 }
 
 
 // BG, 08.08.2012: extracted from can_enter_tile()
-bool air_vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel)
+route_t::route_result_t air_vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel)
 {
 	// new aircraft state after successful routing:
 	air_vehicle_t::flight_state xstate = state;
@@ -7898,7 +7947,7 @@ bool air_vehicle_t::reroute(const uint16 reroute_index, const koord3d &ziel)
 	route_t xroute;    // new scheduled route from position at reroute_index to ziel
 
 	route_t &route = *cnv->get_route();
-	bool done = calc_route_internal(welt, route.at(reroute_index), ziel,
+	route_t::route_result_t done = calc_route_internal(welt, route.at(reroute_index), ziel,
 																	speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(),
 																	xstate, xflughoehe, xtarget_height,
 																	xrunway_too_short, xairport_too_close_to_the_edge,
@@ -8321,11 +8370,10 @@ air_vehicle_t::~air_vehicle_t()
 
 
 
-void
-air_vehicle_t::set_convoi(convoi_t *c)
+void air_vehicle_t::set_convoi(convoi_t *c)
 {
 	DBG_MESSAGE("air_vehicle_t::set_convoi()","%p",c);
-	if(leading  &&  (unsigned long)cnv > 1) {
+	if(leading  &&  cnv) {
 		// free stop reservation
 		route_t const& r = *cnv->get_route();
 		if(target_halt.is_bound()) {

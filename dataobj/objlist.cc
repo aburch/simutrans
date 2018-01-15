@@ -172,6 +172,7 @@ objlist_t::~objlist_t()
 			delete obj.some[i];
 		}
 	}
+
 	if(capacity>1) {
 		dl_free(obj.some, capacity);
 	}
@@ -239,7 +240,6 @@ void objlist_t::set_capacity(uint16 new_cap)
 }
 
 
-
 bool objlist_t::grow_capacity()
 {
 	if(capacity==0) {
@@ -262,7 +262,6 @@ bool objlist_t::grow_capacity()
 }
 
 
-
 void objlist_t::shrink_capacity(uint8 o_top)
 {
 	// strategy: avoid freeing mem if not needed. Only if we hold lots of memory then free it.
@@ -271,7 +270,6 @@ void objlist_t::shrink_capacity(uint8 o_top)
 		set_capacity(o_top);
 	}
 }
-
 
 
 inline void objlist_t::intern_insert_at(obj_t* new_obj, uint8 pri)
@@ -285,7 +283,6 @@ inline void objlist_t::intern_insert_at(obj_t* new_obj, uint8 pri)
 }
 
 
-
 // this will automatically give the right order for citycars and the like ...
 bool objlist_t::intern_add_moving(obj_t* new_obj)
 {
@@ -294,14 +291,17 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 	// vehicles types (number returned by get_typ()). However, this would increase
 	// the calculation even further. :(
 
+	// insert at this lane
+	uint8 lane = ((vehicle_base_t*)new_obj)->get_disp_lane();
+
 	// find out about the first car etc. moving thing.
 	// We can start to insert between (start) and (end)
 	uint8 start=0;
-	while(start<top  &&  !obj.some[start]->is_moving()  ) {
+	while(start<top  &&  (!obj.some[start]->is_moving()  ||  ((vehicle_base_t*)obj.some[start])->get_disp_lane() < lane) ) {
 		start ++;
 	}
 	uint8 end = top;
-	while(  end>start  &&  !obj.some[end-1]->is_moving()  ) {
+	while(  end>start  &&  (!obj.some[end-1]->is_moving()  ||  ((vehicle_base_t*)obj.some[end-1])->get_disp_lane() > lane) ) {
 		end--;
 	}
 	if(start==end) {
@@ -309,121 +309,40 @@ bool objlist_t::intern_add_moving(obj_t* new_obj)
 		return true;
 	}
 
-	// if we have two ways, the way at index 0 is ALWAYS the road!
-	// however ships and planes may be where not way is below ...
-	if(start!=0  &&  obj.some[0]->get_typ()==obj_t::way  &&  ((weg_t *)obj.some[0])->get_waytype()==road_wt) {
+	const uint8 direction = ((vehicle_base_t*)new_obj)->get_direction();
 
-		const uint8 direction = ((vehicle_base_t*)new_obj)->get_direction();
-
-		// this is very complicated:
-		// we may have many objects in two lanes (actually five with tram and pedestrians)
-		if(world()->get_settings().is_drive_left()) {
-
-			// driving on left side
-			if(direction<4) {	// north, northwest
-
-				if((direction&(~ribi_t::southeast))==0) {
-					// if we are going east we must be drawn as the first in east direction
-					intern_insert_at(new_obj, start);
-					return true;
-				}
-				else {
-					// we must be drawn before south or west (thus insert after)
-					for(uint8 i=start;  i<end;  i++  ) {
-						if((((const vehicle_t*)obj.some[i])->get_direction()&ribi_t::southwest)!=0) {
-							intern_insert_at(new_obj, i);
-							return true;
-						}
-					}
-					// nothing going southwest
-					intern_insert_at(new_obj, end);
-					return true;
-				}
-
+	switch(lane) {
+		// pedestrians or road vehicles, back: either w/sw/s or n/ne/e
+		case 0:
+		case 1: {
+			// on right side to w,sw; on left to n: insert last
+			// on right side to s; on left to ne,e: insert first
+			if (direction == ribi_t::south  ||  (direction & ribi_t::east)) {
+				intern_insert_at(new_obj, start);
 			}
 			else {
-				// going south, west or the rest
-				if((direction&(~ribi_t::southeast))==0) {
-					// if we are going south or southeast we must be drawn as the first in east direction (after north and northeast)
-					for(uint8 i=start;  i<end;  i++  ) {
-						if (obj_t const* const dt = obj.some[i]) {
-							if (vehicle_base_t const* const v = obj_cast<vehicle_base_t>(dt)) {
-								if ((v->get_direction() & ribi_t::southwest) != 0) {
-									intern_insert_at(new_obj, i);
-									return true;
-								}
-							}
-						}
-					}
-				}
-				// nothing going southeast
 				intern_insert_at(new_obj, end);
-				return true;
 			}
-		}
-		else {
-			// driving on right side
-			if(direction<4) {	// north, east, northeast
-
-				if((direction&(~ribi_t::southeast))==0) {
-
-					// if we are going east we must be drawn as the first in east direction (after north and northeast)
-					for(uint8 i=start;  i<end;  i++  ) {
-						if ((((const vehicle_base_t*)obj.some[i])->get_direction()&ribi_t::northeast) != 0) {
-							intern_insert_at(new_obj, i);
-							return true;
-						}
-					}
-					// nothing going to the east
-				}
-				// we must be drawn before south or west (thus append after)
-				intern_insert_at(new_obj, end);
-				return true;
-
-			}
-			else {
-				// going south, west or the rest
-
-				if((direction&(~ribi_t::southeast))==0) {
-					// going south or southeast, insert as first in this dirs
-					intern_insert_at(new_obj, start);
-					return true;
-				}
-				else {
-					for(uint8 i=start;  i<end;  i++  ) {
-						// west or northwest: append after all westwards
-						if ((((const vehicle_base_t*)obj.some[i])->get_direction()&ribi_t::southwest) == 0) {
-							intern_insert_at(new_obj, i);
-							return true;
-						}
-					}
-					// nothing going to northeast
-					intern_insert_at(new_obj, end);
-					return true;
-				}
-			}
-
-		}	// right side/left side
-
-	}
-	else {
-		// ok, we have to sort vehicles for correct overlapping,
-		// but all vehicles are of the same typ, since this is track/channel etc. ONLY!
-
-		// => much simpler to handle
-		if((((vehicle_t*)new_obj)->get_direction()&(~ribi_t::southeast))==0) {
-			// if we are going east or south, we must be drawn before (i.e. put first)
-			intern_insert_at(new_obj, start);
 			return true;
 		}
-		else {
-			// for north east we must be draw last
-			intern_insert_at(new_obj, end);
+		// middle land
+		case 2:
+		case 3:
+		// pedestrians, road vehicles, front lane
+		case 4: {
+			// going e/s: insert first, else last
+			if ( (direction & ribi_t::northwest)==0 ) {
+				intern_insert_at(new_obj, start);
+			}
+			else {
+				intern_insert_at(new_obj, end);
+			}
 			return true;
 		}
 	}
 	return false;
 }
+
 
 /**
  * @returns true if tree1 must be sorted before tree2 (tree1 stands behind tree2)
@@ -514,11 +433,11 @@ bool objlist_t::add(obj_t* new_obj)
 				}
 			}
 		}
-		else if (pri == wayobj_pri  &&  obj.some[i]->get_typ() == obj_t::wayobj) {
+		else if(  pri == wayobj_pri  &&  obj.some[i]->get_typ()==obj_t::wayobj  ) {
 			wayobj_t const* const wo = obj_cast<wayobj_t>(obj.some[i]);
-			if (wo  &&  wo->get_waytype() < obj_cast<wayobj_t>(new_obj)->get_waytype()) {
-					// insert after a lower waytype
-					i += 1;
+			if(  wo  &&  wo->get_waytype() < obj_cast<wayobj_t>(new_obj)->get_waytype() ) {
+				// insert after a lower waytype
+				i += 1;
 			}
 		}
 		intern_insert_at(new_obj, i);
@@ -526,7 +445,6 @@ bool objlist_t::add(obj_t* new_obj)
 	// then correct the upper border
 	return true;
 }
-
 
 
 // take the thing out from the list
@@ -601,7 +519,7 @@ void local_delete_object(obj_t *remove_obj, player_t *player)
 		remove_obj->cleanup(player);
 		remove_obj->set_flag(obj_t::not_on_map);
 		// all objects except zeiger (pointer) are destroyed here
-		// zeiger's will be deleted if their associated tool_t (tool) terminates
+		// zeiger's will be deleted if their associated tool terminates
 		if (remove_obj->get_typ() != obj_t::zeiger) {
 			delete remove_obj;
 		}
@@ -640,7 +558,6 @@ bool objlist_t::loesche_alle(player_t *player, uint8 offset)
 }
 
 
-
 /* returns the text of an error message, if obj could not be removed */
 const char *objlist_t::kann_alle_entfernen(const player_t *player, uint8 offset) const
 {
@@ -649,13 +566,13 @@ const char *objlist_t::kann_alle_entfernen(const player_t *player, uint8 offset)
 	}
 
 	if(capacity==1) {
-		return obj.one-> is_deletable(player);
+		return obj.one->is_deletable(player);
 	}
 	else {
 		const char * msg = NULL;
 
 		for(uint8 i=offset; i<top; i++) {
-			msg = obj.some[i]-> is_deletable(player);
+			msg = obj.some[i]->is_deletable(player);
 			if(msg != NULL) {
 				return msg;
 			}
@@ -663,7 +580,6 @@ const char *objlist_t::kann_alle_entfernen(const player_t *player, uint8 offset)
 	}
 	return NULL;
 }
-
 
 
 /* recalculates all images
@@ -683,6 +599,7 @@ void objlist_t::calc_image()
 	}
 }
 
+
 void objlist_t::set_all_dirty()
 {
 	if(  capacity == 0  ) {
@@ -697,6 +614,7 @@ void objlist_t::set_all_dirty()
 		}
 	}
 }
+
 
 /* check for obj */
 bool objlist_t::ist_da(const obj_t* test_obj) const
@@ -713,7 +631,6 @@ bool objlist_t::ist_da(const obj_t* test_obj) const
 	}
 	return false;
 }
-
 
 
 obj_t *objlist_t::suche(obj_t::typ typ,uint8 start) const
@@ -790,7 +707,6 @@ obj_t *objlist_t::get_convoi_vehicle() const
 	}
 	return NULL;
 }
-
 
 
 void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
@@ -982,7 +898,6 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 					if(groundobj->get_desc() == NULL) {
 						// do not remove from this position, since there will be nothing
 						groundobj->set_flag(obj_t::not_on_map);
-						// not use cleanup, since it would try to lookup desc
 						delete groundobj;
 					}
 					else {
@@ -1127,7 +1042,6 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 }
 
 
-
 /* Dumps a short info about the things on this tile
  *  @author prissi
  */
@@ -1138,13 +1052,13 @@ void objlist_t::dump() const
 		return;
 	}
 	else if(capacity==1) {
-		DBG_MESSAGE("objlist_t::dump()","one object \'%s\' owned by player %p", obj.one->get_name(), obj.one->get_owner() );
+		DBG_MESSAGE("objlist_t::dump()","one object \'%s\' owned by sp %p", obj.one->get_name(), obj.one->get_owner() );
 		return;
 	}
 
 	DBG_MESSAGE("objlist_t::dump()","%i objects", top );
 	for(uint8 n=0; n<top; n++) {
-		DBG_MESSAGE( obj.some[n]->get_name(), "at %i owned by player %p", n, obj.some[n]->get_owner() );
+		DBG_MESSAGE( obj.some[n]->get_name(), "at %i owned by sp %p", n, obj.some[n]->get_owner() );
 	}
 }
 
@@ -1163,9 +1077,9 @@ void objlist_t::display_obj_quick_and_dirty( const sint16 xpos, const sint16 ypo
 	}
 	else if(capacity==1) {
 		if(start_offset==0) {
-		// only draw background on request
+			// only draw background on request
 			obj.one->display( xpos, ypos  CLIP_NUM_PAR);
- 		}
+		}
 		// foreground need to be drawn in any case
 #ifdef MULTI_THREAD
 		obj.one->display_after(xpos, ypos, clip_num );
@@ -1209,24 +1123,24 @@ inline bool local_display_obj_bg(const obj_t *obj, const sint16 xpos, const sint
 {
 	const bool display_obj = !obj->is_moving();
 	if(  display_obj  ) {
-	obj->display( xpos, ypos  CLIP_NUM_PAR);
+		obj->display( xpos, ypos  CLIP_NUM_PAR);
 	}
 	return display_obj;
 }
 
 uint8 objlist_t::display_obj_bg( const sint16 xpos, const sint16 ypos, const uint8 start_offset  CLIP_NUM_DEF) const
- {
+{
 	if(  start_offset >= top  ) {
 		return start_offset;
 	}
 
 	if(  capacity == 1  ) {
-	return local_display_obj_bg( obj.one, xpos, ypos  CLIP_NUM_PAR);
+		return local_display_obj_bg( obj.one, xpos, ypos  CLIP_NUM_PAR);
 	}
 
 	for(  uint8 n = start_offset;  n < top;  n++  ) {
-	if(  !local_display_obj_bg( obj.some[n], xpos, ypos  CLIP_NUM_PAR)  ) {
-		return n;
+		if(  !local_display_obj_bg( obj.some[n], xpos, ypos  CLIP_NUM_PAR)  ) {
+			return n;
 		}
 	}
 	return top;

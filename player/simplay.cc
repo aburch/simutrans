@@ -922,8 +922,18 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 {
 	switch(cnv->get_state())
 	{
-		case convoi_t::NO_ROUTE:
-DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
+	case convoi_t::NO_ROUTE_TOO_COMPLEX:
+		DBG_MESSAGE("player_t::report_vehicle_problem", "Vehicle %s can't find a route to (%i,%i) because the route is too long/complex", cnv->get_name(), ziel.x, ziel.y);
+		if (this == welt->get_active_player()) {
+			cbuffer_t buf;
+			buf.printf("%s ", cnv->get_name());
+			buf.printf(translator::translate("no_route_too_complex_message")); 
+			welt->get_message()->add_message((const char *)buf, cnv->get_pos().get_2d(), message_t::problems, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
+		}
+		break;
+
+	case convoi_t::NO_ROUTE:
+		DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
 			if(this==welt->get_active_player()) {
 				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
@@ -940,7 +950,7 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s can't find a route to
 		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 		case convoi_t::CAN_START_ONE_MONTH:
 		case convoi_t::CAN_START_TWO_MONTHS:
-DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stucked!", cnv->get_name(),ziel.x,ziel.y);
+		DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stucked!", cnv->get_name(),ziel.x,ziel.y);
 			{
 				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s is stucked!"), cnv->get_name());
@@ -977,7 +987,7 @@ DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stucked!", cnv->get_n
 			}
 			break;
 		default:
-DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s, state %i!", cnv->get_name(), cnv->get_state());
+		DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s, state %i!", cnv->get_name(), cnv->get_state());
 	}
 	(void)ziel;
 }

@@ -1562,6 +1562,7 @@ stadt_t::stadt_t(player_t* player, koord pos, sint32 citizens) :
 	calc_traffic_level();
 
 	check_road_connexions = false;
+	welt->add_queued_city(this);
 
 	number_of_cars = 0;
 }
@@ -3214,7 +3215,6 @@ void stadt_t::merke_passagier_ziel(koord k, uint8 color)
 	const grund_t* gr = welt->lookup_kartenboden(k);
 	if(gr)
 	{
-		assert(!gr->is_water() || gr->get_halt().is_bound() || gr->get_depot());
 		const gebaeude_t* gb = gr->find<gebaeude_t>();
 		if(gb)
 		{

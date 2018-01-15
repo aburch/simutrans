@@ -53,7 +53,7 @@ line_class_manager_t::line_class_manager_t(linehandle_t line)
 	// Create the list of comboboxes, as well as the names of the classes
 	for (int i = 0; i < pass_classes; i++)
 	{
-		gui_combobox_t *class_selector = new (nothrow) gui_combobox_t();
+		gui_combobox_t *class_selector = new gui_combobox_t();
 		if (class_selector != nullptr)
 		{
 			add_component(class_selector);
@@ -62,7 +62,7 @@ line_class_manager_t::line_class_manager_t(linehandle_t line)
 			pass_class_sel.append(class_selector);
 		}
 
-		char *class_name = new (nothrow) char[32]();
+		char *class_name = new char[32]();
 		if (class_name != nullptr)
 		{
 			sprintf(class_name, "p_class[%u]", i);
@@ -72,7 +72,7 @@ line_class_manager_t::line_class_manager_t(linehandle_t line)
 
 	for (int i = 0; i < mail_classes; i++)
 	{
-		gui_combobox_t *class_selector = new (nothrow) gui_combobox_t();
+		gui_combobox_t *class_selector = new gui_combobox_t();
 		if (class_selector != nullptr)
 		{
 			add_component(class_selector);
@@ -81,7 +81,7 @@ line_class_manager_t::line_class_manager_t(linehandle_t line)
 			mail_class_sel.append(class_selector);
 		}
 
-		char *class_name = new (nothrow) char[32]();
+		char *class_name = new char[32]();
 		if (class_name != nullptr)
 		{
 			sprintf(class_name, "m_class[%u]", i);
@@ -724,6 +724,7 @@ bool line_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t 
 		return true;
 
 	}
+	return false;
 }
 
 
@@ -768,14 +769,14 @@ line_class_manager_t::~line_class_manager_t()
 	{
 		if (pass_class_name_untranslated[i] != nullptr)
 		{
-			delete pass_class_name_untranslated[i];
+			delete[] pass_class_name_untranslated[i];
 		}
 	}
 	for (int i = 0; i < mail_classes; i++)
 	{
 		if (mail_class_name_untranslated[i])
 		{
-			delete mail_class_name_untranslated[i];
+			delete[] mail_class_name_untranslated[i];
 		}
 	}
 }

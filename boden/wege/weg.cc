@@ -926,7 +926,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 				if (!any_permissive)
 				{
 					buf.append("\n");
-					buf.append("assets");
+					buf.append(translator::translate("assets"));
 					buf.append(":");
 					buf.append("\n");
 				}
@@ -942,7 +942,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 			if (!any_permissive)
 			{
 				buf.append("\n");
-				buf.append("assets");
+				buf.append(translator::translate("assets"));
 				buf.append(":");
 				buf.append("\n");
 			}
@@ -957,7 +957,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 				if (!any_prohibitive)
 				{
 					buf.append("\n");
-					buf.append("Restrictions:");
+					buf.append(translator::translate("Restrictions:"));
 					buf.append("\n");
 				}
 				any_prohibitive = true;
@@ -972,7 +972,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 			if (!any_prohibitive)
 			{
 				buf.append("\n");
-				buf.append("Restrictions:");
+				buf.append(translator::translate("Restrictions:"));
 				buf.append("\n");
 			}
 			buf.append(translator::translate("Low bridge"));

@@ -276,7 +276,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 		vehicle_t* test_driver = vehicle_builder_t::build( koord3d( start_harbour - start_dx, welt->get_water_hgt( start_harbour - start_dx ) ), this, NULL, &remover_desc );
 		test_driver->set_flag( obj_t::not_on_map );
 		route_t verbindung;
-		bool connected = verbindung.calc_route( welt, koord3d( start_harbour - start_dx, welt->get_water_hgt( start_harbour - start_dx ) ), koord3d( end_harbour - end_dx, welt->get_water_hgt( end_harbour - end_dx ) ), test_driver, 0, 0, false, 0 );
+		bool connected = verbindung.calc_route( welt, koord3d( start_harbour - start_dx, welt->get_water_hgt( start_harbour - start_dx ) ), koord3d( end_harbour - end_dx, welt->get_water_hgt( end_harbour - end_dx ) ), test_driver, 0, 0, false, 0 ) == route_t::valid_route;
 		delete test_driver;
 		if(!connected) {
 			return false;

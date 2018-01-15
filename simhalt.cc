@@ -418,7 +418,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	}
 
 #ifdef MULTI_THREAD
-	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations() + 1];
+	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations() + 2];
 #else
 	transferring_cargoes = new vector_tpl<transferring_cargo_t>[1];
 #endif
@@ -522,7 +522,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 	}
 
 #ifdef MULTI_THREAD
-	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations() + 1];
+	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations() + 2];
 #else
 	transferring_cargoes = new vector_tpl<transferring_cargo_t>[1];
 #endif
@@ -645,8 +645,6 @@ haltestelle_t::~haltestelle_t()
 	// finally detach handle
 	// before it is needed for clearing up the planqudrat and tiles
 	self.detach();
-
-	destroy_win((long)this);
 
 	const uint8 max_categories = goods_manager_t::get_max_catg_index();
 
@@ -1334,7 +1332,7 @@ void haltestelle_t::step()
 				// Checks to see whether the freight has been waiting too long.
 				// If so, discard it.
 
-				if(tmp.get_desc()->get_speed_bonus() > 0u) // TODO: Consider what to do about this when speed boni are deprecated. Should the base data for speed boni be retained just for this?
+				if(tmp.get_desc()->get_speed_bonus() > 0u) // TODO: Consider what to do about this now that speed boni are deprecated. Should the base data for speed boni be retained just for this?
 				{
 					// Only consider for discarding if the goods (ever) care about their timings.
 					// Use 32-bit math; it's very easy to overflow 16 bits.
@@ -2193,6 +2191,10 @@ uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 	bool found_a_halt = false;
 	for(vector_tpl<halthandle_t>::const_iterator destination_halt = destination_halts_list.begin(); destination_halt != destination_halts_list.end(); destination_halt++)
 	{
+		if (self == *destination_halt)
+		{
+			continue;
+		}
 		uint32 test_time;
 		halthandle_t test_transfer;
 		path_explorer_t::get_catg_path_between(ware_catg, self, *destination_halt, test_time, test_transfer, ware.g_class);
@@ -5420,6 +5422,7 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 		}
 		if((*i)->get_line() == line &&
 			((*i)->get_schedule()->get_current_stop() == cnv->get_schedule()->get_current_stop()
+			&& ((*i)->get_reverse_schedule() == cnv->get_reverse_schedule())
 			|| ((*i)->get_state() == convoi_t::REVERSING
 			&& (*i)->get_reverse_schedule() ?
 				(*i)->get_schedule()->get_current_stop() + 1 == cnv->get_schedule()->get_current_stop() :

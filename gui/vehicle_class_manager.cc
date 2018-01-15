@@ -568,6 +568,7 @@ bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value
 		return true;
 
 	}
+	return false;
 }
 
 
