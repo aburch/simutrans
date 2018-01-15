@@ -8373,7 +8373,7 @@ air_vehicle_t::~air_vehicle_t()
 void air_vehicle_t::set_convoi(convoi_t *c)
 {
 	DBG_MESSAGE("air_vehicle_t::set_convoi()","%p",c);
-	if(leading  &&  cnv) {
+	if(leading  &&  (uint64)cnv > 1ll) {
 		// free stop reservation
 		route_t const& r = *cnv->get_route();
 		if(target_halt.is_bound()) {
