@@ -6108,7 +6108,6 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 	halthandle_t start_halt;
 	halthandle_t current_halt;
-	halthandle_t test_halt;
 	halthandle_t ret_halt;
 	//halthandle_t halt;
 
@@ -6480,10 +6479,9 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					// We cannot test this recursively within a reasonable time, so check only for the first stop.
 					if (pax.get_ziel() == pax.get_zwischenziel())
 					{
-						test_halt = current_halt;
-						haltestelle_t::connexion* cnx = test_halt->get_connexions(wtyp->get_catg_index())->get(pax.get_zwischenziel());
+						haltestelle_t::connexion* cnx = current_halt->get_connexions(wtyp->get_catg_index())->get(pax.get_zwischenziel());
 			
-						if (test_halt->is_within_walking_distance_of(pax.get_zwischenziel()) && !cnx->best_convoy.is_bound() && !cnx->best_line.is_bound())
+						if (current_halt->is_within_walking_distance_of(pax.get_zwischenziel()) && (!cnx || (!cnx->best_convoy.is_bound() && !cnx->best_line.is_bound())))
 						{
 							// Do not treat this as a public transport route: if it is a viable walking route, it will be so treated elsewhere.
 							current_journey_time = UINT32_MAX_VALUE;
