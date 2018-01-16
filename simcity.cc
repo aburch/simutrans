@@ -4370,9 +4370,19 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 
 	// Run through orthogonal neighbors (only) looking for which cluster to build
 	// This is a bitmap -- up to 32 clustering types are allowed.
+	vector_tpl<koord> orthogonal_neighbors;
+	const building_desc_t* gb_desc = gb->get_tile()->get_desc();
+	for(sint8 x=0; x<gb_desc->get_size().x; x++) {
+		orthogonal_neighbors.append(k+koord(x,-1));
+		orthogonal_neighbors.append(k+koord(x,gb_desc->get_size().y));
+	}
+	for(sint8 y=0; y<gb_desc->get_size().y; y++) {
+		orthogonal_neighbors.append(k+koord(-1,y));
+		orthogonal_neighbors.append(k+koord(gb_desc->get_size().x,y));
+	}
 	uint32 neighbor_building_clusters = 0;
-	for (int i = 0; i < 4; i++) {
-		const gebaeude_t* neighbor_gb = get_citybuilding_at(k + neighbors[i]);
+	for (uint16 i=0; i<orthogonal_neighbors.get_count(); i++) {
+		const gebaeude_t* neighbor_gb = get_citybuilding_at(orthogonal_neighbors[i]);
 		if (neighbor_gb) {
 			// We have a building as a neighbor...
 			neighbor_building_clusters |= neighbor_gb->get_tile()->get_desc()->get_clusters();
@@ -4457,31 +4467,38 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 		// Found no suitable building.  Return!
 		return false;
 	}
-	// TODO: this must be fixed somehow!
-	/*
+
+	vector_tpl<koord> surrounding_pos;
+	for(sint8 x=-1; x<=h->get_size().x; x++) {
+		surrounding_pos.append(k+koord(x,-1));
+		surrounding_pos.append(k+koord(x,h->get_size().y));
+	}
+	for(sint8 y=-1; y<=h->get_size().y; y++) {
+		surrounding_pos.append_unique(k+koord(-1,y));
+		surrounding_pos.append_unique(k+koord(h->get_size().x,y));
+	}
+
 	if (h->get_clusters() == 0) {
 		// This is a non-clustering building.  Do not allow it next to an identical building.
 		// (This avoids "boring cities", supposedly.)
-		for (int i = 0; i < 8; i++) {
-			// Go through the neighbors *again*...
-			const gebaeude_t* neighbor_gb = get_citybuilding_at(k + neighbors[i]);
+		for(uint16 i=0; i<surrounding_pos.get_count(); i++) {
+			const gebaeude_t* neighbor_gb = get_citybuilding_at(surrounding_pos[i]);
 			if (neighbor_gb != NULL && neighbor_gb->get_tile()->get_desc() == h) {
 				// Fail.  Return.
 				return false;
 			}
 		}
 	}
-	*/
 
 	// good enough to renovate, and we found a building?
 	if (sum > 0 && h != NULL)
 	{
 //		DBG_MESSAGE("stadt_t::renovate_city_building()", "renovation at %i,%i (%i level) of typ %i to typ %i with desire %i", k.x, k.y, alt_typ, want_to_have, sum);
 
-		for (int i = 0; i < 8; i++) {
+		for (uint16 i=0; i<surrounding_pos.get_count(); i++) {
 			// Neighbors goes through this in a specific order:
 			// orthogonal first, then diagonal
-			grund_t* gr = welt->lookup_kartenboden(k + neighbors[i]);
+			grund_t* gr = welt->lookup_kartenboden(surrounding_pos[i]);
 			if (gr == NULL) {
 				// No ground, skip this neighbor
 				continue;
