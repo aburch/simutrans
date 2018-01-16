@@ -4561,7 +4561,9 @@ bool stadt_t::renovate_city_building(gebaeude_t* gb, bool map_generation)
 			// height was different. Let's recover.
 			for(uint8 j=0; j<removed_buildings.get_count(); j++) {
 				const removed_building rb = removed_buildings[j];
-				hausbauer_t::build(NULL, rb.pos, rb.layout, rb.desc);
+				gebaeude_t* g = hausbauer_t::build(NULL, rb.pos, rb.layout, rb.desc);
+				g->set_stadt(this);
+				add_building_to_list(g, false, map_generation, map_generation);
 			}
 			return false;
 		}
