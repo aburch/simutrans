@@ -1130,11 +1130,13 @@ void stadt_t::update_city_stats_with_building(gebaeude_t* building, bool remove)
 }
 
 // this function removes houses from the city house list
-void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb, bool map_generation)
+void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb, bool map_generation, bool original_pos)
 {
 	if (!map_generation)
 	{
-		update_city_stats_with_building(gb, true);
+		if(original_pos) {
+			update_city_stats_with_building(gb, true);
+		}
 		welt->remove_building_from_world_list(gb);
 	}
 	buildings.remove(gb);
@@ -4165,7 +4167,7 @@ int stadt_t::get_best_layout(const building_desc_t* h, const koord & k) const {
  */
 void stadt_t::get_available_building_size(const koord k, vector_tpl<koord> &sizes) const {
 	sizes.clear();
-	const uint8 LEN_LIM = 6;
+	const uint8 LEN_LIM = building_desc_t::get_city_building_max_size();
 	const grund_t* gr_origin = welt->lookup_kartenboden(k);
 	assert(gr_origin);
 	const gebaeude_t* gb_origin = gr_origin->get_building();

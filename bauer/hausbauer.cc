@@ -433,7 +433,7 @@ void hausbauer_t::remove( player_t *player, const gebaeude_t *gb, bool map_gener
 					gb_part->cleanup( player );
 					if (city)
 					{
-						city->remove_gebaeude_from_stadt(gb_part, map_generation);
+						city->remove_gebaeude_from_stadt(gb_part, map_generation, k==koord(0,0));
 						gb_part->set_stadt(NULL);
 					}
 					delete gb_part;
@@ -945,7 +945,7 @@ const building_desc_t* hausbauer_t::get_city_building_from_list(const vector_tpl
 	weighted_vector_tpl<const building_desc_t *> selections(16);
 	// calculate sum of level of replaced buildings
 	uint16 sum_level = 0;
-	bool checked[size.x][size.y];
+	bool checked[64][64];
 	// initialize check flag.
 	for(uint8 i=0; i<size.x; i++) {
 		for(uint8 k=0; k<size.y; k++) {
