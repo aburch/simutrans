@@ -6427,6 +6427,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			}
 
 			best_journey_time = UINT32_MAX_VALUE;
+			uint32 current_journey_time;
 #ifdef MULTI_THREAD
 			if (start_halts[passenger_generation_thread_number].get_count() == 1 && destination_list[passenger_generation_thread_number].get_count() == 1 && start_halts[passenger_generation_thread_number].get_element(0).halt == destination_list[passenger_generation_thread_number].get_element(0))
 #else
@@ -6476,9 +6477,9 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 				{
 					current_halt = nearby_halt.halt;
 #ifdef MULTI_THREAD
-					uint32 current_journey_time = current_halt->find_route(destination_list[passenger_generation_thread_number], pax, best_journey_time, destination_pos);
+					current_journey_time = current_halt->find_route(destination_list[passenger_generation_thread_number], pax, best_journey_time, destination_pos);
 #else 
-					uint32 current_journey_time = current_halt->find_route(destination_list, pax, best_journey_time, destination_pos);
+					current_journey_time = current_halt->find_route(destination_list, pax, best_journey_time, destination_pos);
 #endif
 					// Because it is possible to walk between stops in the route finder, check to make sure that this is not an all walking journey.
 					// We cannot test this recursively within a reasonable time, so check only for the first stop.
