@@ -51,7 +51,7 @@ planquadrat_t::~planquadrat_t()
 	if (!welt->is_destroying())
 	{
 		grund_t *gr = get_kartenboden();
-		gebaeude_t *gb = gr->find<gebaeude_t>();
+		gebaeude_t *gb = gr ? gr->find<gebaeude_t>() : NULL;
 		if (gb)
 		{
 			// If this is a building tile, make sure to delete the building's tile list.
