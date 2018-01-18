@@ -428,6 +428,9 @@ void gebaeude_t::rotate90()
 			welt->set_nosave();
 		}
 	}
+
+	// These will be re-initialised where necessary.
+	building_tiles.clear();
 }
 
 
