@@ -3486,10 +3486,21 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 			{
 				if(gr->ist_bruecke())
 				{
-					if(gr->find<bruecke_t>()->get_desc()->get_waytype()==wt)
+					bruecke_t* bridge = (gr->find<bruecke_t>()); 
+					if(bridge->get_desc()->get_waytype()==wt)
 					{
 						if(gr->ist_karten_boden()) 
 						{
+							weg_t* bridge_way = gr->get_weg(wt);
+
+							if (!player->is_public_service() && bridge_way && bridge_way->is_public_right_of_way())
+							{
+								if (gr->removing_way_would_disrupt_public_right_of_way(bridge_way->get_waytype()))
+								{
+									return "Cannot remove a public right of way without providing an adequate diversionary route";
+								}
+							}
+
 							const char *err = NULL;
 							err = bridge_builder_t::remove(player,verbindung.at(i),wt);
 							if(err) 
@@ -3550,7 +3561,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 					{
 						// If this is a public right of way being deleted by anyone other than the public service player,
 						// then it cannot be deleted unless there is a diversionary route within a specified number of tiles.
-						weg_t* const weg = gr->get_weg(wt);
+						weg_t* weg = gr->get_weg(wt);
 						if(!player->is_public_service() && weg && weg->is_public_right_of_way())
 						{
 							if(gr->removing_way_would_disrupt_public_right_of_way(weg->get_waytype()))
