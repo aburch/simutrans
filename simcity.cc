@@ -4593,10 +4593,20 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction, bool map_generat
 	if(  simrand(100, "stadt_t::build_road() (bridge check)") >= bridge_success_percentage  ) {
 		return false;
 	}
+
+	// Check whether the bridge needs to be high enough for ships to pass underneath
+	bool high_bridge = false;
+	const grund_t* gr = welt->lookup_kartenboden(k + zv);
+	const weg_t* underlying_way = gr ? gr->get_weg(water_wt) : NULL;
+	if (underlying_way && underlying_way->is_public_right_of_way())
+	{
+		high_bridge = true;
+	}
+
 	const char *err = NULL;
 	sint8 bridge_height;
 	// Prefer "non-AI bridge"
-	koord3d end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, false);
+	koord3d end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, high_bridge);
 	if(  err && *err || koord_distance(k, end.get_2d()) > 3  ) {
 		// allow "AI bridge"
 		end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
@@ -4619,6 +4629,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction, bool map_generat
 	if (!successfully_built_past_end) {
 		return false;
 	}
+
 	// OK, build the bridge
 	bridge_builder_t::build_bridge(NULL, bd->get_pos(), end, zv, bridge_height, bridge, welt->get_city_road());
 	// Now connect the bridge to the road we built
