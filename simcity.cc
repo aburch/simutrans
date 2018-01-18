@@ -4576,7 +4576,8 @@ void stadt_t::generate_private_cars(koord pos, uint32 journey_tenths_of_minutes,
  * zv == direction of construction (must be N, S, E, or W)
  */
 bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction, bool map_generation) {
-	koord k = bd->get_pos().get_2d();
+	koord3d k3d = bd->get_pos();
+	koord k = k3d.get_2d();
 	koord zv = koord(direction);
 
 	const bridge_desc_t *bridge = bridge_builder_t::find_bridge(road_wt, welt->get_city_road()->get_topspeed(), welt->get_timeline_year_month(), welt->get_city_road()->get_max_axle_load() * 2 );
@@ -4595,6 +4596,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction, bool map_generat
 	}
 
 	// Check whether the bridge needs to be high enough for ships to pass underneath
+	// Unfortunately, this does not work where the river sides are sloped, as they usually are.
 	bool high_bridge = false;
 	const grund_t* gr = welt->lookup_kartenboden(k + zv);
 	const weg_t* underlying_way = gr ? gr->get_weg(water_wt) : NULL;
@@ -4606,10 +4608,10 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction, bool map_generat
 	const char *err = NULL;
 	sint8 bridge_height;
 	// Prefer "non-AI bridge"
-	koord3d end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, high_bridge);
-	if(  err && *err || koord_distance(k, end.get_2d()) > 3  ) {
+	koord3d end = bridge_builder_t::find_end_pos(NULL, k3d, zv, bridge, err, bridge_height, high_bridge);
+	if(!high_bridge && err && *err || koord_distance(k, end.get_2d()) > 3  ) {
 		// allow "AI bridge"
-		end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
+		end = bridge_builder_t::find_end_pos(NULL, k3d, zv, bridge, err, bridge_height, true);
 	}
 	if(  err && *err || koord_distance(k, end.get_2d()) > 3  ) {
 		// no bridge short enough
@@ -4631,7 +4633,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction, bool map_generat
 	}
 
 	// OK, build the bridge
-	bridge_builder_t::build_bridge(NULL, bd->get_pos(), end, zv, bridge_height, bridge, welt->get_city_road());
+	bridge_builder_t::build_bridge(NULL, k3d, end, zv, bridge_height, bridge, welt->get_city_road());
 	// Now connect the bridge to the road we built
 	// (Is there an easier way?)
 	build_road( (end+zv).get_2d(), NULL, false, map_generation );
