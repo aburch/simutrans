@@ -160,7 +160,7 @@ generate_default_nick:
 		// nick exists already
 		// generate default nick
 		cbuffer_t buf;
-		buf.printf("Client#%d", client_id);
+		buf.printf("Client no. %d", client_id);
 		nickname = (const char*)buf;
 		return true;
 	}
