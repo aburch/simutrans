@@ -5,7 +5,7 @@
  */
 
 
-#include <SDL.h>
+#include "SDL.h"
 #include <string.h>
 #include "sound.h"
 #include "../simmem.h"

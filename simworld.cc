@@ -6051,7 +6051,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 	}
 	
 	koord3d origin_pos = gb->get_pos();
-	minivec_tpl<const planquadrat_t*> &tile_list = first_origin->get_tiles();
+	minivec_tpl<const planquadrat_t*> const &tile_list = first_origin->get_tiles();
 
 	// Suitable start search (public transport)
 #ifdef MULTI_THREAD
@@ -6108,7 +6108,6 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 
 	halthandle_t start_halt;
 	halthandle_t current_halt;
-	halthandle_t test_halt;
 	halthandle_t ret_halt;
 	//halthandle_t halt;
 
@@ -6191,7 +6190,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			// TODO BG, 15.02.2014: first build a nearby_destination_list and then a destination_list from it.
 			//  Should be faster than finding all nearby halts again.
 
-			minivec_tpl<const planquadrat_t*> &tile_list_2 = first_origin->get_tiles();
+			minivec_tpl<const planquadrat_t*> const &tile_list_2 = first_origin->get_tiles();
 
 			// Suitable start search (public transport)
 #ifdef MULTI_THREAD
@@ -6389,12 +6388,13 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			// (default: 1), they can take passengers within the wider square of the passenger radius. This is intended,
 			// and is as a result of using the below method for all destination types.
 
-			minivec_tpl<const planquadrat_t*> &tile_list_3 = current_destination.building->get_tiles();
+			minivec_tpl<const planquadrat_t*> const &tile_list_3 = current_destination.building->get_tiles();
 
-			if(tile_list_3.empty())
-			{
-				tile_list_3.append(access(current_destination.location));
-			}
+			// The below is not thread safe
+			//if(tile_list_3.empty())
+			//{
+			//	tile_list_3.append(access(current_destination.location));
+			//}
 #ifdef MULTI_THREAD
 			destination_list[passenger_generation_thread_number].clear();
 #else
@@ -6405,6 +6405,10 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			FOR(minivec_tpl<const planquadrat_t*>, const& current_tile, tile_list_3)
 			{
 				const nearby_halt_t* halt_list = current_tile->get_haltlist();
+				if (!halt_list)
+				{
+					continue;
+				}
 				for(int h = current_tile->get_haltlist_count() - 1; h >= 0; h--) 
 				{
 					halthandle_t halt = halt_list[h].halt;
@@ -6480,10 +6484,9 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 					// We cannot test this recursively within a reasonable time, so check only for the first stop.
 					if (pax.get_ziel() == pax.get_zwischenziel())
 					{
-						test_halt = current_halt;
-						haltestelle_t::connexion* cnx = test_halt->get_connexions(wtyp->get_catg_index())->get(pax.get_zwischenziel());
+						haltestelle_t::connexion* cnx = current_halt->get_connexions(wtyp->get_catg_index())->get(pax.get_zwischenziel());
 			
-						if (test_halt->is_within_walking_distance_of(pax.get_zwischenziel()) && !cnx->best_convoy.is_bound() && !cnx->best_line.is_bound())
+						if (current_halt->is_within_walking_distance_of(pax.get_zwischenziel()) && (!cnx || (!cnx->best_convoy.is_bound() && !cnx->best_line.is_bound())))
 						{
 							// Do not treat this as a public transport route: if it is a viable walking route, it will be so treated elsewhere.
 							current_journey_time = UINT32_MAX_VALUE;
