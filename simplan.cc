@@ -48,6 +48,17 @@ void swap(planquadrat_t& a, planquadrat_t& b)
 // deletes also all grounds in this array!
 planquadrat_t::~planquadrat_t()
 {
+	if (!welt->is_destroying())
+	{
+		grund_t *gr = get_kartenboden();
+		gebaeude_t *gb = gr->find<gebaeude_t>();
+		if (gb)
+		{
+			// If this is a building tile, make sure to delete the building's tile list.
+			gb->reset_tile_list();
+		}
+	}
+
 	if(ground_size==0) {
 		// empty
 	}
