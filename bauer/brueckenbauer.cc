@@ -778,7 +778,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 {
 	ribi_t::ribi ribi = ribi_type(zv);
 
-	DBG_MESSAGE("void bridge_builder_t::build_bridge()", "build from %s", start.get_str() );
+	DBG_MESSAGE("bridge_builder_t::build()", "build from %s", start.get_str());
 
 	grund_t *start_gr = welt->lookup( start );
 	const slope_t::type slope = start_gr->get_weg_hang();
