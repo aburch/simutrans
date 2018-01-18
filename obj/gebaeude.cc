@@ -2126,7 +2126,7 @@ uint8 gebaeude_t::get_random_class(const goods_desc_t * wtyp)
 	return g_class;
 }
 
-minivec_tpl<const planquadrat_t*> &gebaeude_t::get_tiles()
+const minivec_tpl<const planquadrat_t*> &gebaeude_t::get_tiles()
 {
 	const building_tile_desc_t* tile = get_tile();
 	const building_desc_t *bdsc = tile->get_desc();

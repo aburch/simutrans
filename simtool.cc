@@ -9175,7 +9175,10 @@ bool tool_access_t::init(player_t *player)
 		world()->stop_path_explorer();
 #endif
 		path_explorer_t::refresh_all_categories(false);
-		cnv->clear_departures();
+		if (cnv.is_bound())
+		{
+			cnv->clear_departures();
+		}
 	}
 
 	cbuffer_t message;
