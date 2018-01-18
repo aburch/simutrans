@@ -2131,7 +2131,7 @@ const minivec_tpl<const planquadrat_t*> &gebaeude_t::get_tiles()
 	const building_tile_desc_t* tile = get_tile();
 	const building_desc_t *bdsc = tile->get_desc();
 	const koord size = bdsc->get_size(tile->get_layout());
-	if (building_tiles.empty() || building_tiles.get_count() != size.x * size.y)
+	if (building_tiles.empty())
 	{
 #ifdef MULTI_THREAD
 		int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
