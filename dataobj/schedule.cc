@@ -682,9 +682,9 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 
 bool schedule_t::is_contained (koord3d pos)
 {
-	ITERATE(entries, i)
+	FOR(minivec_tpl<schedule_entry_t>, entry, entries)
 	{
-		if(pos == entries[i].pos)
+		if(pos == entry.pos)
 		{
 			return true;
 		}
