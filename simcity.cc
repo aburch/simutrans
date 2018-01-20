@@ -4166,10 +4166,16 @@ int stadt_t::get_best_layout(const building_desc_t* h, const koord & k) const {
 void stadt_t::get_available_building_size(const koord k, vector_tpl<koord> &sizes) const {
 	sizes.clear();
 	const uint8 LEN_LIM = 6;
-	sint8 height = -100;
-	for(uint8 w=1; w<=LEN_LIM; w++) {
-		for(uint8 h=1; h<=LEN_LIM; h++) {
+	const grund_t* gr_origin = welt->lookup_kartenboden(k);
+	assert(gr_origin);
+	const gebaeude_t* gb_origin = gr_origin->get_building();
+	assert(gb_origin);
+	const koord dim_origin = gb_origin->get_tile()->get_desc()->get_size();
+	const uint8 layout_origin = gb_origin->get_tile()->get_layout();
+	for(uint8 w=(layout_origin&1)?dim_origin.y:dim_origin.x; w<=LEN_LIM; w++) {
+		for(uint8 h=(layout_origin&1)?dim_origin.x:dim_origin.y; h<=LEN_LIM; h++) {
 			bool check_continue = true;
+			sint8 height = -100;
 			for(uint8 x=0; x<w; x++) {
 				if(!check_continue) {
 					break;
@@ -4194,14 +4200,14 @@ void stadt_t::get_available_building_size(const koord k, vector_tpl<koord> &size
 					}
 					height = tile_height;
 					// buildings in the area must not be in the outside of the area.
-					if(x==0  ||  y==0  ||  x==w-1  ||  y==h-1) {
-						if(const gebaeude_t* gb = gr->get_building()) {
-							const building_desc_t* desc = gb->get_tile()->get_desc();
-							if(gb->get_pos().x<k.x  ||  gb->get_pos().y<k.y) {
-								check_continue = false;
-								break;
-							}
-							if(k.x+w<gb->get_pos().x+desc->get_size().x  ||  k.y+h<gb->get_pos().y+desc->get_size().y) {
+					const sint8 x_off = x==0 ? -1 : (x==w-1 ? 1 : 0);
+					const sint8 y_off = y==0 ? -1 : (y==h-1 ? 1 : 0);
+					const gebaeude_t* gb = gr->get_building();
+					if(gb  &&  (x==0  ||  y==0  ||  x==w-1  ||  y==h-1)) {
+						const grund_t* neighbor_gr = welt->lookup_kartenboden(k+koord(x_off,y_off));
+						if(neighbor_gr) {
+							const gebaeude_t* neighbor_gb = neighbor_gr->get_building();
+							if(gb==neighbor_gb) {
 								check_continue = false;
 								break;
 							}

@@ -945,9 +945,19 @@ const building_desc_t* hausbauer_t::get_city_building_from_list(const vector_tpl
 	weighted_vector_tpl<const building_desc_t *> selections(16);
 	// calculate sum of level of replaced buildings
 	uint16 sum_level = 0;
-	vector_tpl<const gebaeude_t*> already_added(0);
+	bool checked[size.x][size.y];
+	// initialize check flag.
+	for(uint8 i=0; i<size.x; i++) {
+		for(uint8 k=0; k<size.y; k++) {
+			checked[i][k] = false;
+		}
+	}
 	for(uint8 x = 0; x<size.x; x++) {
 		for(uint8 y = 0; y<size.y; y++) {
+			if(checked[x][y]) {
+				// this position is already checked.
+				continue;
+			}
 			const grund_t* gr = welt->lookup_kartenboden(pos_origin + koord(x,y));
 			assert(gr);
 			if(gr->ist_natur()) {
@@ -955,11 +965,15 @@ const building_desc_t* hausbauer_t::get_city_building_from_list(const vector_tpl
 			}
 			const gebaeude_t* gb = gr->get_building();
 			assert(gb  &&  gb->is_city_building());
-			if(already_added.is_contained(gb)) {
-				continue;
-			}
 			sum_level += gb->get_tile()->get_desc()->get_level();
-			already_added.append(gb);
+			const uint8 gb_layout = gb->get_tile()->get_layout();
+			koord gb_size = gb->get_tile()->get_desc()->get_size(gb_layout);
+			for(uint8 gx=0; gx<gb_size.x; gx++) {
+				for(uint8 gy=0; gy<gb_size.y; gy++) {
+					// mark as checked tile.
+					if(x+gx<size.x  &&  y+gy<size.y) checked[x+gx][y+gy] = true;
+				}
+			}
 		}
 	}
 	sum_level += 1;
