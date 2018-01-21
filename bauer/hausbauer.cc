@@ -945,7 +945,7 @@ const building_desc_t* hausbauer_t::get_city_building_from_list(const vector_tpl
 	weighted_vector_tpl<const building_desc_t *> selections(16);
 	// calculate sum of level of replaced buildings
 	uint16 sum_level = 0;
-	bool checked[size.x][size.y];
+	bool checked[64][64];
 	// initialize check flag.
 	for(uint8 i=0; i<size.x; i++) {
 		for(uint8 k=0; k<size.y; k++) {
