@@ -437,6 +437,8 @@ public:
 	uint16 get_class_proportion_jobs(uint8 index) const { return class_proportions_jobs[index]; }
 	uint32 get_class_proportions_sum() const { return class_proportions_sum; }
 	uint32 get_class_proportions_sum_jobs() const { return class_proportions_sum_jobs; }
+
+	static uint8 get_city_building_max_size() { return city_building_max_size; }
 };
 
 

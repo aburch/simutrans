@@ -4165,7 +4165,7 @@ int stadt_t::get_best_layout(const building_desc_t* h, const koord & k) const {
  */
 void stadt_t::get_available_building_size(const koord k, vector_tpl<koord> &sizes) const {
 	sizes.clear();
-	const uint8 LEN_LIM = 6;
+	const uint8 LEN_LIM = building_desc_t::get_city_building_max_size();
 	const grund_t* gr_origin = welt->lookup_kartenboden(k);
 	assert(gr_origin);
 	const gebaeude_t* gb_origin = gr_origin->get_building();
