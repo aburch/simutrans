@@ -2,11 +2,13 @@
 #include <string.h>
 
 #ifndef _WIN32
-#include <dirent.h>
+#	include <dirent.h>
 #else
-#define NOMINMAX
-#include <Windows.h>
-#include <io.h>
+#	ifndef NOMINMAX
+#		define NOMINMAX
+#	endif
+#	include <windows.h>
+#	include <io.h>
 #endif
 
 #include "../simdebug.h"
