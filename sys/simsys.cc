@@ -217,7 +217,7 @@ int dr_remove(const char *path)
 
 	return success ? 0 : -1;
 #else
-	return remove(path);#endif
+	return remove(path);
 #endif
 }
 
