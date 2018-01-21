@@ -70,7 +70,7 @@ int searchfolder_t::search_path(const std::string &filepath, const std::string &
 
 #ifdef _WIN32
 	// since we assume hardcoded path are using / we need to correct this for windows
-	for(  int i=0;  i<path.size();  i++  ) {
+	for(  uint i=0;  i<path.size();  i++  ) {
 		if(  path[i]=='\\'  ) {
 			path[i] = '/';
 		}
@@ -167,7 +167,7 @@ std::string searchfolder_t::complete(const std::string &filepath_raw, const std:
 {
 	std::string filepath(filepath_raw);
 	// since we assume hardcoded path are using / we need to correct this for windows
-	for(  int i=0;  i<filepath.size();  i++  ) {
+	for(  uint i=0;  i<filepath.size();  i++  ) {
 		if(  filepath[i]=='\\'  ) {
 			filepath[i] = '/';
 		}
