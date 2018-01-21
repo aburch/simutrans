@@ -117,7 +117,7 @@ public:
 				inc = 1 << 16;
 			}
 			else {
-				inc = (dx << 16) / dy;
+				inc = (dx << 16) / dy - (1 << 16);
 			}
 		}
 		else if (dy < 0) {
@@ -125,7 +125,7 @@ public:
 				inc = 0; // (+1)-1 << 16;
 			}
 			else {
-				inc = (1 << 16) - (dx << 16) / dy;
+				inc = 0;
 			}
 		}
 	}
@@ -143,8 +143,9 @@ public:
 		r.non_convex_active = false;
 		if (non_convex  &&  use_non_convex  &&  y < y0  &&  y < (y0 + dy)) {
 			r.non_convex_active = true;
+			y = min(y0, y0+dy) - 1;
 		}
-		else if (dy != 0) {
+		if (  dy != 0  ) {
 			// init Bresenham algorithm
 			const int t = ((y - y0) << 16) / sdy;
 			// sx >> 16 = x
@@ -161,26 +162,6 @@ public:
 		if (r.non_convex_active) {
 			if (r.y == min(y0, y0 + dy)) {
 				r.non_convex_active = false;
-				if (dy != 0) {
-					// init Bresenham algorithm
-					const int t = ((r.y - y0) << 16) / sdy;
-					// sx >> 16 = x
-					// sy >> 16 = y
-					r.sx = t * sdx + inc + (x0 << 16);
-					r.sy = t * sdy + (y0 << 16);
-					if (dy > 0) {
-						const int r_xmin = r.sx >> 16;
-						if (xmin < r_xmin) {
-							xmin = r_xmin;
-						}
-					}
-					else {
-						const int r_xmax = r.sx >> 16;
-						if (xmax > r_xmax) {
-							xmax = r_xmax;
-						}
-					}
-				}
 			}
 			else {
 				if (dy < 0) {
@@ -195,10 +176,11 @@ public:
 						xmin = r_xmin;
 					}
 				}
+				return;
 			}
 		}
 		// go along the ray, Bresenham
-		else if (dy != 0) {
+		if (  dy != 0  ) {
 			if (dy > 0) {
 				do {
 					r.sx += sdx;
