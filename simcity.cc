@@ -1130,11 +1130,13 @@ void stadt_t::update_city_stats_with_building(gebaeude_t* building, bool remove)
 }
 
 // this function removes houses from the city house list
-void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb, bool map_generation)
+void stadt_t::remove_gebaeude_from_stadt(gebaeude_t* gb, bool map_generation, bool original_pos)
 {
 	if (!map_generation)
 	{
-		update_city_stats_with_building(gb, true);
+		if(original_pos) {
+			update_city_stats_with_building(gb, true);
+		}
 		welt->remove_building_from_world_list(gb);
 	}
 	buildings.remove(gb);

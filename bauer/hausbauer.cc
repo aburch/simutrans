@@ -431,9 +431,9 @@ void hausbauer_t::remove( player_t *player, const gebaeude_t *gb, bool map_gener
 						gb_part->set_stadt(city);
 					}
 					gb_part->cleanup( player );
-					if (city  &&  k==koord(0,0))
+					if (city)
 					{
-						city->remove_gebaeude_from_stadt(gb_part, map_generation);
+						city->remove_gebaeude_from_stadt(gb_part, map_generation, k==koord(0,0));
 						gb_part->set_stadt(NULL);
 					}
 					delete gb_part;
