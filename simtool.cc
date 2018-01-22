@@ -1512,8 +1512,9 @@ const char *tool_transformer_t::check_pos( player_t *, koord3d pos )
 	}
 	if(grund_t::underground_mode == grund_t::ugm_level) {
 		// only above or directly under surface
+		// taking into account way clearance requirements
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-		return (gr->get_pos() == pos  ||  gr->get_hoehe() == grund_t::underground_level+1) ? NULL : "";
+		return (gr->get_pos() == pos  ||  gr->get_hoehe() == grund_t::underground_level + welt->get_settings().get_way_height_clearance()) ? NULL : "";
 	}
 	return NULL;
 }
@@ -3767,8 +3768,10 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 			if (gr->get_hoehe() != pos.z) {
 				return NOTICE_UNSUITABLE_GROUND;
 			}
-			if (const char *msg = gr->kann_alle_obj_entfernen(player)) {
-				return msg;
+			if (i <= len) {
+				if (const char *msg = gr->kann_alle_obj_entfernen(player)) {
+					return msg;
+				}
 			}
 
 			if (i==0) {

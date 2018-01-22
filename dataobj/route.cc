@@ -13,6 +13,7 @@
 #include "../simhalt.h"
 #include "../boden/wege/weg.h"
 #include "../boden/grund.h"
+#include "../boden/wasser.h"
 #include "../dataobj/marker.h"
 #include "../ifc/simtestdriver.h"
 #include "loadsave.h"
@@ -492,8 +493,14 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 					// only check previous direction plus directions not available on this tile
 					// if going straight only check straight direction
 					// if going diagonally check both directions that generate this diagonal
+					// also enter all available canals and turn to get around canals
 					if (tmp->parent!=NULL) {
-						k->jps_ribi = ~way_ribi | current_dir;
+						k->jps_ribi = ~way_ribi | current_dir |  ((wasser_t*)to)->get_canal_ribi();
+
+						if (gr->is_water()) {
+							// turn on next tile to enter possible neighbours of canal tiles
+							k->jps_ribi |= ((const wasser_t*)gr)->get_canal_ribi();
+						}
 					}
 				}
 

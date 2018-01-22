@@ -33,6 +33,16 @@ void wasser_t::prepare_for_refresh()
 }
 
 
+/**
+ * helper function: return maximal possible ribis, does not
+ * take water ribi of sea tiles into account.
+ */
+ribi_t::ribi get_base_water_ribi(grund_t *gr)
+{
+	return gr->is_water() ? (ribi_t::ribi)ribi_t::all : gr->grund_t::get_weg_ribi(water_wt);
+}
+
+
 void wasser_t::calc_image_internal(const bool calc_only_snowline_change)
 {
 	if(  !calc_only_snowline_change  ) {
@@ -52,11 +62,31 @@ void wasser_t::calc_image_internal(const bool calc_only_snowline_change)
 
 		// test tiles to north, south, east and west and add to ribi if water
 		ribi = ribi_t::none;
+		canal_ribi = ribi_t::none;
+		ribi_t::ribi base_ribi = get_base_water_ribi(this);
+
 		for(  uint8 i = 0;  i < 4;  i++  ) {
 			grund_t *gr_neighbour = NULL;
-			if(  get_neighbour( gr_neighbour, invalid_wt, ribi_t::nsew[i] )  ) {
-				if (gr_neighbour->is_water()  ||  (gr_neighbour->get_weg_ribi(water_wt) & ribi_t::reverse_single(ribi_t::nsew[i]))!=0 ) {
-					ribi |= ribi_t::nsew[i];
+			ribi_t::ribi test = ribi_t::nsew[i];
+
+			if( (test&base_ribi)  &&  get_neighbour(gr_neighbour, invalid_wt, test) ) {
+				// neighbour tile has water ways
+				ribi_t::ribi ribi_neigh_base = get_base_water_ribi(gr_neighbour);
+				if ((ribi_neigh_base & ribi_t::reverse_single(test))==0) {
+					// we cannot go back to our tile
+					continue;
+				}
+
+				// set water ribi bit
+				ribi |= test;
+
+				// test whether we can turn on neighbour canal tile
+				if (!gr_neighbour->is_water()) {
+					ribi_t::ribi ribi_orth = ribi_t::doubles( ribi_t::rotate90( test ));
+					if ((ribi_neigh_base & ribi_orth) != ribi_orth) {
+						// turning not possible, mark it as canal ribi
+						canal_ribi |= test;
+					}
 				}
 			}
 		}
@@ -71,4 +101,5 @@ void wasser_t::rotate90()
 {
 	grund_t::rotate90();
 	ribi = ribi_t::rotate90(ribi);
+	canal_ribi = ribi_t::rotate90(canal_ribi);
 }
