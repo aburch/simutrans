@@ -5575,7 +5575,7 @@ void karte_t::step()
 	// by passenger generation are added to the world list in the same order
 	// even when the creation of those objects was multi-threaded. 
 #ifndef FORBID_SYNC_OBJECTS
-	for (uint32 i = 0; i < get_parallel_operations(); i++)
+	for (uint32 i = 0; i < get_parallel_operations() + 2; i++)
 	{
 		FOR(vector_tpl<private_car_t*>, car, private_cars_added_threaded[i])
 		{
@@ -5584,6 +5584,10 @@ void karte_t::step()
 			if (gr)
 			{
 				gr->obj_add(car); 
+			}
+			else
+			{
+				car->set_flag(obj_t::not_on_map);
 			}
 			sync.add(car);
 		}
@@ -5597,6 +5601,10 @@ void karte_t::step()
 			if (gr)
 			{
 				ok = gr->obj_add(ped);
+			}
+			else
+			{
+				ok = false;
 			}
 			if (ok)
 			{
