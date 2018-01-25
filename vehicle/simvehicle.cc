@@ -4725,7 +4725,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 				const koord this_pos = lowest_numbered_convoy->get_pos().get_2d();
 				const koord lowest_numbered_last_stop_pos = lowest_numbered_convoy->get_schedule()->get_prev_halt(lowest_numbered_convoy->get_owner()).is_bound() ? lowest_numbered_convoy->get_schedule()->get_prev_halt(lowest_numbered_convoy->get_owner())->get_next_pos(this_pos) : this_pos;
-				const koord highest_numbered_last_stop_pos = highest_numbered_convoy->get_schedule()->get_prev_halt(lowest_numbered_convoy->get_owner()).is_bound() ? lowest_numbered_convoy->get_schedule()->get_prev_halt(lowest_numbered_convoy->get_owner())->get_next_pos(this_pos) : this_pos;
+				const koord highest_numbered_last_stop_pos = highest_numbered_convoy->get_schedule()->get_prev_halt(highest_numbered_convoy->get_owner()).is_bound() ? highest_numbered_convoy->get_schedule()->get_prev_halt(highest_numbered_convoy->get_owner())->get_next_pos(this_pos) : this_pos;
 
 				const uint16 lowest_numbered_convoy_distance_to_stop = shortest_distance(this_pos, lowest_numbered_last_stop_pos);
 				const uint16 highest_numbered_convoy_distance_to_stop = shortest_distance(this_pos, highest_numbered_last_stop_pos);

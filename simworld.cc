@@ -5588,6 +5588,7 @@ void karte_t::step()
 			else
 			{
 				car->set_flag(obj_t::not_on_map);
+				car->set_time_to_life(0);
 			}
 			sync.add(car);
 		}
