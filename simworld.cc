@@ -6397,7 +6397,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			// (default: 1), they can take passengers within the wider square of the passenger radius. This is intended,
 			// and is as a result of using the below method for all destination types.
 
-			minivec_tpl<const planquadrat_t*> const &tile_list_3 = current_destination.building->get_tiles();
+			//minivec_tpl<const planquadrat_t*> const &tile_list_3 = current_destination.building->get_tiles();
 
 			// The below is not thread safe
 			//if(tile_list_3.empty())
@@ -6411,14 +6411,14 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #endif
 			//vector_tpl<halthandle_t> destination_list(tile_list_3[0]->get_haltlist_count() * tile_list_3.get_count());
 		
-			FOR(minivec_tpl<const planquadrat_t*>, const& current_tile, tile_list_3)
+			FOR(minivec_tpl<const planquadrat_t*>, const& current_tile_3, current_destination.building->get_tiles())
 			{
-				const nearby_halt_t* halt_list = current_tile->get_haltlist();
+				const nearby_halt_t* halt_list = current_tile_3->get_haltlist();
 				if (!halt_list)
 				{
 					continue;
 				}
-				for(int h = current_tile->get_haltlist_count() - 1; h >= 0; h--) 
+				for(int h = current_tile_3->get_haltlist_count() - 1; h >= 0; h--)
 				{
 					halthandle_t halt = halt_list[h].halt;
 					if(halt->is_enabled(wtyp)) 
