@@ -324,6 +324,12 @@ factory_enforce_demand = 1
 minimum_staffing_percentage_consumer_industry = 66
 minimum_staffing_percentage_full_production_producer_industry = 80
 
+# If the below setting is enabled, industries situated outside a town will continue
+# to function as normal even if they are short of staff. It is recommended to enable
+# this, as there is currently no way of ensuring that towns are built close enough
+# to industries in the early years to allow those rural industries to produce.
+rural_industries_no_staff_shortage = 1
+
 ################################# Display settings ################################
 
 # if defined, the default tool will try to calculate straight ways (like OpenTTD)
