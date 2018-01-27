@@ -6430,7 +6430,6 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #endif
 					}
 				}
-
 			}
 			else
 			{
