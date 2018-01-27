@@ -343,16 +343,13 @@ void convoi_t::unreserve_route_range(route_range_specification range)
 	for (uint32 i = range.start; i < range.end; i++)
 	{
 		weg_t* const way = all_ways[i];
-		if (way->get_waytype() == convoi_t::current_waytype)
+		//schiene_t* const sch = obj_cast<schiene_t>(way);
+		schiene_t* const sch = way->is_rail_type() ? (schiene_t*)way : NULL;
+		if (sch && sch->get_reserved_convoi().get_id() == convoi_t::current_unreserver)
 		{
-			//schiene_t* const sch = obj_cast<schiene_t>(way);
-			schiene_t* const sch = way->is_rail_type() ? (schiene_t*)way : NULL;
-			if (sch && sch->get_reserved_convoi().get_id() == convoi_t::current_unreserver)
-			{
-				convoihandle_t ch;
-				ch.set_id(convoi_t::current_unreserver);
-				sch->unreserve(ch);
-			}
+			convoihandle_t ch;
+			ch.set_id(convoi_t::current_unreserver);
+			sch->unreserve(ch);
 		}
 	}
 }
@@ -3902,7 +3899,7 @@ void convoi_t::rdwr(loadsave_t *file)
 					}
 					state = INITIAL;
 				}
-				// add to blockstrecke "block stretch" (Google). Possibly "block section"?
+				// add to reservation
 				if(gr && (v->get_waytype()==track_wt  ||  v->get_waytype()==monorail_wt  ||  v->get_waytype()==maglev_wt  ||  v->get_waytype()==narrowgauge_wt)) {
 					schiene_t* sch = (schiene_t*)gr->get_weg(v->get_waytype());
 					if(sch) {
