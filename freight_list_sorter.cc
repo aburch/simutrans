@@ -458,7 +458,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 				new_section = true;
 				last_goods_index = ware.get_index();
 				last_ware_catg = (ware.get_catg() != 0) ? ware.get_catg() : -1;
-				// First, if we are dealing with passengers and mail, we might need to know how many i total we have on board
+				// First, if we are dealing with passengers and mail, we might need to know how many in total we have on board
 				total_pass_mail = 0;
 				if (sorting_by_wealth && (ware.get_index() == goods_manager_t::INDEX_PAS || ware.get_index() == goods_manager_t::INDEX_MAIL))
 				{
@@ -538,10 +538,9 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 							}
 							else
 							{
-								add_ware_heading(buf, 0, current.menge, &current, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, total_pass_mail, show_empty);
+								add_ware_heading(buf, 0, current.menge, &current, what_doing, sorting_by_accommodation ? accommodation : last_ware_class, 0, show_empty);
 								last_capacity = current.menge;
 								heading_added = true;
-								total_pass_mail = 0;
 							}
 						}
 					}
