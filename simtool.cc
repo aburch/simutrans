@@ -1673,8 +1673,9 @@ const char *tool_transformer_t::check_pos( player_t *, koord3d pos )
 	}
 	if(grund_t::underground_mode == grund_t::ugm_level) {
 		// only above or directly under surface
+		// taking into account way clearance requirements
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-		return (gr->get_pos() == pos  ||  gr->get_hoehe() == grund_t::underground_level+1) ? NULL : "";
+		return (gr->get_pos() == pos || gr->get_hoehe() == grund_t::underground_level + welt->get_settings().get_way_height_clearance()) ? NULL : "";
 	}
 	return NULL;
 }
@@ -3485,10 +3486,21 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 			{
 				if(gr->ist_bruecke())
 				{
-					if(gr->find<bruecke_t>()->get_desc()->get_waytype()==wt)
+					bruecke_t* bridge = (gr->find<bruecke_t>()); 
+					if(bridge->get_desc()->get_waytype()==wt)
 					{
 						if(gr->ist_karten_boden()) 
 						{
+							weg_t* bridge_way = gr->get_weg(wt);
+
+							if (!player->is_public_service() && bridge_way && bridge_way->is_public_right_of_way())
+							{
+								if (gr->removing_way_would_disrupt_public_right_of_way(bridge_way->get_waytype()))
+								{
+									return "Cannot remove a public right of way without providing an adequate diversionary route";
+								}
+							}
+
 							const char *err = NULL;
 							err = bridge_builder_t::remove(player,verbindung.at(i),wt);
 							if(err) 
@@ -3549,7 +3561,7 @@ const char *tool_wayremover_t::do_work( player_t *player, const koord3d &start, 
 					{
 						// If this is a public right of way being deleted by anyone other than the public service player,
 						// then it cannot be deleted unless there is a diversionary route within a specified number of tiles.
-						weg_t* const weg = gr->get_weg(wt);
+						weg_t* weg = gr->get_weg(wt);
 						if(!player->is_public_service() && weg && weg->is_public_right_of_way())
 						{
 							if(gr->removing_way_would_disrupt_public_right_of_way(weg->get_waytype()))
@@ -4179,8 +4191,10 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 			if (gr->get_hoehe() != pos.z) {
 				return NOTICE_UNSUITABLE_GROUND;
 			}
-			if (const char *msg = gr->kann_alle_obj_entfernen(player)) {
-				return msg;
+			if (i <= len) {
+				if (const char *msg = gr->kann_alle_obj_entfernen(player)) {
+					return msg;
+				}
 			}
 
 			if (i==0) {
@@ -9172,7 +9186,10 @@ bool tool_access_t::init(player_t *player)
 		world()->stop_path_explorer();
 #endif
 		path_explorer_t::refresh_all_categories(false);
-		cnv->clear_departures();
+		if (cnv.is_bound())
+		{
+			cnv->clear_departures();
+		}
 	}
 
 	cbuffer_t message;

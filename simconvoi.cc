@@ -343,16 +343,13 @@ void convoi_t::unreserve_route_range(route_range_specification range)
 	for (uint32 i = range.start; i < range.end; i++)
 	{
 		weg_t* const way = all_ways[i];
-		if (way->get_waytype() == convoi_t::current_waytype)
+		//schiene_t* const sch = obj_cast<schiene_t>(way);
+		schiene_t* const sch = way->is_rail_type() ? (schiene_t*)way : NULL;
+		if (sch && sch->get_reserved_convoi().get_id() == convoi_t::current_unreserver)
 		{
-			//schiene_t* const sch = obj_cast<schiene_t>(way);
-			schiene_t* const sch = way->is_rail_type() ? (schiene_t*)way : NULL;
-			if (sch && sch->get_reserved_convoi().get_id() == convoi_t::current_unreserver)
-			{
-				convoihandle_t ch;
-				ch.set_id(convoi_t::current_unreserver);
-				sch->unreserve(ch);
-			}
+			convoihandle_t ch;
+			ch.set_id(convoi_t::current_unreserver);
+			sch->unreserve(ch);
 		}
 	}
 }
@@ -862,14 +859,14 @@ void convoi_t::increment_odometer(uint32 steps)
 	weg_t* way = front()->get_weg();
 	if(way == NULL)
 	{
-		player = owner->get_player_nr();
+		player = MAX_PLAYER_COUNT + 1;
 	}
 	else
 	{
 		const player_t* owner = way->get_owner(); 
 		if(waytype == road_wt && owner && owner->is_public_service() && welt->get_settings().get_toll_free_public_roads())
 		{
-			player = owner->get_player_nr();
+			player = MAX_PLAYER_COUNT + 1;
 		}
 		else
 		{
@@ -879,7 +876,7 @@ void convoi_t::increment_odometer(uint32 steps)
 
 	if(player < 0)
 	{
-		player = owner->get_player_nr();
+		player = MAX_PLAYER_COUNT + 1;
 	}
 
 	FOR(departure_map, &i, departures)
@@ -3902,7 +3899,7 @@ void convoi_t::rdwr(loadsave_t *file)
 					}
 					state = INITIAL;
 				}
-				// add to blockstrecke "block stretch" (Google). Possibly "block section"?
+				// add to reservation
 				if(gr && (v->get_waytype()==track_wt  ||  v->get_waytype()==monorail_wt  ||  v->get_waytype()==maglev_wt  ||  v->get_waytype()==narrowgauge_wt)) {
 					schiene_t* sch = (schiene_t*)gr->get_weg(v->get_waytype());
 					if(sch) {
@@ -5545,15 +5542,23 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 	}
 	// Note that fare comes out in units of 1/4096 of a simcent, for computational precision
 
-	// Finally (!!) multiply by the number of items.
+	// Finally multiply by the number of items.
 	const sint64 revenue = fare * (sint64)ware.menge;
 
 	// Now apportion the revenue.
+
+	
 	uint32 total_way_distance = 0;
-	for(uint8 i = 0; i <= MAX_PLAYER_COUNT; i ++)
+	for(uint8 i = 0; i < MAX_PLAYER_COUNT + 2; i ++)
 	{
+		if (i == MAX_PLAYER_COUNT)
+		{
+			// MAX_PLAYER_COUNT as an index is used for the overall distance - in a different unit.
+			continue;
+		}
 		total_way_distance += dep.get_way_distance(i);
 	}
+
 	// The apportioned revenue array is passed in. It should be the right size already.
 	// Make sure our returned array is the right size (should do nothing)
 	apportioned_revenues.resize(MAX_PLAYER_COUNT);
@@ -5563,6 +5568,9 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
 		if(owner->get_player_nr() == i)
 		{
 			// Never apportion revenue to the convoy-owning player
+			// Revenues from unowned ways/public toll free ways
+			// are also discounted, but these are MAX_PLAYER_COUNT + 1,
+			// so they are not reached in this FOR loop.
 			continue;
 		}
 		// Now, if the player's tracks were actually used, apportion revenue

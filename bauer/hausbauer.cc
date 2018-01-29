@@ -164,7 +164,7 @@ bool hausbauer_t::successfully_loaded()
 			case building_desc_t::depot:
 			case building_desc_t::generic_stop:
 			case building_desc_t::generic_extension:
-				
+
 				station_building.insert_ordered(desc,compare_station_desc);
 				break;
 
@@ -242,7 +242,7 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 	 * even if it is part of the same description (building_desc_t)
 	 */
 	const int max_index = const_desc->get_all_layouts() * const_desc->get_size().x * const_desc->get_size().y;
-	for( int i=0;  i<max_index;  i++  ) 
+	for( int i=0;  i<max_index;  i++  )
 	{
 		const_cast<building_tile_desc_t *>(desc->get_tile(i))->set_desc(const_desc);
 		const_cast<building_tile_desc_t *>(desc->get_tile(i))->set_modifiable_desc(desc);
@@ -281,7 +281,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 	FOR(  vector_tpl<building_desc_t const*>,  const desc,  station_building  ) {
 //		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s (%p)", desc->get_name(), desc);
 		if(  desc->get_type() == btype  &&  desc->get_builder()  &&  ((btype == building_desc_t::headquarters || btype == building_desc_t::signalbox) ||  desc->get_extra()==(uint16)wt)  ) {
-			if(desc->is_available(time) && 
+			if(desc->is_available(time) &&
 				((desc->get_allow_underground() >= 2) ||
 				(desc->get_allow_underground() == 1 && (grund_t::underground_mode == grund_t::ugm_all || grund_t::underground_mode == grund_t::ugm_level)) ||
 				(desc->get_allow_underground() == 0 && grund_t::underground_mode != grund_t::ugm_all)))
@@ -304,7 +304,7 @@ void hausbauer_t::new_world()
 
 
 
-void hausbauer_t::remove( player_t *player, gebaeude_t *gb, bool map_generation ) //gebaeude = "building" (Babelfish)
+void hausbauer_t::remove( player_t *player, const gebaeude_t *gb, bool map_generation ) //gebaeude = "building" (Babelfish)
 {
 	const building_tile_desc_t *tile  = gb->get_tile();
 	const building_desc_t *bdsc = tile->get_desc();
@@ -430,11 +430,11 @@ void hausbauer_t::remove( player_t *player, gebaeude_t *gb, bool map_generation 
 					{
 						gb_part->set_stadt(city);
 					}
-					gb_part->cleanup( player );	
+					gb_part->cleanup( player );
 					if (city)
 					{
-						city->remove_gebaeude_from_stadt(gb_part, map_generation);
-						gb_part->set_stadt(NULL); 
+						city->remove_gebaeude_from_stadt(gb_part, map_generation, k==koord(0,0));
+						gb_part->set_stadt(NULL);
 					}
 					delete gb_part;
 					// if this was a station building: delete ground
@@ -511,16 +511,16 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 						DBG_MESSAGE("hausbauer_t::build()","get_tile() empty at %i,%i",k.x,k.y);
 				continue;
 			}
-			
+
 			grund_t *gr = NULL;
 			if(desc->get_allow_underground() && desc->is_signalbox())
 			{
 				// Note that this works properly only for signalboxes, as the underground tile needs a grund_t object,
-				// which has to be added in the specific tool building this. 
+				// which has to be added in the specific tool building this.
 				// TODO: Consider making this work with station extension buildings
 				gr = welt->lookup(pos);
 			}
-			
+
 			if(!gr)
 			{
 				gr = welt->lookup_kartenboden(pos.get_2d() + k);
@@ -528,7 +528,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 			// mostly remove everything
 			vector_tpl<obj_t *> keptobjs;
 			if(!gr->is_water() && desc->get_type() != building_desc_t::dock && desc->get_type() != building_desc_t::flat_dock)
-			{			
+			{
 				if(!gr->hat_wege()) {
 					// save certain object types
 					for (uint8 i = 0; i < gr->obj_count(); i++) {
@@ -635,7 +635,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 			{
 				gb = new gebaeude_t(gr->get_pos(), player, tile);
 			}
-			
+
 			if (first_building == NULL) {
 				first_building = gb;
 			}
@@ -665,7 +665,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 				welt->add_attraction( gb );
 			}
 			if(!desc->is_city_building() && !desc->is_signalbox()) {
-				if(station_building.is_contained(desc)) 
+				if(station_building.is_contained(desc))
 				{
 					if(desc->get_is_control_tower())
 					{
@@ -804,7 +804,7 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 	}
 	else if(desc->is_signalbox())
 	{
-		gb = new signalbox_t(pos, player, tile); 
+		gb = new signalbox_t(pos, player, tile);
 	}
 
 	else {
@@ -924,6 +924,15 @@ const building_desc_t* hausbauer_t::get_special(uint32 bev, building_desc_t::bty
 	return pick_any_weighted(auswahl);
 }
 
+const bool is_allowed_size(const building_desc_t* bldg, koord size) {
+	if(size.x==-1  ||  bldg->get_size()==size) {
+		return true;
+	} else if(bldg->get_size().x==size.y  &&  bldg->get_size().y==size.x) {
+		return true;
+	} else {
+		return false;
+	}
+}
 
 /**
  * Try to find a suitable city building from the given list
@@ -931,7 +940,96 @@ const building_desc_t* hausbauer_t::get_special(uint32 bev, building_desc_t::bty
  * @author Nathanael Nerode (neroden) for clustering
  * @author Hj. Malthaner
  */
-static const building_desc_t* get_city_building_from_list(const vector_tpl<const building_desc_t*>& building_list, int level, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
+const building_desc_t* hausbauer_t::get_city_building_from_list(const vector_tpl<const building_desc_t*>& building_list, koord pos_origin, koord size, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
+{
+	weighted_vector_tpl<const building_desc_t *> selections(16);
+	// calculate sum of level of replaced buildings
+	uint16 sum_level = 0;
+	bool checked[64][64];
+	// initialize check flag.
+	for(uint8 i=0; i<size.x; i++) {
+		for(uint8 k=0; k<size.y; k++) {
+			checked[i][k] = false;
+		}
+	}
+	for(uint8 x = 0; x<size.x; x++) {
+		for(uint8 y = 0; y<size.y; y++) {
+			if(checked[x][y]) {
+				// this position is already checked.
+				continue;
+			}
+			const grund_t* gr = welt->lookup_kartenboden(pos_origin + koord(x,y));
+			assert(gr);
+			if(gr->ist_natur()) {
+				continue;
+			}
+			const gebaeude_t* gb = gr->get_building();
+			assert(gb  &&  gb->is_city_building());
+			sum_level += gb->get_tile()->get_desc()->get_level();
+			const uint8 gb_layout = gb->get_tile()->get_layout();
+			koord gb_size = gb->get_tile()->get_desc()->get_size(gb_layout);
+			for(uint8 gx=0; gx<gb_size.x; gx++) {
+				for(uint8 gy=0; gy<gb_size.y; gy++) {
+					// mark as checked tile.
+					if(x+gx<size.x  &&  y+gy<size.y) checked[x+gx][y+gy] = true;
+				}
+			}
+		}
+	}
+	sum_level += 1;
+	const uint16 level_replaced = sum_level;
+	const uint16 area_of_building = size.x*size.y;
+
+	FOR(vector_tpl<building_desc_t const*>, const desc, building_list) {
+		// only allow buildings of the designated size.
+		if(!is_allowed_size(desc, size)) {
+			continue;
+		}
+
+		const uint16 random = simrand(100, "static const building_desc_t* get_city_building_from_list");
+
+		const int thislevel = desc->get_level();
+		if(thislevel>sum_level) {
+			if (selections.empty()  &&  thislevel-level_replaced<=2*area_of_building) {
+				// Nothing of the correct level.  Continue with search of next level.
+				sum_level = thislevel;
+			}
+			else {
+				// We already found something of the correct level; stop.
+				break;
+			}
+		}
+
+		if(  thislevel == sum_level  &&  desc->get_distribution_weight() > 0  ) {
+			if(  cl==MAX_CLIMATES  ||  desc->is_allowed_climate(cl)  ) {
+				if(  time == 0  ||  (desc->get_intro_year_month() <= time  &&  ((allow_earlier && random > 65) || desc->get_retire_year_month() > time ))  ) {
+					/* Level, time period, and climate are all OK.
+					 * Now modify the distribution_weight rating by a factor based on the clusters.
+					 */
+					int distribution_weight = desc->get_distribution_weight();
+					if(  clusters  ) {
+						uint32 my_clusters = desc->get_clusters();
+						if(  my_clusters & clusters  ) {
+							distribution_weight *= stadt_t::get_cluster_factor();
+						}
+					}
+					selections.append(desc, distribution_weight);
+				}
+			}
+		}
+	}
+
+	if(selections.get_sum_weight()==0) {
+		return NULL;
+	}
+	if(selections.get_count()==1) {
+		return selections.front();
+	}
+	// now there is something to choose
+	return pick_any_weighted(selections);
+}
+
+const building_desc_t* hausbauer_t::get_city_building_from_list(const vector_tpl<const building_desc_t*>& building_list, int level, koord size, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
 	weighted_vector_tpl<const building_desc_t *> selections(16);
 
@@ -940,7 +1038,7 @@ static const building_desc_t* get_city_building_from_list(const vector_tpl<const
 	FOR(vector_tpl<building_desc_t const*>, const desc, building_list)
 	{
 		const uint16 random = simrand(100, "static const building_desc_t* get_city_building_from_list");
-		if(	desc->is_allowed_climate(cl)  &&
+		if(	desc->is_allowed_climate(cl)  &&  is_allowed_size(desc, size)  &&
 			desc->get_distribution_weight()>0  &&
 			(time==0  ||  (desc->get_intro_year_month()<=time  &&  ((allow_earlier && random > 65) || desc->get_retire_year_month()>time)))) {
 			desc_at_least = desc;
@@ -958,7 +1056,7 @@ static const building_desc_t* get_city_building_from_list(const vector_tpl<const
 			}
 		}
 
-		if(  thislevel == level  &&  desc->get_distribution_weight() > 0  ) {
+		if(  thislevel == level  &&  is_allowed_size(desc, size)  &&  desc->get_distribution_weight() > 0  ) {
 			if(  cl==MAX_CLIMATES  ||  desc->is_allowed_climate(cl)  ) {
 				if(  time == 0  ||  (desc->get_intro_year_month() <= time  &&  ((allow_earlier && random > 65) || desc->get_retire_year_month() > time ))  ) {
 //					DBG_MESSAGE("hausbauer_t::get_city_building_from_list()","appended %s at %i", desc->get_name(), thislevel );
@@ -990,21 +1088,36 @@ static const building_desc_t* get_city_building_from_list(const vector_tpl<const
 }
 
 
-const building_desc_t* hausbauer_t::get_commercial(int level, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
+const building_desc_t* hausbauer_t::get_commercial(koord pos_origin, koord size, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
-	return get_city_building_from_list(city_commercial, level, time, cl, allow_earlier, clusters);
+	return get_city_building_from_list(city_commercial, pos_origin, size, time, cl, allow_earlier, clusters);
+}
+
+const building_desc_t* hausbauer_t::get_commercial(int level, koord size, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
+{
+	return get_city_building_from_list(city_commercial, level, size, time, cl, allow_earlier, clusters);
 }
 
 
-const building_desc_t* hausbauer_t::get_industrial(int level, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
+const building_desc_t* hausbauer_t::get_industrial(koord pos_origin, koord size, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
-	return get_city_building_from_list(city_industry, level, time, cl, allow_earlier, clusters);
+	return get_city_building_from_list(city_industry, pos_origin, size, time, cl, allow_earlier, clusters);
+}
+
+const building_desc_t* hausbauer_t::get_industrial(int level, koord size, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
+{
+	return get_city_building_from_list(city_industry, level, size, time, cl, allow_earlier, clusters);
 }
 
 
-const building_desc_t* hausbauer_t::get_residential(int level, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
+const building_desc_t* hausbauer_t::get_residential(koord pos_origin, koord size, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
-	return get_city_building_from_list(city_residential, level, time, cl, allow_earlier, clusters);
+	return get_city_building_from_list(city_residential, pos_origin, size, time, cl, allow_earlier, clusters);
+}
+
+const building_desc_t* hausbauer_t::get_residential(int level, koord size, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
+{
+	return get_city_building_from_list(city_residential, level, size, time, cl, allow_earlier, clusters);
 }
 
 const building_desc_t* hausbauer_t::get_headquarter(int level, uint16 time)
@@ -1077,7 +1190,7 @@ void hausbauer_t::new_month()
 		const uint16 current_month = welt->get_timeline_year_month();
 		const uint16 intro_month = building->get_intro_year_month();
 		{
-			if(intro_month == current_month) 
+			if(intro_month == current_month)
 			{
 				cbuffer_t buf;
 				buf.printf(translator::translate("New %s now available:\n%s\n"), "building", translator::translate(building->get_name()));

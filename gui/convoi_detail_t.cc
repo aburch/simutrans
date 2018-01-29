@@ -709,7 +709,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				buf.clear();
 				char tmpbuf1[13];
 				sprintf(tmpbuf1, "\nMUST USE: ");
-				char tmpbuf[14];
+				char tmpbuf[46];
 				sprintf(tmpbuf, "high_clearance_under_bridges_(no_low_bridges)");
 				buf.printf("%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
 				display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -736,9 +736,9 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			if (v->get_desc()->get_tilting())
 			{
 				buf.clear();
-				char tmpbuf1[13];
+				char tmpbuf1[14];
 				sprintf(tmpbuf1, "equipped_with");
-				char tmpbuf[14];
+				char tmpbuf[26];
 				sprintf(tmpbuf, "tilting_vehicle_equipment");
 				buf.printf("%s %s", translator::translate(tmpbuf1), translator::translate(tmpbuf));
 				display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);

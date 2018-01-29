@@ -148,7 +148,7 @@ class building_desc_t : public obj_desc_timelined_t {
 			city_com			= 38, ///< commercial  city buildings
 			city_ind			= 39, ///< industrial  city buildings
 			signalbox			= 70, // Signalbox. 70 to allow for plenty more Standard ones in between.
-			
+
 		};
 
 			enum flag_t {
@@ -156,9 +156,9 @@ class building_desc_t : public obj_desc_timelined_t {
 			FLAG_NO_INFO = 1, ///< do not show info window
 			FLAG_NO_PIT = 2, ///< do not show construction pit
 			FLAG_NEED_GROUND = 4, ///< needs ground drawn below
-			FLAG_HAS_CURSOR = 8  ///< there is cursor/icon for this		
+			FLAG_HAS_CURSOR = 8  ///< there is cursor/icon for this
 		};
-		
+
 	private:
 				/**
 				 * Old named constants, only used for compatibility to load very old paks.
@@ -214,11 +214,11 @@ class building_desc_t : public obj_desc_timelined_t {
 
 	uint16 population_and_visitor_demand_capacity; // Population capacity if residential, otherwise visitor demand.
 	uint16 employment_capacity; // Capacity for jobs (this figure is not used for industries)
-	uint16 mail_demand_and_production_capacity; // Both generation and demand for mail (assumed to be symmetric). 
+	uint16 mail_demand_and_production_capacity; // Both generation and demand for mail (assumed to be symmetric).
 
 	uint32 radius; // The radius for which this building has effect. For signalboxes, the maximum distance (in meters) that signals operating from here can be placed.
 
-	#define PRICE_MAGIC (2147483647) 
+	#define PRICE_MAGIC (2147483647)
 
 	climate_bits allowed_climates;
 
@@ -242,7 +242,7 @@ class building_desc_t : public obj_desc_timelined_t {
 	// The class proportions for supply/demand of
 	// passengers to this building. This does not
 	// apply to mail.
-	vector_tpl<uint16> class_proportions;			
+	vector_tpl<uint16> class_proportions;
 
 	uint32 class_proportions_sum;
 
@@ -255,6 +255,8 @@ class building_desc_t : public obj_desc_timelined_t {
 	}
 
 	tool_t *builder;
+
+	static uint8 city_building_max_size;
 
 public:
 
@@ -372,13 +374,13 @@ public:
 
 	/** Recent versions of Standard have incorporated get_maintenance (etc.) from
 	  * Extended (which Extended formerly called "station_maintenance", etc.,
-	  * instead of just "maintenance" etc.). 
-	  * 
+	  * instead of just "maintenance" etc.).
+	  *
 	  * In Standard, the actual price is calculated on the fly in the getter methods.
 	  * (See here: https://github.com/aburch/simutrans/commit/7192edc40cee52dc10f44b6d444dd4d668eaa365
 	  * for the Standard code). This is not desirable here because: (1) it does not
-	  * work well with Extended's price scaling; and (2) it requires repeated 
-	  * recalculation of the prices, which is unnecessary work. 
+	  * work well with Extended's price scaling; and (2) it requires repeated
+	  * recalculation of the prices, which is unnecessary work.
 	  */
 
 	sint32 get_maintenance() const { return scaled_maintenance; }
@@ -391,13 +393,13 @@ public:
 
 	uint16 get_capacity() const { return capacity; }
 
-	uint32 get_radius() const { return radius; } 
+	uint32 get_radius() const { return radius; }
 
 	uint8 get_allow_underground() const { return allow_underground; }
 
 	uint8 get_is_control_tower() const { return is_control_tower; }
-	
-	void set_scale(uint16 scale_factor) 
+
+	void set_scale(uint16 scale_factor)
 	{
 		// BG: 29.08.2009: explicit typecasts avoid warnings
 		const sint32 scaled_price_x = price == PRICE_MAGIC ? price : (sint32) set_scale_generic<sint64>((sint64)price, scale_factor);
@@ -435,6 +437,8 @@ public:
 	uint16 get_class_proportion_jobs(uint8 index) const { return class_proportions_jobs[index]; }
 	uint32 get_class_proportions_sum() const { return class_proportions_sum; }
 	uint32 get_class_proportions_sum_jobs() const { return class_proportions_sum_jobs; }
+
+	static uint8 get_city_building_max_size() { return city_building_max_size; }
 };
 
 

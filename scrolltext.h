@@ -46,6 +46,7 @@
 " Nathanael Nerode","developer",
 " Inkelyad", "developer",
 " Isidoro","developer (vehicle replacement)",
+" THLeaderH", "patch", 
 " TurfIt", "patch",
 " Phystam", "patches",
 " Toshio Kuratomi" "patches",

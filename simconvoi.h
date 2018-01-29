@@ -135,15 +135,13 @@ public:
 		* Accumulated distance since the convoy departed from
 		* this stop, indexed by the player number of the way 
 		* over which the convoy has passed. If the way is
-		* ownerless, it is recorded as belonging to the owner
-		* of they convoy, unless it is open water, in which case
-		* it is recorded as being MAX_PLAYER_COUNT (in other 
-		* words, two greater than the maximum number of players).
-		* This is to facilitate proper apportionment of revenues
-		* for ocean-going ships coming into ports owned by
-		* other players (+2) and the measurement of journey
-		* distance by straight line distance between halts,
-		* rather than route distance (+1)
+		* ownerless, it is recorded as belonging as being 
+		* MAX_PLAYER_COUNT + 1.
+		* 
+		* accumulated_distance_since_departure[MAX_PLAYER_COUNT]
+		* is a special value for overall distance, demoninated
+		* in a different unit to the others, which others are
+		* demoninated in steps
 		*/
 	private:
 		uint32 accumulated_distance_since_departure[MAX_PLAYER_COUNT + 2];
@@ -205,7 +203,7 @@ public:
 		 */
 		void init_distances()
 		{
-			for(int i = 0; i < MAX_PLAYER_COUNT + 1; i ++)
+			for(int i = 0; i < MAX_PLAYER_COUNT + 2; i ++)
 			{
 				accumulated_distance_since_departure[i] = 0;
 			}

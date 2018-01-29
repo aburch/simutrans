@@ -682,6 +682,8 @@ public:
 
 	uint16 max_comfort_preference_percentage;
 
+	bool rural_industries_no_staff_shortage;
+
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
 	 * Set to empty string in order to avoid loading.
@@ -1156,6 +1158,8 @@ public:
 	uint32 get_minimum_staffing_percentage_full_production_producer_industry() const { return minimum_staffing_percentage_full_production_producer_industry; }
 
 	uint16 get_max_comfort_preference_percentage() const { return max_comfort_preference_percentage; }
+
+	bool get_rural_industries_no_staff_shortage() const { return rural_industries_no_staff_shortage; }
 };
 
 #endif 

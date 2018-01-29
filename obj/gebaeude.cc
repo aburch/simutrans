@@ -250,7 +250,7 @@ gebaeude_t::~gebaeude_t()
 	}
 	if (our_city)
 	{
-		our_city->remove_gebaeude_from_stadt(this, !has_city_defined);
+		our_city->remove_gebaeude_from_stadt(this, !has_city_defined, false);
 	}
 	else if(is_in_world_list > 0)
 	{
@@ -428,6 +428,9 @@ void gebaeude_t::rotate90()
 			welt->set_nosave();
 		}
 	}
+
+	// These will be re-initialised where necessary.
+	building_tiles.clear();
 }
 
 
@@ -539,7 +542,7 @@ sync_result gebaeude_t::sync_step(uint32 delta_t)
 {
 	if (purchase_time > welt->get_ticks())
 	{
-		// There were some integer overflow issues with 
+		// There were some integer overflow issues with
 		// this when some intermediate values were uint32.
 		purchase_time = welt->get_ticks() - 5000ll;
 	}
@@ -1431,7 +1434,7 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 		}
 	}
 
-	
+
 	int condition = 0; // 1 = visitors only, 2 = visitors + commuters, 3 = commuters only
 
 	if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
@@ -1473,7 +1476,7 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 		}
 	}
 }
-	
+
 
 void gebaeude_t::new_year()
 {
@@ -1593,12 +1596,14 @@ void gebaeude_t::rdwr(loadsave_t *file)
 				}
 				// we try to replace citybuildings with their matching counterparts
 				// if none are matching, we try again without climates and timeline!
+				// only 1x1 buildings can fill the empty tile to avoid overlap.
+				const koord single(1,1);
 				switch (type) {
 				case building_desc_t::city_res:
 				{
-					const building_desc_t *bdsc = hausbauer_t::get_residential(level, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z));
+					const building_desc_t *bdsc = hausbauer_t::get_residential(level, single, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z));
 					if (bdsc == NULL) {
-						bdsc = hausbauer_t::get_residential(level, 0, MAX_CLIMATES);
+						bdsc = hausbauer_t::get_residential(level, single, 0, MAX_CLIMATES);
 					}
 					if (bdsc) {
 						dbg->message("gebaeude_t::rwdr", "replace unknown building %s with residence level %i by %s", buf, level, bdsc->get_name());
@@ -1609,9 +1614,9 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 				case building_desc_t::city_com:
 				{
-					const building_desc_t *bdsc = hausbauer_t::get_commercial(level, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z));
+					const building_desc_t *bdsc = hausbauer_t::get_commercial(level, single, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z));
 					if (bdsc == NULL) {
-						bdsc = hausbauer_t::get_commercial(level, 0, MAX_CLIMATES);
+						bdsc = hausbauer_t::get_commercial(level, single, 0, MAX_CLIMATES);
 					}
 					if (bdsc) {
 						dbg->message("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i by %s", buf, level, bdsc->get_name());
@@ -1622,11 +1627,11 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 				case building_desc_t::city_ind:
 				{
-					const building_desc_t *bdsc = hausbauer_t::get_industrial(level, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z));
+					const building_desc_t *bdsc = hausbauer_t::get_industrial(level, single, welt->get_timeline_year_month(), welt->get_climate_at_height(get_pos().z));
 					if (bdsc == NULL) {
-						bdsc = hausbauer_t::get_industrial(level, 0, MAX_CLIMATES);
+						bdsc = hausbauer_t::get_industrial(level, single, 0, MAX_CLIMATES);
 						if (bdsc == NULL) {
-							bdsc = hausbauer_t::get_residential(level, 0, MAX_CLIMATES);
+							bdsc = hausbauer_t::get_residential(level, single, 0, MAX_CLIMATES);
 						}
 					}
 					if (bdsc) {
@@ -1731,10 +1736,10 @@ void gebaeude_t::rdwr(loadsave_t *file)
 
 		file->rdwr_short(jobs);
 		file->rdwr_short(people.visitor_demand);
-		file->rdwr_short(mail_demand); 
+		file->rdwr_short(mail_demand);
 
 		file->rdwr_short(adjusted_jobs);
-		file->rdwr_short(adjusted_people.visitor_demand); 
+		file->rdwr_short(adjusted_people.visitor_demand);
 		file->rdwr_short(adjusted_mail_demand);
 	}
 
@@ -1797,7 +1802,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		{
 			// Do not add this to the world list when loading a building from a factory,
 			// as this needs to be taken out of the world list again, and this increases
-			// loading time considerably. 
+			// loading time considerably.
 
 			// Add this here: there is no advantage to adding buildings multi-threadedly
 			// to a single list, especially when that requires an insertion sort, and
@@ -1904,7 +1909,7 @@ void gebaeude_t::cleanup(player_t *player)
 
 		// tearing down halts is always single costs only
 		cost = desc->get_price();
-		// This check is necessary because the number of PRICE_MAGIC is used if no price is specified. 
+		// This check is necessary because the number of PRICE_MAGIC is used if no price is specified.
 		if (desc->get_base_price() == PRICE_MAGIC)
 		{
 			// TODO: find a way of checking what *kind* of stop that this is. This assumes railway.
@@ -2086,7 +2091,7 @@ bool gebaeude_t::jobs_available() const
 
 uint8 gebaeude_t::get_random_class(const goods_desc_t * wtyp)
 {
-	// This currently simply uses the building type's proportions. 
+	// This currently simply uses the building type's proportions.
 	// TODO: Allow this to be modified when dynamic building occupation
 	// is introduced with the (eventual) new town growth code.
 
@@ -2123,7 +2128,7 @@ uint8 gebaeude_t::get_random_class(const goods_desc_t * wtyp)
 	return g_class;
 }
 
-minivec_tpl<const planquadrat_t*> &gebaeude_t::get_tiles()
+const minivec_tpl<const planquadrat_t*> &gebaeude_t::get_tiles()
 {
 	const building_tile_desc_t* tile = get_tile();
 	const building_desc_t *bdsc = tile->get_desc();
@@ -2140,10 +2145,18 @@ minivec_tpl<const planquadrat_t*> &gebaeude_t::get_tiles()
 		{
 			// A single tiled building - just add the single tile.
 			building_tiles.append(welt->access_nocheck(get_pos().get_2d()));
+#ifdef MULTI_THREAD
+			int mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
+#endif
 		}
 		else
 		{
-			// A multi-tiled building: check all tiles. Any tile within the 
+#ifdef MULTI_THREAD
+			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
+#endif
+			// A multi-tiled building: check all tiles. Any tile within the
 			// coverage radius of a building connects the whole building.
 
 			// Then, store these tiles here, as this is computationally expensive
@@ -2165,16 +2178,21 @@ minivec_tpl<const planquadrat_t*> &gebaeude_t::get_tiles()
 						// There may be buildings with holes.
 						if (gb_part && gb_part->get_tile()->get_desc() == bdsc)
 						{
+#ifdef MULTI_THREAD
+							int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+							assert(mutex_error == 0);
+#endif
 							building_tiles.append(welt->access_nocheck(k.get_2d()));
+#ifdef MULTI_THREAD
+							mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+							assert(mutex_error == 0);
+#endif
 						}
 					}
 				}
 			}
 		}
-#ifdef MULTI_THREAD
-		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
-		assert(mutex_error == 0);
-#endif
+
 	}
 	return building_tiles;
 }

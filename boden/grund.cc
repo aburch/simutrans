@@ -1510,7 +1510,7 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 	}
 	if(  ribi & ribi_t::north  ) {
 		const int dh = corner_nw(slope) * hgt_step;
-		add_poly_clip( xpos + raster_tile_width - 1, ypos + 3 * raster_tile_width / 4 - 1 - dh, xpos + raster_tile_width / 2 + 1, ypos + raster_tile_width / 2 - dh, ribi_t::north | non_convex CLIP_NUM_PAR );
+		add_poly_clip(xpos + raster_tile_width - 1, ypos + 3 * raster_tile_width / 4 - 1 - dh, xpos + raster_tile_width / 2 + 1, ypos + raster_tile_width / 2 - dh, ribi_t::north | non_convex CLIP_NUM_PAR);
 	}
 	if(  ribi & ribi_t::east  ) {
 		const int dh = corner_se(slope) * hgt_step;
@@ -2440,7 +2440,7 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 					// Only increment this counter if the ways were already connected.
 					necessary_diversions ++;
 				}
-				const bool route_good = !way_gr->ist_bruecke() && diversionary_route.calc_route(welt, start, end, diversion_checker, max_speed, max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight_limit, w->get_pos()) == route_t::valid_route;
+				const bool route_good = diversionary_route.calc_route(welt, start, end, diversion_checker, max_speed, max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight_limit, w->get_pos()) == route_t::valid_route;
 				if(route_good && (diversionary_route.get_count() < welt->get_settings().get_max_diversion_tiles()))
 				{
 					successful_diversions ++;

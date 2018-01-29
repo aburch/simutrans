@@ -1887,7 +1887,7 @@ bool fabrik_t::out_of_stock_selective()
 
 	const sint32 staffing_percentage = building->get_staffing_level_percentage();
 
-	if (staffing_percentage < welt->get_settings().get_minimum_staffing_percentage_consumer_industry())
+	if (staffing_percentage < welt->get_settings().get_minimum_staffing_percentage_consumer_industry() || (welt->get_settings().get_rural_industries_no_staff_shortage() && city == NULL))
 	{
 		return true;
 	}
@@ -2978,7 +2978,7 @@ void fabrik_t::recalc_factory_status()
 		
 		// Staff shortage takes priority over other states as this affects production
 		// TODO: Remove the check for water industries if and when a satisfactory method of conveying passengers to these can be found (helecopters might work for oil platforms; fisheries can have their workers set to zero).
-		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water))
+		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water) && !(welt->get_settings().get_rural_industries_no_staff_shortage() && city == NULL))
 		{
 			status = staff_shortage;
 		}
@@ -3008,7 +3008,7 @@ void fabrik_t::recalc_factory_status()
 
 		// Staff shortage takes priority over other states as this affects production
 		// TODO: Remove the check for water industries if and when a satisfactory method of conveying passengers to these can be found (helecopters might work for oil platforms; fisheries can have their workers set to zero).
-		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water))
+		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water) && !(welt->get_settings().get_rural_industries_no_staff_shortage() && city == NULL))
 		{
 			status = staff_shortage;
 		}
@@ -3036,7 +3036,7 @@ void fabrik_t::recalc_factory_status()
 
 		// Staff shortage takes priority over other states as this affects production
 		// TODO: Remove the check for water industries if and when a satisfactory method of conveying passengers to these can be found (helecopters might work for oil platforms; fisheries can have their workers set to zero).
-		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water))
+		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water) && !(welt->get_settings().get_rural_industries_no_staff_shortage() && city == NULL))
 		{
 			status = staff_shortage;
 		}

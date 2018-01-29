@@ -5414,19 +5414,23 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 {
 	linehandle_t line = cnv->get_line();
 	int count = 0;
+	const bool is_road_type = cnv->get_vehicle(0)->get_waytype() == road_wt;
 	for(slist_tpl<convoihandle_t>::const_iterator i = loading_here.begin(), end = loading_here.end();  i != end && (*i) != cnv; ++i)
 	{
 		if(!(*i).is_bound() || get_halt((*i)->get_pos(), owner) != self)
 		{
-			continue;
+			continue; 
 		}
+		const int state = (*i)->get_state();
 		if((*i)->get_line() == line &&
-			((*i)->get_schedule()->get_current_stop() == cnv->get_schedule()->get_current_stop()
+			(((*i)->get_schedule()->get_current_stop() == cnv->get_schedule()->get_current_stop()
 			&& ((*i)->get_reverse_schedule() == cnv->get_reverse_schedule())
-			|| ((*i)->get_state() == convoi_t::REVERSING
-			&& (*i)->get_reverse_schedule() ?
+			&& (!is_road_type || state == convoi_t::LOADING))
+			|| (state == convoi_t::REVERSING
+			&& !is_road_type
+			&& ((*i)->get_reverse_schedule() ?
 				(*i)->get_schedule()->get_current_stop() + 1 == cnv->get_schedule()->get_current_stop() :
-				(*i)->get_schedule()->get_current_stop() - 1 == cnv->get_schedule()->get_current_stop())))
+				(*i)->get_schedule()->get_current_stop() - 1 == cnv->get_schedule()->get_current_stop()))))
 		{
 			count++;
 		}

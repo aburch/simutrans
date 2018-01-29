@@ -4701,6 +4701,55 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				}
 			}
 		}
+		else if (working_method == drive_by_sight)
+		{
+			// Check for head-on collisions in drive by sight mode so as to fix deadlocks automatically.
+			convoihandle_t c = w->get_reserved_convoi();
+			ribi_t::ribi other_convoy_direction = c->front()->get_direction();
+			if (other_convoy_direction != get_direction())
+			{
+				// Opposite directions detected
+				// We must decide whether this or the other convoy should reverse.
+				convoihandle_t lowest_numbered_convoy;
+				convoihandle_t highest_numbered_convoy;
+				if (cnv->self.get_id() < c->self.get_id())
+				{
+					lowest_numbered_convoy = cnv->self;
+					highest_numbered_convoy = c->self;
+				}
+				else
+				{
+					lowest_numbered_convoy = c->self;
+					highest_numbered_convoy = cnv->self;
+				}
+
+				const koord this_pos = lowest_numbered_convoy->get_pos().get_2d();
+				const koord lowest_numbered_last_stop_pos = lowest_numbered_convoy->get_schedule()->get_prev_halt(lowest_numbered_convoy->get_owner()).is_bound() ? lowest_numbered_convoy->get_schedule()->get_prev_halt(lowest_numbered_convoy->get_owner())->get_next_pos(this_pos) : this_pos;
+				const koord highest_numbered_last_stop_pos = highest_numbered_convoy->get_schedule()->get_prev_halt(highest_numbered_convoy->get_owner()).is_bound() ? highest_numbered_convoy->get_schedule()->get_prev_halt(highest_numbered_convoy->get_owner())->get_next_pos(this_pos) : this_pos;
+
+				const uint16 lowest_numbered_convoy_distance_to_stop = shortest_distance(this_pos, lowest_numbered_last_stop_pos);
+				const uint16 highest_numbered_convoy_distance_to_stop = shortest_distance(this_pos, highest_numbered_last_stop_pos);
+
+				if (lowest_numbered_convoy_distance_to_stop <= highest_numbered_convoy_distance_to_stop)
+				{
+					// The lowest numbered convoy reverses.
+					if (lowest_numbered_convoy == cnv->self)
+					{
+						cnv->is_reversed() ? cnv->get_schedule()->advance() : cnv->get_schedule()->advance_reverse();
+						cnv->suche_neue_route(); 
+					}
+				}
+				else
+				{
+					// The highest numbered convoy reverses
+					if (highest_numbered_convoy == cnv->self)
+					{
+						cnv->is_reversed() ? cnv->get_schedule()->advance() : cnv->get_schedule()->advance_reverse();
+						cnv->suche_neue_route();
+					}
+				}
+			}
+		}
 		return false;
 	}
 
@@ -8373,7 +8422,7 @@ air_vehicle_t::~air_vehicle_t()
 void air_vehicle_t::set_convoi(convoi_t *c)
 {
 	DBG_MESSAGE("air_vehicle_t::set_convoi()","%p",c);
-	if(leading  &&  cnv) {
+	if(leading  &&  (uint64)cnv > 1ll) {
 		// free stop reservation
 		route_t const& r = *cnv->get_route();
 		if(target_halt.is_bound()) {

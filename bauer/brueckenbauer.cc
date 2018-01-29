@@ -778,7 +778,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 {
 	ribi_t::ribi ribi = ribi_type(zv);
 
-	DBG_MESSAGE("void bridge_builder_t::build_bridge()", "build from %s", start.get_str() );
+	DBG_MESSAGE("bridge_builder_t::build()", "build from %s", start.get_str());
 
 	grund_t *start_gr = welt->lookup( start );
 	const slope_t::type slope = start_gr->get_weg_hang();
@@ -1021,8 +1021,10 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 				grund_t *to = NULL;
 				if (ribi_t::is_single(ribi) && gr->get_neighbour(to, invalid_wt, ribi_t::backward(ribi))) {
 					// connect to open sea, calc_image will recompute ribi at to.
-					if (to->is_water()) {
+					if (desc->get_waytype() == water_wt  &&  to->is_water()) {
+						gr->weg_erweitern(water_wt, ribi_t::backward(ribi));
 						to->calc_image();
+						continue;
 					}
 					// only single tile under bridge => try to connect to next tile
 					way_builder_t bauigel(player);
