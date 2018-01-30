@@ -2291,6 +2291,9 @@ void karte_t::clean_threads(vector_tpl<pthread_t> *thread)
 
 sint32 karte_t::get_parallel_operations() const
 {
+#ifndef MULTI_THREAD
+	return 0;
+#else
 	sint32 po;
 	if(parallel_operations > 0 && (threads_initialised || (env_t::networkmode && !env_t::server)))
 	{
@@ -2302,6 +2305,7 @@ sint32 karte_t::get_parallel_operations() const
 	}
 
 	return po;
+#endif
 }
 
 #define array_koord(px,py) (px + py * get_size().x)
