@@ -5038,19 +5038,14 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			ware_t ware;
 			for (uint8 i = 0; i < pass_classes; i++)
 			{
-				if (max_loaded_pass[i] > 0)
-				{
-					ware = goods_manager_t::passengers;
-					freight_list_sorter_t::sort_freight(pass_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_pass[i], &ware);
-				}
+				// We pass on details of all classes - freight_list_sorter will ignore the unused ones (unless they are incorrectly occupied!)
+				ware = goods_manager_t::passengers;
+				freight_list_sorter_t::sort_freight(pass_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_pass[i], &ware);
 			}
 			for (uint8 i = 0; i < mail_classes; i++)
 			{
-				if (max_loaded_mail[i] > 0)
-				{
-					ware = goods_manager_t::mail;
-					freight_list_sorter_t::sort_freight(mail_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_mail[i], &ware);
-				}
+				ware = goods_manager_t::mail;
+				freight_list_sorter_t::sort_freight(mail_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_mail[i], &ware);
 			}
 		}
 		freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded", NULL, NULL, NULL);
