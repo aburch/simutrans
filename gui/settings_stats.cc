@@ -15,7 +15,6 @@
 #include "../vehicle/simvehicle.h"
 #include "settings_stats.h"
 
-
 /* stuff not set here ....
 INIT_NUM( "intercity_road_length", env_t::intercity_road_length);
 INIT_NUM( "diagonal_multiplier", pak_diagonal_multiplier);
@@ -245,7 +244,7 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM("visitor_demand_per_level", sets->get_visitor_demand_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
 	INIT_NUM("jobs_per_level", sets->get_jobs_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
 	INIT_NUM("mail_per_level", sets->get_mail_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
-
+	INIT_NUM("power_revenue_factor_percentage", sets->get_power_revenue_factor_percentage(), 0, 10000, gui_numberinput_t::PLAIN, false);
 	SEPERATOR;
 	INIT_NUM("forge_cost_road", sets->get_forge_cost_road(), 0, 1000000, gui_numberinput_t::PLAIN, false);
 	INIT_NUM("forge_cost_track", sets->get_forge_cost_track(), 0, 1000000, gui_numberinput_t::PLAIN, false);
@@ -343,6 +342,7 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE(sets->visitor_demand_per_level);
 	READ_NUM_VALUE(sets->jobs_per_level);
 	READ_NUM_VALUE(sets->mail_per_level);
+	READ_NUM_VALUE(sets->power_revenue_factor_percentage);
 
 	READ_NUM_VALUE(sets->forge_cost_road);
 	READ_NUM_VALUE(sets->forge_cost_track);

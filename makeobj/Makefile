@@ -1,5 +1,6 @@
 # This is for MAKEOBJ
-
+CC=gcc
+CXX=g++
 CFG ?= default
 -include ../config.$(CFG)
 
