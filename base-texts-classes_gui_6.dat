@@ -1,0 +1,10 @@
+# Simutranslator settings for Simutrans-Extended texts
+# Addendum for the reorganisation of the depot window
+#
+# Author: jamespetts
+# Created: April 2013
+#
+obj=program_text
+name=more_units
+note=Shown in the convoy assembler, when there are more good types than can be displayed
+-
