@@ -105,7 +105,7 @@ line_class_manager_t::line_class_manager_t(linehandle_t line)
 	resize(scr_coord(0, 0));
 
 	layout();
-	build_class_entries();
+	//build_class_entries();
 
 }
 
@@ -329,6 +329,8 @@ void line_class_manager_t::layout()
 		reset_all_mail_button.set_visible(true);
 	}
 	
+
+	build_class_entries();
 
 	int default_window_h = text_height;
 	int old_window_h = min(get_windowsize().h, default_window_h);
