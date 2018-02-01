@@ -619,6 +619,11 @@ public:
 	uint32 max_small_city_size;
 	uint32 max_city_size;
 
+	// The factor percentage of power revenue
+	// default: 100
+	// @author: Phystam
+	uint32 power_revenue_factor_percentage;
+
 	// player color suggestions for new games
 	bool default_player_color_random;
 	uint8 default_player_color[MAX_PLAYER_COUNT][2];
@@ -1095,6 +1100,7 @@ public:
 	uint16 get_visitor_demand_per_level() const { return visitor_demand_per_level; }
 	uint16 get_jobs_per_level() const { return jobs_per_level; }
 	uint16 get_mail_per_level() const { return mail_per_level; }
+	uint32 get_power_revenue_factor_percentage() const { return power_revenue_factor_percentage; }
 
 	uint32 get_passenger_trips_per_month_hundredths() const { return passenger_trips_per_month_hundredths; }
 	uint32 get_mail_packets_per_month_hundredths() const { return mail_packets_per_month_hundredths; }

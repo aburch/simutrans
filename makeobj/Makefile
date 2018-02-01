@@ -1,5 +1,4 @@
 # This is for MAKEOBJ
-
 CFG ?= default
 -include ../config.$(CFG)
 

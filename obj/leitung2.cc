@@ -995,7 +995,9 @@ void senke_t::step(uint32 delta_t)
 	// Income
 	
 	max_einkommen += (last_power_demand * delta_t / modified_production_delta_t);
-	einkommen += (power_load * delta_t / modified_production_delta_t);
+	// modified by Phystam, in order to balance the cost/revenue
+	// 1st Feb. 2018
+	einkommen += (power_load * delta_t / modified_production_delta_t) * welt->get_settings().get_power_revenue_factor_percentage() /100;
 
 
 	// Income rollover

@@ -450,6 +450,8 @@ settings_t::settings_t() :
 	max_small_city_size = 1000;
 	max_city_size = 5000;
 
+	power_revenue_factor_percentage=100;
+	
 	allow_making_public = true;
 
 	reroute_check_interval_steps = 8192;
@@ -1735,6 +1737,10 @@ void settings_t::rdwr(loadsave_t *file)
 		else if (file->is_loading())
 		{
 			rural_industries_no_staff_shortage = true;
+		}
+		if (file->get_extended_version() >= 13 && file->get_extended_revision() >= 4)
+		{
+			file->rdwr_long(power_revenue_factor_percentage);
 		}
 	}
 

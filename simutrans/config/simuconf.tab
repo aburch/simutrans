@@ -720,6 +720,10 @@ new_height_map_conversion = 0
 # does not affect public service provider player
 disable_make_way_public = 0
 
+# This setting alters the revenue for electricity transmission.
+# The figure is a percentage of the default revenue. Default: 100.
+power_revenue_factor_percentage = 100
+
 ################################# Tree settings #################################
 #  please be careful in changing them, I spent lot of time finding optimals.
 #  those values have impact on no. of spawned trees -> memory consumption
