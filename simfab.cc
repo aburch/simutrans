@@ -2560,13 +2560,6 @@ void fabrik_t::new_month()
 	}
 	lieferziele_active_last_month = 0;
 
-	// advance statistics a month
-	for (int s = 0; s<MAX_FAB_STAT; ++s) {
-		for (int m = MAX_MONTH - 1; m>0; --m) {
-			statistics[m][s] = statistics[m - 1][s];
-		}
-	}
-
 	// calculate weighted averages
 	if(  aggregate_weight>0  ) {
 		set_stat( weighted_sum_production / aggregate_weight, FAB_PRODUCTION );
