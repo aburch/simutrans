@@ -39,11 +39,11 @@ private:
 	uint8 total_pax_classes;
 	uint8 total_mail_classes;
 
-	uint8 good_type_0 = 0;
-	uint8 good_type_1 = 0;
-	uint8 good_type_2 = 0;
-	uint8 good_type_3 = 0;
-	uint8 good_type_4 = 0;
+	int good_type_0 = -1;
+	int good_type_1 = -1;
+	int good_type_2 = -1;
+	int good_type_3 = -1;
+	int good_type_4 = -1;
 
 	uint32 good_type_0_amount;
 	uint32 good_type_1_amount;
@@ -59,7 +59,7 @@ private:
 	vector_tpl<const vehicle_desc_t *> vehicles;
 public:
 	depot_convoi_capacity_t();
-	void set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods, uint8 pax_classes, uint8 mail_classes, uint8 good_0, uint8 good_1, uint8 good_2, uint8 good_3, uint8 good_4, uint32 good_0_amount, uint32 good_1_amount, uint32 good_2_amount, uint32 good_3_amount, uint32 good_4_amount, uint32 rest_good, uint8 catering, bool tpo);
+	void set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods, uint8 pax_classes, uint8 mail_classes, int good_0, int good_1, int good_2, int good_3, int good_4, uint32 good_0_amount, uint32 good_1_amount, uint32 good_2_amount, uint32 good_3_amount, uint32 good_4_amount, uint32 rest_good, uint8 catering, bool tpo);
 	void draw(scr_coord offset);
 };
 

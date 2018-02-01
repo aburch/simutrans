@@ -688,11 +688,11 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		int pass_class_capacity[255] = { 0 };
 		int mail_class_capacity[255] = { 0 };
 
-		uint8 good_type_0 = 0;
-		uint8 good_type_1 = 0;
-		uint8 good_type_2 = 0;
-		uint8 good_type_3 = 0;
-		uint8 good_type_4 = 0;
+		int good_type_0 = -1;
+		int good_type_1 = -1;
+		int good_type_2 = -1;
+		int good_type_3 = -1;
+		int good_type_4 = -1;
 
 		uint32 good_type_0_amount = 0;
 		uint32 good_type_1_amount = 0;
@@ -772,7 +772,6 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 						{
 							is_tpo = true;
 						}
-
 					}
 					break;
 				}
@@ -2408,7 +2407,7 @@ depot_convoi_capacity_t::depot_convoi_capacity_t()
 }
 
 //(total_pax, total_standing_pax, total_mail, total_goods, pax_classes, mail_classes)
-void depot_convoi_capacity_t::set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods, uint8 pax_classes, uint8 mail_classes, uint8 good_0, uint8 good_1, uint8 good_2, uint8 good_3, uint8 good_4, uint32 good_0_amount, uint32 good_1_amount, uint32 good_2_amount, uint32 good_3_amount, uint32 good_4_amount, uint32 rest_good, uint8 catering, bool tpo)
+void depot_convoi_capacity_t::set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods, uint8 pax_classes, uint8 mail_classes, int good_0, int good_1, int good_2, int good_3, int good_4, uint32 good_0_amount, uint32 good_1_amount, uint32 good_2_amount, uint32 good_3_amount, uint32 good_4_amount, uint32 rest_good, uint8 catering, bool tpo)
 {
 	total_pax = pax;
 	total_standing_pax = standing_pax;
