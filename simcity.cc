@@ -3339,14 +3339,17 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 					// try to find shortest possible
 					end = bridge_builder_t::find_end_pos(NULL, bd->get_pos(), zv, bridge, err, bridge_height, true);
 				}
-				if((err==NULL||*err == 0)  &&   koord_distance( k, end.get_2d())<=3) {
+				if((err==NULL||*err == 0)  &&   koord_distance( k, end.get_2d())<=3  &&  welt->is_within_limits((end+zv).get_2d())) {
 					bridge_builder_t::build_bridge(NULL, bd->get_pos(), end, zv, bridge_height, bridge, welt->get_city_road());
 					// try to build one connecting piece of road
 					build_road( (end+zv).get_2d(), NULL, false);
 					// try to build a house near the bridge end
 					uint32 old_count = buildings.get_count();
 					for(uint8 i=0; i<lengthof(koord::neighbours)  &&  buildings.get_count() == old_count; i++) {
-						build_city_building(end.get_2d()+zv+koord::neighbours[i]);
+						koord c(end.get_2d()+zv+koord::neighbours[i]);
+						if (welt->is_within_limits(c)) {
+							build_city_building(end.get_2d()+zv+koord::neighbours[i]);
+						}
 					}
 				}
 			}
