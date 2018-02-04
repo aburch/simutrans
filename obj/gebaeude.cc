@@ -2145,17 +2145,9 @@ const minivec_tpl<const planquadrat_t*> &gebaeude_t::get_tiles()
 		{
 			// A single tiled building - just add the single tile.
 			building_tiles.append(welt->access_nocheck(get_pos().get_2d()));
-#ifdef MULTI_THREAD
-			int mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
-			assert(mutex_error == 0);
-#endif
 		}
 		else
 		{
-#ifdef MULTI_THREAD
-			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
-			assert(mutex_error == 0);
-#endif
 			// A multi-tiled building: check all tiles. Any tile within the
 			// coverage radius of a building connects the whole building.
 
@@ -2178,21 +2170,17 @@ const minivec_tpl<const planquadrat_t*> &gebaeude_t::get_tiles()
 						// There may be buildings with holes.
 						if (gb_part && gb_part->get_tile()->get_desc() == bdsc)
 						{
-#ifdef MULTI_THREAD
-							int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
-							assert(mutex_error == 0);
-#endif
-							building_tiles.append(welt->access_nocheck(k.get_2d()));
-#ifdef MULTI_THREAD
-							mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
-							assert(mutex_error == 0);
-#endif
+							const planquadrat_t* plan = welt->access_nocheck(k.get_2d());
+							building_tiles.append(plan);
 						}
 					}
 				}
 			}
 		}
-
+#ifdef MULTI_THREAD
+		mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+		assert(mutex_error == 0);
+#endif
 	}
 	return building_tiles;
 }
