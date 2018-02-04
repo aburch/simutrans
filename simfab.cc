@@ -1824,52 +1824,61 @@ void fabrik_t::add_consuming_passengers(sint32 number_of_passengers)
 	menge_remainder = (uint32)(want_prod_long & ((1 << (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits)) - 1));
 
 	// Consume stock in proportion to passengers' visits
-	uint32 last_good_index = UINT32_MAX_VALUE;
-	uint32 bad_count = 0;
+	// We want to consume prod amount of each input normally. However, if
+	// some inputs are empty, then passenger visits were (or will be)
+	// scaled down, so we need to scale up consumption of those goods which are
+	// present.
+	
+
+	sint64 total_consumption_factor = 0;
 	for (uint32 index = 0; index < input.get_count(); index++)
 	{
-		uint32 v = prod;
-		if ((uint32)input[index].menge > v + 1)
-		{
-			last_good_index = index;
-			if (bad_count > 0)
-			{
-				v *= (bad_count + 1);
-				bad_count = 0;
-			}
-			input[index].menge -= v;
-			input[index].book_stat((sint64)v * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
-			// to find out if storage changed
-			delta_menge += v;
-		}	
-		else
-		{
-			delta_menge += input[index].menge;
+		total_consumption_factor +=  (sint64)desc->get_supplier(index)->get_consumption();
+	}
 
-			if (last_good_index == UINT32_MAX_VALUE)
+	sint64 total_remaining = prod * total_consumption_factor;
+
+	while (true)
+	{
+		// Each round we try to allocate demand evenly among the leftover supply
+		sint64 remaining_consumption_factor = 0;
+		for (uint32 index = 0; index < input.get_count(); index++)
+		{
+			if (input[index].menge > 0)
 			{
-				bad_count++;
+				remaining_consumption_factor +=  (sint64)desc->get_supplier(index)->get_consumption();
 			}
-			else
+		}
+
+		if (remaining_consumption_factor == 0)
+		{
+		// Nothing left to consume
+			break;
+		}
+
+		const sint64 prod_this_round = total_remaining / remaining_consumption_factor;
+		
+		if (prod_this_round <= 0)
+		{
+		// No (or very small) remaining demand
+			break;
+		}
+
+		for (uint32 index = 0; index < input.get_count(); index++)
+		{
+			sint64 prod_this_input = input[index].menge < prod_this_round ? input[index].menge : prod_this_round;
+
+			if (prod_this_input <= 0)
 			{
-				const uint32 missing_consumption = v - input[index].menge;
-				if (input[last_good_index].menge > missing_consumption)
-				{
-					input[last_good_index].menge -= missing_consumption;
-					delta_menge += missing_consumption;
-					input[last_good_index].book_stat((sint64)missing_consumption * (sint64)desc->get_supplier(last_good_index)->get_consumption(), FAB_GOODS_CONSUMED);
-				}
-				else
-				{
-					bad_count++;
-					delta_menge += input[last_good_index].menge;
-					input[last_good_index].menge = 0;
-					input[last_good_index].book_stat((sint64)input[index].menge * (sint64)desc->get_supplier(last_good_index)->get_consumption(), FAB_GOODS_CONSUMED);
-				}
+				continue;
 			}
 
-			input[index].book_stat((sint64)input[index].menge * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
-			input[index].menge = 0;
+			input[index].menge -= prod_this_input;
+			input[index].book_stat(prod_this_input * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
+			delta_menge += prod_this_input;
+
+			// Update the demand left to allocate
+			total_remaining -= prod_this_input * (sint64)desc->get_supplier(index)->get_consumption();
 		}
 	}
 }
@@ -1887,10 +1896,13 @@ bool fabrik_t::out_of_stock_selective()
 
 	const sint32 staffing_percentage = building->get_staffing_level_percentage();
 
-	if (staffing_percentage < welt->get_settings().get_minimum_staffing_percentage_consumer_industry() || (welt->get_settings().get_rural_industries_no_staff_shortage() && city == NULL))
+	if (staffing_percentage < welt->get_settings().get_minimum_staffing_percentage_consumer_industry() && !(welt->get_settings().get_rural_industries_no_staff_shortage() && city == NULL))
 	{
 		return true;
 	}
+
+	// Passengers want a particular good. If the good is unavailable, they
+	// won't come.
 
 	sint32 weight_of_out_of_stock_items = 0;
 	sint32 weight_of_all_items = 0;
@@ -1914,7 +1926,7 @@ bool fabrik_t::out_of_stock_selective()
 		return true;
 	}
 
-	const uint32 random = simrand(weight_of_all_items + 1, "bool fabrik_t::out_of_stock_selective()");
+	const uint32 random = simrand(weight_of_all_items, "bool fabrik_t::out_of_stock_selective()");
 	return random < weight_of_out_of_stock_items;
 }
 
@@ -2547,13 +2559,6 @@ void fabrik_t::new_month()
 		output[out].roll_stats(desc->get_product(out)->get_factor(), aggregate_weight);
 	}
 	lieferziele_active_last_month = 0;
-
-	// advance statistics a month
-	for (int s = 0; s<MAX_FAB_STAT; ++s) {
-		for (int m = MAX_MONTH - 1; m>0; --m) {
-			statistics[m][s] = statistics[m - 1][s];
-		}
-	}
 
 	// calculate weighted averages
 	if(  aggregate_weight>0  ) {
