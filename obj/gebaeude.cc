@@ -16,6 +16,7 @@ static pthread_mutex_t add_to_city_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 #include "../bauer/hausbauer.h"
+#include "../bauer/goods_manager.h"
 #include "../gui/money_frame.h"
 #include "../simworld.h"
 #include "../simobj.h"
@@ -1306,7 +1307,7 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 	int class_percentage_job[255] = { 0 };
 
 	// Does this building have any class related stuff assigned?
-	if (h.get_number_of_class_proportions() == 0)
+	if (h.get_class_proportions_sum() == 0)
 	{
 		for (int i = 0; i < pass_classes; i++)
 		{
@@ -1317,57 +1318,32 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 	// Apparently it does (if it continues past this point), so lets get on with the calculations!
 	else
 	{
-		long double class_proportions_sum = h.get_class_proportions_sum();
+		int class_proportions_sum = h.get_class_proportions_sum();
 		int count_to_hundred = 0;
 
 		// Calculate how much each class is as a percentage of the total amount
 		// Remember, each class proportion is *cumulative* with all previous class proportions.
-		long double last_class_proportion = 0.0;
-		for (int i = 0; i < h.get_number_of_class_proportions(); i++)
+		int last_class_proportion = 0;
+		for (int i = 0; i < pass_classes; i++)
 		{
-			class_percentage[i] = (h.get_class_proportion(i) - last_class_proportion) / class_proportions_sum * 100;
+			class_percentage[i] = (h.get_class_proportion(i) - last_class_proportion) * 100 / class_proportions_sum;
 			last_class_proportion = h.get_class_proportion(i);
 			count_to_hundred += class_percentage[i];
 		}
 
-		// Since rounding errors occur, we need to correct that, so the total percentage stays at 100%
-		if (count_to_hundred < 100)
+		//  We rounded down, so lets increase some of the figures to make the sum 100%
+		while (count_to_hundred < 100)
 		{
-			bool hundred_yet = false;
-			for (int i = 0; hundred_yet == false; i++)
+			for (int i = 0; i < pass_classes; i++)
 			{
-				for (int j = 0; j < h.get_number_of_class_proportions(); j++)
+				if (h.get_class_proportion(i) != 0)
 				{
-					if (class_percentage[j] != 0 && count_to_hundred < 100)
-					{
-						class_percentage[j]++;
-						count_to_hundred++;
-					}
+					class_percentage[i]++;
+					count_to_hundred++;
 				}
 				if (count_to_hundred >= 100)
 				{
-					hundred_yet = true;
-				}
-			}
-		}
-
-		// And just to make sure there is no rounding errors the other way too..
-		if (count_to_hundred > 100)
-		{
-			bool hundred_yet = false;
-			for (int i = 0; hundred_yet == false; i++)
-			{
-				for (int j = 0; j < h.get_number_of_class_proportions(); j++)
-				{
-					if (class_percentage[j] != 0 && count_to_hundred > 100)
-					{
-						class_percentage[j]--;
-						count_to_hundred--;
-					}
-				}
-				if (count_to_hundred <= 100)
-				{
-					hundred_yet = true;
+					break;
 				}
 			}
 		}
@@ -1375,7 +1351,7 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 
 
 	// And now the poor commuters deserves the same threatment..
-	if (h.get_number_of_class_proportions_jobs() == 0)
+	if (h.get_class_proportions_sum_jobs() == 0)
 	{
 		for (int i = 0; i < pass_classes; i++)
 		{
@@ -1384,51 +1360,30 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 	}
 	else
 	{
-		long double class_proportions_sum = h.get_class_proportions_sum_jobs();
+		int class_proportions_sum = h.get_class_proportions_sum_jobs();
 		int count_to_hundred = 0;
-		long double last_class_proportion = 0.0;
+		int last_class_proportion = 0;
 
-		for (int i = 0; i < h.get_number_of_class_proportions_jobs(); i++)
+		for (int i = 0; i < pass_classes; i++)
 		{
 			class_percentage_job[i] = (h.get_class_proportion_jobs(i) - last_class_proportion) / class_proportions_sum * 100;
 			last_class_proportion = h.get_class_proportion_jobs(i);
 			count_to_hundred += class_percentage_job[i];
 		}
-		if (count_to_hundred < 100)
+
+		//  We rounded down, so lets increase some of the figures to make the sum 100%
+		while (count_to_hundred < 100)
 		{
-			bool hundred_yet = false;
-			for (int i = 0; hundred_yet == false; i++)
+			for (int i = 0; i < pass_classes; i++)
 			{
-				for (int j = 0; j < h.get_number_of_class_proportions_jobs(); j++)
+				if (h.get_class_proportion_jobs(i) != 0)
 				{
-					if (class_percentage_job[j] != 0 && count_to_hundred < 100)
-					{
-						class_percentage_job[j]++;
-						count_to_hundred++;
-					}
+					class_percentage_job[i]++;
+					count_to_hundred++;
 				}
 				if (count_to_hundred >= 100)
 				{
-					hundred_yet = true;
-				}
-			}
-		}
-		if (count_to_hundred > 100)
-		{
-			bool hundred_yet = false;
-			for (int i = 0; hundred_yet == false; i++)
-			{
-				for (int j = 0; j < h.get_number_of_class_proportions_jobs(); j++)
-				{
-					if (class_percentage_job[j] != 0 && count_to_hundred > 100)
-					{
-						class_percentage_job[j]--;
-						count_to_hundred--;
-					}
-				}
-				if (count_to_hundred <= 100)
-				{
-					hundred_yet = true;
+					break;
 				}
 			}
 		}
@@ -2095,7 +2050,9 @@ uint8 gebaeude_t::get_random_class(const goods_desc_t * wtyp)
 	// TODO: Allow this to be modified when dynamic building occupation
 	// is introduced with the (eventual) new town growth code.
 
-	const uint8 number_of_classes = wtyp->get_number_of_classes();
+	// At present, mail classes are handled rather badly.
+
+	const uint8 number_of_classes = goods_manager_t::passengers->get_number_of_classes();
 
 	if (number_of_classes == 1)
 	{
@@ -2104,21 +2061,21 @@ uint8 gebaeude_t::get_random_class(const goods_desc_t * wtyp)
 
 	const uint32 sum = get_tile()->get_desc()->get_class_proportions_sum();
 
-	if (sum == 0)
+	if (sum == 0 || wtyp != goods_manager_t::passengers)
 	{
 		// If the building has a zero sum of class proportions, as is the default, assume
 		// an equal chance of any given class being generated from here.
-		return (uint8)simrand(number_of_classes, "uint8 gebaeude_t::get_random_class() const (fixed)");
+		// Also, we don't have sensible figures to use for mail.
+		return (uint8)simrand(wtyp->get_number_of_classes(), "uint8 gebaeude_t::get_random_class() const (fixed)");
 	}
 
-	const uint8 iterations = min(get_tile()->get_desc()->get_number_of_class_proportions(), number_of_classes);
-	const uint16 random = simrand(sum + 1, "uint8 gebaeude_t::get_random_class() const (multiple classes)");
+	const uint16 random = simrand(sum, "uint8 gebaeude_t::get_random_class() const (multiple classes)");
 
 	uint8 g_class = 0;
 
-	for (uint8 i = 0; i < iterations; i++)
+	for (uint8 i = 0; i < number_of_classes; i++)
 	{
-		if (random <= get_tile()->get_desc()->get_class_proportion(i))
+		if (random < get_tile()->get_desc()->get_class_proportion(i))
 		{
 			g_class = i;
 			break;

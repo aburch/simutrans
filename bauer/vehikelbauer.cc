@@ -211,9 +211,13 @@ bool vehicle_builder_t::successfully_loaded()
 		std::sort(tmp, tmp_end, compare_vehicle_desc);
 		for(  vehicle_desc_t** tmpptr = tmp;  tmpptr != tmp_end;  tmpptr++  ) {
 			typ_liste.append(*tmpptr);
+
+			(*tmpptr)->fix_number_of_classes();
 		}
 		delete [] tmp;
 	}
+
+
 	return true;
 }
 

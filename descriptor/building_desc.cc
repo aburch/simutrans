@@ -9,6 +9,7 @@
 
 #include "building_desc.h"
 #include "../network/checksum.h"
+#include "../bauer/goods_manager.h"
 
 
 
@@ -142,6 +143,30 @@ int building_desc_t::adjust_layout(int layout) const
 	return layout;
 }
 
+void building_desc_t::fix_number_of_classes()
+{
+	uint8 number_of_classes = goods_manager_t::passengers->get_number_of_classes();
+	
+	while (class_proportions.get_count() < number_of_classes)
+	{
+		class_proportions.append(class_proportions_sum);
+	}
+	if (class_proportions.get_count() > number_of_classes)
+	{
+		class_proportions.set_count(number_of_classes);
+		class_proportions[number_of_classes-1] = class_proportions_sum;
+	}
+
+	while (class_proportions_jobs.get_count() < number_of_classes)
+	{
+		class_proportions_jobs.append(class_proportions_sum_jobs);
+	}
+	if (class_proportions_jobs.get_count() > number_of_classes)
+	{
+		class_proportions.set_count(number_of_classes);
+		class_proportions_jobs[number_of_classes-1] += class_proportions_sum_jobs;
+	}
+}
 
 void building_desc_t::calc_checksum(checksum_t *chk) const
 {

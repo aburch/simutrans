@@ -214,3 +214,13 @@ sint64 goods_desc_t::get_refund(uint32 distance_meters) const
  	sint64 fare = get_base_fare(distance_meters);
 	return fare * 2;
 }
+
+void goods_desc_t::fix_number_of_classes()
+{
+	// Only passengers and mail are allowed multiple classes
+	if (goods_index >= 3 && number_of_classes > 1)
+	{
+		number_of_classes = 1;
+		class_revenue_percentages.set_count(1);
+	}
+}

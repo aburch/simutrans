@@ -2,6 +2,7 @@
 #include "xref_desc.h"
 #include "../network/checksum.h"
 #include "../simworld.h"
+#include "../bauer/goods_manager.h"
 
 uint32 vehicle_desc_t::calc_running_cost(const karte_t *welt, uint32 base_cost) const
 {
@@ -233,6 +234,53 @@ uint16 vehicle_desc_t::get_obsolete_year_month(const karte_t *welt) const
 	else
 	{
 		return retire_date + (welt->get_settings().get_default_increase_maintenance_after_years((waytype_t)wtyp) * 12);
+	}
+}
+
+void vehicle_desc_t::fix_number_of_classes()
+{
+	// We can call this safely since we fixed the number of classes
+	// stored in the good desc earlier when registering it.
+	uint8 actual_number_of_classes = get_freight_type()->get_number_of_classes();
+
+	if (actual_number_of_classes == 0)
+	{
+		classes = 0;
+		return;
+	}
+
+	while (classes > actual_number_of_classes)
+	{
+		capacity[classes-2]+=capacity[classes-1];
+		classes --;
+	}
+
+	if (classes < actual_number_of_classes)
+	{
+		uint8 *comfort_copy = new uint8[classes];
+		uint16 *capacity_copy = new uint16[classes];
+		for (uint8 i = 0; i < classes; i++)
+		{
+			comfort_copy[i] = comfort[i];
+			capacity_copy[i] = capacity[i];
+		}
+		delete[] comfort;
+		delete[] capacity;
+		comfort = new uint8[actual_number_of_classes];
+		capacity = new uint16[actual_number_of_classes];
+		for (uint8 i = 0; i < classes; i++)
+		{
+			comfort[i] = comfort_copy[i];
+			capacity[i] = capacity_copy[i];
+		}
+		for (uint8 i = classes; i < actual_number_of_classes; i++)
+		{
+			comfort[i] = 0;
+			capacity[i] = 0;
+		}
+		classes = actual_number_of_classes;
+		delete[] comfort_copy;
+		delete[] capacity_copy;
 	}
 }
 

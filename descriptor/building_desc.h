@@ -431,12 +431,12 @@ public:
 	uint16 get_employment_capacity() const { return employment_capacity; }
 	uint16 get_mail_demand_and_production_capacity() const { return mail_demand_and_production_capacity; }
 
-	uint32 get_number_of_class_proportions() const { return class_proportions.get_count(); }
-	uint32 get_number_of_class_proportions_jobs() const { return class_proportions_jobs.get_count(); }
 	uint16 get_class_proportion(uint8 index) const { return class_proportions[index]; }
 	uint16 get_class_proportion_jobs(uint8 index) const { return class_proportions_jobs[index]; }
 	uint32 get_class_proportions_sum() const { return class_proportions_sum; }
 	uint32 get_class_proportions_sum_jobs() const { return class_proportions_sum_jobs; }
+
+	void fix_number_of_classes();
 
 	static uint8 get_city_building_max_size() { return city_building_max_size; }
 };

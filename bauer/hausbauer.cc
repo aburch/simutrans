@@ -178,6 +178,9 @@ bool hausbauer_t::successfully_loaded()
 				// obsolete object, usually such pak set will not load properly anyway (old objects should be caught before!)
 				dbg->error("hausbauer_t::successfully_loaded()","unknown subtype %i of \"%s\" ignored",desc->get_type(),desc->get_name());
 		}
+
+		// Casting away the const is nasty:
+		((building_desc_t*)desc)->fix_number_of_classes();
 	}
 
 	// now sort them according level
@@ -188,6 +191,8 @@ bool hausbauer_t::successfully_loaded()
 
 bool hausbauer_t::register_desc(building_desc_t *desc)
 {
+	// We might still need to fix the number of classes, so the const will
+	// be casted away (temporarily) in succesfully_loaded()
 	const building_desc_t* const_desc = desc;
 
 	::register_desc(special_objects, const_desc);

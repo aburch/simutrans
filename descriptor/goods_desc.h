@@ -215,6 +215,8 @@ public:
 	{
 		return class_revenue_percentages[g_class];
 	}
+
+	void fix_number_of_classes();
 };
 
 #endif
