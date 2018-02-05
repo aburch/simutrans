@@ -4203,17 +4203,22 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				}
 
 				uint8 class_count_this_catg;
+				uint8 actual_class_count_this_catg;
+
 				if (i == goods_manager_t::INDEX_PAS)
 				{
 					class_count_this_catg = passenger_classes;
+					actual_class_count_this_catg = goods_manager_t::passengers->get_number_of_classes();
 				}
 				else if (i == goods_manager_t::INDEX_MAIL)
 				{
 					class_count_this_catg = mail_classes;
+					actual_class_count_this_catg = goods_manager_t::mail->get_number_of_classes();
 				}
 				else
 				{
 					class_count_this_catg = 1;
+					actual_class_count_this_catg = 1;
 				}
 
 				for (uint8 j = 0; j < class_count_this_catg; j++)
@@ -4285,7 +4290,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						}
 						set.month = month;
 						set.times = list;
-						waiting_times[i][j].put(id, set);
+
+						// Discard the data if we have fewer classes than the savegame
+						if (j < actual_class_count_this_catg){
+							waiting_times[i][j].put(id, set);
+						}
 					}
 				}
 			}

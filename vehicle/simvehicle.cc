@@ -2580,32 +2580,28 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	xml_tag_t r( file, "vehicle_t" );
 
 	obj_t::rdwr(file);
+	uint8 saved_number_of_classes = number_of_classes;
 
 	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
 	{
-		// We need to save this in case "desc" cannot be found on re-loading because
-		// of some pakset changes.
+		// We needed to save this in case "desc" could not be found on re-loading because
+		// of some pakset changes. Now we save this for compatibility, and also in
+		// case the number of classes in the pakset changes.
 
-		if (file->is_saving())
-		{
-			number_of_classes = desc->get_number_of_classes();
-		}
-		file->rdwr_byte(number_of_classes);
+		file->rdwr_byte(saved_number_of_classes);
 	}
 	else if (file->is_loading())
 	{
-		// We need to re-set this to the correct value
-		// after we load desc.
-		number_of_classes = 1;
+		saved_number_of_classes = 1;
 	}
 
 	sint32 total_fracht_count = 0;
-	sint32* fracht_count = new sint32[number_of_classes];
+	sint32* fracht_count = new sint32[saved_number_of_classes];
 	bool create_dummy_ware = false;
 
 	if (file->is_saving()) 
 	{
-		for (uint8 i = 0; i < number_of_classes; i++)
+		for (uint8 i = 0; i < saved_number_of_classes; i++)
 		{
 			fracht_count[i] = fracht[i].get_count();
 			total_fracht_count += fracht_count[i];
@@ -2615,12 +2611,9 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		// when no desc is given
 		if (total_fracht_count == 0 && (desc->get_freight_type() != goods_manager_t::none) && desc->get_total_capacity() > 0)
 		{
+			total_fracht_count = 1;
 			fracht_count[0] = 1;
 			create_dummy_ware = true;
-		}
-		else
-		{
-			int a = 1 + 1;
 		}
 	}
 
@@ -2679,7 +2672,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 		file->rdwr_enum(previous_direction);
 		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
 		{
-			for (uint8 i = 0; i < number_of_classes; i++)
+			for (uint8 i = 0; i < saved_number_of_classes; i++)
 			{
 				file->rdwr_long(fracht_count[i]); 
 			}
@@ -2761,7 +2754,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			dbg->warning("vehicle_t::rdwr_from_convoi()","no vehicle pak for '%s' search for something similar", s);
 		}
 	}
-
+	
 	if(file->is_saving())
 	{
 		if (create_dummy_ware)
@@ -2775,7 +2768,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			ware.rdwr(file);
 		}
 
-		for (uint8 i = 0; i < number_of_classes; i++)
+		for (uint8 i = 0; i < saved_number_of_classes; i++)
 		{
 			FOR(slist_tpl<ware_t>, ware, fracht[i])
 			{
@@ -2786,24 +2779,19 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	}
 	else // Loading
 	{
+		slist_tpl<ware_t> *temp_fracht = new slist_tpl<ware_t>[saved_number_of_classes];
+
 		if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
 		{
-			const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
-			class_reassignments = new uint8[desc ? max(max_classes, desc->get_number_of_classes()) : max_classes];
-			fracht = new slist_tpl<ware_t>[desc ? max(max_classes, desc->get_number_of_classes()) : max_classes];
-			uint8 cr;
-
-			for (uint8 i = 0; i < number_of_classes; i++)
+			for (uint8 i = 0; i < saved_number_of_classes; i++)
 			{
-				const uint8 x = min(i, desc ? desc->get_number_of_classes() - 1 : 1);
-				const uint32 assumed_count = max((create_dummy_ware && (total_fracht_count) > 0 ? 1 : 0), fracht_count[x]);
-				for (uint32 j = 0; j < assumed_count; j++)
+				for (uint32 j = 0; j < fracht_count[i]; j++)
 				{
 					ware_t ware(file);
 					if ((desc == NULL || ware.menge > 0) && welt->is_within_limits(ware.get_zielpos()) && ware.get_desc())
 					{
 						// also add, of the desc is unknown to find matching replacement
-						fracht[x].insert(ware);
+						temp_fracht[i].insert(ware);
 #ifdef CACHE_TRANSIT
 						/*
 						* It's very easy for in-transit information to get corrupted,
@@ -2840,10 +2828,6 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			// clases defaults to 1 and we have to read this from
 			// desc.
 			
-			const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
-			class_reassignments = new uint8[desc ? max(max_classes, desc->get_number_of_classes()) : max_classes];
-			fracht = new slist_tpl<ware_t>[desc ? max(max_classes, desc->get_number_of_classes()) : max_classes];
-
 			for (int i = 0; i < total_fracht_count; i++)
 			{
 				// From an older version with no classes, so put all the ware
@@ -2852,7 +2836,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 				if ((desc == NULL || ware.menge > 0) && welt->is_within_limits(ware.get_zielpos()) && ware.get_desc())
 				{
 					// also add, of the desc is unknown to find matching replacement
-					fracht[0].insert(ware);
+					temp_fracht[0].insert(ware);
 #ifdef CACHE_TRANSIT
 					/*
 					* It's very easy for in-transit information to get corrupted,
@@ -2874,7 +2858,41 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 				}
 			}
 		}
+		
+		// Work out the number of classes we should have, based
+		// on desc (if known) else contained goods (if known),
+		// else assume passengers. This must be consistent with the
+		// algorithm used to replace missing vehicles.
+		if (desc == NULL)
+		{
+			const goods_desc_t* gd = NULL;
+			ware_t ware;
+			for (uint8 i = 0; i < saved_number_of_classes; i++)
+			{
+				if (!temp_fracht[i].empty())
+				{
+					ware = temp_fracht[i].front();
+					gd = ware.get_desc();
+					break;
+				}
+			}
+			number_of_classes = gd ? gd->get_number_of_classes() : goods_manager_t::passengers->get_number_of_classes();
+		}
+		else
+		{
+			number_of_classes = desc->get_number_of_classes();
+		}
+
+		fracht = new slist_tpl<ware_t>[number_of_classes];
+		
+		for (uint8 i = 0; i < saved_number_of_classes; i++)
+		{
+			fracht[min(i, number_of_classes-1)].append_list(temp_fracht[i]);
+		}
+		delete[]temp_fracht;
 	}
+
+	delete[]fracht_count;
 
 	// skip first last info (the convoi will know this better than we!)
 	if(file->get_version()<88007) {
@@ -2972,42 +2990,33 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 	{
 		current_livery = "default";
 	}
-
-	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
+	
+	if (file->is_loading())
 	{
-		for (uint8 i = 0; i < (desc ? desc->get_number_of_classes() : number_of_classes); i++)
-		{
-			if (i < number_of_classes)
-			{
-				uint8 cr = class_reassignments[i];
-				file->rdwr_byte(cr);
-				if (desc && ((desc->get_freight_type() == goods_manager_t::passengers && cr >= goods_manager_t::passengers->get_number_of_classes()) || (desc->get_freight_type() == goods_manager_t::mail && cr >= goods_manager_t::mail->get_number_of_classes())))
-				{
-					// Broken saved game - fix this value
-					cr = i;
-				}
-				class_reassignments[i] = cr;
-			}
-			else
-			{
-				// Deal with the situation where the number of classes on a type of vehicle
-				// has increased since the game was saved.
-				class_reassignments[i] = i;
-			}
-		}
-	}
-	else
-	{
-		for (uint8 i = 0; i < (desc ? desc->get_number_of_classes() : number_of_classes); i++)
+		// Set sensible defaults.
+		class_reassignments = new uint8[number_of_classes];
+		for (uint8 i = 0; i < number_of_classes; i++)
 		{
 			class_reassignments[i] = i;
 		}
 	}
 
+	if (file->get_extended_version() >= 13 || file->get_extended_revision() >= 22)
+	{
+		for (uint8 i = 0; i < saved_number_of_classes; i++)
+		{
+			uint8 cr = class_reassignments[i];
+			file->rdwr_byte(cr);
+			if (i < number_of_classes)
+			{
+				class_reassignments[i] = min(cr, saved_number_of_classes - 1);
+			}
+		}
+	}
+
+
 	if (file->is_loading())
 	{
-		// Moved here from above to access the number_of_classes datum
-
 		leading = last = false;	// dummy, will be set by convoi afterwards
 		if (desc) {
 			calc_image();
@@ -3026,8 +3035,6 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			}
 		}
 	}
-
-	delete[]fracht_count;
 }
 
 
@@ -3360,6 +3367,7 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) 
 			}
 			if (!gd)
 			{
+				// Important: This must be the same default ware as used in rdwr_from_convoi.
 				gd = goods_manager_t::passengers;
 			}
 
@@ -4075,6 +4083,7 @@ rail_vehicle_t::rail_vehicle_tloadsave_t *file, bool is_leading, bool is_last) :
 			}
 			if (!gd)
 			{
+				// Important: This must be the same default ware as used in rdwr_from_convoi.
 				gd = goods_manager_t::passengers;
 			}
 
@@ -7226,6 +7235,7 @@ water_vehicle_t::water_vehicle_t(loadsave_t *file, bool is_leading, bool is_last
 			}
 			if (!gd)
 			{
+				// Important: This must be the same default ware as used in rdwr_from_convoi.
 				gd = goods_manager_t::passengers;
 			}
 
@@ -8372,6 +8382,7 @@ air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) :
 			}
 			if (!gd)
 			{
+				// Important: This must be the same default ware as used in rdwr_from_convoi.
 				gd = goods_manager_t::passengers;
 			}
 

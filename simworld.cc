@@ -11192,7 +11192,7 @@ void karte_t::privatecar_rdwr(loadsave_t *file)
 		file->rdwr_byte(number_of_passenger_classes);
 	}
 
-	for (uint8 cl = 0; cl < number_of_passenger_classes && cl < goods_manager_t::passengers->get_number_of_classes(); cl++)
+	for (uint8 cl = 0; cl < number_of_passenger_classes; cl++)
 	{
 		if (file->is_saving())
 		{
@@ -11216,8 +11216,11 @@ void karte_t::privatecar_rdwr(loadsave_t *file)
 			{
 				file->rdwr_longlong(year);
 				file->rdwr_short(ownership_percent);
-				car_ownership_record_t cow(year / 12, ownership_percent);
-				car_ownership[cl].append(cow);
+				if (cl < goods_manager_t::passengers->get_number_of_classes())
+				{
+					car_ownership_record_t cow(year / 12, ownership_percent);
+					car_ownership[cl].append(cow);
+				}
 			}
 		}
 	}
