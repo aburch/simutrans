@@ -3129,8 +3129,10 @@ void vehicle_t::set_class_reassignment(uint8 original_class, uint8 new_class)
 	class_reassignments[original_class] = new_class;
 	if (different)
 	{
-		path_explorer_t::refresh_class_category(get_desc()->get_freight_type()->get_catg(), original_class);
-		path_explorer_t::refresh_class_category(get_desc()->get_freight_type()->get_catg(), new_class);
+		for (uint8 i = min(original_class, new_class); i < max(original_class, new_class); i++)
+		{
+			path_explorer_t::refresh_class_category(get_desc()->get_freight_type()->get_catg(), i);
+		}
 	}
 }
 
