@@ -931,7 +931,8 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 							// Calculate the revenue for each packet.
 							// Also, add to the "apportioned revenues" for way tolls.
 
-							const uint8 class_of_accommodation = class_reassignments[j];
+							// Don't charge a higher class that the passenger is willing to pay, in case the accommodation was reassigned enroute.
+							const uint8 class_of_accommodation = min(class_reassignments[j], tmp.get_class());
 
 							revenue_from_unloading += menge > 0 ? cnv->calc_revenue(tmp, apportioned_revenues, class_of_accommodation) : 0;
 
