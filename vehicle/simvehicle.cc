@@ -1156,6 +1156,71 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 	return (total_freight < total_capacity && !other_classes_available);
 }
 
+void vehicle_t::fix_class_accommodations()
+{
+	if (desc->get_total_capacity() == 0)
+	{
+		// Vehicle ought to be empty - perhaps we should check this.
+		return;
+	}
+	// Any wares in invalid accommodation will be moved to the highest
+	// available accommodation. If all accommodation is full, the lowest
+	// class of accommodation will be overloaded (as with normal
+	//overcrowding).
+	vector_tpl<ware_t> wares_to_move;
+	int pos = -1;
+	int lowest_available_class = -1;
+	int load[number_of_classes];
+	int capacity[number_of_classes];
+	for (uint i = 0; i < number_of_classes; i++)
+	{
+		capacity[i] = get_accommodation_capacity(i);
+		load[i] = 0;
+		if (capacity[i] > 0 && lowest_available_class == -1)
+		{
+			lowest_available_class = i;
+			continue;
+		}
+		FOR(slist_tpl<ware_t>, &tmp, fracht[i])
+		{
+			load[i] += tmp.menge;
+			if (load[i] > capacity[i])
+			{
+				ware_t moved_ware = tmp;
+				moved_ware.menge = load[i] - capacity[i];
+				tmp.menge -= load[i] - capacity[i];
+				load[i] = capacity[i];
+				wares_to_move.append(moved_ware);
+				pos++;
+			}
+		}
+	}
+	uint i = number_of_classes - 1;
+	while (pos >= 0)
+	{
+		if (load[i] >= capacity[i] && i != lowest_available_class)
+		{
+			i--;
+			continue;
+		}
+		load[i] += wares_to_move[pos].menge;
+		if (load[i] > capacity[i] && i != lowest_available_class)
+		{
+			ware_t ware_copy = wares_to_move[pos];
+			ware_copy.menge = wares_to_move[pos].menge + capacity[i] - load[i];
+			wares_to_move[pos].menge = load[i] - capacity[i];
+			fracht[i].append(ware_copy);
+			load[i] = capacity[i];
+			i--;
+		}
+		else
+		{
+			fracht[i].append(wares_to_move[pos]);
+			pos--;
+		}
+	}
+}
+
 
 /**
  * Remove freight that no longer can reach its destination
@@ -3181,6 +3246,7 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) 
 			last_desc = desc;
 		}
 	}
+	fix_class_accommodations();
 	is_checker = false;
 	drives_on_left = welt->get_settings().is_drive_left();
 }
@@ -3909,6 +3975,7 @@ DBG_MESSAGE("rail_vehicle_t::rail_vehicle_t()","replaced by %s",desc->get_name()
 			last_desc = desc;
 		}
 	}
+	fix_class_accommodations();
 }
 
 #ifdef INLINE_OBJ_TYPE
@@ -7044,6 +7111,7 @@ water_vehicle_t::water_vehicle_t(loadsave_t *file, bool is_leading, bool is_last
 			last_desc = desc;
 		}
 	}
+	fix_class_accommodations();
 }
 
 void water_vehicle_t::enter_tile(grund_t* gr)
@@ -8191,6 +8259,7 @@ air_vehicle_t::air_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) :
 			last_desc = desc;
 		}
 	}
+	fix_class_accommodations();
 }
 
 

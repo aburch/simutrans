@@ -161,6 +161,8 @@ protected:
 	// only needed for old way of moving vehicles to determine position at loading time
 	bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const;
 
+	void fix_class_accommodations();
+
 	// Players are able to reassign classes of accommodation in vehicles manually
 	// during the game. Track these reassignments here with this array.
 	uint8 *class_reassignments;
