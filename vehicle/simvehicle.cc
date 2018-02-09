@@ -1168,11 +1168,13 @@ void vehicle_t::fix_class_accommodations()
 	// class of accommodation will be overloaded (as with normal
 	//overcrowding).
 	vector_tpl<ware_t> wares_to_move;
-	int pos = -1;
-	int lowest_available_class = -1;
-	int load[number_of_classes];
-	int capacity[number_of_classes];
-	for (uint i = 0; i < number_of_classes; i++)
+	sint32 pos = -1;
+	sint32 lowest_available_class = -1;
+
+	vector_tpl<sint32> load(number_of_classes);
+	vector_tpl<sint32> capacity(number_of_classes);
+
+	for (uint32 i = 0; i < number_of_classes; i++)
 	{
 		capacity[i] = get_accommodation_capacity(i);
 		load[i] = 0;
@@ -1195,7 +1197,7 @@ void vehicle_t::fix_class_accommodations()
 			}
 		}
 	}
-	uint i = number_of_classes - 1;
+	sint32 i = number_of_classes - 1;
 	while (pos >= 0)
 	{
 		if (load[i] >= capacity[i] && i != lowest_available_class)
@@ -2103,7 +2105,7 @@ void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 	const goods_desc_t* ware_desc = get_desc()->get_freight_type();
 	const uint16 menge = get_desc()->get_total_capacity();
 	
-	vector_tpl<ware_t> fracht_array[number_of_classes];
+	vector_tpl<vector_tpl<ware_t>> fracht_array(number_of_classes);
 	for (uint8 i = 0; i < number_of_classes; i++)
 	{
 		FOR(slist_tpl<ware_t>, w, fracht[i])
