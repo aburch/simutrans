@@ -1531,8 +1531,6 @@ public:
 
 	bool carries_this_or_lower_class(uint8 catg, uint8 g_class) const;
 
-	bool check_fresh_carries_class(uint8 catg, uint8 g_class) const;
-
 	const minivec_tpl<uint8>* get_classes_carried(uint8 catg) const 
 	{ 
 		if (catg == goods_manager_t::INDEX_PAS)

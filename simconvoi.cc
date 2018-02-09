@@ -7996,22 +7996,3 @@ bool convoi_t::carries_this_or_lower_class(uint8 catg, uint8 g_class) const
 
 	return false;
 }
-
-bool convoi_t::check_fresh_carries_class(uint8 catg, uint8 g_class) const
-{
-	for (const_iterator i = begin(); i != end(); ++i)
-	{
-		const vehicle_t &v = **i;
-		if (v.get_desc()->get_freight_type()->get_catg_index() != catg)
-		{
-			continue;
-		}
-
-		if (v.get_capacity(g_class) > 0)
-		{
-			return true;
-		}
-	}
-
-	return false;
-}

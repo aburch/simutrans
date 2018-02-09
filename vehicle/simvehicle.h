@@ -410,7 +410,7 @@ public:
 	void set_route_index(uint16 value) { route_index = value; }
 	const koord3d get_pos_prev() const {return pos_prev;}
 
-    virtual route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route = NULL);
+	virtual route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route = NULL);
 
 	/**
 	* Get the base image.
@@ -551,8 +551,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void get_cargo_info(cbuffer_t & buf) const;
-
-	void get_cargo_class_info(cbuffer_t & buf) const;
 
 	// Check for straightness of way.
 	//@author jamespetts
@@ -1034,7 +1032,7 @@ public:
 	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route);
 
 	// BG, 08.08.2012: extracted from can_enter_tile()
-    route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel);
+	route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel);
 
 #ifdef INLINE_OBJ_TYPE
 #else

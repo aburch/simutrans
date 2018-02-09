@@ -1063,14 +1063,13 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 		schedule_t *schedule = cnv->get_schedule();
 		uint16 capacity_left = total_capacity - total_freight;
 		slist_tpl<ware_t> freight_add;
-		const uint8 classes_to_check = get_desc()->get_freight_type() == goods_manager_t::passengers ? goods_manager_t::passengers->get_number_of_classes() : get_desc()->get_freight_type() == goods_manager_t::mail ? goods_manager_t::mail->get_number_of_classes() : 1; 
 		uint16 capacity_this_class;
 		uint32 freight_this_class;
 		uint8 lowest_class_with_nonzero_capacity = 255;
 
 		*skip_vehicles = true;
 
-		for (uint8 i = 0; i < classes_to_check; i++)
+		for (uint8 i = 0; i < number_of_classes; i++)
 		{
 			capacity_this_class = get_capacity(i);
 			if (capacity_this_class == 0)
@@ -1365,17 +1364,16 @@ vehicle_t::vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player) 
 	hop_count = 0;
 	base_costs = 0;
 	diagonal_costs = 0;
-    hill_up = 0;
-    hill_down = 0;
+	hill_up = 0;
+	hill_down = 0;
 	current_livery = "default";
 	number_of_classes = desc->get_number_of_classes();
-	const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
 
-	class_reassignments = new uint8[max_classes];
-	fracht = new slist_tpl<ware_t>[max_classes];
-	for (uint32 i = 0; i < max_classes; i++)
+	fracht = new slist_tpl<ware_t>[number_of_classes];
+	class_reassignments = new uint8[number_of_classes];
+	for (uint32 i = 0; i < number_of_classes; i++)
 	{
-		// Initialise theese with default values.
+		// Initialise these with default values.
 		class_reassignments[i] = i;
 	}
 }
@@ -1413,8 +1411,8 @@ vehicle_t::vehicle_t() :
 	hop_count = 0;
 	base_costs = 0;
 	diagonal_costs = 0;
-    hill_up = 0;
-    hill_down = 0;
+	hill_up = 0;
+	hill_down = 0;
 	current_livery = "default";
 	
 	// These cannot be set substantively here
@@ -1427,57 +1425,21 @@ vehicle_t::vehicle_t() :
 
 void vehicle_t::set_desc(const vehicle_desc_t* value)
 {
-	const uint8 new_number_of_classes = value ? value->get_number_of_classes() : 1; 
-
-	if (new_number_of_classes > number_of_classes)
+	// Used when upgrading vehicles.
+	
+	// Empty the vehicle (though it should already be empty).
+	// We would otherwise have to check passengers occupied valid accommodation.
+	for (uint8 i = 0; i < number_of_classes; i++)
 	{
-		// The array of class reassignments and loaded passengers need refreshing completely.
-		// Given that the new vehicle is a mystery, do not presume to copy the class reassignments.
-		slist_tpl<ware_t> *temp_fracht;
-		temp_fracht = new slist_tpl<ware_t>[number_of_classes];
-
-		for (uint8 i = 0; i < number_of_classes; i++)
+		if (!fracht[i].empty())
 		{
-			FOR(slist_tpl<ware_t>, w, fracht[i])
-			{
-				temp_fracht[i].append(w);
-			}
-		}
-
-		delete[] fracht;
-		delete[] class_reassignments;
-		
-		const uint8 max_classes = max(goods_manager_t::passengers->get_number_of_classes(), goods_manager_t::mail->get_number_of_classes());
-
-		class_reassignments = new uint8[max_classes];
-		fracht = new slist_tpl<ware_t>[max_classes];
-
-		for (uint8 i = 0; i < number_of_classes; i++)
-		{
-			FOR(slist_tpl<ware_t>, w, temp_fracht[i])
-			{
-				fracht[i].append(w);
-			}
-		}
-		delete[] temp_fracht;
-	}
-	else if (new_number_of_classes < number_of_classes)
-	{
-		for (uint8 i = new_number_of_classes - 1; i < number_of_classes; i++)
-		{
-			// Do not bother to delete the extra cells in the array: just copy the extra
-			// passengers (etc.) to class 0.
-			FOR(slist_tpl<ware_t>, w, fracht[i])
-			{
-				fracht[0].append(w);
+			FOR(slist_tpl<ware_t>, &tmp, fracht[i]) {
+				fabrik_t::update_transit(tmp, false);
 			}
 			fracht[i].clear();
-
-			// There is no need to bother clearing the class assignments here.
 		}
 	}
 
-	number_of_classes = new_number_of_classes;
 	desc = value;
 }
 
@@ -2209,91 +2171,6 @@ void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 	freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded", NULL, NULL, NULL, true);
 }
 
-void vehicle_t::get_cargo_class_info(cbuffer_t & buf) const
-{
-	vector_tpl<ware_t> pass_fracht[255];
-	vector_tpl<ware_t> mail_fracht[255];
-
-	size_t const pass_classes = goods_manager_t::passengers->get_number_of_classes();
-	size_t const mail_classes = goods_manager_t::mail->get_number_of_classes();
-
-	ALLOCA(uint32, max_loaded_pass, pass_classes);
-	MEMZERON(max_loaded_pass, pass_classes);
-
-	ALLOCA(uint32, max_loaded_mail, mail_classes);
-	MEMZERON(max_loaded_mail, mail_classes);
-
-	bool pass_veh = get_cargo_type() == goods_manager_t::passengers;
-	bool mail_veh = get_cargo_type() == goods_manager_t::mail;
-	const goods_desc_t* ware_desc = get_desc()->get_freight_type();
-	const uint16 menge = get_desc()->get_total_capacity();
-	const uint8 classes_to_check = get_desc()->get_number_of_classes();
-
-	// first add to capacity indicator
-	if (pass_veh)
-	{
-		for (uint8 j = 0; j < pass_classes; j++)
-		{
-			if (get_capacity(j) > 0)
-			{
-				max_loaded_pass[j] += get_capacity(j);
-			}
-		}
-	}
-	else if (mail_veh)
-	{
-		for (uint8 j = 0; j < mail_classes; j++)
-		{
-			if (get_capacity(j) > 0)
-			{
-				max_loaded_mail[j] += get_capacity(j);
-			}
-		}
-	}
-	//
-	for (uint8 j = 0; j < classes_to_check; j++)
-	{
-		// then add the actual load
-		FOR(slist_tpl<ware_t>, ware, get_cargo(j))
-		{
-			// if != 0 we could not join it to existing => load it
-			if (ware.menge != 0)
-			{
-				if (pass_veh)
-				{
-					pass_fracht[j].append(ware);
-				}
-				else if (mail_veh)
-				{
-					mail_fracht[j].append(ware);
-				}
-			}
-		}
-	}
-	INT_CHECK("simconvoi 2643");
-
-	// show new info
-	buf.clear();
-	uint8 freight_info_order = 9; // = by_accommodation_detail
-	ware_t ware;
-	for (uint8 i = 0; i < pass_classes; i++)
-	{
-		if (max_loaded_pass[i] > 0)
-		{
-			ware = goods_manager_t::passengers;
-			freight_list_sorter_t::sort_freight(pass_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_pass[i], &ware, true);
-		}
-	}
-	for (uint8 i = 0; i < mail_classes; i++)
-	{
-		if (max_loaded_mail[i] > 0)
-		{
-			ware = goods_manager_t::mail;
-			freight_list_sorter_t::sort_freight(mail_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_mail[i], &ware, true);
-		}
-	}
-}
-
 /**
  * Delete all vehicle load
  * @author Hj. Malthaner
@@ -2440,7 +2317,7 @@ void vehicle_t::set_reversed(bool value)
 uint16 vehicle_t::get_total_cargo_by_class(uint8 g_class) const
 {
 	uint16 carried = 0;
-	for (uint8 i = 0; i < desc->get_number_of_classes(); i++)
+	for (uint8 i = 0; i < number_of_classes; i++)
 	{
 		if(class_reassignments[i] == g_class && desc->get_capacity(i) > 0)
 		{
@@ -2452,26 +2329,6 @@ uint16 vehicle_t::get_total_cargo_by_class(uint8 g_class) const
 	}
 
 	return carried;
-
-	// Below a different approach, but will have to wait continuing with this until classes can safely be reassigned on the run.
-	//	uint16 carried = 0;
-	//	{
-	//		for (uint8 j = 0; j < desc->get_number_of_classes(); j++)
-	//		{
-	//			if (j == g_class)
-	//			{
-	//				FOR(slist_tpl<ware_t>, ware, fracht[j])
-	//				{
-	//					// if != 0 we could not join it to existing => load it
-	//					if (ware.menge != 0)
-	//					{
-	//						carried += ware.menge;
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
-	//	return carried;
 }
 
 uint16 vehicle_t::get_reassigned_class(uint8 g_class) const
