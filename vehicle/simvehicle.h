@@ -509,7 +509,7 @@ public:
 	sint32 get_speed_limit() const { return speed_limit; }
 	static inline sint32 speed_unlimited() {return (std::numeric_limits<sint32>::max)(); }
 
-	const slist_tpl<ware_t> & get_cargo(uint8 g_class) const { return fracht[g_class];}   // list of goods being transported (indexed by class)
+	const slist_tpl<ware_t> & get_cargo(uint8 g_class) const { return fracht[g_class];}   // list of goods being transported (indexed by accommodation class)
 
 	/**
 	 * Rotate freight target coordinates, has to be called after rotating factories.
@@ -650,13 +650,15 @@ public:
 
 	uint16 get_sum_weight() const { return (sum_weight + 499) / 1000; }
 
+	uint16 get_overcrowded_capacity(uint8 g_class) const;
 	// @author: jamespetts
 	uint16 get_overcrowding(uint8 g_class) const;
 
 	// @author: jamespetts
 	uint8 get_comfort(uint8 catering_level = 0, uint8 g_class = 0) const;
 
-	uint16 get_capacity(uint8 g_class, bool include_lower_classes = false) const;
+	uint16 get_accommodation_capacity(uint8 g_class, bool include_lower_classes = false) const;
+	uint16 get_fare_capacity(uint8 g_class, bool include_lower_classes = false) const;
 
 	// BG, 06.06.2009: update player's fixed maintenance
 	void finish_rd();

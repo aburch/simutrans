@@ -2353,7 +2353,7 @@ uint8 convoi_t::get_comfort(uint8 g_class) const
 		if(vehicle[i]->get_cargo_type()->get_catg_index() == 0)
 		{
 			passenger_vehicles ++;
-			capacity = vehicle[i]->get_desc()->get_capacity(g_class); 
+			capacity = vehicle[i]->get_accommodation_capacity(g_class); 
 			comfort += vehicle[i]->get_comfort(catering_level, g_class) * capacity;
 			passenger_seating += capacity;
 		}
@@ -4959,21 +4959,17 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 				{
 					for (uint8 j = 0; j < pass_classes; j++)
 					{
-						if (v->get_capacity(j) > 0) {
-							max_loaded_pass[j] += v->get_capacity(j);
-						}
+						max_loaded_pass[j] += v->get_accommodation_capacity(j);
 					}
 				}
 				else if (mail_veh)
 				{
 					for (uint8 j = 0; j < mail_classes; j++)
 					{
-						if (v->get_capacity(j) > 0) {
-							max_loaded_mail[j] += v->get_capacity(j);
-						}
+						max_loaded_mail[j] += v->get_accommodation_capacity(j);
 					}
 				}
-				if (menge > 0 && ware_desc != goods_manager_t::none && !pass_veh && !mail_veh) {
+				else if (menge > 0 && ware_desc != goods_manager_t::none) {
 					max_loaded_waren[ware_desc->get_index()] += menge;
 				}
 			}
@@ -5039,13 +5035,16 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			for (uint8 i = 0; i < pass_classes; i++)
 			{
 				// We pass on details of all classes - freight_list_sorter will ignore the unused ones (unless they are incorrectly occupied!)
+				// Display from highest class to lowest class
+				uint8 j = pass_classes - i - 1;
 				ware = goods_manager_t::passengers;
-				freight_list_sorter_t::sort_freight(pass_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_pass[i], &ware);
+				freight_list_sorter_t::sort_freight(pass_fracht[j], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", j, max_loaded_pass[j], &ware);
 			}
 			for (uint8 i = 0; i < mail_classes; i++)
 			{
+				uint8 j = mail_classes - i - 1;
 				ware = goods_manager_t::mail;
-				freight_list_sorter_t::sort_freight(mail_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_mail[i], &ware);
+				freight_list_sorter_t::sort_freight(mail_fracht[j], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", j, max_loaded_mail[j], &ware);
 			}
 		}
 		freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded", NULL, NULL, NULL);
@@ -7942,7 +7941,7 @@ void convoi_t::calc_classes_carried()
 		{
 			if (v.get_desc()->get_freight_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
 			{
-				if (v.get_capacity(j) > 0)
+				if (v.get_fare_capacity(j) > 0)
 				{
 					passenger_classes_carried.append_unique(j);
 				}
@@ -7950,7 +7949,7 @@ void convoi_t::calc_classes_carried()
 
 			if (v.get_desc()->get_freight_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
 			{
-				if (v.get_capacity(j) > 0)
+				if (v.get_fare_capacity(j) > 0)
 				{
 					mail_classes_carried.append_unique(j);
 				}
@@ -7966,18 +7965,12 @@ bool convoi_t::carries_this_or_lower_class(uint8 catg, uint8 g_class) const
 		return true;
 	}
 
-	const bool carries_this_class = catg == goods_manager_t::INDEX_PAS ? passenger_classes_carried.is_contained(g_class) : mail_classes_carried.is_contained(g_class);
-	if (carries_this_class)
-	{
-		return true;
-	}
-
-	// Check whether a lower class is carried, as passengers may board vehicles of a lower, but not a higher, class
+	// Passengers may board vehicles of a lower, but not a higher, class
 	if (catg == goods_manager_t::INDEX_PAS)
 	{
 		FOR(minivec_tpl<uint8>, i, passenger_classes_carried)
 		{
-			if (i < g_class)
+			if (i <= g_class)
 			{
 				return true;
 			}
@@ -7987,7 +7980,7 @@ bool convoi_t::carries_this_or_lower_class(uint8 catg, uint8 g_class) const
 	{
 		FOR(minivec_tpl<uint8>, i, mail_classes_carried)
 		{
-			if (i < g_class)
+			if (i <= g_class)
 			{
 				return true;
 			}

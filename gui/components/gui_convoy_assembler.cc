@@ -748,10 +748,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 					total_standing_pax += desc->get_overcrowded_capacity();
 					for (uint8 j = 0; j < goods_manager_t::passengers->get_number_of_classes(); j++)
 					{
-						if (v && v->get_capacity(j) > 0)
-						{
-							pass_class_capacity[j] += v->get_capacity(j);
-						}
+						pass_class_capacity[j] += v->get_fare_capacity(j);
 						if (v && v->get_desc()->get_catering_level() > highest_catering)
 						{
 							highest_catering = v->get_desc()->get_catering_level();
@@ -764,10 +761,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 					total_mail += desc->get_total_capacity();
 					for (uint8 j = 0; j < goods_manager_t::mail->get_number_of_classes(); j++)
 					{
-						if (v && v->get_capacity(j) > 0)
-						{
-							mail_class_capacity[j] += v->get_capacity(j);
-						}
+						mail_class_capacity[j] += v->get_fare_capacity(j);
 						if (v && v->get_desc()->get_catering_level() > 0)
 						{
 							is_tpo = true;

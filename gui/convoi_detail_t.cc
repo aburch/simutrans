@@ -629,7 +629,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					int classes_to_check = pass_veh ? pass_classes : mail_classes;
 					for (uint8 i = 0; i < classes_to_check; i++)
 					{
-						if (v->get_capacity(i) > 0)
+						if (v->get_fare_capacity(i) > 0)
 						{
 							classes_counter++;
 						}
@@ -637,7 +637,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 
 					for (uint8 i = 0; i < v->get_desc()->get_number_of_classes(); i++)
 					{
-						if (v->get_desc()->get_capacity(i) > 0)
+						if (v->get_accommodation_capacity(i) > 0)
 						{
 							if (v->get_reassigned_class(i) != i)
 							{

@@ -115,45 +115,47 @@ void line_class_manager_t::build_class_entries()
 {
 	uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
 	uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
-	uint8 display_class;
-	COLOR_VAL color = SYSCOL_TEXT;
 
 	for (int i = 0; i < pass_classes; i++) // i = the class this combobox represents
 	{
 		pass_class_sel.at(i)->clear_elements();
-		for (int j = 0; j < pass_classes; j++) // j = the entries of this combobox
+		if (pass_capacity_at_accommodation[i] > 0)
 		{
-			if (pass_capacity_at_accommodation[i] > 0)
+			for (int j = 0; j < pass_classes; j++) // j = the entries of this combobox
 			{
 				pass_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
 			}
 		}
 
 		// Below will preset the selection to the most appropriate entry
-		individual_class_count = -1;
-		old_reassigned_class = -1;
-		display_class = i;
+		bool multiple_classes = false;
+		int old_reassigned_class = -1;
+		uint8 display_class = i;
+
 		for (unsigned convoy = 0; convoy < line->count_convoys(); convoy++)
 		{
 			convoihandle_t cnv = line->get_convoy(convoy);
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 			{
 				vehicle_t* v = cnv->get_vehicle(veh);
-				if (v->get_desc()->get_capacity(i) > 0 && v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
+				if (v->get_accommodation_capacity(i) > 0 && v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
 				{
 					if (old_reassigned_class != v->get_reassigned_class(i))
 					{
-						old_reassigned_class = v->get_reassigned_class(i);
-						individual_class_count++;
-					}
-					else
-					{
-						display_class = v->get_reassigned_class(i);
+						if (old_reassigned_class == -1)
+						{
+							old_reassigned_class = v->get_reassigned_class(i);
+							display_class = old_reassigned_class;
+						}
+						else
+						{
+							multiple_classes = true;
+						}
 					}
 				}
 			}
 		}
-		if (individual_class_count > 1)
+		if (multiple_classes)
 		{
 			pass_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("reassigned_to_multiple"), SYSCOL_TEXT));
 			display_class = pass_classes;
@@ -165,39 +167,43 @@ void line_class_manager_t::build_class_entries()
 	for (int i = 0; i < mail_classes; i++)
 	{
 		mail_class_sel.at(i)->clear_elements();
-		for (int j = 0; j < mail_classes; j++)
+		if (mail_capacity_at_accommodation[i] > 0)
 		{
-			if (mail_capacity_at_accommodation[i] > 0)
+			for (int j = 0; j < mail_classes; j++)
 			{
 				mail_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(mail_class_name_untranslated[j]), SYSCOL_TEXT));
 			}
 		}
 
 		// Below will preset the selection to the most appropriate entry
-		individual_class_count = -1;
-		old_reassigned_class = -1;
-		display_class = i;
+		bool multiple_classes = false;
+		int old_reassigned_class = -1;
+		uint8 display_class = i;
+
 		for (unsigned convoy = 0; convoy < line->count_convoys(); convoy++)
 		{
 			convoihandle_t cnv = line->get_convoy(convoy);
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 			{
 				vehicle_t* v = cnv->get_vehicle(veh);
-				if (v->get_desc()->get_capacity(i) > 0 && v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
+				if (v->get_accommodation_capacity(i) > 0 && v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
 				{
 					if (old_reassigned_class != v->get_reassigned_class(i))
 					{
-						old_reassigned_class = v->get_reassigned_class(i);
-						individual_class_count++;
-					}
-					else
-					{
-						display_class = v->get_reassigned_class(i);
+						if (old_reassigned_class == -1)
+						{
+							old_reassigned_class = v->get_reassigned_class(i);
+							display_class = old_reassigned_class;
+						}
+						else
+						{
+							multiple_classes = true;
+						}
 					}
 				}
 			}
 		}
-		if (individual_class_count > 1)
+		if (multiple_classes)
 		{
 			mail_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("reassigned_to_multiple"), SYSCOL_TEXT));
 			display_class = mail_classes;
@@ -253,7 +259,7 @@ void line_class_manager_t::layout()
 			{
 				for (int i = 0; i < classes_amount; i++)
 				{
-					pass_capacity_at_accommodation[i] += v->get_desc()->get_capacity(i);
+					pass_capacity_at_accommodation[i] += v->get_accommodation_capacity(i);
 				}
 				if (v->get_desc()->get_catering_level() > 0)
 				{
@@ -273,7 +279,7 @@ void line_class_manager_t::layout()
 			{
 				for (int i = 0; i < classes_amount; i++)
 				{
-					mail_capacity_at_accommodation[i] += v->get_desc()->get_capacity(i);
+					mail_capacity_at_accommodation[i] += v->get_accommodation_capacity(i);
 				}
 				if (v->get_desc()->get_catering_level() > 0)
 				{
@@ -391,14 +397,14 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 						overcrowded_capacity += v->get_desc()->get_overcrowded_capacity();
 						for (int i = 0; i < pass_classes; i++)
 						{
-							pass_capacity_at_class[i] += v->get_capacity(i);
+							pass_capacity_at_class[i] += v->get_fare_capacity(i);
 						}
 					}
 					if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
 					{
 						for (int i = 0; i < mail_classes; i++)
 						{
-							mail_capacity_at_class[i] += v->get_capacity(i);
+							mail_capacity_at_class[i] += v->get_fare_capacity(i);
 						}
 					}
 				}

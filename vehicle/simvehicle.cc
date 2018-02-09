@@ -1071,7 +1071,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 
 		for (uint8 i = 0; i < number_of_classes; i++)
 		{
-			capacity_this_class = get_capacity(i);
+			capacity_this_class = get_accommodation_capacity(i);
 			if (capacity_this_class == 0)
 			{
 				continue;
@@ -1089,7 +1089,6 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 			if (desc->get_freight_type() == goods_manager_t::passengers || desc->get_freight_type() == goods_manager_t::mail)
 			{
 				freight_this_class = 0;
-
 				if (!fracht[i].empty())
 				{
 					FOR(slist_tpl<ware_t>, const& w, fracht[i])
@@ -1109,7 +1108,7 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 			// use_lower_classes as passed to this method indicates whether the higher class accommodation is full, hence
 			// the need for higher class passengers/mail to use lower class accommodation.
 
-			*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left_this_class, schedule, cnv->get_owner(), cnv, overcrowd, i, use_lower_classes, other_classes_available);
+			*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left_this_class, schedule, cnv->get_owner(), cnv, overcrowd, class_reassignments[i], use_lower_classes, other_classes_available);
 			if (!freight_add.empty())
 			{
 				cnv->invalidate_weight_summary();
@@ -1147,26 +1146,15 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 
 				if (!freight_add.empty())
 				{
-					// We now have to unpick which class was reassigned to i.
-
-					const uint8 number_of_classes = desc->get_number_of_classes();
-					uint8 reassigned_from_class = 0;
-					for (; reassigned_from_class < number_of_classes; reassigned_from_class++)
-					{
-						if (class_reassignments[reassigned_from_class] == i)
-						{
-							break;
-						}
-					}
-
-					fracht[reassigned_from_class].append_list(freight_add);
+					// We now DON'T have to unpick which class was reassigned to i.
+					// i is the accommodation class.
+					fracht[i].append_list(freight_add);
 				}
 			}
 		}
 	}
 	return (total_freight < total_capacity && !other_classes_available);
 }
-
 
 
 /**
@@ -2047,128 +2035,40 @@ const char *vehicle_t::get_cargo_name() const
 
 void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 {
-
-	// rebuilt the list with goods ...
-	vector_tpl<ware_t> total_fracht;
-	vector_tpl<ware_t> pass_fracht[255];
-	vector_tpl<ware_t> mail_fracht[255];
-
-	size_t const n = goods_manager_t::get_count();
-	ALLOCA(uint32, max_loaded_waren, n);
-	MEMZERON(max_loaded_waren, n);
-
-	size_t const pass_classes = goods_manager_t::passengers->get_number_of_classes();
-	size_t const mail_classes = goods_manager_t::mail->get_number_of_classes();
-
-	ALLOCA(uint32, max_loaded_pass, pass_classes);
-	MEMZERON(max_loaded_pass, pass_classes);
-
-	ALLOCA(uint32, max_loaded_mail, mail_classes);
-	MEMZERON(max_loaded_mail, mail_classes);
-
-
-
-	bool pass_veh = get_cargo_type() == goods_manager_t::passengers;
-	bool mail_veh = get_cargo_type() == goods_manager_t::mail;
 	const goods_desc_t* ware_desc = get_desc()->get_freight_type();
 	const uint16 menge = get_desc()->get_total_capacity();
-	const uint8 classes_to_check = get_desc()->get_number_of_classes();
-
-	// first add to capacity indicator
-
-	if (pass_veh)
+	
+	vector_tpl<ware_t> fracht_array[number_of_classes];
+	for (uint8 i = 0; i < number_of_classes; i++)
 	{
-		for (uint8 j = 0; j < pass_classes; j++)
+		FOR(slist_tpl<ware_t>, w, fracht[i])
 		{
-			if (get_capacity(j) > 0) {
-				max_loaded_pass[j] += get_capacity(j);
-			}
+			fracht_array[i].append(w);
 		}
 	}
-	else if (mail_veh)
-	{
-		for (uint8 j = 0; j < mail_classes; j++)
-		{
-			if (get_capacity(j) > 0) {
-				max_loaded_mail[j] += get_capacity(j);
-			}
-		}
-	}
-	else if (menge > 0 && ware_desc != goods_manager_t::none) {
-		max_loaded_waren[ware_desc->get_index()] += menge;
-	}
-
-
-	//
-	for (uint8 j = 0; j < classes_to_check; j++)
-	{
-		// then add the actual load
-		FOR(slist_tpl<ware_t>, ware, get_cargo(j))
-		{
-			// if != 0 we could not join it to existing => load it
-			if (ware.menge != 0)
-			{
-				if (pass_veh)
-				{
-					pass_fracht[j].append(ware);
-				}
-				else if (mail_veh)
-				{
-					mail_fracht[j].append(ware);
-				}
-				else
-				{
-					total_fracht.append(ware);
-				}
-			}
-		}
-	}
+	
 	INT_CHECK("simconvoi 2643");
 
 	buf.clear();
 
-	// apend info on total capacity
-	slist_tpl <ware_t>capacity;
-
-	for (size_t i = 0; i != n; ++i) {
-		if (max_loaded_waren[i] > 0 && i != goods_manager_t::INDEX_NONE) {
-			ware_t ware(goods_manager_t::get_info(i));
-			ware.menge = max_loaded_waren[i];
-			// append to category?
-			slist_tpl<ware_t>::iterator j = capacity.begin();
-			slist_tpl<ware_t>::iterator end = capacity.end();
-			while (j != end && j->get_desc()->get_catg_index() < ware.get_desc()->get_catg_index()) ++j;
-			if (j != end && j->get_desc()->get_catg_index() == ware.get_desc()->get_catg_index()) {
-				j->menge += max_loaded_waren[i];
-			}
-			else {
-				// not yet there
-				capacity.insert(j, ware);
-			}
-		}
-	}
-	// show new info
-
-	uint8 freight_info_order = 9; // = by_accommodation_detail
-	ware_t ware;
-	for (uint8 i = 0; i < pass_classes; i++)
+	if (get_cargo_type() == goods_manager_t::passengers || get_cargo_type() == goods_manager_t::mail)
 	{
-		if (max_loaded_pass[i] > 0)
+		uint8 freight_info_order = 9; // = by_accommodation_detail
+		ware_t cargo_type = get_cargo_type();
+		for (uint8 i = 0; i < number_of_classes; i++)
 		{
-			ware = goods_manager_t::passengers;
-			freight_list_sorter_t::sort_freight(pass_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_pass[i], &ware, true);
+			freight_list_sorter_t::sort_freight(fracht_array[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, get_accommodation_capacity(i), &cargo_type, true);
 		}
 	}
-	for (uint8 i = 0; i < mail_classes; i++)
+	else
 	{
-		if (max_loaded_mail[i] > 0)
-		{
-			ware = goods_manager_t::mail;
-			freight_list_sorter_t::sort_freight(mail_fracht[i], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, NULL, "loaded", i, max_loaded_mail[i], &ware, true);
-		}
+		uint8 freight_info_order = 6; // = by_destination_detail
+		slist_tpl <ware_t>capacity;
+		ware_t ware = get_cargo_type();
+		ware.menge = desc->get_total_capacity();
+		capacity.insert(ware);
+		freight_list_sorter_t::sort_freight(fracht_array[0], buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded", NULL, NULL, NULL, true);
 	}
-	freight_info_order = 6; // = by_destination_detail
-	freight_list_sorter_t::sort_freight(total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded", NULL, NULL, NULL, true);
 }
 
 /**
@@ -2317,15 +2217,14 @@ void vehicle_t::set_reversed(bool value)
 uint16 vehicle_t::get_total_cargo_by_class(uint8 g_class) const
 {
 	uint16 carried = 0;
-	for (uint8 i = 0; i < number_of_classes; i++)
+	if (g_class >= number_of_classes)
 	{
-		if(class_reassignments[i] == g_class && desc->get_capacity(i) > 0)
-		{
-			FOR(slist_tpl<ware_t>, const& ware, fracht[i])
-			{
-				carried += ware.menge;
-			}
-		}
+		return 0;
+	}
+	
+	FOR(slist_tpl<ware_t>, const& ware, fracht[g_class])
+	{
+		carried += ware.menge;
 	}
 
 	return carried;
@@ -2337,15 +2236,46 @@ uint16 vehicle_t::get_reassigned_class(uint8 g_class) const
 	return reassigned_class;
 }
 
+
+uint16 vehicle_t::get_overcrowded_capacity(uint8 g_class) const
+{
+	if (g_class >= number_of_classes)
+	{
+		return 0;
+	}
+	for (uint8 i = 0; i < number_of_classes; i++)
+	{
+		if (desc->get_capacity(i) > 0)
+		{
+			return i == g_class ? desc->get_overcrowded_capacity() : 0;
+		}
+	}
+	return 0;
+}
+
 uint16 vehicle_t::get_overcrowding(uint8 g_class) const
 {
 	const uint16 carried = get_total_cargo_by_class(g_class);
-	const uint16 capacity = get_capacity(g_class, true); // Do not count a vehicle as overcrowded if the higher class passengers can travel in lower class accommodation and still get a seat.
+	const uint16 capacity = get_accommodation_capacity(g_class); // Do not count a vehicle as overcrowded if the higher class passengers can travel in lower class accommodation and still get a seat.
 
 	return carried - capacity > 0 ? carried - capacity : 0;
 }
 
-uint16 vehicle_t::get_capacity(uint8 g_class, bool include_lower_classes) const
+uint16 vehicle_t::get_accommodation_capacity(uint8 g_class, bool include_lower_classes) const
+{
+	if (!include_lower_classes) {
+		return desc->get_capacity(g_class);
+	}
+
+	uint16 cap = 0;
+	for (uint i=0; i <= g_class; i++)
+	{
+		cap += desc->get_capacity(i);
+	}
+	return cap;
+}
+
+uint16 vehicle_t::get_fare_capacity(uint8 g_class, bool include_lower_classes) const
 {
 	// Take into account class reassignments. 
 	uint16 cap = 0;
@@ -2372,8 +2302,8 @@ uint8 vehicle_t::get_comfort(uint8 catering_level, uint8 g_class) const
 	{
 		if (class_reassignments[i] == g_class)
 		{
-			comfort_sum += desc->get_adjusted_comfort(catering_level, i) * desc->get_capacity(i);
-			capacity_this_class += desc->get_capacity(i);
+			comfort_sum += desc->get_adjusted_comfort(catering_level, i) * get_accommodation_capacity(i);
+			capacity_this_class += get_accommodation_capacity(i);
 		}
 	}
 
@@ -2383,7 +2313,8 @@ uint8 vehicle_t::get_comfort(uint8 catering_level, uint8 g_class) const
 	{
 		return 0;
 	}
-	
+
+
 	base_comfort = (uint8)(comfort_sum / capacity_this_class);
 
 	if(base_comfort == 0)
@@ -2401,14 +2332,21 @@ uint8 vehicle_t::get_comfort(uint8 catering_level, uint8 g_class) const
 	// are very uncomfortable (no more than 10).
 	const uint8 standing_comfort = (base_comfort < 20) ? (base_comfort / 2) : 10;
 	uint16 passenger_count = 0;
-	FOR(slist_tpl<ware_t>, const& ware, fracht[g_class])
+	for (uint8 i = 0; i < number_of_classes; i++)
 	{
-		if(ware.is_passenger())
+		if (class_reassignments[i] == g_class)
 		{
-			passenger_count += ware.menge;
+			FOR(slist_tpl<ware_t>, const& ware, fracht[i])
+			{
+				if(ware.is_passenger())
+				{
+					passenger_count += ware.menge;
+				}
+			}
 		}
 	}
-	//assert(passenger_count <= total_freight); // FIXME: This assert is often triggered after commit 6500dcc. It is not clear why.
+	assert(passenger_count <= total_freight); // FIXME: This assert is often triggered after commit 6500dcc. It is not clear why.
+
 	const uint16 total_seated_passengers = passenger_count < capacity_this_class ? passenger_count : capacity_this_class;
 	const uint16 total_standing_passengers = passenger_count > total_seated_passengers ? passenger_count - total_seated_passengers : 0;
 	// Avoid division if we can

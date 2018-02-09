@@ -81,9 +81,6 @@ private:
 	bool show_pass = false;
 	bool show_mail = false;
 
-	int individual_class_count;
-	int old_reassigned_class;
-
 	bool need_to_update_comboboxes = false;
 
 public:
