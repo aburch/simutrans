@@ -2508,30 +2508,26 @@ uint8 vehicle_t::get_comfort(uint8 catering_level, uint8 g_class) const
 	// If we have more than one class of accommodation that has been reassigned
 	// to carry the same class of passengers, take an average of the various types
 	// weighted by capacity.
-	uint32 comf = 0;
-	uint32 counter = 0;
+	uint32 comfort_sum = 0;
+	uint32 capacity_this_class = 0;
 
-	for (uint8 i = 0; i < desc->get_number_of_classes(); i++)
+	for (uint8 i = 0; i < number_of_classes; i++)
 	{
-		if (class_reassignments[i] == g_class && desc->get_capacity(i) > 0)
+		if (class_reassignments[i] == g_class)
 		{
-			comf += desc->get_adjusted_comfort(catering_level, i);
-			counter++;
+			comfort_sum += desc->get_adjusted_comfort(catering_level, i) * desc->get_capacity(i);
+			capacity_this_class += desc->get_capacity(i);
 		}
 	}
 
 	uint8 base_comfort;
 
-	if (counter == 0)
+	if (comfort_sum == 0)
 	{
 		return 0;
 	}
-	else
-	{
-		base_comfort = (uint8)(comf / counter);
-	}
-
-	const uint16 capacity_this_class = get_capacity(g_class, false); 
+	
+	base_comfort = (uint8)(comfort_sum / capacity_this_class);
 
 	if(base_comfort == 0)
 	{
