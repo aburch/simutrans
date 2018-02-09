@@ -3909,7 +3909,7 @@ rail_vehicle_t::rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) 
 
 void rail_vehicle_t::init(loadsave_t *file, bool is_leading, bool is_last)
 #else
-rail_vehicle_t::rail_vehicle_tloadsave_t *file, bool is_leading, bool is_last) : 
+rail_vehicle_t::rail_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) : 
     vehicle_t()
 #endif
 {
