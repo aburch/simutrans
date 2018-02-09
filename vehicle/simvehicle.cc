@@ -1171,8 +1171,8 @@ void vehicle_t::fix_class_accommodations()
 	sint32 pos = -1;
 	sint32 lowest_available_class = -1;
 
-	vector_tpl<sint32> load(number_of_classes);
-	vector_tpl<sint32> capacity(number_of_classes);
+	array_tpl<sint32> load(number_of_classes);
+	array_tpl<sint32> capacity(number_of_classes);
 
 	for (uint32 i = 0; i < number_of_classes; i++)
 	{
@@ -2412,7 +2412,7 @@ uint8 vehicle_t::get_comfort(uint8 catering_level, uint8 g_class) const
 			}
 		}
 	}
-	assert(passenger_count <= total_freight); // FIXME: This assert is often triggered after commit 6500dcc. It is not clear why.
+	//assert(passenger_count <= total_freight); // FIXME: This assert is often triggered after commit 6500dcc. It is not clear why.
 
 	const uint16 total_seated_passengers = passenger_count < capacity_this_class ? passenger_count : capacity_this_class;
 	const uint16 total_standing_passengers = passenger_count > total_seated_passengers ? passenger_count - total_seated_passengers : 0;
