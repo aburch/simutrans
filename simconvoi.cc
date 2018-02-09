@@ -7944,7 +7944,7 @@ void convoi_t::calc_classes_carried()
 			{
 				if (v.get_capacity(j) > 0)
 				{
-					passenger_classes_carried.append(j);
+					passenger_classes_carried.append_unique(j);
 				}
 			}
 
@@ -7952,7 +7952,7 @@ void convoi_t::calc_classes_carried()
 			{
 				if (v.get_capacity(j) > 0)
 				{
-					mail_classes_carried.append(j);
+					mail_classes_carried.append_unique(j);
 				}
 			}
 		}

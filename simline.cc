@@ -757,7 +757,7 @@ void simline_t::calc_classes_carried()
 		{
 			FOR(const minivec_tpl<uint8>, const& g_class, *cnv.get_classes_carried(goods_manager_t::INDEX_PAS))
 			{
-				passenger_classes_carried.append(g_class);
+				passenger_classes_carried.append_unique(g_class);
 			}
 		}
 
@@ -765,7 +765,7 @@ void simline_t::calc_classes_carried()
 		{
 			FOR(const minivec_tpl<uint8>, const& g_class, *cnv.get_classes_carried(goods_manager_t::INDEX_MAIL))
 			{
-				mail_classes_carried.append(g_class);
+				mail_classes_carried.append_unique(g_class);
 			}
 		}
 		
@@ -777,7 +777,7 @@ void simline_t::calc_classes_carried()
 			{
 				if (cnv.carries_this_or_lower_class(goods_manager_t::INDEX_PAS, j))
 				{
-					passenger_classes_carried.append(j);
+					passenger_classes_carried.append_unique(j);
 				}
 			}
 		}
@@ -788,7 +788,7 @@ void simline_t::calc_classes_carried()
 			{
 				if (cnv.carries_this_or_lower_class(goods_manager_t::INDEX_MAIL, j))
 				{
-					mail_classes_carried.append(j);
+					mail_classes_carried.append_unique(j);
 				}
 			}
 		}*/
