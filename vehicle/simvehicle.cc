@@ -2108,10 +2108,12 @@ void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 	vector_tpl<vector_tpl<ware_t>> fracht_array(number_of_classes);
 	for (uint8 i = 0; i < number_of_classes; i++)
 	{
+		vector_tpl<ware_t> this_iteration_vector(fracht->get_count());
 		FOR(slist_tpl<ware_t>, w, fracht[i])
 		{
-			fracht_array[i].append(w);
+			this_iteration_vector.append(w);
 		}
+		fracht_array.append(this_iteration_vector); 
 	}
 	
 	INT_CHECK("simconvoi 2643");
