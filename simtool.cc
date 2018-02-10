@@ -1042,7 +1042,9 @@ const char *tool_restoreslope_t::check_pos( player_t *, koord3d pos)
 	return NULL;
 }
 
-const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos, int new_slope )
+// [mod : shingoushori] Liberalization of ground level control 2/6
+// const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos, int new_slope )
+const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos, int new_slope, bool shift )
 {
 	if(  !ground_desc_t::double_grounds  ) {
 		// translate old single slope parameter to new double slope
@@ -1217,9 +1219,23 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				}
 			}
 
+			// [mod : shingoushori] Liberalization of ground level control 3/6
+			if(  new_slope != RESTORE_SLOPE ) {//if(  new_slope == ALL_DOWN_SLOPE ) {
+				if(shift && grund_t::underground_mode==grund_t::ugm_level) {
+					fprintf(stderr,"set new_pos.z = min_neighbour_height : %d\n",min_neighbour_height);
+					new_pos.z = min_neighbour_height;
+				}
+			}
+
 			if(  water_table>new_pos.z  ||  (water_table == new_pos.z  &&  min_neighbour_height < new_pos.z)  ) {
 				// do not lower tiles when it will be below water level
-				return NOTICE_TILE_FULL;
+				// [mod : shingoushori] Liberalization of ground level control 4/6
+				fprintf(stderr,"do not lower tiles when it will be below water level\n");
+				if (shift) {
+					water_table = new_pos.z;
+				} else {
+					return NOTICE_TILE_FULL;
+				}
 			}
 			welt->set_water_hgt( k, water_table );
 			water_hgt = water_table;
@@ -1227,6 +1243,11 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 		else if(  new_slope == ALL_UP_SLOPE  ) {
 			new_slope = slope_t::flat;
 			new_pos.z++;
+			// [mod : shingoushori] Liberalization of ground level control 5/6
+			if(shift && grund_t::underground_mode==grund_t::ugm_level) {
+				fprintf(stderr,"set new_pos.z = grund_t::underground_level : %d\n",grund_t::underground_level);
+				new_pos.z = grund_t::underground_level;
+			}
 		}
 
 		// already some ground here (tunnel, bridge, monorail?)
@@ -1265,8 +1286,10 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 		const sint16 hgt=new_pos.z;
 		// maximum difference check with tiles to north, south east and west
 		const sint8 test_hgt = hgt+(new_slope!=0);
-
-		if(  gr1->get_typ()==grund_t::boden  ) {
+		
+		// [mod : shingoushori] Liberalization of ground level control 6/6
+		// if(  gr1->get_typ()==grund_t::boden  ) {
+		if(  gr1->get_typ()==grund_t::boden && !(player == welt->get_public_player() || shift)) {
 			for(  sint16 i = 0 ;  i < 4 ;  i++  ) {
 				const koord neighbour = k + koord::nsew[i];
 

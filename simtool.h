@@ -128,11 +128,14 @@ public:
 	 * @param slope the slope type
 	 * @author Hj. Malthaner
 	 */
-	static const char *tool_set_slope_work( player_t *player, koord3d pos, int slope );
+	// [mod : shingoushori] Liberalization of ground level control 1/6
+	// static const char *tool_set_slope_work( player_t *player, koord3d pos, int slope);
+	static const char *tool_set_slope_work( player_t *player, koord3d pos, int slope, bool shift = false );
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Built artifical slopes", welt->get_settings().cst_set_slope); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
-	char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_set_slope_work(player, k, atoi(default_param)); }
+	// char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_set_slope_work(player, k, atoi(default_param)); }
+	char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_set_slope_work(player, k, atoi(default_param), is_shift_pressed()); }
 };
 
 class tool_restoreslope_t : public tool_t {
