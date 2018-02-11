@@ -68,12 +68,16 @@ class tool_raise_lower_base_t : public tool_t {
 protected:
 	bool is_dragging;
 	sint16 drag_height;
+	// [mod : shingoushori] Liberalization of ground level control v3 : tool_raise_lower 1/7
+	bool is_force;
 
 	const char* drag(player_t*, koord k, sint16 h, int &n);
 	virtual sint16 get_drag_height(koord k) = 0;
 	bool check_dragging();
 public:
-	tool_raise_lower_base_t(uint16 id) : tool_t(id | GENERAL_TOOL), is_dragging(false), drag_height(0) { offset = Z_GRID; }
+	// [mod : shingoushori] Liberalization of ground level control v3 : tool_raise_lower 2/7
+	// tool_raise_lower_base_t(uint16 id) : tool_t(id | GENERAL_TOOL), is_dragging(false), drag_height(0) { offset = Z_GRID; }
+	tool_raise_lower_base_t(uint16 id) : tool_t(id | GENERAL_TOOL), is_dragging(false), drag_height(0), is_force(false) { offset = Z_GRID; }
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
 	bool init(player_t*) OVERRIDE { is_dragging = false; return true; }
 	bool exit(player_t*) OVERRIDE { is_dragging = false; return true; }

@@ -876,6 +876,8 @@ bool tool_raise_lower_base_t::check_dragging()
 	// reset dragging
 	if(  is_dragging  &&  strempty(default_param)  ) {
 		is_dragging = false;
+		// [mod : shingoushori] Liberalization of ground level control v3 : tool_raise_lower 3/7
+		is_force = false;
 		return false;
 	}
 	return true;
@@ -884,6 +886,13 @@ bool tool_raise_lower_base_t::check_dragging()
 
 sint16 tool_raise_t::get_drag_height(koord k)
 {
+	// [mod : shingoushori] Liberalization of ground level control v3 : tool_raise_lower 4/7
+	if(is_shift_pressed() && grund_t::underground_mode==grund_t::ugm_level) {
+		fprintf(stderr,"set drag_height = grund_t::underground_level : %d\n",grund_t::underground_level);
+		is_force = true;
+		return grund_t::underground_level;
+	}
+
 	const grund_t *gr = welt->lookup_kartenboden_gridcoords(k);
 
 	return  gr->get_hoehe(welt->get_corner_to_operate(k)) + 1;
@@ -892,6 +901,9 @@ sint16 tool_raise_t::get_drag_height(koord k)
 
 const char *tool_raise_t::check_pos(player_t *, koord3d pos )
 {
+	// [mod : shingoushori] Liberalization of ground level control v3 : tool_raise_lower 5/7
+	if ( is_force ) { return NULL; }
+	
 	// check for underground mode
 	if(  is_dragging  &&  drag_height-1 > grund_t::underground_level  ) {
 		is_dragging = false;
@@ -951,6 +963,14 @@ const char *tool_raise_t::work(player_t* player, koord3d pos )
 sint16 tool_lower_t::get_drag_height(koord k)
 {
 	const grund_t *gr = welt->lookup_kartenboden_gridcoords(k);
+	
+	// [mod : shingoushori] Liberalization of ground level control v3 : tool_raise_lower 6/7
+	if(is_shift_pressed() && grund_t::underground_mode==grund_t::ugm_level) {
+		sint8 target_hgt = max(welt->get_groundwater(),welt->get_water_hgt( k ));
+		fprintf(stderr,"set drag_height = max(groundwater, water_hgt) : %d\n",target_hgt);
+		is_force = true;
+		return target_hgt;
+	}
 
 	return  gr->get_hoehe(welt->get_corner_to_operate(k)) - 1;
 }
@@ -958,6 +978,9 @@ sint16 tool_lower_t::get_drag_height(koord k)
 
 const char *tool_lower_t::check_pos( player_t *, koord3d pos )
 {
+	// [mod : shingoushori] Liberalization of ground level control v3 : tool_raise_lower 7/7
+	if ( is_force ) { return NULL; }
+	
 	// check for underground mode
 	if (is_dragging  &&  drag_height+1 > grund_t::underground_level) {
 		is_dragging = false;
