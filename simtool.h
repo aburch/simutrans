@@ -118,9 +118,15 @@ public:
 };
 
 /* slope tool definitions */
+// [mod : shingoushori] Liberalization of ground level control v2 : Dragging 4/5
+/*
 class tool_setslope_t : public tool_t {
 public:
 	tool_setslope_t() : tool_t(TOOL_SETSLOPE | GENERAL_TOOL) {}
+*/
+class tool_setslope_t : public two_click_tool_t {
+public:
+	tool_setslope_t() : two_click_tool_t(TOOL_SETSLOPE | GENERAL_TOOL) {one_click = true;}
 	/**
 	 * Create an artificial slope
 	 * @param player the player doing the task
@@ -135,7 +141,11 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
 	// char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_set_slope_work(player, k, atoi(default_param)); }
-	char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_set_slope_work(player, k, atoi(default_param), is_shift_pressed()); }
+	// char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_set_slope_work(player, k, atoi(default_param), is_shift_pressed()); }
+	
+	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 };
 
 class tool_restoreslope_t : public tool_t {
