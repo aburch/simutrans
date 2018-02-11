@@ -9,8 +9,12 @@
 
 #ifndef NETTOOL
 #include "../dataobj/translator.h"
+#else
+#define dr_remove remove
+#define dr_fopen fopen
 #endif
 #include "../simversion.h"
+
 
 /*
  * Functions required by both Simutrans and Nettool

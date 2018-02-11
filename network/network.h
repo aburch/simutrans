@@ -11,8 +11,8 @@
 #if USE_WINSOCK
 // must be include before all simutrans stuff!
 
-#	include <windows.h>
 #	include <winsock2.h>
+//#	include <windows.h>
 #	include <ws2tcpip.h>
 #	ifndef IPV6_V6ONLY
 #		define IPV6_V6ONLY (27)
