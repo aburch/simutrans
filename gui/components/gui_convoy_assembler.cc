@@ -2291,7 +2291,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			{
 				n += sprintf(buf + n, "%s", translator::translate("\nMUST USE: "));
 				char tmpbuf[30];
-				sprintf(tmpbuf, "Permissive %i", i);
+				sprintf(tmpbuf, "Permissive %i-%i", veh_type->get_waytype(), i);
 				n += sprintf(buf + n, "%s", translator::translate(tmpbuf));
 			}
 		}
@@ -2311,7 +2311,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			{
 				n += sprintf(buf + n, "%s", translator::translate("\nMAY USE: "));
 				char tmpbuf[30];
-				sprintf(tmpbuf, "Prohibitive %i", i);
+				sprintf(tmpbuf, "Prohibitive %i-%i", veh_type->get_waytype(), i);
 				n += sprintf(buf + n, "%s", translator::translate(tmpbuf));
 			}
 		}
