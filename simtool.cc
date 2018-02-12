@@ -943,7 +943,12 @@ const char *tool_raise_t::work(player_t* player, koord3d pos )
 				err = drag(player, k, atoi(default_param), n);
 			}
 			else {
-				n = welt->grid_raise(player, k, err);
+				// [mod : shingoushori] Liberalization of ground level control v4 : one_click mountain 1/2
+				if (is_shift_pressed() && grund_t::underground_mode==grund_t::ugm_level){
+					err = drag(player, k, hgt, n);
+				} else {
+					n = welt->grid_raise(player, k, err);
+				}
 			}
 			if(n>0) {
 				player_t::book_construction_costs(player, welt->get_settings().cst_alter_land * n, k, ignore_wt);
@@ -1018,7 +1023,12 @@ const char *tool_lower_t::work( player_t *player, koord3d pos )
 				err = drag(player, k, atoi(default_param), n);
 			}
 			else {
-				n = welt->grid_lower(player, k, err);
+				// [mod : shingoushori] Liberalization of ground level control v4 : one_click mountain 2/2
+				if (is_shift_pressed() && grund_t::underground_mode==grund_t::ugm_level){
+					err = drag(player, k, hgt, n);
+				} else {
+					n = welt->grid_lower(player, k, err);
+				}
 			}
 			if(n>0) {
 				player_t::book_construction_costs(player, welt->get_settings().cst_alter_land * n, k, ignore_wt);
