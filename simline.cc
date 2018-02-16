@@ -20,6 +20,9 @@ uint8 convoi_to_line_catgory_[convoi_t::MAX_CONVOI_COST] = {
 	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE, LINE_MAXSPEED, LINE_WAYTOLL
 };
 
+const char *simline_t::linetype2string[MAX_LINE_TYPE] = {"All", "Truck", "Train", "Ship", "Air", "Monorail", "Tram", "Maglev", "Narrowgauge" };
+
+
 uint8 simline_t::convoi_to_line_catgory(uint8 cnv_cost)
 {
 	assert(cnv_cost < convoi_t::MAX_CONVOI_COST);

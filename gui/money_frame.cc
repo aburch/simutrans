@@ -86,7 +86,9 @@ const uint8 money_frame_t::cost_type[3*MAX_PLAYER_COST_BUTTON] =
 };
 
 
-/* order has to be same as in enum transport_type in file simtypes.h */
+/* order has to be same as in enum transport_type in file finance.h */
+/* Also these have to match the strings in simline_t::linetype2name! */
+/* (and it is sad that the order between those do not match ...) */
 const char * money_frame_t::transport_type_values[TT_MAX] = {
 	"All",
 	"Truck",
