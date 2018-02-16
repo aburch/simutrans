@@ -1660,17 +1660,17 @@ void vehicle_t::hop(grund_t* gr)
 
 	// check if arrived at waypoint, and update schedule to next destination
 	// route search through the waypoint is already complete
-//	if(  leading  &&  get_pos()==cnv->get_fpl_target()  ) { // leading turned off in vorfahren when reversing
-	if(  get_pos()==cnv->get_fpl_target()  ) {
+//	if(  leading  &&  get_pos()==cnv->get_schedule_target()  ) { // leading turned off in vorfahren when reversing
+	if(  get_pos()==cnv->get_schedule_target()  ) {
 		if(  route_index+1 >= cnv->get_route()->get_count()  ) {
 			// we end up here after loading a game or when a waypoint is reached which crosses next itself
-			cnv->set_fpl_target( koord3d::invalid );
+			cnv->set_schedule_target( koord3d::invalid );
 		}
 		else if(welt->lookup(cnv->get_route()->at(route_index))->get_halt() != welt->lookup(cnv->get_route()->at(cnv->get_route()->get_count() - 1))->get_halt())
 		{
 			cnv->get_schedule()->advance();
-			const koord3d ziel = cnv->get_schedule()->get_current_eintrag().pos;
-			cnv->set_fpl_target( cnv->is_waypoint(ziel) ? ziel : koord3d::invalid );
+			const koord3d ziel = cnv->get_schedule()->get_current_entry().pos;
+			cnv->set_schedule_target( cnv->is_waypoint(ziel) ? ziel : koord3d::invalid );
 		}
 	}
 
@@ -3045,7 +3045,7 @@ void vehicle_t::display_after(int xpos, int ypos, bool is_gobal) const
 				{
 					char waiting_time[64];
 					cnv->snprintf_remaining_loading_time(waiting_time, sizeof(waiting_time));
-					if(cnv->get_schedule()->get_current_eintrag().wait_for_time)
+					if(cnv->get_schedule()->get_current_entry().wait_for_time)
 					{
 						sprintf( tooltip_text, translator::translate("Waiting for schedule. %s left"), waiting_time);
 					}
@@ -3434,13 +3434,8 @@ void road_vehicle_t::get_screen_offset( int &xoff, int &yoff, const sint16 raste
 
 
 // chooses a route at a choose sign; returns true on success
-bool road_vehicle_t::choose_route( sint32 &restart_speed, ribi_t::ribi start_direction, uint16 index )
+bool road_vehicle_t::choose_route(sint32 &restart_speed, ribi_t::ribi start_direction, uint16 index)
 {
-	if(  cnv->get_fpl_target()!=koord3d::invalid  ) {
-		// destination is a waypoint!
-		return true;
-	}
-
 	// are we heading to a target?
 	route_t *rt = cnv->access_route();
 	target_halt = haltestelle_t::get_halt( rt->back(), get_owner() );
@@ -3448,7 +3443,7 @@ bool road_vehicle_t::choose_route( sint32 &restart_speed, ribi_t::ribi start_dir
 
 		// since convois can long than one tile, check is more difficult
 		bool can_go_there = true;
-		bool original_route = (rt->back() == cnv->get_schedule()->get_current_eintrag().pos);
+		bool original_route = (rt->back() == cnv->get_schedule()->get_current_entry().pos);
 		for(  uint32 length=0;  can_go_there  &&  length<cnv->get_tile_length()  &&  length+1<rt->get_count();  length++  ) {
 			if(  grund_t *gr = welt->lookup( rt->at( rt->get_count()-length-1) )  ) {
 				if (gr->get_halt().is_bound()) {
@@ -3487,7 +3482,7 @@ bool road_vehicle_t::choose_route( sint32 &restart_speed, ribi_t::ribi start_dir
 			// now it make sense to search a route
 			route_t target_rt;
 			koord3d next3d = rt->at(index);
-			if(  !target_rt.find_route(welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), start_direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 33, cnv->has_tall_vehicles(), route_t::choose_signal )  ) {
+			if(  !target_rt.find_route(welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), start_direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 33, cnv->has_tall_vehicles())  ) {
 				// nothing empty or not route with less than 33 tiles
 				target_halt = halthandle_t();
 				restart_speed = 0;
@@ -3504,6 +3499,7 @@ bool road_vehicle_t::choose_route( sint32 &restart_speed, ribi_t::ribi start_dir
 	}
 	return true;
 }
+
 
 
 bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uint8 second_check_count)
@@ -3535,71 +3531,32 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 		// first: check roadsigns
 		const roadsign_t *rs = NULL;
-		if(str->has_sign()) {
+		if (str->has_sign()) {
 			rs = gr->find<roadsign_t>();
-			if(rs) {
-				// since at the corner, our direction may be diagonal, we make it straight
-				const uint8 direction90 = ribi_type(get_pos().get_2d(),pos_next.get_2d());
+			route_t const& r = *cnv->get_route();
 
-				if(rs->get_desc()->is_traffic_light()  &&  (rs->get_dir()&direction90)==0) {
+			if (rs && (route_index + 1u < r.get_count())) {
+				// since at the corner, our direction may be diagonal, we make it straight
+				uint8 direction90 = ribi_type(get_pos(), pos_next);
+
+				if (rs->get_desc()->is_traffic_light() && (rs->get_dir()&direction90) == 0) {
 					// wait here
 					restart_speed = 16;
 					return false;
 				}
 				// check, if we reached a choose point
-				else if(  rs->is_free_route(direction90)  &&  !target_halt.is_bound()  ) {
-					if(  second_check_count  ) {
-						return false;
-					}
+				else {
+					// route position after road sign
+					const koord pos_next_next = r.at(route_index + 1u).get_2d();
+					// since at the corner, our direction may be diagonal, we make it straight
+					direction90 = ribi_type(pos_next, pos_next_next);
 
-					const route_t *rt = cnv->get_route();
-					// is our target occupied?
-					target_halt = haltestelle_t::get_halt( rt->back(), get_owner() );
-					if(  target_halt.is_bound()  ) {
-						// since convois can long than one tile, check is more difficult
-						bool can_go_there = true;
-						for(  uint32 length=0;  can_go_there  &&  length<cnv->get_tile_length()  &&  length+1<rt->get_count();  length++  ) {
-							can_go_there &= target_halt->is_reservable( welt->lookup( rt->at( rt->get_count()-length-1) ), cnv->self );
+					if (rs->is_free_route(direction90) && !target_halt.is_bound()) {
+						if (second_check_count) {
+							return false;
 						}
-						if(  can_go_there  ) {
-							// then reserve it ...
-							for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<rt->get_count();  length++  ) {
-								target_halt->reserve_position( welt->lookup( rt->at( rt->get_count()-length-1) ), cnv->self );
-							}
-						}
-						else {
-							// cannot go there => need slot search
-
-							// if we fail, we will wait in a step, much more simulation friendly
-							if(!cnv->is_waiting()) {
-								restart_speed = -1;
-								target_halt = halthandle_t();
-								return false;
-							}
-
-							// check if there is a free position
-							// this is much faster than waysearch
-							if(!target_halt->find_free_position(road_wt,cnv->self,obj_t::road_vehicle)) {
-								restart_speed = 0;
-								target_halt = halthandle_t();
-								//DBG_MESSAGE("road_vehicle_t::can_enter_tile()","cnv=%d nothing free found!",cnv->self.get_id());
-								return false;
-							}
-
-							// now it make sense to search a route
-							route_t target_rt;
-							if(  !target_rt.find_route( welt, pos_next, this, speed_to_kmh(cnv->get_min_top_speed()), direction90, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 33, cnv->has_tall_vehicles())  ) {
-								// nothing empty or not route with less than 33 tiles
-								target_halt = halthandle_t();
-								restart_speed = 0;
-								return false;
-							}
-
-							// now reserve our choice (beware: might be longer than one tile!)
-							for(  uint32 length=0;  length<cnv->get_tile_length()  &&  length+1<target_rt.get_count();  length++  ) {
-								target_halt->reserve_position( welt->lookup( target_rt.at( target_rt.get_count()-length-1) ), cnv->self );
-							}
-							cnv->update_route(route_index, target_rt);
+						if (!choose_route(restart_speed, direction90, route_index)) {
+							return false;
 						}
 					}
 				}
@@ -4078,7 +4035,7 @@ route_t::route_result_t rail_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 	cnv->set_next_reservation_index( 0 );	// nothing to reserve
 	target_halt = halthandle_t();	// no block reserved
 	// use length > 8888 tiles to advance to the end of terminus stations
-	const sint16 tile_length = (cnv->get_schedule()->get_current_eintrag().reverse == 1 ? 8888 : 0) + cnv->get_tile_length();
+	const sint16 tile_length = (cnv->get_schedule()->get_current_entry().reverse == 1 ? 8888 : 0) + cnv->get_tile_length();
 	route_t::route_result_t r = route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_highest_axle_load() : get_sum_weight(), is_tall, tile_length, SINT64_MAX_VALUE, cnv ? cnv->get_weight_summary().weight / 1000 : get_total_weight());
 	cnv->set_next_stop_index(0);
  	if(r == route_t::valid_route_halt_too_short)
@@ -4248,7 +4205,7 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr)
 sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &next_signal_index, uint32 brake_steps, uint16 modified_sighting_distance_tiles, route_t* route, sint32 modified_route_index)
 {
 	const schedule_t* schedule = cnv->get_schedule(); 	
-	grund_t const* target = welt->lookup(schedule->get_current_eintrag().pos); 
+	grund_t const* target = welt->lookup(schedule->get_current_entry().pos); 
 
 	if(target == NULL) 
 	{
@@ -4353,7 +4310,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	else
 	{
 		// The target is an end of choose sign along the route.
-		const sint16 tile_length = (cnv->get_schedule()->get_current_eintrag().reverse ? 8888 : 0) + cnv->get_tile_length();
+		const sint16 tile_length = (cnv->get_schedule()->get_current_entry().reverse ? 8888 : 0) + cnv->get_tile_length();
 		can_find_route = target_rt.calc_route(welt, route->at(start_block), target->get_pos(), this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000) == route_t::valid_route; 
 		// This route only takes us to the end of choose sign, so we must calculate the route again beyond that point to the actual destination then concatenate them. 
 		if(can_find_route)
@@ -4393,7 +4350,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	assert(leading);
 	cnv = get_convoi(); // This should not be necessary, but for some unfathomable reason, cnv is sometimes not equal to get_convoi(), even though get_convoi() just returns cnv (!?!)
 	uint16 next_signal = INVALID_INDEX;
-	schedule_entry_t destination = cnv->get_schedule()->get_current_eintrag();
+	schedule_entry_t destination = cnv->get_schedule()->get_current_entry();
 
 	bool destination_is_nonreversing_waypoint = !destination.reverse && !haltestelle_t::get_halt(destination.pos, get_owner()).is_bound() && (!welt->lookup(destination.pos) || !welt->lookup(destination.pos)->get_depot());
 
@@ -5055,12 +5012,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	}
 	bool do_early_platform_search =	schedule != NULL
 		&& (schedule->is_mirrored() || schedule->is_bidirectional())
-		&& schedule->get_current_eintrag().minimum_loading == 0;
+		&& schedule->get_current_entry().minimum_loading == 0;
 
 	if(do_early_platform_search)
 	{
 		platform_size_needed = cnv->get_tile_length();
-		dest_halt = haltestelle_t::get_halt(cnv->get_schedule()->get_current_eintrag().pos, cnv->get_owner());
+		dest_halt = haltestelle_t::get_halt(cnv->get_schedule()->get_current_entry().pos, cnv->get_owner());
 	}
 	if(!reserve)
 	{
@@ -5289,7 +5246,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 			if(!signal_here && station_signals_ahead)
 			{
-				halthandle_t destination_halt = haltestelle_t::get_halt(cnv->get_schedule()->get_current_eintrag().pos, get_owner()); 
+				halthandle_t destination_halt = haltestelle_t::get_halt(cnv->get_schedule()->get_current_entry().pos, get_owner()); 
 				station_signals_in_advance = check_halt != this_halt && check_halt != destination_halt; 
 				if (check_halt != this_halt && check_halt == destination_halt)
 				{
@@ -6027,13 +5984,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							// Now check to make sure that the actual destination tile is not just a few tiles down the same platform
 							uint16 route_ahead_check = i;
 							koord3d current_pos = pos;
-							while(current_pos != cnv->get_schedule()->get_current_eintrag().pos && haltestelle_t::get_halt(current_pos, cnv->get_owner()) == dest_halt && route_ahead_check < route->get_count())
+							while(current_pos != cnv->get_schedule()->get_current_entry().pos && haltestelle_t::get_halt(current_pos, cnv->get_owner()) == dest_halt && route_ahead_check < route->get_count())
 							{
 								current_pos = route->at(route_ahead_check);
 								route_ahead_check++;
 								platform_size_found++;
 							}
-							if(current_pos != cnv->get_schedule()->get_current_eintrag().pos)
+							if(current_pos != cnv->get_schedule()->get_current_entry().pos)
 							{
 								early_platform_index = i;
 							}
@@ -6057,7 +6014,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				else
 				{
 					// A platform was found, and has ended - check where this convoy should stop.
-					if(platform_size_needed < platform_size_found && !schedule->get_current_eintrag().reverse)
+					if(platform_size_needed < platform_size_found && !schedule->get_current_entry().reverse)
 					{
 						// Do not go to the end, but stop part way along the platform.
 						const uint16 difference = platform_size_found - platform_size_needed;
@@ -6752,8 +6709,8 @@ void rail_vehicle_t::leave_tile()
 				rail_vehicle_t* w = cnv ? (rail_vehicle_t*)cnv->front() : NULL;
 			
 				const halthandle_t this_halt = gr->get_halt();
-				const halthandle_t dest_halt = haltestelle_t::get_halt((cnv && cnv->get_schedule() ? cnv->get_schedule()->get_current_eintrag().pos : koord3d::invalid), get_owner()); 
-				const bool at_reversing_destination = dest_halt.is_bound() && this_halt == dest_halt && cnv->get_schedule() && cnv->get_schedule()->get_current_eintrag().reverse; 
+				const halthandle_t dest_halt = haltestelle_t::get_halt((cnv && cnv->get_schedule() ? cnv->get_schedule()->get_current_entry().pos : koord3d::invalid), get_owner()); 
+				const bool at_reversing_destination = dest_halt.is_bound() && this_halt == dest_halt && cnv->get_schedule() && cnv->get_schedule()->get_current_entry().reverse; 
 
 				route_t* route = cnv ? cnv->get_route() : NULL;
 				koord3d this_tile;
@@ -6773,7 +6730,7 @@ void rail_vehicle_t::leave_tile()
 					this_tile = cnv->get_route()->at(ri);
 					previous_tile = cnv->get_route()->at(max(1u, ri) - 1u);
 
-					if (cnv->get_schedule() && cnv->get_schedule()->get_current_eintrag().reverse)
+					if (cnv->get_schedule() && cnv->get_schedule()->get_current_entry().reverse)
 					{
 						grund_t* gr_previous_tile = welt->lookup(previous_tile);
 						grund_t* gr_this_tile = welt->lookup(this_tile); 
@@ -8017,7 +7974,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		convoi_t &convoy = *cnv;
 		const sint32 brake_steps = convoy.calc_min_braking_distance(welt->get_settings(), convoy.get_weight_summary(), cnv->get_akt_speed());
 		const sint32 route_steps = route_infos.calc_steps(route_infos.get_element(route_index).steps_from_start, route_infos.get_element(last_index).steps_from_start);
-		const grund_t* gr = welt->lookup(cnv->get_schedule()->get_current_eintrag().pos);
+		const grund_t* gr = welt->lookup(cnv->get_schedule()->get_current_entry().pos);
 		if(route_steps <= brake_steps && (!gr || !gr->get_depot())) // Do not recalculate a route if the route ends in a depot.
 		{
 			// we need a longer route to decide, whether we will have to throttle:

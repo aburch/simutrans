@@ -63,7 +63,7 @@ public:
 	uint8 get_current_stop() const { return current_stop; }
 
 	// always returns a valid entry to the current stop
-	schedule_entry_t const& get_current_eintrag() const { return current_stop >= entries.get_count() ? dummy_entry : entries[current_stop]; }
+	schedule_entry_t const& get_current_entry() const { return current_stop >= entries.get_count() ? dummy_entry : entries[current_stop]; }
 
 private:
 	/**

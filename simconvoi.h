@@ -293,7 +293,7 @@ private:
 	// Added by : Knightly
 	// Purpose  : To hold the original schedule before opening schedule window
 	schedule_t *old_schedule;
-	koord3d fpl_target;
+	koord3d schedule_target;
 
 	/**
 	* loading_level was minimum_loading before. Actual percentage loaded for loadable vehicles (station length!).
@@ -833,8 +833,8 @@ public:
 	void update_route(uint32 index, const route_t &replacement); // replace route with replacement starting at index.
 	void replace_route(const route_t &replacement); // Completely replace the route with that passed as a parameter.
 
-	const koord3d get_fpl_target() const { return fpl_target; }
-	void set_fpl_target( koord3d t ) { fpl_target = t; }
+	const koord3d get_schedule_target() const { return schedule_target; }
+	void set_schedule_target( koord3d t ) { schedule_target = t; }
 
 	/**
 	* get line

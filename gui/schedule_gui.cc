@@ -399,7 +399,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 
 	numimp_load.set_pos( scr_coord( D_MARGIN_LEFT + label_width + D_H_SPACE, ypos ) );
 	numimp_load.set_width( 60 );
-	numimp_load.set_value( schedule->get_current_eintrag().minimum_loading );
+	numimp_load.set_value( schedule->get_current_entry().minimum_loading );
 	numimp_load.set_limits( 0, 100 );
 	numimp_load.set_increment_mode(10);
 	numimp_load.add_listener(this);
@@ -421,14 +421,14 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 	lb_wait.set_pos( scr_coord( D_MARGIN_LEFT, ypos+2 ) );
 	add_component(&lb_wait);
 
-	if(  schedule->get_current_eintrag().waiting_time_shift==0  ) {
+	if(  schedule->get_current_entry().waiting_time_shift==0  ) {
 		strcpy( str_parts_month, translator::translate("off") );
 		strcpy( str_parts_month_as_clock, translator::translate("off") );
 
 	}
 	else {
-		sprintf( str_parts_month, "1/%d",  1<<(16-schedule->get_current_eintrag().waiting_time_shift) );
-		sint64 ticks_waiting = welt->ticks_per_world_month >> (16-schedule->get_current_eintrag().waiting_time_shift);
+		sprintf( str_parts_month, "1/%d",  1<<(16-schedule->get_current_entry().waiting_time_shift) );
+		sint64 ticks_waiting = welt->ticks_per_world_month >> (16-schedule->get_current_entry().waiting_time_shift);
 		welt->sprintf_ticks(str_parts_month_as_clock, sizeof(str_parts_month_as_clock), ticks_waiting + 1);
 	}
 
@@ -458,7 +458,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 		// Wait for time
 		bt_wait_for_time.init(button_t::square_automatic, "Wait for time", scr_coord( BUTTON1_X, ypos+12 ), scr_size(D_BUTTON_WIDTH*2,D_BUTTON_HEIGHT) );
 		bt_wait_for_time.set_tooltip("If this is set, convoys will wait until one of the specified times before departing, the specified times being fractions of a month.");
-		bt_wait_for_time.pressed = schedule->get_current_eintrag().wait_for_time;
+		bt_wait_for_time.pressed = schedule->get_current_entry().wait_for_time;
 		bt_wait_for_time.add_listener(this);
 		add_component(&bt_wait_for_time);
 	}
@@ -493,7 +493,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 			numimp_spacing_shift.set_pos( scr_coord( numimp_spacing.get_pos().x + numimp_spacing.get_size().w + D_H_SPACE, ypos+2 ) );
 			//numimp_spacing_shift.set_width( 60 );
 			numimp_spacing_shift.set_width_by_len(3);
-			numimp_spacing_shift.set_value( schedule->get_current_eintrag().spacing_shift  );
+			numimp_spacing_shift.set_value( schedule->get_current_entry().spacing_shift  );
 			numimp_spacing_shift.set_limits( 0,welt->get_settings().get_spacing_shift_divisor() );
 			numimp_spacing_shift.set_increment_mode( 1 ); 
 			numimp_spacing_shift.add_listener(this);
@@ -616,9 +616,9 @@ void schedule_gui_t::update_selection()
 	if(  !schedule->empty()  ) {
 		schedule->set_current_stop( min(schedule->get_count()-1,schedule->get_current_stop()) );
 		const uint8 current_stop = schedule->get_current_stop();
-		bt_wait_for_time.pressed = schedule->get_current_eintrag().wait_for_time;
+		bt_wait_for_time.pressed = schedule->get_current_entry().wait_for_time;
 		if(  haltestelle_t::get_halt(schedule->entries[current_stop].pos, player).is_bound()  ) {
-			if(!schedule->get_current_eintrag().wait_for_time)
+			if(!schedule->get_current_entry().wait_for_time)
 			{
 				lb_load.set_color( SYSCOL_TEXT );
 				numimp_load.enable();
@@ -637,7 +637,7 @@ void schedule_gui_t::update_selection()
 				lb_spacing.set_color( SYSCOL_TEXT );
 				numimp_spacing.enable();
 				numimp_spacing_shift.enable();
-				numimp_spacing_shift.set_value(schedule->get_current_eintrag().spacing_shift);
+				numimp_spacing_shift.set_value(schedule->get_current_entry().spacing_shift);
 				if (schedule->get_spacing() ) {
 					lb_spacing_shift.set_color( SYSCOL_TEXT );
 					lb_spacing_as_clock.set_color( SYSCOL_TEXT );
@@ -652,7 +652,7 @@ void schedule_gui_t::update_selection()
 			}
 			if(  (schedule->entries[current_stop].minimum_loading>0 || schedule->entries[current_stop].wait_for_time) &&  schedule->entries[current_stop].waiting_time_shift>0  ) {
 				sprintf( str_parts_month, "1/%d",  1<<(16-schedule->entries[current_stop].waiting_time_shift) );
-				sint64 ticks_waiting = welt->ticks_per_world_month >> (16-schedule->get_current_eintrag().waiting_time_shift);
+				sint64 ticks_waiting = welt->ticks_per_world_month >> (16-schedule->get_current_entry().waiting_time_shift);
 				welt->sprintf_ticks(str_parts_month_as_clock, sizeof(str_parts_month_as_clock), ticks_waiting + 1);
 			}
 			else {

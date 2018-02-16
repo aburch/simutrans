@@ -563,7 +563,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 
 	if (cnv.is_bound() && cnv->get_schedule() && !cnv->get_schedule()->empty()) {
 		// if next schedule entry is this depot => advance to next entry
-		const koord3d& cur_pos = cnv->get_schedule()->get_current_eintrag().pos;
+		const koord3d& cur_pos = cnv->get_schedule()->get_current_entry().pos;
 		if (cur_pos == get_pos()) {
 			cnv->get_schedule()->advance();
 		}

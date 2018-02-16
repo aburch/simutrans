@@ -1197,7 +1197,7 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 				&& ((get_halt(c->get_pos(), owner) == self) 
 					|| (c->get_vehicle(0)->get_waytype() == water_wt 
 					&& c->get_state() == convoi_t::LOADING 
-					&& get_halt(c->get_schedule()->get_current_eintrag().pos, owner) == self)))
+					&& get_halt(c->get_schedule()->get_current_entry().pos, owner) == self)))
 			{
 				++i;
 
@@ -2564,7 +2564,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 						// Also, if this stop has a wait for load order without a maximum time and the faster convoy 
 						// also has that, do not wait for a "faster" convoy, as it may never come.
 
-						const schedule_entry_t schedule_entry = cnv->get_schedule()->get_current_eintrag();
+						const schedule_entry_t schedule_entry = cnv->get_schedule()->get_current_entry();
 						if (!fast_convoy.is_bound())
 						{
 							wait_for_faster_convoy = false;
@@ -2579,7 +2579,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 							else
 							{
 								// Check to see whether this has the same untimed wait for load order even if it is not on the same line.
-								schedule_entry_t fast_convoy_schedule_entry = fast_convoy->get_schedule()->get_current_eintrag();
+								schedule_entry_t fast_convoy_schedule_entry = fast_convoy->get_schedule()->get_current_entry();
 								if(haltestelle_t::get_halt(fast_convoy_schedule_entry.pos, cnv->get_owner()) == self)
 								{
 									if(fast_convoy_schedule_entry.minimum_loading > 0 && !fast_convoy_schedule_entry.wait_for_time && fast_convoy_schedule_entry.waiting_time_shift == 0)

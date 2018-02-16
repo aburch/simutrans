@@ -359,7 +359,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			details_button.pressed = win_get_magic(magic_convoi_detail + cnv.get_id());
 			go_home_button.enable(); // Will be disabled, if convoy goes to a depot.
 			if (!cnv->get_schedule()->empty()) {
-				const grund_t* g = welt->lookup(cnv->get_schedule()->get_current_eintrag().pos);
+				const grund_t* g = welt->lookup(cnv->get_schedule()->get_current_entry().pos);
 				if (g != NULL && g->get_depot()) {
 					go_home_button.disable();
 				}
@@ -373,7 +373,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				go_home_button.enable();
 			}
 
-			if (grund_t* gr = welt->lookup(cnv->get_schedule()->get_current_eintrag().pos)) {
+			if (grund_t* gr = welt->lookup(cnv->get_schedule()->get_current_entry().pos)) {
 				go_home_button.pressed = gr->get_depot() != NULL;
 			}
 			details_button.pressed = win_get_magic(magic_convoi_detail + cnv.get_id());
@@ -505,7 +505,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 			char waiting_time[64];
 			cnv->snprintf_remaining_loading_time(waiting_time, sizeof(waiting_time));
-			if (cnv->get_schedule()->get_current_eintrag().wait_for_time)
+			if (cnv->get_schedule()->get_current_entry().wait_for_time)
 			{
 				sprintf(speed_text, translator::translate("Waiting for schedule. %s left"), waiting_time);
 				speed_color = COL_YELLOW;
