@@ -30,8 +30,6 @@ class goods_desc_t;
 // set to zero to use the small font
 #define ALWAYS_LARGE 1
 
-#define MAP_TRANSPORT_TYPE_ITEMS (9)
-
 /**
  * This class is used to render the relief map.
  * Implemented as singleton.
