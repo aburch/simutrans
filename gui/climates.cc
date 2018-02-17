@@ -112,7 +112,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	sint16 arctic = 0;
 	for(  int i=desert_climate-1;  i<=rocky_climate-1;  i++  ) {
 
-		climate_borders_ui[i].init( sets->get_climate_borders()[i+1], -5, 32 - sets->get_groundwater(), gui_numberinput_t::AUTOLINEAR, false );
+		climate_borders_ui[i].init( sets->get_climate_borders()[i+1], sets->get_groundwater(), 32+sets->get_groundwater(), gui_numberinput_t::AUTOLINEAR, false );
 		climate_borders_ui[i].set_pos( scr_coord(L_COLUMN_EDIT, cursor.y) );
 		climate_borders_ui[i].set_size( scr_size(edit_width, D_EDIT_HEIGHT) );
 		climate_borders_ui[i].add_listener( this );
@@ -206,7 +206,7 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			welt_gui->update_preview();
 		}
 		for(  int i=desert_climate-1;  i<=rocky_climate-1;  i++  ) {
-			climate_borders_ui[i].set_limits( sets->get_groundwater(), 32 - sets->get_groundwater() );
+			climate_borders_ui[i].set_limits( sets->get_groundwater(), 32+sets->get_groundwater() );
 			climate_borders_ui[i].set_value( climate_borders_ui[i].get_value() );
 		}
 	}
@@ -247,7 +247,7 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		if(  komp==climate_borders_ui+i-1  ) {
 			sets->climate_borders[i] = (sint16)v.i;
 		}
-		if(  sets->climate_borders[i]  >arctic  ) {
+		if(  sets->climate_borders[i] > arctic  ) {
 			arctic = sets->climate_borders[i];
 		}
 	}
