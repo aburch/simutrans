@@ -7207,7 +7207,11 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		}
 
 		if(  ribi_t::is_straight(str->get_ribi())  ) {
-			time_overtaking -= (VEHICLE_STEPS_PER_TILE<<16) / kmh_to_speed(str->get_max_speed());
+			// The code from Standard can produce a division be zero error.
+			if (kmh_to_speed(str->get_max_speed()) > 0)
+			{
+				time_overtaking -= (VEHICLE_STEPS_PER_TILE << 16) / kmh_to_speed(str->get_max_speed());
+			}
 		}
 		else {
 			time_overtaking -= (vehicle_base_t::get_diagonal_vehicle_steps_per_tile()<<16) / kmh_to_speed(str->get_max_speed());
