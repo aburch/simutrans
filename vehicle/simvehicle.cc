@@ -6440,7 +6440,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							// Do not clear the last signal in the route, as nothing is reserved beyond it, unless there are no more signals beyond at all (count == 0)
 							sint32 add_value = 0;
-							if(reached_end_of_loop && signs.get_count() == 1)
+							if(reached_end_of_loop && signs.get_count() > 0)
 							{
 								add_value = 1;
 							}
