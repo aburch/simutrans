@@ -294,8 +294,7 @@ map_frame_t::map_frame_t() :
 	transport_type_c.set_max_size( scr_size( 116, 10 * D_BUTTON_HEIGHT) );
 
 	for (int i = 0; i < simline_t::MAX_LINE_TYPE; i++) {
-		// fixed in next commit
-		//transport_type_c.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(simline_t::linetype2string[i]), SYSCOL_TEXT));
+		transport_type_c.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(schedule_type_text[i]), SYSCOL_TEXT));
 	}
 
 	transport_type_c.set_selection(0);

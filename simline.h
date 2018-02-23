@@ -250,7 +250,13 @@ public:
 	void new_month();
 
 	linetype get_linetype() { return type; }
-	static linetype get_linetype( const waytype_t wt );
+
+	static waytype_t linetype_to_waytype(const linetype lt);
+	static linetype waytype_to_linetype(const waytype_t wt);
+	static const char *get_linetype_name(const linetype lt);
+	inline char const *get_linetype_name() const {
+		return schedule_type_text[type];
+	}
 
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 
@@ -295,10 +301,6 @@ public:
 		else {
 			return schedule->get_schedule_type_symbol();
 		}
-	}
-
-	inline char const *get_linetype_name() const {
-		return schedule_type_text[type];
 	}
 
 	sint64 calc_departures_scheduled();
