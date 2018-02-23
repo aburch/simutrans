@@ -38,8 +38,6 @@ class simline_t {
 public:
 	enum linetype { line = 0, truckline = 1, trainline = 2, shipline = 3, airline = 4, monorailline=5, tramline=6, maglevline=7, narrowgaugeline=8, MAX_LINE_TYPE};
 
-	static const char *linetype2string[MAX_LINE_TYPE];
-
 protected:
 	schedule_t * schedule;
 	player_t *player;
@@ -188,7 +186,10 @@ public:
 	void new_month();
 
 	linetype get_linetype() { return type; }
-	static linetype get_linetype( const waytype_t wt );
+
+	static waytype_t linetype_to_waytype( const linetype lt );
+	static linetype waytype_to_linetype( const waytype_t wt );
+	static const char *get_linetype_name( const linetype lt );
 
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 
@@ -200,6 +201,7 @@ public:
 	bool get_withdraw() const { return withdraw; }
 
 	player_t *get_owner() const {return player;}
+
 
 };
 

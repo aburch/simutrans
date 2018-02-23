@@ -647,7 +647,7 @@ uint32 money_frame_t::get_rdwr_id()
 
 void money_frame_t::rdwr( loadsave_t *file )
 {
-	bool monthly = mchart.is_visible();;
+	bool monthly = mchart.is_visible();
 	file->rdwr_bool( monthly );
 
 	// button state already collected
