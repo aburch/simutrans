@@ -3640,7 +3640,7 @@ const char* tool_build_wayobj_t::get_tooltip(const player_t *) const
 					}
 					any_prohibitive = true;
 					char tmpbuf[30];
-					sprintf(tmpbuf, "Prohibitive %i", i);
+					sprintf(tmpbuf, "Prohibitive %i-%i", desc->get_waytype(), i);
 					n += sprintf(toolstr + n, " ");
 					n += sprintf(toolstr + n, translator::translate(tmpbuf));
 				}

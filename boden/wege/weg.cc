@@ -932,7 +932,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 				}
 				any_permissive = true;
 				char tmpbuf[30];
-				sprintf(tmpbuf, "Permissive %i", i);
+				sprintf(tmpbuf, " Permissive %i-%i", desc->get_waytype(), i);
 				buf.append(translator::translate(tmpbuf));
 				buf.append("\n");
 			}
@@ -962,7 +962,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 				}
 				any_prohibitive = true;
 				char tmpbuf[30];
-				sprintf(tmpbuf, "Prohibitive %i", i);
+				sprintf(tmpbuf, "Prohibitive %i-%i", desc->get_waytype(), i);
 				buf.append(translator::translate(tmpbuf));
 				buf.append("\n");
 			}
