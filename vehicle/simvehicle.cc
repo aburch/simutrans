@@ -4536,7 +4536,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		{
 			// Check for head-on collisions in drive by sight mode so as to fix deadlocks automatically.
 			convoihandle_t c = w->get_reserved_convoi();
-			if (c->get_state() == convoi_t::DRIVING || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE)
+			if (c->get_state() == convoi_t::DRIVING || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE|| c->get_state() == convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS)
 			{
 				ribi_t::ribi other_convoy_direction = c->front()->get_direction();
 				if (other_convoy_direction != get_direction())
