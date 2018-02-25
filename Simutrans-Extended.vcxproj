@@ -3654,10 +3654,10 @@
     <None Include="base-texts-classes_gui.dat" />
     <None Include="base-texts-depot-window-refurbish.dat" />
     <None Include="base-texts-extended-journey-time-measurement.dat" />
+    <None Include="base-texts-missing-feb-2018.dat" />
     <None Include="base-texts-new-convoy-debug-information.dat" />
     <None Include="base_texts_extended-passenger-generation.dat" />
     <None Include="base_texts_bridge-change.dat" />
-    <None Include="base_texts_extended.dat" />
     <None Include="base_texts_extended_10.0.dat" />
     <None Include="base_texts_extended_10.1.dat" />
     <None Include="base_texts_extended_10.11.dat" />
