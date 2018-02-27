@@ -41,6 +41,7 @@ ware_t::ware_t(const goods_desc_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -
 	menge = 0;
 	index = wtyp->get_index();
 	arrival_time = 0;
+	g_class = 0;
 }
 
 // Constructor for new revenue system: packet of cargo keeps track of its origin.
