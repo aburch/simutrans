@@ -188,11 +188,16 @@ int ai_goods_t::get_factory_tree_missing_count( fabrik_t *fab )
 		return 0;
 	}
 
+	bool complete = false;	// found at least one factory
+	
 	// now check for all
 	for (int i = 0; i < d.get_supplier_count(); ++i) {
 		goods_desc_t const* const ware = d.get_supplier(i)->get_input_type();
 
-		bool complete = false;	// found at least one factory
+		if (!d.is_consumer_only())
+		{
+			complete = false;
+		}
 		FOR(vector_tpl<koord>, const& q, fab->get_suppliers()) {
 			fabrik_t* const qfab = fabrik_t::get_fab(q);
 			if(!qfab) {
