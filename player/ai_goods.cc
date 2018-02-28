@@ -252,7 +252,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 	if(qfab->get_desc()->get_placement()!=factory_desc_t::Water) {
 		if( length == 0 ) {
 			vector_tpl<koord3d> tile_list[2];
-			uint16 const cov = welt->get_settings().get_station_coverage_factories();
+			uint16 const cov = welt->get_settings().get_station_coverage_factories() - 1;
 			koord test;
 			for( uint8 i = 0; i < 2; i++ ) {
 				fabrik_t *fab =  i==0 ? qfab : zfab;
@@ -394,7 +394,7 @@ bool ai_goods_t::create_ship_transport_vehicle(fabrik_t *qfab, int vehicle_count
 	halthandle_t halt = haltestelle_t::get_halt(gr->get_pos(),this);
 	koord pos1 = platz1 - koord(gr->get_grund_hang())*h->get_size().y;
 	koord best_pos = pos1;
-	uint16 const cov = welt->get_settings().get_station_coverage_factories();
+	uint16 const cov = welt->get_settings().get_station_coverage_factories() - 1;
 	for (int y = pos1.y - cov; y <= pos1.y + cov; ++y) {
 		for (int x = pos1.x - cov; x <= pos1.x + cov; ++x) {
 			koord p(x,y);

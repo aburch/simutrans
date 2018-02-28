@@ -221,7 +221,7 @@ bool ai_t::find_place(koord &start, koord &size, koord target, koord off)
 	// distance of last found point
 	int dist=0x7FFFFFFF;
 	koord	platz;
-	int const cov = welt->get_settings().get_station_coverage_factories();
+	int const cov = welt->get_settings().get_station_coverage_factories() - 1;
 	int xpos = start.x;
 	int ypos = start.y;
 
