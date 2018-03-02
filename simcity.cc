@@ -608,21 +608,22 @@ void stadt_t::add_gebaeude_to_stadt(const gebaeude_t* gb, bool ordered)
 		for (k.y = 0; k.y < size.y; k.y++) {
 			for (k.x = 0; k.x < size.x; k.x++) {
 				if (gebaeude_t* const add_gb = obj_cast<gebaeude_t>(welt->lookup_kartenboden(pos + k)->first_obj())) {
-					if(add_gb->get_tile()->get_desc()!=gb->get_tile()->get_desc()) {
-						dbg->warning( "stadt_t::add_gebaeude_to_stadt()","two buildings \"%s\" and \"%s\" at (%i,%i), which might lead to problems", add_gb->get_tile()->get_desc()->get_name(), gb->get_tile()->get_desc()->get_name(), pos.x + k.x, pos.y + k.y);
-						buildings.remove(add_gb);
-					}
-					else {
+					if (gb->is_same_building(add_gb)) {
+
 						if(  ordered  ) {
 							buildings.insert_ordered(add_gb, tile->get_desc()->get_level() + 1, compare_gebaeude_pos);
 						}
 						else {
 							buildings.append(add_gb, tile->get_desc()->get_level() + 1);
 						}
+
+						add_gb->set_stadt(this);
+						if (add_gb->get_tile()->get_desc()->is_townhall()) {
+							has_townhall = true;
+						}
 					}
-					add_gb->set_stadt(this);
-					if (add_gb->get_tile()->get_desc()->is_townhall()) {
-						has_townhall = true;
+					else {
+						// found tile of another building, ignore it
 					}
 				}
 			}
