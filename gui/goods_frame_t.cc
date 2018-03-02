@@ -68,9 +68,9 @@ goods_frame_t::goods_frame_t() :
 	gui_frame_t( translator::translate("gl_title") ),
 	sort_label(translator::translate("hl_txt_sort")),
 	tile_speed(NULL,SYSCOL_TEXT_HIGHLIGHT,gui_label_t::right),
+	speed_text( &speed_message, D_BUTTON_WIDTH*4+D_V_SPACE*3 ),
 	goods_stats(),
-	scrolly(&goods_stats),
-	speed_text( &speed_message, D_BUTTON_WIDTH*4+D_V_SPACE*3 )
+	scrolly(&goods_stats)
 {
 	int y = D_MARGIN_TOP;
 
@@ -206,7 +206,7 @@ void goods_frame_t::sort_list()
 		welt->speed_to_tiles_per_month(kmh_to_speed(100))
 	);
 	tile_speed.set_text_pointer( speed_message2 );
-	
+
 	// update buttons
 	sortedby.set_text(sort_text[sortby]);
 	sorteddir.set_text(sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
