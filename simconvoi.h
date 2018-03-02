@@ -727,6 +727,11 @@ private:
 	 */
 	bool is_choosing:1; 
 
+	// This is true if this convoy has not stopped since it emerged
+	// from a depot. This is useful for ensuring that a stop's reversing
+	// status is not set incorrectly.
+	bool last_stop_was_depot:1;
+
 	// The maximum speed allowed by the current signalling system
 	sint32 max_signal_speed; 
 
@@ -735,6 +740,8 @@ private:
 	// explorer. 
 	minivec_tpl<uint8> passenger_classes_carried;
 	minivec_tpl<uint8> mail_classes_carried;
+
+
 
 public: 
 	/**
@@ -1183,6 +1190,9 @@ public:
 
 	void set_is_choosing(bool value) { is_choosing = value; }
 	bool get_is_choosing() const { return is_choosing; }
+
+	void set_last_stop_was_depot(bool value) { last_stop_was_depot = value; }
+	bool get_last_stop_was_depot() const { return last_stop_was_depot; }
 
 	void set_maximum_signal_speed(sint32 value) { max_signal_speed = value; }
 	sint32 get_max_signal_speed() const { return max_signal_speed; }

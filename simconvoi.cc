@@ -216,6 +216,7 @@ convoi_t::convoi_t(loadsave_t* file) : vehicle(max_vehicle, NULL)
 	init(0);
 	replace = NULL;
 	is_choosing = false;
+	last_stop_was_depot = true;
 	max_signal_speed = SPEED_UNLIMITED;
 
 	no_route_retry_count = 0;
@@ -248,6 +249,7 @@ convoi_t::convoi_t(player_t* player) : vehicle(max_vehicle, NULL)
 	init_financial_history();
 	current_stop = 255;
 	is_choosing = false;
+	last_stop_was_depot = true;
 	max_signal_speed = SPEED_UNLIMITED;
 
 	// Added by : Knightly
@@ -1455,7 +1457,7 @@ bool convoi_t::drive_to()
 		bool update_line = false;
 		while(success == route_t::valid_route && counter--)
 		{
-			if(schedule_entry->reverse == -1 && (!gr_current || !gr_current->get_depot()))
+			if(schedule_entry->reverse == -1 && (!gr_current || !gr_current->get_depot()) && !last_stop_was_depot)
 			{
 				schedule_entry->reverse = check_destination_reverse() ? 1 : 0;
 				schedule->set_reverse(schedule_entry->reverse, schedule->get_current_stop()); 
@@ -1467,6 +1469,8 @@ bool convoi_t::drive_to()
 					update_line = true;	
 				}
 			}
+
+			last_stop_was_depot = false;
 
 			if(schedule_entry->reverse == 1 || haltestelle_t::get_halt(schedule_entry->pos, get_owner()).is_bound())
 			{
@@ -2239,6 +2243,7 @@ end_loop:
 
 		// immediate action needed
 		case LEAVING_DEPOT:
+			last_stop_was_depot = true;
 			get_owner()->simlinemgmt.get_lines(schedule->get_type(), &lines);	
 			FOR(vector_tpl<linehandle_t>, const l, lines)
 			{
@@ -3430,7 +3435,7 @@ void convoi_t::vorfahren()
 					sch->increment_index(&stop, &rev);
 				}
 				
-				if((sch->entries[stop].reverse == 1 != (state == REVERSING)) && (state != ROUTE_JUST_FOUND || front()->get_waytype() != road_wt))
+				if((sch->entries[stop].reverse == 1 != (state == REVERSING)) && (state != ROUTE_JUST_FOUND || front()->get_waytype() != road_wt) && !last_stop_was_depot)
 				{
 					need_to_update_line = true;
 					const sint8 reverse_state = state == REVERSING ? 1 : 0;
@@ -4841,6 +4846,13 @@ void convoi_t::rdwr(loadsave_t *file)
 			uint8 has_reserved = 0;
 			file->rdwr_byte(has_reserved);
 		}
+	}
+
+	if ((file->get_extended_version() >= 13 && file->get_extended_revision() >= 5) || file->get_extended_version() >= 14)
+	{
+		bool lswd = last_stop_was_depot;
+		file->rdwr_bool(lswd);
+		last_stop_was_depot = lswd;
 	}
 
 	// This must come *after* all the loading/saving.

@@ -6713,7 +6713,7 @@ void rail_vehicle_t::leave_tile()
 			
 				const halthandle_t this_halt = gr->get_halt();
 				const halthandle_t dest_halt = haltestelle_t::get_halt((cnv && cnv->get_schedule() ? cnv->get_schedule()->get_current_entry().pos : koord3d::invalid), get_owner()); 
-				const bool at_reversing_destination = dest_halt.is_bound() && this_halt == dest_halt && cnv->get_schedule() && cnv->get_schedule()->get_current_entry().reverse; 
+				const bool at_reversing_destination = dest_halt.is_bound() && this_halt == dest_halt && cnv->get_schedule() && cnv->get_schedule()->get_current_entry().reverse == 1; 
 
 				route_t* route = cnv ? cnv->get_route() : NULL;
 				koord3d this_tile;

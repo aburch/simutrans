@@ -3655,6 +3655,7 @@
     <None Include="base-texts-depot-window-refurbish.dat" />
     <None Include="base-texts-extended-journey-time-measurement.dat" />
     <None Include="base-texts-missing-feb-2018.dat" />
+    <None Include="base-texts-missing-march-2018.dat" />
     <None Include="base-texts-new-convoy-debug-information.dat" />
     <None Include="base_texts_extended-passenger-generation.dat" />
     <None Include="base_texts_bridge-change.dat" />
