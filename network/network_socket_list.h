@@ -181,7 +181,12 @@ public:
 	 */
 	static void unlock_player_all(uint8 player_nr, bool unlock, uint32 except_client = list.get_count());
 
-	static void send_all(network_command_t* nwc, bool only_playing_clients);
+	/**
+	 * send command to all clients
+	 * @param if only_playing_clients true then send only to playing clients
+	 * @param if player_nr < PLAYER_UNOWNED then only send to clients with unlocked player
+	 */
+	static void send_all(network_command_t* nwc, bool only_playing_clients, uint8 player_nr = PLAYER_UNOWNED);
 
 	static void change_state(uint32 id, uint8 new_state);
 
