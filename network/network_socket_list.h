@@ -6,6 +6,7 @@
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "../utils/plainstring.h"
+#include "../simconst.h"
 
 class network_command_t;
 class packet_t;
