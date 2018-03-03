@@ -351,7 +351,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 			koord sch = find_place_for_hub( start_stadt );
 			call_general_tool( TOOL_BUILD_STATION, sch, busstop_desc->get_name() );
 			start_connect_hub = get_our_hub( start_stadt );
-			assert( start_connect_hub.is_bound() );
+			if (!start_connect_hub.is_bound()) return false;
 		}
 	}
 	if(!end_hub.is_bound()) {
@@ -384,7 +384,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 			koord ech = find_place_for_hub( end_stadt );
 			call_general_tool( TOOL_BUILD_STATION, ech, busstop_desc->get_name() );
 			end_connect_hub = get_our_hub( end_stadt );
-			assert( end_connect_hub.is_bound() );
+			if (!end_connect_hub.is_bound()) return false;
 		}
 	}
 
@@ -706,7 +706,7 @@ bool ai_passenger_t::create_air_transport_vehicle(const stadt_t *start_stadt, co
 				const building_desc_t* busstop_desc = hausbauer_t::get_random_station(building_desc_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX );
 				call_general_tool( TOOL_BUILD_STATION, sch, busstop_desc->get_name() );
 				start_connect_hub = get_our_hub( start_stadt );
-				assert( start_connect_hub.is_bound() );
+				if (!start_connect_hub.is_bound()) return false;
 			}
 		}
 		if(!end_hub.is_bound()) {
@@ -736,7 +736,7 @@ bool ai_passenger_t::create_air_transport_vehicle(const stadt_t *start_stadt, co
 				const building_desc_t* busstop_desc = hausbauer_t::get_random_station(building_desc_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX );
 				call_general_tool( TOOL_BUILD_STATION, ech, busstop_desc->get_name() );
 				end_connect_hub = get_our_hub( end_stadt );
-				assert( end_connect_hub.is_bound() );
+				if (!end_connect_hub.is_bound()) return false;
 			}
 		}
 	}
