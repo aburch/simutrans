@@ -46,6 +46,7 @@
 " Nathanael Nerode","developer",
 " Inkelyad", "developer",
 " Isidoro","developer (vehicle replacement)",
+" Progger", "patches",
 " Andrew Carlotti", "patches",
 " THLeaderH", "patch", 
 " TurfIt", "patch",
