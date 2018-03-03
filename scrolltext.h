@@ -169,6 +169,7 @@
 " Junna","Pak128.Sweden-Ex",
 " Special thanks to:", "",
 " The National Railway Museum, York", "",
+" The Jurby Museum and Isle of Man Railways", "",
 " Peter Kay", "",
 "","",
 " Michael Hohl","",
@@ -278,6 +279,7 @@
 " Magedu", ""
 " Phil Flyer of Youtube", "",
 " Henergy1994 of Youtube", "",
+" Eckletickle of Youtube", "",
 "","",
 "Translation:","",
 "","",
