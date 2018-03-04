@@ -16,7 +16,7 @@ public:
     virtual obj_type get_type() const { return obj_imagelist3d; }
     virtual const char *get_type_name() const { return "imagelist3d"; }
 
-    virtual obj_besch_t *read_node(FILE *fp, obj_node_info_t &node);
+    virtual obj_desc_t *read_node(FILE *fp, obj_node_info_t &node);
 };
 
 #endif

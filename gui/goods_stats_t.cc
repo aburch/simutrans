@@ -38,14 +38,14 @@ goods_stats_t::goods_stats_t()
 }
 
 
-void goods_stats_t::update_goodslist( uint16 *g, int b, int l, uint32 d, uint8 c, uint8 ct, waytype_t wt)
+void goods_stats_t::update_goodslist( uint16 *g, uint32 b, int l, uint32 d, uint8 c, uint8 ct, uint8 gc)
 {
 	goodslist = g;
-	relative_speed_percentage = b;
+	vehicle_speed = b;
 	distance_meters = d;
 	comfort = c;
 	catering_level = ct;
-	way_type = wt;
+	g_class = gc;
 	listd_goods = l;
 	set_size( scr_size(BUTTON4_X + D_BUTTON_WIDTH + 2, listd_goods * (LINESPACE+1) ) );
 }
@@ -77,27 +77,22 @@ void goods_stats_t::draw(scr_coord offset)
 		display_proportional_clip(offset.x + 14, yoff,	buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 
 		// Massively cleaned up by neroden, June 2013
-		sint64 relevant_speed = ( welt->get_average_speed(way_type) * (relative_speed_percentage + 100) ) / 100;
 		// Roundoff is deliberate here (get two-digit speed)... question this
-		if (relevant_speed <= 0) {
+		if (vehicle_speed <= 0) {
 			// Negative and zero speeds will be due to roundoff errors
-			relevant_speed = 1;
+			vehicle_speed = 1;
 		}
-		const sint64 journey_tenths = tenths_from_meters_and_kmh(distance_meters, relevant_speed);
+		const sint64 journey_tenths = tenths_from_meters_and_kmh(distance_meters, vehicle_speed);
 
-		sint64 revenue = wtyp->get_fare_with_comfort_catering_speedbonus(welt,
-				comfort, catering_level, journey_tenths, relative_speed_percentage, distance_meters);
-		// Convert to simcents.  Should be very fast.
+		sint64 revenue = wtyp->get_total_fare(distance_meters, 0u, comfort, catering_level, min(g_class, wtyp->get_number_of_classes() - 1), journey_tenths);
+
+		// Convert to simucents.  Should be very fast.
 		sint64 price = (revenue + 2048) / 4096;
 
 		money_to_string( money_buf, (double)price/100.0 );
 		buf.clear();
 		buf.printf(money_buf);
 		display_proportional_clip(offset.x + 170, yoff, buf, 	ALIGN_RIGHT, 	SYSCOL_TEXT, true);
-
-		buf.clear();
-		buf.printf("%d%%", wtyp->get_adjusted_speed_bonus(distance_meters));
-		display_proportional_clip(offset.x + 205, yoff, buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 
 		buf.clear();
 		buf.printf( "%s",	translator::translate(wtyp->get_catg_name()));

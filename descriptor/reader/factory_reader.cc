@@ -264,7 +264,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	fread(desc_buf, node.size, 1, fp);
 
 	desc->sound_id = NO_SOUND;
-	desc->sound_interval = 0xFFFFFFFFul;
+	desc->sound_interval = 10000u;
 
 	char * p = desc_buf;
 
@@ -353,6 +353,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			desc->sound_id = decode_sint8(p);
 		}
+		desc->field_output_divider = decode_uint8(p); 
 		
 		DBG_DEBUG("factory_reader_t::read_node()", "version=4, platz=%i, supplier_count=%i, pax=%i, sound_interval=%li, sound_id=%i", desc->placement, desc->supplier_count, desc->pax_level, desc->sound_interval, desc->sound_id);
 	}
@@ -401,6 +402,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->pax_boost = decode_uint16(p);
 		desc->mail_boost = decode_uint16(p);
 		desc->electric_demand = decode_uint16(p);
+		desc->field_output_divider = 1;
 		if(extended && extended_version > 1)
 		{
 			desc->pax_demand = 65535;
@@ -461,6 +463,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->pax_demand = 65535;
 		desc->mail_demand = 65535;
 		desc->base_max_distance_to_consumer = 65535;
+		desc->field_output_divider = 1;
 	} else if(version == 1) 
 	{
 		// Versioned node, version 1
@@ -490,6 +493,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->pax_demand = 65535;
 		desc->mail_demand = 65535;
 		desc->base_max_distance_to_consumer = 65535;
+		desc->field_output_divider = 1;
 	} 
 
 	else
@@ -523,6 +527,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->pax_demand = 65535;
 		desc->mail_demand = 65535;
 		desc->base_max_distance_to_consumer = 65535;
+		desc->field_output_divider = 1;
 	}
 
 	if(!extended)
@@ -563,7 +568,7 @@ obj_desc_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->sound_interval,
 		desc->color);
 
-	if (desc->sound_id == LOAD_SOUND) {
+	if ((sint16)desc->sound_id == LOAD_SOUND) {
 		uint8 len = decode_sint8(p);
 		char wavname[256];
 		wavname[len] = 0;

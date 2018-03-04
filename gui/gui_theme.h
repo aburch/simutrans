@@ -203,7 +203,7 @@ public:
 	/// @name system colours used by gui components
 	/// @{
 	static COLOR_VAL gui_color_text;                         //@< Color to draw standard text
-	static COLOR_VAL gui_color_text_highlight;               //@< Color to draw highlighted text (tabs, finance window headlines, ware list bonus text, fps info in video options, it and em tags)
+	static COLOR_VAL gui_color_text_highlight;               //@< Color to draw highlighted text (tabs, finance window headlines, ware list, fps info in video options, it and em tags)
 	static COLOR_VAL gui_color_text_title;                   //@< Color to draw title text (banner, h1 and a tags)
 	static COLOR_VAL gui_color_text_shadow;                  //@< Color to draw text shadow
 	static COLOR_VAL gui_color_text_strong;                  //@< Color to draw strong text (strong tags)

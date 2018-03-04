@@ -21,6 +21,7 @@
 #include "components/gui_combobox.h"
 #include "components/gui_label.h"
 #include "components/gui_convoiinfo.h"
+#include "halt_list_stats.h"
 #include "../simline.h"
 
 class player_t;
@@ -29,7 +30,7 @@ class schedule_list_gui_t : public gui_frame_t, public action_listener_t
 private:
 	player_t *player;
 
-	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line;;
+	button_t bt_new_line, bt_change_line, bt_delete_line, bt_withdraw_line, bt_line_class_manager, bt_times_history;
 	gui_container_t cont, cont_haltestellen;
 	gui_scrollpane_t scrolly_convois, scrolly_haltestellen;
 	gui_scrolled_list_t scl;
@@ -39,6 +40,12 @@ private:
 	gui_chart_t chart;
 	button_t filterButtons[MAX_LINE_COST];
 	gui_tab_panel_t tabs;
+
+	// vector of convoy info objects that are being displayed
+	vector_tpl<gui_convoiinfo_t *> convoy_infos;
+	
+	// vector of stop info objects that are being displayed
+	vector_tpl<halt_list_stats_t *> stop_infos;
 
 	gui_combobox_t livery_selector;
 

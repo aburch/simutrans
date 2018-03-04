@@ -606,9 +606,9 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 
 	const sint8 altitude = max(from->get_pos().z, to->get_pos().z) - welt->get_groundwater();
 	const sint8 max_altitude = desc->get_max_altitude();
-	if(max_altitude > 0 && altitude > max_altitude)
+	if(max_altitude > 0 && altitude > max_altitude && (from->get_grund_hang() + to->get_grund_hang() == 0))
 	{
-		// Too high
+		// Too high - exclude slope tiles from this to allow canalising rapids
 		return false;
 	}
 
@@ -756,14 +756,18 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 
 	// universal check for bridges: enter bridges in bridge direction
 	if( to->get_typ()==grund_t::brueckenboden ) {
-		weg_t *weg=to->get_weg_nr(0);
-		if(weg && !ribi_t::is_straight(weg->get_ribi_unmasked()|ribi_type(zv))) {
+		ribi_t::ribi br = ribi_type(zv);
+		br = to->hat_wege() ? to->get_weg_nr(0)->get_ribi_unmasked() : (ribi_t::ribi)ribi_t::none;
+		br |= to->get_leitung() ? to->get_leitung()->get_ribi() : (ribi_t::ribi)ribi_t::none;
+		if (!ribi_t::is_straight(br)) {
 			return false;
 		}
 	}
 	if( from->get_typ()==grund_t::brueckenboden ) {
-		weg_t *weg=from->get_weg_nr(0);
-		if(weg && !ribi_t::is_straight(weg->get_ribi_unmasked()|ribi_type(zv))) {
+		ribi_t::ribi br = ribi_type(zv);
+		br = from->hat_wege() ? from->get_weg_nr(0)->get_ribi_unmasked() : (ribi_t::ribi)ribi_t::none;
+		br |= from->get_leitung() ? from->get_leitung()->get_ribi() : (ribi_t::ribi)ribi_t::none;
+		if (!ribi_t::is_straight(br)) {
 			return false;
 		}
 	}
@@ -908,8 +912,8 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 
 			if(to->get_typ()!=grund_t::tunnelboden) {
 				// only fields are allowed
-				if(to->get_typ()!=grund_t::boden) {
-					ok &= to->get_typ() == grund_t::fundament && to->find<field_t>();
+				if (to->get_typ() == grund_t::fundament) {
+					ok &= to->find<field_t>() != NULL;
 				}
 				// no bridges and monorails here in the air
 				ok &= (welt->access(to_pos)->get_boden_in_hoehe(to->get_pos().z+1)==NULL);
@@ -1315,10 +1319,7 @@ void way_builder_t::init_builder(bautyp_t wt, const way_desc_t *b, const tunnel_
 	if((wt&bautyp_mask)==luft) {
 		wt &= bautyp_mask | bot_flag;
 	}
-	if(player==NULL) {
-		bridge_desc = NULL;
-		tunnel_desc = NULL;
-	}
+	
 	else if(  bautyp != river  ) {
 #ifdef AUTOMATIC_BRIDGES
 		if(  bridge_desc == NULL  ) {
@@ -2581,7 +2582,7 @@ void way_builder_t::build_track()
 							(desc->get_styp() == 0 && weg->get_desc()->get_styp() == type_tram && gr->has_two_ways())     ||
 							keep_existing_ways                                                                      ||
 							(player != NULL && weg-> is_deletable(player) != NULL)											||
-							(keep_existing_faster_ways && !(desc->is_at_least_as_good_as(weg->get_desc())) )		||
+							((keep_existing_faster_ways || ((player && !player->is_public_service()) && weg->is_public_right_of_way())) && !(desc->is_at_least_as_good_as(weg->get_desc()))) ||
 							(gr->get_typ() == grund_t::monorailboden && !(bautyp & elevated_flag)  &&  gr->get_weg_nr(0)->get_waytype()==desc->get_wtyp()))
 					{
 						//nothing to be done

@@ -871,6 +871,210 @@ Fleck
 Carl
 %180_CITY_SYLL
 Gom
+%181_CITY_SYLL
+Lym
+%182_CITY_SYLL
+Lim
+%183_CITY_SYLL
+Bog
+%184_CITY_SYLL
+Lew
+%185_CITY_SYLL
+Lewis
+%186_CITY_SYLL
+Chid
+%187_CITY_SYLL
+Thorn
+%188_CITY_SYLL
+Syd
+%189_CITY_SYLL
+Skill
+%18A_CITY_SYLL
+Skell
+%18B_CITY_SYLL
+Dot
+%18C_CITY_SYLL
+Wash
+%18D_CITY_SYLL
+Brid
+%18E_CITY_SYLL
+Bothen
+%18F_CITY_SYLL
+Gras
+%190_CITY_SYLL
+Swy
+%191_CITY_SYLL
+Lit
+%192_CITY_SYLL
+Lyt
+%193_CITY_SYLL
+Bud
+%194_CITY_SYLL
+Wey
+%195_CITY_SYLL
+Chick
+%196_CITY_SYLL
+Gran
+%197_CITY_SYLL
+Wyk
+%198_CITY_SYLL
+Bux
+%199_CITY_SYLL
+Lul
+%19A_CITY_SYLL
+Kim
+%19B_CITY_SYLL
+Liv
+%19C_CITY_SYLL
+Durl
+%19D_CITY_SYLL
+Bland
+%19E_CITY_SYLL
+Bos
+%19F_CITY_SYLL
+Tuck
+%200_CITY_SYLL
+Mud
+%201_CITY_SYLL
+Net
+%202_CITY_SYLL
+Fare
+%203_CITY_SYLL
+Sin
+%204_CITY_SYLL
+Cos
+%205_CITY_SYLL
+Tan
+%206_CITY_SYLL
+Hay
+%207_CITY_SYLL
+Hey
+%208_CITY_SYLL
+Brackles
+%209_CITY_SYLL
+Mund
+%20A_CITY_SYLL
+Tang
+%20B_CITY_SYLL
+Bils
+%20C_CITY_SYLL
+Tort
+%20D_CITY_SYLL
+Lanc
+%20E_CITY_SYLL
+Hov
+%20F_CITY_SYLL
+Kemp
+%210_CITY_SYLL
+Bry
+%211_CITY_SYLL
+Gly
+%212_CITY_SYLL
+Cuck
+%213_CITY_SYLL
+Cook
+%214_CITY_SYLL
+Fry
+%215_CITY_SYLL
+Bak
+%216_CITY_SYLL
+Pev
+%217_CITY_SYLL
+Hast
+%218_CITY_SYLL
+Wyn
+%219_CITY_SYLL
+Lyd
+%21A_CITY_SYLL
+Lad
+%21B_CITY_SYLL
+Rom
+%21C_CITY_SYLL
+Rem
+%21D_CITY_SYLL
+Samp
+%21E_CITY_SYLL
+Buck
+%21F_CITY_SYLL
+Dov
+%220_CITY_SYLL
+Sev
+%221_CITY_SYLL
+Gal
+%222_CITY_SYLL
+Gayl
+%223_CITY_SYLL
+Hal
+%224_CITY_SYLL
+Id
+%225_CITY_SYLL
+Tat
+%226_CITY_SYLL
+Warl
+%227_CITY_SYLL
+Eg
+%228_CITY_SYLL
+Wok
+%229_CITY_SYLL
+Knap
+%22A_CITY_SYLL
+Knack
+%22B_CITY_SYLL
+Ever
+%22C_CITY_SYLL
+Finch
+%22D_CITY_SYLL
+Crook
+%22E_CITY_SYLL
+Heck
+%22F_CITY_SYLL
+Burk
+%230_CITY_SYLL
+Sher
+%231_CITY_SYLL
+Tad
+%232_CITY_SYLL
+Sil
+%233_CITY_SYLL
+Syl
+%234_CITY_SYLL
+Been
+%235_CITY_SYLL
+Buckl
+%236_CITY_SYLL
+Over
+%237_CITY_SYLL
+Under
+%238_CITY_SYLL
+Knit
+%239_CITY_SYLL
+Lam
+%23A_CITY_SYLL
+Rams
+%23B_CITY_SYLL
+Lud
+%23C_CITY_SYLL
+Croft
+%23D_CITY_SYLL
+Cobb
+%23E_CITY_SYLL
+Shrew
+%23F_CITY_SYLL
+Chip
+%240_CITY_SYLL
+Tims
+%241_CITY_SYLL
+Dunk
+%242_CITY_SYLL
+Oke
+%243_CITY_SYLL
+Hawks
+%244_CITY_SYLL
+Hart
+%245_CITY_SYLL
+Chaff
+%246_CITY_SYLL
+Misen
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -1115,6 +1319,40 @@ tun
 bourne
 &76_CITY_SYLL
 ey
+&77_CITY_SYLL
+nor
+&78_CITY_SYLL
+ingnor
+&79_CITY_SYLL
+ock
+&7A_CITY_SYLL
+ingpool
+&7B_CITY_SYLL
+ditch
+&7C_CITY_SYLL
+pole
+&7D_CITY_SYLL
+ingpole
+&7E_CITY_SYLL
+combe
+&7F_CITY_SYLL
+ingcombe
+&80_CITY_SYLL
+ridge
+&81_CITY_SYLL
+erridge
+&82_CITY_SYLL
+ingridge
+&83_CITY_SYLL
+ercombe
+&84_CITY_SYLL
+erpool
+&85_CITY_SYLL
+erpole
+&86_CITY_SYLL
+age
+&87_CITY_SYLL
+tye
 #
 # Town name prefixes.
 # There can be up to 256 of these.
@@ -1242,7 +1480,11 @@ St. Michael
 &3A_CITY_PREFIX
 Martin's 
 &3B_CITY_PREFIX
+Royal 
+&3C_CITY_PREFIX
 Corn 
+&3D_CITY_PREFIX
+Worth 
 #
 # Town name suffixes.
 # There can be up to 256 of these.
@@ -1369,6 +1611,22 @@ heath
  Spa
 &39_CITY_SUFFIX
  Hale
+&3A_CITY_SUFFIX
+ Regis
+&3B_CITY_SUFFIX
+ Herring
+&3C_CITY_SUFFIX
+ Minster
+&3D_CITY_SUFFIX
+ Haven
+&3E_CITY_SUFFIX
+ Hoe
+&3F_CITY_SUFFIX
+ Hoo
+&40_CITY_SUFFIX
+ Mortimer
+&41_CITY_SUFFIX
+ Hundred
 # 
 # Other strings
 # 
@@ -1696,6 +1954,8 @@ clf_chk_noline
 No line
 clf_chk_noroute
 No route
+clf_chk_noroute_too_complex
+No route (too long/complex)
 clf_chk_noschedule
 No schedule
 clf_chk_ships
@@ -1740,6 +2000,8 @@ cl_txt_filter
 Filter:
 cl_txt_sort
 Sort by:
+no_route_too_complex_message
+This vehicle is too far from its destination to find a route automatically. Try inserting some waypoints into its schedule to help it find the right way to go.
 Clear block reservation
 Show/clear block reservations
 COLOR_CHOOSE\n
@@ -1916,8 +2178,6 @@ Gewinn
 Revenue
 Give the selected vehicle(s) an individual schedule
 Give the selected vehicle(s) an individual schedule.
-gl_btn_sort_bonus
-by bonus
 gl_btn_sort_name
 by name
 gl_btn_sort_revenue
@@ -1973,7 +2233,7 @@ Remove intermediate signals
 replace other signals
 Replace existing signals
 Hier warten/lagern:
-Goods and passengers waiting:
+Sort passengers/freight by
 hlf_btn_alle
 all
 hlf_btn_invers
@@ -2546,8 +2806,6 @@ special freight
 Special Freight
 SPECIALTOOLS
 Special Construction Tools
-Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
-Speed bonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
 Speedlimit
 Speed limit
 Speichern
@@ -2849,7 +3107,7 @@ Loading paks ...
 Loading addon paks ...
 Loading addon paks ...
 PaxDest
-Pass. dest.
+Destinations
 Passenger destinations
 Passenger destinations
 The main game window can be scrolled by right-clicking and dragging the ground.
@@ -2922,8 +3180,6 @@ replace all in line
 Replace all in line
 replace all
 Replace all
-Distance\nComfort\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
-Distance (km)\nComfort\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
 Abspanntransformator
 Downstream substation
 Aufspanntransformator
@@ -3003,7 +3259,7 @@ Queueing
 Show level of city buildings
 Show the density of urban buildings
 Overlay passenger destinations when a town window is open
-Overlay passenger destinations from a city when a city information window is open
+Show where passengers from the currently selected town are trying to go and whether they got there successfully
 Highlite tourist attraction
 Show the location of attractions
 Highlite factories
@@ -3316,8 +3572,8 @@ km/h
 (The speed is restricted by the asset)
 (speed_restricted_by_city)
 (The speed is restricted by the city)
-runway_38/18
-Runway 38/18
+runway_36/18
+Runway 36/18
 runway_09/27
 Runway 09/27
 meter
@@ -3368,3 +3624,173 @@ emergency_stop %s left
 Emergency stop! %s until restart
 Airport too close to the edge
 Destination airport too close to the edge of the map
+cap_tram_track
+Tram track
+cap_track
+Track
+cap_monorail_track
+Monorail track
+cap_maglev_track
+Maglev track
+cap_narrowgauge_track
+Narrow gauge track
+cap_road
+Road
+cap_water_canal
+Water canal
+cap_taxiway/runway
+Taxiway/runway
+already_forged
+Already forged
+partly_forged
+Partly forged
+forge_costs
+Forge costs
+class_manager
+Change prices
+reset_all_classes
+Reset all prices
+resets_all_classes_to_their_defaults
+Resets all prices to their defaults
+accommodations
+accommodations
+capacity_per_class
+Capacity per class
+overcrowded_capacity
+Overcrowded capacity
+traveling_post_office
+Traveling post office
+capacity: %s %s
+Capacity: %s %s
+comfort: %i
+Comfort: %i
+income_pr_km_(when_full):
+Income per km (when full):
+tpo_income_pr_km_(full_convoy):
+Traveling post office income per km (full convoy):
+catering_income_pr_km_(full_convoy):
+Catering income per km (full convoy):
+see_and_change_the_class_assignments
+See and change the prices
+unlimited
+Unlimited
+range
+Range
+Minimum runway length
+Minimum runway length
+unpowered
+Unpowered
+this_vehicle_carries_no_good
+This vehicle carries no goods
+high_clearance_under_bridges_(no_low_bridges)
+High clearance under bridges (no low bridges)
+equipped_with
+Equipped with
+tilting_vehicle_equipment
+Tilting vehicle equipment
+classes
+classes
+class
+class
+good_units
+good units
+no_cargo_capacity
+No cargo capacity
+residents_wealth
+Residents' wealth
+wealth_of_visitors_/_commuters
+Wealth of visitors / commuters demanded
+wealth_of_commuters
+Wealth of commuters demanded
+wealth_of_visitors
+Wealth of visitors demanded
+%i_more_stops,_max_walking_time:_%s
+%i more stops, max walking time: %s
+wealth (detail)
+wealth (detail)
+wealth (via)
+wealth (via)
+accommodation (detail)
+class (detail)
+accommodation (via)
+class (via)
+left
+left
+upgradeable_vehicles
+upgradeable vehicles
+reassigned_class
+modified price
+possible_upgrades
+possible upgrades
+this_vehicle_can_upgrade_to
+this vehicle can upgrade to
+additional_upgrades
+additional upgrades
+reassign_classes
+Reassign classes
+line_no_convoys
+This line has no convoys assigned
+line_loss_making
+This line made a loss last month
+line_nothing_moved
+This line did not move any good last month
+line_overcrowded
+This line is frequently overcrowded
+line_missing_scheduled_slots
+This line was missing scheduled slots last month
+line_has_obsolete_vehicles
+This line operates with obsolete vehicles
+line_has_obsolete_vehicles_with_upgrades
+This line has obsolete vehicles with upgrades
+staff_shortage
+Staff shortage
+reset_all_pass_classes
+Reset all passenger classes
+resets_all_passenger_classes_to_their_defaults
+Resets all passenger classes to their defaults
+reset_all_mail_classes
+Reset all mail classes
+resets_all_mail_classes_to_their_defaults
+Resets all mail classes to their defaults
+reassigned_to_multiple
+Reassigned to multiple
+catering_cars: %i
+Catering cars: %i
+(catering_levels: %s)
+(levels: %s)
+tpo_cars: %i
+Traveling post offices: %i
+line_class_manager
+Change prices
+change_the_classes_for_the_entire_line
+Change the prices for the entire line
+reassigned_class
+reassigned class
+reassigned_classes
+reassigned classes
+times_history
+Times History
+view_journey_times_history_of_this_line
+View journey times history of this line.
+view_journey_times_history_of_this_convoy
+View journey times history of this convoy.
+no_time_entry
+----
+stations
+Stations
+latest_3
+Latest 3
+average
+Average
+bidirectional_order
+Bidirectional order:
+reversed_unidirectional_order
+Reversed unidirectional order:
+normal_unidirectional_order
+Normal unidirectional order:
+line_times_history
+Line Times History: 
+convoy_times_history
+Convoy Times History: 
+more_units
+more units

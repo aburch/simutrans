@@ -206,10 +206,10 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
  */
 bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t, bool check_directions_at_junctions)
 {
-	if(can_reserve(c, dir, t, check_directions_at_junctions)) 
+	if (can_reserve(c, dir, t, check_directions_at_junctions))
 	{
 		ribi_t::ribi old_direction = direction;
-		if(type == block && t == directional && reserved.is_bound())
+		if (type == block && t == directional && reserved.is_bound())
 		{
 			// Do not actually reserve here, as the directional reservation 
 			// is already done, but show that this is reservable. 
@@ -220,23 +220,23 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t, 
 		direction = dir;
 
 		/* for threeway and fourway switches we may need to alter graphic, if
-		 * direction is a diagonal (i.e. on the switching part)
-		 * and there are switching graphics
-		 */
-		if(t == block && ribi_t::is_threeway(get_ribi_unmasked())  &&  ribi_t::is_bend(dir)  &&  get_desc()->has_switch_image()  ) {
-			mark_image_dirty( get_image(), 0 );
-			mark_image_dirty( get_front_image(), 0 );
-			set_images(image_switch, get_ribi_unmasked(), is_snow(), (dir==ribi_t::northeast  ||  dir==ribi_t::southwest) );
-			set_flag( obj_t::dirty );
+			* direction is a diagonal (i.e. on the switching part)
+			* and there are switching graphics
+			*/
+		if (t == block && ribi_t::is_threeway(get_ribi_unmasked()) && ribi_t::is_bend(dir) && get_desc()->has_switch_image()) {
+			mark_image_dirty(get_image(), 0);
+			mark_image_dirty(get_front_image(), 0);
+			set_images(image_switch, get_ribi_unmasked(), is_snow(), (dir == ribi_t::northeast || dir == ribi_t::southwest));
+			set_flag(obj_t::dirty);
 		}
-		if(schiene_t::show_reservations) {
-			set_flag( obj_t::dirty );
+		if (schiene_t::show_reservations) {
+			set_flag(obj_t::dirty);
 		}
-		if(old_direction != dir)
+		if (old_direction != dir)
 		{
-			if(signal_t* sig = welt->lookup(get_pos())->find<signal_t>())
+			if (signal_t* sig = welt->lookup(get_pos())->find<signal_t>())
 			{
-				if(sig->is_bidirectional() && sig == get_signal(dir))
+				if (sig->is_bidirectional() && sig == get_signal(dir))
 				{
 					// A suitable state for facing in the opposite direction
 					// will not be a suitable state for facing in this new
@@ -378,8 +378,18 @@ void schiene_t::rdwr(loadsave_t *file)
 #endif
 	{
 		uint16 reserved_index = reserved.get_id();
+		if (file->is_saving())
+		{
+			// Do not save corrupt reservations. We cannot check this on loading, as 
+			// there the convoys have not been loaded yet.
+			if (reserved.is_bound() && !is_type_rail_type(reserved->front()->get_waytype()))
+			{
+				// This is an invalid reservation - clear it.
+				reserved_index = 0;
+			}
+		}
 		file->rdwr_short(reserved_index); 
-		reserved.set_id(reserved_index); 
+		reserved.set_id(reserved_index);
 
 		uint8 t = (uint8)type;
 		file->rdwr_byte(t);

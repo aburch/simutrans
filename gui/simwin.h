@@ -100,12 +100,15 @@ enum magic_numbers {
 	magic_convoi_info,
 	magic_factory_info,
 	magic_convoi_detail=magic_convoi_info+65536,
-	magic_halt_info=magic_convoi_detail+65536,
+	magic_convoi_time_history=magic_convoi_detail+65536,
+	magic_halt_info=magic_convoi_time_history+65536,
 	magic_halt_detail=magic_halt_info+65536,
 	magic_replace=magic_halt_detail+65536,
 	magic_toolbar=magic_replace+65536,
 	magic_info_pointer=magic_toolbar+256,
-	magic_max = magic_info_pointer+843
+	magic_class_manager=magic_info_pointer+ 65536,
+	magic_line_class_manager= magic_class_manager + 65536,
+	magic_max = magic_line_class_manager +843
 };
 
 // Holding time for auto-closing windows

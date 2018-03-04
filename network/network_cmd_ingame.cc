@@ -50,6 +50,7 @@ network_command_t* network_command_t::read_from_packet(packet_t *p)
 		case NWC_SCENARIO_RULES:
 		                      nwc = new nwc_scenario_rules_t(); break;
 		case NWC_ROUTESEARCH: nwc = new nwc_routesearch_t(); break;
+		case NWC_STEP:        nwc = new nwc_step_t(); break;
 		default:
 			dbg->warning("network_command_t::read_from_socket", "received unknown packet id %d", p->get_id());
 	}
@@ -159,7 +160,7 @@ generate_default_nick:
 		// nick exists already
 		// generate default nick
 		cbuffer_t buf;
-		buf.printf("Client#%d", client_id);
+		buf.printf("Client no. %d", client_id);
 		nickname = (const char*)buf;
 		return true;
 	}

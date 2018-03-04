@@ -6,6 +6,9 @@
 #include "../halthandle_t.h"
 
 #include "../tpl/minivec_tpl.h"
+#include "../tpl/koordhashtable_tpl.h"
+
+#define TIMES_HISTORY_SIZE 3
 
 
 class cbuffer_t;
@@ -60,7 +63,7 @@ public:
 	uint8 get_current_stop() const { return current_stop; }
 
 	// always returns a valid entry to the current stop
-	schedule_entry_t const& get_current_eintrag() const { return current_stop >= entries.get_count() ? dummy_entry : entries[current_stop]; }
+	schedule_entry_t const& get_current_entry() const { return current_stop >= entries.get_count() ? dummy_entry : entries[current_stop]; }
 
 private:
 	/**
@@ -119,6 +122,12 @@ public:
 	 * @author yobbobandana
 	 */
 	void increment_index(uint8 *index, bool *reversed) const;
+
+	/**
+	 * Same as increment_index(), but skips waypoints.
+	 * @author suitougreentea
+	 */
+	void increment_index_until_next_halt(player_t* player, uint8 *index, bool *reversed) const;
 
 	/***
 	 * "Completed"
@@ -360,5 +369,54 @@ public:
 
 	waytype_t get_waytype() const { return narrowgauge_wt; }
 };
+
+struct departure_point_t
+{
+	union { sint16 entry;    sint16 x; };
+	union { sint16 reversed; sint16 y; };
+
+	departure_point_t(uint8 e, bool rev)
+	{
+		entry = e;
+		reversed = rev;
+	}
+
+	departure_point_t()
+	{
+		entry = 0;
+		reversed = 0;
+	}
+};
+
+static inline bool operator == (const departure_point_t &a, const departure_point_t &b)
+{
+	// only this works with O3 optimisation!
+	return (a.entry - b.entry) == 0 && a.reversed == b.reversed;
+}
+
+static inline bool operator != (const departure_point_t &a, const departure_point_t &b)
+{
+	// only this works with O3 optimisation!
+	return (a.entry - b.entry) != 0 || a.reversed != b.reversed;
+}
+
+static inline bool operator == (const departure_point_t& a, int b)
+{
+	// For hashtable use.
+	return b == 0 && a == departure_point_t(0, true);
+}
+
+class times_history_data_t {
+private:
+	uint32 history[TIMES_HISTORY_SIZE];
+public:
+	times_history_data_t();
+	uint32 get_entry(uint16 index) const;
+	void put(uint32 time);
+	void set(uint16 index, uint32 time);
+    uint32 get_average_seconds() const;
+};
+
+typedef koordhashtable_tpl<departure_point_t, times_history_data_t> times_history_map;
 
 #endif

@@ -27,9 +27,9 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #define SIM_SAVE_MINOR      4
 #define SIM_SERVER_MINOR    4
 
-#define EX_VERSION_MAJOR	12
-#define EX_VERSION_MINOR	3
-#define EX_SAVE_MINOR		21
+#define EX_VERSION_MAJOR	13
+#define EX_VERSION_MINOR	4
+#define EX_SAVE_MINOR		5
 // Do not forget to increment the save game versions in settings_stats.cc when changing this
 
 #define MAKEOBJ_VERSION "60.0"
@@ -78,7 +78,7 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #define RES_VERSION_NUMBER  SIM_VERSION_MAJOR, SIM_VERSION_MINOR, EX_VERSION_MAJOR, EX_VERSION_MINOR
 
 #ifdef REVISION
-#	define SIM_TITLE_REVISION_STRING " - r" QUOTEME(REVISION)
+#	define SIM_TITLE_REVISION_STRING " #" QUOTEME(REVISION)
 #else
 #	define SIM_TITLE_REVISION_STRING
 #endif

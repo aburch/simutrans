@@ -47,9 +47,9 @@ bool env_t::server_save_game_on_quit = false;
 bool env_t::reload_and_save_on_quit = true;
 
 sint32 env_t::server_frames_ahead = 4;
-sint32 env_t::additional_client_frames_behind = 0;
+sint32 env_t::additional_client_frames_behind = 4;
 sint32 env_t::network_frames_per_step = 4;
-uint32 env_t::server_sync_steps_between_checks = 256;
+uint32 env_t::server_sync_steps_between_checks = 24;
 bool env_t::pause_server_no_clients = false;
 
 std::string env_t::nickname = "";
@@ -205,7 +205,7 @@ void env_t::init()
 
 	show_month = DATE_FMT_US;
 
-	intercity_road_length = 200;
+	intercity_road_length = 512;
 
 	river_types = 0;
 
@@ -444,7 +444,7 @@ void env_t::rdwr(loadsave_t *file)
 	 file->rdwr_str( default_theme );
 	}
 
-	if(  file->get_version()>=120002 && (file->get_extended_version() == 0  || file->get_extended_revision() >= 10))
+	if(  file->get_version()>=120002 && (file->get_extended_version() == 0  || file->get_extended_revision() >= 10 || file->get_extended_version() >= 13))
 	{
 		file->rdwr_bool( new_height_map_conversion );
 	}

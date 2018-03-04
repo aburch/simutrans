@@ -14,6 +14,8 @@
 #include "ifc/sync_steppable.h"
 
 #include "dataobj/route.h"
+#include "dataobj/schedule.h"
+#include "bauer/goods_manager.h"
 #include "vehicle/overtaker.h"
 #include "tpl/array_tpl.h"
 #include "tpl/fixed_list_tpl.h"
@@ -46,34 +48,13 @@ class schedule_t;
 class cbuffer_t;
 class ware_t;
 class replace_data_t;
+class departure_point_t;
 
 /**
 * The table of point-to-point average journey times.
 * @author jamespetts
 */
 typedef koordhashtable_tpl<id_pair, average_tpl<uint32> > journey_times_map;
-
-# define entry x
-# define reversed y
-
-struct departure_point_t
-{
-	sint16 entry;
-	sint16 reversed;
-
-	departure_point_t(uint8 e, bool rev)
-	{
-		entry = e;
-		reversed = rev;
-	}
-
-	departure_point_t()
-	{
-		entry = 0;
-		reversed = 0;
-	}
-
-};
 
 #ifdef MULTI_THREAD
 struct route_range_specification
@@ -82,24 +63,6 @@ struct route_range_specification
 	uint32 end;
 };
 #endif
-
-static inline bool operator == (const departure_point_t &a, const departure_point_t &b)
-{
-	// only this works with O3 optimisation!
-	return (a.entry - b.entry) == 0 && a.reversed == b.reversed;
-}
-
-static inline bool operator != (const departure_point_t &a, const departure_point_t &b)
-{
-	// only this works with O3 optimisation!
-	return (a.entry - b.entry) != 0 || a.reversed != b.reversed;
-}
-
-static inline bool operator == (const departure_point_t& a, int b)
-{
-	// For hashtable use.
-	return b == 0 && a == departure_point_t(0, true);
-}
 
 /**
  * Base class for all vehicle consists. Convoys can be referenced by handles, see halthandle_t.
@@ -150,6 +113,7 @@ public:
 		OUT_OF_RANGE,
 		EMERGENCY_STOP,
 		ROUTE_JUST_FOUND,
+		NO_ROUTE_TOO_COMPLEX,
 		MAX_STATES
 	};
 
@@ -171,15 +135,13 @@ public:
 		* Accumulated distance since the convoy departed from
 		* this stop, indexed by the player number of the way 
 		* over which the convoy has passed. If the way is
-		* ownerless, it is recorded as belonging to the owner
-		* of they convoy, unless it is open water, in which case
-		* it is recorded as being MAX_PLAYER_COUNT (in other 
-		* words, two greater than the maximum number of players).
-		* This is to facilitate proper apportionment of revenues
-		* for ocean-going ships coming into ports owned by
-		* other players (+2) and the measurement of journey
-		* distance by straight line distance between halts,
-		* rather than route distance (+1)
+		* ownerless, it is recorded as belonging as being 
+		* MAX_PLAYER_COUNT + 1.
+		* 
+		* accumulated_distance_since_departure[MAX_PLAYER_COUNT]
+		* is a special value for overall distance, demoninated
+		* in a different unit to the others, which others are
+		* demoninated in steps
 		*/
 	private:
 		uint32 accumulated_distance_since_departure[MAX_PLAYER_COUNT + 2];
@@ -241,7 +203,7 @@ public:
 		 */
 		void init_distances()
 		{
-			for(int i = 0; i < MAX_PLAYER_COUNT + 1; i ++)
+			for(int i = 0; i < MAX_PLAYER_COUNT + 2; i ++)
 			{
 				accumulated_distance_since_departure[i] = 0;
 			}
@@ -331,7 +293,7 @@ private:
 	// Added by : Knightly
 	// Purpose  : To hold the original schedule before opening schedule window
 	schedule_t *old_schedule;
-	koord3d fpl_target;
+	koord3d schedule_target;
 
 	/**
 	* loading_level was minimum_loading before. Actual percentage loaded for loadable vehicles (station length!).
@@ -507,7 +469,7 @@ private:
 	sint32 wait_lock;
 
 	/**
-	* akkumulierter gewinn über ein jahr hinweg
+	* accumulated profit over a year
 	* @author Hanjsörg Malthaner
 	*/
 	sint64 jahresgewinn;
@@ -682,6 +644,9 @@ private:
 	typedef koordhashtable_tpl<departure_point_t, average_tpl<uint16> > timings_map;
 	timings_map journey_times_between_schedule_points;
 
+	// @author: suitougreentea
+	times_history_map journey_times_history;
+
 	// When we arrived at current stop
 	// @author Inkelyad
 	sint64 arrival_time;
@@ -762,8 +727,21 @@ private:
 	 */
 	bool is_choosing:1; 
 
+	// This is true if this convoy has not stopped since it emerged
+	// from a depot. This is useful for ensuring that a stop's reversing
+	// status is not set incorrectly.
+	bool last_stop_was_depot:1;
+
 	// The maximum speed allowed by the current signalling system
 	sint32 max_signal_speed; 
+
+	// The classes of passengers/mail carried by this line
+	// Cached to reduce recalculation times in the path
+	// explorer. 
+	minivec_tpl<uint8> passenger_classes_carried;
+	minivec_tpl<uint8> mail_classes_carried;
+
+
 
 public: 
 	/**
@@ -858,12 +836,12 @@ public:
 
 	route_t* get_route() { return &route; }
 	route_t* access_route() { return &route; }
-	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed);
+	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed);
 	void update_route(uint32 index, const route_t &replacement); // replace route with replacement starting at index.
 	void replace_route(const route_t &replacement); // Completely replace the route with that passed as a parameter.
 
-	const koord3d get_fpl_target() const { return fpl_target; }
-	void set_fpl_target( koord3d t ) { fpl_target = t; }
+	const koord3d get_schedule_target() const { return schedule_target; }
+	void set_schedule_target( koord3d t ) { schedule_target = t; }
 
 	/**
 	* get line
@@ -1213,6 +1191,9 @@ public:
 	void set_is_choosing(bool value) { is_choosing = value; }
 	bool get_is_choosing() const { return is_choosing; }
 
+	void set_last_stop_was_depot(bool value) { last_stop_was_depot = value; }
+	bool get_last_stop_was_depot() const { return last_stop_was_depot; }
+
 	void set_maximum_signal_speed(sint32 value) { max_signal_speed = value; }
 	sint32 get_max_signal_speed() const { return max_signal_speed; }
 
@@ -1246,8 +1227,10 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void get_freight_info(cbuffer_t & buf);
+	void get_freight_info_by_class(cbuffer_t & buf);	
 	void set_sortby(uint8 order);
 	inline uint8 get_sortby() const { return freight_info_order; }
+	void force_resort() { freight_info_resort = true; }
 
 	/**
 	* Opens the schedule window
@@ -1489,7 +1472,7 @@ public:
 	// @author: jamespetts
 	// Returns the average comfort of this convoy,
 	// taking into account any catering.
-	uint8 get_comfort() const;
+	uint8 get_comfort(uint8 g_class) const;
 
 	/** The new revenue calculation method for per-leg
 	 * based revenue calculation, rather than per-hop
@@ -1500,7 +1483,7 @@ public:
 	 * players based on track usage.
 	 * @author: jamespetts, neroden, Knightly
 	 */
-	sint64 calc_revenue(const ware_t &ware, array_tpl<sint64> & apportioned_revenues);
+	sint64 calc_revenue(const ware_t &ware, array_tpl<sint64> & apportioned_revenues, uint8 g_class);
 
 	uint16 get_livery_scheme_index() const;
 	void set_livery_scheme_index(uint16 value) { livery_scheme_index = value; }
@@ -1540,6 +1523,7 @@ public:
 
 	journey_times_map& get_average_journey_times();
 	inline const journey_times_map& get_average_journey_times_this_convoy_only() const { return average_journey_times; }
+	inline times_history_map& get_journey_times_history() { return journey_times_history; }
 
 	bool get_needs_full_route_flush() const { return needs_full_route_flush; }
 	void set_needs_full_route_flush(bool value) { needs_full_route_flush = value; }
@@ -1552,6 +1536,26 @@ public:
 	void clear_departures();
 
 	void clear_estimated_times();
+
+	void calc_classes_carried();
+
+	bool carries_this_or_lower_class(uint8 catg, uint8 g_class) const;
+
+	const minivec_tpl<uint8>* get_classes_carried(uint8 catg) const 
+	{ 
+		if (catg == goods_manager_t::INDEX_PAS)
+		{
+			return &passenger_classes_carried;
+		}
+		if (catg == goods_manager_t::INDEX_MAIL)
+		{
+			return &mail_classes_carried;
+		}
+		else
+		{
+			return NULL;
+		}
+	} 
 };
 
 #endif

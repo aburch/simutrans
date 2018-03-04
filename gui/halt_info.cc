@@ -47,7 +47,9 @@ static const char *sort_text[halt_info_t::SORT_MODES] = {
 	"Menge",
 	"origin (detail)",
 	"origin (amount)",
-	"destination (detail)"/*,
+	"destination (detail)",
+	"wealth (detail)",
+	"wealth (via)"/*,
 	"transferring time"*/
 };
 
@@ -115,7 +117,6 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 		view(halt->get_basis_pos3d(), scr_size(max(64, get_base_tile_raster_width()), max(56, get_base_tile_raster_width() * 7 / 8)))
 {
 	this->halt = halt;
-	halt->set_sortby( env_t::default_sortmode );
 
 	if(halt->get_station_type() & haltestelle_t::airstop && halt->has_no_control_tower())
 	{
@@ -124,6 +125,8 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	}
 
 	const scr_size button_size(max(D_BUTTON_WIDTH, 100), D_BUTTON_HEIGHT);
+	scr_size freight_selector_size = button_size;
+	freight_selector_size.w = button_size.w+30;
 	scr_coord cursor(D_MARGIN_LEFT, D_MARGIN_TOP);
 
 	const sint16 offset_below_viewport = 21 + view.get_size().h;
@@ -173,11 +176,24 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	cursor.y += D_LABEL_HEIGHT + D_V_SPACE;
 
 	// hsiegeln: added sort_button
-	sort_button.init(button_t::roundbox, sort_text[env_t::default_sortmode], cursor, scr_size(D_BUTTON_WIDTH, D_BUTTON_HEIGHT));
-	sort_button.set_tooltip("Sort waiting list by");
-	sort_button.add_listener(this);
-	add_component(&sort_button);
-	cursor.x += button_size.w + D_H_SPACE;
+	// Ves: Made the sort button into a combobox
+
+	freight_sort_selector.clear_elements();
+	for (int i = 0; i < SORT_MODES; i++)
+	{
+		freight_sort_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
+	}
+	uint8 sortmode = env_t::default_sortmode < SORT_MODES ? env_t::default_sortmode: env_t::default_sortmode-2; // If sorting by accommodation in vehicles, we might want to sort by classes
+	freight_sort_selector.set_selection(sortmode);
+	halt->set_sortby(sortmode);
+	freight_sort_selector.set_focusable(true);
+	freight_sort_selector.set_highlight_color(1);
+	freight_sort_selector.set_pos(cursor);
+	freight_sort_selector.set_size(freight_selector_size);
+	freight_sort_selector.set_max_size(scr_size(D_BUTTON_WIDTH * 2, LINESPACE * 5 + 2 + 16));
+	freight_sort_selector.add_listener(this);
+	add_component(&freight_sort_selector);
+	cursor.x += freight_selector_size.w + D_H_SPACE;
 
 	toggler_departures.init( button_t::roundbox_state, "Departure board", cursor, button_size);
 	toggler_departures.set_tooltip("Show/hide estimated arrival times");
@@ -254,15 +270,19 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		int old_len = freight_info.len();
 		halt->get_freight_info(freight_info);
 
-		if(  toggler_departures.pressed  ) {
+		if(  toggler_departures.pressed  ) 
+		{
 			old_len = -1;
 		}
-		if(  old_len != freight_info.len()  ) {
-			if(  toggler_departures.pressed  ) {
+		if(  old_len != freight_info.len()  ) 
+		{
+			if(  toggler_departures.pressed  ) 
+			{
 				update_departures();
 				joined_buf.append( freight_info );
 			}
 		}
+
 
 		gui_frame_t::draw(pos, size);
 		set_dirty();
@@ -354,12 +374,34 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			left = 53+LINESPACE;
 		}
 		top += LINESPACE + D_V_SPACE;
+		left = pos.x + D_MARGIN_LEFT;
 
 		// Hajo: Reuse of info_buf buffer to get and display
 		// information about the passengers happiness
 		info_buf.clear();
 		halt->info(info_buf);
 		display_multiline_text(pos.x + D_MARGIN_LEFT, top, info_buf, SYSCOL_TEXT);
+		int returns = 1;
+		const char *p = info_buf;
+		for (int i = 0; i < info_buf.len(); i++)
+		{
+			if (p[i] == '\n')
+			{
+				returns++;
+			}
+		}
+		top += LINESPACE * returns;
+
+		// TODO: Display the status of the halt in written text and color
+		// There exists currently no fixed states for stations, so those will have to be invented // Ves
+		// Suggestions for states:
+		// - No convoys serviced last month
+		// - No goods where waiting last month
+		// - No control tower (for airports)
+		// - Station is overcrowded
+		// - *Some* explanations to whatever triggers the red states,
+		//   as it probably is more than one thing that triggers it, it would be nice to be specific
+
 	}
 }
 
@@ -520,10 +562,16 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	if (comp == &button) { 			// details button pressed
 		create_win( new halt_detail_t(halt), w_info, magic_halt_detail + halt.get_id() );
-	} else if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
-		env_t::default_sortmode = ((int)(halt->get_sortby())+1)%SORT_MODES;
-		halt->set_sortby((freight_list_sorter_t::sort_mode_t) env_t::default_sortmode);
-		sort_button.set_text(sort_text[env_t::default_sortmode]);
+	} else if (comp == &freight_sort_selector) { 	// @author hsiegeln sort button pressed // @author Ves: changed button to combobox
+
+		sint32 sort_mode = freight_sort_selector.get_selection();
+		if (sort_mode < 0)
+		{
+			freight_sort_selector.set_selection(0);
+			sort_mode = 0;
+		}
+		env_t::default_sortmode = (sort_mode_t)((int)(sort_mode) % (int)SORT_MODES);
+		halt->set_sortby(env_t::default_sortmode);
 	} else  if (comp == &toggler) {
 		show_hide_statistics( toggler.pressed^1 );
 	}
@@ -582,13 +630,15 @@ void halt_info_t::set_windowsize(scr_size size)
 
 	scrolly.set_size(get_client_windowsize()-scrolly.get_pos());
 
+	freight_sort_selector.set_size(scr_size(D_BUTTON_WIDTH + 40, D_BUTTON_HEIGHT));
+
 	// the buttons shall be placed above the "waiting" scroll area. Thus they will start at 
 	// scrolly.get_pos().y - <button height> - D_V_SPACE.
-	const scr_coord delta(0, scrolly.get_pos().y - sort_button.get_size().h - D_V_SPACE - sort_button.get_pos().y);
+	const scr_coord delta(0, scrolly.get_pos().y - freight_sort_selector.get_size().h - D_V_SPACE - freight_sort_selector.get_pos().y);
 
 	sort_label.set_pos(sort_label.get_pos() + delta );
 	sort_label.set_width(client_width);
-	sort_button.set_pos(sort_button.get_pos() + delta);
+	freight_sort_selector.set_pos(freight_sort_selector.get_pos() + delta);
 	toggler_departures.set_pos(toggler_departures.get_pos() + delta);
 	toggler.set_pos(toggler.get_pos() + delta);
 	button.set_pos(button.get_pos() + delta);
@@ -660,7 +710,11 @@ void halt_info_t::rdwr(loadsave_t *file)
 		if(  departures  ) {
 			w->show_hide_departures( true );
 		}
-		halt->get_freight_info(w->freight_info);
+		else
+		{
+			halt->get_freight_info(w->freight_info);
+		}
+
 		w->text.recalc_size();
 		w->scrolly.set_scroll_position( xoff, yoff );
 		// we must invalidate halthandle

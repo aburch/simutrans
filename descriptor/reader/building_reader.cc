@@ -61,7 +61,7 @@ obj_desc_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->seasons = 1;
 		desc->building = NULL;
 	}
-	DBG_DEBUG("tile_reader_t::read_node()","phases=%i index=%i seasons=%i", 
+	DBG_DEBUG("tile_reader_t::read_node()","phases=%i index=%i seasons=%i",
 		desc->phases,
 		desc->index,
 		desc->seasons );
@@ -250,11 +250,11 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->population_and_visitor_demand_capacity = 65535;
 		desc->employment_capacity = 65535;
 		desc->mail_demand_and_production_capacity = 65535;
-	} 
+	}
 
 	old_btyp::typ btyp;
 
-	if (version == 8 || version == 9) 
+	if (version == 8 || version == 9)
 	{
 		// Versioned node, version 8
 		// station price, maintenance and capacity added
@@ -289,7 +289,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->allow_underground = decode_uint8(p);
 		if(extended)
 		{
-			if(extended_version > 3)
+			if(extended_version > 4)
 			{
 				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Extended, number %i", extended_version );
 			}
@@ -301,6 +301,34 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			{
 				desc->radius = decode_uint32(p);
 			}
+			if (extended_version >= 4)
+			{
+				uint8 number_of_classes = decode_uint8(p);
+				uint16 last_class_proportion = 0;
+				for (uint8 i = 0; i < number_of_classes; i++)
+				{
+					// Add the figures here for easier random access later
+					const uint16 class_proportion = decode_uint16(p);
+					desc->class_proportions.append(class_proportion + last_class_proportion);
+					last_class_proportion += class_proportion;
+				}
+				desc->class_proportions_sum = last_class_proportion;
+
+				uint8 number_of_classes_jobs = decode_uint8(p);
+				uint16 last_class_proportion_jobs = 0;
+				for (uint8 i = 0; i < number_of_classes_jobs; i++)
+				{
+					// Add the figures here for easier random access later
+					const uint16 class_proportion_jobs = decode_uint16(p);
+					desc->class_proportions_jobs.append(class_proportion_jobs + last_class_proportion_jobs);
+					last_class_proportion_jobs += class_proportion_jobs;
+				}
+				desc->class_proportions_sum_jobs = last_class_proportion_jobs;
+			}
+			else
+			{
+				desc->class_proportions_sum = 0;
+			}
 		}
 		else
 		{
@@ -309,6 +337,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			desc->population_and_visitor_demand_capacity = 65535;
 			desc->employment_capacity = 65535;
 			desc->mail_demand_and_production_capacity = 65535;
+			desc->class_proportions_sum = 0;
 		}
 	}
 	else if(version == 7)
@@ -333,7 +362,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->intro_date    = decode_uint16(p);
 		desc->retire_date = decode_uint16(p);
 		desc->animation_time = decode_uint16(p);
-		
+
 		// Set default levels for Extended
 		desc->capacity = desc->level * 32;
 		desc->is_control_tower = 0;
@@ -359,7 +388,7 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			desc->is_control_tower = decode_uint8(p);
 		}
-		
+
 	}
 	else if(version == 5  ||  version==6) {
 		// Versioned node, version 5 or 6  (only level logic is different)
@@ -382,10 +411,10 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->intro_date    = decode_uint16(p);
 		desc->retire_date = decode_uint16(p);
 		desc->animation_time = decode_uint16(p);
-		
+
 		// Set default levels for Extended
 		desc->capacity = desc->level * 32;
-		desc->allow_underground = desc->type == building_desc_t::generic_stop ? 2 : 0; 
+		desc->allow_underground = desc->type == building_desc_t::generic_stop ? 2 : 0;
 		desc->is_control_tower = 0;
 
 		if(extended)
@@ -408,7 +437,8 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				desc->maintenance = decode_sint32(p);
 				desc->price = decode_sint32(p);
 				desc->is_control_tower = 0;
-				desc->allow_underground = desc->type == building_desc_t::generic_stop ? 2 : 0; 
+				desc->allow_underground = desc->type == building_desc_t::generic_stop ? 2 : 0;
+				desc->class_proportions_sum = 0;
 			}
 		}
 	}
@@ -538,6 +568,14 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		desc->flags |= building_desc_t::FLAG_HAS_CURSOR;
 	}
 
+	// culculate max size of city buildings.
+	if(  desc->is_city_building()  &&  desc->city_building_max_size<desc->size.x  ) {
+		desc->city_building_max_size = desc->size.x;
+	}
+	if(  desc->is_city_building()  &&  desc->city_building_max_size<desc->size.y  ) {
+		desc->city_building_max_size = desc->size.y;
+	}
+
 	if(!extended)
 	{
 		// Set default levels for Extended
@@ -548,9 +586,10 @@ obj_desc_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Old versions when read should allow underground stations, but not underground extension buildings.
 		if(version < 7)
 		{
-			desc->allow_underground = desc->type == building_desc_t::generic_stop ? 2 : 0; 
+			desc->allow_underground = desc->type == building_desc_t::generic_stop ? 2 : 0;
 		}
 		desc->is_control_tower = 0;
+		desc->class_proportions_sum = 0;
 	}
 
 	if(!extended || extended_version < 1)

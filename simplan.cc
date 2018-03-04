@@ -48,6 +48,17 @@ void swap(planquadrat_t& a, planquadrat_t& b)
 // deletes also all grounds in this array!
 planquadrat_t::~planquadrat_t()
 {
+	if (!welt->is_destroying())
+	{
+		grund_t *gr = get_kartenboden();
+		gebaeude_t *gb = gr ? gr->find<gebaeude_t>() : NULL;
+		if (gb)
+		{
+			// If this is a building tile, make sure to delete the building's tile list.
+			gb->reset_tile_list();
+		}
+	}
+
 	if(ground_size==0) {
 		// empty
 	}
@@ -582,7 +593,8 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 
 	if(tool_id==(TOOL_TRANSFORMER|GENERAL_TOOL)....	*/
 
-	if( (grund_t::underground_mode == grund_t::ugm_all  ||  (grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() == grund_t::underground_level+1) )
+	if ((grund_t::underground_mode == grund_t::ugm_all
+		 || (grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() == grund_t::underground_level + welt->get_settings().get_way_height_clearance()))
 		&&  gr->get_typ()==grund_t::fundament
 		&&  tool_t::general_tool[TOOL_TRANSFORMER]->is_selected()) {
 		gebaeude_t *gb = gr->find<gebaeude_t>();
@@ -749,7 +761,7 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 			
 			for(unsigned insert_pos = 0; insert_pos < halt_list_count; insert_pos++)
 			{			
-				if(koord_distance(halt_list[insert_pos].halt->get_next_pos(pos), pos) > distance) 
+				if(halt_list[insert_pos].halt.is_bound() && koord_distance(halt_list[insert_pos].halt->get_next_pos(pos), pos) > distance)
 				{
 					halt_list_insert_at(halt, insert_pos, distance);
 					return;

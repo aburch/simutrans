@@ -15,7 +15,6 @@
 #include "../vehicle/simvehicle.h"
 #include "settings_stats.h"
 
-
 /* stuff not set here ....
 INIT_NUM( "intercity_road_length", env_t::intercity_road_length);
 INIT_NUM( "diagonal_multiplier", pak_diagonal_multiplier);
@@ -51,6 +50,8 @@ static char const* const version[] =
 	"0.120.1",
 	"0.120.2",
 	"0.120.3",
+	"0.120.4",
+	"0.120.5",
 	"0.120.7",
 	"0.120.1.2",
 	"0.120.2.1"
@@ -70,7 +71,8 @@ static const char *version_ex[] =
 	".9",
 	".10",
 	".11",
-	".12"
+	".12",
+	".13"
 };
 
 static const char *revision_ex[] =
@@ -97,7 +99,12 @@ static const char *revision_ex[] =
 	"19",
 	"20",
 	"21",
-	"22"
+	"22",
+	"23",
+	"24",
+	"25",
+	"26",
+	"27"
 };
 
 // just free memory
@@ -192,14 +199,10 @@ void settings_stats_t::set_cell_component(gui_component_table_t &tbl, gui_compon
 void settings_extended_general_stats_t::init( settings_t *sets )
 {
 	INIT_INIT;
-	INIT_NUM( "min_bonus_max_distance", sets->get_min_bonus_max_distance(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "median_bonus_distance", sets->get_median_bonus_distance(), 10, 10000, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "max_bonus_min_distance", sets->get_max_bonus_min_distance(), 100, 25000, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "max_bonus_multiplier_percent", sets->get_max_bonus_multiplier_percent(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	{
 		gui_component_table_t &tbl = new_table(scr_coord(0, ypos), 3, 2);
 		int row = 0;
-		set_cell_component(tbl, new_textarea(scr_coord(2, 0),translator::translate("revenue of")), 0, 0);
+		set_cell_component(tbl, new_textarea(scr_coord(2, 0), translator::translate("revenue of")), 0, 0);
 		set_cell_component(tbl, new_textarea(scr_coord(2, 0), translator::translate("above\nminutes")), 1, 0);
 		set_cell_component(tbl, new_textarea(scr_coord(2, 0), translator::translate("get\nrevenue $")), 2, 0);
 		row++;
@@ -209,6 +212,7 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 		INIT_TABLE_END(tbl);
 	}
 	SEPERATOR;
+
 	INIT_NUM( "city_threshold_size", sets->get_city_threshold_size(), 1000, 100000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "capital_threshold_size", sets->get_capital_threshold_size(), 10000, 1000000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_small_city_size", sets->get_max_small_city_size(), 1000, 100000, gui_numberinput_t::AUTOLINEAR, false );
@@ -232,13 +236,15 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM("time_interval_seconds_to_clear", sets->get_time_interval_seconds_to_clear(), 0, 10000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("time_interval_seconds_to_caution", sets->get_time_interval_seconds_to_caution(), 0, 10000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("town_road_speed_limit", sets->get_town_road_speed_limit(), 0, 500, gui_numberinput_t::AUTOLINEAR, false);
+	INIT_NUM("minimum_staffing_percentage_consumer_industry", sets->get_minimum_staffing_percentage_consumer_industry(), 0, 100, gui_numberinput_t::AUTOLINEAR, false);
+	INIT_NUM("minimum_staffing_percentage_full_production_producer_industry", sets->get_minimum_staffing_percentage_full_production_producer_industry(), 0, 100, gui_numberinput_t::AUTOLINEAR, false);
 	
 	SEPERATOR;
 	INIT_NUM("population_per_level", sets->get_population_per_level(), gui_numberinput_t::PLAIN, 1000, 1, false);
 	INIT_NUM("visitor_demand_per_level", sets->get_visitor_demand_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
 	INIT_NUM("jobs_per_level", sets->get_jobs_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
 	INIT_NUM("mail_per_level", sets->get_mail_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
-
+	INIT_NUM("power_revenue_factor_percentage", sets->get_power_revenue_factor_percentage(), 0, 10000, gui_numberinput_t::PLAIN, false);
 	SEPERATOR;
 	INIT_NUM("forge_cost_road", sets->get_forge_cost_road(), 0, 1000000, gui_numberinput_t::PLAIN, false);
 	INIT_NUM("forge_cost_track", sets->get_forge_cost_track(), 0, 1000000, gui_numberinput_t::PLAIN, false);
@@ -301,11 +307,6 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 {
 	READ_INIT;
 
-	READ_NUM_VALUE( sets->min_bonus_max_distance );
-	READ_NUM_VALUE( sets->median_bonus_distance );
-	READ_NUM_VALUE( sets->max_bonus_min_distance );
-	READ_NUM_VALUE( sets->max_bonus_multiplier_percent );
-
 	READ_NUM( sets->set_tpo_min_minutes );
 	READ_NUM( sets->set_tpo_revenue );
 
@@ -334,11 +335,14 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->time_interval_seconds_to_clear );
 	READ_NUM_VALUE( sets->time_interval_seconds_to_caution );
 	READ_NUM_VALUE( sets->town_road_speed_limit );
+	READ_NUM_VALUE(sets->minimum_staffing_percentage_consumer_industry);
+	READ_NUM_VALUE(sets->minimum_staffing_percentage_full_production_producer_industry);
 	
 	READ_NUM_VALUE(sets->population_per_level);
 	READ_NUM_VALUE(sets->visitor_demand_per_level);
 	READ_NUM_VALUE(sets->jobs_per_level);
 	READ_NUM_VALUE(sets->mail_per_level);
+	READ_NUM_VALUE(sets->power_revenue_factor_percentage);
 
 	READ_NUM_VALUE(sets->forge_cost_road);
 	READ_NUM_VALUE(sets->forge_cost_track);
@@ -378,8 +382,6 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 			sets->set_default_increase_maintenance_after_years((waytype_t)i, default_increase_maintenance_after_years_other);
 		}
 	}
-	// And convert to the form used in-game...
-	sets->cache_speedbonuses();
 }
 
 
@@ -396,6 +398,10 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 	INIT_NUM( "max_alternative_destinations_commuting", sets->get_max_alternative_destinations_commuting(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_alternative_destinations_per_visitor_demand_millionths", sets->get_max_alternative_destinations_per_visitor_demand_millionths(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_alternative_destinations_per_job_millionths", sets->get_max_alternative_destinations_per_job_millionths(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM("min_alternative_destinations_visiting", sets->get_min_alternative_destinations_visiting(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false);
+	INIT_NUM("min_alternative_destinations_commuting", sets->get_min_alternative_destinations_commuting(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false);
+	INIT_NUM("min_alternative_destinations_per_visitor_demand_millionths", sets->get_min_alternative_destinations_per_visitor_demand_millionths(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false);
+	INIT_NUM("min_alternative_destinations_per_job_millionths", sets->get_min_alternative_destinations_per_job_millionths(), 0, 65534, gui_numberinput_t::AUTOLINEAR, false);
 	INIT_NUM("passenger_max_wait", sets->get_passenger_max_wait(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("min_wait_airport", sets->get_min_wait_airport(), 0, 311040, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM("random_mode_commuting", sets->get_random_mode_commuting(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
@@ -495,6 +501,9 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 		set_cell_component(tbl, new_numinp(scr_coord(0, 0), sets->get_catering_level5_max_revenue(), 0, 10000, 1), 2, row);
 		INIT_TABLE_END(tbl);
 	}
+	SEPERATOR;
+	INIT_NUM("max_comfort_preference_percentage", sets->get_max_comfort_preference_percentage(), 100, 65535, gui_numberinput_t::AUTOLINEAR, false);
+	INIT_BOOL("rural_industries_no_staff_shortage", sets->rural_industries_no_staff_shortage); 
 	clear_dirty();
 	height = ypos;
 	set_size(settings_stats_t::get_size());
@@ -514,6 +523,10 @@ void settings_extended_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->max_alternative_destinations_commuting );
 	READ_NUM_VALUE( sets->max_alternative_destinations_per_visitor_demand_millionths );
 	READ_NUM_VALUE( sets->max_alternative_destinations_per_job_millionths );
+	READ_NUM_VALUE(sets->min_alternative_destinations_visiting);
+	READ_NUM_VALUE(sets->min_alternative_destinations_commuting);
+	READ_NUM_VALUE(sets->min_alternative_destinations_per_visitor_demand_millionths);
+	READ_NUM_VALUE(sets->min_alternative_destinations_per_job_millionths);
 	READ_NUM_VALUE( sets->passenger_max_wait );
 	READ_NUM_VALUE( sets->min_wait_airport );
 	READ_NUM_VALUE( sets->random_mode_commuting );
@@ -550,6 +563,9 @@ void settings_extended_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->catering_level4_max_revenue );
 	READ_NUM_VALUE( sets->catering_level5_minutes );
 	READ_NUM_VALUE( sets->catering_level5_max_revenue );
+
+	READ_NUM_VALUE(sets->max_comfort_preference_percentage);
+	READ_BOOL_VALUE(sets->rural_industries_no_staff_shortage); 
 
 	// And convert to the form used in-game...
 	sets->cache_catering_revenues();
@@ -803,8 +819,6 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 	INIT_INIT
 	INIT_BOOL( "separate_halt_capacities", sets->is_separate_halt_capacities() );
 	INIT_BOOL( "avoid_overcrowding", sets->is_avoid_overcrowding() );
-	INIT_NUM( "station_coverage", sets->get_station_coverage(), 1, 32, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "station_coverage_factories", sets->get_station_coverage_factories(), 1, 8, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_NUM( "max_route_steps", sets->get_max_route_steps(), 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	INIT_NUM( "max_choose_route_steps", sets->get_max_choose_route_steps(), 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
@@ -832,8 +846,6 @@ void settings_routing_stats_t::read(settings_t* const sets)
 	// routing of goods
 	READ_BOOL_VALUE( sets->separate_halt_capacities );
 	READ_BOOL_VALUE( sets->avoid_overcrowding );
-	READ_NUM_VALUE( sets->station_coverage_size );
-	READ_NUM_VALUE( sets->station_coverage_size_factories );
 	READ_NUM_VALUE( sets->max_route_steps );
 	READ_NUM_VALUE( sets->max_choose_route_steps );
 	READ_NUM_VALUE( sets->max_hops );

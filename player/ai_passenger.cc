@@ -276,7 +276,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 		vehicle_t* test_driver = vehicle_builder_t::build( koord3d( start_harbour - start_dx, welt->get_water_hgt( start_harbour - start_dx ) ), this, NULL, &remover_desc );
 		test_driver->set_flag( obj_t::not_on_map );
 		route_t verbindung;
-		bool connected = verbindung.calc_route( welt, koord3d( start_harbour - start_dx, welt->get_water_hgt( start_harbour - start_dx ) ), koord3d( end_harbour - end_dx, welt->get_water_hgt( end_harbour - end_dx ) ), test_driver, 0, 0, false, 0 );
+		bool connected = verbindung.calc_route( welt, koord3d( start_harbour - start_dx, welt->get_water_hgt( start_harbour - start_dx ) ), koord3d( end_harbour - end_dx, welt->get_water_hgt( end_harbour - end_dx ) ), test_driver, 0, 0, false, 0 ) == route_t::valid_route;
 		delete test_driver;
 		if(!connected) {
 			return false;
@@ -351,7 +351,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 			koord sch = find_place_for_hub( start_stadt );
 			call_general_tool( TOOL_BUILD_STATION, sch, busstop_desc->get_name() );
 			start_connect_hub = get_our_hub( start_stadt );
-			assert( start_connect_hub.is_bound() );
+			if (!start_connect_hub.is_bound()) return false;
 		}
 	}
 	if(!end_hub.is_bound()) {
@@ -384,7 +384,7 @@ bool ai_passenger_t::create_water_transport_vehicle(const stadt_t* start_stadt, 
 			koord ech = find_place_for_hub( end_stadt );
 			call_general_tool( TOOL_BUILD_STATION, ech, busstop_desc->get_name() );
 			end_connect_hub = get_our_hub( end_stadt );
-			assert( end_connect_hub.is_bound() );
+			if (!end_connect_hub.is_bound()) return false;
 		}
 	}
 
@@ -706,7 +706,7 @@ bool ai_passenger_t::create_air_transport_vehicle(const stadt_t *start_stadt, co
 				const building_desc_t* busstop_desc = hausbauer_t::get_random_station(building_desc_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX );
 				call_general_tool( TOOL_BUILD_STATION, sch, busstop_desc->get_name() );
 				start_connect_hub = get_our_hub( start_stadt );
-				assert( start_connect_hub.is_bound() );
+				if (!start_connect_hub.is_bound()) return false;
 			}
 		}
 		if(!end_hub.is_bound()) {
@@ -736,7 +736,7 @@ bool ai_passenger_t::create_air_transport_vehicle(const stadt_t *start_stadt, co
 				const building_desc_t* busstop_desc = hausbauer_t::get_random_station(building_desc_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::PAX );
 				call_general_tool( TOOL_BUILD_STATION, ech, busstop_desc->get_name() );
 				end_connect_hub = get_our_hub( end_stadt );
-				assert( end_connect_hub.is_bound() );
+				if (!end_connect_hub.is_bound()) return false;
 			}
 		}
 	}
@@ -1300,17 +1300,18 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 							convoihandle_t cnv = line->get_convoy(i);
 							if(cnv->has_obsolete_vehicles()) {
 								obsolete.append(cnv);
-								capacity += cnv->front()->get_desc()->get_capacity();
+								capacity += cnv->front()->get_desc()->get_total_capacity();
 							}
 						}
 						if(capacity>0) {
 							// now try to find new vehicle
 							vehicle_t              const& v       = *line->get_convoy(0)->front();
 							waytype_t              const  wt      = v.get_waytype();
-							vehicle_desc_t const* const  v_desc = vehicle_builder_t::vehicle_search(wt, welt->get_current_month(), 50, welt->get_average_speed(wt), goods_manager_t::passengers, false, true);
+							const sint32 target_speed = 200; //  HACK: This used to use the speed bonus. The AI in Extended is deprecated, so this value must be given to allow the old code to be removed.
+							vehicle_desc_t const* const  v_desc = vehicle_builder_t::vehicle_search(wt, welt->get_current_month(), 50, target_speed, goods_manager_t::passengers, false, true);
 							if (!v_desc->is_retired(welt->get_current_month()) && v_desc != v.get_desc()) {
 								// there is a newer one ...
-								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=v_desc->get_capacity()) {
+								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=v_desc->get_total_capacity()) {
 									if(  convoihandle_t::is_exhausted()  ) {
 										// too many convois => cannot do anything about this ...
 										break;

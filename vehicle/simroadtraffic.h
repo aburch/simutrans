@@ -124,6 +124,8 @@ private:
 
 	grund_t* hop_check();
 
+	void calc_disp_lane();
+
 protected:
 	void rdwr(loadsave_t *file);
 
@@ -139,6 +141,8 @@ public:
 	private_car_t(grund_t* gr, koord target);
 
 	virtual ~private_car_t();
+
+	virtual void rotate90();
 
 	static stringhashtable_tpl<const citycar_desc_t *> table;
 

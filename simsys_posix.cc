@@ -11,6 +11,9 @@
 #ifndef _MSC_VER
 #include <unistd.h>
 #include <sys/time.h>
+#else
+// need timeGetTime
+#include <mmsystem.h>
 #endif
 
 #include <signal.h>
@@ -127,7 +130,9 @@ void ex_ord_update_mx_my()
 {
 }
 
+#ifndef _MSC_VER
 static timeval first;
+#endif
 
 uint32 dr_time()
 {
@@ -160,7 +165,7 @@ void dr_sleep(uint32 msec)
 #ifdef _WIN32
 	Sleep( msec );
 #else
-	sleep( msec );
+	usleep( msec * 1000u );
 #endif
 }
 

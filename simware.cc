@@ -31,6 +31,7 @@ ware_t::ware_t() : ziel(), zwischenziel(), zielpos(-1, -1)
 	menge = 0;
 	index = 0;
 	arrival_time = 0;
+	g_class = 0;
 }
 
 
@@ -40,6 +41,7 @@ ware_t::ware_t(const goods_desc_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -
 	menge = 0;
 	index = wtyp->get_index();
 	arrival_time = 0;
+	g_class = 0;
 }
 
 // Constructor for new revenue system: packet of cargo keeps track of its origin.
@@ -50,6 +52,7 @@ ware_t::ware_t(const goods_desc_t *wtyp, halthandle_t o) : ziel(), zwischenziel(
 	index = wtyp->get_index();
 	origin = o;
 	arrival_time = 0;
+	g_class = 0;
 }
 
 
@@ -63,7 +66,6 @@ void ware_t::set_desc(const goods_desc_t* type)
 {
 	index = type->get_index();
 }
-
 
 
 void ware_t::rdwr(loadsave_t *file)
@@ -106,6 +108,7 @@ void ware_t::rdwr(loadsave_t *file)
 			index = type->get_index();
 		}
 	}
+
 	// convert coordinate to halt indices
 	if(file->get_version() > 110005 && (file->get_extended_version() >= 10 || file->get_extended_version() == 0))
 	{
@@ -242,9 +245,28 @@ void ware_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(commuting);
 		is_commuting_trip = commuting;
 	}
+
+	if (file->get_extended_version() >= 13 || (file->get_extended_version() == 12 && file->get_extended_revision() >= 22))
+	{
+		file->rdwr_byte(g_class); 
+	}
+	else
+	{
+		g_class = 0;
+	}
+
+	g_class = min(g_class, get_desc()->get_number_of_classes()-1);
+
+	if (file->get_extended_version() >= 13 || (file->get_extended_version() == 12 && file->get_extended_revision() >= 27))
+	{
+		file->rdwr_short(comfort_preference_percentage);
+	}
+	else if(file->is_loading())
+	{
+		comfort_preference_percentage = 500;
+	}
 }
 
-//"finish loading" (BG); "Invite finish" (Google); "load lock" (Babelfish).
 void ware_t::finish_rd(karte_t *welt)
 {
 	if(  welt->load_version.version <= 111005  ) {

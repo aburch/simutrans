@@ -221,7 +221,7 @@ bool ai_t::find_place(koord &start, koord &size, koord target, koord off)
 	// distance of last found point
 	int dist=0x7FFFFFFF;
 	koord	platz;
-	int const cov = welt->get_settings().get_station_coverage_factories();
+	int const cov = welt->get_settings().get_station_coverage_factories() - 1;
 	int xpos = start.x;
 	int ypos = start.y;
 
@@ -512,7 +512,7 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	vehicle_t* test_driver = vehicle_builder_t::build(welt->lookup_kartenboden(platz1)->get_pos(), this, NULL, &test_desc);
 	test_driver->set_flag( obj_t::not_on_map );
 	route_t verbindung;
-	if (verbindung.calc_route(welt, welt->lookup_kartenboden(platz1)->get_pos(), welt->lookup_kartenboden(platz2)->get_pos(), test_driver, 0, 0, false, 0)  &&
+	if (verbindung.calc_route(welt, welt->lookup_kartenboden(platz1)->get_pos(), welt->lookup_kartenboden(platz2)->get_pos(), test_driver, 0, 0, false, 0) == route_t::valid_route  &&
 		verbindung.get_count()<2u*shortest_distance(platz1,platz2))  {
 DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.get_count() );
 		// found something with the nearly same length

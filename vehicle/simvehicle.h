@@ -100,6 +100,19 @@ protected:
 	// if true, use offsets to emulate driving on other side
 	uint8 drives_on_left:1;
 
+	/**
+	* Thing is moving on this lane.
+	* Possible values:
+	* (Back)
+	* 0 - sidewalk (going on the right side to w/sw/s)
+	* 1 - road     (going on the right side to w/sw/s)
+	* 2 - middle   (everything with waytype != road)
+	* 3 - road     (going on the right side to se/e/../nw)
+	* 4 - sidewalk (going on the right side to se/e/../nw)
+	* (Front)
+	*/
+	uint8 disp_lane : 3;
+
 	sint8 dx, dy;
 
 	// number of steps in this tile (255 per tile)
@@ -148,6 +161,9 @@ protected:
 	// only needed for old way of moving vehicles to determine position at loading time
 	bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const;
 
+	// Players are able to reassign classes of accommodation in vehicles manually
+	// during the game. Track these reassignments here with this array.
+	uint8 *class_reassignments;
 
 public:
 	// only called during load time: set some offsets
@@ -168,6 +184,8 @@ public:
 	sint16 get_hoff(const sint16 raster_width = 1) const;
 	uint8 get_steps() const {return steps;} // number of steps pass on the current tile.
 	uint8 get_steps_next() const {return steps_next;} // total number of steps to pass on the current tile - 1. Mostly VEHICLE_STEPS_PER_TILE - 1 for straight route or diagonal_vehicle_steps_per_tile - 1 for a diagonal route.
+
+	uint8 get_disp_lane() const { return disp_lane; }
 
 	// to make smaller steps than the tile granularity, we have to calculate our offsets ourselves!
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
@@ -191,6 +209,8 @@ public:
 	koord3d get_pos_next() const {return pos_next;}
 
 	virtual waytype_t get_waytype() const = 0;
+
+	void set_class_reassignment(uint8 original_class, uint8 new_class);
 
 	// true, if this vehicle did not moved for some time
 	virtual bool is_stuck() { return true; }
@@ -261,13 +281,7 @@ private:
 
 	sint32 calc_modified_speed_limit(koord3d position, ribi_t::ribi current_direction, bool is_corner);
 	
-	bool load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehicles);
-
-	// @author: jamespetts
-	// uint16 local_bonus_supplement;
-	// A supplementary bonus for local transportation,
-	// if needed, to compensate for not having the effect
-	// of the long-distance speed bonus.
+	bool load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehicles, bool use_lower_classes);
 
 	// @author: jamespetts
 	// Cornering settings.
@@ -320,8 +334,8 @@ protected:
 	*/
 	uint16 route_index;
 
-	uint16 total_freight;	// since the sum is needed quite often, it is cached
-	slist_tpl<ware_t> fracht;   // list of goods being transported
+	uint16 total_freight;	// since the sum is needed quite often, it is cached (not differentiated by class)
+	slist_tpl<ware_t> *fracht;   // list of goods being transported (array for each class)
 
 	const vehicle_desc_t *desc;
 
@@ -332,6 +346,8 @@ protected:
 	* @author Hj. Malthaner
 	*/
 	koord3d pos_prev;
+
+	uint8 number_of_classes;
 
 	bool leading:1;	// true, if vehicle is first vehicle of a convoi
 	bool last:1;	// true, if vehicle is last vehicle of a convoi
@@ -394,7 +410,7 @@ public:
 	void set_route_index(uint16 value) { route_index = value; }
 	const koord3d get_pos_prev() const {return pos_prev;}
 
-    virtual bool reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route = NULL);
+	virtual route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route = NULL);
 
 	/**
 	* Get the base image.
@@ -412,7 +428,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 	const vehicle_desc_t *get_desc() const {return desc; }
-	void set_desc(const vehicle_desc_t* value) { desc = value; }
+	void set_desc(const vehicle_desc_t* value);
 
 	/**
 	* @return die running_cost in Cr/100Km
@@ -444,6 +460,8 @@ public:
 
 	void set_direction_steps(sint16 value) { direction_steps = value; }
 
+	void fix_class_accommodations();
+
 #ifdef INLINE_OBJ_TYPE
 protected:
 	vehicle_t(typ type);
@@ -455,6 +473,9 @@ public:
 #endif
 
 	~vehicle_t();
+
+	/// Note that the original class is the accommodation index *not* the previously re-assigned class (if different)
+	void set_class_reassignment(uint8 original_class, uint8 new_class);
 
 	void make_smoke() const;
 
@@ -490,7 +511,7 @@ public:
 	sint32 get_speed_limit() const { return speed_limit; }
 	static inline sint32 speed_unlimited() {return (std::numeric_limits<sint32>::max)(); }
 
-	const slist_tpl<ware_t> & get_cargo() const { return fracht;}   // list of goods being transported
+	const slist_tpl<ware_t> & get_cargo(uint8 g_class) const { return fracht[g_class];}   // list of goods being transported (indexed by accommodation class)
 
 	/**
 	 * Rotate freight target coordinates, has to be called after rotating factories.
@@ -501,6 +522,10 @@ public:
 	* Calculate the total quantity of goods moved
 	*/
 	uint16 get_total_cargo() const { return total_freight; }
+
+	uint16 get_total_cargo_by_class(uint8 g_class) const;
+
+	uint16 get_reassigned_class(uint8 g_class) const;
 
 	/**
 	* Calculate transported cargo total weight in KG
@@ -518,7 +543,7 @@ public:
 	/**
 	* Get the maximum capacity
 	*/
-	uint16 get_cargo_max() const {return desc->get_capacity(); }
+	uint16 get_cargo_max() const {return desc->get_total_capacity(); }
 
 	const char * get_cargo_mass() const;
 
@@ -585,8 +610,8 @@ public:
 	 * Load freight from halt
 	 * @return amount loaded
 	 */
-	uint16 load_cargo(halthandle_t halt)  { bool dummy; (void)dummy; return load_cargo(halt, false, &dummy, &dummy); }
-	uint16 load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehicles);
+	uint16 load_cargo(halthandle_t halt)  { bool dummy; (void)dummy; return load_cargo(halt, false, &dummy, &dummy, true); }
+	uint16 load_cargo(halthandle_t halt, bool overcrowd, bool *skip_convois, bool *skip_vehicles, bool use_lower_classes);
 
 	/**
 	* Remove freight that no longer can reach it's destination
@@ -627,11 +652,15 @@ public:
 
 	uint16 get_sum_weight() const { return (sum_weight + 499) / 1000; }
 
+	uint16 get_overcrowded_capacity(uint8 g_class) const;
 	// @author: jamespetts
-	uint16 get_overcrowding() const;
+	uint16 get_overcrowding(uint8 g_class) const;
 
 	// @author: jamespetts
-	uint8 get_comfort(uint8 catering_level = 0) const;
+	uint8 get_comfort(uint8 catering_level = 0, uint8 g_class = 0) const;
+
+	uint16 get_accommodation_capacity(uint8 g_class, bool include_lower_classes = false) const;
+	uint16 get_fare_capacity(uint8 g_class, bool include_lower_classes = false) const;
 
 	// BG, 06.06.2009: update player's fixed maintenance
 	void finish_rd();
@@ -673,6 +702,10 @@ protected:
 
 public:
 	virtual void enter_tile(grund_t*);
+
+	virtual void rotate90();
+
+	void calc_disp_lane();
 
 	virtual waytype_t get_waytype() const { return road_wt; }
 
@@ -943,7 +976,7 @@ private:
 		landing_distance = altitude_level - 1;
 	}
 	// BG, 07.08.2012: extracted from calc_route()
-	bool calc_route_internal(
+	route_t::route_result_t calc_route_internal(
 		karte_t *welt,
 		const koord3d &start,
 		const koord3d &ziel,
@@ -1003,7 +1036,7 @@ public:
 	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route);
 
 	// BG, 08.08.2012: extracted from can_enter_tile()
-    bool reroute(const uint16 reroute_index, const koord3d &ziel);
+	route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel);
 
 #ifdef INLINE_OBJ_TYPE
 #else

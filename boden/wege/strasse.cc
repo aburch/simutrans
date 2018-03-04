@@ -68,7 +68,6 @@ strasse_t::strasse_t() : weg_t(road_wt)
 }
 
 
-
 void strasse_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t s( file, "strasse_t" );
