@@ -7802,9 +7802,9 @@ route_t::route_result_t air_vehicle_t::calc_route_internal(
 		search_for_stop = route.get_count()-1;
 
 		// define the endpoint on the runway
-		uint16 runway_tiles = search_for_stop - touchdown;
-		uint16 min_runway_tiles = desc->get_minimum_runway_length() / welt->get_settings().get_meters_per_tile() + 1;
-		uint16 excess_of_tiles = runway_tiles - min_runway_tiles;
+		uint32 runway_tiles = search_for_stop - touchdown;
+		uint32 min_runway_tiles = desc->get_minimum_runway_length() / welt->get_settings().get_meters_per_tile() + 1;
+		sint32 excess_of_tiles = runway_tiles - min_runway_tiles;
 		search_for_stop -= excess_of_tiles;
 		// now we just append the rest
 		for( int i=end_route.get_count()-2;  i>=0;  i--  ) {
@@ -8119,7 +8119,6 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		}
 	}
 
-	//	if(route_index==search_for_stop  &&  state==landing) {
 	if(route_index==search_for_stop &&  state==landing) {
 
 		// we will wait in a step, much more simulation friendly
