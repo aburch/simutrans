@@ -6319,6 +6319,7 @@ void convoi_t::check_pending_updates()
 			schedule = create_schedule();
 		}
 		schedule_t* new_fpl = line_update_pending->get_schedule();
+		new_fpl->set_current_stop(0); // A line should never have current_stop != 0 - this seems to happen on occasions, so reset it here before it causes trouble.
 		uint8 current_stop = schedule->get_current_stop(); // save current position of schedule
 		bool is_same = false;
 		bool is_depot = false;
