@@ -11207,11 +11207,18 @@ void karte_t::privatecar_rdwr(loadsave_t *file)
 
 		else
 		{
-			car_ownership[cl].clear();
 			uint32 counter;
 			file->rdwr_long(counter);
 			sint64 year = 0;
 			uint16 ownership_percent = 0;
+			if(counter > 0)
+			{
+				car_ownership[cl].clear();
+			}
+			else
+			{
+
+			}
 			for (uint32 c = 0; c < counter; c++)
 			{
 				file->rdwr_longlong(year);
