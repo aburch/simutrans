@@ -34,7 +34,7 @@ gui_textinput_t::gui_textinput_t() :
 	textcol(SYSCOL_EDIT_TEXT),
 	text_dirty(false),
 	cursor_reference_time(0),
-	focus_recieved(false)
+	focus_received(false)
 { }
 
 
@@ -478,7 +478,7 @@ void gui_textinput_t::draw(scr_coord offset)
 void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 {
 	// check if focus state has changed
-	if(  focus_recieved!=has_focus  ) {
+	if(  focus_received!=has_focus  ) {
 		if(  has_focus  ) {
 			// update reference time for cursor blinking if focus has just been received
 			cursor_reference_time = dr_time();
@@ -493,7 +493,7 @@ void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 		else {
 			dr_stop_textinput();
 		}
-		focus_recieved = has_focus;
+		focus_received = has_focus;
 	}
 
 	display_with_cursor( offset, has_focus, (has_focus  &&  ((dr_time()-cursor_reference_time)&512ul)==0) );

@@ -1987,9 +1987,9 @@ void stadt_t::rdwr(loadsave_t* file)
 		{
 			for (uint hist_type = 0; hist_type < adapted_max_city_history - 2; hist_type++)
 			{
-				if(hist_type == HIST_POWER_RECIEVED)
+				if(hist_type == HIST_POWER_RECEIVED)
 				{
-					city_history_year[year][HIST_POWER_RECIEVED] = 0;
+					city_history_year[year][HIST_POWER_RECEIVED] = 0;
 					hist_type = HIST_CONGESTION;
 				}
 				if(hist_type == HIST_JOBS || hist_type == HIST_VISITOR_DEMAND)
@@ -2009,9 +2009,9 @@ void stadt_t::rdwr(loadsave_t* file)
 		{
 			for (uint hist_type = 0; hist_type < adapted_max_city_history - 2; hist_type++)
 			{
-				if(hist_type == HIST_POWER_RECIEVED)
+				if(hist_type == HIST_POWER_RECEIVED)
 				{
-					city_history_month[month][HIST_POWER_RECIEVED] = 0;
+					city_history_month[month][HIST_POWER_RECEIVED] = 0;
 					hist_type = HIST_CONGESTION;
 				}
 				if(hist_type == HIST_JOBS || hist_type == HIST_VISITOR_DEMAND)
@@ -2885,8 +2885,8 @@ void stadt_t::calc_growth()
 				city_history_year[0][HIST_GOODS_NEEDED] ++;
 				if(  fab->input_vorrat_an( desc->get_supplier(i)->get_input_type() )>0  )
 				{
-					city_history_month[0][HIST_GOODS_RECIEVED] ++;
-					city_history_year[0][HIST_GOODS_RECIEVED] ++;
+					city_history_month[0][HIST_GOODS_RECEIVED] ++;
+					city_history_year[0][HIST_GOODS_RECEIVED] ++;
 				}
 			}
 		}
@@ -3008,11 +3008,11 @@ void stadt_t::city_growth_get_factors(city_growth_factor_t(&factors)[GROWTH_FACT
 
 	// goods growth factors
 	factors[index].demand = h[HIST_GOODS_NEEDED];
-	factors[index++].supplied = h[HIST_GOODS_RECIEVED];
+	factors[index++].supplied = h[HIST_GOODS_RECEIVED];
 
 	// Electricity growth factors
 	factors[index].demand = h[HIST_POWER_NEEDED];
-	factors[index++].supplied = h[HIST_POWER_RECIEVED];
+	factors[index++].supplied = h[HIST_POWER_RECEIVED];
 }
 
 
