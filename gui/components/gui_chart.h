@@ -66,11 +66,7 @@ public:
 	 */
 	int add_curve(PIXVAL color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc=NULL);
 
-	uint32 add_line(PIXVAL color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc=NULL);
-
 	void remove_curves() { curves.clear(); }
-
-	void remove_lines() { lines.clear(); }
 
 	/**
 	 * Hide a curve of the set
@@ -81,13 +77,6 @@ public:
 	 * Show a curve of the set
 	 */
 	void show_curve(unsigned int id);
-
-	/**
-	 * Show/hide a line of the set
-	 * @author Knightly
-	 */
-	void show_line(uint32 id);
-	void hide_line(uint32 id);
 
 	/*
 	 * set starting value for x-axis of chart
@@ -123,22 +112,7 @@ private:
 		convert_proc convert;	// Knightly : procedure for converting supplied values before use
 	};
 
-	/**
-	 * line struct
-	 * @author Knightly
-	 */
-	struct line_t {
-		PIXVAL color;
-		const sint64 *value;		// pointer to a single value only
-		int times;					// number of times the same value is repeated
-		bool show;
-		bool show_value;			// whether to show the value as number on the chart
-		int precision;
-		convert_proc convert;	// Knightly : procedure for converting supplied value before use
-	};
-
 	slist_tpl <curve_t> curves;
-	slist_tpl <line_t> lines;
 
 	int x_elements, y_elements;
 
