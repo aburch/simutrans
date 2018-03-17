@@ -4179,7 +4179,7 @@ void karte_t::restore_history(bool restore_transported_only)
 			total_pas      += i->get_finance_history_month(m, HIST_PAS_GENERATED);
 			trans_mail     += i->get_finance_history_month(m, HIST_MAIL_TRANSPORTED);
 			total_mail     += i->get_finance_history_month(m, HIST_MAIL_GENERATED);
-			supplied_goods += i->get_finance_history_month(m, HIST_GOODS_RECIEVED);
+			supplied_goods += i->get_finance_history_month(m, HIST_GOODS_RECEIVED);
 			total_goods    += i->get_finance_history_month(m, HIST_GOODS_NEEDED);
 		}
 
@@ -4212,7 +4212,7 @@ void karte_t::restore_history(bool restore_transported_only)
 			total_pas_year      += i->get_finance_history_year(y, HIST_PAS_GENERATED);
 			trans_mail_year     += i->get_finance_history_year(y, HIST_MAIL_TRANSPORTED);
 			total_mail_year     += i->get_finance_history_year(y, HIST_MAIL_GENERATED);
-			supplied_goods_year += i->get_finance_history_year(y, HIST_GOODS_RECIEVED);
+			supplied_goods_year += i->get_finance_history_year(y, HIST_GOODS_RECEIVED);
 			total_goods_year    += i->get_finance_history_year(y, HIST_GOODS_NEEDED);
 		}
 
@@ -4256,13 +4256,13 @@ void karte_t::update_history()
 		total_pas           += i->get_finance_history_month(0, HIST_PAS_GENERATED);
 		trans_mail          += i->get_finance_history_month(0, HIST_MAIL_TRANSPORTED);
 		total_mail          += i->get_finance_history_month(0, HIST_MAIL_GENERATED);
-		supplied_goods      += i->get_finance_history_month(0, HIST_GOODS_RECIEVED);
+		supplied_goods      += i->get_finance_history_month(0, HIST_GOODS_RECEIVED);
 		total_goods         += i->get_finance_history_month(0, HIST_GOODS_NEEDED);
 		trans_pas_year      += i->get_finance_history_year( 0, HIST_PAS_TRANSPORTED);
 		total_pas_year      += i->get_finance_history_year( 0, HIST_PAS_GENERATED);
 		trans_mail_year     += i->get_finance_history_year( 0, HIST_MAIL_TRANSPORTED);
 		total_mail_year     += i->get_finance_history_year( 0, HIST_MAIL_GENERATED);
-		supplied_goods_year += i->get_finance_history_year( 0, HIST_GOODS_RECIEVED);
+		supplied_goods_year += i->get_finance_history_year( 0, HIST_GOODS_RECEIVED);
 		total_goods_year    += i->get_finance_history_year( 0, HIST_GOODS_NEEDED);
 	}
 

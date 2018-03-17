@@ -1567,7 +1567,7 @@ void stadt_t::city_growth_get_factors(city_growth_factor_t(&factors)[GROWTH_FACT
 
 	// goods growth factors
 	factors[index].demand = h[HIST_GOODS_NEEDED];
-	factors[index++].supplied = h[HIST_GOODS_RECIEVED];
+	factors[index++].supplied = h[HIST_GOODS_RECEIVED];
 }
 
 sint32 stadt_t::city_growth_base(uint32 const rprec, uint32 const cprec)
@@ -1688,7 +1688,7 @@ void stadt_t::new_month( bool recalc_destinations )
 		/* original implementation that is replaced by integer-only version below
 		double pfactor = (double)(city_history_month[1][HIST_PAS_TRANSPORTED]) / (double)(city_history_month[1][HIST_PAS_GENERATED]+1);
 		double mfactor = (double)(city_history_month[1][HIST_MAIL_TRANSPORTED]) / (double)(city_history_month[1][HIST_MAIL_GENERATED]+1);
-		double gfactor = (double)(city_history_month[1][HIST_GOODS_RECIEVED]) / (double)(city_history_month[1][HIST_GOODS_NEEDED]+1);
+		double gfactor = (double)(city_history_month[1][HIST_GOODS_RECEIVED]) / (double)(city_history_month[1][HIST_GOODS_NEEDED]+1);
 
 		double factor = pfactor > mfactor ? (gfactor > pfactor ? gfactor : pfactor ) : mfactor;
 		factor = (1.0-factor)*city_history_month[1][HIST_CITICENS];
@@ -1701,7 +1701,7 @@ void stadt_t::new_month( bool recalc_destinations )
 		// defines and initializes local sint64[2] arrays
 		decl_stat(pax, HIST_PAS_TRANSPORTED, HIST_PAS_GENERATED);
 		decl_stat(mail, HIST_MAIL_TRANSPORTED, HIST_MAIL_GENERATED);
-		decl_stat(good, HIST_GOODS_RECIEVED, HIST_GOODS_NEEDED);
+		decl_stat(good, HIST_GOODS_RECEIVED, HIST_GOODS_NEEDED);
 
 		// true if s1[0] / s1[1] > s2[0] / s2[1]
 #		define comp_stats(s1,s2) ( s1[0]*s2[1] > s2[0]*s1[1] )
@@ -1759,8 +1759,8 @@ void stadt_t::calc_growth()
 				city_history_month[0][HIST_GOODS_NEEDED] ++;
 				city_history_year[0][HIST_GOODS_NEEDED] ++;
 				if(  fab->input_vorrat_an( desc->get_supplier(i)->get_input_type() )>0  ) {
-					city_history_month[0][HIST_GOODS_RECIEVED] ++;
-					city_history_year[0][HIST_GOODS_RECIEVED] ++;
+					city_history_month[0][HIST_GOODS_RECEIVED] ++;
+					city_history_year[0][HIST_GOODS_RECEIVED] ++;
 				}
 			}
 		}
