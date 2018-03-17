@@ -4140,8 +4140,32 @@ void karte_t::step()
 
 
 // recalculates world statistics for older versions
-void karte_t::restore_history()
+void karte_t::restore_history(bool restore_transported_only)
 {
+	// update total transported, including passenger and mail
+	for(  int m=min(MAX_WORLD_HISTORY_MONTHS,MAX_PLAYER_HISTORY_MONTHS)-1;  m>0;  m--  ) {
+		sint64 transported = 0;
+		for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
+			if(  players[i]!=NULL  ) {
+				players[i]->get_finance()->calc_finance_history();
+				transported += players[i]->get_finance()->get_history_veh_month( TT_ALL, m, ATV_TRANSPORTED );
+			}
+		}
+		finance_history_month[m][WORLD_TRANSPORTED_GOODS] = max(transported, finance_history_month[m][WORLD_TRANSPORTED_GOODS]);
+	}
+	for(  int y=min(MAX_WORLD_HISTORY_YEARS,MAX_CITY_HISTORY_YEARS)-1;  y>0;  y--  ) {
+		sint64 transported_year = 0;
+		for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
+			if(  players[i]  ) {
+				transported_year += players[i]->get_finance()->get_history_veh_year( TT_ALL, y, ATV_TRANSPORTED );
+			}
+		}
+		finance_history_year[y][WORLD_TRANSPORTED_GOODS] = max(transported_year, finance_history_year[y][WORLD_TRANSPORTED_GOODS]);
+	}
+	if (restore_transported_only) {
+		return;
+	}
+
 	last_month_bev = -1;
 	for(  int m=12-1;  m>0;  m--  ) {
 		// now step all towns (to generate passengers)
@@ -4173,17 +4197,6 @@ void karte_t::restore_history()
 		finance_history_month[m][WORLD_MAIL_RATIO] = (10000*trans_mail)/total_mail;
 		finance_history_month[m][WORLD_MAIL_GENERATED] = total_mail-1;
 		finance_history_month[m][WORLD_GOODS_RATIO] = (10000*supplied_goods)/total_goods;
-	}
-
-	// update total transported, including passenger and mail
-	for(  int m=min(MAX_WORLD_HISTORY_MONTHS,MAX_PLAYER_HISTORY_MONTHS)-1;  m>0;  m--  ) {
-		sint64 transported = 0;
-		for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
-			if(  players[i]!=NULL  ) {
-				transported += players[i]->get_finance()->get_history_veh_month( TT_ALL, m, ATV_TRANSPORTED );
-			}
-		}
-		finance_history_month[m][WORLD_TRANSPORTED_GOODS] = transported;
 	}
 
 	sint64 bev_last_year = -1;
@@ -4219,15 +4232,6 @@ void karte_t::restore_history()
 		finance_history_year[y][WORLD_GOODS_RATIO] = (10000*supplied_goods_year)/total_goods_year;
 	}
 
-	for(  int y=min(MAX_WORLD_HISTORY_YEARS,MAX_CITY_HISTORY_YEARS)-1;  y>0;  y--  ) {
-		sint64 transported_year = 0;
-		for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
-			if(  players[i]  ) {
-				transported_year += players[i]->get_finance()->get_history_veh_year( TT_ALL, y, ATV_TRANSPORTED );
-			}
-		}
-		finance_history_year[y][WORLD_TRANSPORTED_GOODS] = transported_year;
-	}
 	// fix current month/year
 	update_history();
 }
@@ -5579,10 +5583,9 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 
 	// load history/create world history
 	if(file->get_version()<99018) {
-		restore_history();
+		restore_history(false);
 	}
 	else {
-		// most recent savegame version is 99018
 		for (int year = 0;  year</*MAX_WORLD_HISTORY_YEARS*/12;  year++) {
 			for (int cost_type = 0; cost_type</*MAX_WORLD_COST*/12; cost_type++) {
 				file->rdwr_longlong(finance_history_year[year][cost_type]);
@@ -5594,6 +5597,10 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			}
 		}
 		last_month_bev = finance_history_month[1][WORLD_CITICENS];
+
+		if (112005 <= file->get_version() &&  file->get_version() <= 120005) {
+			restore_history(true);
+		}
 	}
 
 	// finally: do we run a scenario?
