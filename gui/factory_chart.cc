@@ -224,12 +224,12 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	prod_chart.set_dimension(12, 10000);
 	prod_chart.set_background(SYSCOL_CHART_BACKGROUND);
 	for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
-		int curve = prod_chart.add_curve( color_idx_to_rgb(prod_color[s]), factory->get_stats(), MAX_FAB_STAT, s, MAX_MONTH, (2<=s  &&  s<=4) ? PERCENT : STANDARD, false, true, 0, prod_convert[s] );
+		uint16 curve = prod_chart.add_curve( color_idx_to_rgb(prod_color[s]), factory->get_stats(), MAX_FAB_STAT, s, MAX_MONTH, (2<=s  &&  s<=4) ? PERCENT : STANDARD, false, true, 0, prod_convert[s] );
 		prod_buttons[s].init(button_t::box_state, prod_type[s], scr_coord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*button_pos[s].x, offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*button_pos[s].y));
 		prod_buttons[s].background_color = color_idx_to_rgb(prod_color[s]);
 		prod_buttons[s].pressed = false;
 		button_to_curve[s].button = &prod_buttons[s];
-		button_to_curve[s].curve  = curve-1;
+		button_to_curve[s].curve  = curve;
 
 		// only show buttons, if the is something to do ...
 		if(
@@ -246,9 +246,9 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 		if(  s==FAB_BOOST_MAIL  ) {
 			// insert the reference line buttons here to ensure correct tab order
 			for(  int r=0;  r<MAX_FAB_REF_LINE;  ++r  ) {
-				int curve = prod_chart.add_curve( color_idx_to_rgb(ref_color[r]), prod_ref_line_data + r, 0, 0, MAX_MONTH, r<3 ? PERCENT : STANDARD, false, true, 0, ref_convert[r] );
+				uint16 curve = prod_chart.add_curve( color_idx_to_rgb(ref_color[r]), prod_ref_line_data + r, 0, 0, MAX_MONTH, r<3 ? PERCENT : STANDARD, false, true, 0, ref_convert[r] );
 				button_to_curve[r+MAX_FAB_STAT].button = &prod_ref_line_buttons[r];
-				button_to_curve[r+MAX_FAB_STAT].curve  = curve-1;
+				button_to_curve[r+MAX_FAB_STAT].curve  = curve;
 
 				prod_ref_line_buttons[r].init(button_t::box_state, prod_type[2+(r%3)], scr_coord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(1+r%3), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*(2+(r/3))));
 				prod_ref_line_buttons[r].background_color = color_idx_to_rgb(ref_color[r]);
