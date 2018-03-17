@@ -53,6 +53,11 @@ int gui_chart_t::add_curve(PIXVAL color, const sint64 *values, int size, int off
 	new_curve.show = show;
 	new_curve.show_value = show_value;
 	new_curve.type = type;
+	switch (type) {
+		case MONEY:   new_curve.suffix = "$"; break;
+		case PERCENT: new_curve.suffix = "%"; break;
+		default:      new_curve.suffix = NULL; break;
+	}
 	new_curve.precision = precision;
 	new_curve.convert = proc;
 	curves.append(new_curve);
@@ -215,6 +220,9 @@ void gui_chart_t::draw(scr_coord offset)
 				// display tooltip?
 				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipcoord.y))<10) {
 					number_to_string(tooltip, (double)tmp, c.precision);
+					if (c.suffix) {
+						strcat(tooltip, c.suffix);
+					}
 					win_set_tooltip(get_mouse_x()+TOOLTIP_MOUSE_OFFSET_X, get_mouse_y()-TOOLTIP_MOUSE_OFFSET_Y, tooltip );
 				}
 
@@ -230,13 +238,16 @@ void gui_chart_t::draw(scr_coord offset)
 					// for the first element print the current value (optionally)
 					// only print value if not too narrow to min/max/zero
 					if(  c.show_value  ) {
+						number_to_string_fit(cmin, (double)tmp, c.precision, maximum_axis_len - (c.suffix != NULL) );
+						if (c.suffix) {
+							strcat(cmin, c.suffix);
+						}
+
 						if(  env_t::left_to_right_graphs  ) {
-							number_to_string_fit(cmin, (double)tmp, c.precision, maximum_axis_len-c.type );
 							const sint16 width = proportional_string_width(cmin)+7;
 							display_ddd_proportional( tmpx + 8, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, color_idx_to_rgb(COL_GREY4), c.color, cmin, true);
 						}
 						else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < chart_size.h  &&  abs((int)(tmp/scale)) > 9  ) {
-							number_to_string_fit(cmin, (double)tmp, c.precision, maximum_axis_len-c.type );
 							display_proportional_clip_rgb(tmpx - 4, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), cmin, ALIGN_RIGHT, c.color, true );
 						}
 					}
@@ -286,7 +297,8 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 {
 	sint64 tmp=0;
 	sint64 min = 0, max = 0;
-	bool min_money = false, max_money = false;
+	const char* min_suffix = NULL;
+	const char* max_suffix = NULL;
 	int precision = 0;
 
 	// first, check curves
@@ -304,12 +316,12 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 				if (min > tmp) {
 					min = tmp ;
 					precision = c.precision;
-					min_money = c.type;
+					min_suffix = c.suffix;
 				}
 				if (max < tmp) {
 					max = tmp;
 					precision = c.precision;
-					max_money = c.type;
+					max_suffix = c.suffix;
 				}
 			}
 		}
@@ -330,13 +342,13 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 		}
 	}
 
-	number_to_string_fit(cmin, (double)min, precision, maximum_axis_len-min_money );
-	number_to_string_fit(cmax, (double)max, precision, maximum_axis_len-max_money );
-	if(  min_money  ) {
-		strcat( cmin, "$" );
+	number_to_string_fit(cmin, (double)min, precision, maximum_axis_len-(min_suffix != 0) );
+	number_to_string_fit(cmax, (double)max, precision, maximum_axis_len-(max_suffix != 0) );
+	if(  min_suffix  ) {
+		strcat( cmin, min_suffix );
 	}
-	if(  max_money  ) {
-		strcat( cmax, "$" );
+	if(  max_suffix  ) {
+		strcat( cmax, max_suffix );
 	}
 
 	// scale: factor to calculate money with, to get y-pos offset
