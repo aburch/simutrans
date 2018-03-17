@@ -76,6 +76,8 @@ void viewport_t::change_world_position( koord new_ij, sint16 new_xoff, sint16 ne
 	new_ij.y += new_xoff/cached_img_size;
 	new_xoff %= cached_img_size;
 
+	new_ij = world->get_closest_coordinate(new_ij);
+
 	// truncate new_yoff, modify new_ij.y
 	int lines = 0;
 	if(new_yoff>0) {
