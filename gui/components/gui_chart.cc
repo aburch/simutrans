@@ -67,22 +67,6 @@ int gui_chart_t::add_curve(PIXVAL color, const sint64 *values, int size, int off
 }
 
 
-uint32 gui_chart_t::add_line(PIXVAL color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc, chart_marker_t marker_type)
-{
-	line_t new_line;
-	new_line.color = color;
-	new_line.value = value;
-	new_line.times = times;
-	new_line.show = show;
-	new_line.show_value = show_value;
-	new_line.precision = precision;
-	new_line.convert = proc;
-	new_line.marker_type = marker_type;
-	lines.append(new_line);
-	return lines.get_count();
-}
-
-
 void gui_chart_t::hide_curve(unsigned int id)
 {
 	if (id < curves.get_count()) {
@@ -95,22 +79,6 @@ void gui_chart_t::show_curve(unsigned int id)
 {
 	if (id < curves.get_count()) {
 		curves.at(id).show = true;
-	}
-}
-
-
-void gui_chart_t::show_line(uint32 id)
-{
-	if(  id<lines.get_count()  ) {
-		lines.at(id).show = true;
-	}
-}
-
-
-void gui_chart_t::hide_line(uint32 id)
-{
-	if(  id<lines.get_count()  ) {
-		lines.at(id).show = false;
 	}
 }
 
@@ -209,7 +177,7 @@ void gui_chart_t::draw(scr_coord offset)
 			double display_tmp;
 			// for each curve iterate through all elements and display curve
 			for (int i=0;i<c.elements;i++) {
-				//tmp=c.values[year*c.chart_size+c.offset];
+
 				tmp = c.values[i*c.size+c.offset];
 				// Knightly : convert value where necessary
 				if(  c.convert  ) {
@@ -290,63 +258,6 @@ void gui_chart_t::draw(scr_coord offset)
 		}
 		last_year=tmp=0;
 	}
-
-	// draw chart's lines
-	FOR(slist_tpl<line_t>, const& line, lines) {
-		if(  line.show  ) {
-			tmp = ( line.convert ? line.convert(*(line.value)) : *(line.value) );
-			for(  int t=0;  t<line.times;  ++t  ) {
-				// display marker(box) for financial value
-				scr_coord_val x = tmpx + factor * (chart_size.w / (x_elements - 1))*t - 2;
-				scr_coord_val y = (scr_coord_val)(offset.y + baseline - (int)(tmp / scale) - 2);
-				switch (line.marker_type)
-				{
-					case cross:
-						display_direct_line_rgb(x, y, x + 4, y + 4, line.color);
-						display_direct_line_rgb(x + 4, y, x, y + 4, line.color);
-						break;
-					case diamond:
-						for (int j = 0; j < 5; j++) {
-							display_vline_wh_clip_rgb(x + j, y + abs(2 - j), 5 - 2 * abs(2 - j), line.color, false);
-						}
-						break;
-					case round_box:
-						display_filled_roundbox_clip(x, y, 5, 5, line.color, true);
-						break;
-					case none:
-						// display nothing
-						// Note. not recommended this option to "lines". Applying this to line only shows the label
-						break;
-					case square:
-					default:
-						display_fillbox_wh_clip_rgb(x, y, 5, 5, line.color, true);
-						break;
-				}
-
-				// display tooltip?
-				if(  t==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipcoord.y))<10  ) {
-					number_to_string(tooltip, (double)tmp, line.precision);
-					win_set_tooltip( get_mouse_x()+8, get_mouse_y()-12, tooltip );
-				}
-				// for the first element print the current value (optionally)
-				// only print value if not too close to min/max/zero
-				if(  t==0  &&  line.show_value  ) {
-					if(  env_t::left_to_right_graphs  ) {
-						number_to_string(cmin, (double)tmp, line.precision);
-						const sint16 width = proportional_string_width(cmin)+7;
-						display_ddd_proportional_clip( tmpx + 8, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, color_idx_to_rgb(COL_GREY4), line.color, cmin, true);
-					}
-					else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < chart_size.h  &&  abs((int)(tmp/scale)) > 9  ) {
-						number_to_string(cmin, (double)tmp, line.precision);
-						display_proportional_clip_rgb(tmpx - 4, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), cmin, ALIGN_RIGHT, line.color, true );
-					}
-				}
-			}
-			// display horizontal line that passes through all markers
-			const int y_offset = (int)( offset.y + baseline - (sint64)(tmp/scale) );
-			display_fillbox_wh_rgb(tmpx, y_offset, factor*(chart_size.w / (x_elements - 1))*(line.times-1), 1, line.color, true);
-		}
-	}
 }
 
 
@@ -358,7 +269,6 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 	const char* max_suffix = NULL;
 	int precision = 0;
 
-	// first, check curves
 	FOR(slist_tpl<curve_t>, const& c, curves) {
 		if(  c.show  ) {
 			for(  int i=0;  i<c.elements;  i++  ) {
@@ -383,26 +293,6 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 				}
 			}
 		}
-	}
-
-	// second, check lines
-	FOR(slist_tpl<line_t>, const& line, lines) {
-		if(  line.show  ) {
-			tmp = ( line.convert ? line.convert(*(line.value)) : *(line.value) );
-			if(  min>tmp  ) {
-				min = tmp;
-				precision = line.precision;
-			}
-			if(  max<tmp  ) {
-				max = tmp;
-				precision = line.precision;
-			}
-		}
-	}
-
-	// max happend due to rounding errors
-	if (precision == 0 && min == max && min != 0.0) {
-		max += 1;
 	}
 
 	number_to_string_fit(cmin, (double)min, precision, maximum_axis_len - (min_suffix != 0));
