@@ -43,7 +43,7 @@ gui_chart_t::gui_chart_t() : gui_component_t()
 }
 
 
-int gui_chart_t::add_curve(PIXVAL color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc, chart_marker_t marker_type)
+uint32 gui_chart_t::add_curve(PIXVAL color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc, chart_marker_t marker_type)
 {
 	curve_t new_curve;
 	new_curve.color = color;
@@ -63,7 +63,7 @@ int gui_chart_t::add_curve(PIXVAL color, const sint64 *values, int size, int off
 	new_curve.convert = proc;
 	new_curve.marker_type = marker_type;
 	curves.append(new_curve);
-	return curves.get_count();
+	return curves.get_count()-1;
 }
 
 
