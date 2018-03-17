@@ -50,6 +50,12 @@ private:
 	// Variables for reference lines
 	sint64 prod_ref_line_data[MAX_FAB_REF_LINE];
 
+	struct button_to_curve_t {
+		button_t* button;
+		uint16 curve;
+	};
+	button_to_curve_t button_to_curve[MAX_FAB_STAT+MAX_FAB_REF_LINE];
+
 public:
 	factory_chart_t(const fabrik_t *_factory);
 	virtual ~factory_chart_t();
