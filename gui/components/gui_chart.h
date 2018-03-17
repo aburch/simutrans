@@ -14,6 +14,7 @@
 // CURVE TYPES
 #define STANDARD 0
 #define MONEY 1
+#define PERCENT 2
 
 /**
  * Draws a group of curves.
@@ -121,7 +122,8 @@ private:
 		int elements;
 		bool show;
 		bool show_value; // show first value of curve as number on chart?
-		int type; // 0 = standard, 1 = money
+		int type; // 0 = standard, 1 = money, 2 = percent
+		const char* suffix;
 		int precision;	// how many numbers ...
 		convert_proc convert;	// Knightly : procedure for converting supplied values before use
 		chart_marker_t marker_type;
