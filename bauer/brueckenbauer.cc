@@ -466,6 +466,13 @@ koord3d bridge_builder_t::find_end_pos(player_t *player, koord3d pos, const koor
 			return koord3d::invalid;
 		}
 
+		// Check for non-length restricted bridges over deep water.
+		if(desc->get_max_length() == 0 && welt->lookup_hgt( pos.get_2d() ) < welt->get_water_hgt( pos.get_2d())) 
+		{
+			error_msg = "Bridge cannot be built over deep water\n";
+			return koord3d::invalid;
+		}
+
 		bool abort = true;
 		for(sint8 z = min_bridge_height; z <= max_height; z++) {
 			if(height_okay(z)) {
