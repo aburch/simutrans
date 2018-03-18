@@ -1825,13 +1825,30 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 	}
 	else {
 		world_xy_loop(&karte_t::create_grounds_loop, 0);
-		ls.set_progress(3);
+		ls.set_progress(10);
+	}
+
+	// update height bounds
+	for(  sint16 iy = 0;  iy < new_size_y;  iy++  ) {
+		for(  sint16 ix = (iy >= old_y) ? 0 : max( old_x, 0 );  ix < new_size_x;  ix++  ) {
+			sint8 hgt = lookup_kartenboden_nocheck(ix, iy)->get_hoehe();
+			if (hgt < min_height) {
+				min_height = hgt;
+			}
+			if (hgt > max_height) {
+				max_height = hgt;
+			}
+		}
+	}
+
+	if (  old_x == 0  &&  old_y == 0  ) {
+		ls.set_progress(11);
 	}
 
 	// smooth the new part, reassign slopes on new part
 	cleanup_karte( old_x, old_y );
 	if (  old_x == 0  &&  old_y == 0  ) {
-		ls.set_progress(4);
+		ls.set_progress(12);
 	}
 
 	if(  sets->get_lake()  ) {
@@ -1914,13 +1931,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 			for(  sint16 x=max(0,old_x-cov);  x<old_x;  x++  ) {
 				const planquadrat_t* pl = access_nocheck(x,y);
 				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
-					// update limits
-					if(  min_height > pl->get_boden_bei(i)->get_hoehe()  ) {
-						min_height = pl->get_boden_bei(i)->get_hoehe();
-					}
-					else if(  max_height < pl->get_boden_bei(i)->get_hoehe()  ) {
-						max_height = pl->get_boden_bei(i)->get_hoehe();
-					}
 					// update halt
 					halthandle_t h = pl->get_boden_bei(i)->get_halt();
 					if(  h.is_bound()  ) {
@@ -1939,13 +1949,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 			for(  sint16 x=0;  x<old_x;  x++  ) {
 				const planquadrat_t* pl = access_nocheck(x,y);
 				for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
-					// update limits
-					if(  min_height > pl->get_boden_bei(i)->get_hoehe()  ) {
-						min_height = pl->get_boden_bei(i)->get_hoehe();
-					}
-					else if(  max_height < pl->get_boden_bei(i)->get_hoehe()  ) {
-						max_height = pl->get_boden_bei(i)->get_hoehe();
-					}
 					// update halt
 					halthandle_t h = pl->get_boden_bei(i)->get_halt();
 					if(  h.is_bound()  ) {
