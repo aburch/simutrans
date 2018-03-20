@@ -311,8 +311,8 @@ void karte_t::recalc_season_snowline(bool set_pending)
 
 	const sint16 winterline = settings.get_winter_snowline();
 	const sint16 summerline = settings.get_climate_borders()[arctic_climate] + 1;
-	snowline = summerline - (sint16)(((summerline-winterline)*factor)/100) + groundwater;
-	if(  old_snowline != snowline  && set_pending  ) {
+	snowline = summerline - (sint16)(((summerline-winterline)*factor)/100);
+	if(  old_snowline != snowline  &&  set_pending  ) {
 		pending_snowline_change++;
 	}
 }
