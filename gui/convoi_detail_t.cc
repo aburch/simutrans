@@ -524,9 +524,13 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				int max_display_of_upgrades = 3;
 				for (int i = 0; i < v->get_desc()->get_upgrades_count(); i++)
 				{
-					if (!v->get_desc()->get_upgrades(i)->is_future(month_now) && (!v->get_desc()->get_upgrades(i)->is_retired(month_now)))
+					const vehicle_desc_t* desc = v->get_desc()->get_upgrades(i);
+					if (desc)
 					{
-						amount_of_upgrades++;
+						if (!desc->is_future(month_now) && (!v->get_desc()->get_upgrades(i)->is_retired(month_now)))
+						{
+							amount_of_upgrades++;
+						}
 					}
 				}
 				if (amount_of_upgrades > 0)
@@ -539,11 +543,15 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					{
 						if (!v->get_desc()->get_upgrades(i)->is_future(month_now) && (!v->get_desc()->get_upgrades(i)->is_retired(month_now)))
 						{
-							buf.clear();
-							money_to_string(number, v->get_desc()->get_upgrades(i)->get_upgrade_price() / 100);
-							buf.printf("%s (%8s)", translator::translate(v->get_desc()->get_upgrades(i)->get_name()), number);
-							display_proportional_clip(pos.x + w + offset.x + even_more_extra_w, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-							extra_y += LINESPACE;
+							const vehicle_desc_t* desc = v->get_desc()->get_upgrades(i);
+							if (desc)
+							{
+								buf.clear();
+								money_to_string(number, desc->get_upgrade_price() / 100);
+								buf.printf("%s (%8s)", translator::translate(v->get_desc()->get_upgrades(i)->get_name()), number);
+								display_proportional_clip(pos.x + w + offset.x + even_more_extra_w, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+								extra_y += LINESPACE;
+							}
 						}
 					}
 					if (amount_of_upgrades > max_display_of_upgrades)
