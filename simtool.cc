@@ -489,7 +489,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 	// prissi: check powerline (can cross ground of another player)
 	leitung_t* lt = gr->get_leitung();
 	// check whether powerline related stuff should be removed, and if there is any to remove
-	if (  (type == obj_t::label  ||  type == obj_t::pumpe  ||  type == obj_t::senke  ||  type == obj_t::undefined)
+	if (  (type == obj_t::leitung  ||  type == obj_t::pumpe  ||  type == obj_t::senke  ||  type == obj_t::undefined)
 	       &&  lt != NULL  &&  lt->is_deletable(player) == NULL) {
 		if(  gr->ist_bruecke()  ) {
 			bruecke_t* br = gr->find<bruecke_t>();

@@ -1278,7 +1278,7 @@ void reliefkarte_t::draw(scr_coord pos)
 					continue;
 				}
 				if(  transport_type_showed_on_map != simline_t::line  ) {
-					if(  transport_type_showed_on_map != simline_t::get_linetype(cnv->front()->get_waytype())  ) {
+					if(  transport_type_showed_on_map != simline_t::waytype_to_linetype(cnv->front()->get_waytype())  ) {
 						continue;
 					}
 				}

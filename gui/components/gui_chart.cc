@@ -42,7 +42,7 @@ gui_chart_t::gui_chart_t() : gui_component_t()
 }
 
 
-int gui_chart_t::add_curve(PIXVAL color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc)
+uint32 gui_chart_t::add_curve(PIXVAL color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision, convert_proc proc)
 {
 	curve_t new_curve;
 	new_curve.color = color;
@@ -53,25 +53,15 @@ int gui_chart_t::add_curve(PIXVAL color, const sint64 *values, int size, int off
 	new_curve.show = show;
 	new_curve.show_value = show_value;
 	new_curve.type = type;
+	switch (type) {
+		case MONEY:   new_curve.suffix = "$"; break;
+		case PERCENT: new_curve.suffix = "%"; break;
+		default:      new_curve.suffix = NULL; break;
+	}
 	new_curve.precision = precision;
 	new_curve.convert = proc;
 	curves.append(new_curve);
-	return curves.get_count();
-}
-
-
-uint32 gui_chart_t::add_line(PIXVAL color, const sint64 *value, int times, bool show, bool show_value, int precision, convert_proc proc)
-{
-	line_t new_line;
-	new_line.color = color;
-	new_line.value = value;
-	new_line.times = times;
-	new_line.show = show;
-	new_line.show_value = show_value;
-	new_line.precision = precision;
-	new_line.convert = proc;
-	lines.append(new_line);
-	return lines.get_count();
+	return curves.get_count()-1;
 }
 
 
@@ -87,22 +77,6 @@ void gui_chart_t::show_curve(unsigned int id)
 {
 	if (id < curves.get_count()) {
 		curves.at(id).show = true;
-	}
-}
-
-
-void gui_chart_t::show_line(uint32 id)
-{
-	if(  id<lines.get_count()  ) {
-		lines.at(id).show = true;
-	}
-}
-
-
-void gui_chart_t::hide_line(uint32 id)
-{
-	if(  id<lines.get_count()  ) {
-		lines.at(id).show = false;
 	}
 }
 
@@ -200,7 +174,7 @@ void gui_chart_t::draw(scr_coord offset)
 		if (c.show) {
 			// for each curve iterate through all elements and display curve
 			for (int i=0;i<c.elements;i++) {
-				//tmp=c.values[year*c.chart_size+c.offset];
+
 				tmp = c.values[i*c.size+c.offset];
 				// Knightly : convert value where necessary
 				if(  c.convert  ) {
@@ -215,6 +189,9 @@ void gui_chart_t::draw(scr_coord offset)
 				// display tooltip?
 				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipcoord.y))<10) {
 					number_to_string(tooltip, (double)tmp, c.precision);
+					if (c.suffix) {
+						strcat(tooltip, c.suffix);
+					}
 					win_set_tooltip(get_mouse_x()+TOOLTIP_MOUSE_OFFSET_X, get_mouse_y()-TOOLTIP_MOUSE_OFFSET_Y, tooltip );
 				}
 
@@ -230,13 +207,16 @@ void gui_chart_t::draw(scr_coord offset)
 					// for the first element print the current value (optionally)
 					// only print value if not too narrow to min/max/zero
 					if(  c.show_value  ) {
+						number_to_string_fit(cmin, (double)tmp, c.precision, maximum_axis_len - (c.suffix != NULL) );
+						if (c.suffix) {
+							strcat(cmin, c.suffix);
+						}
+
 						if(  env_t::left_to_right_graphs  ) {
-							number_to_string_fit(cmin, (double)tmp, c.precision, maximum_axis_len-c.type );
 							const sint16 width = proportional_string_width(cmin)+7;
 							display_ddd_proportional( tmpx + 8, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, color_idx_to_rgb(COL_GREY4), c.color, cmin, true);
 						}
 						else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < chart_size.h  &&  abs((int)(tmp/scale)) > 9  ) {
-							number_to_string_fit(cmin, (double)tmp, c.precision, maximum_axis_len-c.type );
 							display_proportional_clip_rgb(tmpx - 4, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), cmin, ALIGN_RIGHT, c.color, true );
 						}
 					}
@@ -246,39 +226,6 @@ void gui_chart_t::draw(scr_coord offset)
 		}
 		last_year=tmp=0;
 	}
-
-	// draw chart's lines
-	FOR(slist_tpl<line_t>, const& line, lines) {
-		if(  line.show  ) {
-			tmp = ( line.convert ? line.convert(*(line.value)) : *(line.value) );
-			for(  int t=0;  t<line.times;  ++t  ) {
-				// display marker(box) for financial value
-				display_fillbox_wh_clip_rgb(tmpx+factor*(chart_size.w / (x_elements - 1))*t-2, (scr_coord_val)(offset.y+baseline- (int)(tmp/scale)-2), 5, 5, line.color, true);
-
-				// display tooltip?
-				if(  t==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipcoord.y))<10  ) {
-					number_to_string(tooltip, (double)tmp, line.precision);
-					win_set_tooltip( get_mouse_x()+8, get_mouse_y()-12, tooltip );
-				}
-				// for the first element print the current value (optionally)
-				// only print value if not too close to min/max/zero
-				if(  t==0  &&  line.show_value  ) {
-					if(  env_t::left_to_right_graphs  ) {
-						number_to_string(cmin, (double)tmp, line.precision);
-						const sint16 width = proportional_string_width(cmin)+7;
-						display_ddd_proportional( tmpx + 8, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), width, 0, color_idx_to_rgb(COL_GREY4), line.color, cmin, true);
-					}
-					else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < chart_size.h  &&  abs((int)(tmp/scale)) > 9  ) {
-						number_to_string(cmin, (double)tmp, line.precision);
-						display_proportional_clip_rgb(tmpx - 4, (scr_coord_val)(offset.y+baseline-(int)(tmp/scale)-4), cmin, ALIGN_RIGHT, line.color, true );
-					}
-				}
-			}
-			// display horizontal line that passes through all markers
-			const int y_offset = (int)( offset.y + baseline - (sint64)(tmp/scale) );
-			display_fillbox_wh_rgb(tmpx, y_offset, factor*(chart_size.w / (x_elements - 1))*(line.times-1), 1, line.color, true);
-		}
-	}
 }
 
 
@@ -286,10 +233,10 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 {
 	sint64 tmp=0;
 	sint64 min = 0, max = 0;
-	bool min_money = false, max_money = false;
+	const char* min_suffix = NULL;
+	const char* max_suffix = NULL;
 	int precision = 0;
 
-	// first, check curves
 	FOR(slist_tpl<curve_t>, const& c, curves) {
 		if(  c.show  ) {
 			for(  int i=0;  i<c.elements;  i++  ) {
@@ -304,39 +251,24 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 				if (min > tmp) {
 					min = tmp ;
 					precision = c.precision;
-					min_money = c.type;
+					min_suffix = c.suffix;
 				}
 				if (max < tmp) {
 					max = tmp;
 					precision = c.precision;
-					max_money = c.type;
+					max_suffix = c.suffix;
 				}
 			}
 		}
 	}
 
-	// second, check lines
-	FOR(slist_tpl<line_t>, const& line, lines) {
-		if(  line.show  ) {
-			tmp = ( line.convert ? line.convert(*(line.value)) : *(line.value) );
-			if(  min>tmp  ) {
-				min = tmp;
-				precision = line.precision;
-			}
-			if(  max<tmp  ) {
-				max = tmp;
-				precision = line.precision;
-			}
-		}
+	number_to_string_fit(cmin, (double)min, precision, maximum_axis_len-(min_suffix != 0) );
+	number_to_string_fit(cmax, (double)max, precision, maximum_axis_len-(max_suffix != 0) );
+	if(  min_suffix  ) {
+		strcat( cmin, min_suffix );
 	}
-
-	number_to_string_fit(cmin, (double)min, precision, maximum_axis_len-min_money );
-	number_to_string_fit(cmax, (double)max, precision, maximum_axis_len-max_money );
-	if(  min_money  ) {
-		strcat( cmin, "$" );
-	}
-	if(  max_money  ) {
-		strcat( cmax, "$" );
+	if(  max_suffix  ) {
+		strcat( cmax, max_suffix );
 	}
 
 	// scale: factor to calculate money with, to get y-pos offset

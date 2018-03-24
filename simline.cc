@@ -20,6 +20,7 @@ uint8 convoi_to_line_catgory_[convoi_t::MAX_CONVOI_COST] = {
 	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE, LINE_MAXSPEED, LINE_WAYTOLL
 };
 
+
 uint8 simline_t::convoi_to_line_catgory(uint8 cnv_cost)
 {
 	assert(cnv_cost < convoi_t::MAX_CONVOI_COST);
@@ -79,7 +80,7 @@ simline_t::~simline_t()
 }
 
 
-simline_t::linetype simline_t::get_linetype(const waytype_t wt)
+simline_t::linetype simline_t::waytype_to_linetype(const waytype_t wt)
 {
 	switch (wt) {
 		case road_wt: return simline_t::truckline;
@@ -92,6 +93,20 @@ simline_t::linetype simline_t::get_linetype(const waytype_t wt)
 		case air_wt: return simline_t::airline;
 		default: return simline_t::MAX_LINE_TYPE;
 	}
+}
+
+
+const char *simline_t::get_linetype_name(const simline_t::linetype lt)
+{
+	static const char *lt2name[MAX_LINE_TYPE] = {"All", "Truck", "Train", "Ship", "Air", "Monorail", "Tram", "Maglev", "Narrowgauge" };
+	return translator::translate( lt2name[lt] );
+}
+
+
+waytype_t simline_t::linetype_to_waytype(const linetype lt)
+{
+	static const waytype_t wt2lt[MAX_LINE_TYPE] = { invalid_wt, road_wt, track_wt, water_wt, air_wt, monorail_wt, tram_wt, maglev_wt, narrowgauge_wt };
+	return wt2lt[lt];
 }
 
 

@@ -2919,7 +2919,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 				);
 			}
 			else {
-				buf.printf("\n - %s %u/%i/%u%s, %u%%",
+				buf.printf("%s %u/%i/%u%s, %u%%",
 					translator::translate(input[index].get_typ()->get_name()),
 					(uint32)((FAB_DISPLAY_UNIT_HALF + (sint64)input[index].menge * pfactor) >> (fabrik_t::precision_bits + DEFAULT_PRODUCTION_FACTOR_BITS)),
 					input[index].get_in_transit(),
@@ -3282,7 +3282,7 @@ sint32 fabrik_t::calculate_work_rate_ramp(sint32 const amount, sint32 const mini
 		production_rate = 1 << precision;
 	}
 	else if(  amount < maximum  ) {
-		// reduction production 
+		// reduction production
 		production_rate = (sint32)(((sint64)(maximum - amount) << precision) / (sint64)(maximum - minimum));
 		// apply work factor minimum limit
 		if(  production_rate < WORK_SCALE_MINIMUM_FRACTION  ){

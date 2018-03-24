@@ -89,7 +89,7 @@ SQInteger player_export_line_list(HSQUIRRELVM vm)
 
 call_tool_init player_create_line(player_t *player, waytype_t wt)
 {
-	simline_t::linetype lt = simline_t::get_linetype(wt);
+	simline_t::linetype lt = simline_t::waytype_to_linetype(wt);
 	if (lt == simline_t::MAX_LINE_TYPE) {
 		return "Invalid waytype provided";
 	}

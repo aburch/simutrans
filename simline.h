@@ -186,7 +186,10 @@ public:
 	void new_month();
 
 	linetype get_linetype() { return type; }
-	static linetype get_linetype( const waytype_t wt );
+
+	static waytype_t linetype_to_waytype( const linetype lt );
+	static linetype waytype_to_linetype( const waytype_t wt );
+	static const char *get_linetype_name( const linetype lt );
 
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 
@@ -198,6 +201,7 @@ public:
 	bool get_withdraw() const { return withdraw; }
 
 	player_t *get_owner() const {return player;}
+
 
 };
 
