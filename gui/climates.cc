@@ -42,7 +42,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	sets = sets_par;
 
 	// Water level
-	water_level.init( sets->get_groundwater(), -10*(ground_desc_t::double_grounds?2:1), 0, gui_numberinput_t::AUTOLINEAR, false );
+	water_level.init( sets->get_groundwater(), -20*(ground_desc_t::double_grounds?2:1), 20, gui_numberinput_t::AUTOLINEAR, false );
 	water_level.set_pos( scr_coord(L_COLUMN_EDIT,cursor.y) );
 	water_level.set_size( scr_size(edit_width, D_EDIT_HEIGHT) );
 	water_level.add_listener( this );
@@ -96,7 +96,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	cursor.y += LINESPACE+D_V_SPACE;
 
 	// Winter snowline
-	snowline_winter.init( sets->get_winter_snowline(), -5, 32 - sets->get_groundwater(), gui_numberinput_t::AUTOLINEAR, false );
+	snowline_winter.init( sets->get_winter_snowline(), sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
 	snowline_winter.set_pos( scr_coord(L_COLUMN_EDIT, cursor.y) );
 	snowline_winter.set_size( scr_size(edit_width, D_EDIT_HEIGHT) );
 	snowline_winter.add_listener( this );
@@ -111,8 +111,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	// other climate borders ...
 	sint16 arctic = 0;
 	for(  int i=desert_climate-1;  i<=rocky_climate-1;  i++  ) {
-
-		climate_borders_ui[i].init( sets->get_climate_borders()[i+1], -5, 32 - sets->get_groundwater(), gui_numberinput_t::AUTOLINEAR, false );
+		climate_borders_ui[i].init( sets->get_climate_borders()[i+1], sets->get_groundwater(), 127, gui_numberinput_t::AUTOLINEAR, false );
 		climate_borders_ui[i].set_pos( scr_coord(L_COLUMN_EDIT, cursor.y) );
 		climate_borders_ui[i].set_size( scr_size(edit_width, D_EDIT_HEIGHT) );
 		climate_borders_ui[i].add_listener( this );
@@ -127,7 +126,7 @@ climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 		labelnr++;
 		cursor.y += D_EDIT_HEIGHT;
 	}
-	snowline_winter.set_limits( -5, arctic );
+	snowline_winter.set_limits( sets->get_groundwater(), arctic );
 	snowline_winter.set_value( snowline_winter.get_value() );
 	cursor.y += D_V_SPACE;
 
@@ -205,10 +204,6 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		if(  welt_gui  ) {
 			welt_gui->update_preview();
 		}
-		for(  int i=desert_climate-1;  i<=rocky_climate-1;  i++  ) {
-			climate_borders_ui[i].set_limits( -5, 32 - sets->get_groundwater() );
-			climate_borders_ui[i].set_value( climate_borders_ui[i].get_value() );
-		}
 	}
 	else if(komp==&mountain_height) {
 		sets->max_mountain_height = v.i;
@@ -247,18 +242,17 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		if(  komp==climate_borders_ui+i-1  ) {
 			sets->climate_borders[i] = (sint16)v.i;
 		}
-		if(sets->climate_borders[i]>arctic) {
+		for(  int i=desert_climate-1;  i<=rocky_climate-1;  i++  ) {
+			climate_borders_ui[i].set_limits( sets->get_groundwater(), 127 );
+			climate_borders_ui[i].set_value( climate_borders_ui[i].get_value() );
+		}
+		if(  sets->climate_borders[i] > arctic  ) {
 			arctic = sets->climate_borders[i];
 		}
 	}
-	sets->climate_borders[arctic_climate] = arctic;
-
-	// correct summer snowline too
-	if(arctic<sets->get_winter_snowline()) {
-		sets->winter_snowline = arctic;
-	}
-	snowline_winter.set_limits( -5, arctic );
+	snowline_winter.set_limits( sets->get_groundwater(), arctic );
 	snowline_winter.set_value( snowline_winter.get_value() );
+	sets->climate_borders[arctic_climate] = arctic;
 
 	sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
 	summer_snowline.set_text_pointer(snowline_txt);

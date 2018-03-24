@@ -14,12 +14,14 @@
 
 #include "gui_frame.h"
 #include "components/gui_button.h"
+#include "components/gui_numberinput.h"
+#include "components/gui_fixedwidth_textarea.h"
+#include "components/gui_combobox.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_label.h"
 #include "components/action_listener.h"
 #include "goods_stats_t.h"
 #include "../utils/cbuffer_t.h"
-
 
 /**
  * Shows statistics. Only goods so far.
@@ -32,21 +34,25 @@ private:
 	static const char *sort_text[SORT_MODES];
 
 	// static, so we remember the last settings
-	static int relative_speed_change;
+	static sint16 relative_speed_change;
 	static bool sortreverse;
 	static sort_mode_t sortby;
 	static bool filter_goods;
 
 	char	speed_bonus[6];
-	cbuffer_t	speed_message;
+	cbuffer_t	speed_message, speed_message2;
 	uint16 good_list[256];
 
 	gui_label_t sort_label;
 	button_t	sortedby;
 	button_t	sorteddir;
-	gui_label_t change_speed_label;
-	button_t	speed_up;
-	button_t	speed_down;
+
+	gui_label_t tile_speed;
+	gui_numberinput_t	speed;
+	gui_combobox_t	scheduletype;
+
+	gui_fixedwidth_textarea_t speed_text;
+
 	button_t	filter_goods_toggle;
 
 	goods_stats_t goods_stats;
@@ -58,6 +64,10 @@ private:
 
 public:
 	goods_frame_t();
+
+	// yes we can reload
+	uint32 get_rdwr_id();
+	void rdwr( loadsave_t *file );
 
 	/**
 	* resize window in response to a resize event
@@ -74,14 +84,6 @@ public:
 	 * @author V. Meyer
 	 */
 	const char * get_help_filename() const {return "goods_filter.txt"; }
-
-	/**
-	 * Draw new component. The values to be passed refer to the window
-	 * i.e. It's the screen coordinates of the window where the
-	 * component is displayed.
-	 * @author Hj. Malthaner
-	 */
-	void draw(scr_coord pos, scr_size size);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

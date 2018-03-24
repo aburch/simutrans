@@ -47,6 +47,12 @@ bool nwc_scenario_t::execute(karte_t *welt)
 	}
 	script_vm_t *script = scen->script;
 
+	if (what == OPEN_SCEN_WIN) {
+		// open window on server and clients
+		scen->open_info_win(function);
+		return true;
+	}
+
 	if (env_t::server) {
 		switch (what) {
 			case CALL_SCRIPT:

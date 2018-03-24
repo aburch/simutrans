@@ -20,6 +20,9 @@
 	FIX: fullscreen Windows GDI no longer alters display area when alt+tab cycled
 	ADD: JIT2 demand based production rate scaling
 	CHG: changed factory information view to be easier to understand, especially when operating with JIT2
+	CHG: speed can be directly selected in goods dialogue
+	FIX: consistent and wider climate borders, also other waterlevels than -2 when loading a relief map
+
 
 Release of 120.2.2: (r8163 on 31-3-2017):
 	ADD: Name filter in depot window

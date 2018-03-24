@@ -456,8 +456,14 @@ void settings_t::rdwr(loadsave_t *file)
 
 		// climate borders
 		if(file->get_version()>=91000) {
+			if(  file->get_version()<120006  ) {
+				climate_borders[arctic_climate] -= groundwater;
+			}
 			for(  int i=0;  i<8;  i++ ) {
 				file->rdwr_short(climate_borders[i] );
+			}
+			if(  file->get_version()<120006  ) {
+				climate_borders[arctic_climate] += groundwater;
 			}
 			file->rdwr_short(winter_snowline );
 		}

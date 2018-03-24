@@ -1,3 +1,4 @@
+
 #include "network_socket_list.h"
 #include "network_cmd.h"
 #include "network_cmd_ingame.h"
@@ -305,14 +306,16 @@ void socket_list_t::unlock_player_all(uint8 player_nr, bool unlock, uint32 excep
 }
 
 
-void socket_list_t::send_all(network_command_t* nwc, bool only_playing_clients)
+void socket_list_t::send_all(network_command_t* nwc, bool only_playing_clients, uint8 player_nr)
 {
 	if (nwc == NULL) {
 		return;
 	}
 	for(uint32 i=server_sockets; i<list.get_count(); i++) {
 		if (list[i]->is_active()  &&  list[i]->socket!=INVALID_SOCKET
-			&&  (!only_playing_clients  ||  list[i]->state == socket_info_t::playing)) {
+			&&  (!only_playing_clients  ||  list[i]->state == socket_info_t::playing  ||  list[i]->state == socket_info_t::connected)
+			&&  (player_nr >= PLAYER_UNOWNED  ||  list[i]->is_player_unlocked(player_nr))
+		) {
 
 			packet_t *p = nwc->copy_packet();
 			list[i]->send_queue_append(p);

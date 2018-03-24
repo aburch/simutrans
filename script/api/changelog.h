@@ -4,6 +4,8 @@
  *
  * @section api-trunk Current trunk
  *
+ * - Changed enable scenario scripts to open info window also on clients, see @ref gui::open_info_win_client
+ * - Added sign_x::can_pass
  * - Added methods is_valid to check whether in-game object is still present, see @ref ingame_object
  * - Added tile_x::can_remove_all_objects
  * - Added @ref coord_to_dir, @ref coord.to_dir, @ref dir.to_coord

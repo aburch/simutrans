@@ -3,6 +3,7 @@
 
 #include "network.h"
 #include "network_address.h"
+#include "../simconst.h"
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "../utils/plainstring.h"
@@ -93,10 +94,10 @@ public:
 	/**
 	 * human players on this connection can play with in-game companies/players?
 	 */
-	bool is_player_unlocked(uint8 player_nr) const { return (player_nr < 15)  &&  ((player_unlocked & 1<<player_nr)!=0); }
+	bool is_player_unlocked(uint8 player_nr) const { return (player_nr < PLAYER_UNOWNED)  &&  ((player_unlocked & 1<<player_nr)!=0); }
 
-	void unlock_player(uint8 player_nr) { if (player_nr < 15) player_unlocked |= 1<<player_nr; }
-	void lock_player(uint8 player_nr) { if (player_nr < 15) player_unlocked &= ~(1<<player_nr); }
+	void unlock_player(uint8 player_nr) { if (player_nr < PLAYER_UNOWNED) player_unlocked |= 1<<player_nr; }
+	void lock_player(uint8 player_nr) { if (player_nr < PLAYER_UNOWNED) player_unlocked &= ~(1<<player_nr); }
 };
 
 /**
@@ -180,7 +181,12 @@ public:
 	 */
 	static void unlock_player_all(uint8 player_nr, bool unlock, uint32 except_client = list.get_count());
 
-	static void send_all(network_command_t* nwc, bool only_playing_clients);
+	/**
+	 * send command to all clients
+	 * @param if only_playing_clients true then send only to playing clients
+	 * @param if player_nr < PLAYER_UNOWNED then only send to clients with unlocked player
+	 */
+	static void send_all(network_command_t* nwc, bool only_playing_clients, uint8 player_nr = PLAYER_UNOWNED);
 
 	static void change_state(uint32 id, uint8 new_state);
 

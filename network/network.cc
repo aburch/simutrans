@@ -616,11 +616,11 @@ bool network_check_server_connection()
 
 // send data to all PLAYING clients
 // nwc is invalid after the call
-void network_send_all(network_command_t* nwc, bool exclude_us )
+void network_send_all(network_command_t* nwc, bool exclude_us, uint8 player_nr)
 {
 	if (nwc) {
 		nwc->prepare_to_send();
-		socket_list_t::send_all(nwc, true);
+		socket_list_t::send_all(nwc, true, player_nr);
 		if(  !exclude_us  &&  network_server_port  ) {
 			// I am the server
 			nwc->get_packet()->sent_by_server();

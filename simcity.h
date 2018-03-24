@@ -40,9 +40,9 @@ enum city_cost {
 	HIST_MAIL_TRANSPORTED,	// letters that could be sent
 	HIST_MAIL_WALKED,       // direct handover
 	HIST_MAIL_GENERATED,	// all letters generated
-	HIST_GOODS_RECIEVED,	// times all storages were not empty
+	HIST_GOODS_RECEIVED,	// times all storages were not empty
 	HIST_GOODS_NEEDED,	// times storages checked
-	HIST_POWER_RECIEVED,	// power consumption (not used at the moment!)
+	HIST_POWER_RECEIVED,	// power consumption (not used at the moment!)
 	MAX_CITY_HISTORY	// Total number of items in array
 };
 

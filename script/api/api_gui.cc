@@ -11,6 +11,10 @@
 #include "../../dataobj/scenario.h"
 #include "../../player/simplay.h"
 
+#include "../../dataobj/environment.h"
+#include "../../network/network.h"
+#include "../../network/network_cmd_scenario.h"
+
 using namespace script_api;
 
 
@@ -33,9 +37,29 @@ call_tool_init add_scenario_message(player_t* player, const char* text)
 	return call_tool_init(TOOL_ADD_MESSAGE | SIMPLE_TOOL, (const char*)buf, 0, player ? player : welt->get_active_player());
 }
 
-bool open_info_win_result(scenario_t* scen)
+void_t open_info_win_client(const char* tab, uint8 player_nr)
 {
-	return scen->open_info_win();
+	if (env_t::server) {
+		// void network_send_all(network_command_t* nwc, bool exclude_us )
+		nwc_scenario_t *nwc = new nwc_scenario_t();
+		nwc->what = nwc_scenario_t::OPEN_SCEN_WIN;
+		nwc->function = tab;
+		network_send_all(nwc, false, player_nr);
+	}
+	else {
+		welt->get_scenario()->open_info_win(tab);
+	}
+	return void_t();
+}
+
+void_t open_info_win_at(const char* tab)
+{
+	return open_info_win_client(tab, PLAYER_UNOWNED);
+}
+
+void_t open_info_win()
+{
+	return open_info_win_client("", PLAYER_UNOWNED);
 }
 
 void export_gui(HSQUIRRELVM vm, bool scenario)
@@ -47,18 +71,28 @@ void export_gui(HSQUIRRELVM vm, bool scenario)
 
 	if (scenario) {
 		/**
-		 * Opens scenario info window and shows 'result' tab.
+		 * Opens scenario info window and shows 'info' tab.
+		 * In network mode, opens window on all clients and server.
 		 * @note Only available in scenario mode.
 		 */
-		STATIC register_method(vm, &open_info_win_result, "open_info_win", true);
+		STATIC register_method(vm, open_info_win, "open_info_win", true);
 
 		/**
 		 * Opens scenario info window with specific tab open.
+		 * In network mode, opens window on all clients and server.
 		 * @param tab possible values are "info", "goal", "rules", "result", "about"
 		 * @note Only available in scenario mode.
 		 */
-		STATIC register_method(vm, &scenario_t::open_info_win, "open_info_win_at");
+		STATIC register_method(vm, open_info_win_at, "open_info_win_at");
 
+		/**
+		 * Opens scenario info window for certain clients (and the server),
+		 * with specific tab open.
+		 * @param tab possible values are "info", "goal", "rules", "result", "about"
+		 * @param player_nr opens scenario info window on all clients that have this player unlocked.
+		 * @note Window is always opened on server.		 *
+		 */
+		STATIC register_method(vm, open_info_win_client, "open_info_win_client");
 		/**
 		* Adds message to the players mailboxes.
 		* Will be shown in ticker or as pop-up window depending on players preferences.

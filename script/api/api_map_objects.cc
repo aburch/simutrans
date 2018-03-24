@@ -17,6 +17,7 @@
 #include "../../obj/label.h"
 #include "../../obj/roadsign.h"
 #include "../../obj/signal.h"
+#include "../../player/simplay.h"
 
 // for depot tools
 #include "../../simconvoi.h"
@@ -292,6 +293,12 @@ const char* label_get_text(label_t* l)
 		}
 	}
 	return NULL;
+}
+
+// roadsign
+bool roadsign_can_pass(const roadsign_t* rs, player_t* player)
+{
+	return player  &&  rs->get_desc()->is_private_way()  ?  (rs->get_player_mask() & (1<<player->get_player_nr()))!=0 : true;
 }
 
 // depot
@@ -573,5 +580,12 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @returns object descriptor.
 	 */
 	register_method(vm, &roadsign_t::get_desc, "get_desc");
+
+	/**
+	 * Test whether @p player 's vehicles can pass private-way sign.
+	 * Returns true if this is not a private-way sign.
+	 * @param player
+	 */
+	register_method(vm, &roadsign_can_pass, "can_pass", true);
 	end_class(vm);
 }

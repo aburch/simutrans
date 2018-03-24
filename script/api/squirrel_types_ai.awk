@@ -219,6 +219,7 @@ BEGIN {
 	export_types["label_x::set_text"] = "string(string)"
 	export_types["label_x::get_text"] = "string()"
 	export_types["sign_x::get_desc"] = "sign_desc_x()"
+	export_types["sign_x::can_pass"] = "bool(player_x)"
 	export_types["player_x::is_valid"] = "bool()"
 	export_types["player_x::get_headquarter_level"] = "integer()"
 	export_types["player_x::get_headquarter_pos"] = "coord()"
