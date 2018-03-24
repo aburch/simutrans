@@ -2019,7 +2019,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		//	int max_display_of_upgrades = 3;
 		//	for (int i = 0; i < veh_type->get_upgrades_count(); i++)
 		//	{
-		//		//if (!veh_type->get_upgrades(i)->is_future(month_now) && (!veh_type->get_upgrades(i)->is_retired(month_now)))
+		//		//if (veh_type->get_upgrades(i) && !veh_type->get_upgrades(i)->is_future(month_now) && (!veh_type->get_upgrades(i)->is_retired(month_now)))
 		//		{
 		//			amount_of_upgrades++;
 		//		}
@@ -2029,7 +2029,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		//		n += sprintf(buf + n, "%s:\n", translator::translate("this_vehicle_can_upgrade_to"));
 		//		for (uint8 i = 0; i < min(veh_type->get_upgrades_count(), max_display_of_upgrades); i++)
 		//		{
-		//			//if (!veh_type->get_upgrades(i)->is_future(month_now) && (!veh_type->get_upgrades(i)->is_retired(month_now)))
+		//			//if (veh_type->get_upgrades(i) && !veh_type->get_upgrades(i)->is_future(month_now) && (!veh_type->get_upgrades(i)->is_retired(month_now)))
 		//			{
 		//				//money_to_string(tmp, veh_type->get_upgrades(i)->get_upgrade_price() / 100);
 		//				//n += sprintf(buf + n, " - %s (%8s)\n", translator::translate(veh_type->get_upgrades(i)->get_name()), tmp);
