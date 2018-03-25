@@ -978,6 +978,20 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
+class tool_show_ribi_t : public tool_t {
+public:
+	tool_show_ribi_t() : tool_t(TOOL_SHOW_RIBI| SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("view masked ribi"); }
+	bool is_selected() const OVERRIDE { return weg_t::show_masked_ribi; }
+	bool init( player_t * ) {
+		weg_t::show_masked_ribi ^= 1;
+		welt->set_dirty();
+		return false;
+	}
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+};
+
 class tool_view_owner_t : public tool_t {
 public:
 	tool_view_owner_t() : tool_t(TOOL_VIEW_OWNER | SIMPLE_TOOL) {}

@@ -13,6 +13,7 @@
 #include "../../simobj.h"
 #include "../../descriptor/way_desc.h"
 #include "../../dataobj/koord3d.h"
+#include "../../simskin.h"
 
 
 class karte_t;
@@ -54,6 +55,8 @@ public:
 	* @author Hj. Malthaner
 	*/
 	static const slist_tpl <weg_t *> & get_alle_wege();
+
+	static bool show_masked_ribi;
 
 	enum {
 		HAS_SIDEWALK   = 0x01,
@@ -108,6 +111,7 @@ private:
 
 	image_id image;
 	image_id foreground_image;
+
 
 	/**
 	* Initializes all member variables
@@ -315,7 +319,7 @@ public:
 	image_id get_image() const {return image;}
 
 	inline void set_foreground_image( image_id b ) { foreground_image = b; }
-	image_id get_front_image() const {return foreground_image;}
+	image_id get_front_image() const {return show_masked_ribi ? skinverwaltung_t::ribi_arrow->get_image_id(get_ribi()) :foreground_image;}
 
 
 	// correct maintenance
