@@ -554,8 +554,8 @@ void roadsign_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()>=120006  ) {
 		file->rdwr_byte(open_direction);
-	} else {
-		if(  file->is_loading()  ) open_direction = 0xA5;
+	} else if(  file->is_loading()  ) {
+		 open_direction = 0xA5;
 	}
 
 	dummy = state;
