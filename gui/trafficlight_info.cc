@@ -44,13 +44,19 @@ trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
 	add_component( &offset );
 
 	// direction_buttons
-	const char* direction_texts[4] = {"north","east","south","west"};
+	const char* direction_texts[4] = {"nord","ost","sued","west"};
 	for(uint8 i=0; i<4; i++) {
 		// left side
-		direction_buttons[i].init( button_t::square_state, direction_texts[i], scr_coord(30,get_windowsize().h-25-LINESPACE*(4-i)), scr_size(40,D_BUTTON_HEIGHT) );
+		direction_buttons[i].init( button_t::square_state, "", scr_coord(30,get_windowsize().h-25-LINESPACE*(4-i)), scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
 
 		// right side
 		direction_buttons[i+4].init( button_t::square_state, "", scr_coord(90,get_windowsize().h-25-LINESPACE*(4-i)), scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
+
+		// center labels
+		direction_labels[i].init( direction_texts[i], scr_coord(40,get_windowsize().h-25-LINESPACE*(4-i)));
+		direction_labels[i].set_size( scr_size(50, D_LABEL_HEIGHT) );
+		direction_labels[i].set_align(gui_label_t::align_t::centered);
+		add_component( &direction_labels[i] );
 	}
 	for(uint8 i=0; i<8; i++) {
 		direction_buttons[i].add_listener( this );
