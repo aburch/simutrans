@@ -4451,7 +4451,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 	if (signal_current && signal_current->get_desc()->get_working_method() == one_train_staff && cnv->get_state() == convoi_t::DRIVING)
 	{
-		// This should only be encountered when a train comes upon a one train staf cabinet having previously stopped at a double block signal. 
+		// This should only be encountered when a train comes upon a one train staff cabinet having previously stopped at a double block signal. 
 		set_working_method(one_train_staff);
 	}
 
@@ -5078,6 +5078,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	bool previous_telegraph_directional = false;
 	bool directional_reservation_succeeded = true;
 	bool one_train_staff_loop_complete = false;
+	bool reached_second_one_train_staff_cabinet = false;
 	bool time_interval_reservation = false;
 	enum ternery_uncertainty {
 		is_true, is_false, is_uncertain
@@ -5382,6 +5383,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						if(shortest_distance(pos.get_2d(), first_pos.get_2d()) < 3)
 						{
 							one_train_staff_loop_complete = true;
+						}
+						else
+						{
+							// Do not try to reserve beyond a second one train staff cabinet
+							next_signal_index = i;
+							count --;
+							reached_second_one_train_staff_cabinet = true;
 						}
 					}
 
@@ -5857,7 +5865,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			bool attempt_reservation = directional_only || time_interval_reservation || previous_telegraph_directional || ((next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph && (next_signal_working_method != drive_by_sight || i < start_index + modified_sighting_distance_tiles + 1)) && (!stop_at_station_signal.is_bound() || stop_at_station_signal == check_halt));
 			previous_telegraph_directional = telegraph_directional;
 			previous_time_interval_reservation = time_interval_reservation ? is_true : is_false;
-			if(attempt_reservation && !sch1->reserve(cnv->self, ribi_type(route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u,i+1u))), rt, (working_method == time_interval || working_method == time_interval_with_telegraph)))
+			if(attempt_reservation && !reached_second_one_train_staff_cabinet && !sch1->reserve(cnv->self, ribi_type(route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u,i+1u))), rt, (working_method == time_interval || working_method == time_interval_with_telegraph)))
 			{
 				not_entirely_free = true;
 				if (from_call_on)
