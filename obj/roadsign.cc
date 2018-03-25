@@ -81,6 +81,7 @@ roadsign_t::roadsign_t(player_t *player, koord3d pos, ribi_t::ribi dir, const ro
 	state = 0;
 	ticks_ns = ticks_ow = 16;
 	ticks_offset = 0;
+	open_direction = 0xA5; // north-south <-> east-west
 	set_owner( player );
 	if(  desc->is_private_way()  ) {
 		// init ownership of private ways
@@ -202,8 +203,7 @@ void roadsign_t::info(cbuffer_t & buf) const
 		buf.printf("%s%u\n", translator::translate("\ndirection:"), dir);
 		if(  automatic  ) {
 			buf.append(translator::translate("\nSet phases:"));
-			buf.append("\n");
-			buf.append("\n");
+			buf.append("\n\n\n\n\n\n");
 		}
 	}
 }
@@ -473,7 +473,7 @@ sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 		uint8 new_state = (ticks >= ticks_ns) ^ (welt->get_settings().get_rotation() & 1);
 		if(state!=new_state) {
 			state = new_state;
-			dir = (new_state==0) ? ribi_t::northsouth : ribi_t::eastwest;
+			dir = (new_state==0) ? open_direction&0x0F : (open_direction>>4)&0x0F;
 			calc_image();
 		}
 	}
@@ -551,6 +551,12 @@ void roadsign_t::rdwr(loadsave_t *file)
 		if(  file->is_loading()  ) {
 			ticks_offset = 0;
 		}
+	}
+
+	if(  file->get_version()>=120006  ) {
+		file->rdwr_byte(open_direction);
+	} else {
+		if(  file->is_loading()  ) open_direction = 0xA5;
 	}
 
 	dummy = state;

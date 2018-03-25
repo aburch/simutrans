@@ -37,6 +37,7 @@ protected:
 	uint8 ticks_ns;
 	uint8 ticks_ow;
 	uint8 ticks_offset;
+	uint8 open_direction;
 
 	sint8 after_yoffset, after_xoffset;
 
@@ -111,6 +112,9 @@ public:
 	void set_ticks_ow(uint8 ow) { ticks_ow = ow; }
 	uint8 get_ticks_offset() const { return ticks_offset; }
 	void set_ticks_offset(uint8 offset) { ticks_offset = offset; }
+
+	uint8 get_open_direction() const { return open_direction; }
+	void set_open_direction(uint8 dir) { open_direction = dir; }
 
 	inline void set_image( image_id b ) { image = b; }
 	image_id get_image() const { return image; }
