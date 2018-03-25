@@ -4449,7 +4449,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		return false;
 	}
 
-	if (signal_current && signal_current->get_desc()->get_working_method() == one_train_staff && cnv->get_state() == convoi_t::DRIVING)
+	if (signal_current && signal_current->get_desc()->get_working_method() == one_train_staff && cnv->get_state() == convoi_t::DRIVING && signal_current->get_state() != signal_t::call_on)
 	{
 		// This should only be encountered when a train comes upon a one train staff cabinet having previously stopped at a double block signal. 
 		set_working_method(one_train_staff);
@@ -4489,7 +4489,9 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		return false;
 	}
 
-	if(starting_from_stand && cnv->get_next_stop_index() == route_index && !signal_current && working_method != drive_by_sight && working_method != moving_block)
+	const signal_t* signal_route_index = welt->lookup(cnv->get_route()->at(route_index))->find<signal_t>();
+
+	if(starting_from_stand && cnv->get_next_stop_index() == route_index && !signal_route_index && !signal_current && working_method != drive_by_sight && working_method != moving_block)
 	{
 		// If we are starting from stand, have no reservation beyond here and there is no signal, assume that it has been deleted and revert to drive by sight.
 		if (working_method == token_block || working_method == one_train_staff)
@@ -4954,6 +4956,10 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		bool ok = block_reserver(cnv->get_route(), route_index, modified_sighting_distance_tiles, next_signal, 0, true, false, false, false, false, false, brake_steps, (uint16)65530U, call_on);
 		ok |= route_index == route.get_count() || next_signal > route_index;
 		cnv->set_next_stop_index(next_signal);
+		if (exiting_one_train_staff && get_working_method() == one_train_staff)
+		{
+			set_working_method(drive_by_sight);
+		}
 		return ok;
 	}
 
@@ -6128,7 +6134,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	// However, do not call this if we are in the block reserver already called from this method to prevent infinite recursion.
 	const bool bidirectional_reservation = (working_method == track_circuit_block || working_method == cab_signalling || working_method == moving_block) 
 		&& last_bidirectional_signal_index < INVALID_INDEX && (last_oneway_sign_index >= INVALID_INDEX || last_oneway_sign_index < last_bidirectional_signal_index);
-	if(!is_from_token && !is_from_directional && (((working_method == token_block || (first_double_block_signal_index < INVALID_INDEX && stop_signals_since_last_double_block_signal)) && last_token_block_signal_index < INVALID_INDEX) || bidirectional_reservation || working_method == one_train_staff || (start_index == first_one_train_staff_index)) && next_signal_index == INVALID_INDEX)
+	const bool one_train_staff_onward_reservation = working_method == one_train_staff || start_index == first_one_train_staff_index;
+	if(!is_from_token && !is_from_directional && (((working_method == token_block || (first_double_block_signal_index < INVALID_INDEX && stop_signals_since_last_double_block_signal)) && last_token_block_signal_index < INVALID_INDEX) || bidirectional_reservation || one_train_staff_onward_reservation) && next_signal_index == INVALID_INDEX)
 	{
 		route_t target_rt;
 		schedule_t *schedule = cnv->get_schedule();
@@ -6140,9 +6147,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		uint16 next_next_signal;
 		bool route_success;
 		sint32 token_block_blocks = 0;
-		if(no_reverse || working_method == one_train_staff)
+		if(no_reverse || one_train_staff_onward_reservation)
 		{
 			bool break_loop_recursive = false;
+			if (one_train_staff_onward_reservation && working_method != one_train_staff)
+			{
+				set_working_method(one_train_staff);
+			}
 			do
 			{
 				// Search for route until the next signal is found.
@@ -6150,12 +6161,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 				if(route_success) 
 				{
-					if (working_method == one_train_staff && first_one_train_staff_index < INVALID_INDEX)
+					if (one_train_staff_onward_reservation && first_one_train_staff_index < INVALID_INDEX)
 					{
 						cnv->set_last_signal_pos(route->at(first_one_train_staff_index));
 					}
 							
-					token_block_blocks = block_reserver(&target_rt, 1, modified_sighting_distance_tiles, next_next_signal, 0, true, false, false, !bidirectional_reservation, false, bidirectional_reservation, brake_steps, working_method == one_train_staff ? first_one_train_staff_index : INVALID_INDEX, false, &break_loop_recursive);
+					token_block_blocks = block_reserver(&target_rt, 1, modified_sighting_distance_tiles, next_next_signal, 0, true, false, false, !bidirectional_reservation, false, bidirectional_reservation, brake_steps, one_train_staff_onward_reservation ? first_one_train_staff_index : INVALID_INDEX, false, &break_loop_recursive);
 				}
 
 				if(token_block_blocks && next_next_signal < INVALID_INDEX) 
@@ -6173,7 +6184,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 					else
 					{
-						if(working_method != one_train_staff)
+						if(!one_train_staff_onward_reservation)
 						{
 							cnv->set_next_stop_index(cnv->get_route()->get_count() - 1u);
 						}
@@ -6202,7 +6213,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			if(cnv->get_next_stop_index() - 1 <= route_index) 
 			{
-				if (working_method == one_train_staff && next_signal_index >= INVALID_INDEX)
+				if (one_train_staff_onward_reservation && next_signal_index >= INVALID_INDEX)
 				{
 					cnv->set_next_stop_index(next_next_signal);
 				}
