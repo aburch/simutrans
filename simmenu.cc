@@ -629,6 +629,7 @@ void tool_t::read_menu(const std::string &objfilename)
 						// now create tool
 						addtool = create_general_tool( toolnr );
 						// copy defaults
+						*addtool = *(general_tool[toolnr]);
 						set_defaults_general_tool(addtool, param_str);
 
 						general_tool.append( addtool );

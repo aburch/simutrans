@@ -561,10 +561,18 @@ void gebaeude_t::show_info()
 }
 
 
-bool gebaeude_t::is_same_building(gebaeude_t* other)
+bool gebaeude_t::is_same_building(const gebaeude_t* other) const
 {
-	return (other != NULL)  &&  (get_tile()->get_desc() == other->get_tile()->get_desc())
-	       &&  (get_first_tile() == other->get_first_tile());
+	if (other) {
+		const building_tile_desc_t* otile = other->get_tile();
+		// same descriptor and house tile
+		if (get_tile()->get_desc() == otile->get_desc()  &&  get_tile()->get_layout() == otile->get_layout()
+			// same position of (0,0) tile
+			&&  (get_pos() - get_tile()->get_offset()  == other->get_pos() - otile->get_offset())) {
+			return true;
+		}
+	}
+	return false;
 }
 
 

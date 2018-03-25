@@ -87,7 +87,7 @@ protected:
 	 * whether focus has been received
 	 * @author Knightly
 	 */
-	bool focus_recieved;
+	bool focus_received;
 
 	/**
 	 * determine new cursor position from event coordinates

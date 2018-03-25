@@ -224,10 +224,13 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	prod_chart.set_dimension(12, 10000);
 	prod_chart.set_background(SYSCOL_CHART_BACKGROUND);
 	for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
-		prod_chart.add_curve( color_idx_to_rgb(prod_color[s]), factory->get_stats(), MAX_FAB_STAT, s, MAX_MONTH, false, false, true, 0, prod_convert[s] );
+		uint16 curve = prod_chart.add_curve( color_idx_to_rgb(prod_color[s]), factory->get_stats(), MAX_FAB_STAT, s, MAX_MONTH, (2<=s  &&  s<=4) ? PERCENT : STANDARD, false, true, 0, prod_convert[s] );
 		prod_buttons[s].init(button_t::box_state, prod_type[s], scr_coord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*button_pos[s].x, offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*button_pos[s].y));
 		prod_buttons[s].background_color = color_idx_to_rgb(prod_color[s]);
 		prod_buttons[s].pressed = false;
+		button_to_curve[s].button = &prod_buttons[s];
+		button_to_curve[s].curve  = curve;
+
 		// only show buttons, if the is something to do ...
 		if(
 			(s==FAB_BOOST_ELECTRIC  &&  (factory->get_desc()->is_electricity_producer()  ||  factory->get_desc()->get_electric_boost()==0))  ||
@@ -243,7 +246,10 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 		if(  s==FAB_BOOST_MAIL  ) {
 			// insert the reference line buttons here to ensure correct tab order
 			for(  int r=0;  r<MAX_FAB_REF_LINE;  ++r  ) {
-				prod_chart.add_line( color_idx_to_rgb(ref_color[r]), prod_ref_line_data + r, MAX_MONTH, false, true, 0, ref_convert[r] );
+				uint16 curve = prod_chart.add_curve( color_idx_to_rgb(ref_color[r]), prod_ref_line_data + r, 0, 0, MAX_MONTH, r<3 ? PERCENT : STANDARD, false, true, 0, ref_convert[r] );
+				button_to_curve[r+MAX_FAB_STAT].button = &prod_ref_line_buttons[r];
+				button_to_curve[r+MAX_FAB_STAT].curve  = curve;
+
 				prod_ref_line_buttons[r].init(button_t::box_state, prod_type[2+(r%3)], scr_coord( D_MARGIN_LEFT+(D_H_SPACE+D_BUTTON_WIDTH)*(1+r%3), offset_below_chart+(D_H_SPACE+D_BUTTON_HEIGHT)*(2+(r/3))));
 				prod_ref_line_buttons[r].background_color = color_idx_to_rgb(ref_color[r]);
 				prod_ref_line_buttons[r].pressed = false;
@@ -275,7 +281,6 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 
 	add_component( &tab_panel );
 	const int max_rows = max( goods_label_row, button_pos[MAX_FAB_STAT-1].y+1 );
-//	const scr_size size( 20+80+CHART_WIDTH+(input_count > 0 ? D_H_SPACE+D_BUTTON_WIDTH : 0 ), D_TAB_HEADER_HEIGHT+CHART_HEIGHT+20+max_rows*D_BUTTON_HEIGHT+(max_rows-1)*D_H_SPACE+16 );
 	const scr_size size( D_DEFAULT_WIDTH, D_TAB_HEADER_HEIGHT+CHART_HEIGHT+20+max_rows*D_BUTTON_HEIGHT+(max_rows-1)*D_H_SPACE+16 );
 	set_size( size );
 	tab_panel.set_size( size );
@@ -312,29 +317,17 @@ bool factory_chart_t::action_triggered(gui_action_creator_t *komp, value_t)
 		}
 	}
 	else {
-		// first, check for buttons of other production-related statistics
-		for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
-			if(  komp==&prod_buttons[s]  ) {
-				prod_buttons[s].pressed = !prod_buttons[s].pressed;
-				if(  prod_buttons[s].pressed  ) {
-					prod_chart.show_curve(s);
+		for(int i=0; i < MAX_FAB_STAT+MAX_FAB_REF_LINE; i++) {
+			if (komp == button_to_curve[i].button) {
+				button_t* button = button_to_curve[i].button;
+				button->pressed = !button->pressed;
+				if(  button->pressed  ) {
+					prod_chart.show_curve(button_to_curve[i].curve);
 				}
 				else {
-					prod_chart.hide_curve(s);
+					prod_chart.hide_curve(button_to_curve[i].curve);
 				}
-				return true;
-			}
-		}
-		// second, check for buttons of reference lines
-		for(  int r=0;  r<MAX_FAB_REF_LINE;  ++r  ) {
-			if(  komp==&prod_ref_line_buttons[r]  ) {
-				prod_ref_line_buttons[r].pressed = !prod_ref_line_buttons[r].pressed;
-				if(  prod_ref_line_buttons[r].pressed  ) {
-					prod_chart.show_line(r);
-				}
-				else {
-					prod_chart.hide_line(r);
-				}
+
 				return true;
 			}
 		}
@@ -388,14 +381,15 @@ void factory_chart_t::rdwr( loadsave_t *file )
 		}
 		for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
 			prod_buttons[s].pressed = (prod_flag >> s)&1;
-			if(  prod_buttons[s].pressed  ) {
-				prod_chart.show_curve(s);
-			}
 		}
 		for(  int r=0;  r<MAX_FAB_REF_LINE;  ++r  ) {
 			prod_ref_line_buttons[r].pressed = (ref_flag >> r)&1;
-			if(  prod_ref_line_buttons[r].pressed  ) {
-				prod_chart.show_line(r);
+		}
+
+		for(int i=0; i < MAX_FAB_STAT+MAX_FAB_REF_LINE; i++) {
+			button_t* button = button_to_curve[i].button;
+			if(  button->pressed  ) {
+				prod_chart.show_curve(button_to_curve[i].curve);
 			}
 		}
 	}

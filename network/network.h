@@ -11,8 +11,8 @@
 #if USE_WINSOCK
 // must be include before all simutrans stuff!
 
-#	include <windows.h>
 #	include <winsock2.h>
+//#	include <windows.h>
 #	include <ws2tcpip.h>
 #	ifndef IPV6_V6ONLY
 #		define IPV6_V6ONLY (27)
@@ -55,6 +55,7 @@
 #	define GET_LAST_ERROR() (errno)
 #endif
 
+#include "../simconst.h"
 #include "../simtypes.h"
 // version of network protocol code
 #define NETWORK_VERSION (1)
@@ -119,9 +120,12 @@ void network_process_send_queues(int timeout);
 // true, if I can write on the server connection
 bool network_check_server_connection();
 
-// send data to all clients (even us)
-// nwc is invalid after the call
-void network_send_all(network_command_t* nwc, bool exclude_us );
+/**
+ * send command to all clients (even us).
+ * if @p player_nr is valid, then send only to clients with this player unlocked
+ * @note nwc is invalid after the call
+ */
+void network_send_all(network_command_t* nwc, bool exclude_us, uint8 player_nr = PLAYER_UNOWNED);
 
 // send data to server only
 // nwc is invalid after the call

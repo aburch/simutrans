@@ -73,7 +73,6 @@ private:
 	bool zoomed;
 
 	int viewable_players[MAX_PLAYER_COUNT+1];
-	simline_t::linetype viewable_transport_types[simline_t::MAX_LINE_TYPE];
 
 	/**
 	 * FIXME: is there a smaller limit of good categories types?

@@ -13,11 +13,14 @@
 #include "../../gui/simwin.h"
 
 
-
+static scr_coord_val separator_width = 0;
 
 gui_label_t::gui_label_t(const char* text, PIXVAL color_, align_t align_) :
 	tooltip(NULL)
 {
+	if(  align_==money  ) {
+		separator_width = proportional_string_width( ",00$" );
+	}
 	set_size( scr_size( D_BUTTON_WIDTH, D_LABEL_HEIGHT ) );
 	init( text, scr_coord (0,0), color_, align_);
 }
@@ -49,8 +52,9 @@ void gui_label_t::draw(scr_coord offset)
 	if(  align == money  ) {
 		if(text) {
 			const char *seperator = NULL;
+			const bool not_a_number = atol(text)==0  &&  !isdigit(*text);
 
-			if(  strrchr(text, '$')!=NULL  ) {
+			if(  !not_a_number  ) {
 				seperator = strrchr(text, get_fraction_sep());
 				if(seperator==NULL  &&  get_large_money_string()!=NULL) {
 					seperator = strrchr(text, *(get_large_money_string()) );
@@ -63,7 +67,12 @@ void gui_label_t::draw(scr_coord offset)
 					display_text_proportional_len_clip_rgb(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT, color, true, seperator-text );
 				}
 			}
+			else if(  not_a_number  ) {
+				// normal text, correct for money decimals
+				display_proportional_clip_rgb(pos.x+offset.x+separator_width, pos.y+offset.y, text, ALIGN_RIGHT, color, true);
+			}
 			else {
+				// integer numbers without deciamals, aling at decimal separator
 				display_proportional_clip_rgb(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT, color, true);
 			}
 		}

@@ -491,7 +491,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 	// prissi: check powerline (can cross ground of another player)
 	leitung_t* lt = gr->get_leitung();
 	// check whether powerline related stuff should be removed, and if there is any to remove
-	if (  (type == obj_t::label  ||  type == obj_t::pumpe  ||  type == obj_t::senke  ||  type == obj_t::undefined)
+	if (  (type == obj_t::leitung  ||  type == obj_t::pumpe  ||  type == obj_t::senke  ||  type == obj_t::undefined)
 	       &&  lt != NULL  &&  lt->is_deletable(player) == NULL) {
 		if(  gr->ist_bruecke()  ) {
 			bruecke_t* br = gr->find<bruecke_t>();
@@ -1514,8 +1514,9 @@ const char *tool_transformer_t::check_pos( player_t *, koord3d pos )
 	}
 	if(grund_t::underground_mode == grund_t::ugm_level) {
 		// only above or directly under surface
+		// taking into account way clearance requirements
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-		return (gr->get_pos() == pos  ||  gr->get_hoehe() == grund_t::underground_level+1) ? NULL : "";
+		return (gr->get_pos() == pos  ||  gr->get_hoehe() == grund_t::underground_level + welt->get_settings().get_way_height_clearance()) ? NULL : "";
 	}
 	return NULL;
 }
@@ -3891,8 +3892,10 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 			if (gr->get_hoehe() != pos.z) {
 				return NOTICE_UNSUITABLE_GROUND;
 			}
-			if (const char *msg = gr->kann_alle_obj_entfernen(player)) {
-				return msg;
+			if (i <= len) {
+				if (const char *msg = gr->kann_alle_obj_entfernen(player)) {
+					return msg;
+				}
 			}
 
 			if (i==0) {

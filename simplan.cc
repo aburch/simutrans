@@ -538,7 +538,8 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 
 	if(tool_id==(TOOL_TRANSFORMER|GENERAL_TOOL)....	*/
 
-	if( (grund_t::underground_mode == grund_t::ugm_all  ||  (grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() == grund_t::underground_level+1) )
+	if( (grund_t::underground_mode == grund_t::ugm_all
+		||  (grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe() == grund_t::underground_level + welt->get_settings().get_way_height_clearance()) )
 		&&  gr->get_typ()==grund_t::fundament
 		&&  tool_t::general_tool[TOOL_TRANSFORMER]->is_selected()) {
 		gebaeude_t *gb = gr->find<gebaeude_t>();

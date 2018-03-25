@@ -649,7 +649,7 @@ private:
 	/**
 	 * Restores history for older savegames.
 	 */
-	void restore_history();
+	void restore_history(bool restore_transported_only);
 
 	/**
 	 * Will create rivers.

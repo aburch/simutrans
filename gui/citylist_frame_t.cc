@@ -72,11 +72,11 @@ const uint8 citylist_frame_t::hist_type_type[karte_t::MAX_WORLD_COST] =
 	STANDARD,
 	STANDARD,
 	STANDARD,
-	MONEY,
+	PERCENT,
 	STANDARD,
-	MONEY,
+	PERCENT,
 	STANDARD,
-	MONEY,
+	PERCENT,
 	STANDARD
 };
 

@@ -36,7 +36,7 @@ gui_textinput_t::gui_textinput_t() :
 	textcol(SYSCOL_EDIT_TEXT),
 	text_dirty(false),
 	cursor_reference_time(0),
-	focus_recieved(false)
+	focus_received(false)
 { }
 
 
@@ -404,7 +404,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		}
 	}
 	else if(  IS_LEFTCLICK(ev)  ) {
-		// since now the focus could be recieved while the mouse  no there, we must release it
+		// since now the focus could be received while the mouse  no there, we must release it
 		scr_rect this_comp( get_size() );
 		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
 			// not us, just in old focus from previous selection or tab
@@ -421,7 +421,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		return true;
 	}
 	else if(  IS_LEFTDRAG(ev)  ) {
-		// since now the focus could be recieved while the mouse  no there, we must release it
+		// since now the focus could be received while the mouse  no there, we must release it
 		scr_rect this_comp( get_size() );
 		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
 			// not us, just in old focus from previous selection or tab
@@ -436,7 +436,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		return true;
 	}
 	else if(  IS_LEFTDBLCLK(ev)  ) {
-		// since now the focus could be recieved while the mouse  no there, we must release it
+		// since now the focus could be received while the mouse  no there, we must release it
 		scr_rect this_comp( get_size() );
 		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
 			// not us, just in old focus from previous selection or tab
@@ -458,7 +458,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		}
 	}
 	else if(  IS_LEFTTPLCLK(ev)  ) {
-		// since now the focus could be recieved while the mouse  no there, we must release it
+		// since now the focus could be received while the mouse  no there, we must release it
 		scr_rect this_comp( get_size() );
 		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
 			// not us, just in old focus from previous selection or tab
@@ -496,7 +496,7 @@ void gui_textinput_t::draw(scr_coord offset)
 void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 {
 	// check if focus state has changed
-	if(  focus_recieved!=has_focus  ) {
+	if(  focus_received!=has_focus  ) {
 		if(  has_focus  ) {
 			// update reference time for cursor blinking if focus has just been received
 			cursor_reference_time = dr_time();
@@ -511,7 +511,7 @@ void gui_textinput_t::display_with_focus(scr_coord offset, bool has_focus)
 		else {
 			dr_stop_textinput();
 		}
-		focus_recieved = has_focus;
+		focus_received = has_focus;
 	}
 
 	display_with_cursor( offset, has_focus, (has_focus  &&  ((dr_time()-cursor_reference_time)&512ul)==0) );
@@ -641,7 +641,7 @@ void gui_textinput_t::set_text(char *text, size_t max)
 bool gui_hidden_textinput_t::infowin_event(const event_t *ev)
 {
 	if(  IS_LEFTRELEASE(ev)  ) {
-		// since now the focus could be recieved while the mouse  no there, we must release it
+		// since now the focus could be received while the mouse  no there, we must release it
 		scr_rect this_comp( get_size() );
 		if(  !this_comp.contains(scr_coord(ev->cx,ev->cy) )  ) {
 			// not us, just in old focus from previous selection or tab

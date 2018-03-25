@@ -20,13 +20,15 @@
 #include "../dataobj/translator.h"
 
 #include "../simcolor.h"
+#include "../simline.h"
+#include "simwin.h"
 #include "../simworld.h"
 
 /**
  * This variable defines the current speed for bonus calculation
  * @author prissi
  */
-int goods_frame_t::relative_speed_change=100;
+sint16 goods_frame_t::relative_speed_change=100;
 
 /**
  * This variable defines by which column the table is sorted
@@ -60,37 +62,52 @@ const char *goods_frame_t::sort_text[SORT_MODES] = {
  */
 bool goods_frame_t::filter_goods = false;
 
+static simline_t::linetype last_scheduletype = simline_t::trainline;
+
 goods_frame_t::goods_frame_t() :
 	gui_frame_t( translator::translate("gl_title") ),
 	sort_label(translator::translate("hl_txt_sort")),
-	change_speed_label(NULL,SYSCOL_TEXT_HIGHLIGHT,gui_label_t::right),
+	tile_speed(NULL,SYSCOL_TEXT_HIGHLIGHT,gui_label_t::right),
+	speed_text( &speed_message, D_BUTTON_WIDTH*4+D_V_SPACE*3 ),
 	goods_stats(),
 	scrolly(&goods_stats)
 {
-	int y=D_BUTTON_HEIGHT+4-D_TITLEBAR_HEIGHT;
+	int y = D_MARGIN_TOP;
 
-	speed_bonus[0] = 0;
-	speed_down.init(button_t::repeatarrowleft, "", scr_coord(BUTTON4_X-20, y) );
-	speed_down.add_listener(this);
-	add_component(&speed_down);
+	scheduletype.set_pos( scr_coord(BUTTON1_X,y) );
+	scheduletype.set_size( scr_size(D_BUTTON_WIDTH,D_EDIT_HEIGHT) );
+	for (int i = 1; i < simline_t::MAX_LINE_TYPE; i++) {
+		scheduletype.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(simline_t::get_linetype_name((simline_t::linetype)i), SYSCOL_TEXT));
+	}
+	scheduletype.set_selection( last_scheduletype-1 );
+	add_component(&scheduletype);
+	scheduletype.add_listener( this );
 
-	change_speed_label.set_text(speed_bonus);
-	change_speed_label.set_width(display_get_char_max_width("-0123456789")*4);
-	change_speed_label.align_to(&speed_down, ALIGN_LEFT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V,scr_coord(D_V_SPACE,0));
-	add_component(&change_speed_label);
+	speed.init( welt->get_average_speed(simline_t::linetype_to_waytype(last_scheduletype)), 1, 2048, gui_numberinput_t::AUTOLINEAR, false );
+	speed.set_pos( scr_coord(BUTTON2_X,y) );
+	speed.set_size( scr_size(D_BUTTON_WIDTH,D_EDIT_HEIGHT) );
+	add_component(&speed);
+	speed.add_listener( this );
 
-	speed_up.init(button_t::repeatarrowright, "",speed_down.get_pos());
-	speed_up.align_to(&change_speed_label, ALIGN_LEFT | ALIGN_EXTERIOR_H, scr_coord(D_V_SPACE,0));
-	speed_up.add_listener(this);
-	add_component(&speed_up);
-	y=D_BUTTON_HEIGHT+4+5*LINESPACE;
+	tile_speed.set_pos( scr_coord(BUTTON3_X,y+(D_EDIT_HEIGHT-LINESPACE)/2) );
+	tile_speed.set_size( scr_size(D_BUTTON_WIDTH*2+D_V_SPACE,LINESPACE) );
+	add_component(&tile_speed);
+
+	y += D_BUTTON_HEIGHT+D_V_SPACE;
+
+	speed_text.set_pos( scr_coord(BUTTON1_X,y) );
+	speed_text.set_size( scr_size(D_BUTTON_WIDTH*4+D_V_SPACE*3,4*LINESPACE) );
+	add_component(&speed_text);
+
+	y += D_BUTTON_HEIGHT+D_V_SPACE+4*LINESPACE;
 
 	filter_goods_toggle.init(button_t::square_state, "Show only used", scr_coord(BUTTON1_X, y));
 	filter_goods_toggle.set_tooltip(translator::translate("Only show goods which are currently handled by factories"));
 	filter_goods_toggle.add_listener(this);
 	filter_goods_toggle.pressed = filter_goods;
 	add_component(&filter_goods_toggle);
-	y += LINESPACE+2;
+
+	y += D_BUTTON_HEIGHT+D_V_SPACE;
 
 	sort_label.set_pos(scr_coord(BUTTON1_X, y));
 	add_component(&sort_label);
@@ -166,9 +183,36 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 // creates the list and pass it to the child function good_stats, which does the display stuff ...
 void goods_frame_t::sort_list()
 {
+	// update all strings
+	relative_speed_change = (100*speed.get_value())/welt->get_average_speed(simline_t::linetype_to_waytype(last_scheduletype));
+
+	speed_message.clear();
+	speed_message.printf(translator::translate("Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h."),
+		(welt->get_average_speed(road_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(track_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(water_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(air_wt)*relative_speed_change)/100
+	);
+	speed_message.printf(translator::translate("tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h."),
+		(welt->get_average_speed(tram_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(monorail_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(maglev_wt)*relative_speed_change)/100,
+		(welt->get_average_speed(narrowgauge_wt)*relative_speed_change)/100
+	);
+	speed_text.recalc_size();
+
+	speed_message2.clear();
+	speed_message2.printf(translator::translate("100 km/h = %i tiles/month"),
+		welt->speed_to_tiles_per_month(kmh_to_speed(100))
+	);
+	tile_speed.set_text_pointer( speed_message2 );
+
+	// update buttons
 	sortedby.set_text(sort_text[sortby]);
 	sorteddir.set_text(sortreverse ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
+	filter_goods_toggle.pressed = filter_goods;
 
+	// now prepare the sort
 	// Fetch the list of goods produced by the factories that exist in the current game
 	const vector_tpl<const goods_desc_t*> &goods_in_game = welt->get_goods_list();
 
@@ -211,64 +255,45 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	if(komp == &sortedby) {
 		// sort by what
 		sortby = (sort_mode_t)((int)(sortby+1)%(int)SORT_MODES);
-		sort_list();
 	}
 	else if(komp == &sorteddir) {
 		// order
 		sortreverse ^= 1;
-		sort_list();
-	}
-	else if(komp == &speed_down) {
-		if(relative_speed_change>1) {
-			relative_speed_change --;
-			sort_list();
-		}
-	}
-	else if(komp == &speed_up) {
-		relative_speed_change ++;
-		sort_list();
 	}
 	else if(komp == &filter_goods_toggle) {
 		filter_goods = !filter_goods;
-		filter_goods_toggle.pressed = filter_goods;
-		sort_list();
 	}
+	else if(komp == &scheduletype) {
+		double relative_speed_change = speed.get_value()/(double)welt->get_average_speed(simline_t::linetype_to_waytype(last_scheduletype));
+		last_scheduletype = (simline_t::linetype)(scheduletype.get_selection()+1);
+		speed.set_value( (welt->get_average_speed(simline_t::linetype_to_waytype(last_scheduletype))*relative_speed_change)+0.5 );
+	}
+	sort_list();
 
 	return true;
 }
 
 
-/**
- * Draw the component
- * @author Hj. Malthaner
- */
-void goods_frame_t::draw(scr_coord pos, scr_size size)
+uint32 goods_frame_t::get_rdwr_id()
 {
-	gui_frame_t::draw(pos, size);
+	return magic_goodslist;
+}
 
-	sprintf(speed_bonus,"%i",relative_speed_change-100);
 
-	speed_message.clear();
-	speed_message.printf(translator::translate("Speedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h."),
-		(welt->get_average_speed(road_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(track_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(water_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(air_wt)*relative_speed_change)/100
-	);
-	display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, pos.y + D_BUTTON_HEIGHT + 4, speed_message, SYSCOL_TEXT_HIGHLIGHT );
 
-	speed_message.clear();
-	speed_message.printf(translator::translate("tram %i km/h, monorail %i km/h\nmaglev %i km/h, narrowgauge %i km/h."),
-		(welt->get_average_speed(tram_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(monorail_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(maglev_wt)*relative_speed_change)/100,
-		(welt->get_average_speed(narrowgauge_wt)*relative_speed_change)/100
-	);
-	display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, pos.y + D_BUTTON_HEIGHT + 4 + 3 * LINESPACE, speed_message, SYSCOL_TEXT_HIGHLIGHT );
+void goods_frame_t::rdwr( loadsave_t *file )
+{
+	file->rdwr_short( relative_speed_change );
+	file->rdwr_bool( sortreverse );
+	file->rdwr_bool( filter_goods );
+	sint16 s = last_scheduletype;
+	file->rdwr_short( s );
+	sint16 b = sortby;
+	file->rdwr_short( b );
 
-	speed_message.clear();
-	speed_message.printf(translator::translate("100 km/h = %i tiles/month"),
-		welt->speed_to_tiles_per_month(kmh_to_speed(100))
-	);
-	display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, pos.y + D_BUTTON_HEIGHT + 4 + 5 * LINESPACE, speed_message, SYSCOL_TEXT_HIGHLIGHT );
+	if(  file->is_loading()  ) {
+		scheduletype.set_selection( s-1 );
+		sortby = (sort_mode_t)b;
+		sort_list();
+	}
 }

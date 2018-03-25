@@ -102,23 +102,6 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_WHITE,        COL_GREY5,       "Ownership", "Show the owenership of infrastructure", reliefkarte_t::MAP_OWNER }
 };
 
-#define MAP_TRANSPORT_TYPE_ITEMS (9)
-typedef struct {
-	const char * name;
-	simline_t::linetype line_type;
-} transport_type_item_t;
-
-transport_type_item_t transport_type_items[MAP_TRANSPORT_TYPE_ITEMS] = {
-	{"All", simline_t::line},
-	{"Maglev", simline_t::maglevline},
-	{"Monorail", simline_t::monorailline},
-	{"Train", simline_t::trainline},
-	{"Narrowgauge", simline_t::narrowgaugeline},
-	{"Tram", simline_t::tramline},
-	{"Truck", simline_t::truckline},
-	{"Ship", simline_t::shipline},
-	{"Air", simline_t::airline}
-};
 
 map_frame_t::map_frame_t() :
 	gui_frame_t( translator::translate("Reliefkarte") ),
@@ -288,11 +271,9 @@ map_frame_t::map_frame_t() :
 	transport_type_c.set_size( scr_size(D_BUTTON_WIDTH,D_BUTTON_HEIGHT) );
 	transport_type_c.set_max_size( scr_size( 116, 10 * D_BUTTON_HEIGHT) );
 
-	for (int i = 0; i < MAP_TRANSPORT_TYPE_ITEMS; i++) {
-		transport_type_c.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(transport_type_items[i].name), SYSCOL_TEXT));
-		viewable_transport_types[ i ] = transport_type_items[i].line_type;
+	for (int i = 0; i < simline_t::MAX_LINE_TYPE; i++) {
+		transport_type_c.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(simline_t::get_linetype_name((simline_t::linetype)i), SYSCOL_TEXT));
 	}
-
 	transport_type_c.set_selection(0);
 	reliefkarte_t::get_karte()->transport_type_showed_on_map = simline_t::line;
 	transport_type_c.set_focusable( true );
@@ -467,7 +448,7 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
 	}
 	else if (  comp == &transport_type_c  ) {
-		reliefkarte_t::get_karte()->transport_type_showed_on_map = viewable_transport_types[transport_type_c.get_selection()];
+		reliefkarte_t::get_karte()->transport_type_showed_on_map = transport_type_c.get_selection();
 		reliefkarte_t::get_karte()->invalidate_map_lines_cache();
 	}
 	else if (  comp == &freight_type_c  ) {
