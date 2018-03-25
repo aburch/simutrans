@@ -470,7 +470,7 @@ sync_result roadsign_t::sync_step(uint32 /*delta_t*/)
 		// change every ~32s
 		uint32 ticks = ((welt->get_ticks()>>10)+ticks_offset) % (ticks_ns+ticks_ow);
 
-		uint8 new_state = (ticks >= ticks_ns) ^ (welt->get_settings().get_rotation() & 1);
+		uint8 new_state = (ticks >= ticks_ns);
 		if(state!=new_state) {
 			state = new_state;
 			dir = (new_state==0) ? open_direction&0x0F : (open_direction>>4)&0x0F;
@@ -486,10 +486,9 @@ void roadsign_t::rotate90()
 	// only meaningful for traffic lights
 	obj_t::rotate90();
 	if(automatic  &&  !desc->is_private_way()) {
-		state = (state+1)&1;
-		uint8 temp = ticks_ns;
-		ticks_ns = ticks_ow;
-		ticks_ow = temp;
+		uint8 first_dir = ribi_t::rotate90(open_direction&0x0F);
+		uint8 second_dir = ribi_t::rotate90((open_direction>>4)&0x0F);
+		open_direction = first_dir + (second_dir << 4);
 
 		trafficlight_info_t *const trafficlight_win = dynamic_cast<trafficlight_info_t *>( win_get_magic( (ptrdiff_t)this ) );
 		if(  trafficlight_win  ) {
