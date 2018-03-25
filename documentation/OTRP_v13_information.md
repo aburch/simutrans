@@ -1,0 +1,49 @@
+# OTRPとは？
+本家simutrans standardに機能をいくらか付け加えた改造版Simutransです。  
+OTRPはOneway Twoway Road Patchの略で、日本語通称は「二車線パッチ」です。  
+本家Simutransでは片側二車線の高速・幹線道路を引いても実質一車線分しか使ってくれないのでフルで2車線使ってくれるようにするのが本プロジェクトの目的です。
+
+本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0
+
+# ダウンロード
+ribi-arrow・信号接続方向制御つきのバイナリのみの提供です。実行には本体の他にribi-arrowが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。
+本体は下のリンクからどうぞ。**（2018年3月25日PM6時　ver13に更新）**  
+win: https://drive.google.com/open?id=1BbZiIlxHeKO20Nq6tY_aeDI0CSM0LuqG  
+mac: https://drive.google.com/open?id=1q_bf8UforE9-j_0eW6ySow2lxtGiYdCr  
+ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
+※makeobjはstandardのやつをそのまま使ってください
+
+# 導入方法
+1. ribi-arrowをDLしてお使いのpakセットに入れる
+2. pakフォルダの中にあるmenuconfでsimpletoolsの37番に適当なキーを割り当てる。例えばmenuconf.tabに`simple_tool[37]=,:`と追記すればコロンを押すとRibiArrowが出現する。
+3. 本体をDLし、simutrans.exeが入ってる所と同じディレクトリに実行ファイルを入れる。
+4. DLした実行ファイルを起動する。
+standard版のsveファイルを上書きしないように気をつけましょう。
+
+# 使い方
+## 追い越し属性の設定
+![fig1](images/fig1.png)  
+道路アイコンを**Ctrlキーを押しながら**選択すると「追い越しモード」を選択できます。  
+- oneway: 道路を一方通行にして二車線同じ方向で通行するモードです。このモードの時は道路が一方通行になるので建設時は「:（コロン）」を押して接続方向を確認してください。
+- twoway: 本家standardの道路と同じ挙動をするモードです。対向車が来ないことが保証されるときのみ追い越しできます。
+- only loading convoy: 停車中の車のみ追い越します。
+- prohibited: 一切の追い越しが禁止されます。
+- inverted: twowayモードの状態から車線が左右反転します。
+
+## 道路信号
+![fig2](images/fig2.png)  
+v13から道路信号の進入許可方向を設定できるようになりました。従来の信号を図のような4車線×2車線の交差点に二つ置くと交差点で車が右折できなくなるので、上図のように進入許可方向を設定してあげるといい感じに右折できるようになります。（例えば図の下側の信号は8ticksの間北・東・南方向への進入を許可し、16ticksの間東・南・西方向への進入を許可するという意味になります。）  
+デフォルトでは進入許可方向は南北-東西で設定されていますが、変更すると「南北：東西：オフセット」の文字列は意味を成していないので気になる方はja.tabの「Set phases」を書き換えてください。
+
+# データの互換性
+## アドオンの互換性
+OTRPはsimutrans standard向けのアドオンであれば全て使えます。OTRP専用アドオンというのは存在しません。
+## セーブデータの互換性
+- simutrans standard nightly r8412以前のセーブデータであればそのままOTRPで読み込めます。（安定版120.2.2以前のセーブデータは読み込めます。あまり古いデータはダメかもしれませんが。）
+- OTRP v12系統のセーブデータはそのままOTRP v13で読み込めます。v11以前のデータは引き継げません。
+- 一度セーブデータを読み込んでそれを**保存した瞬間に**そのデータは**OTRPv13以降専用**になります。既存のデータをOTRPに移行する場合はバックアップを取った上で別ファイルとして保存することを強く推奨します。
+
+# おねがい
+バグ探しには皆さんのお力が必要です。バグと思われる挙動があれば@himeshi_hobに報告していただけるとありがたいです。  
+特に「ネットワークプレイ」が安定動作するかが確認取れてないので遊んでみて動作状況を教えていただけるとうれしいです。ぜひOTRPでNSを楽しんでみてください。  
+OTRPのSimutrans Extendedへの移植作業をしていただける方を大募集しています。ご興味ある方はtwitter @himeshi_hob までお願いします。
