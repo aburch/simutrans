@@ -24,8 +24,8 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 
 // Beware: SAVEGAME minor is often ahead of version minor when there were patches.
 // ==> These have no direct connection at all!
-#define SIM_SAVE_MINOR      4
-#define SIM_SERVER_MINOR    4
+#define SIM_SAVE_MINOR      5
+#define SIM_SERVER_MINOR    5
 
 #define EX_VERSION_MAJOR	13
 #define EX_VERSION_MINOR	4
