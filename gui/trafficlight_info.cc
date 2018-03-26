@@ -44,7 +44,7 @@ trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
 	add_component( &offset );
 
 	// direction_buttons
-	const char* direction_texts[4] = {"nord", "ost", "sued", "west"};
+	const char* direction_texts[4] = {"north", "east", "south", "west"};
 	for(uint8 i=0; i<4; i++  ) {
 		// left side
 		direction_buttons[i].init( button_t::square_state, "", scr_coord(30,get_windowsize().h-25-LINESPACE*(4-i)), scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT) );
