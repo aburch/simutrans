@@ -4489,7 +4489,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		return false;
 	}
 
-	const signal_t* signal_route_index = welt->lookup(cnv->get_route()->at(route_index))->find<signal_t>();
+	const signal_t* signal_route_index = welt->lookup(cnv->get_route()->at(min(cnv->get_route()->get_count() - 1u, route_index)))->find<signal_t>();
 
 	if(starting_from_stand && cnv->get_next_stop_index() == route_index && !signal_route_index && !signal_current && working_method != drive_by_sight && working_method != moving_block)
 	{
