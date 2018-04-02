@@ -4950,7 +4950,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			set_working_method(token_block); 
 		}
 	}
-	if(working_method == drive_by_sight || working_method == moving_block)
+	if(working_method == drive_by_sight || working_method == moving_block)	
 	{
 		bool ok = block_reserver(cnv->get_route(), route_index, modified_sighting_distance_tiles, next_signal, 0, true, false, false, false, false, false, brake_steps, (uint16)65530U, call_on);
 		ok |= route_index == route.get_count() || next_signal > route_index;
