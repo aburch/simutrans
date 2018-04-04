@@ -77,7 +77,7 @@ void strasse_t::rdwr(loadsave_t *file)
 	weg_t::rdwr(file);
 
 	// TODO: change version for extended!
-	if(  file->get_extended_version() >= 12  ) {
+	if(  file->get_extended_version() >= 14  ) {
 		uint8 mask_oneway = get_ribi_mask_oneway();
 		file->rdwr_byte(mask_oneway);
 		set_ribi_mask_oneway(mask_oneway);
