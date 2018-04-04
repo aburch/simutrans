@@ -490,7 +490,7 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 				weg->set_max_speed(max_speed);
 			}
 			weg->set_max_axle_load(max_axle_load);
-			if(  wegtyp==road_wt  ) {
+			if(  waytyp==road_wt  ) {
 				strasse_t* str = (strasse_t*) weg;
 				assert(str);
 				str->set_overtaking_mode(overtaking_mode);
