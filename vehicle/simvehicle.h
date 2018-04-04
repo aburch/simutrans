@@ -53,14 +53,14 @@ class vehicle_base_t : public obj_t
 	grund_t* gr;
 	weg_t* weg;
 public:
-	inline grund_t* get_grund() const 
-	{ 
-		if (!gr) 
+	inline grund_t* get_grund() const
+	{
+		if (!gr)
 			return welt->lookup(get_pos());
-		return gr; 
+		return gr;
 	}
-	inline weg_t* get_weg() const 
-	{ 
+	inline weg_t* get_weg() const
+	{
 		if (!weg)
 		{
 			// gr and weg are both initialized in enter_tile(). If there is a gr but no weg, then e.g. for ships there IS no way.
@@ -72,7 +72,7 @@ public:
 					return gr2->get_weg(get_waytype());
 			}
 		}
-		return weg; 
+		return weg;
 	}
 protected:
 	// offsets for different directions
@@ -140,6 +140,14 @@ protected:
 	std::string current_livery;
 
 	/**
+	 * this vehicle will enter passing lane in the next tile -> 1
+	 * this vehicle will enter traffic lane in the next tile -> -1
+	 * Unclear -> 0
+	 * @author THLeaderH
+	 */
+	sint8 next_lane;
+
+	/**
 	 * Vehicle movement: check whether this vehicle can enter the next tile (pos_next).
 	 * @returns NULL if check fails, otherwise pointer to the next tile
 	 */
@@ -156,7 +164,10 @@ protected:
 	virtual void calc_image() = 0;
 
 	// check for road vehicle, if next tile is free
-	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction );
+	vehicle_base_t *no_cars_blocking( const grund_t *gr, const convoi_t *cnv, const uint8 current_direction, const uint8 next_direction, const uint8 next_90direction, const private_car_t *pcar, sint8 lane_on_the_tile );
+
+	// If true, two vehicles might crash by lane crossing.
+	bool judge_lane_crossing( const uint8 current_direction, const uint8 next_direction, const uint8 other_next_direction, const bool is_overtaking, const bool forced_to_change_lane ) const;
 
 	// only needed for old way of moving vehicles to determine position at loading time
 	bool is_about_to_hop( const sint8 neu_xoff, const sint8 neu_yoff ) const;
@@ -176,7 +187,7 @@ public:
 	// if true, this convoi needs to restart for correct alignment
 	bool need_realignment() const;
 
-	uint32 do_drive(uint32 dist);	// basis movement code
+	virtual uint32 do_drive(uint32 dist);	// basis movement code
 
 	inline void set_image( image_id b ) { image = b; }
 	virtual image_id get_image() const {return image;}
@@ -206,6 +217,8 @@ public:
 
 	ribi_t::ribi get_direction() const {return direction;}
 
+	ribi_t::ribi get_90direction() const {return ribi_type(get_pos(), get_pos_next());}
+
 	koord3d get_pos_next() const {return pos_next;}
 
 	virtual waytype_t get_waytype() const = 0;
@@ -228,6 +241,7 @@ public:
 	virtual void leave_tile();
 
 	virtual overtaker_t *get_overtaker() { return NULL; }
+	virtual convoi_t* get_overtaker_cv() { return NULL; }
 
 #ifdef INLINE_OBJ_TYPE
 protected:
@@ -280,7 +294,7 @@ private:
 	virtual void calc_drag_coefficient(const grund_t *gr);
 
 	sint32 calc_modified_speed_limit(koord3d position, ribi_t::ribi current_direction, bool is_corner);
-	
+
 	bool load_freight_internal(halthandle_t halt, bool overcrowd, bool *skip_vehicles, bool use_lower_classes);
 
 	// @author: jamespetts
@@ -375,6 +389,8 @@ public:
 	convoi_t *get_convoi() const { return cnv; }
 
 	virtual void rotate90();
+
+	ribi_t::ribi get_previous_direction() const { return previous_direction; }
 
 	/**
 	 * Method checks whether next tile is free to move on.
@@ -545,6 +561,8 @@ public:
 	*/
 	uint16 get_cargo_max() const {return desc->get_total_capacity(); }
 
+	ribi_t::ribi get_next_90direction() const;
+
 	const char * get_cargo_mass() const;
 
 	/**
@@ -589,7 +607,7 @@ public:
 
 
 	// sets or querey begin and end of convois
-	void set_leading(bool value) {leading = value;} 
+	void set_leading(bool value) {leading = value;}
 	bool is_leading() const {return leading;}
 
 	void set_last(bool value) {last = value;}
@@ -697,6 +715,8 @@ private:
 public:
 	bool check_next_tile(const grund_t *bd) const;
 
+	koord3d pos_prev; // used in enter_tile()
+
 protected:
 	bool is_checker;
 
@@ -726,7 +746,8 @@ public:
 	virtual bool  is_target(const grund_t *,const grund_t *);
 
 	// since we must consider overtaking, we use this for offset calculation
-	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
+	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width, bool prev_based ) const;
+	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const { get_screen_offset(xoff,yoff,raster_width,false); }
 
 #ifdef INLINE_OBJ_TYPE
 #else
@@ -736,6 +757,14 @@ public:
 	schedule_t * generate_new_schedule() const;
 
 	virtual overtaker_t* get_overtaker();
+	virtual convoi_t* get_overtaker_cv();
+
+	void rdwr_from_convoi(loadsave_t *file);
+
+	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top = false, sint8 offset = 0) const;
+	virtual vehicle_base_t* other_lane_blocked_offset() const { return other_lane_blocked(false,1); }
+
+	void reflesh();
 };
 
 
@@ -754,7 +783,7 @@ protected:
 	void enter_tile(grund_t*);
 
 	sint32 activate_choose_signal(uint16 start_index, uint16 &next_signal_index, uint32 brake_steps, uint16 modified_sighting_distance_tiles, route_t* route, sint32 modified_route_index);
-	
+
 	working_method_t working_method;
 
 public:
@@ -789,7 +818,7 @@ public:
 	/// Unreserve behind the train (irrespective of route) all station tiles in rear
 	void unreserve_station();
 
-	void clear_token_reservation(signal_t* sig, rail_vehicle_t* w, schiene_t* sch); 
+	void clear_token_reservation(signal_t* sig, rail_vehicle_t* w, schiene_t* sch);
 
 #ifdef INLINE_OBJ_TYPE
 protected:
