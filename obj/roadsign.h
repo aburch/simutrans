@@ -32,7 +32,7 @@ protected:
 
 	uint8 state:4;	// counter for steps ...
 	uint8 dir:4;
-	bool ignore_choose:1; 
+	bool ignore_choose:1;
 	uint8 automatic:1;
 	bool preview:1;
 	uint8 ticks_ns;
@@ -41,25 +41,29 @@ protected:
 
 	sint8 after_yoffset, after_xoffset;
 
+	// 0 = not fixed, 1 = only fix left lane, 2 = only fix right lane, 3 = fix both lane, 4 = not applied
+	uint8 lane_affinity;
+	koord3d intersection_pos;
+
 	const roadsign_desc_t *desc;
 
 	ribi_t::ribi calc_mask() const { return ribi_t::is_single(dir) ? dir : (ribi_t::ribi)ribi_t::none; }
 
 public:
 	// Max. 16 (15 incl. 0)
-	enum signal_aspects 
+	enum signal_aspects
 	{
 		danger = 0,
-		clear = 1, 
-		caution = 2, 
-		preliminary_caution = 3, 
-		advance_caution = 4, 
-		clear_no_choose = 5, 
-		caution_no_choose = 6, 
+		clear = 1,
+		caution = 2,
+		preliminary_caution = 3,
+		advance_caution = 4,
+		clear_no_choose = 5,
+		caution_no_choose = 6,
 		preliminary_caution_no_choose = 7,
-		advance_caution_no_choose = 8, 
-		call_on = 9 
-	}; 
+		advance_caution_no_choose = 8,
+		call_on = 9
+	};
 
 	/*
 	 * return direction or the state of the traffic light
@@ -137,6 +141,10 @@ public:
 	uint8 get_ticks_offset() const { return ticks_offset; }
 	void set_ticks_offset(uint8 offset) { ticks_offset = offset; }
 
+	uint8 get_lane_affinity() const { return lane_affinity; }
+	void set_lane_affinity(uint8 lf) { lane_affinity = lf; }
+	const koord3d get_intersection() const;
+
 	inline void set_image( image_id b ) { image = b; }
 	image_id get_image() const { return image; }
 
@@ -186,7 +194,7 @@ public:
 
 	static const roadsign_desc_t *roadsign_search(roadsign_desc_t::types flag, const waytype_t wt, const uint16 time);
 
-	const roadsign_desc_t* find_best_upgrade(bool underground); 
+	const roadsign_desc_t* find_best_upgrade(bool underground);
 
 	static const roadsign_desc_t *find_desc(const char *name) { return table.get(name); }
 
@@ -194,8 +202,8 @@ public:
 
 	// Upgrades this sign or signal to another type.
 	// Returns true if succeeds.
-	bool upgrade(const roadsign_desc_t* new_desc); 
-	bool upgrade(bool underground) { return upgrade(find_best_upgrade(underground)); } 
+	bool upgrade(const roadsign_desc_t* new_desc);
+	bool upgrade(bool underground) { return upgrade(find_best_upgrade(underground)); }
 
 
 	static const char* get_working_method_name(working_method_t wm)
@@ -226,7 +234,7 @@ public:
 	}
 
 	/* In order to allow for Swedish and Czeck translations (and possibly other translations as well), the type of signal showing the aspect need to be identified by the aspect name.
-	Also, whether it is a time interval signal needs to be identified from the aspect name, as "CLEAR" or "CAUTION" on a three aspect signal in this case do not refer to 
+	Also, whether it is a time interval signal needs to be identified from the aspect name, as "CLEAR" or "CAUTION" on a three aspect signal in this case do not refer to
 	the forthcomming signal (however, it does on the presignal!).
 	Choose signals have their own namelist as well.
 	 clearpre = presignal
