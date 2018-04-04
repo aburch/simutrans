@@ -715,8 +715,6 @@ private:
 public:
 	bool check_next_tile(const grund_t *bd) const;
 
-	koord3d pos_prev; // used in enter_tile()
-
 protected:
 	bool is_checker;
 

@@ -3262,7 +3262,6 @@ road_vehicle_t::road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t
 #endif
 {
 	cnv = cn;
-	pos_prev = koord3d::invalid;
 	is_checker = false;
 	drives_on_left = welt->get_settings().is_drive_left();
 }
@@ -3276,7 +3275,6 @@ road_vehicle_t::road_vehicle_t() :
 {
 	// This is blank - just used for the automatic road finder.
 	cnv = NULL;
-	pos_prev = koord3d::invalid;
 	is_checker = true;
 }
 
@@ -3336,17 +3334,6 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_leading, bool is_last) 
 	fix_class_accommodations();
 	is_checker = false;
 	drives_on_left = welt->get_settings().is_drive_left();
-}
-
-void road_vehicle_t::rdwr_from_convoi(loadsave_t *file){
-	vehicle_t::rdwr_from_convoi(file);
-	if(  file->get_extended_version() >= 14  ) {
-		koord3d pos_prev_rdwr = this->pos_prev;
-		pos_prev_rdwr.rdwr(file);
-		this->pos_prev = pos_prev_rdwr;
-	} else {
-		pos_prev = koord3d::invalid;
-	}
 }
 
 void road_vehicle_t::rotate90()
@@ -4329,7 +4316,6 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 				}
 			}
 		}
-		pos_prev = gr->get_pos();
 	}
 	drives_on_left = welt->get_settings().is_drive_left();	// reset driving settings
 }
