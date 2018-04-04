@@ -2823,14 +2823,38 @@ bool tool_build_bridge_t::init( player_t *player )
 	if(  desc  &&  !desc->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()) {
 		return false;
 	}
+	if (is_ctrl_pressed()  &&  can_use_gui()  &&  desc->get_waytype()==road_wt  ) {
+		create_win(new overtaking_mode_frame_t(player, this), w_info, (ptrdiff_t)this);
+	}
 	return desc!=NULL;
+}
+
+bool tool_build_bridge_t::exit( player_t *player )
+{
+	destroy_win((ptrdiff_t)this);
+	return two_click_tool_t::exit(player);
+}
+
+void tool_build_bridge_t::draw_after(scr_coord k, bool dirty) const
+{
+	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
+	if(  desc  &&  desc->get_waytype()==road_wt  ) {
+		if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
+			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
+			char level_str[16];
+			tool_build_way_t::set_mode_str(level_str, overtaking_mode);
+			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+		}
+	} else {
+		two_click_tool_t::draw_after(k,dirty);
+	}
 }
 
 const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
 	const bridge_desc_t *desc = bridge_builder_t::get_desc(default_param);
 	if (end==koord3d::invalid) {
-		return bridge_builder_t::build( player, start, desc );
+		return bridge_builder_t::build( player, start, desc, overtaking_mode );
 	}
 	else {
 		const koord zv(ribi_type(end-start));
@@ -2844,7 +2868,7 @@ const char *tool_build_bridge_t::do_work( player_t *player, const koord3d &start
 			// Cannot build an elevated way on top of a bridge
 			way_desc = desc->get_way_desc();
 		}
-		bridge_builder_t::build_bridge( player, start, end, zv, bridge_height, desc, way_desc ? way_desc : way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat));
+		bridge_builder_t::build_bridge( player, start, end, zv, bridge_height, desc, way_desc ? way_desc : way_builder_t::weg_search(desc->get_waytype(), desc->get_topspeed(), welt->get_timeline_year_month(), type_flat), overtaking_mode);
 		return NULL; // all checks are performed before building.
 	}
 }
@@ -2855,6 +2879,9 @@ void tool_build_bridge_t::rdwr_custom_data(memory_rw_t *packet)
 	uint8 i = ribi;
 	packet->rdwr_byte(i);
 	ribi = (ribi_t::ribi)i;
+	sint8 j = overtaking_mode;
+	packet->rdwr_byte(j);
+	overtaking_mode = (overtaking_mode_t)j;
 	if (packet->is_loading())
 	{
 		plainstring way_desc_string;
@@ -3144,12 +3171,39 @@ bool tool_build_tunnel_t::init( player_t *player )
 	if(  desc  &&  !desc->is_available(welt->get_timeline_year_month())  &&  player!=NULL  &&  player!=welt->get_public_player()) {
 		return false;
 	}
+	if (is_ctrl_pressed()  &&  can_use_gui()  &&  desc->get_waytype()==road_wt  ) {
+		create_win(new overtaking_mode_frame_t(player, this), w_info, (ptrdiff_t)this);
+	}
 	return desc!=NULL;
+}
+
+void tool_build_tunnel_t::draw_after(scr_coord k, bool dirty) const
+{
+	const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
+	if(  desc  &&  desc->get_waytype()==road_wt  ) {
+		if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
+			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
+			char level_str[16];
+			tool_build_way_t::set_mode_str(level_str, overtaking_mode);
+			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+		}
+	} else {
+		two_click_tool_t::draw_after(k,dirty);
+	}
+}
+
+bool tool_build_tunnel_t::exit( player_t *player )
+{
+	destroy_win((ptrdiff_t)this);
+	return two_click_tool_t::exit(player);
 }
 
 void tool_build_tunnel_t::rdwr_custom_data(memory_rw_t *packet)
 {
 	two_click_tool_t::rdwr_custom_data(packet);
+	sint8 i = overtaking_mode;
+	packet->rdwr_byte(i);
+	overtaking_mode = (overtaking_mode_t)i;
 	if (packet->is_loading())
 	{
 		plainstring way_desc_string;
@@ -3200,7 +3254,7 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 		// Build tunnel mouths
 		if (welt->lookup_kartenboden(start.get_2d())->get_hoehe() == start.z) {
 			const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
-			return tunnel_builder_t::build( player, start.get_2d(), desc, !is_ctrl_pressed(), way_desc );
+			return tunnel_builder_t::build( player, start.get_2d(), desc, !is_ctrl_pressed(), way_desc, overtaking_mode );
 		}
 		else {
 			return "";
@@ -3211,6 +3265,7 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 		way_builder_t bauigel(player);
 		calc_route( bauigel, start, end );
 		welt->mute_sound(true);
+		bauigel.set_overtaking_mode(overtaking_mode)
 		bauigel.set_desc(way_desc);
 		bauigel.build();
 		welt->mute_sound(false);
