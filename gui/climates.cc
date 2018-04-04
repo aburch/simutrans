@@ -250,7 +250,7 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			arctic = sets->climate_borders[i];
 		}
 	}
-	snowline_winter.set_limits( sets->get_groundwater(), arctic );
+	snowline_winter.set_limits( sets->get_groundwater()-1, arctic );
 	snowline_winter.set_value( snowline_winter.get_value() );
 	sets->climate_borders[arctic_climate] = arctic;
 
