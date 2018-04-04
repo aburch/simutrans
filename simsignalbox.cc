@@ -220,29 +220,33 @@ koord signalbox_t::transfer_all_signals(signalbox_t* sb)
 	}
 	FOR(slist_tpl<koord3d>, k, duplicate_signals_list)
 	{
-		signal_t* s = welt->lookup(k)->find<signal_t>();
-		if(!s)
+		grund_t* gr = welt->lookup(k);
+		if(gr)
 		{
-			dbg->error("signalbox_t::transfer_all_signals(signalbox_t* sb)", "Signal cannot be retrieved"); 
-			continue;
-		}
-
-		if(!s->get_desc()->get_working_method() != moving_block)
-		{
-			if (s->get_desc()->get_max_distance_to_signalbox() != 0 && ((s->get_desc()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d())))
+			signal_t* s = gr->find<signal_t>();
+			if(!s)
 			{
-				failure++;
+				dbg->error("signalbox_t::transfer_all_signals(signalbox_t* sb)", "Signal cannot be retrieved"); 
 				continue;
 			}
-		}
 
-		if(sb->transfer_signal(s, this))
-		{
-			success++;
-		}
-		else
-		{
-			failure++;
+			if(!s->get_desc()->get_working_method() != moving_block)
+			{
+				if (s->get_desc()->get_max_distance_to_signalbox() != 0 && ((s->get_desc()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d())))
+				{
+					failure++;
+					continue;
+				}
+			}
+
+			if(sb->transfer_signal(s, this))
+			{
+				success++;
+			}
+			else
+			{
+				failure++;
+			}
 		}
 	}
 
