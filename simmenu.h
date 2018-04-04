@@ -110,6 +110,7 @@ enum {
 	UNUSED_WKZ_PWDHASH_TOOL,
 	TOOL_CHANGE_PLAYER,
 	TOOL_CHANGE_TRAFFIC_LIGHT,
+	TOOL_CHANGE_ROADSIGN,
 	TOOL_CHANGE_CITY,
 	TOOL_RENAME,
 	TOOL_ADD_MESSAGE,
@@ -369,7 +370,7 @@ public:
 	virtual bool remove_preview_necessary() const { return false; }
 
 	bool is_first_click() const;
-	
+
 	/**
 	 * Remove dummy grounds, remove start_marker.
 	 */

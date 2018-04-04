@@ -119,7 +119,7 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_ERROR_MESSAGE: tool = new tool_error_message_t(); break;
 		case TOOL_CHANGE_WATER_HEIGHT: tool = new tool_change_water_height_t(); break;
 		case TOOL_SET_CLIMATE:      tool = new tool_set_climate_t(); break;
-		case TOOL_REASSIGN_SIGNAL:      tool = new tool_reassign_signal_t(); break; 
+		case TOOL_REASSIGN_SIGNAL:      tool = new tool_reassign_signal_t(); break;
 		default:                   dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 		                           return NULL;
 	}
@@ -162,6 +162,7 @@ tool_t *create_simple_tool(int toolnr)
 		case UNUSED_WKZ_PWDHASH_TOOL: dbg->warning("create_simple_tool()","deprecated tool [%i] requested", toolnr); return NULL;
 		case TOOL_CHANGE_PLAYER:   tool = new tool_change_player_t(); break;
 		case TOOL_CHANGE_TRAFFIC_LIGHT:tool = new tool_change_traffic_light_t(); break;
+		case TOOL_CHANGE_ROADSIGN:   tool = new tool_change_roadsign_t(); break;
 		case TOOL_CHANGE_CITY:  tool = new tool_change_city_t(); break;
 		case TOOL_RENAME:       tool = new tool_rename_t(); break;
 		case TOOL_ADD_MESSAGE:  tool = new tool_add_message_t(); break;
@@ -944,7 +945,12 @@ const char *two_click_tool_t::move(player_t *player, uint16 buttonstate, koord3d
 	}
 
 	if(  start == pos  ) {
-		init( player );
+		if(tool_build_way_t* t = dynamic_cast<tool_build_way_t*>(this)) {
+			// This is tool_build_way_t. The mode selection window should not be called.
+			t->init( player, true );
+		} else {
+			init( player );
+		}
 	}
 
 	const char *error = NULL;
