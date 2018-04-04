@@ -79,7 +79,7 @@ const vector_tpl <weg_t *> & weg_t::get_alle_wege()
 
 const uint32 weg_t::get_all_ways_count()
 {
-	return alle_wege.get_count();  
+	return alle_wege.get_count();
 }
 
 void weg_t::clear_list_of__ways()
@@ -158,7 +158,7 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 		}
 		player_t::add_maintenance(get_owner(), -old_maint, get_desc()->get_finance_waytype());
 	}
-	
+
 	desc = b;
 	if (!from_saved_game)
 	{
@@ -193,12 +193,12 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 		if (!world()->get_first_step())
 		{
 			simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
-			welt->set_first_step(1); 
+			welt->set_first_step(1);
 		}
 	}
 #endif
 
-	if(hang != slope_t::flat) 
+	if(hang != slope_t::flat)
 	{
 		const uint slope_height = (hang & 7) ? 1 : 2;
 		if(slope_height == 1)
@@ -254,11 +254,11 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 	{
 		max_speed = min(max_speed, city_road_topspeed);
 	}
-	
+
 	max_axle_load = desc->get_max_axle_load();
-	
+
 	// Clear the old constraints then add all sources of constraints again.
-	// (Removing will not work in cases where a way and another object, 
+	// (Removing will not work in cases where a way and another object,
 	// such as a bridge, tunnel or wayobject, share a constraint).
 	clear_way_constraints();
 	add_way_constraints(desc->get_way_constraints()); // Add the way's own constraints
@@ -277,7 +277,7 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 	}
 
 	if(desc->is_mothballed())
-	{	
+	{
 		degraded = true;
 		remaining_wear_capacity = 0;
 		replacement_way = NULL;
@@ -295,11 +295,11 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 			if(!rs)
 			{
 				rs =  gr->find<signal_t>();
-			} 
+			}
 			if(rs && rs->get_desc()->is_retired(welt->get_timeline_year_month()))
 			{
 				// Upgrade obsolete signals and signs when upgrading the underlying way if possible.
-				rs->upgrade(welt->lookup_kartenboden(get_pos().get_2d())->get_hoehe() != get_pos().z); 
+				rs->upgrade(welt->lookup_kartenboden(get_pos().get_2d())->get_hoehe() != get_pos().z);
 			}
 		}
 	}
@@ -549,7 +549,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 			}
 			buf.append("\n");
 		}
-		
+
 		if (desc->get_styp() == type_elevated || wtyp == air_wt || wtyp == water_wt)
 		{
 			buf.append(translator::translate("Max. weight:"));
@@ -747,7 +747,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		buf.append("\n");
 	}
 
-	
+
 
 	buf.append("\n");
 	buf.append(translator::translate("Condition"));
@@ -784,7 +784,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 
 		// Publicly owned roads in towns are replaced with the latest city road type.
 		const bool public_city_road = get_waytype() == road_wt && (get_owner() == NULL || get_owner()->is_public_service()) && welt->get_city(get_pos().get_2d());
-		const way_desc_t* latest_city_road = welt->get_settings().get_city_road_type(time); 
+		const way_desc_t* latest_city_road = welt->get_settings().get_city_road_type(time);
 
 		if (public_city_road)
 		{
@@ -830,10 +830,10 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 			buf.printf("- %s: %s", translator::translate("renewal_costs"), upgrade_cost_number);
 
 			char upgrade_cost_pr_km_number[64];
-			money_to_string(upgrade_cost_pr_km_number, (double)welt->calc_adjusted_monthly_figure(desc->get_upgrade_group() == replacement_way->get_upgrade_group() ? replacement_way->get_way_only_cost() : replacement_way->get_value()) / 100 / 2 * tiles_pr_km); 
+			money_to_string(upgrade_cost_pr_km_number, (double)welt->calc_adjusted_monthly_figure(desc->get_upgrade_group() == replacement_way->get_upgrade_group() ? replacement_way->get_way_only_cost() : replacement_way->get_value()) / 100 / 2 * tiles_pr_km);
 			buf.printf(", (%s/%s)", upgrade_cost_pr_km_number, translator::translate("km"));
 			buf.append("\n");
-			
+
 
 			if (replacement_way->get_axle_load() != desc->get_axle_load())
 			{
@@ -912,7 +912,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 				buf.printf("- %s ", translator::translate("new_way_is"));
 				if (wear_capacity_fractional_replac > wear_capacity_fractional_orig)
 				{
-					
+
 					const double way_wear_stronger = (wear_capacity_fractional_replac - wear_capacity_fractional_orig) / wear_capacity_fractional_orig * 100;
 					buf.append(way_wear_stronger);
 					buf.printf("%s", translator::translate("%_stronger"));
@@ -997,7 +997,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 			buf.append("\n\n");
 		}
 	}
-	
+
 	#ifdef DEBUG
 	buf.append(translator::translate("\nRibi (unmasked)"));
 	buf.append(get_ribi_unmasked());
@@ -1006,7 +1006,33 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append(get_ribi());
 	buf.append("\n");
 #endif
-	
+
+if(  get_waytype() == road_wt  ) {
+		strasse_t* str = (strasse_t*) this;
+		assert(str);
+		// Display overtaking_info
+		switch (str->get_overtaking_mode()) {
+			case oneway_mode:
+				buf.printf("%s %s¥n", translator::translate("overtaking:"),translator::translate("oneway"));
+				break;
+			case twoway_mode:
+				buf.printf("%s %s¥n", translator::translate("overtaking:"),translator::translate("twoway"));
+				break;
+			case loading_only_mode:
+				buf.printf("%s %s¥n", translator::translate("overtaking:"),translator::translate("only loading convoi"));
+				break;
+			case prohibited_mode:
+				buf.printf("%s %s¥n", translator::translate("overtaking:"),translator::translate("prohibited"));
+				break;
+			case inverted_mode:
+				buf.printf("%s %s¥n", translator::translate("overtaking:"),translator::translate("inverted"));
+				break;
+			default:
+				buf.printf("%s %s¥n", translator::translate("overtaking:"),translator::translate("ERROR"));
+				break;
+		}
+}
+
 #if 1
 	//buf.append("\n");
 	buf.printf(translator::translate("convoi passed last\nmonth %i\n"), statistics[1][1]);
@@ -1139,10 +1165,10 @@ bool weg_t::check_season(const bool calc_only_season_change)
 		return true;
 	}
 
-	if(  is_diagonal()  ) 
+	if(  is_diagonal()  )
 	{
 		if( desc->get_diagonal_image_id(ribi, snow) != IMG_EMPTY  ||
-			desc->get_diagonal_image_id(ribi, snow, true) != IMG_EMPTY) 
+			desc->get_diagonal_image_id(ribi, snow, true) != IMG_EMPTY)
 		{
 			set_images(image_diagonal, ribi, snow);
 		}
@@ -1180,7 +1206,7 @@ void weg_t::lock_mutex()
 
 
 void weg_t::unlock_mutex()
-{ 
+{
 	pthread_mutex_unlock( &weg_calc_image_mutex );
 }
 #endif
@@ -1322,7 +1348,7 @@ void weg_t::new_month()
 		}
 		statistics[0][type] = 0;
 	}
-	wear_way(desc->get_monthly_base_wear()); 
+	wear_way(desc->get_monthly_base_wear());
 }
 
 
@@ -1330,7 +1356,7 @@ void weg_t::new_month()
 void weg_t::finish_rd()
 {
 	player_t *player=get_owner();
-	if(player && desc) 
+	if(player && desc)
 	{
 		sint32 maint = desc->get_maintenance();
 		check_diagonal();
@@ -1348,7 +1374,7 @@ void weg_t::finish_rd()
 // players can remove public owned ways (Depracated)
 const char *weg_t:: is_deletable(const player_t *player, bool allow_public)
 {
-	if(allow_public && get_owner() && get_owner()->is_public_service()) 
+	if(allow_public && get_owner() && get_owner()->is_public_service())
 	{
 		return NULL;
 	}
@@ -1365,7 +1391,7 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 	{
 		return false;
 	}
-	if(get_waytype() != road_wt) 
+	if(get_waytype() != road_wt)
 	{
 		// Cities only adopt roads
 		return false;
@@ -1375,7 +1401,7 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 		// It would be too profitable for players if cities adopted elevated roads
 		return false;
 	}
-	const grund_t* gr = welt->lookup_kartenboden(get_pos().get_2d()); 
+	const grund_t* gr = welt->lookup_kartenboden(get_pos().get_2d());
 	if(gr && get_pos().z < gr->get_hoehe())
 	{
 		// It would be too profitable for players if cities adopted tunnels
@@ -1404,7 +1430,7 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 			continue;
 		}
 		const gebaeude_t* const neighbouring_building = gr->find<gebaeude_t>();
-		if(!neighbouring_building) 
+		if(!neighbouring_building)
 		{
 			continue;
 		}
@@ -1431,7 +1457,7 @@ bool weg_t::should_city_adopt_this(const player_t* player)
 			case building_desc_t::generic_extension:
 			case building_desc_t::headquarters: // HQ
 			case building_desc_t::dock: // dock
-			case building_desc_t::flat_dock: 
+			case building_desc_t::flat_dock:
 				has_neighbouring_building = (bool)welt->get_city(pos);
 				break;
 			case building_desc_t::depot:
@@ -1453,10 +1479,10 @@ uint32 weg_t::get_condition_percent() const
 		return 0;
 	}
 	// Necessary to avoid overflow. Speed not important as this is for the UI.
-	// Running calculations should use fractions (e.g., "if(remaining_wear_capacity < desc->get_wear_capacity() / 6)"). 
+	// Running calculations should use fractions (e.g., "if(remaining_wear_capacity < desc->get_wear_capacity() / 6)").
 	const sint64 remaining_wear_capacity_percent = (sint64)remaining_wear_capacity  * 100ll;
 	const sint64 intermediate_result = remaining_wear_capacity_percent / (sint64)desc->get_wear_capacity();
-	return (uint32)intermediate_result; 
+	return (uint32)intermediate_result;
 }
 
 void weg_t::wear_way(uint32 wear)
@@ -1506,7 +1532,7 @@ bool weg_t::renew()
 		waytype_t wt = replacement_way->get_waytype();
 		const uint16 time = welt->get_timeline_year_month();
 		const bool public_city_road = get_waytype() == road_wt && (owner == NULL || get_owner()->is_public_service()) && welt->get_city(get_pos().get_2d());
-		const way_desc_t* latest_city_road = welt->get_settings().get_city_road_type(time); 
+		const way_desc_t* latest_city_road = welt->get_settings().get_city_road_type(time);
 		bool is_current = !time || (replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month());
 		if (public_city_road && desc != latest_city_road)
 		{
@@ -1519,13 +1545,13 @@ bool weg_t::renew()
 			constraints.set_prohibitive(desc->get_way_constraints().get_prohibitive());
 			replacement_way = way_builder_t::weg_search(wt, replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity(), constraints);
 		}
-		
+
 		if(!replacement_way)
 		{
 			// If the way search cannot find a replacement way, use the current way as a fallback.
 			replacement_way = desc;
 		}
-		
+
 		set_desc(replacement_way);
 		success = true;
 		if(owner)
@@ -1556,10 +1582,10 @@ void weg_t::degrade()
 		// Do not degrade public rights of way, as these should remain passable.
 		// Instead, take them out of private ownership and renew them with the default way.
 		const bool initially_unowned = get_owner() == NULL;
-		set_owner(NULL); 
+		set_owner(NULL);
 		if(wtyp == road_wt)
 		{
-			const stadt_t* city = welt->get_city(get_pos().get_2d()); 
+			const stadt_t* city = welt->get_city(get_pos().get_2d());
 			if (!initially_unowned && welt->get_timeline_year_month())
 			{
 				const way_desc_t* wb = city ? welt->get_settings().get_city_road_type(welt->get_timeline_year_month()) : welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month());
@@ -1590,10 +1616,10 @@ void weg_t::degrade()
 		}
 		else
 		{
-			// Totally worn out: impassable. 
+			// Totally worn out: impassable.
 			max_speed = 0;
 			degraded = true;
-			const way_desc_t* mothballed_type = way_builder_t::way_search_mothballed(get_waytype(), (systemtype_t)desc->get_styp()); 
+			const way_desc_t* mothballed_type = way_builder_t::way_search_mothballed(get_waytype(), (systemtype_t)desc->get_styp());
 			if(mothballed_type)
 			{
 				set_desc(mothballed_type);
