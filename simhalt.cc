@@ -418,7 +418,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	}
 
 #ifdef MULTI_THREAD
-	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations() + 1];
+	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations() + 2];
 #else
 	transferring_cargoes = new vector_tpl<transferring_cargo_t>[1];
 #endif
@@ -522,7 +522,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player)
 	}
 
 #ifdef MULTI_THREAD
-	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations() + 1];
+	transferring_cargoes = new vector_tpl<transferring_cargo_t>[world()->get_parallel_operations() + 2];
 #else
 	transferring_cargoes = new vector_tpl<transferring_cargo_t>[1];
 #endif
@@ -645,8 +645,6 @@ haltestelle_t::~haltestelle_t()
 	// finally detach handle
 	// before it is needed for clearing up the planqudrat and tiles
 	self.detach();
-
-	destroy_win((long)this);
 
 	const uint8 max_categories = goods_manager_t::get_max_catg_index();
 
@@ -1199,7 +1197,7 @@ void haltestelle_t::request_loading(convoihandle_t cnv)
 				&& ((get_halt(c->get_pos(), owner) == self) 
 					|| (c->get_vehicle(0)->get_waytype() == water_wt 
 					&& c->get_state() == convoi_t::LOADING 
-					&& get_halt(c->get_schedule()->get_current_eintrag().pos, owner) == self)))
+					&& get_halt(c->get_schedule()->get_current_entry().pos, owner) == self)))
 			{
 				++i;
 
@@ -1334,7 +1332,7 @@ void haltestelle_t::step()
 				// Checks to see whether the freight has been waiting too long.
 				// If so, discard it.
 
-				if(tmp.get_desc()->get_speed_bonus() > 0u) // TODO: Consider what to do about this when speed boni are deprecated. Should the base data for speed boni be retained just for this?
+				if(tmp.get_desc()->get_speed_bonus() > 0u) // TODO: Consider what to do about this now that speed boni are deprecated. Should the base data for speed boni be retained just for this?
 				{
 					// Only consider for discarding if the goods (ever) care about their timings.
 					// Use 32-bit math; it's very easy to overflow 16 bits.
@@ -2193,6 +2191,10 @@ uint32 haltestelle_t::find_route(const vector_tpl<halthandle_t>& destination_hal
 	bool found_a_halt = false;
 	for(vector_tpl<halthandle_t>::const_iterator destination_halt = destination_halts_list.begin(); destination_halt != destination_halts_list.end(); destination_halt++)
 	{
+		if (self == *destination_halt)
+		{
+			continue;
+		}
 		uint32 test_time;
 		halthandle_t test_transfer;
 		path_explorer_t::get_catg_path_between(ware_catg, self, *destination_halt, test_time, test_transfer, ware.g_class);
@@ -2371,7 +2373,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 }
 
 
-bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded, const uint8 g_class, const bool use_lower_classes)
+bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded, const uint8 g_class, const bool use_lower_classes, bool& other_classes_available)
 {
 	bool skipped = false;
 	const uint8 catg_index = good_category->get_catg_index();
@@ -2393,6 +2395,10 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 					// but we cannot yet know whether or not to load passengers of a higher class into lower class accommodation.
 					// Note that this method is called for each class of accommodation in each vehicle in each convoy.
 					goods_to_check.insert(ware);
+				}
+				else
+				{
+					other_classes_available = true;
 				}
 			}
 			else 
@@ -2558,7 +2564,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 						// Also, if this stop has a wait for load order without a maximum time and the faster convoy 
 						// also has that, do not wait for a "faster" convoy, as it may never come.
 
-						const schedule_entry_t schedule_entry = cnv->get_schedule()->get_current_eintrag();
+						const schedule_entry_t schedule_entry = cnv->get_schedule()->get_current_entry();
 						if (!fast_convoy.is_bound())
 						{
 							wait_for_faster_convoy = false;
@@ -2573,7 +2579,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 							else
 							{
 								// Check to see whether this has the same untimed wait for load order even if it is not on the same line.
-								schedule_entry_t fast_convoy_schedule_entry = fast_convoy->get_schedule()->get_current_eintrag();
+								schedule_entry_t fast_convoy_schedule_entry = fast_convoy->get_schedule()->get_current_entry();
 								if(haltestelle_t::get_halt(fast_convoy_schedule_entry.pos, cnv->get_owner()) == self)
 								{
 									if(fast_convoy_schedule_entry.minimum_loading > 0 && !fast_convoy_schedule_entry.wait_for_time && fast_convoy_schedule_entry.waiting_time_shift == 0)
@@ -2655,6 +2661,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 						{
 							// Wait for a better class of accommodation
 							schedule->increment_index(&index, &reverse);
+							other_classes_available = true;
 							continue;
 						}
 					}
@@ -4196,17 +4203,22 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				}
 
 				uint8 class_count_this_catg;
+				uint8 actual_class_count_this_catg;
+
 				if (i == goods_manager_t::INDEX_PAS)
 				{
 					class_count_this_catg = passenger_classes;
+					actual_class_count_this_catg = goods_manager_t::passengers->get_number_of_classes();
 				}
 				else if (i == goods_manager_t::INDEX_MAIL)
 				{
 					class_count_this_catg = mail_classes;
+					actual_class_count_this_catg = goods_manager_t::mail->get_number_of_classes();
 				}
 				else
 				{
 					class_count_this_catg = 1;
+					actual_class_count_this_catg = 1;
 				}
 
 				for (uint8 j = 0; j < class_count_this_catg; j++)
@@ -4278,7 +4290,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						}
 						set.month = month;
 						set.times = list;
-						waiting_times[i][j].put(id, set);
+
+						// Discard the data if we have fewer classes than the savegame
+						if (j < actual_class_count_this_catg){
+							waiting_times[i][j].put(id, set);
+						}
 					}
 				}
 			}
@@ -5133,7 +5149,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 			pl->get_kartenboden()->set_flag(grund_t::dirty);
 		}
 
-		int const cov = welt->get_settings().get_station_coverage();
+		uint16 const cov = welt->get_settings().get_station_coverage();
 		vector_tpl<fabrik_t*> affected_fab_list;
 		for (int y = -cov; y <= cov; y++) {
 			for (int x = -cov; x <= cov; x++) {
@@ -5407,18 +5423,23 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 {
 	linehandle_t line = cnv->get_line();
 	int count = 0;
+	const bool is_road_type = cnv->get_vehicle(0)->get_waytype() == road_wt;
 	for(slist_tpl<convoihandle_t>::const_iterator i = loading_here.begin(), end = loading_here.end();  i != end && (*i) != cnv; ++i)
 	{
 		if(!(*i).is_bound() || get_halt((*i)->get_pos(), owner) != self)
 		{
-			continue;
+			continue; 
 		}
+		const int state = (*i)->get_state();
 		if((*i)->get_line() == line &&
-			((*i)->get_schedule()->get_current_stop() == cnv->get_schedule()->get_current_stop()
-			|| ((*i)->get_state() == convoi_t::REVERSING
-			&& (*i)->get_reverse_schedule() ?
+			(((*i)->get_schedule()->get_current_stop() == cnv->get_schedule()->get_current_stop()
+			&& ((*i)->get_reverse_schedule() == cnv->get_reverse_schedule())
+			&& (!is_road_type || state == convoi_t::LOADING))
+			|| (state == convoi_t::REVERSING
+			&& !is_road_type
+			&& ((*i)->get_reverse_schedule() ?
 				(*i)->get_schedule()->get_current_stop() + 1 == cnv->get_schedule()->get_current_stop() :
-				(*i)->get_schedule()->get_current_stop() - 1 == cnv->get_schedule()->get_current_stop())))
+				(*i)->get_schedule()->get_current_stop() - 1 == cnv->get_schedule()->get_current_stop()))))
 		{
 			count++;
 		}

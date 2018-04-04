@@ -100,6 +100,19 @@ protected:
 	// if true, use offsets to emulate driving on other side
 	uint8 drives_on_left:1;
 
+	/**
+	* Thing is moving on this lane.
+	* Possible values:
+	* (Back)
+	* 0 - sidewalk (going on the right side to w/sw/s)
+	* 1 - road     (going on the right side to w/sw/s)
+	* 2 - middle   (everything with waytype != road)
+	* 3 - road     (going on the right side to se/e/../nw)
+	* 4 - sidewalk (going on the right side to se/e/../nw)
+	* (Front)
+	*/
+	uint8 disp_lane : 3;
+
 	sint8 dx, dy;
 
 	// number of steps in this tile (255 per tile)
@@ -171,6 +184,8 @@ public:
 	sint16 get_hoff(const sint16 raster_width = 1) const;
 	uint8 get_steps() const {return steps;} // number of steps pass on the current tile.
 	uint8 get_steps_next() const {return steps_next;} // total number of steps to pass on the current tile - 1. Mostly VEHICLE_STEPS_PER_TILE - 1 for straight route or diagonal_vehicle_steps_per_tile - 1 for a diagonal route.
+
+	uint8 get_disp_lane() const { return disp_lane; }
 
 	// to make smaller steps than the tile granularity, we have to calculate our offsets ourselves!
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
@@ -395,7 +410,7 @@ public:
 	void set_route_index(uint16 value) { route_index = value; }
 	const koord3d get_pos_prev() const {return pos_prev;}
 
-    virtual bool reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route = NULL);
+	virtual route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route = NULL);
 
 	/**
 	* Get the base image.
@@ -444,6 +459,8 @@ public:
 	void initialise_journey( uint16 start_route_index, bool recalc );
 
 	void set_direction_steps(sint16 value) { direction_steps = value; }
+
+	void fix_class_accommodations();
 
 #ifdef INLINE_OBJ_TYPE
 protected:
@@ -494,7 +511,7 @@ public:
 	sint32 get_speed_limit() const { return speed_limit; }
 	static inline sint32 speed_unlimited() {return (std::numeric_limits<sint32>::max)(); }
 
-	const slist_tpl<ware_t> & get_cargo(uint8 g_class) const { return fracht[g_class];}   // list of goods being transported (indexed by class)
+	const slist_tpl<ware_t> & get_cargo(uint8 g_class) const { return fracht[g_class];}   // list of goods being transported (indexed by accommodation class)
 
 	/**
 	 * Rotate freight target coordinates, has to be called after rotating factories.
@@ -536,8 +553,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void get_cargo_info(cbuffer_t & buf) const;
-
-	void get_cargo_class_info(cbuffer_t & buf) const;
 
 	// Check for straightness of way.
 	//@author jamespetts
@@ -637,13 +652,15 @@ public:
 
 	uint16 get_sum_weight() const { return (sum_weight + 499) / 1000; }
 
+	uint16 get_overcrowded_capacity(uint8 g_class) const;
 	// @author: jamespetts
 	uint16 get_overcrowding(uint8 g_class) const;
 
 	// @author: jamespetts
 	uint8 get_comfort(uint8 catering_level = 0, uint8 g_class = 0) const;
 
-	uint16 get_capacity(uint8 g_class, bool include_lower_classes = false) const;
+	uint16 get_accommodation_capacity(uint8 g_class, bool include_lower_classes = false) const;
+	uint16 get_fare_capacity(uint8 g_class, bool include_lower_classes = false) const;
 
 	// BG, 06.06.2009: update player's fixed maintenance
 	void finish_rd();
@@ -685,6 +702,10 @@ protected:
 
 public:
 	virtual void enter_tile(grund_t*);
+
+	virtual void rotate90();
+
+	void calc_disp_lane();
 
 	virtual waytype_t get_waytype() const { return road_wt; }
 
@@ -955,7 +976,7 @@ private:
 		landing_distance = altitude_level - 1;
 	}
 	// BG, 07.08.2012: extracted from calc_route()
-	bool calc_route_internal(
+	route_t::route_result_t calc_route_internal(
 		karte_t *welt,
 		const koord3d &start,
 		const koord3d &ziel,
@@ -1015,7 +1036,7 @@ public:
 	route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed, bool is_tall, route_t* route);
 
 	// BG, 08.08.2012: extracted from can_enter_tile()
-    bool reroute(const uint16 reroute_index, const koord3d &ziel);
+	route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel);
 
 #ifdef INLINE_OBJ_TYPE
 #else

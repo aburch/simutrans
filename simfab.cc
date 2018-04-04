@@ -58,6 +58,7 @@
 
 #include "gui/simwin.h"
 #include "display/simgraph.h"
+#include "utils/simstring.h"
 
 #include "path_explorer.h"
 
@@ -378,7 +379,7 @@ void fabrik_t::update_scaled_electric_amount()
 }
 
 
-void fabrik_t::update_scaled_pax_demand()
+void fabrik_t::update_scaled_pax_demand(bool is_from_saved_game)
 {
 	if(!welt->is_destroying())
 	{	
@@ -397,7 +398,7 @@ void fabrik_t::update_scaled_pax_demand()
 		// Intentionally not the scaled value.
 		arrival_stats_pax.set_scaled_demand(base_worker_demand);
 		
-		if(building)
+		if(building && (!is_from_saved_game || !building->get_loaded_passenger_and_mail_figres()))
 		{		
 			const uint32 percentage = (get_base_production() * 100) / max(1, get_desc()->get_productivity());
 			if (percentage > 100)
@@ -417,7 +418,7 @@ void fabrik_t::update_scaled_pax_demand()
 }
 
 
-void fabrik_t::update_scaled_mail_demand()
+void fabrik_t::update_scaled_mail_demand(bool is_from_saved_game)
 {
 	if(!welt->is_destroying())
 	{
@@ -455,7 +456,7 @@ void fabrik_t::update_scaled_mail_demand()
 		// mail demand for fixed period length
 		// Intentionally not the scaled value.
 		arrival_stats_mail.set_scaled_demand(mail_demand);
-		if(building)
+		if (building && (!is_from_saved_game || !building->get_loaded_passenger_and_mail_figres()))
 		{
 			const uint32 percentage = (get_base_production() * 100) / max(1, get_desc()->get_productivity());
 			if (percentage > 100)
@@ -629,13 +630,13 @@ void fabrik_t::recalc_storage_capacities()
 	}
 }
 
-void fabrik_t::set_base_production(sint32 p)
+void fabrik_t::set_base_production(sint32 p, bool is_from_saved_game)
 {
 	prodbase = p > 0 ? p : 1;
 	recalc_storage_capacities();
 	update_scaled_electric_amount();
-	update_scaled_pax_demand();
-	update_scaled_mail_demand();
+	update_scaled_pax_demand(is_from_saved_game);
+	update_scaled_mail_demand(is_from_saved_game);
 	update_prodfactor_pax();
 	update_prodfactor_mail();
 	calc_max_intransit_percentages();
@@ -964,7 +965,10 @@ void fabrik_t::delete_all_fields()
 
 fabrik_t::~fabrik_t()
 {
-	mark_connected_roads(true);
+	if (!welt->is_destroying())
+	{
+		mark_connected_roads(true);
+	}
 	delete_all_fields();
 
 	if(!welt->is_destroying())
@@ -1035,6 +1039,10 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 		const uint16 passengers_succeeded_visiting_last_year = building->get_passenger_success_percent_last_year_visiting();
 		const uint16 passengers_succeeded_commuting = building->get_passenger_success_percent_this_year_commuting();
 		const uint16 passengers_succeeded_commuting_last_year = building->get_passenger_success_percent_last_year_commuting();
+		const uint16 adjusted_jobs = building->get_adjusted_jobs();
+		const uint16 adjusted_visitor_demand = building->get_adjusted_visitor_demand();
+		const uint16 adjusted_mail_demand = building->get_adjusted_mail_demand(); 
+		const bool loaded_passenger_and_mail_figres = building->get_loaded_passenger_and_mail_figres();
 
 		delete building;
 		building = hausbauer_t::build(owner, pos_origin, rotate, desc->get_building(), this);
@@ -1044,6 +1052,10 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 		building->add_passengers_succeeded_commuting(passengers_succeeded_commuting);
 		building->set_passengers_visiting_last_year(passengers_succeeded_visiting_last_year); 
 		building->set_passengers_commuting_last_year(passengers_succeeded_commuting_last_year);
+		building->set_adjusted_jobs(adjusted_jobs);
+		building->set_adjusted_visitor_demand(adjusted_visitor_demand);
+		building->set_adjusted_mail_demand(adjusted_mail_demand);
+		building->set_loaded_passenger_and_mail_figres(loaded_passenger_and_mail_figres); 
 	}
 	if(!building)
 	{
@@ -1641,7 +1653,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	{
 		if (file->is_loading())
 		{
-			building = new gebaeude_t(file);
+			building = new gebaeude_t(file, true);
 		}
 		else // Saving
 		{
@@ -1812,52 +1824,61 @@ void fabrik_t::add_consuming_passengers(sint32 number_of_passengers)
 	menge_remainder = (uint32)(want_prod_long & ((1 << (PRODUCTION_DELTA_T_BITS + DEFAULT_PRODUCTION_FACTOR_BITS + DEFAULT_PRODUCTION_FACTOR_BITS - fabrik_t::precision_bits)) - 1));
 
 	// Consume stock in proportion to passengers' visits
-	uint32 last_good_index = UINT32_MAX_VALUE;
-	uint32 bad_count = 0;
+	// We want to consume prod amount of each input normally. However, if
+	// some inputs are empty, then passenger visits were (or will be)
+	// scaled down, so we need to scale up consumption of those goods which are
+	// present.
+	
+
+	sint64 total_consumption_factor = 0;
 	for (uint32 index = 0; index < input.get_count(); index++)
 	{
-		uint32 v = prod;
-		if ((uint32)input[index].menge > v + 1)
-		{
-			last_good_index = index;
-			if (bad_count > 0)
-			{
-				v *= (bad_count + 1);
-				bad_count = 0;
-			}
-			input[index].menge -= v;
-			input[index].book_stat((sint64)v * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
-			// to find out if storage changed
-			delta_menge += v;
-		}	
-		else
-		{
-			delta_menge += input[index].menge;
+		total_consumption_factor +=  (sint64)desc->get_supplier(index)->get_consumption();
+	}
 
-			if (last_good_index == UINT32_MAX_VALUE)
+	sint64 total_remaining = prod * total_consumption_factor;
+
+	while (true)
+	{
+		// Each round we try to allocate demand evenly among the leftover supply
+		sint64 remaining_consumption_factor = 0;
+		for (uint32 index = 0; index < input.get_count(); index++)
+		{
+			if (input[index].menge > 0)
 			{
-				bad_count++;
+				remaining_consumption_factor +=  (sint64)desc->get_supplier(index)->get_consumption();
 			}
-			else
+		}
+
+		if (remaining_consumption_factor == 0)
+		{
+		// Nothing left to consume
+			break;
+		}
+
+		const sint64 prod_this_round = total_remaining / remaining_consumption_factor;
+		
+		if (prod_this_round <= 0)
+		{
+		// No (or very small) remaining demand
+			break;
+		}
+
+		for (uint32 index = 0; index < input.get_count(); index++)
+		{
+			sint64 prod_this_input = input[index].menge < prod_this_round ? input[index].menge : prod_this_round;
+
+			if (prod_this_input <= 0)
 			{
-				const uint32 missing_consumption = v - input[index].menge;
-				if (input[last_good_index].menge > missing_consumption)
-				{
-					input[last_good_index].menge -= missing_consumption;
-					delta_menge += missing_consumption;
-					input[last_good_index].book_stat((sint64)missing_consumption * (sint64)desc->get_supplier(last_good_index)->get_consumption(), FAB_GOODS_CONSUMED);
-				}
-				else
-				{
-					bad_count++;
-					delta_menge += input[last_good_index].menge;
-					input[last_good_index].menge = 0;
-					input[last_good_index].book_stat((sint64)input[index].menge * (sint64)desc->get_supplier(last_good_index)->get_consumption(), FAB_GOODS_CONSUMED);
-				}
+				continue;
 			}
 
-			input[index].book_stat((sint64)input[index].menge * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
-			input[index].menge = 0;
+			input[index].menge -= prod_this_input;
+			input[index].book_stat(prod_this_input * (sint64)desc->get_supplier(index)->get_consumption(), FAB_GOODS_CONSUMED);
+			delta_menge += prod_this_input;
+
+			// Update the demand left to allocate
+			total_remaining -= prod_this_input * (sint64)desc->get_supplier(index)->get_consumption();
 		}
 	}
 }
@@ -1875,10 +1896,13 @@ bool fabrik_t::out_of_stock_selective()
 
 	const sint32 staffing_percentage = building->get_staffing_level_percentage();
 
-	if (staffing_percentage < welt->get_settings().get_minimum_staffing_percentage_consumer_industry())
+	if (staffing_percentage < welt->get_settings().get_minimum_staffing_percentage_consumer_industry() && !(welt->get_settings().get_rural_industries_no_staff_shortage() && city == NULL))
 	{
 		return true;
 	}
+
+	// Passengers want a particular good. If the good is unavailable, they
+	// won't come.
 
 	sint32 weight_of_out_of_stock_items = 0;
 	sint32 weight_of_all_items = 0;
@@ -1902,7 +1926,7 @@ bool fabrik_t::out_of_stock_selective()
 		return true;
 	}
 
-	const uint32 random = simrand(weight_of_all_items + 1, "bool fabrik_t::out_of_stock_selective()");
+	const uint32 random = simrand(weight_of_all_items, "bool fabrik_t::out_of_stock_selective()");
 	return random < weight_of_out_of_stock_items;
 }
 
@@ -2536,13 +2560,6 @@ void fabrik_t::new_month()
 	}
 	lieferziele_active_last_month = 0;
 
-	// advance statistics a month
-	for (int s = 0; s<MAX_FAB_STAT; ++s) {
-		for (int m = MAX_MONTH - 1; m>0; --m) {
-			statistics[m][s] = statistics[m - 1][s];
-		}
-	}
-
 	// calculate weighted averages
 	if(  aggregate_weight>0  ) {
 		set_stat( weighted_sum_production / aggregate_weight, FAB_PRODUCTION );
@@ -2966,7 +2983,7 @@ void fabrik_t::recalc_factory_status()
 		
 		// Staff shortage takes priority over other states as this affects production
 		// TODO: Remove the check for water industries if and when a satisfactory method of conveying passengers to these can be found (helecopters might work for oil platforms; fisheries can have their workers set to zero).
-		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water))
+		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water) && !(welt->get_settings().get_rural_industries_no_staff_shortage() && city == NULL))
 		{
 			status = staff_shortage;
 		}
@@ -2996,7 +3013,7 @@ void fabrik_t::recalc_factory_status()
 
 		// Staff shortage takes priority over other states as this affects production
 		// TODO: Remove the check for water industries if and when a satisfactory method of conveying passengers to these can be found (helecopters might work for oil platforms; fisheries can have their workers set to zero).
-		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water))
+		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water) && !(welt->get_settings().get_rural_industries_no_staff_shortage() && city == NULL))
 		{
 			status = staff_shortage;
 		}
@@ -3024,7 +3041,7 @@ void fabrik_t::recalc_factory_status()
 
 		// Staff shortage takes priority over other states as this affects production
 		// TODO: Remove the check for water industries if and when a satisfactory method of conveying passengers to these can be found (helecopters might work for oil platforms; fisheries can have their workers set to zero).
-		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water))
+		if (status != inactive && building->get_staffing_level_percentage() < welt->get_settings().get_minimum_staffing_percentage_full_production_producer_industry() && !(get_desc()->get_placement() == factory_desc_t::Water) && !(welt->get_settings().get_rural_industries_no_staff_shortage() && city == NULL))
 		{
 			status = staff_shortage;
 		}
@@ -3101,11 +3118,11 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		{
 			buf.printf("%s %i\n", translator::translate("Commuters this year:"), building->get_passengers_succeeded_commuting());
 		}
-		if (building->get_passenger_success_percent_last_year_commuting() < 65535)
+		if (building->get_passenger_success_percent_last_year_visiting() < 65535)
 		{
 			buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), building->get_passenger_success_percent_last_year_visiting());
 		}
-		if (building->get_passenger_success_percent_last_year_visiting() < 65535)
+		if (building->get_passenger_success_percent_last_year_commuting() < 65535)
 		{
 			buf.printf("%s %i\n", translator::translate("Commuters last year:"), building->get_passenger_success_percent_last_year_commuting());
 		}
@@ -3271,6 +3288,8 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 {
 	buf.clear();
 	bool has_previous = false;
+	double distance;
+	char distance_display[10];
 	if (!lieferziele.empty()) {
 		has_previous = true;
 		buf.append(translator::translate("Abnehmer"));
@@ -3278,11 +3297,24 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		FOR(vector_tpl<koord>, const& lieferziel, lieferziele) {
 			fabrik_t *fab = get_fab( lieferziel );
 			if(fab) {
-				if(  is_active_lieferziel(lieferziel)  ) {
-					buf.printf("\n      %s (%d,%d)", translator::translate(fab->get_name()), lieferziel.x, lieferziel.y);
+				distance = (double)(shortest_distance(get_pos().get_2d(), fab->get_pos().get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000.0;
+				if (distance < 1)
+				{
+					sprintf(distance_display, "%.0fm", distance * 1000);
+				}
+				else
+				{
+					uint n_actual = distance < 5 ? 1 : 0;
+					char tmp[10];
+					number_to_string(tmp, distance, n_actual);
+					sprintf(distance_display, "%skm", tmp);
+				}
+
+				if (is_active_lieferziel(lieferziel)) {
+					buf.printf("\n      %s - %s (%d,%d)", translator::translate(fab->get_name()), distance_display, lieferziel.x, lieferziel.y);
 				}
 				else {
-					buf.printf("\n   %s (%d,%d)", translator::translate(fab->get_name()), lieferziel.x, lieferziel.y);
+					buf.printf("\n   %s - %s (%d,%d)", translator::translate(fab->get_name()), distance_display, lieferziel.x, lieferziel.y);
 				}
 			}
 		}
@@ -3296,12 +3328,26 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		buf.append(translator::translate("Suppliers"));
 
 		FOR(vector_tpl<koord>, const& supplier, suppliers) {
-			if(  fabrik_t *src = get_fab( supplier )  ) {
-				if(  src->is_active_lieferziel(get_pos().get_2d())  ) {
-					buf.printf("\n      %s (%d,%d)", translator::translate(src->get_name()), supplier.x, supplier.y);
+			if(  fabrik_t *src = get_fab( supplier )  ) 
+			{
+				distance = (double)(shortest_distance(get_pos().get_2d(), src->get_pos().get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000.0;
+				if (distance < 1)
+				{
+					sprintf(distance_display, "%.0fm", distance * 1000);
+				}
+				else
+				{
+					uint n_actual = distance < 5 ? 1 : 0;
+					char tmp[10];
+					number_to_string(tmp, distance, n_actual);
+					sprintf(distance_display, "%skm", tmp);
+				}
+				if(  src->is_active_lieferziel(get_pos().get_2d())  ) 
+				{
+					buf.printf("\n      %s - %s (%d,%d)", translator::translate(src->get_name()), distance_display, supplier.x, supplier.y);
 				}
 				else {
-					buf.printf("\n   %s (%d,%d)", translator::translate(src->get_name()), supplier.x, supplier.y);
+					buf.printf("\n   %s - %s (%d,%d)", translator::translate(src->get_name()), distance_display, supplier.x, supplier.y);
 				}
 			}
 		}
@@ -3349,7 +3395,7 @@ void fabrik_t::finish_rd()
 	}
 
 	// Set field production
-	adjust_production_for_fields();
+	adjust_production_for_fields(true);
 
 	city = check_local_city();
 	if (city != NULL)
@@ -3362,7 +3408,7 @@ void fabrik_t::finish_rd()
 	add_to_world_list();
 }
 
-void fabrik_t::adjust_production_for_fields()
+void fabrik_t::adjust_production_for_fields(bool is_from_saved_game)
 {
 	const field_group_desc_t *fd = desc->get_field_group();
 	uint32 field_production = 0;
@@ -3388,11 +3434,11 @@ void fabrik_t::adjust_production_for_fields()
 		// This does not take into account the "range" of the base production;
 		// but this is not stored other than in "prodbase", which is overwritten 
 		// by the fields value.
-		set_base_production(desc->get_productivity() + field_production);
+		set_base_production(desc->get_productivity() + field_production, is_from_saved_game);
 	}
 	else
 	{
-		set_base_production(prodbase); 
+		set_base_production(prodbase, is_from_saved_game); 
 	}
 
 }

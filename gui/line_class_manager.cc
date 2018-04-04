@@ -53,7 +53,7 @@ line_class_manager_t::line_class_manager_t(linehandle_t line)
 	// Create the list of comboboxes, as well as the names of the classes
 	for (int i = 0; i < pass_classes; i++)
 	{
-		gui_combobox_t *class_selector = new (nothrow) gui_combobox_t();
+		gui_combobox_t *class_selector = new gui_combobox_t();
 		if (class_selector != nullptr)
 		{
 			add_component(class_selector);
@@ -62,7 +62,7 @@ line_class_manager_t::line_class_manager_t(linehandle_t line)
 			pass_class_sel.append(class_selector);
 		}
 
-		char *class_name = new (nothrow) char[32]();
+		char *class_name = new char[32]();
 		if (class_name != nullptr)
 		{
 			sprintf(class_name, "p_class[%u]", i);
@@ -72,7 +72,7 @@ line_class_manager_t::line_class_manager_t(linehandle_t line)
 
 	for (int i = 0; i < mail_classes; i++)
 	{
-		gui_combobox_t *class_selector = new (nothrow) gui_combobox_t();
+		gui_combobox_t *class_selector = new gui_combobox_t();
 		if (class_selector != nullptr)
 		{
 			add_component(class_selector);
@@ -81,7 +81,7 @@ line_class_manager_t::line_class_manager_t(linehandle_t line)
 			mail_class_sel.append(class_selector);
 		}
 
-		char *class_name = new (nothrow) char[32]();
+		char *class_name = new char[32]();
 		if (class_name != nullptr)
 		{
 			sprintf(class_name, "m_class[%u]", i);
@@ -105,7 +105,7 @@ line_class_manager_t::line_class_manager_t(linehandle_t line)
 	resize(scr_coord(0, 0));
 
 	layout();
-	build_class_entries();
+	//build_class_entries();
 
 }
 
@@ -115,45 +115,47 @@ void line_class_manager_t::build_class_entries()
 {
 	uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
 	uint8 mail_classes = goods_manager_t::mail->get_number_of_classes();
-	uint8 display_class;
-	COLOR_VAL color = SYSCOL_TEXT;
 
 	for (int i = 0; i < pass_classes; i++) // i = the class this combobox represents
 	{
 		pass_class_sel.at(i)->clear_elements();
-		for (int j = 0; j < pass_classes; j++) // j = the entries of this combobox
+		if (pass_capacity_at_accommodation[i] > 0)
 		{
-			if (pass_capacity_at_accommodation[i] > 0)
+			for (int j = 0; j < pass_classes; j++) // j = the entries of this combobox
 			{
 				pass_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
 			}
 		}
 
 		// Below will preset the selection to the most appropriate entry
-		individual_class_count = -1;
-		old_reassigned_class = -1;
-		display_class = i;
+		bool multiple_classes = false;
+		int old_reassigned_class = -1;
+		uint8 display_class = i;
+
 		for (unsigned convoy = 0; convoy < line->count_convoys(); convoy++)
 		{
 			convoihandle_t cnv = line->get_convoy(convoy);
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 			{
 				vehicle_t* v = cnv->get_vehicle(veh);
-				if (v->get_desc()->get_capacity(i) > 0 && v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
+				if (v->get_accommodation_capacity(i) > 0 && v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
 				{
 					if (old_reassigned_class != v->get_reassigned_class(i))
 					{
-						old_reassigned_class = v->get_reassigned_class(i);
-						individual_class_count++;
-					}
-					else
-					{
-						display_class = v->get_reassigned_class(i);
+						if (old_reassigned_class == -1)
+						{
+							old_reassigned_class = v->get_reassigned_class(i);
+							display_class = old_reassigned_class;
+						}
+						else
+						{
+							multiple_classes = true;
+						}
 					}
 				}
 			}
 		}
-		if (individual_class_count > 1)
+		if (multiple_classes)
 		{
 			pass_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("reassigned_to_multiple"), SYSCOL_TEXT));
 			display_class = pass_classes;
@@ -165,39 +167,43 @@ void line_class_manager_t::build_class_entries()
 	for (int i = 0; i < mail_classes; i++)
 	{
 		mail_class_sel.at(i)->clear_elements();
-		for (int j = 0; j < mail_classes; j++)
+		if (mail_capacity_at_accommodation[i] > 0)
 		{
-			if (mail_capacity_at_accommodation[i] > 0)
+			for (int j = 0; j < mail_classes; j++)
 			{
 				mail_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(mail_class_name_untranslated[j]), SYSCOL_TEXT));
 			}
 		}
 
 		// Below will preset the selection to the most appropriate entry
-		individual_class_count = -1;
-		old_reassigned_class = -1;
-		display_class = i;
+		bool multiple_classes = false;
+		int old_reassigned_class = -1;
+		uint8 display_class = i;
+
 		for (unsigned convoy = 0; convoy < line->count_convoys(); convoy++)
 		{
 			convoihandle_t cnv = line->get_convoy(convoy);
 			for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 			{
 				vehicle_t* v = cnv->get_vehicle(veh);
-				if (v->get_desc()->get_capacity(i) > 0 && v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
+				if (v->get_accommodation_capacity(i) > 0 && v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
 				{
 					if (old_reassigned_class != v->get_reassigned_class(i))
 					{
-						old_reassigned_class = v->get_reassigned_class(i);
-						individual_class_count++;
-					}
-					else
-					{
-						display_class = v->get_reassigned_class(i);
+						if (old_reassigned_class == -1)
+						{
+							old_reassigned_class = v->get_reassigned_class(i);
+							display_class = old_reassigned_class;
+						}
+						else
+						{
+							multiple_classes = true;
+						}
 					}
 				}
 			}
 		}
-		if (individual_class_count > 1)
+		if (multiple_classes)
 		{
 			mail_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("reassigned_to_multiple"), SYSCOL_TEXT));
 			display_class = mail_classes;
@@ -222,7 +228,6 @@ void line_class_manager_t::layout()
 	highest_catering = 0;
 	lowest_catering = 255;
 	catering_cars_amount = 0;
-	overcrowded_capacity = 0;
 	tpo_amount = 0;
 	is_tpo = false;
 	reset_all_pass_button.set_visible(false);
@@ -231,13 +236,11 @@ void line_class_manager_t::layout()
 	for (int i = 0; i < pass_classes; i++)
 	{
 		pass_capacity_at_accommodation[i] = 0;
-		pass_capacity_at_class[i] = 0;
 		pass_class_sel.at(i)->set_visible(false);
 	}
 	for (int i = 0; i < mail_classes; i++)
 	{
 		mail_capacity_at_accommodation[i] = 0;
-		mail_capacity_at_class[i] = 0;
 		mail_class_sel.at(i)->set_visible(false);
 	}
 
@@ -245,7 +248,6 @@ void line_class_manager_t::layout()
 	for (unsigned convoy = 0; convoy < line->count_convoys(); convoy++)
 	{
 		convoihandle_t cnv = line->get_convoy(convoy);
-		vehicle_count = cnv->get_vehicle_count();
 
 		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
 		{
@@ -257,7 +259,7 @@ void line_class_manager_t::layout()
 			{
 				for (int i = 0; i < classes_amount; i++)
 				{
-					pass_capacity_at_accommodation[i] += v->get_desc()->get_capacity(i);
+					pass_capacity_at_accommodation[i] += v->get_accommodation_capacity(i);
 				}
 				if (v->get_desc()->get_catering_level() > 0)
 				{
@@ -277,7 +279,7 @@ void line_class_manager_t::layout()
 			{
 				for (int i = 0; i < classes_amount; i++)
 				{
-					mail_capacity_at_accommodation[i] += v->get_desc()->get_capacity(i);
+					mail_capacity_at_accommodation[i] += v->get_accommodation_capacity(i);
 				}
 				if (v->get_desc()->get_catering_level() > 0)
 				{
@@ -287,26 +289,7 @@ void line_class_manager_t::layout()
 				show_mail = true;
 			}
 		}
-		// Then what classes the accommodations possibly have been reassigned to.
-		for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
-		{
-			vehicle_t* v = cnv->get_vehicle(veh);
-			if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
-			{
-				overcrowded_capacity += v->get_desc()->get_overcrowded_capacity();
-				for (int i = 0; i < pass_classes; i++)
-				{
-					pass_capacity_at_class[i] += v->get_capacity(i);
-				}
-			}
-			if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
-			{
-				for (int i = 0; i < mail_classes; i++)
-				{
-					mail_capacity_at_class[i] += v->get_capacity(i);
-				}
-			}
-		}
+
 	}
 
 	// Now, put up all the comboboxes
@@ -333,8 +316,7 @@ void line_class_manager_t::layout()
 		reset_all_pass_button.set_visible(true);		
 	}
 
-	y += 4;
-	y += LINESPACE*extra_pass_entries; // To get it to match up with the text from draw(...)
+	y = 2 + LINESPACE*pass_entries; // To get it to match up with the text from draw(...)
 	if (show_mail)
 	{
 		for (int i = 0; i < mail_class_sel.get_count(); i++)
@@ -353,6 +335,8 @@ void line_class_manager_t::layout()
 		reset_all_mail_button.set_visible(true);
 	}
 	
+
+	build_class_entries();
 
 	int default_window_h = text_height;
 	int old_window_h = min(get_windowsize().h, default_window_h);
@@ -375,9 +359,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 		// current value
 		if (line.is_bound())
 		{
-
-			convoy_count = line->count_convoys();
-			current_extra_pass_entries = 0;
+			current_pass_entries = 1;
 
 			cbuffer_t buf;
 			uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
@@ -391,6 +373,42 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 			int column_2 = (5 * 32) + 35 + (button_width / 2);
 			COLOR_VAL text_color = SYSCOL_TEXT;
 
+
+			// We need to keep a constant tracking of what classes we have
+			overcrowded_capacity = 0;
+			vehicle_count = 0;
+			for (int i = 0; i < pass_classes; i++)
+			{
+				pass_capacity_at_class[i] = 0;
+			}
+			for (int i = 0; i < mail_classes; i++)
+			{
+				mail_capacity_at_class[i] = 0;
+			}
+			for (unsigned convoy = 0; convoy < line->count_convoys(); convoy++)
+			{
+				convoihandle_t cnv = line->get_convoy(convoy);
+				for (unsigned veh = 0; veh < cnv->get_vehicle_count(); veh++)
+				{
+					vehicle_t* v = cnv->get_vehicle(veh);
+					vehicle_count++;
+					if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
+					{
+						overcrowded_capacity += v->get_desc()->get_overcrowded_capacity();
+						for (int i = 0; i < pass_classes; i++)
+						{
+							pass_capacity_at_class[i] += v->get_fare_capacity(i);
+						}
+					}
+					if (v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
+					{
+						for (int i = 0; i < mail_classes; i++)
+						{
+							mail_capacity_at_class[i] += v->get_fare_capacity(i);
+						}
+					}
+				}
+			}
 
 			// This is the different accommodation in the train.
 			// Each accommodation have a combobox associated to it to change the class to another.
@@ -414,6 +432,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 					buf.printf("%s (%s):", translator::translate("accommodation"), pass_name);
 					display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
 					offset_y += LINESPACE;
+					current_pass_entries++;
 				}
 				pass_header = false;
 				text_color = SYSCOL_TEXT;
@@ -429,9 +448,10 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 				buf.printf("%i %s", pass_capacity_at_accommodation[i], pass_name);
 				display_proportional_clip(pos.x + column_1andahalf + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
 				offset_y += LINESPACE;
+				current_pass_entries++;
 			}
 			offset_y += LINESPACE;
-			current_extra_pass_entries++;
+			current_pass_entries++;
 
 			// Only show what classes we have, if we have any
 			text_color = SYSCOL_TEXT;
@@ -441,7 +461,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 				buf.printf("%s:", translator::translate("capacity_per_class"));
 				display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
 				offset_y += LINESPACE;
-				current_extra_pass_entries++;
+				current_pass_entries++;
 				for (int i = 0; i < pass_classes; i++)
 				{
 					if (pass_capacity_at_class[i] > 0)
@@ -453,7 +473,7 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 						buf.printf("%i %s", pass_capacity_at_class[i], pass_name);
 						display_proportional_clip(pos.x + column_1andahalf + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
 						offset_y += LINESPACE;
-						current_extra_pass_entries++;
+						current_pass_entries++;
 					}
 				}
 
@@ -466,11 +486,11 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 				display_proportional_clip(pos.x + column_1, offset_y, buf, ALIGN_LEFT, text_color, true);
 				buf.clear();
 				offset_y += LINESPACE;
-				current_extra_pass_entries++;
+				current_pass_entries++;
 				buf.printf("%i %s", overcrowded_capacity, pass_name);
 				display_proportional_clip(pos.x + column_1andahalf + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
 				offset_y += LINESPACE;
-				current_extra_pass_entries++;
+				current_pass_entries++;
 
 				if (show_pass)
 				{
@@ -495,11 +515,11 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 						buf.printf(translator::translate("(catering_levels: %s)"), catering);
 						display_proportional_clip(pos.x + column_1 + len + 5, offset_y, buf, ALIGN_LEFT, text_color, true);
 						offset_y += LINESPACE;
-						current_extra_pass_entries++;
+						current_pass_entries++;
 					}
 				}
 				offset_y += LINESPACE;
-				current_extra_pass_entries++;
+				current_pass_entries++;
 			}
 
 			text_color = SYSCOL_TEXT;
@@ -577,12 +597,17 @@ void line_class_manager_t::draw(scr_coord pos, scr_size size)
 		offset_y += LINESPACE;
 
 		// If anything vital has changed, we need to contact the layout department.
-		if (old_vehicle_count != vehicle_count || extra_pass_entries != current_extra_pass_entries)
+		if (old_vehicle_count != vehicle_count || pass_entries != current_pass_entries)
 		{
-			extra_pass_entries = current_extra_pass_entries;
+			pass_entries = current_pass_entries;
 			old_vehicle_count = vehicle_count;
 			text_height = offset_y;
 			layout();
+		}
+		if (need_to_update_comboboxes)
+		{
+			build_class_entries();
+			need_to_update_comboboxes = false;
 		}
 	}
 
@@ -622,7 +647,7 @@ bool line_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t 
 			}
 			if (pass_class_sel.at(i)->count_elements() > goods_manager_t::passengers->get_number_of_classes())
 			{
-				build_class_entries();
+				need_to_update_comboboxes = true;
 			}
 			return false;
 		}
@@ -654,7 +679,7 @@ bool line_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t 
 			}
 			if (mail_class_sel.at(i)->count_elements() > goods_manager_t::mail->get_number_of_classes())
 			{
-				build_class_entries();
+				need_to_update_comboboxes = true;
 			}
 			return false;
 		}
@@ -676,7 +701,7 @@ bool line_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t 
 			pass_class_sel.at(i)->set_selection(i);
 			if (pass_class_sel.at(i)->count_elements() > goods_manager_t::passengers->get_number_of_classes())
 			{
-				build_class_entries();
+				need_to_update_comboboxes = true;
 			}
 		}
 		layout();
@@ -700,13 +725,14 @@ bool line_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t 
 			mail_class_sel.at(i)->set_selection(i);
 			if (mail_class_sel.at(i)->count_elements() > goods_manager_t::mail->get_number_of_classes())
 			{
-				build_class_entries();
+				need_to_update_comboboxes = true;
 			}
 		}
 		layout();
 		return true;
 
 	}
+	return false;
 }
 
 
@@ -751,14 +777,14 @@ line_class_manager_t::~line_class_manager_t()
 	{
 		if (pass_class_name_untranslated[i] != nullptr)
 		{
-			delete pass_class_name_untranslated[i];
+			delete[] pass_class_name_untranslated[i];
 		}
 	}
 	for (int i = 0; i < mail_classes; i++)
 	{
 		if (mail_class_name_untranslated[i])
 		{
-			delete mail_class_name_untranslated[i];
+			delete[] mail_class_name_untranslated[i];
 		}
 	}
 }

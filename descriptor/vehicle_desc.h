@@ -589,6 +589,7 @@ public:
 		}
 		return cap;
 	}
+	void fix_number_of_classes();
 	uint32 get_weight() const { return weight; }
 	uint16 get_running_cost() const { return running_cost; }
 	uint16 get_running_cost(const class karte_t *welt) const; //Overloaded method - includes increase for obsolescence.

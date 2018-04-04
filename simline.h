@@ -15,6 +15,7 @@
 #include "tpl/vector_tpl.h"
 #include "utils/plainstring.h"
 #include "tpl/koordhashtable_tpl.h"
+#include "dataobj/schedule.h"
 
 #define MAX_MONTHS				12 // Max history
 #define MAX_NON_MONEY_TYPES		4 // number of non money types in line's financial statistic
@@ -117,6 +118,9 @@ private:
 	* @author jamespetts
 	*/
 	journey_times_map average_journey_times;
+
+	// @author: suitougreentea
+	times_history_map journey_times_history;
 
 	states state;
 
@@ -270,6 +274,8 @@ public:
 	void propogate_livery_scheme();
 
 	inline journey_times_map& get_average_journey_times() { return average_journey_times; }
+
+	inline times_history_map& get_journey_times_history() { return journey_times_history; }
 
 	sint64 calc_departures_scheduled();
 };

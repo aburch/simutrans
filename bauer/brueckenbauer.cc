@@ -297,7 +297,7 @@ bool bridge_builder_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, player_t
 			}
 
 			weg_t *w = gr2->get_weg_nr(0);
-			const bool public_service = player ? player->is_public_service() : false;
+			const bool public_service = player ? player->is_public_service() : true;
 			const sint8 player_nr = player ? player->get_player_nr() : -1;
 			if (w
 				&& (w->get_max_speed() > 0
@@ -306,8 +306,8 @@ bool bridge_builder_t::is_blocked(koord3d pos, ribi_t::ribi check_ribi, player_t
 					&& w->get_desc()->get_waytype() != tram_wt
 					&& w->get_desc()->get_waytype() != water_wt)
 
-					|| (w->get_player_nr() != player_nr && public_service
-					|| (w->is_public_right_of_way() && !public_service)))))
+					|| (w->get_player_nr() != player_nr && !public_service)
+					|| (w->is_public_right_of_way() && !public_service))))
 			{
 				error_msg = "Bridge blocked by way below or above.";
 				return true;
@@ -464,6 +464,13 @@ koord3d bridge_builder_t::find_end_pos(player_t *player, koord3d pos, const koor
 
 		if(  gr->hat_weg(air_wt)  &&  gr->get_styp(air_wt)==type_runway) {
 			error_msg = "No bridges over runways!";
+			return koord3d::invalid;
+		}
+
+		// Check for non-length restricted bridges over deep water.
+		if(desc->get_max_length() == 0 && welt->lookup_hgt( pos.get_2d() ) < welt->get_water_hgt( pos.get_2d())) 
+		{
+			error_msg = "Bridge cannot be built over deep water\n";
 			return koord3d::invalid;
 		}
 
@@ -779,7 +786,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 {
 	ribi_t::ribi ribi = ribi_type(zv);
 
-	DBG_MESSAGE("void bridge_builder_t::build_bridge()", "build from %s", start.get_str() );
+	DBG_MESSAGE("bridge_builder_t::build()", "build from %s", start.get_str());
 
 	grund_t *start_gr = welt->lookup( start );
 	const slope_t::type slope = start_gr->get_weg_hang();
@@ -1034,8 +1041,10 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 				grund_t *to = NULL;
 				if (ribi_t::is_single(ribi) && gr->get_neighbour(to, invalid_wt, ribi_t::backward(ribi))) {
 					// connect to open sea, calc_image will recompute ribi at to.
-					if (to->is_water()) {
+					if (desc->get_waytype() == water_wt  &&  to->is_water()) {
+						gr->weg_erweitern(water_wt, ribi_t::backward(ribi));
 						to->calc_image();
+						continue;
 					}
 					// only single tile under bridge => try to connect to next tile
 					way_builder_t bauigel(player);

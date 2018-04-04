@@ -40,8 +40,8 @@ private:
 
 	gui_container_t cont;
 
-	uint16 current_extra_pass_entries;
-	uint16 extra_pass_entries;
+	uint16 current_pass_entries;
+	uint16 pass_entries;
 
 	uint32 current_number_of_vehicles;
 	uint32 old_number_of_vehicles;
@@ -81,10 +81,7 @@ private:
 	bool show_pass = false;
 	bool show_mail = false;
 
-	int individual_class_count;
-	int old_reassigned_class;
-
-
+	bool need_to_update_comboboxes = false;
 
 public:
 

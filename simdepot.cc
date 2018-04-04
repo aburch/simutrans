@@ -563,7 +563,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 
 	if (cnv.is_bound() && cnv->get_schedule() && !cnv->get_schedule()->empty()) {
 		// if next schedule entry is this depot => advance to next entry
-		const koord3d& cur_pos = cnv->get_schedule()->get_current_eintrag().pos;
+		const koord3d& cur_pos = cnv->get_schedule()->get_current_entry().pos;
 		if (cur_pos == get_pos()) {
 			cnv->get_schedule()->advance();
 		}
@@ -608,7 +608,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 				create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
 			}
 		}
-		else if(  !cnv->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed())  ) {
+		else if(  cnv->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed()) != route_t::valid_route) {
 			// no route to go ...
 			if(local_execution) {
 				static cbuffer_t buf;

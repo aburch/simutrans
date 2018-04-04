@@ -274,15 +274,15 @@ void city_info_t::add_pax_dest( array2d_tpl<uint8> &pax_dest, const sparse_tpl< 
 	uint8 color;
 	koord pos;
 	// how large the box in the world?
-	const sint16 dd_x = 1+(minimaps_size.w-1)/PAX_DESTINATIONS_SIZE;
-	const sint16 dd_y = 1+(minimaps_size.h-1)/PAX_DESTINATIONS_SIZE;
+	const sint16 dd_x = 1+(minimaps_size.w-1)/welt->get_size().x;
+	const sint16 dd_y = 1+(minimaps_size.h-1)/welt->get_size().y;
 
 	for( uint16 i = 0;  i < city_pax_dest->get_data_count();  i++  ) {
 		city_pax_dest->get_nonzero(i, pos, color);
 
 		// calculate display position according to minimap size
-		const sint16 x0 = (pos.x*minimaps_size.w)/PAX_DESTINATIONS_SIZE;
-		const sint16 y0 = (pos.y*minimaps_size.h)/PAX_DESTINATIONS_SIZE;
+		const sint16 x0 = (pos.x*minimaps_size.w)/welt->get_size().x;
+		const sint16 y0 = (pos.y*minimaps_size.h)/welt->get_size().y;
 
 		for(  sint32 y=0;  y<dd_y  &&  y+y0<minimaps_size.h;  y++  ) {
 			for(  sint32 x=0;  x<dd_x  &&  x+x0<minimaps_size.w;  x++  ) {

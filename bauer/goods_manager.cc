@@ -54,9 +54,10 @@ bool goods_manager_t::successfully_loaded()
 		dbg->fatal("goods_manager_t::successfully_loaded()","Too many different goods %i>255",goods.get_count()-1 );
 	}
 
-	// assign indexes
+	// assign indexes, and fix number_of_classes
 	for(  uint8 i=3;  i<goods.get_count();  i++  ) {
 		goods[i]->goods_index = i;
+		goods[i]->fix_number_of_classes();
 	}
 
 	// now assign unique category indexes for unique categories

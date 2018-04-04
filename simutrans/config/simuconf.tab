@@ -324,6 +324,12 @@ factory_enforce_demand = 1
 minimum_staffing_percentage_consumer_industry = 66
 minimum_staffing_percentage_full_production_producer_industry = 80
 
+# If the below setting is enabled, industries situated outside a town will continue
+# to function as normal even if they are short of staff. It is recommended to enable
+# this, as there is currently no way of ensuring that towns are built close enough
+# to industries in the early years to allow those rural industries to produce.
+rural_industries_no_staff_shortage = 1
+
 ################################# Display settings ################################
 
 # if defined, the default tool will try to calculate straight ways (like OpenTTD)
@@ -578,7 +584,7 @@ cst_make_public_months = 60
 # 200 seems to be a good compromise between speed and road number
 # note: this will slow down map creation dramatically!
 #
-#intercity_road_length = 200
+intercity_road_length = 1024
 
 # This is the maximum number of tiles that a road, river or canal
 # that is a public right of way may be diverted for an existing
@@ -714,6 +720,10 @@ new_height_map_conversion = 0
 # does not affect public service provider player
 disable_make_way_public = 0
 
+# This setting alters the revenue for electricity transmission.
+# The figure is a percentage of the default revenue. Default: 100.
+power_revenue_factor_percentage = 100
+
 ################################# Tree settings #################################
 #  please be careful in changing them, I spent lot of time finding optimals.
 #  those values have impact on no. of spawned trees -> memory consumption
@@ -808,8 +818,9 @@ fullscreen = 0
 
 # For versions of Simutrans compiled to work in a multithreaded system (which will improve
 # certain aspects of performance on multiple core/processor machines), this is the number
-# of threads that will be used. Maximum: 12.
-threads = 6
+# of threads that will be used. It is best not to set this number higher than
+# the number of physical cores on your computer. Maximum: 12.
+threads = 4
 
 # maximum size of tool bars (0 = no limit)
 # if more tools than allowed by height,

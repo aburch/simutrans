@@ -15,7 +15,6 @@
 #include "../vehicle/simvehicle.h"
 #include "settings_stats.h"
 
-
 /* stuff not set here ....
 INIT_NUM( "intercity_road_length", env_t::intercity_road_length);
 INIT_NUM( "diagonal_multiplier", pak_diagonal_multiplier);
@@ -245,7 +244,7 @@ void settings_extended_general_stats_t::init( settings_t *sets )
 	INIT_NUM("visitor_demand_per_level", sets->get_visitor_demand_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
 	INIT_NUM("jobs_per_level", sets->get_jobs_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
 	INIT_NUM("mail_per_level", sets->get_mail_per_level(), 1, 1000, gui_numberinput_t::PLAIN, false);
-
+	INIT_NUM("power_revenue_factor_percentage", sets->get_power_revenue_factor_percentage(), 0, 10000, gui_numberinput_t::PLAIN, false);
 	SEPERATOR;
 	INIT_NUM("forge_cost_road", sets->get_forge_cost_road(), 0, 1000000, gui_numberinput_t::PLAIN, false);
 	INIT_NUM("forge_cost_track", sets->get_forge_cost_track(), 0, 1000000, gui_numberinput_t::PLAIN, false);
@@ -343,6 +342,7 @@ void settings_extended_general_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE(sets->visitor_demand_per_level);
 	READ_NUM_VALUE(sets->jobs_per_level);
 	READ_NUM_VALUE(sets->mail_per_level);
+	READ_NUM_VALUE(sets->power_revenue_factor_percentage);
 
 	READ_NUM_VALUE(sets->forge_cost_road);
 	READ_NUM_VALUE(sets->forge_cost_track);
@@ -503,6 +503,7 @@ void settings_extended_revenue_stats_t::init( settings_t *sets )
 	}
 	SEPERATOR;
 	INIT_NUM("max_comfort_preference_percentage", sets->get_max_comfort_preference_percentage(), 100, 65535, gui_numberinput_t::AUTOLINEAR, false);
+	INIT_BOOL("rural_industries_no_staff_shortage", sets->rural_industries_no_staff_shortage); 
 	clear_dirty();
 	height = ypos;
 	set_size(settings_stats_t::get_size());
@@ -564,6 +565,7 @@ void settings_extended_revenue_stats_t::read(settings_t *sets)
 	READ_NUM_VALUE( sets->catering_level5_max_revenue );
 
 	READ_NUM_VALUE(sets->max_comfort_preference_percentage);
+	READ_BOOL_VALUE(sets->rural_industries_no_staff_shortage); 
 
 	// And convert to the form used in-game...
 	sets->cache_catering_revenues();
@@ -817,8 +819,6 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 	INIT_INIT
 	INIT_BOOL( "separate_halt_capacities", sets->is_separate_halt_capacities() );
 	INIT_BOOL( "avoid_overcrowding", sets->is_avoid_overcrowding() );
-	INIT_NUM( "station_coverage", sets->get_station_coverage(), 1, 32, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "station_coverage_factories", sets->get_station_coverage_factories(), 1, 8, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_NUM( "max_route_steps", sets->get_max_route_steps(), 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	INIT_NUM( "max_choose_route_steps", sets->get_max_choose_route_steps(), 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
@@ -846,8 +846,6 @@ void settings_routing_stats_t::read(settings_t* const sets)
 	// routing of goods
 	READ_BOOL_VALUE( sets->separate_halt_capacities );
 	READ_BOOL_VALUE( sets->avoid_overcrowding );
-	READ_NUM_VALUE( sets->station_coverage_size );
-	READ_NUM_VALUE( sets->station_coverage_size_factories );
 	READ_NUM_VALUE( sets->max_route_steps );
 	READ_NUM_VALUE( sets->max_choose_route_steps );
 	READ_NUM_VALUE( sets->max_hops );

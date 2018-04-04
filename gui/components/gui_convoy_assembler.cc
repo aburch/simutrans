@@ -688,11 +688,11 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		int pass_class_capacity[255] = { 0 };
 		int mail_class_capacity[255] = { 0 };
 
-		uint8 good_type_0 = 0;
-		uint8 good_type_1 = 0;
-		uint8 good_type_2 = 0;
-		uint8 good_type_3 = 0;
-		uint8 good_type_4 = 0;
+		int good_type_0 = -1;
+		int good_type_1 = -1;
+		int good_type_2 = -1;
+		int good_type_3 = -1;
+		int good_type_4 = -1;
 
 		uint32 good_type_0_amount = 0;
 		uint32 good_type_1_amount = 0;
@@ -736,13 +736,10 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 				cnv = replace_frame->get_convoy();
 			}
 
-			if (cnv.is_bound())
+			if (cnv.is_bound() && cnv->get_vehicle_count() > i)
 			{
 				vehicle_t* v = cnv->get_vehicle(i);
-				if (v == NULL)
-				{
-					break;
-				}
+
 				switch (ware->get_catg_index())
 				{
 				case goods_manager_t::INDEX_PAS:
@@ -751,11 +748,8 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 					total_standing_pax += desc->get_overcrowded_capacity();
 					for (uint8 j = 0; j < goods_manager_t::passengers->get_number_of_classes(); j++)
 					{
-						if (v->get_capacity(j) > 0)
-						{
-							pass_class_capacity[j] += v->get_capacity(j);
-						}
-						if (v->get_desc()->get_catering_level() > highest_catering)
+						pass_class_capacity[j] += v->get_fare_capacity(j);
+						if (v && v->get_desc()->get_catering_level() > highest_catering)
 						{
 							highest_catering = v->get_desc()->get_catering_level();
 						}
@@ -767,15 +761,11 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 					total_mail += desc->get_total_capacity();
 					for (uint8 j = 0; j < goods_manager_t::mail->get_number_of_classes(); j++)
 					{
-						if (v->get_capacity(j) > 0)
-						{
-							mail_class_capacity[j] += v->get_capacity(j);
-						}
-						if (v->get_desc()->get_catering_level() > 0)
+						mail_class_capacity[j] += v->get_fare_capacity(j);
+						if (v && v->get_desc()->get_catering_level() > 0)
 						{
 							is_tpo = true;
 						}
-
 					}
 					break;
 				}
@@ -784,27 +774,27 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 					total_goods += desc->get_capacity();
 					if (desc->get_capacity() > 0)
 					{
-						if (good_type_0 == 0 || good_type_0 == desc->get_freight_type()->get_catg_index())
+						if (good_type_0 < 0 || good_type_0 == desc->get_freight_type()->get_catg_index())
 						{
 							good_type_0 = ware->get_catg_index();
 							good_type_0_amount += desc->get_capacity();
 						}
-						else if (good_type_1 == 0 || good_type_1 == desc->get_freight_type()->get_catg_index())
+						else if (good_type_1 < 0 || good_type_1 == desc->get_freight_type()->get_catg_index())
 						{
 							good_type_1 = ware->get_catg_index();
 							good_type_1_amount += desc->get_capacity();
 						}
-						else if (good_type_2 == 0 || good_type_2 == desc->get_freight_type()->get_catg_index())
+						else if (good_type_2 < 0 || good_type_2 == desc->get_freight_type()->get_catg_index())
 						{
 							good_type_2 = ware->get_catg_index();
 							good_type_2_amount += desc->get_capacity();
 						}
-						else if (good_type_3 == 0 || good_type_3 == desc->get_freight_type()->get_catg_index())
+						else if (good_type_3 < 0 || good_type_3 == desc->get_freight_type()->get_catg_index())
 						{
 							good_type_3 = ware->get_catg_index();
 							good_type_3_amount += desc->get_capacity();
 						}
-						else if (good_type_4 == 0 || good_type_4 == desc->get_freight_type()->get_catg_index())
+						else if (good_type_4 < 0 || good_type_4 == desc->get_freight_type()->get_catg_index())
 						{
 							good_type_4 = ware->get_catg_index();
 							good_type_4_amount += desc->get_capacity();
@@ -901,7 +891,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 		}
 
 		txt_convoi_power.clear();
-		txt_convoi_power.printf( translator::translate("Power: %4d kW, %d kN\n"), total_power, total_force);
+		txt_convoi_power.printf("%s %4d kW, %d kN\n", translator::translate("Power:"), total_power, total_force);
 
 		txt_convoi_brake_force.clear();
 		txt_convoi_brake_force.printf("%s %4.1fkN\n", translator::translate("Max. brake force:"), convoy.get_braking_force().to_double() / 1000.0);
@@ -2029,7 +2019,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		//	int max_display_of_upgrades = 3;
 		//	for (int i = 0; i < veh_type->get_upgrades_count(); i++)
 		//	{
-		//		//if (!veh_type->get_upgrades(i)->is_future(month_now) && (!veh_type->get_upgrades(i)->is_retired(month_now)))
+		//		//if (veh_type->get_upgrades(i) && !veh_type->get_upgrades(i)->is_future(month_now) && (!veh_type->get_upgrades(i)->is_retired(month_now)))
 		//		{
 		//			amount_of_upgrades++;
 		//		}
@@ -2039,7 +2029,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		//		n += sprintf(buf + n, "%s:\n", translator::translate("this_vehicle_can_upgrade_to"));
 		//		for (uint8 i = 0; i < min(veh_type->get_upgrades_count(), max_display_of_upgrades); i++)
 		//		{
-		//			//if (!veh_type->get_upgrades(i)->is_future(month_now) && (!veh_type->get_upgrades(i)->is_retired(month_now)))
+		//			//if (veh_type->get_upgrades(i) && !veh_type->get_upgrades(i)->is_future(month_now) && (!veh_type->get_upgrades(i)->is_retired(month_now)))
 		//			{
 		//				//money_to_string(tmp, veh_type->get_upgrades(i)->get_upgrade_price() / 100);
 		//				//n += sprintf(buf + n, " - %s (%8s)\n", translator::translate(veh_type->get_upgrades(i)->get_name()), tmp);
@@ -2301,7 +2291,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			{
 				n += sprintf(buf + n, "%s", translator::translate("\nMUST USE: "));
 				char tmpbuf[30];
-				sprintf(tmpbuf, "Permissive %i", i);
+				sprintf(tmpbuf, "Permissive %i-%i", veh_type->get_waytype(), i);
 				n += sprintf(buf + n, "%s", translator::translate(tmpbuf));
 			}
 		}
@@ -2321,7 +2311,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			{
 				n += sprintf(buf + n, "%s", translator::translate("\nMAY USE: "));
 				char tmpbuf[30];
-				sprintf(tmpbuf, "Prohibitive %i", i);
+				sprintf(tmpbuf, "Prohibitive %i-%i", veh_type->get_waytype(), i);
 				n += sprintf(buf + n, "%s", translator::translate(tmpbuf));
 			}
 		}
@@ -2411,7 +2401,7 @@ depot_convoi_capacity_t::depot_convoi_capacity_t()
 }
 
 //(total_pax, total_standing_pax, total_mail, total_goods, pax_classes, mail_classes)
-void depot_convoi_capacity_t::set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods, uint8 pax_classes, uint8 mail_classes, uint8 good_0, uint8 good_1, uint8 good_2, uint8 good_3, uint8 good_4, uint32 good_0_amount, uint32 good_1_amount, uint32 good_2_amount, uint32 good_3_amount, uint32 good_4_amount, uint32 rest_good, uint8 catering, bool tpo)
+void depot_convoi_capacity_t::set_totals(uint32 pax, uint32 standing_pax, uint32 mail, uint32 goods, uint8 pax_classes, uint8 mail_classes, int good_0, int good_1, int good_2, int good_3, int good_4, uint32 good_0_amount, uint32 good_1_amount, uint32 good_2_amount, uint32 good_3_amount, uint32 good_4_amount, uint32 rest_good, uint8 catering, bool tpo)
 {
 	total_pax = pax;
 	total_standing_pax = standing_pax;

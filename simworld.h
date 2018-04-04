@@ -640,6 +640,10 @@ private:
 
 	/// @note variable used in interactive()
 	uint32 sync_steps;
+
+	// The maximum sync_steps that a client can safely advance to.
+	uint32 sync_steps_barrier;
+
 #define LAST_CHECKLISTS_COUNT 64
 	/// @note variable used in interactive()
 	checklist_t last_checklists[LAST_CHECKLISTS_COUNT];
@@ -999,10 +1003,19 @@ private:
 
 	static thread_local uint32 passenger_generation_thread_number;
 	static thread_local uint32 marker_index;
+
+	// These are used so as to obviate the need to create and
+	// destroy a vector of start halts every time that the
+	// passenger generation is run.
+	static vector_tpl<nearby_halt_t> *start_halts;
+	static vector_tpl<halthandle_t> *destination_list;
+
 	private:
 #else
 	public:
 	static const uint32 marker_index = UINT32_MAX_VALUE;
+	static vector_tpl<nearby_halt_t> start_halts;
+	static vector_tpl<halthandle_t> destination_list;
 #endif
 
 public:
@@ -2700,8 +2713,7 @@ private:
 	void do_network_world_command(network_world_command_t *nwc);
 	uint32 get_next_command_step();
 
-	sint32 get_tiles_of_gebaeude(gebaeude_t* const gb, vector_tpl<const planquadrat_t*> &tile_list) const;
-	void get_nearby_halts_of_tiles(const vector_tpl<const planquadrat_t*> &tile_list, const goods_desc_t * wtyp, vector_tpl<nearby_halt_t> &halts) const;
+	void get_nearby_halts_of_tiles(const minivec_tpl<const planquadrat_t*> &tile_list, const goods_desc_t * wtyp, vector_tpl<nearby_halt_t> &halts) const;
 };
 
 

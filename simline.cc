@@ -398,6 +398,50 @@ void simline_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
+	if ((file->get_extended_version() == 13 && file->get_extended_revision() >= 2) || file->get_extended_version() >= 14)
+	{
+		if(file->is_saving())
+		{
+			uint32 count = journey_times_history.get_count();
+			file->rdwr_long(count);
+
+			FOR(times_history_map, const& iter, journey_times_history)
+			{
+				departure_point_t idp = iter.key;
+				file->rdwr_short(idp.x);
+				file->rdwr_short(idp.y);
+				times_history_data_t value = iter.value;
+				for (int j = 0; j < TIMES_HISTORY_SIZE; j++) 
+				{
+					uint32 time = value.get_entry(j);
+					file->rdwr_long(time);
+				}
+			}
+		}
+		else
+		{
+			uint32 count = 0;
+			file->rdwr_long(count);
+			journey_times_history.clear();
+
+			for (uint32 i = 0; i < count; i++)
+			{
+				departure_point_t idp;
+				file->rdwr_short(idp.x);
+				file->rdwr_short(idp.y);
+
+				times_history_data_t data;
+
+				for (int j = 0; j < TIMES_HISTORY_SIZE; j++) {
+					uint32 time;
+					file->rdwr_long(time);
+					data.set(j, time);
+				}
+
+				journey_times_history.put(idp, data);
+			}
+		}
+	}
 	if(file->get_version() >= 111002 && file->get_extended_version() >= 10 && file->get_extended_version() < 12)
 	{
 		bool dummy_is_alternating_circle_route = false; // Deprecated. 
@@ -495,6 +539,7 @@ void simline_t::unregister_stops(schedule_t * schedule)
 			halt->remove_line(self);
 		}
 	}
+	journey_times_history.clear();
 	financial_history[0][LINE_DEPARTURES_SCHEDULED] = calc_departures_scheduled();
 }
 
@@ -654,7 +699,7 @@ void simline_t::recalc_status()
 				{
 					for (int k = 0; k < v->get_desc()->get_upgrades_count(); k++)
 					{
-						if (!v->get_desc()->get_upgrades(k)->is_future(month_now) && (!v->get_desc()->get_upgrades(k)->is_retired(month_now)))
+						if (v->get_desc()->get_upgrades(k) && !v->get_desc()->get_upgrades(k)->is_future(month_now) && (!v->get_desc()->get_upgrades(k)->is_retired(month_now)))
 						{
 							has_obsolete_that_can_upgrade = true;
 						}
@@ -712,7 +757,7 @@ void simline_t::calc_classes_carried()
 		{
 			FOR(const minivec_tpl<uint8>, const& g_class, *cnv.get_classes_carried(goods_manager_t::INDEX_PAS))
 			{
-				passenger_classes_carried.append(g_class);
+				passenger_classes_carried.append_unique(g_class);
 			}
 		}
 
@@ -720,30 +765,30 @@ void simline_t::calc_classes_carried()
 		{
 			FOR(const minivec_tpl<uint8>, const& g_class, *cnv.get_classes_carried(goods_manager_t::INDEX_MAIL))
 			{
-				mail_classes_carried.append(g_class);
+				mail_classes_carried.append_unique(g_class);
 			}
 		}
 		
 		/*
 
-		for (uint8 j = 0; j < cnv.get_classes_carried(goods_manager_t::INDEX_PAS)->get_count(); j++)
+		for (uint32 j = 0; j < cnv.get_classes_carried(goods_manager_t::INDEX_PAS)->get_count(); j++)
 		{
 			if (cnv.get_goods_catg_index().is_contained(goods_manager_t::INDEX_PAS))
 			{
 				if (cnv.carries_this_or_lower_class(goods_manager_t::INDEX_PAS, j))
 				{
-					passenger_classes_carried.append(j);
+					passenger_classes_carried.append_unique(j);
 				}
 			}
 		}
 
-		for (uint8 j = 0; j < cnv.get_classes_carried(goods_manager_t::INDEX_MAIL)->get_count(); j++)
+		for (uint32 j = 0; j < cnv.get_classes_carried(goods_manager_t::INDEX_MAIL)->get_count(); j++)
 		{
 			if (cnv.get_goods_catg_index().is_contained(goods_manager_t::INDEX_MAIL))
 			{
 				if (cnv.carries_this_or_lower_class(goods_manager_t::INDEX_MAIL, j))
 				{
-					mail_classes_carried.append(j);
+					mail_classes_carried.append_unique(j);
 				}
 			}
 		}*/
@@ -776,12 +821,12 @@ void simline_t::recalc_catg_index()
 	minivec_tpl<uint8> old_passenger_classes_carried;
 	minivec_tpl<uint8> old_mail_classes_carried;
 
-	for (uint8 i = 0; i < passenger_classes_carried.get_count(); i++)
+	for (uint32 i = 0; i < passenger_classes_carried.get_count(); i++)
 	{
 		old_passenger_classes_carried.append(i);
 	}
 
-	for (uint8 i = 0; i < mail_classes_carried.get_count(); i++)
+	for (uint32 i = 0; i < mail_classes_carried.get_count(); i++)
 	{
 		old_mail_classes_carried.append(i);
 	}

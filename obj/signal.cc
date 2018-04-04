@@ -302,25 +302,25 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 						switch (get_dir())
 						{
 						case 1:
-							if (get_state() == clear_no_choose || caution_no_choose)
+							if (get_state() == clear_no_choose || get_state() == caution_no_choose)
 								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("south"));
 							else
 								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("north"));
 							break;
 						case 2:
-							if (get_state() == clear_no_choose || caution_no_choose)
+							if (get_state() == clear_no_choose || get_state() == caution_no_choose)
 								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("west"));
 							else
 								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("east"));
 							break;
 						case 4:
-							if (get_state() == clear_no_choose || caution_no_choose)
+							if (get_state() == clear_no_choose || get_state() == caution_no_choose)
 								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("north"));
 							else
 								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("south"));
 							break;
 						case 8:
-							if (get_state() == clear_no_choose || caution_no_choose)
+							if (get_state() == clear_no_choose || get_state() == caution_no_choose)
 								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("east"));
 							else
 								buf.printf("%s (%s)", translator::translate(get_3_signal_aspects_name(get_state())), translator::translate("west"));
@@ -333,25 +333,25 @@ void signal_t::info(cbuffer_t & buf, bool dummy) const
 						switch (get_dir())
 						{
 						case 1:
-							if (get_state() == clear_no_choose || caution_no_choose)
+							if (get_state() == clear_no_choose || get_state() == caution_no_choose)
 								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("south"));
 							else
 								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("north"));
 							break;
 						case 2:
-							if (get_state() == clear_no_choose || caution_no_choose)
+							if (get_state() == clear_no_choose || get_state() == caution_no_choose)
 								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("west"));
 							else
 								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("east"));
 							break;
 						case 4:
-							if (get_state() == clear_no_choose || caution_no_choose)
+							if (get_state() == clear_no_choose || get_state() == caution_no_choose)
 								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("north"));
 							else
 								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("south"));
 							break;
 						case 8:
-							if (get_state() == clear_no_choose || caution_no_choose)
+							if (get_state() == clear_no_choose || get_state() == caution_no_choose)
 								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("east"));
 							else
 								buf.printf("%s (%s)", translator::translate(get_time_signal_aspects_name(get_state())), translator::translate("west"));

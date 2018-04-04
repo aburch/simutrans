@@ -12,18 +12,16 @@
 marker_t marker_t::the_instance;
 marker_t* marker_t::markers; 
 
-void marker_t::init(int world_size_x,int world_size_y)
+void marker_t::init(int world_size_x, int world_size_y)
 {
 	// do not reallocate it, if same size ...
 	cached_size_x = world_size_x;
 	int new_bits_length = (world_size_x*world_size_y + bit_mask) / (bit_unit);
 
-	if(  bits_length != new_bits_length  ) {
+	if (bits_length != new_bits_length) {
 		bits_length = new_bits_length;
-		if(bits) {
-			delete [] bits;
-		}
-		if(bits_length) {
+		delete[] bits;
+		if (bits_length) {
 			bits = new unsigned char[bits_length];
 		}
 		else {

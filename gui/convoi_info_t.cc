@@ -30,6 +30,7 @@
 #include "../dataobj/environment.h"
 #include "../dataobj/loadsave.h"
 #include "schedule_gui.h"
+#include "times_history.h"
 // @author hsiegeln
 #include "../simlinemgmt.h"
 #include "../simline.h"
@@ -169,6 +170,11 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	replace_button.set_tooltip("Automatically replace this convoy.");
 	add_component(&replace_button);
 	replace_button.add_listener(this);
+
+	times_history_button.init(button_t::roundbox, "times_history", dummy, D_BUTTON_SIZE);
+	times_history_button.set_tooltip("view_journey_times_history_of_this_convoy");
+	add_component(&times_history_button);
+	times_history_button.add_listener(this);
 
 	//Position is set in convoi_info_t::set_fenstergroesse()
 	follow_button.init(button_t::roundbox_state, "follow me", dummy, scr_size(view.get_size().w, D_BUTTON_HEIGHT));
@@ -353,7 +359,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			details_button.pressed = win_get_magic(magic_convoi_detail + cnv.get_id());
 			go_home_button.enable(); // Will be disabled, if convoy goes to a depot.
 			if (!cnv->get_schedule()->empty()) {
-				const grund_t* g = welt->lookup(cnv->get_schedule()->get_current_eintrag().pos);
+				const grund_t* g = welt->lookup(cnv->get_schedule()->get_current_entry().pos);
 				if (g != NULL && g->get_depot()) {
 					go_home_button.disable();
 				}
@@ -367,7 +373,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				go_home_button.enable();
 			}
 
-			if (grund_t* gr = welt->lookup(cnv->get_schedule()->get_current_eintrag().pos)) {
+			if (grund_t* gr = welt->lookup(cnv->get_schedule()->get_current_entry().pos)) {
 				go_home_button.pressed = gr->get_depot() != NULL;
 			}
 			details_button.pressed = win_get_magic(magic_convoi_detail + cnv.get_id());
@@ -379,6 +385,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			replace_button.enable();
 			reverse_button.pressed = cnv->get_reverse_schedule();
 			reverse_button.enable();
+			times_history_button.enable();
 		}
 		else {
 			if (line_bound) {
@@ -391,6 +398,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			no_load_button.disable();
 			replace_button.disable();
 			reverse_button.disable();
+			times_history_button.disable();
 		}
 		follow_button.pressed = (welt->get_viewport()->get_follow_convoi() == cnv);
 
@@ -428,7 +436,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				break;
 
 			default:
-				if (cnv->get_state() == convoi_t::NO_ROUTE)
+				if (cnv->get_state() == convoi_t::NO_ROUTE || cnv->get_state() == convoi_t::NO_ROUTE_TOO_COMPLEX)
 					color = COL_RED;
 			}
 			display_ddd_box_clip(ipos.x, ipos.y, isize.w, 8, MN_GREY0, MN_GREY4);
@@ -483,7 +491,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			sprintf(speed_text, translator::translate("Waiting for clearance!"));
 			speed_color = COL_BLACK;
 			break;
-			
+
 		case convoi_t::EMERGENCY_STOP:
 
 			char emergency_stop_time[64];
@@ -497,7 +505,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 
 			char waiting_time[64];
 			cnv->snprintf_remaining_loading_time(waiting_time, sizeof(waiting_time));
-			if (cnv->get_schedule()->get_current_eintrag().wait_for_time)
+			if (cnv->get_schedule()->get_current_entry().wait_for_time)
 			{
 				sprintf(speed_text, translator::translate("Waiting for schedule. %s left"), waiting_time);
 				speed_color = COL_YELLOW;
@@ -520,7 +528,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				sprintf(speed_text, translator::translate("Loading. %s left!"), waiting_time);
 				speed_color = COL_BLACK;
 			}
-			
+
 			break;
 
 		case convoi_t::REVERSING:
@@ -556,6 +564,11 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			{
 				sprintf(speed_text, translator::translate("clf_chk_noroute"));
 			}
+			speed_color = COL_RED;
+			break;
+
+		case convoi_t::NO_ROUTE_TOO_COMPLEX:
+			sprintf(speed_text, translator::translate("no_route_too_complex_message"));
 			speed_color = COL_RED;
 			break;
 
@@ -665,32 +678,27 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			pos_y = pos_y0 + 5 * LINESPACE; // line 6
 			sint32 cnv_route_index_left = cnv->get_route()->get_count() - 1 - cnv_route_index;
 			info_buf.clear();
-			const double km_per_tile = welt->get_settings().get_meters_per_tile() / 1000.0;
-			const double km_left = (double)cnv_route_index_left * km_per_tile;
 
-			if (km_left < 1)
+			double distance;
+			char distance_display[10];
+			distance = (double)(cnv_route_index_left * welt->get_settings().get_meters_per_tile()) / 1000.0;
+
+			if (distance <= 0)
 			{
-				float m_left = km_left * 1000;
-				info_buf.append(m_left);
-				info_buf.append("m ");
+				sprintf(distance_display, "0km");
+			}
+			else if (distance < 1)
+			{
+				sprintf(distance_display, "%.0fm", distance * 1000);
 			}
 			else
 			{
-				uint n_actual;
-				if (km_left < 5)
-				{
-					n_actual = 1;
-				}
-				else
-				{
-					n_actual = 0;
-				}
-				char number_actual[10];
-				number_to_string(number_actual, km_left, n_actual);
-				info_buf.append(number_actual);
-				info_buf.append("km ");
+				uint n_actual = distance < 5 ? 1 : 0;
+				char tmp[10];
+				number_to_string(tmp, distance, n_actual);
+				sprintf(distance_display, "%skm", tmp);
 			}
-			info_buf.append(translator::translate("left"));
+			info_buf.printf("%s %s", distance_display, translator::translate("left"));
 			int offset = 189;
 			display_proportional_clip(pos_x + offset, pos_y, info_buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
 		}
@@ -706,26 +714,93 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Serves Line"));
 			int len = display_proportional(line_x + 1, pos_y, tmp, ALIGN_LEFT, SYSCOL_TEXT, true) + 5;
-			
+
 			int existing_caracters = len / 4;
 			int extra_caracters = (get_windowsize().w - get_min_windowsize().w) / 6;
 			char convoy_line[256] = "\0";
 			sprintf(convoy_line, cnv->get_line()->get_name());
 			tmp[0] = '\0';
-			if (convoy_line[48-existing_caracters+extra_caracters] != '\0')
+			if (convoy_line[48 - existing_caracters + extra_caracters] != '\0')
 			{
-				convoy_line[45-existing_caracters+extra_caracters] = '\0';
-				sprintf(tmp,"...");
+				convoy_line[45 - existing_caracters + extra_caracters] = '\0';
+				sprintf(tmp, "...");
 			}
 			info_buf.clear();
 			info_buf.append(convoy_line);
 			info_buf.append(tmp);
 			display_proportional_clip(line_x + len, pos_y, info_buf, ALIGN_LEFT, cnv->get_line()->get_state_color(), true);
 		}
+		//{
+		//	int pos_y = pos_y0 + 7 * LINESPACE; // line 8 and 9
+		//										// Status text
+		//	char tmp[256] = "\0";
+		//	COLOR_VAL status_color = SYSCOL_TEXT;
+		//	int message_lines = 0;
+		//	/*if (message_lines < 2 && cnv->get_jahresgewinn() < 0)	// Not sure if we really need to know this...
+		//	{
+		//		sprintf(tmp, (translator::translate("convoy_made_a_loss_last_month")));
+		//		status_color = MONEY_MINUS;
+		//		display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
+		//		pos_y += LINESPACE;
+		//		message_lines++;
+		//	}*/
+		//	if (message_lines < 2 && cnv->get_overcrowded() > 0)
+		//	{
+		//		sprintf(tmp, (translator::translate("frequently_overcrowded")));
+		//		status_color = COL_DARK_PURPLE;
+		//		display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
+		//		pos_y += LINESPACE;
+		//		message_lines++;
+		//	}
+
+		//	// Can upgrade while obsolete?
+		//	const uint16 month_now = welt->get_timeline_year_month();
+		//	int amount_of_upgradeable_vehicles = 0;
+		//	bool has_obsolete_that_can_upgrade = false;
+
+		//	for (uint16 i = 0; i < cnv->get_vehicle_count(); i++)
+		//	{
+		//		vehicle_t *v = cnv->get_vehicle(i);
+		//		if (v->get_desc()->get_upgrades_count() > 0)
+		//		{
+		//			for (int k = 0; k < v->get_desc()->get_upgrades_count(); k++)
+		//			{
+		//				if (v->get_desc()->get_upgrades(k) && !v->get_desc()->get_upgrades(k)->is_future(month_now) && (!v->get_desc()->get_upgrades(k)->is_retired(month_now)))
+		//				{
+		//					has_obsolete_that_can_upgrade = true;
+		//				}
+		//			}
+		//		}
+		//	}
+		//	if (message_lines < 2 && has_obsolete_that_can_upgrade)
+		//	{
+		//		sprintf(tmp, (translator::translate("obsolete_vehicles_with_upgrades")));
+		//		status_color = COL_PURPLE;
+		//		display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
+		//		pos_y += LINESPACE;
+		//		message_lines++;
+		//	}			
+		//	if (message_lines < 2 && cnv->has_obsolete_vehicles() && !has_obsolete_that_can_upgrade) {
+		//		sprintf(tmp, (translator::translate("obsolete_vehicles")));
+		//		status_color = COL_DARK_BLUE;
+		//		display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
+		//		pos_y += LINESPACE;
+		//		message_lines++;
+		//	}
+		//	if (message_lines < 2 && (!cnv->get_finance_history(0, convoi_t::CONVOI_TRANSPORTED_GOODS) && !cnv->get_finance_history(1, convoi_t::CONVOI_TRANSPORTED_GOODS)))
+		//	{
+		//		sprintf(tmp, (translator::translate("nothing_moved_in_this_and_past_month")));
+		//		status_color = COL_YELLOW;
+		//		display_proportional_clip(pos_x, pos_y, tmp, ALIGN_LEFT, status_color, true);
+		//		pos_y += LINESPACE;
+		//		message_lines++;
+		//	}
+		//}
+
 #ifdef DEBUG_CONVOY_STATES
 		{
 			// Debug: show covnoy states
-			int debug_row = 7;
+			int debug_row = 9;
 			{
 				const int pos_y = pos_y0 + debug_row * LINESPACE;
 
@@ -738,6 +813,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 				case convoi_t::ROUTING_2:		sprintf(state_text, "ROUTING_2");	break;
 				case convoi_t::DUMMY5:			sprintf(state_text, "DUMMY5");	break;
 				case convoi_t::NO_ROUTE:		sprintf(state_text, "NO_ROUTE");	break;
+				case convoi_t::NO_ROUTE_TOO_COMPLEX:		sprintf(state_text, "NO_ROUTE_TOO_COMPLEX");	break;
 				case convoi_t::DRIVING:			sprintf(state_text, "DRIVING");	break;
 				case convoi_t::LOADING:			sprintf(state_text, "LOADING");	break;
 				case convoi_t::WAITING_FOR_CLEARANCE:			sprintf(state_text, "WAITING_FOR_CLEARANCE");	break;
@@ -924,6 +1000,12 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 			return true;
 		}
 
+		if(comp == &times_history_button) 
+		{
+			create_win(20, 20, new times_history_t(linehandle_t(), cnv), w_info, magic_convoi_time_history + cnv.get_id() );
+			return true;
+		}
+
 		if(comp == &go_home_button) {
 			// limit update to certain states that are considered to be safe for schedule updates
 			if(cnv->is_locked())
@@ -1037,6 +1119,7 @@ void convoi_info_t::set_windowsize(scr_size size)
 	}
 
 	button.set_pos(scr_coord(BUTTON1_X, y));
+	times_history_button.set_pos(scr_coord(BUTTON1_X, y - D_V_SPACE - D_BUTTON_HEIGHT));
 	go_home_button.set_pos(scr_coord(BUTTON2_X, y));
 	no_load_button.set_pos(scr_coord(BUTTON3_X, y));
 	y += D_BUTTON_HEIGHT + D_V_SPACE; 

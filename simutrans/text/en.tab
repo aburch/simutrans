@@ -1625,6 +1625,8 @@ heath
  Hoo
 &40_CITY_SUFFIX
  Mortimer
+&41_CITY_SUFFIX
+ Hundred
 # 
 # Other strings
 # 
@@ -1952,6 +1954,8 @@ clf_chk_noline
 No line
 clf_chk_noroute
 No route
+clf_chk_noroute_too_complex
+No route (too long/complex)
 clf_chk_noschedule
 No schedule
 clf_chk_ships
@@ -1996,6 +2000,8 @@ cl_txt_filter
 Filter:
 cl_txt_sort
 Sort by:
+no_route_too_complex_message
+This vehicle is too far from its destination to find a route automatically. Try inserting some waypoints into its schedule to help it find the right way to go.
 Clear block reservation
 Show/clear block reservations
 COLOR_CHOOSE\n
@@ -3712,6 +3718,8 @@ left
 left
 upgradeable_vehicles
 upgradeable vehicles
+reassigned_class
+modified price
 possible_upgrades
 possible upgrades
 this_vehicle_can_upgrade_to
@@ -3729,13 +3737,13 @@ This line did not move any good last month
 line_overcrowded
 This line is frequently overcrowded
 line_missing_scheduled_slots
-This line where missing scheduled slots last month
+This line was missing scheduled slots last month
 line_has_obsolete_vehicles
 This line operates with obsolete vehicles
 line_has_obsolete_vehicles_with_upgrades
 This line has obsolete vehicles with upgrades
 staff_shortage
-Staff shortage!
+Staff shortage
 reset_all_pass_classes
 Reset all passenger classes
 resets_all_passenger_classes_to_their_defaults
@@ -3753,6 +3761,36 @@ Catering cars: %i
 tpo_cars: %i
 Traveling post offices: %i
 line_class_manager
-Price manager
+Change prices
 change_the_classes_for_the_entire_line
 Change the prices for the entire line
+reassigned_class
+reassigned class
+reassigned_classes
+reassigned classes
+times_history
+Times History
+view_journey_times_history_of_this_line
+View journey times history of this line.
+view_journey_times_history_of_this_convoy
+View journey times history of this convoy.
+no_time_entry
+----
+stations
+Stations
+latest_3
+Latest 3
+average
+Average
+bidirectional_order
+Bidirectional order:
+reversed_unidirectional_order
+Reversed unidirectional order:
+normal_unidirectional_order
+Normal unidirectional order:
+line_times_history
+Line Times History: 
+convoy_times_history
+Convoy Times History: 
+more_units
+more units

@@ -190,8 +190,13 @@ settings_t::settings_t() :
 	 */
 	pak_diagonal_multiplier = 724;
 
-	// assume single level is enough
-	way_height_clearance = 1;
+	// read default from env_t
+	// should be set in simmain.cc (taken from pak-set simuconf.tab
+	way_height_clearance = env_t::default_settings.get_way_height_clearance();
+	if (way_height_clearance < 0 || way_height_clearance >2) {
+		// if outside bounds, then set to default = 1
+		way_height_clearance = 1;
+	}
 
 	strcpy( language_code_names, "en" );
 
@@ -445,6 +450,8 @@ settings_t::settings_t() :
 	max_small_city_size = 1000;
 	max_city_size = 5000;
 
+	power_revenue_factor_percentage=100;
+	
 	allow_making_public = true;
 
 	reroute_check_interval_steps = 8192;
@@ -523,6 +530,8 @@ settings_t::settings_t() :
 	minimum_staffing_percentage_full_production_producer_industry = 80;
 
 	max_comfort_preference_percentage = 500;
+
+	rural_industries_no_staff_shortage = true;
 }
 
 void settings_t::set_default_climates()
@@ -1720,6 +1729,19 @@ void settings_t::rdwr(loadsave_t *file)
 		{
 			max_comfort_preference_percentage = 500;
 		}
+
+		if (file->get_extended_version() >= 13 && file->get_extended_revision() >= 3)
+		{
+			file->rdwr_bool(rural_industries_no_staff_shortage);
+		}
+		else if (file->is_loading())
+		{
+			rural_industries_no_staff_shortage = true;
+		}
+		if (file->get_extended_version() >= 13 && file->get_extended_revision() >= 4)
+		{
+			file->rdwr_long(power_revenue_factor_percentage);
+		}
 	}
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -2582,6 +2604,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	minimum_staffing_percentage_full_production_producer_industry = contents.get_int("minimum_staffing_percentage_full_production_producer_industry", minimum_staffing_percentage_full_production_producer_industry); 
 
 	max_comfort_preference_percentage = contents.get_int("max_comfort_preference_percentage", max_comfort_preference_percentage);
+
+	rural_industries_no_staff_shortage = contents.get_int("rural_industries_no_staff_shortage", rural_industries_no_staff_shortage); 
 
 	// OK, this is a bit complex.  We are at risk of loading the same livery schemes repeatedly, which
 	// gives duplicate livery schemes and utter confusion.

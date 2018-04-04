@@ -66,16 +66,6 @@ public:
 		return (capacity<=1) ? obj.one : obj.some[n];
 	}
 
-	typedef obj_t*const* const_iterator;
-	inline const_iterator begin() const
-	{
-		return (capacity<=1) ? &obj.one : obj.some;
-	}
-	inline const_iterator end() const 
-	{
-		return ((capacity<=1) ? &obj.one : obj.some) + top;
-	}
-
 	// usually used only for copying by grund_t
 	obj_t *remove_last();
 
@@ -129,7 +119,6 @@ public:
 	/* display all things, called by the routines in grund_t
 	*  @author prissi,dwachs
 	*/
-
 	uint8 display_obj_bg(const sint16 xpos, const sint16 ypos, const uint8 start_offset  CLIP_NUM_DEF) const;
 	uint8 display_obj_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile  CLIP_NUM_DEF) const;
 
@@ -140,7 +129,6 @@ public:
 #else
 	void display_obj_fg(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool is_global ) const;
 #endif
-
 } GCC_PACKED;
 
 #endif

@@ -32,35 +32,64 @@ void wasser_t::prepare_for_refresh()
 	}
 }
 
+/**
+ * helper function: return maximal possible ribis, does not
+ * take water ribi of sea tiles into account.
+ */
+ribi_t::ribi get_base_water_ribi(grund_t *gr)
+{
+	return gr->is_water() ? (ribi_t::ribi)ribi_t::all : gr->grund_t::get_weg_ribi(water_wt);
+}
+
 
 void wasser_t::calc_image_internal(const bool calc_only_snowline_change)
 {
-	if(  !calc_only_snowline_change  ) {
-		koord pos2d( get_pos().get_2d() );
-		sint16 height = welt->get_water_hgt( pos2d );
-		set_hoehe( height );
+	if (!calc_only_snowline_change) {
+		koord pos2d(get_pos().get_2d());
+		sint16 height = welt->get_water_hgt(pos2d);
+		set_hoehe(height);
 		slope = slope_t::flat;
 
-		sint16 zpos = min( welt->lookup_hgt( pos2d ), height ); // otherwise slope will fail ...
+		sint16 zpos = min(welt->lookup_hgt(pos2d), height); // otherwise slope will fail ...
 
-		if(  grund_t::underground_mode == grund_t::ugm_level  &&  grund_t::underground_level < zpos  ) {
+		if (grund_t::underground_mode == grund_t::ugm_level  &&  grund_t::underground_level < zpos) {
 			set_image(IMG_EMPTY);
 		}
 		else {
-			set_image( min( height - zpos, ground_desc_t::water_depth_levels ) /*ground_desc_t::get_ground_tile(0,zpos)*/ );
+			set_image(min(height - zpos, ground_desc_t::water_depth_levels) /*ground_desc_t::get_ground_tile(0,zpos)*/);
 		}
 
 		// test tiles to north, south, east and west and add to ribi if water
 		ribi = ribi_t::none;
-		for(  uint8 i = 0;  i < 4;  i++  ) {
+		canal_ribi = ribi_t::none;
+		ribi_t::ribi base_ribi = get_base_water_ribi(this);
+		for (uint8 i = 0; i < 4; i++) {
 			grund_t *gr_neighbour = NULL;
-			if(  get_neighbour( gr_neighbour, invalid_wt, ribi_t::nsew[i] )  &&  (gr_neighbour->is_water()  ||  gr_neighbour->hat_weg( water_wt ))  ) {
-				ribi |= ribi_t::nsew[i];
+			ribi_t::ribi test = ribi_t::nsew[i];
+			if ((test&base_ribi) && get_neighbour(gr_neighbour, invalid_wt, test)) {
+				// neighbour tile has water ways
+				ribi_t::ribi ribi_neigh_base = get_base_water_ribi(gr_neighbour);
+				if ((ribi_neigh_base & ribi_t::reverse_single(test)) == 0) {
+					// we cannot go back to our tile
+					continue;
+				}
+
+				// set water ribi bit
+				ribi |= test;
+
+				// test whether we can turn on neighbour canal tile
+				if (!gr_neighbour->is_water()) {
+					ribi_t::ribi ribi_orth = ribi_t::doubles(ribi_t::rotate90(test));
+					if ((ribi_neigh_base & ribi_orth) != ribi_orth) {
+						// turning not possible, mark it as canal ribi
+						canal_ribi |= test;
+					}
+				}
+
+				// artifical walls from here on ...
+				grund_t::calc_back_image(height, 0);
 			}
 		}
-
-		// artifical walls from here on ...
-		grund_t::calc_back_image( height, 0 );
 	}
 }
 

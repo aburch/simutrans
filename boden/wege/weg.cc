@@ -782,26 +782,44 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 		const uint16 time = welt->get_timeline_year_month();
 		bool is_current = !time || replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month();
 
-		if (replacement_way->get_name() != get_desc()->get_name())
+		// Publicly owned roads in towns are replaced with the latest city road type.
+		const bool public_city_road = get_waytype() == road_wt && (get_owner() == NULL || get_owner()->is_public_service()) && welt->get_city(get_pos().get_2d());
+		const way_desc_t* latest_city_road = welt->get_settings().get_city_road_type(time); 
+
+		if (public_city_road)
 		{
-			if (!is_current)
-			{
-				buf.append(translator::translate(way_builder_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity())->get_name()));
-			}
-			else
-			{
-				buf.append(translator::translate(replacement_way->get_name()));
-			}
-		}
-		else
-		{
-			if (!degraded)
+			if (replacement_way == latest_city_road)
 			{
 				buf.append(translator::translate("same_as_current"));
 			}
 			else
 			{
-				buf.append(translator::translate("keine"));
+				buf.append(translator::translate(latest_city_road->get_name()));
+			}
+		}
+		else
+		{
+			if (replacement_way->get_name() != get_desc()->get_name())
+			{
+				if (!is_current)
+				{
+					buf.append(translator::translate(way_builder_t::weg_search(replacement_way->get_waytype(), replacement_way->get_topspeed(), (const sint32)replacement_way->get_axle_load(), time, (systemtype_t)replacement_way->get_styp(), replacement_way->get_wear_capacity())->get_name()));
+				}
+				else
+				{
+					buf.append(translator::translate(replacement_way->get_name()));
+				}
+			}
+			else
+			{
+				if (!degraded)
+				{
+					buf.append(translator::translate("same_as_current"));
+				}
+				else
+				{
+					buf.append(translator::translate("keine"));
+				}
 			}
 		}
 		if (replacement_way->is_mothballed() == false)
@@ -926,13 +944,13 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 				if (!any_permissive)
 				{
 					buf.append("\n");
-					buf.append("assets");
+					buf.append(translator::translate("assets"));
 					buf.append(":");
 					buf.append("\n");
 				}
 				any_permissive = true;
 				char tmpbuf[30];
-				sprintf(tmpbuf, "Permissive %i", i);
+				sprintf(tmpbuf, " Permissive %i-%i", desc->get_waytype(), i);
 				buf.append(translator::translate(tmpbuf));
 				buf.append("\n");
 			}
@@ -942,7 +960,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 			if (!any_permissive)
 			{
 				buf.append("\n");
-				buf.append("assets");
+				buf.append(translator::translate("assets"));
 				buf.append(":");
 				buf.append("\n");
 			}
@@ -957,12 +975,12 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 				if (!any_prohibitive)
 				{
 					buf.append("\n");
-					buf.append("Restrictions:");
+					buf.append(translator::translate("Restrictions:"));
 					buf.append("\n");
 				}
 				any_prohibitive = true;
 				char tmpbuf[30];
-				sprintf(tmpbuf, "Prohibitive %i", i);
+				sprintf(tmpbuf, "Prohibitive %i-%i", desc->get_waytype(), i);
 				buf.append(translator::translate(tmpbuf));
 				buf.append("\n");
 			}
@@ -972,7 +990,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 			if (!any_prohibitive)
 			{
 				buf.append("\n");
-				buf.append("Restrictions:");
+				buf.append(translator::translate("Restrictions:"));
 				buf.append("\n");
 			}
 			buf.append(translator::translate("Low bridge"));
@@ -1479,6 +1497,7 @@ bool weg_t::renew()
 	}
 
 	player_t* const owner = get_owner();
+
 	bool success = false;
 	const sint64 price = desc->get_upgrade_group() == replacement_way->get_upgrade_group() ? replacement_way->get_way_only_cost() : replacement_way->get_value();
 	if(welt->get_city(get_pos().get_2d()) || (owner && (owner->can_afford(price) || owner->is_public_service())))
@@ -1486,8 +1505,14 @@ bool weg_t::renew()
 		// Unowned ways in cities are assumed to be owned by the city and will be renewed by it.
 		waytype_t wt = replacement_way->get_waytype();
 		const uint16 time = welt->get_timeline_year_month();
+		const bool public_city_road = get_waytype() == road_wt && (owner == NULL || get_owner()->is_public_service()) && welt->get_city(get_pos().get_2d());
+		const way_desc_t* latest_city_road = welt->get_settings().get_city_road_type(time); 
 		bool is_current = !time || (replacement_way->get_intro_year_month() <= time && time < replacement_way->get_retire_year_month());
-		if(!is_current)
+		if (public_city_road && desc != latest_city_road)
+		{
+			replacement_way = latest_city_road;
+		}
+		else if(!is_current)
 		{
 			way_constraints_of_vehicle_t constraints;
 			constraints.set_permissive(desc->get_way_constraints().get_permissive());

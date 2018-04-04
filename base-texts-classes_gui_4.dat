@@ -1,0 +1,14 @@
+# Simutranslator settings for Simutrans-Extended texts
+# Addendum for the reorganisation of the depot window
+#
+# Author: jamespetts
+# Created: April 2013
+#
+obj=program_text
+name=reassigned_class
+note=Shown in convoy details window
+-
+obj=program_text
+name=reassigned_classes
+note=Shown in convoy details window
+-

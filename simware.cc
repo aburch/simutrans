@@ -41,6 +41,7 @@ ware_t::ware_t(const goods_desc_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -
 	menge = 0;
 	index = wtyp->get_index();
 	arrival_time = 0;
+	g_class = 0;
 }
 
 // Constructor for new revenue system: packet of cargo keeps track of its origin.
@@ -253,6 +254,8 @@ void ware_t::rdwr(loadsave_t *file)
 	{
 		g_class = 0;
 	}
+
+	g_class = min(g_class, get_desc()->get_number_of_classes()-1);
 
 	if (file->get_extended_version() >= 13 || (file->get_extended_version() == 12 && file->get_extended_revision() >= 27))
 	{
