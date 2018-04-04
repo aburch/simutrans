@@ -712,10 +712,10 @@ void roadsign_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(  file->get_version()>=120005  ) {
+	if((file->get_extended_version() == 13 && file->get_extended_revision() >= 6) || file->get_extended_version() >= 14) {
 		file->rdwr_byte(open_direction);
 	} else if(  file->is_loading()  ) {
-		 open_direction = 0xA5;
+		open_direction = 0xA5;
 	}
 
 	dummy = state;
