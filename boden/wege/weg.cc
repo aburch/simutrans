@@ -1015,22 +1015,22 @@ if(  get_waytype() == road_wt  ) {
 		// Display overtaking_info
 		switch (str->get_overtaking_mode()) {
 			case oneway_mode:
-				buf.printf("%s %s¥n", translator::translate("overtaking:"),translator::translate("oneway"));
+				buf.printf("%s %s\n", translator::translate("overtaking:"),translator::translate("oneway"));
 				break;
 			case twoway_mode:
-				buf.printf("%s %s¥n", translator::translate("overtaking:"),translator::translate("twoway"));
+				buf.printf("%s %s\n", translator::translate("overtaking:"),translator::translate("twoway"));
 				break;
 			case loading_only_mode:
-				buf.printf("%s %s¥n", translator::translate("overtaking:"),translator::translate("only loading convoi"));
+				buf.printf("%s %s\n", translator::translate("overtaking:"),translator::translate("only loading convoi"));
 				break;
 			case prohibited_mode:
-				buf.printf("%s %s¥n", translator::translate("overtaking:"),translator::translate("prohibited"));
+				buf.printf("%s %s\n", translator::translate("overtaking:"),translator::translate("prohibited"));
 				break;
 			case inverted_mode:
-				buf.printf("%s %s¥n", translator::translate("overtaking:"),translator::translate("inverted"));
+				buf.printf("%s %s\n", translator::translate("overtaking:"),translator::translate("inverted"));
 				break;
 			default:
-				buf.printf("%s %s¥n", translator::translate("overtaking:"),translator::translate("ERROR"));
+				buf.printf("%s %s\n", translator::translate("overtaking:"),translator::translate("ERROR"));
 				break;
 		}
 }
