@@ -1111,6 +1111,9 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 	 * calculate movement in the next delta_t ticks.
 	 */
 	akt_speed_soll = min(get_min_top_speed(), max_signal_speed);
+	if(  yielding_quit_index != -1  &&  akt_speed_soll>kmh_to_speed(15)  ) {
+		akt_speed_soll -= kmh_to_speed(15);
+	}
 	calc_move(welt->get_settings(), delta_t, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, v);
 }
 
@@ -1709,6 +1712,7 @@ void convoi_t::step()
 	bool rev;
 	grund_t* gr;
 
+	strasse_t* str;
 	switch(state)
 	{
 		case INITIAL:
@@ -2180,7 +2184,7 @@ end_loop:
 				if(restart_speed>=0) {
 					set_akt_speed(restart_speed);
 				}
-				if(  fahr[0]->get_waytype()==road_wt  ) {
+				if(  front()->get_waytype()==road_wt  ) {
 					sint8 overtaking_mode = static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode();
 					if(  (state==CAN_START  ||  state==CAN_START_ONE_MONTH)  &&  overtaking_mode!=oneway_mode  &&  overtaking_mode!=inverted_mode  ) {
 						set_tiles_overtaking( 0 );
@@ -2205,7 +2209,7 @@ end_loop:
 				if(restart_speed>=0) {
 					set_akt_speed(restart_speed);
 				}
-				if(  fahr[0]->get_waytype()==road_wt  ) {
+				if(  front()->get_waytype()==road_wt  ) {
 					sint8 overtaking_mode = static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode();
 					if(  state!=DRIVING  &&  overtaking_mode!=oneway_mode  &&  overtaking_mode!=inverted_mode  ) {
 						set_tiles_overtaking( 0 );
@@ -7153,7 +7157,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	}
 
 	// Around the end of route, overtaking moving convoi should not be allowed.
-	if(  get_route()->get_count() - fahr[0]->get_route_index() < 5  ) {
+	if(  get_route()->get_count() - front()->get_route_index() < 5  ) {
 		return false;
 	}
 	// Do not overtake a vehicle which has higher max_power_speed than this.
@@ -7193,10 +7197,10 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	// tiles_to_overtake = convoi_length + current pos within tile + (pos_other_convoi wihtin tile + length of other convoi) - one tile
 	int distance = 1;
 	if(  !in_congestion  ) {
-		distance = akt_speed*(fahr[0]->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/diff_speed;
+		distance = akt_speed*(front()->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/diff_speed;
 	}
 	else {
-		distance = max_power_speed*(fahr[0]->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/(max_power_speed-other_speed);
+		distance = max_power_speed*(front()->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/(max_power_speed-other_speed);
 	}
 	int time_overtaking = 0;
 
@@ -7273,7 +7277,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 					if(this!=ov  &&  other_overtaker!=ov) {
 						if(  overtaking_mode_loop == oneway_mode  ) {
 							//If ov goes same directory, should not return false
-							ribi_t::ribi their_direction = ribi_t::backward( fahr[0]->calc_direction(pos_prev, pos_next) );
+							ribi_t::ribi their_direction = ribi_t::backward( front()->calc_direction(pos_prev, pos_next.get_2d()) );
 							vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));
 							if (v && v->get_direction() == their_direction && v->get_overtaker()) {
 								return false;
@@ -8122,20 +8126,19 @@ bool convoi_t::carries_this_or_lower_class(uint8 catg, uint8 g_class) const
  */
 void convoi_t::yield_lane_space()
 {
-	if(  speed_limit > kmh_to_speed(15)  ) {
-		uint32 quit_index = fahr[0]->get_route_index() + 3u;
+	if(  akt_speed > kmh_to_speed(15)  ) {
+		uint32 quit_index = front()->get_route_index() + 3u;
 		if(  quit_index >= get_route()->get_count()  ) {
 			quit_index = get_route()->get_count() - 1u;
 		}
 		yielding_quit_index = quit_index;
-		must_recalc_speed_limit();
 	}
 }
 
 bool convoi_t::calc_lane_affinity(uint8 lane_affinity_sign)
 {
 	if(  lane_affinity_sign!=0  &&  lane_affinity_sign<4  ) {
-		uint16 test_index = fahr[0]->get_route_index();
+		uint16 test_index = front()->get_route_index();
 		while(  test_index < route.get_count()  ) {
 			grund_t *gr = welt->lookup(route.at(test_index));
 			if(  !gr  ) {
@@ -8191,9 +8194,9 @@ bool convoi_t::calc_lane_affinity(uint8 lane_affinity_sign)
 }
 
 void convoi_t::reflesh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaking) {
-	if(  fahr[0]  &&  fahr[0]->get_waytype()==road_wt  &&  (prev_tiles_overtaking==0)^(current_tiles_overtaking==0)  ){
-		for(uint8 i=0; i<anz_vehikel; i++) {
-			road_vehicle_t* rv = dynamic_cast<road_vehicle_t*>(fahr[i]);
+	if(  front()  &&  front()->get_waytype()==road_wt  &&  (prev_tiles_overtaking==0)^(current_tiles_overtaking==0)  ){
+		for(uint8 i=0; i<vehicle_count; i++) {
+			road_vehicle_t* rv = dynamic_cast<road_vehicle_t*>(vehicle[i]);
 			if(rv) {
 				rv->reflesh();
 			}

@@ -1464,7 +1464,7 @@ public:
 	void set_requested_change_lane(bool x) { requested_change_lane = x; }
 	void yield_lane_space();
 	sint32 get_yielding_quit_index() const { return yielding_quit_index; }
-	void quit_yielding_lane() { yielding_quit_index = -1; must_recalc_speed_limit(); }
+	void quit_yielding_lane() { yielding_quit_index = -1; }
 
 	/*
 	* Functions related to lane fixing

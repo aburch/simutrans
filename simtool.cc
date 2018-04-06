@@ -2754,7 +2754,7 @@ const char *tool_build_cityroad::do_work( player_t *player, const koord3d &start
 {
 	way_builder_t bauigel(player);
 	bauigel.set_build_sidewalk(true);
-  bauigel.set_overtaking_mode(overtaking_mode)
+  bauigel.set_overtaking_mode(overtaking_mode);
 	calc_route( bauigel, start, end );
 	if(  bauigel.get_route().get_count()>1  ) {
 		welt->mute_sound(true);
@@ -3117,7 +3117,7 @@ tool_build_tunnel_t::tool_build_tunnel_t() : two_click_tool_t(TOOL_BUILD_TUNNEL 
 	{
 		way_desc = default_param ? way_builder_t::get_desc(default_param, 0) : tool_build_way_t::defaults[get_waytype() & 63];
 	}
-  overtaking_mode = twoway_mode
+  overtaking_mode = twoway_mode;
 }
 
 const char* tool_build_tunnel_t::get_tooltip(const player_t *) const
@@ -3254,7 +3254,7 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 		// Build tunnel mouths
 		if (welt->lookup_kartenboden(start.get_2d())->get_hoehe() == start.z) {
 			const tunnel_desc_t *desc = tunnel_builder_t::get_desc(default_param);
-			return tunnel_builder_t::build( player, start.get_2d(), desc, !is_ctrl_pressed(), way_desc, overtaking_mode );
+			return tunnel_builder_t::build( player, start.get_2d(), desc, !is_ctrl_pressed(), overtaking_mode, way_desc );
 		}
 		else {
 			return "";
@@ -3265,7 +3265,7 @@ const char *tool_build_tunnel_t::do_work( player_t *player, const koord3d &start
 		way_builder_t bauigel(player);
 		calc_route( bauigel, start, end );
 		welt->mute_sound(true);
-		bauigel.set_overtaking_mode(overtaking_mode)
+		bauigel.set_overtaking_mode(overtaking_mode);
 		bauigel.set_desc(way_desc);
 		bauigel.build();
 		welt->mute_sound(false);

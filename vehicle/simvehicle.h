@@ -212,6 +212,7 @@ public:
 	virtual void rotate90();
 
 	static ribi_t::ribi calc_direction(koord start, koord ende);
+	static ribi_t::ribi calc_direction(koord3d start, koord3d end) { return calc_direction(start.get_2d(), end.get_2d()); }
 	ribi_t::ribi calc_set_direction(const koord3d& start, const koord3d& ende);
 	uint16 get_tile_steps(const koord &start, const koord &ende, /*out*/ ribi_t::ribi &direction) const;
 
@@ -756,8 +757,6 @@ public:
 
 	virtual overtaker_t* get_overtaker();
 	virtual convoi_t* get_overtaker_cv();
-
-	void rdwr_from_convoi(loadsave_t *file);
 
 	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top = false, sint8 offset = 0) const;
 	virtual vehicle_base_t* other_lane_blocked_offset() const { return other_lane_blocked(false,1); }

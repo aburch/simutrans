@@ -310,7 +310,7 @@ class tool_build_bridge_t : public two_click_tool_t {
 private:
 	ribi_t::ribi ribi;
 	const way_desc_t* way_desc;
-	overtaking_mode_t overtaking_mode
+	overtaking_mode_t overtaking_mode;
 
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
@@ -318,7 +318,7 @@ private:
 public:
 	tool_build_bridge_t() : two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) {
 		way_desc = NULL;
-		overtaking_mode = twoway_mode
+		overtaking_mode = twoway_mode;
 	}
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
 	char const* get_tooltip(player_t const*) const OVERRIDE;

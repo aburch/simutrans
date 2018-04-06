@@ -3930,24 +3930,24 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 							convoi_t* const ocnv = car->get_convoi();
 							// yielding vehicle should not be overtaken by the vehicle whose maximum speed is same.
 							bool yielding_factor = true;
-							if(  ocnv->get_yielding_quit_index() != -1  &&  this->get_speed_limit() - ocnv->get_speed_limit() < kmh_to_speed(10)  ) {
+							if(  ocnv->get_yielding_quit_index() != -1  &&  this->get_speed_limit() - ocnv->get_min_top_speed() < kmh_to_speed(10)  ) {
 								yielding_factor = false;
 							}
-							if(  cnv->get_lane_affinity() != -1  &&  next_lane<1  &&  !cnv->is_overtaking()  &&  !other_lane_blocked()  &&  yielding_factor  &&  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : ocnv->get_akt_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
+							if(  cnv->get_lane_affinity() != -1  &&  next_lane<1  &&  !cnv->is_overtaking()  &&  !other_lane_blocked()  &&  yielding_factor  &&  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : ocnv->get_akt_speed()), ocnv->get_length_in_steps()+ocnv->front()->get_steps())  ) {
 								return true;
 							}
 							strasse_t *str=(strasse_t *)gr->get_weg(road_wt);
-							sint32 cnv_max_speed = (int)fmin(cnv->get_speed_limit(), str->get_max_speed()*kmh_to_speed(1));
-							sint32 other_max_speed = (int)fmin(ocnv->get_speed_limit(), str->get_max_speed()*kmh_to_speed(1));
+							sint32 cnv_max_speed = (int)fmin(cnv->get_min_top_speed(), str->get_max_speed()*kmh_to_speed(1));
+							sint32 other_max_speed = (int)fmin(ocnv->get_min_top_speed(), str->get_max_speed()*kmh_to_speed(1));
 							if(  cnv->is_overtaking() && kmh_to_speed(10) <  cnv_max_speed - other_max_speed  ) {
-								//If the convoi is on passing lane and there is slower convoi in front of this, this convoi request the slower to go to traffic lane.
+								// If the convoi is on passing lane and there is slower convoi in front of this, this convoi request the slower to go to traffic lane.
 								ocnv->set_requested_change_lane(true);
 							}
 							//For the case that the faster convoi is on traffic lane.
 							if(  cnv->get_lane_affinity() != -1  &&  next_lane<1  &&  !cnv->is_overtaking() && kmh_to_speed(10) <  cnv_max_speed - other_max_speed  ) {
 								if(  vehicle_base_t* const br = car->other_lane_blocked()  ) {
 									if(  road_vehicle_t const* const blk = obj_cast<road_vehicle_t>(br)  ) {
-										if(  car->get_direction() == blk->get_direction() && abs(car->get_convoi()->get_speed_limit() - blk->get_convoi()->get_speed_limit()) < kmh_to_speed(5)  ){
+										if(  car->get_direction() == blk->get_direction() && abs(car->get_convoi()->get_min_top_speed() - blk->get_convoi()->get_min_top_speed()) < kmh_to_speed(5)  ){
 											//same direction && (almost) same speed vehicle exists.
 											ocnv->yield_lane_space();
 										}
@@ -3995,7 +3995,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 							// not overtaking/being overtake: we need to make a more thought test!
 							if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(obj)  ) {
 								convoi_t* const ocnv = car->get_convoi();
-								if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
+								if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->front()->get_steps())  ) {
 									return true;
 								}
 							}
@@ -4088,7 +4088,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			if(  vehicle_base_t* v = other_lane_blocked()  ) {
 				if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(v)  ) {
 					convoi_t* ocnv = car->get_convoi();
-					if(  ocnv  &&  abs(cnv->get_speed_limit() - ocnv->get_speed_limit()) < kmh_to_speed(5)  ) {
+					if(  ocnv  &&  abs(cnv->get_min_top_speed() - ocnv->get_min_top_speed()) < kmh_to_speed(5)  ) {
 						cnv->yield_lane_space();
 					}
 				}
@@ -4272,7 +4272,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 					//request the blocking convoi to reduce speed.
 					if(  v  ) {
 						if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(v)  ) {
-							if(  abs(cnv->get_speed_limit() - car->get_convoi()->get_speed_limit()) < kmh_to_speed(5)  ) {
+							if(  abs(cnv->get_min_top_speed() - car->get_convoi()->get_min_top_speed()) < kmh_to_speed(5)  ) {
 								car->get_convoi()->yield_lane_space();
 							}
 						}
