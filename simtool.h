@@ -258,7 +258,7 @@ public:
 };
 
 class tool_build_way_t : public two_click_tool_t {
-public: 
+public:
 	static const way_desc_t *defaults[18];	// default ways for all types
 private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
@@ -465,7 +465,7 @@ public:
 	waytype_t get_waytype() const OVERRIDE;
 };
 
-class tool_signalbox_t : public tool_t 
+class tool_signalbox_t : public tool_t
 {
 private:
 	static char toolstring[256];
@@ -611,7 +611,7 @@ private:
 };
 
 /* Signal reassignment tool */
-class tool_reassign_signal_t : public two_click_tool_t 
+class tool_reassign_signal_t : public two_click_tool_t
 {
 private:
 	koord3d last_selected_location;
@@ -985,6 +985,20 @@ public:
 	bool is_selected() const OVERRIDE { return schiene_t::show_reservations; }
 	bool init( player_t * ) {
 		schiene_t::show_reservations ^= 1;
+		welt->set_dirty();
+		return false;
+	}
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+};
+
+class tool_show_ribi_t : public tool_t {
+public:
+	tool_show_ribi_t() : tool_t(TOOL_SHOW_RIBI| SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("view masked ribi"); }
+	bool is_selected() const OVERRIDE { return weg_t::show_masked_ribi; }
+	bool init( player_t * ) {
+		weg_t::show_masked_ribi ^= 1;
 		welt->set_dirty();
 		return false;
 	}
