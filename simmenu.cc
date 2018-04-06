@@ -169,6 +169,7 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_TOGGLE_RESERVATION:tool = new tool_toggle_reservation_t(); break;
 		case TOOL_VIEW_OWNER:        tool = new tool_view_owner_t(); break;
 		case TOOL_HIDE_UNDER_CURSOR: tool = new tool_hide_under_cursor_t(); break;
+		case TOOL_SHOW_RIBI:    tool = new tool_show_ribi_t(); break;
 		// Extended non-UI tools - should be at the end.
 		case TOOL_RECOLOUR_TOOL:		tool = new tool_recolour_t(); break;
 		case TOOL_ACCESS_TOOL:		tool = new tool_access_t(); break;
