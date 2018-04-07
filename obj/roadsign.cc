@@ -350,7 +350,7 @@ void roadsign_t::info(cbuffer_t & buf, bool dummy) const
 	}
 
 	if(desc->is_single_way() && intersection_pos != koord3d::invalid) {
-			buf.printf("%s(%d,%d,%d)¥n", translator::translate("intersection:"), intersection_pos.x,intersection_pos.y,intersection_pos.z);
+			buf.printf("%s:(%d,%d,%d)\n", translator::translate("intersection"), intersection_pos.x,intersection_pos.y,intersection_pos.z);
 		}
 
 	// Did not figure out how to make the sign registrate a passing train // Ves
