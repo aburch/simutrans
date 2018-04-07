@@ -1943,7 +1943,7 @@ uint32 ms = dr_time();
 		}
 	}
 	else {
-		route_reversed = false;
+		route_reversed = true;
 		keep_existing_city_roads |= (bautyp&bot_flag)!=0;
 		sint32 cost2 = intern_calc_route(start, ziel);
 		INT_CHECK("wegbauer 1165");
@@ -1951,7 +1951,7 @@ uint32 ms = dr_time();
 		if(cost2<0) {
 			// not successful: try backwards
 			intern_calc_route(ziel,start);
-			route_reversed = true;
+			route_reversed = false;
 			return;
 		}
 
@@ -1960,7 +1960,7 @@ uint32 ms = dr_time();
 		vector_tpl<uint32> terraform_index2(0);
 		swap(route, route2);
 		swap(terraform_index, terraform_index2);
-		route_reversed = true;
+		route_reversed = false;
 		long cost = intern_calc_route(ziel, start);
 		INT_CHECK("wegbauer 1165");
 
@@ -1968,7 +1968,7 @@ uint32 ms = dr_time();
 		if(  cost2 < cost  ||  cost < 0  ) {
 			swap(route, route2);
 			swap(terraform_index, terraform_index2);
-			route_reversed = false;
+			route_reversed = true;
 		}
 #endif
 	}
@@ -2461,20 +2461,24 @@ void way_builder_t::build_road()
 			if((bautyp & elevated_flag) == (way->get_desc()->get_styp() == type_elevated))
 			{
 				way->set_replacement_way(desc);
+				if(  strasse_t* str = static_cast<strasse_t*>(way)  ) {
+					str -> set_overtaking_mode(overtaking_mode);
+				}
 			}
 		}
 		else
 		{
 			bool extend = gr->weg_erweitern(road_wt, route.get_short_ribi(i));
+			strasse_t * str;
 
 			if(extend) {
-				weg_t * weg = gr->get_weg(road_wt);
+				str = (strasse_t*)gr->get_weg(road_wt);
 
 				// keep faster ways or if it is the same way ... (@author prissi)
-				if(  weg->get_desc()==desc  ||  keep_existing_ways
-					||  (  keep_existing_city_roads  &&  weg->hat_gehweg()  )
-					||  (  ( keep_existing_faster_ways || ((player && !player->is_public_service()) && weg->is_public_right_of_way())) &&  ! ( desc->is_at_least_as_good_as(weg->get_desc()) )  )
-					||  (  player!=NULL  &&  weg-> is_deletable(player)!=NULL  )
+				if(  str->get_desc()==desc  ||  keep_existing_ways
+					||  (  keep_existing_city_roads  &&  str->hat_gehweg()  )
+					||  (  ( keep_existing_faster_ways || ((player && !player->is_public_service()) && str->is_public_right_of_way())) &&  ! ( desc->is_at_least_as_good_as(str->get_desc()) )  )
+					||  (  player!=NULL  &&  str-> is_deletable(player)!=NULL  )
 					||  (  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  )
 					) {
 					//nothing to be done
@@ -2482,7 +2486,7 @@ void way_builder_t::build_road()
 				}
 				else
 				{
-					if(desc->get_upgrade_group() == weg->get_desc()->get_upgrade_group())
+					if(desc->get_upgrade_group() == str->get_desc()->get_upgrade_group())
 					{
 						cost = desc->get_way_only_cost();
 					}
@@ -2492,41 +2496,42 @@ void way_builder_t::build_road()
 						cost = desc->get_value();
 					}
 
-					weg->set_desc(desc);
+					str->set_desc(desc);
+					str->set_overtaking_mode(overtaking_mode);
 					// respect speed limit of crossing
-					weg->count_sign();
+					str->count_sign();
 					// respect max speed of catenary
 					wayobj_t const* const wo = gr->get_wayobj(desc->get_wtyp());
-					if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
-						weg->set_max_speed( wo->get_desc()->get_topspeed() );
+					if (wo  &&  wo->get_desc()->get_topspeed() < str->get_max_speed()) {
+						str->set_max_speed( wo->get_desc()->get_topspeed() );
 					}
 
 					// For now, have the city fix adoption/sidewalk issues during road upgrade.
 					// These issues arise from city expansion and contraction, so reconsider this
 					// after city limits work better.
-					bool city_adopts_this = weg->should_city_adopt_this(player);
-					if(build_sidewalk || weg->hat_gehweg() || city_adopts_this) {
-						strasse_t *str = static_cast<strasse_t *>(weg);
+					bool city_adopts_this = str->should_city_adopt_this(player);
+					if(build_sidewalk || str->hat_gehweg() || city_adopts_this) {
 						str->set_gehweg(true);
-						weg->set_public_right_of_way();
+						str->set_public_right_of_way();
 					}
 
 					if (city_adopts_this) {
-						weg->set_owner(NULL);
+						str->set_owner(NULL);
 					} else {
-						weg->set_owner(player);
+						str->set_owner(player);
 						// Set maintenance costs here
 						// including corrections for diagonals.
-						weg->finish_rd();
+						str->finish_rd();
 					}
 				}
 			}
 			else {
 				// make new way
 				const obj_t* obj = gr->obj_bei(0);
-				strasse_t * str = new strasse_t();
+				str = new strasse_t();
 
 				str->set_desc(desc);
+				str->set_overtaking_mode(overtaking_mode);
 				if (build_sidewalk) {
 					str->set_gehweg(build_sidewalk);
 					str->set_public_right_of_way();
@@ -2549,6 +2554,8 @@ void way_builder_t::build_road()
 					str->set_public_right_of_way();
 				}
 			}
+			// update ribi_mask_oneway if road is oneway_mode.
+			update_ribi_mask_oneway(str, i);
 			gr->calc_image();	// because it may be a crossing ...
 
 			reliefkarte_t::get_karte()->calc_map_pixel(k);
