@@ -162,13 +162,13 @@ tool_t *create_simple_tool(int toolnr)
 		case UNUSED_WKZ_PWDHASH_TOOL: dbg->warning("create_simple_tool()","deprecated tool [%i] requested", toolnr); return NULL;
 		case TOOL_CHANGE_PLAYER:   tool = new tool_change_player_t(); break;
 		case TOOL_CHANGE_TRAFFIC_LIGHT:tool = new tool_change_traffic_light_t(); break;
-		case TOOL_CHANGE_ROADSIGN:   tool = new tool_change_roadsign_t(); break;
 		case TOOL_CHANGE_CITY:  tool = new tool_change_city_t(); break;
 		case TOOL_RENAME:       tool = new tool_rename_t(); break;
 		case TOOL_ADD_MESSAGE:  tool = new tool_add_message_t(); break;
 		case TOOL_TOGGLE_RESERVATION:tool = new tool_toggle_reservation_t(); break;
 		case TOOL_VIEW_OWNER:        tool = new tool_view_owner_t(); break;
 		case TOOL_HIDE_UNDER_CURSOR: tool = new tool_hide_under_cursor_t(); break;
+		case TOOL_CHANGE_ROADSIGN:   tool = new tool_change_roadsign_t(); break;
 		case TOOL_SHOW_RIBI:    tool = new tool_show_ribi_t(); break;
 		// Extended non-UI tools - should be at the end.
 		case TOOL_RECOLOUR_TOOL:		tool = new tool_recolour_t(); break;
