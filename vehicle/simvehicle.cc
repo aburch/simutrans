@@ -3602,8 +3602,8 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(  !str  ||  gr->get_top() > 250  ) {
 			// too many cars here or no street
 			if(  !second_check_count  &&  !str) {
-					cnv->suche_neue_route();
-				}
+				cnv->suche_neue_route();
+			}
 			return false;
 		}
 
@@ -3678,239 +3678,236 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		uint32 test_index = route_index;
 
 		// way should be clear for overtaking: we checked previously
-		if(  !cnv->is_overtaking()  ) {
-			// calculate new direction
-			route_t const& r = *cnv->get_route();
-			koord next = (route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next).get_2d();
-			ribi_t::ribi curr_direction   = get_direction();
-			ribi_t::ribi curr_90direction = calc_direction(get_pos().get_2d(), pos_next.get_2d());
-			ribi_t::ribi next_direction   = calc_direction(get_pos().get_2d(), next);
-			ribi_t::ribi next_90direction = calc_direction(pos_next.get_2d(), next);
-			obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction, NULL, next_lane );
+		// calculate new direction
+		koord next = (route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next).get_2d();
+		ribi_t::ribi curr_direction   = get_direction();
+		ribi_t::ribi curr_90direction = calc_direction(get_pos().get_2d(), pos_next.get_2d());
+		ribi_t::ribi next_direction   = calc_direction(get_pos().get_2d(), next);
+		ribi_t::ribi next_90direction = calc_direction(pos_next.get_2d(), next);
+		obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction, NULL, next_lane );
 
-			// do not block intersections
-			const bool drives_on_left = welt->get_settings().is_drive_left();
-			bool int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction)) & str->get_ribi_unmasked())  ||  curr_90direction != next_90direction  ||  (rs  &&  rs->get_desc()->is_traffic_light()));
+		// do not block intersections
+		const bool drives_on_left = welt->get_settings().is_drive_left();
+		bool int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction)) & str->get_ribi_unmasked())  ||  curr_90direction != next_90direction  ||  (rs  &&  rs->get_desc()->is_traffic_light()));
 
-			//If this convoi is overtaking, the convoi must avoid a head-on crash.
-			if(  cnv->is_overtaking()  &&  current_str->get_overtaking_mode()!=inverted_mode  ){
-				while(  test_index < route_index + 2u && test_index < r.get_count()  ){
-					grund_t *grn = welt->lookup(r.at(test_index));
-					if(  !grn  ) {
-						cnv->suche_neue_route();
-						return false;
-					}
-					for(  uint8 pos=1;  pos<(volatile uint8)grn->get_top();  pos++  ){
-						if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(grn->obj_bei(pos))  ){
-							if(  v->get_typ()==obj_t::pedestrian  ) {
+		//If this convoi is overtaking, the convoi must avoid a head-on crash.
+		if(  cnv->is_overtaking()  &&  current_str->get_overtaking_mode()!=inverted_mode  ){
+			while(  test_index < route_index + 2u && test_index < r.get_count()  ){
+				grund_t *grn = welt->lookup(r.at(test_index));
+				if(  !grn  ) {
+					cnv->suche_neue_route();
+					return false;
+				}
+				for(  uint8 pos=1;  pos<(volatile uint8)grn->get_top();  pos++  ){
+					if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(grn->obj_bei(pos))  ){
+						if(  v->get_typ()==obj_t::pedestrian  ) {
+							continue;
+						}
+						ribi_t::ribi other_direction=255;
+						if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
+							//ignore ourself
+							if(  cnv == at->get_convoi()  ||  at->get_convoi()->is_overtaking()  ){
 								continue;
 							}
-							ribi_t::ribi other_direction=255;
-							if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
-								//ignore ourself
-								if(  cnv == at->get_convoi()  ||  at->get_convoi()->is_overtaking()  ){
-									continue;
-								}
-								other_direction = at->get_90direction();
-							}
-							//check for city car
-							else if(  private_car_t* const caut = obj_cast<private_car_t>(v)  ) {
-								if(  caut->is_overtaking()  ) {
-									continue;
-								}
-								other_direction = v->get_90direction();
-							}
-							if(  other_direction != 255  ){
-								//There is another car. We have to check if this convoi is facing or not.
-								ribi_t::ribi this_direction;
-								if(  test_index-route_index==0  ) this_direction = get_90direction();
-								if(  test_index-route_index==1  ) this_direction = get_next_90direction();
-								if(  ribi_t::reverse_single(this_direction) == other_direction  ) {
-									//printf("%s: crash avoid. (%d,%d)\n", cnv->get_name(), get_pos().x, get_pos().y);
-									cnv->set_tiles_overtaking(0);
-								}
-							}
+							other_direction = at->get_90direction();
 						}
-					}
-					test_index++;
-				}
-			}
-
-			test_index = route_index + 1u; //reset test_index
-			// we have to assume the lane that this vehicle goes in the intersection.
-			sint8 lane_of_the_tile = next_lane;
-			overtaking_mode_t mode_of_start_point = str->get_overtaking_mode();
-			// check exit from crossings and intersections, allow to proceed after 4 consecutive
-			while(  !obj   &&  (str->is_crossing()  ||  int_block)  &&  test_index < r.get_count()  &&  test_index < route_index + 4u  ) {
-				if(  str->is_crossing()  ) {
-					crossing_t* cr = gr->find<crossing_t>(2);
-					if(  !cr->request_crossing(this)  ) {
-						restart_speed = 0;
-						return false;
-					}
-				}
-
-				// test next position
-				gr = welt->lookup(r.at(test_index));
-				if(  !gr  ) {
-					// ground not existent (probably destroyed)
-					if(  !second_check_count  ) {
-						cnv->suche_neue_route();
-					}
-					return false;
-				}
-
-				str = (strasse_t *)gr->get_weg(road_wt);
-
-				if(  !str  ) {
-					// road not existent (probably destroyed)
-					if(  !second_check_count  ) {
-						cnv->suche_neue_route();
-					}
-					return false;
-				}
-
-				if(  gr->get_top() > 250  ) {
-					// too many cars here or no street
-					return false;
-				}
-
-				if(  mode_of_start_point==oneway_mode  &&  str->get_overtaking_mode()!=oneway_mode  ) lane_of_the_tile = -1;
-				if(  str->get_overtaking_mode()==inverted_mode  ) lane_of_the_tile = 1;
-
-				// check cars
-				curr_direction   = next_direction;
-				curr_90direction = next_90direction;
-				if(  test_index + 1u < r.get_count()  ) {
-					next                 = r.at(test_index + 1u).get_2d();
-					next_direction   = calc_direction(r.at(test_index - 1u).get_2d(), next);
-					next_90direction = calc_direction(r.at(test_index).get_2d(),      next);
-					obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction, NULL, lane_of_the_tile );
-				}
-				else {
-					next                 = r.at(test_index).get_2d();
-					next_90direction = calc_direction(r.at(test_index - 1u).get_2d(), next);
-					if(  curr_direction == next_90direction  ||  !gr->is_halt()  ) {
-						// check cars but allow to enter intersection if we are turning even when a car is blocking the halt on the last tile of our route
-						// preserves old bus terminal behaviour
-						obj = no_cars_blocking( gr, cnv, curr_direction, next_90direction, ribi_t::none, NULL, lane_of_the_tile );
-					}
-				}
-
-				// first: check roadsigns
-				const roadsign_t *rs = NULL;
-				if (str->has_sign()) {
-					rs = gr->find<roadsign_t>();
-					const ribi_t::ribi dir = rs->get_dir();
-					const bool is_traffic_light = rs->get_desc()->is_traffic_light();
-					route_t const& r = *cnv->get_route();
-
-					if (is_traffic_light || gr->get_weg(get_waytype())->get_ribi_maske() & dir)
-					{
-						if (rs && (route_index + 1u < r.get_count())) {
-							// since at the corner, our direction may be diagonal, we make it straight
-
-							uint8 direction90 = ribi_type(get_pos().get_2d(), pos_next.get_2d());
-							if (is_traffic_light && (dir & direction90) == 0) {
-								// wait here
-								restart_speed = 16;
-								return false;
+						//check for city car
+						else if(  private_car_t* const caut = obj_cast<private_car_t>(v)  ) {
+							if(  caut->is_overtaking()  ) {
+								continue;
 							}
-							// Check whether if we reached a choose point
-							else if (rs->get_desc()->is_choose_sign())
-							{
-								// route position after road sign
-								const koord pos_next_next = r.at(route_index + 1u).get_2d();
-								// since at the corner, our direction may be diagonal, we make it straight
-								direction90 = ribi_type(pos_next.get_2d(), pos_next_next);
-
-								if (rs->is_free_route(direction90) && !target_halt.is_bound()) {
-									if (second_check_count) {
-										return false;
-									}
-									if (!choose_route(restart_speed, direction90, route_index)) {
-										return false;
-									}
-								}
-
-								const route_t *rt = cnv->get_route();
-								// is our target occupied?
-								target_halt = haltestelle_t::get_halt(rt->back(), get_owner());
-								if (target_halt.is_bound()) {
-									// since convois can long than one tile, check is more difficult
-									bool can_go_there = true;
-									for (uint32 length = 0; can_go_there && length < cnv->get_tile_length() && length + 1 < rt->get_count(); length++) {
-										can_go_there &= target_halt->is_reservable(welt->lookup(rt->at(rt->get_count() - length - 1)), cnv->self);
-									}
-									if (can_go_there) {
-										// then reserve it ...
-										for (uint32 length = 0; length < cnv->get_tile_length() && length + 1 < rt->get_count(); length++) {
-											target_halt->reserve_position(welt->lookup(rt->at(rt->get_count() - length - 1)), cnv->self);
-										}
-									}
-									else {
-										// cannot go there => need slot search
-
-										// if we fail, we will wait in a step, much more simulation friendly
-										if (!cnv->is_waiting()) {
-											restart_speed = -1;
-											target_halt = halthandle_t();
-											return false;
-										}
-
-										// check if there is a free position
-										// this is much faster than waysearch
-										if (!target_halt->find_free_position(road_wt, cnv->self, obj_t::road_vehicle)) {
-											restart_speed = 0;
-											target_halt = halthandle_t();
-											//DBG_MESSAGE("road_vehicle_t::can_enter_tile()","cnv=%d nothing free found!",cnv->self.get_id());
-											return false;
-										}
-
-										// now it make sense to search a route
-										route_t target_rt;
-										koord3d next3d = r.at(test_index);
-										if (!target_rt.find_route(welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), curr_90direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 33, cnv->has_tall_vehicles(), route_t::choose_signal)) {
-											// nothing empty or not route with less than 33 tiles
-											target_halt = halthandle_t();
-											restart_speed = 0;
-											return false;
-										}
-
-										// now reserve our choice (beware: might be longer than one tile!)
-										for (uint32 length = 0; length < cnv->get_tile_length() && length + 1 < target_rt.get_count(); length++) {
-											target_halt->reserve_position(welt->lookup(target_rt.at(target_rt.get_count() - length - 1)), cnv->self);
-										}
-										cnv->update_route(test_index, target_rt);
-									}
-								}
+							other_direction = v->get_90direction();
+						}
+						if(  other_direction != 255  ){
+							//There is another car. We have to check if this convoi is facing or not.
+							ribi_t::ribi this_direction;
+							if(  test_index-route_index==0  ) this_direction = get_90direction();
+							if(  test_index-route_index==1  ) this_direction = get_next_90direction();
+							if(  ribi_t::reverse_single(this_direction) == other_direction  ) {
+								//printf("%s: crash avoid. (%d,%d)\n", cnv->get_name(), get_pos().x, get_pos().y);
+								cnv->set_tiles_overtaking(0);
 							}
 						}
 					}
 				}
-				else {
-					rs = NULL;
-				}
-
-				// check for blocking intersection
-				int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction)) & str->get_ribi_unmasked())  ||  curr_90direction != next_90direction  ||  (rs  &&  rs->get_desc()->is_traffic_light()));
-
 				test_index++;
 			}
+		}
 
-			if(  obj  &&  test_index > route_index + 1u  &&  !str->is_crossing()  &&  !int_block  ) {
-				// found a car blocking us after checking at least 1 intersection or crossing
-				// and the car is in a place we could stop. So if it can move, assume it will, so we will too.
-				// but check only upto 8 cars ahead to prevent infinite recursion on roundabouts.
-				if(  second_check_count >= 8  ) {
+		test_index = route_index + 1u; //reset test_index
+		// we have to assume the lane that this vehicle goes in the intersection.
+		sint8 lane_of_the_tile = next_lane;
+		overtaking_mode_t mode_of_start_point = str->get_overtaking_mode();
+		// check exit from crossings and intersections, allow to proceed after 4 consecutive
+		while(  !obj   &&  (str->is_crossing()  ||  int_block)  &&  test_index < r.get_count()  &&  test_index < route_index + 4u  ) {
+			if(  str->is_crossing()  ) {
+				crossing_t* cr = gr->find<crossing_t>(2);
+				if(  !cr->request_crossing(this)  ) {
+					restart_speed = 0;
 					return false;
 				}
-				if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(obj)  ) {
-					convoi_t* const ocnv = car->get_convoi();
-					sint32 dummy;
-					if(  ocnv->front()->get_route_index() < ocnv->get_route()->get_count()  &&  ocnv->front()->can_enter_tile(dummy, second_check_count + 1 )  ) {
-						return true;
+			}
+
+			// test next position
+			gr = welt->lookup(r.at(test_index));
+			if(  !gr  ) {
+				// ground not existent (probably destroyed)
+				if(  !second_check_count  ) {
+					cnv->suche_neue_route();
+				}
+				return false;
+			}
+
+			str = (strasse_t *)gr->get_weg(road_wt);
+
+			if(  !str  ) {
+				// road not existent (probably destroyed)
+				if(  !second_check_count  ) {
+					cnv->suche_neue_route();
+				}
+				return false;
+			}
+
+			if(  gr->get_top() > 250  ) {
+				// too many cars here or no street
+				return false;
+			}
+
+			if(  mode_of_start_point==oneway_mode  &&  str->get_overtaking_mode()!=oneway_mode  ) lane_of_the_tile = -1;
+			if(  str->get_overtaking_mode()==inverted_mode  ) lane_of_the_tile = 1;
+
+			// check cars
+			curr_direction   = next_direction;
+			curr_90direction = next_90direction;
+			if(  test_index + 1u < r.get_count()  ) {
+				next                 = r.at(test_index + 1u).get_2d();
+				next_direction   = calc_direction(r.at(test_index - 1u).get_2d(), next);
+				next_90direction = calc_direction(r.at(test_index).get_2d(),      next);
+				obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction, NULL, lane_of_the_tile );
+			}
+			else {
+				next                 = r.at(test_index).get_2d();
+				next_90direction = calc_direction(r.at(test_index - 1u).get_2d(), next);
+				if(  curr_direction == next_90direction  ||  !gr->is_halt()  ) {
+					// check cars but allow to enter intersection if we are turning even when a car is blocking the halt on the last tile of our route
+					// preserves old bus terminal behaviour
+					obj = no_cars_blocking( gr, cnv, curr_direction, next_90direction, ribi_t::none, NULL, lane_of_the_tile );
+				}
+			}
+
+			// first: check roadsigns
+			const roadsign_t *rs = NULL;
+			if (str->has_sign()) {
+				rs = gr->find<roadsign_t>();
+				const ribi_t::ribi dir = rs->get_dir();
+				const bool is_traffic_light = rs->get_desc()->is_traffic_light();
+				route_t const& r = *cnv->get_route();
+
+				if (is_traffic_light || gr->get_weg(get_waytype())->get_ribi_maske() & dir)
+				{
+					if (rs && (route_index + 1u < r.get_count())) {
+						// since at the corner, our direction may be diagonal, we make it straight
+
+						uint8 direction90 = ribi_type(get_pos().get_2d(), pos_next.get_2d());
+						if (is_traffic_light && (dir & direction90) == 0) {
+							// wait here
+							restart_speed = 16;
+							return false;
+						}
+						// Check whether if we reached a choose point
+						else if (rs->get_desc()->is_choose_sign())
+						{
+							// route position after road sign
+							const koord pos_next_next = r.at(route_index + 1u).get_2d();
+							// since at the corner, our direction may be diagonal, we make it straight
+							direction90 = ribi_type(pos_next.get_2d(), pos_next_next);
+
+							if (rs->is_free_route(direction90) && !target_halt.is_bound()) {
+								if (second_check_count) {
+									return false;
+								}
+								if (!choose_route(restart_speed, direction90, route_index)) {
+									return false;
+								}
+							}
+
+							const route_t *rt = cnv->get_route();
+							// is our target occupied?
+							target_halt = haltestelle_t::get_halt(rt->back(), get_owner());
+							if (target_halt.is_bound()) {
+								// since convois can long than one tile, check is more difficult
+								bool can_go_there = true;
+								for (uint32 length = 0; can_go_there && length < cnv->get_tile_length() && length + 1 < rt->get_count(); length++) {
+									can_go_there &= target_halt->is_reservable(welt->lookup(rt->at(rt->get_count() - length - 1)), cnv->self);
+								}
+								if (can_go_there) {
+									// then reserve it ...
+									for (uint32 length = 0; length < cnv->get_tile_length() && length + 1 < rt->get_count(); length++) {
+										target_halt->reserve_position(welt->lookup(rt->at(rt->get_count() - length - 1)), cnv->self);
+									}
+								}
+								else {
+									// cannot go there => need slot search
+
+									// if we fail, we will wait in a step, much more simulation friendly
+									if (!cnv->is_waiting()) {
+										restart_speed = -1;
+										target_halt = halthandle_t();
+										return false;
+									}
+
+									// check if there is a free position
+									// this is much faster than waysearch
+									if (!target_halt->find_free_position(road_wt, cnv->self, obj_t::road_vehicle)) {
+										restart_speed = 0;
+										target_halt = halthandle_t();
+										//DBG_MESSAGE("road_vehicle_t::can_enter_tile()","cnv=%d nothing free found!",cnv->self.get_id());
+										return false;
+									}
+
+									// now it make sense to search a route
+									route_t target_rt;
+									koord3d next3d = r.at(test_index);
+									if (!target_rt.find_route(welt, next3d, this, speed_to_kmh(cnv->get_min_top_speed()), curr_90direction, cnv->get_highest_axle_load(), cnv->get_tile_length(), cnv->get_weight_summary().weight / 1000, 33, cnv->has_tall_vehicles(), route_t::choose_signal)) {
+										// nothing empty or not route with less than 33 tiles
+										target_halt = halthandle_t();
+										restart_speed = 0;
+										return false;
+									}
+
+									// now reserve our choice (beware: might be longer than one tile!)
+									for (uint32 length = 0; length < cnv->get_tile_length() && length + 1 < target_rt.get_count(); length++) {
+										target_halt->reserve_position(welt->lookup(target_rt.at(target_rt.get_count() - length - 1)), cnv->self);
+									}
+									cnv->update_route(test_index, target_rt);
+								}
+							}
+						}
 					}
+				}
+			}
+			else {
+				rs = NULL;
+			}
+
+			// check for blocking intersection
+			int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction)) & str->get_ribi_unmasked())  ||  curr_90direction != next_90direction  ||  (rs  &&  rs->get_desc()->is_traffic_light()));
+
+			test_index++;
+		}
+
+		if(  obj  &&  test_index > route_index + 1u  &&  !str->is_crossing()  &&  !int_block  ) {
+			// found a car blocking us after checking at least 1 intersection or crossing
+			// and the car is in a place we could stop. So if it can move, assume it will, so we will too.
+			// but check only upto 8 cars ahead to prevent infinite recursion on roundabouts.
+			if(  second_check_count >= 8  ) {
+				return false;
+			}
+			if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(obj)  ) {
+				convoi_t* const ocnv = car->get_convoi();
+				sint32 dummy;
+				if(  ocnv->front()->get_route_index() < ocnv->get_route()->get_count()  &&  ocnv->front()->can_enter_tile(dummy, second_check_count + 1 )  ) {
+					return true;
 				}
 			}
 		}
