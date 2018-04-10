@@ -1637,7 +1637,7 @@ void karte_t::init_height_to_climate()
 	for( int cl=0;  cl<MAX_CLIMATES-1;  cl++ ) {
 		if(climate_border[cl]>climate_border[arctic_climate]) {
 			// unused climate
-			climate_border[cl] = 0;
+			climate_border[cl] = groundwater-1;
 		}
 	}
 
