@@ -2481,8 +2481,8 @@ void way_builder_t::build_road()
 					||  (  player!=NULL  &&  str-> is_deletable(player)!=NULL  )
 					||  (  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  )
 					) {
-					//nothing to be done
-	//DBG_MESSAGE("way_builder_t::build_road()","nothing to do at (%i,%i)",k.x,k.y);
+					// only update overtaking_mode
+					str->set_overtaking_mode(overtaking_mode);
 				}
 				else
 				{
