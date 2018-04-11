@@ -4524,7 +4524,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					set_working_method(drive_by_sight);
 					cnv->unreserve_route();
 					cnv->reserve_own_tiles();
-					if(c.is_bound())
+					if(c.is_bound() && !this_halt_has_station_signals)
 					{
 						c->set_state(convoi_t::EMERGENCY_STOP);
 						c->set_wait_lock(emergency_stop_duration);
