@@ -20,7 +20,7 @@
 #include "../player/finance.h"
 #include "../player/simplay.h"
 
-#define MAX_PLAYER_COST_BUTTON (16)
+#define MAX_PLAYER_COST_BUTTON (17)
 
 /**
  * Finances dialog
@@ -74,7 +74,7 @@ private:
 	gui_label_t maintenance_label;
 	gui_label_t maintenance_label2;
 	gui_label_t maintenance_money;
-	// gui_label_t vehicle_maintenance_money;
+	gui_label_t vehicle_maintenance_money, old_vehicle_maintenance_money;
 
 	gui_label_t warn;
 	gui_label_t scenario;
