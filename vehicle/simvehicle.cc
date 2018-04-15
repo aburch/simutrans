@@ -5857,9 +5857,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				{
 					time_interval_starting_point = last_station_tile;
 				}
-				else 
+				else if(last_stop_signal_index < INVALID_INDEX)
 				{
 					time_interval_starting_point = last_stop_signal_index;
+				}
+				else
+				{
+					time_interval_starting_point = i;
 				}
 				
 				time_interval_reservation = 
@@ -5975,6 +5979,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					next_signal_index = last_stop_signal_index;
 					break;
 				}
+
 			}
 
 			last_step_halt = check_halt;
@@ -5984,6 +5989,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			{
 				if (attempt_reservation)
 				{
+					success = false;
+					if (stop_at_station_signal == check_halt)
+					{
+						next_signal_index = first_stop_signal_index;
+					}
 					break;
 				}
 				else
