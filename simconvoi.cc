@@ -6590,7 +6590,7 @@ void convoi_t::set_next_stop_index(uint16 n)
 		   n = route.get_count() - 1;
 	   }
    }
-	next_stop_index = min(route.get_count() - 1, n + 1);
+	next_stop_index = n + 1;
 }
 
 

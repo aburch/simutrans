@@ -4404,7 +4404,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	}
 
 	halthandle_t this_halt = haltestelle_t::get_halt(get_pos(), get_owner());
-	const bool this_halt_has_station_signals = this_halt.is_bound() && this_halt->get_station_signals_count();
+	bool this_halt_has_station_signals = this_halt.is_bound() && this_halt->get_station_signals_count();
 
 	const bool starting_from_stand = cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH
 		|| cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS
@@ -4457,7 +4457,75 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 	if((destination_is_nonreversing_waypoint || starting_from_stand) && working_method != one_train_staff && (signal_current || this_halt_has_station_signals) && (this_halt_has_station_signals || !signal_current->get_desc()->get_permissive() || signal_current->get_no_junctions_to_next_signal() == false))
 	{	
-		if(!block_reserver(cnv->get_route(), max(route_index, 1) - 1, welt->get_settings().get_sighting_distance_tiles(), next_signal, 0, true, false))
+		bool allow_block_reserver = true;
+		if (this_halt_has_station_signals)
+		{
+			// We need to check whether this is a station signal that does not protect any junctions: if so, just check its state, do not call the block reserver.
+			enum station_signal_status { none, forward, inverse };
+			station_signal_status station_signal;
+			signal_t* sig = NULL;
+			for(uint32 k = 0; k < this_halt->get_station_signals_count(); k ++)
+			{
+				grund_t* gr_check = welt->lookup(this_halt->get_station_signal(k));
+				if(gr_check)
+				{
+					weg_t* way_check = gr_check->get_weg(get_waytype());
+					sig = way_check ? way_check->get_signal(ribi) : NULL;
+					if(sig)
+					{
+						station_signal = forward;
+						break;
+					}
+					else
+					{
+						// Check the opposite direction as station signals work in the exact opposite direction
+						ribi_t::ribi ribi_backwards = ribi_t::backward(ribi);
+						sig = gr_check->get_weg(get_waytype())->get_signal(ribi_backwards);
+						if(sig)
+						{
+							station_signal = inverse;
+							break;
+						}
+					}
+				}
+			}
+
+			if (sig)
+			{
+				if ((sig->get_desc()->get_working_method() == working_method_t::time_interval || sig->get_desc()->get_working_method() == working_method_t::time_interval_with_telegraph) && sig->get_no_junctions_to_next_signal())
+				{
+					// A time interval signal on plain track - do not engage the block reserver
+					allow_block_reserver = false;
+					const sint64 last_passed = this_halt->get_train_last_departed(ribi);
+
+					const sint64 caution_interval_ticks = welt->get_seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_caution());
+					const sint64 clear_interval_ticks =  welt->get_seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_clear());
+					const sint64 ticks = welt->get_ticks();
+
+					if(last_passed + caution_interval_ticks > ticks)
+					{
+						// Danger
+						sig->set_state(signal_t::danger);
+						restart_speed = 0;
+						return false;	
+					}
+					else if(last_passed + clear_interval_ticks > ticks)
+					{
+						// Caution
+						cnv->set_maximum_signal_speed(min(kmh_to_speed(w_current->get_max_speed()) / 2, sig->get_desc()->get_max_speed() / 2));
+						sig->set_state(inverse ? roadsign_t::caution : roadsign_t::caution_no_choose); 
+					}
+				}
+			}
+			else
+			{
+				// There are no station signals facing in the correct direction
+				this_halt_has_station_signals = false;
+			}
+
+		}
+
+		if(allow_block_reserver && !block_reserver(cnv->get_route(), max(route_index, 1) - 1, welt->get_settings().get_sighting_distance_tiles(), next_signal, 0, true, false))
 		{		
 			restart_speed = 0;
 			return false;
