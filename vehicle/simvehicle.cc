@@ -5642,9 +5642,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 						if(!directional_only && (next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph) && last_longblock_signal_index < INVALID_INDEX && last_longblock_signal_index < this_stop_signal_index)
 						{
-							if( next_signal_working_method == time_interval_with_telegraph)
+							if(next_signal_working_method == time_interval_with_telegraph)
 							{
 								directional_only = true;
+								next_signal_index = i;
 							}
 							else if(first_double_block_signal_index != last_stop_signal_index)
 							{
