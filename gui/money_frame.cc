@@ -339,17 +339,17 @@ money_frame_t::money_frame_t(player_t *player)
 	// vehicle maintenance money should be the same height as running costs
 	//vehicle_maintenance_money.set_pos(scr_coord(c2_num_x, top+1*BUTTONSPACE));
 	//maintenance money should be the same height as inf. maintenance (mmoney)
-	maintenance_money.set_pos(scr_coord(c2_num_x, top+2*BUTTONSPACE));
+	maintenance_money.set_pos(scr_coord(c2_num_x, top+3*BUTTONSPACE));
 	
 
 	// right column (lower)
-	tylabel2.set_pos(scr_coord(c3_btn_x, top+3*BUTTONSPACE-2));
-	cash_money.set_pos(scr_coord(c3_num_x, top+4*BUTTONSPACE));
-	assets.set_pos(scr_coord(c3_num_x, top+5*BUTTONSPACE));
-	net_wealth.set_pos(scr_coord(c3_num_x, top+6*BUTTONSPACE));
-	soft_credit_limit.set_pos(scr_coord(c3_num_x, top+7*BUTTONSPACE));
-	hard_credit_limit.set_pos(scr_coord(c3_num_x, top+8*BUTTONSPACE));
-	margin.set_pos(scr_coord(c3_num_x, top+9*BUTTONSPACE));
+	tylabel2.set_pos(scr_coord(c3_btn_x, top+4*BUTTONSPACE-2));
+	cash_money.set_pos(scr_coord(c3_num_x, top+5*BUTTONSPACE));
+	assets.set_pos(scr_coord(c3_num_x, top+6*BUTTONSPACE));
+	net_wealth.set_pos(scr_coord(c3_num_x, top+7*BUTTONSPACE));
+	soft_credit_limit.set_pos(scr_coord(c3_num_x, top+8*BUTTONSPACE));
+	hard_credit_limit.set_pos(scr_coord(c3_num_x, top+9*BUTTONSPACE));
+	margin.set_pos(scr_coord(c3_num_x, top+10*BUTTONSPACE));
 
 
 	// Scenario and warning location
@@ -488,7 +488,7 @@ money_frame_t::money_frame_t(player_t *player)
 		add_component(filterButtons + ibutton);
 	}
 	for(int ibutton=COLUMN_TWO_START;  ibutton<MAX_PLAYER_COST_BUTTON;  ibutton++) {
-		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], scr_coord(c3_btn_x, top+(ibutton-7)*BUTTONSPACE-2), scr_size(BUTTONWIDTH, BUTTONSPACE));
+		filterButtons[ibutton].init(button_t::box, cost_type_name[ibutton], scr_coord(c3_btn_x, top+(ibutton-6)*BUTTONSPACE-2), scr_size(BUTTONWIDTH, BUTTONSPACE));
 		filterButtons[ibutton].add_listener(this);
 		filterButtons[ibutton].background_color = cost_type_color[ibutton];
 		filterButtons[ibutton].set_tooltip(cost_tooltip[ibutton]);
@@ -580,7 +580,7 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 		money_to_string(str_buf[33], 0 );
 		interest.set_text(str_buf[33]);
 		interest.set_color(COL_YELLOW);
-		money_to_string(str_buf[32], 0 );
+		money_to_string(str_buf[34], 0 );
 		old_interest.set_text(str_buf[34]);
 		old_interest.set_color(COL_YELLOW);
 	}
@@ -683,10 +683,10 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 
 	// Hajo: Money is counted in credit cents (100 cents = 1 Cr)
 	sint64 maintenance = player->get_finance()->get_maintenance_with_bits((transport_type)transport_type_option);
-	money_to_string(str_buf[16],
+	money_to_string(str_buf[18],
 		(double)(maintenance)/100.0
 	);
-	maintenance_money.set_text(str_buf[16]);
+	maintenance_money.set_text(str_buf[18]);
 	maintenance_money.set_color(maintenance>=0?MONEY_PLUS:MONEY_MINUS);
 
 	for (int i = 0;  i<MAX_PLAYER_COST_BUTTON;  i++) {
