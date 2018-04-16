@@ -534,12 +534,12 @@ enum player_cost {
 	COST_VEHICLE_RUN,   // Vehicle running costs
 	COST_NEW_VEHICLE,   // New vehicles
 	COST_INCOME,        // Income
-	COST_MAINTENANCE,   // Upkeep of infrastructure
+	COST_MAINTENANCE,   // Upkeep
 	COST_ASSETS,        // value of all vehicles and buildings
 	COST_CASH,          // Cash
 	COST_NETWEALTH,     // Total Cash + Assets
-	COST_PROFIT,        // COST_POWERLINES+COST_INCOME-(COST_CONSTRUCTION+COST_VEHICLE_RUN+COST_VEHICLE_MAINTENANCE+COST_NEW_VEHICLE+COST_MAINTENANCE+COST_INTEREST)
-	COST_OPERATING_PROFIT, // COST_POWERLINES+COST_INCOME-(COST_VEHICLE_RUN+COST_VEHICLE_MAINTENANCE+COST_MAINTENANCE)
+	COST_PROFIT,        // COST_POWERLINES+COST_INCOME-(COST_CONSTRUCTION+COST_VEHICLE_RUN+COST_NEW_VEHICLE+COST_MAINTENANCE)
+	COST_OPERATING_PROFIT, // COST_POWERLINES+COST_INCOME-(COST_VEHICLE_RUN+COST_MAINTENANCE)+COST_INTEREST
 	COST_MARGIN,        // COST_OPERATING_PROFIT/COST_INCOME
 	COST_ALL_TRANSPORTED, // all transported goods
 	COST_POWERLINES,	  // revenue from the power grid
@@ -549,9 +549,8 @@ enum player_cost {
 	COST_ALL_CONVOIS,		// number of convois
 	COST_SCENARIO_COMPLETED,// scenario success (only useful if there is one ... )
 	COST_WAY_TOLLS,
-	COST_INTEREST,			// From Extended
-	COST_CREDIT_LIMIT,		// From Extended
-	COST_VEHICLE_MAINTENANCE // From Extended - monthly maintenance of vehicles
+	COST_INTEREST,		// From extended
+	COST_CREDIT_LIMIT	// From extended
 	// OLD_MAX_PLAYER_COST = 21
 };
 
@@ -580,7 +579,6 @@ int finance_t::translate_index_cost_to_atc(const int cost_index)
 		-1,		// COST_WAY_TOLLS,
 		ATC_INTEREST,		// COST_INTEREST
 		ATC_SOFT_CREDIT_LIMIT,		// COST_CREDIT_LIMIT
-		-1,			// COST_VEHICLE_MAINTENANCE
 		ATC_MAX		// OLD_MAX_PLAYER_COST
 	};
 
@@ -625,8 +623,7 @@ void finance_t::export_to_cost_month(sint64 finance_history_month[][OLD_MAX_PLAY
 	calc_finance_history();
 	for(int i=0; i<OLD_MAX_PLAYER_HISTORY_MONTHS; ++i){
 		finance_history_month[i][COST_CONSTRUCTION] = veh_month[TT_ALL][i][ATV_CONSTRUCTION_COST];
-		finance_history_month[i][COST_VEHICLE_RUN] = veh_month[TT_ALL][i][ATV_RUNNING_COST];
-		finance_history_month[i][COST_VEHICLE_MAINTENANCE] = veh_month[TT_ALL][i][ATV_VEHICLE_MAINTENANCE];
+		finance_history_month[i][COST_VEHICLE_RUN]  = veh_month[TT_ALL][i][ATV_RUNNING_COST] + veh_month[TT_ALL][i][ATV_VEHICLE_MAINTENANCE];
 		finance_history_month[i][COST_NEW_VEHICLE]  = veh_month[TT_ALL][i][ATV_NEW_VEHICLE];
 		finance_history_month[i][COST_INCOME]       = veh_month[TT_ALL][i][ATV_REVENUE_TRANSPORT];
 		finance_history_month[i][COST_MAINTENANCE]  = veh_month[TT_ALL][i][ATV_INFRASTRUCTURE_MAINTENANCE];
@@ -655,8 +652,7 @@ void finance_t::export_to_cost_year( sint64 finance_history_year[][OLD_MAX_PLAYE
 	calc_finance_history();
 	for(int i=0; i<OLD_MAX_PLAYER_HISTORY_YEARS; ++i){
 		finance_history_year[i][COST_CONSTRUCTION] = veh_year[TT_ALL][i][ATV_CONSTRUCTION_COST];
-		finance_history_year[i][COST_VEHICLE_RUN] = veh_year[TT_ALL][i][ATV_RUNNING_COST];
-		finance_history_year[i][COST_VEHICLE_MAINTENANCE] = veh_year[TT_ALL][i][ATV_VEHICLE_MAINTENANCE];
+		finance_history_year[i][COST_VEHICLE_RUN]  = veh_year[TT_ALL][i][ATV_RUNNING_COST] + veh_month[TT_ALL][i][ATV_VEHICLE_MAINTENANCE];
 		finance_history_year[i][COST_NEW_VEHICLE]  = veh_year[TT_ALL][i][ATV_NEW_VEHICLE];
 		finance_history_year[i][COST_INCOME]       = veh_year[TT_ALL][i][ATV_REVENUE_TRANSPORT];
 		finance_history_year[i][COST_MAINTENANCE]  = veh_year[TT_ALL][i][ATV_INFRASTRUCTURE_MAINTENANCE];
@@ -1030,7 +1026,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 		for(  int year=0;  year<OLD_MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			finance_history_year[year][COST_NETWEALTH] = finance_history_year[year][COST_CASH]+finance_history_year[year][COST_ASSETS];
 			// only revenue minus running costs
-			finance_history_year[year][COST_OPERATING_PROFIT] = finance_history_year[year][COST_INCOME] + finance_history_year[year][COST_POWERLINES] + finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_VEHICLE_MAINTENANCE] + finance_history_year[year][COST_MAINTENANCE] + finance_history_year[year][COST_WAY_TOLLS];
+			finance_history_year[year][COST_OPERATING_PROFIT] = finance_history_year[year][COST_INCOME] + finance_history_year[year][COST_POWERLINES] + finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE] + finance_history_year[year][COST_WAY_TOLLS];
 
 			// including also investments into vehicles/infrastructure
 			finance_history_year[year][COST_PROFIT] = finance_history_year[year][COST_OPERATING_PROFIT]+finance_history_year[year][COST_CONSTRUCTION]+finance_history_year[year][COST_NEW_VEHICLE]+finance_history_year[year][COST_INTEREST];
@@ -1038,7 +1034,7 @@ void finance_t::rdwr_compatibility(loadsave_t *file)
 		}
 		for(  int month=0;  month<OLD_MAX_PLAYER_HISTORY_MONTHS;  month++  ) {
 			finance_history_month[month][COST_NETWEALTH] = finance_history_month[month][COST_CASH]+finance_history_month[month][COST_ASSETS];
-			finance_history_month[month][COST_OPERATING_PROFIT] = finance_history_month[month][COST_INCOME] + finance_history_month[month][COST_POWERLINES] + finance_history_month[month][COST_VEHICLE_RUN] +  finance_history_month[month][COST_VEHICLE_MAINTENANCE] + finance_history_month[month][COST_MAINTENANCE] + finance_history_month[month][COST_WAY_TOLLS];
+			finance_history_month[month][COST_OPERATING_PROFIT] = finance_history_month[month][COST_INCOME] + finance_history_month[month][COST_POWERLINES] + finance_history_month[month][COST_VEHICLE_RUN] + finance_history_month[month][COST_MAINTENANCE] + finance_history_month[month][COST_WAY_TOLLS];
 			finance_history_month[month][COST_PROFIT] = finance_history_month[month][COST_OPERATING_PROFIT]+finance_history_month[month][COST_CONSTRUCTION]+finance_history_month[month][COST_NEW_VEHICLE]+finance_history_month[month][COST_INTEREST];
 			finance_history_month[month][COST_MARGIN] = calc_margin(finance_history_month[month][COST_OPERATING_PROFIT], finance_history_month[month][COST_INCOME]);
 		}
