@@ -4502,6 +4502,8 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					const sint64 clear_interval_ticks =  welt->get_seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_clear());
 					const sint64 ticks = welt->get_ticks();
 
+					set_working_method(sig->get_desc()->get_working_method()); 
+
 					if(last_passed + caution_interval_ticks > ticks)
 					{
 						// Danger
@@ -4514,6 +4516,12 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 						// Caution
 						cnv->set_maximum_signal_speed(min(kmh_to_speed(w_current->get_max_speed()) / 2, sig->get_desc()->get_max_speed() / 2));
 						sig->set_state(inverse ? roadsign_t::caution : roadsign_t::caution_no_choose); 
+					}
+					else
+					{
+						// Clear
+						cnv->set_maximum_signal_speed(kmh_to_speed(sig->get_desc()->get_max_speed())); 
+						sig->set_state(inverse ? roadsign_t::clear : roadsign_t::clear_no_choose); 
 					}
 				}
 			}
