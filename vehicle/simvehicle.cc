@@ -4604,8 +4604,8 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					{
 						c->set_state(convoi_t::EMERGENCY_STOP);
 						c->set_wait_lock(emergency_stop_duration);
-						c->unreserve_route();
-						c->reserve_own_tiles();
+						/*c->unreserve_route();
+						c->reserve_own_tiles();*/
 					}
 					break;
 				}
