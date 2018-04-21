@@ -5277,7 +5277,7 @@ char const* tool_build_roadsign_t::get_tooltip(player_t const*) const
 		char tip[256];
 		if(desc->is_signal())
 		{
-			sprintf(tip, "%s, %s %i%s, %s", translator::translate(desc->get_name()), translator::translate("Max. speed:"), speed_to_kmh(desc->get_max_speed()), translator::translate("km/h"), translator::translate(roadsign_t::get_working_method_name(desc->get_working_method())));
+			sprintf(tip, "%s, %s %i%s, %s: %u%s, %s", translator::translate(desc->get_name()), translator::translate("Max. speed:"), speed_to_kmh(desc->get_max_speed()), translator::translate("km/h"), translator::translate("distance"), desc->get_max_distance_to_signalbox(), translator::translate("m"), translator::translate(roadsign_t::get_working_method_name(desc->get_working_method())));
 		}
 		else
 		{
