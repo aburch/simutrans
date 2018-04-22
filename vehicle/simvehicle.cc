@@ -4620,7 +4620,6 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			{
 				ribi_t::ribi other_convoy_direction = c->front()->get_direction();
 				const depot_t* dep = gr->get_depot();
-				const koord3d TEST_other_next = c->front()->get_pos_next();
 				if (c->front()->get_pos_next() == get_pos() && get_pos_next() == c->front()->get_pos() && !dep && other_convoy_direction != get_direction())
 				{
 					// Opposite directions detected
