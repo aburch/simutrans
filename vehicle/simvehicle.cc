@@ -6429,15 +6429,18 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		}
 		else if(curtailment_index < i)
 		{
+			const halthandle_t halt_current = haltestelle_t::get_halt(get_pos(), get_owner());
 			for(uint32 j = curtailment_index; j < route->get_count(); j++)
 			{
 				grund_t* gr_this = welt->lookup(route->at(j));
 				schiene_t * sch1 = gr_this ? (schiene_t *)gr_this->get_weg(get_waytype()) : NULL;
+				const halthandle_t halt_this = haltestelle_t::get_halt(route->at(j), get_owner());
 				if(sch1 && (sch1->is_reserved(schiene_t::block)
 					|| (!directional_reservation_succeeded
 					&& sch1->is_reserved(schiene_t::directional)))
 					&& sch1->get_reserved_convoi() == cnv->self
-					&& sch1->get_pos() != get_pos())
+					&& sch1->get_pos() != get_pos()
+					&& (!halt_current.is_bound() || halt_current != halt_this))
 				{
 					sch1->unreserve(cnv->self);
 					const sint32 n = min(i, route->get_count() - 1); 
