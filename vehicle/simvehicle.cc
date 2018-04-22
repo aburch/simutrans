@@ -4516,12 +4516,14 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 						// Caution
 						cnv->set_maximum_signal_speed(min(kmh_to_speed(w_current->get_max_speed()) / 2, sig->get_desc()->get_max_speed() / 2));
 						sig->set_state(inverse ? roadsign_t::caution : roadsign_t::caution_no_choose); 
+						find_next_signal(cnv->get_route(),  max(route_index, 1) - 1, next_signal);
 					}
 					else
 					{
 						// Clear
 						cnv->set_maximum_signal_speed(kmh_to_speed(sig->get_desc()->get_max_speed())); 
 						sig->set_state(inverse ? roadsign_t::clear : roadsign_t::clear_no_choose); 
+						find_next_signal(cnv->get_route(),  max(route_index, 1) - 1, next_signal);
 					}
 				}
 			}
@@ -5050,6 +5052,32 @@ void rail_vehicle_t::set_working_method(working_method_t value)
 	}
 
 	working_method = value; 
+}
+
+void rail_vehicle_t::find_next_signal(route_t* route, uint16 start_index, uint16 &next_signal_index)
+{
+	sint32 count = 0;
+	uint32 i = start_index;
+	next_signal_index = INVALID_INDEX;
+	signal_t* signal = NULL;
+	koord3d pos = route->at(start_index);
+	for (; count >= 0 && i < route->get_count(); i++)
+	{
+		pos = route->at(i);
+		grund_t *gr = welt->lookup(pos);
+		schiene_t* sch1 = gr ? (schiene_t *)gr->get_weg(get_waytype()) : NULL;
+
+		if (sch1->has_signal())
+		{
+			ribi_t::ribi ribi = ribi_type(route->at(max(1u, i) - 1u), route->at(min(route->get_count() - 1u, i + 1u)));
+			signal = gr->get_weg(get_waytype())->get_signal(ribi); 
+			if (signal && !signal->get_desc()->is_pre_signal())
+			{
+				next_signal_index = i;
+				return;
+			}
+		}
+	}
 }
 
 /*
