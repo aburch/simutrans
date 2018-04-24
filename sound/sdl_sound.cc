@@ -9,6 +9,7 @@
 #include <string.h>
 #include "sound.h"
 #include "../simmem.h"
+#include "../simdebug.h"
 
 /*
  * Hajo: flag if sound module should be used
@@ -137,7 +138,7 @@ bool dr_init_sound()
 
 			} else {
 #ifndef _MSC_VER		
-				printf("Open audio channel doesn't meet requirements. Muting\n");
+				dbg->important("Open audio channel doesn't meet requirements. Muting");
 #endif
 				SDL_CloseAudio();
 				SDL_QuitSubSystem(SDL_INIT_AUDIO);
@@ -146,14 +147,14 @@ bool dr_init_sound()
 
 		} else {
 #ifndef _MSC_VER	
-			printf("Could not open required audio channel. Muting\n");
+			dbg->important("Could not open required audio channel. Muting");
 #endif
 			SDL_QuitSubSystem(SDL_INIT_AUDIO);
 		}
 	}
 	else {
 #ifndef _MSC_VER	
-		printf("Could not initialize sound system. Muting\n");
+		dbg->important("Could not initialize sound system. Muting");
 #endif
 	}
 
@@ -180,7 +181,7 @@ int dr_load_sample(const char *filename)
 		/* load the sample */
 		if (SDL_LoadWAV(filename, &wav_spec, &wav_data, &wav_length) == NULL) {
 #ifndef _MSC_VER	
-			printf("could not load wav (%s)\n", SDL_GetError());
+			dbg->warning("dr_load_sample()", "could not load wav (%s)", SDL_GetError());
 #endif
 			return -1;
 		}
@@ -192,7 +193,7 @@ int dr_load_sample(const char *filename)
 			    output_audio_format.channels,
 			    output_audio_format.freq) < 0) {
 #ifndef _MSC_VER	
-			printf("could not create conversion structure\n");
+			dbg->warning("dr_load_sample()", "could not create conversion structure");
 #endif
 			SDL_FreeWAV(wav_data);
 			return -1;
@@ -206,7 +207,7 @@ int dr_load_sample(const char *filename)
 
 		if (SDL_ConvertAudio(&wav_cvt) < 0) {
 #ifndef _MSC_VER	
-			printf("could not convert wav to output format\n");
+			dbg->warning("dr_load_sample()", "could not convert wav to output format");
 #endif
 			return -1;
 		}
@@ -216,7 +217,7 @@ int dr_load_sample(const char *filename)
 		smp.audio_len = wav_cvt.len_cvt;
 		samples[samplenumber] = smp;
 #ifndef _MSC_VER	
-		printf("Loaded %s to sample %i.\n",filename,samplenumber);
+		dbg->message("dr_load_sample", "Loaded %s to sample %i.",filename,samplenumber);
 #endif
 
 		return samplenumber++;

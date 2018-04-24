@@ -11192,6 +11192,11 @@ void karte_t::privatecar_rdwr(loadsave_t *file)
 		file->rdwr_byte(number_of_passenger_classes);
 	}
 
+	if(!car_ownership)
+	{
+		car_ownership = new vector_tpl<car_ownership_record_t>[number_of_passenger_classes];
+	}
+
 	for (uint8 cl = 0; cl < number_of_passenger_classes; cl++)
 	{
 		if (file->is_saving())
@@ -11206,12 +11211,16 @@ void karte_t::privatecar_rdwr(loadsave_t *file)
 		}
 
 		else
-		{
-			car_ownership[cl].clear();
+		{		
 			uint32 counter;
 			file->rdwr_long(counter);
 			sint64 year = 0;
 			uint16 ownership_percent = 0;
+			if(counter > 0)
+			{
+				car_ownership[cl].clear();
+			}
+
 			for (uint32 c = 0; c < counter; c++)
 			{
 				file->rdwr_longlong(year);

@@ -781,6 +781,10 @@ public:
 	// needed for setting signal aspects in some cases).
 	sint32 block_reserver(route_t *route, uint16 start_index, uint16 modified_sighting_distance_tiles, uint16 &next_signal, int signal_count, bool reserve, bool force_unreserve, bool is_choosing = false, bool is_from_token = false, bool is_from_starter = false, bool is_from_directional = false, uint32 brake_steps = 1, uint16 first_one_train_staff_index = INVALID_INDEX, bool from_call_on = false, bool *break_loop = NULL);
 
+	// Finds the next signal without reserving any tiles.
+	// Used for time interval (with and without telegraph) signals on plain track.
+	void find_next_signal(route_t* route, uint16 start_index, uint16 &next_signal);
+
 	void leave_tile();
 
 	/// Unreserve behind the train using the current route

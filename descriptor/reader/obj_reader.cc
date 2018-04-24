@@ -283,9 +283,13 @@ void obj_reader_t::resolve_xrefs()
 				}
 			}
 
+			if(!obj_loaded) {
+				dbg->warning("obj_reader_t::resolve_xrefs()", "cannot resolve '%4.4s-%s'", &u.key, i.key);
+			}
+
 			FOR(slist_tpl<obj_desc_t**>, const x, i.value) {
 				if (!obj_loaded && fatals.get(x)) {
-					dbg->fatal("obj_reader_t::resolve_xrefs", "cannot resolve '%4.4s-%s'", &u.key, i.key);
+					dbg->fatal("obj_reader_t::resolve_xrefs()", "cannot resolve '%4.4s-%s'", &u.key, i.key);
 				}
 				// delete old xref-node
 				xref_nodes.append(*x);

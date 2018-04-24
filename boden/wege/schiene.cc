@@ -206,7 +206,7 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
  */
 bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t, bool check_directions_at_junctions)
 {
-	if (can_reserve(c, dir, t, check_directions_at_junctions))
+	if (can_reserve(c, dir, t, check_directions_at_junctions)) 
 	{
 		ribi_t::ribi old_direction = direction;
 		if (type == block && t == directional && reserved.is_bound())

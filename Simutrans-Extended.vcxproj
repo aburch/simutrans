@@ -3695,7 +3695,7 @@
     <None Include="base_texts_extended_transshipment.dat" />
     <None Include="base_texts_phil_fix.dat" />
     <None Include="base_texts_walking_passengers.dat" />
-    <None Include="bsae-texts-afhp.dat" />
+    <None Include="base-texts-afhp.dat" />
     <None Include="common.mk" />
     <None Include="config.template" />
     <None Include="Makefile" />

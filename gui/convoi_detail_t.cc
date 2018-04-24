@@ -197,21 +197,17 @@ void convoi_detail_t::draw(scr_coord pos, scr_size size)
 		// Upgrades
 		const uint16 month_now = welt->get_timeline_year_month();
 		int amount_of_upgradeable_vehicles = 0;
-		bool any_upgrades = false;
 
 		for (uint16 i = 0; i < vehicle_count; i++)
 		{
-			any_upgrades = false;
 			const vehicle_desc_t *desc = cnv->get_vehicle(i)->get_desc();
 			for (int i = 0; i < desc->get_upgrades_count(); i++)
 			{
-				if (any_upgrades == false)
+				const vehicle_desc_t *upgrade_desc = desc->get_upgrades(i);
+				if (upgrade_desc && !upgrade_desc->is_future(month_now) && (!upgrade_desc->is_retired(month_now)))
 				{
-					if (!desc->get_upgrades(i)->is_future(month_now) && (!desc->get_upgrades(i)->is_retired(month_now)))
-					{
-						amount_of_upgradeable_vehicles++;
-						any_upgrades = true;
-					}
+					amount_of_upgradeable_vehicles++;
+					break;
 				}
 			}
 		}
@@ -524,7 +520,8 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 				int max_display_of_upgrades = 3;
 				for (int i = 0; i < v->get_desc()->get_upgrades_count(); i++)
 				{
-					if (!v->get_desc()->get_upgrades(i)->is_future(month_now) && (!v->get_desc()->get_upgrades(i)->is_retired(month_now)))
+					const vehicle_desc_t* desc = v->get_desc()->get_upgrades(i);
+					if (desc && !desc->is_future(month_now) && !desc->is_retired(month_now))
 					{
 						amount_of_upgrades++;
 					}
@@ -535,15 +532,22 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					buf.printf("%s:", translator::translate("this_vehicle_can_upgrade_to"));
 					display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, COL_PURPLE, true);
 					extra_y += LINESPACE;
-					for (uint8 i = 0; i < min(v->get_desc()->get_upgrades_count(), max_display_of_upgrades); i++)
+					uint8 upgrades_displayed = 0;
+					for (uint8 i = 0; i < v->get_desc()->get_upgrades_count(); i++)
 					{
-						if (!v->get_desc()->get_upgrades(i)->is_future(month_now) && (!v->get_desc()->get_upgrades(i)->is_retired(month_now)))
+						const vehicle_desc_t* desc = v->get_desc()->get_upgrades(i);
+						if (desc && !desc->is_future(month_now) && !desc->is_retired(month_now))
 						{
 							buf.clear();
-							money_to_string(number, v->get_desc()->get_upgrades(i)->get_upgrade_price() / 100);
+							money_to_string(number, desc->get_upgrade_price() / 100);
 							buf.printf("%s (%8s)", translator::translate(v->get_desc()->get_upgrades(i)->get_name()), number);
 							display_proportional_clip(pos.x + w + offset.x + even_more_extra_w, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 							extra_y += LINESPACE;
+							upgrades_displayed++;
+							if (upgrades_displayed >= max_display_of_upgrades)
+							{
+								break;
+							}
 						}
 					}
 					if (amount_of_upgrades > max_display_of_upgrades)

@@ -4404,7 +4404,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	}
 
 	halthandle_t this_halt = haltestelle_t::get_halt(get_pos(), get_owner());
-	const bool this_halt_has_station_signals = this_halt.is_bound() && this_halt->get_station_signals_count();
+	bool this_halt_has_station_signals = this_halt.is_bound() && this_halt->get_station_signals_count();
 
 	const bool starting_from_stand = cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH
 		|| cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS
@@ -4449,15 +4449,93 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		return false;
 	}
 
-	if (signal_current && signal_current->get_desc()->get_working_method() == one_train_staff && cnv->get_state() == convoi_t::DRIVING)
+	if (signal_current && signal_current->get_desc()->get_working_method() == one_train_staff && cnv->get_state() == convoi_t::DRIVING && signal_current->get_state() != signal_t::call_on)
 	{
-		// This should only be encountered when a train comes upon a one train staf cabinet having previously stopped at a double block signal. 
+		// This should only be encountered when a train comes upon a one train staff cabinet having previously stopped at a double block signal. 
 		set_working_method(one_train_staff);
 	}
 
 	if((destination_is_nonreversing_waypoint || starting_from_stand) && working_method != one_train_staff && (signal_current || this_halt_has_station_signals) && (this_halt_has_station_signals || !signal_current->get_desc()->get_permissive() || signal_current->get_no_junctions_to_next_signal() == false))
 	{	
-		if(!block_reserver(cnv->get_route(), max(route_index, 1) - 1, welt->get_settings().get_sighting_distance_tiles(), next_signal, 0, true, false))
+		bool allow_block_reserver = true;
+		if (this_halt_has_station_signals)
+		{
+			// We need to check whether this is a station signal that does not protect any junctions: if so, just check its state, do not call the block reserver.
+			enum station_signal_status { none, forward, inverse };
+			station_signal_status station_signal;
+			signal_t* sig = NULL;
+			for(uint32 k = 0; k < this_halt->get_station_signals_count(); k ++)
+			{
+				grund_t* gr_check = welt->lookup(this_halt->get_station_signal(k));
+				if(gr_check)
+				{
+					weg_t* way_check = gr_check->get_weg(get_waytype());
+					sig = way_check ? way_check->get_signal(ribi) : NULL;
+					if(sig)
+					{
+						station_signal = forward;
+						break;
+					}
+					else
+					{
+						// Check the opposite direction as station signals work in the exact opposite direction
+						ribi_t::ribi ribi_backwards = ribi_t::backward(ribi);
+						sig = gr_check->get_weg(get_waytype())->get_signal(ribi_backwards);
+						if(sig)
+						{
+							station_signal = inverse;
+							break;
+						}
+					}
+				}
+			}
+
+			if (sig)
+			{
+				if ((sig->get_desc()->get_working_method() == working_method_t::time_interval || sig->get_desc()->get_working_method() == working_method_t::time_interval_with_telegraph) && sig->get_no_junctions_to_next_signal())
+				{
+					// A time interval signal on plain track - do not engage the block reserver
+					allow_block_reserver = false;
+					const sint64 last_passed = this_halt->get_train_last_departed(ribi);
+
+					const sint64 caution_interval_ticks = welt->get_seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_caution());
+					const sint64 clear_interval_ticks =  welt->get_seconds_to_ticks(welt->get_settings().get_time_interval_seconds_to_clear());
+					const sint64 ticks = welt->get_ticks();
+
+					set_working_method(sig->get_desc()->get_working_method()); 
+
+					if(last_passed + caution_interval_ticks > ticks)
+					{
+						// Danger
+						sig->set_state(signal_t::danger);
+						restart_speed = 0;
+						return false;	
+					}
+					else if(last_passed + clear_interval_ticks > ticks)
+					{
+						// Caution
+						cnv->set_maximum_signal_speed(min(kmh_to_speed(w_current->get_max_speed()) / 2, sig->get_desc()->get_max_speed() / 2));
+						sig->set_state(inverse ? roadsign_t::caution : roadsign_t::caution_no_choose); 
+						find_next_signal(cnv->get_route(),  max(route_index, 1) - 1, next_signal);
+					}
+					else
+					{
+						// Clear
+						cnv->set_maximum_signal_speed(kmh_to_speed(sig->get_desc()->get_max_speed())); 
+						sig->set_state(inverse ? roadsign_t::clear : roadsign_t::clear_no_choose); 
+						find_next_signal(cnv->get_route(),  max(route_index, 1) - 1, next_signal);
+					}
+				}
+			}
+			else
+			{
+				// There are no station signals facing in the correct direction
+				this_halt_has_station_signals = false;
+			}
+
+		}
+
+		if(allow_block_reserver && !block_reserver(cnv->get_route(), max(route_index, 1) - 1, welt->get_settings().get_sighting_distance_tiles(), next_signal, 0, true, false))
 		{		
 			restart_speed = 0;
 			return false;
@@ -4489,9 +4567,12 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		return false;
 	}
 
-	if(starting_from_stand && cnv->get_next_stop_index() == route_index && !signal_current && working_method != drive_by_sight && working_method != moving_block)
+	//const signal_t* signal_next_tile = welt->lookup(cnv->get_route()->at(min(cnv->get_route()->get_count() - 1u, route_index)))->find<signal_t>();
+
+	if(starting_from_stand && cnv->get_next_stop_index() == route_index /*&& !signal_next_tile*/ && !signal_current && working_method != drive_by_sight && working_method != moving_block)
 	{
 		// If we are starting from stand, have no reservation beyond here and there is no signal, assume that it has been deleted and revert to drive by sight.
+		// This might also occur when a train in the time interval working method has had a collision from the rear and has gone into an emergency stop.
 		if (working_method == token_block || working_method == one_train_staff)
 		{
 			cnv->set_next_stop_index(INVALID_INDEX);
@@ -4517,16 +4598,16 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				if(c->get_vehicle(i)->get_pos() == ground_pos)
 				{
 					cnv->set_state(convoi_t::EMERGENCY_STOP);
-					cnv->set_wait_lock(emergency_stop_duration + 500); // We add 500 to what we assume is the rear train to ensure that the front train starts first.
+					cnv->set_wait_lock(emergency_stop_duration + 2000); // We add 2,000ms to what we assume is the rear train to ensure that the front train starts first.
 					set_working_method(drive_by_sight);
 					cnv->unreserve_route();
 					cnv->reserve_own_tiles();
-					if(c.is_bound())
+					if(c.is_bound() && !this_halt_has_station_signals)
 					{
 						c->set_state(convoi_t::EMERGENCY_STOP);
 						c->set_wait_lock(emergency_stop_duration);
-						c->unreserve_route();
-						c->reserve_own_tiles();
+						/*c->unreserve_route();
+						c->reserve_own_tiles();*/
 					}
 					break;
 				}
@@ -4536,10 +4617,12 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		{
 			// Check for head-on collisions in drive by sight mode so as to fix deadlocks automatically.
 			convoihandle_t c = w->get_reserved_convoi();
-			if (c->get_state() == convoi_t::DRIVING || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE|| c->get_state() == convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS)
+			if ((c->get_state() == convoi_t::DRIVING || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE|| c->get_state() == convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH || c->get_state() == convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS) &&
+				(cnv->get_state() == convoi_t::DRIVING || cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE|| cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH || cnv->get_state() == convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS) )
 			{
 				ribi_t::ribi other_convoy_direction = c->front()->get_direction();
-				if (other_convoy_direction != get_direction())
+				const depot_t* dep = gr->get_depot();
+				if (c->front()->get_pos_next() == get_pos() && get_pos_next() == c->front()->get_pos() && !dep && other_convoy_direction != get_direction())
 				{
 					// Opposite directions detected
 					// We must decide whether this or the other convoy should reverse.
@@ -4790,13 +4873,13 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 	}
 
-	const sint32 max_element = cnv->get_route_infos().get_count() - 1u;
+	sint32 max_element = cnv->get_route_infos().get_count() - 1u;
 
 	if(w_current->has_signal())
 	{	
 		// With cab signalling, even if we need do nothing else at this juncture, we may need to change the working method.
 		const uint16 check_route_index = next_block <= 0 ? 0 : next_block - 1u;
-		ribi_t::ribi ribi = next_block < INVALID_INDEX ? ribi_type(cnv->get_route()->at(max(1u, check_route_index) - 1u), cnv->get_route()->at(min(max_element, check_route_index + 1u))) : ribi_t::all; 
+		ribi_t::ribi ribi = next_block < INVALID_INDEX ? ribi_type(cnv->get_route()->at(max(1u, min(cnv->get_route()->get_count() - 1u, check_route_index)) - 1u), cnv->get_route()->at(min(max_element, min(cnv->get_route()->get_count() - 1, (check_route_index + 1u))))) : ribi_t::all; 
 		signal_t* signal = w_current->get_signal(ribi); 
 
 		if (signal && working_method == one_train_staff && starting_from_stand)
@@ -4851,6 +4934,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(sch1->has_signal()) 
 		{
 			const uint16 check_route_index = next_block <= 0 ? 0 : next_block - 1u;
+			max_element = min(max_element, cnv->get_route()->get_count() - 1u); 
 			ribi_t::ribi ribi = ribi_type(cnv->get_route()->at(max(1u, (min(max_element, check_route_index))) - 1u), cnv->get_route()->at(min(max_element, check_route_index + 1u)));
 			signal_t* signal = sch1->get_signal(ribi); 
 	
@@ -4938,7 +5022,6 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	// properly on the token block signal at the exit of the loop.
 	if(welt->lookup(get_pos())->get_weg(get_waytype())->has_signal()) 
 	{
-		ribi_t::ribi ribi = ribi_type(cnv->get_route()->at(max(1u,route_index)-1u), cnv->get_route()->at(min(cnv->get_route()->get_count()-1u,route_index+1u)));
 		signal_t* signal = get_weg()->get_signal(ribi); 
 	
 		if(signal && signal->get_desc()->get_working_method() == token_block)
@@ -4946,11 +5029,15 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			set_working_method(token_block); 
 		}
 	}
-	if(working_method == drive_by_sight || working_method == moving_block)
+	if(working_method == drive_by_sight || working_method == moving_block)	
 	{
 		bool ok = block_reserver(cnv->get_route(), route_index, modified_sighting_distance_tiles, next_signal, 0, true, false, false, false, false, false, brake_steps, (uint16)65530U, call_on);
 		ok |= route_index == route.get_count() || next_signal > route_index;
 		cnv->set_next_stop_index(next_signal);
+		if (exiting_one_train_staff && get_working_method() == one_train_staff)
+		{
+			set_working_method(drive_by_sight);
+		}
 		return ok;
 	}
 
@@ -4965,6 +5052,32 @@ void rail_vehicle_t::set_working_method(working_method_t value)
 	}
 
 	working_method = value; 
+}
+
+void rail_vehicle_t::find_next_signal(route_t* route, uint16 start_index, uint16 &next_signal_index)
+{
+	sint32 count = 0;
+	uint32 i = start_index;
+	next_signal_index = INVALID_INDEX;
+	signal_t* signal = NULL;
+	koord3d pos = route->at(start_index);
+	for (; count >= 0 && i < route->get_count(); i++)
+	{
+		pos = route->at(i);
+		grund_t *gr = welt->lookup(pos);
+		schiene_t* sch1 = gr ? (schiene_t *)gr->get_weg(get_waytype()) : NULL;
+
+		if (sch1->has_signal())
+		{
+			ribi_t::ribi ribi = ribi_type(route->at(max(1u, i) - 1u), route->at(min(route->get_count() - 1u, i + 1u)));
+			signal = gr->get_weg(get_waytype())->get_signal(ribi); 
+			if (signal && !signal->get_desc()->is_pre_signal())
+			{
+				next_signal_index = i;
+				return;
+			}
+		}
+	}
 }
 
 /*
@@ -5075,7 +5188,9 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	bool previous_telegraph_directional = false;
 	bool directional_reservation_succeeded = true;
 	bool one_train_staff_loop_complete = false;
+	bool reached_second_one_train_staff_cabinet = false;
 	bool time_interval_reservation = false;
+	bool reserving_beyond_a_train = false;
 	enum ternery_uncertainty {
 		is_true, is_false, is_uncertain
 	};
@@ -5380,6 +5495,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						{
 							one_train_staff_loop_complete = true;
 						}
+						else
+						{
+							// Do not try to reserve beyond a second one train staff cabinet
+							next_signal_index = i;
+							count --;
+							reached_second_one_train_staff_cabinet = true;
+						}
 					}
 
 					if(next_signal_working_method == drive_by_sight || one_train_staff_loop_complete || ((working_method != one_train_staff && (first_one_train_staff_index < INVALID_INDEX && first_one_train_staff_index > start_index))) && (first_double_block_signal_index == INVALID_INDEX || first_double_block_signal_index != last_stop_signal_index))
@@ -5555,9 +5677,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 						if(!directional_only && (next_signal_working_method == time_interval || next_signal_working_method == time_interval_with_telegraph) && last_longblock_signal_index < INVALID_INDEX && last_longblock_signal_index < this_stop_signal_index)
 						{
-							if( next_signal_working_method == time_interval_with_telegraph)
+							if(next_signal_working_method == time_interval_with_telegraph)
 							{
 								directional_only = true;
+								next_signal_index = i;
 							}
 							else if(first_double_block_signal_index != last_stop_signal_index)
 							{
@@ -5838,15 +5961,19 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				{
 					time_interval_starting_point = last_station_tile;
 				}
-				else 
+				else if(last_stop_signal_index < INVALID_INDEX)
 				{
 					time_interval_starting_point = last_stop_signal_index;
+				}
+				else
+				{
+					time_interval_starting_point = i;
 				}
 				
 				time_interval_reservation = 
 					   ((!next_signal_protects_no_junctions && this_stop_signal_index != i) || first_double_block_signal_index < INVALID_INDEX)
 					&& (this_stop_signal_index < INVALID_INDEX || last_stop_signal_index < INVALID_INDEX || last_choose_signal_index < INVALID_INDEX)
-					&& ((i - time_interval_starting_point < welt->get_settings().get_sighting_distance_tiles()) || next_signal_working_method == time_interval_with_telegraph 
+					&& ((i - time_interval_starting_point <= welt->get_settings().get_sighting_distance_tiles()) || next_signal_working_method == time_interval_with_telegraph 
 						|| (check_halt.is_bound() && check_halt == last_step_halt && (next_signal_working_method == time_interval_with_telegraph || previous_time_interval_reservation == is_true || previous_time_interval_reservation == is_uncertain))); // Time interval with telegraph signals have no distance limit for reserving.
 			}
 			const bool telegraph_directional = time_interval_reservation && previous_telegraph_directional || (next_signal_working_method == time_interval_with_telegraph && (((last_longblock_signal_index == last_stop_signal_index && first_stop_signal_index == last_longblock_signal_index) && last_longblock_signal_index < INVALID_INDEX) || first_double_block_signal_index < INVALID_INDEX && next_signal_protects_no_junctions));
@@ -5854,7 +5981,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			bool attempt_reservation = directional_only || time_interval_reservation || previous_telegraph_directional || ((next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph && (next_signal_working_method != drive_by_sight || i < start_index + modified_sighting_distance_tiles + 1)) && (!stop_at_station_signal.is_bound() || stop_at_station_signal == check_halt));
 			previous_telegraph_directional = telegraph_directional;
 			previous_time_interval_reservation = time_interval_reservation ? is_true : is_false;
-			if(attempt_reservation && !sch1->reserve(cnv->self, ribi_type(route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u,i+1u))), rt, (working_method == time_interval || working_method == time_interval_with_telegraph)))
+			if(!reserving_beyond_a_train && attempt_reservation && !reached_second_one_train_staff_cabinet && !sch1->reserve(cnv->self, ribi_type(route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u,i+1u))), rt, (working_method == time_interval || working_method == time_interval_with_telegraph)))
 			{
 				not_entirely_free = true;
 				if (from_call_on)
@@ -5956,14 +6083,28 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					next_signal_index = last_stop_signal_index;
 					break;
 				}
+
 			}
 
 			last_step_halt = check_halt;
 			
 			// Do not attempt to reserve beyond a train ahead.
-			if((next_signal_working_method != time_interval_with_telegraph || next_time_interval_state == roadsign_t::danger) && attempt_reservation && !directional_only && sch1->get_reserved_convoi().is_bound() && sch1->get_reserved_convoi() != cnv->self && sch1->get_reserved_convoi()->get_pos() == pos)
+			if(reserving_beyond_a_train || ((next_signal_working_method != time_interval_with_telegraph || next_time_interval_state == roadsign_t::danger) && !directional_only && sch1->get_reserved_convoi().is_bound() && sch1->get_reserved_convoi() != cnv->self && sch1->get_reserved_convoi()->get_pos() == pos))
 			{
-				break;
+				if (attempt_reservation)
+				{
+					success = false;
+					if (stop_at_station_signal == check_halt)
+					{
+						next_signal_index = first_stop_signal_index;
+					}
+					break;
+				}
+				else
+				{
+					// This is necessary in case attempt reservation is enabled in a subsequent step.
+					reserving_beyond_a_train = true;
+				}
 			}
 
 			// check if there is an early platform available to stop at
@@ -6117,7 +6258,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	// However, do not call this if we are in the block reserver already called from this method to prevent infinite recursion.
 	const bool bidirectional_reservation = (working_method == track_circuit_block || working_method == cab_signalling || working_method == moving_block) 
 		&& last_bidirectional_signal_index < INVALID_INDEX && (last_oneway_sign_index >= INVALID_INDEX || last_oneway_sign_index < last_bidirectional_signal_index);
-	if(!is_from_token && !is_from_directional && (((working_method == token_block || (first_double_block_signal_index < INVALID_INDEX && stop_signals_since_last_double_block_signal)) && last_token_block_signal_index < INVALID_INDEX) || bidirectional_reservation || working_method == one_train_staff || (start_index == first_one_train_staff_index)) && next_signal_index == INVALID_INDEX)
+	const bool one_train_staff_onward_reservation = working_method == one_train_staff || start_index == first_one_train_staff_index;
+	if(!is_from_token && !is_from_directional && (((working_method == token_block || (first_double_block_signal_index < INVALID_INDEX && stop_signals_since_last_double_block_signal)) && last_token_block_signal_index < INVALID_INDEX) || bidirectional_reservation || one_train_staff_onward_reservation) && next_signal_index == INVALID_INDEX)
 	{
 		route_t target_rt;
 		schedule_t *schedule = cnv->get_schedule();
@@ -6129,9 +6271,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		uint16 next_next_signal;
 		bool route_success;
 		sint32 token_block_blocks = 0;
-		if(no_reverse || working_method == one_train_staff)
+		if(no_reverse || one_train_staff_onward_reservation)
 		{
 			bool break_loop_recursive = false;
+			if (one_train_staff_onward_reservation && working_method != one_train_staff)
+			{
+				set_working_method(one_train_staff);
+			}
 			do
 			{
 				// Search for route until the next signal is found.
@@ -6139,12 +6285,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 				if(route_success) 
 				{
-					if (working_method == one_train_staff && first_one_train_staff_index < INVALID_INDEX)
+					if (one_train_staff_onward_reservation && first_one_train_staff_index < INVALID_INDEX)
 					{
 						cnv->set_last_signal_pos(route->at(first_one_train_staff_index));
 					}
 							
-					token_block_blocks = block_reserver(&target_rt, 1, modified_sighting_distance_tiles, next_next_signal, 0, true, false, false, !bidirectional_reservation, false, bidirectional_reservation, brake_steps, working_method == one_train_staff ? first_one_train_staff_index : INVALID_INDEX, false, &break_loop_recursive);
+					token_block_blocks = block_reserver(&target_rt, 1, modified_sighting_distance_tiles, next_next_signal, 0, true, false, false, !bidirectional_reservation, false, bidirectional_reservation, brake_steps, one_train_staff_onward_reservation ? first_one_train_staff_index : INVALID_INDEX, false, &break_loop_recursive);
 				}
 
 				if(token_block_blocks && next_next_signal < INVALID_INDEX) 
@@ -6162,7 +6308,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 					else
 					{
-						if(working_method != one_train_staff)
+						if(!one_train_staff_onward_reservation)
 						{
 							cnv->set_next_stop_index(cnv->get_route()->get_count() - 1u);
 						}
@@ -6191,7 +6337,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			if(cnv->get_next_stop_index() - 1 <= route_index) 
 			{
-				if (working_method == one_train_staff && next_signal_index >= INVALID_INDEX)
+				if (one_train_staff_onward_reservation && next_signal_index >= INVALID_INDEX)
 				{
 					cnv->set_next_stop_index(next_next_signal);
 				}
@@ -6283,15 +6429,18 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		}
 		else if(curtailment_index < i)
 		{
+			const halthandle_t halt_current = haltestelle_t::get_halt(get_pos(), get_owner());
 			for(uint32 j = curtailment_index; j < route->get_count(); j++)
 			{
 				grund_t* gr_this = welt->lookup(route->at(j));
 				schiene_t * sch1 = gr_this ? (schiene_t *)gr_this->get_weg(get_waytype()) : NULL;
+				const halthandle_t halt_this = haltestelle_t::get_halt(route->at(j), get_owner());
 				if(sch1 && (sch1->is_reserved(schiene_t::block)
 					|| (!directional_reservation_succeeded
 					&& sch1->is_reserved(schiene_t::directional)))
 					&& sch1->get_reserved_convoi() == cnv->self
-					&& sch1->get_pos() != get_pos())
+					&& sch1->get_pos() != get_pos()
+					&& (!halt_current.is_bound() || halt_current != halt_this))
 				{
 					sch1->unreserve(cnv->self);
 					const sint32 n = min(i, route->get_count() - 1); 
@@ -7802,9 +7951,9 @@ route_t::route_result_t air_vehicle_t::calc_route_internal(
 		search_for_stop = route.get_count()-1;
 
 		// define the endpoint on the runway
-		uint16 runway_tiles = search_for_stop - touchdown;
-		uint16 min_runway_tiles = desc->get_minimum_runway_length() / welt->get_settings().get_meters_per_tile() + 1;
-		uint16 excess_of_tiles = runway_tiles - min_runway_tiles;
+		uint32 runway_tiles = search_for_stop - touchdown;
+		uint32 min_runway_tiles = desc->get_minimum_runway_length() / welt->get_settings().get_meters_per_tile() + 1;
+		sint32 excess_of_tiles = runway_tiles - min_runway_tiles;
 		search_for_stop -= excess_of_tiles;
 		// now we just append the rest
 		for( int i=end_route.get_count()-2;  i>=0;  i--  ) {
@@ -8119,7 +8268,6 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 		}
 	}
 
-	//	if(route_index==search_for_stop  &&  state==landing) {
 	if(route_index==search_for_stop &&  state==landing) {
 
 		// we will wait in a step, much more simulation friendly

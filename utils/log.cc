@@ -82,7 +82,7 @@ void log_t::important(const char* format, ...)
  */
 void log_t::debug(const char *who, const char *format, ...)
 {
-	if(log_debug  &&  debuglevel==4) {
+	if(log_debug  &&  debuglevel>=4) {
 		va_list argptr;
 		va_start(argptr, format);
 
@@ -125,7 +125,7 @@ void log_t::debug(const char *who, const char *format, ...)
  */
 void log_t::message(const char *who, const char *format, ...)
 {
-	if(debuglevel>2) {
+	if(debuglevel>=3) {
 		va_list argptr;
 		va_start(argptr, format);
 
@@ -168,7 +168,7 @@ void log_t::message(const char *who, const char *format, ...)
  */
 void log_t::warning(const char *who, const char *format, ...)
 {
-	if(debuglevel>1) {
+	if(debuglevel>=2) {
 		va_list argptr;
 		va_start(argptr, format);
 
@@ -211,7 +211,7 @@ void log_t::warning(const char *who, const char *format, ...)
  */
 void log_t::error(const char *who, const char *format, ...)
 {
-	if(debuglevel>0) {
+	if(debuglevel>=1) {
 		va_list argptr;
 		va_start(argptr, format);
 
