@@ -308,10 +308,7 @@ scr_coord gui_convoy_assembler_t::get_placement(waytype_t wt)
 
 scr_coord gui_convoy_assembler_t::get_grid(waytype_t wt)
 {
-	if (wt==water_wt) {
-		return scr_coord(60,46);
-	}
-	if (wt==air_wt) {
+	if (wt==water_wt || wt==air_wt) {
 		return scr_coord(36,36);
 	}
 	return scr_coord(24,24);
