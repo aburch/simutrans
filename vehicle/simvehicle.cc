@@ -6557,7 +6557,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 
 		bool last_signal_was_track_circuit_block = false;
 
-		if (no_junctions_to_last_signal && reached_end_of_loop && success && last_stop_signal_index < INVALID_INDEX)
+		if (no_junctions_to_last_signal && no_junctions_to_next_signal && reached_end_of_loop && success && last_stop_signal_index < INVALID_INDEX)
 		{
 			const grund_t* gr_signal = welt->lookup(route->at(last_stop_signal_index));
 			signal_t* signal = gr_signal->find<signal_t>();
