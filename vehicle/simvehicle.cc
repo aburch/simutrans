@@ -6559,7 +6559,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			const grund_t* gr_signal = welt->lookup(route->at(last_stop_signal_index));
 			signal_t* signal = gr_signal->find<signal_t>();
-			if (signal)
+			if (signal && !signal->get_desc()->is_choose_sign())
 			{
 				signal->set_no_junctions_to_next_signal(true);
 			}
