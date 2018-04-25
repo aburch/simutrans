@@ -2736,7 +2736,7 @@ const char* tool_build_bridge_t::get_tooltip(const player_t *) const
 			}
 			any_prohibitive = true;
 			char tmpbuf[30];
-			sprintf(tmpbuf, "Prohibitive %i", i);
+			sprintf(tmpbuf, "Prohibitive %i-%i", desc->get_wtyp(), i);
 			n += sprintf(toolstr + n, " ");
 			n += sprintf(toolstr + n, translator::translate(tmpbuf));
 		}
@@ -3056,7 +3056,7 @@ const char* tool_build_tunnel_t::get_tooltip(const player_t *) const
 			}
 			any_prohibitive = true;
 			char tmpbuf[30];
-			sprintf(tmpbuf, "Prohibitive %i", i);
+			sprintf(tmpbuf, "Prohibitive %i-%i", desc->get_wtyp(), i);
 			n += sprintf(toolstr + n, " ");
 			n += sprintf(toolstr + n, translator::translate(tmpbuf));
 		}
