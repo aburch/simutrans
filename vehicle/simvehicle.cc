@@ -4492,7 +4492,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 			if (sig)
 			{
-				if ((sig->get_desc()->get_working_method() == working_method_t::time_interval || sig->get_desc()->get_working_method() == working_method_t::time_interval_with_telegraph) && sig->get_no_junctions_to_next_signal() && !signal_current->get_desc()->is_choose_sign())
+				if ((sig->get_desc()->get_working_method() == working_method_t::time_interval || sig->get_desc()->get_working_method() == working_method_t::time_interval_with_telegraph) && sig->get_no_junctions_to_next_signal() && !sig->get_desc()->is_choose_sign())
 				{
 					// A time interval signal on plain track - do not engage the block reserver
 					allow_block_reserver = false;
