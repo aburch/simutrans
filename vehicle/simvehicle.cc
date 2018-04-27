@@ -5177,6 +5177,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	uint16 first_double_block_signal_index = INVALID_INDEX;
 	uint32 stop_signals_since_last_double_block_signal = 0;
 	halthandle_t stop_at_station_signal;
+	const halthandle_t destination_halt = haltestelle_t::get_halt(route->at(route->get_count() - 1), get_owner()); 
 	bool do_not_clear_distant = false;
 	working_method_t next_signal_working_method = working_method;
 	working_method_t old_working_method = working_method;
@@ -5476,7 +5477,13 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						
 						next_signal_working_method = nwm;			
 					}
+					
 					next_signal_protects_no_junctions = signal->get_no_junctions_to_next_signal();
+					
+					if (destination_halt == check_halt)
+					{
+						next_signal_protects_no_junctions = false;
+					}
 					if(working_method == drive_by_sight && sch1->can_reserve(cnv->self, ribi) && (signal->get_pos() != cnv->get_last_signal_pos() || signal->get_desc()->get_working_method() != one_train_staff))
 					{
 						set_working_method(next_signal_working_method);
@@ -5699,7 +5706,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							end_of_block = true;
 						}				
 
-						if(!directional_only && next_signal_working_method == time_interval_with_telegraph && signal->get_no_junctions_to_next_signal() && signal->get_desc()->is_longblock_signal())
+						if(!directional_only && next_signal_working_method == time_interval_with_telegraph && signal->get_no_junctions_to_next_signal() && signal->get_desc()->is_longblock_signal() && (!check_halt.is_bound() || check_halt->get_station_signals_count() == 0))
 						{
 							directional_only = true;
 						}
