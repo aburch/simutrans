@@ -5056,6 +5056,13 @@ void rail_vehicle_t::set_working_method(working_method_t value)
 
 void rail_vehicle_t::find_next_signal(route_t* route, uint16 start_index, uint16 &next_signal_index)
 {
+	if(start_index >= route->get_count())
+	{
+		// Cannot start reserving beyond the end of the route.
+		cnv->set_next_reservation_index(max(route->get_count(), 1) - 1);
+		return;
+	}
+	
 	sint32 count = 0;
 	uint32 i = start_index;
 	next_signal_index = INVALID_INDEX;
