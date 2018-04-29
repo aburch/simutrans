@@ -15,9 +15,9 @@
 class vehicle_t;
 
 /**
- * Class for monorail tracks, derived from schiene.
- * Monorail trains can drive on this tracks.
- * Each track belongs to a section block
+ * Class for Rails in Simutrans.
+ * Trains can run over rails.
+ * Every rail belongs to a section block
  *
  * @author Hj. Malthaner
  */
