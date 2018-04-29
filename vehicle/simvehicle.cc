@@ -5164,6 +5164,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	uint16 this_stop_signal_index;
 	uint16 last_pre_signal_index = INVALID_INDEX;
 	uint16 last_stop_signal_index = INVALID_INDEX;
+	koord3d last_stop_signal_pos = koord3d::invalid;
 	uint16 last_longblock_signal_index = INVALID_INDEX;
 	uint16 last_combined_signal_index = INVALID_INDEX;
 	uint16 last_choose_signal_index = INVALID_INDEX;
@@ -5669,6 +5670,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							{
 								directional_only = true;
 								last_stop_signal_index = i;
+								last_stop_signal_pos = pos;
 							}
 							else if(first_double_block_signal_index != last_stop_signal_index)
 							{
@@ -5687,6 +5689,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							next_signal_index = i - 1;
 							count --;
 							last_stop_signal_index = i - 1;
+							last_stop_signal_pos = route->at(i - 1); 
 							end_of_block = true;
 						}
 
@@ -5703,6 +5706,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								count --;
 							}
 							last_stop_signal_index = i;
+							last_stop_signal_pos = pos;
 							end_of_block = true;
 						}				
 
@@ -6010,6 +6014,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					// If the last but one signal is a double block signal, do not allow the train to pass beyond that signal
 					// even if the route to the next signal is free
 					last_stop_signal_index = first_double_block_signal_index;
+					last_stop_signal_pos = route->at(first_double_block_signal_index); 
 					if (next_signal_index > last_stop_signal_index)
 					{
 						next_signal_index = last_stop_signal_index;
@@ -6079,6 +6084,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				if(this_stop_signal_index != INVALID_INDEX && !directional_only)
 				{
 					last_stop_signal_index = this_stop_signal_index;
+					last_stop_signal_pos = route->at(this_stop_signal_index);
 				}
 
 				if(attempt_reservation && !directional_only)
@@ -6371,6 +6377,17 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		 platform_starter = (this_halt.is_bound() && i < route->get_count() && (haltestelle_t::get_halt(route->at(last_stop_signal_index), get_owner())) == this_halt) && (haltestelle_t::get_halt(get_pos(), get_owner()) == this_halt);
 	}
 
+
+	if (no_junctions_to_last_signal && no_junctions_to_next_signal && reached_end_of_loop && success && last_stop_signal_index < INVALID_INDEX)
+	{
+		const grund_t* gr_signal = welt->lookup(last_stop_signal_pos);
+		signal_t* signal = gr_signal->find<signal_t>();
+		if (signal && !signal->get_desc()->is_choose_sign())
+		{
+			signal->set_no_junctions_to_next_signal(true);
+		}
+	}
+
 	bool choose_route_identical_to_main_route = false;
 
 	// free, in case of un-reserve or no success in reservation
@@ -6570,16 +6587,6 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		}
 
 		bool last_signal_was_track_circuit_block = false;
-
-		if (no_junctions_to_last_signal && no_junctions_to_next_signal && reached_end_of_loop && success && last_stop_signal_index < INVALID_INDEX)
-		{
-			const grund_t* gr_signal = welt->lookup(route->at(last_stop_signal_index));
-			signal_t* signal = gr_signal->find<signal_t>();
-			if (signal && !signal->get_desc()->is_choose_sign())
-			{
-				signal->set_no_junctions_to_next_signal(true);
-			}
-		}
 
 		FOR(slist_tpl<grund_t*>, const g, signs)
 		{
