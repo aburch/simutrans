@@ -901,6 +901,10 @@ void signal_t::rdwr_signal(loadsave_t *file)
 		{
 #endif
 		file->rdwr_bool(no_junctions_to_next_signal);
+		if (file->is_loading() && desc->is_choose_sign())
+		{
+			no_junctions_to_next_signal = false;
+		}
 		file->rdwr_longlong(train_last_passed); 
 #ifdef SPECIAL_RESCUE_12_6
 		}

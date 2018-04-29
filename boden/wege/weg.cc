@@ -952,7 +952,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 				}
 				any_permissive = true;
 				char tmpbuf[30];
-				sprintf(tmpbuf, " Permissive %i-%i", desc->get_waytype(), i);
+				sprintf(tmpbuf, "Permissive %i-%i", desc->get_waytype(), i);
 				buf.append(translator::translate(tmpbuf));
 				buf.append("\n");
 			}
@@ -1566,11 +1566,22 @@ bool weg_t::renew()
 		welt->get_message()->add_message(translator::translate("Not enough money to carry out essential way renewal work.\n"), get_pos().get_2d(), message_t::warnings, owner->get_player_nr());
 		owner->set_has_been_warned_about_no_money_for_renewals(true); // Only warn once a month.
 	}
-	else if (!owner && public_right_of_way && wtyp == road_wt)
+	else if (public_right_of_way && wtyp == road_wt)
 	{
-		// Unowned roads that are public rights of way should be renewed with the latest type.
+		// Roads that are public rights of way should be renewed with the latest type.
 		const way_desc_t* wb = welt->get_timeline_year_month() ? welt->get_settings().get_intercity_road_type(welt->get_timeline_year_month()) : NULL; // This search only works properly when the timeline is enabled
-		set_desc(wb ? wb : desc);
+		bool default_way_is_better_than_current_way = false;
+		if(wb)
+		{
+			default_way_is_better_than_current_way |= wb->get_topspeed() > desc->get_topspeed();
+			default_way_is_better_than_current_way &= wb->get_max_axle_load() >= desc->get_max_axle_load();
+
+			bool no_worse_stats = wb->get_topspeed() >= desc->get_topspeed() && wb->get_max_axle_load() >= desc->get_max_axle_load();
+			bool current_way_better_cost = (wb->get_maintenance() > desc->get_maintenance()) || (wb->get_base_cost() > desc->get_base_cost()) || (wb->get_wear_capacity() < desc->get_wear_capacity());
+
+			default_way_is_better_than_current_way &= !(no_worse_stats && current_way_better_cost);
+		}
+		set_desc(wb && (!owner || default_way_is_better_than_current_way) ? wb : desc);
 		success = true;
 	}
 

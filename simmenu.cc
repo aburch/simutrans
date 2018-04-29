@@ -547,6 +547,11 @@ void tool_t::read_menu(const std::string &objfilename)
 						// copy defaults
 						*addtool = *(general_tool[toolnr]);
 
+						if(  toolnr==TOOL_BUILD_WAY  ) {
+							tool_build_way_t* way_tool = dynamic_cast<tool_build_way_t*> (addtool);
+							if(  way_tool  ) way_tool->set_look_toolbar();
+						}
+
 						general_tool.append( addtool );
 					}
 					else {

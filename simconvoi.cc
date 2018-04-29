@@ -664,7 +664,7 @@ DBG_MESSAGE("convoi_t::finish_rd()","next_stop_index=%d", next_stop_index );
 				if(gr)
 				{
 					if (schiene_t* const sch0 = obj_cast<schiene_t>(gr->get_weg(vehicle[i]->get_waytype()))) {
-						sch0->reserve(self, ribi_t::none);
+						sch0->reserve(self, v->get_direction());
 					}
 				}
 			}
@@ -3940,7 +3940,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				if(gr && (v->get_waytype()==track_wt  ||  v->get_waytype()==monorail_wt  ||  v->get_waytype()==maglev_wt  ||  v->get_waytype()==narrowgauge_wt)) {
 					schiene_t* sch = (schiene_t*)gr->get_weg(v->get_waytype());
 					if(sch) {
-						sch->reserve(self,ribi_t::none);
+						sch->reserve(self, v->get_direction());
 					}
 					// add to crossing
 					if(gr->ist_uebergang()) {
