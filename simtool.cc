@@ -600,7 +600,8 @@ DBG_MESSAGE("tool_remover()",  "removing bridge from %d,%d,%d",gr->get_pos().x, 
 		// If this is a public right of way being deleted by anyone other than the public service player,
 		// then it cannot be deleted unless there is a diversionary route within a specified number of tiles.
 		
-		if(!player->is_public_service() && gr->get_weg(br->get_waytype())->is_public_right_of_way())
+		weg_t* w = gr->get_weg(br->get_waytype());
+		if(!player->is_public_service() && w && w->is_public_right_of_way())
 		{
 			msg = check_diversionary_route(pos, gr->get_weg(br->get_waytype()), player);
 			if(msg)
