@@ -268,6 +268,7 @@ private:
 protected:
 	const way_desc_t *desc;
 	overtaking_mode_t overtaking_mode;
+	bool look_toolbar = false;
 
 	virtual way_desc_t const* get_desc(uint16, bool) const;
 	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
@@ -293,6 +294,7 @@ public:
 	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode = ov; }
 	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode; }
 	static void set_mode_str(char* str, overtaking_mode_t overtaking_mode);
+	void set_look_toolbar() { look_toolbar = true; }
 };
 
 class tool_build_cityroad : public tool_build_way_t {

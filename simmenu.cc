@@ -633,6 +633,12 @@ void tool_t::read_menu(const std::string &objfilename)
 						*addtool = *(general_tool[toolnr]);
 						set_defaults_general_tool(addtool, param_str);
 
+						if(  toolnr==TOOL_BUILD_WAY  ) {
+							// tool_build_way_t object called from a shortcut key has to use overtaking_mode of the object in the toolbar.
+							tool_build_way_t* way_tool = dynamic_cast<tool_build_way_t*> (addtool);
+							if(  way_tool  ) way_tool->set_look_toolbar();
+						}
+
 						general_tool.append( addtool );
 					}
 					else {

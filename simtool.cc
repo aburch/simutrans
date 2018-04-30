@@ -2447,11 +2447,26 @@ void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 	DBG_MESSAGE("tool_build_way_t()", "builder found route with %d squares length.", bauigel.get_count());
 }
 
+tool_build_way_t* get_build_way_tool_from_toolbar(const way_desc_t* desc) {
+	FOR(vector_tpl<const way_desc_t *>, const& cand, way_builder_t::get_way_list(desc->get_waytype(), desc->get_styp())) {
+		if(  cand==desc  &&  cand->get_builder()  ) {
+			return dynamic_cast<tool_build_way_t*> (cand->get_builder());
+		}
+	}
+	return NULL;
+}
+
 const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
 	way_builder_t bauigel(player);
 	calc_route( bauigel, start, end );
-	bauigel.set_overtaking_mode(overtaking_mode);
+	overtaking_mode_t mode = overtaking_mode;
+	tool_build_way_t* toolbar_tool;
+	if(  look_toolbar  &&  (toolbar_tool=get_build_way_tool_from_toolbar(desc))!=NULL  ) {
+		// look toolbar variable indicates this tool is called from a shortcut key. When a tool is called from a shortcut key, we have to use overtaking_mode of the tool in a toolbar.
+		mode = toolbar_tool->get_overtaking_mode();
+	}
+	bauigel.set_overtaking_mode(mode);
 	if(  bauigel.get_route().get_count()>1  ) {
 		welt->mute_sound(true);
 		bauigel.build();
@@ -2467,6 +2482,13 @@ void tool_build_way_t::rdwr_custom_data(memory_rw_t *packet)
 {
 	two_click_tool_t::rdwr_custom_data(packet);
 	sint8 i = overtaking_mode;
+	// If this tool is called from a shortcut key, overtaking_mode of the tool in a toolbar has to be used.
+	if(  packet->is_saving()  &&  look_toolbar  ) {
+		tool_build_way_t* toolbar_tool = get_build_way_tool_from_toolbar(desc);
+		if(  toolbar_tool  ) {
+			i = toolbar_tool->get_overtaking_mode();
+		}
+	}
 	packet->rdwr_byte(i);
 	overtaking_mode = (overtaking_mode_t)i;
 }
