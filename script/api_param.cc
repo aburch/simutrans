@@ -45,20 +45,26 @@ namespace script_api {
 		}
 		switch( rotation ) {
 			// 0: do nothing
-			case 1: k = koord(k.y, welt->get_size().y-1 - k.x); break;
+			case 1: k = koord(k.y, welt->get_size().x-1 - k.x); break;
 			case 2: k = koord(welt->get_size().x-1 - k.x, welt->get_size().y-1 - k.y); break;
-			case 3: k = koord(welt->get_size().x-1 - k.y, k.x); break;
+			case 3: k = koord(welt->get_size().y-1 - k.y, k.x); break;
 			default: break;
 		}
 	}
 
 	void coordinate_transform_t::koord_sq2w(koord &k)
 	{
-		// just rotate back
-		rotation = 4 - rotation;
-		koord_w2sq(k);
-		// restore original rotation
-		rotation = 4 - rotation;
+		// do not transform koord::invalid
+		if (k.x == -1  &&  k.y == -1) {
+			return;
+		}
+		switch( rotation ) {
+			// 0: do nothing
+			case 1: k = koord(welt->get_size().x-1 - k.y, k.x); break;
+			case 2: k = koord(welt->get_size().x-1 - k.x, welt->get_size().y-1 - k.y); break;
+			case 3: k = koord(k.y, welt->get_size().y-1 - k.x); break;
+			default: break;
+		}
 	}
 
 	void coordinate_transform_t::ribi_w2sq(ribi_t::ribi &r)
