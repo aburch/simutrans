@@ -97,7 +97,7 @@ public:
 	 */
 	static void build_bridge(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bridge_desc_t *desc, const way_desc_t *way_desc, overtaking_mode_t overtaking_mode);
 
-	static void build_bridge(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bridge_desc_t *desc, const way_desc_t *way_desc) { build_bridge(player,start,end,zv,bridge_height,desc,way_desc,invalid_mode); }
+	static void build_bridge(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bridge_desc_t *desc, const way_desc_t *way_desc) { build_bridge(player,start,end,zv,bridge_height,desc,way_desc,twoway_mode); }
 
 	/**
 	 * Registers a new bridge type and adds it to the list of build tools.
