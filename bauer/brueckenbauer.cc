@@ -888,7 +888,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 			if(  way_desc->get_waytype()==road_wt) {
 				strasse_t* str = (strasse_t*) weg;
 				str->set_overtaking_mode(overtaking_mode);
-				if(  overtaking_mode==oneway_mode  ) {
+				if(  overtaking_mode<=oneway_mode  ) {
 					str->set_ribi_mask_oneway(ribi_t::reverse_single(ribi_type(zv)));
 				}
 			}
@@ -1119,7 +1119,7 @@ void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ri
 			strasse_t* str = (strasse_t*) weg;
 			assert(str);
 			str->set_overtaking_mode(overtaking_mode);
-			if(  overtaking_mode==oneway_mode  ) {
+			if(  overtaking_mode<=oneway_mode  ) {
 				if(  beginning  ) str->set_ribi_mask_oneway(ribi_t::reverse_single(ribi_neu));
 				if(  !beginning  ) str->set_ribi_mask_oneway(ribi_neu);
 			}
