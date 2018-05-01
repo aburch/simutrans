@@ -5929,6 +5929,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						// Any junctions previously found no longer apply to the next signal, unless this is a pre-signal
 						no_junctions_to_last_signal = no_junctions_to_next_signal;
 						no_junctions_to_next_signal = true;
+
 					}
 					else if(!directional_only) // Distant signal or repeater
 					{				
@@ -6378,7 +6379,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	}
 
 
-	if (no_junctions_to_last_signal && no_junctions_to_next_signal && reached_end_of_loop && success && last_stop_signal_index < INVALID_INDEX && i > (last_stop_signal_index + 1))
+	/*if (no_junctions_to_last_signal && no_junctions_to_next_signal && reached_end_of_loop && success && last_stop_signal_index < INVALID_INDEX && i > (last_stop_signal_index + 1))
 	{
 		const grund_t* gr_signal = welt->lookup(last_stop_signal_pos);
 		signal_t* signal = gr_signal->find<signal_t>();
@@ -6386,7 +6387,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			signal->set_no_junctions_to_next_signal(true);
 		}
-	}
+	}*/
 
 	bool choose_route_identical_to_main_route = false;
 
