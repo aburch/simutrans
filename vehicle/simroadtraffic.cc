@@ -518,11 +518,11 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			// At a crossing, decide whether the convoi should go on passing lane.
 			// side road -> main road from passing lane side: vehicle should enter passing lane on main road.
 			next_lane = 0;
-			if(  str->get_overtaking_mode() == oneway_mode  ) {
+			if(  str->get_overtaking_mode() <= oneway_mode  ) {
 				const strasse_t* str_prev = (strasse_t*)(welt->lookup(get_pos())->get_weg(road_wt));
 				const strasse_t* str_next = (strasse_t*)(welt->lookup(pos_next)->get_weg(road_wt));
 				const bool left_driving = welt->get_settings().is_drive_left();
-				if(str_prev && str_next && str_prev->get_overtaking_mode() > oneway_mode  && str_next->get_overtaking_mode() == oneway_mode) {
+				if(str_prev && str_next && str_prev->get_overtaking_mode() > oneway_mode  && str_next->get_overtaking_mode() <= oneway_mode) {
 					if(  (!left_driving  &&  ribi_t::rotate90l(get_90direction()) == calc_direction(pos_next,pos_next_next))  ||  (left_driving  &&  ribi_t::rotate90(get_90direction()) == calc_direction(pos_next,pos_next_next))  ) {
 						// next: enter passing lane.
 						next_lane = 1;
@@ -585,7 +585,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			}
 		}
 		// Overtaking vehicles shouldn't have anything blocking them
-		if(  overtaking_mode == oneway_mode  ) {
+		if(  overtaking_mode <= oneway_mode  ) {
 			if(  dt  ) {
 				overtaker_t *over = dt->get_overtaker();
 				if(over) {
@@ -950,7 +950,7 @@ void private_car_t::hop(grund_t* to)
 
 	strasse_t *str = (strasse_t*)(to->get_weg(road_wt));
 	//decide if overtaking citycar should go back to the traffic lane.
-	if(  get_tiles_overtaking() == 1  &&  str->get_overtaking_mode() == oneway_mode  ){
+	if(  get_tiles_overtaking() == 1  &&  str->get_overtaking_mode() <= oneway_mode  ){
 		vehicle_base_t* v = NULL;
 		if(  (v = other_lane_blocked(false))  ) {
 			//lane change denied
@@ -1055,7 +1055,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		return false;
 	}
 	const sint8 overtaking_mode = str->get_overtaking_mode();
-	if(  !other_overtaker->can_be_overtaken()  &&  overtaking_mode != oneway_mode  ) {
+	if(  !other_overtaker->can_be_overtaken()  &&  overtaking_mode > oneway_mode  ) {
 		return false;
 	}
 	//Overtaking info (0 = condition for one-way road, 1 = condition for two-way road, 2 = overtaking a loading convoy only, 3 = overtaking is completely forbidden, 4 = vehicles can go only on passing lane)
@@ -1084,10 +1084,10 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 			if(  str->is_crossing() ) {
 				return false;
 			}
-			if(  ribi_t::is_threeway(str->get_ribi())  &&  overtaking_mode != oneway_mode  ) {
+			if(  ribi_t::is_threeway(str->get_ribi())  &&  overtaking_mode > oneway_mode  ) {
 				return false;
 			}
-			if(  overtaking_mode != oneway_mode  ) {
+			if(  overtaking_mode > oneway_mode  ) {
 				// Check for other vehicles on the next tile
 				const uint8 top = gr->get_top();
 				for(  uint8 j=1;  j<top;  j++  ) {
@@ -1221,7 +1221,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 				const overtaker_t *ov = v->get_overtaker();
 				if(ov) {
 					if(this!=ov  &&  other_overtaker!=ov) {
-						if(  static_cast<strasse_t*>(gr->get_weg(road_wt))->get_overtaking_mode() == oneway_mode  ) {
+						if(  static_cast<strasse_t*>(gr->get_weg(road_wt))->get_overtaking_mode() <= oneway_mode  ) {
 							//If ov goes same directory, should not return false
 							if (v && v->get_direction() != direction && v->get_overtaker()) {
 								return false;

@@ -126,7 +126,7 @@ void strasse_t::update_ribi_mask_oneway(ribi_t::ribi mask, ribi_t::ribi allow)
 ribi_t::ribi strasse_t::get_ribi() const {
 	ribi_t::ribi ribi = get_ribi_unmasked();
 	ribi_t::ribi ribi_maske = get_ribi_maske();
-	if(  get_waytype()==road_wt  &&  overtaking_mode==oneway_mode  ) {
+	if(  get_waytype()==road_wt  &&  overtaking_mode<=oneway_mode  ) {
 		return (ribi_t::ribi)((ribi & ~ribi_maske) & ~ribi_mask_oneway);
 	} else {
 		return (ribi_t::ribi)(ribi & ~ribi_maske);
