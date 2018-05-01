@@ -2237,7 +2237,7 @@ end_loop:
 			{
 				//When loading, vehicle should not be on passing lane.
 				str = (strasse_t*)welt->lookup(get_pos())->get_weg(road_wt);
-				if(  str  &&  str->get_overtaking_mode()!=inverted_mode) set_tiles_overtaking(0);
+				if(  str  &&  str->get_overtaking_mode()!=inverted_mode  &&  str->get_overtaking_mode()!=halt_mode  ) set_tiles_overtaking(0);
 				if(get_depot_when_empty() && has_no_cargo())
 				{
 					go_to_depot(false, (replace && replace->get_use_home_depot()));
@@ -3274,9 +3274,7 @@ void convoi_t::vorfahren()
 {
 	// Hajo: init speed settings
 	sp_soll = 0;
-	if(  get_tiles_overtaking()>0  ) {
-		set_tiles_overtaking(1);
-	} else {
+	if(  get_tiles_overtaking()<=0  ) {
 		set_tiles_overtaking(0);
 	}
 	uint32 reverse_delay = 0;
@@ -7105,12 +7103,10 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			return false;
 		}
 
+		// In this scope, variable "overtaking_mode" represents the strictest mode of tiles needed for overtaking.
+
 		uint16 idx = front()->get_route_index();
 		const sint32 tiles = (steps_other-1)/(CARUNITS_PER_TILE*VEHICLE_STEPS_PER_CARUNIT) + get_tile_length() + 1;
-		if(  tiles > 0  &&  idx+(uint32)tiles >= route.get_count()  ) {
-			// needs more space than there
-			return false;
-		}
 
 		for (sint32 i = 0; i < tiles; i++) {
 			grund_t *gr = welt->lookup(route.at(idx + i));
@@ -7129,11 +7125,25 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 				// On one-way road, overtaking on threeway is allowed.
 				return false;
 			}
-			overtaking_mode_t mode_of_the_tile = str->get_overtaking_mode();
-			if(  mode_of_the_tile==prohibited_mode  ) {
+			const overtaking_mode_t mode_of_the_tile = str->get_overtaking_mode();
+			if(  mode_of_the_tile>overtaking_mode  ) {
+				// update overtaking_mode to a stricter condition.
+				overtaking_mode = mode_of_the_tile;
+			}
+			if(  overtaking_mode==prohibited_mode  ) {
 				return false;
 			}
-			if(  mode_of_the_tile>oneway_mode  ) {
+			if(  idx+(uint32)i==route.get_count()-1  &&  i<tiles-1  ) {
+				// reach the end of route before examination of all tiles needed for overtaking.
+				// convoy can stop on the passing lane only in halt_mode.
+				if(  overtaking_mode==halt_mode  ) {
+					set_tiles_overtaking(tiles);
+					return true;
+				} else {
+					return false;
+				}
+			}
+			if(  overtaking_mode>oneway_mode  ) {
 				// Check for other vehicles on the next tile
 				const uint8 top = gr->get_top();
 				for (uint8 j = 1; j < top; j++) {
@@ -7175,7 +7185,6 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 			grund_t *gr = welt->lookup(get_pos());
 			strasse_t *str=(strasse_t *)gr->get_weg(road_wt);
 			if(  str==NULL  ) {
-				printf("street is NULL!\n");
 				return false;
 			}else if(  akt_speed < fmin(max_power_speed, str->get_max_speed())/2  &&  diff_speed >= kmh_to_speed(0)  ){
 				//Warning: diff_speed == 0 is acceptable. We must consider the case diff_speed == 0.
