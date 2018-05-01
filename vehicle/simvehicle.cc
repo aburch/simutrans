@@ -612,7 +612,7 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 					// other turning across in front of us, but allow if other is stopped - duplicating historic behaviour   ~2%
 					return v;
 				}
-				else if(  other_direction == current_direction  &&  current_90direction == ribi_t::none  ) {
+				else if(  other_direction == current_direction  &&  current_90direction == ribi_t::none  &&  cnv_overtaking == other_overtaking  ) {
 					// entering same diagonal waypoint as other   ~1%
 					return v;
 				}
