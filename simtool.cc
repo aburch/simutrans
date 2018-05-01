@@ -4785,9 +4785,15 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 			old_level = old_desc->get_level();
 			old_b = old_desc->get_x();
 			old_h = old_desc->get_y();
-			if( old_desc->get_level() >= desc->get_level() &&  old_desc->get_capacity() >= desc->get_capacity()) 
+			if (old_desc == desc)
 			{
-				return "Upgrade must have\na higher level";
+				// Do nothing if old and new are alike: do not charge the player for doing nothing.
+				return "";
+			}
+			if(old_desc->get_level() > desc->get_level() && old_desc->get_capacity() > desc->get_capacity() && !is_ctrl_pressed()) 
+			{
+				return ""; // An error message is intrusive here and not very useful.
+				//return "Upgrade must have\na higher level";
 			}
 			gb->cleanup( NULL );
 			delete gb;
