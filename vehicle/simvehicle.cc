@@ -2041,7 +2041,7 @@ int road_vehicle_t::get_cost(const grund_t *gr, const weg_t *w, const sint32 max
 bool road_vehicle_t::is_target(const grund_t *gr, const grund_t *prev_gr) const
 {
 	//  just check, if we reached a free stop position of this halt
-	if(gr->is_halt()  &&  gr->get_halt()==target_halt  &&  target_halt->is_reservable(gr,cnv->self)) {
+	if(gr->is_halt()  &&  gr->get_halt()==target_halt  &&  target_halt->get_empty_lane(gr,cnv->self)!=0) {
 		// now we must check the predecessor => try to advance as much as possible
 		if(prev_gr!=NULL) {
 			const koord dir=gr->get_pos().get_2d()-prev_gr->get_pos().get_2d();
@@ -2051,11 +2051,12 @@ bool road_vehicle_t::is_target(const grund_t *gr, const grund_t *prev_gr) const
 				return false;
 			}
 			grund_t *to;
-			if(  !gr->get_neighbour(to,road_wt,ribi)  ||  !(to->get_halt()==target_halt)  ||  (gr->get_weg(get_waytype())->get_ribi_maske() & ribi_type(dir))!=0  ||  !target_halt->is_reservable(to,cnv->self)  ) {
+			if(  !gr->get_neighbour(to,road_wt,ribi)  ||  !(to->get_halt()==target_halt)  ||  (gr->get_weg(get_waytype())->get_ribi_maske() & ribi_type(dir))!=0  ||  target_halt->get_empty_lane(to,cnv->self)==0  ) {
 				// end of stop: Is it long enough?
 				uint16 tiles = cnv->get_tile_length();
+				uint8 empty_lane = 3;
 				while(  tiles>1  ) {
-					if(  !gr->get_neighbour(to,get_waytype(),ribi_t::backward(ribi))  ||  !(to->get_halt()==target_halt)  ||  !target_halt->is_reservable(to,cnv->self)  ) {
+					if(  !gr->get_neighbour(to,get_waytype(),ribi_t::backward(ribi))  ||  !(to->get_halt()==target_halt)  ||  (empty_lane &= target_halt->get_empty_lane(to,cnv->self))==0  ) {
 						return false;
 					}
 					gr = to;

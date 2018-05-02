@@ -3236,8 +3236,24 @@ const grund_t *haltestelle_t::find_matching_position(const waytype_t w) const
 bool haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,const obj_t::typ d) const
 {
 	// iterate over all tiles
+	// for road, we have to consider passing lane.
+	if(  w==road_wt  ) {
+		FOR(slist_tpl<tile_t>, const& i, tiles) {
+			if(  !i.reservation[0].is_bound()  ||  !i.reservation[1].is_bound()  ) {
+				// possibly there is empty slots.
+				grund_t* const gr = i.grund;
+				assert(gr);
+				if(  get_empty_lane(gr, cnv)!=0  ) {
+					return true;
+				}
+			}
+		}
+		// no empty tile.
+		return false;
+	}
+	// for other waytypes...
 	FOR(slist_tpl<tile_t>, const& i, tiles) {
-		if (i.reservation == cnv || !i.reservation.is_bound()) {
+		if (i.reservation[0] == cnv || !i.reservation[0].is_bound()) {
 			// not reserved
 			grund_t* const gr = i.grund;
 			assert(gr);
@@ -3259,20 +3275,34 @@ bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 {
 	slist_tpl<tile_t>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
 	if (i != tiles.end()) {
-		if (i->reservation == cnv) {
+		if (i->reservation[0] == cnv  ||  i->reservation[1] == cnv) {
 //DBG_MESSAGE("haltestelle_t::reserve_position()","gr=%d,%d already reserved by cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());
 			return true;
 		}
 		// not reserved
-		if (!i->reservation.is_bound()) {
+		vehicle_t const& v = *cnv->front();
+		// road vehicles need special process to consider passing lane.
+		if(v.get_waytype()==road_wt) {
+			uint8 empty_lane = get_empty_lane(gr, cnv);
+			if((empty_lane&1)!=0) {
+				i->reservation[0] = cnv;
+				return true;
+			} else if((empty_lane&2)!=0) {
+				i->reservation[1] = cnv;
+				return true;
+			} else {
+				return false;
+			}
+		}
+		// for other vehicle types...
+		if (!i->reservation[0].is_bound()) {
 			grund_t* gr = i->grund;
 			if(gr) {
 				// found a stop for this waytype but without object d ...
-				vehicle_t const& v = *cnv->front();
 				if (gr->hat_weg(v.get_waytype()) && !gr->suche_obj(v.get_typ())) {
 					// not occupied
 //DBG_MESSAGE("haltestelle_t::reserve_position()","success for gr=%i,%i cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());
-					i->reservation = cnv;
+					i->reservation[0] = cnv;
 					return true;
 				}
 			}
@@ -3290,9 +3320,11 @@ bool haltestelle_t::unreserve_position(grund_t *gr, convoihandle_t cnv)
 {
 	slist_tpl<tile_t>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
 	if (i != tiles.end()) {
-		if (i->reservation == cnv) {
-			i->reservation = convoihandle_t();
-			return true;
+		for(uint8 k=0; k<2; k++) {
+			if (i->reservation[k] == cnv) {
+				i->reservation[k] = convoihandle_t();
+				return true;
+			}
 		}
 	}
 DBG_MESSAGE("haltestelle_t::unreserve_position()","failed for gr=%p",gr);
@@ -3307,12 +3339,12 @@ bool haltestelle_t::is_reservable(const grund_t *gr, convoihandle_t cnv) const
 {
 	FOR(slist_tpl<tile_t>, const& i, tiles) {
 		if (gr == i.grund) {
-			if (i.reservation == cnv) {
+			if (i.reservation[0] == cnv) {
 DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());
 				return true;
 			}
 			// not reserved
-			if (!i.reservation.is_bound()) {
+			if (!i.reservation[0].is_bound()) {
 				// found a stop for this waytype but without object d ...
 				vehicle_t const& v = *cnv->front();
 				if (gr->hat_weg(v.get_waytype()) && !gr->suche_obj(v.get_typ())) {
@@ -3325,6 +3357,55 @@ DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%
 	}
 DBG_MESSAGE("haltestelle_t::reserve_position()","failed for gr=%i,%i, cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());
 	return false;
+}
+
+/* haltestelle_t::is_reservable for road vehicles
+ * The returned value is a bit pattern.
+ * 0 represents that the both lane is filled.
+ * 1 represents that the traffic lane is empty.
+ * 2 represents that the passing lane is empty.
+ * 3 represents that the both lane is empty.
+ * @author THLeaderH
+ */
+uint8 haltestelle_t::get_empty_lane(const grund_t *gr, convoihandle_t cnv) const {
+	FOR(slist_tpl<tile_t>, const& i, tiles) {
+		if (  gr == i.grund  ) {
+			if (  i.reservation[0] == cnv  ) {
+				// already reserved the traffic lane.
+				return 1;
+			}
+			if (  i.reservation[1] == cnv  ) {
+				// already reserved the passing lane.
+				return 2;
+			}
+			// not reserved
+			const strasse_t* str = dynamic_cast<strasse_t*> (gr->get_weg(road_wt));
+			if(  !str  ) { return 0; }
+			const overtaking_mode_t overtaking_mode = str->get_overtaking_mode();
+			uint8 empty = 0;
+			for (uint8 k=1; k<=2; k++) {
+				if(  overtaking_mode!=halt_mode  &&  k==2  ) { break; }
+				if(  !i.reservation[k-1].is_bound()  ) {
+					// check whether this place is not occupied...
+					// since up to 2 vehicles can exist on one tile, we have to check all objects on the tile.
+					empty |= k; // raise the empty bit
+					for(uint8 h=0; h<gr->obj_count(); h++) {
+						if(  road_vehicle_t* rv = dynamic_cast<road_vehicle_t*> (gr->obj_bei(h))  ) {
+							bool is_overtaking = rv->get_convoi()->is_overtaking();
+							// If a vehicle exists on the same lane, drop the empty bit.
+							if(  k==1 ? !is_overtaking : is_overtaking  ) { empty &= ~k; }
+						}
+						else if(  private_car_t* pc = dynamic_cast<private_car_t*> (gr->obj_bei(h))  ) {
+							bool is_overtaking = pc->is_overtaking();
+							if(  k==1 ? !is_overtaking : is_overtaking  ) { empty &= ~k; }
+						}
+					}
+				}
+			}
+			return empty;
+		}
+	}
+	return 0;
 }
 
 
