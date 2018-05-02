@@ -5375,7 +5375,7 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 			weg->set_public_right_of_way(false);
 		}
 
-		if(!player->is_public_service() && desc->is_single_way() && gr->removing_way_would_disrupt_public_right_of_way(road_wt))
+		if(!player->is_public_service() && desc->is_single_way() && weg->is_public_right_of_way() && gr->removing_way_would_disrupt_public_right_of_way(road_wt))
 		{
 			// Cannot interfere with the traffic flow on a public right of way.
 			return error;
