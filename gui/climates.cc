@@ -201,6 +201,13 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	}
 	else if(komp==&water_level) {
 		sets->groundwater = (sint16)v.i;
+
+		// Update borders if necessary
+		for(  int i=desert_climate-1;  i<=rocky_climate-1;  i++  ) {
+			climate_borders_ui[i].set_limits( sets->get_groundwater(), 127 );
+			climate_borders_ui[i].set_value( climate_borders_ui[i].get_value() );
+		}
+
 		if(  welt_gui  ) {
 			welt_gui->update_preview();
 		}
@@ -234,23 +241,20 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		sets->winter_snowline = (sint16)v.i;
 	}
 
-	// all climate borders from here on
-
+	// climate border buttons
 	// Arctic starts at maximum end of climate
 	sint16 arctic = 0;
 	for(  int i=desert_climate;  i<=rocky_climate;  i++  ) {
 		if(  komp==climate_borders_ui+i-1  ) {
 			sets->climate_borders[i] = (sint16)v.i;
 		}
-		for(  int i=desert_climate-1;  i<=rocky_climate-1;  i++  ) {
-			climate_borders_ui[i].set_limits( sets->get_groundwater(), 127 );
-			climate_borders_ui[i].set_value( climate_borders_ui[i].get_value() );
-		}
+
 		if(  sets->climate_borders[i] > arctic  ) {
 			arctic = sets->climate_borders[i];
 		}
 	}
-	snowline_winter.set_limits( sets->get_groundwater(), arctic );
+
+	snowline_winter.set_limits( sets->get_groundwater()-1, arctic );
 	snowline_winter.set_value( snowline_winter.get_value() );
 	sets->climate_borders[arctic_climate] = arctic;
 

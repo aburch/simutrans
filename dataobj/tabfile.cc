@@ -11,6 +11,7 @@
 
 #ifdef MAKEOBJ
 #include "../descriptor/writer/obj_writer.h"
+#define dr_fopen fopen
 #endif
 
 #include "../simsys.h"
@@ -23,7 +24,7 @@
 bool tabfile_t::open(const char *filename)
 {
 	close();
-	file = fopen(filename, "r");
+	file = dr_fopen(filename, "r");
 	return file != NULL;
 }
 

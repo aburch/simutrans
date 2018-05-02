@@ -1162,8 +1162,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 						}
 						const climate_bits cl = neighbour_water ? water_climate_bit : (climate_bits)(1<<get_climate(k));
 						const groundobj_desc_t *desc = groundobj_t::random_groundobj_for_climate( cl, gr->get_grund_hang() );
+						queried = simrand(env_t::ground_object_probability*2-1);
 						if(desc) {
-							queried = simrand(env_t::ground_object_probability*2-1);
 							gr->obj_add( new groundobj_t( gr->get_pos(), desc ) );
 						}
 					}
@@ -1637,16 +1637,16 @@ void karte_t::init_height_to_climate()
 	for( int cl=0;  cl<MAX_CLIMATES-1;  cl++ ) {
 		if(climate_border[cl]>climate_border[arctic_climate]) {
 			// unused climate
-			climate_border[cl] = 0;
+			climate_border[cl] = groundwater-1;
 		}
 	}
 
 	// now arrange the remaining ones
-	for( int h=0;  h<32;  h++  ) {
+	for( int h=0;  h<lengthof(height_to_climate);  h++  ) {
 		sint16 current_height = 999;	      // current maximum
 		sint16 current_cl = arctic_climate;	// and the climate
 		for( int cl=0;  cl<MAX_CLIMATES;  cl++ ) {
-			if(climate_border[cl] >= h+groundwater  &&  climate_border[cl] < current_height) {
+			if(  climate_border[cl] >= h+(sint16)groundwater  &&  climate_border[cl] < current_height  ) {
 				current_height = climate_border[cl];
 				current_cl = cl;
 			}

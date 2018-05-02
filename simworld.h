@@ -267,7 +267,7 @@ private:
 	 * Table for fast conversion from height to climate.
 	 * @author prissi
 	 */
-	uint8 height_to_climate[32];
+	uint8 height_to_climate[128];
 
 	/**
 	 * Array containing the convois.
@@ -1102,7 +1102,8 @@ public:
 		const sint16 h=height-groundwater;
 		if(h<0) {
 			return water_climate;
-		} else if(h>=32) {
+		}
+		else if(  (uint)h >= lengthof(height_to_climate)  ) {
 			return arctic_climate;
 		}
 		return (climate)height_to_climate[h];
