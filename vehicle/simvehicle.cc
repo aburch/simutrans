@@ -2424,7 +2424,13 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			sint8 overtaking_mode = str->get_overtaking_mode();
 			if(  overtaking_mode <= oneway_mode  ) {
 				// road is one-way.
-				if(  test_index == route_index + 1u  ) {
+				bool can_judge_overtaking = (test_index == route_index + 1u);
+				// The overtaking judge method itself works only when test_index==route_index+1, that means the front tile is not an intersection.
+				// However, with halt_mode we want to simulate a bus terminal. Overtaking in a intersection is essential. So we make a exception to the test_index==route_index+1 condition, although it is not clear that this exception is safe or not!
+				if(  !can_judge_overtaking  &&  test_index == route_index + 2u  &&  overtaking_mode == halt_mode  ) {
+					can_judge_overtaking = true;
+				}
+				if(  can_judge_overtaking  ) {
 					// no intersections or crossings, we might be able to overtake this one ...
 					overtaker_t *over = obj->get_overtaker();
 					if(  over  ) {
