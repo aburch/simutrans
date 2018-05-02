@@ -37,6 +37,7 @@ public:
 
 	/**
 	* Overtaking mode (declared in simtypes.h)
+	* halt_mode = vehicles can stop on passing lane
 	* oneway_mode = condition for one-way road
 	* twoway_mode = condition for two-way road
 	* loading_only_mode = overtaking a loading convoy only

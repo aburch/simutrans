@@ -3050,9 +3050,9 @@ uint32 way_builder_t::calc_distance( const koord3d &pos, const koord3d &mini, co
 
 
 void way_builder_t::update_ribi_mask_oneway(strasse_t* str, uint32 i) {
-	if(  str->get_overtaking_mode()!=oneway_mode  ) {
+	if(  str->get_overtaking_mode()>oneway_mode  ) {
 		str->set_ribi_mask_oneway(ribi_t::none);
-	} else if(  overtaking_mode==oneway_mode  &&  get_count()>1   ){ //of course street is oneway_mode
+	} else if(  overtaking_mode<=oneway_mode  &&  get_count()>1   ){ //of course street is oneway_mode
 		if(  i==0  ) {
 			if(  route_reversed  ) str->update_ribi_mask_oneway(ribi_type(route[0],route[1]),ribi_t::none);
 			if(  !route_reversed  ) str->update_ribi_mask_oneway(ribi_t::none,ribi_type(route[0],route[1]));

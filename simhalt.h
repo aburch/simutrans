@@ -214,7 +214,7 @@ public:
 		bool operator !=(const tile_t& o) { return grund != o.grund; }
 
 		grund_t*       grund;
-		convoihandle_t reservation;
+		convoihandle_t reservation[2];
 	};
 
 	const slist_tpl<tile_t> &get_tiles() const { return tiles; };
@@ -674,6 +674,7 @@ public:
 	* @author prissi
 	*/
 	bool is_reservable(const grund_t *gr, convoihandle_t cnv) const;
+	uint8 get_empty_lane(const grund_t *gr, convoihandle_t cnv) const;
 
 	void info(cbuffer_t & buf) const;
 
