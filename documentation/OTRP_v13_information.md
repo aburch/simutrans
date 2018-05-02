@@ -7,10 +7,10 @@ OTRPはOneway Twoway Road Patchの略で、日本語通称は「二車線パッ�
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0
 
 # ダウンロード
-ribi-arrow・信号接続方向制御つきのバイナリのみの提供です。実行には本体の他にribi-arrowが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。
-本体は下のリンクからどうぞ。**（2018年3月25日PM6時　ver13に更新）**  
-win: https://drive.google.com/open?id=1BbZiIlxHeKO20Nq6tY_aeDI0CSM0LuqG  
-mac: https://drive.google.com/open?id=1q_bf8UforE9-j_0eW6ySow2lxtGiYdCr  
+ribi-arrow・信号接続方向制御つきのバイナリのみの提供です。実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。
+本体は下のリンクからどうぞ。**（2018年5月2日PM9時　ver13_2に更新）**  
+win: https://drive.google.com/open?id=1YU_5fvANPZ4s6yj0gcan-325VDGm-KH3  
+mac: https://drive.google.com/open?id=1MPY1MPFp3E3_ZVXVl9-gCmIrpOzAZLvj  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 ※makeobjはstandardのやつをそのまま使ってください
 
@@ -25,7 +25,9 @@ standard版のsveファイルを上書きしないように気をつけましょ
 ## 追い越し属性の設定
 ![fig1](images/fig1.png)  
 道路アイコンを**Ctrlキーを押しながら**選択すると「追い越しモード」を選択できます。  
+v13_2からhalt modeが追加されました。
 - oneway: 道路を一方通行にして二車線同じ方向で通行するモードです。このモードの時は道路が一方通行になるので建設時は「:（コロン）」を押して接続方向を確認してください。
+- halt mode: 停留所において追越車線でも客扱い・荷捌きをします。走行中の挙動はonewayと同じです。
 - twoway: 本家standardの道路と同じ挙動をするモードです。対向車が来ないことが保証されるときのみ追い越しできます。
 - only loading convoy: 停車中の車のみ追い越します。
 - prohibited: 一切の追い越しが禁止されます。
@@ -51,10 +53,11 @@ v13から道路信号の進入許可方向を設定できるようになりま�
 OTRPはsimutrans standard向けのアドオンであれば全て使えます。OTRP専用アドオンというのは存在しません。
 ## セーブデータの互換性
 - simutrans standard nightly r8412以前のセーブデータであればそのままOTRPで読み込めます。（安定版120.2.2以前のセーブデータは読み込めます。あまり古いデータはダメかもしれませんが。）
-- OTRP v12系統のセーブデータはそのままOTRP v13で読み込めます。v11以前のデータは引き継げません。
+- OTRP v12系列のセーブデータはそのままOTRP v13系列で読み込めます。v11以前のデータは引き継げません。
+- v13のデータはv13_2で読めますがその逆はできません。（読みはしますがバグります。）
 - extended版OTRPとの互換性はありません。
 - 一度セーブデータを読み込んでそれを**保存した瞬間に**そのデータは**OTRPv13以降専用**になります。既存のデータをOTRPに移行する場合はバックアップを取った上で別ファイルとして保存することを強く推奨します。
 
 # おねがい
-バグ探しには皆さんのお力が必要です。バグと思われる挙動があれば@himeshi_hobに報告していただけるとありがたいです。  
+バグ探しには皆さんのお力が必要です。バグと思われる挙動があればtwitter @himeshi_hob に報告していただけるとありがたいです。  
 特に「ネットワークプレイ」が安定動作するかが確認取れてないので遊んでみて動作状況を教えていただけるとうれしいです。ぜひOTRPでNSを楽しんでみてください。
