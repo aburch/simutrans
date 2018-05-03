@@ -69,10 +69,14 @@ ifeq ($(OSTYPE),mac)
   LDFLAGS += -stdlib=libstdc++
 endif
 
-ifeq ($(OSTYPE),mingw32 mingw64)
+ifeq ($(OSTYPE), mingw64)
   SOURCES += clipboard_w32.cc
 else
-  SOURCES += clipboard_internal.cc
+	ifeq ($(OSTYPE),mingw32)
+	  SOURCES += clipboard_w32.cc
+	else
+	  SOURCES += clipboard_internal.cc
+  endif
 endif
 
 ifeq ($(OSTYPE),openbsd)

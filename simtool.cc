@@ -602,7 +602,8 @@ DBG_MESSAGE("tool_remover()",  "removing bridge from %d,%d,%d",gr->get_pos().x, 
 		// If this is a public right of way being deleted by anyone other than the public service player,
 		// then it cannot be deleted unless there is a diversionary route within a specified number of tiles.
 
-		if(!player->is_public_service() && gr->get_weg(br->get_waytype())->is_public_right_of_way())
+		weg_t* w = gr->get_weg(br->get_waytype());
+		if(!player->is_public_service() && w && w->is_public_right_of_way())
 		{
 			msg = check_diversionary_route(pos, gr->get_weg(br->get_waytype()), player);
 			if(msg)
@@ -4926,9 +4927,15 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 			old_level = old_desc->get_level();
 			old_b = old_desc->get_x();
 			old_h = old_desc->get_y();
-			if( old_desc->get_level() >= desc->get_level() &&  old_desc->get_capacity() >= desc->get_capacity())
+			if (old_desc == desc)
 			{
-				return "Upgrade must have\na higher level";
+				// Do nothing if old and new are alike: do not charge the player for doing nothing.
+				return "";
+			}
+			if(old_desc->get_level() > desc->get_level() && old_desc->get_capacity() > desc->get_capacity() && !is_ctrl_pressed())
+			{
+				return ""; // An error message is intrusive here and not very useful.
+				//return "Upgrade must have\na higher level";
 			}
 			gb->cleanup( NULL );
 			delete gb;
@@ -5510,7 +5517,7 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 			weg->set_public_right_of_way(false);
 		}
 
-		if(!player->is_public_service() && desc->is_single_way() && gr->removing_way_would_disrupt_public_right_of_way(road_wt))
+		if(!player->is_public_service() && desc->is_single_way() && weg->is_public_right_of_way() && gr->removing_way_would_disrupt_public_right_of_way(road_wt))
 		{
 			// Cannot interfere with the traffic flow on a public right of way.
 			return error;
