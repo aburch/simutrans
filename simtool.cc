@@ -2703,6 +2703,9 @@ void tool_build_way_t::rdwr_custom_data(memory_rw_t *packet)
 void tool_build_way_t::set_mode_str(char* str, overtaking_mode_t overtaking_mode) {
 	assert(str);
 	switch (overtaking_mode) {
+		case halt_mode:
+			sprintf(str, "H");
+		break;
 		case oneway_mode:
 			sprintf(str, "O");
 		break;
