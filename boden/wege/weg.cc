@@ -1014,6 +1014,9 @@ if(  get_waytype() == road_wt  ) {
 		assert(str);
 		// Display overtaking_info
 		switch (str->get_overtaking_mode()) {
+			case halt_mode:
+				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("halt mode"));
+				break;
 			case oneway_mode:
 				buf.printf("%s: %s\n", translator::translate("overtaking"),translator::translate("oneway"));
 				break;

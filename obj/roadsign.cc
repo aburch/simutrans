@@ -1056,7 +1056,7 @@ const roadsign_desc_t* roadsign_t::find_best_upgrade(bool underground)
 			 if(  current_gr->get_neighbour(next_gr,road_wt,current_ribi)  ) {
 				 // grund found
 				 strasse_t *str = (strasse_t *)next_gr->get_weg(road_wt);
-				 if(  str  &&  str->get_overtaking_mode() == oneway_mode  ) {
+				 if(  str  &&  str->get_overtaking_mode() <= oneway_mode  ) {
 					 ribi_t::ribi str_ribi = str->get_ribi_unmasked();
 					 if(  str_ribi == ribi_t::all  ||  ribi_t::is_threeway(str_ribi)  ) {
 						 // This point is a crossing!
