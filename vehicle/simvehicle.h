@@ -462,6 +462,8 @@ public:
 
 	void fix_class_accommodations();
 
+	inline koord3d get_last_stop_pos() const { return last_stop_pos;  }
+
 #ifdef INLINE_OBJ_TYPE
 protected:
 	vehicle_t(typ type);

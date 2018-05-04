@@ -1340,6 +1340,7 @@ bool convoi_t::prepare_for_routing()
 	{
 		koord3d start = front()->get_pos();
 		koord3d ziel = schedule->get_current_entry().pos;
+		const uint16 distance_to_last_stop = front()->get_last_stop_pos() != koord3d::invalid ? shortest_distance(front()->get_last_stop_pos().get_2d(), start.get_2d()) : 0;
 		const koord3d original_ziel = ziel;
 
 		// Check whether the next stop is within range.
@@ -1360,14 +1361,14 @@ bool convoi_t::prepare_for_routing()
 			if (original_index == schedule->get_count() - 1 && schedule->is_mirrored())
 			{
 				// We do not want the distance from the end to the start in this case, but the distance from
-				// end to the immediately previous stop
-				
+				// end to the immediately previous stop			
 				distance = (shortest_distance(schedule->entries[schedule->get_count() - 1].pos.get_2d(), schedule->entries[schedule->get_count() - 2].pos.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
 			}
 			else
 			{
 				distance = (shortest_distance(start.get_2d(), ziel.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
 			}
+			distance += distance_to_last_stop;
 			schedule->set_current_stop(original_index);
 			ziel = original_ziel;
 			const bool already_out_of_range = state == OUT_OF_RANGE;
