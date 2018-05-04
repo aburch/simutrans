@@ -8,9 +8,9 @@ OTRPはOneway Twoway Road Patchの略で、日本語通称は「二車線パッ�
 
 # ダウンロード
 ribi-arrow・信号接続方向制御つきのバイナリのみの提供です。実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。
-本体は下のリンクからどうぞ。**（2018年5月2日PM9時　ver13_2に更新）**  
-win: https://drive.google.com/open?id=1YU_5fvANPZ4s6yj0gcan-325VDGm-KH3  
-mac: https://drive.google.com/open?id=1MPY1MPFp3E3_ZVXVl9-gCmIrpOzAZLvj  
+本体は下のリンクからどうぞ。**（2018年5月4日PM6時　ver13_21に更新）**  
+win: https://drive.google.com/open?id=1Ypv05zz5Kpz1jNxKfNL35AkRCj_1RS4U  
+mac: https://drive.google.com/open?id=17VdFzhilB_rEn9D3pt3hnLou0fA6Qw-k  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 ※makeobjはstandardのやつをそのまま使ってください
 
