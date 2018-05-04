@@ -635,7 +635,10 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 	zoom_value_label.set_text_pointer(buf,false);
 
 	if(scale_visible) {
-		char scale_text[160] = "";
+		if(!scale_text)
+		{
+			scale_text = new char[160]; 
+		}
 		if(1000 % welt->get_settings().get_meters_per_tile() == 0)
 		{
 			// Can use integer

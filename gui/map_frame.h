@@ -100,6 +100,8 @@ private:
 	void show_hide_scale(const bool show);
 	void show_hide_directory(const bool show);
 
+	char* scale_text = NULL;
+
 public:
 
 	/**

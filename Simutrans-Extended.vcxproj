@@ -3386,7 +3386,6 @@
     <ClInclude Include="dataobj\crossing_logic.h" />
     <ClInclude Include="descriptor\reader\crossing_reader.h" />
     <ClInclude Include="descriptor\writer\crossing_writer.h" />
-    <ClInclude Include="utils\cstring_t.h" />
     <ClInclude Include="gui\curiosity_edit.h" />
     <ClInclude Include="gui\curiositylist_frame_t.h" />
     <ClInclude Include="gui\curiositylist_stats_t.h" />
