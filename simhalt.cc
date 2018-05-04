@@ -3389,13 +3389,13 @@ uint8 haltestelle_t::get_empty_lane(const grund_t *gr, convoihandle_t cnv) const
 					// check whether this place is not occupied...
 					// since up to 2 vehicles can exist on one tile, we have to check all objects on the tile.
 					empty |= k; // raise the empty bit
-					for(uint8 h=0; h<gr->obj_count(); h++) {
-						if(  road_vehicle_t* rv = dynamic_cast<road_vehicle_t*> (gr->obj_bei(h))  ) {
+					for(uint8 h=0; h<gr->get_top(); h++) {
+						if(  road_vehicle_t* rv = obj_cast<road_vehicle_t> (gr->obj_bei(h))  ) {
 							bool is_overtaking = rv->get_convoi()->is_overtaking();
 							// If a vehicle exists on the same lane, drop the empty bit.
 							if(  k==1 ? !is_overtaking : is_overtaking  ) { empty &= ~k; }
 						}
-						else if(  private_car_t* pc = dynamic_cast<private_car_t*> (gr->obj_bei(h))  ) {
+						else if(  private_car_t* pc = obj_cast<private_car_t> (gr->obj_bei(h))  ) {
 							bool is_overtaking = pc->is_overtaking();
 							if(  k==1 ? !is_overtaking : is_overtaking  ) { empty &= ~k; }
 						}
