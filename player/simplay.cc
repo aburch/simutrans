@@ -674,6 +674,7 @@ void player_t::ai_bankrupt()
 							case obj_t::pumpe:
 							case obj_t::wayobj:
 							case obj_t::label:
+							case obj_t::signalbox:
 								obj->cleanup(this);
 								delete obj;
 								break;
