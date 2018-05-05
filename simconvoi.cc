@@ -1340,7 +1340,7 @@ bool convoi_t::prepare_for_routing()
 	{
 		koord3d start = front()->get_pos();
 		koord3d ziel = schedule->get_current_entry().pos;
-		const uint16 distance_to_last_stop = front()->get_last_stop_pos() != koord3d::invalid ? shortest_distance(front()->get_last_stop_pos().get_2d(), start.get_2d()) : 0;
+		const uint16 distance_to_last_stop = front()->get_last_stop_pos() != koord3d::invalid && welt->lookup(front()->get_pos())->get_depot() == NULL ? shortest_distance(front()->get_last_stop_pos().get_2d(), start.get_2d()) : 0;
 		const koord3d original_ziel = ziel;
 
 		// Check whether the next stop is within range.
