@@ -73,7 +73,7 @@ class convoi_t : public sync_steppable, public overtaker_t, public lazy_convoy_t
 {
 public:
 	enum convoi_cost_t {			// Exp|Std|Description
-		CONVOI_CAPACITY = 0,		//  0 | 0 | the amount of ware that could be transported, theoretically	
+		CONVOI_CAPACITY = 0,		//  0 | 0 | the amount of ware that could be transported, theoretically
 		CONVOI_TRANSPORTED_GOODS,	//  1 | 1 | the amount of ware that has been transported
 		CONVOI_AVERAGE_SPEED,		//  2 |   | the average speed of the convoy per rolling month
 		CONVOI_COMFORT,				//  3 |   | the aggregate comfort rating of this convoy
@@ -93,7 +93,7 @@ public:
 	enum { max_vehicle=8, max_rail_vehicle = 64 };
 
 	enum states {INITIAL,
-		EDIT_SCHEDULE, 
+		EDIT_SCHEDULE,
 		ROUTING_1,
 		ROUTING_2,
 		DUMMY5,
@@ -126,18 +126,18 @@ public:
 	struct departure_data_t
 	{
 	public:
-		/** 
+		/**
 		  * Departure time in internal ticks
 		  */
 		sint64 departure_time;
 
 		/**
 		* Accumulated distance since the convoy departed from
-		* this stop, indexed by the player number of the way 
+		* this stop, indexed by the player number of the way
 		* over which the convoy has passed. If the way is
-		* ownerless, it is recorded as belonging as being 
+		* ownerless, it is recorded as belonging as being
 		* MAX_PLAYER_COUNT + 1.
-		* 
+		*
 		* accumulated_distance_since_departure[MAX_PLAYER_COUNT]
 		* is a special value for overall distance, demoninated
 		* in a different unit to the others, which others are
@@ -162,7 +162,7 @@ public:
 			accumulated_distance_since_departure[MAX_PLAYER_COUNT] += distance;
 		}
 
-		/** 
+		/**
 		 * Method to get the overall distance. This should be the basis
 		 * for measuring the total revenue.
 		 */
@@ -177,7 +177,7 @@ public:
 		}
 
 
-		/** 
+		/**
 		 * Method to increment by one the distance recorded as
 		 * travelled by a vehicle over a particular way, indexed
 		 * by the player ID of the way. This is used for revenue
@@ -189,7 +189,7 @@ public:
 		}
 
 		/**
-		 * Method for setting values in the array ab initio. 
+		 * Method for setting values in the array ab initio.
 		 * Used when loading from a saved game only.
 		 */
 		void set_distance(uint8 index, uint32 value)
@@ -198,7 +198,7 @@ public:
 		}
 
 		/**
-		 * Method for initialising the value of the overall 
+		 * Method for initialising the value of the overall
 		 * distances to zero
 		 */
 		void init_distances()
@@ -225,8 +225,8 @@ protected:
 	virtual float32e8_t get_power_summary(const float32e8_t &speed /* in m/s */);
 public:
 	virtual sint16 get_current_friction();
-	
-	// weight_summary becomes invalid, when vehicle_summary or envirion_summary 
+
+	// weight_summary becomes invalid, when vehicle_summary or envirion_summary
 	// becomes invalid.
 	inline void invalidate_weight_summary()
 	{
@@ -235,14 +235,14 @@ public:
 
 	// weight_summary is valid if (is_valid & cd_weight_summary != 0)
 	inline void validate_weight_summary() {
-		if (!(is_valid & cd_weight_summary)) 
+		if (!(is_valid & cd_weight_summary))
 		{
 			is_valid |= cd_weight_summary;
 			update_weight_summary(weight);
 		}
 	}
 
-	// weight_summary needs recaching only, if it is going to be used. 
+	// weight_summary needs recaching only, if it is going to be used.
 	inline const weight_summary_t &get_weight_summary() {
 		validate_weight_summary();
 		return weight;
@@ -469,6 +469,12 @@ private:
 	sint32 wait_lock;
 
 	/**
+	 * The flag whether this convoi is requested to change lane by the convoi behind this.
+	 * @author THLeaderH
+	 */
+	bool requested_change_lane;
+
+	/**
 	* accumulated profit over a year
 	* @author Hanjsörg Malthaner
 	*/
@@ -629,7 +635,7 @@ private:
 	 * system ensures that, when reaching C on the way back, the departure
 	 * from A, already registered at C on the way out, is not again
 	 * booked at C on the way back with the additional time since going
-	 * via D has elapsed. The key is the ID for the pair of stops, and  
+	 * via D has elapsed. The key is the ID for the pair of stops, and
 	 * the value is the last departure time booked between those stops.
 	 */
 	typedef koordhashtable_tpl<id_pair, sint64> departure_time_map;
@@ -677,7 +683,7 @@ private:
 	 * Get obsolescence from vehicle list.
 	 * Extracted from new_month().
 	 * Used to recalculate convoi_t::has_obsolete
-	 * 
+	 *
 	 * @author: Bernd Gabriel
 	 */
 	bool calc_obsolescence(uint16 timeline_year_month);
@@ -719,13 +725,13 @@ private:
 
 	/**
 	 * Whether this convoy is in the process
-	 * of trying to reserve a path from a 
+	 * of trying to reserve a path from a
 	 * choose signal. Only relevant for rail
-	 * convoys, as this is for the block 
+	 * convoys, as this is for the block
 	 * reserver.
 	 * @author: jamespetts
 	 */
-	bool is_choosing:1; 
+	bool is_choosing:1;
 
 	// This is true if this convoy has not stopped since it emerged
 	// from a depot. This is useful for ensuring that a stop's reversing
@@ -733,17 +739,31 @@ private:
 	bool last_stop_was_depot:1;
 
 	// The maximum speed allowed by the current signalling system
-	sint32 max_signal_speed; 
+	sint32 max_signal_speed;
 
 	// The classes of passengers/mail carried by this line
 	// Cached to reduce recalculation times in the path
-	// explorer. 
+	// explorer.
 	minivec_tpl<uint8> passenger_classes_carried;
 	minivec_tpl<uint8> mail_classes_carried;
 
+	/**
+	 * the route index of the point to quit yielding lane
+	 * == -1 means this convoi isn't yielding.
+	 * @author teamhimeH
+	 */
+	sint32 yielding_quit_index;
+
+	// 0: not fixed, -1: fixed to traffic lane, 1: fixed to passing lane
+	sint8 lane_affinity;
+	uint32 lane_affinity_end_index;
+
+	// true, if this vehicle will cross lane and block other vehicles.
+	bool next_cross_lane;
 
 
-public: 
+
+public:
 	/**
 	 * Some precalculated often used infos about a tile of the convoy's route.
 	 * @author B. Gabriel
@@ -798,13 +818,13 @@ public:
 		}
 	};
 #ifdef DEBUG_PHYSICS
-	sint32 next_speed_limit; 
+	sint32 next_speed_limit;
 	sint32 steps_til_limit;
 	sint32 steps_til_brake;
 #endif
 
 private:
-	/** 
+	/**
 	  * List of upcoming speed limits; for braking purposes.
 	  * @author: jamespetts, September 2011
 	  */
@@ -861,7 +881,7 @@ public:
 	/*
 	* Clears the average speed of this vehicle for this month and last.
 	* Used when re-assigning a line to avoid stale data being used in
-	* service frequency and other computations. 
+	* service frequency and other computations.
 	*/
 	void clear_average_speed();
 
@@ -888,7 +908,7 @@ public:
 	*/
 	int get_state() const { return state; }
 
-	// In any of these states, user interaction should not be possible. 
+	// In any of these states, user interaction should not be possible.
 	bool is_locked() const { return state == convoi_t::EDIT_SCHEDULE || state == convoi_t::ROUTING_2 || state == convoi_t::ROUTE_JUST_FOUND; }
 
 	/**
@@ -1063,7 +1083,7 @@ public:
 	 */
 	void step();
 
-	/** 
+	/**
 	* All the difficult tasks that can be multi-threaded.
 	* This excludes anything that might call the block reserver,
 	* which cannot be multi-threaded because it is critical to preserve
@@ -1199,7 +1219,7 @@ public:
 
 	inline void set_wait_lock(sint32 value) { wait_lock = value; }
 
-	bool check_destination_reverse(route_t* current_route = NULL, route_t* target_rt = NULL); 
+	bool check_destination_reverse(route_t* current_route = NULL, route_t* target_rt = NULL);
 
 	// Reserve the tiles on which the convoy is standing to prevent collisions.
 	void reserve_own_tiles();
@@ -1227,7 +1247,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void get_freight_info(cbuffer_t & buf);
-	void get_freight_info_by_class(cbuffer_t & buf);	
+	void get_freight_info_by_class(cbuffer_t & buf);
 	void set_sortby(uint8 order);
 	inline uint8 get_sortby() const { return freight_info_order; }
 	void force_resort() { freight_info_resort = true; }
@@ -1441,6 +1461,30 @@ public:
 	// Overtaking for convois
 	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
 
+	/*
+	 * Functions related to requested_change_lane
+	 * @author THLeaderH
+	 */
+	bool is_requested_change_lane() const { return requested_change_lane; }
+	void set_requested_change_lane(bool x) { requested_change_lane = x; }
+	void yield_lane_space();
+	sint32 get_yielding_quit_index() const { return yielding_quit_index; }
+	void quit_yielding_lane() { yielding_quit_index = -1; }
+
+	/*
+	* Functions related to lane fixing
+	* @author THLeaderH
+	*/
+	bool calc_lane_affinity(uint8 lane_affinity_sign); // If true, lane fixing started.
+	uint32 get_lane_affinity_end_index() const { return lane_affinity_end_index; }
+	sint8 get_lane_affinity() const { return lane_affinity; }
+	void reset_lane_affinity() { lane_affinity = 0; }
+
+	bool get_next_cross_lane() const { return next_cross_lane; }
+	void set_next_cross_lane(bool n) { next_cross_lane = n; }
+
+	virtual void reflesh(sint8,sint8) OVERRIDE;
+
 	//Returns the maximum catering level of the category type given in the convoy.
 	//@author: jamespetts
 	uint8 get_catering_level(uint8 type) const;
@@ -1455,7 +1499,7 @@ public:
 
 	void calc_min_range();
 	inline uint16 get_min_range() const { return min_range; }
-	
+
 	//@author: jamespetts
 	uint32 calc_longest_min_loading_time();
 	uint32 calc_longest_max_loading_time();
@@ -1464,7 +1508,7 @@ public:
 	inline uint16 get_current_loading_time() const { return current_loading_time; }
 
 	/**
-	 * Calculate the number of tiles over which this convoy 
+	 * Calculate the number of tiles over which this convoy
 	 * needs to check for corner radii based on its maximum
 	 * speed.
 	 */
@@ -1506,21 +1550,21 @@ public:
 	uint32 calc_reverse_delay() const;
 
 	static uint16 get_waiting_minutes(uint32 waiting_ticks);
-	
+
 	bool is_wait_infinite() const { return go_on_ticks == WAIT_INFINITE; }
 
 	route_infos_t& get_route_infos();
 
-	void set_akt_speed(sint32 akt_speed) { 
-		this->akt_speed = akt_speed; 
+	void set_akt_speed(sint32 akt_speed) {
+		this->akt_speed = akt_speed;
 #ifndef NETTOOL
 		if (akt_speed > 8)
-			v = speed_to_v(akt_speed/2); 
+			v = speed_to_v(akt_speed/2);
 		else
-			v = speed_to_v(akt_speed); 
+			v = speed_to_v(akt_speed);
 #endif
 	}
-	
+
 	/** For going to a depot automatically
 	 *  when stuck - will teleport if necessary.
 	 */
@@ -1546,8 +1590,8 @@ public:
 
 	bool carries_this_or_lower_class(uint8 catg, uint8 g_class) const;
 
-	const minivec_tpl<uint8>* get_classes_carried(uint8 catg) const 
-	{ 
+	const minivec_tpl<uint8>* get_classes_carried(uint8 catg) const
+	{
 		if (catg == goods_manager_t::INDEX_PAS)
 		{
 			return &passenger_classes_carried;
@@ -1560,7 +1604,7 @@ public:
 		{
 			return NULL;
 		}
-	} 
+	}
 };
 
 #endif
