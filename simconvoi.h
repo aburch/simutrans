@@ -1295,6 +1295,11 @@ public:
 	void snprintf_remaining_loading_time(char *p, size_t size) const;
 
 	/**
+	* Calculates the remaining laoding time from go_on_ticks
+	*/
+	sint64 calc_remaining_loading_time() const;
+
+	/**
 	 * Format remaining reversing and emergency stop time from go_on_ticks
 	 */
 	void snprintf_remaining_reversing_time(char *p, size_t size) const;

@@ -5437,6 +5437,7 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 			&& (!is_road_type || state == convoi_t::LOADING))
 			|| (state == convoi_t::REVERSING
 			&& !is_road_type
+			&& cnv->calc_remaining_loading_time() > 100
 			&& ((*i)->get_reverse_schedule() ?
 				(*i)->get_schedule()->get_current_stop() + 1 == cnv->get_schedule()->get_current_stop() :
 				(*i)->get_schedule()->get_current_stop() - 1 == cnv->get_schedule()->get_current_stop()))))

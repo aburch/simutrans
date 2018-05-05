@@ -7249,10 +7249,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	return true;
 }
 
-/**
- * Format remaining loading time from go_on_ticks
- */
-void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
+sint64 convoi_t::calc_remaining_loading_time() const
 {
 	const uint32 reverse_delay = calc_reverse_delay();
 	uint32 loading_time = current_loading_time;
@@ -7295,6 +7292,16 @@ void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
 	{
 		ticks_left = remaining_ticks;
 	}
+
+	return ticks_left;
+}
+
+/**
+ * Format remaining loading time from go_on_ticks
+ */
+void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
+{
+	sint64 ticks_left = calc_remaining_loading_time();
 	welt->sprintf_ticks(p, size, ticks_left);
 }
 
