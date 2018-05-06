@@ -978,14 +978,14 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 				const uint32 distance_tiles = distance_from_last_stop_to_here_tiles + (shortest_distance(cnv->get_pos().get_2d(), destination));
 				const double distance = (double)(distance_tiles * (double)welt->get_settings().get_meters_per_tile()) / 1000.0;
 				const double excess = distance - (double)cnv->get_min_range();
-				DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s cannot travel %ikm to (%i,%i) because it would exceed its range of %i by %.2fkm", cnv->get_name(), distance, ziel.x, ziel.y, cnv->get_min_range(), excess);
+				DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s cannot travel %f.2km to (%i,%i) because it would exceed its range of %i by %.2fkm", cnv->get_name(), distance, ziel.x, ziel.y, cnv->get_min_range(), excess);
 				if(this == welt->get_active_player())
 				{
 					cbuffer_t buf;
 					const halthandle_t destination_halt = haltestelle_t::get_halt(ziel, welt->get_active_player());
 					const bool destination_is_depot = welt->lookup(ziel) && welt->lookup(ziel)->get_depot(); 
 					const char* name = destination_is_depot ? translator::translate(welt->lookup(ziel)->get_depot()->get_name()) : destination_halt.is_bound() ? destination_halt->get_name() : translator::translate("unknown");
-					buf.printf( translator::translate("Vehicle %s cannot travel %ikm to %s because that would exceed its range of %ikm by %.2fkm"), cnv->get_name(), distance, name, cnv->get_min_range(), excess);
+					buf.printf( translator::translate("Vehicle %s cannot travel %f.2km to %s because that would exceed its range of %ikm by %.2fkm"), cnv->get_name(), distance, name, cnv->get_min_range(), excess);
 					welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
 				}
 			}
