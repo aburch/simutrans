@@ -78,12 +78,12 @@ slist_tpl<const skin_desc_t *>skinverwaltung_t::extra_obj;
 
 
 static spezial_obj_tpl<skin_desc_t> const misc_objekte[] = {
+	{ &skinverwaltung_t::ribi_arrow,        "RibiArrow"    },
 	{ &skinverwaltung_t::senke,             "PowerDest"    },
 	{ &skinverwaltung_t::pumpe,             "PowerSource"  },
 	{ &skinverwaltung_t::construction_site, "Construction" },
 	{ &skinverwaltung_t::fussweg,           "Sidewalk"     },
 	{ &skinverwaltung_t::tunnel_texture,    "TunnelTexture"},
-	{ &skinverwaltung_t::ribi_arrow,        "RibiArrow"    },
 	{ NULL, NULL }
 };
 
@@ -164,7 +164,7 @@ bool skinverwaltung_t::successfully_loaded(skintyp_t type)
 		case cursor:  sb = cursor_objekte;     break;
 		case symbol:  sb = symbol_objekte;     break;
 		case misc:
-			sb = misc_objekte+2;
+			sb = misc_objekte+3;
 			// for compatibility: use sidewalk as tunneltexture
 			if (tunnel_texture==NULL) {
 				tunnel_texture = fussweg;
