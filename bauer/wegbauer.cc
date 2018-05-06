@@ -2477,12 +2477,12 @@ void way_builder_t::build_road()
 				{
 					if(desc->get_upgrade_group() == weg->get_desc()->get_upgrade_group())
 					{
-						cost = desc->get_way_only_cost();
+						cost -= desc->get_way_only_cost();
 					}
 					else
 					{
 						// Cost of downgrading is the cost of the inferior way (was previously the higher of the two costs in 10.15 and earlier, from Standard).
-						cost = desc->get_value();
+						cost -= desc->get_value();
 					}
 
 					weg->set_desc(desc);
