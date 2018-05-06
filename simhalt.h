@@ -428,6 +428,8 @@ public:
 	sint64 calc_maintenance() const;
 
 	void make_public_and_join( player_t *player );
+	// [mod : shingoushori] mod : changes this to a private transfer exchange stop 2/3
+	void make_private_and_join( player_t *player, bool public_undertaking = false );
 
 	vector_tpl<connection_t> const& get_pax_connections()  const { return all_links[goods_manager_t::INDEX_PAS].connections;  }
 	vector_tpl<connection_t> const& get_mail_connections() const { return all_links[goods_manager_t::INDEX_MAIL].connections; }
