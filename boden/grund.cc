@@ -870,6 +870,12 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 			if(  const grund_t *gr=welt->lookup_kartenboden(k + testdir[i] - koord(step,step))  ) {
 				sint16 h = gr->get_disp_height()*scale_z_step;
 				sint8 s = gr->get_disp_slope();
+				// tile should hide anything in tunnel portal behind (tile not in direction of tunnel)
+				if (step == 0  &&  ((i&1)==0)  &&  s  &&  gr->ist_tunnel()) {
+					if ( ribi_t::reverse_single(ribi_type(s)) != ribi_type(testdir[i])) {
+						s = slope_t::flat;
+					}
+				}
 				// take backimage into account, take base-height of back image as corner heights
 				sint8 bb = abs(gr->back_imageid);
 				sint8 lh = 2, rh = 2; // height of start of back image
