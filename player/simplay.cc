@@ -983,7 +983,8 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 				{
 					cbuffer_t buf;
 					const halthandle_t destination_halt = haltestelle_t::get_halt(ziel, welt->get_active_player());
-					const char* name = destination_halt.is_bound() ? destination_halt->get_name() : translator::translate("unknown");
+					const bool destination_is_depot = welt->lookup(ziel) && welt->lookup(ziel)->get_depot(); 
+					const char* name = destination_is_depot ? translator::translate(welt->lookup(ziel)->get_depot()->get_name()) : destination_halt.is_bound() ? destination_halt->get_name() : translator::translate("unknown");
 					buf.printf( translator::translate("Vehicle %s cannot travel %ikm to %s because that would exceed its range of %ikm by %.2fkm"), cnv->get_name(), distance, name, cnv->get_min_range(), excess);
 					welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_base_image());
 				}
