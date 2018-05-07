@@ -2498,12 +2498,12 @@ void way_builder_t::build_road()
 				{
 					if(desc->get_upgrade_group() == str->get_desc()->get_upgrade_group())
 					{
-						cost = desc->get_way_only_cost();
+						cost -= desc->get_way_only_cost();
 					}
 					else
 					{
 						// Cost of downgrading is the cost of the inferior way (was previously the higher of the two costs in 10.15 and earlier, from Standard).
-						cost = desc->get_value();
+						cost -= desc->get_value();
 					}
 
 					str->set_desc(desc);
@@ -2524,14 +2524,20 @@ void way_builder_t::build_road()
 						str->set_gehweg(true);
 						str->set_public_right_of_way();
 					}
-
-					if (city_adopts_this) {
+					if (city_adopts_this)
+					{
 						str->set_owner(NULL);
-					} else {
+					}
+					else 
+					{
 						str->set_owner(player);
 						// Set maintenance costs here
 						// including corrections for diagonals.
 						str->finish_rd();
+
+						// If this is not adopted by the city, we need to charge the player for buying the land, since the player 
+						// will receive the land value back when demolishing this way.
+						cost += welt->get_land_value(route[i]);
 					}
 				}
 			}
