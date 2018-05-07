@@ -2471,7 +2471,6 @@ void way_builder_t::build_road()
 					||  (  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  )
 					) {
 					//nothing to be done
-	//DBG_MESSAGE("way_builder_t::build_road()","nothing to do at (%i,%i)",k.x,k.y);
 				}
 				else
 				{
@@ -2504,13 +2503,20 @@ void way_builder_t::build_road()
 						weg->set_public_right_of_way();
 					}
 
-					if (city_adopts_this) {
+					if (city_adopts_this)
+					{
 						weg->set_owner(NULL);
-					} else {
+					}
+					else 
+					{
 						weg->set_owner(player);
 						// Set maintenance costs here
 						// including corrections for diagonals.
 						weg->finish_rd();
+
+						// If this is not adopted by the city, we need to charge the player for buying the land, since the player 
+						// will receive the land value back when demolishing this way.
+						cost += welt->get_land_value(route[i]);
 					}
 				}
 			}
