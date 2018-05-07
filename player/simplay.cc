@@ -978,7 +978,7 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 				const uint32 distance_tiles = distance_from_last_stop_to_here_tiles + (shortest_distance(cnv->get_pos().get_2d(), destination));
 				const double distance = (double)(distance_tiles * (double)welt->get_settings().get_meters_per_tile()) / 1000.0;
 				const double excess = distance - (double)cnv->get_min_range();
-				DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s cannot travel %.f2fkm to (%i,%i) because it would exceed its range of %i by %.2fkm", cnv->get_name(), distance, ziel.x, ziel.y, cnv->get_min_range(), excess);
+				DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s cannot travel %.2fkm to (%i,%i) because it would exceed its range of %i by %.2fkm", cnv->get_name(), distance, ziel.x, ziel.y, cnv->get_min_range(), excess);
 				if(this == welt->get_active_player())
 				{
 					cbuffer_t buf;
