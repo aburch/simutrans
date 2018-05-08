@@ -6804,7 +6804,7 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 	else
 	{
 		bool break_now = false;
-		const bool is_one_train_staff = sig->get_desc()->get_working_method() == one_train_staff;
+		const bool is_one_train_staff = sig && sig->get_desc()->get_working_method() == one_train_staff;
 		for(int i = route_index - 1; i >= 0; i--)
 		{
 			grund_t* gr_route = welt->lookup(route->at(i));
