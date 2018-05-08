@@ -6803,13 +6803,22 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 	}
 	else
 	{
+		bool break_now = false;
 		for(int i = route_index - 1; i >= 0; i--)
 		{
 			grund_t* gr_route = welt->lookup(route->at(i));
 			schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
+			if (!sch_route->is_reserved() || sch_route->get_reserved_convoi() != cnv->self)
+			{
+				break_now = true;
+			}
 			if(sch_route && (!cnv || cnv->get_state() != convoi_t::REVERSING))
 			{
 				sch_route->unreserve(cnv->self);
+			}
+			if (break_now)
+			{
+				break;
 			}
 		}
 	}
