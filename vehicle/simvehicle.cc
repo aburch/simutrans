@@ -6469,7 +6469,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			front->reserve(cnv->self, direction); 
 			rear->reserve(cnv->self, direction); 
 		}
-		else if(curtailment_index < i)
+		else if(curtailment_index < i && working_method != one_train_staff)
 		{
 			const halthandle_t halt_current = haltestelle_t::get_halt(get_pos(), get_owner());
 			for(uint32 j = curtailment_index; j < route->get_count(); j++)
