@@ -1533,7 +1533,7 @@ bool weg_t::renew()
 			owner->book_way_renewal(price, wt);
 		}
 	}
-	else if(owner && !owner->get_has_been_warned_about_no_money_for_renewals())
+	else if(owner && owner == welt->get_active_player() && !owner->get_has_been_warned_about_no_money_for_renewals())
 	{
 		welt->get_message()->add_message(translator::translate("Not enough money to carry out essential way renewal work.\n"), get_pos().get_2d(), message_t::warnings, owner->get_player_nr());
 		owner->set_has_been_warned_about_no_money_for_renewals(true); // Only warn once a month.
