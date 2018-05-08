@@ -6804,11 +6804,12 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 	else
 	{
 		bool break_now = false;
+		const bool is_one_train_staff = sig->get_desc()->get_working_method() == one_train_staff;
 		for(int i = route_index - 1; i >= 0; i--)
 		{
 			grund_t* gr_route = welt->lookup(route->at(i));
 			schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
-			if (!sch_route->is_reserved() || sch_route->get_reserved_convoi() != cnv->self)
+			if (!is_one_train_staff && !sch_route->is_reserved() || sch_route->get_reserved_convoi() != cnv->self)
 			{
 				break_now = true;
 			}
