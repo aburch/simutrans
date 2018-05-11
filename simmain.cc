@@ -441,6 +441,7 @@ int simu_main(int argc, char** argv)
 			" -async              asynchronous images, only for SDL\n"
 			" -use_hw             hardware double buffering, only for SDL\n"
 			" -debug NUM          enables debugging (1..5)\n"
+			" -easyserver         set up every for server (query own IP, port forwarding)\n"
 			" -freeplay           play with endless money\n"
 			" -fullscreen         starts simutrans in fullscreen mode\n"
 			" -fps COUNT          framerate (from 5 to 100)\n"
@@ -755,7 +756,7 @@ int simu_main(int argc, char** argv)
 	}
 
 	// starting a server?
-	if(  gimme_arg(argc, argv, "-server", 0)  ) {
+	if(  gimme_arg(argc, argv, "-easyserver", 0)  ) {
 		const char *p = gimme_arg(argc, argv, "-server", 1);
 		int portadress = p ? atoi( p ) : 13353;
 		if(  portadress==0  ) {
@@ -764,10 +765,32 @@ int simu_main(int argc, char** argv)
 		// will fail fatal on the opening routine ...
 		dbg->message( "simmain()", "Server started on port %i", portadress );
 		env_t::networkmode = network_init_server( portadress );
+		// query IP and try to open ports on router
+		char IP[256];
+		if(  prepare_for_server( IP, portadress )  ) {
+			// we have forwarded a port in router, so we can continue
+			env_t::server_dns = IP;
+			env_t::server_name = std::string("Server at ")+IP;
+			env_t::server_announce = 1;
+		}
 	}
-	else {
-		// no announce for clients ...
-		env_t::server_announce = 0;
+
+		// starting a server?
+	if(  !env_t::server  ) {
+		if(  gimme_arg(argc, argv, "-server", 0)  ) {
+			const char *p = gimme_arg(argc, argv, "-server", 1);
+			int portadress = p ? atoi( p ) : 13353;
+			if(  portadress==0  ) {
+				portadress = 13353;
+			}
+			// will fail fatal on the opening routine ...
+			dbg->message( "simmain()", "Server started on port %i", portadress );
+			env_t::networkmode = network_init_server( portadress );
+		}
+		else {
+			// no announce for clients ...
+			env_t::server_announce = 0;
+		}
 	}
 
 #ifdef DEBUG
@@ -1465,6 +1488,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 
 	translator::delete_all_lists();
 
+	remove_port_forwarding( env_t::server );
 	network_core_shutdown();
 
 	simgraph_exit();

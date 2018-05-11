@@ -141,4 +141,10 @@ void network_core_shutdown();
 uint32 network_get_client_id();
 void network_set_client_id(uint32 id);
 
+// trys to open port on router (if there) and get external IP
+bool prepare_for_server( char *externalIPAddress, int port );
+
+// removes the redirect (or do nothing)
+void remove_port_forwarding( int port );
+
 #endif

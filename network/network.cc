@@ -807,3 +807,131 @@ void network_core_shutdown()
 	env_t::networkmode = false;
 #endif
 }
+
+
+
+#ifdef USE_UPNP
+/*
+ **** The following functions are used to open ports in UPnP router and will query the IP address ****
+ **** So it will become much easier to set up network games at home.
+ */
+
+extern "C" {
+#include <miniupnpc.h>
+#include <upnpcommands.h>
+}
+#include "../utils/cbuffer_t.h"
+#include "network_file_transfer.h"
+
+bool prepare_for_server( char *externalIPAddress, int port )
+{
+	char lanaddr[64] = "unset";	/* my ip address on the LAN */
+	int error = 0;
+	const char *rootdescurl = 0;
+	const char *multicastif = 0;
+	const char *minissdpdpath = 0;
+	int localport = UPNP_LOCAL_PORT_ANY;
+	int ipv6 = 0; // probably not needed for IPv6 ever ...
+	unsigned char ttl = 2;	/* defaulting to 2 */
+	struct UPNPDev *devlist = 0;
+	bool has_IP = false;
+
+	if(  (devlist = upnpDiscover( 2000, multicastif, minissdpdpath, localport, ipv6, ttl, &error ))  ) {
+		struct UPNPUrls urls;
+		struct IGDdatas data;
+
+		UPNP_GetValidIGD( devlist, &urls, &data, lanaddr, sizeof(lanaddr) );
+		// this could query the connection status
+//		if(  UPNP_GetStatusInfo( urls->controlURL, data->first.servicetype, status, &uptime, lastconnerr) == UPNPCOMMAND_SUCCESS  ) {
+//		}
+		// but we must know our IP address first
+		if(  UPNP_GetExternalIPAddress(urls.controlURL, data.first.servicetype, externalIPAddress) ==  UPNPCOMMAND_SUCCESS  ) {
+			// this is our ID (at least the routes tells us this)
+			char eport[19];
+			char *iport = eport;
+			sprintf( eport, "%d", port );
+			// setting up tcp redirect forever (last parameter "0")
+			if(  UPNP_AddPortMapping(urls.controlURL, data.first.servicetype, eport, iport, lanaddr, "simutrans", "TCP", 0, "0")  ==  UPNPCOMMAND_SUCCESS  ) {
+				// ok, we have our ID and redirected a port to us
+				has_IP = true;
+			}
+			else {
+				dbg->warning( "prepare_for_server()", "Could not redirect port (but may be still ok" );
+				has_IP = true;
+			}
+		}
+		FreeUPNPUrls(&urls);
+	}
+	freeUPNPDevlist(devlist);
+
+	if(  !has_IP  ) {
+		cbuffer_t myIPaddr;
+		// lets get IP by query "simutrans-forum.de/get_IP.php" for IP and assume that the redirection is working
+		const char *err = network_http_get( "simutrans-forum.de:80", "/get_IP.php", myIPaddr );
+		if(  !err  ) {
+			has_IP = true;
+			strcpy( externalIPAddress, myIPaddr.get_str() );
+		}
+	}
+	return has_IP;
+}
+
+
+// removes the redirect (or do nothing)
+void remove_port_forwarding( int port )
+{
+	if(  port <= 0  ) {
+		return;
+	}
+
+	char lanaddr[64] = "unset";	/* my ip address on the LAN */
+	char externalIPAddress[64];
+	int error = 0;
+	const char *rootdescurl = 0;
+	const char *multicastif = 0;
+	const char *minissdpdpath = 0;
+	int localport = UPNP_LOCAL_PORT_ANY;
+	int ipv6 = 0; // probably not needed for IPv6 ever ...
+	unsigned char ttl = 2;	/* defaulting to 2 */
+	struct UPNPDev *devlist = 0;
+	bool has_IP = false;
+
+	if(  (devlist = upnpDiscover( 2000, multicastif, minissdpdpath, localport, ipv6, ttl, &error ))  ) {
+		struct UPNPUrls urls;
+		struct IGDdatas data;
+
+		UPNP_GetValidIGD( devlist, &urls, &data, lanaddr, sizeof(lanaddr) );
+		// we must know our IP address first
+		if(  UPNP_GetExternalIPAddress(urls.controlURL, data.first.servicetype, externalIPAddress) ==  UPNPCOMMAND_SUCCESS  ) {
+			// this is our ID (at least the routes tells us this)
+			char eport[19];
+			char *iport = eport;
+			sprintf( eport, "%d", port );
+			// setting up tcp redirect forever (last parameter "0")
+			UPNP_DeletePortMapping(urls.controlURL, data.first.servicetype, eport, "TCP", NULL);
+		}
+		FreeUPNPUrls(&urls);
+	}
+	freeUPNPDevlist(devlist);
+}
+#else
+// or we jsut get only our IP and hope we are not behind a router ...
+
+#include "../utils/cbuffer_t.h"
+#include "network_file_transfer.h"
+
+bool prepare_for_server( char *externalIPAddress, int port )
+{
+	cbuffer_t myIPaddr;
+	// lets get IP by query "simutrans-forum.de/get_IP.php" for IP and assume that the redirection is working
+	const char *err = network_http_get( "simutrans-forum.de:80", "/get_IP.php", myIPaddr );
+	if(  !err  ) {
+		strcpy( externalIPAddress, myIPaddr.get_str() );
+		return true;
+	}
+}
+
+void remove_port_forwarding( int port )
+{
+}
+#endif
