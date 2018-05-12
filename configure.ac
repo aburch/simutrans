@@ -26,6 +26,8 @@ AC_SEARCH_LIBS(pthread_mutex_destroy, pthread, [AC_SUBST(multithread, 1)], [AC_S
 
 AC_CHECK_LIB(pthreadGC2, pthread_mutex_destroy, [AC_SUBST(bundlepthread, 1)], [AC_SUBST(bundlepthread, 0)] )
 
+AC_CHECK_LIB(miniupnpc, upnpDiscover, [AC_SUBST(upnp, 1)], [AC_SUBST(pnp, 0)] )
+
 # find OS and backend by libs ...
 AC_CHECK_LIB(SDL2, SDL_GetRenderDriverInfo)
 AC_CHECK_LIB(SDL, SDL_Init)

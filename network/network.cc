@@ -812,8 +812,12 @@ void network_core_shutdown()
  */
 
 extern "C" {
-#include <miniupnpc.h>
-#include <upnpcommands.h>
+#define MINIUPNPC_DECLSPEC_H_INCLUDED 
+#define MINIUPNP_LIBSPEC extern
+
+//#define MINIUPNP_STATICLIB
+#include <miniupnpc/miniupnpc.h>
+#include <miniupnpc/upnpcommands.h>
 }
 #include "../utils/cbuffer_t.h"
 #include "network_file_transfer.h"
@@ -882,7 +886,6 @@ void remove_port_forwarding( int port )
 	char lanaddr[64] = "unset";	/* my ip address on the LAN */
 	char externalIPAddress[64];
 	int error = 0;
-	const char *rootdescurl = 0;
 	const char *multicastif = 0;
 	const char *minissdpdpath = 0;
 	int localport = UPNP_LOCAL_PORT_ANY;

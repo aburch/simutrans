@@ -39,6 +39,9 @@
 
 #MULTI_THREAD = 1 # Enable multithreading
 
+# using UPnP for easy server hosting behind routers
+#USE_UPNP = 0
+
 # Define these as empty strings, if you don't have the respective config program
 #ALLEGRO_CONFIG = allegro-config
 #PNG_CONFIG     = pkg-config libpng

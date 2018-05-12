@@ -112,6 +112,11 @@ ifdef MSG_LEVEL
 	CFLAGS += -DMSG_LEVEL=$(MSG_LEVEL)
 endif
 
+ifneq ($(USE_UPNP),)
+  CFLAGS  += -DUSE_UPNP
+  LDFLAGS += -lminiupnpc -liphlpapi
+endif
+
 ifneq ($(PROFILE),)
   CFLAGS  += -pg -DPROFILE
   ifneq ($(PROFILE), 2)
