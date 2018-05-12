@@ -4154,7 +4154,7 @@ const char *tool_build_station_t::tool_station_dock_aux(player_t *player, koord3
 		costs = -desc->get_price();
 	}
 
-	if(!player_t::can_afford(player, -costs))
+	if(!player_t::can_afford(player, -costs*(len+1)))
 	{
 		return NOTICE_INSUFFICIENT_FUNDS;
 	}
@@ -4381,7 +4381,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 		costs = -desc->get_price();
 	}
 
-	if(!player_t::can_afford(player, -costs))
+	if(!player_t::can_afford(player, -costs*(len+1)))
 	{
 		return NOTICE_INSUFFICIENT_FUNDS;
 	}
@@ -4610,7 +4610,7 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 }
 
 // build all types of stops but sea harbours
-const char *tool_build_station_t::tool_station_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype, sint64 cost, const char *type_name )
+const char *tool_build_station_t::tool_station_aux(player_t *player, koord3d pos, const building_desc_t *desc, waytype_t wegtype, const char *type_name )
 {
 	const koord& k = pos.get_2d();
 DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", desc->get_name(), k.x, k.y, wegtype);
@@ -4628,13 +4628,6 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 	if(  bd->ist_tunnel()  &&  bd->ist_karten_boden()  ) {
 		// do not build on tunnel entries
 		return "No suitable way on the ground!";
-	}
-
-	sint64 adjusted_cost = cost * desc->get_x() * desc->get_y();
-
-	if(!player->can_afford(-adjusted_cost))
-	{
-		return NOTICE_INSUFFICIENT_FUNDS;
 	}
 
 	if(  bd->get_depot() || bd->get_signalbox() ) {
@@ -4771,9 +4764,7 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 	}
 
 	halthandle_t old_halt = bd->get_halt();
-	uint16 old_level = 0;
-       int old_b = 0;
-       int old_h = 0;
+	sint64 old_cost = 0;
 
 	halthandle_t halt;
 
@@ -4782,19 +4773,43 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 		if(gb)
 		{
 			const building_desc_t *old_desc = gb->get_tile()->get_desc();
-			old_level = old_desc->get_level();
-			old_b = old_desc->get_x();
-			old_h = old_desc->get_y();
 			if (old_desc == desc)
 			{
 				// Do nothing if old and new are alike: do not charge the player for doing nothing.
-				return "";
+				return NULL;
 			}
-			if(old_desc->get_level() > desc->get_level() && old_desc->get_capacity() > desc->get_capacity() && !is_ctrl_pressed()) 
+			if (old_desc->get_capacity() > desc->get_capacity() && !is_ctrl_pressed())
 			{
 				return ""; // An error message is intrusive here and not very useful.
 				//return "Upgrade must have\na higher level";
 			}
+
+			if(old_desc->get_base_price() == PRICE_MAGIC)
+			{
+				switch(old_desc->get_extra()) {
+					case road_wt:
+						old_cost = welt->get_settings().cst_multiply_roadstop * old_desc->get_level();
+						break;
+					case track_wt:
+					case monorail_wt:
+					case maglev_wt:
+					case narrowgauge_wt:
+					case tram_wt:
+						old_cost = welt->get_settings().cst_multiply_station * old_desc->get_level();
+						break;
+					case water_wt:
+						old_cost = welt->get_settings().cst_multiply_dock * old_desc->get_level();
+						break;
+					case air_wt:
+						old_cost = welt->get_settings().cst_multiply_airterminal * old_desc->get_level();
+						break;
+				}
+			}
+			else
+			{
+				old_cost = -desc->get_price();
+			}
+			old_cost *= old_desc->get_x()*old_desc->get_y();
 			gb->cleanup( NULL );
 			delete gb;
 			halt = old_halt;
@@ -4833,10 +4848,43 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 		halt->set_name(name);
 		free(name);
 	}
-
-	const sint64 old_cost = old_b * old_h * cost;
 	
+	sint64 cost;
+	if(desc->get_base_price() == PRICE_MAGIC)
+	{
+		switch(desc->get_extra()) {
+			case road_wt:	
+				cost = welt->get_settings().cst_multiply_roadstop * desc->get_level();
+				break;
+			case track_wt:
+			case monorail_wt:
+			case maglev_wt:
+			case narrowgauge_wt:
+			case tram_wt:
+				cost = welt->get_settings().cst_multiply_station * desc->get_level();
+				break;
+			case water_wt:
+				cost = welt->get_settings().cst_multiply_dock * desc->get_level();
+				break;
+			case air_wt:
+				cost = welt->get_settings().cst_multiply_airterminal * desc->get_level();
+				break;
+		}
+	}
+	else
+	{
+		cost = -desc->get_price();
+	}
+
+	// cost to build new new station
+	sint64 adjusted_cost = cost * desc->get_x() * desc->get_y();
+	// discount for existing station
 	adjusted_cost -= old_cost / 2;
+
+	if(!player->can_afford(-adjusted_cost))
+	{
+		return NOTICE_INSUFFICIENT_FUNDS;
+	}
 
 	if(player != halt->get_owner() && player != welt->get_public_player())
 	{
@@ -5167,27 +5215,10 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 	switch (desc->get_type()) 
 	{
 		case building_desc_t::dock:
+			msg = tool_build_station_t::tool_station_dock_aux(player, pos, desc );
+			break;
 		case building_desc_t::flat_dock:
-			if(desc->get_base_price() == PRICE_MAGIC)
-			{
-				cost = s.cst_multiply_dock * desc->get_level();
-			}
-			else
-			{
-				cost = -desc->get_price();
-			}
-			if(!player_t::can_afford(player, -cost))
-			{
-				return NOTICE_INSUFFICIENT_FUNDS;
-			}
-			if( desc->get_type() == building_desc_t::dock)
-			{
-				msg = tool_build_station_t::tool_station_dock_aux(player, pos, desc );
-			}
-			else
-			{
-				tool_build_station_t::tool_station_flat_dock_aux(player, pos, desc, rotation );
-			}
+			msg = tool_build_station_t::tool_station_flat_dock_aux(player, pos, desc, rotation );
 			break;
 		case building_desc_t::generic_extension:
 			msg = tool_build_station_t::tool_station_building_aux(player, false, pos, desc, rotation );
@@ -5197,71 +5228,22 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 			}
 			break;
 		case building_desc_t::generic_stop: {
-			sint64 cost = -desc->get_price();
 			switch(desc->get_extra()) {
 				case road_wt:
-					if(desc->get_base_price() == PRICE_MAGIC)
-					{
-						cost = s.cst_multiply_roadstop * desc->get_level();
-					}
-					else
-					{
-						cost = -desc->get_price();
-					}
-					if(!player_t::can_afford(player, -cost))
-					{
-						return NOTICE_INSUFFICIENT_FUNDS;
-					}
-					msg = tool_build_station_t::tool_station_aux(player, pos, desc, road_wt, cost, "H");
+					msg = tool_build_station_t::tool_station_aux(player, pos, desc, road_wt, "H");
 					break;
 				case track_wt:
 				case monorail_wt:
 				case maglev_wt:
 				case narrowgauge_wt:
 				case tram_wt:
-					if(desc->get_base_price() == PRICE_MAGIC)
-					{
-						cost = s.cst_multiply_station * desc->get_level();
-					}
-					else
-					{
-						cost = -desc->get_price();
-					}
-					if(!player_t::can_afford(player, -cost))
-					{
-						return NOTICE_INSUFFICIENT_FUNDS;
-					}
-					msg = tool_build_station_t::tool_station_aux(player, pos, desc, (waytype_t)desc->get_extra(), cost, "BF");
+					msg = tool_build_station_t::tool_station_aux(player, pos, desc, (waytype_t)desc->get_extra(), "BF");
 					break;
 				case water_wt:
-					if(desc->get_base_price() == PRICE_MAGIC)
-					{
-						cost = s.cst_multiply_dock * desc->get_level();
-					}
-					else
-					{
-						cost = -desc->get_price();
-					}
-					if(!player_t::can_afford(player, -cost))
-					{
-						return NOTICE_INSUFFICIENT_FUNDS;
-					}
-					msg = tool_build_station_t::tool_station_aux(player, pos, desc, water_wt, cost, "Dock");
+					msg = tool_build_station_t::tool_station_aux(player, pos, desc, water_wt, "Dock");
 					break;
 				case air_wt:
-					if(desc->get_base_price() == PRICE_MAGIC)
-					{
-						cost = s.cst_multiply_airterminal * desc->get_level();
-					}
-					else
-					{
-						cost = -desc->get_price();
-					}
-					if(!player_t::can_afford(player, -cost))
-					{
-						return NOTICE_INSUFFICIENT_FUNDS;
-					}
-					msg = tool_build_station_t::tool_station_aux(player, pos, desc, air_wt, cost, "Airport");
+					msg = tool_build_station_t::tool_station_aux(player, pos, desc, air_wt, "Airport");
 					break;
 			}
 			break;
