@@ -9,7 +9,7 @@
 
 #include <stddef.h>
 #include "simtypes.h"
-#include "zlib.h"
+#include <zlib.h>
 
 // Provide chdir().
 #if defined(_WIN32) && !defined(__CYGWIN__)
