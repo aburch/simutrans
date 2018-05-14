@@ -1439,7 +1439,6 @@ bool convoi_t::drive_to()
 {
 	koord3d start = front()->get_pos();
 	koord3d ziel = schedule->get_current_entry().pos;
-	const koord3d original_ziel = ziel;
 
 	const bool check_onwards = front()->get_waytype() == road_wt || front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
 	

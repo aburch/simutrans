@@ -4029,9 +4029,20 @@ route_t::route_result_t rail_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 	if(last && route_index < cnv->get_route()->get_count())
 	{
 		// free all reserved blocks
-		uint16 dummy;
-		block_reserver(cnv->get_route(), cnv->back()->get_route_index(), dummy, dummy, target_halt.is_bound() ? 100000 : 1, false, true);
+		if (working_method == one_train_staff || working_method == token_block)
+		{
+			// These cannot sensibly be resumed inside a section
+			set_working_method(drive_by_sight); 
+			cnv->unreserve_route();
+			cnv->reserve_own_tiles();
+		}
+		else
+		{
+			uint16 dummy;
+			block_reserver(cnv->get_route(), cnv->back()->get_route_index(), dummy, dummy, target_halt.is_bound() ? 100000 : 1, false, true);
+		}
 	}
+	
 	cnv->set_next_reservation_index( 0 );	// nothing to reserve
 	target_halt = halthandle_t();	// no block reserved
 	// use length > 8888 tiles to advance to the end of terminus stations
