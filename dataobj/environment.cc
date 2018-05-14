@@ -31,8 +31,10 @@ uint8 env_t::just_in_time = 1;
 
 // Disable announce by default
 uint32 env_t::server_announce = 0;
+bool env_t::easy_server = false;
 // Minimum is every 60 seconds, default is every 15 minutes (900 seconds), maximum is 86400 (1 day)
 sint32 env_t::server_announce_interval = 900;
+int env_t::server_port = 13353;
 std::string env_t::server_dns;
 std::string env_t::server_name;
 std::string env_t::server_comments;

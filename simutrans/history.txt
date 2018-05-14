@@ -1,3 +1,5 @@
+	ADD: Server can be now started at the UI when loading a game.
+	ADD: switch -easyserver on commandline to host a game with dynamic IP behind a router
 	FIX: crash when resizing isometric minimap
 	FIX: problems with scrolled lists
 	ADD: (Ichou) force replacement of wayobj by holding ctrl key while building

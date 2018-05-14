@@ -16,6 +16,7 @@
 #include "components/action_listener.h"
 
 #include "../simworld.h"
+#include "../simmenu.h"
 #include "../gui/simwin.h"
 #include "optionen.h"
 #include "display_settings.h"
@@ -23,8 +24,6 @@
 #include "player_frame_t.h"
 #include "kennfarbe.h"
 #include "sound_frame.h"
-#include "loadsave_frame.h"
-#include "scenario_frame.h"
 #include "scenario_info.h"
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
@@ -122,16 +121,24 @@ bool optionen_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 	}
 	else if(  comp == option_buttons + BUTTON_LOAD_GAME  ) {
 		destroy_win(this);
-		create_win(new loadsave_frame_t(true), w_info, magic_load_t);
+		tool_t *tmp_tool = create_tool( DIALOG_LOAD | DIALOGE_TOOL );
+		welt->set_tool( tmp_tool, welt->get_active_player() );
+		// since init always returns false, it is safe to delete immediately
+		delete tmp_tool;
 	}
 	else if(  comp == option_buttons + BUTTON_LOAD_SCENARIO  ) {
 		destroy_win(this);
-		destroy_all_win(true);
-		create_win( new scenario_frame_t(), w_info, magic_load_t );
+		tool_t *tmp_tool = create_tool( DIALOG_SCENARIO | DIALOGE_TOOL );
+		welt->set_tool( tmp_tool, welt->get_active_player() );
+		// since init always returns false, it is safe to delete immediately
+		delete tmp_tool;
 	}
 	else if(  comp == option_buttons + BUTTON_SAVE_GAME  ) {
 		destroy_win(this);
-		create_win(new loadsave_frame_t(false), w_info, magic_save_t);
+		tool_t *tmp_tool = create_tool( DIALOG_SAVE | DIALOGE_TOOL );
+		welt->set_tool( tmp_tool, welt->get_active_player() );
+		// since init always returns false, it is safe to delete immediately
+		delete tmp_tool;
 	}
 	else if(  comp == option_buttons + BUTTON_NEW_GAME  ) {
 		destroy_all_win( true );
