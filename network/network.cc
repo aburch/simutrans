@@ -324,6 +324,9 @@ SOCKET network_open_address(char const* cp, char const*& err)
 */
 bool network_init_server(int port)
 {
+	if (  port==0  ) {
+		dbg->fatal( "network_init_server()", "Cannot host on port 0!" );
+	}
 	// First activate network
 	if (!network_initialize()) {
 		dbg->fatal("network_init_server()", "Failed to initialize network!");
@@ -805,10 +808,26 @@ void network_core_shutdown()
 	network_active = false;
 #ifndef NETTOOL
 	env_t::networkmode = false;
+	network_server_port = 0;
 #endif
 }
 
 
+/* The following helper routines will be  used with the easy-server setup, to host machines behind 
+ * routers with frequently changing IP addresses.
+ */
+
+
+#include "../utils/cbuffer_t.h"
+#include "network_file_transfer.h"
+
+bool get_external_IP( cbuffer_t &myIPaddr )
+{
+	myIPaddr.clear();
+	// query "simutrans-forum.de/get_IP.php" for IP (faster than asking router)
+	const char *err = network_http_get( "simutrans-forum.de:80", "/get_IP.php", myIPaddr );
+	return err==NULL;
+}
 
 #ifdef USE_UPNP
 /*
@@ -820,8 +839,6 @@ extern "C" {
 #include <miniupnpc.h>
 #include <upnpcommands.h>
 }
-#include "../utils/cbuffer_t.h"
-#include "network_file_transfer.h"
 
 bool prepare_for_server( char *externalIPAddress, int port )
 {
@@ -917,10 +934,7 @@ void remove_port_forwarding( int port )
 #else
 // or we jsut get only our IP and hope we are not behind a router ...
 
-#include "../utils/cbuffer_t.h"
-#include "network_file_transfer.h"
-
-bool prepare_for_server( char *externalIPAddress, int port )
+bool prepare_for_server( char *externalIPAddress, int )
 {
 	cbuffer_t myIPaddr;
 	// lets get IP by query "simutrans-forum.de/get_IP.php" for IP and assume that the redirection is working
@@ -929,9 +943,10 @@ bool prepare_for_server( char *externalIPAddress, int port )
 		strcpy( externalIPAddress, myIPaddr.get_str() );
 		return true;
 	}
+	return false;
 }
 
-void remove_port_forwarding( int port )
+void remove_port_forwarding( int )
 {
 }
 #endif

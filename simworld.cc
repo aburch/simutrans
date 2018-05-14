@@ -11062,8 +11062,13 @@ void karte_t::announce_server(int status)
 	// st=on&dns=server.com&port=13353&rev=1234&pak=pak128&name=some+name&time=3,1923&size=256,256&active=[0-16]&locked=[0-16]&clients=[0-16]&towns=15&citizens=3245&factories=33&convoys=56&stops=17
 	// (This is the data part of an HTTP POST)
 	if(  env_t::server_announce  ) {
+		// in easy_server mode, we assume the IP may change freuently and thus query it before each announce
 		cbuffer_t buf;
+		if(  env_t::easy_server  &&  status<2  &&  get_external_IP(buf)  ) {
+			env_t::server_dns = (const char *)buf;
+		}
 		// Always send dns and port as these are used as the unique identifier for the server
+		buf.clear();
 		buf.append( "&dns=" );
 		encode_URI( buf, env_t::server_dns.c_str() );
 		buf.printf( "&port=%u", env_t::server );

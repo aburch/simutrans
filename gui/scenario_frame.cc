@@ -16,6 +16,8 @@
 #include "../dataobj/scenario.h"
 #include "../dataobj/translator.h"
 
+#include "../network/network.h"
+
 #include "../utils/cbuffer_t.h"
 
 scenario_frame_t::scenario_frame_t() : savegame_frame_t(NULL, true, NULL, false)
@@ -34,9 +36,20 @@ scenario_frame_t::scenario_frame_t() : savegame_frame_t(NULL, true, NULL, false)
 	}
 	this->add_path(pakset_scenario);
 
+	easy_server.init( button_t::square_automatic, "Start this as a server", scr_coord(D_MARGIN_LEFT,0) );
+	add_component(&easy_server);
+
 	set_name(translator::translate("Load scenario"));
 	set_focus(NULL);
 }
+
+
+void scenario_frame_t::set_windowsize(scr_size size)
+{
+	savegame_frame_t::set_windowsize(size);
+	easy_server.align_to(&savebutton, ALIGN_CENTER_V, scr_coord( 0, 0 ) );
+}
+
 
 
 /**
@@ -45,6 +58,16 @@ scenario_frame_t::scenario_frame_t() : savegame_frame_t(NULL, true, NULL, false)
  */
 bool scenario_frame_t::item_action(const char *fullpath)
 {
+	if(  env_t::server  ) {
+		// kill current session
+		welt->announce_server(2);
+		remove_port_forwarding( env_t::server );
+		network_core_shutdown();
+		if(  env_t::fps==15  ) {
+			env_t::fps = 25;
+		}
+	}
+
 	scenario_t *scn = new scenario_t(welt);
 	const char* err = scn->init(this->get_basename(fullpath).c_str(), this->get_filename(fullpath).c_str(), welt );
 	if (err == NULL) {
@@ -57,6 +80,27 @@ bool scenario_frame_t::item_action(const char *fullpath)
 	else {
 		create_win(new news_img(err), w_info, magic_none);
 		delete scn;
+	}
+
+	if(  easy_server.pressed  ) {
+		// now start a server with defaults
+		env_t::networkmode = network_init_server( env_t::server_port );
+		if(  env_t::networkmode  ) {
+			// query IP and try to open ports on router
+			char IP[256];
+			if(  prepare_for_server( IP, env_t::server_port )  ) {
+				// we have forwarded a port in router, so we can continue
+				env_t::server_dns = IP;
+				if(  env_t::server_name.empty()  ) {
+					env_t::server_name = std::string("Server at ")+IP;
+				}
+				env_t::server_announce = 1;
+				env_t::easy_server = 1;
+				if(  env_t::fps>15  ) {
+					env_t::fps = 15;
+				}
+			}
+		}
 	}
 
 	return true;

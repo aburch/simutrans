@@ -757,21 +757,24 @@ int simu_main(int argc, char** argv)
 
 	// starting a server?
 	if(  gimme_arg(argc, argv, "-easyserver", 0)  ) {
-		const char *p = gimme_arg(argc, argv, "-server", 1);
+		const char *p = gimme_arg(argc, argv, "-easyserver", 1);
 		int portadress = p ? atoi( p ) : 13353;
-		if(  portadress==0  ) {
-			portadress = 13353;
+		if(  portadress!=0  ) {
+			env_t::server_port = portadress;
 		}
 		// will fail fatal on the opening routine ...
-		dbg->message( "simmain()", "Server started on port %i", portadress );
-		env_t::networkmode = network_init_server( portadress );
+		dbg->message( "simmain()", "Server started on port %i", env_t::server_port );
+		env_t::networkmode = network_init_server( env_t::server_port );
 		// query IP and try to open ports on router
 		char IP[256];
-		if(  prepare_for_server( IP, portadress )  ) {
+		if(  prepare_for_server( IP, env_t::server_port )  ) {
 			// we have forwarded a port in router, so we can continue
 			env_t::server_dns = IP;
-			env_t::server_name = std::string("Server at ")+IP;
+			if(  env_t::server_name.empty()  ) {
+				env_t::server_name = std::string("Server at ")+IP;
+			}
 			env_t::server_announce = 1;
+			env_t::easy_server = 1;
 		}
 	}
 
@@ -780,12 +783,12 @@ int simu_main(int argc, char** argv)
 		if(  gimme_arg(argc, argv, "-server", 0)  ) {
 			const char *p = gimme_arg(argc, argv, "-server", 1);
 			int portadress = p ? atoi( p ) : 13353;
-			if(  portadress==0  ) {
-				portadress = 13353;
+			if(  portadress!=0  ) {
+				env_t::server_port = portadress;
 			}
 			// will fail fatal on the opening routine ...
-			dbg->message( "simmain()", "Server started on port %i", portadress );
-			env_t::networkmode = network_init_server( portadress );
+			dbg->message( "simmain()", "Server started on port %i", env_t::server_port );
+			env_t::networkmode = network_init_server( env_t::server_port );
 		}
 		else {
 			// no announce for clients ...

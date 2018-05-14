@@ -88,6 +88,8 @@ private:
 	gui_file_table_exp_column_t exp_column;
 	bool do_load;
 
+	button_t easy_server; // only active on loading savegames
+
 	static stringhashtable_tpl<sve_info_t *> cached_info;
 protected:
 	virtual void init(const char *suffix, const char *path);
@@ -103,6 +105,8 @@ protected:
 	// returns extra file info
 	virtual const char *get_info(const char *fname);
 	virtual void add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix);
+
+	virtual void set_windowsize(scr_size size);
 
 public:
 	/**
