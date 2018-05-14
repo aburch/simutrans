@@ -7021,7 +7021,12 @@ void rail_vehicle_t::leave_tile()
 							// If the signal is not a token block signal, clear token block mode. This assumes that token
 							// block signals will be placed at the entrance and stop signals at the exit of single line
 							// sections.
-							clear_token_reservation(sig, w, sch0);							
+							clear_token_reservation(sig, w, sch0);
+							if (sig->get_desc()->get_working_method() == drive_by_sight)
+							{
+								set_working_method(drive_by_sight);
+								cnv->set_next_stop_index(route_index + 1);
+							}
 						}
 						else if((sig->get_desc()->get_working_method() == track_circuit_block
 							|| sig->get_desc()->get_working_method() == cab_signalling
