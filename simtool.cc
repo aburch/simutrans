@@ -1634,6 +1634,12 @@ const char *tool_clear_reservation_t::work( player_t *player, koord3d k )
 				if(cnv->get_state()==convoi_t::DRIVING) {
 					// reset driving state
 					cnv->suche_neue_route();
+					vehicle_t* veh = cnv->front();
+					if (veh->get_waytype() == track_wt || veh->get_waytype() == tram_wt || veh->get_waytype() == narrowgauge_wt || veh->get_waytype() == maglev_wt || veh->get_waytype() == monorail_wt)
+					{
+						rail_vehicle_t* rv = (rail_vehicle_t*)veh;
+						rv->set_working_method(drive_by_sight);
+					}
 				}
 				cnv->unreserve_route();
 				cnv->reserve_own_tiles();
