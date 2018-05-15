@@ -13,13 +13,17 @@
 #include "loadsave_frame.h"
 
 #include "../simsys.h"
-#include "../network/network.h"
 #include "../simworld.h"
 #include "../simversion.h"
+#include "../pathes.h"
+
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
-#include "../pathes.h"
+
+#include "../network/network.h"
+#include "../network/network_cmd.h"
+
 #include "../utils/simstring.h"
 
 
@@ -63,17 +67,17 @@ void sve_info_t::rdwr(loadsave_t *file)
 bool loadsave_frame_t::item_action(const char *filename)
 {
 	if(do_load) {
-		if(  env_t::server  ) {
-			// kill current session
-			welt->announce_server(2);
-			remove_port_forwarding( env_t::server );
-			network_core_shutdown();
-			if(  env_t::fps==15  ) {
-				env_t::fps = 25;
-			}
-		}
-		welt->load(filename);
+		// more effort to start a server
 		if(  easy_server.pressed  ) {
+			if(  env_t::server  ) {
+				// kill current session
+				welt->announce_server(2);
+				remove_port_forwarding( env_t::server );
+				network_core_shutdown();
+				if(  env_t::fps==15  ) {
+					env_t::fps = 25;
+				}
+			}
 			// now start a server with defaults
 			env_t::networkmode = network_init_server( env_t::server_port );
 			if(  env_t::networkmode  ) {
@@ -92,6 +96,18 @@ bool loadsave_frame_t::item_action(const char *filename)
 					}
 				}
 			}
+			if(  !welt->load(filename)  ) {
+				// kill current session
+				welt->announce_server(2);
+				remove_port_forwarding( env_t::server );
+				network_core_shutdown();
+				if(  env_t::fps==15  ) {
+					env_t::fps = 25;
+				}
+			}
+		}
+		else {
+			welt->load(filename);
 		}
 	}
 	else {
