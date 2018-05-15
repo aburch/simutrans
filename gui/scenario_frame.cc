@@ -18,6 +18,7 @@
 #include "../dataobj/translator.h"
 
 #include "../network/network.h"
+#include "../network/network_cmd.h"
 
 #include "../utils/cbuffer_t.h"
 
@@ -59,31 +60,16 @@ void scenario_frame_t::set_windowsize(scr_size size)
  */
 bool scenario_frame_t::item_action(const char *fullpath)
 {
-	if(  env_t::server  ) {
-		// kill current session
-		welt->announce_server(2);
-		remove_port_forwarding( env_t::server );
-		network_core_shutdown();
-		if(  env_t::fps==15  ) {
-			env_t::fps = 25;
-		}
-	}
-
-	scenario_t *scn = new scenario_t(welt);
-	const char* err = scn->init(this->get_basename(fullpath).c_str(), this->get_filename(fullpath).c_str(), welt );
-	if (err == NULL) {
-		// start the game
-		welt->set_pause(false);
-		// open scenario info window
-		destroy_win(magic_scenario_info);
-		create_win(new scenario_info_t(), w_info, magic_scenario_info);
-	}
-	else {
-		create_win(new news_img(err), w_info, magic_none);
-		delete scn;
-	}
-
 	if(  easy_server.pressed  ) {
+		if(  env_t::server  ) {
+			// kill current session
+			welt->announce_server(2);
+			remove_port_forwarding( env_t::server );
+			network_core_shutdown();
+			if(  env_t::fps==15  ) {
+				env_t::fps = 25;
+			}
+		}
 		// now start a server with defaults
 		env_t::networkmode = network_init_server( env_t::server_port );
 		if(  env_t::networkmode  ) {
@@ -100,8 +86,33 @@ bool scenario_frame_t::item_action(const char *fullpath)
 				if(  env_t::fps>15  ) {
 					env_t::fps = 15;
 				}
+				nwc_auth_player_t::init_player_lock_server(welt);
 			}
 		}
+	}
+
+	scenario_t *scn = new scenario_t(welt);
+	const char* err = scn->init(this->get_basename(fullpath).c_str(), this->get_filename(fullpath).c_str(), welt );
+	if (err == NULL) {
+		// start the game
+		welt->set_pause(false);
+		// open scenario info window
+		destroy_win(magic_scenario_info);
+		create_win(new scenario_info_t(), w_info, magic_scenario_info);
+		tool_t::update_toolbars();
+	}
+	else {
+		if(  env_t::server  ) {
+			// kill current session
+			welt->announce_server(2);
+			remove_port_forwarding( env_t::server );
+			network_core_shutdown();
+			if(  env_t::fps==15  ) {
+				env_t::fps = 25;
+			}
+		}
+		create_win(new news_img(err), w_info, magic_none);
+		delete scn;
 	}
 
 	return true;
