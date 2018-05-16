@@ -27,6 +27,7 @@
 #include "../utils/simstring.h"
 
 #include "themeselector.h"
+#include "loadfont_frame.h"
 #include "simwin.h"
 
 // Local params
@@ -51,6 +52,13 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[23].set_typ(button_t::roundbox_state);
 	buttons[23].set_text("Select a theme for display");
 	buttons[23].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
+
+	// CHange font
+	buttons[25].set_pos( cursor );
+	buttons[25].set_typ(button_t::roundbox_state);
+	buttons[25].set_text("Select display font");
+	buttons[25].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 	cursor.y += D_BUTTON_HEIGHT + D_V_SPACE;
 
 	// Show grid checkbox
@@ -327,6 +335,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	// add buttons for sensible keyboard tab order
 	add_component( buttons+23 );
+	add_component( buttons+25 );
 	add_component( buttons+17 );
 	add_component( buttons+16 );
 	add_component( &inp_underground_level );
@@ -593,6 +602,9 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	if((buttons+24)==komp) {
 		env_t::simple_drawing = !env_t::simple_drawing;
 		buttons[24].pressed = env_t::simple_drawing;
+	}
+	if((buttons+25)==komp) {
+		create_win(new loadfont_frame_t(), w_info, magic_font);
 	}
 	welt->set_dirty();
 	return true;

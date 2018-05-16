@@ -291,9 +291,6 @@ public:
 
 	static bool gui_drop_shadows;
 
-	// on loading font, try to get one this size
-	static uint8 request_linespace;
-
 public:
 	// default dimensions and colors
 	static void init_gui_defaults();
@@ -309,6 +306,6 @@ public:
 	 * searches a theme.tab inside the specified folder
 	 * @author prissi
 	 */
-	static bool themes_init(const char *dir_name);
+	static bool themes_init(const char *dir_name,bool init_font);
 };
 #endif

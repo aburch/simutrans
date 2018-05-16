@@ -316,6 +316,7 @@ SOURCES += gui/labellist_stats_t.cc
 SOURCES += gui/line_item.cc
 SOURCES += gui/line_management_gui.cc
 SOURCES += gui/load_relief_frame.cc
+SOURCES += gui/loadfont_frame.cc
 SOURCES += gui/loadsave_frame.cc
 SOURCES += gui/map_frame.cc
 SOURCES += gui/message_frame_t.cc

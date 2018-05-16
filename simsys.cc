@@ -370,9 +370,13 @@ char const *dr_query_homedir()
 }
 
 
-const char *dr_query_fontpath(const char *fontname)
+const char *dr_query_fontpath(int which)
 {
 #ifdef _WIN32
+	if(  which>0  ) {
+		return NULL;
+	}
+
 	static char buffer[PATH_MAX];
 	WCHAR fontdir[MAX_PATH];
 	if(FAILED(SHGetFolderPathW(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, fontdir))) {
@@ -382,20 +386,17 @@ const char *dr_query_fontpath(const char *fontname)
 	// Convert UTF-16 to UTF-8.
 	int const convert_size = WideCharToMultiByte(CP_UTF8, 0, fontdir, -1, buffer, sizeof(buffer), NULL, NULL);
 	if(convert_size == 0) {
-		return fontname;
-	}
-
-	// Prevent possible buffer overrun error.
-	if(lengthof(buffer) < strlen(buffer) + strlen(fontname) + strlen(PATH_SEPARATOR) + 1) {
-		return fontname;
+		return 0;
 	}
 
 	strcat(buffer, PATH_SEPARATOR);
-	strcat(buffer, fontname);
 	return buffer;
 #else
 	// seems non-trivial to work on any system ...
-	return fontname;
+	return which==0 ? "/usr/share/fonts" : 0;
+
+	// linux has more than one path
+	// sometimes there is the file "/etc/fonts/fonts.conf" and we can read it
 #endif
 }
 
