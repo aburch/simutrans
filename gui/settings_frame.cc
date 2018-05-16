@@ -42,21 +42,13 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	//revert_to_last_save.add_listener( this );
 	add_component( &revert_to_last_save );
 
-	sint16 height = 0;
 	general.init( sets );
-	height = general.get_size().h;
 	display.init( sets );
-	height = max(height, display.get_size().h);
 	economy.init( sets );
-	height = max(height, economy.get_size().h);
 	routing.init( sets );
-	height = max(height, routing.get_size().h);
 	costs.init( sets );
-	height = max(height, costs.get_size().h);
 	exp_general.init( sets );
-	height = max(height, exp_general.get_size().h + tabs_extended.header_vsize);
 	exp_revenue.init( sets );
-	height = max(height, exp_revenue.get_size().h + tabs_extended.header_vsize);
 	climates.init( sets );
 
 	scrolly_general.set_scroll_amount_y(D_BUTTON_HEIGHT/2);
@@ -78,7 +70,6 @@ settings_frame_t::settings_frame_t(settings_t* const s) :
 	tabs_extended.add_tab(&scrolly_exp_general, translator::translate("General Ex."));
 	tabs_extended.add_tab(&scrolly_exp_revenue, translator::translate("Passengers"));
 
-	height += tabs.get_pos().y + tabs.header_vsize + 20;
 	set_windowsize(scr_size(D_DEFAULT_WIDTH, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+gui_tab_panel_t::header_vsize+18*(D_BUTTON_HEIGHT/2)+2+1));
 	set_min_windowsize(scr_size(BUTTON3_X, D_TITLEBAR_HEIGHT+D_BUTTON_HEIGHT+gui_tab_panel_t::header_vsize+6*(D_BUTTON_HEIGHT/2)+2+1));
 
