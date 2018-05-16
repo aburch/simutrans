@@ -485,7 +485,7 @@ bool savegame_frame_t::infowin_event(const event_t *event)
 bool savegame_frame_t::check_file(const char *filename, const char *suffix)
 {
 	// assume truth, if there is no pattern to compare
-	return suffix==NULL  ||  (strncmp(filename+strlen(filename)-4, suffix, 4) == 0);
+	return  suffix==NULL  ||  suffix[0]==0  ||  (strncmp(filename+strlen(filename)-4, suffix, 4)== 0);
 }
 
 

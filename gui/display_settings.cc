@@ -26,7 +26,9 @@
 #include "../simmenu.h"
 #include "../player/simplay.h"
 #include "../utils/simstring.h"
+
 #include "themeselector.h"
+#include "loadfont_frame.h"
 #include "simwin.h"
 #include "../obj/gebaeude.h"
 
@@ -281,6 +283,12 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[28].set_pos(scr_coord(L_DIALOG_WIDTH - 10 - 10 - 2, CONVOI_LOADINGBAR));
 	buttons[28].set_typ(button_t::arrowright);
 
+	// Change font
+	buttons[29].set_pos(scr_coord(10, CONVOI_LOADINGBAR+13));
+	buttons[29].set_typ(button_t::roundbox_state);
+	buttons[29].set_text("Select display font");
+	buttons[29].set_width(L_DIALOG_WIDTH - D_MARGINS_X);
+
 	//23, Hide buildings and trees under mouse cursor
 	buttons[++b].set_pos( scr_coord(10,HIDE_UNDER_CURSOR) );
 	buttons[b].set_typ( button_t::square_state );
@@ -328,6 +336,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	add_component(buttons + 26);
 	add_component(buttons + 27);
 	add_component(buttons + 28);
+	add_component(buttons + 29);
 
 	// unused buttons
 	// add_component( buttons+2 );
@@ -507,7 +516,9 @@ bool color_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 	else if ((buttons + 28) == comp) {
 		env_t::show_cnv_loadingbar = (env_t::show_cnv_loadingbar + 1) % MAX_LOADING_BAR_OPTIONS;
 	}
-
+	else if ((buttons + 29) == comp) {
+		create_win(new loadfont_frame_t(), w_info, magic_font);
+	}
 	welt->set_dirty();
 	return true;
 }

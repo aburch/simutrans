@@ -884,29 +884,29 @@ int simu_main(int argc, char** argv)
 	if(  const char *themestr = gimme_arg(argc, argv, "-theme", 1)  ) {
 		chdir( env_t::user_dir );
 		chdir( "themes" );
-		themes_ok = gui_theme_t::themes_init(themestr);
+		themes_ok = gui_theme_t::themes_init(themestr, true);
 		if(  !themes_ok  ) {
 			chdir( env_t::program_dir );
 			chdir( "themes" );
-			themes_ok = gui_theme_t::themes_init(themestr);
+			themes_ok = gui_theme_t::themes_init(themestr, true);
 		}
 	}
 	// next try the last used theme
 	if(  !themes_ok  &&  env_t::default_theme.c_str()!=NULL  ) {
 		chdir( env_t::user_dir );
 		chdir( "themes" );
-		themes_ok = gui_theme_t::themes_init( env_t::default_theme );
+		themes_ok = gui_theme_t::themes_init( env_t::default_theme, true );
 		if(  !themes_ok  ) {
 			chdir( env_t::program_dir );
 			chdir( "themes" );
-			themes_ok = gui_theme_t::themes_init( env_t::default_theme );
+			themes_ok = gui_theme_t::themes_init( env_t::default_theme, true );
 		}
 	}
 	// specified themes not found => try default themes
 	if(  !themes_ok  ) {
 		chdir( env_t::program_dir );
 		chdir( "themes" );
-		themes_ok = gui_theme_t::themes_init("themes.tab");
+		themes_ok = gui_theme_t::themes_init("themes.tab",true);
 	}
 	if(  !themes_ok  ) {
 		dbg->fatal( "simmain()", "No GUI themes found! Please re-install!" );

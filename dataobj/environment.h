@@ -220,6 +220,10 @@ public:
 	static PIXVAL default_window_title_color;
 	static uint8 bottom_window_darkness;
 
+	// default font name and -size
+	static std::string fontname;
+	static uint8 fontsize;
+
 	// display compass
 	static uint16 compass_map_position;
 	static uint16 compass_screen_position;

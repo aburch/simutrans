@@ -240,7 +240,7 @@ clipping_info_t clips;
 
 #define CR clips CLIP_NUM_INDEX
 
-static font_type large_font;
+static font_t  large_font;
 
 // needed for resizing gui
 int large_font_ascent = 9;
@@ -4335,42 +4335,30 @@ void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVA
 
 uint16 display_load_font(const char* fname)
 {
-	font_type fnt;
+	font_t  fnt;
 
 	if(  fname == NULL  ) {
-		// reload last font
-		if(  load_font(&fnt, large_font.fname)  ) {
-			free(large_font.screen_width);
-			free(large_font.char_data);
-			large_font = fnt;
-			large_font_ascent = large_font.height + large_font.descent;
-			large_font_total_height = large_font.height;
-			return large_font.num_chars;
-		}
-		else {
-			return 0;
-		}
+		dbg->fatal( "display_load_font", "NULL filename" );
 	}
-	else {
-
-		// skip reloading if already in memory
-		if (strcmp(large_font.fname, fname) == 0) {
-			return large_font.num_chars;
-		}
-		tstrncpy(large_font.fname, fname, lengthof(large_font.fname));
-
-		if (load_font(&fnt, fname)) {
-			free(large_font.screen_width);
-			free(large_font.char_data);
-			large_font = fnt;
-			large_font_ascent = large_font.height + large_font.descent;
-			large_font_total_height = large_font.height;
-			return large_font.num_chars;
-		}
-		else {
-			return 0;
-		}
+	// skip reloading if already in memory, if bdf font
+	if(  strcmp( large_font.fname, fname ) == 0  &&  strstr(fname,".bdf")  ) {
+		return large_font.num_chars;
 	}
+
+	tstrncpy( large_font.fname, fname, lengthof(large_font.fname) );
+	if(  load_font(&fnt, fname)  ) {
+
+		free(large_font.screen_width);
+		free(large_font.char_data);
+		large_font = fnt;
+		large_font_ascent = large_font.height + large_font.descent;
+		large_font_total_height = large_font.height;	// this is the actual LINESPACE
+
+		env_t::fontname = fname;
+
+		return large_font.num_chars;
+	}
+	return 0;
 }
 
 
@@ -4537,7 +4525,7 @@ utf32 get_prev_char_with_metrics(const char* &text, const char *const text_start
  */
 int display_calc_proportional_string_len_width(const char *text, size_t len)
 {
-	const font_type* const fnt = &large_font;
+	const font_t * const fnt = &large_font;
 	unsigned int width = 0;
 	int w;
 
@@ -4596,7 +4584,7 @@ static unsigned char get_h_mask(const int xL, const int xR, const int cL, const 
 */
 int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char* txt, control_alignment_t flags, const PIXVAL color, bool dirty, sint32 len  CLIP_NUM_DEF)
 {
-	const font_type* const fnt = &large_font;
+	const font_t * const fnt = &large_font;
 	KOORD_VAL cL, cR, cT, cB;
 	utf32 c;
 	size_t iTextPos = 0; // pointer on text position: prissi
@@ -5383,7 +5371,8 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 		// init, load, and check fonts
 		large_font.screen_width = NULL;
 		large_font.char_data = NULL;
-		if (!display_load_font(FONT_PATH_X "prop.fnt")) {
+
+		if(  !display_load_font(env_t::fontname.c_str())  ) {
 			dr_fatal_notify("No fonts found!");
 			fprintf(stderr, "Error: No fonts found!");
 			exit(-1);

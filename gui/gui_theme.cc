@@ -118,7 +118,6 @@ image_id gui_theme_t::check_button_img[3];
 image_id gui_theme_t::pos_button_img[3];
 
 bool gui_theme_t::gui_drop_shadows;
-uint8 gui_theme_t::request_linespace = 11;
 
 /**
  * Initializes theme related parameters to hard coded default values.
@@ -200,7 +199,6 @@ void gui_theme_t::init_gui_defaults()
 	gui_vspace           = 4;
 	gui_divider_size.h   = D_V_SPACE*2;
 
-	request_linespace    = 11;
 	gui_drop_shadows     = false;
 }
 
@@ -363,7 +361,7 @@ void gui_theme_t::init_gui_from_images()
  * manager. This will be done as the last step in
  * the chain when loading a theme.
  */
-bool gui_theme_t::themes_init(const char *file_name)
+bool gui_theme_t::themes_init(const char *file_name, bool init_fonts )
 {
 	tabfile_t themesconf;
 
@@ -382,11 +380,12 @@ bool gui_theme_t::themes_init(const char *file_name)
 	// theme name to find out current theme
 	std::string theme_name = contents.get( "name" );
 
-	// reload current font if requested size differs
-	uint8 new_size = contents.get_int("font_size", gui_theme_t::request_linespace );
-	if(  new_size != 0  &&  LINESPACE != new_size  ) {
-		gui_theme_t::request_linespace = new_size;
-		display_load_font( NULL );
+	// reload current font if requested size differs and we are allowed to do so
+	uint8 new_size = contents.get_int("font_size", env_t::fontsize );
+	if(  init_fonts  &&  new_size!=0  &&  LINESPACE!=new_size  ) {
+		if(  display_load_font( env_t::fontname.c_str() )  ) {
+			env_t::fontsize = new_size;
+		}
 	}
 
 	// first get the images ( to be able to overload default sizes)
@@ -445,7 +444,7 @@ bool gui_theme_t::themes_init(const char *file_name)
 	gui_theme_t::gui_scrollbar_size.w = max( gui_min_scrollbar_size.w, (uint32)contents.get_int("gui_scrollbar_width",  gui_theme_t::gui_scrollbar_size.w ) );
 	gui_theme_t::gui_scrollbar_size.h = max( gui_min_scrollbar_size.h, (uint32)contents.get_int("gui_scrollbar_height", gui_theme_t::gui_scrollbar_size.h ) );
 
-	// in practice, posbutton min height beeter is LINESPACE
+	// in practice, posbutton min height better is LINESPACE
 	gui_theme_t::gui_pos_button_size.w = (uint32)contents.get_int("gui_posbutton_width",  gui_theme_t::gui_pos_button_size.w );
 	gui_theme_t::gui_pos_button_size.h = (uint32)contents.get_int("gui_posbutton_height", gui_theme_t::gui_pos_button_size.h );
 

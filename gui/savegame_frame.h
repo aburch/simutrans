@@ -27,6 +27,7 @@
 
 using std::string;
 
+class loadfont_frame_t;
 
 class gui_file_table_column_t : public gui_table_column_t
 {
@@ -142,8 +143,9 @@ protected:
  */
 class savegame_frame_t : public gui_frame_t, action_listener_t
 {
-private:
+friend class loadfont_frame_t;
 
+private:
 	vector_tpl<std::string> paths;     //@< Paths in which this dialog will search for
 
 	const char *suffix;                //@< Extension of the files this dialog will use, can be NULL Can include or not the "." at start, will work on both cases
@@ -245,11 +247,11 @@ protected:
 	 */
 	void add_file(const char *path, const char *filename, const char *pak, const bool no_cutting_suffix);
 	virtual void add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix);
-
-	/**
-	 * Adds a directory to search in
-	 */
-	void add_path(const char *path);
+	void        add_path     ( const char *path );
+	void        set_filename ( const char *fn );
+	void        set_extension( const char *ext ) { suffix = ext; }
+	void        cleanup_path ( char *path );
+	void        shorten_path ( char *dest, const char *orig, const size_t max_size );
 
 	/**
 	 * Called when the directory processing ends
@@ -265,24 +267,6 @@ protected:
 	virtual bool cancel_action ( const char * /*fullpath*/ ) { return true; } // Callback for cancel button click
 	virtual bool del_action    ( const char *   fullpath   );                 // Callback for delete button click
 	virtual bool ok_action     ( const char * /*fullpath*/ ) { return true; } // Callback for ok button click
-
-	/**
-	 * Sets the filename in the edit field
-	 */
-	void set_filename(const char *fn);
-
-	/**
-	 * Translates '/' into '\', in Windows systems, will capitalize the drive letter too.
-	 */
-	void cleanup_path(char *path);
-
-	/**
-	 * Outputs a shortened path removing characters in the middle of the input path, replacing them with "..."
-	 * @param dest output will be written here
-	 * @param orig input string
-	 * @param max_size the string will be truncated to this length
-	 */
-	void shorten_path(char *dest, const char *orig, const size_t max_size);
 
 	/**
 	 * extracts file name from a full path

@@ -218,23 +218,29 @@ char const* dr_query_homedir()
 }
 
 
-const char *dr_query_fontpath( const char *fontname )
+const char *dr_query_fontpath(int which)
 {
 #if defined _WIN32
+	if(  which>0  ) {
+		return NULL;
+	}
+
 	static char buffer[PATH_MAX];
 
 	if(  SHGetFolderPathA(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, buffer)  ) {
 		strcpy( buffer, "C:\\Windows\\Fonts" );
 	}
 	strcat( buffer, "\\" );
-	strcat( buffer, fontname );
 	return buffer;
 #elif defined __APPLE__
 	// not implemented yet
 	return fontname;
 #else
 	// seems non-trivial to work on any system ...
-	return fontname;
+	return which == 0 ? "/usr/share/fonts" : 0;
+
+	// linux has more than one path
+	// sometimes there is the file "/etc/fonts/fonts.conf" and we can read it
 #endif
 }
 

@@ -6,6 +6,7 @@
 #include <string>
 #include "environment.h"
 #include "loadsave.h"
+#include "../pathes.h"
 #include "../simversion.h"
 #include "../simconst.h"
 #include "../simtypes.h"
@@ -153,6 +154,9 @@ uint8 env_t::cities_like_water = 60;
 bool env_t::left_to_right_graphs = true;
 uint32 env_t::tooltip_delay;
 uint32 env_t::tooltip_duration;
+
+std::string env_t::fontname = FONT_PATH_X "prop.fnt";
+uint8 env_t::fontsize = 11;
 
 uint32 env_t::front_window_text_color_rgb;
 PIXVAL env_t::front_window_text_color;
@@ -512,6 +516,13 @@ void env_t::rdwr(loadsave_t *file)
 		file->rdwr_long(bottom_window_text_color_rgb);
 		file->rdwr_byte(bottom_window_darkness);
 	}
-
+	if (file->get_version() >= 120006) {
+		plainstring str = fontname.c_str();
+		file->rdwr_str(str);
+		if (file->is_loading()) {
+			fontname = str ? str.c_str() : "";
+		}
+		file->rdwr_byte(fontsize);
+	}
 // server settings are not saved, since they are server specific and could be different on different servers on the save computers
 }

@@ -100,6 +100,7 @@ enum magic_numbers {
 	magic_motd,
 	magic_convoi_info,
 	magic_factory_info,
+	magic_font,
 	magic_convoi_detail=magic_convoi_info+65536,
 	magic_convoi_time_history=magic_convoi_detail+65536,
 	magic_halt_info=magic_convoi_time_history+65536,

@@ -15,6 +15,7 @@
 #include <wingdi.h>
 #include <mmsystem.h>
 #include <imm.h>
+#include <commdlg.h>
 
 #ifdef __CYGWIN__
 extern int __argc;

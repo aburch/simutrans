@@ -119,7 +119,7 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		swallow = comp->infowin_event(&ev2);
 
 		// Knightly : check if we need to scroll to the focused component
-		if(  IS_LEFTCLICK(ev)  ||  (ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code==9)  ) {
+		if(  (IS_LEFTRELEASE(ev)  &&  getroffen(ev->mx,ev->my))  ||  (ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code==9)  ) {
 			const gui_component_t *const focused_comp = comp->get_focus();
 			if(  focused_comp  ) {
 				const scr_size comp_size = focused_comp->get_size();
