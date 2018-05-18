@@ -241,7 +241,7 @@ const char *dr_query_fontpath(int which)
 	// however, since we cannot rely on it, we just try a few candiates
 
 	// Apple only uses three locals, and Haiku has no standard ...
-	char *trypaths[] = {
+	const char *trypaths[] = {
 #ifdef __APPLE__
 		"~/Library/",
 		"/Library/Fonts/",
