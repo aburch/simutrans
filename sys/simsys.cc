@@ -233,11 +233,43 @@ const char *dr_query_fontpath(int which)
 	strcat( buffer, "\\" );
 	return buffer;
 #else
-	// seems non-trivial to work on any system ...
-	return which == 0 ? "/usr/share/fonts" : 0;
-
 	// linux has more than one path
 	// sometimes there is the file "/etc/fonts/fonts.conf" and we can read it
+	// however, since we cannot rely on it, we just try a few candiates
+
+	// Apple only uses three locals, and Haiku has no standard ...
+	char *trypaths[] = {
+#ifdef __APPLE__
+		"~/Library/",
+		"/Library/Fonts/",
+		"/System/Library/Fonts/",
+#elif defined __HAIKU__
+		"/boot/system/non-packaged/data/fonts/",
+		"/boot/home/config/non-packaged/data/fonts/",
+		"~/config/non-packaged/data/fonts/",
+		"/boot/system/data/fonts/ttfonts/"
+#else
+		"~/.fonts/",
+		"~/.local/share/fonts/",
+		"/usr/share/fonts/truetype/",
+		"/usr/X11R6/lib/X11/fonts/ttfonts/"
+		"/usr/local/sharefonts/truetype/",
+		"/usr/share/fonts/",
+		"/usr/X11R6/lib/X11/fonts/",
+#endif
+		NULL
+	};
+	for (int i = 0; trypaths[i]; i++) {
+		DIR *dir = opendir(trypaths[i]);
+		if (dir) {
+			closedir(dir);
+			if (which == 0) {
+				return trypaths[i];
+			}
+			which--;
+		}
+	}
+	return NULL;
 #endif
 }
 

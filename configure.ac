@@ -18,10 +18,14 @@ AC_CHECK_LIB(png, png_read_image, [], [AC_MSG_WARN([Error, libpng is missing!])]
 AC_CHECK_LIB(bz2, BZ2_bzReadOpen, [], [AC_MSG_WARN([Error, libbz2 is missing!])] )
 
 #optional freetype
-AC_CHECK_LIB(freetype2, load_FT_font, [AC_SUBST(freetype2, '-DUSE_FREETYPE')], [AC_SUBST(freetype2, '')] )
+AC_CHECK_LIB(freetype, load_FT_font, [AC_SUBST(freetype, '1')], [AC_SUBST(freetype, '0')] )
 
 # optional (but highly recommended) multithreading
 AC_CHECK_LIB(pthread, pthread_mutex_destroy, [AC_SUBST(multithread, 1)], [AC_SUBST(multithread, 0)] )
+
+AC_CHECK_LIB(pthreadGC2, pthread_mutex_destroy, [AC_SUBST(bundlepthread, 1)], [AC_SUBST(bundlepthread, 0)] )
+
+AC_CHECK_LIB(miniupnpc, upnpDiscover, [AC_SUBST(upnp, 1)], [AC_SUBST(upnp, 0)] )
 
 # find OS and backend by libs ...
 AC_CHECK_LIB(SDL2, SDL_GetRenderDriverInfo)

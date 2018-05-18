@@ -39,6 +39,14 @@ WITH_REVISION = @svn@ # adds the revision from svn; required for networkgames
 
 MULTI_THREAD = @multithread@ # Enable multithreading, highly recommended
 
+BUNDLE_PTHREADGC2 = @bundlepthread@
+
+# using UPnP for easy server hosting behind routers
+USE_UPNP = @upnp@
+
+# using freetype for Truetype font support
+USE_FREETYPE = @freetype2@
+
 # Define these as empty strings, if you don't have the respective config program
 #PNG_CONFIG     = pkg-config libpng
 #SDL2_CONFIG    = sdl2-config
