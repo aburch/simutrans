@@ -42,7 +42,10 @@ MULTI_THREAD = @multithread@ # Enable multithreading, highly recommended
 BUNDLE_PTHREADGC2 = @bundlepthread@
 
 # using UPnP for easy server hosting behind routers
-c = @upnp@
+USE_UPNP = @upnp@
+
+# using freetype for Truetype font support
+USE_FREETYPE = @freetype2@
 
 # Define these as empty strings, if you don't have the respective config program
 #ALLEGRO_CONFIG = allegro-config

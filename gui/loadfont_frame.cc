@@ -188,13 +188,16 @@ void loadfont_frame_t::fill_list()
 {
 	add_path( ((std::string)env_t::program_dir+"font/").c_str() );
 #ifdef USE_FREETYPE
+	// ok, we can handle TTF fonts
 	ft_library = NULL;
 	if(  FT_Init_FreeType(&ft_library) != FT_Err_Ok  ) {
 		ft_library = NULL;
 	}
 	else {
-		// ok, we can handle TTF fonts
-		add_path( dr_query_fontpath(0) );
+		const char *addpath;
+		for(  int i=0;  addpath=dr_query_fontpath(i);  i++  ) {
+			add_path( addpath );
+		}
 	}
 #endif
 

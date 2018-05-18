@@ -32,10 +32,12 @@ else
 		ifeq ($(OSTYPE),mingw)
 			CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
 			LDFLAGS += -static-libgcc -static-libstdc++ -Wl,-Bstatic -lpthread -lbz2 -lz -Wl,-Bdynamic -Wl,--large-address-aware
+			ifneq ($(USE_FREETYPE),)
+				LDFLAGS += -Wl,-Bstatic -lfreetype -lpng -lharfbuzz -lgraphite2 -lfreetype -Wl,-Bdynamic 
+			endif
 			ifneq ($(STATIC),)
 				ifeq ($(shell expr $(STATIC) \>= 1), 1)
 					CFLAGS  += -static
-					LDFLAGS += -Wl,-Bstatic -lbz2 -Wl,-Bdynamic
 					# other libs like SDL2 MUST be dynamic!
 				endif
 			endif
@@ -65,11 +67,6 @@ ifeq ($(OSTYPE),mingw)
   SOURCES += clipboard_w32.cc
 else
   SOURCES += clipboard_internal.cc
-endif
-
-ifneq ($(OSTYPE),mingw)
-	# already defined
-	LIBS += -lbz2 -lz
 endif
 
 ALLEGRO_CONFIG ?= allegro-config
@@ -114,7 +111,18 @@ endif
 
 ifneq ($(USE_UPNP),)
   CFLAGS  += -DUSE_UPNP
-  LDFLAGS += -lminiupnpc -liphlpapi
+	ifeq ($(OSTYPE),mingw)
+    LDFLAGS += -Wl,-Bstatic -lminiupnpc -Wl,-Bdynamic -liphlpapi 
+	else
+    LDFLAGS += -lminiupnpc
+	endif
+endif
+
+ifneq ($(USE_FREETYPE),)
+  CFLAGS  += -DUSE_FREETYPE
+	ifneq ($(OSTYPE),mingw)
+		LDFLAGS += -lfreetype -lpng
+	endif
 endif
 
 ifneq ($(PROFILE),)
