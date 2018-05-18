@@ -17,15 +17,13 @@ AC_C_BIGENDIAN([AC_SUBST(endian, '-DSIM_BIG_ENDIAN')], [AC_SUBST(endian, '')], [
 AC_CHECK_LIB(png, png_read_image, [], [AC_MSG_WARN([Error, libpng is missing!])] )
 AC_CHECK_LIB(bz2, BZ2_bzReadOpen, [], [AC_MSG_WARN([Error, libbz2 is missing!])] )
 
-#optional freetype
-AC_CHECK_LIB(freetype, load_FT_font, [AC_SUBST(freetype, '1')], [AC_SUBST(freetype, '0')] )
+# since Xcode comes without autotools, lets assume we build QT version
+#AC_SUBST(AV_FOUNDATION, 0);
 
 # optional (but highly recommended) multithreading
 AC_CHECK_LIB(pthread, pthread_mutex_destroy, [AC_SUBST(multithread, 1)], [AC_SUBST(multithread, 0)] )
 
 AC_CHECK_LIB(pthreadGC2, pthread_mutex_destroy, [AC_SUBST(bundlepthread, 1)], [AC_SUBST(bundlepthread, 0)] )
-
-AC_CHECK_LIB(miniupnpc, upnpDiscover, [AC_SUBST(upnp, 1)], [AC_SUBST(upnp, 0)] )
 
 # find OS and backend by libs ...
 AC_CHECK_LIB(SDL2, SDL_GetRenderDriverInfo)
@@ -33,12 +31,18 @@ AC_CHECK_LIB(SDL2, SDL_GetRenderDriverInfo)
 AC_CHECK_HEADERS(windows.h)
 AC_CHECK_HEADERS(LocaleRoster.h)
 
-
 # hackish detection of OS ...
 if test "$ac_cv_header_windows_h" == yes
 then
 	AC_SUBST(os_type, mingw)
-elif test "$ac_cv_header_LocaleRoster_h" == yes
+  #optional upnp
+  AC_SEARCH_LIBS(upnpDiscover, miniupnpc, [AC_SUBST(upnp, 1)], [AC_SUBST(upnp, 0)], -liphlpapi -lws2_32 )
+  #optional freetype
+  AC_SEARCH_LIBS(FT_Init_FreeType, freetype, [AC_SUBST(freetype, '1')], [AC_SUBST(freetype, '0')], -lpng -lharfbuzz -lgraphite2 -lfreetype )
+else
+  AC_SEARCH_LIBS(upnpDiscover, miniupnpc, [AC_SUBST(upnp, 1)], [AC_SUBST(upnp, 0)] )
+  AC_SEARCH_LIBS(FT_Init_FreeType, freetype, [AC_SUBST(freetype, '1')], [AC_SUBST(freetype, '0')], -lpng )
+if test "$ac_cv_header_LocaleRoster_h" == yes
 then
 	AC_SUBST(os_type, haiku)
 elif uname |grep "Darwin"
@@ -59,7 +63,7 @@ then
 else
 	AC_MSG_ERROR([Unknow OS!])
 fi
-
+fi
 
 # and backend ...
 AC_ARG_ENABLE([server], [AS_HELP_STRING([--enable-server],[Builds a server without graphics])], [], [enable_server=no])
