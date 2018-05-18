@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #ifdef __HAIKU__
 #include <Message.h>
@@ -31,9 +32,10 @@
 #	endif
 #   undef PATH_MAX
 #	define PATH_MAX MAX_PATH
-#include "simdebug.h"
+#	include "simdebug.h"
 #else
 #	include <limits.h>
+#	include <dirent.h>
 #	if !defined __AMIGA__ && !defined __BEOS__
 #		include <unistd.h>
 #	endif
@@ -161,7 +163,7 @@ bool dr_movetotrash(const char *path)
 	wchar_t *const full_wpath = new wchar_t[full_size + 1];
 	GetFullPathNameW(wpath, full_size, full_wpath, NULL);
 	full_wpath[full_size] = L'\0';
-	
+
 	// Initalize file operation structure.
 	SHFILEOPSTRUCTW  FileOp;
 	FileOp.hwnd = NULL;
