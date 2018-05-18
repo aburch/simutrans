@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #ifdef __HAIKU__
 #include <Message.h>
@@ -37,8 +38,10 @@
 #	endif
 #   undef PATH_MAX
 #	define PATH_MAX MAX_PATH
+#	include "simdebug.h"
 #else
 #	include <limits.h>
+#	include <dirent.h>
 #	if !defined __AMIGA__ && !defined __BEOS__
 #		include <unistd.h>
 #	endif
