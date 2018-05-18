@@ -267,7 +267,7 @@ public:
 		if(  !env_t::server  ) {
 			destroy_all_win(true);
 		}
-		create_win(new loadsave_frame_t(false), w_info, magic_load_t);
+		create_win(new loadsave_frame_t(false), w_info, magic_save_t);
 		return false;
 	}
 	bool exit(player_t*) OVERRIDE{ destroy_win(magic_save_t); return false; }
@@ -278,8 +278,8 @@ public:
 class dialog_scenario_t : public tool_t {
 public:
 	dialog_scenario_t() : tool_t(DIALOG_SCENARIO | DIALOGE_TOOL) {}
-	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Speichern"); }
-	bool is_selected() const OVERRIDE{ return win_get_magic(magic_save_t); }
+	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Load scenario"); }
+	bool is_selected() const OVERRIDE{ return win_get_magic(magic_load_t); }
 	bool init(player_t*) OVERRIDE{
 		if(  win_get_magic(magic_save_t)  ) {
 			destroy_win(magic_save_t);
@@ -295,7 +295,7 @@ public:
 		}
 		return false;
 	}
-	bool exit(player_t*) OVERRIDE{ destroy_win(magic_save_t); return false; }
+	bool exit(player_t*) OVERRIDE{ destroy_win(magic_load_t); return false; }
 	bool is_init_network_save() const OVERRIDE{ return true; }
 };
 
