@@ -33,7 +33,7 @@ else
 			CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
 			LDFLAGS += -static-libgcc -static-libstdc++ -Wl,-Bstatic -lpthread -lbz2 -lz -Wl,-Bdynamic -Wl,--large-address-aware
 			ifneq ($(USE_FREETYPE),)
-				LDFLAGS += -Wl,-Bstatic -lfreetype -lpng -lharfbuzz -lgraphite2 -lfreetype -Wl,-Bdynamic 
+				LDFLAGS += -Wl,-Bstatic -lfreetype -lpng -lharfbuzz -lgraphite2 -lfreetype -Wl,-Bdynamic
 			endif
 			ifneq ($(STATIC),)
 				ifeq ($(shell expr $(STATIC) \>= 1), 1)
@@ -67,6 +67,10 @@ ifeq ($(OSTYPE),mingw)
   SOURCES += clipboard_w32.cc
 else
   SOURCES += clipboard_internal.cc
+endif
+
+ifneq ($(OSTYPE),mingw)
+ LIBS += -lbz2 -lz
 endif
 
 ALLEGRO_CONFIG ?= allegro-config
@@ -113,7 +117,7 @@ endif
 ifneq ($(USE_UPNP),)
   CFLAGS  += -DUSE_UPNP
 	ifeq ($(OSTYPE),mingw)
-    LDFLAGS += -Wl,-Bstatic -lminiupnpc -Wl,-Bdynamic -liphlpapi 
+    LDFLAGS += -Wl,-Bstatic -lminiupnpc -Wl,-Bdynamic -liphlpapi
 	else
     LDFLAGS += -lminiupnpc
 	endif
