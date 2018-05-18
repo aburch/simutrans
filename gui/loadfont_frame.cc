@@ -60,7 +60,7 @@ bool loadfont_frame_t::ok_action(const char *filename)
 
 
 
-bool loadfont_frame_t::cancel_action(const char *filename)
+bool loadfont_frame_t::cancel_action(const char *)
 {
 	env_t::fontsize = old_linespace;
 	display_load_font( old_fontname.c_str() );
@@ -74,8 +74,8 @@ loadfont_frame_t::loadfont_frame_t() : savegame_frame_t(NULL,false,NULL,false)
 {
 	// first call (and not resizing)
 	if(  old_fontname.empty()  ) {
-		utf8 *p = (utf8 *)translator::translate("Cancel");
-		use_unicode = utf8_decoder_t::decode((utf8 const *&)p) >= 0x2e80;
+		const utf8* p = (const utf8*)translator::translate("Cancel");
+		use_unicode = utf8_decoder_t::decode(p) >= 0x2e80;
 	}
 
 	set_name(translator::translate("Select display font"));
@@ -117,7 +117,7 @@ bool loadfont_frame_t::compare_items ( const dir_entry_t & entry, const char *in
  * CHECK FILE
  * Check if a file name qualifies to be added tot he item list.
  */
-bool loadfont_frame_t::check_file(const char *filename, const char *suffix)
+bool loadfont_frame_t::check_file(const char *filename, const char *)
 {
 	FILE *test = fopen( filename, "r" );
 	if(  test == NULL  ) {
@@ -126,7 +126,7 @@ bool loadfont_frame_t::check_file(const char *filename, const char *suffix)
 	fclose(test);
 
 	// just match textension for buildin fonts
-	char *start_extension = strrchr( (char *)filename, '.' );
+	const char *start_extension = strrchr(filename, '.' );
 	if(  start_extension  &&  !STRICMP( start_extension, ".fnt" )  ) {
 		return !use_unicode;
 	}
@@ -292,5 +292,5 @@ bool loadfont_frame_t::action_triggered(gui_action_creator_t *component, value_t
 		return false;
 	}
 
-	savegame_frame_t::action_triggered(component,v);
+	return savegame_frame_t::action_triggered(component,v);
 }
