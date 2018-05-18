@@ -72,6 +72,7 @@ endif
 ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
 SDL2_CONFIG    ?= sdl2-config
+FREETYPE_CONFIG ?= freetype-config
 
 ifneq ($(OPTIMISE),)
   CFLAGS += -O3
@@ -120,8 +121,11 @@ endif
 
 ifneq ($(USE_FREETYPE),)
   CFLAGS  += -DUSE_FREETYPE
-	ifneq ($(OSTYPE),mingw)
-		LDFLAGS += -lfreetype -lpng
+	ifneq ($(FREETYPE_CONFIG),)
+    CFLAGS  += $(shell $(FREETYPE_CONFIG) --cflags)
+	  LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs)
+	else
+	  LDFLAGS += -lfreetype
 	endif
 endif
 
