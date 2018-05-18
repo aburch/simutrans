@@ -40,7 +40,7 @@ else
           CFLAGS  += -DPNG_STATIC -DZLIB_STATIC -static
           LDFLAGS += -static-libgcc -static-libstdc++ -Wl,--large-address-aware -static
           ifneq ($(USE_FREETYPE),)
-          	LDFLAGS += -Wl,-Bstatic -lfreetype -lpng -lharfbuzz -lgraphite2 -lfreetype -Wl,-Bdynamic 
+          	LDFLAGS += -Wl,-Bstatic -lfreetype -lpng -lharfbuzz -lgraphite2 -lfreetype -Wl,-Bdynamic
           endif
           LIBS += -lmingw32
         endif
@@ -95,6 +95,11 @@ LIBS += -lbz2 -lz
 
 CXXFLAGS +=  -std=gnu++11
 
+ifneq ($(OSTYPE),mingw)
+ LIBS += -lbz2 -lz
+endif
+
+ALLEGRO_CONFIG ?= allegro-config
 SDL2_CONFIG    ?= sdl2-config
 FREETYPE_CONFIG ?= freetype-config
 
@@ -137,7 +142,7 @@ endif
 ifneq ($(USE_UPNP),)
   CFLAGS  += -DUSE_UPNP
 	ifeq ($(OSTYPE),mingw)
-    LDFLAGS += -Wl,-Bstatic -lminiupnpc -Wl,-Bdynamic -liphlpapi 
+    LDFLAGS += -Wl,-Bstatic -lminiupnpc -Wl,-Bdynamic -liphlpapi
 	else
     LDFLAGS += -lminiupnpc
 	endif
