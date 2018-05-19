@@ -271,24 +271,29 @@ void loadfont_frame_t::rdwr( loadsave_t *file )
 bool loadfont_frame_t::action_triggered(gui_action_creator_t *component, value_t v)
 {
 	if(  &unicode_only==component  ) {
+		set_focus(&unicode_only);
+
 		event_t *ev = new event_t();
 		ev->ev_class = EVENT_SYSTEM;
 		ev->ev_code = SYSTEM_RELOAD_WINDOWS;
 		queue_event( ev );
+
 		use_unicode = unicode_only.pressed;
 		return false;
 	}
 
 	if(  &fontsize==component  ) {
+		set_focus(&fontsize);
+
 		env_t::fontsize = fontsize.get_value();
 		display_load_font( env_t::fontname.c_str() );
 		gui_theme_t::themes_init( env_t::default_theme, false );
-
+		/*
 		event_t *ev = new event_t();
 		ev->ev_class = EVENT_SYSTEM;
 		ev->ev_code = SYSTEM_RELOAD_WINDOWS;
 		queue_event( ev );
-
+		*/
 		return false;
 	}
 
