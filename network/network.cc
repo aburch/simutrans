@@ -829,7 +829,7 @@ bool get_external_IP( cbuffer_t &myIPaddr )
 	return err==NULL;
 }
 
-#ifdef USE_UPNP
+#if USE_UPNP
 /*
  **** The following functions are used to open ports in UPnP router and will query the IP address ****
  **** So it will become much easier to set up network games at home.
