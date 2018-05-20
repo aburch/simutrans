@@ -840,6 +840,11 @@ extern "C" {
 #include <upnpcommands.h>
 }
 
+#if MINIUPNPC_API_VERSION < 14
+#define upnpDiscover(a,b,c,d,e,f,g) upnpDiscover(a,b,c,d,e,g)
+#define UPNP_LOCAL_PORT_ANY 0
+#endif
+
 bool prepare_for_server( char *externalIPAddress, int port )
 {
 	char lanaddr[64] = "unset";	/* my ip address on the LAN */
