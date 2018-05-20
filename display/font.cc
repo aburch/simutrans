@@ -239,7 +239,7 @@ static bool dsp_read_bdf_font(FILE* fin, font_t* font)
 }
 
 
-#if USE_FREETYPE
+#ifdef USE_FREETYPE
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
@@ -528,7 +528,7 @@ bool load_font(font_t* fnt, const char* fname)
 	}
 	fclose(f);
 
-#if USE_FREETYPE
+#ifdef USE_FREETYPE
 	// because it occasionally choke on BDF files ...
 	if(  load_FT_font( fnt, fname, env_t::fontsize)  ) {
 		debug_font( fnt );
