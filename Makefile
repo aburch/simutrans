@@ -701,4 +701,4 @@ endif
 .PHONY: makeobj
 
 makeobj:
-  $(Q)$(MAKE) -e -C makeobj FLAGS="$(FLAGS)"
+	$(Q)$(MAKE) -e -C makeobj FLAGS="$(FLAGS)"
