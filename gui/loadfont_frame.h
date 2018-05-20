@@ -8,7 +8,7 @@
 #ifndef gui_loadsave_frame_h
 #define gui_loadsave_frame_h
 
-#ifdef USE_FREETYPE
+#if USE_FREETYPE
 #include "../gui/gui_theme.h"
 #include "../simsys.h"
 
@@ -32,7 +32,7 @@
 class loadfont_frame_t : public savegame_frame_t
 {
 private:
-#ifdef USE_FREETYPE
+#if USE_FREETYPE
 	FT_Library ft_library;
 #endif
 	static bool use_unicode;
