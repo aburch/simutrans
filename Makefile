@@ -32,7 +32,7 @@ else
     ifeq ($(OSTYPE),mingw)
       CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
       LDFLAGS += -static-libgcc -static-libstdc++ -Wl,-Bstatic -lpthread -lbz2 -lz -Wl,-Bdynamic -Wl,--large-address-aware
-      ifneq ($(USE_FREETYPE),)
+      ifneq ($(USE_FREETYPE),0)
         LDFLAGS += -Wl,-Bstatic -lfreetype -lpng -lharfbuzz -lgraphite2 -lfreetype -Wl,-Bdynamic
       endif
       ifneq ($(STATIC),)
@@ -72,6 +72,9 @@ endif
 ifneq ($(OSTYPE),mingw)
  LIBS += -lbz2 -lz
 endif
+
+USE_UPNP ?= 0
+USE_FREETYPE ?= 0
 
 ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
@@ -114,7 +117,7 @@ ifdef MSG_LEVEL
   CFLAGS += -DMSG_LEVEL=$(MSG_LEVEL)
 endif
 
-ifneq ($(USE_UPNP),)
+ifneq ($(USE_UPNP),0)
   CFLAGS  += -DUSE_UPNP
   ifeq ($(OSTYPE),mingw)
     LDFLAGS += -Wl,-Bstatic -lminiupnpc -Wl,-Bdynamic -liphlpapi
@@ -123,7 +126,7 @@ ifneq ($(USE_UPNP),)
   endif
 endif
 
-ifneq ($(USE_FREETYPE),)
+ifneq ($(USE_FREETYPE),0)
   CFLAGS  += -DUSE_FREETYPE
   ifneq ($(FREETYPE_CONFIG),)
     CFLAGS  += $(shell $(FREETYPE_CONFIG) --cflags)
