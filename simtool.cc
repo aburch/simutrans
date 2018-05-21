@@ -4817,7 +4817,7 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 			}
 			else
 			{
-				old_cost = -desc->get_price();
+				old_cost = -old_desc->get_price();
 			}
 			old_cost *= old_desc->get_x()*old_desc->get_y();
 			gb->cleanup( NULL );
