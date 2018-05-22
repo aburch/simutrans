@@ -120,6 +120,9 @@ typedef unsigned int FLAGGED_PIXVAL;
 #define SYSCOL_TEXT_SHADOW                  gui_theme_t::gui_color_text_shadow
 #define SYSCOL_TEXT_TITLE                   gui_theme_t::gui_color_text_title
 #define SYSCOL_TEXT_STRONG                  gui_theme_t::gui_color_text_strong
+#define MONEY_MINUS                         gui_theme_t::gui_color_text_minus
+#define MONEY_PLUS                          gui_theme_t::gui_color_text_plus
+#define SYSCOL_TEXT_UNUSED                  gui_theme_t::gui_color_text_unused
 #define SYSCOL_EDIT_TEXT                    gui_theme_t::gui_color_edit_text
 #define SYSCOL_EDIT_TEXT_SELECTED           gui_theme_t::gui_color_edit_text_selected
 #define SYSCOL_EDIT_TEXT_DISABLED           gui_theme_t::gui_color_edit_text_disabled
@@ -147,8 +150,5 @@ typedef unsigned int FLAGGED_PIXVAL;
 #define SYSCOL_STATUSBAR_DIVIDER            gui_theme_t::gui_color_statusbar_divider
 #define SYSCOL_HIGHLIGHT                    gui_theme_t::gui_highlight_color
 #define SYSCOL_SHADOW                       gui_theme_t::gui_shadow_color
-
-#define MONEY_PLUS   SYSCOL_TEXT
-#define MONEY_MINUS  color_idx_to_rgb(COL_RED)
 
 #endif

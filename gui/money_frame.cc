@@ -130,7 +130,7 @@ sint64 money_frame_t::get_statistics_value(int tt, uint8 type, int yearmonth, bo
 void money_frame_t::update_label(gui_label_t &label, char *buf, int transport_type, uint8 type, int yearmonth, int label_type)
 {
 	sint64 value = get_statistics_value(transport_type, type, yearmonth, year_month_tabs.get_active_tab_index()==1);
-	PIXVAL color = value >= 0 ? (value > 0 ? MONEY_PLUS : color_idx_to_rgb(COL_YELLOW)) : MONEY_MINUS;
+	PIXVAL color = value >= 0 ? (value > 0 ? MONEY_PLUS : SYSCOL_TEXT_UNUSED) : MONEY_MINUS;
 
 	if (label_type == MONEY) {
 		const double cost = value / 100.0;
@@ -222,7 +222,7 @@ money_frame_t::money_frame_t(player_t *player)
 		old_toll(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 		maintenance_label("This Month",SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 		maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-		warn("", color_idx_to_rgb(COL_YELLOW), gui_label_t::left),
+		warn("", SYSCOL_TEXT_STRONG, gui_label_t::left),
 		scenario("", SYSCOL_TEXT, gui_label_t::left),
 		transport_type_option(0),
 		headquarter_view(koord3d::invalid, scr_size(120, 64))
@@ -514,7 +514,7 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 		tstrncpy(str_buf[15], translator::translate("Net wealth near zero"), lengthof(str_buf[15]) );
 	}
 	else if(  player->get_account_overdrawn()  ) {
-		warn.set_color( color_idx_to_rgb(COL_YELLOW) );
+		warn.set_color( SYSCOL_TEXT_STRONG );
 		sprintf( str_buf[15], translator::translate("On loan since %i month(s)"), player->get_account_overdrawn() );
 	}
 	else {
