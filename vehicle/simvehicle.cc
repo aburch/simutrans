@@ -5921,6 +5921,12 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								}
 							}
 						}
+						else if((working_method == time_interval || working_method == time_interval_with_telegraph) && (next_signal_working_method == absolute_block || next_signal_working_method == token_block || next_signal_working_method == track_circuit_block || next_signal_working_method == moving_block || next_signal_working_method == cab_signalling))
+						{
+							// When transitioning out of the time interval working method, do not attempt to reserve beyond the first stop signal of a different working method until the last time interval signal before the first signal of the other method has been passed.
+							next_signal_index = i;
+							count --;
+						}
 
 						if(signal->get_desc()->get_working_method() == token_block)
 						{
