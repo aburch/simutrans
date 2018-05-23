@@ -2734,21 +2734,37 @@ static void display_three_image_row(image_id i1, image_id i2, image_id i3, scr_r
 void display_img_stretch(const stretch_map_t &imag, scr_rect area)
 {
 	scr_coord_val h_top = 0, h_bottom = 0;
-	if (imag[0][0] != IMG_EMPTY) {
-		h_top = images[imag[0][0]].h;
+	scr_coord_val w_left = 0, w_right = 0;
+
+	if(  imag[0][0]!=IMG_EMPTY  ) {
+		h_top = images[ imag[0][0] ].h;
+		w_left = images[ imag[0][0] ].w;
 	}
-	if (imag[0][2] != IMG_EMPTY) {
-		h_bottom = images[imag[0][2]].h;
+	if(  imag[0][2]!=IMG_EMPTY  ) {
+		h_bottom = images[ imag[0][2] ].h;
+	}
+	if(  imag[2][0]!=IMG_EMPTY  ) {
+		w_right = images[ imag[2][0] ].w;
 	}
 
 	// center vertically?
-	if (imag[0][1] == IMG_EMPTY) {
+	if(  imag[0][1] == IMG_EMPTY && imag[2][1] == IMG_EMPTY) {
 		scr_coord_val h = h_top;
 		if (imag[1][0] != IMG_EMPTY) {
 			h = max(h, images[imag[1][0]].h);
 		}
 		// center vertically
 		area.y += (area.h - h) / 2;
+	}
+
+	// center horizontcally?
+	if(  imag[1][0] == IMG_EMPTY  &&  imag[1][2] == IMG_EMPTY  ) {
+		scr_coord_val w = w_left;
+		if(  imag[0][1]!=IMG_EMPTY  ) {
+			w = max( w, images[ imag[0][1] ].w );
+		}
+		// center vertically
+		area.x += (area.w-w)/2;
 	}
 
 	// top row
