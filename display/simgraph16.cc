@@ -2734,7 +2734,7 @@ static void display_three_image_row(image_id i1, image_id i2, image_id i3, scr_r
 void display_img_stretch(const stretch_map_t &imag, scr_rect area)
 {
 	scr_coord_val h_top = 0, h_bottom = 0;
-	scr_coord_val w_left = 0, w_right = 0;
+	scr_coord_val w_left = 0;
 
 	if(  imag[0][0]!=IMG_EMPTY  ) {
 		h_top = images[ imag[0][0] ].h;
@@ -2742,9 +2742,6 @@ void display_img_stretch(const stretch_map_t &imag, scr_rect area)
 	}
 	if(  imag[0][2]!=IMG_EMPTY  ) {
 		h_bottom = images[ imag[0][2] ].h;
-	}
-	if(  imag[2][0]!=IMG_EMPTY  ) {
-		w_right = images[ imag[2][0] ].w;
 	}
 
 	// center vertically?
