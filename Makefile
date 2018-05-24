@@ -32,7 +32,7 @@ else
     ifeq ($(OSTYPE),mingw)
       CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
       LDFLAGS += -static-libgcc -static-libstdc++ -Wl,-Bstatic -lpthread -lbz2 -lz -Wl,-Bdynamic -Wl,--large-address-aware
-      ifneq ($(USE_FREETYPE),0)
+      ifeq ($(USE_FREETYPE),1)
         LDFLAGS += -Wl,-Bstatic -lfreetype -lpng -lharfbuzz -lgraphite2 -lfreetype -Wl,-Bdynamic
       endif
       ifneq ($(STATIC),)
@@ -117,7 +117,7 @@ ifdef MSG_LEVEL
   CFLAGS += -DMSG_LEVEL=$(MSG_LEVEL)
 endif
 
-ifneq ($(USE_UPNP),0)
+ifeq ($(USE_UPNP),1)
   CFLAGS  += -DUSE_UPNP
   ifeq ($(OSTYPE),mingw)
     LDFLAGS += -Wl,-Bstatic -lminiupnpc -Wl,-Bdynamic -liphlpapi
