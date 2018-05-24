@@ -3343,7 +3343,7 @@ int air_vehicle_t::get_cost(const grund_t *, const weg_t *w, const sint32, ribi_
 	}
 	else {
 		// only, if not flying ...
-		runway_t *rw =(runway_t *)w;
+		const runway_t *rw =(const runway_t *)w;
 		// if we are on a runway, then take into account how many convois are already going there
 		if(  rw->get_desc()->get_styp()==1  ) {
 			costs += rw->get_reservation_count()*9;	// encourage detours even during take off
