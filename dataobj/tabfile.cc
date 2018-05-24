@@ -166,6 +166,7 @@ PIXVAL tabfileobj_t::get_color(const char *key, PIXVAL def, uint32 *color_rgb)
 			return color_idx_to_rgb(index);
 		}
 #else
+		(void)color_rgb;
 		return (uint8)strtoul( value, NULL, 0 );
 #endif
 	}
