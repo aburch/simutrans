@@ -2576,7 +2576,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			cnv = NULL;	// no reservation too
 		}
 	}
-	if((file->get_extended_version() == 0 && file->get_version() <= 112008)  ||  file->get_extended_version()<13  ||  (file->get_extended_version() == 13 && file->get_extended_revision() <= 4)) {
+	if((file->get_extended_version() == 0 && file->get_version() <= 112008)  ||  file->get_extended_version()<13  ||  (file->get_extended_version() == 13 && file->get_extended_revision() <= 5)) {
 		// Standard version number was increased in Extended without porting this change
 		koord3d pos_prev(koord3d::invalid);
 		pos_prev.rdwr(file);
