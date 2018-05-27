@@ -19,9 +19,9 @@ endif
 
 ifeq ($(OSTYPE),mingw)
   CC ?= gcc
-  OS_OPT   ?= -mno-cygwin -march=pentium
+  OS_OPT   ?= -march=pentium
   # we need the libraries EXACTLY in this order to link
-  STD_LIBS = -lmingw32 -lstdc++ -lwsock32
+  STD_LIBS = -lmingw32 -lstdc++ -lws2_32
 endif
 
 ifeq ($(OSTYPE),mac)
