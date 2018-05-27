@@ -5505,14 +5505,23 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					}
 					if(working_method == drive_by_sight && sch1->can_reserve(cnv->self, ribi) && (signal->get_pos() != cnv->get_last_signal_pos() || signal->get_desc()->get_working_method() != one_train_staff))
 					{
-						set_working_method(next_signal_working_method);
-						if (signal->get_desc()->is_pre_signal() && working_method_set_by_distant_only == uninitialised)
+						if (signal->get_desc()->get_working_method() == one_train_staff && i > start_index)
 						{
-							working_method_set_by_distant_only = set;
+							// Do not try to reserve beyond a one train staff cabinet unless the train is at the cabinet.
+							next_signal_index = i;
+							count --;
 						}
-						else if(!signal->get_desc()->is_pre_signal())
+						else
 						{
-							working_method_set_by_distant_only = not_set;
+							set_working_method(next_signal_working_method);
+							if (signal->get_desc()->is_pre_signal() && working_method_set_by_distant_only == uninitialised)
+							{
+								working_method_set_by_distant_only = set;
+							}
+							else if (!signal->get_desc()->is_pre_signal())
+							{
+								working_method_set_by_distant_only = not_set;
+							}
 						}
 					}
 
