@@ -811,7 +811,7 @@ void network_core_shutdown()
 /* The following helper routines will be  used with the easy-server setup, to host machines behind
  * routers with frequently changing IP addresses.
  */
-
+#ifndef NETTOOL
 
 #include "../utils/cbuffer_t.h"
 #include "network_file_transfer.h"
@@ -950,3 +950,4 @@ void remove_port_forwarding( int )
 {
 }
 #endif
+#endif // not NETTOOL
