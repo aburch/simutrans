@@ -4,6 +4,15 @@ CFG ?= default
 HOSTCC?=$(CC)
 HOSTCXX?=$(CXX)
 
+PROFILE ?= 0
+STATIC ?= 0
+AV_FOUNDATION ?= 0
+
+ALLEGRO_CONFIG ?= allegro-config
+SDL_CONFIG ?= sdl-config
+SDL2_CONFIG ?= sdl2-config
+FREETYPE_CONFIG ?= freetype-config
+
 BACKENDS      = allegro gdi opengl sdl sdl2 mixer_sdl mixer_sdl2 posix
 COLOUR_DEPTHS = 0 16
 OSTYPES       = amiga beos freebsd haiku linux mingw mac openbsd
@@ -25,28 +34,25 @@ ifeq ($(OSTYPE),amiga)
   CFLAGS += -mcrt=newlib -DSIM_BIG_ENDIAN -gstabs+
   LDFLAGS += -Bstatic -non_shared
 else
-# BeOS (obsolete)
+  # BeOS (obsolete)
   ifeq ($(OSTYPE),beos)
     LIBS += -lnet
   else
     ifeq ($(OSTYPE),mingw)
       CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
-      LDFLAGS += -static-libgcc -static-libstdc++ -Wl,-Bstatic -lpthread -lbz2 -lz -Wl,-Bdynamic -Wl,--large-address-aware
-      ifeq ($(USE_FREETYPE),1)
-        LDFLAGS += -Wl,-Bstatic -lfreetype -lpng -lharfbuzz -lgraphite2 -lfreetype -Wl,-Bdynamic
-      endif
-      ifneq ($(STATIC),)
-        ifeq ($(shell expr $(STATIC) \>= 1), 1)
-          CFLAGS  += -static
-          # other libs like SDL2 MUST be dynamic!
-        endif
+      LDFLAGS += -static-libgcc -static-libstdc++ -static -pthread -lbz2 -lz -Wl,--large-address-aware
+      ifeq ($(shell expr $(STATIC) \>= 1), 1)
+        CFLAGS  += -static
+        # other libs like SDL2 MUST be dynamic!
       endif
       SOURCES += simsys_w32_png.cc
       CFLAGS  += -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
       LIBS    += -lmingw32 -lgdi32 -lwinmm -lws2_32 -limm32
       # Disable the console on Windows unless WIN32_CONSOLE is set or graphics are disabled
-      ifneq ($(WIN32_CONSOLE),)
-        LDFLAGS += -mconsole
+      ifdef WIN32_CONSOLE
+        ifeq ($(shell expr $(WIN32_CONSOLE) \>= 1), 1)
+          LDFLAGS += -mconsole
+        endif
       else
         ifeq ($(BACKEND),posix)
           LDFLAGS += -mconsole
@@ -55,7 +61,7 @@ else
         endif
       endif
     else
-# Haiku (needs to activate the GCC 4x)
+      # Haiku (needs to activate the GCC 4x)
       ifeq ($(OSTYPE),haiku)
         LIBS += -lnetwork -lbe
       endif
@@ -70,22 +76,16 @@ else
 endif
 
 ifneq ($(OSTYPE),mingw)
- LIBS += -lbz2 -lz
+  LIBS += -lbz2 -lz
 endif
 
-USE_UPNP ?= 0
-USE_FREETYPE ?= 0
-
-ALLEGRO_CONFIG ?= allegro-config
-SDL_CONFIG     ?= sdl-config
-SDL2_CONFIG    ?= sdl2-config
-FREETYPE_CONFIG ?= freetype-config
-
-ifneq ($(OPTIMISE),)
-  CFLAGS += -O3
-  ifeq ($(findstring $(OSTYPE), amiga),)
-    ifneq ($(findstring $(CXX), clang),)
-      CFLAGS += -minline-all-stringops
+ifdef OPTIMISE
+  ifeq ($(shell expr $(OPTIMISE) \>= 1), 1)
+    CFLAGS += -O3
+    ifeq ($(findstring $(OSTYPE), amiga),)
+      ifneq ($(findstring $(CXX), clang),)
+        CFLAGS += -minline-all-stringops
+      endif
     endif
   endif
 else
@@ -100,12 +100,12 @@ ifdef DEBUG
     CFLAGS += -g -DDEBUG
   endif
   ifeq ($(shell expr $(DEBUG) \>= 2), 1)
-    ifneq ($(PROFILE), 2)
+    ifeq ($(shell expr $(PROFILE) \>= 2), 1)
       CFLAGS += -fno-inline
     endif
   endif
   ifeq ($(shell expr $(DEBUG) \>= 3), 1)
-    ifneq ($(PROFILE), 2)
+    ifeq ($(shell expr $(PROFILE) \>= 2), 1)
       CFLAGS += -O0
     endif
   endif
@@ -117,43 +117,60 @@ ifdef MSG_LEVEL
   CFLAGS += -DMSG_LEVEL=$(MSG_LEVEL)
 endif
 
-ifeq ($(USE_UPNP),1)
-  CFLAGS  += -DUSE_UPNP
-  ifeq ($(OSTYPE),mingw)
-    LDFLAGS += -Wl,-Bstatic -lminiupnpc -Wl,-Bdynamic -liphlpapi
-  else
-    LDFLAGS += -lminiupnpc
+ifdef USE_FREETYPE
+  ifeq ($(shell expr $(USE_FREETYPE) \>= 1), 1)
+    CFLAGS  += -DUSE_FREETYPE
+    ifneq ($(FREETYPE_CONFIG),)
+      CFLAGS  += $(shell $(FREETYPE_CONFIG) --cflag-s)
+      ifeq ($(shell expr $(STATIC) \>= 1), 1)
+        LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs --static)
+      else
+        LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs)
+      endif
+    else
+      LDFLAGS += -lfreetype
+      ifeq ($(OSTYPE),mingw)
+        LDFLAGS += -lpng -lharfbuzz -lgraphite2
+      endif
+    endif
+    ifeq ($(OSTYPE),mingw)
+      LDFLAGS += -lfreetype
+    endif
   endif
 endif
 
-ifneq ($(USE_FREETYPE),0)
-  CFLAGS  += -DUSE_FREETYPE
-  ifneq ($(FREETYPE_CONFIG),)
-    CFLAGS  += $(shell $(FREETYPE_CONFIG) --cflags)
-    LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs)
-  else
-    LDFLAGS += -lfreetype
+ifdef USE_UPNP
+  ifeq ($(shell expr $(USE_UPNP) \>= 1), 1)
+    CFLAGS  += -DUSE_UPNP
+    ifeq ($(OSTYPE),mingw)
+      LDFLAGS += -lminiupnpc -Wl,-Bdynamic -liphlpapi -Wl,-Bstatic
+    else
+      LDFLAGS += -lminiupnpc
+    endif
   endif
 endif
 
-ifneq ($(PROFILE),)
+ifeq ($(shell expr $(PROFILE) \>= 1), 1)
   CFLAGS  += -pg -DPROFILE
-  ifneq ($(PROFILE), 2)
+  ifeq ($(shell expr $(PROFILE) \>= 2), 1)
     CFLAGS  += -fno-inline -fno-schedule-insns
   endif
   LDFLAGS += -pg
 endif
 
-ifneq ($(MULTI_THREAD),)
+ifdef MULTI_THREAD
   ifeq ($(shell expr $(MULTI_THREAD) \>= 1), 1)
     CFLAGS += -DMULTI_THREAD
     ifneq ($(OSTYPE),haiku)
-      LDFLAGS += -lpthread
+      # mingw has already added pthread statically
+      ifneq ($(OSTYPE),mingw)
+        LDFLAGS += -lpthread
+      endif
     endif
   endif
 endif
 
-ifneq ($(WITH_REVISION),)
+ifdef WITH_REVISION
   ifeq ($(shell expr $(WITH_REVISION) \>= 1), 1)
     ifeq ($(shell expr $(WITH_REVISION) \>= 2), 1)
       REV = $(WITH_REVISION)
@@ -503,7 +520,7 @@ endif
 ifeq ($(BACKEND),sdl)
   SOURCES += simsys_s.cc
   ifeq ($(OSTYPE),mac)
-    ifeq ($(AV_FOUNDATION),1)
+    ifeq ($(shell expr $(AV_FOUNDATION) \>= 1), 1)
       # Core Audio (AVFoundation) base sound system routines
       SOURCES += sound/AVF_core-audio_sound.mm
       SOURCES += music/AVF_core-audio_midi.mm
@@ -532,12 +549,8 @@ ifeq ($(BACKEND),sdl)
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
-    ifneq ($(STATIC),)
-      ifeq ($(shell expr $(STATIC) \>= 1), 1)
-        SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
-      else
-        SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
-      endif
+    ifeq ($(shell expr $(STATIC) \>= 1), 1)
+      SDL_LDFLAGS := $(shell $(SDL_CONFIG) --static-libs)
     else
       SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
     endif
@@ -549,17 +562,17 @@ endif
 ifeq ($(BACKEND),sdl2)
   SOURCES += simsys_s2.cc
   ifeq ($(OSTYPE),mac)
-  ifeq ($(AV_FOUNDATION),1)
-    # Core Audio (AVFoundation) base sound system routines
-    SOURCES += sound/AVF_core-audio_sound.mm
-    SOURCES += music/AVF_core-audio_midi.mm
-    LIBS    += -framework Foundation -framework AVFoundation
-  else
-    # Core Audio (Quicktime) base sound system routines
-    SOURCES += sound/core-audio_sound.mm
-    SOURCES += music/core-audio_midi.mm
-    LIBS    += -framework Foundation -framework QTKit
-  endif
+    ifeq ($(shell expr $(AV_FOUNDATION) \>= 1), 1)
+      # Core Audio (AVFoundation) base sound system routines
+      SOURCES += sound/AVF_core-audio_sound.mm
+      SOURCES += music/AVF_core-audio_midi.mm
+      LIBS    += -framework Foundation -framework AVFoundation
+    else
+      # Core Audio (Quicktime) base sound system routines
+      SOURCES += sound/core-audio_sound.mm
+      SOURCES += music/core-audio_midi.mm
+      LIBS    += -framework Foundation -framework QTKit
+    endif
   else
     SOURCES  += sound/sdl_sound.cc
     ifneq ($(OSTYPE),mingw)
@@ -578,12 +591,8 @@ ifeq ($(BACKEND),sdl2)
     endif
   else
     SDL_CFLAGS  := $(shell $(SDL2_CONFIG) --cflags)
-    ifneq ($(STATIC),)
-      ifeq ($(shell expr $(STATIC) \>= 1), 1)
-        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
-      else
-        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
-      endif
+    ifeq ($(shell expr $(STATIC) \>= 1), 1)
+      SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
     else
       SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
     endif
@@ -606,12 +615,8 @@ ifeq ($(BACKEND),mixer_sdl2)
     SOURCES += sound/sdl_mixer_sound.cc
     SOURCES += music/sdl_midi.cc
     SDL_CFLAGS  := $(shell $(SDL2_CONFIG) --cflags)
-    ifneq ($(STATIC),)
-      ifeq ($(shell expr $(STATIC) \>= 1), 1)
-        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
-      else
-        SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
-      endif
+    ifeq ($(shell expr $(STATIC) \>= 1), 1)
+      SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --static-libs)
     else
       SDL_LDFLAGS := $(shell $(SDL2_CONFIG) --libs)
     endif
@@ -638,17 +643,17 @@ endif
 ifeq ($(BACKEND),opengl)
   SOURCES += simsys_opengl.cc
   ifeq ($(OSTYPE),mac)
-  ifeq ($(AV_FOUNDATION),1)
-    # Core Audio (AVFoundation) base sound system routines
-    SOURCES += sound/AVF_core-audio_sound.mm
-    SOURCES += music/AVF_core-audio_midi.mm
-    LIBS    += -framework Foundation -framework AVFoundation
-  else
-    # Core Audio (Quicktime) base sound system routines
-    SOURCES += sound/core-audio_sound.mm
-    SOURCES += music/core-audio_midi.mm
-    LIBS    += -framework Foundation -framework QTKit
-  endif
+    ifeq ($(shell expr $(AV_FOUNDATION) \>= 1), 1)
+      # Core Audio (AVFoundation) base sound system routines
+      SOURCES += sound/AVF_core-audio_sound.mm
+      SOURCES += music/AVF_core-audio_midi.mm
+      LIBS    += -framework Foundation -framework AVFoundation
+    else
+      # Core Audio (Quicktime) base sound system routines
+      SOURCES += sound/core-audio_sound.mm
+      SOURCES += music/core-audio_midi.mm
+      LIBS    += -framework Foundation -framework QTKit
+    endif
   else
     SOURCES  += sound/sdl_sound.cc
     ifneq ($(OSTYPE),mingw)
