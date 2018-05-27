@@ -1202,7 +1202,7 @@ public:
 	bool check_destination_reverse(route_t* current_route = NULL, route_t* target_rt = NULL); 
 
 	// Reserve the tiles on which the convoy is standing to prevent collisions.
-	void reserve_own_tiles();
+	void reserve_own_tiles(bool unreserve = false); 
 
 	bool has_tall_vehicles();
 

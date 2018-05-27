@@ -393,7 +393,7 @@ void convoi_t::unreserve_route()
 	set_needs_full_route_flush(false);
 }
 
-void convoi_t::reserve_own_tiles()
+void convoi_t::reserve_own_tiles(bool unreserve)
 {
 	if(vehicle_count > 0) 
 	{
@@ -407,7 +407,14 @@ void convoi_t::reserve_own_tiles()
 				{
 					if(!route.empty())
 					{
-						sch->reserve(self, ribi_type( route.at(max(1u,1)-1u), route.at(min(route.get_count()-1u,0+1u))));
+						if (unreserve)
+						{
+							sch->unreserve(self);
+						}
+						else
+						{
+							sch->reserve(self, ribi_type(route.at(max(1u, 1) - 1u), route.at(min(route.get_count() - 1u, 0 + 1u))));
+						}
 					}
 				}
 			}
@@ -3331,7 +3338,25 @@ void convoi_t::vorfahren()
 							book_departure_time(welt->get_ticks() + reverse_delay);
 						}
 						
+						if (front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
+						{
+							const rail_vehicle_t* rv = (rail_vehicle_t*)front();
+							if (rv->get_working_method() == drive_by_sight || rv->get_working_method() == time_interval || rv->get_working_method() == time_interval_with_telegraph)
+							{
+								reserve_own_tiles(true); // Unreserve now in case reversing alters the tiles occupied by this convoy.
+							}
+						}
+											
 						reverse_order(reversable);
+
+						if (front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
+						{
+							const rail_vehicle_t* rv = (rail_vehicle_t*)front();
+							if (rv->get_working_method() == drive_by_sight || rv->get_working_method() == time_interval || rv->get_working_method() == time_interval_with_telegraph)
+							{
+								reserve_own_tiles(false); // Re-reserve
+							}
+						}
 				}
 			}
 
