@@ -39,7 +39,6 @@ private:
 	static sort_mode_t sortby;
 	static bool filter_goods;
 
-	char	speed_bonus[6];
 	cbuffer_t	speed_message, speed_message2;
 	uint16 good_list[256];
 

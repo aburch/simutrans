@@ -5218,8 +5218,6 @@ bool tool_build_house_t::init( player_t * )
 	return true;
 }
 
-// TODO: merge this into building_layout defined in simcity.cc
-static int const building_layout[] = { 0, 0, 1, 4, 2, 0, 5, 1, 3, 7, 1, 0, 6, 3, 2, 0 };
 
 const char *tool_build_house_t::work( player_t *player, koord3d pos )
 {
