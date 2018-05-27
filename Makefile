@@ -40,11 +40,11 @@ else
   else
     ifeq ($(OSTYPE),mingw)
       CFLAGS  += -DPNG_STATIC -DZLIB_STATIC
-      LDFLAGS += -static-libgcc -static-libstdc++ -static -pthread -lbz2 -lz -Wl,--large-address-aware
       ifeq ($(shell expr $(STATIC) \>= 1), 1)
         CFLAGS  += -static
-        # other libs like SDL2 MUST be dynamic!
+        LDFLAGS += -static-libgcc -static-libstdc++ -static
       endif
+      LDFLAGS += -pthread -Wl,--large-address-aware
       SOURCES += simsys_w32_png.cc
       CFLAGS  += -DNOMINMAX -DWIN32_LEAN_AND_MEAN -DWINVER=0x0501 -D_WIN32_IE=0x0500
       LIBS    += -lmingw32 -lgdi32 -lwinmm -lws2_32 -limm32
@@ -75,9 +75,7 @@ else
   SOURCES += clipboard_internal.cc
 endif
 
-ifneq ($(OSTYPE),mingw)
-  LIBS += -lbz2 -lz
-endif
+LIBS += -lbz2 -lz
 
 ifdef OPTIMISE
   ifeq ($(shell expr $(OPTIMISE) \>= 1), 1)
@@ -121,7 +119,7 @@ ifdef USE_FREETYPE
   ifeq ($(shell expr $(USE_FREETYPE) \>= 1), 1)
     CFLAGS  += -DUSE_FREETYPE
     ifneq ($(FREETYPE_CONFIG),)
-      CFLAGS  += $(shell $(FREETYPE_CONFIG) --cflag-s)
+      CFLAGS  += $(shell $(FREETYPE_CONFIG) --cflags)
       ifeq ($(shell expr $(STATIC) \>= 1), 1)
         LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs --static)
       else
@@ -142,10 +140,15 @@ endif
 ifdef USE_UPNP
   ifeq ($(shell expr $(USE_UPNP) \>= 1), 1)
     CFLAGS  += -DUSE_UPNP
+    LDFLAGS += -lminiupnpc
     ifeq ($(OSTYPE),mingw)
-      LDFLAGS += -lminiupnpc -Wl,-Bdynamic -liphlpapi -Wl,-Bstatic
-    else
-      LDFLAGS += -lminiupnpc
+      ifeq ($(shell expr $(STATIC) \>= 1), 1)
+        LDFLAGS += -Wl,-Bdynamic
+      endif
+      LDFLAGS += -liphlpapi
+      ifeq ($(shell expr $(STATIC) \>= 1), 1)
+        LDFLAGS += -Wl,-Bstatic
+      endif
     endif
   endif
 endif
