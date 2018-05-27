@@ -495,6 +495,11 @@ private:
 	 */
 	sint32 get_power_satisfaction() const;
 
+	/**
+	 *
+	 */
+	 sint64 get_power() const;
+
 public:
 	fabrik_t(loadsave_t *file);
 	fabrik_t(koord3d pos, player_t* owner, const factory_desc_t* factory_desc, sint32 initial_prod_base);
