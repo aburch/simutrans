@@ -25,6 +25,7 @@
 #else
 #ifdef NETTOOL
 #define debuglevel (0)
+#define dr_fopen fopen
 
 #else // (not) NETTOOL
 #define debuglevel (env_t::verbose_debug)
