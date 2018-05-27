@@ -2664,6 +2664,7 @@ void fabrik_t::new_month()
 		for(  int m=MAX_MONTH-1;  m>0;  --m  ) {
 			statistics[m][s] = statistics[m-1][s];
 		}
+		statistics[0][s] = 0;
 	}
 
 	// calculate weighted averages
