@@ -900,7 +900,7 @@ bool prepare_for_server( char *externalIPAddress, int port )
 // removes the redirect (or do nothing)
 void remove_port_forwarding( int port )
 {
-	if(  port <= 0  ) {
+	if(  port <= 0  ||  env_t::easy_server != 1  ) {
 		return;
 	}
 
