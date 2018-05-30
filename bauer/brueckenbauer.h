@@ -76,8 +76,10 @@ public:
 	 * @param end the position of the ramp
 	 * @param zv direction the bridge will face
 	 * @param desc the bridge description.
+	 * @param overtaking_mode condition of overtaking. This is applied only to road.
+	 * @param beginning if this ramp is beginning of the bridge, be true. otherwise, be false. (for ribi_mask_oneway)
 	 */
-	static void build_ramp(player_t *player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t *desc, const way_desc_t *way_desc);
+	static void build_ramp(player_t *player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t *desc, const way_desc_t *way_desc, overtaking_mode_t overtaking_mode, bool beginning);
 
 	/**
 	 * Actually builds the bridge without checks.
@@ -91,8 +93,10 @@ public:
 	 * @param bridge_height the height above start.z that the bridge will have
 	 * @param desc bridge description.
 	 * @param way_desc description of the way to be built on the bridge
+	 * @param overtaking_mode condition of overtaking. This is applied only to road.
 	 */
-	static void build_bridge(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bridge_desc_t *desc, const way_desc_t *way_desc);
+	static void build_bridge(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bridge_desc_t *desc, const way_desc_t *way_desc, overtaking_mode_t overtaking_mode);
+	static void build_bridge(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bridge_desc_t *desc, const way_desc_t *way_desc) {  build_bridge(player,start,end,zv,bridge_height,desc,way_desc,twoway_mode); }
 
 	/**
 	 * Registers a new bridge type and adds it to the list of build tools.
@@ -121,9 +125,10 @@ public:
 	 * @param player The player wanting to build the bridge.
 	 * @param pos the start of the bridge.
 	 * @param desc Description of the bridge to build
+	 * @param overtaking_mode condition of overtaking. This is applied only to road.
 	 * @return NULL on success or error message otherwise
 	 */
-	static const char *build( player_t *player, koord3d pos, const bridge_desc_t *desc);
+	static const char *build( player_t *player, koord3d pos, const bridge_desc_t *desc, overtaking_mode_t overtaking_mode);
 
 	/**
 	 * Removes a bridge

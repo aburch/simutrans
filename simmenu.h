@@ -116,6 +116,8 @@ enum {
 	TOOL_TOGGLE_RESERVATION,
 	TOOL_VIEW_OWNER,
 	TOOL_HIDE_UNDER_CURSOR,
+	TOOL_CHANGE_ROADSIGN,
+	TOOL_SHOW_RIBI,
 	TOOL_RECOLOUR_TOOL,
 	TOOL_ACCESS_TOOL,
 	SIMPLE_TOOL_COUNT,
@@ -370,7 +372,7 @@ public:
 	virtual bool remove_preview_necessary() const { return false; }
 
 	bool is_first_click() const;
-	
+
 	/**
 	 * Remove dummy grounds, remove start_marker.
 	 */

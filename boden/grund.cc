@@ -370,7 +370,7 @@ void grund_t::rdwr(loadsave_t *file)
 							w->set_desc(sch->get_desc(), true);
 							w->set_max_speed(sch->get_max_speed());
 							w->set_ribi(sch->get_ribi_unmasked());
-							weg->set_max_axle_load(sch->get_max_axle_load()); 
+							weg->set_max_axle_load(sch->get_max_axle_load());
 							weg->set_bridge_weight_limit(sch->get_bridge_weight_limit());
 							weg->add_way_constraints(sch->get_way_constraints());
 							delete sch;
@@ -1777,7 +1777,7 @@ gebaeude_t *grund_t::get_building() const
 	{
 		return gb;
 	}
-	
+
 	return get_depot();
 }
 
@@ -1845,7 +1845,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player,
 
 	// not already there?
 	const weg_t * alter_weg = get_weg(weg->get_waytype());
-	if(alter_weg == NULL) 
+	if(alter_weg == NULL)
 	{
 		// ok, we are unique
 		// Calculate the forge cost
@@ -1881,13 +1881,13 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player,
 		}
 		cost -= forge_cost;
 
-		if((flags&has_way1)==0) 
+		if((flags&has_way1)==0)
 		{
 			// new first way here, clear trees
 			cost -= remove_trees();
 
 			// Add the cost of buying the land, if appropriate.
-			if(obj_bei(0) == NULL || obj_bei(0)->get_owner() != player) 
+			if(obj_bei(0) == NULL || obj_bei(0)->get_owner() != player)
 			{
 				// Only add the cost of the land if the player does not
 				// already own this land.
@@ -1902,7 +1902,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, player_t *player,
 			objlist.add( weg );
 			flags |= has_way1;
 		}
-		else 
+		else
 		{
 			weg_t *other = (weg_t *)obj_bei(0);
 			// another way will be added
@@ -1983,7 +1983,7 @@ sint32 grund_t::weg_entfernen(waytype_t wegtyp, bool ribi_rem)
 #endif
 
 		if(ribi_rem) {
-			ribi_t::ribi ribi = weg->get_ribi();
+			ribi_t::ribi ribi = weg->get_ribi_unmasked();
 			grund_t *to;
 
 			for(int r = 0; r < 4; r++) {
@@ -2430,8 +2430,8 @@ bool grund_t::removing_way_would_disrupt_public_right_of_way(waytype_t wt)
 				}
 				const uint32 default_road_axle_load = default_road->get_axle_load();
 				const sint32 default_road_speed = default_road->get_topspeed();
-				const uint32 max_axle_load = w->get_waytype() == road_wt ? min(default_road_axle_load, w->get_max_axle_load()) : w->get_max_axle_load(); 
-				const sint32 max_speed = w->get_waytype() == road_wt ?  min(default_road_speed, w->get_max_speed()): w->get_max_speed(); 
+				const uint32 max_axle_load = w->get_waytype() == road_wt ? min(default_road_axle_load, w->get_max_axle_load()) : w->get_max_axle_load();
+				const sint32 max_speed = w->get_waytype() == road_wt ?  min(default_road_speed, w->get_max_speed()): w->get_max_speed();
 				const uint32 bridge_weight_limit = gr->ist_bruecke() ? w->get_bridge_weight_limit() : 0;
 				const uint32 bridge_weight = max_axle_load * (w->get_waytype() == road_wt ? 2 : 1);  // This is something of a fudge, but it is reasonable to assume that most road vehicles have 2 axles.
 				if(diversionary_route.calc_route(welt, start, end, diversion_checker, w->get_max_speed(), max_axle_load, false, 0, welt->get_settings().get_max_diversion_tiles() * 100, bridge_weight) == route_t::valid_route)
@@ -2704,4 +2704,3 @@ wayobj_t *grund_t::get_wayobj( waytype_t wt ) const
 	}
 	return NULL;
 }
-

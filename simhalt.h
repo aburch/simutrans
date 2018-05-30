@@ -287,7 +287,7 @@ public:
 		bool operator !=(const tile_t& o) { return grund != o.grund; }
 
 		grund_t*       grund;
-		convoihandle_t reservation;
+		convoihandle_t reservation[2];
 	};
 
 	// Data on direct connexions from one station to the next.
@@ -757,6 +757,7 @@ public:
 	* @author prissi
 	*/
 	bool is_reservable(const grund_t *gr, convoihandle_t cnv) const;
+	uint8 get_empty_lane(const grund_t *gr, convoihandle_t cnv) const;
 
 	void info(cbuffer_t & buf, bool dummy = false) const;
 

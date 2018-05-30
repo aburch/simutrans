@@ -410,11 +410,6 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 		while(i != end) {
 			if(i->type == LI_HEADER) {
 				lastfound = i;
-//=======
-//			// extract pakname in same format than in savegames ...
-//			if(!strstart(i->label->get_text_pointer(), compare_to.c_str())) {
-//				break;
-//>>>>>>> aburch/master
 			}
 			i++;
 		}
