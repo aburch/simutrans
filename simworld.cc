@@ -8688,6 +8688,74 @@ void karte_t::add_missing_paks( const char *name, missing_level_t level )
 }
 
 
+
+void karte_t::switch_server( bool start_server, bool port_forwarding )
+{
+	if(  !start_server  ) {
+		// end current server session
+
+		if(  env_t::server  ) {
+			// take down server
+			announce_server(2);
+			remove_port_forwarding( env_t::server );
+		}
+		network_core_shutdown();
+		env_t::easy_server = 0;
+
+		clear_random_mode( INTERACTIVE_RANDOM );
+		step_mode = NORMAL;
+		reset_timer();
+		clear_command_queue();
+		last_active_player_nr = active_player_nr;
+
+		if(  port_forwarding  &&  env_t::fps<=15  ) {
+			env_t::fps = 25;
+		}
+	}
+	else {
+
+		// convert current game into server game
+		if(  env_t::server  ) {
+			// kick all clients out
+			network_reset_server();
+		}
+		else {
+			// now start a server with defaults
+			env_t::networkmode = network_init_server( env_t::server_port );
+			if(  env_t::networkmode  ) {
+
+				// query IP and try to open ports on router
+				char IP[256];
+				if(  port_forwarding  &&  prepare_for_server( IP, env_t::server_port )  ) {
+					// we have forwarded a port in router, so we can continue
+					env_t::server_dns = IP;
+					if(  env_t::server_name.empty()  ) {
+						env_t::server_name = std::string("Server at ")+IP;
+					}
+					env_t::server_announce = 1;
+					env_t::easy_server = 1;
+					if(  env_t::fps>15  ) {
+						env_t::fps = 15;
+					}
+				}
+
+				reset_timer();
+				clear_command_queue();
+
+				// meaningless to use a locked map; there are passwords now
+				settings.set_allow_player_change(true);
+				// language of map becomes server language
+				settings.set_name_language_iso(translator::get_lang()->iso_base);
+
+				nwc_auth_player_t::init_player_lock_server(this);
+
+				last_active_player_nr = active_player_nr;
+			}
+		}
+	}
+}
+
+
 // LOAD, not save
 // just the preliminaries, opens the file, checks the versions ...
 bool karte_t::load(const char *filename)
@@ -8715,6 +8783,7 @@ bool karte_t::load(const char *filename)
 	const koord oldpos = settings.get_filename()[0]>0  &&  strncmp(filename,settings.get_filename(),strlen(settings.get_filename()))==0 ? viewport->get_world_position() : koord::invalid;
 
 	if(  strstart(filename, "net:")  ) {
+
 		// probably finish network mode?
 		if(  env_t::networkmode  ) {
 			network_core_shutdown();
@@ -8739,7 +8808,7 @@ bool karte_t::load(const char *filename)
 	else {
 		// probably finish network mode first?
 		if(  env_t::networkmode  ) {
-			if (  env_t::server  ) {
+			if(  env_t::server  ) {
 				char fn[256];
 				sprintf( fn, "server%d-network.sve", env_t::server );
 				if(  strcmp(filename, fn) != 0  ) {
@@ -9634,7 +9703,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 
 	// initialize lock info for local server player
 	// if call from sync command, lock info will be corrected there
-	if(  env_t::server) {
+	if(  env_t::server  ) {
 		nwc_auth_player_t::init_player_lock_server(this);
 	}
 
@@ -11062,7 +11131,7 @@ void karte_t::announce_server(int status)
 	// st=on&dns=server.com&port=13353&rev=1234&pak=pak128&name=some+name&time=3,1923&size=256,256&active=[0-16]&locked=[0-16]&clients=[0-16]&towns=15&citizens=3245&factories=33&convoys=56&stops=17
 	// (This is the data part of an HTTP POST)
 	if(  env_t::server_announce  ) {
-		// in easy_server mode, we assume the IP may change freuently and thus query it before each announce
+		// in easy_server mode, we assume the IP may change frequently and thus query it before each announce
 		cbuffer_t buf;
 		if(  env_t::easy_server  &&  status<2  &&  get_external_IP(buf)  ) {
 			env_t::server_dns = (const char *)buf;

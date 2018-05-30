@@ -25,6 +25,8 @@
 
 #include "../network/network.h"
 #include "../network/network_cmd.h"
+#include "../network/network_cmd_ingame.h"
+#include "../network/network_socket_list.h"
 
 #include "../utils/simstring.h"
 
@@ -98,51 +100,28 @@ void sve_info_t::rdwr(loadsave_t *file)
 bool loadsave_frame_t::item_action(const char *filename)
 {
 	if(do_load) {
-		// more effort to start a server
-		if(  easy_server.pressed  ) {
-			if(  env_t::server  ) {
-				// kill current session
-				welt->announce_server(2);
-				remove_port_forwarding( env_t::server );
-				network_core_shutdown();
-				if(  env_t::fps==15  ) {
-					env_t::fps = 25;
-				}
-			}
-			// now start a server with defaults
-			env_t::networkmode = network_init_server( env_t::server_port );
-			if(  env_t::networkmode  ) {
-				// query IP and try to open ports on router
-				char IP[256];
-				if(  prepare_for_server( IP, env_t::server_port )  ) {
-					// we have forwarded a port in router, so we can continue
-					env_t::server_dns = IP;
-					if(  env_t::server_name.empty()  ) {
-						env_t::server_name = std::string("Server at ")+IP;
-					}
-					env_t::server_announce = 1;
-					env_t::easy_server = 1;
-					if(  env_t::fps>15  ) {
-						env_t::fps = 15;
-					}
-				}
-			}
-			if(  !welt->load(filename)  ) {
-				// kill current session
-				welt->announce_server(2);
-				remove_port_forwarding( env_t::server );
-				network_core_shutdown();
-				if(  env_t::fps==15  ) {
-					env_t::fps = 25;
-				}
-			}
+		welt->switch_server( easy_server.pressed, true );
+		if(  !welt->load(filename)  ) {
+			welt->switch_server( false, true );
 		}
 		else {
-			welt->load(filename);
+			welt->announce_server(0);
 		}
 	}
 	else {
-		welt->save( filename, loadsave_t::save_mode, env_t::savegame_version_str, env_t::savegame_ex_version_str, env_t::savegame_ex_revision_str, false );
+		// saving a game
+		if(  env_t::server  ||  socket_list_t::get_playing_clients() > 0  ) {
+			network_reset_server();
+#if 0
+// TODO: saving without kicking all clients off ...
+			// we have connected clients, so we do a sync
+			const uint32 new_map_counter = welt->generate_new_map_counter();
+			nwc_sync_t *nw_sync = new nwc_sync_t(welt->get_sync_steps() + 1, welt->get_map_counter(), -1, new_map_counter);
+			network_send_all(nw_sync, false);
+			// and now we need to copy the servergame to the map ...
+#endif
+		}
+		welt->save(filename, loadsave_t::save_mode, env_t::savegame_version_str, env_t::savegame_ex_version_str, env_t::savegame_ex_revision_str, false);
 		welt->set_dirty();
 		welt->reset_timer();
 	}

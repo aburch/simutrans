@@ -60,38 +60,11 @@ void scenario_frame_t::set_windowsize(scr_size size)
  */
 bool scenario_frame_t::item_action(const char *fullpath)
 {
-	if(  easy_server.pressed  ) {
-		if(  env_t::server  ) {
-			// kill current session
-			welt->announce_server(2);
-			remove_port_forwarding( env_t::server );
-			network_core_shutdown();
-			if(  env_t::fps==15  ) {
-				env_t::fps = 25;
-			}
-		}
-		// now start a server with defaults
-		env_t::networkmode = network_init_server( env_t::server_port );
-		if(  env_t::networkmode  ) {
-			// query IP and try to open ports on router
-			char IP[256];
-			if(  prepare_for_server( IP, env_t::server_port )  ) {
-				// we have forwarded a port in router, so we can continue
-				env_t::server_dns = IP;
-				if(  env_t::server_name.empty()  ) {
-					env_t::server_name = std::string("Server at ")+IP;
-				}
-				env_t::server_announce = 1;
-				env_t::easy_server = 1;
-				if(  env_t::fps>15  ) {
-					env_t::fps = 15;
-				}
-				nwc_auth_player_t::init_player_lock_server(welt);
-			}
-		}
-	}
+	// since loading a scenario may not init the world
+	welt->switch_server( easy_server.pressed, true );
 
 	scenario_t *scn = new scenario_t(welt);
+
 	const char* err = scn->init(this->get_basename(fullpath).c_str(), this->get_filename(fullpath).c_str(), welt );
 	if (err == NULL) {
 		// start the game
@@ -100,16 +73,13 @@ bool scenario_frame_t::item_action(const char *fullpath)
 		destroy_win(magic_scenario_info);
 		create_win(new scenario_info_t(), w_info, magic_scenario_info);
 		tool_t::update_toolbars();
+		if(  env_t::server  ) {
+			welt->announce_server(0);
+		}
 	}
 	else {
 		if(  env_t::server  ) {
-			// kill current session
-			welt->announce_server(2);
-			remove_port_forwarding( env_t::server );
-			network_core_shutdown();
-			if(  env_t::fps==15  ) {
-				env_t::fps = 25;
-			}
+			welt->switch_server( false, true );
 		}
 		create_win(new news_img(err), w_info, magic_none);
 		delete scn;
