@@ -619,7 +619,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *comp,value_t v)
 		// load relief
 		loaded_heightfield = false;
 		sets->heightfield = "";
-		sets->groundwater = -2*env_t::pak_height_conversion_factor;
+		sets->groundwater = -2;
 		load_relief_frame_t* lrf = new load_relief_frame_t(sets);
 		create_win((display_get_width() - lrf->get_windowsize().w-10), 40, lrf, w_info, magic_load_t );
 		knr = sets->get_map_number();	// otherwise using cancel would not show the normal generated map again

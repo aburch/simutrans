@@ -212,7 +212,7 @@ void freight_list_sorter_t::add_ware_heading(cbuffer_t &buf, uint32 sum, uint32 
 		sum=class_total;
 	}
 	
-	buf.printf(" %u", sum);
+	buf.printf("%u", sum);
 	if (max != 0) {
 		// convois
 		buf.printf("/%u", max);
@@ -509,7 +509,7 @@ void freight_list_sorter_t::sort_freight(vector_tpl<ware_t> const& warray, cbuff
 			}
 			// detail amount
 			goods_desc_t const& desc = *ware.get_desc();
-			buf.printf("   %u%s %s %c ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()), ">>>>><>>>>>"[sortby]); // one ">" per sort mode..
+			buf.printf("  %u%s %s %c ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()), ">>>>><>>>>>"[sortby]); // one ">" per sort mode..
 
 			{
 			/*	const sint64 current_time = welt->get_ticks();

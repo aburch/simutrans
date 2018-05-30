@@ -619,7 +619,6 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 		}
 		else {
 			// convoi can start now
-			welt->sync.add( cnv.get_rep() );
 			cnv->start();
 
 			// remove from depot lists

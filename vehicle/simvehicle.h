@@ -341,12 +341,6 @@ protected:
 
 	convoi_t *cnv;		// != NULL if the vehicle is part of a Convoi
 
-	/**
-	* Previous position on our path
-	* @author Hj. Malthaner
-	*/
-	koord3d pos_prev;
-
 	uint8 number_of_classes;
 
 	bool leading:1;	// true, if vehicle is first vehicle of a convoi
@@ -408,7 +402,6 @@ public:
 	virtual route_t::route_result_t calc_route(koord3d start, koord3d ziel, sint32 max_speed_kmh, bool is_tall, route_t* route);
 	uint16 get_route_index() const {return route_index;}
 	void set_route_index(uint16 value) { route_index = value; }
-	const koord3d get_pos_prev() const {return pos_prev;}
 
 	virtual route_t::route_result_t reroute(const uint16 reroute_index, const koord3d &ziel, route_t* route = NULL);
 

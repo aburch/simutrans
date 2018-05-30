@@ -792,7 +792,7 @@ void gebaeude_t::show_info()
 		create_win(new money_frame_t(get_owner()), w_info, magic_finances_t + get_owner()->get_player_nr());
 	}
 	else if (is_townhall()) {
-		welt->find_nearest_city(get_pos().get_2d())->show_info();
+		get_stadt()->show_info();
 	}
 
 	if (!tile->get_desc()->no_info_window()) {

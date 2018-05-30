@@ -83,6 +83,10 @@ private:
 	vector_tpl<uint16> livery_scheme_indices;
 
 public:
+	/// last selected line per tab
+	static linehandle_t selected_line[MAX_PLAYER_COUNT][simline_t::MAX_LINE_TYPE];
+
+
 	schedule_list_gui_t(player_t* player);
 	~schedule_list_gui_t();
 	/**

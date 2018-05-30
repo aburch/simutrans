@@ -2570,6 +2570,9 @@ void convoi_t::start()
 		assert(gr);
 		gr->obj_add( front() );
 
+		// put into sync list
+		welt->sync.add(this);
+
 		alte_direction = ribi_t::none;
 		no_load = false;
 		depot_when_empty = false;
@@ -7143,8 +7146,8 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	// Flat tiles, with no stops, no crossings, no signs, no change of road speed limit
 	// First phase: no traffic except me and my overtaken car in the dangerous zone
 	unsigned int route_index = front()->get_route_index()+1;
-	koord pos_prev = front()->get_pos_prev().get_2d();
 	koord3d pos = front()->get_pos();
+	koord pos_prev = (route_index > 2 ? route.at(route_index-2) : pos).get_2d();
 	koord3d pos_next;
 
 	while( distance > 0 ) {
