@@ -1752,6 +1752,11 @@ public:
 
 	void mute_sound( bool state ) { is_sound = !state; }
 
+	/* if start is true, the current map will be used as servergame
+	 * Does not announce a new map!
+	 */
+	void switch_server( bool start_server, bool port_forwarding );
+
 	/**
 	 * Saves the map to a file.
 	 * @param Filename name of the file to write.

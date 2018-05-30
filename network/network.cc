@@ -803,7 +803,7 @@ void network_core_shutdown()
 	network_active = false;
 #ifndef NETTOOL
 	env_t::networkmode = false;
-	network_server_port = 0;
+	network_server_port = 0;	// this also sets ent_t::server to zero
 #endif
 }
 
