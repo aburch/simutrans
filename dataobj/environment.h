@@ -43,7 +43,6 @@ public:
 	/// this the the preferred GUI theme at startup
 	static plainstring default_theme; // TODO: Implement the actual mechanism for themes from Standard. This is just for save compatibility at present.
 
-
 	/**
 	 * @name Network-related settings
 	 */
@@ -299,6 +298,7 @@ public:
 	static sint8 pak_tile_height_step;
 
 	/// new height for old slopes after conversion - 1=single height, 2=double height
+	/// Only use during loading of old games!
 	static sint8 pak_height_conversion_factor;
 
 	// load old height maps (false) or use as many available height levels as possible

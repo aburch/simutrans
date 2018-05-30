@@ -1377,11 +1377,11 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			if(  !gr2  ) {
 				gr2 = welt->lookup( new_pos + koord3d(0, 0, 2) );
 			}
-			if(  !gr2  &&  env_t::pak_height_conversion_factor  ==  2  &&  (gr1->hat_wege()  ||  gr1->get_leitung())  ) {
+			if(  !gr2  &&  welt->get_settings().get_way_height_clearance()==2  &&  (gr1->hat_wege()  ||  gr1->get_leitung())  ) {
 				gr2 = welt->lookup( new_pos + koord3d(0, 0, 3) );
 			}
 			// slope may alter amount of clearance required
-			if(  gr2  &&  gr2->get_pos().z - new_pos.z + slope_t::min_diff( gr2->get_weg_hang(), new_slope ) < env_t::pak_height_conversion_factor  ) {
+			if(  gr2  &&  gr2->get_pos().z - new_pos.z + slope_t::min_diff( gr2->get_weg_hang(), new_slope ) < welt->get_settings().get_way_height_clearance()  ) {
 				return NOTICE_TILE_FULL;
 			}
 		}
@@ -1390,11 +1390,11 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			if(  !gr2  ) {
 				gr2 = welt->lookup( new_pos + koord3d(0, 0, -2) );
 			}
-			if(  !gr2  &&  env_t::pak_height_conversion_factor == 2  ) {
+			if(  !gr2  &&  welt->get_settings().get_way_height_clearance()==2  ) {
 				gr2 = welt->lookup( new_pos + koord3d(0, 0, -3) );
 			}
 			// slope may alter amount of clearance required
-			if(  gr2  &&  new_pos.z - gr2->get_pos().z + slope_t::min_diff( new_slope, gr2->get_weg_hang() ) < env_t::pak_height_conversion_factor  ) {
+			if(  gr2  &&  new_pos.z - gr2->get_pos().z + slope_t::min_diff( new_slope, gr2->get_weg_hang() ) < welt->get_settings().get_way_height_clearance()  ) {
 				return NOTICE_TILE_FULL;
 			}
 		}
@@ -1708,14 +1708,14 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 	// full underground mode: coordinate is on ground, adjust it to one level below ground
 	// not possible in network mode!
 	if (!env_t::networkmode  &&  grund_t::underground_mode == grund_t::ugm_all) {
-		pos = gr->get_pos() - koord3d( 0, 0, env_t::pak_height_conversion_factor );
+		pos = gr->get_pos() - koord3d( 0, 0, welt->get_settings().get_way_height_clearance() );
 	}
 	// search for factory
 	// must be independent of network mode
 	if (gr->get_pos().z <= pos.z) {
 		fab = leitung_t::suche_fab_4(pos.get_2d());
 	}
-	else if (gr->get_pos().z == pos.z+env_t::pak_height_conversion_factor) {
+	else if( gr->get_pos().z == pos.z+welt->get_settings().get_way_height_clearance()  ) {
 		fab = fabrik_t::get_fab(pos.get_2d());
 		underground = true;
 	}
@@ -1749,7 +1749,7 @@ const char *tool_transformer_t::work( player_t *player, koord3d pos )
 			return NOTICE_TILE_FULL;
 		}
 
-		if(  env_t::pak_height_conversion_factor==2 && welt->lookup(pos + koord3d( 0, 0, 1 ))  ) {
+		if(  welt->get_settings().get_way_height_clearance()==2 && welt->lookup(pos + koord3d( 0, 0, 1 ))  ) {
 		        return NOTICE_TILE_FULL;
 		}
 
@@ -2543,7 +2543,7 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 		}
 		// elevated ways have to check tile above
 		if(  elevated  ) {
-			gr = welt->lookup( pos + koord3d( 0, 0, env_t::pak_height_conversion_factor ) );
+			gr = welt->lookup( pos + koord3d( 0, 0, welt->get_settings().get_way_height_clearance() ) );
 			if(  gr == NULL  ) {
 				return 2;
 			}
@@ -2658,7 +2658,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 	way_builder_t bauigel(player);
 	calc_route( bauigel, start, end );
 
-	uint8 offset = (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt) ? env_t::pak_height_conversion_factor : 0;
+	uint8 offset = (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt) ? welt->get_settings().get_way_height_clearance() : 0;
 
 	if(  bauigel.get_count()>1  ) {
 		// Set tooltip first (no dummygrounds, if bauigel.calc_casts() is called).
