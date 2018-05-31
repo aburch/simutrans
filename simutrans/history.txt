@@ -1,3 +1,4 @@
+	ADD: scenario_info now dialog tool nummer 31
 	ADD: Support Truetype fonts on windows up to 19 pts. For MAC and Linux support there is a way needed to find the font path.
 	ADD: Server can be now started at the UI when loading a game.
 	ADD: switch -easyserver on commandline to host a game with dynamic IP behind a router

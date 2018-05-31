@@ -74,6 +74,7 @@
 #include "themeselector.h"
 #include "goods_frame_t.h"
 #include "loadfont_frame.h"
+#include "scenario_info.h"
 
 #include "../simversion.h"
 
@@ -524,6 +525,7 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_factory_info:   w = new fabrik_info_t(); break;
 					case magic_goodslist:      w = new goods_frame_t(); break;
 					case magic_font:           w = new loadfont_frame_t(); break;
+					case magic_scenario_info:  w = new scenario_info_t(); break;
 
 					default:
 						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {
