@@ -3798,3 +3798,15 @@ more_units
 more units
 distance
 Distance
+halt mode
+Terminal mode
+oneway
+One way
+twoway
+Two way (default)
+only loading convoi
+Overtake stationary only
+prohibited
+Overtaking prohibited
+inverted
+Opposite lane driving
