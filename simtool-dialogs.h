@@ -11,6 +11,7 @@
 #include "gui/simwin.h"
 
 #include "dataobj/translator.h"
+#include "dataobj/scenario.h"
 
 #include "gui/factory_edit.h"
 #include "gui/curiosity_edit.h"
@@ -44,6 +45,7 @@
 #include "gui/schedule_list.h"
 #include "gui/themeselector.h"
 #include "gui/scenario_frame.h"
+#include "gui/scenario_info.h"
 
 class player_t;
 
@@ -296,6 +298,21 @@ public:
 		return false;
 	}
 	bool exit(player_t*) OVERRIDE{ destroy_win(magic_load_t); return false; }
+	bool is_init_network_save() const OVERRIDE{ return true; }
+};
+
+// open scenario info dialog
+class dialog_scenario_info_t : public tool_t {
+public:
+	dialog_scenario_info_t() : tool_t(DIALOG_SCENARIO_INFO | DIALOGE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Scenario"); }
+	image_id get_icon(player_t *p) const { return world()->get_scenario()->is_scripted() ? icon : IMG_EMPTY; }
+	bool is_selected() const OVERRIDE{ return win_get_magic(magic_scenario_info); }
+	bool init(player_t*) OVERRIDE{
+		create_win( new scenario_info_t(), w_info, magic_scenario_info );
+		return false;
+	}
+	bool exit(player_t*) OVERRIDE{ destroy_win(magic_scenario_info); return false; }
 	bool is_init_network_save() const OVERRIDE{ return true; }
 };
 

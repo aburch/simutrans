@@ -219,6 +219,7 @@ tool_t *create_dialog_tool(int toolnr)
 		case DIALOG_GAMEINFO:       tool = new dialog_gameinfo_t(); break;
 		case DIALOG_THEMES:         tool = new dialog_themes_t(); break;
 		case DIALOG_SCENARIO:       tool = new dialog_scenario_t(); break;
+		case DIALOG_SCENARIO_INFO:  tool = new dialog_scenario_info_t(); break;
 		default:                 dbg->error("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
 		                         return NULL;
 	}

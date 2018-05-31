@@ -8,6 +8,7 @@
 
 
 #include "gui_frame.h"
+#include "simwin.h"
 #include "components/gui_flowtext.h"
 #include "components/gui_tab_panel.h"
 #include "components/gui_scrollpane.h"
@@ -60,6 +61,10 @@ public:
 	void update_scenario_texts(bool init);
 
 	void open_result_tab();
+	//void open_tab(const char* which);
+
+	uint32 get_rdwr_id() { return magic_scenario_info; }
+	void rdwr( loadsave_t *file );
 };
 
 #endif
