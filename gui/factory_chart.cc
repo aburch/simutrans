@@ -153,7 +153,7 @@ void factory_chart_t::set_factory(const fabrik_t *_factory)
 	tab_panel.set_pos( scr_coord(0, 0) );
 
 	// GUI components for goods input/output statistics
-	goods_chart.set_pos( scr_coord(10 + 80, 10) );
+	goods_chart.set_pos( scr_coord(10 + 80, D_TAB_HEADER_HEIGHT ) );
 	goods_chart.set_size( scr_size( CHART_WIDTH, CHART_HEIGHT ) );
 	goods_chart.set_dimension(12, 10000);
 	goods_chart.set_background(SYSCOL_CHART_BACKGROUND);

@@ -337,6 +337,8 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 		return "Tunnel muss an\nsingleem\nHang beginnen!\n";
 	}
 
+/************************************** FIX ME ***************************************************
+********************** THIS MUST BE RATHER A PROPERTY OF THE TUNNEL IN QUESTION ! ****************/
 	// for conversion factor 1, must be single height, for conversion factor 2, must be double
 	if(  (env_t::pak_height_conversion_factor == 1  &&  !(slope & 7))  ||  (env_t::pak_height_conversion_factor == 2  &&  (slope & 7))  ) {
 		return "Tunnel muss an\nsingleem\nHang beginnen!\n";

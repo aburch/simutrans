@@ -185,7 +185,7 @@ public:
 	 * Access to vehicle types which can be bought in the depot.
 	 * @author Volker Meyer
 	 */
-	slist_tpl<vehicle_desc_t*> & get_vehicle_type();
+	slist_tpl<vehicle_desc_t*> const & get_vehicle_type();
 
 	/**
 	 * Returns the waytype for a certain vehicle; only way to distinguish differnt depots ...

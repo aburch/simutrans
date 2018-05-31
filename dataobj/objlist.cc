@@ -123,7 +123,9 @@ static uint8 type_to_pri[256]=
 	255, 255, 255, 255, 255, 255, 255, 255,
 	255, 255, 255, 255, 255, 255, 255, 255,
 	255, 255, 255, 255, 255, 255, 255, 255,
-	255, 255, 255, 255, 255, 255, 255, 255,
+	255, 255, 255, 255, 255, 255, 
+	3, // signalbox
+	255,
 	255, 255, 255, 255, 255, 255, 255, 255
 };
 
@@ -388,7 +390,7 @@ bool objlist_t::add(obj_t* new_obj)
 	// now top>0
 
 	// now insert it a the correct place
-	const uint8 pri=type_to_pri[new_obj->get_typ()];
+	const uint8 pri=type_to_pri[(uint8)new_obj->get_typ()];
 
 	// vehicles need a special order
 	if(pri==moving_obj_pri) {

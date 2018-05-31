@@ -42,8 +42,7 @@
 karte_ptr_t hausbauer_t::welt;
 
 /*
- * Die verschiedenen Gebäudegruppen sind in eigenen Listen gesammelt.
- * The various groups are building their own lists collected.
+ * The different building groups are sorted into separate lists
  */
 static vector_tpl<const building_desc_t*> city_residential;
 static vector_tpl<const building_desc_t*> city_commercial;
@@ -55,15 +54,11 @@ vector_tpl<const building_desc_t *> hausbauer_t::monuments;
 vector_tpl<const building_desc_t *> hausbauer_t::unbuilt_monuments;
 
 /*
- * Diese Tabelle ermöglicht das Auffinden einer Description durch ihren Namen
- * 	This table allows you to find a description by its name
+ * List of all registered house descriptors.
+ * Allows searching for a desc by its name
  */
 static stringhashtable_tpl<const building_desc_t*> desc_names;
 
-/*
- * Alle Gebäude, die die Anwendung direkt benötigt, kriegen feste IDs.
- * Außerdem müssen wir dafür sorgen, dass sie all da sind.
- */
 const building_desc_t *hausbauer_t::elevated_foundation_desc = NULL;
 
 // all buildings with rails or connected to stops
@@ -73,23 +68,38 @@ vector_tpl<building_desc_t*> hausbauer_t::modifiable_station_buildings;
 // all headquarters (sorted by hq-level)
 vector_tpl<const building_desc_t *> hausbauer_t::headquarters;
 
+/// special objects directly needed by the program
 static spezial_obj_tpl<building_desc_t> const special_objects[] = {
 	{ &hausbauer_t::elevated_foundation_desc,   "MonorailGround" },
 	{ NULL, NULL }
 };
 
 
+/**
+ * Compares house descriptors.
+ * Order of comparison:
+ *  -# by level
+ *  -# by name
+ * @return true if @p a < @p b
+ */
 static bool compare_building_desc(const building_desc_t* a, const building_desc_t* b)
 {
 	int diff = a->get_level() - b->get_level();
 	if (diff == 0) {
-		/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
-		 * über den Namen herbei. */
+		/* As a last resort, sort by name to avoid ambiguity */
 		diff = strcmp(a->get_name(), b->get_name());
 	}
 	return diff < 0;
 }
 
+
+/**
+ * Compares headquarters.
+ * Order of comparison:
+ *  -# by level
+ *  -# by name
+ * @return true if @p a < @p b
+ */
 static bool compare_hq_desc(const building_desc_t* a, const building_desc_t* b)
 {
 	// the headquarters level is in the extra-variable
@@ -98,14 +108,22 @@ static bool compare_hq_desc(const building_desc_t* a, const building_desc_t* b)
 		diff = a->get_level() - b->get_level();
 	}
 	if (diff == 0) {
-		/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
-		 * über den Namen herbei. */
+		/* As a last resort, sort by name to avoid ambiguity */
 		diff = strcmp(a->get_name(), b->get_name());
 	}
 	return diff < 0;
 }
 
 
+/**
+ * Compares stations.
+ * Order of comparison:
+ *  -# by good category
+ *  -# by capacity
+ *  -# by level
+ *  -# by name
+ * @return true if @p a < @p b
+ */
 static bool compare_station_desc(const building_desc_t* a, const building_desc_t* b)
 {
 	int diff = a->get_enabled() - b->get_enabled();
@@ -116,8 +134,7 @@ static bool compare_station_desc(const building_desc_t* a, const building_desc_t
 		diff = a->get_level() - b->get_level();
 	}
 	if(  diff == 0  ) {
-		/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
-		 * über den Namen herbei. */
+		/* As a last resort, sort by name to avoid ambiguity */
 		diff = strcmp(a->get_name(), b->get_name());
 	}
 	return diff < 0;
@@ -128,6 +145,8 @@ bool hausbauer_t::successfully_loaded()
 {
 	FOR(stringhashtable_tpl<building_desc_t const*>, const& i, desc_names) {
 		building_desc_t const* const desc = i.value;
+
+		// now insert the besch into the correct list.
 		switch (desc->get_type()) {
 			case building_desc_t::city_res:
 				city_residential.insert_ordered(desc,compare_building_desc);
@@ -174,6 +193,8 @@ bool hausbauer_t::successfully_loaded()
 					elevated_foundation_desc = desc;
 					break;
 				}
+				/* no break */
+
 			default:
 				// obsolete object, usually such pak set will not load properly anyway (old objects should be caught before!)
 				dbg->error("hausbauer_t::successfully_loaded()","unknown subtype %i of \"%s\" ignored",desc->get_type(),desc->get_name());
@@ -212,7 +233,7 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 		delete old_desc->get_builder();
 		delete old_desc;
 	}
-	// probably need a tools, if it has a cursor
+	// probably needs a tool if it has a cursor
 	const skin_desc_t *sd = desc->get_cursor();
 	if(  sd  &&  sd->get_image_id(1)!=IMG_EMPTY) {
 		tool_t *tool;
@@ -242,8 +263,8 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 	}
 	desc_names.put(desc->get_name(), const_desc);
 
-	/* supply the tiles with a pointer back to the matching description
-	 * this is needed, since each building is build of separate tiles,
+	/* Supply the tiles with a pointer back to the matching description.
+	 * This is necessary since each building consists of separate tiles,
 	 * even if it is part of the same description (building_desc_t)
 	 */
 	const int max_index = const_desc->get_all_layouts() * const_desc->get_size().x * const_desc->get_size().y;
@@ -257,7 +278,6 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 }
 
 
-// all these menus will need a waytype ...
 void hausbauer_t::fill_menu(tool_selector_t* tool_selector, building_desc_t::btype btype, waytype_t wt, sint16 /*sound_ok*/)
 {
 	// check if scenario forbids this
@@ -275,14 +295,15 @@ void hausbauer_t::fill_menu(tool_selector_t* tool_selector, building_desc_t::bty
 		case building_desc_t::signalbox:
 			toolnr = TOOL_BUILD_SIGNALBOX | GENERAL_TOOL;
 			break;
-		default: ;
+		default:
+			break;
 	}
 	if(  toolnr > 0  &&  !welt->get_scenario()->is_tool_allowed(welt->get_active_player(), toolnr, wt)  ) {
 		return;
 	}
 
 	const uint16 time = welt->get_timeline_year_month();
-DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
+	DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 	FOR(  vector_tpl<building_desc_t const*>,  const desc,  station_building  ) {
 //		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s (%p)", desc->get_name(), desc);
 		if(  desc->get_type() == btype  &&  desc->get_builder()  &&  ((btype == building_desc_t::headquarters || btype == building_desc_t::signalbox) ||  desc->get_extra()==(uint16)wt)  ) {
@@ -298,7 +319,6 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 }
 
 
-// new map => reset monument list to ensure every monument appears only once per map
 void hausbauer_t::new_world()
 {
 	unbuilt_monuments.clear();
@@ -308,7 +328,6 @@ void hausbauer_t::new_world()
 }
 
 
-
 void hausbauer_t::remove( player_t *player, const gebaeude_t *gb, bool map_generation ) //gebaeude = "building" (Babelfish)
 {
 	const building_tile_desc_t *tile  = gb->get_tile();
@@ -316,7 +335,7 @@ void hausbauer_t::remove( player_t *player, const gebaeude_t *gb, bool map_gener
 	const uint8 layout = tile->get_layout();
 	stadt_t* const city = gb->get_stadt();
 
-	// get startpos and size
+	// get start position and size
 	const koord3d pos = gb->get_pos() - koord3d( tile->get_offset(), 0 );
 	koord size = tile->get_desc()->get_size( layout );
 	koord k;
@@ -341,7 +360,7 @@ void hausbauer_t::remove( player_t *player, const gebaeude_t *gb, bool map_gener
 				if (gr) {
 					gebaeude_t *gb_part = gr->find<gebaeude_t>();
 					if(gb_part) {
-						// there may be buildings with holes, so we only remove our or the hole!
+						// there may be buildings with holes, so we only remove our building!
 						if(gb_part->get_tile()  ==  bdsc->get_tile(layout, k.x, k.y)) {
 							gb_part->set_fab( NULL );
 							planquadrat_t *plan = welt->access( k+pos.get_2d() );
@@ -400,7 +419,7 @@ void hausbauer_t::remove( player_t *player, const gebaeude_t *gb, bool map_gener
 				}
 			}
 		}
-		// end clean up transformers
+		// cleared transformers successfully, now remove factory.
 		welt->rem_fab(fab);
 	}
 
@@ -410,14 +429,14 @@ void hausbauer_t::remove( player_t *player, const gebaeude_t *gb, bool map_gener
 			grund_t *gr = welt->lookup(koord3d(k,0)+pos);
 			if(gr) {
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
-				// there may be buildings with holes, so we only remove our!
+				// there may be buildings with holes, so we only remove our building!
 				if(gb_part  &&  gb_part->get_tile() == bdsc->get_tile(layout, k.x, k.y)) {
 					gb_part->check_road_tiles(true);
 				}
 			}
 		}
 	}
-	// delete just our house
+	// delete our house only
 	for(k.y = 0; k.y < size.y; k.y ++) {
 		for(k.x = 0; k.x < size.x; k.x ++) {
 			grund_t *gr = welt->lookup(koord3d(k,0)+pos);
@@ -428,7 +447,7 @@ void hausbauer_t::remove( player_t *player, const gebaeude_t *gb, bool map_gener
 					// May be a signalbox
 					gb_part = (gebaeude_t*)gr->get_signalbox();
 				}
-				// there may be buildings with holes, so we only remove our!
+				// there may be buildings with holes, so we only remove our building!
 				if(  gb_part  &&  gb_part->get_tile()==bdsc->get_tile(layout, k.x, k.y)  ) {
 					// ok, now we can go on with deletion
 					if (gb_part->get_tile()->get_desc()->get_type() == building_desc_t::townhall)
@@ -475,7 +494,7 @@ void hausbauer_t::remove( player_t *player, const gebaeude_t *gb, bool map_gener
 							welt->access(newk)->kartenboden_setzen( new boden_t( koord3d( newk, new_hgt ), new_slope ) );
 							// climate is stored in planquadrat, and hence automatically preserved
 						}
-						// there might be walls from foundations left => thus some tiles may needs to be redraw
+						// there might be walls from foundations left => thus some tiles may need to be redrawn
 						if(ground_recalc) {
 							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::east)) {
 								gr->calc_image();
@@ -506,13 +525,14 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 		for(k.x = 0; k.x < dim.x; k.x ++) {
 //DBG_DEBUG("hausbauer_t::build()","get_tile() at %i,%i",k.x,k.y);
 			const building_tile_desc_t *tile = desc->get_tile(layout, k.x, k.y);
-			// here test for good tile
+
+			// skip empty tiles
 			if (tile == NULL || (
 						!(desc->get_type() == building_desc_t::dock  ||  desc->get_type() == building_desc_t::flat_dock)  &&
 						tile->get_background(0, 0, 0) == IMG_EMPTY &&
 						tile->get_foreground(0, 0)    == IMG_EMPTY
 					)) {
-						// may have a rotation, that is not recoverable
+						// may have a rotation that is not recoverable
 						DBG_MESSAGE("hausbauer_t::build()","get_tile() empty at %i,%i",k.x,k.y);
 				continue;
 			}
@@ -680,7 +700,7 @@ gebaeude_t* hausbauer_t::build(player_t* player, koord3d pos, int org_layout, co
 					(*static_cast<halthandle_t *>(param))->add_grund(gr);
 				}
 				if(  desc->get_type() == building_desc_t::dock  ||  desc->get_type() == building_desc_t::flat_dock  ) {
-					// its a dock!
+					// it's a dock!
 					gb->set_yoff(0);
 				}
 			}
@@ -709,6 +729,7 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 		sint8 offset = welt->lookup( pos )->get_weg_yoff()/TILE_HEIGHT_STEP;
 		koord3d checkpos = pos+koord3d( (layout & 1 ? koord::east : koord::south), offset);
 		grund_t * gr = welt->lookup( checkpos );
+
 		if(!gr) {
 			// check whether bridge end tile
 			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::east : koord::south),offset - 2) );
@@ -716,6 +737,7 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 				gr = gr_tmp;
 			}
 		}
+
 		if(gr) {
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb==NULL) {
@@ -736,6 +758,7 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 				if(gb->get_tile()->get_desc()->get_all_layouts()>4) {
 					koord xy = gb->get_tile()->get_offset();
 					uint8 layoutbase = gb->get_tile()->get_layout();
+
 					if((layoutbase & 1) == (layout & 1)) {
 						layoutbase &= 0xb; // clear near bit on neighbour
 						gb->set_tile( gb->get_tile()->get_desc()->get_tile(layoutbase, xy.x, xy.y), false );
@@ -757,6 +780,7 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb  &&  gb->get_tile()->get_desc()->is_transport_building()) {
 				corner_layout &= ~4; // clear far bit
+
 				if(gb->get_tile()->get_desc()->get_all_layouts()>4) {
 					koord xy = gb->get_tile()->get_offset();
 					uint8 layoutbase = gb->get_tile()->get_layout();
@@ -839,11 +863,12 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 	if(desc->is_attraction()) {
 		welt->add_attraction( gb );
 	}
+
+	// update minimap
 	reliefkarte_t::get_karte()->calc_map_pixel(gb->get_pos().get_2d());
 
 	return gb;
 }
-
 
 
 const building_tile_desc_t *hausbauer_t::find_tile(const char *name, int org_idx)
@@ -879,6 +904,7 @@ const building_desc_t* hausbauer_t::get_random_station(const building_desc_t::bt
 
 	FOR(vector_tpl<building_desc_t const*>, const desc, station_building) {
 		if(  desc->get_type()== btype  &&  desc->get_extra()==(uint32)wt  &&  (enables==0  ||  (desc->get_enabled()&enables)!=0)  ) {
+			// skip underground stations
 			if( !desc->can_be_built_aboveground()) {
 				continue;
 			}
@@ -890,7 +916,6 @@ const building_desc_t* hausbauer_t::get_random_station(const building_desc_t::bt
 	}
 	return stops.empty() ? 0 : pick_any_weighted(stops);
 }
-
 
 
 const building_desc_t* hausbauer_t::get_special(uint32 bev, building_desc_t::btype btype, uint16 time, bool ignore_retire, climate cl)
@@ -941,9 +966,8 @@ const bool is_allowed_size(const building_desc_t* bldg, koord size) {
 
 /**
  * Try to find a suitable city building from the given list
- * it will skip and jump, and will never return zero, if there is at least a single valid entry in the list
- * @author Nathanael Nerode (neroden) for clustering
- * @author Hj. Malthaner
+ * This method will never return NULL if there is at least one valid entry in the list.
+ * @param cl allowed climates
  */
 const building_desc_t* hausbauer_t::get_city_building_from_list(const vector_tpl<const building_desc_t*>& building_list, koord pos_origin, koord size, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
@@ -1034,6 +1058,7 @@ const building_desc_t* hausbauer_t::get_city_building_from_list(const vector_tpl
 	return pick_any_weighted(selections);
 }
 
+
 const building_desc_t* hausbauer_t::get_city_building_from_list(const vector_tpl<const building_desc_t*>& building_list, int level, koord size, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
 	weighted_vector_tpl<const building_desc_t *> selections(16);
@@ -1052,7 +1077,7 @@ const building_desc_t* hausbauer_t::get_city_building_from_list(const vector_tpl
 		const int thislevel = desc->get_level();
 		if(thislevel>level) {
 			if (selections.empty()) {
-				// Nothing of the correct level.  Continue with search of next level.
+				// Nothing of the correct level. Continue with search on a higher level.
 				level = thislevel;
 			}
 			else {
@@ -1098,6 +1123,7 @@ const building_desc_t* hausbauer_t::get_commercial(koord pos_origin, koord size,
 	return get_city_building_from_list(city_commercial, pos_origin, size, time, cl, allow_earlier, clusters);
 }
 
+
 const building_desc_t* hausbauer_t::get_commercial(int level, koord size, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
 	return get_city_building_from_list(city_commercial, level, size, time, cl, allow_earlier, clusters);
@@ -1108,6 +1134,7 @@ const building_desc_t* hausbauer_t::get_industrial(koord pos_origin, koord size,
 {
 	return get_city_building_from_list(city_industry, pos_origin, size, time, cl, allow_earlier, clusters);
 }
+
 
 const building_desc_t* hausbauer_t::get_industrial(int level, koord size, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
@@ -1120,10 +1147,12 @@ const building_desc_t* hausbauer_t::get_residential(koord pos_origin, koord size
 	return get_city_building_from_list(city_residential, pos_origin, size, time, cl, allow_earlier, clusters);
 }
 
+
 const building_desc_t* hausbauer_t::get_residential(int level, koord size, uint16 time, climate cl, bool allow_earlier, uint32 clusters)
 {
 	return get_city_building_from_list(city_residential, level, size, time, cl, allow_earlier, clusters);
 }
+
 
 const building_desc_t* hausbauer_t::get_headquarter(int level, uint16 time)
 {
@@ -1139,7 +1168,6 @@ const building_desc_t* hausbauer_t::get_headquarter(int level, uint16 time)
 }
 
 
-// get a random object
 const building_desc_t *hausbauer_t::get_random_desc(vector_tpl<const building_desc_t *> &list, uint16 time, bool ignore_retire, climate cl)
 {
 	//"select from list" (Google)
@@ -1152,7 +1180,7 @@ const building_desc_t *hausbauer_t::get_random_desc(vector_tpl<const building_de
 				auswahl.append(desc, desc->get_distribution_weight());
 			}
 		}
-		// now look, what we have got ...
+		// now look what we have got ...
 		if(auswahl.get_sum_weight()==0) {
 			return NULL;
 		}
@@ -1164,6 +1192,7 @@ const building_desc_t *hausbauer_t::get_random_desc(vector_tpl<const building_de
 	}
 	return NULL;
 }
+
 
 const vector_tpl<const building_desc_t*>* hausbauer_t::get_list(const building_desc_t::btype typ)
 {
@@ -1177,6 +1206,7 @@ const vector_tpl<const building_desc_t*>* hausbauer_t::get_list(const building_d
 		default:                            return NULL;
 	}
 }
+
 
 const vector_tpl<const building_desc_t*>* hausbauer_t::get_citybuilding_list(const building_desc_t::btype typ)
 {

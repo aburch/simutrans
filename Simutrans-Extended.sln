@@ -5,9 +5,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simutrans-Extended", "Simutrans-Extended.vcxproj", "{0621B295-BEB7-4767-82F1-F27995610323}"
 EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug (graphical server)|Win32 = Debug (graphical server)|Win32
 		Debug (graphical server)|x64 = Debug (graphical server)|x64

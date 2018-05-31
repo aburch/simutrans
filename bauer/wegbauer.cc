@@ -694,9 +694,13 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 			// building above houses is expensive ... avoid it!
 			*costs += 4;
 		}
+		// absolutely nothing allowed here for set which want double clearance
+		if(  welt->get_settings().get_way_height_clearance()==2  &&  welt->lookup( to->get_pos()+koord3d(0,0,1) )  ) {
+			return false;
+		}
 		// up to now 'to' and 'from' referred to the ground one height step below the elevated way
 		// now get the grounds at the right height
-		koord3d pos = to->get_pos() + koord3d( 0, 0, env_t::pak_height_conversion_factor );
+		koord3d pos = to->get_pos() + koord3d( 0, 0, welt->get_settings().get_way_height_clearance() );
 		grund_t *to2 = welt->lookup(pos);
 		if(to2) {
 			if(to2->get_weg_nr(0)) {
@@ -733,8 +737,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 		// now 'from' and 'to' point to grounds at the right height
 	}
 
-	if(  env_t::pak_height_conversion_factor == 2  )
-	{
+	if(  welt->get_settings().get_way_height_clearance()==2  ) {
 		// cannot build if conversion factor 2, we aren't powerline and way with maximum speed > 0 or powerline 1 tile below except for roads, waterways and tram lines: but mark those as being a "low bridge" type that only allows some vehicles to pass.
 		grund_t *to2 = welt->lookup( to->get_pos() + koord3d(0, 0, -1) );
 		if(  to2 && (((bautyp&bautyp_mask)!=leitung && to2->get_weg_nr(0) && to2->get_weg_nr(0)->get_desc()->get_topspeed() > 0 && to2->get_weg_nr(0)->get_desc()->get_waytype() != water_wt && to2->get_weg_nr(0)->get_desc()->get_waytype() != road_wt && to2->get_weg_nr(0)->get_desc()->get_waytype() != tram_wt) || to2->get_leitung())  )
@@ -743,7 +746,7 @@ bool way_builder_t::is_allowed_step( const grund_t *from, const grund_t *to, sin
 		}
 		// tile above cannot have way unless we are a way (not powerline) with a maximum speed of 0 (and is not a road, waterway or tram line as above), or be surface if we are underground
 		to2 = welt->lookup( to->get_pos() + koord3d(0, 0, 1) );
-		if(  to2  &&  ((to2->get_weg_nr(0) && ((desc->get_topspeed() > 0 && desc->get_waytype() != water_wt && desc->get_waytype() != road_wt && desc->get_waytype() != tram_wt) || (bautyp&bautyp_mask)==leitung))  ||  (bautyp & tunnel_flag) != 0)  )
+		if(  to2  &&  ((to2->get_weg_nr(0)  &&  ((desc->get_topspeed() > 0 && desc->get_waytype() != water_wt && desc->get_waytype() != road_wt && desc->get_waytype() != tram_wt) || (bautyp&bautyp_mask)==leitung))  ||  (bautyp & tunnel_flag) != 0)  )
 		{
 			return false;
 		}
@@ -2073,7 +2076,7 @@ sint64 way_builder_t::calc_costs()
 	}
 
 	sint64 costs=0;
-	koord3d offset = koord3d( 0, 0, bautyp & elevated_flag ? env_t::pak_height_conversion_factor : 0 );
+	koord3d offset = koord3d( 0, 0, bautyp & elevated_flag ? welt->get_settings().get_way_height_clearance() : 0 );
 
 	sint32 single_cost = 0;
 	sint32 new_speedlimit;
@@ -2417,7 +2420,7 @@ void way_builder_t::build_elevated()
 		planquadrat_t* const plan = welt->access(i.get_2d());
 
 		grund_t* const gr0 = plan->get_boden_in_hoehe(i.z);
-		i.z += env_t::pak_height_conversion_factor;
+		i.z += welt->get_settings().get_way_height_clearance();
 		grund_t* const gr  = plan->get_boden_in_hoehe(i.z);
 
 		if(gr==NULL) {
@@ -2498,12 +2501,12 @@ void way_builder_t::build_road()
 				{
 					if(desc->get_upgrade_group() == str->get_desc()->get_upgrade_group())
 					{
-						cost = desc->get_way_only_cost();
+						cost -= desc->get_way_only_cost();
 					}
 					else
 					{
 						// Cost of downgrading is the cost of the inferior way (was previously the higher of the two costs in 10.15 and earlier, from Standard).
-						cost = desc->get_value();
+						cost -= desc->get_value();
 					}
 
 					str->set_desc(desc);
@@ -2525,13 +2528,20 @@ void way_builder_t::build_road()
 						str->set_public_right_of_way();
 					}
 
-					if (city_adopts_this) {
+					if (city_adopts_this)
+					{
 						str->set_owner(NULL);
-					} else {
+					}
+					else
+					{
 						str->set_owner(player);
 						// Set maintenance costs here
 						// including corrections for diagonals.
 						str->finish_rd();
+
+						// If this is not adopted by the city, we need to charge the player for buying the land, since the player
+						// will receive the land value back when demolishing this way.
+						cost += welt->get_land_value(route[i]);
 					}
 				}
 			}
@@ -2681,8 +2691,8 @@ void way_builder_t::build_track()
 					// connect canals to sea
 					if(  desc->get_wtyp() == water_wt  ) {
 						for(  int j = 0;  j < 4;  j++  ) {
-							grund_t *sea = welt->lookup_kartenboden( route[i].get_2d() + koord::nsew[j] );
-							if(  sea  &&  sea->is_water()  ) {
+							grund_t *sea = NULL;
+							if (gr->get_neighbour(sea, invalid_wt, ribi_t::nsew[j])  &&  sea->is_water()  ) {
 								gr->weg_erweitern( water_wt, ribi_t::nsew[j] );
 								sea->calc_image();
 							}

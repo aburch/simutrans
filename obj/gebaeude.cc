@@ -792,7 +792,7 @@ void gebaeude_t::show_info()
 		create_win(new money_frame_t(get_owner()), w_info, magic_finances_t + get_owner()->get_player_nr());
 	}
 	else if (is_townhall()) {
-		welt->find_nearest_city(get_pos().get_2d())->show_info();
+		get_stadt()->show_info();
 	}
 
 	if (!tile->get_desc()->no_info_window()) {
@@ -1303,8 +1303,8 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 {
 	building_desc_t const& h = *tile->get_desc();
 	uint8 pass_classes = goods_manager_t::passengers->get_number_of_classes();
-	int class_percentage[255] = { 0 };
-	int class_percentage_job[255] = { 0 };
+	uint8 class_percentage[256] = { 0 };
+	uint8 class_percentage_job[256] = { 0 };
 
 	// Does this building have any class related stuff assigned?
 	if (h.get_class_proportions_sum() == 0)
@@ -1315,7 +1315,7 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 		}
 	}
 
-	// Apparently it does (if it continues past this point), so lets get on with the calculations!
+	// Apparently it does (if it continues past this point), so let's get on with the calculations!
 	else
 	{
 		int class_proportions_sum = h.get_class_proportions_sum();
@@ -1331,7 +1331,7 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 			count_to_hundred += class_percentage[i];
 		}
 
-		//  We rounded down, so lets increase some of the figures to make the sum 100%
+		//  We rounded down, so let's increase some of the figures to make the sum 100%
 		while (count_to_hundred < 100)
 		{
 			for (int i = 0; i < pass_classes; i++)
@@ -1366,7 +1366,7 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 
 		for (int i = 0; i < pass_classes; i++)
 		{
-			class_percentage_job[i] = (h.get_class_proportion_jobs(i) - last_class_proportion) / class_proportions_sum * 100;
+			class_percentage_job[i] = (h.get_class_proportion_jobs(i) - last_class_proportion) * 100 / class_proportions_sum;
 			last_class_proportion = h.get_class_proportion_jobs(i);
 			count_to_hundred += class_percentage_job[i];
 		}

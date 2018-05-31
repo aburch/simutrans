@@ -402,7 +402,7 @@ void convoi_t::unreserve_route()
 	set_needs_full_route_flush(false);
 }
 
-void convoi_t::reserve_own_tiles()
+void convoi_t::reserve_own_tiles(bool unreserve)
 {
 	if(vehicle_count > 0)
 	{
@@ -416,7 +416,14 @@ void convoi_t::reserve_own_tiles()
 				{
 					if(!route.empty())
 					{
-						sch->reserve(self, ribi_type( route.at(max(1u,1)-1u), route.at(min(route.get_count()-1u,0+1u))));
+						if (unreserve)
+						{
+							sch->unreserve(self);
+						}
+						else
+						{
+							sch->reserve(self, ribi_type(route.at(max(1u, 1) - 1u), route.at(min(route.get_count() - 1u, 0 + 1u))));
+						}
 					}
 				}
 			}
@@ -440,7 +447,7 @@ uint32 convoi_t::move_to(uint16 const start_index)
 	for (unsigned i = 0; i != vehicle_count; ++i) {
 		vehicle_t& v = *vehicle[i];
 
-		if (grund_t* gr = welt->lookup(v.get_pos())) {
+		if(  grund_t const* gr = welt->lookup(v.get_pos())  ) {
 			v.mark_image_dirty(v.get_image(), 0);
 			v.leave_tile();
 			// maybe unreserve this
@@ -452,15 +459,6 @@ uint32 convoi_t::move_to(uint16 const start_index)
 				{
 					rails->unreserve(&v);
 				}
-			}
-
-			if (gr)
-			{
-				// It is not clear why this is necessary in
-				// Extended but not in Standard, but without
-				// this, remnents of images will appear
-				// whenever vehicles move off or reverse.
-				gr->mark_image_dirty();
 			}
 		}
 
@@ -504,7 +502,7 @@ void convoi_t::finish_rd()
 	else {
 		// restore next schedule target for non-stop waypoint handling
 		const koord3d ziel = schedule->get_current_entry().pos;
-		if(  is_waypoint(ziel)  ) {
+		if(  vehicle_count>0  &&  is_waypoint(ziel)  ) {
 			schedule_target = ziel;
 		}
 	}
@@ -729,6 +727,9 @@ void convoi_t::rotate90( const sint16 y_size )
 	home_depot.rotate90( y_size );
 	last_signal_pos.rotate90(y_size);
 	route.rotate90( y_size );
+	if(  schedule_target!=koord3d::invalid  ) {
+		schedule_target.rotate90( y_size );
+	}
 	if(schedule) {
 		schedule->rotate90( y_size );
 	}
@@ -1352,6 +1353,7 @@ bool convoi_t::prepare_for_routing()
 	{
 		koord3d start = front()->get_pos();
 		koord3d ziel = schedule->get_current_entry().pos;
+		const uint32 distance_to_last_stop_km = ((front()->get_last_stop_pos() != koord3d::invalid && (!welt->lookup(front()->get_pos()) || !welt->lookup(front()->get_pos())->get_depot()) ? shortest_distance(front()->get_last_stop_pos().get_2d(), start.get_2d()) : 0) * welt->get_settings().get_meters_per_tile()) / 1000u;
 		const koord3d original_ziel = ziel;
 
 		// Check whether the next stop is within range.
@@ -1380,6 +1382,7 @@ bool convoi_t::prepare_for_routing()
 			{
 				distance = (shortest_distance(start.get_2d(), ziel.get_2d()) * welt->get_settings().get_meters_per_tile()) / 1000u;
 			}
+			distance += distance_to_last_stop_km;
 			schedule->set_current_stop(original_index);
 			ziel = original_ziel;
 			const bool already_out_of_range = state == OUT_OF_RANGE;
@@ -1450,7 +1453,6 @@ bool convoi_t::drive_to()
 {
 	koord3d start = front()->get_pos();
 	koord3d ziel = schedule->get_current_entry().pos;
-	const koord3d original_ziel = ziel;
 
 	const bool check_onwards = front()->get_waytype() == road_wt || front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt;
 
@@ -1544,7 +1546,7 @@ bool convoi_t::drive_to()
 		bool route_ok = true;
 		const uint8 current_stop = schedule->get_current_stop();
 		if(  front()->get_waytype() != water_wt  ) {
-			air_vehicle_t *plane = dynamic_cast<air_vehicle_t *>(front());
+			air_vehicle_t *const plane = dynamic_cast<air_vehicle_t *>(front());
 			uint32 takeoff = 0, search = 0, landing = 0;
 			air_vehicle_t::flight_state plane_state = air_vehicle_t::taxiing;
 			if(  plane  ) {
@@ -1601,7 +1603,7 @@ bool convoi_t::drive_to()
 							// check if the route circles back on itself (only check the first tile, should be enough)
 						looped = route.is_contained(next_segment.at(1));
 #if 0
-						// this will forbid an eight firure, which might be clever to avoid a problem of reserving one own track
+						// this will forbid an eight figure, which might be clever to avoid a problem of reserving one own track
 						for(  unsigned i = 1;  i<next_segment.get_count();  i++  ) {
 							if(  route.is_contained(next_segment.at(i))  ) {
 								looped = true;
@@ -2591,6 +2593,9 @@ void convoi_t::start()
 		assert(gr);
 		gr->obj_add( front() );
 
+		// put into sync list
+		welt->sync.add(this);
+
 		alte_direction = ribi_t::none;
 		no_load = false;
 		depot_when_empty = false;
@@ -3361,7 +3366,25 @@ void convoi_t::vorfahren()
 							book_departure_time(welt->get_ticks() + reverse_delay);
 						}
 
+						if (front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
+						{
+							const rail_vehicle_t* rv = (rail_vehicle_t*)front();
+							if (rv->get_working_method() == drive_by_sight || rv->get_working_method() == time_interval || rv->get_working_method() == time_interval_with_telegraph)
+							{
+								reserve_own_tiles(true); // Unreserve now in case reversing alters the tiles occupied by this convoy.
+							}
+						}
+
 						reverse_order(reversable);
+
+						if (front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
+						{
+							const rail_vehicle_t* rv = (rail_vehicle_t*)front();
+							if (rv->get_working_method() == drive_by_sight || rv->get_working_method() == time_interval || rv->get_working_method() == time_interval_with_telegraph)
+							{
+								reserve_own_tiles(false); // Re-reserve
+							}
+						}
 				}
 			}
 
@@ -3592,12 +3615,6 @@ void convoi_t::vorfahren()
 			else {
 				break;
 			}
-		}
-	}
-	// and let airplane start on ground, if there is an airstrip
-	if(  front()->get_waytype()==air_wt  ) {
-		if(  welt->lookup_kartenboden( route.at(0).get_2d() )->get_weg(air_wt)  ) {
-			front()->set_convoi(this);
 		}
 	}
 
@@ -5631,46 +5648,58 @@ sint64 convoi_t::calc_revenue(const ware_t& ware, array_tpl<sint64> & apportione
  */
 void convoi_t::hat_gehalten(halthandle_t halt)
 {
-	sint64 accumulated_revenue = 0;
-
-	// This holds the revenues as apportioned to different players by track
-	// Initialize it to the correct size and blank out all entries
-	// It will be added to by the load_cargo method for each vehicle
-	array_tpl<sint64> apportioned_revenues (MAX_PLAYER_COUNT, 0);
 
 	grund_t *gr = welt->lookup(front()->get_pos());
 
 	// now find out station length
-	int station_length=0;
+	uint16 vehicles_loading=0;
 	if(  gr->is_water()  ) {
 		// harbour has any size
-		station_length = 24*16;
+		vehicles_loading = vehicle_count;
 	}
 	else
 	{
 		// calculate real station length
+		// and numbers of vehicles that can be (un)loaded
 		koord zv = koord( ribi_t::backward(front()->get_direction()) );
 		koord3d pos = front()->get_pos();
-		const grund_t *grund = welt->lookup(pos);
-		if(  grund->get_weg_yoff()==TILE_HEIGHT_STEP  )
-		{
-			// start on bridge?
-			pos.z ++;
-		}
-		while(  grund  &&  grund->get_halt() == halt  ) {
-			station_length += OBJECT_OFFSET_STEPS;
+		// start on bridge?
+		pos.z += gr->get_weg_yoff() / TILE_HEIGHT_STEP;
+		// difference between actual station length and vehicle lenghts
+		sint16 station_length = -vehicle[vehicles_loading]->get_desc()->get_length();
+		do {
+			// advance one station tile
+			station_length += CARUNITS_PER_TILE;
+
+			while(station_length >= 0) {
+				vehicles_loading++;
+				if (vehicles_loading < vehicle_count) {
+					station_length -= vehicle[vehicles_loading]->get_desc()->get_length();
+				}
+				else {
+					// all vehicles fit into station
+					goto station_tile_search_ready;
+				}
+			}
+
+			// search for next station tile
 			pos += zv;
-			grund = welt->lookup(pos);
-			if(  grund==NULL  )
+			gr = welt->lookup(pos);
+			if (gr == NULL)
 			{
-				grund = welt->lookup(pos-koord3d(0,0,1));
-				if(  grund &&  grund->get_weg_yoff()!=TILE_HEIGHT_STEP  )
-				{
+				gr = welt->lookup(pos-koord3d(0,0,1));
+				if (gr == NULL) {
+					gr = welt->lookup(pos-koord3d(0,0,2));
+				}
+				if (gr  &&  (pos.z != gr->get_hoehe() + gr->get_weg_yoff()/TILE_HEIGHT_STEP) ) {
 					// not end/start of bridge
 					break;
 				}
 			}
-		}
+
+		}  while(  gr  &&  gr->get_halt() == halt  );
+		// finished
+station_tile_search_ready: ;
 	}
 
 	last_stop_id = halt.get_id();
@@ -5682,7 +5711,6 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	const koord3d old_last_stop_pos = front()->last_stop_pos;
 
 	uint16 changed_loading_level = 0;
-	int number_loadable_vehicles = vehicle_count; // Will be shortened for short platform
 
 	// We only unload & load vehicles which are within the station.
 	// To fix: this creates undesired behavior for long trains, because the
@@ -5704,17 +5732,16 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 
 	// First, unload vehicles.
 
+	sint64 accumulated_revenue = 0;
+
+	// This holds the revenues as apportioned to different players by track
+	// Initialize it to the correct size and blank out all entries
+	// It will be added to by the load_cargo method for each vehicle
+	array_tpl<sint64> apportioned_revenues (MAX_PLAYER_COUNT, 0);
 	uint8 convoy_length = 0;
-	for(int i = 0; i < vehicle_count ; i++)
+	for(int i = 0; i < vehicles_loading ; i++)
 	{
 		vehicle_t* v = vehicle[i];
-
-		convoy_length += v->get_desc()->get_length();
-		if(convoy_length > station_length)
-		{
-			number_loadable_vehicles = i;
-			break;
-		}
 
 		// Reset last_stop_pos for all vehicles.
 		koord3d pos = v->get_pos();
@@ -5753,7 +5780,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 	}
 	if(no_load)
 	{
-		for(int i = 0; i < number_loadable_vehicles ; i++)
+		for(int i = 0; i < vehicles_loading ; i++)
 		{
 			vehicle_t* v = vehicle[i];
 			// Do not load, but call load_cargo() to recalculate vehicle weight as there might be *un*loading happening.
@@ -5790,7 +5817,7 @@ void convoi_t::hat_gehalten(halthandle_t halt)
 		{
 			const bool use_lower_classes = (j >= 1);
 			const bool overcrowd = (j == 2);
-			for(int i = 0; i < number_loadable_vehicles ; i++)
+			for(int i = 0; i < vehicles_loading ; i++)
 			{
 				vehicle_t* v = vehicle[i];
 				const uint8 catg_index = v->get_cargo_type()->get_catg_index();
@@ -6854,6 +6881,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	}
 
 	const uint32 range = (uint32)get_min_range();
+	const uint32 distance_to_last_stop_km = ((front()->get_last_stop_pos() != koord3d::invalid && (!welt->lookup(front()->get_pos()) || !welt->lookup(front()->get_pos())->get_depot()) ? shortest_distance(front()->get_last_stop_pos().get_2d(), front()->get_pos().get_2d()) : 0) * welt->get_settings().get_meters_per_tile()) / 1000u;
 	bool home_depot_valid = false;
 	if (use_home_depot) {
 		// Check for a valid home depot.  It is quite easy to get savegames with
@@ -6866,7 +6894,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 				home_depot_valid = test_depot->is_suitable_for(get_vehicle(0), traction_types);
 			}
 		}
-		if(range == 0 || (shortest_distance(get_pos().get_2d(), get_home_depot().get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000 > range)
+		if(range == 0 || ((shortest_distance(get_pos().get_2d(), get_home_depot().get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000) + distance_to_last_stop_km > range)
 		{
 			home_depot_valid = false;
 		}
@@ -6915,7 +6943,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 			route.find_route(welt, get_vehicle(0)->get_pos(), &finder, speed_to_kmh(get_min_top_speed()), ribi_t::all, get_highest_axle_load(), get_tile_length(), get_weight_summary().weight / 1000, 0x7FFFFFFF, has_tall_vehicles());
 			if (!route.empty()) {
 				depot_pos = route.at(route.get_count() - 1);
-				if(range == 0 || (shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000 <= range)
+				if(range == 0 || ((shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000) + distance_to_last_stop_km <= range)
 				{
 					other_depot_found = true;
 				}
@@ -6930,7 +6958,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		if(!route.empty())
 		{
 			depot_pos = route.at(route.get_count() - 1);
-			if(range == 0 || (shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000 <= range)
+			if(range == 0 || ((shortest_distance(get_pos().get_2d(), depot_pos.get_2d()) * (uint32)welt->get_settings().get_meters_per_tile()) / 1000) + distance_to_last_stop_km <= range)
 			{
 				home_depot_found = true;
 			}
@@ -7217,8 +7245,8 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	// Flat tiles, with no stops, no crossings, no signs, no change of road speed limit
 	// First phase: no traffic except me and my overtaken car in the dangerous zone
 	unsigned int route_index = front()->get_route_index()+1;
-	koord pos_prev = front()->get_pos_prev().get_2d();
 	koord3d pos = front()->get_pos();
+	koord pos_prev = (route_index > 2 ? route.at(route_index-2) : pos).get_2d();
 	koord3d pos_next;
 
 	while( distance > 0 ) {
@@ -7369,10 +7397,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	return true;
 }
 
-/**
- * Format remaining loading time from go_on_ticks
- */
-void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
+sint64 convoi_t::calc_remaining_loading_time() const
 {
 	const uint32 reverse_delay = calc_reverse_delay();
 	uint32 loading_time = current_loading_time;
@@ -7415,6 +7440,16 @@ void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
 	{
 		ticks_left = remaining_ticks;
 	}
+
+	return ticks_left;
+}
+
+/**
+ * Format remaining loading time from go_on_ticks
+ */
+void convoi_t::snprintf_remaining_loading_time(char *p, size_t size) const
+{
+	sint64 ticks_left = calc_remaining_loading_time();
 	welt->sprintf_ticks(p, size, ticks_left);
 }
 
