@@ -5094,7 +5094,10 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %d", file.get_version());
 				win->set_text( msg );
 				create_win(win, w_info, magic_pakset_info_t);
 			}
-			// do not notify if we restore everything
+			// will not notify if we restore everything
+			if(  scenario->is_scripted()  ) {
+				scenario->open_info_win();
+			}
 			create_win( new news_img("Spielstand wurde\ngeladen!\n"), w_time_delete, magic_none);
 		}
 		set_dirty();
