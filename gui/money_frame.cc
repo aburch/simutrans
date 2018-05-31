@@ -431,13 +431,15 @@ money_frame_t::money_frame_t(player_t *player)
 
 	transport_type_c.set_pos( scr_coord(left+335-12-2, top0) );
 	transport_type_c.set_size( scr_size(116,D_BUTTON_HEIGHT) );
-	transport_type_c.set_max_size( scr_size( 116, 1*BUTTONSPACE ) );
+	int h = D_BUTTON_HEIGHT;
 	for(int i=0, count=0; i<TT_MAX; ++i) {
 		if (!is_chart_table_zero(i)) {
 			transport_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(transport_type_values[i]), SYSCOL_TEXT));
 			transport_types[ count++ ] = i;
+			h += LINESPACE;
 		}
 	}
+	transport_type_c.set_max_size( scr_size( 116, h ) );
 	transport_type_c.set_selection(0);
 	transport_type_c.set_focusable( false );
 	add_component(&transport_type_c);
