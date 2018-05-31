@@ -664,15 +664,6 @@ void roadsign_t::rotate90()
 	// only meaningful for traffic lights
 	obj_t::rotate90();
 	if(automatic  &&  !desc->is_private_way()) {
-		state = (state+1)&1;
-		if (ticks_offset >= ticks_ns) {
-			ticks_offset -= ticks_ns;
-		} else {
-			ticks_offset += ticks_ow;
-		}
-		uint8 temp = ticks_ns;
-		ticks_ns = ticks_ow;
-		ticks_ow = temp;
 		uint8 first_dir = ribi_t::rotate90(open_direction&0x0F);
 		uint8 second_dir = ribi_t::rotate90((open_direction>>4)&0x0F);
 		open_direction = first_dir + (second_dir << 4);

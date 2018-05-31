@@ -3364,8 +3364,7 @@ void convoi_t::vorfahren()
 							// The convoy does not depart until it has reversed.
 							book_departure_time(welt->get_ticks() + reverse_delay);
 						}
-<<<<<<< HEAD
-						
+
 						if (front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)
 						{
 							const rail_vehicle_t* rv = (rail_vehicle_t*)front();
@@ -3374,10 +3373,7 @@ void convoi_t::vorfahren()
 								reserve_own_tiles(true); // Unreserve now in case reversing alters the tiles occupied by this convoy.
 							}
 						}
-											
-=======
 
->>>>>>> a3f1f454128918405d78842cc8029fa3bf0bcae6
 						reverse_order(reversable);
 
 						if (front()->get_waytype() == track_wt || front()->get_waytype() == tram_wt || front()->get_waytype() == narrowgauge_wt || front()->get_waytype() == maglev_wt || front()->get_waytype() == monorail_wt)

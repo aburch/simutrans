@@ -1703,7 +1703,7 @@ void vehicle_t::hop(grund_t* gr)
 
 	leave_tile();
 
-	koord3d pos_prev = get_pos();
+	pos_prev = get_pos();
 	set_pos( pos_next );  // next field
 	if(route_index<cnv->get_route()->get_count()-1) {
 		route_index ++;
@@ -4541,7 +4541,7 @@ route_t::route_result_t rail_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 		if (working_method == one_train_staff || working_method == token_block)
 		{
 			// These cannot sensibly be resumed inside a section
-			set_working_method(drive_by_sight); 
+			set_working_method(drive_by_sight);
 			cnv->unreserve_route();
 			cnv->reserve_own_tiles();
 		}
@@ -4551,7 +4551,7 @@ route_t::route_result_t rail_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 			block_reserver(cnv->get_route(), cnv->back()->get_route_index(), dummy, dummy, target_halt.is_bound() ? 100000 : 1, false, true);
 		}
 	}
-	
+
 	cnv->set_next_reservation_index( 0 );	// nothing to reserve
 	target_halt = halthandle_t();	// no block reserved
 	// use length > 8888 tiles to advance to the end of terminus stations
@@ -6226,7 +6226,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							next_signal_index = i - 1;
 							count --;
 							last_stop_signal_index = i - 1;
-							last_stop_signal_pos = route->at(i - 1); 
+							last_stop_signal_pos = route->at(i - 1);
 							end_of_block = true;
 						}
 
@@ -6557,7 +6557,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					// If the last but one signal is a double block signal, do not allow the train to pass beyond that signal
 					// even if the route to the next signal is free
 					last_stop_signal_index = first_double_block_signal_index;
-					last_stop_signal_pos = route->at(first_double_block_signal_index); 
+					last_stop_signal_pos = route->at(first_double_block_signal_index);
 					if (next_signal_index > last_stop_signal_index)
 					{
 						next_signal_index = last_stop_signal_index;
@@ -7545,14 +7545,12 @@ void rail_vehicle_t::leave_tile()
 							// block signals will be placed at the entrance and stop signals at the exit of single line
 							// sections.
 							clear_token_reservation(sig, w, sch0);
-<<<<<<< HEAD
+
 							if (sig->get_desc()->get_working_method() == drive_by_sight)
 							{
 								set_working_method(drive_by_sight);
 								cnv->set_next_stop_index(route_index + 1);
 							}
-=======
->>>>>>> a3f1f454128918405d78842cc8029fa3bf0bcae6
 						}
 						else if((sig->get_desc()->get_working_method() == track_circuit_block
 							|| sig->get_desc()->get_working_method() == cab_signalling

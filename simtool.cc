@@ -5000,12 +5000,12 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 		halt->set_name(name);
 		free(name);
 	}
-	
+
 	sint64 cost;
 	if(desc->get_base_price() == PRICE_MAGIC)
 	{
 		switch(desc->get_extra()) {
-			case road_wt:	
+			case road_wt:
 				cost = welt->get_settings().cst_multiply_roadstop * desc->get_level();
 				break;
 			case track_wt:

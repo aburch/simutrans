@@ -2527,18 +2527,19 @@ void way_builder_t::build_road()
 						str->set_gehweg(true);
 						str->set_public_right_of_way();
 					}
+
 					if (city_adopts_this)
 					{
 						str->set_owner(NULL);
 					}
-					else 
+					else
 					{
 						str->set_owner(player);
 						// Set maintenance costs here
 						// including corrections for diagonals.
 						str->finish_rd();
 
-						// If this is not adopted by the city, we need to charge the player for buying the land, since the player 
+						// If this is not adopted by the city, we need to charge the player for buying the land, since the player
 						// will receive the land value back when demolishing this way.
 						cost += welt->get_land_value(route[i]);
 					}
