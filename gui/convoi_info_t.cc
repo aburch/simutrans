@@ -176,7 +176,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_component(&times_history_button);
 	times_history_button.add_listener(this);
 
-	//Position is set in convoi_info_t::set_fenstergroesse()
+	//Position is set in convoi_info_t::set_windowsize()
 	follow_button.init(button_t::roundbox_state, "follow me", dummy, scr_size(view.get_size().w, D_BUTTON_HEIGHT));
 	follow_button.set_tooltip("Follow the convoi on the map.");
 	follow_button.add_listener(this);

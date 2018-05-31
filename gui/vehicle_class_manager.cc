@@ -1019,7 +1019,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 				if (v->get_desc()->get_catering_level() > 0)
 				{
 					uint32 unit_count = 0;
-					char catering_service[32];
+					char catering_service[64];
 					if (mail_veh)
 					{
 						sprintf(catering_service, translator::translate("tpo_income_pr_km_(full_convoy):"));

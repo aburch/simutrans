@@ -3888,10 +3888,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(max_catg_count_file);
 	}
 
-	const char *s;
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
 	if(file->is_saving())
 	{
+		const char *s;
 		for(unsigned i=0; i<max_catg_count_file; i++)
 		{
 			vector_tpl<ware_t> *warray = cargo[i];
@@ -5518,6 +5518,7 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 			&& (!is_road_type || state == convoi_t::LOADING))
 			|| (state == convoi_t::REVERSING
 			&& !is_road_type
+			&& cnv->calc_remaining_loading_time() > 100
 			&& ((*i)->get_reverse_schedule() ?
 				(*i)->get_schedule()->get_current_stop() + 1 == cnv->get_schedule()->get_current_stop() :
 				(*i)->get_schedule()->get_current_stop() - 1 == cnv->get_schedule()->get_current_stop()))))

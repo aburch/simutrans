@@ -9,6 +9,7 @@
 #include "components/gui_label.h"
 #include "components/action_listener.h"
 #include "components/gui_numberinput.h"
+#include "components/gui_divider.h"
 
 class settings_t;
 
@@ -33,12 +34,29 @@ private:
 
 	bool changed_number_of_towns;
 
-	gui_numberinput_t inp_x_size, inp_y_size, inp_number_of_towns, inp_number_of_big_cities;
-   	gui_numberinput_t inp_number_of_clusters, inp_cluster_size, inp_town_size;
+	gui_numberinput_t
+		inp_x_size,
+		inp_y_size,
+		inp_number_of_towns,
+		inp_number_of_big_cities,
+		inp_number_of_clusters,
+		inp_cluster_size,
+		inp_town_size;
 
-	button_t start_button;
+	button_t
+		start_button;
 
-	gui_label_t memory;// memory requirement
+	gui_label_t
+		memory, // memory requirement
+		cities_label,
+		big_cities_label,
+		clusters_label,
+		cluster_size_label,
+		median_label;
+
+	gui_divider_t
+		divider_1;
+
 	char memory_str[256];
 
 

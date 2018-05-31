@@ -323,7 +323,6 @@ char const *tick_to_string( sint64 ticks, bool show_full )
 		// take care of overflow
 		stunden += (minuten / 60);
 		minuten %= 60;
-		tage += (stunden / 24 );
 		stunden %= 24;
 
 		switch(env_t::show_month) {

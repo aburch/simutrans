@@ -3,11 +3,11 @@
 SectionGroup "Pak64: main and addons" pak64group
 
 Section "!pak (64 size) (standard)" pak
-  AddSize 11300
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/112-3/simupak64-112-3.zip"
-  StrCpy $archievename "simupak64-112-3.zip"
+  AddSize 11874
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/120-0/simupak64-120-0.zip"
+  StrCpy $archievename "simupak64-120-0.zip"
   StrCpy $downloadname "pak"
-  StrCpy $VersionString "pak64 112.3 r1215"
+  StrCpy $VersionString "pak64 120.0 r1440"
   Call DownloadInstallZip
 SectionEnd
 
@@ -71,12 +71,12 @@ SectionGroupEnd
 
 
 
-Section /o "pak.japan (64 size) for 112.0" pak64japan
-  AddSize 6780
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64.japan/112-0/simupak64.japan-112-0.zip"
-  StrCpy $archievename "simupak64.japan-112-0.zip"
+Section /o "pak.japan (64 size) for 120.0" pak64japan
+  AddSize 8225
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64.japan/120-0/simupak64.japan-120-0.zip"
+  StrCpy $archievename "simupak64.japan-120-0.zip"
   StrCpy $downloadname "pak.japan"
-  StrCpy $VersionString "pak64.japan 112.0 r986M"
+  StrCpy $VersionString "pak64.japan 120.0 r1439"
   Call DownloadInstallZip
 SectionEnd
 
@@ -181,12 +181,12 @@ SectionEnd
 
 
 
-Section /o "pak128.German V0.6 for 112.1" pak128german
-  AddSize 80992
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_0.6_112.x/PAK128.german_0.6_112.x.zip"
-  StrCpy $archievename "PAK128.german_0.6_112.x.zip"
+Section /o "pak128.German V0.61 for 112.1" pak128german
+  AddSize 81797
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_0.6.1_112.x/PAK128.german_0.6.1_112.x.zip"
+  StrCpy $archievename "PAK128.german_0.6.1_112.x.zip"
   StrCpy $downloadname "pak128.German"
-  StrCpy $VersionString "  PAK128.german V 0.6 (Rev. 1395)"
+  StrCpy $VersionString "  PAK128.german V 0.6.1 (Rev. 1464)"
   Call DownloadInstallZip
 SectionEnd
 

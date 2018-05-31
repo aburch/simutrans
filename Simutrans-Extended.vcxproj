@@ -2658,6 +2658,8 @@
     <ClCompile Include="script\api\api_factory.cc" />
     <ClCompile Include="script\api\api_gui.cc" />
     <ClCompile Include="script\api\api_halt.cc" />
+    <ClCompile Include="script\api\api_include.cc" />
+    <ClCompile Include="script\api\api_line.cc" />
     <ClCompile Include="script\api\api_map_objects.cc" />
     <ClCompile Include="script\api\api_obj_desc.cc" />
     <ClCompile Include="script\api\api_obj_desc_base.cc" />
@@ -3386,7 +3388,6 @@
     <ClInclude Include="dataobj\crossing_logic.h" />
     <ClInclude Include="descriptor\reader\crossing_reader.h" />
     <ClInclude Include="descriptor\writer\crossing_writer.h" />
-    <ClInclude Include="utils\cstring_t.h" />
     <ClInclude Include="gui\curiosity_edit.h" />
     <ClInclude Include="gui\curiositylist_frame_t.h" />
     <ClInclude Include="gui\curiositylist_stats_t.h" />

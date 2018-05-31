@@ -3359,7 +3359,6 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 		if(  has_previous  ) {
 			buf.append("\n\n");
 		}
-		has_previous = true;
 		buf.append(translator::translate("Connected stops (freight)"));
 		FOR(vector_tpl<nearby_halt_t>, const i, nearby_freight_halts)
 		{

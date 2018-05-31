@@ -8,6 +8,9 @@
 To scroll the main game window, right-click the mouse and drag it. An option can be set in the <a href="display.txt">display</a> settings to change the orientation of this behaviour. Scrolling with the mouse also works in the mini-map.
 </p>
 <p>
+Use the mouse's scroll wheel to <em>zoom</em> the map in and out. Scroll up to zoom in, and scroll down to zoom out.
+</p>
+<p>
 In the main game window, the mouse cursor has two parts: (1) a <em>shaded box</em>; and (2) a <em>tool icon</em>. The shaded box shows the currently selected <em>tile</em>. The game world is divided into square tiles, and every building, road, railway, etc., occupies at least one of these tiles. Any action performed by the currently selected <em>tool</em> will occur (or start) in the currently selected tile. The shaded box moves in three dimensions. This feature is used, for example, when building a stop on top of a bridge that crosses another way of the same type: the shaded box can be moved between the upper and lower way when placing the stop. It is also useful in <em>underground mode</em> when there are different levels of tunnels that could be selected at once.
 </p>
 <p>
@@ -20,7 +23,16 @@ Certain tools are used by clicking and dragging. Ways (roads, railways, canals, 
 Using the [<em>CTRL</em>] key while using a click and drag tool will force the way (etc.) built with the tool to be as straight as possible. 
 </p>
 <p>
-Use the mouse's scroll wheel (if your mouse has one) to <em>zoom</em> the map in and out. Scroll up to zoom in, and scroll down to zoom out.
+To upgrade a way with another way of the same type (e.g., a road with another road), drag the new way over the old way. The cost will be the cost of renewing the way rather than the higher cost of building a new way on virgin ground (the difference being the "forge cost"). 
+</p>
+<p>
+To downgrade a way with another way of the same type (e.g., a road with another road), drag the new way over the old way whilst holding down the [<em>CTRL</em>] key. Without holding down the [<em>CTRL</em>] key, Simutrans will assume that you only want to upgrade ways.
+</p>
+<p>
+To set a way to be renewed automatically to a different type of way when it wears out, drag the new type of way over the existing way while holding down the [<em>SHIFT</em>] key. This will only set a way to be renewed automatically to a better or equal type of way unless the [<em>CTRL</em>] key is also held down. 
+</p>
+<p>
+To set a way to be not renewed (and therefore to degrade and become unusable) when it wears out, drag the way remover tool over the way whilst holding down the [<em>SHIFT</em>] key. 
 </p>
 <p>
 When using tools and dialogue boxes, many of the buttons and options have <em>tooltips</em> providing more information on what they do. To see the tooltips, hover the mouse cursor over the option for a few seconds. Note that not all controls have tooltips.

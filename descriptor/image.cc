@@ -341,7 +341,8 @@ image_t* image_t::create_single_pixel()
 image_t *image_t::copy_rotate(const sint16 angle) const
 {
 #if COLOUR_DEPTH == 0
-//	return const_cast<image_t *>(this);
+	(void)angle;
+	return create_single_pixel();
 #endif
 	assert(angle == 0 || (w == h && x == 0 && y == 0));
 
