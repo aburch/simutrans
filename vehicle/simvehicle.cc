@@ -676,7 +676,7 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 		cnv_overtaking = pcar -> is_overtaking();
 	}
 	if(  lane_on_the_tile==1  ) cnv_overtaking = true; //treated as convoi is overtaking.
-	if(  lane_on_the_tile==-1  ) cnv_overtaking = false; //treated as convoi is not overtaking.
+	else if(  lane_on_the_tile==-1  ) cnv_overtaking = false; //treated as convoi is not overtaking.
 	// Search vehicle
 	for(  uint8 pos=1;  pos<(/*volatile*/ uint8)gr->get_top();  pos++  ) {
 		if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
@@ -763,14 +763,7 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 
 bool vehicle_base_t::judge_lane_crossing( const uint8 current_direction, const uint8 next_direction, const uint8 other_next_direction, const bool is_overtaking, const bool forced_to_change_lane ) const
 {
-	bool on_left = false;
-	const bool drives_on_left = welt->get_settings().is_drive_left();
-	if(  is_overtaking  &&  !drives_on_left  ) {
-		on_left = true;
-	}
-	if(  !is_overtaking  &&  drives_on_left  ) {
-		on_left = true;
-	}
+	bool on_left = !(is_overtaking==welt->get_settings().is_drive_left());
 	// go straight = 0, turn right = -1, turn left = 1.
 	sint8 this_turn;
 	if(  next_direction == ribi_t::rotate90(current_direction)  ) {
@@ -2648,7 +2641,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			cnv = NULL;	// no reservation too
 		}
 	}
-	if((file->get_extended_version() == 0 && file->get_version() <= 112008)  ||  file->get_extended_version()<13  ||  (file->get_extended_version() == 13 && file->get_extended_revision() <= 5)) {
+	if((file->get_extended_version()==0 && file->get_version()<=112008) || file->get_extended_version()<14) {
 		// Standard version number was increased in Extended without porting this change
 		koord3d pos_prev(koord3d::invalid);
 		pos_prev.rdwr(file);
@@ -3907,16 +3900,11 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			sint8 overtaking_mode = str->get_overtaking_mode();
 			if(  overtaking_mode <= oneway_mode  ) {
 				// road is one-way.
-				bool can_judge_overtaking = (test_index == route_index + 1u);
 				// The overtaking judge method itself works only when test_index==route_index+1, that means the front tile is not an intersection.
 				// However, with halt_mode we want to simulate a bus terminal. Overtaking in a intersection is essential. So we make a exception to the test_index==route_index+1 condition, although it is not clear that this exception is safe or not!
-				if(  !can_judge_overtaking  &&  test_index == route_index + 2u  &&  overtaking_mode == halt_mode  ) {
-					can_judge_overtaking = true;
-				}
-				if(  can_judge_overtaking  ) {
+				if(  (test_index == route_index + 1u) || (test_index == route_index + 2u  &&  overtaking_mode == halt_mode)  ) {
 					// no intersections or crossings, we might be able to overtake this one ...
-					overtaker_t *over = obj->get_overtaker();
-					if(  over  ) {
+					if(  obj->get_overtaker()  ) {
 						// not overtaking/being overtake: we need to make a more thought test!
 						if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(obj)  ) {
 							convoi_t* const ocnv = car->get_convoi();
@@ -4351,17 +4339,6 @@ void road_vehicle_t::set_convoi(convoi_t *c)
 	}
 }
 
-// To prevent glitch
-void road_vehicle_t::reflesh() {
-	int xpos=0, ypos=0;
-	get_screen_offset( xpos, ypos, get_tile_raster_width(), true );
-	viewport_t *vp = welt->get_viewport();
-	scr_coord scr_pos = vp->get_screen_coord(get_pos(), koord(get_xoff(), get_yoff()));
-	display_mark_img_dirty( image, scr_pos.x + xpos, scr_pos.y + ypos);
-	if(  !get_flag(obj_t::dirty)  ) {
-		set_flag( obj_t::dirty );
-	}
-}
 
 
 /* from now on rail vehicles (and other vehicles using blocks) */

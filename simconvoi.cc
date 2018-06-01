@@ -8240,8 +8240,9 @@ void convoi_t::reflesh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaki
 	if(  front()  &&  front()->get_waytype()==road_wt  &&  (prev_tiles_overtaking==0)^(current_tiles_overtaking==0)  ){
 		for(uint8 i=0; i<vehicle_count; i++) {
 			road_vehicle_t* rv = dynamic_cast<road_vehicle_t*>(vehicle[i]);
-			if(rv) {
-				rv->reflesh();
+			if(rv && !rv->get_flag(obj_t::dirty)  ) {
+				rv->mark_image_dirty( rv->get_image(), 0 );
+				rv->set_flag( obj_t::dirty );
 			}
 		}
 	}

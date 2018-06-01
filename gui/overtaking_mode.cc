@@ -98,16 +98,16 @@ bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, valu
 	}
 	switch(  tool_class  ) {
 		case 0:
-		tool_w->set_overtaking_mode(overtaking_mode);
-		break;
+			tool_w->set_overtaking_mode(overtaking_mode);
+			break;
 		case 1:
-		tool_b->set_overtaking_mode(overtaking_mode);
-		break;
+			tool_b->set_overtaking_mode(overtaking_mode);
+			break;
 		case 2:
-		tool_tu->set_overtaking_mode(overtaking_mode);
-		break;
+			tool_tu->set_overtaking_mode(overtaking_mode);
+			break;
 		default:
-		assert(false);
+			assert(false);
 	}
 	return true;
 }

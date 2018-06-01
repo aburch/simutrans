@@ -653,8 +653,11 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 			assert(weg);
 			str->set_overtaking_mode(overtaking_mode);
 			if(  desc->get_waytype()==road_wt  &&  overtaking_mode<=oneway_mode  ) {
-				if(  beginning  ) str->set_ribi_mask_oneway(ribi_type(-zv));
-				if(  !beginning  ) str->set_ribi_mask_oneway(ribi_type(zv));
+				if(  beginning  ) {
+					str->set_ribi_mask_oneway(ribi_type(-zv));
+				} else {
+					str->set_ribi_mask_oneway(ribi_type(zv));
+				}
 			}
 		}
 

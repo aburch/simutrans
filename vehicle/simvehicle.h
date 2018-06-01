@@ -187,7 +187,7 @@ public:
 	// if true, this convoi needs to restart for correct alignment
 	bool need_realignment() const;
 
-	virtual uint32 do_drive(uint32 dist);	// basis movement code
+	uint32 do_drive(uint32 dist);	// basis movement code
 
 	inline void set_image( image_id b ) { image = b; }
 	virtual image_id get_image() const {return image;}
@@ -762,8 +762,6 @@ public:
 
 	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top = false, sint8 offset = 0) const;
 	virtual vehicle_base_t* other_lane_blocked_offset() const { return other_lane_blocked(false,1); }
-
-	void reflesh();
 };
 
 

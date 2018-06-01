@@ -1120,8 +1120,11 @@ void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ri
 			assert(str);
 			str->set_overtaking_mode(overtaking_mode);
 			if(  overtaking_mode<=oneway_mode  ) {
-				if(  beginning  ) str->set_ribi_mask_oneway(ribi_t::reverse_single(ribi_neu));
-				if(  !beginning  ) str->set_ribi_mask_oneway(ribi_neu);
+				if(  beginning  ) {
+					str->set_ribi_mask_oneway(ribi_t::reverse_single(ribi_neu));
+				} else {
+					str->set_ribi_mask_oneway(ribi_neu);
+				}
 			}
 		}
 		// Necessary to avoid the "default" way (which might have constraints) setting the constraints here.

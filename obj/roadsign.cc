@@ -712,9 +712,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 
 	uint8 dummy=0;
 	if(  file->get_extended_version() >= 14  ) {
-		dummy = lane_affinity;
-		file->rdwr_byte(dummy);
-		lane_affinity = dummy;
+		file->rdwr_byte(lane_affinity);
 	}
 	else {
 		lane_affinity = 4; // not applied
@@ -743,7 +741,6 @@ void roadsign_t::rdwr(loadsave_t *file)
 	} else if(  file->is_loading()  ) {
 		open_direction = 0xA5;
 	}
-
 	dummy = state;
 	file->rdwr_byte(dummy);
 	state = dummy;
