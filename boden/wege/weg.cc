@@ -790,7 +790,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 
 		if (public_city_road)
 		{
-			if (replacement_way == latest_city_road)
+			if (replacement_way == latest_city_road || latest_city_road == NULL)
 			{
 				buf.append(translator::translate("same_as_current"));
 			}
