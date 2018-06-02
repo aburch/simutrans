@@ -768,7 +768,7 @@ void welt_gui_t::draw(scr_coord pos, scr_size size)
 	) / (1024ll * 1024ll);
 
 	const double tile_km = sets->get_meters_per_tile() / 1000.0;
-	buf.printf("%s (%ld MByte, %.3f km/%s):", translator::translate("Size"), memory, tile_km, translator::translate("tile"));
+	buf.printf("%s (%d MByte, %.3f km/%s):", translator::translate("Size"), (uint32)memory, tile_km, translator::translate("tile"));
 	size_label.set_text(buf);
 
 	cbuffer_t buf_x;
