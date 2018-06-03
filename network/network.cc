@@ -852,7 +852,7 @@ bool prepare_for_server( char *externalIPAddress, int port )
 	const char *minissdpdpath = 0;
 	int localport = UPNP_LOCAL_PORT_ANY;
 	int ipv6 = 0; // probably not needed for IPv6 ever ...
-	unsigned char ttl = 2;	/* defaulting to 2 */
+	unsigned char ttl = 2; (void)ttl; /* defaulting to 2 */
 	struct UPNPDev *devlist = 0;
 	bool has_IP = false;
 
@@ -911,7 +911,7 @@ void remove_port_forwarding( int port )
 	const char *minissdpdpath = 0;
 	int localport = UPNP_LOCAL_PORT_ANY;
 	int ipv6 = 0; // probably not needed for IPv6 ever ...
-	unsigned char ttl = 2;	/* defaulting to 2 */
+	unsigned char ttl = 2; (void)ttl; /* defaulting to 2 */
 	struct UPNPDev *devlist = 0;
 
 	if(  (devlist = upnpDiscover( 2000, multicastif, minissdpdpath, localport, ipv6, ttl, &error ))  ) {
