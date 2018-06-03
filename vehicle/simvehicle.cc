@@ -2147,12 +2147,6 @@ uint32 vehicle_t::get_cargo_weight() const
 }
 
 
-const char *vehicle_t::get_cargo_name() const
-{
-	return get_cargo_type()->get_name();
-}
-
-
 void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 {
 	vector_tpl<vector_tpl<ware_t>> fracht_array(number_of_classes);

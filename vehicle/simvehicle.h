@@ -541,8 +541,6 @@ public:
 	*/
 	uint32 get_cargo_weight() const;
 
-	const char * get_cargo_name() const;
-
 	/**
 	* get the type of cargo this vehicle can transport
 	*/

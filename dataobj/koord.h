@@ -26,7 +26,6 @@ public:
 	koord() : x(0), y(0) {}
 
 	koord(sint16 xp, sint16 yp) : x(xp), y(yp) {}
-	koord(loadsave_t* file);
 	koord(ribi_t::ribi ribi) { *this = from_ribi[ribi]; }
 	koord(slope_t::type hang)  { *this = from_hang[hang]; }
 

@@ -1889,15 +1889,6 @@ void display_fit_img_to_width(const image_id n, sint16 new_w)
 }
 
 
-/**
- * Retrieve brightness setting
- */
-int display_get_light()
-{
-	return light_level;
-}
-
-
 /* Tomas variant */
 static void calc_base_pal_from_night_shift(const int night)
 {
@@ -2043,18 +2034,6 @@ static void calc_base_pal_from_night_shift(const int night)
 	}
 
 	// convert to RGB xxx
-	recode();
-}
-
-
-/**
-* Set brightness setting
-* @author Hj. Malthaner
-*/
-void display_set_light(int new_light_level)
-{
-	light_level = new_light_level;
-	calc_base_pal_from_night_shift(night_shift);
 	recode();
 }
 
