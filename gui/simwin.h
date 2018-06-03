@@ -124,8 +124,6 @@ bool check_pos_win(event_t*);
 
 bool win_is_open(gui_frame_t *ig );
 
-// returns the window on this positions
-gui_frame_t *win_get_oncoord( const scr_coord pt );
 
 scr_coord const& win_get_pos(gui_frame_t const*);
 void win_set_pos(gui_frame_t *ig, int x, int y);
@@ -163,7 +161,6 @@ void win_rotate90( sint16 new_size );
 void move_win(int win);
 
 void win_display_flush(double konto); // draw the frame and all windows
-void win_get_event(event_t*);
 void win_poll_event(event_t*);
 
 bool win_change_zoom_factor(bool magnify);

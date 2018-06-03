@@ -116,14 +116,6 @@ const koord &tabfileobj_t::get_koord(const char *key, koord def)
 	return ret;
 }
 
-const scr_coord &tabfileobj_t::get_scr_coord(const char *key, scr_coord def)
-{
-	static scr_coord ret;
-	ret = def;
-	get_x_y( key, ret.x, ret.y );
-	return ret;
-}
-
 const scr_size &tabfileobj_t::get_scr_size(const char *key, scr_size def)
 {
 	static scr_size ret;
@@ -760,23 +752,4 @@ void tabfile_t::format_key(char *key)
 		}
 	}
 	*t = '\0';
-}
-
-
-void tabfile_t::format_value(char *value)
-{
-	size_t len = strlen(value);
-
-	// trim right
-	while(len && value[len - 1] == ' ') {
-		value[--len] = '\0';
-	}
-	// trim left
-	if(*value == ' ') {
-		char *from;
-		for(from = value; *from == ' '; from++) {}
-		while(*value) {
-			*value++ = *from++;
-		}
-	}
 }

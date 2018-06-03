@@ -488,11 +488,6 @@ public:
 	void update_assets(sint64 delta, waytype_t wt);
 
 private:
-	/// helper method to translate old COST_ constants
-	static int translate_index_cost_to_at(int cost_);
-
-	/// helper method to translate old COST_ constants
-	static int translate_index_cost_to_atc(int cost_index);
 
 	/**
 	 * Translates finance statistics from new format to old one.

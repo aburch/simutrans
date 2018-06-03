@@ -51,12 +51,6 @@ waytype_t line_way_type(simline_t *line)
 	return invalid_wt;
 }
 
-
-bool line_is_valid(linehandle_t line)
-{
-	return line.is_bound();
-}
-
 call_tool_init line_change_schedule(simline_t* line, player_t *player, schedule_t *sched)
 {
 	if (sched) {
