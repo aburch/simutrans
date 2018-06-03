@@ -41,7 +41,7 @@ ifeq ($(OSTYPE),mac)
   CXXFLAGS   += -DUSE_HW -DUSE_C
 endif
 
-idef OPTIMISE
+ifdef OPTIMISE
   ifeq ($(shell expr $(OPTIMISE) \>= 1), 1)
     CFLAGS   += -O3 -fno-schedule-insns
     CXXFLAGS += -O3 -fno-schedule-insns
