@@ -1037,27 +1037,6 @@ void objlist_t::rdwr(loadsave_t *file, koord3d current_pos)
 }
 
 
-/* Dumps a short info about the things on this tile
- *  @author prissi
- */
-void objlist_t::dump() const
-{
-	if(capacity==0) {
-//		DBG_MESSAGE("objlist_t::dump()","empty");
-		return;
-	}
-	else if(capacity==1) {
-		DBG_MESSAGE("objlist_t::dump()","one object \'%s\' owned by sp %p", obj.one->get_name(), obj.one->get_owner() );
-		return;
-	}
-
-	DBG_MESSAGE("objlist_t::dump()","%i objects", top );
-	for(uint8 n=0; n<top; n++) {
-		DBG_MESSAGE( obj.some[n]->get_name(), "at %i owned by sp %p", n, obj.some[n]->get_owner() );
-	}
-}
-
-
 /** display all things, faster, but will lead to clipping errors
  *  @author prissi
  */

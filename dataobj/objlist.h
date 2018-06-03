@@ -50,9 +50,6 @@ public:
 	obj_t * get_leitung() const;
 	obj_t * get_convoi_vehicle() const;
 
-	// show all info about the current list and its objects
-	void dump() const;
-
 	/**
 	* @param n thing index (unsigned value!)
 	* @return thing at index n or NULL if n is out of bounds

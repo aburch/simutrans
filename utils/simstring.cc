@@ -12,27 +12,6 @@ static double large_number_factor = 1e99;	// off
 static int thousand_sep_exponent = 3;
 
 
-
-// a single use number to string ...
-char *ntos(int number, const char *format)
-{
-	static char tempstring[32];
-	int r;
-
-	if (format) {
-		r = sprintf(tempstring, format, number);
-	}
-	else {
-		r = sprintf(tempstring, "%d", number);
-	}
-	assert(r<16); (void)r;
-
-	return tempstring;
-}
-
-
-
-
 /**
  * Set thousand separator, used in money_to_string and
  * number_to_string
