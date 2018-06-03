@@ -27,30 +27,6 @@ const int totalslopes = 81;
 #define blue_comp(pix)			((pix)&0x001f)
 
 
-/*  mixed_color
-	this uses pixel map to produce an pixel from pixels src1, src2 and src3
-	src1 uses the red component of map
-	src2 uses the green component of map
-	src3 uses the blue component of map
-*/
-/*static PIXVAL mixed_color(PIXVAL map, PIXVAL src1, PIXVAL src2, PIXVAL src3)
-{
-	if(map!=0) {
-		uint16 rc = red_comp(map);
-		uint16 gc = green_comp(map);
-		uint16 bc = blue_comp(map);
-
-		// overflow safe method ...
-		uint16 rcf = (rc*red_comp(src1) + gc*red_comp(src2) + bc*red_comp(src3) )/(rc+gc+bc);
-		uint16 gcf = (rc*green_comp(src1) + gc*green_comp(src2) + bc*green_comp(src3) )/(rc+bc+gc);
-		uint16 bcf = (rc*blue_comp(src1) + gc*blue_comp(src2) + bc*blue_comp(src3) )/(rc+gc+bc);
-
-		return (bcf)|(gcf<<5)|(rcf<<10);
-	}
-	return 0;
-} */
-
-
 /* combines a texture and a lightmap
  * just weights all pixels by the lightmap
  * @param binary if true, then a binary decision is made: if lightmap is grey then take original pixel, if not set to black
