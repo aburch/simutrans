@@ -195,7 +195,7 @@ void loadfont_frame_t::fill_list()
 	}
 	else {
 		const char *addpath;
-		for(  int i=0;  addpath=dr_query_fontpath(i);  i++  ) {
+		for(  int i=0;  ( addpath = dr_query_fontpath(i) );  i++  ) {
 			add_path( addpath );
 		}
 	}

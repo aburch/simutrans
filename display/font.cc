@@ -317,13 +317,13 @@ bool load_FT_font( font_t* fnt, const char* fname, int pixel_height )
 		}
 
 		// asked for monocrome so slot->pixel_mode == FT_PIXEL_MODE_MONO
-		for(  int y = y_off, by = by_off;  y < CHARACTER_HEIGHT  &&  by < face->glyph->bitmap.rows;  y++, by++ ) {
+		for(  int y = y_off, by = by_off;  y < CHARACTER_HEIGHT  &&  (uint)by < face->glyph->bitmap.rows;  y++, by++ ) {
 			fnt->char_data[(char_nr*CHARACTER_LEN)+y] = face->glyph->bitmap.buffer[by * face->glyph->bitmap.pitch];
 		}
 
 		if(  face->glyph->bitmap.width > 8  ) {
 			// render second row
-			for(  int y = y_off, by = by_off;  y < CHARACTER_HEIGHT  &&  by < face->glyph->bitmap.rows;  y++, by++ ) {
+			for(  int y = y_off, by = by_off;  y < CHARACTER_HEIGHT  &&  (uint)by < face->glyph->bitmap.rows;  y++, by++ ) {
 				fnt->char_data[(char_nr*CHARACTER_LEN)+CHARACTER_HEIGHT+y] = face->glyph->bitmap.buffer[by * face->glyph->bitmap.pitch+1];
 			}
 		}
