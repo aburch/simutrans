@@ -2607,7 +2607,16 @@ void way_builder_t::build_track()
 			{
 				// Only mark the way for upgrading when it needs renewing: do not build anything now.
 				weg_t* const way = gr->get_weg(desc->get_wtyp());
-				if((bautyp & elevated_flag) == (way->get_desc()->get_styp() == type_elevated))
+				// keep faster ways or if it is the same way ... (@author prissi)
+				if(  way->get_replacement_way() == desc ||  keep_existing_ways
+					||  (  ( keep_existing_faster_ways || ((player && !player->is_public_service()) && way->is_public_right_of_way())) &&  ! ( desc->is_at_least_as_good_as(way->get_desc()) )  )
+					||  (  player!=NULL  &&  way-> is_deletable(player)!=NULL  )
+					||  (  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  )
+					) {
+					//nothing to be done
+					//DBG_MESSAGE("way_builder_t::build_road()","nothing to do at (%i,%i)",k.x,k.y);
+				}
+				else if((bautyp & elevated_flag) == (way->get_desc()->get_styp() == type_elevated))
 				{
 					way->set_replacement_way(desc);
 				}
