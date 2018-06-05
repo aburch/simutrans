@@ -2462,7 +2462,7 @@ void way_builder_t::build_road()
 			// Only mark the way for upgrading when it needs renewing: do not build anything now.
 			weg_t* const way = gr->get_weg(desc->get_wtyp());
 			// keep faster ways or if it is the same way ... (@author prissi)
-			if(  way->get_desc()==desc  ||  keep_existing_ways
+			if(  way->get_replacement_way() == desc ||  keep_existing_ways
 				||  (  keep_existing_city_roads  &&  way->hat_gehweg()  )
 				||  (  ( keep_existing_faster_ways || ((player && !player->is_public_service()) && way->is_public_right_of_way())) &&  ! ( desc->is_at_least_as_good_as(way->get_desc()) )  )
 				||  (  player!=NULL  &&  way-> is_deletable(player)!=NULL  )

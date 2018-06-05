@@ -435,6 +435,7 @@ public:
 	void wear_way(uint32 wear);
 
 	void set_replacement_way(const way_desc_t* replacement) { replacement_way = replacement; }
+	const way_desc_t* get_replacement_way() const { return replacement_way; }
 
 	/**
 	 * Renew the way automatically when it is worn out.
