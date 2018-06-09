@@ -1563,7 +1563,6 @@ void reliefkarte_t::draw(scr_coord pos)
 
 			int w = proportional_string_width(name);
 			scr_coord p = karte_to_screen( stadt->get_pos() );
-			p.x = clamp( p.x, 0, get_size().w-w );
 			p += pos;
 			display_proportional_clip_rgb( p.x, p.y, name, ALIGN_LEFT, col, true );
 		}
