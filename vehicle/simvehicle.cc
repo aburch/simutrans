@@ -7297,6 +7297,13 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 		slist_tpl<koord> route_tiles;
 		// The route has been recalculated since token block mode was entered, so delete all the reservations.
 		// Do not unreserve tiles ahead in the route, however.
+		// FIXME: However, this causes problems when part of the route ahead is actually beyond a station and is a concatenated route:
+		// that is not a route that is stored, and will be recalculated after stopping at the next (unsignalled) station. The current
+		// algorithm treats these tiles as being not part of the route ahead (as they are not part of the stored route) and unreserves
+		// them. This may not actually break the signalling in many cases, but will inevitably cause problems sometimes. 
+		// Possible solution: remove this algorithm entirely and replace it with a system in which traversed tiles that are to remain
+		// reserved are marked with a special subtype of "stale reservation" treated as a block reservation for all purposes other 
+		// than whether it is cleared when this method is called.
 		for(int i = route_index; i < route->get_count(); i++)
 		{
 			koord k = route->at(i).get_2d();
