@@ -1814,9 +1814,7 @@ void reliefkarte_t::draw(scr_coord pos)
 		FOR( weighted_vector_tpl<stadt_t*>, const city, staedte ) {
 			const char * name = city->get_name();
 
-			int w = proportional_string_width(name);
 			scr_coord p = karte_to_screen( city->get_pos() );
-			p.x = clamp( p.x, 0, get_size().w-w );
 			p += pos;
 			display_proportional_clip_rgb( p.x, p.y, name, ALIGN_LEFT, col, true );
 		}
