@@ -304,8 +304,9 @@ public:
 	/**
 	 * Update adverse.max_speed. If given speed is less than current adverse.max_speed, then speed becomes the new adverse.max_speed.
 	 */
-	void update_max_speed(const int speed) { 
-		if (adverse.max_speed > speed ) adverse.max_speed = speed; 
+	void update_max_speed(const int speed)
+	{ 
+		if (adverse.max_speed > speed || adverse.max_speed == 0) adverse.max_speed = speed; 
 	}
 
 	/**
