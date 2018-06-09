@@ -3595,13 +3595,15 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			return false;
 		}
 
+		route_t const& r = *cnv->get_route();
+		const bool route_index_beyond_end_of_route = route_index >= r.get_count();
+
 		// first: check roadsigns
 		const roadsign_t *rs = NULL;
 		if (str->has_sign()) {
 			rs = gr->find<roadsign_t>();
-			route_t const& r = *cnv->get_route();
 
-			if (rs && (route_index + 1u < r.get_count())) {
+			if (rs && (!route_index_beyond_end_of_route)) {
 				// since at the corner, our direction may be diagonal, we make it straight
 				uint8 direction90 = ribi_type(get_pos(), pos_next);
 
@@ -3628,8 +3630,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				}
 			}
 		}
-
-		route_t const& r = *cnv->get_route();
 
 		// At a crossing, decide whether the convoi should go on passing lane.
 		// side road -> main road from passing lane side: vehicle should enter passing lane on main road.
@@ -3787,7 +3787,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 				if (is_traffic_light || gr->get_weg(get_waytype())->get_ribi_maske() & dir)
 				{
-					if (rs && (route_index + 1u < r.get_count())) {
+					if (rs && (!route_index_beyond_end_of_route)) {
 						// since at the corner, our direction may be diagonal, we make it straight
 
 						uint8 direction90 = ribi_type(get_pos().get_2d(), pos_next.get_2d());
@@ -4010,7 +4010,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		const koord3d pos_next2 = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
 		// We have to calculate offset.
 		uint32 offset = 0;
-		if(  str->get_pos()!=r.at(route_index)  ){
+		if( !route_index_beyond_end_of_route && str->get_pos()!=r.at(route_index)  ){
 			for(uint32 test_index = route_index+1u; test_index<r.get_count(); test_index++){
 				offset += 1;
 				if(  str->get_pos()==r.at(test_index)  ) break;
@@ -4047,8 +4047,8 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 		// If the next tile is a intersection, lane crossing must be checked before entering.
 		// The other vehicle is ignored if it is stopping to avoid stuck.
-		const grund_t *gr = welt->lookup(r.at(route_index));
-		const strasse_t *stre= gr ? (strasse_t *)gr->get_weg(road_wt) : NULL;
+		const grund_t *gr = route_index_beyond_end_of_route ? NULL : welt->lookup(r.at(route_index));
+		const strasse_t *stre = gr ? (strasse_t *)gr->get_weg(road_wt) : NULL;
 		const ribi_t::ribi way_ribi = stre ? stre->get_ribi_unmasked() : ribi_t::none;
 		if(  stre  &&  stre->get_overtaking_mode() <= oneway_mode  &&  (way_ribi == ribi_t::all  ||  ribi_t::is_threeway(way_ribi))  ) {
 			if(  const vehicle_base_t* v = other_lane_blocked(true)  ) {
