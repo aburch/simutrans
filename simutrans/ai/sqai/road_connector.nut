@@ -8,12 +8,14 @@ class road_connector_t extends manager_t
 	planned_station = null
 	planned_depot = null
 	planned_convoy = null
+	finalize = true
 
 	// step-by-step construct the connection
 	phase = 0
+	// can be provided optionally
+	c_start = null // array
+	c_end   = null // array
 	// generated data
-	c_start = null
-	c_end   = null
 	c_depot = null
 	c_sched = null
 	c_line  = null
@@ -33,9 +35,11 @@ class road_connector_t extends manager_t
 
 		switch(phase) {
 			case 0: // find places for stations
-				c_start = find_station_place(fsrc, fdest)
-				if (c_start) {
-					c_end   = find_station_place(fdest, c_start, true)
+				if (c_start == null) {
+					c_start = ::finder.find_station_place(fsrc, fdest)
+				}
+				if (c_start  &&  c_end == null) {
+					c_end   = ::finder.find_station_place(fdest, c_start, !finalize)
 				}
 
 				if (c_start.len()>0  &&  c_end.len()>0) {
@@ -43,8 +47,7 @@ class road_connector_t extends manager_t
 				}
 				else {
 					print("No station places found")
-					error_handler()
-					return r_t(RT_TOTAL_FAIL)
+					return error_handler()
 				}
 			case 1: // build way
 				{
@@ -54,8 +57,7 @@ class road_connector_t extends manager_t
 					print("Way construction cost: " + (d-pl.get_current_cash()) )
 					if (err) {
 						print("Failed to build way from " + coord_to_string(c_start[0])+ " to " + coord_to_string(c_end[0]))
-						error_handler()
-						return r_t(RT_TOTAL_FAIL)
+						return error_handler()
 					}
 					phase ++
 				}
@@ -64,20 +66,20 @@ class road_connector_t extends manager_t
 					local err = command_x.build_station(pl, c_start, planned_station )
 					if (err) {
 						print("Failed to build station at " + coord_to_string(c_start))
-						error_handler()
-						return r_t(RT_TOTAL_FAIL)
+						return error_handler()
 					}
 					local err = command_x.build_station(pl, c_end, planned_station )
 					if (err) {
 						print("Failed to build station at " + coord_to_string(c_end))
-						error_handler()
-						return r_t(RT_TOTAL_FAIL)
+						return error_handler()
 					}
-					{
+					if (finalize) {
 						// store place of unload station for future use
 						local fs = ::station_manager.access_freight_station(fdest)
 						if (fs.road_unload == null) {
 							fs.road_unload = c_end
+
+							print( recursive_save({unload = c_end}, "\t\t\t", []) )
 						}
 					}
 					phase ++
@@ -87,20 +89,9 @@ class road_connector_t extends manager_t
 					local err = construct_road_to_depot(pl, c_start, planned_way)
 					if (err) {
 						print("Failed to build depot access from " + coord_to_string(c_start))
-						error_handler()
-						return r_t(RT_TOTAL_FAIL)
+						return error_handler()
 					}
 					phase += 2
-				}
-			case 4: // build way to depot
-				{
-					local err = command_x.build_way(pl, c_start, c_depot, planned_way, false)
-					if (err) {
-						print("Failed to build depot access from " + coord_to_string(c_start)+ " to " + coord_to_string(c_depot))
-						error_handler()
-						return r_t(RT_TOTAL_FAIL)
-					}
-					phase ++
 				}
 			case 5: // build depot
 				{
@@ -110,14 +101,13 @@ class road_connector_t extends manager_t
 						local err = command_x.build_depot(pl, c_depot, planned_depot )
 						if (err) {
 							print("Failed to build depot at " + coord_to_string(c_depot))
-							error_handler()
-							return r_t(RT_TOTAL_FAIL)
+							return error_handler()
 						}
-						{
+						if (finalize) {
 							// store depot location
 							local fs = ::station_manager.access_freight_station(fsrc)
-							if (fs.depot == null) {
-								fs.depot = c_depot
+							if (fs.road_depot == null) {
+								fs.road_depot = c_depot
 							}
 						}
 					}
@@ -168,7 +158,9 @@ class road_connector_t extends manager_t
 
 		}
 
-		industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_built)
+		if (finalize) {
+			industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_built)
+		}
 		industry_manager.access_link(fsrc, fdest, freight).append_line(c_line)
 
 		return r_t(RT_TOTAL_SUCCESS)
@@ -176,108 +168,66 @@ class road_connector_t extends manager_t
 
 	function error_handler()
 	{
-		industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_failed);
-	}
+		local r = r_t(RT_TOTAL_FAIL)
+		// TODO rollback
+		if (reports.len()>0) {
+			// there are alternatives
+			print("Delivering alternative connector")
+			r.report = reports.pop()
 
-	function get_tiles_near_factory(factory)
-	{
-		local cov = settings.get_station_coverage()
-		local area = []
-
-		// generate a list of tiles that will reach the factory
-		local ftiles = factory.get_tile_list()
-		foreach (c in ftiles) {
-			for(local dx = -cov; dx <= cov; dx++) {
-				for(local dy = -cov; dy <= cov; dy++) {
-					if (dx==0 && dy==0) continue;
-
-					local x = c.x+dx
-					local y = c.y+dy
-
-					if (x>=0 && y>=0) area.append( (x << 16) + y );
-				}
+			if (r.report.action  &&  r.report.action.getclass() == amphibious_connection_planner_t) {
+				print("Delivering amphibious_connection_planner_t")
+				r.node   = r.report.action
+				r.report = null
 			}
 		}
-		// sort
-		sleep()
-		area.sort(/*compare_coord*/)
-		return area
-	}
-
-	function find_empty_place(area, target)
-	{
-		// find place closest to target
-		local tx = target.x
-		local ty = target.y
-
-		local best = null
-		local dist = 10000
-		// check for flat and empty ground
-		for(local i = 0; i<area.len(); i++) {
-
-			local h = area[i]
-			if (i>0  &&  h == area[i-1]) continue;
-
-			local x = h >> 16
-			local y = h & 0xffff
-
-			if (world.is_coord_valid({x=x,y=y})) {
-				local tile = square_x(x, y).get_ground_tile()
-
-				if (tile.is_empty()  &&  tile.get_slope()==0) {
-					local d = abs(x - tx) + abs(y - ty)
-					if (d < dist) {
-						dist = d
-						best = tile
-					}
-				}
-			}
+		else {
+			industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_failed);
 		}
-		return best
+		return r
 	}
 
-	function find_empty_places(area)
+	function construct_road(pl, starts, ends, way)
 	{
-		local list = []
-		// check for flat and empty ground
-		for(local i = 0; i<area.len(); i++) {
-
-			local h = area[i]
-			if (i>0  &&  h == area[i-1]) continue;
-
-			local x = h >> 16
-			local y = h & 0xffff
-
-			if (world.is_coord_valid({x=x,y=y})) {
-				local tile = square_x(x, y).get_ground_tile()
-
-				if (tile.is_empty()  &&  tile.get_slope()==0) {
-					list.append(tile)
-				}
-			}
+		local as = astar_builder()
+		as.builder = way_planner_x(pl)
+		as.way = way
+		as.builder.set_build_types(way)
+		as.bridger = pontifex(pl, way)
+		if (as.bridger.bridge == null) {
+			as.bridger = null
 		}
-		return list.len() > 0 ?  list : []
-	}
 
-	function find_station_place(factory, target, unload = false)
-	{
-		if (unload) {
-			// try unload station from station manager
-			local res = ::station_manager.access_freight_station(factory).road_unload
-			if (res) {
-				return [res]
-			}
+		local res = as.search_route(starts, ends)
+
+		if ("err" in res) {
+			return res.err
 		}
-		local area = get_tiles_near_factory(factory)
-
-		return find_empty_places(area)
+		c_start = res.start
+		c_end   = res.end
 	}
 
-	function find_depot_place(start, target)
+	function construct_road_to_depot(pl, start, way)
 	{
+		local as = depot_pathfinder()
+		as.builder = way_planner_x(pl)
+		as.way = way
+		as.builder.set_build_types(way)
+		local res = as.search_route(start)
+
+		if ("err" in res) {
+			return res.err
+		}
+		local d = res.end
+		c_depot = tile_x(d.x, d.y, d.z)
+	}
+
+	static function find_road_depot_place(start, target)
+	{
+		// TODO UNUSED
 		{
 			// try depot location from station manager
-			local res = ::station_manager.access_freight_station(fsrc).depot
+			local res = ::station_manager.access_freight_station(fsrc).road_depot
 			if (res) {
 				return res
 			}
@@ -297,23 +247,23 @@ class road_connector_t extends manager_t
 		for(local i=0; i<4; i++) {
 			local nt = t.get_neighbour(wt_road, d)
 			if (nt == null) break
-			// should have a road
-			local rd = nt.get_way_dirs(wt_road)
-			// find direction to proceed: not going back, where we were coming from
-			local nd = rd & (~(dir.backward(d)))
-			// loop through neighbor tiles not on the road
-			foreach(d1 in dir.nsew) {
-				if (d1 & rd ) continue
-				// test this spot
-				local dp = nt.get_neighbour(wt_all, d1)
-				if (dp  &&  dp.is_empty()  &&  dp.get_slope()==0) {
-					return dp
+				// should have a road
+				local rd = nt.get_way_dirs(wt_road)
+				// find direction to proceed: not going back, where we were coming from
+				local nd = rd & (~(dir.backward(d)))
+				// loop through neighbor tiles not on the road
+				foreach(d1 in dir.nsew) {
+					if (d1 & rd ) continue
+						// test this spot
+						local dp = nt.get_neighbour(wt_all, d1)
+						if (dp  &&  dp.is_empty()  &&  dp.get_slope()==0) {
+							return dp
+						}
 				}
-			}
-			if (!dir.is_single(nd)  ||  nd==0) break
-			// proceed
-			t = nt
-			d = nd
+				if (!dir.is_single(nd)  ||  nd==0) break
+					// proceed
+					t = nt
+					d = nd
 		}
 
 		t = tile_x(start.x, start.y, start.z)
@@ -344,40 +294,6 @@ class road_connector_t extends manager_t
 			}
 		}
 		return find_empty_place(area, target)
-	}
-
-	function construct_road(pl, starts, ends, way)
-	{
-		local as = astar_builder()
-		as.builder = way_planner_x(pl)
-		as.way = way
-		as.builder.set_build_types(way)
-		as.bridger = pontifex(pl, way)
-		if (as.bridger.bridge == null) {
-			as.bridger = null
-		}
-		local res = as.search_route(starts, ends)
-
-		if ("err" in res) {
-			return res.err
-		}
-		c_start = res.start
-		c_end   = res.end
-	}
-
-	function construct_road_to_depot(pl, start, way)
-	{
-		local as = depot_pathfinder()
-		as.builder = way_planner_x(pl)
-		as.way = way
-		as.builder.set_build_types(way)
-		local res = as.search_route(start)
-
-		if ("err" in res) {
-			return res.err
-		}
-		local d = res.end
-		c_depot = tile_x(d.x, d.y, d.z)
 	}
 }
 
@@ -416,6 +332,3 @@ class depot_pathfinder extends astar_builder
 		return { err =  "No route" }
 	}
 }
-
-
-

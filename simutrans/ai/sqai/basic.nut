@@ -16,9 +16,12 @@ class r_t
 {
 	// return code composed of return_code constants above
 	code = 0
+	// reports have to be handled
 	report = null
+	// run node immediately
+	node = null
 
-	constructor(c) { code = c }
+	constructor(c, r=null, n=null) { code = c; report = r; node = n }
 
 	function is_ready()       { return (code & RT_READY);}
 	function can_be_deleted() { return (code & RT_KILL_ME); }
@@ -87,6 +90,10 @@ class node_seq_t extends node_t
 		else if (ret.is_ready()) {
 			next_to_step ++
 		}
+		// successor node
+		if (ret.node) {
+			append_child(ret.node)
+		}
 		// our return code
 		local rc = RT_PARTIAL_SUCCESS // want next call, too
 		if (ret.has_failed()) {
@@ -106,17 +113,15 @@ class report_t
 	// costs
 	cost_fix = 0
 	cost_monthly = 0
-	// revenue per vehicle and month
-	// (gain of ships included)
-	gain_per_v_m = 0
 	// expected gain per month
 	gain_per_m = 0
-	// convoys
-	nr_convoys = 0
 
 	function merge_report(r)
 	{
-		// TODO
+		action.append_child( r.action )
+		cost_fix     += r.cost_fix
+		cost_monthly += r.cost_monthly
+		gain_per_m   += r.gain_per_m
 	}
 
 	function _save()
@@ -129,7 +134,7 @@ class manager_t extends node_seq_t
 {
 	reports = null
 
-	constructor(n)
+	constructor(n = "manager_t")
 	{
 		base.constructor(n)
 		reports = []

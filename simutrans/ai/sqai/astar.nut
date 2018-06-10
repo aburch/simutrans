@@ -29,6 +29,10 @@ class astar
 
 	route       = null // route, reversed: target to start
 
+	calls_open = 0
+	calls_closed = 0
+	calls_pop = 0
+
 	constructor()
 	{
 		closed_list = {}
@@ -44,11 +48,15 @@ class astar
 		route       = []
 		heap.clear()
 		targets     = []
+		calls_open = 0
+		calls_closed = 0
+		calls_pop = 0
 	}
 
 	function add_to_close(c)
 	{
 		closed_list[ coord3d_to_key(c) ] <- 1
+		calls_closed++
 	}
 
 	function test_and_close(c)
@@ -59,6 +67,7 @@ class astar
 		}
 		else {
 			closed_list[ key ] <- 1
+			calls_closed++
 			return true
 		}
 	}
@@ -74,6 +83,7 @@ class astar
 		local i = nodes.len()
 		nodes.append(c)
 		heap.insert(weight, i)
+		calls_open++
 	}
 
 	function search()
@@ -83,6 +93,7 @@ class astar
 
 		local current_node = null
 		while (!heap.is_empty()) {
+			calls_pop++
 
 			local wi = heap.pop()
 			current_node = nodes[wi.value]
@@ -111,6 +122,8 @@ class astar
 				route.append(current_node)
 			}
 		}
+
+		print("Calls: pop = " + calls_pop + ", open = " + calls_open + ", close = " + calls_closed)
 	}
 
 	function compute_bounding_box()
@@ -150,11 +163,6 @@ class astar
 			}
 		}
 		return d
-	}
-
-	function coord3d_to_key(c)
-	{
-		return c.x + ":" + c.y + ":" + c.z;
 	}
 }
 
@@ -253,7 +261,7 @@ class astar_builder extends astar
 					local max_len = bridger.bridge.get_max_length()
 
 					do {
-						local to = bridger.find_end(to, d, len)
+						local to = bridger.find_end(from, d, len)
 						if (to.x < 0  ||  is_closed(to)) {
 							break
 						}
@@ -312,4 +320,3 @@ class astar_builder extends astar
 		return { err =  "No route" }
 	}
 }
-
