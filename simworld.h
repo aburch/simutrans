@@ -2622,6 +2622,8 @@ public:
 
 	uint32 get_max_road_check_depth() const { return max_road_check_depth; }
 
+	sint64 calc_monthly_job_demand() const;
+
 	/**
 	 * To identify the current map.
 	 */

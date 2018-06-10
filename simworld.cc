@@ -11378,3 +11378,9 @@ bool karte_t::is_forge_cost_reduced(waytype_t waytype, koord3d position)
 	}
 	return is_cost_reduced;
 }
+
+sint64 karte_t::calc_monthly_job_demand() const
+{
+	sint64 value = (get_finance_history_month(0, karte_t::WORLD_CITICENS) * get_settings().get_commuting_trip_chance_percent()) / get_settings().get_passenger_trips_per_month_hundredths();
+	return value;
+}
