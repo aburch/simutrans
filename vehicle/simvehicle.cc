@@ -5349,7 +5349,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				|| signal->get_state() == signal_t::advance_caution_no_choose
 				|| (working_method == token_block && signal->get_state() == signal_t::danger)))
 			{
-				if (signal->get_desc()->get_working_method() == token_block || signal->get_desc()->get_working_method() == one_train_staff)
+				if (!starting_from_stand && (signal->get_desc()->get_working_method() == token_block || signal->get_desc()->get_working_method() == one_train_staff))
 				{
 					// These signals should only clear when a train is starting from them.
 					break;
