@@ -3613,7 +3613,8 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					return false;
 				}
 				// check, if we reached a choose point
-				else {
+				else if(route_index + 1u < r.get_count())
+				{
 					// route position after road sign
 					const koord pos_next_next = r.at(route_index + 1u).get_2d();
 					// since at the corner, our direction may be diagonal, we make it straight
@@ -6518,7 +6519,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 			}
 			const bool telegraph_directional = time_interval_reservation && previous_telegraph_directional || (next_signal_working_method == time_interval_with_telegraph && (((last_longblock_signal_index == last_stop_signal_index && first_stop_signal_index == last_longblock_signal_index) && last_longblock_signal_index < INVALID_INDEX) || first_double_block_signal_index < INVALID_INDEX && next_signal_protects_no_junctions));
 			const schiene_t::reservation_type rt = directional_only || telegraph_directional ? schiene_t::directional : schiene_t::block;
-			bool attempt_reservation = directional_only || time_interval_reservation || previous_telegraph_directional || ((next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph && (next_signal_working_method != drive_by_sight || i < start_index + modified_sighting_distance_tiles + 1)) && (!stop_at_station_signal.is_bound() || stop_at_station_signal == check_halt));
+			bool attempt_reservation = directional_only || time_interval_reservation || previous_telegraph_directional || ((next_signal_working_method != time_interval && next_signal_working_method != time_interval_with_telegraph && (i < start_index + modified_sighting_distance_tiles + 1)) && (!stop_at_station_signal.is_bound() || stop_at_station_signal == check_halt));
 			previous_telegraph_directional = telegraph_directional;
 			previous_time_interval_reservation = time_interval_reservation ? is_true : is_false;
 			if(!reserving_beyond_a_train && attempt_reservation && !reached_second_one_train_staff_cabinet && !sch1->reserve(cnv->self, ribi_type(route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u,i+1u))), rt, (working_method == time_interval || working_method == time_interval_with_telegraph)))
