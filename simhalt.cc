@@ -1056,7 +1056,8 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 		while(true) {
 			// well now try them all from "0..." over "9..." to "A..." to "Z..."
 			for(  int i=0;  i<10+26;  i++  ) {
-				numbername[0] = i<10 ? '0'+i : 'A'+i-10;
+				const int random_base = simrand(10 + 26, "haltestelle_t::create_name()"); 
+				numbername[0] = random_base < 10 ? '0' + random_base : 'A' + random_base - 10;
 				const char *base_name = translator::translate(numbername,lang);
 				if(base_name==numbername) {
 					// not translated ... try next
