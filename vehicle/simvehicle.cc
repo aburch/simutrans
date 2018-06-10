@@ -7312,7 +7312,7 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 	}
 	else
 	{
-		bool break_now = false;
+		uint32 break_now = 0;
 		const bool is_one_train_staff = sig && sig->get_desc()->get_working_method() == one_train_staff;
 		for(int i = route_index - 1; i >= 0; i--)
 		{
@@ -7320,13 +7320,13 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 			schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
 			if (!is_one_train_staff && !sch_route->is_reserved() || sch_route->get_reserved_convoi() != cnv->self)
 			{
-				break_now = true;
+				break_now ++;
 			}
 			if(sch_route && (!cnv || cnv->get_state() != convoi_t::REVERSING))
 			{
 				sch_route->unreserve(cnv->self);
 			}
-			if (break_now)
+			if (break_now > 1)
 			{
 				break;
 			}
