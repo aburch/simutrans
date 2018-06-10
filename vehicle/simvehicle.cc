@@ -7294,32 +7294,15 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 	}
 	if(cnv->get_needs_full_route_flush())
 	{
-		slist_tpl<koord> route_tiles;
 		// The route has been recalculated since token block mode was entered, so delete all the reservations.
-		// Do not unreserve tiles ahead in the route, however.
-		// FIXME: However, this causes problems when part of the route ahead is actually beyond a station and is a concatenated route:
-		// that is not a route that is stored, and will be recalculated after stopping at the next (unsignalled) station. The current
-		// algorithm treats these tiles as being not part of the route ahead (as they are not part of the stored route) and unreserves
-		// them. This may not actually break the signalling in many cases, but will inevitably cause problems sometimes. 
-		// Possible solution: remove this algorithm entirely and replace it with a system in which traversed tiles that are to remain
-		// reserved are marked with a special subtype of "stale reservation" treated as a block reservation for all purposes other 
-		// than whether it is cleared when this method is called.
-		for(int i = route_index; i < route->get_count(); i++)
-		{
-			koord k = route->at(i).get_2d();
-			route_tiles.append(k);
-		}
+		// Do not unreserve tiles ahead in the route (i.e., those not marked stale), however.
 		const waytype_t waytype = sch->get_waytype();
 		FOR(vector_tpl<weg_t*>, const way, weg_t::get_alle_wege())
 		{
-			if(route_tiles.is_contained(way->get_pos().get_2d()))
-			{
-				continue;
-			}
 			if(way->get_waytype() == waytype)
 			{
 				schiene_t* const sch = obj_cast<schiene_t>(way);
-				if(sch->get_reserved_convoi() == cnv->self)
+				if(sch->get_reserved_convoi() == cnv->self && sch->is_stale())
 				{
 					sch->unreserve(w);
 				}
@@ -7474,9 +7457,17 @@ void rail_vehicle_t::leave_tile()
 					}
 				}
 
-				if((!cnv || cnv->get_state() != convoi_t::REVERSING) && (!w || (w->get_working_method() != token_block && w->get_working_method() != one_train_staff)) && !at_reversing_destination)
+				if((!cnv || cnv->get_state() != convoi_t::REVERSING) && (!w || (w->get_working_method() != one_train_staff)) && !at_reversing_destination)
 				{
-					sch0->unreserve(this);
+					if (w && w->get_working_method() == token_block)
+					{
+						// We mark these for later unreservation.
+						sch0->set_stale();
+					}
+					else
+					{
+						sch0->unreserve(this);
+					}
 				}
 
 				// The end of the train is passing a signal. Check whether to re-set its aspect

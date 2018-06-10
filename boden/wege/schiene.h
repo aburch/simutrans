@@ -24,7 +24,7 @@ class vehicle_t;
 class schiene_t : public weg_t
 {
 public:
-	enum reservation_type : uint8 	{ block = 0, directional, priority };
+	enum reservation_type : uint8 	{ block = 0, directional, priority, stale_block };
 
 protected:
 	/**
@@ -93,11 +93,14 @@ public:
 	* true, if this rail can be reserved
 	* @author prissi
 	*/
-	bool is_reserved(reservation_type t = block) const { return reserved.is_bound() && t == type; }
+	bool is_reserved(reservation_type t = block) const { return reserved.is_bound() && t == type || (t == block && type == stale_block); }
 	bool is_reserved_directional(reservation_type t = directional) const { return reserved.is_bound() && t == type; }
 	bool is_reserved_priority(reservation_type t = priority) const { return reserved.is_bound() && t == type; }
 
-	reservation_type get_reservation_type() const { return type; }
+	void set_stale() { type == block ? type = stale_block : type == block /* null code for ternery */ ; }
+	bool is_stale() { return type == stale_block; }
+
+	reservation_type get_reservation_type() const { return type != stale_block ? type : block; }
 
 	ribi_t::ribi get_reserved_direction() const { return direction; }
 
@@ -158,6 +161,11 @@ public:
 		case priority:
 			reservation_colour = COL_YELLOW;
 			break;
+#ifdef DEBUG
+		case stale_block:
+			reservation_colour = COL_DARK_RED;
+			break;
+#endif
 		};
 		return (show_reservations  &&  reserved.is_bound()) ? TRANSPARENT75_FLAG | OUTLINE_FLAG | reservation_colour : 0;
 	}
@@ -201,13 +209,12 @@ public:
 		switch (rt)
 		{
 		case 0:
+		default: 
 			return "block_reservation";
 		case 1:
 			return "directional_reservation";
 		case 2:
 			return "priority_reservation";
-		default:
-			return "unknown";
 		};
 	}
 	static const char* get_directions_name(ribi_t::ribi dir)
@@ -239,8 +246,6 @@ public:
 		};
 	}
 };
-
-
 
 
 template<> inline schiene_t* obj_cast<schiene_t>(obj_t* const d)

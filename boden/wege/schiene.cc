@@ -209,7 +209,7 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir, reservation_type t, 
 	if (can_reserve(c, dir, t, check_directions_at_junctions)) 
 	{
 		ribi_t::ribi old_direction = direction;
-		if (type == block && t == directional && reserved.is_bound())
+		if ((type == block || type == stale_block) && t == directional && reserved.is_bound())
 		{
 			// Do not actually reserve here, as the directional reservation 
 			// is already done, but show that this is reservable. 
