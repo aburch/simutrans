@@ -26,7 +26,7 @@ vector_tpl<sint64> const& get_line_stat(simline_t *line, sint32 INDEX)
 	v.clear();
 	if (line  &&  0<=INDEX  &&  INDEX<MAX_LINE_COST) {
 		for(uint16 i = 0; i < MAX_MONTHS; i++) {
-			v.append( line->get_finance_history(i, INDEX) );
+			v.append( line->get_stat_converted(i, INDEX) );
 		}
 	}
 	return v;
