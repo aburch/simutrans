@@ -7457,9 +7457,9 @@ void rail_vehicle_t::leave_tile()
 					}
 				}
 
-				if((!cnv || cnv->get_state() != convoi_t::REVERSING) && (!w || (w->get_working_method() != one_train_staff)) && !at_reversing_destination)
+				if((!cnv || cnv->get_state() != convoi_t::REVERSING) && !at_reversing_destination)
 				{
-					if (w && w->get_working_method() == token_block)
+					if (w && (w->get_working_method() == token_block || (w->get_working_method() == one_train_staff)))
 					{
 						// We mark these for later unreservation.
 						sch0->set_stale();
