@@ -4342,7 +4342,7 @@ uint16 display_load_font(const char* fname)
 		return 0;
 	}
 	// skip reloading if already in memory, if bdf font
-	if(  strcmp( large_font.fname, fname ) == 0  &&  strstr(fname,".bdf")  ) {
+	if(  large_font.num_chars>0  &&  strcmp( large_font.fname, fname ) == 0  ) {
 		return large_font.num_chars;
 	}
 
