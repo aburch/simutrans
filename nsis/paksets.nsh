@@ -140,12 +140,12 @@ SectionEnd
 
 
 
-Section /o "pak128 V2.6" pak128
-  AddSize 412583
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20120%20%282.6%2C%20completed%20elevated%20tracks%29/pak128-2.6--ST120.zip"
-  StrCpy $archievename "pak128-2.6--ST120.zip"
+Section /o "pak128 V2.7" pak128
+  AddSize 412211
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20120.2.2%20%282.7%2C%20minor%20changes%29/pak128.zip"
+  StrCpy $archievename "pak128.zip"
   StrCpy $downloadname "pak128"
-  StrCpy $VersionString "Pak128 2.6"
+  StrCpy $VersionString "Pak128 2.7"
   Call DownloadInstallZipWithoutSimutrans
 SectionEnd
 
