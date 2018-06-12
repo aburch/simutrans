@@ -1970,9 +1970,16 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	}
 #endif
 
-	env_t::water_animation = contents.get_int("water_animation_ms", env_t::water_animation);
-	env_t::ground_object_probability = contents.get_int("random_grounds_probability", env_t::ground_object_probability);
-	env_t::moving_object_probability = contents.get_int("random_wildlife_probability", env_t::moving_object_probability);
+	//check for fontname, must be a valid name!
+	const char *fname = contents.get_string( "fontname", env_t::fontname.c_str() );
+	if(  FILE *f=fopen(fname,"r")  ) {
+		fclose(f);
+		env_t::fontname = fname;
+	}
+
+	env_t::water_animation = contents.get_int("water_animation_ms", env_t::water_animation );
+	env_t::ground_object_probability = contents.get_int("random_grounds_probability", env_t::ground_object_probability );
+	env_t::moving_object_probability = contents.get_int("random_wildlife_probability", env_t::moving_object_probability );
 
 	env_t::straight_way_without_control = contents.get_int("straight_way_without_control", env_t::straight_way_without_control) != 0;
 

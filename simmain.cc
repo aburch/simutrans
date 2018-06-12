@@ -698,8 +698,12 @@ int simu_main(int argc, char** argv)
 	dr_chdir( env_t::program_dir );
 	if(  found_simuconf  ) {
 		if(simuconf.open(path_to_simuconf)) {
-			printf("parse_simuconf() in program dir (%s): ", path_to_simuconf);
+			// we do not allow to change the global font name
+			std::string old_fontname = env_t::fontname;
+			printf("parse_simuconf() at config/simuconf.tab: ");
 			env_t::default_settings.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, env_t::objfilename );
+			simuconf.close();
+			env_t::fontname = old_fontname;
 		}
 	}
 
@@ -884,9 +888,12 @@ int simu_main(int argc, char** argv)
 	// default simuconf.tab
 	if(  found_simuconf  ) {
 		if(simuconf.open(path_to_simuconf)) {
+			// we do not allow to change the global font name also from the pakset ...
+			std::string old_fontname = env_t::fontname;
 			printf("parse_colours() at config/simuconf.tab: ");
 			env_t::default_settings.parse_colours( simuconf );
 			simuconf.close();
+			env_t::fontname = old_fontname;
 		}
 	}// a portable installation could have a personal simuconf.tab in the main dir of simutrans
 	// otherwise it is in ~/simutrans/simuconf.tab
@@ -1095,9 +1102,8 @@ int simu_main(int argc, char** argv)
 		translator::set_language( env_t::language_iso );
 	}
 
-	// Hajo: simgraph init loads default fonts, now we need to load
-	// the real fonts for the current language
-	sprachengui_t::init_font_from_lang();
+	// Hajo: simgraph init loads default fonts, now we need to load (if not set otherwise)
+	sprachengui_t::init_font_from_lang( strcmp(env_t::fontname.c_str(), FONT_PATH_X "prop.fnt")==0 );
 	dr_chdir(env_t::program_dir);
 
 	dbg->important("Reading city configuration ...");
@@ -1401,8 +1407,8 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 	welt->set_dirty();
 
 	// Hajo: simgraph init loads default fonts, now we need to load
-	// the real fonts for the current language
-	sprachengui_t::init_font_from_lang();
+	// the real fonts for the current language, if not set otherwise
+	sprachengui_t::init_font_from_lang( strcmp(env_t::fontname.c_str(), FONT_PATH_X "prop.fnt")==0 );
 
 	if (!(env_t::reload_and_save_on_quit && !new_world)) {
 		destroy_all_win(true);
