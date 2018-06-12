@@ -7,7 +7,7 @@ Section "!pak (64 size) (standard)" pak
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/120-3/simupak64-120-3.zip"
   StrCpy $archievename "simupak64-120-3.zip"
   StrCpy $downloadname "pak"
-  StrCpy $VersionString "pak64 120.3 r1923"
+  StrCpy $VersionString "pak64 120.3 r1965"
   Call DownloadInstallZip
 SectionEnd
 
@@ -29,12 +29,12 @@ SectionGroupEnd
 
 
 
-Section /o "pak64.german (Freeware) for 112-3-8" pak64german
-  AddSize 20315
-  StrCpy $downloadlink "http://www.simutrans-germany.com/pak.german/pak64.german_0-112-3-4_full.zip"
+Section /o "pak64.german (Freeware) for 112-3-9" pak64german
+  AddSize 22050
+  StrCpy $downloadlink "http://www.simutrans-germany.com/pak.german/pak64.german_0-112-3-9_full.zip"
   StrCpy $archievename "pak64.german_0-112-3-4_full.zip"
   StrCpy $downloadname "pak64.german"
-  StrCpy $VersionString "pak64.german 0.112.3.8"
+  StrCpy $VersionString "pak64.german 0.112.3.9"
   Call DownloadInstallZip
 SectionEnd
 
