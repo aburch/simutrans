@@ -1030,6 +1030,9 @@ const char *two_click_tool_t::work(player_t *player, koord3d pos )
 	uint8 value = is_valid_pos( player, pos, error, !is_first_click() ? start : koord3d::invalid );
 	DBG_MESSAGE("two_click_tool_t::work", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
+		if (error == NULL) {
+			error = ""; // propagate errors
+		}
 		flags &= ~(WFL_SHIFT | WFL_CTRL);
 		init( player );
 		return error;
