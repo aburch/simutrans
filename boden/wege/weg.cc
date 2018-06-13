@@ -294,6 +294,7 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 		remaining_wear_capacity = desc->get_wear_capacity();
 		degraded = false;
 		replacement_way = desc;
+		last_renewal_month_year = welt->get_timeline_year_month();
 		const grund_t* gr = welt->lookup(get_pos());
 		if(gr)
 		{
