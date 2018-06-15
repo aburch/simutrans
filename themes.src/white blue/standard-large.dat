@@ -1,0 +1,218 @@
+#
+# Simutrans window skin definitions for themes
+#
+# All image names must start with "> " to have them non zoomable
+#
+# This theme has the scalable standard look
+#
+################################################
+#
+# Button have 3 rows with left middle right images for one state
+#
+# If only top row is there, button will be centered vertically in area if the size does not match.
+# If all nine are there, you can set any size in themes.tab
+#
+--
+Obj=menu
+name=Button
+# normal
+Image[0]=> button.0.0
+Image[1]=> button.0.2
+Image[2]=> button.0.1
+Image[3]=> button.0.3
+Image[4]=> button.0.5
+Image[5]=> button.0.4
+Image[6]=> button.0.6
+Image[7]=> button.0.8
+Image[8]=> button.0.7
+# pressed
+Image[9]=> button.1.0
+Image[10]=> button.1.2
+Image[11]=> button.1.1
+Image[12]=> button.1.3
+Image[13]=> button.1.5
+Image[14]=> button.1.4
+Image[15]=> button.1.6
+Image[16]=> button.1.8
+Image[17]=> button.1.7
+# disabled (will use the unpressed color mask)
+Image[18]=> button.2.0
+Image[19]=> button.2.2
+Image[20]=> button.2.1
+Image[21]=> button.2.3
+Image[22]=> button.2.5
+Image[23]=> button.2.4
+Image[24]=> button.2.6
+Image[25]=> button.2.8
+Image[26]=> button.2.7
+# color mask (will be blended, so it is a good idea to have a bright color for the foreground in this area)
+Image[27]=> button.3.0
+Image[28]=> button.3.2
+Image[29]=> button.3.1
+Image[30]=> button.3.3
+Image[31]=> button.3.5
+Image[32]=> button.3.4
+Image[33]=> button.3.6
+Image[34]=> button.3.8
+Image[35]=> button.3.7
+# If the position of the colored area is different for a pressed button (i.e. protruding knobs)
+# then here can come another nine mask images
+--
+Obj=menu
+name=Roundbutton
+# normal
+Image[0]=> button.0.0
+Image[1]=> button.0.2
+Image[2]=> button.0.1
+Image[3]=> button.0.3
+Image[4]=> button.0.5
+Image[5]=> button.0.4
+Image[6]=> button.0.6
+Image[7]=> button.0.8
+Image[8]=> button.0.7
+# pressed
+Image[9]=> button.1.0
+Image[10]=> button.1.2
+Image[11]=> button.1.1
+Image[12]=> button.1.3
+Image[13]=> button.1.5
+Image[14]=> button.1.4
+Image[15]=> button.1.6
+Image[16]=> button.1.8
+Image[17]=> button.1.7
+# disabled
+Image[18]=> button.2.0
+Image[19]=> button.2.2
+Image[20]=> button.2.1
+Image[21]=> button.2.3
+Image[22]=> button.2.5
+Image[23]=> button.2.4
+Image[24]=> button.2.6
+Image[25]=> button.2.8
+Image[26]=> button.2.7
+--
+Obj=menu
+name=Editfield
+#should be either scalable or at least LINESPACE+2px high
+Image[0]=> editfield.0.0
+Image[1]=> editfield.0.1
+Image[2]=> editfield.0.2
+Image[3]=> editfield.1.0
+Image[4]=> editfield.1.1
+Image[5]=> editfield.1.2
+Image[6]=> editfield.2.0
+Image[7]=> editfield.2.1
+Image[8]=> editfield.2.2
+--
+Obj=menu
+name=Listbox
+#Must be scalable!
+Image[0]=> listbox.0.0
+Image[1]=> listbox.0.1
+Image[2]=> listbox.0.2
+Image[3]=> listbox.1.0
+Image[4]=> listbox.1.1
+Image[5]=> listbox.1.2
+Image[6]=> listbox.2.0
+Image[7]=> listbox.2.1
+Image[8]=> listbox.2.2
+--
+# window background
+Obj=menu
+name=Back
+Image[0]=> back.0.0
+Image[1]=> back.0.1
+Image[2]=> back.0.2
+Image[3]=> back.1.0
+Image[4]=> back.1.1
+Image[5]=> back.1.2
+Image[6]=> back.2.0
+Image[7]=> back.2.1
+Image[8]=> back.2.2
+--
+#################################################################
+#
+# The following control only have one (or three) images, and are not stretchable
+#
+Obj=menu
+name=Checkbutton
+# normal
+Image[0]=> checkbutton.0.0
+# pressed
+Image[1]=> checkbutton.0.1
+# disabled
+Image[2]=> checkbutton.0.2
+--
+Obj=menu
+name=Posbutton
+# normal
+Image[0]=> posbutton.0.0
+# pressed
+Image[1]=> posbutton.0.1
+# disabled
+Image[2]=> posbutton.0.2
+--
+Obj=menu
+name=Scrollbar
+# normal/pressed/disabled left button
+Image[0]=> scrollbar.0.0
+Image[1]=> scrollbar.0.1
+Image[2]=> scrollbar.0.2
+# normal/pressed/disabled right button
+Image[3]=> scrollbar.0.3
+Image[4]=> scrollbar.0.4
+Image[5]=> scrollbar.0.5
+# left/center/right scrollbar background
+Image[6]=-
+Image[7]=> scrollbar.1.6
+Image[8]=-
+# left/center/right scrollbar knob
+Image[9]=> scrollbar.1.0
+Image[10]=> scrollbar.1.2
+Image[11]=> scrollbar.1.1
+# normal/pressed/disabled up button
+Image[12]=> scrollbar.2.0
+Image[13]=> scrollbar.2.1
+Image[14]=> scrollbar.2.2
+# normal/pressed/disabled down button
+Image[15]=> scrollbar.2.3
+Image[16]=> scrollbar.2.4
+Image[17]=> scrollbar.2.5
+# up/center/down scrollbar background
+Image[18]=-
+Image[19]=> scrollbar.3.6
+Image[20]=-
+# up/center/down scrollbar knob
+Image[21]=> scrollbar.3.0
+Image[22]=> scrollbar.3.2
+Image[23]=> scrollbar.3.1
+--
+# window symbols
+Obj=menu
+name=Gadget
+# close
+Image[0]=> gadget.0.0
+# help
+Image[1]=> gadget.0.1
+# minimize
+Image[2]=> gadget.0.2
+# previous
+Image[3]=> gadget.0.3
+# next
+Image[4]=> gadget.0.4
+# unsticky
+Image[5]=> gadget.0.5
+# sticky
+Image[6]=> gadget.0.6
+# resize corner
+Image[7]=> gadget.0.7
+# goto pos
+Image[8]=> gadget.0.8
+--
+# divider line
+Obj=menu
+name=Divider
+Image[0]=-
+Image[1]=> divider.0.0
+Image[2]=-
+--
