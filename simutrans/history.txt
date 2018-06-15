@@ -1,4 +1,4 @@
-Release of 120.3 (r8500 on 15-June-2018):
+Release of 120.3 (r8503 on 15-June-2018):
 	ADD: new blue-white theme
 	ADD: new general tool 40 which rotates buildings
 	ADD: scenario_info now dialog tool nummer 31
