@@ -53,13 +53,14 @@ void sprachengui_t::init_font_from_lang(bool reload_font)
 	if(  reload_font  ) {
 		// load large font
 		dr_chdir( env_t::program_dir );
-		dr_chdir( FONT_PATH );
 		bool ok = false;
 		char prop_font_file_name[4096];
 		tstrncpy( prop_font_file_name, prop_font_file, lengthof(prop_font_file_name) );
 		char *f = strtok( prop_font_file_name, ";" );
 		do {
-			ok = display_load_font(prop_font_file_name);
+			std::string fname = FONT_PATH_X;
+			fname += prop_font_file_name;
+			ok = display_load_font(fname.c_str());
 			f = strtok( NULL, ";" );
 		}
 		while(  !ok  &&  f  );
@@ -120,7 +121,6 @@ sprachengui_t::sprachengui_t() :
 
 	const translator::lang_info* lang = translator::get_langs();
 	dr_chdir( env_t::program_dir );
-	dr_chdir( FONT_PATH );
 
 	for (int i = 0; i < translator::get_language_count(); ++i, ++lang) {
 		button_t* b = new button_t();
@@ -135,7 +135,9 @@ sprachengui_t::sprachengui_t() :
 		tstrncpy( prop_font_file_name, lang->translate("PROP_FONT_FILE"), lengthof(prop_font_file_name) );
 		char *f = strtok( prop_font_file_name, ";" );
 		do {
-			num_loaded = display_load_font(prop_font_file_name);
+			std::string fname = FONT_PATH_X;
+			fname += prop_font_file_name;
+			num_loaded = display_load_font(fname.c_str());
 			f = strtok( NULL, ";" );
 		}
 		while(  !num_loaded  &&  f  );
