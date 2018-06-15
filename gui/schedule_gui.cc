@@ -717,10 +717,10 @@ void schedule_gui_t::set_windowsize(scr_size size)
 {
 	gui_frame_t::set_windowsize(size);
 
-	size = get_windowsize()-scr_size(0,16+1);
+	size = get_windowsize()-scr_size(0,D_TITLEBAR_HEIGHT);
 	scrolly.set_size(size-scr_size(0,scrolly.get_pos().y));
 
-	line_selector.set_max_size(scr_size(BUTTON4_X-2, size.h-line_selector.get_pos().y -16-1));
+	line_selector.set_max_size(scr_size(BUTTON4_X-2, size.h-line_selector.get_pos().y-D_TITLEBAR_HEIGHT));
 }
 
 

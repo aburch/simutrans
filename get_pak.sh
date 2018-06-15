@@ -53,7 +53,7 @@ DownloadInstallZip(){
 # generated list of pak sets
 paksets=( \
 "http://downloads.sourceforge.net/project/simutrans/pak64/120-3/simupak64-120-3.zip" \
-"http://www.simutrans-germany.com/pak.german/pak64.german_0-112-3-9_full.zip" \
+"http://www.simutrans-germany.com/pak.german/pak64.german_0-112-3-10_full.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak64.japan/120-0/simupak64.japan-120-0-1.zip" \
 "http://github.com/wa-st/pak-nippon/releases/download/v0.3.0/pak.nippon-v0.3.0.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pakHAJO/pakHAJO_102-2-2/pakHAJO_0-102-2-2.zip" \
@@ -61,7 +61,7 @@ paksets=( \
 "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20ST%20120.2.2%20%282.7%2C%20minor%20changes%29/pak128.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20120-1/pak128.Britain.1.17-120-1.zip" \
 "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_0.10.x_for_ST_120.x/PAK128.german_0.10.4_for_ST_120.x.zip" \
-"http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192comic%20for%20120-2-2/pak129.comic.0.5.zip" \
+"http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192comic%20for%20120-2-2/pak192.comic.0.5.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak32.comic/pak32.comic%20for%20102-0/pak32.comic_102-0.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak64.contrast/pak64.Contrast_910.zip" \
 "http://hd.simutrans.com/release/PakHD_v04B_100-0.zip" \
