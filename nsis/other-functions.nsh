@@ -360,7 +360,6 @@ DownloadInstallZipDo:
   inetc::get /WEAKSECURITY $downloadlink "$Temp\$archievename" /END
   Pop $0
   StrCmp $0 "OK" +3
-  StrCmp $0 "OK" +3
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 

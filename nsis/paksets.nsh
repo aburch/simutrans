@@ -99,7 +99,7 @@ SectionEnd
 ; name does not match folder name (pak96.comic) but otherwise always selected for update
 Section /o "pak96 Comic (Freeware) V0.4.10 expansion" pak96comic
   AddSize 32304
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak96.comic/pak96.comic%20for%20111-3/pak96.comic-0.4.10-plus.zip"
+  StrCpy $downloadlink "https://downloads.sourceforge.net/project/simutrans/pak96.comic/pak96.comic%20for%20111-3/pak96.comic-0.4.10-plus.zip"
   StrCpy $archievename "pak96.comic-0.4.10-plus.zip"
   StrCpy $downloadname "pak96.comic"
   StrCpy $VersionString "pak96.comic V4.1 plus"
@@ -111,16 +111,16 @@ SectionEnd
 ; name does not match folder name (pakHD) but not update expected anyway ...
 Section /o "pak96.HD (96 size) V0.4 for 102.2.2" pak96HD
   AddSize 12307
-  StrCpy $downloadlink "http://hd.simutrans.com/release/PakHD_v04B_100-0.zip"
+  StrCpy $downloadlink "https://hd.simutrans.com/release/PakHD_v04B_100-0.zip"
   StrCpy $archievename "PakHD_v04B_100-0.zip"
   StrCpy $downloadname "pak96.HD"
   StrCpy $VersionString "Martin"
 # since download works different, we have to do it by hand
   RMdir /r "$TEMP\simutrans"
   CreateDirectory "$TEMP\simutrans"
-  NSISdl::download $downloadlink "$Temp\$archievename"
-  Pop $R0 ;Get the return value
-  StrCmp $R0 "success" +3
+  inetc::get /WEAKSECURITY $downloadlink "$Temp\$archievename" /END
+  Pop $0
+  StrCmp $0 "OK" +3
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
