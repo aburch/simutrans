@@ -207,6 +207,9 @@ public:
 	static PIXVAL gui_color_text_title;                   //@< Color to draw title text (banner, h1 and a tags)
 	static PIXVAL gui_color_text_shadow;                  //@< Color to draw text shadow
 	static PIXVAL gui_color_text_strong;                  //@< Color to draw strong text (strong tags)
+	static PIXVAL gui_color_text_minus;                   //@< Color to draw negative values
+	static PIXVAL gui_color_text_plus;                    //@< Color to draw positive values
+	static PIXVAL gui_color_text_unused;                  //@< Color to draw unused items
 	static PIXVAL gui_color_edit_text;                    //@< Color to draw text in edit areas
 	static PIXVAL gui_color_edit_text_selected;           //@< Color to draw selected text in edit areas
 	static PIXVAL gui_color_edit_text_disabled;           //@< Color to draw disabled text in edit areas
@@ -291,9 +294,6 @@ public:
 
 	static bool gui_drop_shadows;
 
-	// on loading font, try to get one this size
-	static uint8 request_linespace;
-
 public:
 	// default dimensions and colors
 	static void init_gui_defaults();
@@ -309,6 +309,6 @@ public:
 	 * searches a theme.tab inside the specified folder
 	 * @author prissi
 	 */
-	static bool themes_init(const char *dir_name);
+	static bool themes_init(const char *dir_name,bool init_font);
 };
 #endif

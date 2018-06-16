@@ -45,7 +45,7 @@ bool themeselector_t::check_file(const char *filename, const char *suffix)
 // A theme button was pressed
 bool themeselector_t::item_action(const char *fullpath)
 {
-	gui_theme_t::themes_init(fullpath);
+	gui_theme_t::themes_init(fullpath,true);
 
 	event_t *ev = new event_t();
 	ev->ev_class = EVENT_SYSTEM;

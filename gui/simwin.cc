@@ -73,6 +73,8 @@
 #include "fabrik_info.h"
 #include "themeselector.h"
 #include "goods_frame_t.h"
+#include "loadfont_frame.h"
+#include "scenario_info.h"
 
 #include "../simversion.h"
 
@@ -411,18 +413,6 @@ bool win_set_magic( gui_frame_t *gui, ptrdiff_t magic )
 }
 
 
-// returns the window on this positions
-gui_frame_t *win_get_oncoord( const scr_coord pt )
-{
-	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
-		if(  wins[i].gui->is_hit( pt.x-wins[i].pos.x, pt.y-wins[i].pos.y )  ) {
-			return wins[i].gui;
-		}
-	}
-	return NULL;
-}
-
-
 /**
  * Returns top window
  * @author prissi
@@ -521,7 +511,9 @@ void rdwr_all_win(loadsave_t *file)
 					case magic_messageframe:   w = new message_frame_t(); break;
 					case magic_message_options: w = new message_option_t(); break;
 					case magic_factory_info:   w = new fabrik_info_t(); break;
-					case magic_goodslist:    w = new goods_frame_t(); break;
+					case magic_goodslist:      w = new goods_frame_t(); break;
+					case magic_font:           w = new loadfont_frame_t(); break;
+					case magic_scenario_info:  w = new scenario_info_t(); break;
 
 					default:
 						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {
@@ -1275,7 +1267,7 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// cursor event only go to top window (but not if rolled up)
-	if(  ev->ev_class == EVENT_KEYBOARD  &&  !wins.empty()  ) {
+	if(  (ev->ev_class == EVENT_KEYBOARD  ||  ev->ev_class == EVENT_STRING)  &&  !wins.empty()  ) {
 		simwin_t &win  = wins.back();
 		if(  !win.rollup  )  {
 			inside_event_handling = win.gui;
@@ -1299,13 +1291,13 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// swallow all other events in the infobar
-	if(  ev->ev_class != EVENT_KEYBOARD  &&  y > display_get_height()-16  ) {
+	if(  !(ev->ev_class == EVENT_KEYBOARD  ||  ev->ev_class == EVENT_STRING)  &&  y > display_get_height()-16  ) {
 		// swallow event
 		return true;
 	}
 
 	// swallow all other events in ticker (if there)
-	if(  ev->ev_class != EVENT_KEYBOARD  &&  show_ticker  &&  y > display_get_height()-32  ) {
+	if(  !(ev->ev_class == EVENT_KEYBOARD  ||  ev->ev_class == EVENT_STRING)  &&  show_ticker  &&  y > display_get_height()-32  ) {
 		if(  IS_LEFTCLICK(ev)  ) {
 			// goto infowin koordinate, if ticker is active
 			koord p = ticker::get_welt_pos();
@@ -1448,12 +1440,6 @@ bool check_pos_win(event_t *ev)
 	process_kill_list();
 
 	return swallowed;
-}
-
-
-void win_get_event(event_t* const ev)
-{
-	display_get_event(ev);
 }
 
 

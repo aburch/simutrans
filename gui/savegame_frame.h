@@ -22,7 +22,7 @@
 #include "components/gui_label.h"
 #include "components/gui_button.h"
 
-
+class loadfont_frame_t;
 
 /**
  * Base class from which all GUI dialogs to load/save generics can inherit from
@@ -34,8 +34,9 @@
  */
 class savegame_frame_t : public gui_frame_t, action_listener_t
 {
-private:
+friend class loadfont_frame_t;
 
+private:
 	vector_tpl<std::string> paths;     //@< Paths in which this dialog will search for
 
 	const char *suffix;                //@< Extension of the files this dialog will use, can be NULL Can include or not the "." at start, will work on both cases
@@ -112,6 +113,7 @@ protected:
 	void        add_file     ( const char *path, const char *filename, const char *pak, const bool no_cutting_suffix );
 	void        add_path     ( const char *path );
 	void        set_filename ( const char *file_name );
+	void        set_extension( const char *ext ) { suffix = ext; }
 	void        cleanup_path ( char *path );
 	void        shorten_path ( char *dest, const char *source, const size_t max_size );
 	std::string get_filename ( const char *fullpath, const bool with_extension = true );

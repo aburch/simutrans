@@ -17,6 +17,7 @@ class scenario_frame_t : public savegame_frame_t
 {
 private:
 	cbuffer_t path;
+	button_t easy_server;
 
 protected:
 	/**
@@ -36,6 +37,9 @@ protected:
 
 	// true, if valid
 	virtual bool check_file( const char *filename, const char *suffix );
+
+	virtual void set_windowsize(scr_size size);
+
 public:
 	/**
 	* Set the window associated helptext

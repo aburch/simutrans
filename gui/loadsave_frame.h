@@ -32,6 +32,8 @@ class loadsave_frame_t : public savegame_frame_t
 private:
 	bool do_load;
 
+	button_t easy_server; // only active on loading savegames
+
 	static stringhashtable_tpl<sve_info_t *> cached_info;
 protected:
 	/**
@@ -46,6 +48,8 @@ protected:
 
 	// sort with respect to info, which is date
 	virtual bool compare_items ( const dir_entry_t & entry, const char *info, const char *);
+
+	virtual void set_windowsize(scr_size size);
 
 public:
 	/**

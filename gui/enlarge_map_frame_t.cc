@@ -153,13 +153,11 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v
 	if(komp==&inp_x_size) {
 		sets->set_size_x( v.i );
 		inp_x_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-		inp_y_size.set_limits( welt->get_size().y, min(32766,16777216/sets->get_size_x()) );
 		update_preview();
 	}
 	else if(komp==&inp_y_size) {
 		sets->set_size_y( v.i );
 		inp_y_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
-		inp_x_size.set_limits( welt->get_size().x, min(32766,16777216/sets->get_size_y()) );
 		update_preview();
 	}
 	else if(komp==&inp_number_of_towns) {

@@ -103,19 +103,6 @@ bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const good
 }
 
 
-
-// prepares a general tool just like a player work do
-bool ai_t::init_general_tool( int tool, const char *param )
-{
-	const char *old_param = tool_t::general_tool[tool]->get_default_param();
-	tool_t::general_tool[tool]->set_default_param(param);
-	bool ok = tool_t::general_tool[tool]->init( this );
-	tool_t::general_tool[tool]->set_default_param(old_param);
-	return ok;
-}
-
-
-
 // calls a general tool just like a player work do
 bool ai_t::call_general_tool( int tool, koord k, const char *param )
 {

@@ -104,10 +104,10 @@ DBG_MESSAGE("event","HOWDY!");
 		return true;
 	}
 
-	if(  ev->ev_class == EVENT_KEYBOARD  &&  ev->ev_code == SIM_KEY_ENTER  &&  droplist.is_visible()  ) {
-		// close with enter
+	if(  ev->ev_class == EVENT_KEYBOARD  &&  (ev->ev_code == SIM_KEY_ENTER  ||  ev->ev_code == SIM_KEY_TAB)  &&  droplist.is_visible()  ) {
+		// close with enter/tab
 		close_box();
-		return true;
+		return ev->ev_code == SIM_KEY_ENTER;
 	}
 
 	if(  IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTRELEASE(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev)  ) {

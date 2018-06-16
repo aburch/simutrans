@@ -59,12 +59,6 @@ void koord3d::rdwr(loadsave_t *file)
 }
 
 
-koord3d::koord3d(loadsave_t *file)
-{
-	rdwr(file);
-}
-
-
 // for debug messages...
 const char *koord3d::get_str() const
 {

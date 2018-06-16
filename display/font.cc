@@ -6,6 +6,7 @@
 #include "../simmem.h"
 #include "../simdebug.h"
 #include "../macros.h"
+#include "../dataobj/environment.h"
 #include "font.h"
 #include "../utils/simstring.h"
 
@@ -145,7 +146,7 @@ static sint32 dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int ch
 /**
  * Reads a bdf font character
  */
-static bool dsp_read_bdf_font(FILE* fin, font_type* font)
+static bool dsp_read_bdf_font(FILE* fin, font_t* font)
 {
 	uint8* screen_widths = NULL;
 	uint8* data = NULL;
@@ -231,27 +232,22 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 
 
 #ifdef USE_FREETYPE
-#include "../gui/gui_theme.h"
-#include "../simsys.h"
-
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 #include FT_TRUETYPE_TABLES_H
 
-FT_Library ft_library = NULL;
 
-bool load_FT_font( font_type* fnt, const char* short_name, int pixel_height )
+bool load_FT_font( font_t* fnt, const char* fname, int pixel_height )
 {
+	FT_Library ft_library = NULL;
 	int error;
 	if(  !ft_library  &&  FT_Init_FreeType(&ft_library) != FT_Err_Ok  ) {
 		ft_library = NULL;
 		return false;
 	}
-	// for now we assume we know the filename, this is system dependent
-	const char *fname = dr_query_fontpath( short_name );
 
-	// Ok, we guessed something abou the finename, now actually load it
+	// Ok, we guessed something about the finename, now actually load it
 	FT_Face face;
 	error = FT_New_Face( ft_library, fname, 0, &face );/* create face object */
 	if(  error  ) {
@@ -269,18 +265,19 @@ bool load_FT_font( font_type* fnt, const char* short_name, int pixel_height )
 	fnt->height       = min( face->size->metrics.height/64, 23 );
 	fnt->descent      = face->size->metrics.descender/64;
 	fnt->num_chars    = 0;
-	tstrncpy( fnt->fname, short_name, lengthof(fnt->fname) );
+	tstrncpy( fnt->fname, fname, lengthof(fnt->fname) );
 
 	for(  uint32 char_nr=0;  char_nr<65535;  char_nr++  ) {
 
-		if(  char_nr!=0  &&  !FT_Get_Char_Index( face, char_nr )  ) {
-			// character not there ...
+		uint32 idx = FT_Get_Char_Index( face, char_nr );
+		if(  !idx  &&  char_nr  ) {
+			// character not there ... (but we need to render chqaracter zero)
 			fnt->screen_width[char_nr] = 255;
 			continue;
 		}
 
 		/* load glyph image into the slot (erase previous one) */
-		error = FT_Load_Char( face, char_nr, FT_LOAD_RENDER | FT_LOAD_MONOCHROME );
+		error = FT_Load_Glyph( face, idx, FT_LOAD_RENDER | FT_LOAD_MONOCHROME );
 		if(  error  ) {
 			// character not there ...
 			fnt->screen_width[char_nr] = 255;
@@ -311,13 +308,13 @@ bool load_FT_font( font_type* fnt, const char* short_name, int pixel_height )
 		}
 
 		// asked for monocrome so slot->pixel_mode == FT_PIXEL_MODE_MONO
-		for(  int y = y_off, by = by_off;  y < CHARACTER_HEIGHT  &&  by < face->glyph->bitmap.rows;  y++, by++ ) {
+		for(  int y = y_off, by = by_off;  y < CHARACTER_HEIGHT  &&  (uint)by < face->glyph->bitmap.rows;  y++, by++ ) {
 			fnt->char_data[(char_nr*CHARACTER_LEN)+y] = face->glyph->bitmap.buffer[by * face->glyph->bitmap.pitch];
 		}
 
 		if(  face->glyph->bitmap.width > 8  ) {
 			// render second row
-			for(  int y = y_off, by = by_off;  y < CHARACTER_HEIGHT  &&  by < face->glyph->bitmap.rows;  y++, by++ ) {
+			for(  int y = y_off, by = by_off;  y < CHARACTER_HEIGHT  &&  (uint)by < face->glyph->bitmap.rows;  y++, by++ ) {
 				fnt->char_data[(char_nr*CHARACTER_LEN)+CHARACTER_HEIGHT+y] = face->glyph->bitmap.buffer[by * face->glyph->bitmap.pitch+1];
 			}
 		}
@@ -327,9 +324,17 @@ bool load_FT_font( font_type* fnt, const char* short_name, int pixel_height )
 		fnt->char_data[CHARACTER_LEN * char_nr + CHARACTER_LEN-1] = max(16,face->glyph->bitmap.width);
 	}
 
+	if(  fnt->num_chars<128  ) {
+		FT_Done_Face( face );
+		FT_Done_FreeType( ft_library );
+		ft_library = NULL;
+		free( fnt->char_data );
+		free( fnt->screen_width );
+		return false;
+	}
+
 	// Use only needed amount
 	fnt->char_data = (uint8 *)realloc( fnt->char_data, fnt->num_chars*CHARACTER_LEN );
-
 	fnt->screen_width[' '] = fnt->screen_width['n'];
 
 	FT_Done_Face( face );
@@ -340,7 +345,7 @@ bool load_FT_font( font_type* fnt, const char* short_name, int pixel_height )
 #endif
 
 
-void debug_font( font_type* fnt)
+void debug_font( font_t* fnt)
 {
 	dbg->debug("debug_font", "Loaded font %s with %i characters\n", fnt->fname, fnt->num_chars);
 	dbg->debug("debug_font", "height: %i, descent: %i", fnt->height, fnt->descent );
@@ -360,21 +365,13 @@ void debug_font( font_type* fnt)
 
 
 
-bool load_font(font_type* fnt, const char* fname)
+bool load_font(font_t* fnt, const char* fname)
 {
 	FILE* f = dr_fopen(fname, "rb");
 	int c;
 
-#ifdef USE_FREETYPE
-	if(  load_FT_font( fnt, fname, gui_theme_t::request_linespace )  ) {
-		debug_font( fnt );
-		return true;
-	}
-#endif
-
 	if (f == NULL) {
 		fprintf(stderr, "Error: Cannot open '%s'\n", fname);
-
 		return false;
 	}
 	c = getc(f);
@@ -386,7 +383,7 @@ bool load_font(font_type* fnt, const char* fname)
 	}
 
 	// binary => the assume dumpe prop file
-	if (c < 32) {
+	if(  c < 32  &&  strstr(fname,".fnt")  ) {
 		// read classical prop font
 		uint8 npr_fonttab[3072];
 		int i;
@@ -521,6 +518,14 @@ bool load_font(font_type* fnt, const char* fname)
 		return true;
 	}
 	fclose(f);
+
+#ifdef USE_FREETYPE
+	// because it occasionally choke on BDF files ...
+	if(  load_FT_font( fnt, fname, env_t::fontsize)  ) {
+		debug_font( fnt );
+		return true;
+	}
+#endif
 
 	return false;
 }

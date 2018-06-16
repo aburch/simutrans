@@ -57,6 +57,7 @@
 
 #include "../simconst.h"
 #include "../simtypes.h"
+#include "../utils/cbuffer_t.h"
 // version of network protocol code
 #define NETWORK_VERSION (1)
 
@@ -138,5 +139,13 @@ void network_core_shutdown();
 // get & set our id on the server
 uint32 network_get_client_id();
 void network_set_client_id(uint32 id);
+
+bool get_external_IP( cbuffer_t &myIPaddr );
+
+// trys to open port on router (if there) and get external IP
+bool prepare_for_server( char *externalIPAddress, int port );
+
+// removes the redirect (or do nothing)
+void remove_port_forwarding( int port );
 
 #endif

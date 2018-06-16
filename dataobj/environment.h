@@ -89,6 +89,10 @@ public:
 	 * @name Information about server which is send to list-server
 	 */
 	/// @{
+	/// If set, we are in easy server mode, assuming the IP can change any moment and thus query it before announce)
+	static bool easy_server;
+	/// Default port to start a new server
+	static int server_port;
 	/// DNS name or IP address clients should use to connect to server
 	static std::string server_dns;
 	/// Name of server for display on list server
@@ -211,6 +215,10 @@ public:
 	static uint32 default_window_title_color_rgb;
 	static PIXVAL default_window_title_color;
 	static uint8 bottom_window_darkness;
+
+	// default font name and -size
+	static std::string fontname;
+	static uint8 fontsize;
 
 	// display compass
 	static uint16 compass_map_position;

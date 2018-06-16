@@ -281,22 +281,6 @@ koord3d viewport_t::get_new_cursor_position( const scr_coord &screen_pos, bool g
 }
 
 
-bool viewport_t::is_background_visible() const
-{
-
-	sint32 i,j;
-
-	if ( get_ground_on_screen_coordinate(scr_coord(0,0),i,j)  &&  \
-		get_ground_on_screen_coordinate(scr_coord(cached_disp_width-1,0),i,j)  &&  \
-		get_ground_on_screen_coordinate(scr_coord(0,cached_disp_height-1),i,j)  &&  \
-		get_ground_on_screen_coordinate(scr_coord(cached_disp_width-1,cached_disp_height-1),i,j)  ) {
-			return false;
-	}
-
-	return true;
-}
-
-
 void viewport_t::metrics_updated()
 {
 	cached_disp_width = display_get_width();

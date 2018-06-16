@@ -1,20 +1,18 @@
 
 function abs(a) { return a >= 0 ? a : -a }
 
+openwater <- {
+	function get_cost() { return 0; }
+	function get_maintenance()  { return 0; }
+	function get_name() { return "open water"}
+}
 
-class industry_connection_planner_t extends node_t
+class industry_connection_planner_t extends manager_t
 {
 	fsrc = null       // factory_x
 	fdest = null      // factory_x
 	freight = null    // string
 	prod = -1   	// integer
-
-	// planned stuff
-	planned_way = null      // way_desc_x
-	planned_station = null  // building_desc_x
-	planned_depot = null    // building_desc_x
-	planned_convoy = null   // prototyper_t
-	plan_report = null      // report_t
 
 	constructor(s,d,f)
 	{
@@ -27,7 +25,7 @@ class industry_connection_planner_t extends node_t
 		debug = true
 		local tic = get_ops_total();
 
-		dbgprint("Plan link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y)
+		print("Plan link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y)
 
 		// TODO check if factories are still existing
 		// TODO check if connection is plannable
@@ -38,39 +36,103 @@ class industry_connection_planner_t extends node_t
 		}
 		dbgprint("production = " + prod);
 
+		// road
+		local rprt = plan_simple_connection(wt_road, null, null)
+		if (rprt) {
+			append_report(rprt)
+		}
+		// water
+		rprt = plan_simple_connection(wt_water, null, null)
+		if (rprt) {
+			append_report(rprt)
+		}
+
+		if (reports.len() == 0) {
+			dbgprint("Set link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y + " to MISSING")
+
+			industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_missing)
+			return r_t(RT_TOTAL_FAIL)
+		}
+
+		// deliver it
+		local r = r_t(RT_READY)
+		r.report = get_report()
+
+		// append a chain of alternative connector nodes
+		local rchain = r.report
+		while (reports.len()>0) {
+			local rep = get_report()
+			if (rep == null) {
+				// may happen if no nice reports are available
+				break;
+			}
+			rchain.action.reports.append( rep )
+			rchain = rep
+		}
+
+		local r_amph = report_t()
+		r_amph.action = amphibious_connection_planner_t(fsrc, fdest, freight)
+
+		if (rchain) {
+			rchain.action.reports.append( r_amph )
+		}
+		else {
+			r.report = r_amph
+		}
+
+		local toc = get_ops_total();
+		print("industry_connection_planner wasted " + (toc-tic) + " ops")
+		return r
+	}
+
+	// if start or target are null then use fsrc/fdest
+	function plan_simple_connection(wt, start, target, distance = 0)
+	{
+		if (distance == 0) {
+			distance = 1
+		}
 		// plan convoy prototype
-		local prototyper = prototyper_t(wt_road, freight)
+		local prototyper = prototyper_t(wt, freight)
 
 		prototyper.max_vehicles = 4
 		prototyper.min_speed = 1
+
 		prototyper.max_length = 1
+		if (wt == wt_water) {
+			prototyper.max_length = 4
+		}
 
 		local cnv_valuator = valuator_simple_t()
-		cnv_valuator.wt = wt_road
+		cnv_valuator.wt = wt
 		cnv_valuator.freight = freight
 		cnv_valuator.volume = prod
 		cnv_valuator.max_cnvs = 200
-		cnv_valuator.distance = abs(fsrc.x-fdest.x) + abs(fsrc.y-fdest.y)
+		cnv_valuator.distance = distance
+		// compute correct distance
+		if (distance == 0) {
+			foreach(i in ["x", "y"]) {
+				cnv_valuator.distance += abs( (start ? start[i] : fsrc[i]) - (target ? target[i] : fdest[i]))
+			}
+		}
 
 		local bound_valuator = valuator_simple_t.valuate_monthly_transport.bindenv(cnv_valuator)
 		prototyper.valuate = bound_valuator
 
-		if (planned_convoy == null) {
-			if (prototyper.step().has_failed()) {
-				dbgprint("Set link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y + " to MISSING")
-
-				industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_missing)
-				return r_t(RT_TOTAL_FAIL)
-			}
-
-			planned_convoy = prototyper.best
+		if (prototyper.step().has_failed()) {
+			return null
 		}
+		local planned_convoy = prototyper.best
+		print("best " + planned_convoy.min_top_speed + " / " + planned_convoy.max_speed)
 
 		// fill in report when best way is found
 		local r = report_t()
 		// plan way
-		if (planned_way == null) {
-			local way_list = way_desc_x.get_available_ways(wt_road, st_flat)
+		local planned_way = null
+		if (wt == wt_water) {
+			planned_way = openwater
+		}
+		else {
+			local way_list = way_desc_x.get_available_ways(wt, st_flat)
 			local best_way = null
 			local best = null
 
@@ -90,21 +152,26 @@ class industry_connection_planner_t extends node_t
 			cnv_valuator.way_maintenance = 0
 			cnv_valuator.way_max_speed   = best_way.get_topspeed()
 
-			r.gain_per_m  = cnv_valuator.valuate_monthly_transport(planned_convoy)
-			r.nr_convoys = planned_convoy.nr_convoys
-
 			planned_way = best_way
 		}
 
+		// valuate again with best way
+		r.gain_per_m = cnv_valuator.valuate_monthly_transport(planned_convoy)
 
 		// plan station
-		if (planned_station == null) {
-			local station_list = building_desc_x.get_available_stations(building_desc_x.station, wt_road, good_desc_x(freight))
-			select_station(station_list)
+		local planned_station = null
+		if (wt != wt_water) {
+			local station_list = building_desc_x.get_available_stations(building_desc_x.station, wt, good_desc_x(freight))
+			planned_station = select_station(station_list, planned_convoy.length, planned_convoy.capacity)
+		}
+		else {
+			local station_list = building_desc_x.get_available_stations(building_desc_x.harbour, wt, good_desc_x(freight))
+			planned_station = select_station(station_list, 1, planned_convoy.capacity)
 		}
 		// plan depot
-		if (planned_depot == null) {
-			local depot_list = building_desc_x.get_available_stations(building_desc_x.depot, wt_road, good_desc_x(freight))
+		local planned_depot = null
+		{
+			local depot_list = building_desc_x.get_available_stations(building_desc_x.depot, wt, {})
 
 			if (depot_list.len()) {
 				planned_depot = depot_list[0]
@@ -112,11 +179,7 @@ class industry_connection_planner_t extends node_t
 		}
 
 		if (planned_convoy == null  ||  planned_way == null || planned_station == null || planned_depot == null) {
-
-			dbgprint("Set link for " + freight + " from " + fsrc.get_name() + " at " + fsrc.x + "," + fsrc.y + " to "+ fdest.get_name() + " at " + fdest.x + "," + fdest.y + " to MISSING")
-
-			industry_manager.set_link_state(fsrc, fdest, freight, industry_link_t.st_missing)
-			return r_t(RT_TOTAL_FAIL)
+			return null
 		}
 
 		// successfull - complete report
@@ -125,7 +188,11 @@ class industry_connection_planner_t extends node_t
 		r.gain_per_m  -= r.cost_monthly
 
 		// create action node
-		local cn = road_connector_t()
+		local cn = null
+		switch(wt) {
+			case wt_road:  cn = road_connector_t(); break
+			case wt_water: cn = ship_connector_t(); break
+		}
 		cn.fsrc = fsrc
 		cn.fdest = fdest
 		cn.freight = freight
@@ -134,22 +201,22 @@ class industry_connection_planner_t extends node_t
 		cn.planned_depot = planned_depot
 		cn.planned_convoy = planned_convoy
 
+		if (start) {
+			cn.c_start = [start]
+			print("Connector from " + coord_to_string(start))
+		}
+		if (target) {
+			cn.c_end = [target]
+			print("Connector to " + coord_to_string(target))
+		}
+
 		r.action = cn
 
-		// that's the report
-		plan_report = r
-
 		dbgprint("Plan: way = " + planned_way.get_name() + ", station = " + planned_station.get_name() + ", depot = " + planned_depot.get_name());
-		dbgprint("Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys  = " + r.nr_convoys + ", cost_fix  = " + r.cost_fix + ", cost_monthly  = " + r.cost_monthly)
+		dbgprint("Report: gain_per_m  = " + r.gain_per_m + ", nr_convoys  = " + planned_convoy.nr_convoys + ", cost_fix  = " + r.cost_fix + ", cost_monthly  = " + r.cost_monthly)
 		dbgprint("Report: dist = " + cnv_valuator.distance+ " way_cost = " + planned_way.get_cost())
 		dbgprint("Report: station = " + planned_station.get_cost()+ " depot = " + planned_depot.get_cost())
 
-		// deliver it
-		local r = r_t(RT_READY)
-		r.report = plan_report
-
-		local toc = get_ops_total();
-		print("industry_connection_planner wasted " + (toc-tic) + " ops")
 		return r
 	}
 
@@ -165,16 +232,17 @@ class industry_connection_planner_t extends node_t
 		return min(src_prod,dest_con)
 	}
 
-	function select_station(list)
+	static function select_station(list, length, capacity)
 	{
-		local station_length = (planned_convoy.length + CARUNITS_PER_TILE - 1) / CARUNITS_PER_TILE
-		local capacity       =  planned_convoy.capacity
+		local station_length = (length + CARUNITS_PER_TILE - 1) / CARUNITS_PER_TILE
+		local capacity       =  capacity
 
 		local station_capacity = 0
 		local station_is_terminus = false
+		local best_station = null
 
 		foreach(station in list) {
-			local ok = (planned_station == null)
+			local ok = (best_station == null)
 			local s_capacity = station_length * station.get_capacity()
 
 			if (!ok  &&  station_length == 1) {
@@ -191,10 +259,11 @@ class industry_connection_planner_t extends node_t
 				ok = !station_is_terminus
 			}
 			if (ok) {
-				planned_station = station
+				best_station = station
 				station_capacity = station.get_capacity()
 				station_is_terminus = station.is_terminus()
 			}
 		}
+		return best_station
 	}
 }

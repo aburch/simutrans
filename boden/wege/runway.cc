@@ -9,6 +9,8 @@
 #include "../../bauer/wegbauer.h"
 #include "../../descriptor/way_desc.h"
 #include "../../dataobj/loadsave.h"
+#include "../../dataobj/translator.h"
+#include "../../utils/cbuffer_t.h"
 
 #include "runway.h"
 
@@ -24,6 +26,18 @@ runway_t::runway_t() : schiene_t()
 runway_t::runway_t(loadsave_t *file) : schiene_t()
 {
 	rdwr(file);
+}
+
+
+void runway_t::info(cbuffer_t & buf) const
+{
+	schiene_t::info(buf);
+
+	cbuffer_t reserved;
+	if(  get_desc()->get_styp()==type_runway  ) {
+		reserved.printf( "%s %i\n", translator::translate("waiting"), reservations.get_count() );
+		buf.append( reserved );
+	}
 }
 
 

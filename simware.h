@@ -80,7 +80,6 @@ public:
 	uint8 get_index() const { return index; }
 
 	const goods_desc_t* get_desc() const { return index_to_desc[index]; }
-	void set_desc(const goods_desc_t* type);
 
 	void rdwr(loadsave_t *file);
 

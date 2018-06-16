@@ -63,14 +63,6 @@ obj_t::obj_t()
 	init();
 }
 
-
-obj_t::obj_t(loadsave_t *file)
-{
-	init();
-	rdwr(file);
-}
-
-
 obj_t::obj_t(koord3d pos)
 {
 	init();

@@ -117,28 +117,6 @@ bool schiene_t::unreserve(convoihandle_t c)
 
 
 
-
-/**
-* releases previous reservation
-* @author prissi
-*/
-bool schiene_t::unreserve(vehicle_t *)
-{
-	// is this tile empty?
-	if(!reserved.is_bound()) {
-		return true;
-	}
-//	if(!welt->lookup(get_pos())->suche_obj(v->get_typ())) {
-		reserved = convoihandle_t();
-		if(schiene_t::show_reservations) {
-			set_flag( obj_t::dirty );
-		}
-		return true;
-//	}
-//	return false;
-}
-
-
 void schiene_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "schiene_t" );

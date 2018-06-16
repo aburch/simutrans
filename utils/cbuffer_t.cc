@@ -233,7 +233,6 @@ bool cbuffer_t::check_format_strings(const char* master, const char* translated)
 			               i+1, translated, master, master_tm[i], translated_tm[i], master_tm,translated_tm);
 			return false;
 		}
-		i++;
 	}
 	return true;
 }

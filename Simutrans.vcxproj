@@ -57,7 +57,7 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;REVISION_FROM_FILE;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16;MULTI_THREAD=2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREETYPE;NOMINMAX;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;REVISION_FROM_FILE;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16;MULTI_THREAD=2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -70,7 +70,7 @@
       <DisableSpecificWarnings>4996;4373;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;shell32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;imm32.lib;libbz2.lib;pthreadVC2.lib;libfreetype2.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;shell32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;imm32.lib;libbz2.lib;pthreadVC2.lib;miniupnpc.lib;freetype.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -80,6 +80,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Manifest>
       <VerboseOutput>true</VerboseOutput>
@@ -92,7 +93,7 @@
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16;MULTI_THREAD=4;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_UPNP;USE_FREE_TYPE;NOMINMAX;WIN32_LEAN_AND_MEAN;WINVER=_WIN32_WINNT_WINXP;LITTLE_ENDIAN;DEBUG=3;COLOUR_DEPTH=16;MULTI_THREAD=4;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Sync</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -106,9 +107,9 @@
       <DisableSpecificWarnings>4200;4800;4311;4996;4373;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;shell32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;imm32.lib;libbz2.lib;pthreadVC2.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;shell32.lib;winmm.lib;zlibstat.lib;advapi32.lib;ws2_32.lib;imm32.lib;libbz2.lib;pthreadVC2.lib;miniupnpc.lib;freetype.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -141,6 +142,7 @@
     <ClCompile Include="gui\components\gui_komponente.cc" />
     <ClCompile Include="gui\components\gui_map_preview.cc" />
     <ClCompile Include="gui\gui_theme.cc" />
+    <ClCompile Include="gui\loadfont_frame.cc" />
     <ClCompile Include="gui\simwin.cc" />
     <ClCompile Include="gui\themeselector.cc" />
     <ClCompile Include="player\ai.cc" />
@@ -452,6 +454,7 @@
     <ClInclude Include="gui\components\gui_container.h" />
     <ClInclude Include="gui\components\gui_convoiinfo.h" />
     <ClInclude Include="gui\gui_theme.h" />
+    <ClInclude Include="gui\loadfont_frame.h" />
     <ClInclude Include="gui\simwin.h" />
     <ClInclude Include="gui\themeselector.h" />
     <ClInclude Include="player\ai.h" />

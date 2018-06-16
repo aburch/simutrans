@@ -76,12 +76,6 @@ bool network_command_t::send(SOCKET s)
 }
 
 
-bool network_command_t::is_local_cmd()
-{
-	return (our_client_id == (uint32)network_get_client_id());
-}
-
-
 packet_t* network_command_t::copy_packet() const
 {
 	if (packet) {

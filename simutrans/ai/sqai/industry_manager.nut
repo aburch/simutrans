@@ -148,7 +148,14 @@ class industry_manager_t extends manager_t
 				link.state = industry_link_t.st_free
 				break
 		}
-		local line = link.lines[0]
+		// iterate through all lines
+		foreach(line in link.lines) {
+			check_link_line(link, line)
+		}
+	}
+
+	function check_link_line(link, line)
+	{
 		dbgprint("Check line " + line.get_name())
 		// find convoy
 		local cnv = null
@@ -168,7 +175,7 @@ class industry_manager_t extends manager_t
 		// try to upgrade
 		if (cnv.has_obsolete_vehicles()  &&  link.next_check < world.get_time().ticks) {
 			link.next_check = world.get_time().next_month_ticks
-			if (upgrade_link(link)) {
+			if (upgrade_link_line(link, line)) {
 				// update successful
 				return
 			}
@@ -308,10 +315,8 @@ class industry_manager_t extends manager_t
 
 	}
 
-	function upgrade_link(link)
+	function upgrade_link_line(link, line)
 	{
-		// line
-		local line = link.lines[0]
 		// find convoy
 		local cnv = null
 		{
@@ -328,6 +333,36 @@ class industry_manager_t extends manager_t
 		// plan convoy prototype
 		local prototyper = prototyper_t(cnv.get_waytype(), link.freight.get_name())
 
+		// iterate through schedule to estimate distance
+		local dist = 0
+		{
+			local entries = cnv.get_schedule().entries
+			local i = 0
+
+			while(i < entries.len()  &&  !freight_available) {
+				local entry = entries[i]
+				// stations on schedule
+				if (entry.get_halt(our_player) == null) {
+					continue
+				}
+
+				// next station on schedule
+				local nexthalt = null
+				i++
+				while(i < entries.len()) {
+					if (nexthalt = entries[i].get_halt(our_player)) break
+					i++
+				}
+				if (nexthalt == null) {
+					i = 0
+				}
+				local diff = abs(entry.x - entries[i].x) + abs(entry.y - entries[i].y)
+				if (diff > dist)  {
+					dist = diff
+				}
+			}
+		}
+
 		// TODO do something smarter
 		prototyper.max_vehicles = 4
 		prototyper.min_speed  = 1
@@ -338,7 +373,7 @@ class industry_manager_t extends manager_t
 		cnv_valuator.freight  = link.freight.get_name()
 		cnv_valuator.volume   = transported
 		cnv_valuator.max_cnvs = 200
-		cnv_valuator.distance = abs(link.f_src.x-link.f_dest.x) + abs(link.f_src.y-link.f_dest.y)
+		cnv_valuator.distance = dist
 
 		local bound_valuator = valuator_simple_t.valuate_monthly_transport.bindenv(cnv_valuator)
 		prototyper.valuate = bound_valuator

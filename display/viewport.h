@@ -223,11 +223,6 @@ public:
 	koord3d get_new_cursor_position(const scr_coord &screen_pos, bool grid_coordinates);
 
 	/**
-	 * @return true if the current viewport contains regions outside the world.
-	 */
-	bool is_background_visible() const;
-
-	/**
 	 * @}
 	 */
 

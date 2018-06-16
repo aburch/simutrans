@@ -386,7 +386,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 				}
 
 				// insert into text?
-				if (head_cursor_pos < len) {
+				if(  len>0  &&  head_cursor_pos < len  ) {
 					for(  sint64 pos=len+num_letter;  pos>=(sint64)head_cursor_pos;  pos--  ) {
 						text[pos] = text[pos-num_letter];
 					}

@@ -24,7 +24,6 @@ public:
 
 	koord3d(sint16 xp, sint16 yp, sint8 zp) : x(xp), y(yp), z(zp) {}
 	koord3d(koord xyp, sint8 zp) : x(xyp.x), y(xyp.y), z(zp) {}
-	koord3d(loadsave_t* file);
 
 	void rotate90( sint16 y_diff );
 

@@ -338,7 +338,7 @@ haltestelle_t::haltestelle_t(loadsave_t* file)
 	cargo = (vector_tpl<ware_t> **)calloc( goods_manager_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
 	all_links = new link_t[ goods_manager_t::get_max_catg_index() ];
 
-	status_color = color_idx_to_rgb(COL_YELLOW);
+	status_color = SYSCOL_TEXT_UNUSED;
 	last_status_color = color_idx_to_rgb(COL_PURPLE);
 	last_bar_count = 0;
 
@@ -379,7 +379,7 @@ haltestelle_t::haltestelle_t(koord k, player_t* player_)
 	cargo = (vector_tpl<ware_t> **)calloc( goods_manager_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
 	all_links = new link_t[ goods_manager_t::get_max_catg_index() ];
 
-	status_color = color_idx_to_rgb(COL_YELLOW);
+	status_color = SYSCOL_TEXT_UNUSED;
 	last_status_color = color_idx_to_rgb(COL_PURPLE);
 	last_bar_count = 0;
 
