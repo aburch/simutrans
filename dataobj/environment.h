@@ -412,6 +412,10 @@ public:
 	/// @author prissi
 	static sint32 autosave;
 
+	/// To solve the version number conflict between simutrans standard...
+	/// @author THLeaderH
+	static bool previous_OTRP_data;
+
 
 	/**
 	 * @name Midi/sound options

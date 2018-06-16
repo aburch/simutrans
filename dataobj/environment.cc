@@ -152,6 +152,8 @@ uint32 env_t::default_ai_construction_speed;
 
 bool env_t::hide_keyboard = false;
 
+bool env_t::previous_OTRP_data;
+
 
 
 // Hajo: Define default settings.
@@ -269,6 +271,8 @@ void env_t::init()
 	// Listen on all addresses by default
 	listen.append_unique("::");
 	listen.append_unique("0.0.0.0");
+
+	previous_OTRP_data = false;
 }
 
 

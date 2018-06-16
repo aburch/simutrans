@@ -70,6 +70,7 @@ bool loadsave_frame_t::item_action(const char *filename)
 {
 	if(do_load) {
 		welt->switch_server( easy_server.pressed, true );
+		env_t::previous_OTRP_data = previous_OTRP.pressed;
 		if(  !welt->load(filename)  ) {
 			welt->switch_server( false, true );
 		}
@@ -115,6 +116,8 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false
 		set_name(translator::translate("Laden"));
 		easy_server.init( button_t::square_automatic, "Start this as a server", scr_coord(D_MARGIN_LEFT,0) );
 		add_component(&easy_server);
+		previous_OTRP.init( button_t::square_automatic, "This is a data of OTRP v12 or v13.", scr_coord(D_MARGIN_LEFT,0) );
+		add_component(&previous_OTRP);
 	}
 	else {
 		set_filename(welt->get_settings().get_filename());
@@ -165,6 +168,7 @@ void loadsave_frame_t::set_windowsize(scr_size size)
 {
 	savegame_frame_t::set_windowsize(size);
 	easy_server.align_to(&savebutton, ALIGN_CENTER_V, scr_coord( 0, 0 ) );
+	previous_OTRP.align_to(&easy_server, ALIGN_TOP | ALIGN_EXTERIOR_V);
 }
 
 

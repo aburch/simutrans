@@ -33,6 +33,7 @@ private:
 	bool do_load;
 
 	button_t easy_server; // only active on loading savegames
+	button_t previous_OTRP; // only active on loading savegames
 
 	static stringhashtable_tpl<sve_info_t *> cached_info;
 protected:
