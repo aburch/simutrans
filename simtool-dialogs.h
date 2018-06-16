@@ -266,9 +266,6 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Speichern"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_save_t); }
 	bool init(player_t*) OVERRIDE{
-		if(  !env_t::server  ) {
-			destroy_all_win(true);
-		}
 		create_win(new loadsave_frame_t(false), w_info, magic_save_t);
 		return false;
 	}
