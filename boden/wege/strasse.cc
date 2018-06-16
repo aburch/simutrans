@@ -13,6 +13,7 @@
 #include "../../descriptor/way_desc.h"
 #include "../../bauer/wegbauer.h"
 #include "../../dataobj/translator.h"
+#include "../../dataobj/environment.h"
 
 
 const way_desc_t *strasse_t::default_strasse=NULL;
@@ -50,7 +51,7 @@ void strasse_t::rdwr(loadsave_t *file)
 
 	weg_t::rdwr(file);
 
-	if(  file->get_version() >= 120006  ) {
+	if(  (env_t::previous_OTRP_data  &&  file->get_version() >= 120006)  ||  file->get_OTRP_version() >= 14  ) {
 		uint8 mask_oneway = get_ribi_mask_oneway();
 		file->rdwr_byte(mask_oneway);
 		set_ribi_mask_oneway(mask_oneway);

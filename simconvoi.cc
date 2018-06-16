@@ -2589,7 +2589,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_short( next_reservation_index );
 	}
 
-	if(  file->get_version()>=120006  ) {
+	if(  (env_t::previous_OTRP_data  &&  file->get_version() >= 120006)  ||  file->get_OTRP_version() >= 14  ) {
 		file->rdwr_long(yielding_quit_index);
 		file->rdwr_byte(lane_affinity);
 		file->rdwr_long(lane_affinity_end_index);

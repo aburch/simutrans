@@ -549,7 +549,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 	obj_t::rdwr(file);
 
 	uint8 dummy=0;
-	if(  file->get_version()>=120006  ) {
+	if(  (env_t::previous_OTRP_data  &&  file->get_version() >= 120006)  ||  file->get_OTRP_version() >= 14  ) {
 		dummy = lane_affinity;
 		file->rdwr_byte(dummy);
 		lane_affinity = dummy;
@@ -576,7 +576,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	if(  file->get_version()>=120007  ) {
+	if(  (env_t::previous_OTRP_data  &&  file->get_version() >= 120007)  ||  file->get_OTRP_version() >= 14  ) {
 		file->rdwr_byte(open_direction);
 	} else if(  file->is_loading()  ) {
 		 open_direction = 0xA5;
