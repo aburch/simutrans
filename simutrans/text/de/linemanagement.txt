@@ -25,12 +25,12 @@ Die Farbe des Linientext hat folgende Bedeutung:<br>
 · <em>gelb:</em> Auf dieser Linie hat sich kein Fahrzeugverband bewegt (Betriebskosten gleich 0).<br/>
 · <em>rot:</em> Der Profit dieser Linie ist negativ.<br/>
 · <em>blau:</em> Mindestens ein Fahrzeugverband auf dieser Linie ist veraltet.<br/>
-
+</p>
 <p>
 Darunter können <em>Linienaktionen</em> ausgeführt werden:<br/>
 · <em>Neue Linie:</em> Ein leeres <a href="schedule.txt">Linienplanfenster</a> öffnet sich, wenn eine Linienart (Zug, Monorail, Tram, Straße, Schiff, Flug) ausgewählt ist.<br/>
 · <em>Linie ändern:</em> Das <a href="schedule.txt">Linienplanfenster</a> der markierten Linie öffnet sich.<br/>
-· <em>Linie löschen:</em> Die markierte Linie wird ohne Rückfrage gelöscht. (Geht nur, wenn keine Fahrzeuge zugewiesen sind.)
+· <em>Linie löschen:</em> Die markierte Linie wird ohne Rückfrage gelöscht. (Geht nur, wenn keine Fahrzeuge zugewiesen sind.)<br/>
 · <em>Alle ausmustern:</em>  Alle Fahrzeuge der markierten Linie werden sobald als möglich ausgemustert: sie laden nichts mehr und werden verkauft sobald sie leer sind.
 </p>
 <p>
@@ -39,8 +39,11 @@ Darunter können <em>Linienaktionen</em> ausgeführt werden:<br/>
 · <em>Beförderungen:</em> Der genutzte Laderaum alle Fahrzeugverbände der Linie, summiert für jeden Fahrplanabschnitt.<br/>
 · <em>Einnahmen:</em> Die Erlöse aller Fahrzeugverbände dieser Linie.<br/>
 · <em>Betriebskosten:</em> Die anfallenden Kosten für den Betrieb aller Fahrzeugverbände der Linie.<br/>
-· <em>Profit:</em> Der Profit ergibt sich aus Einnahmen minus Betriebskosten.
+· <em>Profit:</em> Der Profit ergibt sich aus Einnahmen minus Betriebskosten.<br/>
 · <em>Fahrzeuge:</em> Die Anzahl der Fahrzeugverbände, welche die Linie befahren.<br/>
+· <em>Strecke/Monat:</em> Die zurückgelegt Strecke aller Fahrzeuge der Linie.<br/>
+· <em>Geschwindigkeit:</em> <br/>
+· <em>Maut:</em> Kosten die durch Nutzung von Verkehrswegen anderer Spieler angefallen sind.<br/>
 </p>
 <p>
 · <em>Liniennamen ändern:</em> Der Name der Linie wird angezeigt. Klicke zum Editieren des Namens ins Namensfeld und bestätige die Änderung mit <em>RETURN</em>.

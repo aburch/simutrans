@@ -3,7 +3,7 @@
 <h1><strong>Klimaatinstellingen</strong></h1>
 
 <p>
-<strong>Klimaatinstellingen</strong> biedt opties om topografische en meteorologische variabelen te veranderen in de virtuele spel wereld<br>
+<strong>Klimaatinstellingen</strong> biedt opties om topografische en meteorologische variabelen te veranderen in de virtuele spel wereld</p>
 <p>
 <strong>Klimaatinstellingen</strong> wordt geactiveerd wanneer je Simutrans start of door te kiezen voor Hoofdmenu en vervolgens voor de optie  <a href="new_world.txt">Nieuwe kaart</a>.
 </p>
@@ -22,7 +22,6 @@ Pijltjes knoppen veranderen de instellingen:
 <em>Berghoogte:</em> bepaalt de maximum hoogte van het terrein.
 </p>
 <p>
-
 
 <em>Ruigheid:</em> bepaalt de ruigheid van het terrein; een hoger getal zorgt voor extra glooingen.<br>
 </p>

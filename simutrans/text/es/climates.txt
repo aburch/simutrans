@@ -3,7 +3,7 @@
 <h1><strong>Controles del Clima</strong></h1>
 
 <p>
-<strong>Controles del Clima</strong> establece las opciones para los aspectos topograficos y meteorologicos del juego<br>
+<strong>Controles del Clima</strong> establece las opciones para los aspectos topograficos y meteorologicos del juego</p>
 <p>
 <strong>Controles del Clima</strong> se abre con el boton<a href="new_world.txt">Crear un Nuevo Mundo</a>.
 </p>

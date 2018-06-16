@@ -1,26 +1,32 @@
-<title>Removal Tool</title>
+<title>Removal Tool Help</title>
 
 <h1><strong>Destroy/Removal Tool</strong></h1>
 
 <p>
-<strong>Removal Tool</strong> is used to destroy and remove unwanted items and obstructions to construction on a single game-tile in <a href="window.txt">game-view</a>.
+<strong>Removal Tool</strong> is used to destroy and remove unwanted items and obstructions to construction on a single game-tile in the <a href="window.txt">game-view</a>.
 </p>
+
 <p>
-To Use: Click red-cross-icon (<it>bulldozer-icon</it> in pak128) at top of game-view or press <a href="keys.txt">[a]</a> to open <strong>Removal Tool</strong> (changes cursor to a red-cross-over-dust-cloud).<br>
-Position cursor in game view, a yellow outline indicates position on which Tool will operate (map cordinates are indicated in bottom-bar). Then click on item in game-view to remove.
+<em>To Use:</em> Click red-cross-icon (bulldozer-icon in pak128) at top of the game-view or press <a href="keys.txt">[r]</a> key to open <strong>Removal Tool</strong> (it changes cursor to a red-cross-over-dust-cloud). Position cursor in game-view, a yellow outline indicates position on which tool will operate (map coordinates are indicated in the bottom-bar). Then click on object in the game-view to remove it. If you are authorized for removal, the object will be removed from the map without warning.
 </p>
+
 <p>
-Cost incurred is displayed in game-view and appears as under <a href="finances.txt">Construction site</a>. The cost of removal is equivalent to cost of construction for player items.<br>
-The cost of destroying <a href="inspection_tool.txt">city buildings</a> is shown as its value in dialogue opened with <it>Inspection Tool</it>.
+Cost incurred is displayed immediately in game-view and appears also under <em>Construction Costs</em> item in <a href="finances.txt">Finances</a> window. The cost of removal is equivalent to the cost of construction (for player items). The cost of destroying city buildings is the same as their value as shown in dialogue opened with <a href="inspection_tool.txt">Inspection Tool</a>. There is also a cost for destroying trees.
 </p>
+
 <p>
 <strong>Removal Tool</strong> can be used to remove individual pedestrians and private citycars as well.
 </p>
+
 <p>
-The order in which items are removed from a single game-square: pedestrian or private citycar, signals, stop or station-platform, electrification of way, bridge or tunnel, way (track first if on roadway).
+The order in which items are removed from a single road/track tile: pedestrian or private citycar, signals, stop/station platform, electrification of way, bridge or tunnel, way itself (track first if on road).
 </p>
-{Tips: To remove a player vehicle, sell vehicle from <a href="convoidetail.txt">Convoy Details</a>.<br>
-To remove Industry, Attractions and Town Hall switch to public service player first. <it>Please Note:</it> Use of <strong>Removal Tool</strong> on a  Town Hall removes all city buildings from urban area.<br>
-To destroy/remove another players items select to play as other <a href="players.txt">player</a> first.<br>
-To remove segments of track or road use <a href="railtools.txt">Remove Tracks</a> (also found in <a href="tramtools.txt">Tram Tools</a>) or <a href="roadtools.txt">Remove roads</a>.}
+
 <p>
+TIPS:<br>
+ · To remove a player vehicle, sell/retire it from <a href="convoidetail.txt">Convoy Details</a> window.<br>
+ · To remove an industry, attraction or town hall, switch to public service player first.<br>
+WARNING: When removing a town hall, all city buildings from that <a href="citywindow.txt">urban area</a> are also removed.<br>
+ · To destroy/remove another player items, select to play as other <a href="players.txt">player</a> first.<br>
+ · To remove segments of track or road use <a href="railtools.txt">Remove tracks</a> tool (also found in <a href="tramtools.txt">Tram tools</a>) or <a href="roadtools.txt">Remove roads</a> tool.
+</p>

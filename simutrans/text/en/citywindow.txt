@@ -13,7 +13,7 @@ Click on a Town Hall in game-view with the <a href="inspection_tool.txt">Inspect
 </p>
 <p>
 <em>Name:</em> the assigned name of a city, town or village appears in a box at the top of <strong>City Statistics</strong>. <br>
-Names of such urban areas are used to create names for <a href="station.txt">stops</a> within the city limits.
+Names of such urban areas are used to create names for <a href="station.txt">stops</a> within the city limits. 
 To change the name simply click on the box and type in a new name.<br>
 {Tip: Use <a href="keys.txt">[!]</a> to toggle the display of the name of a city above the Town Hall in game-view. See readme_citylist.txt (in ...simutrans/text/) for more information on how city names are generated}.
 </p>
@@ -24,7 +24,7 @@ Under the name box are given some basic city statistics:<br>
 <em>Map co-ordinates:</em> indicating the boundary of city limits (these will change as the city grows). The first pair of values indicates the top left corner, and the second the lower right corner. As cities grow, city limits may overlap.
 </p>
 <p>
-Current numbers of <em>unemployed</em> and <em>homeless</em> inhabitants of the city. These will increase when the city expands its limits, and decrease when new city buildings are erected.
+Current numbers of <em>unemployed</em> and <em>homeless</em> inhabitants of the city. These will increase when the city expands its limits, and decrease when new city buildings are erected. 
 The balance between these counters determines which type of city building (residential/commercial/industrial) will be constructed.
 </p>
 <p>
@@ -39,7 +39,7 @@ The right hand mini-map shows values for the current game calendar month, and th
 </p>
 <p>
 Below the mini-maps there is a <em>graph</em> showing statistics for the city. <br>
-On the y-axis quantity is shown and on the x-axis time.
+On the y-axis quantity is shown and on the x-axis time. 
 Click on graph index tabs to change the scale of the x-axis:<br>
 <em>Years:</em> shows annual values for last 12 game calendar years.<br>
 <em>Months:</em> shows monthly values for last 12 game months

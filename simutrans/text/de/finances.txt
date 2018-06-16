@@ -18,11 +18,11 @@ Die Positionen und Schaltflächen der linken Hälfte sind wie folgt:
 </p>
 <p>
 <em>Einnahmen</em> - Die gesamten Einnahmen aus dem Transport von Passagieren und Gütern.<br>
-<em>Betriebskosten</em> - Die Kosten für den Betrieb aller Fahrzeue. Die Betriebskosten pro gefahrenem Kilometer je Fahrzeugtyp können im <a href="depot.txt">Depot</a> eingesehen werden, für Fahrzeugverbände im <a href="convoiinfo.txt">Fahrzeugfenster</a>.<br>
+<em>Betriebskosten</em> - Die Kosten für den Betrieb aller Fahrzeuge. Die Betriebskosten pro gefahrenem Kilometer je Fahrzeugtyp können im <a href="depot.txt">Depot</a> eingesehen werden, für Fahrzeugverbände im <a href="convoiinfo.txt">Fahrzeugfenster</a>.<br>
 <em>Instandhaltung</em> - Die angefallenen Kosten für die Instandhaltung der Infrastruktur. Die Kosten der <em>Instandhaltung pro Monat</em> werden rechts angezeigt und jeweils am letzten des Monats fällig, also dann immer soviel auf dem Konto vorrätig haben!<br>
-<em>Maut</em> - Wenn fahrzeuge auf fremden Wege (zum Beispiel Straßen anderer Spieler) unterwegs sind, kann ein Maut (Wegzoll) anfallen. Dies hängt vom Pakset ab. Je nachdem, ob andere Spieler deine Weg benutzen oder umgekehrt, kann man so Geld verdienen oder muss bezahlen.<br>
-<em>Freileitungen</em> - Der Gweinn durch den Verkauf von Strom.<br>
-<em>Betriebsgewinn</em> - Der operative Gewinn (exkl. Abschreibungen auf Fahrzeuge), also was mit der Transporttätigkeit, Maut, Freileitung an sich verdient wird minus der Betriebkosten und Instandhaltung. Summe aller obigen Positionen.
+<em>Maut</em> - Wenn Fahrzeuge auf fremden Wegen (zum Beispiel Straßen anderer Spieler) unterwegs sind, kann ein Maut (Wegzoll) anfallen. Dies hängt vom Pakset ab. Je nachdem, ob andere Spieler deine Wege benutzen oder umgekehrt, kann man so Geld verdienen oder muss bezahlen.<br>
+<em>Freileitungen</em> - Der Gewinn durch den Verkauf von Strom.<br>
+<em>Betriebsgewinn</em> - Der operative Gewinn (exkl. Abschreibungen auf Fahrzeuge), also was mit der Transporttätigkeit, Maut, Freileitung an sich verdient wird minus der Betriebskosten und Instandhaltung. Summe aller obigen Positionen.
 </p>
 <p>
 <em>Neue Fahrzeuge</em> - Alle Ausgaben (Einnahmen) für den Kauf (Verkauf) von Fahrzeugen.<br>
@@ -38,7 +38,7 @@ Die Positionen und Schaltflächen der rechten Hälfte sind wie folgt:
 <em>Kontostand</em> - Der aktuelle Kontostand. Dieses Geld steht zur Verfügung, um zu bauen oder Fahrzeuge und Züge zu kaufen. Der Kontostand steht auch in der Statusleiste unten in der Mitte. Ist der Kontostand negativ erscheint monatlich eine Warnung.<br>
 <em>Fahrzeugwert</em> - Der Wert Deiner Fahrzeugflotte per Ende des letzten Monats.<br>
 <em>Marge</em> - Die erzielte Nettomarge (Betriebsgewinn/Kosten). Je höher diese ist, desto mehr wird aus den angefallenen Kosten herausgeholt. Die Werte werden laufend aktualisiert, sind aber unter dem Monat wegen fehlender Unterhaltskosten zu hoch. Aussagekräftiger sind Zahlen des Vormonats oder Vorjahres. Achtung: Es kann durchaus sinnvoll sein, Linien mit geringer Marge zu betreiben, z.B. um eine Industrie zu versorgen.<br>
-<em>Gesamtvermögen</em> - Die Summe von Kontostand und Fahrzeugwert, also der Firmenwert. Ist das Gesamtvermögen am Ende eines Monats negativ, ist die Firma pleite und das Spiel verloren. Sinkt das Gesamtvermögen unter 10% des Startkapitals, erscheint am Monatsersten einen Warnung.
+<em>Gesamtvermögen</em> - Die Summe von Kontostand und Fahrzeugwert, also der Firmenwert. Ist das Gesamtvermögen am Ende eines Monats negativ, ist die Firma pleite und das Spiel verloren. Sinkt das Gesamtvermögen unter 10% des Startkapitals, erscheint am Monatsersten eine Warnung.
 </p>
 <p>
 </p>

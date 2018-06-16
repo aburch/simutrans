@@ -3,7 +3,7 @@
 <h1><strong>Goods List</strong></h1>
 
 <p>
-<strong>Goods List</strong> contains information on the different items that can be transported in game and has controls to change income received from transportation.
+<strong>Goods List</strong> contains information on the different items that can be transported in game and how much income transporting them will produce.
 </p>
 <p>
 To open: click on goods-list-tool in <a href="list.txt">List Management</a> or press <a href="keys.txt">[G]</a>.
@@ -13,41 +13,43 @@ A list of items available for transport in the game indicates: revenue received,
 {Tips: If items in list are only partially visible, then <a href="mouse.txt">re-size</a> <strong>Goods List</strong> or scroll list using slider-bar.}
 </p>
 <p>
-<em>Speedbonus</em>: shows necessary required speed for different transport types, that a <a href="convoiinfo.txt">Convoy</a> must be capable of, to receive extra income for rapid transit of goods and passengers (or in some cases incur a penalty if too slow).<br>
-If playing with <a href="new_world.txt">timeline</a>, as time passes in Simutrans necessary required speeds change with the introduction of new vehicles.<br>
-Arrow-buttons adjust income received and the speed a Convoy must be capable of to receive a speed-bonus (or incur a penalty if Convoy is too slow).
+
+<em>Speedbonus</em>: shows the <a href="convoiinfo.txt">Convoy</a> average maximum speed for different transport types required to earn the listed revenues. If average maximum speed is faster than the listed speed some items may earn more but if it is slower they may earn less.<br>
+When <a href="new_world.txt">timeline</a> setting is enabled the speed values may change as time progresses. The change usually follows the introduction of faster or more economical <a href="convoiinfo.txt">Convoys</a><br>
+The arrow-buttons can be used to adjust the speed by a percentage and update all the displayed revenues. This is useful when wanting to find out what revenue a <a href="convoiinfo.txt">Convoys</a> gets when its average maximum speed is not exactly at the speedbonus speed without having to do the calculation manually.
 </p>
 <p>
-<em>Sorted by:</em> has options to determine the order of items shown in list.<br>
-Click on option-buttons to cycle through options (changes name of option-button):
-</p>
+<em>Sorted by:</em> shows which order the item list is displayed in.<br>
+Click on option-buttons to cycle through various sorting options (changes name of option-button):
 <p>
 - <em>by name</em> in alphabetical order.<br>
-- <em>by revenue</em> orders by income received for transport of one unit by one game-square.<br>
-- <em>by bonus</em> orders by % speed bonus (% extra income if <a href="convoiinfo.txt">Convoy</a> used is capable of necessary required speed to qualify).
+- <em>by revenue</em> orders by income received.<br>
+- <em>by bonus</em> orders by % for speedbonus.
 </p>
 <p>
-- <em>ascending</em> / <em>descending</em> reverses order of list.
+- <em>ascending</em> / <em>descending</em> reverses the order of the list.
 </p>
 <p>
+</p>
 Details listed for each item include:
 </p>
 <p>
-<em>colour square</em> is the same colour displayed in goods-colour-bars in game-view above a <a href="station.txt">Stop</a> to indicate quantity of items that wait for transport.<br>
+<em>colour square</em> is the same colour displayed in goods-colour-bars in game-view above a <a href="station.txt">Stop</a> to indicate quantity of items that are awaiting transport.<br>
 {Tips: Use [!] to toggle goods-colour-bars above a Stop in game-view.}
 </p>
 <p>
-<em>revenue</em> is the income received for transporting one unit a distance of one game-square.<br>
-{Tips: Use <a href="new_world.txt">Beginners mode</a> to increase revenue to 150% (can be changed in simuconf.tab)}
+<em>revenue</em> is the income received for transporting one unit a distance of one tile in the current payment model.
+<br>It is calculated by {(base revenue) * (1 + ((average maximum speed) / (speedbonus) - 1) * (% bonus))}.<br>
 </p>
 <p>
-<em>% bonus</em> is % extra income received if <a href="convoiinfo.txt">Convoy</a> used is capable of necessary required speed to qualify (in some cases incur a penalty if a vehicle is too slow).<br>
-The calculation formula for income is complex and considers the maximum speed of Convoy with the average maximum speed of available vehicles (and not the speed of vehicle seen in game).
+
+<em>% bonus</em> is % revenue change linearly with <a href="convoiinfo.txt">Convoy</a> maximum speed inversely with speedbonus around the speedbonus speed.<br>
 </p>
 <p>
 <em>goods category</em> indicates type of vehicle needed for transport. Special freight requires specific vehicles.<br>
 {Tips: The <a href="depot.txt">capacity</a> of vehicles shows which items a vehicle can transport}.
 </p>
 <p>
-<em>Weight</em> shown is one unit in kilogrammes.
+<em>Weight</em> shows how much one unit of cargo weighs in kilogrammes.<br>
+This is added to vehicle weight during transport making the vehicle require more power to move than when empty.
 </p>

@@ -24,5 +24,8 @@ Obì zálo¾ky obsahují stejné památky, jen jinak oznaèené.<br>
  - <em>Zobrazit zastaralá</em>: V seznamu se zobrazí i budovy v dané dobì pova¾ované ji¾ za zastaralé.<br>
  - <em>Mìstské památky</em>: Zobrazí v seznamu památky, které lze postavit ve mìstì.<br>
  - <em>Venkovské památky</em>: Zobrazí v seznamu památky, které lze postavit mimo území mìsta.<br>
- - <em>památníky</em>: Zobrazí v seznamu památníky (budovy, které mohou být na mapì jen jedenkrát). <br>
+ - <em>Památník</em>: Zobrazí v seznamu památníky (budovy, které mohou být na mapì jen jedenkrát). <br>
  - <em>rotace</em>: Jestli¾e daná budova umo¾òuje pohled z více úhlù, mù¾ete pomocí ¹ipek mezi nimi pøepínat. Tím se bude mìnit obrázek v levém dolním rohu. Jestli¾e je zobrazen nápis <em>náhodnì</em>, pou¾ije se náhodnì vybraný pohled.</p>
+<p>
+Nápovìda odpovídá verzi 112.1, poslední úprava 5.1.2012.
+</p>

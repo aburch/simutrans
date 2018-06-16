@@ -63,6 +63,5 @@ Para construir uma plataforma: clique na ferramenta para selecionar plataforma (
 Para construir uma extensão: clique na ferramenta para selecionar (cursor torna-se numa estensão) e, em seguida, clique na posição exigida, ao lado de uma estação, na visão do jogo. A nova extensão é agora considerada como sendo parte da estação.<br>
 {Dica: Remova as extensões utilizando a ferramenta Remover.}
 </p>
-<p>
 <p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

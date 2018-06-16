@@ -6,7 +6,7 @@
 First, select a map: either choose one of Simutrans' thousands of maps or create a new one from a height map. Then put yourself in the shoes of a young entrepreneur with some money from your grandparents: eager to make them proud, with ambitions of establishing a successful transport company, your challenge now is to build a prosperous transport empire.
 </p>
 <p>
-As time passes, develop your company into a successful enterprise, whilst at the same time keeping the economy running smoothly by delivering freight & satisfying the travel requirements of millions of passengers. You can transport passengers, mail and goods by rail, road, ship and even air.
+As time passes, develop your company into a successful enterprise, whilst at the same time keeping the economy running smoothly by delivering freight & satisfying the travel requirements of millions of passengers. You can transport passengers, mail and goods by rail, road, ship and even air. 
 </p>
 <p>
 Every map has something different to offer. Take a good look at your surroundings: their future lies in the hands of you and your competitors.

@@ -4,6 +4,7 @@
 
 <p>
 A janela <strong>Carregar terreno</strong> é usada para abrir um arquivo de mapa personalizado (para ser usado em um novo jogo) e pode ser usada para deletar esses arquivos.<br>
+</p>
 <p>
 <strong>Carregar terreno</strong> abre a partir da janela de <a href="new_world.txt">Novo mundo</a> e lista nomes, data e hora de salvamento dos mapas disponíveis.<br>
 Se todos os arquivos não estiverem visíveis: use a <a href="mouse.txt">barra de rolagem</a> no lado direito da lista para percorrer os nomes.

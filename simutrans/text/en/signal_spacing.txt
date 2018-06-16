@@ -10,7 +10,7 @@
 </p>
 <h1>Parameters in this window:</h1>
 <p>
--- <em>Signal spacing:</em> how many tiles apart consecutive signals should be placed (diagonal count as 1/2 tile).
+-- <em>Signal spacing:</em> how many tiles apart consecutive signals should be placed (diagonal count as 1/2 tile). 
 This value is shown on the icon if the signal is selected.<br>
 
 -- <em>Remove interm. signals:</em> if toggled, other signals on the way will be deleted.<br>

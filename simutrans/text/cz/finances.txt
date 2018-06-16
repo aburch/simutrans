@@ -2,34 +2,79 @@
 <h1>Finance (klávesová zkratka: <em>f</em>)</h1>
 
 <p>
-V dialogu finance naleznete tabulku rozpisu va¹ich pøíjmù a výdajù za tento a minulý rok, a také graf vybrané polo¾ky (polo¾ek).
-Tabulka pøíjmù a výdajù je dìlena do nìkolika kategorií, jejich popis následuje.<br>
-Popis grafù naleznete ní¾e.
+V dialogu finance naleznete tabulku rozpisu va¹ich pøíjmù a výdajù za tento a minulý rok, a také graf vybraných polo¾ek.
+</p>
+<p>
+Tabulku pøíjmù lze zobrazit po mìsících nebo po letech. Údaje lze zobrazit i jen pro jednotlivé zpùsoby pøepravy (od verze 112.3).
+
+Hodnoty jednotlivých následujících polo¾ek jsou zobrazitelné v grafu.
 </p>
 
 <p>
-<em>Stavby</em> - Souèet výdajù za v¹e co jste postavili - ¾eleznice, silnice, stanice atd.<br>
-<em>Nová vozidla</em> - Pøíjmy a výdaje za prodaná èi zakoupená vozidla<br>
-<em>Provoz vozidel</em> - Provozní náklady za v¹echna vozidla<br>
-<em>Údr¾ba</em> - Výdaje za udr¾ování va¹ich vozidel a staveb v dobrém stavu -
-opravy, úklid atd. Èím více vozidel a staveb, tím je vìt¹í tato èástka.<br>
-Jak vysoká je tato èástka na tento mìsíc, je uvedeno na posledním øádku dialogu.<br>
-Tato èástka vám bude odeètena najednou, na konci ka¾dého mìsíce.<br>
-<em>Pøíjmy</em> - Souèet penìz, vydìlaných pøepravou zbo¾í a cestujících<br>
-<em>Celkem</em> - Celkový souèet pøíjmù a výdajù za tento popø. minulý rok<br>
+<i>levý sloupec</i>
+</p>
+
+<p>
+<em>Pøepraveno</em> - Kolik zbo¾í, cestujících a po¹ty jste pøepravili.
+</p>
+<p>
+<em>Pøíjmy</em> - Souèet penìz, vydìlaných pøepravou zbo¾í a cestujících
+</p>
+<p>
+<em>Provoz vozidel</em> - Provozní náklady za v¹echna vozidla
+</p>
+<p>
+<em>Údr¾ba</em> - Výdaje za udr¾ování va¹ich staveb v dobrém stavu -
+opravy, úklid atd. Èím více tratí, cest, mostù, tunelù a staveb, tím je vìt¹í tato èástka.<br/>
+Jak vysoká je tato èástka na tento mìsíc, je uvedeno na posledním øádku dialogu.<br/>
+Tato èástka vám bude odeètena najednou, na zaèátku ka¾dého mìsíce. Vozidel se tato polo¾ka (zatím) netýká.<br/>
+(Mìsíèní náklady na údr¾bu vozidel jsou v simutrans experimental).
+</p>
+<p>
+<em>Mýto</em> - Mýtné za jízdu va¹ich vozidel po silnicích jiných hráèù (platíme) a za jízdu cizích vozidel po va¹ich silnicích (je nám placeno).
+Vý¹i mýtného lze ovlivnit v <a href="settings.txt">nastavení</a> pøi vytváøení nové mapy v zálo¾ce <strong>Hospodáøství a mìsta</strong> volbami <strong>toll_running_cost_percentage</strong> a <strong>toll_waycost_percentage</strong>.
+</p>
+<p>
+<em>Zisk z vozidel</em> - Souèet pøedchozích ètyø polo¾ek vèetnì znaménka. (Pøíjmy + provoz vozidel + údr¾ba + mýto)
+</p>
+<p>
+<em>Nová vozidla</em> - Pøíjmy a výdaje za prodaná èi zakoupená vozidla
+</p>
+<p>
+<em>Stavby</em> - Souèet výdajù za v¹e co jste postavili - ¾eleznice, silnice, stanice atd.
+</p>
+<p>
+<em>Hosp. výsledek</em> - Celkový souèet pøíjmù a výdajù za tento popø. minulý rok
+</p>
+
+<p>
+<i>pravý sloupec</i>
+</p>
+
+<p>
 <em>Zùstatek</em> - Vá¹ celkový zùstatek penìz - stav va¹eho konta.
+</p>
+<p>
+<em>Majetek</em> - souèet cen v¹eho va¹eho majetku - vozidel. Budovy, silnice, ¾eleznice, apod. se nepoèítají. Cena ka¾dého objektu postupnì èasem klesá.
+</p>
+<p>
+<em>Výdìlek</em> - zisk z vozidel dìlený pøíjmy
+</p>
+<p>
+<em>Jmìní</em> - souèet zùstatku a hodnot v¹ech vozidel
 </p>
 
 <p>Grafy</p>
 
 <p>
-Stiskem tlaèítek v pravé horní èásti dialogu mù¾ete zobrazit vývoj zvolené hodnoty za posledních 11 let.<br>
-Význam hodnot v grafu po stisknutí patøièných tlaèítek je stejný jako v tabulce pøíjmù a výdajù. Dal¹í hodnoty:<br>
-<em>Majetek</em> - souèet cen v¹eho va¹eho majetku - vozidel a budov. Cena ka¾dého objektu postupnì èasem klesá.<br>
-<em>Jmìní</em> - souèet zùstatku a hodnot v¹ech vozidel
-<em>Zisk vozidel</em> - pøíjmy bez ceny za údr¾bu a bez ceny za provoz vozidel
+Stiskem tlaèítek v pravé horní èásti dialogu mù¾ete zobrazit vývoj zvolené hodnoty za souèasný rok a pøedcházejících 24 let. (Od verze 112.3, døíve jen 11 let)<br/>
+Význam hodnot v grafu po stisknutí patøièných tlaèítek je stejný jako v tabulce pøíjmù a výdajù.<br/>
 </p>
 
 <p>
 -><a href="about.txt">Informace o pøekladu</a>
+</p>
+
+<p>
+Nápovìda odpovídá verzi 112.3, poslední úprava 31.12.2013.
 </p>

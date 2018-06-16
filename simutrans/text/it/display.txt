@@ -9,7 +9,7 @@
 Click sul pulsante Grafica nel menù <a href="options.txt">Opzioni di Gioco</a> per aprire il menù <strong>Grafica</strong>.
 </p>
 <p>
-Click sui bottoni quadrati permette di selezionare / deselezionare le opzioni, mentre si possono utilizzare i <a href="mouse.txt">bottoni freccia</a> per regolare i
+Click sui bottoni quadrati permette di selezionare / deselezionare le opzioni, mentre si possono utilizzare i <a href="mouse.txt">bottoni freccia</a> per regolare i 
 
 settaggi:
 </p>
@@ -41,7 +41,7 @@ Tenendo premuto il tasto destro nella finestra di gioco è possibile trascinare o
 <em>Nascondi trasparenti:</em> tutti gli oggetti nascosti (siano essi alberi od edifici) saranno resi trasparenti.
 </p>
 <p>
-<em>Nascondi alberi:</em> selezionare questa opzione comporta che se "nascondi trasparenti" è selezionato gli alberi saranno resi trasparenti, altrimenti saranno
+<em>Nascondi alberi:</em> selezionare questa opzione comporta che se "nascondi trasparenti" è selezionato gli alberi saranno resi trasparenti, altrimenti saranno 
 
 miniaturizzati.
 </p>
@@ -49,7 +49,7 @@ miniaturizzati.
 <em>Copertura stazione trasparente:</em> con questa opzione è possibile modificare l'aspetto grafico con cui viene indicata la copertura della stazione.
 </p>
 <p>
-<em>Mostra copertura stazione:</em> visualizza un segnaposto, il cui aspetto è selezionabile da "copertura stazione trasparente", sulle caselle che possono usufruire dei
+<em>Mostra copertura stazione:</em> visualizza un segnaposto, il cui aspetto è selezionabile da "copertura stazione trasparente", sulle caselle che possono usufruire dei 
 
 servizi della stazione.
 </p>
@@ -67,7 +67,7 @@ servizi della stazione.
 </p>
 <p>
 <em>Densità di traffico:</em> imposta il numero di auto private che circolano nelle <a href="citywindow.txt">aree urbane</a>.<br>
-Il numero di auto private cresce al crescere della dimensione della città ed alla densità di traffico impostata. Impostando densità di traffico a 0 non verranno generate
+Il numero di auto private cresce al crescere della dimensione della città ed alla densità di traffico impostata. Impostando densità di traffico a 0 non verranno generate 
 
 auto private.
 </p>
@@ -81,7 +81,7 @@ auto private.
 <p>
 Sotto alle impostazioni sono visualizzate delle informazioni sulle prestazioni di simutrans durante il suo funzionamento.<br>
 I numeri sono normalmente visualizzati in bianco, se sono gialli o rossi occorre modificare le impostazioni.<br>
-Modifiche alla velocità di scorrimento del gioco, <a href="window.txt">T</a>, (utilizzando l'icona Fast Forward  >> in alto alla finestra di gioco, o [,]/ [.]) può
+Modifiche alla velocità di scorrimento del gioco, <a href="window.txt">T</a>, (utilizzando l'icona Fast Forward  >> in alto alla finestra di gioco, o [,]/ [.]) può 
 
 modificare il colore dei numeri.
 </p>
@@ -93,7 +93,7 @@ modificare il colore dei numeri.
 </p>
 <p>
 <em>
-FPS:</em> valori elevati significano che i veicoli scorrono più fluidamenti. Se il numero rimane rosso significa che il computer è troppo lento per le attuali impostazioni,
+FPS:</em> valori elevati significano che i veicoli scorrono più fluidamenti. Se il numero rimane rosso significa che il computer è troppo lento per le attuali impostazioni, 
 
 provate a ridurre la dimensione della finestra di gioco.
 </p>

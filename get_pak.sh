@@ -53,7 +53,7 @@ DownloadInstallZip(){
 # generated list of pak sets
 paksets=( \
 "http://downloads.sourceforge.net/project/simutrans/pak64/120-3/simupak64-120-3.zip" \
-"http://www.simutrans-germany.com/pak.german/pak64.german_0-112-3-10_full.zip" \
+"https://www.simutrans-germany.com/pak.german/pak64.german_0-112-3-10_full.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak64.japan/120-0/simupak64.japan-120-0-1.zip" \
 "http://github.com/wa-st/pak-nippon/releases/download/v0.3.0/pak.nippon-v0.3.0.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pakHAJO/pakHAJO_102-2-2/pakHAJO_0-102-2-2.zip" \

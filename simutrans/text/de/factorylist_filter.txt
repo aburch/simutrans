@@ -4,7 +4,7 @@
 
 <p>
 Die Fabrikliste wird über die <a href="list.txt">Listenverwaltung</a> geöffnet.<br/>
-In der Fabrikliste sind alle Fabriken des Welt gelistet. Die Sortierung ist nach allen aufgeführten Kriterien möglich; klicke zum Wechseln auf den Button. Ein Klick auf einen Eintrag öffnet das Infofenster zur Fabrik und zentriert die Karte diese.
+In der Fabrikliste sind alle Fabriken der Welt gelistet. Die Sortierung ist nach allen aufgeführten Kriterien möglich; klicke zum Wechseln auf den Button. Ein Klick auf einen Eintrag öffnet das Infofenster zur Fabrik und zentriert die Karte auf diese.
 </p>
 <p>
 · <em>Status:</em> Zeigt den Status der Fabrik an.<br/>

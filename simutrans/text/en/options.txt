@@ -12,30 +12,35 @@ Click on floppydisc-icon at top of game-view to open <strong>Game Options</stron
 Click on button to open new controls:
 </p>
 <p>
-<a href="language.txt"><em>Language:</em></a> sets language used in game.
+<a href="language.txt"><em>Language:</em></a> sets the language used in game.
 </p>
 <p>
-<a href="color.txt"><em>Player Colour:</em></a> sets colour of Player company.
+<a href="players.txt"><em>Players:</em></a> opens a list of different player companies.
 </p>
 <p>
-<a href="display.txt"><em>Display:</em></a> settings for how game appears in Simutrans.
+<a href="color.txt"><em>Player Colour:</em></a> sets the colour of the player's company.
 </p>
 <p>
-<a href="sound.txt"><em>
-Sound:</em></a> settings for sound & music in game.
+<a href="display.txt"><em>Display:</em></a> settings for how the game appears in Simutrans.
 </p>
 <p>
-<a href="players.txt"><em>Players:</em></a> opens controls for different Player companies.
+<a href="sound.txt"><em>Sound:</em></a> settings for sound & music in the game.
 </p>
 <p>
-<a href="load.txt"><em>Load:</em></a> opens controls to re-start a saved game.
+<a href="new_world.txt"><em>New Game:</em></a> opens controls to start a new game (closes other toolbars, texts & options in current game).
 </p>
 <p>
-<a href="save.txt"><em>Save:</em></a> opens controls to store the current game, to continue play later.
+<a href="load.txt"><em>Load Game:</em></a> opens controls to re-start a saved game.
 </p>
 <p>
-<a href="new_world.txt"><em>New ?Game/Map:</em></a> opens controls to start a new game (closes other toolbars, texts & options in current game).
+<a href="save.txt"><em>Save:</em></a> opens controls to store the current game, that can be played later.
 </p>
 <p>
-<em>Quit:</em>exits Simutrans, current game is not saved.
+<a href="scenario.txt"><em>Load Scenario:</em></a> opens controls to play a scenario, i.e. a game where a certain goal must be fulfilled.
+</p>
+<p>
+<em>Scenario Info:</em> Normally disabled, it shows current scenario details when one is loaded.
+</p>
+<p>
+<em>Quit:</em> exits Simutrans, current game is not saved!
 </p>

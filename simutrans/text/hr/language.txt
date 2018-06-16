@@ -19,5 +19,5 @@ Ako prijevod nije dostupan u odabranom jeziku, moze se pojaviti na engleskom.
 </p>
 
 <p>
-Za pomoc oko prijevoda Simutransa u Vas jezik,
+Za pomoc oko prijevoda Simutransa u Vas jezik,  
 posjetite http://simutranslator.simutrans-germany.com</p>

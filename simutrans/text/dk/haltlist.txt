@@ -68,3 +68,4 @@ Knappen til venstre er en "tilstands-knap". Denne knap kontrollerer
 filteranvendeksen med tilstandene 'inaktivt' og 'aktivt'. Knappen til højre
 med teksten 'indstil filter'<br>
 åbner for<a href="haltlist_filter.txt">filter dialogen</a>
+</p>

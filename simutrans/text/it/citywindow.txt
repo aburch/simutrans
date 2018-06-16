@@ -13,7 +13,7 @@ Clicca su un Municipio nella vista di gioco con lo <a href="inspection_tool.txt"
 </p>
 <p>
 <em>Nome:</em> il nome assegnato alla città appare in un riquadro nella parte alta di <strong>Statistiche città</strong>. <br>
-I nomi di queste aree urbane sono usati per creare quelli delle <a href="station.txt">fermate</a> nei limiti della città.
+I nomi di queste aree urbane sono usati per creare quelli delle <a href="station.txt">fermate</a> nei limiti della città. 
 Per cambiare il nomer cliccare semplicemente sul riquadro e inserirne uno nuovo.<br>
 {Suggerimento: Usa <a href="keys.txt">[!]</a> per vedere il nome della città sopra il Municipio nella finestra di gioco. Guarda readme_citylist.txt (in ...simutrans/text/) per più informazioni su come sono generati i nomi delle città}.
 </p>
@@ -38,7 +38,7 @@ La mini mappa sulla destra riporta i dati dell'ultimo mese, e quella a sinistra 
 </p>
 <p>
 Sotto le mini mappe c'è un <em>grafico</em> che mostra le statistiche per la città. <br>
-Sull'asse delle y c'è la quantità, mentre sulle x il tempo.
+Sull'asse delle y c'è la quantità, mentre sulle x il tempo. 
 Clicca su uno dei due tab sopra per cambiare la scala dell'asse delle x:<br>
 <em>Anni:</em> visualizza valori annuali per gli ultimi 12 anni.<br>
 <em>Mesi:</em> visualizza valori mensili per gli ultimi 12 mesi.

@@ -41,6 +41,7 @@ Clique no item listado para ver mais informações sobre o <a href="convoiinfo.txt
 <p>
 Itens listados para cada Comboio incluem:
 </p>
+<p>
 <em>ID Interno</em>: um número de identificação único (designado por padrão quando um Comboio é comprado ou montado pela primeira vez em um <a href=depot.txt">depósito</a> e mostrado na barra de título da <a href="convoiinfo.txt">Informação do Comboio</a>).
 </p>
 <p>

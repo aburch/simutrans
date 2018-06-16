@@ -1,32 +1,32 @@
 <title>Anzeigeeinstellungen Hilfe</title>
-
+ 
 <h1><strong>Anzeigeeinstellungen</strong></h1>
-
+ 
 <p>
 · <em>Gitternetz einblenden</em>: Blendet in der Welt ein Gitternetz ein und aus.<br>
 · <em>Untergrundansicht</em>: In diesem Modus kann man Tunnelstrecken bauen, sofern schon eine Strecke unter der Erde besteht. Die Tunnelstrecken aller Ebenen werden zusammen angezeigt.<br>
-
+ 
 · <em>Ebene durch Karte</em>: Auch in diesem Modus kann man Tunnelstrecken bauen. Die Karte wird auf der eingestellten Ebene aufgeschnitten und nur Tunnelstrecken auf der jeweiligen Ebene werden angezeigt. Mit den Pfeilen kann die Ebene eingestellt werden. Es kann aber auch direkt die Nummer der Ebene eingegeben werden.<br>
 · <em>Tag und Nacht wechseln</em>: Soll es nachts dunkel werden in Simutrans? Gebäudefenster, Fahrzeuge und Signalmittel zeigen sich in Nachtbeleuchtung.<br>
 · <em>Helligkeit</em>: Lege mit den Pfeilen die Helligkeit des Spiels fest. Nutze auch die Tasten <em>)</em> (heller) und <em>(</em> (dunkler). Werte über 0 lassen sich nur über die Tastatur einstellen. ACHTUNG: Die Einstellbarkeit ist nach oben und unten nicht begrenzt, es kommt aber sehr bald zu einer Falschfarbenanzeige.<br>
 · <em>Inverses Kartenscrolling</em>: Kehre die Scrollrichtung bei Bedarf um, die Karte bewegt sich dann in Mausrichtung.<br>
 · <em>Scrollgeschwindigkeit</em>: Diese Einstellung erhöht die Kartenscrollgeschwindigkeit.
 </p>
-
+ 
 <p>
 · <em>Transparent statt minimieren</em>: Wählt den Modus aus, der benutzt werden soll, um Häuser oder Bäume zur besseren Übersicht zu verstecken. Diese Einstellung hat Auswirkungen auf die beiden nächsten Einstellungen.<br>
 · <em>Bäume minimieren</em>: Zeigt nur ganz kleine bzw. transparent Bäume an.<br>
 · <em>Gebäudeanzeigemodus</em>: Es kann mit Hilfe der Pfeile ausgewählt werden, ob keine Gebäude, nur Stadtgebäude oder alle Gebäude minimiert werden.<br>
 · <em>Mauszeiger freihalten</em>: Je nach Einstellung werden eine bestimmte Anzahl von Feldern um den Mauszeiger minimiert bzw. tranparent. Die Anzahl der Felder kann mit den Pfeilen oder direkt durch Eingabe eingestellt werden.<br>
 </p>
-
+ 
 <p>
 · <em>transparente Stationsabdeckung</em>: Wählt den Modus aus, der benutzt werden soll, um die Reichweite von Halten anzuzeigen. Ist transparent gewählt färbt sich der Boden entsprechend der ersten Spielerfarbe des Besitzers, während ausgeschaltet je Fliese nur ein Kästchen in Spielerfarbe zu sehen ist.<br>
 · <em>Stationsabdeckung zeigen</em>: Zeigt die Stationsabdeckung an oder blendet sie aus.<br>
 · <em>Markierungen im Spiel</em>: Legt den Modus fest, wie Markierungen bzw. Schilder im Spiel angezeigt werden. Diese können mit der ersten Spielerfarbe im Hintergrund, mit transparentem Grund und als Schriftfarbe die Spielerfarbe, in Standardschriftfarbe mit einem spielerfarbenen Feld davor oder überhaupt nicht angezeigt werden.<br>
 · <em>Güterwarenbalken anzeigen</em>: Blendet die Anzeige für wartende Waren an einem Halt ein oder aus.<br>
 </p>
-
+ 
 <p>
 · <em>Fußgänger (Stadt)</em>: Wenn aktiviert werden sich Fußgänger durch die Städte bewegen.<br>
 · <em>Fußgänger (an Halten)</em>: Wenn aktiviert werden Fußgänger an Haltestellen aus Fahrzeugen aussteigen.<br>
@@ -34,7 +34,7 @@
 · <em>Fahrzeuge: Tooltipps</em>: Je nach Modus werden Tooltipps verschieden angezeigt. Wenn Maustooltipps gewählt ist werden Tooltipps nur auf dem Feld angezeigt, wo sich die Maus befindet. Sind alle Tooltipps ausgewählt werden immer alle Tipps angezeigt. Fehlertooltipps werden nur bei Zwischenfällen angezeigt.<br>
 · <em>Fahrplanhalte hervorheben</em>: Ist diese Funktion aktiviert werden bei geöffneten Fahrplan alle Halte- und Wegpunkte angezeigt.<br>
 </p>
-
+ 
 <p>
 <strong>Auslastungsanzeigen</strong>
 <br/>

@@ -30,5 +30,6 @@ do Tvojho vozového parku v ktoromkoµvek depe.
 Tvojich peòazí. Ak je kladný, môze¹ ho pouzit' na ïalsie investovanie. Táto informácia je
 tie¾ zobrazená v stavovej (dolnej) li¹te obrazovky.
 </p>
-<em>Podpora (mesacne)</em> - bonifikácia, dotácie a pod. Tvojich financií (mesaène).
 <p>
+<em>Podpora (mesacne)</em> - bonifikácia, dotácie a pod. Tvojich financií (mesaène).
+</p>
