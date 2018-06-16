@@ -949,9 +949,6 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 
 	const uint32 number_of_big_cities = env_t::number_of_big_cities;
 
-	const uint32 max_city_size = sets->get_max_city_size();
-	const uint32 max_small_city_size = sets->get_max_small_city_size();
-
 	dbg->important("Creating cities ...");
 	DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "prepare cities sizes");
 
@@ -959,6 +956,9 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 
 	vector_tpl<sint32> city_population(city_population_target_count);
 	sint32 median_population = abs(sets->get_mean_einwohnerzahl());
+
+	const uint32 max_city_size = sets->get_max_city_size();
+	const uint32 max_small_city_size = max(sets->get_max_small_city_size(), median_population / 2);
 
 	// Generate random sizes to fit a Pareto distribution: P(x) = x_m / x^2 dx.
 	// This ensures that Zipf's law is satisfied in a random fashion, and
