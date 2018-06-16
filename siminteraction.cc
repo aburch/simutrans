@@ -340,7 +340,8 @@ bool interaction_t::process_event( event_t &ev )
 			world->save( fn, loadsave_t::save_mode, SAVEGAME_VER_NR, false );
 			env_t::restore_UI = old_restore_UI;
 		}
-		else if(  env_t::reload_and_save_on_quit  ) {
+		else if(  env_t::reload_and_save_on_quit  &&  !env_t::networkmode  ) {
+			// save current game, if not online
 			bool old_restore_UI = env_t::restore_UI;
 			env_t::restore_UI = true;
 

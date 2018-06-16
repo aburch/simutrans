@@ -27,6 +27,9 @@ PIXVAL gui_theme_t::gui_color_text_highlight;
 PIXVAL gui_theme_t::gui_color_text_shadow;
 PIXVAL gui_theme_t::gui_color_text_title;
 PIXVAL gui_theme_t::gui_color_text_strong;
+PIXVAL gui_theme_t::gui_color_text_minus;
+PIXVAL gui_theme_t::gui_color_text_plus;
+PIXVAL gui_theme_t::gui_color_text_unused;
 PIXVAL gui_theme_t::gui_color_edit_text;
 PIXVAL gui_theme_t::gui_color_edit_text_selected;
 PIXVAL gui_theme_t::gui_color_edit_text_disabled;
@@ -117,7 +120,6 @@ image_id gui_theme_t::check_button_img[3];
 image_id gui_theme_t::pos_button_img[3];
 
 bool gui_theme_t::gui_drop_shadows;
-uint8 gui_theme_t::request_linespace = 11;
 
 /**
  * Initializes theme related parameters to hard coded default values.
@@ -130,22 +132,30 @@ void gui_theme_t::init_gui_defaults()
 	gui_color_text_shadow                  = color_idx_to_rgb(COL_BLACK);
 	gui_color_text_title                   = color_idx_to_rgb(207);
 	gui_color_text_strong                  = color_idx_to_rgb(COL_RED);
+	gui_color_text_minus                   = color_idx_to_rgb(COL_RED);
+	gui_color_text_plus                    = color_idx_to_rgb(COL_BLACK);
+	gui_color_text_unused                  = color_idx_to_rgb(COL_YELLOW);
+
 	gui_color_edit_text                    = color_idx_to_rgb(COL_WHITE);
 	gui_color_edit_text_selected           = color_idx_to_rgb(COL_GREY5);
 	gui_color_edit_text_disabled           = color_idx_to_rgb(COL_GREY3);
 	gui_color_edit_background_selected     = color_idx_to_rgb(COL_GREY2);
 	gui_color_edit_beam                    = color_idx_to_rgb(COL_WHITE);
+
 	gui_color_chart_background             = color_idx_to_rgb(MN_GREY1);
 	gui_color_chart_lines_zero             = color_idx_to_rgb(MN_GREY4);
 	gui_color_chart_lines_odd              = color_idx_to_rgb(COL_WHITE);
 	gui_color_chart_lines_even             = color_idx_to_rgb(MN_GREY0);
+
 	gui_color_list_text_selected_focus     = color_idx_to_rgb(COL_WHITE);
 	gui_color_list_text_selected_nofocus   = color_idx_to_rgb(MN_GREY3);
 	gui_color_list_background_selected_f   = color_idx_to_rgb(COL_BLUE);
 	gui_color_list_background_selected_nf  = color_idx_to_rgb(COL_LIGHT_BLUE);
+
 	gui_color_button_text                  = color_idx_to_rgb(COL_BLACK);
 	gui_color_button_text_disabled         = color_idx_to_rgb(MN_GREY0);
 	gui_color_button_text_selected         = color_idx_to_rgb(COL_BLACK);
+
 	gui_color_colored_button_text          = color_idx_to_rgb(COL_BLACK);
 	gui_color_colored_button_text_selected = color_idx_to_rgb(COL_BLACK);
 	gui_color_checkbox_text                = color_idx_to_rgb(COL_BLACK);
@@ -155,6 +165,7 @@ void gui_theme_t::init_gui_defaults()
 	gui_color_statusbar_text               = color_idx_to_rgb(COL_BLACK);
 	gui_color_statusbar_background         = color_idx_to_rgb(MN_GREY1);
 	gui_color_statusbar_divider            = color_idx_to_rgb(MN_GREY4);
+
 	gui_highlight_color                    = color_idx_to_rgb(MN_GREY4);
 	gui_shadow_color                       = color_idx_to_rgb(MN_GREY0);
 
@@ -186,7 +197,6 @@ void gui_theme_t::init_gui_defaults()
 	gui_vspace           = 4;
 	gui_divider_size.h   = D_V_SPACE*2;
 
-	request_linespace    = 11;
 	gui_drop_shadows     = false;
 }
 
@@ -349,7 +359,7 @@ void gui_theme_t::init_gui_from_images()
  * manager. This will be done as the last step in
  * the chain when loading a theme.
  */
-bool gui_theme_t::themes_init(const char *file_name)
+bool gui_theme_t::themes_init(const char *file_name, bool init_fonts )
 {
 	tabfile_t themesconf;
 
@@ -368,11 +378,12 @@ bool gui_theme_t::themes_init(const char *file_name)
 	// theme name to find out current theme
 	std::string theme_name = contents.get( "name" );
 
-	// reload current font if requested size differs
-	uint8 new_size = contents.get_int("font_size", gui_theme_t::request_linespace );
-	if(  new_size != 0  &&  LINESPACE != new_size  ) {
-		gui_theme_t::request_linespace = new_size;
-		display_load_font( NULL );
+	// reload current font if requested size differs and we are allowed to do so
+	uint8 new_size = contents.get_int("font_size", env_t::fontsize );
+	if(  init_fonts  &&  new_size!=0  &&  LINESPACE!=new_size  ) {
+		if(  display_load_font( env_t::fontname.c_str() )  ) {
+			env_t::fontsize = new_size;
+		}
 	}
 
 	// first get the images ( to be able to overload default sizes)
@@ -431,7 +442,7 @@ bool gui_theme_t::themes_init(const char *file_name)
 	gui_theme_t::gui_scrollbar_size.w = max( gui_min_scrollbar_size.w, (uint32)contents.get_int("gui_scrollbar_width",  gui_theme_t::gui_scrollbar_size.w ) );
 	gui_theme_t::gui_scrollbar_size.h = max( gui_min_scrollbar_size.h, (uint32)contents.get_int("gui_scrollbar_height", gui_theme_t::gui_scrollbar_size.h ) );
 
-	// in practice, posbutton min height beeter is LINESPACE
+	// in practice, posbutton min height better is LINESPACE
 	gui_theme_t::gui_pos_button_size.w = (uint32)contents.get_int("gui_posbutton_width",  gui_theme_t::gui_pos_button_size.w );
 	gui_theme_t::gui_pos_button_size.h = (uint32)contents.get_int("gui_posbutton_height", gui_theme_t::gui_pos_button_size.h );
 
@@ -458,6 +469,9 @@ bool gui_theme_t::themes_init(const char *file_name)
 	gui_theme_t::gui_color_text_shadow                  = (PIXVAL)contents.get_color("gui_color_text_shadow", SYSCOL_TEXT_SHADOW);
 	gui_theme_t::gui_color_text_title                   = (PIXVAL)contents.get_color("gui_color_text_title", SYSCOL_TEXT_TITLE);
 	gui_theme_t::gui_color_text_strong                  = (PIXVAL)contents.get_color("gui_color_text_strong", SYSCOL_TEXT_STRONG);
+	gui_theme_t::gui_color_text_minus                   = (PIXVAL)contents.get_color("gui_color_text_minus", MONEY_MINUS);
+	gui_theme_t::gui_color_text_plus                    = (PIXVAL)contents.get_color("gui_color_text_plus", MONEY_PLUS);
+	gui_theme_t::gui_color_text_unused                  = (PIXVAL)contents.get_color("gui_color_text_unused", SYSCOL_TEXT_UNUSED);
 	gui_theme_t::gui_color_edit_text                    = (PIXVAL)contents.get_color("gui_color_edit_text", SYSCOL_EDIT_TEXT);
 	gui_theme_t::gui_color_edit_text_selected           = (PIXVAL)contents.get_color("gui_color_edit_text_selected", SYSCOL_EDIT_TEXT_SELECTED);
 	gui_theme_t::gui_color_edit_text_disabled           = (PIXVAL)contents.get_color("gui_color_edit_text_disabled", SYSCOL_EDIT_TEXT_DISABLED);

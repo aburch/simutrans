@@ -24,13 +24,7 @@ void intr_refresh_display(bool dirty);
 
 void intr_set(karte_t *welt, main_view_t *view);
 
-
-/**
- * currently only used by the pause tool. Use with care!
- * @author Hj. Malthaner
- */
 void intr_set_last_time(uint32 time);
-uint32 intr_get_last_time();
 
 
 void intr_enable();
@@ -40,8 +34,7 @@ void intr_disable();
 // force sync_step (done before sleeping)
 void interrupt_force();
 
-void interrupt_check();
-void interrupt_check(const char* caller_info);
+void interrupt_check(const char* caller_info = "0");
 
 #if COLOUR_DEPTH == 0 && defined PROFILE
 	// 0 bit graphic + profiling: no interrupt_check.

@@ -41,11 +41,13 @@ ifeq ($(OSTYPE),mac)
   CXXFLAGS   += -DUSE_HW -DUSE_C
 endif
 
-ifneq ($(OPTIMISE),)
-  CFLAGS   += -O3 -fno-schedule-insns
-  CXXFLAGS += -O3 -fno-schedule-insns
-  ifneq ($(OSTYPE),mac)
-    CFLAGS  += -minline-all-stringops
+ifdef OPTIMISE
+  ifeq ($(shell expr $(OPTIMISE) \>= 1), 1)
+    CFLAGS   += -O3 -fno-schedule-insns
+    CXXFLAGS += -O3 -fno-schedule-insns
+    ifneq ($(OSTYPE),mac)
+      CFLAGS  += -minline-all-stringops
+    endif
   endif
 else
   CFLAGS   += -O
@@ -70,10 +72,12 @@ else
   CXXFLAGS += -DNDEBUG
 endif
 
-ifneq ($(PROFILE),)
-  CFLAGS   += -pg -DPROFILE -fno-inline
-  CXXFLAGS += -pg -DPROFILE -fno-inline
-  LDFLAGS += -pg
+ifdef PROFILE
+  ifeq ($(shell expr $(PROFILE) \>= 1), 1)
+    CFLAGS   += -pg -DPROFILE -fno-inline
+    CXXFLAGS += -pg -DPROFILE -fno-inline
+    LDFLAGS += -pg
+  endif
 endif
 
 CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align -Wstrict-prototypes $(OS_INC) $(OS_OPT) $(FLAGS)

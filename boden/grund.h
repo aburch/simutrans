@@ -197,7 +197,6 @@ protected:
 public:
 	enum typ { boden = 1, wasser, fundament, tunnelboden, brueckenboden, monorailboden };
 
-	grund_t(loadsave_t *file);
 	grund_t(koord3d pos);
 
 private:

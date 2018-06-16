@@ -194,9 +194,7 @@ bool internal_create_surfaces(const bool, int w, int h )
 	// Note that alpha is handled by simgraph16, not by SDL.
 	const Uint32 pixel_format = SDL_PIXELFORMAT_RGB565;
 
-	// Select opengl renderer driver if possible
 	SDL_RendererInfo ri;
-	int rend_index = -1;
 	const int num_rend = SDL_GetNumRenderDrivers();
 	for(  int i = 0;  i < num_rend;  i++  ) {
 		SDL_GetRenderDriverInfo( i, &ri );
@@ -207,29 +205,24 @@ bool internal_create_surfaces(const bool, int w, int h )
 			strcat( str, SDL_GetPixelFormatName( ri.texture_formats[j] ) );
 		}
 		DBG_DEBUG( "internal_create_surfaces()", "Renderer: %s, Max_w: %d, Max_h: %d, Flags: %d, Formats: %d%s", ri.name, ri.max_texture_width, ri.max_texture_height, ri.flags, ri.num_texture_formats, str );
-		if(  strcmp( "opengl", ri.name ) == 0  ) {
-			rend_index = i;
-		}
 	}
 
 	Uint32 flags = SDL_RENDERER_ACCELERATED;
 	if(  sync_blit  ) {
 		flags |= SDL_RENDERER_PRESENTVSYNC;
 	}
-	renderer = SDL_CreateRenderer( window, rend_index, flags );
+	renderer = SDL_CreateRenderer( window, -1, flags );
 	if(  renderer == NULL  ) {
-		dbg->warning( "internal_create_surfaces()", "Couldn't create opengl renderer: %s", SDL_GetError() );
-		// try all other renderer until success
-		// (however, on my windows machines opengles crashed, so the software renderer is never ever called)
-		for(  int i = 0;  i < num_rend  &&  renderer==NULL;  i++  ) {
-			if(  i != rend_index  ) {
-				renderer = SDL_CreateRenderer( window, i, flags );
-			}
-		}
+		dbg->warning( "internal_create_surfaces()", "Couldn't create accelerated renderer: %s", SDL_GetError() );
+
+		flags &= ~SDL_RENDERER_ACCELERATED;
+		flags |= SDL_RENDERER_SOFTWARE;
+		renderer = SDL_CreateRenderer( window, -1, flags );
 		if(  renderer == NULL  ) {
 			dbg->fatal( "internal_create_surfaces()", "No SDL2 renderer found!" );
 		}
-		dbg->warning( "internal_create_surfaces()", "Using fallback render %s instead of opengl: Performance may be low!", ri.name );
+		SDL_GetRendererInfo( renderer, &ri );
+		dbg->warning( "internal_create_surfaces()", "Using fallback software renderer %s instead of accelerated: Performance may be low!", ri.name );
 	}
 
 	SDL_GetRendererInfo( renderer, &ri );

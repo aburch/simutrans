@@ -39,11 +39,18 @@
 
 #MULTI_THREAD = 1 # Enable multithreading
 
+# using freetype for Truetype font support
+USE_FREETYPE = 0
+
+# using UPnP for easy server hosting behind routers
+#USE_UPNP = 0
+
 # Define these as empty strings, if you don't have the respective config program
 #ALLEGRO_CONFIG = allegro-config
 #PNG_CONFIG     = pkg-config libpng
 #SDL_CONFIG     = sdl-config
 #SDL2_CONFIG    = sdl2-config
+#FREETYPE_CONFIG    = freetype-config
 
 #VERBOSE = 1
 

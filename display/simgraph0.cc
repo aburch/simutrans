@@ -92,15 +92,6 @@ void display_set_actual_width(KOORD_VAL)
 {
 }
 
-int display_get_light()
-{
-	return 0;
-}
-
-void display_set_light(int)
-{
-}
-
 void display_day_night_shift(int)
 {
 }

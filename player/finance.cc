@@ -413,65 +413,6 @@ enum player_cost {
 };
 
 
-int finance_t::translate_index_cost_to_atc(const int cost_index)
-{
-	static int cost_to_atc_indices[] = {
-		-1,		// COST_CONSTRUCTION
-		-1,		// COST_VEHICLE_RUN
-		-1,		// COST_NEW_VEHICLE
-		-1,		// COST_INCOME
-		-1,		// COST_MAINTENANCE
-		-1,		// COST_ASSETS
-		ATC_CASH,	// COST_CASH - cash can not be assigned to transport type
-		ATC_NETWEALTH,	// COST_NETWEALTH -||-
-		-1,		// COST_PROFIT
-		-1,		// COST_OPERATING_PROFIT
-		-1,		// COST_MARGIN
-		-1,	        // COST_ALL_TRANSPORTED
-		-1,		// ATV_COST_POWERLINES
-		-1,		// COST_TRANSPORTED_PAS
-		-1,		// COST_TRANSPORTED_MAIL
-		-1,		// COST_TRANSPORTED_GOOD
-		ATC_ALL_CONVOIS,        // COST_ALL_CONVOIS
-		ATC_SCENARIO_COMPLETED, // COST_SCENARIO_COMPLETED,// scenario success (only useful if there is one ... )
-		-1,		// COST_WAY_TOLLS,
-		ATC_MAX		// OLD_MAX_PLAYER_COST
-	};
-
-	return (cost_index < OLD_MAX_PLAYER_COST) ? cost_to_atc_indices[cost_index] :  -1;
-}
-
-
-// returns -1 or -2 if not found !!
-// -1 --> set this value to 0, -2 -->use value from old statistic
-int finance_t::translate_index_cost_to_at(int cost_index) {
-	static int indices[] = {
-		ATV_CONSTRUCTION_COST,  // COST_CONSTRUCTION
-		ATV_RUNNING_COST,       // COST_VEHICLE_RUN
-		ATV_NEW_VEHICLE,        // COST_NEW_VEHICLE
-		ATV_REVENUE_TRANSPORT,  // COST_INCOME
-		ATV_INFRASTRUCTURE_MAINTENANCE, // COST_MAINTENANCE
-		ATV_NON_FINANCIAL_ASSETS,// COST_ASSETS
-		-2,                     // COST_CASH - cash can not be assigned to transport type
-		-2,                     // COST_NETWEALTH -||-
-		ATV_PROFIT,             // COST_PROFIT
-		ATV_OPERATING_PROFIT,   // COST_OPERATING_PROFIT
-		ATV_PROFIT_MARGIN,      // COST_MARGIN
-		ATV_TRANSPORTED,        // COST_ALL_TRANSPORTED
-		-1,                     // ATV_COST_POWERLINES
-		ATV_DELIVERED_PASSENGER, // COST_TRANSPORTED_PAS
-		ATV_DELIVERED_MAIL,     // COST_TRANSPORTED_MAIL
-		ATV_DELIVERED_GOOD,     // COST_TRANSPORTED_GOOD
-		-2,                     // COST_ALL_CONVOIS
-		-2,                     // COST_SCENARIO_COMPLETED,// scenario success (only useful if there is one ... )
-		ATV_WAY_TOLL,           // COST_WAY_TOLLS,
-		ATV_MAX                 // OLD_MAX_PLAYER_COST
-	};
-
-	return (cost_index < OLD_MAX_PLAYER_COST) ? indices[cost_index] :  -2;
-}
-
-
 void finance_t::export_to_cost_month(sint64 finance_history_month[][OLD_MAX_PLAYER_COST])
 {
 	calc_finance_history();

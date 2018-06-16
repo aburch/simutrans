@@ -35,13 +35,6 @@ line_management_gui_t::~line_management_gui_t()
 }
 
 
-
-const char *line_management_gui_t::get_name() const
-{
-	return translator::translate("Line Management");
-}
-
-
 bool line_management_gui_t::infowin_event(const event_t *ev)
 {
 	if(  player!=NULL  ) {

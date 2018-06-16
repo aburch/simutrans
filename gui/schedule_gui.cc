@@ -179,13 +179,13 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 		FORX(minivec_tpl<schedule_entry_t>, const& e, schedule->entries, (--sel, offset.y += schedule_gui_t::entry_height)) {
 			if (sel == 0) {
 				// highlight current entry (width is just wide enough, scrolly will do clipping)
-				display_fillbox_wh_clip_rgb(offset.x, offset.y - 1, 2048, schedule_gui_t::entry_height, color_idx_to_rgb(player->get_player_color1() + 1), false);
+				display_fillbox_wh_clip_rgb(offset.x, offset.y - 1, 2048, schedule_gui_t::entry_height, SYSCOL_LIST_BACKGROUND_SELECTED_F, false);
 			}
 
 			buf.clear();
 			buf.printf("%i) ", ++i);
 			gimme_stop_name(buf, welt, player, e);
-			PIXVAL const c = sel == 0 ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
+			PIXVAL const c = sel == 0 ? SYSCOL_LIST_TEXT_SELECTED_FOCUS : SYSCOL_TEXT;
 			int h = (schedule_gui_t::entry_height-LINESPACE)/2;
 			sint16 const w = display_proportional_clip_rgb(offset.x + 4 + D_POS_BUTTON_WIDTH, offset.y+h, buf, ALIGN_LEFT, c, true);
 			if (width < w) {
@@ -717,10 +717,10 @@ void schedule_gui_t::set_windowsize(scr_size size)
 {
 	gui_frame_t::set_windowsize(size);
 
-	size = get_windowsize()-scr_size(0,16+1);
+	size = get_windowsize()-scr_size(0,D_TITLEBAR_HEIGHT);
 	scrolly.set_size(size-scr_size(0,scrolly.get_pos().y));
 
-	line_selector.set_max_size(scr_size(BUTTON4_X-2, size.h-line_selector.get_pos().y -16-1));
+	line_selector.set_max_size(scr_size(BUTTON4_X-2, size.h-line_selector.get_pos().y-D_TITLEBAR_HEIGHT));
 }
 
 

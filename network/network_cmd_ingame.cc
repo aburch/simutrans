@@ -194,9 +194,9 @@ void nwc_nick_t::server_tools(karte_t *welt, uint32 client_id, uint8 what, const
 			csv.add_field( info.address.get_str() );
 			csv.add_field( info.nickname.c_str() );
 			dbg->warning( "__ChatLog__", "%s", csv.get_str() );
-
 			break;
 		}
+
 		case CHANGE_NICK: {
 			if (nick==NULL  ||  info.nickname == nick) {
 				return;

@@ -385,13 +385,7 @@ void fabrik_t::book_weighted_sums(sint64 delta_time)
 	weighted_sum_boost_mail += prodfactor_mail * delta_time;
 
 	// power produced or consumed
-	sint64 power;
-	if(  desc->is_electricity_producer()  ) {
-		power = ((sint64)get_power_supply() * (sint64)get_power_consumption()) >> leitung_t::FRACTION_PRECISION;
-	}
-	else {
-		power = -(((sint64)get_power_demand() * (sint64)get_power_satisfaction() + (((sint64)1 << leitung_t::FRACTION_PRECISION) - 1)) >> leitung_t::FRACTION_PRECISION);
-	}
+	sint64 power = get_power();
 	weighted_sum_power += power * delta_time;
 	set_stat( power, FAB_POWER );
 }
@@ -1643,6 +1637,18 @@ sint32 fabrik_t::get_power_satisfaction() const
 	return trans->get_power_satisfaction();
 }
 
+sint64 fabrik_t::get_power() const
+{
+	sint64 power;
+	if(  desc->is_electricity_producer()  ) {
+		power = ((sint64)get_power_supply() * (sint64)get_power_consumption()) >> leitung_t::FRACTION_PRECISION;
+	}
+	else {
+		power = -(((sint64)get_power_demand() * (sint64)get_power_satisfaction() + (((sint64)1 << leitung_t::FRACTION_PRECISION) - 1)) >> leitung_t::FRACTION_PRECISION);
+	}
+	return power;
+}
+
 
 sint32 fabrik_t::input_vorrat_an(const goods_desc_t *typ)
 {
@@ -2650,36 +2656,45 @@ void fabrik_t::verteile_waren(const uint32 product)
 
 void fabrik_t::new_month()
 {
-	// update statistics for input and output goods
-	for( uint32 in = 0 ; in < input.get_count() ; in++ ){
-		input[in].roll_stats(desc->get_supplier(in)->get_consumption(), aggregate_weight);
+	// calculate weighted averages
+	if(  aggregate_weight > 0  ) {
+		set_stat( weighted_sum_production / aggregate_weight, FAB_PRODUCTION );
+		set_stat( weighted_sum_boost_electric / aggregate_weight, FAB_BOOST_ELECTRIC );
+		set_stat( weighted_sum_boost_pax / aggregate_weight, FAB_BOOST_PAX );
+		set_stat( weighted_sum_boost_mail / aggregate_weight, FAB_BOOST_MAIL );
+		set_stat( weighted_sum_power / aggregate_weight, FAB_POWER );
 	}
-	for( uint32 out = 0 ; out < output.get_count() ; out++ ){
-		output[out].roll_stats(desc->get_product(out)->get_factor(), aggregate_weight);
+
+	// update statistics for input and output goods
+	for(  uint32 in = 0;  in < input.get_count();  in++  ){
+		input[in].roll_stats( desc->get_supplier(in)->get_consumption(), aggregate_weight );
+	}
+	for(  uint32 out = 0;  out < output.get_count();  out++  ){
+		output[out].roll_stats( desc->get_product(out)->get_factor(), aggregate_weight );
 	}
 	lieferziele_active_last_month = 0;
 
 	// advance statistics a month
-	for(  int s=0;  s<MAX_FAB_STAT;  ++s  ) {
-		for(  int m=MAX_MONTH-1;  m>0;  --m  ) {
+	for(  int s = 0;  s < MAX_FAB_STAT;  ++s  ) {
+		for(  int m = MAX_MONTH - 1;  m > 0;  --m  ) {
 			statistics[m][s] = statistics[m-1][s];
 		}
+		statistics[0][s] = 0;
 	}
 
-	// calculate weighted averages
-	if(  aggregate_weight>0  ) {
-		statistics[1][FAB_PRODUCTION] = weighted_sum_production / aggregate_weight;
-		statistics[1][FAB_BOOST_ELECTRIC] = weighted_sum_boost_electric / aggregate_weight;
-		statistics[1][FAB_BOOST_PAX] = weighted_sum_boost_pax / aggregate_weight;
-		statistics[1][FAB_BOOST_MAIL] = weighted_sum_boost_mail / aggregate_weight;
-		statistics[1][FAB_POWER] = weighted_sum_power / aggregate_weight;
-	}
 	weighted_sum_production = 0;
 	weighted_sum_boost_electric = 0;
 	weighted_sum_boost_pax = 0;
 	weighted_sum_boost_mail = 0;
 	weighted_sum_power = 0;
 	aggregate_weight = 0;
+
+	// restore the current values
+	set_stat( get_current_production(), FAB_PRODUCTION );
+	set_stat( prodfactor_electric, FAB_BOOST_ELECTRIC );
+	set_stat( prodfactor_pax, FAB_BOOST_PAX );
+	set_stat( prodfactor_mail, FAB_BOOST_MAIL );
+	set_stat( get_power(), FAB_POWER );
 
 	// since target cities' population may be increased -> re-apportion pax/mail demand
 	recalc_demands_at_target_cities();

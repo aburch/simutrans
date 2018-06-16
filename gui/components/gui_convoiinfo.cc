@@ -27,12 +27,12 @@
 
 gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)
 {
-    this->cnv = cnv;
+	this->cnv = cnv;
 
-    filled_bar.set_pos(scr_coord(2, 33));
-    filled_bar.set_size(scr_size(100, 4));
-    filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
-    filled_bar.add_color_value(&cnv->get_loading_level(), color_idx_to_rgb(COL_GREEN));
+	filled_bar.set_pos(scr_coord(2, 33));
+	filled_bar.set_size(scr_size(100, 4));
+	filled_bar.add_color_value(&cnv->get_loading_limit(), color_idx_to_rgb(COL_YELLOW));
+	filled_bar.add_color_value(&cnv->get_loading_level(), color_idx_to_rgb(COL_GREEN));
 }
 
 /**

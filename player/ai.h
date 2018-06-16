@@ -69,9 +69,6 @@ public:
 	// return true, if there is already a connection
 	bool is_connected(const koord star_pos, const koord end_pos, const goods_desc_t *wtyp) const;
 
-	// prepares a general tool just like a human player work do
-	bool init_general_tool( int tool, const char *param );
-
 	// calls a general tool just like a human player work do
 	bool call_general_tool( int tool, koord k, const char *param );
 

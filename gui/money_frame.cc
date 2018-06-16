@@ -130,7 +130,7 @@ sint64 money_frame_t::get_statistics_value(int tt, uint8 type, int yearmonth, bo
 void money_frame_t::update_label(gui_label_t &label, char *buf, int transport_type, uint8 type, int yearmonth, int label_type)
 {
 	sint64 value = get_statistics_value(transport_type, type, yearmonth, year_month_tabs.get_active_tab_index()==1);
-	PIXVAL color = value >= 0 ? (value > 0 ? MONEY_PLUS : color_idx_to_rgb(COL_YELLOW)) : MONEY_MINUS;
+	PIXVAL color = value >= 0 ? (value > 0 ? MONEY_PLUS : SYSCOL_TEXT_UNUSED) : MONEY_MINUS;
 
 	if (label_type == MONEY) {
 		const double cost = value / 100.0;
@@ -222,7 +222,7 @@ money_frame_t::money_frame_t(player_t *player)
 		old_toll(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
 		maintenance_label("This Month",SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 		maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-		warn("", color_idx_to_rgb(COL_YELLOW), gui_label_t::left),
+		warn("", SYSCOL_TEXT_STRONG, gui_label_t::left),
 		scenario("", SYSCOL_TEXT, gui_label_t::left),
 		transport_type_option(0),
 		headquarter_view(koord3d::invalid, scr_size(120, 64))
@@ -431,13 +431,15 @@ money_frame_t::money_frame_t(player_t *player)
 
 	transport_type_c.set_pos( scr_coord(left+335-12-2, top0) );
 	transport_type_c.set_size( scr_size(116,D_BUTTON_HEIGHT) );
-	transport_type_c.set_max_size( scr_size( 116, 1*BUTTONSPACE ) );
+	int h = D_BUTTON_HEIGHT;
 	for(int i=0, count=0; i<TT_MAX; ++i) {
 		if (!is_chart_table_zero(i)) {
 			transport_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(transport_type_values[i]), SYSCOL_TEXT));
 			transport_types[ count++ ] = i;
+			h += LINESPACE;
 		}
 	}
+	transport_type_c.set_max_size( scr_size( 116, h ) );
 	transport_type_c.set_selection(0);
 	transport_type_c.set_focusable( false );
 	add_component(&transport_type_c);
@@ -514,7 +516,7 @@ void money_frame_t::draw(scr_coord pos, scr_size size)
 		tstrncpy(str_buf[15], translator::translate("Net wealth near zero"), lengthof(str_buf[15]) );
 	}
 	else if(  player->get_account_overdrawn()  ) {
-		warn.set_color( color_idx_to_rgb(COL_YELLOW) );
+		warn.set_color( SYSCOL_TEXT_STRONG );
 		sprintf( str_buf[15], translator::translate("On loan since %i month(s)"), player->get_account_overdrawn() );
 	}
 	else {
