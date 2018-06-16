@@ -47,6 +47,7 @@ private:
 	unsigned buf_len[2];
 	char* ls_buf[2];
 	int version;
+	uint8 OTRP_version;
 	int ident;		// only for XML formatting
 	char pak_extension[64];	// name of the pak folder during savetime
 
@@ -79,9 +80,11 @@ private:
 	void flush_buffer(int buf_num);
 
 public:
+	struct combined_version { uint32 version; uint8 OTRP_version; };
+
 	static mode_t save_mode;	// default to use for saving
 	static mode_t autosave_mode; // default to use for autosaves and network mode client temp saves
-	static uint32 int_version(const char *version_text, int *mode, char *pak);
+	static combined_version int_version(const char *version_text, int *mode, char *pak);
 
 	loadsave_t();
 	~loadsave_t();
@@ -109,6 +112,7 @@ public:
 	bool is_bzip2() const { return mode&bzip2; }
 	bool is_xml() const { return mode&xml; }
 	uint32 get_version() const { return version; }
+	uint8 get_OTRP_version() const { return OTRP_version; }
 	const char *get_pak_extension() const { return pak_extension; }
 
 	void rdwr_byte(sint8 &c);

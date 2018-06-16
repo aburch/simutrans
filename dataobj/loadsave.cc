@@ -273,6 +273,7 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 	last_error = FILE_ERROR_OK; // no error
 
 	version = 0;
+	OTRP_version = 0;
 	mode = zipped;
 	fd->fp = dr_fopen(filename_utf8, "rb");
 	if(  fd->fp==NULL  ) {
@@ -326,7 +327,9 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 	saving = false;
 
 	if (strstart(buf, SAVEGAME_PREFIX)) {
-		version = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode, pak_extension);
+	 	combined_version versions = int_version(buf + sizeof(SAVEGAME_PREFIX) - 1, &mode, pak_extension);
+		version = versions.version;
+		OTRP_version = versions.OTRP_version;
 		if(  version == 0  ) {
 			close();
 			last_error = FILE_ERROR_NO_VERSION;
@@ -356,7 +359,9 @@ bool loadsave_t::rd_open(const char *filename_utf8 )
 		}
 		*s = 0;
 		int dummy;
-		version = int_version(str, &dummy, pak_extension);
+		combined_version versions = int_version(str, &dummy, pak_extension);
+		version = versions.version;
+		OTRP_version = versions.OTRP_version;
 		if(  version == 0  ) {
 			close();
 			last_error = FILE_ERROR_NO_VERSION;
@@ -466,7 +471,9 @@ bool loadsave_t::wr_open(const char *filename_utf8, mode_t m, const char *pak_ex
 	// delete trailing path separator
 	this->pak_extension[strlen(this->pak_extension)-1] = 0;
 
-	version = int_version( savegame_version, NULL, NULL );
+	combined_version v = int_version( savegame_version, NULL, NULL );
+	version = v.version;
+	OTRP_version = v.OTRP_version;
 
 	if(  !is_xml()  ) {
 		char str[4096];
@@ -1342,14 +1349,15 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 }
 
 
-uint32 loadsave_t::int_version(const char *version_text, int * /*mode*/, char *pak_extension_str)
+loadsave_t::combined_version loadsave_t::int_version(const char *version_text, int * /*mode*/, char *pak_extension_str)
 {
+	const combined_version dud = {0, 0};
 	// major number (0..)
 	uint32 v0 = atoi(version_text);
 	while(*version_text  &&  *version_text++ != '.')
 		;
 	if(!*version_text) {
-		return 0;
+		return dud;
 	}
 
 	// middle number (.99.)
@@ -1357,26 +1365,35 @@ uint32 loadsave_t::int_version(const char *version_text, int * /*mode*/, char *p
 	while(*version_text  &&  *version_text++ != '.')
 		;
 	if(!*version_text) {
-		return 0;
+		return dud;
 	}
 
 	// minor number (..08)
 	uint32 v2 = atoi(version_text);
-	uint32 version = v0 * 1000000 + v1 * 1000 + v2;
+	combined_version loadsave_version;
+	loadsave_version.version = v0 * 1000000 + v1 * 1000 + v2;
+	loadsave_version.OTRP_version = 0;
 
-	while(*version_text  &&  isdigit(*version_text)) {
+	// OTRP version
+	uint16 count = 0;
+	while(*version_text  &&  *version_text++ != '.') {
+		count++;
+	}
+	if(*version_text) {
+		// this is an OTRP version.
+		loadsave_version.OTRP_version = atoi(version_text);
+	}
+	// decrement the pointer
+	while(count > 0) {
+		version_text--;
+		count--;
+	}
+
+	while(*version_text == '.'  ||  isdigit(*version_text)) {
 		version_text++;
 	}
-	// simutrans-experimental savegame?
-	// the next char is either 'b'/'z'/'-',
-	// if it is '.' the we try to load a simutrans-experimental savegame
-	if(*version_text == '.') {
-		// st-exp savegame, we can't load it, return version=0
-		strcpy(pak_extension_str,"(st-exp)");
-		return 0;
-	}
 
-	if(  version<=102002  ) {
+	if(  loadsave_version.version<=102002  ) {
 		/* the compression and the mode we determined already ourselves (otherwise we cannot read this
 		 * => leave the mode alone but for unknown modes!
 		 */
@@ -1390,7 +1407,7 @@ uint32 loadsave_t::int_version(const char *version_text, int * /*mode*/, char *p
 		else if(  *version_text  ) {
 			// illegal version ...
 			strcpy(pak_extension_str,"(broken)");
-			return 0;
+			return dud;
 		}
 	}
 	else {
@@ -1403,7 +1420,7 @@ uint32 loadsave_t::int_version(const char *version_text, int * /*mode*/, char *p
 	if(  pak_extension_str  ) {
 		if(  *version_text  )  {
 			// also pak extension was saved
-			if(version>=99008) {
+			if(loadsave_version.version>=99008) {
 				while(  *version_text>=32  ) {
 					*pak_extension_str = *version_text;
 					pak_extension_str++;
@@ -1414,5 +1431,5 @@ uint32 loadsave_t::int_version(const char *version_text, int * /*mode*/, char *p
 		*pak_extension_str = 0;
 	}
 
-	return version;
+	return loadsave_version;
 }

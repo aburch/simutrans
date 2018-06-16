@@ -2016,7 +2016,7 @@ karte_t::karte_t() :
 	set_dirty();
 
 	// for new world just set load version to current savegame version
-	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL );;
+	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL ).version;
 
 	// standard prices
 	goods_manager_t::set_multiplier( 1000 );
@@ -4843,7 +4843,7 @@ void karte_t::switch_server( bool start_server, bool port_forwarding )
 		}
 		network_core_shutdown();
 		env_t::easy_server = 0;
-		
+
 		clear_random_mode( INTERACTIVE_RANDOM );
 		step_mode = NORMAL;
 		reset_timer();
@@ -4975,7 +4975,7 @@ bool karte_t::load(const char *filename)
 
 	if(!file.rd_open(name)) {
 
-		if(  (sint32)file.get_version()==-1  ||  file.get_version()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL )  ) {
+		if(  (sint32)file.get_version()==-1  ||  file.get_version()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL ).version  ) {
 			dbg->warning("karte_t::load()", translator::translate("WRONGSAVE") );
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
 		}
@@ -5728,7 +5728,7 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 	clear_random_mode(LOAD_RANDOM);
 
 	// loading finished, reset savegame version to current
-	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL );;
+	load_version = loadsave_t::int_version( env_t::savegame_version_str, NULL, NULL ).version;
 
 	dbg->warning("karte_t::load()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",last_month,last_year,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }

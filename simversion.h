@@ -21,6 +21,10 @@
 #define SIM_SERVER_MINOR    7
 // NOTE: increment before next release to enable save/load of new features
 
+#define OTRP_VERSION_MAJOR 14
+#define OTRP_VERSION_MINOR  0
+// NOTE: increment OTRP_VERSION_MAJOR when the save data structure changes.
+
 #define MAKEOBJ_VERSION "60.1"
 // Transparency and new factories
 
@@ -52,8 +56,8 @@
 #define SAVEGAME_PREFIX  "Simutrans "
 #define XML_SAVEGAME_PREFIX  "<?xml version=\"1.0\"?>"
 
-#define SAVEGAME_VER_NR        "0." QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_SAVE_MINOR)
-#define SERVER_SAVEGAME_VER_NR "0." QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_SERVER_MINOR)
+#define SAVEGAME_VER_NR        "0." QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_SAVE_MINOR) "." QUOTEME(OTRP_VERSION_MAJOR)
+#define SERVER_SAVEGAME_VER_NR "0." QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_SERVER_MINOR) "." QUOTEME(OTRP_VERSION_MAJOR)
 
 #define RES_VERSION_NUMBER  0, SIM_VERSION_MAJOR, SIM_VERSION_MINOR, SIM_VERSION_PATCH
 

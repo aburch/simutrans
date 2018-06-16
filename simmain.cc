@@ -601,7 +601,8 @@ int simu_main(int argc, char** argv)
 	// now read last setting (might be overwritten by the tab-files)
 	loadsave_t file;
 	if(file.rd_open("settings.xml"))  {
-		if(  file.get_version()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL )  ) {
+		loadsave_t::combined_version v = loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL );
+		if(  file.get_version()>v.version  ||  file.get_OTRP_version()>v.OTRP_version  ) {
 			// too new => remove it
 			file.close();
 			dr_remove("settings.xml");
