@@ -371,6 +371,15 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 		return err;
 	}
 
+	if (!full_tunnel) {
+		// if there is no tunnel behind set end to start position
+		const grund_t *gr_end = welt->lookup(end);
+		if (gr_end == NULL  ||  !gr_end->ist_tunnel()) {
+			end = gr->get_pos();
+		}
+	}
+
+
 	if(!welt->is_within_limits(end.get_2d())) {
 		return "Tunnel must start on single way!";
 	}

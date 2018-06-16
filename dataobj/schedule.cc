@@ -26,16 +26,6 @@
 schedule_entry_t schedule_t::dummy_entry(koord3d::invalid, 0, 0);
 
 
-schedule_t::schedule_t(loadsave_t* const file)
-{
-	rdwr(file);
-	if(file->is_loading()) {
-		cleanup();
-	}
-}
-
-
-
 // copy all entries from schedule src to this and adjusts current_stop
 void schedule_t::copy_from(const schedule_t *src)
 {

@@ -68,8 +68,6 @@ public:
 
 	virtual const char* get_name() { return "network_command_t";}
 
-	bool is_local_cmd();
-
 	uint16 get_id() { return id;}
 
 	SOCKET get_sender();

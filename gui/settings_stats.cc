@@ -565,7 +565,7 @@ void settings_climates_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE_NEW( env_t::pak_height_conversion_factor );
 	READ_NUM_VALUE_NEW( sets->groundwater );
 	READ_NUM_VALUE_NEW( sets->max_mountain_height );
-	double n;
+	double n = 0;
 	READ_NUM_VALUE_NEW( n );
 	if(  new_world  ) {
 		sets->map_roughness = (n+8.0)/20.0;

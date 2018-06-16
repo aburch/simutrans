@@ -130,7 +130,7 @@ int searchfolder_t::search_path(const std::string &filepath, const std::string &
 		WideCharToMultiByte( CP_UTF8, 0, entry.name, -1, entry_name, entry_name_size, NULL, NULL );
 
 		size_t entry_len = strlen(entry_name);
-		if(  stricmp( entry_name + entry_len - lookfor.length(), lookfor.c_str() ) == 0  ) {
+		if(  lookfor.empty()  ||  stricmp( entry_name + entry_len - lookfor.length(), lookfor.c_str() ) == 0  ) {
 			if(only_directories) {
 				if ((entry.attrib & _A_SUBDIR)==0) {
 					delete[] entry_name;

@@ -9,7 +9,7 @@
 
 #include <stddef.h>
 #include "simtypes.h"
-#include "zlib.h"
+#include <zlib.h>
 
 // Provide chdir().
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -122,8 +122,8 @@ char const* dr_query_homedir();
 
 unsigned short* dr_textur_init();
 
-// returns the file path to a font file
-const char *dr_query_fontpath( const char * fontname );
+// returns the file path to a font file (or more than one, if used with number higher than zero)
+const char *dr_query_fontpath( int );
 
 void dr_textur(int xp, int yp, int w, int h);
 

@@ -73,13 +73,13 @@ public:
 	* releases previous reservation
 	* @author prissi
 	*/
-	bool unreserve( convoihandle_t c);
+	virtual bool unreserve( convoihandle_t c);
 
 	/**
 	* releases previous reservation
 	* @author prissi
 	*/
-	bool unreserve( vehicle_t *);
+	bool unreserve( vehicle_t *) { return unreserve(reserved); }
 
 	/* called before deletion;
 	 * last chance to unreserve tiles ...

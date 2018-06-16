@@ -138,19 +138,27 @@ void city_info_t::resize(const scr_coord delta)
 
 	if(  world_aspect/space_aspect > PAX_DEST_VERTICAL  ) { // world wider than space, use vertical minimap layout
 		minimaps_size.h = (space.y - D_V_SPACE) / 2;
-		minimaps_size.w = (sint16) ((float)minimaps_size.h * world_aspect);
-		if(  minimaps_size.w  > space.x  ) {
+		if(  minimaps_size.h * world_aspect <= space.x) {
+			// minimap fits
+			minimaps_size.w = (sint16) (minimaps_size.h * world_aspect);
+		}
+		else {
+			// too large, truncate
 			minimaps_size.w = space.x;
-			minimaps_size.h = max((int)((float)minimaps_size.w / world_aspect), PAX_DEST_MIN_SIZE);
+			minimaps_size.h = max((int)(minimaps_size.w / world_aspect), PAX_DEST_MIN_SIZE);
 		}
 		minimap2_offset = scr_coord( 0, minimaps_size.h + D_V_SPACE );
 	}
 	else { // horizontal minimap layout
 		minimaps_size.w = (space.x - D_H_SPACE) / 2;
-		minimaps_size.h = (sint16) ((float)minimaps_size.w / world_aspect);
-		if(  minimaps_size.h > space.y  ) {
+		if (minimaps_size.w / world_aspect <= space.y) {
+			// minimap fits
+			minimaps_size.h = (sint16) (minimaps_size.w / world_aspect);
+		}
+		else {
+			// too large, truncate
 			minimaps_size.h = space.y;
-			minimaps_size.w = max((int)((float)minimaps_size.h * world_aspect), PAX_DEST_MIN_SIZE);
+			minimaps_size.w = max((int)(minimaps_size.h * world_aspect), PAX_DEST_MIN_SIZE);
 		}
 		minimap2_offset = scr_coord( minimaps_size.w + D_H_SPACE, 0 );
 	}

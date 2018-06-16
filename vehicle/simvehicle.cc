@@ -1418,12 +1418,6 @@ uint32 vehicle_t::get_cargo_weight() const
 }
 
 
-const char *vehicle_t::get_cargo_name() const
-{
-	return get_cargo_type()->get_name();
-}
-
-
 void vehicle_t::get_cargo_info(cbuffer_t & buf) const
 {
 	if (fracht.empty()) {
@@ -3869,8 +3863,11 @@ int air_vehicle_t::get_cost(const grund_t *, const weg_t *w, const sint32, ribi_
 	}
 	else {
 		// only, if not flying ...
-		assert(w);
-
+		const runway_t *rw =(const runway_t *)w;
+		// if we are on a runway, then take into account how many convois are already going there
+		if(  rw->get_desc()->get_styp()==1  ) {
+			costs += rw->get_reservation_count()*9;	// encourage detours even during take off
+		}
 		if(w->get_desc()->get_styp()==type_flat) {
 			costs += 3;
 		}
@@ -4017,12 +4014,7 @@ bool air_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, ro
 			}
 		}
 		// free runway reservation
-		if(route_index>=takeoff  &&  route_index<touchdown-21  &&  state!=flying) {
-			block_reserver( takeoff, takeoff+100, false );
-		}
-		else if(route_index>=touchdown-1  &&  state!=taxiing) {
-			block_reserver( touchdown, searchforstop+1, false );
-		}
+		block_reserver( route_index, route->get_count(), false );
 	}
 	target_halt = halthandle_t();	// no block reserved
 
@@ -4265,7 +4257,7 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 	for(  uint32 i=start;  success  &&  i<end  &&  i<route->get_count();  i++) {
 
 		grund_t *gr = welt->lookup(route->at(i));
-		runway_t * sch1 = gr ? (runway_t *)gr->get_weg(air_wt) : NULL;
+		runway_t *sch1 = gr ? (runway_t *)gr->get_weg(air_wt) : NULL;
 		if(  !sch1  ) {
 			if(reserve) {
 				if(!start_now) {
@@ -4283,6 +4275,7 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 			// we un-reserve also nonexistent tiles! (may happen during deletion)
 			if(reserve) {
 				start_now = true;
+				sch1->add_convoi_reservation(cnv->self);
 				if(  !sch1->reserve(cnv->self,ribi_t::none)  ) {
 					// unsuccessful => must un-reserve all
 					success = false;
@@ -4291,24 +4284,19 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 				}
 				// end of runway?
 				if(  i > start  &&  (ribi_t::is_single( sch1->get_ribi_unmasked() )  ||  sch1->get_desc()->get_styp() != type_runway)   ) {
-					return true;
-				}
-			}
-			else if(  !sch1->unreserve(cnv->self)  ) {
-				if(start_now) {
-					// reached an reserved or free track => finished
-					return true;
+					end = i;
+					break;
 				}
 			}
 			else {
-				// un-reserve from here (only used during sale, since there might be reserved tiles not freed)
-				start_now = true;
+				// we always unreserve everything
+				sch1->unreserve(cnv->self);
 			}
 		}
 	}
 
 	// un-reserve if not successful
-	if(!success  &&  reserve) {
+	if(  !success  &&  reserve  ) {
 		for(  uint32 i=start;  i<end;  i++  ) {
 			grund_t *gr = welt->lookup(route->at(i));
 			if (gr) {
@@ -4318,7 +4306,23 @@ bool air_vehicle_t::block_reserver( uint32 start, uint32 end, bool reserve ) con
 				}
 			}
 		}
+		return false;
 	}
+
+	if(  reserve  &&  end<touchdown  ) {
+		// reserve runway for landing for load balancing
+		for(  uint32 i=touchdown;  i<route->get_count();  i++  ) {
+			if(  grund_t *gr = welt->lookup(route->at(i))  ) {
+				if(  runway_t* sch1 = (runway_t *)gr->get_weg(air_wt)  ) {
+					if(  sch1->get_desc()->get_styp()!=type_runway  ) {
+						break;
+					}
+					sch1->add_convoi_reservation( cnv->self );
+				}
+			}
+		}
+	}
+
 	return success;
 }
 
@@ -4638,7 +4642,7 @@ void air_vehicle_t::hop(grund_t* gr)
 			) {
 				state = flying;
 				new_friction = 1;
-				block_reserver( takeoff, takeoff+100, false );
+				block_reserver( takeoff, touchdown-1, false );
 				flying_height = h_cur - h_next;
 				target_height = h_cur+TILE_HEIGHT_STEP*3;
 			}

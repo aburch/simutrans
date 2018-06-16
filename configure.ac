@@ -15,9 +15,6 @@ AC_C_BIGENDIAN([AC_SUBST(endian, '-DSIM_BIG_ENDIAN')], [AC_SUBST(endian, '')], [
 AC_CHECK_LIB(png, png_read_image, [], [AC_MSG_WARN([Error, libpng is missing!])] )
 AC_CHECK_LIB(bz2, BZ2_bzReadOpen, [], [AC_MSG_WARN([Error, libbz2 is missing!])] )
 
-#optional freetype
-AC_CHECK_LIB(freetype2, load_FT_font, [AC_SUBST(freetype2, '-DUSE_FREETYPE')], [AC_SUBST(freetype2, '')] )
-
 # since Xcode comes without autotools, lets assume we build QT version
 #AC_SUBST(AV_FOUNDATION, 0);
 
@@ -34,12 +31,18 @@ AC_CHECK_LIB(allegro, get_desktop_resolution)
 AC_CHECK_HEADERS(windows.h)
 AC_CHECK_HEADERS(LocaleRoster.h)
 
-
 # hackish detection of OS ...
 if test "$ac_cv_header_windows_h" == yes
 then
 	AC_SUBST(os_type, mingw)
-elif test "$ac_cv_header_LocaleRoster_h" == yes
+  #optional upnp
+  AC_SEARCH_LIBS(upnpDiscover, miniupnpc, [AC_SUBST(upnp, 1)], [AC_SUBST(upnp, 0)], -liphlpapi -lws2_32 )
+  #optional freetype
+  AC_SEARCH_LIBS(FT_Init_FreeType, freetype, [AC_SUBST(freetype, '1')], [AC_SUBST(freetype, '0')], -lpng -lharfbuzz -lgraphite2 -lfreetype )
+else
+  AC_SEARCH_LIBS(upnpDiscover, miniupnpc, [AC_SUBST(upnp, 1)], [AC_SUBST(upnp, 0)] )
+  AC_SEARCH_LIBS(FT_Init_FreeType, freetype, [AC_SUBST(freetype, '1')], [AC_SUBST(freetype, '0')], -lpng )
+if test "$ac_cv_header_LocaleRoster_h" == yes
 then
 	AC_SUBST(os_type, haiku)
 elif uname |grep "Darwin"
@@ -60,7 +63,7 @@ then
 else
 	AC_MSG_ERROR([Unknow OS!])
 fi
-
+fi
 
 # and backend ...
 AC_ARG_ENABLE([server], [AS_HELP_STRING([--enable-server],[Builds a server without graphics])], [], [enable_server=no])

@@ -19,7 +19,6 @@ class line_management_gui_t : public schedule_gui_t
 public:
 	line_management_gui_t(linehandle_t line, player_t* player);
 	virtual ~line_management_gui_t();
-	const char * get_name() const;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

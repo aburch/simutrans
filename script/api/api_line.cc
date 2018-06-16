@@ -26,7 +26,7 @@ vector_tpl<sint64> const& get_line_stat(simline_t *line, sint32 INDEX)
 	v.clear();
 	if (line  &&  0<=INDEX  &&  INDEX<MAX_LINE_COST) {
 		for(uint16 i = 0; i < MAX_MONTHS; i++) {
-			v.append( line->get_finance_history(i, INDEX) );
+			v.append( line->get_stat_converted(i, INDEX) );
 		}
 	}
 	return v;
@@ -49,12 +49,6 @@ waytype_t line_way_type(simline_t *line)
 		}
 	}
 	return invalid_wt;
-}
-
-
-bool line_is_valid(linehandle_t line)
-{
-	return line.is_bound();
 }
 
 call_tool_init line_change_schedule(simline_t* line, player_t *player, schedule_t *sched)

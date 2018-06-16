@@ -43,6 +43,10 @@
 #
 #################################program stuff##################################
 
+# You can use a system font. BUT you must specify the whole path to it!
+# This can be only set in the user defined simuconf.tab
+#fontname=C:\Windows\fonts\arial.ttf
+
 # maximum number of position tested during a way search
 # 100000 should be ok even for large maps with ships
 # 10000 is ok for everything else (consumes 16*x Bytes main memory, no further harm)
@@ -671,6 +675,9 @@ fast_forward = 50
 
 # Fully Qualified Domain Name (FQDN) or IP address of your server (IPv6 or IPv4)
 #server_dns = 127.0.0.1
+
+# Port address (usually set via command line)
+#server_port = 13353
 
 # Name of server in server listing
 #server_name = My Simutrans Server

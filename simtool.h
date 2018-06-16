@@ -430,6 +430,18 @@ public:
 	waytype_t get_waytype() const OVERRIDE;
 };
 
+class tool_rotate_building_t : public tool_t {
+private:
+	const char *tool_rotate_platform(koord3d);
+	const char *tool_rotate_building(koord3d);
+
+public:
+	tool_rotate_building_t() : tool_t(TOOL_ROTATE_BUILDING | GENERAL_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Rotate Building"); }
+	char const* work(player_t *, koord3d) OVERRIDE;
+	bool is_init_network_save() const OVERRIDE { return true; }
+};
+
 // builds roadsigns and signals
 class tool_build_roadsign_t : public two_click_tool_t {
 private:

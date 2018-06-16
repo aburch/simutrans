@@ -56,7 +56,7 @@ class sparse_tpl
 			resize_data(0);
 		}
 
-		koord& get_size() const {
+		const koord& get_size() const {
 			return size;
 		}
 

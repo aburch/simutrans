@@ -116,14 +116,6 @@ const koord &tabfileobj_t::get_koord(const char *key, koord def)
 	return ret;
 }
 
-const scr_coord &tabfileobj_t::get_scr_coord(const char *key, scr_coord def)
-{
-	static scr_coord ret;
-	ret = def;
-	get_x_y( key, ret.x, ret.y );
-	return ret;
-}
-
 const scr_size &tabfileobj_t::get_scr_size(const char *key, scr_size def)
 {
 	static scr_size ret;
@@ -165,6 +157,7 @@ PIXVAL tabfileobj_t::get_color(const char *key, PIXVAL def, uint32 *color_rgb)
 			return color_idx_to_rgb(index);
 		}
 #else
+		(void)color_rgb;
 		return (uint8)strtoul( value, NULL, 0 );
 #endif
 	}
@@ -331,22 +324,26 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 					int parameter_value[10][256];
 					int parameter_length[10];
 					int parameter_values[10]; // number of possible 'values' inside each [] field | e.g. [0-4]=5 / [n,s,w]=3
-					char parameter_name[256][6]; // non-numeric ribis strings
+					char parameter_name[256][6]; // non-numeric ribis strings for all parameter fields consecutively
+					bool parameter_ribi[10]; // true if parameters are ribi strings
 
 					int combinations=1;
-					parameter_name[0][0] = 0;
+					int names = 0; // total number of ribi parameters
 
 					// analyse and obtain all parameter expansions
 					for(int i=0; i<parameters; i++) {
 						char *token_ptr;
 						parameter_length[i] = strcspn(param[i],"]");
 						parameter_values[i] = 0;
+						parameter_ribi[i] = false;
+
 						sprintf(buffer, "%.*s", parameter_length[i], param[i]);
 						int name_length = strcspn(buffer,",");
 
 						int value = atoi(buffer);
 						if (value == 0 && (tolower(buffer[0]) == 'n' || tolower(buffer[0]) == 's' || tolower(buffer[0]) == 'e' || tolower(buffer[0]) == 'w')) {
-							sprintf(parameter_name[0], "%.*s", name_length, buffer);
+							sprintf(parameter_name[ names++ ], "%.*s", name_length, buffer);
+							parameter_ribi[i] = true;
 						}
 						parameter_value[i][parameter_values[i]++] = value;
 
@@ -355,15 +352,15 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 							switch(param[i][token_ptr-buffer-1]) {
 								case ',':
 									value = atoi(token_ptr);
-									if (i == 0 && parameter_name[0][0] != 0) {
+									if (parameter_ribi[i]) {
 										value = parameter_values[i];
-										sprintf(parameter_name[value], "%.*s", (int)strcspn(buffer+name_length+1,","), buffer+name_length+1);
+										sprintf(parameter_name[ names++ ], "%.*s", (int)strcspn(buffer+name_length+1,","), buffer+name_length+1);
 										name_length += strcspn(buffer+name_length+1,",") + 1;
 									}
 									parameter_value[i][parameter_values[i]++] = value;
 								break;
 								case '-':
-									if (i == 0 && parameter_name[0][0] != 0) {
+									if (parameter_ribi[i]) {
 										value = parameter_values[i];
 										sprintf(parameter_name[value], "%.*s", (int)strcspn(buffer+name_length+1,","), buffer+name_length+1);
 										name_length += strcspn(buffer+name_length+1,",") + 1;
@@ -383,30 +380,32 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 					}
 
 					// start expansion of the parameter
-					for(int i=0; i<combinations; i++) {
+					for(int c=0; c<combinations; c++) {
+						int names = 0;
 						int combination[10];
 						if(parameters>0) {
 							// warp values around the number of parameters the expansion has
 							for(int j=0; j<parameters; j++) {
-								combination[j] = i;
+								combination[j] = c;
 								for(int k=0; k<j; k++) {
 									combination[j]/=parameter_values[k];
 								}
 								combination[j]%=parameter_values[j];
 							}
-							// if expanding non-numerical parameters
-							if (parameter_name[0][0] != 0) {
-								sprintf(line_expand, "%.*s%s", (int)(param[0]-line), line, parameter_name[combination[0]]);
-							}
-							// if expanding numerical parameters
-							else {
-								sprintf(line_expand, "%.*s%d", (int)(param[0]-line), line, parameter_value[0][combination[0]]);
-							}
-							// expand second field and onwards
-							for(int i=1; i<parameters; i++) {
-								char *prev_end = param[i-1]+parameter_length[i-1];
-								sprintf(buffer, "%.*s%d", (int)(param[i]-prev_end), prev_end, parameter_value[i][combination[i]]);
+							char* prev_end = line;
+							line_expand[0] = 0;
+							for (int i=0; i<parameters; i++) {
+								// if expanding non-numerical parameters
+								if (parameter_ribi[i]) {
+									sprintf(buffer, "%.*s%s", (int)(param[i]-prev_end), prev_end, parameter_name[ names + combination[i]]);
+									names += parameter_values[i];
+								}
+								// if expanding numerical parameters
+								else {
+									sprintf(buffer, "%.*s%d", (int)(param[i]-prev_end), prev_end, parameter_value[i][combination[i]]);
+								}
 								strcat(line_expand, buffer);
+								prev_end = param[i]+parameter_length[i];
 							}
 							strcat(line_expand, param[parameters-1]+parameter_length[parameters-1]);
 						}
@@ -438,6 +437,7 @@ bool tabfile_t::read(tabfileobj_t &objinfo)
 							strcpy(delim_expand, delim);
 						}
 
+						printf("%s = %s\n", line_expand, delim_expand);
 						objinfo.put(line_expand, delim_expand);
 					}
 				}
@@ -752,23 +752,4 @@ void tabfile_t::format_key(char *key)
 		}
 	}
 	*t = '\0';
-}
-
-
-void tabfile_t::format_value(char *value)
-{
-	size_t len = strlen(value);
-
-	// trim right
-	while(len && value[len - 1] == ' ') {
-		value[--len] = '\0';
-	}
-	// trim left
-	if(*value == ' ') {
-		char *from;
-		for(from = value; *from == ' '; from++) {}
-		while(*value) {
-			*value++ = *from++;
-		}
-	}
 }

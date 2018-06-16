@@ -101,8 +101,6 @@ public:
 
 	virtual ~schedule_t() {}
 
-	schedule_t(loadsave_t*);
-
 	/**
 	 * returns a halthandle for the next halt in the schedule (or unbound)
 	 */
@@ -184,7 +182,6 @@ class train_schedule_t : public schedule_t
 {
 public:
 	train_schedule_t() {}
-	train_schedule_t(loadsave_t* const file) : schedule_t(file) {}
 	schedule_t* copy() { schedule_t *s = new train_schedule_t(); s->copy_from(this); return s; }
 	const char *get_error_msg() const { return "Zughalt muss auf\nSchiene liegen!\n"; }
 
@@ -201,7 +198,6 @@ class tram_schedule_t : public train_schedule_t
 {
 public:
 	tram_schedule_t() {}
-	tram_schedule_t(loadsave_t* const file) : train_schedule_t(file) {}
 	schedule_t* copy() { schedule_t *s = new tram_schedule_t(); s->copy_from(this); return s; }
 
 	schedule_type get_type() const { return tram_schedule; }
@@ -219,7 +215,6 @@ class truck_schedule_t : public schedule_t
 {
 public:
 	truck_schedule_t() {}
-	truck_schedule_t(loadsave_t* const file) : schedule_t(file) {}
 	schedule_t* copy() { schedule_t *s = new truck_schedule_t(); s->copy_from(this); return s; }
 	const char *get_error_msg() const { return "Autohalt muss auf\nStrasse liegen!\n"; }
 
@@ -238,7 +233,6 @@ class ship_schedule_t : public schedule_t
 {
 public:
 	ship_schedule_t() {}
-	ship_schedule_t(loadsave_t* const file) : schedule_t(file) {}
 	schedule_t* copy() { schedule_t *s = new ship_schedule_t(); s->copy_from(this); return s; }
 	const char *get_error_msg() const { return "Schiffhalt muss im\nWasser liegen!\n"; }
 
@@ -257,7 +251,6 @@ class airplane_schedule_t : public schedule_t
 {
 public:
 	airplane_schedule_t() {}
-	airplane_schedule_t(loadsave_t* const file) : schedule_t(file) {}
 	schedule_t* copy() { schedule_t *s = new airplane_schedule_t(); s->copy_from(this); return s; }
 	const char *get_error_msg() const { return "Flugzeughalt muss auf\nRunway liegen!\n"; }
 
@@ -274,7 +267,6 @@ class monorail_schedule_t : public schedule_t
 {
 public:
 	monorail_schedule_t() {}
-	monorail_schedule_t(loadsave_t* const file) : schedule_t(file) {}
 	schedule_t* copy() { schedule_t *s = new monorail_schedule_t(); s->copy_from(this); return s; }
 	const char *get_error_msg() const { return "Monorailhalt muss auf\nMonorail liegen!\n"; }
 
@@ -291,7 +283,6 @@ class maglev_schedule_t : public schedule_t
 {
 public:
 	maglev_schedule_t() {}
-	maglev_schedule_t(loadsave_t* const file) : schedule_t(file) {}
 	schedule_t* copy() { schedule_t *s = new maglev_schedule_t(); s->copy_from(this); return s; }
 	const char *get_error_msg() const { return "Maglevhalt muss auf\nMaglevschiene liegen!\n"; }
 
@@ -309,7 +300,6 @@ class narrowgauge_schedule_t : public schedule_t
 {
 public:
 	narrowgauge_schedule_t() {}
-	narrowgauge_schedule_t(loadsave_t* const file) : schedule_t(file) {}
 	schedule_t* copy() { schedule_t *s = new narrowgauge_schedule_t(); s->copy_from(this); return s; }
 	const char *get_error_msg() const { return "On narrowgauge track only!\n"; }
 

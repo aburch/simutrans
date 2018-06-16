@@ -169,10 +169,6 @@ void      display_set_actual_width(KOORD_VAL);
 // force a certain size on a image (for rescaling tool images)
 void display_fit_img_to_width( const image_id n, sint16 new_w );
 
-
-int display_get_light();
-void display_set_light(int new_light_level);
-
 void display_day_night_shift(int night);
 
 // scrolls horizontally, will ignore clipping etc.

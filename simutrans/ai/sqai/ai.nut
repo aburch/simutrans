@@ -19,11 +19,15 @@ sum <- @(a,b) a+b
 include("basic")
 include("astar")
 include("save")
+
 include("factorysearcher")
 include("industry_connection_planner")
+include("combined_connections")
 include("industry_manager")
+include("placefinder")
 include("prototyper")
 include("road_connector")
+include("ship_connector")
 include("station_manager")
 include("vehicle_constructor")
 
@@ -75,13 +79,22 @@ function init_tree()
 		industry_manager = industry_manager_t()
 	}
 	if (!("tree" in persistent)) {
-		tree = node_seq_t()
+		tree = manager_t()
 		tree.append_child(factorysearcher)
 		tree.append_child(industry_manager)
 		persistent.tree <- tree
 	}
 	else {
-		tree = persistent.tree
+		if (persistent.tree.getclass() != manager_t) {
+			// upgrade
+			tree = manager_t()
+			foreach(i in ["nodes", "next_to_step"]) {
+				tree[i] = persistent.tree[i]
+			}
+		}
+		else {
+			tree = persistent.tree
+		}
 	}
 
 	if (!("station_manager" in persistent)) {
@@ -110,13 +123,18 @@ info_text <- ""
 
 function step()
 {
-	local t = tree
 	tree.step()
 	s._step++
 
+	// connector node may fail, but may offer alternative connector node
+	local report = tree.get_report()
+	if (report) {
+		factorysearcher.append_report(report)
+	}
 
 	if (s._step > s._next_construction_step) {
 		local r = factorysearcher.get_report()
+
 		if (r   &&  r.action) {
 			print("New report: expected construction cost: " + (r.cost_fix / 100.0))
 			tree.append_child(r.action)
@@ -135,6 +153,11 @@ function compare_coord(c1, c2)
 		res = c1.y <=> c2.y
 	}
 	return res
+}
+
+function coord3d_to_key(c)
+{
+	return c.x + ":" + c.y + ":" + c.z;
 }
 
 function is_cash_available(cost /* in 1/100 cr */)

@@ -448,7 +448,7 @@ const char *network_http_get ( const char* address, const char* name, cbuffer_t&
 		}
 
 		// Make buffer to receive data into
-		char* buffer = new char[length];
+		char* buffer = new char[length+1];
 		uint16 bytesreceived = 0;
 
 		if (  !network_receive_data( my_client_socket, buffer, length, bytesreceived, 10000 )  ) {
@@ -458,6 +458,7 @@ const char *network_http_get ( const char* address, const char* name, cbuffer_t&
 			err = "Error: Bytes received does not match length!";
 		}
 		else {
+			buffer[length] = 0;
 			local.append( buffer, length );
 		}
 

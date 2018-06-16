@@ -3551,11 +3551,11 @@ PIXVAL convoi_t::get_status_color() const
 	}
 	else if(financial_history[0][CONVOI_PROFIT]+financial_history[1][CONVOI_PROFIT]<0) {
 		// ok, not performing best
-		return color_idx_to_rgb(COL_RED);
+		return MONEY_MINUS;
 	}
 	else if((financial_history[0][CONVOI_OPERATIONS]|financial_history[1][CONVOI_OPERATIONS])==0) {
 		// nothing moved
-		return color_idx_to_rgb(COL_YELLOW);
+		return SYSCOL_TEXT_UNUSED;
 	}
 	else if(has_obsolete) {
 		return color_idx_to_rgb(COL_BLUE);

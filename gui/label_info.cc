@@ -50,8 +50,9 @@ label_info_t::label_info_t(label_t* l) :
 	player_name.set_text(p_name);
 	add_component(&player_name);
 
-	set_focus(&input);
 	set_windowsize(scr_size(min_width, view.get_size().h+47));
+
+	set_focus(&input);
 }
 
 

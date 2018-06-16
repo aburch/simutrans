@@ -42,17 +42,11 @@ ware_t::ware_t(const goods_desc_t *wtyp) : ziel(), zwischenziel(), zielpos(-1, -
 	to_factory = 0;
 }
 
+
 ware_t::ware_t(loadsave_t *file)
 {
 	rdwr(file);
 }
-
-
-void ware_t::set_desc(const goods_desc_t* type)
-{
-	index = type->get_index();
-}
-
 
 
 void ware_t::rdwr(loadsave_t *file)

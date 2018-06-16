@@ -616,7 +616,7 @@ public:
 	inline koord get_linksoben() const { return lo;}
 	inline koord get_rechtsunten() const { return ur;}
 
-	koord get_center() const { return (lo+ur)/2; }
+	koord get_center() const { return lo/2 + ur/2; }
 
 	/**
 	 * Erzeugt ein Array zufaelliger Startkoordinaten,

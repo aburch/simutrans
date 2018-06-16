@@ -110,7 +110,9 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		// (and sometime even not then ... )
 		return IS_SHIFT_PRESSED(ev) ? scroll_x.infowin_event(ev) : scroll_y.infowin_event(ev);
 	}
-	else {
+	else if(  ev->ev_class<EVENT_CLICK  ||  (ev->mx>=0 &&  ev->my>=0  &&  ev->mx<size.w  &&  ev->my<size.h)  ) { 
+		// since we get can grab the focus to get keyboard events, we must make sure to handle mouse events only if we are hit
+	
 		// translate according to scrolled position
 		bool swallow;
 		event_t ev2 = *ev;
@@ -120,7 +122,7 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		swallow = comp->infowin_event(&ev2);
 
 		// Knightly : check if we need to scroll to the focused component
-		if(  IS_LEFTCLICK(ev)  ||  (ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code==9)  ) {
+		if(  (IS_LEFTRELEASE(ev)  &&  getroffen(ev->mx,ev->my))  ||  (ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code==9)  ) {
 			const gui_component_t *const focused_comp = comp->get_focus();
 			if(  focused_comp  ) {
 				const scr_size comp_size = focused_comp->get_size();

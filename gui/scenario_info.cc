@@ -180,3 +180,17 @@ void scenario_info_t::open_tab(const char* which)
 	resize(scr_coord(0,0));
 	set_dirty();
 }
+
+
+void scenario_info_t::rdwr( loadsave_t *file )
+{
+	scr_size sz = get_windowsize();
+	sz.rdwr( file );
+	sint32 ti = tabs.get_active_tab_index();
+	file->rdwr_long( ti );
+	if(  file->is_loading()  ) {
+		set_windowsize( sz );
+		tabs.set_active_tab_index( ti );
+		resize(scr_coord(0,0));
+	}
+}
