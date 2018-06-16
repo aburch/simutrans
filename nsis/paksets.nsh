@@ -167,7 +167,7 @@ Section "pak128.German V10.4 for 120.x" pak128german
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_0.10.x_for_ST_120.x/PAK128.german_0.10.4_for_ST_120.x.zip"
   StrCpy $archievename "PAK128.german_0.10.4_for_ST_120.x.zip"
   StrCpy $downloadname "pak128.German"
-  StrCpy $VersionString "  PAK128.german V 0.10.4 (Rev. 2135) "
+  StrCpy $VersionString "  PAK128.german V 0.10.4 (Rev. 2135)"
   Call DownloadInstallZip
 SectionEnd
 
