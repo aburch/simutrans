@@ -266,6 +266,8 @@ void weg_t::info(cbuffer_t & buf) const
 				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("ERROR"));
 				break;
 		}
+
+		buf.printf("prior: %d\n", str->get_prior_direction());
 	}
 
 	if(has_sign()) {

@@ -2755,9 +2755,10 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 
 	const int cargo = get_total_cargo();
 	strasse_t *str = (strasse_t*)gr->get_weg(road_wt);
-	str->book(cargo, WAY_STAT_GOODS);
+	ribi_t::ribi enter_direction = calc_direction(pos_prev, gr->get_pos());
+	str->book(cargo, WAY_STAT_GOODS, enter_direction);
 	if (  leading  )  {
-		str->book(1, WAY_STAT_CONVOIS);
+		str->book(1, WAY_STAT_CONVOIS, enter_direction);
 		cnv->update_tiles_overtaking();
 		if(  next_lane==1  ) {
 			cnv->set_tiles_overtaking(3);

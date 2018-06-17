@@ -41,6 +41,7 @@ strasse_t::strasse_t() : weg_t()
 	set_desc(default_strasse);
 	ribi_mask_oneway =ribi_t::none;
 	overtaking_mode = twoway_mode;
+	prior_direction_setting = 0;
 }
 
 
@@ -50,6 +51,22 @@ void strasse_t::rdwr(loadsave_t *file)
 	xml_tag_t s( file, "strasse_t" );
 
 	weg_t::rdwr(file);
+
+	if(  file->get_OTRP_version() >= 14  ) {
+		uint8 s = prior_direction_setting;
+		file->rdwr_byte(s);
+		prior_direction_setting = s;
+		// directional statistics
+		for(uint8 type=0; type<MAX_WAY_STATISTICS; type++) {
+			for(uint8 month=0; month<MAX_WAY_STAT_MONTHS; month++) {
+				for(uint8 dir=0; dir<MAX_WAY_STAT_DIRECTIONS; dir++) {
+					sint16 w = directional_statistics[month][type][dir];
+					file->rdwr_short(w);
+					directional_statistics[month][type][dir] = w;
+				}
+			}
+		}
+	}
 
 	if(  (env_t::previous_OTRP_data  &&  file->get_version() >= 120006)  ||  file->get_OTRP_version() >= 14  ) {
 		uint8 mask_oneway = get_ribi_mask_oneway();
@@ -137,4 +154,54 @@ ribi_t::ribi strasse_t::get_ribi() const {
 void strasse_t::rotate90() {
 	weg_t::rotate90();
 	ribi_mask_oneway = ribi_t::rotate90( ribi_mask_oneway );
+}
+
+void strasse_t::init_statistics() {
+	weg_t::init_statistics();
+	for(uint8 type=0; type<MAX_WAY_STATISTICS; type++) {
+		for(uint8 month=0; month<MAX_WAY_STAT_MONTHS; month++) {
+			for(uint8 dir=0; dir<MAX_WAY_STAT_DIRECTIONS; dir++) {
+				directional_statistics[month][type][dir] = 0;
+			}
+		}
+	}
+}
+
+void strasse_t::book(int amount, way_statistics type, ribi_t::ribi dir) {
+	weg_t::book(amount, type);
+	if(  (dir&(ribi_t::north))!=0  ||  (dir&(ribi_t::south))!=0  ) {
+		// north-south traffic
+		directional_statistics[0][type][0] += amount;
+	} else {
+		// east-west traffic
+		directional_statistics[0][type][1] += amount;
+	}
+}
+
+void strasse_t::new_month() {
+	weg_t::new_month();
+	for(uint8 type=0; type<MAX_WAY_STATISTICS; type++) {
+		for(uint8 dir=0; dir<MAX_WAY_STAT_DIRECTIONS; dir++) {
+			for(uint8 month=MAX_WAY_STAT_MONTHS-1; month>0; month--) {
+				directional_statistics[month][type][dir] = directional_statistics[month-1][type][dir];
+			}
+			directional_statistics[0][type][dir] = 0;
+		}
+	}
+}
+
+ribi_t::ribi strasse_t::get_prior_direction() const {
+	if(  directional_statistics[1][1][0]>directional_statistics[1][1][1]  ) {
+		return ribi_t::northsouth;
+	} else if(  directional_statistics[1][1][0]==directional_statistics[1][1][1]  ) {
+		if(  directional_statistics[0][1][0]>directional_statistics[0][1][1]  ) {
+			return ribi_t::northsouth;
+		} else if(  directional_statistics[0][1][0]<directional_statistics[0][1][1]  ) {
+			return ribi_t::eastwest;
+		} else {
+			return ribi_t::all;
+		}
+	} else {
+		return ribi_t::eastwest;
+	}
 }

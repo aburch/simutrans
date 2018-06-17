@@ -49,6 +49,9 @@ enum way_statistics {
  */
 class weg_t : public obj_no_info_t
 {
+
+	friend class strasse_t;
+
 public:
 	/**
 	* Get list of all ways
@@ -123,7 +126,7 @@ private:
 	* initializes statistic array
 	* @author hsiegeln
 	*/
-	void init_statistics();
+	virtual void init_statistics();
 
 protected:
 
@@ -286,7 +289,7 @@ public:
 	* new month
 	* @author hsiegeln
 	*/
-	void new_month();
+	virtual void new_month();
 
 	void check_diagonal();
 

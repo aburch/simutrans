@@ -3,6 +3,9 @@
 
 #include "weg.h"
 
+// number of different traffic directions
+#define MAX_WAY_STAT_DIRECTIONS 2
+
 /**
  * Cars are able to drive on roads.
  *
@@ -22,6 +25,23 @@ private:
 	* @author THLeaderH
 	*/
 	uint8 ribi_mask_oneway:4;
+
+	/**
+	* 0 = calculate automatically
+	* 1 = north-south traffic has priority
+	* 2 = east-west traffic has priority
+	* @author THLeaderH
+	*/
+	uint8 prior_direction_setting;
+
+	/**
+	* array for statistical values
+	* store directional statistics to calculate prior_direction
+	* direction: 0 = north-south, 1 = east-west
+	*/
+	sint16 directional_statistics[MAX_WAY_STAT_MONTHS][MAX_WAY_STATISTICS][MAX_WAY_STAT_DIRECTIONS];
+
+	void init_statistics();
 
 public:
 	static const way_desc_t *default_strasse;
@@ -55,6 +75,10 @@ public:
 	virtual ribi_t::ribi get_ribi() const;
 
 	virtual void rotate90();
+
+	void book(int amount, way_statistics type, ribi_t::ribi dir);
+	void new_month();
+	ribi_t::ribi get_prior_direction() const;
 
 };
 
