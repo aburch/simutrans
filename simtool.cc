@@ -1635,7 +1635,11 @@ const char *tool_clear_reservation_t::work( player_t *player, koord3d k )
 				const convoihandle_t cnv = w->get_reserved_convoi();
 				if(cnv->get_state()==convoi_t::DRIVING) {
 					// reset driving state
-					cnv->suche_neue_route();
+					if (cnv->get_is_choosing())
+					{
+						// There is no need to recalculate the convoy's route unless it has a route set by a choose signal.
+						cnv->suche_neue_route();
+					}
 					vehicle_t* veh = cnv->front();
 					if (veh->get_waytype() == track_wt || veh->get_waytype() == tram_wt || veh->get_waytype() == narrowgauge_wt || veh->get_waytype() == maglev_wt || veh->get_waytype() == monorail_wt)
 					{
