@@ -79,6 +79,10 @@ function get_short_description(pl)
 {
 	return scenario.short_description;
 }
+function get_api_version()
+{
+	return ("api" in scenario) ? scenario.api : "112.3"
+}
 function get_about_text(pl)
 {
 	return "<em>Scenario:</em>  " +  scenario.short_description
@@ -407,6 +411,27 @@ class halt_x extends extend_get {
 	}
 }
 
+
+/**
+ * class that contains data to get access to a line of convoys
+ */
+class line_x extends extend_get {
+	id = 0 /// linehandle_t
+
+	constructor(i_) {
+		id = i_
+	}
+}
+
+/**
+ * class to provide access to line lists
+ */
+class line_list_x {
+
+	halt_id = 0
+	player_id = 0
+}
+
 /**
  * class that contains data to get access to a tile (grund_t)
  */
@@ -457,17 +482,13 @@ class square_x extends extend_get {
 
 
 /**
- * class to provide access to the game's list of all convoys
+ * class to provide access to convoy lists
  */
 class convoy_list_x {
 
-	/// meta-method to be called in a foreach loop
-	function _nexti(prev_index) {
-	}
-
-	/// meta method to retrieve convoy by index in the global C++ array
-	function _get(index) {
-	}
+	use_world = 0
+	halt_id = 0
+	line_id = 0
 }
 
 

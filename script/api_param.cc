@@ -237,8 +237,14 @@ namespace script_api {
 	SQInteger param<koord>::push(HSQUIRRELVM vm, koord const& v)
 	{
 		koord k(v);
-		// transform coordinates
-		welt->get_scenario()->koord_w2sq(k);
+		if (k.x != -1  &&  k.y != -1) {
+			// transform coordinates
+			welt->get_scenario()->koord_w2sq(k);
+		}
+		else {
+			k = koord::invalid;
+		}
+
 		sq_newtable(vm);
 		create_slot<sint16>(vm, "x", k.x);
 		create_slot<sint16>(vm, "y", k.y);
@@ -425,6 +431,12 @@ namespace script_api {
 	}
 
 
+	SQInteger param<schedule_t*>::push(HSQUIRRELVM vm, schedule_t* const& v)
+	{
+		return param<const schedule_t*>::push(vm, v);
+	}
+
+
 	SQInteger param<const schedule_t*>::push(HSQUIRRELVM vm, const schedule_t* const& v)
 	{
 		if (v) {
@@ -440,6 +452,27 @@ namespace script_api {
 	{
 		return &welt->get_settings();
 	}
+
+
+	linehandle_t param<linehandle_t>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		uint16 id = 0;
+		get_slot(vm, "id", id, index);
+		linehandle_t line;
+		line.set_id(id);
+		if (!line.is_bound()) {
+			sq_raise_error(vm, "Invalid line id %d", id);
+		}
+		return line;
+	}
+
+
+	simline_t* param<simline_t*>::get(HSQUIRRELVM vm, SQInteger index)
+	{
+		linehandle_t line = param<linehandle_t>::get(vm, index);
+		return line.is_bound() ? line.get_rep() : NULL;
+	}
+
 
 	stadt_t* param<stadt_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{

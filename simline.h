@@ -215,6 +215,7 @@ public:
 	sint64* get_finance_history() { return *financial_history; }
 
 	sint64 get_finance_history(int month, line_cost_t cost_type) const { return financial_history[month][cost_type]; }
+	sint64 get_stat_converted(int month, int cost_type) const;
 
 	void book(sint64 amount, line_cost_t cost_type) 
 	{
@@ -242,6 +243,7 @@ public:
 	void new_month();
 
 	linetype get_linetype() { return type; }
+	static linetype get_linetype( const waytype_t wt );
 
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 

@@ -444,9 +444,6 @@ void karte_t::perlin_hoehe_loop( sint16 x_min, sint16 x_max, sint16 y_min, sint1
 			koord k(x,y);
 			sint16 const h = perlin_hoehe(&settings, k, koord(0, 0));
 			set_grid_hgt( k, (sint8) h);
-			if(  is_within_limits(k)  &&  h > get_water_hgt(k)  ) {
-				set_water_hgt(k, groundwater-4);
-			}
 		}
 	}
 }
@@ -497,18 +494,17 @@ void karte_t::cleanup_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, si
 			uint8 slope = calc_natural_slope(k);
 			sint8 height = min_hgt_nocheck(k);
 			sint8 water_hgt = get_water_hgt_nocheck(k);
-			if(  height == water_hgt - 1  ) {
-				if(  max_hgt_nocheck(k) == water_hgt + 1  ) {
-					const sint8 disp_hn_sw = max( height + corner_sw(slope), water_hgt );
-					const sint8 disp_hn_se = max( height + corner_se(slope), water_hgt );
-					const sint8 disp_hn_ne = max( height + corner_ne(slope), water_hgt );
-					const sint8 disp_hn_nw = max( height + corner_nw(slope), water_hgt );
-					height = get_water_hgt_nocheck(k);
-					slope = (disp_hn_sw - height) + ((disp_hn_se - height) * 3) + ((disp_hn_ne - height) * 9) + ((disp_hn_nw - height) * 27);
-				}
+
+			if(  height < water_hgt) {
+				const sint8 disp_hn_sw = max( height + corner_sw(slope), water_hgt );
+				const sint8 disp_hn_se = max( height + corner_se(slope), water_hgt );
+				const sint8 disp_hn_ne = max( height + corner_ne(slope), water_hgt );
+				const sint8 disp_hn_nw = max( height + corner_nw(slope), water_hgt );
+				height = water_hgt;
+				slope = (disp_hn_sw - height) + ((disp_hn_se - height) * 3) + ((disp_hn_ne - height) * 9) + ((disp_hn_nw - height) * 27);
 			}
 
-			gr->set_pos( koord3d( k, max( height, water_hgt ) ) );
+			gr->set_pos( koord3d( k, height) );
 			if(  gr->get_typ() != grund_t::wasser  &&  max_hgt_nocheck(k) <= water_hgt  ) {
 				// below water but ground => convert
 				pl->kartenboden_setzen( new wasser_t(gr->get_pos()) );
@@ -519,6 +515,10 @@ void karte_t::cleanup_grounds_loop( sint16 x_min, sint16 x_max, sint16 y_min, si
 			}
 			else {
 				gr->set_grund_hang( slope );
+			}
+
+			if(  max_hgt_nocheck(k) > water_hgt  ) {
+				set_water_hgt(k, groundwater-4);
 			}
 		}
 	}
@@ -949,9 +949,6 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 
 	const uint32 number_of_big_cities = env_t::number_of_big_cities;
 
-	const uint32 max_city_size = sets->get_max_city_size();
-	const uint32 max_small_city_size = sets->get_max_small_city_size();
-
 	dbg->important("Creating cities ...");
 	DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "prepare cities sizes");
 
@@ -959,6 +956,9 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 
 	vector_tpl<sint32> city_population(city_population_target_count);
 	sint32 median_population = abs(sets->get_mean_einwohnerzahl());
+
+	const uint32 max_city_size = sets->get_max_city_size();
+	const uint32 max_small_city_size = max(sets->get_max_small_city_size(), median_population / 2);
 
 	// Generate random sizes to fit a Pareto distribution: P(x) = x_m / x^2 dx.
 	// This ensures that Zipf's law is satisfied in a random fashion, and
@@ -1053,7 +1053,7 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 		game_start = max(game_start, way_builder_t::get_earliest_way(road_wt)->get_intro_year_month());
 
 		uint32 original_start_year = current_month;
-		uint32 original_industry_gorwth = settings.get_industry_increase_every();
+		uint32 original_industry_growth = settings.get_industry_increase_every();
 		settings.set_industry_increase_every(0);
 
 		for (uint32 i = old_city_count; i < stadt.get_count(); i++) {
@@ -1092,7 +1092,7 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 		}
 
 		current_month = original_start_year;
-		settings.set_industry_increase_every(original_industry_gorwth);
+		settings.set_industry_increase_every(original_industry_growth);
 		msg->clear();
 	}
 
@@ -2719,9 +2719,6 @@ void karte_t::enlarge_map(settings_t const* sets, sint8 const* const h_field)
 					koord k(x,y);
 					sint16 const h = perlin_hoehe(&settings, k, koord(old_x, old_y));
 					set_grid_hgt( k, (sint8) h);
-					if(  is_within_limits(k)  &&  h>get_water_hgt(k)  ) {
-						set_water_hgt(k, groundwater-4);
-					}
 				}
 				ls.set_progress( (y*16)/new_size_y );
 			}
@@ -3100,7 +3097,7 @@ void karte_t::set_scale()
 	{
 		if(&vehicle_builder_t::get_info((waytype_t)i) != NULL)
 		{
-			FOR(slist_tpl<vehicle_desc_t*>, & info, vehicle_builder_t::get_info((waytype_t)i))
+			FOR(slist_tpl<vehicle_desc_t*>, const & info, vehicle_builder_t::get_info((waytype_t)i))
 			{
 				info->set_scale(scale_factor, get_settings().get_way_wear_power_factor_rail_type(), get_settings().get_way_wear_power_factor_road_type(), get_settings().get_standard_axle_load());
 			}
@@ -3202,8 +3199,8 @@ const char* karte_t::can_lower_plan_to(const player_t *player, sint16 x, sint16 
 	if(  !gr  ) {
 		gr = plan->get_boden_in_hoehe( h - 2 );
 	}
-	if(  !gr  &&  env_t::pak_height_conversion_factor == 2  ) {
-		gr = plan->get_boden_in_hoehe( h - 2 );
+	if(  !gr  && settings.get_way_height_clearance()==2  ) {
+		gr = plan->get_boden_in_hoehe( h - 3 );
 	}
 	if (gr  &&  h < gr->get_pos().z + slope_t::max_diff(gr->get_weg_hang()) + settings.get_way_height_clearance()) {
 		return "";
@@ -5342,12 +5339,12 @@ void karte_t::step()
 			}
 		}
 		else if(simloops>8u*env_t::max_acceleration) {
-			if((long)idle_time<get_frame_time()-10) {
+			if(idle_time + 10u < get_frame_time()) {
 				idle_time ++;
 			}
 		}
 		// cap it ...
-		if( (long)idle_time>=get_frame_time()-10) {
+		if( idle_time + 10u >= get_frame_time()) {
 			idle_time = get_frame_time()-10;
 		}
 		next_step_time = time+idle_time;
@@ -8278,8 +8275,8 @@ DBG_MESSAGE("karte_t::save(loadsave_t *file)", "motd filename %s", env_t::server
 		}
 		else {
 			// no message
-			char *motd = "";
-			file->rdwr_str( motd, 1 );
+			plainstring motd("");
+			file->rdwr_str( motd );
 		}
 	}
 
@@ -8429,7 +8426,6 @@ DBG_MESSAGE("karte_t::load()","Savegame version is %d", file.get_version());
 					nwc_auth_player_t::init_player_lock_server(this);
 					pwdfile.close();
 				}
-				server_reload_pwd_hashes = false;
 			}
 		}
 		else if(  env_t::networkmode  ) {
@@ -11381,4 +11377,10 @@ bool karte_t::is_forge_cost_reduced(waytype_t waytype, koord3d position)
 		}
 	}
 	return is_cost_reduced;
+}
+
+sint64 karte_t::calc_monthly_job_demand() const
+{
+	sint64 value = (get_finance_history_month(0, karte_t::WORLD_CITICENS) * get_settings().get_commuting_trip_chance_percent()) / get_settings().get_passenger_trips_per_month_hundredths();
+	return value;
 }

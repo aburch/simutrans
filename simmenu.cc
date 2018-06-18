@@ -119,7 +119,7 @@ tool_t *create_general_tool(int toolnr)
 		case TOOL_ERROR_MESSAGE: tool = new tool_error_message_t(); break;
 		case TOOL_CHANGE_WATER_HEIGHT: tool = new tool_change_water_height_t(); break;
 		case TOOL_SET_CLIMATE:      tool = new tool_set_climate_t(); break;
-		case TOOL_REASSIGN_SIGNAL:      tool = new tool_reassign_signal_t(); break; 
+		case TOOL_REASSIGN_SIGNAL:      tool = new tool_reassign_signal_t(); break;
 		default:                   dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 		                           return NULL;
 	}
@@ -168,6 +168,8 @@ tool_t *create_simple_tool(int toolnr)
 		case TOOL_TOGGLE_RESERVATION:tool = new tool_toggle_reservation_t(); break;
 		case TOOL_VIEW_OWNER:        tool = new tool_view_owner_t(); break;
 		case TOOL_HIDE_UNDER_CURSOR: tool = new tool_hide_under_cursor_t(); break;
+		case TOOL_CHANGE_ROADSIGN:   tool = new tool_change_roadsign_t(); break;
+		case TOOL_SHOW_RIBI:    tool = new tool_show_ribi_t(); break;
 		// Extended non-UI tools - should be at the end.
 		case TOOL_RECOLOUR_TOOL:		tool = new tool_recolour_t(); break;
 		case TOOL_ACCESS_TOOL:		tool = new tool_access_t(); break;
@@ -544,6 +546,11 @@ void tool_t::read_menu(const std::string &objfilename)
 						addtool = create_general_tool( toolnr );
 						// copy defaults
 						*addtool = *(general_tool[toolnr]);
+
+						if(  toolnr==TOOL_BUILD_WAY  ) {
+							tool_build_way_t* way_tool = dynamic_cast<tool_build_way_t*> (addtool);
+							if(  way_tool  ) way_tool->set_look_toolbar();
+						}
 
 						general_tool.append( addtool );
 					}
@@ -944,7 +951,12 @@ const char *two_click_tool_t::move(player_t *player, uint16 buttonstate, koord3d
 	}
 
 	if(  start == pos  ) {
-		init( player );
+		if(tool_build_way_t* t = dynamic_cast<tool_build_way_t*>(this)) {
+			// This is tool_build_way_t. The mode selection window should not be called.
+			t->init( player, true );
+		} else {
+			init( player );
+		}
 	}
 
 	const char *error = NULL;

@@ -35,7 +35,7 @@ SQClass::SQClass(SQSharedState *ss,SQClass *base)
 
 void SQClass::Finalize() {
 	_attributes.Null();
-	_defaultvalues.resize(0);
+	_NULL_SQOBJECT_VECTOR(_defaultvalues,_defaultvalues.size());
 	_methods.resize(0);
 	_NULL_SQOBJECT_VECTOR(_metamethods,MT_LAST);
 	__ObjRelease(_members);

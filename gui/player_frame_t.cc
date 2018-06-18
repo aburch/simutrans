@@ -215,7 +215,7 @@ ki_kontroll_t::ki_kontroll_t() :
 	}
 	freeplay.pressed = welt->get_settings().is_freeplay();
 	add_component( &freeplay );
-	cursor.y += D_CHECKBOX_HEIGHT;
+	cursor.y += max(D_CHECKBOX_HEIGHT, LINESPACE);
 
 	set_windowsize( scr_size( window_width, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
 	update_data();

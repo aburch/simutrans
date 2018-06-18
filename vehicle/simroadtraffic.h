@@ -100,7 +100,7 @@ public:
 class private_car_t : public road_user_t, public overtaker_t
 {
 private:
-	
+
 	koord origin;
 
 	const citycar_desc_t *desc;
@@ -183,12 +183,18 @@ public:
 	static bool successfully_loaded();
 
 	// since we must consider overtaking, we use this for offset calculation
-	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
+	void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width, bool prev_based ) const;
+	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const { get_screen_offset(xoff,yoff,raster_width,false); }
 
 	virtual overtaker_t *get_overtaker() { return this; }
 
 	// Overtaking for city cars
 	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, sint16 steps_other);
+
+	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top) const;
+	vehicle_base_t* is_there_car(grund_t *gr) const; // This is a helper function of other_lane_blocked
+
+	virtual void reflesh(sint8,sint8);
 
 	void * operator new(size_t s);
 	void operator delete(void *p);

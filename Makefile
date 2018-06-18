@@ -69,10 +69,14 @@ ifeq ($(OSTYPE),mac)
   LDFLAGS += -stdlib=libstdc++
 endif
 
-ifeq ($(OSTYPE),mingw32 mingw64)
+ifeq ($(OSTYPE), mingw64)
   SOURCES += clipboard_w32.cc
 else
-  SOURCES += clipboard_internal.cc
+	ifeq ($(OSTYPE),mingw32)
+	  SOURCES += clipboard_w32.cc
+	else
+	  SOURCES += clipboard_internal.cc
+  endif
 endif
 
 ifeq ($(OSTYPE),openbsd)
@@ -329,7 +333,9 @@ SOURCES += gui/message_option_t.cc
 SOURCES += gui/message_stats_t.cc
 SOURCES += gui/messagebox.cc
 SOURCES += gui/money_frame.cc
+SOURCES += gui/onewaysign_info.cc
 SOURCES += gui/optionen.cc
+SOURCES += gui/overtaking_mode.cc
 SOURCES += gui/pakselector.cc
 SOURCES += gui/password_frame.cc
 SOURCES += gui/player_frame_t.cc
@@ -386,6 +392,8 @@ SOURCES += script/api/api_convoy.cc
 SOURCES += script/api/api_gui.cc
 SOURCES += script/api/api_factory.cc
 SOURCES += script/api/api_halt.cc
+SOURCES += script/api/api_include.cc
+SOURCES += script/api/api_line.cc
 SOURCES += script/api/api_map_objects.cc
 SOURCES += script/api/api_obj_desc.cc
 SOURCES += script/api/api_obj_desc_base.cc

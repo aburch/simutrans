@@ -2599,6 +2599,8 @@
     <ClCompile Include="gui\gui_theme.cc" />
     <ClCompile Include="gui\line_class_manager.cc" />
     <ClCompile Include="gui\line_item.cc" />
+    <ClCompile Include="gui\onewaysign_info.cc" />
+    <ClCompile Include="gui\overtaking_mode.cc" />
     <ClCompile Include="gui\times_history.cc" />
     <ClCompile Include="gui\obj_info.cc" />
     <ClCompile Include="gui\privatesign_info.cc" />
@@ -2658,6 +2660,8 @@
     <ClCompile Include="script\api\api_factory.cc" />
     <ClCompile Include="script\api\api_gui.cc" />
     <ClCompile Include="script\api\api_halt.cc" />
+    <ClCompile Include="script\api\api_include.cc" />
+    <ClCompile Include="script\api\api_line.cc" />
     <ClCompile Include="script\api\api_map_objects.cc" />
     <ClCompile Include="script\api\api_obj_desc.cc" />
     <ClCompile Include="script\api\api_obj_desc_base.cc" />
@@ -3260,6 +3264,8 @@
     <ClInclude Include="gui\factory_chart.h" />
     <ClInclude Include="gui\gui_theme.h" />
     <ClInclude Include="gui\line_class_manager.h" />
+    <ClInclude Include="gui\onewaysign_info.h" />
+    <ClInclude Include="gui\overtaking_mode.h" />
     <ClInclude Include="gui\times_history.h" />
     <ClInclude Include="gui\obj_info.h" />
     <ClInclude Include="gui\privatesign_info.h" />
@@ -3386,7 +3392,6 @@
     <ClInclude Include="dataobj\crossing_logic.h" />
     <ClInclude Include="descriptor\reader\crossing_reader.h" />
     <ClInclude Include="descriptor\writer\crossing_writer.h" />
-    <ClInclude Include="utils\cstring_t.h" />
     <ClInclude Include="gui\curiosity_edit.h" />
     <ClInclude Include="gui\curiositylist_frame_t.h" />
     <ClInclude Include="gui\curiositylist_stats_t.h" />

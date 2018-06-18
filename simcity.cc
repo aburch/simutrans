@@ -3675,6 +3675,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 				bauigel.init_builder(way_builder_t::strasse, welt->get_city_road(), NULL, NULL);
 				bauigel.set_build_sidewalk(true);
 				bauigel.calc_straight_route(welt->lookup_kartenboden(best_pos + road0)->get_pos(), welt->lookup_kartenboden(best_pos + road1)->get_pos());
+				bauigel.set_overtaking_mode(twoway_mode);
 				bauigel.build();
 			}
 			else {
@@ -4278,27 +4279,46 @@ void stadt_t::build_city_building(const koord k, bool new_town, bool map_generat
 		}
 	}
 
+	bool worker_shortage = false;
+	bool job_shortage = false;
+
+	// This is a temporary system intended to prevent an imbalance between jobs and population
+	// arising until the completely new town growth algorithm is implemented.
+	const sint64 world_jobs = welt->get_finance_history_month(0, karte_t::WORLD_JOBS); 
+	const sint64 monthly_job_demand_global = welt->calc_monthly_job_demand();
+	if ((world_jobs * 100l) > (monthly_job_demand_global * 110l))
+	{
+		worker_shortage = true;
+	}
+	else if ((monthly_job_demand_global  * 100l) > (world_jobs * 110l))
+	{
+		job_shortage = true;
+	}
+
 	// Find a house to build
 	const koord size_single(1,1);
 	building_desc_t::btype want_to_have = building_desc_t::unknown;
 	const building_desc_t* h = NULL;
 
-	if (sum_commercial > sum_industrial  &&  sum_commercial > sum_residential) {
+	if (!worker_shortage && (sum_commercial > sum_industrial  &&  sum_commercial > sum_residential)) {
 		h = hausbauer_t::get_commercial(0, size_single, current_month, cl, new_town, neighbor_building_clusters);
 		if (h != NULL) {
 			want_to_have = building_desc_t::city_com;
 		}
 	}
 
-	if (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_commercial) {
+	if (!worker_shortage && (h == NULL  &&  sum_industrial > sum_residential  &&  sum_industrial > sum_commercial)) {
 		h = hausbauer_t::get_industrial(0, size_single, current_month, cl, new_town, neighbor_building_clusters);
 		if (h != NULL) {
 			want_to_have = building_desc_t::city_ind;
 		}
 	}
 
-	if (h == NULL  &&  sum_residential > sum_industrial  &&  sum_residential > sum_commercial) {
-		h = hausbauer_t::get_residential(0, size_single, current_month, cl, new_town, neighbor_building_clusters);
+	if (h == NULL  &&  ((sum_residential > sum_industrial  &&  sum_residential > sum_commercial) || worker_shortage)) {
+		if (!job_shortage)
+		{
+			h = hausbauer_t::get_residential(0, size_single, current_month, cl, new_town, neighbor_building_clusters);
+		}
 		if (h != NULL) {
 			want_to_have = building_desc_t::city_res;
 		}
@@ -5128,6 +5148,7 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced, bool map
 			weg->set_desc(welt->get_city_road());
 			strasse_t *str = static_cast<strasse_t *>(weg);
 			str->set_gehweg(true);
+			str->set_overtaking_mode(twoway_mode);
 			weg->set_public_right_of_way();
 			bd->neuen_weg_bauen(weg, connection_roads, player_);
 			bd->calc_image();

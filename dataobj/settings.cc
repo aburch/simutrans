@@ -719,7 +719,7 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 		else {
 			uint16 old_multiplier = pak_diagonal_multiplier;
-			file->rdwr_short(old_multiplier );
+			file->rdwr_short( old_multiplier );
 			vehicle_base_t::set_diagonal_multiplier( pak_diagonal_multiplier, old_multiplier );
 			// since vehicle will need realignment afterwards!
 		}
@@ -2232,6 +2232,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	// the height in z-direction will only cause pixel errors but not a different behaviour
 	env_t::pak_tile_height_step = contents.get_int("tile_height", env_t::pak_tile_height_step );
 	// new height for old slopes after conversion - 1=single height, 2=double height
+	// Must be only overwrite when reading from pak dir ...
 	env_t::pak_height_conversion_factor = contents.get_int("height_conversion_factor", env_t::pak_height_conversion_factor );
 
 	// minimum clearance under under bridges: 1 or 2? (HACK: value only zero during loading of pak set config)
@@ -2673,15 +2674,20 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	while (*str == ' ') str++;
 	if (strcmp(str, "binary") == 0) {
 		loadsave_t::set_savemode(loadsave_t::binary );
-	} else if(strcmp(str, "zipped") == 0) {
+	}
+	else if(strcmp(str, "zipped") == 0) {
 		loadsave_t::set_savemode(loadsave_t::zipped );
-	} else if(strcmp(str, "xml") == 0) {
+	}
+	else if(strcmp(str, "xml") == 0) {
 		loadsave_t::set_savemode(loadsave_t::xml );
-	} else if(strcmp(str, "xml_zipped") == 0) {
+	}
+	else if(strcmp(str, "xml_zipped") == 0) {
 		loadsave_t::set_savemode(loadsave_t::xml_zipped );
-	} else if(strcmp(str, "bzip2") == 0) {
+	}
+	else if(strcmp(str, "bzip2") == 0) {
 		loadsave_t::set_savemode(loadsave_t::bzip2 );
-	} else if(strcmp(str, "xml_bzip2") == 0) {
+	}
+	else if(strcmp(str, "xml_bzip2") == 0) {
 		loadsave_t::set_savemode(loadsave_t::xml_bzip2 );
 	}
 
@@ -2689,15 +2695,20 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	while (*str == ' ') str++;
 	if (strcmp(str, "binary") == 0) {
 		loadsave_t::set_autosavemode(loadsave_t::binary );
-	} else if(strcmp(str, "zipped") == 0) {
+	}
+	else if(strcmp(str, "zipped") == 0) {
 		loadsave_t::set_autosavemode(loadsave_t::zipped );
-	} else if(strcmp(str, "xml") == 0) {
+	}
+	else if(strcmp(str, "xml") == 0) {
 		loadsave_t::set_autosavemode(loadsave_t::xml );
-	} else if(strcmp(str, "xml_zipped") == 0) {
+	}
+	else if(strcmp(str, "xml_zipped") == 0) {
 		loadsave_t::set_autosavemode(loadsave_t::xml_zipped );
-	} else if(strcmp(str, "bzip2") == 0) {
+	}
+	else if(strcmp(str, "bzip2") == 0) {
 		loadsave_t::set_autosavemode(loadsave_t::bzip2 );
-	} else if(strcmp(str, "xml_bzip2") == 0) {
+	}
+	else if(strcmp(str, "xml_bzip2") == 0) {
 		loadsave_t::set_autosavemode(loadsave_t::xml_bzip2 );
 	}
 

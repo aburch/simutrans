@@ -1075,6 +1075,8 @@ Hart
 Chaff
 %246_CITY_SYLL
 Misen
+%247_CITY_SYLL
+Beo
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -3796,3 +3798,15 @@ more_units
 more units
 distance
 Distance
+halt mode
+Parallel stop mode
+oneway
+One way
+twoway
+Two way (default)
+only loading convoi
+Overtake stationary only
+prohibited
+Overtaking prohibited
+inverted
+Opposite lane driving

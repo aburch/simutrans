@@ -297,10 +297,7 @@ private:
 	 * Maximum size for waiting bars etc.
 	 */
 	int cached_size_max;
-
-	/**
-	 * @}
-	 */
+	/** @} */
 
 	/**
 	 * All cursor interaction goes via this function, it will call save_mouse_funk first with
@@ -351,10 +348,7 @@ private:
 	 * @brief Map mouse cursor tool.
 	 */
 	zeiger_t *zeiger;
-
-	/**
-	 * @}
-	 */
+	/** @} */
 
 	/**
 	 * Time when last mouse moved to check for ambient sound events.
@@ -558,10 +552,7 @@ private:
 	 * @see cached_grid_size
 	 */
 	sint8 *water_hgts;
-
-	/**
-	 * @}
-	 */
+	/** @} */
 
 	/**
 	 * @name Player management
@@ -589,10 +580,7 @@ private:
 	 * Locally stored password hashes, will be used after reconnect to a server.
 	 */
 	pwd_hash_t player_password_hash[MAX_PLAYER_COUNT];
-
-	/**
-	 * @}
-	 */
+	/** @} */
 
 	/*
 	 * Counter for schedules.
@@ -700,10 +688,7 @@ private:
 
 	/// To calculate the fps and the simloops.
 	uint32 idle_time;
-
-	/**
-	 * @}
-	 */
+	/** @} */
 
 	/**
 	 * Current accumulated month number, counting January of year 0 as 0.
@@ -2636,6 +2621,8 @@ public:
 	sint32 calc_generic_road_time_per_tile(const way_desc_t* desc);
 
 	uint32 get_max_road_check_depth() const { return max_road_check_depth; }
+
+	sint64 calc_monthly_job_demand() const;
 
 	/**
 	 * To identify the current map.
