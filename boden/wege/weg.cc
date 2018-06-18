@@ -240,7 +240,7 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.printf("%s%u\n",  translator::translate("\nRibi (masked)"),   get_ribi());
 
 	if(  get_waytype() == road_wt  ) {
-		strasse_t* str = (strasse_t*) this;
+		const strasse_t* str = (const strasse_t*) this;
 		assert(str);
 		// Display overtaking_info
 		switch (str->get_overtaking_mode()) {
@@ -267,7 +267,15 @@ void weg_t::info(cbuffer_t & buf) const
 				break;
 		}
 
-		buf.printf("prior: %d\n", str->get_prior_direction());
+		if(  ribi_t::is_threeway(get_ribi_unmasked())  ) {
+			if(  str->get_prior_direction()==ribi_t::northsouth  ) {
+				buf.printf("%s: %s\n", translator::translate("Prior"), translator::translate("northsouth"));
+			} else if(  str->get_prior_direction()==ribi_t::eastwest  ) {
+				buf.printf("%s: %s\n", translator::translate("Prior"), translator::translate("eastwest"));
+			} else {
+				buf.printf("%s: %s\n", translator::translate("Prior"), translator::translate("all"));
+			}
+		}
 	}
 
 	if(has_sign()) {

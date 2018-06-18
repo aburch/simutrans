@@ -2269,8 +2269,16 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		// we consider prior direction of the intersection.
 		if(  ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (curr_90direction&str->get_prior_direction())==0
 		&&  (drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction))!=next_90direction  ) {
+			// check for traffic light. If there is a traffic light, we don't have to stop here.
+			bool traffic_light = false;
+			if(  str->has_sign()  ) {
+				rs = gr->find<roadsign_t>();
+				if(  rs  &&  rs->get_desc()->is_traffic_light()  ) {
+					traffic_light = true;
+				}
+			}
 			// crossing traffic has priority. we have to stop.
-			if(  cnv->get_akt_speed()>kmh_to_speed(5)  ) {
+			if(  !traffic_light  &&  cnv->get_akt_speed()>kmh_to_speed(5)  ) {
 				restart_speed = 0;
 				return false;
 			}
