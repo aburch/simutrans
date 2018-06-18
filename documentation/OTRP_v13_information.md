@@ -4,13 +4,15 @@
 OTRPはOneway Twoway Road Patchの略で、日本語通称は「二車線パッチ」です。  
 本家Simutransでは片側二車線の高速・幹線道路を引いても実質一車線分しか使ってくれないのでフルで2車線使ってくれるようにするのが本プロジェクトの目的です。
 
-本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0
+本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
+
+version14現在、simutrans standard安定版120.3をベースにしています。
 
 # ダウンロード
 ribi-arrow・信号接続方向制御つきのバイナリのみの提供です。実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。
-本体は下のリンクからどうぞ。**（2018年6月18日PM11時　ver14に更新）**  
-win: https://drive.google.com/open?id=1Ypv05zz5Kpz1jNxKfNL35AkRCj_1RS4U  
-mac: https://drive.google.com/open?id=17VdFzhilB_rEn9D3pt3hnLou0fA6Qw-k  
+本体は下のリンクからどうぞ。**（2018年6月19日AM0時　ver14に更新）**  
+win: https://drive.google.com/open?id=1PXCG_6T4e4wimyRY8Xh6wt87gfTH2JIY  
+mac: https://drive.google.com/open?id=1Ym9UnGtQUBFLTLnuQI3kGxn2smccs5u3    
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 ※makeobjはstandardのやつをそのまま使ってください
 
@@ -50,12 +52,13 @@ v13から道路信号の進入許可方向を設定できるようになりま�
 
 ## 交差点での車のふるまい
 （v14から）  
-信号が設置されていない交差点に車が進入するとき、減速してから交差点に進入します。ただし以下の条件を満たすときは減速せずに交差点に進入します。
+信号が設置されていない交差点に車が進入するとき、減速（一時停止）してから交差点に進入します。ただし以下の条件を満たすときは減速せずに交差点に進入します。
 - 自分が優先方向（南北or東西）にいるとき
 - 左折する時（右側通行の場合は右折する時）
 - 一方通行道路で合流する時
 
-優先方向は交差点タイルでの道路の情報にある「Prior」です。  
+優先方向は交差点タイルでの道路の情報にある「**Prior**」です。交通量の多い方向が自動的に優先方向になります。  
+![fig6](images/fig6.png)  
 なお「高度な設定」から「stop_at_intersection_without_traffic_light」（経済タブにあります）のチェックを外すことで交差点での減速を無効にすることができます。
 
 # データの互換性
@@ -63,7 +66,8 @@ v13から道路信号の進入許可方向を設定できるようになりま�
 OTRPはsimutrans standard向けのアドオンであれば全て使えます。OTRP専用アドオンというのは存在しません。
 ## セーブデータの互換性
 - simutrans standardのデータは120.3を含めそのまま読み込めます。
-- **OTRP v12,13系列のセーブデータを読み込むときは「」ボタンを押して読み込んでください。**（下図参照）
+- **OTRP v12,13系列のセーブデータを読み込むときは「This is a data of OTRP v12 or v13.」ボタンを押して読み込んでください。**（下図参照）
+![fig5](images/fig5.png)  
 - extended版OTRPとの互換性はありません。
 - 一度セーブデータを読み込んでそれを**保存した瞬間に**そのデータは**OTRPv14以降専用**になります。既存のデータをOTRPに移行する場合はバックアップを取った上で別ファイルとして保存することを強く推奨します。
 
