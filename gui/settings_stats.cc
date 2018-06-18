@@ -297,6 +297,8 @@ void settings_economy_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "max_air_convoi_length", sets->get_max_air_convoi_length(), 1, 254, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 
+	INIT_BOOL( "stop_at_intersection_without_traffic_light", sets->get_stop_at_intersection_without_traffic_light() );
+
 	INIT_NUM( "toll_runningcost_percentage", sets->get_way_toll_runningcost_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "toll_waycost_percentage", sets->get_way_toll_waycost_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL("disable_make_way_public", sets->get_disable_make_way_public());
@@ -390,6 +392,8 @@ void settings_economy_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->max_road_convoi_length );
 	READ_NUM_VALUE( sets->max_ship_convoi_length );
 	READ_NUM_VALUE( sets->max_air_convoi_length );
+
+	READ_BOOL_VALUE( sets->stop_at_intersection_without_traffic_light );
 
 	READ_NUM_VALUE( sets->way_toll_runningcost_percentage );
 	READ_NUM_VALUE( sets->way_toll_waycost_percentage );

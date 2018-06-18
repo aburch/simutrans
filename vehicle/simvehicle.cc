@@ -2267,7 +2267,8 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 
 		// do we have to stop before entering the intersection?
 		// we consider prior direction of the intersection.
-		if(  ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (curr_90direction&str->get_prior_direction())==0
+		if(  welt->get_settings().get_stop_at_intersection_without_traffic_light()
+		&&  ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (curr_90direction&str->get_prior_direction())==0
 		&&  (drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction))!=next_90direction  ) {
 			// check for traffic light. If there is a traffic light, we don't have to stop here.
 			bool traffic_light = false;

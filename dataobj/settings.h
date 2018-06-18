@@ -281,6 +281,9 @@ private:
 	// true if companies can make ways public
 	bool disable_make_way_public;
 
+	// if true, vehicles stop at the intersection without a traffic light
+	bool stop_at_intersection_without_traffic_light;
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -589,6 +592,8 @@ public:
 
 	uint32 get_default_ai_construction_speed() const { return default_ai_construction_speed; }
 	void set_default_ai_construction_speed( uint32 n ) { default_ai_construction_speed = n; }
+
+	bool get_stop_at_intersection_without_traffic_light() const { return stop_at_intersection_without_traffic_light; }
 };
 
 #endif

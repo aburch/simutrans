@@ -298,6 +298,8 @@ settings_t::settings_t() :
 	frames_per_second = 20;
 	frames_per_step = 4;
 	server_frames_ahead = 4;
+
+	stop_at_intersection_without_traffic_light = true;
 }
 
 
@@ -814,6 +816,9 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(max_road_convoi_length);
 			file->rdwr_byte(max_ship_convoi_length);
 			file->rdwr_byte(max_air_convoi_length);
+		}
+		if(  file->get_OTRP_version() >= 14  ) {
+			file->rdwr_bool(stop_at_intersection_without_traffic_light);
 		}
 		// otherwise the default values of the last one will be used
 	}
@@ -1422,6 +1427,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	max_road_convoi_length = contents.get_int("max_road_convoi_length",max_road_convoi_length);
 	max_ship_convoi_length = contents.get_int("max_ship_convoi_length",max_ship_convoi_length);
 	max_air_convoi_length = contents.get_int("max_air_convoi_length",max_air_convoi_length);
+
+	stop_at_intersection_without_traffic_light = contents.get_int("stop_at_intersection_without_traffic_light", stop_at_intersection_without_traffic_light);
 
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", "" ) );
