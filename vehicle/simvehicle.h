@@ -511,6 +511,8 @@ private:
 	// returns true on success
 	bool choose_route(sint32 &restart_speed, ribi_t::ribi start_direction, uint16 index);
 
+	koord3d last_stop_for_intersection;
+
 protected:
 	bool check_next_tile(const grund_t *bd) const;
 

@@ -1889,6 +1889,7 @@ road_vehicle_t::road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t
 {
 	cnv = cn;
 	pos_prev = koord3d::invalid;
+	last_stop_for_intersection = koord3d::invalid;
 }
 
 
@@ -1920,6 +1921,7 @@ road_vehicle_t::road_vehicle_t(loadsave_t *file, bool is_first, bool is_last) : 
 		if(  desc  ) {
 			last_desc = desc;
 		}
+		last_stop_for_intersection = koord3d::invalid;
 		calc_disp_lane();
 	}
 }
@@ -2275,6 +2277,10 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			// we are in the prior directions.
 		} else if(  (drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction))==next_90direction  ) {
 			// we make an inside turn. This tile might be a merging point, so we don't stop.
+		} else if(  last_stop_for_intersection==gr->get_pos()  ) {
+			// we already stopped for this intersection.
+		} else if(  ribi_t::is_single(str->get_ribi())  ) {
+			// this tile is a merging point. we don't stop.
 		} else if(  (curr_90direction!=next_90direction)  &&  (ribi_t::backward(next_90direction)&str->get_ribi())==0  ) {
 			// we make an outside turn, but crossing street is oneway.
 		} else {
@@ -2289,6 +2295,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			// crossing traffic has priority. we have to stop.
 			if(  !traffic_light  &&  cnv->get_akt_speed()>kmh_to_speed(5)  ) {
 				restart_speed = 0;
+				last_stop_for_intersection = gr->get_pos();
 				return false;
 			}
 		}
@@ -2604,7 +2611,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(  stre  &&  stre->get_overtaking_mode() <= oneway_mode  &&  (way_ribi == ribi_t::all  ||  ribi_t::is_threeway(way_ribi))  ) {
 			if(  const vehicle_base_t* v = other_lane_blocked(true)  ) {
 				if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
-					if(  at->get_convoi()->get_akt_speed()!=0  &&  judge_lane_crossing(calc_direction(get_pos(),pos_next), calc_direction(pos_next,pos_next2), at->get_90direction(), cnv->is_overtaking(), false)  ) {
+					if(  at->get_convoi()->get_akt_speed()>kmh_to_speed(1)  &&  judge_lane_crossing(calc_direction(get_pos(),pos_next), calc_direction(pos_next,pos_next2), at->get_90direction(), cnv->is_overtaking(), false)  ) {
 						// vehicle must stop.
 						restart_speed = 0;
 						cnv->reset_waiting();
