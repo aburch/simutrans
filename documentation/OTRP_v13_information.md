@@ -10,9 +10,9 @@ version14現在、simutrans standard安定版120.3をベースにしています
 
 # ダウンロード
 ribi-arrow・信号接続方向制御つきのバイナリのみの提供です。実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。
-本体は下のリンクからどうぞ。**（2018年6月19日AM0時　ver14に更新）**  
-win: https://drive.google.com/open?id=1PXCG_6T4e4wimyRY8Xh6wt87gfTH2JIY  
-mac: https://drive.google.com/open?id=1Ym9UnGtQUBFLTLnuQI3kGxn2smccs5u3    
+本体は下のリンクからどうぞ。**（2018年6月19日PM9時　ver14_1に更新）**  
+win: https://drive.google.com/open?id=1FD9UHFezV5h07ELL9J1sHFD0zLIsBPD4  
+mac: https://drive.google.com/open?id=1w9BSVPqJ9aoyGide5c583FyK8KQ_TgLR    
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 ※makeobjはstandardのやつをそのまま使ってください
 
@@ -66,8 +66,9 @@ v13から道路信号の進入許可方向を設定できるようになりま�
 OTRPはsimutrans standard向けのアドオンであれば全て使えます。OTRP専用アドオンというのは存在しません。
 ## セーブデータの互換性
 - simutrans standardのデータは120.3を含めそのまま読み込めます。
-- **OTRP v12,13系列のセーブデータを読み込むときは「This is a data of OTRP v12 or v13.」ボタンを押して読み込んでください。**（下図参照）
+- **OTRP v12,13系列のセーブデータを読み込むときは「This is a data of OTRP v12 or v13.」ボタンを押して読み込んでください。**（下図参照）  
 ![fig5](images/fig5.png)  
+v12,13を使っていた方で初めてv14を使うときは**autosave.sveを削除**してください。（古いバージョンのautosaveが残っていると起動時にそれを読んでクラッシュします。）
 - extended版OTRPとの互換性はありません。
 - 一度セーブデータを読み込んでそれを**保存した瞬間に**そのデータは**OTRPv14以降専用**になります。既存のデータをOTRPに移行する場合はバックアップを取った上で別ファイルとして保存することを強く推奨します。
 
