@@ -20,7 +20,8 @@ mac: https://drive.google.com/open?id=1w9BSVPqJ9aoyGide5c583FyK8KQ_TgLR
 1. ribi-arrowをDLしてお使いのpakセットに入れる
 2. pakフォルダの中にあるmenuconfでsimpletoolsの37番に適当なキーを割り当てる。例えばmenuconf.tabに`simple_tool[37]=,:`と追記すればコロンを押すとRibiArrowが出現する。
 3. 本体をDLし、simutrans.exeが入ってる所と同じディレクトリに実行ファイルを入れる。
-4. DLした実行ファイルを起動する。
+4. （macユーザのみ）ターミナルで`chmod u+x sim-OTRPv14`と打ってファイルに実行権限を与える
+5. DLした実行ファイルを起動する。
 standard版のsveファイルを上書きしないように気をつけましょう。
 
 # 使い方
