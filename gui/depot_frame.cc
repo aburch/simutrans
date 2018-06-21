@@ -28,6 +28,7 @@
 #include "../simmenu.h"
 #include "../simskin.h"
 
+#include "../tpl/inthashtable_tpl.h"
 #include "../tpl/slist_tpl.h"
 
 #include "schedule_gui.h"
@@ -74,6 +75,7 @@ static const char* engine_type_names[9] =
 
 enum { sb_name, sb_capacity, sb_price, sb_cost, sb_cost_per_unit, sb_speed, sb_power, sb_weight, sb_intro_date, sb_retire_date, sb_length };
 static int sort_by_action;
+static inthashtable_tpl <int, vector_tpl<const vehicle_desc_t*> > sorted_vehicle_descs;
 
 bool depot_frame_t::show_retired_vehicles = false;
 bool depot_frame_t::show_all = true;
@@ -822,33 +824,50 @@ void depot_frame_t::build_vehicle_lists()
 
 	img_bolt.set_image( weg_electrified ? skinverwaltung_t::electricity->get_image_id(0) : IMG_EMPTY );
 
-	vector_tpl<const vehicle_desc_t*> typ_list;
+	vector_tpl<const vehicle_desc_t*>* typ_list = new vector_tpl<const vehicle_desc_t*>();
+	bool need_delete_typ_list = true;
+	sort_by_action = depot->selected_sort_by;
 	if(!show_all  &&  veh_action==va_sell) {
+		// show only sellable vehicles
 		FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
 			vehicle_desc_t const* const d = v->get_desc();
-			typ_list.append(d);
+			typ_list->append(d);
 		}
+		std::sort(typ_list->begin(), typ_list->end(), compare_vehicles);
 	}
 	else {
-		slist_tpl<const vehicle_desc_t*> const& tmp_list = depot->get_vehicle_type();
-		for(slist_tpl<const vehicle_desc_t*>::const_iterator itr = tmp_list.begin(); itr != tmp_list.end(); ++itr) {
-			typ_list.append(*itr);
+		if(  sorted_vehicle_descs.access(sort_by_action)==NULL  ) {
+			// not sorted yet!
+			slist_tpl<const vehicle_desc_t*> const& tmp_list = depot->get_vehicle_type();
+			for(slist_tpl<const vehicle_desc_t*>::const_iterator itr = tmp_list.begin(); itr != tmp_list.end(); ++itr) {
+				typ_list->append(*itr);
+			}
+			printf("sorting start...\n");
+			std::sort(typ_list->begin(), typ_list->end(), compare_vehicles);
+			// copy to sorted_vehicle_descs
+			sorted_vehicle_descs.put(sort_by_action);
+			for(uint32 i=0; i<typ_list->get_count(); i++) {
+				sorted_vehicle_descs.access(sort_by_action)->append((*typ_list)[i]);
+			}
+		} else {
+			// vehicle descs were already sorted.
+			delete typ_list;
+			need_delete_typ_list = false;
+			typ_list = sorted_vehicle_descs.access(sort_by_action);
 		}
 	}
-	sort_by_action = depot->selected_sort_by;
-	std::sort(typ_list.begin(), typ_list.end(), compare_vehicles);
 
 	// use this to show only sellable vehicles
 	if(!show_all  &&  veh_action==va_sell) {
 		// just list the one to sell
-		FOR(vector_tpl<vehicle_desc_t const*>, const info, typ_list) {
+		FOR(vector_tpl<vehicle_desc_t const*>, const info, *typ_list) {
 			if (vehicle_map.get(info)) continue;
 			add_to_vehicle_list(info);
 		}
 	}
 	else {
 		// list only matching ones
-		FOR(vector_tpl<vehicle_desc_t const*>, const info, typ_list) {
+		FOR(vector_tpl<vehicle_desc_t const*>, const info, *typ_list) {
 			const vehicle_desc_t *veh = NULL;
 			convoihandle_t cnv = depot->get_convoi(icnv);
 			if(cnv.is_bound() && cnv->get_vehicle_count()>0) {
@@ -876,6 +895,9 @@ void depot_frame_t::build_vehicle_lists()
 				}
 			}
 		}
+	}
+	if(  need_delete_typ_list  ) {
+		delete typ_list;
 	}
 DBG_DEBUG("depot_frame_t::build_vehicle_lists()","finally %i passenger vehicle, %i  engines, %i good wagons",pas_vec.get_count(),loks_vec.get_count(),waggons_vec.get_count());
 	update_data();
