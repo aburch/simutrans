@@ -67,9 +67,6 @@ static pthread_mutex_t weg_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZE
  */
 vector_tpl <weg_t *> alle_wege;
 
-bool weg_t::show_masked_ribi = false;
-
-
 /**
  * Get list of all ways
  * @author Hj. Malthaner
@@ -282,7 +279,7 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 	{
 		degraded = true;
 		remaining_wear_capacity = 0;
-		replacement_way = NULL;	
+		replacement_way = NULL;
 		if(!from_saved_game)
 		{
 			// We need to know when the way was degraded as well as upgraded

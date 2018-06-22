@@ -60,7 +60,6 @@ public:
 	*/
 	static const vector_tpl <weg_t *> & get_alle_wege();
 	static const uint32 get_all_ways_count();
-	static bool show_masked_ribi;
 	static void clear_list_of__ways();
 
 	enum {
@@ -406,7 +405,7 @@ public:
 	image_id get_image() const {return image;}
 
 	inline void set_after_image( image_id b ) { foreground_image = b; }
-	image_id get_front_image() const { return show_masked_ribi ? skinverwaltung_t::ribi_arrow->get_image_id(get_ribi()) :foreground_image; }
+	virtual image_id get_front_image() const { return foreground_image; }
 
 	// correct maintenance
 	void finish_rd();

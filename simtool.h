@@ -13,6 +13,7 @@
 #include "simobj.h"
 
 #include "boden/wege/schiene.h"
+#include "boden/wege/strasse.h"
 
 #include "dataobj/environment.h"
 #include "dataobj/translator.h"
@@ -1028,10 +1029,10 @@ class tool_show_ribi_t : public tool_t {
 public:
 	tool_show_ribi_t() : tool_t(TOOL_SHOW_RIBI| SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("view masked ribi"); }
-	bool is_selected() const OVERRIDE { return weg_t::show_masked_ribi; }
+	bool is_selected() const OVERRIDE { return strasse_t::show_masked_ribi; }
 	bool init( player_t * ) {
 		if(  skinverwaltung_t::ribi_arrow  ) {
-			weg_t::show_masked_ribi ^= 1;
+			strasse_t::show_masked_ribi ^= 1;
 			welt->set_dirty();
 		} else {
 			// no ribi_arrow pak.

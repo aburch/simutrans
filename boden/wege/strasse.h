@@ -14,6 +14,8 @@ class fabrik_t;
  */
 class strasse_t : public weg_t
 {
+public:
+	static bool show_masked_ribi;
 
 private:
 	/**
@@ -62,6 +64,7 @@ public:
 	virtual ribi_t::ribi get_ribi() const;
 
 	virtual void rotate90();
+	image_id get_front_image() const {return show_masked_ribi ? skinverwaltung_t::ribi_arrow->get_image_id(get_ribi()) : weg_t::get_front_image();}
 };
 
 #endif
