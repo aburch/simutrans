@@ -8,7 +8,7 @@ As of version 14, OTRP is based on simutrans standard 120.3.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.
-You can download the OTRP executable binary from the links below. **(2018 June 19th, updated to ver 14_1.)**  
+You can download the OTRP executable binary from the links below. **(2018 June 22nd, updated to ver 14_2.)**  
 windows: https://drive.google.com/open?id=1cK9qBN0HwfTihD-8yhIqkZcu4QNvafSx  
 mac: https://drive.google.com/open?id=1Q_nE2mirXOWL3Lomf91rs4bVrI-kLu1T  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
@@ -22,6 +22,7 @@ OTRP does not provide specialized makeobj. Please use one of simutrans standard.
 Please make sure not to overwrite your sve file of simutrans standard.
 
 # How to use
+Sorry, this section is still under construction.
 ## overtaking mode
 ![fig1](images/fig1.png)  
 Select a road icon **with holding a Ctrl key**, then you can select the overtaking mode.
