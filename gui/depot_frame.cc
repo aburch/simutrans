@@ -842,7 +842,6 @@ void depot_frame_t::build_vehicle_lists()
 			for(slist_tpl<const vehicle_desc_t*>::const_iterator itr = tmp_list.begin(); itr != tmp_list.end(); ++itr) {
 				typ_list->append(*itr);
 			}
-			printf("sorting start...\n");
 			std::sort(typ_list->begin(), typ_list->end(), compare_vehicles);
 			// copy to sorted_vehicle_descs
 			sorted_vehicle_descs.put(sort_by_action);
