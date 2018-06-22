@@ -57,9 +57,6 @@ static pthread_mutex_t weg_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZE
  */
 slist_tpl <weg_t *> alle_wege;
 
-bool weg_t::show_masked_ribi = false;
-
-
 /**
  * Get list of all ways
  * @author Hj. Malthaner

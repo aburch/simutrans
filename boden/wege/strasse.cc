@@ -18,6 +18,8 @@
 
 const way_desc_t *strasse_t::default_strasse=NULL;
 
+bool strasse_t::show_masked_ribi = false;
+
 
 void strasse_t::set_gehweg(bool janein)
 {

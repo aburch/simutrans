@@ -13,6 +13,8 @@
  */
 class strasse_t : public weg_t
 {
+public:
+	static bool show_masked_ribi;
 
 private:
 	/**
@@ -79,6 +81,8 @@ public:
 	void book(int amount, way_statistics type, ribi_t::ribi dir);
 	void new_month();
 	ribi_t::ribi get_prior_direction() const;
+
+	image_id get_front_image() const {return show_masked_ribi ? skinverwaltung_t::ribi_arrow->get_image_id(get_ribi()) : weg_t::get_front_image();}
 
 };
 
