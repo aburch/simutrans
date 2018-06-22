@@ -607,6 +607,11 @@ int simu_main(int argc, char** argv)
 			file.close();
 			dr_remove("settings.xml");
 		}
+		else if(  file.get_version()>=120006  &&  file.get_OTRP_version()==0  ) {
+			// OTRP cannot decode these versions of settings.xml
+			file.close();
+			dr_remove("settings.xml");
+		}
 		else {
 			found_settings = true;
 			env_t::rdwr(&file);
