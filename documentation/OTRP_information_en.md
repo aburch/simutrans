@@ -9,8 +9,8 @@ As of version 14, OTRP is based on simutrans standard 120.3.
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.
 You can download the OTRP executable binary from the links below. **(2018 June 19th, updated to ver 14_1.)**  
-windows: https://drive.google.com/open?id=1FD9UHFezV5h07ELL9J1sHFD0zLIsBPD4  
-mac: https://drive.google.com/open?id=1w9BSVPqJ9aoyGide5c583FyK8KQ_TgLR  
+windows: https://drive.google.com/open?id=1cK9qBN0HwfTihD-8yhIqkZcu4QNvafSx  
+mac: https://drive.google.com/open?id=1Q_nE2mirXOWL3Lomf91rs4bVrI-kLu1T  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 OTRP does not provide specialized makeobj. Please use one of simutrans standard.
 
@@ -18,7 +18,6 @@ OTRP does not provide specialized makeobj. Please use one of simutrans standard.
 1. Download ribi-arrow and put it into your pakset.
 1. In menuconf.tab in the pakset folder, assign an appropriate key to simple_tool[37]. For example, in menuconf.tab, add `simple_tool[37]=,:` and you can use RibiArrow by using the colon key.
 1. Download the OTRP executable file and put it in the directory where simutrans.exe already exists.
-1. (For mac users only) To make the file executable, type `chmod u+x sim-OTRPv14` in Terminal app.
 1. Execute the file that you downloaded.
 Please make sure not to overwrite your sve file of simutrans standard.
 
@@ -42,5 +41,9 @@ As the amount of traffic increases, traffic jam at a junction like the image bel
 You can use all add-ons for simutrans standard on OTRP. There is no OTRP-specialized add-ons.
 ## Compatibility of the save data
 - Save data of simutrans standard can be loaded on OTRP.
-- **When you load the data of OTRP v12 or v13, Please press the button "This is a data of OTRP v12 or v13." before the loading.**
+- **When you load the data of OTRP v12 or v13, please press the button "This is a data of OTRP v12 or v13." before the loading.**  
+- When you launch OTRP v14 **for the first time**, please **delete autosave.sve** to prevent a crash.
 - No compatibility for ex-OTRP.
+
+# Contact Me
+If you have any questions, please feel free to ask me through the simutrans international forum or @himeshi_hob in Twitter. Every issue reports and your opinions are greatly appreciated.

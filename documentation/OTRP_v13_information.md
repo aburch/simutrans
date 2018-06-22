@@ -10,9 +10,9 @@ version14現在、simutrans standard安定版120.3をベースにしています
 
 # ダウンロード
 ribi-arrow・信号接続方向制御つきのバイナリのみの提供です。実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。
-本体は下のリンクからどうぞ。**（2018年6月19日PM9時　ver14_1に更新）**  
-win: https://drive.google.com/open?id=1FD9UHFezV5h07ELL9J1sHFD0zLIsBPD4  
-mac: https://drive.google.com/open?id=1w9BSVPqJ9aoyGide5c583FyK8KQ_TgLR    
+本体は下のリンクからどうぞ。**（2018年6月22日PM11時　ver14_2に更新）**  
+win: https://drive.google.com/open?id=1cK9qBN0HwfTihD-8yhIqkZcu4QNvafSx  
+mac: https://drive.google.com/open?id=1Q_nE2mirXOWL3Lomf91rs4bVrI-kLu1T    
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 ※makeobjはstandardのやつをそのまま使ってください
 
@@ -20,8 +20,7 @@ mac: https://drive.google.com/open?id=1w9BSVPqJ9aoyGide5c583FyK8KQ_TgLR
 1. ribi-arrowをDLしてお使いのpakセットに入れる
 2. pakフォルダの中にあるmenuconfでsimpletoolsの37番に適当なキーを割り当てる。例えばmenuconf.tabに`simple_tool[37]=,:`と追記すればコロンを押すとRibiArrowが出現する。
 3. 本体をDLし、simutrans.exeが入ってる所と同じディレクトリに実行ファイルを入れる。
-4. （macユーザのみ）ターミナルで`chmod u+x sim-OTRPv14`と打ってファイルに実行権限を与える
-5. DLした実行ファイルを起動する。
+4. DLした実行ファイルを起動する。
 standard版のsveファイルを上書きしないように気をつけましょう。
 
 # 使い方
