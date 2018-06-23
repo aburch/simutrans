@@ -89,133 +89,6 @@ void schedule_gui_stats_t::highlight_schedule( schedule_t *markschedule, bool ma
 }
 
 
-/**
- * Append description of entry to buf.
- */
-void schedule_gui_t::gimme_stop_name(cbuffer_t & buf, const player_t *player_, const schedule_entry_t &entry, bool no_control_tower )
-{
-	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player_);
-	if(halt.is_bound())
-	{
-		char modified_name[320];
-		if(no_control_tower)
-		{
-			sprintf(modified_name, "%s [%s]", halt->get_name(), translator::translate("NO CONTROL TOWER"));
-		}
-		else
-		{
-			sprintf(modified_name, "%s", halt->get_name());
-		}
-
-		if(entry.wait_for_time)
-		{
-			buf.printf("[*] ");
-		}
-
-		if (entry.minimum_loading != 0)
-		{
-			buf.printf("%d%% ", entry.minimum_loading);
-		}
-		buf.printf("%s (%s)", modified_name, entry.pos.get_str() );
-	}
-	else {
-		const grund_t* gr = welt->lookup(entry.pos);
-		if(  gr==NULL  ) {
-			buf.printf("%s (%s)", translator::translate("Invalid coordinate"), entry.pos.get_str() );
-		}
-		else if(  gr->get_depot() != NULL  ) {
-			buf.printf("%s (%s)", translator::translate("Depot"), entry.pos.get_str() );
-		}
-		else if(  const char *label_text = gr->get_text()  ){
-			buf.printf("%s %s (%s)", translator::translate("Wegpunkt"), label_text, entry.pos.get_str() );
-		}
-		else {
-			buf.printf("%s (%s)", translator::translate("Wegpunkt"), entry.pos.get_str() );
-		}
-	}
-
-	if(entry.reverse == 1)
-	{
-		buf.printf(" [<<]");
-	}
-}
-
-
-void schedule_gui_t::gimme_short_stop_name(cbuffer_t& buf, player_t const* const player_, const schedule_t *schedule, int i, int max_chars)
-{
-	if (i < 0 || schedule == NULL || i >= schedule->get_count()) {
-		dbg->warning("void schedule_gui_t::gimme_short_stop_name()", "tried to receive unused entry %i in schedule %p.", i, schedule);
-		return;
-	}
-	const schedule_entry_t& entry = schedule->entries[i];
-	const char* p;
-	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player_);
-	if (halt.is_bound()) {
-		p = halt->get_name();
-	}
-	else {
-		const grund_t* gr = welt->lookup(entry.pos);
-		if (gr == NULL) {
-			p = translator::translate("Invalid coordinate");
-		}
-		else if (gr->get_depot() != NULL) {
-			p = translator::translate("Depot");
-		}
-		else {
-			p = translator::translate("Wegpunkt");
-		}
-	}
-
-	// Finally start to append the entry. Start with the most complicated...
-	if (entry.wait_for_time && entry.reverse == 1)
-	{
-		if (strlen(p) > (unsigned)max_chars - 8)
-		{
-			buf.printf("[*] %.*s... [<<]", max_chars - 12, p);
-		}
-		else
-		{
-			buf.append("[*] ");
-			buf.append(p);
-			buf.append(" [<<]");
-		}
-	}
-	else if (entry.wait_for_time)
-	{
-		if (strlen(p) > (unsigned)max_chars - 4)
-		{
-			buf.printf("[*] %.*s...", max_chars - 8, p);
-		}
-		else
-		{
-			buf.append("[*] ");
-			buf.append(p);
-		}
-	}
-	else if (entry.reverse == 1)
-	{
-		if (strlen(p) > (unsigned)max_chars - 4)
-		{
-			buf.printf("%.*s... [<<]", max_chars - 8, p);
-		}
-		else
-		{
-			buf.append(p);
-			buf.append(" [<<]");
-		}
-	}
-	else if (strlen(p) > (unsigned)max_chars)
-	{
-		buf.printf("%.*s...", max_chars - 3, p);
-	}
-	else
-	{
-		buf.append(p);
-	}
-}
-
-
-
 zeiger_t *schedule_gui_stats_t::current_stop_mark = NULL;
 cbuffer_t schedule_gui_stats_t::buf;
 
@@ -275,7 +148,7 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 				no_control_tower = halt.is_bound() && halt->has_no_control_tower();
 			}
 
-			schedule_gui_t::gimme_stop_name(buf, player, e, no_control_tower);
+			schedule_t::gimme_stop_name(buf, welt, player, e, no_control_tower);
 		}
 
 		if (sel == 0)

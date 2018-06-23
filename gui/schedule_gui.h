@@ -64,20 +64,6 @@ public:
 class schedule_gui_t :	public gui_frame_t,
 						public action_listener_t
 {
- public:
-	/**
-     * Fills buf with description of schedule's i'th entry.
-	 *
-	 * @author Hj. Malthaner
-	 */
-	static void gimme_stop_name(cbuffer_t & buf, const player_t *player_, const schedule_entry_t &entry, bool no_control_tower = false );
-
-	/**
-	 * Append description of entry to buf.
-	 * short version, without loading level and position
-	 */
-	static void gimme_short_stop_name(cbuffer_t& buf, player_t const* player_, const schedule_t *schedule, int i, int max_chars);
-
 private:
 	enum mode_t {adding, inserting, removing, undefined_mode};
 

@@ -261,7 +261,7 @@ void gui_convoiinfo_t::draw(scr_coord offset)
 				cbuffer_t info_buf;
 				info_buf.printf("%s: ", translator::translate("Fahrtziel")); // "Destination"
 				const schedule_t *schedule = cnv->get_schedule();
-				schedule_gui_t::gimme_short_stop_name(info_buf, cnv->get_owner(), schedule, schedule->get_current_stop(), 255);
+				schedule_t::gimme_short_stop_name(info_buf, welt, cnv->get_owner(), schedule, schedule->get_current_stop(), 255);
 				display_proportional_clip_rgb(pos.x + offset.x + w, pos.y + offset.y + 6 + 2 * LINESPACE, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			}
 
