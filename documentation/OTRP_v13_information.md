@@ -10,9 +10,9 @@ version14現在、simutrans standard安定版120.3をベースにしています
 
 # ダウンロード
 ribi-arrow・信号接続方向制御つきのバイナリのみの提供です。実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。
-本体は下のリンクからどうぞ。**（2018年6月22日PM11時　ver14_2に更新）**  
-win: https://drive.google.com/open?id=1cK9qBN0HwfTihD-8yhIqkZcu4QNvafSx  
-mac: https://drive.google.com/open?id=1Q_nE2mirXOWL3Lomf91rs4bVrI-kLu1T    
+本体は下のリンクからどうぞ。**（2018年6月23日PM6時　ver14_3に更新）**  
+win: https://drive.google.com/open?id=1cpajOHIIW4g259anrFrAwS0OBLuz-8RO  
+mac: https://drive.google.com/open?id=1tUhWcJBT62sXh3wsj_mpVd6coYmVHoUH    
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 ※makeobjはstandardのやつをそのまま使ってください
 
