@@ -94,68 +94,6 @@ void schedule_gui_stats_t::highlight_schedule( schedule_t *markschedule, bool ma
 }
 
 
-/**
- * Append description of entry to buf.
- */
-static void gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* const player_, schedule_entry_t const& entry)
-{
-	char const* what;
-	halthandle_t const halt = haltestelle_t::get_halt(entry.pos, player_);
-	if (halt.is_bound()) {
-		if (entry.minimum_loading != 0) {
-			buf.printf("%d%% ", entry.minimum_loading);
-		}
-		what = halt->get_name();
-	}
-	else {
-		grund_t const* const gr = welt->lookup(entry.pos);
-		if (!gr) {
-			what = translator::translate("Invalid coordinate");
-		}
-		else if (gr->get_depot()) {
-			what = translator::translate("Depot");
-		}
-		else if (char const* const label_text = gr->get_text()) {
-			buf.printf("%s ", translator::translate("Wegpunkt"));
-			what = label_text;
-		}
-		else {
-			what = translator::translate("Wegpunkt");
-		}
-	}
-	buf.printf("%s (%s)", what, entry.pos.get_str());
-}
-
-
-void schedule_gui_t::gimme_short_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* const player_, schedule_entry_t const& entry, int const max_chars)
-{
-	const char *p;
-	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player_);
-	if(halt.is_bound()) {
-		p = halt->get_name();
-	}
-	else {
-		const grund_t* gr = welt->lookup(entry.pos);
-		if(gr==NULL) {
-			p = translator::translate("Invalid coordinate");
-		}
-		else if(gr->get_depot() != NULL) {
-			p = translator::translate("Depot");
-		}
-		else {
-			p = translator::translate("Wegpunkt");
-		}
-	}
-	// finally append
-	if(strlen(p)>(unsigned)max_chars) {
-		buf.printf("%.*s...", max_chars - 3, p);
-	}
-	else {
-		buf.append(p);
-	}
-}
-
-
 
 zeiger_t *schedule_gui_stats_t::current_stop_mark = NULL;
 cbuffer_t schedule_gui_stats_t::buf;
@@ -184,7 +122,7 @@ void schedule_gui_stats_t::draw(scr_coord offset)
 
 			buf.clear();
 			buf.printf("%i) ", ++i);
-			gimme_stop_name(buf, welt, player, e);
+			schedule_t::gimme_stop_name(buf, welt, player, e, -1);
 			PIXVAL const c = sel == 0 ? SYSCOL_LIST_TEXT_SELECTED_FOCUS : SYSCOL_TEXT;
 			int h = (schedule_gui_t::entry_height-LINESPACE)/2;
 			sint16 const w = display_proportional_clip_rgb(offset.x + 4 + D_POS_BUTTON_WIDTH, offset.y+h, buf, ALIGN_LEFT, c, true);

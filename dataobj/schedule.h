@@ -21,15 +21,33 @@ class karte_t;
  */
 class schedule_t
 {
-public:
-	enum schedule_type {
-		schedule = 0, truck_schedule = 1, train_schedule = 2, ship_schedule = 3, airplane_schedule = 4, monorail_schedule = 5, tram_schedule = 6, maglev_schedule = 7, narrowgauge_schedule = 8,
-	};
+	bool  editing_finished;
+	uint8 current_stop;
+
+	static schedule_entry_t dummy_entry;
+
+	/**
+	 * Fix up current_stop value, which we may have made out of range
+	 * @author neroden
+	 */
+	void make_current_stop_valid() {
+		uint8 count = entries.get_count();
+		if(  count == 0  ) {
+			current_stop = 0;
+		}
+		else if(  current_stop >= count  ) {
+			current_stop = count-1;
+		}
+	}
 
 protected:
 	schedule_t() : editing_finished(false), current_stop(0) {}
 
 public:
+	enum schedule_type {
+		schedule = 0, truck_schedule = 1, train_schedule = 2, ship_schedule = 3, airplane_schedule = 4, monorail_schedule = 5, tram_schedule = 6, maglev_schedule = 7, narrowgauge_schedule = 8,
+	};
+
 	minivec_tpl<schedule_entry_t> entries;
 
 	/**
@@ -62,22 +80,6 @@ public:
 	/// returns the current stop, always a valid entry
 	schedule_entry_t const& get_current_entry() const { return current_stop >= entries.get_count() ? dummy_entry : entries[current_stop]; }
 
-private:
-	/**
-	 * Fix up current_stop value, which we may have made out of range
-	 * @author neroden
-	 */
-	void make_current_stop_valid() {
-		uint8 count = entries.get_count();
-		if(  count == 0  ) {
-			current_stop = 0;
-		}
-		else if(  current_stop >= count  ) {
-			current_stop = count-1;
-		}
-	}
-
-public:
 	/**
 	 * Set the current stop of the schedule .
 	 * If new value is bigger than stops available, the max stop will be used.
@@ -165,11 +167,11 @@ public:
 	// converts this string into a schedule
 	bool sscanf_schedule( const char * );
 
-private:
-	bool  editing_finished;
-	uint8 current_stop;
-
-	static schedule_entry_t dummy_entry;
+	/**
+	 * Append description of entry to buf.
+	 * If @p max_chars > 0 then append short version, without loading level and position.
+	 */
+	static void gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* player_, schedule_entry_t const& entry, int max_chars);
 };
 
 
