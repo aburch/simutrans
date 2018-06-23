@@ -836,7 +836,8 @@ void depot_frame_t::build_vehicle_lists()
 		std::sort(typ_list->begin(), typ_list->end(), compare_vehicles);
 	}
 	else {
-		if(  sorted_vehicle_descs.access(sort_by_action)==NULL  ) {
+		const int combined_sort_key = (sort_by_action<<8)+wt;
+		if(  sorted_vehicle_descs.access(combined_sort_key)==NULL  ) {
 			// not sorted yet!
 			slist_tpl<const vehicle_desc_t*> const& tmp_list = depot->get_vehicle_type();
 			for(slist_tpl<const vehicle_desc_t*>::const_iterator itr = tmp_list.begin(); itr != tmp_list.end(); ++itr) {
@@ -844,15 +845,15 @@ void depot_frame_t::build_vehicle_lists()
 			}
 			std::sort(typ_list->begin(), typ_list->end(), compare_vehicles);
 			// copy to sorted_vehicle_descs
-			sorted_vehicle_descs.put(sort_by_action);
+			sorted_vehicle_descs.put(combined_sort_key);
 			for(uint32 i=0; i<typ_list->get_count(); i++) {
-				sorted_vehicle_descs.access(sort_by_action)->append((*typ_list)[i]);
+				sorted_vehicle_descs.access(combined_sort_key)->append((*typ_list)[i]);
 			}
 		} else {
 			// vehicle descs were already sorted.
 			delete typ_list;
 			need_delete_typ_list = false;
-			typ_list = sorted_vehicle_descs.access(sort_by_action);
+			typ_list = sorted_vehicle_descs.access(combined_sort_key);
 		}
 	}
 
