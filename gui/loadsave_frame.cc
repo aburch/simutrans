@@ -74,7 +74,7 @@ bool loadsave_frame_t::item_action(const char *filename)
 		if(  !welt->load(filename)  ) {
 			welt->switch_server( false, true );
 		}
-		else {
+		else if(  env_t::server  ) {
 			welt->announce_server(0);
 		}
 	}

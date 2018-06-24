@@ -28,6 +28,7 @@ Colour of name of Line that appears in List indicates following:<br>
 <it>black</it> - making profit<br>
 <it>blue</it> - has obsolete vehicles <br>
 <it>red</it> - line making loss<br>
+</p>
 <p>
 Under the list of existing Lines are option-buttons for managing Lines.<br>
 Click on a Line in list to select (highlights name) and see information about <a href="station.txt">Stops</a>, income, and Convoys on selected Line.<br>

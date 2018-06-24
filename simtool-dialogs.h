@@ -244,14 +244,12 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Laden"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_load_t); }
 	bool init(player_t*) OVERRIDE{
-		if(  win_get_magic(magic_save_t)  ) {
-			destroy_win(magic_save_t);
-		}
 		if(  !env_t::server  ) {
 			destroy_all_win(true);
 			create_win(new loadsave_frame_t(true), w_info, magic_load_t);
 		}
 		else {
+			destroy_win(magic_save_t);
 			create_win( new loadsave_frame_t(true), w_info, magic_load_t);
 			scr_coord pos = win_get_pos( win_get_magic(magic_load_t) );
 			create_win( pos.x+20, pos.y+20, new news_img("Loading a new game will end the current server session!"), w_no_overlap, magic_none);
@@ -269,9 +267,6 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Speichern"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_save_t); }
 	bool init(player_t*) OVERRIDE{
-		if(  !env_t::server  ) {
-			destroy_all_win(true);
-		}
 		create_win(new loadsave_frame_t(false), w_info, magic_save_t);
 		return false;
 	}
@@ -286,9 +281,7 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE{ return translator::translate("Load scenario"); }
 	bool is_selected() const OVERRIDE{ return win_get_magic(magic_load_t); }
 	bool init(player_t*) OVERRIDE{
-		if(  win_get_magic(magic_save_t)  ) {
-			destroy_win(magic_save_t);
-		}
+		destroy_win(magic_save_t);
 		if(  !env_t::server  ) {
 			destroy_all_win(true);
 			create_win( new scenario_frame_t(), w_info, magic_load_t );

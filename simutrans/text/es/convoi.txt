@@ -40,6 +40,7 @@ Pulsa en un elemento listado para ver mas informacion acerca de ese <a href="con
 <p>
 Los elementos listados por cada Convoy incluyen:
 </p>
+<p>
 <em>ID interno</em>: un numero ID unico por convoy (asignado por defecto cuando el Convoy es comprado o ensamblado por primera vez en un <a href=depot.txt">deposito</a> y se muestra en el titulo de la ventana de<a href="convoiinfo.txt">Informacion del Convoy</a>).
 </p>
 <p>

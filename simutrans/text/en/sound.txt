@@ -3,24 +3,35 @@
 <h1><strong>Sound Settings</strong></h1>
 
 <p>
-<strong>Sound Settings</strong> has controls for sound effects & music.
+<strong>Sound Settings</strong> window has controls for sound effects & background music. It opens from <a href="options.txt">Game Options</a> menu.<br>
+NOTE: To get better sounds in Windows an SDL-compiled version of Simutrans is recommended.
 </p>
+
 <p>
-<strong>Sound Settings</strong> opens from <a href="options.txt">Game Options.</a>
+Use arrow-buttons to adjust settings or <a href="mouse.txt">slider-bars</a> to decrease/increase volume.
 </p>
+
+<p><em>Sound volume:</em> sets volume of sound effects in game. Sounds can be switched off completely with the <em>Mute sound</em> button.<br><br>
+Many Simutrans objects are able to produce sounds: ambiental (at cursor position after several seconds of no movement), way crossings (when approached by vehicles), factories (when producing goods), vehicles (when departing stop/stations). It depends on the pakset you play what sounds are implemented.
+</p>
+
 <p>
-Use arrow-buttons to adjust settings or <a href="mouse.txt">slider-bars</a> to decrease/increase volume:
+<em>Music volume:</em> sets volume of background music. Music can be switched off completely with the <em>Mute MIDI music</em> button. If no music is available then controls will not function.<br>
+Music tracks (in MIDI format) are stored in folder simutrans/music/.
 </p>
-<p><em>Sound volume:</em> sets volume of sound effects in game.
-</p>
+
 <p>
-<em>Music volume:</em> sets volume of music. If no music is available then controls will not function.
+<em>Currently playing:</em> changes music; arrow-buttons cycle through available music tracks.
 </p>
+
 <p>
-<em>Currently playing:</em>
- changes music; arrow-buttons cycle through available music.
+<em>Shuffle tracks:</em> music tracks are played at random.
 </p>
+
 <p>
-Please note: music is not supplied with Simutrans.<br>
-Help to add music available online at http://wiki.simutrans.com
+NOTE: If Simutrans is started with command-line option '-nosound' or '-nomidi', sound or music will not be used. 
+</p>
+
+<p>
+For more information about music in Simutrans visit http://wiki.simutrans.com
 </p>

@@ -21,7 +21,6 @@ Postup operací je stejný, jako v pøedchozích pøípadech.
 <p>
 Nastavení <strong>èekat na x%</strong> urèuje, na kolik procent musí být vozidlo plné, aby mohlo vyjet. Tímto zabráníte zbyteènému je¾dìní poloprázdných èi úplnì prázdných vozidel.
 </p>
-<p>
 
 <p>
 Tlaèítkem <strong>Zpìtná jízda</strong> vlo¾íte na konec jízdního plánu aktuální zastávky, av¹ak v obráceném poøadí a bez poslední a první.

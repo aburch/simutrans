@@ -5,34 +5,42 @@
 <p>
 <strong>Landscaping Tools</strong> raise & lower terrain and may be used to provide suitable places for construction.
 </p>
+
 <p>
-Click on sloping-land-icon at top of game-view to open toolbar.<br>
-Hover mouse-cursor, after opening or clicking on toolbar, over tool to see name and construction <a href="finances.txt">cost</a>.
+Click on sloping-land-icon at top of the game-view to open toolbar. After opening or clicking on toolbar, hover the mouse cursor over the tools to see the names and construction <a href="finances.txt">costs</a>.
 </p>
-<p>Tools operate on areas empty of obstructions (e.g. roads, track, buildings, stops & stations).
-</p>
+
 <p>
-Click on tool to select, changing cursor, then position cursor on terrain in game-view & click to use:
+Tools operate on areas empty of obstructions (e.g. roads, tracks, buildings, stops & stations).
 </p>
+
 <p>
-<em>Raise Land</em>/<em>Lower Land:</em> raises/lowers terrain<br>
-Cursor is an upward/downward arrow.<br>
-Tools also open with <a href="keys.txt">[u]</a> and [d].
+Click on the tool icon to select it, changing cursor, then position the cursor on terrain in the game-view and click to use:
 </p>
+
 <p>
-<em>Slopes:</em> creates a slope, in direction indicated by tool-option. May create an artificial vertical surface in the process.<br>
-Cursor is a yellow-cube outline which positions slope.
+<em>Raise land</em>/<em>Lower land:</em> raises/lowers terrain. 
+Cursor is an upward/downward arrow. Tools also open with <a href="keys.txt">[u]</a> and <a href="keys.txt">[d]</a> keys.
 </p>
+
 <p>
-<em>Lower Square</em>/<em>Raise Square:</em> lowers/raises a specific square of terrain. May create an artificial vertical surface in the process. This tool can be used to create slope in tunnels.<br>
-Cursor is a yellow-cube outline which selects square.
+<em>Build artificial slopes:</em> creates a slope, in direction indicated by a toolbar icon. May create an artificial vertical surface in the process. Cursor is a yellow-cube outline which positions slope.
 </p>
+
 <p>
-<em>Restore natural slope:</em> returns terrain to a natural landscape, removing artificial vertical surfaces in the process.<br>
-Cursor is a yellow-cube outline which positions tool.
+<em>Raise square</em>/<em>Lower square:</em> raises/lowers a specific square (tile) of terrain. May create an artificial vertical surface in the process. Cursor is a yellow-cube outline which selects square.
 </p>
+
 <p>
-{Tips: Landscaping Tools are easier to use with grid, press [#] & zoom-in game-view.<br>
-Use Destroy/Remove to remove some obstructions.<br>
-Depending on map, tools can raise land into/out of water.}
+<em>Restore natural slope:</em> returns terrain to a natural landscape, removing artificial vertical surfaces in the process. Cursor is a yellow-cube outline which positions tool.
+</p>
+
+<p>
+TIPS:<br>
+ · <strong>Landscaping Tools</strong> are easier to use with grid, press <a href="keys.txt">[#]</a> and zoom-in the game-view.<br>
+ · Use <a href="removal_tool.txt">Destroy/Removal Tool</a> to remove some obstructions.<br>
+ · Depending on map, tools can raise land into/out of water.<br>
+ · Lowering the land to a certain level creates a channel.<br>
+ · Slope tools can be used to create tunnel slopes <a href="underground.txt">underground</a>.<br>
+ · Depending on the pakset you play, <strong>Landscaping Tools</strong> toolbar may contain additional tools (usually used by public service <a href="players.txt">player</a>): raise/drain water in lakes, convert ground to a specific <a href="climates.txt">climate</a> zone, etc. See also <a href="edittools.txt">Game and map editing tools</a>.
 </p>

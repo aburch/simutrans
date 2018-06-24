@@ -1,11 +1,11 @@
 <title>Sound- und Musikeinstellungen Hilfe</title>
-
+ 
 <h1><strong>Sound- & Musikeinstellungen</strong></h1>
-
+ 
 <p>
 Zum Abspielen von Sounds und Musik muss die SDL-Version von Simutrans installiert sein. Unter Windows wird die sdl.dll benötigt. Sounds (WAV-Format) und Musikstücke (MIDI-Format) werden im Verzeichnis simutrans/sound abgelegt.<br>
 Wird Simutrans mit -nosound oder -nomidi gestartet, dann sind Sound bzw. Musik nicht benutztbar.<br>
-ACHTUNG: Insbesondere Musik funktioniert nur auf bestimmten Systemen.
+ACHTUNG: Insbesondere Musik funktioniert nur auf bestimmten Systemen. 
 </p>
 <p>
 Durch Verschieben der Regler nach links oder rechts kannst Du die Lautstärke der Musik und der Geräusche festlegen. Je weiter rechts die Regler stehen, desto lauter erfolgt die Ausgabe.

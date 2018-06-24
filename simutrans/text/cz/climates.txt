@@ -1,25 +1,51 @@
 <title>Nápovìda - nastavení podnebí</title>
 <h1><strong>Nastavení podnebí</strong></h1>
 <p>Dialog <em>Nastavení podnebí</em> umo¾òuje nastavit terén a podnebné pásy. Dialog otevøete kliknutím na tlaèítko <em>Nastavení podnebí</em> v dialogu s názvem <a href="new_world.txt">Vytvoøit novou mapu</a>.</p>
-<p>Hodnoty upravíte kliknutím na ¹ipku vedle políèka.<br></p>
+<p>
+Hodnoty upravíte kliknutím na ¹ipku vedle políèka.
+<br/>
+</p>
+
 <h1>Nastavení terénu</h1>
 <p><em>úroveò vody</em> - Nastavuje úroveò vody na mapì. Vy¹¹í èíslo znamená více vodních ploch a ménì pevné zemì.</p>
+<p>
+Výchozí hodnota -2
+</p>
 <p><em>Nastavení vý¹ky hor</em> urèuje maximální vý¹ku terénu.</p>
-<p><em>Zaoblení mapy</em> - Urèuje èlenitost terénu. Èím vy¹¹í èíslo, tím èlenitìj¹í terén.</p>
-<h1>Nastavení snìhu<br></h1>
+<p>
+Výchozí hodnota 160
+</p>
+<p>
+<em>Zaoblení mapy</em> - Urèuje èlenitost terénu. Èím vy¹¹í èíslo, tím èlenitìj¹í terén s mnoha prohlubnìmi a malými vyvý¹eninami.
+<br/>
+</p>
+
+<h1>Nastavení snìhu</h1>
 <p>Obsahuje nastavení týkající se snì¾né èáry. Snì¾ná èára je zde vý¹ka, od které se objevuje na mapì sníh.</p>
 <p><em>Snì¾ná èára v létì</em> - vý¹ka snì¾né èáry v létì.</p>
-<p><em>Snì¾ná èára v zimì</em> - vý¹ka snì¾né èáry v zimì.<br></p>
+<p><em>Snì¾ná èára v zimì</em> - vý¹ka snì¾né èáry v zimì.
+<br/>
+</p>
+
 <h1>Nastavení podnebí</h1>
-<p>Umo¾òuje nastavit na mapì podnebné pásy. <br>Hodnota vedle jednotlivých podnebných pásù urèuje vý¹ku, ve které se daný podnebný pás objeví. Podnebný pás vypnete nastavením hodnoty na 0 (nulu). </p>
+<p>Umo¾òuje nastavit na mapì podnebné pásy. 
+<br/>Hodnota vedle jednotlivých podnebných pásù urèuje vý¹ku, ve které se daný podnebný pás objeví. Podnebný pás vypnete nastavením hodnoty na 0 (nulu). </p>
 <p><em>Pou¹»</em>  - Velmi málo srá¾ek, vysoké rozdíly v teplotách, málo stromù.</p>
 <p><em>Tropy</em> - Typické pro území okolo rovníku. Relativnì stálá vysoká teplota.</p>
 <p><em>Støedomoøí</em> - Mírnì promìnlivé teplé poèasí.</p>
 <p><em>Mírné</em> - Podnebný pás se støídáním v¹ech ètyø roèních období.</p>
 <p><em>Tundra</em> - Nízké teploty, hranice polárních èepièek.</p>
-<p><em>Skaliska</em> - Suché klima, chladné zimy. <br></p>
+<p><em>Skaliska</em> - Suché klima, chladné zimy.
+<br/>
+</p>
+
 <h1>Ostatní nastavení</h1>
 <p><em>Bez stromù</em> - Kliknutím na tlaèítko zamezíte vytváøení stromù. Vykreslování stromù spotøebovává strojový èas. Tuto vylbu pou¾ijte, máte-li pomalej¹í procesor nebo málo operaèní pamìti. </p>
 <p><em>Poèet øek</em> - Nastavuje maximální poèet øek, které mohou být vytvoøeny pøi tvorbì nové mapy.</p>
 <p><em>Min. délka øek</em> - Nastavuje minimální délku øek (poèet políèek).</p>
-<p><em>Max délka øek</em> - Nastavuje maximální délku øek (poèet políèek).</p>
+<p><em>Max délka øek</em> - Nastavuje maximální délku øek (poèet políèek).
+</p>
+
+<p>
+Nápovìda odpovídá verzi 112.1, poslední úprava 4.1.2013.
+</p>

@@ -65,7 +65,7 @@ Za namjestanje svake postavke, klik tipke strelice sa strane svake postavke.
 </p>
 
 <p>
-<em>Alpska Klima</em> - Suha klima, hladne zime.
+<em>Alpska Klima</em> - Suha klima, hladne zime. 
 </p>
 
 <p>

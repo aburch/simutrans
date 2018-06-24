@@ -70,29 +70,15 @@
 </p>
 <p>
 Se você não encontrou aqui a ajuda que procura, então tente:<br>
-<em>http://docs.simutrans.com</em>, ou<br>
-<em>http://wiki.simutrans-germany.com/</em>, ou<br>
-<em>http://simutrans-tips.com</em>, ou<br>
-<em>http://forum.simutrans.com</em>, ou<br>
-<em>http://pt.simutrans.com</em>.
+<em>http://guide.simutrans.com</em>, or<br>
+<em>http://wiki.simutrans.com</em>, or<br>
+<em>http://simutrans-tips.com</em>, or<br>
+<em>http://forum.simutrans.com</em>.
 </p>
 <p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008, atualizado em 07/02/2008.
 </p>
 <p>
 <strong>Equipe de tradução do Simutrans PT-SubFórum</strong>
-<br />
-Nossa equipe em 17/01/2008, em ordem alfabética:
-</p>
-<p>
-Caio R. Monteiro<br>
-DanielRS<br>
-ecostaoli<br>
-FaconBill<br>
-Fire_wolf_br<br>
-Francisco Gonçalves<br>
-haspwolf<br>
-IgorEliezer<br>
-Silcorfa
 </p>
 <p>
 Quaquer problema, dúvida ou sugestão em nossas traduções, contacte-nos pelo <em>http://pt.simutrans.com</em>.

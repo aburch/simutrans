@@ -351,9 +351,15 @@ DownloadInstallZipDo:
   ; ok old directory rename
   Call ConnectInternet
   RMdir /r "$TEMP\simutrans"
-  NSISdl::download $downloadlink "$Temp\$archievename"
-  Pop $R0 ;Get the return value
-  StrCmp $R0 "success" +3
+; since https fails with builtin NSISdl ...
+;  NSISdl::download $downloadlink "$TEMP\$archievename"
+;  Pop $R0 ;Get the return value
+;  StrCmp $R0 "success" +3
+;     MessageBox MB_OK "Download of $archievename failed: $R0"
+;     Quit
+  inetc::get /WEAKSECURITY $downloadlink "$Temp\$archievename" /END
+  Pop $0
+  StrCmp $0 "OK" +3
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
@@ -385,9 +391,15 @@ FunctionEnd
 Function DownloadInstallNoRemoveZip
   Call ConnectInternet
   RMdir /r "$TEMP\simutrans"
-  NSISdl::download $downloadlink "$Temp\$archievename"
-  Pop $R0 ;Get the return value
-  StrCmp $R0 "success" +3
+; since https fails with builtin NSISdl ...
+;  NSISdl::download $downloadlink "$TEMP\$archievename"
+;  Pop $R0 ;Get the return value
+;  StrCmp $R0 "success" +3
+;     MessageBox MB_OK "Download of $archievename failed: $R0"
+;     Quit
+  inetc::get /WEAKSECURITY $downloadlink "$Temp\$archievename" /END
+  Pop $0
+  StrCmp $0 "OK" +3
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
@@ -418,9 +430,15 @@ Function DownloadInstallAddonZip
 #  DetailPrint "Download of $downloadname from\n$downloadlink to $archievename"
   Call ConnectInternet
   RMdir /r "$TEMP\simutrans"
-  NSISdl::download $downloadlink "$TEMP\$archievename"
-  Pop $R0 ;Get the return value
-  StrCmp $R0 "success" +3
+; since https fails with builtin NSISdl ...
+;  NSISdl::download $downloadlink "$TEMP\$archievename"
+;  Pop $R0 ;Get the return value
+;  StrCmp $R0 "success" +3
+;     MessageBox MB_OK "Download of $archievename failed: $R0"
+;     Quit
+  inetc::get /WEAKSECURITY $downloadlink "$Temp\$archievename" /END
+  Pop $0
+  StrCmp $0 "OK" +3
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
@@ -441,9 +459,15 @@ Function DownloadInstallAddonZipPortable
 #  DetailPrint "Download of $downloadname from\n$downloadlink to $archievename"
   Call ConnectInternet
   RMdir /r "$TEMP\simutrans"
-  NSISdl::download $downloadlink "$TEMP\$archievename"
-  Pop $R0 ;Get the return value
-  StrCmp $R0 "success" +3
+; since https fails with builtin NSISdl ...
+;  NSISdl::download $downloadlink "$TEMP\$archievename"
+;  Pop $R0 ;Get the return value
+;  StrCmp $R0 "success" +3
+;     MessageBox MB_OK "Download of $archievename failed: $R0"
+;     Quit
+  inetc::get /WEAKSECURITY $downloadlink "$Temp\$archievename" /END
+  Pop $0
+  StrCmp $0 "OK" +3
      MessageBox MB_OK "Download of $archievename failed: $R0"
      Quit
 
@@ -475,10 +499,6 @@ DownloadInstallZipWithoutSimutransDo:
   RMdir /r "$TEMP\simutrans"
   CreateDirectory "$TEMP\simutrans"
 # since we also want to download from addons ...
-#  inetc::get $downloadlink "$Temp\$archievename"
-#  Pop $R0 ;Get the return value
-#  StrCmp $R0 "OK" +3
-;  NSISdl::download $downloadlink "$TEMP\$archievename"
   inetc::get /WEAKSECURITY $downloadlink "$Temp\$archievename" /END
   POP $0
   StrCmp $0 "OK" +3

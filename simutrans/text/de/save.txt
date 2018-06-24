@@ -1,7 +1,7 @@
 <title>Speichern Menü Hilfe</title>
-
+ 
 <h1><strong>Dialog Speichern</strong></h1>
-
+ 
 <p>
 Gib zum Speichern des Spielstandes einen Namen in das Textfeld <em>Dateiname</em> ein und bestätige mit <em>ENTER</em> oder drücke den <em>OK</em> Button.
 <br/><br/>

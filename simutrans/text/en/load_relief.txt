@@ -3,24 +3,20 @@
 <h1><strong>Load Height Map</strong></h1>
 
 <p>
-<strong>Load Height Map</strong> is used to open a file of a custom-made terrain (to use for a new game) & can be used to delete these files.<br>
-<p>
-<strong>Load Height Map</strong> opens from <a href="new_world.txt">Create a New Game</a>; & list names, date & time (of save) of available custom-terrains.<br>
-If all files are not visible: use <a href="mouse.txt">slider-bar</a> on the right side of list, to scroll through the names.
+<strong>Load Height Map</strong> window is used to open a file of a custom-made terrain (for use when creating a new game) & can also be used to delete these files. It opens from <a href="new_world.txt">Create a New Game</a> window and it lists the names, dates & times (of save) of available custom-terrain files. If not all filenames are visible, use the <a href="mouse.txt">slider-bar</a> on the right-side of list to scroll through the names.
 </p>
 <p>
-Click on name in list to use a custom-terrain; or enter name into box at top of window: click on box, type name, & press <a href="keys.txt">[Enter]</a> or [Return] or click on<em>OK</em>(an incorrect name will have no effect, try again).
+Click the name in the list to load a custom-terrain map, or enter a name into the text box at the top of the window: click on box, type name & press <a href="keys.txt">[Enter]</a> or [Return], or click on <em>OK</em> (an incorrect name will have no effect, try again).
 </p>
 <p>
-WARNING: Click x-button by left of name to DELETE file immediately & permanently, the filename is removed from list and <strong>Load Height Map</strong> closes. Use this function carefully.
+WARNING: Click <em>x</em>-button (if enabled in simuconf.tab) on the left of the name to DELETE the file immediately & permanently; the filename is removed from list and <strong>Load Height Map</strong> window closes. Use this function carefully!
 </p>
 <p>
-Some custom-made terrains are available online at http://maps.simutrans.com.<br>
-The new file must be in .ppm or .bmp format (best 256 colors RLE compressed) and placed in the personal directory (or folder) named simutrans/maps/
+Some custom-made terrains are available online at http://maps.simutrans.com. The new file must be in .ppm or .bmp format (best 256 colors RLE compressed) and placed in the personal directory (or folder) named simutrans/maps/
 </p>
 <p>
-Information on how to create custom terrains is available online at http://wiki.simutrans.com
+TIP: Information on how to create custom terrains is available online at http://wiki.simutrans.com
 </p>
 <p>
-Click on <em>Cancel</em> to close <strong>Load Height Map</strong>; or x in top-left-corner; or use keyboard.
+Click on <em>Cancel</em> to close <strong>Load Height Map</strong> window, or <em>x</em>-button in the top-left corner, or use the keyboard.
 </p>

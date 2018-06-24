@@ -7,25 +7,25 @@
 ? dolje desno je dana informacija o odabranoj gradskoj zgradi<br>
 </p>
 <h1>Lista odabira</h1> <p> U listi odabira se nalaze sve urbane zgrade koje su dostupne postavkama danim gore desno
-(<em>Stambene kuæe</em>,
-<em>Trgovine i ured</em>,
-<em>Industrijske zgrade</em>).
-Postoje dva jahaca koji dozvoljavaju promjenu nacina na koji se urbane gradjevine identificiraju.<br>
+(<em>Stambene kuæe</em>, 
+<em>Trgovine i ured</em>, 
+<em>Industrijske zgrade</em>). 
+Postoje dva jahaca koji dozvoljavaju promjenu nacina na koji se urbane gradjevine identificiraju.<br> 
 ? <em>Prijevod:</em> Prikazuje ime zgrade u zadanom jeziku. Ako ne postoji prijevod u zadanom jeziku, koristiti ce se ime objekta.<br>
- ? <em>Objekt:</em> Prikazuje Simutrans unutarnje ime za tip zgrade.<br>
-<br>
+ ? <em>Objekt:</em> Prikazuje Simutrans unutarnje ime za tip zgrade.<br> 
+<br> 
 Boja teksta ime slijedece znacenje:<br>
  ? <em>plavi tekst</em> naznacava zgradu za stanovanje.<br>
  ? <em>zeleni tekst</em> nazncèava zgradu trgovine ili ureda.<br>
- ? <em>vrni tekst</em> naznacava industrijsku zgradu.<br>
-</p>
-<h1>Opcije</h1>
+ ? <em>vrni tekst</em> naznacava industrijsku zgradu.<br> 
+</p> 
+<h1>Opcije</h1> 
 <p>
-? <em>ignoriranje klima:</em> Ova postavka onemogucuje ogranicenje klime koje se odnosi na razne tipove zgrada.<br>
+? <em>ignoriranje klima:</em> Ova postavka onemogucuje ogranicenje klime koje se odnosi na razne tipove zgrada.<br> 
 ? <em>Koristiti vremensku traku:</em> Lista odabira ce sadrzavati samo zgrade koje su dostupne u trenutnoj Simutrans godini.<br>
- ? <em>Takodjer prikaz zastarjelih:</em> Prositiri listu odabira kako bi takodjer sadrzavala zgrade koje su zastarjele u trenutnoj Simutrans godini.<br> ?
+ ? <em>Takodjer prikaz zastarjelih:</em> Prositiri listu odabira kako bi takodjer sadrzavala zgrade koje su zastarjele u trenutnoj Simutrans godini.<br> ? 
 <em>Stambene kuce:</em> Biti ce stambene kuce u listi odabira.<br>
- ? <em>Trgovine i uredi:</em> Biti ce trgovine i uredi u listi odabira.<br>
-? <em>Industrijske zgrade:</em> Biti ce industrijske zgrade u listi odabira. <br>
+ ? <em>Trgovine i uredi:</em> Biti ce trgovine i uredi u listi odabira.<br> 
+? <em>Industrijske zgrade:</em> Biti ce industrijske zgrade u listi odabira. <br> 
 ? <em>Rotacija:</em> Ako se odabrano zgrada moze prikazati iz drugacijih kutova, tada je moguce ovdje odabrati odredjeni pogled. Donja lijeva slika ce se promijeniti kako bi to odrazila. Ako je ova postavka na <em>slucajno</em>, koristi ce se slucajni pogled zgrade.<br>
 </p>

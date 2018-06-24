@@ -25,7 +25,7 @@ venstreklikke på en <strong>lige</strong> kyststrækning. Havne benyttes af
 skibe til at laste eller losse varer.<br>
 <strong>Bemærk at havne pt. ikke kan fjernes direkte. Det kan gøres ved fjerne
 havnen, hæve landniveauet og derefter sænke landniveauet.</strong>
-<p>
+</p>
 
 <p>
 <em>Byg skibsdepot:</em><br>

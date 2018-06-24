@@ -62,6 +62,7 @@ La informacion mostrada incluye: nombre del elemento; cantidad actualmente almac
 <p>
 <em>Consumo:</em> da detalles del consumo de la industria.<br>
 La informacion mostrada incluye: nombre del elemento; cantidad actualmente almacenada en relacion a la maxima capacidad de almacenamiento por elemento; <a href="goods_filter.txt">categoria de mercancia</a>; y nivel de porcentaje de produccion comparada con el consumo.
+</p>
 <p>
 <a href="station.txt"><em>Paradas</em></a> que sirven a la industria son listadas en la parte inferior de la ventana <strong>Informacion de la Fabrica</strong>.
 </p>

@@ -28,6 +28,7 @@ A cor dos nomes das linhas significam o seguinte:<br>
 <it>negro</it> - linha lucrativa, com capacidade ociosa, sem necessidade de melhoria<br>
 <it>azul</it> - linha lucrativa, com pouca capacidade ociosa, ou com veículos obsoletos <br>
 <it>vermelho</it> - linha com perdas<br>
+</p>
 <p>
 Sob a lista das linhas existentes há alguns botões, que incluem:
 </p>

@@ -225,7 +225,7 @@ char const *tick_to_string( sint32 ticks, bool show_full )
 	}
 	else {
 		if(  ticks == 0  ) {
-			return "now";
+			return translator::translate("now");
 		}
 
 		// suppress as much as possible, assuming this is an relative offset to the current month

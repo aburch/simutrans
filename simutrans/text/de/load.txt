@@ -6,27 +6,27 @@
 <br>
 <strong>Achtung:</strong> Das aktuelle Spiel (welches gerade im Hintergrund läuft) wird beim Laden eines anderen Spiels ohne Rückfrage beendet.
 </p>
-
+ 
 <p>
 <em>Eingabefeld Dateiname:</em> Durch Eingabe eines Dateinames kann der Spielstand geladen werden. Es muss die Entertaste oder der OK Button gedrückt werden.
 </p>
-
+ 
 <p>
 <em> X - Löschen:</em> <strong>Achtung</strong>: Das X vor jedem Namen löscht den entsprechenden Spielstand. Es wird nicht nachgefragt sondern sofort gelöscht.
 </p>
-
+ 
 <p>
 <em>Schaltfläche mit Namen:</em> Durch einen Klick auf einen Button wird der entsprechende Spielstand geladen. Der Spielstand muss mit dem gestartetem <em>pak (Grafikset)</em> und der <em>Simutrans-Version</em> kompatibel sein.
 </p>
-
+ 
 <p>
 <em>Information des paks (Grafiksets):</em> Gibt an mit welchem pak (Grafikset) der Spielstand gespeichert wurde.
 </p>
-
+ 
 <p>
 <em>Datum und Uhrzeit:</em> Gibt an zu welchem Datum und welcher Uhrzeit der Spielstand gespeichert wurde.
 </p>
-
+ 
 <p>
 <em>Abrechen:</em> Schließt den Dialog ohne ein Spiel zu laden.
 </p>

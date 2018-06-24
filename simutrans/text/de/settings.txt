@@ -11,16 +11,21 @@ In den erweiterten Einstellungen können alle Parameter verändert werden, die auc
 <p>
 Die Parameter können mittels <it>simuconf.tab</it> auf die Standardwerte zurückgesetzt werden. Mittels <em>Default.sve</em> wird der Stand des letzten gestarteteten Spiels wieder geladen.
 </p>
-<p>
+
 Es gibt dabei vier Unterkategorien:
+
 <p>· Allgemeines:<br/>
-Einstellungen zur Anzeige und zum Zeitablauf. Nützlich dürfte insbesondere <em>autosave</em> sein, welches den Abstand zwischen automatisch gespeicherten Spielständen in Monaten angibt.</p>
+Einstellungen zur Anzeige und zum Zeitablauf. Nützlich dürfte insbesondere <em>autosave</em> sein, welches den Abstand zwischen automatisch gespeicherten Spielständen in Monaten angibt.
+</p>
 <p>· Wirtschaft &amp; Städte:<br/>
-Hier befinden sich alle Einstellungen für das Wirtschaftsystem und das Wachstum von Städten.</p>
+Hier befinden sich alle Einstellungen für das Wirtschaftsystem und das Wachstum von Städten.
+</p>
 <p>· Verbindungen:<br/>
-Hier können die Einstellungen für Waren- und Passagierverbindungen, sowei für den Wegebau eingestellt werden.</p>
+Hier können die Einstellungen für Waren- und Passagierverbindungen, sowei für den Wegebau eingestellt werden.
+</p>
 <p>· Kosten:<br/>
-Diese Seite enthält alle Kosten, die in Simutrans nicht durch pak-Dateien vorgegeben sind. Dies sind vor allem Instandhaltungs- und Wartungskosten sowie Kosten für Aufschüttungen.</p>
+Diese Seite enthält alle Kosten, die in Simutrans nicht durch pak-Dateien vorgegeben sind. Dies sind vor allem Instandhaltungs- und Wartungskosten sowie Kosten für Aufschüttungen.
+</p>
 <p>
 Die komplette Beschreibung aller Einstellungen findet sich in der Konfigurationsdatei <it>simuconf.tab</it> in Verzeichnis <it>config</it> im Programmverzeichnis.
 </p>

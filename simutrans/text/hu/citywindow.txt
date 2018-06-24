@@ -11,4 +11,3 @@ A két kis térképen nyomonkövetheted az e havi és múlt havi szállítmányo
 <p>
 A grafikon pedig segít követni a városlakok számának változását, a város növekedését stb. (értelemszerûen válaszd ki a grafikon alatt lávõ gombokat, aktiváld õket és voila meglesz a grafikon :) )
 </p>
-<p>

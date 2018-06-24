@@ -40,6 +40,7 @@ Klik op een voertuig in de lijst om meer informatie te zien van het <a href="con
 <p>
 De volgende informatie wordt getoond voor elk voertuig:
 </p>
+<p>
 <em>id-nummer</em>: een uniek nummer dat automatisch wordt toegekend op het moment dat het voertuig in een <a href=depot.txt">remise of hangar (depot)</a> wordt gekocht en wordt getoond in de titelbalk van het  scherm <a href="convoiinfo.txt">voertuig informatie</a>).
 </p>
 <p>

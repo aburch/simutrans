@@ -17,6 +17,7 @@
 #include "../player/simplay.h"
 #include "../simdepot.h"
 #include "loadsave.h"
+#include "translator.h"
 
 #include "schedule.h"
 
@@ -463,4 +464,40 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 		entries.append(schedule_entry_t(koord3d(values[0], values[1], values[2]), values[3], values[4]));
 	}
 	return true;
+}
+
+
+void schedule_t::gimme_stop_name(cbuffer_t& buf, karte_t* welt, player_t const* const player_, schedule_entry_t const& entry, int const max_chars)
+{
+	const char *p;
+	halthandle_t halt = haltestelle_t::get_halt(entry.pos, player_);
+	if(halt.is_bound()) {
+		if (entry.minimum_loading != 0  &&  max_chars <= 0) {
+			buf.printf("%d%% ", entry.minimum_loading);
+		}
+		p = halt->get_name();
+	}
+	else {
+		const grund_t* gr = welt->lookup(entry.pos);
+		if(gr==NULL) {
+			p = translator::translate("Invalid coordinate");
+		}
+		else if(gr->get_depot() != NULL) {
+			p = translator::translate("Depot");
+		}
+		else {
+			p = translator::translate("Wegpunkt");
+		}
+	}
+	// finally append
+	if(max_chars > 0  &&  strlen(p)>(unsigned)max_chars) {
+		buf.printf("%.*s...", max_chars - 3, p);
+	}
+	else {
+		buf.append(p);
+	}
+	// position (when no length restriction)
+	if (max_chars <= 0) {
+		buf.printf(" (%s)", entry.pos.get_str());
+	}
 }

@@ -27,6 +27,6 @@ Ukoliko se putnicima svidja vasa usluga, gradovi æe rasti i nove industrije æe b
 Mozete igrati koliko god zelite. Pocetak u 1880 i kraj u 2050. Postojati ce nova vozila i zgrade tijekom vremena.<br>
 Igrajte protiv AI ili sami. Samo ako je vase neto bogatstvo negativano tri mjeseca za redom, bankotirati cete i igra je gotova. Provjerite svoje neto bogatstvo u prozoru financija.
 </p>
-<p>
+<p> 
 <strong>Simutrans-Team</strong> i zajednica Vam zele odlican provod ovdje u Simutrans-u!
 </p>

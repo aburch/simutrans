@@ -74,7 +74,7 @@ In the second row four additional values are seen. Those are accumulated values:
 </p>
 <p>
 {Tips: Some costs, starting balance and finances in game can be changed in simuconf.tab}
-</p>
+</p> 
 <h1><strong>Scenario information</strong></h1>
 <p>
 If you play a scenario, then the scenario goal and the percentage of the progress is displayed.

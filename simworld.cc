@@ -6819,7 +6819,7 @@ void karte_t::announce_server(int status)
 	// Announce game info to server, format is:
 	// st=on&dns=server.com&port=13353&rev=1234&pak=pak128&name=some+name&time=3,1923&size=256,256&active=[0-16]&locked=[0-16]&clients=[0-16]&towns=15&citizens=3245&factories=33&convoys=56&stops=17
 	// (This is the data part of an HTTP POST)
-	if(  env_t::server_announce  ) {
+	if(  env_t::server  &&  env_t::server_announce  ) {
 		// in easy_server mode, we assume the IP may change frequently and thus query it before each announce
 		cbuffer_t buf;
 		if(  env_t::easy_server  &&  status<2  &&  get_external_IP(buf)  ) {

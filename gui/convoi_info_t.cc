@@ -27,9 +27,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/loadsave.h"
-#include "schedule_gui.h"
-// @author hsiegeln
-#include "../simlinemgmt.h"
+#include "../simconvoi.h"
 #include "../simline.h"
 #include "messagebox.h"
 
@@ -321,7 +319,7 @@ void convoi_info_t::draw(scr_coord pos, scr_size size)
 		const schedule_t * schedule = cnv->get_schedule();
 		info_buf.clear();
 		info_buf.append(translator::translate("Fahrtziel"));
-		schedule_gui_t::gimme_short_stop_name(info_buf, welt, cnv->get_owner(), schedule->get_current_entry(), 34);
+		schedule_t::gimme_stop_name(info_buf, welt, cnv->get_owner(), schedule->get_current_entry(), 34);
 		len = display_proportional_clip_rgb( xpos, ypos, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true );
 
 		// convoi load indicator

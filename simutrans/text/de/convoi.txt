@@ -12,7 +12,7 @@ Der <em>Filter</em> kann entweder "an" oder "aus" sein. Wenn Du einen Fahrzeugve
 · Der Name (per Vorgabe der Name des ersten Fahrzeugs, das in den Fahrzeugverband eingereiht wurde).<br>
 · Der Gewinn des Fahrzeugverbandes für das laufende Jahr.<br>
 · Die Linie, welche dem Fahrzeugverband zugewiesen ist. Ist dem Fahrzeugverband keine Linie zugewiesen, wird auch nichts angezeigt. Bei Fahrzeugverbänden, die sich im Depot befinden, wird hier "(in depot)" angezeigt.<br>
-· Ein Bild des Fahrzeugverbandes, mit einem Balken für den aktuellen Ladegrad (siehe <a href="convoiinfo.txt">Konvoifenster</a>).
+· Ein Bild des Fahrzeugverbandes, mit einem Balken für den aktuellen Ladegrad (siehe <a href="convoiinfo.txt">Fahrezugfenster</a>).
 </p>
 <p>
 Die Farbe des Names des Fahrzeuges hat folgende Bedeutung:<br>
@@ -21,6 +21,7 @@ Die Farbe des Names des Fahrzeuges hat folgende Bedeutung:<br>
 - <em>weiß:</em> Steht in einem Depot.<br>
 - <em>gelb:</em> Steht seit Jahresbeginn (vermutlich an einer Haltestelle und wartet auf Fracht).<br>
 - <em>orange:</em> Steckt fest oder findet keine Weg zum Ziel.<br>
+</p>
 <p>
 <em>Sortierkriterien:</em> Die Sortierung der Fahrzeugliste kann nach 3 Sortierkriterien erfolgen. Die Anzeige-Reihenfolge wird nur beim Öffenen des Fensters und bei der Änderung der Sortierkriterien aktualisiert.
 </p>

@@ -4,6 +4,7 @@
 
 <p>
 <strong>Cargar Topografia</strong> se usa para abrir un fichero de un mapa de altura del terreno (para usar en un juego nuevo) y puede ser usado para borrar este tipo de ficheros.<br>
+</p>
 <p>
 <strong>Cargar Topografia</strong> se abre desde <a href="new_world.txt">Crear un Nuevo Mundo</a>; y lista el nombre, fecha y hora (del juego salvado) del los distintos terrenos disponibles.<br>
 Si no puedes ver todos los elementos: usa la <a href="mouse.txt">barra de desplazamiento</a> en la parte derecha de la lista, para desplazar los nombres.

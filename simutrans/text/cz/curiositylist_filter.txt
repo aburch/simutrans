@@ -23,10 +23,13 @@
 - <em>modrá barva</em>: U památky se nachází aspoò jedna zastávka odbavující po¹tu. <br>
 - <em>tyrkysová (svìtle modrozelená) barva</em>: U památky je aspoò jedna zastávka pro cestující a aspoò jedna zastávka pro po¹tu.<br>
 - <em>oran¾ová barva</em>: Zastávka u památky je pøeplnìná. <br>
-- <em>èervená barva</em>: V¹echny zastávky u památky jaou pøeplnìné.
+- <em>èervená barva</em>: V¹echny zastávky u památky jsou pøeplnìné.
 </p>
 <p><em>Ikona budovy</em> pøed názven památky oznaèuje mìstskou památku.</p>
 <p>
 <em>název</em> památky
 </p>
 <p><em>vzrùst osob</em>: Hodnota v závorkách oznaèuje relativní oblíbenost památky jako cíl cesty pro cestující.</p>
+<p>
+Nápovìda odpovídá verzi 112.1, poslední úprava 5.1.2012.
+</p>
