@@ -161,6 +161,9 @@ void win_rotate90( sint16 new_size );
 void move_win(int win);
 
 void win_display_flush(double konto); // draw the frame and all windows
+
+uint16 win_get_statusbar_height();
+
 void win_poll_event(event_t*);
 
 bool win_change_zoom_factor(bool magnify);

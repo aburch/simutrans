@@ -1470,9 +1470,15 @@ void win_poll_event(event_t* const ev)
 			}
 		}
 		ev->ev_class = EVENT_NONE;
+		ticker::redraw_ticker();
 	}
 }
 
+
+uint16 win_get_statusbar_height()
+{
+	return max(LINESPACE + 2, 15);
+}
 
 // finally updates the display
 void win_display_flush(double konto)
@@ -1584,7 +1590,7 @@ void win_display_flush(double konto)
 	char const *time = tick_to_string( wl->get_ticks(), true );
 
 	// statusbar background
-	KOORD_VAL const status_bar_height = max(LINESPACE + 2, 15);
+	KOORD_VAL const status_bar_height = win_get_statusbar_height();
 	KOORD_VAL const status_bar_y = disp_height - status_bar_height;
 	KOORD_VAL const status_bar_text_y = status_bar_y + (status_bar_height - LINESPACE) / 2;
 	KOORD_VAL const status_bar_icon_y = status_bar_y + (status_bar_height - 15) / 2;
