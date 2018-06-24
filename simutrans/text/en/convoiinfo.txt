@@ -48,7 +48,7 @@ A yellow bar indicates a <a href="schedule.txt">Wait For</a> level (minimum quan
 A green-progress-bar indicates the progress by Convoy to its next destination.
 </p>
 <p>
-- <em>Serves line:</em> Line assigned to this Convoy. The triangle opens the line in the <a href="linelist.txt">Line management window</a>. (Only visible if a line is assigned.)
+- <em>Serves line:</em> Line assigned to this Convoy. The triangle opens the line in the <a href="linemanagement.txt">Line management window</a>. (Only visible if a line is assigned.)
 </p>
 <p>
 - <em>mini-view</em> shows this Convoy.

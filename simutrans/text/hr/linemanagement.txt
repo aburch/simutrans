@@ -28,6 +28,7 @@ Boja imena linije koja se pojavljuje u listi za prikaz slijedeceg:<br>
 <it>crna</it> - ?stvaraju profit, ?visak kapaciteta, ?poboljsanje moguce<br>
 <it>plava</it> - ?stvaraju profit, malo dodatnog kapaciteta <br>
 <it>crvena</it> - linija stvara gubitak<br>
+</p>
 <p>
 Pod listom postojecih linija su gumbi opcija za upravljanje Linijama.<br>
 Klik na liniju za odabir (istice ime) i pregled informacija o <a href="station.txt">Stajalistima</a>, dobiti, i konvojima na odabranoj Liniji.<br>

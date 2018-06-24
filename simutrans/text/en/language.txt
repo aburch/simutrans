@@ -20,5 +20,5 @@ If a translation is not available in the selected language, it may appear in Eng
 </p>
 
 <p>
-To help in translating Simutrans in your language,
+To help in translating Simutrans in your language,  
 visit http://simutranslator.simutrans-germany.com</p>

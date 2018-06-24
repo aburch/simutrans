@@ -1,7 +1,7 @@
 <title>Climate Control Help</title>
 <h1><strong>Climate Control</strong></h1>
 <p>
-<strong>Climate Control</strong> vous permet de modifier les options météorologiques et topographiques du monde à créer.<br>
+<strong>Climate Control</strong> vous permet de modifier les options météorologiques et topographiques du monde à créer.</p>
 <p>
 <strong>Climate Control</strong> s'ouvre automatiquement avec<a href="new_world.txt">la création d'un nouveau jeu</a>.</p>
 <p>
@@ -24,7 +24,7 @@ Si hauteur est faible et que dénivelé est élevé, alors le terrain est plat (les 
 <em>Winter snowline :</em> Niveau à partir duquel il y a de la neige en été. Choisissez 0 si vous aimez le blanc. Le niveau maximal dépend des choix suivants.</p>
 <p>
 <em>Desert, tropic, mediteranean, temperate, tundra, rocky :</em> Altitude à partie de laquelle  vous pouvez commencer à trouver des terrains appropriés pour chaque climat. Ces options peuvent également être définie dans les fichiers de configuration pour Simutrans.</p>
-<p>
+<br>
 Actualisé pour Simutrans 100.0
 <br>
 05/07/2008.

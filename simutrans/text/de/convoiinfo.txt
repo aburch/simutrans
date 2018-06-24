@@ -1,9 +1,9 @@
-<title>Konvoifenster</title>
+<title>Fahrzeugfenster</title>
 
 <h1><strong>Fahrzeugfenster</strong></h1>
 
 <p>
-Wählst Du mit dem Lupenwerkzeug einen Fahrzeugverband an, wird dessen Infofenster geöffnet. Du kannst das Fenster auch aus der <a href="linelist.txt">Linienverwaltung</a> oder <a href="convoi_list.txt">Fahrzeugliste</a> heraus aufrufen. Wähle dazu einen Eintrag in der Liste an. Das Fenster zeigt Dir einige technische Daten, eine Statistik und die Beladeliste.
+Wählst Du mit dem Lupenwerkzeug einen Fahrzeugverband an, wird dessen Infofenster geöffnet. Du kannst das Fenster auch aus der <a href="linemanagement.txt">Linienverwaltung</a> oder <a href="convoi.txt">Fahrzeugliste</a> heraus aufrufen. Wähle dazu einen Eintrag in der Liste an. Das Fenster zeigt Dir einige technische Daten, eine Statistik und die Beladeliste.
 </p>
 <p>
 <em>Namensfeld:</em> Der Name des Fahrzeugverbandes entspricht per Vorgabe der Bezeichnung des Fahrzeugs, das als erstes in den Konvoi aufgenommen wurde.
@@ -15,8 +15,8 @@ Wählst Du mit dem Lupenwerkzeug einen Fahrzeugverband an, wird dessen Infofenste
 · <em>Gewicht:</em> Die erste Angabe stellt das Leergewicht des Fahrzeugverbandes dar, der Wert in Klammern ist das Gewicht der Ladung. Für das Gesamtgewicht müssen beide Werte zusammengezählt werden.<br/>
 · <em>Gewinn:</em> Der Gewinn seit dem 1. Januar des Jahres wird angegeben. Ist der Wert negativ, fährt der Fahrzeugverband mit Verlust.<br/>
 · <em>Ladegrad:</em> Der grüne Farbbalken gibt Dir Aufschluss über die aktuelle prozentuale Beladung des Fahrzeugverbandes. Ein (teil)gelber Balken bedeutet, dass der Fahrzeugverband auf die im <a href="schedule.txt">Fahrplan</a> eingestellte Mindestbeladung wartet.<br/>
-· <em>Fahrtziel:</em> Das aktuelle Fahrplanziel wird angezeigt. Ist das Ziel eine Haltestelle, gibt Dir der erste Wert in Klammer darüber Auskunft, auf welchen minimalen Beladegrad der Fahrzeugverband warten wird. Du kannst den Wert für den Fahrzeugverband im <a href="schedule.txt">Fahrplan</a> ändern. Sollen alle Fahrzeuge der Linie von der Änderung betroffen sein, suche die Linie in der<a href="linelist.txt">Linienverwaltung</a> auf. Der farbige Balken dahinter gibt die Entfernung bis zum nächsten Halt an.<br/>
-· <em>Bedient Linie:</em> Der Fahrzeugverband fährt nach dem Plan der angegebenen Linie. Weicht der Fahrplan nach einer Änderung vom Linienplan ab, oder fährt der Fahrzeugverband in keiner Linie, wird die Zeile nicht angezeigt. Mit dem Dreieck kann man direkt die Linie in der <a href="linelist.txt">Linienverwaltung</a> öffnen.
+· <em>Fahrtziel:</em> Das aktuelle Fahrplanziel wird angezeigt. Ist das Ziel eine Haltestelle, gibt Dir der erste Wert in Klammer darüber Auskunft, auf welchen minimalen Beladegrad der Fahrzeugverband warten wird. Du kannst den Wert für den Fahrzeugverband im <a href="schedule.txt">Fahrplan</a> ändern. Sollen alle Fahrzeuge der Linie von der Änderung betroffen sein, suche die Linie in der<a href="linemanagement.txt">Linienverwaltung</a> auf. Der farbige Balken dahinter gibt die Entfernung bis zum nächsten Halt an.<br/>
+· <em>Bedient Linie:</em> Der Fahrzeugverband fährt nach dem Plan der angegebenen Linie. Weicht der Fahrplan nach einer Änderung vom Linienplan ab, oder fährt der Fahrzeugverband in keiner Linie, wird die Zeile nicht angezeigt. Mit dem Dreieck kann man direkt die Linie in der <a href="linemanagement.txt">Linienverwaltung</a> öffnen.
 </p>
 <p>
 <em>Fahrplan:</em> Über die Schaltfläche kannst Du den <a href="schedule.txt">Fahrplan</a> des Fahrzeugverbandes aufrufen.
@@ -37,6 +37,9 @@ Wählst Du mit dem Lupenwerkzeug einen Fahrzeugverband an, wird dessen Infofenste
 · <em>Einnahmen:</em> Die Transporterlöse des Fahrzeugverbandes.<br/>
 · <em>Betriebskosten:</em> Die anfallenden Kosten für den Betrieb des Fahrzeugverbandes. Die Schwankungen entstehen durch die unterschiedliche Laufleistung des Fahrzeugverbandes im Monat. Es entstehen nur Kosten, wenn der Fahrzeugverband sich bewegt.<br/>
 · <em>Profit:</em> Der Profit ergibt sich aus Einnahmen minus Betriebskosten.<br/>
+· <em>Strecke/Monat:</em> Die zurückgelegt Strecke aller Fahrzeuge der Linie.<br/>
+· <em>Geschwindigkeit:</em> <br/>
+· <em>Maut:</em> Kosten die durch Nutzung von Verkehrswegen anderer Spieler angefallen sind.<br/>
 </p>
 <p>
 <em>Beladeliste:</em>

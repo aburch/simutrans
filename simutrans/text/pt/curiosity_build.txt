@@ -1,24 +1,24 @@
-<title>Construtora de atrações turísticas</title>
-<h1><strong>Construtora de atrações turísticas</strong></h1>
-<p>Esta caixa de diálogo é dividida em quatro seções:
+<title>Construtora de atrações turísticas</title> 
+<h1><strong>Construtora de atrações turísticas</strong></h1> 
+<p>Esta caixa de diálogo é dividida em quatro seções: 
 <br>
  · acima à esquerda está uma lista de seleção de edifícios disponíveis<br>
  · bottom left is shown a picture of the chosen building<br>
  · top right some options may be set<br>
- · bottom right is information about the chosen city building given<br></p>
+ · bottom right is information about the chosen city building given<br></p> 
 <h1>Lista de seleção</h1>
-<p>
-In the selection list are given all special buildings and landmarks that are available with the options specified top right (<em>City attractions</em>, <em>Land attractions</em>, <em>Monumentos</em>).
+<p> 
+In the selection list are given all special buildings and landmarks that are available with the options specified top right (<em>City attractions</em>, <em>Land attractions</em>, <em>Monumentos</em>). 
 There are two tabs that will allow you to change how the attraction buildings are identified.<br>
- · <em>Translation:</em> Shows the name of the building in the given language. If there is no translation available in the given language, the object name will be used.<br>
+ · <em>Translation:</em> Shows the name of the building in the given language. If there is no translation available in the given language, the object name will be used.<br> 
 · <em>Object:</em> Shows the Simutrans internal object name for the building type.
-<br>
-<br>
+<br> 
+<br> 
 The color of the text has the following meaning:<br>
  · <em>texto em azul</em> a atração tem que ser construída nas cidades<br>
  · <em>texto em verde</em> a atração tem que ser construída nas zonas rurais<br>
- · <em>texto em preto</em> monumentos: podem ser construídos uma vez.<br>
-</p>
+ · <em>texto em preto</em> monumentos: podem ser construídos uma vez.<br> 
+</p> 
 <h1>Opções</h1>
 <p>
  · <em>Ignorar climas:</em> This option deactivates the climate restrictions associated with various building types.<br>
@@ -27,5 +27,5 @@ The color of the text has the following meaning:<br>
  · <em>City attraction:</em> There will be city attractions in the selection list.<br>
  · <em>Land attraction:</em> There will be land attractions in the selection list.<br>
  · <em>Monumentos:</em> There will be monuments  in the selection list. <br>
- · <em>Rotation:</em> If the chosen building can be shown from different angles, then it is possible to chose a specific view of it here. The image bottom left will change to reflect this. If this option is set to <em>random</em> a random view of the building will be used.<br>
+ · <em>Rotation:</em> If the chosen building can be shown from different angles, then it is possible to chose a specific view of it here. The image bottom left will change to reflect this. If this option is set to <em>random</em> a random view of the building will be used.<br> 
 </p>

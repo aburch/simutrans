@@ -19,4 +19,4 @@ Darunter findet man die Städte, aus denen die Arbeiter für diese Fabrik kommen m
 <p>
 Als letztes findet man noch eine Liste der Stationen, die mit dieser Fabrik verbunden sind.</p>
 <p>
-Rechts unter dem Bild der Fabrik findet man eine Knopf um eine detaillierte Statistik zu der Fabrik zu sehen.
+Rechts unter dem Bild der Fabrik findet man eine Knopf um eine detaillierte Statistik zu der Fabrik zu sehen.</p>

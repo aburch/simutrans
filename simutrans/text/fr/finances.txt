@@ -18,7 +18,7 @@ Ainsi qu'un graphique permettant de voir rapidement l'état de vos finances. Un c
 <em>Maintenance</em>  - La somme des frais de maintenance des équipements qui vous appartiennent. Cette somme est déduite tous les mois et est indiquée à droite.
 </p>
 <p>
-<em>Péages routiers</em> - Frais de péages pour l'utilisation des voies publics
+<em>Péages routiers</em> - Frais de péages pour l'utilisation des voies d'autres entreprises
 </p>
 <p>
 <em>Lignes électriques</em> - Revenus des lignes électriques

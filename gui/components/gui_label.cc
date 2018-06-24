@@ -64,7 +64,7 @@ void gui_label_t::draw(scr_coord offset)
 			if(seperator) {
 				display_proportional_clip_rgb(pos.x+offset.x, pos.y+offset.y, seperator, ALIGN_LEFT, color, true);
 				if(  seperator!=text  ) {
-					display_text_proportional_len_clip_rgb(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT, color, true, seperator-text );
+					display_text_proportional_len_clip_rgb(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT | DT_CLIP, color, true, seperator-text );
 				}
 			}
 			else if(  not_a_number  ) {
@@ -100,8 +100,12 @@ void gui_label_t::draw(scr_coord offset)
 		}
 
 		size_t idx = display_fit_proportional( text, size.w+1, -1 );
+
 		if(  text[idx]==0  ) {
-			display_proportional_clip_rgb(pos.x + offset.x + align_offset_x, pos.y + offset.y + align_offset_y, text, al, color, true);
+			// skip spurious linebreaks
+			while (idx>0  &&  text[idx-1]=='\n') idx--;
+
+			display_text_proportional_len_clip_rgb(pos.x + offset.x + align_offset_x, pos.y + offset.y + align_offset_y, text, al | DT_CLIP, color, true, idx);
 		}
 		else {
 			scr_coord_val w = display_text_proportional_len_clip_rgb( pos.x+offset.x+align_offset_x, pos.y+offset.y, text, al | DT_CLIP, color, true, idx );

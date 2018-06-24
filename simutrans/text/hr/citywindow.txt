@@ -13,7 +13,7 @@ Klik na vijecnicu u pogledu igre sa <a href="inspection_tool.txt">Alatom Inspekc
 </p>
 <p>
 <em>Ime:</em> pridruzeno ime grada, gradica ili sela se prikazuje u kucici na vrhu <strong>Statistike Grada</strong>. <br>
-Imena takvih urvanih podrucja se koriste za stvaranje imena za <a href="station.txt">stajalista</a> unutar granica grada.
+Imena takvih urvanih podrucja se koriste za stvaranje imena za <a href="station.txt">stajalista</a> unutar granica grada. 
 Za promjenu imena samo kliknuti na kucicu i upisati novo ime.<br>
 {Savjet: Koristiti <a href="keys.txt">[!]</a> za promjenu prikaza imena grada iznad Vijecnice u pogledu igre. Pogledati readme_citylist.txt (u ...simutrans/text/) za vise informacija o tome kako se stvaraju imena grada}.
 </p>
@@ -24,7 +24,7 @@ Pod kucicom imena su prikazane neke osnovne gradsje statistike:<br>
 <em>Koordinate mape:</em> prikazuje granicu grada (mijenjati ce se kako grad raste). Prvi par vrijednostiprikazuje gornji lijevi kut, a drugi donji desni kut. Kako gradovi rastu, granice gradova se mogu preklapati.
 </p>
 <p>
-Trenutni broj <em>nezaposlenih</em> i <em>beskucnih</em> gradjana grada. Ovo ce rasti kako se grad siri u granicama, i smanjivati se kada niknu nove zgrade.
+Trenutni broj <em>nezaposlenih</em> i <em>beskucnih</em> gradjana grada. Ovo ce rasti kako se grad siri u granicama, i smanjivati se kada niknu nove zgrade. 
 Ravnoteza ovih brojaca odredjuje koji tip gradskih gradjevina (rezidencijalne/komercijalne/industrijske) ce se konstruirati.
 </p>
 <p>
@@ -39,7 +39,7 @@ Desna mini-mapa prikazuje vrijednosti trenutnog kalendarskjog mjeseca igre, a li
 </p>
 <p>
 Ispod mini-mapa postoji <em>graf</em> koji prikazuje statistike za grad. <br>
-Na y-osi se prikazuje kolicina a na x-osi vrijeme.
+Na y-osi se prikazuje kolicina a na x-osi vrijeme. 
 Kilik na jahace indeksa grafa za promjenu skale x-osi:<br>
 <em>Godine:</em> prikazuje godisnje vrijednosti za zadnjih 12 kalendarskih godina igre.<br>
 <em>Mjeseci:</em> prikazuje mjesecne vrijednosti za zadnjih 12 mjeseci igre

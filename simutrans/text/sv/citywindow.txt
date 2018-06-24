@@ -12,7 +12,7 @@ Genom att klicka på ett rådhus på huvudkartan med <a href="inspection_tool.txt">
 </p>
 <p>
 <em>Namn:</em> det namn som staden, småstaden eller byn bär visas överst i <strong>Stadsinformation</strong> i en textruta. <br>
-Detta namn används bl a när namn för <a href="station.txt">hållplatser</a> inom stadsgränserna skall skapas.
+Detta namn används bl a när namn för <a href="station.txt">hållplatser</a> inom stadsgränserna skall skapas. 
 För att ändra namnet, klicka helt enkelt i textrutan och skriv in ett nytt.<br>
 {Tips: Använd <a href="keys.txt">[!]</a> för att växla om stadens namn visas ovanför rådhuset på huvudkartan. Läs readme_citylist.txt (finns i ...simutrans/text/) för mer information om hur stadsnamn skapas}.
 </p>
@@ -37,7 +37,7 @@ Den högra minikartan visar värden för innevarande spelkalendermånad, och den til
 </p>
 <p>
 Under minikartorna finns ett <em>kurvdiagram</em> som visar statistik för staden. <br>
-På y-axeln visas kvantitet och på x-axeln tid.
+På y-axeln visas kvantitet och på x-axeln tid. 
 Klicka på tabbarna ovanför fönstret för att ändra tidsskalan på x-axeln:<br>
 <em>År:</em> visar årliga värden för de senaste 12 spelkalenderåren.<br>
 <em>Månader:</em> visar månatliga värden för de senaste 12 spelkalendermånaderna

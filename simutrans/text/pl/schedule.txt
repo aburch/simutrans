@@ -5,8 +5,8 @@
 <p>
 Po zakupie pojazdu w oknie zajezdni/lokomotywowni wybierz przycisk 'Rozklad jazdy'. Przy kursorze pojawi sie zólta tabliczka. Teraz mozesz zaznaczyc gdzie bedzie sie zatrzymywal pojazd. Zwykle beda to przystanki i stacje. Dodatkowo masz mozliwosc ustawienia czy pojazd ma od razu odjezdzac z przystanku czy czekac az zostanie zaladowany okreslaona liczbe procent (zaznaczamy to u góry okna).
 Po ustaleniu trasy kliknij na 'wlacz' zniknie wtedy okno 'Rozklad jazdy' i ponownie pojawie sie okno zajezdni/lokomotywowni. Teraz wystarczy ze klikniesz na start i pojazd wyruszy w droge!
+</p>
 <p>
-
 W oknie 'Rozklad jazdy' mozesz równiez dodawac lub zmieniac wczesnie zaplanowana trase. Po wcisnieciu 'Dodaj' wybierz dodatkowy przystanek na trasie. Jesli chcesz dany przystanek usuna kliknij 'Usun' a nastepnie zaznacz nazwe przystanku w oknie. Zaistniale zmiany zatwierdzamy wciskajac przycisk 'Gotowe'.
 
 C.D.N.

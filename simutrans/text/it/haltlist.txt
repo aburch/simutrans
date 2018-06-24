@@ -3,23 +3,23 @@
 <h1><strong>Elenco delle stazioni/fermate</strong></h1>
 
 <p>
-<strong>Elenco stazioni/fermate</strong> visualizza le informazioni relative alle <a href="station.txt">stazioni/fermate</a> dove è possibile caricare e scaricare
+<strong>Elenco stazioni/fermate</strong> visualizza le informazioni relative alle <a href="station.txt">stazioni/fermate</a> dove è possibile caricare e scaricare 
 
 passeggeri ed i beni, permette inoltre di filtrare i dati.
 </p>
 <p>
-Per aprire: click sullo strumento <a href="list.txt">Liste</a>. <strong>Elenco stazioni/fermate</strong> ha quattro bottoni tra cui scegliere, due sono utilizzati per
+Per aprire: click sullo strumento <a href="list.txt">Liste</a>. <strong>Elenco stazioni/fermate</strong> ha quattro bottoni tra cui scegliere, due sono utilizzati per 
 
-ordinare la lista di oggetti mentre gli altri due sono utilizzati per applicare dei filtri agli oggetti da visualizzare. Sotto ai bottoni si trova una lista di <a
+ordinare la lista di oggetti mentre gli altri due sono utilizzati per applicare dei filtri agli oggetti da visualizzare. Sotto ai bottoni si trova una lista di <a 
 
 href="station.txt">fermate</a> selezionate secondo i criteri impostati nel filtro.<br>
 Click su uno degli elementi di <strong>Elenco stazioni/fermate</strong> per visualizzare maggiori <a href="station.txt">informazioni</a> riguardanti la fermata.<br>
-{Consiglio: se l'elenco di fermate è vuoto provate a modificare le opzioni del <em>filtro</em>. Se l'elenco è parziale, provate a <a href="mouse.txt">ridimensionare</a>
+{Consiglio: se l'elenco di fermate è vuoto provate a modificare le opzioni del <em>filtro</em>. Se l'elenco è parziale, provate a <a href="mouse.txt">ridimensionare</a> 
 
 <strong>Elenco stazioni/fermate</strong> o scorrete l'elenco con la barra di scorrimento.}
 </p>
 <p>
-Premendo i tre bottoni a sinistra ci si muove all'interno delle possibili opzioni (il nome del bottone indica l'opzione attualmente selezionata), il bottone proprietà apre
+Premendo i tre bottoni a sinistra ci si muove all'interno delle possibili opzioni (il nome del bottone indica l'opzione attualmente selezionata), il bottone proprietà apre 
 
 invece una maschera contenente ulteriori opzioni.
 </p>
@@ -48,15 +48,15 @@ Bottone di destra<br>
 Gli elementi elencati per ognuna delle fermate includono:
 </p>
 <p>
-<em>Barra con il colore di stato:</em> i colori indicano quanto la <a href="station.txt">fermata</a> è sovraffollata. La stessa barra di colore è utilizzata nelle
+<em>Barra con il colore di stato:</em> i colori indicano quanto la <a href="station.txt">fermata</a> è sovraffollata. La stessa barra di colore è utilizzata nelle 
 
-informazioni della fermata e <a href="linemanagement.txt">Gestione linee</a> e sono gli stessi colori visualizzati nella barra di colore in corrispondenza delle fermate
+informazioni della fermata e <a href="linemanagement.txt">Gestione linee</a> e sono gli stessi colori visualizzati nella barra di colore in corrispondenza delle fermate 
 
 nella finestra principale del gioco:<br>
 - <em>giallo:</em> fermata senza servizio, quindi non c'è nulla in attesa.<br>
 - <em>verde:</em> fermata non sovraffollata.<br>
 - <em>arancio:</em> fermata leggermente sovraffollata.<br>
-- <em>rosso:</em> fermata sovraffollata in cui si verifica una delle tre seguenti condizioni; sovraffollamento oltre 1.5 volte la capacità della fermata, fermata con più di
+- <em>rosso:</em> fermata sovraffollata in cui si verifica una delle tre seguenti condizioni; sovraffollamento oltre 1.5 volte la capacità della fermata, fermata con più di 
 
 200 passeggeri malcontenti, fermata con fabbrica che ha bloccato la produzione a causa della congestione.<br>
 {Consiglio: Usa [!] per modificare l'aspetto delle barre di colore in corrispondenza delle fermate nella schermata principale del gioco.}
@@ -66,18 +66,18 @@ nella finestra principale del gioco:<br>
 {Consiglio: In simuconf.tab si trovano delle opzioni per assegnare dei numeri alle fermate}.
 </p>
 <p>
-<em>Icone dei veicoli:</em> indicano quali tipi di veicolo utilizzano la <a href="station.txt">fermata</a> (utilizzati anche nelle informazioni delle fermate e gestione
+<em>Icone dei veicoli:</em> indicano quali tipi di veicolo utilizzano la <a href="station.txt">fermata</a> (utilizzati anche nelle informazioni delle fermate e gestione 
 
 linee).<br>
-Le icone icludono: bus (per veicoli passeggeri su strada), camion (per il trasporto di beni su strada), treni, navi ed aereoplani; i tram possono essere indicati dall'icona
+Le icone icludono: bus (per veicoli passeggeri su strada), camion (per il trasporto di beni su strada), treni, navi ed aereoplani; i tram possono essere indicati dall'icona 
 
 di un treno o di un bus a seconda del tipo di fermata.
 </p>
 <p>
-<em>Icone merci</em> indicano quali elementi (passeggeri, posta, beni) la <a href="station.txt">fermata</a> può gestire (utilizzati anche nelle informazioni delle fermate e
+<em>Icone merci</em> indicano quali elementi (passeggeri, posta, beni) la <a href="station.txt">fermata</a> può gestire (utilizzati anche nelle informazioni delle fermate e 
 
 gestione linee).<br>
-{Consiglio: aggiungendo appositi edifici di estensione le categorie degli elementi gestiti dalla fermata possono aumentare; ad esempio gli <a href="special.txt">Uffici
+{Consiglio: aggiungendo appositi edifici di estensione le categorie degli elementi gestiti dalla fermata possono aumentare; ad esempio gli <a href="special.txt">Uffici 
 
 postali</a> possono essere aggiunti alla fermata per permetterle di gestire la posta}.
 </p>

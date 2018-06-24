@@ -9,3 +9,7 @@ V pravém horním rohu jsou zobrazeny volby. </p>
 <p>Volba <em>Ignorovat podnebí</em> umo¾òuje sázet stromy bez ohledu na podnebný pás. Pokud ji povolíte, mù¾ete sázet tøeba tropické palmy do snìhu.</p>
 <p>Volba <em>Náhodné stáøí</em> umo¾òuje sázet stromy rùzné velikosti. Pokud není povolena, sázíte jen malé stromeèky.</p>
 <p> Pod volbami jsou informace o daném stromu: název, podnebný pás nebo podnebné pásy a kdo daný stromek nakreslil.  </p>
+
+<p>Tip: Celý les zasadíte pomocí tlaèítka <em>Zasadit les</em> z menu <a href="edittools.txt">editace mapy</a>.</p>
+
+<p>Nápovìda odpovídá verzi 112.1, poslední úprava 31.12.2012.</p>

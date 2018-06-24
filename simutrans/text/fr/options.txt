@@ -17,7 +17,7 @@ de chacun.
 <a href="players.txt">Joueurs</a> - Les différents joueurs adversaires.<br>
 <a href="load.txt">Charger</a> - Charger un jeu précédemment sauvegardé.<br>
 <a href="save.txt">Sauvegarder</a> - Sauvegarder la partie en cours.<br>
-<a href="new_world.txt">Menu général</a> - Démarrer un nouveau jeu(peut être annulé ensuite)<br>
+<a href="new_world.txt">Menu général</a> - Démarrer un nouveau jeu (peut être annulé ensuite)<br>
 <em>Quitter</em> - Quitter, sans message de confirmation.<br>
 </p>
 <p>
