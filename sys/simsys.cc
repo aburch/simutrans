@@ -23,6 +23,7 @@
 #include "../macros.h"
 #include "../simmain.h"
 #include "simsys.h"
+#include "pathes.h"
 #include "../simevent.h"
 
 
@@ -348,7 +349,7 @@ char const *dr_query_homedir()
 		return NULL;
 	}
 
-	// Append Sumutrans folder.
+	// Append Simutrans folder.
 	char const foldername[] = "Simutrans";
 	if (lengthof(buffer) < strlen(buffer) + strlen(foldername) + 2 * strlen(PATH_SEPARATOR) + 1) {
 		return NULL;
@@ -368,8 +369,6 @@ char const *dr_query_homedir()
 
 	// create other subdirectories
 	dr_mkdir(buffer);
-	strcat(buffer, "PATH_SEPARATOR");
-	dr_chdir(buffer);
 	strcat(buffer, PATH_SEPARATOR);
 
 	return buffer;
