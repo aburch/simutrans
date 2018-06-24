@@ -8331,14 +8331,14 @@ bool tool_change_convoi_t::init( player_t *player )
 				uint8 classes_amount = v->get_desc()->get_number_of_classes();
 				if (good_type == 0 && v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_PAS)
 				{
-					if (compartment <= classes_amount)
+					if (compartment < classes_amount)
 					{
 						v->set_class_reassignment(compartment, new_class);
 					}
 				}
 				if (good_type == 1 && v->get_cargo_type()->get_catg_index() == goods_manager_t::INDEX_MAIL)
 				{
-					if (compartment <= classes_amount)
+					if (compartment < classes_amount)
 					{
 						v->set_class_reassignment(compartment, new_class);
 					}
