@@ -3,76 +3,153 @@
 <h1><strong>Game Interface</strong></h1>
 
 <p>
-Simutrans is played through the <strong>Game Interface</strong> which provides information about the current game; access to toolbars & game-controls; and a view-of the current game-world.
+<a href="simutrans.txt">Simutrans</a> is played through the <strong>Game Interface</strong>, which provides information about the current game, access to toolbars & game-controls and a view of the current game-world. Simutrans can be controlled via <a href="mouse.txt">mouse</a> and via <a href="keys.txt">keyboard</a>. The keyboard layout is available in the help menu at <em>Keyboard Binding</em> section, or pressing <a href="keys.txt">[F1]</a> key, and also appears every time a key without function is pressed.<br>
+IMPORTANT: Keys are case-sensitive.
 </p>
-<p>
-<em>titlebar</em>: the left of the titlebar of the <strong>Game Interface</strong> shows the version and release date of Simutrans that is currently running.<br>
-The right hand side of the titlebar also contains controls to minimise, maximise the <strong>Game Interface</strong> and also to exit Simutrans.
-</p>
-<p>
-<em>Icons</em>: a row of icons, used to access game-toolbars and game-controls when playing Simutrans, is directly below the <em>titlebar</em>. <em>Icons</em> (click to use) are grouped in three sets:
-</p>
-<p>
-- <a href="general.txt"><it>Main Menu</it></a> icons include:<br>
-- <it>floppy-disc</it>: opens <a href="options.txt">
-Game Options</a><br>
-- <it>map</it>: opens <a href="map.txt">Map</a>
-<br>
-- <it>magnifying-glass</it> selects <a href="inspection_tool.txt">Inspection Tool</a><br>
-- <it>sloping-land-icon</it>: opens <a href="slopetools.txt">landscape toolbar</a><br>
-- <it>train</it>: opens <a href="railtools.txt">?railroad/train toolbar</a>
-<br>
-- <it>monorail/maglev</it>: <a href="monorailtools.txt">monorail transportation toolbar</a><br>
-- <it>tram</it>: opens <a href="tramtools.txt">tram transportation toolbar</a>
-<br>
-- <it>truck</it>: opens <a href="roadtools.txt">road transportation toolbar</a><br>
-- <em>ship</em>: opens <a href="shiptools.txt">water transportation toolbar</a>
-<br>
-- <em>airplane</em>: opens <a href="airtools.txt">air transportation toolbar</a>
-<br>
-- <em>red-drop-in-yellow-circle</em> (<em>crane-icon</em> in pak128): opens <a href="special.txt">special construction toolbar</a><br>
-- <em>red-cross</em> (<it>bulldozer-icon</it> in pak128): selects <a href="removal_tool.txt">Destroy/Remove Tool</a>
-</p>
-<p>
-- <a href="general.txt"><it>Management Menu</it></a> icons include:<br>
-- <em>network-icon</em>: opens <a href="linemanagement.txt">Line Management</a>
-<br>
-- <em>list-icon</em>: opens <a href="list.txt">Lists</a>
-<br>
-- <em>mailbox-icon</em>: opens <a href="mailbox.txt">Message Centre</a>
-<br>
-- <em>money-icon</em>: opens <a href="finances.txt">Finances</a>
-</p>
-<p>
-- <a href="general.txt"><it>Other Options</it></a> icons include:<br>
-- <em>camera-icon</em>: captures current image of <strong>Game Interface</strong> (without the <em>titlebar</em>) and saves it as a bitmap file in the directory/folder ...simutrans/screeshot/<br>
-{Tips: Image can also be captured with keypress <a href="keys.txt">[c]</a>.}
-<br>
-- <em>coffee-mug-icon</em>: pause
-s/unpauses game .<br>
-{Tips: Keypress [p] also can be used to pause/unpause game}.<br>
-- <em>>> icon</em>: selects/deselects Fast Forward. (changes rate at which Time , <em>T</em>, passes in game).<br>
-{Tips: Fast Forward can alo be selected/deselected with keypress <a href="keys.txt">[W]</a><br>
-IMPORTANT: Game may not run smoothly;<a href="display.txt"><strong>Display Information</strong></a>indicates if the computer can cope with change.}<br>
-- <it>?</it>: opens <a href="general.txt">Simutrans Help</a>
 
-</p>
 <p>
-<em>game-view</em> of a portion of the current game-world is displayed below the <em>Icons</em>.<br>
-You can zoom-in and zoom-out the game-view and also scroll around to view other parts of the game-world using a <a href="mouse.txt">mouse</a> or <a href="keys.txt">keyboard</a>.
+<it>Game Window</it>
 </p>
+
 <p>
-<em>temporary scroll-bar</em> appears and displays <a href="mailbox.txt">messages</a> at the bottom of the game-view.<br>
-{Tips: Click on a message to centre game-view to a related position.}
+Shows a portion of the current game-world. You can zoom-in and zoom-out using the mouse wheel, or <a href="keys.txt">[PgUp]</a>/<a href="keys.txt">[PgDown]</a> keys, or two dedicated icons found on the main toolbar. Scroll the map in several ways:
+<br> · Hold down the right mouse button and scroll the map in any direction towards your desired position. In the default setting, the map scrolls against the movement of the mouse. You can change this behaviour in <a href="display.txt">Display Settings</a> window.
+<br> · Use the numeric keypad.
+<br> · Jump directly to a desired map section by selecting the appropriate point on the <a href="map.txt">Map Window</a>.
+<br> · Jump to specific coordinates using <a href="jump_frame.txt">Jump to</a> dialog (press <a href="keys.txt">[J]</a> key).
 </p>
+
 <p>
-A bottom-bar that provides information about the current game-world is shown under the game-view.<br>
-Information provided, from left to right on the bottom-bar includes:<br>
-<em>date & time</em>: current date and time of game-world, follows a graphic and name of season.<br>
-<em>account balance</em>: current cash available for construction and other costs (purchasing vehicles, maintaining transport infrastructure and operation costs of running vehicles).<br>
-<em>co-ordinates</em>: indicate position of cursor in game-view. The three figures represent X co-ordinate, Y co-ordinate and height.<br>
-<em>T</em>: indicates the rate at which time passes in the game.<br>
-{Tips: Use <a href="keys.txt">[.]</a> / [,]  to accelerate/decelerate Time, T ; <a href="display.txt"><strong>Display Information</strong></a>indicates if the computer can cope with change.<br>
-Use of <a href="fast_forward.txt">Fast Forward</a> replaces <em>T</em> with ">>" on bottom-bar.}<br>
-<em>timeline</em>: indicates whether a <a href="new_world.txt">timeline</a> has been selected in the current game.
+The names of several objects are editable, such as towns, factories, stations, vehicles and transport lines. To edit, click with the mouse in the name field of the dialog opened by the <a href="inspection_tool.txt">Inspection Tool</a> (see below). Edits become effective immediately. Press <a href="keys.txt">[Return]</a> to exit the field.
+</p>
+
+<p>
+<it>Title Bar</it>
+</p>
+
+<p>
+The left part of the titlebar shows the version and release date of Simutrans that is currently running. The right hand side of the titlebar contains controls to minimize, maximize the <strong>Game Interface</strong> and also to exit Simutrans.
+</p>
+
+<p>
+At the top of the game window is a row of icons (<em>main toolbar</em>) used to access game-toolbars and game-controls when playing Simutrans. Icons (click to use) are grouped in several menus:
+</p>
+
+<p>
+<it>Main Menu</it>
+</p>
+
+<p>
+<a href="options.txt"><em>Options:</em></a> The floppy-disk-icon opens a dialogue from where you can load, save or start a new game.
+</p>
+
+<p>
+<a href="map.txt"><em>Map:</em></a> The overview map of the world with its objects shows the movements of the player vehicles and allows seeing some statistical views. If you select a point on this map, the game window jumps to the corresponding image section.
+</p>
+
+<p>
+<a href="inspection_tool.txt"><em>Inspection Tool:</em></a> The magnifying-glass-icon symbolizes the query tool. If it is active, the cursor also becomes a magnifying glass. If you select an object with it (building, vehicle, etc.), an information window will be displayed above it. It is advisable to always return to magnifying glass, especially if you have just worked with the <a href="removal_tool.txt">Removal Tool</a>. So you avoid destroying an object accidentally, instead of calling up the object information.
+</p>
+
+<p>
+<a href="slopetools.txt"><em>Landscaping Tools:</em></a> The sloping-land-icon opens a toolbar from where you can alter the map by changing the slope of each tile.
+</p>
+
+<p>
+<em>Building Toolbars:</em> Opens a set of building toolbars for each type of transportation.
+<br> · <a href="railtools.txt">Railroad Tools</a>
+<br> · <a href="monorailtools.txt">Monorail/Maglev Tools</a>
+<br> · <a href="tramtools.txt">Tram/light rail Tools</a>
+<br> · <a href="roadtools.txt">Road Tools</a>
+<br> · <a href="shiptools.txt">Shipping Tools</a>
+<br> · <a href="airtools.txt">Airport Tools</a>
+</p>
+
+<p>
+NOTE: Some paksets may contain additional building toolbars, e.g. <em>Narrow Gauge Railroad Tools</em>.<br>
+Each toolbar has a depot icon. Once a depot is built, you can enter the <a href="depot.txt">depot window</a> to access vehicles.
+</p>
+
+<p>
+<a href="special.txt"><em>Special Construction Tools:</em></a> The toolbar that opens by clicking red-drop-in-yellow-circle-icon (crane-icon in pak128) contains a variety of construction tools that complement the construction of transportation networks.
+</p>
+
+<p>
+<a href="removal_tool.txt"><em>Destroy/Removal Tool:</em></a> The red-cross-icon (bulldozer-icon in pak128) is used to remove various objects from the map.
+</p>
+
+<p>
+<it>Management Menu</it>
+</p>
+
+<p>
+<a href="linemanagement.txt"><em>Line Management:</em></a> Transport lines can be set up here (network-icon), changed or deleted, as well as information about them can be viewed.
+</p>
+
+<p>
+<a href="list.txt"><em>Lists:</em></a> The symbol of the list sheet leads to a submenu with seven lists:
+<br> · <a href="haltlist.txt">Station List</a>
+<br> · <a href="convoi.txt">Vehicle List</a>
+<br> · <a href="citylist_filter.txt">City List</a>
+<br> · <a href="goods_filter.txt">Goods List</a>
+<br> · <a href="factorylist_filter.txt">Factory List</a>
+<br> · <a href="curiositylist_filter.txt">List of Tourist Destinations</a>
+<br> · <a href="labellist_filter.txt">List of Markers</a>
+</p>
+
+<p>
+<a href="mailbox.txt"><em>Message Centre:</em></a> All messages that have been generated since the start of the game or since the last time a game was loaded will be listed when clicking this mailbox-icon.
+</p>
+
+<p>
+<a href="finances.txt"><em>Finances:</em></a> This money-icon opens a window that shows everything worth knowing about your current financial situation.
+</p>
+
+<p>
+<it>Other Menus</it>
+</p>
+
+<p>
+<em>Screenshot:</em> When using the camera-icon button, a snapshot of the current game window (including toolbars, but without titlebar) is saved as a .png image in folder simutrans/screenshot/. An image can also be captured with <a href="keys.txt">[c]</a> key.
+</p>
+
+<p>
+<em>Pause:</em> If you want to take a break from the hustle and bustle of the transport company, order a hot cup of tea or coffee over this coffee-mug-icon. The service is of course free in Simutrans!<br>
+The key <a href="keys.txt">[p]</a> can also be used to pause/unpause game.
+</p>
+
+<p>
+<em>Fast Forward:</em> If time in Simutrans passes too slow for you, you can accelerate it, by pressing this <em>>></em> icon. Fast forward can also be selected/deselected with key <a href="keys.txt">[W]</a>.<br>
+WARNING: In fast forward mode, game may not run smoothly. <em>Display performance information</em> section at the bottom of <a href="display.txt">Display Settings</a> window indicates if the computer can cope with the change.
+</p>
+
+<p>
+<em>Help:</em> The ?-icon opens the help index, also with <a href="keys.txt">[F1]</a> key.
+</p>
+
+<p>
+NOTE: Depending on pakset you play, there might be more icons on the main toolbar: <em>Zoom in</em>/<em>Zoom out</em>, <em>Show grid</em>, <em>Rotate map</em>, etc.
+</p>
+
+<p>
+<it>Status Bar</it>
+</p>
+
+<p>
+The status bar at the bottom of game-world window contains some information that is constantly updating as the game progresses. Information provided, from left to right on the status bar includes:
+<br> · <em>Date and Time:</em> In Simutrans, one year is divided into months, days and hours. The date controls the availability of vehicles and buildings when the 'timeline' is activated (see below). In front of date an icon with meteorological season is displayed. For some <a href="climates.txt">climate settings</a>, the ground may change with the seasons.
+<br> · <em>Player:</em> The name of the current player is displayed in its player color.
+<br> · <em>Account balance:</em> The cash of current player is displayed and permanently updated. It takes into account construction and other costs (purchasing vehicles, maintaining transport infrastructure and operation costs of running vehicles).
+<br> · <em>Position coordinates:</em> Inside brackets is displayed the <em>x</em> and <em>y</em> coordinates and the <em>height</em> of the tile over which the cursor is currently located. The coordinates (0,0) are located in the top-left corner of the map and the height zero is at water level or above it (depends on <a href="climates.txt">water level</a> settings at the creation of the map)
+<br> · <em>Game speed:</em> The value (T=1.00) indicates the current game speed. You can accelerate/decelerate time in small increments using <a href="keys.txt">[,]</a>/<a href="keys.txt">[.]</a> keys. <em>Display performance information</em> section at the bottom of <a href="display.txt">Display Settings</a> window indicates if the computer can cope with the change. In fast forward mode, an additional icon <em>>></em> is displayed.
+<br> · <em>Obey era:</em> Indicates by a calendar-icon whether a <a href="new_world.txt">timeline</a> has been selected in the current game. 
+</p>
+
+<p>
+<it>Scroll Bar</it>
+</p>
+
+<p>
+Occasionally, messages are displayed above the status bar at the bottom of the game-world window. The messages to be displayed can be defined in the <a href="mailbox.txt">Message Centre Options</a>.<br>
+TIP: Click on a message to center game-view to a related position.
 </p>

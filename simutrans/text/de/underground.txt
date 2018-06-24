@@ -3,7 +3,7 @@
 <h1><strong>Bauen im Untergrund</strong></h1>
 
 <p>
-Es gibt 2 mögliche Untergrundansichten.<br/>
+Es gibt 2 mögliche Untergrundansichten.<br/> 
 <em>vollständige Untergrundansicht</em><br/>
 Mit <em>U</em> schaltest Du in die vollständige Untergrundansicht. In dieser Ansicht werden alle Oberflächenobjekte ausgeblendet.<br/>
 <em>Untergrundansicht als Ebene</em><br/>

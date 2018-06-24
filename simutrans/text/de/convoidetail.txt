@@ -3,14 +3,21 @@
 <h1><strong>Erweiterte Fahrzeuginformationen</strong></h1>
 
 <p>
-Diese Fenster erreicht man durch Auswahl von <em>Details</em> im <a href="convoiinfo.txt">Konvoifenster</a>. Es werden weitere technische Daten angezeigt, wie z.B. der aktuelle Zeitwert.
+Dieses Fenster erreicht man durch Auswahl von <em>Details</em> im <a href="convoiinfo.txt">Konvoifenster</a>. Es werden weitere technische Daten angezeigt, wie Leistung, insgesamt gefahrene km und der aktuelle Zeitwert.
 </p>
 <p>
-Mit dem Knopf <em>Verkaufen</em> kann der Fahrzeugverband sofort an dieser Position verkauft werden, ohne zuvor in ein Depot fahren zu müssen.
+Die Angabe <em>min. Haltlänge</em> gibt an, wie lang Stationen an denen gehalten werden soll sein müssen, damit alle Fahrzeuge geladen/entladen werden.
 </p>
 <p>
-Weiterhin gibt es noch <em>Außerdienststellen</em>, danach lädt der Fahrzeugverband nur noch seine Waren ab und wird verkauft, sobald er leer ist.
+Die Angabe <em>Maximalgeschwindigkeit</em> gibt an, ........
 </p>
 <p>
-Darunter folgt die Liste aller Einzelfahrzeuge mit der Anzeige von genutztem Laderaum, des verfügbaren Laderaums sowie das Ladegut des Einzelfahrzeuges und weiteren Daten. Die folgenden Zeilen schlüsseln die Ladung nach ihrem Ziel auf.
+Mit <em>Entfernen!</em> kann der Fahrzeugverband sofort an dieser Position verkauft werden, ohne zuvor in ein Depot fahren zu müssen.
+</p>
+<p>
+Weiterhin gibt es noch <em>Ausmustern</em>, danach lädt der Fahrzeugverband nur noch seine Waren ab und wird verkauft, sobald er leer ist.
+</p>
+
+<p>
+Darunter folgten alle Einzelfahrzeuge mir ihren technischen Daten. Bei Fahrzeugen mit Laderaum wird auch deren aktuelle Beladung angezeigt.
 </p>

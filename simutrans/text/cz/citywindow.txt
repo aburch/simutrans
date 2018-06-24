@@ -1,28 +1,47 @@
 <title>Nápovìda - dialog mìsta</title>
+
 <h1><strong>Dialog mìsta</strong></h1>
-<p><em>Dialog mìsta</em> zobrazuje statistické údaje o zvoleném mìstu nebo vesnici, dvì mapy a graf zobrazující velièiny v závislosti na pøíslu¹ných tlaèítkách. Umo¾òuje také zmìnit název. Dialog lze otevøít kliknutím na radnici nebo na název v seznamu mìst. </p>
+
+<p>
+<em>Dialog mìsta</em> zobrazuje statistické údaje o zvoleném mìstu nebo vesnici, dvì mapy a graf zobrazující velièiny v závislosti na pøíslu¹ných tlaèítkách. Umo¾òuje také zmìnit název.
+Dialog lze otevøít kliknutím na radnici nebo na název v seznamu mìst.
+</p>
 <p>Dialog obsahuje následující polo¾ky:</p>
-<p>První polo¾kou je <em>název</em> mìsta nebo vesnice. Je zobrazen na titulku okna mù¾ete jej nalét v <a href="citylist_filter.txt">Seznamu mìst</a>. Název mìsta je pou¾it pøi vytváøení jmen <a href="station.txt">stanic a zastávek</a> uvnitø <a href="map.txt">limitù mìsta</a>. <br>
-Název mìsta zmìníte kliknutím do pole s názvem a pøepsáním na jiný název. Názvy mìst jsou naèítány ze soubory text/citylist_cz.txt z adresáøe pøíslu¹ného paku. Zachováte-li kódování, máte mo¾nost si do seznamu doplnit své oblíbené.</p>
+
+<p>První polo¾kou je <em>název</em> mìsta nebo vesnice. Je zobrazen na titulku okna mù¾ete jej nalét v <a href="citylist_filter.txt">Seznamu mìst</a>. 
+Název mìsta je pou¾it pøi vytváøení jmen <a href="station.txt">stanic a zastávek</a> uvnitø <a href="map.txt">hranic mìsta</a>. <br>
+Název mìsta zmìníte kliknutím do pole s názvem a pøepsáním na jiný název. Názvy mìst jsou naèítány ze soubory text/citylist_cz.txt z adresáøe pøíslu¹ného paku. Zachováte-li kódování, máte mo¾nost si do seznamu doplnit své oblíbené mìsto.</p>
+
 <p>Tip: Pomocí klávesy <a href="keys.txt">[!]</a> lze pøepnout zpùsob zobrazení názvu mìsta nad radnicí.  </p>
+
 <p><em>Velikost</em>ukazuje poèet obyvatel. V závorkách je pøírùstek obyvatelstva. (Je to prùmìrný pøírùstek obyvatel za poslední tøi mìsíce, pøièem¾ ka¾dý mìsíc má jinou váhu.) </p>
+
 <p>Èíslice pøed nápisem <em>Budov</em> ukazuje poèet budov daného mìsta.</p>
-<p>Dva páry èísel o øádek ní¾e jsou mapové souøadnice <em>limitù mìsta</em>. První souøadnice oznaèuje levý horní roh, druhá pravý dolní. Souøadnice se mìní s rùstem mìsta a mohou se pøekrývat.</p>
+
+<p>Dva páry èísel o øádek ní¾e jsou mapové souøadnice <em>hranic mìsta</em>. První souøadnice oznaèuje levý horní roh, druhá pravý dolní. Souøadnice se mìní s rùstem mìsta a mohou se pøekrývat.</p>
+
 <p>Èísla za nápisy <em>nezmìstnaných</em> a <em>bezdomovcù</em> oznaèují poèet obyvatel bez zamìstnání a bydli¹tì. Tato èísla ovlivòují, jaké budovy (obytné/odchodní/prùmyslové) se budou stavìt.</p>
+
 <p>Volbou <em>Dovolit rùst mìsta</em> povolujeme nebo zakazujeme rùst mìsta. Kdy¾ volba není povolena, mìsto neporoste.</p>
+
 <p><em>Mapy</em> v dialogu mìsta ukazují cílová místa pro dopravu cestujících a po¹ty z tohoto mìsta. Mapa v pravo ukazuje data pro aktuální mìsíc, na mapì vlevo jsou data z minulého mìsíce. Cílová místa, jednotlivé teèky na mapì, jsou vybarvena následovnì: </p>
+
 <p>
 - ¾lutá teèka: Cesta k cíli existuje a nástupní <a href="station.txt">stanice/zastávka</a> není pøeplnìná (usmìvavý smajlík v dialogu zastávky).<br>
 - oran¾ová teèka: K cíli neexistuje cesta.<br>
 - èervená teèka: K cíli existuje cesta, ale nástupní zastávka je pøeplnìná (neveselý smajlík v dialogu zastávky).
 </p>
-<p>Pod mapami se nachází <em>graf</em> ukazující statistiku pro dané mìsto.
+
+<p>
+Pod mapami se nachází <em>graf</em> ukazující statistiku pro dané mìsto.
 Na vodorovné ose je zobrazen èas, na svislé ose mno¾ství.
 Máte na výbìr mezi zobrazením po mìsících nebo po letech.<br>
 <em>Roky</em>: zobrazí roèní hodnoty za 12 let<br>
 <em>Mìsíce</em>: zobrazí mìsíèní hodnoty za posledních 12 mìsícù
 </p>
+
 <p> Kliknutím na tlaèítka pod grafem zobrazíte nebo skryjete odpovídající køivku grafu.  Barva køivky odpovídá barvì tlaèítka:</p>
+
 <p>
 <em>Obyvatelé:</em> Poèet obyvatel ¾ijících ve mìstì.<br>
 <em>Rùst mìsta:</em> Zmìna poètu obyvatel.<br>
@@ -32,9 +51,17 @@ Máte na výbìr mezi zobrazením po mìsících nebo po letech.<br>
 <em>Cestující:</em> Celkový poèet cestujících vygenerovaných v daném mìstì.<br>
 <em>Po¹ta èeká:</em> Po¹ta, která vstoupila do dopravní sítì.<br>
 <em>Po¹ta:</em> Celkové mno¾ství po¹ty vygenerované v daném mìstì.<br>
-<em>Do¹lá po¹ta:</em> Kolikráte bylo zji¹tìno, ¾e továrna ve mìstì má na skladì zbo¾í, které odebírá.<br>
-<em>Zbo¾í:</em>i Poèet kontrol, pøi kterých bylo zji¹»ováno, zda-li má továrna ve mìstì zbo¾í, které odebírá.<br>
+<em>Pøijato:</em> Kolikráte bylo zji¹tìno, ¾e továrna ve mìstì má na skladì zbo¾í, které odebírá.<br>
+<em>Zbo¾í:</em> Poèet kontrol, pøi kterých bylo zji¹»ováno, zda-li má továrna ve mìstì zbo¾í, které odebírá.<br>
 </p>
+
 <p>Tip: Nastavení týkající se mìst mù¾e být mìnìno v souborech simuconf.tab a cityrules.tab.</p>
-<p> Rùst mìsta je podporován pøepravou cestujících a po¹ty a dodáváním zbo¾í do továren uvnitø limitù mìsta. Rùst mìsta zahrnuje stavbu nových silnic. Mìsto také pøebírá stávající silnice v blízkosti novì postavených budov do vlastnictví, tj. <a href="players.txt">hráèe</a> nazývaného <em>Veøejné slu¾by</em>.</p>
+<p> Rùst mìsta je podporován pøepravou cestujících a po¹ty a dodáváním zbo¾í do továren uvnitø hranic mìsta. 
+Rùst mìsta zahrnuje stavbu nových silnic. Mìsto také pøebírá stávající silnice v blízkosti novì postavených budov do vlastnictví, tj. <a href="players.txt">hráèe</a> nazývaného <em>Veøejné slu¾by</em>.
+</p>
+
 <p>Tip: Zamý¹líte-li hrát dlouho a nechat mìsto vyrùst, vyplatí se postavit mìstu základní sí» pøímých rovných ulic, nìkdy i o ¹íøi 2 polí. A¾ se mìsto rozroste, po rovných ulicích budou jezdit autobusy mnohem rychleji, ne¾ v køivolakých ulièkách. Na ¹irokých ulicích (o dvou polích) snadno postavíte obousmìrnou tramvajovou tra». Navíc nepotøebujete bourat budovy a tak nepøicházíte o obyvatele. Tyto budoucí ulice stavte tou nejlevnìj¹í silnicí s co nejmen¹ími náklady na údr¾bu. Mìsto si je samo vylep¹í, a¾ je bude potøebovat.</p>
+
+<p>
+Nápovìda odpovídá verzi 112.1, poslední úprava 2.1.2013.
+</p>

@@ -20,11 +20,12 @@ O custo de destruir <a href="inspection_tool.txt">edifícios da cidade</a> é o me
 <p>
 A ordem de remoção dos itens em um quadro do terreno: carros e pedestres, sinais, paradas ou plataforma, eletrificação das vias, ponte ou túnel, vias (trilhos primeiramente se sobre estradas).
 </p>
+<p>
 {Dicas: Para remover um veículo do jogador, venda o veículo a partir de <a href="convoidetail.txt">Detalhes do Comboio</a>.<br>
 Para remover indústrias, atrações turísticas e a prefeitura, primeiro altere para jogador Serviço Público. <it>Por favor atenção:</it> o uso da <strong>ferramenta de remoção</strong> em uma prefeitura removerá todos os edifícios da cidade da área urbana.<br>
 Use <a href="keys.txt">[Ctrl]</a> para usar a ferramenta em objetos no nível superior.<br>
 Para destruir/remover itens de outros jogadores, primeiro faça a mudança de jogador em <a href="players.txt">Lista de Jogadores</a>.<br>
 Para remover trechos de um trilho ou estrada, use <a href="railtools.txt">Remover trecho de trilhos</a> também encontrado em <a href="tramtools.txt">Bondes</a>) ou <a href="roadtools.txt">Remover trecho de estradas</a>.}
-<p>
+</p>
 <p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
 </p>

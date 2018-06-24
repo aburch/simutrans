@@ -3,13 +3,13 @@
 <h1>L'écran de gestion ferroviaire</h1>
 
 <p>
-Cet écran comprend les outils de construction de rails, gare, dépot, tunnel,
+Cet écran comprend les outils de construction de rails, gare, dépôt, tunnel,
 passages à niveau, signalisation pour trains.
 </p>
 <p>
 En haut à gauche, il y a l'outil de construction des rails.
 Cet outil permet de construire les rails entre les carrés.
-Cliquez et votre curseur prendra la forme d'un passge à niveau.
+Cliquez et votre curseur prendra la forme d'un passage à niveau.
 Pour construire une voie ferrée, cliquez d'abord sur le point de départ,
 le curseur prendra alors la forme d'un bulldozer. Cliquez ensuite
 sur le point d'arrivée de votre voie ferrée.
@@ -31,7 +31,7 @@ car les trains ne sauront pas quel chemin prendre si vous vous êtes trompés.
 Pour placer un signal, cliquez ensuite sur la protion de rail où vous voulez le
 placer. Les signaux sont placés au bord des carrés, mais comptent pour un seul
 carré. Il ne peut y avoir qu'un seul signal par carré.
-Pour suprimmer un signal, utilisez l'outil de destruction, et cliquez sur le
+Pour supprimer un signal, utilisez l'outil de destruction, et cliquez sur le
 carré où vous avez placé le signal. Ceci supprimera le signal en laissant intact
 le rail.
 </p>
@@ -41,7 +41,7 @@ Cliquez dessus et le curseur prendra l'image du tunnel.
 Les tunnels sont utilisés pour créer une seule de section de tunnel sous
 une montagne. Utilisez les pour éviter de contourner les montagnes.
 Pour placer un tunnel, vous devez d'abord avoir vos sections de rails.
-Placez le début et la fin des rails au bord de la montagne(de châque coté),
+Placez le début et la fin des rails au bord de la montagne (de chaque côté),
 assurez-vous que les niveaux d'altitudes sont identiques. Pour construire le
 tunnel cliquez avec l'outil de placement sur l'une des deux extrémités.
 </p>
@@ -57,12 +57,12 @@ en dépôt. Ils sont utilisés pour acheter, assembler, démonter et vendre des
 motrices et des wagons. pour placer le dépôt, cliquez sur un début/fin de rails.
 </p>
 <p>
-Le dernier symbol est celui de la construction de gare. Cliquez dessus, le
+Le dernier symbole est celui de la construction de gare. Cliquez dessus, le
 curseur prendra la forme d'un segment de gare. Les gares permettent aux trains
 de charger et décharger les passagers et marchandises. Les gares peuvent être
 composées de plusieurs segments alignés ou juxtaposés.
 Les gares peuvent contenir un nombre illimités de marchandises, mais les
-usines produisent lorsque moins de 1000 unités(tonnes, palettes, m3) attendent.
+usines produisent lorsque moins de 1000 unités (tonnes, palettes, m3) attendent.
 Les gares sont construites à partir de segments individuels.
 Pour positionner un segment, cliquez sur le carré où vous souhaitez le placer.
 Les gares doivent être construites sur des rails existant, mais ne peuvent pas
@@ -70,7 +70,7 @@ Les gares doivent être construites sur des rails existant, mais ne peuvent pas
 adjacent avec une gare devient une partie de celle-ci, même si elle est située
 sur une autre section de rail. A chaque segment correspondent 2 wagons ou
 motrices. Assurez-vous de la longueur des gares pour vos trains les plus longs.
-Tous wagon se trouvant hors de la gare ne sera pas chergé ou déchargé.
+Tout wagon se trouvant hors de la gare ne sera pas chergé ou déchargé.
 </p>
 <p>
 Actualisé pour Simutrans 0.83.1.2<br>

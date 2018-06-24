@@ -22,8 +22,8 @@ V seznamu budou zobrazena pouze vozidla, která nemají pøíjem, nemají definován <
 
 <p>
 <em>4.) Podle pøepravovaného zbo¾í:</em><br>
-V seznamu budou zobrazena pouze vozdila, která pøepravují zvolené komodity.
-Tlaèítko <strong>v¹e</strong> vybere v¹echny komodity, tklaèítko <strong>nic</strong> naopak v¹echny odvybere. Tlaèítkem <strong>inv</strong> obrátíte aktuální výbìr.
+V seznamu budou zobrazena pouze vozidla, která pøepravují zvolené komodity.
+Tlaèítko <strong>v¹e</strong> vybere v¹echny komodity, tlaèítko <strong>nic</strong> naopak v¹echny odvybere. Tlaèítkem <strong>inv</strong> obrátíte aktuální výbìr.
 </p>
 
 <p>
@@ -32,4 +32,7 @@ Tlaèítko <strong>v¹e</strong> vybere v¹echny komodity, tklaèítko <strong>nic</st
 
 <p>
 -><a href="about.txt">Informace o pøekladu</a>
+</p>
+<p>
+Nápovìda odpovídá verzi 112.1, poslední úprava 4.1.2012.
 </p>

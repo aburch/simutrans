@@ -3,61 +3,123 @@
 <h1><strong>Display Settings</strong></h1>
 
 <p>
-<strong>Display Settings</strong> has controls for how the game appears and provides information on computer performance.
+<strong>Display Settings</strong> window has controls for how the game appears and provides information on computer performance.
 </p>
+
 <p>
-Click on the 'Display' button in <a href="options.txt">Game Options</a> to open <strong>Display Settings</strong>.
+Click on <em>Display</em> button in <a href="options.txt">Game Options</a> menu to open <strong>Display Settings</strong> window.
 </p>
+
 <p>
-Click on the square buttons to select options (buttons are indented when the relevant option is selected), or use the <a href="mouse.txt">arrow-buttons</a> to adjust settings:
+Click on square buttons to select options (buttons are indented when the relevant option is selected), or use the <a href="mouse.txt">arrow-buttons</a> to adjust settings:
 </p>
+
 <p>
-<em>Day and night change:</em> If selected, game will cycle the between day and night.
+<em>Show grid:</em> shows the lines between individual tiles; can be useful when terraforming.
 </p>
+
 <p>
-<em>
-Brightness:</em> sets how light/dark view of game appears. Lower values are darker; too low or high values produce problems. Use <a href="keys.txt">[+]</a> to increase value over 0.
+<em>Underground view:</em> reveals beneath the ground; here you can build transport networks using tunnels; all levels of underground are displayed together.
 </p>
+
+<p>
+<em>Sliced map view:</em> in this mode you can also build underground; the map is cut at the specified level and only tunnels on the respective level are displayed; the level can be adjusted with the arrows, or entered directly as a number in the box.
+</p>
+
+<p>
+<em>Day and Night cycle:</em> if selected, game will cycle between day and night.
+</p>
+
+<p>
+<em>Brightness:</em> sets how light/dark view of game appears; higher values are darker; too low or high values produce problems.
+</p>
+
 <p>
 <em>Scroll Inverse:</em> reverses the direction of scroll for game-view in <a href="window.txt">Game Window</a>.
 </p>
-<p>
-<em>
-Scroll Speed:</em> sets the scroll-speed for game view in Game Window.
-</p>
-<p>
-<em>Pedestrians in towns:</em> pedestrians will appear in <a href="citywindow.txt">urban areas</a>.
-</p>
-<p>
-<em>Pedestrians at stops:</em> pedestrians will appear when a vehicle arrives at a <a href="station.txt">Stop</a>.
-</p>
-<p>
-<em>Traffic density:</em> sets the number of private cars in <a href="citywindow.txt">urban areas</a>.<br>
-The number of new private cars that appear as urban areas grow is dependent on size of urban area and traffic density. Higher values create more private traffic, while '0' generates none.
-</p>
-<p>
-(Tip: More options and default values for when Simutrans starts can be changed in simuconf.tab).
-</p>
-<br>
-<p>
-<strong>Display Information:</strong>
-</p>
-<p>
-Below these settings, information is shown on computer performance when running Simutrans.<br>
-Numbers are white when everything is working well; if they are red or yellow then you may need to change your settings.<br>
 
-If you change the that time passes in the game, using Fast Forward  >> icon at top of game-view, or [,]/ [.]), this may also change number colour.
-</p>
 <p>
-<em>Frame Time:</em> First number is intended time between frames; second number is actual time between frames.
+<em>Scroll Speed:</em> sets the scroll-speed for game-view.
 </p>
+
 <p>
-<em>Idle:</em> When above 0, the computer has capacity to run other software.
+<em>Transparent instead of hidden:</em> objects that are selected as hidden (trees or certain buildings) will instead appear semi-transparent.
 </p>
+
 <p>
-<em>
-FPS:</em> Higher values mean vehicles appear to move more smoothly. If number remains red, the computer is too slow for current settings (try reducing the size of the game-view window).
+<em>Hide trees:</em> all trees are hidden.
 </p>
+
 <p>
-<em>Simloops:</em> If number remains red, the computer is too slow for current settings - try a smaller map with fewer urban areas.
+<em>Buildings display mode:</em> you can select with the help of arrows whether 'no buildings', 'only city buildings' or 'all buildings' are hidden.
+</p>
+
+<p>
+<em>Smart hide objects:</em> depending on the setting, objects across a certain number of tiles around the mouse pointer are hidden; the number of tiles can be set with the arrows or directly by entering a number in the box.
+</p>
+
+<p>
+<em>Transparent station coverage:</em> shows the catchment area of stops/stations as transparent, rather than as a grid; colored in player's own color.
+</p>
+
+<p>
+<em>Show station coverage:</em> displays the catchment area for each stop/station.
+</p>
+
+<p>
+<em>Show station names:</em> toggles the style in which the name of each stop/station is displayed.
+</p>
+
+<p>
+<em>Show waiting bars:</em> toggles whether the miniature bar graphs showing the proportion of waiting goods/passengers as against the station's total capacity is displayed or not.
+</p>
+
+<p>
+<em>Pedestrians in towns:</em> toggles the display of pedestrians moving across <a href="citywindow.txt">urban areas</a>.
+</p>
+
+<p>
+<em>Pedestrians at stops:</em> toggles the display of pedestrians getting off a vehicle at <a href="station.txt">stops</a>.
+</p>
+
+<p>
+<em>Traffic density:</em> determines the amount of private cars in <a href="citywindow.txt">urban areas</a>.<br><br>
+The number of new private cars generated in urban areas is dependent on size of urban area and on traffic density setting; higher values create more private traffic, while '0' generates none.
+</p>
+
+<p>
+<em>Convoy tooltips:</em> customizes the amount of information displayed about convoys in game-view.
+</p>
+
+<p>
+<em>Show schedule's stops:</em> if activated, all stops and waypoints are displayed when a vehicle's schedule is open.
+</p>
+
+<p>
+TIP: More options and default values for when Simutrans starts can be changed in simuconf.tab file, located in simutrans/config/ folder.
+</p>
+
+<p>
+<it>Display performance information</it>
+</p>
+
+<p>
+Below these settings, information is shown on computer performance when running Simutrans. Numbers are white when everything is working well; if they are red or yellow then you may need to change your settings.<br><br>
+If you change how fast time passes in the game, by using Fast Forward icon <em>>></em> at the top of game-view, or <a href="keys.txt">[,]</a> / <a href="keys.txt">[.]</a> keys, this may also change the number colour.
+</p>
+
+<p>
+<em>Frame Time:</em> Shows the actual time between frames.
+</p>
+
+<p>
+<em>Idle:</em> Shows how long the computer pauses between two screen updates. When above 0, the computer has capacity to run other tasks along Simutrans.
+</p>
+
+<p>
+<em>FPS:</em> Higher values mean vehicles appear to move more smoothly. In Fast Forward and Network mode the frame rate is fixed, otherwise it varies according to the workload. A default value can be set with the command line parameter '-fps' or in simuconf.tab file. If this number remains red, the computer is too slow for current settings (try reducing the size of the game-view window).
+</p>
+
+<p>
+<em>Simloops:</em> Number of simulation loops per second. If number remains red, the computer is too slow for current settings (try a smaller map with fewer urban areas).
 </p>

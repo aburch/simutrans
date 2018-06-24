@@ -47,7 +47,7 @@ In vielen Fenstern findest Du Wertangaben zwischen zwei Pfeilschaltern. Mit eine
 <em>Auswahlmenüs</em>
 <br/>
 Linienauswahlmenüs in den Depotfenstern und in den Fahrplanfenstern sind wie die Namensfelder zurückgesetzt und zusätzlich mit Pfeilschaltern versehen. Wenn Du auf eine Menüfläche klickst, wird das Auswahlmenü geöffnet. Wählst Du einen Eintrag aus, springt er in die Anzeigezeile und stellt nun die neue Auswahl dar. Die Zeile kann auch editiert werden, aus eigener Erfahrung rät der Autor, Editierungen bevorzugt in speziell dafür vorgesehenen Fenstern vorzunehmen.
-</p>
+</p> 
 <p>
 <em>Untergrund</em>
 <br/>

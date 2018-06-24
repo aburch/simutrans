@@ -10,7 +10,7 @@
 </p>
 <h1>Parametrar i denna dialog:</h1>
 <p>
--- <em>Avstånd:</em> hur många rutor som skall skilja intilliggande signaler åt (diagonal räknas som 1/2 ruta).
+-- <em>Avstånd:</em> hur många rutor som skall skilja intilliggande signaler åt (diagonal räknas som 1/2 ruta). 
 Detta värde visas på knappen om signalverktyget är valt.<br>
 
 -- <em>Ta bort mellanliggande signaler:</em> om aktiverad så kommer redan existerande signaler tas bort från sträckan.<br>

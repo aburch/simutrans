@@ -2,7 +2,7 @@
 
 <h1>Nastavení</h1>
 
-<p>V <em>nastavení</em> mù¾ete zmìnit takøka ka¾dý parametr hry, který byste mohli zmìnit ruèní úpravou souboru <em>simuconf.tab</em>. Ka¾dý parametr má stejný význam jako jemu odpovídající øádek v souboru <em>simuconf.tab</em>. Tam také naleznete aktuální verzi domumentace (v angliètinì).
+<p>V <em>nastavení</em> mù¾ete zmìnit takøka ka¾dý parametr hry, který byste mohli zmìnit ruèní úpravou souboru <em>simuconf.tab</em>. Ka¾dý parametr má stejný význam jako jemu odpovídající øádek v souboru <em>simuconf.tab</em>. Tam také naleznete aktuální verzi domumentace (v angliètinì).
 </p>
 <p>
 <it><strong>Upozornìní:</strong></it><br/>
@@ -10,24 +10,46 @@ Neuvá¾enou zmìnou parametrù mù¾ete snadno udìlat hru pøíli¹ obtí¾nou a¾ nehratel
 </p>
 
 
-<h2><strong><it>v¹eobecnì</it></strong></h2>
+<h2><strong><it>V¹eobecnì</it></strong></h2>
+<p>
+<em>savegame_version</em>: Verze formátu, v jakém má být hra ulo¾ena.
+</p>
+<p>
+Výchozí hodnota: Nejnovìj¹í verze hry, napø. 112.1.
+</p>
 <p>
 <em>drive_left</em>: Povolením pøepnete na levostraný provoz.
+</p>
+<p>
+Výchozí hodnota: Vypnuto
 </p>
 <p>
 <em>signals_on_left</em>: Semafory a silnièní znaèky se budou zobrazovat na levé stanì komunikace.
 </p>
 <p>
-<em>autosave</em>: Jak èasto se má hra automaticky ukládat: 0 - neukládat, 1 - mìsíènì, 3 - ètvrtletnì, 12 - roènì.
+Výchozí hodnota: Vypnuto
 </p>
 <p>
-<em>frames_per_second</em>: Kolikrát je za 1s pøekreslována obrazovka.
+<em>autosave</em>: Jak èasto se má hra automaticky ukládat:<br/>
+ - <em>0</em>: neukládat<br/>
+ - <em>1</em>: ukládat mìsíènì<br/>
+ - <em>3</em>: ukládat ètvrtletnì<br/>
+ - <em>12</em>: ukládat roènì
+</p>
+<p>
+Výchozí hodnota: 0
 </p>
 <p>
 <em>fast_forward</em>: Jak moc to pobì¾í rychle po kliknutí na ikonu zrychlit èas.
 </p>
 <p>
+Výchozí hodnota: 50
+</p>
+<p>
 <em>numbered_stations</em>: Pou¾ije pøi vytváøení názvù stanic èísla. Pokud zaká¾ete, zastávky mají názvy slo¾ené z názvu mìsta a názvù okolních budov (památek, továren) apod. Doporuèuji nepovolovat.
+</p>
+<p>
+Výchozí hodnota: Vypnuto
 </p>
 <p>
 <em>show_names</em>: Zpùsoby zobrazení názvù stanic:<br/>
@@ -38,100 +60,215 @@ Neuvá¾enou zmìnou parametrù mù¾ete snadno udìlat hru pøíli¹ obtí¾nou a¾ nehratel
 Pozn: Zpùsob zobrazení názvù mìst a zastávek je mo¾né mìnit i v prùbìhu hry pomocí klávesy <a href="keys.txt">[!]</a>.
 </p>
 <p>
-<em>show_month</em>: Ovlivòuje zpùsob zobrazení data v levém dolním rohu obrazovky. Hodnoty mají následující význam:<br/>
- - <em>0</em>: (léto 1876)<br/>
- - <em>1</em>: (èerven, léto 1876 3:47h)<br/>
- - <em>2</em>: (léto 1876/èerven/2 3:56h)<br/>
- - <em>3</em>: (léto, èerven 2 1876 3:47am)<br/>
- - <em>4</em>: (léto, 2. èerven 1876 3:47h)<br/>
- - <em>5</em>: (1876/èerven/12 2:47h)<br/>
- - <em>6</em>: (èerven 2 1876 3:47am) <br/>
- - <em>7</em>: (18. èerven 1876 3:47h)<br/>
-Pozn: u voleb 4 a¾ 7 je na zaèátku øádku zobrazen symbol roèního období.
+Výchozí hodnota: 3
+</p>
+<p>
+<em>bits_per_month</em>: Parametr urèuje, jak rychle ve høe plyne èas. Zvý¹ení hodnoty o jedna prodlou¾í délku mìsíce ve høe na dvojnásobek. Proto¾e mìsíc trvá dvakrát déle, továrny mají dvojnásobnou produkci a infrastruktura vás stojí dvojnásobek na údr¾bu. Ale pøepravíte dvakrát tolik.
+<br/>Výchozí hodnota: 20
+</p>
+<p>
+ Tip: Pøipadá-li vám, ¾e se vlaky pohybují jako hlemý¾ï, ale nechcete, aby èas plynul moc rychle? Zvy¹te bits_per_month o 1 a pak hrajte pøi dvojnásobné rychlosti.
 </p>
 <p>
 <em>add_player_name_to_message</em>
-</p>
-<p>
-<em>bits_per_month</em>: Parametr urèuje, jak rychle ve høe plyne èas. Zvý¹ení hodnoty o jedna prodlou¾í délku mìsíce ve høe na dvojnásobek. Proto¾e mìsíc trvá dvakrát déle, továrny mají dvojnásobnou produkci a infrastruktura vás stojí dvojnásobek na údr¾bu.<br/>
- {Tip: Pøipadá-li vám, ¾e se vlaky pohybují jako hlemý¾ï, ale nechcete, aby èas plynul moc rychle? Zvy¹te bits_per_month o 1 a pak hrajte pøi dvojnásobné rychlosti.}
+<br/>Ve verzi 112.0 tato volba u¾ chybí.
 </p>
 <p>
 <em>use_timeline</em>: <br/>
- - <em>0</em><br/>
- - <em>1</em><br/>
- - <em>2</em><br/>
- - <em>3</em>
+ - <em>0</em>: Vypne zaèít roku, zaèít roku nepùjde zapnout.<br/>
+ - <em>1</em>: Zapne zaèít roku, zaèít roku nepùjde vypnout.<br/>
+ - <em>2</em>: Vypne zaèít roku<br/>
+ - <em>3</em>: Zapne zaèít roku
 </p>
 <p>
-<em>starting_year</em>: Rok, kdy bude zaèínat nová hra. Pokud nastavíte pøíli¹ nízké èíslo, nemusí být dostupná ¾ádná vozidla. Vhodné nastavení závisí na grafické sadì. <br/>
-{Tip: Pokud jste zaèali moc brzy a nejsou dostupná vhodná vozidla, pøepnìte se na hráèe <em>Veøejné slu¾by</em> a v menu <a href="edittools.txt">editace mapy</a> pøidejte (i opakovanì) jeden rok.
+Výchozí hodnota: 2
+</p>
+<p>
+Tip: nastavte na 1 nebo 3.
+</p>
+<p>
+<em>starting_year</em>: Rok, kdy bude zaèínat nová hra. Pokud nastavíte pøíli¹ nízké èíslo, nemusí být dostupná ¾ádná vozidla. Vhodné nastavení závisí na grafické sadì.
+</p>
+<p>
+Výchozí hodnota: 1930
+</p>
+<p>
+Tip: Pokud jste zaèali moc brzy a nejsou dostupná vhodná vozidla, pøepnìte se na hráèe <em>Veøejné slu¾by</em> a v menu <a href="edittools.txt">editace mapy</a> pøidejte (i opakovanì) jeden rok.
 </p>
 <p>
 <em>starting_month</em>: Mìsíc, v jakém zaène nová hra. Leden je 0, únor 1, atd.
 </p>
 <p>
-<em>water_animation_ms</em>:
+Výchozí hodnota: 0
 </p>
 <p>
-<em>random_ground_probability</em>:
+<em>show_month</em>: Ovlivòuje zpùsob zobrazení data v levém dolním rohu obrazovky. Hodnoty mají následující význam:<br/>
+ - <em>0</em>: roèní období (léto 1876)<br/>
+ - <em>1</em>: mìsíc (èerven, léto 1876 3:47h)<br/>
+ - <em>2</em>: japonské datum (léto 1876/èerven/2 3:56h)<br/>
+ - <em>3</em>: americké datum (léto, èerven 2 1876 3:47am)<br/>
+ - <em>4</em>: èeské datum (léto, 2. èerven 1876 3:47h)<br/>
+ - <em>5</em>: japonské datum bez roèního období (1876/èerven/12 2:47h)<br/>
+ - <em>6</em>: americké datum bez roèního období (èerven 2 1876 3:47am) <br/>
+ - <em>7</em>: èeské datum bez roèního období (18. èerven 1876 3:47h)<br/>
 </p>
 <p>
-<em>random_wildlife_probability</em>:
+Výchozí hodnota: 3
+</p>
+<p>
+Pozn: V originále jsou volby 4 a 7 nazvány "nìmecké datum".<br/>
+Tip: Nastavte 4 nebo 7.
+</p>
+<p>
+<em>random_grounds_probability</em>: Nastavuje èetnost výskytu nepohybujících se objektù zpestøujících krajinu (groundobj), jako jsou balvany, kvìtiny, krtiny, jezíka, kamení apod. <br/>
+0 - vypnuto<br/>
+jiná hodnota - na 1 pole s groundobj pøipadne n políèek bez groundobj. Tj. pøi random_grounds_probability=4 bude pøipadat na ka¾dá 4 políèka bez groundobj jedno pole s 1 groungobj.
+</p>
+<p>
+Výchozí hodnota: 10
+</p>
+<p>
+<em>random_wildlife_probability</em>: Podobné jako pøedchozí, ale pro pohybující se objekty: ovce, husy, kamzíky apod.
+</p>
+<p>
+Výchozí hodnota: 1000
 </p>
 <p>
 <em>pedes_and_car_info</em>: Zapne zobrazování informací o chodcích a automobilech veøejné správy. Mù¾e být u¾iteèné, pokud chcete vìdìt, jaká osobní auta jezdí po silnicích, ale mù¾e obtì¾ovat, chcete-li infornace o vlastních vozidlech nebo zastávkách.
 </p>
 <p>
+Výchozí hodnota: Vypnuto
+</p>
+<p>
 <em>tree_info</em>: Zapne/vypne, ¾e pøi kliknutí <a href="inspection_tool.txt">inspekèní lupou</a> na strom se zobrazí informace.
+</p>
+<p>
+Výchozí hodnota: Zapnuto
 </p>
 <p>
 <em>grounf_info</em>: Zapne zobrazení informací o terénu. Pøi kliknutí na zemský povrch se pak zobrazí souøadnice a název pøíslu¹ného podnebného pásu.
 </p>
 <p>
+Výchozí hodnota: Vypnuto
+</p>
+<p>
 <em>townhall_info</em>: Povolí zobrazení informací o budovì radnice (po kliknutí na budovu). Pokud není povoleno, kliknutí na budovu radnice zobrazí pouze informace o mìstì.
+</p>
+<p>
+Výchozí hodnota: Vypnuto
 </p>
 <p>
 <em>only_single_info</em>:
 </p>
 <p>
+Výchozí hodnota: Zapnuto
+</p>
+<p>
+<br/>
+</p>
+
+
+<h2><strong><it>Zobrazení</it></strong></h2>
+<p>
+<em>frames_per_second</em>: Kolikrát je za 1s pøekreslována obrazovka.
+<br/>Pozn.: Do 112.0 bylo k nalezení pod zálo¾kou <em>V¹eobecnì</em>.
+</p>
+<p>
+Výchozí hodnota: 25
+</p>
+<p>
+<em>simple_drawing_tile_size</em>:
+</p>
+<p>
+Výchozí hodnota: 24
+</p>
+<p>
+<em>simple_drawing_fast_forward</em>:
+</p>
+<p>
+Výchozí hodnota: Zapnuto
+</p>
+<p>
+<em>water_animation_ms</em>:
+<br/>Pozn.: Do 112.0 bylo k nalezení pod zálo¾kou <em>V¹eobecnì</em>.
+</p>
+<p>
+Výchozí hodnota: 250
+</p>
+<p>
 <em>window_buttons_right</em>: Tlaèítka umístìná v záhlaví okna se zobrazí na pravé stranì.
+</p>
+<p>
+Výchozí hodnota: Vypnuto
 </p>
 <p>
 <em>window_frame_active</em>:
 </p>
 <p>
+Výchozí hodnota: Vypnuto
+</p>
+<p>
 <em>front_window_bar_color</em>:
+</p>
+<p>
+Výchozí hodnota: 1
 </p>
 <p>
 <em>front_window_text_color</em>:
 </p>
 <p>
+Výchozí hodnota: 215
+</p>
+<p>
 <em>bottom_window_bar_color</em>:
+</p>
+<p>
+Výchozí hodnota: 4
 </p>
 <p>
 <em>bottom_window_text_color</em>:
 </p>
 <p>
+Výchozí hodnota: 209
+</p>
+<p>
 <em>show_tooltips</em>:
+Zapne zobrazování kontextové nápovìdy - textu, co se objeví pøi najetí my¹í nad tlaèítko.
+</p>
+<p>
+Výchozí hodnota: zapnuto
+</p>
+<p>
+<em>tooltip_background_color</em>:
+</p>
+<p>
+Výchozí hodnota: 4
 </p>
 <p>
 <em>tooltip_text_color</em>:
 </p>
 <p>
-<em>tooltip_delay</em>:
+<em>tooltip_delay</em>: Za jak dlouho se po najetí my¹i nad tlaèítko s kontextovou nápovìdou zobrazí nápovìda (v milisekundách).
 </p>
 <p>
-<em>tooltip_duration</em>:
+Výchozí hodnota: 500
+</p>
+<p>
+<em>tooltip_duration</em>: Jak dlouho bude zobrazena kontextová nápovìda. (v milisekundách)
+</p>
+<p>
+Výchozí hodnota: 5000
 </p>
 <p>
 <em>cursor_overlay_color</em>
 </p>
 <p>
 <em>left_to_right_graphs</em>: Mìní smìr osy x v grafech.
+<br/>Pozn.: Do 112.0 bylo k nalezení pod zálo¾kou <em>V¹eobecnì</em>.
+<br/>Doporuèuji zapnout.
 </p>
 <p>
-<em>savegame_version</em>: Verze formátu, v jakém má být hra ulo¾ena.
+Výchozí hodnota: Vypnuto
 <br/>
 </p>
 
@@ -139,77 +276,194 @@ Pozn: u voleb 4 a¾ 7 je na zaèátku øádku zobrazen symbol roèního období.
 <h1>Hospodáøství a mìsta</h1>
 
 <p>
+<em>remove_dummy_player_months</em>:
+<br/>Pozn.: Nové, od verze 112.1
+</p>
+<p>
+Výchozí hodnota: 6
+</p>
+<p>
+<em>unprotect_abandoned_player_months</em>:
+<br/>Pozn.: Nové, od verze 112.1
+</p>
+<p>
+Výchozí hodnota: 0
+</p>
+<p>
 <em>starting_money</em>: Mno¾ství penìz, s jakým zaèínáte.
 </p>
 <p>
 <em>pay_for_total_distance</em>:<br/>
- 0 - platba za ujetou vzdálenost, mìøeno sídli¹»ovou metrikou<br/>
- 1 - platba za vzdálenost do dal¹í pøestupní stanice <br/>
- 2 - platba za celkovou vzdálenost do cíle
+ 0 - platba za rozdíl vzdálenosti zbývající do cíle (mù¾e být záporná)<br/>
+ 1 - platba za rozdíl vzdálenost do pøí¹tí pøestupní stanice <br/>
+ 2 - platba za rozdíl vzdálenosti od minulé stanice
+</p>
+<p>
+Obtí¾nost zvý¹íte nastavením hodnoty na 1 nebo 0 (je¹tì tì¾¹í).
+</p>
+<p>
+Výchozí hodnota: 2
+</p>
+<p>
+<em>bonus_base_factor</em>:
+<br/>Pozn.: Nové, od verze 112.1
+</p>
+<p>
+Výchozí hodnota: 125
 </p>
 <p>
 <em>first_beginner</em>
 </p>
 <p>
-<em>beginner_price_factor</em>: Kolikrát má zaèáteèník dostat víc zaplaceno za pøepravu. Údaj je v promile, tj. 1000 je stejnì jako normálnì. Výchozí hodnota 1500, tj 1,5 krát.
+Výchozí hodnota: Vypnuto
 </p>
 <p>
-<em>allow_buying_obsolete_vehicles</em>: Povolí kupovat i ji¾ zastaralá vozidla. Doporuèuji povolit, v nìkterých grafických sadách jsou mezery, a tak mù¾ete pou¾ívat aspoò zastaralá vozidla.
+<em>beginner_price_factor</em>: Kolikrát má zaèáteèník dostat víc zaplaceno za pøepravu. Údaj je v promile, tj. 1000 je stejnì jako normálnì.
+</p>
+<p>
+Výchozí hodnota: 1500, tj 1,5 krát.
+</p>
+<p>
+<em>allow_buying_obsolete_vehicles</em>: Povolí kupovat i ji¾ zastaralá vozidla.<br/>
+Tip: Doporuèuji povolit, v nìkterých grafických sadách jsou mezery, a tak mù¾ete pou¾ívat aspoò zastaralá vozidla.
+</p>
+<p>
+Výchozí hodnota: Zapnuto
 </p>
 <p>
 <em>used_vehicle_reduction</em>: Ovlivòuje sni¾ování hodnoty vozidel s pøibývajícím vìkem.
 </p>
 <p>
-<em>toll_running_cost_percentage</em>: Nastavuje vý¹i mýta v závislosti na provozních nákladech. K celkové vý¹i mýta je pøipoèítána i následující polo¾ka. Mýto se platí majiteli komunikace. Je to jeden z mála zpùsobù, jak mù¾e veøejná správa získat finance.
+Výchozí hodnota: 0
 </p>
 <p>
-<em>toll_waycost_percentage</em>: Nastavuje vý¹i mýta v závislosti na ?
+<em>toll_running_cost_percentage</em>: Nastavuje vý¹i mýta v závislosti na provozních nákladech vozidla/soupravy. K celkové vý¹i mýta je pøipoèítána i následující polo¾ka. Mýto se platí majiteli komunikace. Je to jeden z mála zpùsobù, jak mù¾e veøejná správa získat finance.
+<br/>
+U nìkterých grafických sad bývá nastaveno na 10 (èti 10% z provozních nákladù). <br/>
+Tip: Zapnutím výbìru mýta mù¾ete trochu pøidat høe na obtí¾nosti.
+</p>
+<p>
+Výchozí hodnota: 0
+</p>
+<p>
+<em>toll_waycost_percentage</em>: Nastavuje procentuelní vý¹i mýta v závislosti na mìsíèních nákladech na údr¾bu komunikace (pøi bits_per_month=18). Takto získaná èástka je pøipoèítána k pøedcházející polo¾ce (toll_runnin_cost_percentage). Obvyklá hodnota je 5.
+</p>
+<p>
+Výchozí hodnota: 0
 </p>
 <p>
 <em>just_in_time</em>: Pokud má odbìratel plné sklady, dodavatel pøestane dodávat zbo¾í. Kdy¾ ve skladu objejí volné místo, dodavatel opìt zaène todávat zbo¾í.<br/>
 Poznámka: Pokud má dodavatelùv sklad kapacitu vìt¹í ne¾ 15000, pak funguje jako "èerná díra" pro v¹echno dodané zbo¾í které pøesáhne hodnotu 15000.
 </p>
 <p>
+Výchozí hodnota: Zapnuto
+</p>
+<p>
+<em>maximum_intransit_percentage</em>:
+<br/>Pozn.: Nové, od verze 112.1
+</p>
+<p>
+Výchozí hodnota: 0
+</p>
+<p>
 <em>crossconnect_factories</em>
+</p>
+<p>
+Výchozí hodnota: Vypnuto (Pro hru skompilovanou s volnou OTTD_LIKE je to Zapnuto)
 </p>
 <p>
 <em>crosconnect_factories_percentage</em>
 </p>
 <p>
-<em>industry_incerase_every</em>: Pøi jakém rùstu obyvatel dùjde i k rùstu prùmyslu. (Postaví se nová(é) továrna(y), novì se propojí stávající.) Ni¾¹í èíslo znamená víc továren.
+Výchozí hodnota: 33 (Pro hru skompilovanou s volnou OTTD_LIKE je to 100)
 </p>
 <p>
-<em>factory_spacing</em>: Minimální vzdálenost mezi továrnami. Máte-li rádi dlouhé vlaky nebo nechcete-li mít výrobce a spotøebitele nalepené na sebe, doporuèuji zvý¹it.
+<em>industry_incerase_every</em>: Pøi jakém rùstu obyvatel dojde i k rùstu prùmyslu. (Postaví se nová(é) továrna(y), novì se propojí stávající.) Ni¾¹í èíslo znamená víc továren.
+</p>
+<p>
+Výchozí hodnota: 2000
+</p>
+<p>
+<em>factory_spacing</em>: Minimální vzdálenost mezi továrnami.<br/>
+Tip: Máte-li rádi dlouhé vlaky nebo nechcete-li mít výrobce a spotøebitele nalepené na sebe, doporuèuji zvý¹it. Aspoò na dvojnásobek. Pøi pøíli¹ném zvý¹ení hodnoty nebude dost místa vhodného pro výstavbu továren.
+</p>
+<p>
+Výchozí hodnota: 6
 </p>
 <p>
 <em>electric_promile</em>
 </p>
 <p>
+Výchozí hodnota: 330
+</p>
+<p>
+<em>allow_undeground_transformers</em>:
+<br/>Pozn.: Od verze 112.0
+</p>
+<p>
+Výchozí hodnota: Zapnuto
+</p>
+<p>
 <em>passenger_factor</em>
 </p>
 <p>
+Výchozí hodnota: 16
+</p>
+<p>
 <em>minimum_city_distance</em>: Minimální vzdálenost mezi mìsty.
+<br/>Tip: Doporuèuji zvý¹it na dvojnásobek.
+</p>
+<p>
+Výchozí hodnota: 16
+</p>
+<p>
+<em>special_building_distance</em>:
+<br/>Pozn.: Od verze 112.0
+</p>
+<p>
+Výchozí hodnota: 3
 </p>
 <p>
 <em>factory_worker_radius</em>: Z jakého okolí dojí¾dí do továrny zamìstnanci.
 </p>
 <p>
+Výchozí hodnota: 77
+</p>
+<p>
 <em>factory_worker_minimum_towns</em>: Z kolika minimálnì mìst dojí¾dí do továrny zamìstnanci.
+</p>
+<p>
+Výchozí hodnota: 1
 </p>
 <p>
 <em>factory_worker_maximum_towns</em>: Z kolika nejvý¹e mìst budou do továrny dojí¾dìt zamìstnanci.
 </p>
 <p>
+Výchozí hodnota: 4
+</p>
+<p>
 <em>factory_arrival_periods</em>
+</p>
+<p>
+Výchozí hodnota: 4
 </p>
 <p>
 <em>factory_enforce_demand</em>
 </p>
 <p>
+Výchozí hodnota: Zapnuto
+</p>
+<p>
 <em>factory_worker_percentage</em>
 </p>
 <p>
+Výchozí hodnota: 33
+</p>
+<p>
 <em>tourist_percentage</em>
+</p>
+<p>
+Výchozí hodnota: 16
 </p>
 <p>
 <em>locality_factor[].year</em>
@@ -221,66 +475,120 @@ Poznámka: Pokud má dodavatelùv sklad kapacitu vìt¹í ne¾ 15000, pak funguje jako 
 <em>passenger_multiplier</em>
 </p>
 <p>
+Výchozí hodnota: 40
+</p>
+<p>
 <em>mail_multiplier</em>
+</p>
+<p>
+Výchozí hodnota: 20
 </p>
 <p>
 <em>goods_multiplier</em>
 </p>
 <p>
+Výchozí hodnota: 20
+</p>
+<p>
 <em>growth_factor_villages</em>
+</p>
+<p>
+Výchozí hodnota: 400
 </p>
 <p>
 <em>growth_factor_cities</em>
 </p>
 <p>
+Výchozí hodnota: 200
+</p>
+<p>
 <em>growth_factor_capitals</em>
+</p>
+<p>
+Výchozí hodnota: 100
 </p>
 <p>
 <em>random_pedestrians</em>
 </p>
 <p>
+Výchozí hodnota: Zapnuto
+</p>
+<p>
 <em>stop_pedestrians</em>
+</p>
+<p>
+Výchozí hodnota: Zapnuto
 </p>
 <p>
 <em>citycar_level</em>
 </p>
 <p>
+Výchozí hodnota: 5
+</p>
+<p>
 <em>default_citycar_life</em>
+</p>
+<p>
+Výchozí hodnota: 36
 <br/>
 </p>
+
 
 <h1>Spojení</h1>
 <p>
 <em>separate_halt_capacities</em>
 </p>
 <p>
+Výchozí hodnota: Vypnuto
+</p>
+<p>
 <em>avoid_overcrowding</em>
 </p>
 <p>
-<em>no_routing_over_overcrowded</em>
+Výchozí hodnota: Vypnuto
+</p>
+<p>
+<em>no_routing_over_overcrowded</em>: Vypne pøepravu èehokoliv pøes pøeplnìné zastávky.
+<br/>Pokud se zastávka stane pøeplnìnou (je na ní více cestujících/po¹ty/zbo¾í, ne¾ má kapacitu), nebude cestujícími pou¾ita jako pøestupní stanice.
+<br/>Tip: Zapnìte pro zvý¹ení obtí¾nosti.
+</p>
+<p>
+Výchozí hodnota: Vypnuto
 </p>
 <p>
 <em>station_coverage</em>: Ovlivòuje velikost spádové oblasti stanice - kolik polí od zastávky bude pokryto.<br/>
 Pozn: Nastavení se li¹í v závislosti na grafické sadì, 2 je obèas málo (pøi více hráèích není pomalu kam dávat ve mìstech zastávky), 4 mù¾e být pro nìkoho pøíli¹ moc, 3 je dobrý kompromis.
 </p>
 <p>
+Výchozí hodnota: 2
+</p>
+<p>
 <em>max_route_steps</em>
+</p>
+<p>
+Výchozí hodnota: 1 000 000
 </p>
 <p>
 <em>max_hops</em>
 </p>
 <p>
+Výchozí hodnota: 2000
+</p>
+<p>
 <em>max_transfers</em>
 </p>
 <p>
-Následující parametry jsou vyu¾ívány pøi automatické výstavbì silnic na zaèátku hry.<br/>
-<em>way_straight</em><br/>
-<em>way_curve</em><br/>
-<em>way_double_curve</em><br/>
-<em>way_90_curve</em><br/>
-<em>way_tunnel</em><br/>
-<em>way_max_bridge_length</em><br/>
-<em>way_leaving_road</em><br/>
+Výchozí hodnota: 9
+</p>
+<p>
+Následující parametry jsou vyu¾ívány pøi automatické výstavbì silnic na zaèátku hry. Toto nemìòte, pokud nevíte, co dìláte!!!<br/>
+<em>way_straight</em> (1)<br/>
+<em>way_curve</em> (2)<br/>
+<em>way_double_curve</em> (6)<br/>
+<em>way_90_curve</em> (15)<br/>
+<em>way_tunnel</em> (8) <br/>
+<em>way_max_bridge_length</em> (15)<br/>
+<em>way_leaving_road</em> (25)<br/>
 </p>
 
 <h1>Výdaje</h1>
@@ -291,7 +599,7 @@ Následující parametry jsou vyu¾ívány pøi automatické výstavbì silnic na zaèátku 
 <em>cost_multiply_dock</em>: Náklady na výstavbu pøístavu.
 </p>
 <p>
-<em>cost_multiply_station</em>: Nákaldy na výstavbu ¾eleznièní stavice.
+<em>cost_multiply_station</em>: Náklady na výstavbu ¾eleznièní stavice.
 </p>
 <p>
 <em>cost_multiply_road_stop</em>: Náklady na výstavbu silnièní zastávky. Výsledná cena vzniká vynásobením této konstanty úrobní zasávky. (Vy¹¹í úroveò znamená vy¹¹í kapacitu)
@@ -348,8 +656,9 @@ Následující parametry jsou vyu¾ívány pøi automatické výstavbì silnic na zaèátku 
 <em>cost_maintain_transformer</em>: Cena za údr¾u trafostanice.<br/>
 </p>
 
+
 <h1>Nastavení podnebí</h1>
-<p>Viz samostný dialog <a href="climate_settings.txt">nastavení podnebí</a></p>
+<p>Viz samostný dialog <a href="climates.txt">nastavení podnebí</a></p>
 <p>
 <em>forest_base_size</em>
 </p>
@@ -363,10 +672,18 @@ Následující parametry jsou vyu¾ívány pøi automatické výstavbì silnic na zaèátku 
 <em>max_no_of_trees_on_square</em>: Kolik stromù se mù¾e maximálnì vyskytovat na jednom poli.<br/>
 Pozn: Pøekreslování stromù je nároèné na výkon.
 </p>
+<p>Výchozí hodnota: 3
+</p>
 <p>
 <em>tree_climates</em>
 </p>
 <p>
+Výchozí hodnota: 0
+</p>
+<p>
 <em>no_tree_climates</em>
 </p>
-<p>verze 111.1+,  3.2.2012</p>
+<p>
+Výchozí hodnota: 0
+</p>
+<p>Nápovìda odpovídá verzi 112.1, poslední úprava 1.1.2013</p>

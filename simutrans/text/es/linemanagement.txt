@@ -28,6 +28,7 @@ El color del nombre de la Linea indica los siguiente:<br>
 <it>negro</it> - genera beneficios, sobra capacidad, necesita mejoras<br>
 <it>azul</it> - genera beneficios, sobra poca capacidad<br>
 <it>rojo</it> - linea con perdidas<br>
+</p>
 <p>
 Bajo la lista de lineas existentes estan los botones de opcion para gestionar las Lineas.<br>
 Pulsa en una Linea de la lista para seleccionarla (el nombre aparecera resaltado) y consulta informacion acerca de las <a href="station.txt">Paradas</a>, ingresos, y Convoys en la Linea seleccionada.<br>

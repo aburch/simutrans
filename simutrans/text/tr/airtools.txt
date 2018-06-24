@@ -1,40 +1,40 @@
 <title>Hava Araçları </title>
 
 <p>
-Havaalanı Araçlar hava ulaşım ağı oluşturmak için araçlar içerir. Araçlar inşa veya kaldırın: taxiways ve uçak için piste, Airstops (seçmek-up & drop-off, kargo ve yolcu) kullanılan uçak depoları (satın alma ve hava ulaşım araçları yönetmek) ve çeşitli hava binalar. Zaman Simutrans daha fazla araç geçerse Eğer zaman çizelgesi ile birlikte oynarken seçenekleri görünebilir.
+Havaalanı Araçlar hava ulaşım ağı oluşturmak için araçlar içerir. Araçlar inşa veya kaldırın: taxiways ve uçak için piste, Airstops (seçmek-up & drop-off, kargo ve yolcu) kullanılan uçak depoları (satın alma ve hava ulaşım araçları yönetmek) ve çeşitli hava binalar. Zaman Simutrans daha fazla araç geçerse Eğer zaman çizelgesi ile birlikte oynarken seçenekleri görünebilir. 
 Tıklayın uçak-Oyunun başında icon-araç çubuğunu açmak için görüntüleyebilirsiniz.
 </p>
-<p>
-Araç üzerinde Hover fare imleci seçeneği (açılış veya araç çubuğu üzerine tıklayarak) sonra parantez içinde ve maksimum hız sınırı adı ve nerede uygun: inşaat maliyeti, bakım maliyeti görmek için.<br/>
-<em>İpuçları</em>: basit bir havaalanı inşa etmek için bir yolu:<br/>
+<p> 
+Araç üzerinde Hover fare imleci seçeneği (açılış veya araç çubuğu üzerine tıklayarak) sonra parantez içinde ve maksimum hız sınırı adı ve nerede uygun: inşaat maliyeti, bakım maliyeti görmek için.<br/> 
+<em>İpuçları</em>: basit bir havaalanı inşa etmek için bir yolu:<br/> 
 i) inşa ve (ler) ve Pist (ler) hızlanma pisti bağlamak;<br/>
-ii) yer airstop (lar) ucunda (lar) hızlanma pisti ve (lar);<br/>
+ii) yer airstop (lar) ucunda (lar) hızlanma pisti ve (lar);<br/> 
 iii) havaalanı binaları olarak gerekli ekleyin.
 </p>
-<p>
-Araçlar, sağa soldan içerebilir:<br/>
+<p> 
+Araçlar, sağa soldan içerebilir:<br/> 
 Hızlanma pisti: araç bir Airstop bir Pist gitmek için uçak zemin hareket alanları oluşturur. Taxiways oyun seviyesi zemin görünümü oluşur.<br/>
 <strong>ÖNEMLİ</strong>: Taxiways piste sonuna kadar olmayabilir uçak kapatma ve arazi bağlıdır.
 </p>
 <p>
-<em>Bir hızlanma pisti kurmak için</em>: tıklayın aletine hızlanma pisti için (değişiklikler imleç) seçmek için tıklayın başlatmak için arazi üzerinde noktaya (eş-harita ekranın alt sağda ordinates), ve nihayet tıklayın oyun bir buldozer-görünümü ve gösterir arazi veya bitirmek için pist noktası.<br/>
+<em>Bir hızlanma pisti kurmak için</em>: tıklayın aletine hızlanma pisti için (değişiklikler imleç) seçmek için tıklayın başlatmak için arazi üzerinde noktaya (eş-harita ekranın alt sağda ordinates), ve nihayet tıklayın oyun bir buldozer-görünümü ve gösterir arazi veya bitirmek için pist noktası.<br/> 
 <strong>İpuçları</strong>: Kullanım Destroy / Kaldır hızlanma pisti tek tek parça kaldırın. Geri Al [z] inşaatların maliyetleri iade etmez.
 </p>
 <p>
 <em>Pist</em>: araçlar bir uçak pisti, uçak yapmak için kullanılan kapalı ve toprak yapacağız. Piste oyun seviyesi zemin görünümü ve dahili birbiriyle çapraz Mayıs
 </p>
-Bir Pist oluşturmak için: tıklayın aletine yoludur (değişiklikler imleç seçmek için), sonra başlamak için arazi üzerinde nokta (), ve bitiş için arazi üzerinde son tıklayın noktası oyun görünümünde bir buldozer gösterir.
-(İpuçları: olmayabilir başka uçak-off veya arazi piste tutarsız ve biter bırakın. Kullanım Destroy / Kaldır Pist tek tek parça kaldırın. Geri Al [z] inşaatların maliyetleri iade etmez.)
-Airstrips Kaldır: araç, iki nokta arasında oyunda hızlanma pisti veya Pist, hiç uçak mevcut, bir parça kaldırır-görüntüleyebilirsiniz. Araç kullanımı bir inşaat maliyetini düşürebilir.
-Bir uçak pisti kaldırmak için: tıklayın aletine (değişiklikler imleç kırmızı-geçmeye); tıklatın şerit üzerinde silinmek üzere olduğunu () silme noktaya oyun görünümünde bir kırmızı haç ile gösterilir seçer; ve nihayet tıklayın başka bir noktada şerit, ilk silme-noktasına kısmını kaldırın. (İpuçları: olmayabilir piste başka uçaklar ayrı sonu bırakın kapatma veya arazi. Kullanım Destroy / Kaldır airstrips bireysel adet kaldırmak için.)
-Hava Depo: araçlar satın alma ve uçak yönetmek için hangarlar inşa. Hangarlar ve bakım maliyetini bir parça hızlanma pisti sonuna üzerine kurulmuş bulunmaktadır.
-Bir Hangar oluşturmak için: tıklayın aletine (değişiklikler imleç bir depo için), ardından bir hızlanma pisti bir ucunda.
-(İpuçları: Destroy ile depoları Kaldır / Kaldır.)
-Airstops & binmeden köprü: araçlar oyun Durdurur inşa görüntülemek, uçak için seçmek için yukarı ve açılan yolcu veya kargo kapatın.
-Bir Airstop bir mevcut Dur yanında yeni bir Dur oluşturur yapılmış değil.
-Airstops bir parça hızlanma pisti sonuna üzerine kurulmuş ise; ve eşya, yolcu ve posta için bir bakım maliyeti ve havza. Eğer bir serbest Airstop kullanılabilir bir uçak sadece havaalanında girerler.
-Bir Airstop oluşturmak için: tıklayın aletine seçin ve ardından bir hızlanma pisti bir ucunda.
-(İpuçları: Destroy ile Airstops Kaldır / çıkarın. Medya [v] göstermek için mal ve yolcu oyun için havza gizlemek görüntülemek.)
-Havaalanı binaları: araçlar hangi mal ve yolcu için bakım maliyetleri ve kapasitesi ve havza artırabilir Durdurur için uzantıları inşa. Bazı aracın köşesinde seçenekleri bir simge olarak (İstasyon Listesi & Dur Bilgiler) kullanılan bu öğeler uzantısı gösterir ele Dur sağlar.
-Bir uzantısı oluşturmak için: tıklayın aletine uzantısı için (değişiklikler imleç uzantısı seçmek için), ardından gerekli konum, oyun mevcut bir Dur-görmek için gelecek. Yeni uzantısı artık Dur bir parçası olarak kabul edilir.
+Bir Pist oluşturmak için: tıklayın aletine yoludur (değişiklikler imleç seçmek için), sonra başlamak için arazi üzerinde nokta (), ve bitiş için arazi üzerinde son tıklayın noktası oyun görünümünde bir buldozer gösterir. 
+(İpuçları: olmayabilir başka uçak-off veya arazi piste tutarsız ve biter bırakın. Kullanım Destroy / Kaldır Pist tek tek parça kaldırın. Geri Al [z] inşaatların maliyetleri iade etmez.) 
+Airstrips Kaldır: araç, iki nokta arasında oyunda hızlanma pisti veya Pist, hiç uçak mevcut, bir parça kaldırır-görüntüleyebilirsiniz. Araç kullanımı bir inşaat maliyetini düşürebilir. 
+Bir uçak pisti kaldırmak için: tıklayın aletine (değişiklikler imleç kırmızı-geçmeye); tıklatın şerit üzerinde silinmek üzere olduğunu () silme noktaya oyun görünümünde bir kırmızı haç ile gösterilir seçer; ve nihayet tıklayın başka bir noktada şerit, ilk silme-noktasına kısmını kaldırın. (İpuçları: olmayabilir piste başka uçaklar ayrı sonu bırakın kapatma veya arazi. Kullanım Destroy / Kaldır airstrips bireysel adet kaldırmak için.) 
+Hava Depo: araçlar satın alma ve uçak yönetmek için hangarlar inşa. Hangarlar ve bakım maliyetini bir parça hızlanma pisti sonuna üzerine kurulmuş bulunmaktadır. 
+Bir Hangar oluşturmak için: tıklayın aletine (değişiklikler imleç bir depo için), ardından bir hızlanma pisti bir ucunda. 
+(İpuçları: Destroy ile depoları Kaldır / Kaldır.) 
+Airstops & binmeden köprü: araçlar oyun Durdurur inşa görüntülemek, uçak için seçmek için yukarı ve açılan yolcu veya kargo kapatın. 
+Bir Airstop bir mevcut Dur yanında yeni bir Dur oluşturur yapılmış değil. 
+Airstops bir parça hızlanma pisti sonuna üzerine kurulmuş ise; ve eşya, yolcu ve posta için bir bakım maliyeti ve havza. Eğer bir serbest Airstop kullanılabilir bir uçak sadece havaalanında girerler. 
+Bir Airstop oluşturmak için: tıklayın aletine seçin ve ardından bir hızlanma pisti bir ucunda. 
+(İpuçları: Destroy ile Airstops Kaldır / çıkarın. Medya [v] göstermek için mal ve yolcu oyun için havza gizlemek görüntülemek.) 
+Havaalanı binaları: araçlar hangi mal ve yolcu için bakım maliyetleri ve kapasitesi ve havza artırabilir Durdurur için uzantıları inşa. Bazı aracın köşesinde seçenekleri bir simge olarak (İstasyon Listesi & Dur Bilgiler) kullanılan bu öğeler uzantısı gösterir ele Dur sağlar. 
+Bir uzantısı oluşturmak için: tıklayın aletine uzantısı için (değişiklikler imleç uzantısı seçmek için), ardından gerekli konum, oyun mevcut bir Dur-görmek için gelecek. Yeni uzantısı artık Dur bir parçası olarak kabul edilir. 
 (Ipuçları: the Destroy ile / Kaldır uzantıları çıkarın. Medya [v] göstermek için mal ve yolcu oyun için havza gizlemek görüntülemek.)

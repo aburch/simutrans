@@ -30,7 +30,7 @@ Dále je zde sada tlaèítek pro práci s vybraným konvojem. Úplnì nalevo je tlaèítk
 </p>
 
 <p>
-Druhá øádka tlaèítek usnadòuje práci pøi tvorbì vìt¹ího mno¾ství konvojù. Tlaèítko <strong>nová linka</strong> zalo¾í novou linku, otevøe okno pro úpravu jejího <a href="schedule.txt"jízdního plánu</a> a vybere ji v seznamu vý¹e. Tlaèítkem <strong>pøiøadit linku</strong> je aktuální konvoj pøiøazen na vybranou linku. <strong>Zmìnit linku</strong> umo¾òuje upravit jízdní øád vybrané linky. <strong>Kopírovat</strong> vytvoøí duplikát aktuálního konvoje z vozidel dostupných v depu nebo novì nakoupených, vèetnì pøiøazení linky nebo nastavení jízdního plánu.
+Druhá øádka tlaèítek usnadòuje práci pøi tvorbì vìt¹ího mno¾ství konvojù. Tlaèítko <strong>nová linka</strong> zalo¾í novou linku, otevøe okno pro úpravu jejího <a href="schedule.txt">jízdního plánu</a> a vybere ji v seznamu vý¹e. Tlaèítkem <strong>pøiøadit linku</strong> je aktuální konvoj pøiøazen na vybranou linku. <strong>Zmìnit linku</strong> umo¾òuje upravit jízdní øád vybrané linky. <strong>Kopírovat</strong> vytvoøí duplikát aktuálního konvoje z vozidel dostupných v depu nebo novì nakoupených, vèetnì pøiøazení linky nebo nastavení jízdního plánu.
 </p>
 
 <p>

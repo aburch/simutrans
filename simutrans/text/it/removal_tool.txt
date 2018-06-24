@@ -19,9 +19,10 @@ Il costo di distruzione degli <a href="inspection_tool.txt">edifici cittadini</a
 <p>
 Gli elementi presenti nel singolo quadrato di gioco sono rimossi nell'ordine: pedoni o auto private, segnali, fermate o piattaforme, elettrificazioni, strade.
 </p>
+<p>
 {Consigli: per rimuovere un veicolo di un giocare, venderlo da <a href="convoidetail.txt">Dettagli convoglio</a>.<br>
 Per rimuovere industrie, attrazioni o municipi passare prima al giocatore servizio pubblico. <it>Nota:</it> L'uso dello <strong>strumento rimozione</strong> su un municipio rimuove tutti gli edifici cittadini dall'area urbana.<br>
 Usa <a href="keys.txt">[Ctrl]</a> per applicare lo strumento ad un livello superiore.<br>
 Per distruggere/rimuovere le cose di un altro giocatore, selezionarlo prima nella <a href="players.txt">finestra giocatori</a>.<br>
 Per rimuovere segmenti di binario o strada usare <a href="railtools.txt">rimuovi binari</a> (presente anche tra gli <a href="tramtools.txt">strumenti per tram</a>) o <a href="roadtools.txt">rimuovi strade</a>.}
-<p>
+</p>

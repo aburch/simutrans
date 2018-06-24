@@ -5,49 +5,54 @@
 <p>Dialog <em>informace o soupravì</em> poskytuje údaje o soupravì/konvoji a pøepravovaném nákladu, obsahuje tlaèítka slou¾ící k ovládání nebo sledování konvoje a zobrazuje náhled.</p>
 <p>Soupravou/konvojem je my¹leno vozidlo nebo skupina vozidel spøa¾ených v jeden celek. Konvoj se skládá z aspoò jednoho vozidla opatøeného pohonem (motorizované jednotky) a nìkolika ta¾ených vozidel. Konvojem je napøíklad vlak, auto s pøívìsem nebo autobus.</p>
 
-<p>Dialog otevøete kliknutím levým tlaèítkem my¹i na vozidlo. Také jej lze zobrazit ze seznamu vozidel nebo ze seznamu linek.</p>
+<p>Dialog otevøete kliknutím levým tlaèítkem my¹i na vozidlo. Také jej lze zobrazit ze seznamu vozidel nebo ze seznamu linek.</p> 
 <p>Konvoje se sestavují a kupují v <a href="depot.txt">depu</a>, které odpovídá pøíslu¹nému druhu pøepravy.</p>
 <p>Poznámka: Poèet vozidel v konvoji je omezen. Jeden konvoj mù¾e osahovat maximálnì 24 ¾eleznièních vozidel, u silnièní dopravy jsou to 4 vozidla.</p>
 
-<p>V titulku okna je zobrazen jedineèný identifikátor a jméno konvoje.
+<p>V titulku okna je zobrazen jedineèný identifikátor a jméno konvoje. 
 
 Horní èást dialogu <em>informace o soupravì</em> obsahuje tyto údaje: </p>
-<p><em>vnitøní ID</em>: ID je identifikátor pøiøazený pøi sestavení konvoje v <a href=depot.txt">depu</a>.</p>
+<p><em>vnitøní ID</em>: ID je identifikátor pøiøazený pøi sestavení konvoje v <a href="depot.txt">depu</a>.</p>
 <p><em>název</em>: Pole umo¾òuje zmìnu názvu. Jako výchozí jméno je pou¾ito oznaèení prvního vozidla zakoupeného nebo sestaveného v depu.</p>
 <p><em>rychlost</em>: Rychlost v km/h, jakou vozidlo právì jede. V závorce je maximální dovolená rychlost (maximální rychlost nejpomalej¹ího vozidla). Zelená èára je grafické procentuální znázornìní aktuální rychlosti.</p>
 <p><em>pøíjem</em>: Jsou peníze vydìlané provozem konvoje (pøíjmy po odeètení provozních nákladù) v aktuálním kalendáøním roce. V závorce jsou provozní náklady na 1km.</p>
 <p><em>hmotnost</em>: souèet hmotnosti vozidla a hmotnosti nákladu, v závorkách je hmotnost nákladu (v metrických tunách). Zelená èára ukazuje aktuální obsazenost, ¾lutá obsazenost po¾adovanou podle nastavení v jízdním øádu.</p>
 <p><em>místo urèení</em>: Ukazuje název pøí¹tí <a href="station.txt">zastávky</a> nebo bodu na cestì v <a href="schedule.txt">jízdním øádu</a> konvoje. Zelený progress-bar ukazuje, kolik zbývá cesty do dal¹ího bodu.</p>
-<p><em>obsluha linky</em>: Linka, ke které je konvoj pøiøazen. Tlaèítko na zaèátku øádku zobrazí <a href="linelist.txt">správu linek</a>. (Je dostupné pouze u vozidel pøiøazených k lince.)</p>
+<p><em>obsluha linky</em>: Linka, ke které je konvoj pøiøazen. Tlaèítko na zaèátku øádku zobrazí <a href="linemanagement.txt">správu linek</a>. (Je dostupné pouze u vozidel pøiøazených k lince.)</p>
 <p><em>náhled</em>: Kliknutím na náhled se pøemístíte na pozici konvoje.</p>
-<p>Tip: K nastavení nebo zmìnì èekání pro v¹echna vozidla dané linky pou¾ijte dialog <a href="linemanagement.txt">správa linek</a>. Ke zmìnì jízdního øádu jen u tohoto vozidla pou¾ijte tlaèítko <em>jízdní øád</em>. Pou¾ívejte linky, je to pøehlednìj¹í a jednodu¹¹í na správu.<br></p>
+<p>Tip: K nastavení nebo zmìnì èekání pro v¹echna vozidla dané linky pou¾ijte dialog <a href="linemanagement.txt">správa linek</a>. Ke zmìnì jízdního øádu jen u tohoto vozidla pou¾ijte tlaèítko <em>jízdní øád</em>. Pou¾ívejte linky, je to pøehlednìj¹í a jednodu¹¹í na správu.<br/></p>
 
 <h1>tlaèítka uprostøed</h1>
 <p><em>jízdní øád</em>: Kliknutí otevøe okno s nastavením <a href="schedule.txt">jízdního øádu</a>. Zde nastavíte délku èekání a jak moc musí být vozidlo nalo¾eno. </p>
-<p><em>do depa</em>: Po¹le konvoj do nejbli¾¹ího vhodného <a href="depot.txt">depa</a>. Pøi vjezdu do depa pøijdete o v¹echny pøevá¾ené polo¾ky. Peníze za pøepravu jsou poèítány jako pøi pøepravì do místa s depem. <br>
+<p><em>do depa</em>: Po¹le konvoj do nejbli¾¹ího vhodného <a href="depot.txt">depa</a>. Pøi vjezdu do depa pøijdete o v¹echny pøevá¾ené polo¾ky. Peníze za pøepravu jsou poèítány jako pøi pøepravì do místa s depem. <br/>
 V depu si konvoj zachová svùj <a href="schedule.txt">jízdní øád</a> a pøiøazenou <a href="linemanagement.txt">linku</a>. </p>
 <p><em>nenakládat</em>: Zaká¾e do vozidla nakládat, zbo¾í je v zastávkách/stanicích pouze vykládáno. Tlaèítko je výhodné pou¾ít, kdy¾ chcete napøíklad poslat osobní vlak do depa (a pøidat k nìmu nìkolik vagonù) a nechcete, aby vám ze stanice zmizeli cestující. </p>
-<p><em>následuj</em>: Zapne nebo vypne sledování pohybù vozidla.<br>
+<p><em>následuj</em>: Zapne nebo vypne sledování pohybù vozidla.<br/>
 Sledování vypnete opìtovným kliknutím na tlaèítko nebo kliknutím na <a href="map.txt">mapu</a>.</p>
-<p><em>graf</em>: Kliknutím na tlaèítko zobrazíte/skryjete graf. <br>
+<p><em>graf</em>: Kliknutím na tlaèítko zobrazíte/skryjete graf. <br/>
 Graf obsahuje údaje za posledních 12 mìsícù.
-Jednotlivé køivky zobrazíte kliknutím na pøíslu¹né tlaèítko pod grafem. Barva èáry v grafu odpovídá barvì tlaèítka pod grafem.<br>
-- <em>volná kapacita</em> nevyu¾ité místo v konvoji.<br>
-- <em>pøepraveno</em> mno¾ství zbo¾í, cestujících a po¹ty, které bylo pøepraveno.<br>
-- <em>pøíjem</em> peníze zaplacené za pøepravu.<br>
-- <em>provoz vozidel</em> náklady na provoz vozidel.<br>
-- <em>zisk</em> zisk z pøepravy ( pøíjem minus provoz).<br>
-- <em>délka/mìsíc</em> poèet ujetých kilometrù v daném mìsíci.
+Jednotlivé køivky zobrazíte kliknutím na pøíslu¹né tlaèítko pod grafem. Barva èáry v grafu odpovídá barvì tlaèítka pod grafem.<br/>
+- <em>Volná kapacita</em> nevyu¾ité místo v konvoji.<br/>
+- <em>Pøepraveno</em> mno¾ství zbo¾í, cestujících a po¹ty, které bylo pøepraveno.<br/>
+- <em>Pøíjem</em> peníze zaplacené za pøepravu.<br/>
+- <em>Provoz vozidel</em> náklady na provoz vozidel.<br/>
+- <em>Zisk</em> zisk z pøepravy ( pøíjem minus provoz).<br/>
+- <em>Délka/Mìsíc</em> poèet ujetých kilometrù v daném mìsíci.<br/>
+- <em>Nejvy¹¹í rychlost</em> Teoretická rychlost soupravy, pokud vezmeme v úvahu rychlostní limity vozidel a cesty/kolejí. Je to minimum z maximální rychlosti komunikace a maximální rychlosti soupravy. Pou¾ívá se k výpoètu bonusu za rychlost pøepravy.
 </p>
-<p><em>Detaily</em>: Otevøe dialog <a href="convoidetail.txt">detaily soupravy</a> obsahující podrobné informace o jednotlivých vozidlech. Umo¾òuje také prodat celou soupravu.<br></p>
+<p><em>Detaily</em>: Otevøe dialog <a href="convoidetail.txt">detaily soupravy</a> obsahující podrobné informace o jednotlivých vozidlech. Umo¾òuje také prodat celou soupravu.<br/></p>
 
 <h1>Øadit zbo¾í dle</h1>
-<p>Obsahuje informace o pøepravovaném mno¾ství, kapacitì konvoje, typ polo¾ek, cílové stanici a první pøestupní <a href="station.txt">stanici</a>.<br>
-Tlaèítko pøepíná mezi tìmito zpùsoby øazení:<br>
- - <em>cíl</em>: Setøídí *) pøevá¾ené polo¾ky podle názvu cílové stanice.<br>
- - <em>pøes</em>: Setøídí *) pøevá¾ené polo¾ky podle jména první pøestupní stanice.<br>
- - <em>pøes+poèet</em>: Setøídí pøevá¾ené polo¾ky podle mno¾ství smìøujícího do první pøestupní stanice. <br>
+<p>Obsahuje informace o pøepravovaném mno¾ství, kapacitì konvoje, typ polo¾ek, cílové stanici a první pøestupní <a href="station.txt">stanici</a>.<br/>
+Tlaèítko pøepíná mezi tìmito zpùsoby øazení:<br/>
+ - <em>cíl</em>: Setøídí *) pøevá¾ené polo¾ky podle názvu cílové stanice.<br/>
+ - <em>pøes</em>: Setøídí *) pøevá¾ené polo¾ky podle jména první pøestupní stanice.<br/>
+ - <em>pøes+poèet</em>: Setøídí pøevá¾ené polo¾ky podle mno¾ství smìøujícího do první pøestupní stanice. <br/>
  - <em>poèet</em>: Setøídí polo¾ky podle poètu.
 </p>
 
-<p>*) Pozn:</em> Polo¾ky jsou øazeny podle ASCII-kódu, tedy v poøadí: èísla, velká písmena bez diakritiky, malá píslena bez diakritiky. Znaky s diakritikou nejsou v ASCII tabulce ale jen v jejích roz¹íøeních (napø. latin2) a mají pøiøazena vy¹¹í èísla. Proto jsou pøi øazení bude Ostrava pøed Èeskými Budìjovicemi.<br>
+<p>*) Pozn: Polo¾ky jsou øazeny podle ASCII-kódu, tedy v poøadí: èísla, velká písmena bez diakritiky, malá píslena bez diakritiky. Znaky s diakritikou nejsou v ASCII tabulce ale jen v jejích roz¹íøeních (napø. latin2) a mají pøiøazena vy¹¹í èísla. Proto jsou pøi øazení bude Ostrava pøed Èeskými Budìjovicemi.<br/></p>
+
+<p>
+Nápovìda odpovídá verzi 112.1, poslední úprava 17.2.2012.
+</p>

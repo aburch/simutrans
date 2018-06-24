@@ -2,19 +2,31 @@
 <h1>Seznam vozidel</h1>
 
 <p>
+Seznam vozidel obsahuje v¹echna vozidla daného hráèe. Otevøete jej z nabídky <a href="list.txt">seznamy</a>.
+</p>
+<p>
 <em>Seznam nabízí tyto mo¾nosti:</em>
 </p>
 
 <p>
-<em>1.) Øazení:</em><br>
-Postupným klikáním na první pøepínací tlaèítko mìníte kritéria, podle kterých bude seznam øazen.<br>
+<em>1.) Øazení:</em><br/>
+Postupným klikáním na první pøepínací tlaèítko mìníte kritéria, podle kterých bude seznam øazen: jméno, pøíjem, typ nebo interní ID.<br/>
 Vedlej¹ím tlaèítkem nastavujete, zda má být øazen sestupnì nebo vzestupnì.
 </p>
 
 <p>
-<em>2.) Filtr:</em><br>
-Kliknutím na tøetí tlaèítko aktivujete, nebo deaktivujete filtr.<br>
+<em>2.) Filtr:</em><br/>
+Kliknutím na tøetí tlaèítko aktivujete, nebo deaktivujete filtr.<br/>
 Mo¾nosti tohoto filtru mù¾ete mìnit po kliknutí na tlaèítko <strong>nastavení</strong>.
+</p>
+
+<p>Barva textu s názvem vozidla poskytuje dal¹í informace:<br/>
+- <em>èerná</em> - V¹e je vpoøádku<br/>
+- <em>èervená</em> - Provoz soupravy je prodìleèný.<br/>
+- <em>bílá</em> - Souprava je v depu.<br/>
+- <em>¾lutá</em> - Od zaèátku roku stojí ve stanice a èeká na náklad.<br/>
+- <em>oran¾ová</em> - Zaseklé v dopravní zácpì nebo nemù¾e najít cestu k cíli.
+
 </p>
 
 <p>
@@ -23,4 +35,8 @@ Mo¾nosti tohoto filtru mù¾ete mìnit po kliknutí na tlaèítko <strong>nastavení</s
 
 <p>
 -><a href="about.txt">Informace o pøekladu</a>
+</p>
+
+<p>
+Nápovìda odpovídá verzi 112.1, poslední úprava 21.1.2013.
 </p>

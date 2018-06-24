@@ -17,5 +17,5 @@ Im <em>Hangar</em> kannst Du Flugzeuge bauen sowie Linien einrichten und die Flu
 <em>Gangways</em> stellen die Haltepunkte der Flugzeuge zum Ein- und Ausladen dar. Wie ein Hangar kann eine Gangway nur auf ein Endstück des Rollfelds gesetzt werden, und erst mit dessen Bau wird der Flughafen als <a href="station.txt">Haltestelle</a> errichtet. Soll der Flughafen an eine bestehende Haltestelle angeschlossen werden, muss die Gangway diese direkt erweitern.
 </p>
 <p>
-<em>Nebengebäude</em> für Flughäfen haben dieselben Funktionen wie alle anderen <a href="special.txt">Nebengebäude.</a>
+<em>Nebengebäude</em> für Flughäfen haben dieselben Funktionen wie alle anderen <a href="special.txt">Nebengebäude.</a> 
 </p>
