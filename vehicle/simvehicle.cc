@@ -539,8 +539,14 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 	if(  pcar  ) {
 		cnv_overtaking = pcar -> is_overtaking();
 	}
-	if(  lane_on_the_tile==1  ) cnv_overtaking = true; //treated as convoi is overtaking.
-	if(  lane_on_the_tile==-1  ) cnv_overtaking = false; //treated as convoi is not overtaking.
+	switch (lane_on_the_tile) {
+		case 1:
+		cnv_overtaking = true; //treated as convoi is overtaking.
+		break;
+		case -1:
+		cnv_overtaking = false; //treated as convoi is not
+		break;
+	}
 	// Search vehicle
 	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
 		if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
@@ -2250,6 +2256,10 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 		}
 
+		if(  current_str->get_overtaking_mode()<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  ) {
+			next_lane = -1;
+		}
+
 		vehicle_base_t *obj = NULL;
 		uint32 test_index = route_index;
 
@@ -2584,6 +2594,20 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					cnv->set_next_cross_lane(true);
 					return false;
 				}
+			}
+			// There is no vehicle on traffic lane.
+			// cnv->set_tiles_overtaking(0); is done in enter_tile()
+			return true;
+		}
+		// If the next tile is our destination and we are on passing lane of oneway mode road, we have to wait until traffic lane become safe.
+		if(  cnv->is_overtaking()  &&  str->get_overtaking_mode()==oneway_mode  &&  route_index == r.get_count() - 1u  ) {
+			halthandle_t halt = haltestelle_t::get_halt(welt->lookup(r.at(route_index))->get_pos(),cnv->get_owner());
+			vehicle_base_t* v = other_lane_blocked(false, offset);
+			if(  halt.is_bound()  &&  gr->get_weg_ribi(get_waytype())!=0  &&  v  &&  v->get_waytype() == road_wt  ) {
+				restart_speed = 0;
+				cnv->reset_waiting();
+				cnv->set_next_cross_lane(true);
+				return false;
 			}
 			// There is no vehicle on traffic lane.
 			// cnv->set_tiles_overtaking(0); is done in enter_tile()
