@@ -2578,10 +2578,12 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		const koord3d pos_next2 = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
 		// We have to calculate offset.
 		uint32 offset = 0;
-		if(  str->get_pos()!=r.at(route_index)  ){
+		if(  route_index<r.get_count()  &&  str->get_pos()!=r.at(route_index)  ) {
 			for(uint32 test_index = route_index+1u; test_index<r.get_count(); test_index++){
 				offset += 1;
-				if(  str->get_pos()==r.at(test_index)  ) break;
+				if(  str->get_pos()==r.at(test_index)  ) {
+					break;
+				}
 			}
 		}
 		// If this vehicle is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
@@ -2629,7 +2631,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 		// If the next tile is a intersection, lane crossing must be checked before entering.
 		// The other vehicle is ignored if it is stopping to avoid stuck.
-		const grund_t *gr = welt->lookup(r.at(route_index));
+		const grund_t *gr = route_index<r.get_count() ? welt->lookup(r.at(route_index)) : NULL;
 		const strasse_t *stre= gr ? (strasse_t *)gr->get_weg(road_wt) : NULL;
 		const ribi_t::ribi way_ribi = stre ? stre->get_ribi_unmasked() : ribi_t::none;
 		if(  stre  &&  stre->get_overtaking_mode() <= oneway_mode  &&  (way_ribi == ribi_t::all  ||  ribi_t::is_threeway(way_ribi))  ) {
