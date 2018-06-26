@@ -319,7 +319,7 @@ void dr_os_close()
 int dr_textur_resize(unsigned short** const textur, int w, int const h)
 {
 	// enforce multiple of 16 pixels, or there are likely mismatches
-	w = (w + 15) & 0x7FF0;
+//	w = (w + 15) & 0x7FF0;
 
 	// w, h are the width in pixel, we calculate now the scree size
 	int width = (w*x_scale) / 32l;
@@ -514,60 +514,60 @@ static void internal_GetEvents(bool const wait)
 
 	static char textinput[SDL_TEXTINPUTEVENT_TEXT_SIZE];
 	switch (event.type) {
-	case SDL_WINDOWEVENT: {
-		if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-			sys_event.type = SIM_SYSTEM;
-			sys_event.code = SYSTEM_RESIZE;
-			sys_event.mx = (event.window.data1 * 32l) / x_scale;
-			sys_event.my = (event.window.data2 * 32l) / y_scale;
+		case SDL_WINDOWEVENT: {
+			if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+				sys_event.type = SIM_SYSTEM;
+				sys_event.code = SYSTEM_RESIZE;
+				sys_event.mx = (((event.window.data1 + 7) & 0xFFFFFFF8) * 32l) / x_scale;
+				sys_event.my = (event.window.data2 * 32l) / y_scale;
+			}
+			// Ignore other window events.
+			break;
 		}
-		// Ignore other window events.
-		break;
-	}
-	case SDL_MOUSEBUTTONDOWN: {
-		sys_event.type = SIM_MOUSE_BUTTONS;
-		switch (event.button.button) {
-		case SDL_BUTTON_LEFT:   sys_event.code = SIM_MOUSE_LEFTBUTTON;  break;
-		case SDL_BUTTON_MIDDLE: sys_event.code = SIM_MOUSE_MIDBUTTON;   break;
-		case SDL_BUTTON_RIGHT:  sys_event.code = SIM_MOUSE_RIGHTBUTTON; break;
-		case SDL_BUTTON_X1:     sys_event.code = SIM_MOUSE_WHEELUP;     break;
-		case SDL_BUTTON_X2:     sys_event.code = SIM_MOUSE_WHEELDOWN;   break;
+		case SDL_MOUSEBUTTONDOWN: {
+			sys_event.type = SIM_MOUSE_BUTTONS;
+			switch (event.button.button) {
+			case SDL_BUTTON_LEFT:   sys_event.code = SIM_MOUSE_LEFTBUTTON;  break;
+			case SDL_BUTTON_MIDDLE: sys_event.code = SIM_MOUSE_MIDBUTTON;   break;
+			case SDL_BUTTON_RIGHT:  sys_event.code = SIM_MOUSE_RIGHTBUTTON; break;
+			case SDL_BUTTON_X1:     sys_event.code = SIM_MOUSE_WHEELUP;     break;
+			case SDL_BUTTON_X2:     sys_event.code = SIM_MOUSE_WHEELDOWN;   break;
+			}
+			sys_event.mx = (event.button.x * 32) / x_scale;
+			sys_event.my = (event.button.y * 32) / y_scale;
+			sys_event.mb = conv_mouse_buttons(SDL_GetMouseState(0, 0));
+			sys_event.key_mod = ModifierKeys();
+			break;
 		}
-		sys_event.mx = (event.button.x * 32) / x_scale;
-		sys_event.my = (event.button.y * 32) / y_scale;
-		sys_event.mb = conv_mouse_buttons(SDL_GetMouseState(0, 0));
-		sys_event.key_mod = ModifierKeys();
-		break;
-	}
-	case SDL_MOUSEBUTTONUP: {
-		sys_event.type = SIM_MOUSE_BUTTONS;
-		switch (event.button.button) {
-		case SDL_BUTTON_LEFT:   sys_event.code = SIM_MOUSE_LEFTUP;  break;
-		case SDL_BUTTON_MIDDLE: sys_event.code = SIM_MOUSE_MIDUP;   break;
-		case SDL_BUTTON_RIGHT:  sys_event.code = SIM_MOUSE_RIGHTUP; break;
+		case SDL_MOUSEBUTTONUP: {
+			sys_event.type = SIM_MOUSE_BUTTONS;
+			switch (event.button.button) {
+			case SDL_BUTTON_LEFT:   sys_event.code = SIM_MOUSE_LEFTUP;  break;
+			case SDL_BUTTON_MIDDLE: sys_event.code = SIM_MOUSE_MIDUP;   break;
+			case SDL_BUTTON_RIGHT:  sys_event.code = SIM_MOUSE_RIGHTUP; break;
+			}
+			sys_event.mx = (event.button.x * 32) / x_scale;
+			sys_event.my = (event.button.y * 32) / y_scale;
+			sys_event.mb = conv_mouse_buttons(SDL_GetMouseState(0, 0));
+			sys_event.key_mod = ModifierKeys();
+			break;
 		}
-		sys_event.mx = (event.button.x * 32) / x_scale;
-		sys_event.my = (event.button.y * 32) / y_scale;
-		sys_event.mb = conv_mouse_buttons(SDL_GetMouseState(0, 0));
-		sys_event.key_mod = ModifierKeys();
-		break;
-	}
-	case SDL_MOUSEWHEEL: {
-		sys_event.type = SIM_MOUSE_BUTTONS;
-		sys_event.code = event.wheel.y > 0 ? SIM_MOUSE_WHEELUP : SIM_MOUSE_WHEELDOWN;
-		sys_event.key_mod = ModifierKeys();
-		break;
-	}
-	case SDL_KEYDOWN: {
-		// Hack: when 2 byte character composition is under way, we have to leave the key processing with the IME
-		// BUT: if not, we have to do it ourselves, or the cursor or return will not be recognised
-		if (composition_is_underway) {
-			if (gui_component_t *c = win_get_focus()) {
-				if (gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)) {
-					if (tinp->get_composition()[0]) {
-						// pending string, handled by IME
-						break;
-	}
+		case SDL_MOUSEWHEEL: {
+			sys_event.type = SIM_MOUSE_BUTTONS;
+			sys_event.code = event.wheel.y > 0 ? SIM_MOUSE_WHEELUP : SIM_MOUSE_WHEELDOWN;
+			sys_event.key_mod = ModifierKeys();
+			break;
+		}
+		case SDL_KEYDOWN: {
+			// Hack: when 2 byte character composition is under way, we have to leave the key processing with the IME
+			// BUT: if not, we have to do it ourselves, or the cursor or return will not be recognised
+			if (composition_is_underway) {
+				if (gui_component_t *c = win_get_focus()) {
+					if (gui_textinput_t *tinp = dynamic_cast<gui_textinput_t *>(c)) {
+						if (tinp->get_composition()[0]) {
+							// pending string, handled by IME
+							break;
+		}
 	}
 }
 		}
