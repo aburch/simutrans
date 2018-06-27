@@ -1058,14 +1058,15 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 		}
 		else {
 			// artificial slope
-			const int back_image[2] = {abs_back_imageid%11, (abs_back_imageid/11)+11};
+			const int back_image[2] = {abs_back_imageid%11, abs_back_imageid/11};
+			const int wall_image_offset[2] = {0, 11};
 
 			// choose foundation or natural slopes
 			const ground_desc_t *sl_draw = artificial ? ground_desc_t::fundament : ground_desc_t::slopes;
 
 			const slope_t::type disp_slope = get_disp_slope();
 			// first draw left, then back slopes
-			for(  int i=0;  i<2;  i++  ) {
+			for(  size_t i=0;  i<2;  i++  ) {
 				const uint8 back_height = min(i==0?corner_sw(disp_slope):corner_ne(disp_slope),corner_nw(disp_slope));
 
 				if (back_height + get_disp_height() > underground_level) {
@@ -1074,6 +1075,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 
 				sint16 yoff = tile_raster_scale_y( -TILE_HEIGHT_STEP*back_height, raster_tile_width );
 				if(  back_image[i]  ) {
+					// Draw extra wall images for walls that cannot be represented by a image.
 					grund_t *gr = welt->lookup_kartenboden( k + koord::nsew[(i-1)&3] );
 					if(  gr  ) {
 						// for left we test corners 2 and 3 (east), for back we use 1 and 2 (south)
@@ -1087,18 +1089,20 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 							corner_b = max(1, corner_b);
 						}
 
-						sint16 hgt_diff = gr->get_disp_height() - get_disp_height() + min( corner_a, corner_b ) - back_height;
+						sint16 hgt_diff = gr->get_disp_height() - get_disp_height() + min( corner_a, corner_b ) - back_height
+							+ ((underground_mode == ugm_level  &&  gr->pos.z > underground_level) ? 1 : 0);
+
 						while(  hgt_diff > 2  ||  (hgt_diff > 0  &&  corner_a != corner_b)  ) {
-							uint16 img_index = 22+(hgt_diff>1)+2*i;
+							uint16 img_index = 22+(hgt_diff>1)+2*(uint16)i;
 							if( sl_draw->get_image( img_index ) == IMG_EMPTY ) {
-								img_index = 4+4*(hgt_diff>1)+11*i;
+								img_index = 4+4*(hgt_diff>1)+11*(uint16)i;
 							}
 							display_normal( sl_draw->get_image( img_index ), xpos, ypos + yoff, 0, true, dirty CLIP_NUM_PAR );
 							yoff     -= tile_raster_scale_y( TILE_HEIGHT_STEP * (hgt_diff > 1 ? 2 : 1), raster_tile_width );
 							hgt_diff -= 2;
 						}
 					}
-					display_normal( sl_draw->get_image( back_image[i] ), xpos, ypos + yoff, 0, true, dirty CLIP_NUM_PAR );
+					display_normal( sl_draw->get_image( back_image[i] + wall_image_offset[i] ), xpos, ypos + yoff, 0, true, dirty CLIP_NUM_PAR );
 				}
 			}
 		}
