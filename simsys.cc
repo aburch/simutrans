@@ -18,6 +18,7 @@
 #include "macros.h"
 #include "simmain.h"
 #include "simsys.h"
+#include "pathes.h"
 
 
 #ifdef _WIN32
@@ -343,7 +344,7 @@ char const *dr_query_homedir()
 		return NULL;
 	}
 
-	// Append Sumutrans folder.
+	// Append Simutrans folder.
 	char const foldername[] = "Simutrans";
 	if(lengthof(buffer) < strlen(buffer) + strlen(foldername) + 2 * strlen(PATH_SEPARATOR) + 1){
 		return NULL;
@@ -366,7 +367,7 @@ char const *dr_query_homedir()
 	dr_chdir(buffer);
 	dr_mkdir("maps");
 	dr_mkdir("save");
-	dr_mkdir("screenshots");
+	dr_mkdir(SCREENSHOT_PATH);
 
 	return buffer;
 }

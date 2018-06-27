@@ -313,7 +313,7 @@ void dr_os_close()
 int dr_textur_resize(unsigned short** const textur, int w, int const h )
 {
 	// enforce multiple of 16 pixels, or there are likely mismatches
-	w = (w + 15 ) & 0x7FF0;
+//	w = (w + 15 ) & 0x7FF0;
 
 	// w, h are the width in pixel, we calculate now the scree size
 	int width = (w*x_scale)/32l;
@@ -508,10 +508,10 @@ static void internal_GetEvents(bool const wait)
 	static char textinput[SDL_TEXTINPUTEVENT_TEXT_SIZE];
 	switch(  event.type  ) {
 		case SDL_WINDOWEVENT: {
-			if(  event.window.event == SDL_WINDOWEVENT_RESIZED  ) {
+			if(  event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED  ) {
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SYSTEM_RESIZE;
-				sys_event.mx   = (event.window.data1*32l)/x_scale;
+				sys_event.mx   = (((event.window.data1+7)&0xFFFFFFF8)*32l)/x_scale;
 				sys_event.my   = (event.window.data2*32l)/y_scale;
 			}
 			// Ignore other window events.
