@@ -857,6 +857,11 @@ void grund_t::calc_back_image(const sint8, const slope_t::type)
 // artificial walls from here on ...
 void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 {
+	const size_t CORNER_COUNT = 3;
+	const sint8 BACK_IMAGE_COUNT = 11;
+	const sint8 WALL_IMAGE_COUNT = BACK_IMAGE_COUNT * BACK_IMAGE_COUNT;
+	const size_t WALL_COUNT = 2;
+
 	// full underground mode or not ground -> no back image, no need for draw_as_obj
 	if (underground_mode == ugm_all || !ist_karten_boden()) {
 		clear_flag(grund_t::draw_as_obj);
@@ -865,18 +870,19 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 	}
 
 	// store corner heights sw, nw, ne scaled to screen dimensions
-	const sint16 scale_z_step = tile_raster_scale_y(TILE_HEIGHT_STEP, 64);
-	const sint16 scale_y_step = 64 / 2;
-	sint16 corners[3] = { (sint16)(scale_z_step*(hgt + corner_sw(slope_this))),
-		(sint16)(scale_z_step*(hgt + corner_nw(slope_this))),
-		(sint16)(scale_z_step*(hgt + corner_ne(slope_this))) };
-	sint16 corners_add[3] = { 0,0,0 }; // extra height of possible back-image
+	const sint16 scale_z_step = tile_raster_scale_y(TILE_HEIGHT_STEP,64);
+	const sint16 scale_y_step = 64/2;
 
-									   // now calculate back image
-	sint8 back_imageid = 0;
-	bool is_building = get_typ() == grund_t::fundament;
+	sint16 corners[CORNER_COUNT] = {(sint16)(scale_z_step*(hgt + corner_sw(slope_this))),
+	                     (sint16)(scale_z_step*(hgt + corner_nw(slope_this))),
+	                     (sint16)(scale_z_step*(hgt + corner_ne(slope_this)))};
+	sint16 corners_add[CORNER_COUNT] = {0,0,0}; // extra height of possible back-image
+
+	// now calculate back image
+	sint8 back_imageid=0;
+	bool is_building = get_typ()==grund_t::fundament;
 	const bool isvisible = is_visible();
-	bool fence[2] = {false, false};
+	bool fence[WALL_COUNT] = {false, false};
 	const koord k = get_pos().get_2d();
 
 	clear_flag(grund_t::draw_as_obj);
@@ -887,7 +893,7 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 		set_flag(grund_t::draw_as_obj);
 	}
 
-	for (int i = 0; i<2; i++) {
+	for(  size_t i=0;  i<WALL_COUNT;  i++  ) {
 		// now enter the left/back two height differences
 		if (const grund_t *gr = welt->lookup_kartenboden(k + koord::nsew[(i - 1) & 3])) {
 			const uint8 back_height = min(corner_nw(slope_this), (i == 0 ? corner_sw(slope_this) : corner_ne(slope_this)));
@@ -901,26 +907,28 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 			sint8 diff_from_ground_1 = left_hgt + (i == 0 ? corner_se(slope) : corner_sw(slope)) - hgt;
 			sint8 diff_from_ground_2 = left_hgt + (i == 0 ? corner_ne(slope) : corner_se(slope)) - hgt;
 
-			if (underground_mode == ugm_level) {
+			if (underground_mode==ugm_level) {
+				const bool gr_is_visible = gr->is_visible();
+
 				// if exactly one of (this) and (gr) is visible, show full walls
-				if (isvisible && !gr->is_visible()) {
+				if ( isvisible && !gr_is_visible){
 					diff_from_ground_1 += 1;
 					diff_from_ground_2 += 1;
 					set_flag(grund_t::draw_as_obj);
 					fence[i] = corner_a == corner_b;
 				}
-				else if (!isvisible && gr->is_visible()) {
+				else if ( !isvisible && gr_is_visible){
 					diff_from_ground_1 = max(diff_from_ground_1, 1);
 					diff_from_ground_2 = max(diff_from_ground_2, 1);
 				}
 				// avoid walls that cover the tunnel mounds
-				if (gr->is_visible() && (gr->get_typ() == grund_t::tunnelboden) && ist_karten_boden() && gr->get_pos().z == underground_level
-					&& corner_se(gr->get_grund_hang()) > 0 /* se corner */) {
+				if ( gr_is_visible && (gr->get_typ()==grund_t::tunnelboden) && ist_karten_boden() && gr->get_pos().z==underground_level
+				     && corner_se( gr->get_grund_hang() ) > 0 /* se corner */) {
 					diff_from_ground_1 = 0;
 					diff_from_ground_2 = 0;
 				}
-				if (is_visible() && (get_typ() == grund_t::tunnelboden) && ist_karten_boden() && pos.z == underground_level
-					&& corner_nw(get_grund_hang()) > 0 /* nw corner */) {
+				if ( isvisible && (get_typ()==grund_t::tunnelboden) && ist_karten_boden() && pos.z==underground_level
+					&& corner_nw( get_grund_hang() ) > 0 /* nw corner */) {
 
 					if ((i == 0) ^ (corner_sw(get_grund_hang()) == 0)) {
 						diff_from_ground_1 = 0;
@@ -946,10 +954,10 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 				}
 			}
 			// any height difference AND something to see?
-			if ((diff_from_ground_1 - corner_a>0 || diff_from_ground_2 - corner_b>0)
-				&& (diff_from_ground_1>0 || diff_from_ground_2>0)) {
-				back_imageid += get_back_image_from_diff(diff_from_ground_1, diff_from_ground_2)*(i == 0 ? 1 : 11);
-				is_building |= gr->get_typ() == grund_t::fundament;
+			if(  (diff_from_ground_1-corner_a>0  ||  diff_from_ground_2-corner_b>0)
+				&&  (diff_from_ground_1>0  ||  diff_from_ground_2>0)  ) {
+				back_imageid += get_back_image_from_diff( diff_from_ground_1, diff_from_ground_2 )*(i==0?1:BACK_IMAGE_COUNT);
+				is_building |= gr->get_typ()==grund_t::fundament;
 			}
 			// update corner heights
 			if (diff_from_ground_1 > corner_a) {
@@ -961,20 +969,21 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 		}
 	}
 
-	for (int i = 0; i<3; i++) {
+	for(int i=0; i<CORNER_COUNT; i++) {
 		corners[i] += corners_add[i];
 	}
 
 	// now test more tiles behind whether they are hidden by this tile
-	static const koord  testdir[grund_t::BACK_CORNER_COUNT] = { koord(-1,0), koord(-1,-1), koord(0,-1) };
-	for(sint16 step = 0; step<grund_t::MAXIMUM_HIDE_TEST_DISTANCE  &&  !get_flag(draw_as_obj); step ++) {
-		sint16 test[grund_t::BACK_CORNER_COUNT];
+	const koord  testdir[CORNER_COUNT] = { koord(-1,0), koord(-1,-1), koord(0,-1) };
 
-		for(uint i=0; i<grund_t::BACK_CORNER_COUNT; i++) {
+	for(int step = 0; step<5  &&  !get_flag(draw_as_obj); step ++) {
+		sint16 test[CORNER_COUNT];
+
+		for(int i=0; i<CORNER_COUNT; i++) {
 			test[i] = corners[i] + 1;
 		}
 
-		for(uint i=0; i<grund_t::BACK_CORNER_COUNT; i++) {
+		for(int i=0; i<CORNER_COUNT; i++) {
 			if(  const grund_t *gr=welt->lookup_kartenboden(k + testdir[i] - koord(step,step))  ) {
 				sint16 h = gr->get_disp_height()*scale_z_step;
 				slope_t::type s = gr->get_disp_slope();
@@ -987,11 +996,11 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 				// take backimage into account, take base-height of back image as corner heights
 				sint8 bb = abs(gr->back_imageid);
 				sint8 lh = 2, rh = 2; // height of start of back image
-				if (bb  &&  bb <= 121) {
-					if (bb % 11) {
+				if (bb  &&  bb<WALL_IMAGE_COUNT) {
+					if (bb % BACK_IMAGE_COUNT) {
 						lh = min(corner_sw(s), corner_nw(s));
 					}
-					if (bb / 11) {
+					if (bb / BACK_IMAGE_COUNT) {
 						rh = min(corner_ne(s), corner_nw(s));
 					}
 				}
@@ -1016,10 +1025,10 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 	}
 
 	// needs a fence?
-	if (back_imageid == 0) {
-		sint8 fence_offset = fence[0] + 2 * fence[1];
-		if (fence_offset) {
-			back_imageid = 121 + fence_offset;
+	if(back_imageid==0) {
+		sint8 fence_offset = fence[0] + (sint8)WALL_COUNT * fence[1];
+		if(fence_offset) {
+			back_imageid = WALL_IMAGE_COUNT + fence_offset;
 		}
 	}
 	this->back_imageid = (is_building != 0) ? -back_imageid : back_imageid;
