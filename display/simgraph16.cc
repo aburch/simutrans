@@ -4517,7 +4517,7 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 
 	if(  dirty  ) {
 		// here, because only now we know the length also for ALIGN_LEFT text
-		mark_rect_dirty_clip( x0, y, x - 1, y + 10 - 1  CLIP_NUM_PAR);
+		mark_rect_dirty_clip( x0, y, x - 1, y + large_font_total_height - 1  CLIP_NUM_PAR);
 	}
 	// warning: actual len might be longer, due to clipping!
 	return x - x0;
@@ -5321,17 +5321,15 @@ void display_snapshot( int x, int y, int w, int h )
 
 	char buf[80];
 
-	dr_mkdir(SCRENSHOT_PATH);
-
 	// find the first not used screenshot image
 	do {
-		sprintf(buf, SCRENSHOT_PATH_X "simscr%02d.png", number);
+		sprintf(buf, SCREENSHOT_PATH_X "simscr%02d.png", number);
 		if(access(buf, W_OK) == -1) {
-			sprintf(buf, SCRENSHOT_PATH_X "simscr%02d.bmp", number);
+			sprintf(buf, SCREENSHOT_PATH_X "simscr%02d.bmp", number);
 		}
 		number ++;
 	} while (access(buf, W_OK) != -1);
-	sprintf(buf, SCRENSHOT_PATH_X "simscr%02d.bmp", number-1);
+	sprintf(buf, SCREENSHOT_PATH_X "simscr%02d.bmp", number-1);
 
 	dr_screenshot(buf, x, y, w, h);
 }

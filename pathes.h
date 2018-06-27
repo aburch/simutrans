@@ -30,7 +30,7 @@
 #define SAVE_PATH_X	    SAVE_PATH "/"
 #define SAVE_PATH_X_LEN (sizeof(SAVE_PATH_X) - 1)
 
-#define SCRENSHOT_PATH	    "screenshot"
-#define SCRENSHOT_PATH_X    SCRENSHOT_PATH "/"
+#define SCREENSHOT_PATH	    "screenshot"
+#define SCREENSHOT_PATH_X    SCREENSHOT_PATH "/"
 
 #endif
