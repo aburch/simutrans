@@ -1,3 +1,5 @@
+	FIX: underground slice view now correctly displays front tile walls when a tile infront is flat and 2 elevations below the underground slice
+
 Release of 120.3 (r8503 on 15-June-2018):
 	ADD: new blue-white theme
 	ADD: new general tool 40 which rotates buildings
