@@ -264,7 +264,7 @@ void weg_t::info(cbuffer_t & buf) const
 				break;
 		}
 
-		if(  ribi_t::is_threeway(get_ribi_unmasked())  ) {
+		if(  ribi_t::is_threeway(get_ribi_unmasked())  &&  welt->get_settings().get_stop_at_intersection_without_traffic_light()  ) {
 			if(  str->get_prior_direction()==ribi_t::northsouth  ) {
 				buf.printf("%s: %s\n", translator::translate("Prior"), translator::translate("northsouth"));
 			} else if(  str->get_prior_direction()==ribi_t::eastwest  ) {
