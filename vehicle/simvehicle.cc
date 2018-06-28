@@ -2602,7 +2602,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 			// There is no vehicle on traffic lane.
 			// cnv->set_tiles_overtaking(0); is done in enter_tile()
-			return true;
 		}
 		// If the next tile is our destination and we are on passing lane of oneway mode road, we have to wait until traffic lane become safe.
 		if(  cnv->is_overtaking()  &&  str->get_overtaking_mode()==oneway_mode  &&  route_index == r.get_count() - 1u  ) {
@@ -2615,8 +2614,6 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				return false;
 			}
 			// There is no vehicle on traffic lane.
-			// cnv->set_tiles_overtaking(0); is done in enter_tile()
-			return true;
 		}
 		// If this vehicle is on traffic lane and the next tile forces to go passing lane, this vehicle must wait until passing lane become safe.
 		if(  !cnv->is_overtaking()  &&  str->get_overtaking_mode() == inverted_mode  ) {
@@ -2723,6 +2720,13 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 				cnv->suche_neue_route();
 				return NULL;
 			}
+
+			// this function cannot process vehicles on twoway and related mode road.
+			const strasse_t* str = (strasse_t *)gr->get_weg(road_wt);
+			if(  !str  ||  (str->get_overtaking_mode()>=twoway_mode  &&  str->get_overtaking_mode()<inverted_mode)  ) {
+				break;
+			}
+
 			for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
 				if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
 					if(  v->get_typ()==obj_t::pedestrian  ) {
