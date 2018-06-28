@@ -24,6 +24,8 @@
 #include "../obj/zeiger.h"
 #include "../utils/simrandom.h"
 
+uint16 win_get_statusbar_height(); // simwin.h
+
 main_view_t::main_view_t(karte_t *welt)
 {
 	this->welt = welt;
@@ -101,7 +103,7 @@ void main_view_t::display(bool force_dirty)
 	const sint16 menu_height = env_t::iconsize.h;
 	const sint16 IMG_SIZE = get_tile_raster_width();
 
-	const sint16 disp_height = display_get_height() - 15 - (!ticker::empty() ? TICKER_HEIGHT : 0);
+	const sint16 disp_height = display_get_height() - win_get_statusbar_height() - (!ticker::empty() ? TICKER_HEIGHT : 0);
 	display_set_clip_wh( 0, menu_height, disp_width, disp_height-menu_height );
 
 	// redraw everything?
