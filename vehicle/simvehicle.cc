@@ -996,6 +996,9 @@ void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
 		zoff_start = zoff_end = 0;
 		steps = 0;
 
+		// reset lane yielding
+		cnv->quit_yielding_lane();
+
 		set_xoff( (dx<0) ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS );
 		set_yoff( (dy<0) ? OBJECT_OFFSET_STEPS/2 : -OBJECT_OFFSET_STEPS/2 );
 
@@ -2851,7 +2854,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 				cnv->set_requested_change_lane(false);
 			}
 		}
-		if(  cnv->get_yielding_quit_index() == route_index  ) {
+		if(  cnv->get_yielding_quit_index() <= route_index  ) {
 			cnv->quit_yielding_lane();
 		}
 		if(  str->get_overtaking_mode() == inverted_mode  ) {

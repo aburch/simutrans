@@ -3977,12 +3977,9 @@ const char* convoi_t::send_to_depot(bool local)
  */
 void convoi_t::yield_lane_space()
 {
-	if(  speed_limit > kmh_to_speed(15)  ) {
-		uint32 quit_index = fahr[0]->get_route_index() + 3u;
-		if(  quit_index >= get_route()->get_count()  ) {
-			quit_index = get_route()->get_count() - 1u;
-		}
-		yielding_quit_index = quit_index;
+	// we do not allow lane yielding when the end of route is close.
+	if(  speed_limit > kmh_to_speed(20)  &&  fahr[0]->get_route_index() < get_route()->get_count() - 4u  ) {
+		yielding_quit_index = fahr[0]->get_route_index() + 3u;
 		must_recalc_speed_limit();
 	}
 }
