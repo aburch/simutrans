@@ -165,7 +165,6 @@ SOCKET network_open_address(char const* cp, char const*& err)
 	}
 
 #else
-
 	// Address format e.g.: "example.com:13353", "128.0.0.1:13353" or "[::1]:80"
 	// this should be replaced with a URI parser...
 	static char err_str[256];
@@ -206,6 +205,7 @@ SOCKET network_open_address(char const* cp, char const*& err)
 #else
 	vector_tpl<std::string> const& ips = env_t::listen;
 #endif
+
 	// For each address in the list of listen addresses try and create a socket to transmit on
 	// Use the first one which works
 	for (uint i = 0; !connected && i != ips.get_count(); ++i) {
@@ -224,7 +224,11 @@ SOCKET network_open_address(char const* cp, char const*& err)
 		// Fill out remote address structure
 		if (  (ret = getaddrinfo(cpaddress.c_str(), cpport.c_str(), &remote_hints, &remote)) != 0) {
 			sprintf( err_str, "Bad address %s", cp );
-			RET_ERR_STR;
+			if(  i+1==ips.get_count()  ) {
+				RET_ERR_STR;
+			}
+			// maybe it is an IPv4 only on the second interface ..
+			continue;
 		}
 
 		// Set up local addrinfo
@@ -818,6 +822,8 @@ void network_core_shutdown()
 
 bool get_external_IP( cbuffer_t &myIPaddr )
 {
+	// previous address/name started with a nummer followed by a dot.
+//	bool forceIPv4 = !myIPaddr.empty() &&  strstr( myIPaddr.get_str(), "." )  &&  atoi(myIPaddr.get_str());
 	myIPaddr.clear();
 	// query "simutrans-forum.de/get_IP.php" for IP (faster than asking router)
 	const char *err = network_http_get( "simutrans-forum.de:80", "/get_IP.php", myIPaddr );
@@ -843,6 +849,7 @@ extern "C" {
 #define upnpDiscover(a,b,c,d,e,f,g) upnpDiscover(a,b,c,d,e,g)
 #define UPNP_LOCAL_PORT_ANY 0
 #endif
+
 
 bool prepare_for_server( char *externalIPAddress, int port )
 {
@@ -892,6 +899,24 @@ bool prepare_for_server( char *externalIPAddress, int port )
 			has_IP = true;
 			strcpy( externalIPAddress, myIPaddr.get_str() );
 		}
+	}
+
+	// we have an external IP, let's find if we have a DNS name for it
+	if (!network_initialize()) {
+		return has_IP;
+	}
+
+	struct sockaddr_in sin;
+	memset(&sin, 0, sizeof(sin));
+	sin.sin_family      = AF_INET;
+	sin.sin_addr.s_addr = inet_addr(externalIPAddress);
+	sin.sin_port        = 0; // If 0, port is chosen by system
+	char hostname[1024];
+	hostname[0] = 0;
+
+	int err = getnameinfo((const sockaddr *)&sin, sizeof(sin), hostname, lengthof(hostname), NULL, NULL, 0);
+	if(  !err  &&  *hostname  ) {
+		strcpy( externalIPAddress, hostname );
 	}
 	return has_IP;
 }
