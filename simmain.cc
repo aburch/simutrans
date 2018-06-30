@@ -774,6 +774,7 @@ int simu_main(int argc, char** argv)
 			}
 			env_t::server_announce = 1;
 			env_t::easy_server = 1;
+			env_t::server_dns = IP;
 		}
 	}
 

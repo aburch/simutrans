@@ -11133,7 +11133,8 @@ void karte_t::announce_server(int status)
 	if(  env_t::server_announce  ) {
 		// in easy_server mode, we assume the IP may change frequently and thus query it before each announce
 		cbuffer_t buf;
-		if(  env_t::easy_server  &&  status<2  &&  get_external_IP(buf)  ) {
+		if(  env_t::easy_server  &&  status<2  &&  atoi(env_t::server_dns.c_str())  &&  get_external_IP(buf)  ) {
+			// if onlz numerical IP, then check if still current
 			env_t::server_dns = (const char *)buf;
 		}
 		// Always send dns and port as these are used as the unique identifier for the server
@@ -11213,7 +11214,12 @@ void karte_t::announce_server(int status)
 			buf.append( "&st=0" );
 		}
 
-		network_http_post( ANNOUNCE_SERVER, ANNOUNCE_URL, buf, NULL );
+		if(  env_t::easy_server  &&  !strstr(env_t::server_dns.c_str(),":")  ) {
+			network_http_post( ANNOUNCE_SERVER_IPV4, ANNOUNCE_URL, buf, NULL );
+		}
+		else {
+			network_http_post( ANNOUNCE_SERVER, ANNOUNCE_URL, buf, NULL );
+		}
 
 		// Record time of this announce
 		server_last_announce_time = dr_time();

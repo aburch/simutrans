@@ -97,6 +97,8 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 /* Server to announce status to */
 #define ANNOUNCE_SERVER "list.extended.simutrans.org:8080"
 
+#define ANNOUNCE_SERVER_IPV4 "5.135.125.166:80"
+
 /* Relative URL of the announce function on server */
 #define ANNOUNCE_URL "/announce"
 
