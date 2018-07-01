@@ -8,7 +8,7 @@ As of version 14, OTRP is based on simutrans standard 120.3.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.
-You can download the OTRP executable binary from the links below. **(2018 June 28nd, updated to ver 14_4.)**  
+You can download the OTRP executable binary from the links below. **(2018 July 1st, updated to ver 14_4.)**  
 windows: https://drive.google.com/open?id=1EYrAJEpqk1Xsry4Azyoe6UscRboasbl4  
 mac: https://drive.google.com/open?id=1lDMkNQpfK9o96klwM75frPI0FrpJ3h9y  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
