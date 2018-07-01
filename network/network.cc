@@ -25,6 +25,7 @@
 #include "network_cmd_ingame.h"
 #include "network_cmp_pakset.h"
 #include "../simconst.h"
+#include "../simversion.h"
 
 #ifndef NETTOOL
 #include "../dataobj/environment.h"
@@ -825,13 +826,22 @@ void network_core_shutdown()
 #include "../utils/cbuffer_t.h"
 #include "network_file_transfer.h"
 
-bool get_external_IP( cbuffer_t &myIPaddr )
+bool get_external_IP( cbuffer_t &myIPaddr, cbuffer_t &altIPaddr )
 {
-	// previous address/name started with a nummer followed by a dot.
-//	bool forceIPv4 = !myIPaddr.empty() &&  strstr( myIPaddr.get_str(), "." )  &&  atoi(myIPaddr.get_str());
 	myIPaddr.clear();
-	// query "simutrans-forum.de/get_IP.php" for IP (faster than asking router)
-	const char *err = network_http_get( "simutrans-forum.de:80", "/get_IP.php", myIPaddr );
+	altIPaddr.clear();
+	// query "simutrans-forum.de/get_IP.php" for IP (faster than asking router and we can get IP6 too)
+	const char *err = network_http_get( QUERY_ADDR_IP, QUERY_ADDR_URL, altIPaddr );
+	// if we have a dual stack system, IP6 should be preferred, i.e. we have now the IP6
+	if(  err==NULL  &&  strstr(myIPaddr,":")  ) {
+		// try to get and IPv4 address too
+		if(  !network_http_get( QUERY_ADDR_IPv4_ONLY, QUERY_ADDR_URL, myIPaddr )  ) {
+			if(  strcmp( myIPaddr, altIPaddr ) == 0   ) {
+				// same, no alternative address
+				altIPaddr.clear();
+			}
+		}
+	}
 	return err==NULL;
 }
 
@@ -852,7 +862,7 @@ extern "C" {
 #endif
 
 
-bool prepare_for_server( char *externalIPAddress, int port )
+bool prepare_for_server( char *externalIPAddress, char *externalAltIPAddress, int port )
 {
 	char lanaddr[64] = "unset";	/* my ip address on the LAN */
 	int error = 0;
@@ -893,13 +903,21 @@ bool prepare_for_server( char *externalIPAddress, int port )
 	}
 	freeUPNPDevlist(devlist);
 
-	if(  !has_IP  ) {
-		cbuffer_t myIPaddr;
-		// lets get IP by query "simutrans-forum.de/get_IP.php" for IP and assume that the redirection is working
-		const char *err = network_http_get( "simutrans-forum.de:80", "/get_IP.php", myIPaddr );
-		if(  !err  ) {
-			has_IP = true;
+	externalAltIPAddress[0] = 0;
+
+	// now we have (or have not) have the IPv4 at this point (due to the protocol), we check for IP6 too or trz to get at least an IP addr
+	cbuffer_t myIPaddr;
+	// lets get IP by query "simutrans-forum.de/get_IP.php" for IP and assume that the redirection is working
+	const char *err = network_http_get( "simutrans-forum.de:80", "/get_IP.php", myIPaddr );
+	if(  !err  ) {
+		if(  has_IP  ) {
+			if(  strcmp(externalIPAddress, myIPaddr.get_str())!=0  ) {
+				strcpy( externalAltIPAddress, myIPaddr.get_str() );
+			}
+		}
+		else {
 			strcpy( externalIPAddress, myIPaddr.get_str() );
+			has_IP = true;
 		}
 	}
 
@@ -916,8 +934,8 @@ bool prepare_for_server( char *externalIPAddress, int port )
 	char hostname[1024];
 	hostname[0] = 0;
 
-	int err = getnameinfo((const sockaddr *)&sin, sizeof(sin), hostname, lengthof(hostname), NULL, NULL, 0);
-	if(  !err  &&  *hostname  ) {
+	int failed = getnameinfo((const sockaddr *)&sin, sizeof(sin), hostname, lengthof(hostname), NULL, NULL, 0);
+	if(  !failed  &&  *hostname  ) {
 		strcpy( externalIPAddress, hostname );
 	}
 	return has_IP;
