@@ -4445,11 +4445,11 @@ bool has_character(utf16 char_code)
 
 
 /*
-* returns the index of the last character that would fit within the width
-* If an eclipse len is given, it will only return the last character up to this len if the full length cannot be fitted
-* @returns index of next character. if text[index]==0 the whole string fits
-*/
-size_t display_fit_proportional(const char *text, scr_coord_val max_width, scr_coord_val eclipse_width)
+ * returns the index of the last character that would fit within the width
+ * If an ellipsis len is given, it will only return the last character up to this len if the full length cannot be fitted
+ * @returns index of next character. if text[index]==0 the whole string fits
+ */
+size_t display_fit_proportional( const char *text, scr_coord_val max_width, scr_coord_val ellipsis_width )
 {
 	size_t max_idx = 0;
 
@@ -4458,14 +4458,14 @@ size_t display_fit_proportional(const char *text, scr_coord_val max_width, scr_c
 	scr_coord_val current_offset = 0;
 
 	const char *tmp_text = text;
-	while (get_next_char_with_metrics(tmp_text, byte_length, pixel_width) && max_width > (current_offset + eclipse_width + pixel_width)) {
+	while(  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)  &&  max_width > (current_offset+ellipsis_width+pixel_width)  ) {
 		current_offset += pixel_width;
 		max_idx += byte_length;
 	}
-	size_t eclipse_idx = max_idx;
+	size_t ellipsis_idx = max_idx;
 
 	// now check if the text would fit completely
-	if (eclipse_width  &&  pixel_width > 0) {
+	if(  ellipsis_width  &&  pixel_width > 0  ) {
 		// only when while above failed because of exceeding length
 		current_offset += pixel_width;
 		max_idx += byte_length;
@@ -4479,7 +4479,7 @@ size_t display_fit_proportional(const char *text, scr_coord_val max_width, scr_c
 			return max_idx + byte_length;
 		}
 	}
-	return eclipse_idx;
+	return ellipsis_idx;
 }
 
 
@@ -4733,13 +4733,13 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 
 
 /*
-* Displays a string which is abbreviated by the (language specific) ellipse character if too wide
-* If enough space is given then it just displays the full string
-* @returns screen_width
-*/
-KOORD_VAL display_proportional_ellipse_rgb(scr_rect r, const char *text, int align, const PIXVAL color, const bool dirty)
+ * Displays a string which is abbreviated by the (language specific) ellipsis character if too wide
+ * If enough space is given then it just displays the full string
+ * @returns screen_width
+ */
+KOORD_VAL display_proportional_ellipsis_rgb( scr_rect r, const char *text, int align, const PIXVAL color, const bool dirty )
 {
-	const scr_coord_val eclipse_width = translator::get_lang()->eclipse_width;
+	const scr_coord_val ellipsis_width = translator::get_lang()->ellipsis_width;
 	const scr_coord_val max_screen_width = r.w;
 	size_t max_idx = 0;
 
@@ -4753,15 +4753,15 @@ KOORD_VAL display_proportional_ellipse_rgb(scr_rect r, const char *text, int ali
 	}
 
 	const char *tmp_text = text;
-	while (get_next_char_with_metrics(tmp_text, byte_length, pixel_width) && max_screen_width > (current_offset + eclipse_width + pixel_width)) {
+	while(  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)  &&  max_screen_width > (current_offset+ellipsis_width+pixel_width)  ) {
 		current_offset += pixel_width;
 		max_idx += byte_length;
 	}
-	size_t max_idx_before_ellipse = max_idx;
-	scr_coord_val max_offset_before_ellipse = current_offset;
+	size_t max_idx_before_ellipsis = max_idx;
+	scr_coord_val max_offset_before_ellipsis = current_offset;
 
 	// now check if the text would fit completely
-	if (eclipse_width  &&  pixel_width > 0) {
+	if(  ellipsis_width  &&  pixel_width > 0  ) {
 		// only when while above failed because of exceeding length
 		current_offset += pixel_width;
 		max_idx += byte_length;
@@ -4774,11 +4774,11 @@ KOORD_VAL display_proportional_ellipse_rgb(scr_rect r, const char *text, int ali
 		if (max_screen_width <= (current_offset + pixel_width)) {
 			KOORD_VAL w = 0;
 			// since we know the length already, we try to center the text with the remaining pixels of the last character
-			if (align & ALIGN_CENTER_H) {
-				w = (max_screen_width - max_offset_before_ellipse - eclipse_width) / 2;
+			if(  align & ALIGN_CENTER_H  ) {
+				w = (max_screen_width-max_offset_before_ellipsis-ellipsis_width)/2;
 			}
-			w += display_text_proportional_len_clip_rgb(r.x + w, r.y, text, ALIGN_LEFT | DT_CLIP, color, dirty, max_idx_before_ellipse  CLIP_NUM_DEFAULT);
-			w += display_text_proportional_len_clip_rgb(r.x + w, r.y, translator::translate("..."), ALIGN_LEFT | DT_CLIP, color, dirty, -1  CLIP_NUM_DEFAULT);
+			w += display_text_proportional_len_clip_rgb( r.x+w, r.y, text, ALIGN_LEFT | DT_CLIP, color, dirty, max_idx_before_ellipsis  CLIP_NUM_DEFAULT);
+			w += display_text_proportional_len_clip_rgb( r.x+w, r.y, translator::translate("..."), ALIGN_LEFT | DT_CLIP, color, dirty, -1  CLIP_NUM_DEFAULT);
 			return w;
 		}
 		else {

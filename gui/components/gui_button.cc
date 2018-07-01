@@ -274,7 +274,7 @@ void button_t::draw(scr_coord offset)
 					scr_rect area_text = area - gui_theme_t::gui_color_button_text_offset_right;
 					area_text.set_pos( gui_theme_t::gui_color_button_text_offset + area.get_pos() );
 					if (pressed) { area_text.y++; }
-					display_proportional_ellipse_rgb( area_text, translated_text, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, text_color, true );
+					display_proportional_ellipsis_rgb( area_text, translated_text, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, text_color, true );
 				}
 				if(  win_get_focus()==this  ) {
 					draw_focus_rect( area );
@@ -290,7 +290,7 @@ void button_t::draw(scr_coord offset)
 					scr_rect area_text = area - gui_theme_t::gui_button_text_offset_right;
 					area_text.set_pos( gui_theme_t::gui_button_text_offset + area.get_pos() );
 					if (pressed) { area_text.y++; }
-					display_proportional_ellipse_rgb( area_text, translated_text, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, text_color, true );
+					display_proportional_ellipsis_rgb( area_text, translated_text, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, text_color, true );
 				}
 				else if(image) {
 					display_img_aligned(image, area, ALIGN_CENTER_H | ALIGN_CENTER_V | DT_CLIP, true);
@@ -309,7 +309,7 @@ void button_t::draw(scr_coord offset)
 					scr_rect area_text = area;
 					area_text.x += gui_theme_t::gui_checkbox_size.w + D_H_SPACE;
 					area_text.w -= gui_theme_t::gui_checkbox_size.w + D_H_SPACE;
-					display_proportional_ellipse_rgb( area_text, translated_text, ALIGN_LEFT | ALIGN_CENTER_V | DT_CLIP, text_color, true );
+					display_proportional_ellipsis_rgb( area_text, translated_text, ALIGN_LEFT | ALIGN_CENTER_V | DT_CLIP, text_color, true );
 				}
 				if(  win_get_focus() == this  ) {
 					draw_focus_rect( scr_rect( area.get_pos()+scr_coord(0,(area.get_size().h-gui_theme_t::gui_checkbox_size.w)/2), gui_theme_t::gui_checkbox_size ) );
