@@ -2623,8 +2623,13 @@ void way_builder_t::build_road()
 		if(extend) {
 			str = (strasse_t*)gr->get_weg(road_wt);
 
+			if(gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0) {
+				// To make changing of overtaking_mode easy, only update overtaking_mode and ribi_mask_oneway
+				str->set_overtaking_mode(overtaking_mode);
+				update_ribi_mask_oneway(str,i);
+			}
 			// keep faster ways or if it is the same way ... (@author prissi)
-			if((str->get_desc()==desc  &&  str->get_overtaking_mode()==overtaking_mode  )  ||  keep_existing_ways  ||  (keep_existing_city_roads  &&  str->hat_gehweg())  ||  (keep_existing_faster_ways  &&  str->get_desc()->get_topspeed()>desc->get_topspeed())  ||  (player_builder!=NULL  &&  str->is_deletable(player_builder)!=NULL) || (gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0)) {
+			else if((str->get_desc()==desc  &&  str->get_overtaking_mode()==overtaking_mode  )  ||  keep_existing_ways  ||  (keep_existing_city_roads  &&  str->hat_gehweg())  ||  (keep_existing_faster_ways  &&  str->get_desc()->get_topspeed()>desc->get_topspeed())  ||  (player_builder!=NULL  &&  str->is_deletable(player_builder)!=NULL)) {
 				//nothing to be done
 //DBG_MESSAGE("way_builder_t::build_road()","nothing to do at (%i,%i)",k.x,k.y);
 			}
