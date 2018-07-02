@@ -22,6 +22,7 @@
 #include "../macros.h"
 #include "../simmain.h"
 #include "simsys.h"
+#include "../simevent.h"
 
 
 #ifdef _WIN32
@@ -52,7 +53,8 @@ struct sys_event sys_event;
  + */
 int get_mouse_x()
 {
-	return sys_event.mx;
+	// for resize events mx/my is new window size
+	return (sys_event.code != SYSTEM_RESIZE  &&  sys_event.type != SIM_NOEVENT) ?  sys_event.my : -100;
 }
 
 
