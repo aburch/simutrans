@@ -1352,12 +1352,23 @@ DBG_MESSAGE("simmain","loadgame file found at %s",path.c_str());
 		env_t::server_dns = ref_str;
 	}
 
+	if(  const char *ref_str = gimme_arg(argc, argv, "-server_altdns", 1)  ) {
+		env_t::server_alt_dns = ref_str;
+		DBG_DEBUG( "simmain()", "Server IP set to '%s'.", ref_str );
+	}
+
 	if(  const char *ref_str = gimme_arg(argc, argv, "-server_name", 1)  ) {
 		env_t::server_name = ref_str;
 	}
 
 	if(  const char *ref_str = gimme_arg(argc, argv, "-server_admin_pw", 1)  ) {
 		env_t::server_admin_pw = ref_str;
+	}
+
+	if(  env_t::server_dns.empty()  &&  !env_t::server_alt_dns.empty()  ) {
+		dbg->warning( "simmain", "server_altdns but not server_dns set. Please use server_dns first!" );
+		env_t::server_dns = env_t::server_alt_dns;
+		env_t::server_alt_dns.clear();
 	}
 
 	dr_chdir(env_t::user_dir);
