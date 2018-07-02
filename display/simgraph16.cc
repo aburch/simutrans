@@ -1050,11 +1050,11 @@ void mark_rect_dirty_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2
 		if (y1 < CR.clip_rect.y) {
 			y1 = CR.clip_rect.y;
 		}
-		if (x2 > CR.clip_rect.xx) {
-			x2 = CR.clip_rect.xx;
+		if (x2 >= CR.clip_rect.xx) {
+			x2 = CR.clip_rect.xx-1;
 		}
-		if (y2 > CR.clip_rect.yy) {
-			y2 = CR.clip_rect.yy;
+		if (y2 >= CR.clip_rect.yy) {
+			y2 = CR.clip_rect.yy-1;
 		}
 		mark_rect_dirty_nc(x1, y1, x2, y2);
 	}
