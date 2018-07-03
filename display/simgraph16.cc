@@ -4753,7 +4753,7 @@ KOORD_VAL display_proportional_ellipsis_rgb( scr_rect r, const char *text, int a
 	}
 
 	const char *tmp_text = text;
-	while(  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)  &&  max_screen_width > (current_offset+ellipsis_width+pixel_width)  ) {
+	while(  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)  &&  max_screen_width >= (current_offset+ellipsis_width+pixel_width)  ) {
 		current_offset += pixel_width;
 		max_idx += byte_length;
 	}
@@ -4766,12 +4766,12 @@ KOORD_VAL display_proportional_ellipsis_rgb( scr_rect r, const char *text, int a
 		current_offset += pixel_width;
 		max_idx += byte_length;
 		// check the rest ...
-		while (get_next_char_with_metrics(tmp_text, byte_length, pixel_width) && max_screen_width > (current_offset + pixel_width)) {
+		while(  get_next_char_with_metrics(tmp_text, byte_length, pixel_width)  &&  max_screen_width >= (current_offset+pixel_width)  ) {
 			current_offset += pixel_width;
 			max_idx += byte_length;
 		}
 		// if it does not fit
-		if (max_screen_width <= (current_offset + pixel_width)) {
+		if(  max_screen_width < (current_offset+pixel_width)  ) {
 			KOORD_VAL w = 0;
 			// since we know the length already, we try to center the text with the remaining pixels of the last character
 			if(  align & ALIGN_CENTER_H  ) {
