@@ -858,7 +858,7 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 		}
 	}
 
-	for(int i=0; i<CORNER_COUNT; i++) {
+	for(uint i=0; i<CORNER_COUNT; i++) {
 		corners[i] += corners_add[i];
 	}
 	// now test more tiles behind whether they are hidden by this tile
@@ -867,11 +867,11 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 	for(int step = 0; step<5  &&  !get_flag(draw_as_obj); step ++) {
 		sint16 test[CORNER_COUNT];
 
-		for(int i=0; i<CORNER_COUNT; i++) {
+		for(uint i=0; i<CORNER_COUNT; i++) {
 			test[i] = corners[i] + 1;
 		}
 
-		for(int i=0; i<CORNER_COUNT; i++) {
+		for(uint i=0; i<CORNER_COUNT; i++) {
 			if(  const grund_t *gr=welt->lookup_kartenboden(k + testdir[i] - koord(step,step))  ) {
 				sint16 h = gr->get_disp_height()*scale_z_step;
 				sint8 s = gr->get_disp_slope();
