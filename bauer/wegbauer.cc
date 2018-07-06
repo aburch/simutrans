@@ -2487,12 +2487,16 @@ void way_builder_t::build_road()
 			if(extend) {
 				str = (strasse_t*)gr->get_weg(road_wt);
 
+				if(  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  ) {
+					// To make changing of overtaking_mode easy, only update overtaking_mode and ribi_mask_oneway
+					str->set_overtaking_mode(overtaking_mode);
+					update_ribi_mask_oneway(str,i);
+				}
 				// keep faster ways or if it is the same way ... (@author prissi)
-				if(  str->get_desc()==desc  ||  keep_existing_ways
+				else if(  str->get_desc()==desc  ||  keep_existing_ways
 					||  (  keep_existing_city_roads  &&  str->hat_gehweg()  )
 					||  (  ( keep_existing_faster_ways || ((player && !player->is_public_service()) && str->is_public_right_of_way())) &&  ! ( desc->is_at_least_as_good_as(str->get_desc()) )  )
 					||  (  player!=NULL  &&  str-> is_deletable(player)!=NULL  )
-					||  (  gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0  )
 					) {
 					// only update overtaking_mode
 					str->set_overtaking_mode(overtaking_mode);
