@@ -4160,6 +4160,12 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 				cnv->suche_neue_route();
 				return NULL;
 			}
+			// this function cannot process vehicles on twoway and related mode road.
+			const strasse_t* str = (strasse_t *)gr->get_weg(road_wt);
+			if(  !str  ||  (str->get_overtaking_mode()>=twoway_mode  &&  str->get_overtaking_mode()<inverted_mode)  ) {
+				break;
+			}
+
 			for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
 				if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
 					if(  v->get_typ()==obj_t::pedestrian  ) {
