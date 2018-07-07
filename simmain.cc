@@ -1074,13 +1074,17 @@ int simu_main(int argc, char** argv)
 #endif
 
 	// just check before loading objects
-	if (!gimme_arg(argc, argv, "-nosound", 0)  &&  dr_init_sound()) {
+	if(  dr_init_sound()  ) {
 		dbg->important("Reading compatibility sound data ...");
 		sound_desc_t::init();
 	}
 	else {
 		sound_set_mute(true);
 	}
+	if(  !gimme_arg(argc, argv, "-nosound", 0)  ) {
+		sound_set_mute(true);
+	}
+	
 
 	// Adam - Moved away loading from simmain and placed into translator for better modularization
 	if(  !translator::load(env_t::objfilename)  ) {
