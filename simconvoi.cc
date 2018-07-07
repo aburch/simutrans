@@ -8173,12 +8173,9 @@ bool convoi_t::carries_this_or_lower_class(uint8 catg, uint8 g_class) const
  */
 void convoi_t::yield_lane_space()
 {
-	if(  akt_speed > kmh_to_speed(15)  ) {
-		uint32 quit_index = front()->get_route_index() + 3u;
-		if(  quit_index >= get_route()->get_count()  ) {
-			quit_index = get_route()->get_count() - 1u;
-		}
-		yielding_quit_index = quit_index;
+	// we do not allow lane yielding when the end of route is close.
+	if(  akt_speed > kmh_to_speed(20)  &&  front()->get_route_index() < get_route()->get_count() - 4u  ) {
+		yielding_quit_index = front()->get_route_index() + 3u;
 	}
 }
 

@@ -675,8 +675,14 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 	if(  pcar  ) {
 		cnv_overtaking = pcar -> is_overtaking();
 	}
-	if(  lane_on_the_tile==1  ) cnv_overtaking = true; //treated as convoi is overtaking.
-	else if(  lane_on_the_tile==-1  ) cnv_overtaking = false; //treated as convoi is not overtaking.
+	switch (lane_on_the_tile) {
+		case 1:
+		cnv_overtaking = true; //treat as convoi is overtaking.
+		break;
+		case -1:
+		cnv_overtaking = false; //treat as convoi is not overtaking.
+		break;
+	}
 	// Search vehicle
 	for(  uint8 pos=1;  pos<(/*volatile*/ uint8)gr->get_top();  pos++  ) {
 		if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
@@ -1409,6 +1415,9 @@ void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
 
 		zoff_start = zoff_end = 0;
 		steps = 0;
+
+		// reset lane yielding
+		cnv->quit_yielding_lane();
 
 		set_xoff( (dx<0) ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS );
 		set_yoff( (dy<0) ? OBJECT_OFFSET_STEPS/2 : -OBJECT_OFFSET_STEPS/2 );
@@ -3657,6 +3666,10 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 		}
 
+		if(  current_str->get_overtaking_mode()<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  ) {
+			next_lane = -1;
+		}
+
 		vehicle_base_t *obj = NULL;
 		uint32 test_index = route_index;
 
@@ -4030,7 +4043,18 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 			// There is no vehicle on traffic lane.
 			// cnv->set_tiles_overtaking(0); is done in enter_tile()
-			return true;
+		}
+		// If the next tile is our destination and we are on passing lane of oneway mode road, we have to wait until traffic lane become safe.
+		if(  cnv->is_overtaking()  &&  str->get_overtaking_mode()==oneway_mode  &&  route_index == r.get_count() - 1u  ) {
+			halthandle_t halt = haltestelle_t::get_halt(welt->lookup(r.at(route_index))->get_pos(),cnv->get_owner());
+			vehicle_base_t* v = other_lane_blocked(false, offset);
+			if(  halt.is_bound()  &&  gr->get_weg_ribi(get_waytype())!=0  &&  v  &&  v->get_waytype() == road_wt  ) {
+				restart_speed = 0;
+				cnv->reset_waiting();
+				cnv->set_next_cross_lane(true);
+				return false;
+			}
+			// There is no vehicle on traffic lane.
 		}
 		// If this vehicle is on traffic lane and the next tile forces to go passing lane, this vehicle must wait until passing lane become safe.
 		if(  !cnv->is_overtaking()  &&  str->get_overtaking_mode() == inverted_mode  ) {
@@ -4136,6 +4160,12 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 				cnv->suche_neue_route();
 				return NULL;
 			}
+			// this function cannot process vehicles on twoway and related mode road.
+			const strasse_t* str = (strasse_t *)gr->get_weg(road_wt);
+			if(  !str  ||  (str->get_overtaking_mode()>=twoway_mode  &&  str->get_overtaking_mode()<inverted_mode)  ) {
+				break;
+			}
+
 			for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
 				if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
 					if(  v->get_typ()==obj_t::pedestrian  ) {
@@ -4269,7 +4299,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 				cnv->set_requested_change_lane(false);
 			}
 		}
-		if(  cnv->get_yielding_quit_index() == route_index  ) {
+		if(  cnv->get_yielding_quit_index() <= route_index  ) {
 			cnv->quit_yielding_lane();
 		}
 		if(  str->get_overtaking_mode() == inverted_mode  ) {
@@ -6522,8 +6552,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				}
 				time_interval_reservation = 
 					   (!next_signal_protects_no_junctions || first_double_block_signal_index < INVALID_INDEX)
-					&& ((this_stop_signal_index < INVALID_INDEX || last_stop_signal_index < INVALID_INDEX) || last_choose_signal_index < INVALID_INDEX) && (count >= 0 || i == start_index) 
-					&& ((i - time_interval_starting_point <= welt->get_settings().get_sighting_distance_tiles()) || next_signal_working_method == time_interval_with_telegraph 
+					&& ((this_stop_signal_index < INVALID_INDEX || last_stop_signal_index < INVALID_INDEX) || last_choose_signal_index < INVALID_INDEX) && (count >= 0 || i == start_index)
+					&& ((i - time_interval_starting_point <= welt->get_settings().get_sighting_distance_tiles()) || next_signal_working_method == time_interval_with_telegraph
 						|| (check_halt.is_bound() && check_halt == last_step_halt && (next_signal_working_method == time_interval_with_telegraph || previous_time_interval_reservation == is_true || previous_time_interval_reservation == is_uncertain))); // Time interval with telegraph signals have no distance limit for reserving.
 			}
 			const bool telegraph_directional = time_interval_reservation && previous_telegraph_directional || (next_signal_working_method == time_interval_with_telegraph && (((last_longblock_signal_index == last_stop_signal_index && first_stop_signal_index == last_longblock_signal_index) && last_longblock_signal_index < INVALID_INDEX) || first_double_block_signal_index < INVALID_INDEX && next_signal_protects_no_junctions));
