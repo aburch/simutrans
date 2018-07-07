@@ -1512,7 +1512,7 @@ void weg_t::wear_way(uint32 wear)
 			}
 		}
 	}
-	else
+	else if(!is_degraded())
 	{
 		remaining_wear_capacity = 0;
 		if(!renew())
