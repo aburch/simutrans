@@ -95,6 +95,8 @@ public:
 	static int server_port;
 	/// DNS name or IP address clients should use to connect to server
 	static std::string server_dns;
+	/// second DNS name or more liekly IP address (for a dualstack machine) to connect to our server
+	static std::string server_alt_dns;
 	/// Name of server for display on list server
 	static std::string server_name;
 	/// Comments about server for display on list server

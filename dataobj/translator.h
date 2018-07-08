@@ -54,7 +54,7 @@ public:
 		const char *iso;
 		const char *iso_base;
 		bool is_latin2_based;
-		uint8 eclipse_width;
+		uint8 ellipsis_width;
 	};
 
 	static void init_custom_names(int lang);

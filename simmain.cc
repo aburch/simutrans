@@ -693,8 +693,9 @@ int simu_main(int argc, char** argv)
 		dbg->message( "simmain()", "Server started on port %i", env_t::server_port );
 		env_t::networkmode = network_init_server( env_t::server_port );
 		// query IP and try to open ports on router
-		char IP[256];
-		if(  prepare_for_server( IP, env_t::server_port )  ) {
+		char IP[256], altIP[256];
+		altIP[0] = 0;
+		if(  prepare_for_server( IP, altIP, env_t::server_port )  ) {
 			// we have forwarded a port in router, so we can continue
 			env_t::server_dns = IP;
 			if(  env_t::server_name.empty()  ) {
@@ -702,6 +703,8 @@ int simu_main(int argc, char** argv)
 			}
 			env_t::server_announce = 1;
 			env_t::easy_server = 1;
+			env_t::server_dns = IP;
+			env_t::server_alt_dns = altIP;
 		}
 	}
 
@@ -998,13 +1001,17 @@ int simu_main(int argc, char** argv)
 #endif
 
 	// just check before loading objects
-	if (!gimme_arg(argc, argv, "-nosound", 0)  &&  dr_init_sound()) {
+	if(  dr_init_sound()  ) {
 		dbg->important("Reading compatibility sound data ...");
 		sound_desc_t::init();
 	}
 	else {
 		sound_set_mute(true);
 	}
+	if(  !gimme_arg(argc, argv, "-nosound", 0)  ) {
+		sound_set_mute(true);
+	}
+	
 
 	// Adam - Moved away loading from simmain and placed into translator for better modularization
 	if(  !translator::load(env_t::objfilename)  ) {
@@ -1219,6 +1226,11 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		DBG_DEBUG( "simmain()", "Server IP set to '%s'.", ref_str );
 	}
 
+	if(  const char *ref_str = gimme_arg(argc, argv, "-server_altdns", 1)  ) {
+		env_t::server_alt_dns = ref_str;
+		DBG_DEBUG( "simmain()", "Server IP set to '%s'.", ref_str );
+	}
+
 	if(  const char *ref_str = gimme_arg(argc, argv, "-server_name", 1)  ) {
 		env_t::server_name = ref_str;
 		DBG_DEBUG( "simmain()", "Server name set to '%s'.", ref_str );
@@ -1226,6 +1238,12 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	if(  const char *ref_str = gimme_arg(argc, argv, "-server_admin_pw", 1)  ) {
 		env_t::server_admin_pw = ref_str;
+	}
+
+	if(  env_t::server_dns.empty()  &&  !env_t::server_alt_dns.empty()  ) {
+		dbg->warning( "simmain", "server_altdns but not server_dns set. Please use server_dns first!" );
+		env_t::server_dns = env_t::server_alt_dns;
+		env_t::server_alt_dns.clear();
 	}
 
 	dr_chdir(env_t::user_dir);

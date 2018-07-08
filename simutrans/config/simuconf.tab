@@ -676,6 +676,9 @@ fast_forward = 50
 # Fully Qualified Domain Name (FQDN) or IP address of your server (IPv6 or IPv4)
 #server_dns = 127.0.0.1
 
+# alternative server name (an or IP6) Use only if server_dns is set!
+#server_altdns = fe80::1
+
 # Port address (usually set via command line)
 #server_port = 13353
 

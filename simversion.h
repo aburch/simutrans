@@ -88,4 +88,11 @@
 /* Relative URL of the list function on server */
 #define ANNOUNCE_LIST_URL "/list?format=csv"
 
+/* url for obtaining the external IP for easz servers */
+#define QUERY_ADDR_IP "simutrans-forum.de:80"
+#define QUERY_ADDR_IPv4_ONLY "ipv4.simutrans-forum.de:80"
+
+/* Relative URL of the IP function on server */
+#define QUERY_ADDR_URL "/get_IP.php"
+
 #endif

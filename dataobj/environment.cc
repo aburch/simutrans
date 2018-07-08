@@ -37,6 +37,7 @@ bool env_t::easy_server = false;
 sint32 env_t::server_announce_interval = 900;
 int env_t::server_port = 13353;
 std::string env_t::server_dns;
+std::string env_t::server_alt_dns; // for dualstack systems
 std::string env_t::server_name;
 std::string env_t::server_comments;
 std::string env_t::server_email;
