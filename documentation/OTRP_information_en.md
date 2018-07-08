@@ -4,13 +4,13 @@ OTRP means Oneway Twoway Road Patch. The simutrans standard uses only one lane w
 
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 
-As of version 14, OTRP is based on simutrans standard 120.3.
+As of version 14_5, OTRP is based on simutrans standard nightly r8541.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.
-You can download the OTRP executable binary from the links below. **(2018 July 1st, updated to ver 14_4.)**  
-windows: https://drive.google.com/open?id=1EYrAJEpqk1Xsry4Azyoe6UscRboasbl4  
-mac: https://drive.google.com/open?id=1lDMkNQpfK9o96klwM75frPI0FrpJ3h9y  
+You can download the OTRP executable binary from the links below. **(2018 July 8th, updated to ver 14_5.)**  
+windows: https://drive.google.com/open?id=1-q9JR_7DjYPT22HLeANOWsNFwM9nz0vb  
+mac: https://drive.google.com/open?id=1BIasM0oZptCnZTY2gm3KhC1jqPuxNk2G  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 OTRP does not provide specialized makeobj. Please use one of simutrans standard.
 
@@ -37,6 +37,9 @@ Select a road icon **with holding a Ctrl key**, then you can select the overtaki
 As the amount of traffic increases, traffic jam at a junction like the image below can be often seen.  
 ![fig3](images/fig3.png)  
 
+## etc  
+- The income/cost message can be turned off in the display settings  or by assigning a key to simple_tool[38].
+
 # Compatibility
 ## Compatibility of Add-ons
 You can use all add-ons for simutrans standard on OTRP. There is no OTRP-specialized add-ons.
@@ -45,6 +48,7 @@ You can use all add-ons for simutrans standard on OTRP. There is no OTRP-special
 - **When you load the data of OTRP v12 or v13, please press the button "This is a data of OTRP v12 or v13." before the loading.**  
 - When you launch OTRP v14 **for the first time**, please **delete autosave.sve** to prevent a crash.
 - No compatibility for ex-OTRP.
+- If you press "Readable by standard" button, the game is saved so that it is readable by simutrans standard. In this mode, please be ware that **OTRP specific data is lost.**
 
 # Contact Me
 If you have any questions, please feel free to ask me through the simutrans international forum or @himeshi_hob in Twitter. Every issue reports and your opinions are greatly appreciated.

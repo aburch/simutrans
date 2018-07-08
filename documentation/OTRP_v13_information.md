@@ -1,4 +1,4 @@
-**※standard版OTRPのドキュメントです。[extended版はこちら](https://github.com/teamhimeh/simutrans/blob/ex-OTRP-distribute/documentation/ex-OTRP_information.md)**
+※standard版OTRPのドキュメントです。extendedにOTRPは既に統合されました。
 # OTRPとは？
 本家simutrans standardに機能をいくらか付け加えた改造版Simutransです。  
 OTRPはOneway Twoway Road Patchの略で、日本語通称は「二車線パッチ」です。  
@@ -6,13 +6,13 @@ OTRPはOneway Twoway Road Patchの略で、日本語通称は「二車線パッ�
 
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 
-version14現在、simutrans standard安定版120.3をベースにしています。
+version14_5現在、simutrans standard nightly r8541をベースにしています。
 
 # ダウンロード
 ribi-arrow・信号接続方向制御つきのバイナリのみの提供です。実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。
-本体は下のリンクからどうぞ。**（2018年7月1日PM9時　ver14_4に更新）**  
-windows: https://drive.google.com/open?id=1EYrAJEpqk1Xsry4Azyoe6UscRboasbl4  
-mac: https://drive.google.com/open?id=1lDMkNQpfK9o96klwM75frPI0FrpJ3h9y    
+本体は下のリンクからどうぞ。**（2018年7月8日PM9時　ver14_5に更新）**  
+windows: https://drive.google.com/open?id=1-q9JR_7DjYPT22HLeANOWsNFwM9nz0vb  
+mac: https://drive.google.com/open?id=1BIasM0oZptCnZTY2gm3KhC1jqPuxNk2G    
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 ※makeobjはstandardのやつをそのまま使ってください
 
@@ -61,6 +61,9 @@ v13から道路信号の進入許可方向を設定できるようになりま�
 ![fig6](images/fig6.png)  
 なお「高度な設定」から「stop_at_intersection_without_traffic_light」（経済タブにあります）のチェックを外すことで交差点での減速を無効にすることができます。
 
+## その他
+- 運賃収受に伴う金額表示をON/OFFできるようになりました。表示設定ウィンドウから切り替えられるほか、simple_tool[38]にキーを割り当てることでも切り替えることができます。
+
 # データの互換性
 ## アドオンの互換性
 OTRPはsimutrans standard向けのアドオンであれば全て使えます。OTRP専用アドオンというのは存在しません。
@@ -71,6 +74,7 @@ OTRPはsimutrans standard向けのアドオンであれば全て使えます。O
 v12,13を使っていた方で初めてv14を使うときは**autosave.sveを削除**してください。（古いバージョンのautosaveが残っていると起動時にそれを読んでクラッシュします。）
 - extended版OTRPとの互換性はありません。
 - 一度セーブデータを読み込んでそれを**保存した瞬間に**そのデータは**OTRPv14以降専用**になります。既存のデータをOTRPに移行する場合はバックアップを取った上で別ファイルとして保存することを強く推奨します。
+- データセーブ時に「Readable by standard」ボタンを押して保存するとstandardで読み書きできる形式で保存されます。この形式では**OTRP固有の情報が失われる**ので注意してください。
 
 # おねがい
 バグ探しには皆さんのお力が必要です。バグと思われる挙動があればtwitter @himeshi_hob に報告していただけるとありがたいです。  
