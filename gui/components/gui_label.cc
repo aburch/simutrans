@@ -79,39 +79,8 @@ void gui_label_t::draw(scr_coord offset)
 	}
 
 	else if(text) {
-		int al;
-		scr_coord_val align_offset_x = 0;
-		scr_coord_val align_offset_y = D_GET_CENTER_ALIGN_OFFSET( LINESPACE, size.h );
-
-		switch(align) {
-			case left:
-				al = ALIGN_LEFT;
-				break;
-			case centered:
-				al = ALIGN_CENTER_H;
-				align_offset_x = (size.w>>1);
-				break;
-			case right:
-				al = ALIGN_RIGHT;
-				align_offset_x = size.w;
-				break;
-			default:
-				al = ALIGN_LEFT;
-		}
-
-		size_t idx = display_fit_proportional( text, size.w+1, -1 );
-
-		if(  text[idx]==0  ) {
-			// skip spurious linebreaks
-			while (idx>0  &&  text[idx-1]=='\n') idx--;
-
-			display_text_proportional_len_clip_rgb(pos.x + offset.x + align_offset_x, pos.y + offset.y + align_offset_y, text, al | DT_CLIP, color, true, idx);
-		}
-		else {
-			scr_coord_val w = display_text_proportional_len_clip_rgb( pos.x+offset.x+align_offset_x, pos.y+offset.y, text, al | DT_CLIP, color, true, idx );
-			display_proportional_clip_rgb( pos.x + offset.x + align_offset_x + w, pos.y + offset.y + align_offset_y, translator::translate("..."), al | DT_CLIP, color, true );
-		}
-
+		const scr_rect area( offset+pos, size );
+		display_proportional_ellipsis_rgb( area, text, align  | DT_CLIP, color, true );
 	}
 
 	if ( tooltip  &&  getroffen(get_mouse_x()-offset.x, get_mouse_y()-offset.y) ) {

@@ -19,6 +19,7 @@
 #include "simmain.h"
 #include "simsys.h"
 #include "pathes.h"
+#include "simevent.h"
 
 
 #ifdef _WIN32
@@ -115,7 +116,8 @@ char const PATH_SEPARATOR[] = "/";
  */
 int get_mouse_x()
 {
-	return sys_event.mx;
+	// for resize events mx/my is new window size
+	return (sys_event.code != SYSTEM_RESIZE  &&  sys_event.type != SIM_NOEVENT) ? sys_event.mx : -100;
 }
 
 
@@ -125,7 +127,7 @@ int get_mouse_x()
  */
 int get_mouse_y()
 {
-	return sys_event.my;
+	return (sys_event.code != SYSTEM_RESIZE  &&  sys_event.type != SIM_NOEVENT) ?  sys_event.my : -100;
 }
 
 
