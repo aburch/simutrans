@@ -140,7 +140,6 @@ void ticker::draw()
 			}
 			POP_CLIP();
 		}
-		display_fillbox_wh_rgb(0, start_y, width, 1, color_idx_to_rgb( COL_RED), true);
 
 		// remove old news
 		while (!list.empty()  &&  list.front().xpos + list.front().w < 0) {
