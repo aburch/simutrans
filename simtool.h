@@ -947,6 +947,18 @@ public:
 	bool is_work_network_save() const OVERRIDE { return true; }
 };
 
+class tool_money_messages_t : public tool_t {
+public:
+	tool_money_messages_t() : tool_t(TOOL_TOGGLE_MESSAGE | SIMPLE_TOOL) {}
+	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Toggle vehicle tooltips"); }
+	bool init( player_t * ) override {
+		env_t::show_money_message = (env_t::show_money_message+1)%3;
+		return false;
+	}
+	bool is_init_network_save() const OVERRIDE { return true; }
+	bool is_work_network_save() const OVERRIDE { return true; }
+};
+
 class tool_toggle_pax_station_t : public tool_t {
 public:
 	tool_toggle_pax_station_t() : tool_t(TOOL_TOOGLE_PAX | SIMPLE_TOOL) {}
