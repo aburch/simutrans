@@ -1468,12 +1468,14 @@ bool convoi_t::drive_to()
 	{
 		// We need to calculate the full route through to the next signal or reversing point
 		// to avoid ignoring signals.
-		int counter = schedule->get_count();
+		uint32 counter = schedule->get_count();
+		const uint32 count = counter;
 
 		schedule_entry_t* schedule_entry = &schedule->entries[schedule->get_current_stop()];
 		bool update_line = false;
 		while(success == route_t::valid_route && counter--)
 		{
+			allow_clear_reservation = counter == count;
 			if(schedule_entry->reverse == -1 && (!gr_current || !gr_current->get_depot()) && !last_stop_was_depot)
 			{
 				schedule_entry->reverse = check_destination_reverse() ? 1 : 0;
@@ -1514,6 +1516,8 @@ bool convoi_t::drive_to()
 #endif
 		}
 	}
+	
+	allow_clear_reservation = true;
 
 	if(success != route_t::valid_route)
 	{

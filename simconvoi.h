@@ -761,6 +761,8 @@ private:
 	// true, if this vehicle will cross lane and block other vehicles.
 	bool next_cross_lane;
 
+	// Flag to set to false during certain signalling operations to disable reservation clearing.
+	bool allow_clear_reservation = true;
 
 
 public:
@@ -1225,6 +1227,8 @@ public:
 	void reserve_own_tiles(bool unreserve = false); 
 
 	bool has_tall_vehicles();
+
+	inline bool get_allow_clear_reservation() const { return allow_clear_reservation; }
 
 private:
 	journey_times_map average_journey_times;

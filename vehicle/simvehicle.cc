@@ -4546,7 +4546,7 @@ route_t::route_result_t rail_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 	if(last && route_index < cnv->get_route()->get_count())
 	{
 		// free all reserved blocks
-		if (working_method == one_train_staff || working_method == token_block)
+		if (cnv->get_allow_clear_reservation() && (working_method == one_train_staff || working_method == token_block))
 		{
 			// These cannot sensibly be resumed inside a section
 			set_working_method(drive_by_sight);
