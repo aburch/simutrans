@@ -1570,6 +1570,7 @@ bool convoi_t::drive_to()
 
 			// continue route search until the destination is a station
 			while(  is_waypoint(ziel)  ) {
+				allow_clear_reservation = false;
 				start = ziel;
 				schedule->advance();
 				ziel = schedule->get_current_entry().pos;
@@ -1649,6 +1650,7 @@ bool convoi_t::drive_to()
 						}
 					}
 				}
+				allow_clear_reservation = true;
 			}
 
 			if(  plane  ) {
