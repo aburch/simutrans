@@ -6848,7 +6848,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		schedule_t *schedule = cnv->get_schedule();
 		uint8 schedule_index = schedule->get_current_stop();
 		bool rev = cnv->get_reverse_schedule();
-		bool no_reverse = schedule->entries[schedule_index].reverse != 1;
+		bool no_reverse = schedule->entries[schedule_index].reverse == 0;
 		schedule->increment_index(&schedule_index, &rev);
 		koord3d cur_pos = route->back();
 		uint16 next_next_signal;

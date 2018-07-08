@@ -3496,6 +3496,12 @@ void convoi_t::vorfahren()
 					need_to_update_line = true;
 					const sint8 reverse_state = state == REVERSING ? 1 : 0;
 					sch->set_reverse(reverse_state, stop);
+					schedule->set_reverse(reverse_state, stop);
+					const linehandle_t line = get_line();
+					if (line.is_bound())
+					{
+						line->get_schedule()->set_reverse(reverse_state, stop);
+					}
 				}
 
 				break;
