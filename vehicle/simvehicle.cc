@@ -6226,7 +6226,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								last_stop_signal_index = i;
 								last_stop_signal_pos = pos;
 							}
-							else if(first_double_block_signal_index != last_stop_signal_index)
+							else if(first_double_block_signal_index != last_stop_signal_index && !(last_bidirectional_signal_index < INVALID_INDEX && last_oneway_sign_index < last_bidirectional_signal_index))
 							{
 								count --;
 							}
@@ -6285,7 +6285,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						else if(!directional_only && (next_signal_working_method == moving_block && working_method != moving_block) || (next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling) && remaining_aspects >= 0 && remaining_aspects <= 2)
 						{
 							// If there are no more caution aspects, or this is a transition to moving block signalling do not reserve any further at this juncture.
-							if((last_bidirectional_signal_index < INVALID_INDEX || last_longblock_signal_index < INVALID_INDEX) && first_oneway_sign_index >= INVALID_INDEX || (next_signal_working_method == moving_block && working_method != moving_block))
+							if((last_bidirectional_signal_index < INVALID_INDEX || last_longblock_signal_index < INVALID_INDEX) && (first_oneway_sign_index >= INVALID_INDEX || !directional_only && (last_bidirectional_signal_index < INVALID_INDEX && last_oneway_sign_index < last_bidirectional_signal_index)) || (next_signal_working_method == moving_block && working_method != moving_block))
 							{
 								directional_only = true;
 								last_stop_signal_index = i;
