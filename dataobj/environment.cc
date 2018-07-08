@@ -133,6 +133,7 @@ sint8 env_t::daynight_level;
 bool env_t::left_to_right_graphs;
 uint32 env_t::tooltip_delay;
 uint32 env_t::tooltip_duration;
+sint8 env_t::show_money_message;
 
 std::string env_t::fontname = FONT_PATH_X "prop.fnt";
 uint8 env_t::fontsize = 11;
@@ -273,6 +274,7 @@ void env_t::init()
 	listen.append_unique("0.0.0.0");
 
 	previous_OTRP_data = false;
+	show_money_message = 0;
 }
 
 

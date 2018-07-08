@@ -285,6 +285,8 @@ public:
 	static uint32 cursor_overlay_color_rgb;
 	static PIXVAL cursor_overlay_color;
 
+	static sint8 show_money_message; 
+
 	/// color used for solid background draw
 	static uint32 background_color_rgb;
 	static PIXVAL background_color;

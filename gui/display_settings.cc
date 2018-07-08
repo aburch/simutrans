@@ -268,7 +268,19 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[22].set_typ( button_t::square_state );
 	buttons[22].set_text( "Highlite schedule" );
 	buttons[22].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	cursor.y += D_CHECKBOX_HEIGHT;
+	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
+
+	// income/cost message left/right arrows
+	buttons[26].set_pos( cursor );
+	buttons[26].set_typ(button_t::arrowleft);
+	buttons[27].set_pos( cursor );
+	buttons[27].set_typ(button_t::arrowright);
+
+	// income/cost message label
+	money_message_label.init("", cursor + scr_coord (buttons[26].get_size().w + D_H_SPACE,0) );
+	money_message_label.align_to(&buttons[26], ALIGN_CENTER_V);
+	add_component(&money_message_label);
+	cursor.y += buttons[26].get_size().h;
 
 	// Toggle simple drawing for debugging
 #ifdef DEBUG
@@ -360,6 +372,8 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	add_component( buttons+0 );
 	add_component( buttons+1 );
 	add_component( buttons+22);
+	add_component( buttons+26);
+	add_component( buttons+27);
 #ifdef DEBUG
 	add_component( buttons+24);
 #endif
@@ -404,6 +418,7 @@ void color_gui_t::set_windowsize(scr_size size)
 	column = size.w - D_MARGIN_RIGHT - D_ARROW_RIGHT_WIDTH;
 	buttons[1].set_pos            ( scr_coord( column, buttons[1].get_pos().y            ) );
 	buttons[13].set_pos           ( scr_coord( column, buttons[13].get_pos().y           ) );
+	buttons[27].set_pos           ( scr_coord( column, buttons[27].get_pos().y           ) );
 
 	column = size.w - D_MARGINS_X;
 	divider1.set_width            ( column );
@@ -606,6 +621,12 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	if((buttons+25)==komp) {
 		create_win(new loadfont_frame_t(), w_info, magic_font);
 	}
+	if((buttons+26)==komp) {
+		env_t::show_money_message = (env_t::show_money_message+2)%3;
+	}
+	if((buttons+27)==komp) {
+		env_t::show_money_message = (env_t::show_money_message+1)%3;
+	}
 	welt->set_dirty();
 	return true;
 }
@@ -634,6 +655,19 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	// Update label buffers
 	hide_buildings_label.set_text( env_t::hide_buildings==0 ? "no buildings hidden" : (env_t::hide_buildings==1 ? "hide city building" : "hide all building") );
 	convoy_tooltip_label.set_text( env_t::show_vehicle_states==0 ? "convoi error tooltips" : (env_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
+	switch (env_t::show_money_message) {
+		case 0:
+		money_message_label.set_text("message of all players");
+		break;
+		case 1:
+		money_message_label.set_text("message of active player");
+		break;
+		case 2:
+		money_message_label.set_text("show no message");
+		break;
+		default:
+		money_message_label.set_text("internal ERROR");
+	}
 	sprintf(frame_time_buf," %d ms", get_frame_time() );
 	sprintf(idle_time_buf, " %d ms", welt->get_idle_time() );
 

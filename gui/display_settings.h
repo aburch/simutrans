@@ -12,7 +12,7 @@
 #include "components/gui_button.h"
 #include "components/gui_numberinput.h"
 
-#define COLORS_MAX_BUTTONS (26)
+#define COLORS_MAX_BUTTONS (28)
 #define BUF_MAXLEN_MS_FORMAT (16)
 
 
@@ -46,7 +46,8 @@ private:
 		fps_label,
 		fps_value_label,
 		simloops_label,
-		simloops_value_label;
+		simloops_value_label,
+		money_message_label;
 
 	gui_divider_t
 		divider1,
