@@ -91,7 +91,16 @@ bool loadsave_frame_t::item_action(const char *filename)
 			// and now we need to copy the servergame to the map ...
 #endif
 		}
+		if(  save_as_standard.pressed  ) {
+			// save as standard data
+			#define STD_SAVEGAME_VER_NR "0." QUOTEME(SIM_VERSION_MAJOR) "." QUOTEME(SIM_SAVE_MINOR)
+			env_t::savegame_version_str = STD_SAVEGAME_VER_NR;
+		}
 		welt->save( filename, loadsave_t::save_mode, env_t::savegame_version_str, false );
+		if(  save_as_standard.pressed  ) {
+			// restore savegame_version_str
+			env_t::savegame_version_str = SAVEGAME_VER_NR;
+		}
 		welt->set_dirty();
 		welt->reset_timer();
 	}
@@ -120,6 +129,9 @@ loadsave_frame_t::loadsave_frame_t(bool do_load) : savegame_frame_t(".sve",false
 		add_component(&previous_OTRP);
 	}
 	else {
+		save_as_standard.init( button_t::square_automatic, "Readable by standard.", scr_coord(D_MARGIN_LEFT,0));
+		add_component(&save_as_standard);
+		env_t::previous_OTRP_data = false;
 		set_filename(welt->get_settings().get_filename());
 		set_name(translator::translate("Speichern"));
 	}
@@ -169,6 +181,7 @@ void loadsave_frame_t::set_windowsize(scr_size size)
 	savegame_frame_t::set_windowsize(size);
 	easy_server.align_to(&savebutton, ALIGN_CENTER_V, scr_coord( 0, 0 ) );
 	previous_OTRP.align_to(&easy_server, ALIGN_TOP | ALIGN_EXTERIOR_V);
+	save_as_standard.align_to(&savebutton, ALIGN_CENTER_V, scr_coord( 0, 0 ) );
 }
 
 
