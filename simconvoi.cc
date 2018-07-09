@@ -3491,14 +3491,13 @@ void convoi_t::vorfahren()
 					sch->increment_index(&stop, &rev);
 				}
 
-				if((sch->entries[stop].reverse == 1 != (state == REVERSING)) && (state != ROUTE_JUST_FOUND || front()->get_waytype() != road_wt) && !last_stop_was_depot)
+				if((haltestelle_t::get_halt(sch->entries[stop].pos, owner).is_bound() && sch->entries[stop].reverse == 1 != (state == REVERSING)) && (state != ROUTE_JUST_FOUND || front()->get_waytype() != road_wt) && !last_stop_was_depot)
 				{
 					need_to_update_line = true;
 					const sint8 reverse_state = state == REVERSING ? 1 : 0;
-					sch->set_reverse(reverse_state, stop);
 					schedule->set_reverse(reverse_state, stop);
 					const linehandle_t line = get_line();
-					if (line.is_bound())
+					if (line.is_bound() && line->get_schedule()->get_count() > stop)
 					{
 						line->get_schedule()->set_reverse(reverse_state, stop);
 					}
