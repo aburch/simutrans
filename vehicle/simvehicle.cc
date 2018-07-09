@@ -5713,6 +5713,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	uint16 this_stop_signal_index;
 	uint16 last_pre_signal_index = INVALID_INDEX;
 	uint16 last_stop_signal_index = INVALID_INDEX;
+	uint16 restore_last_stop_signal_index = INVALID_INDEX;
 	koord3d last_stop_signal_pos = koord3d::invalid;
 	uint16 last_longblock_signal_index = INVALID_INDEX;
 	uint16 last_combined_signal_index = INVALID_INDEX;
@@ -6292,6 +6293,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 							if((last_bidirectional_signal_index < INVALID_INDEX || last_longblock_signal_index < INVALID_INDEX) && (first_oneway_sign_index >= INVALID_INDEX || !directional_only && (last_bidirectional_signal_index < INVALID_INDEX && last_oneway_sign_index < last_bidirectional_signal_index)) || (next_signal_working_method == moving_block && working_method != moving_block))
 							{
 								directional_only = true;
+								restore_last_stop_signal_index = last_stop_signal_index;
 								last_stop_signal_index = i;
 							}
 							else if(first_double_block_signal_index != last_stop_signal_index)
@@ -6572,6 +6574,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				if (from_call_on)
 				{
 					next_signal_working_method = drive_by_sight;
+				}
+
+				if (directional_only && restore_last_stop_signal_index < INVALID_INDEX)
+				{
+					last_stop_signal_index = next_signal_index = restore_last_stop_signal_index;
 				}
 
 				if (first_double_block_signal_index < INVALID_INDEX && stop_signals_since_last_double_block_signal < 2)
