@@ -15,12 +15,8 @@ SOCKET nwc_pakset_info_t::server_receiver = INVALID_SOCKET;
 
 nwc_pakset_info_t::~nwc_pakset_info_t()
 {
-	if (chk) {
-		delete chk;
-	}
-	if (name) {
-		free(name);
-	}
+	delete chk;
+	free(name);
 }
 
 

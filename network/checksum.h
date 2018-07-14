@@ -44,9 +44,7 @@ public:
 		}
 		else {
 			valid = true;
-			if (sha) {
-				delete sha;
-			}
+			delete sha;
 			sha = 0;
 		}
 		for(uint8 i=0; i<20; i++) {

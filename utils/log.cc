@@ -11,7 +11,7 @@
 
 #ifdef SYSLOG
 #include <syslog.h>
-#endif //SYSLOG
+#endif
 
 #define NO_LOG_EXTERNALS
 
@@ -62,7 +62,7 @@ void log_t::important(const char* format, ...)
 		vsyslog( LOG_NOTICE, format, argptr );
 	}
 	va_end(argptr);
-#endif //SYSLOG
+#endif
 
 	va_start( argptr, format );
 
@@ -114,7 +114,7 @@ void log_t::debug(const char *who, const char *format, ...)
 			vsyslog( LOG_DEBUG, buffer, argptr );
 		}
 		va_end( argptr );
-#endif //SYSLOG
+#endif
 	}
 }
 
@@ -157,7 +157,7 @@ void log_t::message(const char *who, const char *format, ...)
 			vsyslog( LOG_INFO, buffer, argptr );
 		}
 		va_end( argptr );
-#endif //SYSLOG
+#endif
 	}
 }
 
@@ -200,7 +200,7 @@ void log_t::warning(const char *who, const char *format, ...)
 			vsyslog( LOG_WARNING, buffer, argptr );
 		}
 		va_end( argptr );
-#endif //SYSLOG
+#endif
 	}
 }
 
@@ -250,7 +250,7 @@ void log_t::error(const char *who, const char *format, ...)
 			vsyslog( LOG_ERR, buffer, argptr );
 		}
 		va_end( argptr );
-#endif //SYSLOG
+#endif
 	}
 }
 
@@ -285,7 +285,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 	if (  syslog  ) {
 		::syslog( LOG_ERR, buffer );
 	}
-#endif //SYSLOG
+#endif
 
 	if (  tee == NULL  &&  log == NULL  &&  tag == NULL  ) {
 		fputs( buffer, stderr );
@@ -308,8 +308,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 		destroy_all_win( true );
 
 		strcpy( buffer+n+1, "PRESS ANY KEY\n" );
-		news_img* sel = new news_img(buffer,IMG_EMPTY);
-		sel->extend_window_with_component( NULL, scr_size(display_get_width()/2,120) );
+		fatal_news* sel = new fatal_news(buffer);
 
 		scr_coord xy( display_get_width()/2 - sel->get_windowsize().w/2, display_get_height()/2 - sel->get_windowsize().h/2 );
 		event_t ev;
@@ -406,7 +405,7 @@ log_t::log_t( const char *logfilename, bool force_flush, bool log_debug, bool lo
 		}
 		log = NULL;
 		tee = NULL;
-#endif //SYSLOG
+#endif
 	} else {
 		log = fopen(logfilename,"wb");
 
@@ -433,7 +432,7 @@ log_t::log_t( const char *logfilename, bool force_flush, bool log_debug, bool lo
 		}
 #else
 		(void)syslogtag;
-#endif //SYSLOG
+#endif
 	}
 }
 

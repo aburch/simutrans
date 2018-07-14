@@ -85,7 +85,6 @@ uint16 convoi_t::current_unreserver = 0;
  * @author Hj- Malthaner
  */
 #define WTT_LOADING 500
-#define WAIT_INFINITE 9223372036854775807ll
 
 karte_ptr_t convoi_t::welt;
 

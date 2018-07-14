@@ -88,7 +88,7 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 	/**
 	 * work() is only called when not dragging
-	 * if work() is called with is_dragging==true then is_dragging is reseted
+	 * if work() is called with is_dragging==true then is_dragging is reset
 	 */
 	bool is_work_network_save() const OVERRIDE { return is_dragging;}
 

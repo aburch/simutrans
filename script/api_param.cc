@@ -365,7 +365,7 @@ namespace script_api {
 	const haltestelle_t* param<const haltestelle_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		halthandle_t halt = param<halthandle_t>::get(vm, index);
-		return halt.is_bound() ? halt.get_rep() : NULL;
+		return halt.get_rep();
 	}
 
 
@@ -470,7 +470,7 @@ namespace script_api {
 	simline_t* param<simline_t*>::get(HSQUIRRELVM vm, SQInteger index)
 	{
 		linehandle_t line = param<linehandle_t>::get(vm, index);
-		return line.is_bound() ? line.get_rep() : NULL;
+		return line.get_rep();
 	}
 
 

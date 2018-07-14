@@ -473,4 +473,4 @@ const char *network_http_get ( const char* address, const char* name, cbuffer_t&
 	return err;
 }
 
-#endif // ifndef NETTOOL
+#endif

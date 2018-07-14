@@ -11,9 +11,7 @@ void pakset_info_t::append(const char* name, checksum_t *chk)
 	chk->finish();
 
 	checksum_t *old = info.set(name, chk);
-	if (old) {
-		delete old;
-	}
+	delete old;
 }
 
 

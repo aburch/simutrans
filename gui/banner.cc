@@ -43,14 +43,12 @@
 #define L_DIALOG_WIDTH (D_MARGIN_LEFT + 3*D_BUTTON_WIDTH + 2*D_H_SPACE + D_MARGIN_RIGHT)
 
 #ifdef _OPTIMIZED
-	#define L_DEBUG_TEXT " (optimized)"
+#	define L_DEBUG_TEXT " (optimized)"
+#elif defined DEBUG
+#	define L_DEBUG_TEXT " (debug)"
 #else
-	#ifdef DEBUG
-		#define L_DEBUG_TEXT " (debug)"
-	#else
-		#define L_DEBUG_TEXT
-	#endif // debug
-#endif // optimized
+#	define L_DEBUG_TEXT
+#endif
 
 // colors
 #define COL_PT (5)

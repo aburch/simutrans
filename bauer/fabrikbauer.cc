@@ -641,7 +641,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		 */
 #if 0
 		k = find_random_construction_site(welt, welt->lookup(city->get_pos())->get_boden()->get_pos(), 3, land_bau.dim).get_2d();
-#endif /* 0 */
+#endif
 
 		/* C:
 		 * A building site, as near as possible to the city hall.
@@ -650,7 +650,7 @@ int factory_builder_t::build_link(koord3d* parent, const factory_desc_t* info, s
 		 */
 #if 0
 		k = building_placefinder_t(welt).find_place(city->get_pos(), land_bau.dim.x, land_bau.dim.y, info->get_building()->get_allowed_climate_bits(), &is_rotate);
-#endif /* 0 */
+#endif
 
 		if(k != koord::invalid) {
 			*pos = welt->lookup_kartenboden(k)->get_pos();

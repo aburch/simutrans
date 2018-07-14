@@ -668,22 +668,16 @@ void karte_t::destroy()
 	ls.set_progress( old_progress );
 
 	// gitter aufraeumen
-	if(grid_hgts) {
-		delete [] grid_hgts;
-		grid_hgts = NULL;
-	}
+	delete [] grid_hgts;
+	grid_hgts = NULL;
 
-	if(  water_hgts  ) {
-		delete [] water_hgts;
-		water_hgts = NULL;
-	}
+	delete [] water_hgts;
+	water_hgts = NULL;
 
 	// players aufraeumen
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		if(players[i]) {
-			delete players[i];
-			players[i] = NULL;
-		}
+		delete players[i];
+		players[i] = NULL;
 	}
 	DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 
@@ -5292,7 +5286,7 @@ void karte_t::step()
 /*
 		if(  next_month_ticks > next_month_ticks+karte_t::ticks_per_world_month  ) {
 			// avoid overflow here ...
-			dbg->warning( "karte_t::step()", "Ticks were overflowing => resetted" );
+			dbg->warning("karte_t::step()", "Ticks were overflowing => reset");
 			ticks %= karte_t::ticks_per_world_month;
 			next_month_ticks %= karte_t::ticks_per_world_month;
 		}

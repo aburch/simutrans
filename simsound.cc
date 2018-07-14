@@ -263,29 +263,29 @@ bool midi_get_mute()
 void check_midi()
 {
 	// Check for next sound
-	if(  dr_midi_pos() < 0  ||  new_midi == true  ) {
-	  if(  env_t::shuffle_midi  &&  max_midi > 1  ) {
+	if (new_midi || (!midi_get_mute() && dr_midi_pos() < 0)) {
+		if(  env_t::shuffle_midi  &&  max_midi > 1  ) {
 
-	    // shuffle songs (must not use simrand()!)
-	    int new_song = sim_async_rand(max_midi);
+			// shuffle songs (must not use simrand()!)
+			int new_song = sim_async_rand(max_midi);
 
-	    if(  new_song >= current_midi  ) {
-	      new_song ++;
-	    }
-	    current_midi = new_song;
-	  }
-	  else {
-	    current_midi++;
-	    if(  current_midi > max_midi  ) {
-	      current_midi = 0;
-	    }
-	  }
+			if(  new_song >= current_midi  ) {
+				new_song ++;
+			}
+			current_midi = new_song;
+		}
+		else {
+			current_midi++;
+			if(  current_midi > max_midi  ) {
+				current_midi = 0;
+			}
+		}
 
-	  // Are we in playing mode?
-	  if(  false == midi_get_mute()  ) {
-	    midi_play(current_midi);
-	    DBG_MESSAGE("check_midi()", "Playing MIDI %d", current_midi);
-	  }
+		// Are we in playing mode?
+		if(  false == midi_get_mute()  ) {
+			midi_play(current_midi);
+			DBG_MESSAGE("check_midi()", "Playing MIDI %d", current_midi);
+		}
 	}
 
 	new_midi = false;

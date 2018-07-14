@@ -109,22 +109,8 @@ bool tabfileobj_t::get_x_y( const char *key, sint16 &x, sint16 &y )
 const koord &tabfileobj_t::get_koord(const char *key, koord def)
 {
 	static koord ret;
-	const char *value = get_string(key,NULL);
-	const char *tmp;
-
 	ret = def;
-
-	if(!value) {
-		return ret;
-	}
-	// 2. Determine value
-	for(tmp = value; *tmp != ','; tmp++) {
-		if(!*tmp) {
-			return ret;
-		}
-	}
-	ret.x = atoi(value);
-	ret.y = atoi(tmp + 1);
+	get_x_y( key, ret.x, ret.y );
 	return ret;
 }
 

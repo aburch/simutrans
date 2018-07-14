@@ -73,9 +73,7 @@ planquadrat_t::~planquadrat_t()
 		}
 		delete [] data.some;
 	}
-	if(halt_list) {
-		delete [] halt_list;
-	}
+	delete [] halt_list;
 	halt_list_count = 0;
 	// to avoid access to this tile
 	ground_size = 0;

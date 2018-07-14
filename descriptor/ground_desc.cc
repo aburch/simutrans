@@ -999,9 +999,7 @@ void ground_desc_t::init_ground_textures(karte_t *world)
 	// free the helper bitmap
 	for(  int slope = 1;  slope < totalslopes;  slope++  ) {
 		delete all_rotations_slope[slope];
-		if(  all_rotations_beach[slope]  ) {
-			delete all_rotations_beach[slope];
-		}
+		delete all_rotations_beach[slope];
 	}
 #endif
 	//dbg->message("ground_desc_t::calc_water_level()", "Last image nr %u", final_tile->get_pic()->imageid);

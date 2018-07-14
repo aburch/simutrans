@@ -90,6 +90,8 @@ private:
 
 	gui_combobox_t freight_sort_selector;
 
+	sint16 chart_total_size;
+
 	button_t line_button;	// goto line ...
 	bool line_bound;
 

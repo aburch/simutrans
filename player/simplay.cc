@@ -111,10 +111,8 @@ player_t::~player_t()
 		delete messages.remove_first();
 	}
 	destroy_win(magic_finances_t + get_player_nr());
-	if( finance !=NULL) {
-		delete finance;
-		finance = NULL;
-	}
+	delete finance;
+	finance = NULL;
 }
 
 

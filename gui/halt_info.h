@@ -51,6 +51,7 @@ private:
 	// button_t sort_button;     // @author hsiegeln
 	button_t filterButtons[MAX_HALT_COST];
 	button_t toggler, toggler_departures;
+	sint16 chart_total_size;
 
 	gui_combobox_t freight_sort_selector;
 
