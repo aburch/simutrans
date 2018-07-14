@@ -1254,7 +1254,9 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 
 			// [mod : shingoushori] Liberalization of ground level control 3/6
 			if(  new_slope != RESTORE_SLOPE ) {//if(  new_slope == ALL_DOWN_SLOPE ) {
-				if(shift && grund_t::underground_mode==grund_t::ugm_level) {
+				// [mod : shingoushori] Liberalization of ground level control v6 : Bug Fix : stop making cliff on road ends 1/3
+				//if(shift && grund_t::underground_mode==grund_t::ugm_level) {
+				if(shift && grund_t::underground_mode==grund_t::ugm_level && !(gr1->hat_wege() || gr1->get_leitung())) {
 					fprintf(stderr,"set new_pos.z = min_neighbour_height : %d\n",min_neighbour_height);
 					new_pos.z = min_neighbour_height;
 				}
@@ -1264,7 +1266,9 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				// do not lower tiles when it will be below water level
 				// [mod : shingoushori] Liberalization of ground level control 4/6
 				fprintf(stderr,"do not lower tiles when it will be below water level\n");
-				if (shift) {
+				// [mod : shingoushori] Liberalization of ground level control v6 : Bug Fix : stop making cliff on road ends 2/3
+				//if (shift) {
+				if (shift && !(gr1->hat_wege() || gr1->get_leitung())) {
 					water_table = new_pos.z;
 				} else {
 					return NOTICE_TILE_FULL;
@@ -1277,7 +1281,9 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 			new_slope = slope_t::flat;
 			new_pos.z++;
 			// [mod : shingoushori] Liberalization of ground level control 5/6
-			if(shift && grund_t::underground_mode==grund_t::ugm_level) {
+			// [mod : shingoushori] Liberalization of ground level control v6 : Bug Fix : stop making cliff on road ends 3/3
+			//if(shift && grund_t::underground_mode==grund_t::ugm_level) {
+			if(shift && grund_t::underground_mode==grund_t::ugm_level && !(gr1->hat_wege() || gr1->get_leitung())) {
 				fprintf(stderr,"set new_pos.z = grund_t::underground_level : %d\n",grund_t::underground_level);
 				new_pos.z = grund_t::underground_level;
 			}
