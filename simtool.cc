@@ -1502,22 +1502,31 @@ void tool_setslope_t::mark_tiles(player_t *, const koord3d &start, const koord3d
 
 const char *tool_setslope_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
-	koord k1, k2;
+	// [mod : shingoushori] Liberalization of ground level control v5 : Don't set slope to road ends when Dragging
 	if(  end == koord3d::invalid  ) {
-		k1.x = k2.x = start.x;
-		k1.y = k2.y = start.y;
+		koord k;
+		k.x = start.x;
+		k.y = start.y;
+		if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
+			tool_set_slope_work(player, gr->get_pos(), atoi(default_param), is_shift_pressed());
+		}
 	}
 	else {
+		koord k1, k2;
 		k1.x = start.x < end.x ? start.x : end.x;
 		k1.y = start.y < end.y ? start.y : end.y;
 		k2.x = start.x + end.x - k1.x;
 		k2.y = start.y + end.y - k1.y;
-	}
-	koord k;
-	for(  k.x = k1.x;  k.x <= k2.x;  k.x++  ) {
-		for(  k.y = k1.y;  k.y <= k2.y;  k.y++  ) {
-			if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
-				tool_set_slope_work(player, gr->get_pos(), atoi(default_param), is_shift_pressed());
+		bool shift = is_shift_pressed();
+		koord k;
+		for(  k.x = k1.x;  k.x <= k2.x;  k.x++  ) {
+			for(  k.y = k1.y;  k.y <= k2.y;  k.y++  ) {
+				if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
+					if(  gr->hat_wege() || gr->get_leitung()  ) {
+						continue;
+					}
+					tool_set_slope_work(player, gr->get_pos(), atoi(default_param), shift);
+				}
 			}
 		}
 	}
