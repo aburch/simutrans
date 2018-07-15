@@ -4050,12 +4050,12 @@ bool convoi_t::calc_lane_affinity(uint8 lane_affinity_sign)
 	return false;
 }
 
-void convoi_t::reflesh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaking) {
+void convoi_t::refresh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaking) {
 	if(  fahr[0]  &&  fahr[0]->get_waytype()==road_wt  &&  (prev_tiles_overtaking==0)^(current_tiles_overtaking==0)  ){
 		for(uint8 i=0; i<anz_vehikel; i++) {
 			road_vehicle_t* rv = dynamic_cast<road_vehicle_t*>(fahr[i]);
 			if(rv) {
-				rv->reflesh();
+				rv->refresh();
 			}
 		}
 	}

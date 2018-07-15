@@ -562,7 +562,7 @@ public:
 	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top = false, sint8 offset = 0) const;
 	virtual vehicle_base_t* other_lane_blocked_offset() const { return other_lane_blocked(false,1); }
 
-	void reflesh();
+	void refresh();
 	
 	void unreserve_all_tiles();
 };

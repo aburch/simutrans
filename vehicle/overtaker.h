@@ -48,7 +48,7 @@ public:
 		else if(tiles_overtaking<0) {
 			diff ++;
 		}
-		reflesh(prev_tiles_overtaking, tiles_overtaking);
+		refresh(prev_tiles_overtaking, tiles_overtaking);
 	}
 
 	// change counter for overtaking
@@ -58,7 +58,7 @@ public:
 		if(tiles_overtaking==0) {
 			diff = 0;
 		}
-		reflesh(prev_tiles_overtaking, tiles_overtaking);
+		refresh(prev_tiles_overtaking, tiles_overtaking);
 	}
 
 	// since citycars and convois can react quite different
@@ -70,7 +70,7 @@ public:
 
 	sint8 get_prev_tiles_overtaking() const { return prev_tiles_overtaking; }
 
-	virtual void reflesh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaking) =0; // When the overtaker starts or ends overtaking, Mark image dirty to prevent glitch.
+	virtual void refresh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaking) =0; // When the overtaker starts or ends overtaking, Mark image dirty to prevent glitch.
 };
 
 #endif

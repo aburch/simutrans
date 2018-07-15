@@ -2975,7 +2975,7 @@ void road_vehicle_t::set_convoi(convoi_t *c)
 }
 
 // To prevent glitch
-void road_vehicle_t::reflesh() {
+void road_vehicle_t::refresh() {
 	int xpos=0, ypos=0;
 	get_screen_offset( xpos, ypos, get_tile_raster_width(), true );
 	viewport_t *vp = welt->get_viewport();
