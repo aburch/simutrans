@@ -522,6 +522,8 @@ protected:
 
 public:
 	virtual void enter_tile(grund_t*);
+	
+	void leave_tile();
 
 	virtual void rotate90();
 
