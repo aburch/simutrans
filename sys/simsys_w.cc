@@ -598,14 +598,14 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SYSTEM_RESIZE;
 
-				sys_event.mx = (LOWORD(lParam)*32)/x_scale;
-				if (sys_event.mx <= 0) {
-					sys_event.mx = 4;
+				sys_event.size_x = (LOWORD(lParam)*32)/x_scale;
+				if (sys_event.size_x <= 0) {
+					sys_event.size_x = 4;
 				}
 
-				sys_event.my = (HIWORD(lParam)*32)/y_scale;
-				if (sys_event.my <= 1) {
-					sys_event.my = 64;
+				sys_event.size_y = (HIWORD(lParam)*32)/y_scale;
+				if (sys_event.size_y <= 1) {
+					sys_event.size_y = 64;
 				}
 			}
 			break;

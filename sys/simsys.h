@@ -56,6 +56,10 @@ struct sys_event
 	int mx;                  /* es sind negative Koodinaten mgl */
 	int my;
 	int mb;
+	/**
+	 * new window size for SYSTEM_RESIZE
+	 */
+	int size_x, size_y;
 	unsigned int key_mod; /* key mod, like ALT, STRG, SHIFT */
 };
 
