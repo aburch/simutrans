@@ -2262,6 +2262,26 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(  current_str->get_overtaking_mode()<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  ) {
 			next_lane = -1;
 		}
+		
+		// If the next tile is an intersection, we have to refer the reservation.
+		// However, if we are already in an intersection, we ignore it to avoid stuck.
+		if(  ribi_t::is_threeway(str->get_ribi_unmasked())  &&  !ribi_t::is_threeway(current_str->get_ribi_unmasked())  ) {
+			// try to reserve tiles
+			bool overtaking_on_tile = cnv->is_overtaking();
+			if(  next_lane==1  ) {
+				overtaking_on_tile = true;
+			} else if(  next_lane==-1  ) {
+				overtaking_on_tile = false;
+			}
+			// since reserve function modifies variables of the instance...
+			strasse_t* s = (strasse_t *)gr->get_weg(road_wt);
+			if(  !s  ||  !s->reserve(this, overtaking_on_tile)  ) {
+				unreserve_all_tiles();
+				return false;
+			}
+			// now we succeeded in reserving the road. register it.
+			reserving_tiles.append(gr->get_pos());
+		}
 
 		vehicle_base_t *obj = NULL;
 		uint32 test_index = route_index;
@@ -2437,6 +2457,22 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			else {
 				rs = NULL;
 			}
+			
+			// try to reserve tiles
+			bool overtaking_on_tile = cnv->is_overtaking();
+			if(  lane_of_the_tile==1  ) {
+				overtaking_on_tile = true;
+			} else if(  lane_of_the_tile==-1  ) {
+				overtaking_on_tile = false;
+			}
+			// since reserve function modifies variables of the instance...
+			strasse_t* s = (strasse_t *)gr->get_weg(road_wt);
+			if(  !s  ||  (!s->reserve(this, overtaking_on_tile)  &&  !ribi_t::is_threeway(current_str->get_ribi_unmasked()))  ) {
+				unreserve_all_tiles();
+				return false;
+			}
+			// now we succeeded in reserving the road. register it.
+			reserving_tiles.append(gr->get_pos());
 
 			// check for blocking intersection
 			int_block = ribi_t::is_threeway(str->get_ribi_unmasked())  &&  (((drives_on_left ? ribi_t::rotate90l(curr_90direction) : ribi_t::rotate90(curr_90direction)) & str->get_ribi_unmasked())  ||  curr_90direction != next_90direction  ||  (rs  &&  rs->get_desc()->is_traffic_light()));
@@ -2485,6 +2521,8 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 								yielding_factor = false;
 							}
 							if(  cnv->get_lane_affinity() != -1  &&  next_lane<1  &&  !cnv->is_overtaking()  &&  !other_lane_blocked()  &&  yielding_factor  &&  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : ocnv->get_akt_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
+								// this vehicle changes lane. we have to unreserve tiles.
+								unreserve_all_tiles();
 								return true;
 							}
 							strasse_t *str=(strasse_t *)gr->get_weg(road_wt);
@@ -2508,6 +2546,8 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 						}
 						else if(  private_car_t* const caut = obj_cast<private_car_t>(obj)  ) {
 							if(  cnv->get_lane_affinity() != -1  &&  next_lane<1  &&  !cnv->is_overtaking()  &&  !other_lane_blocked()  &&  cnv->can_overtake(caut, caut->get_current_speed(), VEHICLE_STEPS_PER_TILE)  ) {
+								// this vehicle changes lane. we have to unreserve tiles.
+								unreserve_all_tiles();
 								return true;
 							}
 						}
@@ -2547,11 +2587,15 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 							if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(obj)  ) {
 								convoi_t* const ocnv = car->get_convoi();
 								if(  cnv->can_overtake( ocnv, (ocnv->get_state()==convoi_t::LOADING ? 0 : over->get_max_power_speed()), ocnv->get_length_in_steps()+ocnv->get_vehikel(0)->get_steps())  ) {
+									// this vehicle changes lane. we have to unreserve tiles.
+									unreserve_all_tiles();
 									return true;
 								}
 							}
 							else if(  private_car_t* const caut = obj_cast<private_car_t>(obj)  ) {
 								if(  cnv->can_overtake(caut, caut->get_desc()->get_topspeed(), VEHICLE_STEPS_PER_TILE)  ) {
+									// this vehicle changes lane. we have to unreserve tiles.
+									unreserve_all_tiles();
 									return true;
 								}
 							}
@@ -2827,6 +2871,8 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 	str->book(cargo, WAY_STAT_GOODS, enter_direction);
 	if (  leading  )  {
 		str->book(1, WAY_STAT_CONVOIS, enter_direction);
+		str->unreserve(this);
+		reserving_tiles.remove(gr->get_pos());
 		cnv->update_tiles_overtaking();
 		if(  next_lane==1  ) {
 			cnv->set_tiles_overtaking(3);
@@ -2838,7 +2884,9 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 			if(  cnv->get_lane_affinity() == 1  ||  (v = other_lane_blocked())!=NULL  ){
 				//lane change denied
 				cnv->set_tiles_overtaking(3);
-				if(  cnv->is_requested_change_lane()  ||  cnv->get_lane_affinity() == -1  ) {
+				// Is traffic lane reserved by other vehicle?
+				road_vehicle_t* rsr_vehicle = str->reserving_vehicle(false);
+				if(  cnv->is_requested_change_lane()  ||  cnv->get_lane_affinity() == -1  ||  (rsr_vehicle  &&  rsr_vehicle!=this)  ) {
 					//request the blocking convoi to reduce speed.
 					if(  v  ) {
 						if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(v)  ) {
@@ -2936,6 +2984,19 @@ void road_vehicle_t::reflesh() {
 	if(  !get_flag(obj_t::dirty)  ) {
 		set_flag( obj_t::dirty );
 	}
+}
+
+void road_vehicle_t::unreserve_all_tiles() {
+	for(uint32 i=0; i<reserving_tiles.get_count(); i++) {
+		grund_t* gr = welt->lookup(reserving_tiles[i]);
+		if(  gr  ) {
+			strasse_t* str = (strasse_t*) (gr->get_weg(road_wt));
+			if(  str  ) {
+				str->unreserve(this);
+			}
+		}
+	}
+	reserving_tiles.clear();
 }
 
 

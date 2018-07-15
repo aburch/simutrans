@@ -998,6 +998,7 @@ public:
 	bool is_selected() const OVERRIDE { return schiene_t::show_reservations; }
 	bool init( player_t * ) {
 		schiene_t::show_reservations ^= 1;
+		strasse_t::show_reservations ^= 1;
 		welt->set_dirty();
 		return false;
 	}

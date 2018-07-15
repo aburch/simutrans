@@ -1436,6 +1436,7 @@ bool tool_clear_reservation_t::init( player_t * )
 {
 	if (can_use_gui()) {
 		schiene_t::show_reservations = true;
+		strasse_t::show_reservations = true;
 		welt->set_dirty();
 	}
 	return true;
@@ -1445,6 +1446,7 @@ bool tool_clear_reservation_t::exit( player_t * )
 {
 	if (can_use_gui()) {
 		schiene_t::show_reservations = false;
+		strasse_t::show_reservations = false;
 		welt->set_dirty();
 	}
 	return true;
@@ -1457,6 +1459,7 @@ const char *tool_clear_reservation_t::work( player_t *, koord3d pos )
 		for(unsigned wnr=0;  wnr<2;  wnr++  ) {
 
 			schiene_t const* const w = obj_cast<schiene_t>(gr->get_weg_nr(wnr));
+			strasse_t* s = dynamic_cast<strasse_t*>(gr->get_weg_nr(wnr));
 			// is this a reserved track?
 			if(w!=NULL  &&  w->is_reserved()) {
 				/* now we do a very crude procedure:
@@ -1481,6 +1484,9 @@ const char *tool_clear_reservation_t::work( player_t *, koord3d pos )
 						}
 					}
 				}
+			}
+			else if(  s  ) {
+				s->unreserve_all();
 			}
 		}
 	}

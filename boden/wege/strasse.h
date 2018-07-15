@@ -6,6 +6,8 @@
 // number of different traffic directions
 #define MAX_WAY_STAT_DIRECTIONS 2
 
+class road_vehicle_t;
+
 /**
  * Cars are able to drive on roads.
  *
@@ -15,6 +17,7 @@ class strasse_t : public weg_t
 {
 public:
 	static bool show_masked_ribi;
+	static bool show_reservations;
 
 private:
 	/**
@@ -44,6 +47,14 @@ private:
 	sint16 directional_statistics[MAX_WAY_STAT_MONTHS][MAX_WAY_STATISTICS][MAX_WAY_STAT_DIRECTIONS];
 
 	void init_statistics();
+	
+	/**
+	* tile reservation system
+	* to prevent a grid-lock in an intersection...
+	* This does not support citycars!
+	* @author THLeaderH
+	*/
+	road_vehicle_t* reserved_by[2];
 
 public:
 	static const way_desc_t *default_strasse;
@@ -83,6 +94,19 @@ public:
 	ribi_t::ribi get_prior_direction() const;
 
 	image_id get_front_image() const {return show_masked_ribi ? skinverwaltung_t::ribi_arrow->get_image_id(get_ribi()) : weg_t::get_front_image();}
+	
+	virtual FLAGGED_PIXVAL get_outline_colour() const;
+	/*
+	 * to show reservations if needed
+	 */
+	virtual image_id get_outline_image() const { return weg_t::get_image(); }
+
+	// related to tile reservation system
+	// return true if succeeded
+	bool reserve(road_vehicle_t* r, bool is_overtaking);
+	bool unreserve(road_vehicle_t* r);
+	void unreserve_all();
+	road_vehicle_t* reserving_vehicle(bool is_overtaking) const { return is_overtaking ? reserved_by[1] : reserved_by[0]; }
 
 };
 

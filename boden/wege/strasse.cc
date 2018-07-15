@@ -14,11 +14,13 @@
 #include "../../bauer/wegbauer.h"
 #include "../../dataobj/translator.h"
 #include "../../dataobj/environment.h"
+#include "../../vehicle/simvehicle.h"
 
 
 const way_desc_t *strasse_t::default_strasse=NULL;
 
 bool strasse_t::show_masked_ribi = false;
+bool strasse_t::show_reservations = false;
 
 
 void strasse_t::set_gehweg(bool janein)
@@ -34,6 +36,7 @@ void strasse_t::set_gehweg(bool janein)
 strasse_t::strasse_t(loadsave_t *file) : weg_t()
 {
 	rdwr(file);
+	reserved_by[0] = reserved_by[1] = NULL;
 }
 
 
@@ -44,6 +47,7 @@ strasse_t::strasse_t() : weg_t()
 	ribi_mask_oneway =ribi_t::none;
 	overtaking_mode = twoway_mode;
 	prior_direction_setting = 0;
+	reserved_by[0] = reserved_by[1] = NULL;
 }
 
 
@@ -205,5 +209,62 @@ ribi_t::ribi strasse_t::get_prior_direction() const {
 		}
 	} else {
 		return ribi_t::eastwest;
+	}
+}
+
+bool strasse_t::reserve(road_vehicle_t* r, bool is_overtaking) {
+	uint8 p = is_overtaking ? 1 : 0;
+	if(  reserved_by[p]  &&  reserved_by[p]!=r  ) {
+		return false;
+	}
+	if(  reserved_by[(p+1)%2]==r  ) {
+		// a vehicle cannot reserve both lanes.
+		return false;
+	}
+	reserved_by[p] = r;
+	if(strasse_t::show_reservations) {
+		set_flag( obj_t::dirty );
+	}
+	return true;
+}
+
+bool strasse_t::unreserve(road_vehicle_t* r) {
+	for(uint8 i=0; i<2; i++) {
+		if(  r==reserved_by[i]  ) {
+			reserved_by[i] = NULL;
+			if(strasse_t::show_reservations) {
+				set_flag( obj_t::dirty );
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
+void strasse_t::unreserve_all() {
+	for(uint8 i=0; i<2; i++) {
+		if(  reserved_by[i]  ) {
+			reserved_by[i]->unreserve_all_tiles();
+		}
+	}
+	reserved_by[0] = reserved_by[1] = NULL;
+	if(strasse_t::show_reservations) {
+		set_flag( obj_t::dirty );
+	}
+}
+
+FLAGGED_PIXVAL strasse_t::get_outline_colour() const {
+	if(  !show_reservations  ||  (!reserved_by[0]  &&  !reserved_by[1])  ) {
+		return 0;
+	}
+	else if(  reserved_by[0]  &&  !reserved_by[1]  ) {
+		return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_GREEN);
+	}
+	else if(  !reserved_by[0]  &&  reserved_by[1]  ) {
+		return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_RED);
+	}
+	else {
+		// both lanes are reserved
+		return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_ORANGE);
 	}
 }

@@ -512,6 +512,8 @@ private:
 	bool choose_route(sint32 &restart_speed, ribi_t::ribi start_direction, uint16 index);
 
 	koord3d last_stop_for_intersection;
+	
+	vector_tpl<koord3d> reserving_tiles;
 
 protected:
 	bool check_next_tile(const grund_t *bd) const;
@@ -561,6 +563,8 @@ public:
 	virtual vehicle_base_t* other_lane_blocked_offset() const { return other_lane_blocked(false,1); }
 
 	void reflesh();
+	
+	void unreserve_all_tiles();
 };
 
 
