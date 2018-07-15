@@ -216,7 +216,7 @@ map_frame_t::map_frame_t() :
 	viewed_player_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), SYSCOL_TEXT));
 	viewable_players[ 0 ] = -1;
 	for(  int np = 0, count = 1;  np < MAX_PLAYER_COUNT;  np++  ) {
-		if(  welt->get_player( np )  &&  welt->get_player( np )->has_money_or_assets()) {
+		if(  welt->get_player( np )  &&  welt->get_player( np )->get_finance()->has_convoi()) {
 			viewed_player_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(welt->get_player( np )->get_name(), color_idx_to_rgb(welt->get_player( np )->get_player_color1()+4)));
 			viewable_players[ count++ ] = np;
 		}

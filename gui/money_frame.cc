@@ -228,7 +228,7 @@ money_frame_t::money_frame_t(player_t *player)
 		headquarter_view(koord3d::invalid, scr_size(120, 64))
 {
 	if(welt->get_player(0)!=player) {
-		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(player->get_name()) );
+		money_frame_title.printf(translator::translate("Finances of %s"), translator::translate(player->get_name()) );
 		set_name(money_frame_title);
 	}
 

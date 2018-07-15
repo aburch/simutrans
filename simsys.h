@@ -53,6 +53,10 @@ struct sys_event
 	int mx;                  /* es sind negative Koodinaten mgl */
 	int my;
 	int mb;
+	/**
+	 * new window size for SYSTEM_RESIZE
+	 */
+	int size_x, size_y;
 	unsigned int key_mod; /* key mod, like ALT, STRG, SHIFT */
 };
 
@@ -96,16 +100,16 @@ bool dr_movetotrash(const char *path);
  */
 bool dr_cantrash();
 
-// Functions the same as cstdio remove except path must be UTF-8 encoded. 
+// Functions the same as cstdio remove except path must be UTF-8 encoded.
 int dr_remove(const char *path);
 
 // rename a file and delete eventually existing file new_utf8
 int dr_rename( const char *existing_utf8, const char *new_utf8 );
 
-// Functions the same as chdir except path must be UTF-8 encoded. 
+// Functions the same as chdir except path must be UTF-8 encoded.
 int dr_chdir(const char *path);
 
-// Functions the same as getcwd except path must be UTF-8 encoded. 
+// Functions the same as getcwd except path must be UTF-8 encoded.
 char *dr_getcwd(char *buf, size_t size);
 
 // Functions the same as fopen except filename must be UTF-8 encoded.

@@ -1449,7 +1449,7 @@ void win_poll_event(event_t* const ev)
 	// main window resized
 	if(  ev->ev_class==EVENT_SYSTEM  &&  ev->ev_code==SYSTEM_RESIZE  ) {
 		// main window resized
-		simgraph_resize( ev->mx, ev->my );
+		simgraph_resize( ev->size_x, ev->size_y );
 		ticker::redraw_ticker();
 		wl->set_dirty();
 		wl->get_viewport()->metrics_updated();
