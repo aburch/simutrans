@@ -2756,10 +2756,14 @@ static koord const neighbors[] = {
 };
 
 
-bool process_city_street(grund_t& gr, const way_desc_t* cr)
+bool stadt_t::process_city_street(grund_t& gr, const way_desc_t* cr)
 {
-	weg_t* const weg = gr.get_weg(road_wt);
+	strasse_t* const weg = (strasse_t*)(gr.get_weg(road_wt));
 	if(  weg == NULL  ) {
+		return false;
+	}
+	if(  weg->get_avoid_cityroad()  ) {
+		// This road avoid becoming cityroad.
 		return false;
 	}
 	// Check if any changes are needed.

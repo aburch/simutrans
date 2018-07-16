@@ -46,6 +46,7 @@ strasse_t::strasse_t() : weg_t()
 	set_desc(default_strasse);
 	ribi_mask_oneway =ribi_t::none;
 	overtaking_mode = twoway_mode;
+	street_flags = 0;
 	prior_direction_setting = 0;
 	reserved_by[0] = reserved_by[1] = NULL;
 }
@@ -58,6 +59,12 @@ void strasse_t::rdwr(loadsave_t *file)
 
 	weg_t::rdwr(file);
 
+	if(  file->get_OTRP_version() >= 15  ) {
+		uint8 s = street_flags;
+		file->rdwr_byte(s);
+		street_flags = s;
+	}
+	
 	if(  file->get_OTRP_version() >= 14  ) {
 		uint8 s = prior_direction_setting;
 		file->rdwr_byte(s);

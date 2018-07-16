@@ -18,6 +18,10 @@ class strasse_t : public weg_t
 public:
 	static bool show_masked_ribi;
 	static bool show_reservations;
+	
+	enum {
+		AVOID_CITYROAD   = 0x01 // When this flag is enabled, this street avoid becoming cityroad.
+	};
 
 private:
 	/**
@@ -30,6 +34,12 @@ private:
 	* @author THLeaderH
 	*/
 	uint8 ribi_mask_oneway:4;
+	
+	/**
+	* strasse_t specific flags
+	* @author THLeaderH
+	*/
+	uint8 street_flags;
 
 	/**
 	* 0 = calculate automatically
@@ -107,6 +117,9 @@ public:
 	bool unreserve(road_vehicle_t* r);
 	void unreserve_all();
 	road_vehicle_t* reserving_vehicle(bool is_overtaking) const { return is_overtaking ? reserved_by[1] : reserved_by[0]; }
+	
+	bool get_avoid_cityroad() const { return street_flags&AVOID_CITYROAD; }
+	void set_avoid_cityroad(bool s) { s ? street_flags |= AVOID_CITYROAD : street_flags &= ~AVOID_CITYROAD; }
 
 };
 

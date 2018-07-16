@@ -2315,7 +2315,7 @@ bool tool_build_way_t::init( player_t *player, bool called_from_move )
 	}
 
 	if (  !called_from_move  &&  is_ctrl_pressed()  &&  can_use_gui()  &&  desc->get_waytype()==road_wt  ) {
-		create_win(new overtaking_mode_frame_t(player, this), w_info, (ptrdiff_t)this);
+		create_win(new overtaking_mode_frame_t(player, this, desc->get_styp()==0), w_info, (ptrdiff_t)this);
 	}
 	return desc!=NULL;
 }
@@ -2333,7 +2333,7 @@ void tool_build_way_t::draw_after(scr_coord k, bool dirty) const
 			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
 			char level_str[16];
 			tool_build_way_t::set_mode_str(level_str, overtaking_mode);
-			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(avoid_cityroad?COL_RED:COL_YELLOW), true );
 		}
 	} else {
 		two_click_tool_t::draw_after(k,dirty);
@@ -2468,12 +2468,15 @@ const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, c
 	way_builder_t bauigel(player);
 	calc_route( bauigel, start, end );
 	overtaking_mode_t mode = overtaking_mode;
+	bool ac = avoid_cityroad;
 	tool_build_way_t* toolbar_tool;
 	if(  look_toolbar  &&  (toolbar_tool=get_build_way_tool_from_toolbar(desc))!=NULL  ) {
 		// look toolbar variable indicates this tool is called from a shortcut key. When a tool is called from a shortcut key, we have to use overtaking_mode of the tool in a toolbar.
 		mode = toolbar_tool->get_overtaking_mode();
+		ac = toolbar_tool->get_avoid_cityroad();
 	}
 	bauigel.set_overtaking_mode(mode);
+	bauigel.set_avoid_cityroad(ac);
 	if(  bauigel.get_route().get_count()>1  ) {
 		welt->mute_sound(true);
 		bauigel.build();
@@ -2489,15 +2492,19 @@ void tool_build_way_t::rdwr_custom_data(memory_rw_t *packet)
 {
 	two_click_tool_t::rdwr_custom_data(packet);
 	sint8 i = overtaking_mode;
+	uint8 a = avoid_cityroad;
 	// If this tool is called from a shortcut key, overtaking_mode of the tool in a toolbar has to be used.
 	if(  packet->is_saving()  &&  look_toolbar  ) {
 		tool_build_way_t* toolbar_tool = get_build_way_tool_from_toolbar(desc);
 		if(  toolbar_tool  ) {
 			i = toolbar_tool->get_overtaking_mode();
+			a = toolbar_tool->get_avoid_cityroad();
 		}
 	}
 	packet->rdwr_byte(i);
+	packet->rdwr_byte(a);
 	overtaking_mode = (overtaking_mode_t)i;
+	avoid_cityroad = a;
 }
 
 

@@ -131,6 +131,7 @@ private:
 	 * @author THLeaderH
 	 */
 	 overtaking_mode_t overtaking_mode;
+	 bool avoid_cityroad;
 
 	/**
 	 * If a way is built on top of another way, should the type
@@ -219,6 +220,7 @@ public:
 	void set_maximum(uint32 n) { maximum = n; }
 
 	void set_overtaking_mode(overtaking_mode_t o) { overtaking_mode = o; }
+	void set_avoid_cityroad(bool a) { avoid_cityroad = a; }
 
 	way_builder_t(player_t *player_);
 
