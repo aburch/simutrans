@@ -16,6 +16,7 @@
 #include "../display/simimg.h"
 #include "../simintr.h"
 #include "../simcolor.h"
+#include "../boden/wege/strasse.h"
 #include "../dataobj/settings.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
@@ -280,7 +281,13 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	money_message_label.init("", cursor + scr_coord (buttons[26].get_size().w + D_H_SPACE,0) );
 	money_message_label.align_to(&buttons[26], ALIGN_CENTER_V);
 	add_component(&money_message_label);
-	cursor.y += buttons[26].get_size().h;
+	cursor.y += buttons[26].get_size().h + D_V_SPACE;
+	
+	buttons[28].set_pos( cursor );
+	buttons[28].set_typ(button_t::square_state);
+	buttons[28].set_text("show connected directions");
+	buttons[28].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	cursor.y += D_CHECKBOX_HEIGHT;
 
 	// Toggle simple drawing for debugging
 #ifdef DEBUG
@@ -374,6 +381,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	add_component( buttons+22);
 	add_component( buttons+26);
 	add_component( buttons+27);
+	add_component( buttons+28);
 #ifdef DEBUG
 	add_component( buttons+24);
 #endif
@@ -627,6 +635,10 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	if((buttons+27)==komp) {
 		env_t::show_money_message = (env_t::show_money_message+1)%3;
 	}
+	if((buttons+28)==komp  &&  skinverwaltung_t::ribi_arrow) {
+		strasse_t::show_masked_ribi ^= 1;
+		welt->set_dirty();
+	}
 	welt->set_dirty();
 	return true;
 }
@@ -651,6 +663,8 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	buttons[22].pressed = env_t::visualize_schedule;
 	buttons[24].pressed = env_t::simple_drawing;
 	buttons[24].enable(welt->is_paused());
+	buttons[28].pressed = strasse_t::show_masked_ribi;
+	buttons[28].enable(skinverwaltung_t::ribi_arrow!=NULL);
 
 	// Update label buffers
 	hide_buildings_label.set_text( env_t::hide_buildings==0 ? "no buildings hidden" : (env_t::hide_buildings==1 ? "hide city building" : "hide all building") );
