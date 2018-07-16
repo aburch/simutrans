@@ -1396,7 +1396,7 @@ vehicle_base_t* private_car_t::is_there_car (grund_t *gr) const
 	return NULL;
 }
 
-void private_car_t::reflesh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaking) {
+void private_car_t::refresh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaking) {
 	if(  (prev_tiles_overtaking==0)^(current_tiles_overtaking==0)  ){
 		int xpos=0, ypos=0;
 		get_screen_offset( xpos, ypos, get_tile_raster_width(), true );

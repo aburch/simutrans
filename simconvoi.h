@@ -927,7 +927,7 @@ public:
 	 bool get_next_cross_lane() const { return next_cross_lane; }
 	 void set_next_cross_lane(bool n) { next_cross_lane = n; }
 
-	 virtual void reflesh(sint8,sint8) OVERRIDE;
+	 virtual void refresh(sint8,sint8) OVERRIDE;
 };
 
 #endif

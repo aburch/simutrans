@@ -263,6 +263,13 @@ void weg_t::info(cbuffer_t & buf) const
 				buf.printf("%s %s\n", translator::translate("Overtaking:"),translator::translate("ERROR"));
 				break;
 		}
+		
+		grund_t* gr = welt->lookup(get_pos());
+		
+		if(  gr  &&  !gr->ist_tunnel()  &&  !gr->ist_bruecke()  &&  desc->get_styp()==0  &&  !hat_gehweg()  ) {
+			// only display this when this way is ground way.
+			buf.printf("%s %s\n", translator::translate("Can be cityroad:"),str->get_avoid_cityroad()?translator::translate("No"):translator::translate("Yes"));
+		}
 
 		if(  ribi_t::is_threeway(get_ribi_unmasked())  &&  welt->get_settings().get_stop_at_intersection_without_traffic_light()  ) {
 			if(  str->get_prior_direction()==ribi_t::northsouth  ) {

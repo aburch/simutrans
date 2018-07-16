@@ -270,6 +270,7 @@ protected:
 	const way_desc_t *desc;
 	overtaking_mode_t overtaking_mode;
 	bool look_toolbar = false;
+	bool avoid_cityroad;
 
 	virtual way_desc_t const* get_desc(uint16, bool) const;
 	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
@@ -294,6 +295,8 @@ public:
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click()  &&  (desc  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)); }
 	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode = ov; }
 	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode; }
+	void set_avoid_cityroad(bool a) { avoid_cityroad = a; }
+	bool get_avoid_cityroad() const { return avoid_cityroad; }
 	static void set_mode_str(char* str, overtaking_mode_t overtaking_mode);
 	void set_look_toolbar() { look_toolbar = true; }
 };
@@ -998,6 +1001,7 @@ public:
 	bool is_selected() const OVERRIDE { return schiene_t::show_reservations; }
 	bool init( player_t * ) {
 		schiene_t::show_reservations ^= 1;
+		strasse_t::show_reservations ^= 1;
 		welt->set_dirty();
 		return false;
 	}

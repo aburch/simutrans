@@ -512,6 +512,8 @@ private:
 	bool choose_route(sint32 &restart_speed, ribi_t::ribi start_direction, uint16 index);
 
 	koord3d last_stop_for_intersection;
+	
+	vector_tpl<koord3d> reserving_tiles;
 
 protected:
 	bool check_next_tile(const grund_t *bd) const;
@@ -520,6 +522,8 @@ protected:
 
 public:
 	virtual void enter_tile(grund_t*);
+	
+	void leave_tile();
 
 	virtual void rotate90();
 
@@ -549,6 +553,8 @@ public:
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const { get_screen_offset(xoff,yoff,raster_width,false); }
 
 	obj_t::typ get_typ() const { return road_vehicle; }
+	
+	koord3d get_pos_prev() const { return pos_prev; }
 
 	schedule_t * generate_new_schedule() const;
 
@@ -560,7 +566,9 @@ public:
 	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top = false, sint8 offset = 0) const;
 	virtual vehicle_base_t* other_lane_blocked_offset() const { return other_lane_blocked(false,1); }
 
-	void reflesh();
+	void refresh();
+	
+	void unreserve_all_tiles();
 };
 
 

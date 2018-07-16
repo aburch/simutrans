@@ -511,8 +511,8 @@ static void internal_GetEvents(bool const wait)
 			if(  event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED  ) {
 				sys_event.type = SIM_SYSTEM;
 				sys_event.code = SYSTEM_RESIZE;
-				sys_event.mx   = (((event.window.data1+7)&0xFFFFFFF8)*32l)/x_scale;
-				sys_event.my   = (event.window.data2*32l)/y_scale;
+				sys_event.size_x = (((event.window.data1+7)&0xFFFFFFF8)*32l)/x_scale;
+				sys_event.size_y = (event.window.data2*32l)/y_scale;
 			}
 			// Ignore other window events.
 			break;

@@ -274,9 +274,9 @@ void modal_dialogue( gui_frame_t *gui, ptrdiff_t magic, karte_t *welt, bool (*qu
 			if(ev.ev_class==EVENT_SYSTEM) {
 				if (ev.ev_code==SYSTEM_RESIZE) {
 					// main window resized
-					simgraph_resize( ev.mx, ev.my );
+					simgraph_resize( ev.size_x, ev.size_y );
 					dr_prepare_flush();
-					display_fillbox_wh_rgb( 0, 0, ev.mx, ev.my, color_idx_to_rgb(COL_BLACK), true );
+					display_fillbox_wh_rgb( 0, 0, ev.size_x, ev.size_y, color_idx_to_rgb(COL_BLACK), true );
 					dr_flush();
 				}
 				else if (ev.ev_code == SYSTEM_QUIT) {
@@ -1011,7 +1011,7 @@ int simu_main(int argc, char** argv)
 	if(  !gimme_arg(argc, argv, "-nosound", 0)  ) {
 		sound_set_mute(true);
 	}
-	
+
 
 	// Adam - Moved away loading from simmain and placed into translator for better modularization
 	if(  !translator::load(env_t::objfilename)  ) {

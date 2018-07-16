@@ -162,6 +162,11 @@ struct event_t {
 	int cx, cy;
 
 	/**
+	 * new window size for SYSTEM_RESIZE
+	 */
+	int size_x, size_y;
+
+	/**
 	 * current mouse button state
 	 */
 	int button_state;

@@ -1,0 +1,40 @@
+show connected directions
+接続方向を表示する
+message of all players
+全てのプレイヤーの収支を表示
+message of active players
+現在のプレイヤーの収支を表示
+show no message
+収支を表示しない
+set overtaking mode
+追い越しの設定
+inverted
+車線反転
+prohibited
+追越禁止
+only loading convoi
+停車中の車のみ追越
+twoway
+対面通行
+oneway
+片側二車線一方通行
+halt mode
+追越車線にも停車
+avoid becoming cityroad
+市道化を禁止する
+Overtaking:
+追越設定:
+Can be cityroad:
+市道化:
+Yes
+はい
+No
+いいえ
+Prior
+優先方向
+northsouth
+南北
+eastwest
+東西
+intersection
+交差点

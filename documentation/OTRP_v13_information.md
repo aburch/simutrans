@@ -6,13 +6,13 @@ OTRPはOneway Twoway Road Patchの略で、日本語通称は「二車線パッ�
 
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 
-version14_5現在、simutrans standard nightly r8541をベースにしています。
+version15現在、simutrans standard nightly r8546をベースにしています。
 
 # ダウンロード
 ribi-arrow・信号接続方向制御つきのバイナリのみの提供です。実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。
-本体は下のリンクからどうぞ。**（2018年7月8日PM9時　ver14_5に更新）**  
-windows: https://drive.google.com/open?id=1-q9JR_7DjYPT22HLeANOWsNFwM9nz0vb  
-mac: https://drive.google.com/open?id=1BIasM0oZptCnZTY2gm3KhC1jqPuxNk2G    
+本体は下のリンクからどうぞ。**（2018年7月16日PM6時　ver15に更新）**  
+windows: https://drive.google.com/open?id=1OTRugeCzOPI-kX01waq30Fkuj_uWuPdg  
+mac: https://drive.google.com/open?id=1kGRhqhUici-UONOrNQ0P0SKURVl2FJJD    
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 ※makeobjはstandardのやつをそのまま使ってください
 
@@ -23,17 +23,24 @@ mac: https://drive.google.com/open?id=1BIasM0oZptCnZTY2gm3KhC1jqPuxNk2G
 4. DLした実行ファイルを起動する。
 standard版のsveファイルを上書きしないように気をつけましょう。
 
+## ja.tabについて
+https://github.com/teamhimeh/simutrans/blob/OTRP-distribute/documentation/ja.OTRP.tab にOTRP用ja.tabを置いておきました。ご自由にお使いください。
+
 # 使い方
 ## 追い越し属性の設定
 ![fig1](images/fig1.png)  
 道路アイコンを**Ctrlキーを押しながら**選択すると「追い越しモード」を選択できます。  
-v13_2からhalt modeが追加されました。
+（v13_2からhalt modeが追加されました。）
 - oneway: 道路を一方通行にして二車線同じ方向で通行するモードです。このモードの時は道路が一方通行になるので建設時は「:（コロン）」を押して接続方向を確認してください。
 - halt mode: 停留所において追越車線でも客扱い・荷捌きをします。走行中の挙動はonewayと同じです。
 - twoway: 本家standardの道路と同じ挙動をするモードです。対向車が来ないことが保証されるときのみ追い越しできます。
 - only loading convoy: 停車中の車のみ追い越します。
 - prohibited: 一切の追い越しが禁止されます。
 - inverted: twowayモードの状態から車線が左右反転します。
+
+地面に敷設する道路にのみ「avoid becoming cityroad」オプションが表示されます。このオプションを有効化すると道路は市道化しなくなります。  
+
+道路の接続方向は「:（コロン）」キーを押すことで確認できます。（表示設定ウィンドウにあるボタンからも使用できます。）市道化防止オプションが有効化された道路は緑色になります。
 
 ## 車線誘導標識
 交通量が増えてくるとこのように分岐部分で渋滞が発生することがあります。
@@ -51,7 +58,7 @@ v13から道路信号の進入許可方向を設定できるようになりま�
 デフォルトでは進入許可方向は南北-東西で設定されていますが、変更すると「南北：東西：オフセット」の文字列は意味を成していないので気になる方はja.tabの「Set phases」を書き換えてください。
 
 ## 交差点での車のふるまい
-（v14から）  
+（v14から。**デフォルトでは無効化** されています。）  
 信号が設置されていない交差点に車が進入するとき、減速（一時停止）してから交差点に進入します。ただし以下の条件を満たすときは減速せずに交差点に進入します。
 - 自分が優先方向（南北or東西）にいるとき
 - 左折する時（右側通行の場合は右折する時）
@@ -59,10 +66,11 @@ v13から道路信号の進入許可方向を設定できるようになりま�
 
 優先方向は交差点タイルでの道路の情報にある「**Prior**」です。交通量の多い方向が自動的に優先方向になります。  
 ![fig6](images/fig6.png)  
-なお「高度な設定」から「stop_at_intersection_without_traffic_light」（経済タブにあります）のチェックを外すことで交差点での減速を無効にすることができます。
+この機能は「高度な設定」から「stop_at_intersection_without_traffic_light」（経済タブにあります）のチェックを入れることで有効化できます。
 
 ## その他
 - 運賃収受に伴う金額表示をON/OFFできるようになりました。表示設定ウィンドウから切り替えられるほか、simple_tool[38]にキーを割り当てることでも切り替えることができます。
+- 交差点でのスムーズな通行を実現するため、交差点タイルでは車両がタイルを予約しています。予約状況は鉄道の閉塞予約解除ツール（bキー）を使うことで確認できます。タイルをクリックすることで予約を手動で解除することもできます。
 
 # データの互換性
 ## アドオンの互換性

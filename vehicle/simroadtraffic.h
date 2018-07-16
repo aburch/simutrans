@@ -163,7 +163,7 @@ public:
 	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top) const;
 	vehicle_base_t* is_there_car(grund_t *gr) const; // This is a helper function of other_lane_blocked
 
-	virtual void reflesh(sint8,sint8);
+	virtual void refresh(sint8,sint8);
 };
 
 #endif

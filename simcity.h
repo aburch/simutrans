@@ -22,6 +22,8 @@ class building_desc_t;
 class karte_ptr_t;
 class player_t;
 class rule_t;
+class grund_t;
+class way_desc_t;
 
 
 #define MAX_CITY_HISTORY_YEARS  (12) // number of years to keep history
@@ -421,6 +423,8 @@ private:
 	 * @warning Do not call this during multithreaded loading!
 	 */
 	void pruefe_grenzen(koord pos);
+	
+	static bool process_city_street(grund_t& gr, const way_desc_t* cr);
 
 public:
 	/**

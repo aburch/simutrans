@@ -1035,6 +1035,10 @@ bool convoi_t::drive_to()
 				index0 = min(index1-1, route.get_count());
 			}
 		}
+		// Also for road vehicles, unreserve tiles.
+		else if(road_vehicle_t* r = dynamic_cast<road_vehicle_t*>(fahr[0])) {
+			r->unreserve_all_tiles();
+		}
 
 		koord3d start = fahr[0]->get_pos();
 		koord3d ziel = schedule->get_current_entry().pos;
@@ -3632,12 +3636,16 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 	if (  !other_overtaker->can_be_overtaken()  &&  overtaking_mode > oneway_mode  ) {
 		return false;
 	}
-
-	//Overtaking info (0 = condition for one-way road, 1 = condition for two-way road, 2 = overtaking a loading convoy only, 3 = overtaking is completely forbidden, 4 = vehicles can go only on passing lane)
 	if(  overtaking_mode == prohibited_mode  ){
 		// This road prohibits overtaking.
 		return false;
 	}
+	
+	if(  str->is_reserved_by_others((road_vehicle_t*)fahr[0], true, ((road_vehicle_t*)fahr[0])->get_pos_prev(), fahr[0]->get_pos_next())  ) {
+		// Passing lane of the next tile is reserved by other vehicle.
+		return false;
+	}
+	
 
 	if(  other_speed == 0  ) {
 		/* overtaking a loading convoi
@@ -4042,12 +4050,12 @@ bool convoi_t::calc_lane_affinity(uint8 lane_affinity_sign)
 	return false;
 }
 
-void convoi_t::reflesh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaking) {
+void convoi_t::refresh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaking) {
 	if(  fahr[0]  &&  fahr[0]->get_waytype()==road_wt  &&  (prev_tiles_overtaking==0)^(current_tiles_overtaking==0)  ){
 		for(uint8 i=0; i<anz_vehikel; i++) {
 			road_vehicle_t* rv = dynamic_cast<road_vehicle_t*>(fahr[i]);
 			if(rv) {
-				rv->reflesh();
+				rv->refresh();
 			}
 		}
 	}

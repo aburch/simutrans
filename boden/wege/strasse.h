@@ -6,6 +6,8 @@
 // number of different traffic directions
 #define MAX_WAY_STAT_DIRECTIONS 2
 
+class road_vehicle_t;
+
 /**
  * Cars are able to drive on roads.
  *
@@ -15,6 +17,11 @@ class strasse_t : public weg_t
 {
 public:
 	static bool show_masked_ribi;
+	static bool show_reservations;
+	
+	enum {
+		AVOID_CITYROAD   = 0x01 // When this flag is enabled, this street avoid becoming cityroad.
+	};
 
 private:
 	/**
@@ -27,6 +34,12 @@ private:
 	* @author THLeaderH
 	*/
 	uint8 ribi_mask_oneway:4;
+	
+	/**
+	* strasse_t specific flags
+	* @author THLeaderH
+	*/
+	uint8 street_flags;
 
 	/**
 	* 0 = calculate automatically
@@ -44,6 +57,25 @@ private:
 	sint16 directional_statistics[MAX_WAY_STAT_MONTHS][MAX_WAY_STATISTICS][MAX_WAY_STAT_DIRECTIONS];
 
 	void init_statistics();
+	
+	/**
+	* tile reservation system
+	* to prevent a grid-lock in an intersection...
+	* This does not support citycars!
+	* A tile is devided into 4 small rectangles.
+	*        N
+	*   -----------
+	*  |     |     |
+	*  |  0  |  1  |
+	* W|-----|-----|  E
+	*  |  2  |  3  |
+	*  |     |     |
+	*   -----------
+	*        S
+	*
+	* @author THLeaderH
+	*/
+	road_vehicle_t* reserved_by[4];
 
 public:
 	static const way_desc_t *default_strasse;
@@ -83,6 +115,22 @@ public:
 	ribi_t::ribi get_prior_direction() const;
 
 	image_id get_front_image() const {return show_masked_ribi ? skinverwaltung_t::ribi_arrow->get_image_id(get_ribi()) : weg_t::get_front_image();}
+	
+	virtual FLAGGED_PIXVAL get_outline_colour() const;
+	/*
+	 * to show reservations if needed
+	 */
+	virtual image_id get_outline_image() const { return weg_t::get_image(); }
+
+	// related to tile reservation system
+	// return true if succeeded
+	bool reserve(road_vehicle_t* r, bool is_overtaking, koord3d pos_prev, koord3d pos_next);
+	bool unreserve(road_vehicle_t* r);
+	void unreserve_all();
+	bool is_reserved_by_others(road_vehicle_t* r, bool is_overtaking, koord3d pos_prev, koord3d pos_next);
+	
+	bool get_avoid_cityroad() const { return street_flags&AVOID_CITYROAD; }
+	void set_avoid_cityroad(bool s) { s ? street_flags |= AVOID_CITYROAD : street_flags &= ~AVOID_CITYROAD; }
 
 };
 
