@@ -323,7 +323,7 @@ const char *network_http_post( const char *address, const char *name, const char
 				"Content-Length: %d\r\n\r\n%s";
 		if ((strlen(format) + strlen(name) + strlen(address) + strlen(poststr) + strlen(QUOTEME(REVISION))) > 4060) {
 			// We will get a buffer overwrite here if we continue
-			return "Error: String too long";
+			dbg->fatal( "network_http_post", "Error: String too long (>4096)" );
 		}
 		DBG_MESSAGE("network_http_post", "2");
 		char request[4096];
