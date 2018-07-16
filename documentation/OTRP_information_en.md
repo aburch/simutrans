@@ -4,13 +4,13 @@ OTRP means Oneway Twoway Road Patch. The simutrans standard uses only one lane w
 
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 
-As of version 14_5, OTRP is based on simutrans standard nightly r8541.
+As of version 15, OTRP is based on simutrans standard nightly r8546.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.
-You can download the OTRP executable binary from the links below. **(2018 July 8th, updated to ver 14_5.)**  
-windows: https://drive.google.com/open?id=1-q9JR_7DjYPT22HLeANOWsNFwM9nz0vb  
-mac: https://drive.google.com/open?id=1BIasM0oZptCnZTY2gm3KhC1jqPuxNk2G  
+You can download the OTRP executable binary from the links below. **(2018 July 16th, updated to ver 15.)**  
+windows: https://drive.google.com/open?id=1OTRugeCzOPI-kX01waq30Fkuj_uWuPdg  
+mac: https://drive.google.com/open?id=1kGRhqhUici-UONOrNQ0P0SKURVl2FJJD  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 OTRP does not provide specialized makeobj. Please use one of simutrans standard.
 
@@ -33,12 +33,17 @@ Select a road icon **with holding a Ctrl key**, then you can select the overtaki
 - prohibited: All overtaking is prohibited.
 - inverted: Lane is reversed.
 
+For ground road, "avoid becoming cityroad" option is available. When you enable this option, the road never become a cityroad.
+
+The connected directions of the road can be checked by the colon key or using the display option in the display settings. Roads that "avoid becoming cityroad" option is enabled for are displayed green.
+
 ## lane affinity signs
 As the amount of traffic increases, traffic jam at a junction like the image below can be often seen.  
 ![fig3](images/fig3.png)  
 
 ## etc  
 - The income/cost message can be turned off in the display settings  or by assigning a key to simple_tool[38].
+- To realize smooth traffic in an intersection, vehicles reserve tiles in the intersection. With b key, you can check and cancel the reservation of road.
 
 # Compatibility
 ## Compatibility of Add-ons
