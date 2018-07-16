@@ -50,6 +50,13 @@ strasse_t::strasse_t() : weg_t()
 	overtaking_mode = twoway_mode;
 	street_flags = 0;
 	prior_direction_setting = 0;
+	for(uint8 type=0; type<MAX_WAY_STATISTICS; type++) {
+		for(uint8 month=0; month<MAX_WAY_STAT_MONTHS; month++) {
+			for(uint8 dir=0; dir<MAX_WAY_STAT_DIRECTIONS; dir++) {
+				directional_statistics[month][type][dir] = 0;
+			}
+		}
+	}
 	for(uint8 i=0; i<4; i++) {
 		reserved_by[i] = NULL;
 	}
@@ -67,6 +74,8 @@ void strasse_t::rdwr(loadsave_t *file)
 		uint8 s = street_flags;
 		file->rdwr_byte(s);
 		street_flags = s;
+	} else {
+		street_flags = 0;
 	}
 	
 	if(  file->get_OTRP_version() >= 14  ) {
@@ -80,6 +89,15 @@ void strasse_t::rdwr(loadsave_t *file)
 					sint16 w = directional_statistics[month][type][dir];
 					file->rdwr_short(w);
 					directional_statistics[month][type][dir] = w;
+				}
+			}
+		}
+	} else {
+		prior_direction_setting = 0;
+		for(uint8 type=0; type<MAX_WAY_STATISTICS; type++) {
+			for(uint8 month=0; month<MAX_WAY_STAT_MONTHS; month++) {
+				for(uint8 dir=0; dir<MAX_WAY_STAT_DIRECTIONS; dir++) {
+					directional_statistics[month][type][dir] = 0;
 				}
 			}
 		}
