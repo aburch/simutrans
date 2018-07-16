@@ -169,11 +169,6 @@ bool skinverwaltung_t::successfully_loaded(skintyp_t type)
 			if (tunnel_texture==NULL) {
 				tunnel_texture = fussweg;
 			}
-			// [mod : shingoushori] Fail safe for loading failure of misc.RibiArrow.pak
-			// for compatibility: use sidewalk as ribi_arrow
-			if (ribi_arrow==NULL) {
-				ribi_arrow = fussweg;
-			}
 			break;
 		case nothing: return true;
 		default:      return false;
