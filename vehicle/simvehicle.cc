@@ -2275,6 +2275,18 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		if(  current_str->get_overtaking_mode()<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  ) {
 			next_lane = -1;
 		}
+
+		vehicle_base_t *obj = NULL;
+		uint32 test_index = route_index;
+
+		// way should be clear for overtaking: we checked previously
+		// Now we have to consider even if convoi is overtaking!
+		// calculate new direction
+		koord3d next = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
+		ribi_t::ribi curr_direction   = get_direction();
+		ribi_t::ribi curr_90direction = calc_direction(get_pos(), pos_next);
+		ribi_t::ribi next_direction   = calc_direction(get_pos(), next);
+		ribi_t::ribi next_90direction = calc_direction(pos_next, next);
 		
 		// If the next tile is an intersection, we have to refer the reservation.
 		// However, if we are already in an intersection, we ignore it to avoid stuck.
@@ -2288,24 +2300,13 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 			// since reserve function modifies variables of the instance...
 			strasse_t* s = (strasse_t *)gr->get_weg(road_wt);
-			if(  !s  ||  !s->reserve(this, overtaking_on_tile)  ) {
+			if(  !s  ||  !s->reserve(this, overtaking_on_tile, get_pos(), next)  ) {
 				return false;
 			}
 			// now we succeeded in reserving the road. register it.
 			reserving_tiles.append(gr->get_pos());
 		}
-
-		vehicle_base_t *obj = NULL;
-		uint32 test_index = route_index;
-
-		// way should be clear for overtaking: we checked previously
-		// Now we have to consider even if convoi is overtaking!
-		// calculate new direction
-		koord3d next = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
-		ribi_t::ribi curr_direction   = get_direction();
-		ribi_t::ribi curr_90direction = calc_direction(get_pos(), pos_next);
-		ribi_t::ribi next_direction   = calc_direction(get_pos(), next);
-		ribi_t::ribi next_90direction = calc_direction(pos_next, next);
+		
 		obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction, NULL, next_lane );
 
 		// do not block intersections
@@ -2481,7 +2482,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				}
 				// since reserve function modifies variables of the instance...
 				strasse_t* s = (strasse_t *)gr->get_weg(road_wt);
-				if(  !s  ||  !s->reserve(this, overtaking_on_tile)  ) {
+				if(  !s  ||  !s->reserve(this, overtaking_on_tile, r.at(test_index - 1u), next)  ) {
 					return false;
 				}
 				// now we succeeded in reserving the road. register it.
@@ -2893,12 +2894,10 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 		//decide if overtaking convoi should go back to the traffic lane.
 		if(  cnv->get_tiles_overtaking() == 1  &&  str->get_overtaking_mode() <= oneway_mode  ){
 			vehicle_base_t* v = NULL;
-			if(  cnv->get_lane_affinity() == 1  ||  (v = other_lane_blocked())!=NULL  ){
+			if(  cnv->get_lane_affinity() == 1  ||  (v = other_lane_blocked())!=NULL  ||  str->is_reserved_by_others(this, false, pos_prev, pos_next)  ){
 				//lane change denied
 				cnv->set_tiles_overtaking(3);
-				// Is traffic lane reserved by other vehicle?
-				road_vehicle_t* rsr_vehicle = str->reserving_vehicle(false);
-				if(  cnv->is_requested_change_lane()  ||  cnv->get_lane_affinity() == -1  ||  (rsr_vehicle  &&  rsr_vehicle!=this)  ) {
+				if(  cnv->is_requested_change_lane()  ||  cnv->get_lane_affinity() == -1  ) {
 					//request the blocking convoi to reduce speed.
 					if(  v  ) {
 						if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(v)  ) {

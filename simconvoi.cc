@@ -3641,7 +3641,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		return false;
 	}
 	
-	if(  str->reserving_vehicle(true)  ) {
+	if(  str->is_reserved_by_others((road_vehicle_t*)fahr[0], true, ((road_vehicle_t*)fahr[0])->get_pos_prev(), fahr[0]->get_pos_next())  ) {
 		// Passing lane of the next tile is reserved by other vehicle.
 		return false;
 	}

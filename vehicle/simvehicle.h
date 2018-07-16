@@ -553,6 +553,8 @@ public:
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const { get_screen_offset(xoff,yoff,raster_width,false); }
 
 	obj_t::typ get_typ() const { return road_vehicle; }
+	
+	koord3d get_pos_prev() const { return pos_prev; }
 
 	schedule_t * generate_new_schedule() const;
 

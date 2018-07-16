@@ -36,7 +36,9 @@ void strasse_t::set_gehweg(bool janein)
 strasse_t::strasse_t(loadsave_t *file) : weg_t()
 {
 	rdwr(file);
-	reserved_by[0] = reserved_by[1] = NULL;
+	for(uint8 i=0; i<4; i++) {
+		reserved_by[i] = NULL;
+	}
 }
 
 
@@ -48,7 +50,9 @@ strasse_t::strasse_t() : weg_t()
 	overtaking_mode = twoway_mode;
 	street_flags = 0;
 	prior_direction_setting = 0;
-	reserved_by[0] = reserved_by[1] = NULL;
+	for(uint8 i=0; i<4; i++) {
+		reserved_by[i] = NULL;
+	}
 }
 
 
@@ -219,16 +223,66 @@ ribi_t::ribi strasse_t::get_prior_direction() const {
 	}
 }
 
-bool strasse_t::reserve(road_vehicle_t* r, bool is_overtaking) {
-	uint8 p = is_overtaking ? 1 : 0;
-	if(  reserved_by[p]  &&  reserved_by[p]!=r  ) {
+uint8 calc_reservation_flag(ribi_t::ribi dir_in, ribi_t::ribi dir_out) {
+	if(  dir_in==ribi_t::north  &&  dir_out==ribi_t::east  ) { return 13; }
+	else if(  dir_in==ribi_t::north  &&  dir_out==ribi_t::south  ) { return 5; }
+	else if(  dir_in==ribi_t::north  &&  dir_out==ribi_t::west   ) { return 1; }
+	else if(  dir_in==ribi_t::east   &&  dir_out==ribi_t::north  ) { return 2; }
+	else if(  dir_in==ribi_t::east   &&  dir_out==ribi_t::south  ) { return 7; }
+	else if(  dir_in==ribi_t::east   &&  dir_out==ribi_t::west   ) { return 3; }
+	else if(  dir_in==ribi_t::south  &&  dir_out==ribi_t::north  ) { return 10;}
+	else if(  dir_in==ribi_t::south  &&  dir_out==ribi_t::east   ) { return 8; }
+	else if(  dir_in==ribi_t::south  &&  dir_out==ribi_t::west   ) { return 11;}
+	else if(  dir_in==ribi_t::west   &&  dir_out==ribi_t::north  ) { return 14;}
+	else if(  dir_in==ribi_t::west   &&  dir_out==ribi_t::east   ) { return 12;}
+	else if(  dir_in==ribi_t::west   &&  dir_out==ribi_t::south  ) { return 4; }
+	else { return 0; }
+}
+
+bool strasse_t::is_reserved_by_others(road_vehicle_t* r, bool is_overtaking, koord3d pos_prev, koord3d pos_next) {
+	ribi_t::ribi dir_in = ribi_type(get_pos(), pos_prev);
+	ribi_t::ribi dir_out = ribi_type(get_pos(), pos_next);
+	uint8 reservation_flag = calc_reservation_flag(dir_in, dir_out);
+	if(  reservation_flag==0  ) {
+		// failed to calculate reservation flag.
 		return false;
 	}
-	if(  reserved_by[(p+1)%2]==r  ) {
-		// a vehicle cannot reserve both lanes.
-		return false;
+	if(  (welt->get_settings().is_drive_left()  &&  !is_overtaking)  ||  (!welt->get_settings().is_drive_left()  &&  is_overtaking)  ) {
+		reservation_flag = (~reservation_flag)&0x0F;
 	}
-	reserved_by[p] = r;
+	// check whether the tile is reserved by others.
+	for(uint8 i=0; i<4; i++) {
+		if(  (reservation_flag&(1<<i))!=0  &&  reserved_by[i]  &&  reserved_by[i]!=r  ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool strasse_t::reserve(road_vehicle_t* r, bool is_overtaking, koord3d pos_prev, koord3d pos_next) {
+	ribi_t::ribi dir_in = ribi_type(get_pos(), pos_prev);
+	ribi_t::ribi dir_out = ribi_type(get_pos(), pos_next);
+	uint8 reservation_flag = calc_reservation_flag(dir_in, dir_out);
+	if(  reservation_flag==0  ) {
+		// failed to calculate reservation flag.
+		// allow entering this tile.
+		return true;
+	}
+	if(  (welt->get_settings().is_drive_left()  &&  !is_overtaking)  ||  (!welt->get_settings().is_drive_left()  &&  is_overtaking)  ) {
+		reservation_flag = (~reservation_flag)&0x0F;
+	}
+	// check whether the tile is reserved by others.
+	for(uint8 i=0; i<4; i++) {
+		if(  (reservation_flag&(1<<i))!=0  &&  reserved_by[i]  &&  reserved_by[i]!=r  ) {
+			return false;
+		}
+	}
+	// now we can reserve the tile
+	for(uint8 i=0; i<4; i++) {
+		if(  (reservation_flag&(1<<i))!=0  ) {
+			reserved_by[i] = r;
+		}
+	}
 	if(strasse_t::show_reservations) {
 		set_flag( obj_t::dirty );
 	}
@@ -236,42 +290,47 @@ bool strasse_t::reserve(road_vehicle_t* r, bool is_overtaking) {
 }
 
 bool strasse_t::unreserve(road_vehicle_t* r) {
-	for(uint8 i=0; i<2; i++) {
+	bool deleted = false;
+	for(uint8 i=0; i<4; i++) {
 		if(  r==reserved_by[i]  ) {
 			reserved_by[i] = NULL;
-			if(strasse_t::show_reservations) {
-				set_flag( obj_t::dirty );
-			}
-			return true;
+			deleted = true;
 		}
 	}
-	return false;
+	if(  deleted  ) {
+		if(strasse_t::show_reservations) {
+			set_flag( obj_t::dirty );
+		}
+	}
+	return deleted;
 }
 
 void strasse_t::unreserve_all() {
-	for(uint8 i=0; i<2; i++) {
+	for(uint8 i=0; i<4; i++) {
 		if(  reserved_by[i]  ) {
 			reserved_by[i]->unreserve_all_tiles();
+			reserved_by[i] = NULL;
 		}
 	}
-	reserved_by[0] = reserved_by[1] = NULL;
 	if(strasse_t::show_reservations) {
 		set_flag( obj_t::dirty );
 	}
 }
 
 FLAGGED_PIXVAL strasse_t::get_outline_colour() const {
-	if(  !show_reservations  ||  (!reserved_by[0]  &&  !reserved_by[1])  ) {
-		return 0;
+	bool reserved = false;
+	if(  show_reservations  ) {
+		for(uint8 i=0; i<4; i++) {
+			if(  reserved_by[i]  ) {
+				reserved = true;
+			}
+		}
 	}
-	else if(  reserved_by[0]  &&  !reserved_by[1]  ) {
-		return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_GREEN);
-	}
-	else if(  !reserved_by[0]  &&  reserved_by[1]  ) {
+	if(  reserved  ) {
 		return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_RED);
-	}
-	else {
-		// both lanes are reserved
-		return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_ORANGE);
+	}else if(  show_masked_ribi  &&  get_avoid_cityroad()  ) {
+		return TRANSPARENT75_FLAG | OUTLINE_FLAG | color_idx_to_rgb(COL_GREEN);
+	}else {
+		return 0;
 	}
 }

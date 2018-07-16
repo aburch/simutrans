@@ -62,9 +62,20 @@ private:
 	* tile reservation system
 	* to prevent a grid-lock in an intersection...
 	* This does not support citycars!
+	* A tile is devided into 4 small rectangles.
+	*        N
+	*   -----------
+	*  |     |     |
+	*  |  0  |  1  |
+	* W|-----|-----|  E
+	*  |  2  |  3  |
+	*  |     |     |
+	*   -----------
+	*        S
+	*
 	* @author THLeaderH
 	*/
-	road_vehicle_t* reserved_by[2];
+	road_vehicle_t* reserved_by[4];
 
 public:
 	static const way_desc_t *default_strasse;
@@ -113,10 +124,10 @@ public:
 
 	// related to tile reservation system
 	// return true if succeeded
-	bool reserve(road_vehicle_t* r, bool is_overtaking);
+	bool reserve(road_vehicle_t* r, bool is_overtaking, koord3d pos_prev, koord3d pos_next);
 	bool unreserve(road_vehicle_t* r);
 	void unreserve_all();
-	road_vehicle_t* reserving_vehicle(bool is_overtaking) const { return is_overtaking ? reserved_by[1] : reserved_by[0]; }
+	bool is_reserved_by_others(road_vehicle_t* r, bool is_overtaking, koord3d pos_prev, koord3d pos_next);
 	
 	bool get_avoid_cityroad() const { return street_flags&AVOID_CITYROAD; }
 	void set_avoid_cityroad(bool s) { s ? street_flags |= AVOID_CITYROAD : street_flags &= ~AVOID_CITYROAD; }
