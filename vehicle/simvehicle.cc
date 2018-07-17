@@ -2401,6 +2401,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		// we have to assume the lane that this vehicle goes in the intersection.
 		sint8 lane_of_the_tile = next_lane;
 		overtaking_mode_t mode_of_start_point = str->get_overtaking_mode();
+		bool enter_passing_lane_from_side_road = false;
 		// check exit from crossings and intersections, allow to proceed after 4 consecutive
 		while(  !obj   &&  (str->is_crossing()  ||  int_block)  &&  test_index < r.get_count()  &&  test_index < route_index + 4u  ) {
 			if(  str->is_crossing()  ) {
@@ -2430,8 +2431,30 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				return false;
 			}
 
-			if(  mode_of_start_point<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  ) lane_of_the_tile = -1;
-			if(  str->get_overtaking_mode()==inverted_mode  ) lane_of_the_tile = 1;
+			if(  mode_of_start_point<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  ) {
+				lane_of_the_tile = -1;
+			}
+			else if(  str->get_overtaking_mode()==inverted_mode  ) {
+				lane_of_the_tile = 1;
+			}
+			else if(  str->get_overtaking_mode()<=oneway_mode  &&  enter_passing_lane_from_side_road  ) {
+				lane_of_the_tile = 1;
+			}
+			
+			// Decide whether the convoi should go on passing lane.
+			// side road -> main road from passing lane side: vehicle should enter passing lane on main road.
+			if(   ribi_t::is_threeway(str->get_ribi_unmasked())  &&  str->get_overtaking_mode() <= oneway_mode  ) {
+				const strasse_t* str_prev = (strasse_t *)welt->lookup(r.at(test_index - 1u))->get_weg(road_wt);
+				if(  str_prev  &&  str_prev->get_overtaking_mode() > oneway_mode  &&  test_index + 1u < r.get_count()  ) {
+					ribi_t::ribi dir_1 = calc_direction(r.at(test_index - 1u), r.at(test_index));
+					ribi_t::ribi dir_2 = calc_direction(r.at(test_index), r.at(test_index + 1u));
+					if(  (!welt->get_settings().is_drive_left()  &&  ribi_t::rotate90l(dir_1) == dir_2)  ||  (welt->get_settings().is_drive_left()  &&  ribi_t::rotate90(dir_1) == dir_2)  ) {
+						// next: enter passing lane.
+						lane_of_the_tile = 1;
+						enter_passing_lane_from_side_road = true;
+					}
+				}
+			}
 
 			// check cars
 			curr_direction   = next_direction;
