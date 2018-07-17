@@ -533,6 +533,8 @@ public:
 
 	road_vehicle_t(loadsave_t *file, bool first, bool last);
 	road_vehicle_t(koord3d pos, const vehicle_desc_t* desc, player_t* player_, convoi_t* cnv); // start and schedule
+	
+	~road_vehicle_t();
 
 	virtual void set_convoi(convoi_t *c);
 
