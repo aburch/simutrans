@@ -8,9 +8,9 @@ As of version 15, OTRP is based on simutrans standard nightly r8546.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.
-You can download the OTRP executable binary from the links below. **(2018 July 16th, updated to ver 15.)**  
-windows: https://drive.google.com/open?id=1OTRugeCzOPI-kX01waq30Fkuj_uWuPdg  
-mac: https://drive.google.com/open?id=1kGRhqhUici-UONOrNQ0P0SKURVl2FJJD  
+You can download the OTRP executable binary from the links below. **(2018 July 18th, updated to ver 15_1.)**  
+windows: https://drive.google.com/open?id=19n9Pr-gdQ-NHwW8kAudP-QOZBUvoh3c2  
+mac: https://drive.google.com/open?id=1VFpDx82BBc6LZ16EL8KLH7j2u3mPG-9u  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 OTRP does not provide specialized makeobj. Please use one of simutrans standard.
 
@@ -44,6 +44,7 @@ As the amount of traffic increases, traffic jam at a junction like the image bel
 ## etc  
 - The income/cost message can be turned off in the display settings  or by assigning a key to simple_tool[38].
 - To realize smooth traffic in an intersection, vehicles reserve tiles in the intersection. With b key, you can check and cancel the reservation of road.
+- Use "make halt public" tool with the shift key, and the halt belongs to the current activated player. With the control key, this operation can be done with no cost.
 
 # Compatibility
 ## Compatibility of Add-ons

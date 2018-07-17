@@ -10,9 +10,9 @@ version15現在、simutrans standard nightly r8546をベースにしています
 
 # ダウンロード
 ribi-arrow・信号接続方向制御つきのバイナリのみの提供です。実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。
-本体は下のリンクからどうぞ。**（2018年7月16日PM6時　ver15に更新）**  
-windows: https://drive.google.com/open?id=1OTRugeCzOPI-kX01waq30Fkuj_uWuPdg  
-mac: https://drive.google.com/open?id=1kGRhqhUici-UONOrNQ0P0SKURVl2FJJD    
+本体は下のリンクからどうぞ。**（2018年7月18日AM0時　ver15_1に更新）**  
+windows: https://drive.google.com/open?id=19n9Pr-gdQ-NHwW8kAudP-QOZBUvoh3c2  
+mac: https://drive.google.com/open?id=1VFpDx82BBc6LZ16EL8KLH7j2u3mPG-9u    
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 ※makeobjはstandardのやつをそのまま使ってください
 
@@ -71,6 +71,7 @@ v13から道路信号の進入許可方向を設定できるようになりま�
 ## その他
 - 運賃収受に伴う金額表示をON/OFFできるようになりました。表示設定ウィンドウから切り替えられるほか、simple_tool[38]にキーを割り当てることでも切り替えることができます。
 - 交差点でのスムーズな通行を実現するため、交差点タイルでは車両がタイルを予約しています。予約状況は鉄道の閉塞予約解除ツール（bキー）を使うことで確認できます。タイルをクリックすることで予約を手動で解除することもできます。
+- 駅/停留所の公共化ツールをshiftを押しながら使うと、現在有効なプレイヤー所属の停留所になります。なおctrlキーを押しながらだと費用ナシで民営化できます。
 
 # データの互換性
 ## アドオンの互換性
