@@ -2354,6 +2354,116 @@ void haltestelle_t::make_public_and_join( player_t *player )
 
 	recalc_station_type();
 }
+// [mod : shingoushori] mod : changes this to a private transfer exchange stop 3/3
+// changes this to a private transfer exchange stop
+// public_undertaking == true : public undertaking mode : no cost spend
+void haltestelle_t::make_private_and_join( player_t *player, bool public_undertaking )
+{
+	player_t *const public_owner = welt->get_public_player();
+	
+	// check if already private
+	if(  owner_p == player  ) {
+		return;
+	}
+	
+	// process every tile of stop
+	slist_tpl<halthandle_t> joining;
+	FOR(slist_tpl<tile_t>, const& i, tiles) {
+											 grund_t* const gr = i.grund;
+		gebaeude_t* gb = gr->find<gebaeude_t>();
+		if(  gb  ) {
+			player_t *const current_owner = gb->get_owner();
+			// change ownership
+			gb->set_owner(player);
+			gb->set_flag(obj_t::dirty);
+			sint64 const monthly_costs = welt->get_settings().maint_building * gb->get_tile()->get_desc()->get_level();
+			waytype_t const costs_type = gb->get_waytype();
+			player_t::add_maintenance(current_owner, -monthly_costs, costs_type);
+			player_t::add_maintenance(player, monthly_costs, costs_type);
+			
+			// cost is computed and transfered to private player
+			if(  !public_undertaking  ) {
+				sint64 const cost = -welt->scale_with_month_length(monthly_costs * welt->get_settings().cst_make_public_months);
+				player_t::book_construction_costs(current_owner, -cost, get_basis_pos(), costs_type);
+				player_t::book_construction_costs(player, cost, koord::invalid, costs_type);
+			}
+		}
+		
+		// search for stops to join, starting with this tile
+		const planquadrat_t *pl = welt->access(gr->get_pos().get_2d());
+		for(  uint8 i=0;  i < pl->get_boden_count();  i++  ) {
+			halthandle_t my_halt = pl->get_boden_bei(i)->get_halt();
+			if(  my_halt.is_bound()  &&  my_halt->get_owner()==player  &&  !joining.is_contained(my_halt)  ) {
+				joining.append(my_halt);
+			}
+		}
+		// search neighbouring tiles
+		for( uint8 i=0;  i<8;  i++  ) {
+			const planquadrat_t *pl2 = welt->access(gr->get_pos().get_2d()+koord::neighbours[i]);
+			if(  pl2  ) {
+				for(  uint8 i=0;  i < pl2->get_boden_count();  i++  ) {
+					halthandle_t my_halt = pl2->get_boden_bei(i)->get_halt();
+					if(  my_halt.is_bound()  &&  my_halt->get_owner()==player  &&  !joining.is_contained(my_halt)  ) {
+						joining.append(my_halt);
+					}
+				}
+			}
+		}
+	}
+	
+	// transfer ownership
+	owner_p = player;
+	
+	// set name to name of first public stop
+	if(  !joining.empty()  ) {
+		set_name( joining.front()->get_name());
+	}
+	
+	while(  !joining.empty()  ) {
+		// join this halt with me
+		halthandle_t halt = joining.remove_first();
+		
+		// now with the second stop
+		while(  halt.is_bound()  &&  halt!=self  ) {
+			// add statistics
+			for(  int month=0;  month<MAX_MONTHS;  month++  ) {
+				for(  int type=0;  type<MAX_HALT_COST;  type++  ) {
+					financial_history[month][type] += halt->financial_history[month][type];
+					halt->financial_history[month][type] = 0;	// to avoid counting twice
+				}
+			}
+			
+			// we always take the first remaining tile and transfer it => more safe
+			koord3d t = halt->get_basis_pos3d();
+			grund_t *gr = welt->lookup(t);
+			
+			// transfer tiles to us
+			halt->rem_grund(gr);
+			add_grund(gr);
+			// and check for existence
+			if(!halt->existiert_in_welt()) {
+				// transfer goods
+				halt->transfer_goods(self);
+				
+				// rebuild connections of all linked halts
+				// otherwise these halts would lose connections and freight might get lost
+				// (until complete rebuild_connections task is finished)
+				halt->rebuild_linked_connections();
+				
+				destroy(halt);
+			}
+		}
+	}
+	
+	// tell the world of it ...
+	if(  player != public_owner  &&  env_t::networkmode  ) {
+		cbuffer_t buf;
+		buf.printf( translator::translate("%s at (%i,%i) now private stop."), get_name(), get_basis_pos().x, get_basis_pos().y );
+		welt->get_message()->add_message( buf, get_basis_pos(), message_t::ai, PLAYER_FLAG|player->get_player_nr(), IMG_EMPTY );
+	}
+	
+	recalc_station_type();
+}
 
 
 void haltestelle_t::transfer_goods(halthandle_t halt)
