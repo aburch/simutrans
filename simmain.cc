@@ -538,6 +538,9 @@ int simu_main(int argc, char** argv)
 		env_t::user_dir = env_t::program_dir;
 	}
 	dr_chdir( env_t::user_dir );
+	dr_mkdir("maps");
+	dr_mkdir(SAVE_PATH);
+	dr_mkdir(SCREENSHOT_PATH);
 
 
 #ifdef REVISION
