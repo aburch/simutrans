@@ -371,10 +371,6 @@ char const *dr_query_homedir()
 	strcat(buffer, "PATH_SEPARATOR");
 	dr_chdir(buffer);
 	strcat(buffer, PATH_SEPARATOR);
-	dr_chdir(buffer);
-	dr_mkdir("maps");
-	dr_mkdir("save");
-	dr_mkdir("screenshots");
 
 	return buffer;
 }
