@@ -1017,7 +1017,7 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 	vehicle_t &front = *this->front();
 
 	const uint32 route_count = route.get_count(); // at least ziel will be there, even if calculating a route failed.
-	const uint16 current_route_index = min(front.get_route_index(), route_count - 1); // actually this is current route index + 1!!!
+	const uint16 current_route_index = front.get_route_index(); // actually this is current route index + 1!!!
 
 	/*
 	 * get next speed limit of my route.
