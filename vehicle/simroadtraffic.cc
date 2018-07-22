@@ -645,7 +645,6 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 	// stop for intersection feature is deprecated...
 	
 	// If this car is overtaking, the car must avoid head-on crash.
-	//If this car is overtaking, the car must avoid a head-on crash.
 	if(  is_overtaking()  &&  current_str  &&  current_str->get_overtaking_mode()!=inverted_mode  ) {
 		grund_t* sg[2];
 		sg[0] = welt->lookup(pos_next);
@@ -782,7 +781,6 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			rs = NULL;
 		}
 		
-		// TODO: reservation system!
 		if(  str->get_overtaking_mode()<=oneway_mode  &&  ribi_t::is_threeway(str->get_ribi_unmasked())  ) {
 			// try to reserve tiles
 			bool overtaking_on_tile = is_overtaking();
@@ -820,9 +818,6 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			// road is one-way.
 			bool can_judge_overtaking = (test_index == idx_in_scope(route_index,1));
 			// The overtaking judge method itself works only when test_index==route_index+1, that means the front tile is not an intersection.
-			if(  !can_judge_overtaking  &&  test_index == route_index + 2u  &&  overtaking_mode == halt_mode  ) {
-				can_judge_overtaking = true;
-			}
 			if(  can_judge_overtaking  ) {
 				// no intersections or crossings, we might be able to overtake this one ...
 				overtaker_t *over = obj->get_overtaker();
@@ -933,93 +928,96 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 				current_speed = (current_speed*3)/4;
 			}
 		}
-		// If this vehicle is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
-		// When condition changes, overtaking should be quitted once.
-		if(  (is_overtaking()  &&  str->get_overtaking_mode()==prohibited_mode)  ||  (is_overtaking()  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode()<inverted_mode  &&  static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode()<=oneway_mode)  ) {
-			if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
-				if(  v->get_waytype() == road_wt  ) {
-					ms_traffic_jam = 0;
-					current_speed = 48;
-					next_cross_lane = true;
-					return false;
-				}
-			}
-			// There is no vehicle on traffic lane.
-			// cnv->set_tiles_overtaking(0); is done in enter_tile()
-		}
-		// If this vehicle is on traffic lane and the next tile forces to go passing lane, this vehicle must wait until passing lane become safe.
-		if(  !is_overtaking()  &&  str->get_overtaking_mode() == inverted_mode  ) {
-			if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
-				if(  v->get_waytype() == road_wt  ) {
-					ms_traffic_jam = 0;
-					current_speed = 48;
-					next_cross_lane = true;
-					return false;
-				}
-			}
-			// There is no vehicle on passing lane.
-			next_lane = 1;
-			return true;
-		}
-		// If the next tile is a intersection, lane crossing must be checked before entering.
-		// The other vehicle is ignored if it is stopping to avoid stuck.
-		const ribi_t::ribi way_ribi = str ? str->get_ribi_unmasked() : ribi_t::none;
-		if(  str  &&  str->get_overtaking_mode() <= oneway_mode  &&  (way_ribi == ribi_t::all  ||  ribi_t::is_threeway(way_ribi))  ) {
-			if(  const vehicle_base_t* v = other_lane_blocked(true)  ) {
-				if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
-					if(  at->get_convoi()->get_akt_speed()>kmh_to_speed(1)  &&  judge_lane_crossing(calc_direction(get_pos(),pos_next), calc_direction(pos_next,pos_next_next), at->get_90direction(), is_overtaking(), false)  ) {
-						// vehicle must stop.
-						ms_traffic_jam = 0;
-						current_speed = 48;
-						next_cross_lane = true;
-						return false;
-					}
-				}
-				else if(  private_car_t const* const pcar = obj_cast<private_car_t>(v)  ) {
-					if(  pcar->get_current_speed()>kmh_to_speed(1)  &&  judge_lane_crossing(calc_direction(get_pos(),pos_next), calc_direction(pos_next,pos_next_next), pcar->get_90direction(), is_overtaking(), false)  ) {
-						// vehicle must stop.
-						ms_traffic_jam = 0;
-						current_speed = 48;
-						next_cross_lane = true;
-						return false;
-					}
-				}
+	}
+	
+	if(get_pos()==koord3d(81,69,0)) printf("sig5\n");
+	
+	// If this vehicle is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
+	// When condition changes, overtaking should be quitted once.
+	if(  (is_overtaking()  &&  str->get_overtaking_mode()==prohibited_mode)  ||  (is_overtaking()  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode()<inverted_mode  &&  static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode()<=oneway_mode)  ) {
+		if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
+			if(  v->get_waytype() == road_wt  ) {
+				ms_traffic_jam = 0;
+				current_speed = 48;
+				next_cross_lane = true;
+				return false;
 			}
 		}
-		// TODO: write yielding system for citycars!
-		// For the case that this vehicle is fixed to passing lane and is on traffic lane.
-		if(  str->get_overtaking_mode() <= oneway_mode  &&  lane_affinity == 1  &&  !is_overtaking()  ) {
-			if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
-				if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(v)  ) {
-					convoi_t* ocnv = car->get_convoi();
-					if(  ocnv  &&  abs(get_speed_limit() - ocnv->get_speed_limit()) < kmh_to_speed(5)  ) {
-						// cnv->yield_lane_space();
-					}
-				}
-				// citycars do not have the yielding mechanism.
-			}
-			else {
-				// go on passing lane.
-				set_tiles_overtaking(3);
+		// There is no vehicle on traffic lane.
+		// cnv->set_tiles_overtaking(0); is done in enter_tile()
+	}
+	// If this vehicle is on traffic lane and the next tile forces to go passing lane, this vehicle must wait until passing lane become safe.
+	if(  !is_overtaking()  &&  str->get_overtaking_mode() == inverted_mode  ) {
+		if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
+			if(  v->get_waytype() == road_wt  ) {
+				ms_traffic_jam = 0;
+				current_speed = 48;
+				next_cross_lane = true;
+				return false;
 			}
 		}
-		// If there is a vehicle that requests lane crossing, this vehicle must stop to yield space.
-		if(  vehicle_base_t* v = other_lane_blocked(true)  ) {
+		// There is no vehicle on passing lane.
+		next_lane = 1;
+		return true;
+	}
+	// If the next tile is a intersection, lane crossing must be checked before entering.
+	// The other vehicle is ignored if it is stopping to avoid stuck.
+	const ribi_t::ribi way_ribi = str ? str->get_ribi_unmasked() : ribi_t::none;
+	if(  str  &&  str->get_overtaking_mode() <= oneway_mode  &&  (way_ribi == ribi_t::all  ||  ribi_t::is_threeway(way_ribi))  ) {
+		if(  const vehicle_base_t* v = other_lane_blocked(true)  ) {
 			if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
-				if(  at->get_convoi()->get_next_cross_lane()  &&  at==at->get_convoi()->back()  ) {
+				if(  at->get_convoi()->get_akt_speed()>kmh_to_speed(1)  &&  judge_lane_crossing(calc_direction(get_pos(),pos_next), calc_direction(pos_next,pos_next_next), at->get_90direction(), is_overtaking(), false)  ) {
 					// vehicle must stop.
 					ms_traffic_jam = 0;
 					current_speed = 48;
+					next_cross_lane = true;
 					return false;
 				}
 			}
 			else if(  private_car_t const* const pcar = obj_cast<private_car_t>(v)  ) {
-				if(  pcar->get_next_cross_lane()  ) {
+				if(  pcar->get_current_speed()>kmh_to_speed(1)  &&  judge_lane_crossing(calc_direction(get_pos(),pos_next), calc_direction(pos_next,pos_next_next), pcar->get_90direction(), is_overtaking(), false)  ) {
 					// vehicle must stop.
 					ms_traffic_jam = 0;
 					current_speed = 48;
+					next_cross_lane = true;
 					return false;
 				}
+			}
+		}
+	}
+	// TODO: write yielding system for citycars!
+	// For the case that this vehicle is fixed to passing lane and is on traffic lane.
+	if(  str->get_overtaking_mode() <= oneway_mode  &&  lane_affinity == 1  &&  !is_overtaking()  ) {
+		if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
+			if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(v)  ) {
+				convoi_t* ocnv = car->get_convoi();
+				if(  ocnv  &&  abs(get_speed_limit() - ocnv->get_speed_limit()) < kmh_to_speed(5)  ) {
+					// cnv->yield_lane_space();
+				}
+			}
+			// citycars do not have the yielding mechanism.
+		}
+		else {
+			// go on passing lane.
+			set_tiles_overtaking(3);
+		}
+	}
+	// If there is a vehicle that requests lane crossing, this vehicle must stop to yield space.
+	if(  vehicle_base_t* v = other_lane_blocked(true)  ) {
+		if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
+			if(  at->get_convoi()->get_next_cross_lane()  &&  at==at->get_convoi()->back()  ) {
+				// vehicle must stop.
+				ms_traffic_jam = 0;
+				current_speed = 48;
+				return false;
+			}
+		}
+		else if(  private_car_t const* const pcar = obj_cast<private_car_t>(v)  ) {
+			if(  pcar->get_next_cross_lane()  ) {
+				// vehicle must stop.
+				ms_traffic_jam = 0;
+				current_speed = 48;
+				return false;
 			}
 		}
 	}
@@ -1232,6 +1230,7 @@ grund_t* private_car_t::hop_check()
 		return from;
 	}
 	// no free tiles => assume traffic jam ...
+	unreserve_all_tiles();
 	current_speed = 0;
 	return NULL;
 }
