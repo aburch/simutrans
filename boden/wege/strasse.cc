@@ -15,6 +15,7 @@
 #include "../../dataobj/translator.h"
 #include "../../dataobj/environment.h"
 #include "../../vehicle/simvehicle.h"
+#include "../../vehicle/simroadtraffic.h"
 
 
 const way_desc_t *strasse_t::default_strasse=NULL;
@@ -257,7 +258,7 @@ uint8 calc_reservation_flag(ribi_t::ribi dir_in, ribi_t::ribi dir_out) {
 	else { return 0; }
 }
 
-bool strasse_t::is_reserved_by_others(road_vehicle_t* r, bool is_overtaking, koord3d pos_prev, koord3d pos_next) {
+bool strasse_t::is_reserved_by_others(vehicle_base_t* r, bool is_overtaking, koord3d pos_prev, koord3d pos_next) {
 	ribi_t::ribi dir_in = ribi_type(get_pos(), pos_prev);
 	ribi_t::ribi dir_out = ribi_type(get_pos(), pos_next);
 	uint8 reservation_flag = calc_reservation_flag(dir_in, dir_out);
@@ -277,7 +278,7 @@ bool strasse_t::is_reserved_by_others(road_vehicle_t* r, bool is_overtaking, koo
 	return false;
 }
 
-bool strasse_t::reserve(road_vehicle_t* r, bool is_overtaking, koord3d pos_prev, koord3d pos_next) {
+bool strasse_t::reserve(vehicle_base_t* r, bool is_overtaking, koord3d pos_prev, koord3d pos_next) {
 	ribi_t::ribi dir_in = ribi_type(get_pos(), pos_prev);
 	ribi_t::ribi dir_out = ribi_type(get_pos(), pos_next);
 	uint8 reservation_flag = calc_reservation_flag(dir_in, dir_out);
@@ -307,7 +308,7 @@ bool strasse_t::reserve(road_vehicle_t* r, bool is_overtaking, koord3d pos_prev,
 	return true;
 }
 
-bool strasse_t::unreserve(road_vehicle_t* r) {
+bool strasse_t::unreserve(vehicle_base_t* r) {
 	bool deleted = false;
 	for(uint8 i=0; i<4; i++) {
 		if(  r==reserved_by[i]  ) {
@@ -326,7 +327,12 @@ bool strasse_t::unreserve(road_vehicle_t* r) {
 void strasse_t::unreserve_all() {
 	for(uint8 i=0; i<4; i++) {
 		if(  reserved_by[i]  ) {
-			reserved_by[i]->unreserve_all_tiles();
+			if(  road_vehicle_t* r = obj_cast<road_vehicle_t>(reserved_by[i])  ) {
+				r->unreserve_all_tiles();
+			}
+			else if(  private_car_t* p = obj_cast<private_car_t>(reserved_by[i])  ) {
+				p->unreserve_all_tiles();
+			}
 			reserved_by[i] = NULL;
 		}
 	}

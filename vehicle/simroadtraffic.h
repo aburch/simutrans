@@ -94,10 +94,20 @@ private:
 	uint16 current_speed;
 
 	uint32 ms_traffic_jam;
+	
+	// 0: not fixed, -1: fixed to traffic lane, 1: fixed to passing lane
+	sint8 lane_affinity;
+	uint8 lane_affinity_end_index;
+	
+	bool next_cross_lane;
+	
+	vector_tpl<koord3d> reserving_tiles;
 
 	grund_t* hop_check();
 
 	void calc_disp_lane();
+	
+	bool calc_lane_affinity(uint8 lane_affinity_sign); // If true, lane fixing started.
 
 protected:
 	void rdwr(loadsave_t *file);
@@ -105,6 +115,8 @@ protected:
 	void calc_image();
 	
 	koord3d find_destination(uint8 target_index);
+	
+	uint16 get_speed_limit() const;
 
 public:
 	private_car_t(loadsave_t *file);
@@ -126,7 +138,8 @@ public:
 	void hop(grund_t *gr);
 	bool ist_weg_frei(grund_t *gr);
 
-	void enter_tile(grund_t* gr);
+	void enter_tile(grund_t* gr, koord3d prev);
+	void leave_tile();
 
 	void calc_current_speed(grund_t*);
 	uint16 get_current_speed() const {return current_speed;}
@@ -166,6 +179,10 @@ public:
 
 	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top) const;
 	vehicle_base_t* is_there_car(grund_t *gr) const; // This is a helper function of other_lane_blocked
+	
+	bool get_next_cross_lane() const { return next_cross_lane; }
+	
+	void unreserve_all_tiles();
 
 	virtual void refresh(sint8,sint8);
 };
