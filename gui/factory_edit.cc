@@ -30,9 +30,9 @@
 
 
 // new tool definition
-tool_build_land_chain_t factory_edit_frame_t::land_chain_tool = tool_build_land_chain_t();
-tool_city_chain_t factory_edit_frame_t::city_chain_tool = tool_city_chain_t();
-tool_build_factory_t factory_edit_frame_t::fab_tool = tool_build_factory_t();
+tool_build_land_chain_t* factory_edit_frame_t::land_chain_tool = new tool_build_land_chain_t();
+tool_city_chain_t* factory_edit_frame_t::city_chain_tool = new tool_city_chain_t();
+tool_build_factory_t* factory_edit_frame_t::fab_tool = new tool_build_factory_t();
 char factory_edit_frame_t::param_str[256];
 
 static bool compare_fabrik_desc(const factory_desc_t* a, const factory_desc_t* b)
@@ -56,10 +56,10 @@ factory_edit_frame_t::factory_edit_frame_t(player_t* player_) :
 {
 	rot_str[0] = 0;
 	prod_str[0] = 0;
-	land_chain_tool.set_default_param(param_str);
-	city_chain_tool.set_default_param(param_str);
-	fab_tool.set_default_param(param_str);
-	land_chain_tool.cursor = city_chain_tool.cursor = fab_tool.cursor = tool_t::general_tool[TOOL_BUILD_FACTORY]->cursor;
+	land_chain_tool->set_default_param(param_str);
+	city_chain_tool->set_default_param(param_str);
+	fab_tool->set_default_param(param_str);
+	land_chain_tool->cursor = city_chain_tool->cursor = fab_tool->cursor = tool_t::general_tool[TOOL_BUILD_FACTORY]->cursor;
 
 	fac_desc = NULL;
 
@@ -350,13 +350,13 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		// the tools will be always updated, even though the data up there might be still current
 		sprintf( param_str, "%i%c%i,%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, production, fac_desc->get_name() );
 		if(bt_land_chain.pressed) {
-			welt->set_tool( &land_chain_tool, player );
+			welt->set_tool( land_chain_tool, player );
 		}
 		else if(bt_city_chain.pressed) {
-			welt->set_tool( &city_chain_tool, player );
+			welt->set_tool( city_chain_tool, player );
 		}
 		else {
-			welt->set_tool( &fab_tool, player );
+			welt->set_tool( fab_tool, player );
 		}
 	}
 	else if(fac_desc!=NULL) {

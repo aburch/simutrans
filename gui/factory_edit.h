@@ -19,9 +19,9 @@ class tool_build_factory_t;
 class factory_edit_frame_t : public extend_edit_gui_t
 {
 private:
-	static tool_build_land_chain_t land_chain_tool;
-	static tool_city_chain_t city_chain_tool;
-	static tool_build_factory_t fab_tool;
+	static tool_build_land_chain_t* land_chain_tool;
+	static tool_city_chain_t* city_chain_tool;
+	static tool_build_factory_t* fab_tool;
 	static char param_str[256];
 
 	const factory_desc_t *fac_desc;

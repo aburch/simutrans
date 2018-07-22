@@ -1226,3 +1226,9 @@ image_id two_click_tool_t::get_marker_image()
 {
 	return skinverwaltung_t::bauigelsymbol->get_image_id(0);
 }
+
+/*const char *two_click_kartenboden_tool_t::check_pos(player_t *, koord3d pos )
+{
+	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+	return (gr  &&  !gr->is_visible()) ? "" : NULL;
+}*/
