@@ -83,7 +83,9 @@ private:
 #ifdef DESTINATION_CITYCARS
 	koord target;
 #endif
-	koord3d pos_next_next;
+	
+	vector_tpl<koord3d> route;
+	uint8 route_index;
 
 	/**
 	 * Actual speed
@@ -101,6 +103,8 @@ protected:
 	void rdwr(loadsave_t *file);
 
 	void calc_image();
+	
+	koord3d find_destination(uint8 target_index);
 
 public:
 	private_car_t(loadsave_t *file);
