@@ -483,7 +483,7 @@ void private_car_t::rdwr(loadsave_t *file)
 		route_index = 0;
 		route[0] = pos_next;
 		if(  file->get_version() > 99010  ) {
-			koord3d dummy = koord3d::invalid;
+			koord3d dummy = route[1];
 			dummy.rdwr(file);
 			route[1] = dummy;
 		}
@@ -491,7 +491,7 @@ void private_car_t::rdwr(loadsave_t *file)
 	else {
 		file->rdwr_byte(route_index);
 		for(uint8 i=0; i<NUM_LOOK_FORWARD; i++) {
-			koord3d dummy = koord3d::invalid;
+			koord3d dummy = route[i];
 			dummy.rdwr(file);
 			route[i] = dummy;
 		}
@@ -597,6 +597,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 		if(  is_overtaking()  &&  current_str  &&  current_str->get_overtaking_mode()!=inverted_mode  ) {
 			grund_t* sg[2];
 			sg[0] = welt->lookup(pos_next);
+			// TODO: welt->lookup(pos_next_next) is not always valid!
 			sg[1] = welt->lookup(pos_next_next);
 			for(uint8 i = 0; i < 2; i++) {
 				for(  uint8 pos=1;  pos<(volatile uint8)sg[i]->get_top();  pos++  ) {
@@ -858,16 +859,9 @@ koord3d private_car_t::find_destination(uint8 target_index) {
 		return pos_prev2;
 	}
 
-#ifdef DESTINATION_CITYCARS
-	static weighted_vector_tpl<koord3d> posliste(4);
-	posliste.clear();
-	const uint8 offset = ribi_t::is_single(ribi) ? 0 : simrand(4);
+	static weighted_vector_tpl<koord3d> poslist(4);
+	poslist.clear();
 	for(uint8 r = 0; r < 4; r++) {
-#else
-	const uint8 offset = ribi_t::is_single(ribi) ? 0 : simrand(4);
-	for(uint8 i = 0; i < 4; i++) {
-		const uint8 r = (i+offset)&3;
-#endif
 		if(  (ribi&ribi_t::nsew[r])!=0  ) {
 			grund_t *to;
 			if(  gr->get_neighbour(to, road_wt, ribi_t::nsew[r])  ) {
@@ -892,10 +886,22 @@ koord3d private_car_t::find_destination(uint8 target_index) {
 				}
 #ifdef DESTINATION_CITYCARS
 				uint32 dist=koord_distance( to->get_pos().get_2d(), target );
-				posliste.append( to->get_pos(), dist*dist );
+				poslist.append( to->get_pos(), dist*dist );
 #else
-				// ok, now check if we are allowed to go here (i.e. no cars blocking)
-				return to->get_pos();
+				// determine weight
+				// making a sharp turn is not preferred
+				if(  target_index!=idx_in_scope(route_index,1)  &&   target_index!=idx_in_scope(route_index,2)  ) {
+					// sharp turn?
+					const ribi_t::ribi dir1 = ribi_type(to->get_pos(),route[idx_in_scope(target_index,-1)]);
+					const ribi_t::ribi dir2 = ribi_type(route[idx_in_scope(target_index,-1)],route[idx_in_scope(target_index,-2)]);
+					const ribi_t::ribi dir3 = ribi_type(route[idx_in_scope(target_index,-2)],route[idx_in_scope(target_index,-3)]);
+					if(  (ribi_t::rotate90(dir3)==dir2  &&  ribi_t::rotate90(dir2)==dir1)  ||  (ribi_t::rotate90l(dir3)==dir2  &&  ribi_t::rotate90l(dir2)==dir1)) {
+						// reduce possibility
+						poslist.append(to->get_pos(), 1);
+						continue;
+					}
+				}
+				poslist.append(to->get_pos(), 10);
 #endif
 			}
 			else {
@@ -904,19 +910,12 @@ koord3d private_car_t::find_destination(uint8 target_index) {
 			}
 		}
 	}
-#ifdef DESTINATION_CITYCARS
-	if (!posliste.empty()) {
-		route[target_index] = pick_any_weighted(posliste);
+	if (!poslist.empty()) {
+		route[target_index] = pick_any_weighted(poslist);
 	}
-	else if(  weg->get_ribi() & ribi_t::backward(direction90)  ){
+	else if(  weg->get_ribi() & ribi_t::backward(direction90)  ) {
 		return pos_prev2;
 	}
-#else
-	// only stumps at single way crossing, all other blocked => turn around
-	if(  ribi==0  &&  (weg->get_ribi() & ribi_t::backward(direction90))  ) {
-		return pos_prev2;
-	}
-#endif
 	return koord3d::invalid;
 }
 
