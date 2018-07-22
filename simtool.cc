@@ -5953,39 +5953,43 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 					if(weg->get_waytype() == track_wt || weg->get_waytype() == monorail_wt || weg->get_waytype() == narrowgauge_wt || weg->get_waytype() == maglev_wt)
 					{
 						const schiene_t* sch = (schiene_t*)weg;
-						dir = sch->get_reserved_direction();
-						switch(dir) // These are reversed for some odd reason.
+						if (!sch->is_diagonal())
 						{
-						case ribi_t::northsouth:
-						case ribi_t::north:
-						case ribi_t::northwest:
-							dir = ribi_t::south;
-							break;
-						case ribi_t::south:
-						case ribi_t::southwest:
-							dir = ribi_t::north;
-							break;
-						case ribi_t::eastwest:
-						case ribi_t::east:
-						case ribi_t::southeast:
-						case ribi_t::northeast:
-							dir = ribi_t::west;
-							break;
-						case ribi_t::west:
-							dir = ribi_t::east;
-							break;
+							dir = sch->get_reserved_direction();
 
-						default:
-							switch(weg->get_ribi_unmasked())
+							switch (dir) // These are reversed for some odd reason.
 							{
 							case ribi_t::northsouth:
+							case ribi_t::north:
+							case ribi_t::northwest:
 								dir = ribi_t::south;
 								break;
+							case ribi_t::south:
+							case ribi_t::southwest:
+								dir = ribi_t::north;
+								break;
 							case ribi_t::eastwest:
+							case ribi_t::east:
+							case ribi_t::southeast:
+							case ribi_t::northeast:
 								dir = ribi_t::west;
 								break;
+							case ribi_t::west:
+								dir = ribi_t::east;
+								break;
+
+							default:
+								switch (weg->get_ribi_unmasked())
+								{
+								case ribi_t::northsouth:
+									dir = ribi_t::south;
+									break;
+								case ribi_t::eastwest:
+									dir = ribi_t::west;
+									break;
+								};
 							};
-						};
+						}
 					}
 					rs = new signal_t(player, gr->get_pos(), dir, desc, signal[player->get_player_nr()].signalbox);
 					DBG_MESSAGE("tool_roadsign()", "new signal, dir is %i", dir);
