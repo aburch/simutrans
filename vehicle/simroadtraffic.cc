@@ -410,7 +410,6 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 		ms_traffic_jam += delta_t;
 		// check only every 1.024 s if stopped
 		if(  (ms_traffic_jam>>10) != (old_ms_traffic_jam>>10)  ) {
-			//pos_next_next = koord3d::invalid; <- should be deleted?
 			if(  hop_check()  ) {
 				ms_traffic_jam = 0;
 				current_speed = 48;
@@ -425,6 +424,12 @@ sync_result private_car_t::sync_step(uint32 delta_t)
 		weg_next = 0;
 	}
 	else {
+		// calc speed
+		grund_t* gr = welt->lookup(get_pos());
+		if(  gr  ) {
+			calc_current_speed(gr, delta_t);
+		}
+		
 		weg_next += current_speed*delta_t;
 		const uint32 distance = do_drive( weg_next );
 		// hop_check could have set weg_next to zero, check for possible underflow here
@@ -1338,7 +1343,6 @@ void private_car_t::hop(grund_t* to)
 	if(to->ist_uebergang()) {
 		to->find<crossing_t>(2)->add_to_crossing(this);
 	}
-	calc_current_speed(to);
 }
 
 
@@ -1348,12 +1352,12 @@ void private_car_t::calc_image()
 }
 
 
-void private_car_t::calc_current_speed(grund_t* gr)
+void private_car_t::calc_current_speed(grund_t* gr, uint32 delta)
 {
 	const weg_t * weg = gr->get_weg(road_wt);
 	const sint32 max_speed = desc->get_topspeed();
 	const sint32 speed_limit = weg ? kmh_to_speed(weg->get_max_speed()) : max_speed;
-	current_speed += max_speed>>2;
+	current_speed += max_speed*delta>>12;
 	if(current_speed > max_speed) {
 		current_speed = max_speed;
 	}

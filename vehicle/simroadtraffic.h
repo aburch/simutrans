@@ -147,7 +147,7 @@ public:
 	void enter_tile(grund_t* gr, koord3d prev);
 	void leave_tile();
 
-	void calc_current_speed(grund_t*);
+	void calc_current_speed(grund_t*, uint32);
 	uint16 get_current_speed() const {return current_speed;}
 
 	const char *get_name() const {return "Verkehrsteilnehmer";}
