@@ -560,7 +560,6 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 		}
 	}
 
-	const uint8 overtaking_mode = str->get_overtaking_mode();
 	const koord3d pos_next_next = route[idx_in_scope(route_index,1)];
 	const strasse_t* current_str = (strasse_t*)(welt->lookup(get_pos())->get_weg(road_wt));
 	
@@ -1194,13 +1193,6 @@ koord3d private_car_t::find_destination(uint8 target_index) {
 			if(  gr->get_neighbour(to, road_wt, ribi_t::nsew[r])  ) {
 				// check, if this is just a single tile deep after a crossing
 				weg_t *w = to->get_weg(road_wt);
-				// TODO: maybe this condition should be removed!
-				/*
-				if(  ribi_t::is_single(w->get_ribi())  &&  (w->get_ribi()&ribi_t::nsew[r])==0  &&  !ribi_t::is_single(ribi)  ) {
-					ribi &= ~ribi_t::nsew[r];
-					continue;
-				}
-				*/
 				// check, if roadsign forbid next step ...
 				if(w->has_sign()) {
 					const roadsign_t* rs = to->find<roadsign_t>();
@@ -1216,19 +1208,43 @@ koord3d private_car_t::find_destination(uint8 target_index) {
 				poslist.append( to->get_pos(), dist*dist );
 #else
 				// determine weight
-				// making a sharp turn is not preferred
+				// avoid making a sharp turn if it is possible.
 				if(  target_index!=idx_in_scope(route_index,1)  &&   target_index!=idx_in_scope(route_index,2)  ) {
 					// sharp turn?
-					const ribi_t::ribi dir1 = ribi_type(to->get_pos(),route[idx_in_scope(target_index,-1)]);
-					const ribi_t::ribi dir2 = ribi_type(route[idx_in_scope(target_index,-1)],route[idx_in_scope(target_index,-2)]);
-					const ribi_t::ribi dir3 = ribi_type(route[idx_in_scope(target_index,-2)],route[idx_in_scope(target_index,-3)]);
+					const ribi_t::ribi dir1 = ribi_type(route[idx_in_scope(target_index,-1)],to->get_pos());
+					const ribi_t::ribi dir2 = ribi_type(route[idx_in_scope(target_index,-2)],route[idx_in_scope(target_index,-1)]);
+					const ribi_t::ribi dir3 = ribi_type(route[idx_in_scope(target_index,-3)],route[idx_in_scope(target_index,-2)]);
 					if(  (ribi_t::rotate90(dir3)==dir2  &&  ribi_t::rotate90(dir2)==dir1)  ||  (ribi_t::rotate90l(dir3)==dir2  &&  ribi_t::rotate90l(dir2)==dir1)) {
 						// reduce possibility
 						poslist.append(to->get_pos(), 1);
 						continue;
 					}
+					// avoid a tile in which the car is forced to making a sharp turn.
+					ribi_t::ribi next_direction = w->get_ribi() & ~ribi_t::backward(dir1);
+					if(  ribi_t::rotate90l(dir2)==dir1  ) {
+						next_direction &= ~ribi_t::rotate90l(dir1);
+					} else if(  ribi_t::rotate90(dir2)==dir1  ) {
+						next_direction &= ~ribi_t::rotate90(dir1);
+					}
+					if(  next_direction==0  ) {
+						// reduce possibility
+						poslist.append(to->get_pos(), 1);
+						continue;
+					}
 				}
-				poslist.append(to->get_pos(), 10);
+				bool pos_added = false;
+				// we prefer vacant road.
+				for(  uint8 pos=1;  pos<(volatile uint8)to->get_top();  pos++  ) {
+					if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(to->obj_bei(pos))  ) {
+						// there is a vehicle on the tile. reduce possibility.
+						poslist.append(to->get_pos(), 20);
+						pos_added = true;
+						break;
+					}
+				}
+				if(  !pos_added  ) {
+					poslist.append(to->get_pos(), 100);
+				}
 #endif
 			}
 			else {
@@ -1238,7 +1254,7 @@ koord3d private_car_t::find_destination(uint8 target_index) {
 		}
 	}
 	if (!poslist.empty()) {
-		route[target_index] = pick_any_weighted(poslist);
+		return pick_any_weighted(poslist);
 	}
 	else if(  weg->get_ribi() & ribi_t::backward(direction90)  ) {
 		return pos_prev2;
@@ -1257,16 +1273,12 @@ grund_t* private_car_t::hop_check()
 		return NULL;
 	}
 
-	// find the allowed directions
 	const weg_t *weg = from->get_weg(road_wt);
 	if(weg==NULL) {
 		// nothing to go? => destroy ...
 		time_to_life = 0;
 		return NULL;
 	}
-
-	// traffic light phase check (since this is on next tile, it will always be necessary!)
-	const ribi_t::ribi direction90 = ribi_type(get_pos(), pos_next);
 	
 	// try to find route
 	for(uint8 i=1; i<NUM_LOOK_FORWARD; i++) {
