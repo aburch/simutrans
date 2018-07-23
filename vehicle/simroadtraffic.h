@@ -101,6 +101,14 @@ private:
 	
 	bool next_cross_lane;
 	
+	/**
+	 * the route index of the point to quit yielding lane
+	 * == -1 means this convoi isn't yielding.
+	 * @author teamhimeH
+	 */
+	sint8 yielding_quit_index;
+	bool requested_change_lane;
+	
 	vector_tpl<koord3d> reserving_tiles;
 
 	grund_t* hop_check();
@@ -115,8 +123,6 @@ protected:
 	void calc_image();
 	
 	koord3d find_destination(uint8 target_index);
-	
-	uint16 get_speed_limit() const;
 
 public:
 	private_car_t(loadsave_t *file);
@@ -180,9 +186,16 @@ public:
 	virtual vehicle_base_t* other_lane_blocked(const bool only_search_top) const;
 	vehicle_base_t* is_there_car(grund_t *gr) const; // This is a helper function of other_lane_blocked
 	
+	uint16 get_speed_limit() const;
+	
 	bool get_next_cross_lane() const { return next_cross_lane; }
 	
 	void unreserve_all_tiles();
+	
+	void yield_lane_space();
+	sint32 get_yielding_quit_index() const { return yielding_quit_index; }
+	void quit_yielding_lane() { yielding_quit_index = -1; }
+	void set_requested_change_lane(bool b) { requested_change_lane = b; }
 
 	virtual void refresh(sint8,sint8);
 };

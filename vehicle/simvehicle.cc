@@ -2593,14 +2593,47 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 											ocnv->yield_lane_space();
 										}
 									}
+									else if(  private_car_t* pbr = dynamic_cast<private_car_t*>(br)  ) {
+										if(  car->get_direction() == pbr->get_direction() && abs(car->get_speed_limit() - pbr->get_speed_limit()) < kmh_to_speed(5)  ){
+											//same direction && (almost) same speed vehicle exists.
+											ocnv->yield_lane_space();
+										}
+									}
 								}
 							}
 						}
 						else if(  private_car_t* const caut = obj_cast<private_car_t>(obj)  ) {
-							if(  cnv->get_lane_affinity() != -1  &&  next_lane<1  &&  !cnv->is_overtaking()  &&  !other_lane_blocked()  &&  cnv->can_overtake(caut, caut->get_current_speed(), VEHICLE_STEPS_PER_TILE)  ) {
+							// yielding vehicle should not be overtaken by the vehicle whose maximum speed is same.
+							bool yielding_factor = true;
+							if(  caut->get_yielding_quit_index() != -1  &&  this->get_speed_limit() - caut->get_speed_limit() < kmh_to_speed(10)  ) {
+								yielding_factor = false;
+							}
+							if(  cnv->get_lane_affinity() != -1  &&  next_lane<1  &&  !cnv->is_overtaking()  &&  yielding_factor  &&  !other_lane_blocked(false)  &&  cnv->can_overtake(caut, caut->get_current_speed(), VEHICLE_STEPS_PER_TILE)  ) {
 								// this vehicle changes lane. we have to unreserve tiles.
 								unreserve_all_tiles();
 								return true;
+							}
+							sint32 other_max_speed = caut->get_speed_limit();
+							if(  cnv->is_overtaking() && kmh_to_speed(10) <  get_speed_limit() - other_max_speed  ) {
+								//If the convoi is on passing lane and there is slower convoi in front of this, this convoi request the slower to go to traffic lane.
+								caut->set_requested_change_lane(true);
+							}
+							//For the case that the faster car is on traffic lane.
+							if(  cnv->get_lane_affinity() != -1  &&  next_lane<1  &&  !cnv->is_overtaking() && kmh_to_speed(10) <  get_speed_limit() - other_max_speed  ) {
+								if(  vehicle_base_t* const br = caut->other_lane_blocked(false)  ) {
+									if(  road_vehicle_t const* const blk = dynamic_cast<road_vehicle_t*>(br)  ) {
+										if(  caut->get_direction() == blk->get_direction() && abs(caut->get_speed_limit() - blk->get_convoi()->get_speed_limit()) < kmh_to_speed(5)  ){
+											//same direction && (almost) same speed vehicle exists.
+											caut->yield_lane_space();
+										}
+									}
+									else if(  private_car_t* pbr = dynamic_cast<private_car_t*>(br)  ) {
+										if(  caut->get_direction() == pbr->get_direction() && abs(caut->get_speed_limit() - pbr->get_speed_limit()) < kmh_to_speed(5)  ){
+											//same direction && (almost) same speed vehicle exists.
+											caut->yield_lane_space();
+										}
+									}
+								}
 							}
 						}
 					}
@@ -2761,7 +2794,11 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 						cnv->yield_lane_space();
 					}
 				}
-				// citycars do not have the yielding mechanism.
+				else if(  private_car_t const* const pcar = dynamic_cast<private_car_t*>(v)  ) {
+					if(  abs(get_speed_limit()-pcar->get_speed_limit())<kmh_to_speed(5)  ) {
+						cnv->yield_lane_space();
+					}
+				}
 			}
 			else {
 				// go on passing lane.
@@ -2957,6 +2994,11 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 						if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(v)  ) {
 							if(  abs(cnv->get_speed_limit() - car->get_convoi()->get_speed_limit()) < kmh_to_speed(5)  ) {
 								car->get_convoi()->yield_lane_space();
+							}
+						}
+						else if(  private_car_t* pcar = dynamic_cast<private_car_t*>(v)  ) {
+							if(  abs(get_speed_limit() - pcar->get_speed_limit()) < kmh_to_speed(5)  ) {
+								pcar->yield_lane_space();
 							}
 						}
 					}

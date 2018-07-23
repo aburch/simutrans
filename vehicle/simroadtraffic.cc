@@ -380,6 +380,8 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 	lane_affinity = 0;
 	lane_affinity_end_index = -1;
 	next_cross_lane = false;
+	yielding_quit_index = -1;
+	requested_change_lane = false;
 	time_to_life = welt->get_settings().get_stadtauto_duration() << 20;  // ignore welt->ticks_per_world_month_shift;
 	current_speed = 48;
 	ms_traffic_jam = 0;
@@ -498,6 +500,8 @@ void private_car_t::rdwr(loadsave_t *file)
 		lane_affinity = 0;
 		lane_affinity_end_index = -1;
 		next_cross_lane = false;
+		yielding_quit_index = -1;
+		requested_change_lane = false;
 	}
 	else {
 		file->rdwr_byte(route_index);
@@ -509,6 +513,8 @@ void private_car_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(lane_affinity);
 		file->rdwr_byte(lane_affinity_end_index);
 		file->rdwr_bool(next_cross_lane);
+		file->rdwr_byte(yielding_quit_index);
+		file->rdwr_bool(requested_change_lane);
 	}
 
 	// overtaking status
@@ -851,14 +857,47 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 										ocnv->yield_lane_space();
 									}
 								}
+								else if(  private_car_t* pbr = dynamic_cast<private_car_t*>(br)  ) {
+									if(  car->get_direction() == pbr->get_direction() && abs(car->get_speed_limit() - pbr->get_speed_limit()) < kmh_to_speed(5)  ){
+										//same direction && (almost) same speed vehicle exists.
+										ocnv->yield_lane_space();
+									}
+								}
 							}
 						}
 					}
 					else if(  private_car_t* const caut = obj_cast<private_car_t>(obj)  ) {
-						if(  lane_affinity != -1  &&  next_lane<1  &&  !is_overtaking()  &&  !other_lane_blocked(false)  &&  can_overtake(caut, caut->get_current_speed(), VEHICLE_STEPS_PER_TILE)  ) {
+						// yielding vehicle should not be overtaken by the vehicle whose maximum speed is same.
+						bool yielding_factor = true;
+						if(  caut->get_yielding_quit_index() != -1  &&  this->get_speed_limit() - caut->get_speed_limit() < kmh_to_speed(10)  ) {
+							yielding_factor = false;
+						}
+						if(  lane_affinity != -1  &&  next_lane<1  &&  !is_overtaking()  &&  yielding_factor  &&  !other_lane_blocked(false)  &&  can_overtake(caut, caut->get_current_speed(), VEHICLE_STEPS_PER_TILE)  ) {
 							// this vehicle changes lane. we have to unreserve tiles.
 							unreserve_all_tiles();
 							return true;
+						}
+						sint32 other_max_speed = caut->get_speed_limit();
+						if(  is_overtaking() && kmh_to_speed(10) <  get_speed_limit() - other_max_speed  ) {
+							//If the convoi is on passing lane and there is slower convoi in front of this, this convoi request the slower to go to traffic lane.
+							caut->set_requested_change_lane(true);
+						}
+						//For the case that the faster car is on traffic lane.
+						if(  lane_affinity != -1  &&  next_lane<1  &&  !is_overtaking() && kmh_to_speed(10) <  get_speed_limit() - other_max_speed  ) {
+							if(  vehicle_base_t* const br = caut->other_lane_blocked(false)  ) {
+								if(  road_vehicle_t const* const blk = dynamic_cast<road_vehicle_t*>(br)  ) {
+									if(  caut->get_direction() == blk->get_direction() && abs(caut->get_speed_limit() - blk->get_convoi()->get_speed_limit()) < kmh_to_speed(5)  ){
+										//same direction && (almost) same speed vehicle exists.
+										caut->yield_lane_space();
+									}
+								}
+								else if(  private_car_t* pbr = dynamic_cast<private_car_t*>(br)  ) {
+									if(  caut->get_direction() == pbr->get_direction() && abs(caut->get_speed_limit() - pbr->get_speed_limit()) < kmh_to_speed(5)  ){
+										//same direction && (almost) same speed vehicle exists.
+										caut->yield_lane_space();
+									}
+								}
+							}
 						}
 					}
 				}
@@ -930,8 +969,6 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 		}
 	}
 	
-	if(get_pos()==koord3d(81,69,0)) printf("sig5\n");
-	
 	// If this vehicle is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
 	// When condition changes, overtaking should be quitted once.
 	if(  (is_overtaking()  &&  str->get_overtaking_mode()==prohibited_mode)  ||  (is_overtaking()  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode()<inverted_mode  &&  static_cast<strasse_t*>(welt->lookup(get_pos())->get_weg(road_wt))->get_overtaking_mode()<=oneway_mode)  ) {
@@ -985,17 +1022,20 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			}
 		}
 	}
-	// TODO: write yielding system for citycars!
 	// For the case that this vehicle is fixed to passing lane and is on traffic lane.
 	if(  str->get_overtaking_mode() <= oneway_mode  &&  lane_affinity == 1  &&  !is_overtaking()  ) {
 		if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
-			if(  road_vehicle_t const* const car = obj_cast<road_vehicle_t>(v)  ) {
+			if(  road_vehicle_t const* const car = dynamic_cast<road_vehicle_t*>(v)  ) {
 				convoi_t* ocnv = car->get_convoi();
 				if(  ocnv  &&  abs(get_speed_limit() - ocnv->get_speed_limit()) < kmh_to_speed(5)  ) {
-					// cnv->yield_lane_space();
+					yield_lane_space();
 				}
 			}
-			// citycars do not have the yielding mechanism.
+			else if(  private_car_t const* const pcar = dynamic_cast<private_car_t*>(v)  ) {
+				if(  abs(get_speed_limit()-pcar->get_speed_limit())<kmh_to_speed(5)  ) {
+					yield_lane_space();
+				}
+			}
 		}
 		else {
 			// go on passing lane.
@@ -1061,9 +1101,29 @@ void private_car_t::enter_tile(grund_t* gr, koord3d prev)
 		if(  lane_affinity==1  ||  (v = other_lane_blocked(false))!=NULL  ||  str->is_reserved_by_others(this, false, prev, pos_next)  ) {
 			//lane change denied
 			set_tiles_overtaking(3);
+			if(  requested_change_lane  ||  lane_affinity == -1  ) {
+					//request the blocking convoi to reduce speed.
+					if(  v  ) {
+						if(  road_vehicle_t const* const car = dynamic_cast<road_vehicle_t*>(v)  ) {
+							if(  abs(get_speed_limit() - car->get_convoi()->get_speed_limit()) < kmh_to_speed(5)  ) {
+								car->get_convoi()->yield_lane_space();
+							}
+						}
+						else if(  private_car_t* pcar = dynamic_cast<private_car_t*>(v)  ) {
+							if(  abs(get_speed_limit() - pcar->get_speed_limit()) < kmh_to_speed(5)  ) {
+								pcar->yield_lane_space();
+							}
+						}
+					}
+					else {
+						// perhaps this vehicle is in lane fixing.
+						requested_change_lane = false;
+					}
+				}
 		}
 		else {
 			// lane change accepted
+			requested_change_lane = false;
 		}
 	}
 	if(  str->get_overtaking_mode() == inverted_mode  ) {
@@ -1081,6 +1141,9 @@ void private_car_t::enter_tile(grund_t* gr, koord3d prev)
 	// note that route_index is already forwarded
 	if(  lane_affinity_end_index==idx_in_scope(route_index,-1)  ) {
 		lane_affinity = 0;
+	}
+	if(  yielding_quit_index==idx_in_scope(route_index,-1)  ) {
+		yielding_quit_index = -1;
 	}
 	// If this tile is two-way ~ prohibited and the previous tile is oneway, the convoy have to move on traffic lane. Safety is confirmed in ist_weg_frei().
 	grund_t* prev_gr = welt->lookup(prev);
@@ -1284,6 +1347,9 @@ void private_car_t::calc_current_speed(grund_t* gr)
 	}
 	if(current_speed > speed_limit) {
 		current_speed = speed_limit;
+	}
+	if(  yielding_quit_index!=-1  &&  current_speed>min(max_speed, speed_limit) -kmh_to_speed(20)  ) {
+		current_speed -= kmh_to_speed(15);
 	}
 }
 
@@ -1785,4 +1851,11 @@ void private_car_t::unreserve_all_tiles() {
 		}
 	}
 	reserving_tiles.clear();
+}
+
+void private_car_t::yield_lane_space() {
+	// we do not allow lane yielding when the end of route is close.
+	if(  get_speed_limit() > kmh_to_speed(20)  &&  route[idx_in_scope(route_index,3)]!=koord3d::invalid  ) {
+		yielding_quit_index = idx_in_scope(route_index,3);
+	}
 }
