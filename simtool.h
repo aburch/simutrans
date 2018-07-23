@@ -146,7 +146,7 @@ public:
 
 class tool_marker_t : public kartenboden_tool_t {
 public:
-	tool_marker_t() : tool_t(TOOL_MARKER | GENERAL_TOOL), kartenboden_tool_t(TOOL_MARKER | GENERAL_TOOL) {}
+	tool_marker_t() : kartenboden_tool_t(TOOL_MARKER | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Marker", welt->get_settings().cst_buy_land); }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
@@ -166,7 +166,7 @@ class tool_transformer_t : public kartenboden_tool_t {
 private:
 	bool is_powerline_available() const;
 public:
-	tool_transformer_t() : tool_t(TOOL_TRANSFORMER | GENERAL_TOOL), kartenboden_tool_t(TOOL_TRANSFORMER | GENERAL_TOOL) {}
+	tool_transformer_t() : kartenboden_tool_t(TOOL_TRANSFORMER | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	image_id get_icon(player_t*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
@@ -178,7 +178,7 @@ public:
 
 class tool_add_city_t : public kartenboden_tool_t {
 public:
-	tool_add_city_t() : tool_t(TOOL_ADD_CITY | GENERAL_TOOL), kartenboden_tool_t(TOOL_ADD_CITY | GENERAL_TOOL) {}
+	tool_add_city_t() : kartenboden_tool_t(TOOL_ADD_CITY | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Found new city", welt->get_settings().cst_found_city); }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
@@ -187,7 +187,7 @@ public:
 // buy a house to protect it from renovating
 class tool_buy_house_t : public kartenboden_tool_t {
 public:
-	tool_buy_house_t() : tool_t(TOOL_BUY_HOUSE | GENERAL_TOOL), kartenboden_tool_t(TOOL_BUY_HOUSE | GENERAL_TOOL) {}
+	tool_buy_house_t() : kartenboden_tool_t(TOOL_BUY_HOUSE | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Haus kaufen"); }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
@@ -218,7 +218,7 @@ public:
 // height change by default_param
 class tool_set_climate_t : public two_click_tool_t {
 public:
-	tool_set_climate_t() : tool_t(TOOL_SET_CLIMATE | GENERAL_TOOL), two_click_tool_t(TOOL_SET_CLIMATE | GENERAL_TOOL) {}
+	tool_set_climate_t() : two_click_tool_t(TOOL_SET_CLIMATE | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
@@ -229,7 +229,7 @@ private:
 
 class tool_plant_tree_t : public kartenboden_tool_t {
 public:
-	tool_plant_tree_t() : tool_t(TOOL_PLANT_TREE | GENERAL_TOOL), kartenboden_tool_t(TOOL_PLANT_TREE | GENERAL_TOOL) {}
+	tool_plant_tree_t() : kartenboden_tool_t(TOOL_PLANT_TREE | GENERAL_TOOL) {}
 	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate( "Plant tree" ); }
 	bool init(player_t*) { return baum_t::get_count() > 0; }
@@ -277,7 +277,7 @@ protected:
 	virtual void start_at( koord3d &new_start );
 
 public:
-	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : tool_t(id), two_click_tool_t(id), desc() {
+	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), desc() {
 		overtaking_mode = twoway_mode;
 	 }
 	image_id get_icon(player_t*) const OVERRIDE;
@@ -305,7 +305,7 @@ class tool_build_cityroad : public tool_build_way_t {
 private:
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 public:
-	tool_build_cityroad() : tool_t(TOOL_BUILD_CITYROAD | GENERAL_TOOL), tool_build_way_t(TOOL_BUILD_CITYROAD | GENERAL_TOOL) {}
+	tool_build_cityroad() : tool_build_way_t(TOOL_BUILD_CITYROAD | GENERAL_TOOL) {}
 	way_desc_t const* get_desc(uint16, bool) const OVERRIDE;
 	image_id get_icon(player_t* const player) const OVERRIDE { return tool_t::get_icon(player); }
 	bool is_selected() const OVERRIDE { return tool_t::is_selected(); }
@@ -323,7 +323,7 @@ private:
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 
 public:
-	tool_build_bridge_t() : tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL), two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) {
+	tool_build_bridge_t() : two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) {
 		overtaking_mode = twoway_mode;
 	}
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
@@ -350,7 +350,7 @@ private:
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 
 public:
-	tool_build_tunnel_t() : tool_t(TOOL_BUILD_TUNNEL | GENERAL_TOOL), two_click_tool_t(TOOL_BUILD_TUNNEL | GENERAL_TOOL) {
+	tool_build_tunnel_t() : two_click_tool_t(TOOL_BUILD_TUNNEL | GENERAL_TOOL) {
 		overtaking_mode = twoway_mode;
 	}
 	char const* get_tooltip(player_t const*) const OVERRIDE;
@@ -375,7 +375,7 @@ private:
 	// error message to be returned by calc_route
 	const char *calc_route_error;
 public:
-	tool_wayremover_t() : tool_t(TOOL_WAYREMOVER | GENERAL_TOOL), two_click_tool_t(TOOL_WAYREMOVER | GENERAL_TOOL) {}
+	tool_wayremover_t() : two_click_tool_t(TOOL_WAYREMOVER | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	image_id get_icon(player_t*) const OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
@@ -398,7 +398,7 @@ private:
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
 
 public:
-	tool_build_wayobj_t(uint16 const id = TOOL_BUILD_WAYOBJ | GENERAL_TOOL, bool b = true) : tool_t(id), two_click_tool_t(id), build(b) {}
+	tool_build_wayobj_t(uint16 const id = TOOL_BUILD_WAYOBJ | GENERAL_TOOL, bool b = true) : two_click_tool_t(id), build(b) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool is_selected() const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
@@ -408,7 +408,7 @@ public:
 
 class tool_remove_wayobj_t : public tool_build_wayobj_t {
 public:
-	tool_remove_wayobj_t() : tool_t(TOOL_REMOVE_WAYOBJ | GENERAL_TOOL), tool_build_wayobj_t(TOOL_REMOVE_WAYOBJ | GENERAL_TOOL, false) {}
+	tool_remove_wayobj_t() : tool_build_wayobj_t(TOOL_REMOVE_WAYOBJ | GENERAL_TOOL, false) {}
 	bool is_selected() const OVERRIDE { return tool_t::is_selected(); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
@@ -475,7 +475,7 @@ private:
 	vector_tpl< ribi_t::ribi > directions;
 
 public:
-	tool_build_roadsign_t() : tool_t(TOOL_BUILD_ROADSIGN | GENERAL_TOOL), two_click_tool_t(TOOL_BUILD_ROADSIGN | GENERAL_TOOL), desc() {}
+	tool_build_roadsign_t() : two_click_tool_t(TOOL_BUILD_ROADSIGN | GENERAL_TOOL), desc() {}
 
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
@@ -510,19 +510,9 @@ public:
  * finally building name
  * @author prissi
  */
-/*
-class tool_build_house_t : public kartenboden_tool_t {
-public:
-	tool_build_house_t() : tool_t(TOOL_BUILD_HOUSE | GENERAL_TOOL), kartenboden_tool_t(TOOL_BUILD_HOUSE | GENERAL_TOOL) {}
-	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Built random attraction"); }
-	bool init(player_t*) OVERRIDE;
-	char const* work(player_t*, koord3d) OVERRIDE;
-	bool is_init_network_save() const OVERRIDE { return true; }
-};
-*/
 class tool_build_house_t : public two_click_kartenboden_tool_t {
 public:
-	tool_build_house_t() : tool_t(TOOL_BUILD_HOUSE | GENERAL_TOOL), two_click_kartenboden_tool_t(TOOL_BUILD_HOUSE | GENERAL_TOOL) {}
+	tool_build_house_t() : two_click_kartenboden_tool_t(TOOL_BUILD_HOUSE | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Built random attraction"); }
 	bool init(player_t*) OVERRIDE;
 	//char const* work(player_t*, koord3d) OVERRIDE;
@@ -546,7 +536,7 @@ public:
  */
 class tool_build_land_chain_t : public kartenboden_tool_t {
 public:
-	tool_build_land_chain_t() : tool_t(TOOL_BUILD_LAND_CHAIN | GENERAL_TOOL), kartenboden_tool_t(TOOL_BUILD_LAND_CHAIN | GENERAL_TOOL) {}
+	tool_build_land_chain_t() : kartenboden_tool_t(TOOL_BUILD_LAND_CHAIN | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Build land consumer"); }
 	bool init(player_t*) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
@@ -555,7 +545,7 @@ public:
 
 class tool_city_chain_t : public kartenboden_tool_t {
 public:
-	tool_city_chain_t() : tool_t(TOOL_CITY_CHAIN | GENERAL_TOOL), kartenboden_tool_t(TOOL_CITY_CHAIN | GENERAL_TOOL) {}
+	tool_city_chain_t() : kartenboden_tool_t(TOOL_CITY_CHAIN | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Build city market"); }
 	bool init(player_t*) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
@@ -564,7 +554,7 @@ public:
 
 class tool_build_factory_t : public kartenboden_tool_t {
 public:
-	tool_build_factory_t() : tool_t(TOOL_BUILD_FACTORY | GENERAL_TOOL), kartenboden_tool_t(TOOL_BUILD_FACTORY | GENERAL_TOOL) {}
+	tool_build_factory_t() : kartenboden_tool_t(TOOL_BUILD_FACTORY | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Build city market"); }
 	bool init(player_t*) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
@@ -573,7 +563,7 @@ public:
 
 class tool_link_factory_t : public two_click_tool_t {
 public:
-	tool_link_factory_t() : tool_t(TOOL_LINK_FACTORY | GENERAL_TOOL), two_click_tool_t(TOOL_LINK_FACTORY | GENERAL_TOOL) {}
+	tool_link_factory_t() : two_click_tool_t(TOOL_LINK_FACTORY | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Connect factory"); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 private:
@@ -587,7 +577,7 @@ class tool_headquarter_t : public kartenboden_tool_t {
 private:
 	const building_desc_t *next_level( const player_t *player ) const;
 public:
-	tool_headquarter_t() : tool_t(TOOL_HEADQUARTER | GENERAL_TOOL), kartenboden_tool_t(TOOL_HEADQUARTER | GENERAL_TOOL) {}
+	tool_headquarter_t() : kartenboden_tool_t(TOOL_HEADQUARTER | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
 	char const* work(player_t*, koord3d) OVERRIDE;
@@ -618,7 +608,7 @@ public:
 /* make forest */
 class tool_forest_t : public two_click_tool_t {
 public:
-	tool_forest_t() : tool_t(TOOL_FOREST | GENERAL_TOOL), two_click_tool_t(TOOL_FOREST | GENERAL_TOOL) {}
+	tool_forest_t() : two_click_tool_t(TOOL_FOREST | GENERAL_TOOL) {}
 	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Add forest"); }
 	bool init( player_t *player) { return  baum_t::get_count() > 0  &&  two_click_tool_t::init(player); }
@@ -635,7 +625,7 @@ private:
 	waytype_t waytype[2];
 	halthandle_t last_halt;
 public:
-	tool_stop_mover_t() : tool_t(TOOL_STOP_MOVER | GENERAL_TOOL), two_click_tool_t(TOOL_STOP_MOVER | GENERAL_TOOL) {}
+	tool_stop_mover_t() : two_click_tool_t(TOOL_STOP_MOVER | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("replace stop"); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 

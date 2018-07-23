@@ -805,6 +805,12 @@ const char *kartenboden_tool_t::check_pos(player_t *, koord3d pos )
 	return (gr  &&  !gr->is_visible()) ? "" : NULL;
 }
 
+const char *two_click_kartenboden_tool_t::check_pos(player_t *, koord3d pos )
+{
+	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+	return (gr  &&  !gr->is_visible()) ? "" : NULL;
+}
+
 
 
 image_id toolbar_t::get_icon(player_t *player) const

@@ -339,7 +339,7 @@ public:
 /*
  * Class for tools that work only on ground (kartenboden)
  */
-class kartenboden_tool_t : virtual public tool_t {
+class kartenboden_tool_t : public tool_t {
 public:
 	kartenboden_tool_t(uint16 const id) : tool_t(id) {}
 
@@ -351,7 +351,7 @@ public:
  * Dragging is also possible.
  * @author Gerd Wachsmuth
  */
-class two_click_tool_t : virtual public tool_t {
+class two_click_tool_t : public tool_t {
 public:
 	two_click_tool_t(uint16 const id) : tool_t(id) {
 		MEMZERO(start_marker);
@@ -427,16 +427,16 @@ protected:
 /*
  * Class for tools that work only on ground (kartenboden)
  */
-class two_click_kartenboden_tool_t : public two_click_tool_t, public kartenboden_tool_t {
+class two_click_kartenboden_tool_t : public two_click_tool_t {
 public:
-	//two_click_kartenboden_tool_t(uint16 const id) : two_click_tool_t(id){}
-	two_click_kartenboden_tool_t(uint16 const id) : tool_t(id), two_click_tool_t(id), kartenboden_tool_t(id) {}
+	two_click_kartenboden_tool_t(uint16 const id) : two_click_tool_t(id){}
 
-	//char const* check_pos(player_t*, koord3d) OVERRIDE;
-	using kartenboden_tool_t::check_pos;
-	void set_default_param(const char* str) OVERRIDE {	kartenboden_tool_t::set_default_param(str);};
-	using kartenboden_tool_t::set_default_param;
-	using kartenboden_tool_t::cursor;//using tool_t::cursor;
+	char const* check_pos(player_t*, koord3d);
+	
+	//using kartenboden_tool_t::check_pos;
+	//void set_default_param(const char* str) OVERRIDE {	kartenboden_tool_t::set_default_param(str);};
+	//using kartenboden_tool_t::set_default_param;
+	//using kartenboden_tool_t::cursor;//using tool_t::cursor;
 	
 	char const* do_work(player_t* player, koord3d const&, koord3d const& pos) OVERRIDE {return work(player, pos);};
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE {};
