@@ -512,10 +512,9 @@ public:
  */
 class tool_build_house_t : public two_click_kartenboden_tool_t {
 public:
-	tool_build_house_t() : two_click_kartenboden_tool_t(TOOL_BUILD_HOUSE | GENERAL_TOOL) {}
+	tool_build_house_t() : two_click_kartenboden_tool_t(TOOL_BUILD_HOUSE | GENERAL_TOOL) {one_click = true;}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Built random attraction"); }
 	bool init(player_t*) OVERRIDE;
-	//char const* work(player_t*, koord3d) OVERRIDE;
 	char const* work(player_t*, koord);
 	bool is_init_network_save() const OVERRIDE { return true; }
 

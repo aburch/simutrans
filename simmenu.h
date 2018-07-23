@@ -356,6 +356,8 @@ public:
 	two_click_tool_t(uint16 const id) : tool_t(id) {
 		MEMZERO(start_marker);
 		first_click_var = true;
+		// For co-existence with one_click mode
+		one_click = false;
 	}
 
 	void rdwr_custom_data(memory_rw_t*) OVERRIDE;
@@ -422,6 +424,9 @@ protected:
 	virtual void start_at( koord3d &new_start );
 
 	slist_tpl< zeiger_t* > marked;
+
+	// For co-existence with one_click mode
+	bool one_click;
 };
 
 /*
@@ -432,11 +437,6 @@ public:
 	two_click_kartenboden_tool_t(uint16 const id) : two_click_tool_t(id){}
 
 	char const* check_pos(player_t*, koord3d);
-	
-	//using kartenboden_tool_t::check_pos;
-	//void set_default_param(const char* str) OVERRIDE {	kartenboden_tool_t::set_default_param(str);};
-	//using kartenboden_tool_t::set_default_param;
-	//using kartenboden_tool_t::cursor;//using tool_t::cursor;
 	
 	char const* do_work(player_t* player, koord3d const&, koord3d const& pos) OVERRIDE {return work(player, pos);};
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE {};

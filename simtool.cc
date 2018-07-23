@@ -5583,22 +5583,33 @@ void tool_build_house_t::mark_tiles(  player_t *, const koord3d &start, const ko
 
 const char *tool_build_house_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
-	koord wh, nw;
-	wh.x = abs(end.x-start.x)+1;
-	wh.y = abs(end.y-start.y)+1;
-	nw.x = min(start.x, end.x)+(wh.x/2);
-	nw.y = min(start.y, end.y)+(wh.y/2);
-	
-	int dx = (start.x < end.x) ? 1 : -1;
-	int dy = (start.y < end.y) ? 1 : -1;
-	for(int x=start.x; x!=(end.x+dx); x+=dx) {
-		for(int y=start.y; y!=(end.y+dy); y+=dy) {
-			work(player, koord(x,y));
+	if(  end == koord3d::invalid  ) {
+		koord k;
+		k.x = start.x;
+		k.y = start.y;
+		if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
+			work(player, k);
 		}
 	}
-	//sint64 costs = baum_t::create_forest( nw, wh );
-	//player_t::book_construction_costs(player, costs * welt->get_settings().cst_remove_tree, end.get_2d(), ignore_wt);
-	
+	else {
+		koord wh, nw;
+		wh.x = abs(end.x-start.x)+1;
+		wh.y = abs(end.y-start.y)+1;
+		nw.x = min(start.x, end.x)+(wh.x/2);
+		nw.y = min(start.y, end.y)+(wh.y/2);
+		
+		int dx = (start.x < end.x) ? 1 : -1;
+		int dy = (start.y < end.y) ? 1 : -1;
+		
+		koord k;
+		for( k.x = start.x; k.x != (end.x+dx); k.x += dx) {
+			for( k.y = start.y; k.y != (end.y+dy); k.y += dy) {
+				if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
+					work(player, k);
+				}
+			}
+		}
+	}
 	return NULL;
 }
 

@@ -1108,6 +1108,10 @@ const char *two_click_tool_t::work(player_t *player, koord3d pos )
 	}
 
 	if(  is_first_click()  ) {
+		// For co-existence with one_click mode
+		if (one_click) {
+			return do_work( player, pos, koord3d::invalid );
+		}
 		// work directly if possible and ctrl is NOT pressed
 		if( (value & 1)  &&  !( (value & 2)  &&  is_ctrl_pressed())) {
 			// Work here directly.
