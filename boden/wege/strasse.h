@@ -6,7 +6,7 @@
 // number of different traffic directions
 #define MAX_WAY_STAT_DIRECTIONS 2
 
-class road_vehicle_t;
+class vehicle_base_t;
 
 /**
  * Cars are able to drive on roads.
@@ -75,7 +75,7 @@ private:
 	*
 	* @author THLeaderH
 	*/
-	road_vehicle_t* reserved_by[4];
+	vehicle_base_t* reserved_by[4];
 
 public:
 	static const way_desc_t *default_strasse;
@@ -124,10 +124,10 @@ public:
 
 	// related to tile reservation system
 	// return true if succeeded
-	bool reserve(road_vehicle_t* r, bool is_overtaking, koord3d pos_prev, koord3d pos_next);
-	bool unreserve(road_vehicle_t* r);
+	bool reserve(vehicle_base_t* r, bool is_overtaking, koord3d pos_prev, koord3d pos_next);
+	bool unreserve(vehicle_base_t* r);
 	void unreserve_all();
-	bool is_reserved_by_others(road_vehicle_t* r, bool is_overtaking, koord3d pos_prev, koord3d pos_next);
+	bool is_reserved_by_others(vehicle_base_t* r, bool is_overtaking, koord3d pos_prev, koord3d pos_next);
 	
 	bool get_avoid_cityroad() const { return street_flags&AVOID_CITYROAD; }
 	void set_avoid_cityroad(bool s) { s ? street_flags |= AVOID_CITYROAD : street_flags &= ~AVOID_CITYROAD; }

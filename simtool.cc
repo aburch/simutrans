@@ -6113,9 +6113,12 @@ const char *tool_add_citycar_t::work( player_t *player, koord3d pos )
 
 	if(  gr != NULL  &&  ribi_t::is_twoway(gr->get_weg_ribi_unmasked(road_wt))  &&  gr->find<private_car_t>() == NULL) {
 		// add citycar
-		private_car_t* vt = new private_car_t(gr, koord::invalid);
-		gr->obj_add(vt);
-		welt->sync.add(vt);
+		// for debugging purpose, with shift pressed, add 100 cars!
+		for(uint8 i=0; i<(is_shift_pressed()?100:1); i++) {
+			private_car_t* vt = new private_car_t(gr, koord::invalid);
+			gr->obj_add(vt);
+			welt->sync.add(vt);
+		}
 		return NULL;
 	}
 	return "";

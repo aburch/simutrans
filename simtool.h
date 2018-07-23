@@ -279,6 +279,7 @@ protected:
 public:
 	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), desc() {
 		overtaking_mode = twoway_mode;
+		avoid_cityroad = false;
 	 }
 	image_id get_icon(player_t*) const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE;
