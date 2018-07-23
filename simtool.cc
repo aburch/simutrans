@@ -5469,12 +5469,6 @@ bool tool_build_house_t::init( player_t * player)
 }
 
 
-/*const char *tool_build_house_t::work( player_t *player, koord3d pos )
-{
-	//koord k(pos.get_2d());
-	//work( player, k );
-	return "";
-}*/
 const char *tool_build_house_t::work( player_t *player, koord k )
 {
 	const grund_t* gr = welt->lookup_kartenboden(k);
@@ -5579,7 +5573,6 @@ void tool_build_house_t::mark_tiles(  player_t *, const koord3d &start, const ko
 		}
 	}
 }
-
 
 const char *tool_build_house_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
