@@ -5455,7 +5455,7 @@ const char *tool_build_depot_t::work( player_t *player, koord3d pos )
  * finally building name
  * @author prissi
  */
-bool tool_build_house_t::init( player_t * )
+bool tool_build_house_t::init( player_t * player)
 {
 	if (can_use_gui() && !strempty(default_param)) {
 		const char *c = default_param+2;
@@ -5465,14 +5465,18 @@ bool tool_build_house_t::init( player_t * )
 			cursor_area = tile->get_desc()->get_size(rotation);
 		}
 	}
-	return true;
+	return two_click_tool_t::init(player);
 }
 
 
-const char *tool_build_house_t::work( player_t *player, koord3d pos )
+/*const char *tool_build_house_t::work( player_t *player, koord3d pos )
 {
-	koord k(pos.get_2d());
-
+	//koord k(pos.get_2d());
+	//work( player, k );
+	return "";
+}*/
+const char *tool_build_house_t::work( player_t *player, koord k )
+{
 	const grund_t* gr = welt->lookup_kartenboden(k);
 	if(gr==NULL) {
 		return "";
@@ -5545,6 +5549,69 @@ const char *tool_build_house_t::work( player_t *player, koord3d pos )
 	return NOTICE_UNSUITABLE_GROUND;
 }
 
+void tool_build_house_t::mark_tiles(  player_t *, const koord3d &start, const koord3d &end )
+{
+	koord k1, k2;
+	k1.x = start.x < end.x ? start.x : end.x;
+	k1.y = start.y < end.y ? start.y : end.y;
+	k2.x = start.x + end.x - k1.x;
+	k2.y = start.y + end.y - k1.y;
+	koord k;
+	for(  k.x = k1.x;  k.x <= k2.x;  k.x++  ) {
+		for(  k.y = k1.y;  k.y <= k2.y;  k.y++  ) {
+			grund_t *gr = welt->lookup_kartenboden( k );
+			
+			zeiger_t *marker = new zeiger_t(gr->get_pos(), NULL );
+			
+			const uint8 grund_hang = gr->get_grund_hang();
+			const uint8 weg_hang = gr->get_weg_hang();
+			const uint8 hang = max( corner_sw(grund_hang), corner_sw(weg_hang)) +
+					3 * max( corner_se(grund_hang), corner_se(weg_hang)) +
+					9 * max( corner_ne(grund_hang), corner_ne(weg_hang)) +
+					27 * max( corner_nw(grund_hang), corner_nw(weg_hang));
+			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
+			marker->set_foreground_image( ground_desc_t::marker->get_image( grund_hang % 27 ) );
+			marker->set_image( ground_desc_t::marker->get_image( back_hang ) );
+			
+			marker->mark_image_dirty( marker->get_image(), 0 );
+			gr->obj_add( marker );
+			marked.insert( marker );
+		}
+	}
+}
+
+
+const char *tool_build_house_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
+{
+	if(  end == koord3d::invalid  ) {
+		koord k;
+		k.x = start.x;
+		k.y = start.y;
+		if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
+			work(player, k);
+		}
+	}
+	else {
+		koord wh, nw;
+		wh.x = abs(end.x-start.x)+1;
+		wh.y = abs(end.y-start.y)+1;
+		nw.x = min(start.x, end.x)+(wh.x/2);
+		nw.y = min(start.y, end.y)+(wh.y/2);
+		
+		int dx = (start.x < end.x) ? 1 : -1;
+		int dy = (start.y < end.y) ? 1 : -1;
+		
+		koord k;
+		for( k.x = start.x; k.x != (end.x+dx); k.x += dx) {
+			for( k.y = start.y; k.y != (end.y+dy); k.y += dy) {
+				if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
+					work(player, k);
+				}
+			}
+		}
+	}
+	return NULL;
+}
 
 
 // show industry size in cursor (in known)

@@ -356,6 +356,8 @@ public:
 	two_click_tool_t(uint16 const id) : tool_t(id) {
 		MEMZERO(start_marker);
 		first_click_var = true;
+		// For co-existence with one_click mode
+		one_click = false;
 	}
 
 	void rdwr_custom_data(memory_rw_t*) OVERRIDE;
@@ -422,6 +424,23 @@ protected:
 	virtual void start_at( koord3d &new_start );
 
 	slist_tpl< zeiger_t* > marked;
+
+	// For co-existence with one_click mode
+	bool one_click;
+};
+
+/*
+ * Class for tools that work only on ground (kartenboden)
+ */
+class two_click_kartenboden_tool_t : public two_click_tool_t {
+public:
+	two_click_kartenboden_tool_t(uint16 const id) : two_click_tool_t(id){}
+
+	char const* check_pos(player_t*, koord3d);
+	
+	char const* do_work(player_t* player, koord3d const&, koord3d const& pos) OVERRIDE {return work(player, pos);};
+	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE {};
+	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE {return 2;};
 };
 
 /* toolbar are a new overclass */

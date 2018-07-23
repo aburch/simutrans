@@ -30,7 +30,7 @@
 
 
 // new tool definition
-tool_build_house_t curiosity_edit_frame_t::haus_tool=tool_build_house_t();
+tool_build_house_t* curiosity_edit_frame_t::haus_tool=new tool_build_house_t();
 char curiosity_edit_frame_t::param_str[256];
 
 
@@ -60,8 +60,8 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(player_t* player_) :
 	rot_str[0] = 0;
 	rotation = 255;
 	desc = NULL;
-	haus_tool.set_default_param(NULL);
-	haus_tool.cursor = tool_t::general_tool[TOOL_BUILD_HOUSE]->cursor;
+	haus_tool->set_default_param(NULL);
+	haus_tool->cursor = tool_t::general_tool[TOOL_BUILD_HOUSE]->cursor;
 
 	bt_city_attraction.init( button_t::square_state, "City attraction", scr_coord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_city_attraction.add_listener(this);
@@ -292,10 +292,10 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 
 		// the tools will be always updated, even though the data up there might be still current
 		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, desc->get_name() );
-		haus_tool.set_default_param(param_str);
-		welt->set_tool( &haus_tool, player );
+		haus_tool->set_default_param(param_str);
+		welt->set_tool( haus_tool, player );
 	}
-	else if(welt->get_tool(player->get_player_nr())==&haus_tool) {
+	else if(welt->get_tool(player->get_player_nr())==haus_tool) {
 		for(int i=0;  i<4;  i++  ) {
 			img[i].set_image( IMG_EMPTY );
 		}

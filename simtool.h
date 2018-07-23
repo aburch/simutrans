@@ -511,13 +511,18 @@ public:
  * finally building name
  * @author prissi
  */
-class tool_build_house_t : public kartenboden_tool_t {
+class tool_build_house_t : public two_click_kartenboden_tool_t {
 public:
-	tool_build_house_t() : kartenboden_tool_t(TOOL_BUILD_HOUSE | GENERAL_TOOL) {}
+	tool_build_house_t() : two_click_kartenboden_tool_t(TOOL_BUILD_HOUSE | GENERAL_TOOL) {one_click = true;}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Built random attraction"); }
 	bool init(player_t*) OVERRIDE;
-	char const* work(player_t*, koord3d) OVERRIDE;
+	char const* work(player_t*, koord);
 	bool is_init_network_save() const OVERRIDE { return true; }
+
+	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE {return 2;};
+	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
 };
 
 /* builds an (if param=NULL random) industry chain starting here *
