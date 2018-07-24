@@ -156,6 +156,8 @@ bool env_t::hide_keyboard = false;
 
 bool env_t::previous_OTRP_data;
 
+sint16 env_t::cursor_height = 999;
+
 
 
 // Hajo: Define default settings.

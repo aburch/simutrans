@@ -21,7 +21,8 @@ public:
 	
 	enum {
 		AVOID_CITYROAD   = 0x01, // this street avoid becoming cityroad.
-		CITYCAR_NO_ENTRY = 0x02  // citycar cannot enter this road.
+		CITYCAR_NO_ENTRY = 0x02, // citycar cannot enter this road.
+		USE_GIVEN_HEIGHT = 0x04  // this flag is used only for construction
 	};
 
 private:
