@@ -544,7 +544,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 
 	// road still there?
 	strasse_t * str = (strasse_t*)gr->get_weg(road_wt);
-	if(str==NULL) {
+	if(str==NULL  ||  str->get_citycar_no_entry()) {
 		time_to_life = 0;
 		return false;
 	}
@@ -1197,7 +1197,7 @@ koord3d private_car_t::find_destination(uint8 target_index) {
 			grund_t *to;
 			if(  gr->get_neighbour(to, road_wt, ribi_t::nsew[r])  ) {
 				// check, if this is just a single tile deep after a crossing
-				weg_t *w = to->get_weg(road_wt);
+				strasse_t *w = (strasse_t*)(to->get_weg(road_wt));
 				// check, if roadsign forbid next step ...
 				if(w->has_sign()) {
 					const roadsign_t* rs = to->find<roadsign_t>();
@@ -1207,6 +1207,12 @@ koord3d private_car_t::find_destination(uint8 target_index) {
 						ribi &= ~ribi_t::nsew[r];
 						continue;
 					}
+				}
+				// check, if street forbid citycars...
+				if(  w->get_citycar_no_entry()  ) {
+					// not allowed to go here
+					ribi &= ~ribi_t::nsew[r];
+					continue;
 				}
 #ifdef DESTINATION_CITYCARS
 				uint32 dist=koord_distance( to->get_pos().get_2d(), target );
