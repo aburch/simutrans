@@ -2333,7 +2333,8 @@ void tool_build_way_t::draw_after(scr_coord k, bool dirty) const
 			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
 			char level_str[16];
 			tool_build_way_t::set_mode_str(level_str, overtaking_mode);
-			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(street_flag&strasse_t::AVOID_CITYROAD?COL_RED:COL_YELLOW), true );
+			uint8 color = tool_build_way_t::get_flag_color(street_flag);
+			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(color), true );
 		}
 	} else {
 		two_click_tool_t::draw_after(k,dirty);
@@ -2579,6 +2580,19 @@ void tool_build_way_t::set_mode_str(char* str, overtaking_mode_t overtaking_mode
 	}
 }
 
+uint8 tool_build_way_t::get_flag_color(uint8 flag) {
+	switch (flag) {
+		case strasse_t::AVOID_CITYROAD|strasse_t::CITYCAR_NO_ENTRY:
+			return COL_ORANGE;
+		case strasse_t::CITYCAR_NO_ENTRY:
+			return COL_MAGENTA;
+		case strasse_t::AVOID_CITYROAD:
+			return COL_GREEN;
+		default:
+			return COL_YELLOW;
+	}
+}
+
 /* city road construction */
 const way_desc_t *tool_build_cityroad::get_desc(uint16,bool) const
 {
@@ -2656,7 +2670,8 @@ void tool_build_bridge_t::draw_after(scr_coord k, bool dirty) const
 			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
 			char level_str[16];
 			tool_build_way_t::set_mode_str(level_str, overtaking_mode);
-			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+			uint8 color = tool_build_way_t::get_flag_color(street_flag);
+			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(color), true );
 		}
 	} else {
 		two_click_tool_t::draw_after(k,dirty);
@@ -2955,7 +2970,8 @@ void tool_build_tunnel_t::draw_after(scr_coord k, bool dirty) const
 			display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
 			char level_str[16];
 			tool_build_way_t::set_mode_str(level_str, overtaking_mode);
-			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
+			uint8 color = tool_build_way_t::get_flag_color(street_flag);
+			display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(color), true );
 		}
 	} else {
 		two_click_tool_t::draw_after(k,dirty);

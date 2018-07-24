@@ -300,6 +300,7 @@ public:
 	uint8 get_street_flag() const { return street_flag; }
 	static void set_mode_str(char* str, overtaking_mode_t overtaking_mode);
 	void set_look_toolbar() { look_toolbar = true; }
+	static uint8 get_flag_color(uint8 flag);
 };
 
 class tool_build_cityroad : public tool_build_way_t {
