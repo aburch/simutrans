@@ -607,7 +607,7 @@ bool bridge_builder_t::can_place_ramp(player_t *player, const grund_t *gr, wayty
 }
 
 
-const char *bridge_builder_t::build( player_t *player, const koord3d pos, const bridge_desc_t *desc, overtaking_mode_t overtaking_mode)
+const char *bridge_builder_t::build( player_t *player, const koord3d pos, const bridge_desc_t *desc, overtaking_mode_t overtaking_mode, uint8 street_flag)
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(  !(gr  &&  desc)  ) {
@@ -707,13 +707,13 @@ DBG_MESSAGE("bridge_builder_t::build()", "end not ok");
 	}
 
 	// Start and end have been checked, we can start to build eventually
-	build_bridge(player, gr->get_pos(), end, zv, bridge_height, desc, way_desc, overtaking_mode);
+	build_bridge(player, gr->get_pos(), end, zv, bridge_height, desc, way_desc, overtaking_mode, street_flag);
 
 	return NULL;
 }
 
 
-void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bridge_desc_t *desc, const way_desc_t *way_desc, overtaking_mode_t overtaking_mode)
+void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const koord3d end, koord zv, sint8 bridge_height, const bridge_desc_t *desc, const way_desc_t *way_desc, overtaking_mode_t overtaking_mode, uint8 street_flag)
 {
 	ribi_t::ribi ribi = ribi_type(zv);
 
@@ -735,7 +735,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 	if(  slope  ||  bridge_height != 0  ) {
 		// needs a ramp to start on ground
 		add_height = slope ?  slope_t::max_diff(slope) : bridge_height;
-		build_ramp( player, start, ribi, slope?0:slope_type(zv)*add_height, desc, overtaking_mode, true );
+		build_ramp( player, start, ribi, slope?0:slope_type(zv)*add_height, desc, overtaking_mode, street_flag, true );
 		if(  desc->get_waytype() != powerline_wt  ) {
 			ribi = welt->lookup(start)->get_weg_ribi_unmasked(desc->get_waytype());
 		}
@@ -782,6 +782,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 				if(  overtaking_mode<=oneway_mode  ) {
 					str->set_ribi_mask_oneway(ribi_t::reverse_single(ribi_type(zv)));
 				}
+				str->set_street_flag(street_flag);
 			}
 			bruecke->neuen_weg_bauen(weg, ribi_t::doubles(ribi), player);
 		}
@@ -824,7 +825,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 	grund_t *gr = welt->lookup(end);
 	if(  need_auffahrt  ) {
 		// not ending at a bridge
-		build_ramp(player, end, ribi_type(-zv), gr->get_weg_hang()?0:slope_type(-zv)*(pos.z-end.z), desc, overtaking_mode, false);
+		build_ramp(player, end, ribi_type(-zv), gr->get_weg_hang()?0:slope_type(-zv)*(pos.z-end.z), desc, overtaking_mode, street_flag, false);
 	}
 	else {
 		// ending on a slope/elevated way
@@ -839,6 +840,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 					strasse_t* str = (strasse_t*)weg;
 					assert(str);
 					str->set_overtaking_mode( overtaking_mode );
+					str->set_street_flag(street_flag);
 				}
 				player_t::book_construction_costs( player, -gr->neuen_weg_bauen( weg, ribi, player ) -weg->get_desc()->get_price(), end.get_2d(), weg->get_waytype());
 			}
@@ -884,6 +886,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 						bauigel.calc_route( pos, to->get_pos() );
 					}
 					bauigel.set_overtaking_mode(overtaking_mode);
+					bauigel.set_street_flag(street_flag);
 					if(  bauigel.get_count() == 2  ) {
 						bauigel.build();
 					}
@@ -894,7 +897,7 @@ void bridge_builder_t::build_bridge(player_t *player, const koord3d start, const
 }
 
 
-void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t* desc, overtaking_mode_t overtaking_mode, bool beginning)
+void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ribi_neu, slope_t::type weg_hang, const bridge_desc_t* desc, overtaking_mode_t overtaking_mode, uint8 street_flag, bool beginning)
 {
 	assert(weg_hang < 81);
 
@@ -929,6 +932,7 @@ void bridge_builder_t::build_ramp(player_t* player, koord3d end, ribi_t::ribi ri
 				if(  beginning  ) str->set_ribi_mask_oneway(ribi_t::reverse_single(ribi_neu));
 				if(  !beginning  ) str->set_ribi_mask_oneway(ribi_neu);
 			}
+			str->set_street_flag(street_flag);
 		}
 	}
 	else {

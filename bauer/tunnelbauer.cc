@@ -315,7 +315,7 @@ koord3d tunnel_builder_t::find_end_pos(player_t *player, koord3d pos, koord zv, 
 }
 
 
-const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_desc_t *desc, bool full_tunnel, overtaking_mode_t overtaking_mode )
+const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_desc_t *desc, bool full_tunnel, overtaking_mode_t overtaking_mode, uint8 street_flag )
 {
 	assert( desc );
 
@@ -421,14 +421,14 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 		player_t::book_construction_costs(player, welt->get_settings().cst_alter_land * n, end.get_2d(), desc->get_waytype());
 	}
 
-	if(!build_tunnel(player, gr->get_pos(), end, zv, desc, overtaking_mode)) {
+	if(!build_tunnel(player, gr->get_pos(), end, zv, desc, overtaking_mode, street_flag)) {
 		return "Ways not connected";
 	}
 	return NULL;
 }
 
 
-bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end, koord zv, const tunnel_desc_t *desc, overtaking_mode_t overtaking_mode)
+bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end, koord zv, const tunnel_desc_t *desc, overtaking_mode_t overtaking_mode, uint8 street_flag)
 {
 	ribi_t::ribi ribi = 0;
 	weg_t *weg = NULL;
@@ -447,7 +447,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 		way_desc = way_builder_t::weg_search( wegtyp, desc->get_topspeed(), 0, type_flat );
 	}
 
-	build_tunnel_portal(player, pos, zv, desc, way_desc, cost, overtaking_mode, true);
+	build_tunnel_portal(player, pos, zv, desc, way_desc, cost, overtaking_mode, street_flag, true);
 
 	ribi = ribi_type(-zv);
 	// don't move on to next tile if only one tile long
@@ -473,6 +473,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 				strasse_t* str = (strasse_t*) weg;
 				assert(str);
 				str->set_overtaking_mode(overtaking_mode);
+				str->set_street_flag(street_flag);
 				str->set_ribi_mask_oneway(ribi_type(-zv));
 			}
 			tunnel->neuen_weg_bauen(weg, ribi_t::doubles(ribi), player);
@@ -502,7 +503,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 		}
 		else if (gr_end->ist_karten_boden()) {
 			// if end is above ground construct an exit
-			build_tunnel_portal(player, pos, -zv, desc, way_desc, cost, overtaking_mode, false);
+			build_tunnel_portal(player, pos, -zv, desc, way_desc, cost, overtaking_mode, street_flag, false);
 			gr_end = NULL; // invalid - replaced by tunnel ground
 			// calc new back image for the ground
 			if (end!=start && grund_t::underground_mode) {
@@ -547,7 +548,7 @@ DBG_MESSAGE("tunnel_builder_t::build()","build from (%d,%d,%d) to (%d,%d,%d) ", 
 }
 
 
-void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, int &cost, overtaking_mode_t overtaking_mode, bool beginning)
+void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, int &cost, overtaking_mode_t overtaking_mode, uint8 street_flag, bool beginning)
 {
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi = 0;
@@ -588,6 +589,7 @@ void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord 
 				if(  beginning  ) str->set_ribi_mask_oneway(ribi_type(-zv));
 				if(  !beginning  ) str->set_ribi_mask_oneway(ribi_type(zv));
 			}
+			str->set_street_flag(street_flag);
 		}
 
 	}
