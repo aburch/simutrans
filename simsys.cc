@@ -365,10 +365,6 @@ char const *dr_query_homedir()
 	// create directory and subdirectories
 	dr_mkdir(buffer);
 	strcat(buffer, PATH_SEPARATOR);
-	dr_chdir(buffer);
-	dr_mkdir("maps");
-	dr_mkdir("save");
-	dr_mkdir(SCREENSHOT_PATH);
 
 	return buffer;
 }
