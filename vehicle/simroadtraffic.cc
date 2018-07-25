@@ -43,8 +43,6 @@
 
 #include "../utils/cbuffer_t.h"
 
-#define NUM_LOOK_FORWARD 10
-
 /**********************************************************************************************************************/
 /* Road users (private cars and pedestrians) basis class from here on */
 
@@ -236,14 +234,9 @@ void road_user_t::finish_rd()
 
 
 // this function returns an index value that matches to scope.
-uint8 idx_in_scope(uint8 org, sint8 offset) {
-	if(  (sint8)org + offset < 0  ) {
-		return org+NUM_LOOK_FORWARD+offset;
-	} else if(  org+offset < NUM_LOOK_FORWARD  ) {
-		return org+offset;
-	} else {
-		return (org+offset)%NUM_LOOK_FORWARD;
-	}
+uint8 private_car_t::idx_in_scope(uint8 org, sint8 offset) {
+	uint8 L = welt->get_settings().get_citycar_max_look_forward();
+	return (org+L+offset)%L;
 }
 
 
@@ -347,9 +340,9 @@ private_car_t::private_car_t(loadsave_t *file) :
 	road_user_t()
 {
 	route.clear();
-	route.resize(NUM_LOOK_FORWARD);
+	route.resize(welt->get_settings().get_citycar_max_look_forward());
 	// initialize route
-	for(uint8 i=0; i<NUM_LOOK_FORWARD; i++) {
+	for(uint8 i=0; i<255; i++) {
 		route.append(koord3d::invalid);
 	}
 	reserving_tiles.clear();
@@ -369,10 +362,10 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 	desc(liste_timeline.empty() ? 0 : pick_any_weighted(liste_timeline))
 {
 	route_index = 0;
-	route.resize(NUM_LOOK_FORWARD);
+	route.resize(welt->get_settings().get_citycar_max_look_forward());
 	route.clear();
 	// initialize route
-	for(uint8 i=0; i<NUM_LOOK_FORWARD; i++) {
+	for(uint8 i=0; i<255; i++) {
 		route.append(koord3d::invalid);
 	}
 	route[0] = pos_next;
@@ -510,7 +503,7 @@ void private_car_t::rdwr(loadsave_t *file)
 	}
 	else {
 		file->rdwr_byte(route_index);
-		for(uint8 i=0; i<NUM_LOOK_FORWARD; i++) {
+		for(uint8 i=0; i<welt->get_settings().get_citycar_max_look_forward(); i++) {
 			koord3d dummy = route[i];
 			dummy.rdwr(file);
 			route[i] = dummy;
@@ -1190,6 +1183,7 @@ koord3d private_car_t::find_destination(uint8 target_index) {
 		return pos_prev2;
 	}
 
+	citycar_routing_param_t rp = welt->get_settings().get_citycar_routing_param();
 	static weighted_vector_tpl<koord3d> poslist(4);
 	poslist.clear();
 	for(uint8 r = 0; r < 4; r++) {
@@ -1238,7 +1232,7 @@ koord3d private_car_t::find_destination(uint8 target_index) {
 						next_direction &= ~ribi_t::rotate90(dir1);
 					}
 					if(  next_direction==0  ) {
-						// reduce possibility
+						// reduce probability
 						poslist.append(to->get_pos(), 1);
 						continue;
 					}
@@ -1247,14 +1241,14 @@ koord3d private_car_t::find_destination(uint8 target_index) {
 				// we prefer vacant road.
 				for(  uint8 pos=1;  pos<(volatile uint8)to->get_top();  pos++  ) {
 					if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(to->obj_bei(pos))  ) {
-						// there is a vehicle on the tile. reduce possibility.
-						poslist.append(to->get_pos(), 20);
+						// there is a vehicle on the tile. reduce probability.
+						poslist.append(to->get_pos(), rp.weight_crowded+rp.weight_speed*w->get_max_speed());
 						pos_added = true;
 						break;
 					}
 				}
 				if(  !pos_added  ) {
-					poslist.append(to->get_pos(), 100);
+					poslist.append(to->get_pos(), rp.weight_vacant+rp.weight_speed*w->get_max_speed());
 				}
 #endif
 			}
@@ -1292,8 +1286,8 @@ grund_t* private_car_t::hop_check()
 	}
 	
 	// try to find route
-	for(uint8 i=1; i<NUM_LOOK_FORWARD; i++) {
-		uint8 idx = (route_index+i)%NUM_LOOK_FORWARD;
+	for(uint8 i=1; i<welt->get_settings().get_citycar_max_look_forward(); i++) {
+		uint8 idx = (route_index+i)%welt->get_settings().get_citycar_max_look_forward();
 		if(  route[idx]!=koord3d::invalid  ) {
 			// route is already determined.
 			continue;
@@ -1327,7 +1321,7 @@ void private_car_t::hop(grund_t* to)
 {
 	leave_tile();
 
-	const koord3d pos_next_next = route[(route_index+1)%NUM_LOOK_FORWARD];
+	const koord3d pos_next_next = route[(route_index+1)%welt->get_settings().get_citycar_max_look_forward()];
 	if(pos_next_next==get_pos()) {
 		direction = calc_set_direction( pos_next, pos_next_next );
 		steps_next = 0;	// mark for starting at end of tile!
@@ -1343,7 +1337,7 @@ void private_car_t::hop(grund_t* to)
 	set_pos(pos_next);
 	// proceed route_index
 	route[route_index] = koord3d::invalid;
-	route_index = (route_index+1)%NUM_LOOK_FORWARD;
+	route_index = (route_index+1)%welt->get_settings().get_citycar_max_look_forward();
 	pos_next = route[route_index];
 	enter_tile(to,p);
 	if(to->ist_uebergang()) {
@@ -1795,7 +1789,7 @@ bool private_car_t::calc_lane_affinity(uint8 lane_affinity_sign)
 		return false;
 	}
 	// test_index starts from route_index+1 because we cannot calculate turning direction when route_index==test_index
-	for(uint8 c=1; c<NUM_LOOK_FORWARD-1; c++) {
+	for(uint8 c=1; c<welt->get_settings().get_citycar_max_look_forward()-1; c++) {
 		uint8 test_index = idx_in_scope(route_index,c);
 		if(  route[test_index]==koord3d::invalid  ) {
 			// cannot obtain coordinate

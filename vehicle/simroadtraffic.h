@@ -116,6 +116,8 @@ private:
 	void calc_disp_lane();
 	
 	bool calc_lane_affinity(uint8 lane_affinity_sign); // If true, lane fixing started.
+	
+	uint8 idx_in_scope(uint8 org, sint8 offset);
 
 protected:
 	void rdwr(loadsave_t *file);
