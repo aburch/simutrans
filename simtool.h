@@ -64,26 +64,18 @@ public:
 };
 
 // alter land height tools
-// class tool_raise_lower_base_t : public tool_t {
 class tool_raise_lower_base_t : public two_click_tool_t {
 protected:
 	bool is_dragging;
 	sint16 drag_height;
-	// [mod : shingoushori] Liberalization of ground level control v3 : tool_raise_lower 1/7
-	bool is_force;
 	bool is_area_proc;
 
 	const char* drag(player_t*, koord k, sint16 h, int &n);
 	virtual sint16 get_drag_height(koord k) = 0;
 	bool check_dragging();
 public:
-	// [mod : shingoushori] Liberalization of ground level control v3 : tool_raise_lower 2/7
-	// tool_raise_lower_base_t(uint16 id) : tool_t(id | GENERAL_TOOL), is_dragging(false), drag_height(0) { offset = Z_GRID; }
-	// tool_raise_lower_base_t(uint16 id) : tool_t(id | GENERAL_TOOL), is_dragging(false), drag_height(0), is_force(false) { offset = Z_GRID; }
-	//
-	tool_raise_lower_base_t(uint16 id) : two_click_tool_t(id | GENERAL_TOOL), is_dragging(false), drag_height(0), is_force(false), is_area_proc(false) { offset = Z_GRID; one_click = true; }
+	tool_raise_lower_base_t(uint16 id) : two_click_tool_t(id | GENERAL_TOOL), is_dragging(false), drag_height(0), is_area_proc(false) { offset = Z_GRID; one_click = true; }
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
-	//bool init(player_t*) OVERRIDE { is_dragging = false; return true; }
 	bool init(player_t* player) OVERRIDE { two_click_tool_t::init(player); is_dragging = false; return true; }
 	bool exit(player_t*) OVERRIDE { is_dragging = false; return true; }
 	/**
@@ -118,7 +110,6 @@ public:
 	tool_raise_t() : tool_raise_lower_base_t(TOOL_RAISE_LAND) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Anheben", welt->get_settings().cst_alter_land); }
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
-	//char const* work(player_t*, koord3d) OVERRIDE;
 	char const* proc(player_t*, koord3d) OVERRIDE;
 	sint16 get_drag_height(koord k) OVERRIDE;
 };
@@ -128,21 +119,14 @@ public:
 	tool_lower_t() : tool_raise_lower_base_t(TOOL_LOWER_LAND) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Absenken", welt->get_settings().cst_alter_land); }
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
-	//char const* work(player_t*, koord3d) OVERRIDE;
 	char const* proc(player_t*, koord3d) OVERRIDE;
 	sint16 get_drag_height(koord k) OVERRIDE;
 };
 
 /* slope tool definitions */
-// [mod : shingoushori] Liberalization of ground level control v2 : Dragging 4/5
-/*
 class tool_setslope_t : public tool_t {
 public:
 	tool_setslope_t() : tool_t(TOOL_SETSLOPE | GENERAL_TOOL) {}
-*/
-class tool_setslope_t : public two_click_tool_t {
-public:
-	tool_setslope_t() : two_click_tool_t(TOOL_SETSLOPE | GENERAL_TOOL) {one_click = true;}
 	/**
 	 * Create an artificial slope
 	 * @param player the player doing the task
@@ -150,18 +134,11 @@ public:
 	 * @param slope the slope type
 	 * @author Hj. Malthaner
 	 */
-	// [mod : shingoushori] Liberalization of ground level control 1/6
-	// static const char *tool_set_slope_work( player_t *player, koord3d pos, int slope);
-	static const char *tool_set_slope_work( player_t *player, koord3d pos, int slope, bool shift = false, koord3d target_pos = koord3d::invalid );
+	static const char *tool_set_slope_work( player_t *player, koord3d pos, int slope );
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Built artifical slopes", welt->get_settings().cst_set_slope); }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
-	// char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_set_slope_work(player, k, atoi(default_param)); }
-	// char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_set_slope_work(player, k, atoi(default_param), is_shift_pressed()); }
-	
-	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
-	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
-	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE;
+	char const* work(player_t* const player, koord3d const k) OVERRIDE { return tool_set_slope_work(player, k, atoi(default_param)); }
 };
 
 class tool_restoreslope_t : public tool_t {

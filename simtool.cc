@@ -815,7 +815,7 @@ const char *tool_remover_t::work( player_t *player, koord3d pos )
 
 
 const char *tool_raise_lower_base_t::move( player_t *player, uint16 buttonstate, koord3d pos )
-{printf("tool_raise_lower_base_t::move\n");
+{
 	CHECK_FUNDS();
 	if(  is_ctrl_pressed()  ){
 		is_area_proc = true;
@@ -846,7 +846,7 @@ const char *tool_raise_lower_base_t::move( player_t *player, uint16 buttonstate,
 
 
 const char* tool_raise_lower_base_t::drag(player_t *player, koord k, sint16 height, int &n)
-{printf("tool_raise_lower_base_t::drag %d %d %d\n", welt->lookup_hgt(k), height, welt->get_maximumheight());
+{
 	if(  !welt->is_within_grid_limits(k)  ) {
 		return "";
 	}
@@ -880,8 +880,6 @@ bool tool_raise_lower_base_t::check_dragging()
 	// reset dragging
 	if(  is_dragging  &&  strempty(default_param)  ) {
 		is_dragging = false;
-		// [mod : shingoushori] Liberalization of ground level control v3 : tool_raise_lower 3/7
-		is_force = false;
 		return false;
 	}
 	return true;
@@ -889,12 +887,12 @@ bool tool_raise_lower_base_t::check_dragging()
 
 const char *tool_raise_lower_base_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
-	if(  end == koord3d::invalid  ) {printf("tool_raise_lower_base_t::do_work invalid\n");
+	if(  end == koord3d::invalid  ) {
 		if(  !is_ctrl_pressed()  ){
 				is_area_proc = false;
 		}
 		return proc( player, start );
-	}printf("tool_raise_lower_base_t::do_work\n");
+	}
 
 	is_area_proc = true;
 	
@@ -913,7 +911,7 @@ const char *tool_raise_lower_base_t::do_work( player_t *player, const koord3d &s
 }
 
 void tool_raise_lower_base_t::mark_tiles(player_t *, const koord3d &start, const koord3d &end)
-{printf("tool_raise_lower_base_t::mark_tiles\n");
+{
 	if(  !is_ctrl_pressed()  ){  return;  }
 	koord k1, k2;
 	k1.x = start.x < end.x ? start.x : end.x;
@@ -946,13 +944,6 @@ void tool_raise_lower_base_t::mark_tiles(player_t *, const koord3d &start, const
 
 sint16 tool_raise_t::get_drag_height(koord k)
 {
-	// [mod : shingoushori] Liberalization of ground level control v3 : tool_raise_lower 4/7
-	if(is_shift_pressed() && grund_t::underground_mode==grund_t::ugm_level) {
-		fprintf(stderr,"set drag_height = grund_t::underground_level : %d\n",grund_t::underground_level);
-		is_force = true;
-		return grund_t::underground_level;
-	}
-
 	const grund_t *gr = welt->lookup_kartenboden_gridcoords(k);
 
 	return  gr->get_hoehe(welt->get_corner_to_operate(k)) + 1;
@@ -960,10 +951,7 @@ sint16 tool_raise_t::get_drag_height(koord k)
 
 
 const char *tool_raise_t::check_pos(player_t *, koord3d pos )
-{printf("tool_raise_t::check_pos\n");
-	// [mod : shingoushori] Liberalization of ground level control v3 : tool_raise_lower 5/7
-	if ( is_force ) { return NULL; }
-	
+{
 	// check for underground mode
 	if(  is_dragging  &&  drag_height-1 > grund_t::underground_level  ) {
 		is_dragging = false;
@@ -980,9 +968,8 @@ const char *tool_raise_t::check_pos(player_t *, koord3d pos )
 }
 
 
-//const char *tool_raise_t::work(player_t* player, koord3d pos )
 const char *tool_raise_t::proc(player_t* player, koord3d pos )
-{printf("tool_raise_t::proc\n");
+{
 	if (!check_dragging()) {
 		return NULL;
 	}
@@ -1004,11 +991,7 @@ const char *tool_raise_t::proc(player_t* player, koord3d pos )
 				err = drag(player, k, atoi(default_param), n);
 			}
 			else {
-				// [mod : shingoushori] Liberalization of ground level control v4 : one_click mountain 1/2
-				if (is_shift_pressed() && grund_t::underground_mode==grund_t::ugm_level){
-					err = drag(player, k, hgt, n);
-				} 
-				else if (is_area_proc) {
+				if (is_area_proc) {
 					if (get_start_pos() != koord3d::invalid) {
 						err = drag(player, k, get_start_pos().z, n);
 					}
@@ -1036,23 +1019,12 @@ sint16 tool_lower_t::get_drag_height(koord k)
 {
 	const grund_t *gr = welt->lookup_kartenboden_gridcoords(k);
 	
-	// [mod : shingoushori] Liberalization of ground level control v3 : tool_raise_lower 6/7
-	if(is_shift_pressed() && grund_t::underground_mode==grund_t::ugm_level) {
-		sint8 target_hgt = max(welt->get_groundwater(),welt->get_water_hgt( k ));
-		fprintf(stderr,"set drag_height = max(groundwater, water_hgt) : %d\n",target_hgt);
-		is_force = true;
-		return target_hgt;
-	}
-
 	return  gr->get_hoehe(welt->get_corner_to_operate(k)) - 1;
 }
 
 
 const char *tool_lower_t::check_pos( player_t *, koord3d pos )
 {
-	// [mod : shingoushori] Liberalization of ground level control v3 : tool_raise_lower 7/7
-	if ( is_force ) { return NULL; }
-	
 	// check for underground mode
 	if (is_dragging  &&  drag_height+1 > grund_t::underground_level) {
 		is_dragging = false;
@@ -1069,7 +1041,6 @@ const char *tool_lower_t::check_pos( player_t *, koord3d pos )
 }
 
 
-//const char *tool_lower_t::work( player_t *player, koord3d pos )
 const char *tool_lower_t::proc( player_t *player, koord3d pos )
 {
 	if (!check_dragging()) {
@@ -1091,11 +1062,7 @@ const char *tool_lower_t::proc( player_t *player, koord3d pos )
 				err = drag(player, k, atoi(default_param), n);
 			}
 			else {
-				// [mod : shingoushori] Liberalization of ground level control v4 : one_click mountain 2/2
-				if (is_shift_pressed() && grund_t::underground_mode==grund_t::ugm_level){
-					err = drag(player, k, hgt, n);
-				} 
-				else if (is_area_proc) {
+				if (is_area_proc) {
 					if (get_start_pos() != koord3d::invalid) {
 						err = drag(player, k, get_start_pos().z, n);
 					}
@@ -1149,9 +1116,7 @@ const char *tool_restoreslope_t::check_pos( player_t *, koord3d pos)
 	return NULL;
 }
 
-// [mod : shingoushori] Liberalization of ground level control 2/6
-// const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos, int new_slope )
-const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos, int new_slope, bool shift, koord3d target_pos )
+const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos, int new_slope )
 {
 	if(  !ground_desc_t::double_grounds  ) {
 		// translate old single slope parameter to new double slope
@@ -1166,7 +1131,6 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				case ALL_DOWN_SLOPE_SINGLE: new_slope = ALL_DOWN_SLOPE; break;
 				case RESTORE_SLOPE:
 				case RESTORE_SLOPE_SINGLE:  new_slope = RESTORE_SLOPE;  break;
-				case 0: break;
 				default:
 					return ""; // invalid parameter
 			}
@@ -1327,27 +1291,9 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				}
 			}
 
-			// [mod : shingoushori] Liberalization of ground level control 3/6
-			if(  new_slope != RESTORE_SLOPE ) {//if(  new_slope == ALL_DOWN_SLOPE ) {
-				// [mod : shingoushori] Liberalization of ground level control v6 : Bug Fix : stop making cliff on road ends 1/3
-				//if(shift && grund_t::underground_mode==grund_t::ugm_level) {
-				if(shift && grund_t::underground_mode==grund_t::ugm_level && !(gr1->hat_wege() || gr1->get_leitung())) {
-					fprintf(stderr,"set new_pos.z = min_neighbour_height : %d\n",min_neighbour_height);
-					new_pos.z = min_neighbour_height;
-				}
-			}
-
 			if(  water_table>new_pos.z  ||  (water_table == new_pos.z  &&  min_neighbour_height < new_pos.z)  ) {
 				// do not lower tiles when it will be below water level
-				// [mod : shingoushori] Liberalization of ground level control 4/6
-				fprintf(stderr,"do not lower tiles when it will be below water level\n");
-				// [mod : shingoushori] Liberalization of ground level control v6 : Bug Fix : stop making cliff on road ends 2/3
-				//if (shift) {
-				if (shift && !(gr1->hat_wege() || gr1->get_leitung())) {
-					water_table = new_pos.z;
-				} else {
-					return NOTICE_TILE_FULL;
-				}
+				return NOTICE_TILE_FULL;
 			}
 			welt->set_water_hgt( k, water_table );
 			water_hgt = water_table;
@@ -1355,19 +1301,6 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 		else if(  new_slope == ALL_UP_SLOPE  ) {
 			new_slope = slope_t::flat;
 			new_pos.z++;
-			// [mod : shingoushori] Liberalization of ground level control 5/6
-			// [mod : shingoushori] Liberalization of ground level control v6 : Bug Fix : stop making cliff on road ends 3/3
-			//if(shift && grund_t::underground_mode==grund_t::ugm_level) {
-			if(shift && grund_t::underground_mode==grund_t::ugm_level && !(gr1->hat_wege() || gr1->get_leitung())) {
-				fprintf(stderr,"set new_pos.z = grund_t::underground_level : %d\n",grund_t::underground_level);
-				new_pos.z = grund_t::underground_level;
-			}
-		}
-		else if(  new_slope == 0  ) {
-			new_slope = slope_t::flat;
-			if(shift && target_pos != koord3d::invalid && !(gr1->hat_wege() || gr1->get_leitung())) {
-				new_pos.z = target_pos.z;
-			}
 		}
 
 		// already some ground here (tunnel, bridge, monorail?)
@@ -1407,9 +1340,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 		// maximum difference check with tiles to north, south east and west
 		const sint8 test_hgt = hgt+(new_slope!=0);
 		
-		// [mod : shingoushori] Liberalization of ground level control 6/6
-		// if(  gr1->get_typ()==grund_t::boden  ) {
-		if(  gr1->get_typ()==grund_t::boden && !(player == welt->get_public_player() || shift)) {
+		if(  gr1->get_typ()==grund_t::boden  ) {
 			for(  sint16 i = 0 ;  i < 4 ;  i++  ) {
 				const koord neighbour = k + koord::nsew[i];
 
@@ -1550,76 +1481,6 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 	}
 	return ok ? NULL : "";
 }
-
-// [mod : shingoushori] Liberalization of ground level control v2 : Dragging 5/5
-uint8 tool_setslope_t::is_valid_pos(player_t *player, const koord3d &, const char *& error, const koord3d &)
-{
-	error = NULL;
-	// no dragging in networkmode but for admin
-	return env_t::networkmode  &&  !player->is_public_service()  ?  1 /*no dragging*/ :  2 /*dragging allowed*/;
-}
-
-void tool_setslope_t::mark_tiles(player_t *, const koord3d &start, const koord3d &end)
-{
-	koord k1, k2;
-	k1.x = start.x < end.x ? start.x : end.x;
-	k1.y = start.y < end.y ? start.y : end.y;
-	k2.x = start.x + end.x - k1.x;
-	k2.y = start.y + end.y - k1.y;
-	koord k;
-	for(  k.x = k1.x;  k.x <= k2.x;  k.x++  ) {
-		for(  k.y = k1.y;  k.y <= k2.y;  k.y++  ) {
-			grund_t *gr = welt->lookup_kartenboden( k );
-			
-			zeiger_t *marker = new zeiger_t(gr->get_pos(), NULL );
-			
-			const uint8 grund_hang = gr->get_grund_hang();
-			const uint8 weg_hang = gr->get_weg_hang();
-			const uint8 hang = max( corner_sw(grund_hang), corner_sw(weg_hang) ) + 3 * max( corner_se(grund_hang), corner_se(weg_hang) ) + 9 * max( corner_ne(grund_hang), corner_ne(weg_hang) ) + 27 * max( corner_nw(grund_hang), corner_nw(weg_hang) );
-			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
-			marker->set_foreground_image( ground_desc_t::marker->get_image( grund_hang % 27 ) );
-			marker->set_image( ground_desc_t::marker->get_image( back_hang ) );
-			
-			marker->mark_image_dirty( marker->get_image(), 0 );
-			gr->obj_add( marker );
-			marked.insert( marker );
-		}
-	}
-}
-
-const char *tool_setslope_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
-{
-	// [mod : shingoushori] Liberalization of ground level control v5 : Don't set slope to road ends when Dragging
-	if(  end == koord3d::invalid  ) {
-		koord k;
-		k.x = start.x;
-		k.y = start.y;
-		if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
-			tool_set_slope_work(player, gr->get_pos(), atoi(default_param), is_shift_pressed());
-		}
-	}
-	else {
-		koord k1, k2;
-		k1.x = start.x < end.x ? start.x : end.x;
-		k1.y = start.y < end.y ? start.y : end.y;
-		k2.x = start.x + end.x - k1.x;
-		k2.y = start.y + end.y - k1.y;
-		bool shift = is_shift_pressed();
-		koord k;
-		for(  k.x = k1.x;  k.x <= k2.x;  k.x++  ) {
-			for(  k.y = k1.y;  k.y <= k2.y;  k.y++  ) {
-				if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
-					if(  gr->hat_wege() || gr->get_leitung()  ) {
-						continue;
-					}
-					tool_set_slope_work(player, gr->get_pos(), atoi(default_param), shift);
-				}
-			}
-		}
-	}
-	return NULL;
-}
-
 
 
 
