@@ -300,6 +300,11 @@ settings_t::settings_t() :
 	server_frames_ahead = 4;
 
 	stop_at_intersection_without_traffic_light = false;
+	
+	citycar_max_look_forward = 15;
+	citycar_route_weight_crowded = 20;
+	citycar_route_weight_vacant = 100;
+	citycar_route_weight_speed = 0;
 }
 
 
@@ -819,6 +824,12 @@ void settings_t::rdwr(loadsave_t *file)
 		}
 		if(  file->get_OTRP_version() >= 14  ) {
 			file->rdwr_bool(stop_at_intersection_without_traffic_light);
+		}
+		if(  file->get_OTRP_version() >= 16  ) {
+			file->rdwr_short(citycar_max_look_forward);
+			file->rdwr_short(citycar_route_weight_crowded);
+			file->rdwr_short(citycar_route_weight_vacant);
+			file->rdwr_short(citycar_route_weight_speed);
 		}
 		// otherwise the default values of the last one will be used
 	}
@@ -1432,6 +1443,11 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	max_air_convoi_length = contents.get_int("max_air_convoi_length",max_air_convoi_length);
 
 	stop_at_intersection_without_traffic_light = contents.get_int("stop_at_intersection_without_traffic_light", stop_at_intersection_without_traffic_light);
+	
+	citycar_max_look_forward = contents.get_int("citycar_max_look_forward", citycar_max_look_forward);
+	citycar_route_weight_crowded = contents.get_int("citycar_route_weight_crowded", citycar_route_weight_crowded);
+	citycar_route_weight_vacant = contents.get_int("citycar_route_weight_vacant", citycar_route_weight_vacant);
+	citycar_route_weight_speed = contents.get_int("citycar_route_weight_speed", citycar_route_weight_speed);
 
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", "" ) );
@@ -1687,4 +1703,9 @@ void settings_t::set_player_color_to_default(player_t* const player) const
 	}
 
 	player->set_player_color( color1*8, color2*8 );
+}
+
+citycar_routing_param_t settings_t::get_citycar_routing_param() const {
+	citycar_routing_param_t r = {citycar_route_weight_crowded, citycar_route_weight_vacant, citycar_route_weight_speed};
+	return r;
 }

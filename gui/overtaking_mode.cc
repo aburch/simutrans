@@ -7,6 +7,7 @@
 #include "components/gui_button.h"
 #include "components/gui_label.h"
 #include "components/gui_divider.h"
+#include "components/gui_numberinput.h"
 #include "components/action_listener.h"
 
 #include "overtaking_mode.h"
@@ -18,30 +19,30 @@ overtaking_mode_t overtaking_mode_frame_t::overtaking_mode = twoway_mode;
 char overtaking_mode_frame_t::mode_name[6][20] = {"halt mode", "oneway", "twoway", "only loading convoi", "prohibited", "inverted"};
 
 overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_way_t* tool_, bool show_avoid_cityroad) :
-	gui_frame_t( translator::translate("set overtaking mode") )
+	gui_frame_t( translator::translate("Road Configuration") )
 {
 	tool_class = 0;
 	tool_w = tool_;
-	init(player_, tool_w->get_overtaking_mode(), tool_w->get_avoid_cityroad(), show_avoid_cityroad);
+	init(player_, tool_w->get_overtaking_mode(), tool_w->get_street_flag(), show_avoid_cityroad);
 }
 
 overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_bridge_t* tool_) :
-	gui_frame_t( translator::translate("set overtaking mode") )
+	gui_frame_t( translator::translate("Road Configuration") )
 {
 	tool_class = 1;
 	tool_b = tool_;
-	init(player_, tool_b->get_overtaking_mode(), false, false);
+	init(player_, tool_b->get_overtaking_mode(), tool_b->get_street_flag(), false);
 }
 
 overtaking_mode_frame_t::overtaking_mode_frame_t(player_t *player_, tool_build_tunnel_t* tool_) :
-	gui_frame_t( translator::translate("set overtaking mode") )
+	gui_frame_t( translator::translate("Road Configuration") )
 {
 	tool_class = 2;
 	tool_tu = tool_;
-	init(player_, tool_tu->get_overtaking_mode(), false, false);
+	init(player_, tool_tu->get_overtaking_mode(), tool_tu->get_street_flag(), false);
 }
 
-void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtaking_mode_, bool avoid_cityroad_, bool show_avoid_cityroad) {
+void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtaking_mode_, uint8 street_flag_, bool show_avoid_cityroad) {
 	player = player_;
 	overtaking_mode = overtaking_mode_;
 
@@ -63,18 +64,52 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 	if(  overtaking_mode==prohibited_mode    ) mode_button[4].pressed = true;
 	if(  overtaking_mode==inverted_mode      ) mode_button[5].pressed = true;
 
+	divider[0].set_pos( cursor );
+	divider[0].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	add_component(&divider[0]);
+	cursor.y += D_DIVIDER_HEIGHT;
+	
 	if(  tool_class==0  &&  show_avoid_cityroad  ) {
-		divider.set_pos( cursor );
-		divider.set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-		add_component(&divider);
-		cursor.y += D_DIVIDER_HEIGHT;
-
 		avoid_cityroad_button.init( button_t::square_state, "avoid becoming cityroad", cursor );
 		avoid_cityroad_button.set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 		avoid_cityroad_button.add_listener(this);
-		avoid_cityroad_button.pressed = avoid_cityroad_;
+		avoid_cityroad_button.pressed = street_flag_&strasse_t::AVOID_CITYROAD;
 		add_component(&avoid_cityroad_button);
 		cursor.y += avoid_cityroad_button.get_size().h + D_V_SPACE;
+	}
+	
+	citycar_no_entry_button.init( button_t::square_state, "citycars do not enter", cursor );
+	citycar_no_entry_button.set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+	citycar_no_entry_button.add_listener(this);
+	citycar_no_entry_button.pressed = street_flag_&strasse_t::CITYCAR_NO_ENTRY;
+	add_component(&citycar_no_entry_button);
+	cursor.y += citycar_no_entry_button.get_size().h + D_V_SPACE;
+	
+	if(  tool_class==0  &&  !show_avoid_cityroad  ) {
+		// the way is elevated.
+		divider[1].set_pos( cursor );
+		divider[1].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+		add_component(&divider[1]);
+		cursor.y += D_DIVIDER_HEIGHT;
+		
+		/*
+		use_designated_height_button.init( button_t::square_state, "use designated height", cursor );
+		use_designated_height_button.set_width( L_DIALOG_WIDTH - D_MARGINS_X );
+		use_designated_height_button.add_listener(this);
+		use_designated_height_button.pressed = false;
+		add_component(&use_designated_height_button);
+		cursor.y += use_designated_height_button.get_size().h + D_V_SPACE;
+		
+		// TODO: set value and limit correctly!
+		construction_height.set_pos( cursor );
+		construction_height.set_size( scr_size(52, D_EDIT_HEIGHT) );
+		construction_height.set_limits( 1, 64 );
+		construction_height.set_value( 0 );
+		construction_height.wrap_mode( false );
+		construction_height.add_listener( this );
+		add_component( &construction_height );
+		cursor.y += construction_height.get_size().h + D_V_SPACE;
+		*/
 	}
 	
 	set_windowsize( scr_size( L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
@@ -103,7 +138,22 @@ bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, valu
 		num = 5;
 	}else if(  komp==&avoid_cityroad_button  ) {
 		avoid_cityroad_button.pressed = !(avoid_cityroad_button.pressed);
-	}else{
+	}
+	else if(  komp==&citycar_no_entry_button  ) {
+		citycar_no_entry_button.pressed = !(citycar_no_entry_button.pressed);
+	}
+	else if(  komp==&use_designated_height_button  ) {
+		use_designated_height_button.pressed = !(use_designated_height_button.pressed);
+		if(  use_designated_height_button.pressed  ) {
+			env_t::cursor_height = construction_height.get_value();
+		} else {
+			env_t::cursor_height = 999;
+		}
+	}
+	else if(  komp==&construction_height  ) {
+		env_t::cursor_height = construction_height.get_value();
+	}
+	else{
 		return false;
 	}
 	if(num!=-1) {
@@ -115,16 +165,21 @@ bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, valu
 			}
 		}
 	}
+	uint8 flag = 0;
+	if(  avoid_cityroad_button.pressed  ) { flag |= strasse_t::AVOID_CITYROAD; }
+	if(  citycar_no_entry_button.pressed  ) { flag |= strasse_t::CITYCAR_NO_ENTRY; }
 	switch(  tool_class  ) {
 		case 0:
 		tool_w->set_overtaking_mode(overtaking_mode);
-		tool_w->set_avoid_cityroad(avoid_cityroad_button.pressed);
+		tool_w->set_street_flag(flag);
 		break;
 		case 1:
 		tool_b->set_overtaking_mode(overtaking_mode);
+		tool_b->set_street_flag(flag);
 		break;
 		case 2:
 		tool_tu->set_overtaking_mode(overtaking_mode);
+		tool_tu->set_street_flag(flag);
 		break;
 		default:
 		assert(false);

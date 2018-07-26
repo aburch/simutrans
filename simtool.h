@@ -276,7 +276,7 @@ protected:
 	const way_desc_t *desc;
 	overtaking_mode_t overtaking_mode;
 	bool look_toolbar = false;
-	bool avoid_cityroad;
+	uint8 street_flag;
 
 	virtual way_desc_t const* get_desc(uint16, bool) const;
 	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
@@ -285,7 +285,7 @@ protected:
 public:
 	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), desc() {
 		overtaking_mode = twoway_mode;
-		avoid_cityroad = false;
+		street_flag = 0;
 	 }
 	image_id get_icon(player_t*) const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE;
@@ -302,10 +302,11 @@ public:
 	bool remove_preview_necessary() const OVERRIDE { return !is_first_click()  &&  (desc  &&  (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt)); }
 	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode = ov; }
 	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode; }
-	void set_avoid_cityroad(bool a) { avoid_cityroad = a; }
-	bool get_avoid_cityroad() const { return avoid_cityroad; }
+	void set_street_flag (uint8 a) { street_flag = a; }
+	uint8 get_street_flag() const { return street_flag; }
 	static void set_mode_str(char* str, overtaking_mode_t overtaking_mode);
 	void set_look_toolbar() { look_toolbar = true; }
+	static uint8 get_flag_color(uint8 flag);
 };
 
 class tool_build_cityroad : public tool_build_way_t {
@@ -324,6 +325,7 @@ class tool_build_bridge_t : public two_click_tool_t {
 private:
 	ribi_t::ribi ribi;
 	overtaking_mode_t overtaking_mode;
+	uint8 street_flag;
 
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
@@ -345,11 +347,14 @@ public:
 	void draw_after(scr_coord, bool dirty) const OVERRIDE;
 	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode = ov; }
 	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode; }
+	void set_street_flag (uint8 a) { street_flag = a; }
+	uint8 get_street_flag() const { return street_flag; }
 };
 
 class tool_build_tunnel_t : public two_click_tool_t {
 private:
 	overtaking_mode_t overtaking_mode;
+	uint8 street_flag;
 
 	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d &);
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
@@ -371,6 +376,8 @@ public:
 	void draw_after(scr_coord, bool dirty) const OVERRIDE;
 	void set_overtaking_mode(overtaking_mode_t ov) { overtaking_mode = ov; }
 	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode; }
+	void set_street_flag (uint8 a) { street_flag = a; }
+	uint8 get_street_flag() const { return street_flag; }
 };
 
 class tool_wayremover_t : public two_click_tool_t {

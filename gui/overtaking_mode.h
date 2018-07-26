@@ -12,6 +12,7 @@
 class button_t;
 class gui_label_t;
 class gui_divider_t;
+class gui_numberinput_t;
 class tool_build_way_t;
 class tool_build_bridge_t;
 class tool_build_tunnel_t;
@@ -28,9 +29,12 @@ private:
 	tool_build_tunnel_t* tool_tu;
 	uint8 tool_class; // 0:way, 1:bridge, 2:tunnel
 	button_t mode_button[6];
-	gui_divider_t divider;
+	gui_divider_t divider[2];
 	button_t avoid_cityroad_button;
-	void init(player_t *player, overtaking_mode_t overtaking_mode, bool avoid_cityroad, bool show_avoid_cityroad);
+	button_t citycar_no_entry_button;
+	button_t use_designated_height_button;
+	gui_numberinput_t construction_height;
+	void init(player_t *player, overtaking_mode_t overtaking_mode, uint8 street_flag, bool show_avoid_cityroad);
 
 public:
 	overtaking_mode_frame_t( player_t *, tool_build_way_t *, bool );

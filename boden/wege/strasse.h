@@ -20,7 +20,9 @@ public:
 	static bool show_reservations;
 	
 	enum {
-		AVOID_CITYROAD   = 0x01 // When this flag is enabled, this street avoid becoming cityroad.
+		AVOID_CITYROAD   = 0x01, // this street avoid becoming cityroad.
+		CITYCAR_NO_ENTRY = 0x02, // citycar cannot enter this road.
+		USE_GIVEN_HEIGHT = 0x04  // this flag is used only for construction
 	};
 
 private:
@@ -129,8 +131,12 @@ public:
 	void unreserve_all();
 	bool is_reserved_by_others(vehicle_base_t* r, bool is_overtaking, koord3d pos_prev, koord3d pos_next);
 	
+	uint8 get_street_flag() const { return street_flags; }
+	void set_street_flag(uint8 s) { street_flags = s; }
 	bool get_avoid_cityroad() const { return street_flags&AVOID_CITYROAD; }
 	void set_avoid_cityroad(bool s) { s ? street_flags |= AVOID_CITYROAD : street_flags &= ~AVOID_CITYROAD; }
+	bool get_citycar_no_entry() const { return street_flags&CITYCAR_NO_ENTRY; }
+	void set_citycar_no_entry(bool s) { s ? street_flags |= CITYCAR_NO_ENTRY : street_flags &= ~CITYCAR_NO_ENTRY; }
 
 };
 

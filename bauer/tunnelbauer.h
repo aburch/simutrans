@@ -30,8 +30,8 @@ class tunnel_builder_t {
 private:
 	static karte_ptr_t welt;
 
-	static bool build_tunnel(player_t *player, koord3d pos, koord3d end, koord zv, const tunnel_desc_t *desc, overtaking_mode_t overtaking_mode);
-	static void build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, int &cost, overtaking_mode_t overtaking_mode, bool beginning);
+	static bool build_tunnel(player_t *player, koord3d pos, koord3d end, koord zv, const tunnel_desc_t *desc, overtaking_mode_t overtaking_mode, uint8 street_flag);
+	static void build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, int &cost, overtaking_mode_t overtaking_mode, uint8 street_flag, bool beginning);
 
 	tunnel_builder_t() {} // private -> no instance please
 
@@ -50,7 +50,7 @@ public:
 	 */
 	static const vector_tpl<const tunnel_desc_t *>& get_available_tunnels(const waytype_t wtyp);
 
-	static const char *build( player_t *player, koord pos, const tunnel_desc_t *desc, bool full_tunnel, overtaking_mode_t overtaking_mode );
+	static const char *build( player_t *player, koord pos, const tunnel_desc_t *desc, bool full_tunnel, overtaking_mode_t overtaking_mode, uint8 street_flag );
 
 	static const char *remove(player_t *player, koord3d pos, waytype_t wegtyp, bool all);
 };

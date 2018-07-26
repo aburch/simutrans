@@ -270,6 +270,10 @@ void weg_t::info(cbuffer_t & buf) const
 			// only display this when this way is ground way.
 			buf.printf("%s %s\n", translator::translate("Can be cityroad:"),str->get_avoid_cityroad()?translator::translate("No"):translator::translate("Yes"));
 		}
+		
+		if(  str->get_citycar_no_entry()  ) {
+			buf.printf("%s\n", translator::translate("Citycars are excluded."));
+		}
 
 		if(  ribi_t::is_threeway(get_ribi_unmasked())  &&  welt->get_settings().get_stop_at_intersection_without_traffic_light()  ) {
 			if(  str->get_prior_direction()==ribi_t::northsouth  ) {

@@ -4,13 +4,13 @@ OTRP means Oneway Twoway Road Patch. The simutrans standard uses only one lane w
 
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 
-As of version 15, OTRP is based on simutrans standard nightly r8546.
+As of version 16, OTRP is based on simutrans standard nightly r8548.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.
-You can download the OTRP executable binary from the links below. **(2018 July 18th, updated to ver 15_1.)**  
-windows: https://drive.google.com/open?id=19n9Pr-gdQ-NHwW8kAudP-QOZBUvoh3c2  
-mac: https://drive.google.com/open?id=1VFpDx82BBc6LZ16EL8KLH7j2u3mPG-9u  
+You can download the OTRP executable binary from the links below. **(2018 July 25th, updated to ver 16.)**  
+windows: https://drive.google.com/open?id=1_YoFwRfSHyCclt5xnDYUVVvfjGKHPHp9  
+mac: https://drive.google.com/open?id=1G1SXhv6omGGXOALua2N0afuxhNT-6mCM  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 OTRP does not provide specialized makeobj. Please use one of simutrans standard.
 
@@ -23,19 +23,27 @@ Please make sure not to overwrite your sve file of simutrans standard.
 
 # How to use
 Sorry, this section is still under construction.
-## overtaking mode
+## Road Configuration
 ![fig1](images/fig1.png)  
-Select a road icon **with holding a Ctrl key**, then you can select the overtaking mode.
-- oneway:
-- halt mode:
+Select a road icon **with holding a Ctrl key**, then you can configure the road.
+
+~overtaking mode~
+- oneway: Road is oneway and vehicles can overtake others under the relaxed condition.
+- halt mode: The behavior is same as oneway, except that the vehicle can load passenger on passing lane.
 - twoway: Vehicles behaves as in simutrans standard.
 - only loading convoy: Vehicles overtake only a stopping vehicle.
 - prohibited: All overtaking is prohibited.
 - inverted: Lane is reversed.
+----
+~others~
+- avoid becoming cityroad: When this option is enabled, the road never becomes a cityroad.
+- citycars do not enter: Citycars are prohibited to enter this road.
 
-For ground road, "avoid becoming cityroad" option is available. When you enable this option, the road never become a cityroad.
-
-The connected directions of the road can be checked by the colon key or using the display option in the display settings. Roads that "avoid becoming cityroad" option is enabled for are displayed green.
+### Road configuration check tool
+With holding the colon key, connected directions of roads can be checked with the arrow. This feature is available also through the display settings. If some options are enabled on the road, the color changes as follows:
+- avoid becoming citycar enabled -> Green
+- citycars do not enter enabled -> Magenda
+- Both are enabled -> Orange
 
 ## lane affinity signs
 As the amount of traffic increases, traffic jam at a junction like the image below can be often seen.  
@@ -45,6 +53,11 @@ As the amount of traffic increases, traffic jam at a junction like the image bel
 - The income/cost message can be turned off in the display settings  or by assigning a key to simple_tool[38].
 - To realize smooth traffic in an intersection, vehicles reserve tiles in the intersection. With b key, you can check and cancel the reservation of road.
 - Use "make halt public" tool with the shift key, and the halt belongs to the current activated player. With the control key, this operation can be done with no cost.
+
+# Parameters of OTRP
+Most of these are stored in the game.
+- **citycar_max_look_forward** : define the distance for which citycars determine their route.
+- **citycar_route_weight_crowded**, **citycar_route_weight_vacant**, **citycar_route_weight_speed** : parameters for calculating citycars' route.
 
 # Compatibility
 ## Compatibility of Add-ons

@@ -244,6 +244,11 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "way_tunnel", sets->way_count_tunnel, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "way_max_bridge_len", sets->way_max_bridge_len, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "way_leaving_road", sets->way_count_leaving_road, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	SEPERATOR
+	INIT_NUM( "citycar_max_look_forward", sets->citycar_max_look_forward, 5, 250, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "citycar_route_weight_crowded", sets->citycar_route_weight_crowded, 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "citycar_route_weight_vacant", sets->citycar_route_weight_vacant, 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "citycar_route_weight_speed", sets->citycar_route_weight_speed, -100, 100, gui_numberinput_t::AUTOLINEAR, false );
 
 	clear_dirty();
 	height = ypos;
@@ -271,6 +276,11 @@ void settings_routing_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->way_count_tunnel );
 	READ_NUM_VALUE( sets->way_max_bridge_len );
 	READ_NUM_VALUE( sets->way_count_leaving_road );
+	// routing of citycars
+	READ_NUM_VALUE( sets->citycar_max_look_forward );
+	READ_NUM_VALUE( sets->citycar_route_weight_crowded );
+	READ_NUM_VALUE( sets->citycar_route_weight_vacant );
+	READ_NUM_VALUE( sets->citycar_route_weight_speed );
 }
 
 
