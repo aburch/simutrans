@@ -1108,6 +1108,7 @@ const char *two_click_tool_t::work(player_t *player, koord3d pos )
 	}
 
 	if(  is_first_click()  ) {
+		// [mod : shingoushori] Liberalization of ground level control v2 : Dragging 3/5
 		// For co-existence with one_click mode
 		if (one_click) {
 			return do_work( player, pos, koord3d::invalid );
