@@ -117,7 +117,9 @@ private:
 	
 	bool calc_lane_affinity(uint8 lane_affinity_sign); // If true, lane fixing started.
 	
-	uint8 idx_in_scope(uint8 org, sint8 offset);
+	uint8 idx_in_scope(uint8 org, sint8 offset) const;
+	
+	bool is_rerouting_needed() const;
 
 protected:
 	void rdwr(loadsave_t *file);

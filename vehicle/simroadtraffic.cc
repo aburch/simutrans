@@ -234,7 +234,7 @@ void road_user_t::finish_rd()
 
 
 // this function returns an index value that matches to scope.
-uint8 private_car_t::idx_in_scope(uint8 org, sint8 offset) {
+uint8 private_car_t::idx_in_scope(uint8 org, sint8 offset) const {
 	uint8 L = welt->get_settings().get_citycar_max_look_forward();
 	return (org+L+offset)%L;
 }
@@ -542,14 +542,21 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 		return false;
 	}
 	
+	const strasse_t* current_str = (strasse_t*)(welt->lookup(get_pos())->get_weg(road_wt));
+	const uint8 current_direction90 = ribi_type(get_pos(), pos_next);
+	if(  !current_str  ||  (current_str->get_ribi()&current_direction90)==0  ) {
+		// this car can no longer go to the next tile.
+		time_to_life = 0;
+		return false;
+	}
+	
 	// first: check roadsigns
 	const roadsign_t *rs = NULL;
 	if(  str->has_sign()  ) {
 		rs = gr->find<roadsign_t>();
 		const roadsign_desc_t* rs_desc = rs->get_desc();
-		const uint8 direction90 = ribi_type(get_pos(), pos_next);
-		if(rs_desc->is_traffic_light()  &&  (rs->get_dir()&direction90)==0) {
-			direction = direction90;
+		if(rs_desc->is_traffic_light()  &&  (rs->get_dir()&current_direction90)==0) {
+			direction = current_direction90;
 			calc_image();
 			// wait here
 			current_speed = 48;
@@ -559,7 +566,6 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 	}
 
 	const koord3d pos_next_next = route[idx_in_scope(route_index,1)];
-	const strasse_t* current_str = (strasse_t*)(welt->lookup(get_pos())->get_weg(road_wt));
 	
 	// At an intersection, decide whether the convoi should go on passing lane.
 	// side road -> main road from passing lane side: vehicle should enter passing lane on main road.
@@ -1286,10 +1292,18 @@ grund_t* private_car_t::hop_check()
 		return NULL;
 	}
 	
+	// should re-route?
+	bool rerouting_needed = is_rerouting_needed();
+	if(  rerouting_needed  ) {
+		// reconstruct the route. some parameters are no longer valid.
+		lane_affinity = 0;
+		yielding_quit_index = -1;
+	}
+	
 	// try to find route
 	for(uint8 i=1; i<welt->get_settings().get_citycar_max_look_forward(); i++) {
 		uint8 idx = (route_index+i)%welt->get_settings().get_citycar_max_look_forward();
-		if(  route[idx]!=koord3d::invalid  ) {
+		if(  route[idx]!=koord3d::invalid  &&  !rerouting_needed  ) {
 			// route is already determined.
 			continue;
 		}
@@ -1875,4 +1889,37 @@ void private_car_t::yield_lane_space() {
 	if(  get_speed_limit() > kmh_to_speed(20)  &&  route[idx_in_scope(route_index,3)]!=koord3d::invalid  ) {
 		yielding_quit_index = idx_in_scope(route_index,3);
 	}
+}
+
+bool private_car_t::is_rerouting_needed() const{
+	// check pos_next_next is valid seeing ribi.
+	// NOTE: we can't recalculate pos_next.
+	const koord3d pos_next_next = route[idx_in_scope(route_index,1)];
+	if(  pos_next_next==koord3d::invalid  ) {
+		// this car is to be destroyed...
+		return false;
+	}
+	grund_t* gr_n = welt->lookup(pos_next);
+	strasse_t* str_n = gr_n ? (strasse_t*)(gr_n->get_weg(road_wt)) : NULL;
+	ribi_t::ribi dir = ribi_type(pos_next, pos_next_next);
+	if(  !str_n  ) {
+		// rerouting is impossible...
+		return false;
+	}
+	ribi_t::ribi back = ribi_type(pos_next, get_pos());
+	if(  !ribi_t::is_single(str_n->get_ribi()&~back)  &&  (ms_traffic_jam>>11)>0  ) {
+		// the car is in traffic jam and has a chance to escape!
+		return true;
+	}
+	if(  (str_n->get_ribi()&dir)==0  ) {
+		// ribi is not appropriate. The route should be re-calculated.
+		return true;
+	}
+	grund_t* gr_nn = welt->lookup(pos_next_next);
+	strasse_t* str_nn = gr_nn ? (strasse_t*)(gr_nn->get_weg(road_wt)) : NULL;
+	if(  !str_nn  ||  str_nn->get_citycar_no_entry()  ) {
+		// street on pos_next_next is destroyed or the street prohibits citycars!
+		return true;
+	}
+	return false;
 }
