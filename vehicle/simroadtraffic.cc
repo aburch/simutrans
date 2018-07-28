@@ -1240,9 +1240,10 @@ koord3d private_car_t::find_destination(uint8 target_index) {
 				bool pos_added = false;
 				// we prefer vacant road.
 				for(  uint8 pos=1;  pos<(volatile uint8)to->get_top();  pos++  ) {
-					if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(to->obj_bei(pos))  ) {
-						// there is a vehicle on the tile. reduce probability.
-						poslist.append(to->get_pos(), rp.weight_crowded+rp.weight_speed*w->get_max_speed());
+					vehicle_base_t* const v = dynamic_cast<vehicle_base_t*>(to->obj_bei(pos));
+					if(  v  &&  v->is_stuck()  ) {
+						// there is a stucked car on the tile. reduce possibility.
+						poslist.append(to->get_pos(), rp.weight_crowded);
 						pos_added = true;
 						break;
 					}
