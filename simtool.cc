@@ -818,17 +818,17 @@ const char *tool_raise_lower_base_t::move( player_t *player, uint16 buttonstate,
 {
 	CHECK_FUNDS();
 	if(  is_ctrl_pressed()  ){
-		is_area_proc = true;
+		is_area_process = true;
 		return two_click_tool_t::move(player,buttonstate,pos);
 	}
 	const char *result = NULL;
 	if(  buttonstate==1  ) {
 		char buf[16];
-		if(!is_dragging && !is_area_proc) {
+		if(!is_dragging && !is_area_process) {
 			drag_height = get_drag_height(pos.get_2d());
 		}
 		is_dragging = true;
-		is_area_proc = false;
+		is_area_process = false;
 		sprintf( buf, "%i", drag_height );
 		default_param = buf;
 		if (env_t::networkmode) {
@@ -889,12 +889,12 @@ const char *tool_raise_lower_base_t::do_work( player_t *player, const koord3d &s
 {
 	if(  end == koord3d::invalid  ) {
 		if(  !is_ctrl_pressed()  ){
-				is_area_proc = false;
+				is_area_process = false;
 		}
-		return proc( player, start );
+		return process( player, start );
 	}
 
-	is_area_proc = true;
+	is_area_process = true;
 	
 	int dx = (start.x < end.x) ? 1 : -1;
 	int dy = (start.y < end.y) ? 1 : -1;
@@ -902,7 +902,7 @@ const char *tool_raise_lower_base_t::do_work( player_t *player, const koord3d &s
 	for(  k.x=start.x;  k.x!=(end.x+dx);  k.x+=dx  ) {
 		for(  k.y=start.y;  k.y!=(end.y+dy);  k.y+=dy  ) {
 			if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
-				proc(player, gr->get_pos() );
+				process(player, gr->get_pos() );
 			}
 		}
 	}
@@ -968,7 +968,7 @@ const char *tool_raise_t::check_pos(player_t *, koord3d pos )
 }
 
 
-const char *tool_raise_t::proc(player_t* player, koord3d pos )
+const char *tool_raise_t::process(player_t* player, koord3d pos )
 {
 	if (!check_dragging()) {
 		return NULL;
@@ -991,7 +991,7 @@ const char *tool_raise_t::proc(player_t* player, koord3d pos )
 				err = drag(player, k, atoi(default_param), n);
 			}
 			else {
-				if (is_area_proc) {
+				if (is_area_process) {
 					if (get_start_pos() != koord3d::invalid) {
 						err = drag(player, k, get_start_pos().z, n);
 					}
@@ -1041,7 +1041,7 @@ const char *tool_lower_t::check_pos( player_t *, koord3d pos )
 }
 
 
-const char *tool_lower_t::proc( player_t *player, koord3d pos )
+const char *tool_lower_t::process( player_t *player, koord3d pos )
 {
 	if (!check_dragging()) {
 		return NULL;
@@ -1062,7 +1062,7 @@ const char *tool_lower_t::proc( player_t *player, koord3d pos )
 				err = drag(player, k, atoi(default_param), n);
 			}
 			else {
-				if (is_area_proc) {
+				if (is_area_process) {
 					if (get_start_pos() != koord3d::invalid) {
 						err = drag(player, k, get_start_pos().z, n);
 					}

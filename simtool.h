@@ -68,13 +68,13 @@ class tool_raise_lower_base_t : public two_click_tool_t {
 protected:
 	bool is_dragging;
 	sint16 drag_height;
-	bool is_area_proc;
+	bool is_area_process;
 
 	const char* drag(player_t*, koord k, sint16 h, int &n);
 	virtual sint16 get_drag_height(koord k) = 0;
 	bool check_dragging();
 public:
-	tool_raise_lower_base_t(uint16 id) : two_click_tool_t(id | GENERAL_TOOL), is_dragging(false), drag_height(0), is_area_proc(false) { offset = Z_GRID; one_click = true; }
+	tool_raise_lower_base_t(uint16 id) : two_click_tool_t(id | GENERAL_TOOL), is_dragging(false), drag_height(0), is_area_process(false) { offset = Z_GRID; one_click = true; }
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
 	bool init(player_t* player) OVERRIDE { two_click_tool_t::init(player); is_dragging = false; return true; }
 	bool exit(player_t*) OVERRIDE { is_dragging = false; return true; }
@@ -99,7 +99,7 @@ public:
 
 	bool update_pos_after_use() const OVERRIDE { return true; }
 
-	virtual char const* proc(player_t* player, koord3d pos) { return ""; }
+	virtual char const* process(player_t* player, koord3d pos) { return ""; }
 	char const* do_work(player_t* player, koord3d const&, koord3d const& pos) OVERRIDE ;
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE {return 2;};
@@ -110,7 +110,7 @@ public:
 	tool_raise_t() : tool_raise_lower_base_t(TOOL_RAISE_LAND) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Anheben", welt->get_settings().cst_alter_land); }
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
-	char const* proc(player_t*, koord3d) OVERRIDE;
+	char const* process(player_t*, koord3d) OVERRIDE;
 	sint16 get_drag_height(koord k) OVERRIDE;
 };
 
@@ -119,7 +119,7 @@ public:
 	tool_lower_t() : tool_raise_lower_base_t(TOOL_LOWER_LAND) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return tooltip_with_price("Absenken", welt->get_settings().cst_alter_land); }
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
-	char const* proc(player_t*, koord3d) OVERRIDE;
+	char const* process(player_t*, koord3d) OVERRIDE;
 	sint16 get_drag_height(koord k) OVERRIDE;
 };
 
