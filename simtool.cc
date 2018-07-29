@@ -887,11 +887,21 @@ bool tool_raise_lower_base_t::check_dragging()
 
 const char *tool_raise_lower_base_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
+	if(  is_first_click() && is_ctrl_pressed()  ) {
+		init(player);
+		one_click = false;
+		koord3d newstart = start;
+		start_at( newstart );
+		is_area_process = true;
+		return NULL;
+	}
+	one_click = true;
 	if(  end == koord3d::invalid  ) {
 		if(  !is_ctrl_pressed()  ){
-				is_area_process = false;
+			is_area_process = false;
 		}
-		return process( player, start );
+		process( player, start );
+		return NULL;
 	}
 
 	is_area_process = true;

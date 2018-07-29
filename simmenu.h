@@ -356,7 +356,6 @@ public:
 	two_click_tool_t(uint16 const id) : tool_t(id) {
 		MEMZERO(start_marker);
 		first_click_var = true;
-		// [mod : shingoushori] Liberalization of ground level control v2 : Dragging 1/5
 		// For co-existence with one_click mode
 		one_click = false;
 	}
@@ -426,7 +425,6 @@ protected:
 
 	slist_tpl< zeiger_t* > marked;
 
-	// [mod : shingoushori] Liberalization of ground level control v2 : Dragging 2/5
 	// For co-existence with one_click mode
 	bool one_click;
 };
