@@ -3149,6 +3149,17 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 						return;
 					}
 				}
+
+				// Checking this halt's tiles did not work. Try a reverse check.
+				minivec_tpl<const planquadrat_t*> const &tile_list = gb->get_tiles();
+				FOR(minivec_tpl<const planquadrat_t*>, const& current_tile, tile_list)
+				{
+					if (current_tile->is_connected(self))
+					{
+						add_to_waiting_list(ware, calc_ready_time(ware, true));
+						return;
+					}
+				}
 			}
 		}
 	}

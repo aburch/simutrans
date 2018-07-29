@@ -6378,9 +6378,9 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #endif
 			{
 				/**
-					* If the passengers have no private car, are not in reach of any public transport
-					* facilities and the journey is too long on foot, do not continue to check other things.
-					*/
+				* If the passengers have no private car, are not in reach of any public transport
+				* facilities and the journey is too long on foot, do not continue to check other things.
+				*/
 				if (n < destination_count + extend_count - 1)
 				{
 					current_destination = find_destination(trip, pax.get_class());
