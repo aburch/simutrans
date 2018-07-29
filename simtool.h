@@ -434,16 +434,16 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
 
-class tool_build_station_t : public tool_t {
-private:
+class tool_build_station_t : public two_click_tool_t {
+  private:
 	const char *tool_station_building_aux(player_t *, bool, koord3d, const building_desc_t *, sint8 rotation );
 	const char *tool_station_dock_aux(player_t *, koord3d, const building_desc_t * );
 	const char *tool_station_flat_dock_aux(player_t *, koord3d, const building_desc_t *, sint8 );
 	const char *tool_station_aux(player_t *, koord3d, const building_desc_t *, waytype_t, const char *halt_suffix );
 	const building_desc_t *get_desc( sint8 &rotation ) const;
-
-public:
-	tool_build_station_t() : tool_t(TOOL_BUILD_STATION | GENERAL_TOOL) {}
+	
+  public:
+	tool_build_station_t() : two_click_tool_t(TOOL_BUILD_STATION | GENERAL_TOOL) {one_click = true;}
 	image_id get_icon(player_t*) const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
@@ -453,6 +453,11 @@ public:
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
+	
+	char const* process(player_t*, koord3d) ;
+	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE {return 2;};
 };
 
 class tool_rotate_building_t : public tool_t {
