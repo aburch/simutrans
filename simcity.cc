@@ -2756,29 +2756,30 @@ static koord const neighbors[] = {
 };
 
 
-bool stadt_t::process_city_street(grund_t& gr, const way_desc_t* cr)
+// updates one surrounding road with current city road
+bool update_city_street(koord pos)
 {
-	strasse_t* const weg = (strasse_t*)(gr.get_weg(road_wt));
-	if(  weg == NULL  ) {
-		return false;
-	}
-	if(  weg->get_avoid_cityroad()  ) {
-		// This road avoid becoming cityroad.
-		return false;
-	}
-	// Check if any changes are needed.
-	if(  !weg->hat_gehweg() || weg->get_desc() != cr ){
-		player_t *sp = weg->get_owner();
-		if( sp != NULL ){
-			player_t::add_maintenance(sp, -weg->get_desc()->get_maintenance(), road_wt);
-			weg->set_owner(NULL); // make public
+	const way_desc_t* cr = world()->get_city_road();
+	for(  int i=0;  i<8;  i++  ) {
+		if(  grund_t *gr = world()->lookup_kartenboden(pos+neighbors[i])  ) {
+			if(  strasse_t* const weg = (strasse_t*)(gr->get_weg(road_wt))  ) {
+				// Check if any changes are needed.
+				if(  !weg->get_avoid_cityroad()  &&  (!weg->hat_gehweg()  ||  weg->get_desc() != cr)  ) {
+					player_t *sp = weg->get_owner();
+					if(  sp  ){
+						player_t::add_maintenance(sp, -weg->get_desc()->get_maintenance(), road_wt);
+						weg->set_owner(NULL); // make public
+					}
+					weg->set_gehweg(true);
+					weg->set_desc(cr);
+					gr->calc_image();
+					reliefkarte_t::get_karte()->calc_map_pixel(pos+neighbors[i]);
+					return true;	// update only one road per renovation
+				}
+			}
 		}
-		weg->set_gehweg(true);
-		weg->set_desc(cr);
-		gr.calc_image();
-		reliefkarte_t::get_karte()->calc_map_pixel(gr.get_pos().get_2d());
 	}
-	return true;
+	return false;
 }
 
 
@@ -2832,7 +2833,7 @@ int stadt_t::orient_city_building(const koord k, const building_desc_t *h )
 			for(  int i = 0;  i < 4;  i++  ) {
 				// Neighbors goes through these in 'preferred' order, orthogonal first
 				gr = welt->lookup_kartenboden(k + neighbors[i]);
-				if(  gr  &&  gr->get_weg_hang() == gr->get_grund_hang()  &&  process_city_street(*gr, welt->get_city_road())  ){
+				if(  gr  &&  gr->get_weg_hang() == gr->get_grund_hang()  &&  gr->hat_weg(road_wt)  ){
 					streetdir += (1 << i);
 				}
 			}
@@ -2961,6 +2962,7 @@ void stadt_t::build_city_building(const koord k)
 		const gebaeude_t* gb = hausbauer_t::build(NULL, pos, rotation, h);
 		add_gebaeude_to_stadt(gb);
 	}
+	update_city_street(k);
 }
 
 
@@ -3066,7 +3068,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 			for(  int i = 0;  i < 4;  i++  ) {
 				// Neighbors goes through these in 'preferred' order, orthogonal first
 				grund_t *gr = welt->lookup_kartenboden(k + neighbors[i]);
-				if(  gr  &&  gr->get_weg_hang() == gr->get_grund_hang()  &&  process_city_street(*gr, welt->get_city_road())  ){
+				if(  gr  &&  gr->get_weg_hang() == gr->get_grund_hang()  &&  gr->hat_weg(road_wt)  ){
 					streetdir += (1 << i);
 				}
 			}
@@ -3079,7 +3081,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 				for(  int i = 4;  i < 8;  i++  ) {
 					// Neighbors goes through these in 'preferred' order, orthogonal first
 					grund_t *gr = welt->lookup_kartenboden(k + neighbors[i]);
-					if(  gr  &&  gr->get_weg_hang() == gr->get_grund_hang()  &&  process_city_street(*gr, welt->get_city_road())  ){
+					if(  gr  &&  gr->get_weg_hang() == gr->get_grund_hang()  &&  gr->hat_weg(road_wt)  ) {
 						rotation = i;
 						count ++;
 					}
@@ -3115,6 +3117,7 @@ void stadt_t::renovate_city_building(gebaeude_t *gb)
 		gb->set_tile( h->get_tile(rotation, 0, 0), true );
 		welt->lookup_kartenboden(k)->calc_image();
 		update_gebaeude_from_stadt(gb);
+		update_city_street(k);
 
 		switch(want_to_have) {
 			case building_desc_t::city_res: won += h->get_level() * 10; break;

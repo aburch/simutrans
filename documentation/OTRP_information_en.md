@@ -4,13 +4,13 @@ OTRP means Oneway Twoway Road Patch. The simutrans standard uses only one lane w
 
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 
-As of version 16, OTRP is based on simutrans standard nightly r8548.
+As of version 16_1, OTRP is based on simutrans standard nightly r8549.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.
-You can download the OTRP executable binary from the links below. **(2018 July 25th, updated to ver 16.)**  
-windows: https://drive.google.com/open?id=1_YoFwRfSHyCclt5xnDYUVVvfjGKHPHp9  
-mac: https://drive.google.com/open?id=1G1SXhv6omGGXOALua2N0afuxhNT-6mCM  
+You can download the OTRP executable binary from the links below. **(2018 July 28th, updated to ver 16_1.)**  
+windows: https://drive.google.com/open?id=1gOUF-L1sZyFRogeSCmTI_VY7lPtLojOi  
+mac: https://drive.google.com/open?id=1eCkp2GUEWdFFLKCGIes2dK_3QrbH5Sz-  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 OTRP does not provide specialized makeobj. Please use one of simutrans standard.
 
@@ -53,6 +53,7 @@ As the amount of traffic increases, traffic jam at a junction like the image bel
 - The income/cost message can be turned off in the display settings  or by assigning a key to simple_tool[38].
 - To realize smooth traffic in an intersection, vehicles reserve tiles in the intersection. With b key, you can check and cancel the reservation of road.
 - Use "make halt public" tool with the shift key, and the halt belongs to the current activated player. With the control key, this operation can be done with no cost.
+- If you use the land raise/lower tool with ctrl key, the height of selected area are set to the height of the original coordinate. (Implemented by shingoushori)
 
 # Parameters of OTRP
 Most of these are stored in the game.

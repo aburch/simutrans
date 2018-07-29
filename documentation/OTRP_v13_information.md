@@ -6,13 +6,13 @@ OTRPはOneway Twoway Road Patchの略で、日本語通称は「二車線パッ�
 
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 
-version16現在、simutrans standard nightly r8548をベースにしています。
+version16_1現在、simutrans standard nightly r8549をベースにしています。
 
 # ダウンロード
 ribi-arrow・信号接続方向制御つきのバイナリのみの提供です。実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。
-本体は下のリンクからどうぞ。**（2018年7月25日PM10時　ver16に更新）**  
-windows: https://drive.google.com/open?id=1_YoFwRfSHyCclt5xnDYUVVvfjGKHPHp9  
-mac: https://drive.google.com/open?id=1G1SXhv6omGGXOALua2N0afuxhNT-6mCM    
+本体は下のリンクからどうぞ。**（2018年7月28日PM8時　ver16_1に更新）**  
+windows: https://drive.google.com/open?id=1gOUF-L1sZyFRogeSCmTI_VY7lPtLojOi  
+mac: https://drive.google.com/open?id=1eCkp2GUEWdFFLKCGIes2dK_3QrbH5Sz-    
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 ※makeobjはstandardのやつをそのまま使ってください
 
@@ -69,7 +69,8 @@ v13から道路信号の進入許可方向を設定できるようになりま�
 - 運賃収受に伴う金額表示をON/OFFできるようになりました。表示設定ウィンドウから切り替えられるほか、simple_tool[38]にキーを割り当てることでも切り替えることができます。
 - 交差点でのスムーズな通行を実現するため、交差点タイルでは車両がタイルを予約しています。予約状況は鉄道の閉塞予約解除ツール（bキー）を使うことで確認できます。タイルをクリックすることで予約を手動で解除することもできます。
 - 駅/停留所の公共化ツールをshiftを押しながら使うと、現在有効なプレイヤー所属の停留所になります。なおctrlキーを押しながらだと費用ナシで民営化できます。
-- 建築物建設ツールで範囲選択ができるようになりました。選択された範囲に現在有効な建築物を配置します。（shingoushori氏による実装）
+- 建築物建設ツールで範囲選択ができるようになりました。選択された範囲に現在有効な建築物を配置します。（[shingoushori][1]氏による実装）
+- ctrlキーを押しながら土地上げ下げツールを使うと、選択された範囲が始点と同じ高度になります。（[shingoushori][1]氏による実装）
 
 # 設定項目
 主にsimuconf.tabや「高度な設定」で編集する項目です。  
@@ -80,8 +81,10 @@ v13から道路信号の進入許可方向を設定できるようになりま�
 - citycarはルート決定をする時交差点に遭遇すると、各方向に対して重み付けをして確率的に方向を決定します。この際、**citycar_route_weight_crowded**, **citycar_route_weight_vacant**, **citycar_route_weight_speed** のパラメータ（以下それぞれcr, va, spと表記）を使用します。
     - 単一タイル上でUターンをするのは他に選択肢がない時のみです。
     - Uターンをする（鋭角に曲がる）方向 → 重みは**1**になります。
-    - 鋭角ではない方向の重みは、**(cr or va) + speed × sp** となります。speedは道路の制限速度、(cr or va)は、その方向の道路が空いている（道路上に車がいない）時va, 道路が混んでいる（道路上に車がいる）時crが代入されます。デフォルト値はcr=20, va=100, sp=0です。  
+    - 道路上に停車している車があるとき、重みは**cr**になります。デフォルト値はcr=20です。
+    - 道路が空いているときの重みは**va + speed × sp** となります。speedは道路の制限速度です。デフォルト値はva=100, sp=0です。  
     例) cr=20, va=100, sp=1, 道路の制限速度が60km/hのとき、その道路上に車が存在していなければ選択の重みはva + speed × sp = 100 + 60 × 1 = 160 となります。
+- citycarは渋滞などにより交差点手前で停車している時、一定間隔（1倍速で約2秒おき）でルートの再検索を行います。適切に設定されたパラメータのもとでは、これによりデッドロックを予防することができます。
 
 ## その他
 - **stop_at_intersection_without_traffic_light**（経済タブにあります）のチェックを入れることで、車両が信号機ナシ交差点の手前で特定の条件に従って一時停止するようになります。デフォルトでは無効です。
@@ -101,3 +104,5 @@ v12,13を使っていた方で初めてv14を使うときは**autosave.sveを削
 # おねがい
 バグ探しには皆さんのお力が必要です。バグと思われる挙動があればtwitter @himeshi_hob に報告していただけるとありがたいです。  
 特に「ネットワークプレイ」が安定動作するかが確認取れてないので遊んでみて動作状況を教えていただけるとうれしいです。ぜひOTRPでNSを楽しんでみてください。
+
+[1]:https://twitter.com/shingoushori
