@@ -903,12 +903,36 @@ const char *tool_raise_lower_base_t::do_work( player_t *player, const koord3d &s
 		process( player, start );
 		return NULL;
 	}
-
-	is_area_process = true;
 	
 	int dx = (start.x < end.x) ? 1 : -1;
 	int dy = (start.y < end.y) ? 1 : -1;
 	koord k;
+	
+	if(  !is_dragging  ) {
+		bool is_flat = true;
+		for(  k.x=start.x;  k.x!=(end.x+dx) && is_flat;  k.x+=dx  ) {
+			for(  k.y=start.y;  k.y!=(end.y+dy) && is_flat;  k.y+=dy  ) {
+				if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
+					if(gr->get_pos().z != start.z){is_flat = false;}
+					if(gr->get_top()!=0){is_flat = false;}
+				}
+			}
+		}
+		if(  is_flat  ){
+			is_area_process = false;
+			char buf[16];
+			drag_height = get_drag_height(start.get_2d());
+			sprintf( buf, "%i", drag_height );
+			default_param = buf;
+			process( player, start );
+			koord3d newstart = welt->lookup_kartenboden_gridcoords(start.get_2d())->get_pos();
+			start_at( newstart );
+			is_area_process = true;
+		}
+	}
+	
+	is_area_process = true;
+	
 	for(  k.x=start.x;  k.x!=(end.x+dx);  k.x+=dx  ) {
 		for(  k.y=start.y;  k.y!=(end.y+dy);  k.y+=dy  ) {
 			if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
@@ -916,6 +940,8 @@ const char *tool_raise_lower_base_t::do_work( player_t *player, const koord3d &s
 			}
 		}
 	}
+	
+	if(  !is_dragging  ) { default_param = NULL; }
 	
 	return NULL;
 }

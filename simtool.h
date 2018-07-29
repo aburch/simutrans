@@ -76,7 +76,7 @@ protected:
 public:
 	tool_raise_lower_base_t(uint16 id) : two_click_tool_t(id | GENERAL_TOOL), is_dragging(false), drag_height(0), is_area_process(false) { offset = Z_GRID; one_click = true; }
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
-	bool init(player_t* player) OVERRIDE { two_click_tool_t::init(player); is_dragging = false; one_click = true; return true; }
+	bool init(player_t* player) OVERRIDE { two_click_tool_t::init(player); is_dragging = false; return true; }
 	bool exit(player_t*) OVERRIDE { is_dragging = false; one_click = true; return true; }
 	/**
 	 * technically move is not network safe, however its implementation is:
