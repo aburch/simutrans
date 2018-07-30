@@ -1108,9 +1108,9 @@ const char *two_click_tool_t::work(player_t *player, koord3d pos )
 	}
 
 	if(  is_first_click()  ) {
-		// [mod : shingoushori] Liberalization of ground level control v2 : Dragging 3/5
 		// For co-existence with one_click mode
 		if (one_click) {
+			DBG_MESSAGE("two_click_tool_t::work", "Call tool at %s", pos.get_str() );
 			return do_work( player, pos, koord3d::invalid );
 		}
 		// work directly if possible and ctrl is NOT pressed
@@ -1200,6 +1200,13 @@ void two_click_tool_t::start_at( koord3d &new_start )
 		if( gr ) {
 			gr->obj_add(start_marker);
 		}
+		// for in case of grid_tool
+		else if(is_grid_tool()) {
+			gr = welt->lookup_kartenboden( start.get_2d() );
+			if( gr ) {
+				gr->obj_add(start_marker);
+			}
+		}
 	}
 	DBG_MESSAGE("two_click_tool_t::start_at", "Setting start to %s", start.get_str());
 }
@@ -1237,9 +1244,3 @@ image_id two_click_tool_t::get_marker_image()
 {
 	return skinverwaltung_t::bauigelsymbol->get_image_id(0);
 }
-
-/*const char *two_click_kartenboden_tool_t::check_pos(player_t *, koord3d pos )
-{
-	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-	return (gr  &&  !gr->is_visible()) ? "" : NULL;
-}*/

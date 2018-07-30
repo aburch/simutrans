@@ -776,7 +776,7 @@ DBG_MESSAGE("tool_remover()", "removing way");
 
 
 
-const char *tool_remover_t::work( player_t *player, koord3d pos )
+const char *tool_remover_t::process( player_t *player, koord3d pos )
 {
 	DBG_MESSAGE("tool_remover()","at %d,%d", pos.x, pos.y);
 
@@ -809,6 +809,91 @@ const char *tool_remover_t::work( player_t *player, koord3d pos )
 		welt->lookup_kartenboden(pos.get_2d()+koord::south)->calc_image();
 	}
 
+	return NULL;
+}
+
+void tool_remover_t::mark_tiles(  player_t *, const koord3d &start, const koord3d &end )
+{
+	bool is_lock_z_with_start = false;
+	grund_t *gr_kartenboden = welt->lookup_kartenboden(start.x, start.y);
+	if (start.z != gr_kartenboden->get_pos().z) { is_lock_z_with_start = true; }
+	
+	koord k1, k2;
+	k1.x = start.x < end.x ? start.x : end.x;
+	k1.y = start.y < end.y ? start.y : end.y;
+	k2.x = start.x + end.x - k1.x;
+	k2.y = start.y + end.y - k1.y;
+	koord k;
+	for(  k.x = k1.x;  k.x <= k2.x;  k.x++  ) {
+		for(  k.y = k1.y;  k.y <= k2.y;  k.y++  ) {
+			grund_t *gr;
+			if (is_lock_z_with_start) {
+				gr = welt->lookup(koord3d(k.x,k.y,start.z));
+			}
+			else {
+				gr = welt->lookup_kartenboden(k.x, k.y);
+			}
+			if (gr == NULL) {
+				continue;
+			}
+			
+			zeiger_t *marker = new zeiger_t(gr->get_pos(), NULL );
+			
+			const uint8 grund_hang = gr->get_grund_hang();
+			const uint8 weg_hang = gr->get_weg_hang();
+			const uint8 hang = max( corner_sw(grund_hang), corner_sw(weg_hang)) +
+					3 * max( corner_se(grund_hang), corner_se(weg_hang)) +
+					9 * max( corner_ne(grund_hang), corner_ne(weg_hang)) +
+					27 * max( corner_nw(grund_hang), corner_nw(weg_hang));
+			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
+			marker->set_foreground_image( ground_desc_t::marker->get_image( grund_hang % 27 ) );
+			marker->set_image( ground_desc_t::marker->get_image( back_hang ) );
+			
+			marker->mark_image_dirty( marker->get_image(), 0 );
+			gr->obj_add( marker );
+			marked.insert( marker );
+		}
+	}
+}
+const char *tool_remover_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
+{
+	if(  is_first_click() && is_ctrl_pressed()  ) {
+		init(player);
+		one_click = false;
+		koord3d newstart = start;
+		start_at( newstart );
+		return NULL;
+	}
+	if (end == koord3d::invalid) {
+		return process(player, start);
+	}
+	bool is_lock_z_with_start = false;
+	grund_t *gr_kartenboden = welt->lookup_kartenboden(start.x, start.y);
+	if (start.z != gr_kartenboden->get_pos().z) { is_lock_z_with_start = true; }
+	
+	koord wh, nw;
+	wh.x = abs(end.x-start.x)+1;
+	wh.y = abs(end.y-start.y)+1;
+	nw.x = min(start.x, end.x)+(wh.x/2);
+	nw.y = min(start.y, end.y)+(wh.y/2);
+	
+	int dx = (start.x < end.x) ? 1 : -1;
+	int dy = (start.y < end.y) ? 1 : -1;
+	for(int x=start.x; x!=(end.x+dx); x+=dx) {
+		for(int y=start.y; y!=(end.y+dy); y+=dy) {
+			grund_t *gr;
+			if (is_lock_z_with_start) {
+				gr = welt->lookup(koord3d(x,y,start.z));
+			}
+			else {
+				gr = welt->lookup_kartenboden(x, y);
+			}
+			if (gr != NULL) {
+				process(player, gr->get_pos());
+			}
+		}
+	}
+	
 	return NULL;
 }
 
@@ -887,18 +972,52 @@ bool tool_raise_lower_base_t::check_dragging()
 
 const char *tool_raise_lower_base_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
+	if(  is_first_click() && is_ctrl_pressed()  ) {
+		init(player);
+		one_click = false;
+		koord3d newstart = start;
+		start_at( newstart );
+		is_area_process = true;
+		return NULL;
+	}
+	one_click = true;
 	if(  end == koord3d::invalid  ) {
 		if(  !is_ctrl_pressed()  ){
-				is_area_process = false;
+			is_area_process = false;
 		}
-		return process( player, start );
+		process( player, start );
+		return NULL;
 	}
-
-	is_area_process = true;
 	
 	int dx = (start.x < end.x) ? 1 : -1;
 	int dy = (start.y < end.y) ? 1 : -1;
 	koord k;
+	
+	if(  !is_dragging  ) {
+		bool is_flat = true;
+		for(  k.x=start.x;  k.x!=(end.x+dx) && is_flat;  k.x+=dx  ) {
+			for(  k.y=start.y;  k.y!=(end.y+dy) && is_flat;  k.y+=dy  ) {
+				if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
+					if(gr->get_pos().z != start.z){is_flat = false;}
+					if(gr->get_top()!=0){is_flat = false;}
+				}
+			}
+		}
+		if(  is_flat  ){
+			is_area_process = false;
+			char buf[16];
+			drag_height = get_drag_height(start.get_2d());
+			sprintf( buf, "%i", drag_height );
+			default_param = buf;
+			process( player, start );
+			koord3d newstart = welt->lookup_kartenboden_gridcoords(start.get_2d())->get_pos();
+			start_at( newstart );
+			is_area_process = true;
+		}
+	}
+	
+	is_area_process = true;
+	
 	for(  k.x=start.x;  k.x!=(end.x+dx);  k.x+=dx  ) {
 		for(  k.y=start.y;  k.y!=(end.y+dy);  k.y+=dy  ) {
 			if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
@@ -906,6 +1025,8 @@ const char *tool_raise_lower_base_t::do_work( player_t *player, const koord3d &s
 			}
 		}
 	}
+	
+	if(  !is_dragging  ) { default_param = NULL; }
 	
 	return NULL;
 }
@@ -4628,8 +4749,11 @@ const building_desc_t *tool_build_station_t::get_desc( sint8 &rotation ) const
 	return tdsc->get_desc();
 }
 
-bool tool_build_station_t::init( player_t * )
+bool tool_build_station_t::init( player_t * player )
 {
+	two_click_tool_t::init(player);
+	one_click = true;
+	
 	sint8 rotation = -1;
 	const building_desc_t *bdsc = get_desc( rotation );
 	if(  bdsc==NULL  ) {
@@ -4804,6 +4928,10 @@ const char *tool_build_station_t::move( player_t *player, uint16 buttonstate, ko
 
 const char *tool_build_station_t::work( player_t *player, koord3d pos )
 {
+	two_click_tool_t::work( player, pos );
+}
+const char *tool_build_station_t::process( player_t *player, koord3d pos )
+{
 	const grund_t *gr = welt->lookup(pos);
 	if(!gr) {
 		return "";
@@ -4864,6 +4992,91 @@ const char *tool_build_station_t::work( player_t *player, koord3d pos )
 			msg = "Illegal station tool";
 	}
 	return msg;
+}
+
+void tool_build_station_t::mark_tiles(  player_t *, const koord3d &start, const koord3d &end )
+{
+	koord k1, k2;
+	k1.x = start.x < end.x ? start.x : end.x;
+	k1.y = start.y < end.y ? start.y : end.y;
+	k2.x = start.x + end.x - k1.x;
+	k2.y = start.y + end.y - k1.y;
+	koord k;
+	for(  k.x = k1.x;  k.x <= k2.x;  k.x++  ) {
+		for(  k.y = k1.y;  k.y <= k2.y;  k.y++  ) {
+			grund_t *gr = welt->lookup_kartenboden( k );
+			
+			zeiger_t *marker = new zeiger_t(gr->get_pos(), NULL );
+			
+			const uint8 grund_hang = gr->get_grund_hang();
+			const uint8 weg_hang = gr->get_weg_hang();
+			const uint8 hang = max( corner_sw(grund_hang), corner_sw(weg_hang)) +
+					3 * max( corner_se(grund_hang), corner_se(weg_hang)) +
+					9 * max( corner_ne(grund_hang), corner_ne(weg_hang)) +
+					27 * max( corner_nw(grund_hang), corner_nw(weg_hang));
+			uint8 back_hang = (hang % 3) + 3 * ((uint8)(hang / 9)) + 27;
+			marker->set_foreground_image( ground_desc_t::marker->get_image( grund_hang % 27 ) );
+			marker->set_image( ground_desc_t::marker->get_image( back_hang ) );
+			
+			marker->mark_image_dirty( marker->get_image(), 0 );
+			gr->obj_add( marker );
+			marked.insert( marker );
+		}
+	}
+}
+
+const char *tool_build_station_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
+{
+	if(  is_first_click() && is_ctrl_pressed()  ) {
+		init(player);
+		one_click = false;
+		koord3d newstart = start;
+		start_at( newstart );
+		return NULL;
+	}
+	one_click = true;
+	if(  end == koord3d::invalid  ) {
+		koord k;
+		k.x = start.x;
+		k.y = start.y;
+		if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
+			process(player, start);
+		}
+	}
+	else {
+		koord wh, nw;
+		wh.x = abs(end.x-start.x)+1;
+		wh.y = abs(end.y-start.y)+1;
+		nw.x = min(start.x, end.x)+(wh.x/2);
+		nw.y = min(start.y, end.y)+(wh.y/2);
+		
+		int dx = (start.x < end.x) ? 1 : -1;
+		int dy = (start.y < end.y) ? 1 : -1;
+		
+		koord k;
+		for( k.x = start.x; k.x != (end.x+dx); k.x += dx) {
+			for( k.y = start.y; k.y != (end.y+dy); k.y += dy) {
+				if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
+					if( gr->ist_bruecke() ) {
+						sint8 slope = gr->get_grund_hang();
+						if (slope == slope_t::north || slope == slope_t::west || slope == slope_t::east || slope == slope_t::south) {
+							process(player, koord3d(k.x,k.y,start.z-1));
+						}
+						else if (slope == 8 || slope == 24 || slope == 56 || slope == 72) {
+							process(player, koord3d(k.x,k.y,start.z-2));
+						}
+						else {
+							process(player, koord3d(k.x,k.y,start.z));
+						}
+					}
+					else {
+						process(player, koord3d(k.x,k.y,start.z));
+					}
+				}
+			}
+		}
+	}
+	return NULL;
 }
 
 
@@ -5558,6 +5771,7 @@ bool tool_build_house_t::init( player_t * player)
 			cursor_area = tile->get_desc()->get_size(rotation);
 		}
 	}
+	one_click = true;
 	return two_click_tool_t::init(player);
 }
 
@@ -5669,6 +5883,14 @@ void tool_build_house_t::mark_tiles(  player_t *, const koord3d &start, const ko
 
 const char *tool_build_house_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
+	if(  is_first_click() && is_ctrl_pressed()  ) {
+		init(player);
+		one_click = false;
+		koord3d newstart = start;
+		start_at( newstart );
+		return NULL;
+	}
+	one_click = true;
 	if(  end == koord3d::invalid  ) {
 		koord k;
 		k.x = start.x;

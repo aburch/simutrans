@@ -53,14 +53,21 @@ public:
 
 
 // remove uppermost object from tile
-class tool_remover_t : public tool_t {
+class tool_remover_t : public two_click_tool_t {
 private:
 	bool tool_remover_intern(player_t *player, koord3d pos, sint8 type, const char *&msg);
 public:
-	tool_remover_t() : tool_t(TOOL_REMOVER | GENERAL_TOOL) {}
+	tool_remover_t() : two_click_tool_t(TOOL_REMOVER | GENERAL_TOOL) { one_click = true; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Abriss"); }
-	char const* work(player_t*, koord3d) OVERRIDE;
+	char const* process(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
+	
+	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE {return 2;};
+	image_id get_icon(player_t *) const { return baum_t::get_count() > 0 ? icon : IMG_EMPTY; }
+	bool init(player_t* player) OVERRIDE { two_click_tool_t::init(player); one_click = true; return true; }
+	bool exit(player_t* player) OVERRIDE { one_click = true; return two_click_tool_t::exit(player); }
 };
 
 // alter land height tools
@@ -77,7 +84,7 @@ public:
 	tool_raise_lower_base_t(uint16 id) : two_click_tool_t(id | GENERAL_TOOL), is_dragging(false), drag_height(0), is_area_process(false) { offset = Z_GRID; one_click = true; }
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
 	bool init(player_t* player) OVERRIDE { two_click_tool_t::init(player); is_dragging = false; return true; }
-	bool exit(player_t*) OVERRIDE { is_dragging = false; return true; }
+	bool exit(player_t*) OVERRIDE { is_dragging = false; one_click = true; return true; }
 	/**
 	 * technically move is not network safe, however its implementation is:
 	 * it sends work commands over network itself
@@ -427,16 +434,16 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
 
-class tool_build_station_t : public tool_t {
-private:
+class tool_build_station_t : public two_click_tool_t {
+  private:
 	const char *tool_station_building_aux(player_t *, bool, koord3d, const building_desc_t *, sint8 rotation );
 	const char *tool_station_dock_aux(player_t *, koord3d, const building_desc_t * );
 	const char *tool_station_flat_dock_aux(player_t *, koord3d, const building_desc_t *, sint8 );
 	const char *tool_station_aux(player_t *, koord3d, const building_desc_t *, waytype_t, const char *halt_suffix );
 	const building_desc_t *get_desc( sint8 &rotation ) const;
-
-public:
-	tool_build_station_t() : tool_t(TOOL_BUILD_STATION | GENERAL_TOOL) {}
+	
+  public:
+	tool_build_station_t() : two_click_tool_t(TOOL_BUILD_STATION | GENERAL_TOOL) {one_click = true;}
 	image_id get_icon(player_t*) const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
@@ -446,6 +453,11 @@ public:
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
+	
+	char const* process(player_t*, koord3d) ;
+	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE;
+	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE {return 2;};
 };
 
 class tool_rotate_building_t : public tool_t {

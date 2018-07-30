@@ -356,7 +356,6 @@ public:
 	two_click_tool_t(uint16 const id) : tool_t(id) {
 		MEMZERO(start_marker);
 		first_click_var = true;
-		// [mod : shingoushori] Liberalization of ground level control v2 : Dragging 1/5
 		// For co-existence with one_click mode
 		one_click = false;
 	}
@@ -426,7 +425,6 @@ protected:
 
 	slist_tpl< zeiger_t* > marked;
 
-	// [mod : shingoushori] Liberalization of ground level control v2 : Dragging 2/5
 	// For co-existence with one_click mode
 	bool one_click;
 };
@@ -443,9 +441,6 @@ public:
 	char const* do_work(player_t* player, koord3d const&, koord3d const& pos) OVERRIDE {return work(player, pos);};
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE {};
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE {return 2;};
-	
-	// For co-existence with one_click mode
-	bool one_click;
 };
 
 /* toolbar are a new overclass */
