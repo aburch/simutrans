@@ -1239,28 +1239,30 @@ koord3d private_car_t::find_destination(uint8 target_index) {
 #else
 				// determine weight
 				// avoid making a sharp turn if it is possible.
-				if(  target_index!=idx_in_scope(route_index,1)  &&   target_index!=idx_in_scope(route_index,2)  ) {
-					// sharp turn?
-					const ribi_t::ribi dir1 = ribi_type(route[idx_in_scope(target_index,-1)],to->get_pos());
-					const ribi_t::ribi dir2 = ribi_type(route[idx_in_scope(target_index,-2)],route[idx_in_scope(target_index,-1)]);
-					const ribi_t::ribi dir3 = ribi_type(route[idx_in_scope(target_index,-3)],route[idx_in_scope(target_index,-2)]);
-					if(  (ribi_t::rotate90(dir3)==dir2  &&  ribi_t::rotate90(dir2)==dir1)  ||  (ribi_t::rotate90l(dir3)==dir2  &&  ribi_t::rotate90l(dir2)==dir1)) {
-						// reduce possibility
-						poslist.append(to->get_pos(), 1);
-						continue;
-					}
-					// avoid a tile in which the car is forced to making a sharp turn.
-					ribi_t::ribi next_direction = w->get_ribi() & ~ribi_t::backward(dir1);
-					if(  ribi_t::rotate90l(dir2)==dir1  ) {
-						next_direction &= ~ribi_t::rotate90l(dir1);
-					} else if(  ribi_t::rotate90(dir2)==dir1  ) {
-						next_direction &= ~ribi_t::rotate90(dir1);
-					}
-					if(  next_direction==0  ) {
-						// reduce probability
-						poslist.append(to->get_pos(), 1);
-						continue;
-					}
+				// sharp turn?
+				const koord3d p0 = to->get_pos();
+				const koord3d p1 = route[idx_in_scope(target_index,-1)];
+				const koord3d p2 = target_index==idx_in_scope(route_index,1) ? get_pos(): route[idx_in_scope(target_index,-2)];
+				const koord3d p3 = target_index==idx_in_scope(route_index,1) ? pos_prev : target_index==idx_in_scope(route_index,2) ? get_pos() : route[idx_in_scope(target_index,-3)];
+				const ribi_t::ribi dir1 = ribi_type(p1,p0);
+				const ribi_t::ribi dir2 = ribi_type(p2,p1);
+				const ribi_t::ribi dir3 = ribi_type(p3,p2);
+				if(  (ribi_t::rotate90(dir3)==dir2  &&  ribi_t::rotate90(dir2)==dir1)  ||  (ribi_t::rotate90l(dir3)==dir2  &&  ribi_t::rotate90l(dir2)==dir1)) {
+					// reduce possibility
+					poslist.append(to->get_pos(), 1);
+					continue;
+				}
+				// avoid a tile in which the car is forced to making a sharp turn.
+				ribi_t::ribi next_direction = w->get_ribi() & ~ribi_t::backward(dir1);
+				if(  ribi_t::rotate90l(dir2)==dir1  ) {
+					next_direction &= ~ribi_t::rotate90l(dir1);
+				} else if(  ribi_t::rotate90(dir2)==dir1  ) {
+					next_direction &= ~ribi_t::rotate90(dir1);
+				}
+				if(  next_direction==0  ) {
+					// reduce probability
+					poslist.append(to->get_pos(), 1);
+					continue;
 				}
 				bool pos_added = false;
 				// we prefer vacant road.
@@ -1936,7 +1938,7 @@ bool private_car_t::is_rerouting_needed() const{
 		return false;
 	}
 	ribi_t::ribi back = ribi_type(pos_next, get_pos());
-	if(  !ribi_t::is_single(str_n->get_ribi()&~back)  &&  (ms_traffic_jam>>11)>0  ) {
+	if(  !ribi_t::is_single(str_n->get_ribi()&~back)  &&  (ms_traffic_jam>>11)>0  &&  (ms_traffic_jam>>10)%2==0  ) {
 		// the car is in traffic jam and has a chance to escape!
 		return true;
 	}
