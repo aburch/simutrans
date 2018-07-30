@@ -1963,6 +1963,11 @@ void road_vehicle_t::rdwr_from_convoi(loadsave_t *file){
 void road_vehicle_t::rotate90()
 {
 	vehicle_t::rotate90();
+	last_stop_for_intersection.rotate90(welt->get_size().y-1);
+	pos_prev.rotate90(welt->get_size().y-1);
+	for(uint16 i=0; i<reserving_tiles.get_count(); i++) {
+		reserving_tiles[i].rotate90(welt->get_size().y-1);
+	}
 	calc_disp_lane();
 }
 
