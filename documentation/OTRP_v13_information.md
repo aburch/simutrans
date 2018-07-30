@@ -6,13 +6,13 @@ OTRPはOneway Twoway Road Patchの略で、日本語通称は「二車線パッ�
 
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 
-version16_1現在、simutrans standard nightly r8549をベースにしています。
+version17現在、simutrans standard nightly r8549をベースにしています。
 
 # ダウンロード
 ribi-arrow・信号接続方向制御つきのバイナリのみの提供です。実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。
-本体は下のリンクからどうぞ。**（2018年7月28日PM8時　ver16_1に更新）**  
-windows: https://drive.google.com/open?id=1gOUF-L1sZyFRogeSCmTI_VY7lPtLojOi  
-mac: https://drive.google.com/open?id=1eCkp2GUEWdFFLKCGIes2dK_3QrbH5Sz-    
+本体は下のリンクからどうぞ。**（2018年7月30日PM11時　ver17に更新）**  
+windows: https://drive.google.com/open?id=14ZZ85PrcmUIITwBakbZj6Vx_dcUTIrdb  
+mac: https://drive.google.com/open?id=1vBdji8ztr_kXu6H2MyvppqsCkVMPJypz    
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 ※makeobjはstandardのやつをそのまま使ってください
 
@@ -31,7 +31,7 @@ https://github.com/teamhimeh/simutrans/blob/OTRP-distribute/documentation/ja.OTR
 ![fig1](images/fig1.png)  
 道路アイコンを**Ctrlキーを押しながら**選択すると追い越しモード等を設定できます。
   
-~追越モード~
+[追越モード]
 - oneway: 道路を一方通行にして二車線同じ方向で通行するモードです。このモードの時は道路が一方通行になるので建設時は「:（コロン）」を押して接続方向を確認してください。
 - halt mode: 停留所において追越車線でも客扱い・荷捌きをします。走行中の挙動はonewayと同じです。
 - twoway: 本家standardの道路と同じ挙動をするモードです。対向車が来ないことが保証されるときのみ追い越しできます。
@@ -39,7 +39,7 @@ https://github.com/teamhimeh/simutrans/blob/OTRP-distribute/documentation/ja.OTR
 - prohibited: 一切の追い越しが禁止されます。
 - inverted: twowayモードの状態から車線が左右反転します。
 -----
-~その他~
+[その他]
 - avoid becoming cityroad: 有効化すると道路は市道化しなくなります。（地面の道路にのみ有効）
 - citycars do not enter: 自家用車の進入を禁止します。
 

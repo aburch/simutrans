@@ -4,13 +4,13 @@ OTRP means Oneway Twoway Road Patch. The simutrans standard uses only one lane w
 
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 
-As of version 16_1, OTRP is based on simutrans standard nightly r8549.
+As of version 17, OTRP is based on simutrans standard nightly r8549.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.
-You can download the OTRP executable binary from the links below. **(2018 July 28th, updated to ver 16_1.)**  
-windows: https://drive.google.com/open?id=1gOUF-L1sZyFRogeSCmTI_VY7lPtLojOi  
-mac: https://drive.google.com/open?id=1eCkp2GUEWdFFLKCGIes2dK_3QrbH5Sz-  
+You can download the OTRP executable binary from the links below. **(2018 July 30th, updated to ver 17.)**  
+windows: https://drive.google.com/open?id=14ZZ85PrcmUIITwBakbZj6Vx_dcUTIrdb  
+mac: https://drive.google.com/open?id=1vBdji8ztr_kXu6H2MyvppqsCkVMPJypz  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 OTRP does not provide specialized makeobj. Please use one of simutrans standard.
 
@@ -27,7 +27,7 @@ Sorry, this section is still under construction.
 ![fig1](images/fig1.png)  
 Select a road icon **with holding a Ctrl key**, then you can configure the road.
 
-~overtaking mode~
+[overtaking mode]
 - oneway: Road is oneway and vehicles can overtake others under the relaxed condition.
 - halt mode: The behavior is same as oneway, except that the vehicle can load passenger on passing lane.
 - twoway: Vehicles behaves as in simutrans standard.
@@ -35,7 +35,7 @@ Select a road icon **with holding a Ctrl key**, then you can configure the road.
 - prohibited: All overtaking is prohibited.
 - inverted: Lane is reversed.
 ----
-~others~
+[others]
 - avoid becoming cityroad: When this option is enabled, the road never becomes a cityroad.
 - citycars do not enter: Citycars are prohibited to enter this road.
 
