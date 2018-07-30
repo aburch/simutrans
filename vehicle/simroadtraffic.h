@@ -110,6 +110,8 @@ private:
 	bool requested_change_lane;
 	
 	vector_tpl<koord3d> reserving_tiles;
+	
+	koord3d pos_prev;
 
 	grund_t* hop_check();
 
@@ -148,7 +150,7 @@ public:
 	void hop(grund_t *gr);
 	bool ist_weg_frei(grund_t *gr);
 
-	void enter_tile(grund_t* gr, koord3d prev);
+	void enter_tile(grund_t* gr);
 	void leave_tile();
 
 	void calc_current_speed(grund_t*, uint32);

@@ -347,7 +347,6 @@ private_car_t::private_car_t(loadsave_t *file) :
 	}
 	reserving_tiles.clear();
 	rdwr(file);
-	ms_traffic_jam = 0;
 	max_power_speed = 0; // should be calculated somehow!
 	calc_disp_lane();
 	if(desc) {
@@ -379,6 +378,7 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 	current_speed = 48;
 	ms_traffic_jam = 0;
 	max_power_speed = 0; // should be calculated somehow!
+	pos_prev = koord3d::invalid;
 #ifdef DESTINATION_CITYCARS
 	this->target = target;
 #else
@@ -523,6 +523,16 @@ void private_car_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(tiles_overtaking);
 		set_tiles_overtaking( tiles_overtaking );
 	}
+	
+	if(  file->get_OTRP_version()>=17  ) {
+		file->rdwr_long(ms_traffic_jam);
+		pos_prev.rdwr(file);
+	}
+	else {
+		ms_traffic_jam = 0;
+		pos_prev = koord3d::invalid;
+	}
+	
 	// do not start with zero speed!
 	current_speed ++;
 }
@@ -1079,7 +1089,7 @@ void private_car_t::leave_tile() {
 	}
 }
 
-void private_car_t::enter_tile(grund_t* gr, koord3d prev)
+void private_car_t::enter_tile(grund_t* gr)
 {
 #ifdef DESTINATION_CITYCARS
 	if(  target!=koord::invalid  &&  koord_distance(pos_next.get_2d(),target)<10  ) {
@@ -1101,7 +1111,7 @@ void private_car_t::enter_tile(grund_t* gr, koord3d prev)
 	//decide if overtaking citycar should go back to the traffic lane.
 	if(  get_tiles_overtaking() == 1  &&  str->get_overtaking_mode() <= oneway_mode  ){
 		vehicle_base_t* v = NULL;
-		if(  lane_affinity==1  ||  (v = other_lane_blocked(false))!=NULL  ||  str->is_reserved_by_others(this, false, prev, pos_next)  ) {
+		if(  lane_affinity==1  ||  (v = other_lane_blocked(false))!=NULL  ||  str->is_reserved_by_others(this, false, pos_prev, pos_next)  ) {
 			//lane change denied
 			set_tiles_overtaking(3);
 			if(  requested_change_lane  ||  lane_affinity == -1  ) {
@@ -1149,7 +1159,7 @@ void private_car_t::enter_tile(grund_t* gr, koord3d prev)
 		yielding_quit_index = -1;
 	}
 	// If this tile is two-way ~ prohibited and the previous tile is oneway, the convoy have to move on traffic lane. Safety is confirmed in ist_weg_frei().
-	grund_t* prev_gr = welt->lookup(prev);
+	grund_t* prev_gr = welt->lookup(pos_prev);
 	strasse_t* prev_str = prev_gr ? (strasse_t*)(prev_gr->get_weg(road_wt)) : NULL;
 	if(  (prev_str  &&  (prev_str->get_overtaking_mode()<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  &&  str->get_overtaking_mode()<inverted_mode))  ||  str->get_overtaking_mode()==prohibited_mode  ){
 			set_tiles_overtaking(0);
@@ -1213,6 +1223,15 @@ koord3d private_car_t::find_destination(uint8 target_index) {
 					// not allowed to go here
 					ribi &= ~ribi_t::nsew[r];
 					continue;
+				}
+				// citycars cannot enter oneway road from inappropriate direction.
+				if(  w->get_overtaking_mode()<=oneway_mode  &&  ribi_t::is_single(w->get_ribi())  ) {
+					const ribi_t::ribi entry_backward = ribi_type(to->get_pos(),route[idx_in_scope(target_index,-1)]);
+					if(  (entry_backward&w->get_ribi())!=0  ) {
+						// inappropriate direction!
+						ribi &= ~ribi_t::nsew[r];
+						continue;
+					}
 				}
 #ifdef DESTINATION_CITYCARS
 				uint32 dist=koord_distance( to->get_pos().get_2d(), target );
@@ -1346,15 +1365,14 @@ void private_car_t::hop(grund_t* to)
 	}
 	calc_image();
 
-	koord3d p = get_pos();
-
 	// and add to next tile
+	pos_prev = get_pos();
 	set_pos(pos_next);
 	// proceed route_index
 	route[route_index] = koord3d::invalid;
 	route_index = (route_index+1)%welt->get_settings().get_citycar_max_look_forward();
 	pos_next = route[route_index];
-	enter_tile(to,p);
+	enter_tile(to);
 	if(to->ist_uebergang()) {
 		to->find<crossing_t>(2)->add_to_crossing(this);
 	}
@@ -1708,9 +1726,11 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 }
 
 vehicle_base_t* private_car_t::other_lane_blocked(const bool only_search_top) const{
-	//This function calculate whether the car can change lane.
-	// only_search_top == false: check only heading direction
-	// only_search_top == true: check all directions
+	// This function calculate whether the car can change lane.
+	// only_search_top == false: check next, current and previous positions
+	// only_search_top == true: check only next position
+	
+	// check next pos
 	grund_t *gr = welt->lookup(pos_next);
 	if(  gr  ) {
 		if(  vehicle_base_t* v = is_there_car(gr)  ) {
@@ -1718,21 +1738,25 @@ vehicle_base_t* private_car_t::other_lane_blocked(const bool only_search_top) co
 		}
 	}
 	if(  !only_search_top  ) {
+		//check current pos
 		gr = welt->lookup(get_pos());
 		if(  gr  ) {
 			if(  vehicle_base_t* v = is_there_car(gr)  ) {
 				return v;
 			}
 		}
-		// rear check should be written here...
-		for(uint8 r = 0; r < 4; r++) {
-			grund_t *to = NULL;
-			if(  gr->get_neighbour(to, road_wt, ribi_t::nsew[r])  ) {
-				if(  to  ) {
-					if(  vehicle_base_t* v = is_there_car(gr)  ) {
-						return v;
-					}
-				}
+		// check previous pos
+		gr = welt->lookup(pos_prev);
+		if(  gr  ) {
+			vehicle_base_t* v = is_there_car(gr);
+			road_vehicle_t* at = dynamic_cast<road_vehicle_t*>(v);
+			private_car_t* caut = dynamic_cast<private_car_t*>(v);
+			// Ignore stopping convoi on the tile behind this convoi to change lane in traffic jam.
+			if(  at  &&  at->get_convoi()->get_akt_speed()>0  ) {
+				return v;
+			}
+			else if(  caut  &&  caut->get_current_speed()>0  ) {
+				return v;
 			}
 		}
 	}
@@ -1745,6 +1769,11 @@ vehicle_base_t* private_car_t::is_there_car (grund_t *gr) const
 		dbg->error( "private_car_t::is_there_car", "grund is invalid!" );
 	}
 	assert(  gr  );
+	// this function cannot process vehicles on twoway and related mode road.
+	const strasse_t* str = (strasse_t *)gr->get_weg(road_wt);
+	if(  !str  ||  (str->get_overtaking_mode()>=twoway_mode  &&  str->get_overtaking_mode()<inverted_mode)  ) {
+		return NULL;
+	}
 	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
 		if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
 			if(  v->get_typ()==obj_t::pedestrian  ) {
