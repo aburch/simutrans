@@ -5771,6 +5771,7 @@ bool tool_build_house_t::init( player_t * player)
 			cursor_area = tile->get_desc()->get_size(rotation);
 		}
 	}
+	one_click = true;
 	return two_click_tool_t::init(player);
 }
 
@@ -5882,6 +5883,14 @@ void tool_build_house_t::mark_tiles(  player_t *, const koord3d &start, const ko
 
 const char *tool_build_house_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
 {
+	if(  is_first_click() && is_ctrl_pressed()  ) {
+		init(player);
+		one_click = false;
+		koord3d newstart = start;
+		start_at( newstart );
+		return NULL;
+	}
+	one_click = true;
 	if(  end == koord3d::invalid  ) {
 		koord k;
 		k.x = start.x;

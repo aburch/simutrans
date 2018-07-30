@@ -441,9 +441,6 @@ public:
 	char const* do_work(player_t* player, koord3d const&, koord3d const& pos) OVERRIDE {return work(player, pos);};
 	void mark_tiles(player_t*, koord3d const&, koord3d const&) OVERRIDE {};
 	uint8 is_valid_pos(player_t*, koord3d const&, char const*&, koord3d const&) OVERRIDE {return 2;};
-	
-	// For co-existence with one_click mode
-	bool one_click;
 };
 
 /* toolbar are a new overclass */
