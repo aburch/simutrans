@@ -1445,6 +1445,14 @@ void private_car_t::calc_disp_lane()
 void private_car_t::rotate90()
 {
 	road_user_t::rotate90();
+	// rotate coordinates
+	for(uint16 i=0; i<welt->get_settings().get_citycar_max_look_forward(); i++) {
+		if(  route[i]!=koord3d::invalid  ) { route[i].rotate90(welt->get_size().y-1); }
+	}
+	for(uint16 i=0; i<reserving_tiles.get_count(); i++) {
+		reserving_tiles[i].rotate90(welt->get_size().y-1);
+	}
+	pos_prev.rotate90(welt->get_size().y-1);
 	calc_disp_lane();
 }
 
