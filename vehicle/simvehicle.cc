@@ -2869,7 +2869,7 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 				if(test_pos==cnv->front()->get_pos()) break;
 			}
 		}
-		for(sint32 test_index = route_index+offset < (sint32)r.get_count() ? route_index+offset : r.get_count() - 1u;; test_index--){
+		for(sint32 test_index = route_index+offset < (sint32)r.get_count() ? route_index+offset : r.get_count() - 1u; test_index >= 0; test_index--){
 			grund_t *gr = welt->lookup(r.at(test_index));
 			if(  !gr  ) {
 				cnv->suche_neue_route();
@@ -2879,7 +2879,7 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 			// this function cannot process vehicles on twoway and related mode road.
 			const strasse_t* str = (strasse_t *)gr->get_weg(road_wt);
 			if(  !str  ||  (str->get_overtaking_mode()>=twoway_mode  &&  str->get_overtaking_mode()<inverted_mode)  ) {
-				break;
+				continue;
 			}
 
 			for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
@@ -2963,7 +2963,7 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 			if(  r.at(test_index)==cnv->back()->get_pos()  ) {
 				can_reach_tail = true;
 			}
-			if(  test_index == 0  ||  only_search_top  ) {
+			if(  only_search_top  ) {
 				break;
 			}
 		}
