@@ -6151,15 +6151,28 @@ const char* tool_signalbox_t::tool_signalbox_aux(player_t* player, koord3d pos, 
 			}
 			layout = building_layout[trackdir];
 
-			gebaeude_t* gb = hausbauer_t::build(player, gr->get_pos(), layout, desc);
-			player_t::book_construction_costs(player, -cost, pos.get_2d(), desc->get_finance_waytype());
-			if(is_local_execution()  &&  player == welt->get_active_player())
-			{
-				player->set_selected_signalbox((signalbox_t*)gb);
-				welt->set_tool( general_tool[TOOL_QUERY], player );
+			uint8 rotation = desc->get_all_layouts();
+			koord size = desc->get_size(rotation);
+
+			bool hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, desc->get_allowed_climate_bits() );
+			if(!hat_platz  &&  size.y!=size.x  &&  desc->get_all_layouts()>1  &&  (default_param==NULL  ||  default_param[1]=='#'  ||  default_param[1]=='A')) {
+				// try other rotation too ...
+				rotation = (rotation+1) % desc->get_all_layouts();
+				hat_platz = welt->square_is_free( k, desc->get_x(rotation), desc->get_y(rotation), NULL, desc->get_allowed_climate_bits() );
 			}
 
-			return NULL;
+			if(hat_platz)
+			{
+				gebaeude_t* gb = hausbauer_t::build(player, gr->get_pos(), layout, desc);
+				player_t::book_construction_costs(player, -cost, pos.get_2d(), desc->get_finance_waytype());
+				if (is_local_execution() && player == welt->get_active_player())
+				{
+					player->set_selected_signalbox((signalbox_t*)gb);
+					welt->set_tool(general_tool[TOOL_QUERY], player);
+				}
+
+				return NULL;
+			}
 		}
 		return "A signalbox cannot be built here.";
 	}
