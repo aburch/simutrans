@@ -5523,6 +5523,8 @@ int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
 		// QUERY: If this stop is the stop at which the reverse_route setting is set/unset, might
 		// ((*i)->get_reverse_schedule() == cnv->get_reverse_schedule()) 
 		// give a false negative, therefore incorrectly assigning two vehicles to the same queue position?
+		// 
+		// ANSWER: No, as the reverse route is only engaged/disengaged on leaving the stop.
 
 		if((*i)->get_line() == line &&
 			(((*i)->get_schedule()->get_current_stop() == cnv->get_schedule()->get_current_stop()
