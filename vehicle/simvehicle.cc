@@ -2854,7 +2854,6 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 	// only_search_top == true: check whether there's no car in front of this vehicle. (Not the same lane.)
 	if(  leading  ){
 		route_t const& r = *cnv->get_route();
-		bool can_reach_tail = false;
 		// we have to know the index of the tail of convoy.
 		sint32 tail_index = -1;
 		if(  cnv->get_vehicle_count()==1  ){
@@ -2869,7 +2868,18 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 				if(test_pos==cnv->front()->get_pos()) break;
 			}
 		}
-		for(sint32 test_index = route_index+offset < (sint32)r.get_count() ? route_index+offset : r.get_count() - 1u; test_index >= 0; test_index--){
+		
+		// tile inspection
+		const sint32 start_index = route_index+offset < (sint32)r.get_count() ? route_index+offset : r.get_count() - 1u;
+		sint32 end_index;
+		if(  only_search_top  ) {
+			// only the front tile is inspected.
+			end_index = start_index;
+		} else {
+			// we finish the inspection of the tile behind the tail of convoy.
+			end_index = max(0, tail_index-1+offset);
+		}
+		for(sint32 test_index = start_index; test_index >= end_index; test_index--){
 			grund_t *gr = welt->lookup(r.at(test_index));
 			if(  !gr  ) {
 				cnv->suche_neue_route();
@@ -2881,6 +2891,8 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 			if(  !str  ||  (str->get_overtaking_mode()>=twoway_mode  &&  str->get_overtaking_mode()<inverted_mode)  ) {
 				continue;
 			}
+			
+			bool ignore_stucked = !only_search_top  &&  test_index==end_index;
 
 			for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
 				if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
@@ -2892,28 +2904,11 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 						if(  cnv == at->get_convoi()  ) {
 							continue;
 						}
-						if(  cnv->is_overtaking() && at->get_convoi()->is_overtaking()  ){
+						if(  cnv->is_overtaking() == at->get_convoi()->is_overtaking()  ){
 							continue;
-						}
-						if(  !cnv->is_overtaking() && !(at->get_convoi()->is_overtaking())  ){
-							//Prohibit going on passing lane when facing traffic exists.
-							ribi_t::ribi other_direction = at->get_direction();
-							route_t const& r = *cnv->get_route();
-							koord3d next = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
-							if(  calc_direction(next,get_pos()) == other_direction  ) {
-								return v;
-							}
-							continue;
-						}
-						// the logic of other_lane_blocked cannot be applied to facing traffic.
-						if(test_index>0) {
-							const ribi_t::ribi this_prev_dir = calc_direction(r.at(test_index-1u), r.at(test_index));
-							if(ribi_t::backward(this_prev_dir)&at->get_previous_direction()) {
-								continue;
-							}
 						}
 						// Ignore stopping convoi on the tile behind this convoi to change lane in traffic jam.
-						if(  can_reach_tail  &&  at->get_convoi()->get_akt_speed() == 0  ) {
+						if(  ignore_stucked  &&  at->get_convoi()->get_akt_speed() == 0  ) {
 							continue;
 						}
 						if(  test_index==tail_index-1+offset  ||  test_index==tail_index+offset  ){
@@ -2927,21 +2922,11 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 						return v;
 					}
 					else if(  private_car_t* const caut = obj_cast<private_car_t>(v)  ) {
-						if(  cnv->is_overtaking() && caut->is_overtaking()  ){
-							continue;
-						}
-						if(  !cnv->is_overtaking() && !(caut->is_overtaking())  ){
-							//Prohibit going on passing lane when facing traffic exists.
-							ribi_t::ribi other_direction = caut->get_direction();
-							route_t const& r = *cnv->get_route();
-							koord3d next = route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next;
-							if(  calc_direction(next,get_pos()) == other_direction  ) {
-								return v;
-							}
+						if(  cnv->is_overtaking() == caut->is_overtaking()  ){
 							continue;
 						}
 						// Ignore stopping convoi on the tile behind this convoi to change lane in traffic jam.
-						if(  can_reach_tail  &&  caut->get_current_speed() == 0  ) {
+						if(  ignore_stucked  &&  caut->get_current_speed() == 0  ) {
 							continue;
 						}
 						if(  test_index==tail_index-1+offset  ||  test_index==tail_index+offset  ){
@@ -2955,13 +2940,6 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 						return v;
 					}
 				}
-			}
-			if(  test_index==tail_index-1+offset  ){
-				// we finished the examination of the tile behind the tail of convoy.
-				break;
-			}
-			if(  r.at(test_index)==cnv->back()->get_pos()  ) {
-				can_reach_tail = true;
 			}
 			if(  only_search_top  ) {
 				break;
