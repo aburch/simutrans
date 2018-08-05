@@ -7147,7 +7147,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			// Clear the station signal when a train is arriving.
 			// TODO: Consider whether to make this optional on a setting in the signal's .dat file
-			if (station_signal_to_clear_for_entry->get_desc()->get_aspects() > 2)
+			if (station_signal_to_clear_for_entry->get_desc()->get_working_method() != absolute_block && station_signal_to_clear_for_entry->get_desc()->get_aspects() > 2)
 			{
 				station_signal_to_clear_for_entry->set_state(station_signal == inverse ? roadsign_t::caution : roadsign_t::caution_no_choose);
 			}
