@@ -59,7 +59,7 @@ private:
 public:
 	tool_remover_t() : two_click_tool_t(TOOL_REMOVER | GENERAL_TOOL) { one_click = true; }
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Abriss"); }
-	char const* process(player_t*, koord3d) OVERRIDE;
+	char const* process(player_t*, koord3d);
 	bool is_init_network_save() const OVERRIDE { return true; }
 	
 	char const* do_work(player_t*, koord3d const&, koord3d const&) OVERRIDE;
