@@ -288,7 +288,7 @@ koord3d tunnel_builder_t::find_end_pos(player_t *player, koord3d pos, koord zv, 
 			}
 			if(  !ribi  ) {
 				// End of the slope - Missing end rail or has no ribis
-				// we still consider if we interfere with a way (original: prüfen noch, ob uns dort ein anderer Weg stört)
+				// we still consider if we interfere with a way (original: prEen noch, ob uns dort ein anderer Weg stört)
 				if(waytyp != powerline_wt) {
 					if(  !gr->hat_wege()  ||  gr->hat_weg(waytyp)  ) {
 						return pos;
@@ -459,7 +459,7 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 		way_desc = way_builder_t::weg_search(waytyp, desc->get_topspeed(), desc->get_max_axle_load(), welt->get_timeline_year_month(), type_flat, desc->get_wear_capacity());
 	}
 
-	build_tunnel_portal(player, pos, zv, desc, way_desc, cost, overtaking_mode, true);
+	build_tunnel_portal(player, pos, zv, desc, way_desc, cost, start != end, overtaking_mode, true);
 
 	ribi = ribi_type(-zv);
 	// don't move on to next tile if only one tile long
@@ -471,6 +471,11 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 		gr->calc_image();
 		gr->set_flag(grund_t::dirty);
+	}
+
+	if (  end == start  ) {
+		// already finished
+		return true;
 	}
 
 	// Now we build the invisible part
@@ -537,7 +542,7 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 		}
 		else if (gr_end->ist_karten_boden()) {
 			// if end is above ground construct an exit
-			build_tunnel_portal(player, pos, -zv, desc, way_desc, cost, overtaking_mode, false);
+			build_tunnel_portal(player, pos, -zv, desc, way_desc, cost, true, overtaking_mode, false);
 			gr_end = NULL; // invalid - replaced by tunnel ground
 			// calc new back image for the ground
 			if (end!=start && grund_t::underground_mode) {
@@ -602,12 +607,15 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 }
 
 
-void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, sint64 &cost, overtaking_mode_t overtaking_mode, bool beginning)
+void tunnel_builder_t::build_tunnel_portal(player_t *player, koord3d end, koord zv, const tunnel_desc_t *desc, const way_desc_t *way_desc, sint64 &cost, bool connect_inside, overtaking_mode_t overtaking_mode, bool beginning)
 {
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi = 0;
 	if(desc->get_waytype()!=powerline_wt) {
-		ribi = alter_boden->get_weg_ribi_unmasked(desc->get_waytype()) | ribi_type(zv);
+		ribi = alter_boden->get_weg_ribi_unmasked(desc->get_waytype());
+	}
+	if (connect_inside) {
+		ribi |= ribi_type(zv);
 	}
 
 	tunnelboden_t *tunnel = new tunnelboden_t( end, alter_boden->get_grund_hang());
@@ -762,7 +770,7 @@ const char *tunnel_builder_t::remove(player_t *player, koord3d start, waytype_t 
 		else {
 			part_list.insert(pos);
 		}
-		// Alle Tunnelteile auf Entfernbarkeit prüfen!
+		// Alle Tunnelteile auf Entfernbarkeit prEen!
 		if(  from->kann_alle_obj_entfernen(player)  ) {
 			return "Der Tunnel ist nicht frei!\n";
 		}
