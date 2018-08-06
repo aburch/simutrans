@@ -462,11 +462,11 @@ bool tunnel_builder_t::build_tunnel(player_t *player, koord3d start, koord3d end
 	build_tunnel_portal(player, pos, zv, desc, way_desc, cost, start != end, overtaking_mode, true);
 
 	ribi = ribi_type(-zv);
-	// don't move on to next tile if only one tile long
-	if(  end != start  ) {
-		pos = pos + zv;
-	}
-	// calc new back image for the ground
+
+	// move on
+	pos = pos + zv;
+
+	// calc back image to remove wall blocking tunnel portal for active underground view
 	if(grund_t::underground_mode) {
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 		gr->calc_image();
