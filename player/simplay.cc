@@ -692,27 +692,40 @@ void player_t::ai_bankrupt()
 								break;
 							case obj_t::way:
 							{
-								weg_t *w=(weg_t *)obj;
-								if (gr->ist_bruecke()  ||  gr->ist_tunnel()) {
-									w->set_owner( NULL );
+								weg_t *w = (weg_t *)obj;
+								bool mothball = false;
+								if (gr->ist_bruecke() || gr->ist_tunnel())
+								{
+									w->set_owner(NULL);
+									if (!w->is_public_right_of_way())
+									{
+										mothball = true;
+									}
 								}
-								else if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
-									add_maintenance( -w->get_desc()->get_maintenance(), w->get_waytype() );
-									w->set_owner( NULL );
+								else if (w->get_waytype() == road_wt || w->get_waytype() == water_wt) {
+									add_maintenance(-w->get_desc()->get_maintenance(), w->get_waytype());
+									w->set_owner(NULL);
 								}
-								else {
+								else
+								{
+									mothball = true;
+								}
+
+								if (mothball)
+								{
 									weg_t *way = (weg_t *)obj;
 									const way_desc_t* mothballed_type = way_builder_t::way_search_mothballed(way->get_waytype(), (systemtype_t)way->get_desc()->get_styp());
-									if(mothballed_type && way->get_waytype())
+									if (mothballed_type && way->get_waytype())
 									{
 										way->set_desc(mothballed_type);
 									}
 									else
 									{
-										gr->weg_entfernen( w->get_waytype(), true );
+										gr->weg_entfernen(w->get_waytype(), true);
 									}
 									way->set_owner(NULL);
 								}
+
 								break;
 							}
 							case obj_t::bruecke:

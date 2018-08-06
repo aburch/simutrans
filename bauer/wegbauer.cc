@@ -2665,6 +2665,24 @@ void way_builder_t::build_track()
 						// we take ownership => we take care to maintain the roads completely ...
 						player_t *p = weg->get_owner();
 						cost -= weg->get_desc()->get_upgrade_group() == desc->get_upgrade_group() ? desc->get_way_only_cost() : desc->get_value();
+						
+						if (!desc->is_mothballed())
+						{
+							// If we are upgrading an unowned bridge or tunnel's way, take ownership of the bridge or tunnel.
+							bruecke_t *bridge = gr ? gr->find<bruecke_t>() : NULL;
+							tunnel_t *tunnel = gr ? gr->find<tunnel_t>() : NULL;
+							if (bridge && bridge->get_owner() == NULL)
+							{
+								bridge->set_owner(player);
+								player_t::add_maintenance(player, bridge->get_desc()->get_maintenance(), bridge->get_desc()->get_finance_waytype());
+							}
+							else if (tunnel && tunnel->get_owner() == NULL)
+							{
+								tunnel->set_owner(player);
+								player_t::add_maintenance(player, tunnel->get_desc()->get_maintenance(), tunnel->get_desc()->get_finance_waytype());
+							}
+						}
+
 						weg->set_desc(desc);
 						if(desc->is_mothballed())
 						{
