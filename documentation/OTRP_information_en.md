@@ -1,6 +1,5 @@
 <img src="logo/OTRP_logo.png" width="600">  
-This logo was made by [128Na](https://twitter.com/128na).  
-[日本語はこちら](OTRP_v13_information.md)  
+This logo was made by [128Na](https://twitter.com/128na).
 
 # What is OTRP?
 This is a modified version of simutrans that some features are added to.  
