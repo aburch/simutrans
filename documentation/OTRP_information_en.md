@@ -1,4 +1,4 @@
-![logo](logo/OTRP_logo.png)  
+<img src="logo/OTRP_logo.png" width="600">  
 This logo was made by [128Na](https://twitter.com/128na).
 
 # What is OTRP?
@@ -62,7 +62,7 @@ As the amount of traffic increases, traffic jam at a junction like the image bel
 ![fig3](images/fig3.png)  
 
 OTRP provides a sign to instruct cars to stay in an appropriate lane. An oneway sign on an oneway road works as a lane affinity sign. Lane affinity is valid until the next intersection, whose coordinate is displayed in the road sign window.
-![fig7](images/fig7.png)
+<img src="images/fig7.png" width="526">  
 
 When "Left" is enabled, cars that will go left at the next intersection stay in the left lane. When "Right" is enabled, cars that will go right stay in the right lane.  
 Lane change can be failed when the traffic is heavy.
@@ -70,7 +70,7 @@ Lane change can be failed when the traffic is heavy.
 For citycars, lane affinity signs are valid only when the distance between the sign and the next intersection is less than  citycar_max_look_forward.
 
 ## Traffic lights
-![fig8](images/fig8.png)
+<img src="images/fig8.png" width="600">  
 If you put two traffic signs like the image above in the conventional simutrans, vehicles on the north-south road cannot turn right because of the traffic lights. The phase offset can realize this, but using it is not appropriate for this case.  
 In OTRP, you can specify the direction from which vehicles can enter the tile. For example, the settings in the image above enables vehicles to turn right at the intersection properly.
 

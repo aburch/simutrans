@@ -1,4 +1,4 @@
-![logo](logo/OTRP_logo.png)  
+<img src="logo/OTRP_logo.png" width="600">  
 （ロゴ提供：[128な人](https://twitter.com/128na)）
 # OTRPとは？
 本家simutrans standardに機能をいくらか付け加えた改造版Simutransです。  
