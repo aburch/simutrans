@@ -1,3 +1,4 @@
+[日本語はこちら](OTRP_v13_information.md)  
 <img src="logo/OTRP_logo.png" width="600">  
 This logo was made by [128Na](https://twitter.com/128na).
 
