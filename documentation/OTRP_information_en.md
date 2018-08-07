@@ -1,13 +1,25 @@
+![logo](logo/OTRP_logo.png)  
+This logo was made by [128Na](https://twitter.com/128na).
+
 # What is OTRP?
 This is a modified version of simutrans that some features are added to.  
-OTRP means Oneway Twoway Road Patch. The simutrans standard uses only one lane when you build highways that has two lanes for each direction. The most important aim of this project is to take full advantage of the two lanes.  
+- Road vehicles take full advantage of two lanes. You can build and enjoy a 4-lane highway.
+- For road, "citycars do not enter" and "avoid becoming cityroad" features are available.
+- Regional mass build and land raise/lower tools are available. These tools are extremely useful for massive development.
+
+You should try OTRP because...
+- Easy to start. Just 4 steps. See the Download and Install section.
+- You can convert your save data to the format of simutrans standard whenever you want.
+- UI is carefully designed so that you can use OTRP in the exactly same way as simutrans standard. Explorer wonderful OTRP features one by one!
 
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
+Twitter hash tag :  [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)  
 
 As of version 17, OTRP is based on simutrans standard nightly r8549.
 
 # Download
-In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.
+In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.  
+
 You can download the OTRP executable binary from the links below. **(2018 July 30th, updated to ver 17.)**  
 windows: https://drive.google.com/open?id=14ZZ85PrcmUIITwBakbZj6Vx_dcUTIrdb  
 mac: https://drive.google.com/open?id=1vBdji8ztr_kXu6H2MyvppqsCkVMPJypz  
@@ -22,7 +34,7 @@ OTRP does not provide specialized makeobj. Please use one of simutrans standard.
 Please make sure not to overwrite your sve file of simutrans standard.
 
 # How to use
-Sorry, this section is still under construction.
+Even if you do not understand what is described below, you can play OTRP as the simutrans standard. Please explorer the features one by one :)
 ## Road Configuration
 ![fig1](images/fig1.png)  
 Select a road icon **with holding a Ctrl key**, then you can configure the road.
@@ -46,11 +58,24 @@ With holding the colon key, connected directions of roads can be checked with th
 - Both are enabled -> Orange
 
 ## lane affinity signs
-As the amount of traffic increases, traffic jam at a junction like the image below can be often seen.  
+As the amount of traffic increases, traffic jam at a junction like the image below can be often seen. This is due to lane crossing. A car inside crosses the outside lane to go to exit.  
 ![fig3](images/fig3.png)  
 
+OTRP provides a sign to instruct cars to stay in an appropriate lane. An oneway sign on an oneway road works as a lane affinity sign. Lane affinity is valid until the next intersection, whose coordinate is displayed in the road sign window.
+![fig7](images/fig7.png)
+
+When "Left" is enabled, cars that will go left at the next intersection stay in the left lane. When "Right" is enabled, cars that will go right stay in the right lane.  
+Lane change can be failed when the traffic is heavy.
+
+For citycars, lane affinity signs are valid only when the distance between the sign and the next intersection is less than  citycar_max_look_forward.
+
+## Traffic lights
+![fig8](images/fig8.png)
+If you put two traffic signs like the image above in the conventional simutrans, vehicles on the north-south road cannot turn right because of the traffic lights. The phase offset can realize this, but using it is not appropriate for this case.  
+In OTRP, you can specify the direction from which vehicles can enter the tile. For example, the settings in the image above enables vehicles to turn right at the intersection properly.
+
 ## etc  
-- The income/cost message can be turned off in the display settings  or by assigning a key to simple_tool[38].
+- The income/cost message can be turned off in the display settings or by assigning a key to simple_tool[38].
 - To realize smooth traffic in an intersection, vehicles reserve tiles in the intersection. With b key, you can check and cancel the reservation of road.
 - Use "make halt public" tool with the shift key, and the halt belongs to the current activated player. With the control key, this operation can be done with no cost.
 - If you use the land raise/lower tool with ctrl key, the height of selected area are set to the height of the original coordinate. (Implemented by shingoushori)
@@ -71,4 +96,4 @@ You can use all add-ons for simutrans standard on OTRP. There is no OTRP-special
 - If you press "Readable by standard" button, the game is saved so that it is readable by simutrans standard. In this mode, please be ware that **OTRP specific data is lost.**
 
 # Contact Me
-If you have any questions, please feel free to ask me through the simutrans international forum or @himeshi_hob in Twitter. Every issue reports and your opinions are greatly appreciated.
+If you have any questions or request, please feel free to ask me through the simutrans international forum or [@himeshi_hob](https://twitter.com/himeshi_hob) in Twitter. Every issue reports and your opinions are greatly appreciated.

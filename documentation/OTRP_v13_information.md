@@ -1,15 +1,24 @@
-※standard版OTRPのドキュメントです。extendedにOTRPは既に統合されました。
+![logo](logo/OTRP_logo.png)  
+（ロゴ提供：[128な人](https://twitter.com/128na)）
 # OTRPとは？
 本家simutrans standardに機能をいくらか付け加えた改造版Simutransです。  
-OTRPはOneway Twoway Road Patchの略で、日本語通称は「二車線パッチ」です。  
-本家Simutransでは片側二車線の高速・幹線道路を引いても実質一車線分しか使ってくれないのでフルで2車線使ってくれるようにするのが本プロジェクトの目的です。
+- 道路で片側二車線走行。往復4車線高速道路が作れるようになります。
+- 道路に市道化防止・自家用車進入禁止を設定
+- 範囲整地・建築ツールなど大規模開発に適したツール群
+
+といった機能が使えるようになります。
+- 導入は簡単です。コンパイルなどは必要ありません。
+- セーブデータはいつでもsimutrans standardの形式に戻せます。
+- simutrans standardと全く同じように使えます。OTRPの機能を一つ一つ探検してみてください。
 
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
+Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
 version17現在、simutrans standard nightly r8549をベースにしています。
 
 # ダウンロード
-ribi-arrow・信号接続方向制御つきのバイナリのみの提供です。実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。
+実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
+
 本体は下のリンクからどうぞ。**（2018年7月30日PM11時　ver17に更新）**  
 windows: https://drive.google.com/open?id=14ZZ85PrcmUIITwBakbZj6Vx_dcUTIrdb  
 mac: https://drive.google.com/open?id=1vBdji8ztr_kXu6H2MyvppqsCkVMPJypz    
@@ -27,6 +36,7 @@ standard版のsveファイルを上書きしないように気をつけましょ
 https://github.com/teamhimeh/simutrans/blob/OTRP-distribute/documentation/ja.OTRP.tab にOTRP用ja.tabを置いておきました。ご自由にお使いください。
 
 # 使い方
+OTRPは使い方を知らなくてもstandardと同じように遊べるようになっています。少しずつ理解していきましょう。
 ## 道路の設定
 ![fig1](images/fig1.png)  
 道路アイコンを**Ctrlキーを押しながら**選択すると追い越しモード等を設定できます。
@@ -102,7 +112,7 @@ v12,13を使っていた方で初めてv14を使うときは**autosave.sveを削
 - データセーブ時に「Readable by standard」ボタンを押して保存するとstandardで読み書きできる形式で保存されます。この形式では**OTRP固有の情報が失われる**ので注意してください。
 
 # おねがい
-バグ探しには皆さんのお力が必要です。バグと思われる挙動があればtwitter @himeshi_hob に報告していただけるとありがたいです。  
+バグ探しには皆さんのお力が必要です。バグと思われる挙動があればtwitter [@himeshi_hob](https://twitter.com/himeshi_hob) に報告していただけるとありがたいです。  
 特に「ネットワークプレイ」が安定動作するかが確認取れてないので遊んでみて動作状況を教えていただけるとうれしいです。ぜひOTRPでNSを楽しんでみてください。
 
 [1]:https://twitter.com/shingoushori
