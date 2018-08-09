@@ -423,7 +423,7 @@ int simu_main(int argc, char** argv)
 			" -fps COUNT          framerate (from 5 to 100)\n"
 			" -h | -help | --help displays this help\n"
 			" -lang CODE          starts with specified language\n"
-			" -load FILE[.sve]    loads game in file 'save/FILE.sve'\n"
+			" -load NAME          loads savegame with name 'NAME' from Simutrans 'save' directory\n"
 			" -log                enables logging to file 'simu.log'\n"
 #ifdef SYSLOG
 			" -syslog             enable logging to syslog\n"
