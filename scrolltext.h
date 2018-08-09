@@ -52,6 +52,7 @@
 " TurfIt", "patch",
 " Phystam", "patches",
 " Toshio Kuratomi" "patches",
+" Meme", "Mac OSX nightly builds",
 " Zhaop", "Mac OSX patch and fixes",
 " Vladki", "patch, online servers",
 " Hanczar","profiling, fixes, testing",
