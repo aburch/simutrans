@@ -1063,6 +1063,9 @@ bool two_click_tool_t::is_first_click() const
 
 bool two_click_tool_t::is_work_here_network_save(player_t *player, koord3d pos )
 {
+	if(  one_click && !is_ctrl_pressed()  ) {
+		return false;
+	}
 	if(  !is_first_click()  ) {
 		return false;
 	}
