@@ -1427,7 +1427,7 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 	bool tunnel_portal = ist_tunnel()  &&  ist_karten_boden();
 	if (tunnel_portal) {
 		// pretend tunnel portal is connected to the inside
-		ribi |= ribi_t::reverse_single(ribi) & (corner_se(slope)>0 ?  ribi_t::southeast : ribi_t::northwest);
+		ribi |= ribi_type(get_grund_hang());
 	}
 	// clip
 	const int hgt_step = tile_raster_scale_y( TILE_HEIGHT_STEP, raster_tile_width);
