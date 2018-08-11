@@ -1,3 +1,19 @@
+The below text is written for Simutrans Standard. This file is part of the
+Simutrans Extended source, which is a fork of Simutrans Standard. Most of
+the information below still applies, but note in particular the following
+differences:
+
+The source for Simutrans Extended is stored using Git version control, and
+can be found at:
+https://github.com/jamespetts/simutrans-extended.git
+
+References to 'Simutrans/sim' and 'sim' should be assumed to refer to the
+root directory of the Git repository.
+
+- Aug 2018
+
+###########################################################################
+
 How to compile
 --------------
 
