@@ -1,5 +1,5 @@
 <img src="logo/OTRP_logo.png" width="600">  
-（ロゴ提供：[128な人](https://twitter.com/128na)）  
+（ロゴ提供： [128な人](https://twitter.com/128na) ）  
 
 [Document in English is here.](OTRP_information_en.md)  
 
@@ -17,14 +17,14 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version17現在、simutrans standard nightly r8549をベースにしています。
+version17_1現在、simutrans standard nightly r8555をベースにしています。
 
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
 
-本体は下のリンクからどうぞ。**（2018年7月30日PM11時　ver17に更新）**  
-windows: https://drive.google.com/open?id=14ZZ85PrcmUIITwBakbZj6Vx_dcUTIrdb  
-mac: https://drive.google.com/open?id=1vBdji8ztr_kXu6H2MyvppqsCkVMPJypz    
+本体は下のリンクからどうぞ。**（2018年8月12日AM0時　ver17_1に更新）**  
+windows: https://drive.google.com/open?id=1TV_BTd8brdweyCC3rDHGUm8xqEOjZ1jd  
+mac: https://drive.google.com/open?id=1J2atWdmSkcq1_ixufOsp7gDUfh53Xq14    
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 ※makeobjはstandardのやつをそのまま使ってください
 

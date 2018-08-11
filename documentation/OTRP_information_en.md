@@ -1,5 +1,5 @@
 <img src="logo/OTRP_logo.png" width="600">  
-This logo was made by [128Na](https://twitter.com/128na).  
+This logo was made by [128Na](https://twitter.com/128na) .  
 
 [日本語はこちら](OTRP_v13_information.md)  
 
@@ -17,14 +17,14 @@ You should try OTRP because...
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitter hash tag :  [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)  
 
-As of version 17, OTRP is based on simutrans standard nightly r8549.
+As of version 17_1, OTRP is based on simutrans standard nightly r8555.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.  
 
-You can download the OTRP executable binary from the links below. **(2018 July 30th, updated to ver 17.)**  
-windows: https://drive.google.com/open?id=14ZZ85PrcmUIITwBakbZj6Vx_dcUTIrdb  
-mac: https://drive.google.com/open?id=1vBdji8ztr_kXu6H2MyvppqsCkVMPJypz  
+You can download the OTRP executable binary from the links below. **(2018 August 12th, updated to ver 17_1.)**  
+windows: https://drive.google.com/open?id=1TV_BTd8brdweyCC3rDHGUm8xqEOjZ1jd  
+mac: https://drive.google.com/open?id=1J2atWdmSkcq1_ixufOsp7gDUfh53Xq14  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 OTRP does not provide specialized makeobj. Please use one of simutrans standard.
 
