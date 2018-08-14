@@ -36,11 +36,11 @@ onewaysign_info_t::onewaysign_info_t(roadsign_t* s, koord3d first_intersection) 
  * components should be triggered.
  * V.Meyer
  */
-bool onewaysign_info_t::action_triggered( gui_action_creator_t *komp, value_t /* */)
+bool onewaysign_info_t::action_triggered( gui_action_creator_t *comp, value_t /* */)
 {
 	uint8 fix = sign->get_lane_affinity();
 	for(  int i=0;  i<2;  i++  ) {
-		if(komp == &direction[i]) {
+		if(comp == &direction[i]) {
 			fix ^= (i+1);
 		}
 	}
