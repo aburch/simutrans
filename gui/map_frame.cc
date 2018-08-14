@@ -16,10 +16,10 @@
 #include "karte.h"
 #include "map_frame.h"
 
-#include "../simsys.h"
+#include "simwin.h"
 
+#include "../simsys.h"
 #include "../simworld.h"
-#include "../gui/simwin.h"
 #include "../display/simgraph.h"
 #include "../display/viewport.h"
 #include "../simcolor.h"

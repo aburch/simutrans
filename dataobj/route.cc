@@ -942,7 +942,7 @@ route_t::route_result_t route_t::intern_calc_route(karte_t *welt, const koord3d 
 
 	//INT_CHECK("route 194");
 	// target reached?
-	if(!ziel_erreicht  || step >= MAX_STEP  ||  tmp->parent==NULL) {
+	if(!ziel_erreicht  || step >= MAX_STEP  ||  tmp->g >= max_cost  ||  tmp->parent==NULL) {
 		if(  step >= MAX_STEP  ) {
 			dbg->warning("route_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
 			ok = route_too_complex;

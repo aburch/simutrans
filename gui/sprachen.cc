@@ -41,7 +41,7 @@ int sprachengui_t::cmp_language_button(sprachengui_t::language_button_t a, sprac
 void sprachengui_t::init_font_from_lang()
 {
 	static const char *default_name = "PROP_FONT_FILE";
-	const char * prop_font_file = translator::translate(default_name);
+	const char *prop_font_file = translator::translate(default_name);
 
 	// Hajo: fallback if entry is missing
 	// -> use latin-1 font
@@ -50,11 +50,18 @@ void sprachengui_t::init_font_from_lang()
 	}
 
 	// load large font
-	char prop_font_file_name [1024];
-	sprintf(prop_font_file_name, "%s%s", FONT_PATH_X, prop_font_file);
-	chdir(env_t::program_dir);
-	display_load_font(prop_font_file_name);
-	chdir(env_t::user_dir);
+	chdir( env_t::program_dir );
+	chdir( FONT_PATH );
+	bool ok = false;
+	char prop_font_file_name[1024];
+	tstrncpy( prop_font_file_name, prop_font_file, lengthof(prop_font_file_name) );
+	char *f = strtok( prop_font_file_name, ";" );
+	do {
+		ok = display_load_font(prop_font_file_name);
+		f = strtok( NULL, ";" );
+	}
+	while(  !ok  &&  f  );
+	chdir( env_t::user_dir );
 
 	const char * p = translator::translate("SEP_THOUSAND");
 	char c = ',';
@@ -109,6 +116,9 @@ sprachengui_t::sprachengui_t() :
 	cursor.y = max( separator.get_pos().y + D_DIVIDER_HEIGHT, flags.get_pos().y + flags.get_size().h);
 
 	const translator::lang_info* lang = translator::get_langs();
+	chdir( env_t::program_dir );
+	chdir( FONT_PATH );
+
 	for (int i = 0; i < translator::get_language_count(); ++i, ++lang) {
 		button_t* b = new button_t();
 
@@ -117,30 +127,25 @@ sprachengui_t::sprachengui_t() :
 		b->set_no_translate(true);
 
 		// check, if font exists
-		chdir(env_t::program_dir);
-		const char* fontname = lang->translate("PROP_FONT_FILE");
-		char prop_font_file_name [1024];
-		sprintf(prop_font_file_name, "%s%s", FONT_PATH_X, fontname);
-		bool ok = true;
+		uint16 num_loaded = false;
+		char prop_font_file_name[1024];
+		tstrncpy( prop_font_file_name, lang->translate("PROP_FONT_FILE"), lengthof(prop_font_file_name) );
+		char *f = strtok( prop_font_file_name, ";" );
+		do {
+			num_loaded = display_load_font(prop_font_file_name);
+			f = strtok( NULL, ";" );
+		}
+		while(  !num_loaded  &&  f  );
 
-		font_type fnt;
-		fnt.screen_width = NULL;
-		fnt.char_data = NULL;
-		if(  *fontname == 0  ||  !load_font(&fnt,prop_font_file_name)  ) {
-			ok = false;
-		}
-		else {
-			if( fnt.num_chars <= 256  ) {
-				dbg->warning( "sprachengui_t::sprachengui_t()", "Unicode language %s needs BDF fonts with most likely more than 256 characters!", lang->name );
-			}
-			free(fnt.screen_width);
-			free(fnt.char_data);
-		}
 		// now we know this combination is working
-		if(ok) {
+		if(num_loaded) {
 			// only listener for working languages ...
 			b->add_listener(this);
-		} else {
+			if(  num_loaded <= 256  ) {
+				dbg->warning( "sprachengui_t::sprachengui_t()", "Unicode language %s needs BDF fonts with most likely more than 256 characters!", lang->name );
+			}
+		}
+		else {
 			dbg->warning("sprachengui_t::sprachengui_t()", "no font found for %s", lang->name);
 			b->disable();
 		}

@@ -738,6 +738,8 @@ power_revenue_factor_percentage = 100
 # Number of trees on square 2 - minimal usable, 3 good, 4 very nice looking
 max_no_of_trees_on_square = 3
 
+# All following tree options are only active during map generation/extension.
+
 # Base forest size - minimal size of forest - map independent
 forest_base_size = 36
 
@@ -759,7 +761,10 @@ no_tree_climates = 130
 
 # if set, no trees will be created at all (save about 30% memory and
 # the season change will be much smoother on small machines)
-#no_tree = 0
+no_trees = 0
+
+# if set, no lakes will be created at all
+no_lakes = 0
 
 ################################### Time settings ###################################
 

@@ -9,12 +9,12 @@
 
 #include "money_frame.h"
 #include "ai_option_t.h"
+#include "simwin.h"
 
 #include "../simworld.h"
 #include "../simdebug.h"
 #include "../display/simgraph.h"
 #include "../simcolor.h"
-#include "../gui/simwin.h"
 #include "../utils/simstring.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"

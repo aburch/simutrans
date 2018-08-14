@@ -1199,10 +1199,15 @@ const vector_tpl<const building_desc_t*>* hausbauer_t::get_list(const building_d
 	switch (typ) {
 		case building_desc_t::monument:         return &unbuilt_monuments;
 		case building_desc_t::attraction_land: return &attractions_land;
-		case building_desc_t::headquarters:      return NULL;
+		case building_desc_t::headquarters:      return &headquarters;
 		case building_desc_t::townhall:         return &townhalls;
 		case building_desc_t::attraction_city: return &attractions_city;
-		case building_desc_t::factory:          return NULL;
+		case building_desc_t::dock:
+		case building_desc_t::flat_dock:
+		case building_desc_t::depot:
+		case building_desc_t::generic_stop:
+		case building_desc_t::generic_extension:
+		                                    return &station_building;
 		default:                            return NULL;
 	}
 }

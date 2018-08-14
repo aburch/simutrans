@@ -223,6 +223,7 @@ settings_t::settings_t() :
 		default_player_color[i][1] = 255;
 	}
 	default_player_color_random = false;
+	default_ai_construction_speed = env_t::default_ai_construction_speed;
 
 	/* the big cost section */
 	freeplay = false;
@@ -1599,9 +1600,11 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_byte( way_height_clearance );
 		}
 		if(  file->get_version()>=120002 && file->get_extended_version() == 0 ) {
-			uint32 default_ai_construction_speed;
 			file->rdwr_long( default_ai_construction_speed );
 			// This feature is used in Standard only
+		}
+		else if(  file->is_loading()  ) {
+			default_ai_construction_speed = env_t::default_ai_construction_speed;
 		}
 		if(  file->get_version() >=120002 && (file->get_extended_revision() >= 9 || file->get_extended_version() == 0 || file->get_extended_version() >= 13)) {
 			file->rdwr_bool(lake);
@@ -2193,6 +2196,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 			default_player_color[i][1] = c2;
 		}
 	}
+	default_ai_construction_speed = env_t::default_ai_construction_speed = contents.get_int("ai_construction_speed", env_t::default_ai_construction_speed );
 
 	sint64 new_maintenance_building = contents.get_int64("maintenance_building", -1);
 	if (new_maintenance_building > 0) {

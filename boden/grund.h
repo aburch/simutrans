@@ -447,7 +447,9 @@ public:
 		/*switch(underground_mode) {// long version of the return statement above
 			case ugm_none: return(get_grund_hang());
 			case ugm_all:  return(get_grund_hang()); // get_typ()==tunnelboden && !ist_karten? slope_t::flat : get_grund_hang());
-			case ugm_level:return pos.z == underground_level || pos.z+max(max(corner_sw(slope),corner_se(slope)),max(corner_ne(slope),corner_nw(slope))) == underground_level || (ist_karten_boden() && pos.z <= underground_level);
+			case ugm_level:return((pos.z > underground_level || (get_typ()==tunnelboden && ist_karten_boden() && pos.z == underground_level))
+							? slope_t::flat
+							: get_grund_hang());
 		}*/
 	}
 
@@ -456,7 +458,7 @@ public:
 			switch(underground_mode) {
 				case ugm_none: return ist_karten_boden();
 				case ugm_all:  return true;
-				case ugm_level:return  pos.z == underground_level  ||  (ist_karten_boden()  &&  pos.z <= underground_level);
+				case ugm_level:return  pos.z == underground_level  ||  pos.z+max(max(corner_sw(slope),corner_se(slope)),max(corner_ne(slope),corner_nw(slope))) == underground_level  ||  (ist_karten_boden()  &&  pos.z <= underground_level);
 			}
 		}
 		else {

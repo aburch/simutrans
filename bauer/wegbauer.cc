@@ -1539,6 +1539,10 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 		FOR(vector_tpl<next_gr_t>, const& r, next_gr) {
 			to = r.gr;
 
+			if(  to==NULL) {
+				continue;
+			}
+
 			// new values for cost g
 			uint32 new_g = tmp->g + r.cost;
 
@@ -1638,7 +1642,7 @@ DBG_DEBUG("way_builder_t::intern_calc_route()","steps=%i  (max %i) in route, ope
 	long cost = -1;
 //DBG_DEBUG("reached","%i,%i",tmp->pos.x,tmp->pos.y);
 	// target reached?
-	if(  !ziel.is_contained(gr->get_pos())  ||  tmp->parent==NULL  ) {
+	if(  !ziel.is_contained(gr->get_pos())  ||  tmp->parent==NULL  ||  tmp->g > maximum  ) {
 	}
 	else if(  step>=route_t::MAX_STEP  ) {
 		dbg->warning("way_builder_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,route_t::MAX_STEP);

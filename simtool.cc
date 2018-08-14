@@ -637,7 +637,8 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 		{
 			welt->set_recheck_road_connexions();
 		}
-		msg = tunnel_builder_t::remove(player, gr->get_pos(), gr->get_weg_nr(0)->get_waytype(), is_ctrl_pressed());
+		waytype_t wegtyp =  gr->get_leitung() ? powerline_wt : gr->get_weg_nr(0)->get_waytype();
+		msg = tunnel_builder_t::remove(player, gr->get_pos(), wegtyp, is_ctrl_pressed());
 		return msg == NULL;
 	}
 

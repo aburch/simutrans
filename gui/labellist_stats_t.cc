@@ -221,7 +221,7 @@ void labellist_stats_t::draw(scr_coord offset)
 
 		// the other infos
 		const label_t* label = welt->lookup_kartenboden(pos)->find<label_t>();
-		PLAYER_COLOR_VAL col = COL_WHITE;
+		PLAYER_COLOR_VAL col = SYSCOL_TEXT_HIGHLIGHT;
 		buf.printf(" (%d,%d)", pos.x, pos.y);
 
 		if(label) {

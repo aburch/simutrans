@@ -194,12 +194,10 @@ void ware_production_t::rdwr(loadsave_t *file)
 		}
 	}
 
-#ifndef CACHE_TRANSIT
 	if(  file->is_loading()  ) {
 		// recalc transit always on load
 		set_stat(0, FAB_GOODS_TRANSIT);
 	}
-#endif
 }
 
 
@@ -2497,10 +2495,11 @@ void fabrik_t::verteile_waren(const uint32 product)
 			}
 			else {
 				// overflowed with our own ware and we have still nearly full stock
-				if(  output[product].menge>= (3 * output[product].max) >> 2  ) {
+//				if(  output[product].menge>= (3 * output[product].max) >> 2  ) {
 					/* Station too full, notify player */
-					best_halt->desceid_station_voll();
-				}
+//					best_halt->desceid_station_voll();
+//				}
+// for now report only serious overcrowding on transfer stops
 				return;
 			}
 		}
@@ -3311,10 +3310,10 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 				}
 
 				if (is_active_lieferziel(lieferziel)) {
-					buf.printf("\n      %s - %s (%d,%d)", translator::translate(fab->get_name()), distance_display, lieferziel.x, lieferziel.y);
+					buf.printf("\n      %s - %s (%d,%d)", fab->get_name(), distance_display, lieferziel.x, lieferziel.y);
 				}
 				else {
-					buf.printf("\n   %s - %s (%d,%d)", translator::translate(fab->get_name()), distance_display, lieferziel.x, lieferziel.y);
+					buf.printf("\n   %s - %s (%d,%d)", fab->get_name(), distance_display, lieferziel.x, lieferziel.y);
 				}
 			}
 		}
@@ -3344,10 +3343,10 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 				}
 				if(  src->is_active_lieferziel(get_pos().get_2d())  ) 
 				{
-					buf.printf("\n      %s - %s (%d,%d)", translator::translate(src->get_name()), distance_display, supplier.x, supplier.y);
+					buf.printf("\n      %s - %s (%d,%d)", src->get_name(), distance_display, supplier.x, supplier.y);
 				}
 				else {
-					buf.printf("\n   %s - %s (%d,%d)", translator::translate(src->get_name()), distance_display, supplier.x, supplier.y);
+					buf.printf("\n   %s - %s (%d,%d)", src->get_name(), distance_display, supplier.x, supplier.y);
 				}
 			}
 		}
@@ -3373,8 +3372,10 @@ void fabrik_t::finish_rd()
 	recalc_nearby_halts();
 	
 	// now we have a valid storage limit
-	if (welt->get_settings().is_crossconnect_factories()) {
-		add_all_suppliers();
+	if(  welt->get_settings().is_crossconnect_factories()  ) {
+		FOR(  vector_tpl<fabrik_t*>,  const fab,  welt->get_fab_list()  ) {
+			fab->add_supplier(this);
+		}
 	}
 	else {
 		// add as supplier to target(s)
@@ -3472,8 +3473,13 @@ void fabrik_t::add_supplier(koord ziel)
 				// now update transit limits
 				FOR(  array_tpl<ware_production_t>,  &w,  input ) {
 					if(  w_out.get_typ() == w.get_typ()  ) {
-						sint32 max_storage = (w_out.max * welt->get_settings().get_factory_maximum_intransit_percentage()) / 100;
+						const sint32 max_storage = (sint32)(((sint64)w_out.max * (sint64)welt->get_settings().get_factory_maximum_intransit_percentage()) / 100);
+						const sint32 old_max_transit = w.max_transit;
 						w.max_transit += max_storage;
+						if(  w.max_transit < old_max_transit  ) {
+							// we have overflown, so we use the max value
+							w.max_transit = 0x7fffffff;
+						}
 						break;
 					}
 				}
@@ -3503,8 +3509,13 @@ void fabrik_t::rem_supplier(koord pos)
 					// now update transit limits
 					FOR(  array_tpl<ware_production_t>,  &w,  input ) {
 						if(  w_out.get_typ() == w.get_typ()  ) {
-							sint32 max_storage = (w_out.max * welt->get_settings().get_factory_maximum_intransit_percentage()) / 100;
+							const sint32 max_storage = (sint32)(((sint64)w_out.max * (sint64)welt->get_settings().get_factory_maximum_intransit_percentage()) / 100);
+							const sint32 old_max_transit = w.max_transit;
 							w.max_transit += max_storage;
+							if(  w.max_transit < old_max_transit  ) {
+								// we have overflown, so we use the max value
+								w.max_transit = 0x7fffffff;
+							}
 							break;
 						}
 					}

@@ -3955,9 +3955,9 @@ uint16 display_load_font(const char* fname)
 {
 	font_type fnt;
 
-	if (fname == NULL) {
+	if(  fname == NULL  ) {
 		// reload last font
-		if (load_font(&fnt, large_font.fname)) {
+		if(  load_font(&fnt, large_font.fname)  ) {
 			free(large_font.screen_width);
 			free(large_font.char_data);
 			large_font = fnt;

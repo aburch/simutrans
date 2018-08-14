@@ -658,8 +658,16 @@ bool ai_goods_t::create_simple_rail_transport()
 	koord diff1( sgn(size1.x), sgn(size1.y) );
 	koord perpend( sgn(size1.y), sgn(size1.x) );
 	while(k!=size1+platz1) {
+		climate c = welt->get_climate(k);
 		if(!welt->flatten_tile( this, k, z1 )) {
 			return false;
+		}
+		// ensure is land
+		grund_t* bd = welt->lookup_kartenboden(k);
+		if (bd->get_typ() == grund_t::wasser) {
+			welt->set_water_hgt(k, bd->get_hoehe()-1);
+			welt->access(k)->correct_water();
+			welt->set_climate(k, c, true);
 		}
 		k += diff1;
 	}
@@ -670,8 +678,16 @@ bool ai_goods_t::create_simple_rail_transport()
 	perpend = koord( sgn(size2.y), sgn(size2.x) );
 	koord diff2( sgn(size2.x), sgn(size2.y) );
 	while(k!=size2+platz2) {
+		climate c = welt->get_climate(k);
 		if(!welt->flatten_tile(this,k,z2)) {
 			return false;
+		}
+		// ensure is land
+		grund_t* bd = welt->lookup_kartenboden(k);
+		if (bd->get_typ() == grund_t::wasser) {
+			welt->set_water_hgt(k, bd->get_hoehe()-1);
+			welt->access(k)->correct_water();
+			welt->set_climate(k, c, true);
 		}
 		k += diff2;
 	}

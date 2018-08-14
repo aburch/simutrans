@@ -47,6 +47,9 @@ gui_scrollbar_height = 22
 # and a matching edit field height
 gui_edit_height = 22
 
+# request larger font size (the resulting spacing is about 15% larger due to decent)
+font_size = 16
+
 ##################################window stuff##################################
 
 # when moving, you can use windows to snap onto each other seamlessly

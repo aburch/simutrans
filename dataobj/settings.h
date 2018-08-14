@@ -624,6 +624,10 @@ public:
 	// @author: Phystam
 	uint32 power_revenue_factor_percentage;
 
+	// how fast new AI will built something
+	// Only used in Standard
+	uint32 default_ai_construction_speed;
+
 	// player color suggestions for new games
 	bool default_player_color_random;
 	uint8 default_player_color[MAX_PLAYER_COUNT][2];
@@ -1139,6 +1143,9 @@ public:
 
 	sint8 get_way_height_clearance() const { return way_height_clearance; }
 	void set_way_height_clearance( sint8 n ) { way_height_clearance = n; }
+
+	uint32 get_default_ai_construction_speed() const { return default_ai_construction_speed; }
+	void set_default_ai_construction_speed( uint32 n ) { default_ai_construction_speed = n; }
 
 	uint32 get_way_degradation_fraction() const { return way_degradation_fraction; }
 
