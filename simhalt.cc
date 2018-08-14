@@ -4558,13 +4558,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					tc.ready_time = ready;
 					tc.ware = ware;
 					transferring_cargoes[0].append(tc);
-#ifndef CACHE_TRANSIT
 					fabrik_t* fab = fabrik_t::get_fab(tc.ware.get_zielpos());
 					if (fab)
 					{
 						fab->update_transit(tc.ware, true);
 					}
-#endif // !CACHE_TRANSIT
 
 				}
 			}

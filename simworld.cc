@@ -9393,13 +9393,11 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			// On re-loading, there is no need to distribute the
 			// cargoes about different members of this array.
 			transferring_cargoes[0].append(tc);
-#ifndef CACHE_TRANSIT
 			fabrik_t* fab = fabrik_t::get_fab(tc.ware.get_zielpos());
 			if (fab)
 			{
 				fab->update_transit(tc.ware, true);
 			}
-#endif // !CACHE_TRANSIT
 		}
 	}
 

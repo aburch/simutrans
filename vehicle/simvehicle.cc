@@ -2716,17 +2716,6 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 					{
 						// also add, of the desc is unknown to find matching replacement
 						temp_fracht[i].insert(ware);
-#ifdef CACHE_TRANSIT
-						/*
-						* It's very easy for in-transit information to get corrupted,
-						* if an intermediate program version fails to compute it right.
-						* So *always* compute it fresh.
-						*
-						* This no longer works properly with Extended because cargo
-						* may be in a queue waiting to be loaded at a station.
-						*/
-						if (file->get_version() <= 112000)
-#endif
 							// restore in-transit information
 							fabrik_t::update_transit(ware, true);
 					}
@@ -2761,14 +2750,6 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 				{
 					// also add, of the desc is unknown to find matching replacement
 					temp_fracht[0].insert(ware);
-#ifdef CACHE_TRANSIT
-					/*
-					* It's very easy for in-transit information to get corrupted,
-					* if an intermediate program version fails to compute it right.
-					* So *always* compute it fresh.
-					*/
-					if (file->get_version() <= 112000)
-#endif
 						// restore in-transit information
 						fabrik_t::update_transit(ware, true);
 				}
