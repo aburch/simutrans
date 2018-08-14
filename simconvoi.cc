@@ -1640,9 +1640,6 @@ bool convoi_t::drive_to()
 							if(  landing == 0x7FFFFFFF  &&  new_landing != 0x7FFFFFFF  ) {
 								landing = new_landing + count_offset;
 							}
-							if(  landing == 0x7FFFFFFF  &&  new_landing != 0x7FFFFFFF  ) {
-								landing = new_landing + count_offset;
-							}
 							if(  search == 0x7FFFFFFF  &&  new_search != 0x7FFFFFFF ) {
 								search = new_search + count_offset;
 							}
