@@ -1414,48 +1414,41 @@ stadt_t::~stadt_t()
 	{
 		welt->lookup_kartenboden(pos)->set_text(NULL);
 
-		if(!welt->is_destroying())
+		// remove city info and houses
+		while(!buildings.empty())
 		{
-			// remove city info and houses
-			while(!buildings.empty())
-			{
-				gebaeude_t* const gb = buildings.pop_back();
-				assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
+			gebaeude_t* const gb = buildings.pop_back();
+			assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
 
-				if(gb->get_tile()->get_desc()->get_type() == building_desc_t::headquarters)
+			if(gb->get_tile()->get_desc()->get_type() == building_desc_t::headquarters)
+			{
+				stadt_t *city = welt->find_nearest_city(gb->get_pos().get_2d());
+				gb->set_stadt( city );
+				if(city)
 				{
-					stadt_t *city = welt->find_nearest_city(gb->get_pos().get_2d());
-					gb->set_stadt( city );
-					if(city)
-					{
-						if(gb->get_tile()->get_desc()->get_type() == building_desc_t::city_res)
-						{
-							city->buildings.append_unique(gb, gb->get_adjusted_population());
-						}
-						else
-						{
-							city->buildings.append_unique(gb, gb->get_adjusted_visitor_demand());
-						}
-					}
-				}
-				else
-				{
-					gb->set_stadt( this );
-					hausbauer_t::remove(welt->get_public_player(), gb, false);
+					city->buildings.append_unique(gb, gb->get_adjusted_visitor_demand());
 				}
 			}
-			// Remove substations
-			FOR(vector_tpl<senke_t*>, sub, substations)
+			else
 			{
-				sub->city = NULL;
-			}
-
-			const weighted_vector_tpl<stadt_t*>& cities = welt->get_cities();
-			FOR(weighted_vector_tpl<stadt_t*>, const i, cities)
-			{
-				i->remove_connected_city(this);
+				gb->set_stadt( this );
+				hausbauer_t::remove(welt->get_public_player(), gb, false);
 			}
 		}
+		// Remove substations
+		FOR(vector_tpl<senke_t*>, sub, substations)
+		{
+			sub->city = NULL;
+		}
+
+		const weighted_vector_tpl<stadt_t*>& cities = welt->get_cities();
+		FOR(weighted_vector_tpl<stadt_t*>, const i, cities)
+		{
+			i->remove_connected_city(this);
+		}
+
+		// Find all buildings in the world that refer to this as their city and set their city to NULL
+		welt->remove_all_building_references_to_city(this);
 
 		check_city_tiles(true);
 	}

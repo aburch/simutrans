@@ -11034,6 +11034,44 @@ void karte_t::update_weight_of_building_in_world_list(gebaeude_t *gb)
 	}
 }
 
+void karte_t::remove_all_building_references_to_city(stadt_t* city)
+{
+	FOR(weighted_vector_tpl <gebaeude_t *>, building, passenger_origins)
+	{
+		if(building->get_stadt() == city)
+		{
+			building->set_stadt(NULL);
+		}
+	}
+
+	FOR(weighted_vector_tpl <gebaeude_t *>, building, mail_origins_and_targets)
+	{
+		if(building->get_stadt() == city)
+		{
+			building->set_stadt(NULL);
+		}
+	}
+
+	for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+	{
+		FOR(weighted_vector_tpl <gebaeude_t *>, building, commuter_targets[i])
+		{
+			if (building->get_stadt() == city)
+			{
+				building->set_stadt(NULL);
+			}
+		}
+
+		FOR(weighted_vector_tpl <gebaeude_t *>, building, visitor_targets[i])
+		{
+			if (building->get_stadt() == city)
+			{
+				building->set_stadt(NULL);
+			}
+		}
+	}	
+}
+
 vector_tpl<car_ownership_record_t> *karte_t::car_ownership;
 
 sint16 karte_t::get_private_car_ownership(sint32 monthyear, uint8 g_class) const
