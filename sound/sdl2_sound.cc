@@ -5,7 +5,7 @@
  */
 
 
-#include <SDL2.h>
+#include <SDL2/SDL.h>
 #include <string.h>
 #include "sound.h"
 #include "../simmem.h"
@@ -62,6 +62,8 @@ static channel channels[CHANNELS];
  * all loaded waved need to be converted to this format
  */
 static SDL_AudioSpec output_audio_format;
+
+static SDL_AudioDeviceID audio_device;
 
 
 void sdl_sound_callback(void *, Uint8 * stream, int len)
