@@ -439,7 +439,7 @@ void karte_t::destroy()
 {
 	is_sound = false; // karte_t::play_sound_area_clipped needs valid zeiger (pointer/drawer)
 	destroying = true;
-DBG_MESSAGE("karte_t::destroy()", "destroying world");
+	DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	uint32 max_display_progress = 256+stadt.get_count()*10 + haltestelle_t::get_alle_haltestellen().get_count() + convoi_array.get_count() + (cached_size.x*cached_size.y)*2;
 	uint32 old_progress = 0;
@@ -451,7 +451,7 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 	if(  nosave  ) {
 		max_display_progress += 256;
 		for( int i=0;  i<4  &&  nosave;  i++  ) {
-	DBG_MESSAGE("karte_t::destroy()", "rotating");
+			DBG_MESSAGE("karte_t::destroy()", "rotating");
 			rotate90();
 		}
 		old_progress += 256;
@@ -464,7 +464,7 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	goods_in_game.clear();
 
-DBG_MESSAGE("karte_t::destroy()", "label clear");
+	DBG_MESSAGE("karte_t::destroy()", "label clear");
 	labels.clear();
 
 	if(zeiger) {
@@ -482,7 +482,7 @@ DBG_MESSAGE("karte_t::destroy()", "label clear");
 	sync_way_eyecandy.clear();
 	old_progress += cached_size.x*cached_size.y;
 	ls.set_progress( old_progress );
-DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
+	DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 
 	// alle convois aufraeumen
 	while (!convoi_array.empty()) {
@@ -494,12 +494,12 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 		}
 	}
 	convoi_array.clear();
-DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 
 	// alle haltestellen aufraeumen
 	old_progress += haltestelle_t::get_alle_haltestellen().get_count();
 	haltestelle_t::destroy_all();
-DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 	ls.set_progress( old_progress );
 
 	// remove all target cities (we can skip recalculation anyway)
@@ -518,7 +518,7 @@ DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 		}
 	}
 	settings.set_city_count(no_of_cities);
-DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
 	ls.set_progress( old_progress );
 	// dinge aufraeumen
@@ -543,7 +543,7 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 		delete players[i];
 		players[i] = NULL;
 	}
-DBG_MESSAGE("karte_t::destroy()", "player destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 
 	old_progress += (cached_size.x*cached_size.y)/4;
 	ls.set_progress( old_progress );
@@ -553,19 +553,18 @@ DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 		delete f;
 	}
 	fab_list.clear();
-DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
 
 	// hier nur entfernen, aber nicht loeschen
 	attractions.clear();
-DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 
 	delete scenario;
 	scenario = NULL;
 
 assert( depot_t::get_depot_list().empty() );
 
-DBG_MESSAGE("karte_t::destroy()", "world destroyed");
-	dbg->important("World destroyed.");
+	DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 	destroying = false;
 }
 
@@ -810,14 +809,13 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
 		create_rivers( settings.get_river_number() );
 	}
 
-dbg->important("Creating cities ...");
-DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
+	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 	vector_tpl<koord> *pos = stadt_t::random_place(new_city_count, old_x, old_y);
 
 	if(  !pos->empty()  ) {
 		const sint32 old_city_count = stadt.get_count();
 		new_city_count = pos->get_count();
-		dbg->important("Creating cities: %d", new_city_count);
+		DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "Creating cities: %d", new_city_count);
 
 		// prissi if we could not generate enough positions ...
 		settings.set_city_count(old_city_count);
@@ -1293,7 +1291,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	nosave_warning = nosave = false;
 
-	dbg->important("Creating factories ...");
+	dbg->error("karte_t::init()", "Creating factories ...");
 	factory_builder_t::new_world();
 
 	int consecutive_build_failures = 0;
@@ -1319,7 +1317,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	// tourist attractions
 	factory_builder_t::distribute_attractions(settings.get_tourist_attractions());
 
-	dbg->important("Preparing startup ...");
+	dbg->message("karte_t::init()", "Preparing startup ...");
 	if(zeiger == 0) {
 		zeiger = new zeiger_t(koord3d::invalid, NULL );
 	}
