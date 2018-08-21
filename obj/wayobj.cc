@@ -336,9 +336,6 @@ void wayobj_t::calc_image()
 					diagonal = false;
 				}
 			}
-
-			if(  ribi_t::is_threeway(dir)  ) {
-			}
 		}
 	}
 #ifdef MULTI_THREAD
