@@ -95,7 +95,7 @@ DBG_MESSAGE("sound_desc_t::init()","assigned system sound %d to sound %s (id=%i)
 /* return sound id from index */
 sint16 sound_desc_t::get_sound_id(const char *name)
 {
-	if(  name==NULL  ||  *name==0  ) {
+	if(  !sound_on  &&  name==NULL  ||  *name==0  ) {
 		return NO_SOUND;
 	}
 	sound_ids *s = name_sound.get(name);
@@ -123,6 +123,9 @@ DBG_MESSAGE("sound_desc_t::get_sound_id()","successfully retrieved sound %s inte
  */
 bool sound_desc_t::register_desc(sound_desc_t *desc)
 {
+	if(  !sound_on  ) {
+		return false;
+	}
 	// register, if not there (all done by this one here)
 	desc->sound_id = get_sound_id( desc->get_name() );
 	if(desc->sound_id!=NO_SOUND) {

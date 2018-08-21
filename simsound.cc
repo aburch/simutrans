@@ -25,28 +25,17 @@
 #include "utils/simstring.h"
 
 
-/**
- * max sound index
- * @author hj. Malthaner
- */
 static bool        new_midi = false;
 static plainstring midi_title[MAX_MIDI];
 
-
-/**
- * Gesamtlautst�rke
- * @author hj. Malthaner
- */
-
 static int max_midi = -1; // number of MIDI files
 
-static int current_midi = -1;  // Hajo: init with error condition,
-                               // reset during loading
+static int current_midi = -1;  // Hajo: init with error condition, reset during loading
 
 
 
 /**
- * setzt lautst�rke f�r all effekte
+ * setzt lautst?rke f?r all effekte
  * @author Hj. Malthaner
  */
 void sound_set_global_volume(int volume)
@@ -56,7 +45,7 @@ void sound_set_global_volume(int volume)
 
 
 /**
- * ermittelt lautsta�rke f�r all effekte
+ * ermittelt lautsta?rke f?r all effekte
  * @author Hj. Malthaner
  */
 int sound_get_global_volume()
@@ -99,7 +88,7 @@ void sound_set_shuffle_midi( bool shuffle )
 
 
 /**
- * setzt Lautst�rke f�r MIDI playback
+ * setzt Lautst?rke f?r MIDI playback
  * @param volume volume in range 0..255
  * @author Hj. Malthaner
  */
@@ -114,7 +103,7 @@ void sound_set_midi_volume(int volume)
 
 
 /**
- * ermittelt Lautst�rke f�r MIDI playback
+ * ermittelt Lautst?rke f?r MIDI playback
  * @return volume in range 0..255
  * @author Hj. Malthaner
  */

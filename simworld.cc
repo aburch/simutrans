@@ -582,7 +582,7 @@ void karte_t::destroy()
 	if(  nosave  ) {
 		max_display_progress += 256;
 		for( int i=0;  i<4  &&  nosave;  i++  ) {
-	DBG_MESSAGE("karte_t::destroy()", "rotating");
+			DBG_MESSAGE("karte_t::destroy()", "rotating");
 			rotate90();
 		}
 		old_progress += 256;
@@ -709,7 +709,7 @@ void karte_t::destroy()
 	// Added by : Knightly
 	path_explorer_t::finalise();
 
-	dbg->important("World destroyed.");
+	DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 	destroying = false;
 #ifdef MULTI_THREAD
 	cities_to_process = 0;
@@ -1009,7 +1009,7 @@ void karte_t::distribute_cities(settings_t const * const sets, sint16 old_x, sin
 		new_city_count = pos->get_count();
 		// Under no circumstances increase the number of new cities!
 	}
-	dbg->important("Creating cities: %d", new_city_count);
+	DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "Creating cities: %d", new_city_count);
 
 	// prissi if we could not generate enough positions ...
 	settings.set_city_count(old_city_count);
@@ -1518,7 +1518,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	nosave_warning = nosave = false;
 
-	dbg->important("Creating factories ...");
+	dbg->error("karte_t::init()", "Creating factories ...");
 	factory_builder_t::new_world();
 
 	int consecutive_build_failures = 0;
@@ -1548,7 +1548,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	ls.set_what(translator::translate("Finalising ..."));
 	// Not worth actually constructing a progress bar, very fast
-	dbg->important("Preparing startup ...");
+	dbg->message("karte_t::init()", "Preparing startup ...");
 	if(zeiger == 0) {
 		zeiger = new zeiger_t(koord3d::invalid, NULL );
 	}
