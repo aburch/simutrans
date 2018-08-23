@@ -640,8 +640,17 @@ void tool_t::read_menu(const std::string &objfilename)
 						if(  toolnr==TOOL_BUILD_WAY  ) {
 							// tool_build_way_t object called from a shortcut key has to use overtaking_mode of the object in the toolbar.
 							tool_build_way_t* way_tool = dynamic_cast<tool_build_way_t*> (addtool);
-							if(  way_tool  ) way_tool->set_look_toolbar();
+							if(  way_tool  ) {
+								way_tool->set_look_toolbar();
+							}
+						} else if(  toolnr==TOOL_BUILD_WAYOBJ  ) {
+							// tool_build_wayobj_t object called from a shortcut key has to use the spacing parameter of the object in the toolbar.
+							tool_build_wayobj_t* wayobj_tool = dynamic_cast<tool_build_wayobj_t*> (addtool);
+							if(  wayobj_tool  ) {
+								wayobj_tool->set_look_toolbar();
+							}
 						}
+						
 
 						general_tool.append( addtool );
 					}

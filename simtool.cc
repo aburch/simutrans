@@ -59,6 +59,7 @@
 #include "gui/trafficlight_info.h"
 #include "gui/privatesign_info.h"
 #include "gui/messagebox.h"
+#include "gui/wayobj_spacing.h"
 
 #include "obj/zeiger.h"
 #include "obj/bruecke.h"
@@ -3699,6 +3700,10 @@ bool tool_build_wayobj_t::is_selected() const
 bool tool_build_wayobj_t::init( player_t *player )
 {
 	two_click_tool_t::init( player );
+	
+	if (is_ctrl_pressed()  &&  can_use_gui()) {
+		create_win(new wayobj_spacing_frame_t(player, this), w_info, (ptrdiff_t)this);
+	}
 
 	if( build ) {
 		desc = get_desc();
@@ -3713,6 +3718,45 @@ bool tool_build_wayobj_t::init( player_t *player )
 		desc = NULL;
 		wt = (waytype_t)atoi( default_param );
 		return wt != 0;
+	}
+}
+
+bool tool_build_wayobj_t::exit( player_t *player )
+{
+	destroy_win((ptrdiff_t)this);
+	return two_click_tool_t::exit(player);
+}
+
+tool_build_wayobj_t* get_build_wayobj_tool_from_toolbar(const way_obj_desc_t* desc) {
+	const way_obj_desc_t *cand = wayobj_t::find_desc(desc->get_name());
+	if(  !cand  ) {
+		return NULL;
+	}
+	return dynamic_cast<tool_build_wayobj_t*> (cand->get_builder());
+}
+
+void tool_build_wayobj_t::rdwr_custom_data(memory_rw_t *packet)
+{
+	two_click_tool_t::rdwr_custom_data(packet);
+	// If this tool is called from a shortcut key, overtaking_mode of the tool in a toolbar has to be used.
+	uint8 s = spacing;
+	if(  packet->is_saving()  &&  look_toolbar  ) {
+		tool_build_wayobj_t* toolbar_tool = get_build_wayobj_tool_from_toolbar(desc);
+		if(  toolbar_tool  ) {
+			s = toolbar_tool->get_spacing();
+		}
+	}
+	packet->rdwr_byte(s);
+	spacing = s;
+}
+
+void tool_build_wayobj_t::draw_after(scr_coord k, bool dirty) const
+{
+	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
+		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|color_idx_to_rgb(COL_BLACK), false, dirty );
+		char level_str[16];
+		sprintf(level_str, "%i", spacing);
+		display_proportional_rgb( k.x+4, k.y+4, level_str, ALIGN_LEFT, color_idx_to_rgb(COL_YELLOW), true );
 	}
 }
 
@@ -3762,8 +3806,18 @@ void tool_build_wayobj_t::mark_tiles( player_t* player, const koord3d &start, co
 		sint32 cost_estimate = 0;
 
 		bool keep_existing_faster_ways = !is_ctrl_pressed();
+		
+		tool_build_wayobj_t* toolbar_tool;
+		uint8 sp = spacing;
+		if(  look_toolbar  &&  (toolbar_tool=get_build_wayobj_tool_from_toolbar(desc))!=NULL  ) {
+			// look toolbar variable indicates this tool is called from a shortcut key. When a tool is called from a shortcut key, we have to use spacing of the tool in a toolbar.
+			sp = toolbar_tool->get_spacing();
+		}
 
 		for( uint32 j = 0; j < verbindung.get_count(); j++ ) {
+			if(  j%sp!=0  ) {
+				continue;
+			}
 			koord3d pos = verbindung.at(j);
 			grund_t *gr = welt->lookup(pos);
 
@@ -3829,11 +3883,19 @@ const char *tool_build_wayobj_t::do_work( player_t* player, const koord3d &start
 	}
 
 	bool keep_existing_faster_ways = !is_ctrl_pressed();
+	tool_build_wayobj_t* toolbar_tool;
+	if(  look_toolbar  &&  (toolbar_tool=get_build_wayobj_tool_from_toolbar(desc))!=NULL  ) {
+		// look toolbar variable indicates this tool is called from a shortcut key. When a tool is called from a shortcut key, we have to use spacing of the tool in a toolbar.
+		spacing = toolbar_tool->get_spacing();
+	}
 
 	// build wayobj ...
 	koord3d_vector_t const& r = verbindung.get_route();
 	for(uint32 i=0;  i<verbindung.get_count();  i++  ) {
-		if( build ) {
+		if(  i%spacing!=0  ) {
+			continue;
+		}
+		if(  build  ) {
 			wayobj_t::extend_wayobj(r[i], player, r.get_ribi(i), desc, keep_existing_faster_ways);
 		}
 		else {

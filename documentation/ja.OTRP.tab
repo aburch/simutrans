@@ -45,3 +45,7 @@ Road Configuration
 道路の設定
 citycars do not enter
 自家用車進入禁止
+set wayobj spacing
+架線の設置間隔設定
+wayobj spacing
+架線の設置間隔

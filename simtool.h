@@ -411,6 +411,8 @@ private:
 	const way_obj_desc_t *desc;
 	const way_obj_desc_t *get_desc() const;
 	waytype_t wt;
+	uint8 spacing = 1;
+	bool look_toolbar = false;
 
 	bool calc_route( route_t &, player_t *, const koord3d& start, const koord3d &to );
 
@@ -423,6 +425,12 @@ public:
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	bool is_selected() const OVERRIDE;
 	bool init(player_t*) OVERRIDE;
+	bool exit(player_t*) OVERRIDE;
+	void rdwr_custom_data(memory_rw_t *packet) OVERRIDE;
+	void draw_after(scr_coord, bool dirty) const OVERRIDE;
+	void set_spacing(uint8 spacing) { this->spacing = spacing; }
+	uint8 get_spacing() { return spacing; }
+	void set_look_toolbar() { look_toolbar = true; }
 	bool is_init_network_save() const OVERRIDE { return true; }
 	waytype_t get_waytype() const OVERRIDE;
 };
