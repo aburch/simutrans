@@ -276,7 +276,7 @@ void convoi_t::unreserve_route()
 
 
 /**
- * unreserves the whole remaining route
+ * reserves route until next_reservation_index
  */
 void convoi_t::reserve_route()
 {

@@ -3550,7 +3550,9 @@ bool rail_vehicle_t::is_pre_signal_clear(signal_t *sig, uint16 next_block, sint3
 	// parse to next signal; if needed recurse, since we allow cascading
 	uint16 next_signal, next_crossing;
 	if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
-		if(  next_signal == INVALID_INDEX  ||  cnv->get_route()->at(next_signal) == cnv->get_route()->back()  ||  is_signal_clear( next_signal, restart_speed )  ) {
+		if(next_signal == INVALID_INDEX ||
+           cnv->get_route()->at(next_signal) == cnv->get_route()->back() ||
+           is_signal_clear( next_signal, restart_speed )) {
 			// ok, end of route => we can go
 			sig->set_state( roadsign_t::gruen );
 			cnv->set_next_stop_index( min( next_signal, next_crossing ) );
@@ -3569,6 +3571,37 @@ bool rail_vehicle_t::is_pre_signal_clear(signal_t *sig, uint16 next_block, sint3
 }
 
 
+bool rail_vehicle_t::is_priority_signal_clear(signal_t *sig, uint16 next_block, sint32 &restart_speed)
+{
+	// parse to next signal; if needed recurse, since we allow cascading
+	uint16 next_signal, next_crossing;
+
+	if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
+		if(next_signal == INVALID_INDEX ||
+           cnv->get_route()->at(next_signal) == cnv->get_route()->back() ||
+           is_signal_clear( next_signal, restart_speed )) {
+			// ok, end of route => we can go
+			sig->set_state( roadsign_t::gruen );
+			cnv->set_next_stop_index( min( next_signal, next_crossing ) );
+
+			return true;
+		}
+
+		// when we reached here, the way after next signal is not free though the way before is => we can still go
+		sig->set_state( roadsign_t::naechste_rot );
+        cnv->set_next_stop_index( min( next_signal, next_crossing ) );
+
+		return false;
+	}
+
+	// if we end up here, there was not even the next block free
+	sig->set_state( roadsign_t::rot );
+	restart_speed = 0;
+
+	return false;
+}
+
+
 bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed)
 {
 	// called, when there is a signal; will call other signal routines if needed
@@ -3583,7 +3616,10 @@ bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed)
 	const roadsign_desc_t *sig_desc=sig->get_desc();
 
 	// simple signal: drive on, if next block is free
-	if(  !sig_desc->is_longblock_signal()  &&  !sig_desc->is_choose_sign()  &&  !sig_desc->is_pre_signal()  ) {
+	if(!sig_desc->is_longblock_signal() &&
+       !sig_desc->is_choose_sign() &&
+       !sig_desc->is_pre_signal() &&
+       !sig_desc->is_priority_signal()) {
 
 		uint16 next_signal, next_crossing;
 		if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
@@ -3600,6 +3636,10 @@ bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed)
 	if(  sig_desc->is_pre_signal()  ) {
 		return is_pre_signal_clear( sig, next_block, restart_speed );
 	}
+
+    if (  sig_desc->is_priority_signal()  ) {
+        return is_priority_signal_clear( sig, next_block, restart_speed );
+    }
 
 	if(  sig_desc->is_longblock_signal()  ) {
 		return is_longblock_signal_clear( sig, next_block, restart_speed );

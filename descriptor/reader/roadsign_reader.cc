@@ -43,8 +43,18 @@ obj_desc_t * roadsign_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	const int version = v & 0x8000 ? v & 0x7FFF : 0;
 
-	if(version==4) {
-		// Versioned node, version 3
+	if(version==5) {
+		// Versioned node, version 5
+		desc->min_speed = kmh_to_speed(decode_uint16(p));
+		desc->price = decode_uint32(p);
+		desc->flags = decode_uint16(p);
+		desc->offset_left = decode_sint8(p);
+		desc->wtyp = decode_uint8(p);
+		desc->intro_date = decode_uint16(p);
+		desc->retire_date = decode_uint16(p);
+	}
+    else if(version==4) {
+		// Versioned node, version 4
 		desc->min_speed = kmh_to_speed(decode_uint16(p));
 		desc->price = decode_uint32(p);
 		desc->flags = decode_uint8(p);

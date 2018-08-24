@@ -34,7 +34,7 @@ class roadsign_desc_t : public obj_desc_transport_infrastructure_t {
 	friend class roadsign_reader_t;
 
 private:
-	uint8 flags;
+	uint16 flags;
 
 	sint8 offset_left; // default 14
 
@@ -50,7 +50,8 @@ public:
 		SIGN_PRE_SIGNAL       = 1U << 4,
 		ONLY_BACKIMAGE        = 1U << 5,
 		SIGN_LONGBLOCK_SIGNAL = 1U << 6,
-		END_OF_CHOOSE_AREA    = 1U << 7
+		END_OF_CHOOSE_AREA    = 1U << 7,
+        SIGN_PRIORITY_SIGNAL  = 1U << 8
 	};
 
 	image_id get_image_id(ribi_t::dir dir) const
@@ -65,32 +66,40 @@ public:
 
 	uint16 get_min_speed() const { return min_speed; }
 
-	bool is_single_way() const { return (flags&ONE_WAY)!=0; }
+	bool is_single_way() const { return (flags & ONE_WAY) != 0; }
 
-	bool is_private_way() const { return (flags&PRIVATE_ROAD)!=0; }
+	bool is_private_way() const { return (flags & PRIVATE_ROAD) != 0; }
 
 	//  return true for a traffic light
-	bool is_traffic_light() const { return (get_count()>4); }
+	bool is_traffic_light() const { return (get_count() > 4); }
 
-	bool is_choose_sign() const { return flags&CHOOSE_SIGN; }
+	bool is_choose_sign() const { return (flags & CHOOSE_SIGN) != 0; }
 
 	//  return true for signal
-	bool is_signal() const { return flags&SIGN_SIGNAL; }
+	bool is_signal() const { return (flags & SIGN_SIGNAL) != 0; }
 
 	//  return true for presignal
-	bool is_pre_signal() const { return flags&SIGN_PRE_SIGNAL; }
+	bool is_pre_signal() const { return (flags & SIGN_PRE_SIGNAL) != 0; }
+
+    //  return true for priority signal
+    bool is_priority_signal() const { return (flags & SIGN_PRIORITY_SIGNAL) != 0; }
 
 	//  return true for single track section signal
-	bool is_longblock_signal() const { return flags&SIGN_LONGBLOCK_SIGNAL; }
+	bool is_longblock_signal() const { return (flags & SIGN_LONGBLOCK_SIGNAL) != 0; }
 
-	bool is_end_choose_signal() const { return flags&END_OF_CHOOSE_AREA; }
+	bool is_end_choose_signal() const { return (flags & END_OF_CHOOSE_AREA) != 0; }
 
 	bool is_signal_type() const
 	{
-		return (flags&(SIGN_SIGNAL|SIGN_PRE_SIGNAL|SIGN_LONGBLOCK_SIGNAL))!=0;
+		return (flags&(
+                    SIGN_SIGNAL |
+                    SIGN_PRE_SIGNAL |
+                    SIGN_PRIORITY_SIGNAL |
+                    SIGN_LONGBLOCK_SIGNAL)
+                ) != 0;
 	}
 
-	uint8 get_flags() const { return flags; }
+	uint16 get_flags() const { return flags; }
 
 	sint8 get_offset_left() const { return offset_left; }
 
