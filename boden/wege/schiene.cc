@@ -41,6 +41,7 @@ schiene_t::schiene_t(waytype_t waytype) : weg_t (waytype)
 schiene_t::schiene_t() : weg_t(track_wt)
 {
 	reserved = convoihandle_t();
+	type = block;
 	set_desc(schiene_t::default_schiene);
 }
 
@@ -48,6 +49,7 @@ schiene_t::schiene_t() : weg_t(track_wt)
 schiene_t::schiene_t(loadsave_t *file) : weg_t(track_wt)
 {
 	reserved = convoihandle_t();
+	type = block;
 	rdwr(file);
 }
 
@@ -114,7 +116,7 @@ void schiene_t::info(cbuffer_t & buf, bool is_bridge) const
 			textlines += 1;
 			buf.append("\n   ");
 
-			// We dont need to specify if the reservation is a "block" type. Only show the two other more interresting reservation types
+			// We do not need to specify if the reservation is a "block" type. Only show the two other more interresting reservation types
 			if (get_reservation_type() != block) {
 				buf.append(translator::translate(get_reservation_type_name(get_reservation_type())));
 				if (get_reservation_type() == directional)

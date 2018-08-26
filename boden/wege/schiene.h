@@ -24,7 +24,7 @@ class vehicle_t;
 class schiene_t : public weg_t
 {
 public:
-	enum reservation_type : uint8 	{ block = 0, directional, priority, stale_block };
+	enum reservation_type : uint8 	{ block = 0, directional, priority, stale_block, end };
 
 protected:
 	/**
@@ -93,7 +93,7 @@ public:
 	* true, if this rail can be reserved
 	* @author prissi
 	*/
-	bool is_reserved(reservation_type t = block) const { return reserved.is_bound() && t == type || (t == block && type == stale_block); }
+	bool is_reserved(reservation_type t = block) const { return reserved.is_bound() && (t == type || (t == block && type == stale_block) || type >= end); }
 	bool is_reserved_directional(reservation_type t = directional) const { return reserved.is_bound() && t == type; }
 	bool is_reserved_priority(reservation_type t = priority) const { return reserved.is_bound() && t == type; }
 

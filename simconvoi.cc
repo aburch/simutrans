@@ -354,7 +354,7 @@ void convoi_t::unreserve_route_range(route_range_specification range)
 	{
 		weg_t* const way = all_ways[i];
 		//schiene_t* const sch = obj_cast<schiene_t>(way);
-		schiene_t* const sch = way->is_rail_type() ? (schiene_t*)way : NULL;
+		schiene_t* const sch = way->is_rail_type() || way->get_waytype() == air_wt ? (schiene_t*)way : NULL;
 		if (sch && sch->get_reserved_convoi().get_id() == convoi_t::current_unreserver)
 		{
 			convoihandle_t ch;
