@@ -620,7 +620,6 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos) const
 	}
 }
 
-
 /**
  * Finds halt belonging to a player
  * @param player owner of the halts we are interested in.
@@ -793,4 +792,16 @@ bool planquadrat_t::is_connected(halthandle_t halt) const
 		}
 	}
 	return false;
+}
+
+void planquadrat_t::update_underground() const
+{
+	get_kartenboden()->check_update_underground();
+	// update tunnel tiles
+	for(unsigned int i=1; i<get_boden_count(); i++) {
+		grund_t *const gr = get_boden_bei(i);
+		if (gr->ist_tunnel()) {
+			gr->check_update_underground();
+		}
+	}
 }

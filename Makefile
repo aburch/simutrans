@@ -264,6 +264,7 @@ SOURCES += dataobj/loadsave.cc
 SOURCES += dataobj/marker.cc
 SOURCES += dataobj/powernet.cc
 SOURCES += dataobj/records.cc
+SOURCES += dataobj/rect.cc
 SOURCES += dataobj/ribi.cc
 SOURCES += dataobj/route.cc
 SOURCES += dataobj/scenario.cc
