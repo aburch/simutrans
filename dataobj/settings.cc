@@ -1396,10 +1396,32 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_extended_version() >= 5)
 		{
-			file->rdwr_short(min_visiting_tolerance);
-			file->rdwr_short(range_commuting_tolerance);
-			file->rdwr_short(min_commuting_tolerance);
-			file->rdwr_short(range_visiting_tolerance);
+			if((file->get_extended_version() >= 14 && file->get_extended_revision() >= 1) || file->get_extended_version() >= 15)
+			{
+				file->rdwr_long(min_visiting_tolerance);
+				file->rdwr_long(range_commuting_tolerance);
+				file->rdwr_long(min_commuting_tolerance);
+				file->rdwr_long(range_visiting_tolerance);
+			}
+			else
+			{
+				uint16 temp = (uint16)min_visiting_tolerance;
+				file->rdwr_short(temp);
+				min_visiting_tolerance = temp; 
+
+				temp = (uint16)range_commuting_tolerance;
+				file->rdwr_short(temp);
+				range_commuting_tolerance = temp; 
+
+				temp = (uint16)min_commuting_tolerance;
+				file->rdwr_short(temp);
+				min_commuting_tolerance = temp; 
+
+				temp = (uint16)range_visiting_tolerance;
+				file->rdwr_short(temp);
+				range_visiting_tolerance = temp; 
+			}
+			
 			if(file->get_extended_version() < 12)
 			{
 				// Was min_longdistance_tolerance and max_longdistance_tolerance
@@ -2477,14 +2499,14 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	// Multiply by 10 because journey times are measured in tenths of minutes.
 	//@author: jamespetts
-	const uint16 min_visiting_tolerance_minutes = contents.get_int("min_visiting_tolerance", (min_visiting_tolerance / 10));
-	min_visiting_tolerance = min_visiting_tolerance_minutes * 10;
-	const uint16 range_commuting_tolerance_minutes = contents.get_int("range_commuting_tolerance", (range_commuting_tolerance / 10));
-	range_commuting_tolerance = range_commuting_tolerance_minutes * 10;
-	const uint16 min_commuting_tolerance_minutes = contents.get_int("min_commuting_tolerance", (min_commuting_tolerance/ 10));
-	min_commuting_tolerance = min_commuting_tolerance_minutes * 10;
-	const uint16 range_visiting_tolerance_minutes = contents.get_int("range_visiting_tolerance", (range_visiting_tolerance / 10));
-	range_visiting_tolerance = range_visiting_tolerance_minutes * 10;
+	const uint32 min_visiting_tolerance_minutes = contents.get_int("min_visiting_tolerance", (min_visiting_tolerance / 10u));
+	min_visiting_tolerance = min_visiting_tolerance_minutes * 10u;
+	const uint32 range_commuting_tolerance_minutes = contents.get_int("range_commuting_tolerance", (range_commuting_tolerance / 10u));
+	range_commuting_tolerance = range_commuting_tolerance_minutes * 10u;
+	const uint32 min_commuting_tolerance_minutes = contents.get_int("min_commuting_tolerance", (min_commuting_tolerance/ 10u));
+	min_commuting_tolerance = min_commuting_tolerance_minutes * 10u;
+	const uint32 range_visiting_tolerance_minutes = contents.get_int("range_visiting_tolerance", (range_visiting_tolerance / 10u));
+	range_visiting_tolerance = range_visiting_tolerance_minutes * 10u;
 
 	quick_city_growth = (bool)(contents.get_int("quick_city_growth", quick_city_growth));
 

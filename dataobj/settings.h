@@ -509,10 +509,10 @@ public:
 
 	// The ranges for the journey time tolerance for passengers.
 	// @author: jamespetts
-	uint16 range_commuting_tolerance;
-	uint16 min_commuting_tolerance;
-	uint16 min_visiting_tolerance;
-	uint16 range_visiting_tolerance;
+	uint32 range_commuting_tolerance;
+	uint32 min_commuting_tolerance;
+	uint32 min_visiting_tolerance;
+	uint32 range_visiting_tolerance;
 	
 private:
 	/// what is the minimum clearance required under bridges
