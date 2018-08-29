@@ -63,6 +63,10 @@ bool obj_reader_t::finish_loading()
 	return true;
 }
 
+bool cmp(const char* a, const char* b)
+{
+	return strcmp(a, b)< 0;
+}
 
 bool obj_reader_t::load(const char *path, const char *message)
 {
@@ -141,8 +145,13 @@ DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbo
 
 DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", name.c_str());
 
+		// sort file path before loading
 		uint n = 0;
-		FORX(searchfolder_t, const& i, find, ++n) {
+		vector_tpl<const char*> sorted_find;
+		FOR(searchfolder_t, const& i, find) {
+			sorted_find.insert_ordered(i,cmp);
+		}
+		FORX(vector_tpl<const char*>, const& i, sorted_find, ++n) {
 			read_file(i);
 			if ((n & step) == 0 && drawing) {
 				ls.set_progress(n);
