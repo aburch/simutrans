@@ -3187,6 +3187,14 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 	if(  bd->kann_alle_obj_entfernen(NULL)  ) {
 		return false;
 	}
+	
+	// this road prohibits becoming a cityroad.
+	if(  bd->hat_weg(road_wt)  ) {
+		strasse_t* str = (strasse_t*)(bd->get_weg(road_wt));
+		if(  str  &&  str->get_avoid_cityroad()  ) {
+			return false;
+		}
+	}
 
 	// dwachs: If not able to built here, try to make artificial slope
 	slope_t::type slope = bd->get_grund_hang();
@@ -3271,7 +3279,11 @@ bool stadt_t::build_road(const koord k, player_t* player_, bool forced)
 				}
 				else if(bd2->hat_weg(road_wt)) {
 					const gebaeude_t* gb = bd2->find<gebaeude_t>();
-					if(gb) {
+					const strasse_t* str = (strasse_t*)(bd2->get_weg(road_wt));
+					if(  str  &&  str->get_avoid_cityroad()  ) {
+						// do not connect to road that is not alllowed to become cityroad
+					}
+					else if(gb) {
 						uint8 layouts = gb->get_tile()->get_desc()->get_all_layouts();
 						// nothing to connect
 						if(layouts==4) {
