@@ -322,7 +322,7 @@ void halt_detail_t::halt_detail_info()
 	}
 
 	txt_info.recalc_size();
-	cont.set_size( txt_info.get_size() );
+	cont.set_size( txt_info.get_size()+scr_coord(0, D_MARGIN_TOP+D_MARGIN_BOTTOM) );
 
 	// ok, we have now this counter for pending updates
 	destination_counter = halt->get_reconnect_counter();

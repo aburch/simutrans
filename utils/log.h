@@ -56,12 +56,6 @@ private:
 
 public:
 	/**
-	 * writes important messages to stdout/logfile
-	 * @author Timothy Baldock <tb@entropy.me.uk>
-	 */
-	void important(const char* format, ...);
-
-	/**
 	 * writes a debug message into the log.
 	 * @author Hj. Malthaner
 	 */

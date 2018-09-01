@@ -21,11 +21,7 @@ class koord;
 class grund_t;
 class tool_selector_t;
 
-/**
- * Overhead powelines for electrified tracks.
- *
- * @author Hj. Malthaner
- */
+/* wayobj eable various functionality of ways, most prominent are overhead power lines */
 class wayobj_t : public obj_no_info_t
 {
 private:
@@ -35,7 +31,8 @@ private:
 	uint8 hang:7;
 
 	// direction of this wayobj
-	ribi_t::ribi dir;
+	uint8 nw:1;
+	uint8 dir:7;
 
 	ribi_t::ribi find_next_ribi(const grund_t *start, const ribi_t::ribi dir, const waytype_t wt) const;
 
@@ -52,28 +49,25 @@ public:
 	void rotate90();
 
 	/**
-	* the front image, drawn before vehicles
-	* @author V. Meyer
+	* the back image, drawn before vehicles
 	*/
 	image_id get_image() const {
-		return hang ? desc->get_back_slope_image_id(hang) :
-			(diagonal ? desc->get_back_diagonal_image_id(dir) : desc->get_back_image_id(dir));
+		return hang ? desc->get_back_slope_image_id(hang) : 
+			(dir>16 ? desc->get_crossing_image_id(dir,nw,false) : 
+				(diagonal ? desc->get_back_diagonal_image_id(dir) : desc->get_back_image_id(dir))
+				);
 	}
 
 	/**
-	* the front image, drawn after everything else
-	* @author V. Meyer
-	*/
+	 * the front image, drawn after everything else
+	 */
 	image_id get_front_image() const {
 		return hang ? desc->get_front_slope_image_id(hang) :
-			diagonal ? desc->get_front_diagonal_image_id(dir) : desc->get_front_image_id(dir);
+			(dir>16 ? desc->get_crossing_image_id(dir,nw,true) : 
+				(diagonal ? desc->get_front_diagonal_image_id(dir) : desc->get_front_image_id(dir))
+				);
 	}
 
-	/**
-	* 'Jedes Ding braucht einen Typ.'
-	* @return the object type.
-	* @author Hj. Malthaner
-	*/
 	typ get_typ() const { return wayobj; }
 
 	/**
@@ -83,24 +77,12 @@ public:
 
 	void calc_image();
 
-	/**
-	* Speichert den Zustand des Objekts.
-	*
-	* @param file Zeigt auf die Datei, in die das Objekt geschrieben werden
-	* soll.
-	* @author Hj. Malthaner
-	*/
 	void rdwr(loadsave_t *file);
 
-	// subtracts cost
 	void cleanup(player_t *player);
 
 	const char* is_deletable(const player_t *player) OVERRIDE;
 
-	/**
-	* calculate image after loading
-	* @author prissi
-	*/
 	void finish_rd();
 
 	// specific for wayobj

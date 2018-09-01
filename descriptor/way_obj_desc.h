@@ -49,6 +49,24 @@ public:
 	// way objects can have a front and a backimage, unlike ways ...
 	image_id get_front_image_id(ribi_t::ribi ribi) const { return get_child<image_list_t>(2)->get_image_id(ribi); }
 
+	image_id get_crossing_image_id(ribi_t::ribi ribi, bool nw, bool front = false) const
+	{
+		if(  front  &&  !get_child<image_list_t>(2)->get_count()  ) {
+			return IMG_EMPTY;
+		}
+		image_list_t const* const imglist = get_child<image_list_t>(3-front);
+		// only do this if extended switches are there
+		if(  imglist->get_count()>16  ) {
+			static uint8 ribi_to_extra[16] = {
+				255, 255, 255, 255, 255, 255, 255, 0,
+				255, 255, 255, 1, 255, 2, 3, 4
+			};
+			return imglist->get_image_id( ribi_to_extra[ribi]+16+(nw*5) );
+		}
+		// else return standard values
+		return imglist->get_image_id( ribi );
+	}
+
 	image_id get_back_image_id(ribi_t::ribi ribi) const { return get_child<image_list_t>(3)->get_image_id(ribi); }
 
 	image_id get_front_slope_image_id(slope_t::type slope) const
@@ -89,7 +107,7 @@ public:
 			slope_img = get_child<image_list_t>(4)->get_image_id(nr);
 		}
 		return slope_img;
-	  }
+	}
 
 	image_id get_back_slope_image_id(slope_t::type slope) const
 	{
@@ -129,7 +147,7 @@ public:
 			slope_img = get_child<image_list_t>(5)->get_image_id(nr);
 		}
 		return slope_img;
-	  }
+	}
 
 	image_id get_front_diagonal_image_id(ribi_t::ribi ribi) const
 	{

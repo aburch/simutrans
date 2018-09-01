@@ -439,7 +439,7 @@ void karte_t::destroy()
 {
 	is_sound = false; // karte_t::play_sound_area_clipped needs valid zeiger (pointer/drawer)
 	destroying = true;
-DBG_MESSAGE("karte_t::destroy()", "destroying world");
+	DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	uint32 max_display_progress = 256+stadt.get_count()*10 + haltestelle_t::get_alle_haltestellen().get_count() + convoi_array.get_count() + (cached_size.x*cached_size.y)*2;
 	uint32 old_progress = 0;
@@ -451,7 +451,7 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 	if(  nosave  ) {
 		max_display_progress += 256;
 		for( int i=0;  i<4  &&  nosave;  i++  ) {
-	DBG_MESSAGE("karte_t::destroy()", "rotating");
+			DBG_MESSAGE("karte_t::destroy()", "rotating");
 			rotate90();
 		}
 		old_progress += 256;
@@ -464,7 +464,7 @@ DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	goods_in_game.clear();
 
-DBG_MESSAGE("karte_t::destroy()", "label clear");
+	DBG_MESSAGE("karte_t::destroy()", "label clear");
 	labels.clear();
 
 	if(zeiger) {
@@ -482,7 +482,7 @@ DBG_MESSAGE("karte_t::destroy()", "label clear");
 	sync_way_eyecandy.clear();
 	old_progress += cached_size.x*cached_size.y;
 	ls.set_progress( old_progress );
-DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
+	DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 
 	// alle convois aufraeumen
 	while (!convoi_array.empty()) {
@@ -494,12 +494,12 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 		}
 	}
 	convoi_array.clear();
-DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 
 	// alle haltestellen aufraeumen
 	old_progress += haltestelle_t::get_alle_haltestellen().get_count();
 	haltestelle_t::destroy_all();
-DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 	ls.set_progress( old_progress );
 
 	// remove all target cities (we can skip recalculation anyway)
@@ -518,7 +518,7 @@ DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 		}
 	}
 	settings.set_city_count(no_of_cities);
-DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
 	ls.set_progress( old_progress );
 	// dinge aufraeumen
@@ -543,7 +543,7 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 		delete players[i];
 		players[i] = NULL;
 	}
-DBG_MESSAGE("karte_t::destroy()", "player destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 
 	old_progress += (cached_size.x*cached_size.y)/4;
 	ls.set_progress( old_progress );
@@ -553,19 +553,18 @@ DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 		delete f;
 	}
 	fab_list.clear();
-DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
 
 	// hier nur entfernen, aber nicht loeschen
 	attractions.clear();
-DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
+	DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 
 	delete scenario;
 	scenario = NULL;
 
 assert( depot_t::get_depot_list().empty() );
 
-DBG_MESSAGE("karte_t::destroy()", "world destroyed");
-	dbg->important("World destroyed.");
+	DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 	destroying = false;
 }
 
@@ -810,14 +809,13 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
 		create_rivers( settings.get_river_number() );
 	}
 
-dbg->important("Creating cities ...");
-DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
+	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 	vector_tpl<koord> *pos = stadt_t::random_place(new_city_count, old_x, old_y);
 
 	if(  !pos->empty()  ) {
 		const sint32 old_city_count = stadt.get_count();
 		new_city_count = pos->get_count();
-		dbg->important("Creating cities: %d", new_city_count);
+		DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "Creating cities: %d", new_city_count);
 
 		// prissi if we could not generate enough positions ...
 		settings.set_city_count(old_city_count);
@@ -1293,7 +1291,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	nosave_warning = nosave = false;
 
-	dbg->important("Creating factories ...");
+	dbg->error("karte_t::init()", "Creating factories ...");
 	factory_builder_t::new_world();
 
 	int consecutive_build_failures = 0;
@@ -1319,7 +1317,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	// tourist attractions
 	factory_builder_t::distribute_attractions(settings.get_tourist_attractions());
 
-	dbg->important("Preparing startup ...");
+	dbg->message("karte_t::init()", "Preparing startup ...");
 	if(zeiger == 0) {
 		zeiger = new zeiger_t(koord3d::invalid, NULL );
 	}
@@ -5778,28 +5776,48 @@ void karte_t::update_map()
 void karte_t::update_underground()
 {
 	DBG_MESSAGE( "karte_t::update_underground_map()", "" );
-	world_xy_loop(&karte_t::update_underground_intern, SYNCX_FLAG);
+	get_view()->clear_prepared();
+	world_view_t::invalidate_all();
 	set_dirty();
 }
 
+void karte_t::prepare_tiles(rect_t const &new_area, rect_t const &old_area) {
+	if (new_area == old_area) {
+		// area already prepared
+		return;
+	}
 
-void karte_t::update_underground_intern( sint16 x_min, sint16 x_max, sint16 y_min, sint16 y_max )
-{
-	for(  int y = y_min;  y < y_max;  y++  ) {
-		for(  int x = x_min; x < x_max;  x++  ) {
-			const int nr = y * cached_grid_size.x + x;
-			plan[nr].get_kartenboden()->check_update_underground();
-			// update tunnel tiles
-			for(uint8 i=1; i<plan[nr].get_boden_count(); i++) {
-				grund_t *gr = plan[nr].get_boden_bei(i);
-				if (gr->ist_tunnel()) {
-					gr->check_update_underground();
-				}
+	size_t const prepare_rects_capacity = rect_t::MAX_FRAGMENT_DIFFERENCE_COUNT;
+	rect_t prepare_rects[prepare_rects_capacity];
+	size_t const prepare_rects_length = new_area.fragment_difference(old_area, prepare_rects, prepare_rects_capacity);
+
+	// additional tiles to prepare for correct hiding behaviour
+	sint16 const prefix_tiles_x = min(grund_t::MAXIMUM_HIDE_TEST_DISTANCE, new_area.origin.x);
+	sint16 const prefix_tiles_y = min(grund_t::MAXIMUM_HIDE_TEST_DISTANCE, new_area.origin.y);
+
+	for (size_t rect_index = 0 ; rect_index < prepare_rects_length ; rect_index++) {
+		rect_t const &prepare_rect = prepare_rects[rect_index];
+
+		sint16 x_start = prepare_rect.origin.x;
+		sint16 const x_end = x_start + prepare_rect.size.x;
+		if (x_start == new_area.origin.x) {
+			x_start-= prefix_tiles_x;
+		}
+
+		sint16 y_start = prepare_rect.origin.y;
+		sint16 const y_end = y_start + prepare_rect.size.y;
+		if (y_start == new_area.origin.y) {
+			y_start-= prefix_tiles_y;
+		}
+
+		for (sint16 y = y_start ; y < y_end ; y++) {
+			for (sint16 x = x_start ; x < x_end ; x++) {
+				const planquadrat_t &tile = plan[y * cached_grid_size.x + x];
+				tile.update_underground();
 			}
 		}
 	}
 }
-
 
 void karte_t::calc_climate(koord k, bool recalc)
 {

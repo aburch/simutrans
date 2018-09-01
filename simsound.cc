@@ -1,6 +1,4 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
- *
  * This file is part of the Simutrans project under the artistic license.
  * (see license.txt)
  */
@@ -27,23 +25,12 @@
 #include "utils/simstring.h"
 
 
-/**
- * max sound index
- * @author hj. Malthaner
- */
 static bool        new_midi = false;
 static plainstring midi_title[MAX_MIDI];
 
-
-/**
- * Gesamtlautstärke
- * @author hj. Malthaner
- */
-
 static int max_midi = -1; // number of MIDI files
 
-static int current_midi = -1;  // Hajo: init with error condition,
-                               // reset during loading
+static int current_midi = -1;  // Hajo: init with error condition, reset during loading
 
 
 

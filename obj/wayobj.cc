@@ -134,7 +134,9 @@ void wayobj_t::rdwr(loadsave_t *file)
 	xml_tag_t t( file, "wayobj_t" );
 	obj_t::rdwr(file);
 	if(file->get_version()>=89000) {
-		file->rdwr_byte(dir);
+		uint8 ddir = dir;
+		file->rdwr_byte(ddir);
+		dir = ddir;
 		if(file->is_saving()) {
 			const char *s = desc->get_name();
 			file->rdwr_str(s);
@@ -278,7 +280,7 @@ void wayobj_t::calc_image()
 		}
 
 		ribi_t::ribi sec_way_ribi_unmasked = 0;
-		if (wt == any_wt) {
+		if(wt == any_wt) {
 			if (weg_t *sec_w = gr->get_weg_nr(1)) {
 				sec_way_ribi_unmasked = sec_w->get_ribi_unmasked();
 			}
