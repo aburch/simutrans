@@ -27,7 +27,7 @@ windows: https://drive.google.com/open?id=1ZVw8izY_KGjAWM1iyl4-0i6pAu13dzLE
 mac: https://drive.google.com/open?id=1zZncyw5avBLuiw4MBo3ttqM39D0svuFB  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
-Makeobj to compile a priority signal addon is available below.
+Makeobj to compile a priority signal addon is available below.  
 windows: https://drive.google.com/open?id=1fE5kMvvmcI5fOhg0e3cKMC8dFgzEW9wF
 
 # Install
@@ -79,11 +79,13 @@ If you put two traffic signs like the image above in the conventional simutrans,
 In OTRP, you can specify the direction from which vehicles can enter the tile. For example, the settings in the image above enables vehicles to turn right at the intersection properly.
 
 ## Priority Signal
-NOTE: This feature is a prelimitary release of the patch that was [proposed on the simutrans international forum](https://forum.simutrans.com/index.php/topic,18400.0.html) . **Depending on decisions of the simutrans development team, names and features can be altered. Also, the compatibility of addon can be lost.**  
+NOTE: This feature is a prelimitary release of [the patch that was proposed on the simutrans international forum](https://forum.simutrans.com/index.php/topic,18400.0.html) . **Depending on decisions of the simutrans development team, names and features can be altered. Also, the compatibility of addon can be lost.**  
 
 A pre-signal checks 2 blocks and indicates red as long as the both blocks are free to enter. A priority signal checks 2 block but indicates green even if the second block is not free. Priority signals can be cascaded. You can control the timing at a train waits for a passing train.  
-To use this, special addons are required. To make those, in dat file, add
+To use this, special addons are required. To make those, in dat file, add  
+
 ``` is_prioritysignal = 1```  
+
 just as presignals and longblocksignals. Please compile your addons with the dedicated makeobj.
 
 ## etc  
