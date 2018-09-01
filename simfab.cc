@@ -1552,7 +1552,7 @@ void fabrik_t::smoke() const
 		welt->sync_way_eyecandy.add( smoke );
 	}
 	// maybe sound?
-	if(  desc->get_sound()!=NO_SOUND  &&  	welt->get_ticks()>last_sound_ms+desc->get_sound_interval_ms()  ) {
+	if(  desc->get_sound()!=NO_SOUND  &&  welt->get_ticks()>last_sound_ms+desc->get_sound_interval_ms()  ) {
 		welt->play_sound_area_clipped( get_pos().get_2d(), desc->get_sound() );
 	}
 }
@@ -2079,7 +2079,7 @@ void fabrik_t::step(uint32 delta_t)
 							cons_comp = 0;
 						}
 						else {
-						    // enough input
+							// enough input
 							cons_comp -= prod_delta;
 						}
 

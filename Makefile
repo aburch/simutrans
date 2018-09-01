@@ -264,6 +264,7 @@ SOURCES += dataobj/loadsave.cc
 SOURCES += dataobj/marker.cc
 SOURCES += dataobj/powernet.cc
 SOURCES += dataobj/records.cc
+SOURCES += dataobj/rect.cc
 SOURCES += dataobj/ribi.cc
 SOURCES += dataobj/route.cc
 SOURCES += dataobj/scenario.cc
@@ -584,7 +585,7 @@ ifeq ($(BACKEND),sdl2)
       LIBS    += -framework Foundation -framework QTKit
     endif
   else
-    SOURCES  += sound/sdl_sound.cc
+    SOURCES  += sound/sdl2_sound.cc
     ifneq ($(OSTYPE),mingw)
       SOURCES += music/no_midi.cc
     else

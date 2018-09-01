@@ -5,7 +5,7 @@
  */
 
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <string.h>
 #include "sound.h"
 #include "../simmem.h"
@@ -63,6 +63,8 @@ static channel channels[CHANNELS];
  */
 static SDL_AudioSpec output_audio_format;
 
+static SDL_AudioDeviceID audio_device;
+
 
 void sdl_sound_callback(void *, Uint8 * stream, int len)
 {
@@ -119,29 +121,19 @@ bool dr_init_sound()
 
 		desired.callback = sdl_sound_callback;
 
-		if (SDL_OpenAudio(&desired, &output_audio_format) != -1) {
+		if(  (audio_device = SDL_OpenAudioDevice( NULL, 0, &desired, &output_audio_format, SDL_AUDIO_ALLOW_ANY_CHANGE ))  ) {
+			// allow any change as loaded .wav files are converted to output format upon loading
 
-			// check if we got the right audio format
-			if (output_audio_format.format == AUDIO_S16SYS) {
+			int i;
 
-				int i;
+			// finished initializing
+			sound_ok = 1;
 
-				// finished initializing
-				sound_ok = 1;
+			for (i = 0; i < CHANNELS; i++)
+			channels[i].sample = 255;
 
-				for (i = 0; i < CHANNELS; i++)
-				channels[i].sample = 255;
-
-				// start playing sounds
-				SDL_PauseAudio(0);
-
-			}
-			else {
-				dbg->error("dr_init_sound()", "Open audio channel doesn't meet requirements. Muting");
-				SDL_CloseAudio();
-				SDL_QuitSubSystem(SDL_INIT_AUDIO);
-			}
-
+			// start playing sounds
+			SDL_PauseAudio(0);
 
 		}
 		else {

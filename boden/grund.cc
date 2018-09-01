@@ -856,10 +856,10 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 	for(uint i=0; i<grund_t::BACK_CORNER_COUNT; i++) {
 		corners[i] += corners_add[i];
 	}
+
 	// now test more tiles behind whether they are hidden by this tile
 	static const koord  testdir[grund_t::BACK_CORNER_COUNT] = { koord(-1,0), koord(-1,-1), koord(0,-1) };
-
-	for(int step = 0; step<5  &&  !get_flag(draw_as_obj); step ++) {
+	for(sint16 step = 0; step<grund_t::MAXIMUM_HIDE_TEST_DISTANCE  &&  !get_flag(draw_as_obj); step ++) {
 		sint16 test[grund_t::BACK_CORNER_COUNT];
 
 		for(uint i=0; i<grund_t::BACK_CORNER_COUNT; i++) {
@@ -897,8 +897,9 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 			}
 		}
 		if (test[0] < corners[0]  ||  test[1] < corners[1]  ||  test[2] < corners[2]) {
-			// we hide something behind
+			// we hide at least 1 thing behind
 			set_flag(draw_as_obj);
+			break;
 		}
 		else if (test[0] > corners[0]  &&  test[1] > corners[1]  &&  test[2] > corners[2]) {
 			// we cannot hide anything anymore

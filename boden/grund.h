@@ -150,6 +150,15 @@ public:
 	 */
 	static sint8 const BIID_ENCODE_FENCE_OFFSET = (sint8)(WALL_IMAGE_COUNT * WALL_IMAGE_COUNT);
 
+	/**
+	 * @brief Maximum distance in tiles that hide test will be performed for.
+	 *
+	 * Maximum distance in tiles that object hide test will be performed for.
+	 * The hide test is needed for correct graphic reproduction of tunnel
+	 * entrances and such.
+	 */
+	static uint16 const MAXIMUM_HIDE_TEST_DISTANCE = 5;
+
 	// just to calculate the offset for skipping the ways ...
 	static uint8 offsets[4];
 
