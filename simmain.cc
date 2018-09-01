@@ -430,6 +430,7 @@ int simu_main(int argc, char** argv)
 			"                     mutually exclusive with -log\n"
 			" -tag TAG            sets syslog tag (default 'simutrans')\n"
 #endif
+			" -mute               mute all sounds\n"
 			" -noaddons           does not load any addon (default)\n"
 			" -nomidi             turns off background music\n"
 			" -nosound            turns off ambient sounds\n"
@@ -805,7 +806,6 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	dbg->important("Preparing display ...");
 	DBG_MESSAGE("simmain", "simgraph_init disp_width=%d, disp_height=%d, fullscreen=%d", disp_width, disp_height, fullscreen);
 	simgraph_init(disp_width, disp_height, fullscreen);
 	DBG_MESSAGE("simmain", ".. results in disp_width=%d, disp_height=%d", display_get_width(), display_get_height());
@@ -920,7 +920,7 @@ int simu_main(int argc, char** argv)
 		sint16 idummy;
 		string dummy;
 		env_t::default_settings.set_way_height_clearance( 0 );
-		dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
+		DBG_DEBUG("karte_t::distribute_groundobjs_cities()","parse_simuconf() at %s: ", obj_conf.c_str());
 		env_t::default_settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		env_t::default_settings.parse_colours( simuconf );
 		pak_diagonal_multiplier = env_t::default_settings.get_pak_diagonal_multiplier();
@@ -937,7 +937,7 @@ int simu_main(int argc, char** argv)
 	if (simuconf.open(obj_conf.c_str())) {
 		sint16 idummy;
 		string dummy;
-		dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
+		dbg->message("simmain()", "parse_simuconf() at %s: ", obj_conf.c_str());
 		env_t::default_settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		env_t::default_settings.parse_colours( simuconf );
 		simuconf.close();
@@ -959,7 +959,7 @@ int simu_main(int argc, char** argv)
 		sint16 idummy;
 		string dummy;
 		if (simuconf.open(obj_conf.c_str())) {
-			dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
+			dbg->message("simmain()","parse_simuconf() at %s: ", obj_conf.c_str());
 			env_t::default_settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			env_t::default_settings.parse_colours( simuconf );
 			simuconf.close();
@@ -967,7 +967,7 @@ int simu_main(int argc, char** argv)
 		// and parse user settings again ...
 		obj_conf = string(env_t::user_dir) + "simuconf.tab";
 		if (simuconf.open(obj_conf.c_str())) {
-			dbg->important("parse_simuconf() at %s: ", obj_conf.c_str());
+			dbg->message("simmain()","parse_simuconf() at %s: ", obj_conf.c_str());
 			env_t::default_settings.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			env_t::default_settings.parse_colours( simuconf );
 			simuconf.close();
@@ -993,22 +993,18 @@ int simu_main(int argc, char** argv)
 #else
 	if(  env_t::num_threads > 1  ) {
 		env_t::num_threads = 1;
-		dbg->important("Multithreading not enabled: threads = %d ignored.", env_t::num_threads );
+		dbg->message("simmain()","Multithreading not enabled: threads = %d ignored.", env_t::num_threads );
 	}
 #endif
 
 	// just check before loading objects
-	if(  dr_init_sound()  ) {
-		dbg->important("Reading compatibility sound data ...");
+	if(  !gimme_arg(argc, argv, "-nosound", 0)  &&  dr_init_sound()  ) {
+		dbg->message("simmain()","Reading compatibility sound data ...");
 		sound_desc_t::init();
 	}
 	else {
 		sound_set_mute(true);
 	}
-	if(  !gimme_arg(argc, argv, "-nosound", 0)  ) {
-		sound_set_mute(true);
-	}
-
 
 	// Adam - Moved away loading from simmain and placed into translator for better modularization
 	if(  !translator::load(env_t::objfilename)  ) {
@@ -1040,17 +1036,17 @@ int simu_main(int argc, char** argv)
 	sprachengui_t::init_font_from_lang( strcmp(env_t::fontname.c_str(), FONT_PATH_X "prop.fnt")==0 );
 	dr_chdir(env_t::program_dir);
 
-	dbg->important("Reading city configuration ...");
+	dbg->message("simmain()","Reading city configuration ...");
 	stadt_t::cityrules_init(env_t::objfilename);
 
-	dbg->important("Reading speedbonus configuration ...");
+	dbg->message("simmain()","Reading speedbonus configuration ...");
 	vehicle_builder_t::speedbonus_init(env_t::objfilename);
 
-	dbg->important("Reading menu configuration ...");
+	dbg->message("simmain()","Reading menu configuration ...");
 	tool_t::init_menu();
 
 	// loading all paks
-	dbg->important("Reading object data from %s...", env_t::objfilename.c_str());
+	dbg->message("simmain()","Reading object data from %s...", env_t::objfilename.c_str());
 	obj_reader_t::load(env_t::objfilename.c_str(), translator::translate("Loading paks ...") );
 	if(  env_t::default_settings.get_with_private_paks()  ) {
 		// try to read addons from private directory
@@ -1065,7 +1061,7 @@ int simu_main(int argc, char** argv)
 	pakset_info_t::calculate_checksum();
 	pakset_info_t::debug();
 
-	dbg->important("Reading menu configuration ...");
+	dbg->message("simmain()","Reading menu configuration ...");
 	tool_t::read_menu(env_t::objfilename);
 
 	if(  translator::get_language()==-1  ) {
@@ -1093,7 +1089,7 @@ int simu_main(int argc, char** argv)
 		else {
 			buf.printf( SAVE_PATH_X "%s", searchfolder_t::complete(name, "sve").c_str() );
 		}
-		dbg->important( "loading savegame \"%s\"", name );
+		dbg->message("simmain()", "loading savegame \"%s\"", name );
 		loadgame = buf;
 		new_world = false;
 	}
@@ -1167,10 +1163,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	// init midi before loading sounds
 	if(  dr_init_midi()  ) {
-		dbg->important("Reading midi data ...");
+		dbg->message("simmain()","Reading midi data ...");
 		if(!midi_init(env_t::user_dir)) {
 			if(!midi_init(env_t::program_dir)) {
-				dbg->important("Midi disabled ...");
+				dbg->message("simmain()","Midi disabled ...");
 			}
 		}
 		if(gimme_arg(argc, argv, "-nomidi", 0)) {
@@ -1178,7 +1174,12 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		}
 	}
 	else {
-		dbg->important("Midi disabled ...");
+		dbg->message("simmain()","Midi disabled ...");
+		midi_set_mute(true);
+	}
+
+	if(  gimme_arg(argc, argv, "-mute", 0)  ) {
+		sound_set_mute(true);
 		midi_set_mute(true);
 	}
 
@@ -1355,7 +1356,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		check_midi();
 
 		if(  !env_t::networkmode  &&  new_world  ) {
-			dbg->important( "Show banner ... " );
+			dbg->message("simmain()", "Show banner ... " );
 			ticker::add_msg("Welcome to Simutrans", koord::invalid, PLAYER_FLAG | color_idx_to_rgb(COL_SOFT_BLUE));
 			modal_dialogue( new banner_t(), magic_none, welt, never_quit );
 			// only show new world, if no other dialogue is active ...
@@ -1379,7 +1380,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 				break;
 			}
 		}
-		dbg->important( "Running world, pause=%i, fast forward=%i ... ", welt->is_paused(), welt->is_fast_forward() );
+		dbg->message("simmain()", "Running world, pause=%i, fast forward=%i ... ", welt->is_paused(), welt->is_fast_forward() );
 		loadgame = ""; // only first time
 
 		// run the loop
@@ -1391,7 +1392,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		welt->set_pause(false);
 		setsimrand(dr_time(), dr_time());
 
-		dbg->important( "World finished ..." );
+		dbg->message("simmain()", "World finished ..." );
 	}
 
 	intr_disable();

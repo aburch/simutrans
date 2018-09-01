@@ -4145,7 +4145,8 @@ uint16 display_load_font(const char* fname)
 	font_t fnt;
 
 	if(  fname == NULL  ) {
-		dbg->fatal( "display_load_font", "NULL filename" );
+		dbg->error( "display_load_font", "NULL filename" );
+		return 0;
 	}
 	// skip reloading if already in memory, if bdf font
 	if(  large_font.num_chars>0  &&  strcmp( large_font.fname, fname ) == 0  ) {
@@ -5143,7 +5144,7 @@ void simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 		large_font.screen_width = NULL;
 		large_font.char_data = NULL;
 
-		if(  !display_load_font(env_t::fontname.c_str())  ) {
+		if(  !display_load_font(env_t::fontname.c_str())  &&  !display_load_font(FONT_PATH_X "prop.fnt") ) {
 			dr_fatal_notify( "No fonts found!" );
 			fprintf(stderr, "Error: No fonts found!");
 			exit(-1);

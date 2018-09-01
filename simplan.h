@@ -251,6 +251,17 @@ public:
 	void display_overlay(sint16 xpos, sint16 ypos) const;
 
 	static void toggle_horizontal_clip(CLIP_NUM_DEF0);
+
+	/**
+	 * @brief Update this square for underground view.
+	 *
+	 * Updates this square for underground view. This includes calculating
+	 * calculating new back will images as well as water depth texture.
+	 *
+	 * This method does not modify this square object, but does modify the
+	 * grounds it references.
+	 */
+	void update_underground() const;
 };
 
 #endif
