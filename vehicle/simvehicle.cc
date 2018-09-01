@@ -2273,7 +2273,14 @@ image_id vehicle_t::get_loaded_image() const
 			break;
 		}
 	}
-	return desc->get_image_id(ribi_t::dir_south, empty ?  goods_manager_t::none  : gd);
+	if (reversed)
+	{
+		return desc->get_image_id(ribi_t::dir_north, empty ? goods_manager_t::none : gd, current_livery.c_str());
+	}
+	else
+	{
+		return desc->get_image_id(ribi_t::dir_south, empty ? goods_manager_t::none : gd, current_livery.c_str());
+	}
 }
 
 
