@@ -2540,6 +2540,7 @@
     <ClInclude Include="dataobj\livery_scheme.h" />
     <ClInclude Include="dataobj\objlist.h" />
     <ClInclude Include="dataobj\records.h" />
+    <ClInclude Include="dataobj\rect.h" />
     <ClInclude Include="dataobj\settings.h" />
     <ClInclude Include="descriptor\image_array_3d.h" />
     <ClInclude Include="descriptor\obj_base_desc.h" />
