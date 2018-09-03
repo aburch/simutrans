@@ -190,11 +190,8 @@ bool vehicle_builder_t::register_desc(const vehicle_desc_t *desc)
 {
 	// register waytype list
 	const int idx = GET_WAYTYPE_INDEX( desc->get_waytype() );
-
-	const vehicle_desc_t *old_desc = name_fahrzeuge.get( desc->get_name() );
-	if(  old_desc  ) {
-		dbg->warning( "vehicle_builder_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
-		name_fahrzeuge.remove( desc->get_name() );
+	if(  const vehicle_desc_t *old_desc = name_fahrzeuge.remove( desc->get_name() )  ) {
+		dbg->doubled( "vehicle", desc->get_name() );
 		typ_fahrzeuge[idx].remove(old_desc);
 	}
 	name_fahrzeuge.put(desc->get_name(), desc);

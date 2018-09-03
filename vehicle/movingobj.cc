@@ -65,7 +65,7 @@ bool movingobj_t::register_desc(groundobj_desc_t *desc)
 {
 	// remove duplicates
 	if(  desc_table.remove( desc->get_name() )  ) {
-		dbg->warning( "movingobj_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		dbg->doubled( "movingobj", desc->get_name() );
 	}
 	desc_table.put(desc->get_name(), desc );
 	return true;
