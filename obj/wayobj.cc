@@ -237,7 +237,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 	}
 	else {
 		desc = default_oberleitung;
-		dir = 255;
+		dir = dir_unknown;
 	}
 }
 
@@ -264,7 +264,7 @@ const char *wayobj_t:: is_deletable(const player_t *player)
 void wayobj_t::finish_rd()
 {
 	// (re)set dir
-	if(dir==255) {
+	if(dir==dir_unknown) {
 		const waytype_t wt = (desc->get_wtyp()==tram_wt) ? track_wt : desc->get_wtyp();
 		weg_t *w=welt->lookup(get_pos())->get_weg(wt);
 		if(w) {
