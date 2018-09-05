@@ -345,6 +345,7 @@ private:
 public:
 	tool_build_bridge_t() : two_click_tool_t(TOOL_BUILD_BRIDGE | GENERAL_TOOL) {
 		overtaking_mode = twoway_mode;
+		street_flag = 0;
 	}
 	image_id get_icon(player_t*) const OVERRIDE { return grund_t::underground_mode==grund_t::ugm_all ? IMG_EMPTY : icon; }
 	char const* get_tooltip(player_t const*) const OVERRIDE;
@@ -375,6 +376,7 @@ private:
 public:
 	tool_build_tunnel_t() : two_click_tool_t(TOOL_BUILD_TUNNEL | GENERAL_TOOL) {
 		overtaking_mode = twoway_mode;
+		street_flag = 0;
 	}
 	char const* get_tooltip(player_t const*) const OVERRIDE;
 	char const* check_pos(player_t*, koord3d) OVERRIDE;
