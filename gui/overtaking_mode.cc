@@ -86,20 +86,25 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 	cursor.y += citycar_no_entry_button.get_size().h + D_V_SPACE;
 	
 	if(  tool_class==0  &&  !show_avoid_cityroad  ) {
-		// the way is elevated.
+		// the way is elevated. height offset setting is displayed.
 		divider[1].set_pos( cursor );
 		divider[1].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
 		add_component(&divider[1]);
 		cursor.y += D_DIVIDER_HEIGHT;
 		
-		// TODO: set value and limit correctly!
-		height_offset.set_pos( cursor );
+		height_offset.set_pos( scr_coord( L_DIALOG_WIDTH - D_MARGIN_RIGHT - height_offset.get_size().w, cursor.y ) );
 		height_offset.set_size( scr_size(52, D_EDIT_HEIGHT) );
 		height_offset.set_limits( 0, 32 );
 		height_offset.set_value( tool_w->get_height_offset() );
 		height_offset.wrap_mode( false );
 		height_offset.add_listener( this );
 		add_component( &height_offset );
+		
+		height_offset_label.set_text("height offset");
+		height_offset_label.align_to(&height_offset, ALIGN_CENTER_V, scr_coord( cursor.x, 0 ));
+		height_offset_label.set_width( height_offset.get_pos().x - D_MARGIN_LEFT - D_H_SPACE );
+		add_component( &height_offset_label );
+		
 		cursor.y += height_offset.get_size().h + D_V_SPACE;
 	}
 	
