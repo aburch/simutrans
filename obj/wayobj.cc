@@ -165,7 +165,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 	}
 	else {
 		desc = default_oberleitung;
-		dir = 255;
+		dir = dir_unknown;
 	}
 }
 
@@ -192,7 +192,7 @@ const char *wayobj_t::is_deletable(const player_t *player)
 void wayobj_t::finish_rd()
 {
 	// (re)set dir
-	if(dir==255) {
+	if(dir==dir_unknown) {
 		const waytype_t wt = (desc->get_wtyp()==tram_wt) ? track_wt : desc->get_wtyp();
 		weg_t *w=welt->lookup(get_pos())->get_weg(wt);
 		if(w) {
@@ -441,10 +441,8 @@ bool wayobj_t::successfully_loaded()
 bool wayobj_t::register_desc(way_obj_desc_t *desc)
 {
 	// avoid duplicates with same name
-	const way_obj_desc_t *old_desc = table.get(desc->get_name());
-	if(old_desc) {
-		dbg->warning( "wayobj_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
-		table.remove(desc->get_name());
+	if(  const way_obj_desc_t *old_desc = table.remove(desc->get_name())  ) {
+		dbg->doubled( "wayobj", desc->get_name() );
 		tool_t::general_tool.remove( old_desc->get_builder() );
 		delete old_desc->get_builder();
 		delete old_desc;

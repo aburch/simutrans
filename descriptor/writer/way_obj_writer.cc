@@ -16,7 +16,7 @@ using std::string;
  */
 void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	static const char* const ribi_codes[16] = {
+	static const char* const ribi_codes[26] = {
 		"-", "n",  "e",  "ne",  "s",  "ns",  "se",  "nse",
 		"w", "nw", "ew", "new", "sw", "nsw", "sew", "nsew"
 		"nse1", "new1", "nsw1", "sew1", "nsew1",	// different crossings: northwest/southeast is oneway
@@ -57,7 +57,7 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 	slist_tpl<string> front_list;
 	slist_tpl<string> back_list;
 
-	for (ribi = 0; ribi < 16; ribi++) {
+	for (ribi = 0; ribi < lengthof(ribi_codes); ribi++) {
 		char buf[40];
 		sprintf(buf, "frontimage[%s]", ribi_codes[ribi]);
 		string str = obj.get(buf);

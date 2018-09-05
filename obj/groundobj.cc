@@ -64,7 +64,7 @@ bool groundobj_t::register_desc(groundobj_desc_t *desc)
 	assert(desc->get_speed()==0);
 	// remove duplicates
 	if(  desc_table.remove( desc->get_name() )  ) {
-		dbg->warning( "groundobj_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		dbg->doubled( "groundobj", desc->get_name() );
 	}
 	desc_table.put(desc->get_name(), desc );
 	return true;
