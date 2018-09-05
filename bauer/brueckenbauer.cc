@@ -48,9 +48,8 @@ static stringhashtable_tpl<const bridge_desc_t *> desc_table;
 void bridge_builder_t::register_desc(bridge_desc_t *desc)
 {
 	// avoid duplicates with same name
-	if( const bridge_desc_t *old_desc = desc_table.get(desc->get_name()) ) {
-		dbg->warning( "bridge_builder_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
-		desc_table.remove(desc->get_name());
+	if(  const bridge_desc_t *old_desc = desc_table.remove(desc->get_name())  ) {
+		dbg->doubled( "bridge", desc->get_name() );
 		tool_t::general_tool.remove( old_desc->get_builder() );
 		delete old_desc->get_builder();
 		delete old_desc;

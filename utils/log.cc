@@ -219,6 +219,37 @@ void log_t::error(const char *who, const char *format, ...)
 }
 
 
+
+/**
+ * writes a warning into the log.
+ * @author Hj. Malthaner
+ */
+void log_t::doubled(const char *what, const char *name )
+{
+	if(debuglevel>=2) {
+
+		if( log ) {                             /* only log when a log */
+			fprintf(log ,"Warning: object %s::%s is overlaid!\n",what,name); /* is already open */
+			if( force_flush ) {
+				fflush(log);
+			}
+		}
+
+		if( tee ) {
+			fprintf(tee, "Warning: object %s::%s is overlaid!\n",what,name);
+		}
+
+#ifdef SYSLOG
+		if(  syslog  ) {
+			syslog( LOG_WARNING, "Warning: object %s::%s is overlaid!", what, name );
+		}
+#endif
+	}
+	doublettes = doublettes+"Object "+what+"::"+name+" is overlaid!<br>";
+}
+
+
+
 /**
  * writes an error into the log, aborts the program.
  * @author Hj. Malthaner

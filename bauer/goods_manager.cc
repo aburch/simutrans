@@ -123,11 +123,9 @@ bool goods_manager_t::register_desc(goods_desc_t *desc)
 	desc->value = desc->base_value;
 	::register_desc(special_objects, desc);
 	// avoid duplicates with same name
-	goods_desc_t *old_desc = const_cast<goods_desc_t *>(desc_table.get(desc->get_name()));
-	if(  old_desc  ) {
-		dbg->warning( "goods_manager_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
-		desc_table.remove(desc->get_name());
-		goods.remove( old_desc );
+	if(  const goods_desc_t *old_desc = desc_table.remove(desc->get_name())  ) {
+		dbg->doubled( "good", desc->get_name() );
+		goods.remove( const_cast<goods_desc_t*>(old_desc) );
 	}
 	desc_table.put(desc->get_name(), desc);
 

@@ -312,6 +312,22 @@ static bool never_quit() { return false; }
 static bool empty_objfilename() { return !env_t::objfilename.empty(); }
 static bool no_language() { return translator::get_language()!=-1; }
 
+static bool wait_for_key()
+{
+	event_t ev;
+	display_poll_event(&ev);
+	if(  ev.ev_class != EVENT_NONE  ) {
+		if(  ev.ev_class==EVENT_KEYBOARD  ) {
+			if(  ev.ev_code==SIM_KEY_ESCAPE  ||  ev.ev_code==SIM_KEY_SPACE  ||  ev.ev_code==SIM_KEY_BACKSPACE  ) {
+				return true;
+			}
+		}
+		event_t *nev = new event_t();
+		*nev = ev;
+		queue_event(nev);
+	}
+	return false;
+}
 
 
 /**
@@ -1051,9 +1067,15 @@ int simu_main(int argc, char** argv)
 	dbg->message("simmain()","Reading menu configuration ...");
 	tool_t::init_menu();
 
-	// loading all paks
+	// loading all objects in the pak
 	dbg->message("simmain()","Reading object data from %s...", env_t::objfilename.c_str());
-	obj_reader_t::load(env_t::objfilename.c_str(), translator::translate("Loading paks ...") );
+	obj_reader_t::load( env_t::objfilename.c_str(), translator::translate("Loading paks ...") );
+	std::string overlaid_warning;	// more prominent handling of double objects
+	if(  dbg->had_overlaid()  ) {
+		overlaid_warning = "<h1>Error</h1><p><strong>" + env_t::objfilename + " contains the following doubled objects:</strong><p>" + dbg->get_overlaid() + "<p>";
+		dbg->clear_overlaid();
+	}
+
 	if(  env_t::default_settings.get_with_private_paks()  ) {
 		// try to read addons from private directory
 		dr_chdir( env_t::user_dir );
@@ -1062,10 +1084,22 @@ int simu_main(int argc, char** argv)
 			env_t::default_settings.set_with_private_paks( false );
 		}
 		dr_chdir( env_t::program_dir );
+		if(  dbg->had_overlaid()  ) {
+			overlaid_warning.append( "<h1>Warning</h1><p><strong>addons for " + env_t::objfilename + "\" contains the following doubled objects:</strong><p>" + dbg->get_overlaid() );
+			dbg->clear_overlaid();
+		}
 	}
 	obj_reader_t::finish_loading();
 	pakset_info_t::calculate_checksum();
 	pakset_info_t::debug();
+
+	if(  !overlaid_warning.empty()  ) {
+		overlaid_warning.append( "<p>Continue by ESC, SPACE, or BACKSPACE.<br>" );
+		help_frame_t *win = new help_frame_t();
+		win->set_text( overlaid_warning.c_str() );
+		modal_dialogue( win, magic_pakset_info_t, NULL, wait_for_key );
+		destroy_all_win(true);
+	}
 
 	dbg->message("simmain()","Reading menu configuration ...");
 	tool_t::read_menu(env_t::objfilename);
@@ -1255,7 +1289,6 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	// reset random counter to true randomness
 	setsimrand(dr_time(), dr_time());
 	clear_random_mode( 7 );	// allow all
-
 
 	if(  loadgame==""  ||  !welt->load(loadgame.c_str())  ) {
 		// create a default map

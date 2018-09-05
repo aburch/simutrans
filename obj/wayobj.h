@@ -21,7 +21,7 @@ class koord;
 class grund_t;
 class tool_selector_t;
 
-/* wayobj eable various functionality of ways, most prominent are overhead power lines */
+/* wayobj enable various functionality of ways, most prominent are overhead power lines */
 class wayobj_t : public obj_no_info_t
 {
 private:
@@ -33,6 +33,8 @@ private:
 	// direction of this wayobj
 	uint8 nw:1;
 	uint8 dir:7;
+
+	static const uint8 dir_unknown = 127;
 
 	ribi_t::ribi find_next_ribi(const grund_t *start, const ribi_t::ribi dir, const waytype_t wt) const;
 
@@ -52,8 +54,8 @@ public:
 	* the back image, drawn before vehicles
 	*/
 	image_id get_image() const {
-		return hang ? desc->get_back_slope_image_id(hang) : 
-			(dir>16 ? desc->get_crossing_image_id(dir,nw,false) : 
+		return hang ? desc->get_back_slope_image_id(hang) :
+			(dir>16 ? desc->get_crossing_image_id(dir,nw,false) :
 				(diagonal ? desc->get_back_diagonal_image_id(dir) : desc->get_back_image_id(dir))
 				);
 	}
@@ -63,7 +65,7 @@ public:
 	 */
 	image_id get_front_image() const {
 		return hang ? desc->get_front_slope_image_id(hang) :
-			(dir>16 ? desc->get_crossing_image_id(dir,nw,true) : 
+			(dir>16 ? desc->get_crossing_image_id(dir,nw,true) :
 				(diagonal ? desc->get_front_diagonal_image_id(dir) : desc->get_front_image_id(dir))
 				);
 	}

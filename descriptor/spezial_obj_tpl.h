@@ -30,7 +30,9 @@ template<class desc_t> bool register_desc(special_obj_tpl<desc_t> const* so, des
 {
 	for (; so->name; ++so) {
 		if (strcmp(so->name, desc->get_name()) == 0) {
-			if (*so->desc != NULL) {
+			if (*so->desc != NULL  ) {
+				// these doublettes are harmless, and hence only recored at debug level 3
+//				dbg->doubled( "object", desc->get_name() );
 				dbg->message("register_desc()", "Notice: obj %s already defined", so->name);
 			}
 			*so->desc = desc;

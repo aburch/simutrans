@@ -47,8 +47,7 @@ void tunnel_builder_t::register_desc(tunnel_desc_t *desc)
 {
 	// avoid duplicates with same name
 	if( const tunnel_desc_t *old_desc = tunnel_by_name.get(desc->get_name()) ) {
-		dbg->warning( "tunnel_builder_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
-		tunnel_by_name.remove(desc->get_name());
+		dbg->doubled( "tunnel", desc->get_name() );
 		tool_t::general_tool.remove( old_desc->get_builder() );
 		delete old_desc->get_builder();
 		delete old_desc;
