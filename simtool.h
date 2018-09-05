@@ -284,6 +284,7 @@ protected:
 	overtaking_mode_t overtaking_mode;
 	bool look_toolbar = false;
 	uint8 street_flag;
+	uint8 height_offset;
 
 	virtual way_desc_t const* get_desc(uint16, bool) const;
 	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
@@ -293,6 +294,7 @@ public:
 	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), desc() {
 		overtaking_mode = twoway_mode;
 		street_flag = 0;
+		height_offset = 0;
 	 }
 	image_id get_icon(player_t*) const OVERRIDE;
 	char const* get_tooltip(player_t const*) const OVERRIDE;
@@ -311,6 +313,8 @@ public:
 	overtaking_mode_t get_overtaking_mode() const { return overtaking_mode; }
 	void set_street_flag (uint8 a) { street_flag = a; }
 	uint8 get_street_flag() const { return street_flag; }
+	void set_height_offset (uint8 a) { height_offset = a; }
+	uint8 get_height_offset() const { return height_offset; }
 	static void set_mode_str(char* str, overtaking_mode_t overtaking_mode);
 	void set_look_toolbar() { look_toolbar = true; }
 	static uint8 get_flag_color(uint8 flag);

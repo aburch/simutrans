@@ -419,8 +419,6 @@ public:
 	/// To solve the version number conflict between simutrans standard...
 	/// @author THLeaderH
 	static bool previous_OTRP_data;
-	
-	static sint16 cursor_height;
 
 
 	/**

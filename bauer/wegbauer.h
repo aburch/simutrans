@@ -130,8 +130,14 @@ private:
 	 * Only for road
 	 * @author THLeaderH
 	 */
-	 overtaking_mode_t overtaking_mode;
-	 uint8 street_flag;
+	overtaking_mode_t overtaking_mode;
+	uint8 street_flag;
+	 
+	/**
+	 * Only for elevated way
+	 * @author THLeaderH
+	 */
+	uint8 height_offset;
 
 	/**
 	 * If a way is built on top of another way, should the type
@@ -221,6 +227,7 @@ public:
 
 	void set_overtaking_mode(overtaking_mode_t o) { overtaking_mode = o; }
 	void set_street_flag(uint8 a) { street_flag = a; }
+	void set_height_offset(uint8 a) { height_offset = a; }
 
 	way_builder_t(player_t *player_);
 

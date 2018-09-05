@@ -92,24 +92,15 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 		add_component(&divider[1]);
 		cursor.y += D_DIVIDER_HEIGHT;
 		
-		/*
-		use_designated_height_button.init( button_t::square_state, "use designated height", cursor );
-		use_designated_height_button.set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-		use_designated_height_button.add_listener(this);
-		use_designated_height_button.pressed = false;
-		add_component(&use_designated_height_button);
-		cursor.y += use_designated_height_button.get_size().h + D_V_SPACE;
-		
 		// TODO: set value and limit correctly!
-		construction_height.set_pos( cursor );
-		construction_height.set_size( scr_size(52, D_EDIT_HEIGHT) );
-		construction_height.set_limits( 1, 64 );
-		construction_height.set_value( 0 );
-		construction_height.wrap_mode( false );
-		construction_height.add_listener( this );
-		add_component( &construction_height );
-		cursor.y += construction_height.get_size().h + D_V_SPACE;
-		*/
+		height_offset.set_pos( cursor );
+		height_offset.set_size( scr_size(52, D_EDIT_HEIGHT) );
+		height_offset.set_limits( 0, 32 );
+		height_offset.set_value( tool_w->get_height_offset() );
+		height_offset.wrap_mode( false );
+		height_offset.add_listener( this );
+		add_component( &height_offset );
+		cursor.y += height_offset.get_size().h + D_V_SPACE;
 	}
 	
 	set_windowsize( scr_size( L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
@@ -142,16 +133,10 @@ bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, valu
 	else if(  komp==&citycar_no_entry_button  ) {
 		citycar_no_entry_button.pressed = !(citycar_no_entry_button.pressed);
 	}
-	else if(  komp==&use_designated_height_button  ) {
-		use_designated_height_button.pressed = !(use_designated_height_button.pressed);
-		if(  use_designated_height_button.pressed  ) {
-			env_t::cursor_height = construction_height.get_value();
-		} else {
-			env_t::cursor_height = 999;
+	else if(  komp==&height_offset  ) {
+		if(  tool_class==0  ) {
+			tool_w->set_height_offset(height_offset.get_value());
 		}
-	}
-	else if(  komp==&construction_height  ) {
-		env_t::cursor_height = construction_height.get_value();
 	}
 	else{
 		return false;
@@ -182,7 +167,7 @@ bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, valu
 		tool_tu->set_street_flag(flag);
 		break;
 		default:
-		assert(false);
+		dbg->fatal("overtaking_mode_frame_t::action_triggered()", "Illegal tool_class");
 	}
 	return true;
 }

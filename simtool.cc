@@ -2612,6 +2612,15 @@ uint8 tool_build_way_t::is_valid_pos( player_t *player, const koord3d &pos, cons
 	return 2;
 }
 
+tool_build_way_t* get_build_way_tool_from_toolbar(const way_desc_t* desc) {
+	FOR(vector_tpl<const way_desc_t *>, const& cand, way_builder_t::get_way_list(desc->get_waytype(), desc->get_styp())) {
+		if(  cand==desc  &&  cand->get_builder()  ) {
+			return dynamic_cast<tool_build_way_t*> (cand->get_builder());
+		}
+	}
+	return NULL;
+}
+
 void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start, const koord3d &end )
 {
 	// recalc type of construction
@@ -2621,7 +2630,14 @@ void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 	}
 	// elevated track?
 	if(desc->get_styp()==type_elevated  &&  desc->get_wtyp()!=air_wt) {
+		uint8 hf = height_offset;
+		tool_build_way_t* toolbar_tool;
+		if(  look_toolbar  &&  (toolbar_tool=get_build_way_tool_from_toolbar(desc))!=NULL  ) {
+			// look toolbar variable indicates this tool is called from a shortcut key. When a tool is called from a shortcut key, we have to use height_offset of the tool in a toolbar.
+			hf = toolbar_tool->get_height_offset();
+		}
 		bautyp |= way_builder_t::elevated_flag;
+		bauigel.set_height_offset(hf);
 	}
 
 	bauigel.init_builder(bautyp, desc);
@@ -2649,15 +2665,6 @@ void tool_build_way_t::calc_route( way_builder_t &bauigel, const koord3d &start,
 		bauigel.calc_route(start,my_end);
 	}
 	DBG_MESSAGE("tool_build_way_t()", "builder found route with %d squares length.", bauigel.get_count());
-}
-
-tool_build_way_t* get_build_way_tool_from_toolbar(const way_desc_t* desc) {
-	FOR(vector_tpl<const way_desc_t *>, const& cand, way_builder_t::get_way_list(desc->get_waytype(), desc->get_styp())) {
-		if(  cand==desc  &&  cand->get_builder()  ) {
-			return dynamic_cast<tool_build_way_t*> (cand->get_builder());
-		}
-	}
-	return NULL;
 }
 
 const char *tool_build_way_t::do_work( player_t *player, const koord3d &start, const koord3d &end )
@@ -2690,18 +2697,22 @@ void tool_build_way_t::rdwr_custom_data(memory_rw_t *packet)
 	two_click_tool_t::rdwr_custom_data(packet);
 	sint8 i = overtaking_mode;
 	uint8 a = street_flag;
+	uint8 b = height_offset;
 	// If this tool is called from a shortcut key, overtaking_mode of the tool in a toolbar has to be used.
 	if(  packet->is_saving()  &&  look_toolbar  ) {
 		tool_build_way_t* toolbar_tool = get_build_way_tool_from_toolbar(desc);
 		if(  toolbar_tool  ) {
 			i = toolbar_tool->get_overtaking_mode();
 			a = toolbar_tool->get_street_flag();
+			b = toolbar_tool->get_height_offset();
 		}
 	}
 	packet->rdwr_byte(i);
 	packet->rdwr_byte(a);
+	packet->rdwr_byte(b);
 	overtaking_mode = (overtaking_mode_t)i;
 	street_flag = a;
+	height_offset = b;
 }
 
 
@@ -2710,7 +2721,14 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 	way_builder_t bauigel(player);
 	calc_route( bauigel, start, end );
 
-	uint8 offset = (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt) ? welt->get_settings().get_way_height_clearance() : 0;
+	uint8 hf = height_offset;
+	tool_build_way_t* toolbar_tool;
+	if(  look_toolbar  &&  (toolbar_tool=get_build_way_tool_from_toolbar(desc))!=NULL  ) {
+		// look toolbar variable indicates this tool is called from a shortcut key. When a tool is called from a shortcut key, we have to use height_offset of the tool in a toolbar.
+		hf = toolbar_tool->get_height_offset();
+	}
+
+	uint8 offset = (desc->get_styp() == type_elevated  &&  desc->get_wtyp() != air_wt) ? welt->get_settings().get_way_height_clearance() + hf : 0;
 
 	if(  bauigel.get_count()>1  ) {
 		// Set tooltip first (no dummygrounds, if bauigel.calc_casts() is called).
