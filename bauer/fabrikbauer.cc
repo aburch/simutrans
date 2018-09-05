@@ -213,7 +213,7 @@ void factory_builder_t::register_desc(factory_desc_t *desc)
 DBG_DEBUG("factory_builder_t::register_desc()","Correction for old factory: Increase production from %i by %i",p&0x7FFF,k.x*k.y);
 	}
 	if(  const factory_desc_t *old_desc = desc_table.remove(desc->get_name())  ) {
-		dbg->warning( "factory_builder_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		dbg->doubled( "factory", desc->get_name() );
 		delete old_desc;
 	}
 	desc_table.put(desc->get_name(), desc);

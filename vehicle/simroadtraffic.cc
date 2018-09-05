@@ -241,7 +241,7 @@ stringhashtable_tpl<const citycar_desc_t *> private_car_t::table;
 bool private_car_t::register_desc(const citycar_desc_t *desc)
 {
 	if(  table.remove(desc->get_name())  ) {
-		dbg->warning( "citycar_desc_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
+		dbg->doubled( "citycar", desc->get_name() );
 	}
 	table.put(desc->get_name(), desc);
 	return true;

@@ -125,6 +125,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="dataobj\rect.cc" />
     <ClCompile Include="descriptor\obj_base_desc.cc" />
     <ClCompile Include="descriptor\way_desc.cc" />
     <ClCompile Include="dataobj\height_map_loader.cc" />
@@ -441,6 +442,7 @@
   <ItemGroup>
     <ClInclude Include="dataobj\height_map_loader.h" />
     <ClInclude Include="dataobj\records.h" />
+    <ClInclude Include="dataobj\rect.h" />
     <ClInclude Include="display\font.h" />
     <ClInclude Include="display\scr_coord.h" />
     <ClInclude Include="display\simgraph.h" />

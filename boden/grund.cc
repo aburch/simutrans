@@ -1453,7 +1453,7 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 	}
 
 	// display background
-	if (!tunnel_portal) {
+	if (!tunnel_portal  ||  slope == 0) {
 		activate_ribi_clip( (ribi_t::northwest & ribi) | 16 CLIP_NUM_PAR );	}
 	else {
 		// also clip along the upper edge of the tunnel tile
@@ -1555,7 +1555,7 @@ void grund_t::display_obj_all(const sint16 xpos, const sint16 ypos, const sint16
 	}
 
 	// foreground
-	if (tunnel_portal) {
+	if (tunnel_portal  &&  slope != 0) {
 		// clip at the upper edge
 		activate_ribi_clip( (ribi & (corner_se(slope)>0 ?  ribi_t::southeast : ribi_t::northwest) )| 16 CLIP_NUM_PAR );
 	}

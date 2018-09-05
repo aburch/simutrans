@@ -205,12 +205,12 @@ bool hausbauer_t::register_desc(building_desc_t *desc)
 	const building_desc_t *old_desc = desc_table.get(desc->get_name());
 	if(old_desc) {
 		// do not overlay existing factories if the new one is not a factory
+		dbg->doubled( "building", desc->get_name() );
 		if (old_desc->is_factory()  &&  !desc->is_factory()) {
-			dbg->warning( "hausbauer_t::register_desc()", "Object %s could not be registered since it would overlay an existing factory building!", desc->get_name() );
+			dbg->error( "hausbauer_t::register_desc()", "Object %s could not be registered since it would overlay an existing factory building!", desc->get_name() );
 			delete desc;
 			return false;
 		}
-		dbg->warning( "hausbauer_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
 		desc_table.remove(desc->get_name());
 		tool_t::general_tool.remove( old_desc->get_builder() );
 		delete old_desc->get_builder();
