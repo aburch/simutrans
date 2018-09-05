@@ -29,7 +29,7 @@ mac: https://drive.google.com/open?id=1TqNYDau_n_3R-kMhln0wPh3hZglkBISz
 
 Priority Signal作成用makeobjはこちら（ソースは同じリポジトリです。）  
 windows: https://drive.google.com/open?id=1fE5kMvvmcI5fOhg0e3cKMC8dFgzEW9wF  
-mac: https://drive.google.com/open?id=1fE5kMvvmcI5fOhg0e3cKMC8dFgzEW9wF
+mac: https://drive.google.com/open?id=1rkf4Nel4KBR4z7IuclGyDtAeUVZSvpUC
 
 # 導入方法
 1. ribi-arrowをDLしてお使いのpakセットに入れる

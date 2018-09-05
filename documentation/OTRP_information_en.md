@@ -29,7 +29,7 @@ source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute
 
 Makeobj to compile a priority signal addon is available below.  
 windows: https://drive.google.com/open?id=1fE5kMvvmcI5fOhg0e3cKMC8dFgzEW9wF  
-mac: https://drive.google.com/open?id=1fE5kMvvmcI5fOhg0e3cKMC8dFgzEW9wF
+mac: https://drive.google.com/open?id=1rkf4Nel4KBR4z7IuclGyDtAeUVZSvpUC
 
 # Install
 1. Download ribi-arrow and put it into your pakset.
