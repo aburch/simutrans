@@ -1,6 +1,6 @@
 /*
- * Dialogue to set the wayobj spacing, when CTRL+clicking a wayobj on toolbar
- * Used by tool_roadsign_t
+ * Dialogue to set a value, when CTRL+clicking an icon on toolbar
+ * @author THLeaderH
  */
 
 #include "gui_frame.h"
@@ -54,4 +54,14 @@ wayobj_spacing_frame_t::wayobj_spacing_frame_t(player_t *player_, tool_build_way
 
 void wayobj_spacing_frame_t::register_val(uint8 v) {
 	tool->set_spacing(v);
+}
+
+height_offset_frame_t::height_offset_frame_t(player_t *player_, tool_build_way_t* tool_) :
+	simple_number_input_frame_t( translator::translate("set height offset"), translator::translate("height offset"), 0, 32, tool_->get_height_offset() )
+{
+	tool = tool_;
+}
+
+void height_offset_frame_t::register_val(uint8 v) {
+	tool->set_height_offset(v);
 }

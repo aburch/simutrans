@@ -1,6 +1,6 @@
 /*
- * Dialogue to set the signal spacing, when CTRL+clicking a signal on toolbar
- * Used by tool_roadsign_t
+ * Dialogue to set a value, when CTRL+clicking an icon on toolbar
+ * @author THLeaderH
  */
 
 #ifndef simple_number_input_h
@@ -12,6 +12,7 @@
 class gui_numberinput_t;
 class gui_label_t;
 class tool_build_wayobj_t;
+class tool_build_way_t;
 class player_t;
 
 class simple_number_input_frame_t : public gui_frame_t, private action_listener_t
@@ -35,6 +36,16 @@ public:
 	wayobj_spacing_frame_t( player_t *, tool_build_wayobj_t * );
 	void register_val(uint8 v) OVERRIDE;
 	const char * get_help_filename() const { return "wayobj_spacing.txt"; }
+};
+
+class height_offset_frame_t : public simple_number_input_frame_t
+{
+private:
+	tool_build_way_t* tool;
+public:
+	height_offset_frame_t( player_t *, tool_build_way_t * );
+	void register_val(uint8 v) OVERRIDE;
+	const char * get_help_filename() const { return "height_offset.txt"; }
 };
 
 #endif
