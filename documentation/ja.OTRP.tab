@@ -49,3 +49,7 @@ set wayobj spacing
 架線の設置間隔設定
 wayobj spacing
 架線の設置間隔
+set height offset
+高度オフセットの設定
+height offset
+高度のオフセット

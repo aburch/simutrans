@@ -17,18 +17,19 @@ You should try OTRP because...
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitter hash tag :  [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)  
 
-As of version 17_4, OTRP is based on simutrans standard nightly r8562.
+As of version 17_5, OTRP is based on simutrans standard nightly r8567.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.  
 
-You can download the OTRP executable binary from the links below. **(2018 September 1st, updated to ver 17_4.)**  
-windows: https://drive.google.com/open?id=1ZVw8izY_KGjAWM1iyl4-0i6pAu13dzLE  
-mac: https://drive.google.com/open?id=1zZncyw5avBLuiw4MBo3ttqM39D0svuFB  
+You can download the OTRP executable binary from the links below. **(2018 September 5th, updated to ver 17_5.)**  
+windows: https://drive.google.com/open?id=1Ob6tr9oSsdid6yxkj0GCFbetJZFZ6daQ  
+mac: https://drive.google.com/open?id=1TqNYDau_n_3R-kMhln0wPh3hZglkBISz  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 Makeobj to compile a priority signal addon is available below.  
-windows: https://drive.google.com/open?id=1fE5kMvvmcI5fOhg0e3cKMC8dFgzEW9wF
+windows: https://drive.google.com/open?id=1fE5kMvvmcI5fOhg0e3cKMC8dFgzEW9wF  
+mac: https://drive.google.com/open?id=1fE5kMvvmcI5fOhg0e3cKMC8dFgzEW9wF
 
 # Install
 1. Download ribi-arrow and put it into your pakset.
@@ -94,6 +95,7 @@ just as presignals and longblocksignals. Please compile your addons with the ded
 - Use "make halt public" tool with the shift key, and the halt belongs to the current activated player. With the control key, this operation can be done with no cost.
 - If you use the land raise/lower tool with ctrl key, the height of selected area are set to the height of the original coordinate. (Implemented by shingoushori)
 - If you use the wayobj construction tool with ctrl key, you can specify the interval of wayobj placement.
+- If you use the elevated way construction tool with ctrl key, you can specify the height offset. This is convenient when you build elevated way at very high altitude.
 
 # Parameters of OTRP
 Most of these are stored in the game.

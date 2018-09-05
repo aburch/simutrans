@@ -17,18 +17,19 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version17_4現在、simutrans standard nightly r8562をベースにしています。
+version17_5現在、simutrans standard nightly r8567をベースにしています。
 
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
 
-本体は下のリンクからどうぞ。**（2018年9月1日PM3時　ver17_4に更新）**  
-windows: https://drive.google.com/open?id=1ZVw8izY_KGjAWM1iyl4-0i6pAu13dzLE  
-mac: https://drive.google.com/open?id=1zZncyw5avBLuiw4MBo3ttqM39D0svuFB    
+本体は下のリンクからどうぞ。**（2018年9月5日PM11時　ver17_5に更新）**  
+windows: https://drive.google.com/open?id=1Ob6tr9oSsdid6yxkj0GCFbetJZFZ6daQ  
+mac: https://drive.google.com/open?id=1TqNYDau_n_3R-kMhln0wPh3hZglkBISz    
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 Priority Signal作成用makeobjはこちら（ソースは同じリポジトリです。）  
-windows: https://drive.google.com/open?id=1fE5kMvvmcI5fOhg0e3cKMC8dFgzEW9wF
+windows: https://drive.google.com/open?id=1fE5kMvvmcI5fOhg0e3cKMC8dFgzEW9wF  
+mac: https://drive.google.com/open?id=1fE5kMvvmcI5fOhg0e3cKMC8dFgzEW9wF
 
 # 導入方法
 1. ribi-arrowをDLしてお使いのpakセットに入れる
@@ -97,6 +98,7 @@ v13から道路信号の進入許可方向を設定できるようになりま�
 - 建築物建設ツールで範囲選択ができるようになりました。選択された範囲に現在有効な建築物を配置します。（[shingoushori][1]氏による実装）
 - ctrlキーを押しながら土地上げ下げツールを使うと、選択された範囲が始点と同じ高度になります。（[shingoushori][1]氏による実装）
 - ctrlキーを押しながらwayobj（架線）建設ツールを使うと、wayobjの設置間隔を設定できます。景観架線で架線柱を2マスごとに置く時などに便利です。
+- ctrlキーを押しながら高架建設ツールを使うと、高架の高度オフセットを指定できます。1高度だけ地面から浮いた高架や、高高度の高架を建設するときに便利です。
 
 # 設定項目
 主にsimuconf.tabや「高度な設定」で編集する項目です。  
