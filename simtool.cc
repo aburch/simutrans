@@ -59,7 +59,7 @@
 #include "gui/trafficlight_info.h"
 #include "gui/privatesign_info.h"
 #include "gui/messagebox.h"
-#include "gui/wayobj_spacing.h"
+#include "gui/simple_number_input.h"
 
 #include "obj/zeiger.h"
 #include "obj/bruecke.h"
