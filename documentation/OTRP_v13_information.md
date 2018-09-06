@@ -20,8 +20,8 @@ Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?sr
 version17_5現在、simutrans standard nightly r8567をベースにしています。
 
 # v17_5をお使いの方へ
-下のようなエラー画面が出たときは、**エスケープキー or スペースキー or バックスペースキーを押す** と起動を続行できます。
-<img src="images/fig9.png" width="600">  
+下のようなエラー画面が出たときは、**エスケープキー or スペースキー or バックスペースキーを押す** と起動を続行できます。  
+<img src="images/fig9.png" width="300">  
 このエラーはpakセット内に同じ名前のアドオンが二回以上出現すると出るエラーです。本家nightly r8565で追加されました。起動した後の挙動は今までと変わりません。
 
 # ダウンロード
