@@ -1374,29 +1374,13 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 	loadsave_version.version = v0 * 1000000 + v1 * 1000 + v2;
 	loadsave_version.OTRP_version = 0;
 
-	// OTRP version
-	uint16 count = 0;
-	while(*version_text  &&  *version_text++ != '.') {
-		count++;
-	}
-	if(*version_text) {
-		// this is an OTRP version.
-		loadsave_version.OTRP_version = atoi(version_text);
-	}
-	// decrement the pointer
-	while(count > 0) {
-		version_text--;
-		count--;
-	}
-
-	while(*version_text == '.'  ||  isdigit(*version_text)) {
-		version_text++;
-	}
-
 	if(  loadsave_version.version<=102002  ) {
 		/* the compression and the mode we determined already ourselves (otherwise we cannot read this
 		 * => leave the mode alone but for unknown modes!
 		 */
+		while(*version_text == '.'  ||  isdigit(*version_text)) {
+	 		version_text++;
+	 	}
 		if (strstart(version_text, "bin")) {
 			//*mode = binary;
 			version_text += 3;
@@ -1411,6 +1395,21 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 		}
 	}
 	else {
+		while(isdigit(*version_text)) {
+			version_text++;
+		}
+		if(version_text  &&  *version_text=='.') {
+			version_text++;
+			// This might be OTRP version
+			if(*version_text  &&  isdigit(*version_text)) {
+				// probably this is OTRP version
+				loadsave_version.OTRP_version = atoi(version_text);
+				// move forward
+				while(isdigit(*version_text)) {
+					version_text++;
+				}
+			}
+		}
 		// skip the minus sign
 		if (*version_text=='-') {
 			version_text++;
