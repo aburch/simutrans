@@ -4806,7 +4806,7 @@ bool stadt_t::build_bridge(grund_t* bd, ribi_t::ribi direction, bool map_generat
 	bool high_bridge = false;
 	const grund_t* gr = welt->lookup_kartenboden(k + zv);
 	const weg_t* underlying_way = gr ? gr->get_weg(water_wt) : NULL;
-	if (underlying_way && underlying_way->is_public_right_of_way())
+	if (underlying_way && (underlying_way->is_public_right_of_way() || underlying_way->get_owner()))
 	{
 		high_bridge = true;
 	}
