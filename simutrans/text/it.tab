@@ -2522,8 +2522,8 @@ The amount of mail transported in the region overall
 Ammontare della posta trasportata nella regione
 The charges incurred or revenues earned by running on other players' ways
 Oneri sostenuti viaggiando su tratte possedute da altri giocatori o ricavi conseguiti da altri giocatori che hanno viaggiato sui tratti di percorso di tua proprietà.
-The convoy has been sent\nto its home depot.\n
-Il convoglio è stato inviato\nal suo deposito base.\n
+The convoy has been sent\nto its home depot.\n%s\n
+Il convoglio è stato inviato\nal suo deposito base.\n%s\n
 The display of the station coverage can either be a transparent rectangle or a series of boxes.
 La visualizzazione della copertura delle stazioni può essere un rettangolo trasparente o una serie di quadrati.
 The following %s has become obsolete:\n%s\n

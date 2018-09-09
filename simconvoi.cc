@@ -7008,22 +7008,22 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	bool success = false;
 	if (home_depot_found && transport_success)
 	{
-		sprintf(txt, "The convoy has been sent\nto its home depot.\n%s\n", get_name());
+		sprintf(txt, translator::translate("The convoy has been sent\nto its home depot.\n%s\n"), get_name());
 		success = true;
 	}
 	else if (other_depot_found && transport_success)
 	{
-		sprintf(txt, "Convoi has been sent\nto the nearest depot\nof appropriate type.\n%s\n", get_name());
+		sprintf(txt, translator::translate("Convoi has been sent\nto the nearest depot\nof appropriate type.\n%s\n"), get_name());
 		success = true;
 	}
 	else if (!home_depot_found && !other_depot_found)
 	{
-		sprintf(txt, "No suitable depot found!\nYou need to send the\nconvoi to the depot\nmanually.\n%s\n", get_name());
+		sprintf(txt, translator::translate("No suitable depot found!\nYou need to send the\nconvoi to the depot\nmanually.\n%s\n"), get_name());
 		success = false;
 	}
 	else if (!transport_success)
 	{
-		sprintf(txt, "Depot found but could not be inserted in schedule.  This is a bug!%s\n", get_name());
+		sprintf(txt, translator::translate("Depot found but could not be inserted in schedule.  This is a bug!%s\n"), get_name());
 		dbg->warning("convoi_t::go_to_depot()", "Depot found but could not be inserted in schedule for convoy %s", get_name());
 		success = false;
 	}

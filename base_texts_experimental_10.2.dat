@@ -33,6 +33,14 @@ name=%s does not allow you to access its ways and stops
 note=Tooltip for the access out button in the player list when not pressed
 -
 =program_text
+name=%s has withdrawn access rights from %s
+note=Message window
+-
+=program_text
+name=%s has allowed access rights to %s
+note=Message window
+-
+=program_text
 name=Only %s can use this tool
 note=Tooltip for the make stop/way public button when not enabled
 -

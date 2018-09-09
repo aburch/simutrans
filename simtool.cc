@@ -9388,11 +9388,11 @@ bool tool_access_t::init(player_t *player)
 	cbuffer_t message;
 	if(allow_access)
 	{
-		message.printf("%s has allowed access rights to %s", welt->get_player(id_setting_player)->get_name(), welt->get_player(id_receiving_player)->get_name());
+		message.printf(translator::translate("%s has allowed access rights to %s"), welt->get_player(id_setting_player)->get_name(), welt->get_player(id_receiving_player)->get_name());
 	}
 	else
 	{
-		message.printf("%s has withdrawn access rights from %s",  welt->get_player(id_setting_player)->get_name(), welt->get_player(id_receiving_player)->get_name());
+		message.printf(translator::translate("%s has withdrawn access rights from %s"),  welt->get_player(id_setting_player)->get_name(), welt->get_player(id_receiving_player)->get_name());
 	}
 	welt->get_message()->add_message(message, koord::invalid, message_t::ai, setting_player->get_player_color1());
 	return false;

@@ -644,8 +644,8 @@ Construction_Btn
 建設費
 Consumed
 消費量
-Convoi has been sent\nto the nearest depot\nof appropriate type.\n
-この編成は一番近い車庫に\n向かいました。\n
+Convoi has been sent\nto the nearest depot\nof appropriate type.\n%s\n
+この編成は一番近い車庫に\n向かいました。\n%s\n
 Convoi is sold when all wagons are empty.
 この編成を回送し、空車時に売却します。
 Convois
@@ -2630,8 +2630,8 @@ The amount of mail transported in the region overall
 マップ全体で輸送された郵便物の総数を表します。
 The charges incurred or revenues earned by running on other players' ways
 他社の軌道や道路を通行したことによる通行料や収入の総和を表します。
-The convoy has been sent\nto its home depot.\n
-車両は車庫に回送されました。\n
+The convoy has been sent\nto its home depot.\n%s\n
+車両は車庫に回送されました。\n%s\n
 The display of the station coverage can either be a transparent rectangle or a series of boxes.
 駅の集客範囲の表示を半透明と四角形の間で切り替えます。
 The following %s has become obsolete:\n%s\n
