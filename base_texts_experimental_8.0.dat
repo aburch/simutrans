@@ -5,8 +5,20 @@
 # Created: April 2010
 #
 obj=program_text
-name=The convoy has been sent\nto its home depot.\n
+name=The convoy has been sent\nto its home depot.\n%s\n
 note=Used for when the home depot is specified when sending a vehicle to a depot.
+-
+obj=program_text
+name=Convoi has been sent\nto the nearest depot\nof appropriate type.\n%s\n
+note=Used for when the home depot is specified when sending a vehicle to a depot.
+-
+obj=program_text
+name=No suitable depot found!\nYou need to send the\nconvoi to the depot\nmanually.\n%s\n
+note=Used for when the home depot is not found.
+-
+obj=program_text
+name=Depot found but could not be inserted in schedule.  This is a bug!%s\n
+note=
 -
 obj=program_text
 name=Unpowered vehicles only

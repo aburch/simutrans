@@ -2041,8 +2041,8 @@ That would exceed\nyour credit limit.
 To bi preslo\nvas kreditni limit.
 The amount of mail transported in the region overall
 Kolicina poste transportirane u regiji ukupno
-The convoy has been sent\nto its home depot.\n
-Konvoj je poslan\nu svoj maticni depo.\n
+The convoy has been sent\nto its home depot.\n%s\n
+Konvoj je poslan\nu svoj maticni depo.\n%s\n
 The display of the station coverage can either be a transparent rectangle or a series of boxes.
 Prikaz pokrivenosti stanice moze biti ili transparentni cetverokut ili serija kutija.
 The following %s has become obsolete:\n%s\n

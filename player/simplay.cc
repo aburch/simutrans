@@ -349,7 +349,7 @@ void player_t::set_player_color(uint8 col1, uint8 col2)
 		message.printf(player_name);
 		welt->get_message()->add_message(message, koord::invalid, message_t::ai, player_color_1);
 		message.clear();
-		message.printf("has changed its colour scheme.");
+		message.printf(translator::translate("has changed its colour scheme."));
 		welt->get_message()->add_message(message, koord::invalid, message_t::ai, col1);
 	}
 	set_player_color_no_message(col1, col2);

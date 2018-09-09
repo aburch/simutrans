@@ -2014,8 +2014,8 @@ Construction_Btn
 Construction costs
 convoi %d of %d
 Convoy %d of %d
-Convoi has been sent\nto the nearest depot\nof appropriate type.\n
-Convoy has been sent\nto the nearest depot\nof the appropriate type.\n
+Convoi has been sent\nto the nearest depot\nof appropriate type.\n%s\n
+Convoy has been sent\nto the nearest depot\nof the appropriate type.\n%s\n
 Convoi is sold when all wagons are empty.
 The vehicle will be sold as soon as it is completely empty.
 Convoi is sent to depot when all wagons are empty.
@@ -3316,7 +3316,7 @@ tt_Other
 Other
 (%s) now public way.
 (%s) has been nationalised.
-No suitable depot found!\nYou need to send the\nconvoi to the depot\nmanually.
+No suitable depot found!\nYou need to send the\nconvoi to the depot\nmanually.\n%s\n
 No suitable depot can be found.
 Vehicle %s cannot choose because stop too short
 %s cannot find a sufficiently long stop or platform.
@@ -3810,3 +3810,17 @@ prohibited
 Overtaking prohibited
 inverted
 Opposite lane driving
+has changed its colour scheme.
+has changed its colour scheme.
+Vehicle running costs per km
+Vehicle running costs per km
+Vehicle maintenance costs per month
+Vehicle maintenance costs per month
+Vehicle maintenance
+Vehicle maintenance
+%s has withdrawn access rights from %s
+%s has withdrawn access rights from %s
+%s has allowed access rights to %s
+%s has allowed access rights to %s
+Depot found but could not be inserted in schedule.  This is a bug!%s\n
+Depot found but could not be inserted in schedule.  This is a bug!%s\n
