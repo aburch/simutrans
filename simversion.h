@@ -21,8 +21,8 @@
 #define SIM_SERVER_MINOR    6
 // NOTE: increment before next release to enable save/load of new features
 
-#define MAKEOBJ_VERSION "60.1"
-// Transparency and new factories
+#define MAKEOBJ_VERSION "60.2"
+// new factory locations and provisio
 
 #ifndef QUOTEME
 #	define QUOTEME_(x) #x
