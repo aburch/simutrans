@@ -162,44 +162,33 @@ const float32e8_t float32e8_t::exp2() const
 {
 	if (!m)	return one;
 
-	sint16 e1 = e < 0 ? -e : e;
 	if (e > EXPONENT_BITS)
 	{
 		dbg->error(" float32e8_t::exp2()", "Illegal argument of exp2(%.9G): must be between about %d and %d.", to_double(), MIN_EXPONENT, MAX_EXPONENT);
 	}
-	uint32 m1 = e > 0 ? m >> (32 - e) : 0;
-	float32e8_t v(0x80000000L, (sint16)m1 + 1, false);
-	if (e >= -EXPONENT_BITS)
+	sint16 e1 = e > 0 ? m >> (32 - e) : 0;
+	e1 = ms ? - 1 - e1 : e1;
+
+	float32e8_t v(0x80000000, e1+1, false);
+	float32e8_t r(m, e, ms);
+	r -= e1;
+
+	for (int i = 0; i < LD_TBL_LEN; i++)
 	{
-		// if e < -EXPONENT_BITS, the result is a little bit more than 1.0, but beyond the precision of a float32e8_t.
-		uint32 m2 = m << e1;
-		if (!m2) return v;
-		uint8 ld = 32 - ild(m2);
-		float32e8_t r(m2 << ld, -ld, false);
-
-		int i = 0;
-		while (i < LD_TBL_LEN && r.m != 0)
+		const float32e8_pair_t &p = get_pair(i);
+		if (p.r <= r)
 		{
-#ifdef DEBUG_COUT
-//			cout << "\t" << i << ") v.e = " << v.e << ", v = " << v << ", r = " << r << "\n"; cout.flush();
-#endif
-			const float32e8_pair_t &p = get_pair(i);
-			if (!r.ms)
-			{
-				v *= p.v;
-				r -= p.r;
-				if (r.ms) i++;
-			}
-			else
-			{
-				v /= p.v;
-				r += p.r;
-				if (!r.ms) i++;
-			}
+			r -= p.r;
+			v *= p.v;
 		}
-
-		if (ms)	return one / v;
 	}
+	// We do this last step to improve rounding and reduce bias:
+	const float32e8_pair_t &p = get_pair(LD_TBL_LEN-1);
+	if (p.r <= r * 2)
+	{
+		v *= p.v;
+	}
+
 	return v;
 }
 
