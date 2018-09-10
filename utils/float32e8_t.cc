@@ -143,24 +143,13 @@ const float32e8_t float32e8_t::log2() const
 	}
 	float32e8_t r((sint32)(e - 1L));
 	float32e8_t v(m, 1, false);
-	int i = 0;
-	while (i < LD_TBL_LEN && v != one)
+	for (int i = 0; i < LD_TBL_LEN; i++)
 	{
-#ifdef DEBUG_COUT
-		cout << "\t" << i << ") v.e = " << v.e << ", v = " << v << ", r = " << r << "\n"; cout.flush();
-#endif
 		const float32e8_pair_t &p = get_pair(i);
-		if (v.e <= 0)
-		{
-			v *= p.v;
-			r -= p.r;
-			if (v.e > 0) i++;
-		}
-		else
+		if (p.v <= v)
 		{
 			v /= p.v;
 			r += p.r;
-			if (v.e <= 0) i++;
 		}
 	}
 	return r;
