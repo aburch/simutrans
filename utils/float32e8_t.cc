@@ -96,6 +96,9 @@ struct float32e8_pair_t {
 	float32e8_t r;
 };
 
+// This is a list of 1+2^-i, log2(1+2^-i) for i between 1 and 31
+// The logs are rounded to the nearest representable float
+// They have been verified by ACarlotti using integer arithmetic in Python
 #define LD_TBL_LEN 31
 const float32e8_pair_t ld_tbl[LD_TBL_LEN] =
 {
