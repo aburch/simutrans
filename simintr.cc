@@ -37,7 +37,7 @@ static uint32 frame_time = 36*FRAME_TIME_MULTI;
 
 bool reduce_frame_time()
 {
-	if(frame_time > 25*FRAME_TIME_MULTI) {
+	if(frame_time > 10*FRAME_TIME_MULTI) {
 		frame_time -= 1;
 		if(  frame_time>150*FRAME_TIME_MULTI  ) {
 			frame_time -= 8;
@@ -45,7 +45,7 @@ bool reduce_frame_time()
 		return true;
 	}
 	else {
-		frame_time = 25*FRAME_TIME_MULTI;
+		frame_time = 10*FRAME_TIME_MULTI;
 		return false;
 	}
 }

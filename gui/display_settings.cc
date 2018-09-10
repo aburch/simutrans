@@ -643,11 +643,11 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	uint32 target_fps = welt->is_fast_forward() ? 10 : env_t::fps;
 	loops = welt->get_realFPS();
 	color = SYSCOL_TEXT_HIGHLIGHT;
-	if(  loops < (target_fps*3)/4  ) {
-		color = color_idx_to_rgb(( loops <= target_fps/2 ) ? COL_RED : COL_YELLOW);
+	if(  loops < (target_fps*16*3)/4  ) {
+		color = color_idx_to_rgb(( loops <= target_fps*16/2 ) ? COL_RED : COL_YELLOW);
 	}
 	fps_value_label.set_color(color);
-	sprintf(fps_buf," %d fps", loops );
+	sprintf(fps_buf," %d fps", loops/16 );
 #if MSG_LEVEL >= 3
 	if(  env_t::simple_drawing  ) {
 		strcat( fps_buf, "*" );
