@@ -170,9 +170,11 @@ public:
 					if (condmet < mincond  &&  (0 <= x  ||  x < w-1)  &&  (0 <= y  ||  y < h-1)) {
 						switch (site) {
 							case factory_desc_t::City:
-								condmet += gr->hat_weg(road_wt); break;
+								condmet += gr->hat_weg(road_wt);
+								break;
 							case factory_desc_t::shore:
-								condmet += welt->get_climate(k)==water_climate; break;
+								condmet += welt->get_climate(k)==water_climate;
+								break;
 							case factory_desc_t::river:
 							if(  welt->get_settings().get_river_number() >0  ) {
 								weg_t* river = gr->get_weg(water_wt);
@@ -183,7 +185,7 @@ public:
 								break;
 							}
 							else {
-								// always succeed on maps without river ...
+								// always succeeds on maps without river ...
 								condmet++;
 								break;
 							}
