@@ -4940,20 +4940,20 @@ void karte_t::update_frame_sleep_time()
 	last_frame_idx = (last_frame_idx+1) % 32;
 	sint32 ms_diff = (sint32)( last_ms - last_frame_ms[last_frame_idx] );
 	if(ms_diff > 0) {
-		realFPS = (32000u) / ms_diff;
+		realFPS = (32000u*16) / ms_diff;
 	}
 	else {
-		realFPS = env_t::fps;
+		realFPS = env_t::fps*16;
 		simloops = 60;
 	}
 
 	if(  step_mode&PAUSE_FLAG  ) {
 		// not changing pauses
-		next_step_time = dr_time()+100;
+		next_step_time = dr_time() + 1000 / env_t::fps;
 		idle_time = 100;
 	}
 	else if(  step_mode==FIX_RATIO) {
-		simloops = realFPS;
+		simloops = realFPS/16;
 	}
 	else if(step_mode==NORMAL) {
 		// calculate simloops
@@ -4971,11 +4971,11 @@ void karte_t::update_frame_sleep_time()
 				env_t::simple_drawing_normal --;
 			}
 		}
-		else if(  realFPS < env_t::fps/2  ) {
+		else if(  realFPS < env_t::fps*16/2  ) {
 			// activate simple redraw
 			env_t::simple_drawing_normal = max( env_t::simple_drawing_normal, get_tile_raster_width()+1 );
 		}
-		else if(  realFPS < (env_t::fps*15)/16  )  {
+		else if(  realFPS < (env_t::fps*15)  )  {
 			// increase fast tile redraw by one if below current tile size
 			if(  env_t::simple_drawing_normal <= (get_tile_raster_width()*3)/2  ) {
 				env_t::simple_drawing_normal ++;
@@ -5009,12 +5009,12 @@ void karte_t::update_frame_sleep_time()
 		}
 		else {
 			// change frame spacing ... (pause will be changed by step() directly)
-			if(realFPS>(env_t::fps*17/16)) {
+			if(realFPS>(env_t::fps*17)) {
 				increase_frame_time();
 			}
-			else if(realFPS<env_t::fps) {
-				if(  1000u/get_frame_time() < 2*realFPS  ) {
-					if(  realFPS < (env_t::fps/2)  ) {
+			else if(realFPS<env_t::fps*16) { //15 for deadband
+				if(  1000u*16/get_frame_time() < 2*realFPS  ) {
+					if(  realFPS < (env_t::fps*16/2)  ) {
 						set_frame_time( get_frame_time()-1 );
 						next_step_time = last_ms;
 					}
@@ -5024,7 +5024,7 @@ void karte_t::update_frame_sleep_time()
 				}
 				else {
 					// do not set time too short!
-					set_frame_time( 500/max(1,realFPS) );
+					set_frame_time( 500/max(1,realFPS)/16 );
 					next_step_time = last_ms;
 				}
 			}
@@ -11042,11 +11042,11 @@ bool karte_t::interactive(uint32 quit_month)
 			INT_CHECK( "karte_t::interactive()" );
 			const sint32 wait_time = (sint32)(next_step_time-dr_time());
 			if(wait_time>0) {
-				if(wait_time<10  ) {
+				if(  wait_time < 4  ) {
 					dr_sleep( wait_time );
 				}
 				else {
-					dr_sleep( 9 );
+					dr_sleep( 3 );
 				}
 				INT_CHECK( "karte_t::interactive()" );
 			}
