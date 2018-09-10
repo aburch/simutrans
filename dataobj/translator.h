@@ -123,6 +123,12 @@ public:
 
 	// return the name of the month
 	static const char *get_month_name(uint16 month);
+	// return the short name of the month
+	static const char *get_short_month_name(uint16 month);
+	// return date in selected format
+	static const char *get_date(uint16 year, uint16 month);
+	static const char *get_date(uint16 year, uint16 month, uint16 day, char const* season);
+	static const char *get_short_date(uint16 year, uint16 month);
 };
 
 #endif
