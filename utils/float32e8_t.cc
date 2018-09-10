@@ -27,8 +27,6 @@ ostream & operator << (ostream &out, const float32e8_t &x)
 // -2.00 = { 0x80000000L,  2,  true };
 // -5.00 = { 0xA0000000L,  3,  true };
 
-static const double log_of_2 = log(2.0);
-
 #define EXPONENT_BITS 10
 #define MIN_EXPONENT -1023
 #define MAX_EXPONENT 1023
@@ -531,7 +529,7 @@ const float32e8_t float32e8_t::operator / (const float32e8_t & x) const
 double float32e8_t::to_double() const
 {
 	double rm = ms ? -(double)m : m;
-	double re = exp((e - 32) * log_of_2);
+	double re = pow((double)2.0, e - 32);
 	return rm * re;
 }
 
