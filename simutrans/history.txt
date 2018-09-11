@@ -1,9 +1,11 @@
 	FIX: properly handle dualstack servers by using both IPv4 and IP6 addresses (if no symbolic name is available)
-	ADD: sorting vehicles in depot
+	ADD: (HyperSim) sorting vehicles in depot
 	ADD: system clipboard support now also with SDL2
 	FIX: underground slice view now correctly displays front tile walls when a tile infront is flat and 2 elevations below the underground slice
 	OPT: significantly improved the performance of changing underground mode/slice when playing on very large maps
 	ADD: More factory locations (shore, river, forest) to the existing city, water, land
+	ADD: (THLeaderH) option to hide the revenue income messaging at stops
+
 
 Release of 120.3 (r8503 on 15-June-2018):
 	ADD: new blue-white theme
