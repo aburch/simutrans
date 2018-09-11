@@ -524,7 +524,6 @@ traffic_settings_t::traffic_settings_t()
 	add_component(buttons+IDBTN_SHOW_SCHEDULES_STOP, 2);
 
 	// convoi booking message options
-	/*
 	money_booking.set_focusable( false );
 	money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Show all revenue messages"), SYSCOL_TEXT );
 	money_booking.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Show only player's revenue"), SYSCOL_TEXT );
@@ -532,7 +531,6 @@ traffic_settings_t::traffic_settings_t()
 	money_booking.set_selection( env_t::show_money_message );
 	add_component(&money_booking, 2);
 	money_booking.add_listener(this);
-	*/
 	end_table();
 }
 
@@ -554,11 +552,11 @@ bool traffic_settings_t::action_triggered( gui_action_creator_t *comp, value_t v
 	/*
 	if( &follow_mode == comp ) {
 		env_t::follow_convoi_underground = v.i;
-	}
+	}*/
 
 	if( &money_booking == comp ) {
 		env_t::show_money_message = v.i;
-	}*/
+	}
 	return true;
 }
 
