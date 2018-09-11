@@ -746,6 +746,16 @@ private:
 	uint32 map_counter;
 
 	/**
+	 * the maximum allowed world height.
+	 */
+	sint8 world_maximum_height;
+
+	/**
+	 * the minimum allowed world height.
+	 */
+	sint8 world_minimum_height;
+
+	/**
 	 * Re-calculate vehicle details monthly.
 	 * Used to be used for the speed bonus
 	 */
@@ -1839,13 +1849,13 @@ public:
 	/**
 	 * Returns the minimum allowed height on the map.
 	 */
-	sint8 get_minimumheight() const { return groundwater-10; }
+	sint8 get_minimumheight() const { return world_minimum_height; }
 
 	/**
 	 * Returns the maximum allowed world height.
 	 * @author Hj. Malthaner
 	 */
-	sint8 get_maximumheight() const { return 32; }
+	sint8 get_maximumheight() const { return world_maximum_height; }
 
 	/**
 	 * Returns the current snowline height.

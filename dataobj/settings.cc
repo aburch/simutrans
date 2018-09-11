@@ -72,6 +72,9 @@ settings_t::settings_t() :
 
 	show_pax = true;
 
+	world_maximum_height = 32;
+	world_minimum_height = -12;
+
 	// default climate zones
 	set_default_climates( );
 	winter_snowline = 7;	// not mediterranean
@@ -1670,7 +1673,6 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_bool(lake);
 			file->rdwr_bool(no_trees);
 			file->rdwr_long(max_choose_route_steps );
-		// otherwise the default values of the last one will be used
 		}
 
 		if ((file->get_version() > 120003 && (file->get_extended_version() == 0 || file->get_extended_revision() >= 19)) || file->get_extended_version() >= 13)
@@ -1901,6 +1903,11 @@ void settings_t::rdwr(loadsave_t *file)
 				industry_density_proportion_override = 0;
 			}
 		}
+		if( (file->get_extended_version() == 14 && file->get_extended_revision() >= 31) || file->get_extended_version() > 14) {
+			file->rdwr_byte(world_maximum_height);
+			file->rdwr_byte(world_minimum_height);
+		}
+		// otherwise the default values of the last one will be used
 	}
 
 
@@ -3015,6 +3022,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	fullscreen = contents.get_int("fullscreen", fullscreen );
 
 	with_private_paks = contents.get_int("with_private_paks", with_private_paks)!=0;
+
+	world_maximum_height = contents.get_int("world_maximum_height",world_maximum_height);
+	world_maximum_height = contents.get_int("world_minimum_height",world_maximum_height);
 
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", ""));

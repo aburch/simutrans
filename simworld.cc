@@ -1477,6 +1477,8 @@ void karte_t::init(settings_t* const sets, sint8 const* const h_field)
 #endif
 	recalc_average_speed(true);	// resets timeline - but passing "true" prevents it from generating message spam on reloading or starting a new game
 
+	world_maximum_height = sets->get_maximumheight();
+	world_minimum_height = sets->get_minimumheight();
 	groundwater = (sint8)sets->get_groundwater();      //29-Nov-01     Markus Weber    Changed
 
 	init_height_to_climate();
@@ -9238,6 +9240,9 @@ void karte_t::load(loadsave_t *file)
 	{
 		set_scale();
 	}
+
+	world_maximum_height = settings.get_maximumheight();
+	world_minimum_height = settings.get_minimumheight();
 
 	groundwater = (sint8)(settings.get_groundwater());
 	min_height = max_height = groundwater;
