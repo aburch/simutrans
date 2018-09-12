@@ -5753,7 +5753,6 @@ void haltestelle_t::add_line(linehandle_t line)
 void haltestelle_t::remove_line(linehandle_t line)
 {
 	registered_lines.remove(line);
-
 	if(registered_convoys.empty() && registered_lines.empty() && !welt->is_destroying())
 	{
 		const uint8 max_categories = goods_manager_t::get_max_catg_index();
