@@ -31,6 +31,8 @@
 
 #include "../utils/cbuffer_t.h"
 
+#include "../descriptor/objversion.h"
+
 #include "../gui/karte.h"	// to update map after construction of new industry
 
 
@@ -282,7 +284,7 @@ bool factory_builder_t::successfully_loaded()
 		}
 		checksum_t *chk = new checksum_t();
 		current->calc_checksum(chk);
-		pakset_info_t::append(current->get_name(), chk);
+		pakset_info_t::append(current->get_name(), obj_type::obj_factory, chk);
 	}
 	return true;
 }
