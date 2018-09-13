@@ -7325,6 +7325,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 											{
 												player_t::add_maintenance( player, -prev_desc->get_maintenance(), prev_desc->get_finance_waytype() );
 												gb->set_tile( tile, true );
+												gb->calc_image();
 												player_t::add_maintenance( player, desc->get_maintenance(), desc->get_finance_waytype() );
 											}
 										}
