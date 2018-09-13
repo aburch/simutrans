@@ -42,7 +42,7 @@ struct entry_t {
 	const checksum_t* chk;
 };
 
-bool entry_cmp(entry_t a, entry_t b)
+static bool entry_cmp(entry_t a, entry_t b)
 {
 	return strcmp(a.name, b.name) < 0;
 }
