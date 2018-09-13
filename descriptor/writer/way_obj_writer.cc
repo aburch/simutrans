@@ -18,7 +18,7 @@ void way_obj_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& 
 {
 	static const char* const ribi_codes[26] = {
 		"-", "n",  "e",  "ne",  "s",  "ns",  "se",  "nse",
-		"w", "nw", "ew", "new", "sw", "nsw", "sew", "nsew"
+		"w", "nw", "ew", "new", "sw", "nsw", "sew", "nsew",
 		"nse1", "new1", "nsw1", "sew1", "nsew1",	// different crossings: northwest/southeast is oneway
 		"nse2", "new2", "nsw2", "sew2", "nsew2",
 	};
