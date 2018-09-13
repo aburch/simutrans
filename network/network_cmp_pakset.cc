@@ -258,7 +258,7 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 			msg.append("</h1><br>\n");
 			FOR(stringhashtable_tpl<checksum_t*>, const& i, addons) {
 				dbg->warning("network_compare_pakset_with_server", "PAK NOT ON SERVER: %s", i.key);
-				msg.append(translator::translate(i.key));
+				msg.append(translator::translate(i.key+3));
 				msg.append("<br>\n");
 			}
 			msg.append("<br>\n");
