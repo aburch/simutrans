@@ -1672,6 +1672,10 @@ void *check_road_connexions_threaded(void *args)
 		simthread_barrier_wait(&private_car_barrier);
 	} while (!world()->is_terminating_threads());
 
+	// New thread local nodes are created on the heap automatically when this is used,
+	// so this must be released explicitly when this thread is terminated.
+	route_t::TERM_NODES(); 
+
 	pthread_exit(NULL);
 	return args;
 }
@@ -1877,6 +1881,7 @@ void *step_convoys_threaded(void* args)
 
 		simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
 	} while (!world->is_terminating_threads());
+
 	pthread_exit(NULL);
 	return args;
 }
