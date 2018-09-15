@@ -250,7 +250,7 @@ bool factory_builder_t::successfully_loaded()
 		}
 		checksum_t *chk = new checksum_t();
 		current->calc_checksum(chk);
-		pakset_info_t::append(current->get_name(), obj_type::obj_factory, chk);
+		pakset_info_t::append(current->get_name(), obj_factory, chk);
 	}
 	return true;
 }
