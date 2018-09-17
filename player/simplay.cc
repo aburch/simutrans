@@ -76,8 +76,8 @@ player_t::player_t(karte_t *wl, uint8 nr) :
 	welt = wl;
 	player_nr = nr;
 	player_age = 0;
-	active = false;		// Start nicht als automatischer Spieler
-	locked = false;	/* allowe to change anything */
+	active = false;			// Don't start as an AI player
+	locked = false;			// allowed to change anything
 	unlock_pending = false;
 	has_been_warned_about_no_money_for_renewals = false;
 	selected_signalbox = NULL;
@@ -415,7 +415,7 @@ bool player_t::new_month()
 
 	// Insolvency settings.
 	// Modified by jamespetts, February 2009
-	// Bankrott ?
+	// Bankrupt ?
 	sint64 account_balance = finance->get_account_balance();
 	if(  account_balance < 0  )
 	{
@@ -763,8 +763,8 @@ void player_t::ai_bankrupt()
 
 
 /**
- * Speichert Zustand des Spielers
- * @param file Datei, in die gespeichert wird
+ * Stores/save the player state
+ * @param file, where the data will be saved
  * @author Hj. Malthaner
  */
 void player_t::rdwr(loadsave_t *file)
@@ -861,7 +861,7 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 		}
 	}
 
-	// linemanagement
+	// line management
 	if(file->get_version()>=88003) {
 		simlinemgmt.rdwr(file,this);
 	}
@@ -962,7 +962,7 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 		case convoi_t::CAN_START_ONE_MONTH:
 		case convoi_t::CAN_START_TWO_MONTHS:
-		DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stucked!", cnv->get_name(),ziel.x,ziel.y);
+		DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stuck!", cnv->get_name(),ziel.x,ziel.y);
 			{
 				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s is stucked!"), cnv->get_name());
@@ -1066,7 +1066,7 @@ sint64 player_t::undo()
 					case obj_t::movingobj:
 						break;
 					// special case airplane
-					// they can be everywhere, so we allow for everythign but runway undo
+					// they can be everywhere, so we allow for everything but runway undo
 					case obj_t::air_vehicle: {
 						if(undo_type!=air_wt) {
 							break;

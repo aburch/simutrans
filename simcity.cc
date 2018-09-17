@@ -73,7 +73,7 @@
 
 #include "tpl/minivec_tpl.h"
 
-// since we use 32 bit per growth steps, we use this varible to take care of the remaining sub citicen growth
+// since we use 32 bit per growth steps, we use this variable to take care of the remaining sub citizen growth
 #define CITYGROWTH_PER_CITICEN (0x0000000100000000ll)
 
 karte_ptr_t stadt_t::welt; // one is enough ...
@@ -326,11 +326,11 @@ static vector_tpl<rule_t *> road_rules;
 
 /**
  * Symbols in rules:
- * S = darf keine Strasse sein
- * s = muss Strasse sein
- * n = muss Natur sein
- * H = darf kein Haus sein
- * h = muss Haus sein
+ * S = not a road
+ * s = is a road
+ * n = is nature/empty
+ * H = not a house
+ * h = is a house
  * T = not a stop	// added in 88.03.3
  * t = is a stop // added in 88.03.3
  * u = good slope for way
@@ -1409,7 +1409,7 @@ stadt_t::~stadt_t()
 		reliefkarte_t::get_karte()->set_city(NULL);
 	}
 
-	// olny if there is still a world left to delete from
+	// only if there is still a world left to delete from
 	if(!welt->is_destroying() && welt->get_size().x > 1)
 	{
 		welt->lookup_kartenboden(pos)->set_text(NULL);
@@ -2438,7 +2438,7 @@ void stadt_t::set_name(const char *new_name)
 }
 
 
-/* show city info dialoge
+/* show city info dialogue
  * @author prissi
  */
 void stadt_t::show_info()
@@ -2755,7 +2755,7 @@ void stadt_t::new_month(bool check) //"New month" (Google)
 
 void stadt_t::calc_growth()
 {
-	// now iterate over all factories to get the ratio of producing version nonproducing factories
+	// now iterate over all factories to get the ratio of producing version non-producing factories
 	// we use the incoming storage as a measure and we will only look for end consumers (power stations, markets)
 
 	FOR(const vector_tpl<fabrik_t*>, const& fab, welt->get_fab_list())
@@ -3342,7 +3342,7 @@ class building_place_with_road_finder: public building_placefinder_t
 
 void stadt_t::check_bau_spezial(bool new_town)
 {
-	// touristenattraktion bauen
+	// tourist attraction buildings
 	const building_desc_t* desc = hausbauer_t::get_special(has_townhall ? bev : 0, building_desc_t::attraction_city, welt->get_timeline_year_month(), (bev == 0) || !has_townhall, welt->get_climate(pos));
 	if (desc != NULL) {
 		if (simrand(100, "void stadt_t::check_bau_spezial") < (uint)desc->get_distribution_weight()) {
@@ -3374,7 +3374,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 	}
 
 	if ((bev & 511) == 0) {
-		// errect a monoment
+		// Build a monument
 		desc = hausbauer_t::get_random_monument(welt->get_timeline_year_month());
 		if (desc) {
 			koord total_size = koord(2 + desc->get_x(), 2 + desc->get_y());
@@ -3599,7 +3599,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 		int layout = umziehen || neugruendung ? simrand(desc->get_all_layouts(), "void stadt_t::check_bau_townhall") : old_layout % desc->get_all_layouts();
 		// on which side should we place the road?
 		uint8 dir;
-		// offset of bulding within searched place, start and end of road
+		// offset of building within searched place, start and end of road
 		koord offset(0,0), road0(0,0),road1(0,0);
 		dir = ribi_t::layout_to_ribi[layout & 3];
 		switch(dir) {
@@ -3641,7 +3641,7 @@ void stadt_t::check_bau_townhall(bool new_town)
 		}
 		// check, if the was something found
 		if(best_pos==koord::invalid) {
-			dbg->error( "stadt_t::check_bau_townhall", "no better postion found!" );
+			dbg->error( "stadt_t::check_bau_townhall", "no better position found!" );
 			return;
 		}
 		gebaeude_t* new_gb = hausbauer_t::build(owner, welt->lookup_kartenboden(best_pos + offset)->get_pos(), layout, desc);
@@ -3682,8 +3682,8 @@ void stadt_t::check_bau_townhall(bool new_town)
 			bauer.init_builder(way_builder_t::strasse | way_builder_t::terraform_flag, welt->get_city_road());
 			bauer.calc_route(welt->lookup_kartenboden(alte_str)->get_pos(), welt->lookup_kartenboden(townhall_road)->get_pos());
 			bauer.build();
-
-		} else if (neugruendung) {
+		}
+		else if (neugruendung) {
 			lo = best_pos+offset - koord(2, 2);
 			ur = best_pos+offset + koord(desc->get_x(layout), desc->get_y(layout)) + koord(2, 2);
 		}

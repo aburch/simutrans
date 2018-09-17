@@ -298,7 +298,7 @@ static grund_t *tool_intern_koord_to_weg_grund(player_t *player, karte_t *welt, 
 
 /****************************************** now the actual tools **************************************/
 
-// werkzeuge
+// werkzeuge (tool)
 //// returns ground at pos if visible else NULL
 //// if no grund at pos exists try kartenboden
 //grund_t* get_grund(karte_t *welt, koord3d pos )
@@ -996,7 +996,7 @@ sint16 tool_raise_t::get_drag_height(koord k)
 
 const char *tool_raise_t::check_pos(player_t *player, koord3d pos )
 {
-		// check for underground mode
+	// check for underground mode
 	if(  is_dragging  &&  drag_height-1 > grund_t::underground_level  ) {
 		is_dragging = false;
 		return "";
@@ -1036,10 +1036,10 @@ const char *tool_raise_t::work(player_t* player, koord3d pos )
 
 		const sint8 hgt = (sint8) get_drag_height(k);
 
-		if(hgt <= welt->get_maximumheight()) {
+		if(  hgt <= welt->get_maximumheight()  ) {
 
 			int n = 0;	// tiles changed
-			if (!strempty(default_param)) {
+			if(  !strempty(default_param)  ) {
 				// called by dragging or by AI
 				err = drag(player, k, atoi(default_param), n, player->is_public_service());
 			}
@@ -1257,7 +1257,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				return NOTICE_TILE_FULL;
 			}
 			/* new things getting tricky:
-			 * A single way on an allup or down slope will result in
+			 * A single way on an all up or down slope will result in
 			 * a slope with the way as hinge.
 			 */
 			if(  new_slope==ALL_UP_SLOPE  ) {
@@ -1442,7 +1442,7 @@ const char *tool_setslope_t::tool_set_slope_work( player_t *player, koord3d pos,
 				}
 			}
 
-			// ok, was success
+			// ok, it was a success
 			if(  !gr1->is_water()  &&  new_slope == 0  &&  hgt == water_hgt  &&  gr1->get_typ() != grund_t::tunnelboden  ) {
 				// now water
 				gr1->obj_loesche_alle(player);
@@ -1630,7 +1630,7 @@ const char *tool_clear_reservation_t::work( player_t *player, koord3d k )
 			{
 				/* now we do a very crude procedure:
 				 * - we search all ways for reservations of this convoi and remove them
-				 * - we set the convoi state to ROUTING_1; it must rereserve its ways then
+				 * - we set the convoi state to ROUTING_1; it must reserve again its ways then
 				 */
 				const waytype_t waytype = w->get_waytype();
 				const convoihandle_t cnv = w->get_reserved_convoi();
@@ -1848,7 +1848,7 @@ const char *tool_add_city_t::work( player_t *player, koord3d pos )
 				int const citizens = (int)(welt->get_settings().get_mean_einwohnerzahl() * 0.9);
 				//  stadt_t *stadt = new stadt_t(welt->get_public_player();, pos,citizens/10+simrand(2*citizens+1));
 
-				// always start with 1/10 citicens
+				// always start with 1/10 citizens
 				stadt_t* stadt = new stadt_t(welt->get_public_player(), k, citizens / 10);
 				if (stadt->get_buildings() == 0) {
 					delete stadt;
@@ -2471,7 +2471,7 @@ const char* tool_build_way_t::get_tooltip(const player_t *) const
 	return toolstr;
 }
 
-// default ways are not intialized synchronously for different clients
+// default ways are not initialized synchronously for different clients
 // always return the name of a way, never the string containing the waytype
 const char* tool_build_way_t::get_default_param(player_t *player) const
 {
@@ -3286,7 +3286,7 @@ void tool_build_tunnel_t::calc_route( way_builder_t &bauigel, const koord3d &sta
 
 	bauigel.init_builder(bt | way_builder_t::tunnel_flag, wb, desc);
 	bauigel.set_keep_existing_faster_ways( !is_ctrl_pressed() );
-	// wegbauer tries to find route to 3d coordinate if no ground at end exists or is not kartenboden
+	// wegbauer (way builder) tries to find route to 3d coordinate if no ground at end exists or is not kartenboden (map ground)
 	bauigel.calc_straight_route(start,end);
 }
 
@@ -4034,7 +4034,7 @@ const char *tool_build_station_t::tool_station_building_aux(player_t *player, bo
 {
 	const koord& k = pos.get_2d();
 
-	// need kartenboden
+	// need kartenboden (map ground)
 	if((welt->lookup_kartenboden(k)->get_hoehe() != pos.z) && desc->get_allow_underground() == 0)
 	{
 		return "";
@@ -4198,7 +4198,7 @@ DBG_MESSAGE("tool_station_building_aux()", "building post office/station buildin
 		}
 	}
 	else {
-		// rotation was pre-slected; just search for stop now
+		// rotation was pre-selected; just search for stop now
 		assert(  rotation < desc->get_all_layouts()  );
 		koord testsize = desc->get_size(rotation);
 		offsets = koord(0,0);
@@ -4922,6 +4922,7 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 
 	halthandle_t old_halt = bd->get_halt();
 	sint64 old_cost = 0;
+	bool recalc_schedule = false;
 
 	halthandle_t halt;
 
@@ -4970,6 +4971,9 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 			gb->cleanup( NULL );
 			delete gb;
 			halt = old_halt;
+			if(  old_desc->get_enabled() != desc->get_enabled()  ) {
+				recalc_schedule = true;
+			}
 		}
 	}
 	else {
@@ -5064,6 +5068,12 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 		// since we are larger now ...
 		halt->mark_unmark_coverage( true );
 	}
+
+	// the new station (after upgrading) might accept different goods => needs new schedule
+	if(  recalc_schedule  ) {
+		welt->set_schedule_counter();
+	}
+
 	return NULL;
 }
 
@@ -7795,7 +7805,7 @@ sint8 tool_show_underground_t::save_underground_level = -128;
 bool tool_show_underground_t::init( player_t * )
 {
 	koord3d zpos = welt->get_zeiger()->get_pos();
-	// move zeiger to invalid position -> unmark tiles
+	// move zeiger (pointer) to invalid position -> unmark tiles
 	welt->get_zeiger()->change_pos( koord3d::invalid);
 
 	sint8 old_underground_level = grund_t::underground_level;
@@ -7883,7 +7893,7 @@ bool tool_show_underground_t::init( player_t * )
 
 	}
 
-	// move zeiger back
+	// move zeiger (pointer) back
 	welt->get_zeiger()->change_pos( zpos);
 
 	if (ok) {
@@ -7901,13 +7911,13 @@ bool tool_show_underground_t::init( player_t * )
 const char *tool_show_underground_t::work( player_t *player, koord3d pos)
 {
 	koord3d zpos = welt->get_zeiger()->get_pos();
-	// move zeiger to invalid position -> unmark tiles
+	// move zeiger (pointer) to invalid position -> unmark tiles
 	welt->get_zeiger()->change_pos( koord3d::invalid);
 
 	save_underground_level = grund_t::underground_level;
 	grund_t::set_underground_mode( grund_t::ugm_level, pos.z);
 
-	// move zeiger back
+	// move zeiger (pointer) back
 	welt->get_zeiger()->change_pos( zpos);
 
 	// renew toolbar
@@ -7982,7 +7992,7 @@ void tool_show_underground_t::draw_after(scr_coord k, bool dirty) const
 {
 	if(  icon!=IMG_EMPTY  &&  is_selected()  ) {
 		display_img_blend( icon, k.x, k.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, dirty );
-		// additionall show level in sliced mode
+		// additionally show level in sliced mode
 		if(  default_param!=NULL  &&  grund_t::underground_mode==grund_t::ugm_level  ) {
 			char level_str[16];
 			sprintf( level_str, "%i", grund_t::underground_level );
@@ -8428,7 +8438,7 @@ bool tool_change_line_t::init( player_t *player )
 
 	// first letter is now the actual command
 	switch(  tool  ) {
-		case 'c': // create line, next paraemter line type and magic of schedule window (only right window gets updated)
+		case 'c': // create line, next parameter line type and magic of schedule window (only right window gets updated)
 			{
 				line = player->simlinemgmt.create_line( atoi(p), player );
 				while(  *p  &&  *p++!=','  ) {
@@ -8631,7 +8641,7 @@ bool tool_change_line_t::init( player_t *player )
  * 'b' : starts the convoy
  * 'B' : starts all convoys
  * 'c' : copies this convoy
- * 'd' : dissassembles convoy
+ * 'd' : disassembles convoy
  * 's' : sells convoy
  * 'a' : appends a vehicle (+vehicle_name) uses the oldest
  * 'i' : inserts a vehicle in front (+vehicle_name) uses the oldest
@@ -8813,7 +8823,7 @@ bool tool_change_depot_t::init( player_t *player )
 						// now check if we are allowed to buy this (we test only leading vehicle, so one can still buy hidden stuff)
 						info = new_vehicle_info.front();
 						if(  !info->is_available(welt->get_timeline_year_month())  &&  !welt->get_settings().get_allow_buying_obsolete_vehicles()  ) {
-							// only allow append/insert, if in depot do not create new obsolte vehicles
+							// only allow append/insert, if in depot do not create new obsolete vehicles
 							if(  !depot->find_oldest_newest(info, true)  ) {
 								// just fail silent
 								return false;

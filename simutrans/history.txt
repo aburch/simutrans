@@ -1,3 +1,14 @@
+	FIX: several issues with bridge bilding and deletion at two vertical cliffs
+	ADD: new industrial deman dmodel just_in_time=2, which models factory ordering stuff
+
+
+Release of 120.0.1: (r7373 on 15-Nov-2014):
+	FIX: waypoints on runways to force certain runways for planes work finally (hopefully)
+	FIX: some bridge starting on flat tile going done were not correct
+	FIX: Unicode input under Windows 8
+	FIX: lot of issues with new landscape code
+
+
 Release of 120.0: (r7175 on 28-Apr-2014):
 	CHG: zoom with mouse wheel zooms to the cursor position, not to the center of screen as it used to
 	CHG: system events management rearranged, simutrans should more responsive to user events, specially on low framerates

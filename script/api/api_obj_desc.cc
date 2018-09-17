@@ -275,6 +275,11 @@ void export_goods_desc(HSQUIRRELVM vm)
 	register_method(vm, &building_desc_t::get_finance_waytype, "get_waytype");
 
 	/**
+	 * @returns headquarter level (or -1 if building is not headquarter)
+	 */
+	register_method(vm, &building_desc_t::get_headquarter_level, "get_headquarter_level");
+
+	/**
 	 * Returns an array with all buildings of the given type.
 	 * @warning If @p type is one of building_desc_x::harbour, building_desc_x::depot, building_desc_x::station, building_desc_x::station_extension then always the same list is generated.
 	 *          You have to filter out e.g. station buildings yourself.

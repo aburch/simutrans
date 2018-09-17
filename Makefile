@@ -151,9 +151,15 @@ ifneq ($(MULTI_THREAD),)
 endif
 
 ifneq ($(WITH_REVISION),)
-  REV = $(shell git rev-parse --short HEAD)
-  ifneq ($(REV),)
-    CFLAGS  += -DREVISION="$(REV)"
+  ifeq ($(shell expr $(WITH_REVISION) \>= 1), 1)
+    ifeq ($(shell expr $(WITH_REVISION) \>= 2), 1)
+      REV = $(WITH_REVISION)
+    else
+      REV = $(shell git rev-parse --short HEAD)
+    endif
+    ifneq ($(REV),)
+      CFLAGS  += -DREVISION="$(REV)"
+    endif
   endif
 endif
 

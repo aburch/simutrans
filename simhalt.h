@@ -42,9 +42,9 @@
 #define HALT_ARRIVED				0 // the amount of ware that arrived here
 #define HALT_DEPARTED				1 // the amount of ware that has departed from here
 #define HALT_WAITING				2 // the amount of ware waiting
-#define HALT_HAPPY					3 // number of happy passangers
-#define HALT_UNHAPPY				4 // number of unhappy passangers
-#define HALT_NOROUTE				5 // number of no-route passangers
+#define HALT_HAPPY					3 // number of happy passengers
+#define HALT_UNHAPPY				4 // number of unhappy passengers
+#define HALT_NOROUTE				5 // number of no-route passengers
 #define HALT_CONVOIS_ARRIVED        6 // number of convois arrived this month
 #define HALT_TOO_SLOW		        7 // The number of passengers whose estimated journey time exceeds their tolerance.
 /* NOTE - Standard has HALT_WALKED here as no. 7. In Extended, this is in cities, not stops.*/
@@ -209,7 +209,7 @@ public:
 	void recalc_status();
 
 	/**
-	 * Handles changes of schedules and the resulting rerouting.
+	 * Handles changes of schedules and the resulting re-routing.
 	 */
 	static void step_all();
 
@@ -378,7 +378,7 @@ private:
 	uint8 *non_identical_schedules;
 
 
-	// Array with different categries that contains all waiting goods at this stop
+	// Array with different categories that contains all waiting goods at this stop
 	vector_tpl<ware_t> **cargo;
 
 	/**
@@ -593,7 +593,7 @@ public:
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
 	/**
-	 * Haltestellen messen regelmaessig die Fahrplaene pruefen
+	 * called regularly to update status and reroute stuff
 	 * @author Hj. Malthaner
 	 */
 
@@ -687,7 +687,7 @@ public:
 	 */
 	koord get_next_pos( koord start, bool square = false ) const;
 
-	// true, if this station is overcroded for this ware
+	// true, if this station is overcrowded for this category
 	bool is_overcrowded( const uint8 idx ) const { return (overcrowded[idx/8] & (1<<(idx%8)))!=0; }
 
 	/**
@@ -804,7 +804,7 @@ public:
 
 	void set_name(const char *name);
 
-	// create an unique name: better to be called with valid handle, althoug it will work without
+	// create an unique name: better to be called with valid handle, although it will work without
 	char* create_name(koord k, char const* typ);
 
 	void rdwr(loadsave_t *file);

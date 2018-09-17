@@ -76,6 +76,13 @@ sint8 is_halt_connected(halthandle_t a, halthandle_t b, const goods_desc_t *desc
 }
 
 
+// compare two halts to find out if they are the same
+SQInteger halt_compare(halthandle_t a, halthandle_t b)
+{
+	return (SQInteger)a.get_id() - (SQInteger)b.get_id();
+}
+
+
 void export_halt(HSQUIRRELVM vm)
 {
 	/**
@@ -117,6 +124,13 @@ void export_halt(HSQUIRRELVM vm)
 	 * @returns owner
 	 */
 	register_method(vm, &haltestelle_t::get_owner, "get_owner");
+
+	/**
+	 * compare classes using metamethods
+	 * @param halt the other halt
+	 * @returns difference in the unique id of the halthandle
+	 */
+	register_method(vm, &halt_compare, "_cmp", true);
 
 	/**
 	 * Quick check if there is connection for certain freight to the other halt.

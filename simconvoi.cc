@@ -1,6 +1,6 @@
 /**
- * convoi_t Klasse fÅE Fahrzeugverb‰nde
- * von Hansjˆrg Malthaner
+ * convoi_t Class for vehicle associations
+ * Hansjˆrg Malthaner
  */
 
 #include <stdlib.h>
@@ -193,7 +193,7 @@ void convoi_t::init(player_t *player)
 	//speed_limit = SPEED_UNLIMITED;
 	//brake_speed_soll = SPEED_UNLIMITED;
 	akt_speed_soll = 0;             // target speed
-	set_akt_speed(0);                 // momentane Geschwindigkeit
+	set_akt_speed(0);                 // current speed
 	sp_soll = 0;
 
 	next_stop_index = INVALID_INDEX;
@@ -334,15 +334,20 @@ void convoi_t::close_windows()
 // waypoint: no stop, resp. for airplanes in air (i.e. no air strip below)
 bool convoi_t::is_waypoint( koord3d ziel ) const
 {
-		if (vehicle[0]->get_waytype() == air_wt) {
+	if (vehicle[0]->get_waytype() == air_wt) {
+		// separate logic for airplanes, since the can have waypoints over stops etc.
 		grund_t *gr = welt->lookup_kartenboden(ziel.get_2d());
 		if(  gr == NULL  ||  gr->get_weg(air_wt) == NULL  ) {
+			// during flight always a waypoint
 			return true;
 		}
+		else if(  gr->get_depot()  ) {
+			// but a depot is not a waypoint
+			return false;
+		}
+		// so we are on a taxiway/runway here ...
 	}
-
-	const grund_t* gr = welt->lookup(ziel);
-	return !haltestelle_t::get_halt(ziel,get_owner()).is_bound() && !(gr && gr->get_depot());
+	return !haltestelle_t::get_halt(ziel,get_owner()).is_bound();
 }
 
 #ifdef MULTI_THREAD
@@ -572,7 +577,7 @@ void convoi_t::finish_rd()
 						// and no longer seems to be necessary. This might conceivably also cause network
 						// desyncs in some cases, although this has not been tested.
 						if(  abs( v->get_steps() - step_pos )>15  ) {
-							// not where it should be => realing
+							// not where it should be => realign
 							realing_position = true;
 							dbg->warning( "convoi_t::finish_rd()", "convoi (%s) is broken => realign", get_name() );
 						} // /*
@@ -741,8 +746,8 @@ void convoi_t::rotate90( const sint16 y_size )
 
 
 /**
- * Gibt die Position des Convois zurÅEk.
- * @return Position des Convois
+ * Return the convoi position.
+ * @return Convoi position
  * @author Hj. Malthaner
  */
 koord3d convoi_t::get_pos() const
@@ -823,7 +828,7 @@ void convoi_t::add_running_cost(sint64 cost, const weg_t *weg)
 
 	if(weg && weg->get_owner() != get_owner() && weg->get_owner() != NULL && (!welt->get_settings().get_toll_free_public_roads() || (weg->get_waytype() != road_wt || weg->get_player_nr() != 1)))
 	{
-		// running on non-public way costs toll (since running costas are positive => invert)
+		// running on non-public way costs toll (since running costs are positive => invert)
 		sint32 toll = -(cost * welt->get_settings().get_way_toll_runningcost_percentage()) / 100l;
 		if(welt->get_settings().get_way_toll_waycost_percentage())
 		{
@@ -1309,7 +1314,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 				if(state==INITIAL) {
 					return SYNC_REMOVE;
 				}
-				// now move the rest (so all vehicle are moving synchroniously)
+				// now move the rest (so all vehikel are moving synchronously)
 				for(unsigned i=1; i<vehicle_count; i++) {
 					vehicle[i]->do_drive(max(1,sp_hat));
 				}
@@ -1339,7 +1344,7 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 			break;
 
 		case SELF_DESTRUCT:
-			// see step, since destruction during a screen update ma give stange effects
+			// see step, since destruction during a screen update may give strange effects
 			break;
 
 		default:
@@ -1408,7 +1413,7 @@ bool convoi_t::prepare_for_routing()
 			ziel = schedule->get_current_entry().pos;
 		}
 
-		// avoid stopping midhalt
+		// avoid stopping mid-halt
 		if (start == ziel) {
 			if (destination_halt.is_bound() && route.is_contained(start)) {
 				for (uint32 i = route.index_of(start); i < route.get_count(); i++) {
@@ -1630,15 +1635,11 @@ bool convoi_t::drive_to()
 						route.append( &next_segment);
 						if(  plane  ) {
 							// maybe we need to restore index
-							uint32 dummy2;
 							air_vehicle_t::flight_state dummy1;
 							uint32 new_takeoff, new_search, new_landing;
 							plane->get_event_index( dummy1, new_takeoff, new_search, new_landing );
 							if(  takeoff == 0x7FFFFFFF  &&  new_takeoff != 0x7FFFFFFF  ) {
 								takeoff = new_takeoff + count_offset;
-							}
-							if(  landing == 0x7FFFFFFF  &&  new_landing != 0x7FFFFFFF  ) {
-								landing = new_landing + count_offset;
 							}
 							if(  landing == 0x7FFFFFFF  &&  new_landing != 0x7FFFFFFF  ) {
 								landing = new_landing + count_offset;
@@ -2478,7 +2479,7 @@ void convoi_t::new_month()
 	if(state==WAITING_FOR_CLEARANCE) {
 		state = WAITING_FOR_CLEARANCE_ONE_MONTH;
 		// check, if now free ...
-		// migh also reset the state!
+		// might also reset the state!
 		sint32 restart_speed = -1;
 		if (front()->can_enter_tile(restart_speed, 0)) {
 			state = DRIVING;
@@ -2595,7 +2596,7 @@ void convoi_t::start()
 			home_depot = route.front();
 			front()->set_pos( home_depot );
 		}
-		// put the convoi on the depot ground, to get automatical rotation
+		// put the convoi on the depot ground, to get automatic rotation
 		// (vorfahren() will remove it anyway again.)
 		grund_t *gr = welt->lookup( home_depot );
 		assert(gr);
@@ -3796,7 +3797,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_long(lane_affinity_end_index);
 	}
 
-	// we want persistent convoihandles so we can keep dialoges open in network games
+	// we want persistent convoihandles so we can keep dialogues open in network games
 	if(  file->is_loading()  ) {
 		if(  file->get_version()<=112002  ) {
 			self = convoihandle_t( this );
@@ -5133,7 +5134,7 @@ void convoi_t::open_schedule_window( bool show )
 {
 	DBG_MESSAGE("convoi_t::open_schedule_window()","Id = %ld, State = %d, Lock = %d",self.get_id(), state, wait_lock);
 
-	// manipulation of schedule not allowd while:
+	// manipulation of schedule not allowed while:
 	// - just starting
 	// - a line update is pending
 	// - the convoy is in the process of finding a route (multi-threaded)
@@ -5159,7 +5160,7 @@ void convoi_t::open_schedule_window( bool show )
 	}
 
 	if(  show  ) {
-		// Fahrplandialog oeffnen
+		// Open schedule dialog
 		create_win( new schedule_gui_t(schedule,get_owner(),self), w_info, (ptrdiff_t)schedule );
 		// TODO: what happens if no client opens the window??
 	}
@@ -6664,7 +6665,7 @@ void convoi_t::set_next_stop_index(uint16 n)
 }
 
 
-/* including this route_index, the route was reserved the laste time
+/* including this route_index, the route was reserved the last time
  * currently only used for tracks
  */
 void convoi_t::set_next_reservation_index(uint16 n)
@@ -7135,7 +7136,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 		 */
 		grund_t *gr = welt->lookup(get_pos());
 		if(  gr==NULL  ) {
-			// should never happen, since there is a vehcile in front of us ...
+			// should never happen, since there is a vehicle in front of us ...
 			return false;
 		}
 		weg_t *str = gr->get_weg(road_wt);
@@ -7244,7 +7245,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 
 	// Distance it takes overtaking (unit: vehicle_steps) = my_speed * time_overtaking
 	// time_overtaking = tiles_to_overtake/diff_speed
-	// tiles_to_overtake = convoi_length + current pos within tile + (pos_other_convoi wihtin tile + length of other convoi) - one tile
+	// tiles_to_overtake = convoi_length + current pos within tile + (pos_other_convoi within tile + length of other convoi) - one tile
 	int distance = 1;
 	if(  !in_congestion  ) {
 		distance = akt_speed*(front()->get_steps()+get_length_in_steps()+steps_other-VEHICLE_STEPS_PER_TILE)/diff_speed;
@@ -7351,7 +7352,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, sint32 other_speed, si
 
 	// Second phase: only facing traffic is forbidden
 	//   Since street speed can change, we do the calculation with time.
-	//   Each empty tile will substract tile_dimension/max_street_speed.
+	//   Each empty tile will subtract tile_dimension/max_street_speed.
 	//   If time is exhausted, we are guaranteed that no facing traffic will
 	//   invade the dangerous zone.
 	// Conditions for the street are milder: e.g. if no street, no facing traffic

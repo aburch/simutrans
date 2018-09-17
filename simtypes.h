@@ -352,8 +352,8 @@ static inline uint16 endian(uint16 v)
 static inline uint32 endian(uint32 v)
 {
 #ifdef SIM_BIG_ENDIAN
-	v = v << 16              | v >> 16;              // 0x22330011
-	v = v <<  8 & 0xFF00FF00 | v >>  8 & 0x00FF00FF; // 0x33221100
+	v = (v << 16)              | (v >> 16);              // 0x22330011
+	v = (v <<  8) & 0xFF00FF00 | (v >>  8) & 0x00FF00FF; // 0x33221100
 #endif
 	return v;
 }
@@ -361,9 +361,9 @@ static inline uint32 endian(uint32 v)
 static inline uint64 endian(uint64 v)
 {
 #ifdef SIM_BIG_ENDIAN
-	v = v << 32                         | v >> 32;                         // 0x4455667700112233
-	v = v << 16 & 0xFFFF0000FFFF0000ULL | v >> 16 & 0x0000FFFF0000FFFFULL; // 0x6677445522330011
-	v = v <<  8 & 0xFF00FF00FF00FF00ULL | v >>  8 & 0x00FF00FF00FF00FFULL; // 0x7766554433221100
+	v = (v << 32)                         | (v >> 32);                         // 0x4455667700112233
+	v = (v << 16) & 0xFFFF0000FFFF0000ULL | (v >> 16) & 0x0000FFFF0000FFFFULL; // 0x6677445522330011
+	v = (v <<  8) & 0xFF00FF00FF00FF00ULL | (v >>  8) & 0x00FF00FF00FF00FFULL; // 0x7766554433221100
 #endif
 	return v;
 }
