@@ -1,4 +1,4 @@
-﻿<title>Авіація</title><br/>
+<title>Авіація</title><br/>
 
 <h1><strong>Авіація</strong></h1><br/>
 

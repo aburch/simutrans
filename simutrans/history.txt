@@ -1,3 +1,4 @@
+Release of 120.4 (r8588 on 17-Sep-2018):
 	FIX: properly handle dualstack servers by using both IPv4 and IP6 addresses (if no symbolic name is available)
 	ADD: (HyperSim) sorting vehicles in depot
 	ADD: system clipboard support now also with SDL2

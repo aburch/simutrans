@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                             Encoding: ISO-8859-1                             #
 #                            Font : Prop-Latin1.bdf                            #
-#                           Date Created: 10.09 2018                           #
+#                           Date Created: 17.09 2018                           #
 #                                                                              #
 #                                                                              #
 ################################################################################
@@ -132,10 +132,14 @@ Cannot create socket
 Kann Netzwerk nicht initialisieren!
 Cannot rotate this building!
 Dieses Gebäude kann nicht gedreht werden!
+Client closed connection during transfer
+Die Verbindung wurde vom Client während des Herunterladens getrennt.
 Convoi handles exhausted!
 Maximale Fahrzeugzahl (Convois) erreicht.
 Convoy already deleted!
 Fahrzeuge wurden schon gelöscht!
+Could not open file
+Konnte die Datei nicht öffnen.
 Das Feld gehoert\neinem anderen Spieler\n
 Das Grundstück\ngehört einem\nanderen Spieler!\n
 Der Besitzer erlaubt das Entfernen nicht
@@ -182,6 +186,8 @@ Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
 Noch kein Fahrplan\nvorhanden!\n
 Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
 Nicht möglich!\nDer Fahrplan kann zur Zeit\nnicht geändert werden.\nVersuchen Sie es später\nnoch einmal!
+Not enough bytes transferred
+Vorzeitiges Übertragungsende!
 Not enough clearance.
 Zwischen zwei Wegen müssen zwei Höhenstufen liegen!
 Not enough money!
@@ -200,6 +206,12 @@ Server busy
 Server antwortet nicht!
 Server version too new
 Der Server benutzt eine neuere Programmversion.
+Show all revenue messages
+Alle Buchungen an Halten
+Show no revenue messages
+Keine Buchungen an Halten
+Show only player's revenue
+Nur eigene Buchungen anzeigen
 Terraforming not possible\nhere in underground view
 Diese Landschaftsveränderung ist\nnur auf dem Kartenboden möglich.\n
 This tunnel branches. You can try Control+Click to remove.
@@ -1702,6 +1714,8 @@ koord
 nach Orten
 labellist_title
 Markierungsliste
+length: %d
+Länge %d
 letzen Monat: diesen Monat:
 letzten Monat: diesen Monat:
 load height data from file
