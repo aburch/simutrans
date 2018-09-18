@@ -253,6 +253,7 @@ public:
 		validate_weight_summary();
 		convoy_t::calc_move(settings, delta_t, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, akt_v);
 	}
+
 // BG, 31.12.2012: end of virtual methods of lazy_convoy_t.
 
 private:
