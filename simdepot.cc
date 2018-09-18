@@ -573,9 +573,9 @@ const char * depot_t::is_deletable(const player_t *player)
 }
 
 
-slist_tpl<vehicle_desc_t const*> const& depot_t::get_vehicle_type() const
+slist_tpl<vehicle_desc_t const*> const& depot_t::get_vehicle_type(uint8 sortkey) const
 {
-	return vehicle_builder_t::get_info(get_waytype());
+	return vehicle_builder_t::get_info(get_waytype(), sortkey);
 }
 
 

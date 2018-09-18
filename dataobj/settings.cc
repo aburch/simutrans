@@ -61,6 +61,9 @@ settings_t::settings_t() :
 	max_ship_convoi_length = 4;
 	max_air_convoi_length = 1;
 
+	world_maximum_height = 32;
+	world_minimum_height = -12;
+
 	// default climate zones
 	set_default_climates( );
 	winter_snowline = 7;	// not mediterranean
@@ -815,6 +818,10 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(max_ship_convoi_length);
 			file->rdwr_byte(max_air_convoi_length);
 		}
+		if(  file->get_version() > 120006  ) {
+			file->rdwr_byte(world_maximum_height);
+			file->rdwr_byte(world_minimum_height);
+		}
 		// otherwise the default values of the last one will be used
 	}
 }
@@ -1425,6 +1432,9 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	max_road_convoi_length = contents.get_int("max_road_convoi_length",max_road_convoi_length);
 	max_ship_convoi_length = contents.get_int("max_ship_convoi_length",max_ship_convoi_length);
 	max_air_convoi_length = contents.get_int("max_air_convoi_length",max_air_convoi_length);
+
+	world_maximum_height = contents.get_int("world_maximum_height",world_maximum_height);
+	world_maximum_height = contents.get_int("world_minimum_height",world_maximum_height);
 
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", "" ) );

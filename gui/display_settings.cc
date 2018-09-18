@@ -268,11 +268,21 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[22].set_typ( button_t::square_state );
 	buttons[22].set_text( "Highlite schedule" );
 	buttons[22].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	cursor.y += D_CHECKBOX_HEIGHT;
+	cursor.y += D_CHECKBOX_HEIGHT+D_V_SPACE;
+
+	// convoi booking message options
+	money_booking.set_pos( cursor );
+	money_booking.set_size( scr_size(L_DIALOG_WIDTH - D_MARGINS_X, D_EDIT_HEIGHT ) );
+	money_booking.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Show all revenue messages"), SYSCOL_TEXT ));
+	money_booking.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Show only player's revenue"), SYSCOL_TEXT ));
+	money_booking.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Show no revenue messages"), SYSCOL_TEXT ));
+	money_booking.set_selection( env_t::show_money_message );
+	add_component(&money_booking);
+	money_booking.add_listener(this);
+	cursor.y += D_EDIT_HEIGHT+D_V_SPACE;
 
 	// Toggle simple drawing for debugging
 #ifdef DEBUG
-	cursor.y += D_V_SPACE;
 	buttons[24].set_pos( cursor );
 	buttons[24].set_typ(button_t::square_state);
 	buttons[24].set_text("Simple drawing");
@@ -606,6 +616,9 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	if((buttons+25)==komp) {
 		create_win(new loadfont_frame_t(), w_info, magic_font);
 	}
+	if(  &money_booking==komp  ) {
+		env_t::show_money_message = v.i;
+	}
 	welt->set_dirty();
 	return true;
 }
@@ -643,11 +656,11 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	uint32 target_fps = welt->is_fast_forward() ? 10 : env_t::fps;
 	loops = welt->get_realFPS();
 	color = SYSCOL_TEXT_HIGHLIGHT;
-	if(  loops < (target_fps*3)/4  ) {
-		color = color_idx_to_rgb(( loops <= target_fps/2 ) ? COL_RED : COL_YELLOW);
+	if(  loops < (target_fps*16*3)/4  ) {
+		color = color_idx_to_rgb(( loops <= target_fps*16/2 ) ? COL_RED : COL_YELLOW);
 	}
 	fps_value_label.set_color(color);
-	sprintf(fps_buf," %d fps", loops );
+	sprintf(fps_buf," %d fps", loops/16 );
 #if MSG_LEVEL >= 3
 	if(  env_t::simple_drawing  ) {
 		strcat( fps_buf, "*" );

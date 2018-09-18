@@ -262,22 +262,7 @@ void server_frame_t::update_info()
 #endif
 
 	time.clear();
-	char const* const month = translator::get_month_name(gi.get_current_month());
-	switch (env_t::show_month) {
-		case env_t::DATE_FMT_GERMAN:
-		case env_t::DATE_FMT_MONTH:
-		case env_t::DATE_FMT_SEASON:
-		case env_t::DATE_FMT_GERMAN_NO_SEASON:
-			time.printf( "%s %d", month, gi.get_current_year() );
-			break;
-
-		case env_t::DATE_FMT_US:
-		case env_t::DATE_FMT_JAPANESE:
-		case env_t::DATE_FMT_JAPANESE_NO_SEASON:
-		case env_t::DATE_FMT_US_NO_SEASON:
-			time.printf( "%i/%s", gi.get_current_year(), month );
-			break;
-	}
+	time.printf("%s", translator::get_date(gi.get_current_year(), gi.get_current_month()));
 	date.set_text( time );
 	date.set_pos( scr_coord( get_windowsize().w - D_MARGIN_RIGHT - date.get_size().w, date.get_pos().y ) );
 	set_dirty();

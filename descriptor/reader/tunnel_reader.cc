@@ -25,7 +25,7 @@ void tunnel_reader_t::register_obj(obj_desc_t *&data)
 
 	checksum_t *chk = new checksum_t();
 	desc->calc_checksum(chk);
-	pakset_info_t::append(desc->get_name(), chk);
+	pakset_info_t::append(desc->get_name(), get_type(), chk);
 }
 
 /**

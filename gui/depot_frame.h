@@ -28,6 +28,8 @@
 #include "components/gui_speedbar.h"
 #include "../simtypes.h"
 #include "../utils/cbuffer_t.h"
+#include "../linehandle_t.h"
+#include "../convoihandle_t.h"
 
 class depot_t;
 class vehicle_desc_t;
@@ -125,6 +127,7 @@ private:
 
 	gui_tab_panel_t tabs;
 	gui_divider_t div_tabbottom;
+	gui_divider_t div_action_bottom;
 
 	gui_label_t lb_veh_action;
 	button_t bt_veh_action;
@@ -248,6 +251,20 @@ private:
 	void image_from_storage_list(gui_image_list_t::image_data_t *image_data);
 
 public:
+	// sorting categories
+	enum {
+		sb_name,
+		sb_capacity,
+		sb_price,
+		sb_cost,
+		sb_cost_per_unit,
+		sb_speed, sb_power,
+		sb_weight,
+		sb_intro_date,
+		sb_retire_date,
+		sb_length
+	};
+
 	// the next two are only needed for depot_t update notifications
 	void activate_convoi( convoihandle_t cnv );
 

@@ -2,15 +2,19 @@
 #include "../simdebug.h"
 #include "../dataobj/translator.h"
 #include "../tpl/vector_tpl.h"
+#include "../utils/simstring.h"
 
 stringhashtable_tpl<checksum_t*> pakset_info_t::info;
 checksum_t pakset_info_t::general;
 
-void pakset_info_t::append(const char* name, checksum_t *chk)
+void pakset_info_t::append(const char* name, obj_type type, checksum_t *chk)
 {
 	chk->finish();
 
-	checksum_t *old = info.set(name, chk);
+	char objname[256] = { type, type>>8, type>>16, 0 };
+	tstrncpy( objname+3, name, 252 );
+
+	checksum_t *old = info.set( strdup(objname), chk );
 	delete old;
 }
 
@@ -32,7 +36,7 @@ struct entry_t {
 	const checksum_t* chk;
 };
 
-bool entry_cmp(entry_t a, entry_t b)
+static bool entry_cmp(entry_t a, entry_t b)
 {
 	return strcmp(a.name, b.name) < 0;
 }

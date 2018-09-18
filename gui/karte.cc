@@ -656,7 +656,18 @@ void reliefkarte_t::set_relief_farbe(koord k_, const PIXVAL color)
  */
 PIXVAL reliefkarte_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 groundwater)
 {
-	return color_idx_to_rgb(map_type_color[clamp( (hoehe-groundwater)+MAX_MAP_TYPE_WATER-1, 0, MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND-1 )]);
+	sint16 relative_index;
+	if(  hoehe>groundwater  ) {
+		// adjust index for world_maximum_height
+		relative_index = (hoehe-groundwater)*MAX_MAP_TYPE_LAND/welt->get_settings().get_maximumheight();
+		if(  (hoehe-groundwater)*MAX_MAP_TYPE_LAND%welt->get_settings().get_maximumheight()!=0  ) {
+			// to avoid relative_index==0
+			relative_index += 1;
+		}
+	} else {
+		relative_index = hoehe-groundwater;
+	}
+	return color_idx_to_rgb(map_type_color[clamp( relative_index+MAX_MAP_TYPE_WATER-1, 0, MAX_MAP_TYPE_WATER+MAX_MAP_TYPE_LAND-1 )]);
 }
 
 

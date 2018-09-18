@@ -172,7 +172,7 @@ public:
 	 * Access to vehicle types which can be bought in the depot.
 	 * @author Volker Meyer
 	 */
-	slist_tpl<vehicle_desc_t const*> const& get_vehicle_type() const;
+	slist_tpl<vehicle_desc_t const*> const& get_vehicle_type(uint8 sortkey = SORT_BY_DEFAULT) const;
 
 	/**
 	 * A convoi arrived at the depot and is added to the convoi list.

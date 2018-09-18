@@ -207,7 +207,7 @@ class factory_desc_t : public obj_desc_t {
 	friend class factory_reader_t;
 
 public:
-	enum site_t { Land, Water, City };
+	enum site_t { Land, Water, City, river, shore, forest };
 
 private:
 	site_t placement;
