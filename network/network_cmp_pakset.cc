@@ -109,6 +109,12 @@ void nwc_pakset_info_t::rdwr()
 }
 
 
+static bool str_cmp(const char *a, const char *b)
+{
+	return strcmp(a,b) < 0;
+}
+
+
 void network_compare_pakset_with_server(const char* cp, std::string &msg)
 {
 	// open from network
@@ -135,8 +141,8 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 				addons.put(i.key, i.value);
 			}
 		}
-		//
-		stringhashtable_tpl<checksum_t*> missing, different;
+		// we do a sorted verctor of names ...
+		vector_tpl<const char *> missing, different;
 		// show progress bar
 		uint32 num_paks = addons.get_count()+1;
 		uint32 progress = 0;
@@ -193,14 +199,14 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 								// found identical desc's
 							}
 							else {
-								different.put(nwi->name, nwi->chk);
+								different.insert_ordered( nwi->name, str_cmp );
 								nwi->clear();
 								wrong_paks++;
 							}
 							progress++;
 						}
 						else {
-							missing.put(nwi->name, nwi->chk);
+							missing.insert_ordered( nwi->name, str_cmp );
 							nwi->clear();
 							wrong_paks++;
 						}
@@ -244,7 +250,7 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 			msg.append("</h1><br>\n");
 			FOR(stringhashtable_tpl<checksum_t*>, const& i, addons) {
 				dbg->warning("network_compare_pakset_with_server", "PAK NOT ON SERVER: %s", i.key);
-				msg.append(translator::translate(i.key));
+				msg.append(translator::translate(i.key+3));
 				msg.append("<br>\n");
 			}
 			msg.append("<br>\n");
@@ -253,9 +259,9 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 			msg.append("<h1>");
 			msg.append(translator::translate("Pak(s) different:"));
 			msg.append("</h1><br>\n");
-			FOR(stringhashtable_tpl<checksum_t*>, const& i, different) {
-				dbg->warning("network_compare_pakset_with_server", "PAK DIFFERENT: %s", i.key);
-				msg.append(translator::translate(i.key));
+			FOR(vector_tpl<const char *>, const& i, different) {
+				dbg->warning("network_compare_pakset_with_server", "PAK DIFFERENT: %s", i);
+				msg.append(translator::translate(i+3)); // the first three letters are the type ...
 				msg.append("<br>\n");
 			}
 			msg.append("<br>\n");
@@ -264,9 +270,9 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 			msg.append("<h1>");
 			msg.append(translator::translate("Pak(s) missing on client:"));
 			msg.append("</h1><br>\n");
-			FOR(stringhashtable_tpl<checksum_t*>, const& i, missing) {
-				dbg->warning("network_compare_pakset_with_server", "PAK MISSING: %s", i.key);
-				msg.append(translator::translate(i.key));
+			FOR(vector_tpl<const char *>, const& i, missing) {
+				dbg->warning("network_compare_pakset_with_server", "PAK MISSING: %s", i);
+				msg.append(translator::translate(i+3)); // the first three letters are the type ...
 				msg.append("<br>\n");
 			}
 		}

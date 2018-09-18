@@ -2,6 +2,7 @@
 #define _PAKSET_INFO_H
 
 #include "../tpl/stringhashtable_tpl.h"
+#include "../descriptor/objversion.h"
 #include "checksum.h"
 
 
@@ -25,7 +26,7 @@ public:
 	static void calculate_checksum();
 	static checksum_t* get_checksum() { return &general; }
 
-	static void append(const char* name, checksum_t *chk);
+	static void append(const char* name, obj_type type, checksum_t *chk);
 
 	static void debug();
 

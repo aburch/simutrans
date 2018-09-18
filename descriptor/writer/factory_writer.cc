@@ -148,6 +148,9 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		!STRICMP(placing, "land")  ? factory_desc_t::Land  :
 		!STRICMP(placing, "water") ? factory_desc_t::Water :
 		!STRICMP(placing, "city")  ? factory_desc_t::City  :
+		!STRICMP(placing, "river") ? factory_desc_t::river  :
+		!STRICMP(placing, "shore") ? factory_desc_t::shore  :
+		!STRICMP(placing, "forest")? factory_desc_t::forest :
 		factory_desc_t::Land;
 	uint16 const productivity = obj.get_int("productivity",        10);
 	uint16 const range        = obj.get_int("range",               10);

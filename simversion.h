@@ -12,17 +12,17 @@
 
 #define SIM_VERSION_MAJOR 120
 #define SIM_VERSION_MINOR   4
-#define SIM_VERSION_PATCH   0
+#define SIM_VERSION_PATCH   1
 #define SIM_VERSION_BUILD SIM_BUILD_NIGHTLY
 
 // Beware: SAVEGAME minor is often ahead of version minor when there were patches.
 // ==> These have no direct connection at all!
-#define SIM_SAVE_MINOR      6
-#define SIM_SERVER_MINOR    6
+#define SIM_SAVE_MINOR      7
+#define SIM_SERVER_MINOR    7
 // NOTE: increment before next release to enable save/load of new features
 
-#define MAKEOBJ_VERSION "60.1"
-// Transparency and new factories
+#define MAKEOBJ_VERSION "60.2"
+// new factory locations and provisio
 
 #ifndef QUOTEME
 #	define QUOTEME_(x) #x

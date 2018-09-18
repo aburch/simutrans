@@ -1,0 +1,105 @@
+<title>Simutrans Help</title>
+
+<h1><strong>General Help</strong></h1>
+<p>
+- <a href="simutrans.txt">Welcome</a>
+<br>
+- <a href="window.txt">Game Interface</a><br>
+- <a href="mouse.txt">Mouse Help</a> (to be written)<br>
+- <a href="keys.txt">Keyboard Help</a>
+<br>
+<a href="options.txt">
+<strong>Game Options</strong></a>
+<br>
+- <a href="language.txt">Language</a><br>
+- <a href="color.txt">Player Colour</a>
+<br>
+- <a href="display.txt">Display Settings</a><br>
+- <a href="sound.txt">Sound & Music</a>
+<br>
+- <a href="players.txt">Players</a>
+<br>
+- <a href="load.txt">Load Game</a>
+<br>
+- <a href="save.txt">Save Game</a>
+<br>
+- <a href="new_world.txt">New Game</a><br>
+- - <a href="climates.txt">Climate Control</a><br>
+- - <a href="load_relief.txt">Load Height Map</a>
+</p>
+
+<p>
+<a href="window.txt"><strong>Main Menu</strong></a><br>
+- <a href="options.txt">
+Game Options</a><br>
+- <a href="map.txt">Map</a>
+<br>
+- <a href="inspection_tool.txt">Inspection Tool</a><br>
+- <a href="slopetools.txt">Landscaping Tools Tools</a><br>
+- <a href="railtools.txt">Railroad/Train Tools</a>
+<br>
+- <a href="monorailtools.txt">Monorail Tools</a><br>
+- <a href="tramtools.txt">Tram Tools</a>
+<br>
+- <a href="roadtools.txt">Road Tools</a><br>
+- <a href="shiptools.txt">Harbour Tools</a>
+<br>
+- <a href="airtools.txt">Airport Tools</a>
+<br>
+- <a href="special.txt">Special Construction Tools</a><br>
+- <a href="edittools.txt">Game Edit Tools</a><br>
+- <a href="removal_tool.txt">Destroy/Remove</a>
+</p>
+<p>
+<a href="window.txt"><strong>?Management Menu</strong></a><br>
+- <a href="linemanagement.txt">Line Management</a>
+<br>
+- <a href="list.txt">Lists</a>
+<br>
+- - <a href="haltlist.txt">Stops/Station List</a><br>
+- - - <a href="haltlist_filter.txt">Stops/Station List Filter</a><br>
+- - <a href="convoi.txt">Vehicle List</a><br>
+- - - <a href="convoi_filter.txt">Vehicle List Filter</a>
+<br>
+- - <a href="citylist_filter.txt">City List</a><br>
+- - <a href="goods_filter.txt">Goods List</a>
+<br>
+- - <a href="factorylist_filter.txt">Industry List</a>
+<br>
+- - <a href="curiositylist_filter.txt">Attractions List</a>
+<br>
+- <a href="mailbox.txt">Message Centre</a>
+<br>
+- <a href="finances.txt">Finances</a>
+</p>
+<p>
+<a href="window.txt"><strong>Other Options</strong></a><br>
+- <a href="window.txt">Save Screenshot
+</a><br>
+- <a href="window.txt">Pause</a>
+<br>
+- <a href="window.txt">Fast Forward</a><br>
+- <a href="window.txt">Help</a>
+</p>
+
+<p>
+<a href="inspection_tool.txt"><strong>Other Dialogs</strong></a><br>
+-<a href="depot.txt">Depot Controls</a>
+<br>
+-<a href="schedule.txt">Schedule Controls</a>
+<br>
+- <a href="station.txt">Stop Information</a><br>
+- - <a href="station_details.txt">Stop Details</a><br>
+- <a href="convoiinfo.txt">Convoy/Vehicle Information</a><br>
+- - <a href="convoidetail.txt">Convoy/Vehicle Details</a><br>
+- <a href="citywindow.txt">City Information</a><br>
+- <a href="industry_info.txt">Industry Information</a>
+</p>
+
+<p>
+If no help is found here, try<br>
+<em>http://guide.simutrans.com</em>, or<br>
+<em>http://wiki.simutrans.com</em>, or<br>
+<em>http://simutrans-tips.com</em>, or<br>
+<em>http://forum.simutrans.com</em>.
+</p>
