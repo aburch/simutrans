@@ -183,7 +183,7 @@ bool hausbauer_t::successfully_loaded()
 						elevated_foundation_desc = desc;
 						break;
 					}
-					/* no break */
+					/* FALLTHROUGH */
 
 				default:
 					// obsolete object, usually such pak set will not load properly anyway (old objects should be caught before!)

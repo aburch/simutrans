@@ -198,6 +198,7 @@ void interaction_t::interactive_event( const event_t &ev )
 					// Ignore Enter and Backspace but not Ctrl-H and Ctrl-M
 					break;
 				}
+				/* FALLTHROUGH */
 
 			default:
 				{
