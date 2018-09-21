@@ -3699,6 +3699,7 @@
     <None Include="base_texts_extended_info_window_3.dat" />
     <None Include="base_texts_extended_modified_comfort.dat" />
     <None Include="base_texts_extended_transshipment.dat" />
+    <None Include="base_texts_omitted_ranran.dat" />
     <None Include="base_texts_phil_fix.dat" />
     <None Include="base_texts_walking_passengers.dat" />
     <None Include="base-texts-afhp.dat" />

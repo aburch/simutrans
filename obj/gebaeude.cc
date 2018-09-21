@@ -227,7 +227,7 @@ stadt_t* gebaeude_t::get_stadt() const
 }
 
 /**
-* Destructor. Removes this from the list of sync objects if neccesary.
+* Destructor. Removes this from the list of sync objects if necessary.
 *
 * @author Hj. Malthaner
 */
@@ -399,14 +399,14 @@ void gebaeude_t::rotate90()
 				// rotate 180 degree
 				new_offset = koord(building_desc->get_x() - 1 - new_offset.x, building_desc->get_y() - 1 - new_offset.y);
 			}
-			// do nothing here, since we cannot fix it porperly
+			// do nothing here, since we cannot fix it properly
 		}
 		else {
 			// rotate on ...
 			new_offset = koord(building_desc->get_y(tile->get_layout()) - 1 - new_offset.y, new_offset.x);
 		}
 
-		// suche a tile exist?
+		// such a tile exist?
 		if (building_desc->get_x(layout) > new_offset.x  &&  building_desc->get_y(layout) > new_offset.y) {
 			const building_tile_desc_t* const new_tile = building_desc->get_tile(layout, new_offset.x, new_offset.y);
 			// add new tile: but make them old (no construction)
@@ -636,7 +636,7 @@ image_id gebaeude_t::get_image() const
 			// hide with transparency or tile without information
 			if (env_t::hide_with_transparency) {
 				if (tile->get_desc()->get_type() == building_desc_t::factory  &&  ptr.fab->get_desc()->get_placement() == factory_desc_t::Water) {
-					// no ground tiles for water thingies
+					// no ground tiles for water things
 					return IMG_EMPTY;
 				}
 				return skinverwaltung_t::fussweg->get_image_id(0);
@@ -678,7 +678,7 @@ PLAYER_COLOR_VAL gebaeude_t::get_outline_colour() const
 			disp_colour = colours[0] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
 		else if (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING && tile->get_desc()->get_type() < building_desc_t::others) {
-			// special bilding
+			// special building
 			disp_colour = colours[tile->get_desc()->get_type()] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
 	}
@@ -763,7 +763,7 @@ bool gebaeude_t::is_monument() const
 
 bool gebaeude_t::is_headquarter() const
 {
-	return tile->get_desc()->is_headquarter();
+	return tile->get_desc()->is_headquarters();
 }
 
 bool gebaeude_t::is_attraction() const

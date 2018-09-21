@@ -1672,6 +1672,10 @@ void *check_road_connexions_threaded(void *args)
 		simthread_barrier_wait(&private_car_barrier);
 	} while (!world()->is_terminating_threads());
 
+	// New thread local nodes are created on the heap automatically when this is used,
+	// so this must be released explicitly when this thread is terminated.
+	route_t::TERM_NODES(); 
+
 	pthread_exit(NULL);
 	return args;
 }
@@ -1877,6 +1881,7 @@ void *step_convoys_threaded(void* args)
 
 		simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
 	} while (!world->is_terminating_threads());
+
 	pthread_exit(NULL);
 	return args;
 }
@@ -3422,7 +3427,9 @@ void karte_t::prepare_raise(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw
 	const sint8 hn_ne = max(hne, h0_ne);
 	const sint8 hn_nw = max(hnw, h0_nw);
 	// nothing to do?
-	if (!gr->is_water()  &&  h0_sw >= hsw  &&  h0_se >= hse  &&  h0_ne >= hne  &&  h0_nw >= hnw) return;
+	if(  !gr->is_water()  &&  h0_sw >= hsw  &&  h0_se >= hse  &&  h0_ne >= hne  &&  h0_nw >= hnw  ) {
+		return;
+	}
 	// calc new height and slope
 	const sint8 hneu = min( min( hn_sw, hn_se ), min( hn_ne, hn_nw ) );
 	const sint8 hmaxneu = max( max( hn_sw, hn_se ), max( hn_ne, hn_nw ) );
@@ -3430,7 +3437,7 @@ void karte_t::prepare_raise(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw
 	const uint8 max_hdiff = ground_desc_t::double_grounds ? 2 : 1;
 
 	bool ok = (hmaxneu - hneu <= max_hdiff); // may fail on water tiles since lookup_hgt might be modified from previous raise_to calls
-	if (!ok && !gr->is_water()) {
+	if(  !ok  &&  !gr->is_water()  ) {
 		assert(false);
 	}
 
@@ -3492,7 +3499,9 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 	const sint8 hn_ne = max(hne, h0_ne);
 	const sint8 hn_nw = max(hnw, h0_nw);
 	// nothing to do?
-	if (!gr->is_water()  &&  h0_sw >= hsw  &&  h0_se >= hse  &&  h0_ne >= hne  &&  h0_nw >= hnw) return 0;
+	if(  !gr->is_water()  &&  h0_sw >= hsw  &&  h0_se >= hse  &&  h0_ne >= hne  &&  h0_nw >= hnw  ) {
+		return 0;
+	}
 	// calc new height and slope
 	const sint8 hneu = min( min( hn_sw, hn_se ), min( hn_ne, hn_nw ) );
 	const sint8 hmaxneu = max( max( hn_sw, hn_se ), max( hn_ne, hn_nw ) );
@@ -3602,7 +3611,9 @@ int karte_t::grid_raise(const player_t *player, koord k, bool allow_deep_water, 
 		digger.iterate(true);
 
 		err = digger.can_raise_all(player, allow_deep_water);
-		if (err) return 0;
+		if (err) {
+			return 0;
+		}
 
 		n = digger.raise_all();
 

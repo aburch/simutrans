@@ -6,8 +6,8 @@
  */
 
 /*
- * Haltestellen fuer Simutrans
- * 03.2000 derived from simfab.cc
+ * Stations for Simutrans
+ * 03.2000 moved from simfab.cc
  *
  * Hj. Malthaner
  */
@@ -588,7 +588,7 @@ haltestelle_t::~haltestelle_t()
 
 	if(!welt->is_destroying())
 	{
-		// remove from ground and planquadrat haltlists
+		// remove from ground and planquadrat (tile) haltlists
 		koord ul(32767,32767);
 		koord lr(0,0);
 		while(  !tiles.empty()  ) {
@@ -656,19 +656,19 @@ haltestelle_t::~haltestelle_t()
 		}
 	}
 	free(cargo);
-
-	if(!welt->is_destroying())
-	{
+	
 #ifdef MULTI_THREAD
-		welt->stop_path_explorer();
+	welt->stop_path_explorer();
 #endif
-		for(uint8 i = 0; i < max_categories; i++)
+	for(uint8 i = 0; i < max_categories; i++)
+	{		
+		if (!welt->is_destroying())
 		{
 			reset_connexions(i);
 			path_explorer_t::refresh_category(i);
 		}
 		delete connexions[i];
-	}
+	}		
 
 	delete[] connexions;
 	// See here for an explanation of the below: http://stackoverflow.com/questions/29375797/copy-2d-array-using-memcpy/29375830#29375830
@@ -880,15 +880,15 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			koord( 1,  0), // east
 			koord( 0,  1), // south
 			koord(-1,  0), // west
-			koord( 1, -1), // nordost
+			koord( 1, -1), // northeast
 			koord( 1,  1), // southeast
 			koord(-1,  1), // southwest
 			koord(-1, -1), // northwest
-			koord( 0, -2),	// double nswo
+			koord( 0, -2), // double nswo
 			koord( 2,  0),
 			koord( 0,  2),
 			koord(-2,  0),
-			koord( 1, -2),	// all the remaining 3s
+			koord( 1, -2), // all the remaining 3s
 			koord( 2, -1),
 			koord( 2,  1),
 			koord( 1,  2),
@@ -896,7 +896,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 			koord(-2,  1),
 			koord(-2, -1),
 			koord(-1, -2),
-			koord( 2, -2),	// and now all buildings with distance 4
+			koord( 2, -2), // and now all buildings with distance 4
 			koord( 2,  2),
 			koord(-2,  2),
 			koord(-2, -2)
@@ -950,7 +950,7 @@ char* haltestelle_t::create_name(koord const k, char const* const typ)
 		const char *building_base_text = "%s building %s %s";
 		const char *building_base = translator::translate(building_base_text,lang);
 		if(  building_base_text != building_base  ) {
-			// check for other special building (townhall, monument, tourst attraction)
+			// check for other special building (townhall, monument, tourist attraction)
 			for (int i=0; i<24; i++) {
 				grund_t *gr = welt->lookup_kartenboden( next_building[i] + k);
 				if(gr==NULL  ||  gr->get_typ()!=grund_t::fundament) {
@@ -2865,7 +2865,7 @@ bool haltestelle_t::vereinige_waren(const ware_t &ware) //"unite were" (Google)
 
 
 // put the ware into the internal storage
-// take care of all allocation neccessary
+// take care of all allocation necessary
 void haltestelle_t::add_ware_to_halt(ware_t ware, bool from_saved)
 {
 	// @author: jamespetts
@@ -3035,7 +3035,7 @@ void haltestelle_t::starte_mit_route(ware_t ware, koord origin_pos)
 
 
 
-/* Recieves ware and tries to route it further on
+/* Receives ware and tries to route it further on
  * if no route is found, it will be removed
  *
  * walked_between_stations defaults to 0; it should be set to 1 when walking here from another station
@@ -3544,7 +3544,7 @@ bool haltestelle_t::make_public_and_join(player_t *player)
 			for(  int month=0;  month<MAX_MONTHS;  month++  ) {
 				for(  int type=0;  type<MAX_HALT_COST;  type++  ) {
 					financial_history[month][type] += halt->financial_history[month][type];
-					halt->financial_history[month][type] = 0;	// to avoind counting twice
+					halt->financial_history[month][type] = 0;	// to avoid counting twice
 				}
 			}
 
@@ -3553,7 +3553,7 @@ bool haltestelle_t::make_public_and_join(player_t *player)
 			grund_t *gr = welt->lookup(t);
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			if(gb) {
-				// there are also water tiles, which may not have a buidling
+				// there are also water tiles, which may not have a building
 				player_t *gb_player=gb->get_owner();
 				if(public_owner!=gb_player) {
 					sint32 costs;
@@ -3651,7 +3651,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 	const building_desc_t *desc=gb?gb->get_tile()->get_desc():NULL;
 
 	if(gr->is_water() && gb) {
-		// may happend around oil rigs and so on
+		// may happen around oil rigs and so on
 		station_type |= dock;
 		// for water factories
 		if(desc) {
@@ -3669,7 +3669,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 				}
 			}
 			else {
-				// no sperate capacities: sum up all
+				// no separate capacities: sum up all
 				capacity[0] += desc->get_capacity();
 				capacity[2] = capacity[1] = capacity[0];
 			}
@@ -3678,7 +3678,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 	}
 
 	if(desc==NULL) {
-		// no desc, but solid gound?!?
+		// no desc, but solid ground?!?
 		dbg->error("haltestelle_t::get_station_type()","ground belongs to halt but no desc?");
 		return;
 	}
@@ -3730,7 +3730,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 		}
 	}
 	else {
-		// no sperate capacities: sum up all
+		// no separate capacities: sum up all
 		capacity[0] += desc->get_capacity();
 		capacity[2] = capacity[1] = capacity[0];
 	}
@@ -3739,7 +3739,7 @@ void haltestelle_t::add_to_station_type( grund_t *gr )
 /*
  * recalculated the station type(s)
  * since it iterates over all ground, this is better not done too often, because line management and station list
- * queries this information regularely; Thus, we do this, when adding new ground
+ * queries this information regularly; Thus, we do this, when adding new ground
  * This recalculates also the capacity from the building levels ...
  * @author Weber/prissi
  */
@@ -3857,8 +3857,8 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					dbg->error("haltestelle_t::rdwr()", "setting to %s", gr->get_pos().get_str() );
 				}
 			}
-			// during loading and saving halts will be referred by their base postion
-			// so we may alrady be defined ...
+			// during loading and saving halts will be referred by their base position
+			// so we may already be defined ...
 			if(gr && gr->get_halt().is_bound()) {
 				dbg->warning( "haltestelle_t::rdwr()", "bound to ground twice at (%i,%i)!", k.x, k.y );
 			}
@@ -4628,7 +4628,7 @@ void haltestelle_t::finish_rd(bool need_recheck_for_walking_distance)
 	// handle name for old stations which don't exist in kartenboden
 	grund_t* bd = welt->lookup(get_basis_pos3d());
 	if(bd!=NULL  &&  !bd->get_flag(grund_t::has_text) ) {
-		// restore label und bridges
+		// restore label and bridges
 		grund_t* bd_old = welt->lookup_kartenboden(get_basis_pos());
 		if(bd_old) {
 			// transfer name (if there)
@@ -4955,7 +4955,7 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories, bool recalc_ne
 {
 	assert(gr!=NULL);
 
-	// neu halt?
+	// new halt?
 	if(  tiles.is_contained(gr)  ) {
 		return false;
 	}
@@ -5332,7 +5332,7 @@ bool haltestelle_t::find_free_position(const waytype_t w,convoihandle_t cnv,cons
 			assert(gr);
 			// found a stop for this waytype but without object d ...
 			if(gr->hat_weg(w)  &&  gr->suche_obj(d)==NULL) {
-				// not occipied
+				// not occupied
 				return true;
 			}
 		}
@@ -5373,7 +5373,7 @@ bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 			if(gr) {
 				// found a stop for this waytype but without object d ...
 				if (gr->hat_weg(v.get_waytype()) && !gr->suche_obj(v.get_typ())) {
-					// not occipied
+					// not occupied
 //DBG_MESSAGE("haltestelle_t::reserve_position()","success for gr=%i,%i cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());
 					i->reservation[0] = cnv;
 					return true;
@@ -5421,7 +5421,7 @@ DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%
 				// found a stop for this waytype but without object d ...
 				vehicle_t const& v = *cnv->front();
 				if (gr->hat_weg(v.get_waytype()) && !gr->suche_obj(v.get_typ())) {
-					// not occipied
+					// not occupied
 					return true;
 				}
 			}
@@ -5753,7 +5753,6 @@ void haltestelle_t::add_line(linehandle_t line)
 void haltestelle_t::remove_line(linehandle_t line)
 {
 	registered_lines.remove(line);
-
 	if(registered_convoys.empty() && registered_lines.empty() && !welt->is_destroying())
 	{
 		const uint8 max_categories = goods_manager_t::get_max_catg_index();

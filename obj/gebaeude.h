@@ -20,7 +20,7 @@ class goods_desc_t;
 class planquadrat_t;
 
 /**
- * Asynchron oder synchron animierte Gebaeude für Simutrans.
+ * Asynchronous or synchronous animations for buildings.
  * @author Hj. Malthaner
  */
 class gebaeude_t : public obj_t, sync_steppable

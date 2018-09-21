@@ -293,7 +293,7 @@ public:
 	building_desc_t::btype get_type() const { return type; }
 
 	bool is_townhall()      const { return is_type(townhall); }
-	bool is_headquarter()   const { return is_type(headquarters); }
+	bool is_headquarters()   const { return is_type(headquarters); }
 	bool is_attraction() const { return is_type(attraction_land) || is_type(attraction_city); }
 	bool is_factory()       const { return is_type(factory); }
 	bool is_city_building() const { return is_type(city_res) || is_type(city_com) || is_type(city_ind); }
@@ -301,6 +301,9 @@ public:
 	bool is_signalbox() const { return is_type(signalbox); }
 
 	bool is_connected_with_town() const;
+
+	/// @returns headquarter level (or -1 if building is not headquarter)
+	sint32 get_headquarter_level() const  { return (is_headquarters() ? get_extra() : -1) ; }
 
 	/**
 	* the level is used in many places: for price, for capacity, ...

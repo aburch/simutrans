@@ -174,10 +174,15 @@ void export_factory(HSQUIRRELVM vm)
 	register_method(vm, &fabrik_t::get_suppliers, "get_suppliers");
 
 	/**
-	 * Get (untranslated) name of factory.
+	 * Get (translated or custom) name of factory.
 	 * @returns name
 	 */
 	register_method(vm, &fabrik_t::get_name, "get_name");
+
+	/**
+	 * Change name.
+	 */
+	register_method(vm, &fabrik_t::set_name, "set_name");
 
 	/**
 	 * Get monthly statistics of production.

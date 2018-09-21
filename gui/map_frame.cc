@@ -258,20 +258,20 @@ map_frame_t::map_frame_t() :
 	{
 		int count = 0;
 		viewable_freight_types[count++] = NULL;
-		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("All"), COL_BLACK) );
+		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("All"), SYSCOL_TEXT) );
 		viewable_freight_types[count++] = goods_manager_t::passengers;
-		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passagiere"), COL_BLACK) );
+		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passagiere"), SYSCOL_TEXT) );
 		viewable_freight_types[count++] = goods_manager_t::mail;
-		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Post"), COL_BLACK) );
+		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Post"), SYSCOL_TEXT) );
 		viewable_freight_types[count++] = goods_manager_t::none; // for all freight ...
-		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Fracht"), COL_BLACK) );
+		freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Fracht"), SYSCOL_TEXT) );
 		for(  int i = 0;  i < goods_manager_t::get_max_catg_index();  i++  ) {
 			const goods_desc_t *freight_type = goods_manager_t::get_info_catg(i);
 			const int index = freight_type->get_catg_index();
 			if(  index == goods_manager_t::INDEX_NONE  ||  freight_type->get_catg()==0  ) {
 				continue;
 			}
-			freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(freight_type->get_catg_name()), COL_BLACK));
+			freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(freight_type->get_catg_name()), SYSCOL_TEXT));
 			viewable_freight_types[count++] = freight_type;
 		}
 		for(  int i=0;  i < goods_manager_t::get_count();  i++  ) {
@@ -279,7 +279,7 @@ map_frame_t::map_frame_t() :
 			if(  ware->get_catg() == 0  &&  ware->get_index() > 2  ) {
 				// Special freight: Each good is special
 				viewable_freight_types[count++] = ware;
-				freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(ware->get_name()), COL_BLACK) );
+				freight_type_c.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(ware->get_name()), SYSCOL_TEXT) );
 			}
 		}
 	}
@@ -295,7 +295,7 @@ map_frame_t::map_frame_t() :
 	transport_type_c.set_max_size( scr_size( 116, 10 * D_BUTTON_HEIGHT) );
 
 	for (int i = 0; i < MAP_TRANSPORT_TYPE_ITEMS; i++) {
-		transport_type_c.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(transport_type_items[i].name), COL_BLACK));
+		transport_type_c.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(transport_type_items[i].name), SYSCOL_TEXT));
 		viewable_transport_types[ i ] = transport_type_items[i].line_type;
 	}
 

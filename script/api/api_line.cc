@@ -109,12 +109,12 @@ void export_line(HSQUIRRELVM vm)
 	begin_class(vm, "line_x", "extend_get");
 
 	/**
-	 * Station name.
+	 * Line name.
 	 * @returns name
 	 */
 	register_method(vm, &simline_t::get_name, "get_name");
 	/**
-	 * Station owner.
+	 * Line owner.
 	 * @returns owner
 	 */
 	register_method(vm, &simline_t::get_owner, "get_owner");

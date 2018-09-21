@@ -134,7 +134,7 @@ const char *grund_t::get_text() const
 
 PLAYER_COLOR_VAL grund_t::text_farbe() const
 {
-	// if this gund belongs to a halt, the color should reflect the halt owner, not the grund owner!
+	// if this ground belongs to a halt, the color should reflect the halt owner, not the ground owner!
 	// Now, we use the color of label_t owner
 	if(is_halt()  &&  find<label_t>()==NULL) {
 		// only halt label
@@ -415,7 +415,7 @@ void grund_t::rdwr(loadsave_t *file)
 
 				if(weg) {
 					if(get_typ()==fundament) {
-						// remove this (but we can not correct the other wasy, since possibly not yet loaded)
+						// remove this (but we can not correct the other ways, since possibly not yet loaded)
 						dbg->error("grund_t::rdwr()","removing way from foundation at %i,%i",pos.x,pos.y);
 						// we do not delete them, to keep maintenance costs correct
 					}
@@ -447,7 +447,7 @@ void grund_t::rdwr(loadsave_t *file)
 			file->wr_obj_id(w->get_waytype());
 			w->rdwr(file);
 		}
-		file->wr_obj_id(-1);   // Ende der Wege
+		file->wr_obj_id(-1);   // Way end
 	}
 
 	// all objects on this tile
@@ -470,7 +470,7 @@ grund_t::grund_t(koord3d pos)
 {
 	this->pos = pos;
 	flags = 0;
-	set_image(IMG_EMPTY);    // setzt   flags = dirty;
+	set_image(IMG_EMPTY);    // set   flags = dirty;
 	back_imageid = 0;
 }
 
@@ -1752,7 +1752,7 @@ ribi_t::ribi grund_t::get_weg_ribi_unmasked(waytype_t typ) const
 
 
 /**
-* Falls es hier ein Depot gibt, dieses zurueckliefern
+* If there's a depot here, return this
 * @author Volker Meyer
 */
 depot_t* grund_t::get_depot() const
@@ -1824,7 +1824,7 @@ sint64 grund_t::remove_trees()
 	sint64 cost=0;
 	// remove all trees ...
 	while (baum_t* const d = find<baum_t>(0)) {
-		// we must mark it by hand, sinc ewe want to join costs
+		// we must mark it by hand, since we want to join costs
 		d->mark_image_dirty( get_image(), 0 );
 		delete d;
 		cost -= welt->get_settings().cst_remove_tree;
@@ -2640,7 +2640,7 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 			}
 		}
 
-		// need to remove railblocks to recalcualte connections
+		// need to remove railblocks to recalculate connections
 		// remove all ways or just some?
 		if(add==ribi_t::none) {
 			player_t* owner = weg->get_owner();

@@ -6,7 +6,7 @@
  *
  * All moving stuff (vehicle_base_t) and all player vehicle (derived from vehicle_t)
  *
- * 01.11.99  derived from simobj.cc
+ * 01.11.99  Moved from simobj.cc
  *
  * Hansjoerg Malthaner, Nov. 1999
  */
@@ -878,7 +878,7 @@ void vehicle_t::set_convoi(convoi_t *c)
 	assert(  c==NULL  ||  cnv==NULL  ||  cnv==(convoi_t *)1  ||  c==cnv);
 	cnv = c;
 	if(cnv) {
-		// we need to reestablish the finish flag after loading
+		// we need to re-establish the finish flag after loading
 		if(leading) {
 			route_t const& r = *cnv->get_route();
 			check_for_finish = r.empty() || route_index >= r.get_count() || get_pos() == r.at(route_index);
@@ -1639,12 +1639,10 @@ grund_t* vehicle_t::hop_check()
 		// "can_enter_tile() calculates the speed later continued with the" (Babelfish)
 		if(!can_enter_tile(bd, restart_speed, 0)) {
 
-			// convoi anhalten, wenn strecke nicht frei
-			// "Convoi stop when route not free" (Babelfish)
+			// stop convoi, when the way is not free
 			cnv->warten_bis_weg_frei(restart_speed);
 
-			// nicht weiterfahren
-			// "do not continue" (Babelfish)
+			// don't continue
 			return NULL;
 		}
 		// we cache it here, hop() will use it to save calls to karte_t::lookup
@@ -3654,7 +3652,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 		}
 
-		if(  current_str->get_overtaking_mode()<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  ) {
+		if( current_str && current_str->get_overtaking_mode()<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  ) {
 			next_lane = -1;
 		}
 
@@ -8246,7 +8244,7 @@ bool air_vehicle_t::find_route_to_stop_position()
 		// calculate route to free position:
 
 		// if we fail, we will wait in a step, much more simulation friendly
-		// and the route finder is not reentrant!
+		// and the route finder is not re-entrant!
 		if(!cnv->is_waiting()) {
 			target_halt = halthandle_t();
 			return false;
@@ -8887,7 +8885,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 	if(route_index==search_for_stop &&  state==landing) {
 
 		// we will wait in a step, much more simulation friendly
-		// and the route finder is not reentrant!
+		// and the route finder is not re-entrant!
 		if(!cnv->is_waiting()) {
 			return false;
 		}

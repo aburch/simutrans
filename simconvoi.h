@@ -253,6 +253,7 @@ public:
 		validate_weight_summary();
 		convoy_t::calc_move(settings, delta_t, weight, akt_speed_soll, next_speed_limit, steps_til_limit, steps_til_brake, akt_speed, sp_soll, akt_v);
 	}
+
 // BG, 31.12.2012: end of virtual methods of lazy_convoy_t.
 
 private:
@@ -270,7 +271,7 @@ private:
 	linehandle_t line;
 
 	/**
-	* holds id of line with pendig update
+	* holds id of line with pending update
 	* -1 if no pending update
 	* @author hsiegeln
 	*/
@@ -285,7 +286,7 @@ private:
 	char name_and_id[128];
 
 	/**
-	* Alle vehicle-fahrplanzeiger zeigen hierauf
+	* All vehicle-schedule pointers point here
 	* @author Hj. Malthaner
 	*/
 	schedule_t *schedule;
@@ -407,23 +408,23 @@ private:
 	sint16 steps_driven;
 
 	/**
-	* Gesamtpower. Wird nicht gespeichert, sondern aus den Einzelpoweren
-	* errechnet.
+	* Overall performance.
+	* Is not stored, but is calculated from individual functions
 	* @author Hj. Malthaner
 	*/
 	//uint32 sum_power;
 
 	/**
-	* Gesamtpower mit Gear. Wird nicht gespeichert, sondern aus den Einzelpoweren
-	* errechnet.
+	* Overall performance with Gear.
+	* Is not stored, but is calculated from individual functions
 	* @author prissi
 	*/
 	//sint32 sum_gear_and_power;
 
-	/* sum_weight: leerweighte aller vehicles *
-	* sum_gesamtweight: gesamtweighte aller vehicles *
-	* Werden nicht gespeichert, sondern aus den Einzelweighten
-	* errechnet beim beladen/fahren.
+	/* sum_gewicht: unloaded weight of all vehicles *
+	* sum_gesamtgewicht: total weight of all vehicles *
+	* Are not stored, but are calculated from individual weights
+	* when loading/driving.
 	* @author Hj. Malthaner, prissi
 	*/
 	//sint64 sum_weight;
@@ -448,7 +449,7 @@ private:
 	/**
 	 * this give the index of the next signal or the end of the route
 	 * convois will slow down before it, if this is not a waypoint or the cannot pass
-	 * The slowdown ist done by the vehicle routines
+	 * The slowdown is done by the vehicle routines
 	 * @author prissi
 	 */
 	uint16 next_stop_index;
@@ -461,7 +462,7 @@ private:
 	uint16 next_reservation_index;
 
 	/**
-	 * The coinvoi is not processed every sync step for various actions
+	 * The convoi is not processed every sync step for various actions
 	 * (like waiting before signals, loading etc.) Such action will only
 	 * continue after a waiting time larger than wait_lock
 	 * @author Hanjsörg Malthaner
@@ -532,7 +533,7 @@ private:
 	void init(player_t *player);
 
 	/**
-	* Berechne route von Start- zu Zielkoordinate
+	* Calculate route from Start to Target Coordinate
 	* @author Hanjsörg Malthaner
 	*/
 	bool drive_to();
@@ -587,7 +588,7 @@ private:
 
 	/**
 	* the koordinate of the home depot of this convoi
-	* the last depot visited is considered beeing the home depot
+	* the last depot visited is considered being the home depot
 	* @author hsiegeln
 	*/
 	koord3d home_depot;
@@ -926,14 +927,14 @@ public:
 	inline void reset_waiting() { state=WAITING_FOR_CLEARANCE; }
 
 	/**
-	* Das Handle für uns selbst. In Anlehnung an 'this' aber mit
+	* The handle for ourselves. In Anlehnung an 'this' aber mit
 	* allen checks beim Zugriff.
 	* @author Hanjsörg Malthaner
 	*/
 	convoihandle_t self;
 
-	/*
-	 * "The profit in this year" (Babelfish)
+	/**
+	 * The profit in this year
 	 * @author Hanjsörg Malthaner
 	 */
 	inline const sint64 & get_jahresgewinn() const {return jahresgewinn;}
@@ -994,22 +995,22 @@ public:
 	void enter_depot(depot_t *dep);
 
 	/**
-	* Gibt Namen des Convois zurück.
-	* @return Name des Convois
+	* Return the internal name of the convois
+	* @return Name of the convois
 	* @author Hj. Malthaner
 	*/
 	inline const char *get_internal_name() const {return name_and_id+name_offset;}
 
 	/**
 	* Allows editing ...
-	* @return Name des Convois
+	* @return Name of the Convois
 	* @author Hj. Malthaner
 	*/
 	inline char *access_internal_name() {return name_and_id+name_offset;}
 
 	/**
-	* Gibt Namen des Convois zurück.
-	* @return Name des Convois
+	* Return the name of the convois
+	* @return Name of the convois
 	* @author Hj. Malthaner
 	*/
 	inline const char *get_name() const {return name_and_id;}
@@ -1021,8 +1022,8 @@ public:
 	void set_name(const char *name, bool with_new_id = true);
 
 	/**
-	 * Gibt die Position des Convois zurück.
-	 * @return Position des Convois
+	 * Return the position of the convois.
+	 * @return Position of the convois
 	 * @author Hj. Malthaner
 	 */
 	koord3d get_pos() const;
@@ -1063,7 +1064,7 @@ public:
 	uint32 get_length_in_steps() const { return get_length() * VEHICLE_STEPS_PER_CARUNIT; }
 
 	/**
-	 * Add the costs for traveling one tile
+	 * Add the costs for travelling one tile
 	 * @author Hj. Malthaner
 	 */
 	void add_running_cost(sint64 cost, const weg_t *weg);
@@ -1073,14 +1074,14 @@ public:
 	void increment_odometer(uint32 steps);
 
 	/**
-	 * moving the veicles of a convoi and acceleration/deacceleration
+	 * moving the vehicles of a convoi and acceleration/deceleration
 	 * all other stuff => convoi_t::step()
 	 * @author Hj. Malthaner
 	 */
 	sync_result sync_step(uint32 delta_t);
 
 	/**
-	 * All things like route search or laoding, that may take a little
+	 * All things like route search or loading, that may take a little
 	 * @author Hj. Malthaner
 	 */
 	void step();
@@ -1095,7 +1096,7 @@ public:
 	void threaded_step();
 
 	/**
-	* setzt einen neuen convoi in fahrt
+	* sets a new convoi in route
 	* @author Hj. Malthaner
 	*/
 	void start();
@@ -1103,14 +1104,14 @@ public:
 	void ziel_erreicht(); ///< Called, when the first vehicle reaches the target
 
 	/**
-	* Ein Fahrzeug hat ein Problem erkannt und erzwingt die
-	* Berechnung einer neuen Route
+	* When a vehicle has detected a problem
+	* force calculate a new route
 	* @author Hanjsörg Malthaner
 	*/
 	void suche_neue_route();
 
 	/**
-	* Wartet bis Fahrzeug 0 freie Fahrt meldet
+	* Wait until vehicle 0 reports free route
 	* will be called during a hop_check, if the road/track is blocked
 	* @author Hj. Malthaner
 	*/
@@ -1140,7 +1141,7 @@ public:
 	inline array_tpl<vehicle_t*>::const_iterator end() const { return vehicle.begin() + vehicle_count; }
 
 	/**
-	* Adds a vehicel at the start or end of the convoi.
+	* Adds a vehicle at the start or end of the convoi.
 	* @author Hj. Malthaner
 	*/
 	bool add_vehicle(vehicle_t *v, bool infront = false);
@@ -1237,7 +1238,7 @@ public:
 #if 0
 private:
 	/**
-	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
+	* @return a description string for the object, der z.B. in einem
 	* Beobachtungsfenster angezeigt wird.
 	* @author Hj. Malthaner
 	* @see simwin
@@ -1247,7 +1248,7 @@ public:
 #endif
 	/**
 	* @param buf the buffer to fill
-	* @return Freight dscription text (buf)
+	* @return Freight description text (buf)
 	* @author Hj. Malthaner
 	*/
 	void get_freight_info(cbuffer_t & buf);
@@ -1271,8 +1272,7 @@ public:
 	bool pruefe_alle();
 
 	/**
-	* Kontrolliert Be- und Entladen.
-	* "Controlled loading and unloading" (Google)
+	* Control loading and unloading
 	* V.Meyer: returns nothing
 	* @author Hj. Malthaner
 	*/
@@ -1336,7 +1336,7 @@ public:
 	inline const sint32 &get_free_seats() const { return free_seats; }
 
 	/**
-	* Schedule convoid for self destruction. Will be executed
+	* Schedule convois for self destruction. Will be executed
 	* upon next sync step
 	* @author Hj. Malthaner
 	*/
@@ -1352,7 +1352,7 @@ public:
 	void destroy();
 
 	/**
-	* Debug info nach stderr
+	* Debug info to stderr
 	* @author Hj. Malthaner
 	* @date 04-Sep-03
 	*/
@@ -1385,7 +1385,7 @@ public:
 	void new_month();
 
 	/**
-	 * Methode fuer jaehrliche aktionen
+	 * Method for yearly action
 	 * @author Hj. Malthaner
 	 */
 	void new_year();
@@ -1408,7 +1408,7 @@ public:
 	uint16 get_next_stop_index() const {return next_stop_index;}
 	void set_next_stop_index(uint16 n);
 
-	/* including this route_index, the route was reserved the laste time
+	/* including this route_index, the route was reserved the last time
 	 * currently only used for tracks
 	 */
 	uint16 get_next_reservation_index() const {return next_reservation_index;}
