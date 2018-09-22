@@ -13,7 +13,7 @@
 #include "components/gui_numberinput.h"
 #include "components/gui_combobox.h"
 
-#define COLORS_MAX_BUTTONS (29)
+#define COLORS_MAX_BUTTONS (27)
 #define BUF_MAXLEN_MS_FORMAT (16)
 
 
