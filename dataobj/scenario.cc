@@ -275,6 +275,7 @@ bool scenario_t::forbidden_t::operator ==(const forbidden_t &other) const
 				eq = eq  &&  (hmin == other.hmin)  &&  (hmax == other.hmax);
 				eq = eq  &&  (pos_nw == other.pos_nw);
 				eq = eq  &&  (pos_se == other.pos_se);
+				/* FALLTHROUGH */
 			case forbid_tool:
 				eq = eq  &&  (toolnr == other.toolnr);
 				break;

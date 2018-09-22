@@ -70,7 +70,7 @@ void signal_t::calc_image()
 			uint16 offset=0;
 			ribi_t::ribi dir = sch->get_ribi_unmasked() & (~calc_mask());
 			if(sch->is_electrified()  &&  (desc->get_count()/8)>1) {
-				offset = desc->is_pre_signal() ? 12 : 8;
+				offset = (desc->is_pre_signal()  ||  desc->is_priority_signal()) ? 12 : 8;
 			}
 
 			// vertical offset of the signal positions

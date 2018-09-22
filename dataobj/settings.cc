@@ -1434,7 +1434,10 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	max_air_convoi_length = contents.get_int("max_air_convoi_length",max_air_convoi_length);
 
 	world_maximum_height = contents.get_int("world_maximum_height",world_maximum_height);
-	world_maximum_height = contents.get_int("world_minimum_height",world_maximum_height);
+	world_minimum_height = contents.get_int("world_minimum_height",world_minimum_height);
+	if(  world_minimum_height>=world_maximum_height  ) {
+		world_minimum_height = world_maximum_height-1;
+	}
 
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", "" ) );

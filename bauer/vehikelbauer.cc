@@ -192,14 +192,19 @@ bool vehicle_builder_t::register_desc(const vehicle_desc_t *desc)
 	// register waytype list
 	const int wt_idx = GET_WAYTYPE_INDEX( desc->get_waytype() );
 
-	const vehicle_desc_t *old_desc = name_fahrzeuge.get( desc->get_name() );
+	// first hashtable
+	vehicle_desc_t const *old_desc = name_fahrzeuge.get( desc->get_name() );
+	if(  old_desc  ) {
+		dbg->doubled( "vehicle", desc->get_name() );
+		name_fahrzeuge.remove( desc->get_name() );
+	}
+	name_fahrzeuge.put(desc->get_name(), desc);
+
+	// now add it to sorter (may be more than once!)
 	for(  int sort_idx = 0;  sort_idx < depot_frame_t::sb_length;  sort_idx++  ) {
 		if(  old_desc  ) {
-			dbg->warning( "vehicle_builder_t::register_desc()", "Object %s was overlaid by addon!", desc->get_name() );
-			name_fahrzeuge.remove( desc->get_name() );
 			typ_fahrzeuge[sort_idx][wt_idx].remove(old_desc);
 		}
-		name_fahrzeuge.put(desc->get_name(), desc);
 		typ_fahrzeuge[sort_idx][wt_idx].append(desc);
 	}
 
