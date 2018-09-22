@@ -269,20 +269,20 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	buttons[22].set_typ( button_t::square_state );
 	buttons[22].set_text( "Highlite schedule" );
 	buttons[22].set_width( L_DIALOG_WIDTH - D_MARGINS_X );
-	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
+	cursor.y += D_CHECKBOX_HEIGHT+D_V_SPACE;
 
-	// income/cost message left/right arrows
-	buttons[26].set_pos( cursor );
-	buttons[26].set_typ(button_t::arrowleft);
-	buttons[27].set_pos( cursor );
-	buttons[27].set_typ(button_t::arrowright);
-
-	// income/cost message label
-	money_message_label.init("", cursor + scr_coord (buttons[26].get_size().w + D_H_SPACE,0) );
-	money_message_label.align_to(&buttons[26], ALIGN_CENTER_V);
-	add_component(&money_message_label);
-	cursor.y += buttons[26].get_size().h + D_V_SPACE;
+	// convoi booking message options
+	money_booking.set_pos( cursor );
+	money_booking.set_size( scr_size(L_DIALOG_WIDTH - D_MARGINS_X, D_EDIT_HEIGHT ) );
+	money_booking.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Show all revenue messages"), SYSCOL_TEXT ));
+	money_booking.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Show only player's revenue"), SYSCOL_TEXT ));
+	money_booking.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Show no revenue messages"), SYSCOL_TEXT ));
+	money_booking.set_selection( env_t::show_money_message );
+	add_component(&money_booking);
+	money_booking.add_listener(this);
+	cursor.y += D_EDIT_HEIGHT+D_V_SPACE;
 	
+	// ribi arrow
 	buttons[28].set_pos( cursor );
 	buttons[28].set_typ(button_t::square_state);
 	buttons[28].set_text("show connected directions");
@@ -291,7 +291,6 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 
 	// Toggle simple drawing for debugging
 #ifdef DEBUG
-	cursor.y += D_V_SPACE;
 	buttons[24].set_pos( cursor );
 	buttons[24].set_typ(button_t::square_state);
 	buttons[24].set_text("Simple drawing");
@@ -629,15 +628,12 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	if((buttons+25)==komp) {
 		create_win(new loadfont_frame_t(), w_info, magic_font);
 	}
-	if((buttons+26)==komp) {
-		env_t::show_money_message = (env_t::show_money_message+2)%3;
-	}
-	if((buttons+27)==komp) {
-		env_t::show_money_message = (env_t::show_money_message+1)%3;
-	}
 	if((buttons+28)==komp  &&  skinverwaltung_t::ribi_arrow) {
 		strasse_t::show_masked_ribi ^= 1;
 		welt->set_dirty();
+	}
+	if(  &money_booking==komp  ) {
+		env_t::show_money_message = v.i;
 	}
 	welt->set_dirty();
 	return true;
@@ -669,19 +665,6 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	// Update label buffers
 	hide_buildings_label.set_text( env_t::hide_buildings==0 ? "no buildings hidden" : (env_t::hide_buildings==1 ? "hide city building" : "hide all building") );
 	convoy_tooltip_label.set_text( env_t::show_vehicle_states==0 ? "convoi error tooltips" : (env_t::show_vehicle_states==1 ? "convoi mouseover tooltips" : "all convoi tooltips") );
-	switch (env_t::show_money_message) {
-		case 0:
-		money_message_label.set_text("message of all players");
-		break;
-		case 1:
-		money_message_label.set_text("message of active player");
-		break;
-		case 2:
-		money_message_label.set_text("show no message");
-		break;
-		default:
-		money_message_label.set_text("internal ERROR");
-	}
 	sprintf(frame_time_buf," %d ms", get_frame_time() );
 	sprintf(idle_time_buf, " %d ms", welt->get_idle_time() );
 
@@ -691,11 +674,11 @@ void color_gui_t::draw(scr_coord pos, scr_size size)
 	uint32 target_fps = welt->is_fast_forward() ? 10 : env_t::fps;
 	loops = welt->get_realFPS();
 	color = SYSCOL_TEXT_HIGHLIGHT;
-	if(  loops < (target_fps*3)/4  ) {
-		color = color_idx_to_rgb(( loops <= target_fps/2 ) ? COL_RED : COL_YELLOW);
+	if(  loops < (target_fps*16*3)/4  ) {
+		color = color_idx_to_rgb(( loops <= target_fps*16/2 ) ? COL_RED : COL_YELLOW);
 	}
 	fps_value_label.set_color(color);
-	sprintf(fps_buf," %d fps", loops );
+	sprintf(fps_buf," %d fps", loops/16 );
 #if MSG_LEVEL >= 3
 	if(  env_t::simple_drawing  ) {
 		strcat( fps_buf, "*" );

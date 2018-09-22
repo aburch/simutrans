@@ -1,0 +1,31 @@
+<title>Building Underground Help</title>
+
+<h1><strong>Building Underground</strong></h1>
+
+<p>
+There are two possible underground views in Simutrans, and both can be accessed from <a href="display.txt">Display Settings</a> window or using key shortcuts.
+</p>
+
+<p>
+<em>Underground view:</em> By pressing the <a href="keys.txt">[U]</a> key, all underground levels are revealed at once and all objects that are above ground are hidden. The surface grid is displayed by default, but it is quite difficult to place objects at desired location using this grid pattern, and therefore next map view is recommended for underground construction.
+</p>
+
+<p>
+<em>Sliced map view:</em> With <a href="keys.txt">[Ctrl+U]</a> you can choose to display a single elevation level of what is underground in Simutrans. This view hides all objects that are over the selected layer, either underground or on surface. The current view level can be adjusted from <a href="display.txt">Display Settings</a> window, or using some <a href="keys.txt">keys</a> which are pakset specific. A grid pattern of the active layer is shown. Since the mouse pointer can only be moved within the current level, construction work is easier.
+</p>
+
+<p>
+In general, underground routes are built using tunnel building tools. In order to build underground, a tunnel or a tunnel entrance (<em>Ctrl + click with tunnel tool on a slope</em>) must be built first.
+</p>
+<p>
+To build on another layer underground, use <em>Build artificial slopes</em> tools from the <a href="slopetools.txt">Landscaping Tools</a> menu. Simply click on the end of the road/track with the desired tool.
+</p>
+<p>
+Tram tracks can be laid underground with the normal <a href="tramtools.txt">Tram/light rail tools</a> on existing roads.
+</p>
+<p>
+Only own <a href="station.txt">stop/station</a> can be built on top of each other. Station extensions cannot be built underground.
+</p>
+<p>
+NOTE: If cannot build further underground, check on surface for obstacles.
+</p>

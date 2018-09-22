@@ -312,22 +312,23 @@ void main_view_t::display(bool force_dirty)
 	if(welt) {
 		// show players income/cost messages
 		switch (env_t::show_money_message) {
+
 			case 0:
-			// show messages of all players
-			for(int x=0; x<MAX_PLAYER_COUNT; x++) {
+				// show messages of all players
+				for(int x=0; x<MAX_PLAYER_COUNT; x++) {
+					if(  welt->get_player(x)  ) {
+						welt->get_player(x)->display_messages();
+					}
+				}
+				break;
+			
+			case 1:
+				// show message of active player
+				int x = welt->get_active_player_nr();
 				if(  welt->get_player(x)  ) {
 					welt->get_player(x)->display_messages();
 				}
-			}
-			break;
-			
-			case 1:
-			// show message of active player
-			int x = welt->get_active_player_nr();
-			if(  welt->get_player(x)  ) {
-				welt->get_player(x)->display_messages();
-			}
-			break;
+				break;
 		}
 
 	}

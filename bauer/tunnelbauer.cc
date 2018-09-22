@@ -50,7 +50,7 @@ void tunnel_builder_t::register_desc(tunnel_desc_t *desc)
 		dbg->doubled( "tunnel", desc->get_name() );
 		tool_t::general_tool.remove( old_desc->get_builder() );
 		delete old_desc->get_builder();
-		delete old_desc;
+//		delete old_desc; becasue deleting PowerTunnel seems to corrupt memprz, and the small memory loss in not reallz worth the troubles
 	}
 	// add the tool
 	tool_build_tunnel_t *tool = new tool_build_tunnel_t();

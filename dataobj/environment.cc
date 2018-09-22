@@ -472,7 +472,7 @@ void env_t::rdwr(loadsave_t *file)
 		}
 		file->rdwr_byte( fontsize );
 	}
-	if(  file->get_OTRP_version()>=15  ) {
+	if(  file->get_version()>=120007  ||  file->get_OTRP_version()>=15  ) {
 		file->rdwr_byte(show_money_message);
 	}
 	// server settings are not saved, since they are server specific and could be different on different servers on the save computers

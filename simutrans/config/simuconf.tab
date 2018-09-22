@@ -455,6 +455,11 @@ toll_waycost_percentage = 0
 # also pak dependent
 #
 
+# minimum/maximum allowed height level for the map (too high might cause display errors)
+# Also those number must no be the same
+#world_minimum_height = -12
+#world_maximum_height = 32
+
 # minimum distance between two townhalls
 #minimum_city_distance = 16
 

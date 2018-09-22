@@ -51,7 +51,7 @@ public:
 		ONLY_BACKIMAGE        = 1U << 5,
 		SIGN_LONGBLOCK_SIGNAL = 1U << 6,
 		END_OF_CHOOSE_AREA    = 1U << 7,
-        SIGN_PRIORITY_SIGNAL  = 1U << 8
+		SIGN_PRIORITY_SIGNAL  = 1U << 8
 	};
 
 	image_id get_image_id(ribi_t::dir dir) const
@@ -81,8 +81,8 @@ public:
 	//  return true for presignal
 	bool is_pre_signal() const { return (flags & SIGN_PRE_SIGNAL) != 0; }
 
-    //  return true for priority signal
-    bool is_priority_signal() const { return (flags & SIGN_PRIORITY_SIGNAL) != 0; }
+	//  return true for priority signal
+ 	bool is_priority_signal() const { return (flags & SIGN_PRIORITY_SIGNAL) != 0; }
 
 	//  return true for single track section signal
 	bool is_longblock_signal() const { return (flags & SIGN_LONGBLOCK_SIGNAL) != 0; }

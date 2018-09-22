@@ -15,8 +15,10 @@
 #include "../dataobj/environment.h"
 #include "../dataobj/tabfile.h"
 #include "../dataobj/loadsave.h"
+#include "../dataobj/translator.h"
 
 #include "../descriptor/vehicle_desc.h"
+#include "../gui/depot_frame.h"
 
 #include "vehikelbauer.h"
 
@@ -27,9 +29,8 @@ static stringhashtable_tpl<const vehicle_desc_t*> name_fahrzeuge;
 
 // index 0 aur, 1...8 at normal waytype index
 #define GET_WAYTYPE_INDEX(wt) ((int)(wt)>8 ? 0 : (wt))
-static slist_tpl<const vehicle_desc_t*> typ_fahrzeuge[9];
-
-
+static slist_tpl<const vehicle_desc_t*> typ_fahrzeuge[depot_frame_t::sb_length][9];
+static uint8 tmp_sort_idx;
 
 class bonus_record_t {
 public:
@@ -127,7 +128,7 @@ sint32 vehicle_builder_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 		sint32 speed_sum = 0;
 		sint32 num_averages = 0;
 		// needs to do it the old way => iterate over all vehicles with this type ...
-		FOR(slist_tpl<vehicle_desc_t const*>, const info, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]) {
+		FOR(slist_tpl<vehicle_desc_t const*>, const info, typ_fahrzeuge[0][GET_WAYTYPE_INDEX(wt)]) {
 			if(  info->get_power()>0  &&  info->is_available(monthyear)  ) {
 				speed_sum += info->get_topspeed();
 				num_averages ++;
@@ -189,20 +190,99 @@ vehicle_t* vehicle_builder_t::build(koord3d k, player_t* player, convoi_t* cnv, 
 bool vehicle_builder_t::register_desc(const vehicle_desc_t *desc)
 {
 	// register waytype list
-	const int idx = GET_WAYTYPE_INDEX( desc->get_waytype() );
-	if(  const vehicle_desc_t *old_desc = name_fahrzeuge.remove( desc->get_name() )  ) {
+	const int wt_idx = GET_WAYTYPE_INDEX( desc->get_waytype() );
+
+	// first hashtable
+	vehicle_desc_t const *old_desc = name_fahrzeuge.get( desc->get_name() );
+	if(  old_desc  ) {
 		dbg->doubled( "vehicle", desc->get_name() );
-		typ_fahrzeuge[idx].remove(old_desc);
+		name_fahrzeuge.remove( desc->get_name() );
 	}
 	name_fahrzeuge.put(desc->get_name(), desc);
-	typ_fahrzeuge[idx].append(desc);
+
+	// now add it to sorter (may be more than once!)
+	for(  int sort_idx = 0;  sort_idx < depot_frame_t::sb_length;  sort_idx++  ) {
+		if(  old_desc  ) {
+			typ_fahrzeuge[sort_idx][wt_idx].remove(old_desc);
+		}
+		typ_fahrzeuge[sort_idx][wt_idx].append(desc);
+	}
 
 	return true;
 }
 
 
-static bool compare_vehikel_desc(const vehicle_desc_t* a, const vehicle_desc_t* b)
+
+// compare funcions to sort vehicle in the list
+static int compare_freight(const vehicle_desc_t* a, const vehicle_desc_t* b)
 {
+	int cmp = a->get_freight_type()->get_catg() - b->get_freight_type()->get_catg();
+	if (cmp != 0) return cmp;
+	if (a->get_freight_type()->get_catg() == 0) {
+		cmp = a->get_freight_type()->get_index() - b->get_freight_type()->get_index();
+	}
+	return cmp;
+}
+static int compare_capacity(const vehicle_desc_t* a, const vehicle_desc_t* b) { return a->get_capacity() - b->get_capacity(); }
+static int compare_engine(const vehicle_desc_t* a, const vehicle_desc_t* b) {
+	return (a->get_capacity() + a->get_power() == 0 ? (uint8)vehicle_desc_t::steam : a->get_engine_type()) - (b->get_capacity() + b->get_power() == 0 ? (uint8)vehicle_desc_t::steam : b->get_engine_type());
+}
+static int compare_price(const vehicle_desc_t* a, const vehicle_desc_t* b) { return a->get_price() - b->get_price(); }
+static int compare_cost(const vehicle_desc_t* a, const vehicle_desc_t* b) { return a->get_running_cost() - b->get_running_cost(); }
+static int compare_cost_per_unit(const vehicle_desc_t* a, const vehicle_desc_t* b) { return a->get_running_cost()*b->get_capacity() - b->get_running_cost()*a->get_capacity(); }
+static int compare_topspeed(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_topspeed() - b->get_topspeed();}
+static int compare_power(const vehicle_desc_t* a, const vehicle_desc_t* b)	{return (a->get_power() == 0 ? 0x7FFFFFF : a->get_power()) - (b->get_power() == 0 ? 0x7FFFFFF : b->get_power());}
+static int compare_weight(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_weight() - b->get_weight();}
+static int compare_intro_year_month(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_intro_year_month() - b->get_intro_year_month();}
+static int compare_retire_year_month(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_retire_year_month() - b->get_retire_year_month();}
+
+
+
+// default compare function
+static bool compare_vehicles(const vehicle_desc_t* a, const vehicle_desc_t* b)
+{
+	int cmp = compare_freight(a, b);
+	if (cmp != 0) return cmp < 0;
+	switch (tmp_sort_idx) {
+		case depot_frame_t::sb_name:
+			cmp = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));
+			if (cmp != 0) return cmp < 0;
+			break;
+		case depot_frame_t::sb_price:
+			cmp = compare_price(a, b);
+			if (cmp != 0) return cmp < 0;
+		case depot_frame_t::sb_cost:
+			cmp = compare_cost(a, b);
+			if (cmp != 0) return cmp < 0;
+			cmp = compare_price(a, b);
+			if (cmp != 0) return cmp < 0;
+			break;
+		case depot_frame_t::sb_cost_per_unit:
+			cmp = compare_cost_per_unit(a,b);
+			if (cmp != 0) return cmp < 0;
+			break;
+		case depot_frame_t::sb_speed:
+			cmp = compare_topspeed(a, b);
+			if (cmp != 0) return cmp < 0;
+			break;
+		case depot_frame_t::sb_weight:
+			cmp = compare_weight(a, b);
+			if (cmp != 0) return cmp < 0;
+			break;
+		case depot_frame_t::sb_power:
+			cmp = compare_power(a, b);
+			if (cmp != 0) return cmp < 0;
+			break;
+		case depot_frame_t::sb_intro_date:
+			cmp = compare_intro_year_month(a, b);
+			if (cmp != 0) return cmp < 0;
+		case depot_frame_t::sb_retire_date:
+			cmp = compare_retire_year_month(a, b);
+			if (cmp != 0) return cmp < 0;
+			cmp = compare_intro_year_month(a, b);
+			if (cmp != 0) return cmp < 0;
+			break;
+	}
 	// Sort by:
 	//  1. cargo category
 	//  2. cargo (if special freight)
@@ -211,60 +291,45 @@ static bool compare_vehikel_desc(const vehicle_desc_t* a, const vehicle_desc_t* 
 	//  5. power
 	//  6. intro date
 	//  7. name
-	int cmp = a->get_freight_type()->get_catg() - b->get_freight_type()->get_catg();
-	if (cmp == 0) {
-		if (a->get_freight_type()->get_catg() == 0) {
-			cmp = a->get_freight_type()->get_index() - b->get_freight_type()->get_index();
-		}
-		if (cmp == 0) {
-			cmp = a->get_capacity() - b->get_capacity();
-			if (cmp == 0) {
-				// to handle tender correctly
-				uint8 b_engine = (a->get_capacity() + a->get_power() == 0 ? (uint8)vehicle_desc_t::steam : a->get_engine_type());
-				uint8 a_engine = (b->get_capacity() + b->get_power() == 0 ? (uint8)vehicle_desc_t::steam : b->get_engine_type());
-				cmp = b_engine - a_engine;
-				if (cmp == 0) {
-					cmp = a->get_topspeed() - b->get_topspeed();
-					if (cmp == 0) {
-						// put tender at the end of the list ...
-						int b_power = (a->get_power() == 0 ? 0x7FFFFFF : a->get_power());
-						int a_power = (b->get_power() == 0 ? 0x7FFFFFF : b->get_power());
-						cmp = b_power - a_power;
-						if (cmp == 0) {
-							cmp = a->get_intro_year_month() - b->get_intro_year_month();
-							if (cmp == 0) {
-								cmp = strcmp(a->get_name(), b->get_name());
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+	cmp = compare_capacity(a, b);
+	if (cmp != 0) return cmp < 0;
+	cmp = compare_engine(a, b);
+	if (cmp != 0) return cmp < 0;
+	cmp = compare_topspeed(a, b);
+	if (cmp != 0) return cmp < 0;
+	cmp = compare_power(a, b);
+	if (cmp != 0) return cmp < 0;
+	cmp = compare_intro_year_month(a, b);
+	if (cmp != 0) return cmp < 0;
+	cmp = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));
 	return cmp < 0;
 }
+
 
 
 bool vehicle_builder_t::successfully_loaded()
 {
 	// first: check for bonus tables
 	DBG_MESSAGE("vehicle_builder_t::sort_lists()","called");
-	for(  int wt_idx=0;  wt_idx<9;  wt_idx++  ) {
-		slist_tpl<const vehicle_desc_t*>& typ_liste = typ_fahrzeuge[wt_idx];
-		uint count = typ_liste.get_count();
-		if (count == 0) {
-			continue;
+	for (  int sort_idx = 0; sort_idx < depot_frame_t::sb_length; sort_idx++  ) {
+		for(  int wt_idx=0;  wt_idx<9;  wt_idx++  ) {
+			tmp_sort_idx = sort_idx;
+			slist_tpl<const vehicle_desc_t*>& typ_liste = typ_fahrzeuge[sort_idx][wt_idx];
+			uint count = typ_liste.get_count();
+			if (count == 0) {
+				continue;
+			}
+			const vehicle_desc_t** const tmp     = new const vehicle_desc_t*[count];
+			const vehicle_desc_t** const tmp_end = tmp + count;
+			for(  const vehicle_desc_t** tmpptr = tmp;  tmpptr != tmp_end;  tmpptr++  ) {
+				*tmpptr = typ_liste.remove_first();
+			}
+			std::sort(tmp, tmp_end, compare_vehicles);
+			for(  const vehicle_desc_t** tmpptr = tmp;  tmpptr != tmp_end;  tmpptr++  ) {
+				typ_liste.append(*tmpptr);
+			}
+			delete [] tmp;
 		}
-		const vehicle_desc_t** const tmp     = new const vehicle_desc_t*[count];
-		const vehicle_desc_t** const tmp_end = tmp + count;
-		for(  const vehicle_desc_t** tmpptr = tmp;  tmpptr != tmp_end;  tmpptr++  ) {
-			*tmpptr = typ_liste.remove_first();
-		}
-		std::sort(tmp, tmp_end, compare_vehikel_desc);
-		for(  const vehicle_desc_t** tmpptr = tmp;  tmpptr != tmp_end;  tmpptr++  ) {
-			typ_liste.append(*tmpptr);
-		}
-		delete [] tmp;
 	}
 	return true;
 }
@@ -277,9 +342,9 @@ const vehicle_desc_t *vehicle_builder_t::get_info(const char *name)
 }
 
 
-slist_tpl<vehicle_desc_t const*> const & vehicle_builder_t::get_info(waytype_t const typ)
+slist_tpl<vehicle_desc_t const*> const & vehicle_builder_t::get_info(waytype_t const typ, uint8 sortkey)
 {
-	return typ_fahrzeuge[GET_WAYTYPE_INDEX(typ)];
+	return typ_fahrzeuge[sortkey][GET_WAYTYPE_INDEX(typ)];
 }
 
 
@@ -298,7 +363,7 @@ const vehicle_desc_t *vehicle_builder_t::vehikel_search( waytype_t wt, const uin
 		return NULL;
 	}
 
-	FOR(slist_tpl<vehicle_desc_t const*>, const test_desc, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]) {
+	FOR(slist_tpl<vehicle_desc_t const*>, const test_desc, typ_fahrzeuge[0][GET_WAYTYPE_INDEX(wt)]) {
 		// no constricts allow for rail vehicles concerning following engines
 		if(wt==track_wt  &&  !test_desc->can_follow_any()  ) {
 			continue;
@@ -405,7 +470,7 @@ const vehicle_desc_t *vehicle_builder_t::get_best_matching( waytype_t wt, const 
 	const vehicle_desc_t *desc = NULL;
 	sint32 desc_index = -100000;
 
-	FOR(slist_tpl<vehicle_desc_t const*>, const test_desc, typ_fahrzeuge[GET_WAYTYPE_INDEX(wt)]) {
+	FOR(slist_tpl<vehicle_desc_t const*>, const test_desc, typ_fahrzeuge[0][GET_WAYTYPE_INDEX(wt)]) {
 		if(target_power>0  &&  test_desc->get_power()==0) {
 			continue;
 		}

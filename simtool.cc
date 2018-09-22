@@ -164,6 +164,23 @@ char *tooltip_with_price(const char * tip, sint64 price)
 
 
 
+
+/**
+ * Creates a tooltip from tip text, money value and way/object length
+ * @author captain crunch
+ */
+char *tooltip_with_price_length(const char * tip, sint64 price, sint64 length)
+{
+	int n;
+	n = sprintf(tool_t::toolstr, translator::translate("length: %d"), length);
+	n += sprintf(tool_t::toolstr+n, ", %s: ", translator::translate(tip));
+	money_to_string(tool_t::toolstr+n, (double)price/-100.0);
+	return tool_t::toolstr;
+}
+
+
+
+
 /**
  * Creates a tooltip from tip text and money value
  * @author Hj. Malthaner
@@ -2737,7 +2754,7 @@ void tool_build_way_t::mark_tiles(  player_t *player, const koord3d &start, cons
 
 	if(  bauigel.get_count()>1  ) {
 		// Set tooltip first (no dummygrounds, if bauigel.calc_casts() is called).
-		win_set_static_tooltip( tooltip_with_price("Building costs estimates", bauigel.calc_costs() ) );
+		win_set_static_tooltip( tooltip_with_price_length("Building costs estimates", bauigel.calc_costs(), bauigel.get_count() ) );
 
 		// make dummy route from bauigel
 		for(  uint32 j=0;  j<bauigel.get_count();  j++   ) {
@@ -3041,7 +3058,7 @@ void tool_build_bridge_t::mark_tiles(  player_t *player, const koord3d &start, c
 			}
 		}
 	}
-	win_set_static_tooltip( tooltip_with_price("Building costs estimates", costs ) );
+	win_set_static_tooltip( tooltip_with_price_length("Building costs estimates", costs, koord_distance(start, pos) ) );
 }
 
 uint8 tool_build_bridge_t::is_valid_pos(  player_t *player, const koord3d &pos, const char *&error, const koord3d &start )
@@ -3325,7 +3342,7 @@ void tool_build_tunnel_t::mark_tiles(  player_t *player, const koord3d &start, c
 
 	if(  bauigel.get_count()>1  ) {
 		// Set tooltip first (no dummygrounds, if bauigel.calc_casts() is called).
-		win_set_static_tooltip( tooltip_with_price("Building costs estimates", -bauigel.calc_costs() ) );
+		win_set_static_tooltip( tooltip_with_price_length("Building costs estimates", -bauigel.calc_costs(), bauigel.get_count() ) );
 
 		// make dummy route from bauigel
 		for(  uint32 j=0;  j<bauigel.get_count();  j++  ) {
@@ -3889,7 +3906,7 @@ void tool_build_wayobj_t::mark_tiles( player_t* player, const koord3d &start, co
 				marked.insert( way_obj );
 			}
 		}
-		win_set_static_tooltip( tooltip_with_price("Building costs estimates", -cost_estimate ) );
+		win_set_static_tooltip( tooltip_with_price_length("Building costs estimates", -cost_estimate, verbindung.get_count() ) );
 	}
 }
 
@@ -5316,9 +5333,9 @@ const char* tool_build_roadsign_t::check_pos_intern(player_t *player, koord3d po
 		}
 
 		const bool two_way = desc->is_single_way() ||
-                             desc->is_signal() ||
-                             desc->is_pre_signal() ||
-                             desc->is_priority_signal();
+                        desc->is_signal() ||
+                        desc->is_pre_signal() ||
+                        desc->is_priority_signal();
 
 		if(!(desc->is_traffic_light() || two_way)  ||  (two_way  &&  ribi_t::is_twoway(dir))  ||  (desc->is_traffic_light()  &&  ribi_t::is_threeway(dir))) {
 			roadsign_t* rs;
@@ -5502,7 +5519,7 @@ void tool_build_roadsign_t::mark_tiles( player_t *player, const koord3d &start, 
 		}
 	}
 	delete dummy_rs;
-	win_set_static_tooltip( tooltip_with_price("Building costs estimates", cost ) );
+	win_set_static_tooltip( tooltip_with_price_length("Building costs estimates", cost, route.get_count() ) );
 }
 
 const char *tool_build_roadsign_t::do_work( player_t *player, const koord3d &start, const koord3d &end)
@@ -5601,9 +5618,9 @@ const char *tool_build_roadsign_t::place_sign_intern( player_t *player, grund_t*
 		ribi_t::ribi dir = weg->get_ribi_unmasked();
 
 		const bool two_way = desc->is_single_way() ||
-                             desc->is_signal() ||
-                             desc->is_pre_signal() ||
-                             desc->is_priority_signal();
+                        desc->is_signal() ||
+                        desc->is_pre_signal() ||
+                        desc->is_priority_signal();
 
 		if(!(desc->is_traffic_light() || two_way)  ||  (two_way  &&  ribi_t::is_twoway(dir))  ||  (desc->is_traffic_light()  &&  ribi_t::is_threeway(dir))) {
 			roadsign_t* rs;
@@ -6414,6 +6431,7 @@ DBG_MESSAGE("tool_headquarter()", "building headquarters at (%d,%d)", pos.x, pos
 											if(  gb  &&  gb->get_owner() == player  &&  prev_desc == gb->get_tile()->get_desc()  ) {
 												player_t::add_maintenance( player, -prev_desc->get_maintenance(welt), prev_desc->get_finance_waytype() );
 												gb->set_tile( tile, true );
+												gb->calc_image();
 												player_t::add_maintenance( player, desc->get_maintenance(welt), desc->get_finance_waytype() );
 											}
 										}

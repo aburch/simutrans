@@ -116,6 +116,12 @@ private:
 	 */
 	sint32 show_pax;
 
+	/**
+	 * the maximum and minimum allowed world height.
+	 */
+	sint8 world_maximum_height;
+	sint8 world_minimum_height;
+
 	 /**
 	 * waterlevel, climate borders, lowest snow in winter
 	 */
@@ -400,6 +406,9 @@ public:
 
 	void set_show_pax(bool yesno) {show_pax=yesno;}
 	bool get_show_pax() const {return show_pax != 0;}
+
+	sint8 get_maximumheight() const { return world_maximum_height; }
+	sint8 get_minimumheight() const { return world_minimum_height; }
 
 	sint16 get_groundwater() const {return groundwater;}
 

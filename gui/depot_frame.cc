@@ -28,7 +28,6 @@
 #include "../simmenu.h"
 #include "../simskin.h"
 
-#include "../tpl/inthashtable_tpl.h"
 #include "../tpl/slist_tpl.h"
 
 #include "schedule_gui.h"
@@ -73,9 +72,7 @@ static const char* engine_type_names[9] =
 	"battery"
 };
 
-enum { sb_name, sb_capacity, sb_price, sb_cost, sb_cost_per_unit, sb_speed, sb_power, sb_weight, sb_intro_date, sb_retire_date, sb_length };
 static int sort_by_action;
-static inthashtable_tpl <int, vector_tpl<const vehicle_desc_t*> > sorted_vehicle_descs;
 
 bool depot_frame_t::show_retired_vehicles = false;
 bool depot_frame_t::show_all = true;
@@ -222,8 +219,9 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_component(&div_tabbottom);
 	add_component(&lb_veh_action);
 	add_component(&lb_sort_by);
-	add_component(&lb_vehicle_filter);
 	add_component(&lb_name_filter_input);
+	add_component(&lb_vehicle_filter);
+	add_component(&div_action_bottom);
 
 	veh_action = va_append;
 	bt_veh_action.set_typ(button_t::roundbox);
@@ -262,11 +260,8 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	build_vehicle_lists();
 
 	// text will be translated by ourselves (after update data)!
-	lb_convois.set_text_pointer(txt_convois);
-
-	lb_convoi_count.set_text_pointer(txt_convoi_count);
-	lb_convoi_number.set_text_pointer(txt_convoi_number);
-
+	lb_convois.set_text_pointer( txt_convois );
+	lb_convoi_number.set_text_pointer( txt_convoi_number );
 	lb_convoi_count.set_text_pointer( txt_convoi_count );
 	lb_convoi_speed.set_text_pointer( txt_convoi_speed );
 	lb_convoi_cost.set_text_pointer( txt_convoi_cost );
@@ -589,33 +584,36 @@ void depot_frame_t::layout(scr_size *size)
 	/*
 	* [BOTTOM]
 	*/
+
+	// 1st line
 	bt_veh_action.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT+D_H_SPACE)*3, INFO_VSTART));
 	bt_veh_action.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
-
 	lb_veh_action.align_to(&bt_veh_action, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_CENTER_V, scr_coord(D_H_SPACE, 0));
 
-	vehicle_filter.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT+D_H_SPACE)*3, INFO_VSTART + D_BUTTON_HEIGHT + D_V_SPACE));
+	// 2nd line
+	vehicle_filter.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT+D_H_SPACE)*2 - proportional_string_width(translator::translate("Search:")), INFO_VSTART + D_BUTTON_HEIGHT + D_V_SPACE));
 	vehicle_filter.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
 	vehicle_filter.set_max_size(scr_size(D_BUTTON_WIDTH, LINESPACE*7));
+	lb_vehicle_filter.align_to(&vehicle_filter, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(2,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT)));
 
-	lb_vehicle_filter.align_to(&vehicle_filter, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(D_H_SPACE,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT)));
-
-	bt_show_all.set_pos(scr_coord(D_MARGIN_LEFT, INFO_VSTART + D_BUTTON_HEIGHT + D_V_SPACE));
-	bt_show_all.align_to(&vehicle_filter, ALIGN_CENTER_V);
-
+	name_filter_input.set_pos( scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT+D_H_SPACE)*3, INFO_VSTART + D_BUTTON_HEIGHT + D_V_SPACE) );
 	name_filter_input.set_size( scr_size( BUTTON_WIDTH_DEPOT, D_EDIT_HEIGHT ) );
-	name_filter_input.set_pos( vehicle_filter.get_pos()+scr_coord(0,D_V_SPACE+D_BUTTON_HEIGHT) );
 	lb_name_filter_input.align_to(&name_filter_input, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(D_H_SPACE,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT)));
 
 	bt_obsolete.set_pos(scr_coord(D_MARGIN_LEFT, INFO_VSTART + (D_BUTTON_HEIGHT + D_V_SPACE)*2));
 	bt_obsolete.align_to(&name_filter_input, ALIGN_CENTER_V);
 
-	int y = name_filter_input.get_pos().y + name_filter_input.get_size().h + D_V_SPACE;
-
-	sort_by.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT+D_H_SPACE)*3, y));
+	//3rd line
+	sort_by.set_pos(scr_coord(D_MARGIN_LEFT + (BUTTON_WIDTH_DEPOT+D_H_SPACE)*3, INFO_VSTART + (D_BUTTON_HEIGHT + D_V_SPACE)*2));
 	sort_by.set_size(scr_size(BUTTON_WIDTH_DEPOT, D_BUTTON_HEIGHT));
 	sort_by.set_max_size(scr_size(D_BUTTON_WIDTH, LINESPACE * 7));
 	lb_sort_by.align_to(&sort_by, ALIGN_RIGHT | ALIGN_EXTERIOR_H | ALIGN_TOP, scr_coord(D_H_SPACE,D_GET_CENTER_ALIGN_OFFSET(LINESPACE,D_BUTTON_HEIGHT)));
+
+	bt_show_all.set_pos(scr_coord(D_MARGIN_LEFT, INFO_VSTART + (D_BUTTON_HEIGHT + D_V_SPACE)*2));
+//	bt_show_all.align_to(&sort_by, ALIGN_CENTER_TOP); Comboboxes change height when openen!!!
+
+	div_action_bottom.set_pos(scr_coord(0, INFO_VSTART + (D_BUTTON_HEIGHT + D_V_SPACE) * 3));
+	div_action_bottom.set_width(win_size.w);
 
 	const scr_coord_val margin = 4;
 	img_bolt.set_pos(scr_coord(get_windowsize().w - skinverwaltung_t::electricity->get_image(0)->get_pic()->w - margin, margin));
@@ -712,90 +710,6 @@ void depot_frame_t::add_to_vehicle_list(const vehicle_desc_t *info)
 	vehicle_map.set(info, img_data);
 }
 
-// for sort vehicle in the list
-static int compare_freight(const vehicle_desc_t* a, const vehicle_desc_t* b)
-{
-	int cmp = a->get_freight_type()->get_catg() - b->get_freight_type()->get_catg();
-	if (cmp != 0) return cmp;
-	if (a->get_freight_type()->get_catg() == 0) cmp = a->get_freight_type()->get_index() - b->get_freight_type()->get_index();
-	return cmp;
-}
-static int compare_capacity(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_capacity() - b->get_capacity();}
-static int compare_engine(const vehicle_desc_t* a, const vehicle_desc_t* b)
-{
-	return (a->get_capacity() + a->get_power() == 0 ? (uint8)vehicle_desc_t::steam : a->get_engine_type()) - (b->get_capacity() + b->get_power() == 0 ? (uint8)vehicle_desc_t::steam : b->get_engine_type());
-}
-static int compare_price(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_price() - b->get_price();}
-static int compare_cost(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_running_cost() - b->get_running_cost();}
-static int compare_cost_per_unit(const vehicle_desc_t* a, const vehicle_desc_t* b)
-{
-	return a->get_running_cost()*b->get_capacity() - b->get_running_cost()*a->get_capacity();
-}
-static int compare_topspeed(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_topspeed() - b->get_topspeed();}
-static int compare_power(const vehicle_desc_t* a, const vehicle_desc_t* b)	{return (a->get_power() == 0 ? 0x7FFFFFF : a->get_power()) - (b->get_power() == 0 ? 0x7FFFFFF : b->get_power());}
-static int compare_weight(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_weight() - b->get_weight();}
-static int compare_intro_year_month(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_intro_year_month() - b->get_intro_year_month();}
-static int compare_retire_year_month(const vehicle_desc_t* a, const vehicle_desc_t* b) {return a->get_retire_year_month() - b->get_retire_year_month();}
-
-static bool compare_vehicles(const vehicle_desc_t* a, const vehicle_desc_t* b)
-{
-	int cmp = compare_freight(a, b);
-	if (cmp != 0) return cmp < 0;
-	switch (sort_by_action) {
-		case sb_name:
-			cmp = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));
-			if (cmp != 0) return cmp < 0;
-			break;
-		case sb_price:
-			cmp = compare_price(a, b);
-			if (cmp != 0) return cmp < 0;
-		case sb_cost:
-			cmp = compare_cost(a, b);
-			if (cmp != 0) return cmp < 0;
-			cmp = compare_price(a, b);
-			if (cmp != 0) return cmp < 0;
-			break;
-		case sb_cost_per_unit:
-			cmp = compare_cost_per_unit(a,b);
-			if (cmp != 0) return cmp < 0;
-			break;
-		case sb_speed:
-			cmp = compare_topspeed(a, b);
-			if (cmp != 0) return cmp < 0;
-			break;
-		case sb_weight:
-			cmp = compare_weight(a, b);
-			if (cmp != 0) return cmp < 0;
-			break;
-		case sb_power:
-			cmp = compare_power(a, b);
-			if (cmp != 0) return cmp < 0;
-			break;
-		case sb_intro_date:
-			cmp = compare_intro_year_month(a, b);
-			if (cmp != 0) return cmp < 0;
-		case sb_retire_date:
-			cmp = compare_retire_year_month(a, b);
-			if (cmp != 0) return cmp < 0;
-			cmp = compare_intro_year_month(a, b);
-			if (cmp != 0) return cmp < 0;
-			break;
-	}
-	// sort by capacity
-	cmp = compare_capacity(a, b);
-	if (cmp != 0) return cmp < 0;
-	cmp = compare_engine(a, b);
-	if (cmp != 0) return cmp < 0;
-	cmp = compare_topspeed(a, b);
-	if (cmp != 0) return cmp < 0;
-	cmp = compare_power(a, b);
-	if (cmp != 0) return cmp < 0;
-	cmp = compare_intro_year_month(a, b);
-	if (cmp != 0) return cmp < 0;
-	cmp = strcmp(translator::translate(a->get_name()), translator::translate(b->get_name()));
-	return cmp < 0;
-}
-
 // add all current vehicles
 void depot_frame_t::build_vehicle_lists()
 {
@@ -824,50 +738,35 @@ void depot_frame_t::build_vehicle_lists()
 
 	img_bolt.set_image( weg_electrified ? skinverwaltung_t::electricity->get_image_id(0) : IMG_EMPTY );
 
-	vector_tpl<const vehicle_desc_t*>* typ_list = new vector_tpl<const vehicle_desc_t*>();
-	bool need_delete_typ_list = true;
 	sort_by_action = depot->selected_sort_by;
+
+	vector_tpl<const vehicle_desc_t*> typ_list;
+
 	if(!show_all  &&  veh_action==va_sell) {
 		// show only sellable vehicles
 		FOR(slist_tpl<vehicle_t*>, const v, depot->get_vehicle_list()) {
 			vehicle_desc_t const* const d = v->get_desc();
-			typ_list->append(d);
+			typ_list.append(d);
 		}
-		std::sort(typ_list->begin(), typ_list->end(), compare_vehicles);
 	}
 	else {
-		const int combined_sort_key = (sort_by_action<<8)+wt;
-		if(  sorted_vehicle_descs.access(combined_sort_key)==NULL  ) {
-			// not sorted yet!
-			slist_tpl<const vehicle_desc_t*> const& tmp_list = depot->get_vehicle_type();
-			for(slist_tpl<const vehicle_desc_t*>::const_iterator itr = tmp_list.begin(); itr != tmp_list.end(); ++itr) {
-				typ_list->append(*itr);
-			}
-			std::sort(typ_list->begin(), typ_list->end(), compare_vehicles);
-			// copy to sorted_vehicle_descs
-			sorted_vehicle_descs.put(combined_sort_key);
-			for(uint32 i=0; i<typ_list->get_count(); i++) {
-				sorted_vehicle_descs.access(combined_sort_key)->append((*typ_list)[i]);
-			}
-		} else {
-			// vehicle descs were already sorted.
-			delete typ_list;
-			need_delete_typ_list = false;
-			typ_list = sorted_vehicle_descs.access(combined_sort_key);
+		slist_tpl<const vehicle_desc_t*> const& tmp_list = depot->get_vehicle_type(sort_by_action);
+		for(slist_tpl<const vehicle_desc_t*>::const_iterator itr = tmp_list.begin(); itr != tmp_list.end(); ++itr) {
+			typ_list.append(*itr);
 		}
 	}
 
 	// use this to show only sellable vehicles
 	if(!show_all  &&  veh_action==va_sell) {
 		// just list the one to sell
-		FOR(vector_tpl<vehicle_desc_t const*>, const info, *typ_list) {
+		FOR(vector_tpl<vehicle_desc_t const*>, const info, typ_list) {
 			if (vehicle_map.get(info)) continue;
 			add_to_vehicle_list(info);
 		}
 	}
 	else {
 		// list only matching ones
-		FOR(vector_tpl<vehicle_desc_t const*>, const info, *typ_list) {
+		FOR(vector_tpl<vehicle_desc_t const*>, const info, typ_list) {
 			const vehicle_desc_t *veh = NULL;
 			convoihandle_t cnv = depot->get_convoi(icnv);
 			if(cnv.is_bound() && cnv->get_vehicle_count()>0) {
@@ -895,9 +794,6 @@ void depot_frame_t::build_vehicle_lists()
 				}
 			}
 		}
-	}
-	if(  need_delete_typ_list  ) {
-		delete typ_list;
 	}
 DBG_DEBUG("depot_frame_t::build_vehicle_lists()","finally %i passenger vehicle, %i  engines, %i good wagons",pas_vec.get_count(),loks_vec.get_count(),waggons_vec.get_count());
 	update_data();
@@ -1809,44 +1705,30 @@ void depot_frame_t::draw_vehicle_info_text(scr_coord pos)
 			buf.append( "\n" );
 		}
 
-		if(  veh_type->get_power() > 0  ) { // LOCO
-			buf.printf( translator::translate("Power: %4d kW\n"), veh_type->get_power() );
-		}
-		else {
-			buf.append( "\n" );
+		buf.printf( "%s %3d km/h\n", translator::translate("Max. speed:"), veh_type->get_topspeed() );
+
+		if(  veh_type->get_power() > 0  ) {
+			if(  veh_type->get_gear() != 64  ){
+				buf.printf( "%s %4d kW (x%0.2f)\n", translator::translate("Power:"), veh_type->get_power(), veh_type->get_gear() / 64.0 );
+			}
+			else {
+				buf.printf( translator::translate("Power: %4d kW\n"), veh_type->get_power() );
+			}
 		}
 
-		buf.printf( "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_weight() / 1000.0 );
-		buf.printf( "%s %3d km/h", translator::translate("Max. speed:"), veh_type->get_topspeed() );
-
-		int yyy = pos.y + D_TITLEBAR_HEIGHT + sort_by.get_pos().y + sort_by.get_size().h
-		          - LINESPACE;
-		display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, yyy, buf, SYSCOL_TEXT);
+		int yyy = pos.y + D_TITLEBAR_HEIGHT + div_action_bottom.get_pos().y + div_action_bottom.get_size().h + 2;
+ 		display_multiline_text_rgb( pos.x + D_MARGIN_LEFT, yyy, buf, SYSCOL_TEXT);
 
 		// column 2
 		buf.clear();
-		buf.printf( "%s %s %04d\n",
-			translator::translate("Intro. date:"),
-			translator::get_month_name( veh_type->get_intro_year_month() % 12 ),
-			veh_type->get_intro_year_month() / 12
-			);
+		buf.printf( "%s %4.1ft\n", translator::translate("Weight:"), veh_type->get_weight() / 1000.0 );
+		buf.printf( "%s %s - ", translator::translate("Available:"), translator::get_short_date(veh_type->get_intro_year_month() / 12, veh_type->get_intro_year_month() % 12) );
 
 		if(  veh_type->get_retire_year_month() != DEFAULT_RETIRE_DATE * 12  ) {
-			buf.printf( "%s %s %04d\n",
-				translator::translate("Retire. date:"),
-				translator::get_month_name( veh_type->get_retire_year_month() % 12 ),
-				veh_type->get_retire_year_month() / 12
-				);
+			buf.printf( "%s\n", translator::get_short_date(veh_type->get_retire_year_month() / 12, veh_type->get_retire_year_month() % 12) );
 		}
 		else {
-			buf.append( "\n" );
-		}
-
-		if(  veh_type->get_power() > 0  &&  veh_type->get_gear() != 64  ) {
-			buf.printf( "%s %0.2f : 1\n", translator::translate("Gear:"), veh_type->get_gear() / 64.0 );
-		}
-		else {
-			buf.append( "\n" );
+			buf.append( "*\n" );
 		}
 
 		if(  char const* const copyright = veh_type->get_copyright()  ) {

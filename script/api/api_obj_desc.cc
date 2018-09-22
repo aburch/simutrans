@@ -667,6 +667,10 @@ void export_goods_desc(HSQUIRRELVM vm)
      */
     register_method(vm, &roadsign_desc_t::is_priority_signal, "is_priority_signal");
 	/**
+	 * @returns true if sign is priority signal
+	 */
+	register_method(vm, &roadsign_desc_t::is_priority_signal, "is_priority_signal");
+	/**
 	 * @returns true if sign is long-block signal
 	 */
 	register_method(vm, &roadsign_desc_t::is_longblock_signal, "is_longblock_signal");

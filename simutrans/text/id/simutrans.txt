@@ -1,0 +1,29 @@
+<title>About Simutrans</title>
+
+<h1><strong>Welcome to Simutrans!</strong></h1>
+
+<p>
+First, select a map: either choose one of Simutrans' thousands of maps or create a new one from a height map. Then put yourself in the shoes of a young entrepreneur with some money from your grandparents: eager to make them proud, with ambitions of establishing a successful transport company, your challenge now is to build a prosperous transport empire.
+</p>
+<p>
+As time passes, develop your company into a successful enterprise, whilst at the same time keeping the economy running smoothly by delivering freight & satisfying the travel requirements of millions of passengers. You can transport passengers, mail and goods by rail, road, ship and even air. 
+</p>
+<p>
+Every map has something different to offer. Take a good look at your surroundings: their future lies in the hands of you and your competitors.
+</p>
+<p>
+You may find it easiest to begin by supplying a power station with the goods it needs. With the money you've made, gradually expand by supplying other factories - maybe even using central hubs where goods are reloaded. The disadvantage of only transporting goods is that towns and cities won't grow and new industries will not appear.
+</p>
+<p>
+Alternatively, you may immediately go for passenger (and mail) transport. This is more challenging, as the inhabitants of the Simutrans world all wish to travel to specific destinations
+Some need to go to factories to work, some want to go shopping in the city centre, and others want to visit tourist attractions. But if you don't offer a connection to their desired destination, passengers will not travel with you at all.
+</p>
+<p>
+You will need to build a transport network where as many popular destinations as possible are reachable. When your network is established, you will need to continuously upgrade it to keep abreast of demand, so plan ahead! If passengers like your service, towns will grow, new industries will be established, and only then will the economy run smoothly.
+</p>
+<p>
+You can play as long as you like. Start in 1880 and finish in 2050, or set a start time anywhere between these dates. There will be new vehicles and buildings throughout this time. Play against the AI or on your own. But watch out: if your net wealth is negative for three months in a row, you will go bankrupt and the game is over. Check your net wealth in the Finances window.
+</p>
+<p>
+The <strong>Simutrans Team</strong> and the community wish you an enjoyable time playing Simutrans!
+</p>

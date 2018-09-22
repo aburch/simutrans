@@ -241,7 +241,7 @@ void log_t::doubled(const char *what, const char *name )
 
 #ifdef SYSLOG
 		if(  syslog  ) {
-			syslog( LOG_WARNING, "Warning: object %s::%s is overlaid!", what, name );
+			::syslog( LOG_WARNING, "Warning: object %s::%s is overlaid!", what, name );
 		}
 #endif
 	}

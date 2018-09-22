@@ -125,10 +125,12 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 						text_dirty = false;
 						call_listeners((long)1);
 					}
+					/* FALLTHROUGH */
 				case SIM_KEY_TAB:
 					// Knightly : focus is going to be lost -> reset cursor positions to select the whole text by default
 					head_cursor_pos = len;
 					tail_cursor_pos = 0;
+					/* FALLTHROUGH */
 				case SIM_KEY_ESCAPE:
 					return false;
 

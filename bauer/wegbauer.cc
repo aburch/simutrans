@@ -1095,6 +1095,7 @@ void way_builder_t::check_for_bridge(const grund_t* parent_from, const grund_t* 
 					}
 				}
 			}
+			/* FALLTHROUGH */
 
 			default:
 				if (way0->get_waytype()!=desc->get_wtyp()  ||  way1!=NULL) {

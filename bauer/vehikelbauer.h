@@ -11,6 +11,7 @@
 
 #include "../dataobj/koord3d.h"
 #include "../simtypes.h"
+#include "../gui/depot_frame.h"
 #include <string>
 
 class vehicle_t;
@@ -40,7 +41,7 @@ public:
 	static vehicle_t* build(koord3d k, player_t* player, convoi_t* cnv, const vehicle_desc_t* vb );
 
 	static const vehicle_desc_t * get_info(const char *name);
-	static slist_tpl<vehicle_desc_t const*> const& get_info(waytype_t);
+	static slist_tpl<vehicle_desc_t const*> const& get_info(waytype_t, uint8 sortkey = depot_frame_t::sb_name);
 
 	/* extended search for vehicles for KI
 	* @author prissi

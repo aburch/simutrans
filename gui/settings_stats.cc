@@ -120,6 +120,9 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	SEPERATOR
 	INIT_NUM( "compass_map_position", env_t::compass_map_position, 0, 16, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "compass_screen_position", env_t::compass_screen_position, 0, 16, gui_numberinput_t::AUTOLINEAR, false );
+	SEPERATOR
+	INIT_NUM( "world_maximum_height", sets->get_maximumheight(), 16, 127, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "world_minimum_height", sets->get_minimumheight(), -127, -12, gui_numberinput_t::AUTOLINEAR, false );
 
 	clear_dirty();
 	height = ypos;
@@ -162,6 +165,9 @@ void settings_general_stats_t::read(settings_t* const sets)
 
 	READ_NUM_VALUE( env_t::compass_map_position );
 	READ_NUM_VALUE( env_t::compass_screen_position );
+
+	READ_NUM_VALUE( sets->world_maximum_height );
+	READ_NUM_VALUE( sets->world_minimum_height );
 }
 
 void settings_display_stats_t::init(settings_t const* const)
@@ -527,7 +533,7 @@ void settings_climates_stats_t::init(settings_t* const sets)
 	INIT_INIT
 	INIT_NUM_NEW( "height_map_conversion_version", env_t::pak_height_conversion_factor, 1, 2, 0, false );
 	SEPERATOR
-	INIT_NUM_NEW( "Water level", sets->get_groundwater(), -10, 0, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM_NEW( "Water level", sets->get_groundwater(), sets->get_minimumheight()+10, 0, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM_NEW( "Mountain height", mountain_height_start, 0, min(1000,100*(11-mountain_roughness_start)), 10, false );
 	INIT_NUM_NEW( "Map roughness", mountain_roughness_start, 0, min(10, 11-((mountain_height_start+99)/100)), gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR

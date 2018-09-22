@@ -88,7 +88,7 @@ void sdl_sound_callback(void *, Uint8 * stream, int len)
 				channels[c].sample = 255;
 			}
 			else {
-				SDL_MixAudio(stream, smp->audio_data + channels[c].sample_pos, len, channels[c].volume);
+				SDL_MixAudioFormat(stream, smp->audio_data + channels[c].sample_pos, output_audio_format.format, len, channels[c].volume);
 				channels[c].sample_pos += len;
 			}
 		}
@@ -133,7 +133,7 @@ bool dr_init_sound()
 			channels[i].sample = 255;
 
 			// start playing sounds
-			SDL_PauseAudio(0);
+			SDL_PauseAudioDevice(audio_device, 0);
 
 		}
 		else {

@@ -1429,6 +1429,12 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 		}
 		*pak_extension_str = 0;
 	}
+	
+	// rescue process for old OTRP
+	if(  loadsave_version.OTRP_version>13  &&  loadsave_version.OTRP_version<18  ) {
+		// these versions store version as 120007, but actually these are 120006!
+		loadsave_version.version = 120006;
+	}
 
 	return loadsave_version;
 }
