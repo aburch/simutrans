@@ -173,7 +173,7 @@ void settings_general_stats_t::read(settings_t* const sets)
 void settings_display_stats_t::init(settings_t const* const)
 {
 	INIT_INIT
-	INIT_NUM( "frames_per_second",env_t::fps, 10, 25, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "frames_per_second",env_t::fps, 10, 60, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "simple_drawing_tile_size",env_t::simple_drawing_default, 2, 256, gui_numberinput_t::POWER2, false );
 	INIT_BOOL( "simple_drawing_fast_forward",env_t::simple_drawing_fast_forward );
 	INIT_NUM( "water_animation_ms", env_t::water_animation, 0, 1000, 25, false );
