@@ -88,6 +88,11 @@ class gui_convoy_assembler_t :
 	*/
 	static bool show_all;
 
+	/* show outdated vehicles (same for all depot)
+	*  outdated means production is stopped but not increase maintenance yet.
+	*/
+	static bool show_outdated_vehicles;
+
 	/**
 	 * Parameters to determine layout and behaviour of convoy images.
 	 * Originally in simdepot.h.  Based in the code of:
@@ -144,6 +149,7 @@ class gui_convoy_assembler_t :
 	gui_speedbar_t sb_convoi_length;
 	sint32 convoi_length_ok_sb, convoi_length_slower_sb, convoi_length_too_slow_sb, convoi_tile_length_sb, new_vehicle_length_sb;
 
+	button_t bt_outdated;
 	button_t bt_obsolete;
 	button_t bt_show_all;
 

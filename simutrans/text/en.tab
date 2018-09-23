@@ -3824,3 +3824,7 @@ Vehicle maintenance
 %s has allowed access rights to %s
 Depot found but could not be inserted in schedule.  This is a bug!%s\n
 Depot found but could not be inserted in schedule.  This is a bug!%s\n
+Show outdated
+Show out of production
+Show also vehicles whose maintenance costs have increased due to obsolescence.
+Show vehicles that are obsolete and more expensive to maintain.
