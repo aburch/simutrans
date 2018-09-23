@@ -518,8 +518,8 @@ private:
 	/// what is the minimum clearance required under bridges
 	sint8 way_height_clearance;
 
-	// if true, you can buy obsolete stuff
-	bool allow_buying_obsolete_vehicles;
+	// 1 = you can buy any old stuff. 2 = you can NOT buy obsolete stuff
+	uint8 allow_buying_obsolete_vehicles;
 	// vehicle value is decrease by this factor/1000 when a vehicle leaved the depot
 	sint16 used_vehicle_reduction;
 
@@ -998,7 +998,7 @@ public:
 	uint16 get_factory_maximum_intransit_percentage() const { return factory_maximum_intransit_percentage; }
 
 	// disallow using obsolete vehicles in depot
-	bool get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }
+	uint8 get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }
 
 	// forest stuff
 	uint8 get_forest_base_size() const { return forest_base_size; }
