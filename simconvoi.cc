@@ -2593,6 +2593,12 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_short( next_stop_index );
 		file->rdwr_short( next_reservation_index );
 	}
+	
+	// preparation for new reservation system without next_reservation_index
+	if(  file->get_OTRP_version()>=18  ) {
+		uint32 dummy = 0;
+		file->rdwr_long(dummy);
+	}
 
 	if(  (env_t::previous_OTRP_data  &&  file->get_version() >= 120006)  ||  file->get_OTRP_version() >= 14  ) {
 		file->rdwr_long(yielding_quit_index);
