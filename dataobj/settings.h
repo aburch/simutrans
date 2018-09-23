@@ -518,7 +518,7 @@ private:
 	/// what is the minimum clearance required under bridges
 	sint8 way_height_clearance;
 
-	// 1 = you can buy any old stuff. 2 = you can NOT buy obsolete stuff
+	// 1 = allow purchase of all out of production vehicles, including obsolete vehicles 2 = allow purchase of out of produciton vehicles that are not obsolete only
 	uint8 allow_buying_obsolete_vehicles;
 	// vehicle value is decrease by this factor/1000 when a vehicle leaved the depot
 	sint16 used_vehicle_reduction;
