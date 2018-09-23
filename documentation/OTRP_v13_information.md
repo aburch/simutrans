@@ -30,6 +30,7 @@ version18現在、simutrans standard nightly r8597をベースにしています
 本体は下のリンクからどうぞ。**（2018年9月23日PM10時　ver18に更新）**  
 windows: https://osdn.net/projects/otrp/downloads/70081/sim-OTRPv18.exe/  
 mac: https://osdn.net/projects/otrp/downloads/70081/sim-mac-OTRPv18.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/70081/sim-linux-OTRPv18.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 OTRP専用のmakeobjはありません。simutrans standardのmakeobjをご利用ください。
