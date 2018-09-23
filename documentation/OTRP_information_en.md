@@ -17,19 +17,17 @@ You should try OTRP because...
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitter hash tag :  [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)  
 
-As of version 17_5, OTRP is based on simutrans standard nightly r8567.
+As of version 18, OTRP is based on simutrans standard nightly r8597.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.  
 
-You can download the OTRP executable binary from the links below. **(2018 September 5th, updated to ver 17_5.)**  
-windows: https://drive.google.com/open?id=1Ob6tr9oSsdid6yxkj0GCFbetJZFZ6daQ  
-mac: https://drive.google.com/open?id=1TqNYDau_n_3R-kMhln0wPh3hZglkBISz  
+You can download the OTRP executable binary from the links below. **(2018 September 23rd, updated to ver 18.)**  
+windows: https://osdn.net/projects/otrp/downloads/70081/sim-OTRPv18.exe/  
+mac: https://osdn.net/projects/otrp/downloads/70081/sim-mac-OTRPv18.zip/  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
-Makeobj to compile a priority signal addon is available below.  
-windows: https://drive.google.com/open?id=1fE5kMvvmcI5fOhg0e3cKMC8dFgzEW9wF  
-mac: https://drive.google.com/open?id=1rkf4Nel4KBR4z7IuclGyDtAeUVZSvpUC
+There is no special makeobj for OTRP. Please one of the simutrans standard.
 
 # Install
 1. Download ribi-arrow and put it into your pakset.
@@ -78,16 +76,6 @@ For citycars, lane affinity signs are valid only when the distance between the s
 <img src="images/fig8.png" width="600">  
 If you put two traffic signs like the image above in the conventional simutrans, vehicles on the north-south road cannot turn right because of the traffic lights. The phase offset can realize this, but using it is not appropriate for this case.  
 In OTRP, you can specify the direction from which vehicles can enter the tile. For example, the settings in the image above enables vehicles to turn right at the intersection properly.
-
-## Priority Signal
-NOTE: This feature is a prelimitary release of [the patch that was proposed on the simutrans international forum](https://forum.simutrans.com/index.php/topic,18400.0.html) . **Depending on decisions of the simutrans development team, names and features can be altered. Also, the compatibility of addon can be lost.**  
-
-A pre-signal checks 2 blocks and indicates red as long as the both blocks are free to enter. A priority signal checks 2 block but indicates green even if the second block is not free. Priority signals can be cascaded. You can control the timing at a train waits for a passing train.  
-To use this, special addons are required. To make those, in dat file, add  
-
-``` is_prioritysignal = 1```  
-
-just as presignals and longblocksignals. Please compile your addons with the dedicated makeobj.
 
 ## etc  
 - The income/cost message can be turned off in the display settings or by assigning a key to simple_tool[38].

@@ -17,9 +17,9 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version17_5現在、simutrans standard nightly r8567をベースにしています。
+version18現在、simutrans standard nightly r8597をベースにしています。
 
-# v17_5をお使いの方へ
+# v18をお使いの方へ
 下のようなエラー画面が出たときは、**エスケープキー or スペースキー or バックスペースキーを押す** と起動を続行できます。  
 <img src="images/fig9.png" width="300">  
 このエラーはpakセット内に同じ名前のアドオンが二回以上出現すると出るエラーです。本家nightly r8565で追加されました。起動した後の挙動は今までと変わりません。
@@ -27,14 +27,12 @@ version17_5現在、simutrans standard nightly r8567をベースにしていま�
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
 
-本体は下のリンクからどうぞ。**（2018年9月5日PM11時　ver17_5に更新）**  
-windows: https://drive.google.com/open?id=1Ob6tr9oSsdid6yxkj0GCFbetJZFZ6daQ  
-mac: https://drive.google.com/open?id=1TqNYDau_n_3R-kMhln0wPh3hZglkBISz    
+本体は下のリンクからどうぞ。**（2018年9月23日PM10時　ver18に更新）**  
+windows: https://osdn.net/projects/otrp/downloads/70081/sim-OTRPv18.exe/  
+mac: https://osdn.net/projects/otrp/downloads/70081/sim-mac-OTRPv18.zip/    
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
-Priority Signal作成用makeobjはこちら（ソースは同じリポジトリです。）  
-windows: https://drive.google.com/open?id=1fE5kMvvmcI5fOhg0e3cKMC8dFgzEW9wF  
-mac: https://drive.google.com/open?id=1rkf4Nel4KBR4z7IuclGyDtAeUVZSvpUC
+OTRP専用のmakeobjはありません。simutrans standardのmakeobjをご利用ください。
 
 # 導入方法
 1. ribi-arrowをDLしてお使いのpakセットに入れる
@@ -85,16 +83,6 @@ OTRPでは標識を使うことで車がどちらの車線を使うか誘導す�
 v13から道路信号の進入許可方向を設定できるようになりました。従来の信号を図のような4車線×2車線の交差点に二つ置くと交差点で車が右折できなくなるので、上図のように進入許可方向を設定してあげるといい感じに右折できるようになります。（例えば図の下側の信号は8ticksの間北・東・南方向への進入を許可し、16ticksの間東・南・西方向への進入を許可するという意味になります。）  
 実際の接続方向は「接続方向」の数字で確認できます。この数字は北=1、東=2、南=4、西=8を足し合わせたもので、例えば北と東方向に開通していれば1+2=3と表示されます。  
 デフォルトでは進入許可方向は南北-東西で設定されていますが、変更すると「南北：東西：オフセット」の文字列は意味を成していないので気になる方はja.tabの「Set phases」を書き換えてください。
-
-## priority signal
-※本機能は [本家フォーラムで提案されたパッチ](https://forum.simutrans.com/index.php/topic,18400.0.html) の先行実装です。**本家フォーラムの決定によっては名称や仕様が変更になったり、アドオンの互換性が失われる可能性があります。**  
-
-プレシグナルは前方2閉塞をチェックし、両閉塞が進入可能でない限りは停止を示します。Priority Signalでは前方2閉塞をチェックしますが、1閉塞めが進入可能で2閉塞めが進入不可能な場合でも進行を現示します。Priority Signalは連続して配置することができます。これにより線路容量を損なうことなく列車の退避判断タイミングを自由に設定できます。  
-利用には専用のアドオンが必要です。Priority Signalアドオンの作成はdatに  
-
-``` is_prioritysignal = 1 ```   
-
-と記述します。プレシグナルや多閉塞と同じような感じです。アドオンはPriority Signal作成用のmakeobjでコンパイルしてください。
 
 ## その他
 - 運賃収受に伴う金額表示をON/OFFできるようになりました。表示設定ウィンドウから切り替えられるほか、simple_tool[38]にキーを割り当てることでも切り替えることができます。
