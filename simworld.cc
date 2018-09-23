@@ -7866,8 +7866,7 @@ void karte_t::save(const char *filename, loadsave_t::mode_t savemode, const char
 {
 DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 	loadsave_t  file;
-	bool save_temp = strstart( filename, "save/" );
-	const char *savename = save_temp ? "save/_temp.sve" : filename;
+	const char *savename = "save/_temp.sve";
 
 	display_show_load_pointer( true );
 	if(env_t::networkmode && !env_t::server && savemode == loadsave_t::bzip2)
@@ -7888,9 +7887,7 @@ DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 			create_win( new news_img(err_str), w_time_delete, magic_none);
 		}
 		else {
-			if(  save_temp  ) {
-				dr_rename( savename, filename );
-			}
+			dr_rename( savename, filename );
 			if(!silent) {
 				create_win( new news_img("Spielstand wurde\ngespeichert!\n"), w_time_delete, magic_none);
 				// update the filename, if no autosave
