@@ -968,17 +968,17 @@ void settings_t::rdwr(loadsave_t *file)
 				frames_per_second = env_t::fps;	// update it on the server to the current setting
 				frames_per_step = env_t::network_frames_per_step;
 			}
-			//if(file->get_extended_version() >= 14 && file->get_extended_revision() > xx)
-			//{
-			//	file->rdwr_byte( allow_buying_obsolete_vehicles);
-			//} else {
-			bool compat = allow_buying_obsolete_vehicles > 0;
-			file->rdwr_bool( compat );
-			allow_buying_obsolete_vehicles = 0;
-			if (compat) {
-				allow_buying_obsolete_vehicles = 1;
+			if(file->get_extended_version() >= 14 && file->get_extended_revision() > 1)
+			{
+				file->rdwr_byte( allow_buying_obsolete_vehicles);
+			} else {
+				bool compat = allow_buying_obsolete_vehicles > 0;
+				file->rdwr_bool( compat );
+				allow_buying_obsolete_vehicles = 0;
+				if (compat) {
+					allow_buying_obsolete_vehicles = 1;
+				}
 			}
-			//}
 			if(file->get_extended_version() < 12 && (file->get_extended_version() >= 8 || file->get_extended_version() == 0))
 			{
 				// Was factory_worker_minimum_towns and factory_worker_maximum_towns
