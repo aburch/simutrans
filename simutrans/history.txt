@@ -1,3 +1,6 @@
+	FIX: Make double pak warning translatable
+
+
 Release of 120.4.1 (r8600 on 23-Sep-2018):
 	FIX: wrong graphics with greedy block signals
 	FIX: world minimum height could not be set
