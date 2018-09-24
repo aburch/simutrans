@@ -15,7 +15,7 @@ class viewport_t;
  * @brief View for the simulated world.
  * @author Hj. Malthaner
  */
-class karte_ansicht_t
+class main_view_t
 {
 private:
 	/// The simulated world this view is associated to.
@@ -27,7 +27,7 @@ private:
 	bool outside_visible;
 
 public:
-	karte_ansicht_t(karte_t *welt);
+	main_view_t(karte_t *welt);
 
 	/**
 	 * Draws the visible world on screen.
