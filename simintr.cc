@@ -212,6 +212,10 @@ char const *tick_to_string( sint64 ticks, bool show_full )
 			case env_t::DATE_FMT_SEASON:
 				sprintf(time, "%s", date);
 				break;
+			case env_t::DATE_FMT_JAPANESE:
+			case env_t::DATE_FMT_JAPANESE_NO_SEASON:
+				sprintf(time, "%s %2d:%02d", date, hours, minuten);
+				break;
 			default:
 				sprintf(time, "%s %2d:%02dh", date, hours, minuten);
 				break;
