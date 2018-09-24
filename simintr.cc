@@ -200,55 +200,29 @@ char const *tick_to_string( sint64 ticks, bool show_full )
 		// @author hsiegeln - updated to show month
 		// @author prissi - also show date if desired
 		// since seasons 0 is always summer for backward compatibility
-		char const* const season = translator::translate(seasons[welt_modell->get_season()]);
-		char const* const month_ = translator::get_month_name(month % 12);
+		char const* const date = translator::get_date(year, month, tage, translator::translate(seasons[welt_modell->get_season()]));
 		switch(env_t::show_month) {
-			case env_t::DATE_FMT_GERMAN_NO_SEASON:
-				sprintf(time, "%d. %s %d %2d:%02dh", tage, month_, year, hours, minuten);
-				break;
-
+			case env_t::DATE_FMT_US:
 			case env_t::DATE_FMT_US_NO_SEASON: {
 				uint32 hours_ = hours % 12;
 				if (hours_ == 0) hours_ = 12;
-				sprintf(time, "%s %d %d %2d:%02d%s", month_, tage, year, hours_, minuten, hours < 12 ? "am" : "pm");
+				sprintf(time, "%s %2d:%02d%s", date, hours_, minuten, hours < 12 ? "am" : "pm");
 				break;
 			}
-
-			case env_t::DATE_FMT_JAPANESE_NO_SEASON:
-				sprintf(time, "%d/%s/%d %2d:%02dh", year, month_, tage, hours, minuten);
-				break;
-
-			case env_t::DATE_FMT_GERMAN:
-				sprintf(time, "%s, %d. %s %d %2d:%02dh", season, tage, month_, year, hours, minuten);
-				break;
-
-			case env_t::DATE_FMT_US: {
-				uint32 hours_ = hours % 12;
-				if (hours_ == 0) hours_ = 12;
-				sprintf(time, "%s, %s %d %d %2d:%02d%s", season, month_, tage, year, hours_, minuten, hours < 12 ? "am" : "pm");
-				break;
-			}
-
-			case env_t::DATE_FMT_JAPANESE:
-				sprintf(time, "%s, %d/%s/%d %2d:%02dh", season, year, month_, tage, hours, minuten);
-				break;
-
-			case env_t::DATE_FMT_MONTH:
-				sprintf(time, "%s, %s %d %2d:%02dh", month_, season, year, hours, minuten);
-				break;
-
 			case env_t::DATE_FMT_SEASON:
-				sprintf(time, "%s %d", season, year);
+				sprintf(time, "%s", date);
 				break;
-
+			default:
+				sprintf(time, "%s %2d:%02dh", date, hours, minuten);
+				break;
 			case env_t::DATE_FMT_INTERNAL_MINUTE:
-				sprintf(time, "%s %d %s %s/%s", season, year, month_, ticks_as_clock, month_as_clock);
+				sprintf(time, "%s %s/%s", date, ticks_as_clock, month_as_clock);
 				break;
 		}
 	}
 	else {
 		if(  ticks == 0  ) {
-			return "now";
+			return translator::translate("now");
 		}
 
 		// suppress as much as possible, assuming this is an relative offset to the current month

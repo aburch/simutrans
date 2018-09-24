@@ -763,7 +763,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append(translator::translate("Built"));
 	buf.append(": ");
 	char tmpbuf_built[40];
-	sprintf(tmpbuf_built, "%s, %i", translator::get_month_name(creation_month_year % 12), creation_month_year / 12);
+	sprintf(tmpbuf_built, "%s", translator::get_year_month(creation_month_year));
 	buf.append(tmpbuf_built);
 	buf.append("\n");
 	if (!degraded)
@@ -776,7 +776,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	}
 	buf.append(": ");
 	char tmpbuf_renewed[40];
-	sprintf(tmpbuf_renewed, "%s, %i", translator::get_month_name(last_renewal_month_year % 12), last_renewal_month_year / 12);
+	sprintf(tmpbuf_renewed, "%s", translator::get_year_month(last_renewal_month_year));
 	buf.append(tmpbuf_renewed);
 	buf.append("\n");
 	buf.append(translator::translate("To be renewed with"));
