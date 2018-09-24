@@ -124,6 +124,12 @@ public:
 
 	// return the name of the month
 	static const char *get_month_name(uint16 month);
+
+	/**
+	 * Translates year_month number to month year string.
+	 * If Japanese style, change the order.
+	 */
+	static const char *translator::get_year_month(uint16 year_month);
 };
 
 #endif

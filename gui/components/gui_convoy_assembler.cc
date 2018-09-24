@@ -2166,19 +2166,17 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		n = 0;
 		linespace_skips = 0;
 		
-		n += sprintf( buf + n, "%s %s %04d\n",
+		n += sprintf( buf + n, "%s %s\n",
 			translator::translate("Intro. date:"),
-			translator::get_month_name( veh_type->get_intro_year_month() % 12 ),
-			veh_type->get_intro_year_month() / 12
+			translator::get_year_month( veh_type->get_intro_year_month())
 			);
 
 		if(  veh_type->get_retire_year_month() != DEFAULT_RETIRE_DATE * 12  )
 		{
-			n += sprintf( buf + n, "%s %s %04d\n",
+			n += sprintf( buf + n, "%s %s\n",
 				translator::translate("Retire. date:"),
-				translator::get_month_name( veh_type->get_retire_year_month() % 12 ),
-				veh_type->get_retire_year_month() / 12
-				);
+				translator::get_year_month( veh_type->get_retire_year_month())
+			);
 		}
 		else 
 		{
