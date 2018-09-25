@@ -127,7 +127,7 @@ public:
 		uint16 condmet = 0;
 		switch(site) {
 			case factory_desc_t::forest:
-				mincond = w*h; // at least w*h trees
+				mincond = w*h+w+h; // at least w*h+w+h trees, i.e. few tiles with more than one tree
 				break;
 
 			case factory_desc_t::shore:
@@ -137,8 +137,9 @@ public:
 				mincond = 1;
 		}
 
-		for (sint16 y = -1;  y < h; y++) {
-			for (sint16 x = -1; x < w; x++) {
+		// needs to run one tile wider than the factory on all sides
+		for (sint16 y = -1;  y <= h; y++) {
+			for (sint16 x = -1; x <= w; x++) {
 				koord k(pos + koord(x,y));
 				grund_t *gr = welt->lookup_kartenboden(k);
 				if (!gr) {
@@ -148,8 +149,8 @@ public:
 				if( is_factory_at(k.x, k.y)  ) {
 					return false;
 				}
-				if (	0 <= x  &&  x < w-1  &&  0 <= y  &&  y < h-1) {
-					// not at border: is there something top like elevated monorails?
+				if(  0 <= x  &&  x < w  &&  0 <= y  &&  y < h  ) {
+					// actual factorz tile: is there something top like elevated monorails?
 					if(  gr->get_leitung()!=NULL  ||  welt->lookup(gr->get_pos()+koord3d(0,0,1)  )!=NULL) {
 						// something on top (monorail or power lines)
 						return false;
@@ -164,8 +165,8 @@ public:
 					}
 				}
 				else {
-					// border but not corner: check for road, shore, river
-					if (condmet < mincond  &&  (0 <= x  ||  x < w-1)  &&  (0 <= y  ||  y < h-1)) {
+					// border tile: check for road, shore, river
+					if(  condmet < mincond  &&  (-1==x  ||  x==w)  &&  (-1==y  ||  y==h)  ) {
 						switch (site) {
 							case factory_desc_t::City:
 								condmet += gr->hat_weg(road_wt);
@@ -192,6 +193,9 @@ public:
 					}
 				}
 			}
+		}
+		if(  site==factory_desc_t::forest  &&  condmet>=3  ) {
+			dbg->message("", "found %d at %s", condmet, pos.get_str() );
 		}
 		return condmet >= mincond;
 	}
@@ -409,8 +413,8 @@ koord3d factory_builder_t::find_random_construction_site(koord pos, int radius, 
 		}
 	}
 	// nothing found
-	if (site != factory_desc_t::Water && site != factory_desc_t::Land) {
-		DBG_MESSAGE("factory_builder_t::find_random_construction_site","No spot found for %d near %s / %d\n", site, pos.get_str(), max_iterations);
+	if (site != factory_desc_t::Water  &&  site != factory_desc_t::Land) {
+		DBG_MESSAGE("factory_builder_t::find_random_construction_site","No spot found for location %d of %s near %s / %d\n", site, desc->get_name(), pos.get_str(), max_iterations);
 	}
 	return koord3d::invalid;
 
