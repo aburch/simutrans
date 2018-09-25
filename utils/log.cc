@@ -245,7 +245,7 @@ void log_t::doubled(const char *what, const char *name )
 		}
 #endif
 	}
-	doublettes = doublettes+"Object "+what+"::"+name+" is overlaid!<br>";
+	doublettes.append( (std::string)what+"::"+name+"<br/>" );
 }
 
 
