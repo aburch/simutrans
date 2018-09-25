@@ -724,6 +724,7 @@ const char *translator::get_date(uint16 year, uint16 month, uint16 day, char con
 		sprintf(date, "%s %d%s", season, year, year_sym);
 		break;
 	case env_t::DATE_FMT_INTERNAL_MINUTE: // Extended unique
+	case env_t::DATE_FMT_JAPANESE_INTERNAL_MINUTE: // Extended unique
 		sprintf(date, "%s %d%s %s", season, year, year_sym, month_);
 		break;
 	}
@@ -758,6 +759,7 @@ const char *translator::get_year_month(uint16 year_month)
 			break;
 		case env_t::DATE_FMT_JAPANESE:
 		case env_t::DATE_FMT_JAPANESE_NO_SEASON:
+		case env_t::DATE_FMT_JAPANESE_INTERNAL_MINUTE: // Extended unique
 			if (year_sym == "") {
 				year_sym = "/";
 				mon_sym = "";
