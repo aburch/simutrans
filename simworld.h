@@ -56,7 +56,7 @@ class gebaeude_t;
 class zeiger_t;
 class grund_t;
 class planquadrat_t;
-class karte_ansicht_t;
+class main_view_t;
 class interaction_t;
 class sync_steppable;
 class tool_t;
@@ -450,7 +450,7 @@ private:
 	/**
 	 * Attached view to this world.
 	 */
-	karte_ansicht_t *view;
+	main_view_t *view;
 
 	/**
 	 * Event manager of this world.
@@ -1151,7 +1151,7 @@ public:
 	/**
 	 * Gets the world view.
 	 */
-	karte_ansicht_t *get_view() const { return view; }
+	main_view_t *get_view() const { return view; }
 
 	/**
 	 * Gets the world viewport.
@@ -1161,7 +1161,7 @@ public:
 	/**
 	 * Sets the world view.
 	 */
-	void set_view(karte_ansicht_t *v) { view = v; }
+	void set_view(main_view_t *v) { view = v; }
 
 	/**
 	 * Sets the world event manager.

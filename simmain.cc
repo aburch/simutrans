@@ -116,7 +116,7 @@ static void show_sizes()
 
 
 // render tests ...
-static void show_times(karte_t *welt, karte_ansicht_t *view)
+static void show_times(karte_t *welt, main_view_t *view)
 {
  	intr_set(welt, view);
 	welt->set_fast_forward(true);
@@ -1206,7 +1206,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 	}
 
 	karte_t *welt = new karte_t();
-	karte_ansicht_t *view = new karte_ansicht_t(welt);
+	main_view_t *view = new main_view_t(welt);
 	welt->set_view( view );
 
 	interaction_t *eventmanager = new interaction_t();

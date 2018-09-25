@@ -438,7 +438,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			buf.clear();
 			{
 				const sint32 month = v->get_purchase_time();
-				buf.printf("%s %s %i", translator::translate("Manufactured:"), translator::get_month_name(month % 12), month / 12);
+				buf.printf("%s %s", translator::translate("Manufactured:"), translator::get_year_month(month));
 			}
 			display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			extra_y += LINESPACE;

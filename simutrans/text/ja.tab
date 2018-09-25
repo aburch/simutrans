@@ -670,6 +670,8 @@ Currently playing:
 演奏中の曲：
 Customers live in:
 顧客居住地:
+DAY_SYMBOL
+日
 Deccelerate time
 ゲームスピードを遅くする
 December
@@ -1028,6 +1030,8 @@ Monument
 モニュメント
 Monuments
 モニュメント
+MON_SYMBOL
+月
 Mountain height
 起伏の高さ：
 Movingobj
@@ -1512,6 +1516,8 @@ Winter snowline
 積雪高度
 Withdraw All
 すべて引退
+YEAR_SYMBOL
+年
 Year %i has started.
 %i年になりました。
 Years
