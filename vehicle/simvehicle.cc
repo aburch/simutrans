@@ -684,7 +684,7 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 		break;
 	}
 	// Search vehicle
-	for(  uint8 pos=1;  pos<(/*volatile*/ uint8)gr->get_top();  pos++  ) {
+	for(  uint8 pos=1;  pos < gr->get_top();  pos++  ) {
 		if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
 			if(  v->get_typ()==obj_t::pedestrian  ) {
 				continue;
@@ -3680,7 +3680,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					cnv->suche_neue_route();
 					return false;
 				}
-				for(  uint8 pos=1;  pos<(volatile uint8)grn->get_top();  pos++  ){
+				for(  uint8 pos=1;  pos < grn->get_top();  pos++  ){
 					if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(grn->obj_bei(pos))  ){
 						if(  v->get_typ()==obj_t::pedestrian  ) {
 							continue;
@@ -4152,7 +4152,7 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 				break;
 			}
 
-			for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
+			for(  uint8 pos=1;  pos < gr->get_top();  pos++  ) {
 				if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
 					if(  v->get_typ()==obj_t::pedestrian  ) {
 						continue;

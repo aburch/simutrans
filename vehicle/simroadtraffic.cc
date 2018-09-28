@@ -723,7 +723,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 			sg[0] = welt->lookup(pos_next);
 			sg[1] = welt->lookup(pos_next_next);
 			for(uint8 i = 0; i < 2; i++) {
-				for(  uint8 pos=1;  pos<(volatile uint8)sg[i]->get_top();  pos++  ) {
+				for(  uint8 pos=1;  pos < sg[i]->get_top();  pos++  ) {
 					if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(sg[i]->obj_bei(pos))  ) {
 						ribi_t:: ribi other_direction = 255;
 						if(  road_vehicle_t const* const at = obj_cast<road_vehicle_t>(v)  ) {
@@ -1557,7 +1557,7 @@ vehicle_base_t* private_car_t::is_there_car (grund_t *gr) const
 		dbg->error( "private_car_t::is_there_car", "grund is invalid!" );
 	}
 	assert(  gr  );
-	for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
+	for(  uint8 pos=1;  pos < gr->get_top();  pos++  ) {
 		if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
 			if(  v->get_typ()==obj_t::pedestrian  ) {
 				continue;
