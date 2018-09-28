@@ -2738,6 +2738,8 @@ Unpowered vehicles only
 動力車がありません
 Upgrade
 改造/更新
+Upgrade price:
+改造費用:
 Usage: %u %%
 電力使用率 %u %%
 Use any vehicles already present in the depot, if available, instead of buying new ones or upgrading.

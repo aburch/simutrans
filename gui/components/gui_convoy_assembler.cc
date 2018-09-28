@@ -225,7 +225,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 
 	bt_outdated.set_typ(button_t::square);
 	bt_outdated.set_text("Show outdated");
-	if ( welt->get_settings().get_allow_buying_obsolete_vehicles() ) {
+	if (welt->use_timeline() && welt->get_settings().get_allow_buying_obsolete_vehicles() ) {
 		bt_outdated.add_listener(this);
 		bt_outdated.set_tooltip("Show also vehicles no longer in production.");
 		add_component(&bt_outdated);
@@ -233,7 +233,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 
 	bt_obsolete.set_typ(button_t::square);
 	bt_obsolete.set_text("Show obsolete");
-	if(  welt->get_settings().get_allow_buying_obsolete_vehicles() == 1 ) {
+	if(welt->use_timeline() && welt->get_settings().get_allow_buying_obsolete_vehicles() == 1 ) {
 		bt_obsolete.add_listener(this);
 		bt_obsolete.set_tooltip("Show also vehicles whose maintenance costs have increased due to obsolescence.");
 		add_component(&bt_obsolete);
@@ -1995,7 +1995,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		n += sprintf(buf + n, "\n");
 
 		// Cost information:
-		// TODO: differentiate between "buy new" value and "upgrade to" value
 		char tmp[128];
 		money_to_string(tmp, veh_type->get_value() / 100.0, false);
 		char resale_entry[32] = "\0";
@@ -2003,6 +2002,15 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			char tmp[128];
 			money_to_string(tmp, resale_value / 100.0, false);
 			sprintf(resale_entry, "(%s %8s)", translator::translate("Restwert:"), tmp);
+		}
+		else if (depot_frame && (veh_action == va_upgrade || show_all && veh_type->is_available_only_as_upgrade())) {
+			char tmp[128];
+			double upgrade_price = veh_type->get_upgrade_price();
+			if (veh_type->is_available_only_as_upgrade() && !upgrade_price) {
+				upgrade_price = veh_type->get_value();
+			}
+			money_to_string(tmp, upgrade_price / 100.0, false);
+			sprintf(resale_entry, "(%s %8s)", translator::translate("Upgrade price:"), tmp);
 		}
 		n += sprintf(buf + n, translator::translate("Cost: %8s %s"), tmp, resale_entry);
 		n += sprintf(buf + n, "\n");
