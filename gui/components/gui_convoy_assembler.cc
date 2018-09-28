@@ -225,7 +225,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 
 	bt_outdated.set_typ(button_t::square);
 	bt_outdated.set_text("Show outdated");
-	if ( welt->get_settings().get_allow_buying_obsolete_vehicles() ) {
+	if (welt->use_timeline() && welt->get_settings().get_allow_buying_obsolete_vehicles() ) {
 		bt_outdated.add_listener(this);
 		bt_outdated.set_tooltip("Show also vehicles no longer in production.");
 		add_component(&bt_outdated);
@@ -233,7 +233,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 
 	bt_obsolete.set_typ(button_t::square);
 	bt_obsolete.set_text("Show obsolete");
-	if(  welt->get_settings().get_allow_buying_obsolete_vehicles() == 1 ) {
+	if(welt->use_timeline() && welt->get_settings().get_allow_buying_obsolete_vehicles() == 1 ) {
 		bt_obsolete.add_listener(this);
 		bt_obsolete.set_tooltip("Show also vehicles whose maintenance costs have increased due to obsolescence.");
 		add_component(&bt_obsolete);
