@@ -1995,7 +1995,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		n += sprintf(buf + n, "\n");
 
 		// Cost information:
-		// TODO: differentiate between "buy new" value and "upgrade to" value
 		char tmp[128];
 		money_to_string(tmp, veh_type->get_value() / 100.0, false);
 		char resale_entry[32] = "\0";
@@ -2003,6 +2002,15 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			char tmp[128];
 			money_to_string(tmp, resale_value / 100.0, false);
 			sprintf(resale_entry, "(%s %8s)", translator::translate("Restwert:"), tmp);
+		}
+		else if (depot_frame && (veh_action == va_upgrade || show_all && veh_type->is_available_only_as_upgrade())) {
+			char tmp[128];
+			double upgrade_price = veh_type->get_upgrade_price();
+			if (veh_type->is_available_only_as_upgrade() && !upgrade_price) {
+				upgrade_price = veh_type->get_value();
+			}
+			money_to_string(tmp, upgrade_price / 100.0, false);
+			sprintf(resale_entry, "(%s %8s)", translator::translate("Upgrade price:"), tmp);
 		}
 		n += sprintf(buf + n, translator::translate("Cost: %8s %s"), tmp, resale_entry);
 		n += sprintf(buf + n, "\n");
