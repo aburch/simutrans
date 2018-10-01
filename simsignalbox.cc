@@ -232,14 +232,14 @@ koord signalbox_t::transfer_all_signals(signalbox_t* sb)
 
 			if(!s->get_desc()->get_working_method() != moving_block)
 			{
-				if (s->get_desc()->get_max_distance_to_signalbox() != 0 && ((s->get_desc()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d())))
+				if (s->get_desc()->get_max_distance_to_signalbox() != 0 && sb && ((s->get_desc()->get_max_distance_to_signalbox() / welt->get_settings().get_meters_per_tile()) < shortest_distance(s->get_pos().get_2d(), sb->get_pos().get_2d())))
 				{
 					failure++;
 					continue;
 				}
 			}
 
-			if(sb->transfer_signal(s, this))
+			if(sb && sb->transfer_signal(s, this))
 			{
 				success++;
 			}

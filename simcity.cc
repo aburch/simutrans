@@ -4666,7 +4666,7 @@ gebaeude_t* stadt_t::check_tiles_height(gebaeude_t* building, koord pos, uint8 l
 			if(!gr) {
 				dbg->error("stadt_t::check_height_and_rebuild()", "ground not found! pos:%s", (pos+koord(x,y)).get_str());
 			}
-			const gebaeude_t* bldg = gr->get_building();
+			const gebaeude_t* bldg = gr ? gr->get_building() : NULL;
 			if(bldg) {
 				if(!bldg->is_city_building()) {
 					dbg->error("stadt_t::check_height_and_rebuild()", "building is not a city building! pos:%s", (pos+koord(x,y)).get_str());

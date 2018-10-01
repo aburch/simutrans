@@ -83,7 +83,7 @@ road_user_t::road_user_t(grund_t* bd, uint16 random) :
 #endif
 	, tiles_since_last_increment(0)
 {
-	ribi_t::ribi road_ribi = bd->get_weg_ribi(road_wt);
+	ribi_t::ribi road_ribi = bd ? bd->get_weg_ribi(road_wt) : ribi_t::all;
 
 	weg_next = random;
 
@@ -1539,7 +1539,7 @@ vehicle_base_t* private_car_t::other_lane_blocked(const bool only_search_top) co
 		// rear check should be written here...
 		for(uint8 r = 0; r < 4; r++) {
 			grund_t *to = NULL;
-			if(  gr->get_neighbour(to, road_wt, ribi_t::nsew[r])  ) {
+			if( gr && gr->get_neighbour(to, road_wt, ribi_t::nsew[r])  ) {
 				if(  to  ) {
 					if(  vehicle_base_t* v = is_there_car(gr)  ) {
 						return v;

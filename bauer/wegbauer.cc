@@ -2694,7 +2694,7 @@ void way_builder_t::build_track()
 							cost = 0;
 						}
 						// respect max speed of catenary
-						wayobj_t const* const wo = gr->get_wayobj(desc->get_wtyp());
+						wayobj_t const* const wo = gr ? gr->get_wayobj(desc->get_wtyp()) : NULL;
 						if (wo  &&  wo->get_desc()->get_topspeed() < weg->get_max_speed()) {
 							weg->set_max_speed( wo->get_desc()->get_topspeed() );
 						}
@@ -2874,7 +2874,7 @@ void way_builder_t::build_river()
 		if(  gr_first == NULL) {
 			gr_first = gr;
 		}
-		if(  gr->get_typ()!=grund_t::wasser  ) {
+		if( gr && gr->get_typ()!=grund_t::wasser  ) {
 			// get direction
 			ribi_t::ribi ribi = i<end_n-1 ? route.get_short_ribi(i) : ribi_type(route[i-1]-route[i]);
 			bool extend = gr->weg_erweitern(water_wt, ribi);

@@ -211,7 +211,7 @@ void tunnel_t::finish_rd()
 			}
 			player_t::add_maintenance( player, -weg->get_desc()->get_maintenance(), weg->get_desc()->get_finance_waytype());
 		}
-		leitung_t *lt = gr->get_leitung();
+		leitung_t *lt = gr ? gr->get_leitung() : NULL;
 		if(lt) {
 			player_t::add_maintenance( player, -lt->get_desc()->get_maintenance(), powerline_wt );
 		}

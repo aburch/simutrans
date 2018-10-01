@@ -4469,7 +4469,7 @@ rail_vehicle_t::~rail_vehicle_t()
 		route_t & r = *cnv->get_route();
 		if (!r.empty() && route_index < r.get_count()) {
 			// free all reserved blocks
-			uint16 dummy;
+			uint16 dummy = 0;
 			block_reserver(&r, cnv->back()->get_route_index(), dummy, dummy, target_halt.is_bound() ? 100000 : 1, false, false);
 		}
 	}
@@ -5466,7 +5466,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 
 		// next check for signal
-		if(sch1->has_signal())
+		if(sch1 && sch1->has_signal())
 		{
 			const uint16 check_route_index = next_block <= 0 ? 0 : next_block - 1u;
 			max_element = min(max_element, cnv->get_route()->get_count() - 1u);
@@ -5609,10 +5609,10 @@ void rail_vehicle_t::find_next_signal(route_t* route, uint16 start_index, uint16
 		grund_t *gr = welt->lookup(pos);
 		schiene_t* sch1 = gr ? (schiene_t *)gr->get_weg(get_waytype()) : NULL;
 
-		if (sch1->has_signal())
+		if (sch1 && sch1->has_signal())
 		{
 			ribi_t::ribi ribi = ribi_type(route->at(max(1u, i) - 1u), route->at(min(route->get_count() - 1u, i + 1u)));
-			signal = gr->get_weg(get_waytype())->get_signal(ribi);
+			signal = gr ? gr->get_weg(get_waytype())->get_signal(ribi) : NULL;
 			if (signal && !signal->get_desc()->is_pre_signal())
 			{
 				next_signal_index = i;
@@ -7330,7 +7330,7 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 	{
 		w->set_working_method(sig->get_desc()->get_working_method());
 	}
-	if(cnv->get_needs_full_route_flush())
+	if(cnv && cnv->get_needs_full_route_flush())
 	{
 		// The route has been recalculated since token block mode was entered, so delete all the reservations.
 		// Do not unreserve tiles ahead in the route (i.e., those not marked stale), however.
@@ -7354,9 +7354,9 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 		const bool is_one_train_staff = sig && sig->get_desc()->get_working_method() == one_train_staff;
 		for(int i = route_index - 1; i >= 0; i--)
 		{
-			grund_t* gr_route = welt->lookup(route->at(i));
+			grund_t* gr_route = route ? welt->lookup(route->at(i)) : NULL;
 			schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
-			if (!is_one_train_staff && !sch_route->is_reserved() || sch_route->get_reserved_convoi() != cnv->self)
+			if (!is_one_train_staff && !sch_route->is_reserved() || (sch_route && sch_route->get_reserved_convoi() != cnv->self))
 			{
 				break_now ++;
 			}
@@ -7376,7 +7376,7 @@ void rail_vehicle_t::unreserve_in_rear()
 {
 	route_t* route = cnv ? cnv->get_route() : NULL;
 
-	route_index = min(route_index, route->get_count() - 1);
+	route_index = min(route_index, route ? route->get_count() - 1 : route_index);
 
 	for (int i = route_index - 1; i >= 0; i--)
 	{
@@ -7400,7 +7400,7 @@ void rail_vehicle_t::unreserve_station()
 	bool in_station = gr->get_halt().is_bound();
 
 	route_t* route = cnv ? cnv->get_route() : NULL;
-	route_index = min(route_index, route->get_count() - 1);
+	route_index = min(route_index, route ? route->get_count() - 1 : route_index); 
 	if (route->get_count() < route_index || route->empty())
 	{
 		// The route has been recalculated, so we cannot

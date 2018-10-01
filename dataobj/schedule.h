@@ -370,8 +370,9 @@ public:
 	waytype_t get_waytype() const { return narrowgauge_wt; }
 };
 
-struct departure_point_t
+class departure_point_t
 {
+public:
 	union { sint16 entry;    sint16 x; };
 	union { sint16 reversed; sint16 y; };
 
