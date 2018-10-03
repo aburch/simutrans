@@ -2429,7 +2429,7 @@ void rail_vehicle_t::set_convoi(convoi_t *c)
 					target_halt = halthandle_t();
 				}
 			}
-			else if(  c->get_next_reservation_index()==0  ) {
+			else if(  c->get_next_reservation_index()==0  &&  c->is_reservation_empty()  ) {
 				assert(c!=NULL);
 				// eventually search new route
 				route_t const& r = *c->get_route();
@@ -2458,11 +2458,13 @@ void rail_vehicle_t::set_convoi(convoi_t *c)
 // need to reset halt reservation (if there was one)
 bool rail_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
+	/*
 	if(leading  &&  route_index<cnv->get_route()->get_count()) {
 		// free all reserved blocks
 		uint16 dummy;
 		block_reserver(cnv->get_route(), cnv->back()->get_route_index(), dummy, dummy, target_halt.is_bound() ? 100000 : 1, false, true);
 	}
+	*/
 	cnv->set_next_reservation_index( 0 );	// nothing to reserve
 	target_halt = halthandle_t();	// no block reserved
 	// use length 8888 tiles to advance to the end of all stations
@@ -2594,7 +2596,7 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 {
 	// longblock signal: first check, whether there is a signal coming up on the route => just like normal signal
 	uint16 next_signal, next_crossing;
-	if(  !block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
+	if(  !block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false, true )  ) {
 		// not even the "Normal" signal route part is free => no bother checking further on
 		sig->set_state( roadsign_t::rot );
 		restart_speed = 0;
@@ -2612,6 +2614,22 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 	if(  !cnv->is_waiting()  ) {
 		restart_speed = -1;
 		return false;
+	}
+	
+	// now we have to maintain reservation with reserved_tiles, that is slower than using next_reservation_index
+	// copy all tiles that are already reserved
+	bool add_pos = false;
+	vector_tpl<koord3d> tiles_convoy_on;
+	for(  uint16 i=0;  i<cnv->get_vehicle_count();  i++  ) {
+		tiles_convoy_on.append_unique(cnv->get_vehikel(i)->get_pos());
+	}
+	for(  uint16 i=0;  i<next_block+1  &&  i<cnv->get_route()->get_count();  i++  ) {
+		if(  !add_pos  &&  tiles_convoy_on.is_contained(cnv->get_route()->at(i))  ) {
+			add_pos = true;
+		}
+		if(  add_pos  ) {
+			cnv->reserve_pos(cnv->get_route()->at(i));
+		}
 	}
 
 	// now we can use the route search array
@@ -2632,18 +2650,13 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 			break;
 		}
 		if(  success  ) {
-			success = block_reserver( &target_rt, 1, next_next_signal, dummy, 0, true, false );
-			block_reserver( &target_rt, 1, dummy, dummy, 0, false, false );
+			success = block_reserver( &target_rt, 1, next_next_signal, dummy, 0, true, false, true );
 		}
 
 		if(  success  ) {
 			// ok, would be free
 			if(  next_next_signal<target_rt.get_count()  ) {
 				// and here is a signal => finished
-				// (however, if it is this signal, we need to renew reservation ...
-				if(  target_rt.at(next_next_signal) == cnv->get_route()->at( next_block )  ) {
-					block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false );
-				}
 				sig->set_state( roadsign_t::gruen );
 				cnv->set_next_stop_index( min( min( next_crossing, next_signal ), cnv->get_route()->get_count() ) );
 				return true;
@@ -2651,7 +2664,19 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 		}
 
 		if(  !success  ) {
-			block_reserver( cnv->get_route(), next_block+1, next_next_signal, dummy, 0, false, false );
+			// unreserve tiles which we reserved in this routine.
+			// find the index from which we unreserve the tiles.
+			sint32 start_idx;
+			for(  start_idx=0;  start_idx<(sint32)cnv->get_reserved_tiles().get_count()  &&  cnv->get_reserved_tiles()[start_idx]!=cnv->get_route()->at(next_block+1);  start_idx++  );
+			// now we unreserve the tiles
+			for(  sint32 i=cnv->get_reserved_tiles().get_count()-1;  i>=start_idx;  i--  ) {
+				grund_t* gr = welt->lookup(cnv->get_reserved_tiles()[i]);
+				schiene_t* sch1 = gr ? (schiene_t*)gr->get_weg(get_waytype()) : NULL;
+				if(  sch1  ) {
+					sch1->unreserve(cnv->self);
+				}
+				cnv->get_reserved_tiles().remove_at(i);
+			}
 			sig->set_state( roadsign_t::rot );
 			restart_speed = 0;
 			return false;
@@ -3019,7 +3044,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
  * return the last checked block
  * @author prissi
  */
-bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal_index, uint16 &next_crossing_index, int count, bool reserve, bool force_unreserve  ) const
+bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal_index, uint16 &next_crossing_index, int count, bool reserve, bool force_unreserve, bool use_vector  ) const
 {
 	bool success=true;
 #ifdef MAX_CHOOSE_BLOCK_TILES
@@ -3073,6 +3098,9 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 			if(  !sch1->reserve( cnv->self, ribi_type( route->at(max(1u,i)-1u), route->at(min(route->get_count()-1u,i+1u)) ) )  ) {
 				success = false;
 			}
+			else if(  use_vector  ){
+				cnv->reserve_pos(pos);
+			}
 			if(next_crossing_index==INVALID_INDEX  &&  sch1->is_crossing()) {
 				next_crossing_index = i;
 			}
@@ -3087,6 +3115,8 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 			else {
 				// un-reserve from here (used during sale, since there might be reserved tiles not freed)
 				unreserve_now = !force_unreserve;
+				// If reservation is controlled by next_reservation_index, this does nothing.
+				cnv->unreserve_pos(pos);
 			}
 			if(sch1->has_signal()) {
 				signal_t* signal = gr->find<signal_t>();
@@ -3113,6 +3143,7 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 		for ( int j=start_index; j<i; j++) {
 			schiene_t * sch1 = (schiene_t *)welt->lookup( route->at(j))->get_weg(get_waytype());
 			sch1->unreserve(cnv->self);
+			cnv->unreserve_pos(route->at(j));
 		}
 		cnv->set_next_reservation_index( start_index );
 		return false;
@@ -3141,6 +3172,10 @@ void rail_vehicle_t::leave_tile()
 			schiene_t *sch0 = (schiene_t *) gr->get_weg(get_waytype());
 			if(sch0) {
 				sch0->unreserve(this);
+				if(  cnv  ) {
+					// If reservation is controlled by next_reservation_index, this does nothing.
+					cnv->unreserve_pos(get_pos());
+				}
 				// tell next signal?
 				// and switch to red
 				if(sch0->has_signal()) {
