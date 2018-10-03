@@ -2458,13 +2458,6 @@ void rail_vehicle_t::set_convoi(convoi_t *c)
 // need to reset halt reservation (if there was one)
 bool rail_vehicle_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
-	/*
-	if(leading  &&  route_index<cnv->get_route()->get_count()) {
-		// free all reserved blocks
-		uint16 dummy;
-		block_reserver(cnv->get_route(), cnv->back()->get_route_index(), dummy, dummy, target_halt.is_bound() ? 100000 : 1, false, true);
-	}
-	*/
 	cnv->set_next_reservation_index( 0 );	// nothing to reserve
 	target_halt = halthandle_t();	// no block reserved
 	// use length 8888 tiles to advance to the end of all stations
@@ -3099,6 +3092,7 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 				success = false;
 			}
 			else if(  use_vector  ){
+				// use reserved_tiles instead of next_reservation_index to hold reservations.
 				cnv->reserve_pos(pos);
 			}
 			if(next_crossing_index==INVALID_INDEX  &&  sch1->is_crossing()) {

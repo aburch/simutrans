@@ -262,6 +262,7 @@ void convoi_t::unreserve_route()
 			// free all reserved blocks
 			uint16 dummy;
 			lok->block_reserver(get_route(), back()->get_route_index(), dummy, dummy,  100000, false, true);
+			// free all tiles held by reserved_tiles
 			if(  reserved_tiles.get_count()>0  ) {
 				vector_tpl<koord3d> tiles_convoy_on;
 				for(  uint16 i=0;  i<anz_vehikel;  i++  ) {
@@ -2599,7 +2600,7 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(  file->get_version()>=120008  ) {
 		uint32 count = reserved_tiles.get_count();
 		file->rdwr_long(count);
-		if(  file->is_loading()  ) {
+		if(  file->is_loading()  ) { // reading
 			reserved_tiles.clear();
 			for(  uint32 i=0;  i<count;  i++  ) {
 				koord3d pos;
