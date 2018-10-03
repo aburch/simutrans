@@ -431,6 +431,7 @@ int simu_main(int argc, char** argv)
 			"command line parameters available: \n"
 			" -addons             loads also addons (with -objects)\n"
 			" -async              asynchronous images, only for SDL\n"
+			" -showoverlay        show warning of overlaid addons\n"
 			" -use_hw             hardware double buffering, only for SDL\n"
 			" -debug NUM          enables debugging (1..5)\n"
 			" -easyserver         set up every for server (query own IP, port forwarding)\n"
@@ -1053,6 +1054,16 @@ int simu_main(int argc, char** argv)
 	else if(  found_settings  ) {
 		translator::set_language( env_t::language_iso );
 	}
+	
+	// THLeaderH: show overlaid_warning only when requested.
+	bool show_overlaid_warning = false;
+	if(  gimme_arg(argc, argv, "-showoverlay", 0)  ) {
+		show_overlaid_warning = true;
+	}
+	// always show warning when this is server mode.
+	else if(  !env_t::server  ){
+		dbg->message("simmain()","overlaid warning is disabled.");
+	}
 
 	// Hajo: simgraph init loads default fonts, now we need to load (if not set otherwise)
 	sprachengui_t::init_font_from_lang( strcmp(env_t::fontname.c_str(), FONT_PATH_X "prop.fnt")==0 );
@@ -1093,7 +1104,7 @@ int simu_main(int argc, char** argv)
 	pakset_info_t::calculate_checksum();
 	pakset_info_t::debug();
 
-	if(  !overlaid_warning.empty()  ) {
+	if(  !overlaid_warning.empty()  &&  (show_overlaid_warning  ||  env_t::server)  ) {
 		overlaid_warning.append( "<p>Continue by ESC, SPACE, or BACKSPACE.<br>" );
 		help_frame_t *win = new help_frame_t();
 		win->set_text( overlaid_warning.c_str() );
