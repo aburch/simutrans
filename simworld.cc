@@ -8248,7 +8248,7 @@ void karte_t::save(const char *filename, loadsave_t::mode_t savemode, const char
 DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 	loadsave_t  file;
 	std::string savename = filename;
-	savename.back() = '_';
+	savename[savename.length()-1] = '_';
 
 	display_show_load_pointer( true );
 	if(env_t::networkmode && !env_t::server && savemode == loadsave_t::bzip2)
