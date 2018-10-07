@@ -251,6 +251,13 @@ private:
 	 * @author prissi
 	 */
 	uint16 next_reservation_index;
+	
+	/**
+	 * This holds coordinates reserved by this convoy.
+	 * Used when reservation is triggered by longblocksignal.
+	 * @author THLeaderH
+	 */
+	vector_tpl<koord3d> reserved_tiles;
 
 	/**
 	 * The convoi is not processed every sync step for various actions
@@ -874,6 +881,15 @@ public:
 	 */
 	uint16 get_next_reservation_index() const {return next_reservation_index;}
 	void set_next_reservation_index(uint16 n);
+	
+	/* these functions modify only reserved_tiles.
+	 * reservation of tiles has to be done separately.
+	 * @author THLeaderH
+	 */
+	void unreserve_pos(koord3d pos) { reserved_tiles.remove(pos); }
+	void reserve_pos(koord3d pos) {reserved_tiles.append_unique(pos); }
+	bool is_reservation_empty() const { return reserved_tiles.empty(); }
+	vector_tpl<koord3d>& get_reserved_tiles() { return reserved_tiles; }
 
 	/* the current state of the convoi */
 	PIXVAL get_status_color() const;

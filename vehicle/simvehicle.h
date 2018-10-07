@@ -613,7 +613,7 @@ public:
 
 	// reserves or un-reserves all blocks and returns the handle to the next block (if there)
 	// returns true on successful reservation
-	bool block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal, uint16 &next_crossing, int signal_count, bool reserve, bool force_unreserve ) const;
+	bool block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal, uint16 &next_crossing, int signal_count, bool reserve, bool force_unreserve, bool use_vector = false ) const;
 
 	void leave_tile();
 
