@@ -17,15 +17,15 @@ You should try OTRP because...
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitter hash tag :  [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)  
 
-As of version 18, OTRP is based on simutrans standard nightly r8597.
+As of version 18_1, OTRP is based on simutrans standard nightly r8605.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.  
 
-You can download the OTRP executable binary from the links below. **(2018 September 23rd, updated to ver 18.)**  
-windows: https://osdn.net/projects/otrp/downloads/70081/sim-OTRPv18.exe/  
-mac: https://osdn.net/projects/otrp/downloads/70081/sim-mac-OTRPv18.zip/  
-Linux: https://osdn.net/projects/otrp/downloads/70081/sim-linux-OTRPv18.zip/  
+You can download the OTRP executable binary from the links below. **(2018 October 7th, updated to ver 18_1.)**  
+windows: https://osdn.net/projects/otrp/downloads/70144/sim-win-OTRPv18_1.exe/  
+mac: https://osdn.net/projects/otrp/downloads/70144/sim-mac-OTRPv18_1.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/70144/sim-linux-OTRPv18_1.zip/  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 There is no special makeobj for OTRP. Please one of the simutrans standard.
@@ -85,6 +85,8 @@ In OTRP, you can specify the direction from which vehicles can enter the tile. F
 - If you use the land raise/lower tool with ctrl key, the height of selected area are set to the height of the original coordinate. (Implemented by shingoushori)
 - If you use the wayobj construction tool with ctrl key, you can specify the interval of wayobj placement.
 - If you use the elevated way construction tool with ctrl key, you can specify the height offset. This is convenient when you build elevated way at very high altitude.
+- The overlaying warning of addon names is disabled in OTRP. The warning will be shown when simutrans is launched with **-showoverlay** option or is launched as a server.
+- In OTRP, a longblocksignal reserves all tiles that are checked. In other words, a longblocksignal reserves exactly till the next signal, exceeding the end of the route. This is a prior implementation of a feature that is discussed in the simutrans international forum.
 
 # Parameters of OTRP
 Most of these are stored in the game.

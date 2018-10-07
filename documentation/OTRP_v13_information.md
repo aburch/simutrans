@@ -17,20 +17,15 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version18現在、simutrans standard nightly r8597をベースにしています。
-
-# v18をお使いの方へ
-下のようなエラー画面が出たときは、**エスケープキー or スペースキー or バックスペースキーを押す** と起動を続行できます。  
-<img src="images/fig9.png" width="300">  
-このエラーはpakセット内に同じ名前のアドオンが二回以上出現すると出るエラーです。本家nightly r8565で追加されました。起動した後の挙動は今までと変わりません。
+version18_1現在、simutrans standard nightly r8605をベースにしています。
 
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
 
-本体は下のリンクからどうぞ。**（2018年9月23日PM10時　ver18に更新）**  
-windows: https://osdn.net/projects/otrp/downloads/70081/sim-OTRPv18.exe/  
-mac: https://osdn.net/projects/otrp/downloads/70081/sim-mac-OTRPv18.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/70081/sim-linux-OTRPv18.zip/  
+本体は下のリンクからどうぞ。**（2018年10月7日PM9時　ver18_1に更新）**  
+windows: https://osdn.net/projects/otrp/downloads/70144/sim-win-OTRPv18_1.exe/  
+mac: https://osdn.net/projects/otrp/downloads/70144/sim-mac-OTRPv18_1.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/70144/sim-linux-OTRPv18_1.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 OTRP専用のmakeobjはありません。simutrans standardのmakeobjをご利用ください。
@@ -93,6 +88,8 @@ v13から道路信号の進入許可方向を設定できるようになりま�
 - ctrlキーを押しながら土地上げ下げツールを使うと、選択された範囲が始点と同じ高度になります。（[shingoushori][1]氏による実装）
 - ctrlキーを押しながらwayobj（架線）建設ツールを使うと、wayobjの設置間隔を設定できます。景観架線で架線柱を2マスごとに置く時などに便利です。
 - ctrlキーを押しながら高架建設ツールを使うと、高架の高度オフセットを指定できます。1高度だけ地面から浮いた高架や、高高度の高架を建設するときに便利です。
+- 起動時に出現するアドオン名重複警告はOTRPでは無効化されています。ただし、**-showoverlay** オプションをつけて起動したとき及びサーバーモードで起動したときはアドオン名重複警告が表示されます。
+- longblocksignal（多閉塞信号）は検査した範囲をすべて予約するようになっています。すなはち、停車駅をこえて次の信号まで予約するようになっています。これは本家フォーラムで議論中の機能の先行実装です。
 
 # 設定項目
 主にsimuconf.tabや「高度な設定」で編集する項目です。  
