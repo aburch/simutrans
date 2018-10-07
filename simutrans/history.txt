@@ -1,5 +1,6 @@
 	CHG: Make double pak warning translatable
 	FIX: (ACarlotti) rotation of traffic light phases and overflow was broken for years
+	FIX: fields now check for allowed climate, not same height
 
 
 Release of 120.4.1 (r8600 on 23-Sep-2018):
