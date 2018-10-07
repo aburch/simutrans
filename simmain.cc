@@ -1083,7 +1083,8 @@ int simu_main(int argc, char** argv)
 	obj_reader_t::load( env_t::objfilename.c_str(), translator::translate("Loading paks ...") );
 	std::string overlaid_warning;	// more prominent handling of double objects
 	if(  dbg->had_overlaid()  ) {
-		overlaid_warning = "<h1>Error</h1><p><strong>" + env_t::objfilename + " contains the following doubled objects:</strong><p>" + dbg->get_overlaid() + "<p>";
+		overlaid_warning = translator::translate("<h1>Error</h1><p><strong>");
+		overlaid_warning.append( env_t::objfilename + translator::translate("contains the following doubled objects:</strong><p>") + dbg->get_overlaid() + "<p>" );
 		dbg->clear_overlaid();
 	}
 
@@ -1096,7 +1097,7 @@ int simu_main(int argc, char** argv)
 		}
 		dr_chdir( env_t::program_dir );
 		if(  dbg->had_overlaid()  ) {
-			overlaid_warning.append( "<h1>Warning</h1><p><strong>addons for " + env_t::objfilename + "\" contains the following doubled objects:</strong><p>" + dbg->get_overlaid() );
+			overlaid_warning.append( translator::translate("<h1>Warning</h1><p><strong>addons for") + env_t::objfilename + translator::translate("contains the following doubled objects:</strong><p>") + dbg->get_overlaid() );
 			dbg->clear_overlaid();
 		}
 	}

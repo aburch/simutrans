@@ -39,8 +39,8 @@ FunctionEnd
 
 Section /o "Executable (GDI, run one more computers)" GDIexe
   AddSize 12436
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/120-4/simuwin-120-4.zip"
-  StrCpy $archievename "simuwin-120-4.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/120-4-1/simuwin-120-4-1.zip"
+  StrCpy $archievename "simuwin-120-4-1.zip"
   StrCpy $downloadname "Simutrans Executable (GDI)"
   Call DownloadInstallZip
   Call PostExeInstall
@@ -48,8 +48,8 @@ SectionEnd
 
 Section "Executable (SDL2, better sound)" SDLexe
   AddSize 14158
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/120-4/simuwin-sdl-120-4.zip"
-  StrCpy $archievename "simuwin-sdl-120-4.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/120-4-1/simuwin-sdl-120-4-1.zip"
+  StrCpy $archievename "simuwin-sdl-120-4-1.zip"
   StrCpy $downloadname "Simutrans Executable (SDL2)"
   Call DownloadInstallZip
   Call PostExeInstall

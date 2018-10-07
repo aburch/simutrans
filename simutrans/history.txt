@@ -1,3 +1,14 @@
+	CHG: Make double pak warning translatable
+	FIX: (ACarlotti) rotation of traffic light phases and overflow was broken for years
+	FIX: fields now check for allowed climate, not same height
+
+
+Release of 120.4.1 (r8600 on 23-Sep-2018):
+	FIX: wrong graphics with greedy block signals
+	FIX: world minimum height could not be set
+	FIX: location forest could not work with factories smaller than 3x3, since not enough inner tiles were iterated 
+
+
 Release of 120.4 (r8588 on 17-Sep-2018):
 	FIX: properly handle dualstack servers by using both IPv4 and IP6 addresses (if no symbolic name is available)
 	ADD: (HyperSim) sorting vehicles in depot
