@@ -3364,12 +3364,6 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 		cnv->set_next_stop_index( min( next_crossing, next_signal ) );
 		return true;
 	}
-
-	// no signal before end_of_route => need to do route search in a step
-	if(  !cnv->is_waiting()  ) {
-		restart_speed = -1;
-		return false;
-	}
 	
 	// now we have to maintain reservation with reserved_tiles, that is slower than using next_reservation_index
 	// copy all tiles that are already reserved
