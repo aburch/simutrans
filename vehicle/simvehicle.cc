@@ -3423,11 +3423,16 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 			// find the index from which we unreserve the tiles.
 			sint32 start_idx;
 			for(  start_idx=0;  start_idx<(sint32)cnv->get_reserved_tiles().get_count()  &&  cnv->get_reserved_tiles()[start_idx]!=cnv->get_route()->at(next_block+1);  start_idx++  );
+			// tiles on which this convoy is must not be unreserved.
+			vector_tpl<koord3d> tiles_convoy_on;
+			for(  uint16 i=0;  i<cnv->get_vehicle_count();  i++  ) {
+				tiles_convoy_on.append_unique(cnv->get_vehikel(i)->get_pos());
+			}
 			// now we unreserve the tiles
 			for(  sint32 i=cnv->get_reserved_tiles().get_count()-1;  i>=start_idx;  i--  ) {
 				grund_t* gr = welt->lookup(cnv->get_reserved_tiles()[i]);
 				schiene_t* sch1 = gr ? (schiene_t*)gr->get_weg(get_waytype()) : NULL;
-				if(  sch1  ) {
+				if(  sch1  &&  !tiles_convoy_on.is_contained(gr->get_pos())  ) {
 					sch1->unreserve(cnv->self);
 				}
 				cnv->get_reserved_tiles().remove_at(i);
