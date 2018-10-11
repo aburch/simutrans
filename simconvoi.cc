@@ -296,24 +296,22 @@ void convoi_t::unreserve_route()
  */
 void convoi_t::reserve_route()
 {
-	if(  !route.empty()  &&  anz_vehikel>0  &&  (is_waiting()  ||  state==DRIVING  ||  state==LEAVING_DEPOT)  ) {
-		if(  reserved_tiles.get_count()>0  ) {
-			// reservation is controlled by reserved_tiles
-			for(  uint32 idx = 0;  idx < reserved_tiles.get_count();  idx++  ) {
-				if(  grund_t *gr = welt->lookup( reserved_tiles[idx] )  ) {
-					if(  schiene_t *sch = (schiene_t *)gr->get_weg( front()->get_waytype() )  ) {
-						sch->reserve( self, ribi_type( reserved_tiles[max(1u,idx)-1u], reserved_tiles[min(reserved_tiles.get_count()-1u,idx+1u)] ) );
-					}
+	if(  reserved_tiles.get_count()>0  ) {
+		// reservation is controlled by reserved_tiles
+		for(  uint32 idx = 0;  idx < reserved_tiles.get_count();  idx++  ) {
+			if(  grund_t *gr = welt->lookup( reserved_tiles[idx] )  ) {
+				if(  schiene_t *sch = (schiene_t *)gr->get_weg( front()->get_waytype() )  ) {
+					sch->reserve( self, ribi_type( reserved_tiles[max(1u,idx)-1u], reserved_tiles[min(reserved_tiles.get_count()-1u,idx+1u)] ) );
 				}
 			}
 		}
-		else {
-			// reservation is controlled by next_reservation_index
-			for(  int idx = back()->get_route_index();  idx < next_reservation_index  /*&&  idx < route.get_count()*/;  idx++  ) {
-				if(  grund_t *gr = welt->lookup( route.at(idx) )  ) {
-					if(  schiene_t *sch = (schiene_t *)gr->get_weg( front()->get_waytype() )  ) {
-						sch->reserve( self, ribi_type( route.at(max(1u,idx)-1u), route.at(min(route.get_count()-1u,idx+1u)) ) );
-					}
+	}
+	else if(  !route.empty()  &&  anz_vehikel>0  &&  (is_waiting()  ||  state==DRIVING  ||  state==LEAVING_DEPOT)  ){
+		// reservation is controlled by next_reservation_index
+		for(  int idx = back()->get_route_index();  idx < next_reservation_index  /*&&  idx < route.get_count()*/;  idx++  ) {
+			if(  grund_t *gr = welt->lookup( route.at(idx) )  ) {
+				if(  schiene_t *sch = (schiene_t *)gr->get_weg( front()->get_waytype() )  ) {
+					sch->reserve( self, ribi_type( route.at(max(1u,idx)-1u), route.at(min(route.get_count()-1u,idx+1u)) ) );
 				}
 			}
 		}
