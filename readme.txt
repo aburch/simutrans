@@ -2,19 +2,20 @@ How to compile
 --------------
 
 Congratulations, you checked out the simutrans source. To compile it,
-you have two options, either using Microsoft Visual C++ Express (which
-is free in Version 7.0 or up) or GCC.
+you have many options, either using Microsoft Visual C++ Express (which
+is free in Version 7.0 or up) or some GCC variant including clang.
 
 To compile you will need the following libraries:
 libz (http://www.zlib.net/)
 libpng (http://www.libpng.org/pub/png/) for makeobj
 libbz2.lib (compile from source from http://www.bzip.org/downloads.html)
+
 The following are also recommendend, but optional
 libfreetype (http://www.freetype.org/)
 libminiupnpc (http://miniupnp.free.fr/)
 
 For the recommended SDL2-support you need
-libSDL2 or libSDL (http://www.libsdl.org/)
+libSDL2 [better than libSDL] (http://www.libsdl.org/)
 libSDL_mixer (link from the same page)
 
 The link for allegro lib is (but the allegro backend has not been 
@@ -29,7 +30,8 @@ A system set up for OpenTTD will also compile simutrans (except for
 bzlib2, see below sections).
 
 If you are on a MS Windows machine, download either MS VC Express or
-MSYS2. MSVC is easy for debugging, MSYS2 is easy to set up (but it has to be done on the commandline).
+MSYS2. MSVC is easy for debugging, MSYS2 is easy to set up (but it has to 
+be done on the command line).
 
 The packages needed for MSYS2 are
 make
@@ -69,10 +71,10 @@ I recommend always to use the latest source, since it does not make any
 sense to work with buggy code.
 
 The address is:
-svn://server.simutrans.org/simutrans
+svn://servers.simutrans.org/simutrans
 
 A commandline would look like this:
-svn checkout svn://server.simutrans.org/simutrans
+svn checkout svn://servers.simutrans.org/simutrans
 
 If everything is set up, you can run configure inside trunk. This should 
 create a config.default file with all the needed settings. Try to compile 
@@ -82,6 +84,15 @@ settings.
 Typical you type into a command window:
 ./configure
 make
+
+The executable compiled by this is located in the directory "build/default", 
+i.e. "./build/default/sim" You can start it by this
+cd simutrans
+../build/default/sim -use_workdir
+but you will need to add at least one pak to the simutrans directory.
+
+You can run ./distribute which will give you a zip file that contains 
+everything (minus a pak) needed to run simutrans.
 
 
 IMPORTANT:
@@ -98,14 +109,15 @@ Go to simutrans/trunk.
 
 Then copy the file trunk/config.template to trunk/config.default and edit 
 the file. You need to specify:
-- frontend (gdi, allegro, sdl, SDL, posix)
-- color depth (usually 16 or zero)
+- frontend (gdi, allegro, SDL, SDL2, posix)
+- color depth (usually 16 or 0)
 - system (you should know it)
 
-I recommend to uncomment #DEBUG=1 and #OPTIMISE = 1 (i.e. removing the #).
+I recommend to uncomment #DEBUG=1 and #OPTIMISE = 1 (i.e. removing the #),
+if you build for your own use.
 
 For allegro or libsdl you may need to define the path of the config file
-(or at least on win98 and empty path).
+(or at least on win98 an empty path).
 
 Finally type make. If you want a smaller program and do not care about error
 messages, you can comment out #DEBUG=1 and run strip sim resp. strip sim.exe
@@ -115,7 +127,7 @@ after compile and linking.
 The following instructions are for MS Visual C Express:
 -------------------------------------------------------
 
-Download Visual Express C++ (tested for 2008 upwards)
+Download Visual Express C++ (tested for 2012 upwards)
 http://www.microsoft.com/express/Downloads/
 
 For most libraries you will easily find binaries. A quick start for some of 
@@ -123,11 +135,10 @@ them is the bundle used for OpenTTD:
 https://www.openttd.org/en/download-openttd-useful/6.0
 
 The bzip2 source tarball comes with an archive where you can easily built
-your own libbz2.lib file. Or use the one posted in the forum:
-https://forum.simutrans.com/index.php/board,112.0.html
+your own libbz2.lib file.
 
 For debugging, you have to set the correct working directory, i.e. the
 directory where the pak/ folders are located and use the -use_workdir
 command line option.
 
-Nagoya, Mai 2018
+Nagoya, Oct 2018
