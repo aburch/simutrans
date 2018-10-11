@@ -17,16 +17,18 @@ You should try OTRP because...
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitter hash tag :  [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)  
 
-As of version 18_1, OTRP is based on simutrans standard nightly r8605.
+As of version 18_2, OTRP is based on simutrans standard nightly r8605.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.  
 
-You can download the OTRP executable binary from the links below. **(2018 October 7th, updated to ver 18_1.)**  
-windows: https://osdn.net/projects/otrp/downloads/70144/sim-win-OTRPv18_1.exe/  
-mac: https://osdn.net/projects/otrp/downloads/70144/sim-mac-OTRPv18_1.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/70144/sim-linux-OTRPv18_1.zip/  
+You can download the OTRP executable binary from the links below. **(2018 October 11th, updated to ver 18_2.)**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/70165/sim-WinGDI-OTRPv18_2.exe/   
+mac: https://osdn.net/projects/otrp/downloads/70165/sim-mac-OTRPv18_2.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/70165/sim-linux-OTRPv18_2.zip/  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
+
+**NOTICE:** It is reported that simutrans GDI veersion crashes on Windows 10 build 1809.
 
 There is no special makeobj for OTRP. Please one of the simutrans standard.
 
