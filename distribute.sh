@@ -147,7 +147,7 @@ rm simutrans/simutrans$simexe
 
 # cleanup dll's
 if [ "$PGC" -ne 0 ]; then
-	rm simutrans/pthreadGC2.dll
+  rm simutrans/pthreadGC2.dll
 fi
 
 # swallow any error values, return success in any case

@@ -125,7 +125,13 @@ ifdef USE_FREETYPE
     ifneq ($(FREETYPE_CONFIG),)
       CFLAGS  += $(shell $(FREETYPE_CONFIG) --cflags)
       ifeq ($(shell expr $(STATIC) \>= 1), 1)
-        LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs --static)
+        # since static is not supported by slightly old freetype versions
+        FTF = $(shell $(FREETYPE_CONFIG) --libs --static)
+        ifneq ($(FTF),)
+          LDFLAGS += $(FTF)
+        else
+          LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs)
+        endif
       else
         LDFLAGS += $(shell $(FREETYPE_CONFIG) --libs)
       endif
