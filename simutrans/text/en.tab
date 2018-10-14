@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: en English                             #
 #                             Encoding: ISO-8859-1                             #
 #                            Font : Prop-Latin1.bdf                            #
-#                           Date Created: 17.09 2018                           #
+#                           Date Created: 11.10 2018                           #
 #                                                                              #
 #                                                                              #
 ################################################################################
@@ -346,6 +346,10 @@ Traffic density:
 Day and Night cycle
 <em>%C</em> - %s<br>\n
 [<em>%C</em>]: %s<br>\n
+<h1>Error</h1><p><strong>
+<H1>Error: Double objects in main pak directory</H1><p><strong>In 
+<h1>Warning</h1><p><strong>addons for
+<h1>Warning: Doubled objects in the addon directory</h1><p><strong>Addons for 
 <no line>
 <not assigned to a line>
 A bridge must start on a way!
@@ -1080,6 +1084,8 @@ clf_title
 Vehicle List Filter
 closed
 closed.
+contains the following doubled objects:</strong><p>
+ contains the following objects more than once:</strong><p>
 convoi %d of %d
 Convoy %d of %d
 convoi error tooltips

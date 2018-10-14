@@ -12,7 +12,7 @@ m+10r.bdf
 #                             Language: ja Japanese                            #
 #                                Encoding: UTF-8                               #
 #                               Font : m+10r.bdf                               #
-#                           Date Created: 17.09 2018                           #
+#                           Date Created: 11.10 2018                           #
 #                                                                              #
 #                                                                              #
 ################################################################################
@@ -136,6 +136,8 @@ Convoi handles exhausted!
 最大編成数(65535)に達しました。\nこれ以上追加できません。
 Convoy already deleted!
 編成は既に削除されています。
+Could not open file
+ファイルを開けません
 Das Feld gehoert\neinem anderen Spieler\n
 この場所は\n他のプレイヤーによって\nすでに占拠されています。\n
 Der Besitzer erlaubt das Entfernen nicht
@@ -172,6 +174,8 @@ Monorailhalt muss auf\nMonorail liegen!\n
 モノレールはモノレール軌道上にのみ\n停車することができます
 Monorails are not available yet!
 モノレールはまだ開発されていません！
+More than one possibility to build this dock found.
+この港を建設可能な候補が複数あります。
 Narrowgaugehalt muss auf\nNarrowgauge liegen!\n
 ナローゲージ用の駅は\nナローゲージ上にのみ\n設置できます。
 No bridges over runways!
@@ -184,6 +188,8 @@ Noch kein Fahrzeug\nmit Fahrplan\nvorhanden\n
 乗り物をスタートさせる前に\nスケジュールを設定してください。\n
 Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!
 現在、この編成のスケジュールは\n変更できません。少し待ってから\n再度試してください。
+Not enough bytes transferred
+データ転送に失敗しました。
 Not enough clearance.
 上下に間隔を空ける必要があります。
 Not enough money!
@@ -204,6 +210,12 @@ Server busy
 サーバー使用中\nServer busy
 Server version too new
 サーバーで使用されているものより古いバージョンのプログラムです
+Show all revenue messages
+全てのプレイヤーの収益を表示
+Show no revenue messages
+全てのプレイヤーの収益を非表示
+Show only player's revenue
+現在のプレイヤーの収益のみ表示
 Terraforming not possible\nhere in underground view
 スロープツールは、\n地下では使用できません。
 This tunnel branches. You can try Control+Click to remove.
@@ -334,6 +346,8 @@ Congratulation\nScenario was complete in\n%i months %i years.
 ★☆★ Congratulation! ★☆★\nシナリオクリアおめでとうございます\n\n　所要時間: %iヶ月 %i年
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
 「%s」は\n事業を拡大し、新たに\n%s近郊に\n%iの産業施設を建てました。
+Make way or stop public (will join with neighbours) % times maintainace
+駅または道路・軌道等を公共化して隣接する公共駅と統合します。維持費の%倍がかかります。
 Net wealth less than 10% of starting capital!
 総資産が開始時の総資産の10%未満になりました
 New %s now available:\n%s\n
@@ -440,6 +454,10 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 <新しい路線を作成>
 <em>%C</em> - %s<br>\n
 %C - %s<br>\n
+<h1>Error</h1><p><strong>
+<h1>注意: pakフォルダ内に以下のオブジェクトの重複があります。</h1><p><strong>
+<h1>Warning</h1><p><strong>addons for
+<h1>注意: アドオンフォルダ内に以下のオブジェクトの重複があります。</h1><p><strong>
 <individual schedule>
 <個別のスケジュール>
 <no line>
@@ -448,6 +466,8 @@ With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
 <スケジュールなし>
 <promote to line>
 <路線に登録>
+A bridge must end on a way!
+橋梁はまっすぐな道路/線路上に\n設置してください。
 A bridge must start on a way!
 橋梁はまっすぐな道路/線路上に\n設置してください。
 AIRTOOLS
@@ -504,6 +524,8 @@ Appends stops at the end of the schedule
 スケジュールの最後に駅を追加
 Apply Line
 路線を適用
+Apr.
+4月
 April
 4月
 Arbeiter aus:
@@ -518,6 +540,8 @@ Aufloesen
 編成解除
 Aufspanntransformator
 変圧所
+Aug.
+8月
 August
 8月
 Available
@@ -605,7 +629,7 @@ Capacity:
 Capacity: %.0f MW
 最大送電量:%.0f MW
 Capacity: %d%s %s\n
-定員/積載量: %3d%s %s\n 
+定員/積載量: %3d%s %s\n
 Capacity: %s\nLoad: %d (%d%%)
 定員/積載: %s\n積載: %d (%d%%)
 Cars are not available yet!
@@ -690,6 +714,10 @@ Currently playing:
 演奏中の曲：
 Customers live in:
 顧客居住地:
+DAY_SYMBOL
+日
+Dec.
+12月
 Deccelerate time
 ゲームスピードを遅くする
 December
@@ -788,6 +816,8 @@ Farbe
 プレーヤーの色
 Fast forward
 早送り
+Feb.
+2月
 February
 2月
 Ferry_tab
@@ -904,6 +934,8 @@ Ins Stop
  挿入
 Insert stop before the current stop
 選択している駅の直前に駅を挿入
+Insufficient funds!
+資金が足りません！
 Intercity road len:
 都市間道路の長さ：
 Intro. date
@@ -912,6 +944,8 @@ Intro. date:
 開発年月:
 Invalid coordinate
 ★高度が不正です★
+Jan.
+1月
 January
 1月
 July
@@ -924,6 +958,8 @@ Kein Besitzer\n
 \n
 Keine Einzelfahrzeuge im Depot
 車両は留置されていません
+Keyboard_Help\n
+キーボードヘルプ\n
 Kreuzung
 踏切
 LANG_CHOOSE\n
@@ -968,6 +1004,8 @@ Lineless convoys serving this stop
 路線に所属していない車両
 Lines serving this stop
 乗り入れている路線
+List of industries on the map
+マップ上の産業施設一覧
 Load game
 ゲームの再開
 Load scenario
@@ -1004,6 +1042,8 @@ Manufactured:
 製造年月：
 Map roughness
 起伏の激しさ：
+Mar.
+3月
 March
 3月
 Margin (%)
@@ -1100,6 +1140,8 @@ No. of Factories
 工場と店舗数
 Not enough fields would remain.
 これ以上は撤去できません
+Nov.
+11月
 November
 11月
 Now active as %s.\n
@@ -1108,6 +1150,8 @@ Number of rivers
 河川の数：
 Object
 原名
+Oct.
+10月
 Odometer: %s km
 積算距離： %skm
 Ok
@@ -1236,7 +1280,7 @@ Restore natural slope
 スロープを戻す
 Restwert:
 売却価格：
-Retire date 
+Retire date
 引退年月
 Retire. date:
 引退年月:
@@ -1302,6 +1346,8 @@ Select display font
 テキストのフォントを選択
 Sell the selected vehicle(s)
 選択している乗り物を売却します
+Sept.
+9月
 September
 9月
 Server did not respond!
@@ -1356,6 +1402,8 @@ Signal
 信号
 Sim:
 演算回数：
+Similar view as the main window
+メインウィンドウと同じ視点にします
 Size (%d MB):
 サイズ (%d MB)：
 Smart hide objects
@@ -1424,6 +1472,8 @@ Supply %s at (%i,%i)
 産業チェーン「%s」(%i,%i) を完成し、安定供給する
 Tage alt
 樹齢(月)
+Theme selector
+テーマの選択
 There are still vehicles\nstored in this depot!\n
 この車庫には、まだ乗り物が\n留置されています。\n
 This Month
@@ -1476,6 +1526,8 @@ Transport %li passengers
 月に %li人以上の旅客を輸送
 Transported
 輸送実績
+Trees disabled!
+樹木は使用できません！
 TrolleyBus_tab
 トロリーバス
 Truck
@@ -1554,6 +1606,8 @@ Winter snowline
 積雪高度
 Withdraw All
 すべて引退
+YEAR_SYMBOL
+年
 Year %i has started.
 %i年になりました。
 Years
@@ -1680,6 +1734,8 @@ closed
 遮断
 construction speed
 増線頻度
+contains the following doubled objects:</strong><p>
+以下のオブジェクトが重複しています:</strong><p>
 convoi %d of %d
 入庫中の編成 %d / %d
 convoi error tooltips
@@ -1810,6 +1866,8 @@ labellist_title
 マーカー一覧
 leer
 空き
+length: %d
+建設距離: %d
 letzen Monat: diesen Monat:
 先月:　　　　　　　　　今月:
 load height data from file

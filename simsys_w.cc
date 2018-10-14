@@ -679,7 +679,10 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			break;
 
 		case WM_IME_SETCONTEXT:
-			return DefWindowProc( this_hwnd, msg, wParam, lParam&~ISC_SHOWUICOMPOSITIONWINDOW );
+			// attempt to avoid crash at windows 1809> just not call DefWinodwsProc seems to work for SDL2 ...
+//			DefWindowProc( this_hwnd, msg, wParam, lParam&~ISC_SHOWUICOMPOSITIONWINDOW );
+			lParam = 0;
+			return 0;
 
 		case WM_IME_STARTCOMPOSITION:
 			break;
