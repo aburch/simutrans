@@ -44,6 +44,13 @@ PGC=0
 # now get the OSTYPE from config.default and remove all spaces around
 PGC=`grep "^BUNDLE_PTHREADGC2" config.default | sed "s/BUNDLE_PTHREADGC2[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
 
+BUILDDIR=`grep "^PROGDIR" config.default | sed "s/PROGDIR[ ]*=[ ]*//" | sed "s/[ ]*\#.*//"`
+if [ -n "$BUILDDIR" ]; then
+  BUILDDIR=../sim
+else
+  BUILDDIR=../build/default/sim
+fi
+
 # now make the correct archive name
 simexe=
 if [ "$OST" = "mac" ]; then
@@ -61,9 +68,9 @@ elif [ "$OST" = "mingw" ]; then
   fi
   cd simutrans
 
-	if [ "$PGC" -ne 0	]; then
-		getDLL
-	fi
+  if [ "$PGC" -ne 0	]; then
+    getDLL
+  fi
   cd ..
   updatepath="/nsis/"
   updater="download-paksets.exe"
@@ -78,7 +85,13 @@ elif [ "$OST" = "amiga" ]; then
  simarchivbase=simuamiga
 fi
 
-# now add revesion number without any modificators
+# Test if there is something to distribute ...
+if [ ! -f ./simutrans/$BUILDDIR$simexe ]; then
+  echo "No simutrans executable found! Aborted!"
+  exit 1
+fi
+
+# now add revision number without any modificators
 # fetch language files
 if [ `expr match "$*" ".*-rev="` != "0" ]; then
   REV_NR=$(echo $* | sed "s/.*-rev=[ ]*//" | sed "s/[^0-9]*//")
@@ -105,7 +118,7 @@ buildOSX()
 	# builds a bundle for MAC OS
 	mkdir -p "simutrans.app/Contents/MacOS"
 	mkdir -p "simutrans.app/Contents/Resources"
-	cp ../sim.exe   "simutrans.app/Contents/MacOS/simutrans"
+	cp $BUILDDIRsim.exe   "simutrans.app/Contents/MacOS/simutrans"
 	strip "simutrans.app/Contents/MacOS/simutrans"
 	cp "../OSX/simutrans.icns" "simutrans.app/Contents/Resources/simutrans.icns"
 	echo "APPL????" > "simutrans.app/Contents/PkgInfo"
@@ -122,7 +135,7 @@ cd simutrans
 if [ $OSTYPE = darwin* ]; then
   buildOSX
 else
-  cp ../sim$simexe ./simutrans$simexe
+  cp $BUILDDIR$simexe ./simutrans$simexe
   strip simutrans$simexe
 fi
 cp ..$updatepath$updater $updater
@@ -134,7 +147,7 @@ rm simutrans/simutrans$simexe
 
 # cleanup dll's
 if [ "$PGC" -ne 0 ]; then
-	rm simutrans/pthreadGC2.dll
+  rm simutrans/pthreadGC2.dll
 fi
 
 # swallow any error values, return success in any case
