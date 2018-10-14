@@ -12,7 +12,7 @@ Prop-Latin1.bdf
 #                             Language: de Deutsch                             #
 #                             Encoding: ISO-8859-1                             #
 #                            Font : Prop-Latin1.bdf                            #
-#                           Date Created: 17.09 2018                           #
+#                           Date Created: 11.10 2018                           #
 #                                                                              #
 #                                                                              #
 ################################################################################
@@ -440,6 +440,10 @@ Tag und Nacht wechseln
 <Neue Linie erstellen>
 <em>%C</em> - %s<br>\n
 [<em>%C</em>]: %s<br>\n
+<h1>Error</h1><p><strong>
+<H1>Fehler: Doppelte Objekte im Hauptverzeichnis</H1><p><strong>Im 
+<h1>Warning</h1><p><strong>addons for
+<h1>Warnung: Doppelte Objekte im Addon-Verzeichnis</h1><p><strong>Addons für 
 <individual schedule>
 <Eigener Fahrplan>
 <no line>
@@ -1162,7 +1166,7 @@ Restore natural slope
 Natürliche Neigung wiederherstellen
 Restwert:
 Verkaufswert:
-Retire date 
+Retire date
 Ausführung
 Retire. date:
 Außerdienststellung:
@@ -1588,6 +1592,8 @@ closed
 Geschlossen
 construction speed
 Baugeschwindigkeit
+contains the following doubled objects:</strong><p>
+ enthält folgende Objekte mehrfach:</strong><p>
 convoi %d of %d
 Fahrzeugverband %d von %d
 convoi error tooltips
