@@ -17,15 +17,15 @@ You should try OTRP because...
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitter hash tag :  [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)  
 
-As of version 18_2, OTRP is based on simutrans standard nightly r8605.
+As of version 19, OTRP is based on simutrans standard nightly r8608.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.  
 
-You can download the OTRP executable binary from the links below. **(2018 October 11th, updated to ver 18_2.)**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/70165/sim-WinGDI-OTRPv18_2.exe/   
-mac: https://osdn.net/projects/otrp/downloads/70165/sim-mac-OTRPv18_2.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/70165/sim-linux-OTRPv18_2.zip/  
+You can download the OTRP executable binary from the links below. **(2018 October 14th, updated to ver 19.)**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/70183/sim-WinGDI-OTRPv19.exe/  
+mac: https://osdn.net/projects/otrp/downloads/70183/sim-mac-OTRPv19.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/70183/sim-linux-OTRPv19.zip/  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 **NOTICE:** It is reported that simutrans GDI veersion crashes on Windows 10 build 1809.
@@ -94,6 +94,7 @@ In OTRP, you can specify the direction from which vehicles can enter the tile. F
 Most of these are stored in the game.
 - **citycar_max_look_forward** : define the distance for which citycars determine their route.
 - **citycar_route_weight_crowded**, **citycar_route_weight_vacant**, **citycar_route_weight_speed** : parameters for calculating citycars' route.
+- **advance_to_end** : When this is true, trains always advance to the end of the platform. When false, trains stops at designated position as long as the platform covers the entire convoy. Default is true, that is same as simutrans standard.
 
 # Compatibility
 ## Compatibility of Add-ons

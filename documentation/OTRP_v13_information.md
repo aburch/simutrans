@@ -17,15 +17,15 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version18_2現在、simutrans standard nightly r8605をベースにしています。
+version19現在、simutrans standard nightly r8608をベースにしています。
 
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
 
-本体は下のリンクからどうぞ。**（2018年10月11日PM7時　ver18_2に更新）**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/70165/sim-WinGDI-OTRPv18_2.exe/  
-mac: https://osdn.net/projects/otrp/downloads/70165/sim-mac-OTRPv18_2.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/70165/sim-linux-OTRPv18_2.zip/  
+本体は下のリンクからどうぞ。**（2018年10月14日PM9時　ver19に更新）**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/70183/sim-WinGDI-OTRPv19.exe/  
+mac: https://osdn.net/projects/otrp/downloads/70183/sim-mac-OTRPv19.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/70183/sim-linux-OTRPv19.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 **※ Windows10 1809ビルドにおいてGDI版が起動できない不具合が報告されています。**
@@ -109,6 +109,7 @@ v13から道路信号の進入許可方向を設定できるようになりま�
 
 ## その他
 - **stop_at_intersection_without_traffic_light**（経済タブにあります）のチェックを入れることで、車両が信号機ナシ交差点の手前で特定の条件に従って一時停止するようになります。デフォルトでは無効です。
+- **advance_to_end**（ルートタブにあります）のチェックを外すことで列車のホームでの停車位置が実際に指定した位置になります。（デフォルトではstandardと同じく指定位置にかかわらず列車は先頭まで進みます。）なお指定した位置で編成がおさまらないときは編成全体がおさまるまで前進します。（extendedと同じです。）
 
 # データの互換性
 ## アドオンの互換性
@@ -119,7 +120,7 @@ OTRPはsimutrans standard向けのアドオンであれば全て使えます。O
 ![fig5](images/fig5.png)  
 v12,13を使っていた方で初めてv14を使うときは**autosave.sveを削除**してください。（古いバージョンのautosaveが残っていると起動時にそれを読んでクラッシュします。）
 - extended版OTRPとの互換性はありません。
-- 一度セーブデータを読み込んでそれを**保存した瞬間に**そのデータは**OTRPv16以降専用**になります。既存のデータをOTRPに移行する場合はバックアップを取った上で別ファイルとして保存することを強く推奨します。
+- 一度セーブデータを読み込んでそれを**保存した瞬間に**そのデータは**OTRP専用**になります。既存のデータをOTRPに移行する場合はバックアップを取った上で別ファイルとして保存することを強く推奨します。
 - データセーブ時に「Readable by standard」ボタンを押して保存するとstandardで読み書きできる形式で保存されます。この形式では**OTRP固有の情報が失われる**ので注意してください。
 
 # おねがい
