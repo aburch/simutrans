@@ -134,6 +134,10 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		MAX_STEP = welt->get_settings().get_max_route_steps();
 		nodes = new ANode[MAX_STEP];
 	}
+	
+	// use dedicated memory instead of shared static list.
+	MAX_STEP = welt->get_settings().get_max_route_steps();
+	ANode* nodes_L = new ANode[MAX_STEP];
 
 	INT_CHECK("route 347");
 
@@ -145,16 +149,15 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		return false;
 	}
 
-	static binary_heap_tpl <ANode *> queue;
+	binary_heap_tpl <ANode *> queue;
 
-	GET_NODE();
 #ifdef USE_VALGRIND_MEMCHECK
-	VALGRIND_MAKE_MEM_UNDEFINED(nodes, sizeof(ANode)*MAX_STEP);
+	VALGRIND_MAKE_MEM_UNDEFINED(nodes_L, sizeof(ANode)*MAX_STEP);
 #endif
 
 
 	uint32 step = 0;
-	ANode* tmp = &nodes[step++];
+	ANode* tmp = &nodes_L[step++];
 	tmp->parent = NULL;
 	tmp->gr = g;
 	tmp->count = 0;
@@ -211,7 +214,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 				&& tdriver->check_next_tile(to)	// can be driven on
 			) {
 				// not in there or taken out => add new
-				ANode* k = &nodes[step++];
+				ANode* k = &nodes_L[step++];
 
 				k->parent = tmp;
 				k->gr = to;
@@ -262,7 +265,7 @@ bool route_t::find_route(karte_t *welt, const koord3d start, test_driver_t *tdri
 		ok = !route.empty();
 	}
 
-	RELEASE_NODE();
+	delete[] nodes_L;
 	return ok;
 }
 
@@ -329,18 +332,21 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		MAX_STEP = welt->get_settings().get_max_route_steps(); // may need very much memory => configurable
 		nodes = new ANode[MAX_STEP + 4 + 2];
 	}
+	
+	// use dedicated memory instead of shared static list.
+	MAX_STEP = welt->get_settings().get_max_route_steps();
+	ANode* nodes_L = new ANode[MAX_STEP + 4 + 2];
 
 	INT_CHECK("route 347");
 
-	static binary_heap_tpl <ANode *> queue;
+	binary_heap_tpl <ANode *> queue;
 
-	GET_NODE();
 #ifdef USE_VALGRIND_MEMCHECK
-	VALGRIND_MAKE_MEM_UNDEFINED(nodes, sizeof(ANode)*MAX_STEP);
+	VALGRIND_MAKE_MEM_UNDEFINED(nodes_L, sizeof(ANode)*MAX_STEP);
 #endif
 
 	uint32 step = 0;
-	ANode* tmp = &nodes[step];
+	ANode* tmp = &nodes_L[step];
 	step ++;
 
 	tmp->parent = NULL;
@@ -477,7 +483,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				const uint32 new_f = new_g + dist + turns * 3 + costup;
 
 				// add new
-				ANode* k = &nodes[step];
+				ANode* k = &nodes_L[step];
 				step ++;
 
 				k->parent = tmp;
@@ -555,7 +561,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		ok = true;
 	}
 
-	RELEASE_NODE();
+	delete[] nodes_L;
 
 	return ok;
 }
