@@ -2621,6 +2621,10 @@ void convoi_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()>=111003  ) {
 		file->rdwr_short( next_stop_index );
+		if(  !file->is_loading()  &&  next_reservation_index>=route.get_count()  ) {
+			// sanitize next_reservation_index because a longblocksignal can set next_reservation_index an illegal number.
+			next_reservation_index = route.get_count()-1;
+		}
 		file->rdwr_short( next_reservation_index );
 	}
 	
