@@ -302,6 +302,9 @@ private:
 	uint16 citycar_route_weight_crowded;
 	uint16 citycar_route_weight_vacant;
 	sint16 citycar_route_weight_speed;
+	
+	// only for trains. If true, trains advance to the end of the platform.
+	bool advance_to_end;
 
 public:
 	/* the big cost section */
@@ -619,6 +622,9 @@ public:
 	
 	uint16 get_citycar_max_look_forward() const { return citycar_max_look_forward; }
 	citycar_routing_param_t get_citycar_routing_param() const;
+	
+	bool get_advance_to_end() const { return advance_to_end; }
+	void set_advance_to_end(bool b) { advance_to_end = b; }
 };
 
 #endif

@@ -255,6 +255,8 @@ void settings_routing_stats_t::init(settings_t const* const sets)
 	INIT_NUM( "citycar_route_weight_crowded", sets->citycar_route_weight_crowded, 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "citycar_route_weight_vacant", sets->citycar_route_weight_vacant, 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "citycar_route_weight_speed", sets->citycar_route_weight_speed, -100, 100, gui_numberinput_t::AUTOLINEAR, false );
+	SEPERATOR
+	INIT_BOOL( "advance_to_end", sets->get_advance_to_end() );
 
 	clear_dirty();
 	height = ypos;
@@ -287,6 +289,8 @@ void settings_routing_stats_t::read(settings_t* const sets)
 	READ_NUM_VALUE( sets->citycar_route_weight_crowded );
 	READ_NUM_VALUE( sets->citycar_route_weight_vacant );
 	READ_NUM_VALUE( sets->citycar_route_weight_speed );
+	
+	READ_BOOL_VALUE( sets->advance_to_end );
 }
 
 

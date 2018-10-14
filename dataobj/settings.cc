@@ -308,6 +308,8 @@ settings_t::settings_t() :
 	citycar_route_weight_crowded = 20;
 	citycar_route_weight_vacant = 100;
 	citycar_route_weight_speed = 0;
+	
+	advance_to_end = true;
 }
 
 
@@ -839,6 +841,9 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_byte(world_minimum_height);
 		} else if(  file->get_OTRP_version() > 14  ) {
 			world_maximum_height = 64;
+		}
+		if(  file->get_OTRP_version() >= 19  ) {
+			file->rdwr_bool(advance_to_end);
 		}
 		// otherwise the default values of the last one will be used
 	}
@@ -1462,6 +1467,8 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	if(  world_minimum_height>=world_maximum_height  ) {
 		world_minimum_height = world_maximum_height-1;
 	}
+	
+	advance_to_end = contents.get_int("advance_to_end", advance_to_end);
 
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", "" ) );
