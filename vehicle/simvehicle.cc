@@ -3394,7 +3394,8 @@ bool rail_vehicle_t::is_longblock_signal_clear(signal_t *sig, uint16 next_block,
 	while(  schedule_index != cnv->get_schedule()->get_current_stop()  ) {
 		// now search
 		// search for route
-		bool success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->entries[schedule_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), 8888 /*cnv->get_tile_length()*/ );
+		uint16 len = welt->get_settings().get_advance_to_end() ? 8888 : cnv->get_tile_length();
+		bool success = target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->entries[schedule_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), len );
 		if(  target_rt.is_contained(get_pos())  ) {
 			// do not reserve route going through my current stop&
 			break;
