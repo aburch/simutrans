@@ -257,8 +257,11 @@ void export_tiles(HSQUIRRELVM vm)
 	 * @warning In network games, they only work on server.
 	 */
 	//@{
+	/// Check if tile is marked.
 	register_method_fv(vm, &grund_t::get_flag, "is_marked", freevariable<uint8>(grund_t::marked));
+	/// Unmark tile.
 	register_method_fv(vm, &grund_t::clear_flag, "unmark", freevariable<uint8>(grund_t::marked));
+	/// Mark tile.
 	register_method_fv(vm, &grund_t::set_flag, "mark", freevariable<uint8>(grund_t::marked));
 	//@}
 #ifdef SQAPI_DOC // document members
