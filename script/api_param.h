@@ -311,6 +311,14 @@ namespace script_api {
 		static SQInteger push(HSQUIRRELVM vm, T const& v) { return param<void_t>::push(vm, v); } \
 		declare_types(".", sqtype); \
 	};
+	// macro to declare enums
+#define declare_enum_param(T, inttype, sqtype) \
+	template<> struct param<T> { \
+		static T get(HSQUIRRELVM vm, SQInteger index) { return (T)param<inttype>::get(vm, index); } \
+		static SQInteger push(HSQUIRRELVM vm, T const& v) { return param<inttype>::push(vm, v); } \
+		declare_types("i", sqtype); \
+	};
+
 
 
 	declare_specialized_param(void_t, ".", "void");
@@ -325,10 +333,10 @@ namespace script_api {
 	declare_specialized_param(sint32, "i", "integer");
 	declare_specialized_param(uint64, "i", "integer");
 	declare_specialized_param(sint64, "i", "integer");
-	declare_specialized_param(waytype_t, "i", "way_types");
-	declare_specialized_param(systemtype_t, "i", "way_system_types");
-	declare_specialized_param(obj_t::typ, "i", "map_objects");
-	declare_specialized_param(climate, "i", "climates");
+	declare_enum_param(waytype_t, sint16, "way_types");
+	declare_enum_param(systemtype_t, uint8, "way_system_types");
+	declare_enum_param(obj_t::typ, uint8, "map_objects");
+	declare_enum_param(climate, uint8, "climates");
 	declare_specialized_param(my_ribi_t, "i", "dir");
 	declare_specialized_param(my_slope_t, "i", "slope");
 
