@@ -2820,7 +2820,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					return false;
 				}
 			}
-			else if(  private_car_t const* const pcar = obj_cast<private_car_t>(v)  ) {
+			else if(  private_car_t* const pcar = obj_cast<private_car_t>(v)  ) {
 				if(  pcar->get_next_cross_lane()  ) {
 					// vehicle must stop.
 					restart_speed = 0;

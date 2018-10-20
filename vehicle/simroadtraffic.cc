@@ -372,6 +372,7 @@ private_car_t::private_car_t(grund_t* gr, koord const target) :
 	lane_affinity = 0;
 	lane_affinity_end_index = -1;
 	next_cross_lane = false;
+	request_cross_ticks = 0;
 	yielding_quit_index = -1;
 	requested_change_lane = false;
 	time_to_life = welt->get_settings().get_stadtauto_duration() << 20;  // ignore welt->ticks_per_world_month_shift;
@@ -498,6 +499,7 @@ void private_car_t::rdwr(loadsave_t *file)
 		lane_affinity = 0;
 		lane_affinity_end_index = -1;
 		next_cross_lane = false;
+		request_cross_ticks = 0;
 		yielding_quit_index = -1;
 		requested_change_lane = false;
 	}
@@ -989,7 +991,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			if(  v->get_waytype() == road_wt  ) {
 				ms_traffic_jam = 0;
 				current_speed = 48;
-				next_cross_lane = true;
+				set_next_cross_lane(true);
 				return false;
 			}
 		}
@@ -1002,7 +1004,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 			if(  v->get_waytype() == road_wt  ) {
 				ms_traffic_jam = 0;
 				current_speed = 48;
-				next_cross_lane = true;
+				set_next_cross_lane(true);
 				return false;
 			}
 		}
@@ -1020,7 +1022,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 					// vehicle must stop.
 					ms_traffic_jam = 0;
 					current_speed = 48;
-					next_cross_lane = true;
+					set_next_cross_lane(true);
 					return false;
 				}
 			}
@@ -1029,7 +1031,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 					// vehicle must stop.
 					ms_traffic_jam = 0;
 					current_speed = 48;
-					next_cross_lane = true;
+					set_next_cross_lane(true);
 					return false;
 				}
 			}
@@ -1065,7 +1067,7 @@ bool private_car_t::ist_weg_frei(grund_t *gr)
 				return false;
 			}
 		}
-		else if(  private_car_t const* const pcar = obj_cast<private_car_t>(v)  ) {
+		else if(  private_car_t* const pcar = obj_cast<private_car_t>(v)  ) {
 			if(  pcar->get_next_cross_lane()  ) {
 				// vehicle must stop.
 				ms_traffic_jam = 0;
@@ -1142,7 +1144,7 @@ void private_car_t::enter_tile(grund_t* gr)
 	if(  str->get_overtaking_mode() == inverted_mode  ) {
 		set_tiles_overtaking(1);
 	}
-	next_cross_lane = false; // since this car moved...
+	set_next_cross_lane(false); // since this car moved...
 	// If there is one-way sign, calc lane_affinity.
 	if(  roadsign_t* rs = gr->find<roadsign_t>()  ) {
 		if(  rs->get_desc()->is_single_way()  ) {
@@ -1961,4 +1963,34 @@ bool private_car_t::is_rerouting_needed() const{
 		return true;
 	}
 	return false;
+}
+
+bool private_car_t::get_next_cross_lane() {
+	if(  !next_cross_lane  ) {
+		// no request
+		return false;
+	}
+	// next_cross_lane is true. Is the request obsolete?
+	sint64 diff = welt->get_ticks() - request_cross_ticks;
+	// If more than 8 sec, it's obsolete.
+	if(  diff>8000*16/welt->get_time_multiplier()  ) {
+		next_cross_lane = false;
+	}
+	return next_cross_lane;
+}
+
+void private_car_t::set_next_cross_lane(bool n) {
+	if(  !n  ) {
+		next_cross_lane = false;
+		request_cross_ticks = 0;
+		return;
+	} else if(  next_cross_lane  ) {
+		return;
+	}
+	// check time
+	sint64 diff = welt->get_ticks() - request_cross_ticks;
+	if(  request_cross_ticks==0  ||  diff<0  ||  diff>10000*16/welt->get_time_multiplier()  ) {
+		next_cross_lane = true;
+		request_cross_ticks = welt->get_ticks();
+	}
 }

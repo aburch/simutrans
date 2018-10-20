@@ -100,6 +100,7 @@ private:
 	uint8 lane_affinity_end_index;
 	
 	bool next_cross_lane;
+	uint32 request_cross_ticks;
 	
 	/**
 	 * the route index of the point to quit yielding lane
@@ -194,7 +195,8 @@ public:
 	
 	uint16 get_speed_limit() const;
 	
-	bool get_next_cross_lane() const { return next_cross_lane; }
+	bool get_next_cross_lane();
+	void set_next_cross_lane(bool);
 	
 	void unreserve_all_tiles();
 	
