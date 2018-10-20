@@ -423,6 +423,8 @@ private:
 
 	// true, if this vehicle will cross lane and block other vehicles.
 	bool next_cross_lane;
+	// When this convoy requested lane crossing...
+	uint32 request_cross_ticks;
 
 public:
 	/**
@@ -940,8 +942,8 @@ public:
 	 sint8 get_lane_affinity() const { return lane_affinity; }
 	 void reset_lane_affinity() { lane_affinity = 0; }
 
-	 bool get_next_cross_lane() const { return next_cross_lane; }
-	 void set_next_cross_lane(bool n) { next_cross_lane = n; }
+	 bool get_next_cross_lane();
+	 void set_next_cross_lane(bool);
 
 	 virtual void refresh(sint8,sint8) OVERRIDE;
 };

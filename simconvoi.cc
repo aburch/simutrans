@@ -172,6 +172,7 @@ void convoi_t::init(player_t *player)
 	recalc_data = true;
 
 	next_cross_lane = false;
+	request_cross_ticks = 0;
 	prev_tiles_overtaking = 0;
 }
 
@@ -4112,5 +4113,34 @@ void convoi_t::refresh(sint8 prev_tiles_overtaking, sint8 current_tiles_overtaki
 				rv->refresh();
 			}
 		}
+	}
+}
+
+bool convoi_t::get_next_cross_lane() {
+	if(  !next_cross_lane  ) {
+		// no request
+		return false;
+	}
+	// next_cross_lane is true. Is the request obsolete?
+	sint64 diff = welt->get_ticks() - request_cross_ticks;
+	// If more than 8 sec, it's obsolete.
+	if(  diff>8000*16/welt->get_time_multiplier()  ) {
+		next_cross_lane = false;
+	}
+	return next_cross_lane;
+}
+
+void convoi_t::set_next_cross_lane(bool n) {
+	if(  !n  ) {
+		next_cross_lane = false;
+		return;
+	} else if(  next_cross_lane  ) {
+		return;
+	}
+	// check time
+	sint64 diff = welt->get_ticks() - request_cross_ticks;
+	if(  request_cross_ticks==0  ||  (diff>=0  &&  diff<10000*16/welt->get_time_multiplier())  ) {
+		next_cross_lane = true;
+		request_cross_ticks = welt->get_ticks();
 	}
 }
