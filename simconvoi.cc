@@ -4133,13 +4133,14 @@ bool convoi_t::get_next_cross_lane() {
 void convoi_t::set_next_cross_lane(bool n) {
 	if(  !n  ) {
 		next_cross_lane = false;
+		request_cross_ticks = 0;
 		return;
 	} else if(  next_cross_lane  ) {
 		return;
 	}
 	// check time
 	sint64 diff = welt->get_ticks() - request_cross_ticks;
-	if(  request_cross_ticks==0  ||  (diff>=0  &&  diff<10000*16/welt->get_time_multiplier())  ) {
+	if(  request_cross_ticks==0  ||  diff<0  ||  diff>10000*16/welt->get_time_multiplier()  ) {
 		next_cross_lane = true;
 		request_cross_ticks = welt->get_ticks();
 	}
