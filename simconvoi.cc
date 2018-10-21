@@ -1109,7 +1109,14 @@ void convoi_t::calc_acceleration(uint32 delta_t)
 		steps_til_brake = steps_til_limit - brake_steps;
 		if(adverse.max_speed == 0)
 		{
-			update_max_speed(speed_to_kmh(route_infos.get_element(current_route_index).speed_limit));
+			if (current_route_index >= route_infos_count)
+			{
+				update_max_speed(speed_to_kmh(route_infos.get_element(current_route_index - 1).speed_limit));
+			}
+			else
+			{
+				update_max_speed(speed_to_kmh(route_infos.get_element(current_route_index).speed_limit));
+			}
 		}
 	}
 	sint32 steps_left_on_current_tile = (sint32)front.get_steps_next() + 1 - (sint32)front.get_steps();
