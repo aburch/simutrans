@@ -57,10 +57,10 @@ function split_params(string)
 # and everything in a SQAPI_DOC block
 {
 	if (within_doxygen_comment==1) {
-		print gensub( /^[[:space:]]*([ \\/])\\*/, indent "\\1", $0)
+		print gensub( /^[[:space:]]*([ \\/])\\*/, indent "\\1", 1)
 	}
 	else if (within_sqapi_doc == 1) {
-		print gensub( /^[[:space:]]*(.*)/, indent "\\1", $0)
+		print gensub( /^[[:space:]]*(.*)/, indent "\\1", 1)
 	}
 }
 
@@ -69,10 +69,10 @@ function split_params(string)
 	within_doxygen_comment = 0
 }
 
-# print doxygen brief commands
-/\/\/\// {
+# print doxygen brief commands, also //@
+/\/\/[\/@]/ {
 	if (within_doxygen_comment!=1  &&  within_sqapi_doc != 1) {
-		print gensub( /^[[:space:]]*(\\.*)/, indent "\\1", $0)
+		print gensub( /^[[:space:]]*(\\.*)/, indent "\\1", 1)
 	}
 }
 

@@ -207,41 +207,6 @@ namespace script_api {
 		return 1;
 	}
 
-
-	waytype_t param<waytype_t>::get(HSQUIRRELVM vm, SQInteger index)
-	{
-		return (waytype_t)(param<sint16>::get(vm, index));
-	}
-	SQInteger param<waytype_t>::push(HSQUIRRELVM vm, waytype_t const& v)
-	{
-		return param<sint16>::push(vm, v);
-	}
-
-
-	systemtype_t param<systemtype_t>::get(HSQUIRRELVM vm, SQInteger index)
-	{
-		return (systemtype_t)(param<uint8>::get(vm, index));
-	}
-	SQInteger param<systemtype_t>::push(HSQUIRRELVM vm, systemtype_t const& v)
-	{
-		return param<uint8>::push(vm, v);
-	}
-
-
-	obj_t::typ param<obj_t::typ>::get(HSQUIRRELVM vm, SQInteger index)
-	{
-		return (obj_t::typ)(param<uint8>::get(vm, index));
-	}
-	SQInteger param<obj_t::typ>::push(HSQUIRRELVM vm, obj_t::typ const& v)
-	{
-		return param<uint8>::push(vm, v);
-	}
-
-
-	SQInteger param<climate>::push(HSQUIRRELVM vm, climate const& v)
-	{
-		return param<uint8>::push(vm, v);
-	}
 // floats
 	double param<double>::get(HSQUIRRELVM vm, SQInteger index)
 	{

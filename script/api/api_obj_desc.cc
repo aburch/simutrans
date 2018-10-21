@@ -232,17 +232,7 @@ uint32 get_power(const vehicle_desc_t *desc)
 
 // export of building_desc_t::btype only here
 namespace script_api {
-	declare_specialized_param(building_desc_t::btype, "i", "building_desc_x::building_type");
-
-	SQInteger param<building_desc_t::btype>::push(HSQUIRRELVM vm, const building_desc_t::btype & u)
-	{
-		return param<uint16>::push(vm, u);
-	}
-
-	building_desc_t::btype param<building_desc_t::btype>::get(HSQUIRRELVM vm, SQInteger index)
-	{
-		return (building_desc_t::btype)param<uint16>::get(vm, index);
-	}
+	declare_enum_param(building_desc_t::btype, uint16, "building_desc_x::building_type");
 };
 
 bool is_traffic_light(const roadsign_desc_t *d)
