@@ -31,6 +31,7 @@ class vehicle_t;
 class vehicle_desc_t;
 class schedule_t;
 class cbuffer_t;
+class signal_t;
 
 /**
  * Base class for all vehicle consists. Convoys can be referenced by handles, see halthandle_t.
@@ -310,6 +311,13 @@ private:
 	states state;
 
 	ribi_t::ribi alte_richtung;
+	
+	typedef struct {
+		bool valid;
+		signal_t* sig;
+		uint16 next_block;
+	} longblock_signal_request_t;
+	longblock_signal_request_t longblock_signal_request;
 
 	/**
 	* Initialize all variables with default values.
@@ -946,6 +954,9 @@ public:
 	 void set_next_cross_lane(bool);
 
 	 virtual void refresh(sint8,sint8) OVERRIDE;
+	 
+	 void request_longblock_signal_judge(signal_t *sig, uint16 next_block);
+	 void set_longblock_signal_judge_request_invalid() { longblock_signal_request.valid = false; };
 };
 
 #endif

@@ -626,6 +626,9 @@ public:
 	virtual void set_convoi(convoi_t *c);
 
 	virtual schedule_t * generate_new_schedule() const;
+	
+	// step() routine called by convoy
+	bool check_longblock_signal(signal_t *sig, uint16 start_index, sint32 &restart_speed);
 };
 
 
