@@ -3,6 +3,9 @@
 /** @page changelog Changelog
  *
  * @section api-trunk Current trunk
+ * - Added functions to mark tiles, see @ref tile_x::mark
+ *
+ * @section api-120-3 Release 120.3
  *
  * - Changed enable scenario scripts to open info window also on clients, see @ref gui::open_info_win_client
  * - Added sign_x::can_pass

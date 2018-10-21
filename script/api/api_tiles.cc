@@ -10,7 +10,12 @@
 #include "../../simworld.h"
 #include "../../boden/wasser.h"
 
+namespace script_api {
+	declare_enum_param(grund_t::flag_values, uint8, "flags");
+};
+
 using namespace script_api;
+
 
 SQInteger get_next_object(HSQUIRRELVM vm)
 {
@@ -98,7 +103,6 @@ vector_tpl<halthandle_t> const& square_get_halt_list(planquadrat_t *plan)
 	}
 	return list;
 }
-
 
 void export_tiles(HSQUIRRELVM vm)
 {
@@ -247,6 +251,19 @@ void export_tiles(HSQUIRRELVM vm)
 	 */
 	register_method(vm, &grund_t::kann_alle_obj_entfernen, "can_remove_all_objects");
 
+	/** @name Functions to mark tiles.
+	 * Methods to mark, unmark, and check mark-status of tiles.
+	 * Mark flag can be reset by cursor movement.
+	 * @warning In network games, they only work on server.
+	 */
+	//@{
+	/// Check if tile is marked.
+	register_method_fv(vm, &grund_t::get_flag, "is_marked", freevariable<uint8>(grund_t::marked));
+	/// Unmark tile.
+	register_method_fv(vm, &grund_t::clear_flag, "unmark", freevariable<uint8>(grund_t::marked));
+	/// Mark tile.
+	register_method_fv(vm, &grund_t::set_flag, "mark", freevariable<uint8>(grund_t::marked));
+	//@}
 #ifdef SQAPI_DOC // document members
 	/**
 	 * List to iterate through all objects on this tile.

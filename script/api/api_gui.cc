@@ -80,7 +80,7 @@ void export_gui(HSQUIRRELVM vm, bool scenario)
 		/**
 		 * Opens scenario info window with specific tab open.
 		 * In network mode, opens window on all clients and server.
-		 * @param tab possible values are "info", "goal", "rules", "result", "about"
+		 * @param tab possible values are "info", "goal", "rules", "result", "about", "debug"
 		 * @note Only available in scenario mode.
 		 */
 		STATIC register_method(vm, open_info_win_at, "open_info_win_at");
@@ -88,7 +88,7 @@ void export_gui(HSQUIRRELVM vm, bool scenario)
 		/**
 		 * Opens scenario info window for certain clients (and the server),
 		 * with specific tab open.
-		 * @param tab possible values are "info", "goal", "rules", "result", "about"
+		 * @param tab possible values are "info", "goal", "rules", "result", "about", "debug"
 		 * @param player_nr opens scenario info window on all clients that have this player unlocked.
 		 * @note Window is always opened on server.		 *
 		 */
