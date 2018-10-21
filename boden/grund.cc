@@ -574,13 +574,6 @@ void grund_t::take_obj_from(grund_t* other_gr)
 
 void grund_t::open_info_window()
 {
-	int old_count = win_get_open_count();
-	if(get_halt().is_bound()) {
-		get_halt()->open_info_window();
-		if(env_t::single_info  &&  old_count!=win_get_open_count()  ) {
-			return;
-		}
-	}
 	if(env_t::ground_info  ||  hat_wege()) {
 		create_win(new grund_info_t(this), w_info, (ptrdiff_t)this);
 	}
