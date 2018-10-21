@@ -17,15 +17,15 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version19現在、simutrans standard nightly r8608をベースにしています。
+version19_1現在、simutrans standard nightly r8616をベースにしています。
 
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
 
-本体は下のリンクからどうぞ。**（2018年10月14日PM9時　ver19に更新）**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/70183/sim-WinGDI-OTRPv19.exe/  
-mac: https://osdn.net/projects/otrp/downloads/70183/sim-mac-OTRPv19.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/70183/sim-linux-OTRPv19.zip/  
+本体は下のリンクからどうぞ。**（2018年10月21日PM10時　ver19_1に更新）**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/70208/sim-WinGDI-OTRPv19_1.exe/  
+mac: https://osdn.net/projects/otrp/downloads/70208/sim-mac-OTRPv19_1.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/70208/sim-linux-OTRPv19_1.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 **※ Windows10 1809ビルドにおいてGDI版が起動できない不具合が報告されています。**

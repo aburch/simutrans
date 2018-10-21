@@ -17,15 +17,15 @@ You should try OTRP because...
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitter hash tag :  [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)  
 
-As of version 19, OTRP is based on simutrans standard nightly r8608.
+As of version 19_1, OTRP is based on simutrans standard nightly r8616.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.  
 
-You can download the OTRP executable binary from the links below. **(2018 October 14th, updated to ver 19.)**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/70183/sim-WinGDI-OTRPv19.exe/  
-mac: https://osdn.net/projects/otrp/downloads/70183/sim-mac-OTRPv19.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/70183/sim-linux-OTRPv19.zip/  
+You can download the OTRP executable binary from the links below. **(2018 October 21st, updated to ver 19_1.)**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/70208/sim-WinGDI-OTRPv19_1.exe/  
+mac: https://osdn.net/projects/otrp/downloads/70208/sim-mac-OTRPv19_1.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/70208/sim-linux-OTRPv19_1.zip/  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 **NOTICE:** It is reported that simutrans GDI veersion crashes on Windows 10 build 1809.
