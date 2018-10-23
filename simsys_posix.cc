@@ -183,7 +183,7 @@ void dr_notify_input_pos(int, int)
 
 static void posix_sigterm(int)
 {
-	DBG_MESSAGE("Received SIGTERM, exiting...");
+	DBG_MESSAGE("Received SIGTERM", "exiting...");
 	sigterm_received = 1;
 }
 
