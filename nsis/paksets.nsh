@@ -151,13 +151,13 @@ SectionEnd
 
 
 
-Section /o "pak128.Britain V1.17" pak128britain
-  AddSize 234393
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20120-1/pak128.Britain.1.17-120-1.zip"
-  StrCpy $archievename "pak128.Britain.1.17-120-1.zip"
+Section /o "pak128.Britain V1.18" pak128britain
+  AddSize 234108
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20120-3/pak128.Britain.1.18-120-3.zip"
+  StrCpy $archievename "pak128.Britain.1.18-120-3.zip"
   StrCpy $downloadname "pak128.Britain"
-  StrCpy $VersionString "pak128.Britain 1.17 Simutrans 120.1.1"
-  Call DownloadInstallZipWithoutSimutrans
+  StrCpy $VersionString "pak128.Britain 1.18 120.3 r1991"
+  Call DownloadInstallZip
 SectionEnd
 
 
