@@ -3657,6 +3657,11 @@ bool rail_vehicle_t::is_signal_clear(uint16 next_block, sint32 &restart_speed)
 	// action depend on the next signal
 	const roadsign_desc_t *sig_desc=sig->get_desc();
 
+	// If the next signal is not a longblock signal, reservation must be handled by next_reservation_index.
+	if(  !sig_desc->is_longblock_signal()  ) {
+		cnv->clear_reserved_tiles();
+	}
+
 	// simple signal: drive on, if next block is free
 	if(  !sig_desc->is_longblock_signal() &&
       !sig_desc->is_choose_sign() &&

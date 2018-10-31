@@ -900,6 +900,7 @@ public:
 	void reserve_pos(koord3d pos) {reserved_tiles.append_unique(pos); }
 	bool is_reservation_empty() const { return reserved_tiles.empty(); }
 	vector_tpl<koord3d>& get_reserved_tiles() { return reserved_tiles; }
+	void clear_reserved_tiles();
 
 	/* the current state of the convoi */
 	PIXVAL get_status_color() const;

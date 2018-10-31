@@ -4165,3 +4165,30 @@ void convoi_t::request_longblock_signal_judge(signal_t *sig, uint16 next_block) 
 	longblock_signal_request.next_block = next_block;
 	longblock_signal_request.valid = true;
 }
+
+void convoi_t::clear_reserved_tiles(){
+	if(  reserved_tiles.get_count()==0  ) {
+		// nothing to do.
+		return;
+	}
+	// determine next_reservation_index
+	for(  sint32 i=route.get_count()-1;  i>=0;  i--  ) {
+		if(  reserved_tiles.is_contained(route.at(i))  ) {
+			// set next_reservation_index
+			set_next_reservation_index(i);
+			break;
+		}
+	}
+	// unreserve all tiles that are not in route
+	for(  uint32 i=0;  i<reserved_tiles.get_count();  i++  ) {
+		if(  !route.is_contained(reserved_tiles[i])  ) {
+			// unreserve the tile
+			grund_t* gr = welt->lookup(reserved_tiles[i]);
+			schiene_t* sch = gr ? (schiene_t*)gr->get_weg(front()->get_waytype()) : NULL;
+			if(  sch  ) {
+				sch->unreserve(self);
+			}
+		}
+	}
+	reserved_tiles.clear();
+}
