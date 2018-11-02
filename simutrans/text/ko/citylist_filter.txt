@@ -1,4 +1,4 @@
-﻿<title>SUCKSHIT</title>
+﻿<title>도시 목록</title>
 
 <h1><strong>도시 목록</strong></h1>
 
