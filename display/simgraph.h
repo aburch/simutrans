@@ -150,11 +150,9 @@ void register_image(class image_t *);
 void display_free_all_images_above( image_id above );
 
 // unzoomed offsets
-//void display_set_base_image_offset( unsigned image, KOORD_VAL xoff, KOORD_VAL yoff );
 void display_get_base_image_offset( image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
 // zoomed offsets
 void display_get_image_offset( image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
-void display_get_base_image_offset( image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
 void display_mark_img_dirty( image_id image, KOORD_VAL x, KOORD_VAL y );
 
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2); // clips to screen only
