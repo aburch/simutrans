@@ -506,7 +506,7 @@ bool savegame_frame_t::check_file(const char *filename, const char *suffix)
  */
 bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t p)
 {
-	char buf[1024];
+	char buf[PATH_MAX];
 
 	if(component==&input  ||  component==&savebutton) {
 		// Save/Load Button or Enter-Key pressed

@@ -553,7 +553,7 @@ int simu_main(int argc, char** argv)
 	{
 		// Settings file not found. Try the Debian default instead, in which
 		// data files are in /usr/share/games/simutrans
-        char backup_program_dir[1024];
+		char backup_program_dir[PATH_MAX];
 		strcpy(backup_program_dir, env_t::program_dir);
 		strcpy( env_t::program_dir, "/usr/share/games/simutrans-ex/" );
 		dr_chdir( env_t::program_dir );
@@ -662,7 +662,7 @@ int simu_main(int argc, char** argv)
 	if(!xml_settings_found)
 	{
 		// Again, attempt to use the Debian directory.
-		char backup_program_dir[1024];
+		char backup_program_dir[PATH_MAX];
 		strcpy(backup_program_dir, env_t::program_dir);
 		strcpy( env_t::program_dir, "/usr/share/games/simutrans-extended/" );
 		dr_chdir( env_t::program_dir );

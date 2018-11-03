@@ -37,8 +37,6 @@
 #	else
 #		include <sys\unistd.h>
 #	endif
-#   undef PATH_MAX
-#	define PATH_MAX MAX_PATH
 #	include "../simdebug.h"
 #else
 #	include <limits.h>
