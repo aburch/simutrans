@@ -116,14 +116,12 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_component(&lb_convois);
 
 	convoy_selector.add_listener(this);
-	convoy_selector.set_highlight_color( color_idx_to_rgb(depot->get_owner()->get_player_color1() + 1));
 	add_component(&convoy_selector);
 
 	/*
 	* [SELECT ROUTE]:
 	*/
 	line_selector.add_listener(this);
-	line_selector.set_highlight_color( color_idx_to_rgb(depot->get_owner()->get_player_color1() + 1));
 	line_selector.set_wrapping(false);
 	add_component(&line_selector);
 
@@ -245,11 +243,9 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 		add_component(&bt_obsolete);
 	}
 
-	sort_by.set_highlight_color(color_idx_to_rgb(depot->get_owner()->get_player_color1() + 1));
 	sort_by.add_listener(this);
 	add_component(&sort_by);
 
-	vehicle_filter.set_highlight_color(color_idx_to_rgb(depot->get_owner()->get_player_color1() + 1));
 	vehicle_filter.add_listener(this);
 	add_component(&vehicle_filter);
 
