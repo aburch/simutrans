@@ -6,7 +6,7 @@
 class font_t
 {
 public:
-	char fname[1024];
+	char fname[PATH_MAX];
 	sint16	height;
 	sint16	descent;
 	uint16 num_chars;
