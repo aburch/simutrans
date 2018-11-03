@@ -2223,32 +2223,6 @@ void display_get_base_image_offset(image_id image, scr_coord_val& xoff, scr_coor
 	}
 }
 
-/*
-// prissi: changes the offset of an image
-// we need it this complex, because the actual x-offset is coded into the image
-void display_set_base_image_offset(unsigned image, KOORD_VAL xoff, KOORD_VAL yoff)
-{
-if(image >= anz_images) {
-fprintf(stderr, "Warning: display_set_base_image_offset(): illegal image=%d\n", image);
-return;
-}
-
-// only move images once
-if(  images[image].recode_flags & FLAG_POSITION_CHANGED  ) {
-fprintf(stderr, "Warning: display_set_base_image_offset(): image=%d was already moved!\n", image);
-return;
-}
-images[image].recode_flags |= FLAG_POSITION_CHANGED;
-
-assert(images[image].base_h > 0);
-assert(images[image].base_w > 0);
-
-// avoid overflow
-images[image].base_x += xoff;
-images[image].base_y += yoff;
-}
-*/
-
 // ------------------ display all kind of images from here on ------------------------------
 
 

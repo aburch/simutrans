@@ -145,12 +145,6 @@ void display_get_base_image_offset(image_id image, scr_coord_val& xoff, scr_coor
     }
 }
 
-/*
-void display_set_base_image_offset(unsigned, KOORD_VAL, KOORD_VAL)
-{
-}
-*/
-
 clip_dimension display_get_clip_wh(CLIP_NUM_DEF_NOUSE0)
 {
 	clip_dimension clip_rect;
