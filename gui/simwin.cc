@@ -552,7 +552,7 @@ void rdwr_all_win(loadsave_t *file)
 				file->rdwr_long(id);
 				// create the matching
 				gui_frame_t *w = NULL;
-				switch(id) {
+				switch(magic_numbers(id)) {
 
 					// end of dialogues
 					case (uint32)magic_none: return;
