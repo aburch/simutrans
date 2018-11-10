@@ -978,7 +978,7 @@ static inline void mark_tile_dirty(const int x, const int y)
 #if 0
 	assert(bit / 8 < tile_buffer_length);
 #endif
-	((uint8*)tile_dirty)[bit >> 3] |= 1 << (bit & 7);
+	tile_dirty[bit >> 5] |= 1 << (bit & 31);
 }
 
 
@@ -1009,8 +1009,8 @@ static void mark_rect_dirty_nc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_V
 		int bit = y1 * tile_buffer_per_line + x1;
 		const int end = bit + x2 - x1;
 		do {
-			((uint8*)tile_dirty)[bit >> 3] |= 1 << (bit & 7);
-		} while (++bit <= end);
+			tile_dirty[bit >> 5] |= 1 << (bit & 31);
+		} while(  ++bit <= end  );
 	}
 }
 
@@ -2482,7 +2482,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 #ifdef SIM_BIG_ENDIAN
 					// low level c++ without any unrolling
 					while(  runlen--  ) {
-						*sp++ = *p++;
+						*p++ = *sp++;
 					}
 #else
 					// trying to merge reads and writes
