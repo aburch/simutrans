@@ -32,7 +32,7 @@ void gui_fixedwidth_textarea_t::recalc_size()
 
 
 
-void gui_fixedwidth_textarea_t::set_width(const sint16 width)
+void gui_fixedwidth_textarea_t::set_width(const scr_coord_val width)
 {
 	if(  width>0  ) {
 		// height is simply reset to 0 as it requires recalculation anyway
