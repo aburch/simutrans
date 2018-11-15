@@ -47,6 +47,11 @@ extern char **__argv;
 #include "simevent.h"
 #include "macros.h"
 
+/*
+ * The class name used to configure the main window.
+ */
+static const LPCWSTR WINDOW_CLASS_NAME = L"Simu";
+
 static volatile HWND hwnd;
 static bool is_fullscreen = false;
 static bool is_not_top = false;
@@ -55,7 +60,7 @@ static RECT WindowSize = { 0, 0, 0, 0 };
 static RECT MaxSize;
 static HINSTANCE hInstance;
 
-static BITMAPINFO* AllDib;
+static BITMAPINFO* AllDib = NULL;
 static PIXVAL*     AllDibData;
 
 volatile HDC hdc = NULL;
@@ -130,7 +135,7 @@ static void create_window(DWORD const ex_style, DWORD const style, int const x, 
 	LPWSTR const wSIM_TITLE = new WCHAR[size];
 	MultiByteToWideChar(CP_UTF8, 0, SIM_TITLE, -1, wSIM_TITLE, size);
 
-	hwnd = CreateWindowExW(ex_style, L"Simu", wSIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
+	hwnd = CreateWindowExW(ex_style, WINDOW_CLASS_NAME, wSIM_TITLE, style, x, y, r.right - r.left, r.bottom - r.top, 0, 0, hInstance, 0);
 
 	delete[] wSIM_TITLE;
 
@@ -611,13 +616,15 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			break;
 
 		case WM_PAINT: {
-			PAINTSTRUCT ps;
-			HDC hdcp;
+			if (AllDib != NULL) {
+				PAINTSTRUCT ps;
+				HDC hdcp;
 
-			hdcp = BeginPaint(hwnd, &ps);
-			AllDib->bmiHeader.biHeight = (WindowSize.bottom*32)/y_scale;
-			StretchDIBits(hdcp, 0, 0, WindowSize.right, WindowSize.bottom, 0, AllDib->bmiHeader.biHeight + 1, AllDib->bmiHeader.biWidth, -AllDib->bmiHeader.biHeight, AllDibData, AllDib, DIB_RGB_COLORS, SRCCOPY);
-			EndPaint(this_hwnd, &ps);
+				hdcp = BeginPaint(hwnd, &ps);
+				AllDib->bmiHeader.biHeight = (WindowSize.bottom*32)/y_scale;
+				StretchDIBits(hdcp, 0, 0, WindowSize.right, WindowSize.bottom, 0, AllDib->bmiHeader.biHeight + 1, AllDib->bmiHeader.biWidth, -AllDib->bmiHeader.biHeight, AllDibData, AllDib, DIB_RGB_COLORS, SRCCOPY);
+				EndPaint(this_hwnd, &ps);
+			}
 			break;
 		}
 
@@ -996,7 +1003,6 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 	WNDCLASSW wc;
 	bool timer_is_set = false;
 
-	wc.lpszClassName = L"Simu";
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = WindowProc;
 	wc.cbClsExtra = 0;
@@ -1006,6 +1012,7 @@ int CALLBACK WinMain(HINSTANCE const hInstance, HINSTANCE, LPSTR, int)
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH) (COLOR_BACKGROUND + 1);
 	wc.lpszMenuName = NULL;
+	wc.lpszClassName = WINDOW_CLASS_NAME;
 	RegisterClassW(&wc);
 
 	GetWindowRect(GetDesktopWindow(), &MaxSize);
