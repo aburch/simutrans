@@ -302,7 +302,7 @@ bool convoi_frame_t::action_triggered( gui_action_creator_t *comp, value_t /* */
 	}
 	else if(  comp == &filter_details  ) {
 		if(  !destroy_win( magic_convoi_list_filter+owner->get_player_nr() )  ) {
-			create_win( new convoi_filter_frame_t(owner, this, filter_flags), w_info, magic_convoi_list_filter+owner->get_player_nr() );
+			create_win( new convoi_filter_frame_t(owner, this), w_info, magic_convoi_list_filter+owner->get_player_nr() );
 		}
 	}
 	return true;

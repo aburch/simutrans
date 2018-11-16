@@ -72,11 +72,10 @@ convoi_filter_frame_t::filter_flag_t convoi_filter_frame_t::filter_buttons_types
 
 slist_tpl<const goods_desc_t *>convoi_filter_frame_t::active_ware;
 char convoi_filter_frame_t::name_filter_text[] = "";
+uint32 convoi_filter_frame_t::filter_flags = 0;
 
-
-convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m, uint32 f ) :
+convoi_filter_frame_t::convoi_filter_frame_t(player_t *player, convoi_frame_t *m) :
 	gui_frame_t( translator::translate("clf_title"), player),
-	filter_flags(f),
 	main_frame(m),
 	ware_scrolly(&ware_cont)
 {
