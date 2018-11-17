@@ -185,12 +185,13 @@ protected:
 	 */
 	const way_desc_t *replacement_way;
 
+public:
+
 	/*
 	 * Degrade the way owing to excessive wear without renewal.
 	 */
 	void degrade();
 
-public:
 	inline weg_t(waytype_t waytype, loadsave_t*) : obj_no_info_t(obj_t::way), wtyp(waytype) { init(); }
 	inline weg_t(waytype_t waytype) : obj_no_info_t(obj_t::way), wtyp(waytype) { init(); }
 

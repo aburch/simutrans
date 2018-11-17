@@ -650,7 +650,7 @@ void player_t::ai_bankrupt()
 	// deactivate active tool (remove dummy grounds)
 	welt->set_tool(tool_t::general_tool[TOOL_QUERY], this);
 
-	// next, mothball all ways, depot etc, that are not road or canals if a mothballed type is available, or else remove them.
+	// next, mothball all ways, depot etc, that are not road or canals if a mothballed type is available, or else convert to unowned
 	for( int y=0;  y<welt->get_size().y;  y++  ) {
 		for( int x=0;  x<welt->get_size().x;  x++  ) {
 			planquadrat_t *plan = welt->access(x,y);
@@ -721,7 +721,9 @@ void player_t::ai_bankrupt()
 									}
 									else
 									{
-										gr->weg_entfernen(w->get_waytype(), true);
+										way->degrade();
+										// Run this a second time to make sure that this degrades fully - running it once with wear capacity left simply reduces the speed limit.
+										way->degrade();
 									}
 									way->set_owner(NULL);
 								}
