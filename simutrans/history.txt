@@ -1,6 +1,5 @@
 	FIX: Do not call DefWindowsProc for IME to mitigate crash on Windows1809
 	ADD: always use temporary save name *.sv_ during saving before deleting main file
-	FIX: Make double pak warning translatable
 	CHG: Make double pak warning translatable
 	FIX: (ACarlotti) rotation of traffic light phases and overflow was broken for years
 	FIX: fields now check for allowed climate, not same height

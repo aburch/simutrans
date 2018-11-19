@@ -269,7 +269,7 @@ bool baum_t::successfully_loaded()
 	tree_list_per_climate = new weighted_vector_tpl<uint32>[MAX_CLIMATES];
 
 	// clear cache
-	memset( tree_id_to_image, -1, lengthof(tree_id_to_image) );
+	memset( tree_id_to_image, -1, sizeof(tree_id_to_image) );
 	// now register all trees for all fitting climates
 	for(  uint32 typ=0;  typ<tree_list.get_count()-1;  typ++  ) {
 		// add this tree to climates

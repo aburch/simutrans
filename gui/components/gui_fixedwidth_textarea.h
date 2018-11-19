@@ -41,7 +41,7 @@ public:
 	void recalc_size();
 
 	// after using any of these setter functions, remember to call recalc_size() to recalculate textarea height
-	void set_width(const sint16 width);
+	void set_width(scr_coord_val width);
 
 	void set_reserved_area(const scr_size area);
 

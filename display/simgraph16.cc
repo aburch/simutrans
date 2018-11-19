@@ -981,7 +981,7 @@ static inline void mark_tile_dirty(const int x, const int y)
 #if 0
 	assert(bit / 8 < tile_buffer_length);
 #endif
-	((uint8*)tile_dirty)[bit >> 3] |= 1 << (bit & 7);
+	tile_dirty[bit >> 5] |= 1 << (bit & 31);
 }
 
 
@@ -1012,7 +1012,7 @@ static void mark_rect_dirty_nc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_V
 		int bit = y1 * tile_buffer_per_line + x1;
 		const int end = bit + x2 - x1;
 		do {
-			((uint8*)tile_dirty)[bit >> 3] |= 1 << (bit & 7);
+			tile_dirty[bit >> 5] |= 1 << (bit & 31);
 		} while(  ++bit <= end  );
 	}
 }
@@ -2200,32 +2200,6 @@ void display_get_base_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *y
 	}
 }
 
-/*
-// prissi: changes the offset of an image
-// we need it this complex, because the actual x-offset is coded into the image
-void display_set_base_image_offset(unsigned image, KOORD_VAL xoff, KOORD_VAL yoff)
-{
-	if(image >= anz_images) {
-		fprintf(stderr, "Warning: display_set_base_image_offset(): illegal image=%d\n", image);
-		return;
-	}
-
-	// only move images once
-	if(  images[image].recode_flags & FLAG_POSITION_CHANGED  ) {
-		fprintf(stderr, "Warning: display_set_base_image_offset(): image=%d was already moved!\n", image);
-		return;
-	}
-	images[image].recode_flags |= FLAG_POSITION_CHANGED;
-
-	assert(images[image].base_h > 0);
-	assert(images[image].base_w > 0);
-
-	// avoid overflow
-	images[image].base_x += xoff;
-	images[image].base_y += yoff;
-}
-*/
-
 // ------------------ display all kind of images from here on ------------------------------
 
 
@@ -2485,7 +2459,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 #ifdef SIM_BIG_ENDIAN
 					// low level c++ without any unrolling
 					while(  runlen--  ) {
-						*sp++ = *p++;
+						*p++ = *sp++;
 					}
 #else
 					// trying to merge reads and writes

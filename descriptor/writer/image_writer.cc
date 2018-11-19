@@ -81,7 +81,7 @@ static uint16 pixrgb_to_pixval(uint32 rgb)
 		// else store color as 3 red, 4, green, 3 red
 		pix = ((rgb >> 14) & 0x0380) | ((rgb >>  9) & 0x0078) | ((rgb >> 5) & 0x07);
 		pix = 0x8020 + 31*31 + pix*31 + alpha;
-		return endian(pix);
+		return pix;
 	}
 
 
@@ -89,7 +89,7 @@ static uint16 pixrgb_to_pixval(uint32 rgb)
 	for (int i = 0; i < SPECIAL; i++) {
 		if (image_t::rgbtab[i] == (uint32)rgb) {
 			pix = 0x8000 + i;
-			return endian(pix);
+			return pix;
 		}
 	}
 
@@ -99,7 +99,7 @@ static uint16 pixrgb_to_pixval(uint32 rgb)
 
 	// RGB 555
 	pix = ((r & 0xF8) << 7) | ((g & 0xF8) << 2) | ((b & 0xF8) >> 3);
-	return endian(pix);
+	return pix;
 }
 
 
@@ -192,8 +192,8 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 				PIXVAL pixval = pixrgb_to_pixval(pix);
 				if(  pixval >= 0x8020  &&  !has_transparent  ) {
 					if(  count  ) {
-						*colored_run_counter = endian(count);
-						*dest++ = endian(0x8000);
+						*colored_run_counter = endian(uint16(count));
+						*dest++ = endian(uint16(0x8000));
 						colored_run_counter = dest++;
 						count = 0;
 					}
@@ -201,14 +201,14 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 				}
 				else if(  pixval < 0x8020  &&  has_transparent  ) {
 					if(  count  ) {
-						*colored_run_counter = endian(count+has_transparent);
-						*dest++ = endian(0x8000);
+						*colored_run_counter = endian(uint16(count+has_transparent));
+						*dest++ = endian(uint16(0x8000));
 						colored_run_counter = dest++;
 						count = 0;
 					}
 					has_transparent = 0;
 				}
-				*dest++ = pixval;
+				*dest++ = endian(uint16(pixval));
 				count++;
 				if (row_px_count >= img_width) { // end of line ?
 					break;
@@ -226,7 +226,7 @@ uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 				// this only happens at the end of a line, so no need to increment clear_colored_run_pair_count
 			}
 			else {
-				*colored_run_counter = endian(count + has_transparent);
+				*colored_run_counter = endian(uint16(count + has_transparent));
 				clear_colored_run_pair_count++;
 			}
 		} while(  row_px_count < img_width  );

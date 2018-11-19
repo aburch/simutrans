@@ -136,7 +136,6 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	// init scrolled list
 	scl.set_pos(scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP));
 	scl.set_size(scr_size(3*D_BUTTON_WIDTH+2*D_H_SPACE, SCL_HEIGHT));
-	scl.set_highlight_color(color_idx_to_rgb(player->get_player_color1()+1));
 	scl.add_listener(this);
 
 	// tab panel
