@@ -137,9 +137,11 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 	// prissi: repaired it, was never doing something ...
 	if(  IS_WHEELUP(ev)  &&  (type == vertical) != IS_SHIFT_PRESSED(ev)  ) {
 		scroll( -knob_scroll_amount );
+		return true;
 	}
 	else if (IS_WHEELDOWN(ev) && (type == vertical) != IS_SHIFT_PRESSED(ev)) {
 		scroll( +knob_scroll_amount );
+		return true;
 	}
 	else if(  is_visible()  &&  !full ) {
 		// don't respond to these messages if not visible
@@ -177,6 +179,7 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 					}
 				}
 			}
+			return true;
 		}
 		else if(  IS_LEFTDRAG(ev)  ||  (dragging  &&  IS_LEFT_BUTTON_PRESSED(ev))  ) {
 			// now dragging the slider ...
@@ -199,6 +202,7 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 					change_drag_start( knobarea.x-delta, 0 );
 				}
 				dragging = true;
+				return true;
 			}
 		}
 		else if (IS_LEFTRELEASE(ev)) {
@@ -206,6 +210,7 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 			for (i=0;i<2;i++) {
 				if (button_def[i].getroffen(x, y)) {
 					button_def[i].pressed = false;
+					return true;
 				}
 			}
 		}

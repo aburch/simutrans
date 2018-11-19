@@ -96,7 +96,7 @@ void gui_chart_t::draw(scr_coord offset)
 	scr_size chart_size = size-chart_offset-scr_size(10,4+LINESPACE);
 
 	sint64 last_year=0, tmp=0;
-	char cmin[128] = "0", cmax[128] = "0", digit[8];
+	char cmin[128] = "0", cmax[128] = "0", digit[11];
 
 	sint64 baseline = 0;
 	sint64* pbaseline = &baseline;

@@ -57,7 +57,7 @@ public:
 
 
 private:
-	uint32 filter_flags;
+	static uint32 filter_flags;
 
 	bool get_filter(convoi_filter_frame_t::filter_flag_t filter) { return (filter_flags & filter) != 0; }
 	void set_filter(convoi_filter_frame_t::filter_flag_t filter, bool on) { filter_flags = (on ? (filter_flags | filter) : (filter_flags & ~filter) ); }
@@ -125,7 +125,7 @@ public:
 	 * Constructor. Generates all necessary Subcomponents.
 	 * @author V. Meyer
 	 */
-	convoi_filter_frame_t(player_t *player, convoi_frame_t *parent, uint32 initial_filters );
+	convoi_filter_frame_t(player_t *player, convoi_frame_t *parent);
 
 	/**
 	 * Does this window need a min size button in the title bar?

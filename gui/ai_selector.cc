@@ -61,7 +61,7 @@ bool ai_selector_t::item_action(const char *fullpath)
 
 const char *ai_selector_t::get_info(const char *filename)
 {
-	static char info[1024];
+	static char info[PATH_MAX];
 
 	sprintf(info,"%s",this->get_filename(filename, false).c_str());
 
@@ -71,7 +71,7 @@ const char *ai_selector_t::get_info(const char *filename)
 
 bool ai_selector_t::check_file( const char *filename, const char * )
 {
-	char buf[1024];
+	char buf[PATH_MAX];
 	sprintf( buf, "%s/ai.nut", filename );
 	if (FILE* const f = dr_fopen(buf, "r")) {
 		fclose(f);

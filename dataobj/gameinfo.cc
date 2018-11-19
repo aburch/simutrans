@@ -157,7 +157,7 @@ void gameinfo_t::rdwr(loadsave_t *file)
 
 	file->rdwr_str(language_code_names, lengthof(language_code_names) );
 
-	char temp[1024];
+	char temp[PATH_MAX];
 	tstrncpy( temp, game_comment.c_str(), lengthof(temp) );
 	file->rdwr_str( temp, lengthof(temp) );	// game_comment
 	if(  file->is_loading()  ) {

@@ -85,12 +85,6 @@ private:
 	int border; // must be subtracted from size.h to get net size
 	int offset; // vertical offset of top left position.
 
-	/**
-	 * color of selected entry
-	 * @author Hj. Malthaner
-	 */
-	PIXVAL highlight_color;
-
 	scrollbar_t sb;
 
 	vector_tpl<gui_scrolled_list_t::scrollitem_t *> item_list;
@@ -101,12 +95,6 @@ public:
 	gui_scrolled_list_t(enum type);
 
 	~gui_scrolled_list_t() { clear_elements(); }
-
-	/**
-	* Sets the color of selected entry
-	* @author Hj. Malthaner
-	*/
-	void set_highlight_color(PIXVAL c) { highlight_color = c; }
 
 	void show_selection(int s);
 

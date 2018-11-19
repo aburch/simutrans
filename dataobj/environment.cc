@@ -18,7 +18,7 @@ bool env_t::simple_drawing_fast_forward = true;
 sint16 env_t::simple_drawing_normal = 4;
 sint16 env_t::simple_drawing_default = 24;
 
-char env_t::program_dir[1024];
+char env_t::program_dir[PATH_MAX];
 plainstring env_t::default_theme;
 const char *env_t::user_dir = 0;
 const char *env_t::savegame_version_str = SAVEGAME_VER_NR;

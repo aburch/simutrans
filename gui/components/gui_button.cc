@@ -303,6 +303,7 @@ void button_t::draw(scr_coord offset)
 					text_color = b_enabled ? this->text_color : SYSCOL_CHECKBOX_TEXT_DISABLED;
 					scr_rect area_text = area;
 					area_text.x += gui_theme_t::gui_checkbox_size.w + D_H_SPACE;
+					area_text.w -= gui_theme_t::gui_checkbox_size.w + D_H_SPACE;
 					display_proportional_ellipsis_rgb( area_text, translated_text, ALIGN_LEFT | ALIGN_CENTER_V | DT_CLIP, text_color, true );
 				}
 				if(  win_get_focus() == this  ) {
