@@ -168,6 +168,9 @@ sprachengui_t::sprachengui_t() :
 		buttons.insert_ordered(lb, sprachengui_t::cmp_language_button);
 	}
 
+	// reload own font
+	init_font_from_lang(true);
+
 	// now set position
 	const uint32 count = buttons.get_count();
 	const scr_coord_val width = ((L_DIALOG_WIDTH - D_MARGINS_X - D_H_SPACE) >> 1);
