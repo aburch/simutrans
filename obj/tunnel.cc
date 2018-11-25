@@ -291,7 +291,7 @@ void tunnel_t::set_desc(const tunnel_desc_t *_desc)
 	{
 		// Remove the old maintenance cost
 		sint32 old_maint = get_desc()->get_maintenance();
-		if(way->is_diagonal())
+		if(way && way->is_diagonal())
 		{
 			old_maint *= 10;
 			old_maint /= 14;
@@ -302,7 +302,7 @@ void tunnel_t::set_desc(const tunnel_desc_t *_desc)
 	desc = _desc;
 	// Add the new maintenance cost
 	sint32 maint = get_desc()->get_maintenance();
-	if(way->is_diagonal())
+	if(way && way->is_diagonal())
 	{
 		maint *= 10;
 		maint /= 14;
