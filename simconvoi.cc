@@ -7842,19 +7842,19 @@ void convoi_t::clear_replace()
 		return longest_min_loading_time;
 	}
 
-	uint16 total_capacity = 0;
+	sint32 total_capacity = 0;
 	for(uint8 i = 0; i < vehicle_count; i ++)
 	{
-		total_capacity += vehicle[i]->get_desc()->get_total_capacity();
-		total_capacity += vehicle[i]->get_desc()->get_overcrowded_capacity();
+		total_capacity += (sint32)vehicle[i]->get_desc()->get_total_capacity();
+		total_capacity += (sint32)vehicle[i]->get_desc()->get_overcrowded_capacity();
 	}
 	// Multiply this by 2, as goods/passengers can both board and alight, so
 	// the maximum load charge is twice the capacity: all alighting, then all
 	// boarding.
 	total_capacity *= 2;
-	const sint32 percentage = (load_charge * 100) / total_capacity;
-	const sint32 difference = abs((((sint32)longest_max_loading_time - (sint32)longest_min_loading_time)) * percentage) / 100;
-	return difference + longest_min_loading_time;
+	const sint32 percentage = ((sint32)load_charge * 100) / total_capacity;
+	const sint32 difference = abs((((sint32)longest_max_loading_time - (sint32)longest_min_loading_time)) * percentage) / (sint32)100;
+	return (uint32)(difference + (sint32)longest_min_loading_time);
  }
 
  obj_t::typ convoi_t::get_depot_type() const
