@@ -857,6 +857,7 @@ const char *tool_remover_t::do_work( player_t *player, const koord3d &start, con
 	grund_t *gr_kartenboden = welt->lookup_kartenboden(start.x, start.y);
 	if (start.z != gr_kartenboden->get_pos().z) { is_lock_z_with_start = true; }
 	
+	const char* msg = NULL;
 	koord wh, nw;
 	wh.x = abs(end.x-start.x)+1;
 	wh.y = abs(end.y-start.y)+1;
@@ -875,12 +876,15 @@ const char *tool_remover_t::do_work( player_t *player, const koord3d &start, con
 				gr = welt->lookup_kartenboden(x, y);
 			}
 			if (gr != NULL) {
-				process(player, gr->get_pos());
+				const char* err = process(player, gr->get_pos());
+				if(  msg==NULL  ||  strcmp(msg,"")==0  ) {
+					msg = err;
+				}
 			}
 		}
 	}
 	
-	return NULL;
+	return msg;
 }
 
 
