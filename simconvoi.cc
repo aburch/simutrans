@@ -5954,13 +5954,12 @@ station_tile_search_ready: ;
 		go_on_ticks = WAIT_INFINITE;
 		arrival_time = now;
 	}
-	const uint32 reversing_time = schedule->get_current_entry().reverse > 0 ? calc_reverse_delay() : 0;
+	const sint64 reversing_time = schedule->get_current_entry().reverse > 0 ? (sint64)calc_reverse_delay() : 0ll;
 	bool running_late = false;
 	sint64 go_on_ticks_waiting = WAIT_INFINITE;
-	const sint64 earliest_departure_time = arrival_time + ((sint64)current_loading_time - (sint64)reversing_time);
+	const sint64 earliest_departure_time = arrival_time + ((sint64)current_loading_time - reversing_time);
 	if(go_on_ticks == WAIT_INFINITE)
 	{
-		const sint64 departure_time = (arrival_time + (sint64)current_loading_time) - (sint64)reversing_time;
 		if(haltestelle_t::get_halt(get_pos(), get_owner()) != haltestelle_t::get_halt(schedule->get_current_entry().pos, get_owner()))
 		{
 			// Sometimes, for some reason, the loading method is entered with the wrong schedule entry. Make sure that this does not cause
@@ -5970,7 +5969,7 @@ station_tile_search_ready: ;
 		if((!loading_limit || loading_level >= loading_limit) && !wait_for_time)
 		{
 			// Simple case: do not wait for a full load or a particular time.
-			go_on_ticks = std::max(departure_time, arrival_time);
+			go_on_ticks = std::max(earliest_departure_time, arrival_time);
 		}
 		else
 		{
@@ -5996,11 +5995,11 @@ station_tile_search_ready: ;
 			if (schedule->get_spacing() && !line.is_bound())
 			{
 				// Spacing should not be possible without a line, but this can occasionally occur. Without this, the convoy will wait forever.
-				go_on_ticks_spacing = departure_time;
+				go_on_ticks_spacing = earliest_departure_time;
 			}
 
 			go_on_ticks = std::min(go_on_ticks_spacing, go_on_ticks_waiting);
-			go_on_ticks = std::max(departure_time, go_on_ticks);
+			go_on_ticks = std::max(earliest_departure_time, go_on_ticks);
 			running_late = wait_for_time && (go_on_ticks_waiting < go_on_ticks_spacing);
 			if(running_late)
 			{
