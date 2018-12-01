@@ -2017,10 +2017,11 @@ end_loop:
 				{
 					// The schedule window might be closed whilst this vehicle is still loading.
 					// Do not allow the player to cheat by sending the vehicle on its way before it has finished.
+					const sint64 time = arrival_time < WAIT_INFINITE ? arrival_time : welt->get_ticks();
 					bool can_go = true;
 					const uint32 reversing_time = schedule->get_current_entry().reverse == 1 ? calc_reverse_delay() : 0;
 					can_go = can_go || welt->get_ticks() > go_on_ticks;
-					can_go = can_go && welt->get_ticks() > arrival_time + ((sint64)current_loading_time - (sint64)reversing_time);
+					can_go = can_go && welt->get_ticks() > time + ((sint64)current_loading_time - (sint64)reversing_time);
 					can_go = can_go || no_load;
 
 					grund_t *gr = welt->lookup(schedule->get_current_entry().pos);
@@ -2043,7 +2044,7 @@ end_loop:
 							{
 								// The go to depot command has been set previously and has not been unset.
 								can_go = true;
-								wait_lock = (arrival_time + ((sint64)current_loading_time - (sint64)reversing_time)) - welt->get_ticks();
+								wait_lock = (sint32)((time + ((sint64)current_loading_time - (sint64)reversing_time)) - welt->get_ticks());
 								go_to_depot = true;
 							}
 						}
@@ -3640,6 +3641,7 @@ void convoi_t::vorfahren()
 	}
 
 	wait_lock = reverse_delay;
+	arrival_time = WAIT_INFINITE; // Make sure that the convoy does not use an outdated arrival time.
 	//INT_CHECK("simconvoi 711");
 }
 
@@ -5948,12 +5950,15 @@ station_tile_search_ready: ;
 	}
 
 	const sint64 now = welt->get_ticks();
-	if(arrival_time > now)
+	if(arrival_time > now || arrival_time == WAIT_INFINITE)
 	{
 		// This is a workaround for an odd bug the origin of which is as yet unclear.
 		go_on_ticks = WAIT_INFINITE;
 		arrival_time = now;
-		dbg->error("sint64 convoi_t::calc_revenue", "Arrival time is in the future for convoy %u at stop %u", self.get_id(), halt.get_id());
+		if (arrival_time < WAIT_INFINITE)
+		{
+			dbg->error("sint64 convoi_t::calc_revenue", "Arrival time is in the future for convoy %u at stop %u", self.get_id(), halt.get_id());
+		}
 	}
 	const sint64 reversing_time = schedule->get_current_entry().reverse > 0 ? (sint64)calc_reverse_delay() : 0ll;
 	bool running_late = false;
@@ -7424,7 +7429,8 @@ sint64 convoi_t::calc_remaining_loading_time() const
 	uint32 loading_time = current_loading_time;
 	const sint64 current_ticks = welt->get_ticks();
 	const grund_t* gr = welt->lookup(this->get_pos());
-	if(gr && welt->get_ticks() - arrival_time > reverse_delay && gr->is_halt())
+	const sint64 time = arrival_time < WAIT_INFINITE ? arrival_time : welt->get_ticks();
+	if(gr && welt->get_ticks() - time > reverse_delay && gr->is_halt())
 	{
 		// The reversing time must not be cumulative with the loading time, as
 		// passengers can board trains etc. while they are changing direction.
@@ -7446,9 +7452,9 @@ sint64 convoi_t::calc_remaining_loading_time() const
 		remaining_ticks = (sint32)(go_on_ticks - current_ticks);
 	}
 
-	else if (((arrival_time + current_loading_time) - reverse_delay) >= current_ticks)
+	else if (((time + current_loading_time) - reverse_delay) >= current_ticks)
 	{
-		remaining_ticks = (sint32)(((arrival_time + current_loading_time) - reverse_delay) - current_ticks);
+		remaining_ticks = (sint32)(((time + current_loading_time) - reverse_delay) - current_ticks);
 	}
 	else
 	{
