@@ -919,6 +919,7 @@ bool prepare_for_server( char *externalIPAddress, char *externalAltIPAddress, in
 	}
 	freeUPNPDevlist(devlist);
 
+	externalAltIPAddress[0] = 0;
 #if 1
 	// use the same routine as later the abnnounce routine, otherwise update with dynamic IP fails
 	cbuffer_t myIPaddr, altIPaddr;
@@ -926,12 +927,10 @@ bool prepare_for_server( char *externalIPAddress, char *externalAltIPAddress, in
 		has_IP = true;
 		strcpy( externalIPAddress, myIPaddr );
 		if(  altIPaddr.len()  ) {
-			strcpy( externalIPAddress, myIPaddr );
+			strcpy( externalAltIPAddress, altIPaddr );
 		}
 	}
 #else
-	externalAltIPAddress[0] = 0;
-
 	// now we have (or have not) the IPv4 at this point (due to the protocol), we check for IP6 too or try to get at least an IP addr
 	cbuffer_t myIPaddr;
 	// lets get IP by query "simutrans-forum.de/get_IP.php" for IP and assume that the redirection is working
