@@ -87,14 +87,11 @@ display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
 }
 
 
-/*
-* Hajo: mapping table for special-colors (AI player colors)
-* to actual output format - all day mode
-* 16 sets of 16 colors
-*/
-extern PIXVAL specialcolormap_all_day[256];
-
-#define color_idx_to_rgb(idx) (specialcolormap_all_day[(idx)&0x00FF])
+/**
+ *
+ */
+PIXVAL color_idx_to_rgb(PIXVAL idx);
+PIXVAL color_rgb_to_idx(PIXVAL color);
 
 /*
  * Get 24bit RGB888 colour from an index of the old 8bit palette
