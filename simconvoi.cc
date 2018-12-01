@@ -4319,11 +4319,11 @@ void convoi_t::rdwr(loadsave_t *file)
 			}
 			else
 			{
-				sint64 diff_ticks = welt->get_ticks()>go_on_ticks ? 0 : go_on_ticks-welt->get_ticks();
+				sint64 diff_ticks = welt->get_ticks() > go_on_ticks ? 0ll : go_on_ticks - welt->get_ticks();
 				file->rdwr_longlong(diff_ticks);
 			}
 		}
-		else
+		else // Loading
 		{
 			if(file->get_extended_version() <= 1)
 			{
@@ -4336,7 +4336,7 @@ void convoi_t::rdwr(loadsave_t *file)
 				file->rdwr_longlong(go_on_ticks);
 			}
 
-			if(go_on_ticks!=WAIT_INFINITE)
+			if(go_on_ticks != WAIT_INFINITE)
 			{
 				go_on_ticks += welt->get_ticks();
 			}
@@ -5953,6 +5953,7 @@ station_tile_search_ready: ;
 		// This is a workaround for an odd bug the origin of which is as yet unclear.
 		go_on_ticks = WAIT_INFINITE;
 		arrival_time = now;
+		dbg->error("sint64 convoi_t::calc_revenue", "Arrival time is in the future for convoy %u at stop %u", self.get_id(), halt.get_id());
 	}
 	const sint64 reversing_time = schedule->get_current_entry().reverse > 0 ? (sint64)calc_reverse_delay() : 0ll;
 	bool running_late = false;

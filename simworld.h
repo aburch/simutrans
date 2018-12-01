@@ -1737,11 +1737,8 @@ public:
 	uint8 get_season() const { return season; }
 
 	/**
-	 * Time since map creation or the last load in ms.
+	 * Time since map creation in ms.
 	 * @author Hj. Malthaner
-	 *
-	 * 	
-	 * Time cards since creation / the last load in ms (Google)
 	 */
 	sint64 get_ticks() const { return ticks; }
 
