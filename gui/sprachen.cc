@@ -214,9 +214,3 @@ bool sprachengui_t::action_triggered( gui_action_creator_t *comp, value_t)
 	}
 	return true;
 }
-
-sprachengui_t::~sprachengui_t()
-{
-	// reload font
-	sprachengui_t::init_font_from_lang(true);
-}
