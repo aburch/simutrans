@@ -21,6 +21,7 @@
 #include "../../simcolor.h"
 #include "../../descriptor/skin_desc.h"
 #include "../../simskin.h"
+#include "../../simevent.h"
 
 
 // help for sorting
@@ -64,11 +65,12 @@ gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
 	sb(scrollbar_t::vertical)
 {
 	this->type = type;
-	selection = -1; // nothing
+	selection.clear(); // nothing
 	size = scr_size(0,0);
 	pos = scr_coord(0,0);
 	offset = 0;
 	border = 0;
+	multiple_selection = false;
 	if(  type==windowskin  ) {
 		border = 1;
 	}
@@ -105,7 +107,6 @@ DBG_MESSAGE("gui_scrolled_list_t::show_selection()","sel=%d, offset=%d, size.h=%
 			sb.set_knob_offset( max(0,s-(size.h/2) ) );
 			offset = sb.get_knob_offset();
 		}
-		selection = sel;
 	}
 }
 
@@ -116,7 +117,7 @@ void gui_scrolled_list_t::clear_elements()
 		delete item_list[i];
 	}
 	item_list.clear();
-	selection = -1;
+	selection.clear();
 	offset = 0;
 	total_vertical_size = 0;
 	adjust_scrollbar();
@@ -134,8 +135,8 @@ void gui_scrolled_list_t::append_element( scrollitem_t *item )
 void gui_scrolled_list_t::insert_element( scrollitem_t *item )
 {
 	item_list.insert_at( 0, item );
-	if(  selection >=0 ) {
-		selection ++;
+	if(  !selection.empty()  ) {
+		set_selection(selection.back()+1);
 	}
 	total_vertical_size += item->get_height();
 	adjust_scrollbar();
@@ -145,27 +146,23 @@ void gui_scrolled_list_t::insert_element( scrollitem_t *item )
 void gui_scrolled_list_t::sort( int offset, void *sort_param )
 {
 	if(  item_list.get_count() > 1  ) {
-		scrollitem_t *sel = NULL;
-		if(  selection>=offset  ) {
-			if(  selection >=0  &&  (uint32)selection < item_list.get_count()  ) {
-				sel = item_list[selection];
-			}
-			else {
-				selection = -1;
+		vector_tpl<scrollitem_t*> sel;
+		if(  !selection.empty()  ) {
+			for(uint32 i=0;  i<selection.get_count();  i++) {
+				sel.append(item_list[i]);
 			}
 		}
 		if (offset >=0  &&  (uint32)offset < item_list.get_count()) {
 			item_list[offset]->sort( item_list, offset, sort_param );
 		}
 		// now we may need to update the selection
-		if(  sel  ) {
-			for(  uint32 i=offset;  i<item_list.get_count();  i++  ) {
-				if(  item_list[i] == sel  ) {
-					selection = i;
-					show_selection(selection);
-					return;
-				}
+		if(  !selection.empty()  ) {
+			vector_tpl<sint32> new_selection;
+			for(uint32 i=0;  i<sel.get_count();  i++) {
+				new_selection.append(item_list.index_of(sel[i]));
 			}
+			set_selections(new_selection);
+			show_selection(new_selection.back());
 		}
 	}
 }
@@ -269,7 +266,7 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 
 			// update selection on release
 			if(  IS_LEFTRELEASE(ev)  ) {
-				selection = new_selection;
+				calc_selection(new_selection);
 				if(  notify  ) {
 					// not handled oneself
 					call_listeners((long)new_selection);
@@ -281,9 +278,17 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 
 	// goto next/previous choice
 	if(  ev->ev_class == EVENT_KEYBOARD  &&  (ev->ev_code==SIM_KEY_UP  ||  ev->ev_code==SIM_KEY_DOWN)  ) {
-		int new_selection = (ev->ev_code==SIM_KEY_DOWN) ? min(item_list.get_count()-1, selection+1) : max(0, selection-1);
-		selection = new_selection;
-		show_selection(selection);
+		int new_selection;
+		if(  selection.empty()  ) {
+			new_selection = 0;
+		} else if(  ev->ev_code==SIM_KEY_DOWN  ) {
+			new_selection = min(item_list.get_count()-1, selection.back()+1);
+		} else {
+			// ev_code==SIM_KEY_UP
+			new_selection = max(0, selection.back()-1);
+		}
+		set_selection(new_selection);
+		show_selection(new_selection);
 
 		event_t new_ev;
 		new_ev.ev_class = EVENT_KEYBOARD;
@@ -337,15 +342,10 @@ void gui_scrolled_list_t::draw(scr_coord pos)
 		if(  !item->is_valid()  ) {
 			iter = item_list.erase(iter);
 			delete item;
-			if(i == selection) {
-				selection = -1;
-			}
-			else if(  i<selection  ) {
-				selection --;
-			}
+			decrement_selection(i);
 		}
 		else {
-			scr_coord_val this_w = item->draw( scr_coord( x, ycum), w, i == selection, focus );
+			scr_coord_val this_w = item->draw( scr_coord( x, ycum), w, selection.is_contained(i), focus );
 			if(  this_w > max_w  ) {
 				max_w = this_w;
 			}
@@ -359,4 +359,76 @@ void gui_scrolled_list_t::draw(scr_coord pos)
 	if(  show_scrollbar  ) {
 		sb.draw(pos);
 	}
+}
+
+void gui_scrolled_list_t::calc_selection(sint32 idx) {
+	if(  !multiple_selection  ||  (event_get_last_control_shift()==0)  ) {
+		// single selection. neither shift nor ctrl is pressed.
+		set_selection(idx);
+		return;
+	}
+	
+	// multiple_selection is enabled.
+	if(  idx==-1  ) {
+		selection.clear();
+		return;
+	} else if(  event_get_last_control_shift()==1  ) {
+		// shift is pressed.
+		sint32 start = selection.empty() ? 0 : selection.back();
+		vector_tpl<sint32> new_selection;
+		if(  idx<start  ) {
+			for(  sint32 i=start;  idx<=i;  i--  ) {
+				new_selection.append(i);
+			}
+		} else {
+			for(  sint32 i=start;  i<=idx;  i++  ) {
+				new_selection.append(i);
+			}
+		}
+		set_selections(new_selection);
+	} else if(  event_get_last_control_shift()==2  ) {
+		// ctrl is pressed.
+		if(  selection.is_contained(idx)  ) {
+			// given index is already in selection. remove.
+			selection.remove(idx);
+		} else {
+			// append index
+			selection.append(idx);
+		}
+	}
+}
+
+void gui_scrolled_list_t::set_selection(int s) {
+	clear_selection();
+	if(  s!=-1  ) {
+		selection.append(s);
+	}
+}
+
+void gui_scrolled_list_t::set_selections(vector_tpl<sint32> s) {
+	// copy vector
+	clear_selection();
+	for(  uint32 i=0;  i<s.get_count();  i++  ) {
+		selection.append(s[i]);
+	}
+}
+
+void gui_scrolled_list_t::add_selection(int s) {
+	selection.append_unique(s);
+}
+
+void gui_scrolled_list_t::remove_selection(int s) {
+	selection.remove(s);
+}
+
+void gui_scrolled_list_t::decrement_selection(int at) {
+	vector_tpl<sint32> new_selection;
+	for(uint32 i=0; i<selection.get_count(); i++) {
+		if(  i<at  ) {
+			new_selection.append(selection[i]);
+		} else if(  i>at  ) {
+			new_selection.append(selection[i]-1);
+		}
+	}
+	set_selections(new_selection);
 }
