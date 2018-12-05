@@ -102,7 +102,7 @@ bool extend_edit_gui_t::infowin_event(const event_t *ev)
 
 
 
-bool extend_edit_gui_t::action_triggered( gui_action_creator_t *komp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
+bool extend_edit_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)           // 28-Dec-01    Markus Weber    Added
 {
 	if (komp == &tabs) {
 		// switch list translation or object name
@@ -119,7 +119,7 @@ bool extend_edit_gui_t::action_triggered( gui_action_creator_t *komp,value_t /* 
 	}
 	else if (komp == &scl) {
 		// select an item of scroll list ?
-		change_item_info(scl.get_selection());
+		change_item_info(v.i);
 	}
 	else if(  komp==&bt_obsolete  ) {
 		bt_obsolete.pressed ^= 1;

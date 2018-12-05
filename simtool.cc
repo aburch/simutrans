@@ -95,6 +95,7 @@
 #include "network/memory_rw.h"
 #include "utils/simrandom.h"
 #include "utils/simstring.h"
+#include "utils/plainstring.h"
 
 #include "simtool.h"
 #include "player/finance.h"
@@ -5862,18 +5863,23 @@ const char *tool_build_house_t::work( player_t *player, koord k )
 	if(gr==NULL) {
 		return "";
 	}
-
-	// Parsing parameter (if there)
+	
 	const building_desc_t *desc = NULL;
-	if (!strempty(default_param)) {
+	if(  strempty(default_param)  ) {
+		// choose a building randomly
+		desc = hausbauer_t::get_random_attraction( welt->get_timeline_year_month(), false, welt->get_climate( k ) );
+	}
+	else if(  !buildings.empty()  ) {
+		// choose desc from buildings
+		desc = pick_any(buildings);
+	}
+	else {
+		// Parsing parameter
 		const char *c = default_param+2;
 		const building_tile_desc_t *tile = hausbauer_t::find_tile(c,0);
 		if(tile) {
 			desc = tile->get_desc();
 		}
-	}
-	else {
-		desc = hausbauer_t::get_random_attraction( welt->get_timeline_year_month(), false, welt->get_climate( k ) );
 	}
 
 	if(desc==NULL) {
@@ -5999,6 +6005,36 @@ const char *tool_build_house_t::do_work( player_t *player, const koord3d &start,
 		}
 	}
 	return NULL;
+}
+
+void tool_build_house_t::set_buildings(vector_tpl<const building_desc_t*> bldg) {
+	buildings.clear();
+	for(  uint32 i=0;  i<bldg.get_count();  i++  ) {
+		buildings.append(bldg[i]);
+	}
+}
+
+void tool_build_house_t::rdwr_custom_data(memory_rw_t *packet)
+{
+	uint32 count = buildings.get_count();
+	packet->rdwr_long(count);
+	plainstring ps;
+	if(  packet->is_loading()  ) {
+		buildings.clear();
+		for(  uint32 i=0;  i<count;  i++  ) {
+			packet->rdwr_str(ps);
+			const building_tile_desc_t *tile = hausbauer_t::find_tile(ps,0);
+			if(tile) {
+				buildings.append(tile->get_desc());
+			}
+		}
+	} else {
+		// writing
+		for(  uint32 i=0;  i<count;  i++  ) {
+			ps = plainstring(buildings[i]->get_name());
+			packet->rdwr_str(ps);
+		}
+	}
 }
 
 
