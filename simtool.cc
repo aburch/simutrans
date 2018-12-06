@@ -5982,7 +5982,7 @@ const char *tool_build_house_t::do_work( player_t *player, const koord3d &start,
 		k.x = start.x;
 		k.y = start.y;
 		if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
-			work(player, k);
+			return work(player, k);
 		}
 	}
 	else {
@@ -5995,14 +5995,19 @@ const char *tool_build_house_t::do_work( player_t *player, const koord3d &start,
 		int dx = (start.x < end.x) ? 1 : -1;
 		int dy = (start.y < end.y) ? 1 : -1;
 		
+		const char* msg = NULL;
 		koord k;
 		for( k.x = start.x; k.x != (end.x+dx); k.x += dx) {
 			for( k.y = start.y; k.y != (end.y+dy); k.y += dy) {
 				if(  grund_t *gr=welt->lookup_kartenboden(k)  ) {
-					work(player, k);
+					const char* err = work(player, k);
+					if(  msg==NULL  ||  strcmp(msg,"")==0  ) {
+						msg = err;
+					}
 				}
 			}
 		}
+		return msg;
 	}
 	return NULL;
 }
