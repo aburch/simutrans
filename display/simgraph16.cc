@@ -247,6 +247,7 @@ int large_font_total_height = 11;
 
 #define RGBMAPSIZE (0x8000+LIGHT_COUNT+MAX_PLAYER_COUNT)
 
+
 /*
  * Hajo: mapping tables for RGB 555 to actual output format
  * plus the special (player, day&night) colors appended
@@ -718,6 +719,24 @@ uint32 get_color_rgb(uint8 idx)
 		return display_day_lights[lidx*3 + 0]<<16 | display_day_lights[lidx*3 + 1]<<8 | display_day_lights[lidx*3 + 2];
 	}
 	// Return black for anything else
+	return 0;
+}
+
+/**
+ * Convert indexed colors to rgb and back
+ */
+PIXVAL color_idx_to_rgb(PIXVAL idx)
+{
+	return (specialcolormap_all_day[(idx)&0x00FF]);
+}
+
+PIXVAL color_rgb_to_idx(PIXVAL color)
+{
+	for(PIXVAL i=0; i<=0xff; i++) {
+		if (specialcolormap_all_day[i] == color) {
+			return i;
+		}
+	}
 	return 0;
 }
 

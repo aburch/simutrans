@@ -837,6 +837,25 @@ bool get_external_IP( cbuffer_t &myIPaddr, cbuffer_t &altIPaddr )
 			}
 		}
 	}
+
+#if 0
+	// enable to try to get a symbolic name for IPv4
+	if(  !err  ) {
+		struct sockaddr_in sin;
+		memset(&sin, 0, sizeof(sin));
+		sin.sin_family      = AF_INET;
+		sin.sin_addr.s_addr = inet_addr(myIPaddr);
+		sin.sin_port        = 0; // If 0, port is chosen by system
+		char hostname[1024];
+		hostname[0] = 0;
+
+		int failed = getnameinfo((const sockaddr *)&sin, sizeof(sin), hostname, lengthof(hostname), NULL, 0, 0);
+		if(  !failed  &&  *hostname  ) {
+			myIPaddr.clear();
+			myIPaddr.append( hostname );
+		}
+	}
+#endif
 	return err==NULL;
 }
 
@@ -878,10 +897,7 @@ bool prepare_for_server( char *externalIPAddress, char *externalAltIPAddress, in
 		struct IGDdatas data;
 
 		UPNP_GetValidIGD( devlist, &urls, &data, lanaddr, sizeof(lanaddr) );
-		// this could query the connection status
-//		if(  UPNP_GetStatusInfo( urls->controlURL, data->first.servicetype, status, &uptime, lastconnerr) == UPNPCOMMAND_SUCCESS  ) {
-//		}
-		// but we must know our IP address first
+		// we must know our IP address first
 		if(  UPNP_GetExternalIPAddress(urls.controlURL, data.first.servicetype, externalIPAddress) ==  UPNPCOMMAND_SUCCESS  ) {
 			// this is our ID (at least the routes tells us this)
 			char eport[19];
@@ -902,8 +918,18 @@ bool prepare_for_server( char *externalIPAddress, char *externalAltIPAddress, in
 	freeUPNPDevlist(devlist);
 
 	externalAltIPAddress[0] = 0;
-
-	// now we have (or have not) have the IPv4 at this point (due to the protocol), we check for IP6 too or trz to get at least an IP addr
+#if 1
+	// use the same routine as later the abnnounce routine, otherwise update with dynamic IP fails
+	cbuffer_t myIPaddr, altIPaddr;
+	if(  get_external_IP( myIPaddr, altIPaddr )  ) {
+		has_IP = true;
+		strcpy( externalIPAddress, myIPaddr );
+		if(  altIPaddr.len()  ) {
+			strcpy( externalAltIPAddress, altIPaddr );
+		}
+	}
+#else
+	// now we have (or have not) the IPv4 at this point (due to the protocol), we check for IP6 too or try to get at least an IP addr
 	cbuffer_t myIPaddr;
 	// lets get IP by query "simutrans-forum.de/get_IP.php" for IP and assume that the redirection is working
 	const char *err = network_http_get( "simutrans-forum.de:80", "/get_IP.php", myIPaddr );
@@ -936,6 +962,7 @@ bool prepare_for_server( char *externalIPAddress, char *externalAltIPAddress, in
 	if(  !failed  &&  *hostname  ) {
 		strcpy( externalIPAddress, hostname );
 	}
+#endif
 	return has_IP;
 }
 
