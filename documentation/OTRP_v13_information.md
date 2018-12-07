@@ -17,18 +17,16 @@
 本家フォーラム: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitterハッシュタグ： [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)
 
-version19_1現在、simutrans standard nightly r8616をベースにしています。
+version19_2現在、simutrans standard nightly r8646をベースにしています。
 
 # ダウンロード
 実行には本体の他にribi-arrowアドオンが必要なので https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg からDLしてpakセットの中に突っ込んでください。  
 
-本体は下のリンクからどうぞ。**（2018年10月21日PM10時　ver19_1に更新）**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/70208/sim-WinGDI-OTRPv19_1.exe/  
-mac: https://osdn.net/projects/otrp/downloads/70208/sim-mac-OTRPv19_1.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/70208/sim-linux-OTRPv19_1.zip/  
+本体は下のリンクからどうぞ。**（2018年12月7日PM11時　ver19_2に更新）**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/70382/sim-WinGDI-OTRPv19_2.exe/  
+mac: https://osdn.net/projects/otrp/downloads/70382/sim-mac-OTRPv19_2.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/70382/sim-linux-OTRPv19_2.zip/  
 ソース: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
-
-**※ Windows10 1809ビルドにおいてGDI版が起動できない不具合が報告されています。**
 
 OTRP専用のmakeobjはありません。simutrans standardのmakeobjをご利用ください。
 
@@ -86,7 +84,7 @@ v13から道路信号の進入許可方向を設定できるようになりま�
 - 運賃収受に伴う金額表示をON/OFFできるようになりました。表示設定ウィンドウから切り替えられるほか、simple_tool[38]にキーを割り当てることでも切り替えることができます。
 - 交差点でのスムーズな通行を実現するため、交差点タイルでは車両がタイルを予約しています。予約状況は鉄道の閉塞予約解除ツール（bキー）を使うことで確認できます。タイルをクリックすることで予約を手動で解除することもできます。
 - 駅/停留所の公共化ツールをshiftを押しながら使うと、現在有効なプレイヤー所属の停留所になります。なおctrlキーを押しながらだと費用ナシで民営化できます。
-- 建築物建設ツールで範囲選択ができるようになりました。選択された範囲に現在有効な建築物を配置します。（[shingoushori][1]氏による実装）
+- 建築物建設ツールで範囲選択ができるようになりました。選択された範囲に現在有効な建築物を配置します。（[shingoushori][1]氏による実装）なお、市内建築物に限り複数種類を選択することが可能です。
 - ctrlキーを押しながら土地上げ下げツールを使うと、選択された範囲が始点と同じ高度になります。（[shingoushori][1]氏による実装）
 - ctrlキーを押しながらwayobj（架線）建設ツールを使うと、wayobjの設置間隔を設定できます。景観架線で架線柱を2マスごとに置く時などに便利です。
 - ctrlキーを押しながら高架建設ツールを使うと、高架の高度オフセットを指定できます。1高度だけ地面から浮いた高架や、高高度の高架を建設するときに便利です。

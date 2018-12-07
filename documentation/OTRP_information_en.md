@@ -17,18 +17,16 @@ You should try OTRP because...
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitter hash tag :  [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)  
 
-As of version 19_1, OTRP is based on simutrans standard nightly r8616.
+As of version 19_2, OTRP is based on simutrans standard nightly r8646.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.  
 
-You can download the OTRP executable binary from the links below. **(2018 October 21st, updated to ver 19_1.)**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/70208/sim-WinGDI-OTRPv19_1.exe/  
-mac: https://osdn.net/projects/otrp/downloads/70208/sim-mac-OTRPv19_1.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/70208/sim-linux-OTRPv19_1.zip/  
+You can download the OTRP executable binary from the links below. **(2018 December 7th, updated to ver 19_2.)**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/70382/sim-WinGDI-OTRPv19_2.exe/  
+mac: https://osdn.net/projects/otrp/downloads/70382/sim-mac-OTRPv19_2.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/70382/sim-linux-OTRPv19_2.zip/  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
-
-**NOTICE:** It is reported that simutrans GDI veersion crashes on Windows 10 build 1809.
 
 There is no special makeobj for OTRP. Please one of the simutrans standard.
 
@@ -85,6 +83,7 @@ In OTRP, you can specify the direction from which vehicles can enter the tile. F
 - To realize smooth traffic in an intersection, vehicles reserve tiles in the intersection. With b key, you can check and cancel the reservation of road.
 - Use "make halt public" tool with the shift key, and the halt belongs to the current activated player. With the control key, this operation can be done with no cost.
 - If you use the land raise/lower tool with ctrl key, the height of selected area are set to the height of the original coordinate. (Implemented by shingoushori)
+- In the city building construction window, multiple kinds of city buildings can be chosen at once. City buildings are randomly chosen from the selected items and are constructed in the designated area.
 - If you use the wayobj construction tool with ctrl key, you can specify the interval of wayobj placement.
 - If you use the elevated way construction tool with ctrl key, you can specify the height offset. This is convenient when you build elevated way at very high altitude.
 - The overlaying warning of addon names is disabled in OTRP. The warning will be shown when simutrans is launched with **-showoverlay** option or is launched as a server.
