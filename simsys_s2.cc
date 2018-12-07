@@ -269,6 +269,7 @@ int dr_os_open(int width, int height, int const fullscreen)
 	width = (w*x_scale)/32l;
 
 	Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_RESIZABLE;
+	flags |= SDL_WINDOW_ALLOW_HIGHDPI;
 	window = SDL_CreateWindow( SIM_TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags );
 	if(  window == NULL  ) {
 		fprintf( stderr, "Couldn't open the window: %s\n", SDL_GetError() );
