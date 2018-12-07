@@ -3407,7 +3407,8 @@ bool rail_vehicle_t::check_longblock_signal(signal_t *sig, uint16 next_block, si
 			if(  next_next_signal<target_rt.get_count()  ) {
 				// and here is a signal => finished
 				sig->set_state( roadsign_t::gruen );
-				cnv->set_next_stop_index( min( min( next_crossing, next_signal ), cnv->get_route()->get_count() ) );
+				// we stop at the end of the route.
+				cnv->set_next_stop_index( min( min( next_crossing, next_signal ), cnv->get_route()->get_count()-1 ) );
 				return true;
 			}
 		}
