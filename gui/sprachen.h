@@ -42,8 +42,6 @@ public:
 
 	sprachengui_t();
 
-	~sprachengui_t();
-
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
