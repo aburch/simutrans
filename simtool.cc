@@ -6021,6 +6021,7 @@ void tool_build_house_t::set_buildings(vector_tpl<const building_desc_t*> bldg) 
 
 void tool_build_house_t::rdwr_custom_data(memory_rw_t *packet)
 {
+	two_click_tool_t::rdwr_custom_data(packet);
 	uint32 count = buildings.get_count();
 	packet->rdwr_long(count);
 	plainstring ps;
