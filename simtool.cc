@@ -3776,8 +3776,17 @@ void tool_build_wayobj_t::draw_after(scr_coord k, bool dirty) const
 bool tool_build_wayobj_t::calc_route( route_t &verbindung, player_t *player, const koord3d& start, const koord3d& to )
 {
 	waytype_t waytype = wt;
-	if (waytype == any_wt) {
+	if(  waytype == any_wt  ) {
 		waytype = welt->lookup(start)->get_weg(wt)->get_waytype();
+	}
+	// special treatment for deports, since track electrication cannot "drive" into tram depot
+	if(  waytype == track_wt  ) {
+		if(  depot_t  *dp = welt->lookup(start)->get_depot()  ) {
+			waytype = dp->get_waytype();
+		}
+		else if(  depot_t  *dp = welt->lookup(to)->get_depot()  ) {
+			waytype = dp->get_waytype();
+		}
 	}
 	// get a default vehikel
 	vehicle_desc_t remover_desc( waytype, 500, vehicle_desc_t::diesel );

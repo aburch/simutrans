@@ -6844,8 +6844,8 @@ void karte_t::announce_server(int status)
 	if(  env_t::server  &&  env_t::server_announce  ) {
 		// in easy_server mode, we assume the IP may change frequently and thus query it before each announce
 		cbuffer_t buf, altbuf;
-		if(  env_t::easy_server  &&  status<2  &&  atoi(env_t::server_dns.c_str())  &&  get_external_IP(buf,altbuf)  ) {
-			// if only numerical IP, then check if still current
+		if(  env_t::easy_server  &&  status<2  &&  get_external_IP(buf,altbuf)  ) {
+			// ipdate IP just in case
 			env_t::server_dns = (const char *)buf;
 			env_t::server_alt_dns = (const char *)altbuf;
 		}

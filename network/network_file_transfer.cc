@@ -107,7 +107,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 		network_command_t *nwc;
 		nwc_gameinfo_t *nwgi;
 		uint32 len;
-		char filename[1024];
+		char filename[PATH_MAX];
 		loadsave_t fd;
 
 		socket_list_t::add_client( my_client_socket );

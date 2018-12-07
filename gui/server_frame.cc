@@ -60,7 +60,6 @@ server_frame_t::server_frame_t() :
 		serverlist.set_size( scr_size( ww - D_MARGIN_LEFT - D_MARGIN_RIGHT, serverlist_height ) );
 		serverlist.add_listener( this );
 		serverlist.set_selection( 0 );
-		serverlist.set_highlight_color( 0 );
 		add_component( &serverlist );
 
 		add_component( &add );

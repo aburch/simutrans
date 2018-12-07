@@ -72,11 +72,11 @@ endif
 ifeq ($(OSTYPE),mingw)
   SOURCES += clipboard_w32.cc
 else
-  ifeq ($(BACKEND),SDL2)
-    SOURCES += clipboard_s.cc
-	else
+  ifeq ($(BACKEND),sdl2)
+    SOURCES += clipboard_s2.cc
+  else
     SOURCES += clipboard_internal.cc
-	endif
+  endif
 endif
 
 LIBS += -lbz2 -lz

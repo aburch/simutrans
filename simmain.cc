@@ -1189,7 +1189,7 @@ int simu_main(int argc, char** argv)
 	// still nothing to be loaded => search for demo games
 	if(  new_world  ) {
 		dr_chdir( env_t::program_dir );
-		char buffer[256];
+		char buffer[PATH_MAX];
 		sprintf(buffer, "%s%sdemo.sve", (const char*)env_t::program_dir, env_t::objfilename.c_str());
 		// access did not work!
 		if (FILE* const f = dr_fopen(buffer, "rb")) {

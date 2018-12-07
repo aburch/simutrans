@@ -3511,7 +3511,7 @@ bool rail_vehicle_t::is_choose_signal_clear(signal_t *sig, const uint16 start_bl
 		if(  way->has_sign()  ) {
 			roadsign_t *rs = gr->find<roadsign_t>(1);
 			if(  rs  &&  rs->get_desc()->get_wtyp()==get_waytype()  ) {
-				if(  (rs->get_desc()->get_flags()&roadsign_desc_t::END_OF_CHOOSE_AREA)!=0  ) {
+				if(  rs->get_desc()->get_flags() & roadsign_desc_t::END_OF_CHOOSE_AREA  ) {
 					// end of choose on route => not choosing here
 					choose_ok = false;
 				}
@@ -3866,7 +3866,7 @@ bool rail_vehicle_t::block_reserver(const route_t *route, uint16 start_index, ui
 		}
 #endif
 		if(reserve) {
-			if(sch1->has_signal()) {
+			if(  sch1->has_signal()  &&  i<route->get_count()-1  ) {
 				if(count) {
 					signs.append(gr);
 				}

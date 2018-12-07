@@ -82,15 +82,11 @@ display_set_clip_wh(x, y, w, h);
 display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
 }
 
-
-/*
- * Hajo: mapping table for special-colors (AI player colors)
- * to actual output format - all day mode
- * 16 sets of 16 colors
+/**
+ *
  */
-extern PIXVAL specialcolormap_all_day[256];
-
-#define color_idx_to_rgb(idx) (specialcolormap_all_day[(idx)&0x00FF])
+PIXVAL color_idx_to_rgb(PIXVAL idx);
+PIXVAL color_rgb_to_idx(PIXVAL color);
 
 /*
  * Get 24bit RGB888 colour from an index of the old 8bit palette
@@ -150,11 +146,9 @@ void register_image(class image_t *);
 void display_free_all_images_above( image_id above );
 
 // unzoomed offsets
-//void display_set_base_image_offset( unsigned image, KOORD_VAL xoff, KOORD_VAL yoff );
 void display_get_base_image_offset( image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
 // zoomed offsets
 void display_get_image_offset( image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
-void display_get_base_image_offset( image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, KOORD_VAL *xw, KOORD_VAL *yw );
 void display_mark_img_dirty( image_id image, KOORD_VAL x, KOORD_VAL y );
 
 void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2); // clips to screen only

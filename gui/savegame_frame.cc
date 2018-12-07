@@ -480,7 +480,7 @@ bool savegame_frame_t::infowin_event(const event_t *event)
  */
 bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t )
 {
-	char buf[1024];
+	char buf[PATH_MAX];
 
 	if(component==&input  ||  component==&savebutton) {
 		// Save/Load Button or Enter-Key pressed
@@ -744,7 +744,7 @@ void savegame_frame_t::shorten_path(char *dest,const char *source,const size_t m
 	const int odd = max_size%2;
 
 	strncpy(dest,source,half-1);
-	strncpy(&dest[half-1],"...",3);
+	memcpy(&dest[half-1],"...",sizeof(char) * 3);
 	strcpy(&dest[half+2],&source[orig_size-half+2-odd]);
 
 }

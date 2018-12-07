@@ -121,12 +121,6 @@ public:
 	gui_scrolled_list_t::scrollitem_t *get_element(sint32 idx) const { return droplist.get_element(idx); }
 
 	/**
-	 * sets the highlight color for the droplist
-	 * @author hsiegeln
-	 */
-	void set_highlight_color(PIXVAL color) { droplist.set_highlight_color(color); }
-
-	/**
 	 * set maximum size for control
 	 * @author hsiegeln
 	 */

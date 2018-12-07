@@ -11,7 +11,7 @@ void pakset_info_t::append(const char* name, obj_type type, checksum_t *chk)
 {
 	chk->finish();
 
-	char objname[256] = { type, type>>8, type>>16, 0 };
+	char objname[256] = { char(type), char(type>>8), char(type>>16), 0 };
 	tstrncpy( objname+3, name, 252 );
 
 	checksum_t *old = info.set( strdup(objname), chk );

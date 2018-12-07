@@ -220,7 +220,6 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 		line_selector.set_pos(scr_coord(2, ypos));
 		line_selector.set_size(scr_size(BUTTON4_X-2, D_BUTTON_HEIGHT));
 		line_selector.set_max_size(scr_size(BUTTON4_X-2, 13*LINESPACE+D_TITLEBAR_HEIGHT-1));
-		line_selector.set_highlight_color(color_idx_to_rgb(player->get_player_color1() + 1));
 		line_selector.clear_elements();
 
 		init_line_selector();

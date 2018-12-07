@@ -94,7 +94,7 @@ bool scenario_frame_t::item_action(const char *fullpath)
 
 const char *scenario_frame_t::get_info(const char *filename)
 {
-	static char info[1024];
+	static char info[PATH_MAX];
 
 	sprintf(info,"%s",this->get_filename(filename, false).c_str());
 
@@ -104,7 +104,7 @@ const char *scenario_frame_t::get_info(const char *filename)
 
 bool scenario_frame_t::check_file( const char *filename, const char * )
 {
-	char buf[1024];
+	char buf[PATH_MAX];
 	sprintf( buf, "%s/scenario.nut", filename );
 	if (FILE* const f = dr_fopen(buf, "r")) {
 		fclose(f);

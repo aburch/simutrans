@@ -139,7 +139,17 @@ sprachengui_t::sprachengui_t() :
 		do {
 			std::string fname = FONT_PATH_X;
 			fname += prop_font_file_name;
+#if 1
+			// we are onlz checking the existence of the file
+			num_loaded = false;
+			if(  FILE *fnt = dr_fopen(fname.c_str(), "rb")  ) {
+				num_loaded = true;
+				fclose( fnt );
+			}
+#else
+			//
 			num_loaded = display_load_font(fname.c_str());
+#endif
 			f = strtok( NULL, ";" );
 		}
 		while(  !num_loaded  &&  f  );
@@ -204,11 +214,4 @@ bool sprachengui_t::action_triggered( gui_action_creator_t *komp, value_t)
 
 	}
 	return true;
-}
-
-
-sprachengui_t::~sprachengui_t()
-{
-	// reload font
-	sprachengui_t::init_font_from_lang(true);
 }

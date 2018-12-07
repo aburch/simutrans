@@ -25,7 +25,7 @@ class env_t
 {
 public:
 	/// points to the current simutrans data directory
-	static char program_dir[1024];
+	static char program_dir[PATH_MAX];
 
 	/// points to the current user directory for loading and saving
 	static const char *user_dir;

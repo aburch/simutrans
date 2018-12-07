@@ -40,7 +40,6 @@ extend_edit_gui_t::extend_edit_gui_t(const char *name, player_t* player_) :
 	// init scrolled list
 	scl.set_size(scr_size(tab_panel_width, SCL_HEIGHT-14));
 	scl.set_pos(scr_coord(0,1));
-	scl.set_highlight_color(color_idx_to_rgb(player->get_player_color1()+1));
 	scl.set_selection(-1);
 	scl.add_listener(this);
 
