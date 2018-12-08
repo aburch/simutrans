@@ -1189,7 +1189,7 @@ void route_t::postprocess_water_route(karte_t *welt)
 				}
 				
 			}
-
+			
 			if(!move_to_end_of_station && platform_size > max_len)
 			{
 				// Do not go to the end, but stop part way along the platform.

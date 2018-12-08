@@ -74,7 +74,9 @@ public:
 	static const uint32 max_mantissa;
 	static const float32e8_t zero;
 	static const float32e8_t micro;
+	static const float32e8_t ten_thousandth;
 	static const float32e8_t milli;
+	static const float32e8_t centi;
 	static const float32e8_t tenth;
 	static const float32e8_t quarter;
 	static const float32e8_t third;

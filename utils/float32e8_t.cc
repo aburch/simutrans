@@ -278,7 +278,9 @@ const float32e8_t float32e8_t::tenth((uint32) 1, (uint32) 10);
 const float32e8_t float32e8_t::quarter((uint32) 1, (uint32)  4);
 const float32e8_t float32e8_t::third((uint32) 1, (uint32)  3);
 const float32e8_t float32e8_t::half((uint32) 1, (uint32) 2);
+const float32e8_t float32e8_t::centi((uint32) 1, (uint32) 100);
 const float32e8_t float32e8_t::milli((uint32) 1, (uint32) 1000);
+const float32e8_t float32e8_t::ten_thousandth((uint32) 1, (uint32) 1000);
 const float32e8_t float32e8_t::micro((uint32) 1, (uint32) 1000000);
 
 #ifdef USE_DOUBLE
