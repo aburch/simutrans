@@ -495,7 +495,7 @@ obj_desc_t *vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				}
 				desc->tractive_effort = decode_uint16(p);
 				uint32 air_resistance_hundreds = decode_uint16(p);
-				desc->air_resistance = float32e8_t((uint32) air_resistance_hundreds, (uint32) 100);
+				desc->air_resistance = air_resistance_hundreds * float32e8_t::centi;
 				desc->can_be_at_rear = (bool)decode_uint8(p);
 				desc->increase_maintenance_after_years = decode_uint16(p);
 				desc->increase_maintenance_by_percent = decode_uint16(p);
