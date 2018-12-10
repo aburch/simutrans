@@ -4472,9 +4472,15 @@ DBG_MESSAGE("tool_build_station_t::tool_station_dock_aux()","building dock from 
 		{
 			cbuffer_t message;
 			const stadt_t* nearest_city = welt->find_nearest_city(pos.get_2d());
-			const char * city_name = nearest_city ? nearest_city->get_name() : "open countryside";
-			const char* preposition = welt->get_city(pos.get_2d()) || !nearest_city ? "in" : "near";
-			message.printf("%s has built a new %s %s %s.", player->get_name(), "Dock", preposition, city_name);
+			const char * city_name = nearest_city ? nearest_city->get_name() : translator::translate("open countryside");
+			if (welt->get_city(pos.get_2d()) || !nearest_city)
+			{
+				message.printf(translator::translate("%s has built a new %s in %s."), player->get_name(), "Dock", city_name);
+			}
+			else
+			{
+				message.printf(translator::translate("%s has built a new %s near %s."), player->get_name(), "Dock", city_name);
+			}
 			welt->get_message()->add_message(message, pos.get_2d(), message_t::ai, player->get_player_color1());
 		}
 	}
@@ -4993,11 +4999,17 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 		{
 			cbuffer_t message;
 			const stadt_t* nearest_city = welt->find_nearest_city(pos.get_2d());
-			const char * city_name = nearest_city ? nearest_city->get_name() : "open countryside";
-			const char* preposition = welt->get_city(pos.get_2d()) || !nearest_city ? "in" : "near";
+			const char * city_name = nearest_city ? nearest_city->get_name() : translator::translate("open countryside");
 			int const lang = welt->get_settings().get_name_language_id();
 			const char *stop = translator::translate(type_name, lang);
-			message.printf("%s has built a new %s %s %s.", player->get_name(), stop, preposition, city_name);
+			if (welt->get_city(pos.get_2d()) || !nearest_city)
+			{
+				message.printf(translator::translate("%s has built a new %s in %s."), player->get_name(), stop, city_name);
+			}
+			else
+			{
+				message.printf(translator::translate("%s has built a new %s near %s."), player->get_name(), stop, city_name);
+			}
 			welt->get_message()->add_message(message, pos.get_2d(), message_t::ai, player->get_player_color1());
 		}
 	}
