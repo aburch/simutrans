@@ -136,7 +136,11 @@ void gui_scrolled_list_t::insert_element( scrollitem_t *item )
 {
 	item_list.insert_at( 0, item );
 	if(  !selection.empty()  ) {
-		set_selection(selection.back()+1);
+		vector_tpl<sint32> new_selection;
+		for(  uint32 i=0;  i<selection.get_count();  i++  ) {
+			new_selection.append(selection[i]+1);
+		}
+		set_selections(new_selection);
 	}
 	total_vertical_size += item->get_height();
 	adjust_scrollbar();
@@ -149,7 +153,7 @@ void gui_scrolled_list_t::sort( int offset, void *sort_param )
 		vector_tpl<scrollitem_t*> sel;
 		if(  !selection.empty()  ) {
 			for(uint32 i=0;  i<selection.get_count();  i++) {
-				sel.append(item_list[i]);
+				sel.append(item_list[selection[i]]);
 			}
 		}
 		if (offset >=0  &&  (uint32)offset < item_list.get_count()) {
@@ -422,9 +426,9 @@ void gui_scrolled_list_t::remove_selection(int s) {
 void gui_scrolled_list_t::decrement_selection(int at) {
 	vector_tpl<sint32> new_selection;
 	for(uint32 i=0; i<selection.get_count(); i++) {
-		if(  i<at  ) {
+		if(  selection[i]<at  ) {
 			new_selection.append(selection[i]);
-		} else if(  i>at  ) {
+		} else if(  selection[i]>at  ) {
 			new_selection.append(selection[i]-1);
 		}
 	}
