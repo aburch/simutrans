@@ -124,7 +124,7 @@ bool gui_numberinput_t::action_triggered( gui_action_creator_t *comp, value_t /*
 }
 
 
-sint8 gui_numberinput_t::percent[7] = { 0, 1, 5, 10, 20, 50, 100 };
+uint8 gui_numberinput_t::percent[8] = { 0, 1, 5, 10, 20, 50, 100, 200 };
 
 sint32 gui_numberinput_t::get_next_value()
 {
@@ -156,9 +156,9 @@ sint32 gui_numberinput_t::get_next_value()
 		case PROGRESS:
 		{
 			sint64 diff = (sint64)max_value - (sint64)min_value;
-			for( int i=0;  i<7;  i++  ) {
-				if(  value-min_value < ((diff*(sint64)percent[i])/100l)  ) {
-					return min_value+(sint32)((diff*percent[i])/100l);
+			for( int i=0;  i<8;  i++  ) {
+				if(  value-min_value < ((diff*(sint64)percent[i])/200l)  ) {
+					return min_value+(sint32)((diff*percent[i])/200l);
 				}
 			}
 			return max_value;
@@ -200,9 +200,9 @@ sint32 gui_numberinput_t::get_prev_value()
 		case PROGRESS:
 		{
 			sint64 diff = (sint64)max_value-(sint64)min_value;
-			for( int i=6;  i>=0;  i--  ) {
-				if(  value-min_value > ((diff*percent[i])/100l)  ) {
-					return min_value+(sint32)((diff*percent[i])/100l);
+			for( int i=7;  i>=0;  i--  ) {
+				if(  value-min_value > ((diff*percent[i])/200l)  ) {
+					return min_value+(sint32)((diff*percent[i])/200l);
 				}
 			}
 			return min_value;

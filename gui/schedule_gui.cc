@@ -235,7 +235,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* schedule_, player_t* player_, convoih
 	numimp_load.set_pos( scr_coord( D_MARGIN_LEFT + label_width + D_H_SPACE, ypos ) );
 	numimp_load.set_width( 60 );
 	numimp_load.set_value( schedule->get_current_entry().minimum_loading );
-	numimp_load.set_limits( 0, 100 );
+	numimp_load.set_limits( 0, 200 );
 	numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
 	numimp_load.add_listener(this);
 	add_component(&numimp_load);

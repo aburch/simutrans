@@ -33,7 +33,7 @@ private:
 	bool check_value(sint32 _value);
 
 	// more sophisticated increase routines
-	static sint8 percent[7];
+	static uint8 percent[8];
 	sint32 get_prev_value();
 	sint32 get_next_value();
 
@@ -86,7 +86,7 @@ public:
 	/**
 	 * AUTOLINEAR: linear increment, scroll wheel 1% range
 	 * POWER2: 16, 32, 64, ...
-	 * PROGRESS: 0, 1, 5, 10, 25, 50, 75, 90, 95, 99, 100% of range
+	 * PROGRESS: 0, 1, 5, 10, 25, 50, 100, 200% of range
 	 * any other mode value: actual step size
 	 */
 
