@@ -1245,7 +1245,7 @@ void hausbauer_t::new_month()
 			if(intro_month == current_month)
 			{
 				cbuffer_t buf;
-				buf.printf(translator::translate("New %s now available:\n%s\n"), "building", translator::translate(building->get_name()));
+				buf.printf(translator::translate("New %s now available:\n%s\n"), translator::translate("building"), translator::translate(building->get_name()));
 				welt->get_message()->add_message(buf, koord::invalid, message_t::new_vehicle, NEW_VEHICLE, IMG_EMPTY);
 			}
 		}
