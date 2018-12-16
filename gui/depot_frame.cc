@@ -45,6 +45,7 @@
 #include "../dataobj/schedule.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
+#include "../dataobj/repositioning.h"
 
 #include "../player/simplay.h"
 
@@ -805,7 +806,7 @@ static void get_line_list(const depot_t* depot, vector_tpl<linehandle_t>* lines)
 
 void depot_frame_t::update_data()
 {
-	static const char *txt_veh_action[3] = { "anhaengen", "voranstellen", "verkaufen" };
+	static const char *txt_veh_action[5] = { "anhaengen", "voranstellen", "verkaufen", "set offset", "cancel offset" };
 	static const char *txt_sort_by[sb_length] = { "Vehicle Name", "Capacity", "Price", "Cost", "Cost per unit", "Max. speed", "Vehicle Power", "Weight", "Intro. date", "Retire date" };
 
 	// change green into blue for retired vehicles
@@ -898,6 +899,8 @@ void depot_frame_t::update_data()
 		veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_desc();
 	}
 
+	repositioning_t& rep = repositioning_t::get_instance();
+	
 	FOR(vehicle_image_map, const& i, vehicle_map) {
 		vehicle_desc_t const* const    info = i.key;
 		gui_image_list_t::image_data_t& img  = *i.value;
@@ -936,6 +939,23 @@ void depot_frame_t::update_data()
 		else if( veh_action == va_sell ) {
 			img.lcolor = color_idx_to_rgb(COL_RED);
 			img.rcolor = color_idx_to_rgb(COL_RED);
+		}
+		else if(  veh_action == va_set_offset  ) {
+			if(  rep.get_offset(info->get_name())==rep.get_default_offset()  ) {
+				// default offset is set.
+				img.lcolor = color_idx_to_rgb(COL_RED);
+				img.rcolor = color_idx_to_rgb(COL_RED);
+			} else if(  rep.get_offset(info->get_name())!=koord(0,0)  ) {
+				// offset is other than default but not zero.
+				img.lcolor = color_idx_to_rgb(COL_YELLOW);
+				img.rcolor = color_idx_to_rgb(COL_YELLOW);
+			}
+		}
+		else if(  veh_action == va_cancel_offset  ) {
+			if(  rep.get_offset(info->get_name())==koord(0,0)  ) {
+				img.lcolor = color_idx_to_rgb(COL_RED);
+				img.rcolor = color_idx_to_rgb(COL_RED);
+			}
 		}
 	}
 
@@ -1238,7 +1258,13 @@ sint64 depot_frame_t::calc_restwert(const vehicle_desc_t *veh_type)
 void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *image_data)
 {
 	if(  image_data->lcolor != color_idx_to_rgb(COL_RED)  &&  image_data->rcolor != color_idx_to_rgb(COL_RED)  ) {
-		if(  veh_action == va_sell  ) {
+		if(  veh_action == va_set_offset  ) {
+			repositioning_t::get_instance().set_offset(image_data->text);
+		}
+		else if(  veh_action == va_cancel_offset  ) {
+			repositioning_t::get_instance().cancel_offset(image_data->text);
+		}
+		else if(  veh_action == va_sell  ) {
 			depot->call_depot_tool('s', convoihandle_t(), image_data->text );
 		}
 		else {
@@ -1357,7 +1383,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			depot_t::update_all_win();
 		}
 		else if(  comp == &bt_veh_action  ) {
-			if(  veh_action == va_sell  ) {
+			if(  veh_action == va_cancel_offset  ) {
 				veh_action = va_append;
 			}
 			else {

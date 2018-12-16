@@ -204,7 +204,8 @@ private:
 	scr_coord_val second_column_x; // x position of the second text column
 	scr_coord_val second_column_w;
 
-	enum { va_append, va_insert, va_sell };
+	// va_set_offset is a mode to set repositioning of vehicles.
+	enum { va_append, va_insert, va_sell, va_set_offset, va_cancel_offset };
 	uint8 veh_action;
 
 	/**
