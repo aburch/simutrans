@@ -430,7 +430,7 @@ int simu_main(int argc, char** argv)
 			"  <markus@pristovsek.de>\n"
 			"\n"
 			"  Based on Simutrans 0.84.21.2\n"
-			"  by Hansjörg Malthaner et. al.\n"
+			"  by Hansjï¿½rg Malthaner et. al.\n"
 			"---------------------------------------\n"
 			"command line parameters available: \n"
 			" -addons             loads also addons (with -objects)\n"
@@ -482,6 +482,8 @@ int simu_main(int argc, char** argv)
 			" -until YEAR.MONTH   quits when MONTH of YEAR starts\n"
 #endif
 			" -use_workdir        use current dir as basedir\n"
+			" -snapshot x,y,z,f   to make the snapshot like a commandline tool\n"
+			"                     (x,y,z) : center position, f : zoom_factor (from 0 to 9)\n"
 		);
 		return 0;
 	}
@@ -1122,6 +1124,21 @@ int simu_main(int argc, char** argv)
 
 	if(  translator::get_language()==-1  ) {
 		ask_language();
+	}
+
+	env_t::commandline_snapshot = false;
+	if(  gimme_arg(argc, argv, "-snapshot", 0) != NULL  ) {
+		const char *s = gimme_arg(argc, argv, "-snapshot", 1);
+		int x = 0, y = 0, z = 0, f = 0;
+		if(  s!=NULL  ) {
+			if(  sscanf(s,"%d,%d,%d,%d",&x,&y,&z,&f) == 4  ) {
+				dbg->message("simmain()", "-snapshot x,y,z,f=%d,%d,%d,%d", x, y, z, f );
+				env_t::commandline_snapshot = true;
+				env_t::commandline_snapshot_world_position = koord(x,y);
+				env_t::commandline_snapshot_world_position_z = (sint8)z;
+				env_t::commandline_snapshot_zoom_factor = f;
+			}
+		}
 	}
 
 	bool new_world = true;

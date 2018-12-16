@@ -156,6 +156,10 @@ bool env_t::hide_keyboard = false;
 
 bool env_t::previous_OTRP_data;
 
+bool  env_t::commandline_snapshot = false;
+koord env_t::commandline_snapshot_world_position = koord(0, 0);
+sint8 env_t::commandline_snapshot_world_position_z = 0;
+int   env_t::commandline_snapshot_zoom_factor = 3; // ZOOM_NEUTRAL (3)
 
 
 // Hajo: Define default settings.

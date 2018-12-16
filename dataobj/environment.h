@@ -421,6 +421,14 @@ public:
 	static bool previous_OTRP_data;
 
 
+    /// To make the snapshot like a commandline tool
+	/// can be set by command-line switch '-snapshot'
+	/// @author shingoushori
+	static bool commandline_snapshot;
+	static koord commandline_snapshot_world_position;
+	static sint8 commandline_snapshot_world_position_z;
+	static int commandline_snapshot_zoom_factor;
+	
 	/**
 	 * @name Midi/sound options
 	 */

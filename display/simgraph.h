@@ -120,6 +120,7 @@ extern KOORD_VAL base_tile_raster_width;
 KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster);
 
 
+void set_zoom_factor_safe(int);
 int zoom_factor_up();
 int zoom_factor_down();
 
