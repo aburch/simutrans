@@ -1260,9 +1260,11 @@ void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *imag
 	if(  image_data->lcolor != color_idx_to_rgb(COL_RED)  &&  image_data->rcolor != color_idx_to_rgb(COL_RED)  ) {
 		if(  veh_action == va_set_offset  ) {
 			repositioning_t::get_instance().set_offset(image_data->text);
+			welt->set_dirty();
 		}
 		else if(  veh_action == va_cancel_offset  ) {
 			repositioning_t::get_instance().cancel_offset(image_data->text);
+			welt->set_dirty();
 		}
 		else if(  veh_action == va_sell  ) {
 			depot->call_depot_tool('s', convoihandle_t(), image_data->text );
