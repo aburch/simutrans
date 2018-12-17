@@ -1383,7 +1383,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *comp, value_t p)
 			depot_t::update_all_win();
 		}
 		else if(  comp == &bt_veh_action  ) {
-			if(  veh_action == va_cancel_offset  ||  (get_tile_raster_width()!=128  &&  veh_action ==va_sell)  ) {
+			if(  veh_action == va_cancel_offset  ||  (get_base_tile_raster_width()!=128  &&  veh_action ==va_sell)  ) {
 				veh_action = va_append;
 			}
 			else {

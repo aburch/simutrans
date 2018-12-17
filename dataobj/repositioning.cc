@@ -72,7 +72,7 @@ void repositioning_t::read_tabfile(const char* filename) {
 }
 
 void repositioning_t::write_tabfile() {
-  if(  get_current_tile_raster_width()!=128  ) {
+  if(  get_base_tile_raster_width()!=128  ) {
     return;
   }
   
