@@ -21,6 +21,7 @@ private:
   static repositioning_t instance;
   stringhashtable_tpl<koord> table;
   static koord default_offset;
+  static char tab_filename[128];
   
 public:
   static repositioning_t& get_instance() { return instance; };
@@ -29,6 +30,10 @@ public:
   bool cancel_offset(const char*);
   koord get_offset(const char*);
   koord get_default_offset() const { return default_offset; }
+  
+  // these 2 functions should be called from simmain()
+  void read_tabfile(const char*);
+  void write_tabfile();
 };
 
 #endif

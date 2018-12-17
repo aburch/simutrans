@@ -62,6 +62,7 @@
 #include "dataobj/tabfile.h"
 #include "dataobj/settings.h"
 #include "dataobj/translator.h"
+#include "dataobj/repositioning.h"
 #include "network/pakset_info.h"
 
 #include "descriptor/reader/obj_reader.h"
@@ -969,6 +970,9 @@ int simu_main(int argc, char** argv)
 		env_t::default_settings.parse_colours( simuconf );
 		simuconf.close();
 	}
+	//parse reposition.tab
+	obj_conf = string(env_t::objfilename + "config/reposition.tab");
+	repositioning_t::get_instance().read_tabfile(obj_conf.c_str());
 
 	// load with private addons (now in addons/pak-name either in simutrans main dir or in userdir)
 	if(  gimme_arg(argc, argv, "-objects", 1) != NULL  ) {
@@ -1459,6 +1463,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		env_t::default_settings.rdwr(&file);
 		file.close();
 	}
+	repositioning_t::get_instance().write_tabfile();
 
 	destroy_all_win( true );
 	tool_t::exit_menu();
