@@ -6,6 +6,7 @@
 #include "../simconst.h"
 #include "../simtypes.h"
 #include "../simmesg.h"
+#include "koord3d.h"
 
 #include "../utils/simrandom.h"
 
@@ -156,7 +157,9 @@ bool env_t::hide_keyboard = false;
 
 bool env_t::previous_OTRP_data;
 
-
+bool  env_t::commandline_snapshot = false;
+koord3d env_t::commandline_snapshot_world_position = koord3d(0, 0, 0);
+sint8   env_t::commandline_snapshot_zoom_factor = 3; // ZOOM_NEUTRAL (3)
 
 // Hajo: Define default settings.
 void env_t::init()

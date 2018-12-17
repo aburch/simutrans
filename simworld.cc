@@ -6722,7 +6722,16 @@ bool karte_t::interactive(uint32 quit_month)
 		// time for the next step?
 		uint32 time = dr_time();
 		if(  (sint32)next_step_time - (sint32)time <= 0  ) {
-			if(  step_mode&PAUSE_FLAG  ) {
+			if(  env_t::commandline_snapshot  ) {
+				destroy_all_win(true);
+				get_viewport()->change_world_position(env_t::commandline_snapshot_world_position);
+				set_zoom_factor_safe( (int)env_t::commandline_snapshot_zoom_factor );
+				get_viewport()->metrics_updated();
+				sync_step( 0, false, true );
+				display_snapshot( 0, 0, display_get_width(), display_get_height() );
+				env_t::quit_simutrans = true;
+			}
+			else if(  step_mode&PAUSE_FLAG  ) {
 				// only update display
 				sync_step( 0, false, true );
 				idle_time = 100;
