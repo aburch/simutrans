@@ -17,15 +17,15 @@ You should try OTRP because...
 The thread in Simutrans International Forum: https://forum.simutrans.com/index.php?topic=16659.0  
 Twitter hash tag :  [#OTRPatch](https://twitter.com/hashtag/OTRPatch?src=hash)  
 
-As of version 19_3, OTRP is based on simutrans standard nightly r8646.
+As of version 19_4, OTRP is based on simutrans standard nightly r8646.
 
 # Download
 In addition to the executable binary, the ribi-arrow pak is required. Please download it from https://drive.google.com/open?id=0B_rSte9xAhLDanhta1ZsSVcwdzg and put it in your pakset.  
 
-You can download the OTRP executable binary from the links below. **(2018 December 12th, updated to ver 19_3.)**  
-windows（GDI）: https://osdn.net/projects/otrp/downloads/70392/sim-WinGDI-OTRPv19_3.exe/  
-mac: https://osdn.net/projects/otrp/downloads/70392/sim-mac-OTRPv19_3.zip/    
-Linux: https://osdn.net/projects/otrp/downloads/70392/sim-linux-OTRPv19_3.zip/  
+You can download the OTRP executable binary from the links below. **(2018 December 19th, updated to ver 19_4.)**  
+windows（GDI）: https://osdn.net/projects/otrp/downloads/70434/sim-WinGDI-OTRPv19_4.exe/  
+mac: https://osdn.net/projects/otrp/downloads/70434/sim-mac-OTRPv19_4.zip/    
+Linux: https://osdn.net/projects/otrp/downloads/70434/sim-linux-OTRPv19_4.zip/  
 source code: https://github.com/teamhimeh/simutrans/tree/OTRP-distribute  
 
 There is no special makeobj for OTRP. Please one of the simutrans standard.
@@ -88,6 +88,7 @@ In OTRP, you can specify the direction from which vehicles can enter the tile. F
 - If you use the elevated way construction tool with ctrl key, you can specify the height offset. This is convenient when you build elevated way at very high altitude.
 - The overlaying warning of addon names is disabled in OTRP. The warning will be shown when simutrans is launched with **-showoverlay** option or is launched as a server.
 - In OTRP, a longblocksignal reserves all tiles that are checked. In other words, a longblocksignal reserves exactly till the next signal, exceeding the end of the route. This is a prior implementation of a feature that is discussed in the simutrans international forum.
+- with `-snapshot x,y,z,f` option, simutrans takes a snapshot and immediately quits. x, y, and z are the central coordinate, and f is zoom factor which takes a value from 0 to 9.
 
 # Parameters of OTRP
 Most of these are stored in the game.
