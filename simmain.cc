@@ -973,7 +973,8 @@ int simu_main(int argc, char** argv)
 		simuconf.close();
 	}
 	//parse reposition.tab
-	obj_conf = string(env_t::objfilename + "config/reposition.tab");
+	sprintf(path_to_simuconf, "config%creposition.tab", PATH_SEPARATOR[0]);
+	obj_conf = env_t::program_dir + env_t::objfilename + path_to_simuconf;
 	repositioning_t::get_instance().read_tabfile(obj_conf.c_str());
 
 	// load with private addons (now in addons/pak-name either in simutrans main dir or in userdir)
