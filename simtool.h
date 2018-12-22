@@ -44,7 +44,6 @@ class tool_query_t : public tool_t {
 public:
 	tool_query_t() : tool_t(TOOL_QUERY | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Abfrage"); }
-	image_id get_icon(player_t *player) const OVERRIDE { return (!env_t::networkmode || player->get_player_nr()==1) ? icon : IMG_EMPTY; }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
