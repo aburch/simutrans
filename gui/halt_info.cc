@@ -36,7 +36,7 @@
 
 #include "../descriptor/skin_desc.h"
 
-
+#include "../player/simplay.h"
 
 
 
@@ -350,11 +350,16 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		}
 		top += 44;
 		top += D_LABEL_HEIGHT;
+		left = pos.x + D_MARGIN_LEFT;
+
+		info_buf.clear();
+		info_buf.printf("%s: %s", translator::translate("owned by"), halt->get_owner()->get_name());
+                display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+		top += D_LABEL_HEIGHT * 2;
 
 		info_buf.clear();
 		info_buf.printf("%s: %u", translator::translate("Storage capacity"), halt->get_capacity(0));
 		
-		left = pos.x + D_MARGIN_LEFT;
 		// passengers
 		left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		if (welt->get_settings().is_separate_halt_capacities()) {
