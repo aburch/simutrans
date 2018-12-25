@@ -2485,15 +2485,15 @@ A new %s is now available:\n%s\n
 New Vehicles
 New Vehicles
 New world record for monorails: %.1f km/h by %s.
-New world record for\nmonorails: %.1f km/h\nby %s.
+New world record for monorails: %.1f km/h\nby %s.
 New world record for motorcars: %.1f km/h by %s.
-New world record for\nroad vehicles:\n %.1f km/h\nby %s.
+New world record for road vehicles:\n %.1f km/h\nby %s.
 New world record for planes: %.1f km/h by %s.
-New world record for\naircraft:\n %.1f km/h\nby %s.
+New world record for aircraft:\n %.1f km/h\nby %s.
 New world record for railways: %.1f km/h by %s.
-New world record for \nrailways:\n %.1f km/h \nby %s.
+New world record for railways:\n %.1f km/h \nby %s.
 New world record for ship: %.1f km/h by %s.
-New world record for\nwater craft:\n %.1f km/h\nby %s.
+New world record for water craft:\n %.1f km/h\nby %s.
 no convois
 No convoys
 No goods are loaded onto this convoi.
