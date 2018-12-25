@@ -353,7 +353,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		left = pos.x + D_MARGIN_LEFT;
 
 		info_buf.clear();
-		info_buf.printf("%s: %s", translator::translate("owned by"), halt->get_owner()->get_name());
+		info_buf.printf("%s", halt->get_owner()->get_name());
                 display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		top += D_LABEL_HEIGHT * 2;
 
