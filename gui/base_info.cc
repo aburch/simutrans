@@ -10,6 +10,7 @@ base_infowin_t::base_infowin_t(const char *name, const player_t *player) :
 {
 	buf.clear();
 	textarea.set_pos(scr_coord(D_MARGIN_LEFT,D_MARGIN_TOP));
+	textarea.set_size(scr_size(D_DEFAULT_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0));
 	add_component(&textarea);
 	recalc_size();
 }
