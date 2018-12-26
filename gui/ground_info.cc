@@ -18,6 +18,7 @@
 #include "../dataobj/translator.h"
 #include "ground_info.h"
 #include "../simcity.h"
+#include "../dataobj/translator.h"
 
 
 
@@ -32,7 +33,12 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
 	}
 	buf.clear();
 	gr->info(buf);
+
+	textarea.set_size( textarea.get_size() + view.get_size() );
+
 	set_embedded(&view);
+	// adjust positions, sizes, and window-size
+	recalc_size();
 }
 
 
@@ -52,7 +58,7 @@ void grund_info_t::draw(scr_coord pos, scr_size size)
 
 	buf.clear();
 	gr->info(buf);
-	//textarea.recalc_size();
+	textarea.recalc_size();
 
 	gui_frame_t::draw(pos, size);
 

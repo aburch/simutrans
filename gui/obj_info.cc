@@ -24,7 +24,12 @@ obj_infowin_t::obj_infowin_t(const obj_t* obj) :
 {
 	buf.clear();
 	info(buf);
+
+	textarea.set_size( textarea.get_size() + view.get_size() );
+
 	set_embedded(&view);
+	// adjust positions, sizes, and window-size
+	recalc_size();
 }
 
 
