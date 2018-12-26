@@ -21,6 +21,7 @@
 
 #include "../boden/wege/schiene.h"
 #include "../obj/leitung2.h"
+#include "../obj/gebaeude.h"
 #include "../utils/cbuffer_t.h"
 #include "../display/scr_coord.h"
 #include "../display/simgraph.h"
@@ -942,6 +943,49 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				}
 			}
 			break;
+
+		case MAP_ACCESSIBILITY_COMMUTING:
+			{
+				if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+					if (gb->get_adjusted_population()) {
+						const uint16 passengers_succeeded_commuting = gb->get_passenger_success_percent_this_year_commuting();
+						if(passengers_succeeded_commuting < 65535){
+							set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_commuting, 100));
+						}
+						else {
+							set_relief_farbe(k, calc_severity_color(100, 100));
+						}
+					}
+				}
+			}
+			break;
+
+		case MAP_ACCESSIBILITY_TRIP:
+		{
+			if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+				if (gb->get_adjusted_population()) {
+					const uint16 passengers_succeeded_visiting = gb->get_passenger_success_percent_this_year_visiting();
+					if (passengers_succeeded_visiting < 65535) {
+						set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_visiting, 100));
+					}
+					else {
+						set_relief_farbe(k, calc_severity_color(100, 100));
+					}
+				}
+			}
+		}
+		break;
+
+		case MAP_ACCESSIBILITY_WORKER:
+		{
+			if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+				if (gb->get_adjusted_jobs()) {
+					const sint32 staffing_percentage = gb->get_staffing_level_percentage();
+					set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
+				}
+			}
+		}
+		break;
 
 		default:
 			break;
