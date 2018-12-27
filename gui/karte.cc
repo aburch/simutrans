@@ -948,7 +948,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			{
 				if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
 					if (gb->get_adjusted_population()) {
-						const uint16 passengers_succeeded_commuting = gb->get_passenger_success_percent_this_year_commuting();
+						const uint16 passengers_succeeded_commuting = gb->get_average_passenger_success_percent_commuting();
 						if(passengers_succeeded_commuting < 65535){
 							set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_commuting, 100));
 						}
@@ -964,7 +964,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		{
 			if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
 				if (gb->get_adjusted_population()) {
-					const uint16 passengers_succeeded_visiting = gb->get_passenger_success_percent_this_year_visiting();
+					const uint16 passengers_succeeded_visiting = gb->get_average_passenger_success_percent_visiting();
 					if (passengers_succeeded_visiting < 65535) {
 						set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_visiting, 100));
 					}
@@ -979,10 +979,23 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		case MAP_ACCESSIBILITY_WORKER:
 		{
 			if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+				gb = gb->access_first_tile();
 				if (gb->get_adjusted_jobs()) {
-					const sint32 staffing_percentage = gb->get_staffing_level_percentage();
-					set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
+					if (fabrik_t *fab = gb->get_fabrik()) {
+						if (gb->get_passengers_succeeded_commuting() == 65535 || fab->get_status() == 3) {
+							set_relief_farbe(k, COL_DARK_PURPLE);
+						}
+						else {
+							const sint32 staffing_percentage = gb->get_staffing_level_percentage();
+							set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
+						}
+					}
+					else {
+						const sint32 staffing_percentage = gb->get_staffing_level_percentage();
+						set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
+					}
 				}
+				
 			}
 		}
 		break;
