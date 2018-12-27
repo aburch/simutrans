@@ -947,6 +947,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		case MAP_ACCESSIBILITY_COMMUTING:
 			{
 				if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+					gb = gb->access_first_tile();
 					if (gb->get_adjusted_population()) {
 						const uint16 passengers_succeeded_commuting = gb->get_average_passenger_success_percent_commuting();
 						if(passengers_succeeded_commuting < 65535){
@@ -963,6 +964,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 		case MAP_ACCESSIBILITY_TRIP:
 		{
 			if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+				gb = gb->access_first_tile();
 				if (gb->get_adjusted_population()) {
 					const uint16 passengers_succeeded_visiting = gb->get_average_passenger_success_percent_visiting();
 					if (passengers_succeeded_visiting < 65535) {
