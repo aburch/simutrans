@@ -54,6 +54,7 @@ stringhashtable_tpl<const factory_desc_t *> map_frame_t::factory_list;
 scr_coord map_frame_t::screenpos;
 
 #define L_BUTTON_WIDTH (button_size.w)
+#define L_BUTTON_WIDTH_2 100
 
 class legend_entry_t
 {
@@ -137,7 +138,7 @@ map_frame_t::map_frame_t() :
 {
 	scr_coord cursor( D_MARGIN_LEFT,D_MARGIN_TOP );
 	const scr_coord_val zoom_label_width = display_get_char_max_width("0123456789") * 4 + display_get_char_width(':');
-	const scr_size button_size(max(D_BUTTON_WIDTH, 100), D_BUTTON_HEIGHT);
+	const scr_size button_size(max(D_BUTTON_WIDTH, L_BUTTON_WIDTH_2), D_BUTTON_HEIGHT);
 
 	old_ij = koord::invalid;
 	is_dragging = false;
@@ -739,7 +740,7 @@ void map_frame_t::resize(const scr_coord delta)
 	// offset of map
 	scrolly.set_pos( scr_coord(1,offset_y) );
 
-	scr_coord_val min_width = max(BUTTON4_X+D_MARGIN_RIGHT-D_H_SPACE,D_DEFAULT_WIDTH);
+	scr_coord_val min_width = max(D_MARGIN_LEFT+4*L_BUTTON_WIDTH_2+3*D_H_SPACE+D_MARGIN_RIGHT,D_DEFAULT_WIDTH);
 	set_min_windowsize(scr_size(min_width, D_TITLEBAR_HEIGHT+offset_y+64+D_SCROLLBAR_HEIGHT+1));
 	set_dirty();
 
