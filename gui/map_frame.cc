@@ -521,7 +521,6 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 			filter_buttons[i].text_color = filter_buttons[i].pressed ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 		}
 	}
-	filter_buttons[18].set_tooltip("Passenger destinations");
 	return true;
 }
 
