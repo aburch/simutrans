@@ -54,6 +54,7 @@ stringhashtable_tpl<const factory_desc_t *> map_frame_t::factory_list;
 scr_coord map_frame_t::screenpos;
 
 #define L_BUTTON_WIDTH (button_size.w)
+#define L_BUTTON_WIDTH_2 100
 
 class legend_entry_t
 {
@@ -105,9 +106,9 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_WHITE,        COL_GREY5,       "Powerlines", "Highlite electrical transmission lines", reliefkarte_t::MAP_POWERLINES },
 	{ COL_WHITE,        COL_GREY5,       "Forest", "Highlite forests", reliefkarte_t::MAP_FOREST },
 	{ COL_WHITE,        COL_GREY5,       "Ownership", "Show the owenership of infrastructure", reliefkarte_t::MAP_OWNER },
-	{ COL_WHITE,        COL_GREY5,       "Commuting", "Show commuting inconvenience of resident", reliefkarte_t::MAP_ACCESSIBILITY_COMMUTING },
-	{ COL_WHITE,        COL_GREY5,       "Visiting", "Show visiting inconvenience of resident", reliefkarte_t::MAP_ACCESSIBILITY_TRIP },
-	{ COL_WHITE,        COL_GREY5,       "Staffing", "Show staff shortage rate", reliefkarte_t::MAP_ACCESSIBILITY_WORKER }
+	{ COL_WHITE,        COL_GREY5,       "Commuting", "Show the success rate for commuting passengers", reliefkarte_t::MAP_ACCESSIBILITY_COMMUTING },
+	{ COL_WHITE,        COL_GREY5,       "Visiting", "Show the success rate for visiting passengers", reliefkarte_t::MAP_ACCESSIBILITY_TRIP },
+	{ COL_WHITE,        COL_GREY5,       "Staffing", "Show the staff shortage rate", reliefkarte_t::MAP_ACCESSIBILITY_WORKER }
 };
 
 #define MAP_TRANSPORT_TYPE_ITEMS (9)
@@ -137,7 +138,7 @@ map_frame_t::map_frame_t() :
 {
 	scr_coord cursor( D_MARGIN_LEFT,D_MARGIN_TOP );
 	const scr_coord_val zoom_label_width = display_get_char_max_width("0123456789") * 4 + display_get_char_width(':');
-	const scr_size button_size(max(D_BUTTON_WIDTH, 100), D_BUTTON_HEIGHT);
+	const scr_size button_size(max(D_BUTTON_WIDTH, L_BUTTON_WIDTH_2), D_BUTTON_HEIGHT);
 
 	old_ij = koord::invalid;
 	is_dragging = false;
@@ -521,7 +522,6 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 			filter_buttons[i].text_color = filter_buttons[i].pressed ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 		}
 	}
-	filter_buttons[18].set_tooltip("Passenger destinations");
 	return true;
 }
 
@@ -740,7 +740,7 @@ void map_frame_t::resize(const scr_coord delta)
 	// offset of map
 	scrolly.set_pos( scr_coord(1,offset_y) );
 
-	scr_coord_val min_width = max(BUTTON4_X+D_MARGIN_RIGHT-D_H_SPACE,D_DEFAULT_WIDTH);
+	scr_coord_val min_width = max(D_MARGIN_LEFT+4*L_BUTTON_WIDTH_2+3*D_H_SPACE+D_MARGIN_RIGHT,D_DEFAULT_WIDTH);
 	set_min_windowsize(scr_size(min_width, D_TITLEBAR_HEIGHT+offset_y+64+D_SCROLLBAR_HEIGHT+1));
 	set_dirty();
 
