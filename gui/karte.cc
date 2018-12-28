@@ -984,12 +984,20 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				gb = gb->access_first_tile();
 				if (gb->get_adjusted_jobs()) {
 					if (fabrik_t *fab = gb->get_fabrik()) {
-						if (gb->get_passengers_succeeded_commuting() == 65535 || fab->get_status() == 3) {
+						// use this for primary industry or not
+						const uint32 input_count = fab->get_input().get_count();
+						// Factories not in operation
+						if (gb->get_passengers_succeeded_commuting() == 65535 && input_count) {
 							set_relief_farbe(k, COL_DARK_PURPLE);
 						}
 						else {
 							const sint32 staffing_percentage = gb->get_staffing_level_percentage();
-							set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
+							if (staffing_percentage < 65535) {
+								set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
+							}
+							else {
+								set_relief_farbe(k, calc_severity_color(100, 100));
+							}
 						}
 					}
 					else {

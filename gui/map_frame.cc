@@ -105,9 +105,9 @@ map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_WHITE,        COL_GREY5,       "Powerlines", "Highlite electrical transmission lines", reliefkarte_t::MAP_POWERLINES },
 	{ COL_WHITE,        COL_GREY5,       "Forest", "Highlite forests", reliefkarte_t::MAP_FOREST },
 	{ COL_WHITE,        COL_GREY5,       "Ownership", "Show the owenership of infrastructure", reliefkarte_t::MAP_OWNER },
-	{ COL_WHITE,        COL_GREY5,       "Commuting", "Show commuting inconvenience of resident", reliefkarte_t::MAP_ACCESSIBILITY_COMMUTING },
-	{ COL_WHITE,        COL_GREY5,       "Visiting", "Show visiting inconvenience of resident", reliefkarte_t::MAP_ACCESSIBILITY_TRIP },
-	{ COL_WHITE,        COL_GREY5,       "Staffing", "Show staff shortage rate", reliefkarte_t::MAP_ACCESSIBILITY_WORKER }
+	{ COL_WHITE,        COL_GREY5,       "Commuting", "Show the success rate for commuting passengers", reliefkarte_t::MAP_ACCESSIBILITY_COMMUTING },
+	{ COL_WHITE,        COL_GREY5,       "Visiting", "Show the success rate for visiting passengers", reliefkarte_t::MAP_ACCESSIBILITY_TRIP },
+	{ COL_WHITE,        COL_GREY5,       "Staffing", "Show the staff shortage rate", reliefkarte_t::MAP_ACCESSIBILITY_WORKER }
 };
 
 #define MAP_TRANSPORT_TYPE_ITEMS (9)
