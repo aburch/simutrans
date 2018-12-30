@@ -22,6 +22,7 @@ news_window::news_window(const char* text, PLAYER_COLOR_VAL title_color) :
 	buf.clear();
 	buf.append(translator::translate(text));
 
+	textarea.set_size(scr_size(D_DEFAULT_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT, 0));
 	// adjust positions, sizes, and window-size
 	recalc_size();
 }

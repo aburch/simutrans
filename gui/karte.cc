@@ -21,6 +21,7 @@
 
 #include "../boden/wege/schiene.h"
 #include "../obj/leitung2.h"
+#include "../obj/gebaeude.h"
 #include "../utils/cbuffer_t.h"
 #include "../display/scr_coord.h"
 #include "../display/simgraph.h"
@@ -942,6 +943,72 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 				}
 			}
 			break;
+
+		case MAP_ACCESSIBILITY_COMMUTING:
+			{
+				if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+					gb = gb->access_first_tile();
+					if (gb->get_adjusted_population()) {
+						const uint16 passengers_succeeded_commuting = gb->get_average_passenger_success_percent_commuting();
+						if(passengers_succeeded_commuting < 65535){
+							set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_commuting, 100));
+						}
+						else {
+							set_relief_farbe(k, calc_severity_color(100, 100));
+						}
+					}
+				}
+			}
+			break;
+
+		case MAP_ACCESSIBILITY_TRIP:
+		{
+			if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+				gb = gb->access_first_tile();
+				if (gb->get_adjusted_population()) {
+					const uint16 passengers_succeeded_visiting = gb->get_average_passenger_success_percent_visiting();
+					if (passengers_succeeded_visiting < 65535) {
+						set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_visiting, 100));
+					}
+					else {
+						set_relief_farbe(k, calc_severity_color(100, 100));
+					}
+				}
+			}
+		}
+		break;
+
+		case MAP_ACCESSIBILITY_WORKER:
+		{
+			if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+				gb = gb->access_first_tile();
+				if (gb->get_adjusted_jobs()) {
+					if (fabrik_t *fab = gb->get_fabrik()) {
+						// use this for primary industry or not
+						const uint32 input_count = fab->get_input().get_count();
+						// Factories not in operation
+						if (gb->get_passengers_succeeded_commuting() == 65535 && input_count) {
+							set_relief_farbe(k, COL_DARK_PURPLE);
+						}
+						else {
+							const sint32 staffing_percentage = gb->get_staffing_level_percentage();
+							if (staffing_percentage < 65535) {
+								set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
+							}
+							else {
+								set_relief_farbe(k, calc_severity_color(100, 100));
+							}
+						}
+					}
+					else {
+						const sint32 staffing_percentage = gb->get_staffing_level_percentage();
+						set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
+					}
+				}
+				
+			}
+		}
+		break;
 
 		default:
 			break;

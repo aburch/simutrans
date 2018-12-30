@@ -54,6 +54,7 @@ stringhashtable_tpl<const factory_desc_t *> map_frame_t::factory_list;
 scr_coord map_frame_t::screenpos;
 
 #define L_BUTTON_WIDTH (button_size.w)
+#define L_BUTTON_WIDTH_2 100
 
 class legend_entry_t
 {
@@ -83,28 +84,31 @@ typedef struct {
 map_button_t button_init[MAP_MAX_BUTTONS] = {
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Towns", "Overlay town names", reliefkarte_t::MAP_TOWN },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "CityLimit", "Overlay city limits", reliefkarte_t::MAP_CITYLIMIT },
-	{ COL_WHITE,        COL_GREY5,       "Buildings", "Show level of city buildings", reliefkarte_t::MAP_LEVEL },
+	{ COL_PROFIT,       COL_ROYAL_BLUE,  "Buildings", "Show level of city buildings", reliefkarte_t::MAP_LEVEL },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "PaxDest", "Overlay passenger destinations when a town window is open", reliefkarte_t::MAP_PAX_DEST },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Tourists", "Highlite tourist attraction", reliefkarte_t::MAP_TOURIST },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Factories", "Highlite factories", reliefkarte_t::MAP_FACTORIES },
-	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW,       "Passagiere", "Show passenger coverage/passenger network", reliefkarte_t::MAP_PASSENGER },
-	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW,       "Post", "Show mail service coverage/mail network", reliefkarte_t::MAP_MAIL },
-	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW,       "Fracht", "Show transported freight/freight network", reliefkarte_t::MAP_FREIGHT },
+	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW, "Passagiere", "Show passenger coverage/passenger network", reliefkarte_t::MAP_PASSENGER },
+	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW, "Post", "Show mail service coverage/mail network", reliefkarte_t::MAP_MAIL },
+	{ COL_LIGHT_YELLOW, COL_DARK_YELLOW, "Fracht", "Show transported freight/freight network", reliefkarte_t::MAP_FREIGHT },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Status", "Show capacity and if halt is overcrowded", reliefkarte_t::MAP_STATUS },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "hl_btn_sort_waiting", "Show how many people/much is waiting at halts", reliefkarte_t::MAP_WAITING },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Queueing", "Show the change of waiting at halts", reliefkarte_t::MAP_WAITCHANGE },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Service", "Show how many convoi reach a station", reliefkarte_t::MAP_SERVICE },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Transfers", "Sum of departure/arrivals at halts", reliefkarte_t::MAP_TRANSFER },
 	{ COL_LIGHT_PURPLE, COL_DARK_PURPLE, "Origin", "Show initial passenger departure", reliefkarte_t::MAP_ORIGIN },
-	{ COL_WHITE,        COL_GREY5,       "Traffic", "Show usage of network", reliefkarte_t::MAP_TRAFFIC },
-	{ COL_WHITE,        COL_GREY5,       "Wear", "Show the condition of ways", reliefkarte_t::MAP_CONDITION },
-	{ COL_WHITE,        COL_GREY5,       "Speedlimit", "Show speedlimit of ways", reliefkarte_t::MAX_SPEEDLIMIT },
-	{ COL_WHITE,        COL_GREY5,       "Weight limit", "Show the weight limit of ways", reliefkarte_t::MAP_WEIGHTLIMIT },
-	{ COL_WHITE,        COL_GREY5,       "Tracks", "Highlight railroad tracks", reliefkarte_t::MAP_TRACKS },
+	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Traffic", "Show usage of network", reliefkarte_t::MAP_TRAFFIC },
+	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Wear", "Show the condition of ways", reliefkarte_t::MAP_CONDITION },
+	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Speedlimit", "Show speedlimit of ways", reliefkarte_t::MAX_SPEEDLIMIT },
+	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Weight limit", "Show the weight limit of ways", reliefkarte_t::MAP_WEIGHTLIMIT },
+	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Tracks", "Highlight railroad tracks", reliefkarte_t::MAP_TRACKS },
 	{ COL_LIGHT_GREEN,  COL_DARK_GREEN,  "Depots", "Highlite depots", reliefkarte_t::MAP_DEPOT },
-	{ COL_WHITE,        COL_GREY5,       "Powerlines", "Highlite electrical transmission lines", reliefkarte_t::MAP_POWERLINES },
+	{ COL_LIGHT_ORANGE, COL_DARK_ORANGE, "Powerlines", "Highlite electrical transmission lines", reliefkarte_t::MAP_POWERLINES },
 	{ COL_WHITE,        COL_GREY5,       "Forest", "Highlite forests", reliefkarte_t::MAP_FOREST },
-	{ COL_WHITE,        COL_GREY5,       "Ownership", "Show the owenership of infrastructure", reliefkarte_t::MAP_OWNER }
+	{ COL_WHITE,        COL_GREY5,       "Ownership", "Show the owenership of infrastructure", reliefkarte_t::MAP_OWNER },
+	{ COL_PROFIT,       COL_ROYAL_BLUE,  "Commuting", "Show the success rate for commuting passengers", reliefkarte_t::MAP_ACCESSIBILITY_COMMUTING },
+	{ COL_PROFIT,       COL_ROYAL_BLUE,  "Visiting", "Show the success rate for visiting passengers", reliefkarte_t::MAP_ACCESSIBILITY_TRIP },
+	{ COL_PROFIT,       COL_ROYAL_BLUE,  "Staffing", "Show the staff shortage rate", reliefkarte_t::MAP_ACCESSIBILITY_WORKER }
 };
 
 #define MAP_TRANSPORT_TYPE_ITEMS (9)
@@ -134,7 +138,7 @@ map_frame_t::map_frame_t() :
 {
 	scr_coord cursor( D_MARGIN_LEFT,D_MARGIN_TOP );
 	const scr_coord_val zoom_label_width = display_get_char_max_width("0123456789") * 4 + display_get_char_width(':');
-	const scr_size button_size(max(D_BUTTON_WIDTH, 100), D_BUTTON_HEIGHT);
+	const scr_size button_size(max(D_BUTTON_WIDTH, L_BUTTON_WIDTH_2), D_BUTTON_HEIGHT);
 
 	old_ij = koord::invalid;
 	is_dragging = false;
@@ -518,7 +522,6 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 			filter_buttons[i].text_color = filter_buttons[i].pressed ? SYSCOL_TEXT_HIGHLIGHT : SYSCOL_TEXT;
 		}
 	}
-	filter_buttons[18].set_tooltip("Passenger destinations");
 	return true;
 }
 
@@ -737,7 +740,7 @@ void map_frame_t::resize(const scr_coord delta)
 	// offset of map
 	scrolly.set_pos( scr_coord(1,offset_y) );
 
-	scr_coord_val min_width = max(BUTTON4_X+D_MARGIN_RIGHT-D_H_SPACE,D_DEFAULT_WIDTH);
+	scr_coord_val min_width = max(D_MARGIN_LEFT+4*L_BUTTON_WIDTH_2+3*D_H_SPACE+D_MARGIN_RIGHT,D_DEFAULT_WIDTH);
 	set_min_windowsize(scr_size(min_width, D_TITLEBAR_HEIGHT+offset_y+64+D_SCROLLBAR_HEIGHT+1));
 	set_dirty();
 
