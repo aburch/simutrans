@@ -176,6 +176,7 @@ void convoi_t::init(player_t *player)
 	prev_tiles_overtaking = 0;
 	
 	longblock_signal_request.valid = false;
+	crossing_reservation_index.clear();
 }
 
 
@@ -2667,6 +2668,26 @@ void convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_byte(lane_affinity);
 		file->rdwr_long(lane_affinity_end_index);
 	}
+	
+	if(  file->get_OTRP_version()>=20  ) {
+		uint16 cnt = crossing_reservation_index.get_count();
+		file->rdwr_short(cnt);
+		if(  file->is_loading()  ) {
+			crossing_reservation_index.clear();
+			for(uint16 i=0; i<cnt; i++) {
+				uint16 first, second;
+				file->rdwr_short(first);
+				file->rdwr_short(second);
+				crossing_reservation_index.append(std::pair<uint16,uint16>(first, second));
+			}
+		}
+		else {
+			for(uint16 i=0; i<crossing_reservation_index.get_count(); i++) {
+				file->rdwr_short(crossing_reservation_index[i].first);
+				file->rdwr_short(crossing_reservation_index[i].second);
+			}
+		}
+	}
 
 	if(  file->is_loading()  ) {
 		reserve_route();
@@ -4191,4 +4212,31 @@ void convoi_t::clear_reserved_tiles(){
 		}
 	}
 	reserved_tiles.clear();
+}
+
+// this function should be called from rail vehicles
+void convoi_t::calc_crossing_reservation() {
+	crossing_reservation_index.clear();
+	for(  uint32 i=route.get_count()-1;  i>0;  i--  ) {
+		const grund_t *gr = welt->lookup(route.at(i));
+		const schiene_t *sch1 = dynamic_cast<schiene_t*>(gr ? gr->get_weg(front()->get_waytype()) : NULL);
+		const crossing_t* cr = (sch1  &&  sch1->is_crossing()) ? gr->find<crossing_t>(2) : NULL;
+		if(  !cr  ) {
+			// this tile is not a crossing.
+			continue;
+		}
+		// calculate distance to reserve
+		const weg_t* w1 = gr->get_weg_nr(0);
+		const weg_t* w2 = gr->get_weg_nr(1);
+		if(  !w1  ||  !w2  ) {
+			// way does not exist?
+			continue;
+		}
+		const uint16 max_speed_1 = w1->get_waytype()==front()->get_waytype() ? w1->get_max_speed() : w2->get_max_speed();
+		const uint16 max_speed_2 = w1->get_waytype()==front()->get_waytype() ? w2->get_max_speed() : w1->get_max_speed();
+		// max_speed_2 can be 0. ex) crossing with a narrow river
+		const uint8 distance = max_speed_2>0 ? cr->get_length()*max_speed_1/max_speed_2 : 1;
+		const uint16 res_start_idx = max(i-distance,1);
+		crossing_reservation_index.append(std::pair<uint16, uint16>(res_start_idx,i));
+	}
 }

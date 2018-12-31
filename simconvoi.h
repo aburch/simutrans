@@ -6,6 +6,8 @@
 #ifndef simconvoi_h
 #define simconvoi_h
 
+#include <utility>
+
 #include "simtypes.h"
 #include "simunits.h"
 #include "simcolor.h"
@@ -417,6 +419,8 @@ private:
 	void unregister_stops();
 
 	uint32 move_to(uint16 start_index);
+	
+	vector_tpl<std::pair< uint16, uint16> > crossing_reservation_index; 
 
 	/**
 	 * the route index of the point to quit yielding lane
@@ -958,6 +962,10 @@ public:
 	 
 	 void request_longblock_signal_judge(signal_t *sig, uint16 next_block);
 	 void set_longblock_signal_judge_request_invalid() { longblock_signal_request.valid = false; };
+	 
+	 void calc_crossing_reservation();
+	 vector_tpl<std::pair< uint16, uint16> > get_crossing_reservation_index() const { return crossing_reservation_index; }
+	 void remove_crossing_reservation_at(uint16 idx) { crossing_reservation_index.remove_at(idx); }
 };
 
 #endif

@@ -82,6 +82,8 @@ public:
 
 	void set_logic( crossing_logic_t *l ) { logic = l; }
 	crossing_logic_t *get_logic() { return logic; }
+	
+	uint8 get_length() const { return logic->get_crossing_length(); }
 
 	/**
 	 * Dient zur Neuberechnung des Bildes
