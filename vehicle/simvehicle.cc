@@ -3767,15 +3767,18 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	// reserve crossing in advance
 	vector_tpl<std::pair< uint16, uint16> > crossing_reservation_index = cnv->get_crossing_reservation_index();
 	for(  sint16 i=crossing_reservation_index.get_count()-1;  i>=0;  i--  ) {
-		if(  crossing_reservation_index[i].first != route_index  ) {
-			continue;
+		if(  crossing_reservation_index[i].first <= route_index  &&  crossing_reservation_index[i].second > route_index  ) {
+			grund_t* cr_gr = welt->lookup(cnv->get_route()->at(crossing_reservation_index[i].second));
+			crossing_t* cr = cr_gr ? cr_gr->find<crossing_t>(2) : NULL;
+			if(  cr  ) {
+				cr->request_crossing(this);
+			}
+			cnv->remove_crossing_reservation_at(i);
 		}
-		grund_t* cr_gr = welt->lookup(cnv->get_route()->at(crossing_reservation_index[i].second));
-		crossing_t* cr = cr_gr ? cr_gr->find<crossing_t>(2) : NULL;
-		if(  cr  ) {
-			cr->request_crossing(this);
+		else if(  crossing_reservation_index[i].second <= route_index  ) {
+			// this reservation index is already obsolete.
+			cnv->remove_crossing_reservation_at(i);
 		}
-		cnv->remove_crossing_reservation_at(i);
 	}
 
 	if(  next_block <= route_index+3  ) {

@@ -1188,9 +1188,6 @@ bool convoi_t::drive_to()
 					// due to the complex state system of aircrafts, we have to restore index and state
 					plane->set_event_index( plane_state, takeoff, search, landing );
 				}
-				else if(  fahr[0]->get_waytype()==track_wt  ) {
-					calc_crossing_reservation();
-				}
 			}
 
 			schedule->set_current_stop(current_stop);
@@ -2207,6 +2204,10 @@ void convoi_t::vorfahren()
 				break;
 			}
 		}
+	}
+	// and calculate crossing reservation.
+	if(  fahr[0]->get_waytype()==track_wt  ) {
+		calc_crossing_reservation();
 	}
 
 	wait_lock = 0;
@@ -4235,7 +4236,8 @@ void convoi_t::calc_crossing_reservation() {
 			// way does not exist?
 			continue;
 		}
-		const uint16 max_speed_1 = w1->get_waytype()==front()->get_waytype() ? w1->get_max_speed() : w2->get_max_speed();
+		uint16 max_speed_1 = w1->get_waytype()==front()->get_waytype() ? w1->get_max_speed() : w2->get_max_speed();
+		max_speed_1 = min(max_speed_1, speed_to_kmh(min_top_speed));
 		const uint16 max_speed_2 = w1->get_waytype()==front()->get_waytype() ? w2->get_max_speed() : w1->get_max_speed();
 		// max_speed_2 can be 0. ex) crossing with a narrow river
 		const uint8 distance = max_speed_2>0 ? cr->get_length()*max_speed_1/max_speed_2 : 1;
