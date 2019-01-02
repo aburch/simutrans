@@ -1188,6 +1188,9 @@ bool convoi_t::drive_to()
 					// due to the complex state system of aircrafts, we have to restore index and state
 					plane->set_event_index( plane_state, takeoff, search, landing );
 				}
+				else if(  fahr[0]->get_waytype()==track_wt  ) {
+					calc_crossing_reservation();
+				}
 			}
 
 			schedule->set_current_stop(current_stop);
