@@ -139,6 +139,11 @@ private:
 	uint16 passengers_succeeded_visiting;
 	uint16 passenger_success_percent_last_year_visiting;
 
+	uint16 mail_sent;
+	uint16 mail_sent_last_year;
+	uint16 mail_received;
+	uint16 mail_received_last_year;
+
 	/**
 	* This is the number of jobs supplied by this building
 	* multiplied by the number of ticks per month, subtracted
@@ -289,6 +294,11 @@ public:
 	uint16 get_passengers_succeeded_visiting() const { return passengers_succeeded_visiting; }
 	uint16 get_passengers_succeeded_commuting() const { return passengers_succeeded_commuting; }
 
+	uint16 get_mail_sent() const { return mail_sent; }
+	uint16 get_mail_received() const { return mail_received; }
+	uint16 get_mail_sent_last_year() const { return mail_sent_last_year; }
+	uint16 get_mail_received_last_year() const { return mail_received_last_year; }
+
 	uint16 get_passenger_success_percent_this_year_commuting() const { return passengers_generated_commuting > 0 ? (passengers_succeeded_commuting * 100) / passengers_generated_commuting : 65535; }
 	uint16 get_passenger_success_percent_last_year_commuting() const { return passenger_success_percent_last_year_commuting; }
 	uint16 get_average_passenger_success_percent_commuting() const { return passenger_success_percent_last_year_commuting != 65535 ? (get_passenger_success_percent_this_year_commuting() + passenger_success_percent_last_year_commuting) / 2 : get_passenger_success_percent_this_year_commuting(); }
@@ -296,6 +306,11 @@ public:
 	uint16 get_passenger_success_percent_this_year_visiting() const { return passengers_generated_visiting > 0 ? (passengers_succeeded_visiting * 100) / passengers_generated_visiting : 65535; }
 	uint16 get_passenger_success_percent_last_year_visiting() const { return passenger_success_percent_last_year_visiting; }
 	uint16 get_average_passenger_success_percent_visiting() const { return passenger_success_percent_last_year_visiting != 65535 ? (get_passenger_success_percent_this_year_visiting() + passenger_success_percent_last_year_visiting) / 2 : get_passenger_success_percent_this_year_visiting(); }
+
+	// FIXME: Calculated from damand value and deliveried number? note that recorded deliveried value is absolute number
+	//uint16 get_mail_deliver_success_percent_this_year() const { return 0; }
+	//uint16 get_mail_deliver_success_percent_last_year() const { return 0; }
+	//uint16 get_average_mail_deliver_success_percent() const { return 0; }
 
 	void add_passengers_generated_visiting(uint16 number) { passengers_generated_visiting += number; }
 	void add_passengers_succeeded_visiting(uint16 number) { passengers_succeeded_visiting += number; }
@@ -305,6 +320,12 @@ public:
 
 	void set_passengers_visiting_last_year(uint16 value) { passenger_success_percent_last_year_visiting = value; }
 	void set_passengers_commuting_last_year(uint16 value) { passenger_success_percent_last_year_commuting = value; }
+
+	void add_mail_sent(uint16 number) { mail_sent += number; }
+	void add_mail_received(uint16 number) { mail_received += number; }
+
+	void set_mail_sent_last_year(uint16 value) { mail_sent_last_year = value; }
+	void set_mail_received_last_year(uint16 value) { mail_received_last_year = value; }
 
 	void new_year();
 

@@ -6034,6 +6034,10 @@ void karte_t::deposit_ware_at_destination(ware_t ware)
 				}
 			}
 		}
+		else if (ware.is_mail())
+		{
+			gb_dest->add_mail_received(ware.menge);
+		}
 #ifdef DEBUG_SIMRAND_CALLS
 #ifdef STATION_CHECK
 		if (talk)
@@ -6275,7 +6279,18 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #endif
 		}
 
-		// Do nothing if trip == mail_trip
+		else if (trip == mail_trip)
+		{
+#ifdef MULTI_THREAD
+			int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
+#endif
+			first_origin->add_mail_sent(units_this_step);
+#ifdef MULTI_THREAD
+			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
+#endif
+		}
 
 		/**
 		* Walking tolerance is necessary because mail can be delivered by hand. If it is delivered
@@ -6827,8 +6842,11 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			{
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
 			}
-			// Do nothing if trip == mail: mail statistics are added on arrival.
-			break;
+			else if (trip == mail_trip && first_origin)
+			{
+				first_origin->add_mail_sent(units_this_step);
+			}
+		break;
 
 		case private_car:  
 					
@@ -6867,6 +6885,10 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			else if(trip == visiting_trip)
 			{
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
+			}
+			else if(trip == mail_trip)
+			{
+				first_origin->add_mail_sent(units_this_step);
 			}
 #ifdef MULTI_THREAD
 			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
@@ -6920,6 +6942,10 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			{
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
 				
+			}
+			else if (trip == mail_trip)
+			{
+				first_origin->add_mail_sent(units_this_step);
 			}
 #ifdef MULTI_THREAD
 			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
