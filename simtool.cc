@@ -4510,7 +4510,12 @@ DBG_MESSAGE("tool_build_station_t::tool_station_dock_aux()","building dock from 
 	halt->recalc_station_type();
 	if(  env_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==k  ) {
 		// since we are larger now ...
-		halt->mark_unmark_coverage( true );
+		if (halt->get_pax_enabled() || halt->get_mail_enabled()) {
+			halt->mark_unmark_coverage(true);
+		}
+		else if (halt->get_ware_enabled()) {
+			halt->mark_unmark_coverage(true, true);
+		}
 	}
 
 	if(neu) {
@@ -4761,7 +4766,12 @@ const char *tool_build_station_t::tool_station_flat_dock_aux(player_t *player, k
 	halt->recalc_station_type();
 	if(  env_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==k  ) {
 		// since we are larger now ...
-		halt->mark_unmark_coverage( true );
+		if (halt->get_pax_enabled() || halt->get_mail_enabled()) {
+			halt->mark_unmark_coverage( true );
+		}
+		else if (halt->get_ware_enabled()) {
+			halt->mark_unmark_coverage(true, true);
+		}
 	}
 
 	if(neu) {
@@ -5078,7 +5088,12 @@ DBG_MESSAGE("tool_halt_aux()", "building %s on square %d,%d for waytype %x", des
 	player_t::book_construction_costs(player,  adjusted_cost, pos.get_2d(), wegtype);
 	if(  env_t::station_coverage_show  &&  welt->get_zeiger()->get_pos().get_2d()==pos.get_2d()  ) {
 		// since we are larger now ...
-		halt->mark_unmark_coverage( true );
+		if (halt->get_pax_enabled() || halt->get_mail_enabled()) {
+			halt->mark_unmark_coverage(true);
+		}
+		else if (halt->get_ware_enabled()) {
+			halt->mark_unmark_coverage(true, true);
+		}
 	}
 
 	// the new station (after upgrading) might accept different goods => needs new schedule
@@ -5147,13 +5162,13 @@ bool tool_build_station_t::init( player_t * )
 	}
 	else {
 set_area_cov:
-		uint16 base_cov;
+		uint16 base_cov = 0;
 		const bool freight_enabled = bdsc->get_enabled() & 4;
 		if(is_shift_pressed() != freight_enabled)
 		{
 			base_cov = welt->get_settings().get_station_coverage_factories();
 		}
-		else
+		else if(bdsc->get_enabled()>0)
 		{
 			base_cov = welt->get_settings().get_station_coverage();
 		}
