@@ -783,17 +783,26 @@ void planquadrat_t::remove_from_haltlist(halthandle_t halt)
 	halt_list_remove(halt);
 
 	// We might still be connected (to a different tile on the halt, in which case reconnect.
+	// NOTE: Coverage may be changed when the handling item is changed. e.g.) pax & goods -> only goods
 
 	// quick and dirty way to our 2d koodinates ...
 	const koord pos = get_kartenboden()->get_pos().get_2d();
 	int const cov = welt->get_settings().get_station_coverage();
+	halt->recalc_station_type();
+	uint16 new_cov = 0;
+	if (halt->get_pax_enabled() || halt->get_mail_enabled()) {
+		new_cov = welt->get_settings().get_station_coverage();
+	}
+	else if (halt->get_ware_enabled()) {
+		new_cov = welt->get_settings().get_station_coverage_factories();
+	}
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
 			koord test_pos = pos+koord(x,y);
 			const planquadrat_t *pl = welt->access(test_pos);
 			if (pl) {
 				for(  uint i = 0;  i < pl->get_boden_count();  i++  ) {
-					if (  pl->get_boden_bei(i)->get_halt() == halt  ) {
+					if (  pl->get_boden_bei(i)->get_halt() == halt && (abs(x)<=new_cov &&  abs(y)<=new_cov)) {
 						// still connected
 						// Reset distance computation
 						add_to_haltlist(halt);

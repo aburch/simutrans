@@ -303,7 +303,12 @@ bool haltestelle_t::remove(player_t *player, koord3d pos)
 
 DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, pos.y, pos.z);
 	// otherwise there will be marked tiles left ...
-	halt->mark_unmark_coverage(false);
+	if (halt->get_pax_enabled() || halt->get_mail_enabled()) {
+		halt->mark_unmark_coverage(false);
+	}
+	else if (halt->get_ware_enabled()) {
+		halt->mark_unmark_coverage(false, true);
+	}
 
 	// only try to remove connected buildings, when still in list to avoid infinite loops
 	if(  halt->rem_grund(bd)  ) {
@@ -4974,7 +4979,16 @@ bool haltestelle_t::add_grund(grund_t *gr, bool relink_factories, bool recalc_ne
 	// appends this to the ground
 	// after that, the surrounding ground will know of this station
 	vector_tpl<fabrik_t*> affected_fab_list;
-	int const cov = welt->get_settings().get_station_coverage();
+	uint16 cov;
+	if (get_pax_enabled() || get_mail_enabled()) {
+		cov = welt->get_settings().get_station_coverage();
+	}
+	else if (get_ware_enabled()) {
+		cov = welt->get_settings().get_station_coverage_factories();
+	}
+	else {
+		cov = 0;
+	}
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
 			koord p=pos+koord(x,y);
