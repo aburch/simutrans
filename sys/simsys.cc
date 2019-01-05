@@ -411,7 +411,7 @@ const char *dr_query_fontpath(int which)
 		"/boot/system/non-packaged/data/fonts/",
 		"/boot/home/config/non-packaged/data/fonts/",
 		"~/config/non-packaged/data/fonts/",
-		"/boot/system/data/fonts/ttfonts/"
+		"/boot/system/data/fonts/ttfonts/",
 #else
 		"~/.fonts/",
 		"~/.local/share/fonts/",
