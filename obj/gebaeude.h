@@ -140,7 +140,7 @@ private:
 	uint16 passengers_succeeded_visiting;
 	uint16 passenger_success_percent_last_year_visiting;
 
-	uint16 mail_generate;
+	uint16 mail_generated;
 	uint16 mail_delivery_succeeded_last_year;
 	uint16 mail_delivery_succeeded;
 	uint16 mail_delivery_success_percent_last_year;
@@ -295,7 +295,7 @@ public:
 	uint16 get_passengers_succeeded_visiting() const { return passengers_succeeded_visiting; }
 	uint16 get_passengers_succeeded_commuting() const { return passengers_succeeded_commuting; }
 
-	uint16 get_mail_generate() const { return mail_generate; }
+	uint16 get_mail_generated() const { return mail_generated; }
 	uint16 get_mail_delivery_succeeded_last_year() const { return mail_delivery_succeeded_last_year; }
 	uint16 get_mail_delivery_succeeded() const { return mail_delivery_succeeded; }
 
@@ -307,7 +307,7 @@ public:
 	uint16 get_passenger_success_percent_last_year_visiting() const { return passenger_success_percent_last_year_visiting; }
 	uint16 get_average_passenger_success_percent_visiting() const {	return calc_two_years_average(get_passenger_success_percent_this_year_visiting(), passenger_success_percent_last_year_visiting); }
 
-	uint16 get_mail_delivery_success_percent_this_year() const { return mail_generate > 0 ? (mail_delivery_succeeded * 100) / mail_generate : 65535; }
+	uint16 get_mail_delivery_success_percent_this_year() const { return mail_generated > 0 ? (mail_delivery_succeeded * 100) / mail_generated : 65535; }
 	uint16 get_mail_delivery_success_percent_last_year() const { return mail_delivery_success_percent_last_year; }
 	uint16 get_average_mail_delivery_success_percent() const { return calc_two_years_average(get_mail_delivery_success_percent_this_year(), get_mail_delivery_success_percent_last_year()); }
 
@@ -320,7 +320,7 @@ public:
 	void set_passengers_visiting_last_year(uint16 value) { passenger_success_percent_last_year_visiting = value; }
 	void set_passengers_commuting_last_year(uint16 value) { passenger_success_percent_last_year_commuting = value; }
 
-	void add_mail_generate(uint16 number) { mail_generate += number; }
+	void add_mail_generated(uint16 number) { mail_generated += number; }
 	void add_mail_delivery_succeeded(uint16 number) { mail_delivery_succeeded += number; }
 	void set_mail_delivery_succeeded_last_year(uint16 value) { mail_delivery_succeeded_last_year = value; }
 	void set_mail_delivery_success_percent_last_year(uint16 value) { mail_delivery_success_percent_last_year = value; }

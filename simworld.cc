@@ -6034,10 +6034,6 @@ void karte_t::deposit_ware_at_destination(ware_t ware)
 				}
 			}
 		}
-		else if (ware.is_mail())
-		{
-			gb_dest->add_mail_delivery_succeeded(ware.menge);
-		}
 #ifdef DEBUG_SIMRAND_CALLS
 #ifdef STATION_CHECK
 		if (talk)
@@ -6285,7 +6281,7 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
 			assert(mutex_error == 0);
 #endif
-			first_origin->add_mail_generate(units_this_step);
+			first_origin->add_mail_generated(units_this_step);
 #ifdef MULTI_THREAD
 			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
 			assert(mutex_error == 0);

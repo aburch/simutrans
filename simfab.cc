@@ -1041,7 +1041,7 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 		const uint16 adjusted_visitor_demand = building->get_adjusted_visitor_demand();
 		const uint16 adjusted_mail_demand = building->get_adjusted_mail_demand(); 
 		const bool loaded_passenger_and_mail_figres = building->get_loaded_passenger_and_mail_figres();
-		const uint16 mail_generate = building->get_mail_generate();
+		const uint16 mail_generate = building->get_mail_generated();
 		const uint16 mail_delivery_succeeded_last_year = building->get_mail_delivery_succeeded_last_year();
 		const uint16 mail_delivery_succeeded = building->get_mail_delivery_succeeded();
 		const uint16 mail_delivery_success_percent_last_year = building->get_mail_delivery_success_percent_last_year();
@@ -1058,7 +1058,7 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 		building->set_adjusted_visitor_demand(adjusted_visitor_demand);
 		building->set_adjusted_mail_demand(adjusted_mail_demand);
 		building->set_loaded_passenger_and_mail_figres(loaded_passenger_and_mail_figres);
-		building->add_mail_generate(mail_generate);
+		building->add_mail_generated(mail_generate);
 		building->add_mail_delivery_succeeded(mail_delivery_succeeded);
 		building->set_mail_delivery_succeeded_last_year(mail_delivery_succeeded_last_year);
 		building->set_mail_delivery_success_percent_last_year(mail_delivery_success_percent_last_year);
@@ -3126,7 +3126,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		{
 			buf.printf("%s %i\n", translator::translate("Commuters this year:"), building->get_passengers_succeeded_commuting());
 		}
-		if (building->get_mail_generate() > 0)
+		if (building->get_mail_generated() > 0)
 		{
 			buf.printf("%s %i (%i%%)\n", translator::translate("Mail sent this year:"), building->get_mail_delivery_succeeded(), building->get_mail_delivery_success_percent_this_year());
 		}
