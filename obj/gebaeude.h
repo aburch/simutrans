@@ -139,10 +139,10 @@ private:
 	uint16 passengers_succeeded_visiting;
 	uint16 passenger_success_percent_last_year_visiting;
 
-	uint16 mail_sent;
-	uint16 mail_sent_last_year;
-	uint16 mail_received;
-	uint16 mail_received_last_year;
+	uint16 mail_generate;
+	uint16 mail_delivery_succeeded_last_year;
+	uint16 mail_delivery_succeeded;
+	uint16 mail_delivery_success_percent_last_year;
 
 	/**
 	* This is the number of jobs supplied by this building
@@ -294,23 +294,51 @@ public:
 	uint16 get_passengers_succeeded_visiting() const { return passengers_succeeded_visiting; }
 	uint16 get_passengers_succeeded_commuting() const { return passengers_succeeded_commuting; }
 
-	uint16 get_mail_sent() const { return mail_sent; }
-	uint16 get_mail_received() const { return mail_received; }
-	uint16 get_mail_sent_last_year() const { return mail_sent_last_year; }
-	uint16 get_mail_received_last_year() const { return mail_received_last_year; }
+	uint16 get_mail_generate() const { return mail_generate; }
+	uint16 get_mail_delivery_succeeded_last_year() const { return mail_delivery_succeeded_last_year; }
+	uint16 get_mail_delivery_succeeded() const { return mail_delivery_succeeded; }
 
 	uint16 get_passenger_success_percent_this_year_commuting() const { return passengers_generated_commuting > 0 ? (passengers_succeeded_commuting * 100) / passengers_generated_commuting : 65535; }
 	uint16 get_passenger_success_percent_last_year_commuting() const { return passenger_success_percent_last_year_commuting; }
-	uint16 get_average_passenger_success_percent_commuting() const { return passenger_success_percent_last_year_commuting != 65535 ? (get_passenger_success_percent_this_year_commuting() + passenger_success_percent_last_year_commuting) / 2 : get_passenger_success_percent_this_year_commuting(); }
+	uint16 get_average_passenger_success_percent_commuting() const {
+		if (passengers_generated_commuting && passenger_success_percent_last_year_commuting == 65535) {
+			return get_passenger_success_percent_this_year_commuting();
+		}
+		else if (!passengers_generated_commuting && passenger_success_percent_last_year_commuting != 65535) {
+			return passenger_success_percent_last_year_commuting;
+		}
+		else {
+			return (get_passenger_success_percent_this_year_commuting() + passenger_success_percent_last_year_commuting) / 2;
+		}
+	}
 
 	uint16 get_passenger_success_percent_this_year_visiting() const { return passengers_generated_visiting > 0 ? (passengers_succeeded_visiting * 100) / passengers_generated_visiting : 65535; }
 	uint16 get_passenger_success_percent_last_year_visiting() const { return passenger_success_percent_last_year_visiting; }
-	uint16 get_average_passenger_success_percent_visiting() const { return passenger_success_percent_last_year_visiting != 65535 ? (get_passenger_success_percent_this_year_visiting() + passenger_success_percent_last_year_visiting) / 2 : get_passenger_success_percent_this_year_visiting(); }
+	uint16 get_average_passenger_success_percent_visiting() const {
+		if (passengers_generated_visiting && passenger_success_percent_last_year_visiting == 65535) {
+			return get_passenger_success_percent_this_year_visiting();
+		}
+		else if (!passengers_generated_visiting && passenger_success_percent_last_year_visiting != 65535) {
+			return passenger_success_percent_last_year_visiting;
+		}
+		else {
+			return (get_passenger_success_percent_this_year_visiting() + passenger_success_percent_last_year_visiting) / 2;
+		}
+	}
 
-	// FIXME: Calculated from damand value and deliveried number? note that recorded deliveried value is absolute number
-	//uint16 get_mail_deliver_success_percent_this_year() const { return 0; }
-	//uint16 get_mail_deliver_success_percent_last_year() const { return 0; }
-	//uint16 get_average_mail_deliver_success_percent() const { return 0; }
+	uint16 get_mail_delivery_success_percent_this_year() const { return mail_generate > 0 ? (mail_delivery_succeeded * 100) / mail_generate : 65535; }
+	uint16 get_mail_delivery_success_percent_last_year() const { return mail_delivery_success_percent_last_year; }
+	uint16 get_average_mail_delivery_success_percent() const {
+		if(mail_generate && mail_delivery_success_percent_last_year == 65535){
+			return get_mail_delivery_success_percent_this_year();
+		}
+		else if(!mail_generate && mail_delivery_success_percent_last_year != 65535) {
+			return get_mail_delivery_success_percent_last_year();
+		}
+		else {
+			return (get_mail_delivery_success_percent_this_year() + get_mail_delivery_success_percent_last_year()) /2;
+		}
+	}
 
 	void add_passengers_generated_visiting(uint16 number) { passengers_generated_visiting += number; }
 	void add_passengers_succeeded_visiting(uint16 number) { passengers_succeeded_visiting += number; }
@@ -321,11 +349,10 @@ public:
 	void set_passengers_visiting_last_year(uint16 value) { passenger_success_percent_last_year_visiting = value; }
 	void set_passengers_commuting_last_year(uint16 value) { passenger_success_percent_last_year_commuting = value; }
 
-	void add_mail_sent(uint16 number) { mail_sent += number; }
-	void add_mail_received(uint16 number) { mail_received += number; }
-
-	void set_mail_sent_last_year(uint16 value) { mail_sent_last_year = value; }
-	void set_mail_received_last_year(uint16 value) { mail_received_last_year = value; }
+	void add_mail_generate(uint16 number) { mail_generate += number; }
+	void add_mail_delivery_succeeded(uint16 number) { mail_delivery_succeeded += number; }
+	void set_mail_delivery_succeeded_last_year(uint16 value) { mail_delivery_succeeded_last_year = value; }
+	void set_mail_delivery_success_percent_last_year(uint16 value) { mail_delivery_success_percent_last_year = value; }
 
 	void new_year();
 

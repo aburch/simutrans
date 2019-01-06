@@ -79,10 +79,10 @@ void gebaeude_t::init()
 	passengers_succeeded_visiting = 0;
 	passenger_success_percent_last_year_visiting = 65535;
 	available_jobs_by_time = -9223372036854775808ll;
-	mail_sent = 0;
-	mail_received = 0;
-	mail_sent_last_year = 65535;
-	mail_received_last_year = 65535;
+	mail_generate = 0;
+	mail_delivery_succeeded_last_year = 65535;
+	mail_delivery_succeeded = 0;
+	mail_delivery_success_percent_last_year = 65535;
 	is_in_world_list = 0;
 	loaded_passenger_and_mail_figres = false;
 }
@@ -1063,7 +1063,10 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				buf.printf(" 0%%");
 			}
 			buf.printf("\n");
-			buf.printf("%s %i\n", translator::translate("Mail received this year:"), mail_received);
+			if (mail_generate)
+			{
+				buf.printf("%s %i%%\n", translator::translate("Mail delivery success this year:"), get_mail_delivery_success_percent_this_year());
+			}
 
 			if (get_passenger_success_percent_last_year_commuting() < 65535)
 			{
@@ -1078,12 +1081,19 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				buf.printf(" %i%%", get_passenger_success_percent_last_year_visiting());
 				buf.printf("\n");
 			}
+			if (mail_delivery_success_percent_last_year < 65535)
+			{
+				buf.printf("%s %i%%\n", translator::translate("Mail delivery success last year:"), mail_delivery_success_percent_last_year);
+			}
 		}
 		else
 		{
 			buf.printf("%s %i\n", translator::translate("Visitors this year:"), passengers_succeeded_visiting);
 			buf.printf("%s %i\n", translator::translate("Commuters this year:"), passengers_succeeded_commuting);
-			buf.printf("%s %i\n", translator::translate("Mail received this year:"), mail_received);
+			if (mail_generate)
+			{
+				buf.printf("%s %i (%i%%)\n", translator::translate("Mail sent this year:"), mail_delivery_succeeded, get_mail_delivery_success_percent_this_year());
+			}
 
 			if (passenger_success_percent_last_year_commuting < 65535)
 			{
@@ -1093,10 +1103,10 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			{
 				buf.printf("%s %i\n", translator::translate("Commuters last year:"), passenger_success_percent_last_year_commuting);
 			}
-		}
-		if (mail_received_last_year < 65535)
-		{
-			buf.printf("%s %i\n", translator::translate("Mail received last year:"), mail_received_last_year);
+			if (mail_delivery_succeeded_last_year < 65535)
+			{
+				buf.printf("%s %i (%i%%)\n", translator::translate("Mail sent last year:"), mail_delivery_succeeded_last_year, get_mail_delivery_success_percent_last_year());
+			}
 		}
 
 		// List of stops potentially within walking distance.
@@ -1459,10 +1469,10 @@ void gebaeude_t::new_year()
 		passenger_success_percent_last_year_commuting = passengers_succeeded_commuting;
 		passenger_success_percent_last_year_visiting = passengers_succeeded_visiting;
 	}
-	mail_sent_last_year = mail_sent;
-	mail_received_last_year = mail_received;
+	mail_delivery_succeeded_last_year = mail_delivery_succeeded;
+	mail_delivery_success_percent_last_year = get_mail_delivery_success_percent_this_year();
 
-	passengers_succeeded_commuting = passengers_generated_commuting = passengers_succeeded_visiting = passengers_generated_visiting = mail_sent = mail_received = 0;
+	passengers_succeeded_commuting = passengers_generated_commuting = passengers_succeeded_visiting = passengers_generated_visiting = mail_delivery_succeeded = mail_delivery_succeeded = 0;
 }
 
 
@@ -1710,12 +1720,12 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		file->rdwr_short(adjusted_mail_demand);
 	}
 
-	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 3) || file->get_extended_version() >= 15)
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 4) || file->get_extended_version() >= 15)
 	{
-		file->rdwr_short(mail_sent);
-		file->rdwr_short(mail_sent_last_year);
-		file->rdwr_short(mail_received);
-		file->rdwr_short(mail_received_last_year);
+		file->rdwr_short(mail_generate);
+		file->rdwr_short(mail_delivery_succeeded_last_year);
+		file->rdwr_short(mail_delivery_succeeded);
+		file->rdwr_short(mail_delivery_success_percent_last_year);
 	}
 
 	if (file->is_loading())
