@@ -416,7 +416,7 @@ const char *dr_query_fontpath(int which)
 		"~/.fonts/",
 		"~/.local/share/fonts/",
 		"/usr/share/fonts/truetype/",
-		"/usr/X11R6/lib/X11/fonts/ttfonts/"
+		"/usr/X11R6/lib/X11/fonts/ttfonts/",
 		"/usr/local/sharefonts/truetype/",
 		"/usr/share/fonts/",
 		"/usr/X11R6/lib/X11/fonts/",
