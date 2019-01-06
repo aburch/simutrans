@@ -134,6 +134,11 @@ v12,13を使っていた方で初めてv14を使うときは**autosave.sveを削
 - 一度セーブデータを読み込んでそれを**保存した瞬間に**そのデータは**OTRP専用**になります。既存のデータをOTRPに移行する場合はバックアップを取った上で別ファイルとして保存することを強く推奨します。
 - データセーブ時に「Readable by standard」ボタンを押して保存するとstandardで読み書きできる形式で保存されます。この形式では**OTRP固有の情報が失われる**ので注意してください。
 
+# ライセンス
+OTRPはSimutrans Standardからの派生物ですので、Standardのライセンスである[Artistic License](https://github.com/aburch/simutrans/blob/master/simutrans/license.txt) に従います。OTRPの再配布および改造したものの配布などについては以下の条件下で自由です。
+- Artistic Licenseに違反しない条件下で配布してください。
+- 配布する場所をひめしにご連絡ください。 twitter: [@himeshi_hob](https://twitter.com/himeshi_hob)
+
 # おねがい
 バグ探しには皆さんのお力が必要です。バグと思われる挙動があればtwitter [@himeshi_hob](https://twitter.com/himeshi_hob) に報告していただけるとありがたいです。  
 特に「ネットワークプレイ」が安定動作するかが確認取れてないので遊んでみて動作状況を教えていただけるとうれしいです。ぜひOTRPでNSを楽しんでみてください。

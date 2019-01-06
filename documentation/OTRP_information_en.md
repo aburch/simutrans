@@ -106,5 +106,10 @@ You can use all add-ons for simutrans standard on OTRP. There is no OTRP-special
 - No compatibility for ex-OTRP.
 - If you press "Readable by standard" button, the game is saved so that it is readable by simutrans standard. In this mode, please be ware that **OTRP specific data is lost.**
 
+# License
+OTRP derives from simutrans standard, so OTRP follows [Artistic License](https://github.com/aburch/simutrans/blob/master/simutrans/license.txt). Re-distribution of OTRP (including modified version) is permitted under the following conditions.
+- Please follow and respect the original license of simutrans standard.
+- Please notify Himeshi where the OTRP is distributed. twitter: [@himeshi_hob](https://twitter.com/himeshi_hob)
+
 # Contact Me
 If you have any questions or request, please feel free to ask me through the simutrans international forum or [@himeshi_hob](https://twitter.com/himeshi_hob) in Twitter. Every issue reports and your opinions are greatly appreciated.
