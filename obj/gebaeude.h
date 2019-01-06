@@ -397,9 +397,6 @@ private:
 		else if (this_year == 65535) {
 			return last_year;
 		}
-		else if (last_year == 65535 && this_year == 65535) {
-			return 65535;
-		}
 		else {
 			uint8 month = welt->get_last_month() + 1;
 			return (last_year * 12 + this_year * month) / (12 + month);
