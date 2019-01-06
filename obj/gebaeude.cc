@@ -1103,9 +1103,9 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 			{
 				buf.printf("%s %i\n", translator::translate("Commuters last year:"), passenger_success_percent_last_year_commuting);
 			}
-			if (mail_delivery_succeeded_last_year < 65535)
+			if (mail_delivery_success_percent_last_year < 65535)
 			{
-				buf.printf("%s %i (%i%%)\n", translator::translate("Mail sent last year:"), mail_delivery_succeeded_last_year, get_mail_delivery_success_percent_last_year());
+				buf.printf("%s %i (%i%%)\n", translator::translate("Mail sent last year:"), mail_delivery_succeeded_last_year, mail_delivery_success_percent_last_year);
 			}
 		}
 
