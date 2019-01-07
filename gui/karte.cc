@@ -83,7 +83,8 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 #define POWERLINE_KENN    (55)
 #define HALT_KENN         COL_RED
 #define BUILDING_KENN     COL_GREY3
-
+// when building have no record
+#define MAP_COL_NODATA     (218)
 
 // helper function for line segment_t
 bool reliefkarte_t::line_segment_t::operator == (const line_segment_t & k) const
@@ -954,7 +955,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 							set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_commuting, 100));
 						}
 						else {
-							set_relief_farbe(k, calc_severity_color(100, 100));
+							set_relief_farbe(k, MAP_COL_NODATA);
 						}
 					}
 				}
@@ -971,7 +972,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 							set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_visiting, 100));
 						}
 						else {
-							set_relief_farbe(k, calc_severity_color(100, 100));
+							set_relief_farbe(k, MAP_COL_NODATA);
 						}
 					}
 				}
@@ -996,7 +997,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 									set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
 								}
 								else {
-									set_relief_farbe(k, calc_severity_color(100, 100));
+									set_relief_farbe(k, MAP_COL_NODATA);
 								}
 							}
 						}
@@ -1020,7 +1021,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 							set_relief_farbe(k, calc_severity_color(100 - recent_mail_delivery_success_per, 100));
 						}
 						else {
-							set_relief_farbe(k, calc_severity_color(100, 100));
+							set_relief_farbe(k, MAP_COL_NODATA);
 						}
 					}
 				}
