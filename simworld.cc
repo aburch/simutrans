@@ -7125,6 +7125,7 @@ no_route:
 
 				bool direct_return_available = false;
 				ware_t return_passengers(wtyp, ret_halt);
+				return_passengers.set_class(pax.get_class()); 
 
 #ifndef FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_1
 				return_passengers.menge = units_this_step;
