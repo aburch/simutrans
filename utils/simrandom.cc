@@ -24,11 +24,16 @@ static int thread_local mersenne_twister_index = MERSENNE_TWISTER_N + 1; // mers
 
 static uint8 thread_local random_origin = 0;
 
+#ifdef DEBUG_SIMRAND_CALLS
+/* We use the seed to distinguish between threads in the debug output */
+static uint32 thread_local thread_seed = 0;
+#endif
 
 /* initializes mersenne_twister[N] with a seed */
 static void init_genrand(uint32 s)
 {
 #ifdef DEBUG_SIMRAND_CALLS
+	thread_seed = s;
 	karte_t::random_callers.append(strdup("*** GEN ***"));
 #endif
 	mersenne_twister[0]= s & 0xffffffffUL;
@@ -120,7 +125,7 @@ uint32 simrand(const uint32 max, const char*)
 #ifdef DEBUG_SIMRAND_CALLS
 	uint32 result = simrand_plain() % max;
 	char buf[256];
-	sprintf(buf, "%s (%i); call: (%i). rand %u, max %u", caller, get_random_seed(), karte_t::random_calls, result, max);
+	sprintf(buf, "%s (%i); call: (%i); seed: (%u). rand %u, max %u", caller, get_random_seed(), karte_t::random_calls, thread_seed, result, max);
 	dbg->warning("simrand", buf);
 	if(karte_t::print_randoms)
 	{
