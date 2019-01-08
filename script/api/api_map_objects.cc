@@ -199,8 +199,11 @@ label_t* create_marker(koord pos, player_t* player, const char* text)
 	return gr->find<label_t>();
 }
 
-
-void_t label_set_text(label_t* l, const char* text)
+/* This fails to compile in Visual Studio citing an "ambiguous symbol" error (C2872)
+ * "return void_t();" also throws error C2955
+ */
+/*
+void_ label_set_text(label_t* l, const char* text)
 {
 	if (l == NULL  ||  text == NULL) {
 		return void_t();
@@ -213,7 +216,7 @@ void_t label_set_text(label_t* l, const char* text)
 	w.init(l->get_owner());
 
 	return void_t();
-}
+} */
 
 
 void export_map_objects(HSQUIRRELVM vm)
@@ -393,7 +396,9 @@ void export_map_objects(HSQUIRRELVM vm)
 	 * @param text text
 	 * @warning cannot be used in network games.
 	 */
-	register_method(vm, &label_set_text, "set_text", true);
+	// Must comment this out as this fails to compile in Visual Studio
+	// FIXME
+	 //register_method(vm, &label_set_text, "set_text", true);
 
 	end_class(vm);
 }
