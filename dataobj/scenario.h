@@ -284,6 +284,7 @@ public:
 	dynamic_string rule_text;
 	dynamic_string result_text;
 	dynamic_string about_text;
+	dynamic_string debug_text;
 	/// @}
 
 	/**

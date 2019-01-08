@@ -14,12 +14,16 @@ scenario.short_description <- "This is a random scripted scenario"
 
 scenario.author <- ""
 scenario.version <- ""
+scenario.translation <- ""
 
 // table to hold routines for gui access
 gui <- {}
 
 // table to hold routines for forbidding/allowing player tools
 rules <- {}
+
+// table to hold routines for debug
+debug <- {}
 
 // table containing all waytypes
 all_waytypes <- [wt_road, wt_rail, wt_water, wt_monorail, wt_maglev, wt_tram, wt_narrowgauge, wt_air, wt_power]
@@ -88,12 +92,14 @@ function get_about_text(pl)
 	return "<em>Scenario:</em>  " +  scenario.short_description
 	+ "<br><br><em>Author:</em> " +  scenario.author
 	+ "<br><br><em>Version:</em> " +  scenario.version
+	+ "<br><br><em>Translation:</em> " +  scenario.translation
 }
 
 function get_rule_text(pl) { return "Do what you want." }
 function get_goal_text(pl) { return "The way is the target." }
 function get_info_text(pl) { return "Random scenario." }
 function get_result_text(pl) { return "You are owned." }
+function get_debug_text(pl)  { return debug.get_forbidden_text() }
 
 function min(a, b) { return a < b ? a : b }
 function max(a, b) { return a > b ? a : b }
@@ -622,10 +628,34 @@ class time_ticks_x extends time_x {
 class coord {
 	x = -1
 	y = -1
+
+	constructor(_x, _y)  { x = _x; y = _y }
+	function _add(other) { return coord(x + other.x, y + other.y) }
+	function _sub(other) { return coord(x - other.x, y - other.y) }
+	function _mul(fac)   { return coord(x * fac, y * fac) }
+	function _div(fac)   { return coord(x / fac, y / fac) }
+	function _unm()      { return coord(-x, -y) }
+	function _typeof()   { return "coord" }
+	function _tostring() { return coord_to_string(this) }
+	function _save()     { return "coord(" + x + ", " + y + ")" }
+	function href(text)  { return "<a href='(" + x + ", " + y + ")'>" + text + "</a>" }
 }
 
 class coord3d extends coord {
 	z = -1
+
+	constructor(_x, _y, _z)  { x = _x; y = _y; z = _z }
+	function _add(other) { return coord3d(x + other.x, y + other.y, z + getz(other)) }
+	function _sub(other) { return coord3d(x - other.x, y - other.y, z - getz(other)) }
+	function _mul(fac)   { return coord3d(x * fac, y * fac, z * fac) }
+	function _div(fac)   { return coord3d(x / fac, y / fac, z / fac) }
+	function _unm()      { return coord3d(-x, -y, -z) }
+	function _typeof()   { return "coord3d" }
+	function _tostring() { return coord3d_to_string(this) }
+	function _save()     { return "coord3d(" + x + ", " + y + ", " + z + ")" }
+	function href(text)  { return "<a href='(" + x + ", " + y + ", " + z + ")'>" + text + "</a>" }
+
+	function getz(other) { return (z in other) ? other.z : 0 }
 }
 
 /**
