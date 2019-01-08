@@ -83,7 +83,8 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 #define POWERLINE_KENN    (55)
 #define HALT_KENN         COL_RED
 #define BUILDING_KENN     COL_GREY3
-
+// when building have no record
+#define MAP_COL_NODATA     (218)
 
 // helper function for line segment_t
 bool reliefkarte_t::line_segment_t::operator == (const line_segment_t & k) const
@@ -954,7 +955,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 							set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_commuting, 100));
 						}
 						else {
-							set_relief_farbe(k, calc_severity_color(100, 100));
+							set_relief_farbe(k, MAP_COL_NODATA);
 						}
 					}
 				}
@@ -962,53 +963,70 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			break;
 
 		case MAP_ACCESSIBILITY_TRIP:
-		{
-			if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
-				gb = gb->access_first_tile();
-				if (gb->get_adjusted_population()) {
-					const uint16 passengers_succeeded_visiting = gb->get_average_passenger_success_percent_visiting();
-					if (passengers_succeeded_visiting < 65535) {
-						set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_visiting, 100));
-					}
-					else {
-						set_relief_farbe(k, calc_severity_color(100, 100));
+			{
+				if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+					gb = gb->access_first_tile();
+					if (gb->get_adjusted_population()) {
+						const uint16 passengers_succeeded_visiting = gb->get_average_passenger_success_percent_visiting();
+						if (passengers_succeeded_visiting < 65535) {
+							set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_visiting, 100));
+						}
+						else {
+							set_relief_farbe(k, MAP_COL_NODATA);
+						}
 					}
 				}
 			}
-		}
-		break;
+			break;
 
-		case MAP_ACCESSIBILITY_WORKER:
-		{
-			if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
-				gb = gb->access_first_tile();
-				if (gb->get_adjusted_jobs()) {
-					if (fabrik_t *fab = gb->get_fabrik()) {
-						// use this for primary industry or not
-						const uint32 input_count = fab->get_input().get_count();
-						// Factories not in operation
-						if (gb->get_passengers_succeeded_commuting() == 65535 && input_count) {
-							set_relief_farbe(k, COL_DARK_PURPLE);
+		case MAP_STAFF_FULFILLMENT:
+			{
+				if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+					gb = gb->access_first_tile();
+					if (gb->get_adjusted_jobs()) {
+						if (fabrik_t *fab = gb->get_fabrik()) {
+							// use this for primary industry or not
+							const uint32 input_count = fab->get_input().get_count();
+							// Factories not in operation
+							if (gb->get_passengers_succeeded_commuting() == 65535 && input_count) {
+								set_relief_farbe(k, COL_DARK_PURPLE);
+							}
+							else {
+								const sint32 staffing_percentage = gb->get_staffing_level_percentage();
+								if (staffing_percentage < 65535) {
+									set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
+								}
+								else {
+									set_relief_farbe(k, MAP_COL_NODATA);
+								}
+							}
 						}
 						else {
 							const sint32 staffing_percentage = gb->get_staffing_level_percentage();
-							if (staffing_percentage < 65535) {
-								set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
-							}
-							else {
-								set_relief_farbe(k, calc_severity_color(100, 100));
-							}
+							set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
 						}
 					}
-					else {
-						const sint32 staffing_percentage = gb->get_staffing_level_percentage();
-						set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
+				
+				}
+			}
+			break;
+
+		case MAP_MAIL_DELIVERY:
+			{
+				if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+					gb = gb->access_first_tile();
+					if (gb->get_adjusted_mail_demand()) {
+						const uint16 recent_mail_delivery_success_per = gb->get_average_mail_delivery_success_percent();
+						if (recent_mail_delivery_success_per < 65535) {
+							set_relief_farbe(k, calc_severity_color(100 - recent_mail_delivery_success_per, 100));
+						}
+						else {
+							set_relief_farbe(k, MAP_COL_NODATA);
+						}
 					}
 				}
-				
 			}
-		}
-		break;
+			break;
 
 		default:
 			break;

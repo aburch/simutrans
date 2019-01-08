@@ -12,6 +12,7 @@
 #include "../simobj.h"
 #include "../simcolor.h"
 #include "../tpl/minivec_tpl.h"
+#include "../simworld.h"
 
 class building_tile_desc_t;
 class fabrik_t;
@@ -138,6 +139,11 @@ private:
 	uint16 passengers_generated_visiting;
 	uint16 passengers_succeeded_visiting;
 	uint16 passenger_success_percent_last_year_visiting;
+
+	uint16 mail_generated;
+	uint16 mail_delivery_succeeded_last_year;
+	uint16 mail_delivery_succeeded;
+	uint16 mail_delivery_success_percent_last_year;
 
 	/**
 	* This is the number of jobs supplied by this building
@@ -289,13 +295,21 @@ public:
 	uint16 get_passengers_succeeded_visiting() const { return passengers_succeeded_visiting; }
 	uint16 get_passengers_succeeded_commuting() const { return passengers_succeeded_commuting; }
 
+	uint16 get_mail_generated() const { return mail_generated; }
+	uint16 get_mail_delivery_succeeded_last_year() const { return mail_delivery_succeeded_last_year; }
+	uint16 get_mail_delivery_succeeded() const { return mail_delivery_succeeded; }
+
 	uint16 get_passenger_success_percent_this_year_commuting() const { return passengers_generated_commuting > 0 ? (passengers_succeeded_commuting * 100) / passengers_generated_commuting : 65535; }
 	uint16 get_passenger_success_percent_last_year_commuting() const { return passenger_success_percent_last_year_commuting; }
-	uint16 get_average_passenger_success_percent_commuting() const { return passenger_success_percent_last_year_commuting != 65535 ? (get_passenger_success_percent_this_year_commuting() + passenger_success_percent_last_year_commuting) / 2 : get_passenger_success_percent_this_year_commuting(); }
+	uint16 get_average_passenger_success_percent_commuting() const { return calc_two_years_average(get_passenger_success_percent_this_year_commuting(), passenger_success_percent_last_year_commuting);	}
 
 	uint16 get_passenger_success_percent_this_year_visiting() const { return passengers_generated_visiting > 0 ? (passengers_succeeded_visiting * 100) / passengers_generated_visiting : 65535; }
 	uint16 get_passenger_success_percent_last_year_visiting() const { return passenger_success_percent_last_year_visiting; }
-	uint16 get_average_passenger_success_percent_visiting() const { return passenger_success_percent_last_year_visiting != 65535 ? (get_passenger_success_percent_this_year_visiting() + passenger_success_percent_last_year_visiting) / 2 : get_passenger_success_percent_this_year_visiting(); }
+	uint16 get_average_passenger_success_percent_visiting() const {	return calc_two_years_average(get_passenger_success_percent_this_year_visiting(), passenger_success_percent_last_year_visiting); }
+
+	uint16 get_mail_delivery_success_percent_this_year() const { return mail_generated > 0 ? (mail_delivery_succeeded * 100) / mail_generated : 65535; }
+	uint16 get_mail_delivery_success_percent_last_year() const { return mail_delivery_success_percent_last_year; }
+	uint16 get_average_mail_delivery_success_percent() const { return calc_two_years_average(get_mail_delivery_success_percent_this_year(), get_mail_delivery_success_percent_last_year()); }
 
 	void add_passengers_generated_visiting(uint16 number) { passengers_generated_visiting += number; }
 	void add_passengers_succeeded_visiting(uint16 number) { passengers_succeeded_visiting += number; }
@@ -305,6 +319,11 @@ public:
 
 	void set_passengers_visiting_last_year(uint16 value) { passenger_success_percent_last_year_visiting = value; }
 	void set_passengers_commuting_last_year(uint16 value) { passenger_success_percent_last_year_commuting = value; }
+
+	void add_mail_generated(uint16 number) { mail_generated += number; }
+	void add_mail_delivery_succeeded(uint16 number) { mail_delivery_succeeded += number; }
+	void set_mail_delivery_succeeded_last_year(uint16 value) { mail_delivery_succeeded_last_year = value; }
+	void set_mail_delivery_success_percent_last_year(uint16 value) { mail_delivery_success_percent_last_year = value; }
 
 	void new_year();
 
@@ -368,6 +387,22 @@ public:
 	const minivec_tpl<const planquadrat_t*> &get_tiles();
 
 	void reset_tile_list() { building_tiles.clear(); }
+
+private:
+	// Calculate last 2 years(13-24 months) average percentage
+	inline uint16 calc_two_years_average(uint16 this_year, uint16 last_year) const {
+		if (last_year == 65535) {
+			return this_year;
+		}
+		else if (this_year == 65535) {
+			return last_year;
+		}
+		else {
+			uint8 month = welt->get_last_month() + 1;
+			return (last_year * 12 + this_year * month) / (12 + month);
+		}
+	}
+
 };
 
 
