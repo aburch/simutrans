@@ -1063,10 +1063,19 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				buf.printf(" 0%%");
 			}
 			buf.printf("\n");
-			if (mail_generated)
+			if (adjusted_mail_demand)
 			{
-				buf.printf("%s %i%%\n", translator::translate("Mail delivery success this year:"), get_mail_delivery_success_percent_this_year());
+				buf.printf("%s", translator::translate("Mail delivery success this year:"));
+				if (get_mail_delivery_success_percent_this_year() < 65535)
+				{
+					buf.printf(" %i%%", get_mail_delivery_success_percent_this_year());
+				}
+				else {
+					buf.printf(" 0%%");
+				}
+				buf.printf("\n");
 			}
+			buf.printf("\n");
 
 			if (get_passenger_success_percent_last_year_commuting() < 65535)
 			{
@@ -1081,31 +1090,59 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				buf.printf(" %i%%", get_passenger_success_percent_last_year_visiting());
 				buf.printf("\n");
 			}
-			if (mail_delivery_success_percent_last_year < 65535)
+			if (adjusted_mail_demand && mail_delivery_succeeded_last_year < 65535)
 			{
-				buf.printf("%s %i%%\n", translator::translate("Mail delivery success last year:"), mail_delivery_success_percent_last_year);
+				buf.printf("%s", translator::translate("Mail delivery success last year:"));
+				if (get_mail_delivery_success_percent_last_year() < 65535)
+				{
+					buf.printf(" %i%%", mail_delivery_success_percent_last_year);
+				}
+				else {
+					buf.printf(" 0%%");
+				}
+				buf.printf("\n");
 			}
 		}
 		else
 		{
-			buf.printf("%s %i\n", translator::translate("Visitors this year:"), passengers_succeeded_visiting);
+			if (get_adjusted_visitor_demand())
+			{
+				buf.printf("%s %i\n", translator::translate("Visitors this year:"), passengers_succeeded_visiting);
+			}
 			buf.printf("%s %i\n", translator::translate("Commuters this year:"), passengers_succeeded_commuting);
-			if (mail_generated)
+			if (adjusted_mail_demand)
 			{
-				buf.printf("%s %i (%i%%)\n", translator::translate("Mail sent this year:"), mail_delivery_succeeded, get_mail_delivery_success_percent_this_year());
+				buf.printf("%s", translator::translate("Mail sent this year:"));
+				if (get_mail_delivery_success_percent_this_year() < 65535)
+				{
+					buf.printf(" %i (%i%%)", mail_delivery_succeeded, get_mail_delivery_success_percent_this_year());
+				}
+				else {
+					buf.printf(" 0 (0%%)");
+				}
+				buf.printf("\n");
 			}
+			buf.printf("\n");
 
-			if (passenger_success_percent_last_year_commuting < 65535)
+			if (get_adjusted_visitor_demand() && passenger_success_percent_last_year_visiting < 65535)
 			{
-				buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), passenger_success_percent_last_year_visiting);
+				buf.printf("%s %i\n", translator::translate("Visitors last year:"), passenger_success_percent_last_year_visiting);
 			}
-			if (passenger_success_percent_last_year_visiting < 65535)
+			if (passenger_success_percent_last_year_commuting < 65535)
 			{
 				buf.printf("%s %i\n", translator::translate("Commuters last year:"), passenger_success_percent_last_year_commuting);
 			}
-			if (mail_delivery_success_percent_last_year < 65535)
+			if (adjusted_mail_demand && mail_delivery_succeeded_last_year < 65535)
 			{
-				buf.printf("%s %i (%i%%)\n", translator::translate("Mail sent last year:"), mail_delivery_succeeded_last_year, mail_delivery_success_percent_last_year);
+				buf.printf("%s", translator::translate("Mail sent last year:"));
+				if (get_mail_delivery_success_percent_last_year() < 65535)
+				{
+					buf.printf(" %i (%i%%)", mail_delivery_succeeded_last_year, mail_delivery_success_percent_last_year);
+				}
+				else {
+					buf.printf(" 0 (0%%)");
+				}
+				buf.printf("\n");
 			}
 		}
 
@@ -1466,8 +1503,8 @@ void gebaeude_t::new_year()
 		// Accordingly, we do not make use of "generated" numbers, and the "succeeded" figures are actually records of
 		// absolute numbers of visitors/commuters. Accordingly, the last year percent figures must also store the
 		// absolute number of visitors/commuters rather than a percentage.
-		passenger_success_percent_last_year_commuting = passengers_succeeded_commuting;
-		passenger_success_percent_last_year_visiting = passengers_succeeded_visiting;
+		passenger_success_percent_last_year_commuting = get_passengers_succeeded_commuting();
+		passenger_success_percent_last_year_visiting = get_passengers_succeeded_visiting();
 	}
 	mail_delivery_succeeded_last_year = mail_delivery_succeeded;
 	mail_delivery_success_percent_last_year = get_mail_delivery_success_percent_this_year();

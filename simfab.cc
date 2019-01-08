@@ -3098,10 +3098,11 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 
 	buf.append(scaled_electric_amount>>POWER_TO_MW);
 	buf.append(" MW");
+	buf.append("\n");
 
 	if(city != NULL)
 	{
-		buf.append("\n\n");
+		buf.append("\n");
 		buf.append(translator::translate("City"));
 		buf.append(": ");
 		buf.append(city->get_name());
@@ -3122,25 +3123,58 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		{
 			buf.printf("%s %i\n", translator::translate("Visitors this year:"), building->get_passengers_succeeded_visiting());
 		}
-		if (building->get_adjusted_jobs() > 0 && building->get_passengers_succeeded_commuting() != 65535)
+		if (building->get_adjusted_jobs() > 0)
 		{
-			buf.printf("%s %i\n", translator::translate("Commuters this year:"), building->get_passengers_succeeded_commuting());
+			buf.printf("%s", translator::translate("Commuters this year:"));
+			if (building->get_passengers_succeeded_commuting() != 65535)
+			{
+				buf.printf(" %i", building->get_passengers_succeeded_commuting());
+			}
+			else {
+				buf.printf(" 0");
+			}
+			buf.printf("\n");
 		}
-		if (building->get_mail_generated() > 0)
+		if (building->get_adjusted_mail_demand() > 0)
 		{
-			buf.printf("%s %i (%i%%)\n", translator::translate("Mail sent this year:"), building->get_mail_delivery_succeeded(), building->get_mail_delivery_success_percent_this_year());
+			buf.printf("%s", translator::translate("Mail sent this year:"));
+			if (building->get_mail_delivery_success_percent_this_year() < 65535)
+			{
+				buf.printf(" %i (%i%%)", building->get_mail_delivery_succeeded(), building->get_mail_delivery_success_percent_this_year());
+			}
+			else {
+				buf.printf(" 0 (0%%)");
+			}
+			buf.printf("\n");
 		}
-		if (building->get_passenger_success_percent_last_year_visiting() < 65535)
+		if (building->get_adjusted_visitor_demand() > 0 && building->get_passenger_success_percent_last_year_visiting() < 65535)
 		{
 			buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), building->get_passenger_success_percent_last_year_visiting());
 		}
-		if (building->get_passenger_success_percent_last_year_commuting() < 65535)
+		else {
+			buf.printf("\n");
+		}
+		if (building->get_adjusted_jobs() > 0 && building->get_passenger_success_percent_last_year_commuting() < 65535)
 		{
 			buf.printf("%s %i\n", translator::translate("Commuters last year:"), building->get_passenger_success_percent_last_year_commuting());
 		}
-		if (building->get_mail_delivery_success_percent_last_year() < 65535)
+		else{
+			buf.printf("\n");
+		}
+		if (building->get_adjusted_mail_demand() > 0 && building->get_mail_delivery_succeeded_last_year() < 65535)
 		{
-			buf.printf("%s %i (%i%%)\n", translator::translate("Mail sent last year:"), building->get_mail_delivery_succeeded_last_year(), building->get_mail_delivery_success_percent_last_year());
+			buf.printf("%s", translator::translate("Mail sent last year:"));
+			if (building->get_mail_delivery_success_percent_last_year() < 65535)
+			{
+				buf.printf(" %i (%i%%)", building->get_mail_delivery_succeeded_last_year(), building->get_mail_delivery_success_percent_last_year());
+			}
+			else {
+				buf.printf(" 0 (0%%)");
+			}
+			buf.printf("\n");
+		}
+		else {
+			buf.printf("\n");
 		}
 	}
 
