@@ -174,7 +174,7 @@ void building_reader_t::register_obj(obj_desc_t *&data)
 	// 	dbg->error( "building_reader_t::register_obj()", "Building %s has %i layouts (illegal) => set to %i", desc->get_name(), desc->layouts, l );
 	// 	desc->layouts = l;
 	// }
-	uint8 l = desc->utype == building_desc_t::generic_stop ? 16 : 4;
+	uint8 l = desc->type == building_desc_t::generic_stop ? 16 : 4;
 	while (l > 0) {
 		if ((desc->layouts & l) != 0  &&  (desc->layouts != l)) {
 			dbg->error( "building_reader_t::register_obj()", "Building %s has %i layouts (illegal) => set to %i", desc->get_name(), desc->layouts, l );
