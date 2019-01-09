@@ -5957,7 +5957,7 @@ station_tile_search_ready: ;
 		arrival_time = now;
 		if (arrival_time < WAIT_INFINITE)
 		{
-			dbg->error("sint64 convoi_t::calc_revenue", "Arrival time is in the future for convoy %u at stop %u", self.get_id(), halt.get_id());
+			dbg->error("void convoi_t::hat_gehalten(halthandle_t halt)", "Arrival time is in the future for convoy %u at stop %u", self.get_id(), halt.get_id());
 		}
 	}
 	const sint64 reversing_time = schedule->get_current_entry().reverse > 0 ? (sint64)calc_reverse_delay() : 0ll;
@@ -6040,6 +6040,7 @@ station_tile_search_ready: ;
 		// Advance schedule
 		advance_schedule();
 		state = ROUTING_1;
+		dbg->message("void convoi_t::hat_gehalten(halthandle_t halt)", "Convoy %s departing from stop %s at step %i", get_name(), halt.is_bound() ? halt->get_name() : "unknown", welt->get_steps());
 	}
 
 	// reset the wait_lock
