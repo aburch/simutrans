@@ -435,27 +435,20 @@ const char *tool_query_t::work( player_t *player, koord3d pos )
 bool tool_remover_t::tool_remover_intern(player_t *player, koord3d pos, sint8 type, const char *&msg)
 {
 DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
-
-	grund_t *gr = welt->lookup(pos);
-	if (!gr) {
-		msg = "";
-		return false;
-	}
-
 	// check if there is something to remove from here ...
-	if(  gr->get_top()==0  ) {
+	grund_t *gr = welt->lookup(pos);
+	if (!gr  ||  gr->get_top()==0) {
 		msg = "";
 		return false;
 	}
 
 	// marker?
 	if (type == obj_t::label || type == obj_t::undefined) {
-		label_t* l = gr->find<label_t>();
-		if(l) {
+		if (label_t* l = gr->find<label_t>()) {
 			msg = l-> is_deletable(player);
 			if(msg==NULL) {
 				delete l;
-			// Refund the cost of land if the player is deleting the marker and therefore selling it.
+				// Refund the cost of land if the player is deleting the marker and therefore selling it.
 				player_t::book_construction_costs(l->get_owner(), -welt->get_land_value(gr->get_pos()), gr->get_pos().get_2d());
 				return true;
 			}
@@ -470,8 +463,7 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 	
 	// citycar? (we allow always)
 	if (type == obj_t::road_user || type == obj_t::undefined) {
-		private_car_t* citycar = gr->find<private_car_t>();
-		if(citycar) {
+		if (private_car_t* citycar = gr->find<private_car_t>()) {
 			delete citycar;
 			return true;
 		}
@@ -488,8 +480,9 @@ DBG_MESSAGE("tool_remover_intern()","at (%s)", pos.get_str());
 
 	// prissi: check powerline (can cross ground of another player)
 	leitung_t* lt = gr->get_leitung();
-	if( (type == obj_t::label  ||  type == obj_t::pumpe  ||  type == obj_t::senke  ||  type == obj_t::undefined)
-			&& lt!=NULL  &&  lt-> is_deletable(player)==NULL) {
+	// check whether powerline related stuff should be removed, and if there is any to remove
+	if (  (type == obj_t::leitung  ||  type == obj_t::pumpe  ||  type == obj_t::senke  ||  type == obj_t::undefined)
+	       &&  lt != NULL  &&  lt->is_deletable(player) == NULL) {
 		if(  gr->ist_bruecke()  ) {
 			bruecke_t* br = gr->find<bruecke_t>();
 			if(  br == NULL  ) {
@@ -666,6 +659,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 	// depots
 	depot_t* dep = gr->get_depot();
 	if (dep  &&  (type == obj_t::bahndepot  ||  type == obj_t::undefined)) {
+		// type == bahndepot to remove any type of depot
 		msg = dep-> is_deletable(player);
 		if(msg) {
 			return false;
@@ -731,7 +725,7 @@ DBG_MESSAGE("tool_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x,
 		return true;
 	}
 
-		// if type is given, then leave here. Below other stuff and ways gets removed.
+	// if type is given, then leave here. Below other stuff and ways gets removed.
 	if (type != obj_t::undefined) {
 		msg = "Requested object not found.";
 		return false;
@@ -900,7 +894,6 @@ char const* tool_remover_t::check_diversionary_route(koord3d pos, weg_t* w, play
 const char *tool_remover_t::work( player_t *player, koord3d pos )
 {
 	DBG_MESSAGE("tool_remover()","at %d,%d", pos.x, pos.y);
-	const char *fail = NULL;
 
 	obj_t::typ type = obj_t::undefined;
 
@@ -911,6 +904,7 @@ const char *tool_remover_t::work( player_t *player, koord3d pos )
 		}
 	}
 
+	const char *fail = NULL;
 	if(!tool_remover_intern(player, pos, type, fail)) {
 		return fail;
 	}
