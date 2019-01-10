@@ -4727,12 +4727,6 @@ void stadt_t::generate_private_cars(koord pos, uint32 journey_tenths_of_minutes,
 #ifdef FORBID_PRIVATE_CARS
 	return;
 #endif
-	if (!env_t::networkmode)
-	{
-		// This cannot work with network mode
-		// and multi-therading.
-		welt->inc_rands(28);
-	}
 	// Account for (1) the number of passengers; and (2) the occupancy level.
 	const uint32 round_up = simrand(2, "void stadt_t::generate_private_cars") == 1 ? 900 : 0;
 	const sint32 number_of_trips = ((((sint32)number_of_passengers) * traffic_level) + round_up) / 1000;
