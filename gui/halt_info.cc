@@ -394,7 +394,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			display_color_img(skinverwaltung_t::happy->get_image_id(0), left+1, top, 0, false, false);
 			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
 				sprintf(buf, "%s: %s", translator::translate(cost_type[0]), translator::translate(cost_tooltip[0]));
-				win_set_tooltip(left, top, buf, 0);
+				win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
 			}
 			left += 10;
 			info_buf.clear();
@@ -404,7 +404,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			display_color_img(skinverwaltung_t::unhappy->get_image_id(0), left+1, top, 0, false, false);
 			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
 				sprintf(buf, "%s: %s", translator::translate(cost_type[1]), translator::translate(cost_tooltip[1]));
-				win_set_tooltip(left, top, buf, 0);
+				win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
 			}
 			left += 10;
 			info_buf.clear();
@@ -414,7 +414,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			display_color_img(skinverwaltung_t::no_route->get_image_id(0), left+1, top, 0, false, false);
 			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
 				sprintf(buf, "%s: %s", translator::translate(cost_type[2]), translator::translate(cost_tooltip[2]));
-				win_set_tooltip(left, top, buf, 0);
+				win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
 			}
 			left += 10;
 			info_buf.clear();
@@ -424,7 +424,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			display_color_img(skinverwaltung_t::too_slow->get_image_id(0), left+1, top, 0, false, false);
 			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
 				sprintf(buf, "%s: %s", translator::translate(cost_type[3]), translator::translate(cost_tooltip[3]));
-				win_set_tooltip(left, top, buf, 0);
+				win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
 			}
 		}
 		else {
