@@ -5798,7 +5798,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					else
 					{
 						not_entirely_free = !cr->request_crossing(this, true) && next_signal_working_method != one_train_staff;
-						if(not_entirely_free)
+						if(not_entirely_free && (working_method != time_interval || ((i - (start_index - 1)) < modified_sighting_distance_tiles)))
 						{
 							count --;
 							next_signal_index = last_stop_signal_index;
