@@ -5149,7 +5149,7 @@ void convoi_t::open_schedule_window( bool show )
 	// - just starting
 	// - a line update is pending
 	// - the convoy is in the process of finding a route (multi-threaded)
-	if(  (is_locked()  ||  line_update_pending.is_bound())  &&  get_owner()==welt->get_active_player()  ) {
+	if (is_locked()  ||  line_update_pending.is_bound()) {
 		if (show) {
 			create_win( new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_time_delete, magic_none );
 		}
