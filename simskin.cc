@@ -60,6 +60,11 @@ const skin_desc_t* skinverwaltung_t::color_options      = NULL;
 const skin_desc_t* skinverwaltung_t::compass_iso        = NULL;
 const skin_desc_t* skinverwaltung_t::compass_rect       = NULL;	// compass rectangular (for minimap)
 
+const skin_desc_t* skinverwaltung_t::happy              = NULL;
+const skin_desc_t* skinverwaltung_t::unhappy            = NULL;
+const skin_desc_t* skinverwaltung_t::no_route           = NULL;
+const skin_desc_t* skinverwaltung_t::too_slow           = NULL;
+
 // cursors
 const skin_desc_t* skinverwaltung_t::cursor_general     = NULL;	// new cursors
 const skin_desc_t* skinverwaltung_t::bauigelsymbol      = NULL;
@@ -107,6 +112,10 @@ static spezial_obj_tpl<skin_desc_t> const menu_objekte[] = {
 };
 
 static spezial_obj_tpl<skin_desc_t> const symbol_objekte[] = {
+	{ &skinverwaltung_t::happy,              "Happy"          },
+	{ &skinverwaltung_t::unhappy,            "Unhappy"        },
+	{ &skinverwaltung_t::no_route,           "NoRoute"        },
+	{ &skinverwaltung_t::too_slow,           "TooSlow"        },
 	{ &skinverwaltung_t::seasons_icons,      "Seasons"        },
 	{ &skinverwaltung_t::message_options,    "MessageOptions" },
 	{ &skinverwaltung_t::color_options,      "ColorOptions"   },
@@ -162,7 +171,7 @@ bool skinverwaltung_t::successfully_loaded(skintyp_t type)
 	switch (type) {
 		case menu:    sb = menu_objekte+1;       break;
 		case cursor:  sb = cursor_objekte;     break;
-		case symbol:  sb = symbol_objekte;     break;
+		case symbol:  sb = symbol_objekte+4;     break;
 		case misc:
 			sb = misc_objekte+3;
 			// for compatibility: use sidewalk as tunneltexture

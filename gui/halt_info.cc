@@ -385,8 +385,53 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		// Hajo: Reuse of info_buf buffer to get and display
 		// information about the passengers happiness
 		info_buf.clear();
-		halt->info(info_buf);
-		display_multiline_text(pos.x + D_MARGIN_LEFT, top, info_buf, SYSCOL_TEXT);
+		// passenger evaluation icons ok?
+		if (skinverwaltung_t::happy && skinverwaltung_t::unhappy && skinverwaltung_t::no_route && skinverwaltung_t::too_slow) {
+			char buf[1024];
+			info_buf.printf("%s %d",translator::translate("Passengers:"), halt->haltestelle_t::get_pax_happy());
+			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			// happy
+			display_color_img(skinverwaltung_t::happy->get_image_id(0), left+1, top, 0, false, false);
+			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
+				sprintf(buf, "%s: %s", translator::translate(cost_type[0]), translator::translate(cost_tooltip[0]));
+				win_set_tooltip(left, top, buf, 0);
+			}
+			left += 10;
+			info_buf.clear();
+			// unhappy
+			info_buf.printf(",  %d", halt->haltestelle_t::get_pax_unhappy());
+			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			display_color_img(skinverwaltung_t::unhappy->get_image_id(0), left+1, top, 0, false, false);
+			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
+				sprintf(buf, "%s: %s", translator::translate(cost_type[1]), translator::translate(cost_tooltip[1]));
+				win_set_tooltip(left, top, buf, 0);
+			}
+			left += 10;
+			info_buf.clear();
+			// no route
+			info_buf.printf(",  %d", halt->haltestelle_t::get_pax_no_route());
+			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			display_color_img(skinverwaltung_t::no_route->get_image_id(0), left+1, top, 0, false, false);
+			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
+				sprintf(buf, "%s: %s", translator::translate(cost_type[2]), translator::translate(cost_tooltip[2]));
+				win_set_tooltip(left, top, buf, 0);
+			}
+			left += 10;
+			info_buf.clear();
+			// too slow (extended unique)
+			info_buf.printf(",  %d", halt->haltestelle_t::get_pax_too_slow());
+			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			display_color_img(skinverwaltung_t::too_slow->get_image_id(0), left+1, top, 0, false, false);
+			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
+				sprintf(buf, "%s: %s", translator::translate(cost_type[3]), translator::translate(cost_tooltip[3]));
+				win_set_tooltip(left, top, buf, 0);
+			}
+		}
+		else {
+			// current style
+			halt->info(info_buf);
+			display_multiline_text(pos.x + D_MARGIN_LEFT, top, info_buf, SYSCOL_TEXT);
+		}
 		int returns = 1;
 		const char *p = info_buf;
 		for (int i = 0; i < info_buf.len(); i++)

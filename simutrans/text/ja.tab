@@ -2482,6 +2482,8 @@ Passengers %d %c, %d %c, %d no route, %d too slow
 旅客の評価 %d %c, %d %c, %d 経路無し, %d 許容時間超過
 Passengers %d %s, %d %s, %d no route, %d too slow
 旅客の評価 %d %s, %d %s, %d 経路無し, %d 許容時間超過
+Passengers:
+旅客の評価:
 Pedestrians will appear near stops whenver a passenger vehicle unloads there.
 乗客の降車時、常に歩行者を表示します。
 Pedestrians will appear randomly in towns.
