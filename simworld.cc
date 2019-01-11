@@ -1911,25 +1911,12 @@ void* step_individual_convoy_threaded(void* args)
 		}
 		
 		const uint32 convoys_next_step_count = convoys_next_step.get_count();
-		uint32 offset_counter = karte_t::world->get_parallel_operations();
-		bool start_counting = false;
-
-		for (uint32 i = 0; i < convoys_next_step_count; i++)
+		for (uint32 i = thread_number; i < convoys_next_step_count; i += karte_t::world->get_parallel_operations())
 		{
-			if (i == thread_number || offset_counter == 0)
+			convoihandle_t cnv = convoys_next_step[i];
+			if (cnv.is_bound())
 			{
-				start_counting = true;
-				offset_counter = karte_t::world->get_parallel_operations();
-				convoihandle_t cnv = convoys_next_step[i];
-				if (cnv.is_bound())
-				{
-					cnv->threaded_step();
-				}
-			}
-
-			if (start_counting)
-			{
-				offset_counter --;
+				cnv->threaded_step();
 			}
 		}
 
