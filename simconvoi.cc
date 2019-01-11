@@ -1359,7 +1359,6 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 			break;
 	}
 	welt->add_to_debug_sums(0, v.get_mantissa());
-	welt->add_to_debug_sums(1, (uint32)weight.weight);
 
 	return SYNC_OK;
 }
