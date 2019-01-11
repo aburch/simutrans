@@ -506,7 +506,7 @@ private:
 public:
 #ifdef DEBUG_SIMRAND_CALLS
 	bool loading;
-	vector_tpl<ware_t> *get_warray(uint8 catg) { return goods[catg]; }
+	vector_tpl<ware_t> *get_warray(uint8 catg) { return cargo[catg]; }
 #endif
 
 	// Added by : Knightly

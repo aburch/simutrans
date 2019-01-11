@@ -94,10 +94,10 @@ ribi_t::ribi koord3d_vector_t::get_ribi( uint32 index ) const
 	ribi_t::ribi ribi = ribi_t::none;
 	koord3d pos = operator[](index);
 	if( index > 0 ) {
-		ribi |= ribi_type( operator[](index-1).get_2d()-pos.get_2d() );
+		ribi |= ribi_type( operator[](index-1)-pos );
 	}
 	if( index+1 < get_count() ) {
-		ribi |= ribi_type( operator[](index+1).get_2d()-pos.get_2d() );
+		ribi |= ribi_type( operator[](index+1)-pos );
 	}
 	return ribi;
 }

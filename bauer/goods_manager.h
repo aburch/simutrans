@@ -57,7 +57,7 @@ public:
 
 	static goods_desc_t *get_modifiable_info(uint16 idx) { return goods[idx]; }
 
-	static uint16 get_count() { return goods.get_count(); }
+	static uint8 get_count() { return (uint8)goods.get_count(); }
 
 	// good by catg
 	static const goods_desc_t *get_info_catg(const uint8 catg);

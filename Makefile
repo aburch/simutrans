@@ -155,7 +155,7 @@ ifneq ($(WITH_REVISION),)
     ifeq ($(shell expr $(WITH_REVISION) \>= 2), 1)
       REV = $(WITH_REVISION)
     else
-      REV = $(shell git rev-parse --short HEAD)
+      REV = $(shell git rev-parse --short=7 HEAD)
     endif
     ifneq ($(REV),)
       CFLAGS  += -DREVISION="$(REV)"

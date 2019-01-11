@@ -134,7 +134,7 @@ Section /o "pak128 V2.5.2" pak128
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20RC%20120%20%282.5.2%2C%20bugfixes%29/pak128-2.5.2--RC_120.zip"
   StrCpy $archievename "pak128-2.5.2--RC_120.zip"
   StrCpy $downloadname "pak128"
-  StrCpy $VersionString "pak128 2.3.0"
+  StrCpy $VersionString "Pak128 2.5.2 New Landscape"
   Call DownloadInstallZip
 SectionEnd
 

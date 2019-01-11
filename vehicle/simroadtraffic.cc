@@ -670,8 +670,8 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 	}
 	else {
 		// driving on: check for crossings etc. too
-		const uint8 next_direction = this->calc_direction(get_pos().get_2d(), pos_next_next.get_2d());
-		uint8 next_90direction = this->calc_direction(pos_next.get_2d(), pos_next_next.get_2d());
+		const uint8 next_direction = this->calc_direction(get_pos(), pos_next_next);
+		uint8 next_90direction = this->calc_direction(pos_next, pos_next_next);
 		// do not block this crossing (if possible)
 		if(ribi_t::is_threeway(str->get_ribi_unmasked())) {
 			// but leaving from railroad crossing is more important
@@ -687,7 +687,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 				const strasse_t* str_next = (strasse_t*)(welt->lookup(pos_next)->get_weg(road_wt));
 				const bool left_driving = welt->get_settings().is_drive_left();
 				if(str_prev && str_next && str_prev->get_overtaking_mode() > oneway_mode  && str_next->get_overtaking_mode() <= oneway_mode) {
-					if(  (!left_driving  &&  ribi_t::rotate90l(get_90direction()) == calc_direction(pos_next.get_2d(),pos_next_next.get_2d()))  ||  (left_driving  &&  ribi_t::rotate90(get_90direction()) == calc_direction(pos_next.get_2d(),pos_next_next.get_2d()))  ) {
+					if(  (!left_driving  &&  ribi_t::rotate90l(get_90direction()) == calc_direction(pos_next,pos_next_next))  ||  (left_driving  &&  ribi_t::rotate90(get_90direction()) == calc_direction(pos_next,pos_next_next))  ) {
 						// next: enter passing lane.
 						next_lane = 1;
 					}
@@ -704,7 +704,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 
 			grund_t *test = welt->lookup(pos_next_next);
 			if(  test  ) {
-				next_90direction = this->calc_direction(pos_next.get_2d(), pos_next_next.get_2d());
+				next_90direction = this->calc_direction(pos_next, pos_next_next);
 				dt = no_cars_blocking( gr, NULL, this_direction, next_direction, next_90direction, this, next_lane);
 				if(  !dt  ) {
 					dt = no_cars_blocking( test, NULL, next_direction, next_90direction, next_90direction, this, next_lane);
@@ -883,7 +883,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 	// If this car is on passing lane and the next tile prohibites overtaking, this vehicle must wait until traffic lane become safe.
 	if(  is_overtaking()  &&  str->get_overtaking_mode() == prohibited_mode  ) {
 		if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
-			if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next.get_2d(),pos_next_next.get_2d()), v->get_90direction(), true, true)) {
+			if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next_next), v->get_90direction(), true, true)) {
 				return false;
 			}
 		}
@@ -898,7 +898,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 	// If this vehicle is on traffic lane and the next tile forces to go passing lane, this vehicle must wait until passing lane become safe.
 	if(  !is_overtaking()  &&  str->get_overtaking_mode() == inverted_mode  ) {
 		if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
-			if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next.get_2d(),pos_next_next.get_2d()), v->get_90direction(), false, true)) {
+			if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next_next), v->get_90direction(), false, true)) {
 				return false;
 			}
 		}
@@ -909,7 +909,7 @@ bool private_car_t::can_enter_tile(grund_t *gr)
 	// If this vehicle is forced to go back to traffic lane at the next tile and traffic lane is not safe to change lane, this vehicle should wait.
 	if(  str->get_overtaking_mode() > oneway_mode  &&  str->get_overtaking_mode() < inverted_mode  &&  get_tiles_overtaking() == 1  ) {
 		if(  vehicle_base_t* v = other_lane_blocked(false)  ) {
-			if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next.get_2d(),pos_next_next.get_2d()), v->get_90direction(), true, true)) {
+			if(  v->get_waytype() == road_wt  &&  judge_lane_crossing(get_90direction(), calc_direction(pos_next,pos_next_next), v->get_90direction(), true, true)) {
 				return false;
 			}
 		}
@@ -969,7 +969,7 @@ grund_t* private_car_t::hop_check()
 	}
 
 	// traffic light phase check (since this is on next tile, it will always be necessary!)
-	const ribi_t::ribi direction90 = ribi_type(get_pos().get_2d(),pos_next.get_2d());
+	const ribi_t::ribi direction90 = ribi_type(get_pos(),pos_next);
 
 	if(  weg->has_sign(  )) {
 		const roadsign_t* rs = from->find<roadsign_t>();
@@ -1441,7 +1441,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		gr = to;
 		check_pos = to->get_pos();
 
-		direction = ~ribi_type( check_pos.get_2d(),pos_prev ) & str->get_ribi();
+		direction = ~ribi_type( check_pos,pos_prev ) & str->get_ribi();
 	}
 
 	// Second phase: only facing traffic is forbidden
@@ -1496,7 +1496,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 
 		// Check for other vehicles in facing direction
 		// now only I know direction on this tile ...
-		ribi_t::ribi their_direction = ribi_t::backward(calc_direction( pos_prev_prev, to->get_pos().get_2d() ));
+		ribi_t::ribi their_direction = ribi_t::backward(calc_direction( pos_prev_prev, to->get_pos()));
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
 			vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(j));
@@ -1511,7 +1511,7 @@ bool private_car_t::can_overtake( overtaker_t *other_overtaker, sint32 other_spe
 		gr = to;
 		check_pos = to->get_pos();
 
-		direction = ~ribi_type( check_pos.get_2d(),pos_prev ) & str->get_ribi();
+		direction = ~ribi_type( check_pos,pos_prev ) & str->get_ribi();
 	} while( time_overtaking > 0 );
 
 	set_tiles_overtaking( 1+n_tiles );

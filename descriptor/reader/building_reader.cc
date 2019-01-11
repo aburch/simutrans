@@ -169,10 +169,15 @@ void building_reader_t::register_obj(obj_desc_t *&data)
 
 	// after this point all building_desc_t types have type in building_desc_t::btype
 
-	if(  desc->layouts>2  &&  desc->layouts&1  ) {
-		uint8 l = desc->layouts>4 ? 4 : 2;
-		dbg->error( "building_reader_t::register_obj()", "Building %s has %i layouts (illegal) => set to %i", desc->get_name(), desc->layouts, l );
-		desc->layouts = l;
+	// allowed layouts are 1,2,4,8,16, where 8,16 is reserved for stations
+	uint8 l = desc->type == building_desc_t::generic_stop ? 16 : 4;
+	while (l > 0) {
+		if ((desc->layouts & l) != 0  &&  (desc->layouts != l)) {
+			dbg->error( "building_reader_t::register_obj()", "Building %s has %i layouts (illegal) => set to %i", desc->get_name(), desc->layouts, l );
+			desc->layouts = l;
+			break;
+		}
+		l >>= 1;
 	}
 
 	if(  desc->allow_underground == 255  ) {

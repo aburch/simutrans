@@ -1689,7 +1689,7 @@ void *step_passengers_and_mail_threaded(void* args)
 	// This may easily overflow, but this is irrelevant for the purposes of a random seed
 	// (so long as both server and client are using the same size of integer)
 
-	const uint32 seed = seed_base * karte_t::passenger_generation_thread_number;
+	const uint32 seed = 325651 + seed_base * karte_t::passenger_generation_thread_number;
 
 	delete thread_number_ptr;
 
@@ -3948,6 +3948,13 @@ int karte_t::grid_lower(const player_t *player, koord k, const char*&err)
 
 		n = digger.lower_all();
 		err = NULL;
+
+		// force world full redraw, or background could be dirty.
+		set_dirty();
+
+		if(  min_height > min_hgt_nocheck( koord(x,y) )  ) {
+			min_height = min_hgt_nocheck( koord(x,y) );
+		}
 	}
 	return (n+3)>>2;
 }
@@ -5413,7 +5420,7 @@ void karte_t::step()
 	}
 #endif
 
-	/// check for pending seasons change
+	// check for pending seasons change
 	// This is not very computationally intensive.
 	const bool season_change = pending_season_change > 0;
 	const bool snowline_change = pending_snowline_change > 0;
@@ -6275,7 +6282,18 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #endif
 		}
 
-		// Do nothing if trip == mail_trip
+		else if (trip == mail_trip)
+		{
+#ifdef MULTI_THREAD
+			int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
+#endif
+			first_origin->add_mail_generated(units_this_step);
+#ifdef MULTI_THREAD
+			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
+#endif
+		}
 
 		/**
 		* Walking tolerance is necessary because mail can be delivered by hand. If it is delivered
@@ -6827,8 +6845,11 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			{
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
 			}
-			// Do nothing if trip == mail: mail statistics are added on arrival.
-			break;
+			else if (trip == mail_trip && first_origin)
+			{
+				first_origin->add_mail_delivery_succeeded(units_this_step);
+			}
+		break;
 
 		case private_car:  
 					
@@ -6867,6 +6888,10 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			else if(trip == visiting_trip)
 			{
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
+			}
+			else if(trip == mail_trip)
+			{
+				first_origin->add_mail_delivery_succeeded(units_this_step);
 			}
 #ifdef MULTI_THREAD
 			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
@@ -6920,6 +6945,10 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			{
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
 				
+			}
+			else if (trip == mail_trip)
+			{
+				first_origin->add_mail_delivery_succeeded(units_this_step);
 			}
 #ifdef MULTI_THREAD
 			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
@@ -7125,6 +7154,7 @@ no_route:
 
 				bool direct_return_available = false;
 				ware_t return_passengers(wtyp, ret_halt);
+				return_passengers.set_class(pax.get_class()); 
 
 #ifndef FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_1
 				return_passengers.menge = units_this_step;
