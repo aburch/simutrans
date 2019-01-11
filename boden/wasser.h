@@ -24,8 +24,8 @@ protected:
 
 public:
 
-	wasser_t(loadsave_t *file, koord pos ) : grund_t(koord3d(pos,0) ), ribi(ribi_t::none) { rdwr(file); }
-	wasser_t(koord3d pos) : grund_t(pos), ribi(ribi_t::none) {}
+	wasser_t(loadsave_t *file, koord pos ) : grund_t(koord3d(pos,0) ), ribi(ribi_t::none), canal_ribi(ribi_t::none) { rdwr(file); }
+	wasser_t(koord3d pos);
 
 	inline bool is_water() const { return true; }
 
