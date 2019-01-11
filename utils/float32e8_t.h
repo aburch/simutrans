@@ -319,6 +319,9 @@ public:
 	const float32e8_t log2() const;
 	const float32e8_t exp2() const;
 
+	// For efficient use in checksums:
+	inline uint32 get_mantissa() { return m; }
+
 	void rdwr(loadsave_t *file);
 
 private:

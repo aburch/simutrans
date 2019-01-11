@@ -370,11 +370,14 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 }
 
 
-checklist_t::checklist_t(uint32 _ss, uint32 _st, uint8 _nfc, uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, uint32 *_rands)
+checklist_t::checklist_t(uint32 _ss, uint32 _st, uint8 _nfc, uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, uint32 *_rands, uint32 *_debug_sums)
 	: ss(_ss), st(_st), nfc(_nfc), random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry)
 {
 	for(  uint8 i = 0;  i < CHK_RANDS; i++  ) {
 		rand[i]	 = _rands[i];
+	}
+	for(  uint8 i = 0;  i < CHK_DEBUG_SUMS; i++  ) {
+		debug_sum[i]	 = _debug_sums[i];
 	}
 }
 
@@ -393,17 +396,22 @@ void checklist_t::rdwr(memory_rw_t *buffer)
 	for(  uint8 i = 0;  i < CHK_RANDS;  i++  ) {
 		buffer->rdwr_long(rand[i]);
 	}
+	// More desync debug - should catch desyncs earlier with little computational penalty
+	for(  uint8 i = 0;  i < CHK_DEBUG_SUMS;  i++  ) {
+		buffer->rdwr_long(rand[i]);
+	}
 }
 
 
 
 int checklist_t::print(char *buffer, const char *entity) const
 {
-	return sprintf(buffer, "%s=[ss=%u st=%u nfc=%u rand=%u halt=%u line=%u cnvy=%u ssr=%u,%u,%u,%u,%u,%u,%u,%u str=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u exr=%u,%u,%u,%u,%u,%u,%u,%u  ",
+	return sprintf(buffer, "%s=[ss=%u st=%u nfc=%u rand=%u halt=%u line=%u cnvy=%u ssr=%u,%u,%u,%u,%u,%u,%u,%u str=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u exr=%u,%u,%u,%u,%u,%u,%u,%u sums=%u,%u,%u,%u,%u,%u,%u,%u",
 		entity, ss, st, nfc, random_seed, halt_entry, line_entry, convoy_entry,
 		rand[0], rand[1], rand[2], rand[3], rand[4], rand[5], rand[6], rand[7],
 		rand[8], rand[9], rand[10], rand[11], rand[12], rand[13], rand[14], rand[15], rand[16], rand[17], rand[18], rand[19], rand[20], rand[21], rand[22], rand[23],
-		rand[24], rand[25], rand[26], rand[27], rand[28], rand[29], rand[30], rand[31]
+		rand[24], rand[25], rand[26], rand[27], rand[28], rand[29], rand[30], rand[31],
+		debug_sum[0], debug_sum[1], debug_sum[2], debug_sum[3], debug_sum[4], debug_sum[5], debug_sum[6], debug_sum[7] 
 	);
 }
 
@@ -4699,6 +4707,14 @@ rands[4] = 0;
 rands[5] = 0;
 rands[6] = 0;
 rands[7] = 0;
+	debug_sums[0] = 0; // Convoy speeds
+	debug_sums[1] = 0; // Convoy weights
+	debug_sums[2] = 0;
+	debug_sums[3] = 0;
+	debug_sums[4] = 0;
+	debug_sums[5] = 0;
+	debug_sums[6] = 0;
+	debug_sums[7] = 0;
 	set_random_mode( SYNC_STEP_RANDOM );
 	haltestelle_t::pedestrian_limit = 0;
 	if(do_sync_step) {
@@ -8730,6 +8746,9 @@ void karte_t::load(loadsave_t *file)
 		for(  int i = 0;  i < CHK_RANDS  ;  i++  ) {
 			rands[i] = 0;
 		}
+		for(  int i = 0;  i < CHK_DEBUG_SUMS  ;  i++  ) {
+			debug_sums[i] = 0;
+		}
 	}
 
 
@@ -10541,7 +10560,7 @@ bool karte_t::interactive(uint32 quit_month)
 					}
 					sync_steps = steps * settings.get_frames_per_step() + network_frame_count;
 					LCHKLST(sync_steps) = checklist_t(sync_steps, (uint32)steps, network_frame_count, get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check(),
-						rands
+						rands, debug_sums
 					);
 
 #ifdef DEBUG_SIMRAND_CALLS
