@@ -178,40 +178,6 @@ vector_tpl<nearby_halt_t> karte_t::start_halts;
 vector_tpl<halthandle_t> karte_t::destination_list;
 #endif
 
-#ifdef DEBUG_SIMRAND_CALLS
-bool karte_t::print_randoms = true;
-int karte_t::random_calls = 0;
-#endif
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-static uint32 halt_index = 9999999;
-static const char *station_name = "Newton Abbot Railway Station";
-static uint32 old_menge = -1;
-void station_check(const char *who, karte_t *welt)
-{
-	player_t *player = welt->get_active_player();
-	if (halt_index >= (uint32)player->get_haltcount() || 
-		strcmp(player->get_halt(halt_index)->get_name(), station_name))
-	{
-		old_menge = -1;
-		for (halt_index = 0; halt_index < (uint32) player->get_haltcount(); ++halt_index)
-			if (!strcmp(player->get_halt(halt_index)->get_name(), station_name))
-				break;
-	}
-	if (halt_index < (uint32) player->get_haltcount())
-	{
-		const halthandle_t &station = player->get_halt(halt_index);
-		uint32 menge = station->get_warray(0)->get_element(2198).menge;
-		if (old_menge != menge)
-		{
-			dbg->warning(who, "station \"%s\" goods[0][2198].menge %u -> %u", station->get_name(), old_menge, menge);
-			old_menge = menge;
-		}
-	}
-}
-#endif
-#endif
-
 // advance 201 ms per sync_step in fast forward mode
 #define MAGIC_STEP (201)
 
@@ -3057,11 +3023,6 @@ karte_t::karte_t() :
 #endif
 }
 
-#ifdef DEBUG_SIMRAND_CALLS
-	vector_tpl<const char*> karte_t::random_callers;
-#endif
-
-
 karte_t::~karte_t()
 {
 	is_sound = false;
@@ -5780,21 +5741,6 @@ void karte_t::step()
 		set_tool( tool, NULL );
 		// since init always returns false, it is safe to delete immediately
 		delete tool;
-#ifdef DEBUG_SIMRAND_CALLS
-		if(/*last_clients == 0*/ true)
-		{
-			ITERATE(karte_t::random_callers, n)
-			{
-				get_message()->add_message(random_callers.get_element(n), koord::invalid, message_t::ai);
-			}
-			print_randoms = false;
-		}
-		else
-		{
-			print_randoms = true;
-		}
-		printf("Number of connected clients changed to %u", last_clients);
-#endif
 	}
 
 	if(  get_scenario()->is_scripted() ) {
@@ -6044,12 +5990,6 @@ void karte_t::deposit_ware_at_destination(ware_t ware)
 				}
 			}
 		}
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-		if (talk)
-			dbg->message("haltestelle_t::liefere_an", "%d arrived at station \"%s\" goods[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
-#endif
-#endif
 	}
 }
 
@@ -8739,14 +8679,11 @@ void karte_t::load(loadsave_t *file)
 	}
 
 
-#ifndef DEBUG_SIMRAND_CALLS
 	if(  env_t::networkmode  ) {
 		// to have games synchronized, transfer random counter too
 		setsimrand(settings.get_random_counter(), 0xFFFFFFFFu );
-//		setsimrand(0, 0xFFFFFFFFu );
 		translator::init_custom_names(settings.get_name_language_id());
 	}
-#endif
 
 	if(  !env_t::networkmode  ||  (env_t::server  &&  socket_list_t::get_playing_clients()==0)  ) {
 		if (settings.get_allow_player_change() && env_t::default_settings.get_use_timeline() < 2) {
@@ -10456,11 +10393,6 @@ bool karte_t::interactive(uint32 quit_month)
 		if (env_t::quit_simutrans){
 			break;
 		}
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-		station_check("karte_t::interactive after win_poll_event", this);
-#endif
-#endif
 
 		if(  env_t::networkmode  ) {
 			process_network_commands(&ms_difference);
@@ -10492,11 +10424,6 @@ bool karte_t::interactive(uint32 quit_month)
 				(env_t::networkmode && !env_t::server  &&  sync_steps >= sync_steps_barrier)) {
 				// only update display
 				sync_step( 0, false, true );
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-				station_check("karte_t::interactive PAUSE after sync_step", this);
-#endif
-#endif
 				idle_time = 100;
 			}
 			else {
@@ -10505,11 +10432,6 @@ bool karte_t::interactive(uint32 quit_month)
 					set_random_mode( STEP_RANDOM );
 					step();
 					clear_random_mode( STEP_RANDOM );
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-					station_check("karte_t::interactive FAST_FORWARD after step", this);
-#endif
-#endif
 				}
 				else if(  step_mode==FIX_RATIO  ) {
 					if(  env_t::server  ) {
@@ -10528,20 +10450,10 @@ bool karte_t::interactive(uint32 quit_month)
 					}
 
 					sync_step( (fix_ratio_frame_time*time_multiplier)/16, true, true );
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-					station_check("karte_t::interactive FIX_RATIO after sync_step", this);
-#endif
-#endif
 					if (++network_frame_count == settings.get_frames_per_step()) {
 						// ever Nth frame (default: every 4th - can be set in simuconf.tab)
 						set_random_mode( STEP_RANDOM );
 						step();
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-					station_check("karte_t::interactive FIX_RATIO after step", this);
-#endif
-#endif
 						clear_random_mode( STEP_RANDOM );
 						network_frame_count = 0;
 					}
@@ -10589,18 +10501,8 @@ bool karte_t::interactive(uint32 quit_month)
 				}
 				else { // Normal step mode
 					INT_CHECK( "karte_t::interactive()" );
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-					station_check("karte_t::interactive else after INT_CHECK 1", this);
-#endif
-#endif
 					set_random_mode( STEP_RANDOM );
 					step();
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-					station_check("karte_t::interactive else after step", this);
-#endif
-#endif
 					clear_random_mode( STEP_RANDOM );
 					idle_time = ((idle_time*7) + next_step_time - dr_time())/8;
 					INT_CHECK( "karte_t::interactive()" );
@@ -10755,15 +10657,6 @@ void karte_t::network_disconnect()
 	last_active_player_nr = active_player_nr;
 
 	stop(false);
-
-#ifdef DEBUG_SIMRAND_CALLS
-	print_randoms = false;
-	printf("Lost synchronisation\nwith server.\n");
-	ITERATE(karte_t::random_callers, n)
-	{
-		get_message()->add_message(random_callers.get_element(n), koord::invalid, message_t::ai);
-	}
-#endif
 }
 
 void karte_t::set_citycar_speed_average()

@@ -1780,28 +1780,9 @@ void settings_t::rdwr(loadsave_t *file)
 	}
 
 #ifdef DEBUG_SIMRAND_CALLS
-	for (vector_tpl<const char *>::iterator i = karte_t::random_callers.begin(); i < karte_t::random_callers.end(); ++i)
-	{
-		free((void*)(*i));
-	}
-	karte_t::random_callers.clear();
-	karte_t::random_calls = 0;
 	char buf[256];
 	sprintf(buf,"Initial counter: %i; seed: %i", get_random_counter(), get_random_seed());
 	dbg->message("settings_t::rdwr", buf);
-	karte_t::random_callers.append(strdup(buf));
-
-	if(  env_t::networkmode  ) {
-		// to have games synchronized, transfer random counter too
-		setsimrand(get_random_counter(), 0xFFFFFFFFu );
-
-		sprintf(buf,"Initial counter: %i; seed: %i", get_random_counter(), get_random_seed());
-		dbg->message("settings_t::rdwr", buf);
-		karte_t::random_callers.append(strdup(buf));
-
-		translator::init_custom_names(get_name_language_id());
-
-	}
 #endif
 }
 

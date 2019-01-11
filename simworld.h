@@ -34,10 +34,6 @@
 #include "simplan.h"
 
 #include "simdebug.h"
-#ifdef DEBUG_SIMRAND_CALLS
-#include "utils/cbuffer_t.h"
-#include "tpl/fixed_list_tpl.h"
-#endif
 
 #ifdef _MSC_VER
 #define snprintf sprintf_s
@@ -208,11 +204,6 @@ class karte_t
 	static karte_t* world; ///< static single instance
 
 public:
-
-#ifdef DEBUG_SIMRAND_CALLS
-	static bool print_randoms;
-	static int random_calls;
-#endif
 	/**
 	 * Height of a point of the map with "perlin noise"
 	 *
@@ -2698,10 +2689,6 @@ public:
 
 	inline void add_time_interval_signal_to_check(signal_t* sig) { time_interval_signals_to_check.append_unique(sig); }
 	inline bool remove_time_interval_signal_to_check(signal_t* sig) { return time_interval_signals_to_check.remove(sig); }
-
-#ifdef DEBUG_SIMRAND_CALLS
-	static vector_tpl<const char*> random_callers;
-#endif
 
 private:
 
