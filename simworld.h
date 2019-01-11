@@ -138,10 +138,10 @@ struct checklist_t
 			rands_equal = rands_equal  &&  rand[i] == other.rand[i];
 		}
 		bool debugs_equal = true;
-		for(  uint8 i = 0;  i < CHK_RANDS  &&  rands_equal;  i++  ) {
+		for(  uint8 i = 0;  i < CHK_DEBUG_SUMS  &&  debugs_equal;  i++  ) {
 			// If debug sums are too expensive, then this test below would allow them to be switched off independently at either end:
-			// debugs_equal = debugs_equal  &&  (rand[i] == 0  ||  other.rand[i] == 0  ||  rand[i] == other.rand[i]);
-			debugs_equal = debugs_equal  &&  rand[i] == other.rand[i];
+			// debugs_equal = debugs_equal  &&  (debug_sum[i] == 0  ||  other.debug_sum[i] == 0  ||  debug_sum[i] == other.debug_sum[i]);
+			debugs_equal = debugs_equal  &&  debug_sum[i] == other.debug_sum[i];
 		}
 		return ( rands_equal &&
 			debugs_equal &&

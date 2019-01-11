@@ -398,7 +398,7 @@ void checklist_t::rdwr(memory_rw_t *buffer)
 	}
 	// More desync debug - should catch desyncs earlier with little computational penalty
 	for(  uint8 i = 0;  i < CHK_DEBUG_SUMS;  i++  ) {
-		buffer->rdwr_long(rand[i]);
+		buffer->rdwr_long(debug_sum[i]);
 	}
 }
 
