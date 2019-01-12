@@ -88,18 +88,18 @@ const uint8 index_of_haltinfo[MAX_HALT_COST] = {
 	HALT_CONVOIS_ARRIVED
 };
 
-#define COL_HAPPY COL_WHITE
-#define COL_UNHAPPY COL_RED
-#define COL_WAITING COL_YELLOW
-#define COL_ARRIVED COL_DARK_ORANGE
-#define COL_DEPARTED COL_DARK_YELLOW
+#define COL_HAPPY COL_YELLOW
+#define COL_UNHAPPY (39)
+#define COL_WAITING COL_DARK_TURQUOISE
+#define COL_ARRIVED COL_LIGHT_BLUE
+#define COL_DEPARTED COL_PASSENGERS
 
 const int cost_type_color[MAX_HALT_COST] =
 {
 	COL_HAPPY,
 	COL_UNHAPPY,
 	COL_NO_ROUTE,
-	COL_PURPLE,
+	COL_TOO_SLOW,
 	COL_WAITING,
 	COL_ARRIVED,
 	COL_DEPARTED,
@@ -409,7 +409,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			left += 10;
 			info_buf.clear();
 			// no route
-			info_buf.printf(",  %d", halt->haltestelle_t::get_pax_no_route());
+			info_buf.printf(" /  %d", halt->haltestelle_t::get_pax_no_route());
 			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_color_img(skinverwaltung_t::no_route->get_image_id(0), left+1, top, 0, false, false);
 			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
