@@ -409,7 +409,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			left += 10;
 			info_buf.clear();
 			// no route
-			info_buf.printf(" /  %d", halt->haltestelle_t::get_pax_no_route());
+			info_buf.printf(",  %d", halt->haltestelle_t::get_pax_no_route());
 			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_color_img(skinverwaltung_t::no_route->get_image_id(0), left+1, top, 0, false, false);
 			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
