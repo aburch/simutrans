@@ -4655,8 +4655,10 @@ rands[4] = 0;
 rands[5] = 0;
 rands[6] = 0;
 rands[7] = 0;
+	// If only one convoy speed is mismatched it should be possible to
+	// identify the convoy involved.
 	debug_sums[0] = 0; // Convoy speeds
-	debug_sums[1] = 0;
+	debug_sums[1] = 0; // Convoy sums multiplied by convoy id
 	debug_sums[2] = 0;
 	debug_sums[3] = 0;
 	debug_sums[4] = 0;
