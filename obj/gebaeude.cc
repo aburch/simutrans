@@ -1489,7 +1489,6 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 	}
 }
 
-
 void gebaeude_t::new_year()
 {
 	if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
@@ -1503,8 +1502,8 @@ void gebaeude_t::new_year()
 		// Accordingly, we do not make use of "generated" numbers, and the "succeeded" figures are actually records of
 		// absolute numbers of visitors/commuters. Accordingly, the last year percent figures must also store the
 		// absolute number of visitors/commuters rather than a percentage.
-		passenger_success_percent_last_year_commuting = get_passengers_succeeded_commuting();
-		passenger_success_percent_last_year_visiting = get_passengers_succeeded_visiting();
+		passenger_success_percent_last_year_commuting = passengers_succeeded_commuting;
+		passenger_success_percent_last_year_visiting = passengers_succeeded_visiting;
 	}
 	mail_delivery_succeeded_last_year = mail_delivery_succeeded;
 	mail_delivery_success_percent_last_year = get_mail_delivery_success_percent_this_year();

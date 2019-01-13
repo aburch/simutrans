@@ -5131,7 +5131,11 @@ void karte_t::new_year()
 
 	for(weighted_vector_tpl<gebaeude_t *>::const_iterator a = world_attractions.begin(), end = world_attractions.end(); a != end; ++a)
 	{
-		(*a)->new_year();
+		if (!(*a)->get_stadt())
+		{
+			// Do not roll the city attractions as they have already been rolled, and this will overwrite previous year's passenger data
+			(*a)->new_year();
+		}
 	}
 
 	FOR(vector_tpl<fabrik_t*>, const fab, fab_list)
