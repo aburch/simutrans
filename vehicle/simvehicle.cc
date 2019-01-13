@@ -1118,52 +1118,54 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 				freight_this_class = total_freight;
 			}
 
-			const uint32 capacity_left_this_class = capacity_this_class - freight_this_class;
+			const sint32 capacity_left_this_class = capacity_this_class - freight_this_class;
 
 			// use_lower_classes as passed to this method indicates whether the higher class accommodation is full, hence
 			// the need for higher class passengers/mail to use lower class accommodation.
-
-			*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left_this_class, schedule, cnv->get_owner(), cnv, overcrowd, class_reassignments[i], use_lower_classes, other_classes_available);
-			if (!freight_add.empty())
+			if (capacity_left_this_class >= 0)
 			{
-				cnv->invalidate_weight_summary();
-				for (slist_tpl<ware_t>::iterator iter_z = freight_add.begin(); iter_z != freight_add.end(); )
+				*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left_this_class, schedule, cnv->get_owner(), cnv, overcrowd, class_reassignments[i], use_lower_classes, other_classes_available);
+				if (!freight_add.empty())
 				{
-					ware_t &ware = *iter_z;
-					total_freight += ware.menge;
-
-					// could this be joined with existing freight?
-					FOR(slist_tpl<ware_t>, &tmp, fracht[i])
+					cnv->invalidate_weight_summary();
+					for (slist_tpl<ware_t>::iterator iter_z = freight_add.begin(); iter_z != freight_add.end(); )
 					{
-						// New system: only merges if origins are alike.
-						// @author: jamespetts
-						if (ware.can_merge_with(tmp))
+						ware_t &ware = *iter_z;
+						total_freight += ware.menge;
+
+						// could this be joined with existing freight?
+						FOR(slist_tpl<ware_t>, &tmp, fracht[i])
 						{
-							tmp.menge += ware.menge;
-							ware.menge = 0;
-							break;
+							// New system: only merges if origins are alike.
+							// @author: jamespetts
+							if (ware.can_merge_with(tmp))
+							{
+								tmp.menge += ware.menge;
+								ware.menge = 0;
+								break;
+							}
+						}
+
+						// if != 0 we could not join it to existing => load it
+						if (ware.menge != 0)
+						{
+							++iter_z;
+							// we add list directly
+						}
+						else
+						{
+							iter_z = freight_add.erase(iter_z);
 						}
 					}
 
-					// if != 0 we could not join it to existing => load it
-					if (ware.menge != 0)
-					{
-						++iter_z;
-						// we add list directly
-					}
-					else
-					{
-						iter_z = freight_add.erase(iter_z);
-					}
-				}
+					capacity_left = total_capacity - total_freight;
 
-				capacity_left = total_capacity - total_freight;
-
-				if (!freight_add.empty())
-				{
-					// We now DON'T have to unpick which class was reassigned to i.
-					// i is the accommodation class.
-					fracht[i].append_list(freight_add);
+					if (!freight_add.empty())
+					{
+						// We now DON'T have to unpick which class was reassigned to i.
+						// i is the accommodation class.
+						fracht[i].append_list(freight_add);
+					}
 				}
 			}
 		}

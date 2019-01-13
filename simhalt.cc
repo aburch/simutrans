@@ -2342,7 +2342,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 }
 
 
-bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *good_category, uint32 requested_amount, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded, const uint8 g_class, const bool use_lower_classes, bool& other_classes_available)
+bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *good_category, sint32 requested_amount, const schedule_t *schedule, const player_t *player, convoi_t* cnv, bool overcrowded, const uint8 g_class, const bool use_lower_classes, bool& other_classes_available)
 {
 	bool skipped = false;
 	const uint8 catg_index = good_category->get_catg_index();
@@ -2646,7 +2646,7 @@ bool haltestelle_t::fetch_goods(slist_tpl<ware_t> &load, const goods_desc_t *goo
 
 					// not too much?
 					ware_t neu(*next_to_load);
-					if(next_to_load->menge > requested_amount)
+					if((sint32)next_to_load->menge > requested_amount)
 					{
 						// not all can be loaded
 						neu.menge = requested_amount;
