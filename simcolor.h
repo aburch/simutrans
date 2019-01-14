@@ -102,7 +102,8 @@ typedef unsigned char COLOR_VAL;
 #define COL_CITICENS        COL_WHITE
 #define COL_GROWTH          (122)
 #define COL_HAPPY           COL_YELLOW
-#define COL_UNHAPPY         (39)
+#define COL_UNHAPPY         COL_LIGHT_PURPLE
+#define COL_OVERCROWD       COL_PURPLE
 #define COL_NO_ROUTE        COL_RED
 #define COL_TOO_SLOW        (68)
 #define COL_PASSENGERS      COL_BLUE-128

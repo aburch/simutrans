@@ -108,7 +108,9 @@ public:
 	/// @name icons used to passenger evaluations happy / unhappy / no route / too slow
 	/// @{
 	static const skin_desc_t *happy;
-	static const skin_desc_t *unhappy;
+	//static const skin_desc_t *unhappy;
+	static const skin_desc_t *overcrowd;
+	static const skin_desc_t *too_waiting;
 	static const skin_desc_t *no_route;
 	static const skin_desc_t *too_slow;
 	/// @}

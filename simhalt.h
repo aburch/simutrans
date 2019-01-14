@@ -36,9 +36,9 @@
 #include "tpl/binary_heap_tpl.h"
 #include "tpl/minivec_tpl.h"
 
-#define MAX_HALT_COST				8 // Total number of cost items
+#define MAX_HALT_COST				9 // Total number of cost items
 #define MAX_MONTHS					12 // Max history
-#define MAX_HALT_NON_MONEY_TYPES	7 // number of non money types in HALT's financial statistic
+#define MAX_HALT_NON_MONEY_TYPES	8 // number of non money types in HALT's financial statistic
 #define HALT_ARRIVED				0 // the amount of ware that arrived here
 #define HALT_DEPARTED				1 // the amount of ware that has departed from here
 #define HALT_WAITING				2 // the amount of ware waiting
@@ -47,7 +47,8 @@
 #define HALT_NOROUTE				5 // number of no-route passengers
 #define HALT_CONVOIS_ARRIVED        6 // number of convois arrived this month
 #define HALT_TOO_SLOW		        7 // The number of passengers whose estimated journey time exceeds their tolerance.
-/* NOTE - Standard has HALT_WALKED here as no. 7. In Extended, this is in cities, not stops.*/
+#define HALT_TOO_WAITING            8 // The number of passengers who waited so long at the station.
+ /* NOTE - Standard has HALT_WALKED here as no. 7. In Extended, this is in cities, not stops.*/
 
 // This should be network safe multi-threadedly (this has been considered carefully and tested somewhat,
 // although the test was run at a time (March 2017) when there was another known bug, hard to find, causing
@@ -662,10 +663,14 @@ public:
 	// @author: jamespetts
 	void add_pax_too_slow(int n);
 
+	// Waiting so long at the station. added 01/2019(EX14.3)
+	void add_pax_too_waiting(int n);
+
 	int get_pax_happy()    const { return (int)financial_history[0][HALT_HAPPY]; }
 	int get_pax_no_route() const { return (int)financial_history[0][HALT_NOROUTE]; }
 	int get_pax_unhappy()  const { return (int)financial_history[0][HALT_UNHAPPY]; }
 	int get_pax_too_slow()  const { return (int)financial_history[0][HALT_TOO_SLOW]; }
+	int get_pax_too_waiting() const { return (int)financial_history[0][HALT_TOO_WAITING]; }
 
 	/**
 	 * Add tile to list of station tiles.

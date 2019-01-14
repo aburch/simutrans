@@ -1387,7 +1387,7 @@ void haltestelle_t::step()
 
 							// Passengers - use unhappy graph. Even passengers able to walk to their destination or
 							// next transfer are not happy about it if they expected to be able to take a ride there.
-							add_pax_unhappy(tmp.menge);
+							add_pax_too_waiting(tmp.menge);
 						}
 
 						// If they are discarded, a refund is due.
@@ -2330,6 +2330,13 @@ void haltestelle_t::add_pax_unhappy(int n)
 void haltestelle_t::add_pax_too_slow(int n)
 {
 	book(n, HALT_TOO_SLOW);
+}
+
+// Waiting so long at the station. added 01/2019(EX14.3)
+
+void haltestelle_t::add_pax_too_waiting(int n)
+{
+	book(n, HALT_TOO_WAITING);
 }
 
 /**
@@ -3295,10 +3302,10 @@ void haltestelle_t::info(cbuffer_t & buf, bool dummy) const
 		utf8 happy[4], unhappy[4];
 		happy[ utf16_to_utf8( 0x263A, happy ) ] = 0;
 		unhappy[ utf16_to_utf8( 0x2639, unhappy ) ] = 0;
-		buf.printf(translator::translate("Passengers %d %s, %d %s, %d no route, %d too slow"), get_pax_happy(), happy, get_pax_unhappy(), unhappy, get_pax_no_route(), get_pax_too_slow());
+		buf.printf(translator::translate("Passengers %d %s, %d %s, %d gave up waiting\n%d no route, %d too slow"), get_pax_happy(), happy, get_pax_unhappy(), unhappy, get_pax_too_waiting(), get_pax_no_route(), get_pax_too_slow());
 	}
 	else {
-		buf.printf(translator::translate("Passengers %d %c, %d %c, %d no route, %d too slow"), get_pax_happy(), 30, get_pax_unhappy(), 31, get_pax_no_route(), get_pax_too_slow());
+		buf.printf(translator::translate("Passengers %d %c, %d %c, %d gave up waiting\n%d no route, %d too slow"), get_pax_happy(), 30, get_pax_unhappy(), 31, get_pax_too_waiting(), get_pax_no_route(), get_pax_too_slow());
 	}
 	buf.append("\n\n");
 }
@@ -4054,11 +4061,15 @@ void haltestelle_t::rdwr(loadsave_t *file)
 #endif
 	}
 
-	if(file->get_extended_version() >= 5)
+	if (file->get_extended_version() >= 5)
 	{
-		for (int j = 0; j < 8 /*MAX_HALT_COST*/; j++)
+		for (int j = 0; j < 9 /*MAX_HALT_COST*/; j++)
 		{
-			for (int k = MAX_MONTHS	- 1; k >= 0; k--)
+			if (((file->get_extended_version() == 14 && file->get_extended_revision() < 5) || file->get_extended_version() < 14) && j==8)
+			{
+				break;
+			}
+			for (int k = MAX_MONTHS - 1; k >= 0; k--)
 			{
 				file->rdwr_longlong(financial_history[k][j]);
 			}
@@ -4066,7 +4077,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	}
 	else
 	{
-		// Earlier versions did not have pax_too_slow
+		// Earlier versions did not have pax_too_slow and pax_too_waiting
 		for (int j = 0; j < 8 /*MAX_HALT_COST*/; j++)
 		{
 			for (int k = MAX_MONTHS - 1; k >= 0; k--)
@@ -4096,6 +4107,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			if(file->is_loading())
 			{
 				financial_history[k][HALT_TOO_SLOW] = 0;
+				financial_history[k][HALT_TOO_WAITING] = 0;
 			}
 		}
 	}

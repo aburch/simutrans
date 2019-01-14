@@ -1144,10 +1144,6 @@ Passenger AI
 AI 旅客
 Passenger Demand %d\n
 労働者/顧客需要: %d\n
-Passengers %d %c, %d %c, %d no route
-旅客の評価 %d %c, %d %c, %d 経路無し
-Passengers %d %s, %d %s, %d no route
-旅客の評価 %d %s, %d %s, %d 経路無し
 Password
 パスワード:
 Pause
@@ -1460,8 +1456,6 @@ Undo last ways construction
 直前に建設した道路/線路を取り壊す
 Unemployed
 無職者
-Unhappy
-不幸せ
 Update Line
 路線編集
 Usage/Output
@@ -2478,10 +2472,10 @@ Passenger success rate this year (non-local):
 今年の移動成功率(旅行):
 Passengers
 旅客
-Passengers %d %c, %d %c, %d no route, %d too slow
-旅客の評価 %d %c, %d %c, %d 経路無し, %d 許容時間超過
-Passengers %d %s, %d %s, %d no route, %d too slow
-旅客の評価 %d %s, %d %s, %d 経路無し, %d 許容時間超過
+Passengers %d %c, %d %c, %d gave up waiting\n%d no route, %d too slow
+旅客の評価 %d %c, %d %c, %d 乗継不良\n %d 経路無し, %d 許容時間超過
+Passengers %d %s, %d %s, %d gave up waiting\n%d no route, %d too slow
+旅客の評価 %d %s, %d %s, %d 乗継不良\n %d 経路無し, %d 許容時間超過
 Passengers:
 旅客の評価:
 Pedestrians will appear near stops whenver a passenger vehicle unloads there.
@@ -2664,8 +2658,6 @@ The number of passengers who could not find a route to their destination
 目的地までの経路を見つけられなかった旅客の人数を表します。
 The number of passengers who decline to travel because the journey would take too long
 許容できる旅行時間よりも所要時間が長すぎるため、旅行を取り止めた旅客の人数を表します。
-The number of passengers who have left because of overcrowding or excess waiting
-混雑や駅での待ち時間のため旅行を取り止めた旅客の人数を表します。
 The number of passengers who have travelled successfully from this stop
 この停留所/駅からの移動に成功した旅客の人数を表します。
 The number of passengers/units of mail/goods that have arrived at this stop
@@ -3368,7 +3360,23 @@ wealth_of_visitors_/_commuters
 旅行客/通勤客の裕福度
 with_wayobj
 \n軌道付属設備:
+Turned away
+駅の混雑
+Gave up waiting
+乗り継ぎ不良
+The number of passengers who have been turned away from this stop because it is overcrowded
+この駅があまりに混雑していたので利用を諦めた旅客の数を表します。
+The number of passengers who had to wait so long that they gave up
+この駅から旅行を開始したものの、乗り継ぎの接続が悪く長時間待たされたので旅行を中断した旅客の数を表します。
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
 旅客 %d %c, %d %c, %d 経路なし\n\n定員/容量: %i\n
+Passengers %d %c, %d %c, %d no route
+旅客の評価 %d %c, %d %c, %d 経路無し
+Passengers %d %s, %d %s, %d no route
+旅客の評価 %d %s, %d %s, %d 経路無し
+Unhappy
+不幸せ
+The number of passengers who have left because of overcrowding or excess waiting
+混雑や駅での待ち時間のため旅行を取り止めた旅客の人数を表します。

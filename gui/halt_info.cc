@@ -56,7 +56,8 @@ static const char *sort_text[halt_info_t::SORT_MODES] = {
 static const char cost_type[MAX_HALT_COST][64] =
 {
 	"Happy",
-	"Unhappy",
+	"Turned away",
+	"Gave up waiting",
 	"No Route",
 	"Too slow",
 	"hl_btn_sort_waiting",
@@ -68,7 +69,8 @@ static const char cost_type[MAX_HALT_COST][64] =
 static const char cost_tooltip[MAX_HALT_COST][128] =
 {
 	"The number of passengers who have travelled successfully from this stop",
-	"The number of passengers who have left because of overcrowding or excess waiting",
+	"The number of passengers who have been turned away from this stop because it is overcrowded",
+	"The number of passengers who had to wait so long that they gave up",
 	"The number of passengers who could not find a route to their destination",
 	"The number of passengers who decline to travel because the journey would take too long",
 	"The number of passengers/units of mail/goods waiting at this stop",
@@ -80,6 +82,7 @@ static const char cost_tooltip[MAX_HALT_COST][128] =
 const uint8 index_of_haltinfo[MAX_HALT_COST] = {
 	HALT_HAPPY,
 	HALT_UNHAPPY,
+	HALT_TOO_WAITING,
 	HALT_NOROUTE,
 	HALT_TOO_SLOW,
 	HALT_WAITING,
@@ -89,7 +92,7 @@ const uint8 index_of_haltinfo[MAX_HALT_COST] = {
 };
 
 #define COL_HAPPY COL_YELLOW
-#define COL_UNHAPPY (39)
+#define COL_TOO_WAITNG COL_LIGHT_PURPLE
 #define COL_WAITING COL_DARK_TURQUOISE
 #define COL_ARRIVED COL_LIGHT_BLUE
 #define COL_DEPARTED COL_PASSENGERS
@@ -97,13 +100,14 @@ const uint8 index_of_haltinfo[MAX_HALT_COST] = {
 const int cost_type_color[MAX_HALT_COST] =
 {
 	COL_HAPPY,
-	COL_UNHAPPY,
+	COL_OVERCROWD,
+	COL_TOO_WAITNG,
 	COL_NO_ROUTE,
 	COL_TOO_SLOW,
 	COL_WAITING,
 	COL_ARRIVED,
 	COL_DEPARTED,
-	COL_COUNVOI_COUNT
+	COL_TURQUOISE
 };
 
 #define L_BUTTON_WIDTH button_size.w
@@ -386,7 +390,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		// information about the passengers happiness
 		info_buf.clear();
 		// passenger evaluation icons ok?
-		if (skinverwaltung_t::happy && skinverwaltung_t::unhappy && skinverwaltung_t::no_route && skinverwaltung_t::too_slow) {
+		if (skinverwaltung_t::happy && skinverwaltung_t::overcrowd && skinverwaltung_t::too_waiting && skinverwaltung_t::no_route && skinverwaltung_t::too_slow) {
 			char buf[1024];
 			info_buf.printf("%s %d",translator::translate("Passengers:"), halt->haltestelle_t::get_pax_happy());
 			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
@@ -398,12 +402,22 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			}
 			left += 10;
 			info_buf.clear();
-			// unhappy
+			// overcrowd
 			info_buf.printf(",  %d", halt->haltestelle_t::get_pax_unhappy());
 			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			display_color_img(skinverwaltung_t::unhappy->get_image_id(0), left+1, top, 0, false, false);
+			display_color_img(skinverwaltung_t::overcrowd->get_image_id(0), left+1, top, 0, false, false);
 			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
 				sprintf(buf, "%s: %s", translator::translate(cost_type[1]), translator::translate(cost_tooltip[1]));
+				win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
+			}
+			left += 10;
+			info_buf.clear();
+			// waiting too long time
+			info_buf.printf(",  %d", halt->haltestelle_t::get_pax_too_waiting());
+			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			display_color_img(skinverwaltung_t::too_waiting->get_image_id(0), left + 1, top, 0, false, false);
+			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
+				sprintf(buf, "%s: %s", translator::translate(cost_type[2]), translator::translate(cost_tooltip[2]));
 				win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
 			}
 			left += 10;
@@ -413,17 +427,17 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_color_img(skinverwaltung_t::no_route->get_image_id(0), left+1, top, 0, false, false);
 			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
-				sprintf(buf, "%s: %s", translator::translate(cost_type[2]), translator::translate(cost_tooltip[2]));
+				sprintf(buf, "%s: %s", translator::translate(cost_type[3]), translator::translate(cost_tooltip[3]));
 				win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
 			}
 			left += 10;
 			info_buf.clear();
-			// too slow (extended unique)
+			// too slow
 			info_buf.printf(",  %d", halt->haltestelle_t::get_pax_too_slow());
 			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			display_color_img(skinverwaltung_t::too_slow->get_image_id(0), left+1, top, 0, false, false);
 			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
-				sprintf(buf, "%s: %s", translator::translate(cost_type[3]), translator::translate(cost_tooltip[3]));
+				sprintf(buf, "%s: %s", translator::translate(cost_type[4]), translator::translate(cost_tooltip[4]));
 				win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
 			}
 		}
