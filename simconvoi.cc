@@ -6052,7 +6052,6 @@ station_tile_search_ready: ;
 	}
 	else
 	{
-
 		if (loading_limit > 0 && !wait_for_time)
 		{
 			wait_lock = (sint32) ((earliest_departure_time - now) / 2ll);
