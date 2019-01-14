@@ -6055,11 +6055,11 @@ station_tile_search_ready: ;
 
 		if (loading_limit > 0 && !wait_for_time)
 		{
-			wait_lock = (earliest_departure_time - now) / 2;
+			wait_lock = (sint32) ((earliest_departure_time - now) / 2ll);
 		}
 		else
 		{
-			wait_lock = (go_on_ticks - now) / 2;
+			wait_lock = (sint32) ((go_on_ticks - now) / 2ll);
 		}
 		// The random extra wait here is designed to avoid processing every convoy at once
 		wait_lock += (sint32)(self.get_id()) % 1024;
