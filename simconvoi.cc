@@ -6062,7 +6062,7 @@ station_tile_search_ready: ;
 			wait_lock = (go_on_ticks - now) / 2;
 		}
 		// The random extra wait here is designed to avoid processing every convoy at once
-		wait_lock += (self.get_id()) % 1024;
+		wait_lock += (sint32)(self.get_id()) % 1024;
 		if (wait_lock < 0 )
 		{
 			wait_lock = 0;
