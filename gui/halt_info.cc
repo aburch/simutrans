@@ -392,53 +392,38 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		// passenger evaluation icons ok?
 		if (skinverwaltung_t::happy && skinverwaltung_t::overcrowd && skinverwaltung_t::too_waiting && skinverwaltung_t::no_route && skinverwaltung_t::too_slow) {
 			char buf[1024];
-			info_buf.printf("%s %d",translator::translate("Passengers:"), halt->haltestelle_t::get_pax_happy());
-			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			// happy
-			display_color_img(skinverwaltung_t::happy->get_image_id(0), left+1, top, 0, false, false);
-			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
-				sprintf(buf, "%s: %s", translator::translate(cost_type[0]), translator::translate(cost_tooltip[0]));
-				win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
-			}
-			left += 10;
-			info_buf.clear();
-			// overcrowd
-			info_buf.printf(",  %d", halt->haltestelle_t::get_pax_unhappy());
-			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			display_color_img(skinverwaltung_t::overcrowd->get_image_id(0), left+1, top, 0, false, false);
-			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
-				sprintf(buf, "%s: %s", translator::translate(cost_type[1]), translator::translate(cost_tooltip[1]));
-				win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
-			}
-			left += 10;
-			info_buf.clear();
-			// waiting too long time
-			info_buf.printf(",  %d", halt->haltestelle_t::get_pax_too_waiting());
-			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			display_color_img(skinverwaltung_t::too_waiting->get_image_id(0), left + 1, top, 0, false, false);
-			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
-				sprintf(buf, "%s: %s", translator::translate(cost_type[2]), translator::translate(cost_tooltip[2]));
-				win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
-			}
-			left += 10;
-			info_buf.clear();
-			// no route
-			info_buf.printf(",  %d", halt->haltestelle_t::get_pax_no_route());
-			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			display_color_img(skinverwaltung_t::no_route->get_image_id(0), left+1, top, 0, false, false);
-			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
-				sprintf(buf, "%s: %s", translator::translate(cost_type[3]), translator::translate(cost_tooltip[3]));
-				win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
-			}
-			left += 10;
-			info_buf.clear();
-			// too slow
-			info_buf.printf(",  %d", halt->haltestelle_t::get_pax_too_slow());
-			left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-			display_color_img(skinverwaltung_t::too_slow->get_image_id(0), left+1, top, 0, false, false);
-			if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
-				sprintf(buf, "%s: %s", translator::translate(cost_type[4]), translator::translate(cost_tooltip[4]));
-				win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
+			int pax_ev_num[5] = { halt->haltestelle_t::get_pax_happy(),halt->haltestelle_t::get_pax_unhappy(), halt->haltestelle_t::get_pax_too_waiting(), halt->haltestelle_t::get_pax_no_route(), halt->haltestelle_t::get_pax_too_slow() };
+			info_buf.printf("%s ", translator::translate("Passengers:"));
+
+			for (int i = 0; i < PAX_EVALUATIONS; i++) {
+				info_buf.printf("%d", pax_ev_num[i]);
+				left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				switch (i) {
+					default:
+						display_color_img(skinverwaltung_t::happy->get_image_id(0), left + 1, top, 0, false, false);
+						break;
+					case 1:
+						display_color_img(skinverwaltung_t::overcrowd->get_image_id(0), left + 1, top, 0, false, false);
+						break;
+					case 2:
+						display_color_img(skinverwaltung_t::too_waiting->get_image_id(0), left + 1, top, 0, false, false);
+						break;
+					case 3:
+						display_color_img(skinverwaltung_t::no_route->get_image_id(0), left + 1, top, 0, false, false);
+						break;
+					case 4:
+						display_color_img(skinverwaltung_t::too_slow->get_image_id(0), left + 1, top, 0, false, false);
+					break;
+				}
+				if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
+					sprintf(buf, "%s: %s", translator::translate(cost_type[i]), translator::translate(cost_tooltip[i]));
+					win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
+				}
+				if (i < PAX_EVALUATIONS-1) {
+					left += 10;
+					info_buf.clear();
+					info_buf.printf(",  ");
+				}
 			}
 		}
 		else {
@@ -456,6 +441,8 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			}
 		}
 		top += LINESPACE * returns;
+
+
 
 		// TODO: Display the status of the halt in written text and color
 		// There exists currently no fixed states for stations, so those will have to be invented // Ves
