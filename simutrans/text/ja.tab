@@ -2472,10 +2472,12 @@ Passenger success rate this year (non-local):
 今年の移動成功率(旅行):
 Passengers
 旅客
-Passengers %d %c, %d %c, %d gave up waiting\n%d no route, %d too slow
-旅客の評価 %d %c, %d %c, %d 乗継不良\n %d 経路無し, %d 許容時間超過
-Passengers %d %s, %d %s, %d gave up waiting\n%d no route, %d too slow
-旅客の評価 %d %s, %d %s, %d 乗継不良\n %d 経路無し, %d 許容時間超過
+%d %c, %d %c, %d gave up waiting
+%d %c, %d %c, %d 乗継不良
+%d %s, %d %s, %d gave up waiting
+%d %s, %d %s, %d 乗継不良
+%d no route, %d too slow\n
+%d 経路無し, %d 許容時間超過\n
 Passengers:
 旅客の評価:
 Pedestrians will appear near stops whenver a passenger vehicle unloads there.

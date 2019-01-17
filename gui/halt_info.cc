@@ -358,12 +358,12 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 
 		info_buf.clear();
 		info_buf.printf("%s", halt->get_owner()->get_name());
-                display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+		display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		top += D_LABEL_HEIGHT * 2;
 
 		info_buf.clear();
 		info_buf.printf("%s: %u", translator::translate("Storage capacity"), halt->get_capacity(0));
-		
+
 		// passengers
 		left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		if (welt->get_settings().is_separate_halt_capacities()) {
@@ -389,11 +389,12 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		// Hajo: Reuse of info_buf buffer to get and display
 		// information about the passengers happiness
 		info_buf.clear();
+		info_buf.printf("%s ", translator::translate("Passengers:"));
+		int ev_value_offset_left = left + proportional_string_width(translator::translate("Passengers:"));
+		int pax_ev_num[5] = { halt->haltestelle_t::get_pax_happy(),halt->haltestelle_t::get_pax_unhappy(), halt->haltestelle_t::get_pax_too_waiting(), halt->haltestelle_t::get_pax_no_route(), halt->haltestelle_t::get_pax_too_slow() };
 		// passenger evaluation icons ok?
 		if (skinverwaltung_t::happy && skinverwaltung_t::overcrowd && skinverwaltung_t::too_waiting && skinverwaltung_t::no_route && skinverwaltung_t::too_slow) {
 			char buf[1024];
-			int pax_ev_num[5] = { halt->haltestelle_t::get_pax_happy(),halt->haltestelle_t::get_pax_unhappy(), halt->haltestelle_t::get_pax_too_waiting(), halt->haltestelle_t::get_pax_no_route(), halt->haltestelle_t::get_pax_too_slow() };
-			info_buf.printf("%s ", translator::translate("Passengers:"));
 
 			for (int i = 0; i < PAX_EVALUATIONS; i++) {
 				info_buf.printf("%d", pax_ev_num[i]);
@@ -430,6 +431,11 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			// current style
 			halt->info(info_buf);
 			display_multiline_text(pos.x + D_MARGIN_LEFT, top, info_buf, SYSCOL_TEXT);
+			top += LINESPACE;
+			info_buf.clear();
+			// second row
+			info_buf.printf("%d no route, %d too slow\n", pax_ev_num[3], pax_ev_num[4]);
+			display_multiline_text(ev_value_offset_left + D_MARGIN_LEFT, top, info_buf, SYSCOL_TEXT);
 		}
 		int returns = 1;
 		const char *p = info_buf;

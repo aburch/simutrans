@@ -3302,12 +3302,12 @@ void haltestelle_t::info(cbuffer_t & buf, bool dummy) const
 		utf8 happy[4], unhappy[4];
 		happy[ utf16_to_utf8( 0x263A, happy ) ] = 0;
 		unhappy[ utf16_to_utf8( 0x2639, unhappy ) ] = 0;
-		buf.printf(translator::translate("Passengers %d %s, %d %s, %d gave up waiting\n%d no route, %d too slow"), get_pax_happy(), happy, get_pax_unhappy(), unhappy, get_pax_too_waiting(), get_pax_no_route(), get_pax_too_slow());
+		buf.printf(translator::translate("%d %s, %d %s, %d gave up waiting"), get_pax_happy(), happy, get_pax_unhappy(), unhappy, get_pax_too_waiting());
 	}
 	else {
-		buf.printf(translator::translate("Passengers %d %c, %d %c, %d gave up waiting\n%d no route, %d too slow"), get_pax_happy(), 30, get_pax_unhappy(), 31, get_pax_too_waiting(), get_pax_no_route(), get_pax_too_slow());
+		buf.printf(translator::translate("%d %c, %d %c, %d gave up waiting"), get_pax_happy(), 30, get_pax_unhappy(), 31, get_pax_too_waiting());
 	}
-	buf.append("\n\n");
+	buf.append("\n");
 }
 
 
