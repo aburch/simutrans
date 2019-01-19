@@ -15,6 +15,7 @@
 #include "line_management_gui.h"
 #include "components/gui_convoiinfo.h"
 #include "line_item.h"
+#include "simwin.h"
 
 #include "../simcolor.h"
 #include "../simdepot.h"
@@ -25,7 +26,6 @@
 #include "../simskin.h"
 #include "../simconvoi.h"
 #include "../vehicle/simvehicle.h"
-#include "../gui/simwin.h"
 #include "../simlinemgmt.h"
 #include "../simmenu.h"
 #include "../utils/simstring.h"

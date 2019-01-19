@@ -10,10 +10,8 @@
 
 #include "../simdebug.h"
 #include "../simobj.h"
-#include "gui_frame.h"
+#include "base_info.h"
 #include "components/gui_obj_view_t.h"
-#include "components/gui_fixedwidth_textarea.h"
-#include "../utils/cbuffer_t.h"
 
 /**
  * An adapter class to display info windows for things (objects)
@@ -21,15 +19,10 @@
  * @author Hj. Malthaner
  * @date 22-Nov-2001
  */
-class obj_infowin_t : public gui_frame_t
+class obj_infowin_t : public base_infowin_t
 {
 protected:
 	obj_view_t view;
-
-	cbuffer_t buf;
-	cbuffer_t title;
-
-	gui_fixedwidth_textarea_t textarea;
 
 public:
 	obj_infowin_t(const obj_t* obj);

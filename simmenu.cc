@@ -1027,8 +1027,9 @@ void two_click_tool_t::cleanup( bool delete_start_marker )
 		koord3d pos = z->get_pos();
 		grund_t *gr = welt->lookup( pos );
 		delete z;
-		// Remove dummy ground (placed by tool_build_tunnel_t and tool_build_way_t):
-		if(gr  &&   (gr->get_typ() == grund_t::tunnelboden  ||  gr->get_typ() == grund_t::monorailboden)  &&  gr->get_weg_nr(0) == NULL && !gr->get_leitung() ) {
+		// Remove dummy ground (placed by tool_build_tunnel_t and tool_build_way_t) unless it has vehicles on it
+		if(gr  &&   (gr->get_typ() == grund_t::tunnelboden  ||  gr->get_typ() == grund_t::monorailboden)  &&  gr->get_weg_nr(0) == NULL && !gr->get_leitung() && !gr->get_convoi_vehicle()) 
+		{
 			welt->access(pos.get_2d())->boden_entfernen(gr);
 			delete gr;
 			assert( !welt->lookup(pos));

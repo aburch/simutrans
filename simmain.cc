@@ -116,7 +116,7 @@ static void show_sizes()
 
 
 // render tests ...
-static void show_times(karte_t *welt, karte_ansicht_t *view)
+static void show_times(karte_t *welt, main_view_t *view)
 {
  	intr_set(welt, view);
 	welt->set_fast_forward(true);
@@ -595,10 +595,10 @@ int simu_main(int argc, char** argv)
 #ifdef SYSLOG
 	bool cli_syslog_enabled = (gimme_arg( argc, argv, "-syslog", 0 ) != NULL);
 	const char* cli_syslog_tag = gimme_arg( argc, argv, "-tag", 1 );
-#else //SYSLOG
+#else
 	bool cli_syslog_enabled = false;
 	const char* cli_syslog_tag = NULL;
-#endif //SYSLOG
+#endif
 
 	env_t::verbose_debug = 0;
 	if(  gimme_arg(argc, argv, "-debug", 0) != NULL  ) {
@@ -781,6 +781,17 @@ int simu_main(int argc, char** argv)
 			themes_ok = gui_theme_t::themes_init(themestr);
 		}
 	}
+	// next try the last used theme
+	if(  !themes_ok  &&  env_t::default_theme.c_str()!=NULL  ) {
+		chdir( env_t::user_dir );
+		chdir( "themes" );
+		themes_ok = gui_theme_t::themes_init( env_t::default_theme );
+		if(  !themes_ok  ) {
+			chdir( env_t::program_dir );
+			chdir( "themes" );
+			themes_ok = gui_theme_t::themes_init( env_t::default_theme );
+		}
+	}
 	// specified themes not found => try default themes
 	if(  !themes_ok  ) {
 		chdir( env_t::program_dir );
@@ -856,7 +867,8 @@ int simu_main(int argc, char** argv)
 		if (fullscreen) {
 			disp_width  = res.w;
 			disp_height = res.h;
-		} else {
+		}
+		else {
 			disp_width  = min(704, res.w);
 			disp_height = min(560, res.h);
 		}
@@ -1019,7 +1031,7 @@ int simu_main(int argc, char** argv)
 			translator::set_language( iso );
 		}
 		if(  translator::get_language()==-1  ) {
-			dbg->fatal("simmain", "Illegal language defintion \"%s\"", iso );
+			dbg->fatal("simmain", "Illegal language definition \"%s\"", iso );
 		}
 		env_t::language_iso = translator::get_lang()->iso_base;
 	}
@@ -1194,7 +1206,7 @@ DBG_MESSAGE("simmain","demo file not found at %s",buf.get_str() );
 	}
 
 	karte_t *welt = new karte_t();
-	karte_ansicht_t *view = new karte_ansicht_t(welt);
+	main_view_t *view = new main_view_t(welt);
 	welt->set_view( view );
 
 	interaction_t *eventmanager = new interaction_t();

@@ -223,6 +223,7 @@ settings_t::settings_t() :
 		default_player_color[i][1] = 255;
 	}
 	default_player_color_random = false;
+	default_ai_construction_speed = env_t::default_ai_construction_speed;
 
 	/* the big cost section */
 	freeplay = false;
@@ -407,7 +408,7 @@ settings_t::settings_t() :
 
 	allow_airports_without_control_towers = true;
 
-	allow_buying_obsolete_vehicles = true;
+	allow_buying_obsolete_vehicles = 1;
 
 	// default: load also private extensions of the pak file
 	with_private_paks = true;
@@ -967,7 +968,17 @@ void settings_t::rdwr(loadsave_t *file)
 				frames_per_second = env_t::fps;	// update it on the server to the current setting
 				frames_per_step = env_t::network_frames_per_step;
 			}
-			file->rdwr_bool( allow_buying_obsolete_vehicles);
+			if(file->get_extended_version() >= 14 && file->get_extended_revision() > 1)
+			{
+				file->rdwr_byte( allow_buying_obsolete_vehicles);
+			} else {
+				bool compat = allow_buying_obsolete_vehicles > 0;
+				file->rdwr_bool( compat );
+				allow_buying_obsolete_vehicles = 0;
+				if (compat) {
+					allow_buying_obsolete_vehicles = 1;
+				}
+			}
 			if(file->get_extended_version() < 12 && (file->get_extended_version() >= 8 || file->get_extended_version() == 0))
 			{
 				// Was factory_worker_minimum_towns and factory_worker_maximum_towns
@@ -1395,10 +1406,32 @@ void settings_t::rdwr(loadsave_t *file)
 
 		if(file->get_extended_version() >= 5)
 		{
-			file->rdwr_short(min_visiting_tolerance);
-			file->rdwr_short(range_commuting_tolerance);
-			file->rdwr_short(min_commuting_tolerance);
-			file->rdwr_short(range_visiting_tolerance);
+			if((file->get_extended_version() >= 14 && file->get_extended_revision() >= 1) || file->get_extended_version() >= 15)
+			{
+				file->rdwr_long(min_visiting_tolerance);
+				file->rdwr_long(range_commuting_tolerance);
+				file->rdwr_long(min_commuting_tolerance);
+				file->rdwr_long(range_visiting_tolerance);
+			}
+			else
+			{
+				uint16 temp = (uint16)min_visiting_tolerance;
+				file->rdwr_short(temp);
+				min_visiting_tolerance = temp; 
+
+				temp = (uint16)range_commuting_tolerance;
+				file->rdwr_short(temp);
+				range_commuting_tolerance = temp; 
+
+				temp = (uint16)min_commuting_tolerance;
+				file->rdwr_short(temp);
+				min_commuting_tolerance = temp; 
+
+				temp = (uint16)range_visiting_tolerance;
+				file->rdwr_short(temp);
+				range_visiting_tolerance = temp; 
+			}
+			
 			if(file->get_extended_version() < 12)
 			{
 				// Was min_longdistance_tolerance and max_longdistance_tolerance
@@ -1599,9 +1632,11 @@ void settings_t::rdwr(loadsave_t *file)
 			file->rdwr_byte( way_height_clearance );
 		}
 		if(  file->get_version()>=120002 && file->get_extended_version() == 0 ) {
-			uint32 default_ai_construction_speed;
 			file->rdwr_long( default_ai_construction_speed );
 			// This feature is used in Standard only
+		}
+		else if(  file->is_loading()  ) {
+			default_ai_construction_speed = env_t::default_ai_construction_speed;
 		}
 		if(  file->get_version() >=120002 && (file->get_extended_revision() >= 9 || file->get_extended_version() == 0 || file->get_extended_version() >= 13)) {
 			file->rdwr_bool(lake);
@@ -1745,28 +1780,9 @@ void settings_t::rdwr(loadsave_t *file)
 	}
 
 #ifdef DEBUG_SIMRAND_CALLS
-	for (vector_tpl<const char *>::iterator i = karte_t::random_callers.begin(); i < karte_t::random_callers.end(); ++i)
-	{
-		free((void*)(*i));
-	}
-	karte_t::random_callers.clear();
-	karte_t::random_calls = 0;
 	char buf[256];
 	sprintf(buf,"Initial counter: %i; seed: %i", get_random_counter(), get_random_seed());
 	dbg->message("settings_t::rdwr", buf);
-	karte_t::random_callers.append(strdup(buf));
-
-	if(  env_t::networkmode  ) {
-		// to have games synchronized, transfer random counter too
-		setsimrand(get_random_counter(), 0xFFFFFFFFu );
-
-		sprintf(buf,"Initial counter: %i; seed: %i", get_random_counter(), get_random_seed());
-		dbg->message("settings_t::rdwr", buf);
-		karte_t::random_callers.append(strdup(buf));
-
-		translator::init_custom_names(get_name_language_id());
-
-	}
 #endif
 }
 
@@ -2193,6 +2209,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 			default_player_color[i][1] = c2;
 		}
 	}
+	default_ai_construction_speed = env_t::default_ai_construction_speed = contents.get_int("ai_construction_speed", env_t::default_ai_construction_speed );
 
 	sint64 new_maintenance_building = contents.get_int64("maintenance_building", -1);
 	if (new_maintenance_building > 0) {
@@ -2236,7 +2253,7 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 	env_t::pak_height_conversion_factor = contents.get_int("height_conversion_factor", env_t::pak_height_conversion_factor );
 
 	// minimum clearance under under bridges: 1 or 2? (HACK: value only zero during loading of pak set config)
-	bool bounds = way_height_clearance!=0;
+	const uint32 bounds = way_height_clearance != 0 ? 1 : 0;
 	way_height_clearance  = contents.get_int("way_height_clearance", way_height_clearance );
 	if(  way_height_clearance > 2  &&  way_height_clearance < bounds  ) {
 		sint8 new_whc = clamp( way_height_clearance, bounds, 2 );
@@ -2473,14 +2490,14 @@ void settings_t::parse_simuconf(tabfile_t& simuconf, sint16& disp_width, sint16&
 
 	// Multiply by 10 because journey times are measured in tenths of minutes.
 	//@author: jamespetts
-	const uint16 min_visiting_tolerance_minutes = contents.get_int("min_visiting_tolerance", (min_visiting_tolerance / 10));
-	min_visiting_tolerance = min_visiting_tolerance_minutes * 10;
-	const uint16 range_commuting_tolerance_minutes = contents.get_int("range_commuting_tolerance", (range_commuting_tolerance / 10));
-	range_commuting_tolerance = range_commuting_tolerance_minutes * 10;
-	const uint16 min_commuting_tolerance_minutes = contents.get_int("min_commuting_tolerance", (min_commuting_tolerance/ 10));
-	min_commuting_tolerance = min_commuting_tolerance_minutes * 10;
-	const uint16 range_visiting_tolerance_minutes = contents.get_int("range_visiting_tolerance", (range_visiting_tolerance / 10));
-	range_visiting_tolerance = range_visiting_tolerance_minutes * 10;
+	const uint32 min_visiting_tolerance_minutes = contents.get_int("min_visiting_tolerance", (min_visiting_tolerance / 10u));
+	min_visiting_tolerance = min_visiting_tolerance_minutes * 10u;
+	const uint32 range_commuting_tolerance_minutes = contents.get_int("range_commuting_tolerance", (range_commuting_tolerance / 10u));
+	range_commuting_tolerance = range_commuting_tolerance_minutes * 10u;
+	const uint32 min_commuting_tolerance_minutes = contents.get_int("min_commuting_tolerance", (min_commuting_tolerance/ 10u));
+	min_commuting_tolerance = min_commuting_tolerance_minutes * 10u;
+	const uint32 range_visiting_tolerance_minutes = contents.get_int("range_visiting_tolerance", (range_visiting_tolerance / 10u));
+	range_visiting_tolerance = range_visiting_tolerance_minutes * 10u;
 
 	quick_city_growth = (bool)(contents.get_int("quick_city_growth", quick_city_growth));
 

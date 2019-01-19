@@ -8,6 +8,7 @@
 #include "dataobj/schedule.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
+#include "gui/gui_theme.h"
 #include "player/simplay.h"
 #include "player/finance.h" // convert_money
 #include "vehicle/simvehicle.h"
@@ -645,13 +646,13 @@ void simline_t::recalc_status()
 	// normal state
 	// Moved from an else statement at bottom
 	// to ensure that this value is always initialised.
-	state_color = COL_BLACK;
+	state_color = SYSCOL_TEXT;
 	state = line_normal_state;
 
 	if(financial_history[0][LINE_CONVOIS]==0) 
 	{
 		// no convoys assigned to this line
-		state_color = COL_WHITE;
+		state_color = SYSCOL_TEXT_HIGHLIGHT;
 		state = line_no_convoys;
 		withdraw = false;
 	}
@@ -735,12 +736,6 @@ void simline_t::recalc_status()
 			state_color = COL_DARK_BLUE;
 			state = line_has_obsolete_vehicles;
 		}
-		else
-		{
-			state_color = COL_BLACK;
-			state = line_normal_state;
-		}
-
 	}
 }
 

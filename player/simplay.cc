@@ -76,8 +76,8 @@ player_t::player_t(karte_t *wl, uint8 nr) :
 	welt = wl;
 	player_nr = nr;
 	player_age = 0;
-	active = false;		// Start nicht als automatischer Spieler
-	locked = false;	/* allowe to change anything */
+	active = false;			// Don't start as an AI player
+	locked = false;			// allowed to change anything
 	unlock_pending = false;
 	has_been_warned_about_no_money_for_renewals = false;
 	selected_signalbox = NULL;
@@ -111,10 +111,8 @@ player_t::~player_t()
 		delete messages.remove_first();
 	}
 	destroy_win(magic_finances_t + get_player_nr());
-	if( finance !=NULL) {
-		delete finance;
-		finance = NULL;
-	}
+	delete finance;
+	finance = NULL;
 }
 
 
@@ -351,7 +349,7 @@ void player_t::set_player_color(uint8 col1, uint8 col2)
 		message.printf(player_name);
 		welt->get_message()->add_message(message, koord::invalid, message_t::ai, player_color_1);
 		message.clear();
-		message.printf("has changed its colour scheme.");
+		message.printf(translator::translate("has changed its colour scheme."));
 		welt->get_message()->add_message(message, koord::invalid, message_t::ai, col1);
 	}
 	set_player_color_no_message(col1, col2);
@@ -417,7 +415,7 @@ bool player_t::new_month()
 
 	// Insolvency settings.
 	// Modified by jamespetts, February 2009
-	// Bankrott ?
+	// Bankrupt ?
 	sint64 account_balance = finance->get_account_balance();
 	if(  account_balance < 0  )
 	{
@@ -652,7 +650,7 @@ void player_t::ai_bankrupt()
 	// deactivate active tool (remove dummy grounds)
 	welt->set_tool(tool_t::general_tool[TOOL_QUERY], this);
 
-	// next, mothball all ways, depot etc, that are not road or canals if a mothballed type is available, or else remove them.
+	// next, mothball all ways, depot etc, that are not road or canals if a mothballed type is available, or else convert to unowned
 	for( int y=0;  y<welt->get_size().y;  y++  ) {
 		for( int x=0;  x<welt->get_size().x;  x++  ) {
 			planquadrat_t *plan = welt->access(x,y);
@@ -694,27 +692,42 @@ void player_t::ai_bankrupt()
 								break;
 							case obj_t::way:
 							{
-								weg_t *w=(weg_t *)obj;
-								if (gr->ist_bruecke()  ||  gr->ist_tunnel()) {
-									w->set_owner( NULL );
+								weg_t *w = (weg_t *)obj;
+								bool mothball = false;
+								if (gr->ist_bruecke() || gr->ist_tunnel())
+								{
+									w->set_owner(NULL);
+									if (!w->is_public_right_of_way())
+									{
+										mothball = true;
+									}
 								}
-								else if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
-									add_maintenance( -w->get_desc()->get_maintenance(), w->get_waytype() );
-									w->set_owner( NULL );
+								else if (w->get_waytype() == road_wt || w->get_waytype() == water_wt) {
+									add_maintenance(-w->get_desc()->get_maintenance(), w->get_waytype());
+									w->set_owner(NULL);
 								}
-								else {
+								else
+								{
+									mothball = true;
+								}
+
+								if (mothball)
+								{
 									weg_t *way = (weg_t *)obj;
 									const way_desc_t* mothballed_type = way_builder_t::way_search_mothballed(way->get_waytype(), (systemtype_t)way->get_desc()->get_styp());
-									if(mothballed_type && way->get_waytype())
+									if (mothballed_type && way->get_waytype())
 									{
 										way->set_desc(mothballed_type);
 									}
 									else
 									{
-										gr->weg_entfernen( w->get_waytype(), true );
+										way->degrade();
+										// Run this a second time to make sure that this degrades fully - running it once with wear capacity left simply reduces the speed limit.
+										way->degrade();
 									}
 									way->set_owner(NULL);
 								}
+
 								break;
 							}
 							case obj_t::bruecke:
@@ -752,8 +765,8 @@ void player_t::ai_bankrupt()
 
 
 /**
- * Speichert Zustand des Spielers
- * @param file Datei, in die gespeichert wird
+ * Stores/save the player state
+ * @param file, where the data will be saved
  * @author Hj. Malthaner
  */
 void player_t::rdwr(loadsave_t *file)
@@ -850,7 +863,7 @@ DBG_DEBUG("player_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this )
 		}
 	}
 
-	// linemanagement
+	// line management
 	if(file->get_version()>=88003) {
 		simlinemgmt.rdwr(file,this);
 	}
@@ -951,7 +964,7 @@ void player_t::report_vehicle_problem(convoihandle_t cnv,const koord3d ziel)
 		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 		case convoi_t::CAN_START_ONE_MONTH:
 		case convoi_t::CAN_START_TWO_MONTHS:
-		DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stucked!", cnv->get_name(),ziel.x,ziel.y);
+		DBG_MESSAGE("player_t::report_vehicle_problem","Vehicle %s stuck!", cnv->get_name(),ziel.x,ziel.y);
 			{
 				cbuffer_t buf;
 				buf.printf( translator::translate("Vehicle %s is stucked!"), cnv->get_name());
@@ -1055,7 +1068,7 @@ sint64 player_t::undo()
 					case obj_t::movingobj:
 						break;
 					// special case airplane
-					// they can be everywhere, so we allow for everythign but runway undo
+					// they can be everywhere, so we allow for everything but runway undo
 					case obj_t::air_vehicle: {
 						if(undo_type!=air_wt) {
 							break;

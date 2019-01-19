@@ -438,7 +438,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 			buf.clear();
 			{
 				const sint32 month = v->get_purchase_time();
-				buf.printf("%s %s %i", translator::translate("Manufactured:"), translator::get_month_name(month % 12), month / 12);
+				buf.printf("%s %s", translator::translate("Manufactured:"), translator::get_year_month(month));
 			}
 			display_proportional_clip(pos.x + w + offset.x, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			extra_y += LINESPACE;
@@ -660,7 +660,7 @@ void gui_vehicleinfo_t::draw(scr_coord offset)
 					{
 						buf.clear();
 						sprintf(classes_display, classes_counter > 1 ? "reassigned_classes" : "reassigned_class");
-						buf.printf(" (%i %s)", classes_reassigned_counter, classes_display);
+						buf.printf(" (%i %s)", classes_reassigned_counter, translator::translate(classes_display));
 						display_proportional_clip(pos.x + w + offset.x + reassigned_w + w_icon, pos.y + offset.y + total_height + extra_y, buf, ALIGN_LEFT, SYSCOL_EDIT_TEXT_DISABLED, true);
 					}
 					extra_y += LINESPACE + 2;

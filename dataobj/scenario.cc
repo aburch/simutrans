@@ -42,7 +42,8 @@ scenario_t::scenario_t(karte_t *w) :
 	goal_text("get_goal_text"),
 	rule_text("get_rule_text"),
 	result_text("get_result_text"),
-	about_text("get_about_text")
+	about_text("get_about_text"),
+	debug_text("get_debug_text")
 {
 	welt = w;
 	what_scenario = 0;
@@ -60,9 +61,7 @@ scenario_t::scenario_t(karte_t *w) :
 
 scenario_t::~scenario_t()
 {
-	if (script) {
-		delete script;
-	}
+	delete script;
 	clear_ptr_vector(forbidden_tools);
 	cached_text_files.clear();
 }
@@ -693,6 +692,7 @@ void scenario_t::update_scenario_texts()
 	rule_text.update(script, player);
 	result_text.update(script, player);
 	about_text.update(script, player);
+	debug_text.update(script, player);
 	description_text.update(script, player);
 }
 

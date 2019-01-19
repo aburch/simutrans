@@ -135,7 +135,7 @@ public:
 	sint32 menge;	// in internal units shifted by precision_bits (see step)
 	sint32 max;
 	/// Cargo currently in transit from/to this slot. Equivalent to statistics[0][FAB_GOODS_TRANSIT].
-	const sint32 get_in_transit() const { return statistics[0][FAB_GOODS_TRANSIT]; }
+	sint32 get_in_transit() const { return (sint32)statistics[0][FAB_GOODS_TRANSIT]; }
 	/// Current limit on cargo in transit, depending on suppliers mean distance.
 	sint32 max_transit;
 

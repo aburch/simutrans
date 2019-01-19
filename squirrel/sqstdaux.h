@@ -13,4 +13,4 @@ SQUIRREL_API void sqstd_printcallstack(HSQUIRRELVM v);
 } /*extern "C"*/
 #endif
 
-#endif /* _SQSTD_AUXLIB_H_ */
+#endif

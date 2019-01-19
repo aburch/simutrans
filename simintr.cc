@@ -23,7 +23,7 @@
 #include "boden/wasser.h"
 
 static karte_t *welt_modell = NULL;
-static karte_ansicht_t *welt_ansicht = NULL;
+static main_view_t *welt_ansicht = NULL;
 
 
 static long last_time;
@@ -118,7 +118,7 @@ void interrupt_check(const char* caller_info)
 }
 
 
-void intr_set(karte_t *welt, karte_ansicht_t *view)
+void intr_set(karte_t *welt, main_view_t *view)
 {
 	welt_modell = welt;
 	welt_ansicht = view;
@@ -175,22 +175,22 @@ char const *tick_to_string( sint64 ticks, bool show_full )
 		year --;
 	}
 
-	uint32 tage, stunden, minuten;
+	uint32 tage, hours, minuten;
 	char ticks_as_clock[32], month_as_clock[32];
 	if (env_t::show_month > env_t::DATE_FMT_MONTH && env_t::show_month < env_t::DATE_FMT_INTERNAL_MINUTE) {
 		tage = (((sint64)ticks_this_month*tage_per_month[month]) >> welt_modell->ticks_per_world_month_shift) + 1;
-		stunden = (((sint64)ticks_this_month*tage_per_month[month]) >> (welt_modell->ticks_per_world_month_shift-16));
-		minuten = (((stunden*3) % 8192)*60)/8192;
-		stunden = ((stunden*3) / 8192)%24;
+		hours = (((sint64)ticks_this_month*tage_per_month[month]) >> (welt_modell->ticks_per_world_month_shift-16));
+		minuten = (((hours*3) % 8192)*60)/8192;
+		hours = ((hours*3) / 8192)%24;
 		} 
-	else if (env_t::show_month == env_t::DATE_FMT_INTERNAL_MINUTE) {
+	else if (env_t::show_month == env_t::DATE_FMT_INTERNAL_MINUTE || env_t::DATE_FMT_JAPANESE_INTERNAL_MINUTE) {
 		world()->sprintf_ticks(ticks_as_clock, sizeof(ticks_as_clock), ticks_this_month);
 		world()->sprintf_ticks(month_as_clock, sizeof(month_as_clock), world()->ticks_per_world_month);
-		tage = stunden = minuten = 0;
+		tage = hours = minuten = 0;
 	}
 	else {
 		tage = 0;
-		stunden = (ticks_this_month * 24) >> welt_modell->ticks_per_world_month_shift;
+		hours = (ticks_this_month * 24) >> welt_modell->ticks_per_world_month_shift;
 		minuten = ((ticks_this_month * 24 * 60) >> welt_modell->ticks_per_world_month_shift)%60;
 	}
 
@@ -200,55 +200,34 @@ char const *tick_to_string( sint64 ticks, bool show_full )
 		// @author hsiegeln - updated to show month
 		// @author prissi - also show date if desired
 		// since seasons 0 is always summer for backward compatibility
-		char const* const season = translator::translate(seasons[welt_modell->get_season()]);
-		char const* const month_ = translator::get_month_name(month % 12);
+		char const* const date = translator::get_date(year, month, tage, translator::translate(seasons[welt_modell->get_season()]));
 		switch(env_t::show_month) {
-			case env_t::DATE_FMT_GERMAN_NO_SEASON:
-				sprintf(time, "%d. %s %d %2d:%02dh", tage, month_, year, stunden, minuten);
-				break;
-
+			case env_t::DATE_FMT_US:
 			case env_t::DATE_FMT_US_NO_SEASON: {
-				uint32 hours_ = stunden % 12;
+				uint32 hours_ = hours % 12;
 				if (hours_ == 0) hours_ = 12;
-				sprintf(time, "%s %d %d %2d:%02d%s", month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
+				sprintf(time, "%s %2d:%02d%s", date, hours_, minuten, hours < 12 ? "am" : "pm");
 				break;
 			}
-
-			case env_t::DATE_FMT_JAPANESE_NO_SEASON:
-				sprintf(time, "%d/%s/%d %2d:%02dh", year, month_, tage, stunden, minuten);
-				break;
-
-			case env_t::DATE_FMT_GERMAN:
-				sprintf(time, "%s, %d. %s %d %2d:%02dh", season, tage, month_, year, stunden, minuten);
-				break;
-
-			case env_t::DATE_FMT_US: {
-				uint32 hours_ = stunden % 12;
-				if (hours_ == 0) hours_ = 12;
-				sprintf(time, "%s, %s %d %d %2d:%02d%s", season, month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
-				break;
-			}
-
-			case env_t::DATE_FMT_JAPANESE:
-				sprintf(time, "%s, %d/%s/%d %2d:%02dh", season, year, month_, tage, stunden, minuten);
-				break;
-
-			case env_t::DATE_FMT_MONTH:
-				sprintf(time, "%s, %s %d %2d:%02dh", month_, season, year, stunden, minuten);
-				break;
-
 			case env_t::DATE_FMT_SEASON:
-				sprintf(time, "%s %d", season, year);
+				sprintf(time, "%s", date);
 				break;
-
+			case env_t::DATE_FMT_JAPANESE:
+			case env_t::DATE_FMT_JAPANESE_NO_SEASON:
+				sprintf(time, "%s %2d:%02d", date, hours, minuten);
+				break;
+			default:
+				sprintf(time, "%s %2d:%02dh", date, hours, minuten);
+				break;
 			case env_t::DATE_FMT_INTERNAL_MINUTE:
-				sprintf(time, "%s %d %s %s/%s", season, year, month_, ticks_as_clock, month_as_clock);
+			case env_t::DATE_FMT_JAPANESE_INTERNAL_MINUTE:
+				sprintf(time, "%s %s/%s", date, ticks_as_clock, month_as_clock);
 				break;
 		}
 	}
 	else {
 		if(  ticks == 0  ) {
-			return "now";
+			return translator::translate("now");
 		}
 
 		// suppress as much as possible, assuming this is an relative offset to the current month
@@ -301,14 +280,14 @@ char const *tick_to_string( sint64 ticks, bool show_full )
 		//}
 		//if(  switchtick <= 19  ) {
 		//	minuten = ( (minuten + 30 ) / 60 ) * 60;
-		//	stunden += minuten /60;
+		//	hours += minuten /60;
 		//	if(  switchtick < 18 ) {
 		//		// four hour intervals
-		//		stunden = (stunden + 3 ) & 0xFFFFC;
+		//		hours = (hours + 3 ) & 0xFFFFC;
 		//	}
 		//	else if(  switchtick == 18 ) {
 		//		// two hour intervals
-		//		stunden = (stunden + 1 ) & 0xFFFFE;
+		//		hours = (hours + 1 ) & 0xFFFFE;
 		//	}
 		//}
 		//else if(  switchtick == 20  ) {
@@ -321,21 +300,21 @@ char const *tick_to_string( sint64 ticks, bool show_full )
 			minuten = ( (minuten + 2) / 5 ) * 5;
 		//}
 		// take care of overflow
-		stunden += (minuten / 60);
+		hours += (minuten / 60);
 		minuten %= 60;
-		stunden %= 24;
+		hours %= 24;
 
 		switch(env_t::show_month) {
 			case env_t::DATE_FMT_US:
 			case env_t::DATE_FMT_US_NO_SEASON: {
-				uint32 hours_ = stunden % 12;
+				uint32 hours_ = hours % 12;
 				if (hours_ == 0) hours_ = 12;
-				sprintf(time, "%s% 2d:%02d%s", days, hours_, minuten, stunden < 12 ? "am" : "pm");
+				sprintf(time, "%s% 2d:%02d%s", days, hours_, minuten, hours < 12 ? "am" : "pm");
 				break;
 			}
 
 			default:
-				sprintf(time, "%s% 2d:%02dh", days, stunden, minuten);
+				sprintf(time, "%s% 2d:%02dh", days, hours, minuten);
 				break;
 		}
 	}

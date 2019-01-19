@@ -266,4 +266,4 @@ inline sint64 kmh_from_meters_and_minutes(sint64 meters, sint64 minutes) {
 }
 
 
-#endif /* simunits.h */
+#endif

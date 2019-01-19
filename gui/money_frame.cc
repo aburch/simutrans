@@ -9,12 +9,12 @@
 
 #include "money_frame.h"
 #include "ai_option_t.h"
+#include "simwin.h"
 
 #include "../simworld.h"
 #include "../simdebug.h"
 #include "../display/simgraph.h"
 #include "../simcolor.h"
-#include "../gui/simwin.h"
 #include "../utils/simstring.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/environment.h"
@@ -41,7 +41,7 @@ const char *money_frame_t::cost_type_name[MAX_PLAYER_COST_BUTTON] =
 {
 	"Revenue",
 	"Operation",
-	"Vehicle maintenance",  // TODO: Translation for this
+	"Vehicle maintenance",
 	"Maintenance",
 	"Road toll",
 	"Ops Profit",
@@ -61,8 +61,8 @@ const char *money_frame_t::cost_type_name[MAX_PLAYER_COST_BUTTON] =
 const char money_frame_t::cost_tooltip[MAX_PLAYER_COST_BUTTON][256] =
 {
   "Gross revenue",
-  "Vehicle running costs per km", // TODO: Translation for this
-  "Vehicle maintenance costs per month", // TODO: Translation for this
+  "Vehicle running costs per km",
+  "Vehicle maintenance costs per month",
   "Recurring expenses of infrastructure maintenance", 
   "The charges incurred or revenues earned by running on other players' ways",
   "Operating revenue less operating expenditure", 

@@ -692,6 +692,44 @@ const char *translator::get_month_name(uint16 month)
 	return translate(month_names[month % lengthof(month_names)]);
 }
 
+const char *translator::get_date(uint16 year, uint16 month, uint16 day, char const* season)
+{
+	char const* const month_ = get_month_name(month);
+	char const* const year_sym = strcmp("YEAR_SYMBOL", translate("YEAR_SYMBOL")) ? translate("YEAR_SYMBOL") : "";
+	char const* const day_sym = strcmp("DAY_SYMBOL", translate("DAY_SYMBOL")) ? translate("DAY_SYMBOL") : "";
+	static char date[256];
+	switch (env_t::show_month) {
+	case env_t::DATE_FMT_GERMAN:
+		sprintf(date, "%s %d. %s %d%s", season, day, month_, year, year_sym);
+		break;
+	case env_t::DATE_FMT_GERMAN_NO_SEASON:
+		sprintf(date, "%d. %s %d%s", day, month_, year, year_sym);
+		break;
+	case env_t::DATE_FMT_US:
+		sprintf(date, "%s %s %d %d%s", season, month_, day, year, year_sym);
+		break;
+	case env_t::DATE_FMT_US_NO_SEASON:
+		sprintf(date, "%s %d %d%s", month_, day, year, year_sym);
+		break;
+	case env_t::DATE_FMT_JAPANESE:
+		sprintf(date, "%s %d%s %s %d%s", season, year, year_sym, month_, day, day_sym);
+		break;
+	case env_t::DATE_FMT_JAPANESE_NO_SEASON:
+		sprintf(date, "%d%s %s %d%s", year, year_sym, month_, day, day_sym);
+		break;
+	case env_t::DATE_FMT_MONTH:
+		sprintf(date, "%s, %s %d%s", month_, season, year, year_sym);
+		break;
+	case env_t::DATE_FMT_SEASON:
+		sprintf(date, "%s %d%s", season, year, year_sym);
+		break;
+	case env_t::DATE_FMT_INTERNAL_MINUTE: // Extended unique
+	case env_t::DATE_FMT_JAPANESE_INTERNAL_MINUTE: // Extended unique
+		sprintf(date, "%s %d%s %s", season, year, year_sym, month_);
+		break;
+	}
+	return date;
+}
 
 /* get a name for a non-matching object */
 const char *translator::compatibility_name(const char *str)
@@ -704,4 +742,39 @@ const char *translator::compatibility_name(const char *str)
 	}
 	const char *trans = compatibility.get(str);
 	return trans != NULL ? trans : str;
+}
+
+const char *translator::get_year_month(uint16 year_month)
+{
+	uint16 year = year_month / 12;
+	uint8 month = year_month % 12 + 1;
+	char const* const month_ = get_month_name(year_month % 12);
+	char const* mon_sym = strcmp("MON_SYMBOL", translate("MON_SYMBOL")) ? translate("MON_SYMBOL") : "";
+	char const* year_sym = strcmp("YEAR_SYMBOL", translate("YEAR_SYMBOL")) ? translate("YEAR_SYMBOL") : "";
+	static char format_year_month[64];
+
+	switch (env_t::show_month) {
+		case env_t::DATE_FMT_SEASON:
+			sprintf(format_year_month, "%04d%s", year, year_sym);
+			break;
+		case env_t::DATE_FMT_JAPANESE:
+		case env_t::DATE_FMT_JAPANESE_NO_SEASON:
+		case env_t::DATE_FMT_JAPANESE_INTERNAL_MINUTE: // Extended unique
+			if (year_sym == "") {
+				year_sym = "/";
+				mon_sym = "";
+			}
+			sprintf(format_year_month, "%04d%s%2d%s", year, year_sym, month, mon_sym);
+			break;
+		case env_t::DATE_FMT_MONTH:
+		case env_t::DATE_FMT_GERMAN:
+		case env_t::DATE_FMT_GERMAN_NO_SEASON:
+		case env_t::DATE_FMT_US:
+		case env_t::DATE_FMT_US_NO_SEASON:
+		case env_t::DATE_FMT_INTERNAL_MINUTE: // Extended unique
+			sprintf(format_year_month, "%s %04d%s", month_, year, year_sym);
+			break;
+	}
+
+	return format_year_month;
 }

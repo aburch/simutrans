@@ -26,6 +26,7 @@
 
 #include "../descriptor/building_desc.h"
 
+#include "../dataobj/environment.h"
 #include "../dataobj/loadsave.h"
 
 #include "../obj/zeiger.h"
@@ -70,7 +71,6 @@ bool ai_building_place_with_road_finder::is_area_ok(koord pos, sint16 b, sint16 
 
 
 /************************** and now the "real" helper functions ***************/
-
 
 /* return the halt on the map ground */
 halthandle_t ai_t::get_halt(const koord pos ) const
@@ -321,9 +321,7 @@ void ai_t::clean_marker( koord place, koord size )
 		for(  pos.x=place.x;  pos.x<=place.x+size.x;  pos.x++  ) {
 			grund_t *gr = welt->lookup_kartenboden(pos);
 			zeiger_t *z = gr->find<zeiger_t>();
-			if(z) {
-				delete z;
-			}
+			delete z;
 		}
 	}
 }
@@ -501,9 +499,25 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	clean_marker(platz1,size1);
 	clean_marker(platz2,size2);
 
+	climate c1 = welt->get_climate(platz1);
+	climate c2 = welt->get_climate(platz2);
+
 	if(  !(welt->flatten_tile( this, platz1, welt->lookup_kartenboden(platz1)->get_hoehe() )  &&  welt->flatten_tile( this, platz2, welt->lookup_kartenboden(platz2)->get_hoehe() ))  ) {
 		// no flat land here?!?
 		return false;
+	}
+	// ensure is land
+	grund_t* bd = welt->lookup_kartenboden(platz1);
+	if (bd->get_typ() == grund_t::wasser) {
+		welt->set_water_hgt(platz1, bd->get_hoehe()-1);
+		welt->access(platz1)->correct_water();
+		welt->set_climate(platz1, c1, true);
+	}
+	bd = welt->lookup_kartenboden(platz2);
+	if (bd->get_typ() == grund_t::wasser) {
+		welt->set_water_hgt(platz2, bd->get_hoehe()-1);
+		welt->access(platz2)->correct_water();
+		welt->set_climate(platz2, c2, true);
 	}
 
 	// is there already a connection?
@@ -576,6 +590,14 @@ void ai_t::tell_tool_result(tool_t *tool, koord3d pos, const char *err, bool loc
 	player_t::tell_tool_result(tool, pos, err, local);
 
 	// TODO: process the result...
+}
+
+
+/* create new AI */
+ai_t::ai_t(karte_t *wl, uint8 nr) : player_t( wl, nr )
+{
+	road_transport = rail_transport = air_transport = ship_transport = false;
+	construction_speed = env_t::default_ai_construction_speed;
 }
 
 

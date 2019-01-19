@@ -79,6 +79,10 @@ void gebaeude_t::init()
 	passengers_succeeded_visiting = 0;
 	passenger_success_percent_last_year_visiting = 65535;
 	available_jobs_by_time = -9223372036854775808ll;
+	mail_generated = 0;
+	mail_delivery_succeeded_last_year = 65535;
+	mail_delivery_succeeded = 0;
+	mail_delivery_success_percent_last_year = 65535;
 	is_in_world_list = 0;
 	loaded_passenger_and_mail_figres = false;
 }
@@ -227,7 +231,7 @@ stadt_t* gebaeude_t::get_stadt() const
 }
 
 /**
-* Destructor. Removes this from the list of sync objects if neccesary.
+* Destructor. Removes this from the list of sync objects if necessary.
 *
 * @author Hj. Malthaner
 */
@@ -399,14 +403,14 @@ void gebaeude_t::rotate90()
 				// rotate 180 degree
 				new_offset = koord(building_desc->get_x() - 1 - new_offset.x, building_desc->get_y() - 1 - new_offset.y);
 			}
-			// do nothing here, since we cannot fix it porperly
+			// do nothing here, since we cannot fix it properly
 		}
 		else {
 			// rotate on ...
 			new_offset = koord(building_desc->get_y(tile->get_layout()) - 1 - new_offset.y, new_offset.x);
 		}
 
-		// suche a tile exist?
+		// such a tile exist?
 		if (building_desc->get_x(layout) > new_offset.x  &&  building_desc->get_y(layout) > new_offset.y) {
 			const building_tile_desc_t* const new_tile = building_desc->get_tile(layout, new_offset.x, new_offset.y);
 			// add new tile: but make them old (no construction)
@@ -636,7 +640,7 @@ image_id gebaeude_t::get_image() const
 			// hide with transparency or tile without information
 			if (env_t::hide_with_transparency) {
 				if (tile->get_desc()->get_type() == building_desc_t::factory  &&  ptr.fab->get_desc()->get_placement() == factory_desc_t::Water) {
-					// no ground tiles for water thingies
+					// no ground tiles for water things
 					return IMG_EMPTY;
 				}
 				return skinverwaltung_t::fussweg->get_image_id(0);
@@ -678,7 +682,7 @@ PLAYER_COLOR_VAL gebaeude_t::get_outline_colour() const
 			disp_colour = colours[0] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
 		else if (env_t::hide_buildings == env_t::ALL_HIDDEN_BUILDING && tile->get_desc()->get_type() < building_desc_t::others) {
-			// special bilding
+			// special building
 			disp_colour = colours[tile->get_desc()->get_type()] | TRANSPARENT50_FLAG | OUTLINE_FLAG;
 		}
 	}
@@ -763,7 +767,7 @@ bool gebaeude_t::is_monument() const
 
 bool gebaeude_t::is_headquarter() const
 {
-	return tile->get_desc()->is_headquarter();
+	return tile->get_desc()->is_headquarters();
 }
 
 bool gebaeude_t::is_attraction() const
@@ -1059,6 +1063,19 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				buf.printf(" 0%%");
 			}
 			buf.printf("\n");
+			if (adjusted_mail_demand)
+			{
+				buf.printf("%s", translator::translate("Mail delivery success this year:"));
+				if (get_mail_delivery_success_percent_this_year() < 65535)
+				{
+					buf.printf(" %i%%", get_mail_delivery_success_percent_this_year());
+				}
+				else {
+					buf.printf(" 0%%");
+				}
+				buf.printf("\n");
+			}
+			buf.printf("\n");
 
 			if (get_passenger_success_percent_last_year_commuting() < 65535)
 			{
@@ -1073,19 +1090,59 @@ void gebaeude_t::info(cbuffer_t & buf, bool dummy) const
 				buf.printf(" %i%%", get_passenger_success_percent_last_year_visiting());
 				buf.printf("\n");
 			}
+			if (adjusted_mail_demand && mail_delivery_succeeded_last_year < 65535)
+			{
+				buf.printf("%s", translator::translate("Mail delivery success last year:"));
+				if (get_mail_delivery_success_percent_last_year() < 65535)
+				{
+					buf.printf(" %i%%", mail_delivery_success_percent_last_year);
+				}
+				else {
+					buf.printf(" 0%%");
+				}
+				buf.printf("\n");
+			}
 		}
 		else
 		{
-			buf.printf("%s %i\n", translator::translate("Visitors this year:"), passengers_succeeded_visiting);
+			if (get_adjusted_visitor_demand())
+			{
+				buf.printf("%s %i\n", translator::translate("Visitors this year:"), passengers_succeeded_visiting);
+			}
 			buf.printf("%s %i\n", translator::translate("Commuters this year:"), passengers_succeeded_commuting);
+			if (adjusted_mail_demand)
+			{
+				buf.printf("%s", translator::translate("Mail sent this year:"));
+				if (get_mail_delivery_success_percent_this_year() < 65535)
+				{
+					buf.printf(" %i (%i%%)", mail_delivery_succeeded, get_mail_delivery_success_percent_this_year());
+				}
+				else {
+					buf.printf(" 0 (0%%)");
+				}
+				buf.printf("\n");
+			}
+			buf.printf("\n");
 
+			if (get_adjusted_visitor_demand() && passenger_success_percent_last_year_visiting < 65535)
+			{
+				buf.printf("%s %i\n", translator::translate("Visitors last year:"), passenger_success_percent_last_year_visiting);
+			}
 			if (passenger_success_percent_last_year_commuting < 65535)
 			{
-				buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), passenger_success_percent_last_year_visiting);
-			}
-			if (passenger_success_percent_last_year_visiting < 65535)
-			{
 				buf.printf("%s %i\n", translator::translate("Commuters last year:"), passenger_success_percent_last_year_commuting);
+			}
+			if (adjusted_mail_demand && mail_delivery_succeeded_last_year < 65535)
+			{
+				buf.printf("%s", translator::translate("Mail sent last year:"));
+				if (get_mail_delivery_success_percent_last_year() < 65535)
+				{
+					buf.printf(" %i (%i%%)", mail_delivery_succeeded_last_year, mail_delivery_success_percent_last_year);
+				}
+				else {
+					buf.printf(" 0 (0%%)");
+				}
+				buf.printf("\n");
 			}
 		}
 
@@ -1432,7 +1489,6 @@ void gebaeude_t::get_class_percentage(cbuffer_t & buf) const
 	}
 }
 
-
 void gebaeude_t::new_year()
 {
 	if (get_tile()->get_desc()->get_type() == building_desc_t::city_res)
@@ -1449,8 +1505,10 @@ void gebaeude_t::new_year()
 		passenger_success_percent_last_year_commuting = passengers_succeeded_commuting;
 		passenger_success_percent_last_year_visiting = passengers_succeeded_visiting;
 	}
+	mail_delivery_succeeded_last_year = mail_delivery_succeeded;
+	mail_delivery_success_percent_last_year = get_mail_delivery_success_percent_this_year();
 
-	passengers_succeeded_commuting = passengers_generated_commuting = passengers_succeeded_visiting = passengers_generated_visiting = 0;
+	passengers_succeeded_commuting = passengers_generated_commuting = passengers_succeeded_visiting = passengers_generated_visiting = mail_delivery_succeeded = mail_delivery_succeeded = 0;
 }
 
 
@@ -1696,6 +1754,14 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		file->rdwr_short(adjusted_jobs);
 		file->rdwr_short(adjusted_people.visitor_demand);
 		file->rdwr_short(adjusted_mail_demand);
+	}
+
+	if ((file->get_extended_version() == 14 && file->get_extended_revision() >= 4) || file->get_extended_version() >= 15)
+	{
+		file->rdwr_short(mail_generated);
+		file->rdwr_short(mail_delivery_succeeded_last_year);
+		file->rdwr_short(mail_delivery_succeeded);
+		file->rdwr_short(mail_delivery_success_percent_last_year);
 	}
 
 	if (file->is_loading())

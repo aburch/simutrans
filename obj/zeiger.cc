@@ -83,7 +83,12 @@ void zeiger_t::change_pos(koord3d k )
 			}
 			if(gr) {
 				if(  gr->get_halt().is_bound()  &&  env_t::station_coverage_show  ) {
-					gr->get_halt()->mark_unmark_coverage( true );
+					if (gr->get_halt()->get_pax_enabled() || gr->get_halt()->get_mail_enabled()) {
+						gr->get_halt()->mark_unmark_coverage( true );
+					}
+					else if(gr->get_halt()->get_ware_enabled()) {
+						gr->get_halt()->mark_unmark_coverage(true, true);
+					}
 				}
 				welt->mark_area( k-offset, area, true );
 			}

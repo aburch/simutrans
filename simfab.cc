@@ -194,12 +194,10 @@ void ware_production_t::rdwr(loadsave_t *file)
 		}
 	}
 
-#ifndef CACHE_TRANSIT
 	if(  file->is_loading()  ) {
 		// recalc transit always on load
 		set_stat(0, FAB_GOODS_TRANSIT);
 	}
-#endif
 }
 
 
@@ -1043,6 +1041,10 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 		const uint16 adjusted_visitor_demand = building->get_adjusted_visitor_demand();
 		const uint16 adjusted_mail_demand = building->get_adjusted_mail_demand(); 
 		const bool loaded_passenger_and_mail_figres = building->get_loaded_passenger_and_mail_figres();
+		const uint16 mail_generate = building->get_mail_generated();
+		const uint16 mail_delivery_succeeded_last_year = building->get_mail_delivery_succeeded_last_year();
+		const uint16 mail_delivery_succeeded = building->get_mail_delivery_succeeded();
+		const uint16 mail_delivery_success_percent_last_year = building->get_mail_delivery_success_percent_last_year();
 
 		delete building;
 		building = hausbauer_t::build(owner, pos_origin, rotate, desc->get_building(), this);
@@ -1055,7 +1057,11 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 		building->set_adjusted_jobs(adjusted_jobs);
 		building->set_adjusted_visitor_demand(adjusted_visitor_demand);
 		building->set_adjusted_mail_demand(adjusted_mail_demand);
-		building->set_loaded_passenger_and_mail_figres(loaded_passenger_and_mail_figres); 
+		building->set_loaded_passenger_and_mail_figres(loaded_passenger_and_mail_figres);
+		building->add_mail_generated(mail_generate);
+		building->add_mail_delivery_succeeded(mail_delivery_succeeded);
+		building->set_mail_delivery_succeeded_last_year(mail_delivery_succeeded_last_year);
+		building->set_mail_delivery_success_percent_last_year(mail_delivery_success_percent_last_year);
 	}
 	if(!building)
 	{
@@ -2497,10 +2503,11 @@ void fabrik_t::verteile_waren(const uint32 product)
 			}
 			else {
 				// overflowed with our own ware and we have still nearly full stock
-				if(  output[product].menge>= (3 * output[product].max) >> 2  ) {
+//				if(  output[product].menge>= (3 * output[product].max) >> 2  ) {
 					/* Station too full, notify player */
-					best_halt->desceid_station_voll();
-				}
+//					best_halt->desceid_station_voll();
+//				}
+// for now report only serious overcrowding on transfer stops
 				return;
 			}
 		}
@@ -3091,10 +3098,11 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 
 	buf.append(scaled_electric_amount>>POWER_TO_MW);
 	buf.append(" MW");
+	buf.append("\n");
 
 	if(city != NULL)
 	{
-		buf.append("\n\n");
+		buf.append("\n");
 		buf.append(translator::translate("City"));
 		buf.append(": ");
 		buf.append(city->get_name());
@@ -3110,21 +3118,63 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 #endif
 		// Class entries:
 		building->get_class_percentage(buf);
+		buf.append("\n");
 		if (building->get_adjusted_visitor_demand() > 0)
 		{
 			buf.printf("%s %i\n", translator::translate("Visitors this year:"), building->get_passengers_succeeded_visiting());
 		}
-		if (building->get_adjusted_jobs() > 0 && building->get_passengers_succeeded_commuting() != 65535)
+		if (building->get_adjusted_jobs() > 0)
 		{
-			buf.printf("%s %i\n", translator::translate("Commuters this year:"), building->get_passengers_succeeded_commuting());
+			buf.printf("%s", translator::translate("Commuters this year:"));
+			if (building->get_passengers_succeeded_commuting() != 65535)
+			{
+				buf.printf(" %i", building->get_passengers_succeeded_commuting());
+			}
+			else {
+				buf.printf(" 0");
+			}
+			buf.printf("\n");
 		}
-		if (building->get_passenger_success_percent_last_year_visiting() < 65535)
+		if (building->get_adjusted_mail_demand() > 0)
+		{
+			buf.printf("%s", translator::translate("Mail sent this year:"));
+			if (building->get_mail_delivery_success_percent_this_year() < 65535)
+			{
+				buf.printf(" %i (%i%%)", building->get_mail_delivery_succeeded(), building->get_mail_delivery_success_percent_this_year());
+			}
+			else {
+				buf.printf(" 0 (0%%)");
+			}
+			buf.printf("\n");
+		}
+		if (building->get_adjusted_visitor_demand() > 0 && building->get_passenger_success_percent_last_year_visiting() < 65535)
 		{
 			buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), building->get_passenger_success_percent_last_year_visiting());
 		}
-		if (building->get_passenger_success_percent_last_year_commuting() < 65535)
+		else {
+			buf.printf("\n");
+		}
+		if (building->get_adjusted_jobs() > 0 && building->get_passenger_success_percent_last_year_commuting() < 65535)
 		{
 			buf.printf("%s %i\n", translator::translate("Commuters last year:"), building->get_passenger_success_percent_last_year_commuting());
+		}
+		else{
+			buf.printf("\n");
+		}
+		if (building->get_adjusted_mail_demand() > 0 && building->get_mail_delivery_succeeded_last_year() < 65535)
+		{
+			buf.printf("%s", translator::translate("Mail sent last year:"));
+			if (building->get_mail_delivery_success_percent_last_year() < 65535)
+			{
+				buf.printf(" %i (%i%%)", building->get_mail_delivery_succeeded_last_year(), building->get_mail_delivery_success_percent_last_year());
+			}
+			else {
+				buf.printf(" 0 (0%%)");
+			}
+			buf.printf("\n");
+		}
+		else {
+			buf.printf("\n");
 		}
 	}
 
@@ -3311,10 +3361,10 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 				}
 
 				if (is_active_lieferziel(lieferziel)) {
-					buf.printf("\n      %s - %s (%d,%d)", translator::translate(fab->get_name()), distance_display, lieferziel.x, lieferziel.y);
+					buf.printf("\n      %s - %s (%d,%d)", fab->get_name(), distance_display, lieferziel.x, lieferziel.y);
 				}
 				else {
-					buf.printf("\n   %s - %s (%d,%d)", translator::translate(fab->get_name()), distance_display, lieferziel.x, lieferziel.y);
+					buf.printf("\n   %s - %s (%d,%d)", fab->get_name(), distance_display, lieferziel.x, lieferziel.y);
 				}
 			}
 		}
@@ -3344,10 +3394,10 @@ void fabrik_t::info_conn(cbuffer_t& buf) const
 				}
 				if(  src->is_active_lieferziel(get_pos().get_2d())  ) 
 				{
-					buf.printf("\n      %s - %s (%d,%d)", translator::translate(src->get_name()), distance_display, supplier.x, supplier.y);
+					buf.printf("\n      %s - %s (%d,%d)", src->get_name(), distance_display, supplier.x, supplier.y);
 				}
 				else {
-					buf.printf("\n   %s - %s (%d,%d)", translator::translate(src->get_name()), distance_display, supplier.x, supplier.y);
+					buf.printf("\n   %s - %s (%d,%d)", src->get_name(), distance_display, supplier.x, supplier.y);
 				}
 			}
 		}
@@ -3373,8 +3423,10 @@ void fabrik_t::finish_rd()
 	recalc_nearby_halts();
 	
 	// now we have a valid storage limit
-	if (welt->get_settings().is_crossconnect_factories()) {
-		add_all_suppliers();
+	if(  welt->get_settings().is_crossconnect_factories()  ) {
+		FOR(  vector_tpl<fabrik_t*>,  const fab,  welt->get_fab_list()  ) {
+			fab->add_supplier(this);
+		}
 	}
 	else {
 		// add as supplier to target(s)
@@ -3472,8 +3524,13 @@ void fabrik_t::add_supplier(koord ziel)
 				// now update transit limits
 				FOR(  array_tpl<ware_production_t>,  &w,  input ) {
 					if(  w_out.get_typ() == w.get_typ()  ) {
-						sint32 max_storage = (w_out.max * welt->get_settings().get_factory_maximum_intransit_percentage()) / 100;
+						const sint32 max_storage = (sint32)(((sint64)w_out.max * (sint64)welt->get_settings().get_factory_maximum_intransit_percentage()) / 100);
+						const sint32 old_max_transit = w.max_transit;
 						w.max_transit += max_storage;
+						if(  w.max_transit < old_max_transit  ) {
+							// we have overflown, so we use the max value
+							w.max_transit = 0x7fffffff;
+						}
 						break;
 					}
 				}
@@ -3503,8 +3560,13 @@ void fabrik_t::rem_supplier(koord pos)
 					// now update transit limits
 					FOR(  array_tpl<ware_production_t>,  &w,  input ) {
 						if(  w_out.get_typ() == w.get_typ()  ) {
-							sint32 max_storage = (w_out.max * welt->get_settings().get_factory_maximum_intransit_percentage()) / 100;
+							const sint32 max_storage = (sint32)(((sint64)w_out.max * (sint64)welt->get_settings().get_factory_maximum_intransit_percentage()) / 100);
+							const sint32 old_max_transit = w.max_transit;
 							w.max_transit += max_storage;
+							if(  w.max_transit < old_max_transit  ) {
+								// we have overflown, so we use the max value
+								w.max_transit = 0x7fffffff;
+							}
 							break;
 						}
 					}

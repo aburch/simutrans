@@ -6,7 +6,7 @@
  *
  * All moving stuff (vehicle_base_t) and all player vehicle (derived from vehicle_t)
  *
- * 01.11.99  derived from simobj.cc
+ * 01.11.99  Moved from simobj.cc
  *
  * Hansjoerg Malthaner, Nov. 1999
  */
@@ -550,49 +550,6 @@ ribi_t::ribi vehicle_base_t::calc_set_direction(const koord3d& start, const koor
 	return direction;
 }
 
-ribi_t::ribi
-vehicle_base_t::calc_direction(koord start, koord ende)
-{/*
-	static ribi_t::ribi didj_direction[9] =
-	{
-		ribi_t::northwest, ribi_t::north, ribi_t::northeast,	// dy<0
-		ribi_t::west, ribi_t::none, ribi_t::east,	// dy==0
-		ribi_t::southwest, ribi_t::south, ribi_t::southeast	// dy>0
-	};
-
-	uint8 di = 0x80 & (ende.x - start.x);
-	uint8 dj = 0x80 & (ende.y - start.y);
-	di ++ ;	// 0=(di<0), 1=(di==0), 2=(di>0)
-	dj ++ ;
-	return direction[di+(3*dj)];
-*/
-	ribi_t::ribi direction;
-	const sint8 di = (ende.x - start.x);
-	const sint8 dj = (ende.y - start.y);
-	if(dj == 0 && di == 0) {
-		direction = ribi_t::none;
-	} else if(dj < 0 && di == 0) {
-		direction = ribi_t::north;
-	} else if(dj > 0 && di == 0) {
-		direction = ribi_t::south;
-	} else if(di < 0 && dj == 0) {
-		direction = ribi_t::west;
-	} else if(di >0 && dj == 0) {
-		direction = ribi_t::east;
-	} else if(di > 0 && dj > 0) {
-		direction = ribi_t::southeast;
-	} else if(di < 0 && dj < 0) {
-		direction = ribi_t::northwest;
-	} else if(di > 0 && dj < 0) {
-		direction = ribi_t::northeast;
-	} else {
-		direction = ribi_t::southwest;
-	}
-	return direction;
-
-}
-
-
 
 // this routine calculates the new height
 // beware of bridges, tunnels, slopes, ...
@@ -675,10 +632,16 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 	if(  pcar  ) {
 		cnv_overtaking = pcar -> is_overtaking();
 	}
-	if(  lane_on_the_tile==1  ) cnv_overtaking = true; //treated as convoi is overtaking.
-	else if(  lane_on_the_tile==-1  ) cnv_overtaking = false; //treated as convoi is not overtaking.
+	switch (lane_on_the_tile) {
+		case 1:
+		cnv_overtaking = true; //treat as convoi is overtaking.
+		break;
+		case -1:
+		cnv_overtaking = false; //treat as convoi is not overtaking.
+		break;
+	}
 	// Search vehicle
-	for(  uint8 pos=1;  pos<(/*volatile*/ uint8)gr->get_top();  pos++  ) {
+	for(  uint8 pos=1;  pos < gr->get_top();  pos++  ) {
 		if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
 			if(  v->get_typ()==obj_t::pedestrian  ) {
 				continue;
@@ -717,7 +680,7 @@ vehicle_base_t *vehicle_base_t::no_cars_blocking( const grund_t *gr, const convo
 					return v;
 				}
 
-				const ribi_t::ribi other_90direction = (gr->get_pos().get_2d() == v->get_pos_next().get_2d()) ? other_direction : calc_direction(gr->get_pos().get_2d(),v->get_pos_next().get_2d());
+				const ribi_t::ribi other_90direction = (gr->get_pos().get_2d() == v->get_pos_next().get_2d()) ? other_direction : calc_direction(gr->get_pos(),v->get_pos_next());
 				if(  other_90direction == next_90direction  &&  cnv_overtaking == other_overtaking  ) {
 					// Want to exit in same as other   ~50% of the time
 					return v;
@@ -872,7 +835,7 @@ void vehicle_t::set_convoi(convoi_t *c)
 	assert(  c==NULL  ||  cnv==NULL  ||  cnv==(convoi_t *)1  ||  c==cnv);
 	cnv = c;
 	if(cnv) {
-		// we need to reestablish the finish flag after loading
+		// we need to re-establish the finish flag after loading
 		if(leading) {
 			route_t const& r = *cnv->get_route();
 			check_for_finish = r.empty() || route_index >= r.get_count() || get_pos() == r.at(route_index);
@@ -1155,52 +1118,54 @@ bool vehicle_t::load_freight_internal(halthandle_t halt, bool overcrowd, bool *s
 				freight_this_class = total_freight;
 			}
 
-			const uint32 capacity_left_this_class = capacity_this_class - freight_this_class;
+			const sint32 capacity_left_this_class = capacity_this_class - freight_this_class;
 
 			// use_lower_classes as passed to this method indicates whether the higher class accommodation is full, hence
 			// the need for higher class passengers/mail to use lower class accommodation.
-
-			*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left_this_class, schedule, cnv->get_owner(), cnv, overcrowd, class_reassignments[i], use_lower_classes, other_classes_available);
-			if (!freight_add.empty())
+			if (capacity_left_this_class >= 0)
 			{
-				cnv->invalidate_weight_summary();
-				for (slist_tpl<ware_t>::iterator iter_z = freight_add.begin(); iter_z != freight_add.end(); )
+				*skip_vehicles &= halt->fetch_goods(freight_add, desc->get_freight_type(), capacity_left_this_class, schedule, cnv->get_owner(), cnv, overcrowd, class_reassignments[i], use_lower_classes, other_classes_available);
+				if (!freight_add.empty())
 				{
-					ware_t &ware = *iter_z;
-					total_freight += ware.menge;
-
-					// could this be joined with existing freight?
-					FOR(slist_tpl<ware_t>, &tmp, fracht[i])
+					cnv->invalidate_weight_summary();
+					for (slist_tpl<ware_t>::iterator iter_z = freight_add.begin(); iter_z != freight_add.end(); )
 					{
-						// New system: only merges if origins are alike.
-						// @author: jamespetts
-						if (ware.can_merge_with(tmp))
+						ware_t &ware = *iter_z;
+						total_freight += ware.menge;
+
+						// could this be joined with existing freight?
+						FOR(slist_tpl<ware_t>, &tmp, fracht[i])
 						{
-							tmp.menge += ware.menge;
-							ware.menge = 0;
-							break;
+							// New system: only merges if origins are alike.
+							// @author: jamespetts
+							if (ware.can_merge_with(tmp))
+							{
+								tmp.menge += ware.menge;
+								ware.menge = 0;
+								break;
+							}
+						}
+
+						// if != 0 we could not join it to existing => load it
+						if (ware.menge != 0)
+						{
+							++iter_z;
+							// we add list directly
+						}
+						else
+						{
+							iter_z = freight_add.erase(iter_z);
 						}
 					}
 
-					// if != 0 we could not join it to existing => load it
-					if (ware.menge != 0)
-					{
-						++iter_z;
-						// we add list directly
-					}
-					else
-					{
-						iter_z = freight_add.erase(iter_z);
-					}
-				}
+					capacity_left = total_capacity - total_freight;
 
-				capacity_left = total_capacity - total_freight;
-
-				if (!freight_add.empty())
-				{
-					// We now DON'T have to unpick which class was reassigned to i.
-					// i is the accommodation class.
-					fracht[i].append_list(freight_add);
+					if (!freight_add.empty())
+					{
+						// We now DON'T have to unpick which class was reassigned to i.
+						// i is the accommodation class.
+						fracht[i].append_list(freight_add);
+					}
 				}
 			}
 		}
@@ -1410,6 +1375,9 @@ void vehicle_t::initialise_journey(uint16 start_route_index, bool recalc)
 		zoff_start = zoff_end = 0;
 		steps = 0;
 
+		// reset lane yielding
+		cnv->quit_yielding_lane();
+
 		set_xoff( (dx<0) ? OBJECT_OFFSET_STEPS : -OBJECT_OFFSET_STEPS );
 		set_yoff( (dy<0) ? OBJECT_OFFSET_STEPS/2 : -OBJECT_OFFSET_STEPS/2 );
 
@@ -1607,9 +1575,9 @@ grund_t* vehicle_t::hop_check()
 				dir = get_ribi(bd);
 			}
 			koord3d nextnext_pos = cnv->get_route()->at(route_index+1);
-			uint8 new_dir = ribi_type(nextnext_pos.get_2d()-pos_next.get_2d());
-			if( (dir&new_dir) == 0 ) {
-				// new one way sign or unconnected branch here?
+			uint8 new_dir = ribi_type(nextnext_pos-pos_next);
+			if((dir&new_dir)==0) {
+				// new one way sign here?
 				cnv->suche_neue_route();
 				return NULL;
 			}
@@ -1630,12 +1598,10 @@ grund_t* vehicle_t::hop_check()
 		// "can_enter_tile() calculates the speed later continued with the" (Babelfish)
 		if(!can_enter_tile(bd, restart_speed, 0)) {
 
-			// convoi anhalten, wenn strecke nicht frei
-			// "Convoi stop when route not free" (Babelfish)
+			// stop convoi, when the way is not free
 			cnv->warten_bis_weg_frei(restart_speed);
 
-			// nicht weiterfahren
-			// "do not continue" (Babelfish)
+			// don't continue
 			return NULL;
 		}
 		// we cache it here, hop() will use it to save calls to karte_t::lookup
@@ -2264,7 +2230,14 @@ image_id vehicle_t::get_loaded_image() const
 			break;
 		}
 	}
-	return desc->get_image_id(ribi_t::dir_south, empty ?  goods_manager_t::none  : gd);
+	if (reversed)
+	{
+		return desc->get_image_id(ribi_t::dir_north, empty ? goods_manager_t::none : gd, current_livery.c_str());
+	}
+	else
+	{
+		return desc->get_image_id(ribi_t::dir_south, empty ? goods_manager_t::none : gd, current_livery.c_str());
+	}
 }
 
 
@@ -2571,7 +2544,7 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 			file->rdwr_byte(steps);
 			file->rdwr_byte(steps_next);
 			if(steps_next==old_diagonal_vehicle_steps_per_tile - 1  &&  file->is_loading()) {
-				// reset diagonal length (convoi will be reseted anyway, if game diagonal is different)
+				// reset diagonal length (convoi will be reset anyway, if game diagonal is different)
 				steps_next = diagonal_vehicle_steps_per_tile - 1;
 			}
 		}
@@ -2707,17 +2680,6 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 					{
 						// also add, of the desc is unknown to find matching replacement
 						temp_fracht[i].insert(ware);
-#ifdef CACHE_TRANSIT
-						/*
-						* It's very easy for in-transit information to get corrupted,
-						* if an intermediate program version fails to compute it right.
-						* So *always* compute it fresh.
-						*
-						* This no longer works properly with Extended because cargo
-						* may be in a queue waiting to be loaded at a station.
-						*/
-						if (file->get_version() <= 112000)
-#endif
 							// restore in-transit information
 							fabrik_t::update_transit(ware, true);
 					}
@@ -2752,14 +2714,6 @@ void vehicle_t::rdwr_from_convoi(loadsave_t *file)
 				{
 					// also add, of the desc is unknown to find matching replacement
 					temp_fracht[0].insert(ware);
-#ifdef CACHE_TRANSIT
-					/*
-					* It's very easy for in-transit information to get corrupted,
-					* if an intermediate program version fails to compute it right.
-					* So *always* compute it fresh.
-					*/
-					if (file->get_version() <= 112000)
-#endif
 						// restore in-transit information
 						fabrik_t::update_transit(ware, true);
 				}
@@ -3043,7 +2997,7 @@ vehicle_t::~vehicle_t()
 
 void vehicle_t::set_class_reassignment(uint8 original_class, uint8 new_class)
 {
-	if (original_class >= number_of_classes)
+	if (original_class >= number_of_classes || new_class >= number_of_classes)
 	{
 		dbg->error("vehicle_t::set_class_reassignment()", "Attempt to set class out of range");
 		return;
@@ -3446,7 +3400,7 @@ bool road_vehicle_t:: is_target(const grund_t *gr, const grund_t *prev_gr)
 	if(gr->is_halt()  &&  gr->get_halt()==target_halt  &&  target_halt->get_empty_lane(gr,cnv->self)!=0) {
 		// now we must check the predecessor => try to advance as much as possible
 		if(prev_gr!=NULL) {
-			const koord dir=gr->get_pos().get_2d()-prev_gr->get_pos().get_2d();
+			const koord3d dir=gr->get_pos()-prev_gr->get_pos();
 			ribi_t::ribi ribi = ribi_type(dir);
 			if(  gr->get_weg(get_waytype())->get_ribi_maske() & ribi  ) {
 				// one way sign wrong direction
@@ -3616,7 +3570,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 				else if(route_index + 1u < r.get_count())
 				{
 					// route position after road sign
-					const koord pos_next_next = r.at(route_index + 1u).get_2d();
+					const koord3d pos_next_next = r.at(route_index + 1u);
 					// since at the corner, our direction may be diagonal, we make it straight
 					direction90 = ribi_type(pos_next, pos_next_next);
 
@@ -3657,16 +3611,20 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 		}
 
+		if( current_str && current_str->get_overtaking_mode()<=oneway_mode  &&  str->get_overtaking_mode()>oneway_mode  ) {
+			next_lane = -1;
+		}
+
 		vehicle_base_t *obj = NULL;
 		uint32 test_index = route_index;
 
 		// way should be clear for overtaking: we checked previously
 		// calculate new direction
-		koord next = (route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next).get_2d();
+		koord3d next = (route_index < r.get_count() - 1u ? r.at(route_index + 1u) : pos_next);
 		ribi_t::ribi curr_direction   = get_direction();
-		ribi_t::ribi curr_90direction = calc_direction(get_pos().get_2d(), pos_next.get_2d());
-		ribi_t::ribi next_direction   = calc_direction(get_pos().get_2d(), next);
-		ribi_t::ribi next_90direction = calc_direction(pos_next.get_2d(), next);
+		ribi_t::ribi curr_90direction = calc_direction(get_pos(), pos_next);
+		ribi_t::ribi next_direction   = calc_direction(get_pos(), next);
+		ribi_t::ribi next_90direction = calc_direction(pos_next, next);
 		obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction, NULL, next_lane );
 
 		// do not block intersections
@@ -3681,7 +3639,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					cnv->suche_neue_route();
 					return false;
 				}
-				for(  uint8 pos=1;  pos<(volatile uint8)grn->get_top();  pos++  ){
+				for(  uint8 pos=1;  pos < grn->get_top();  pos++  ){
 					if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(grn->obj_bei(pos))  ){
 						if(  v->get_typ()==obj_t::pedestrian  ) {
 							continue;
@@ -3763,14 +3721,14 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			curr_direction   = next_direction;
 			curr_90direction = next_90direction;
 			if(  test_index + 1u < r.get_count()  ) {
-				next                 = r.at(test_index + 1u).get_2d();
-				next_direction   = calc_direction(r.at(test_index - 1u).get_2d(), next);
-				next_90direction = calc_direction(r.at(test_index).get_2d(),      next);
+				next                 = r.at(test_index + 1u);
+				next_direction   = calc_direction(r.at(test_index - 1u), next);
+				next_90direction = calc_direction(r.at(test_index),      next);
 				obj = no_cars_blocking( gr, cnv, curr_direction, next_direction, next_90direction, NULL, lane_of_the_tile );
 			}
 			else {
-				next                 = r.at(test_index).get_2d();
-				next_90direction = calc_direction(r.at(test_index - 1u).get_2d(), next);
+				next                 = r.at(test_index);
+				next_90direction = calc_direction(r.at(test_index - 1u), next);
 				if(  curr_direction == next_90direction  ||  !gr->is_halt()  ) {
 					// check cars but allow to enter intersection if we are turning even when a car is blocking the halt on the last tile of our route
 					// preserves old bus terminal behaviour
@@ -3791,7 +3749,7 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 					if (rs && (!route_index_beyond_end_of_route)) {
 						// since at the corner, our direction may be diagonal, we make it straight
 
-						uint8 direction90 = ribi_type(get_pos().get_2d(), pos_next.get_2d());
+						uint8 direction90 = ribi_type(get_pos(), pos_next);
 						if (is_traffic_light && (dir & direction90) == 0) {
 							// wait here
 							restart_speed = 16;
@@ -3801,9 +3759,9 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 						else if (rs->get_desc()->is_choose_sign())
 						{
 							// route position after road sign
-							const koord pos_next_next = r.at(route_index + 1u).get_2d();
+							const koord3d pos_next_next = r.at(route_index + 1u);
 							// since at the corner, our direction may be diagonal, we make it straight
-							direction90 = ribi_type(pos_next.get_2d(), pos_next_next);
+							direction90 = ribi_type(pos_next, pos_next_next);
 
 							if (rs->is_free_route(direction90) && !target_halt.is_bound()) {
 								if (second_check_count) {
@@ -4030,7 +3988,18 @@ bool road_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			}
 			// There is no vehicle on traffic lane.
 			// cnv->set_tiles_overtaking(0); is done in enter_tile()
-			return true;
+		}
+		// If the next tile is our destination and we are on passing lane of oneway mode road, we have to wait until traffic lane become safe.
+		if(  cnv->is_overtaking()  &&  str->get_overtaking_mode()==oneway_mode  &&  route_index == r.get_count() - 1u  ) {
+			halthandle_t halt = haltestelle_t::get_halt(welt->lookup(r.at(route_index))->get_pos(),cnv->get_owner());
+			vehicle_base_t* v = other_lane_blocked(false, offset);
+			if(  halt.is_bound()  &&  gr->get_weg_ribi(get_waytype())!=0  &&  v  &&  v->get_waytype() == road_wt  ) {
+				restart_speed = 0;
+				cnv->reset_waiting();
+				cnv->set_next_cross_lane(true);
+				return false;
+			}
+			// There is no vehicle on traffic lane.
 		}
 		// If this vehicle is on traffic lane and the next tile forces to go passing lane, this vehicle must wait until passing lane become safe.
 		if(  !cnv->is_overtaking()  &&  str->get_overtaking_mode() == inverted_mode  ) {
@@ -4136,7 +4105,13 @@ vehicle_base_t* road_vehicle_t::other_lane_blocked(const bool only_search_top, s
 				cnv->suche_neue_route();
 				return NULL;
 			}
-			for(  uint8 pos=1;  pos<(volatile uint8)gr->get_top();  pos++  ) {
+			// this function cannot process vehicles on twoway and related mode road.
+			const strasse_t* str = (strasse_t *)gr->get_weg(road_wt);
+			if(  !str  ||  (str->get_overtaking_mode()>=twoway_mode  &&  str->get_overtaking_mode()<inverted_mode)  ) {
+				break;
+			}
+
+			for(  uint8 pos=1;  pos < gr->get_top();  pos++  ) {
 				if(  vehicle_base_t* const v = obj_cast<vehicle_base_t>(gr->obj_bei(pos))  ) {
 					if(  v->get_typ()==obj_t::pedestrian  ) {
 						continue;
@@ -4269,7 +4244,7 @@ void road_vehicle_t::enter_tile(grund_t* gr)
 				cnv->set_requested_change_lane(false);
 			}
 		}
-		if(  cnv->get_yielding_quit_index() == route_index  ) {
+		if(  cnv->get_yielding_quit_index() <= route_index  ) {
 			cnv->quit_yielding_lane();
 		}
 		if(  str->get_overtaking_mode() == inverted_mode  ) {
@@ -4453,7 +4428,7 @@ rail_vehicle_t::~rail_vehicle_t()
 		route_t & r = *cnv->get_route();
 		if (!r.empty() && route_index < r.get_count()) {
 			// free all reserved blocks
-			uint16 dummy;
+			uint16 dummy = 0;
 			block_reserver(&r, cnv->back()->get_route_index(), dummy, dummy, target_halt.is_bound() ? 100000 : 1, false, false);
 		}
 	}
@@ -4516,7 +4491,7 @@ route_t::route_result_t rail_vehicle_t::calc_route(koord3d start, koord3d ziel, 
 	if(last && route_index < cnv->get_route()->get_count())
 	{
 		// free all reserved blocks
-		if (working_method == one_train_staff || working_method == token_block)
+		if (cnv->get_allow_clear_reservation() && (working_method == one_train_staff || working_method == token_block))
 		{
 			// These cannot sensibly be resumed inside a section
 			set_working_method(drive_by_sight);
@@ -4659,7 +4634,7 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr)
 	ribi_t::ribi ribi_maybe;
 	if(prev_gr)
 	{
-		ribi_maybe = ribi_type(gr->get_pos().get_2d(), prev_gr->get_pos().get_2d());
+		ribi_maybe = ribi_type(gr->get_pos(), prev_gr->get_pos());
 	}
 	else
 	{
@@ -4671,7 +4646,7 @@ bool rail_vehicle_t::is_target(const grund_t *gr,const grund_t *prev_gr)
 		if(  gr->is_halt()  &&  gr->get_halt()==target_halt  ) {
 			// now we must check the predecessor ...
 			if(  prev_gr!=NULL  ) {
-				const koord dir=gr->get_pos().get_2d()-prev_gr->get_pos().get_2d();
+				const koord3d dir=gr->get_pos()-prev_gr->get_pos();
 				const ribi_t::ribi ribi = ribi_type(dir);
 				signal_t* sig = gr->find<signal_t>();
 				if(!sig && gr->get_weg(get_waytype())->get_ribi_maske() & ribi)
@@ -4784,7 +4759,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	const uint16 second_block = start_block == 0 ? start_block + 1 : start_block;
 	const koord3d first_tile = route->at(first_block);
 	const koord3d second_tile = route->at(second_block);
-	uint8 direction = ribi_type(first_tile.get_2d(), second_tile.get_2d());
+	uint8 direction = ribi_type(first_tile, second_tile);
 	direction |= welt->lookup(second_tile)->get_weg(get_waytype())->get_ribi_unmasked();
 	cnv->set_is_choosing(true);
 	bool can_find_route;
@@ -4809,7 +4784,7 @@ sint32 rail_vehicle_t::activate_choose_signal(const uint16 start_block, uint16 &
 	{
 		// The target is an end of choose sign along the route.
 		const sint16 tile_length = (cnv->get_schedule()->get_current_entry().reverse ? 8888 : 0) + cnv->get_tile_length();
-		can_find_route = target_rt.calc_route(welt, route->at(start_block), target->get_pos(), this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000) == route_t::valid_route;
+		can_find_route = target_rt.calc_route(welt, route->at(start_block), target->get_pos(), this, speed_to_kmh(cnv->get_min_top_speed()), cnv->get_highest_axle_load(), cnv->has_tall_vehicles(), cnv->get_tile_length(), SINT64_MAX_VALUE, cnv->get_weight_summary().weight / 1000, koord3d::invalid, direction) == route_t::valid_route;
 		// This route only takes us to the end of choose sign, so we must calculate the route again beyond that point to the actual destination then concatenate them.
 		if(can_find_route)
 		{
@@ -5061,6 +5036,10 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 		if (working_method != one_train_staff && signal_current && (signal_current->get_desc()->get_working_method() != one_train_staff || signal_current->get_pos() != cnv->get_last_signal_pos()))
 		{
+			if (working_method == token_block && signal_current->get_desc()->get_working_method() == drive_by_sight)
+			{
+				clear_token_reservation(w_current->get_signal(ribi), this, w_current);
+			}
 			set_working_method(signal_current->get_desc()->get_working_method());
 		}
 		return true;
@@ -5098,7 +5077,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 	}
 
-	const koord dir = gr->get_pos().get_2d() - get_pos().get_2d();
+	const koord3d dir = gr->get_pos() - get_pos();
 	ribi = ribi_type(dir);
 	if(!w->can_reserve(cnv->self, ribi))
 	{
@@ -5197,8 +5176,8 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 	for(uint32 i = route_index; i <= min(route_index + sighting_distance_tiles, route.get_count() - 1); i++)
 	{
 		koord3d i_pos = route.at(i);
-		ribi_t::ribi old_dir = calc_direction(route.at(route_index).get_2d(), route.at(min(route.get_count() - 1, route_index + 1)).get_2d());
-		ribi_t::ribi new_dir = calc_direction(route.at(last_index).get_2d(), i_pos.get_2d());
+		ribi_t::ribi old_dir = calc_direction(route.at(route_index), route.at(min(route.get_count() - 1, route_index + 1)));
+		ribi_t::ribi new_dir = calc_direction(route.at(last_index), i_pos);
 
 		const grund_t* gr_new = welt->lookup(i_pos);
 		grund_t* gr_bridge = welt->lookup(koord3d(i_pos.x, i_pos.y, i_pos.z + 1));
@@ -5220,7 +5199,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 			const schiene_t* sch2 = gr_diagonal ? (schiene_t*)gr_diagonal->get_weg(get_waytype()) : NULL;
 			if(sch2 && sch2->is_diagonal())
 			{
-				ribi_t::ribi adv_dir = calc_direction(route.at(i).get_2d(), route.at(min(i + 1, route.get_count() - 1)).get_2d());
+				ribi_t::ribi adv_dir = calc_direction(route.at(i), route.at(min(i + 1, route.get_count() - 1)));
 				ribi_t::ribi mix_dir = adv_dir | new_dir;
 				corner = !(mix_dir & old_dir);
 			}
@@ -5446,7 +5425,7 @@ bool rail_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, ui
 		}
 
 		// next check for signal
-		if(sch1->has_signal())
+		if(sch1 && sch1->has_signal())
 		{
 			const uint16 check_route_index = next_block <= 0 ? 0 : next_block - 1u;
 			max_element = min(max_element, cnv->get_route()->get_count() - 1u);
@@ -5589,10 +5568,10 @@ void rail_vehicle_t::find_next_signal(route_t* route, uint16 start_index, uint16
 		grund_t *gr = welt->lookup(pos);
 		schiene_t* sch1 = gr ? (schiene_t *)gr->get_weg(get_waytype()) : NULL;
 
-		if (sch1->has_signal())
+		if (sch1 && sch1->has_signal())
 		{
 			ribi_t::ribi ribi = ribi_type(route->at(max(1u, i) - 1u), route->at(min(route->get_count() - 1u, i + 1u)));
-			signal = gr->get_weg(get_waytype())->get_signal(ribi);
+			signal = gr ? gr->get_weg(get_waytype())->get_signal(ribi) : NULL;
 			if (signal && !signal->get_desc()->is_pre_signal())
 			{
 				next_signal_index = i;
@@ -5679,6 +5658,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 	uint16 this_stop_signal_index;
 	uint16 last_pre_signal_index = INVALID_INDEX;
 	uint16 last_stop_signal_index = INVALID_INDEX;
+	uint16 restore_last_stop_signal_index = INVALID_INDEX;
 	koord3d last_stop_signal_pos = koord3d::invalid;
 	uint16 last_longblock_signal_index = INVALID_INDEX;
 	uint16 last_combined_signal_index = INVALID_INDEX;
@@ -5820,7 +5800,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 					else
 					{
 						not_entirely_free = !cr->request_crossing(this, true) && next_signal_working_method != one_train_staff;
-						if(not_entirely_free)
+						if(not_entirely_free && (working_method != time_interval || ((i - (start_index - 1)) < modified_sighting_distance_tiles)))
 						{
 							count --;
 							next_signal_index = last_stop_signal_index;
@@ -6196,7 +6176,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 								last_stop_signal_index = i;
 								last_stop_signal_pos = pos;
 							}
-							else if(first_double_block_signal_index != last_stop_signal_index)
+							else if(first_double_block_signal_index != last_stop_signal_index && !(last_bidirectional_signal_index < INVALID_INDEX && last_oneway_sign_index < last_bidirectional_signal_index))
 							{
 								count --;
 							}
@@ -6255,9 +6235,10 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 						else if(!directional_only && (next_signal_working_method == moving_block && working_method != moving_block) || (next_signal_working_method == track_circuit_block || next_signal_working_method == cab_signalling) && remaining_aspects >= 0 && remaining_aspects <= 2)
 						{
 							// If there are no more caution aspects, or this is a transition to moving block signalling do not reserve any further at this juncture.
-							if((last_bidirectional_signal_index < INVALID_INDEX || last_longblock_signal_index < INVALID_INDEX) && first_oneway_sign_index >= INVALID_INDEX || (next_signal_working_method == moving_block && working_method != moving_block))
+							if((last_bidirectional_signal_index < INVALID_INDEX || last_longblock_signal_index < INVALID_INDEX) && (first_oneway_sign_index >= INVALID_INDEX || !directional_only && (last_bidirectional_signal_index < INVALID_INDEX && last_oneway_sign_index < last_bidirectional_signal_index)) || (next_signal_working_method == moving_block && working_method != moving_block))
 							{
 								directional_only = true;
+								restore_last_stop_signal_index = last_stop_signal_index;
 								last_stop_signal_index = i;
 							}
 							else if(first_double_block_signal_index != last_stop_signal_index)
@@ -6522,8 +6503,8 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				}
 				time_interval_reservation = 
 					   (!next_signal_protects_no_junctions || first_double_block_signal_index < INVALID_INDEX)
-					&& ((this_stop_signal_index < INVALID_INDEX || last_stop_signal_index < INVALID_INDEX) || last_choose_signal_index < INVALID_INDEX) && (count >= 0 || i == start_index) 
-					&& ((i - time_interval_starting_point <= welt->get_settings().get_sighting_distance_tiles()) || next_signal_working_method == time_interval_with_telegraph 
+					&& ((this_stop_signal_index < INVALID_INDEX || last_stop_signal_index < INVALID_INDEX) || last_choose_signal_index < INVALID_INDEX) && (count >= 0 || i == start_index)
+					&& ((i - time_interval_starting_point <= welt->get_settings().get_sighting_distance_tiles()) || next_signal_working_method == time_interval_with_telegraph
 						|| (check_halt.is_bound() && check_halt == last_step_halt && (next_signal_working_method == time_interval_with_telegraph || previous_time_interval_reservation == is_true || previous_time_interval_reservation == is_uncertain))); // Time interval with telegraph signals have no distance limit for reserving.
 			}
 			const bool telegraph_directional = time_interval_reservation && previous_telegraph_directional || (next_signal_working_method == time_interval_with_telegraph && (((last_longblock_signal_index == last_stop_signal_index && first_stop_signal_index == last_longblock_signal_index) && last_longblock_signal_index < INVALID_INDEX) || first_double_block_signal_index < INVALID_INDEX && next_signal_protects_no_junctions));
@@ -6538,6 +6519,11 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 				if (from_call_on)
 				{
 					next_signal_working_method = drive_by_sight;
+				}
+
+				if (directional_only && restore_last_stop_signal_index < INVALID_INDEX)
+				{
+					last_stop_signal_index = next_signal_index = restore_last_stop_signal_index;
 				}
 
 				if (first_double_block_signal_index < INVALID_INDEX && stop_signals_since_last_double_block_signal < 2)
@@ -6818,7 +6804,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		schedule_t *schedule = cnv->get_schedule();
 		uint8 schedule_index = schedule->get_current_stop();
 		bool rev = cnv->get_reverse_schedule();
-		bool no_reverse = schedule->entries[schedule_index].reverse != 1;
+		bool no_reverse = schedule->entries[schedule_index].reverse == 0;
 		schedule->increment_index(&schedule_index, &rev);
 		koord3d cur_pos = route->back();
 		uint16 next_next_signal;
@@ -7106,7 +7092,7 @@ sint32 rail_vehicle_t::block_reserver(route_t *route, uint16 start_index, uint16
 		{
 			// Clear the station signal when a train is arriving.
 			// TODO: Consider whether to make this optional on a setting in the signal's .dat file
-			if (station_signal_to_clear_for_entry->get_desc()->get_aspects() > 2)
+			if (station_signal_to_clear_for_entry->get_desc()->get_working_method() != absolute_block && station_signal_to_clear_for_entry->get_desc()->get_aspects() > 2)
 			{
 				station_signal_to_clear_for_entry->set_state(station_signal == inverse ? roadsign_t::caution : roadsign_t::caution_no_choose);
 			}
@@ -7303,7 +7289,7 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 	{
 		w->set_working_method(sig->get_desc()->get_working_method());
 	}
-	if(cnv->get_needs_full_route_flush())
+	if(cnv && cnv->get_needs_full_route_flush())
 	{
 		// The route has been recalculated since token block mode was entered, so delete all the reservations.
 		// Do not unreserve tiles ahead in the route (i.e., those not marked stale), however.
@@ -7327,9 +7313,9 @@ void rail_vehicle_t::clear_token_reservation(signal_t* sig, rail_vehicle_t* w, s
 		const bool is_one_train_staff = sig && sig->get_desc()->get_working_method() == one_train_staff;
 		for(int i = route_index - 1; i >= 0; i--)
 		{
-			grund_t* gr_route = welt->lookup(route->at(i));
+			grund_t* gr_route = route ? welt->lookup(route->at(i)) : NULL;
 			schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
-			if (!is_one_train_staff && !sch_route->is_reserved() || sch_route->get_reserved_convoi() != cnv->self)
+			if (!is_one_train_staff && !sch_route->is_reserved() || (sch_route && sch_route->get_reserved_convoi() != cnv->self))
 			{
 				break_now ++;
 			}
@@ -7349,7 +7335,7 @@ void rail_vehicle_t::unreserve_in_rear()
 {
 	route_t* route = cnv ? cnv->get_route() : NULL;
 
-	route_index = min(route_index, route->get_count() - 1);
+	route_index = min(route_index, route ? route->get_count() - 1 : route_index);
 
 	for (int i = route_index - 1; i >= 0; i--)
 	{
@@ -7373,7 +7359,7 @@ void rail_vehicle_t::unreserve_station()
 	bool in_station = gr->get_halt().is_bound();
 
 	route_t* route = cnv ? cnv->get_route() : NULL;
-	route_index = min(route_index, route->get_count() - 1);
+	route_index = min(route_index, route ? route->get_count() - 1 : route_index); 
 	if (route->get_count() < route_index || route->empty())
 	{
 		// The route has been recalculated, so we cannot
@@ -7385,7 +7371,7 @@ void rail_vehicle_t::unreserve_station()
 	}
 	const koord3d this_pos = route->at(route_index);
 	const koord3d last_pos = route->at(route_index - 1);
-	const koord dir = this_pos.get_2d() - last_pos.get_2d();
+	const koord3d dir = this_pos - last_pos;
 	const ribi_t::ribi direction_of_travel = ribi_type(dir);
 	const ribi_t::ribi reverse_direction = ribi_t::backward(direction_of_travel);
 	bool is_previous;
@@ -7491,7 +7477,7 @@ void rail_vehicle_t::leave_tile()
 					{
 						grund_t *gr_ahead = welt->lookup(this_tile);
 						weg_t *way = gr_ahead->get_weg(get_waytype());
-						const koord dir = this_tile.get_2d() - previous_tile.get_2d();
+						const koord3d dir = this_tile - previous_tile;
 						ribi_t::ribi direction_of_travel = ribi_type(dir);
 						sig = sch0->get_signal(direction_of_travel);
 					}
@@ -7550,7 +7536,7 @@ void rail_vehicle_t::leave_tile()
 							for(int i = route_index - 1; i >= 0; i--)
 							{
 								const koord3d this_pos = route->at(i);
-								const koord dir = last_pos.get_2d() - this_pos.get_2d();
+								const koord3d dir = last_pos - this_pos;
 								ribi_t::ribi ribi_route = ribi_type(dir);
 								grund_t* gr_route = welt->lookup(this_pos);
 								schiene_t* sch_route = gr_route ? (schiene_t *)gr_route->get_weg(get_waytype()) : NULL;
@@ -8217,7 +8203,7 @@ bool air_vehicle_t::find_route_to_stop_position()
 		// calculate route to free position:
 
 		// if we fail, we will wait in a step, much more simulation friendly
-		// and the route finder is not reentrant!
+		// and the route finder is not re-entrant!
 		if(!cnv->is_waiting()) {
 			target_halt = halthandle_t();
 			return false;
@@ -8326,7 +8312,8 @@ route_t::route_result_t air_vehicle_t::calc_route_internal(
 		takeoff = 0;
 	}
 
-	const weg_t *w_start = welt->lookup(start)->get_weg(air_wt);
+	const grund_t* gr_start = welt->lookup(start);
+	const weg_t *w_start = gr_start ? gr_start->get_weg(air_wt) : NULL;
 	bool start_in_air = flying_height || w_start == NULL;
 
 	const weg_t *w_ziel = welt->lookup(ziel)->get_weg(air_wt);
@@ -8857,7 +8844,7 @@ bool air_vehicle_t::can_enter_tile(const grund_t *gr, sint32 &restart_speed, uin
 	if(route_index==search_for_stop &&  state==landing) {
 
 		// we will wait in a step, much more simulation friendly
-		// and the route finder is not reentrant!
+		// and the route finder is not re-entrant!
 		if(!cnv->is_waiting()) {
 			return false;
 		}
@@ -9100,7 +9087,7 @@ void air_vehicle_t::rdwr_from_convoi(loadsave_t *file)
 // well lots of code to make sure, we have at least two different directions for the runway search
 uint8 air_vehicle_t::get_approach_ribi( koord3d start, koord3d ziel )
 {
-	uint8 dir = ribi_type( (koord)((ziel-start).get_2d()) );	// reverse
+	uint8 dir = ribi_type(ziel-start);	// reverse
 	// make sure, there are at last two directions to choose, or you might en up with not route
 	if(ribi_t::is_single(dir)) {
 		dir |= (dir<<1);

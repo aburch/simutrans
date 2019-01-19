@@ -11,7 +11,7 @@
 #include "macros.h"
 
 class karte_t;
-class karte_ansicht_t;
+class main_view_t;
 
 
 bool reduce_frame_time();
@@ -22,7 +22,7 @@ void set_frame_time(long time);
 
 void intr_refresh_display(bool dirty);
 
-void intr_set(karte_t *welt, karte_ansicht_t *view);
+void intr_set(karte_t *welt, main_view_t *view);
 
 
 /**

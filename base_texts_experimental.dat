@@ -114,6 +114,14 @@ name=The maximum amount that can be borrowed without prohibiting further capital
 note=Tooltip for the finances window
 -
 obj=program_text
+name=Vehicle running costs per km
+note=Tooltip for the finances window
+-
+obj=program_text
+name=Vehicle maintenance costs per month
+note=Tooltip for the finances window
+-
+obj=program_text
 name=Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
 -
 obj=program_text
@@ -418,6 +426,10 @@ name=Next Month:
 -
 obj=program_text
 name=Credit limit
+note=From the finances window
+-
+obj=program_text
+name=Vehicle maintenance
 note=From the finances window
 -
 obj=program_text

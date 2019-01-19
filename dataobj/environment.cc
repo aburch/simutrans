@@ -150,6 +150,8 @@ uint8 env_t::bottom_window_text_color;
 uint16 env_t::compass_map_position;
 uint16 env_t::compass_screen_position;
 
+uint32 env_t::default_ai_construction_speed;
+
 bool env_t::hide_keyboard = false;
 
 // Hajo: Define default settings.
@@ -258,6 +260,8 @@ void env_t::init()
 	front_window_text_color = COL_WHITE; // 215
 	bottom_window_bar_color = 4;
 	bottom_window_text_color = 209;	// dark grey
+
+	default_ai_construction_speed = 8000;
 
 	// upper right
 	compass_map_position = ALIGN_RIGHT|ALIGN_TOP;

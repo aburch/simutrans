@@ -30,7 +30,7 @@ var errormsg = !errorcode
 
 // Try to get revision number
 try {
-	var gitRevNum = shell.Exec("git rev-parse --short HEAD");
+	var gitRevNum = shell.Exec("git rev-parse --short=7 HEAD");
 	rev           = gitRevNum.StdOut.ReadAll();
 
 	// Check if Git output is valid

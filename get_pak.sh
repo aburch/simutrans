@@ -52,19 +52,19 @@ DownloadInstallZip(){
 
 # generated list of pak sets
 paksets=( \
-"http://downloads.sourceforge.net/project/simutrans/pak64/120-0/simupak64-120-0.zip" \
-"http://downloads.sourceforge.net/project/simutrans/pak.german/pak64.german-110-0c/simupak-german64-110-0c.zip" \
-"http://downloads.sourceforge.net/project/simutrans/pak64.japan/120-0/simupak64.japan-120-0.zip" \
+"http://downloads.sourceforge.net/project/simutrans/pak64/120-0/simupak64-120-0-1.zip" \
+"http://downloads.sourceforge.net/project/simutrans/pak.german/pak64.german-112-3/pak64.german_0-112-3-beta3.zip" \
+"http://downloads.sourceforge.net/project/simutrans/pak64.japan/120-0/simupak64.japan-120-0-1.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pakHAJO/pakHAJO_102-2-2/pakHAJO_0-102-2-2.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak96.comic/pak96.comic%20for%20111-3/pak96.comic-0.4.10-plus.zip" \
-"http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20112-2/pak128-2.3.0--112.2.zip" \
+"http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20RC%20120%20%282.5.2%2C%20bugfixes%29/pak128-2.5.2--RC_120.zip" \
 "http://downloads.sourceforge.net/project/simutrans/PAK128.german/PAK128.german_0.6.1_112.x/PAK128.german_0.6.1_112.x.zip" \
-"http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192comic%20for%20112-3/pak192comic-0.3-112-3up.zip" \
+"http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192comic%20for%20120-0/pak192comic-0.4-120-0up.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak32.comic/pak32.comic%20for%20102-0/pak32.comic_102-0.zip" \
 "http://downloads.sourceforge.net/project/simutrans/pak64.contrast/pak64.Contrast_910.zip" \
 "http://hd.simutrans.com/release/PakHD_v04B_100-0.zip" \
-"http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20112-0/pak128.Britain.1.14-112-0.zip" \
-"http://downloads.sourceforge.net/project/simutrans/pak128.japan/for%20Simutrans%20110.0.1/pak128.japan-110.0.1-version16-08-2011.zip" \
+"http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.Britain%20for%20120-0/pak128.Britain.1.15-120-0.zip" \
+"http://pak128.jpn.org/souko/pak128.japan.112.0b.cab" \
 "http://downloads.sourceforge.net/project/simutrans/pak64.scifi/pak64.scifi_112.x_v0.2.zip" \
 "http://downloads.sourceforge.net/project/ironsimu/pak48.Excentrique/v018/pak48-excentrique_v018.zip" \
 )

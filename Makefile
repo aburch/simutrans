@@ -151,9 +151,15 @@ ifneq ($(MULTI_THREAD),)
 endif
 
 ifneq ($(WITH_REVISION),)
-  REV = $(shell git rev-parse --short HEAD)
-  ifneq ($(REV),)
-    CFLAGS  += -DREVISION="$(REV)"
+  ifeq ($(shell expr $(WITH_REVISION) \>= 1), 1)
+    ifeq ($(shell expr $(WITH_REVISION) \>= 2), 1)
+      REV = $(WITH_REVISION)
+    else
+      REV = $(shell git rev-parse --short=7 HEAD)
+    endif
+    ifneq ($(REV),)
+      CFLAGS  += -DREVISION="$(REV)"
+    endif
   endif
 endif
 
@@ -261,6 +267,7 @@ SOURCES += freight_list_sorter.cc
 SOURCES += gui/ai_option_t.cc
 SOURCES += gui/banner.cc
 SOURCES += gui/baum_edit.cc
+SOURCES += gui/base_info.cc
 SOURCES += gui/citybuilding_edit.cc
 SOURCES += gui/citylist_frame_t.cc
 SOURCES += gui/citylist_stats_t.cc

@@ -987,8 +987,9 @@ SQRESULT sq_rawget(HSQUIRRELVM v,SQInteger idx)
 		v->Pop();
 		return sq_throwerror(v,_SC("rawget works only on array/table/instance and class"));
 	}
+	v->Raise_IdxError(v->GetUp(-1));
 	v->Pop();
-	return sq_throwerror(v,_SC("the index doesn't exist"));
+	return SQ_ERROR;
 }
 
 SQRESULT sq_getstackobj(HSQUIRRELVM v,SQInteger idx,HSQOBJECT *po)

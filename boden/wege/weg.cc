@@ -67,9 +67,6 @@ static pthread_mutex_t weg_calc_image_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZE
  */
 vector_tpl <weg_t *> alle_wege;
 
-bool weg_t::show_masked_ribi = false;
-
-
 /**
  * Get list of all ways
  * @author Hj. Malthaner
@@ -282,7 +279,7 @@ void weg_t::set_desc(const way_desc_t *b, bool from_saved_game)
 	{
 		degraded = true;
 		remaining_wear_capacity = 0;
-		replacement_way = NULL;	
+		replacement_way = NULL;
 		if(!from_saved_game)
 		{
 			// We need to know when the way was degraded as well as upgraded
@@ -766,7 +763,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	buf.append(translator::translate("Built"));
 	buf.append(": ");
 	char tmpbuf_built[40];
-	sprintf(tmpbuf_built, "%s, %i", translator::get_month_name(creation_month_year % 12), creation_month_year / 12);
+	sprintf(tmpbuf_built, "%s", translator::get_year_month(creation_month_year));
 	buf.append(tmpbuf_built);
 	buf.append("\n");
 	if (!degraded)
@@ -779,7 +776,7 @@ void weg_t::info(cbuffer_t & buf, bool is_bridge) const
 	}
 	buf.append(": ");
 	char tmpbuf_renewed[40];
-	sprintf(tmpbuf_renewed, "%s, %i", translator::get_month_name(last_renewal_month_year % 12), last_renewal_month_year / 12);
+	sprintf(tmpbuf_renewed, "%s", translator::get_year_month(last_renewal_month_year));
 	buf.append(tmpbuf_renewed);
 	buf.append("\n");
 	buf.append(translator::translate("To be renewed with"));
@@ -1515,7 +1512,7 @@ void weg_t::wear_way(uint32 wear)
 			}
 		}
 	}
-	else
+	else if(!is_degraded())
 	{
 		remaining_wear_capacity = 0;
 		if(!renew())

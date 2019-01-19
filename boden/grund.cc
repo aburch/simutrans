@@ -134,7 +134,7 @@ const char *grund_t::get_text() const
 
 PLAYER_COLOR_VAL grund_t::text_farbe() const
 {
-	// if this gund belongs to a halt, the color should reflect the halt owner, not the grund owner!
+	// if this ground belongs to a halt, the color should reflect the halt owner, not the ground owner!
 	// Now, we use the color of label_t owner
 	if(is_halt()  &&  find<label_t>()==NULL) {
 		// only halt label
@@ -415,7 +415,7 @@ void grund_t::rdwr(loadsave_t *file)
 
 				if(weg) {
 					if(get_typ()==fundament) {
-						// remove this (but we can not correct the other wasy, since possibly not yet loaded)
+						// remove this (but we can not correct the other ways, since possibly not yet loaded)
 						dbg->error("grund_t::rdwr()","removing way from foundation at %i,%i",pos.x,pos.y);
 						// we do not delete them, to keep maintenance costs correct
 					}
@@ -447,7 +447,7 @@ void grund_t::rdwr(loadsave_t *file)
 			file->wr_obj_id(w->get_waytype());
 			w->rdwr(file);
 		}
-		file->wr_obj_id(-1);   // Ende der Wege
+		file->wr_obj_id(-1);   // Way end
 	}
 
 	// all objects on this tile
@@ -470,7 +470,7 @@ grund_t::grund_t(koord3d pos)
 {
 	this->pos = pos;
 	flags = 0;
-	set_image(IMG_EMPTY);    // setzt   flags = dirty;
+	set_image(IMG_EMPTY);    // set   flags = dirty;
 	back_imageid = 0;
 }
 
@@ -857,14 +857,14 @@ void grund_t::calc_back_image(const sint8 hgt, const slope_t::type slope_this)
 	sint8 back_imageid = 0;
 	bool is_building = get_typ() == grund_t::fundament;
 	const bool isvisible = is_visible();
-	bool fence[2] = { false, false };
+	bool fence[2] = {false, false};
 	const koord k = get_pos().get_2d();
 
 	clear_flag(grund_t::draw_as_obj);
 	weg_t const* w;
-	if (((w = get_weg_nr(0)) && w->get_desc()->is_draw_as_obj()) ||
-		((w = get_weg_nr(1)) && w->get_desc()->is_draw_as_obj())
-		) {
+	if(  (  (w = get_weg_nr(0))  &&  w->get_desc()->is_draw_as_obj()  )  ||
+			(  (w = get_weg_nr(1))  &&  w->get_desc()->is_draw_as_obj()  )
+	  ) {
 		set_flag(grund_t::draw_as_obj);
 	}
 
@@ -1752,7 +1752,7 @@ ribi_t::ribi grund_t::get_weg_ribi_unmasked(waytype_t typ) const
 
 
 /**
-* Falls es hier ein Depot gibt, dieses zurueckliefern
+* If there's a depot here, return this
 * @author Volker Meyer
 */
 depot_t* grund_t::get_depot() const
@@ -1824,7 +1824,7 @@ sint64 grund_t::remove_trees()
 	sint64 cost=0;
 	// remove all trees ...
 	while (baum_t* const d = find<baum_t>(0)) {
-		// we must mark it by hand, sinc ewe want to join costs
+		// we must mark it by hand, since we want to join costs
 		d->mark_image_dirty( get_image(), 0 );
 		delete d;
 		cost -= welt->get_settings().cst_remove_tree;
@@ -2640,7 +2640,7 @@ bool grund_t::remove_everything_from_way(player_t* player, waytype_t wt, ribi_t:
 			}
 		}
 
-		// need to remove railblocks to recalcualte connections
+		// need to remove railblocks to recalculate connections
 		// remove all ways or just some?
 		if(add==ribi_t::none) {
 			player_t* owner = weg->get_owner();

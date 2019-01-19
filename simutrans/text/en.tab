@@ -86,9 +86,9 @@ Prop-Latin1.bdf
 #_________________________________program_text__________________________________
 #_________________________________program_text__________________________________
 !0_STATION_CROWDED
-%s\nis crowded.
+%s is crowded.
 !1_DEPOT_REACHED
-%s \nhas entered a depot.
+%s has entered a depot.
 #
 # Town name beginning syllables.
 # There can be up to 2048 of these.
@@ -1077,6 +1077,14 @@ Chaff
 Misen
 %247_CITY_SYLL
 Beo
+%248_CITY_SYLL
+Frost
+%249_CITY_SYLL
+Loom
+%24A_CITY_SYLL
+Ler
+%24B_CITY_SYLL
+Mous
 #
 # Town name end syllables.
 # There can be up to 1024 of these.
@@ -1647,17 +1655,17 @@ heath
 %s land %d %s
 %s land %d %s
 %s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
-%s now\noffers bus services\nbetween %s\nand attraction\n%s\nat (%i,%i).\n
+%s now offers a 'bus service between %s and attraction\n%s\nat (%i,%i).\n
 %s now\noffers bus services\nbetween %s\nand factory\n%s\nat (%i,%i).\n
-%s now\noffers bus services\nbetween %s\nand industry\n%s\nat (%i,%i).\n
+%s now\noffers a 'bus service between %s and industry\n%s\nat (%i,%i).\n
 %s wasted\nyour money with a\nnew townhall\nwhen it reached\n%i inhabitants.
-%s \nbuilt a\nnew town hall\nwhen it reached\n%i inhabitants.
+%s  built a new town hall when it reached %i inhabitants.
 %s's\nheadquarter now\nat (%i,%i).
-%s's\nheadquarters now\nat (%i,%i).
+%s's headquarters now at (%i,%i).
 %s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s at (%i,%i).
-%s\nnow operates\n%i trucks between\n%s at (%i,%i)\nand %s\nat (%i,%i).
+%s now operates %i lorries between %s at (%i,%i)\nand %s\nat (%i,%i).
 %s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s at (%i,%i).
-%s\nopened a new railway\nbetween %s\nat (%i,%i) and\n%s\nat (%i,%i).
+%s opened a new railway between %s at (%i,%i) and\n%s\nat (%i,%i).
 %s\nspeed %i\nmax_speed %i\ndx:%i dy:%i
 %s\nSpeed: %i km/h\nMax. speed: %i km/h
 %s\nwas liquidated.
@@ -1811,7 +1819,7 @@ Disassemble
 August
 August
 Autohalt muss auf\nStrasse liegen!\n
-The location specified\nis not a valid\nplace to send\na road vehicle.
+This is not a valid place to send a road vehicle.
 Available
 Available
 Bahndepot
@@ -1835,21 +1843,21 @@ station
 bio
 biological
 Blockstrecke ist\nbelegt\n
-\nRail block is in use\nby another train!\n
+\nThe block is occupied by another train.\n
 Boden
 Land
 Wasser
 Water
 Bridge is too long for this type!\n
-Bridge span is too\nlong for this type of\nbridge.\n
+Bridge span is too long for this type of bridge.\n
 bridge is too high for its type!
-Bridge span is too\nhigh for this type of\bridge.\n
+Bridge span is too high for this type of\bridge.\n
 Bridge cannot be built over deep water\n
-Bridge cannot be built over deep water.\nBuild a length restricted\nbridge instead.
+Bridge cannot be built over deep water.\n\nBuild a length restricted bridge instead.
 Bruecke
 Bridge
 Bruecke muss an\nsingleem\nHang beginnen!\n
-Bridges must\nstart on a\nstraight slope\n
+Bridges must start on a straight slope.\n
 Brueckenboden
 Bridge
 build choosesignals
@@ -1891,7 +1899,7 @@ Build a random attraction.
 Bus_tab
 Buses
 Can only move from halt to halt or waypoint to waypoint.
-Can only move from halt to\nhalt or waypoint to waypoint.
+Can only move from a stop to a stop or a waypoint to a waypoint.
 cancel
 Cancel
 Cannot built depot here!
@@ -1899,7 +1907,7 @@ Cannot build a depot here.
 No suitable ground!
 This cannot be built here.
 Cannot create generic line!\nSelect line type by\nusing filter tabs.
-Cannot create a generic line.\nSelect line type\nusing filter tabs.
+Cannot create a generic line. Select line type using filter tabs.
 Capacity: %s\nLoad: %d (%d%%)
 Capacity: %s\nLoad: %d (%d%%)
 Cars are not available yet!
@@ -2014,14 +2022,14 @@ Construction_Btn
 Construction costs
 convoi %d of %d
 Convoy %d of %d
-Convoi has been sent\nto the nearest depot\nof appropriate type.\n
-Convoy has been sent\nto the nearest depot\nof the appropriate type.\n
+Convoi has been sent\nto the nearest depot\nof appropriate type.\n%s\n
+%s has been sent to the nearest depot of the appropriate type.\n
 Convoi is sold when all wagons are empty.
 The vehicle will be sold as soon as it is completely empty.
 Convoi is sent to depot when all wagons are empty.
 The convoy will be sent to the nearest depot as soon as it is completely empty.
 convoi passed last\nmonth %i\n
-\nConvoys that passed in the\nprevious month: %i\n
+\nConvoys that passed in the previous month: %i\n
 Convois: %d\nProfit: %s
 Vehicles: %d\nProfit: %s
 Convoys
@@ -2037,7 +2045,7 @@ Attraction list
 Currently playing:
 Playing:
 Das Feld gehoert\neinem anderen Spieler\n
-This piece of\nland is owned by\nanother player.\n
+This land is not available to purchase.\n\nIt may be owned by another player or be a public building or object.
 December
 December
 Deccelerate time
@@ -2055,7 +2063,7 @@ Departed
 Depots
 Depots
 Der Besitzer erlaubt das Entfernen nicht
-\nYou do not have\npermission to\nremove this.\n
+This cannot be demolished or removed.\n\nIt may belong to another player or be a public building or object.
 Der Tunnel ist nicht frei!\n
 The tunnel is occupied.\n
 desert
@@ -2075,7 +2083,7 @@ Direct routes from here
 Dock
 dock
 Dock must be built on single slope!
-Docks must be built on a\nsingle, sloped tile.
+Docks must be built on a single, sloped tile.
 Du hast %d Monate Zeit, deine Schulden zurueckzuzahlen
 You have %d months to repay your debt.
 Durchsatz
@@ -2103,7 +2111,7 @@ Error
 Erzeuge neue Karte.\n
 Please wait while a new\nmap is being created.\n\n(This may take a few \nminutes for big maps.)\n
 Es wird bereits\nein Fahrplan\neingegeben\n
-A schedule is\nbeing planned.\nFinish it first\nbefore re-scheduling!\n
+A schedule is being planned.\n\nFinish it first before re-scheduling.\n
 Fabrikanschluss
 Connected industries
 Fabrikname
@@ -2111,7 +2119,7 @@ Industry name
 Factories
 Industries
 Factory chain extended\nfor %s near\n%s built with\n%i factories.
-\n%s near %s extends its industry chain.\n%i new industry opened.
+\n%s near %s extends its industry chain.\n%i new industries opened.
 factory details
 Industry details
 Fahrplan
@@ -2119,7 +2127,7 @@ Schedule
 Fahrtziel
 Destination
 Fahrzeuge koennen so nicht entfernt werden
-Vehicles cannot be\nremoved this way.\n
+Vehicles cannot be removed this way.\n
 Fahrzeuge:
 Vehicles:
 Farbe
@@ -2139,7 +2147,7 @@ Finances of %s
 Finanzen
 Finances
 Flugzeughalt muss auf\nRunway liegen!\n
-Plane stand must\nbe on a taxiway.
+An aircraft apron may only be placed on a taxiway.
 Flug_tab
 Passenger Aircraft
 fl_title
@@ -2177,7 +2185,7 @@ Building
 Gewicht
 Weight
 Gewinn
-Revenue
+Profit: 
 Give the selected vehicle(s) an individual schedule
 Give the selected vehicle(s) an individual schedule.
 gl_btn_sort_name
@@ -2327,9 +2335,9 @@ July
 June
 June
 Kann Spielstand\nnicht laden.\n
-Cannot load saved game!
+Cannot load saved game.
 Kann Spielstand\nnicht speichern.\n
-Cannot open\ntarget file\nfor writing!
+Cannot open\ntarget file\nfor writing.
 keine
 none
 Keine Einzelfahrzeuge im Depot
@@ -2417,9 +2425,9 @@ Max. Income:
 Max. speed:
 Max. speed:
 Maximum 254 stops\nin a schedule!\n
-Maximum of 254 stops\nin a schedule.\n
+Maximum of 254 stops in a schedule.\n
 Maximum tile height difference reached.
-The maximum height\ndifference between\ntwo tiles has\nbeen reached.
+The maximum height difference between two tiles has been reached.
 May
 May
 Median Citizen per town
@@ -2447,9 +2455,9 @@ Elevated section (support)
 Monoraildepot
 Monorail Depot
 Monorailhalt muss auf\nMonorail liegen!\n
-Monorail stops must\nbe on monorail track.
+Monorail stops must be on monorail track.
 Maglevhalt muss auf\nMaglevschiene liegen!\n
-Maglev stops must\nbe on maglev track.
+Maglev stops must be on maglev track.
 Monorails are not available yet!
 Monorails are not yet available.
 MONORAILTOOLS
@@ -2475,25 +2483,25 @@ Create a New Game
 new convoi
 New convoy
 New factory chain\nfor %s near\n%s built with\n%i factories.
-A new industry chain\nfor %s near\n%s has been built with\n%i industries.
+A new industry chain for %s near %s has been built with %i industries.
 New Line
 New Line
 New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.
-New line created!\nYou can assign the line now\nby selecting it from the\nline selector above.
+New line created.\nYou can assign the line now\nby selecting it from the\nline selector above.
 New %s now available:\n%s\n
 A new %s is now available:\n%s\n
 New Vehicles
 New Vehicles
 New world record for monorails: %.1f km/h by %s.
-New world record for\nmonorails: %.1f km/h\nby %s.
+New world record for monorails: %.1f km/h by %s.
 New world record for motorcars: %.1f km/h by %s.
-New world record for\nroad vehicles:\n %.1f km/h\nby %s.
+New world record for road vehicles: %.1f km/h by %s.
 New world record for planes: %.1f km/h by %s.
-New world record for\naircraft:\n %.1f km/h\nby %s.
+New world record for aircraft: %.1f km/h by %s.
 New world record for railways: %.1f km/h by %s.
-New world record for \nrailways:\n %.1f km/h \nby %s.
+New world record for railways: %.1f km/h by %s.
 New world record for ship: %.1f km/h by %s.
-New world record for\nwater craft:\n %.1f km/h\nby %s.
+New world record for water craft: %.1f km/h nby %s.
 no convois
 No convoys
 No goods are loaded onto this convoi.
@@ -2504,8 +2512,8 @@ no load
 No load
 No Route
 No Route
-No stop here!
-A stop can only\nbe placed on a matching\nway type, and not on top\nof another stop.
+No suitable way on the ground!
+A stop can only be placed on a matching way type, and not on top of another stop.
 No terminal station here!
 A terminal station can only\nbe placed on a matching\nway type, at the end of\na way. It cannot be placed\non top of another station\nor signals/signs.
 No through station here!
@@ -2535,7 +2543,7 @@ OK
 Oktober
 October
 On this map, you are not\nallowed to change player!\n
-This game is locked.\nNo player changes are possible.\n
+This game is locked. No player changes are possible.\n
 Operation
 Running costs
 Ops Profit
@@ -2645,7 +2653,7 @@ Please choose vehicles first!\n
 Post
 Mail
 Post muss neben\nHaltestelle\nliegen!\n
-A station extension building\n(ex. post office, warehouse)\nmust be placed on a free tile\nnext to an existing stop/station.\n
+A station extension building (e.g. a post office or warehouse) may only be placed on a free tile next to an existing stop/station.
 Postrate
 Mail level
 Power
@@ -2655,7 +2663,7 @@ Power:
 Powerlines
 Powerlines
 Production of %s has been stopped:\n%s\n
-Production of the\nfollowing %s has been\ndiscontinued:\n%s\n
+Production of the following %s has been discontinued:\n%s\n
 Produktion
 Production
 Profit
@@ -2711,7 +2719,7 @@ Build railway tunnel
 Schiffdepot
 Shipyard
 Schiffhalt muss im\nWasser liegen!\n
-A ship stop can only\nbe placed on water\nnear a dock.\n
+A water stop can only be placed on water near a dock.\n
 water_vehicle_tab
 Ships
 Schleppkahn_tab
@@ -2719,7 +2727,7 @@ Barges
 Screenshot
 Take a screenshot
 Screenshot\ngespeichert.\n
-Screenshot\nsaved.\n
+Screenshot saved.\n
 Sehenswuerdigkeit
 Public amenity
 Sell the selected vehicle(s)
@@ -2839,7 +2847,7 @@ Dispatches the selected vehicle(s).
 Starte Spiel
 Start Game
 Station already\nhas a post office!\n
-This station already\nhas a post office,\nan additional one is \nnot necessary.\n
+This station already has a post office.\n
 Station tiles:
 Station tiles:
 Status
@@ -2869,7 +2877,7 @@ Lowlands
 tundra
 Uplands
 There are still vehicles\nstored in this depot!\n
-There are vehicles\nin this depot!\n
+Cannot delete a depot with vehicles stored in it.
 This Month
 This month
 This Year
@@ -2881,9 +2889,9 @@ Timeline enabled
 tl_title
 City list
 To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers.
-In %s, a new %s has been \n built, with the aid of\n%i rate payers.
+In %s, a new %s has been built, with the aid of %i rate payers.
 To heavy traffic\nresults in traffic jam.\n
-Traffic congestion\ndetected.\n
+Traffic congestion detected.\n
 tonnen
 t
 Total inhabitants:
@@ -2921,11 +2929,11 @@ Dune
 Truck
 Truck
 Tunnel muss an\nsingleem\nHang beginnen!\n
-Tunnels must\nstart on a straight\n double height slope\n
+Tunnels must start on a straight double height slope.\n
 Tunnel must end on single way!
-Tunnels must end on a\nsingle way with a slope.
+Tunnels must end on a single way with a slope.
 Tunnel must start on single way!
-Tunnels must start on a\nsingle way, on a slope,\nand with nmatching slope\nat the other end.
+Tunnels must start on a single way, on a double height slope, and with a matching slope at the other end.
 Tunnelboden
 Tunnel
 Tunnelmuendung
@@ -2933,7 +2941,7 @@ Tunnel entrance
 underground mode
 Underground view
 UNDO failed!
-Undo is no longer possible.\nYou can undo a route\nconstruction only as long as\nno signals/stations/stops or\nanything else has been built on\nthe way.
+Undo is not currently possible.\n\nYou can undo a way construction action only as long as nothing has been built on the way.
 Unemployed
 Com./Ind. demand
 Unhappy
@@ -2975,7 +2983,7 @@ Sell
 Verkehrsteilnehmer
 Traffic
 Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n
-You have %d months\nto pay off your debt.\n
+You have %d months to repay your overdraft.\n
 via
 via (detail)
 via %s\n
@@ -3009,11 +3017,11 @@ Value
 west
 West
 With a big festival\n%s built\na new monument.\n%i citicens rejoiced.
-With a big festival,\n%s built\na new monument.\n%i citizens rejoiced.
+With a big festival, %s built a new monument. %i citizens rejoiced.
 withdraw
 Withdraw
 WRONGSAVE
-\nIncompatible saved game.\nCannot load file.\n
+\nIncompatible saved game.\n\nCannot load file.\n
 Year %i has started.
 Year %i has started.
 Years
@@ -3023,11 +3031,11 @@ Pointer (Zeiger)
 Zielort
 destination
 Zu nah am Kartenrand
-You cannot build\nso close to the\nedge of the map.
+You cannot build so close to the edge of the map.
 Zu nah an einem\nanderen Signal!\n
 Rail signals can't\nbe built here.\nAnother signal\nis too close.\n
 Zughalt muss auf\nSchiene liegen!\n
-Rail stations must\nbe placed on the\nrailway track.\n
+Railway stations must be placed on railway track.\n
 no tree
 No trees
 Number of rivers
@@ -3061,7 +3069,7 @@ Hide all buildings
 \nelektrified
 \nElectrified\n
 \nHeightfield has wrong image type.\n
-\nHeightfield has wrong\nimage type.\n
+\nHeightfield has wrong image type.\n
 \nis reserved by:
 \nReserved by: 
 \nminimum speed:
@@ -3077,7 +3085,7 @@ Hide all buildings
 \nwith sign/signal\n
 \nHas a sign or signal\n
 \nRibi (unmasked)
-\nDirections\n (unmasked): 
+\nDirections (unmasked): 
 month wait time
 Maximum wait time
 isometric map
@@ -3091,7 +3099,7 @@ Marker list
 koord
 Map co-ordinate
 Terraforming not possible\nhere in underground view
-Terraforming is not possible\nhere in underground view.
+Terraforming is not possible here in underground view.
 Cannot built this station/building\nin underground mode here.
 This cannot be built underground.
 sliced underground mode
@@ -3101,7 +3109,7 @@ Decrease underground view level
 increase underground view level
 Increase underground view level
 Congratulation\nScenario was complete in\n%i months %i years.
-Congratulations -\nyou completed the\nscenario successfully,\ntaking %i months\nand %i years.
+Congratulations - you completed the scenario successfully, taking %i months and %i years.
 Loading skins ...
 Loading skins ...
 Loading paks ...
@@ -3211,7 +3219,7 @@ General
 Fundament
 Base
 %s s\nheadquarter now\nat (%i,%i).
-%s s\nhas built new headquarters\nat (%i,%i).
+%s s has built new headquarters at (%i,%i).
 %s at (%i,%i) now public stop.
 %s at (%i,%i) is now a public stop.
 Higher transport fees, crossconnect all factories
@@ -3221,7 +3229,7 @@ Ground object
 Movingobj
 Moving object
 On loan since %i month(s)
-You have been overdrawn\nfor %i months
+You have been overdrawn for %i months
 Loading. %s left!
 Loading: %s left
 Destroying map ...
@@ -3316,8 +3324,8 @@ tt_Other
 Other
 (%s) now public way.
 (%s) has been nationalised.
-No suitable depot found!\nYou need to send the\nconvoi to the depot\nmanually.
-No suitable depot can be found.
+No suitable depot found!\nYou need to send the\nconvoi to the depot\nmanually.\n%s\n
+No suitable depot can be found for %s.
 Vehicle %s cannot choose because stop too short
 %s cannot find a sufficiently long stop or platform.
 Transformer only on flat bare land!
@@ -3810,3 +3818,23 @@ prohibited
 Overtaking prohibited
 inverted
 Opposite lane driving
+has changed its colour scheme.
+has changed its colour scheme.
+Vehicle running costs per km
+Vehicle running costs per km
+Vehicle maintenance costs per month
+Vehicle maintenance costs per month
+Vehicle maintenance
+Vehicle maintenance
+%s has withdrawn access rights from %s
+%s has withdrawn access rights from %s
+%s has allowed access rights to %s
+%s has allowed access rights to %s
+Depot found but could not be inserted in schedule.  This is a bug!%s\n
+Depot found but could not be inserted in schedule.\n\nThis is a bug! %s\n
+Show outdated
+Show out of production
+Show also vehicles whose maintenance costs have increased due to obsolescence.
+Show vehicles that are obsolete and more expensive to maintain.
+Upgrade price:
+Upgrade price:

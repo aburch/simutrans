@@ -159,9 +159,9 @@ void vehicle_class_manager_t::build_class_entries()
 		}
 
 		// Below will preset the selection to the most appropriate entry
-		// We can't currently reassign to mutiple within a single convoy,
-		// but this was just copied (almost) verbatim from
-		// line_class_manager and is possibly more future-proof
+		// We can't currently reassign to multiple within an existing convoy,
+		// but we might end up with inconsistent reassignments while
+		// extending a convoy with reassigned classes.
 		bool multiple_classes = false;
 		int old_reassigned_class = -1;
 		uint8 display_class = i;
@@ -534,50 +534,71 @@ void vehicle_class_manager_t::draw(scr_coord pos, scr_size size)
  */
 bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value_t p)
 {
-	for (int i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+	int number_of_classes;
+	number_of_classes = goods_manager_t::passengers->get_number_of_classes();
+	for (int i = 0; i < number_of_classes; i++)
 	{
 		if (comp == pass_class_sel.at(i))
 		{
 			sint32 new_class = pass_class_sel.at(i)->get_selection();
-			//sint32 new_class = goods_manager_t::passengers->get_number_of_classes() - pass_class_sel[i].get_selection() - 1;
-			if (new_class < 0)
+			int selection_count = pass_class_sel.at(i)->count_elements();
+			if (new_class < 0 || new_class >= selection_count)
 			{
 				pass_class_sel.at(i)->set_selection(0);
 				new_class = 0;
+			}
+			else if (new_class >= number_of_classes)
+			{
+				// Selection is 'reassigned to multiple'
+				return false;
 			}
 			int good_type = 0; // 0 = Passenger, 1 = Mail,
 			int reset = 0; // 0 = reset only single class, 1 = reset all classes
 			cbuffer_t buf;
 			buf.printf("%i,%i,%i,%i", i, new_class, good_type, reset);
 			cnv->call_convoi_tool('c', buf);
-
-			if (i < 0)
+			if (selection_count > number_of_classes)
 			{
-				break;
+				// Remove 'reassigned to multiple' from list
+				pass_class_sel.at(i)->clear_elements();
+				for (int j = 0; j < number_of_classes; j++) // j = the entries of this combobox
+				{
+					pass_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
+				}
 			}
 			return false;
 		}
 	}
-	for (int i = 0; i < goods_manager_t::mail->get_number_of_classes(); i++)
+	number_of_classes = goods_manager_t::mail->get_number_of_classes();
+	for (int i = 0; i < number_of_classes; i++)
 	{
 		if (comp == mail_class_sel.at(i))
 		{
 			sint32 new_class = mail_class_sel.at(i)->get_selection();
-			//sint32 new_class = goods_manager_t::mail->get_number_of_classes() - mail_class_sel[i].get_selection() - 1;
-			if (new_class < 0)
+			int selection_count = mail_class_sel.at(i)->count_elements();
+			if (new_class < 0 || new_class >= selection_count)
 			{
 				mail_class_sel.at(i)->set_selection(0);
 				new_class = 0;
+			}
+			else if (new_class >= number_of_classes)
+			{
+				// Selection is 'reassigned to multiple'
+				return false;
 			}
 			int good_type = 1; // 0 = Passenger, 1 = Mail,
 			int reset = 0; // 0 = reset only single class, 1 = reset all classes
 			cbuffer_t buf;
 			buf.printf("%i,%i,%i,%i", i, new_class, good_type, reset);
 			cnv->call_convoi_tool('c', buf);
-
-			if (i < 0)
+			if (selection_count > number_of_classes)
 			{
-				break;
+				// Remove 'reassigned to multiple' from list
+				mail_class_sel.at(i)->clear_elements();
+				for (int j = 0; j < number_of_classes; j++) // j = the entries of this combobox
+				{
+					mail_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(mail_class_name_untranslated[j]), SYSCOL_TEXT));
+				}
 			}
 			return false;
 		}

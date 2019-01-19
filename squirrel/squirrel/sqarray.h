@@ -91,4 +91,4 @@ public:
 
 	SQObjectPtrVec _values;
 };
-#endif //_SQARRAY_H_
+#endif

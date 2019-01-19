@@ -21,6 +21,7 @@
 
 #include "../boden/wege/schiene.h"
 #include "../obj/leitung2.h"
+#include "../obj/gebaeude.h"
 #include "../utils/cbuffer_t.h"
 #include "../display/scr_coord.h"
 #include "../display/simgraph.h"
@@ -82,7 +83,8 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 #define POWERLINE_KENN    (55)
 #define HALT_KENN         COL_RED
 #define BUILDING_KENN     COL_GREY3
-
+// when building have no record
+#define MAP_COL_NODATA     (218)
 
 // helper function for line segment_t
 bool reliefkarte_t::line_segment_t::operator == (const line_segment_t & k) const
@@ -896,7 +898,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			{
 				const leitung_t* lt = gr->find<leitung_t>();
 				if(lt!=NULL) {
-					set_relief_farbe(k, calc_severity_color(lt->get_net()->get_demand(),lt->get_net()->get_supply()) );
+					set_relief_farbe(k, calc_severity_color((sint32)lt->get_net()->get_demand(),(sint32)lt->get_net()->get_supply()) );
 				}
 			}
 			break;
@@ -938,6 +940,89 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 							max_building_level = level;
 						}
 						set_relief_farbe(k, calc_severity_color(level, max_building_level));
+					}
+				}
+			}
+			break;
+
+		case MAP_ACCESSIBILITY_COMMUTING:
+			{
+				if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+					gb = gb->access_first_tile();
+					if (gb->get_adjusted_population()) {
+						const uint16 passengers_succeeded_commuting = gb->get_average_passenger_success_percent_commuting();
+						if(passengers_succeeded_commuting < 65535){
+							set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_commuting, 100));
+						}
+						else {
+							set_relief_farbe(k, MAP_COL_NODATA);
+						}
+					}
+				}
+			}
+			break;
+
+		case MAP_ACCESSIBILITY_TRIP:
+			{
+				if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+					gb = gb->access_first_tile();
+					if (gb->get_adjusted_population()) {
+						const uint16 passengers_succeeded_visiting = gb->get_average_passenger_success_percent_visiting();
+						if (passengers_succeeded_visiting < 65535) {
+							set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_visiting, 100));
+						}
+						else {
+							set_relief_farbe(k, MAP_COL_NODATA);
+						}
+					}
+				}
+			}
+			break;
+
+		case MAP_STAFF_FULFILLMENT:
+			{
+				if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+					gb = gb->access_first_tile();
+					if (gb->get_adjusted_jobs()) {
+						if (fabrik_t *fab = gb->get_fabrik()) {
+							// use this for primary industry or not
+							const uint32 input_count = fab->get_input().get_count();
+							// Factories not in operation
+							if (gb->get_passengers_succeeded_commuting() == 65535 && input_count) {
+								set_relief_farbe(k, COL_DARK_PURPLE);
+							}
+							else {
+								const sint32 staffing_percentage = gb->get_staffing_level_percentage();
+								if (staffing_percentage < 65535) {
+									set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
+								}
+								else {
+									set_relief_farbe(k, MAP_COL_NODATA);
+								}
+							}
+						}
+						else {
+							const sint32 staffing_percentage = gb->get_staffing_level_percentage();
+							set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
+						}
+					}
+				
+				}
+			}
+			break;
+
+		case MAP_MAIL_DELIVERY:
+			{
+				if (gebaeude_t *gb = gr->find<gebaeude_t>()) {
+					gb = gb->access_first_tile();
+					if (gb->get_adjusted_mail_demand()) {
+						const uint16 recent_mail_delivery_success_per = gb->get_average_mail_delivery_success_percent();
+						if (recent_mail_delivery_success_per < 65535) {
+							set_relief_farbe(k, calc_severity_color(100 - recent_mail_delivery_success_per, 100));
+						}
+						else {
+							set_relief_farbe(k, MAP_COL_NODATA);
+						}
 					}
 				}
 			}
@@ -1062,9 +1147,7 @@ reliefkarte_t::reliefkarte_t()
 
 reliefkarte_t::~reliefkarte_t()
 {
-	if(relief != NULL) {
-		delete relief;
-	}
+	delete relief;
 }
 
 
@@ -1079,10 +1162,8 @@ reliefkarte_t *reliefkarte_t::get_karte()
 
 void reliefkarte_t::init()
 {
-	if(relief) {
-		delete relief;
-		relief = NULL;
-	}
+	delete relief;
+	relief = NULL;
 	needs_redraw = true;
 	is_visible = false;
 
@@ -1485,7 +1566,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			radius = number_to_radius( station->get_capacity(0) );
 		}
 		else if( mode & MAP_SERVICE  ) {
-			const sint32 service = station->get_finance_history( 1, HALT_CONVOIS_ARRIVED );
+			const sint32 service = (sint32)station->get_finance_history( 1, HALT_CONVOIS_ARRIVED );
 			if(  service > max_service  ) {
 				max_service = service;
 			}
@@ -1493,7 +1574,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			radius = log2( (uint32)( (service << 7) / max_service ) );
 		}
 		else if( mode & MAP_WAITING  ) {
-			const sint32 waiting = station->get_finance_history( 0, HALT_WAITING );
+			const sint32 waiting = (sint32)station->get_finance_history( 0, HALT_WAITING );
 			if(  waiting > max_waiting  ) {
 				max_waiting = waiting;
 			}
@@ -1501,7 +1582,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			radius = number_to_radius( waiting );
 		}
 		else if( mode & MAP_WAITCHANGE  ) {
-			const sint32 waiting_diff = station->get_finance_history( 0, HALT_WAITING ) - station->get_finance_history( 1, HALT_WAITING );
+			const sint32 waiting_diff = (sint32)(station->get_finance_history( 0, HALT_WAITING ) - station->get_finance_history( 1, HALT_WAITING ));
 			if(  waiting_diff > new_max_waiting_change  ) {
 				new_max_waiting_change = waiting_diff;
 			}
@@ -1517,7 +1598,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			if(  !station->get_pax_enabled()  &&  !station->get_mail_enabled()  ) {
 				continue;
 			}
-			const sint32 pax_origin = station->get_finance_history( 1, HALT_HAPPY ) + station->get_finance_history( 1, HALT_UNHAPPY ) + station->get_finance_history( 1, HALT_NOROUTE );
+			const sint32 pax_origin = (sint32)(station->get_finance_history( 1, HALT_HAPPY ) + station->get_finance_history( 1, HALT_UNHAPPY ) + station->get_finance_history( 1, HALT_NOROUTE ));
 			if(  pax_origin > max_origin  ) {
 				max_origin = pax_origin;
 			}
@@ -1525,7 +1606,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			radius = number_to_radius( pax_origin );
 		}
 		else if( mode & MAP_TRANSFER  ) {
-			const sint32 transfer = station->get_finance_history( 1, HALT_ARRIVED ) + station->get_finance_history( 1, HALT_DEPARTED );
+			const sint32 transfer = (sint32)(station->get_finance_history( 1, HALT_ARRIVED ) + station->get_finance_history( 1, HALT_DEPARTED ));
 			if(  transfer > max_transfer  ) {
 				max_transfer = transfer;
 			}

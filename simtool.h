@@ -13,6 +13,7 @@
 #include "simobj.h"
 
 #include "boden/wege/schiene.h"
+#include "boden/wege/strasse.h"
 
 #include "dataobj/environment.h"
 #include "dataobj/translator.h"
@@ -43,7 +44,6 @@ class tool_query_t : public tool_t {
 public:
 	tool_query_t() : tool_t(TOOL_QUERY | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Abfrage"); }
-	image_id get_icon(player_t *player) const OVERRIDE { return (!env_t::networkmode || player->get_player_nr()==1) ? icon : IMG_EMPTY; }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 	bool is_work_network_save() const OVERRIDE { return true; }
@@ -53,7 +53,7 @@ public:
 // remove uppermost object from tile
 class tool_remover_t : public tool_t {
 private:
-	bool tool_remover_intern(player_t *player, koord3d pos, const char *&msg);
+	bool tool_remover_intern(player_t *player, koord3d pos, sint8 type, const char *&msg);
 public:
 	tool_remover_t() : tool_t(TOOL_REMOVER | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("Abriss"); }
@@ -87,7 +87,7 @@ public:
 	bool is_init_network_save() const OVERRIDE { return true; }
 	/**
 	 * work() is only called when not dragging
-	 * if work() is called with is_dragging==true then is_dragging is reseted
+	 * if work() is called with is_dragging==true then is_dragging is reset
 	 */
 	bool is_work_network_save() const OVERRIDE { return is_dragging;}
 
@@ -210,6 +210,7 @@ public:
 	tool_change_water_height_t() : tool_t(TOOL_CHANGE_WATER_HEIGHT | GENERAL_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate( atoi(default_param)>=0 ? "Increase water height" : "Decrease water height" ); }
 	bool init(player_t*) OVERRIDE;
+	image_id get_icon(player_t *player) const OVERRIDE { return (!env_t::networkmode  ||  player->is_public_service()) ? icon : IMG_EMPTY; }
 	char const* work(player_t*, koord3d) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return true; }
 };
@@ -1028,10 +1029,10 @@ class tool_show_ribi_t : public tool_t {
 public:
 	tool_show_ribi_t() : tool_t(TOOL_SHOW_RIBI| SIMPLE_TOOL) {}
 	char const* get_tooltip(player_t const*) const OVERRIDE { return translator::translate("view masked ribi"); }
-	bool is_selected() const OVERRIDE { return weg_t::show_masked_ribi; }
+	bool is_selected() const OVERRIDE { return strasse_t::show_masked_ribi; }
 	bool init( player_t * ) {
 		if(  skinverwaltung_t::ribi_arrow  ) {
-			weg_t::show_masked_ribi ^= 1;
+			strasse_t::show_masked_ribi ^= 1;
 			welt->set_dirty();
 		} else {
 			// no ribi_arrow pak.

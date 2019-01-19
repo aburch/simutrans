@@ -36,7 +36,7 @@
 
 #include "../descriptor/skin_desc.h"
 
-
+#include "../player/simplay.h"
 
 
 
@@ -129,7 +129,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	freight_selector_size.w = button_size.w+30;
 	scr_coord cursor(D_MARGIN_LEFT, D_MARGIN_TOP);
 
-	const sint16 offset_below_viewport = 21 + view.get_size().h;
+	const sint16 offset_below_viewport = D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + view.get_size().h;
 	const sint16 client_width = 3*(L_BUTTON_WIDTH + D_H_SPACE) + max( L_BUTTON_WIDTH, view.get_size().w );
 	const sint16 total_width = D_MARGIN_LEFT + client_width + D_MARGIN_RIGHT;
 
@@ -155,7 +155,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	chart.set_background(SYSCOL_CHART_BACKGROUND);
 	chart.set_ltr(env_t::left_to_right_graphs);
 	add_component(&chart);
-	cursor.y += 100 + 20 + D_V_SPACE;
+	cursor.y += 100 + 6 + LINESPACE + D_V_SPACE;
 
 	floating_cursor_t auto_cursor(cursor, D_MARGIN_LEFT, total_width - D_MARGIN_RIGHT);
 	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
@@ -169,6 +169,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 		add_component(filterButtons + cost);
 	}
 	cursor = old_cursor;
+	chart_total_size = filterButtons[MAX_HALT_COST-1].get_pos().y + D_BUTTON_HEIGHT + D_V_SPACE - (chart.get_pos().y - 13);
 
 	sort_label.set_pos(cursor);
 	sort_label.set_width(client_width);
@@ -349,11 +350,16 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 		}
 		top += 44;
 		top += D_LABEL_HEIGHT;
+		left = pos.x + D_MARGIN_LEFT;
+
+		info_buf.clear();
+		info_buf.printf("%s", halt->get_owner()->get_name());
+                display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+		top += D_LABEL_HEIGHT * 2;
 
 		info_buf.clear();
 		info_buf.printf("%s: %u", translator::translate("Storage capacity"), halt->get_capacity(0));
 		
-		left = pos.x + D_MARGIN_LEFT;
 		// passengers
 		left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 		if (welt->get_settings().is_separate_halt_capacities()) {
@@ -410,8 +416,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 void halt_info_t::show_hide_statistics( bool show )
 {
 	toggler.pressed = show;
-	sint16 statistics_height = filterButtons[MAX_HALT_COST-1].get_size().h + filterButtons[MAX_HALT_COST-1].get_pos().y - chart.get_pos().y + D_V_SPACE;
-	const scr_coord offset = show ? scr_coord(0, statistics_height) : scr_coord(0, -statistics_height);
+	const scr_coord offset = show ? scr_coord(0, chart_total_size) : scr_coord(0, -chart_total_size);
 	set_min_windowsize(get_min_windowsize() + offset);
 	scrolly.set_pos(scrolly.get_pos() + offset);
 	chart.set_visible(show);

@@ -174,10 +174,15 @@ void export_factory(HSQUIRRELVM vm)
 	register_method(vm, &fabrik_t::get_suppliers, "get_suppliers");
 
 	/**
-	 * Get (untranslated) name of factory.
+	 * Get (translated or custom) name of factory.
 	 * @returns name
 	 */
 	register_method(vm, &fabrik_t::get_name, "get_name");
+
+	/**
+	 * Change name.
+	 */
+	register_method(vm, &fabrik_t::set_name, "set_name");
 
 	/**
 	 * Get monthly statistics of production.
@@ -277,6 +282,12 @@ void export_factory(HSQUIRRELVM vm)
 	 * @returns array, index [0] corresponds to current month
 	 */
 	register_method_fv(vm, &get_factory_production_stat, "get_consumed",  freevariable<sint32>(FAB_GOODS_CONSUMED), true);
+
+	/**
+	 * Get monthly statistics of in-transit goods (for input slots).
+	 * @returns array, index [0] corresponds to current month
+	 */
+	register_method_fv(vm, &get_factory_production_stat, "get_in_transit",freevariable<sint32>(FAB_GOODS_TRANSIT), true);
 
 	/**
 	 * Get monthly statistics of delivered goods (for output slots).

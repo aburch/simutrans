@@ -211,8 +211,12 @@ public:
 
 	virtual void rotate90();
 
-	static ribi_t::ribi calc_direction(koord start, koord ende);
-	static ribi_t::ribi calc_direction(koord3d start, koord3d end) { return calc_direction(start.get_2d(), end.get_2d()); }
+	template<class K1, class K2>
+	static ribi_t::ribi calc_direction(const K1& from, const K2& to)
+	{
+		return ribi_type(from, to);
+	}
+
 	ribi_t::ribi calc_set_direction(const koord3d& start, const koord3d& ende);
 	uint16 get_tile_steps(const koord &start, const koord &ende, /*out*/ ribi_t::ribi &direction) const;
 

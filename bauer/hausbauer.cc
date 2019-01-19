@@ -732,9 +732,15 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 
 		if(!gr) {
 			// check whether bridge end tile
-			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::east : koord::south),offset - 2) );
+			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::east : koord::south),offset - 1) );
 			if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
 				gr = gr_tmp;
+			}
+			else {
+				gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::east : koord::south),offset - 2) );
+				if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 2) {
+					gr = gr_tmp;
+				}
 			}
 		}
 
@@ -768,12 +774,18 @@ gebaeude_t *hausbauer_t::build_station_extension_depot(player_t *player, koord3d
 		}
 
 		// detect if near (south/east) end
-		gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::west :  koord::north), offset) );
+		gr = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::north), offset) );
 		if(!gr) {
 			// check whether bridge end tile
-			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::west :  koord::north),offset - 1) );
+			grund_t * gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::north),offset - 1) );
 			if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 1) {
 				gr = gr_tmp;
+			}
+			else {
+				gr_tmp = welt->lookup( pos+koord3d( (layout & 1 ? koord::west : koord::north),offset - 2) );
+				if(gr_tmp && gr_tmp->get_weg_yoff()/TILE_HEIGHT_STEP == 2) {
+					gr = gr_tmp;
+				}
 			}
 		}
 		if(gr) {
@@ -1199,10 +1211,15 @@ const vector_tpl<const building_desc_t*>* hausbauer_t::get_list(const building_d
 	switch (typ) {
 		case building_desc_t::monument:         return &unbuilt_monuments;
 		case building_desc_t::attraction_land: return &attractions_land;
-		case building_desc_t::headquarters:      return NULL;
+		case building_desc_t::headquarters:      return &headquarters;
 		case building_desc_t::townhall:         return &townhalls;
 		case building_desc_t::attraction_city: return &attractions_city;
-		case building_desc_t::factory:          return NULL;
+		case building_desc_t::dock:
+		case building_desc_t::flat_dock:
+		case building_desc_t::depot:
+		case building_desc_t::generic_stop:
+		case building_desc_t::generic_extension:
+		                                    return &station_building;
 		default:                            return NULL;
 	}
 }
@@ -1228,7 +1245,7 @@ void hausbauer_t::new_month()
 			if(intro_month == current_month)
 			{
 				cbuffer_t buf;
-				buf.printf(translator::translate("New %s now available:\n%s\n"), "building", translator::translate(building->get_name()));
+				buf.printf(translator::translate("New %s now available:\n%s\n"), translator::translate("building"), translator::translate(building->get_name()));
 				welt->get_message()->add_message(buf, koord::invalid, message_t::new_vehicle, NEW_VEHICLE, IMG_EMPTY);
 			}
 		}

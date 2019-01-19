@@ -901,7 +901,7 @@ void signal_t::rdwr_signal(loadsave_t *file)
 		{
 #endif
 		file->rdwr_bool(no_junctions_to_next_signal);
-		if (file->is_loading() && desc->is_choose_sign())
+		if (file->is_loading() && desc && desc->is_choose_sign())
 		{
 			no_junctions_to_next_signal = false;
 		}

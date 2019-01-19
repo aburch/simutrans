@@ -132,6 +132,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	* otherwise the tabs will not be present at all
 	*/
 	bool old_retired=show_retired_vehicles;
+	bool show_outdated_vehicles = true;
 	bool old_show_all=show_all;
 	show_retired_vehicles = true;
 	show_all = true;
@@ -222,11 +223,19 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	action_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate(txt_veh_action[3]), SYSCOL_TEXT ) );
 	action_selector.set_selection( 0 );
 
+	bt_outdated.set_typ(button_t::square);
+	bt_outdated.set_text("Show outdated");
+	if (welt->use_timeline() && welt->get_settings().get_allow_buying_obsolete_vehicles() ) {
+		bt_outdated.add_listener(this);
+		bt_outdated.set_tooltip("Show also vehicles no longer in production.");
+		add_component(&bt_outdated);
+	}
+
 	bt_obsolete.set_typ(button_t::square);
 	bt_obsolete.set_text("Show obsolete");
-	if(  welt->get_settings().get_allow_buying_obsolete_vehicles()  ) {
+	if(welt->use_timeline() && welt->get_settings().get_allow_buying_obsolete_vehicles() == 1 ) {
 		bt_obsolete.add_listener(this);
-		bt_obsolete.set_tooltip("Show also vehicles no longer in production.");
+		bt_obsolete.set_tooltip("Show also vehicles whose maintenance costs have increased due to obsolescence.");
 		add_component(&bt_obsolete);
 	}
 
@@ -362,6 +371,8 @@ const char * gui_convoy_assembler_t::get_haenger_name(waytype_t wt)
 	}
 	return "Waggon_tab";
 	}
+
+bool  gui_convoy_assembler_t::show_outdated_vehicles = false;
 
 bool  gui_convoy_assembler_t::show_retired_vehicles = false;
 
@@ -538,7 +549,10 @@ void gui_convoy_assembler_t::layout()
 
 	// 2nd row 
 
-	bt_obsolete.set_pos(scr_coord(c1_x, y));
+	bt_outdated.set_pos(scr_coord(c1_x, y));
+	bt_outdated.pressed = show_outdated_vehicles;
+
+	bt_obsolete.set_pos(scr_coord(c1_x + column2_x/2, y));
 	bt_obsolete.pressed = show_retired_vehicles;
 	y += 4 + D_BUTTON_HEIGHT;
 
@@ -581,6 +595,10 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *comp,value_
 			image_from_storage_list(loks_vec[p.i]);
 		} else if(comp == &waggons) {
 			image_from_storage_list(waggons_vec[p.i]);
+		} else if (comp == &bt_outdated) {
+			show_outdated_vehicles = (show_outdated_vehicles == false);
+			build_vehicle_lists();
+			update_data();
 		} else if(comp == &bt_obsolete) {
 			show_retired_vehicles = (show_retired_vehicles == false);
 			build_vehicle_lists();
@@ -917,6 +935,7 @@ void gui_convoy_assembler_t::draw(scr_coord parent_pos)
 			bt_class_management.set_visible(true);
 		}
 	}
+	bt_outdated.pressed = show_outdated_vehicles;	// otherwise the button would not show depressed
 	bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed
 	bt_show_all.pressed = show_all;					// otherwise the button would not show depressed
 	draw_vehicle_info_text(parent_pos+pos);
@@ -1016,9 +1035,11 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 			}
 
 			// current vehicle
-			if( (depot_frame && depot_frame->get_depot()->is_contained(info))  ||
-				((way_electrified  ||  info->get_engine_type()!=vehicle_desc_t::electric)  &&
-					 ((!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )  ) )) 
+			if ((depot_frame && depot_frame->get_depot()->is_contained(info)) ||
+				((way_electrified || info->get_engine_type() != vehicle_desc_t::electric) &&
+				(((!info->is_future(month_now)) && (!info->is_retired(month_now))) ||
+					(info->is_retired(month_now) &&	((show_retired_vehicles && info->is_obsolete(month_now, welt) ||
+					(show_outdated_vehicles && (!info->is_obsolete(month_now, welt)))))))))
 			{
 				// check if allowed
 				bool append = true;
@@ -1497,10 +1518,20 @@ void gui_convoy_assembler_t::update_data()
 		for(i=0;  i<vehicles.get_count(); i++) {
 			if(vehicles[i]->is_future(month_now) || vehicles[i]->is_retired(month_now)) {
 				if (convoi_pics[i]->lcolor == COL_DARK_GREEN) {
-					convoi_pics[i]->lcolor = COL_DARK_BLUE;
+					if (vehicles[i]->is_obsolete(month_now, welt)) {
+						convoi_pics[i]->lcolor = COL_DARK_BLUE;
+					}
+					else {
+						convoi_pics[i]->lcolor = COL_ROYAL_BLUE;
+					}
 				}
 				if (convoi_pics[i]->rcolor == COL_DARK_GREEN) {
-					convoi_pics[i]->rcolor = COL_DARK_BLUE;
+					if (vehicles[i]->is_obsolete(month_now, welt)) {
+						convoi_pics[i]->rcolor = COL_DARK_BLUE;
+					}
+					else {
+						convoi_pics[i]->rcolor = COL_ROYAL_BLUE;
+					}
 				}
 			}
 		}
@@ -1519,7 +1550,10 @@ void gui_convoy_assembler_t::update_data()
 		vehicle_desc_t const* const    info = i.key;
 		gui_image_list_t::image_data_t& img  = *i.value;
 
-		const uint8 ok_color = info->is_future(month_now) || info->is_retired(month_now) ? COL_DARK_BLUE : COL_DARK_GREEN;
+		uint8 ok_color = info->is_future(month_now) || info->is_retired(month_now) ? COL_ROYAL_BLUE : COL_DARK_GREEN;
+		if (info->is_obsolete(month_now, welt)) {
+			ok_color = COL_DARK_BLUE;
+		}
 
 		img.count = 0;
 		img.lcolor = ok_color;
@@ -1961,7 +1995,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		n += sprintf(buf + n, "\n");
 
 		// Cost information:
-		// TODO: differentiate between "buy new" value and "upgrade to" value
 		char tmp[128];
 		money_to_string(tmp, veh_type->get_value() / 100.0, false);
 		char resale_entry[32] = "\0";
@@ -1969,6 +2002,15 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 			char tmp[128];
 			money_to_string(tmp, resale_value / 100.0, false);
 			sprintf(resale_entry, "(%s %8s)", translator::translate("Restwert:"), tmp);
+		}
+		else if (depot_frame && (veh_action == va_upgrade || show_all && veh_type->is_available_only_as_upgrade())) {
+			char tmp[128];
+			double upgrade_price = veh_type->get_upgrade_price();
+			if (veh_type->is_available_only_as_upgrade() && !upgrade_price) {
+				upgrade_price = veh_type->get_value();
+			}
+			money_to_string(tmp, upgrade_price / 100.0, false);
+			sprintf(resale_entry, "(%s %8s)", translator::translate("Upgrade price:"), tmp);
 		}
 		n += sprintf(buf + n, translator::translate("Cost: %8s %s"), tmp, resale_entry);
 		n += sprintf(buf + n, "\n");
@@ -2132,19 +2174,17 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(const scr_coord& pos)
 		n = 0;
 		linespace_skips = 0;
 		
-		n += sprintf( buf + n, "%s %s %04d\n",
+		n += sprintf( buf + n, "%s %s\n",
 			translator::translate("Intro. date:"),
-			translator::get_month_name( veh_type->get_intro_year_month() % 12 ),
-			veh_type->get_intro_year_month() / 12
+			translator::get_year_month( veh_type->get_intro_year_month())
 			);
 
 		if(  veh_type->get_retire_year_month() != DEFAULT_RETIRE_DATE * 12  )
 		{
-			n += sprintf( buf + n, "%s %s %04d\n",
+			n += sprintf( buf + n, "%s %s\n",
 				translator::translate("Retire. date:"),
-				translator::get_month_name( veh_type->get_retire_year_month() % 12 ),
-				veh_type->get_retire_year_month() / 12
-				);
+				translator::get_year_month( veh_type->get_retire_year_month())
+			);
 		}
 		else 
 		{

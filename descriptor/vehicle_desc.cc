@@ -26,7 +26,7 @@ uint32 vehicle_desc_t::calc_running_cost(const karte_t *welt, uint32 base_cost) 
 
 	// I am obsolete --> obsolescence cost increase.
 	uint16 running_cost_increase_percent = increase_maintenance_by_percent ? increase_maintenance_by_percent :welt->get_settings().get_obsolete_running_cost_increase_percent();
-	uint32 max_cost = base_cost * (running_cost_increase_percent / 100);
+	uint32 max_cost = (base_cost * running_cost_increase_percent) / 100;
 	if (max_cost == base_cost)
 	{
 		return max_cost;

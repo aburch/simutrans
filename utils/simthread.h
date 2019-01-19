@@ -3,8 +3,10 @@
 
 #ifdef MULTI_THREAD
 
-#if _XOPEN_SOURCE < 600
-// enable barriers by this
+#if _XOPEN_SOURCE < 600 && !defined(__APPLE__)
+// On Posix systems, this enables barriers.
+// On OS X, barriers are not supported anyway, and defining this would
+// cause PTHREAD_RECURSIVE_MUTEX_INITIALIZER to not get defined.
 #define _XOPEN_SOURCE 600
 #endif
 
@@ -58,8 +60,8 @@ int simthread_barrier_init(simthread_barrier_t *barrier, const simthread_barrier
 int simthread_barrier_destroy(simthread_barrier_t *barrier);
 int simthread_barrier_wait(simthread_barrier_t *barrier);
 
-#endif // _USE_POSIX_BARRIERS
+#endif
 
-#endif // MULTI_THREAD
+#endif
 
 #endif

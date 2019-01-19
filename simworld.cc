@@ -178,40 +178,6 @@ vector_tpl<nearby_halt_t> karte_t::start_halts;
 vector_tpl<halthandle_t> karte_t::destination_list;
 #endif
 
-#ifdef DEBUG_SIMRAND_CALLS
-bool karte_t::print_randoms = true;
-int karte_t::random_calls = 0;
-#endif
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-static uint32 halt_index = 9999999;
-static const char *station_name = "Newton Abbot Railway Station";
-static uint32 old_menge = -1;
-void station_check(const char *who, karte_t *welt)
-{
-	player_t *player = welt->get_active_player();
-	if (halt_index >= (uint32)player->get_haltcount() || 
-		strcmp(player->get_halt(halt_index)->get_name(), station_name))
-	{
-		old_menge = -1;
-		for (halt_index = 0; halt_index < (uint32) player->get_haltcount(); ++halt_index)
-			if (!strcmp(player->get_halt(halt_index)->get_name(), station_name))
-				break;
-	}
-	if (halt_index < (uint32) player->get_haltcount())
-	{
-		const halthandle_t &station = player->get_halt(halt_index);
-		uint32 menge = station->get_warray(0)->get_element(2198).menge;
-		if (old_menge != menge)
-		{
-			dbg->warning(who, "station \"%s\" goods[0][2198].menge %u -> %u", station->get_name(), old_menge, menge);
-			old_menge = menge;
-		}
-	}
-}
-#endif
-#endif
-
 // advance 201 ms per sync_step in fast forward mode
 #define MAGIC_STEP (201)
 
@@ -370,11 +336,14 @@ void karte_t::world_xy_loop(xy_loop_func function, uint8 flags)
 }
 
 
-checklist_t::checklist_t(uint32 _ss, uint32 _st, uint8 _nfc, uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, uint32 *_rands)
+checklist_t::checklist_t(uint32 _ss, uint32 _st, uint8 _nfc, uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, uint32 *_rands, uint32 *_debug_sums)
 	: ss(_ss), st(_st), nfc(_nfc), random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry)
 {
 	for(  uint8 i = 0;  i < CHK_RANDS; i++  ) {
 		rand[i]	 = _rands[i];
+	}
+	for(  uint8 i = 0;  i < CHK_DEBUG_SUMS; i++  ) {
+		debug_sum[i]	 = _debug_sums[i];
 	}
 }
 
@@ -393,17 +362,22 @@ void checklist_t::rdwr(memory_rw_t *buffer)
 	for(  uint8 i = 0;  i < CHK_RANDS;  i++  ) {
 		buffer->rdwr_long(rand[i]);
 	}
+	// More desync debug - should catch desyncs earlier with little computational penalty
+	for(  uint8 i = 0;  i < CHK_DEBUG_SUMS;  i++  ) {
+		buffer->rdwr_long(debug_sum[i]);
+	}
 }
 
 
 
 int checklist_t::print(char *buffer, const char *entity) const
 {
-	return sprintf(buffer, "%s=[ss=%u st=%u nfc=%u rand=%u halt=%u line=%u cnvy=%u ssr=%u,%u,%u,%u,%u,%u,%u,%u str=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u exr=%u,%u,%u,%u,%u,%u,%u,%u  ",
+	return sprintf(buffer, "%s=[ss=%u st=%u nfc=%u rand=%u halt=%u line=%u cnvy=%u ssr=%u,%u,%u,%u,%u,%u,%u,%u str=%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u exr=%u,%u,%u,%u,%u,%u,%u,%u sums=%u,%u,%u,%u,%u,%u,%u,%u",
 		entity, ss, st, nfc, random_seed, halt_entry, line_entry, convoy_entry,
 		rand[0], rand[1], rand[2], rand[3], rand[4], rand[5], rand[6], rand[7],
 		rand[8], rand[9], rand[10], rand[11], rand[12], rand[13], rand[14], rand[15], rand[16], rand[17], rand[18], rand[19], rand[20], rand[21], rand[22], rand[23],
-		rand[24], rand[25], rand[26], rand[27], rand[28], rand[29], rand[30], rand[31]
+		rand[24], rand[25], rand[26], rand[27], rand[28], rand[29], rand[30], rand[31],
+		debug_sum[0], debug_sum[1], debug_sum[2], debug_sum[3], debug_sum[4], debug_sum[5], debug_sum[6], debug_sum[7] 
 	);
 }
 
@@ -668,22 +642,16 @@ void karte_t::destroy()
 	ls.set_progress( old_progress );
 
 	// gitter aufraeumen
-	if(grid_hgts) {
-		delete [] grid_hgts;
-		grid_hgts = NULL;
-	}
+	delete [] grid_hgts;
+	grid_hgts = NULL;
 
-	if(  water_hgts  ) {
-		delete [] water_hgts;
-		water_hgts = NULL;
-	}
+	delete [] water_hgts;
+	water_hgts = NULL;
 
 	// players aufraeumen
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
-		if(players[i]) {
-			delete players[i];
-			players[i] = NULL;
-		}
+		delete players[i];
+		players[i] = NULL;
 	}
 	DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 
@@ -1678,6 +1646,10 @@ void *check_road_connexions_threaded(void *args)
 		simthread_barrier_wait(&private_car_barrier);
 	} while (!world()->is_terminating_threads());
 
+	// New thread local nodes are created on the heap automatically when this is used,
+	// so this must be released explicitly when this thread is terminated.
+	route_t::TERM_NODES(); 
+
 	pthread_exit(NULL);
 	return args;
 }
@@ -1691,7 +1663,7 @@ void *step_passengers_and_mail_threaded(void* args)
 	// This may easily overflow, but this is irrelevant for the purposes of a random seed
 	// (so long as both server and client are using the same size of integer)
 
-	const uint32 seed = seed_base * karte_t::passenger_generation_thread_number;
+	const uint32 seed = 325651 + seed_base * karte_t::passenger_generation_thread_number;
 
 	delete thread_number_ptr;
 
@@ -1883,6 +1855,7 @@ void *step_convoys_threaded(void* args)
 
 		simthread_barrier_wait(&karte_t::step_convoys_barrier_external);
 	} while (!world->is_terminating_threads());
+
 	pthread_exit(NULL);
 	return args;
 }
@@ -1904,25 +1877,12 @@ void* step_individual_convoy_threaded(void* args)
 		}
 		
 		const uint32 convoys_next_step_count = convoys_next_step.get_count();
-		uint32 offset_counter = karte_t::world->get_parallel_operations();
-		bool start_counting = false;
-
-		for (uint32 i = 0; i < convoys_next_step_count; i++)
+		for (uint32 i = thread_number; i < convoys_next_step_count; i += karte_t::world->get_parallel_operations())
 		{
-			if (i == thread_number || offset_counter == 0)
+			convoihandle_t cnv = convoys_next_step[i];
+			if (cnv.is_bound())
 			{
-				start_counting = true;
-				offset_counter = karte_t::world->get_parallel_operations();
-				convoihandle_t cnv = convoys_next_step[i];
-				if (cnv.is_bound())
-				{
-					cnv->threaded_step();
-				}
-			}
-
-			if (start_counting)
-			{
-				offset_counter --;
+				cnv->threaded_step();
 			}
 		}
 
@@ -3063,11 +3023,6 @@ karte_t::karte_t() :
 #endif
 }
 
-#ifdef DEBUG_SIMRAND_CALLS
-	vector_tpl<const char*> karte_t::random_callers;
-#endif
-
-
 karte_t::~karte_t()
 {
 	is_sound = false;
@@ -3428,7 +3383,9 @@ void karte_t::prepare_raise(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw
 	const sint8 hn_ne = max(hne, h0_ne);
 	const sint8 hn_nw = max(hnw, h0_nw);
 	// nothing to do?
-	if (!gr->is_water()  &&  h0_sw >= hsw  &&  h0_se >= hse  &&  h0_ne >= hne  &&  h0_nw >= hnw) return;
+	if(  !gr->is_water()  &&  h0_sw >= hsw  &&  h0_se >= hse  &&  h0_ne >= hne  &&  h0_nw >= hnw  ) {
+		return;
+	}
 	// calc new height and slope
 	const sint8 hneu = min( min( hn_sw, hn_se ), min( hn_ne, hn_nw ) );
 	const sint8 hmaxneu = max( max( hn_sw, hn_se ), max( hn_ne, hn_nw ) );
@@ -3436,7 +3393,7 @@ void karte_t::prepare_raise(terraformer_t& digger, sint16 x, sint16 y, sint8 hsw
 	const uint8 max_hdiff = ground_desc_t::double_grounds ? 2 : 1;
 
 	bool ok = (hmaxneu - hneu <= max_hdiff); // may fail on water tiles since lookup_hgt might be modified from previous raise_to calls
-	if (!ok && !gr->is_water()) {
+	if(  !ok  &&  !gr->is_water()  ) {
 		assert(false);
 	}
 
@@ -3498,7 +3455,9 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 	const sint8 hn_ne = max(hne, h0_ne);
 	const sint8 hn_nw = max(hnw, h0_nw);
 	// nothing to do?
-	if (!gr->is_water()  &&  h0_sw >= hsw  &&  h0_se >= hse  &&  h0_ne >= hne  &&  h0_nw >= hnw) return 0;
+	if(  !gr->is_water()  &&  h0_sw >= hsw  &&  h0_se >= hse  &&  h0_ne >= hne  &&  h0_nw >= hnw  ) {
+		return 0;
+	}
 	// calc new height and slope
 	const sint8 hneu = min( min( hn_sw, hn_se ), min( hn_ne, hn_nw ) );
 	const sint8 hmaxneu = max( max( hn_sw, hn_se ), max( hn_ne, hn_nw ) );
@@ -3608,7 +3567,9 @@ int karte_t::grid_raise(const player_t *player, koord k, bool allow_deep_water, 
 		digger.iterate(true);
 
 		err = digger.can_raise_all(player, allow_deep_water);
-		if (err) return 0;
+		if (err) {
+			return 0;
+		}
 
 		n = digger.raise_all();
 
@@ -3712,6 +3673,7 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 	int n=0;
 	assert(is_within_limits(x,y));
 	grund_t *gr = lookup_kartenboden_nocheck(x,y);
+	const uint8 old_slope = gr->get_grund_hang();
 	sint8 water_hgt = get_water_hgt_nocheck(x,y);
 	const sint8 h0 = gr->get_hoehe();
 	// old height
@@ -3739,6 +3701,20 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 	// calc new height and slope
 	const sint8 hneu = min( min( hn_sw, hn_se ), min( hn_ne, hn_nw ) );
 	const sint8 hmaxneu = max( max( hn_sw, hn_se ), max( hn_ne, hn_nw ) );
+
+	// only slope could have been shores
+	if(  old_slope  ) {
+		// if there are any shore corners, then the new tile must be all water since it is lowered
+		const bool make_water =
+			get_water_hgt_nocheck(x,y) <= lookup_hgt_nocheck(x,y)  ||
+			get_water_hgt_nocheck(x+1,y) <= lookup_hgt_nocheck(x+1,y)  ||
+			get_water_hgt_nocheck(x,y+1) <= lookup_hgt_nocheck(x,y+1)  ||
+			get_water_hgt_nocheck(x+1,y+1) <= lookup_hgt_nocheck(x+1,y+1);
+		if(  make_water  ) {
+			sint8 water_table = water_hgt >= hneu ? water_hgt : hneu;
+			set_water_hgt(x, y, water_table );
+		}
+	}
 
 	if(  hneu >= water_hgt  ) {
 		// calculate water table from surrounding tiles - start off with height on this tile
@@ -3928,6 +3904,13 @@ int karte_t::grid_lower(const player_t *player, koord k, const char*&err)
 
 		n = digger.lower_all();
 		err = NULL;
+
+		// force world full redraw, or background could be dirty.
+		set_dirty();
+
+		if(  min_height > min_hgt_nocheck( koord(x,y) )  ) {
+			min_height = min_hgt_nocheck( koord(x,y) );
+		}
 	}
 	return (n+3)>>2;
 }
@@ -4672,6 +4655,16 @@ rands[4] = 0;
 rands[5] = 0;
 rands[6] = 0;
 rands[7] = 0;
+	// If only one convoy speed is mismatched it should be possible to
+	// identify the convoy involved.
+	debug_sums[0] = 0; // Convoy speeds
+	debug_sums[1] = 0; // Convoy sums multiplied by convoy id
+	debug_sums[2] = 0;
+	debug_sums[3] = 0;
+	debug_sums[4] = 0;
+	debug_sums[5] = 0;
+	debug_sums[6] = 0;
+	debug_sums[7] = 0;
 	set_random_mode( SYNC_STEP_RANDOM );
 	haltestelle_t::pedestrian_limit = 0;
 	if(do_sync_step) {
@@ -5138,7 +5131,11 @@ void karte_t::new_year()
 
 	for(weighted_vector_tpl<gebaeude_t *>::const_iterator a = world_attractions.begin(), end = world_attractions.end(); a != end; ++a)
 	{
-		(*a)->new_year();
+		if (!(*a)->get_stadt())
+		{
+			// Do not roll the city attractions as they have already been rolled, and this will overwrite previous year's passenger data
+			(*a)->new_year();
+		}
 	}
 
 	FOR(vector_tpl<fabrik_t*>, const fab, fab_list)
@@ -5292,7 +5289,7 @@ void karte_t::step()
 /*
 		if(  next_month_ticks > next_month_ticks+karte_t::ticks_per_world_month  ) {
 			// avoid overflow here ...
-			dbg->warning( "karte_t::step()", "Ticks were overflowing => resetted" );
+			dbg->warning("karte_t::step()", "Ticks were overflowing => reset");
 			ticks %= karte_t::ticks_per_world_month;
 			next_month_ticks %= karte_t::ticks_per_world_month;
 		}
@@ -5393,7 +5390,7 @@ void karte_t::step()
 	}
 #endif
 
-	/// check for pending seasons change
+	// check for pending seasons change
 	// This is not very computationally intensive.
 	const bool season_change = pending_season_change > 0;
 	const bool snowline_change = pending_snowline_change > 0;
@@ -5750,21 +5747,6 @@ void karte_t::step()
 		set_tool( tool, NULL );
 		// since init always returns false, it is safe to delete immediately
 		delete tool;
-#ifdef DEBUG_SIMRAND_CALLS
-		if(/*last_clients == 0*/ true)
-		{
-			ITERATE(karte_t::random_callers, n)
-			{
-				get_message()->add_message(random_callers.get_element(n), koord::invalid, message_t::ai);
-			}
-			print_randoms = false;
-		}
-		else
-		{
-			print_randoms = true;
-		}
-		printf("Number of connected clients changed to %u", last_clients);
-#endif
 	}
 
 	if(  get_scenario()->is_scripted() ) {
@@ -6014,12 +5996,6 @@ void karte_t::deposit_ware_at_destination(ware_t ware)
 				}
 			}
 		}
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-		if (talk)
-			dbg->message("haltestelle_t::liefere_an", "%d arrived at station \"%s\" goods[0].count %d", ware.menge, get_name(), get_warray(0)->get_count());
-#endif
-#endif
 	}
 }
 
@@ -6145,11 +6121,11 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			}
 			else if(trip == commuting_trip)
 			{
-				tolerance = simrand_normal(range_commuting_tolerance, settings.get_random_mode_commuting(), "karte_t::generate_passengers_and_mail (commuting tolerance?)") + min_commuting_tolerance;
+				tolerance = simrand_normal(range_commuting_tolerance, settings.get_random_mode_commuting(), "karte_t::generate_passengers_and_mail (commuting tolerance?)") + (min_commuting_tolerance * onward_trips);
 			}
 			else
 			{
-				tolerance = simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::generate_passengers_and_mail (visiting tolerance?)") + min_visiting_tolerance;
+				tolerance = simrand_normal(range_visiting_tolerance, settings.get_random_mode_visiting(), "karte_t::generate_passengers_and_mail (visiting tolerance?)") + (min_visiting_tolerance * onward_trips);
 			}
 		}
 		else
@@ -6255,7 +6231,18 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #endif
 		}
 
-		// Do nothing if trip == mail_trip
+		else if (trip == mail_trip)
+		{
+#ifdef MULTI_THREAD
+			int mutex_error = pthread_mutex_lock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
+#endif
+			first_origin->add_mail_generated(units_this_step);
+#ifdef MULTI_THREAD
+			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
+			assert(mutex_error == 0);
+#endif
+		}
 
 		/**
 		* Walking tolerance is necessary because mail can be delivered by hand. If it is delivered
@@ -6384,9 +6371,9 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 #endif
 			{
 				/**
-					* If the passengers have no private car, are not in reach of any public transport
-					* facilities and the journey is too long on foot, do not continue to check other things.
-					*/
+				* If the passengers have no private car, are not in reach of any public transport
+				* facilities and the journey is too long on foot, do not continue to check other things.
+				*/
 				if (n < destination_count + extend_count - 1)
 				{
 					current_destination = find_destination(trip, pax.get_class());
@@ -6807,8 +6794,11 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			{
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
 			}
-			// Do nothing if trip == mail: mail statistics are added on arrival.
-			break;
+			else if (trip == mail_trip && first_origin)
+			{
+				first_origin->add_mail_delivery_succeeded(units_this_step);
+			}
+		break;
 
 		case private_car:  
 					
@@ -6847,6 +6837,10 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			else if(trip == visiting_trip)
 			{
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
+			}
+			else if(trip == mail_trip)
+			{
+				first_origin->add_mail_delivery_succeeded(units_this_step);
 			}
 #ifdef MULTI_THREAD
 			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
@@ -6900,6 +6894,10 @@ sint32 karte_t::generate_passengers_or_mail(const goods_desc_t * wtyp)
 			{
 				first_origin->add_passengers_succeeded_visiting(units_this_step);
 				
+			}
+			else if (trip == mail_trip)
+			{
+				first_origin->add_mail_delivery_succeeded(units_this_step);
 			}
 #ifdef MULTI_THREAD
 			mutex_error = pthread_mutex_unlock(&karte_t::step_passengers_and_mail_mutex);
@@ -7105,6 +7103,7 @@ no_route:
 
 				bool direct_return_available = false;
 				ware_t return_passengers(wtyp, ret_halt);
+				return_passengers.set_class(pax.get_class()); 
 
 #ifndef FORBID_FIND_ROUTE_FOR_RETURNING_PASSENGERS_1
 				return_passengers.menge = units_this_step;
@@ -7846,8 +7845,8 @@ void karte_t::save(const char *filename, loadsave_t::mode_t savemode, const char
 {
 DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 	loadsave_t  file;
-	bool save_temp = strstart( filename, "save/" );
-	const char *savename = save_temp ? "save/_temp.sve" : filename;
+	std::string savename = filename;
+	savename.back() = '_';
 
 	display_show_load_pointer( true );
 	if(env_t::networkmode && !env_t::server && savemode == loadsave_t::bzip2)
@@ -7855,7 +7854,7 @@ DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 		// Make local saving/loading faster in network mode.
 		savemode = loadsave_t::zipped;
 	}
-	if(!file.wr_open( savename, savemode, env_t::objfilename.c_str(), version_str, ex_version_str, ex_revision_str )) {
+	if(!file.wr_open( savename.c_str(), savemode, env_t::objfilename.c_str(), version_str, ex_version_str, ex_revision_str )) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::save()","cannot open file for writing! check permissions!");
 	}
@@ -7868,9 +7867,7 @@ DBG_MESSAGE("karte_t::save()", "saving game to '%s'", filename);
 			create_win( new news_img(err_str), w_time_delete, magic_none);
 		}
 		else {
-			if(  save_temp  ) {
-				dr_rename( savename, filename );
-			}
+			dr_rename( savename.c_str(), filename );
 			if(!silent) {
 				create_win( new news_img("Spielstand wurde\ngespeichert!\n"), w_time_delete, magic_none);
 				// update the filename, if no autosave
@@ -8682,17 +8679,17 @@ void karte_t::load(loadsave_t *file)
 		for(  int i = 0;  i < CHK_RANDS  ;  i++  ) {
 			rands[i] = 0;
 		}
+		for(  int i = 0;  i < CHK_DEBUG_SUMS  ;  i++  ) {
+			debug_sums[i] = 0;
+		}
 	}
 
 
-#ifndef DEBUG_SIMRAND_CALLS
 	if(  env_t::networkmode  ) {
 		// to have games synchronized, transfer random counter too
 		setsimrand(settings.get_random_counter(), 0xFFFFFFFFu );
-//		setsimrand(0, 0xFFFFFFFFu );
 		translator::init_custom_names(settings.get_name_language_id());
 	}
-#endif
 
 	if(  !env_t::networkmode  ||  (env_t::server  &&  socket_list_t::get_playing_clients()==0)  ) {
 		if (settings.get_allow_player_change() && env_t::default_settings.get_use_timeline() < 2) {
@@ -9384,13 +9381,11 @@ DBG_MESSAGE("karte_t::load()", "%d factories loaded", fab_list.get_count());
 			// On re-loading, there is no need to distribute the
 			// cargoes about different members of this array.
 			transferring_cargoes[0].append(tc);
-#ifndef CACHE_TRANSIT
 			fabrik_t* fab = fabrik_t::get_fab(tc.ware.get_zielpos());
 			if (fab)
 			{
 				fab->update_transit(tc.ware, true);
 			}
-#endif // !CACHE_TRANSIT
 		}
 	}
 
@@ -10404,11 +10399,6 @@ bool karte_t::interactive(uint32 quit_month)
 		if (env_t::quit_simutrans){
 			break;
 		}
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-		station_check("karte_t::interactive after win_poll_event", this);
-#endif
-#endif
 
 		if(  env_t::networkmode  ) {
 			process_network_commands(&ms_difference);
@@ -10440,11 +10430,6 @@ bool karte_t::interactive(uint32 quit_month)
 				(env_t::networkmode && !env_t::server  &&  sync_steps >= sync_steps_barrier)) {
 				// only update display
 				sync_step( 0, false, true );
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-				station_check("karte_t::interactive PAUSE after sync_step", this);
-#endif
-#endif
 				idle_time = 100;
 			}
 			else {
@@ -10453,11 +10438,6 @@ bool karte_t::interactive(uint32 quit_month)
 					set_random_mode( STEP_RANDOM );
 					step();
 					clear_random_mode( STEP_RANDOM );
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-					station_check("karte_t::interactive FAST_FORWARD after step", this);
-#endif
-#endif
 				}
 				else if(  step_mode==FIX_RATIO  ) {
 					if(  env_t::server  ) {
@@ -10476,26 +10456,16 @@ bool karte_t::interactive(uint32 quit_month)
 					}
 
 					sync_step( (fix_ratio_frame_time*time_multiplier)/16, true, true );
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-					station_check("karte_t::interactive FIX_RATIO after sync_step", this);
-#endif
-#endif
 					if (++network_frame_count == settings.get_frames_per_step()) {
 						// ever Nth frame (default: every 4th - can be set in simuconf.tab)
 						set_random_mode( STEP_RANDOM );
 						step();
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-					station_check("karte_t::interactive FIX_RATIO after step", this);
-#endif
-#endif
 						clear_random_mode( STEP_RANDOM );
 						network_frame_count = 0;
 					}
 					sync_steps = steps * settings.get_frames_per_step() + network_frame_count;
 					LCHKLST(sync_steps) = checklist_t(sync_steps, (uint32)steps, network_frame_count, get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check(),
-						rands
+						rands, debug_sums
 					);
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -10537,18 +10507,8 @@ bool karte_t::interactive(uint32 quit_month)
 				}
 				else { // Normal step mode
 					INT_CHECK( "karte_t::interactive()" );
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-					station_check("karte_t::interactive else after INT_CHECK 1", this);
-#endif
-#endif
 					set_random_mode( STEP_RANDOM );
 					step();
-#ifdef DEBUG_SIMRAND_CALLS
-#ifdef STATION_CHECK
-					station_check("karte_t::interactive else after step", this);
-#endif
-#endif
 					clear_random_mode( STEP_RANDOM );
 					idle_time = ((idle_time*7) + next_step_time - dr_time())/8;
 					INT_CHECK( "karte_t::interactive()" );
@@ -10597,7 +10557,6 @@ bool karte_t::interactive(uint32 quit_month)
 // 2 - shutdown
 void karte_t::announce_server(int status)
 {
-	assert(env_t::server  &&  env_t::server_announce);
 	DBG_DEBUG( "announce_server()", "status: %i",  status );
 	// Announce game info to server, format is:
 	// st=on&dns=server.com&port=13353&rev=1234&pak=pak128&name=some+name&time=3,1923&size=256,256&active=[0-16]&locked=[0-16]&clients=[0-16]&towns=15&citizens=3245&factories=33&convoys=56&stops=17
@@ -10704,15 +10663,6 @@ void karte_t::network_disconnect()
 	last_active_player_nr = active_player_nr;
 
 	stop(false);
-
-#ifdef DEBUG_SIMRAND_CALLS
-	print_randoms = false;
-	printf("Lost synchronisation\nwith server.\n");
-	ITERATE(karte_t::random_callers, n)
-	{
-		get_message()->add_message(random_callers.get_element(n), koord::invalid, message_t::ai);
-	}
-#endif
 }
 
 void karte_t::set_citycar_speed_average()
@@ -11026,6 +10976,44 @@ void karte_t::update_weight_of_building_in_world_list(gebaeude_t *gb)
 		mail_origins_and_targets.update_at(mail_origins_and_targets.index_of(gb), gb->get_adjusted_mail_demand());
 		mail_step_interval = calc_adjusted_step_interval(mail_origins_and_targets.get_sum_weight(), get_settings().get_mail_packets_per_month_hundredths());
 	}
+}
+
+void karte_t::remove_all_building_references_to_city(stadt_t* city)
+{
+	FOR(weighted_vector_tpl <gebaeude_t *>, building, passenger_origins)
+	{
+		if(building->get_stadt() == city)
+		{
+			building->set_stadt(NULL);
+		}
+	}
+
+	FOR(weighted_vector_tpl <gebaeude_t *>, building, mail_origins_and_targets)
+	{
+		if(building->get_stadt() == city)
+		{
+			building->set_stadt(NULL);
+		}
+	}
+
+	for (uint8 i = 0; i < goods_manager_t::passengers->get_number_of_classes(); i++)
+	{
+		FOR(weighted_vector_tpl <gebaeude_t *>, building, commuter_targets[i])
+		{
+			if (building->get_stadt() == city)
+			{
+				building->set_stadt(NULL);
+			}
+		}
+
+		FOR(weighted_vector_tpl <gebaeude_t *>, building, visitor_targets[i])
+		{
+			if (building->get_stadt() == city)
+			{
+				building->set_stadt(NULL);
+			}
+		}
+	}	
 }
 
 vector_tpl<car_ownership_record_t> *karte_t::car_ownership;

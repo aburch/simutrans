@@ -560,6 +560,17 @@ void leitung_t::rdwr(loadsave_t *file)
 }
 
 
+// returns NULL, if removal is allowed
+// players can remove public owned powerlines
+const char *leitung_t::is_deletable(const player_t *player)
+{
+	if(  get_player_nr()==welt->get_public_player()->get_player_nr()  &&  player  ) {
+		return NULL;
+	}
+	return obj_t::is_deletable(player);
+}
+
+
 /************************************ from here on pump (source) stuff ********************************************/
 
 slist_tpl<pumpe_t *> pumpe_t::pumpe_list;

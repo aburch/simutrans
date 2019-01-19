@@ -392,7 +392,7 @@ const char *tunnel_builder_t::build( player_t *player, koord pos, const tunnel_d
 		lower.add_lower_node(end.x, end.y, hsw, hse, hne, hnw);
 		raise.iterate(true);
 		lower.iterate(false);
-		err = raise.can_raise_all(player, player->is_public_service());
+		err = raise.can_raise_all(player, player ? player->is_public_service() : false);
 		if (!err) err = lower.can_lower_all(player, player->is_public_service());
 		if (err) return 0;
 

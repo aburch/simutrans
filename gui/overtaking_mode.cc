@@ -65,25 +65,25 @@ void overtaking_mode_frame_t::init( player_t* player_, overtaking_mode_t overtak
 	set_windowsize( scr_size( L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
 }
 
-bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *komp, value_t)
+bool overtaking_mode_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 {
 	uint8 num = 0;
-	if(  komp==&mode_button[0]  ) {
+	if(  comp==&mode_button[0]  ) {
 		overtaking_mode = halt_mode;
 		num = 0;
-	}else if(  komp==&mode_button[1]  ) {
+	}else if(  comp==&mode_button[1]  ) {
 		overtaking_mode = oneway_mode;
 		num = 1;
-	}else if(  komp==&mode_button[2]  ) {
+	}else if(  comp==&mode_button[2]  ) {
 		overtaking_mode = twoway_mode;
 		num = 2;
-	}else if(  komp==&mode_button[3]  ) {
+	}else if(  comp==&mode_button[3]  ) {
 		overtaking_mode = loading_only_mode;
 		num = 3;
-	}else if(  komp==&mode_button[4]  ) {
+	}else if(  comp==&mode_button[4]  ) {
 		overtaking_mode = prohibited_mode;
 		num = 4;
-	}else if(  komp==&mode_button[5]  ) {
+	}else if(  comp==&mode_button[5]  ) {
 		overtaking_mode = inverted_mode;
 		num = 5;
 	}else{

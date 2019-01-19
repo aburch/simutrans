@@ -11,8 +11,6 @@
 
 #include "gui_convoiinfo.h"
 
-#include "../gui_frame.h"
-
 #include "../../simworld.h"
 #include "../../vehicle/simvehicle.h"
 #include "../../simconvoi.h"
@@ -25,6 +23,7 @@
 #include "../../dataobj/translator.h"
 
 #include "../../utils/simstring.h"
+#include "../gui_frame.h"
 
 
 gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv)

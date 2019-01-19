@@ -144,6 +144,12 @@ public:
 	*/
 	virtual void rdwr(loadsave_t *file);
 
+	/**
+	 * @return NULL if OK, otherwise an error message
+	 * @author Hj. Malthaner
+	 */
+	virtual const char *is_deletable(const player_t *player);
+
 	stadt_t *city;
 
 	void clear_factory() { fab = NULL; }

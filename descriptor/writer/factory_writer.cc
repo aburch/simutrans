@@ -179,7 +179,8 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 const electric_boost  = (obj.get_int("electricity_boost",   1000) * 256 + 500) / 1000;
 	uint16 const pax_boost       = (obj.get_int("passenger_boost",        0) * 256 + 500) / 1000;
 	uint16 const mail_boost      = (obj.get_int("mail_boost",             0) * 256 + 500) / 1000;
-	uint16 const  electric_demand =  obj.get_int("electricity_amount", 65535);
+	uint16 electric_demand       =  obj.get_int("electricity_amount", 65535);
+	electric_demand              =  obj.get_int("electricity_demand", electric_demand);
 	uint16 const max_distance_to_consumer = obj.get_int("max_distance_to_consumer", 65535); // In km, not tiles.
 	// how long between sounds
 	uint32 const sound_interval = obj.get_int("sound_interval", 10000u);
