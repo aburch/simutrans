@@ -22,7 +22,7 @@
 // NOTE: increment before next release to enable save/load of new features
 
 #define OTRP_VERSION_MAJOR 20
-#define OTRP_VERSION_MINOR  0
+#define OTRP_VERSION_MINOR 1
 // NOTE: increment OTRP_VERSION_MAJOR when the save data structure changes.
 
 #define MAKEOBJ_VERSION "60.2"
