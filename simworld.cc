@@ -7050,7 +7050,13 @@ no_route:
 #endif
 				if(start_halt.is_bound())
 				{
-					start_halt->add_pax_no_route(units_this_step);
+					if (trip == mail_trip)
+					{
+						start_halt->add_mail_no_route(units_this_step);
+					}
+					else {
+						start_halt->add_pax_no_route(units_this_step);
+					}
 				}
 			}
 		};

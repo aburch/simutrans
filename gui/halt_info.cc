@@ -58,8 +58,10 @@ static const char cost_type[MAX_HALT_COST][64] =
 	"Happy",
 	"Turned away",
 	"Gave up waiting",
-	"No Route",
 	"Too slow",
+	"No route (pass.)",
+	"Mail delivered",
+	"No route (mail)",
 	"hl_btn_sort_waiting",
 	"Arrived",
 	"Departed",
@@ -71,8 +73,10 @@ static const char cost_tooltip[MAX_HALT_COST][128] =
 	"The number of passengers who have travelled successfully from this stop",
 	"The number of passengers who have been turned away from this stop because it is overcrowded",
 	"The number of passengers who had to wait so long that they gave up",
-	"The number of passengers who could not find a route to their destination",
 	"The number of passengers who decline to travel because the journey would take too long",
+	"The number of passengers who could not find a route to their destination",
+	"The amount of mail successfully delivered from this stop",
+	"The amount of mail which could not find a route to its destination",
 	"The number of passengers/units of mail/goods waiting at this stop",
 	"The number of passengers/units of mail/goods that have arrived at this stop",
 	"The number of passengers/units of mail/goods that have departed from this stop",
@@ -83,8 +87,10 @@ const uint8 index_of_haltinfo[MAX_HALT_COST] = {
 	HALT_HAPPY,
 	HALT_UNHAPPY,
 	HALT_TOO_WAITING,
-	HALT_NOROUTE,
 	HALT_TOO_SLOW,
+	HALT_NOROUTE,
+	HALT_MAIL_DELIVERED,
+	HALT_MAIL_NOROUTE,
 	HALT_WAITING,
 	HALT_ARRIVED,
 	HALT_DEPARTED,
@@ -92,23 +98,28 @@ const uint8 index_of_haltinfo[MAX_HALT_COST] = {
 };
 
 #define COL_HAPPY COL_YELLOW
-#define COL_TOO_WAITNG COL_LIGHT_PURPLE
+#define COL_TOO_WAITNG COL_LIGHT_PURPLE-1
 #define COL_WAITING COL_DARK_TURQUOISE
 #define COL_ARRIVED COL_LIGHT_BLUE
-#define COL_DEPARTED COL_PASSENGERS
+#define COL_MAIL_NOROUTE COL_BRIGHT_ORANGE
+#define COL_MAIL_DELIVERED COL_DARK_GREEN+1
 
 const int cost_type_color[MAX_HALT_COST] =
 {
 	COL_HAPPY,
 	COL_OVERCROWD,
 	COL_TOO_WAITNG,
-	COL_NO_ROUTE,
 	COL_TOO_SLOW,
+	COL_NO_ROUTE,
+	COL_MAIL_DELIVERED,
+	COL_MAIL_NOROUTE,
 	COL_WAITING,
 	COL_ARRIVED,
-	COL_DEPARTED,
+	COL_PASSENGERS,
 	COL_TURQUOISE
 };
+
+#define PAX_EVALUATIONS 5
 
 #define L_BUTTON_WIDTH button_size.w
 #define L_CHART_INDENT (66)
@@ -134,7 +145,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	scr_coord cursor(D_MARGIN_LEFT, D_MARGIN_TOP);
 
 	const sint16 offset_below_viewport = D_MARGIN_TOP + D_BUTTON_HEIGHT + D_V_SPACE + view.get_size().h;
-	const sint16 client_width = 3*(L_BUTTON_WIDTH + D_H_SPACE) + max( L_BUTTON_WIDTH, view.get_size().w );
+	const sint16 client_width = 3*(L_BUTTON_WIDTH + D_H_SPACE) + max(freight_selector_size.w, view.get_size().w );
 	const sint16 total_width = D_MARGIN_LEFT + client_width + D_MARGIN_RIGHT;
 
 	input.set_pos(cursor);
@@ -147,7 +158,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 
 	view.set_pos(cursor); // will be right aligned in set_windowsize()
 	add_component(&view);
-	cursor.y += view.get_size().h + D_V_SPACE;
+	cursor.y += max(view.get_size().h, D_LABEL_HEIGHT*4 + LINESPACE*4 + D_V_SPACE*3 + D_INDICATOR_HEIGHT*2 + 3) + D_V_SPACE;
 
 	scr_coord old_cursor = cursor;
 
@@ -383,59 +394,228 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			display_color_img(skinverwaltung_t::goods->get_image_id(0), left, top, 0, false, false);
 			left = 53+LINESPACE;
 		}
-		top += LINESPACE + D_V_SPACE;
-		left = pos.x + D_MARGIN_LEFT;
 
 		// Hajo: Reuse of info_buf buffer to get and display
 		// information about the passengers happiness
 		info_buf.clear();
-		info_buf.printf("%s ", translator::translate("Passengers:"));
-		int ev_value_offset_left = left + proportional_string_width(translator::translate("Passengers:"));
-		int pax_ev_num[5] = { halt->haltestelle_t::get_pax_happy(),halt->haltestelle_t::get_pax_unhappy(), halt->haltestelle_t::get_pax_too_waiting(), halt->haltestelle_t::get_pax_no_route(), halt->haltestelle_t::get_pax_too_slow() };
-		// passenger evaluation icons ok?
-		if (skinverwaltung_t::happy && skinverwaltung_t::overcrowd && skinverwaltung_t::too_waiting && skinverwaltung_t::no_route && skinverwaltung_t::too_slow) {
-			char buf[1024];
 
-			for (int i = 0; i < PAX_EVALUATIONS; i++) {
-				info_buf.printf("%d", pax_ev_num[i]);
-				left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
-				switch (i) {
-					default:
-						display_color_img(skinverwaltung_t::happy->get_image_id(0), left + 1, top, 0, false, false);
-						break;
-					case 1:
-						display_color_img(skinverwaltung_t::overcrowd->get_image_id(0), left + 1, top, 0, false, false);
-						break;
-					case 2:
-						display_color_img(skinverwaltung_t::too_waiting->get_image_id(0), left + 1, top, 0, false, false);
-						break;
-					case 3:
-						display_color_img(skinverwaltung_t::no_route->get_image_id(0), left + 1, top, 0, false, false);
-						break;
-					case 4:
-						display_color_img(skinverwaltung_t::too_slow->get_image_id(0), left + 1, top, 0, false, false);
-					break;
-				}
-				if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
-					sprintf(buf, "%s: %s", translator::translate(cost_type[i]), translator::translate(cost_tooltip[i]));
-					win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
-				}
-				if (i < PAX_EVALUATIONS-1) {
-					left += 10;
-					info_buf.clear();
-					info_buf.printf(",  ");
+		const int ev_label_width = proportional_string_width(translator::translate("Passengers:"));
+		int ev_value_offset_left = pos.x + D_MARGIN_LEFT + ev_label_width;
+		int ev_indicator_width = min(255, get_windowsize().w - D_MARGIN_LEFT - D_MARGIN_RIGHT * 2 - ev_label_width - view.get_size().w);
+		COLOR_VAL color = MN_GREY0;
+
+		if (halt->get_pax_enabled()) {
+			top += LINESPACE + D_V_SPACE;
+			left = pos.x + D_MARGIN_LEFT + ev_label_width;
+			int pax_ev_num[5] = { halt->haltestelle_t::get_pax_happy(), halt->haltestelle_t::get_pax_unhappy(), halt->haltestelle_t::get_pax_too_waiting(), halt->haltestelle_t::get_pax_too_slow(), halt->haltestelle_t::get_pax_no_route() };
+			int pax_ev_percentage[PAX_EVALUATIONS] = {};
+			int pax_sum = pax_ev_num[0];
+			for (int i = 1; i < PAX_EVALUATIONS; i++) {
+				pax_sum += pax_ev_num[i];
+			}
+			uint8 indicator_height = pax_sum < 100 ? D_INDICATOR_HEIGHT - 1 : D_INDICATOR_HEIGHT;
+			if (pax_sum > 1000) { indicator_height++; }
+
+			info_buf.printf("%s", translator::translate("Passengers:"));
+			display_proportional(left, top, info_buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
+			info_buf.clear();
+			info_buf.printf(" %d", pax_sum);
+			display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			top += LINESPACE + 1;
+			left = ev_value_offset_left + 3;
+			info_buf.clear();
+			// ratio indicator
+			if (!pax_sum) {
+				color = halt->has_pax_user(2, false) ? MN_GREY0 : MN_GREY1;
+				display_fillbox_wh_clip(ev_value_offset_left, top, ev_indicator_width, indicator_height, color, true);
+			}
+			else
+			{
+				// calc and draw ratio indicator
+				sint8 fraction_sum = 0;
+				uint8 colored_width = 0;
+				uint8 indicator_left = 0;
+				for (int i = 0; i < PAX_EVALUATIONS; i++) {
+					colored_width = ev_indicator_width * pax_ev_num[i] / pax_sum;
+					if (pax_ev_num[i]) {
+						display_fillbox_wh_clip(ev_value_offset_left + indicator_left, top, colored_width, indicator_height, cost_type_color[i] + 1, true);
+						pax_ev_percentage[i] = pax_ev_num[i] * 100 / pax_sum;
+						if (int fraction = ((pax_ev_num[i] * 1000 / pax_sum) % 10)) {
+							fraction_sum += fraction;
+							if (fraction_sum > 5) {
+								fraction_sum -= 10;
+								pax_ev_percentage[i]++;
+							}
+						}
+					}
+					else {
+						pax_ev_percentage[i] = 0;
+					}
+					indicator_left += colored_width;
 				}
 			}
-		}
-		else {
-			// current style
-			halt->info(info_buf);
-			display_multiline_text(pos.x + D_MARGIN_LEFT, top, info_buf, SYSCOL_TEXT);
-			top += LINESPACE;
 			info_buf.clear();
-			// second row
-			info_buf.printf("%d no route, %d too slow\n", pax_ev_num[3], pax_ev_num[4]);
-			display_multiline_text(ev_value_offset_left + D_MARGIN_LEFT, top, info_buf, SYSCOL_TEXT);
+
+			// Evaluation ratio indicator
+			top += D_INDICATOR_HEIGHT + 2;
+			left = ev_value_offset_left + 3;
+
+			if (!halt->get_ware_summe(goods_manager_t::passengers) && !halt->has_pax_user(2, true)) {
+				// there is no passenger demand
+				if (skinverwaltung_t::alerts) {
+					display_color_img(skinverwaltung_t::alerts->get_image_id(2), left, top, 0, false, false);
+					left += 13;
+				}
+				info_buf.printf("%s", translator::translate("This stop has no user"));
+				display_proportional(left, top, info_buf, ALIGN_LEFT, MN_GREY0, true);
+			}
+			else if (!halt->get_ware_summe(goods_manager_t::passengers) && !halt->has_pax_user(2, false)) {
+				// there is demand but it seems no passengers using
+				if (skinverwaltung_t::alerts) {
+					display_color_img(skinverwaltung_t::alerts->get_image_id(2), left, top, 0, false, false);
+					left += 13;
+				}
+				info_buf.printf("%s", translator::translate("No passenger service"));
+				display_proportional(left, top, info_buf, ALIGN_LEFT, MN_GREY0, true);
+			}
+			else {
+				// passenger evaluation icons ok?
+				if (skinverwaltung_t::pax_evaluation_icons) {
+					char buf[1024];
+					info_buf.printf("(");
+					for (int i = 0; i < PAX_EVALUATIONS; i++) {
+						info_buf.printf("%d%%", pax_ev_percentage[i]);
+						left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true) + 1;
+						display_color_img(skinverwaltung_t::pax_evaluation_icons->get_image_id(i), left, top, 0, false, false);
+						if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
+							sprintf(buf, "%s: %d, %s", translator::translate(cost_type[i]), pax_ev_num[i], translator::translate(cost_tooltip[i]));
+							win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
+						}
+						info_buf.clear();
+						left += 11;
+						if (i < PAX_EVALUATIONS - 1) {
+							info_buf.printf(", ");
+						}
+					}
+					info_buf.printf(")");
+					display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+				}
+				else {
+					info_buf.printf("(");
+					if (has_character(0x263A)) {
+						utf8 happy[4];
+						happy[utf16_to_utf8(0x263A, happy)] = 0;
+						info_buf.printf("%s  ", happy);
+					}
+					else {
+						info_buf.printf("%c  ", 30);
+					}
+					for (int i = 0; i < PAX_EVALUATIONS; i++) {
+						info_buf.printf("%d%%", pax_ev_percentage[i]);
+						if (i < PAX_EVALUATIONS - 1) {
+							info_buf.printf(" : ");
+						}
+					}
+					if (has_character(0x2639)) {
+						utf8 unhappy[4];
+						unhappy[ utf16_to_utf8( 0x2639, unhappy ) ] = 0;
+						info_buf.printf("  %s", unhappy);
+					}
+					else {
+						info_buf.printf("%c  ", 31);
+					}
+					info_buf.printf(")");
+					//halt->info(info_buf);
+					display_multiline_text(ev_value_offset_left + D_MARGIN_LEFT, top, info_buf, SYSCOL_TEXT);
+					info_buf.clear();
+				}
+			}
+			info_buf.clear();
+		}
+
+		// Mail service evaluation
+		if (halt->get_mail_enabled()) {
+			top += LINESPACE + D_V_SPACE;
+			left = pos.x + D_MARGIN_LEFT + ev_label_width;
+			int mail_sum = halt->haltestelle_t::get_mail_delivered() + halt->haltestelle_t::get_mail_no_route();
+			int mail_delivered_percentage = mail_sum ? std::round( (double)(halt->haltestelle_t::get_mail_delivered()) * 100.0 / (double)(mail_sum)) : 0;
+			uint8 indicator_height = mail_sum < 100 ? D_INDICATOR_HEIGHT - 1 : D_INDICATOR_HEIGHT;
+			if (mail_sum > 1000) { indicator_height++; }
+
+			info_buf.printf("%s", translator::translate("Mail:"));
+			display_proportional(left, top, info_buf, ALIGN_RIGHT, SYSCOL_TEXT, true);
+			info_buf.clear();
+			info_buf.printf(" %d", mail_sum);
+			display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			top += LINESPACE + 1;
+			left = ev_value_offset_left + 3;
+			info_buf.clear();
+
+			// ratio indicator
+			if (!mail_sum) {
+				color = halt->has_mail_user(2, false) ? MN_GREY0 : MN_GREY1;
+				display_fillbox_wh_clip(ev_value_offset_left, top, ev_indicator_width, indicator_height, color, true);
+			}
+			else
+			{
+				display_fillbox_wh_clip(ev_value_offset_left, top, ev_indicator_width, indicator_height, COL_MAIL_NOROUTE, true);
+				if (mail_delivered_percentage) {
+					display_fillbox_wh_clip(ev_value_offset_left, top, ev_indicator_width*mail_delivered_percentage/100, indicator_height, COL_MAIL_DELIVERED, true);
+				}
+			}
+			top += D_INDICATOR_HEIGHT + 2;
+			left = ev_value_offset_left + 3;
+
+			// mail evaluation symbol and ratio
+			if (!halt->get_ware_summe(goods_manager_t::mail) && !halt->haltestelle_t::gibt_ab(goods_manager_t::get_info(1))) {
+				if (skinverwaltung_t::alerts) {
+					display_color_img(skinverwaltung_t::alerts->get_image_id(2), left, top, 0, false, false);
+					left += 13;
+				}
+				if (!halt->has_mail_user(2, true)) {
+					// It seems there are no mail users in the vicinity
+					info_buf.printf("%s", translator::translate("This stop does not have mail customers"));
+				}
+				else if (!halt->has_mail_user(2, false)) {
+					// This station seems not to be used by mail vehicles
+					info_buf.printf("%s", translator::translate("No mail service"));
+				}
+				display_proportional(left, top, info_buf, ALIGN_LEFT, MN_GREY0, true);
+			}
+			else {
+				// if symbols ok
+				if (skinverwaltung_t::mail_evaluation_icons) {
+					char buf[1024];
+					info_buf.printf("(%d%%", mail_delivered_percentage);
+					left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true) + 1;
+
+					display_color_img(skinverwaltung_t::mail_evaluation_icons->get_image_id(0), left, top, 0, false, false);
+					if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
+						sprintf(buf, "%s: %d, %s", translator::translate(cost_type[5]), halt->haltestelle_t::get_mail_delivered(), translator::translate(cost_tooltip[5]));
+						win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
+					}
+					info_buf.clear();
+					left += 11;
+
+					info_buf.printf(", %d%%", mail_sum ? 100 - mail_delivered_percentage : 0);
+					left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true) + 1;
+					info_buf.clear();
+					display_color_img(skinverwaltung_t::mail_evaluation_icons->get_image_id(1), left, top, 0, false, false);
+					if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
+						sprintf(buf, "%s: %d, %s", translator::translate(cost_type[6]), halt->haltestelle_t::get_mail_no_route(), translator::translate(cost_tooltip[6]));
+						win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
+					}
+					left += 11;
+					info_buf.printf(")");
+				}
+				else {
+					// pakset does not have symbols
+					info_buf.printf("(");
+					info_buf.printf(translator::translate("%d%% delivered : %d%% no route"), mail_delivered_percentage, mail_sum ? 100 - mail_delivered_percentage : 0);
+					info_buf.printf(")");
+				}
+				display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
+			}
 		}
 		int returns = 1;
 		const char *p = info_buf;
@@ -447,7 +627,6 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			}
 		}
 		top += LINESPACE * returns;
-
 
 
 		// TODO: Display the status of the halt in written text and color
@@ -679,7 +858,7 @@ void halt_info_t::set_windowsize(scr_size size)
 
 	view.set_pos(scr_coord(D_MARGIN_LEFT + client_width - view.get_size().w, view.get_pos().y));
 
-	chart.set_width(client_width - chart.get_pos().x + D_MARGIN_LEFT);
+	chart.set_width(client_width - chart.get_pos().x + D_MARGIN_LEFT - D_MARGIN_LEFT);
 	floating_cursor_t auto_cursor(filterButtons[0].get_pos(), D_MARGIN_LEFT, D_MARGIN_LEFT + client_width);
 	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
 		filterButtons[cost].set_pos(auto_cursor.next_pos(filterButtons[cost].get_size()));

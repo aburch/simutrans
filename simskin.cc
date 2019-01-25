@@ -60,12 +60,10 @@ const skin_desc_t* skinverwaltung_t::color_options      = NULL;
 const skin_desc_t* skinverwaltung_t::compass_iso        = NULL;
 const skin_desc_t* skinverwaltung_t::compass_rect       = NULL;	// compass rectangular (for minimap)
 
-const skin_desc_t* skinverwaltung_t::happy              = NULL;
-//const skin_desc_t* skinverwaltung_t::unhappy            = NULL;
-const skin_desc_t* skinverwaltung_t::overcrowd          = NULL;
-const skin_desc_t* skinverwaltung_t::too_waiting        = NULL;
-const skin_desc_t* skinverwaltung_t::no_route           = NULL;
-const skin_desc_t* skinverwaltung_t::too_slow           = NULL;
+const skin_desc_t* skinverwaltung_t::pax_evaluation_icons = NULL;
+const skin_desc_t* skinverwaltung_t::mail_evaluation_icons = NULL;
+
+const skin_desc_t* skinverwaltung_t::alerts             = NULL;
 
 // cursors
 const skin_desc_t* skinverwaltung_t::cursor_general     = NULL;	// new cursors
@@ -114,12 +112,9 @@ static spezial_obj_tpl<skin_desc_t> const menu_objekte[] = {
 };
 
 static spezial_obj_tpl<skin_desc_t> const symbol_objekte[] = {
-	{ &skinverwaltung_t::happy,              "Happy"          },
-	//{ &skinverwaltung_t::unhappy,            "Unhappy"        },
-	{ &skinverwaltung_t::overcrowd,          "Overcrowd"      },
-	{ &skinverwaltung_t::too_waiting,        "TooWaiting"     },
-	{ &skinverwaltung_t::no_route,           "NoRoute"        },
-	{ &skinverwaltung_t::too_slow,           "TooSlow"        },
+	{ &skinverwaltung_t::pax_evaluation_icons, "PassengersEvaluation" },
+	{ &skinverwaltung_t::mail_evaluation_icons, "MailEvaluation" },
+	{ &skinverwaltung_t::alerts,             "Alerts"         },
 	{ &skinverwaltung_t::seasons_icons,      "Seasons"        },
 	{ &skinverwaltung_t::message_options,    "MessageOptions" },
 	{ &skinverwaltung_t::color_options,      "ColorOptions"   },
@@ -175,7 +170,7 @@ bool skinverwaltung_t::successfully_loaded(skintyp_t type)
 	switch (type) {
 		case menu:    sb = menu_objekte+1;     break;
 		case cursor:  sb = cursor_objekte;     break;
-		case symbol:  sb = symbol_objekte+PAX_EVALUATIONS;   break;
+		case symbol:  sb = symbol_objekte+3;   break;
 		case misc:
 			sb = misc_objekte+3;
 			// for compatibility: use sidewalk as tunneltexture

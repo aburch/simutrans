@@ -8,8 +8,6 @@
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 
-#define PAX_EVALUATIONS 5
-
 // For test purposes themes can be disabled or an alternative theme.tab file can be used.
 //  -1 = No theme, use internal fallback
 //   0 = Normal use, read theme.tab
@@ -107,15 +105,14 @@ public:
 	static const skin_desc_t *goods;
 	/// @}
 
-	/// @name icons used to passenger evaluations happy / unhappy / no route / too slow
+	/// @name icons used to passenger/mail evaluations
 	/// @{
-	static const skin_desc_t *happy;
-	//static const skin_desc_t *unhappy;
-	static const skin_desc_t *overcrowd;
-	static const skin_desc_t *too_waiting;
-	static const skin_desc_t *no_route;
-	static const skin_desc_t *too_slow;
+	static const skin_desc_t *pax_evaluation_icons;
+	static const skin_desc_t *mail_evaluation_icons;
 	/// @}
+
+	/// images used to alert in line with message text
+	static const skin_desc_t *alerts;
 
 	/// images shown in display of lines in mini-map
 	static const skin_desc_t *station_type;

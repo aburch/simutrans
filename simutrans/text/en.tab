@@ -3864,11 +3864,31 @@ Mail sent last year:
 Mail sent last year:
 Passengers:
 Passengers:
+Mail:
+Mail:
+No passenger service
+No passenger service
+No mail service
+No mail service
+This stop has no user
+This stop has no user
+This stop does not have mail customers
+This stop does not have mail customers
 Turned away
 Turned away
 Gave up waiting
 Gave up waiting
+Mail delivered
+Mail delivered
+No route (pass.)
+No route (pass.)
+No route (mail)
+No route (mail)
 The number of passengers who have been turned away from this stop because it is overcrowded
 The number of passengers who have been turned away from this stop because it is overcrowded
 The number of passengers who had to wait so long that they gave up
 The number of passengers who had to wait so long that they gave up
+The amount of mail successfully delivered from this stop
+The amount of mail successfully delivered from this stop
+The amount of mail which could not find a route to its destination
+The amount of mail which could not find a route to its destination
