@@ -19,8 +19,7 @@ if [ -n TEST_SVN ]; then
 	REV_NR=`svnversion`
 	REV="r$REV_NR"
 	CLEAN_REV=$REV
-	REV_NR=${REV_NR/[0-9]*:/}
-	REV_NR=${REV_NR/M/}
+	REV_NR=`svnversion | sed "s/[0-9]*://" | sed "s/M.*//"`
 else
 	# status unknown
 	MODIFIED="1"

@@ -1478,7 +1478,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 		next_gr.clear();
 
 		// only one direction allowed ...
-		const ribi_t::ribi straight_dir = tmp->parent!=NULL ? ribi_type(gr->get_pos().get_2d()-tmp->parent->gr->get_pos().get_2d()) : (ribi_t::ribi)ribi_t::all;
+		const ribi_t::ribi straight_dir = tmp->parent!=NULL ? ribi_type(gr->get_pos()-tmp->parent->gr->get_pos()) : (ribi_t::ribi)ribi_t::all;
 
 		// test directions
 		// .. use only those that are allowed by current slope
@@ -1551,7 +1551,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 			// if not there, then we could just take the last
 			uint8 current_dir;
 			if(tmp->parent!=NULL) {
-				current_dir = ribi_type( tmp->parent->gr->get_pos().get_2d(), to->get_pos().get_2d() );
+				current_dir = ribi_type( tmp->parent->gr->get_pos(), to->get_pos() );
 				if(tmp->dir!=current_dir) {
 					new_g += s.way_count_curve;
 					if(tmp->parent->dir!=tmp->dir) {
@@ -1576,7 +1576,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 				}
 			}
 			else {
-				 current_dir = ribi_type( gr->get_pos().get_2d(), to->get_pos().get_2d() );
+				 current_dir = ribi_type( gr->get_pos(), to->get_pos() );
 			}
 
 			const uint32 new_dist = calc_distance( to->get_pos(), mini, maxi );

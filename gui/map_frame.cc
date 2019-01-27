@@ -815,7 +815,7 @@ void map_frame_t::draw(scr_coord pos, scr_size size)
 		double bar_width = (double)bar_client_x/(double)MAX_SEVERITY_COLORS;
 		// color bar
 		for(  int i=0;  i<MAX_SEVERITY_COLORS;  i++  ) {
-			display_fillbox_wh(bar_pos.x + min_label.get_size().w + D_H_SPACE + (i*bar_width), bar_pos.y+2,  bar_width+1, 7, reliefkarte_t::calc_severity_color(i+1,MAX_SEVERITY_COLORS), false);
+			display_fillbox_wh(bar_pos.x + min_label.get_size().w + D_H_SPACE + (i*bar_width), bar_pos.y+2,  bar_width+1, 7, reliefkarte_t::calc_severity_color(i, MAX_SEVERITY_COLORS-1), false);
 		}
 	}
 

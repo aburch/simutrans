@@ -5,40 +5,6 @@
 #ifdef DOXYGEN
 
 /**
- * Table that holds 2d coordinates.
- *
- * Coordinates always refer to the original rotation in @ref map.file.
- * They will be rotated if transferred between the game engine and squirrel.
- */
-class coord { // begin_class("coord", 0)
-#ifdef SQAPI_DOC // document members
-	/// x-coordinate
-	integer x;
-	/// y-coordinate
-	integer y;
-#endif
-}; // end_class
-
-/**
- * Table that holds 3d coordinates.
- *
- * Coordinates always refer to the original rotation in @ref map.file.
- * They will be rotated if transferred between the game engine and squirrel.
- */
-// begin_class("coord3d", 0)
-class coord3d {
-public:
-#ifdef SQAPI_DOC // document members
-	/// x-coordinate
-	integer x;
-	/// y-coordinate
-	integer y;
-	/// z-coordinate - height
-	integer z;
-#endif
-}; // end_class
-
-/**
  * Translatable text.
  *
  * Class takes raw string. It can do variable substitution.

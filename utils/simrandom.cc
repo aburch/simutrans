@@ -4,10 +4,6 @@
 #include <stdlib.h>
 #include "simrandom.h"
 #include "../dataobj/environment.h"
-#ifdef DEBUG_SIMRAND_CALLS
-#include "../simworld.h"
-#include "../utils/cbuffer_t.h"
-#endif
 #include "../simsys.h"
 
 /* This is the mersenne random generator: More random and faster! */
@@ -24,12 +20,16 @@ static int thread_local mersenne_twister_index = MERSENNE_TWISTER_N + 1; // mers
 
 static uint8 thread_local random_origin = 0;
 
+#ifdef DEBUG_SIMRAND_CALLS
+/* We use the seed to distinguish between threads in the debug output */
+static uint32 thread_local thread_seed = 0;
+#endif
 
 /* initializes mersenne_twister[N] with a seed */
 static void init_genrand(uint32 s)
 {
 #ifdef DEBUG_SIMRAND_CALLS
-	karte_t::random_callers.append(strdup("*** GEN ***"));
+	thread_seed = s;
 #endif
 	mersenne_twister[0]= s & 0xffffffffUL;
 	for (mersenne_twister_index=1; mersenne_twister_index<MERSENNE_TWISTER_N; mersenne_twister_index++) {
@@ -46,9 +46,6 @@ static void init_genrand(uint32 s)
 /* generate N words at one time */
 static void MTgenerate()
 {
-#ifdef DEBUG_SIMRAND_CALLS
-	karte_t::random_callers.append(strdup("*** REGEN ***"));
-#endif
 	static uint32 mag01[2]={0x0UL, MATRIX_A};
 	uint32 y;
 	int kk;
@@ -120,15 +117,8 @@ uint32 simrand(const uint32 max, const char*)
 #ifdef DEBUG_SIMRAND_CALLS
 	uint32 result = simrand_plain() % max;
 	char buf[256];
-	sprintf(buf, "%s (%i); call: (%i). rand %u, max %u", caller, get_random_seed(), karte_t::random_calls, result, max);
+	sprintf(buf, "%s (%i); seed: (%u). rand %u, max %u", caller, get_random_seed(), thread_seed, result, max);
 	dbg->warning("simrand", buf);
-	if(karte_t::print_randoms)
-	{
-		printf("%s\n", buf);
-	}
-
-	karte_t::random_callers.append(strdup(buf));
-	karte_t::random_calls ++;
 	return result;
 #endif
 

@@ -552,7 +552,7 @@ void gui_convoy_assembler_t::layout()
 	bt_outdated.set_pos(scr_coord(c1_x, y));
 	bt_outdated.pressed = show_outdated_vehicles;
 
-	bt_obsolete.set_pos(scr_coord(c1_x + column2_x/2, y));
+	bt_obsolete.set_pos(scr_coord(c1_x + D_CHECKBOX_WIDTH + D_H_SPACE*3 + proportional_string_width(translator::translate("Show outdated")), y));
 	bt_obsolete.pressed = show_retired_vehicles;
 	y += 4 + D_BUTTON_HEIGHT;
 

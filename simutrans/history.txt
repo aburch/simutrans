@@ -1,3 +1,4 @@
+	FIX: sliced undergraound mode now ranges from lowest existing to highest existing ground
 	FIX: several issues with bridge bilding and deletion at two vertical cliffs
 	ADD: new industrial deman dmodel just_in_time=2, which models factory ordering stuff
 

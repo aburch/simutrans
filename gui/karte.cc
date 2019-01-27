@@ -83,7 +83,8 @@ const uint8 reliefkarte_t::severity_color[MAX_SEVERITY_COLORS] =
 #define POWERLINE_KENN    (55)
 #define HALT_KENN         COL_RED
 #define BUILDING_KENN     COL_GREY3
-
+// when building have no record
+#define MAP_COL_NODATA     (218)
 
 // helper function for line segment_t
 bool reliefkarte_t::line_segment_t::operator == (const line_segment_t & k) const
@@ -897,7 +898,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 			{
 				const leitung_t* lt = gr->find<leitung_t>();
 				if(lt!=NULL) {
-					set_relief_farbe(k, calc_severity_color(lt->get_net()->get_demand(),lt->get_net()->get_supply()) );
+					set_relief_farbe(k, calc_severity_color((sint32)lt->get_net()->get_demand(),(sint32)lt->get_net()->get_supply()) );
 				}
 			}
 			break;
@@ -954,7 +955,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 							set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_commuting, 100));
 						}
 						else {
-							set_relief_farbe(k, calc_severity_color(100, 100));
+							set_relief_farbe(k, MAP_COL_NODATA);
 						}
 					}
 				}
@@ -971,7 +972,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 							set_relief_farbe(k, calc_severity_color(100 - passengers_succeeded_visiting, 100));
 						}
 						else {
-							set_relief_farbe(k, calc_severity_color(100, 100));
+							set_relief_farbe(k, MAP_COL_NODATA);
 						}
 					}
 				}
@@ -996,7 +997,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 									set_relief_farbe(k, calc_severity_color(100 - staffing_percentage, 100));
 								}
 								else {
-									set_relief_farbe(k, calc_severity_color(100, 100));
+									set_relief_farbe(k, MAP_COL_NODATA);
 								}
 							}
 						}
@@ -1020,7 +1021,7 @@ void reliefkarte_t::calc_map_pixel(const koord k)
 							set_relief_farbe(k, calc_severity_color(100 - recent_mail_delivery_success_per, 100));
 						}
 						else {
-							set_relief_farbe(k, calc_severity_color(100, 100));
+							set_relief_farbe(k, MAP_COL_NODATA);
 						}
 					}
 				}
@@ -1565,7 +1566,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			radius = number_to_radius( station->get_capacity(0) );
 		}
 		else if( mode & MAP_SERVICE  ) {
-			const sint32 service = station->get_finance_history( 1, HALT_CONVOIS_ARRIVED );
+			const sint32 service = (sint32)station->get_finance_history( 1, HALT_CONVOIS_ARRIVED );
 			if(  service > max_service  ) {
 				max_service = service;
 			}
@@ -1573,7 +1574,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			radius = log2( (uint32)( (service << 7) / max_service ) );
 		}
 		else if( mode & MAP_WAITING  ) {
-			const sint32 waiting = station->get_finance_history( 0, HALT_WAITING );
+			const sint32 waiting = (sint32)station->get_finance_history( 0, HALT_WAITING );
 			if(  waiting > max_waiting  ) {
 				max_waiting = waiting;
 			}
@@ -1581,7 +1582,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			radius = number_to_radius( waiting );
 		}
 		else if( mode & MAP_WAITCHANGE  ) {
-			const sint32 waiting_diff = station->get_finance_history( 0, HALT_WAITING ) - station->get_finance_history( 1, HALT_WAITING );
+			const sint32 waiting_diff = (sint32)(station->get_finance_history( 0, HALT_WAITING ) - station->get_finance_history( 1, HALT_WAITING ));
 			if(  waiting_diff > new_max_waiting_change  ) {
 				new_max_waiting_change = waiting_diff;
 			}
@@ -1597,7 +1598,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			if(  !station->get_pax_enabled()  &&  !station->get_mail_enabled()  ) {
 				continue;
 			}
-			const sint32 pax_origin = station->get_finance_history( 1, HALT_HAPPY ) + station->get_finance_history( 1, HALT_UNHAPPY ) + station->get_finance_history( 1, HALT_NOROUTE );
+			const sint32 pax_origin = (sint32)(station->get_finance_history( 1, HALT_HAPPY ) + station->get_finance_history( 1, HALT_UNHAPPY ) + station->get_finance_history( 1, HALT_NOROUTE ));
 			if(  pax_origin > max_origin  ) {
 				max_origin = pax_origin;
 			}
@@ -1605,7 +1606,7 @@ void reliefkarte_t::draw(scr_coord pos)
 			radius = number_to_radius( pax_origin );
 		}
 		else if( mode & MAP_TRANSFER  ) {
-			const sint32 transfer = station->get_finance_history( 1, HALT_ARRIVED ) + station->get_finance_history( 1, HALT_DEPARTED );
+			const sint32 transfer = (sint32)(station->get_finance_history( 1, HALT_ARRIVED ) + station->get_finance_history( 1, HALT_DEPARTED ));
 			if(  transfer > max_transfer  ) {
 				max_transfer = transfer;
 			}
