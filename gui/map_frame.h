@@ -26,7 +26,7 @@
 
 class karte_ptr_t;
 
-#define MAP_MAX_BUTTONS (27)
+#define MAP_MAX_BUTTONS (28)
 
 /**
  * Minimap window

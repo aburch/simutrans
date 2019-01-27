@@ -1041,6 +1041,10 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 		const uint16 adjusted_visitor_demand = building->get_adjusted_visitor_demand();
 		const uint16 adjusted_mail_demand = building->get_adjusted_mail_demand(); 
 		const bool loaded_passenger_and_mail_figres = building->get_loaded_passenger_and_mail_figres();
+		const uint16 mail_generate = building->get_mail_generated();
+		const uint16 mail_delivery_succeeded_last_year = building->get_mail_delivery_succeeded_last_year();
+		const uint16 mail_delivery_succeeded = building->get_mail_delivery_succeeded();
+		const uint16 mail_delivery_success_percent_last_year = building->get_mail_delivery_success_percent_last_year();
 
 		delete building;
 		building = hausbauer_t::build(owner, pos_origin, rotate, desc->get_building(), this);
@@ -1053,7 +1057,11 @@ void fabrik_t::build(sint32 rotate, bool build_fields, bool force_initial_prodba
 		building->set_adjusted_jobs(adjusted_jobs);
 		building->set_adjusted_visitor_demand(adjusted_visitor_demand);
 		building->set_adjusted_mail_demand(adjusted_mail_demand);
-		building->set_loaded_passenger_and_mail_figres(loaded_passenger_and_mail_figres); 
+		building->set_loaded_passenger_and_mail_figres(loaded_passenger_and_mail_figres);
+		building->add_mail_generated(mail_generate);
+		building->add_mail_delivery_succeeded(mail_delivery_succeeded);
+		building->set_mail_delivery_succeeded_last_year(mail_delivery_succeeded_last_year);
+		building->set_mail_delivery_success_percent_last_year(mail_delivery_success_percent_last_year);
 	}
 	if(!building)
 	{
@@ -3109,6 +3117,7 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 #endif
 		// Class entries:
 		building->get_class_percentage(buf);
+		buf.append("\n");
 		if (building->get_adjusted_visitor_demand() > 0)
 		{
 			buf.printf("%s %i\n", translator::translate("Visitors this year:"), building->get_passengers_succeeded_visiting());
@@ -3117,6 +3126,10 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		{
 			buf.printf("%s %i\n", translator::translate("Commuters this year:"), building->get_passengers_succeeded_commuting());
 		}
+		if (building->get_mail_generated() > 0)
+		{
+			buf.printf("%s %i (%i%%)\n", translator::translate("Mail sent this year:"), building->get_mail_delivery_succeeded(), building->get_mail_delivery_success_percent_this_year());
+		}
 		if (building->get_passenger_success_percent_last_year_visiting() < 65535)
 		{
 			buf.printf("\n%s %i\n", translator::translate("Visitors last year:"), building->get_passenger_success_percent_last_year_visiting());
@@ -3124,6 +3137,10 @@ void fabrik_t::info_prod(cbuffer_t& buf) const
 		if (building->get_passenger_success_percent_last_year_commuting() < 65535)
 		{
 			buf.printf("%s %i\n", translator::translate("Commuters last year:"), building->get_passenger_success_percent_last_year_commuting());
+		}
+		if (building->get_mail_delivery_success_percent_last_year() < 65535)
+		{
+			buf.printf("%s %i (%i%%)\n", translator::translate("Mail sent last year:"), building->get_mail_delivery_succeeded_last_year(), building->get_mail_delivery_success_percent_last_year());
 		}
 	}
 
