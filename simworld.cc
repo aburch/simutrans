@@ -7557,6 +7557,7 @@ void karte_t::update_history()
 	sint64 transported_year = 0;
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
 		if(  players[i]!=NULL  ) {
+			players[i]->get_finance()->calc_finance_history();
 			transported += players[i]->get_finance()->get_history_veh_month( TT_ALL, 0, ATV_TRANSPORTED_GOOD );
 			transported_year += players[i]->get_finance()->get_history_veh_year( TT_ALL, 0, ATV_TRANSPORTED_GOOD );
 		}
