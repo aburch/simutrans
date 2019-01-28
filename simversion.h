@@ -23,7 +23,7 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #define SIM_VERSION_BUILD SIM_BUILD_NIGHTLY
 
 // Beware: SAVEGAME minor is often ahead of version minor when there were patches.
-// ==> These have no direct connection at all!
+//  These have no direct connection at all!
 #define SIM_SAVE_MINOR      4
 #define SIM_SERVER_MINOR    4
 
