@@ -492,8 +492,6 @@ Apply Line
 路線を適用
 April
 4月
-Arbeiter aus:
-労働者居住地:
 Arrivals from\n
 到着予想時間\n
 Arrived
@@ -2472,8 +2470,6 @@ Passenger success rate this year (non-local):
 今年の移動成功率(旅行):
 Passengers
 旅客
-Passengers:
-旅客の評価:
 Pedestrians will appear near stops whenver a passenger vehicle unloads there.
 乗客の降車時、常に歩行者を表示します。
 Pedestrians will appear randomly in towns.
@@ -3364,8 +3360,8 @@ The number of passengers who have been turned away from this stop because it is 
 この駅があまりに混雑していたので利用を諦めた旅客の数を表します。
 The number of passengers who had to wait so long that they gave up
 この駅から旅行を開始したものの、乗り継ぎの接続が悪く長時間待たされたので旅行を中断した旅客の数を表します。
-Mail:
-郵便の評価
+Evaluation:
+利用者の評価:
 No passenger service
 旅客輸送が提供されていません
 This stop has no user
@@ -3400,3 +3396,5 @@ Unhappy
 不幸せ
 The number of passengers who have left because of overcrowding or excess waiting
 混雑や駅での待ち時間のため旅行を取り止めた旅客の人数を表します。
+Arbeiter aus:
+労働者居住地:
