@@ -427,7 +427,6 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 				display_color_img(skinverwaltung_t::passengers->get_image_id(0), left, top+2, 0, false, false);
 				left += 11;
 
-				// : sum 
 				info_buf.printf(": %d ", pax_sum);
 				left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true) + display_get_char_max_width(":");
 				info_buf.clear();
@@ -471,7 +470,6 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 							}
 						}
 						info_buf.printf(")");
-						//display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 					}
 					else {
 						info_buf.printf("(");
@@ -498,8 +496,6 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 							info_buf.printf("%c  ", 31);
 						}
 						info_buf.printf(")");
-						//halt->info(info_buf);
-						//info_buf.clear();
 					}
 					display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 				}
@@ -516,25 +512,12 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 				else
 				{
 					// calc and draw ratio indicator
-					sint8 fraction_sum = 0;
 					uint8 colored_width = 0;
 					uint8 indicator_left = 0;
-					int pax_ev_percentage[PAX_EVALUATIONS] = {};
 					for (int i = 0; i < PAX_EVALUATIONS; i++) {
 						colored_width = ev_indicator_width * pax_ev_num[i] / pax_sum;
 						if (pax_ev_num[i]) {
 							display_fillbox_wh_clip(left + indicator_left, top, colored_width, indicator_height, cost_type_color[i], true);
-							pax_ev_percentage[i] = pax_ev_num[i] * 100 / pax_sum;
-							if (int fraction = ((pax_ev_num[i] * 1000 / pax_sum) % 10)) {
-								fraction_sum += fraction;
-								if (fraction_sum > 5) {
-									fraction_sum -= 10;
-									pax_ev_percentage[i]++;
-								}
-							}
-						}
-						else {
-							pax_ev_percentage[i] = 0;
 						}
 						indicator_left += colored_width;
 					}
@@ -555,7 +538,6 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 				display_color_img(skinverwaltung_t::mail->get_image_id(0), left, top + 2, 0, false, false);
 				left += 11;
 
-				// : sum 
 				info_buf.printf(": %d ", mail_sum);
 				left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true) + display_get_char_max_width(":");
 				info_buf.clear();
