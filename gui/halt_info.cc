@@ -407,7 +407,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			info_buf.printf("%s", translator::translate("Evaluation:"));
 			display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true);
 			info_buf.clear();
-			top += LINESPACE;
+			top += LINESPACE+2;
 
 			const int ev_value_offset_left = display_get_char_max_width(":") + 12;
 			int ev_indicator_width = min( 255, get_windowsize().w - D_MARGIN_LEFT - D_MARGIN_RIGHT * 2 - ev_value_offset_left - view.get_size().w);
@@ -540,7 +540,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 					}
 				}
 				info_buf.clear();
-				top += LINESPACE + 1;
+				top += LINESPACE;
 			}
 			// Mail service evaluation
 			if (halt->get_mail_enabled()) {
