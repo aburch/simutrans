@@ -334,18 +334,17 @@ map_frame_t::map_frame_t() :
 	filter_container.add_component( &b_overlay_networks_load_factor );
 	filter_container.end_table();
 
-	filter_container.add_table(5,0);
+	filter_container.add_table(5,0)->set_force_equal_columns(true);
 	// insert filter buttons in legend container
 	for (int index=0; index<MAP_MAX_BUTTONS; index++) {
 		filter_buttons[index].init( button_t::box_state | button_t::flexible, button_init[index].button_text);
-		filter_buttons[index].set_tooltip( button_init[index].tooltip_text );
-		filter_buttons[index].pressed = button_init[index].mode&env_t::default_mapmode;
-		filter_buttons[index].background_color = color_idx_to_rgb(filter_buttons[index].pressed ? button_init[index].select_color : button_init[index].color);
 		filter_buttons[index].text_color = SYSCOL_TEXT;
+		filter_buttons[index].set_tooltip( button_init[index].tooltip_text );
 		filter_buttons[index].add_listener(this);
 		filter_container.add_component(filter_buttons + index);
 	}
 	filter_container.end_table();
+	update_buttons();
 
 	// directory container
 	directory_container.set_table_layout(4,0);
@@ -380,6 +379,15 @@ map_frame_t::map_frame_t() :
 	reset_min_windowsize();
 	set_windowsize( window_size );
 	set_resizemode(diagonal_resize);
+}
+
+
+void map_frame_t::update_buttons()
+{
+	for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
+		filter_buttons[i].pressed = (button_init[i].mode&env_t::default_mapmode)!=0;
+		filter_buttons[i].background_color = color_idx_to_rgb(filter_buttons[i].pressed ? button_init[i].select_color : button_init[i].color);
+	}
 }
 
 
@@ -534,10 +542,7 @@ bool map_frame_t::action_triggered( gui_action_creator_t *comp, value_t)
 			}
 		}
 		reliefkarte_t::get_karte()->set_mode(  (reliefkarte_t::MAP_MODES)env_t::default_mapmode  );
-		for(  int i=0;  i<MAP_MAX_BUTTONS;  i++  ) {
-			filter_buttons[i].pressed = (button_init[i].mode&env_t::default_mapmode)!=0;
-			filter_buttons[i].background_color = color_idx_to_rgb(filter_buttons[i].pressed ? button_init[i].select_color : button_init[i].color);
-		}
+		update_buttons();
 	}
 	return true;
 }
@@ -736,9 +741,7 @@ void map_frame_t::rdwr( loadsave_t *file )
 		scrolly.set_size( scrolly.get_size() );
 
 		reliefkarte_t::get_karte()->set_mode((reliefkarte_t::MAP_MODES)env_t::default_mapmode);
-		for (uint i=0; i<MAP_MAX_BUTTONS; i++) {
-			filter_buttons[i].pressed = (button_init[i].mode&env_t::default_mapmode)!=0;
-		}
+		update_buttons();
 
 		show_hide_directory(directory_visible);
 		show_hide_legend(legend_visible);

@@ -92,6 +92,7 @@ private:
 					freight_type_c;
 
 	void zoom(bool zoom_out);
+	void update_buttons();
 	void update_factory_legend();
 	void show_hide_legend(const bool show);
 	void show_hide_scale(const bool show);
