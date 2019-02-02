@@ -1568,6 +1568,7 @@ void win_poll_event(event_t* const ev)
 				rdwr_all_win( &dlg );
 			}
 		}
+		wl->set_dirty();
 		ev->ev_class = EVENT_NONE;
 		ticker::redraw_ticker();
 	}
