@@ -13,7 +13,7 @@
 
 #include "gui_frame.h"
 #include "../tpl/vector_tpl.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 #include "../dataobj/environment.h"
 
 class tool_t;

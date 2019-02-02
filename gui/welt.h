@@ -15,7 +15,6 @@
 #include "components/action_listener.h"
 #include "components/gui_textinput.h"
 #include "components/gui_numberinput.h"
-#include "components/gui_divider.h"
 #include "components/gui_map_preview.h"
 
 #include "../tpl/array2d_tpl.h"
@@ -73,16 +72,8 @@ class welt_gui_t  :
 			inp_tourist_attractions,
 			inp_intro_date;
 
-		gui_label_t
-			world_title_label,
-			map_number_label,
-			size_label,
-			cities_label,
-			median_label,
-			intercity_label,
-			factories_label,
-			tourist_label;
-
+		gui_label_buf_t
+			size_label;
 		button_t
 			use_intro_dates,
 			use_beginner_mode,
@@ -92,11 +83,6 @@ class welt_gui_t  :
 			load_scenario,
 			start_game,
 			quit_game;
-
-		gui_divider_t
-			divider_1,
-			divider_2,
-			divider_3;
 
 	/**
 	* Calculates preview from height map
@@ -109,7 +95,8 @@ class welt_gui_t  :
 
 	void update_densities();
 
-	public:
+
+public:
 		welt_gui_t(settings_t*);
 
 		/**
@@ -144,6 +131,8 @@ class welt_gui_t  :
 		void draw(scr_coord pos, scr_size size);
 
 		bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+		static void update_memory(gui_label_buf_t *label, const settings_t* sets);
 };
 
 #endif

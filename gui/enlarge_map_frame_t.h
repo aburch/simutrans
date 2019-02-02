@@ -9,7 +9,7 @@
 #include "components/gui_label.h"
 #include "components/action_listener.h"
 #include "components/gui_numberinput.h"
-#include "components/gui_divider.h"
+#include "components/gui_map_preview.h"
 
 class settings_t;
 
@@ -19,13 +19,13 @@ private:
 	// local settings of the new world ...
 	settings_t* sets;
 
-	enum { preview_size = 64 };
-
 	/**
 	* Mini Map-Preview
 	* @author Hj. Malthaner
 	*/
-	PIXVAL karte[preview_size*preview_size];
+	array2d_tpl<PIXVAL> map;
+	gui_map_preview_t
+		map_preview;
 
 	bool changed_number_of_towns;
 
@@ -38,15 +38,8 @@ private:
 	button_t
 		start_button;
 
-	gui_label_t
-		memory, // memory requirement
-		cities_label,
-		median_label;
-
-	gui_divider_t
-		divider_1;
-
-	char memory_str[256];
+	gui_label_buf_t
+		size_label; // memory requirement
 
 
 public:

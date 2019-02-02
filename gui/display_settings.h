@@ -14,7 +14,6 @@
 #include "components/gui_combobox.h"
 
 #define COLORS_MAX_BUTTONS (26)
-#define BUF_MAXLEN_MS_FORMAT (16)
 
 
 /**
@@ -34,39 +33,20 @@ private:
 		inp_underground_level,
 		cursor_hide_range;
 
-	gui_label_t
-		brightness_label,
-		scrollspeed_label,
-		hide_buildings_label,
-		traffic_density_label,
-		convoy_tooltip_label,
-		frame_time_label,
+	gui_label_buf_t
 		frame_time_value_label,
-		idle_time_label,
 		idle_time_value_label,
-		fps_label,
 		fps_value_label,
-		simloops_label,
 		simloops_value_label;
 
-	gui_divider_t
-		divider1,
-		divider2,
-		divider3,
-		divider4;
-
 	gui_combobox_t
+		convoy_tooltip,
+		hide_buildings,
 		money_booking;
 
-	gui_container_t
-		label_container,
-		value_container;
+	gui_aligned_container_t* container_bottom;
 
-	// Non translated text buffers for label values
-	char frame_time_buf[BUF_MAXLEN_MS_FORMAT];
-	char idle_time_buf[BUF_MAXLEN_MS_FORMAT];
-	char fps_buf[BUF_MAXLEN_MS_FORMAT];
-	char simloops_buf[BUF_MAXLEN_MS_FORMAT];
+	void update_labels();
 
 public:
 	color_gui_t();
@@ -81,8 +61,6 @@ public:
 	void draw(scr_coord pos, scr_size size);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
-
-	virtual void set_windowsize(scr_size size);
 };
 
 #endif

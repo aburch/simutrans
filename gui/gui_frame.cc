@@ -16,7 +16,7 @@
 #include "../simcolor.h"
 #include "../dataobj/environment.h"
 #include "../display/simgraph.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 #include "../simworld.h"
 #include "../player/simplay.h"
 
@@ -33,10 +33,15 @@ gui_frame_t::gui_frame_t(char const* const name, player_t const* const player)
 	size = scr_size(200, 100);
 	min_windowsize = scr_size(0,0);
 	owner = player;
-	container.set_pos(scr_coord(0,D_TITLEBAR_HEIGHT));
 	set_resizemode(no_resize);  //25-may-02  markus weber  added
 	opaque = true;
 	dirty = true;
+
+	// set default margin and spacing
+	gui_aligned_container_t::set_margin_from_theme();
+	gui_aligned_container_t::set_spacing_from_theme();
+	// initialize even if we cannot call has_title() here
+	gui_aligned_container_t::set_pos(scr_coord(0, D_TITLEBAR_HEIGHT));
 }
 
 
@@ -46,6 +51,8 @@ gui_frame_t::gui_frame_t(char const* const name, player_t const* const player)
  */
 void gui_frame_t::set_windowsize(scr_size size)
 {
+	gui_aligned_container_t::set_pos(scr_coord(0, has_title()*D_TITLEBAR_HEIGHT));
+
 	if(  size != this->size  ) {
 		// mark old size dirty
 		scr_coord const& pos = win_get_pos(this);
@@ -56,6 +63,35 @@ void gui_frame_t::set_windowsize(scr_size size)
 
 		this->size = size;
 		dirty = true;
+
+		// TODO respect gui_aligned_container_t::get_max_size()
+	}
+	// recompute always, to react on resize(scr_coord(0,0))
+	if (gui_aligned_container_t::is_table()) {
+		gui_aligned_container_t::set_size(get_client_windowsize());
+	}
+}
+
+
+void gui_frame_t::reset_min_windowsize()
+{
+	gui_aligned_container_t::set_pos(scr_coord(0, has_title()*D_TITLEBAR_HEIGHT));
+
+	if (gui_aligned_container_t::is_table()) {
+		bool at_min_size = size == min_windowsize;
+		scr_size csize = gui_aligned_container_t::get_min_size();
+		scr_coord pos  = gui_aligned_container_t::get_pos();
+		set_min_windowsize( scr_size(csize.w + pos.x, csize.h + pos.y) );
+
+		if (at_min_size) {
+			set_windowsize(min_windowsize);
+		}
+		else {
+			scr_size wsize = size;
+			wsize.clip_lefttop(min_windowsize);
+
+			set_windowsize(wsize);
+		}
 	}
 }
 
@@ -79,8 +115,15 @@ FLAGGED_PIXVAL gui_frame_t::get_titlecolor() const
 bool gui_frame_t::infowin_event(const event_t *ev)
 {
 	// %DB0 printf( "\nMessage: gui_frame_t::infowin_event( event_t const * ev ) : Fenster|Window %p : Event is %d", (void*)this, ev->ev_class );
+	if (ev->ev_code == SYSTEM_THEME_CHANGED) {
+		if (gui_aligned_container_t::is_table()) {
+			reset_min_windowsize();
+		}
+		return true;
+	}
+
 	if(IS_WINDOW_RESIZE(ev)) {
-		scr_coord delta (  resize_mode & horizonal_resize ? ev->mx - ev->cx : 0,
+		scr_coord delta (  resize_mode & horizontal_resize ? ev->mx - ev->cx : 0,
 		               resize_mode & vertical_resize  ? ev->my - ev->cy : 0);
 		resize(delta);
 		return true;  // don't pass to children!
@@ -92,11 +135,11 @@ bool gui_frame_t::infowin_event(const event_t *ev)
 	}
 	else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_CLOSE  ||  ev->ev_code==WIN_OPEN  ||  ev->ev_code==WIN_TOP)) {
 		dirty = true;
-		container.clear_dirty();
+		gui_aligned_container_t::clear_dirty();
 	}
 	event_t ev2 = *ev;
-	translate_event(&ev2, 0, -D_TITLEBAR_HEIGHT);
-	return container.infowin_event(&ev2);
+	translate_event(&ev2, 0, -has_title()*D_TITLEBAR_HEIGHT);
+	return gui_aligned_container_t::infowin_event(&ev2);
 }
 
 
@@ -133,23 +176,24 @@ void gui_frame_t::resize(const scr_coord delta)
  */
 void gui_frame_t::draw(scr_coord pos, scr_size size)
 {
+	scr_size titlebar_size(0, ( has_title()*D_TITLEBAR_HEIGHT ));
 	// draw background
 	if(  opaque  ) {
-		display_img_stretch( gui_theme_t::windowback, scr_rect( pos + scr_coord(0,D_TITLEBAR_HEIGHT), size - scr_size(0,D_TITLEBAR_HEIGHT) ) );
+		display_img_stretch( gui_theme_t::windowback, scr_rect( pos + titlebar_size, size - titlebar_size ) );
 		if(  dirty  ) {
-			mark_rect_dirty_wc(pos.x, pos.y, pos.x + size.w, pos.y + D_TITLEBAR_HEIGHT );
+			mark_rect_dirty_wc(pos.x, pos.y, pos.x + size.w, pos.y + titlebar_size.h );
 		}
 	}
 	else {
 		if(  dirty  ) {
-			mark_rect_dirty_wc(pos.x, pos.y, pos.x + size.w, pos.y + size.h + D_TITLEBAR_HEIGHT );
+			mark_rect_dirty_wc(pos.x, pos.y, pos.x + size.w, pos.y + size.h + titlebar_size.h );
 		}
-		display_blend_wh_rgb( pos.x+1, pos.y+D_TITLEBAR_HEIGHT, size.w-2, size.h-D_TITLEBAR_HEIGHT, color_transparent, percent_transparent );
+		display_blend_wh_rgb( pos.x+1, pos.y+titlebar_size.h, size.w-2, size.h-titlebar_size.h, color_transparent, percent_transparent );
 	}
 	dirty = false;
 
-	PUSH_CLIP(pos.x+1, pos.y+D_TITLEBAR_HEIGHT, size.w-2, size.h-D_TITLEBAR_HEIGHT);
-	container.draw(pos);
+	PUSH_CLIP_FIT(pos.x+1, pos.y+titlebar_size.h, size.w-2, size.h-titlebar_size.h);
+	gui_aligned_container_t::draw(pos);
 	POP_CLIP();
 
 	// for shadows of the windows

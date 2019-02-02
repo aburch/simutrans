@@ -23,24 +23,24 @@
 class ki_kontroll_t : public gui_frame_t, private action_listener_t
 {
 	private:
-		char account_str[MAX_PLAYER_COUNT-1][32];
-
-		gui_label_t
+		gui_label_buf_t
 			*ai_income[MAX_PLAYER_COUNT-1]; // Income labels
 
 		button_t
 			player_active[MAX_PLAYER_COUNT-2-1],     // AI on/off button
 			player_get_finances[MAX_PLAYER_COUNT-1], // Finance buttons
 			player_change_to[MAX_PLAYER_COUNT-1],    // Set active player button
-			player_lock[MAX_PLAYER_COUNT-1],         // Set name & password button
+			*player_lock[MAX_PLAYER_COUNT-1],         // Set name & password button
 			freeplay;
 
 		gui_combobox_t
 			player_select[MAX_PLAYER_COUNT-1];
 
+
+		void update_income();
+
 	public:
 		ki_kontroll_t();
-		~ki_kontroll_t();
 
 		/**
 		 * Set the window associated helptext

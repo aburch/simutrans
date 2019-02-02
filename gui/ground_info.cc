@@ -42,12 +42,13 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
  */
 void grund_info_t::draw(scr_coord pos, scr_size size)
 {
+	// update for owner and name change
 	set_dirty();
 	const obj_t *const d = gr->obj_bei(0);
 	if (  d!=NULL  ) {
 		set_owner( d->get_owner() );
 	}
-	gui_frame_t::set_name( translator::translate(gr->get_name()) );
+	base_infowin_t::set_name( translator::translate(gr->get_name()) );
 
 	const cbuffer_t old_buf(buf);
 	buf.clear();
@@ -56,7 +57,7 @@ void grund_info_t::draw(scr_coord pos, scr_size size)
 		recalc_size();
 	}
 
-	gui_frame_t::draw(pos, size);
+	base_infowin_t::draw(pos, size);
 }
 
 

@@ -675,8 +675,6 @@ public:
 	*/
 	bool is_reservable(const grund_t *gr, convoihandle_t cnv) const;
 
-	void info(cbuffer_t & buf) const;
-
 	/**
 	 * @param buf the buffer to fill
 	 * @return Goods description text (buf)

@@ -28,6 +28,12 @@ protected:
 
 public:
 	base_infowin_t(const char *name, const player_t *player=NULL);
+
+	virtual void set_windowsize(scr_size size);
+
+	virtual void draw(scr_coord pos, scr_size size);
+
+	bool infowin_event(const event_t *ev);
 };
 
 

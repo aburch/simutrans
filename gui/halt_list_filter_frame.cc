@@ -19,8 +19,6 @@
 #include "../bauer/goods_manager.h"
 #include "../dataobj/translator.h"
 
-scr_coord halt_list_filter_frame_t::filter_buttons_pos[FILTER_BUTTONS];
-
 const char *halt_list_filter_frame_t::filter_buttons_text[FILTER_BUTTONS] = {
 	"hlf_chk_name_filter",
 	"hlf_chk_waren_annahme",
@@ -67,97 +65,108 @@ halt_list_filter_frame_t::halt_list_filter_frame_t(player_t *player, halt_list_f
 {
 	this->main_frame = main_frame;
 
-	// cannot init these earlier as D_BUTTON_HEIGHT==0 then.
-	filter_buttons_pos[0] = scr_coord(4, 2);
-	filter_buttons_pos[1] = scr_coord(125, 2);
-	filter_buttons_pos[2] = scr_coord(265, 2);
-	filter_buttons_pos[3] = scr_coord(4, 2 * D_BUTTON_HEIGHT + D_V_SPACE);
-	filter_buttons_pos[4] = scr_coord(9, 3 * D_BUTTON_HEIGHT + D_V_SPACE);
-	filter_buttons_pos[5] = scr_coord(9, 4 * D_BUTTON_HEIGHT + D_V_SPACE);
-	filter_buttons_pos[6] = scr_coord(9, 5 * D_BUTTON_HEIGHT + D_V_SPACE);
-	filter_buttons_pos[7] = scr_coord(9, 6 * D_BUTTON_HEIGHT + D_V_SPACE);
-	filter_buttons_pos[8] = scr_coord(9, 7 * D_BUTTON_HEIGHT + D_V_SPACE);
-	filter_buttons_pos[9] = scr_coord(9, 8 * D_BUTTON_HEIGHT + D_V_SPACE);
-	filter_buttons_pos[10] = scr_coord(9, 9 * D_BUTTON_HEIGHT + D_V_SPACE);
-	filter_buttons_pos[11] = scr_coord(9, 10 * D_BUTTON_HEIGHT + D_V_SPACE);
-	filter_buttons_pos[12] = scr_coord(9, 11 * D_BUTTON_HEIGHT + D_V_SPACE);
-	filter_buttons_pos[13] = scr_coord(4, 12 * D_BUTTON_HEIGHT + 2 * D_V_SPACE);
-	filter_buttons_pos[14] = scr_coord(9, 13 * D_BUTTON_HEIGHT + 2 * D_V_SPACE);
-	filter_buttons_pos[15] = scr_coord(9, 14 * D_BUTTON_HEIGHT + 2 * D_V_SPACE);
-
+	// init buttons
 	for(  int i=0;  i<FILTER_BUTTONS;  i++  ) {
-		filter_buttons[i].init(button_t::square, filter_buttons_text[i], filter_buttons_pos[i]);
+		filter_buttons[i].init(button_t::square, filter_buttons_text[i]);
 		filter_buttons[i].add_listener(this);
-		add_component(filter_buttons + i);
 		if(  filter_buttons_types[i] < halt_list_frame_t::sub_filter  ) {
 			filter_buttons[i].background_color = SYSCOL_TEXT_HIGHLIGHT;
 		}
 	}
-	name_filter_input.set_text(main_frame->access_name_filter(), 30);
-	name_filter_input.set_size(scr_size(100, D_EDIT_HEIGHT));
-	name_filter_input.set_pos(scr_coord(5, D_BUTTON_HEIGHT));
-	name_filter_input.add_listener(this);
-	add_component(&name_filter_input);
 
-	ware_alle_an.init(button_t::roundbox, "hlf_btn_alle", scr_coord(125, D_BUTTON_HEIGHT), scr_size(41, D_BUTTON_HEIGHT));
-	ware_alle_an.add_listener(this);
-	add_component(&ware_alle_an);
-	ware_keine_an.init(button_t::roundbox, "hlf_btn_keine", scr_coord(167, D_BUTTON_HEIGHT), scr_size(41, D_BUTTON_HEIGHT));
-	ware_keine_an.add_listener(this);
-	add_component(&ware_keine_an);
-	ware_invers_an.init(button_t::roundbox, "hlf_btn_invers", scr_coord(209, D_BUTTON_HEIGHT), scr_size(41, D_BUTTON_HEIGHT));
-	ware_invers_an.add_listener(this);
-	add_component(&ware_invers_an);
+	set_table_layout(3,0);
+	set_alignment(ALIGN_TOP);
 
-	ware_scrolly_an.set_pos(scr_coord(125, 2*D_BUTTON_HEIGHT+4));
-	ware_scrolly_an.set_scroll_amount_y(D_BUTTON_HEIGHT);
-	add_component(&ware_scrolly_an);
+	// first column
+	add_table(2,0);
+	{
+		// name filter
+		add_component(filter_buttons + 0, 2);
 
-	int n=0;
-	for(  int i=0;  i<goods_manager_t::get_count();  i++  ) {
-		const goods_desc_t *ware = goods_manager_t::get_info(i);
-		if(  ware != goods_manager_t::none  ) {
-			ware_item_t *item = new ware_item_t(this, NULL, ware);
-			item->init(button_t::square, translator::translate(ware->get_name()), scr_coord(5, D_BUTTON_HEIGHT*n++));
-			ware_cont_an.add_component(item);
+		name_filter_input.set_text(main_frame->access_name_filter(), 30);
+		name_filter_input.add_listener(this);
+		add_component(&name_filter_input, 2);
+
+		// type and special buttons
+		for(  int i=3;  i<FILTER_BUTTONS;  i++  ) {
+			if (i==3 || i==13) {
+				add_component(filter_buttons + i, 2);
+			}
+			else {
+				new_component<gui_empty_t>();
+				add_component(filter_buttons + i);
+			}
 		}
 	}
-	ware_cont_an.set_size(scr_size(100, n*D_BUTTON_HEIGHT));
-	ware_scrolly_an.set_size(scr_size(125, 13*D_BUTTON_HEIGHT));
+	end_table();
 
-	ware_alle_ab.init(button_t::roundbox, "hlf_btn_alle", scr_coord(265, D_BUTTON_HEIGHT), scr_size(41, D_BUTTON_HEIGHT));
-	ware_alle_ab.add_listener(this);
-	add_component(&ware_alle_ab);
-	ware_keine_ab.init(button_t::roundbox, "hlf_btn_keine", scr_coord(307, D_BUTTON_HEIGHT), scr_size(41, D_BUTTON_HEIGHT));
-	ware_keine_ab.add_listener(this);
-	add_component(&ware_keine_ab);
-	ware_invers_ab.init(button_t::roundbox, "hlf_btn_invers", scr_coord(349, D_BUTTON_HEIGHT), scr_size(41, D_BUTTON_HEIGHT));
-	ware_invers_ab.add_listener(this);
-	add_component(&ware_invers_ab);
+	// second columns: accepted cargo types
+	add_table(1,0);
+	{
+		add_component(filter_buttons + 1);
+		add_table(3,0);
+		{
+			ware_alle_an.init(button_t::roundbox, "hlf_btn_alle");
+			ware_alle_an.add_listener(this);
+			add_component(&ware_alle_an);
+			ware_keine_an.init(button_t::roundbox, "hlf_btn_keine");
+			ware_keine_an.add_listener(this);
+			add_component(&ware_keine_an);
+			ware_invers_an.init(button_t::roundbox, "hlf_btn_invers");
+			ware_invers_an.add_listener(this);
+			add_component(&ware_invers_an);
+		}
+		end_table();
 
-	ware_scrolly_ab.set_pos(scr_coord(265, 2*D_BUTTON_HEIGHT+4));
-	ware_scrolly_ab.set_scroll_amount_y(D_BUTTON_HEIGHT);
-	add_component(&ware_scrolly_ab);
+		ware_scrolly_an.set_scroll_amount_y(D_BUTTON_HEIGHT);
+		add_component(&ware_scrolly_an);
 
-	n=0;
-	for(  int i=0;  i<goods_manager_t::get_count();  i++  ) {
-		const goods_desc_t *ware = goods_manager_t::get_info(i);
-		if(  ware != goods_manager_t::none  ) {
-		ware_item_t *item = new ware_item_t(this, ware, NULL);
-		item->init(button_t::square, translator::translate(ware->get_name()), scr_coord(5, D_BUTTON_HEIGHT*n++));
-			ware_cont_ab.add_component(item);
+		ware_cont_an.set_table_layout(1,0);
+		for(  int i=0;  i<goods_manager_t::get_count();  i++  ) {
+			const goods_desc_t *ware = goods_manager_t::get_info(i);
+			if(  ware != goods_manager_t::none  ) {
+				ware_item_t *item = ware_cont_an.new_component<ware_item_t>(this, (const goods_desc_t*)NULL, ware);
+				item->init(button_t::square, translator::translate(ware->get_name()));
+			}
 		}
 	}
-	ware_cont_ab.set_size(scr_size(100, n*D_BUTTON_HEIGHT));
-	ware_scrolly_ab.set_size(scr_size(125, 13*D_BUTTON_HEIGHT));
+	end_table();
 
-	set_windowsize(scr_size(488, D_TITLEBAR_HEIGHT+(FILTER_BUTTONS-1)*D_BUTTON_HEIGHT+8+10));
-	set_min_windowsize(scr_size(395, D_TITLEBAR_HEIGHT+(FILTER_BUTTONS-1)*D_BUTTON_HEIGHT+8-2));
+	// second columns: outgoing cargo types
+	add_table(1,0);
+	{
+		add_component(filter_buttons + 2);
+		add_table(3,0);
+		{
+			ware_alle_ab.init(button_t::roundbox, "hlf_btn_alle");
+			ware_alle_ab.add_listener(this);
+			add_component(&ware_alle_ab);
+			ware_keine_ab.init(button_t::roundbox, "hlf_btn_keine");
+			ware_keine_ab.add_listener(this);
+			add_component(&ware_keine_ab);
+			ware_invers_ab.init(button_t::roundbox, "hlf_btn_invers");
+			ware_invers_ab.add_listener(this);
+			add_component(&ware_invers_ab);
+		}
+		end_table();
+
+		ware_scrolly_ab.set_scroll_amount_y(D_BUTTON_HEIGHT);
+		add_component(&ware_scrolly_ab);
+
+		ware_cont_ab.set_table_layout(1,0);
+		for(  int i=0;  i<goods_manager_t::get_count();  i++  ) {
+			const goods_desc_t *ware = goods_manager_t::get_info(i);
+			if(  ware != goods_manager_t::none  ) {
+				ware_item_t *item = ware_cont_ab.new_component<ware_item_t>(this, ware, (const goods_desc_t*)NULL);
+				item->init(button_t::square, translator::translate(ware->get_name()));
+			}
+		}
+	}
+	end_table();
 
 	set_resizemode(diagonal_resize);
-	resize(scr_coord(0,0));
+	reset_min_windowsize();
 }
-
 
 
 halt_list_filter_frame_t::~halt_list_filter_frame_t()
@@ -166,54 +175,51 @@ halt_list_filter_frame_t::~halt_list_filter_frame_t()
 }
 
 
-
 /**
  * This method is called if an action is triggered
  * @author V. Meyer
  */
 bool halt_list_filter_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
-	int i;
-
-	for (i = 0; i < FILTER_BUTTONS; i++) {
+	for (int i = 0; i < FILTER_BUTTONS; i++) {
 		if (komp == filter_buttons + i) {
 			main_frame->set_filter(filter_buttons_types[i], !main_frame->get_filter(filter_buttons_types[i]));
-			main_frame->display_list();
+			main_frame->sort_list();
 			return true;
 		}
 	}
 	if (komp == &ware_alle_ab) {
 		main_frame->set_alle_ware_filter_ab(1);
-		main_frame->display_list();
+		main_frame->sort_list();
 		return true;
 	}
 	if (komp == &ware_keine_ab) {
 		main_frame->set_alle_ware_filter_ab(0);
-		main_frame->display_list();
+		main_frame->sort_list();
 		return true;
 	}
 	if (komp == &ware_invers_ab) {
 		main_frame->set_alle_ware_filter_ab(-1);
-		main_frame->display_list();
+		main_frame->sort_list();
 		return true;
 	}
 	if (komp == &ware_alle_an) {
 		main_frame->set_alle_ware_filter_an(1);
-		main_frame->display_list();
+		main_frame->sort_list();
 		return true;
 	}
 	if (komp == &ware_keine_an) {
 		main_frame->set_alle_ware_filter_an(0);
-		main_frame->display_list();
+		main_frame->sort_list();
 		return true;
 	}
 	if (komp == &ware_invers_an) {
 		main_frame->set_alle_ware_filter_an(-1);
-		main_frame->display_list();
+		main_frame->sort_list();
 		return true;
 	}
 	if (komp == &name_filter_input) {
-		main_frame->display_list();
+		main_frame->sort_list();
 		return true;
 	}
 	return false;
@@ -228,7 +234,7 @@ void halt_list_filter_frame_t::ware_item_triggered(const goods_desc_t *ware_ab, 
 	if (ware_an) {
 		main_frame->set_ware_filter_an(ware_an, -1);
 	}
-	main_frame->display_list();
+	main_frame->sort_list();
 }
 
 
@@ -238,45 +244,4 @@ void halt_list_filter_frame_t::draw(scr_coord pos, scr_size size)
 		filter_buttons[i].pressed = main_frame->get_filter(filter_buttons_types[i]);
 	}
 	gui_frame_t::draw(pos, size);
-}
-
-
-void halt_list_filter_frame_t::resize(const scr_coord delta)
-{
-	gui_frame_t::resize(delta);
-
-	const scr_size size = get_windowsize()-scr_size(0, D_TITLEBAR_HEIGHT);
-
-	const scr_coord_val w1 = size.w/3-4;
-	const scr_coord_val w2 = (size.w+1)/3-4;
-	const scr_coord_val w3 = (size.w+2)/3-4;
-	const scr_coord_val pos2 = w1;
-	const scr_coord_val pos3 = size.w-w3;
-	const scr_coord_val h = (size.h-2-2*D_BUTTON_HEIGHT-4);
-
-	name_filter_input.set_size(scr_size(min(w1-18,142), D_EDIT_HEIGHT));
-
-	// column 2
-	filter_buttons_pos[1] = scr_coord(pos2, 2);
-	filter_buttons[1].set_pos(filter_buttons_pos[1]);
-	ware_alle_an.set_pos(scr_coord(pos2, D_BUTTON_HEIGHT));
-	ware_alle_an.set_size(scr_size(w2/3-D_H_SPACE, D_BUTTON_HEIGHT));
-	ware_keine_an.set_pos(scr_coord(pos2+(w2+0)/3, D_BUTTON_HEIGHT));
-	ware_keine_an.set_size(scr_size((w2+1)/3-D_H_SPACE, D_BUTTON_HEIGHT));
-	ware_invers_an.set_pos(scr_coord(pos2+(w2+0)/3+(w2+1)/3, D_BUTTON_HEIGHT));
-	ware_invers_an.set_size(scr_size((w2+2)/3-D_H_SPACE, D_BUTTON_HEIGHT));
-	ware_scrolly_an.set_pos(scr_coord(pos2, 2*D_BUTTON_HEIGHT+4));
-	ware_scrolly_an.set_size(scr_size(w2, h));
-
-	// column 3
-	filter_buttons_pos[2] = scr_coord(pos3, 2);
-	filter_buttons[2].set_pos(filter_buttons_pos[2]);
-	ware_alle_ab.set_pos(scr_coord(pos3, D_BUTTON_HEIGHT));
-	ware_alle_ab.set_size(scr_size(w3/3-D_H_SPACE, D_BUTTON_HEIGHT));
-	ware_keine_ab.set_pos(scr_coord(pos3+(w3+0)/3, D_BUTTON_HEIGHT));
-	ware_keine_ab.set_size(scr_size((w3+1)/3-D_H_SPACE, D_BUTTON_HEIGHT));
-	ware_invers_ab.set_pos(scr_coord(pos3+(w3+0)/3+(w3+1)/3, D_BUTTON_HEIGHT));
-	ware_invers_ab.set_size(scr_size((w3+2)/3-D_H_SPACE, D_BUTTON_HEIGHT));
-	ware_scrolly_ab.set_pos(scr_coord(pos3, 2*D_BUTTON_HEIGHT+4));
-	ware_scrolly_ab.set_size(scr_size(w3, h));
 }

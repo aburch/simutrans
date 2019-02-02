@@ -97,11 +97,13 @@ protected:
 
 	// Standard GUI controls in dialogue
 	gui_textinput_t  input;         //@< Filename input field
-	gui_divider_t    divider1;      //@< Filename input field   (Added 30-Oct-2001 Markus Weber)
 	button_t         savebutton;    //@< Save button            (Added 29-Oct-2001 Markus Weber)
 	button_t         cancelbutton;  //@< Cancel button          (Added 29-Oct-2001 Markus Weber)
 	gui_label_t      fnlabel;       //@< Static file name label (Added 31-Oct-2001 Markus Weber)
-	gui_container_t  button_frame;  //@< Gui container for all items
+	gui_aligned_container_t
+	                 top_frame,     //@< Contains input field
+					 bottom_left_frame, //@< container for elements on the left of the last row
+	                 button_frame;  //@< Gui container for all items
 	gui_scrollpane_t scrolly;       //@< Scroll panel for the GUI container
 
 	slist_tpl<dir_entry_t> entries;  //@< Internal list representing the file listing
@@ -128,7 +130,6 @@ protected:
 	virtual bool del_action    ( const char *   fullpath   );                 // Callback for delete button click
 	virtual bool ok_action     ( const char * /*fullpath*/ ) { return true; } // Callback for ok button click
 
-	virtual void set_windowsize     ( scr_size size );
 	virtual bool check_file         ( const char *filename, const char *suffix );
 
 	// Pure virtual functions

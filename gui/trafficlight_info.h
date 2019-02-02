@@ -25,11 +25,11 @@ class roadsign_t;
  */
 class trafficlight_info_t : public obj_infowin_t, public action_listener_t
 {
- private:
-	roadsign_t* ampel;
+private:
+	roadsign_t* roadsign;
 	gui_numberinput_t ns, ow, offset;
 
- public:
+public:
 	trafficlight_info_t(roadsign_t* s);
 
 	/*

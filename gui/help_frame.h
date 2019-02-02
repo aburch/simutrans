@@ -11,7 +11,6 @@
 #include <string>
 
 #include "gui_frame.h"
-#include "components/gui_scrollpane.h"
 #include "components/gui_flowtext.h"
 #include "components/action_listener.h"
 
@@ -25,10 +24,6 @@ private:
 		native,
 		english
 	};
-
-	gui_scrollpane_t
-		scrolly_generaltext,
-		scrolly_helptext;
 
 	gui_flowtext_t
 		generaltext,

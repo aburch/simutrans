@@ -8,7 +8,7 @@
 #ifndef message_frame_h
 #define message_frame_h
 
-#include "../gui/simwin.h"
+#include "simwin.h"
 
 #include "gui_frame.h"
 #include "components/gui_button.h"
@@ -45,12 +45,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	const char * get_help_filename() const {return "mailbox.txt";}
-
-	/**
-	* resize window in response to a resize event
-	* @author Hj. Malthaner
-	*/
-	void resize(const scr_coord delta);
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

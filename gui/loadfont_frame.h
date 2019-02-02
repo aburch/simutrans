@@ -9,7 +9,7 @@
 #define gui_loadsave_frame_h
 
 #ifdef USE_FREETYPE
-#include "../gui/gui_theme.h"
+#include "gui_theme.h"
 #include "../simsys.h"
 
 #include <ft2build.h>

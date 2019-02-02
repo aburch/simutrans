@@ -22,7 +22,6 @@ class ai_option_t : public gui_frame_t, private action_listener_t
 {
 private:
 	button_t buttons[4];
-	gui_label_t label_cs;
 	gui_numberinput_t construction_speed;
 	ai_t *ai;
 

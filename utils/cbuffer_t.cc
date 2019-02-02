@@ -92,6 +92,12 @@ void cbuffer_t::append(double n,int decimals)
 	append(tmp);
 }
 
+void cbuffer_t::append_money(double money)
+{
+	char tmp[128];
+	money_to_string(tmp, money, true);
+	append(tmp);
+}
 
 const char* cbuffer_t::get_str() const
 {

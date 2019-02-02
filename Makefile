@@ -138,7 +138,7 @@ ifdef USE_FREETYPE
     else
       LDFLAGS += -lfreetype
       ifeq ($(OSTYPE),mingw)
-        LDFLAGS += -lpng -lharfbuzz -lgraphite2
+        LDFLAGS += -lpng -lharfbuzz
       endif
     endif
     ifeq ($(OSTYPE),mingw)
@@ -308,11 +308,16 @@ SOURCES += gui/citylist_frame_t.cc
 SOURCES += gui/citylist_stats_t.cc
 SOURCES += gui/climates.cc
 SOURCES += gui/display_settings.cc
+SOURCES += gui/components/gui_aligned_container.cc
+SOURCES += gui/components/gui_building.cc
 SOURCES += gui/components/gui_button.cc
+SOURCES += gui/components/gui_button_to_chart.cc
 SOURCES += gui/components/gui_chart.cc
+SOURCES += gui/components/gui_colorbox.cc
 SOURCES += gui/components/gui_combobox.cc
 SOURCES += gui/components/gui_container.cc
 SOURCES += gui/components/gui_convoiinfo.cc
+SOURCES += gui/components/gui_divider.cc
 SOURCES += gui/components/gui_obj_view_t.cc
 SOURCES += gui/components/gui_fixedwidth_textarea.cc
 SOURCES += gui/components/gui_flowtext.cc
@@ -356,6 +361,7 @@ SOURCES += gui/halt_info.cc
 SOURCES += gui/halt_list_filter_frame.cc
 SOURCES += gui/halt_list_frame.cc
 SOURCES += gui/halt_list_stats.cc
+SOURCES += gui/headquarter_info.cc
 SOURCES += gui/help_frame.cc
 SOURCES += gui/jump_frame.cc
 SOURCES += gui/karte.cc

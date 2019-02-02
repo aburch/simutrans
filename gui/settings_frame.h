@@ -55,12 +55,6 @@ public:
 	 */
 	const char *get_help_filename() const {return "settings.txt";}
 
-	/**
-	* resize window in response to a resize event
-	* @author Hj. Malthaner
-	*/
-	void resize(const scr_coord delta);
-
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	// does not work during new world dialogue

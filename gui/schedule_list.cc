@@ -118,7 +118,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	player(player_),
 	scrolly_convois(&cont),
 	scrolly_haltestellen(&cont_haltestellen),
-	scl(gui_scrolled_list_t::listskin),
+	scl(gui_scrolled_list_t::listskin, line_scrollitem_t::compare),
 	lbl_filter("Line Filter"),
 	convoy_infos(),
 	stop_infos()
@@ -592,25 +592,22 @@ void schedule_list_gui_t::build_line_list(int filter)
 	sint32 sel = -1;
 	scl.clear_elements();
 	player->simlinemgmt.get_lines(tabs_to_lineindex[filter], &lines);
-	vector_tpl<line_scrollitem_t *>selected_lines;
 
 	FOR(vector_tpl<linehandle_t>, const l, lines) {
 		// search name
 		if(  strstr(l->get_name(), schedule_filter)  ) {
-			selected_lines.append(new line_scrollitem_t(l));
-		}
-	}
+			scl.new_component<line_scrollitem_t>(l);
 
-	FOR(vector_tpl<line_scrollitem_t*>, const i, selected_lines) {
-		scl.append_element(i);
-		if(  line == i->get_line()  ) {
-			sel = scl.get_count() - 1;
+			if(  line == l  ) {
+				sel = scl.get_count() - 1;
+			}
 		}
 	}
 
 	scl.set_selection( sel );
 	line_scrollitem_t::sort_mode = (line_scrollitem_t::sort_modes_t)current_sort_mode;
-	scl.sort( 0, NULL );
+	scl.sort( 0 );
+	scl.set_size(scl.get_size());
 
 	old_line_count = player->simlinemgmt.get_line_count();
 }
@@ -645,10 +642,11 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		for(  uint32 i=0;  i<icnv;  i++  ) {
 			gui_convoiinfo_t* const cinfo = new gui_convoiinfo_t(new_line->get_convoy(i));
 			cinfo->set_pos(scr_coord(0, ypos));
-			cinfo->set_size(scr_size(400, 40));
+			scr_size csize = cinfo->get_min_size();
+			cinfo->set_size(scr_size(400, csize.h));
 			convoy_infos.append(cinfo);
 			cont.add_component(cinfo);
-			ypos += 40;
+			ypos += csize.h + D_V_SPACE;
 		}
 		cont.set_size(scr_size(500, ypos));
 
@@ -677,10 +675,11 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			if(  halt.is_bound()  ) {
 				halt_list_stats_t* cinfo = new halt_list_stats_t(halt);
 				cinfo->set_pos(scr_coord(0, ypos));
-				cinfo->set_size(scr_size(500, 28));
+				scr_size csize = cinfo->get_min_size();
+				cinfo->set_size(scr_size(500, csize.h));
 				stop_infos.append(cinfo);
 				cont_haltestellen.add_component(cinfo);
-				ypos += 28;
+				ypos += csize.h + D_V_SPACE;
 			}
 		}
 		cont_haltestellen.set_size(scr_size(500, ypos));

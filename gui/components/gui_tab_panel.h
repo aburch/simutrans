@@ -15,6 +15,7 @@
 #include "gui_button.h"
 
 class image_t;
+class loadsave_t;
 
 class gui_tab_panel_t :
 	public gui_action_creator_t,
@@ -109,6 +110,17 @@ public:
 	 * @author Knightly
 	 */
 	virtual scr_coord get_focus_pos() { return pos + get_aktives_tab()->get_focus_pos(); }
+
+
+	scr_size get_min_size() const;
+
+	/**
+	 * Take tabs from other tab.
+	 */
+	void take_tabs(gui_tab_panel_t* other);
+
+	/// save active tab
+	void rdwr( loadsave_t *file );
 };
 
 #endif
