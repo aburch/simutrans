@@ -166,7 +166,7 @@ void export_halt(HSQUIRRELVM vm)
 	 * Get monthly statistics of number of happy passengers.
 	 * @returns array, index [0] corresponds to current month
 	 */
-	register_method_fv(vm, &get_halt_stat, "get_yappy", freevariable<sint32>(HALT_HAPPY), true);
+	register_method_fv(vm, &get_halt_stat, "get_happy", freevariable<sint32>(HALT_HAPPY), true);
 	/**
 	 * Get monthly statistics of number of unhappy passengers.
 	 *
@@ -191,6 +191,11 @@ void export_halt(HSQUIRRELVM vm)
 	 * @returns array, index [0] corresponds to current month
 	 */
 	register_method_fv(vm, &get_halt_stat, "get_too_slow", freevariable<sint32>(HALT_TOO_SLOW), true);
+	/**
+	 * Get monthly statistics of number of passengers that so long waiting at the station.
+	 * @returns array, index [0] corresponds to current month
+	 */
+	register_method_fv(vm, &get_halt_stat, "get_too_waiting", freevariable<sint32>(HALT_TOO_WAITING), true);
 	/**
 	 * Exports list of convoys that stop at this halt.
 	 * @typemask convoy_list_x()

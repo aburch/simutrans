@@ -3838,3 +3838,55 @@ Show also vehicles whose maintenance costs have increased due to obsolescence.
 Show vehicles that are obsolete and more expensive to maintain.
 Upgrade price:
 Upgrade price:
+Commuting
+Commuting
+Visiting
+Visiting
+Staffing
+Staffing
+Mail delivery
+Mail delivery
+Show the success rate for commuting passengers
+Show the success rate for commuting passengers
+Show the success rate for visiting passengers
+Show the success rate for visiting passengers
+Show the staff shortage rate
+Show the staff shortage rate
+Show the success rate for mail delivery
+Show the success rate for mail delivery
+Mail delivery success this year:
+Mail delivery success this year:
+Mail delivery success last year:
+Mail delivery success last year:
+Mail sent this year:
+Mail sent this year:
+Mail sent last year:
+Mail sent last year:
+Evaluation:
+Evaluation:
+No passenger service
+No passenger service
+No mail service
+No mail service
+This stop has no user
+This stop has no user
+This stop does not have mail customers
+This stop does not have mail customers
+Turned away
+Turned away
+Gave up waiting
+Gave up waiting
+Mail delivered
+Mail delivered
+No route (pass.)
+No route (pass.)
+No route (mail)
+No route (mail)
+The number of passengers who have been turned away from this stop because it is overcrowded
+The number of passengers who have been turned away from this stop because it is overcrowded
+The number of passengers who had to wait so long that they gave up
+The number of passengers who had to wait so long that they gave up
+The amount of mail successfully delivered from this stop
+The amount of mail successfully delivered from this stop
+The amount of mail which could not find a route to its destination
+The amount of mail which could not find a route to its destination

@@ -89,7 +89,7 @@ void loadingscreen_t::display()
 		display_fillbox_wh( quarter_width, half_height - 7, half_width, 16, COL_GREY5, true);
 
 		// progress
-		display_fillbox_wh( quarter_width, half_height - 5, bar_len,  12, COL_NO_ROUTE, true );
+		display_fillbox_wh( quarter_width, half_height - 5, bar_len,  12, COL_PASSENGERS, true );
 
 		if(  what  ) {
 			display_proportional( half_width, half_height-4, what, ALIGN_CENTER_H, SYSCOL_TEXT_HIGHLIGHT, false );

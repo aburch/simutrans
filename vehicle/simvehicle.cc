@@ -1004,6 +1004,7 @@ uint16 vehicle_t::unload_cargo(halthandle_t halt, sint64 & revenue_from_unloadin
 										// Check required because Simutrans-Standard saved games
 										// do not have origins. Also, the start halt might not
 										// be in (or be fully in) a city.
+										tmp.get_origin()->add_mail_delivered(menge);
 										koord origin_pos = tmp.get_origin()->get_basis_pos();
 										stadt_t* origin_city = welt->get_city(origin_pos);
 										if (!origin_city)

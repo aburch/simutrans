@@ -492,8 +492,6 @@ Apply Line
 路線を適用
 April
 4月
-Arbeiter aus:
-労働者居住地:
 Arrivals from\n
 到着予想時間\n
 Arrived
@@ -849,7 +847,7 @@ H
 Hangar
 格納庫
 Happy
- 幸せ
+満足
 Haus kaufen
 市内建築物を購入
 Headquarter and %li trains
@@ -1066,7 +1064,7 @@ New line created!\nYou can assign the line now\nby selecting it from the\nline s
 新しい路線が作られました。\n選択すれば路線を割り当てることができます。
 Nickname:
 名前：
-No Route
+No route (pass.)
 経路無し
 No goods are loaded onto this convoi.
 この編成を降車（荷降ろし）専用にします。
@@ -1144,10 +1142,6 @@ Passenger AI
 AI 旅客
 Passenger Demand %d\n
 労働者/顧客需要: %d\n
-Passengers %d %c, %d %c, %d no route
-旅客の評価 %d %c, %d %c, %d 経路無し
-Passengers %d %s, %d %s, %d no route
-旅客の評価 %d %s, %d %s, %d 経路無し
 Password
 パスワード:
 Pause
@@ -1460,8 +1454,6 @@ Undo last ways construction
 直前に建設した道路/線路を取り壊す
 Unemployed
 無職者
-Unhappy
-不幸せ
 Update Line
 路線編集
 Usage/Output
@@ -2478,10 +2470,6 @@ Passenger success rate this year (non-local):
 今年の移動成功率(旅行):
 Passengers
 旅客
-Passengers %d %c, %d %c, %d no route, %d too slow
-旅客の評価 %d %c, %d %c, %d 経路無し, %d 許容時間超過
-Passengers %d %s, %d %s, %d no route, %d too slow
-旅客の評価 %d %s, %d %s, %d 経路無し, %d 許容時間超過
 Pedestrians will appear near stops whenver a passenger vehicle unloads there.
 乗客の降車時、常に歩行者を表示します。
 Pedestrians will appear randomly in towns.
@@ -2662,8 +2650,6 @@ The number of passengers who could not find a route to their destination
 目的地までの経路を見つけられなかった旅客の人数を表します。
 The number of passengers who decline to travel because the journey would take too long
 許容できる旅行時間よりも所要時間が長すぎるため、旅行を取り止めた旅客の人数を表します。
-The number of passengers who have left because of overcrowding or excess waiting
-混雑や駅での待ち時間のため旅行を取り止めた旅客の人数を表します。
 The number of passengers who have travelled successfully from this stop
 この停留所/駅からの移動に成功した旅客の人数を表します。
 The number of passengers/units of mail/goods that have arrived at this stop
@@ -3366,7 +3352,49 @@ wealth_of_visitors_/_commuters
 旅行客/通勤客の裕福度
 with_wayobj
 \n軌道付属設備:
+Turned away
+駅の混雑
+Gave up waiting
+乗り継ぎ不良
+The number of passengers who have been turned away from this stop because it is overcrowded
+この駅があまりに混雑していたので利用を諦めた旅客の数を表します。
+The number of passengers who had to wait so long that they gave up
+この駅から旅行を開始したものの、乗り継ぎの接続が悪く長時間待たされたので旅行を中断した旅客の数を表します。
+Evaluation:
+利用者の評価:
+No passenger service
+旅客輸送が提供されていません
+This stop has no user
+この駅を利用する旅客が居ません
+No mail service
+郵便輸送が提供されていません
+This stop does not have mail customers
+郵便輸送は利用されていません
+Mail delivered
+配達完了
+The amount of mail successfully delivered from this stop
+ここから発送された郵便物が無事に配達先まで配達された数
+No route (mail)
+配達不能
+The amount of mail which could not find a route to its destination
+郵便物の配達先がここからは配達できない場所であった数
+%d%% delivered : %d%% no route
+配達完了 %d%% : 配達不能 %d%%
 #_______________________________unnecessary_text________________________________
 #_______________________________unnecessary_text________________________________
 Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
 旅客 %d %c, %d %c, %d 経路なし\n\n定員/容量: %i\n
+Passengers %d %c, %d %c, %d no route
+旅客の評価 %d %c, %d %c, %d 経路無し
+Passengers %d %s, %d %s, %d no route
+旅客の評価 %d %s, %d %s, %d 経路無し
+Passengers %d %c, %d %c, %d no route, %d too slow
+旅客の評価 %d %c, %d %c, %d 経路無し, %d 許容時間超過
+Passengers %d %s, %d %s, %d no route, %d too slow
+旅客の評価 %d %s, %d %s, %d 経路無し, %d 許容時間超過
+Unhappy
+不幸せ
+The number of passengers who have left because of overcrowding or excess waiting
+混雑や駅での待ち時間のため旅行を取り止めた旅客の人数を表します。
+Arbeiter aus:
+労働者居住地:
