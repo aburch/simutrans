@@ -459,12 +459,12 @@ void depot_frame_t::update_data()
 
 	// update convoy selector
 	convoy_selector.clear_elements();
-	convoy_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_convoy_text, SYSCOL_TEXT ) );
+	convoy_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( new_convoy_text, SYSCOL_TEXT ) ;
 	convoy_selector.set_selection(0);
 
 	// check all matching convoys
 	FOR(slist_tpl<convoihandle_t>, const c, depot->get_convoy_list()) {
-		convoy_selector.append_element( new convoy_scrollitem_t(c) );
+		convoy_selector.new_component<convoy_scrollitem_t>(c) ;
 		if(  cnv.is_bound()  &&  c == cnv  ) {
 			convoy_selector.set_selection( convoy_selector.count_elements() - 1 );
 		}
@@ -503,25 +503,25 @@ void depot_frame_t::build_line_list()
 	}
 	if(  cnv.is_bound()  &&  cnv->get_schedule()  &&  !cnv->get_schedule()->empty()  ) {
 		if (cnv->get_line().is_bound()) {
-			line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( clear_schedule_text, SYSCOL_TEXT ) );
-			line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, SYSCOL_TEXT ) );
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( clear_schedule_text, SYSCOL_TEXT ) ;
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( new_line_text, SYSCOL_TEXT ) ;
 			extra_option += 2;
 		}
 		else {
-			line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( unique_schedule_text, SYSCOL_TEXT ) );
-			line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( promote_to_line_text, SYSCOL_TEXT ) );
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( unique_schedule_text, SYSCOL_TEXT ) ;
+			line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( promote_to_line_text, SYSCOL_TEXT ) ;
 			extra_option += 2;
 		}
 	}
 	else {
-		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_schedule_text, SYSCOL_TEXT ) );
-		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( new_line_text, SYSCOL_TEXT ) );
+		line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( no_schedule_text, SYSCOL_TEXT ) ;
+		line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( new_line_text, SYSCOL_TEXT ) ;
 		extra_option += 2;
 	}
 	// select "create new schedule" for default
 	line_selector.set_selection( 0 );
 	if( last_selected_line.is_bound() ) {
-		line_selector.append_element( new line_scrollitem_t( last_selected_line ) );
+		line_selector.new_component<line_scrollitem_t>( last_selected_line ) ;
 		extra_option++;
 		if (selected_line == last_selected_line) {
 			line_selector.set_selection(line_selector.count_elements() - 1);
@@ -529,17 +529,17 @@ void depot_frame_t::build_line_list()
 	}
 	if (selected_line.is_bound() && (selected_line != last_selected_line)) {
 		// Places the currently selected line for safety.
-		line_selector.append_element(new line_scrollitem_t(selected_line));
+		line_selector.new_component<line_scrollitem_t>(selected_line);
 		line_selector.set_selection(line_selector.count_elements() - 1);
 		extra_option++;
 	}
-	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line_separator, SYSCOL_TEXT ) );
+	line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( line_separator, SYSCOL_TEXT ) ;
 	extra_option++;
 
 	vector_tpl<linehandle_t> lines;
 	depot->get_owner()->simlinemgmt.get_lines(depot->get_line_type(), &lines, line_type_flags, true);
 	FOR(  vector_tpl<linehandle_t>,  const line,  lines  ) {
-		line_selector.append_element( new line_scrollitem_t(line) );
+		line_selector.new_component<line_scrollitem_t>(line) ;
 		if(  selected_line.is_bound()  &&  selected_line == line  ) {
 			line_selector.set_selection( line_selector.count_elements() - 1 );
 		}
@@ -548,7 +548,7 @@ void depot_frame_t::build_line_list()
 		// no line selected
 		selected_line = linehandle_t();
 	}
-	line_selector.sort( last_selected_line.is_bound()+extra_option, NULL );
+	line_selector.sort( last_selected_line.is_bound()+extra_option );
 }
 
 

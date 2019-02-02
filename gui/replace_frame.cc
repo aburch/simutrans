@@ -33,7 +33,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	state(state_replace), replaced_so_far(0),
 	lb_convoy(cnv, true, true),
 	lb_to_be_replaced(NULL, SYSCOL_TEXT, gui_label_t::centered),
-	lb_money(NULL, SYSCOL_TEXT, gui_label_t::money),
+	lb_money(NULL, SYSCOL_TEXT, gui_label_t::money_right),
 	lb_replace_cycle(NULL, SYSCOL_TEXT, gui_label_t::right),
 	lb_replace(NULL, SYSCOL_TEXT, gui_label_t::left),
 	lb_sell(NULL, SYSCOL_TEXT, gui_label_t::left),

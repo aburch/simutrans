@@ -661,7 +661,7 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	savegame.set_pos( scr_coord(0, ypos) );
 	savegame.set_size( scr_size(70, D_BUTTON_HEIGHT) );
 	for(  uint32 i=0;  i<lengthof(version);  i++  ) {
-		savegame.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version[i]+2, SYSCOL_TEXT ) );
+		savegame.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( version[i]+2, SYSCOL_TEXT );
 		if(  strcmp(version[i],env_t::savegame_version_str)==0  ) {
 			savegame.set_selection( i );
 		}
@@ -710,11 +710,11 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	{
 		if(i == 0)
 		{
-			savegame_ex.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( "0", SYSCOL_TEXT ) );
+			savegame_ex.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( "0", SYSCOL_TEXT );
 		}
 		else
 		{
-			savegame_ex.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version_ex[i]+1, SYSCOL_TEXT ) );
+			savegame_ex.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( version_ex[i]+1, SYSCOL_TEXT );
 		}
 		if(  strcmp(version_ex[i],EXTENDED_VER_NR)==0  )
 		{
@@ -737,11 +737,11 @@ void settings_general_stats_t::init(settings_t const* const sets)
 	{
 		if(i == 0)
 		{
-			savegame_ex_rev.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( "0", SYSCOL_TEXT ) );
+			savegame_ex_rev.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( "0", SYSCOL_TEXT );
 		}
 		else
 		{
-			savegame_ex_rev.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( revision_ex[i], SYSCOL_TEXT ) );
+			savegame_ex_rev.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( revision_ex[i], SYSCOL_TEXT );
 		}
 		if(  strcmp(revision_ex[i],QUOTEME(EX_SAVE_MINOR))==0  )
 		{

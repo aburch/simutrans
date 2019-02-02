@@ -227,7 +227,7 @@ schedule_list_gui_t::schedule_list_gui_t(player_t *player_) :
 	sortedby.set_size(scr_size(D_BUTTON_WIDTH*1.5, D_BUTTON_HEIGHT));
 	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH * 1.5, LINESPACE * 8));
 	for (int i = 0; i < SORT_MODES; i++) {
-		sortedby.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
+		sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
 	}
 	sortedby.set_selection(default_sortmode);
 	sortedby.add_listener(this);
@@ -871,21 +871,18 @@ void schedule_list_gui_t::build_line_list(int selected_tab)
 
 	FOR(vector_tpl<linehandle_t>, const l, lines) {
 		// search name
-		if(  strstr(l->get_name(), schedule_filter)  ) {
-			selected_lines.append(new line_scrollitem_t(l));
-		}
-	}
+		if (strstr(l->get_name(), schedule_filter)) {
+			scl.new_component<line_scrollitem_t>(l);
 
-	FOR(vector_tpl<line_scrollitem_t*>, const i, selected_lines) {
-		scl.append_element(i);
-		if(  line == i->get_line()  ) {
-			sel = scl.get_count() - 1;
+			if (line == l) {
+				sel = scl.get_count() - 1;
+			}
 		}
 	}
 
 	scl.set_selection( sel );
 	line_scrollitem_t::sort_mode = (line_scrollitem_t::sort_modes_t)current_sort_mode;
-	scl.sort( 0, NULL );
+	scl.sort( 0 );
 
 	old_line_count = player->simlinemgmt.get_line_count();
 }
@@ -983,7 +980,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 									const char* test_livery = scheme->get_latest_available_livery(month_now, desc);
 									if (test_livery) {
 										if (scheme->is_contained(test_livery, month_now)) {
-											livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), SYSCOL_TEXT));
+											livery_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(scheme->get_name()), SYSCOL_TEXT);
 											livery_scheme_indices.append(i);
 											found = true;
 											break;
@@ -1001,7 +998,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 			}
 		}
 		if(livery_scheme_indices.empty()) {
-			livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("No livery"), SYSCOL_TEXT));
+			livery_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("No livery"), SYSCOL_TEXT);
 			livery_selector.set_selection(0);
 		}
 

@@ -111,15 +111,15 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(waytype_t wt, signed char player_
 	add_component(&action_selector);
 	action_selector.clear_elements();
 	static const char *txt_veh_action[4] = { "anhaengen", "voranstellen", "verkaufen", "Upgrade" };
-	action_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_veh_action[0]), SYSCOL_TEXT));
-	action_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_veh_action[1]), SYSCOL_TEXT));
-	action_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_veh_action[2]), SYSCOL_TEXT));
-	action_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(txt_veh_action[3]), SYSCOL_TEXT));
+	action_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(txt_veh_action[0]), SYSCOL_TEXT);
+	action_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(txt_veh_action[1]), SYSCOL_TEXT);
+	action_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(txt_veh_action[2]), SYSCOL_TEXT);
+	action_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(txt_veh_action[3]), SYSCOL_TEXT);
 	action_selector.set_selection(0);
 
 	/*
 	* These parameter are adjusted to resolution.
-	* - Some extra space looks nicer.
+	* - Some extra space looks nicer.new_component<gui_scrolled_list_t::const_text_scrollitem_t>
 	*/
 	placement.x=placement.x* get_base_tile_raster_width() / 64 + 2;
 	placement.y=placement.y* get_base_tile_raster_width() / 64 + 2;
@@ -1310,7 +1310,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 		std::sort(livery_scheme_indices.begin(), livery_scheme_indices.end());
 		FOR(vector_tpl<uint16>, const& i, livery_scheme_indices) {
 			livery_scheme_t* scheme = schemes->get_element(i);
-			livery_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(scheme->get_name()), SYSCOL_TEXT));
+			livery_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(scheme->get_name()), SYSCOL_TEXT);
 			livery_selector.set_selection(i);
 		}
 
@@ -2109,11 +2109,11 @@ void gui_convoy_assembler_t::update_tabs()
 
 	// Update vehicle filter
 	vehicle_filter.clear_elements();
-	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), SYSCOL_TEXT));
-	vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("Relevant"), SYSCOL_TEXT));
+	vehicle_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
+	vehicle_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("Relevant"), SYSCOL_TEXT);
 
 	FOR(vector_tpl<goods_desc_t const*>, const i, welt->get_goods_list()) {
-		vehicle_filter.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(i->get_name()), SYSCOL_TEXT));
+		vehicle_filter.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(i->get_name()), SYSCOL_TEXT);
 	}
 
 	if (selected_filter > vehicle_filter.count_elements()) {

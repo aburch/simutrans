@@ -134,8 +134,8 @@ class tabfileobj_t {
 private:
 	stringhashtable_tpl<obj_info_t> objinfo;
 
-	template<typename T>
-	bool get_x_y( const char *key, T &x, T &y );
+	template<class I>
+	bool get_x_y( const char *key, I &x, I &y );
 
 public:
 	tabfileobj_t() { ; }

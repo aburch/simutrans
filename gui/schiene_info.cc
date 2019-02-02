@@ -59,7 +59,7 @@ bool schiene_info_t::action_triggered( gui_action_creator_t *comp, value_t)
 void schiene_info_t::draw(scr_coord pos, scr_size size)
 {
 	buf.clear();
-	info(buf);
+	fill_buffer();
 //	textarea.recalc_size();
 
 

@@ -3329,20 +3329,6 @@ void haltestelle_t::liefere_an(ware_t ware, uint8 walked_between_stations)
 	return;
 }
 
-//void haltestelle_t::info(cbuffer_t & buf, bool dummy) const
-//{
-//	if( has_character( 0x263A ) ) {
-//		utf8 happy[4], unhappy[4];
-//		happy[ utf16_to_utf8( 0x263A, happy ) ] = 0;
-//		unhappy[ utf16_to_utf8( 0x2639, unhappy ) ] = 0;
-//		buf.printf(translator::translate("%d %s, %d %s, %d gave up waiting"), get_pax_happy(), happy, get_pax_unhappy(), unhappy, get_pax_too_waiting());
-//	}
-//	else {
-//		buf.printf(translator::translate("%d %c, %d %c, %d gave up waiting"), get_pax_happy(), 30, get_pax_unhappy(), 31, get_pax_too_waiting());
-//	}
-//	buf.append("\n");
-//}
-
 
 /**
  * @param buf the buffer to fill

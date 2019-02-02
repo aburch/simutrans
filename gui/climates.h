@@ -27,22 +27,14 @@ private:
 	settings_t* sets;
 
 	enum { MAX_CLIMATE_LABEL=15 };
-	char snowline_txt[16];
-
-	// since decrease/increase buttons always pair these ...
 	gui_numberinput_t
 		water_level,
 		mountain_height,
-		mountain_roughness;
-
-	gui_numberinput_t
-		snowline_winter;
-
-	gui_numberinput_t
+		mountain_roughness,
+		snowline_winter,
 		climate_borders_ui[rocky_climate];
 
-	gui_label_t
-		numberinput_lbl[MAX_CLIMATE_LABEL],
+	gui_label_buf_t
 		summer_snowline;
 
 	button_t

@@ -9,7 +9,6 @@
 
 #include "../dataobj/environment.h"
 #include "components/gui_button.h"
-#include "components/gui_image.h"
 #include "gui_frame.h"
 
 
@@ -20,18 +19,12 @@
 class banner_t : public gui_frame_t, action_listener_t
 {
 private:
-	sint32 last_ms;
-	int line;
-
 	button_t
 		new_map,
 		load_map,
 		load_scenario,
 		join_map,
 		quit;
-
-	gui_image_t logo;
-
 
 public:
 	banner_t();

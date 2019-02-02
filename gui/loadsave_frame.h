@@ -106,8 +106,6 @@ protected:
 	virtual const char *get_info(const char *fname);
 	virtual void add_file(const char *fullpath, const char *filename, const bool not_cutting_suffix);
 
-	virtual void set_windowsize(scr_size size);
-
 public:
 	/**
 	* Set the window associated helptext

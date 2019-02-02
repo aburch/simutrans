@@ -12,9 +12,12 @@
 #include "components/gui_combobox.h"
 #include "components/gui_label.h"
 #include "components/action_listener.h"
+#include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
 #include "../dataobj/gameinfo.h"
 #include "../utils/cbuffer_t.h"
+
+class gui_minimap_t;
 
 /**
  * When connected to a network server, this dialog shows game information
@@ -25,9 +28,8 @@ class server_frame_t : public gui_frame_t, private action_listener_t
 {
 private:
 	gameinfo_t gi;
-	cbuffer_t buf, time, revision_buf, pakset_checksum_buf;
+	cbuffer_t buf;
 
-	bool display_map;       // Controls minimap display
 	bool custom_valid;      // Custom server entry is valid
 
 	gui_textinput_t addinput, nick;
@@ -36,11 +38,13 @@ private:
 	gui_scrolled_list_t serverlist;
 	button_t add, join, find_mismatch;
 	button_t show_mismatched, show_offline;
-	gui_label_t info_list, info_manual, revision, pak_version, date, nick_label;
+	gui_label_t pak_version;
+	gui_label_buf_t revision, date, label_size;
 #if DEBUG>=4
-	gui_label_t pakset_checksum;
+	gui_label_buf_t pakset_checksum;
 #endif
-
+	gui_minimap_t *map;
+	gui_textarea_t game_text;
 	/**
 	 * Server items to add to the listing panel
 	 * Stores dnsname (for connection) and servername (for display in list)

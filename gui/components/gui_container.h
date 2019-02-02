@@ -9,7 +9,7 @@
 
 #include "../../simdebug.h"
 #include "../../simevent.h"
-#include "../../tpl/slist_tpl.h"
+#include "../../tpl/vector_tpl.h"
 #include "gui_component.h"
 
 
@@ -20,10 +20,10 @@
  * @author Hj. Malthaner
  * @date 03-Mar-01
  */
-class gui_container_t : public gui_component_t
+class gui_container_t : virtual public gui_component_t
 {
-private:
-	slist_tpl <gui_component_t *> components;
+protected:
+	vector_tpl <gui_component_t *> components;
 
 	// holds the GUI component that has the focus in this window
 	// focused component of this container can only be one of its immediate children
@@ -36,27 +36,22 @@ private:
 
 public:
 	gui_container_t();
+	virtual ~gui_container_t() {}
 
 	// needed for WIN_OPEN events
 	void clear_dirty() { list_dirty=false; }
 
 	/**
-	 * Returns the minimum rectangle which encloses all children
-	 * @author Max Kielland
-	 */
-	scr_rect get_min_boundaries() const;
-
-	/**
 	* Adds a Component to the Container.
 	* @author Hj. Malthaner
 	*/
-	void add_component(gui_component_t *comp);
+	virtual void add_component(gui_component_t *comp);
 
 	/**
 	* Removes a Component in the Container.
 	* @author Hj. Malthaner
 	*/
-	void remove_component(gui_component_t *comp);
+	virtual void remove_component(gui_component_t *comp);
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
@@ -70,7 +65,7 @@ public:
 	* Removes all Components in the Container.
 	* @author Markus Weber
 	*/
-	void remove_all();
+	virtual void remove_all();
 
 	/**
 	 * Returns true if any child component is focusable

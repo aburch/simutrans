@@ -10,7 +10,7 @@
 
 
 #ifdef USE_FREETYPE
-#include "../gui/gui_theme.h"
+#include "gui_theme.h"
 #include "../sys/simsys.h"
 
 #include <ft2build.h>

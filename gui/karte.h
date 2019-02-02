@@ -151,7 +151,14 @@ private:
 
 	koord last_world_pos;
 
-	// current and new offset and size (to avoid drawing invisible parts)
+	/**
+	 * current and new offset and size (to avoid drawing invisible parts)
+	 *
+	 * gui_component_t::size is always equal to max_size.
+	 *
+	 * These are size and offset of visible part of map.
+	 * We only show and compute this.
+	 */
 	scr_coord cur_off, new_off;
 	scr_size cur_size, new_size;
 
@@ -270,6 +277,9 @@ public:
 
 	void rdwr(loadsave_t *file);
 
+	scr_size get_min_size() const OVERRIDE;
+
+	scr_size get_max_size() const OVERRIDE;
 };
 
 #endif

@@ -13,7 +13,6 @@
 #include "components/action_listener.h"
 #include "components/gui_textinput.h"
 #include "components/gui_numberinput.h"
-#include "components/gui_divider.h"
 #include "components/gui_map_preview.h"
 
 #include "../tpl/array2d_tpl.h"
@@ -39,6 +38,8 @@ private:
 	*/
 	array2d_tpl<PIXVAL>	map;
 	scr_size            map_size;
+
+	double tile_km = 0.0;
 
 	bool load_heightfield;
 	bool loaded_heightfield;
@@ -75,22 +76,12 @@ private:
 		inp_tourist_attractions,
 		inp_intro_date;
 
-	gui_label_t
-		world_title_label,
-		map_number_label,
-		size_label,
-		cities_label,
-		lbl_number_of_big_cities,
-		lbl_number_of_clusters,
-		lbl_cluster_size,
+	gui_label_buf_t
 		lbl_x_size,
 		lbl_y_size,
 		info_x_size,
 		info_y_size,
-		median_label,
-		intercity_label,
-		factories_label,
-		tourist_label;
+		size_label;
 
 	button_t
 		use_intro_dates,
@@ -101,11 +92,6 @@ private:
 		load_scenario,
 		start_game,
 		quit_game;
-
-	gui_divider_t
-		divider_1,
-		divider_2,
-		divider_3;
 
 	/**
 	* Calculates preview from height map
@@ -122,6 +108,7 @@ public:
 
 	static uint32 max_map_dimension_fixed;
 	static uint32 max_map_dimension_numerator;
+	static uint32 memory;
 
 	welt_gui_t(settings_t*);
 
@@ -157,6 +144,8 @@ public:
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
+
+	static void update_memory(const settings_t* sets);
 };
 
 #endif

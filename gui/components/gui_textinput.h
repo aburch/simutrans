@@ -147,6 +147,10 @@ public:
 
 	// to set text color
 	void set_color(PIXVAL col){ textcol = col;}
+
+	scr_size get_max_size() const;
+
+	scr_size get_min_size() const;
 };
 
 

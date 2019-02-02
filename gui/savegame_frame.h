@@ -149,7 +149,7 @@ private:
 	vector_tpl<std::string> paths;     //@< Paths in which this dialog will search for
 
 	const char *suffix;                //@< Extension of the files this dialog will use, can be NULL Can include or not the "." at start, will work on both cases
-	char        ibuf[PATH_MAX];        //@< Input buffer for the text input component
+	char        ibuf[PATH_MAX];            //@< Input buffer for the text input component
 	char        searchpath[PATH_MAX];      //@< Default search path
 	bool        in_action;             //@< To avoid double mouse action
 	bool        only_directories;      //@< Search for directories (used in pak_selector)
@@ -206,12 +206,14 @@ protected:
 
 	// Standard GUI controls in dialogue
 	gui_textinput_t  input;         //@< Filename input field
-	gui_divider_t    divider1;      //@< Filename input field   (Added 30-Oct-2001 Markus Weber)
 	button_t         savebutton;    //@< Save button            (Added 29-Oct-2001 Markus Weber)
 	button_t         cancelbutton;  //@< Cancel button          (Added 29-Oct-2001 Markus Weber)
 	gui_label_t      fnlabel;       //@< Static file name label (Added 31-Oct-2001 Markus Weber)
+	gui_aligned_container_t
+	                 top_frame,     //@< Contains input field
+					 bottom_left_frame, //@< container for elements on the left of the last row
+	                 button_frame;  //@< Gui container for all items
 	gui_file_table_t file_table;
-	gui_container_t  button_frame;  //@< Gui container for all items
 	gui_scrollpane_t scrolly;       //@< Scroll panel for the GUI container
 
 	slist_tpl<dir_entry_t> entries;  //@< Internal list representing the file listing
@@ -225,22 +227,6 @@ protected:
 
 	void press_file_table_button(const coordinates_t &cell);
 	void release_file_table_button();
-	// use file_table instead of button_frame:
-	bool use_table;
-
-	/**
-	 * Returns extra file info
-	 * @note filename is a qualified path
-	 */
-	virtual const char *get_info(const char *fname) = 0;
-	virtual bool        item_action ( const char *fullpath ) = 0;
-
-	/**
-	 * Called on each entry, to be re-implemented on each sub-class
-	 * @return if true, the file will be added to the list
-	 * @note filename is a qualified path
-	 */
-	virtual bool check_file(const char *filename, const char *suffix);
 
 	/**
 	 * Called on each entry that passed the check
@@ -252,28 +238,20 @@ protected:
 	void        set_extension( const char *ext ) { suffix = ext; }
 	void        cleanup_path ( char *path );
 	void        shorten_path ( char *dest, const char *orig, const size_t max_size );
-
-	/**
-	 * Called when the directory processing ends
-	 */
-	void list_filled();
-
-	/**
-	 * Callback function that will be executed when the user clicks one of the entries in list
-	 * @author Hansjörg Malthaner
-	 */
+	std::string get_filename(const char *fullpath, const bool with_extension = true) const;
+	void        list_filled(void);
 
 	 // Virtual callback function that will be executed when the user clicks ok,
 	virtual bool cancel_action ( const char * /*fullpath*/ ) { return true; } // Callback for cancel button click
 	virtual bool del_action    ( const char *   fullpath   );                 // Callback for delete button click
 	virtual bool ok_action     ( const char * /*fullpath*/ ) { return true; } // Callback for ok button click
 
-	/**
-	 * extracts file name from a full path
-	 */
-	std::string get_filename(const char *fullpath, const bool with_extension = true) const;
+	virtual bool check_file         ( const char *filename, const char *suffix );
 
-	virtual void init(const char *suffix, const char *path);
+	// Pure virtual functions
+	virtual const char *get_info    ( const char *fname    ) = 0;
+	virtual bool        item_action ( const char *fullpath ) = 0;
+
 
 	/**
 	 * called by fill_list():
@@ -287,24 +265,9 @@ public:
 	 */
 	std::string get_basename(const char *fullpath);
 
-	/**
-	 * Sets the gui components widths and coordinates
-	 * @author Mathew Hounsell
-	 * \date   11-Mar-2003
-	 */
-	void set_windowsize(scr_size size) OVERRIDE;
-
-	/**
-	 * @param suffix Filename suffix, i.e. ".sve", you can omit the intial dot, i.e. "sve", NULL to not enforce any extension.
-	 * @param only_directories will just process directory entries, not files.
-	 * @param path Default path to search at. If NULL, next call to add_path will define the default path.
-	 * @param delete_enabled Determins if we'll add delete buttons to the frame.
-	 * @author Hj. Malthaner
-	 */
-	savegame_frame_t(const char *suffix = NULL, bool only_directories = false, const char *path = NULL, const bool delete_enabled = true, bool use_table = false );
-
-//	savegame_frame_t(const char *suffix, bool only_directorie, const char *path, const bool delete_enabled );
+	savegame_frame_t(const char *suffix, bool only_directorie, const char *path, const bool delete_enabled );
 //	savegame_frame_t(const char *suffix = NULL, bool only_directories = false, const char *path = NULL, const bool delete_enabled = true);
+//	savegame_frame_t(const char *suffix = NULL, bool only_directories = false, const char *path = NULL, const bool delete_enabled = true, bool use_table = false );
 	virtual ~savegame_frame_t();
 
 	bool action_triggered  ( gui_action_creator_t*, value_t ) OVERRIDE;

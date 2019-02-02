@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the Simutrans-Extended project under the Artistic License.
  * (see LICENSE.txt)
  */
@@ -234,38 +234,38 @@ money_frame_t::money_frame_t(player_t *player) :
 	gui_frame_t( translator::translate("Finanzen"), player),
 	tylabel("This Year", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 	lylabel("Last Year", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
-	conmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	nvmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	vrmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	imoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	tmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	mmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	omoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	old_conmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	old_nvmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	old_vrmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	old_imoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	old_tmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	old_mmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	old_omoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	soft_credit_limit(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	hard_credit_limit(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	interest(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	old_interest(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+	conmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	nvmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	vrmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	imoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	tmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	mmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	omoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	old_conmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	old_nvmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	old_vrmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	old_imoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	old_tmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	old_mmoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	old_omoney(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	soft_credit_limit(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	hard_credit_limit(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	interest(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	old_interest(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
 	tylabel2("This Year", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
-	cash_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	assets(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	net_wealth(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	margin(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+	cash_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	assets(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	net_wealth(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	margin(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
 	transport(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 	old_transport(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
-	toll(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	old_toll(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+	toll(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	old_toll(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
 	maintenance_label("This Month",SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
 	maintenance_label2("Fixed Costs", SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right),
-	maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	vehicle_maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
-	old_vehicle_maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money),
+	maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	vehicle_maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
+	old_vehicle_maintenance_money(NULL, SYSCOL_TEXT_HIGHLIGHT, gui_label_t::money_right),
 	warn("", color_idx_to_rgb(COL_YELLOW), gui_label_t::left),
 	scenario("", SYSCOL_TEXT, gui_label_t::left),
 	transport_type_option(0),
@@ -332,7 +332,7 @@ money_frame_t::money_frame_t(player_t *player) :
 	transport_type_c.set_max_size(scr_size(85 + 14 + 14, TT_MAX * BUTTONSPACE));
 	for (int i = 0, count = 0; i < TT_MAX; ++i) {
 		if (!is_chart_table_zero(i)) {
-			transport_type_c.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(transport_type_values[i]), SYSCOL_TEXT));
+			transport_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(transport_type_values[i]), SYSCOL_TEXT);
 			transport_types[count++] = i;
 		}
 	}

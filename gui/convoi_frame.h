@@ -7,12 +7,7 @@
 #define GUI_CONVOI_FRAME_H
 
 
-#include "convoi_filter_frame.h"
 #include "gui_frame.h"
-#include "components/gui_container.h"
-#include "components/gui_scrollbar.h"
-#include "components/gui_speedbar.h"
-#include "components/gui_label.h"
 #include "components/action_listener.h"  // 28-Dec-2001  Markus Weber    Added
 #include "components/gui_button.h"
 #include "components/gui_convoiinfo.h"
@@ -20,6 +15,7 @@
 
 class player_t;
 class goods_desc_t;
+class gui_scrolled_convoy_list_t;
 
 /*
  * Displays a scrollable list of all convois of a player
@@ -39,24 +35,18 @@ private:
 
 	static const char *sort_text[SORT_MODES];
 
-	/**
-	* Handle the convoi to be displayed.
-	* @author Hj. Malthaner
-	*/
-	vector_tpl<convoihandle_t> convois;
+	/// number of convoys the last time we checked.
 	uint32 last_world_convois;
 
-	// since the scrollpane can be larger than 32767, we use explicitly a scroll bar
-	scrollbar_t vscroll;
-
 	// these are part of the top UI
-	gui_label_t sort_label;
 	button_t	sortedby;
 	button_t	sorteddir;
-	gui_label_t mode_label;
 	button_t	display_mode;
 	button_t	filter_on;
 	button_t	filter_details;
+
+	// scroll container of list of convois
+	gui_scrolled_convoy_list_t *scrolly;
 
 	// actual filter setting
 	bool filter_is_on;
@@ -67,23 +57,18 @@ private:
 	bool get_filter(uint32 filter) { return (filter_flags & filter) != 0; }
 	void set_filter(uint32 filter, bool on) { filter_flags = on ? (filter_flags | filter) : (filter_flags & ~filter); }
 
+	/// sort & filter convoys in list
+	void sort_list();
+
+	/// refill the list of convoy info elements
+	void fill_list();
+
 	/*
 	 * All filter settings are static, so they are not reset each
 	 * time the window closes.
 	 */
 	static sort_mode_t sortby;
 	static bool sortreverse;
-
-	static bool compare_convois(convoihandle_t, convoihandle_t);
-
-	/**
-	 * Check all filters for one convoi.
-	 * returns true, if it is not filtered away.
-	 * @author V. Meyer
-	 */
-	bool passes_filter(convoihandle_t cnv);
-
-	void sort_list();
 
 	inline uint8 get_cinfo_height(uint8 cl_display_mode)
 	{
@@ -98,6 +83,15 @@ private:
 	}
 
 public:
+
+	static bool compare_convois(convoihandle_t, convoihandle_t);
+
+	/**
+	 * Check all filters for one convoi.
+	 * returns true, if it is not filtered away.
+	 * @author V. Meyer
+	 */
+	bool passes_filter(convoihandle_t cnv);
 	/**
 	 * Resorts convois
 	 */
@@ -113,12 +107,6 @@ public:
 	 * @author V. Meyer
 	 */
 	bool infowin_event(const event_t *ev) OVERRIDE;
-
-	/**
-	 * This method is called if the size of the window should be changed
-	 * @author Markus Weber
-	 */
-	void resize(const scr_coord size_change) OVERRIDE;                       // 28-Dec-01        Markus Weber Added
 
 	/**
 	 * Draw new component. The values to be passed refer to the window

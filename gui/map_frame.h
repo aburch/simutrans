@@ -8,7 +8,7 @@
 
 
 #include "gui_frame.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 #include "components/gui_scrollpane.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
@@ -52,9 +52,6 @@ private:
 
 	static bool is_cursor_hidden;
 
-	// Cache of factories in current game world
-	static stringhashtable_tpl<const factory_desc_t *> factory_list;
-
 	/**
 	 * We need to keep track of drag/click events
 	 * @author Hj. Malthaner
@@ -69,14 +66,11 @@ private:
 
 	int viewable_players[MAX_PLAYER_COUNT+1];
 
-	/**
-	 * FIXME: is there a smaller limit of good categories types?
-	 */
-	const goods_desc_t *viewable_freight_types[255];
+	vector_tpl<const goods_desc_t *> viewable_freight_types;
 
-	gui_container_t filter_container, scale_container, directory_container;
+	gui_aligned_container_t filter_container, scale_container, directory_container, *zoom_row;
 
-	gui_scrollpane_t scrolly;
+	gui_scrollpane_t* p_scrolly;
 
 	button_t	filter_buttons[MAP_MAX_BUTTONS],
 				zoom_buttons[2],
@@ -90,11 +84,8 @@ private:
 				b_show_contour,
 				b_show_buildings;
 
-	gui_label_t zoom_label,
-				zoom_value_label,
-				tile_scale_label,
-				min_label,
-				max_label;
+	gui_label_buf_t zoom_value_label;
+	gui_label_buf_t tile_scale_label;
 
 	gui_combobox_t	viewed_player_c,
 					transport_type_c,
@@ -142,13 +133,6 @@ public:
 	 * @date   11-Mar-2003
 	 */
 	void set_windowsize(scr_size size) OVERRIDE;
-
-	/**
-	 * resize window in response to a resize event
-	 * @author Hj. Malthaner
-	 * @date   01-Jun-2002
-	 */
-	void resize(const scr_coord delta=scr_coord(0,0)) OVERRIDE;
 
 	/**
 	 * Draw new component. The values to be passed refer to the window

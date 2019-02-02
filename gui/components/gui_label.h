@@ -11,6 +11,7 @@
 #include "../../simcolor.h"
 #include "../gui_theme.h"
 #include "../../simskin.h"
+#include "../../utils/cbuffer_t.h"
 
 
 /**
@@ -24,14 +25,14 @@
  * @author: Volker Meyer
  * @date 25.05.03
  */
-class gui_label_t : public gui_component_t
+class gui_label_t : virtual public gui_component_t
 {
 public:
 	enum align_t {
 		left,
 		centered,
 		right,
-		money
+		money_right,
 	};
 
 private:
@@ -42,6 +43,9 @@ private:
 	 * @author Hansjorg Malthaner
 	 */
 	PIXVAL color;
+
+	bool shadowed;
+	PIXVAL color_shadow;
 
 	const char * text;	// only for direct access of non-translatable things. Do not use!
 	const char * tooltip;
@@ -93,7 +97,16 @@ public:
 	 * @author Owen Rudge
 	 */
 	void set_color(PIXVAL colour) { this->color = colour; }
-	PIXVAL get_color() const { return color; }
+	virtual PIXVAL get_color() const { return color; }
+
+	/**
+	 * Toggles shadow and sets shadow color.
+	 */
+	void set_shadow(PIXVAL color_shadow, bool shadowed)
+	{
+		this->color_shadow = color_shadow;
+		this->shadowed = shadowed;
+	}
 
 	/**
 	 * Sets the alignment of the label
@@ -108,6 +121,52 @@ public:
 	void set_tooltip(const char * t);
 
 	align_t get_align() const { return align; }
+
+	scr_size get_min_size() const OVERRIDE;
+
+	scr_size get_max_size() const OVERRIDE;
+};
+
+/**
+ * Label with own buffer.
+ */
+class gui_label_buf_t : public gui_label_t
+{
+	bool buf_changed;
+	cbuffer_t buffer_write, buffer_read;
+
+public:
+	gui_label_buf_t(PIXVAL color=SYSCOL_TEXT, align_t align=left) : gui_label_t(NULL, color, align), buf_changed(true) { }
+
+	void init(PIXVAL color_par=SYSCOL_TEXT, align_t align_par=left);
+
+	/**
+	 * Has to be called after access to buf() is finished.
+	 * Otherwise size calculations will be off.
+	 * Called by @ref draw.
+	 */
+	void update();
+
+	cbuffer_t& buf()
+	{
+		if (!buf_changed) {
+			buffer_write.clear();
+		}
+		buf_changed = true;
+		return buffer_write;
+	}
+
+	/**
+	 * appends money string to write buf, sets color
+	 */
+	void append_money(double money);
+
+	void draw(scr_coord offset);
+
+protected:
+	using gui_label_t::get_text_pointer;
+	using gui_label_t::set_text;
+	using gui_label_t::set_text_pointer;
 };
 
 #endif

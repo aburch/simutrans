@@ -14,6 +14,7 @@
 #include "../display/simgraph.h"
 
 #include "../utils/simrandom.h"
+void rdwr_win_settings(loadsave_t *file); // simwin
 
 sint8 env_t::pak_tile_height_step = 16;
 sint8 env_t::pak_height_conversion_factor = 1;
@@ -525,6 +526,10 @@ void env_t::rdwr(loadsave_t *file)
 			fontname = str ? str.c_str() : "";
 		}
 		file->rdwr_byte(fontsize);
+	}
+
+	if (file->get_version()>120007) {
+		rdwr_win_settings(file);
 	}
 	// server settings are not saved, since they are server specific and could be different on different servers on the save computers
 }

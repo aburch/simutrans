@@ -103,6 +103,11 @@ public:
 	 */
 	void append(double n, int precision);
 
+	/**
+	 * appends formatted money string
+	 */
+	void append_money(double money);
+
 	/* Append formatted text to the buffer */
 	void printf(const char *fmt, ...);
 

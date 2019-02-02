@@ -498,7 +498,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 		add_component(&lb_spacing);
 		numimp_spacing.set_pos( scr_coord( BUTTON3_X, ypos+2 ) );
 		//numimp_spacing.set_width( 60 );
-		numimp_spacing.set_width_by_len(3);
+		//numimp_spacing.set_width_by_len(3);
 		numimp_spacing.set_value( schedule->get_spacing() );
 		numimp_spacing.set_limits( 0, 999 );
 		numimp_spacing.set_increment_mode( 1 );
@@ -510,7 +510,7 @@ schedule_gui_t::schedule_gui_t(schedule_t* sch_, player_t* player_, convoihandle
 		if ( spacing_shift_mode > settings_t::SPACING_SHIFT_DISABLED) {
 			numimp_spacing_shift.set_pos( scr_coord( numimp_spacing.get_pos().x + numimp_spacing.get_size().w + D_H_SPACE, ypos+2 ) );
 			//numimp_spacing_shift.set_width( 60 );
-			numimp_spacing_shift.set_width_by_len(3);
+			//numimp_spacing_shift.set_width_by_len(3);
 			numimp_spacing_shift.set_value( schedule->get_current_entry().spacing_shift  );
 			numimp_spacing_shift.set_limits( 0,welt->get_settings().get_spacing_shift_divisor() );
 			numimp_spacing_shift.set_increment_mode( 1 );
@@ -951,11 +951,11 @@ void schedule_gui_t::init_line_selector()
 	if(  !new_line.is_bound()  ) {
 		selection = 0;
 		offset = 1;
-		line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("<no line>"), SYSCOL_TEXT ) );
+		line_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("<no line>"), SYSCOL_TEXT );
 	}
 
 	FOR(  vector_tpl<linehandle_t>,  line,  lines  ) {
-		line_selector.append_element( new line_scrollitem_t(line) );
+		line_selector.new_component<line_scrollitem_t>(line);
 		if(  !new_line.is_bound()  ) {
 			if(  schedule->matches( welt, line->get_schedule() )  ) {
 				selection = line_selector.count_elements()-1;
@@ -969,7 +969,7 @@ void schedule_gui_t::init_line_selector()
 
 	line_selector.set_selection( selection );
 	line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
-	line_selector.sort( offset, NULL );
+	line_selector.sort( offset );
 	old_line_count = player->simlinemgmt.get_line_count();
 	last_schedule_count = schedule->get_count();
 }

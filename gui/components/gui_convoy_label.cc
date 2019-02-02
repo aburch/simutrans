@@ -33,7 +33,7 @@ scr_size gui_convoy_label_t::get_image_size() const
 		for(unsigned i=0; i<cnv->get_vehicle_count();i++) {
 			scr_coord_val x, y, w, h;
 			const image_id image=cnv->get_vehicle(i)->get_base_image();
-			display_get_base_image_offset(image, x, y, w, h );
+			display_get_base_image_offset(image, &x, &y, &w, &h );
 			tamx += (w*2)/3;
 			tamy = max(tamy,h+26);
 		}
@@ -72,7 +72,7 @@ void gui_convoy_label_t::draw(scr_coord offset)
 		for(unsigned i=0; i<cnv->get_vehicle_count();i++) {
 			scr_coord_val x, y, w, h;
 			const image_id image=cnv->get_vehicle(i)->get_base_image();
-			display_get_base_image_offset(image, x, y, w, h );
+			display_get_base_image_offset(image, &x, &y, &w, &h );
 			display_base_img(image,left-x,pos.y+offset.y+13-y-h/2,cnv->get_owner()->get_player_nr(),false,true);
 			left += (w*2)/3;
 		}

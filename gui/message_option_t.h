@@ -8,7 +8,7 @@
 
 
 #include "../simmesg.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 
 #include "gui_frame.h"
 #include "components/action_listener.h"

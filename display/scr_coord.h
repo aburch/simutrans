@@ -178,6 +178,7 @@ public:
 
 	static const scr_size invalid;
 
+	static const scr_size inf;
 private:
 	// conversions to/from koord not allowed anymore
 	operator koord() const;

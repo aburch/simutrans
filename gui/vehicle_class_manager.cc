@@ -153,7 +153,7 @@ void vehicle_class_manager_t::build_class_entries()
 		pass_class_sel.at(i)->clear_elements();
 		for (int j = 0; j < pass_classes; j++) // j = the entries of this combobox
 		{
-			pass_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
+			pass_class_sel.at(i)->new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT);
 		}
 
 		// Below will preset the selection to the most appropriate entry
@@ -185,7 +185,7 @@ void vehicle_class_manager_t::build_class_entries()
 		}
 		if (multiple_classes)
 		{
-			pass_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("reassigned_to_multiple"), SYSCOL_TEXT));
+			pass_class_sel.at(i)->new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("reassigned_to_multiple"), SYSCOL_TEXT);
 			display_class = pass_classes;
 		}
 		pass_class_sel.at(i)->set_selection(display_class);
@@ -195,7 +195,7 @@ void vehicle_class_manager_t::build_class_entries()
 	{
 		for (int j = 0; j < mail_classes; j++)
 		{
-			mail_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(mail_class_name_untranslated[j]), SYSCOL_TEXT));
+			mail_class_sel.at(i)->new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(mail_class_name_untranslated[j]), SYSCOL_TEXT);
 		}
 
 		// Below will preset the selection to the most appropriate entry
@@ -224,7 +224,7 @@ void vehicle_class_manager_t::build_class_entries()
 		}
 		if (multiple_classes)
 		{
-			mail_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("reassigned_to_multiple"), SYSCOL_TEXT));
+			mail_class_sel.at(i)->new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("reassigned_to_multiple"), SYSCOL_TEXT);
 			display_class = mail_classes;
 		}
 		mail_class_sel.at(i)->set_selection(display_class);
@@ -559,7 +559,7 @@ bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value
 				pass_class_sel.at(i)->clear_elements();
 				for (int j = 0; j < number_of_classes; j++) // j = the entries of this combobox
 				{
-					pass_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
+					pass_class_sel.at(i)->new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT);
 				}
 			}
 			return false;
@@ -593,7 +593,7 @@ bool vehicle_class_manager_t::action_triggered(gui_action_creator_t *comp, value
 				mail_class_sel.at(i)->clear_elements();
 				for (int j = 0; j < number_of_classes; j++) // j = the entries of this combobox
 				{
-					mail_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(mail_class_name_untranslated[j]), SYSCOL_TEXT));
+					mail_class_sel.at(i)->new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(mail_class_name_untranslated[j]), SYSCOL_TEXT);
 				}
 			}
 			return false;
@@ -775,7 +775,7 @@ gui_class_vehicleinfo_t::gui_class_vehicleinfo_t(convoihandle_t cnv)
 
 	//					for (int j = 0; j < pass_classes; j++) // j = the entries of this combobox
 	//					{
-	//						class_selector->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
+	//						class_selector->new_component<gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
 	//						class_selector->set_selection(i);
 	//					}
 
@@ -869,7 +869,7 @@ void gui_class_vehicleinfo_t::draw(scr_coord offset)
 				// first image
 				scr_coord_val x, y, w, h;
 				const image_id image = v->get_loaded_image();
-				display_get_base_image_offset(image, x, y, w, h);
+				display_get_base_image_offset(image, &x, &y, &w, &h);
 				display_base_img(image, 11 - x + pos.x + offset.x, pos.y + offset.y + total_height - y + 2, cnv->get_owner()->get_player_nr(), false, true);
 				w = max(40, w + 4) + 11;
 

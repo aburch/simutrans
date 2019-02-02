@@ -807,54 +807,35 @@ void display_set_height(KOORD_VAL const h)
 
 
 /**
-* this sets width < 0 if the range is out of bounds
-* so check the value after calling and before displaying
-* @author Hj. Malthaner
-*/
-static int clip_wh(KOORD_VAL *x, KOORD_VAL *width, const KOORD_VAL min_width, const KOORD_VAL max_width)
+ * Clips intervall [x,x+w] such that left <= x and x+w <= right.
+ * If @p w is negative, it stays negative.
+ * @returns difference between old and new value of @p x.
+ */
+inline int clip_intv(KOORD_VAL &x, KOORD_VAL &w, const KOORD_VAL left, const KOORD_VAL right)
 {
-	if (*width <= 0) {
-		*width = 0;
-		return 0;
+	KOORD_VAL xx = min(x+w, right);
+	KOORD_VAL xoff = left - x;
+	if (xoff > 0) { // equivalent to x < left
+		x = left;
 	}
-	if (*x + *width > max_width) {
-		*width = max_width - *x;
+	else {
+		xoff = 0;
 	}
-	if (*x < min_width) {
-		const KOORD_VAL xoff = min_width - *x;
+	w = xx - x;
+	return xoff;
+}
 
-		*width += *x - min_width;
-		*x = min_width;
-
-		return xoff;
-	}
-	return 0;
+/// wrapper for clip_intv
+static int clip_wh(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD_VAL right)
+{
+	return clip_intv(*x, *w, left, right);
 }
 
 
-/**
-* places x and w within bounds left and right
-* if nothing to show, returns false
-* @author Niels Roest
-*/
+/// wrapper for clip_intv, @returns whether @p w is positive
 static bool clip_lr(KOORD_VAL *x, KOORD_VAL *w, const KOORD_VAL left, const KOORD_VAL right)
 {
-	const KOORD_VAL l = *x;      // leftmost pixel
-	const sint32 r = (sint32)*x + (sint32)*w; // rightmost pixel
-
-	if (*w <= 0 || l >= right || r <= left) {
-		*w = 0;
-		return false;
-	}
-
-	// there is something to show.
-	if (l < left) {
-		*w -= left - l;
-		*x = left;
-	}
-	if (r > right) {
-		*w -= (KOORD_VAL)(r - right);
-	}
+	clip_intv(*x, *w, left, right);
 	return *w > 0;
 }
 
@@ -870,19 +851,25 @@ clip_dimension display_get_clip_wh(CLIP_NUM_DEF0)
 
 
 /**
-* Set the clipping rectangle dimensions
-* @author Hj. Malthaner
-*
-* here, a pixel at coordinate xp is displayed if
-*  clip. x <= xp < clip.xx
-* the right-most pixel of an image located at xp with width w is displayed if
-*  clip.x < xp+w <= clip.xx
-* analogously for the y coordinate
-*/
-void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h  CLIP_NUM_DEF)
+ * Set the clipping rectangle dimensions
+ * @author Hj. Malthaner
+ *
+ * here, a pixel at coordinate xp is displayed if
+ *  clip. x <= xp < clip.xx
+ * the right-most pixel of an image located at xp with width w is displayed if
+ *  clip.x < xp+w <= clip.xx
+ * analogously for the y coordinate
+ */
+void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h  CLIP_NUM_DEF, bool fit)
 {
-	clip_wh(&x, &w, 0, disp_width);
-	clip_wh(&y, &h, 0, disp_height);
+	if (!fit) {
+		clip_wh( &x, &w, 0, disp_width);
+		clip_wh( &y, &h, 0, disp_height);
+	}
+	else {
+		clip_wh( &x, &w, CR.clip_rect.x, CR.clip_rect.xx);
+		clip_wh( &y, &h, CR.clip_rect.y, CR.clip_rect.yy);
+	}
 
 	CR.clip_rect.x = x;
 	CR.clip_rect.y = y;
@@ -2233,13 +2220,13 @@ void display_get_image_offset(image_id image, KOORD_VAL *xoff, KOORD_VAL *yoff, 
 
 
 // prissi: query un-zoomed offsets
-void display_get_base_image_offset(image_id image, scr_coord_val& xoff, scr_coord_val& yoff, scr_coord_val& xw, scr_coord_val& yw)
+void display_get_base_image_offset(image_id image, scr_coord_val *xoff, scr_coord_val *yoff, scr_coord_val *xw, scr_coord_val *yw)
 {
-	if (image < anz_images) {
-		xoff = images[image].base_x;
-		yoff = images[image].base_y;
-		xw = images[image].base_w;
-		yw = images[image].base_h;
+	if(  image < anz_images  ) {
+		*xoff = images[image].base_x;
+		*yoff = images[image].base_y;
+		*xw   = images[image].base_w;
+		*yw   = images[image].base_h;
 	}
 }
 
@@ -4333,7 +4320,7 @@ void display_veh_form_wh_clip_rgb(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, PIXVA
 // --------------------------------- text rendering stuff ------------------------------
 
 
-uint16 display_load_font(const char* fname)
+uint16 display_load_font(const char* fname, bool reload)
 {
 	font_t  fnt;
 
@@ -4342,7 +4329,7 @@ uint16 display_load_font(const char* fname)
 		return 0;
 	}
 	// skip reloading if already in memory, if bdf font
-	if(  large_font.num_chars>0  &&  strcmp( large_font.fname, fname ) == 0  ) {
+	if(  !reload  &&  large_font.num_chars>0  &&  strcmp( large_font.fname, fname ) == 0  ) {
 		return large_font.num_chars;
 	}
 
@@ -4414,10 +4401,12 @@ utf32 get_next_char_with_metrics(const char* &text, unsigned char &byte_length, 
 	size_t len = 0;
 	utf32 const char_code = utf8_decoder_t::decode((utf8 const *)text, len);
 
-	if (char_code == 0) {
+	if(  char_code==0  ||  char_code == '\n') {
 		// case : end of text reached -> do not advance text pointer
+		// also stop at linebreaks
 		byte_length = 0;
 		pixel_width = 0;
+		return 0;
 	}
 	else {
 		text += len;
@@ -4534,7 +4523,7 @@ int display_calc_proportional_string_len_width(const char *text, size_t len)
 	const char *const end = text + len;
 	while(  text < end  ) {
 		utf32 iUnicode = utf8_decoder_t::decode((utf8 const *&)text);
-		if(  iUnicode == UNICODE_NUL  ) {
+		if(  iUnicode == UNICODE_NUL ||  iUnicode == '\n') {
 			return width;
 		}
 		else if (iUnicode >= fnt->num_chars || (w = fnt->screen_width[iUnicode]) == 0xFF) {
@@ -4659,6 +4648,10 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
 		c = decoder.next();
 		iTextPos = decoder.get_position() - (utf8 const*)txt;
 
+		if(  c == '\n') {
+			// stop at linebreak
+			break;
+		}
 		// print unknown character?
 		if (c >= fnt->num_chars || fnt->screen_width[c] == 0xFF) {
 			c = 0;
@@ -4738,7 +4731,7 @@ int display_text_proportional_len_clip_rgb(KOORD_VAL x, KOORD_VAL y, const char*
  * If enough space is given then it just displays the full string
  * @returns screen_width
  */
-KOORD_VAL display_proportional_ellipsis_rgb( scr_rect r, const char *text, int align, const PIXVAL color, const bool dirty )
+KOORD_VAL display_proportional_ellipsis_rgb( scr_rect r, const char *text, int align, const PIXVAL color, const bool dirty, bool shadowed, PIXVAL shadow_color)
 {
 	const scr_coord_val ellipsis_width = translator::get_lang()->ellipsis_width;
 	const scr_coord_val max_screen_width = r.w;
@@ -4778,7 +4771,14 @@ KOORD_VAL display_proportional_ellipsis_rgb( scr_rect r, const char *text, int a
 			if(  align & ALIGN_CENTER_H  ) {
 				w = (max_screen_width-max_offset_before_ellipsis-ellipsis_width)/2;
 			}
+			if (shadowed) {
+				display_text_proportional_len_clip_rgb( r.x+w+1, r.y+1, text, ALIGN_LEFT | DT_CLIP, shadow_color, dirty, max_idx_before_ellipsis  CLIP_NUM_DEFAULT);
+			}
 			w += display_text_proportional_len_clip_rgb( r.x+w, r.y, text, ALIGN_LEFT | DT_CLIP, color, dirty, max_idx_before_ellipsis  CLIP_NUM_DEFAULT);
+
+			if (shadowed) {
+				display_text_proportional_len_clip_rgb( r.x+w+1, r.y+1, translator::translate("..."), ALIGN_LEFT | DT_CLIP, shadow_color, dirty, -1  CLIP_NUM_DEFAULT);
+			}
 			w += display_text_proportional_len_clip_rgb( r.x+w, r.y, translator::translate("..."), ALIGN_LEFT | DT_CLIP, color, dirty, -1  CLIP_NUM_DEFAULT);
 			return w;
 		}
@@ -4788,11 +4788,18 @@ KOORD_VAL display_proportional_ellipsis_rgb( scr_rect r, const char *text, int a
 			current_offset += pixel_width;
 		}
 	}
-	if (align & ALIGN_CENTER_H) {
-		r.x += (max_screen_width - current_offset) / 2;
-		align &= ~ALIGN_CENTER_H;
+	switch (align & ALIGN_RIGHT) {
+		case ALIGN_CENTER_H:
+			r.x += (max_screen_width - current_offset)/2;
+			break;
+		case ALIGN_RIGHT:
+			r.x += max_screen_width - current_offset;
+		default: ;
 	}
-	return display_text_proportional_len_clip_rgb(r.x, r.y, text, align, color, dirty, -1  CLIP_NUM_DEFAULT);
+	if (shadowed) {
+		display_text_proportional_len_clip_rgb( r.x, r.y, text, ALIGN_LEFT | DT_CLIP, shadow_color, dirty, -1  CLIP_NUM_DEFAULT);
+	}
+	return display_text_proportional_len_clip_rgb( r.x, r.y, text, ALIGN_LEFT | DT_CLIP, color, dirty, -1  CLIP_NUM_DEFAULT);
 }
 
 
@@ -4811,20 +4818,20 @@ void display_ddd_box_rgb(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, P
 }
 
 
-void display_outline_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty)
+void display_outline_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty, sint32 len)
 {
 	const int flags = ALIGN_LEFT | DT_CLIP;
-	display_text_proportional_len_clip_rgb(xpos - 1, ypos - 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, -1  CLIP_NUM_DEFAULT);
-	display_text_proportional_len_clip_rgb(xpos + 1, ypos + 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, -1  CLIP_NUM_DEFAULT);
-	display_text_proportional_len_clip_rgb(xpos, ypos + (12 - large_font_total_height) / 2, text, flags, text_color, dirty, -1  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xpos - 1, ypos - 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, len  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xpos + 1, ypos + 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, len  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xpos, ypos + (12 - large_font_total_height) / 2, text, flags, text_color, dirty, len  CLIP_NUM_DEFAULT);
 }
 
 
-void display_shadow_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty)
+void display_shadow_proportional_rgb(KOORD_VAL xpos, KOORD_VAL ypos, PIXVAL text_color, PIXVAL shadow_color, const char *text, int dirty, sint32 len)
 {
 	const int flags = ALIGN_LEFT | DT_CLIP;
-	display_text_proportional_len_clip_rgb(xpos + 1, ypos + 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, -1  CLIP_NUM_DEFAULT);
-	display_text_proportional_len_clip_rgb(xpos, ypos + (12 - large_font_total_height) / 2, text, flags, text_color, dirty, -1  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xpos + 1, ypos + 1 + (12 - large_font_total_height) / 2, text, flags, shadow_color, dirty, len  CLIP_NUM_DEFAULT);
+	display_text_proportional_len_clip_rgb(xpos, ypos + (12 - large_font_total_height) / 2, text, flags, text_color, dirty, len  CLIP_NUM_DEFAULT);
 }
 
 

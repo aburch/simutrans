@@ -100,6 +100,11 @@ public:
 
 	int get_curve_count() { return curves.get_count(); }
 
+	scr_size get_max_size() const OVERRIDE;
+
+	scr_size get_min_size() const OVERRIDE;
+
+	void set_min_size(scr_size);
 private:
 	void calc_gui_chart_values(sint64 *baseline, float *scale, char *, char *, int precision ) const;
 
@@ -137,6 +142,9 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	FLAGGED_PIXVAL background;
+
+	// TODO do something smarter here
+	scr_size min_size;
 };
 
 #endif

@@ -52,7 +52,7 @@ curiositylist_frame_t::curiositylist_frame_t() :
 	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, LINESPACE * 4));
 
 	for (int i = 0; i < curiositylist::SORT_MODES; i++) {
-		sortedby.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
+		sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
 	}
 	sortedby.set_selection(default_sortmode);
 

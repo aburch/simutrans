@@ -25,19 +25,14 @@ class sound_frame_t : public gui_frame_t, action_listener_t
 private:
     scrollbar_t sound_volume_scrollbar;
     scrollbar_t music_volume_scrollbar;
-    gui_label_t sound_volume_label;
-    gui_label_t music_volume_label;
     button_t sound_mute_button;
     button_t music_mute_button;
     button_t next_song_button;
     button_t previous_song_button;
     button_t shuffle_song_button;
-    gui_label_t song_name_label;
-    gui_label_t current_playing_label;
+    gui_label_buf_t song_name_label;
 
-
-	char song_buf[128];
-	const char *make_song_name();
+    void update_song_name();
 
 public:
 

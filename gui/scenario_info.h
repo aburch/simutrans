@@ -11,7 +11,6 @@
 #include "simwin.h"
 #include "components/gui_flowtext.h"
 #include "components/gui_tab_panel.h"
-#include "components/gui_scrollpane.h"
 
 class dynamic_string;
 /**
@@ -24,15 +23,6 @@ private:
 	gui_tab_panel_t	tabs;
 
 	gui_flowtext_t info, goal, rule, result, about, error, debug_msg;
-
-	gui_scrollpane_t scrolly_info;
-	gui_scrollpane_t scrolly_goal;
-	gui_scrollpane_t scrolly_rule;
-	gui_scrollpane_t scrolly_result;
-	gui_scrollpane_t scrolly_about;
-	gui_scrollpane_t scrolly_debug;
-	gui_scrollpane_t scrolly_error;
-
 
 	void update_dynamic_texts(gui_flowtext_t &flow, dynamic_string &text, scr_size size, bool init);
 
@@ -49,12 +39,6 @@ public:
 	 * V.Meyer
 	 */
 	bool action_triggered( gui_action_creator_t *comp, value_t extra);
-
-	/**
-	 * resize window in response to a resize event
-	 * @author Hj. Malthaner
-	 */
-	void resize(const scr_coord delta);
 
 	void draw(scr_coord pos, scr_size size);
 

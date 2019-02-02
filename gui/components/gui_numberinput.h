@@ -46,9 +46,14 @@ private:
 
 	sint32 min_value, max_value;
 
+	// number of digits,
+	// used to determine min size
+	uint16 digits;
+
 	char textbuffer[20];
 
 	sint32 step_mode;
+
 
 	bool wrapping:1;
 	bool b_enabled:1;
@@ -60,11 +65,9 @@ public:
 	gui_numberinput_t();
 
 	void set_size(scr_size size) OVERRIDE;
-	void set_width_by_len(size_t width, const char* symbols = NULL) {
-		set_width( display_get_char_max_width( (symbols) ? symbols : "+-/0123456789" ) * width + D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH + 2 ); }
 
 	// all init in one ...
-	void init( sint32 value, sint32 min, sint32 max, sint32 mode, bool wrap );
+	void init( sint32 value, sint32 min, sint32 max, sint32 mode = 1, bool wrap = true, uint16 digits = 5);
 
 	/**
 	 * sets and get the current value.
@@ -109,6 +112,10 @@ public:
 	void disable() { b_enabled = false; set_focusable(false); bt_left.disable(); bt_right.disable(); }
 	bool enabled() const { return b_enabled; }
 	virtual bool is_focusable() OVERRIDE { return b_enabled && gui_component_t::is_focusable(); }
+
+	scr_size get_max_size() const;
+
+	scr_size get_min_size() const;
 };
 
 #endif

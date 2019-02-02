@@ -87,8 +87,8 @@ void tabfileobj_t::clear()
 
 
 // private helps to get x y value pairs needed for koord etc.
-template<typename T>
-bool tabfileobj_t::get_x_y( const char *key, T &x, T &y )
+template<class I>
+bool tabfileobj_t::get_x_y( const char *key, I &x, I &y )
 {
 	const char *value = get_string(key,NULL);
 	const char *tmp;

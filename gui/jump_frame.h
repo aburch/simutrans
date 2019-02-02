@@ -10,7 +10,6 @@
 #include "components/action_listener.h"
 #include "gui_frame.h"
 #include "components/gui_textinput.h"
-#include "components/gui_divider.h"
 #include "components/gui_button.h"
 
 
@@ -19,7 +18,6 @@ class jump_frame_t : public gui_frame_t, action_listener_t
 {
 	char buf[64];
 	gui_textinput_t input;
-	gui_divider_t divider1;
 	button_t jumpbutton;
 
 public:

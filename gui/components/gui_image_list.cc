@@ -106,7 +106,7 @@ void gui_image_list_t::draw(scr_coord parent_pos)
 
 			// Get image data
 			scr_coord_val x,y,w,h;
-			display_get_base_image_offset( idata.image, x, y, w, h );
+			display_get_base_image_offset( idata.image, &x, &y, &w, &h );
 
 			// calculate image offsets
 			y = -y + (grid.y-h) - VEHICLE_BAR_HEIGHT - 2; // align to bottom mark

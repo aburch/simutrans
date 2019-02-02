@@ -1,0 +1,81 @@
+/*
+ * This file is part of the Simutrans project under the artistic licence.
+ * (see licence.txt)
+ */
+
+#include "../simdebug.h"
+#include "../simsys.h"
+
+#include "ai_selector.h"
+#include "messagebox.h"
+
+#include "simwin.h"
+#include "../simworld.h"
+
+#include "../dataobj/environment.h"
+#include "../dataobj/translator.h"
+#include "../player/ai_scripted.h"
+
+#include "../utils/cbuffer_t.h"
+
+ai_selector_t::ai_selector_t(uint8 plnr_) : savegame_frame_t(NULL, true, NULL, false)
+{
+	plnr = plnr_;
+	cbuffer_t buf;
+	buf.printf("%s/ai/", env_t::program_dir);
+
+	this->add_path("addons/ai/");
+	this->add_path(buf);
+
+	title.clear();
+	title.printf("%s - %d", translator::translate("Load Scripted AI"), plnr);
+	set_name(title);
+	set_focus(NULL);
+}
+
+
+/**
+ * Action, started after button pressing.
+ * @author Hansjörg Malthaner
+ */
+bool ai_selector_t::item_action(const char *fullpath)
+{
+	ai_scripted_t *ai = dynamic_cast<ai_scripted_t*>(welt->get_player(plnr));
+	if (ai == NULL  ||  ai->has_script()) {
+		return true;
+	}
+
+	const char* err = ai->init(this->get_basename(fullpath).c_str(), this->get_filename(fullpath).c_str());
+
+	if (err == NULL) {
+		return true;
+	}
+	else {
+		create_win(new news_img(err), w_info, magic_none);
+		return false; // keep window open
+	}
+
+	return true;
+}
+
+
+const char *ai_selector_t::get_info(const char *filename)
+{
+	static char info[1024];
+
+	sprintf(info,"%s",this->get_filename(filename, false).c_str());
+
+	return info;
+}
+
+
+bool ai_selector_t::check_file( const char *filename, const char * )
+{
+	char buf[1024];
+	sprintf( buf, "%s/ai.nut", filename );
+	if (FILE* const f = dr_fopen(buf, "r")) {
+		fclose(f);
+		return true;
+	}
+	return false;
+}

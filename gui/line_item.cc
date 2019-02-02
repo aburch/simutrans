@@ -18,7 +18,7 @@ const char* line_scrollitem_t::get_text() const
 }
 
 
-PIXVAL line_scrollitem_t::get_color()
+PIXVAL line_scrollitem_t::get_color() const
 {
 	return line->get_state_color();
 }
@@ -45,15 +45,14 @@ void line_scrollitem_t::set_text(char const* const t)
 line_scrollitem_t::sort_modes_t line_scrollitem_t::sort_mode = line_scrollitem_t::SORT_BY_NAME;
 
 
-bool line_scrollitem_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_scrolled_list_t::scrollitem_t *bb )
+bool line_scrollitem_t::compare(const gui_component_t *aa, const gui_component_t *bb)
 {
+	const line_scrollitem_t *a = dynamic_cast<const line_scrollitem_t*>(aa);
+	const line_scrollitem_t *b = dynamic_cast<const line_scrollitem_t*>(bb);
 	// good luck with mixed lists
-	assert(dynamic_cast<line_scrollitem_t*>(aa) != NULL);
-	assert(dynamic_cast<line_scrollitem_t*>(bb) != NULL);
+	assert(a != NULL && b != NULL); (void)(a == b);
 
 	if(  sort_mode != SORT_BY_NAME  ) {
-		line_scrollitem_t *a = (line_scrollitem_t *)aa;
-		line_scrollitem_t *b = (line_scrollitem_t *)bb;
 		switch(  sort_mode  ) {
 			case SORT_BY_NAME:	// default
 				break;
@@ -75,7 +74,7 @@ bool line_scrollitem_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_scro
 	}
 
 	// first: try to sort by number
-	const char *atxt = ((gui_scrolled_list_t::const_text_scrollitem_t *)aa)->get_text();
+	const char *atxt = a->get_text();
 	int aint = 0;
 	// isdigit produces with UTF8 assertions ...
 	if(  atxt[0]>='0'  &&  atxt[0]<='9'  ) {
@@ -84,7 +83,7 @@ bool line_scrollitem_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_scro
 	else if(  atxt[0]=='('  &&  atxt[1]>='0'  &&  atxt[1]<='9'  ) {
 		aint = atoi( atxt+1 );
 	}
-	const char *btxt = ((gui_scrolled_list_t::const_text_scrollitem_t *)bb)->get_text();
+	const char *btxt = b->get_text();
 	int bint = 0;
 	if(  btxt[0]>='0'  &&  btxt[0]<='9'  ) {
 		bint = atoi( btxt );
@@ -97,15 +96,4 @@ bool line_scrollitem_t::compare( gui_scrolled_list_t::scrollitem_t *aa, gui_scro
 	}
 	// otherwise: sort by name
 	return strcmp(atxt, btxt)<0;
-}
-
-
-bool line_scrollitem_t::sort( vector_tpl<scrollitem_t *>&v, int offset, void * ) const
-{
-	vector_tpl<scrollitem_t *>::iterator start = v.begin();
-	while(  offset-->0  ) {
-		++start;
-	}
-	std::sort( start, v.end(), line_scrollitem_t::compare );
-	return true;
 }

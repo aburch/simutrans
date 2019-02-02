@@ -22,40 +22,23 @@
 #include "password_frame.h" // for the password
 #include "player_frame_t.h"
 
-/* Max Kielland
- * Until gui_label_t has been modified we don't know the size
- * of the fraction part in a localised currency.
- * This is for now hard coded.
- */
-#define L_FRACTION_WIDTH (25)
-#define L_FINANCE_WIDTH  (max( D_BUTTON_WIDTH, 125 ))
-#define L_DIALOG_WIDTH   (300)
+
+class password_button_t : public button_t
+{
+public:
+	password_button_t() : button_t()
+	{
+		init(button_t::box, "");
+	}
+
+	scr_size get_min_size() const { return scr_size(D_BUTTON_HEIGHT,D_BUTTON_HEIGHT); }
+};
 
 
 
 ki_kontroll_t::ki_kontroll_t() :
 	gui_frame_t( translator::translate("Spielerliste") )
 {
-	scr_coord cursor = scr_coord ( D_MARGIN_LEFT, D_MARGIN_TOP );
-
-	player_label.set_text("Spieler");
-	add_component( &player_label );
-
-	scr_coord_val width = L_FINANCE_WIDTH + D_H_SPACE + D_EDIT_HEIGHT;
-	password_label.init("Name/password", cursor, SYSCOL_TEXT, gui_label_t::right);
-	password_label.set_size(scr_size(width, D_LABEL_HEIGHT));
-	add_component( &password_label );
-
-	access_label.init("Access", cursor);
-	add_component( &access_label );
-
-	width = 120;
-	cash_label.init("Cash", cursor, SYSCOL_TEXT, gui_label_t::right);
-	cash_label.set_size(scr_size(width, D_LABEL_HEIGHT));
-	add_component( &cash_label );
-
-	const player_t* const current_player = welt->get_active_player();
-
 	// switching active player allowed?
 	bool player_change_allowed = welt->get_settings().get_allow_player_change() || !welt->get_public_player()->is_locked();
 
@@ -68,74 +51,94 @@ ki_kontroll_t::ki_kontroll_t() :
 		player_change_allowed &= player_tools_allowed;
 	}
 
+	const player_t* const current_player = welt->get_active_player();
+
+	set_table_layout(7,0);
+
+	// header row
+	new_component_span<gui_label_t>("Name/password", 4);
+	new_component_span<gui_label_t>("Access", 2);
+	new_component<gui_label_t>("Cash");
+
 	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
 
 		const player_t *const player = welt->get_player(i);
 
-		// AI buttons not available for the two first players (first human and second public)
-		if(  i >= 2  ) {
-			// AI button (small square)
-			player_active[i-2].init(button_t::square_state, "", cursor);
-			player_active[i-2].align_to( &player_get_finances[i], ALIGN_CENTER_V );
-			player_active[i-2].add_listener(this);
-			if(player  &&  player->get_ai_id()!=player_t::HUMAN  &&  player_tools_allowed) {
-				add_component( player_active+i-2 );
-			}
-		}
+		// activate player buttons
+		// .. not available for the two first players (first human and second public)
+		// NOTE: AI feature is disabled as it currently does not work in Extended
+		//if(  i >= 2  ) {
+		//	// AI button (small square)
+		//	player_active[i-2].init(button_t::square_state, "");
+		//	player_active[i-2].add_listener(this);
+		//	player_active[i-2].set_rigid(true);
+		//	player_active[i-2].set_visible(player_  &&  player_->get_ai_id()!=player_t::HUMAN  &&  player_tools_allowed);
+		//	add_component( player_active+i-2 );
+		//}
+		//else {
+			new_component<gui_empty_t>();
+		//}
 
 		// Player select button (arrow)
-		player_change_to[i].init(button_t::arrowright_state, "", cursor);
+		player_change_to[i].init(button_t::arrowright_state, "");
 		player_change_to[i].add_listener(this);
+		player_change_to[i].set_rigid(true);
+		add_component(player_change_to+i);
 
 		// Allow player change to human and public only (no AI)
-		if (player  &&  player_change_allowed) {
-			add_component(player_change_to+i);
-		}
+		//player_change_to[i].set_visible(player  &&  player_change_allowed);
 
 		// Prepare finances button
-		player_get_finances[i].init( button_t::box, "", cursor, scr_size( L_FINANCE_WIDTH, D_EDIT_HEIGHT ) );
+		player_get_finances[i].init( button_t::box | button_t::flexible, "");
 		player_get_finances[i].background_color = PLAYER_FLAG | color_idx_to_rgb((player ? player->get_player_color1():i*8)+4);
 		player_get_finances[i].add_listener(this);
 
 		// Player type selector, Combobox
-		player_select[i].set_focusable( true );
+		player_select[i].set_focusable( false );
 
 		// Create combobox list data
-		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("slot empty"), SYSCOL_TEXT ) );
-		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), SYSCOL_TEXT ) );
+		player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("slot empty"), SYSCOL_TEXT ) ;
+		player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Manual (Human)"), SYSCOL_TEXT ) ;
+		/*
 		if(  !welt->get_public_player()->is_locked()  ||  !env_t::networkmode  ) {
-			player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), SYSCOL_TEXT ) );
-			player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), SYSCOL_TEXT ) );
-		}
-		assert(  player_t::MAX_AI==4  );
+			player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Goods AI"), SYSCOL_TEXT ) ;
+			player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Passenger AI"), SYSCOL_TEXT ) ;
+			//player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Scripted AI's"), SYSCOL_TEXT ) ;
+		}*/
+		//assert(  player_t::MAX_AI==4  );
 
+		// add table that contains these two buttons, only one of them will be visible
+		add_table(1,0);
 		// When adding new players, activate the interface
 		player_select[i].set_selection(welt->get_settings().get_player_type(i));
 		player_select[i].add_listener(this);
+
+		add_component( player_get_finances+i );
+		add_component( player_select+i );
 		if(  player != NULL  ) {
 			player_get_finances[i].set_text( player->get_name() );
-			add_component( player_get_finances+i );
 			player_select[i].set_visible(false);
 		}
 		else {
-			// init player selection dialogue
-			if (player_tools_allowed) {
-				add_component( player_select+i );
-			}
 			player_get_finances[i].set_visible(false);
 		}
+		end_table();
 
 		// password/locked button
-		player_lock[i].init(button_t::box, "", cursor, scr_size(D_EDIT_HEIGHT, D_EDIT_HEIGHT));
-		player_lock[i].background_color = color_idx_to_rgb( (player && player->is_locked()) ? (player->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN );
-		player_lock[i].enable( welt->get_player(i) );
-		player_lock[i].add_listener(this);
-		if (player_tools_allowed) {
-			add_component( player_lock+i );
-		}
+		player_lock[i] = new_component<password_button_t>();
+		player_lock[i]->background_color = color_idx_to_rgb((player && player->is_locked()) ? (player->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN);
+		player_lock[i]->enable( welt->get_player(i) );
+		player_lock[i]->add_listener(this);
+		player_lock[i]->set_rigid(true);
+		player_lock[i]->set_visible( player_tools_allowed );
 
 		// Access buttons
-		access_out[i].init(button_t::square_state, "", cursor);
+		new_component<gui_empty_t>(); // dummy
+		new_component<gui_empty_t>(); // dummy
+
+//<<<<<<< HEAD
+/*
+		access_out[i].init(button_t::square_state, "");
 		access_out[i].pressed = player && (!current_player || current_player->allows_access_to(player->get_player_nr()));
 		if(access_out[i].pressed && player)
 		{
@@ -168,49 +171,44 @@ ki_kontroll_t::ki_kontroll_t() :
 			access_out[i].set_visible(false);
 		}
 
+//=======
+*/
 		// Income label
-		account_str[i][0] = 0;
-		ai_income[i] = new gui_label_t(account_str[i], MONEY_PLUS, gui_label_t::money);
-		ai_income[i]->align_to(&player_select[i],ALIGN_CENTER_V);
-		add_component( ai_income[i] );
-
-		player_change_to[i].align_to( &player_lock[i], ALIGN_CENTER_V );
-		if(  i >= 2  ) {
-			player_active[i-2].align_to( &player_lock[i], ALIGN_CENTER_V );
-		}
+		ai_income[i] = new_component<gui_label_buf_t>(MONEY_PLUS, gui_label_t::money_right);
+		ai_income[i]->set_rigid(true);
 	}
 
 	// freeplay mode
-	freeplay.init( button_t::square_state, "freeplay mode", cursor);
+	freeplay.init( button_t::square_state, "freeplay mode");
 	freeplay.add_listener(this);
 	if (welt->get_public_player()->is_locked() || !welt->get_settings().get_allow_player_change()  ||  !player_tools_allowed) {
 		freeplay.disable();
 	}
 	freeplay.pressed = welt->get_settings().is_freeplay();
-	add_component( &freeplay );
+	add_component(&freeplay, 7);
 
-	company_takeovers.set_text(translator::translate("available_company_takeovers:"));
-	add_component( &company_takeovers );
 
-	scr_size fincance_size = scr_size(L_FINANCE_WIDTH, D_BUTTON_HEIGHT);
-
+	new_component_span<gui_label_t>("available_company_takeovers:", 7);
+	/*
 	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
-			take_over_player[i].init(button_t::roundbox, translator::translate("take_over"), cursor, D_BUTTON_SIZE);
-			take_over_player[i].add_listener(this);
-			take_over_player[i].set_tooltip(translator::translate("take_over_this_company"));
-			take_over_player[i].set_visible(false);
-			add_component(&take_over_player[i]);
+		new_component<gui_empty_t>();
+		take_over_player[i].init(button_t::roundbox, translator::translate("take_over"));
+		take_over_player[i].add_listener(this);
+		take_over_player[i].set_tooltip(translator::translate("take_over_this_company"));
+		take_over_player[i].set_visible(false);
+		add_component(&take_over_player[i],2);
 
-			lb_take_over_player[i].set_visible(false);
-			add_component(&lb_take_over_player[i]);
+		lb_take_over_player[i].set_visible(false);
+		add_component(&lb_take_over_player[i],3);
 
-			lb_take_over_cost[i].set_size(fincance_size);
-			lb_take_over_cost[i].set_visible(false);
-			add_component(&lb_take_over_cost[i]);
-	}
+		lb_take_over_cost[i].set_visible(false);
+		add_component(&lb_take_over_cost[i]);
+	}*/
 
-	sprintf(text_allow_takeover, "%s", translator::translate("allow_takeover_of_your_company"));
-	allow_take_over_of_company.init(button_t::roundbox, text_allow_takeover, cursor, scr_size(proportional_string_width(text_allow_takeover) + 10 ,D_BUTTON_HEIGHT));
+	new_component_span<gui_label_t>("allow_takeover_of_your_company", 7);
+
+/*
+	allow_take_over_of_company.init(button_t::roundbox, text_allow_takeover, cursor, scr_size(proportional_string_width(text_allow_takeover, -1) + 10 ,D_BUTTON_HEIGHT));
 	allow_take_over_of_company.add_listener(this);
 	allow_take_over_of_company.set_tooltip(translator::translate("allows_other_players_to_take_over_your_company"));
 	if (current_player->get_allow_voluntary_takeover())
@@ -220,7 +218,7 @@ ki_kontroll_t::ki_kontroll_t() :
 	add_component( &allow_take_over_of_company );
 
 	sprintf(text_cancel_takeover, "%s", translator::translate("cancel"));
-	cancel_take_over.init(button_t::roundbox, text_cancel_takeover, cursor, scr_size(proportional_string_width(text_cancel_takeover) + 10, D_BUTTON_HEIGHT));
+	cancel_take_over.init(button_t::roundbox, text_cancel_takeover, cursor, scr_size(proportional_string_width(text_cancel_takeover, -1) + 10, D_BUTTON_HEIGHT));
 	cancel_take_over.add_listener(this);
 	cancel_take_over.set_tooltip(translator::translate("cancel_the_takeover_of_your_company"));
 	if (!current_player->get_allow_voluntary_takeover())
@@ -231,13 +229,12 @@ ki_kontroll_t::ki_kontroll_t() :
 
 	update_data();
 }
+*/
 
+	update_income();
+	update_data(); // calls reset_min_windowsize
 
-ki_kontroll_t::~ki_kontroll_t()
-{
-	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
-		delete ai_income[i];
-	}
+	set_windowsize(get_min_windowsize());
 }
 
 
@@ -257,12 +254,19 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 
 	// Check the GUI list of buttons
 	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
+		/*
 		if(i>=2  &&  comp==(player_active+i-2)) {
 			// switch AI on/off
 			if(  welt->get_player(i)==NULL  ) {
 				// create new AI
 				welt->call_change_player_tool(karte_t::new_player, i, player_select[i].get_selection());
-				player_lock[i].enable( welt->get_player(i) );
+				player_lock[i]->enable( welt->get_player(i) );
+
+				// if scripted ai without script -> open script selector window
+				ai_scripted_t *ai = dynamic_cast<ai_scripted_t*>(welt->get_player(i));
+				if (ai  &&  !ai->has_script()) {
+					create_win( new ai_selector_t(i), w_info, magic_finances_t + i );
+				}
 			}
 			else {
 				// Current AI on/off
@@ -271,7 +275,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 				welt->set_tool( tool_t::simple_tool[TOOL_CHANGE_PLAYER], welt->get_active_player() );
 			}
 			break;
-		}
+		}*/
 
 		// Finance button pressed
 		if(comp==(player_get_finances+i)) {
@@ -302,11 +306,11 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 		}
 
 		// Change player name and/or password
-		if(comp==(player_lock+i)  &&  welt->get_player(i)) {
+		if(  comp == (player_lock[i])  &&  welt->get_player(i)  ) {
 			if (!welt->get_player(i)->is_unlock_pending()) {
 				// set password
 				create_win( -1, -1, new password_frame_t(welt->get_player(i)), w_info, magic_pwd_t + i );
-				player_lock[i].pressed = false;
+				player_lock[i]->pressed = false;
 			}
 		}
 
@@ -314,14 +318,12 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 		if(comp==(player_select+i)) {
 
 			// make active player
-			remove_component( player_active+i-2 );
-			if(  p.i<player_t::MAX_AI  &&  p.i>0  )
-			{
-				add_component( player_active+i-2 );
+			if(  p.i<player_t::MAX_AI  &&  p.i>0  ) {
+				player_active[i-2].set_visible(true);
 				welt->get_settings().set_player_type(i, (uint8)p.i);
 			}
-			else
-			{
+			else {
+				player_active[i-2].set_visible(false);
 				player_select[i].set_selection(0);
 				welt->get_settings().set_player_type(i, 0);
 			}
@@ -404,6 +406,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *comp,value_t p )
 
 void ki_kontroll_t::update_data()
 {
+	/*
 	// ------- Layouting the window ------- //
 	scr_coord cursor = scr_coord(D_MARGIN_LEFT, D_MARGIN_TOP);
 	scr_coord_val width = L_FINANCE_WIDTH + D_H_SPACE + D_EDIT_HEIGHT;
@@ -472,6 +475,7 @@ void ki_kontroll_t::update_data()
 
 	for (int i = 0; i < MAX_PLAYER_COUNT - 1; i++) {
 		const player_t* const player = welt->get_player(i);
+
 		take_over_player[i].set_visible(false);
 		lb_take_over_player[i].set_visible(false);
 		lb_take_over_cost[i].set_visible(false);
@@ -553,7 +557,7 @@ void ki_kontroll_t::update_data()
 
 	set_windowsize( scr_size( window_width, D_TITLEBAR_HEIGHT + cursor.y + D_MARGIN_BOTTOM ) );
 	// ------- Layouting done ------- //
-
+	*/
 
 	// Now update the upper Player buttons
 	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
@@ -565,11 +569,7 @@ void ki_kontroll_t::update_data()
 			{
 				player_select[i].set_visible(false);
 				player_get_finances[i].set_visible(true);
-				add_component(player_get_finances+i);
-				if (welt->get_settings().get_allow_player_change() || !welt->get_public_player()->is_locked())
-				{
-					add_component(player_change_to+i);
-				}
+				player_change_to[i].set_visible(true);
 			}
 			player_get_finances[i].set_text(player->get_name());
 
@@ -607,19 +607,25 @@ void ki_kontroll_t::update_data()
 				access_out[i].set_visible(true);
 			}
 
+			//if (ai  &&  !ai->has_script()) {
+			//	player_get_finances[i].set_typ(button_t::roundbox | button_t::flexible);
+			//	player_get_finances[i].set_text("Load scripted AI");
+			//}
+			//else {
+				player_get_finances[i].set_typ(button_t::box | button_t::flexible);
+				player_get_finances[i].set_text(player->get_name());
+			//}
+
 			// always update locking status
 			player_get_finances[i].background_color = PLAYER_FLAG | color_idx_to_rgb(player->get_player_color1()+4);
-			player_lock[i].background_color = color_idx_to_rgb( player->is_locked() ? (player->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN );
+			player_lock[i]->background_color = color_idx_to_rgb(player->is_locked() ? (player->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN);
 
 			// human players cannot be deactivated
-			if (i>1)
-			{
-				remove_component( player_active+i-2 );
-				if(  player->get_ai_id()!=player_t::HUMAN  )
-				{
-					add_component( player_active+i-2 );
-				}
+			if (i>1) {
+				player_active[i-2].set_visible( player->get_ai_id()!=player_t::HUMAN );
 			}
+
+			ai_income[i]->set_visible(true);
 		}
 		else {
 
@@ -629,45 +635,64 @@ void ki_kontroll_t::update_data()
 			if (player_get_finances[i].is_visible())
 			{
 				player_get_finances[i].set_visible(false);
-				remove_component(player_get_finances+i);
-				remove_component(player_change_to+i);
+				player_change_to[i].set_visible(false);
 				player_select[i].set_visible(true);
 			}
 
 			if (i>1) {
-				remove_component( player_active+i-2 );
-				if(  0<player_select[i].get_selection()  &&  player_select[i].get_selection()<player_t::MAX_AI)
-				{
-					add_component( player_active+i-2 );
-				}
+				player_active[i-2].set_visible(0 < player_select[i].get_selection()  &&  player_select[i].get_selection() < player_t::MAX_AI);
 			}
 
 			if(  env_t::networkmode  ) {
 
 				// change available selection of AIs
-				if(  !welt->get_public_player()->is_locked()  )
-				{
-					if(  player_select[i].count_elements()==2  )
-					{
-						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), SYSCOL_TEXT ) );
-						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), SYSCOL_TEXT ) );
-					}
+				if(  !welt->get_public_player()->is_locked()  ) {
+					//if(  player_select[i].count_elements()==2  ) {
+					//	player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Goods AI"), SYSCOL_TEXT ) ;
+					//	player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Passenger AI"), SYSCOL_TEXT ) ;
+					//}
 				}
 				else
 				{
 					if(  player_select[i].count_elements()==4  )
 					{
 						player_select[i].clear_elements();
-						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("slot empty"), SYSCOL_TEXT ) );
-						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), SYSCOL_TEXT ) );
+						player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("slot empty"), SYSCOL_TEXT ) ;
+						player_select[i].new_component<gui_scrolled_list_t::const_text_scrollitem_t>( translator::translate("Manual (Human)"), SYSCOL_TEXT ) ;
 					}
 				}
 
 			}
+			ai_income[i]->set_visible(false);
 		}
+		assert( player_select[i].is_visible() ^  player_get_finances[i].is_visible() );
 	}
+	reset_min_windowsize();
 }
 
+
+void ki_kontroll_t::update_income()
+{
+	// Update finance
+	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
+		ai_income[i]->buf().clear();
+		player_t *player = welt->get_player(i);
+		if(  player != NULL  ) {
+			if (i != 1 && !welt->get_settings().is_freeplay() && player->get_finance()->get_history_com_year(0, ATC_NETWEALTH) < 0) {
+				ai_income[i]->set_color( MONEY_MINUS );
+				ai_income[i]->buf().append(translator::translate("Company bankrupt"));
+			}
+			else {
+				double account=player->get_account_balance_as_double();
+				char str[128];
+				money_to_string(str, account );
+				ai_income[i]->buf().append(str);
+				ai_income[i]->set_color( account>=0.0 ? MONEY_PLUS : MONEY_MINUS );
+			}
+		}
+		ai_income[i]->update();
+	}
+}
 
 /**
  * Draw the component
@@ -685,17 +710,20 @@ void ki_kontroll_t::draw(scr_coord pos, scr_size size)
 	}
 
 	// Update finance
+	update_income();
+
+	// Update buttons
 	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
+
+		player_t *player = welt->get_player(i);
 
 		player_change_to[i].pressed = false;
 		if(i>=2) {
-			player_active[i-2].pressed = welt->get_player(i) !=NULL  &&  welt->get_player(i)->is_active();
+			player_active[i-2].pressed = player !=NULL  &&  player->is_active();
 		}
 
-		player_t *player = welt->get_player(i);
-		player_lock[i].background_color = color_idx_to_rgb( player  &&  player->is_locked() ? (player->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN );
-
-
+//<<<<<<< HEAD
+/*
 		if(player != NULL)
 		{
 			const player_t::solvency_status ss = player->check_solvency();
@@ -730,9 +758,8 @@ void ki_kontroll_t::draw(scr_coord pos, scr_size size)
 			}
 
 		}
-		else {
-			account_str[i][0] = 0;
-		}
+=======*/
+		player_lock[i]->background_color = color_idx_to_rgb(player  &&  player->is_locked() ? (player->is_unlock_pending() ? COL_YELLOW : COL_RED) : COL_GREEN);
 	}
 
 	player_change_to[welt->get_active_player_nr()].pressed = true;

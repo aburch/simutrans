@@ -32,7 +32,7 @@ private:
 	/**
 	 * For calculating text height and/or displaying the text.
 	 */
-	scr_size calc_display_text(const scr_coord offset, const bool draw);
+	scr_size calc_display_text(const scr_coord offset, const bool draw) const;
 
 public:
 	gui_fixedwidth_textarea_t(cbuffer_t* buf, const sint16 width);
@@ -48,6 +48,10 @@ public:
 	void set_size(scr_size size) OVERRIDE;
 
 	virtual void draw(scr_coord offset) OVERRIDE;
+
+	scr_size get_min_size() const;
+
+	scr_size get_max_size() const;
 };
 
 #endif

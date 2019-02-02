@@ -31,6 +31,13 @@ private:
 	 */
 	bool my_own_buf;
 
+	/**
+	 * recalc the current size, needed for speculative size calculations
+	 * @returns size necessary to show the component
+	 */
+	scr_size calc_size() const;
+
+
 public:
 	gui_textarea_t(cbuffer_t* buf_);
 	gui_textarea_t(const char* text);
@@ -38,7 +45,7 @@ public:
 
 	void set_text(const char *text);
 
-	void set_buf( cbuffer_t* buf_ ) { buf = buf_; recalc_size(); }
+	void set_buf( cbuffer_t* buf_ );
 
 	/**
 	 * recalc the current size, needed for speculative size calculations
@@ -50,6 +57,10 @@ public:
 	* @author Hj. Malthaner
 	*/
 	virtual void draw(scr_coord offset);
+
+	scr_size get_min_size() const;
+
+	scr_size get_max_size() const;
 };
 
 #endif

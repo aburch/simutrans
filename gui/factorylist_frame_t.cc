@@ -56,7 +56,7 @@ factorylist_frame_t::factorylist_frame_t() :
 	sortedby.set_max_size(scr_size(D_BUTTON_WIDTH*1.5, LINESPACE * 4));
 
 	for (int i = 0; i < factorylist::SORT_MODES; i++) {
-		sortedby.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
+		sortedby.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
 	}
 	sortedby.set_selection(default_sortmode);
 
@@ -81,14 +81,14 @@ factorylist_frame_t::factorylist_frame_t() :
 	freight_type_c.set_max_size(scr_size(D_BUTTON_WIDTH*1.2, LINESPACE * 4));
 	{
 		viewable_freight_types.append(NULL);
-		freight_type_c.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("All"), SYSCOL_TEXT));
+		freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("All"), SYSCOL_TEXT);
 		for (int i = 0; i < goods_manager_t::get_max_catg_index(); i++) {
 			const goods_desc_t *freight_type = goods_manager_t::get_info_catg(i);
 			const int index = freight_type->get_catg_index();
 			if (index == goods_manager_t::INDEX_NONE || freight_type->get_catg() == 0) {
 				continue;
 			}
-			freight_type_c.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(freight_type->get_catg_name()), SYSCOL_TEXT));
+			freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(freight_type->get_catg_name()), SYSCOL_TEXT);
 			viewable_freight_types.append(freight_type);
 		}
 		for (int i = 0; i < goods_manager_t::get_count(); i++) {
@@ -96,7 +96,7 @@ factorylist_frame_t::factorylist_frame_t() :
 			if (ware->get_catg() == 0 && ware->get_index() > 2) {
 				// Special freight: Each good is special
 				viewable_freight_types.append(ware);
-				freight_type_c.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(ware->get_name()), SYSCOL_TEXT));
+				freight_type_c.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(ware->get_name()), SYSCOL_TEXT);
 			}
 		}
 	}

@@ -351,7 +351,7 @@ gui_frame_t( translator::translate("Helligk. u. Farben") )
 	// add_component( buttons+4 );
 	// add_component( buttons+5 );
 
-	set_resizemode(gui_frame_t::horizonal_resize);
+	set_resizemode(gui_frame_t::horizontal_resize);
 	set_min_windowsize( scr_size(L_DIALOG_WIDTH, L_DIALOG_HEIGHT) );
 	set_windowsize( scr_size(L_DIALOG_WIDTH, L_DIALOG_HEIGHT) );
 }

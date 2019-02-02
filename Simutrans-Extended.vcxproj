@@ -2276,12 +2276,17 @@
     <ClCompile Include="descriptor\reader\groundobj_reader.cc" />
     <ClCompile Include="boden\grund.cc" />
     <ClCompile Include="descriptor\ground_desc.cc" />
+    <ClCompile Include="gui\components\gui_aligned_container.cc" />
+    <ClCompile Include="gui\components\gui_building.cc" />
     <ClCompile Include="gui\components\gui_button.cc" />
+    <ClCompile Include="gui\components\gui_button_to_chart.cc" />
     <ClCompile Include="gui\components\gui_chart.cc" />
+    <ClCompile Include="gui\components\gui_colorbox.cc" />
     <ClCompile Include="gui\components\gui_combobox.cc" />
     <ClCompile Include="gui\components\gui_component_table.cc" />
     <ClCompile Include="gui\components\gui_convoy_assembler.cc" />
     <ClCompile Include="gui\components\gui_convoy_label.cc" />
+    <ClCompile Include="gui\components\gui_divider.cc" />
     <ClCompile Include="gui\components\gui_fixedwidth_textarea.cc" />
     <ClCompile Include="gui\components\gui_flowtext.cc" />
     <ClCompile Include="gui\gui_frame.cc" />
@@ -2302,6 +2307,7 @@
     <ClCompile Include="gui\halt_list_filter_frame.cc" />
     <ClCompile Include="gui\halt_list_frame.cc" />
     <ClCompile Include="gui\halt_list_stats.cc" />
+    <ClCompile Include="gui\headquarter_info.cc" />
     <ClCompile Include="descriptor\building_desc.cc" />
     <ClCompile Include="bauer\hausbauer.cc" />
     <ClCompile Include="gui\help_frame.cc" />
@@ -2732,8 +2738,12 @@
     <ClInclude Include="boden\grund.h" />
     <ClInclude Include="descriptor\ground_desc.h" />
     <ClInclude Include="ifc\gui_action_creator.h" />
+    <ClInclude Include="gui\components\gui_aligned_container.h" />
+    <ClInclude Include="gui\components\gui_building.h" />
     <ClInclude Include="gui\components\gui_button.h" />
+    <ClInclude Include="gui\components\gui_button_to_chart.h" />
     <ClInclude Include="gui\components\gui_chart.h" />
+    <ClInclude Include="gui\components\gui_colorbox.h" />
     <ClInclude Include="gui\components\gui_combobox.h" />
     <ClInclude Include="gui\components\gui_component_table.h" />
     <ClInclude Include="gui\components\gui_convoy_assembler.h" />
@@ -2760,6 +2770,7 @@
     <ClInclude Include="gui\halt_list_filter_frame.h" />
     <ClInclude Include="gui\halt_list_frame.h" />
     <ClInclude Include="gui\halt_list_stats.h" />
+    <ClInclude Include="gui\headquarter_info.h" />
     <ClInclude Include="halthandle_t.h" />
     <ClInclude Include="tpl\hashtable_tpl.h" />
     <ClInclude Include="descriptor\building_desc.h" />

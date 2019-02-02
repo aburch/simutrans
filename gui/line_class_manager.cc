@@ -121,7 +121,7 @@ void line_class_manager_t::build_class_entries()
 		{
 			for (int j = 0; j < pass_classes; j++) // j = the entries of this combobox
 			{
-				pass_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT));
+				pass_class_sel.at(i)->new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(pass_class_name_untranslated[j]), SYSCOL_TEXT);
 			}
 		}
 
@@ -155,7 +155,7 @@ void line_class_manager_t::build_class_entries()
 		}
 		if (multiple_classes)
 		{
-			pass_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("reassigned_to_multiple"), SYSCOL_TEXT));
+			pass_class_sel.at(i)->new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("reassigned_to_multiple"), SYSCOL_TEXT);
 			display_class = pass_classes;
 		}
 		pass_class_sel.at(i)->set_selection(display_class);
@@ -169,7 +169,7 @@ void line_class_manager_t::build_class_entries()
 		{
 			for (int j = 0; j < mail_classes; j++)
 			{
-				mail_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(mail_class_name_untranslated[j]), SYSCOL_TEXT));
+				mail_class_sel.at(i)->new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(mail_class_name_untranslated[j]), SYSCOL_TEXT);
 			}
 		}
 
@@ -203,7 +203,7 @@ void line_class_manager_t::build_class_entries()
 		}
 		if (multiple_classes)
 		{
-			mail_class_sel.at(i)->append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate("reassigned_to_multiple"), SYSCOL_TEXT));
+			mail_class_sel.at(i)->new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate("reassigned_to_multiple"), SYSCOL_TEXT);
 			display_class = mail_classes;
 		}
 		mail_class_sel.at(i)->set_selection(display_class);

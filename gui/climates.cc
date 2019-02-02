@@ -10,25 +10,13 @@
 #include "../descriptor/ground_desc.h"
 
 #include "../simdebug.h"
-#include "../simworld.h"
-#include "../gui/simwin.h"
+#include "simwin.h"
 
 #include "../dataobj/settings.h"
 #include "../dataobj/environment.h"
 #include "../dataobj/translator.h"
 
 #include "../display/simgraph.h"
-
-#include "../utils/simstring.h"
-
-//#define START_HEIGHT (40)
-//#define LEFT_ARROW (130)
-//#define RIGHT_ARROW (180)
-//#define TEXT_RIGHT (D_MARGIN_LEFT+165)
-
-#define L_DIALOG_WIDTH (210)
-#define L_CLIENT_WIDTH (L_DIALOG_WIDTH - D_MARGIN_LEFT - D_MARGIN_RIGHT)
-#define L_COLUMN_EDIT (L_DIALOG_WIDTH - edit_width - D_MARGIN_RIGHT)
 
 /**
  * set the climate borders
@@ -37,184 +25,112 @@
 climate_gui_t::climate_gui_t(settings_t* const sets_par) :
 	gui_frame_t( translator::translate("Climate Control") )
 {
-	const scr_coord_val edit_width = display_get_char_max_width("-0123456789")*4 + D_ARROW_LEFT_WIDTH + D_ARROW_RIGHT_WIDTH + 4;
-	const scr_coord_val label_width = L_CLIENT_WIDTH - edit_width - D_H_SPACE;
-	const scr_size edit_size(edit_width, D_EDIT_HEIGHT);
-	scr_coord cursor(L_COLUMN_EDIT,D_MARGIN_TOP);
-	sint16 labelnr=0;
-
 	sets = sets_par;
+	set_table_layout(2, 0);
 
 	// Water level
+	new_component<gui_label_t>("Water level");
+
 	water_level.init( sets->get_groundwater(), -10*(ground_desc_t::double_grounds?2:1), 0, gui_numberinput_t::AUTOLINEAR, false );
-	water_level.set_pos( cursor );
-	water_level.set_size( edit_size );
 	water_level.add_listener( this );
 	add_component( &water_level );
-	const gui_label_t& water_level_lbl = numberinput_lbl[labelnr];
-	numberinput_lbl[labelnr].init( "Water level", scr_coord(D_MARGIN_LEFT, cursor.y) );
-	numberinput_lbl[labelnr].align_to(&water_level,ALIGN_CENTER_V);
-	numberinput_lbl[labelnr].set_width(label_width);
-	add_component( numberinput_lbl+labelnr );
-	labelnr++;
-	cursor.y += D_EDIT_HEIGHT;
+	//const gui_label_t& water_level_lbl = numberinput_lbl[labelnr];
 
-	const scr_coord lbl_offs = water_level_lbl.get_pos() - water_level.get_pos();
-	const scr_coord btn_offs(lbl_offs.x, 0);
+	//const scr_coord lbl_offs = water_level_lbl.get_pos() - water_level.get_pos();
+	//const scr_coord btn_offs(lbl_offs.x, 0);
 
 	// Height and roughness
 	int mountain_height_start = (int)sets->get_max_mountain_height();
 	int mountain_roughness_start = (int)(sets->get_map_roughness()*20.0 + 0.5)-8;
 
 	// Mountain height
+	new_component<gui_label_t>("Mountain height");
 	mountain_height.init( mountain_height_start, 0, min(1000,100*(11-mountain_roughness_start)), 10, false );
-	mountain_height.set_pos( cursor );
-	mountain_height.set_size( edit_size );
 	mountain_height.add_listener( this );
 	add_component( &mountain_height );
-	numberinput_lbl[labelnr].init( "Mountain height", cursor + lbl_offs );
-	numberinput_lbl[labelnr].set_width(label_width);
-	add_component( numberinput_lbl+labelnr );
-	labelnr++;
-	cursor.y += D_EDIT_HEIGHT;
 
 	// Mountain roughness
+	new_component<gui_label_t>("Map roughness");
 	mountain_roughness.init( mountain_roughness_start, 0, min(10, 11-((mountain_height_start+99)/100)), gui_numberinput_t::AUTOLINEAR, false );
-	mountain_roughness.set_pos( cursor );
-	mountain_roughness.set_size( edit_size );
 	mountain_roughness.add_listener( this );
 	add_component( &mountain_roughness );
-	numberinput_lbl[labelnr].init( "Map roughness", cursor + lbl_offs );
-	numberinput_lbl[labelnr].set_width(label_width);
-	add_component( numberinput_lbl+labelnr );
-	labelnr++;
-	cursor.y += D_BUTTON_HEIGHT+D_V_SPACE;
 
-	hilly.init( button_t::square_state, "Hilly landscape", cursor + btn_offs);
-	hilly.set_width(L_CLIENT_WIDTH);
+	hilly.init( button_t::square_state, "Hilly landscape");
 	hilly.pressed=env_t::hilly;
 	hilly.add_listener( this );
-	add_component( &hilly );
-	cursor.y += D_BUTTON_HEIGHT;
+	add_component( &hilly, 2);
 
-	cities_ignore_height.init( button_t::square_state, "Cities ignore height", cursor + btn_offs);
-	cities_ignore_height.set_width(L_CLIENT_WIDTH);
+	cities_ignore_height.init( button_t::square_state, "Cities ignore height");
 	cities_ignore_height.set_tooltip("Cities will be built all over the terrain, rather than preferring lower ground");
 	cities_ignore_height.pressed=env_t::cities_ignore_height;
 	cities_ignore_height.add_listener( this );
-	add_component( &cities_ignore_height );
-	cursor.y += D_BUTTON_HEIGHT;
+	add_component( &cities_ignore_height, 2);
 
 	// Cities like water
+	new_component<gui_label_t>("Cities like water");
 	cities_like_water.init( (int)(env_t::cities_like_water), 0, 100, 1, false );
-	cities_like_water.set_pos( cursor );
-	cities_like_water.set_size( edit_size );
 	cities_like_water.add_listener(this);
 	add_component( &cities_like_water );
-	numberinput_lbl[labelnr].init("Cities like water", cursor + lbl_offs );
-	numberinput_lbl[labelnr].set_width(label_width);
-	add_component( numberinput_lbl+labelnr );
-	labelnr++;
-	cursor.y += D_EDIT_HEIGHT;
 
 	// Summer snowline always starting above highest climate
-	sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
-	summer_snowline.init( NULL, cursor + scr_coord(D_ARROW_LEFT_WIDTH, lbl_offs.y), SYSCOL_TEXT_HIGHLIGHT, gui_label_t::right );
-	summer_snowline.set_width(edit_width - D_ARROW_LEFT_WIDTH - D_ARROW_RIGHT_WIDTH);
-	summer_snowline.set_text_pointer( snowline_txt, false );
+	new_component<gui_label_t>("Summer snowline");
+
+	summer_snowline.init(SYSCOL_TEXT_HIGHLIGHT, gui_label_t::centered);
+	summer_snowline.buf().printf("%d", sets->get_climate_borders()[arctic_climate] );
+	summer_snowline.update();
 	add_component( &summer_snowline );
-	numberinput_lbl[labelnr].init( "Summer snowline", cursor + lbl_offs );
-	numberinput_lbl[labelnr].set_width(label_width);
-	add_component( numberinput_lbl+labelnr );
-	labelnr++;
-	cursor.y += D_BUTTON_HEIGHT;
 
 	// Winter snowline
+	new_component<gui_label_t>("Winter snowline");
 	snowline_winter.init( sets->get_winter_snowline(), -25, 32 - sets->get_groundwater(), gui_numberinput_t::AUTOLINEAR, false );
-	snowline_winter.set_pos( cursor );
-	snowline_winter.set_size( edit_size );
 	snowline_winter.add_listener( this );
 	add_component( &snowline_winter );
-	numberinput_lbl[labelnr].init( "Winter snowline", cursor + lbl_offs);
-	numberinput_lbl[labelnr].set_width( label_width );
-	add_component( numberinput_lbl+labelnr );
-	labelnr++;
-	cursor.y += D_EDIT_HEIGHT + D_V_SPACE;
 
 	// other climate borders ...
 	sint16 arctic = 0;
 	for(  int i=desert_climate-1;  i<=rocky_climate-1;  i++  ) {
+		new_component<gui_label_t>( ground_desc_t::get_climate_name_from_bit((climate)(i+1)) );
 
 		climate_borders_ui[i].init( sets->get_climate_borders()[i+1], -25, 32 - sets->get_groundwater(), gui_numberinput_t::AUTOLINEAR, false );
-		climate_borders_ui[i].set_pos( cursor );
-		climate_borders_ui[i].set_size( edit_size );
 		climate_borders_ui[i].add_listener( this );
 		add_component( climate_borders_ui+i );
 		if(sets->get_climate_borders()[i+1]>arctic) {
 			arctic = sets->get_climate_borders()[i+1];
 		}
-		numberinput_lbl[labelnr].init( ground_desc_t::get_climate_name_from_bit((climate)(i+1)), cursor + lbl_offs);
-		numberinput_lbl[labelnr].set_width(label_width);
-		//numberinput_lbl[labelnr].align_to(&climate_borders_ui[i],ALIGN_CENTER_V);
-		add_component( numberinput_lbl+labelnr );
-		labelnr++;
-		cursor.y += D_EDIT_HEIGHT;
 	}
 	snowline_winter.set_limits( -25, arctic );
 	snowline_winter.set_value( snowline_winter.get_value() );
-	cursor.y += D_V_SPACE;
 
-	no_tree.init( button_t::square_state, "no tree", cursor + btn_offs);
-	no_tree.set_width(L_CLIENT_WIDTH);
+	no_tree.init( button_t::square_state, "no tree");
 	no_tree.pressed = sets->get_no_trees();
 	no_tree.add_listener( this );
-	add_component( &no_tree );
-	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
+	add_component( &no_tree, 2);
 
 	cities_ignore_height.pressed = env_t::cities_ignore_height;
 	cities_like_water.set_value((int)(env_t::cities_like_water));
 
-	lake.init( button_t::square_state, "lake", cursor + btn_offs);
-	lake.set_width(L_CLIENT_WIDTH);
+	lake.init( button_t::square_state, "lake");
 	lake.pressed = sets->get_lake();
 	lake.add_listener( this );
-	add_component( &lake );
-	cursor.y += D_CHECKBOX_HEIGHT + D_V_SPACE;
+	add_component( &lake ,2);
 
+	new_component<gui_label_t>("Number of rivers");
 	river_n.init( sets->get_river_number(), 0, 1024, gui_numberinput_t::POWER2, false );
-	river_n.set_pos( cursor );
-	river_n.set_size( edit_size );
 	river_n.add_listener(this);
 	add_component( &river_n );
-	numberinput_lbl[labelnr].init( "Number of rivers", cursor + lbl_offs );
-	numberinput_lbl[labelnr].set_width(label_width);
-	add_component( numberinput_lbl+labelnr );
-	labelnr++;
-	cursor.y += D_EDIT_HEIGHT;
 
+	new_component<gui_label_t>("minimum length of rivers");
 	river_min.init( sets->get_min_river_length(), 0, max(16,sets->get_max_river_length())-16, gui_numberinput_t::AUTOLINEAR, false );
-	river_min.set_pos( cursor );
-	river_min.set_size( edit_size );
 	river_min.add_listener(this);
 	add_component( &river_min );
-	numberinput_lbl[labelnr].init( "minimum length of rivers", cursor + lbl_offs );
-	numberinput_lbl[labelnr].set_width(label_width);
-	add_component( numberinput_lbl+labelnr );
-	labelnr++;
-	cursor.y += D_EDIT_HEIGHT;
 
+	new_component<gui_label_t>("maximum length of rivers");
 	river_max.init( sets->get_max_river_length(), sets->get_min_river_length()+16, 8192, gui_numberinput_t::AUTOLINEAR, false );
-	river_max.set_pos( cursor );
-	river_max.set_size( edit_size );
 	river_max.add_listener(this);
 	add_component( &river_max );
-	numberinput_lbl[labelnr].init( "maximum length of rivers", cursor + lbl_offs );
-	numberinput_lbl[labelnr].set_width(label_width);
-	add_component( numberinput_lbl+labelnr );
-	labelnr++;
-	cursor.y += D_EDIT_HEIGHT;
 
-	set_windowsize( scr_size(L_DIALOG_WIDTH, D_TITLEBAR_HEIGHT+cursor.y+D_MARGIN_BOTTOM) );
+	reset_min_windowsize();
+	set_windowsize(get_min_windowsize());
 }
 
 
@@ -289,28 +205,29 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *comp, value_t v)
 		cities_ignore_height.pressed ^= 1;
 	}
 	else {
-	// all climate borders from here on
+		// all climate borders from here on
 
-	// Arctic starts at maximum end of climate
-	sint16 arctic = 0;
-	for(  int i=desert_climate;  i<=rocky_climate;  i++  ) {
-		if(  comp==climate_borders_ui+i-1  ) {
-			sets->climate_borders[i] = (sint16)v.i;
+		// Arctic starts at maximum end of climate
+		sint16 arctic = 0;
+		for(  int i=desert_climate;  i<=rocky_climate;  i++  ) {
+			if(  comp==climate_borders_ui+i-1  ) {
+				sets->climate_borders[i] = (sint16)v.i;
+			}
+			if(  sets->climate_borders[i] > arctic  ) {
+				arctic = sets->climate_borders[i];
+			}
 		}
-		if(sets->climate_borders[i]>arctic) {
-			arctic = sets->climate_borders[i];
+		sets->climate_borders[arctic_climate] = arctic;
+
+		// correct summer snowline too
+		if (arctic < sets->get_winter_snowline()) {
+			sets->winter_snowline = arctic;
 		}
-	}
-	sets->climate_borders[arctic_climate] = arctic;
+		snowline_winter.set_limits(-25, arctic);
+		snowline_winter.set_value(snowline_winter.get_value());
 
-	// correct summer snowline too
-	if(arctic<sets->get_winter_snowline()) {
-		sets->winter_snowline = arctic;
-	}
-	snowline_winter.set_limits( -25, arctic );
-	snowline_winter.set_value( snowline_winter.get_value() );
-
-	sprintf( snowline_txt ,"%d", sets->get_climate_borders()[arctic_climate] );
+		summer_snowline.buf().printf("%d", sets->get_climate_borders()[arctic_climate]);
+		summer_snowline.update();
 	}
 	return true;
 }

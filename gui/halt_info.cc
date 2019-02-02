@@ -185,7 +185,7 @@ halt_info_t::halt_info_t(halthandle_t halt) :
 	freight_sort_selector.clear_elements();
 	for (int i = 0; i < SORT_MODES; i++)
 	{
-		freight_sort_selector.append_element(new gui_scrolled_list_t::const_text_scrollitem_t(translator::translate(sort_text[i]), SYSCOL_TEXT));
+		freight_sort_selector.new_component<gui_scrolled_list_t::const_text_scrollitem_t>(translator::translate(sort_text[i]), SYSCOL_TEXT);
 	}
 	uint8 sortmode = env_t::default_sortmode < SORT_MODES ? env_t::default_sortmode: env_t::default_sortmode-2; // If sorting by accommodation in vehicles, we might want to sort by classes
 	freight_sort_selector.set_selection(sortmode);

@@ -14,11 +14,8 @@
 class pakselector_t : public savegame_frame_t
 {
 	protected:
-		scr_coord_val  addon_button_width;
-		scr_coord_val  action_button_width;
 		cbuffer_t      notice_buffer;
 		gui_textarea_t notice_label;
-		gui_divider_t  divider;
 
 		virtual const char *get_info    ( const char *filename );
 		virtual       bool  check_file  ( const char *filename, const char *suffix );
@@ -36,9 +33,6 @@ class pakselector_t : public savegame_frame_t
 		// If there is only one option, this will set the pak name and return true.
 		// Otherwise it will return false.  (Note, it's const but it modifies global data.)
 		bool check_only_one_option() const;
-
-		// since we only want to see the frame...
-		void set_windowsize(scr_size size);
 };
 
 #endif

@@ -12,7 +12,7 @@
 #include "../simcolor.h"
 #include "../dataobj/koord3d.h"
 #include "../dataobj/translator.h"
-#include "components/gui_container.h"
+#include "components/gui_aligned_container.h"
 #include "components/gui_button.h"
 
 #include "gui_theme.h"
@@ -64,7 +64,7 @@ class player_t;
  *
  * @author Hj. Malthaner
  */
-class gui_frame_t
+class gui_frame_t : protected gui_aligned_container_t
 {
 public:
 	/**
@@ -73,11 +73,10 @@ public:
 	 * @date   11-May-2002
 	 */
 	enum resize_modes {
-		no_resize = 0, vertical_resize = 1, horizonal_resize = 2, diagonal_resize = 3
+		no_resize = 0, vertical_resize = 1, horizontal_resize = 2, diagonal_resize = 3
 	};
 
 private:
-	gui_container_t container;
 
 	const char *name;
 	scr_size size;
@@ -99,6 +98,9 @@ private:
 	uint8 percent_transparent;
 	PIXVAL color_transparent;
 
+	using gui_aligned_container_t::draw;
+	using gui_aligned_container_t::set_size;
+
 protected:
 	void set_dirty() { dirty=true; }
 
@@ -116,8 +118,10 @@ protected:
 	void set_transparent( uint8 percent, PIXVAL col ) { opaque = percent==0; percent_transparent = percent; color_transparent = col; }
 
 	static karte_ptr_t welt;
+
 public:
 	/**
+	 s et_*
 	 * @param name, Window title
 	 * @param player, owner for color
 	 * @author Hj. Malthaner
@@ -125,18 +129,6 @@ public:
 	gui_frame_t(const char *name, const player_t *player=NULL);
 
 	virtual ~gui_frame_t() {}
-
-	/**
-	 * Adds the component to the window
-	 * @author Hj. Malthaner
-	 */
-	void add_component(gui_component_t *comp) { container.add_component(comp); }
-
-	/**
-	 * Removes the component from the container.
-	 * @author Hj. Malthaner
-	 */
-	void remove_component(gui_component_t *comp) { container.remove_component(comp); }
 
 	/**
 	 * The name is displayed in the titlebar
@@ -185,6 +177,10 @@ protected:
 	 */
 	void set_min_windowsize(scr_size size) { min_windowsize = size; }
 
+	/**
+	 * Set minimum window size to minimum size of container.
+	 */
+	void reset_min_windowsize();
 public:
 	/**
 	 * Get minimum size of the window
@@ -300,9 +296,9 @@ public:
 	 * gui_container_t::infowin_event (e.g. in action_triggered)
 	 * will have NO effect.
 	 */
-	void set_focus( gui_component_t *k ) { container.set_focus(k); }
+	void set_focus( gui_component_t *c ) { gui_aligned_container_t::set_focus(c); }
 
-	virtual gui_component_t *get_focus() { return container.get_focus(); }
+	virtual gui_component_t *get_focus() { return gui_aligned_container_t::get_focus(); }
 };
 
 #endif
