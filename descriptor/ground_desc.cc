@@ -435,9 +435,16 @@ static image_t* create_texture_from_tile(const image_t* image, const image_t* re
 			for(uint16 i=0; i<runlen; i++) {
 				PIXVAL p = *sp++;
 
-				if (y + image->y < ref_w  &&  x < ref_w) {
-					sp2[ (ref_w+3)*(y + image->y) + x] = p;
-				}
+#define copypixel(xx, yy) \
+	if (0 <= (yy)  &&  (yy) < ref_w  &&  0 <= (xx)  &&  (xx) < ref_w) { \
+		sp2[ (ref_w+3)*(yy) + xx+2] = p; \
+	}
+				// put multiple copies into dest image
+				copypixel(x, y + image->y);
+				copypixel(x + ref_w/2, y + image->y + ref_w/4);
+				copypixel(x - ref_w/2, y + image->y + ref_w/4);
+				copypixel(x + ref_w/2, y + image->y - ref_w/4);
+				copypixel(x - ref_w/2, y + image->y - ref_w/4);
 
 				x++;
 			}
@@ -445,6 +452,7 @@ static image_t* create_texture_from_tile(const image_t* image, const image_t* re
 	}
 	// image_dest not registered
 	return image_dest;
+#undef copypixel
 }
 
 /****************************************************************************************************
