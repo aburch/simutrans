@@ -34,10 +34,6 @@
 #include "simplan.h"
 
 #include "simdebug.h"
-#ifdef DEBUG_SIMRAND_CALLS
-#include "utils/cbuffer_t.h"
-#include "tpl/fixed_list_tpl.h"
-#endif
 
 #ifdef _MSC_VER
 #define snprintf sprintf_s
@@ -71,6 +67,7 @@ class viewport_t;
 class records_t;
 
 #define CHK_RANDS 32
+#define CHK_DEBUG_SUMS 8
 
 #ifdef MULTI_THREAD
 //#define FORBID_MULTI_THREAD_PASSENGER_GENERATION_IN_NETWORK_MODE
@@ -116,13 +113,17 @@ struct checklist_t
 	uint16 convoy_entry;
 
 	uint32 rand[CHK_RANDS];
+	uint32 debug_sum[CHK_DEBUG_SUMS];
 
 
-	checklist_t(uint32 _ss, uint32 _st, uint8 _nfc, uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, uint32 *_rands);
+	checklist_t(uint32 _ss, uint32 _st, uint8 _nfc, uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry, uint32 *_rands, uint32 *_debug_sums);
 	checklist_t() : ss(0), st(0), nfc(0), random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0)
 	{
 		for(  uint8 i = 0;  i < CHK_RANDS;  i++  ) {
 			rand[i] = 0;
+		}
+		for(  uint8 i = 0;  i < CHK_DEBUG_SUMS;  i++  ) {
+			debug_sum[i] = 0;
 		}
 	}
 
@@ -132,8 +133,14 @@ struct checklist_t
 		for(  uint8 i = 0;  i < CHK_RANDS  &&  rands_equal;  i++  ) {
 			rands_equal = rands_equal  &&  rand[i] == other.rand[i];
 		}
-
+		bool debugs_equal = true;
+		for(  uint8 i = 0;  i < CHK_DEBUG_SUMS  &&  debugs_equal;  i++  ) {
+			// If debug sums are too expensive, then this test below would allow them to be switched off independently at either end:
+			// debugs_equal = debugs_equal  &&  (debug_sum[i] == 0  ||  other.debug_sum[i] == 0  ||  debug_sum[i] == other.debug_sum[i]);
+			debugs_equal = debugs_equal  &&  debug_sum[i] == other.debug_sum[i];
+		}
 		return ( rands_equal &&
+			debugs_equal &&
 			ss == other.ss &&
 			st == other.st &&
 			nfc == other.nfc &&
@@ -197,11 +204,6 @@ class karte_t
 	static karte_t* world; ///< static single instance
 
 public:
-
-#ifdef DEBUG_SIMRAND_CALLS
-	static bool print_randoms;
-	static int random_calls;
-#endif
 	/**
 	 * Height of a point of the map with "perlin noise"
 	 *
@@ -633,6 +635,7 @@ private:
 	checklist_t last_checklists[LAST_CHECKLISTS_COUNT];
 #define LCHKLST(x) (last_checklists[(x) % LAST_CHECKLISTS_COUNT])
 	uint32 rands[CHK_RANDS];
+	uint32 debug_sums[CHK_DEBUG_SUMS];
 
 
 	/// @note variable used in interactive()
@@ -1017,6 +1020,7 @@ public:
 
 	void set_rands(uint8 num, uint32 val) { rands[num] = val; }
 	void inc_rands(uint8 num) { rands[num]++; }
+	inline void add_to_debug_sums(uint8 num, uint32 val) { debug_sums[num] += val; }
 
 
 	/**
@@ -2685,10 +2689,6 @@ public:
 
 	inline void add_time_interval_signal_to_check(signal_t* sig) { time_interval_signals_to_check.append_unique(sig); }
 	inline bool remove_time_interval_signal_to_check(signal_t* sig) { return time_interval_signals_to_check.remove(sig); }
-
-#ifdef DEBUG_SIMRAND_CALLS
-	static vector_tpl<const char*> random_callers;
-#endif
 
 private:
 

@@ -1358,6 +1358,8 @@ sync_result convoi_t::sync_step(uint32 delta_t)
 			dbg->fatal("convoi_t::sync_step()", "Wrong state %d!\n", state);
 			break;
 	}
+	welt->add_to_debug_sums(0, v.get_mantissa());
+	welt->add_to_debug_sums(1, v.get_mantissa()*(uint32)self.get_id());
 
 	return SYNC_OK;
 }
@@ -5147,7 +5149,7 @@ void convoi_t::open_schedule_window( bool show )
 	// - just starting
 	// - a line update is pending
 	// - the convoy is in the process of finding a route (multi-threaded)
-	if(  (is_locked()  ||  line_update_pending.is_bound())  &&  get_owner()==welt->get_active_player()  ) {
+	if (is_locked()  ||  line_update_pending.is_bound()) {
 		if (show) {
 			create_win( new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_time_delete, magic_none );
 		}
@@ -6040,7 +6042,7 @@ station_tile_search_ready: ;
 		// Advance schedule
 		advance_schedule();
 		state = ROUTING_1;
-		dbg->message("void convoi_t::hat_gehalten(halthandle_t halt)", "Convoy %s departing from stop %s at step %i", get_name(), halt.is_bound() ? halt->get_name() : "unknown", welt->get_steps());
+		dbg->message("void convoi_t::hat_gehalten(halthandle_t halt)", "Convoy %s departing from stop %s at step %i. Its departure time is calculated as %ll", get_name(), halt.is_bound() ? halt->get_name() : "unknown", welt->get_steps(), go_on_ticks);
 	}
 
 	// reset the wait_lock
@@ -6050,17 +6052,16 @@ station_tile_search_ready: ;
 	}
 	else
 	{
-
 		if (loading_limit > 0 && !wait_for_time)
 		{
-			wait_lock = (earliest_departure_time - now) / 2;
+			wait_lock = (sint32) ((earliest_departure_time - now) / 2ll);
 		}
 		else
 		{
-			wait_lock = (go_on_ticks - now) / 2;
+			wait_lock = (sint32) ((go_on_ticks - now) / 2ll);
 		}
 		// The random extra wait here is designed to avoid processing every convoy at once
-		wait_lock += (self.get_id()) % 1024;
+		wait_lock += (sint32)(self.get_id()) % 1024;
 		if (wait_lock < 0 )
 		{
 			wait_lock = 0;
