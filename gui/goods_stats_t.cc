@@ -25,6 +25,7 @@
 #include "components/gui_colorbox.h"
 #include "components/gui_label.h"
 
+karte_ptr_t goods_stats_t::welt;
 
 void goods_stats_t::update_goodslist(vector_tpl<const goods_desc_t*>goods, int bonus)
 {
