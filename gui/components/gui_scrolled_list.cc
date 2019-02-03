@@ -139,6 +139,8 @@ void gui_scrolled_list_t::sort( int offset )
 
 void gui_scrolled_list_t::set_size(scr_size size)
 {
+	cleanup_elements();
+
 	gui_scrollpane_t::set_size(size);
 
 	// set all elements in list to same width

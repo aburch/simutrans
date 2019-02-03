@@ -33,21 +33,13 @@ private:
 	player_t *player;
 
 	button_t bt_new_line, bt_edit_line, bt_delete_line, bt_withdraw_line;
-	gui_container_t cont, cont_haltestellen;
-	gui_scrollpane_t scrolly_convois, scrolly_haltestellen;
-	gui_scrolled_list_t scl;
+	gui_scrolled_list_t scl, scrolly_convois, scrolly_haltestellen;
 	gui_speedbar_t filled_bar;
 	gui_textinput_t inp_name, inp_filter;
 	gui_label_t lbl_filter;
 	gui_chart_t chart;
 	button_t filterButtons[MAX_LINE_COST];
 	gui_tab_panel_t tabs;
-
-	// vector of convoy info objects that are being displayed
-	vector_tpl<gui_convoiinfo_t *> convoy_infos;
-
-	// vector of stop info objects that are being displayed
-	vector_tpl<halt_list_stats_t *> stop_infos;
 
 	sint32 selection, capacity, load, loadfactor;
 
