@@ -22,7 +22,7 @@
 citylist_stats_t::citylist_stats_t(stadt_t *c)
 {
 	city = c;
-	set_table_layout(2,0);
+	set_table_layout(3,0);
 
 	button_t *b = new_component<button_t>();
 	b->set_typ(button_t::posbutton_automatic);
@@ -30,6 +30,8 @@ citylist_stats_t::citylist_stats_t(stadt_t *c)
 
 	add_component(&label);
 	update_label();
+
+	new_component<gui_fill_t>();
 }
 
 
