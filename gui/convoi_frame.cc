@@ -294,9 +294,6 @@ convoi_frame_t::convoi_frame_t(player_t* player) :
 
 	fill_list();
 
-	scr_size s = scrolly->get_max_size();
-	printf("convoi_frame scrolly size  %d %d\n", s.w, s.h);
-
 	set_resizemode(diagonal_resize);
 	reset_min_windowsize();
 }
