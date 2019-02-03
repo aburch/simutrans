@@ -22,6 +22,7 @@
 
 #include "components/gui_image.h"
 
+karte_ptr_t goods_stats_t::welt;
 
 void goods_stats_t::update_goodslist(vector_tpl<const goods_desc_t*>goods, uint32 b, uint32 d, uint8 c, uint8 ct, uint8 gc)
 {
