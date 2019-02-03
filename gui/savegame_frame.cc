@@ -21,7 +21,16 @@
 #define L_DEFAULT_ROWS       (12)   // Number of file entries to show as default
 #define L_SHORTENED_SIZE   (48)
 
+/**
+ * Small helper class for tiny 'X' delete buttons
+ */
+class del_button_t : public button_t
+{
+public:
+	del_button_t() : button_t() { init(button_t::roundbox, "X"); }
 
+	scr_size get_min_size() const OVERRIDE { return scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT); }
+};
 
 /**
  * SAVE GAME FRAME CONSTRUCTOR
@@ -293,9 +302,7 @@ void savegame_frame_t::list_filled( void )
 			}
 			button_frame.add_component(label, cols);
 		}
-		else{
-			delete_button->set_size(scr_size(D_BUTTON_HEIGHT, D_BUTTON_HEIGHT));
-			delete_button->set_text("X");
+		else {
 
 			if (dr_cantrash()) {
 				delete_button->set_tooltip("Send this file to the system trash bin. SHIFT+CLICK to permanently delete.");
@@ -411,9 +418,7 @@ void savegame_frame_t::add_file(const char *fullpath, const char *filename, cons
 
 	gui_label_t* l = new gui_label_t(NULL);
 	l->set_text_pointer(date);
-	button_t *del = new button_t();
-	del->set_typ( button_t::roundbox );
-	entries.insert(i, dir_entry_t(button, del, l, LI_ENTRY, fullpath));
+	entries.insert(i, dir_entry_t(button, new del_button_t(), l, LI_ENTRY, fullpath));
 }
 
 
@@ -574,8 +579,6 @@ bool savegame_frame_t::action_triggered(gui_action_creator_t *component, value_t
 						i.button->set_visible(false);
 						i.del->set_visible(false);
 						i.label->set_visible(false);
-						i.button->set_size(scr_size(0, 0));
-						i.del->set_size(scr_size(0, 0));
 
 						resize(scr_coord(0, 0));
 					}
