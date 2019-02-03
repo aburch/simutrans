@@ -82,6 +82,7 @@ public:
 
 	scr_size get_max_size() const OVERRIDE { return get_min_size(); }
 };
+karte_ptr_t gui_departure_board_t::welt;
 
 
 static const char *sort_text[4] = {
