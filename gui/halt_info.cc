@@ -514,10 +514,19 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 					// calc and draw ratio indicator
 					uint8 colored_width = 0;
 					uint8 indicator_left = 0;
+					sint8 fraction_sum = 0;
 					for (int i = 0; i < PAX_EVALUATIONS; i++) {
 						colored_width = ev_indicator_width * pax_ev_num[i] / pax_sum;
+						if (int fraction = ((ev_indicator_width * pax_ev_num[i] * 10 / pax_sum) % 10)) {
+							fraction_sum += fraction;
+							if (fraction_sum > 5) {
+								fraction_sum -= 10;
+								colored_width++;
+							}
+						}
 						if (pax_ev_num[i]) {
 							display_fillbox_wh_clip(left + indicator_left, top, colored_width, indicator_height, cost_type_color[i], true);
+
 						}
 						indicator_left += colored_width;
 					}
@@ -529,7 +538,7 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 			if (halt->get_mail_enabled()) {
 				left = pos.x + D_MARGIN_LEFT + 10;
 				int mail_sum = halt->haltestelle_t::get_mail_delivered() + halt->haltestelle_t::get_mail_no_route();
-				uint8 mail_delivered_percentage = mail_sum ? (uint8)(((double)(halt->haltestelle_t::get_mail_delivered()) * 100.0 / (double)(mail_sum)) + 0.5) : 0;
+				uint8 mail_delivered_factor = mail_sum ? (uint8)(((double)(halt->haltestelle_t::get_mail_delivered()) * 255.0 / (double)(mail_sum)) + 0.5) : 0;
 				uint8 indicator_height = mail_sum < 100 ? D_INDICATOR_HEIGHT - 1 : D_INDICATOR_HEIGHT;
 				if (mail_sum > 999)  { indicator_height++; }
 				if (mail_sum > 9999) { indicator_height++; }
@@ -603,8 +612,8 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 				else
 				{
 					display_fillbox_wh_clip(left, top, ev_indicator_width, indicator_height, COL_MAIL_NOROUTE, true);
-					if (mail_delivered_percentage) {
-						display_fillbox_wh_clip(left, top, ev_indicator_width*mail_delivered_percentage / 100, indicator_height, COL_MAIL_DELIVERED, true);
+					if (mail_delivered_factor) {
+						display_fillbox_wh_clip(left, top, ev_indicator_width*mail_delivered_factor / 255, indicator_height, COL_MAIL_DELIVERED, true);
 					}
 				}
 
