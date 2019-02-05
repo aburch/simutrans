@@ -11,6 +11,7 @@ headquarter_info_t::headquarter_info_t(player_t* player) : base_infowin_t(player
 {
 	this->player = player;
 
+	set_embedded(&headquarter_view);
 
 	upgrade.init(button_t::roundbox, "upgrade HQ");
 	upgrade.add_listener(this);
@@ -30,9 +31,6 @@ void headquarter_info_t::update()
 		grund_t *gr = welt->lookup_kartenboden(p2d);
 		koord3d pos = gr->get_pos();
 		headquarter_view.set_location(pos);
-		headquarter_view.set_visible(true);
-
-		set_embedded(&headquarter_view);
 
 		gebaeude_t* hq = gr->find<gebaeude_t>();
 		if (hq) {
@@ -41,7 +39,6 @@ void headquarter_info_t::update()
 		}
 	}
 	else {
-		headquarter_view.set_visible(false);
 		set_embedded(NULL);
 	}
 	// check for possible upgrades
@@ -65,7 +62,7 @@ void headquarter_info_t::draw(scr_coord pos, scr_size size)
 {
 	update();
 
-	if (!headquarter_view.is_visible()) {
+	if (embedded == NULL) {
 		// no headquarter anymore, destroy window
 		destroy_win(this);
 		return;
