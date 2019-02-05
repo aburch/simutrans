@@ -25,11 +25,11 @@ protected:
 	virtual bool        cancel_action ( const char *fullpath ) OVERRIDE;
 	virtual const char* get_info      ( const char *fname    ) OVERRIDE;
 	virtual bool        check_file    ( const char *filename, const char *suffix ) OVERRIDE;
+	void        fill_list       ( void ) OVERRIDE;
 
 public:
 	themeselector_t ( void );
 
-	void        fill_list       ( void ) OVERRIDE;
 	const char* get_help_filename ( void ) const OVERRIDE { return NULL; }
 
 	uint32      get_rdwr_id     ( void ) OVERRIDE { return magic_themes; }

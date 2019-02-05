@@ -61,6 +61,8 @@ protected:
 
 	virtual bool check_file( const char *filename, const char *suffix ) OVERRIDE;
 
+	virtual void fill_list() OVERRIDE;
+
 public:
 	/**
 	* Set the window associated helptext
@@ -70,8 +72,6 @@ public:
 	virtual const char *get_help_filename() const { return "load_font.txt"; }
 
 	loadfont_frame_t();
-
-	virtual void fill_list() OVERRIDE;
 
 	virtual void draw(scr_coord pos, scr_size size) OVERRIDE;
 

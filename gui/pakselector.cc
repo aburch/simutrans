@@ -111,7 +111,7 @@ void pakselector_t::fill_list()
 
 	entries.sort(dir_entry_t::compare);
 
-	FOR(slist_tpl<dir_entry_t>, const& i, entries) {
+	FOR(slist_tpl<dir_entry_t>, &i, entries) {
 
 		if (i.type == LI_HEADER) {
 			continue;
@@ -120,7 +120,11 @@ void pakselector_t::fill_list()
 		// look for addon directory
 		path.clear();
 		path.printf("%saddons/%s", env_t::user_dir, i.button->get_text());
-		i.del->set_text("Load with addons");
+
+		// reuse delete button as load-with-addons button
+		delete i.del;
+		i.del = new button_t();
+		i.del->init(button_t::roundbox, "Load with addons");
 
 		// if we can't change directory to /addon
 		// Hide the addon button
@@ -139,6 +143,4 @@ void pakselector_t::fill_list()
 		// empty path as more than one pakset is present, user has to choose
 		env_t::objfilename = "";
 	}
-
-	reset_min_windowsize();
 }

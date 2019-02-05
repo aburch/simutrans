@@ -335,12 +335,17 @@ static bool no_language() { return translator::get_language()!=-1; }
 static void ask_objfilename()
 {
 	pakselector_t* sel = new pakselector_t();
-	sel->fill_list();
 	if(  sel->check_only_one_option()  ) {
 		// If there's only one option, we selected it; don't even show the window
 		delete sel;
 	}
-	else if(  sel->has_pak()  ) {
+	// notify gui to load list of paksets
+	event_t ev;
+	ev.ev_class = INFOWIN;
+	ev.ev_code  = WIN_OPEN;
+	sel->infowin_event(&ev);
+
+	if(sel->has_pak()) {
 		destroy_all_win(true);	// since eventually the successful load message is still there ....
 		dbg->important("modal_dialogue( sel, magic_none, NULL, empty_objfilename );" );
 		modal_dialogue( sel, magic_none, NULL, empty_objfilename );

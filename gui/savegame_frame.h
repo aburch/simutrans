@@ -241,6 +241,8 @@ protected:
 	std::string get_filename(const char *fullpath, const bool with_extension = true) const;
 	void        list_filled(void);
 
+	virtual   void fill_list ( void );
+
 	 // Virtual callback function that will be executed when the user clicks ok,
 	virtual bool cancel_action ( const char * /*fullpath*/ ) { return true; } // Callback for cancel button click
 	virtual bool del_action    ( const char *   fullpath   );                 // Callback for delete button click
@@ -272,8 +274,6 @@ public:
 
 	bool action_triggered  ( gui_action_creator_t*, value_t ) OVERRIDE;
 	bool infowin_event     ( event_t const* ) OVERRIDE;
-
-	virtual void fill_list ( void );
 };
 
 #endif
