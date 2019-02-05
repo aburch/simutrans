@@ -83,9 +83,9 @@ fabrik_info_t::fabrik_info_t(fabrik_t* fab_, const gebaeude_t* gb) :
 	fab(fab_),
 	chart(NULL),
 	view(scr_size( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
-	scroll_info(&container_info),
 	prod(&prod_buf),
-	txt(&info_buf)
+	txt(&info_buf),
+	scroll_info(&container_info)
 {
 	if (fab) {
 		init(fab, gb);
