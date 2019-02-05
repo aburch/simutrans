@@ -144,8 +144,8 @@ private:
 	vector_tpl<gui_image_list_t::image_data_t*> convoi_pics;
 	gui_image_list_t convoi;
 
-	gui_scrollpane_t scrolly_convoi;
 	gui_container_t cont_convoi;
+	gui_scrollpane_t scrolly_convoi;
 
 	/// image list of passenger cars
 	vector_tpl<gui_image_list_t::image_data_t*> pas_vec;
@@ -160,14 +160,14 @@ private:
 	gui_image_list_t electrics;
 	gui_image_list_t loks;
 	gui_image_list_t waggons;
-	gui_scrollpane_t scrolly_pas;
-	gui_scrollpane_t scrolly_electrics;
-	gui_scrollpane_t scrolly_loks;
-	gui_scrollpane_t scrolly_waggons;
 	gui_container_t cont_pas;
 	gui_container_t cont_electrics;
 	gui_container_t cont_loks;
 	gui_container_t cont_waggons;
+	gui_scrollpane_t scrolly_pas;
+	gui_scrollpane_t scrolly_electrics;
+	gui_scrollpane_t scrolly_loks;
+	gui_scrollpane_t scrolly_waggons;
 
 	/// contains the current translation of "<no schedule set>"
 	const char* no_schedule_text;

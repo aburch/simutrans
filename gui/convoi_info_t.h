@@ -58,9 +58,9 @@ private:
 	button_t no_load_button;
 
 	gui_tab_panel_t switch_mode;
-	gui_scrollpane_t scroll_freight;
 	gui_aligned_container_t container_freight, container_stats, container_line, *container_top, container_details;
 	convoi_detail_t *details;
+	gui_scrollpane_t scroll_freight;
 
 	button_t sort_button;
 	button_t line_button;	// goto line ...

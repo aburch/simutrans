@@ -143,6 +143,7 @@
     <ClCompile Include="gui\components\gui_komponente.cc" />
     <ClCompile Include="gui\components\gui_map_preview.cc" />
     <ClCompile Include="gui\gui_theme.cc" />
+    <ClCompile Include="gui\headquarter_info.cc" />
     <ClCompile Include="gui\loadfont_frame.cc" />
     <ClCompile Include="gui\simwin.cc" />
     <ClCompile Include="gui\themeselector.cc" />
@@ -461,6 +462,7 @@
     <ClInclude Include="gui\components\gui_container.h" />
     <ClInclude Include="gui\components\gui_convoiinfo.h" />
     <ClInclude Include="gui\gui_theme.h" />
+    <ClInclude Include="gui\headquarter_info.h" />
     <ClInclude Include="gui\loadfont_frame.h" />
     <ClInclude Include="gui\simwin.h" />
     <ClInclude Include="gui\themeselector.h" />

@@ -52,7 +52,6 @@ private:
 	char fabname[256];
 	gui_textinput_t input;
 
-	gui_scrollpane_t scroll_info;
 	gui_textarea_t prod, txt;
 	gui_colorbox_t indicator_color;
 
@@ -65,6 +64,8 @@ private:
 
 	gui_aligned_container_t all_suppliers, all_consumers, all_stops, all_cities;
 	uint32 old_suppliers_count, old_consumers_count, old_stops_count, old_cities_count;
+
+	gui_scrollpane_t scroll_info;
 
 	void rename_factory();
 public:

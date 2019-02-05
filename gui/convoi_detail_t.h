@@ -31,8 +31,8 @@ public:
 
 private:
 
-	gui_scrollpane_t scrolly;
 	gui_aligned_container_t container;
+	gui_scrollpane_t scrolly;
 
 	gui_label_buf_t label_power, label_odometer, label_resale, label_length, label_speed;
 
