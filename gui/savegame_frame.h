@@ -122,6 +122,8 @@ protected:
 	std::string get_basename ( const char *fullpath );
 	void        list_filled  ( void );
 
+	virtual   void fill_list ( void );
+
 	// compare item to another with info and filename
 	virtual bool compare_items ( const dir_entry_t & entry, const char *info, const char *filename );
 
@@ -144,8 +146,6 @@ public:
 
 	bool action_triggered  ( gui_action_creator_t*, value_t ) OVERRIDE;
 	bool infowin_event     ( event_t const* ) OVERRIDE;
-
-	virtual void fill_list ( void );
 };
 
 #endif
