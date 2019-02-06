@@ -355,6 +355,7 @@ void schedule_gui_t::init(schedule_t* schedule_, player_t* player, convoihandle_
 		add_component(&lb_wait);
 
 		add_component(&wait_load);
+		wait_load.add_listener(this);
 
 		wait_load.new_component<gui_waiting_time_item_t>(0);
 		for(sint8 w = 7; w<=16; w++) {
