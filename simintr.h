@@ -58,4 +58,5 @@ void interrupt_check(const char* caller_info);
 
 
 // returns a time string in the desired format
+// Returns an empty string if called before the world model defining time is initalized.
 char const *tick_to_string( sint64 ticks, bool show_full );
