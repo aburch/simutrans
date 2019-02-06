@@ -26,7 +26,7 @@ private:
 
 	static bool compare_ware(ware_t const& w1, ware_t const& w2);
 
-	static void add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max, const ware_t *ware, const char *what_doing );
+	static void add_ware_heading( cbuffer_t &buf, uint64 sum, uint32 max, const ware_t *ware, const char *what_doing );
 };
 
 
