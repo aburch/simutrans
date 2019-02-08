@@ -64,9 +64,9 @@ public:
 
 	const char *get_help_filename() const OVERRIDE { return "citywindow.txt"; }
 
-	virtual koord3d get_weltpos(bool) OVERRIDE;
+	koord3d get_weltpos(bool) OVERRIDE;
 
-	virtual bool is_weltpos() OVERRIDE;
+	bool is_weltpos() OVERRIDE;
 
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
@@ -84,7 +84,7 @@ public:
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	virtual bool has_min_sizer() const OVERRIDE {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
 	void rdwr(loadsave_t *file) OVERRIDE;
 

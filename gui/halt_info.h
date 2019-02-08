@@ -109,9 +109,9 @@ public:
 	 */
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	virtual koord3d get_weltpos(bool) OVERRIDE;
+	koord3d get_weltpos(bool) OVERRIDE;
 
-	virtual bool is_weltpos() OVERRIDE;
+	bool is_weltpos() OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

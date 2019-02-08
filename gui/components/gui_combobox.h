@@ -86,7 +86,7 @@ public:
 	 * child classes like scrolled list of tabs should
 	 * return a child component.
 	 */
-	virtual gui_component_t *get_focus() OVERRIDE { return this; }
+	gui_component_t *get_focus() OVERRIDE { return this; }
 
 	/**
 	 * Draw the component
@@ -145,7 +145,7 @@ public:
 	* Set this component's position.
 	* @author Hj. Malthaner
 	*/
-	virtual void set_pos(scr_coord pos_par) OVERRIDE;
+	void set_pos(scr_coord pos_par) OVERRIDE;
 
 	void set_size(scr_size size) OVERRIDE;
 

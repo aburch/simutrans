@@ -271,7 +271,7 @@ protected:
 
 	virtual way_desc_t const* get_desc(uint16, bool) const;
 	void calc_route( way_builder_t &bauigel, const koord3d &, const koord3d & );
-	virtual void start_at( koord3d &new_start ) OVERRIDE;
+	void start_at( koord3d &new_start ) OVERRIDE;
 
 public:
 	tool_build_way_t(uint16 const id = TOOL_BUILD_WAY | GENERAL_TOOL) : two_click_tool_t(id), desc() {}
@@ -863,7 +863,7 @@ class tool_rotate90_t : public tool_t {
 public:
 	tool_rotate90_t() : tool_t(TOOL_ROTATE90 | SIMPLE_TOOL) {}
 	image_id get_icon(player_t*) const OVERRIDE { return env_t::networkmode ? IMG_EMPTY : icon; }
-	virtual void draw_after(scr_coord pos, bool dirty) const OVERRIDE; /* may draw a compass on top */
+	void draw_after(scr_coord pos, bool dirty) const OVERRIDE; /* may draw a compass on top */
 	char const* get_tooltip(player_t const*) const OVERRIDE { return env_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Rotate map"); }
 	bool init( player_t * ) OVERRIDE;
 	bool is_init_network_save() const OVERRIDE { return !env_t::networkmode; }

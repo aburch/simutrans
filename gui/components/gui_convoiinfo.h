@@ -54,7 +54,7 @@ public:
 
 	const char* get_text() const OVERRIDE;
 
-	virtual bool is_valid() const OVERRIDE { return cnv.is_bound(); }
+	bool is_valid() const OVERRIDE { return cnv.is_bound(); }
 
 	convoihandle_t get_cnv() const { return cnv; }
 

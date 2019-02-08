@@ -36,7 +36,7 @@ public:
 	* @return additional info is reservation!
 	* @author prissi
 	*/
-	virtual void info(cbuffer_t & buf) const OVERRIDE;
+	void info(cbuffer_t & buf) const OVERRIDE;
 
 	void rdwr(loadsave_t *file) OVERRIDE;
 
@@ -49,7 +49,7 @@ public:
 
 	void remove_convoi_reservation( convoihandle_t cnv ) { reservations.remove(cnv); }
 
-	virtual bool unreserve( convoihandle_t cnv ) OVERRIDE { reservations.remove(cnv); schiene_t::unreserve(cnv); return true; }
+	bool unreserve( convoihandle_t cnv ) OVERRIDE { reservations.remove(cnv); schiene_t::unreserve(cnv); return true; }
 };
 
 #endif

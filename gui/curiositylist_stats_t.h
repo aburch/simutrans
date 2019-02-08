@@ -37,7 +37,7 @@ public:
 	curiositylist_stats_t(gebaeude_t *att);
 
 	char const* get_text() const OVERRIDE;
-	virtual bool is_valid() const OVERRIDE;
+	bool is_valid() const OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

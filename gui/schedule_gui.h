@@ -101,7 +101,7 @@ public:
 	 * Set window size and adjust component sizes and/or positions accordingly
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_windowsize(scr_size size) OVERRIDE;
+	void set_windowsize(scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
@@ -110,7 +110,7 @@ public:
 	 */
 	void map_rotate90( sint16 ) OVERRIDE;
 
-	virtual void rdwr( loadsave_t *file ) OVERRIDE;
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
 	uint32 get_rdwr_id() OVERRIDE { return magic_schedule_rdwr_dummy; }
 };

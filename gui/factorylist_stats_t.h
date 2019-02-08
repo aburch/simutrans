@@ -48,7 +48,7 @@ public:
 
 	char const* get_text() const OVERRIDE { return fab->get_name(); }
 	bool infowin_event(const event_t *) OVERRIDE;
-	virtual bool is_valid() const OVERRIDE;
+	bool is_valid() const OVERRIDE;
 	void set_size(scr_size size) OVERRIDE;
 
 	static bool compare(const gui_component_t *a, const gui_component_t *b );
