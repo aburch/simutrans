@@ -50,14 +50,14 @@ public:
 	 * Draw the component
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 
-	scr_size get_max_size() const {
+	scr_size get_max_size() const OVERRIDE {
 		return get_min_size();
 	}
 
-	scr_size get_min_size() const {
+	scr_size get_min_size() const OVERRIDE {
 		return min_size;
 	}
 

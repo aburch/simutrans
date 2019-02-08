@@ -52,7 +52,7 @@ public:
 	* @return true if such a button is needed
 	* @author Hj. Malthaner
 	*/
-	bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

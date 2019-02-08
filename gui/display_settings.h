@@ -56,9 +56,9 @@ public:
 	 * @return The help file name or NULL
 	 * @author Hj. Malthaner
 	 */
-	const char * get_help_filename() const { return "display.txt"; }
+	const char * get_help_filename() const OVERRIDE { return "display.txt"; }
 
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

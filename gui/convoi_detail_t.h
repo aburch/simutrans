@@ -49,7 +49,7 @@ public:
 	 */
 	void init(convoihandle_t cnv);
 
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

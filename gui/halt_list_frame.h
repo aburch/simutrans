@@ -108,7 +108,7 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/// sort & filter halts in list
 	void sort_list();
@@ -118,7 +118,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char *get_help_filename() const {return "haltlist.txt"; }
+	const char *get_help_filename() const OVERRIDE {return "haltlist.txt"; }
 
 	static sort_mode_t get_sortierung() { return sortby; }
 	static void set_sortierung(sort_mode_t sm) { sortby = sm; }

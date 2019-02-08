@@ -20,8 +20,8 @@ public:
 	bool infowin_event(event_t const*) OVERRIDE;
 
 	// stuff for UI saving
-	virtual void rdwr( loadsave_t *file );
-	virtual uint32 get_rdwr_id() { return magic_line_schedule_rdwr_dummy; }
+	virtual void rdwr( loadsave_t *file ) OVERRIDE;
+	virtual uint32 get_rdwr_id() OVERRIDE { return magic_line_schedule_rdwr_dummy; }
 
 
 private:

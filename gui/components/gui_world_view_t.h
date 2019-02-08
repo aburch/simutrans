@@ -91,9 +91,9 @@ public:
 
 
 
-	scr_size get_min_size() const { return min_size; }
+	scr_size get_min_size() const OVERRIDE { return min_size; }
 
-	scr_size get_max_size() const { return min_size; }
+	scr_size get_max_size() const OVERRIDE { return min_size; }
 };
 
 #endif

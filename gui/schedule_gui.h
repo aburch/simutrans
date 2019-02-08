@@ -89,30 +89,30 @@ public:
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	const char *get_help_filename() const {return "schedule.txt";}
+	const char *get_help_filename() const OVERRIDE {return "schedule.txt";}
 
 	/**
 	 * Draw the Frame
 	 * @author Hansjörg Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Set window size and adjust component sizes and/or positions accordingly
 	 * @author Hj. Malthaner
 	 */
-	virtual void set_windowsize(scr_size size);
+	virtual void set_windowsize(scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	/**
 	 * Map rotated, rotate schedules too
 	 */
-	void map_rotate90( sint16 );
+	void map_rotate90( sint16 ) OVERRIDE;
 
-	virtual void rdwr( loadsave_t *file );
+	virtual void rdwr( loadsave_t *file ) OVERRIDE;
 
-	uint32 get_rdwr_id() { return magic_schedule_rdwr_dummy; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_schedule_rdwr_dummy; }
 };
 
 #endif

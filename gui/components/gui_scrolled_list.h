@@ -145,7 +145,7 @@ public:
 
 	bool infowin_event(event_t const*) OVERRIDE;
 
-	void draw(scr_coord pos);
+	void draw(scr_coord pos) OVERRIDE;
 
 	void set_max_width(scr_coord_val mw) { max_width = mw; }
 };

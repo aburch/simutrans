@@ -30,7 +30,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_help_filename() const {return "curiositylist_filter.txt"; }
+	const char * get_help_filename() const OVERRIDE {return "curiositylist_filter.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

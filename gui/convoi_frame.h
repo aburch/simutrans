@@ -94,7 +94,7 @@ public:
 	 * gemeldet
 	 * @author V. Meyer
 	 */
-	bool infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev) OVERRIDE;
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -102,14 +102,14 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_help_filename() const {return "convoi.txt"; }
+	const char * get_help_filename() const OVERRIDE {return "convoi.txt"; }
 
 	static sort_mode_t get_sortierung() { return sortby; }
 	static void set_sortierung(sort_mode_t sm) { sortby = sm; }

@@ -66,17 +66,17 @@ public:
 	goods_frame_t();
 
 	// yes we can reload
-	uint32 get_rdwr_id();
-	void rdwr( loadsave_t *file );
+	uint32 get_rdwr_id() OVERRIDE;
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	bool has_min_sizer() const {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
 	/**
 	 * Set the window associated helptext
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_help_filename() const {return "goods_filter.txt"; }
+	const char * get_help_filename() const OVERRIDE {return "goods_filter.txt"; }
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 };

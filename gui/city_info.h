@@ -62,17 +62,17 @@ public:
 
 	virtual ~city_info_t();
 
-	const char *get_help_filename() const { return "citywindow.txt"; }
+	const char *get_help_filename() const OVERRIDE { return "citywindow.txt"; }
 
-	virtual koord3d get_weltpos(bool);
+	virtual koord3d get_weltpos(bool) OVERRIDE;
 
-	virtual bool is_weltpos();
+	virtual bool is_weltpos() OVERRIDE;
 
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	void map_rotate90( sint16 );
+	void map_rotate90( sint16 ) OVERRIDE;
 
 	// since we need to update the city pointer when topped
 	bool infowin_event(event_t const*) OVERRIDE;
@@ -84,11 +84,11 @@ public:
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
 	 */
-	virtual bool has_min_sizer() const {return true;}
+	virtual bool has_min_sizer() const OVERRIDE {return true;}
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
-	uint32 get_rdwr_id() { return magic_city_info_t; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_city_info_t; }
 };
 
 #endif

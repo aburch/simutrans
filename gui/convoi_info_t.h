@@ -103,7 +103,7 @@ public:
 	 * @return the filename for the helptext, or NULL
 	 * @author V. Meyer
 	 */
-	const char * get_help_filename() const { return "convoiinfo.txt"; }
+	const char * get_help_filename() const OVERRIDE { return "convoiinfo.txt"; }
 
 	/**
 	 * Draw new component. The values to be passed refer to the window
@@ -111,11 +111,11 @@ public:
 	 * component is displayed.
 	 * @author Hj. Malthaner
 	 */
-	void draw(scr_coord pos, scr_size size);
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	virtual bool is_weltpos();
+	virtual bool is_weltpos() OVERRIDE;
 
-	virtual koord3d get_weltpos( bool set );
+	virtual koord3d get_weltpos( bool set ) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
@@ -124,9 +124,9 @@ public:
 	 */
 	void update_data() { reset_cnv_name(); set_dirty(); }
 
-	void rdwr( loadsave_t *file );
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
-	uint32 get_rdwr_id() { return magic_convoi_info; }
+	uint32 get_rdwr_id() OVERRIDE { return magic_convoi_info; }
 
 	void route_search_finished() { route_search_in_progress = false; }
 };

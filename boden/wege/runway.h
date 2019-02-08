@@ -30,7 +30,7 @@ public:
 
 	runway_t();
 
-	inline waytype_t get_waytype() const {return air_wt;}
+	inline waytype_t get_waytype() const OVERRIDE {return air_wt;}
 
 	/**
 	* @return additional info is reservation!
@@ -38,7 +38,7 @@ public:
 	*/
 	virtual void info(cbuffer_t & buf) const OVERRIDE;
 
-	void rdwr(loadsave_t *file);
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	// the code below is only used for runways
 	// the more reservations, the higher the cost for landing there.

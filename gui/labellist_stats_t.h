@@ -40,13 +40,13 @@ public:
 	* Draw the component
 	* @author Hj. Malthaner
 	*/
-	void draw(scr_coord offset);
+	void draw(scr_coord offset) OVERRIDE;
 
 	void map_rotate90( sint16 );
 
-	bool is_valid() const;
+	bool is_valid() const OVERRIDE;
 
-	const char* get_text() const;
+	const char* get_text() const OVERRIDE;
 };
 
 #endif

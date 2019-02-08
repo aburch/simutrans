@@ -78,7 +78,7 @@ public:
 		return scr_size( scr_size::inf.w, label.get_max_size().h );
 	}
 
-	void draw(scr_coord offset)
+	void draw(scr_coord offset) OVERRIDE
 	{
 		scr_coord pos = get_pos() + offset;
 		display_fillbox_wh_clip_rgb(pos.x, pos.y + D_GET_CENTER_ALIGN_OFFSET(D_INDICATOR_BOX_HEIGHT,LINESPACE), D_INDICATOR_BOX_WIDTH, D_INDICATOR_BOX_HEIGHT, color, false);
@@ -93,7 +93,7 @@ public:
 class gui_scale_t : public gui_component_t
 {
 public:
-	void draw(scr_coord offset)
+	void draw(scr_coord offset) OVERRIDE
 	{
 		scr_coord pos = get_pos() + offset;
 		double bar_width = (double)get_size().w/(double)MAX_SEVERITY_COLORS;
