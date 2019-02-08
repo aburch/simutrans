@@ -44,9 +44,9 @@ bool line_management_gui_t::infowin_event(const event_t *ev)
 			destroy_win( this );
 		}
 		else  {
-			if(  schedule_gui_t::infowin_event(ev)  ) {
-				return true;
-			}
+
+			bool swallowed = schedule_gui_t::infowin_event(ev);
+
 			if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
 				// update line schedule via tool!
 				tool_t *tool = create_tool( TOOL_CHANGE_LINE | SIMPLE_TOOL );
@@ -57,7 +57,9 @@ bool line_management_gui_t::infowin_event(const event_t *ev)
 				welt->set_tool( tool, line->get_owner() );
 				// since init always returns false, it is safe to delete immediately
 				delete tool;
+				return true;
 			}
+			return swallowed;
 		}
 	}
 	return false;
