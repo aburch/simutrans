@@ -38,7 +38,7 @@ private:
 	* @author Hj. Malthaner
 	*/
 	cbuffer_t freight_info;
-	cbuffer_t info_buf, joined_buf;
+	cbuffer_t info_buf, joined_buf, tooltip_buf;
 
 	// other UI definitions
 	gui_scrollpane_t scrolly;

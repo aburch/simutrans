@@ -453,15 +453,15 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 				else {
 					// passenger evaluation icons ok?
 					if (skinverwaltung_t::pax_evaluation_icons) {
-						char buf[1024];
 						info_buf.printf("(");
 						for (int i = 0; i < PAX_EVALUATIONS; i++) {
 							info_buf.printf("%d", pax_ev_num[i]);
 							left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true) + 1;
 							display_color_img(skinverwaltung_t::pax_evaluation_icons->get_image_id(i), left, top, 0, false, false);
 							if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
-								sprintf(buf, "%s: %s", translator::translate(cost_type[i]), translator::translate(cost_tooltip[i]));
-								win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
+								tooltip_buf.clear();
+								tooltip_buf.printf("%s: %s", translator::translate(cost_type[i]), translator::translate(cost_tooltip[i]));
+								win_set_tooltip(left, top + (int)(LINESPACE*1.6), tooltip_buf);
 							}
 							info_buf.clear();
 							left += 11;
@@ -526,7 +526,6 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 						}
 						if (pax_ev_num[i]) {
 							display_fillbox_wh_clip(left + indicator_left, top, colored_width, indicator_height, cost_type_color[i], true);
-
 						}
 						indicator_left += colored_width;
 					}
@@ -570,14 +569,14 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 				else {
 					// if symbols ok
 					if (skinverwaltung_t::mail_evaluation_icons) {
-						char buf[1024];
 						info_buf.printf("(%d", halt->haltestelle_t::get_mail_delivered());
 						left += display_proportional(left, top, info_buf, ALIGN_LEFT, SYSCOL_TEXT, true) + 1;
 
 						display_color_img(skinverwaltung_t::mail_evaluation_icons->get_image_id(0), left, top, 0, false, false);
 						if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
-							sprintf(buf, "%s: %s", translator::translate(cost_type[5]), translator::translate(cost_tooltip[5]));
-							win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
+							tooltip_buf.clear();
+							tooltip_buf.printf("%s: %s", translator::translate(cost_type[5]), translator::translate(cost_tooltip[5]));
+							win_set_tooltip(left, top + (int)(LINESPACE*1.6), tooltip_buf);
 						}
 						info_buf.clear();
 						left += 11;
@@ -587,8 +586,9 @@ void halt_info_t::draw(scr_coord pos, scr_size size)
 						info_buf.clear();
 						display_color_img(skinverwaltung_t::mail_evaluation_icons->get_image_id(1), left, top, 0, false, false);
 						if (abs((int)(left - get_mouse_x())) < 14 && abs((int)(top + LINESPACE / 2 - get_mouse_y())) < LINESPACE / 2 + 2) {
-							sprintf(buf, "%s: %s", translator::translate(cost_type[6]), translator::translate(cost_tooltip[6]));
-							win_set_tooltip(left, top + (int)(LINESPACE*1.6), buf, 0);
+							tooltip_buf.clear();
+							tooltip_buf.printf("%s: %s", translator::translate(cost_type[6]), translator::translate(cost_tooltip[6]));
+							win_set_tooltip(left, top + (int)(LINESPACE*1.6), tooltip_buf);
 						}
 						left += 11;
 						info_buf.printf(")");
