@@ -122,9 +122,9 @@ public:
 	 */
 	virtual scr_coord get_focus_pos() OVERRIDE { return pos + ( comp->get_focus_pos() - scr_coord( scroll_x.get_knob_offset(), scroll_y.get_knob_offset() ) ); }
 
-	scr_size get_min_size() const;
+	scr_size get_min_size() const OVERRIDE;
 
-	scr_size get_max_size() const;
+	scr_size get_max_size() const OVERRIDE;
 
 	/// load/save scrollbar positions
 	void rdwr( loadsave_t *file );

@@ -83,7 +83,7 @@ public:
 	 */
 	virtual bool has_min_sizer() const OVERRIDE {return true;}
 
-	void rdwr(loadsave_t *) OVERRIDE;
+	void rdwr(loadsave_t *file) OVERRIDE;
 
 	uint32 get_rdwr_id() OVERRIDE { return magic_city_info_t; }
 };

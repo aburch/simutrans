@@ -72,7 +72,7 @@ public:
 
 #ifdef INLINE_OBJ_TYPE
 #else
-	typ get_typ() const { return wayobj; }
+	typ get_typ() const OVERRIDE { return wayobj; }
 #endif
 
 	/**

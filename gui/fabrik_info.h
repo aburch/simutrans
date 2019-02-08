@@ -128,7 +128,7 @@ public:
 	bool infowin_event(const event_t *ev) OVERRIDE;
 
 	// rotated map need new info ...
-	void map_rotate90(sint16) OVERRIDE;
+	void map_rotate90( sint16 ) OVERRIDE;
 
 	// this constructor is only used during loading
 	fabrik_info_t();

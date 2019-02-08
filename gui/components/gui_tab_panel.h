@@ -105,7 +105,7 @@ public:
 	virtual scr_coord get_focus_pos() OVERRIDE { return pos + get_aktives_tab()->get_focus_pos(); }
 
 
-	scr_size get_min_size() const;
+	scr_size get_min_size() const OVERRIDE;
 
 	// size of tab header
 	scr_size get_required_size() const { return required_size; }

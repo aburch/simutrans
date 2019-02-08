@@ -246,7 +246,7 @@ class gui_empty_t : public gui_component_t
 public:
 	gui_empty_t(gui_component_t* r = NULL): ref(r) {}
 
-	void draw(scr_coord) { }
+	void draw(scr_coord) OVERRIDE { }
 
 	void set_ref(gui_component_t* r) { ref = r; }
 
@@ -266,7 +266,7 @@ class gui_fill_t : public gui_component_t
 public:
 	gui_fill_t(bool x=true, bool y=false) : fill_x(x), fill_y(y) {}
 
-	void draw(scr_coord) { }
+	void draw(scr_coord) OVERRIDE { }
 
 	scr_size get_min_size() const OVERRIDE { return scr_size(0,0); }
 

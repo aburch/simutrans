@@ -129,9 +129,9 @@ public:
 	// to set text color
 	void set_color(PIXVAL col){ textcol = col;}
 
-	scr_size get_max_size() const;
+	scr_size get_max_size() const OVERRIDE;
 
-	scr_size get_min_size() const;
+	scr_size get_min_size() const OVERRIDE;
 
 	void set_size(scr_size size) OVERRIDE { gui_component_t::set_size(size); };
 };

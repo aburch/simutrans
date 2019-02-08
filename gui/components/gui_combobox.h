@@ -81,7 +81,7 @@ public:
 	 * child classes like scrolled list of tabs should
 	 * return a child component.
 	 */
-	virtual gui_component_t *get_focus() { return this; }
+	virtual gui_component_t *get_focus() OVERRIDE { return this; }
 
 	/**
 	 * Draw the component

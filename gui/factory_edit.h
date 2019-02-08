@@ -61,7 +61,7 @@ public:
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
-	void set_windowsize(scr_size size);
+	void set_windowsize(scr_size size) OVERRIDE;
 };
 
 #endif

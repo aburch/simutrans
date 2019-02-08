@@ -48,15 +48,15 @@ protected:
 	/**
 	 * Action that's started with a button click
 	 */
-	virtual bool item_action (const char *filename);
-	virtual bool ok_action   (const char *fullpath);
-	virtual bool cancel_action(const char *);
+	virtual bool item_action (const char *filename) OVERRIDE;
+	virtual bool ok_action   (const char *fullpath) OVERRIDE;
+	virtual bool cancel_action(const char *) OVERRIDE;
 
 	// returns extra file info
-	virtual const char *get_info(const char *fname);
+	virtual const char *get_info(const char *fname) OVERRIDE;
 
 	// sort with respect to info, which is date
-	virtual bool compare_items ( const dir_entry_t & entry, const char *info, const char *);
+	virtual bool compare_items ( const dir_entry_t & entry, const char *info, const char *) OVERRIDE;
 
 	virtual bool check_file( const char *filename, const char *suffix ) OVERRIDE;
 
@@ -67,14 +67,14 @@ public:
 	* Set the window associated helptext
 	* @return the filename for the helptext, or NULL
 	*/
-	virtual const char *get_help_filename() const { return "load_font.txt"; }
+	virtual const char *get_help_filename() const OVERRIDE { return "load_font.txt"; }
 
 	loadfont_frame_t();
 
 	virtual void draw(scr_coord pos, scr_size size) OVERRIDE;
 
-	uint32 get_rdwr_id( void ) { return magic_font; }
-	void rdwr( loadsave_t *file );
+	uint32 get_rdwr_id( void ) OVERRIDE { return magic_font; }
+	void rdwr( loadsave_t *file ) OVERRIDE;
 
 	virtual bool action_triggered(gui_action_creator_t *, value_t v) OVERRIDE;
 };

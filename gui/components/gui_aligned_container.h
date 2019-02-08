@@ -84,12 +84,12 @@ public:
 	/**
 	 * Removes element.
 	 */
-	virtual void remove_component(gui_component_t *comp);
+	virtual void remove_component(gui_component_t *comp) OVERRIDE;
 
 	/**
 	 * Appends new component to current table @r child.
 	 */
-	virtual void add_component(gui_component_t *comp);
+	virtual void add_component(gui_component_t *comp) OVERRIDE;
 
 	/**
 	 * Appends new component to current table @r child.
@@ -135,7 +135,7 @@ public:
 	 * Removes all components in the Container.
 	 * Deletes owned components.
 	 */
-	virtual void remove_all();
+	virtual void remove_all() OVERRIDE;
 
 	/**
 	 * Sets size of the table. Sets size of all its components.

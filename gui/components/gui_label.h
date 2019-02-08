@@ -79,7 +79,7 @@ public:
 	/**
 	 * Draws the component.
 	 */
-	virtual void draw(scr_coord offset);
+	virtual void draw(scr_coord offset) OVERRIDE;
 
 	/**
 	 * Sets the colour of the label
