@@ -171,8 +171,8 @@ public:
 	 */
 	bool has_next() const OVERRIDE {return true;}
 
-	virtual koord3d get_weltpos(bool) OVERRIDE;
-	virtual bool is_weltpos() OVERRIDE;
+	koord3d get_weltpos(bool) OVERRIDE;
+	bool is_weltpos() OVERRIDE;
 
 	/**
 	 * Open dialog for schedule entry.

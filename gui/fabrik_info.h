@@ -108,11 +108,11 @@ public:
 	 */
 	const char *get_help_filename() const OVERRIDE {return "industry_info.txt";}
 
-	virtual bool has_min_sizer() const OVERRIDE {return true;}
+	bool has_min_sizer() const OVERRIDE {return true;}
 
-	virtual koord3d get_weltpos(bool) OVERRIDE { return fab->get_pos(); }
+	koord3d get_weltpos(bool) OVERRIDE { return fab->get_pos(); }
 
-	virtual bool is_weltpos() OVERRIDE;
+	bool is_weltpos() OVERRIDE;
 
 	virtual void set_windowsize(scr_size size) OVERRIDE;
 
@@ -121,7 +121,7 @@ public:
 	* i.e. It's the screen coordinates of the window where the
 	* component is displayed.
 	*/
-	virtual void draw(scr_coord pos, scr_size size) OVERRIDE;
+	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 

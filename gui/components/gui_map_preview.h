@@ -35,7 +35,7 @@ class gui_map_preview_t : public gui_component_t
 		/**
 		 * Draws the component.
 		 */
-		virtual void draw(scr_coord offset) OVERRIDE {
+		void draw(scr_coord offset) OVERRIDE {
 			display_ddd_box_clip_rgb(pos.x + offset.x, pos.y + offset.y, size.w, size.h, color_idx_to_rgb(MN_GREY0), color_idx_to_rgb(MN_GREY4));
 
 			if(map_data) {

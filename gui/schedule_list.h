@@ -138,9 +138,9 @@ public:
 	void draw(scr_coord pos, scr_size size) OVERRIDE;
 
 	/**
-	* Set window size and adjust component sizes and/or positions accordingly
-	*/
-	virtual void set_windowsize(scr_size size) OVERRIDE;
+	 * Set window size and adjust component sizes and/or positions accordingly
+	 */
+	void set_windowsize(scr_size size) OVERRIDE;
 
 	bool infowin_event(event_t const*) OVERRIDE;
 

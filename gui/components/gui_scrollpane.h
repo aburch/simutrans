@@ -104,7 +104,7 @@ public:
 	/**
 	 * Returns true if the hosted component is focusable
 	 */
-	virtual bool is_focusable() OVERRIDE { return comp->is_focusable(); }
+	bool is_focusable() OVERRIDE { return comp->is_focusable(); }
 
 	/**
 	 * returns element that has the focus
@@ -120,7 +120,7 @@ public:
 	 * Get the relative position of the focused component.
 	 * Used for auto-scrolling inside a scroll pane.
 	 */
-	virtual scr_coord get_focus_pos() OVERRIDE { return pos + ( comp->get_focus_pos() - scr_coord( scroll_x.get_knob_offset(), scroll_y.get_knob_offset() ) ); }
+	scr_coord get_focus_pos() OVERRIDE { return pos + ( comp->get_focus_pos() - scr_coord( scroll_x.get_knob_offset(), scroll_y.get_knob_offset() ) ); }
 
 	scr_size get_min_size() const OVERRIDE;
 

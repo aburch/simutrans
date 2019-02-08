@@ -41,7 +41,7 @@ public:
 	void draw( scr_coord pos) OVERRIDE;
 
 	char const* get_text() const OVERRIDE { return city->get_name(); }
-	virtual bool is_valid() const OVERRIDE;
+	bool is_valid() const OVERRIDE;
 	bool infowin_event(const event_t *) OVERRIDE;
 	void set_size(scr_size size) OVERRIDE;
 

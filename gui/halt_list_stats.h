@@ -44,7 +44,7 @@ public:
 
 	const char* get_text() const OVERRIDE;
 
-	virtual bool is_valid() const OVERRIDE { return halt.is_bound(); }
+	bool is_valid() const OVERRIDE { return halt.is_bound(); }
 
 	halthandle_t get_halt() const { return halt; }
 

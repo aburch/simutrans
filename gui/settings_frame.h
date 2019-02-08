@@ -66,7 +66,7 @@ public:
 	bool action_triggered(gui_action_creator_t*, value_t) OVERRIDE;
 
 	// does not work during new world dialogue
-	virtual bool has_sticky() const OVERRIDE { return false; }
+	bool has_sticky() const OVERRIDE { return false; }
 
 	bool infowin_event(event_t const*) OVERRIDE;
 };
