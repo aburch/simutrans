@@ -393,11 +393,11 @@ void welt_gui_t::resize_preview()
 
 	if(  world_aspect > 1.0  ) {
 		map_size.w = MAP_PREVIEW_SIZE_X-2;
-		map_size.h = (sint16) max( (const int)((float)map_size.w / world_aspect), L_PREVIEW_SIZE_MIN-2);
+		map_size.h = (sint16) max( (int)((float)map_size.w / world_aspect), L_PREVIEW_SIZE_MIN-2);
 	}
 	else {
 		map_size.h = MAP_PREVIEW_SIZE_Y-2;
-		map_size.w = (sint16) max( (const int)((float)map_size.h * world_aspect), L_PREVIEW_SIZE_MIN-2);
+		map_size.w = (sint16) max( (int)((float)map_size.h * world_aspect), L_PREVIEW_SIZE_MIN-2);
 	}
 	map.resize( map_size.w, map_size.h );
 }

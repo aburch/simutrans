@@ -322,7 +322,7 @@ void pedestrian_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_
 {
 	// vehicles needs finer steps to appear smoother
 	sint32 display_steps = (uint32)(steps + steps_offset)*(uint16)raster_width;
-	if(dx*dy) {
+	if(  dx && dy  ) {
 		display_steps &= 0xFFFFFC00;
 	}
 	else {
